@@ -117,7 +117,6 @@
     <ClCompile Include="src\common\logger.cpp" />
     <ClCompile Include="src\common\fraction.cpp" />
     <ClCompile Include="src\common\utils.cpp" />
-    <ClCompile Include="src\game\data\buffered_global.cpp" />
     <ClCompile Include="src\game\graphics\graphics.cpp" />
     <ClCompile Include="src\game\graphics\SDL2\common_SDL2.cpp" />
     <ClCompile Include="src\game\graphics\SDL2\rect_SDL2.cpp" />

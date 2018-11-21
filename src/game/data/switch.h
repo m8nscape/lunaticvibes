@@ -73,7 +73,7 @@ enum class eSwitch: unsigned
     SWITCH_COUNT
 };
 
-typedef buffered_global<eSwitch, bool, (size_t)eSwitch::SWITCH_COUNT> gSwitches;
+inline buffered_global<eSwitch, bool, (size_t)eSwitch::SWITCH_COUNT> gSwitches;
 
 /*
 class gSwitches

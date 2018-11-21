@@ -87,9 +87,9 @@ bool vSprite::update(rTime time)
     }
 
     // calculate parameters
-    _current.rect  = keyFrameNext->param.rect  + keyFrameCurr->param.rect  * (1.0 - t);
-    _current.color = keyFrameNext->param.color + keyFrameNext->param.color * (1.0 - t);
-    _current.angle = keyFrameNext->param.angle + keyFrameNext->param.angle * (1.0 - t);
+    _current.rect  = keyFrameNext->param.rect  * t + keyFrameCurr->param.rect  * (1.0 - t);
+    _current.color = keyFrameNext->param.color * t + keyFrameNext->param.color * (1.0 - t);
+    _current.angle = keyFrameNext->param.angle * t + keyFrameNext->param.angle * (1.0 - t);
     //LOG_DEBUG << "[Skin] Time: " << time << 
     //    " @ " << _current.rect.x << "," << _current.rect.y << " " << _current.rect.w << "x" << _current.rect.h;
     //LOG_DEBUG<<"[Skin] keyFrameCurr: " << keyFrameCurr->param.rect.x << "," << keyFrameCurr->param.rect.y << " " << keyFrameCurr->param.rect.w << "x" << keyFrameCurr->param.rect.h;
@@ -227,8 +227,8 @@ SpriteAnimated::SpriteAnimated(pTexture texture, const Rect& r,
 
 void SpriteAnimated::updateByTimer(rTime time)
 {
-    if (gTimers::get(_timerInd))
-        update(time - gTimers::get(_timerInd));
+    if (gTimers.get(_timerInd))
+        update(time - gTimers.get(_timerInd));
 }
 
 void SpriteAnimated::updateAnimation(rTime time)
@@ -256,8 +256,8 @@ void SpriteAnimated::updateAnimation(rTime time)
 
 void SpriteAnimated::updateAnimationByTimer(rTime time)
 {
-    if (gTimers::get(_timerInd))
-        updateAnimation(time - gTimers::get(_timerInd));
+    if (gTimers.get(_timerInd))
+        updateAnimation(time - gTimers.get(_timerInd));
 }
 
 void SpriteAnimated::updateSplitByTimer(rTime time)
@@ -267,8 +267,8 @@ void SpriteAnimated::updateSplitByTimer(rTime time)
     // time per frame: _period / _aframes
     // current time:   t
     // current frame:  t / (_period / _aframes)
-    if (_period / _aframes > 0 && gTimers::get(_timerInd))
-        updateSplit((time - gTimers::get(_timerInd)) / (_period / _aframes));
+    if (_period / _aframes > 0 && gTimers.get(_timerInd))
+        updateSplit((time - gTimers.get(_timerInd)) / (_period / _aframes));
 }
 
 void SpriteAnimated::draw() const
@@ -410,7 +410,7 @@ void SpriteNumber::updateNumberByInd()
         n = 0;
         break;
     default:
-        n = gNumbers::get(_numInd);
+        n = gNumbers.get(_numInd);
         break;
     }
     updateNumber(n);

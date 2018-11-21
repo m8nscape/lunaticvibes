@@ -73,11 +73,12 @@ class vScroll
 {
 public:
     static const size_t MAX_MEASURES = 1000;
+    static const size_t CHANNEL_COUNT = (size_t)NoteChannelCategory::NOTECATEGORY_COUNT * NOTECHANNEL_COUNT;
 
 protected:
 
-     // full list of corresponding channel through all measures; only this list is handled by keyboard input
-    std::array<std::list<sNote>, (size_t)NoteChannelCategory::NOTECATEGORY_COUNT * NOTECHANNEL_COUNT> _noteLists;
+     // full list of corresponding channel through all measures; only this list is handled by input looper
+    std::array<std::list<sNote>, CHANNEL_COUNT> _noteLists;
 
     std::vector<std::list<Note>> _plainLists;     // basically sNote without hit param, including BGM, BGA; handled with timer
     std::vector<std::list<Note>> _extLists;       // e.g. Stop in BMS
@@ -93,22 +94,27 @@ public:
     vScroll(size_t plain_n, size_t ext_n);
 
 private:
-    std::vector<decltype(_noteLists.front().begin())>   _noteListIterators;
+    std::array<decltype(_noteLists.front().begin()), CHANNEL_COUNT> _noteListIterators;
     std::vector<decltype(_plainLists.front().begin())>  _plainListIterators;
     std::vector<decltype(_extLists.front().begin())>    _extListIterators;
     decltype(_bpmList.begin())             _bpmListIterator;
     decltype(_scrollingSpeedList.begin())  _speedListIterator;
 public:
-    auto lastNoteOfChannel      (NoteChannelCategory cat, NoteChannelIndex idx, bool succ = true) -> decltype(_noteListIterators.front());
-    auto lastNoteOfPlainChannel (size_t idx, bool succ = true) -> decltype(_plainListIterators.front());
-    auto lastNoteOfExtChannel   (size_t idx, bool succ = true) -> decltype(_extListIterators.front());
-    auto lastNoteOfBpm          (bool succ = true) -> decltype(_bpmListIterator);
-    auto lastNoteOfSpeed        (bool succ = true) -> decltype(_speedListIterator);
+    auto lastNoteOfChannel      (NoteChannelCategory cat, NoteChannelIndex idx) -> decltype(_noteListIterators.front());
+    auto lastNoteOfPlainChannel (size_t idx) -> decltype(_plainListIterators.front());
+    auto lastNoteOfExtChannel   (size_t idx) -> decltype(_extListIterators.front());
+    auto lastNoteOfBpm          () -> decltype(_bpmListIterator);
+    auto lastNoteOfSpeed        () -> decltype(_speedListIterator);
     bool isLastNoteOfChannel      (NoteChannelCategory cat, NoteChannelIndex idx);
     bool isLastNoteOfPlainChannel (size_t idx);
     bool isLastNoteOfExtChannel   (size_t idx);
     bool isLastNoteOfBpm();
     bool isLastNoteOfSpeed();
+    auto succNoteOfChannel      (NoteChannelCategory cat, NoteChannelIndex idx) -> decltype(_noteListIterators.front());
+    auto succNoteOfPlainChannel (size_t idx) -> decltype(_plainListIterators.front());
+    auto succNoteOfExtChannel   (size_t idx) -> decltype(_extListIterators.front());
+    auto succNoteOfBpm          () -> decltype(_bpmListIterator);
+    auto succNoteOfSpeed        () -> decltype(_speedListIterator);
 
 public:
     hTime getMeasureLength(size_t measure);
@@ -126,6 +132,7 @@ protected:
 
 public:
     void reset();
+    void setIterators();            // set after parsing
     /*virtual*/ void update(hTime t);
     constexpr auto getCurrentMeasure() -> decltype(_currentMeasure) { return _currentMeasure; }
     constexpr auto getCurrentBeat() -> decltype(_currentBeat) { return _currentBeat; }

@@ -159,4 +159,4 @@ namespace Option
 }
 
 
-typedef buffered_global<eOption, unsigned, (size_t)eOption::OPTION_COUNT> gOptions;
+inline buffered_global<eOption, unsigned, (size_t)eOption::OPTION_COUNT> gOptions;

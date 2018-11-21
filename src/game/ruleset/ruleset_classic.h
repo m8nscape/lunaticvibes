@@ -77,7 +77,7 @@ protected:
 public:
     RulesetClassic(vScroll* chart, rc::judgeDiff difficulty = rc::judgeDiff::NORMAL);
 private:
-    rc::judgeRes _judge(Note& note, rTime time);
+    rc::judgeRes _judge(const Note& note, rTime time);
 public:
     // Register to InputWrapper
     virtual void updatePress(InputMask& pg, rTime t);

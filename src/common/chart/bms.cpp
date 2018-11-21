@@ -20,7 +20,7 @@ BMS::BMS(std::string file) {
 int BMS::initWithFile(std::string file)
 {
     using err = ErrorCode;
-    if (initialized)
+    if (_loaded)
     {
         //errorCode = err::ALREADY_INITIALIZED;
         //errorLine = 0;
@@ -28,6 +28,7 @@ int BMS::initWithFile(std::string file)
     }
 
     _filePath = std::filesystem::absolute(file);
+    LOG_INFO << "[BMS] File: " << _filePath;
     //auto p = std::experimental::filesystem::absolute(file);
     //path = p.string();
     //dirpath = p.parent_path().string();
@@ -36,6 +37,7 @@ int BMS::initWithFile(std::string file)
     {
         errorCode = err::FILE_ERROR;
         errorLine = 0;
+        LOG_INFO << "[BMS] File ERROR";
         return 1;
     }
 
@@ -149,7 +151,7 @@ int BMS::initWithFile(std::string file)
                     StringContent value = buf.substr(colon_idx + 1);
                     if (value.empty())
                     {
-                        LOG_WARNING << "[BMS] Empty element line detected: line " << line;
+                        LOG_WARNING << "[BMS] Empty note line detected: line " << line;
                         errorLine = line;
                         errorCode = err::NOTE_LINE_ERROR;
                         return 1;
@@ -300,7 +302,8 @@ int BMS::initWithFile(std::string file)
         }
     }
 
-    initialized = true;
+    _loaded = true;
+    LOG_INFO << "[BMS] Parsing BMS complete.";
 
     return 0;
 }

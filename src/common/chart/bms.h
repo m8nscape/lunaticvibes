@@ -20,7 +20,6 @@ public:
     std::string getError();
 
 protected:
-    bool initialized = false;
     ErrorCode errorCode = ErrorCode::OK;
     int errorLine;
 

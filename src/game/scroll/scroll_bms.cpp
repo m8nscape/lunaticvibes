@@ -81,6 +81,7 @@ void ScrollBMS::loadBMS(const BMS& objBms)
 {
     hTime basetime = 0;
     BPM bpm = objBms.getBPM();
+    _bpmList.push_back({ 0, {0, 1}, 0, 0, bpm });
     bool bpmfucked = false;
     for (unsigned m = 0; m <= objBms.getMaxMeasure(); m++)
     {
@@ -234,19 +235,7 @@ void ScrollBMS::loadBMS(const BMS& objBms)
         basetime += (1.0 - lastBPMChangedSegment) * measureBeat;
     }
 
-    /*
-    #ifdef _DEBUG
-    for (size_t i = 0; i < 8; i++)
-    {
-    LOG_DEBUG << "Ch " << i << ":";
-    for (auto& note : noteLists[i])
-    {
-    LOG_DEBUG << " " << get<MEASURE>(note) << "\t" << get<BEAT>(note) << "\t" << get<TIME>(note) << "\t"
-    << get<VALUE>(note);
-    }
-    }
-    #endif
-    */
+    setIterators();
 }
 
 
@@ -254,16 +243,18 @@ std::pair<NoteChannelCategory, NoteChannelIndex> ScrollBMS::getChannelFromKey(In
 {
     if (input >= Input::S1L && input < Input::ESC && KeyToChannelMap[input] != _)
     {
+        using cat = NoteChannelCategory;
         NoteChannelIndex idx = KeyToChannelMap[input];
-        std::array<std::pair<NoteChannelCategory, sNote>, 3> note =
-        { {
-            { NoteChannelCategory::Note, *lastNoteOfChannel(NoteChannelCategory::Note, idx) },
-            { NoteChannelCategory::Invs, *lastNoteOfChannel(NoteChannelCategory::Invs, idx) },
-            { NoteChannelCategory::LN,   *lastNoteOfChannel(NoteChannelCategory::LN, idx) }
-        } };
-        std::sort(note.begin(), note.end(), [](decltype(note[0])& a, decltype(note[0])& b) { return b.second.time > a.second.time; });
-        for (size_t i = 0; i < 3; ++i)
-            if (!note[i].second.hit) return { note[idx].first, idx };
+        std::vector<std::pair<cat, sNote>> note;
+        if (!isLastNoteOfChannel(cat::Note, idx))
+            note.push_back({ cat::Note, *lastNoteOfChannel(cat::Note, idx) });
+        if (!isLastNoteOfChannel(cat::Invs, idx))
+            note.push_back({ cat::Invs, *lastNoteOfChannel(cat::Invs, idx) });
+        if (!isLastNoteOfChannel(cat::LN, idx))
+            note.push_back({ cat::LN,   *lastNoteOfChannel(cat::LN, idx) });
+        std::sort(note.begin(), note.end(), [](decltype(note.front())& a, decltype(note.front())& b) { return b.second.time > a.second.time; });
+        for (size_t i = 0; i < note.size(); ++i)
+            if (!note[i].second.hit) return { note[i].first, idx };
     }
     return { NoteChannelCategory::_, _ };
 }
