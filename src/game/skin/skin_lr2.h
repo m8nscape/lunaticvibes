@@ -1336,6 +1336,7 @@ protected:
 public:
     SkinLR2() = delete;
     SkinLR2(Path p);
+    void loadCSV(Path p);
 
 private:
     unsigned line = 0;          // line parsing index
@@ -1356,7 +1357,7 @@ private:
 
     void loadLR2IF(const std::vector<StringContent> &t, std::ifstream&);
 
-    std::vector<SkinLR2> _csvIncluded;
+    //std::vector<SkinLR2> _csvIncluded;
 
 public:
     // adapting helpers

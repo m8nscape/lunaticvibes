@@ -140,9 +140,10 @@ int SkinLR2::loadLR2include(const std::vector<StringContent> &t)
         auto line = this->line;
         this->line = 0;
         LOG_DEBUG << "[Skin] " << line << ": INCLUDE: " << path;
-        auto subCsv = SkinLR2(path);
-        if (subCsv._loaded)
-            _csvIncluded.push_back(std::move(subCsv));
+        //auto subCsv = SkinLR2(path);
+        //if (subCsv._loaded)
+        //    _csvIncluded.push_back(std::move(subCsv));
+        loadCSV(path);
         LOG_DEBUG << "[Skin] " << line << ": INCLUDE END //" << path;
         this->line = line;
         return 1;
@@ -160,8 +161,7 @@ int SkinLR2::loadLR2timeoption(const std::vector<StringContent> &t)
 {
     if (t[0] == "#STARTINPUT")
     {
-        int start = stoine(t[1]);
-        if (start > 0) info.timeIntro = start;
+        info.timeIntro = stoine(t[1]);
         if (info.mode == eMode::RESULT || info.mode == eMode::COURSE_RESULT)
         {
             int rank = stoine(t[2]);
@@ -177,7 +177,7 @@ int SkinLR2::loadLR2timeoption(const std::vector<StringContent> &t)
     else if (t[0] == "#SKIP")
     {
         int time = stoine(t[1]);
-        if (time > 0) info.timeIntro = time;
+        info.timeIntro = time;
         LOG_DEBUG << "[Skin] " << line << ": Set Intro freeze time: " << time;
         return 2;
     }
@@ -185,7 +185,7 @@ int SkinLR2::loadLR2timeoption(const std::vector<StringContent> &t)
     else if (t[0] == "#LOADSTART")
     {
         int time = stoine(t[1]);
-        if (time > 0) info.timeStartLoading = time;
+        info.timeStartLoading = time;
         LOG_DEBUG << "[Skin] " << line << ": Set time colddown before loading: " << time;
         return 3;
     }
@@ -193,7 +193,7 @@ int SkinLR2::loadLR2timeoption(const std::vector<StringContent> &t)
     else if (t[0] == "#LOADEND")
     {
         int time = stoine(t[1]);
-        if (time > 0) info.timeMinimumLoad = time;
+        info.timeMinimumLoad = time;
         LOG_DEBUG << "[Skin] " << line << ": Set time colddown after loading: " << time;
         return 4;
     }
@@ -201,7 +201,7 @@ int SkinLR2::loadLR2timeoption(const std::vector<StringContent> &t)
     else if (t[0] == "#PLAYSTART")
     {
         int time = stoine(t[1]);
-        if (time > 0) info.timeGetReady = time;
+        info.timeGetReady = time;
         LOG_DEBUG << "[Skin] " << line << ": Set time READY after loading: " << time;
         return 5;
     }
@@ -209,7 +209,7 @@ int SkinLR2::loadLR2timeoption(const std::vector<StringContent> &t)
     else if (t[0] == "#CLOSE")
     {
         int time = stoine(t[1]);
-        if (time > 0) info.timeFailed = time;
+        info.timeFailed = time;
         LOG_DEBUG << "[Skin] " << line << ": Set FAILED time length: " << time;
         return 6;
     }
@@ -217,7 +217,7 @@ int SkinLR2::loadLR2timeoption(const std::vector<StringContent> &t)
     else if (t[0] == "#FADEOUT")
     {
         int time = stoine(t[1]);
-        if (time > 0) info.timeOutro = time;
+        info.timeOutro = time;
         LOG_DEBUG << "[Skin] " << line << ": Set fadeout time length: " << time;
         return 7;
     }
@@ -827,6 +827,11 @@ int SkinLR2::loadLR2header(const std::vector<StringContent> &t)
 
 SkinLR2::SkinLR2(Path p)
 {
+    loadCSV(p);
+}
+
+void SkinLR2::loadCSV(Path p)
+{
     std::ifstream lr2skin(p, std::ios::binary);
     if (!lr2skin.is_open())
     {
@@ -892,7 +897,7 @@ SkinLR2::SkinLR2(Path p)
 ////////////////////////////////////////////////////////////////////////////////
 constexpr bool dst(eOption option_entry, std::initializer_list<unsigned> entries)
 {
-    auto op = gOptions::get(option_entry);
+    auto op = gOptions.get(option_entry);
     for (auto e : entries)
         if (op == e) return true;
     return false;
@@ -905,7 +910,7 @@ constexpr bool dst(eOption option_entry, unsigned entry)
 constexpr bool sw(std::initializer_list<eSwitch> entries)
 {
     for (auto e : entries)
-        if (gSwitches::get(e)) return true;
+        if (gSwitches.get(e)) return true;
     return false;
 }
 constexpr bool sw(eSwitch entry)
@@ -927,34 +932,34 @@ bool SkinLR2::getDstOpt(dst_option d)
 
     namespace o = Option;
     using eo = eOption;
-    typedef gOptions go;
+    auto &go = gOptions;
 
     using es = eSwitch;
-    typedef gSwitches gs;
+    auto &gs = gSwitches;
 
     switch (d)
     {
         // song select
         case SELECT_SELECTING_FOLDER:
-            return o::ENTRY_FOLDER == go::get(eo::SELECT_ENTRY_TYPE);
+            return o::ENTRY_FOLDER == go.get(eo::SELECT_ENTRY_TYPE);
         case SELECT_SELECTING_SONG:
-            return o::ENTRY_SONG == go::get(eo::SELECT_ENTRY_TYPE);
+            return o::ENTRY_SONG == go.get(eo::SELECT_ENTRY_TYPE);
         case SELECT_SELECTING_COURSE:
-            return o::ENTRY_COURSE == go::get(eo::SELECT_ENTRY_TYPE);
+            return o::ENTRY_COURSE == go.get(eo::SELECT_ENTRY_TYPE);
         case SELECT_SELECTING_NEW_COURSE:
-            return o::ENTRY_NEW_COURSE == go::get(eo::SELECT_ENTRY_TYPE);
+            return o::ENTRY_NEW_COURSE == go.get(eo::SELECT_ENTRY_TYPE);
         case SELECT_SELECTING_PLAYABLE:
             return dst(eo::SELECT_ENTRY_TYPE, { o::ENTRY_SONG, o::ENTRY_COURSE });
 
         // mode
         case PLAY_DOUBLE:
-            return o::PLAY_DOUBLE == go::get(eo::PLAY_MODE);
+            return o::PLAY_DOUBLE == go.get(eo::PLAY_MODE);
         case PLAY_BATTLE:
-            return o::PLAY_BATTLE == go::get(eo::PLAY_MODE);
+            return o::PLAY_BATTLE == go.get(eo::PLAY_MODE);
         case DOUBLE_OR_BATTLE:
             return dst(eo::PLAY_MODE, { o::PLAY_DOUBLE, o::PLAY_BATTLE });
         case GHOST_OR_BATTLE:
-            //return o::PLAY_DOUBLE == go::get(eo::PLAY_MODE);
+            //return o::PLAY_DOUBLE == go.get(eo::PLAY_MODE);
             break;
 
         case NO_PANEL:
@@ -999,13 +1004,13 @@ bool SkinLR2::getDstOpt(dst_option d)
             return sw(es::SYSTEM_AUTOPLAY);
 
         case SYSTEM_GHOST_OFF:
-            return o::GHOST_OFF == go::get(eo::PLAY_GHOST_TYPE);
+            return o::GHOST_OFF == go.get(eo::PLAY_GHOST_TYPE);
         case SYSTEM_GHOST_TYPE_A:
-            return o::GHOST_TOP == go::get(eo::PLAY_GHOST_TYPE);
+            return o::GHOST_TOP == go.get(eo::PLAY_GHOST_TYPE);
         case SYSTEM_GHOST_TYPE_B:
-            return o::GHOST_SIDE == go::get(eo::PLAY_GHOST_TYPE);
+            return o::GHOST_SIDE == go.get(eo::PLAY_GHOST_TYPE);
         case SYSTEM_GHOST_TYPE_C:
-            return o::GHOST_SIDE_BOTTOM == go::get(eo::PLAY_GHOST_TYPE);
+            return o::GHOST_SIDE_BOTTOM == go.get(eo::PLAY_GHOST_TYPE);
 
         case SYSTEM_SCOREGRAPH_OFF:
             return true;
@@ -1074,13 +1079,13 @@ bool SkinLR2::getDstOpt(dst_option d)
 
         // song list status
         case CHART_NOPLAY:
-            return o::LAMP_NOPLAY == go::get(eo::SELECT_ENTRY_LAMP);
+            return o::LAMP_NOPLAY == go.get(eo::SELECT_ENTRY_LAMP);
         case CHART_FAILED:
-            return o::LAMP_FAILED == go::get(eo::SELECT_ENTRY_LAMP);
+            return o::LAMP_FAILED == go.get(eo::SELECT_ENTRY_LAMP);
         case CHART_EASY:
             return dst(eo::SELECT_ENTRY_LAMP, { o::LAMP_EASY, o::LAMP_ASSIST });
         case CHART_NORMAL:
-            return o::LAMP_NORMAL == go::get(eo::SELECT_ENTRY_LAMP);
+            return o::LAMP_NORMAL == go.get(eo::SELECT_ENTRY_LAMP);
         case CHART_HARD:
             return dst(eo::SELECT_ENTRY_LAMP, { o::LAMP_HARD, o::LAMP_EXHARD });
         case CHART_FULLCOMBO:
@@ -1608,10 +1613,10 @@ void SkinLR2::update()
     {
         e.draw = getDstOpt(e.op1) && getDstOpt(e.op2) && getDstOpt(e.op3);
     }
-    for (auto& c : _csvIncluded)
-    {
-        c.update();
-    }
+    //for (auto& c : _csvIncluded)
+    //{
+    //    c.update();
+    //}
 }
 
 void SkinLR2::draw() const
@@ -1620,8 +1625,8 @@ void SkinLR2::draw() const
     {
         if (e.draw) e.ps->draw();
     }
-    for (auto& c : _csvIncluded)
-    {
-        c.draw();
-    }
+    //for (auto& c : _csvIncluded)
+    //{
+    //    c.draw();
+    //}
 }

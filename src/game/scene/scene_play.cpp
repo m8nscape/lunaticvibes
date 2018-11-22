@@ -5,6 +5,7 @@
 #include "game/ruleset/ruleset_classic.h"
 #include "chart/bms.h"
 #include "game/scroll/scroll_bms.h"
+#include "logger.h"
 
 struct InputDataMap{
     eTimer tm;
@@ -91,12 +92,18 @@ ScenePlay::ScenePlay(ePlayMode mode, unsigned keys, StringPath& file, eRuleset r
     _state = ePlayState::PREPARE;
 
     _input.loopStart();
+    loopStart();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void ScenePlay::loadChart()
 {
+    if (_pChart == nullptr || !_pChart->isLoaded())
+    {
+        LOG_ERROR << "[Play] Load Chart failed, stop further loading";
+        return;
+    }
     // TODO may decide current chart is loaded when in song select scene (preview)
 
     // TODO load Scroll object from Chart object
@@ -169,9 +176,17 @@ void ScenePlay::setInputJudgeCallback()
     using namespace std::placeholders;
     if (_pRuleset != nullptr)
     {
-        _input.register_p("JUDGE_PRESS", std::bind(&vRuleset::updatePress, _pRuleset, _1, _2));
-        _input.register_h("JUDGE_HOLD", std::bind(&vRuleset::updateHold, _pRuleset, _1, _2));
-        _input.register_r("JUDGE_RELEASE", std::bind(&vRuleset::updateRelease, _pRuleset, _1, _2));
+        auto fp = std::bind(&vRuleset::updatePress, _pRuleset, _1, _2);
+        LOG_DEBUG << "[Play] Bind fpress: " << &fp;
+        _input.register_p("JUDGE_PRESS", fp);
+
+        auto fh = std::bind(&vRuleset::updateHold, _pRuleset, _1, _2);
+        LOG_DEBUG << "[Play] Bind fhold: " << &fh;
+        _input.register_h("JUDGE_HOLD", fh);
+
+        auto fr = std::bind(&vRuleset::updateRelease, _pRuleset, _1, _2);
+        LOG_DEBUG << "[Play] Bind fpress: " << &fr;
+        _input.register_r("JUDGE_RELEASE", fr);
     }
     _input.register_p("SCENE_PRESS",   std::bind(&ScenePlay::inputGamePress, this, _1, _2));
     _input.register_h("SCENE_HOLD",    std::bind(&ScenePlay::inputGameHold, this, _1, _2));
@@ -220,11 +235,12 @@ void ScenePlay::_updateAsync()
 
 void ScenePlay::updatePrepare()
 {
-    auto rt = getTimePoint() - gTimers::get(eTimer::PLAY_START);
+    auto rt = getTimePoint() - gTimers.get(eTimer::SCENE_START);
     if (rt > _skin->info.timeIntro)
     {
         _state = ePlayState::LOADING;
         std::async(std::launch::async, &ScenePlay::loadChart, this);
+        LOG_DEBUG << "[Play] State changed to LOADING";
     }
 }
 
@@ -236,25 +252,27 @@ void ScenePlay::updateLoading()
     if (_scrollLoaded && _rulesetLoaded && _sampleLoaded && _bgaLoaded)
     {
         _state = ePlayState::LOAD_END;
-        gTimers::set(eTimer::PLAY_READY, getTimePoint());
+        gTimers.set(eTimer::PLAY_READY, getTimePoint());
+        LOG_DEBUG << "[Play] State changed to READY";
     }
 }
 
 void ScenePlay::updateLoadEnd()
 {
-    auto rt = getTimePoint() - gTimers::get(eTimer::PLAY_START);
+    auto rt = getTimePoint() - gTimers.get(eTimer::SCENE_START);
     if (rt > _skin->info.timeGetReady)
     {
         setInputJudgeCallback();
         _state = ePlayState::PLAYING;
-        gTimers::set(eTimer::PLAY_START, getTimePoint());
+        gTimers.set(eTimer::PLAY_START, getTimePoint());
+        LOG_DEBUG << "[Play] State changed to PLAY_START";
     }
 }
 
 void ScenePlay::updatePlaying()
 {
-    gTimers::set(eTimer::MUSIC_BEAT, int(1000 * (_pScroll->getCurrentBeat() / 4.0)) % 1000);
-    auto ht = getHighresTimePoint() - r2h(gTimers::get(eTimer::PLAY_START));
+    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (_pScroll->getCurrentBeat() / 4.0)) % 1000);
+    auto ht = getHighresTimePoint() - r2h(gTimers.get(eTimer::PLAY_START));
     auto rt = h2r(ht);
 
     _pRuleset->updateAsync(rt);
@@ -268,7 +286,7 @@ void ScenePlay::updatePlaying()
      //if (*failed*)
      //{
      //    _state = ePlayState::FAILED;
-     //    gTimers::set(eTimer::FAIL_BEGIN, rt);
+     //    gTimers.set(eTimer::FAIL_BEGIN, rt);
      //    removeInputJudgeCallback(true);
      //}
 
@@ -276,28 +294,28 @@ void ScenePlay::updatePlaying()
     //if (*last note end*)
     //{
     //    _state = ePlayState::LAST_NOTE_END;
-    //    gTimers::set(eTimer::PLAY_LAST_NOTE_JUDGE, rt);
+    //    gTimers.set(eTimer::PLAY_LAST_NOTE_JUDGE, rt);
     //}
      
 }
 
 void ScenePlay::updateSongOutro()
 {
-    gTimers::set(eTimer::MUSIC_BEAT, int(1000 * (_pScroll->getCurrentBeat() / 4.0)) % 1000);
+    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (_pScroll->getCurrentBeat() / 4.0)) % 1000);
     auto rt = getTimePoint();
 
     // TODO chart play finished
     //if (*asdasfsa*)
     //{
     //    _state = ePlayState::FADEOUT;
-    //    gTimers::set(eTimer::FADEOUT_BEGIN, rt);
+    //    gTimers.set(eTimer::FADEOUT_BEGIN, rt);
     //    removeInputJudgeCallback(false);
     //}
 }
 
 void ScenePlay::updateFadeout()
 {
-    gTimers::set(eTimer::MUSIC_BEAT, int(1000 * (_pScroll->getCurrentBeat() / 4.0)) % 1000);
+    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (_pScroll->getCurrentBeat() / 4.0)) % 1000);
 
     // TODO fadeout finished
 
@@ -309,7 +327,7 @@ void ScenePlay::updateFailed()
     //if (*asdasfsa*)
     //{
     //    _state = ePlayState::FADEOUT;
-    //    gTimers::set(eTimer::FADEOUT_BEGIN, rt);
+    //    gTimers.set(eTimer::FADEOUT_BEGIN, rt);
     //    removeInputJudgeCallback(false);
     //}
 }
@@ -337,7 +355,7 @@ void ScenePlay::changeKeySampleMapping(rTime t)
         {
             assert(_pScroll != nullptr);
             auto chan = _pScroll->getChannelFromKey((Input::k)i);
-            auto note = _pScroll->lastNoteOfChannel(chan.first, chan.second, false);
+            auto note = _pScroll->lastNoteOfChannel(chan.first, chan.second);
             _currentKeySample[i] = (size_t)std::get<long long>(note->value);
         }
 }
@@ -355,9 +373,9 @@ void ScenePlay::inputGamePress(InputMask& m, rTime t)
         if (_inputAvailable[i] && m[i])
         {
             _keySampleIdxBuf[sampleCount++] = _currentKeySample[i];
-            gTimers::set(InputGamePressMap[i].tm, t);
-            gTimers::set(InputGameReleaseMap[i].tm, -1);
-            gSwitches::set(InputGamePressMap[i].sw, true);
+            gTimers.set(InputGamePressMap[i].tm, t);
+            gTimers.set(InputGameReleaseMap[i].tm, -1);
+            gSwitches.set(InputGamePressMap[i].sw, true);
         }
 
     SoundMgr::playKeySample(sampleCount, &_keySampleIdxBuf[0]);
@@ -375,9 +393,9 @@ void ScenePlay::inputGameRelease(InputMask& m, rTime t)
     for (size_t i = 0; i < Input::ESC; ++i)
         if (_inputAvailable[i] && m[i])
         {
-            gTimers::set(InputGamePressMap[i].tm, -1);
-            gTimers::set(InputGameReleaseMap[i].tm, t);
-            gSwitches::set(InputGameReleaseMap[i].sw, false);
+            gTimers.set(InputGamePressMap[i].tm, -1);
+            gTimers.set(InputGameReleaseMap[i].tm, t);
+            gSwitches.set(InputGameReleaseMap[i].sw, false);
 
             // TODO stop sample playing while release in LN notes
         }

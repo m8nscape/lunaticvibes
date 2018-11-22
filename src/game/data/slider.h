@@ -8,7 +8,7 @@ enum class eSlider : unsigned
     SLIDER_COUNT
 };
 
-typedef buffered_global<eSlider, percent, (size_t)eSlider::SLIDER_COUNT> gSliders;
+inline buffered_global<eSlider, percent, (size_t)eSlider::SLIDER_COUNT> gSliders;
 
 /*
 class gSliders

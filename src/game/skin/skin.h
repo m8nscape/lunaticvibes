@@ -100,7 +100,7 @@ public:
         // Result
         //unsigned resultStartInputTimeRank; //ignored
         //unsigned resultStartInputTimeUpdate; //ignored
-    } info;
+    } info{};
 
     ///////////////////////////////////////////////////////////
 };

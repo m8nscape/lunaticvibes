@@ -24,6 +24,10 @@ public:
     constexpr eChartType type() { return _type; }
 
 protected:
+    bool _loaded = false;
+    constexpr bool isLoaded() { return _loaded; }
+
+protected:
 
     Path _filePath;
     //_HashType_ _fileHash;

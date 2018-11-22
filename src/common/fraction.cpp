@@ -1,8 +1,11 @@
 #include "fraction.h"
 #include <utility>
 
-int gcd(long long a, long long b)
+int gcd(long long a, long long b, size_t max_count = 5)
 {
+    if (max_count == 0)
+        return 1;
+    
     if (a < b)
         std::swap(a, b);
     if (b == 0)
@@ -12,7 +15,7 @@ int gcd(long long a, long long b)
         if (a % b == 0)
             return b;
         else
-            return gcd(b, a % b);
+            return gcd(b, a % b, --max_count);
     }
 }
 
@@ -68,9 +71,10 @@ bool trim(long long &_numerator, long long &_denominator)
 }
 
 fraction::fraction(): _numerator(0), _denominator(1) {}
-fraction::fraction(long numerator, long denominator) : _numerator(numerator), _denominator(denominator)
+fraction::fraction(long numerator, long denominator, bool t) : _numerator(numerator), _denominator(denominator)
 {
-    trim(_numerator, _denominator);
+    if (t)
+        trim(_numerator, _denominator);
 }
 
 fraction::~fraction() {}

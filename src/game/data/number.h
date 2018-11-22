@@ -11,7 +11,7 @@ enum class eNumber: unsigned
     NUMBER_COUNT
 };
 
-typedef buffered_global<eNumber, int, (size_t)eNumber::NUMBER_COUNT> gNumbers;
+inline buffered_global<eNumber, int, (size_t)eNumber::NUMBER_COUNT> gNumbers;
 /*
 class gNumbers
 {

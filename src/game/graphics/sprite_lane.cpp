@@ -29,7 +29,7 @@ void SpriteLaneVertical::updateNoteRect(hTime t, vScroll* s, size_t channel)
     int y = 0;
     _outRect.clear();
     auto currentRenderPos = s->getCurrentBeat();
-    auto it = s->lastNoteOfChannel((NoteChannelCategory)0, (NoteChannelIndex)channel, false);
+    auto it = s->lastNoteOfChannel((NoteChannelCategory)0, (NoteChannelIndex)channel);
     while (!s->isLastNoteOfChannel((NoteChannelCategory)0, (NoteChannelIndex)channel) && y <= c.h)
     {
         int y = (it++->renderPos - currentRenderPos) * c.h * _basespd * _hispeed;

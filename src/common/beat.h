@@ -19,8 +19,8 @@ inline hTime getHighresTimePoint() { return std::chrono::duration_cast<timeHighR
 constexpr rTime h2r(hTime h) { return (rTime)(std::chrono::duration_cast<timeRes>(timeHighRes(h)).count()); }
 constexpr hTime r2h(rTime r) { return (hTime)(std::chrono::duration_cast<timeHighRes>(timeRes(r)).count()); }
 
-constexpr rTime rConvertBPM(BPM b) { using namespace std::chrono; return (rTime)(b * 2.4e5 * duration_cast<timeRes>(1ms).count()); }
-constexpr hTime hConvertBPM(BPM b) { using namespace std::chrono; return (hTime)(b * 2.4e5 * duration_cast<timeHighRes>(1ms).count()); }
+constexpr rTime rConvertBPM(BPM b) { using namespace std::chrono; return (rTime)(6e5 / b * duration_cast<timeRes>(1ms).count()); }
+constexpr hTime hConvertBPM(BPM b) { using namespace std::chrono; return (hTime)(6e5 / b * duration_cast<timeHighRes>(1ms).count()); }
 
 struct Note
 {

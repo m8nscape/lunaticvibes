@@ -7,7 +7,7 @@ using namespace rc;
 RulesetClassic::RulesetClassic(vScroll* chart, rc::judgeDiff difficulty) : 
     vRuleset(chart, rc::JUDGE_COUNT), _diff(difficulty), _count{ 0 } {}
 
-judgeRes RulesetClassic::_judge(Note& note, rTime time)
+judgeRes RulesetClassic::_judge(const Note& note, rTime time)
 {
     using namespace judgeArea;
 
@@ -55,12 +55,12 @@ judgeRes RulesetClassic::_judge(Note& note, rTime time)
 
 void RulesetClassic::updatePress(InputMask& pg, rTime t)
 {
-    rTime rt = gTimers::get(eTimer::PLAY_START) - t;
+    rTime rt = gTimers.get(eTimer::PLAY_START) - t;
     for (size_t k = Input::S1L; k < Input::K1START; ++k)
     {
         if (!pg[k]) continue;
         auto c = _scroll->getChannelFromKey((Input::k)k);
-        auto n = _scroll->lastNoteOfChannel(c.first, c.second, false);
+        auto n = _scroll->lastNoteOfChannel(c.first, c.second);
         auto j = _judge(*n, rt);
         switch (c.first)
         {
@@ -133,12 +133,12 @@ void RulesetClassic::updatePress(InputMask& pg, rTime t)
 }
 void RulesetClassic::updateHold(InputMask& hg, rTime t)
 {
-    rTime rt = gTimers::get(eTimer::PLAY_START) - t;
+    rTime rt = gTimers.get(eTimer::PLAY_START) - t;
     for (size_t k = Input::S1L; k < Input::K1START; ++k)
     {
         if (!hg[k]) continue;
         auto c = _scroll->getChannelFromKey((Input::k)k);
-        auto n = _scroll->lastNoteOfChannel(c.first, c.second, false);
+        auto n = _scroll->lastNoteOfChannel(c.first, c.second);
         auto j = _judge(*n, rt);
         switch (c.first)
         {
@@ -159,12 +159,12 @@ void RulesetClassic::updateHold(InputMask& hg, rTime t)
 }
 void RulesetClassic::updateRelease(InputMask& rg, rTime t)
 {
-    rTime rt = gTimers::get(eTimer::PLAY_START) - t;
+    rTime rt = gTimers.get(eTimer::PLAY_START) - t;
     for (size_t k = Input::S1L; k < Input::K1START; ++k)
     {
         if (!rg[k]) continue;
         auto c = _scroll->getChannelFromKey((Input::k)k);
-        auto n = _scroll->lastNoteOfChannel(c.first, c.second, false);
+        auto n = _scroll->lastNoteOfChannel(c.first, c.second);
         auto j = _judge(*n, rt);
         switch (c.first)
         {
@@ -180,11 +180,12 @@ void RulesetClassic::updateRelease(InputMask& rg, rTime t)
 
 void RulesetClassic::updateAsync(rTime t)
 {
-    rTime rt = gTimers::get(eTimer::PLAY_START) - t;
+    rTime rt = gTimers.get(eTimer::PLAY_START) - t;
     for (size_t k = Input::S1L; k < Input::K1START; ++k)
     {
         auto c = _scroll->getChannelFromKey((Input::k)k);
-        auto n = _scroll->lastNoteOfChannel(c.first, c.second, false);
+        if (c.first == NoteChannelCategory::_) continue;
+        auto n = _scroll->lastNoteOfChannel(c.first, c.second);
         auto j = _judge(*n, rt);
         switch (c.first)
         {

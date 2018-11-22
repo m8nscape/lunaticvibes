@@ -7,7 +7,7 @@ public:
 
 public:
     fraction();
-    fraction(long numerator, long denominator);
+    fraction(long numerator, long denominator, bool trim = true);
     ~fraction();
 
 public:

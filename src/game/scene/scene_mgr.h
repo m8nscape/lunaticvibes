@@ -10,8 +10,8 @@ enum class eScene
     EXIT
 };
 
-inline static char* __arg_path = "";
-inline static eScene __next_scene = eScene::PLAY;
+inline char* __arg_path = "";
+inline eScene __next_scene = eScene::PLAY;
 
 typedef std::shared_ptr<vScene> pScene;
 
@@ -19,9 +19,9 @@ class SceneMgr
 {
 private:
     static SceneMgr _inst;
+private:
     SceneMgr() = default;
     ~SceneMgr() = default;
-public:
     SceneMgr(SceneMgr&) = delete;
     SceneMgr& operator= (SceneMgr&) = delete;
 
