@@ -117,6 +117,7 @@
     <ClCompile Include="src\common\logger.cpp" />
     <ClCompile Include="src\common\fraction.cpp" />
     <ClCompile Include="src\common\utils.cpp" />
+    <ClCompile Include="src\config\config.cpp" />
     <ClCompile Include="src\game\data\buffered_global.cpp" />
     <ClCompile Include="src\game\graphics\graphics.cpp" />
     <ClCompile Include="src\game\graphics\SDL2\common_SDL2.cpp" />
@@ -160,6 +161,8 @@
     <ClInclude Include="src\common\fraction.h" />
     <ClInclude Include="src\common\types.h" />
     <ClInclude Include="src\common\utils.h" />
+    <ClInclude Include="src\config\config.h" />
+    <ClInclude Include="src\config\config_mgr.h" />
     <ClInclude Include="src\game\data\buffered_global.h" />
     <ClInclude Include="src\game\data\number.h" />
     <ClInclude Include="src\game\data\option.h" />

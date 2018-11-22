@@ -7,10 +7,6 @@
 #include "logger.h"
 #include <string>
 
-// global control pointers, do not modify
-SDL_Window* _frame_window;
-SDL_Renderer* _frame_renderer;
-
 int initLib_SDL2()
 {
     // SDL2
