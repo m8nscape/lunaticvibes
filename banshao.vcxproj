@@ -117,6 +117,10 @@
     <ClCompile Include="src\common\logger.cpp" />
     <ClCompile Include="src\common\fraction.cpp" />
     <ClCompile Include="src\common\utils.cpp" />
+    <ClCompile Include="src\config\cfg_general.cpp" />
+    <ClCompile Include="src\config\cfg_input.cpp" />
+    <ClCompile Include="src\config\cfg_profile.cpp" />
+    <ClCompile Include="src\config\config.cpp" />
     <ClCompile Include="src\game\graphics\graphics.cpp" />
     <ClCompile Include="src\game\graphics\SDL2\common_SDL2.cpp" />
     <ClCompile Include="src\game\graphics\SDL2\rect_SDL2.cpp" />
@@ -159,8 +163,11 @@
     <ClInclude Include="src\common\fraction.h" />
     <ClInclude Include="src\common\types.h" />
     <ClInclude Include="src\common\utils.h" />
+    <ClInclude Include="src\config\cfg_input.h" />
+    <ClInclude Include="src\config\cfg_profile.h" />
     <ClInclude Include="src\config\config.h" />
     <ClInclude Include="src\config\config_mgr.h" />
+    <ClInclude Include="src\config\cfg_general.h" />
     <ClInclude Include="src\game\data\buffered_global.h" />
     <ClInclude Include="src\game\data\number.h" />
     <ClInclude Include="src\game\data\option.h" />

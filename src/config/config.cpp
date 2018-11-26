@@ -1,30 +1,30 @@
 #include "config.h"
 #include <fstream>
 
-vCfg::vCfg()
+vConfig::vConfig()
 {
     // placeholder, do nothing
 }
 
-vCfg::vCfg(StringPath file)
+vConfig::vConfig(StringPath file)
 {
 	_path = file;
 	load();
 }
 
-vCfg::~vCfg()
+vConfig::~vConfig()
 {
-
 }
 
-void vCfg::load()
+void vConfig::load()
 {
 	std::string fileStr;
 	fileStr.assign(_path.begin(), _path.end());
+	setDefaults();
 	_yaml = YAML::LoadFile(fileStr);
 }
 
-void vCfg::save()
+void vConfig::save()
 {
 	std::string fileStr;
 	fileStr.assign(_path.begin(), _path.end());
