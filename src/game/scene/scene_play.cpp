@@ -5,7 +5,7 @@
 #include "game/ruleset/ruleset_classic.h"
 #include "chart/bms.h"
 #include "game/scroll/scroll_bms.h"
-#include "logger.h"
+#include <plog/Log.h>
 
 struct InputDataMap{
     eTimer tm;
@@ -354,7 +354,7 @@ void ScenePlay::changeKeySampleMapping(rTime t)
         if (_inputAvailable[i])
         {
             assert(_pScroll != nullptr);
-            auto chan = _pScroll->getChannelFromKey((Input::k)i);
+            auto chan = _pScroll->getChannelFromKey((Input::Ingame)i);
             auto note = _pScroll->lastNoteOfChannel(chan.first, chan.second);
             _currentKeySample[i] = (size_t)std::get<long long>(note->value);
         }

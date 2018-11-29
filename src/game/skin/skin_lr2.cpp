@@ -1,5 +1,5 @@
 #include "skin_lr2.h"
-#include "logger.h"
+#include <plog/Log.h>
 #include "utils.h"
 #include <fstream>
 #include <sstream>
@@ -389,12 +389,12 @@ int SkinLR2::loadLR2src(const std::vector<StringContent> &t)
                 h = _texNameMap[std::to_string(gr)]->getRect().h;
             }
             _sprites.emplace_back(std::make_shared<SpriteNumber>(_texNameMap[std::to_string(gr)], Rect(x, y, w, h), keta, div_x, div_y, cycle, iNum, iTimer));
-            LOG_DEBUG << "[Skin] " << line << ": Set Number sprite (texture: " << gr << ", num: " << (unsigned)iNum << ")";
+            LOG_DEBUG << "[Skin] " << line << ": Set Number sprite (gr: " << gr << ", num: " << (unsigned)iNum << ")";
         }
         else
         {
             _sprites.emplace_back(std::make_shared<SpriteNumber>(_texNameMap["Error"], Rect( 0, 0, 1, 1 ), keta, 1, 1, cycle, iNum, iTimer));
-            LOG_DEBUG << "[Skin] " << line << ": Set Number sprite (texture: " << gr << "|INVALID, num: " << (unsigned)iNum << ")";
+            LOG_DEBUG << "[Skin] " << line << ": Set Number sprite (gr: " << gr << "|INVALID, num: " << (unsigned)iNum << ")";
         }
 
         ret = 2;

@@ -47,7 +47,7 @@ void AsyncLooper::_recordLoopTime()
 
 unsigned AsyncLooper::getRateRealtime()
 {
-    auto sum = std::accumulate(_loopTimeBuffer.begin(), _loopTimeBuffer.end(), 0);
+    auto sum = std::reduce(_loopTimeBuffer.begin(), _loopTimeBuffer.end());
     return (unsigned)(1000.0 / ((double)sum / LOOP_TIME_BUFFER_SIZE));
 }
 

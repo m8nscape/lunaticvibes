@@ -1,5 +1,5 @@
 #include "ruleset_classic.h"
-#include "logger.h"
+#include <plog/Log.h>
 #include "game/data/timer.h"
 
 using namespace rc;
@@ -59,7 +59,7 @@ void RulesetClassic::updatePress(InputMask& pg, rTime t)
     for (size_t k = Input::S1L; k < Input::K1START; ++k)
     {
         if (!pg[k]) continue;
-        auto c = _scroll->getChannelFromKey((Input::k)k);
+        auto c = _scroll->getChannelFromKey((Input::Ingame)k);
         auto n = _scroll->lastNoteOfChannel(c.first, c.second);
         auto j = _judge(*n, rt);
         switch (c.first)
@@ -137,7 +137,7 @@ void RulesetClassic::updateHold(InputMask& hg, rTime t)
     for (size_t k = Input::S1L; k < Input::K1START; ++k)
     {
         if (!hg[k]) continue;
-        auto c = _scroll->getChannelFromKey((Input::k)k);
+        auto c = _scroll->getChannelFromKey((Input::Ingame)k);
         auto n = _scroll->lastNoteOfChannel(c.first, c.second);
         auto j = _judge(*n, rt);
         switch (c.first)
@@ -163,7 +163,7 @@ void RulesetClassic::updateRelease(InputMask& rg, rTime t)
     for (size_t k = Input::S1L; k < Input::K1START; ++k)
     {
         if (!rg[k]) continue;
-        auto c = _scroll->getChannelFromKey((Input::k)k);
+        auto c = _scroll->getChannelFromKey((Input::Ingame)k);
         auto n = _scroll->lastNoteOfChannel(c.first, c.second);
         auto j = _judge(*n, rt);
         switch (c.first)
@@ -183,7 +183,7 @@ void RulesetClassic::updateAsync(rTime t)
     rTime rt = gTimers.get(eTimer::PLAY_START) - t;
     for (size_t k = Input::S1L; k < Input::K1START; ++k)
     {
-        auto c = _scroll->getChannelFromKey((Input::k)k);
+        auto c = _scroll->getChannelFromKey((Input::Ingame)k);
         if (c.first == NoteChannelCategory::_) continue;
         auto n = _scroll->lastNoteOfChannel(c.first, c.second);
         auto j = _judge(*n, rt);

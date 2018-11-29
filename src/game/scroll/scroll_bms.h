@@ -56,8 +56,8 @@ namespace bms
 class ScrollBMS : public vScroll
 {
 public:
-    virtual std::pair<NoteChannelCategory, NoteChannelIndex> getChannelFromKey(Input::k input);
-    virtual std::vector<Input::k> getInputFromChannel(size_t channel);
+    virtual std::pair<NoteChannelCategory, NoteChannelIndex> getChannelFromKey(Input::Ingame input);
+    virtual std::vector<Input::Ingame> getInputFromChannel(size_t channel);
 public:
     ScrollBMS();
     ScrollBMS(const BMS& bms);

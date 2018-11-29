@@ -1,4 +1,6 @@
 #include "skin.h"
+#include <execution>
+#include <algorithm>
 
 vSkin::vSkin()
 {
@@ -10,7 +12,7 @@ vSkin::vSkin()
 void vSkin::update()
 {
     rTime t = getTimePoint();
-    for (auto& s : _sprites)
+    std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), [](const auto& s)
     {
         switch (s->type())
         {
@@ -35,7 +37,7 @@ void vSkin::update()
         default:
             break;
         }
-    }
+    });
 }
 
 void vSkin::draw() const

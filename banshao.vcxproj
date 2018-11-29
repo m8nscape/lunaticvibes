@@ -79,7 +79,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)ext\fmod\inc;$(ProjectDir)ext\SDL2_image\include;$(ProjectDir)ext\SDL2_ttf\include;$(ProjectDir)ext\SDL2\include;$(ProjectDir)ext\json;$(ProjectDir)ext\yaml-cpp\include;$(ProjectDir)src;$(ProjectDir)src\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)ext\fmod\inc;$(ProjectDir)ext\SDL2_image\include;$(ProjectDir)ext\SDL2_ttf\include;$(ProjectDir)ext\SDL2\include;$(ProjectDir)ext\json;$(ProjectDir)ext\yaml-cpp\include;$(ProjectDir)ext\digestpp;$(ProjectDir)ext\plog\include;$(ProjectDir)src;$(ProjectDir)src\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
     </ClCompile>
     <Link>
@@ -97,7 +97,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)ext\fmod\inc;$(ProjectDir)ext\SDL2_image\include;$(ProjectDir)ext\SDL2_ttf\include;$(ProjectDir)ext\SDL2\include;$(ProjectDir)ext\json;$(ProjectDir)ext\yaml-cpp\include;$(ProjectDir)src;$(ProjectDir)src\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)ext\fmod\inc;$(ProjectDir)ext\SDL2_image\include;$(ProjectDir)ext\SDL2_ttf\include;$(ProjectDir)ext\SDL2\include;$(ProjectDir)ext\json;$(ProjectDir)ext\yaml-cpp\include;$(ProjectDir)ext\digestpp;$(ProjectDir)ext\plog\include;$(ProjectDir)src;$(ProjectDir)src\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
     </ClCompile>
     <Link>
@@ -114,7 +114,6 @@
     <ClCompile Include="src\common\asynclooper.cpp" />
     <ClCompile Include="src\common\chart\bms.cpp" />
     <ClCompile Include="src\common\chart\chart.cpp" />
-    <ClCompile Include="src\common\logger.cpp" />
     <ClCompile Include="src\common\fraction.cpp" />
     <ClCompile Include="src\common\utils.cpp" />
     <ClCompile Include="src\config\cfg_general.cpp" />
@@ -131,6 +130,7 @@
     <ClCompile Include="src\game\input\input_mgr.cpp" />
     <ClCompile Include="src\game\input\input_windows.cpp" />
     <ClCompile Include="src\game\input\input_wrapper.cpp" />
+    <ClCompile Include="src\game\input\input_linux.cpp" />
     <ClCompile Include="src\game\main.cpp" />
     <ClCompile Include="src\game\ruleset\ruleset_classic.cpp" />
     <ClCompile Include="src\game\scene\scene.cpp" />
@@ -159,7 +159,6 @@
     <ClInclude Include="src\common\defs\defs_judge.h" />
     <ClInclude Include="src\common\defs\defs_play.h" />
     <ClInclude Include="src\common\defs\defs_scene.h" />
-    <ClInclude Include="src\common\logger.h" />
     <ClInclude Include="src\common\fraction.h" />
     <ClInclude Include="src\common\types.h" />
     <ClInclude Include="src\common\utils.h" />
@@ -181,10 +180,12 @@
     <ClInclude Include="src\game\graphics\sprite_lane.h" />
     <ClInclude Include="src\game\input\functional.h" />
     <ClInclude Include="src\game\input\gamepad.h" />
+    <ClInclude Include="src\game\input\input_keys.h" />
     <ClInclude Include="src\game\input\input_mgr.h" />
     <ClInclude Include="src\game\input\input_wrapper.h" />
     <ClInclude Include="src\game\ruleset\ruleset.h" />
     <ClInclude Include="src\game\ruleset\ruleset_classic.h" />
+    <ClInclude Include="src\game\scene\scene_context.h" />
     <ClInclude Include="src\game\scene\scene_mgr.h" />
     <ClInclude Include="src\game\scene\scene_play.h" />
     <ClInclude Include="src\game\scene\scene.h" />

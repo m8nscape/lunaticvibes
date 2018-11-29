@@ -30,30 +30,30 @@ namespace bms
         K14, // pme 7
     };
     
-    // from NoteChannelIndex to Input::k
-    static const std::vector<Input::k> ChannelToKeyMap[] = 
+    // from NoteChannelIndex to Input::Ingame
+    static const std::vector<Input::Ingame> ChannelToKeyMap[] = 
     {
         // 0: Notes
-        {Input::k::S1L, Input::k::S1R}, // Sc1
-        {Input::k::K11},
-        {Input::k::K12},
-        {Input::k::K13},
-        {Input::k::K14},
-        {Input::k::K15},
-        {Input::k::K16},
-        {Input::k::K17},
-        {Input::k::K21}, //8
-        {Input::k::K22}, //9
-        {Input::k::K23}, //10
-        {Input::k::K24}, //11
-        {Input::k::K25}, //12
-        {Input::k::K26}, //13
-        {Input::k::K27}, //14
+        {Input::Ingame::S1L, Input::Ingame::S1R}, // Sc1
+        {Input::Ingame::K11},
+        {Input::Ingame::K12},
+        {Input::Ingame::K13},
+        {Input::Ingame::K14},
+        {Input::Ingame::K15},
+        {Input::Ingame::K16},
+        {Input::Ingame::K17},
+        {Input::Ingame::K21}, //8
+        {Input::Ingame::K22}, //9
+        {Input::Ingame::K23}, //10
+        {Input::Ingame::K24}, //11
+        {Input::Ingame::K25}, //12
+        {Input::Ingame::K26}, //13
+        {Input::Ingame::K27}, //14
         {},{},{},{},{},{},{},{},{},{}, //15~24
-        {Input::k::S2L, Input::k::S2R} // Sc2
+        {Input::Ingame::S2L, Input::Ingame::S2R} // Sc2
     };
 
-    // from Input::k to NoteChannelIndex
+    // from Input::Ingame to NoteChannelIndex
     static const NoteChannelIndex KeyToChannelMap[] = 
     {
         Sc1, Sc1,
@@ -239,7 +239,7 @@ void ScrollBMS::loadBMS(const BMS& objBms)
 }
 
 
-std::pair<NoteChannelCategory, NoteChannelIndex> ScrollBMS::getChannelFromKey(Input::k input)
+std::pair<NoteChannelCategory, NoteChannelIndex> ScrollBMS::getChannelFromKey(Input::Ingame input)
 {
     if (input >= Input::S1L && input < Input::ESC && KeyToChannelMap[input] != _)
     {
@@ -259,7 +259,7 @@ std::pair<NoteChannelCategory, NoteChannelIndex> ScrollBMS::getChannelFromKey(In
     return { NoteChannelCategory::_, _ };
 }
 
-std::vector<Input::k> ScrollBMS::getInputFromChannel(size_t channel)
+std::vector<Input::Ingame> ScrollBMS::getInputFromChannel(size_t channel)
 {
     if (channel > sizeof(bms::ChannelToKeyMap) / sizeof(bms::ChannelToKeyMap[0]))
         return {};

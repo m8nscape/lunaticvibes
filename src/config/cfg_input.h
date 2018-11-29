@@ -1,5 +1,6 @@
 #pragma once
 #include "config.h"
+#include "game/input/input_keys.h"
 
 static const StringPath CONFIG_FILE_INPUT = "bindings.yml";
 
@@ -23,6 +24,6 @@ public:
     virtual void setDefaults() noexcept override;
 
 public:
-    void bindKey(unsigned b, unsigned input);
-    void bindButton(unsigned id, unsigned b, unsigned input);
+    void bindKey(Input::Ingame ingame, Input::Key key);
+    //void bindButton(unsigned id, Input::Ingame ingame, unsigned input);
 };

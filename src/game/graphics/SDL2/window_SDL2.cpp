@@ -4,7 +4,7 @@
 #include "graphics_SDL2.h"
 #include "window_SDL2.h"
 #include "defs/defs_general.h"
-#include "logger.h"
+#include <plog/Log.h>
 #include <string>
 
 int initLib_SDL2()

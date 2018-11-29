@@ -1,6 +1,6 @@
 #include "graphics.h"
 
-// #ifdef RENDER_SDL2
+#if __has_include("SDL2/graphics_SDL2.h")
 #include "SDL2/window_SDL2.h"
 int graphics_init()
 {
@@ -21,4 +21,4 @@ int graphics_free()
 {
     return freeLib_SDL2();
 }
-// #endif
+#endif

@@ -2,7 +2,10 @@
 #include "config/config_mgr.h"
 #include "sound/sound_mgr.h"
 #include "scene/scene_mgr.h"
+#include "input/input_mgr.h"
 #include "skin/skin_lr2.h"
+#include "utils.h"
+#include <plog/Log.h>
 
 #if WIN32
 #include <Windows.h>
@@ -33,6 +36,15 @@ void mainLoop()
 
 int main(int argc, char* argv[])
 {
+    SetThreadName("MainThread");
+
+    // init logger
+#if _DEBUG
+    plog::init(plog::debug);
+#else
+    plog::init(plog::info, "log.txt", 1000000, 5);
+#endif
+
     // TODO load config
     if (auto ginit = graphics_init())
         return ginit;
@@ -41,7 +53,7 @@ int main(int argc, char* argv[])
 
 	// load input bindings
 	InputMgr::updateDevices();
-	InputMgr::updateBindings(Input::k::S1L);
+	InputMgr::updateBindings(Input::Ingame::S1L);
 
     if (argc > 1)
         __arg_path = argv[1];

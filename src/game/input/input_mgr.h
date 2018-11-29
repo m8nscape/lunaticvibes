@@ -4,9 +4,7 @@
 #include <bitset>
 #include <map>
 #include <functional>
-#include "defs/defs_input.h"
-
-typedef std::size_t size_t;
+#include "input_keys.h"
 
 namespace Input
 {
@@ -19,19 +17,18 @@ namespace Input
     };
 
     typedef size_t DeviceID;
-    
-    struct Button
+    struct KeyMap
     {
         DeviceType  type;
         DeviceID    device;
-        int		    scancode;
+        Key		    key;
     };
 
-    typedef std::vector<Button> Binding;
+    typedef std::vector<KeyMap> Binding;
 
 };
 
-
+////////////////////////////////////////////////////////////////////////////////
 // Input manager
 // fetch real-time system keyscan status
 // Do not use this class directly. Use InputWrapper instead.
@@ -56,7 +53,19 @@ private:
 public:
     // Game keys param / functions
     static void updateDevices();
-    static void updateBindings(Input::k K);
+    static void updateBindings(Input::Ingame K);
     static std::bitset<Input::KEY_COUNT> detect();
 
 };
+
+////////////////////////////////////////////////////////////////////////////////
+// System specific range
+
+extern const std::array<std::string, 0xFF> keyNameMap;
+
+// Keyboard detect
+inline bool isKeyPressed(Input::Key c);
+
+// Joystick detect
+typedef int JoyBtn;
+//bool isButtonPressed(Device d, Button b);

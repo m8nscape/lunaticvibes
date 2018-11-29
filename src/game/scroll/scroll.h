@@ -146,5 +146,5 @@ public:
 
 public:
     virtual std::pair<NoteChannelCategory, NoteChannelIndex> getChannelFromKey(Input::k input) = 0;
-    virtual std::vector<Input::k> getInputFromChannel(size_t channel) = 0;
+    virtual std::vector<Input::Ingame> getInputFromChannel(size_t channel) = 0;
 };

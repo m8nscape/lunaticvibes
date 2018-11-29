@@ -30,7 +30,7 @@ protected:
 protected:
 
     Path _filePath;
-    //_HashType_ _fileHash;
+    HashMD5 _fileHash;
 
     StringContent _title;
     StringContent _title2;
@@ -54,8 +54,8 @@ protected:
     std::vector<Note> _notes;
     //std::vector<_Inherit_SpriteStatic_with_playbegin_timer_> _BGAsprites;
 
-    double _minBPM = INFINITY;
-    double _maxBPM = 0.0;
+    BPM _minBPM = INFINITY;
+    BPM _maxBPM = 0.0;
 
 public:
     StringContent getTitle() const;

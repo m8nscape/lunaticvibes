@@ -1,6 +1,6 @@
 #include "graphics_SDL2.h"
 #include "window_SDL2.h"
-#include "logger.h"
+#include <plog/Log.h>
 #include <memory>
 
 #define SDL_LOAD_NOAUTOFREE 0

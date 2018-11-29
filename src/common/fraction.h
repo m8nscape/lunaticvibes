@@ -3,11 +3,11 @@
 class fraction
 {
 public:
-    long _numerator, _denominator;
+    long long _numerator, _denominator;
 
 public:
     fraction();
-    fraction(long numerator, long denominator, bool trim = true);
+    fraction(long long numerator, long long denominator, bool trim = true);
     ~fraction();
 
 public:

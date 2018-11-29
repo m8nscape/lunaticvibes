@@ -27,17 +27,17 @@ private:
     virtual void _loop();
     
 public:
-    bool isPressed(Input::k k) 
+    bool isPressed(Input::Ingame k) 
     {
         return (!_prev[k]) && (_curr[k]);
     }
 
-    bool isReleased(Input::k k) 
+    bool isReleased(Input::Ingame k) 
     {
         return (_prev[k]) && (!_curr[k]);
     }
 
-    bool isHolding(Input::k k) 
+    bool isHolding(Input::Ingame k) 
     {
         return (_prev[k]) && (_curr[k]);
     }

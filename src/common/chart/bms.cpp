@@ -1,5 +1,5 @@
 #include "bms.h"
-#include "logger.h"
+#include <plog/Log.h>
 #include <iostream>
 #include <fstream>
 #include <regex>
