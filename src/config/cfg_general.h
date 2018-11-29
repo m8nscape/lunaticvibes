@@ -8,17 +8,17 @@ namespace cfg {
     //////////////////////////////////////////////////////////////////////////////// 
     // Audio
 
-	const char* A_MODE = "OutputMode";
-    const char* A_MODE_NULL = "Null";
-    const char* A_MODE_AUTO = "Auto";
-    const char* A_MODE_WINMM = "WinMM";
-    const char* A_MODE_DS = "DirectSound";
-    const char* A_MODE_WASAPI_SHARED = "WASAPI";
-    const char* A_MODE_ASIO = "ASIO";
-    const char* A_MODE_ATMOS = "Atmos";
-    const char* A_MODE_PULSE = "PulseAudio";
-    const char* A_MODE_ALSA = "ALSA";
-    const char* A_MODE_COREAUDIO = "CoreAudio";
+	inline const char* A_MODE = "OutputMode";
+    inline const char* A_MODE_NULL = "Null";
+    inline const char* A_MODE_AUTO = "Auto";
+    inline const char* A_MODE_WINMM = "WinMM";
+    inline const char* A_MODE_DS = "DirectSound";
+    inline const char* A_MODE_WASAPI_SHARED = "WASAPI";
+    inline const char* A_MODE_ASIO = "ASIO";
+    inline const char* A_MODE_ATMOS = "Atmos";
+    inline const char* A_MODE_PULSE = "PulseAudio";
+    inline const char* A_MODE_ALSA = "ALSA";
+    inline const char* A_MODE_COREAUDIO = "CoreAudio";
     enum class eAudioMode
     {
         NOSOUND,
@@ -39,22 +39,22 @@ namespace cfg {
         COREAUDIO
     };
 
-	const char* A_BUFLEN = "BufferLength";
+	inline const char* A_BUFLEN = "BufferLength";
 
-	const char* A_BUFCOUNT = "BufferCount";
+	inline const char* A_BUFCOUNT = "BufferCount";
 
     //////////////////////////////////////////////////////////////////////////////// 
     // Video
 
-	const char* V_RES_X = "ResolutionX";
-	const char* V_RES_Y = "ResolutionY";
-	const char* V_FULL_RES_X = "FullResolutionX";
-	const char* V_FULL_RES_Y = "FullResolutionY";
+	inline const char* V_RES_X = "ResolutionX";
+	inline const char* V_RES_Y = "ResolutionY";
+	inline const char* V_FULL_RES_X = "FullResolutionX";
+	inline const char* V_FULL_RES_Y = "FullResolutionY";
 
-	const char* V_WINMODE = "WindowMode";
-    const char* V_WINMODE_FULL = "FullScreen";
-    const char* V_WINMODE_BORDERLESS = "Borderless";
-    const char* V_WINMODE_WINDOWED = "Windowed";
+	inline const char* V_WINMODE = "WindowMode";
+    inline const char* V_WINMODE_FULL = "FullScreen";
+    inline const char* V_WINMODE_BORDERLESS = "Borderless";
+    inline const char* V_WINMODE_WINDOWED = "Windowed";
     enum class eWinMode
     {
         FULLSCREEN,
@@ -62,9 +62,9 @@ namespace cfg {
         WINDOWED
     };
 
-	const char* V_MAXFPS = "MaxFPS";
+	inline const char* V_MAXFPS = "MaxFPS";
 
-	const char* V_VSYNC = "VSync";
+	inline const char* V_VSYNC = "VSync";
 
 }
 

@@ -86,8 +86,8 @@
       <TargetMachine>MachineX86</TargetMachine>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>$(ProjectDir)ext\fmod\lib;$(ProjectDir)ext\SDL2_image\lib;$(ProjectDir)ext\SDL2_ttf\lib;$(ProjectDir)ext\SDL2\lib;$(ProjectDir)ext\yaml-cpp\lib\RelWithDebInfo;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libyaml-cppmd.lib;x86\SDL2.lib;x86\SDL2main.lib;x86\SDL2test.lib;x86\SDL2_ttf.lib;x86\SDL2_image.lib;fmodL_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)ext\fmod\lib;$(ProjectDir)ext\SDL2_image\lib;$(ProjectDir)ext\SDL2_ttf\lib;$(ProjectDir)ext\SDL2\lib;$(ProjectDir)ext\yaml-cpp\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>x86\SDL2.lib;x86\SDL2main.lib;x86\SDL2test.lib;x86\SDL2_ttf.lib;x86\SDL2_image.lib;fmodL_vc.lib;x86\libyaml-cppmdd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -106,8 +106,8 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(ProjectDir)ext\fmod\lib;$(ProjectDir)ext\SDL2_image\lib;$(ProjectDir)ext\SDL2_ttf\lib;$(ProjectDir)ext\SDL2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libyaml-cppmd.lib;x86\SDL2.lib;x86\SDL2main.lib;x86\SDL2_ttf.lib;x86\SDL2_image.lib;fmod_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)ext\fmod\lib;$(ProjectDir)ext\SDL2_image\lib;$(ProjectDir)ext\SDL2_ttf\lib;$(ProjectDir)ext\SDL2\lib;$(ProjectDir)ext\yaml-cpp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>x86\SDL2.lib;x86\SDL2main.lib;x86\SDL2_ttf.lib;x86\SDL2_image.lib;fmod_vc.lib;x86\libyaml-cppmd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

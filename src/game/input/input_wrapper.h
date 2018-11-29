@@ -1,6 +1,7 @@
 #pragma once
 #include "input_mgr.h"
 #include "asynclooper.h"
+#include "beat.h"
 
 typedef std::bitset<Input::KEY_COUNT> InputMask;
 typedef std::function<void(InputMask&, rTime)> INPUTCALLBACK;

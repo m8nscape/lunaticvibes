@@ -5,6 +5,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Open file
 
+#pragma warning(push)
+#pragma warning(disable: 4996)
 FMOD_RESULT F_CALLBACK FmodCallbackFileOpen(const char* file, unsigned int* pSize, void **pHandle, void *pUserData)
 {
     if (file)
@@ -23,6 +25,7 @@ FMOD_RESULT F_CALLBACK FmodCallbackFileOpen(const char* file, unsigned int* pSiz
     }
     return FMOD_OK;
 }
+#pragma warning(pop)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Close file

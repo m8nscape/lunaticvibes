@@ -53,7 +53,6 @@ unsigned AsyncLooper::getRateRealtime()
 
 #if WIN32
 
-#include <Windows.h>
 typedef HANDLE LooperHandler;
 VOID CALLBACK WaitOrTimerCallback(_In_ PVOID lpParameter, _In_ BOOLEAN TimerOrWaitFired)
 {

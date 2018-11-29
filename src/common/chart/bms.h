@@ -97,8 +97,6 @@ public:
     bool hasStop() const;
     bool hasBGA() const;
     bool hasRandom() const;
-    double getMinBpm() const;
-    double getMaxBpm() const;
 
     double getBPM() const;
     int getJudgeRank() const;

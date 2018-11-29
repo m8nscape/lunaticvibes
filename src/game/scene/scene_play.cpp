@@ -1,6 +1,7 @@
 #include <cassert>
 #include <future>
 #include "scene_play.h"
+#include "scene_context.h"
 #include "game/sound/sound_mgr.h"
 #include "game/ruleset/ruleset_classic.h"
 #include "chart/bms.h"
@@ -78,14 +79,13 @@ static const InputDataMap InputGameReleaseMap[] =
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ScenePlay::ScenePlay(ePlayMode mode, unsigned keys, StringPath& file, eRuleset ruleset):
-    vScene(eMode::PLAY7, 1000), _mode(mode), _rule(ruleset), _keys(keys), _chartPath(file)
+ScenePlay::ScenePlay(ePlayMode mode, unsigned keys, eRuleset ruleset):
+    vScene(eMode::PLAY7, 1000), _mode(mode), _rule(ruleset), _keys(keys)
 {
     _currentKeySample.assign(Input::ESC, 0);
 
     // TODO dispatch Chart object upon filename extension
     // currently hard coded for BMS
-    _pChart = std::make_shared<BMS>(_chartPath);
 
     // file loading may delayed
 
@@ -99,16 +99,21 @@ ScenePlay::ScenePlay(ePlayMode mode, unsigned keys, StringPath& file, eRuleset r
 
 void ScenePlay::loadChart()
 {
-    if (_pChart == nullptr || !_pChart->isLoaded())
+    if (context_chart.chartObj == nullptr)
     {
-        LOG_ERROR << "[Play] Load Chart failed, stop further loading";
+        LOG_ERROR << "[Play] Chart not specified!";
         return;
     }
-    // TODO may decide current chart is loaded when in song select scene (preview)
+
+    if (!context_chart.chartObj->isLoaded())
+    {
+        LOG_ERROR << "[Play] Invalid chart!";
+        return;
+    }
 
     // TODO load Scroll object from Chart object
     // currently hard coded for BMS
-    _pScroll = std::make_shared<ScrollBMS>((const BMS&)*_pChart);
+    _pScroll = std::make_shared<ScrollBMS>((const BMS&)*context_chart.chartObj);
     _scrollLoaded = true;
 
     // build Ruleset object
@@ -124,51 +129,56 @@ void ScenePlay::loadChart()
     }
 
     // load samples
-	std::async(std::launch::async, [&]() {
-		for (const auto& it: _pChart->_wavFiles)
-		{
-			if (it.empty()) continue;
-			++wavToLoad;
-		}
-		if (wavToLoad == 0)
-		{
-			wavLoaded = 1;
-			_sampleLoaded = true;
-			return;
-		}
-		for (size_t i = 0; i < _pChart->_wavFiles.size(); ++i)
-		{
-			const auto& wav = _pChart->_wavFiles[i];
-			if (wav.empty()) continue;
-			SoundMgr::loadKeySample(wav, i);
-			++wavLoaded;
-		}
-		_sampleLoaded = true;
-	});
+    if (!context_chart.isSampleLoaded)
+    {
+        std::async(std::launch::async, [&]() {
+            auto _pChart = context_chart.chartObj;
+            for (const auto& it : _pChart->_wavFiles)
+            {
+                if (it.empty()) continue;
+                ++wavToLoad;
+            }
+            if (wavToLoad == 0)
+            {
+                wavLoaded = 1;
+                return;
+            }
+            for (size_t i = 0; i < _pChart->_wavFiles.size(); ++i)
+            {
+                const auto& wav = _pChart->_wavFiles[i];
+                if (wav.empty()) continue;
+                SoundMgr::loadKeySample(wav, i);
+                ++wavLoaded;
+            }
+        }).wait();
+        context_chart.isSampleLoaded = true;
+    }
 
-	// load bga
-	std::async(std::launch::async, [&]() {
-		for (const auto& it: _pChart->_bgaFiles)
-		{
-			if (it.empty()) continue;
-			++bmpToLoad;
-		}
-		if (bmpToLoad == 0) 
-		{
-			bmpLoaded = 1;
-			_bgaLoaded = true;
-			return;
-		}
-		for (size_t i = 0; i < _pChart->_bgaFiles.size(); ++i)
-		{
-			const auto& bmp = _pChart->_bgaFiles[i];
-			if (bmp.empty()) continue;
-			// TODO load bga textures
-			++bmpLoaded;
-		}
-		_bgaLoaded = true;
-	});
-
+    // load bga
+    if (!context_chart.isBgaLoaded)
+    {
+        std::async(std::launch::async, [&]() {
+            auto _pChart = context_chart.chartObj;
+            for (const auto& it : _pChart->_bgaFiles)
+            {
+                if (it.empty()) continue;
+                ++bmpToLoad;
+            }
+            if (bmpToLoad == 0)
+            {
+                bmpLoaded = 1;
+                return;
+            }
+            for (size_t i = 0; i < _pChart->_bgaFiles.size(); ++i)
+            {
+                const auto& bmp = _pChart->_bgaFiles[i];
+                if (bmp.empty()) continue;
+                // TODO load bga textures
+                ++bmpLoaded;
+            }
+        }).wait();
+        context_chart.isBgaLoaded = true;
+    }
 }
 
 void ScenePlay::setInputJudgeCallback()
@@ -249,7 +259,8 @@ void ScenePlay::updateLoading()
     // TODO display progress
     //  set global bargraph values
 
-    if (_scrollLoaded && _rulesetLoaded && _sampleLoaded && _bgaLoaded)
+    if (_scrollLoaded && _rulesetLoaded &&
+        context_chart.isSampleLoaded && context_chart.isBgaLoaded)
     {
         _state = ePlayState::LOAD_END;
         gTimers.set(eTimer::PLAY_READY, getTimePoint());

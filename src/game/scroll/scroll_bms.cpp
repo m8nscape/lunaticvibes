@@ -2,7 +2,7 @@
 
 namespace bms
 {
-    static const size_t NOPE = -1u;
+    static const size_t NOPE = -1;
 
     // Need this since current parser stores channel directly
     static const size_t BMSToChannelMap[] = 

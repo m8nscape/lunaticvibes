@@ -33,7 +33,6 @@ private:
     InputMask _inputAvailable;
     StringPath _chartPath;
     std::vector<size_t> _currentKeySample;
-    std::shared_ptr<vChart>   _pChart;
     std::shared_ptr<vScroll>  _pScroll;
     std::shared_ptr<vRuleset> _pRuleset;
 
@@ -42,7 +41,7 @@ private:
     bool _isHoldingSelect = false;
 
 public:
-    ScenePlay(ePlayMode mode, unsigned keys, StringPath& chartPath, eRuleset ruleset);
+    ScenePlay(ePlayMode mode, unsigned keys, eRuleset ruleset);
     virtual ~ScenePlay() = default;
 
 private:
@@ -62,8 +61,8 @@ protected:
     // loading indicators
     bool _scrollLoaded = false;
     bool _rulesetLoaded = false;
-    bool _sampleLoaded = false;
-    bool _bgaLoaded = false;
+    //bool _sampleLoaded = false;
+    //bool _bgaLoaded = false;
     unsigned wavLoaded = 0;
     unsigned wavToLoad = 0;
     unsigned bmpLoaded = 0;

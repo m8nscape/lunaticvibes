@@ -12,7 +12,7 @@ vSkin::vSkin()
 void vSkin::update()
 {
     rTime t = getTimePoint();
-    std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), [](const auto& s)
+    std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), [&t](const auto& s)
     {
         switch (s->type())
         {

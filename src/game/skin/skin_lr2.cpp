@@ -81,7 +81,7 @@ int SkinLR2::loadLR2image(const std::vector<StringContent> &t)
             {
                 size_t ranidx = std::rand() % ls.size();
                 _texNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(ls[ranidx].string().c_str()));
-                LOG_DEBUG << "[Skin] " << line << ": Added random IMAGE[" << imageCount << "]: " << ls[ranidx];
+                LOG_DEBUG << "[Skin] " << line << ": Added random IMAGE[" << imageCount << "]: " << ls[ranidx].string();
             }
             else
             {
@@ -96,7 +96,7 @@ int SkinLR2::loadLR2image(const std::vector<StringContent> &t)
         {
             // Normal path
             _texNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(path.string().c_str()));
-            LOG_DEBUG << "[Skin] " << line << ": Added IMAGE[" << imageCount << "]: " << path;
+            LOG_DEBUG << "[Skin] " << line << ": Added IMAGE[" << imageCount << "]: " << path.string();
         }
         ++imageCount;
         return 1;
@@ -111,7 +111,7 @@ int SkinLR2::loadLR2font(const std::vector<StringContent> &t)
     {
         Path path(t[1]);
         //lr2fontPath.push_back(std::move(path));
-        LOG_DEBUG << "[Skin] " << line << ": Skipped LR2FONT: " << path;
+        LOG_DEBUG << "[Skin] " << line << ": Skipped LR2FONT: " << path.string();
         return 1;
     }
     return 0;
@@ -139,12 +139,12 @@ int SkinLR2::loadLR2include(const std::vector<StringContent> &t)
         Path path(t[1]);
         auto line = this->line;
         this->line = 0;
-        LOG_DEBUG << "[Skin] " << line << ": INCLUDE: " << path;
+        LOG_DEBUG << "[Skin] " << line << ": INCLUDE: " << path.string();
         //auto subCsv = SkinLR2(path);
         //if (subCsv._loaded)
         //    _csvIncluded.push_back(std::move(subCsv));
         loadCSV(path);
-        LOG_DEBUG << "[Skin] " << line << ": INCLUDE END //" << path;
+        LOG_DEBUG << "[Skin] " << line << ": INCLUDE END //" << path.string();
         this->line = line;
         return 1;
     }
@@ -769,7 +769,7 @@ int SkinLR2::loadLR2header(const std::vector<StringContent> &t)
 
         _texNameMap["THUMBNAIL"] = std::make_shared<Texture>(Image(thumbnail.string().c_str()));
         if (_texNameMap["THUMBNAIL"] == nullptr)
-            LOG_WARNING << "[Skin] " << line << ": thumbnail loading failed: " << thumbnail << " (Line " << line << ")";
+            LOG_WARNING << "[Skin] " << line << ": thumbnail loading failed: " << thumbnail.string() << " (Line " << line << ")";
 
         LOG_DEBUG << "[Skin] " << line << ": Loaded metadata: " << title << " | " << maker;
 
@@ -810,7 +810,7 @@ int SkinLR2::loadLR2header(const std::vector<StringContent> &t)
                 break;
             }
 
-        LOG_DEBUG << "[Skin] " << line << ": Loaded Custom file " << title << ": " << pathf;
+        LOG_DEBUG << "[Skin] " << line << ": Loaded Custom file " << title << ": " << pathf.string();
         customFile.push_back({ title, p, std::move(ls), defVal, defVal });
         return 3;
     }
@@ -835,7 +835,7 @@ void SkinLR2::loadCSV(Path p)
     std::ifstream lr2skin(p, std::ios::binary);
     if (!lr2skin.is_open())
     {
-        LOG_ERROR << "[Skin] " << line << ": Skin File Not Found: " << std::filesystem::absolute(p);
+        LOG_ERROR << "[Skin] " << line << ": Skin File Not Found: " << std::filesystem::absolute(p).string();
         return;
     }
 
@@ -877,7 +877,7 @@ void SkinLR2::loadCSV(Path p)
     }
 
 
-    LOG_DEBUG << "[Skin] " << line << ": Loaded " << p;
+    LOG_DEBUG << "[Skin] " << line << ": Loaded " << p.string();
     _loaded = true;
 
     /*

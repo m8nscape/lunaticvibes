@@ -6,13 +6,13 @@ static const StringPath CONFIG_FILE_INPUT = "bindings.yml";
 
 namespace cfg
 {
-    const char* I_DEVICE_TYPE = "DeviceType";
-    const char* I_DEVICE_TYPE_KB = "Keyboard";
-    const char* I_DEVICE_TYPE_CON = "Controller";
+    inline const char* I_DEVICE_TYPE = "DeviceType";
+    inline const char* I_DEVICE_TYPE_KB = "Keyboard";
+    inline const char* I_DEVICE_TYPE_CON = "Controller";
 
-    const char* I_NOTBOUND = "_";
+    inline const char* I_NOTBOUND = "_";
 
-    const char* I_DEVICE_ID = "ID";             // USB: VID,PID,ID
+    inline const char* I_DEVICE_ID = "ID";             // USB: VID,PID,ID
 }
 
 class ConfigInput : public vConfig

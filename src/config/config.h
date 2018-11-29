@@ -4,8 +4,8 @@
 
 namespace cfg
 {
-    const char* OFF = "OFF";
-    const char* ON = "ON";
+    inline const char* OFF = "OFF";
+    inline const char* ON = "ON";
 }
 
 class vConfig

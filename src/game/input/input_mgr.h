@@ -64,7 +64,7 @@ public:
 extern const std::array<std::string, 0xFF> keyNameMap;
 
 // Keyboard detect
-inline bool isKeyPressed(Input::Key c);
+bool isKeyPressed(Input::Key c);
 
 // Joystick detect
 typedef int JoyBtn;

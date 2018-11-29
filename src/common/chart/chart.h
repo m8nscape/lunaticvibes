@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <numeric>
 #include "types.h"
 #include "beat.h"
 
@@ -58,14 +59,14 @@ protected:
     BPM _maxBPM = 0.0;
 
 public:
-    StringContent getTitle() const;
-    StringContent getSubTitle() const;
-    StringContent getArtist() const;
-    StringContent getSubArtist() const;
-    StringContent getGenre() const;
-    BPM getInitialBPM() const;
-    BPM getMinBPM() const;
-    BPM getMaxBPM() const;
+    inline StringContent getTitle() const { return _title; }
+    inline StringContent getSubTitle() const { return _title2; }
+    inline StringContent getArtist() const { return _artist; }
+    inline StringContent getSubArtist() const { return _artist2; }
+    inline StringContent getGenre() const { return _genre; }
+    constexpr BPM getInitialBPM() const { return !_BPMs.empty() ? std::get<BPM>(_BPMs.front().value) : 130; }
+    constexpr BPM getMinBPM() const { return _minBPM; }
+    constexpr BPM getMaxBPM() const { return _maxBPM; }
     BPM getAvgBPM() const;
     BPM getNormBPM() const;
 };

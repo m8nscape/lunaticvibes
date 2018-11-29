@@ -1,5 +1,6 @@
 #include "bms.h"
 #include <plog/Log.h>
+#include <digestpp.hpp>
 #include <iostream>
 #include <fstream>
 #include <regex>
@@ -28,10 +29,7 @@ int BMS::initWithFile(std::string file)
     }
 
     _filePath = std::filesystem::absolute(file);
-    LOG_INFO << "[BMS] File: " << _filePath;
-    //auto p = std::experimental::filesystem::absolute(file);
-    //path = p.string();
-    //dirpath = p.parent_path().string();
+    LOG_INFO << "[BMS] File: " << _filePath.string();
     std::ifstream fs(_filePath.string());
     if (fs.fail())
     {
@@ -301,6 +299,11 @@ int BMS::initWithFile(std::string file)
             }
         }
     }
+
+    std::ifstream ifs(_filePath.string(), std::ios_base::binary);
+    _fileHash = digestpp::md5().absorb(ifs).hexdigest();
+    ifs.close();
+    LOG_INFO << "[BMS] MD5: " << _fileHash;
 
     _loaded = true;
     LOG_INFO << "[BMS] Parsing BMS complete.";

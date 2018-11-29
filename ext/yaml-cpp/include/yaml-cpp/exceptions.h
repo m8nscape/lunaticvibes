@@ -15,7 +15,7 @@
 
 // This is here for compatibility with older versions of Visual Studio
 // which don't support noexcept
-#ifdef _MSC_VER
+#if _MSC_VER <= 1600
     #define YAML_CPP_NOEXCEPT _NOEXCEPT
 #else
     #define YAML_CPP_NOEXCEPT noexcept

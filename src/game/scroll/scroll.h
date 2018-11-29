@@ -145,6 +145,6 @@ public:
     std::list<Note>   noteExtExpired;
 
 public:
-    virtual std::pair<NoteChannelCategory, NoteChannelIndex> getChannelFromKey(Input::k input) = 0;
+    virtual std::pair<NoteChannelCategory, NoteChannelIndex> getChannelFromKey(Input::Ingame input) = 0;
     virtual std::vector<Input::Ingame> getInputFromChannel(size_t channel) = 0;
 };

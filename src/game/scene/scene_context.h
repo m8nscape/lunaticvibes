@@ -4,14 +4,16 @@
 #include <memory>
 #include <string>
 
-inline struct
+inline struct __chart_context_params
 {
     Path path;
     HashMD5 hash;
     std::shared_ptr<vChart> chartObj;
-    bool isChartSamplesLoaded;
+    //bool isChartSamplesLoaded;
+    bool isSampleLoaded;
+    bool isBgaLoaded;
 
-    // For displaying purpose
+    // For displaying purpose, typically fetch from song db directly
     StringContent title;
     StringContent title2;
     StringContent artist;
