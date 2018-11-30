@@ -1319,7 +1319,6 @@ private:
     };
     std::vector<CustomFile> customFile;
 
-
 protected:
     size_t imageCount = 0;
     struct { unsigned r, g, b; } transColor = { 0, 255, 0 };
@@ -1337,6 +1336,10 @@ public:
     SkinLR2() = delete;
     SkinLR2(Path p);
     void loadCSV(Path p);
+
+protected:
+    typedef std::shared_ptr<SpriteLaneVertical> pSpriteLane;
+    std::vector<pSpriteLane> _laneSprites;
 
 private:
     unsigned line = 0;          // line parsing index

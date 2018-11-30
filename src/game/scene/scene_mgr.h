@@ -10,7 +10,6 @@ enum class eScene
     EXIT
 };
 
-inline char* __arg_path = "";
 inline eScene __next_scene = eScene::PLAY;
 
 typedef std::shared_ptr<vScene> pScene;

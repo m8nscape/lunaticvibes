@@ -610,6 +610,10 @@ int SkinLR2::loadLR2dst(const std::vector<StringContent> &t)
     return ret;
 }
 
+struct __lr2skin_note_context
+{
+    
+} context_note;
 
 int SkinLR2::loadLR2note(const std::vector<StringContent> &t)
 {

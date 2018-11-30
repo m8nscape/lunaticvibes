@@ -84,8 +84,6 @@ ScenePlay::ScenePlay(ePlayMode mode, unsigned keys, eRuleset ruleset):
 {
     _currentKeySample.assign(Input::ESC, 0);
 
-    // TODO dispatch Chart object upon filename extension
-    // currently hard coded for BMS
 
     // file loading may delayed
 
@@ -101,8 +99,15 @@ void ScenePlay::loadChart()
 {
     if (context_chart.chartObj == nullptr)
     {
-        LOG_ERROR << "[Play] Chart not specified!";
-        return;
+        if (context_chart.path.empty())
+        {
+            LOG_ERROR << "[Play] Chart not specified!";
+            return;
+        }
+
+        // TODO dispatch Chart object upon filename extension
+        // currently hard coded for BMS
+        context_chart.chartObj = std::make_shared<BMS>(std::filesystem::absolute(context_chart.path).string());
     }
 
     if (!context_chart.chartObj->isLoaded())
@@ -110,6 +115,15 @@ void ScenePlay::loadChart()
         LOG_ERROR << "[Play] Invalid chart!";
         return;
     }
+
+    context_chart.title = context_chart.chartObj->getTitle();
+    context_chart.title2 = context_chart.chartObj->getSubTitle();
+    context_chart.artist = context_chart.chartObj->getArtist();
+    context_chart.artist2 = context_chart.chartObj->getSubArtist();
+    context_chart.genre = context_chart.chartObj->getGenre();
+    context_chart.minBPM = context_chart.chartObj->getMinBPM();
+    context_chart.itlBPM = context_chart.chartObj->getInitialBPM();
+    context_chart.maxBPM = context_chart.chartObj->getMaxBPM();
 
     // TODO load Scroll object from Chart object
     // currently hard coded for BMS

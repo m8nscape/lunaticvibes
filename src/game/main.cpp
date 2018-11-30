@@ -5,6 +5,7 @@
 #include "input/input_mgr.h"
 #include "skin/skin_lr2.h"
 #include "utils.h"
+#include "scene/scene_context.h"
 #include <plog/Log.h>
 
 #if WIN32
@@ -55,8 +56,26 @@ int main(int argc, char* argv[])
 	InputMgr::updateDevices();
 	InputMgr::updateBindings(Input::Ingame::S1L);
 
-    if (argc > 1)
-        __arg_path = argv[1];
+    // temporary: hardcode bms file for test
+    context_chart = {
+        "res/sample_7.bme",
+        "",
+        nullptr,
+        false,
+        false,
+
+        "TITLE",
+        "subtitle",
+        "ARTIST",
+        "subartist",
+        "GENRE",
+        "Version",
+
+        2.0,
+        130,
+        150,
+        180
+    };
 
 #if WIN32
     timeBeginPeriod(1);
