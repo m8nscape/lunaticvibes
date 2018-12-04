@@ -47,14 +47,10 @@ protected:
     // File assigned by the BMS file.
     // Ported to super class
 
-    // Measures related.
-    std::array<double, MAXSAMPLEIDX + 1> exBPM{};
-    std::array<double, MAXSAMPLEIDX + 1> stop{};
     
     // Channels.
     int strToChannel36(channel&, const StringContent& str);
     int strToChannel16(channel&, const StringContent& str);
-    std::array<unsigned, MAXMEASUREIDX+ 1> bgmLayersCount{};
     std::array<ChannelArray, BGMCHANNELS> chBGM{};
     ChannelArray chStop{};
     ChannelArray chBPMChange{};
@@ -67,6 +63,11 @@ protected:
     std::array<ChannelArray, 20> chNotesLN{};
     std::array<ChannelArray, 20> chMines{};
     int strToNoteChannelDispatcher(decltype(chNotesVisible)&, int measure, int layer, int ch, const StringContent& str);
+
+public:
+    // Measures related.
+    std::array<double, MAXSAMPLEIDX + 1> exBPM{};
+    std::array<double, MAXSAMPLEIDX + 1> stop{};
 
 public:
     // Properties detected when parsing.
@@ -84,6 +85,7 @@ public:
     unsigned bgmLayers = 0;
     unsigned long notes = 0;
     unsigned maxMeasure = 0;
+    std::array<unsigned, MAXMEASUREIDX + 1> bgmLayersCount{};
 
 public:
     int getMode() const;

@@ -398,7 +398,7 @@ int BMS::getMode() const
 }
 
 #pragma warning(suppress: 4715)
-auto BMS::getChannel(ChannelCode code, unsigned chIdx, unsigned measureIdx) const
+auto BMS::getChannel(ChannelCode code, unsigned chIdx, unsigned measureIdx) const -> const decltype(chBGM[0][0])&
 {
     using eC = ChannelCode;
     switch (code)

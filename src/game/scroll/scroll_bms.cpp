@@ -80,10 +80,10 @@ ScrollBMS::ScrollBMS(const BMS& b) : ScrollBMS()
 void ScrollBMS::loadBMS(const BMS& objBms)
 {
     hTime basetime = 0;
-    BPM bpm = objBms.getBPM();
+    BPM bpm = objBms.getInitialBPM();
     _bpmList.push_back({ 0, {0, 1}, 0, 0, bpm });
     bool bpmfucked = false;
-    for (unsigned m = 0; m <= objBms.getMaxMeasure(); m++)
+    for (unsigned m = 0; m <= objBms.maxMeasure; m++)
     {
         _measureTimestamp[m] = basetime;
 
@@ -113,7 +113,7 @@ void ScrollBMS::loadBMS(const BMS& objBms)
             // mine: , bms: Dx/Ex, specify a damage by [01-ZZ] (decimalize/2) ZZ: instantly gameover
 
             // BGM: 
-            for (unsigned i = 0; i < objBms.getBGMChannelCount(m); i++)
+            for (unsigned i = 0; i < objBms.bgmLayersCount[m]; i++)
             {
                 auto ch = objBms.getChannel(ChannelCode::BGM, i, m);
                 for (const auto& n : ch.notes)
@@ -172,7 +172,7 @@ void ScrollBMS::loadBMS(const BMS& objBms)
         double lastSpdChangedPos = 0;
         double stopBeat = 0;
         double currentSpd = 1.0;
-        Beat measureBeat = objBms.getMeasureLength(m);      // in Beat, not including STOP
+        Beat measureBeat = objBms._measureLength[m];      // in Beat, not including STOP
 
         for (const auto& note : notes)
         {
@@ -204,7 +204,7 @@ void ScrollBMS::loadBMS(const BMS& objBms)
                 basetime = noteht;
                 lastBPMChangedSegment = segment;
                 lastSpdChangedPos = pos;
-                bpm = objBms.getExBPM(val);
+                bpm = objBms.exBPM[val];
                 _bpmList.push_back({ m, beat, pos, noteht, bpm });
                 if (bpm <= 0) bpmfucked = true;
                 break;
@@ -220,7 +220,7 @@ void ScrollBMS::loadBMS(const BMS& objBms)
                 break;
 
             case 0xFF:	// Stop
-                double curStopBeat = objBms.getStop(val);
+                double curStopBeat = objBms.stop[val];
                 hTime  curStopTime = curStopBeat / 192 * hConvertBPM(bpm);
                 if (curStopBeat <= 0) break;
                 lastSpdChangedPos = pos;

@@ -116,14 +116,14 @@ void ScenePlay::loadChart()
         return;
     }
 
-    context_chart.title = context_chart.chartObj->getTitle();
-    context_chart.title2 = context_chart.chartObj->getSubTitle();
-    context_chart.artist = context_chart.chartObj->getArtist();
-    context_chart.artist2 = context_chart.chartObj->getSubArtist();
-    context_chart.genre = context_chart.chartObj->getGenre();
-    context_chart.minBPM = context_chart.chartObj->getMinBPM();
+    context_chart.title = context_chart.chartObj->_title;
+    context_chart.title2 = context_chart.chartObj->_title2;
+    context_chart.artist = context_chart.chartObj->_artist;
+    context_chart.artist2 = context_chart.chartObj->_artist2;
+    context_chart.genre = context_chart.chartObj->_genre;
+    context_chart.minBPM = context_chart.chartObj->_minBPM;
     context_chart.itlBPM = context_chart.chartObj->getInitialBPM();
-    context_chart.maxBPM = context_chart.chartObj->getMaxBPM();
+    context_chart.maxBPM = context_chart.chartObj->_maxBPM;
 
     // TODO load Scroll object from Chart object
     // currently hard coded for BMS
