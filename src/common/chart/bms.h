@@ -68,6 +68,7 @@ protected:
     std::array<ChannelArray, 20> chMines{};
     int strToNoteChannelDispatcher(decltype(chNotesVisible)&, int measure, int layer, int ch, const StringContent& str);
 
+public:
     // Properties detected when parsing.
     bool haveNote = false;
     bool have67 = false;
@@ -83,35 +84,9 @@ protected:
     unsigned bgmLayers = 0;
     unsigned long notes = 0;
     unsigned maxMeasure = 0;
-    double minBPM;
-    double maxBPM;
 
 public:
     int getMode() const;
-    unsigned getNoteCount() const;
-    unsigned getMaxMeasure() const;
-    bool hasMine() const;
-    bool hasLN() const;
-    bool hasInvisible() const;
-    bool hasBPMchange() const;
-    bool hasStop() const;
-    bool hasBGA() const;
-    bool hasRandom() const;
-
-    double getBPM() const;
-    int getJudgeRank() const;
-    int getPlayLevel() const;
-    int getDifficulty() const;
-
-    auto getMeasureLength(unsigned idx) const -> decltype(_measureLength[0]) const;
-    unsigned getBGMChannelCount(unsigned measure) const;
     auto getChannel(ChannelCode, unsigned chIdx, unsigned measureIdx) const -> const decltype(chBGM[0][0])&;
-
-    auto getExBPM(size_t idx) const -> decltype(exBPM[0]);
-    auto getStop(size_t idx) const -> decltype(stop[0]);
-
-    auto getWavPath(size_t idx) const -> decltype(_wavFiles[0]);
-    auto getBmpPath(size_t idx) const -> decltype(_bgaFiles[0]);
-
     StringPath getDirectory() const;
 };

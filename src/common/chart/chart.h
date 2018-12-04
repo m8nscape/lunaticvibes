@@ -28,7 +28,7 @@ protected:
     bool _loaded = false;
     constexpr bool isLoaded() { return _loaded; }
 
-protected:
+public:
 
     Path _filePath;
     HashMD5 _fileHash;
@@ -59,14 +59,7 @@ protected:
     BPM _maxBPM = 0.0;
 
 public:
-    inline StringContent getTitle() const { return _title; }
-    inline StringContent getSubTitle() const { return _title2; }
-    inline StringContent getArtist() const { return _artist; }
-    inline StringContent getSubArtist() const { return _artist2; }
-    inline StringContent getGenre() const { return _genre; }
     constexpr BPM getInitialBPM() const { return !_BPMs.empty() ? std::get<BPM>(_BPMs.front().value) : 130; }
-    constexpr BPM getMinBPM() const { return _minBPM; }
-    constexpr BPM getMaxBPM() const { return _maxBPM; }
     BPM getAvgBPM() const;
     BPM getNormBPM() const;
 };

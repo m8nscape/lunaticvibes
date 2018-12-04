@@ -9,6 +9,170 @@
 
 bool SkinLR2::customizeDst[100];
 
+#pragma region Sprite type definitions
+
+enum lr2skin_sprite_type
+{
+    // General
+    LR2_IMAGE,
+    LR2_NUMBER,
+    LR2_SLIDER,
+    LR2_BARGRAPH,
+    LR2_BUTTON,
+    LR2_ONMOUSE,
+    LR2_TEXT,
+
+    // Play
+    LR2_BGA,
+    LR2_JUDGELINE,
+    LR2_BARLINE,
+    LR2_NOTE,
+    LR2_NOWJUDGE_1P,
+    LR2_NOWCOMBO_1P,
+    LR2_NOWJUDGE_2P,
+    LR2_NOWCOMBO_2P,
+
+    // Select
+    LR2_BAR_BODY,
+    LR2_BAR_FLASH,
+    LR2_BAR_LEVEL,
+    LR2_BAR_LAMP,
+    LR2_BAR_TITLE,
+    LR2_BAR_RANK,
+    LR2_BAR_RIVAL,
+    LR2_README,
+    LR2_MOUSECURSOR,
+
+    // Result
+    LR2_GAUGECHART_1P,
+    LR2_GAUGECHART_2P,
+};
+
+struct lr2skin_sprite_basic
+{
+    int _null;
+    int gr;
+    int x, y, w, h;
+    int div_x, div_y;
+    int cycle;
+    int timer;
+};
+
+struct lr2skin_sprite_image: lr2skin_sprite_basic
+{
+    int op1, op2, op3;
+};
+
+struct lr2skin_sprite_number: lr2skin_sprite_basic
+{
+    int num;
+    int align;
+    int keta;
+};
+
+struct lr2skin_sprite_bargraph: lr2skin_sprite_basic
+{
+    int type;
+    int muki;
+};
+
+struct lr2skin_sprite_button: lr2skin_sprite_basic
+{
+    int _null;
+    int gr;
+    int x, y, w, h;
+    int div_x, div_y;
+    int cycle;
+    int timer;
+    int panel;
+    int x2, y2, w2, h2;
+};
+
+struct lr2skin_sprite_text
+{
+    int _null;
+    int font;
+    int st;
+    int align;
+    int edit;
+    int panel;
+};
+
+struct lr2skin_sprite_bga
+{
+    int _null[10];
+    int nobase;
+    int nolayer;
+    int nopoor;
+};
+
+typedef lr2skin_sprite_basic lr2skin_sprite_judgeline;
+typedef lr2skin_sprite_basic lr2skin_sprite_barline;
+typedef lr2skin_sprite_basic lr2skin_sprite_note;
+
+struct lr2skin_sprite_nowjudge: lr2skin_sprite_basic
+{
+    int noshift;
+};
+
+struct lr2skin_sprite_nowcombo: lr2skin_sprite_basic
+{
+    int _null2;
+    int align;
+    int keta;
+};
+
+struct lr2skin_sprite_groovegauge: lr2skin_sprite_basic
+{
+    int add_x;
+    int add_y;
+};
+
+typedef lr2skin_sprite_basic lr2skin_sprite_barbody;
+typedef lr2skin_sprite_basic lr2skin_sprite_barflash;
+typedef lr2skin_sprite_nowcombo lr2skin_sprite_barlevel;
+typedef lr2skin_sprite_basic lr2skin_sprite_barlamp;
+struct lr2skin_sprite_bartitle
+{
+    int _null;
+    int font;
+    int st;
+    int align;
+};
+typedef lr2skin_sprite_basic lr2skin_sprite_barrank;
+typedef lr2skin_sprite_basic lr2skin_sprite_barrival;
+struct lr2skin_sprite_readme
+{
+    int _null;
+    int font;
+    int _null2[2];
+    int kankaku;
+};
+typedef lr2skin_sprite_basic lr2skin_sprite_mousecursor;
+
+struct lr2skin_sprite_gaugechart: lr2skin_sprite_basic
+{
+    int field_w, field_h;
+    int start;
+    int end;
+};
+typedef lr2skin_sprite_gaugechart lr2skin_sprite_scorechart;
+
+#pragma region end
+
+std::array<int, 32> context_sprite {};
+lr2skin_sprite_type context_sprite_type;
+
+struct lr2skin_note_context
+{
+    lr2skin_sprite_note
+        note,
+        mine,
+        ln_end,
+        ln_body,
+        ln_start;
+} context_note[20]{};
+
 #pragma region LR2 csv parsing
 
 std::vector<StringContent> SkinLR2::csvNextLineTokenize(std::istream& file)
@@ -357,12 +521,16 @@ int SkinLR2::loadLR2src(const std::vector<StringContent> &t)
                 w = _texNameMap[std::to_string(gr)]->getRect().w;
                 h = _texNameMap[std::to_string(gr)]->getRect().h;
             }
-            _sprites.push_back(std::make_shared<SpriteAnimated>(_texNameMap[std::to_string(gr)], Rect(x, y, w, h), div_x, div_y, cycle, iTimer));
+            context_sprite_type = LR2_IMAGE;
+            context_sprite = { 0, x, y, w, h, div_x, div_y, cycle, timer };
+            //_sprites.push_back(std::make_shared<SpriteAnimated>(_texNameMap[std::to_string(gr)], Rect(x, y, w, h), div_x, div_y, cycle, iTimer));
             LOG_DEBUG << "[Skin] " << line << ": Set Image sprite (texture: " << gr << ", timer: " << timer << ")";
         }
         else
         {
-            _sprites.push_back(std::make_shared<SpriteAnimated>(_texNameMap["Error"], Rect( 0, 0, 1, 1 ), div_x, div_y, cycle, iTimer));
+            context_sprite_type = LR2_IMAGE;
+            context_sprite = { -1, x, y, w, h, div_x, div_y, cycle, timer };
+            //_sprites.push_back(std::make_shared<SpriteAnimated>(_texNameMap["Error"], Rect( 0, 0, 1, 1 ), div_x, div_y, cycle, iTimer));
             LOG_DEBUG << "[Skin] " << line << ": Set Image sprite (texture: " << gr << "|INVALID, timer: " << timer << ")";
         }
         ret = 1;
@@ -609,11 +777,6 @@ int SkinLR2::loadLR2dst(const std::vector<StringContent> &t)
 
     return ret;
 }
-
-struct __lr2skin_note_context
-{
-    
-} context_note;
 
 int SkinLR2::loadLR2note(const std::vector<StringContent> &t)
 {

@@ -1,6 +1,7 @@
 #include "asynclooper.h"
 #include <numeric>
 #include <chrono>
+#include <plog/Log.h>
 
 AsyncLooper::AsyncLooper(std::function<void()> func, unsigned rate_per_sec): _run(func)
 {
@@ -72,7 +73,7 @@ void AsyncLooper::loopStart()
 
     if (!_running)
     {
-        // TODO log
+        LOG_INFO << "[Looper] Started with rate " << _rateTime;
     }
 }
 
@@ -81,6 +82,7 @@ void AsyncLooper::loopEnd()
     if (!_running) return;
     DeleteTimerQueueTimer(NULL, handler, NULL);
     _running = false;
+    LOG_INFO << "[Looper] Ended of rate " << _rateTime;
 }
 
 #elif LINUX

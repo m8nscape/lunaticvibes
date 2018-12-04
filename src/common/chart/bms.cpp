@@ -281,21 +281,21 @@ int BMS::initWithFile(std::string file)
         notes += ln / 2;
     }
 
-    minBPM = bpm;
-    maxBPM = bpm;
+    _minBPM = bpm;
+    _maxBPM = bpm;
     if (haveBPMChange)
     {
         for (unsigned m = 0; m <= maxMeasure; m++)
         {
             for (const auto& ns : chBPMChange[m].notes)
             {
-                if (ns.value > maxBPM) maxBPM = ns.value;
-                if (ns.value < minBPM) minBPM = ns.value;
+                if (ns.value > _maxBPM) _maxBPM = ns.value;
+                if (ns.value < _minBPM) _minBPM = ns.value;
             }
             for (const auto& ns : chExBPMChange[m].notes)
             {
-                if (exBPM[ns.value] > maxBPM) maxBPM = exBPM[ns.value];
-                if (exBPM[ns.value] < minBPM) minBPM = exBPM[ns.value];
+                if (exBPM[ns.value] > _maxBPM) _maxBPM = exBPM[ns.value];
+                if (exBPM[ns.value] < _minBPM) _minBPM = exBPM[ns.value];
             }
         }
     }
@@ -397,83 +397,8 @@ int BMS::getMode() const
         return (have89) ? MODE_9KEYS : (have67) ? MODE_7KEYS : MODE_5KEYS;
 }
 
-unsigned BMS::getNoteCount() const
-{
-    return notes;
-}
-
-unsigned BMS::getMaxMeasure() const
-{
-    return maxMeasure;
-}
-
-bool BMS::hasMine() const
-{
-    return haveMine;
-}
-
-bool BMS::hasLN() const
-{
-    return haveLN;
-}
-
-bool BMS::hasInvisible() const
-{
-    return haveInvisible;
-}
-
-bool BMS::hasBPMchange() const
-{
-    return haveBPMChange;
-}
-
-bool BMS::hasStop() const
-{
-    return haveStop;
-}
-
-bool BMS::hasBGA() const
-{
-    return haveBGA;
-}
-
-bool BMS::hasRandom() const
-{
-    return haveRandom;
-}
-
-double BMS::getBPM() const
-{
-    return getInitialBPM();
-}
-
-int BMS::getJudgeRank() const
-{
-    return rank;
-}
-
-int BMS::getPlayLevel() const
-{
-    return playLevel;
-}
-
-int BMS::getDifficulty() const
-{
-    return difficulty;
-}
-
-auto BMS::getMeasureLength(unsigned idx) const -> decltype(_measureLength[0]) const
-{
-    return _measureLength[idx];
-}
-
-unsigned BMS::getBGMChannelCount(unsigned measure) const
-{
-    return bgmLayersCount[measure];
-}
-
 #pragma warning(suppress: 4715)
-auto BMS::getChannel(ChannelCode code, unsigned chIdx, unsigned measureIdx) const -> const decltype(chBGM[0][0])&
+auto BMS::getChannel(ChannelCode code, unsigned chIdx, unsigned measureIdx) const
 {
     using eC = ChannelCode;
     switch (code)
@@ -495,24 +420,6 @@ auto BMS::getChannel(ChannelCode code, unsigned chIdx, unsigned measureIdx) cons
     case eC::NOTEMINE2:    return chMines[10 + chIdx][measureIdx]; break;
     }
     // FIXME warning C4715 : “game::BMS::getChannel” : 不是所有的控件路径都返回值
-}
-
-auto BMS::getExBPM(size_t idx) const -> decltype(exBPM[0])
-{
-    return exBPM[idx];
-}
-auto BMS::getStop(size_t idx) const -> decltype(stop[0])
-{
-    return stop[idx];
-}
-
-auto BMS::getWavPath(size_t idx) const -> decltype(_wavFiles[0])
-{
-    return _wavFiles[idx];
-}
-auto BMS::getBmpPath(size_t idx) const -> decltype(_bgaFiles[0])
-{
-    return _bgaFiles[idx];
 }
 
 StringPath BMS::getDirectory() const
