@@ -1,0 +1,9 @@
+[submodule "ext/yaml-cpp"]
+	path = ext/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp
+[submodule "ext/plog"]
+	path = ext/plog
+	url = https://github.com/SergiusTheBest/plog
+[submodule "ext/digestpp"]
+	path = ext/digestpp
+	url = https://github.com/kerukuro/digestpp
