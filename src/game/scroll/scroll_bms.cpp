@@ -2,10 +2,10 @@
 
 namespace bms
 {
-    static const size_t NOPE = -1;
+    const size_t NOPE = -1;
 
     // Need this since current parser stores channel directly
-    static const size_t BMSToChannelMap[] = 
+    const size_t BMSToChannelMap[] = 
     {
         NOPE, // 0
         K1,
@@ -31,7 +31,7 @@ namespace bms
     };
     
     // from NoteChannelIndex to Input::Ingame
-    static const std::vector<Input::Ingame> ChannelToKeyMap[] = 
+    const std::vector<Input::Ingame> ChannelToKeyMap[] = 
     {
         // 0: Notes
         {Input::Ingame::S1L, Input::Ingame::S1R}, // Sc1
@@ -54,7 +54,7 @@ namespace bms
     };
 
     // from Input::Ingame to NoteChannelIndex
-    static const NoteChannelIndex KeyToChannelMap[] = 
+    const NoteChannelIndex KeyToChannelMap[] = 
     {
         Sc1, Sc1,
         K1, K2, K3, K4, K5, K6, K7,
@@ -181,7 +181,7 @@ void ScrollBMS::loadBMS(const BMS& objBms)
             double piece = (segment - lastBPMChangedSegment) * measureBeat;
             Beat beat = segment * d2fr(measureBeat + stopBeat);
             double pos = lastSpdChangedPos + (beat - lastBPMChangedSegment) * currentSpd;
-            hTime noteht = bpmfucked ? LLONG_MAX : basetime + piece * hConvertBPM(bpm);
+            hTime noteht = bpmfucked ? LLONG_MAX : basetime + hConvertBPM(bpm) * piece;
 
             if (lane >= 0 && lane < 100)
             {
@@ -221,7 +221,7 @@ void ScrollBMS::loadBMS(const BMS& objBms)
 
             case 0xFF:	// Stop
                 double curStopBeat = objBms.stop[val];
-                hTime  curStopTime = curStopBeat / 192 * hConvertBPM(bpm);
+                hTime  curStopTime = hConvertBPM(bpm) * curStopBeat / 192;
                 if (curStopBeat <= 0) break;
                 lastSpdChangedPos = pos;
                 //_extLists[(size_t)eNoteExt::STOP].push_back({ m, segment, baseY, noteht, curStopBeat });
@@ -232,7 +232,7 @@ void ScrollBMS::loadBMS(const BMS& objBms)
                 break;
             }
         }
-        basetime += (1.0 - lastBPMChangedSegment) * measureBeat;
+        basetime += (hTime)((1.0 - lastBPMChangedSegment) * measureBeat);
     }
 
     setIterators();

@@ -7,7 +7,7 @@ class SoundMgr
 private:
     SoundMgr() = default;
     ~SoundMgr() = default;
-    inline static bool _initialized = false;
+    bool _initialized = false;
     static SoundMgr _inst;
 
 private:

@@ -26,8 +26,7 @@ void SkinMgr::load(eMode e)
 pSkin SkinMgr::get(eMode e)
 {
     auto& inst = _inst.c[static_cast<size_t>(e)];
-    if (inst == nullptr)
-        load(e);
+    if (inst == nullptr) load(e);
     return inst;
 }
 void SkinMgr::unload(eMode e)

@@ -210,7 +210,7 @@ SpriteAnimated::SpriteAnimated(pTexture texture,
 SpriteAnimated::SpriteAnimated(pTexture texture, const Rect& r, 
     unsigned subRows, unsigned subCols, unsigned frameTime, eTimer t, 
     bool sv, unsigned rows, unsigned cols, bool v):
-    SpriteSplit(texture, r, rows, cols, v), _timerInd(t)
+    SpriteSplit(texture, r, rows, cols, v), _aframes(0), _timerInd(t)
 {
     _type = SpriteTypes::ANIMATED;
 

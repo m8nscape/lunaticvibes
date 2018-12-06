@@ -2,7 +2,7 @@
 #include "config.h"
 #include "game/input/input_keys.h"
 
-static const StringPath CONFIG_FILE_INPUT = "bindings.yml";
+inline const StringPath CONFIG_FILE_INPUT = "bindings.yml";
 
 namespace cfg
 {

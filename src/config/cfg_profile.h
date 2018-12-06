@@ -2,7 +2,7 @@
 #include "config.h"
 
 // Stores in player folder
-static const StringPath CONFIG_FILE_PROFILE = "profile.yml";
+inline const StringPath CONFIG_FILE_PROFILE = "profile.yml";
 
 namespace cfg
 {

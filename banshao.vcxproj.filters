@@ -275,5 +275,8 @@
     <ClInclude Include="src\game\input\input_keys.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\config\cfg_skin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

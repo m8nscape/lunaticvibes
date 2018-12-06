@@ -45,8 +45,8 @@ public:
 
     // Game keys param / functions
 private:
-    std::bitset<Input::MAX_JOYSTICK_COUNT> joysticksConnected;
-    std::array<Input::Binding, Input::ESC> bindings;
+    std::bitset<Input::MAX_JOYSTICK_COUNT> joysticksConnected{};
+    std::array<Input::Binding, Input::ESC> bindings{};
 	bool haveJoystick = false;
 	int analogDeadZone = 25;
 

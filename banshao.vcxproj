@@ -182,6 +182,7 @@ xcopy /y $(ProjectDir)ext\fmod\lib\fmod.dll $(SolutionDir)$(Configuration)\</Com
     <ClInclude Include="src\common\utils.h" />
     <ClInclude Include="src\config\cfg_input.h" />
     <ClInclude Include="src\config\cfg_profile.h" />
+    <ClInclude Include="src\config\cfg_skin.h" />
     <ClInclude Include="src\config\config.h" />
     <ClInclude Include="src\config\config_mgr.h" />
     <ClInclude Include="src\config\cfg_general.h" />
