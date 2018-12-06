@@ -42,9 +42,6 @@
     <ClCompile Include="src\game\graphics\SDL2\window_SDL2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\graphics\graphics.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\graphics\sprite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -119,22 +116,7 @@
     <ClInclude Include="src\common\utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\defs\defs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\common\defs\defs_bms.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\common\defs\defs_config.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\common\defs\defs_file.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\common\defs\defs_general.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\common\defs\defs_judge.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\common\defs\defs_scene.h">
@@ -159,9 +141,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game\sound\sound_mgr.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\common\defs\defs_input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\common\defs\defs_play.h">
@@ -276,6 +255,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\config\cfg_skin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\meta.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,6 +1,5 @@
 #pragma once
 
-// Game 
 constexpr char* MAIN_NAME = "asdf";
 constexpr char* SUB_NAME = "alpha";
 constexpr unsigned VER_MAJOR = 0;

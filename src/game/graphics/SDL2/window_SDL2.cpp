@@ -1,13 +1,15 @@
+#ifdef RENDER_SDL2
+
+#include "meta.h"
+#include "window_SDL2.h"
+#include "graphics_SDL2.h"
 #include "SDL.h"
 #include "SDL_Image.h"
 #include "SDL_ttf.h"
-#include "graphics_SDL2.h"
-#include "window_SDL2.h"
-#include "defs/defs_general.h"
 #include <plog/Log.h>
 #include <string>
 
-int initLib_SDL2()
+int graphics_init()
 {
     // SDL2
     {
@@ -79,17 +81,17 @@ int initLib_SDL2()
     return 0;
 }
 
-void clear_SDL2()
+void graphics_clear()
 {
     SDL_RenderClear(_frame_renderer);
 }
 
-void flush_SDL2()
+void graphics_flush()
 {
     SDL_RenderPresent(_frame_renderer);
 }
 
-int freeLib_SDL2()
+int graphics_free()
 {
     SDL_DestroyRenderer(_frame_renderer);
     SDL_DestroyWindow(_frame_window);
@@ -100,7 +102,7 @@ int freeLib_SDL2()
     return 0;
 }
 
-void handle_event_SDL2()
+void event_handle()
 {
     SDL_Event e;
     while (SDL_PollEvent(&e))
@@ -108,3 +110,5 @@ void handle_event_SDL2()
         ;
     }
 }
+
+#endif

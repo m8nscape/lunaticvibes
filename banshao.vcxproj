@@ -73,7 +73,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;RENDER_SDL2;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -101,7 +101,7 @@ xcopy /y $(ProjectDir)ext\fmod\lib\fmodL.dll $(SolutionDir)$(Configuration)\</Co
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;RENDER_SDL2;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -138,7 +138,6 @@ xcopy /y $(ProjectDir)ext\fmod\lib\fmod.dll $(SolutionDir)$(Configuration)\</Com
     <ClCompile Include="src\config\cfg_input.cpp" />
     <ClCompile Include="src\config\cfg_profile.cpp" />
     <ClCompile Include="src\config\config.cpp" />
-    <ClCompile Include="src\game\graphics\graphics.cpp" />
     <ClCompile Include="src\game\graphics\SDL2\common_SDL2.cpp" />
     <ClCompile Include="src\game\graphics\SDL2\rect_SDL2.cpp" />
     <ClCompile Include="src\game\graphics\SDL2\ttf_SDL2.cpp" />
@@ -168,16 +167,11 @@ xcopy /y $(ProjectDir)ext\fmod\lib\fmod.dll $(SolutionDir)$(Configuration)\</Com
     <ClInclude Include="src\common\beat.h" />
     <ClInclude Include="src\common\chart\bms.h" />
     <ClInclude Include="src\common\chart\chart.h" />
-    <ClInclude Include="src\common\defs\defs.h" />
-    <ClInclude Include="src\common\defs\defs_bms.h" />
-    <ClInclude Include="src\common\defs\defs_config.h" />
     <ClInclude Include="src\common\defs\defs_file.h" />
-    <ClInclude Include="src\common\defs\defs_general.h" />
-    <ClInclude Include="src\common\defs\defs_input.h" />
-    <ClInclude Include="src\common\defs\defs_judge.h" />
     <ClInclude Include="src\common\defs\defs_play.h" />
     <ClInclude Include="src\common\defs\defs_scene.h" />
     <ClInclude Include="src\common\fraction.h" />
+    <ClInclude Include="src\common\meta.h" />
     <ClInclude Include="src\common\types.h" />
     <ClInclude Include="src\common\utils.h" />
     <ClInclude Include="src\config\cfg_input.h" />

@@ -11,11 +11,9 @@
 //          #include "graphics_OpenGL.h"
 //      #endif
 
-// There we have only SDL2 implemented, leave it unwrapped here.
-
-// #ifdef RENDER_SDL2
+#ifdef RENDER_SDL2
 #include "SDL2/graphics_SDL2.h"
-// #endif
+#endif
 
 int graphics_init();
 void graphics_clear();
