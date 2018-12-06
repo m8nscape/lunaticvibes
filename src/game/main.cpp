@@ -8,6 +8,10 @@
 #include "scene/scene_context.h"
 #include <plog/Log.h>
 
+#if _DEBUG
+#include <plog/Appenders/ColorConsoleAppender.h>        // for command prompt log purpose
+#endif
+
 #if WIN32
 #include <Windows.h>
 #pragma comment(lib, "winmm.lib")
@@ -19,6 +23,9 @@ void mainLoop()
     auto scene = SceneMgr::get(currentScene);
     while (currentScene != eScene::EXIT)
     {
+        // Evenet handling
+        event_handle();
+
         // Scene change
         if (currentScene != __next_scene)
         {
@@ -41,7 +48,8 @@ int main(int argc, char* argv[])
 
     // init logger
 #if _DEBUG
-    plog::init(plog::debug);
+    auto appender = plog::ColorConsoleAppender<plog::TxtFormatterImpl<false>>();
+    plog::init(plog::debug, &appender);
 #else
     plog::init(plog::info, "log.txt", 1000000, 5);
 #endif

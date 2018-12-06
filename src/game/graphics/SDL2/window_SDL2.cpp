@@ -99,3 +99,12 @@ int freeLib_SDL2()
 
     return 0;
 }
+
+void handle_event_SDL2()
+{
+    SDL_Event e;
+    while (SDL_PollEvent(&e))
+    {
+        ;
+    }
+}

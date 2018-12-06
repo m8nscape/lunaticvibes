@@ -24,7 +24,9 @@ namespace Input
         Key		    key;
     };
 
-    typedef std::vector<KeyMap> Binding;
+    const std::size_t MAX_JOYSTICK_COUNT = 8;
+    const std::size_t MAX_BINDINGS_PER_KEY = 10;
+    typedef std::array<KeyMap, MAX_BINDINGS_PER_KEY> Binding;
 
 };
 
@@ -40,12 +42,10 @@ private:
     ~InputMgr() = default;
 
 public:
-    static const std::size_t MAX_JOYSTICK_COUNT = 8;
-    static const std::size_t MAX_BINDINGS_PER_KEY = 10;
 
     // Game keys param / functions
 private:
-    std::bitset<MAX_JOYSTICK_COUNT> joysticksConnected;
+    std::bitset<Input::MAX_JOYSTICK_COUNT> joysticksConnected;
     std::array<Input::Binding, Input::ESC> bindings;
 	bool haveJoystick = false;
 	int analogDeadZone = 25;

@@ -56,6 +56,7 @@ judgeRes RulesetClassic::_judge(const Note& note, rTime time)
 void RulesetClassic::updatePress(InputMask& pg, rTime t)
 {
     rTime rt = gTimers.get(eTimer::PLAY_START) - t;
+    if (rt < 0) return;
     for (size_t k = Input::S1L; k < Input::K1START; ++k)
     {
         if (!pg[k]) continue;
@@ -134,6 +135,7 @@ void RulesetClassic::updatePress(InputMask& pg, rTime t)
 void RulesetClassic::updateHold(InputMask& hg, rTime t)
 {
     rTime rt = gTimers.get(eTimer::PLAY_START) - t;
+    if (rt < 0) return;
     for (size_t k = Input::S1L; k < Input::K1START; ++k)
     {
         if (!hg[k]) continue;
@@ -160,6 +162,7 @@ void RulesetClassic::updateHold(InputMask& hg, rTime t)
 void RulesetClassic::updateRelease(InputMask& rg, rTime t)
 {
     rTime rt = gTimers.get(eTimer::PLAY_START) - t;
+    if (rt < 0) return;
     for (size_t k = Input::S1L; k < Input::K1START; ++k)
     {
         if (!rg[k]) continue;

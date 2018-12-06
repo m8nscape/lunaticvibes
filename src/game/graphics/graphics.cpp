@@ -21,4 +21,9 @@ int graphics_free()
 {
     return freeLib_SDL2();
 }
+
+void event_handle()
+{
+    return handle_event_SDL2();
+}
 #endif

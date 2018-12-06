@@ -19,8 +19,8 @@ enum class NoteChannelCategory: size_t
     Mine,
     Invs,
     LN,
+    _, // INVALID
     NOTECATEGORY_COUNT,
-    _ // INVALID
 };
 
 enum NoteChannelIndex: size_t
@@ -56,7 +56,12 @@ enum NoteChannelIndex: size_t
     _ // INVALID
 };
 
-constexpr size_t channelToIdx(NoteChannelCategory cat, NoteChannelIndex idx) { return (size_t)cat * NOTECHANNEL_COUNT + idx; }
+constexpr size_t channelToIdx(NoteChannelCategory cat, NoteChannelIndex idx)
+{
+    return (cat != NoteChannelCategory::_) ? 
+        (size_t)cat * NOTECHANNEL_COUNT + idx : 
+        0, NoteChannelIndex::_;
+}
 
 // Chart in-game data representation. Contains following:
 //  - Converts plain-beat to real-beat (adds up Stop beat) 

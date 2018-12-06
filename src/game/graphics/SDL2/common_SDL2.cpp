@@ -41,10 +41,10 @@ Color Color::operator+(const Color& rhs) const
 Color Color::operator*(const double& rhs) const
 {
     Color c;
-    c.r = (r * rhs <= 255) ? (r * rhs) : 255;
-    c.g = (g * rhs <= 255) ? (g * rhs) : 255;
-    c.b = (b * rhs <= 255) ? (b * rhs) : 255;
-    c.a = (a * rhs <= 255) ? (a * rhs) : 255;
+    c.r = (r * rhs <= 255) ? (Uint8)(r * rhs) : 255;
+    c.g = (g * rhs <= 255) ? (Uint8)(g * rhs) : 255;
+    c.b = (b * rhs <= 255) ? (Uint8)(b * rhs) : 255;
+    c.a = (a * rhs <= 255) ? (Uint8)(a * rhs) : 255;
     return c;
 }
 

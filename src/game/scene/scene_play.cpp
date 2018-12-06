@@ -263,7 +263,7 @@ void ScenePlay::updatePrepare()
     if (rt > _skin->info.timeIntro)
     {
         _state = ePlayState::LOADING;
-        std::async(std::launch::async, &ScenePlay::loadChart, this);
+        std::thread(&ScenePlay::loadChart, this);
         LOG_DEBUG << "[Play] State changed to LOADING";
     }
 }
@@ -366,7 +366,7 @@ void ScenePlay::playBGMSamples()
     size_t max = _bgmSampleIdxBuf.size() < _pScroll->notePlainExpired.size() ?
         _bgmSampleIdxBuf.size() : _pScroll->notePlainExpired.size();
     for (; i < max; ++i)
-        _bgmSampleIdxBuf[i] = std::get<long long>(it->value);
+        _bgmSampleIdxBuf[i] = (unsigned)std::get<long long>(it->value);
 
     // TODO also play keysound in auto
 

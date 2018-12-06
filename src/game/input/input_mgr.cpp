@@ -22,7 +22,7 @@ void InputMgr::updateBindings(Ingame K)
 {
     // Clear current bindings
     for (auto& k : _inst.bindings)
-        k.clear();
+        k = {};
 
     // Update key binding
 	// TODO get bindings from config

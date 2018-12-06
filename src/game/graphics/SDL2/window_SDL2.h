@@ -9,3 +9,5 @@ int initLib_SDL2();
 void clear_SDL2();
 void flush_SDL2();
 int freeLib_SDL2();
+
+void handle_event_SDL2();

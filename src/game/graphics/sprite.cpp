@@ -268,7 +268,7 @@ void SpriteAnimated::updateSplitByTimer(rTime time)
     // current time:   t
     // current frame:  t / (_period / _aframes)
     if (_period / _aframes > 0 && gTimers.get(_timerInd))
-        updateSplit((time - gTimers.get(_timerInd)) / (_period / _aframes));
+        updateSplit((frameIdx)((time - gTimers.get(_timerInd)) / (_period / _aframes)));
 }
 
 void SpriteAnimated::draw() const
@@ -430,8 +430,8 @@ void SpriteNumber::updateRectsByTimer(rTime t)
         dRect = _drawRect;
         dRect.x = fRect.x + dRect.w * (_outRectDigit.size() - i - 1);
         dRect.y = fRect.y;
-        dRect.w = dRect.w * ((double)fRect.w / ((long long)_texRect[0].w * _outRectDigit.size()));
-        dRect.h = dRect.h * ((double)fRect.h / (long long)_texRect[0].h);
+        dRect.w = (int)(dRect.w * ((double)fRect.w / ((long long)_texRect[0].w * _outRectDigit.size())));
+        dRect.h = (int)(dRect.h * ((double)fRect.h / (long long)_texRect[0].h));
     }
 }
 

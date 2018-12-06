@@ -92,6 +92,12 @@
     <PreBuildEvent>
       <Command>$(ProjectDir)build-dependencies.bat</Command>
     </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>xcopy /y $(ProjectDir)ext\SDL2\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
+xcopy /y $(ProjectDir)ext\SDL2_ttf\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
+xcopy /y $(ProjectDir)ext\SDL2_image\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
+xcopy /y $(ProjectDir)ext\fmod\lib\fmodL.dll $(SolutionDir)$(Configuration)\</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -115,6 +121,12 @@
     <PreBuildEvent>
       <Command>$(ProjectDir)build-dependencies.bat</Command>
     </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>xcopy /y $(ProjectDir)ext\SDL2\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
+xcopy /y $(ProjectDir)ext\SDL2_ttf\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
+xcopy /y $(ProjectDir)ext\SDL2_image\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
+xcopy /y $(ProjectDir)ext\fmod\lib\fmod.dll $(SolutionDir)$(Configuration)\</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\common\asynclooper.cpp" />
