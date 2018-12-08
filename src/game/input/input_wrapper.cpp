@@ -1,4 +1,5 @@
 #include "input_wrapper.h"
+#include <plog/Log.h>
 #include <cassert>
 
 InputWrapper::InputWrapper(unsigned rate) : AsyncLooper(std::bind(&InputWrapper::_loop, this), rate)
@@ -13,6 +14,8 @@ void InputWrapper::_loop()
     auto p = Pressed();
     auto h = Holding();
     auto r = Released();
+    if (p != 0)
+        LOG_DEBUG << "[Input] " << p;
     // FIXME lock map
     for (auto& pg : _pCallbackMap) pg.second(p, t);
     for (auto& hg : _hCallbackMap) hg.second(h, t);

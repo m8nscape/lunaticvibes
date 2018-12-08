@@ -15,9 +15,12 @@ enum class eSkinType
 
 typedef unsigned long timeMS;
 
+typedef StringContent Token;
+typedef std::vector<Token> Tokens;
+
 class vSkin
 {
-private:
+public:
     typedef std::shared_ptr<vSprite> pSprite;
     typedef std::shared_ptr<Texture> pTexture;
     typedef std::shared_ptr<Image>   pImage;

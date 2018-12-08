@@ -137,6 +137,7 @@ xcopy /y $(ProjectDir)ext\fmod\lib\fmod.dll $(SolutionDir)$(Configuration)\</Com
     <ClCompile Include="src\config\cfg_general.cpp" />
     <ClCompile Include="src\config\cfg_input.cpp" />
     <ClCompile Include="src\config\cfg_profile.cpp" />
+    <ClCompile Include="src\config\cfg_skin.cpp" />
     <ClCompile Include="src\config\config.cpp" />
     <ClCompile Include="src\game\graphics\SDL2\common_SDL2.cpp" />
     <ClCompile Include="src\game\graphics\SDL2\rect_SDL2.cpp" />

@@ -209,7 +209,7 @@ void ScenePlay::setInputJudgeCallback()
         _input.register_h("JUDGE_HOLD", fh);
 
         auto fr = std::bind(&vRuleset::updateRelease, _pRuleset, _1, _2);
-        LOG_DEBUG << "[Play] Bind fpress: " << &fr;
+        LOG_DEBUG << "[Play] Bind frelease: " << &fr;
         _input.register_r("JUDGE_RELEASE", fr);
     }
     _input.register_p("SCENE_PRESS",   std::bind(&ScenePlay::inputGamePress, this, _1, _2));
@@ -263,7 +263,7 @@ void ScenePlay::updatePrepare()
     if (rt > _skin->info.timeIntro)
     {
         _state = ePlayState::LOADING;
-        std::thread(&ScenePlay::loadChart, this);
+        std::thread(&ScenePlay::loadChart, this).detach();
         LOG_DEBUG << "[Play] State changed to LOADING";
     }
 }
@@ -287,16 +287,16 @@ void ScenePlay::updateLoadEnd()
     auto rt = getTimePoint() - gTimers.get(eTimer::SCENE_START);
     if (rt > _skin->info.timeGetReady)
     {
-        setInputJudgeCallback();
         _state = ePlayState::PLAYING;
         gTimers.set(eTimer::PLAY_START, getTimePoint());
+        setInputJudgeCallback();
         LOG_DEBUG << "[Play] State changed to PLAY_START";
     }
 }
 
 void ScenePlay::updatePlaying()
 {
-    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (_pScroll->getCurrentBeat() / 4.0)) % 1000);
+    //gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (_pScroll->getCurrentBeat() / 4.0)) % 1000);
     auto ht = getHighresTimePoint() - r2h(gTimers.get(eTimer::PLAY_START));
     auto rt = h2r(ht);
 

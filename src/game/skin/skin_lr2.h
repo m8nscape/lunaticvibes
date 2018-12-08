@@ -8,8 +8,9 @@
 
 namespace LR2
 {
-	enum gr
+	enum gr_
 	{
+        NOTFOUND = -1,
 		STAGEFILE = 101,
 		BACKBMP,
 		BANNER,
@@ -1343,22 +1344,22 @@ protected:
 
 private:
     unsigned line = 0;          // line parsing index
-    std::vector<StringContent> csvNextLineTokenize(std::istream& file);
+    Tokens csvNextLineTokenize(std::istream& file);
 
-    int loadLR2image        (const std::vector<StringContent> &t);
-    int loadLR2include      (const std::vector<StringContent> &t);
-    int loadLR2font         (const std::vector<StringContent> &t);
-    int loadLR2systemfont   (const std::vector<StringContent> &t);
-    int loadLR2header       (const std::vector<StringContent> &t);
-    int loadLR2timeoption   (const std::vector<StringContent> &t);
-    int loadLR2others       (const std::vector<StringContent> &t);
-    int loadLR2SkinLine     (const std::vector<StringContent> &t);
+    int loadLR2image        (const Tokens &t);
+    int loadLR2include      (const Tokens &t);
+    int loadLR2font         (const Tokens &t);
+    int loadLR2systemfont   (const Tokens &t);
+    int loadLR2header       (const Tokens &t);
+    int loadLR2timeoption   (const Tokens &t);
+    int loadLR2others       (const Tokens &t);
+    int loadLR2SkinLine     (const Tokens &t);
 
-    int loadLR2src(const std::vector<StringContent> &t);
-    int loadLR2dst(const std::vector<StringContent> &t);
-    int loadLR2note(const std::vector<StringContent> &t);
+    int loadLR2src(const Tokens &t);
+    int loadLR2dst(const Tokens &t);
+    int loadLR2note(const Tokens &t);
 
-    void loadLR2IF(const std::vector<StringContent> &t, std::ifstream&);
+    void loadLR2IF(const Tokens &t, std::ifstream&);
 
     //std::vector<SkinLR2> _csvIncluded;
 

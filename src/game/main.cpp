@@ -54,7 +54,9 @@ int main(int argc, char* argv[])
     plog::init(plog::info, "log.txt", 1000000, 5);
 #endif
 
-    // TODO load config
+    ConfigMgr::init();
+    ConfigMgr::load();
+
     if (auto ginit = graphics_init())
         return ginit;
     if (auto sinit = SoundMgr::initFMOD())
@@ -96,6 +98,8 @@ int main(int argc, char* argv[])
 #if WIN32
     timeEndPeriod(1);
 #endif
+
+    ConfigMgr::save();
 
     return 0;
 }

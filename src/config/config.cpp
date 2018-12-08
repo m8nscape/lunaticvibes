@@ -1,4 +1,5 @@
 #include "config.h"
+#include <plog/Log.h>
 #include <fstream>
 
 vConfig::vConfig()
@@ -9,7 +10,6 @@ vConfig::vConfig()
 vConfig::vConfig(StringPath file)
 {
 	_path = file;
-	load();
 }
 
 vConfig::~vConfig()
@@ -21,7 +21,14 @@ void vConfig::load()
 	std::string fileStr;
 	fileStr.assign(_path.begin(), _path.end());
 	setDefaults();
-	_yaml = YAML::LoadFile(fileStr);
+    try
+    {
+        _yaml = YAML::LoadFile(fileStr);
+    }
+    catch (YAML::BadFile&)
+    {
+        LOG_WARNING << "[Config] Bad file: " << fileStr;
+    }
 }
 
 void vConfig::save()

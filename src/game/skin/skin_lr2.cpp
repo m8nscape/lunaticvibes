@@ -9,9 +9,7 @@
 
 bool SkinLR2::customizeDst[100];
 
-#pragma region Sprite type definitions
-
-enum lr2skin_sprite_type
+enum sprite_type
 {
     // General
     LR2_IMAGE,
@@ -48,134 +46,140 @@ enum lr2skin_sprite_type
     LR2_GAUGECHART_2P,
 };
 
-struct lr2skin_sprite_basic
+namespace lr2skin
 {
-    int _null;
-    int gr;
-    int x, y, w, h;
-    int div_x, div_y;
-    int cycle;
-    int timer;
-};
 
-struct lr2skin_sprite_image: lr2skin_sprite_basic
-{
-    int op1, op2, op3;
-};
+    struct s_basic
+    {
+        int _null;
+        int gr;
+        int x, y, w, h;
+        int div_x, div_y;
+        int cycle;
+        int timer;
+    };
 
-struct lr2skin_sprite_number: lr2skin_sprite_basic
-{
-    int num;
-    int align;
-    int keta;
-};
+    struct s_image : s_basic
+    {
+        int op1, op2, op3;
+    };
 
-struct lr2skin_sprite_bargraph: lr2skin_sprite_basic
-{
-    int type;
-    int muki;
-};
+    struct s_number : s_basic
+    {
+        int num;
+        int align;
+        int keta;
+    };
 
-struct lr2skin_sprite_button: lr2skin_sprite_basic
-{
-    int _null;
-    int gr;
-    int x, y, w, h;
-    int div_x, div_y;
-    int cycle;
-    int timer;
-    int panel;
-    int x2, y2, w2, h2;
-};
+    struct s_bargraph : s_basic
+    {
+        int type;
+        int muki;
+    };
 
-struct lr2skin_sprite_text
-{
-    int _null;
-    int font;
-    int st;
-    int align;
-    int edit;
-    int panel;
-};
+    struct s_button : s_basic
+    {
+        int _null;
+        int gr;
+        int x, y, w, h;
+        int div_x, div_y;
+        int cycle;
+        int timer;
+        int panel;
+        int x2, y2, w2, h2;
+    };
 
-struct lr2skin_sprite_bga
-{
-    int _null[10];
-    int nobase;
-    int nolayer;
-    int nopoor;
-};
+    struct s_text
+    {
+        int _null;
+        int font;
+        int st;
+        int align;
+        int edit;
+        int panel;
+    };
 
-typedef lr2skin_sprite_basic lr2skin_sprite_judgeline;
-typedef lr2skin_sprite_basic lr2skin_sprite_barline;
-typedef lr2skin_sprite_basic lr2skin_sprite_note;
+    struct s_bga
+    {
+        int _null[10];
+        int nobase;
+        int nolayer;
+        int nopoor;
+    };
 
-struct lr2skin_sprite_nowjudge: lr2skin_sprite_basic
-{
-    int noshift;
-};
+    typedef s_basic s_judgeline;
+    typedef s_basic s_barline;
+    typedef s_basic s_note;
 
-struct lr2skin_sprite_nowcombo: lr2skin_sprite_basic
-{
-    int _null2;
-    int align;
-    int keta;
-};
+    struct s_nowjudge : s_basic
+    {
+        int noshift;
+    };
 
-struct lr2skin_sprite_groovegauge: lr2skin_sprite_basic
-{
-    int add_x;
-    int add_y;
-};
+    struct s_nowcombo : s_basic
+    {
+        int _null2;
+        int align;
+        int keta;
+    };
 
-typedef lr2skin_sprite_basic lr2skin_sprite_barbody;
-typedef lr2skin_sprite_basic lr2skin_sprite_barflash;
-typedef lr2skin_sprite_nowcombo lr2skin_sprite_barlevel;
-typedef lr2skin_sprite_basic lr2skin_sprite_barlamp;
-struct lr2skin_sprite_bartitle
-{
-    int _null;
-    int font;
-    int st;
-    int align;
-};
-typedef lr2skin_sprite_basic lr2skin_sprite_barrank;
-typedef lr2skin_sprite_basic lr2skin_sprite_barrival;
-struct lr2skin_sprite_readme
-{
-    int _null;
-    int font;
-    int _null2[2];
-    int kankaku;
-};
-typedef lr2skin_sprite_basic lr2skin_sprite_mousecursor;
+    struct s_groovegauge : s_basic
+    {
+        int add_x;
+        int add_y;
+    };
 
-struct lr2skin_sprite_gaugechart: lr2skin_sprite_basic
-{
-    int field_w, field_h;
-    int start;
-    int end;
-};
-typedef lr2skin_sprite_gaugechart lr2skin_sprite_scorechart;
+    typedef s_basic s_barbody;
+    typedef s_basic s_barflash;
+    typedef s_nowcombo s_barlevel;
+    typedef s_basic s_barlamp;
+    struct s_bartitle
+    {
+        int _null;
+        int font;
+        int st;
+        int align;
+    };
+    typedef s_basic s_barrank;
+    typedef s_basic s_barrival;
+    struct s_readme
+    {
+        int _null;
+        int font;
+        int _null2[2];
+        int kankaku;
+    };
+    typedef s_basic s_mousecursor;
 
-#pragma region end
+    struct s_gaugechart : s_basic
+    {
+        int field_w, field_h;
+        int start;
+        int end;
+    };
+    typedef s_gaugechart s_scorechart;
 
-std::array<int, 32> context_sprite {};
-lr2skin_sprite_type context_sprite_type;
+    struct dst
+    {
+        int _null;
+        int time;
+        int x, y, w, h;
+        int acc;
+        int a, r, g, b;
+        int blend;
+        int filter;
+        int angle;
+        int center;
+        int loop;
+        int timer;
+        dst_option op[4];
+    };
 
-struct lr2skin_note_context
-{
-    lr2skin_sprite_note
-        note,
-        mine,
-        ln_end,
-        ln_body,
-        ln_start;
-} context_note[20]{};
+}
 
 #pragma region LR2 csv parsing
 
-std::vector<StringContent> SkinLR2::csvNextLineTokenize(std::istream& file)
+Tokens SkinLR2::csvNextLineTokenize(std::istream& file)
 {
     ++line;
     StringContent linecsv;
@@ -198,24 +202,33 @@ std::vector<StringContent> SkinLR2::csvNextLineTokenize(std::istream& file)
     //line.erase(line.length() - 2);
     //auto line = std::regex_replace(linecsv, std::regex(R"(\\)"), R"(\\\\)");
 
-    //std::vector<StringContent> ret;
+    //Tokens ret;
     //auto tokens = tokenizer(line, boost::escaped_list_separator<char>());
     //for (auto& t : tokens) ret.push_back(t);
     //while (!ret.empty() && ret.back().empty()) ret.pop_back();
     //return ret;
     const std::regex re{ R"(((?:[^\\,]|\\.)*?)(?:,|$))" };
-    std::vector<StringContent> result = { std::sregex_token_iterator(linecsv.begin(), linecsv.end(), re, 1), std::sregex_token_iterator() };
+    Tokens result = { std::sregex_token_iterator(linecsv.begin(), linecsv.end(), re, 1), std::sregex_token_iterator() };
     size_t lastToken;
     for (lastToken = result.size() - 1; lastToken >= 0 && result[lastToken].empty(); --lastToken);
     result.resize(lastToken + 1);
     return result;
 }
 
+int convertLine(const Tokens& t, int* pData, size_t start = 0, size_t end = sizeof(lr2skin::s_basic) / sizeof(int))
+{
+    for (size_t i = start; i < end && i+1 < t.size(); ++i)
+    {
+        pData[i] = stoine(t[i + 1]);
+    }
+    return end;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // File parsing
 #pragma region 
 
-int SkinLR2::loadLR2image(const std::vector<StringContent> &t)
+int SkinLR2::loadLR2image(const Tokens &t)
 {
     if (t[0] == "#IMAGE")
     {
@@ -268,7 +281,7 @@ int SkinLR2::loadLR2image(const std::vector<StringContent> &t)
     return 0;
 }
 
-int SkinLR2::loadLR2font(const std::vector<StringContent> &t)
+int SkinLR2::loadLR2font(const Tokens &t)
 {
     // TODO Skipped for now.
     if (t[0] == "#LR2FONT")
@@ -281,7 +294,7 @@ int SkinLR2::loadLR2font(const std::vector<StringContent> &t)
     return 0;
 }
 
-int SkinLR2::loadLR2systemfont(const std::vector<StringContent> &t)
+int SkinLR2::loadLR2systemfont(const Tokens &t)
 {
     if (t[0] == "#FONT")
     {
@@ -296,7 +309,7 @@ int SkinLR2::loadLR2systemfont(const std::vector<StringContent> &t)
     return 0;
 }
 
-int SkinLR2::loadLR2include(const std::vector<StringContent> &t)
+int SkinLR2::loadLR2include(const Tokens &t)
 {
     if (t[0] == "#INCLUDE")
     {
@@ -321,7 +334,7 @@ int SkinLR2::loadLR2include(const std::vector<StringContent> &t)
 // Parameters parsing
 #pragma region
 
-int SkinLR2::loadLR2timeoption(const std::vector<StringContent> &t)
+int SkinLR2::loadLR2timeoption(const Tokens &t)
 {
     if (t[0] == "#STARTINPUT")
     {
@@ -389,7 +402,7 @@ int SkinLR2::loadLR2timeoption(const std::vector<StringContent> &t)
     return 0;
 }
 
-int SkinLR2::loadLR2others(const std::vector<StringContent> &t)
+int SkinLR2::loadLR2others(const Tokens &t)
 {
     if (t[0] == "#RELOADBANNER")
     {
@@ -447,7 +460,7 @@ int SkinLR2::loadLR2others(const std::vector<StringContent> &t)
 // Sprite parsing
 #pragma region
 
-int SkinLR2::loadLR2src(const std::vector<StringContent> &t)
+int SkinLR2::loadLR2src(const Tokens &t)
 {
     auto opt = t[0];
 
@@ -456,19 +469,16 @@ int SkinLR2::loadLR2src(const std::vector<StringContent> &t)
         if (t.size() < 5)
             LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
 
-        int font, st, align, edit, panel;
-        font = stoine(t[2]);
-        st   = stoine(t[3]);
-        align = stoine(t[4]);
-        edit  = stoine(t[5]);
-        panel = stoine(t[6]);
+        lr2skin::s_text src{ 0 };
+        for (size_t i = 0; i < sizeof(src) / sizeof(int); ++i)
+            *((int*)&src + i) = stoine(t[i + 1]);
 
         //elements.emplace_back();
         //auto& e = elements.back();
         //e = std::make_shared<elemText>();
 
         // TODO text
-        LOG_DEBUG << "[Skin] " << line << ": Skipped Text (font: " << font << ")";
+        LOG_DEBUG << "[Skin] " << line << ": Skipped Text (font: " << src.font << ")";
 
         return 7;
     }
@@ -482,88 +492,75 @@ int SkinLR2::loadLR2src(const std::vector<StringContent> &t)
     if (t.size() < 11)
         LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
 
-    int gr = stoine(t[2]);
-    int x = stoine(t[3]);
-    int y = stoine(t[4]);
-    int w = stoine(t[5]);
-    int h = stoine(t[6]);
-    int div_x = stoine(t[7]);
-    int div_y = stoine(t[8]);
-    int cycle = stoine(t[9]);
-    int timer = stoine(t[10]);
+    // load line into data struct
+    int src[32]{ 0 };
+    convertLine(t, src);
+    lr2skin::s_basic& d = *(lr2skin::s_basic*)src;
 
-    if (div_x == 0)
+    if (d.div_x == 0)
     {
         LOG_WARNING << "[Skin] " << line << ": div_x is 0 (Line " << line << ")";
-        div_x = 1;
+        d.div_x = 1;
     }
-    if (div_y == 0)
+    if (d.div_y == 0)
     {
         LOG_WARNING << "[Skin] " << line << ": div_y is 0 (Line " << line << ")";
-        div_y = 1;
+        d.div_y = 1;
     }
 
-    if (x == -1 && y == -1)
+    if (d.x == -1 && d.y == -1)
     {
-        x = y = 0;
+        d.x = d.y = 0;
+    }
+
+    // TODO convert timer
+    eTimer iTimer = (eTimer)d.timer;
+
+    // Find texture from map by gr
+    pTexture tex = nullptr;
+    std::string gr_key = std::to_string(d.gr);
+    if (_texNameMap.find(gr_key) != _texNameMap.end())
+    {
+        tex = _texNameMap[gr_key];
+        if (d.w == -1 && d.h == -1)
+        {
+            d.w = tex->getRect().w;
+            d.h = tex->getRect().h;
+        }
+    }
+    else
+    {
+        tex = _texNameMap["Error"];
+        d.x = 0;
+        d.y = 0;
+        d.w = 1;
+        d.h = 1;
     }
 
     int ret = 0;
 
     if (opt == "#SRC_IMAGE")
     {
-        // TODO convert timer
-        eTimer iTimer = (eTimer)timer;
-        if (_texNameMap.find(std::to_string(gr)) != _texNameMap.end())
-        {
-            if (w == -1 && h == -1)
-            {
-                w = _texNameMap[std::to_string(gr)]->getRect().w;
-                h = _texNameMap[std::to_string(gr)]->getRect().h;
-            }
-            context_sprite_type = LR2_IMAGE;
-            context_sprite = { 0, x, y, w, h, div_x, div_y, cycle, timer };
-            //_sprites.push_back(std::make_shared<SpriteAnimated>(_texNameMap[std::to_string(gr)], Rect(x, y, w, h), div_x, div_y, cycle, iTimer));
-            LOG_DEBUG << "[Skin] " << line << ": Set Image sprite (texture: " << gr << ", timer: " << timer << ")";
-        }
-        else
-        {
-            context_sprite_type = LR2_IMAGE;
-            context_sprite = { -1, x, y, w, h, div_x, div_y, cycle, timer };
-            //_sprites.push_back(std::make_shared<SpriteAnimated>(_texNameMap["Error"], Rect( 0, 0, 1, 1 ), div_x, div_y, cycle, iTimer));
-            LOG_DEBUG << "[Skin] " << line << ": Set Image sprite (texture: " << gr << "|INVALID, timer: " << timer << ")";
-        }
+        _sprites.push_back(std::make_shared<SpriteAnimated>(
+            _texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_x, d.div_y, d.cycle, iTimer));
+        LOG_DEBUG << "[Skin] " << line << ": Set Image sprite (texture: " << gr_key << ", timer: " << d.timer << ")";
         ret = 1;
     }
+
     else if (opt == "#SRC_NUMBER")
     {
-        int num, align, keta;
         if (t.size() < 14)
             LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
-        num = stoine(t[11]);
-        align = stoine(t[12]);
-        keta = stoine(t[13]);
+
+        convertLine(t, src, 10, 13);
+        lr2skin::s_number& d = *(lr2skin::s_number*)src;
 
         // TODO convert num
-        eNumber iNum = (eNumber)num;
-        // TODO convert timer
-        eTimer iTimer = (eTimer)timer;
+        eNumber iNum = (eNumber)d.num;
 
-        if (_texNameMap.find(std::to_string(gr)) != _texNameMap.end())
-        {
-            if (w == -1 && h == -1)
-            {
-                w = _texNameMap[std::to_string(gr)]->getRect().w;
-                h = _texNameMap[std::to_string(gr)]->getRect().h;
-            }
-            _sprites.emplace_back(std::make_shared<SpriteNumber>(_texNameMap[std::to_string(gr)], Rect(x, y, w, h), keta, div_x, div_y, cycle, iNum, iTimer));
-            LOG_DEBUG << "[Skin] " << line << ": Set Number sprite (gr: " << gr << ", num: " << (unsigned)iNum << ")";
-        }
-        else
-        {
-            _sprites.emplace_back(std::make_shared<SpriteNumber>(_texNameMap["Error"], Rect( 0, 0, 1, 1 ), keta, 1, 1, cycle, iNum, iTimer));
-            LOG_DEBUG << "[Skin] " << line << ": Set Number sprite (gr: " << gr << "|INVALID, num: " << (unsigned)iNum << ")";
-        }
+            _sprites.emplace_back(std::make_shared<SpriteNumber>(
+                _texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.keta, d.div_x, d.div_y, d.cycle, iNum, iTimer));
+            LOG_DEBUG << "[Skin] " << line << ": Set Number sprite (gr: " << gr_key << ", num: " << (unsigned)iNum << ")";
 
         ret = 2;
     }
@@ -657,7 +654,7 @@ int SkinLR2::loadLR2src(const std::vector<StringContent> &t)
     return ret;
 }
 
-int SkinLR2::loadLR2dst(const std::vector<StringContent> &t)
+int SkinLR2::loadLR2dst(const Tokens &t)
 {
     auto opt = t[0];
 
@@ -671,20 +668,10 @@ int SkinLR2::loadLR2dst(const std::vector<StringContent> &t)
         LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
     }
 
-    int time = stoine(t[2]);
-    int x = stoine(t[3]);
-    int y = stoine(t[4]);
-    int w = stoine(t[5]);
-    int h = stoine(t[6]);
-    int acc = stoine(t[7]);
-    int a = stoine(t[8]);
-    int r = stoine(t[9]);
-    int g = stoine(t[10]);
-    int b = stoine(t[11]);
-    int blend = stoine(t[12]);
-    int filter = stoine(t[13]);
-    int angle = stoine(t[14]);
-    int center = stoine(t[15]);
+    // load line into data struct
+    int src[32]{ 0 };
+    convertLine(t, src, 0, 14);
+    lr2skin::dst& d = *(lr2skin::dst*)src;
 
     int ret = 0;
     auto e = _sprites.back();
@@ -717,68 +704,45 @@ int SkinLR2::loadLR2dst(const std::vector<StringContent> &t)
 
     if (e->isKeyFrameEmpty())
     {
-        int loop, dstTimer, op1, op2, op3, op4;
-        if (t[16].empty())
+        convertLine(t, src, 14, 16);
+        lr2skin::dst& d = *(lr2skin::dst*)src;
+        if (t.size() < 17 || t[16].empty())
         {
             LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
-            loop = -1;
-            dstTimer = op1 = op2 = op3 = op4 = 0;
+            d.loop = -1;
+            d.timer = 0;
+            d.op[0] = d.op[1] = d.op[2] = d.op[3] = DST_TRUE;
         }
         else
         {
-            loop = stoine(t[16]);
-            dstTimer = stoine(t[17]);
-            op1 = op2 = op3 = op4 = 0;
-
+            for (size_t i = 0; i < 4; ++i)
             {
-                StringContent op = t[18];
-                if (op[0] == '!' || op[0] == '-')
-                    op1 = -stoine(op.substr(1));
+                StringContent ops = t[18 + i];
+                if (ops[0] == '!' || ops[0] == '-')
+                    *(int*)&d.op[i] = -stoine(ops.substr(1));
                 else
-                    op1 = stoine(op);
-            }
-            {
-                StringContent op = t[19];
-                if (op[0] == '!' || op[0] == '-')
-                    op2 = -stoine(op.substr(1));
-                else
-                    op2 = stoine(op);
-            }
-            {
-                StringContent op = t[20];
-                if (op[0] == '!' || op[0] == '-')
-                    op3 = -stoine(op.substr(1));
-                else
-                    op3 = stoine(op);
-            }
-            {
-                StringContent op = t[21];
-                if (op[0] == '!' || op[0] == '-')
-                    op4 = -stoine(op.substr(1));
-                else
-                    op4 = stoine(op);
+                    *(int*)&d.op[i] = stoine(ops);
             }
         }
 
-        elements.push_back({e, false, (dst_option)op1, (dst_option)op2, (dst_option)op3, (dst_option)op4});
-        e->setLoopTime(loop);
+        elements.push_back({ e, false, d.op[0], d.op[1], d.op[2], d.op[3] });
+        e->setLoopTime(d.loop);
         e->setBlendMode(BlendMode::ALPHA);
-        LOG_DEBUG << "[Skin] " << line << ": Set sprite Options (loop: " << loop << ", dst: [" << op1 << "," << op2 << "," << op3 << "]) ";
-        if (time > 0)
+        if (d.time > 0)
         {
             LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
-            e->appendKeyFrame({ 0, {Rect(x, y, w, h), (RenderParams::accTy)acc, Color(r, g, b, a), (double)angle } });
+            e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), RenderParams::accTy::DISCONTINOUS, Color(d.r, d.g, d.b, 0), (double)d.angle } });
         }
     }
 
-    e->appendKeyFrame({ time, {Rect(x, y, w, h), (RenderParams::accTy)acc, Color(r, g, b, a), (double)angle } });
+    e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a), (double)d.angle } });
     //e->pushKeyFrame(time, x, y, w, h, acc, r, g, b, a, blend, filter, angle, center);
-    LOG_DEBUG << "[Skin] " << line << ": Set sprite Keyframe (time: " << time << ")";
+    LOG_DEBUG << "[Skin] " << line << ": Set sprite Keyframe (time: " << d.time << ")";
 
     return ret;
 }
 
-int SkinLR2::loadLR2note(const std::vector<StringContent> &t)
+int SkinLR2::loadLR2note(const Tokens &t)
 {
     // TODO create note sprite
     return -1;
@@ -790,9 +754,9 @@ int SkinLR2::loadLR2note(const std::vector<StringContent> &t)
 // Dispatcher
 #pragma region
 
-int SkinLR2::loadLR2SkinLine(const std::vector<StringContent> &raw)
+int SkinLR2::loadLR2SkinLine(const Tokens &raw)
 {
-    std::vector<StringContent> t;
+    Tokens t;
     t.assign(30, "");
     for (size_t idx = 0; idx < raw.size(); ++idx)
         t[idx] = raw[idx];
@@ -827,7 +791,7 @@ int SkinLR2::loadLR2SkinLine(const std::vector<StringContent> &raw)
     return 0;
 }
 
-void SkinLR2::loadLR2IF(const std::vector<StringContent> &t, std::ifstream& lr2skin)
+void SkinLR2::loadLR2IF(const Tokens &t, std::ifstream& lr2skin)
 {
     bool optSwitch = true;
     if (t[0] != "#ELSE")
@@ -897,7 +861,7 @@ void SkinLR2::loadLR2IF(const std::vector<StringContent> &t, std::ifstream& lr2s
 
 ////////////////////////////////////////////////////////////////////////////////
 
-int SkinLR2::loadLR2header(const std::vector<StringContent> &t)
+int SkinLR2::loadLR2header(const Tokens &t)
 {
     if (t[0] == "#INFORMATION")
     {
@@ -952,7 +916,7 @@ int SkinLR2::loadLR2header(const std::vector<StringContent> &t)
             LOG_WARNING << "[Skin] " << line << ": Invalid option value: " << dst_op << " (Line " << line << ")";
             return -2;
         }
-        std::vector<StringContent> op_label;
+        Tokens op_label;
         for (size_t idx = 3; idx < t.size() && !t[idx].empty(); ++idx)
             op_label.push_back(t[idx]);
 
