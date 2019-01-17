@@ -1,6 +1,6 @@
 #include "bms.h"
 #include <plog/Log.h>
-#include <digestpp.hpp>
+//#include <digestpp.hpp>
 #include <iostream>
 #include <fstream>
 #include <regex>
@@ -301,7 +301,10 @@ int BMS::initWithFile(std::string file)
     }
 
     std::ifstream ifs(_filePath.string(), std::ios_base::binary);
-    _fileHash = digestpp::md5().absorb(ifs).hexdigest();
+	
+	// FIXME: No md5 factory, consider using openssl.
+	// Currently, it's a hardcoded value
+	_fileHash = "c183f8504456c24981f1bb2b31c0a107"; // "hello, banshao"
     ifs.close();
     LOG_INFO << "[BMS] MD5: " << _fileHash;
 
