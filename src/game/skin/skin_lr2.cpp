@@ -798,8 +798,9 @@ int SkinLR2::loadLR2srcnote(const Tokens &t)
     // SRC_NOTE
     if (t[0] == "#SRC_NOTE" || t[0] == "#SRC_AUTO_NOTE")
     {
-        _laneSprites[d._null] = std::make_shared<SpriteLaneVertical>(
-            _texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_x, d.div_y, d.cycle, iTimer);
+        _sprites.push_back(std::make_shared<SpriteLaneVertical>(
+            _texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_x, d.div_y, d.cycle, iTimer));
+        _laneSprites[d._null] = std::static_pointer_cast<SpriteLaneVertical>(_sprites.back());
         LOG_DEBUG << "[Skin] " << line << ": Set Note sprite (texture: " << gr_key << ", timer: " << d.timer << ")";
         return 1;
     }
@@ -1877,18 +1878,11 @@ void SkinLR2::clearCustomDstOpt()
 
 void SkinLR2::update()
 {
-    // update regular sprites
+    // update sprites
     vSkin::update();
     for (auto& e : elements)
     {
         e.draw = getDstOpt(e.op1) && getDstOpt(e.op2) && getDstOpt(e.op3);
-    }
-
-    // update note sprites
-    hTime ht = getHighresTimePoint();
-    for (auto& e : _laneSprites)
-    {
-        e->updateNoteRect(ht, &*context_chart.scrollObj);
     }
 
     // update what?

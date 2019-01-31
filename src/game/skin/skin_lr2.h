@@ -6,7 +6,6 @@
 #include "game/graphics/sprite_lane.h"
 #include "game/input/input_mgr.h"
 #include "game/data/switch.h"
-#include "game/scene/scene_context.h"
 
 namespace LR2
 {

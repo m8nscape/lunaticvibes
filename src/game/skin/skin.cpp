@@ -1,4 +1,6 @@
 #include "skin.h"
+#include "game/graphics/sprite_lane.h"
+#include "game/scene/scene_context.h"
 #include <execution>
 #include <algorithm>
 
@@ -11,8 +13,9 @@ vSkin::vSkin()
 
 void vSkin::update()
 {
-    rTime t = getTimePoint();
-    std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), [&t](const auto& s)
+    hTime ht = getHighresTimePoint();
+    rTime t = h2r(ht);
+    std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), [&t, &ht](const auto& s)
     {
         switch (s->type())
         {
@@ -32,6 +35,13 @@ void vSkin::update()
             ref->updateAnimationByTimer(t);
             ref->updateRectsByTimer(t);
             ref->updateNumberByInd();
+            break;
+        }
+        case SpriteTypes::NOTE_VERT:
+        {
+            auto& ref = (std::shared_ptr<SpriteLaneVertical>&)s;
+            ref->update(t);
+            ref->updateNoteRect(ht, &*context_chart.scrollObj);
             break;
         }
         default:
