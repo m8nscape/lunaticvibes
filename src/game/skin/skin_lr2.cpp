@@ -224,6 +224,26 @@ int convertLine(const Tokens& t, int* pData, size_t start = 0, size_t end = size
     return end;
 }
 
+void refineRect(lr2skin::s_basic& d, unsigned line)
+{
+    if (d.div_x == 0)
+    {
+        LOG_WARNING << "[Skin] " << line << ": div_x is 0 (Line " << line << ")";
+        d.div_x = 1;
+    }
+    if (d.div_y == 0)
+    {
+        LOG_WARNING << "[Skin] " << line << ": div_y is 0 (Line " << line << ")";
+        d.div_y = 1;
+    }
+
+    if (d.x == -1 && d.y == -1)
+    {
+        d.x = d.y = 0;
+    }
+
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // File parsing
 #pragma region 
@@ -496,22 +516,7 @@ int SkinLR2::loadLR2src(const Tokens &t)
     int src[32]{ 0 };
     convertLine(t, src);
     lr2skin::s_basic& d = *(lr2skin::s_basic*)src;
-
-    if (d.div_x == 0)
-    {
-        LOG_WARNING << "[Skin] " << line << ": div_x is 0 (Line " << line << ")";
-        d.div_x = 1;
-    }
-    if (d.div_y == 0)
-    {
-        LOG_WARNING << "[Skin] " << line << ": div_y is 0 (Line " << line << ")";
-        d.div_y = 1;
-    }
-
-    if (d.x == -1 && d.y == -1)
-    {
-        d.x = d.y = 0;
-    }
+    refineRect(d, line);
 
     // TODO convert timer
     eTimer iTimer = (eTimer)d.timer;
@@ -531,10 +536,8 @@ int SkinLR2::loadLR2src(const Tokens &t)
     else
     {
         tex = _texNameMap["Error"];
-        d.x = 0;
-        d.y = 0;
-        d.w = 1;
-        d.h = 1;
+        d.x = d.y = 0;
+        d.w = d.h = 1;
     }
 
     int ret = 0;
@@ -705,7 +708,7 @@ int SkinLR2::loadLR2dst(const Tokens &t)
     if (e->isKeyFrameEmpty())
     {
         convertLine(t, src, 14, 16);
-        lr2skin::dst& d = *(lr2skin::dst*)src;
+        //lr2skin::dst& d = *(lr2skin::dst*)src;
         if (t.size() < 17 || t[16].empty())
         {
             LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
@@ -742,10 +745,145 @@ int SkinLR2::loadLR2dst(const Tokens &t)
     return ret;
 }
 
-int SkinLR2::loadLR2note(const Tokens &t)
+int SkinLR2::loadLR2srcnote(const Tokens &t)
 {
-    // TODO create note sprite
-    return -1;
+    // skip unsupported
+    if ( !(t[0] == "#SRC_NOTE" || t[0] == "#SRC_MINE" || t[0] == "#SRC_LN_END" || t[0] == "#SRC_LN_BODY"
+        || t[0] == "#SRC_LN_START"|| t[0] == "#SRC_AUTO_NOTE" || t[0] == "#SRC_AUTO_MINE" || t[0] == "#SRC_AUTO_LN_END" 
+        || t[0] == "#SRC_AUTO_LN_BODY" || t[0] == "#SRC_AUTO_LN_START" || t[0] == "#DST_NOTE"))
+    {
+        return 0;
+    }
+
+    // DST
+    if (t[0] == "#DST_NOTE")
+    {
+        if (t.size() < 14)
+            LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
+        return 11;
+    }
+    
+    // load line into data struct
+    int src[32]{ 0 };
+    convertLine(t, src);
+    lr2skin::s_basic& d = *(lr2skin::s_basic*)src;
+    refineRect(d, line);
+
+    // TODO convert timer
+    eTimer iTimer = (eTimer)d.timer;
+
+    // Find texture from map by gr
+    pTexture tex = nullptr;
+    std::string gr_key = std::to_string(d.gr);
+    if (_texNameMap.find(gr_key) != _texNameMap.end())
+    {
+        tex = _texNameMap[gr_key];
+        if (d.w == -1 && d.h == -1)
+        {
+            d.w = tex->getRect().w;
+            d.h = tex->getRect().h;
+        }
+    }
+    else
+    {
+        tex = _texNameMap["Error"];
+        d.x = d.y = 0;
+        d.w = d.h = 1;
+    }
+
+    // SRC
+    if (t.size() < 11)
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
+
+    // SRC_NOTE
+    if (t[0] == "#SRC_NOTE" || t[0] == "#SRC_AUTO_NOTE")
+    {
+        _laneSprites[d._null] = std::make_shared<SpriteLaneVertical>(
+            _texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_x, d.div_y, d.cycle, iTimer);
+        LOG_DEBUG << "[Skin] " << line << ": Set Note sprite (texture: " << gr_key << ", timer: " << d.timer << ")";
+        return 1;
+    }
+    
+    // other types are not supported
+    return 0;
+}
+
+int SkinLR2::loadLR2dstnote(const Tokens &t)
+{
+    if (t[0] != "#DST_NOTE")
+        return 0;
+
+    if (t.size() < 14)
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
+
+    // load line into data struct
+    int src[32]{ 0 };
+    convertLine(t, src, 0, 14);
+    lr2skin::dst& d = *(lr2skin::dst*)src;
+    NoteChannelIndex idx = (NoteChannelIndex)d._null;
+
+    int ret = 0;
+    auto e = _laneSprites[idx];
+    if (e == nullptr)
+    {
+        LOG_WARNING << "[Skin] " << line << ": Previous src definition invalid (Line: " << line << ")";
+        return 0;
+    }
+
+    if (e->type() != SpriteTypes::NOTE_VERT)
+    {
+        LOG_WARNING << "[Skin] " << line << ": Previous src definition is not NOTE (Line: " << line << ")";
+        return 0;
+    }
+
+    if (!e->isKeyFrameEmpty())
+    {
+        LOG_WARNING << "[Skin] " << line << ": Note DST is already defined (Line: " << line << ")";
+        return 0;
+    }
+
+    // set sprite channel
+    auto p = std::static_pointer_cast<SpriteLaneVertical>(e);
+    p->setChannel(idx);
+
+    // refine rect: x=dst_x, y=-dst_h, w=src_w, h=dst_y
+    int dummy, dst_h;
+    p->getRectSize(d.w, dummy);
+    dst_h = d.y;
+    d.h = d.y;
+    d.y = -dst_h;
+
+    convertLine(t, src, 14, 16);
+    //lr2skin::dst& d = *(lr2skin::dst*)src;
+    if (t.size() < 17 || t[16].empty())
+    {
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
+        d.loop = -1;
+        d.timer = 0;
+        d.op[0] = d.op[1] = d.op[2] = d.op[3] = DST_TRUE;
+    }
+    else
+    {
+        for (size_t i = 0; i < 4; ++i)
+        {
+            StringContent ops = t[18 + i];
+            if (ops[0] == '!' || ops[0] == '-')
+                *(int*)&d.op[i] = -stoine(ops.substr(1));
+            else
+                *(int*)&d.op[i] = stoine(ops);
+        }
+    }
+
+    elements.push_back({ e, false, d.op[0], d.op[1], d.op[2], d.op[3] });
+    e->setLoopTime(d.loop);
+    e->setBlendMode(BlendMode::ALPHA);
+    if (d.time > 0)
+    {
+        LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
+        e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), RenderParams::accTy::DISCONTINOUS, Color(d.r, d.g, d.b, 0), (double)d.angle } });
+    }
+
+    return 1;
 }
 
 #pragma endregion
@@ -777,7 +915,7 @@ int SkinLR2::loadLR2SkinLine(const Tokens &raw)
             return 7;
         if (loadLR2dst(t))
             return 8;
-        if (loadLR2note(t))
+        if (loadLR2srcnote(t))
             return 9;
     }
     catch (std::invalid_argument e)
@@ -1739,11 +1877,21 @@ void SkinLR2::clearCustomDstOpt()
 
 void SkinLR2::update()
 {
+    // update regular sprites
     vSkin::update();
     for (auto& e : elements)
     {
         e.draw = getDstOpt(e.op1) && getDstOpt(e.op2) && getDstOpt(e.op3);
     }
+
+    // update note sprites
+    hTime ht = getHighresTimePoint();
+    for (auto& e : _laneSprites)
+    {
+        e->updateNoteRect(ht, &*context_chart.scrollObj);
+    }
+
+    // update what?
     //for (auto& c : _csvIncluded)
     //{
     //    c.update();

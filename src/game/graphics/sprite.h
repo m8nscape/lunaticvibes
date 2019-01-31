@@ -16,7 +16,7 @@ enum class SpriteTypes
 
     NUMBER,
 
-    NOTE,
+    NOTE_VERT,
 };
 
 struct RenderParams

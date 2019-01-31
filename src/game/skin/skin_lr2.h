@@ -3,8 +3,10 @@
 #include <filesystem>
 #include "types.h"
 #include "skin.h"
+#include "game/graphics/sprite_lane.h"
 #include "game/input/input_mgr.h"
 #include "game/data/switch.h"
+#include "game/scene/scene_context.h"
 
 namespace LR2
 {
@@ -1356,8 +1358,9 @@ private:
     int loadLR2SkinLine     (const Tokens &t);
 
     int loadLR2src(const Tokens &t);
+    int loadLR2srcnote(const Tokens &t);
     int loadLR2dst(const Tokens &t);
-    int loadLR2note(const Tokens &t);
+    int loadLR2dstnote(const Tokens &t);
 
     void loadLR2IF(const Tokens &t, std::ifstream&);
 
