@@ -827,20 +827,20 @@ int SkinLR2::loadLR2dstnote(const Tokens &t)
     auto e = _laneSprites[idx];
     if (e == nullptr)
     {
-        LOG_WARNING << "[Skin] " << line << ": Previous src definition invalid (Line: " << line << ")";
+        LOG_WARNING << "[Skin] " << line << ": Note SRC definition invalid (Line: " << line << ")";
         return 0;
     }
 
     if (e->type() != SpriteTypes::NOTE_VERT)
     {
-        LOG_WARNING << "[Skin] " << line << ": Previous src definition is not NOTE (Line: " << line << ")";
+        LOG_WARNING << "[Skin] " << line << ": Note SRC definition is not NOTE (Line: " << line << ")";
         return 0;
     }
 
     if (!e->isKeyFrameEmpty())
     {
         LOG_WARNING << "[Skin] " << line << ": Note DST is already defined (Line: " << line << ")";
-        return 0;
+        e->clearKeyFrames();
     }
 
     // set sprite channel
