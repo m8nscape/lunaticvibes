@@ -1,7 +1,9 @@
 #pragma once
+// FIXME: current TOML lib cause internal errors
 //#include <yaml-cpp/yaml.h>	// I wonder how the YAML static lib was sized almost about 5MB...
 #include <cpptoml.h> // From cpptoml
 #include "types.h"
+#include <unordered_map>
 
 namespace cfg
 {
@@ -43,7 +45,7 @@ public:
 	void save();
 
 	template<class Ty_v>
-	inline Ty_v get(const std::string key, const Ty_v value)
+	inline Ty_v get(const std::string& key, const Ty_v value)
 	{
 		auto val = _toml->get_as<Ty_v>(key);
 		if (val)
@@ -53,11 +55,12 @@ public:
 		else
 		{
 			throw new key_error(key);
+			return value;
 		}
 	}
 
 	template<class Ty_v>
-	inline void set(const std::string key, const Ty_v value) noexcept
+	inline void set(const std::string& key, const Ty_v value) /*noexcept*/
 	{
 		_toml->insert(key, value);
 	}

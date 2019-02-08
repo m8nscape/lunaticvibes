@@ -10,7 +10,8 @@ ConfigGeneral::~ConfigGeneral()
 
 void ConfigGeneral::setDefaults() noexcept
 {
-    using namespace cfg;
+	using namespace cfg;
+
 	set(A_MODE, A_MODE_AUTO);
 	set(A_BUFCOUNT, 4);
 	set(A_BUFLEN, 256);
