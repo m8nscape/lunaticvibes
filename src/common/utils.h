@@ -73,7 +73,16 @@ inline void __SetThreadName(DWORD dwThreadID, const char* threadName) {
 #pragma warning(pop)  
 }  
 
+[[noreturn]] inline void __panic(const char* title, const char* msg)
+{
+    // TODO: use native alert box to notify user
+    fprintf(stderr, "PANIC! [%s] %s\n", title, msg);
+    abort();
+}
+
 #define SetThreadName(name) __SetThreadName(GetCurrentThreadId(), name)
+#define panic(title, msg) __panic(title, msg)
 #else
 #define SetThreadName(name) 0
+#define panic(title, msg) printf("%s: %s\n", title, msg)
 #endif
