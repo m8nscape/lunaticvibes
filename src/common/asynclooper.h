@@ -1,6 +1,5 @@
 #pragma once
 #include <functional>
-#include <list>
 
 #if WIN32
 #include <Windows.h>
@@ -33,7 +32,7 @@ protected:
     unsigned _rate;
     unsigned _rateTime;
     bool _running = false;
-    LooperHandler handler = (LooperHandler)nullptr;
+    LooperHandler handler = nullptr;
 
 public:
     AsyncLooper::AsyncLooper(std::function<void()>, unsigned rate_per_sec);

@@ -4,7 +4,7 @@
 
 vConfig::vConfig()
 {
-	// placeholder, do nothing
+    // placeholder, do nothing
 }
 
 vConfig::vConfig(StringPath file)
@@ -21,15 +21,14 @@ void vConfig::load()
 	std::string fileStr;
 	fileStr.assign(_path.begin(), _path.end());
 	setDefaults();
-	try
-	{
-		//_yaml = YAML::LoadFile(fileStr);
-		_toml = cpptoml::parse_file(fileStr);
-	}
-	catch (const cpptoml::parse_exception&)
-	{
-		LOG_WARNING << "[Config] Bad file: " << fileStr;
-	}
+    try
+    {
+        _yaml = YAML::LoadFile(fileStr);
+    }
+    catch (YAML::BadFile&)
+    {
+        LOG_WARNING << "[Config] Bad file: " << fileStr;
+    }
 }
 
 void vConfig::save()
@@ -37,5 +36,6 @@ void vConfig::save()
 	std::string fileStr;
 	fileStr.assign(_path.begin(), _path.end());
 	std::ofstream fout(fileStr, std::ios_base::out);
-	fout << (*_toml);
+	fout << _yaml;
 }
+
