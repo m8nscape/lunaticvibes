@@ -186,6 +186,7 @@ xcopy /y $(ProjectDir)ext\fmod\lib\fmod.dll $(SolutionDir)$(Configuration)\</Com
     <ClInclude Include="src\game\data\option.h" />
     <ClInclude Include="src\game\data\slider.h" />
     <ClInclude Include="src\game\data\switch.h" />
+    <ClInclude Include="src\game\data\text.h" />
     <ClInclude Include="src\game\data\timer.h" />
     <ClInclude Include="src\game\graphics\graphics.h" />
     <ClInclude Include="src\game\graphics\SDL2\graphics_SDL2.h" />

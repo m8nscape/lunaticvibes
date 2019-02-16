@@ -4,7 +4,7 @@
 
 enum class eSwitch: unsigned
 {
-    TRUE = 0,           // should be initialized with true
+    _TRUE = 0,           // should be initialized with true AFTER reset
 
     SELECT_PANEL1,
     SELECT_PANEL2,
@@ -69,7 +69,7 @@ enum class eSwitch: unsigned
     K2SPDUP_DOWN,
     K2SPDDN_DOWN,
 
-    FALSE = 999,        // should be initialized with false
+    _FALSE = 999,        // should be initialized with false
     SWITCH_COUNT
 };
 

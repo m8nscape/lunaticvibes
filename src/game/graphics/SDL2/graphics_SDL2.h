@@ -11,7 +11,7 @@
 class Color : public SDL_Color
 {
 public:
-    Color(unsigned rgba = 0xff);
+    Color(unsigned rgba = 0xffffffff);
     Color(unsigned r, unsigned g, unsigned b, unsigned a);
     operator Uint8() const;
     Color operator+ (const Color& rhs) const;

@@ -3,6 +3,8 @@
 #include "graphics.h"
 #include "game/data/number.h"
 #include "game/data/timer.h"
+#include "game/data/text.h"
+
 #include <vector>
 #include <memory>
 
@@ -51,18 +53,19 @@ public:
 protected:
     pTexture _pTexture;
     BlendMode _blend = BlendMode::ALPHA;
+    eTimer _timerInd;
     int _loopTo = -1;
 protected:
     RenderParams _current;
     std::vector<RenderKeyFrame> _keyFrames;
 public:
-    vSprite(pTexture pTexture, SpriteTypes type);
+    vSprite(pTexture pTexture, SpriteTypes type = SpriteTypes::VIRTUAL, eTimer timer = eTimer::SCENE_START);
     virtual ~vSprite() = default;
 public:
     RenderParams getCurrentRenderParams();
-    void setBlendMode(BlendMode b);
-    void setLoopTime(int t);
     bool update(rTime time);
+    virtual void setBlendMode(BlendMode b);
+    virtual void setLoopTime(int t);
     virtual void appendKeyFrame(RenderKeyFrame f);
     virtual void draw() const = 0;
     bool isKeyFrameEmpty() { return _keyFrames.empty(); }
@@ -95,15 +98,15 @@ class SpriteSplit : public vSprite
 {
 protected:
     std::vector<Rect> _texRect;
-    unsigned _rows = 0, _cols = 0, _segments = 0;
+    unsigned _srows = 0, _scols = 0, _segments = 0;
     frameIdx _segmentIdx = 0;        
 public:
     SpriteSplit() = delete;
 
-    SpriteSplit(pTexture texture,
+    SpriteSplit(pTexture texture, eTimer timer = eTimer::SCENE_START, 
         unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);  // Copy texture, full area
 
-    SpriteSplit(pTexture texture, const Rect& rect,
+    SpriteSplit(pTexture texture, const Rect& rect, eTimer timer = eTimer::SCENE_START, 
         unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);  // Copy texture, specified area
 
     virtual ~SpriteSplit() = default;
@@ -115,11 +118,11 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 // Animated sprite:
 // Split resolution for animation frames.
+// Animation frame rect calculation is based on split rect
 class SpriteAnimated : public SpriteSplit
 {
     friend class SpriteLaneVertical;
 protected:
-    eTimer _timerInd;
     bool _aVert = false;
     Rect _aRect;
     unsigned _arows, _acols;
@@ -142,7 +145,7 @@ public:
     void updateByTimer(rTime t);
     virtual void updateAnimation(rTime t);
     void updateAnimationByTimer(rTime t);
-    void updateSplitByTimer(rTime t);
+    //void updateSplitByTimer(rTime t);
     virtual void draw() const;
 };
 
@@ -153,20 +156,25 @@ class SpriteText: public SpriteSplit
 {
 private:
     std::shared_ptr<TTFFont> _pFont;
+    eText _textInd;
+    std::string _currText;
+    Color _color;
     bool _haveRect = false;
 
 public:
     SpriteText() = delete;
-    SpriteText(const char* ttf, unsigned ptsize = 72);
-    SpriteText(const char* ttf, Rect rect, unsigned ptsize = 72);
+    SpriteText(const char* ttf, eText textInd = eText::INVALID, unsigned ptsize = 72, Color c = 0xffffffff);
+    SpriteText(const char* ttf, Rect rect, eText textInd = eText::INVALID, unsigned ptsize = 72, Color c = 0xffffffff);
     virtual ~SpriteText() = default;
 public:
+    void updateText();
     void setText(const char* text, const Color& c);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 // Number sprite:
-// digit implemented with Split part
+// A number sprite instance contains [digit] SpriteAnimated objects, 
+// in which Digit is decided by SpriteSplit part.
 // texture split count should be 10, 11, 22 or 24. Each represents:
 //  10: 0123456789
 //  11: 0123456789O (empty 0)
@@ -188,30 +196,35 @@ const size_t NUM_FULL_BZERO_NEG = 21;
 const size_t NUM_FULL_PLUS      = 22;
 const size_t NUM_FULL_MINUS     = 23;
 
-class SpriteNumber : public SpriteAnimated
+class SpriteNumber : public vSprite
 {
 private:
     eNumber _numInd;
     NumberSplits _numType;
-    std::vector<Rect> _drawRectDigit, _outRectDigit; // idx from low digit to high, e.g. [0] represents 1 digit, [1] represents 10 digit, etc.
-    std::vector<unsigned> _digit;
+    //std::vector<Rect> _drawRectDigit, _outRectDigit; // idx from low digit to high, e.g. [0] represents 1 digit, [1] represents 10 digit, etc.
+    std::vector<SpriteAnimated> _sDigit;
+    std::vector<unsigned>       _digit;
 
 public:
     SpriteNumber() = delete;
 
     SpriteNumber(pTexture texture, unsigned maxDigits,
         unsigned numRows, unsigned numCols, unsigned frameTime, eNumber num = eNumber::ZERO, eTimer timer = eTimer::SCENE_START,
-        bool subVerticalIndexing = false, unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
+        bool numVerticalIndexing = false, unsigned arows = 1, unsigned acols = 1, bool animVerticalIndexing = false);
 
     SpriteNumber(pTexture texture, const Rect& rect, unsigned maxDigits,
         unsigned numRows, unsigned numCols, unsigned frameTime, eNumber num = eNumber::ZERO, eTimer timer = eTimer::SCENE_START,
-        bool subVerticalIndexing = false, unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
+        bool numVerticalIndexing = false, unsigned arows = 1, unsigned acols = 1, bool animVerticalIndexing = false);
 
     virtual ~SpriteNumber() = default;
 
 public:
-    void updateNumber(int n);
+    void updateByTimer(rTime t);
+    void updateNumber(int n);           // invoke updateSplit to change number
     void updateNumberByInd();
-    void updateRectsByTimer(rTime t);
+    void updateAnimationByTimer(rTime t);   // invoke updateAnimation to change animation frames
+    virtual void setBlendMode(BlendMode b);
+    virtual void setLoopTime(int t);
+    virtual void appendKeyFrame(RenderKeyFrame f);
     virtual void draw() const;
 };

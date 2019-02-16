@@ -20,7 +20,7 @@ void vSkin::update()
         {
             auto& ref = (std::shared_ptr<SpriteAnimated>&)s;
             ref->updateByTimer(t);
-            ref->updateSplitByTimer(t);
+            //ref->updateSplitByTimer(t);
             ref->updateAnimationByTimer(t);
             break;
         }
@@ -28,11 +28,16 @@ void vSkin::update()
         {
             auto& ref = (std::shared_ptr<SpriteNumber>&)s;
             ref->updateByTimer(t);
-            ref->updateSplitByTimer(t);
-            ref->updateAnimationByTimer(t);
-            ref->updateRectsByTimer(t);
+            //ref->updateSplitByTimer(t);
             ref->updateNumberByInd();
+            ref->updateAnimationByTimer(t);
             break;
+        }
+        case SpriteTypes::TEXT:
+        {
+            auto& ref = (std::shared_ptr<SpriteText>&)s;
+            ref->updateText();
+            ref->update(t);
         }
         default:
             break;
