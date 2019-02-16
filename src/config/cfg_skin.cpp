@@ -7,5 +7,5 @@ ConfigSkin::~ConfigSkin() {}
 void ConfigSkin::setDefaults() noexcept
 {
     using namespace cfg;
-    set(S_PATH_PLAY, S_DEFAULT_PATH_PLAY);
+    _yaml[S_PATH_PLAY] = S_DEFAULT_PATH_PLAY;
 }

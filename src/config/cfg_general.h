@@ -1,7 +1,7 @@
 #pragma once
 #include "config.h"
 
-inline const StringPath CONFIG_FILE_GENERAL = "config.yml";
+inline const StringPath CONFIG_FILE_GENERAL = "config.toml";
 
 namespace cfg {
 

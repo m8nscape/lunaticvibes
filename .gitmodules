@@ -7,6 +7,3 @@
 [submodule "ext/digestpp"]
 	path = ext/digestpp
 	url = https://github.com/kerukuro/digestpp
-[submodule "ext/cpptoml"]
-	path = ext/cpptoml
-	url = https://github.com/skystrife/cpptoml

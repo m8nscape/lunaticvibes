@@ -114,9 +114,6 @@
     <ClCompile Include="src\config\cfg_skin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BmsParser.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common\utils.h">
@@ -266,7 +263,7 @@
     <ClInclude Include="src\common\meta.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BmsParser.h">
+    <ClInclude Include="src\game\data\text.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

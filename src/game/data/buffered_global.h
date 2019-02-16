@@ -6,7 +6,7 @@ template <class _Key, class _Value, size_t _size>
 class buffered_global
 {
 public:
-	constexpr buffered_global() : _data{ 0 }, _dataBuffer{ 0 } { static_assert(_size > 0); }
+	constexpr buffered_global() : _data{_Value()}, _dataBuffer{_Value()} { static_assert(_size > 0); }
 private:
     std::array<_Value, _size> _data;
     std::array<_Value, _size> _dataBuffer;
@@ -18,7 +18,7 @@ public:
 //protected:
     constexpr void set(_Key n, _Value value)
     {
-        LOG_DEBUG << "[Data] Set " << (int)n << " To " << (int)value;
+        LOG_DEBUG << "[Data] Set " << (int)n << " To " << value;
         if ((size_t)n < _size)
             _data[(size_t)n] = _dataBuffer[(size_t)n] = value;
     }

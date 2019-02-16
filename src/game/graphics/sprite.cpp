@@ -3,8 +3,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 // virtual base class functions
-vSprite::vSprite(pTexture tex, SpriteTypes type = SpriteTypes::VIRTUAL) :
-    _pTexture(tex), _type(type), _current({ 0, RenderParams::CONSTANT, 0x00000000, 0 }) {}
+vSprite::vSprite(pTexture tex, SpriteTypes type, eTimer timer) :
+    _pTexture(tex), _type(type), _timerInd(timer), _current({ 0, RenderParams::CONSTANT, 0x00000000, 0 }) {}
 
 bool vSprite::update(rTime time)
 {
@@ -135,23 +135,23 @@ void SpriteStatic::draw() const
 ////////////////////////////////////////////////////////////////////////////////
 // Split
 
-SpriteSplit::SpriteSplit(pTexture texture, unsigned rows, unsigned cols, bool v): 
-    SpriteSplit(texture, texture->getRect(), rows, cols, v)
+SpriteSplit::SpriteSplit(pTexture texture, eTimer timer, unsigned rows, unsigned cols, bool v): 
+    SpriteSplit(texture, texture->getRect(), timer, rows, cols, v)
 {
 }
 
-SpriteSplit::SpriteSplit(pTexture texture, const Rect& r, unsigned rows, unsigned cols, bool v):
-    vSprite(texture, SpriteTypes::SPLIT)
+SpriteSplit::SpriteSplit(pTexture texture, const Rect& r, eTimer timer, unsigned rows, unsigned cols, bool v):
+    vSprite(texture, SpriteTypes::SPLIT, timer)
 {
     if (rows == 0 || cols == 0)
     {
-        _rows = _cols = 0;
+        _srows = _scols = 0;
         _texRect.resize(0);
         return;
     }
 
-    _rows = rows;
-    _cols = cols;
+    _srows = rows;
+    _scols = cols;
     _segments = rows * cols;
     auto rect = r;
     rect.w /= rows;
@@ -210,7 +210,7 @@ SpriteAnimated::SpriteAnimated(pTexture texture,
 SpriteAnimated::SpriteAnimated(pTexture texture, const Rect& r, 
     unsigned subRows, unsigned subCols, unsigned frameTime, eTimer t, 
     bool sv, unsigned rows, unsigned cols, bool v):
-    SpriteSplit(texture, r, rows, cols, v), _aframes(0), _timerInd(t)
+    SpriteSplit(texture, r, t, rows, cols, v), _aframes(0)
 {
     _type = SpriteTypes::ANIMATED;
 
@@ -260,6 +260,9 @@ void SpriteAnimated::updateAnimationByTimer(rTime time)
         updateAnimation(time - gTimers.get(_timerInd));
 }
 
+// Commented for backup purpose. I don't think I can understand this...
+// Animation should not affect Split rect, which is decided by user.
+/*
 void SpriteAnimated::updateSplitByTimer(rTime time)
 {
     // total frame:    _aframes
@@ -270,6 +273,7 @@ void SpriteAnimated::updateSplitByTimer(rTime time)
     if (_period / _aframes > 0 && gTimers.get(_timerInd))
         updateSplit((frameIdx)((time - gTimers.get(_timerInd)) / (_period / _aframes)));
 }
+*/
 
 void SpriteAnimated::draw() const
 {
@@ -282,24 +286,32 @@ void SpriteAnimated::draw() const
 ////////////////////////////////////////////////////////////////////////////////
 // Text
 
-SpriteText::SpriteText(const char* file, unsigned ptsize):
-   SpriteSplit(nullptr), _pFont(new TTFFont(file, ptsize))
+SpriteText::SpriteText(const char* file, eText e, unsigned ptsize, Color c):
+   SpriteSplit(nullptr), _pFont(new TTFFont(file, ptsize)), _textInd(e), _color(c)
 {
     _type = SpriteTypes::TEXT;
     _texRect.resize(1);
 }
 
-SpriteText::SpriteText(const char* file, Rect rect, unsigned ptsize):
-   SpriteSplit(nullptr), _pFont(new TTFFont(file, ptsize))
+SpriteText::SpriteText(const char* file, Rect rect, eText e, unsigned ptsize, Color c):
+   SpriteSplit(nullptr), _pFont(new TTFFont(file, ptsize)), _textInd(e), _color(c)
 {
     _type = SpriteTypes::TEXT;
     _haveRect = true;
     _texRect.assign(1, rect);
 }
 
+void SpriteText::updateText()
+{
+    setText(gTexts.get(_textInd).c_str(), _color);
+}
+
 void SpriteText::setText(const char* text, const Color& c)
 {
     if (!_pFont->_loaded) return;
+    if (!strcmp(_currText.c_str(), text) && _color == c) return;
+    _currText = std::string(text);
+    _color = c;
     _pTexture = _pFont->TextUTF8(text, c);
     if (!_haveRect)
         _texRect[0] = _pTexture->getRect();
@@ -315,8 +327,8 @@ SpriteNumber::SpriteNumber(pTexture texture, unsigned maxDigits,
 
 SpriteNumber::SpriteNumber(pTexture texture, const Rect& rect, unsigned maxDigits,
     unsigned numRows, unsigned numCols, unsigned frameTime, eNumber n, eTimer t,
-    bool v, unsigned rows, unsigned cols, bool verticalIndexing): 
-    SpriteAnimated(texture, rect, numRows, numCols, frameTime, t, v, rows, cols, verticalIndexing), _numInd(n)
+    bool nv, unsigned arows, unsigned acols, bool av): 
+    vSprite(texture, SpriteTypes::NUMBER, t), _numInd(n)
 {
     _type = SpriteTypes::NUMBER;
 
@@ -330,18 +342,23 @@ SpriteNumber::SpriteNumber(pTexture texture, const Rect& rect, unsigned maxDigit
     default: return;
     }
 
-    //for (size_t i = 0; i < maxDigits; ++i)
-    //    _sDigit.emplace_back(texture, rect, numRows, numCols, frameTime, rows, cols, verticalIndexing);
+    _digit.resize(maxDigits);
+    for (size_t i = 0; i < maxDigits; ++i)
+        _sDigit.emplace_back(texture, rect, numRows, numCols, frameTime, t, nv, arows, acols, av);
+}
 
-    _drawRectDigit.assign(maxDigits, 0);
-    _digit.assign(maxDigits, 0);
+void SpriteNumber::updateByTimer(rTime time)
+{
+    if (gTimers.get(_timerInd))
+        for (auto& d : _sDigit)
+            d.update(time - gTimers.get(_timerInd));
 }
 
 void SpriteNumber::updateNumber(int n)
 {
     bool positive = n >= 0;
     int absn = positive ? n : -n;
-    for (unsigned i = 0; absn || i < _drawRectDigit.size(); ++i)
+    for (unsigned i = 0; absn || i < _sDigit.size(); ++i)
     {
         unsigned one = absn % 10;
         absn /= 10;
@@ -381,21 +398,21 @@ void SpriteNumber::updateNumber(int n)
     {
         case NUM_SYMBOL:
         {
-            _digit[_drawRectDigit.size() - 1] = positive ? NUM_SYMBOL_PLUS : NUM_SYMBOL_MINUS;
+            _digit[_sDigit.size() - 1] = positive ? NUM_SYMBOL_PLUS : NUM_SYMBOL_MINUS;
             break;
         }
         case NUM_FULL:
         {
-            _digit[_drawRectDigit.size() - 1] = positive ? NUM_FULL_PLUS : NUM_FULL_MINUS;
+            _digit[_sDigit.size() - 1] = positive ? NUM_FULL_PLUS : NUM_FULL_MINUS;
             break;
         }
     }
 
-    //// sprites
-    //for (size_t i = 0; i < _sDigit.size(); ++i)
-    //{
-    //    _sDigit[i].updateSplit(_digit[i]);
-    //}
+    // sprites
+    for (size_t i = 0; i < _sDigit.size(); ++i)
+    {
+        _sDigit[i].updateSplit(_digit[i]);
+    }
 }
 
 void SpriteNumber::updateNumberByInd()
@@ -416,15 +433,14 @@ void SpriteNumber::updateNumberByInd()
     updateNumber(n);
 }
 
-void SpriteNumber::updateRectsByTimer(rTime t)
+void SpriteNumber::updateAnimationByTimer(rTime t)
 {
     //for (auto& d : _sDigit)
     //    d.updateAnimation(t);
 
-    for (size_t i = 0; i < _outRectDigit.size(); ++i)
+    /*
+    for (size_t i = 0; i < _sDigit.size(); ++i)
     {
-        updateSplit(_digit[i]);
-
         auto& fRect = _current.rect;
         auto& dRect = _outRectDigit[i];
         dRect = _drawRect;
@@ -433,6 +449,10 @@ void SpriteNumber::updateRectsByTimer(rTime t)
         dRect.w = (int)(dRect.w * ((double)fRect.w / ((long long)_texRect[0].w * _outRectDigit.size())));
         dRect.h = (int)(dRect.h * ((double)fRect.h / (long long)_texRect[0].h));
     }
+    */
+
+    for (auto& d : _sDigit)
+        d.updateAnimationByTimer(t);
 }
 
 //void SpriteNumber::updateDigitsRenderParams()
@@ -455,10 +475,32 @@ void SpriteNumber::updateRectsByTimer(rTime t)
 //        _sDigit[i]._current.color = _current.color;
 //    }
 //}
+void SpriteNumber::setBlendMode(BlendMode b)
+{
+    for (auto& d : _sDigit)
+        d.setBlendMode(b);
+}
+
+void SpriteNumber::setLoopTime(int t)
+{
+    for (auto& d : _sDigit)
+        d.setLoopTime(t);
+}
+
+void SpriteNumber::appendKeyFrame(RenderKeyFrame f)
+{
+    for (auto& d : _sDigit)
+        d.appendKeyFrame(f);
+}
 
 void SpriteNumber::draw() const
 {
     if (_pTexture->_loaded)
-        for (size_t i = 0; i < _outRectDigit.size(); ++i)
-            _pTexture->_draw(_drawRectDigit[i], _outRectDigit[i], _current.angle);
+    {
+        //for (size_t i = 0; i < _outRectDigit.size(); ++i)
+        //    _pTexture->_draw(_drawRectDigit[i], _outRectDigit[i], _current.angle);
+
+        for (const auto& d : _sDigit)
+            d.draw();
+    }
 }

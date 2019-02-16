@@ -71,35 +71,26 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ReferencePath>$(VC_ReferencesPath_x64);</ReferencePath>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ReferencePath>$(VC_ReferencesPath_x64);</ReferencePath>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
-  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;RENDER_SDL2;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)ext\cpptoml\include;$(ProjectDir)ext\fmod\inc;$(ProjectDir)ext\SDL2_image\include;$(ProjectDir)ext\SDL2_ttf\include;$(ProjectDir)ext\SDL2\include;$(ProjectDir)ext\yaml-cpp\include;$(ProjectDir)ext\digestpp;$(ProjectDir)ext\plog\include;$(ProjectDir)src;$(ProjectDir)src\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)ext\fmod\inc;$(ProjectDir)ext\SDL2_image\include;$(ProjectDir)ext\SDL2_ttf\include;$(ProjectDir)ext\SDL2\include;$(ProjectDir)ext\yaml-cpp\include;$(ProjectDir)ext\digestpp;$(ProjectDir)ext\plog\include;$(ProjectDir)src;$(ProjectDir)src\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>$(ProjectDir)ext\fmod\lib;$(ProjectDir)ext\SDL2_image\lib;$(ProjectDir)ext\SDL2_ttf\lib;$(ProjectDir)ext\SDL2\lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>x86\SDL2.lib;x86\SDL2main.lib;x86\SDL2test.lib;x86\SDL2_ttf.lib;x86\SDL2_image.lib;fmodL_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)ext\fmod\lib;$(ProjectDir)ext\SDL2_image\lib;$(ProjectDir)ext\SDL2_ttf\lib;$(ProjectDir)ext\SDL2\lib;$(ProjectDir)ext\yaml-cpp\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>x86\SDL2.lib;x86\SDL2main.lib;x86\SDL2test.lib;x86\SDL2_ttf.lib;x86\SDL2_image.lib;fmodL_vc.lib;ext\yaml-cpp\build\Debug\libyaml-cppmdd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>$(ProjectDir)build-dependencies.bat</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>xcopy /y $(ProjectDir)ext\SDL2\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
@@ -110,7 +101,7 @@ xcopy /y $(ProjectDir)ext\fmod\lib\fmodL.dll $(SolutionDir)$(Configuration)\</Co
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;RENDER_SDL2;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -138,7 +129,6 @@ xcopy /y $(ProjectDir)ext\fmod\lib\fmod.dll $(SolutionDir)$(Configuration)\</Com
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BmsParser.cpp" />
     <ClCompile Include="src\common\asynclooper.cpp" />
     <ClCompile Include="src\common\chart\bms.cpp" />
     <ClCompile Include="src\common\chart\chart.cpp" />
@@ -174,7 +164,6 @@ xcopy /y $(ProjectDir)ext\fmod\lib\fmod.dll $(SolutionDir)$(Configuration)\</Com
     <ClCompile Include="src\game\sound\sound_mgr.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BmsParser.h" />
     <ClInclude Include="src\common\asynclooper.h" />
     <ClInclude Include="src\common\beat.h" />
     <ClInclude Include="src\common\chart\bms.h" />
@@ -197,6 +186,7 @@ xcopy /y $(ProjectDir)ext\fmod\lib\fmod.dll $(SolutionDir)$(Configuration)\</Com
     <ClInclude Include="src\game\data\option.h" />
     <ClInclude Include="src\game\data\slider.h" />
     <ClInclude Include="src\game\data\switch.h" />
+    <ClInclude Include="src\game\data\text.h" />
     <ClInclude Include="src\game\data\timer.h" />
     <ClInclude Include="src\game\graphics\graphics.h" />
     <ClInclude Include="src\game\graphics\SDL2\graphics_SDL2.h" />

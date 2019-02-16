@@ -66,6 +66,20 @@ int main(int argc, char* argv[])
 	InputMgr::updateDevices();
 	InputMgr::updateBindings(Input::Ingame::S1L);
 
+    // reset globals
+    gNumbers.set(eNumber::ZERO, 0);
+    gSwitches.set(eSwitch::_FALSE, false);
+    gSliders.set(eSlider::ZERO, 0);
+    gTexts.set(eText::INVALID, "");
+    gNumbers.reset();
+    gSwitches.set(eSwitch::_TRUE, false);
+    gSwitches.reset();
+    gSwitches.set(eSwitch::_TRUE, true);
+    gSliders.reset();
+    gTexts.reset();
+    gTimers.set(eTimer::SCENE_START, 0);
+    gTimers.reset();
+
     // temporary: hardcode bms file for test
     context_chart = __chart_context_params{
         "res/sample_7.bme",
@@ -87,6 +101,11 @@ int main(int argc, char* argv[])
         150,
         180
     };
+    gTexts.set(eText::PLAY_TITLE, context_chart.title);
+    gTexts.set(eText::PLAY_SUBTITLE, context_chart.title2);
+    gTexts.set(eText::PLAY_ARTIST, context_chart.artist);
+    gTexts.set(eText::PLAY_SUBARTIST, context_chart.artist2);
+    gTexts.set(eText::PLAY_GENRE, context_chart.genre);
 
 #if WIN32
     timeBeginPeriod(1);
