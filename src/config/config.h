@@ -49,6 +49,11 @@ public:
 		_toml->insert(key, value);
 	}
     */
+    
+    template<class Ty_v>
+    inline Ty_v get(const std::string key, const Ty_v fallback) { return _yaml[key].as<Ty_v>(fallback); }
+    template<class Ty_v>
+	inline void set(const std::string key, const Ty_v value) noexcept { _yaml[key] = value; } // untested when type mismatch
 
 protected:
 
