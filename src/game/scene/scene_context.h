@@ -1,6 +1,7 @@
 #pragma once
 #include "types.h"
 #include "chart/chart.h"
+#include "game/scroll/scroll.h"
 #include <memory>
 #include <string>
 
@@ -8,7 +9,8 @@ inline struct __chart_context_params
 {
     Path path{};
     HashMD5 hash{};
-    std::shared_ptr<vChart> chartObj{nullptr};
+    std::shared_ptr<vChart> chartObj{ nullptr };
+    std::shared_ptr<vScroll> scrollObj{ nullptr };
     //bool isChartSamplesLoaded;
     bool isSampleLoaded = false;
     bool isBgaLoaded = false;

@@ -127,14 +127,14 @@ void ScenePlay::loadChart()
 
     // TODO load Scroll object from Chart object
     // currently hard coded for BMS
-    _pScroll = std::make_shared<ScrollBMS>((const BMS&)*context_chart.chartObj);
+    context_chart.scrollObj = std::make_shared<ScrollBMS>((const BMS&)*context_chart.chartObj);
     _scrollLoaded = true;
 
     // build Ruleset object
     switch (_rule)
     {
     case eRuleset::CLASSIC:
-        _pRuleset = std::make_shared<RulesetClassic>(&*_pScroll);
+        _pRuleset = std::make_shared<RulesetClassic>(&*context_chart.scrollObj);
         _rulesetLoaded = true;
         break;
     default:
@@ -296,12 +296,12 @@ void ScenePlay::updateLoadEnd()
 
 void ScenePlay::updatePlaying()
 {
-    //gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (_pScroll->getCurrentBeat() / 4.0)) % 1000);
+    //gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (context_chart.scrollObj->getCurrentBeat() / 4.0)) % 1000);
     auto ht = getHighresTimePoint() - r2h(gTimers.get(eTimer::PLAY_START));
     auto rt = h2r(ht);
 
     _pRuleset->updateAsync(rt);
-    _pScroll->update(ht);
+    context_chart.scrollObj->update(ht);
     playBGMSamples();
     changeKeySampleMapping(rt);
 
@@ -326,7 +326,7 @@ void ScenePlay::updatePlaying()
 
 void ScenePlay::updateSongOutro()
 {
-    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (_pScroll->getCurrentBeat() / 4.0)) % 1000);
+    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (context_chart.scrollObj->getCurrentBeat() / 4.0)) % 1000);
     auto rt = getTimePoint();
 
     // TODO chart play finished
@@ -340,7 +340,7 @@ void ScenePlay::updateSongOutro()
 
 void ScenePlay::updateFadeout()
 {
-    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (_pScroll->getCurrentBeat() / 4.0)) % 1000);
+    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (context_chart.scrollObj->getCurrentBeat() / 4.0)) % 1000);
 
     // TODO fadeout finished
 
@@ -360,11 +360,11 @@ void ScenePlay::updateFailed()
 
 void ScenePlay::playBGMSamples()
 {
-    assert(_pScroll != nullptr);
+    assert(context_chart.scrollObj != nullptr);
     size_t i = 0;
-    auto it = _pScroll->notePlainExpired.begin();
-    size_t max = _bgmSampleIdxBuf.size() < _pScroll->notePlainExpired.size() ?
-        _bgmSampleIdxBuf.size() : _pScroll->notePlainExpired.size();
+    auto it = context_chart.scrollObj->notePlainExpired.begin();
+    size_t max = _bgmSampleIdxBuf.size() < context_chart.scrollObj->notePlainExpired.size() ?
+        _bgmSampleIdxBuf.size() : context_chart.scrollObj->notePlainExpired.size();
     for (; i < max; ++i)
         _bgmSampleIdxBuf[i] = (unsigned)std::get<long long>(it->value);
 
@@ -378,9 +378,9 @@ void ScenePlay::changeKeySampleMapping(rTime t)
     for (auto i = 0; i < Input::ESC; ++i)
         if (_inputAvailable[i])
         {
-            assert(_pScroll != nullptr);
-            auto chan = _pScroll->getChannelFromKey((Input::Ingame)i);
-            auto note = _pScroll->lastNoteOfChannel(chan.first, chan.second);
+            assert(context_chart.scrollObj != nullptr);
+            auto chan = context_chart.scrollObj->getChannelFromKey((Input::Ingame)i);
+            auto note = context_chart.scrollObj->lastNoteOfChannel(chan.first, chan.second);
             _currentKeySample[i] = (size_t)std::get<long long>(note->value);
         }
 }

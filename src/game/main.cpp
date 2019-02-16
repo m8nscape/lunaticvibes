@@ -81,9 +81,10 @@ int main(int argc, char* argv[])
     gTimers.reset();
 
     // temporary: hardcode bms file for test
-    context_chart = {
+    context_chart = __chart_context_params{
         "res/sample_7.bme",
         "",
+        nullptr,
         nullptr,
         false,
         false,

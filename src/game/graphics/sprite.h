@@ -18,7 +18,7 @@ enum class SpriteTypes
 
     NUMBER,
 
-    NOTE,
+    NOTE_VERT,
 };
 
 struct RenderParams
@@ -69,6 +69,7 @@ public:
     virtual void appendKeyFrame(RenderKeyFrame f);
     virtual void draw() const = 0;
     bool isKeyFrameEmpty() { return _keyFrames.empty(); }
+    void clearKeyFrames() { _keyFrames.clear(); }
 };
 
 

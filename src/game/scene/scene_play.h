@@ -33,7 +33,6 @@ private:
     InputMask _inputAvailable;
     StringPath _chartPath;
     std::vector<size_t> _currentKeySample;
-    std::shared_ptr<vScroll>  _pScroll;
     std::shared_ptr<vRuleset> _pRuleset;
 
 private:
