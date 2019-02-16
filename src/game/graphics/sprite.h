@@ -3,6 +3,8 @@
 #include "graphics.h"
 #include "game/data/number.h"
 #include "game/data/timer.h"
+#include "game/data/slider.h"
+#include "game/data/option.h"
 #include <vector>
 #include <memory>
 
@@ -119,6 +121,7 @@ public:
 class SpriteAnimated : public SpriteSplit
 {
     friend class SpriteLaneVertical;
+    friend class SpriteSlider;
 protected:
     eTimer _timerInd;
     bool _aVert = false;
@@ -216,3 +219,69 @@ public:
     void updateRectsByTimer(rTime t);
     virtual void draw() const;
 };
+
+////////////////////////////////////////////////////////////////////////////////
+// Slider sprite:
+// Determine pos by inner value
+enum SliderDirection
+{
+    VERT_DOWN,
+    VERT_UP,
+    HORI_RIGHT,
+    HORI_LEFT
+};
+
+class SpriteSlider : public SpriteAnimated
+{
+private:
+    eSlider _sliderInd;
+    int _value;
+    SliderDirection _dir;
+
+public:
+    SpriteSlider() = delete;
+
+    SpriteSlider(pTexture texture, SliderDirection dir,
+        unsigned numRows, unsigned numCols, unsigned frameTime, eSlider s = eSlider::ZERO, eTimer timer = eTimer::SCENE_START,
+        bool subVerticalIndexing = false, unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
+
+    SpriteSlider(pTexture texture, const Rect& rect, SliderDirection dir,
+        unsigned numRows, unsigned numCols, unsigned frameTime, eSlider s = eSlider::ZERO, eTimer timer = eTimer::SCENE_START,
+        bool subVerticalIndexing = false, unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
+
+    virtual ~SpriteSlider() = default;
+
+public:
+    void updateVal(int v);
+    void updateValByInd();
+    void updatePos();
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// Option sprite:
+// Unlike eSwitch, selections can be more than two.
+
+class SpriteOption : public SpriteAnimated
+{
+private:
+    eOption _opInd;
+    unsigned _value;
+
+public:
+    SpriteOption() = delete;
+
+    SpriteOption(pTexture texture,
+        unsigned numRows, unsigned numCols, unsigned frameTime, eOption s = eOption::DEFAULT, eTimer timer = eTimer::SCENE_START,
+        bool subVerticalIndexing = false, unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
+
+    SpriteOption(pTexture texture, const Rect& rect,
+        unsigned numRows, unsigned numCols, unsigned frameTime, eOption s = eOption::DEFAULT, eTimer timer = eTimer::SCENE_START,
+        bool subVerticalIndexing = false, unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
+
+    virtual ~SpriteOption() = default;
+
+public:
+    void updateVal(unsigned v);     // invoke SpriteSplit::updateSplit(v)
+    void updateValByInd();
+};
+
