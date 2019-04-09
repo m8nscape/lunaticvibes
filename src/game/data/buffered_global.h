@@ -18,7 +18,7 @@ public:
 //protected:
     constexpr void set(_Key n, _Value value)
     {
-        LOG_DEBUG << "[Data] Set " << (int)n << " To " << value;
+        //LOG_DEBUG << "[Data] Set " << (int)n << " To " << value;
         if ((size_t)n < _size)
             _data[(size_t)n] = _dataBuffer[(size_t)n] = value;
     }

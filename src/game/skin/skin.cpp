@@ -40,7 +40,7 @@ void vSkin::update()
         case SpriteTypes::NOTE_VERT:
         {
             auto& ref = (std::shared_ptr<SpriteLaneVertical>&)s;
-			if (ref->haveDst() && context_chart.scrollObj != nullptr)
+			if (ref->haveDst() && context_chart.scrollObj != nullptr && context_chart.started)
 			{
 				ref->update(t);
 				ref->updateNoteRect(ht, &*context_chart.scrollObj);

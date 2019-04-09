@@ -88,6 +88,7 @@ int main(int argc, char* argv[])
         nullptr,
         false,
         false,
+		false,
 
         "TITLE",
         "subtitle",

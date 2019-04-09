@@ -181,15 +181,15 @@ void RulesetClassic::updateRelease(InputMask& rg, rTime t)
     }
 }
 
-void RulesetClassic::updateAsync(rTime t)
+void RulesetClassic::updateAsync(rTime rt)
 {
-    rTime rt = gTimers.get(eTimer::PLAY_START) - t;
 	for (size_t k = Input::S1L; k < Input::K1START; ++k)
 	{
 		auto c = _scroll->getChannelFromKey((Input::Ingame)k);
 		if (c.first == NoteChannelCategory::_) continue;
+
 		auto n = _scroll->incomingNoteOfChannel(c.first, c.second);
-		if (!_scroll->isLastNoteOfChannel(c.first, c.second, n) &&
+		if (!_scroll->isLastNoteOfChannel(c.first, c.second, n) && !n->hit &&
 			rt - h2r(n->time) >= judgeTime[(size_t)_diff].BAD)
 		{
 			switch (c.first)
@@ -198,7 +198,6 @@ void RulesetClassic::updateAsync(rTime t)
 			case NoteChannelCategory::LN:
 				n->hit = true;
 				++_count[MISS];
-				_scroll->succNoteOfChannel(c.first, c.second);
 				_basic.combo = 0;
 				LOG_DEBUG << "LATE   POOR    "; break;
 				break;

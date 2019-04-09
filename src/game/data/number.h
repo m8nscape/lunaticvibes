@@ -8,6 +8,18 @@ enum class eNumber: unsigned
     FPS,
 
     RANDOM,
+
+	// Inner numbers
+	_TEST1 = 300,
+	_TEST2,
+	_TEST3,
+	_TEST4,
+	_TEST5,
+	_TEST6,
+	_TEST7,
+	_TEST8,
+	_TEST9,
+
     NUMBER_COUNT
 };
 

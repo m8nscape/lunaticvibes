@@ -86,9 +86,9 @@ protected:
     std::vector<std::list<Note>> _plainLists;     // basically sNote without hit param, including BGM, BGA; handled with timer
     std::vector<std::list<Note>> _extLists;       // e.g. Stop in BMS
     std::list<Note>              _bpmList;
-    std::list<Note>              _scrollingSpeedList;
+    std::list<Note>              _stopList;
 
-    //std::array<Beat,   MAX_MEASURES> _measureLength;
+    std::array<Beat,  MAX_MEASURES>   _measureLength;
     std::array<hTime, MAX_MEASURES>   _measureTimestamp;
 
 
@@ -100,43 +100,44 @@ private:
     std::array<decltype(_noteLists.front().begin()), CHANNEL_COUNT> _noteListIterators;
     std::vector<decltype(_plainLists.front().begin())>  _plainListIterators;
     std::vector<decltype(_extLists.front().begin())>    _extListIterators;
-    decltype(_bpmList.begin())             _bpmListIterator;
-    decltype(_scrollingSpeedList.begin())  _speedListIterator;
+    decltype(_bpmList.begin())   _bpmListIterator;
+    decltype(_stopList.begin())  _stopListIterator;
 public:
     auto incomingNoteOfChannel      (NoteChannelCategory cat, NoteChannelIndex idx) -> decltype(_noteListIterators.front());
     auto incomingNoteOfPlainChannel (size_t idx) -> decltype(_plainListIterators.front());
     auto incomingNoteOfExtChannel   (size_t idx) -> decltype(_extListIterators.front());
     auto incomingNoteOfBpm          () -> decltype(_bpmListIterator);
-    auto incomingNoteOfSpeed        () -> decltype(_speedListIterator);
+    auto incomingNoteOfStop         () -> decltype(_stopListIterator);
     bool isLastNoteOfChannel      (NoteChannelCategory cat, NoteChannelIndex idx);
     bool isLastNoteOfPlainChannel (size_t idx);
     bool isLastNoteOfExtChannel   (size_t idx);
     bool isLastNoteOfBpm();
-    bool isLastNoteOfSpeed();
+    bool isLastNoteOfStop();
     bool isLastNoteOfChannel      (NoteChannelCategory cat, NoteChannelIndex idx, decltype(_noteListIterators.front()) it);
     bool isLastNoteOfPlainChannel (size_t idx, decltype(_plainListIterators.front()) it);
     bool isLastNoteOfExtChannel   (size_t idx, decltype(_extListIterators.front()) it);
     bool isLastNoteOfBpm          (decltype(_bpmListIterator) it);
-    bool isLastNoteOfSpeed        (decltype(_speedListIterator) it);
+    bool isLastNoteOfStop         (decltype(_stopListIterator) it);
     auto succNoteOfChannel      (NoteChannelCategory cat, NoteChannelIndex idx) -> decltype(_noteListIterators.front());
     auto succNoteOfPlainChannel (size_t idx) -> decltype(_plainListIterators.front());
     auto succNoteOfExtChannel   (size_t idx) -> decltype(_extListIterators.front());
     auto succNoteOfBpm          () -> decltype(_bpmListIterator);
-    auto succNoteOfSpeed        () -> decltype(_speedListIterator);
+    auto succNoteOfStop         () -> decltype(_stopListIterator);
 
 public:
     hTime getMeasureLength(size_t measure);
     hTime getCurrentMeasureLength();
+    Beat  getMeasureBeat(size_t measure);
+	Beat  getCurrentMeasureBeat();
+    constexpr hTime getMeasureTime(size_t m) { return m < MAX_MEASURES ? _measureTimestamp[m] : LLONG_MAX; }
+	constexpr hTime getCurrentMeasureTime() { return getMeasureTime(_currentMeasure); }
 
 protected:
     unsigned _currentMeasure    = 0;
     double   _currentBeat       = 0;
-    double   _currentRenderBeat = 0;
     BPM      _currentBPM        = 150.0;
-    double   _currentSpeed      = 1.0;
-    hTime    _lastChangedTime   = 0;
+    hTime    _lastChangedBPMTime   = 0;
     double   _lastChangedBeat   = 0;
-    hTime    _lastChangedSpeedTime = 0;
 
 public:
     void reset();
@@ -144,7 +145,6 @@ public:
     /*virtual*/ void update(hTime t);
     constexpr auto getCurrentMeasure() -> decltype(_currentMeasure) { return _currentMeasure; }
     constexpr auto getCurrentBeat() -> decltype(_currentBeat) { return _currentBeat; }
-    constexpr auto getCurrentRenderBeat() -> decltype(_currentRenderBeat) { return _currentRenderBeat; }
     constexpr auto getCurrentBPM() -> decltype(_currentBPM) { return _currentBPM; }
 
 public:

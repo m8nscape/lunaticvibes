@@ -798,7 +798,7 @@ int SkinLR2::loadLR2srcnote(const Tokens &t)
 		_laneSprites[i]->setChannel(cat, idx);
         LOG_DEBUG << "[Skin] " << line << ": Set Note " << idx << " sprite (texture: " << gr_key << ", timer: " << d.timer << ")";
 
-		_laneSprites[i]->pNote->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h),
+		_laneSprites[i]->pNote->appendKeyFrame({ 0, {Rect(),
 			RenderParams::accTy::CONSTANT, Color(0xffffffff), 0 } });
 		_laneSprites[i]->pNote->setLoopTime(0);
 

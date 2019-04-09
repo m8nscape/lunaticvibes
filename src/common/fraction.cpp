@@ -16,7 +16,7 @@ bool trim(long long &_numerator, long long &_denominator)
         _denominator = -_denominator;
     }
 
-    int g = std::gcd(_numerator, _denominator);
+    long long g = std::gcd(_numerator, _denominator);
     if (g == 1)
         return false;
 
@@ -97,7 +97,7 @@ fraction d2fr(double d)
         return fraction(0, 1);
     }
 
-    long long dr = 1e16;
+    long long dr = 1e15;
     trim(nr, dr);
     while (abs(nr) & 0xffffffff00000000 || abs(dr) & 0xffffffff00000000)
     {

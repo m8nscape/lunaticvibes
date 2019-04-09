@@ -30,24 +30,35 @@ void SpriteLaneVertical::updateNoteRect(hTime t, vScroll* s)
 {
     rTime rt = h2r(t);
 
-    // refresh lane sprite
-    update(rt);
-
     // refresh note sprites
-    pNote->update(rt);
+    pNote->updateByTimer(rt);
+	pNote->updateAnimationByTimer(rt);
 
     // fetch note size
     auto c = _current.rect;
     auto r = pNote->getCurrentRenderParams().rect;
 
     // generate note rects and store to buffer
-    int y = 0;
+    int y = c.h;
     _outRect.clear();
-    auto currentRenderPos = s->getCurrentBeat();
+	auto measure = s->getCurrentMeasure();
+	gNumbers.set(eNumber::_TEST2, (int)measure);
+	auto beat = s->getCurrentBeat();
     auto it = s->incomingNoteOfChannel(_category, _index);
-    while (!s->isLastNoteOfChannel(_category, _index, it) && y <= c.h)
+    while (!s->isLastNoteOfChannel(_category, _index, it) && y >= c.y)
     {
-        y = (int)std::floor((it++->renderPos - currentRenderPos) * c.h * _basespd * _hispeed);
+		if (measure < it->measure)
+		{
+			double extraBeats = s->getCurrentMeasureBeat() - beat;
+			while (measure < it->measure) extraBeats += s->getMeasureBeat(measure++);
+			y = c.h - (int)std::floor((extraBeats + it++->rawBeat) * c.h * _basespd * _hispeed);
+		}
+		else
+		{
+			y = c.h - (int)std::floor((it++->rawBeat - beat) * c.h * _basespd * _hispeed);
+		}
+		gNumbers.set(eNumber::_TEST1, y);
+		gNumbers.set(eNumber::_TEST3, beat * 1000);
         _outRect.push_front({ c.x + r.x, c.y + r.y - y, r.w, r.h });
     }
 }
@@ -55,15 +66,17 @@ void SpriteLaneVertical::updateNoteRect(hTime t, vScroll* s)
 void SpriteLaneVertical::draw() const 
 {
     if (pNote->_pTexture->_loaded)
+	{
+		auto dr = pNote->_drawRect;
 		for (const auto& r : _outRect)
 		{
 #if _DEBUG
 			char buf[256];
-			auto dr = pNote->_drawRect;
 			sprintf(buf, "texture[%dx%d, %dx%d] output[%dx%d, %dx%d]", dr.x, dr.y, dr.w, dr.h, r.x, r.y, r.w, r.h);
-			LOG_DEBUG << "[Skin] Lane rect: " << buf;
+			//LOG_DEBUG << "[Skin] Lane rect: " << buf;
 #endif
-			pNote->_pTexture->_draw(pNote->_drawRect, r, _current.angle);
+			pNote->_pTexture->_draw(dr, r, _current.angle);
 		}
+	}
 }
 

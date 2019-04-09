@@ -19,14 +19,13 @@ inline hTime getHighresTimePoint() { return std::chrono::duration_cast<timeHighR
 constexpr rTime h2r(hTime h) { return (rTime)(std::chrono::duration_cast<timeRes>(timeHighRes(h)).count()); }
 constexpr hTime r2h(rTime r) { return (hTime)(std::chrono::duration_cast<timeHighRes>(timeRes(r)).count()); }
 
-constexpr rTime rConvertBPM(BPM b) { using namespace std::chrono; return (rTime)(6e5 / b * duration_cast<timeRes>(1ms).count()); }
-constexpr hTime hConvertBPM(BPM b) { using namespace std::chrono; return (hTime)(6e5 / b * duration_cast<timeHighRes>(1ms).count()); }
+constexpr rTime rConvertBPM(BPM b) { using namespace std::chrono; return (rTime)(6e4 * 4 / b * duration_cast<timeRes>(1ms).count()); }
+constexpr hTime hConvertBPM(BPM b) { using namespace std::chrono; return (hTime)(6e4 * 4 / b * duration_cast<timeHighRes>(1ms).count()); }
 
 struct Note
 {
     Measure measure;        // Which measure the note is placed
-    Beat rawBeat;           // Which beat the note is placed, ignoring scrolling speed changes
-    double renderPos;      // Where should the note be rendered, with consideration of scrolling speed
+    Beat rawBeat;           // Which beat the note is placed, can be above 1
     hTime time;             // Time point in hTime (currently ns)
     std::variant<long long, double> value;              // varies from note type to type, e.g. #BGM, #BPM, etc
 };

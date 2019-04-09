@@ -14,6 +14,7 @@ inline struct __chart_context_params
     //bool isChartSamplesLoaded;
     bool isSampleLoaded = false;
     bool isBgaLoaded = false;
+	bool started = false;
 
     // For displaying purpose, typically fetch from song db directly
     StringContent title{};

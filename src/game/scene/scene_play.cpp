@@ -298,6 +298,7 @@ void ScenePlay::updateLoadEnd()
         _state = ePlayState::PLAYING;
         gTimers.set(eTimer::PLAY_START, getTimePoint());
         setInputJudgeCallback();
+		context_chart.started = true;
         LOG_DEBUG << "[Play] State changed to PLAY_START";
 		_switchingState = false;
     }
@@ -328,6 +329,7 @@ void ScenePlay::updatePlaying()
     //if (*last note end*)
     //{
     //    _state = ePlayState::LAST_NOTE_END;
+	//    context_chart.started = true;
     //    gTimers.set(eTimer::PLAY_LAST_NOTE_JUDGE, rt);
     //}
      
