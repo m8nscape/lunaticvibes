@@ -851,6 +851,8 @@ int SkinLR2::loadLR2dstnote(const Tokens &t)
 				"(Line: " << line << ")";
 			e->clearKeyFrames();
 		}
+		e->pNote->clearKeyFrames();
+		e->pNote->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a), (double)d.angle } });
 
 		// set sprite channel
 		auto p = std::static_pointer_cast<SpriteLaneVertical>(e);

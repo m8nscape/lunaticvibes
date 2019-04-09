@@ -50,7 +50,7 @@ void SpriteLaneVertical::updateNoteRect(hTime t, vScroll* s)
 		if (measure < it->measure)
 		{
 			double extraBeats = s->getCurrentMeasureBeat() - beat;
-			while (measure < it->measure) extraBeats += s->getMeasureBeat(measure++);
+			while (++measure < it->measure) extraBeats += s->getMeasureBeat(measure);
 			y = c.h - (int)std::floor((extraBeats + it++->rawBeat) * c.h * _basespd * _hispeed);
 		}
 		else
@@ -59,7 +59,7 @@ void SpriteLaneVertical::updateNoteRect(hTime t, vScroll* s)
 		}
 		gNumbers.set(eNumber::_TEST1, y);
 		gNumbers.set(eNumber::_TEST3, beat * 1000);
-        _outRect.push_front({ c.x + r.x, c.y + r.y - y, r.w, r.h });
+        _outRect.push_front({ c.x, c.y + y, r.w, r.h });
     }
 }
 
@@ -70,11 +70,6 @@ void SpriteLaneVertical::draw() const
 		auto dr = pNote->_drawRect;
 		for (const auto& r : _outRect)
 		{
-#if _DEBUG
-			char buf[256];
-			sprintf(buf, "texture[%dx%d, %dx%d] output[%dx%d, %dx%d]", dr.x, dr.y, dr.w, dr.h, r.x, r.y, r.w, r.h);
-			//LOG_DEBUG << "[Skin] Lane rect: " << buf;
-#endif
 			pNote->_pTexture->_draw(dr, r, _current.angle);
 		}
 	}
