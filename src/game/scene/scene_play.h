@@ -26,6 +26,7 @@ enum class ePlayState
 class ScenePlay : public vScene
 {
 private:
+	bool _switchingState = false;
     ePlayState _state;
     ePlayMode _mode;
     eRuleset  _rule;

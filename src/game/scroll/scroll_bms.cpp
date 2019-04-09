@@ -247,11 +247,11 @@ std::pair<NoteChannelCategory, NoteChannelIndex> ScrollBMS::getChannelFromKey(In
         NoteChannelIndex idx = KeyToChannelMap[input];
         std::vector<std::pair<cat, sNote>> note;
         if (!isLastNoteOfChannel(cat::Note, idx))
-            note.push_back({ cat::Note, *lastNoteOfChannel(cat::Note, idx) });
+            note.push_back({ cat::Note, *incomingNoteOfChannel(cat::Note, idx) });
         if (!isLastNoteOfChannel(cat::Invs, idx))
-            note.push_back({ cat::Invs, *lastNoteOfChannel(cat::Invs, idx) });
+            note.push_back({ cat::Invs, *incomingNoteOfChannel(cat::Invs, idx) });
         if (!isLastNoteOfChannel(cat::LN, idx))
-            note.push_back({ cat::LN,   *lastNoteOfChannel(cat::LN, idx) });
+            note.push_back({ cat::LN,   *incomingNoteOfChannel(cat::LN, idx) });
         std::sort(note.begin(), note.end(), [](decltype(note.front())& a, decltype(note.front())& b) { return b.second.time > a.second.time; });
         for (size_t i = 0; i < note.size(); ++i)
             if (!note[i].second.hit) return { note[i].first, idx };

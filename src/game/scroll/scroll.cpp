@@ -32,48 +32,71 @@ void vScroll::setIterators()
     _speedListIterator = _scrollingSpeedList.begin();
 }
 
-auto vScroll::lastNoteOfChannel(NoteChannelCategory cat, NoteChannelIndex idx) -> decltype(_noteListIterators.front())
+auto vScroll::incomingNoteOfChannel(NoteChannelCategory cat, NoteChannelIndex idx) -> decltype(_noteListIterators.front())
 {
     size_t channel = channelToIdx(cat, idx);
     return _noteListIterators[channel];
 }
 
-auto vScroll::lastNoteOfPlainChannel(size_t channel) -> decltype(_plainListIterators.front())
+auto vScroll::incomingNoteOfPlainChannel(size_t channel) -> decltype(_plainListIterators.front())
 {
     return _plainListIterators[channel];
 }
-auto vScroll::lastNoteOfExtChannel(size_t channel) -> decltype(_extListIterators.front())
+auto vScroll::incomingNoteOfExtChannel(size_t channel) -> decltype(_extListIterators.front())
 {
     return _extListIterators[channel];
 }
-auto vScroll::lastNoteOfBpm() -> decltype(_bpmListIterator)
+auto vScroll::incomingNoteOfBpm() -> decltype(_bpmListIterator)
 {
     return _bpmListIterator;
 }
-auto vScroll::lastNoteOfSpeed() -> decltype(_speedListIterator)
+auto vScroll::incomingNoteOfSpeed() -> decltype(_speedListIterator)
 {
     return _speedListIterator;
 }
 
-bool vScroll::isLastNoteOfChannel(NoteChannelCategory cat, NoteChannelIndex idx)
+bool vScroll::isLastNoteOfChannel(NoteChannelCategory cat, NoteChannelIndex idx, decltype(_noteListIterators.front()) it)
 {
     size_t channel = channelToIdx(cat, idx);
-    return _noteLists[channel].empty() || 
-        lastNoteOfChannel(cat, idx) == _noteLists[channel].end();
+    return _noteLists[channel].empty() || it == _noteLists[channel].end();
+}
+bool vScroll::isLastNoteOfPlainChannel(size_t idx, decltype(_plainListIterators.front()) it)
+{
+    return _plainLists[idx].empty()    || it == _plainLists[idx].end();
+}
+bool vScroll::isLastNoteOfExtChannel(size_t idx, decltype(_extListIterators.front()) it)
+{
+    return _extLists[idx].empty()      ||  it == _extLists[idx].end(); 
+}
+bool vScroll::isLastNoteOfBpm(decltype(_bpmListIterator) it)
+{
+	return _bpmList.empty()            || it == _bpmList.end(); 
+}
+bool vScroll::isLastNoteOfSpeed(decltype(_speedListIterator) it)
+{
+	return _scrollingSpeedList.empty() || it == _scrollingSpeedList.end(); 
+}
+
+bool vScroll::isLastNoteOfChannel(NoteChannelCategory cat, NoteChannelIndex idx)
+{
+	return isLastNoteOfChannel(cat, idx, incomingNoteOfChannel(cat, idx));
 }
 bool vScroll::isLastNoteOfPlainChannel(size_t channel)
 {
-    return _plainLists[channel].empty() ||
-        lastNoteOfPlainChannel(channel) == _plainLists[channel].end();
+	return isLastNoteOfPlainChannel(channel, incomingNoteOfPlainChannel(channel));
 }
 bool vScroll::isLastNoteOfExtChannel(size_t channel)
 {
-    return _extLists[channel].empty() || 
-        lastNoteOfExtChannel(channel) == _extLists[channel].end(); 
+	return isLastNoteOfExtChannel(channel, incomingNoteOfExtChannel(channel));
 }
-
-bool vScroll::isLastNoteOfBpm() { return _bpmList.empty() || lastNoteOfBpm() == _bpmList.end(); }
-bool vScroll::isLastNoteOfSpeed() { return _scrollingSpeedList.empty() || lastNoteOfSpeed() == _scrollingSpeedList.end(); }
+bool vScroll::isLastNoteOfBpm()
+{
+	return isLastNoteOfBpm(incomingNoteOfBpm());
+}
+bool vScroll::isLastNoteOfSpeed()
+{
+	return isLastNoteOfSpeed(incomingNoteOfSpeed());
+}
 
 auto vScroll::succNoteOfChannel(NoteChannelCategory cat, NoteChannelIndex idx) -> decltype(_noteListIterators.front())
 {
@@ -134,7 +157,7 @@ void vScroll::update(hTime t)
     }
 
     // check inbounds BPM change
-    auto b = lastNoteOfBpm();
+    auto b = incomingNoteOfBpm();
     while (!isLastNoteOfBpm() && t >= b->time)
     {
         _currentBeat = b->rawBeat;
@@ -148,8 +171,8 @@ void vScroll::update(hTime t)
     }
 
     // scroll speed
-    auto s = lastNoteOfSpeed();
-    while (!isLastNoteOfSpeed() && t >= s->time)
+    auto s = incomingNoteOfSpeed();
+    while (!isLastNoteOfSpeed(s) && t >= s->time)
     {
         _currentSpeed = std::get<double>(s->value);
         _currentRenderBeat = s->renderPos;
@@ -161,8 +184,8 @@ void vScroll::update(hTime t)
     for (NoteChannelCategory cat = NoteChannelCategory::Note; (size_t)cat < (size_t)NoteChannelCategory::NOTECATEGORY_COUNT; ++*((size_t*)&cat))
     for (NoteChannelIndex idx = Sc1; idx < NOTECHANNEL_COUNT; ++*((size_t*)&idx))
     {
-        auto it = lastNoteOfChannel(cat, idx);
-        while (!isLastNoteOfChannel(cat, idx) && (t >= it->time + 1000 || !it->hit))
+        auto it = incomingNoteOfChannel(cat, idx);
+        while (!isLastNoteOfChannel(cat, idx, it) && (t >= it->time + 1000 || !it->hit))
         {
             it->hit = true;
             noteExpired.push_back(*it);
@@ -173,7 +196,7 @@ void vScroll::update(hTime t)
     // Skip expired plain note
     for (size_t idx = 0; idx < _plainLists.size(); ++idx)
     {
-        auto it = lastNoteOfPlainChannel(idx);
+        auto it = incomingNoteOfPlainChannel(idx);
         while (!isLastNoteOfPlainChannel(idx) && t >= it->time)
         {
             notePlainExpired.push_back(*it);
@@ -183,7 +206,7 @@ void vScroll::update(hTime t)
     // Skip expired extended note
     for (size_t idx = 0; idx < _extLists.size(); ++idx)
     {
-        auto it = lastNoteOfExtChannel(idx);
+        auto it = incomingNoteOfExtChannel(idx);
         while (!isLastNoteOfExtChannel(idx) && t >= it->time)
         {
             noteExtExpired.push_back(*it);

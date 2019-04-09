@@ -61,7 +61,7 @@ void RulesetClassic::updatePress(InputMask& pg, rTime t)
     {
         if (!pg[k]) continue;
         auto c = _scroll->getChannelFromKey((Input::Ingame)k);
-        auto n = _scroll->lastNoteOfChannel(c.first, c.second);
+        auto n = _scroll->incomingNoteOfChannel(c.first, c.second);
         auto j = _judge(*n, rt);
         switch (c.first)
         {
@@ -140,7 +140,7 @@ void RulesetClassic::updateHold(InputMask& hg, rTime t)
     {
         if (!hg[k]) continue;
         auto c = _scroll->getChannelFromKey((Input::Ingame)k);
-        auto n = _scroll->lastNoteOfChannel(c.first, c.second);
+        auto n = _scroll->incomingNoteOfChannel(c.first, c.second);
         auto j = _judge(*n, rt);
         switch (c.first)
         {
@@ -167,7 +167,7 @@ void RulesetClassic::updateRelease(InputMask& rg, rTime t)
     {
         if (!rg[k]) continue;
         auto c = _scroll->getChannelFromKey((Input::Ingame)k);
-        auto n = _scroll->lastNoteOfChannel(c.first, c.second);
+        auto n = _scroll->incomingNoteOfChannel(c.first, c.second);
         auto j = _judge(*n, rt);
         switch (c.first)
         {
@@ -184,28 +184,26 @@ void RulesetClassic::updateRelease(InputMask& rg, rTime t)
 void RulesetClassic::updateAsync(rTime t)
 {
     rTime rt = gTimers.get(eTimer::PLAY_START) - t;
-    for (size_t k = Input::S1L; k < Input::K1START; ++k)
-    {
-        auto c = _scroll->getChannelFromKey((Input::Ingame)k);
-        if (c.first == NoteChannelCategory::_) continue;
-        auto n = _scroll->lastNoteOfChannel(c.first, c.second);
-        auto j = _judge(*n, rt);
-        switch (c.first)
-        {
-        case NoteChannelCategory::Note:
-            if (j.area == judgeArea::MISS)
-            {
-                n->hit = true;
-                ++_count[MISS];
-                _basic.combo = 0;
-                LOG_DEBUG << "LATE   POOR    "; break;
-            }
-            break;
-
-        case NoteChannelCategory::LN:
-            // TODO LN
-            break;
-        }
+	for (size_t k = Input::S1L; k < Input::K1START; ++k)
+	{
+		auto c = _scroll->getChannelFromKey((Input::Ingame)k);
+		if (c.first == NoteChannelCategory::_) continue;
+		auto n = _scroll->incomingNoteOfChannel(c.first, c.second);
+		if (!_scroll->isLastNoteOfChannel(c.first, c.second, n) &&
+			rt - h2r(n->time) >= judgeTime[(size_t)_diff].BAD)
+		{
+			switch (c.first)
+			{
+			case NoteChannelCategory::Note:
+			case NoteChannelCategory::LN:
+				n->hit = true;
+				++_count[MISS];
+				_scroll->succNoteOfChannel(c.first, c.second);
+				_basic.combo = 0;
+				LOG_DEBUG << "LATE   POOR    "; break;
+				break;
+			}
+		}
     }
 
     // TODO Calculate accuracy

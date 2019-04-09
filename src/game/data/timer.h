@@ -88,6 +88,10 @@ enum class eTimer : unsigned
     K2SPDUP_UP,
     K2SPDDN_UP,
 
+	// Inner timers
+	_CURRENT,
+	_LOAD_START,
+
     TIMER_COUNT
 };
 

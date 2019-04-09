@@ -10,19 +10,21 @@
 class SpriteLaneVertical: public SpriteStatic
 {
 private:
-    NoteChannelIndex _channel;
+	NoteChannelCategory _category;
+    NoteChannelIndex _index;
+	bool _haveDst = false;
     double _basespd;
     double _hispeed;
     std::list<Rect> _outRect;
 
-private:
-    std::shared_ptr<SpriteAnimated> _note;
+public:
+    std::shared_ptr<SpriteAnimated> pNote;
 
 public:
     SpriteLaneVertical() = delete;
 
     // note gap = beat_gap * hispeed * lane_height * (basespeed * lanespeed)
-    // e.g. 16th gap of 400px with 1.0hs, 1.0*1.0spd is 20px
+    // e.g. 16th gap of 400px with 1.0hs, 1.0*1.0spd is g*1.0*400*(1.0*1.0) = 20px (?)
     SpriteLaneVertical(pTexture texture, Rect laneRect,
         unsigned animRows, unsigned animCols, unsigned frameTime = 0, eTimer timer = eTimer::PLAY_START,
         bool animVerticalIndexing = false,
@@ -30,11 +32,12 @@ public:
         );
 
 public:
-    void setChannel(NoteChannelIndex ch);
+    void setChannel(NoteChannelCategory cat, NoteChannelIndex idx);
     void getRectSize(int& w, int& h);
     void updateNoteRect(hTime t, vScroll* ps);
     virtual void draw() const;
 
 public:
     constexpr void setHiSpeed(double s) { _hispeed = s; }
+	constexpr bool haveDst() { return _haveDst; }
 };

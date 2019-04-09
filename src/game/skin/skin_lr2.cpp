@@ -527,11 +527,10 @@ int SkinLR2::loadLR2src(const Tokens &t)
     if (_texNameMap.find(gr_key) != _texNameMap.end())
     {
         tex = _texNameMap[gr_key];
-        if (d.w == -1 && d.h == -1)
-        {
+        if (d.w == -1)
             d.w = tex->getRect().w;
+        if (d.h == -1)
             d.h = tex->getRect().h;
-        }
     }
     else
     {
@@ -545,7 +544,7 @@ int SkinLR2::loadLR2src(const Tokens &t)
     if (opt == "#SRC_IMAGE")
     {
         _sprites.push_back(std::make_shared<SpriteAnimated>(
-            _texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_x, d.div_y, d.cycle, iTimer));
+            _texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y, d.div_x, d.cycle, iTimer));
         LOG_DEBUG << "[Skin] " << line << ": Set Image sprite (texture: " << gr_key << ", timer: " << d.timer << ")";
         ret = 1;
     }
@@ -561,9 +560,9 @@ int SkinLR2::loadLR2src(const Tokens &t)
         // TODO convert num
         eNumber iNum = (eNumber)d.num;
 
-            _sprites.emplace_back(std::make_shared<SpriteNumber>(
-                _texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.keta, d.div_x, d.div_y, d.cycle, iNum, iTimer));
-            LOG_DEBUG << "[Skin] " << line << ": Set Number sprite (gr: " << gr_key << ", num: " << (unsigned)iNum << ")";
+		_sprites.emplace_back(std::make_shared<SpriteNumber>(
+			_texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), (NumberAlign)d.align, d.keta, d.div_y, d.div_x, d.cycle, iNum, iTimer));
+		LOG_DEBUG << "[Skin] " << line << ": Set Number sprite (gr: " << gr_key << ", num: " << (unsigned)iNum << ")";
 
         ret = 2;
     }
@@ -728,7 +727,7 @@ int SkinLR2::loadLR2dst(const Tokens &t)
             }
         }
 
-        elements.push_back({ e, false, d.op[0], d.op[1], d.op[2], d.op[3] });
+        drawQueue.push_back({ e, false, d.op[0], d.op[1], d.op[2], d.op[3] });
         e->setLoopTime(d.loop);
         e->setBlendMode(BlendMode::ALPHA);
         if (d.time > 0)
@@ -750,19 +749,11 @@ int SkinLR2::loadLR2srcnote(const Tokens &t)
     // skip unsupported
     if ( !(t[0] == "#SRC_NOTE" || t[0] == "#SRC_MINE" || t[0] == "#SRC_LN_END" || t[0] == "#SRC_LN_BODY"
         || t[0] == "#SRC_LN_START"|| t[0] == "#SRC_AUTO_NOTE" || t[0] == "#SRC_AUTO_MINE" || t[0] == "#SRC_AUTO_LN_END" 
-        || t[0] == "#SRC_AUTO_LN_BODY" || t[0] == "#SRC_AUTO_LN_START" || t[0] == "#DST_NOTE"))
+        || t[0] == "#SRC_AUTO_LN_BODY" || t[0] == "#SRC_AUTO_LN_START"))
     {
         return 0;
     }
 
-    // DST
-    if (t[0] == "#DST_NOTE")
-    {
-        if (t.size() < 14)
-            LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
-        return 11;
-    }
-    
     // load line into data struct
     int src[32]{ 0 };
     convertLine(t, src);
@@ -798,10 +789,19 @@ int SkinLR2::loadLR2srcnote(const Tokens &t)
     // SRC_NOTE
     if (t[0] == "#SRC_NOTE" || t[0] == "#SRC_AUTO_NOTE")
     {
+		NoteChannelCategory cat = NoteChannelCategory::Note;
+		NoteChannelIndex idx = (NoteChannelIndex)d._null;
+		size_t i = channelToIdx(cat, idx);
         _sprites.push_back(std::make_shared<SpriteLaneVertical>(
-            _texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_x, d.div_y, d.cycle, iTimer));
-        _laneSprites[d._null] = std::static_pointer_cast<SpriteLaneVertical>(_sprites.back());
-        LOG_DEBUG << "[Skin] " << line << ": Set Note sprite (texture: " << gr_key << ", timer: " << d.timer << ")";
+            _texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y, d.div_x, d.cycle, iTimer));
+        _laneSprites[i] = std::static_pointer_cast<SpriteLaneVertical>(_sprites.back());
+		_laneSprites[i]->setChannel(cat, idx);
+        LOG_DEBUG << "[Skin] " << line << ": Set Note " << idx << " sprite (texture: " << gr_key << ", timer: " << d.timer << ")";
+
+		_laneSprites[i]->pNote->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h),
+			RenderParams::accTy::CONSTANT, Color(0xffffffff), 0 } });
+		_laneSprites[i]->pNote->setLoopTime(0);
+
         return 1;
     }
     
@@ -821,68 +821,81 @@ int SkinLR2::loadLR2dstnote(const Tokens &t)
     int src[32]{ 0 };
     convertLine(t, src, 0, 14);
     lr2skin::dst& d = *(lr2skin::dst*)src;
-    NoteChannelIndex idx = (NoteChannelIndex)d._null;
+	NoteChannelIndex idx = (NoteChannelIndex)d._null;
 
-    int ret = 0;
-    auto e = _laneSprites[idx];
-    if (e == nullptr)
-    {
-        LOG_WARNING << "[Skin] " << line << ": Note SRC definition invalid (Line: " << line << ")";
-        return 0;
-    }
+	for (size_t i = (size_t)NoteChannelCategory::Note; i < (size_t)NoteChannelCategory::_; ++i)
+	{
+		NoteChannelCategory cat = (NoteChannelCategory)i;
+		int ret = 0;
+		auto e = _laneSprites[channelToIdx(cat, idx)];
+		if (e == nullptr)
+		{
+			LOG_WARNING << "[Skin] " << line << ": Note SRC definition invalid " <<
+				"(Type: " << i << ", Index: " << idx << " ) " <<
+				"(Line: " << line << ")";
+			continue;
+		}
 
-    if (e->type() != SpriteTypes::NOTE_VERT)
-    {
-        LOG_WARNING << "[Skin] " << line << ": Note SRC definition is not NOTE (Line: " << line << ")";
-        return 0;
-    }
+		if (e->type() != SpriteTypes::NOTE_VERT)
+		{
+			LOG_WARNING << "[Skin] " << line << ": Note SRC definition is not NOTE " <<
+				"(Type: " << i << ", Index: " << idx << " ) " <<
+				"(Line: " << line << ")";
+			continue;
+		}
 
-    if (!e->isKeyFrameEmpty())
-    {
-        LOG_WARNING << "[Skin] " << line << ": Note DST is already defined (Line: " << line << ")";
-        e->clearKeyFrames();
-    }
+		if (!e->isKeyFrameEmpty())
+		{
+			LOG_WARNING << "[Skin] " << line << ": Note DST is already defined " << 
+				"(Type: " << i << ", Index: " << idx << " ) " <<
+				"(Line: " << line << ")";
+			e->clearKeyFrames();
+		}
 
-    // set sprite channel
-    auto p = std::static_pointer_cast<SpriteLaneVertical>(e);
-    p->setChannel(idx);
+		// set sprite channel
+		auto p = std::static_pointer_cast<SpriteLaneVertical>(e);
 
-    // refine rect: x=dst_x, y=-dst_h, w=src_w, h=dst_y
-    int dummy, dst_h;
-    p->getRectSize(d.w, dummy);
-    dst_h = d.y;
-    d.h = d.y;
-    d.y = -dst_h;
+		// refine rect: x=dst_x, y=-dst_h, w=dst_w, h=dst_y
+		int dummy, dst_h;
+		//p->getRectSize(d.w, dummy);
+		dst_h = d.h;
+		d.h = d.y;
+		d.y = -dst_h;
 
-    convertLine(t, src, 14, 16);
-    //lr2skin::dst& d = *(lr2skin::dst*)src;
-    if (t.size() < 17 || t[16].empty())
-    {
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
-        d.loop = -1;
-        d.timer = 0;
-        d.op[0] = d.op[1] = d.op[2] = d.op[3] = DST_TRUE;
-    }
-    else
-    {
-        for (size_t i = 0; i < 4; ++i)
-        {
-            StringContent ops = t[18 + i];
-            if (ops[0] == '!' || ops[0] == '-')
-                *(int*)&d.op[i] = -stoine(ops.substr(1));
-            else
-                *(int*)&d.op[i] = stoine(ops);
-        }
-    }
+		convertLine(t, src, 14, 16);
+		//lr2skin::dst& d = *(lr2skin::dst*)src;
+		if (t.size() < 17 || t[16].empty())
+		{
+			LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
+			d.loop = -1;
+			d.timer = 0;
+			d.op[0] = d.op[1] = d.op[2] = d.op[3] = DST_TRUE;
+		}
+		else
+		{
+			for (size_t i = 0; i < 4; ++i)
+			{
+				StringContent ops = t[18 + i];
+				if (ops[0] == '!' || ops[0] == '-')
+					*(int*)&d.op[i] = -stoine(ops.substr(1));
+				else
+					*(int*)&d.op[i] = stoine(ops);
+			}
+		}
 
-    elements.push_back({ e, false, d.op[0], d.op[1], d.op[2], d.op[3] });
-    e->setLoopTime(d.loop);
-    e->setBlendMode(BlendMode::ALPHA);
-    if (d.time > 0)
-    {
-        LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
-        e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), RenderParams::accTy::DISCONTINOUS, Color(d.r, d.g, d.b, 0), (double)d.angle } });
-    }
+		drawQueue.push_back({ e, false, d.op[0], d.op[1], d.op[2], d.op[3] });
+		e->setLoopTime(d.loop);
+		e->setBlendMode(BlendMode::ALPHA);
+		if (d.time > 0)
+		{
+			LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
+			e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), RenderParams::accTy::DISCONTINOUS, Color(d.r, d.g, d.b, 0), (double)d.angle } });
+		}
+		e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a), (double)d.angle } });
+		e->setLoopTime(0);
+		//e->pushKeyFrame(time, x, y, w, h, acc, r, g, b, a, blend, filter, angle, center);
+		LOG_DEBUG << "[Skin] " << line << ": Set Lane sprite Keyframe (time: " << d.time << ")";
+	}
 
     return 1;
 }
@@ -918,6 +931,8 @@ int SkinLR2::loadLR2SkinLine(const Tokens &raw)
             return 8;
         if (loadLR2srcnote(t))
             return 9;
+        if (loadLR2dstnote(t))
+            return 10;
     }
     catch (std::invalid_argument e)
     {
@@ -1097,6 +1112,7 @@ int SkinLR2::loadLR2header(const Tokens &t)
 
 SkinLR2::SkinLR2(Path p)
 {
+	_laneSprites.resize(channelToIdx(NoteChannelCategory::_, NoteChannelIndex::_));
     loadCSV(p);
 }
 
@@ -1880,7 +1896,7 @@ void SkinLR2::update()
 {
     // update sprites
     vSkin::update();
-    for (auto& e : elements)
+    for (auto& e : drawQueue)
     {
         e.draw = getDstOpt(e.op1) && getDstOpt(e.op2) && getDstOpt(e.op3);
     }
@@ -1894,7 +1910,7 @@ void SkinLR2::update()
 
 void SkinLR2::draw() const
 {
-    for (auto& e : elements)
+    for (auto& e : drawQueue)
     {
         if (e.draw) e.ps->draw();
     }

@@ -58,9 +58,7 @@ enum NoteChannelIndex: size_t
 
 constexpr size_t channelToIdx(NoteChannelCategory cat, NoteChannelIndex idx)
 {
-    return (cat != NoteChannelCategory::_) ? 
-        (size_t)cat * NOTECHANNEL_COUNT + idx : 
-        0, NoteChannelIndex::_;
+	return (size_t)cat * NOTECHANNEL_COUNT + idx;
 }
 
 // Chart in-game data representation. Contains following:
@@ -105,16 +103,21 @@ private:
     decltype(_bpmList.begin())             _bpmListIterator;
     decltype(_scrollingSpeedList.begin())  _speedListIterator;
 public:
-    auto lastNoteOfChannel      (NoteChannelCategory cat, NoteChannelIndex idx) -> decltype(_noteListIterators.front());
-    auto lastNoteOfPlainChannel (size_t idx) -> decltype(_plainListIterators.front());
-    auto lastNoteOfExtChannel   (size_t idx) -> decltype(_extListIterators.front());
-    auto lastNoteOfBpm          () -> decltype(_bpmListIterator);
-    auto lastNoteOfSpeed        () -> decltype(_speedListIterator);
+    auto incomingNoteOfChannel      (NoteChannelCategory cat, NoteChannelIndex idx) -> decltype(_noteListIterators.front());
+    auto incomingNoteOfPlainChannel (size_t idx) -> decltype(_plainListIterators.front());
+    auto incomingNoteOfExtChannel   (size_t idx) -> decltype(_extListIterators.front());
+    auto incomingNoteOfBpm          () -> decltype(_bpmListIterator);
+    auto incomingNoteOfSpeed        () -> decltype(_speedListIterator);
     bool isLastNoteOfChannel      (NoteChannelCategory cat, NoteChannelIndex idx);
     bool isLastNoteOfPlainChannel (size_t idx);
     bool isLastNoteOfExtChannel   (size_t idx);
     bool isLastNoteOfBpm();
     bool isLastNoteOfSpeed();
+    bool isLastNoteOfChannel      (NoteChannelCategory cat, NoteChannelIndex idx, decltype(_noteListIterators.front()) it);
+    bool isLastNoteOfPlainChannel (size_t idx, decltype(_plainListIterators.front()) it);
+    bool isLastNoteOfExtChannel   (size_t idx, decltype(_extListIterators.front()) it);
+    bool isLastNoteOfBpm          (decltype(_bpmListIterator) it);
+    bool isLastNoteOfSpeed        (decltype(_speedListIterator) it);
     auto succNoteOfChannel      (NoteChannelCategory cat, NoteChannelIndex idx) -> decltype(_noteListIterators.front());
     auto succNoteOfPlainChannel (size_t idx) -> decltype(_plainListIterators.front());
     auto succNoteOfExtChannel   (size_t idx) -> decltype(_extListIterators.front());

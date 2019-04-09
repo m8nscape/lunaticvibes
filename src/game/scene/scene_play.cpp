@@ -89,8 +89,8 @@ ScenePlay::ScenePlay(ePlayMode mode, unsigned keys, eRuleset ruleset):
 
     _state = ePlayState::PREPARE;
 
-    _input.loopStart();
     loopStart();
+    _input.loopStart();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -231,6 +231,7 @@ void ScenePlay::removeInputJudgeCallback(bool shutter)
 
 void ScenePlay::_updateAsync()
 {
+	if (_switchingState) return;
     switch (_state)
     {
     case ePlayState::PREPARE:
@@ -262,9 +263,11 @@ void ScenePlay::updatePrepare()
     auto rt = getTimePoint() - gTimers.get(eTimer::SCENE_START);
     if (rt > _skin->info.timeIntro)
     {
+		_switchingState = true;
         _state = ePlayState::LOADING;
         std::thread(&ScenePlay::loadChart, this).detach();
         LOG_DEBUG << "[Play] State changed to LOADING";
+		_switchingState = false;
     }
 }
 
@@ -273,24 +276,30 @@ void ScenePlay::updateLoading()
     // TODO display progress
     //  set global bargraph values
 
+    auto rt = getTimePoint() - gTimers.get(eTimer::_LOAD_START);
     if (_scrollLoaded && _rulesetLoaded &&
-        context_chart.isSampleLoaded && context_chart.isBgaLoaded)
+        context_chart.isSampleLoaded && context_chart.isBgaLoaded && 
+		rt > _skin->info.timeMinimumLoad)
     {
+		_switchingState = true;
         _state = ePlayState::LOAD_END;
         gTimers.set(eTimer::PLAY_READY, getTimePoint());
         LOG_DEBUG << "[Play] State changed to READY";
+		_switchingState = false;
     }
 }
 
 void ScenePlay::updateLoadEnd()
 {
-    auto rt = getTimePoint() - gTimers.get(eTimer::SCENE_START);
+    auto rt = getTimePoint() - gTimers.get(eTimer::PLAY_READY);
     if (rt > _skin->info.timeGetReady)
     {
+		_switchingState = true;
         _state = ePlayState::PLAYING;
         gTimers.set(eTimer::PLAY_START, getTimePoint());
         setInputJudgeCallback();
         LOG_DEBUG << "[Play] State changed to PLAY_START";
+		_switchingState = false;
     }
 }
 
@@ -380,7 +389,7 @@ void ScenePlay::changeKeySampleMapping(rTime t)
         {
             assert(context_chart.scrollObj != nullptr);
             auto chan = context_chart.scrollObj->getChannelFromKey((Input::Ingame)i);
-            auto note = context_chart.scrollObj->lastNoteOfChannel(chan.first, chan.second);
+            auto note = context_chart.scrollObj->incomingNoteOfChannel(chan.first, chan.second);
             _currentKeySample[i] = (size_t)std::get<long long>(note->value);
         }
 }

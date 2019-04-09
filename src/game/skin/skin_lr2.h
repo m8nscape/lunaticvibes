@@ -1383,7 +1383,7 @@ private:
         dst_option op3;
         dst_option op4;
     };
-    std::vector<element> elements;
+    std::vector<element> drawQueue;
 public:
     virtual void update();
     virtual void draw() const;

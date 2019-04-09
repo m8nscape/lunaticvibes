@@ -9,7 +9,8 @@ vSprite::vSprite(pTexture tex, SpriteTypes type, eTimer timer) :
 bool vSprite::update(rTime time)
 {
     // Check if object is valid
-    if (!_pTexture->_loaded)
+	// Note that nullptr texture shall pass
+    if (_pTexture != nullptr && !_pTexture->_loaded)
         return false;
 
     // Check if frames is valid
@@ -135,12 +136,12 @@ void SpriteStatic::draw() const
 ////////////////////////////////////////////////////////////////////////////////
 // Split
 
-SpriteSplit::SpriteSplit(pTexture texture, eTimer timer, unsigned rows, unsigned cols, bool v): 
-    SpriteSplit(texture, texture->getRect(), timer, rows, cols, v)
+SpriteSelection::SpriteSelection(pTexture texture, eTimer timer, unsigned rows, unsigned cols, bool v): 
+    SpriteSelection(texture, texture->getRect(), timer, rows, cols, v)
 {
 }
 
-SpriteSplit::SpriteSplit(pTexture texture, const Rect& r, eTimer timer, unsigned rows, unsigned cols, bool v):
+SpriteSelection::SpriteSelection(pTexture texture, const Rect& r, eTimer timer, unsigned rows, unsigned cols, bool v):
     vSprite(texture, SpriteTypes::SPLIT, timer)
 {
     if (rows == 0 || cols == 0)
@@ -154,8 +155,8 @@ SpriteSplit::SpriteSplit(pTexture texture, const Rect& r, eTimer timer, unsigned
     _scols = cols;
     _segments = rows * cols;
     auto rect = r;
-    rect.w /= rows;
-    rect.h /= cols;
+    rect.w /= cols;
+    rect.h /= rows;
     if (!v)
     {
         // Horizontal first
@@ -186,13 +187,13 @@ SpriteSplit::SpriteSplit(pTexture texture, const Rect& r, eTimer timer, unsigned
     }
 }
 
-void SpriteSplit::draw() const
+void SpriteSelection::draw() const
 {
     if (_pTexture->_loaded)
         _pTexture->_draw(_texRect[_segmentIdx], _current.rect, _current.angle);
 }
 
-void SpriteSplit::updateSplit(frameIdx frame)
+void SpriteSelection::updateSelection(frameIdx frame)
 {
     _segmentIdx = frame < _segments ? frame : _segments - 1;
 }
@@ -201,28 +202,29 @@ void SpriteSplit::updateSplit(frameIdx frame)
 // Animated
 
 SpriteAnimated::SpriteAnimated(pTexture texture, 
-    unsigned subRows, unsigned subCols, unsigned frameTime, eTimer t, 
-    bool sv, unsigned rows, unsigned cols, bool v):
-    SpriteAnimated(texture, texture->getRect(), subRows, subCols, frameTime, t, sv, rows, cols, v)
+    unsigned animRows, unsigned animCols, unsigned frameTime, eTimer t, 
+    bool animVert, unsigned selRows, unsigned selCols, bool selVert):
+    SpriteAnimated(texture, texture->getRect(), animRows, animCols, frameTime, t,
+		animVert, selRows, selCols, selVert)
 {
 }
 
 SpriteAnimated::SpriteAnimated(pTexture texture, const Rect& r, 
-    unsigned subRows, unsigned subCols, unsigned frameTime, eTimer t, 
-    bool sv, unsigned rows, unsigned cols, bool v):
-    SpriteSplit(texture, r, t, rows, cols, v), _aframes(0)
+    unsigned animRows, unsigned animCols, unsigned frameTime, eTimer t, 
+    bool animVert, unsigned selRows, unsigned selCols, bool selVert):
+    SpriteSelection(texture, r, t, selRows, selCols, selVert), _aframes(0)
 {
     _type = SpriteTypes::ANIMATED;
 
-    if (subRows == 0 || subCols == 0 || rows == 0 || cols == 0) return;
+    if (animRows == 0 || animCols == 0 || selRows == 0 || selCols == 0) return;
 
-    _aRect.w = _texRect[0].w / subRows;
-    _aRect.h = _texRect[0].h / subCols;
-    _arows = subRows;
-    _acols = subCols;
-    _aframes = subRows * subCols;
+    _aRect.w = _texRect[0].w / animCols;
+    _aRect.h = _texRect[0].h / animRows;
+    _arows = animRows;
+    _acols = animCols;
+    _aframes = animRows * animCols;
     _period = frameTime;
-    _aVert = sv;
+    _aVert = animVert;
 }
 
 void SpriteAnimated::updateByTimer(rTime time)
@@ -277,7 +279,7 @@ void SpriteAnimated::updateSplitByTimer(rTime time)
 
 void SpriteAnimated::draw() const
 {
-    if (_pTexture->_loaded)
+    if (_pTexture != nullptr && _pTexture->_loaded)
     {
         _pTexture->_draw(_drawRect, _current.rect, _current.angle);
     }
@@ -287,14 +289,14 @@ void SpriteAnimated::draw() const
 // Text
 
 SpriteText::SpriteText(const char* file, eText e, unsigned ptsize, Color c):
-   SpriteSplit(nullptr), _pFont(new TTFFont(file, ptsize)), _textInd(e), _color(c)
+   SpriteSelection(nullptr), _pFont(new TTFFont(file, ptsize)), _textInd(e), _color(c)
 {
     _type = SpriteTypes::TEXT;
     _texRect.resize(1);
 }
 
 SpriteText::SpriteText(const char* file, Rect rect, eText e, unsigned ptsize, Color c):
-   SpriteSplit(nullptr), _pFont(new TTFFont(file, ptsize)), _textInd(e), _color(c)
+   SpriteSelection(nullptr), _pFont(new TTFFont(file, ptsize)), _textInd(e), _color(c)
 {
     _type = SpriteTypes::TEXT;
     _haveRect = true;
@@ -318,33 +320,41 @@ void SpriteText::setText(const char* text, const Color& c)
 }
 
 
-SpriteNumber::SpriteNumber(pTexture texture, unsigned maxDigits,
+SpriteNumber::SpriteNumber(pTexture texture, NumberAlign align, unsigned maxDigits,
     unsigned numRows, unsigned numCols, unsigned frameTime, eNumber n, eTimer t,
-    bool v, unsigned rows, unsigned cols, bool verticalIndexing) : 
-    SpriteNumber(texture, texture->getRect(), maxDigits, numRows, numCols, frameTime, n, t, v, rows, cols, verticalIndexing)
+    bool numVert, unsigned animRows, unsigned animCols, bool animVert) : 
+    SpriteNumber(texture, texture->getRect(), align, maxDigits,
+		numRows, numCols, frameTime, n, t,
+		numVert, animRows, animCols, animVert)
 {
 }
 
-SpriteNumber::SpriteNumber(pTexture texture, const Rect& rect, unsigned maxDigits,
+SpriteNumber::SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align, unsigned maxDigits,
     unsigned numRows, unsigned numCols, unsigned frameTime, eNumber n, eTimer t,
-    bool nv, unsigned arows, unsigned acols, bool av): 
-    vSprite(texture, SpriteTypes::NUMBER, t), _numInd(n)
+    bool numVert, unsigned animRows, unsigned animCols, bool animVert): 
+    vSprite(texture, SpriteTypes::NUMBER, t), _alignType(align), _numInd(n)
 {
     _type = SpriteTypes::NUMBER;
 
-    _numType = NumberSplits(numRows * numCols);
+    _numType = NumberType(numRows * numCols);
     switch (_numType)
     {
-    case NUM_NORMAL:
-    case NUM_BLANKZERO:
-    case NUM_SYMBOL:
-    case NUM_FULL: break;
+    case NUM_TYPE_NORMAL:
+    case NUM_TYPE_BLANKZERO:
+    //case NUM_SYMBOL:
+    case NUM_TYPE_FULL: break;
     default: return;
     }
 
     _digit.resize(maxDigits);
-    for (size_t i = 0; i < maxDigits; ++i)
-        _sDigit.emplace_back(texture, rect, numRows, numCols, frameTime, t, nv, arows, acols, av);
+	Rect r = rect;
+	int subw = r.w / numCols;
+	for (size_t i = 0; i < maxDigits; ++i)
+	{
+		_sDigit.emplace_back(texture, r, animRows, animCols, frameTime, t, animVert, numRows, numCols, numVert);
+	}
+	r.x = r.y = 0;
+	_sDigit.emplace_back(nullptr, r, animRows, animCols, frameTime, t, animVert, numRows, numCols, numVert);
 }
 
 void SpriteNumber::updateByTimer(rTime time)
@@ -357,62 +367,96 @@ void SpriteNumber::updateByTimer(rTime time)
 void SpriteNumber::updateNumber(int n)
 {
     bool positive = n >= 0;
-    int absn = positive ? n : -n;
-    for (unsigned i = 0; absn || i < _sDigit.size(); ++i)
-    {
-        unsigned one = absn % 10;
-        absn /= 10;
-        switch (_numType)
-        {
-        case NUM_NORMAL:
-        {
-            _digit[i] = one;
-            break;
-        }
-        case NUM_BLANKZERO:
-        {
-            if (one == 0 && absn == 0)
-                _digit[i] = NUM_BZERO;
-            else
-                _digit[i] = one;
-            break;
-        }
-        case NUM_SYMBOL:
-        {
-            _digit[i] = positive ? one : one + 10;
-            break;
-        }
-        case NUM_FULL:
-        {
-            if (one == 0 && absn == 0)
-                _digit[i] = positive ? NUM_FULL_BZERO_POS : NUM_FULL_BZERO_NEG;
-            else
-                _digit[i] = positive ? one : one + NUM_FULL_BZERO_POS + 1;
-            break;
-        }
-        }
-    }
+	size_t numDigits = 1;
+	size_t zeroIdx = 0;
+	size_t blankIdx = (size_t)_numType;
+	switch (_numType)
+	{
+	case NUM_TYPE_NORMAL:    zeroIdx = 0; break;
+	case NUM_TYPE_BLANKZERO: zeroIdx = NUM_BZERO; break;
+	case NUM_TYPE_FULL:      zeroIdx = positive ? NUM_FULL_BZERO_POS : NUM_FULL_BZERO_NEG; break;
+	}
+
+	if (n != 0)
+	{
+		numDigits = 0;
+		int abs_n = positive ? n : -n;
+		for (unsigned i = 0; abs_n && i < _digit.size(); ++i)
+		{
+			++numDigits;
+			unsigned one = abs_n % 10;
+			abs_n /= 10;
+			switch (_numType)
+			{
+			case NUM_TYPE_NORMAL:
+			{
+				_digit[i] = one;
+				break;
+			}
+			case NUM_TYPE_BLANKZERO:
+			{
+				if (one == 0 && abs_n == 0)
+					_digit[i] = NUM_BZERO;
+				else
+					_digit[i] = one;
+				break;
+			}
+			/*
+			case NUM_SYMBOL:
+			{
+				_digit[i] = positive ? one : one + 10;
+				break;
+			}
+			*/
+			case NUM_TYPE_FULL:
+			{
+				if (one == 0 && abs_n == 0)
+					_digit[i] = positive ? NUM_FULL_BZERO_POS : NUM_FULL_BZERO_NEG;
+				else
+					_digit[i] = positive ? one : one + NUM_FULL_BZERO_POS + 1;
+				break;
+			}
+			}
+		}
+	}
 
     // symbol
     switch (_numType)
     {
+		/*
         case NUM_SYMBOL:
         {
             _digit[_sDigit.size() - 1] = positive ? NUM_SYMBOL_PLUS : NUM_SYMBOL_MINUS;
             break;
         }
-        case NUM_FULL:
+		*/
+        case NUM_TYPE_FULL:
         {
-            _digit[_sDigit.size() - 1] = positive ? NUM_FULL_PLUS : NUM_FULL_MINUS;
+            _digit[_digit.size() - 1] = positive ? NUM_FULL_PLUS : NUM_FULL_MINUS;
             break;
         }
     }
 
     // sprites
-    for (size_t i = 0; i < _sDigit.size(); ++i)
-    {
-        _sDigit[i].updateSplit(_digit[i]);
-    }
+	size_t blanks = _digit.size() - numDigits;
+	switch (_alignType)
+	{
+	case NUM_ALIGN_RIGHT:
+		for (size_t i = 0; i < blanks; ++i)
+			_sDigit[i].updateSelection(zeroIdx);
+		for (size_t i = blanks; i < _digit.size(); ++i)
+			_sDigit[i].updateSelection(_digit[_digit.size() - 1 - i]);
+		break;
+	case NUM_ALIGN_LEFT:
+		for (size_t i = 0; i < numDigits; ++i)
+			_sDigit[i].updateSelection(_digit[_digit.size() - 1 - i]);
+		for (size_t i = numDigits; i < _digit.size(); ++i)
+			_sDigit[i].updateSelection(blankIdx);
+		break;
+	case NUM_ALIGN_CENTER:
+		// WIP
+		break;
+	}
 }
 
 void SpriteNumber::updateNumberByInd()
@@ -426,8 +470,15 @@ void SpriteNumber::updateNumberByInd()
     case eNumber::ZERO:
         n = 0;
         break;
+	case (eNumber)10220:
+		n = (int)getTimePoint();
+		break;
     default:
+#ifdef _DEBUG
+		n = (int)_numInd >= 10000 ? (int)gTimers.get((eTimer)((int)_numInd - 10000)) : gNumbers.get(_numInd);
+#else
         n = gNumbers.get(_numInd);
+#endif
         break;
     }
     updateNumber(n);
@@ -489,8 +540,11 @@ void SpriteNumber::setLoopTime(int t)
 
 void SpriteNumber::appendKeyFrame(RenderKeyFrame f)
 {
-    for (auto& d : _sDigit)
-        d.appendKeyFrame(f);
+	for (auto& d : _sDigit)
+	{
+		d.appendKeyFrame(f);
+		f.param.rect.x += f.param.rect.w;
+	}
 }
 
 void SpriteNumber::draw() const

@@ -96,24 +96,24 @@ public:
 
 typedef std::size_t frameIdx;
 
-class SpriteSplit : public vSprite
+class SpriteSelection : public vSprite
 {
 protected:
     std::vector<Rect> _texRect;
     unsigned _srows = 0, _scols = 0, _segments = 0;
     frameIdx _segmentIdx = 0;        
 public:
-    SpriteSplit() = delete;
+    SpriteSelection() = delete;
 
-    SpriteSplit(pTexture texture, eTimer timer = eTimer::SCENE_START, 
+    SpriteSelection(pTexture texture, eTimer timer = eTimer::SCENE_START, 
         unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);  // Copy texture, full area
 
-    SpriteSplit(pTexture texture, const Rect& rect, eTimer timer = eTimer::SCENE_START, 
+    SpriteSelection(pTexture texture, const Rect& rect, eTimer timer = eTimer::SCENE_START, 
         unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);  // Copy texture, specified area
 
-    virtual ~SpriteSplit() = default;
+    virtual ~SpriteSelection() = default;
 public:
-    virtual void updateSplit(frameIdx i);
+    virtual void updateSelection(frameIdx i);
     virtual void draw() const;
 };
 
@@ -121,7 +121,7 @@ public:
 // Animated sprite:
 // Split resolution for animation frames.
 // Animation frame rect calculation is based on split rect
-class SpriteAnimated : public SpriteSplit
+class SpriteAnimated : public SpriteSelection
 {
     friend class SpriteLaneVertical;
     friend class SpriteSlider;
@@ -136,12 +136,12 @@ public:
     SpriteAnimated() = delete;
 
     SpriteAnimated(pTexture texture,
-        unsigned subRows, unsigned subCols, unsigned frameTime, eTimer timer = eTimer::SCENE_START, bool subVerticalIndexing = false,
-        unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
+        unsigned animRows, unsigned animCols, unsigned frameTime, eTimer timer = eTimer::SCENE_START, bool animVerticalIndexing = false,
+        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
 
     SpriteAnimated(pTexture texture, const Rect& rect,
-        unsigned subRows, unsigned subCols, unsigned frameTime, eTimer timer = eTimer::SCENE_START, bool subVerticalIndexing = false,
-        unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
+        unsigned animRows, unsigned animCols, unsigned frameTime, eTimer timer = eTimer::SCENE_START, bool animVerticalIndexing = false,
+        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
 
     virtual ~SpriteAnimated() = default;
 public:
@@ -155,7 +155,7 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 // Text sprite:
 // TTFFont contains Texture object
-class SpriteText: public SpriteSplit
+class SpriteText: public SpriteSelection
 {
 private:
     std::shared_ptr<TTFFont> _pFont;
@@ -184,13 +184,20 @@ public:
 //  22: 01234567890123456789+- (0~9: positive 10~19: negative)
 //  24: 0123456789O0123456789O+- (0~10: positive 11~21: negative)
 
-enum NumberSplits
+enum NumberType
 {
-    NUM_NORMAL = 10,
-    NUM_BLANKZERO = 11,
-    NUM_SYMBOL = 22,
-    NUM_FULL = 24
+    NUM_TYPE_NORMAL = 10,
+    NUM_TYPE_BLANKZERO = 11,
+    //NUM_SYMBOL = 22,
+    NUM_TYPE_FULL = 24
 };
+enum NumberAlign
+{
+	NUM_ALIGN_RIGHT,
+	NUM_ALIGN_LEFT,
+	NUM_ALIGN_CENTER
+};
+
 const size_t NUM_BZERO          = 10;
 const size_t NUM_SYMBOL_PLUS    = 20;
 const size_t NUM_SYMBOL_MINUS   = 21;
@@ -203,7 +210,8 @@ class SpriteNumber : public vSprite
 {
 private:
     eNumber _numInd;
-    NumberSplits _numType;
+    NumberType _numType;
+	NumberAlign _alignType;
     //std::vector<Rect> _drawRectDigit, _outRectDigit; // idx from low digit to high, e.g. [0] represents 1 digit, [1] represents 10 digit, etc.
     std::vector<SpriteAnimated> _sDigit;
     std::vector<unsigned>       _digit;
@@ -211,13 +219,13 @@ private:
 public:
     SpriteNumber() = delete;
 
-    SpriteNumber(pTexture texture, unsigned maxDigits,
+    SpriteNumber(pTexture texture, NumberAlign align, unsigned maxDigits,
         unsigned numRows, unsigned numCols, unsigned frameTime, eNumber num = eNumber::ZERO, eTimer timer = eTimer::SCENE_START,
-        bool numVerticalIndexing = false, unsigned arows = 1, unsigned acols = 1, bool animVerticalIndexing = false);
+        bool numVerticalIndexing = false, unsigned animRows = 1, unsigned animCols = 1, bool animVerticalIndexing = false);
 
-    SpriteNumber(pTexture texture, const Rect& rect, unsigned maxDigits,
+    SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align, unsigned maxDigits,
         unsigned numRows, unsigned numCols, unsigned frameTime, eNumber num = eNumber::ZERO, eTimer timer = eTimer::SCENE_START,
-        bool numVerticalIndexing = false, unsigned arows = 1, unsigned acols = 1, bool animVerticalIndexing = false);
+        bool numVerticalIndexing = false, unsigned animRows = 1, unsigned animCols = 1, bool animVerticalIndexing = false);
 
     virtual ~SpriteNumber() = default;
 

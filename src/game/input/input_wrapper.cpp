@@ -17,9 +17,12 @@ void InputWrapper::_loop()
     if (p != 0)
         LOG_DEBUG << "[Input] " << p;
     // FIXME lock map
-    for (auto& pg : _pCallbackMap) pg.second(p, t);
-    for (auto& hg : _hCallbackMap) hg.second(h, t);
-    for (auto& rg : _rCallbackMap) rg.second(r, t);
+    for (auto& pg : _pCallbackMap)
+		pg.second(p, t);
+    for (auto& hg : _hCallbackMap)
+		hg.second(h, t);
+    for (auto& rg : _rCallbackMap)
+		rg.second(r, t);
 }
 
 bool InputWrapper::_register(unsigned type, const std::string& key, INPUTCALLBACK f)

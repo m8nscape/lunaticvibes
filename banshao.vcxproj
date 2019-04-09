@@ -128,6 +128,46 @@ xcopy /y $(ProjectDir)ext\SDL2_image\lib\$(PlatformTarget)\*.dll $(SolutionDir)$
 xcopy /y $(ProjectDir)ext\fmod\lib\fmod.dll $(SolutionDir)$(Configuration)\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir)ext\fmod\inc;$(ProjectDir)ext\SDL2_image\include;$(ProjectDir)ext\SDL2_ttf\include;$(ProjectDir)ext\SDL2\include;$(ProjectDir)ext\yaml-cpp\include;$(ProjectDir)ext\digestpp;$(ProjectDir)ext\plog\include;$(ProjectDir)src;$(ProjectDir)src\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(ProjectDir)ext\fmod\lib;$(ProjectDir)ext\SDL2_image\lib;$(ProjectDir)ext\SDL2_ttf\lib;$(ProjectDir)ext\SDL2\lib;$(ProjectDir)ext\yaml-cpp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>x64\SDL2.lib;x64\SDL2main.lib;x64\SDL2test.lib;x64\SDL2_ttf.lib;x64\SDL2_image.lib;fmod64_vc.lib;ext\yaml-cpp\build\Debug\libyaml-cppmdd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PreBuildEvent>
+      <Command>$(ProjectDir)build-dependencies.bat</Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>xcopy /y $(ProjectDir)ext\SDL2\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
+xcopy /y $(ProjectDir)ext\SDL2_ttf\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
+xcopy /y $(ProjectDir)ext\SDL2_image\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
+xcopy /y $(ProjectDir)ext\fmod\lib\fmodL64.dll $(SolutionDir)$(Configuration)\</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir)ext\fmod\inc;$(ProjectDir)ext\SDL2_image\include;$(ProjectDir)ext\SDL2_ttf\include;$(ProjectDir)ext\SDL2\include;$(ProjectDir)ext\yaml-cpp\include;$(ProjectDir)ext\digestpp;$(ProjectDir)ext\plog\include;$(ProjectDir)src;$(ProjectDir)src\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(ProjectDir)ext\fmod\lib;$(ProjectDir)ext\SDL2_image\lib;$(ProjectDir)ext\SDL2_ttf\lib;$(ProjectDir)ext\SDL2\lib;$(ProjectDir)ext\yaml-cpp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>x64\SDL2.lib;x64\SDL2main.lib;x64\SDL2_ttf.lib;x64\SDL2_image.lib;fmod64_vc.lib;ext\yaml-cpp\build\Release\libyaml-cppmdd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PreBuildEvent>
+      <Command>$(ProjectDir)build-dependencies.bat</Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>xcopy /y $(ProjectDir)ext\SDL2\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
+xcopy /y $(ProjectDir)ext\SDL2_ttf\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
+xcopy /y $(ProjectDir)ext\SDL2_image\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
+xcopy /y $(ProjectDir)ext\fmod\lib\fmod64.dll $(SolutionDir)$(Configuration)\</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\common\asynclooper.cpp" />
     <ClCompile Include="src\common\chart\bms.cpp" />
@@ -193,8 +233,6 @@ xcopy /y $(ProjectDir)ext\fmod\lib\fmod.dll $(SolutionDir)$(Configuration)\</Com
     <ClInclude Include="src\game\graphics\SDL2\window_SDL2.h" />
     <ClInclude Include="src\game\graphics\sprite.h" />
     <ClInclude Include="src\game\graphics\sprite_lane.h" />
-    <ClInclude Include="src\game\input\functional.h" />
-    <ClInclude Include="src\game\input\gamepad.h" />
     <ClInclude Include="src\game\input\input_keys.h" />
     <ClInclude Include="src\game\input\input_mgr.h" />
     <ClInclude Include="src\game\input\input_wrapper.h" />

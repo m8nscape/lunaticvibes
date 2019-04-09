@@ -125,12 +125,6 @@
     <ClInclude Include="src\common\defs\defs_scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\input\functional.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\input\gamepad.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\scene\scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>

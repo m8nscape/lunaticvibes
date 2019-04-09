@@ -115,7 +115,7 @@ class Texture
 {
     friend class vSprite;
     friend class SpriteStatic;
-    friend class SpriteSplit;
+    friend class SpriteSelection;
     friend class SpriteAnimated;
     friend class SpriteText;
     friend class SpriteNumber;
