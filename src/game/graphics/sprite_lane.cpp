@@ -73,7 +73,7 @@ void SpriteLaneVertical::draw() const
 		auto dr = pNote->_drawRect;
 		for (const auto& r : _outRect)
 		{
-			pNote->_pTexture->_draw(dr, r, _current.angle);
+			pNote->_pTexture->_draw(dr, r, _current.color, _current.angle);
 		}
 	}
 }

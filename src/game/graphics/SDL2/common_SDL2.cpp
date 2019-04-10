@@ -186,8 +186,10 @@ Rect Texture::getRect() const
 }
 
 void Texture::_draw(const Rect& srcRect, const Rect& dstRect,
-    const double angle) const
+    const Color c, const double angle) const
 {
+	SDL_SetTextureColorMod(&*_pTexture, c.r, c.g, c.b);
+	SDL_SetTextureAlphaMod(&*_pTexture, c.a);
     SDL_RenderCopyEx(
         _frame_renderer,
         &*_pTexture,
@@ -221,8 +223,10 @@ TextureFull::TextureFull(const SDL_Texture* pTexture, int w, int h): Texture(pTe
 TextureFull::~TextureFull() {}
 
 void TextureFull::_draw(const Rect& ignored, const Rect& dstRect,
-    const double angle) const
+    const Color c, const double angle) const
 {
+	SDL_SetTextureColorMod(&*_pTexture, c.r, c.g, c.b);
+	SDL_SetTextureAlphaMod(&*_pTexture, c.a);
     SDL_RenderCopyEx(
         _frame_renderer,
         &*_pTexture,

@@ -131,7 +131,7 @@ private:
     // Inner draw function.
     // Blend modes and other parameters should be set by sprites BEFORE drawing.
     virtual void _draw(const Rect& srcRect, const Rect& dstRect, 
-        const double angleInDegrees) const;
+        const Color c, const double angleInDegrees) const;
     // TODO params of _draw: center, flip
 
 public:
@@ -151,7 +151,7 @@ class TextureFull: public Texture
 {
 private:
     virtual void _draw(const Rect& srcRect, const Rect& dstRect, 
-        const double angleInDegrees) const;
+        const Color c, const double angleInDegrees) const;
 public:
     TextureFull(const Color& srcColor);
     TextureFull(const Image& srcImage);

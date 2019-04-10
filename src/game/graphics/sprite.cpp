@@ -149,7 +149,7 @@ bool SpriteStatic::update(timestamp t)
 void SpriteStatic::draw() const
 {
     if (_pTexture->_loaded)
-        _pTexture->_draw(_texRect, _current.rect, _current.angle);
+        _pTexture->_draw(_texRect, _current.rect, _current.color, _current.angle);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -209,7 +209,7 @@ SpriteSelection::SpriteSelection(pTexture texture, const Rect& r, eTimer timer, 
 void SpriteSelection::draw() const
 {
     if (_pTexture->_loaded)
-        _pTexture->_draw(_texRect[_segmentIdx], _current.rect, _current.angle);
+        _pTexture->_draw(_texRect[_segmentIdx], _current.rect, _current.color, _current.angle);
 }
 
 void SpriteSelection::updateSelection(frameIdx frame)
@@ -321,7 +321,7 @@ void SpriteAnimated::draw() const
 {
     if (_pTexture != nullptr && _pTexture->_loaded)
     {
-        _pTexture->_draw(_drawRect, _current.rect, _current.angle);
+        _pTexture->_draw(_drawRect, _current.rect, _current.color, _current.angle);
     }
 }
 
