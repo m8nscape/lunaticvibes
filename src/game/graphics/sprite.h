@@ -54,13 +54,13 @@ public:
 protected:
     pTexture _pTexture;
     BlendMode _blend = BlendMode::ALPHA;
-    eTimer _timerInd;
+    eTimer _timerInd = eTimer::SCENE_START;
     int _loopTo = -1;
 protected:
     RenderParams _current;
     std::vector<RenderKeyFrame> _keyFrames;
 public:
-    vSprite(pTexture pTexture, SpriteTypes type = SpriteTypes::VIRTUAL, eTimer timer = eTimer::SCENE_START);
+    vSprite(pTexture pTexture, SpriteTypes type = SpriteTypes::VIRTUAL);
     virtual ~vSprite() = default;
 public:
     RenderParams getCurrentRenderParams();
@@ -68,6 +68,7 @@ public:
 	virtual bool update(timestamp time) = 0;
     virtual void setBlendMode(BlendMode b);
     virtual void setLoopTime(int t);
+	virtual void setTimer(eTimer t);
     virtual void appendKeyFrame(RenderKeyFrame f);
     virtual void draw() const = 0;
     bool isKeyFrameEmpty() { return _keyFrames.empty(); }
@@ -107,10 +108,10 @@ protected:
 public:
     SpriteSelection() = delete;
 
-    SpriteSelection(pTexture texture, eTimer timer = eTimer::SCENE_START, 
+    SpriteSelection(pTexture texture,
         unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);  // Copy texture, full area
 
-    SpriteSelection(pTexture texture, const Rect& rect, eTimer timer = eTimer::SCENE_START, 
+    SpriteSelection(pTexture texture, const Rect& rect,
         unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);  // Copy texture, specified area
 
     virtual ~SpriteSelection() = default;
@@ -133,6 +134,7 @@ protected:
     Rect _aRect;
     unsigned _arows, _acols;
     unsigned _aframes;
+	eTimer _resetAnimTimer;
     unsigned _period = -1;   // time for each frame lasts
     Rect _drawRect;
 public:

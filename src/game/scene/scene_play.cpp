@@ -308,6 +308,7 @@ void ScenePlay::updatePlaying()
 {
     //gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (context_chart.scrollObj->getCurrentBeat() / 4.0)) % 1000);
 	auto t = timestamp() - gTimers.get(eTimer::PLAY_START);
+    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (context_chart.scrollObj->getCurrentBeat() * 4.0)) % 1000);
 
     _pRuleset->updateAsync(t);
     context_chart.scrollObj->update(t);
@@ -336,7 +337,7 @@ void ScenePlay::updatePlaying()
 
 void ScenePlay::updateSongOutro()
 {
-    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (context_chart.scrollObj->getCurrentBeat() / 4.0)) % 1000);
+    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (context_chart.scrollObj->getCurrentBeat() * 4.0)) % 1000);
 	timestamp rt;
 
     // TODO chart play finished
@@ -350,7 +351,7 @@ void ScenePlay::updateSongOutro()
 
 void ScenePlay::updateFadeout()
 {
-    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (context_chart.scrollObj->getCurrentBeat() / 4.0)) % 1000);
+    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (context_chart.scrollObj->getCurrentBeat() * 4.0)) % 1000);
 
     // TODO fadeout finished
 

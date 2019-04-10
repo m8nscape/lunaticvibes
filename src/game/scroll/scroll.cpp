@@ -216,7 +216,6 @@ void vScroll::update(timestamp t)
     timestamp currentMeasureTimePassed = t - _measureTimestamp[_currentMeasure];
 	timestamp cmtpFromBPMChange = currentMeasureTimePassed - _lastChangedBPMTime;
 	_currentBeat = _lastChangedBeat + (double)cmtpFromBPMChange.hres() / (beatLength.hres() * getCurrentMeasureBeat());
-	gTimers.set(eTimer::MUSIC_BEAT, (int)std::floor(1000 * _currentBeat * 4) % 1000);
 
 	gNumbers.set(eNumber::_TEST1, _currentMeasure);
 	gNumbers.set(eNumber::_TEST2, (int)std::floor(_currentBeat * 1000));

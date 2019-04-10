@@ -717,6 +717,7 @@ int SkinLR2::loadLR2dst(const Tokens &t)
         }
         else
         {
+			convertLine(t, src, 16, 17);
             for (size_t i = 0; i < 4; ++i)
             {
                 StringContent ops = t[18 + i];
@@ -730,6 +731,7 @@ int SkinLR2::loadLR2dst(const Tokens &t)
         drawQueue.push_back({ e, false, d.op[0], d.op[1], d.op[2], d.op[3] });
         e->setLoopTime(d.loop);
         e->setBlendMode(BlendMode::ALPHA);
+		e->setTimer((eTimer)d.timer);
         if (d.time > 0)
         {
             LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";

@@ -5,8 +5,8 @@ static inline double grad(double dst, double src, double t) { return dst * t + s
 
 ////////////////////////////////////////////////////////////////////////////////
 // virtual base class functions
-vSprite::vSprite(pTexture tex, SpriteTypes type, eTimer timer) :
-    _pTexture(tex), _type(type), _timerInd(timer), _current({ 0, RenderParams::CONSTANT, 0x00000000, 0 }) {}
+vSprite::vSprite(pTexture tex, SpriteTypes type) :
+    _pTexture(tex), _type(type), _current({ 0, RenderParams::CONSTANT, 0x00000000, 0 }) {}
 
 bool vSprite::updateByKeyframes(timestamp time)
 {
@@ -19,6 +19,10 @@ bool vSprite::updateByKeyframes(timestamp time)
     size_t frameCount = _keyFrames.size();
     if (frameCount < 1)
         return false;
+
+	// Check if timer is 140
+	if (_timerInd == eTimer::MUSIC_BEAT)
+		time = gTimers.get(eTimer::MUSIC_BEAT);
 
     // Check if import time is valid
 	timestamp endTime = timestamp(_keyFrames[frameCount - 1].time);
@@ -124,6 +128,11 @@ void vSprite::setLoopTime(int t)
     _loopTo = t;
 }
 
+void vSprite::setTimer(eTimer t)
+{
+	_timerInd = t;
+}
+
 void vSprite::appendKeyFrame(RenderKeyFrame f)
 {
     _keyFrames.push_back(f);
@@ -155,13 +164,13 @@ void SpriteStatic::draw() const
 ////////////////////////////////////////////////////////////////////////////////
 // Split
 
-SpriteSelection::SpriteSelection(pTexture texture, eTimer timer, unsigned rows, unsigned cols, bool v): 
-    SpriteSelection(texture, texture->getRect(), timer, rows, cols, v)
+SpriteSelection::SpriteSelection(pTexture texture, unsigned rows, unsigned cols, bool v): 
+    SpriteSelection(texture, texture->getRect(), rows, cols, v)
 {
 }
 
-SpriteSelection::SpriteSelection(pTexture texture, const Rect& r, eTimer timer, unsigned rows, unsigned cols, bool v):
-    vSprite(texture, SpriteTypes::SPLIT, timer)
+SpriteSelection::SpriteSelection(pTexture texture, const Rect& r, unsigned rows, unsigned cols, bool v):
+    vSprite(texture, SpriteTypes::SPLIT)
 {
     if (rows == 0 || cols == 0)
     {
@@ -240,7 +249,7 @@ SpriteAnimated::SpriteAnimated(pTexture texture,
 SpriteAnimated::SpriteAnimated(pTexture texture, const Rect& r, 
     unsigned animRows, unsigned animCols, unsigned frameTime, eTimer t, 
     bool animVert, unsigned selRows, unsigned selCols, bool selVert):
-    SpriteSelection(texture, r, t, selRows, selCols, selVert), _aframes(0)
+    SpriteSelection(texture, r, selRows, selCols, selVert), _aframes(0), _resetAnimTimer(t)
 {
     _type = SpriteTypes::ANIMATED;
 
@@ -382,7 +391,7 @@ SpriteNumber::SpriteNumber(pTexture texture, NumberAlign align, unsigned maxDigi
 SpriteNumber::SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align, unsigned maxDigits,
     unsigned numRows, unsigned numCols, unsigned frameTime, eNumber n, eTimer t,
     bool numVert, unsigned animRows, unsigned animCols, bool animVert): 
-    vSprite(texture, SpriteTypes::NUMBER, t), _alignType(align), _numInd(n)
+    vSprite(texture, SpriteTypes::NUMBER), _alignType(align), _numInd(n)
 {
     _type = SpriteTypes::NUMBER;
 
