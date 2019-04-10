@@ -8,6 +8,7 @@
 *.sln.docstates
 doc/
 LR2files/
+log.txt
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

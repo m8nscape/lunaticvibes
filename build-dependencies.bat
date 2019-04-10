@@ -13,7 +13,8 @@ IF NOT EXIST %BATCH_PATH%ext\yaml-cpp\build (
 		cmake -G "Visual Studio 15 2017" ..
 	)
 )
-devenv %BATCH_PATH%ext\yaml-cpp\build\YAML_CPP.sln /build "%Configuration%|%Platform%" /project "yaml-cpp static md"
+echo "Build configuration: %~1|%~2"
+devenv %BATCH_PATH%ext\yaml-cpp\build\YAML_CPP.sln /build "%~1|%~2" /project "yaml-cpp static md"
 echo BUILD yaml-cpp FINISH
 
 

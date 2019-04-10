@@ -17,10 +17,6 @@ void InputWrapper::_loop()
 		auto p = Pressed();
 		auto h = Holding();
 		auto r = Released();
-		if (p != 0)
-			LOG_DEBUG << "[Input] " << p;
-		if (r != 0)
-			LOG_DEBUG << "[Input] " << r;
 
 		if (p != 0)
 			for (auto& pg : _pCallbackMap)

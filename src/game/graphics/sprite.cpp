@@ -307,8 +307,8 @@ void SpriteAnimated::updateAnimation(timestamp time)
 
 void SpriteAnimated::updateAnimationByTimer(timestamp time)
 {
-	if (gTimers.get(_timerInd))
-		updateAnimation(time - timestamp(gTimers.get(_timerInd)));
+	if (gTimers.get(_resetAnimTimer))
+		updateAnimation(time - timestamp(gTimers.get(_resetAnimTimer)));
 }
 
 // Commented for backup purpose. I don't think I can understand this...
