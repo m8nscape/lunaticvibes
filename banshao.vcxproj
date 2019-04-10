@@ -90,7 +90,7 @@
       <AdditionalDependencies>x86\SDL2.lib;x86\SDL2main.lib;x86\SDL2test.lib;x86\SDL2_ttf.lib;x86\SDL2_image.lib;fmodL_vc.lib;ext\yaml-cpp\build\Debug\libyaml-cppmdd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
-      <Command>$(ProjectDir)build-dependencies.bat Debug Win32</Command>
+      <Command>$(ProjectDir)build-dependencies.bat $(Configuration) $(Platform)</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>xcopy /y $(ProjectDir)ext\SDL2\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
@@ -119,7 +119,7 @@ xcopy /y $(ProjectDir)ext\fmod\lib\fmodL.dll $(SolutionDir)$(Configuration)\</Co
       <AdditionalDependencies>x86\SDL2.lib;x86\SDL2main.lib;x86\SDL2_ttf.lib;x86\SDL2_image.lib;fmod_vc.lib;ext\yaml-cpp\build\Release\libyaml-cppmd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
-      <Command>$(ProjectDir)build-dependencies.bat Release Win32</Command>
+      <Command>$(ProjectDir)build-dependencies.bat $(Configuration) $(Platform)</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>xcopy /y $(ProjectDir)ext\SDL2\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
@@ -139,7 +139,7 @@ xcopy /y $(ProjectDir)ext\fmod\lib\fmod.dll $(SolutionDir)$(Configuration)\</Com
       <AdditionalDependencies>x64\SDL2.lib;x64\SDL2main.lib;x64\SDL2test.lib;x64\SDL2_ttf.lib;x64\SDL2_image.lib;fmod64_vc.lib;ext\yaml-cpp\build\Debug\libyaml-cppmdd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
-      <Command>$(ProjectDir)build-dependencies.bat Debug x64</Command>
+      <Command>$(ProjectDir)build-dependencies.bat $(Configuration) $(Platform)</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>xcopy /y $(ProjectDir)ext\SDL2\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
@@ -159,7 +159,7 @@ xcopy /y $(ProjectDir)ext\fmod\lib\fmodL64.dll $(SolutionDir)$(Configuration)\</
       <AdditionalDependencies>x64\SDL2.lib;x64\SDL2main.lib;x64\SDL2_ttf.lib;x64\SDL2_image.lib;fmod64_vc.lib;ext\yaml-cpp\build\Release\libyaml-cppmd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
-      <Command>$(ProjectDir)build-dependencies.bat Release x64</Command>
+      <Command>$(ProjectDir)build-dependencies.bat $(Configuration) $(Platform)</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>xcopy /y $(ProjectDir)ext\SDL2\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
