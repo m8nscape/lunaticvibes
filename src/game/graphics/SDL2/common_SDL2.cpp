@@ -231,22 +231,3 @@ void TextureFull::_draw(const Rect& ignored, const Rect& dstRect,
         NULL, SDL_FLIP_NONE
     );
 }
-
-////////////////////////////////////////////////////////////////////////////////
-// Sprite
-
-/* ???
-
-SpriteStatic::SpriteStatic(const Texture& texture)
-{
-    pTexture = texture;
-    _outRect = texture._texRect;
-}
-
-SpriteStatic::SpriteStatic(const Texture& texture, const Rect& rect)
-{
-    pTexture = texture;
-    _outRect = rect.standardize(texture._texRect);
-}
-
-*/

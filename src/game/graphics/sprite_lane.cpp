@@ -42,7 +42,6 @@ void SpriteLaneVertical::updateNoteRect(hTime t, vScroll* s)
     int y = c.h;
     _outRect.clear();
 	auto measure = s->getCurrentMeasure();
-	gNumbers.set(eNumber::_TEST2, (int)measure);
 	auto beat = s->getCurrentBeat();
     auto it = s->incomingNoteOfChannel(_category, _index);
     while (!s->isLastNoteOfChannel(_category, _index, it) && y >= c.y)
@@ -57,8 +56,6 @@ void SpriteLaneVertical::updateNoteRect(hTime t, vScroll* s)
 		{
 			y = c.h - (int)std::floor((it++->rawBeat - beat) * c.h * _basespd * _hispeed);
 		}
-		gNumbers.set(eNumber::_TEST1, y);
-		gNumbers.set(eNumber::_TEST3, beat * 1000);
         _outRect.push_front({ c.x, c.y + y, r.w, r.h });
     }
 }

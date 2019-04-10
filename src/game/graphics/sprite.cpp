@@ -377,7 +377,12 @@ void SpriteNumber::updateNumber(int n)
 	case NUM_TYPE_FULL:      zeroIdx = positive ? NUM_FULL_BZERO_POS : NUM_FULL_BZERO_NEG; break;
 	}
 
-	if (n != 0)
+	if (n == 0)
+	{
+		_digit[0] = 0;
+		numDigits = 1;
+	}
+	else
 	{
 		numDigits = 0;
 		int abs_n = positive ? n : -n;
@@ -432,7 +437,7 @@ void SpriteNumber::updateNumber(int n)
 		*/
         case NUM_TYPE_FULL:
         {
-            _digit[_digit.size() - 1] = positive ? NUM_FULL_PLUS : NUM_FULL_MINUS;
+            _digit[numDigits + 1] = positive ? NUM_FULL_PLUS : NUM_FULL_MINUS;
             break;
         }
     }

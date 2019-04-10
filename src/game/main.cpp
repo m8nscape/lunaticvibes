@@ -6,6 +6,7 @@
 #include "skin/skin_lr2.h"
 #include "utils.h"
 #include "scene/scene_context.h"
+#include "game/generic_info.h"
 #include <plog/Log.h>
 
 #if _DEBUG
@@ -17,10 +18,13 @@
 #pragma comment(lib, "winmm.lib")
 #endif //WIN32
 
+GenericInfoUpdater __ginfo{ 1 };
+
 void mainLoop()
 {
     eScene currentScene = __next_scene;
     auto scene = SceneMgr::get(currentScene);
+	__ginfo.loopStart();
     while (currentScene != eScene::EXIT)
     {
         // Evenet handling
@@ -39,7 +43,9 @@ void mainLoop()
         scene->update();
         scene->draw();
         graphics_flush();
+		++__frames;
     }
+	__ginfo.loopEnd();
 }
 
 int main(int argc, char* argv[])

@@ -260,5 +260,8 @@
     <ClInclude Include="src\game\data\text.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\game\generic_info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

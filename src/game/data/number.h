@@ -5,7 +5,14 @@
 enum class eNumber: unsigned
 {
     ZERO = 0,           // should be initialized with 0
-    FPS,
+
+    FPS = 20,
+	DATE_YEAR,
+	DATE_MON,
+	DATE_DAY,
+	DATE_HOUR,
+	DATE_MIN,
+	DATE_SEC,
 
     RANDOM,
 
