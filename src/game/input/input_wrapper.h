@@ -1,4 +1,5 @@
 #pragma once
+#include <mutex>
 #include "input_mgr.h"
 #include "asynclooper.h"
 #include "beat.h"
@@ -16,6 +17,9 @@ typedef std::function<void(InputMask&, timestamp)> INPUTCALLBACK;
 //  Pressed / Holding / Released per key
 class InputWrapper: public AsyncLooper
 {
+private:
+	std::mutex _mutex;
+
 protected:
     InputMask _prev = 0;
     InputMask _curr = 0;

@@ -8,21 +8,30 @@ InputWrapper::InputWrapper(unsigned rate) : AsyncLooper(std::bind(&InputWrapper:
 
 void InputWrapper::_loop()
 {
-    _prev= _curr;
-    _curr = InputMgr::detect();
-	timestamp t;
-    auto p = Pressed();
-    auto h = Holding();
-    auto r = Released();
-    if (p != 0)
-        LOG_DEBUG << "[Input] " << p;
-    // FIXME lock map
-    for (auto& pg : _pCallbackMap)
-		pg.second(p, t);
-    for (auto& hg : _hCallbackMap)
-		hg.second(h, t);
-    for (auto& rg : _rCallbackMap)
-		rg.second(r, t);
+	std::unique_lock<decltype(_mutex)> _lock(_mutex, std::try_to_lock);
+	if (_lock.owns_lock())
+	{
+		_prev = _curr;
+		_curr = InputMgr::detect();
+		timestamp t;
+		auto p = Pressed();
+		auto h = Holding();
+		auto r = Released();
+		if (p != 0)
+			LOG_DEBUG << "[Input] " << p;
+		if (r != 0)
+			LOG_DEBUG << "[Input] " << r;
+
+		if (p != 0)
+			for (auto& pg : _pCallbackMap)
+				pg.second(p, t);
+		if (h != 0)
+			for (auto& hg : _hCallbackMap)
+				hg.second(h, t);
+		if (r != 0)
+			for (auto& rg : _rCallbackMap)
+				rg.second(r, t);
+	}
 }
 
 bool InputWrapper::_register(unsigned type, const std::string& key, INPUTCALLBACK f)

@@ -55,12 +55,13 @@ judgeRes RulesetClassic::_judge(const Note& note, timestamp time)
 
 void RulesetClassic::updatePress(InputMask& pg, timestamp t)
 {
-    timestamp rt = timestamp(gTimers.get(eTimer::PLAY_START)) - t;
-    if (rt < 0) return;
+	timestamp rt = t - gTimers.get(eTimer::PLAY_START);
+    if (rt.norm() < 0) return;
     for (size_t k = Input::S1L; k < Input::K1START; ++k)
     {
         if (!pg[k]) continue;
         auto c = _scroll->getChannelFromKey((Input::Ingame)k);
+		if (c.first == NoteChannelCategory::_) return;
         auto n = _scroll->incomingNoteOfChannel(c.first, c.second);
         auto j = _judge(*n, rt);
         switch (c.first)
@@ -134,12 +135,13 @@ void RulesetClassic::updatePress(InputMask& pg, timestamp t)
 }
 void RulesetClassic::updateHold(InputMask& hg, timestamp t)
 {
-    timestamp rt = timestamp(gTimers.get(eTimer::PLAY_START)) - t;
+	timestamp rt = t - gTimers.get(eTimer::PLAY_START);
     if (rt < 0) return;
     for (size_t k = Input::S1L; k < Input::K1START; ++k)
     {
         if (!hg[k]) continue;
         auto c = _scroll->getChannelFromKey((Input::Ingame)k);
+		if (c.first == NoteChannelCategory::_) return;
         auto n = _scroll->incomingNoteOfChannel(c.first, c.second);
         auto j = _judge(*n, rt);
         switch (c.first)
@@ -161,12 +163,13 @@ void RulesetClassic::updateHold(InputMask& hg, timestamp t)
 }
 void RulesetClassic::updateRelease(InputMask& rg, timestamp t)
 {
-    timestamp rt = timestamp(gTimers.get(eTimer::PLAY_START)) - t;
+	timestamp rt = t - gTimers.get(eTimer::PLAY_START);
     if (rt < 0) return;
     for (size_t k = Input::S1L; k < Input::K1START; ++k)
     {
         if (!rg[k]) continue;
         auto c = _scroll->getChannelFromKey((Input::Ingame)k);
+		if (c.first == NoteChannelCategory::_) return;
         auto n = _scroll->incomingNoteOfChannel(c.first, c.second);
         auto j = _judge(*n, rt);
         switch (c.first)
