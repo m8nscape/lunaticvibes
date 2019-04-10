@@ -13,41 +13,23 @@ vSkin::vSkin()
 
 void vSkin::update()
 {
-    hTime ht = getHighresTimePoint();
-    rTime t = h2r(ht);
-    std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), [&t, &ht](const auto& s)
+	timestamp t;
+    std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), [&t](const auto& s)
     {
         switch (s->type())
         {
-        case SpriteTypes::ANIMATED:
-        {
-            auto& ref = (std::shared_ptr<SpriteAnimated>&)s;
-            ref->updateByTimer(t);
-            //ref->updateSplitByTimer(t);
-            ref->updateAnimationByTimer(t);
-            break;
-        }
-        case SpriteTypes::NUMBER:
-        {
-            auto& ref = (std::shared_ptr<SpriteNumber>&)s;
-            ref->updateByTimer(t);
-            //ref->updateSplitByTimer(t);
-            ref->updateAnimationByTimer(t);
-            //ref->updateRectsByTimer(t);
-            ref->updateNumberByInd();
-            break;
-        }
         case SpriteTypes::NOTE_VERT:
         {
             auto& ref = (std::shared_ptr<SpriteLaneVertical>&)s;
 			if (ref->haveDst() && context_chart.scrollObj != nullptr && context_chart.started)
 			{
 				ref->update(t);
-				ref->updateNoteRect(ht, &*context_chart.scrollObj);
+				ref->updateNoteRect(t, &*context_chart.scrollObj);
 			}
             break;
         }
         default:
+			s->update(t);
             break;
         }
     });

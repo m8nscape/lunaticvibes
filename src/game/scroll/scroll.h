@@ -89,7 +89,7 @@ protected:
     std::list<Note>              _stopList;
 
     std::array<Beat,  MAX_MEASURES>   _measureLength;
-    std::array<hTime, MAX_MEASURES>   _measureTimestamp;
+    std::array<timestamp, MAX_MEASURES>   _measureTimestamp;
 
 
 public:
@@ -125,24 +125,24 @@ public:
     auto succNoteOfStop         () -> decltype(_stopListIterator);
 
 public:
-    hTime getMeasureLength(size_t measure);
-    hTime getCurrentMeasureLength();
+    timestamp getMeasureLength(size_t measure);
+    timestamp getCurrentMeasureLength();
     Beat  getMeasureBeat(size_t measure);
 	Beat  getCurrentMeasureBeat();
-    constexpr hTime getMeasureTime(size_t m) { return m < MAX_MEASURES ? _measureTimestamp[m] : LLONG_MAX; }
-	constexpr hTime getCurrentMeasureTime() { return getMeasureTime(_currentMeasure); }
+	timestamp getMeasureTime(size_t m) { return m < MAX_MEASURES ? _measureTimestamp[m] : LLONG_MAX; }
+	timestamp getCurrentMeasureTime() { return getMeasureTime(_currentMeasure); }
 
 protected:
     unsigned _currentMeasure    = 0;
     double   _currentBeat       = 0;
     BPM      _currentBPM        = 150.0;
-    hTime    _lastChangedBPMTime   = 0;
+    timestamp    _lastChangedBPMTime   = 0;
     double   _lastChangedBeat   = 0;
 
 public:
     void reset();
     void setIterators();            // set after parsing
-    /*virtual*/ void update(hTime t);
+    /*virtual*/ void update(timestamp t);
     constexpr auto getCurrentMeasure() -> decltype(_currentMeasure) { return _currentMeasure; }
     constexpr auto getCurrentBeat() -> decltype(_currentBeat) { return _currentBeat; }
     constexpr auto getCurrentBPM() -> decltype(_currentBPM) { return _currentBPM; }

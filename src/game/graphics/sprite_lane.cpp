@@ -26,13 +26,19 @@ void SpriteLaneVertical::getRectSize(int& w, int& h)
     h = pNote->_aRect.h;
 }
 
-void SpriteLaneVertical::updateNoteRect(hTime t, vScroll* s)
+bool SpriteLaneVertical::update(timestamp t)
 {
-    rTime rt = h2r(t);
+	if (updateByKeyframes(t))
+	{
+		return true;
+	}
+	return false;
+}
 
+void SpriteLaneVertical::updateNoteRect(timestamp t, vScroll* s)
+{
     // refresh note sprites
-    pNote->updateByTimer(rt);
-	pNote->updateAnimationByTimer(rt);
+	pNote->update(t);
 
     // fetch note size
     auto c = _current.rect;

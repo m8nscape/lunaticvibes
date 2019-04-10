@@ -5,7 +5,7 @@ vScroll::vScroll( size_t pn, size_t en) :
     _noteLists{}, _plainLists(pn), _extLists(en), _plainListIterators(pn), _extListIterators(en)
 {
     reset();
-    _measureTimestamp.fill(LLONG_MAX);
+	_measureTimestamp.fill({LLONG_MAX, false});
     _measureTimestamp[0] = 0.0;
     _bpmList.clear();
     //_bpmList.push_back({ 0, {0, 1}, 0, 130 });
@@ -119,18 +119,18 @@ auto vScroll::succNoteOfStop() -> decltype(_stopListIterator)
     return ++_stopListIterator;
 }
 
-hTime vScroll::getMeasureLength(size_t measure)
+timestamp vScroll::getMeasureLength(size_t measure)
 {
     if (measure + 1 >= _measureTimestamp.size())
     {
         return -1;
     }
 
-    double l = _measureTimestamp[measure + 1] - _measureTimestamp[measure];
-    return (l > 0) ? l : -1;
+    auto l = _measureTimestamp[measure + 1] - _measureTimestamp[measure];
+	return l.hres() > 0 ? l : -1;
 }
 
-hTime vScroll::getCurrentMeasureLength()
+timestamp vScroll::getCurrentMeasureLength()
 {
     return getMeasureLength(_currentMeasure);
 }
@@ -150,13 +150,13 @@ Beat vScroll::getCurrentMeasureBeat()
 	return getMeasureBeat(_currentMeasure);
 }
 
-void vScroll::update(hTime t)
+void vScroll::update(timestamp t)
 {
     noteExpired.clear();
     notePlainExpired.clear();
     noteExtExpired.clear();
 
-    hTime beatLength = hConvertBPM(_currentBPM);
+	timestamp beatLength = timestamp::fromBPM(_currentBPM);
 
     // Go through expired measures
     while (_currentMeasure + 1 < MAX_MEASURES && t >= _measureTimestamp[_currentMeasure + 1])
@@ -173,7 +173,7 @@ void vScroll::update(hTime t)
     {
         _currentBeat = b->rawBeat;
         _currentBPM = std::get<BPM>(b->value);
-        beatLength = hConvertBPM(_currentBPM);
+		beatLength = timestamp::fromBPM(_currentBPM);
         _lastChangedBPMTime = b->time;
         _lastChangedBeat = b->rawBeat;
         b = succNoteOfBpm();
@@ -213,8 +213,8 @@ void vScroll::update(hTime t)
     } 
 
     // update current info
-    hTime currentMeasureTimePassed = t - _measureTimestamp[_currentMeasure];
-	hTime cmtpFromBPMChange = currentMeasureTimePassed - _lastChangedBPMTime;
-	_currentBeat = _lastChangedBeat + (double)cmtpFromBPMChange / (beatLength * getCurrentMeasureBeat());
-	gNumbers.set(eNumber::_TEST4, h2r(currentMeasureTimePassed));
+    timestamp currentMeasureTimePassed = t - _measureTimestamp[_currentMeasure];
+	timestamp cmtpFromBPMChange = currentMeasureTimePassed - _lastChangedBPMTime;
+	_currentBeat = _lastChangedBeat + (double)cmtpFromBPMChange.hres() / (beatLength.hres() * getCurrentMeasureBeat());
+	gNumbers.set(eNumber::_TEST4, currentMeasureTimePassed.norm());
 }

@@ -82,11 +82,11 @@ protected:
 protected:
     // Inner-state updates
     void playBGMSamples();
-    void changeKeySampleMapping(rTime t);
+    void changeKeySampleMapping(timestamp t);
 
 protected:
     // Register to InputWrapper: judge / keysound
-    void inputGamePress(InputMask&, rTime);
-    void inputGameHold(InputMask&, rTime);
-    void inputGameRelease(InputMask&, rTime);
+    void inputGamePress(InputMask&, timestamp);
+    void inputGameHold(InputMask&, timestamp);
+    void inputGameRelease(InputMask&, timestamp);
 };

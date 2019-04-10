@@ -4,11 +4,11 @@
 namespace rc {
 
 struct judge_t {
-    rTime PERFECT;
-    rTime GREAT;
-    rTime GOOD;
-    rTime BAD;
-    rTime BPOOR;
+    timestamp PERFECT;
+    timestamp GREAT;
+    timestamp GOOD;
+    timestamp BAD;
+    timestamp BPOOR;
 };
 
 enum class judgeDiff
@@ -66,7 +66,7 @@ namespace judgeArea {
     };
 }
 
-struct judgeRes { judgeArea::area area; rTime time; };
+struct judgeRes { judgeArea::area area; timestamp time; };
 }
 
 class RulesetClassic : public vRuleset
@@ -77,16 +77,16 @@ protected:
 public:
     RulesetClassic(vScroll* chart, rc::judgeDiff difficulty = rc::judgeDiff::NORMAL);
 private:
-    rc::judgeRes _judge(const Note& note, rTime time);
+    rc::judgeRes _judge(const Note& note, timestamp time);
 public:
     // Register to InputWrapper
-    virtual void updatePress(InputMask& pg, rTime t);
+    virtual void updatePress(InputMask& pg, timestamp t);
     // Register to InputWrapper
-    virtual void updateHold(InputMask& hg, rTime t);
+    virtual void updateHold(InputMask& hg, timestamp t);
     // Register to InputWrapper
-    virtual void updateRelease(InputMask& rg, rTime t);
+    virtual void updateRelease(InputMask& rg, timestamp t);
     // Called by ScenePlay
-    virtual void updateAsync(rTime t);
+    virtual void updateAsync(timestamp t);
 public:
     constexpr auto getJudge() const { return _count; }
 };

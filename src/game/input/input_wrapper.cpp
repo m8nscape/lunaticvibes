@@ -10,7 +10,7 @@ void InputWrapper::_loop()
 {
     _prev= _curr;
     _curr = InputMgr::detect();
-    rTime t = getTimePoint();
+	timestamp t;
     auto p = Pressed();
     auto h = Holding();
     auto r = Released();

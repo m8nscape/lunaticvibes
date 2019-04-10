@@ -260,8 +260,8 @@ void ScenePlay::_updateAsync()
 
 void ScenePlay::updatePrepare()
 {
-    auto rt = getTimePoint() - gTimers.get(eTimer::SCENE_START);
-    if (rt > _skin->info.timeIntro)
+    auto rt = timestamp() - gTimers.get(eTimer::SCENE_START);
+    if (rt.norm() > _skin->info.timeIntro)
     {
 		_switchingState = true;
         _state = ePlayState::LOADING;
@@ -276,14 +276,14 @@ void ScenePlay::updateLoading()
     // TODO display progress
     //  set global bargraph values
 
-    auto rt = getTimePoint() - gTimers.get(eTimer::_LOAD_START);
+    auto rt = timestamp() - gTimers.get(eTimer::_LOAD_START);
     if (_scrollLoaded && _rulesetLoaded &&
         context_chart.isSampleLoaded && context_chart.isBgaLoaded && 
 		rt > _skin->info.timeMinimumLoad)
     {
 		_switchingState = true;
         _state = ePlayState::LOAD_END;
-        gTimers.set(eTimer::PLAY_READY, getTimePoint());
+        gTimers.set(eTimer::PLAY_READY, timestamp().norm());
         LOG_DEBUG << "[Play] State changed to READY";
 		_switchingState = false;
     }
@@ -291,12 +291,12 @@ void ScenePlay::updateLoading()
 
 void ScenePlay::updateLoadEnd()
 {
-    auto rt = getTimePoint() - gTimers.get(eTimer::PLAY_READY);
+    auto rt = timestamp() - gTimers.get(eTimer::PLAY_READY);
     if (rt > _skin->info.timeGetReady)
     {
 		_switchingState = true;
         _state = ePlayState::PLAYING;
-        gTimers.set(eTimer::PLAY_START, getTimePoint());
+        gTimers.set(eTimer::PLAY_START, timestamp().norm());
         setInputJudgeCallback();
 		context_chart.started = true;
         LOG_DEBUG << "[Play] State changed to PLAY_START";
@@ -307,13 +307,12 @@ void ScenePlay::updateLoadEnd()
 void ScenePlay::updatePlaying()
 {
     //gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (context_chart.scrollObj->getCurrentBeat() / 4.0)) % 1000);
-    auto ht = getHighresTimePoint() - r2h(gTimers.get(eTimer::PLAY_START));
-    auto rt = h2r(ht);
+	auto t = timestamp() - gTimers.get(eTimer::PLAY_START);
 
-    _pRuleset->updateAsync(rt);
-    context_chart.scrollObj->update(ht);
+    _pRuleset->updateAsync(t);
+    context_chart.scrollObj->update(t);
     playBGMSamples();
-    changeKeySampleMapping(rt);
+    changeKeySampleMapping(t);
 
 
     // TODO health check (-> to failed)
@@ -338,7 +337,7 @@ void ScenePlay::updatePlaying()
 void ScenePlay::updateSongOutro()
 {
     gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (context_chart.scrollObj->getCurrentBeat() / 4.0)) % 1000);
-    auto rt = getTimePoint();
+	timestamp rt;
 
     // TODO chart play finished
     //if (*asdasfsa*)
@@ -384,7 +383,7 @@ void ScenePlay::playBGMSamples()
     SoundMgr::playKeySample(i, &_bgmSampleIdxBuf[0]);
 }
 
-void ScenePlay::changeKeySampleMapping(rTime t)
+void ScenePlay::changeKeySampleMapping(timestamp t)
 {
     for (auto i = 0; i < Input::ESC; ++i)
         if (_inputAvailable[i])
@@ -400,7 +399,7 @@ void ScenePlay::changeKeySampleMapping(rTime t)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ScenePlay::inputGamePress(InputMask& m, rTime t)
+void ScenePlay::inputGamePress(InputMask& m, timestamp t)
 {
     // individual keys
     using namespace Input;
@@ -409,7 +408,7 @@ void ScenePlay::inputGamePress(InputMask& m, rTime t)
         if (_inputAvailable[i] && m[i])
         {
             _keySampleIdxBuf[sampleCount++] = _currentKeySample[i];
-            gTimers.set(InputGamePressMap[i].tm, t);
+            gTimers.set(InputGamePressMap[i].tm, t.norm());
             gTimers.set(InputGameReleaseMap[i].tm, -1);
             gSwitches.set(InputGamePressMap[i].sw, true);
         }
@@ -418,19 +417,19 @@ void ScenePlay::inputGamePress(InputMask& m, rTime t)
 }
 
 
-void ScenePlay::inputGameHold(InputMask& m, rTime t)
+void ScenePlay::inputGameHold(InputMask& m, timestamp t)
 {
 
 }
 
-void ScenePlay::inputGameRelease(InputMask& m, rTime t)
+void ScenePlay::inputGameRelease(InputMask& m, timestamp t)
 {
     size_t count = 0;
     for (size_t i = 0; i < Input::ESC; ++i)
         if (_inputAvailable[i] && m[i])
         {
             gTimers.set(InputGamePressMap[i].tm, -1);
-            gTimers.set(InputGameReleaseMap[i].tm, t);
+            gTimers.set(InputGameReleaseMap[i].tm, t.norm());
             gSwitches.set(InputGameReleaseMap[i].sw, false);
 
             // TODO stop sample playing while release in LN notes

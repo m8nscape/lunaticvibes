@@ -34,7 +34,8 @@ public:
 public:
     void setChannel(NoteChannelCategory cat, NoteChannelIndex idx);
     void getRectSize(int& w, int& h);
-    void updateNoteRect(hTime t, vScroll* ps);
+	virtual bool update(timestamp t);
+    void updateNoteRect(timestamp t, vScroll* ps);
     virtual void draw() const;
 
 public:

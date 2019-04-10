@@ -7,13 +7,13 @@ using namespace rc;
 RulesetClassic::RulesetClassic(vScroll* chart, rc::judgeDiff difficulty) : 
     vRuleset(chart, rc::JUDGE_COUNT), _diff(difficulty), _count{ 0 } {}
 
-judgeRes RulesetClassic::_judge(const Note& note, rTime time)
+judgeRes RulesetClassic::_judge(const Note& note, timestamp time)
 {
     using namespace judgeArea;
 
     // spot judge area
     area a = NOTHING;
-    rTime error = time - h2r(note.time);
+	timestamp error = time - note.time;
 
     if (error < -judgeTime[(size_t)_diff].BAD)
         a = EARLY_BPOOR;
@@ -53,9 +53,9 @@ judgeRes RulesetClassic::_judge(const Note& note, rTime time)
     return { a, error };
 }
 
-void RulesetClassic::updatePress(InputMask& pg, rTime t)
+void RulesetClassic::updatePress(InputMask& pg, timestamp t)
 {
-    rTime rt = gTimers.get(eTimer::PLAY_START) - t;
+    timestamp rt = timestamp(gTimers.get(eTimer::PLAY_START)) - t;
     if (rt < 0) return;
     for (size_t k = Input::S1L; k < Input::K1START; ++k)
     {
@@ -132,9 +132,9 @@ void RulesetClassic::updatePress(InputMask& pg, rTime t)
         }
     }
 }
-void RulesetClassic::updateHold(InputMask& hg, rTime t)
+void RulesetClassic::updateHold(InputMask& hg, timestamp t)
 {
-    rTime rt = gTimers.get(eTimer::PLAY_START) - t;
+    timestamp rt = timestamp(gTimers.get(eTimer::PLAY_START)) - t;
     if (rt < 0) return;
     for (size_t k = Input::S1L; k < Input::K1START; ++k)
     {
@@ -159,9 +159,9 @@ void RulesetClassic::updateHold(InputMask& hg, rTime t)
         }
     }
 }
-void RulesetClassic::updateRelease(InputMask& rg, rTime t)
+void RulesetClassic::updateRelease(InputMask& rg, timestamp t)
 {
-    rTime rt = gTimers.get(eTimer::PLAY_START) - t;
+    timestamp rt = timestamp(gTimers.get(eTimer::PLAY_START)) - t;
     if (rt < 0) return;
     for (size_t k = Input::S1L; k < Input::K1START; ++k)
     {
@@ -181,7 +181,7 @@ void RulesetClassic::updateRelease(InputMask& rg, rTime t)
     }
 }
 
-void RulesetClassic::updateAsync(rTime rt)
+void RulesetClassic::updateAsync(timestamp rt)
 {
 	for (size_t k = Input::S1L; k < Input::K1START; ++k)
 	{
@@ -190,7 +190,7 @@ void RulesetClassic::updateAsync(rTime rt)
 
 		auto n = _scroll->incomingNoteOfChannel(c.first, c.second);
 		if (!_scroll->isLastNoteOfChannel(c.first, c.second, n) && !n->hit &&
-			rt - h2r(n->time) >= judgeTime[(size_t)_diff].BAD)
+			rt - n->time >= judgeTime[(size_t)_diff].BAD)
 		{
 			switch (c.first)
 			{

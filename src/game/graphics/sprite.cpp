@@ -1,12 +1,14 @@
 #include "sprite.h"
 #include <plog/Log.h>
 
+static inline double grad(double dst, double src, double t) { return dst * t + src * (1.0 - t); }
+
 ////////////////////////////////////////////////////////////////////////////////
 // virtual base class functions
 vSprite::vSprite(pTexture tex, SpriteTypes type, eTimer timer) :
     _pTexture(tex), _type(type), _timerInd(timer), _current({ 0, RenderParams::CONSTANT, 0x00000000, 0 }) {}
 
-bool vSprite::update(rTime time)
+bool vSprite::updateByKeyframes(timestamp time)
 {
     // Check if object is valid
 	// Note that nullptr texture shall pass
@@ -19,8 +21,8 @@ bool vSprite::update(rTime time)
         return false;
 
     // Check if import time is valid
-    rTime endTime = _keyFrames[frameCount - 1].time;
-    if (time < 0 || _loopTo < 0 && time > endTime)
+	timestamp endTime = timestamp(_keyFrames[frameCount - 1].time);
+    if (time.norm() < 0 || _loopTo < 0 && time > endTime)
         return false;
 
     // Check if loop target is valid
@@ -33,8 +35,8 @@ bool vSprite::update(rTime time)
     // crop time into valid section
     if (time > endTime)
     {
-        if (endTime != _loopTo)
-            time = (time - _loopTo) % (endTime - _loopTo) + _loopTo;
+		if (endTime != _loopTo)
+			time = timestamp((time - _loopTo).norm() % (endTime - _loopTo).norm() + _loopTo);
         else
             time = _loopTo;
     }
@@ -57,11 +59,11 @@ bool vSprite::update(rTime time)
     decltype(_keyFrames.begin()) keyFrameCurr, keyFrameNext;
     for (auto it = _keyFrames.begin(); it != _keyFrames.end(); ++it)
     {
-        if (it->time <= time) keyFrameCurr = it;
+        if (it->time <= time.norm()) keyFrameCurr = it;
         else break;
     }
     keyFrameNext = keyFrameCurr;
-    ++keyFrameNext;
+    if (keyFrameCurr + 1 != _keyFrames.end()) ++keyFrameNext;
 
     // Check if section period is 0
     auto keyFrameLength = keyFrameNext->time - keyFrameCurr->time;
@@ -72,7 +74,7 @@ bool vSprite::update(rTime time)
     }
 
     // normalize time
-    double t = 1.0 * (time - keyFrameCurr->time) / keyFrameLength;
+    double t = 1.0 * (time.norm() - keyFrameCurr->time) / keyFrameLength;
     switch (keyFrameCurr->param.accel)
     {
     case RenderParams::CONSTANT:
@@ -88,9 +90,17 @@ bool vSprite::update(rTime time)
     }
 
     // calculate parameters
-    _current.rect  = keyFrameNext->param.rect  * t + keyFrameCurr->param.rect  * (1.0 - t);
-    _current.color = keyFrameNext->param.color * t + keyFrameNext->param.color * (1.0 - t);
-    _current.angle = keyFrameNext->param.angle * t + keyFrameNext->param.angle * (1.0 - t);
+	_current.rect.x = (int)grad((double)keyFrameNext->param.rect.x, (double)keyFrameCurr->param.rect.x, t);
+	_current.rect.y = (int)grad((double)keyFrameNext->param.rect.y, (double)keyFrameCurr->param.rect.y, t);
+	_current.rect.w = (int)grad((double)keyFrameNext->param.rect.w, (double)keyFrameCurr->param.rect.w, t);
+	_current.rect.h = (int)grad((double)keyFrameNext->param.rect.h, (double)keyFrameCurr->param.rect.h, t);
+    //_current.rect  = keyFrameNext->param.rect  * t + keyFrameCurr->param.rect  * (1.0 - t);
+	_current.color.r = (Uint8)grad((double)keyFrameNext->param.color.r, (double)keyFrameCurr->param.color.r, t);
+	_current.color.g = (Uint8)grad((double)keyFrameNext->param.color.g, (double)keyFrameCurr->param.color.g, t);
+	_current.color.b = (Uint8)grad((double)keyFrameNext->param.color.b, (double)keyFrameCurr->param.color.b, t);
+	_current.color.a = (Uint8)grad((double)keyFrameNext->param.color.a, (double)keyFrameCurr->param.color.a, t);
+    //_current.color = keyFrameNext->param.color * t + keyFrameNext->param.color * (1.0 - t);
+	_current.angle = grad(keyFrameNext->param.angle, keyFrameNext->param.angle, t);
     //LOG_DEBUG << "[Skin] Time: " << time << 
     //    " @ " << _current.rect.x << "," << _current.rect.y << " " << _current.rect.w << "x" << _current.rect.h;
     //LOG_DEBUG<<"[Skin] keyFrameCurr: " << keyFrameCurr->param.rect.x << "," << keyFrameCurr->param.rect.y << " " << keyFrameCurr->param.rect.w << "x" << keyFrameCurr->param.rect.h;
@@ -126,6 +136,15 @@ SpriteStatic::SpriteStatic(pTexture texture):
     SpriteStatic(texture, texture->getRect()) {}
 SpriteStatic::SpriteStatic(pTexture texture, const Rect& rect):
     vSprite(texture, SpriteTypes::STATIC), _texRect(rect) {}
+
+bool SpriteStatic::update(timestamp t)
+{
+	if (updateByKeyframes(t))
+	{
+		return true;
+	}
+	return false;
+}
 
 void SpriteStatic::draw() const
 {
@@ -198,6 +217,15 @@ void SpriteSelection::updateSelection(frameIdx frame)
     _segmentIdx = frame < _segments ? frame : _segments - 1;
 }
 
+bool SpriteSelection::update(timestamp t)
+{
+	if (updateByKeyframes(t))
+	{
+		return true;
+	}
+	return false;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Animated
 
@@ -227,18 +255,30 @@ SpriteAnimated::SpriteAnimated(pTexture texture, const Rect& r,
     _aVert = animVert;
 }
 
-void SpriteAnimated::updateByTimer(rTime time)
+bool SpriteAnimated::update(timestamp t)
 {
-    if (gTimers.get(_timerInd))
-        update(time - gTimers.get(_timerInd));
+	if (updateByKeyframes(t))
+	{
+		updateByTimer(t);
+		//updateSplitByTimer(t);
+		updateAnimationByTimer(t);
+		return true;
+	}
+	return false;
 }
 
-void SpriteAnimated::updateAnimation(rTime time)
+void SpriteAnimated::updateByTimer(timestamp time)
+{
+	if (gTimers.get(_timerInd))
+		updateByKeyframes(time - timestamp(gTimers.get(_timerInd)));
+}
+
+void SpriteAnimated::updateAnimation(timestamp time)
 {
     if (_segments == 0) return;
     if (_period == -1) return;
 
-    frameIdx f = _period ? (time / _period % _aframes) : 0; 
+    frameIdx f = _period ? (time.norm() / _period % _aframes) : 0; 
     _drawRect = _texRect[_segmentIdx];
     _drawRect.w = _aRect.w;
     _drawRect.h = _aRect.h;
@@ -256,10 +296,10 @@ void SpriteAnimated::updateAnimation(rTime time)
     }
 }
 
-void SpriteAnimated::updateAnimationByTimer(rTime time)
+void SpriteAnimated::updateAnimationByTimer(timestamp time)
 {
-    if (gTimers.get(_timerInd))
-        updateAnimation(time - gTimers.get(_timerInd));
+	if (gTimers.get(_timerInd))
+		updateAnimation(time - timestamp(gTimers.get(_timerInd)));
 }
 
 // Commented for backup purpose. I don't think I can understand this...
@@ -301,6 +341,16 @@ SpriteText::SpriteText(const char* file, Rect rect, eText e, unsigned ptsize, Co
     _type = SpriteTypes::TEXT;
     _haveRect = true;
     _texRect.assign(1, rect);
+}
+
+bool SpriteText::update(timestamp t)
+{
+	if (updateByKeyframes(t))
+	{
+		updateText();
+		return true;
+	}
+	return false;
 }
 
 void SpriteText::updateText()
@@ -357,11 +407,28 @@ SpriteNumber::SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align
 	_sDigit.emplace_back(nullptr, r, animRows, animCols, frameTime, t, animVert, numRows, numCols, numVert);
 }
 
-void SpriteNumber::updateByTimer(rTime time)
+bool SpriteNumber::update(timestamp t)
 {
-    if (gTimers.get(_timerInd))
-        for (auto& d : _sDigit)
-            d.update(time - gTimers.get(_timerInd));
+	if (_sDigit[0].updateByKeyframes(t))
+	{
+		for (size_t i = 1; i < _sDigit.size(); ++i)
+			_sDigit[i].updateByKeyframes(t);
+
+		updateByTimer(t);
+		//updateSplitByTimer(t);
+		updateAnimationByTimer(t);
+		//updateRectsByTimer(t);
+		updateNumberByInd();
+		return true;
+	}
+	return false;
+}
+
+void SpriteNumber::updateByTimer(timestamp time)
+{
+	if (gTimers.get(_timerInd))
+		for (auto& d : _sDigit)
+			d.updateByKeyframes(time - timestamp(gTimers.get(_timerInd)));
 }
 
 void SpriteNumber::updateNumber(int n)
@@ -476,7 +543,7 @@ void SpriteNumber::updateNumberByInd()
         n = 0;
         break;
 	case (eNumber)10220:
-		n = (int)getTimePoint();
+		n = timestamp().norm();
 		break;
     default:
 #ifdef _DEBUG
@@ -489,7 +556,7 @@ void SpriteNumber::updateNumberByInd()
     updateNumber(n);
 }
 
-void SpriteNumber::updateAnimationByTimer(rTime t)
+void SpriteNumber::updateAnimationByTimer(timestamp t)
 {
     //for (auto& d : _sDigit)
     //    d.updateAnimation(t);
@@ -545,6 +612,7 @@ void SpriteNumber::setLoopTime(int t)
 
 void SpriteNumber::appendKeyFrame(RenderKeyFrame f)
 {
+    _keyFrames.push_back(f);
 	for (auto& d : _sDigit)
 	{
 		d.appendKeyFrame(f);

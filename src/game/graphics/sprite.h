@@ -37,7 +37,7 @@ struct RenderParams
 
 struct RenderKeyFrame
 {
-    rTime time;
+    long long time;
     RenderParams param;
 };
 
@@ -64,7 +64,8 @@ public:
     virtual ~vSprite() = default;
 public:
     RenderParams getCurrentRenderParams();
-    bool update(rTime time);
+    bool updateByKeyframes(timestamp time);
+	virtual bool update(timestamp time) = 0;
     virtual void setBlendMode(BlendMode b);
     virtual void setLoopTime(int t);
     virtual void appendKeyFrame(RenderKeyFrame f);
@@ -87,6 +88,7 @@ public:
     SpriteStatic(pTexture texture, const Rect& rect);
     virtual ~SpriteStatic() = default;
 public:
+	virtual bool update(timestamp t);
     virtual void draw() const;
 };
 
@@ -113,6 +115,7 @@ public:
 
     virtual ~SpriteSelection() = default;
 public:
+	virtual bool update(timestamp t);
     virtual void updateSelection(frameIdx i);
     virtual void draw() const;
 };
@@ -145,10 +148,11 @@ public:
 
     virtual ~SpriteAnimated() = default;
 public:
-    void updateByTimer(rTime t);
-    virtual void updateAnimation(rTime t);
-    void updateAnimationByTimer(rTime t);
-    //void updateSplitByTimer(rTime t);
+    void updateByTimer(timestamp t);
+    virtual void updateAnimation(timestamp t);
+    void updateAnimationByTimer(timestamp t);
+    //void updateSplitByTimer(timestamp t);
+	virtual bool update(timestamp t);
     virtual void draw() const;
 };
 
@@ -171,6 +175,7 @@ public:
     virtual ~SpriteText() = default;
 public:
     void updateText();
+	virtual bool update(timestamp t);
     void setText(const char* text, const Color& c);
 };
 
@@ -230,10 +235,11 @@ public:
     virtual ~SpriteNumber() = default;
 
 public:
-    void updateByTimer(rTime t);
+    void updateByTimer(timestamp t);
     void updateNumber(int n);           // invoke updateSplit to change number
     void updateNumberByInd();
-    void updateAnimationByTimer(rTime t);   // invoke updateAnimation to change animation frames
+    void updateAnimationByTimer(timestamp t);   // invoke updateAnimation to change animation frames
+	virtual bool update(timestamp t);
     virtual void setBlendMode(BlendMode b);
     virtual void setLoopTime(int t);
     virtual void appendKeyFrame(RenderKeyFrame f);
@@ -275,6 +281,7 @@ public:
     void updateVal(int v);
     void updateValByInd();
     void updatePos();
+	virtual bool update(timestamp t);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -303,5 +310,6 @@ public:
 public:
     void updateVal(unsigned v);     // invoke SpriteSplit::updateSplit(v)
     void updateValByInd();
+	virtual bool update(timestamp t);
 };
 

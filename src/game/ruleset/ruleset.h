@@ -34,10 +34,10 @@ public:
         _scroll(c), _basic{ 0 }, _judgeCount(n, 0) {}
     virtual ~vRuleset() = default;
 public:
-    virtual void updatePress(InputMask& pg, rTime t) = 0;
-    virtual void updateHold(InputMask& hg, rTime t) = 0;
-    virtual void updateRelease(InputMask& rg, rTime t) = 0;
-    virtual void updateAsync(rTime t) = 0;
+    virtual void updatePress(InputMask& pg, timestamp t) = 0;
+    virtual void updateHold(InputMask& hg, timestamp t) = 0;
+    virtual void updateRelease(InputMask& rg, timestamp t) = 0;
+    virtual void updateAsync(timestamp t) = 0;
 public:
     constexpr BasicData getData() const { return _basic; }
 };

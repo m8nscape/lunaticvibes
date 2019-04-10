@@ -11,7 +11,7 @@
 vScene::vScene(eMode mode, unsigned rate) : _input(), AsyncLooper(std::bind(&vScene::_updateAsync, this), rate)
 {
     _skin = SkinMgr::get(mode);
-    auto t = getTimePoint();
+	timestamp t;
 
     gNumbers.reset();
     gSliders.reset();
@@ -22,8 +22,8 @@ vScene::vScene(eMode mode, unsigned rate) : _input(), AsyncLooper(std::bind(&vSc
 
     gTimers.set(eTimer::SCENE_START, 0);
     gTimers.reset();
-    gTimers.set(eTimer::SCENE_START, t);
-    gTimers.set(eTimer::START_INPUT, t + _skin->info.timeIntro);
+    gTimers.set(eTimer::SCENE_START, t.norm());
+    gTimers.set(eTimer::START_INPUT, t.norm() + _skin->info.timeIntro);
 }
 
 void vScene::update()
