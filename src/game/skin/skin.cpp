@@ -13,26 +13,36 @@ vSkin::vSkin()
 
 void vSkin::update()
 {
+	std::unique_lock<decltype(_mutex)> _lock(_mutex, std::try_to_lock);
+	if (!_lock.owns_lock()) return;
+
 	timestamp t;
-    std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), [&t](const auto& s)
-    {
-        switch (s->type())
-        {
-        case SpriteTypes::NOTE_VERT:
-        {
-            auto& ref = (std::shared_ptr<SpriteLaneVertical>&)s;
+#ifdef _DEBUG
+	for(const auto& s: _sprites)
+#else
+	std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), [&t](const auto& s)
+#endif
+	{
+		switch (s->type())
+		{
+		case SpriteTypes::NOTE_VERT:
+		{
+			auto& ref = (std::shared_ptr<SpriteLaneVertical>&)s;
 			if (ref->haveDst() && context_chart.scrollObj != nullptr && context_chart.started)
 			{
 				ref->update(t);
 				ref->updateNoteRect(t, &*context_chart.scrollObj);
 			}
-            break;
-        }
-        default:
+			break;
+		}
+		default:
 			s->update(t);
-            break;
-        }
-    });
+			break;
+		}
+	}
+#ifndef _DEBUG
+    );
+#endif
 }
 
 void vSkin::draw() const

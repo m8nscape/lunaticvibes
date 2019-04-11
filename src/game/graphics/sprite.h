@@ -159,26 +159,32 @@ public:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+
+typedef std::shared_ptr<TTFFont> pFont;
+
 // Text sprite:
 // TTFFont contains Texture object
-class SpriteText: public SpriteSelection
+class SpriteText: public SpriteStatic
 {
 private:
-    std::shared_ptr<TTFFont> _pFont;
+	pFont _pFont;
     eText _textInd;
     std::string _currText;
+	TextAlign _align;
     Color _color;
-    bool _haveRect = false;
+    //bool _haveRect = false;
+	//Rect _frameRect;
 
 public:
     SpriteText() = delete;
-    SpriteText(const char* ttf, eText textInd = eText::INVALID, unsigned ptsize = 72, Color c = 0xffffffff);
-    SpriteText(const char* ttf, Rect rect, eText textInd = eText::INVALID, unsigned ptsize = 72, Color c = 0xffffffff);
+    SpriteText(pFont f, eText textInd = eText::INVALID, TextAlign align = TEXT_ALIGN_LEFT, unsigned ptsize = 72, Color c = 0xffffffff);
+    //SpriteText(pFont f, Rect rect, eText textInd = eText::INVALID, TextAlign align = TEXT_ALIGN_LEFT, unsigned ptsize = 72, Color c = 0xffffffff);
     virtual ~SpriteText() = default;
 public:
-    void updateText();
-	virtual bool update(timestamp t);
+    void updateTextRect();
     void setText(const char* text, const Color& c);
+	virtual bool update(timestamp t);
+    virtual void draw() const;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -6,6 +6,7 @@
 #include <map>
 #include <string>
 #include <memory>
+#include <mutex>
 
 enum class eSkinType
 {
@@ -33,6 +34,7 @@ public:
 
 protected:
     bool _loaded = false;
+	std::mutex _mutex;
 public:
     constexpr bool isLoaded() { return _loaded; }
 

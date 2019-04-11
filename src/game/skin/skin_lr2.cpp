@@ -7,6 +7,11 @@
 #include "game/data/option.h"
 #include "game/data/switch.h"
 
+#ifdef _WIN32
+// For GetWindowsDirectory
+#include <Windows.h>
+#endif
+
 bool SkinLR2::customizeDst[100];
 
 enum sprite_type
@@ -303,7 +308,7 @@ int SkinLR2::loadLR2image(const Tokens &t)
 
 int SkinLR2::loadLR2font(const Tokens &t)
 {
-    // TODO Skipped for now.
+	// TODO load LR2FONT
     if (t[0] == "#LR2FONT")
     {
         Path path(t[1]);
@@ -316,15 +321,24 @@ int SkinLR2::loadLR2font(const Tokens &t)
 
 int SkinLR2::loadLR2systemfont(const Tokens &t)
 {
+	// Could not get system font file path in a reliable way while cross-platforming..
     if (t[0] == "#FONT")
     {
         int ptsize = stoine(t[1]);
         int thick = stoine(t[2]);
         int fonttype = stoine(t[3]);
-        StringContent name = t[4];
+        //StringContent name = t[4];
+#if defined _WIN32
+		TCHAR windir[MAX_PATH];
+		GetWindowsDirectory(windir, MAX_PATH);
+		StringContent name = windir;
+		name += "\\Fonts\\msgothic.ttc";
+#elif defined LINUX
+		StringContent name = "/usr/share/fonts/tbd.ttf"
+#endif
         size_t idx = _fontNameMap.size();
-        //_fontNameMap[std::to_string(idx)] = std::make_shared<TTFFont>(path.string().c_str(), ptsize);
-        LOG_DEBUG << "[Skin] " << line << ": Skipped FONT[" << idx << "]: " << name;
+        _fontNameMap[std::to_string(idx)] = std::make_shared<TTFFont>(name.c_str(), ptsize);
+        LOG_DEBUG << "[Skin] " << line << ": Added FONT[" << idx << "]: " << name;
     }
     return 0;
 }
@@ -493,12 +507,10 @@ int SkinLR2::loadLR2src(const Tokens &t)
         for (size_t i = 0; i < sizeof(src) / sizeof(int); ++i)
             *((int*)&src + i) = stoine(t[i + 1]);
 
-        //elements.emplace_back();
-        //auto& e = elements.back();
-        //e = std::make_shared<elemText>();
+		_sprites.push_back(std::make_shared<SpriteText>(
+			_fontNameMap[std::to_string(src.font)], (eText)src.st, (TextAlign)src.align));
 
-        // TODO text
-        LOG_DEBUG << "[Skin] " << line << ": Skipped Text (font: " << src.font << ")";
+        LOG_DEBUG << "[Skin] " << line << ": Added Text (font: " << src.font << ")";
 
         return 7;
     }

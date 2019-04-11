@@ -165,8 +165,19 @@ enum class eText: unsigned
 
     Θ«Με₯³©`₯Ή₯ͺ₯Χ₯·₯η₯σ₯Η₯Υ₯©₯λ₯Θ₯²©`₯Έ = 199,
 
+	// inner texts
+	_TEST1 = 200,
+	_TEST2,
+
 
     TEXT_COUNT
+};
+
+enum TextAlign
+{
+	TEXT_ALIGN_LEFT = 0,
+	TEXT_ALIGN_CENTER,
+	TEXT_ALIGN_RIGHT
 };
 
 inline buffered_global<eText, std::string, (size_t)eText::TEXT_COUNT> gTexts;

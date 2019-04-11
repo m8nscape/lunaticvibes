@@ -141,8 +141,8 @@ void vSprite::appendKeyFrame(RenderKeyFrame f)
 ////////////////////////////////////////////////////////////////////////////////
 // Static
 
-SpriteStatic::SpriteStatic(pTexture texture):
-    SpriteStatic(texture, texture->getRect()) {}
+SpriteStatic::SpriteStatic(pTexture texture) :
+	SpriteStatic(texture, texture ? texture->getRect(): Rect()) {}
 SpriteStatic::SpriteStatic(pTexture texture, const Rect& rect):
     vSprite(texture, SpriteTypes::STATIC), _texRect(rect) {}
 
@@ -165,7 +165,7 @@ void SpriteStatic::draw() const
 // Split
 
 SpriteSelection::SpriteSelection(pTexture texture, unsigned rows, unsigned cols, bool v): 
-    SpriteSelection(texture, texture->getRect(), rows, cols, v)
+    SpriteSelection(texture, texture ? texture->getRect() : Rect(), rows, cols, v)
 {
 }
 
@@ -241,7 +241,7 @@ bool SpriteSelection::update(timestamp t)
 SpriteAnimated::SpriteAnimated(pTexture texture, 
     unsigned animRows, unsigned animCols, unsigned frameTime, eTimer t, 
     bool animVert, unsigned selRows, unsigned selCols, bool selVert):
-    SpriteAnimated(texture, texture->getRect(), animRows, animCols, frameTime, t,
+    SpriteAnimated(texture, texture ? texture->getRect() : Rect(), animRows, animCols, frameTime, t,
 		animVert, selRows, selCols, selVert)
 {
 }
@@ -337,34 +337,55 @@ void SpriteAnimated::draw() const
 ////////////////////////////////////////////////////////////////////////////////
 // Text
 
-SpriteText::SpriteText(const char* file, eText e, unsigned ptsize, Color c):
-   SpriteSelection(nullptr), _pFont(new TTFFont(file, ptsize)), _textInd(e), _color(c)
+SpriteText::SpriteText(pFont f, eText e, TextAlign a, unsigned ptsize, Color c):
+   SpriteStatic(nullptr), _pFont(f), _textInd(e), _align(a), _color(c)
 {
     _type = SpriteTypes::TEXT;
-    _texRect.resize(1);
 }
 
-SpriteText::SpriteText(const char* file, Rect rect, eText e, unsigned ptsize, Color c):
-   SpriteSelection(nullptr), _pFont(new TTFFont(file, ptsize)), _textInd(e), _color(c)
+/*
+SpriteText::SpriteText(pFont f, Rect rect, eText e, TextAlign a, unsigned ptsize, Color c):
+   SpriteStatic(nullptr), _pFont(f), _frameRect(rect), _textInd(e), _align(a), _color(c)
 {
     _type = SpriteTypes::TEXT;
     _haveRect = true;
-    _texRect.assign(1, rect);
+	_texRect = rect;
 }
+*/
 
 bool SpriteText::update(timestamp t)
 {
 	if (updateByKeyframes(t))
 	{
-		updateText();
+		setText(gTexts.get(_textInd).c_str(), _current.color);
+		updateTextRect();
 		return true;
 	}
 	return false;
 }
 
-void SpriteText::updateText()
+void SpriteText::updateTextRect()
 {
-    setText(gTexts.get(_textInd).c_str(), _color);
+	// fitting
+	Rect textRect = _texRect;
+	double sizeFactor = (double)_current.rect.h / textRect.h;
+	int text_w = textRect.w * sizeFactor;
+	double widthFactor = (double)_current.rect.w / text_w;
+	if (widthFactor > 1.0)
+	{
+		switch (_align)
+		{
+		case TEXT_ALIGN_LEFT:
+			break;
+		case TEXT_ALIGN_CENTER:
+			_current.rect.x += (_current.rect.w - text_w) / 2;
+			break;
+		case TEXT_ALIGN_RIGHT:
+			_current.rect.x += (_current.rect.w - text_w);
+			break;
+		}
+		_current.rect.w = text_w;
+	}
 }
 
 void SpriteText::setText(const char* text, const Color& c)
@@ -374,15 +395,20 @@ void SpriteText::setText(const char* text, const Color& c)
     _currText = std::string(text);
     _color = c;
     _pTexture = _pFont->TextUTF8(text, c);
-    if (!_haveRect)
-        _texRect[0] = _pTexture->getRect();
+	_texRect = _pTexture->getRect();
+}
+
+void SpriteText::draw() const
+{
+	if (_pTexture)
+		SpriteStatic::draw();
 }
 
 
 SpriteNumber::SpriteNumber(pTexture texture, NumberAlign align, unsigned maxDigits,
     unsigned numRows, unsigned numCols, unsigned frameTime, eNumber n, eTimer t,
     bool numVert, unsigned animRows, unsigned animCols, bool animVert) : 
-    SpriteNumber(texture, texture->getRect(), align, maxDigits,
+    SpriteNumber(texture, texture ? texture->getRect() : Rect(), align, maxDigits,
 		numRows, numCols, frameTime, n, t,
 		numVert, animRows, animCols, animVert)
 {

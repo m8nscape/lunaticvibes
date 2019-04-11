@@ -25,6 +25,8 @@ private:
 		gNumbers.set(eNumber::DATE_HOUR, d->tm_hour);
 		gNumbers.set(eNumber::DATE_MIN,  d->tm_min);
 		gNumbers.set(eNumber::DATE_SEC,  d->tm_sec);
+
+		gTexts.set(eText::_TEST1, std::ctime(&t));
 	}
 };
 //InputWrapper::InputWrapper(unsigned rate) : AsyncLooper(std::bind(&InputWrapper::_loop, this), rate)

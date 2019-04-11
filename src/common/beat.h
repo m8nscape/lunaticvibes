@@ -56,7 +56,7 @@ public:
 	bool   operator>= (const timestamp& rhs) const { return _hTime >= rhs._hTime; }
 	bool   operator== (const timestamp& rhs) const { return _hTime == rhs._hTime; }
 	bool   operator!= (const timestamp& rhs) const { return _hTime != rhs._hTime; }
-	friend inline std::ostream& operator<< (std::ostream& os, const timestamp& t) { return os << t._rTime << "ms / " << h._hTime << "ns"; }
+	friend inline std::ostream& operator<< (std::ostream& os, const timestamp& t) { return os << t._rTime << "ms / " << t._hTime << "ns"; }
 
 	constexpr decltype(_rTime) norm() const { return _rTime; }
 	constexpr decltype(_hTime) hres() const { return _hTime; }
