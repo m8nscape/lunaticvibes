@@ -1,4 +1,5 @@
 #pragma once
+#include <mutex>
 #include "scene.h"
 #include "asynclooper.h"
 #include "chart/chart.h"
@@ -26,7 +27,6 @@ enum class ePlayState
 class ScenePlay : public vScene
 {
 private:
-	bool _switchingState = false;
     ePlayState _state;
     ePlayMode _mode;
     eRuleset  _rule;

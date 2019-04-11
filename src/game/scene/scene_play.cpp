@@ -231,7 +231,9 @@ void ScenePlay::removeInputJudgeCallback(bool shutter)
 
 void ScenePlay::_updateAsync()
 {
-	if (_switchingState) return;
+	std::unique_lock<decltype(_mutex)> _lock(_mutex, std::try_to_lock);
+	if (!_lock.owns_lock()) return;
+
     switch (_state)
     {
     case ePlayState::PREPARE:
@@ -263,11 +265,10 @@ void ScenePlay::updatePrepare()
     auto rt = timestamp() - gTimers.get(eTimer::SCENE_START);
     if (rt.norm() > _skin->info.timeIntro)
     {
-		_switchingState = true;
         _state = ePlayState::LOADING;
+
         std::thread(&ScenePlay::loadChart, this).detach();
         LOG_DEBUG << "[Play] State changed to LOADING";
-		_switchingState = false;
     }
 }
 
@@ -281,11 +282,9 @@ void ScenePlay::updateLoading()
         context_chart.isSampleLoaded && context_chart.isBgaLoaded && 
 		rt > _skin->info.timeMinimumLoad)
     {
-		_switchingState = true;
         _state = ePlayState::LOAD_END;
         gTimers.set(eTimer::PLAY_READY, timestamp().norm());
         LOG_DEBUG << "[Play] State changed to READY";
-		_switchingState = false;
     }
 }
 
@@ -294,13 +293,11 @@ void ScenePlay::updateLoadEnd()
     auto rt = timestamp() - gTimers.get(eTimer::PLAY_READY);
     if (rt > _skin->info.timeGetReady)
     {
-		_switchingState = true;
         _state = ePlayState::PLAYING;
         gTimers.set(eTimer::PLAY_START, timestamp().norm());
         setInputJudgeCallback();
 		context_chart.started = true;
         LOG_DEBUG << "[Play] State changed to PLAY_START";
-		_switchingState = false;
     }
 }
 

@@ -13,9 +13,6 @@ vSkin::vSkin()
 
 void vSkin::update()
 {
-	std::unique_lock<decltype(_mutex)> _lock(_mutex, std::try_to_lock);
-	if (!_lock.owns_lock()) return;
-
 	timestamp t;
 #ifdef _DEBUG
 	for(const auto& s: _sprites)
