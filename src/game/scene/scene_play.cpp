@@ -304,13 +304,14 @@ void ScenePlay::updateLoadEnd()
 void ScenePlay::updatePlaying()
 {
     //gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (context_chart.scrollObj->getCurrentBeat() / 4.0)) % 1000);
-	auto t = timestamp() - gTimers.get(eTimer::PLAY_START);
+	auto t = timestamp();
+	auto rt = t - gTimers.get(eTimer::PLAY_START);
     gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (context_chart.scrollObj->getCurrentBeat() * 4.0)) % 1000);
 
     _pRuleset->updateAsync(t);
-    context_chart.scrollObj->update(t);
+    context_chart.scrollObj->update(rt);
     playBGMSamples();
-    changeKeySampleMapping(t);
+    changeKeySampleMapping(rt);
 
 
     // TODO health check (-> to failed)

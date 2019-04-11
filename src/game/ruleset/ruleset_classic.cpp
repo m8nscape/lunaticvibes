@@ -67,6 +67,14 @@ void RulesetClassic::updatePress(InputMask& pg, timestamp t)
         switch (c.first)
         {
         case NoteChannelCategory::Note:
+			switch (j.area)
+			{
+			case judgeArea::NOTHING:
+				break;
+			default:
+				gTimers.set(eTimer::PLAY_JUDGE_1P, t.norm());
+				break;
+			}
             switch (j.area)
             {
                 using namespace judgeArea;
@@ -184,8 +192,9 @@ void RulesetClassic::updateRelease(InputMask& rg, timestamp t)
     }
 }
 
-void RulesetClassic::updateAsync(timestamp rt)
+void RulesetClassic::updateAsync(timestamp t)
 {
+	auto rt = t - gTimers.get(eTimer::PLAY_START);
 	for (size_t k = Input::S1L; k < Input::K1START; ++k)
 	{
 		auto c = _scroll->getChannelFromKey((Input::Ingame)k);
@@ -202,6 +211,7 @@ void RulesetClassic::updateAsync(timestamp rt)
 				n->hit = true;
 				++_count[MISS];
 				_basic.combo = 0;
+				gTimers.set(eTimer::PLAY_JUDGE_1P, t.norm());
 				LOG_DEBUG << "LATE   POOR    "; break;
 				break;
 			}

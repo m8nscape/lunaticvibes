@@ -18,6 +18,7 @@ enum class eOption: unsigned
     CHART_PLAY_KEYS,
     CHART_JUDGE_TYPE,
 
+	PLAY_SCENE_STAT,
     PLAY_MODE,
     PLAY_KEYS,
     PLAY_BGA_TYPE,
@@ -52,6 +53,15 @@ namespace Option
         ENTRY_COURSE,
         ENTRY_NEW_COURSE,
     };
+
+	enum e_play_scene_stat {
+		PREPARE,
+		LOADING,
+		READY,
+		PLAYING,
+		OUTRO,
+		FADEOUT,
+	};
 
     enum e_play_mode {
         PLAY_SINGLE,

@@ -1277,23 +1277,15 @@ bool SkinLR2::getDstOpt(dst_option d)
                 es::SELECT_PANEL9,
                 });
         case PANEL1:
-            return sw(es::SELECT_PANEL1);
         case PANEL2:
-            return sw(es::SELECT_PANEL2);
         case PANEL3:
-            return sw(es::SELECT_PANEL3);
         case PANEL4:
-            return sw(es::SELECT_PANEL4);
         case PANEL5:
-            return sw(es::SELECT_PANEL5);
         case PANEL6:
-            return sw(es::SELECT_PANEL6);
         case PANEL7:
-            return sw(es::SELECT_PANEL7);
         case PANEL8:
-            return sw(es::SELECT_PANEL8);
         case PANEL9:
-            return sw(es::SELECT_PANEL9);
+			return sw((es)(d - PANEL1 + (int)es::SELECT_PANEL1));
 
         // system settings
         case SYSTEM_BGA_NORMAL:
@@ -1321,7 +1313,7 @@ bool SkinLR2::getDstOpt(dst_option d)
         case SYSTEM_BGA_OFF:
             return !sw(es::SYSTEM_BGA);
         case SYSTEM_BGA_ON:
-            return !sw(es::SYSTEM_BGA);
+            return sw(es::SYSTEM_BGA);
 
         case NORMAL_GAUGE_1P:
             return dst(eo::PLAY_GAUGE_TYPE, { o::GAUGE_ASSIST, o::GAUGE_EASY, o::GAUGE_NORMAL });
@@ -1338,10 +1330,14 @@ bool SkinLR2::getDstOpt(dst_option d)
 
 #pragma region info
         case OFFLINE:
+			return !sw(es::NETWORK);
         case ONLINE:
+			return sw(es::NETWORK);
 
         case EXTRA_MODE_OFF:
+			return !sw(es::PLAY_OPTION_EXTRA);
         case EXTRA_MODE_ON:
+			return sw(es::PLAY_OPTION_EXTRA);
 
         case AUTO_SCRATCH_1P_OFF:
         case AUTO_SCRATCH_1P_ON:
@@ -1366,9 +1362,12 @@ bool SkinLR2::getDstOpt(dst_option d)
         case LEVEL_OVERFLOW_HYPER:
         case LEVEL_OVERFLOW_ANOTHER:
         case LEVEL_OVERFLOW_INSANE:
+			break;
 
         case LOADING:
+			return dst(eo::PLAY_SCENE_STAT, o::e_play_scene_stat::LOADING);
         case LOAD_FINISHED:
+			return !dst(eo::PLAY_SCENE_STAT, o::e_play_scene_stat::LOADING);
 
         case REPLAY_OFF:
         case REPLAY_RECORDING:
@@ -1396,19 +1395,13 @@ bool SkinLR2::getDstOpt(dst_option d)
         case CHART_AAA:
             return dst(eo::SELECT_ENTRY_RANK, { o::RANK_1, o::RANK_0 });
         case CHART_AA:
-            return dst(eo::SELECT_ENTRY_RANK, o::RANK_2);
         case CHART_A:
-            return dst(eo::SELECT_ENTRY_RANK, o::RANK_3);
         case CHART_B:
-            return dst(eo::SELECT_ENTRY_RANK, o::RANK_4);
         case CHART_C:
-            return dst(eo::SELECT_ENTRY_RANK, o::RANK_5);
         case CHART_D:
-            return dst(eo::SELECT_ENTRY_RANK, o::RANK_6);
         case CHART_E:
-            return dst(eo::SELECT_ENTRY_RANK, o::RANK_7);
         case CHART_F:
-            return dst(eo::SELECT_ENTRY_RANK, o::RANK_8);
+            return dst(eo::SELECT_ENTRY_RANK, (d - CHART_AA + o::RANK_2));
 
 #pragma region Clear option flag
         case CHART_CLEARED_GAUGE_NORMAL:
@@ -1439,17 +1432,12 @@ bool SkinLR2::getDstOpt(dst_option d)
 
         // metadata
         case CHART_DIFF_NONSET:
-            return dst(eo::CHART_DIFFICULTY, o::DIFF_0);
         case CHART_DIFF_EASY:
-            return dst(eo::CHART_DIFFICULTY, o::DIFF_1);
         case CHART_DIFF_NORMAL:
-            return dst(eo::CHART_DIFFICULTY, o::DIFF_2);
         case CHART_DIFF_HYPER:
-            return dst(eo::CHART_DIFFICULTY, o::DIFF_3);
         case CHART_DIFF_ANOTHER:
-            return dst(eo::CHART_DIFFICULTY, o::DIFF_4);
         case CHART_DIFF_INSANE:
-            return dst(eo::CHART_DIFFICULTY, o::DIFF_5);
+            return dst(eo::CHART_DIFFICULTY, d - CHART_DIFF_NONSET + o::DIFF_5);
 
         case CHART_MODE_7KEYS:
             return dst(eo::CHART_PLAY_KEYS, o::KEYS_7);
@@ -1493,13 +1481,10 @@ bool SkinLR2::getDstOpt(dst_option d)
             return sw(es::CHART_HAVE_RANDOM);
 
         case CHART_JUDGE_VHARD:
-            return dst(eo::CHART_JUDGE_TYPE, o::JUDGE_VHARD);
         case CHART_JUDGE_HARD:
-            return dst(eo::CHART_JUDGE_TYPE, o::JUDGE_HARD);
         case CHART_JUDGE_NORMAL:
-            return dst(eo::CHART_JUDGE_TYPE, o::JUDGE_NORMAL);
         case CHART_JUDGE_EASY:
-            return dst(eo::CHART_JUDGE_TYPE, o::JUDGE_EASY);
+            return dst(eo::CHART_JUDGE_TYPE, d - CHART_JUDGE_VHARD + o::JUDGE_EASY);
 
         case CHART_LEVEL_INRANGE:
         case CHART_LEVEL_OVERFLOW:
@@ -1526,19 +1511,13 @@ bool SkinLR2::getDstOpt(dst_option d)
         case PLAY_AAA_1P:
             return dst(eo::PLAY_RANK_ESTIMATED, { o::RANK_1, o::RANK_0 });
         case PLAY_AA_1P:
-            return dst(eo::PLAY_RANK_ESTIMATED, o::RANK_2);
         case PLAY_A_1P:
-            return dst(eo::PLAY_RANK_ESTIMATED, o::RANK_3);
         case PLAY_B_1P:
-            return dst(eo::PLAY_RANK_ESTIMATED, o::RANK_4);
         case PLAY_C_1P:
-            return dst(eo::PLAY_RANK_ESTIMATED, o::RANK_5);
         case PLAY_D_1P:
-            return dst(eo::PLAY_RANK_ESTIMATED, o::RANK_6);
         case PLAY_E_1P:
-            return dst(eo::PLAY_RANK_ESTIMATED, o::RANK_7);
         case PLAY_F_1P:
-            return dst(eo::PLAY_RANK_ESTIMATED, o::RANK_8);
+            return dst(eo::PLAY_RANK_ESTIMATED, d - PLAY_AA_1P + o::RANK_2);
 
         case PLAY_AAA_2P:
         case PLAY_AA_2P:
@@ -1553,19 +1532,13 @@ bool SkinLR2::getDstOpt(dst_option d)
         case PLAY_ABOVE_AAA:
             return dst(eo::PLAY_RANK_BORDER, { o::RANK_1, o::RANK_0 });
         case PLAY_ABOVE_AA:
-            return dst(eo::PLAY_RANK_BORDER, o::RANK_2);
         case PLAY_ABOVE_A:
-            return dst(eo::PLAY_RANK_BORDER, o::RANK_3);
         case PLAY_ABOVE_B:
-            return dst(eo::PLAY_RANK_BORDER, o::RANK_4);
         case PLAY_ABOVE_C:
-            return dst(eo::PLAY_RANK_BORDER, o::RANK_5);
         case PLAY_ABOVE_D:
-            return dst(eo::PLAY_RANK_BORDER, o::RANK_6);
         case PLAY_ABOVE_E:
-            return dst(eo::PLAY_RANK_BORDER, o::RANK_7);
         case PLAY_ABOVE_F:
-            return dst(eo::PLAY_RANK_BORDER, o::RANK_8);
+            return dst(eo::PLAY_RANK_BORDER, d - PLAY_ABOVE_AA + o::RANK_2);
 
         case PLAY_0p_TO_10p_1P:
         case PLAY_10p_TO_19p_1P:
@@ -1581,17 +1554,12 @@ bool SkinLR2::getDstOpt(dst_option d)
             break;
 
         case PLAY_PERFECT_1P:
-            return dst(eo::PLAY_LAST_JUDGE, o::JUDGE_0);
         case PLAY_GREAT_1P:
-            return dst(eo::PLAY_LAST_JUDGE, o::JUDGE_1);
         case PLAY_GOOD_1P:
-            return dst(eo::PLAY_LAST_JUDGE, o::JUDGE_2);
         case PLAY_BAD_1P:
-            return dst(eo::PLAY_LAST_JUDGE, o::JUDGE_3);
         case PLAY_POOR_1P:
-            return dst(eo::PLAY_LAST_JUDGE, o::JUDGE_4);
         case PLAY_BPOOR_1P:
-            return dst(eo::PLAY_LAST_JUDGE, o::JUDGE_5);
+            return dst(eo::PLAY_LAST_JUDGE, d - o::JUDGE_0 + PLAY_PERFECT_1P);
 
         //公式ハーフスキンの左右のネオン用です 2P側も
         case PLAY_POORBGA_NOT_INTIME_1P:
@@ -1627,13 +1595,10 @@ bool SkinLR2::getDstOpt(dst_option d)
             break;
 
         case PLAY_STAGE1:
-            return dst(eo::PLAY_COURSE_STAGE, o::STAGE_1);
         case PLAY_STAGE2:
-            return dst(eo::PLAY_COURSE_STAGE, o::STAGE_2);
         case PLAY_STAGE3:
-            return dst(eo::PLAY_COURSE_STAGE, o::STAGE_3);
         case PLAY_STAGE4:
-            return dst(eo::PLAY_COURSE_STAGE, o::STAGE_4);
+            return dst(eo::PLAY_COURSE_STAGE, d - PLAY_STAGE1 + o::STAGE_1);
         //PLAY_STAGE5:
         //PLAY_STAGE6:
         //PLAY_STAGE7:
@@ -1652,36 +1617,24 @@ bool SkinLR2::getDstOpt(dst_option d)
         case RESULT_AAA_1P:
             return dst(eo::RESULT_RANK, { o::RANK_1, o::RANK_0 });
         case RESULT_AA_1P:
-            return dst(eo::RESULT_RANK, o::RANK_2);
         case RESULT_A_1P:
-            return dst(eo::RESULT_RANK, o::RANK_3);
         case RESULT_B_1P:
-            return dst(eo::RESULT_RANK, o::RANK_4);
         case RESULT_C_1P:
-            return dst(eo::RESULT_RANK, o::RANK_5);
         case RESULT_D_1P:
-            return dst(eo::RESULT_RANK, o::RANK_6);
         case RESULT_E_1P:
-            return dst(eo::RESULT_RANK, o::RANK_7);
         case RESULT_F_1P:
-            return dst(eo::RESULT_RANK, o::RANK_8);
+            return dst(eo::RESULT_RANK, d - RESULT_AA_1P + o::RANK_2);
 
         case RESULT_MYBEST_AAA:
             return dst(eo::RESULT_MYBEST_RANK, { o::RANK_1, o::RANK_0 });
         case RESULT_MYBEST_AA:
-            return dst(eo::RESULT_MYBEST_RANK, o::RANK_2);
         case RESULT_MYBEST_A:
-            return dst(eo::RESULT_MYBEST_RANK, o::RANK_3);
         case RESULT_MYBEST_B:
-            return dst(eo::RESULT_MYBEST_RANK, o::RANK_4);
         case RESULT_MYBEST_C:
-            return dst(eo::RESULT_MYBEST_RANK, o::RANK_5);
         case RESULT_MYBEST_D:
-            return dst(eo::RESULT_MYBEST_RANK, o::RANK_6);
         case RESULT_MYBEST_E:
-            return dst(eo::RESULT_MYBEST_RANK, o::RANK_7);
         case RESULT_MYBEST_F:
-            return dst(eo::RESULT_MYBEST_RANK, o::RANK_8);
+            return dst(eo::RESULT_MYBEST_RANK, d - RESULT_MYBEST_AA + o::RANK_2);
 
         case RESULT_スコアが更新された:
         case RESULT_MAXCOMBOが更新された:

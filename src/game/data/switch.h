@@ -20,6 +20,8 @@ enum class eSwitch: unsigned
     SYSTEM_AUTOPLAY,
     SYSTEM_SCOREGRAPH,  // for single player only
 
+	NETWORK,
+	PLAY_OPTION_EXTRA,
     PLAY_OPTION_AUTOSCR,
 
     PLAY_LOADING,
