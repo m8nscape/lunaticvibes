@@ -726,11 +726,20 @@ int SkinLR2::loadLR2src(const Tokens &t)
     {
         ret = 3;
     }
+	*/
     else if (opt == "#SRC_BARGRAPH")
     {
+        if (t.size() < 14)
+            LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
+
+        convertLine(t, src, 10, 13);
+        lr2skin::s_bargraph& d = *(lr2skin::s_bargraph*)src;
+
+		_sprites.push_back(std::make_shared<SpriteBargraph>(
+            _texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), (SliderDirection)d.muki, d.div_y, d.div_x, d.cycle, (eBargraph)d.type, iTimer));
+        LOG_DEBUG << "[Skin] " << line << ": Set Bargraph sprite (texture: " << gr_key << ", type: " << d.type << ", timer: " << d.timer << ")";
         ret = 4;
     }
-	*/
     else if (opt == "#SRC_BUTTON")
     {
         if (t.size() < 14)

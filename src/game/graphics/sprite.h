@@ -7,6 +7,7 @@
 #include "game/data/slider.h"
 #include "game/data/switch.h"
 #include "game/data/option.h"
+#include "game/data/bargraph.h"
 #include <vector>
 #include <memory>
 
@@ -19,6 +20,9 @@ enum class SpriteTypes
     TEXT,
 
     NUMBER,
+	SLIDER,
+	BARGRAPH,
+	OPTION,
 
     NOTE_VERT,
 };
@@ -66,7 +70,7 @@ public:
 public:
     RenderParams getCurrentRenderParams();
     bool updateByKeyframes(timestamp time);
-	virtual bool update(timestamp time) = 0;
+	virtual bool update(timestamp time);
     virtual void setBlendMode(BlendMode b);
     virtual void setLoopTime(int t);
 	virtual void setTimer(eTimer t);
@@ -260,16 +264,16 @@ public:
 // Determine pos by inner value
 enum SliderDirection
 {
-    VERT_DOWN,
-    VERT_UP,
     HORI_RIGHT,
-    HORI_LEFT
+    VERT_DOWN,
+    HORI_LEFT,
+    VERT_UP,
 };
 
 class SpriteSlider : public SpriteAnimated
 {
 private:
-    eSlider _sliderInd;
+    eSlider _ind;
     int _value;
     SliderDirection _dir;
 
@@ -294,6 +298,36 @@ public:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+// Bargraph sprite:
+// Determine pos by inner value
+class SpriteBargraph : public SpriteAnimated
+{
+private:
+    eBargraph _ind;
+    dpercent _value;
+    SliderDirection _dir;
+
+public:
+    SpriteBargraph() = delete;
+
+    SpriteBargraph(pTexture texture, SliderDirection dir,
+        unsigned numRows, unsigned numCols, unsigned frameTime, eBargraph s = eBargraph::ZERO, eTimer timer = eTimer::SCENE_START,
+        bool subVerticalIndexing = false, unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
+
+    SpriteBargraph(pTexture texture, const Rect& rect, SliderDirection dir,
+        unsigned numRows, unsigned numCols, unsigned frameTime, eBargraph s = eBargraph::ZERO, eTimer timer = eTimer::SCENE_START,
+        bool subVerticalIndexing = false, unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
+
+    virtual ~SpriteBargraph() = default;
+
+public:
+    void updateVal(dpercent v);
+    void updateValByInd();
+    void updateSize();
+	virtual bool update(timestamp t);
+};
+
+////////////////////////////////////////////////////////////////////////////////
 // Option sprite:
 
 class SpriteOption : public SpriteAnimated
@@ -308,7 +342,7 @@ private:
 		eOption op;
 		eSwitch sw;
 	} _ind;
-	opType _type = opType::UNDEF;
+	opType _opType = opType::UNDEF;
     unsigned _value;
 
 public:
@@ -330,4 +364,5 @@ public:
     void updateValByInd();
 	virtual bool update(timestamp t);
 };
+
 

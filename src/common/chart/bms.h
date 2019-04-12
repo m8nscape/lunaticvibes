@@ -124,6 +124,7 @@ public:
     bool haveRandom = false;
     unsigned bgmLayers = 0;
     unsigned long notes = 0;
+    unsigned long notes_ln = 0;
     unsigned maxMeasure = 0;
     std::array<unsigned, MAXMEASUREIDX + 1> bgmLayersCount{};
 

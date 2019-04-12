@@ -263,5 +263,8 @@
     <ClInclude Include="src\game\generic_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\game\data\bargraph.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

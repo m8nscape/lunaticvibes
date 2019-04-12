@@ -1,6 +1,8 @@
 #include "ruleset_classic.h"
 #include <plog/Log.h>
 #include "game/data/timer.h"
+#include "game/data/number.h"
+#include "game/data/bargraph.h"
 
 using namespace rc;
 
@@ -218,7 +220,13 @@ void RulesetClassic::updateAsync(timestamp t)
 		}
     }
 
-    // TODO Calculate accuracy
+	unsigned max = _scroll->getNoteCount() * 2;
+	_basic.accuracy = (double)_basic.score2 / max;
+	gBargraphs.set(eBargraph::PLAY_EXSCORE, _basic.accuracy);
+	gNumbers.set(eNumber::PLAY_1P_EXSCORE, _basic.score2);
+	gNumbers.set(eNumber::PLAY_1P_SCORE, _basic.score);
+	gNumbers.set(eNumber::PLAY_1P_NOWCOMBO, _basic.combo);
+	gNumbers.set(eNumber::PLAY_1P_MAXCOMBO, _basic.maxCombo);
 
     // TODO global num update
         

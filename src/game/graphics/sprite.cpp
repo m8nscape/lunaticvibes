@@ -113,6 +113,11 @@ bool vSprite::updateByKeyframes(timestamp time)
     return true;
 }
 
+bool vSprite::update(timestamp t)
+{
+	return updateByKeyframes(t);
+}
+
 RenderParams vSprite::getCurrentRenderParams()
 {
     return _current;
@@ -148,11 +153,7 @@ SpriteStatic::SpriteStatic(pTexture texture, const Rect& rect):
 
 bool SpriteStatic::update(timestamp t)
 {
-	if (updateByKeyframes(t))
-	{
-		return true;
-	}
-	return false;
+	return vSprite::update(t);
 }
 
 void SpriteStatic::draw() const
@@ -228,11 +229,7 @@ void SpriteSelection::updateSelection(frameIdx frame)
 
 bool SpriteSelection::update(timestamp t)
 {
-	if (updateByKeyframes(t))
-	{
-		return true;
-	}
-	return false;
+	return vSprite::update(t);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -266,7 +263,7 @@ SpriteAnimated::SpriteAnimated(pTexture texture, const Rect& r,
 
 bool SpriteAnimated::update(timestamp t)
 {
-	if (updateByKeyframes(t))
+	if (SpriteSelection::update(t))
 	{
 		updateByTimer(t);
 		//updateSplitByTimer(t);
@@ -347,7 +344,7 @@ SpriteText::SpriteText(pFont f, eText e, TextAlign a, unsigned ptsize, Color c):
 SpriteText::SpriteText(pFont f, Rect rect, eText e, TextAlign a, unsigned ptsize, Color c):
    SpriteStatic(nullptr), _pFont(f), _frameRect(rect), _textInd(e), _align(a), _color(c)
 {
-    _type = SpriteTypes::TEXT;
+    _opType = SpriteTypes::TEXT;
     _haveRect = true;
 	_texRect = rect;
 }
@@ -444,10 +441,10 @@ SpriteNumber::SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align
 
 bool SpriteNumber::update(timestamp t)
 {
-	if (_sDigit[0].updateByKeyframes(t))
+	if (_sDigit[0].update(t))
 	{
 		for (size_t i = 1; i < _sDigit.size(); ++i)
-			_sDigit[i].updateByKeyframes(t);
+			_sDigit[i].update(t);
 
 		updateByTimer(t);
 		//updateSplitByTimer(t);
@@ -667,6 +664,109 @@ void SpriteNumber::draw() const
     }
 }
 
+SpriteSlider::SpriteSlider(pTexture texture, SliderDirection d,
+	unsigned animRows, unsigned animCols, unsigned frameTime, eSlider ind, eTimer timer,
+	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
+	SpriteSlider(texture, texture ? texture->getRect() : Rect(), d,
+		animRows, animCols, frameTime, ind, timer, animVerticalIndexing,
+		selRows, selCols, selVerticalIndexing) {}
+
+SpriteSlider::SpriteSlider(pTexture texture, const Rect& rect, SliderDirection d,
+	unsigned animRows, unsigned animCols, unsigned frameTime, eSlider ind, eTimer timer,
+	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
+	SpriteAnimated(texture, rect, animRows, animCols, frameTime, timer,
+		animVerticalIndexing, selRows, selCols, selVerticalIndexing), _ind(ind), _dir(d)
+{
+	_type = SpriteTypes::SLIDER;
+}
+
+void SpriteSlider::updateVal(int v)
+{
+	_value = v;
+}
+
+void SpriteSlider::updateValByInd()
+{
+	updateVal(gSliders.get(_ind));
+}
+
+void SpriteSlider::updatePos()
+{
+	
+}
+
+bool SpriteSlider::update(timestamp t)
+{
+	if (SpriteAnimated::update(t))
+	{
+		updateValByInd();
+		updatePos();
+		return true;
+	}
+	return false;
+}
+
+SpriteBargraph::SpriteBargraph(pTexture texture, SliderDirection d,
+	unsigned animRows, unsigned animCols, unsigned frameTime, eBargraph ind, eTimer timer,
+	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
+	SpriteBargraph(texture, texture ? texture->getRect() : Rect(), d,
+		animRows, animCols, frameTime, ind, timer, animVerticalIndexing,
+		selRows, selCols, selVerticalIndexing) {}
+
+SpriteBargraph::SpriteBargraph(pTexture texture, const Rect& rect, SliderDirection d,
+	unsigned animRows, unsigned animCols, unsigned frameTime, eBargraph ind, eTimer timer,
+	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
+	SpriteAnimated(texture, rect, animRows, animCols, frameTime, timer,
+		animVerticalIndexing, selRows, selCols, selVerticalIndexing), _dir(d), _ind(ind)
+{
+	_type = SpriteTypes::BARGRAPH;
+}
+
+void SpriteBargraph::updateVal(dpercent v)
+{
+	_value = v;
+}
+
+void SpriteBargraph::updateValByInd()
+{
+	updateVal(gBargraphs.get(_ind));
+}
+
+void SpriteBargraph::updateSize()
+{
+	int tmp;
+	switch (_dir)
+	{
+	case VERT_DOWN:
+		_current.rect.h *= _value;
+		break;
+	case VERT_UP:
+		tmp = _current.rect.h;
+		_current.rect.h *= _value;
+		_current.rect.y += tmp - _current.rect.h;
+		break;
+	case HORI_RIGHT:
+		_current.rect.w *= _value;
+		break;
+	case HORI_LEFT:
+		tmp = _current.rect.w;
+		_current.rect.w *= _value;
+		_current.rect.x += tmp - _current.rect.w;
+		break;
+	}
+}
+
+bool SpriteBargraph::update(timestamp t)
+{
+	if (SpriteAnimated::update(t))
+	{
+		updateValByInd();
+		updateSize();
+		return true;
+	}
+	return false;
+}
+
 SpriteOption::SpriteOption(pTexture texture,
 	unsigned animRows, unsigned animCols, unsigned frameTime, eTimer timer,
 	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
@@ -678,23 +778,26 @@ SpriteOption::SpriteOption(pTexture texture, const Rect& rect,
 	unsigned animRows, unsigned animCols, unsigned frameTime, eTimer timer,
 	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
 	SpriteAnimated(texture, rect, animRows, animCols, frameTime, timer,
-		animVerticalIndexing, selRows, selCols, selVerticalIndexing) {}
+		animVerticalIndexing, selRows, selCols, selVerticalIndexing)
+{
+	_type = SpriteTypes::OPTION;
+}
 
 bool SpriteOption::setInd(opType type, unsigned ind)
 {
-	if (_type != opType::UNDEF) return false;
+	if (_opType != opType::UNDEF) return false;
 	switch (type)
 	{
 	case opType::UNDEF:
 		return false;
 
 	case opType::OPTION:
-		_type = opType::OPTION;
+		_opType = opType::OPTION;
 		_ind.op = (eOption)ind;
 		return true;
 
 	case opType::SWITCH:
-		_type = opType::SWITCH;
+		_opType = opType::SWITCH;
 		_ind.sw = (eSwitch)ind;
 		return true;
 	}
@@ -709,7 +812,7 @@ void SpriteOption::updateVal(unsigned v)
 
 void SpriteOption::updateValByInd()
 {
-	switch (_type)
+	switch (_opType)
 	{
 	case opType::UNDEF:
 		break;
@@ -726,7 +829,7 @@ void SpriteOption::updateValByInd()
 
 bool SpriteOption::update(timestamp t)
 {
-	if (updateByKeyframes(t))
+	if (SpriteSelection::update(t))
 	{
 		updateValByInd();
 		return true;

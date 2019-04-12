@@ -79,6 +79,9 @@ ScrollBMS::ScrollBMS(const BMS& b) : ScrollBMS()
 
 void ScrollBMS::loadBMS(const BMS& objBms)
 {
+	_noteCount = objBms.notes;
+	_noteCount_regular = objBms.notes - objBms.notes_ln;
+	_noteCount_ln = objBms.notes_ln;
 	timestamp basetime{ 0 };
     BPM bpm = objBms.getInitialBPM();
     _bpmList.push_back({ 0, {0, 1}, 0, bpm });

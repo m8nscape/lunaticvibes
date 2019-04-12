@@ -273,12 +273,11 @@ int BMS::initWithFile(std::string file)
 
     if (haveLN)
     {
-        int ln = 0;
         for (const auto& chs : chNotesLN)
             for (unsigned m = 0; m <= maxMeasure; m++)
                 for (const auto& ns : chs[m].notes)
-                    ln++;
-        notes += ln / 2;
+                    notes_ln++;
+        notes += notes_ln / 2;
     }
 
     _minBPM = bpm;

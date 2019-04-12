@@ -221,6 +221,7 @@ xcopy /y $(ProjectDir)ext\fmod\lib\fmod64.dll $(SolutionDir)$(Configuration)\</C
     <ClInclude Include="src\config\config.h" />
     <ClInclude Include="src\config\config_mgr.h" />
     <ClInclude Include="src\config\cfg_general.h" />
+    <ClInclude Include="src\game\data\bargraph.h" />
     <ClInclude Include="src\game\data\buffered_global.h" />
     <ClInclude Include="src\game\data\number.h" />
     <ClInclude Include="src\game\data\option.h" />

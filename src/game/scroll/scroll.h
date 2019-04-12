@@ -79,6 +79,15 @@ public:
     static const size_t CHANNEL_COUNT = (size_t)NoteChannelCategory::NOTECATEGORY_COUNT * NOTECHANNEL_COUNT;
 
 protected:
+	unsigned _noteCount;
+	unsigned _noteCount_regular;
+	unsigned _noteCount_ln;
+public:
+	unsigned constexpr getNoteCount() const { return _noteCount; }
+	unsigned constexpr getNoteRegularCount() const { return _noteCount_regular; }
+	unsigned constexpr getNoteLnCount() const { return _noteCount_ln; }
+
+protected:
 
      // full list of corresponding channel through all measures; only this list is handled by input looper
     std::array<std::list<sNote>, CHANNEL_COUNT> _noteLists;
