@@ -83,7 +83,8 @@ ScenePlay::ScenePlay(ePlayMode mode, unsigned keys, eRuleset ruleset):
     vScene(eMode::PLAY7, 1000), _mode(mode), _rule(ruleset), _keys(keys)
 {
     _currentKeySample.assign(Input::ESC, 0);
-
+	_inputAvailable = { ("1111111111111110000000000000001111111111111111111111111111", (size_t)Input::ESC) };
+	//                    SS123456789AEUDSS123456789AEUD_123456789012345UDLRIDHEUDRB
 
     // file loading may delayed
 
@@ -389,6 +390,7 @@ void ScenePlay::changeKeySampleMapping(timestamp t)
         {
             assert(context_chart.scrollObj != nullptr);
             auto chan = context_chart.scrollObj->getChannelFromKey((Input::Ingame)i);
+			if (chan.first == NoteChannelCategory::_) continue;
             auto note = context_chart.scrollObj->incomingNoteOfChannel(chan.first, chan.second);
             _currentKeySample[i] = (size_t)std::get<long long>(note->value);
         }
@@ -408,7 +410,7 @@ void ScenePlay::inputGamePress(InputMask& m, timestamp t)
         {
             _keySampleIdxBuf[sampleCount++] = _currentKeySample[i];
             gTimers.set(InputGamePressMap[i].tm, t.norm());
-            gTimers.set(InputGameReleaseMap[i].tm, -1);
+            gTimers.set(InputGameReleaseMap[i].tm, LLONG_MAX);
             gSwitches.set(InputGamePressMap[i].sw, true);
         }
 
@@ -427,7 +429,7 @@ void ScenePlay::inputGameRelease(InputMask& m, timestamp t)
     for (size_t i = 0; i < Input::ESC; ++i)
         if (_inputAvailable[i] && m[i])
         {
-            gTimers.set(InputGamePressMap[i].tm, -1);
+            gTimers.set(InputGamePressMap[i].tm, LLONG_MAX);
             gTimers.set(InputGameReleaseMap[i].tm, t.norm());
             gSwitches.set(InputGameReleaseMap[i].sw, false);
 

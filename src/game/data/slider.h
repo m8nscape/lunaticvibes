@@ -1,6 +1,6 @@
 #pragma once
 #include "buffered_global.h"
-typedef unsigned char percent;  // 0~100
+typedef double percent;
 
 enum class eSlider : unsigned
 {

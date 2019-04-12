@@ -8,7 +8,7 @@ static inline double grad(double dst, double src, double t) { return dst * t + s
 vSprite::vSprite(pTexture tex, SpriteTypes type) :
     _pTexture(tex), _type(type), _current({ 0, RenderParams::CONSTANT, 0x00000000, 0 }) {}
 
-bool vSprite::updateByKeyframes(timestamp time)
+bool vSprite::updateByKeyframes(timestamp rawTime)
 {
     // Check if object is valid
 	// Note that nullptr texture shall pass
@@ -20,9 +20,13 @@ bool vSprite::updateByKeyframes(timestamp time)
     if (frameCount < 1)
         return false;
 
+	timestamp time;
+
 	// Check if timer is 140
 	if (_timerInd == eTimer::MUSIC_BEAT)
 		time = gTimers.get(eTimer::MUSIC_BEAT);
+	else
+		time = rawTime - gTimers.get(_timerInd);
 
     // Check if import time is valid
 	timestamp endTime = timestamp(_keyFrames[frameCount - 1].time);
@@ -115,7 +119,7 @@ bool vSprite::updateByKeyframes(timestamp time)
 
 bool vSprite::update(timestamp t)
 {
-	return updateByKeyframes(t);
+	return _draw = updateByKeyframes(t);
 }
 
 RenderParams vSprite::getCurrentRenderParams()
@@ -158,7 +162,7 @@ bool SpriteStatic::update(timestamp t)
 
 void SpriteStatic::draw() const
 {
-    if (_pTexture->_loaded)
+    if (_draw && _pTexture->_loaded)
         _pTexture->_draw(_texRect, _current.rect, _current.color, _current.angle);
 }
 
@@ -218,7 +222,7 @@ SpriteSelection::SpriteSelection(pTexture texture, const Rect& r, unsigned rows,
 
 void SpriteSelection::draw() const
 {
-    if (_pTexture->_loaded)
+    if (_draw && _pTexture->_loaded)
         _pTexture->_draw(_texRect[_segmentIdx], _current.rect, _current.color, _current.angle);
 }
 
@@ -325,7 +329,7 @@ void SpriteAnimated::updateSplitByTimer(rTime time)
 
 void SpriteAnimated::draw() const
 {
-    if (_pTexture != nullptr && _pTexture->_loaded)
+    if (_draw && _pTexture != nullptr && _pTexture->_loaded)
     {
         _pTexture->_draw(_drawRect, _current.rect, _current.color, _current.angle);
     }
@@ -664,23 +668,23 @@ void SpriteNumber::draw() const
     }
 }
 
-SpriteSlider::SpriteSlider(pTexture texture, SliderDirection d,
+SpriteSlider::SpriteSlider(pTexture texture, SliderDirection d, int range,
 	unsigned animRows, unsigned animCols, unsigned frameTime, eSlider ind, eTimer timer,
 	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
-	SpriteSlider(texture, texture ? texture->getRect() : Rect(), d,
+	SpriteSlider(texture, texture ? texture->getRect() : Rect(), d, range,
 		animRows, animCols, frameTime, ind, timer, animVerticalIndexing,
 		selRows, selCols, selVerticalIndexing) {}
 
-SpriteSlider::SpriteSlider(pTexture texture, const Rect& rect, SliderDirection d,
+SpriteSlider::SpriteSlider(pTexture texture, const Rect& rect, SliderDirection d, int range,
 	unsigned animRows, unsigned animCols, unsigned frameTime, eSlider ind, eTimer timer,
 	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
 	SpriteAnimated(texture, rect, animRows, animCols, frameTime, timer,
-		animVerticalIndexing, selRows, selCols, selVerticalIndexing), _ind(ind), _dir(d)
+		animVerticalIndexing, selRows, selCols, selVerticalIndexing), _ind(ind), _dir(d), _range(range)
 {
 	_type = SpriteTypes::SLIDER;
 }
 
-void SpriteSlider::updateVal(int v)
+void SpriteSlider::updateVal(percent v)
 {
 	_value = v;
 }
@@ -692,7 +696,22 @@ void SpriteSlider::updateValByInd()
 
 void SpriteSlider::updatePos()
 {
-	
+	int pos_delta = _range * _value;
+	switch (_dir)
+	{
+	case SliderDirection::DOWN:
+		_current.rect.y += pos_delta;
+		break;
+	case SliderDirection::UP:
+		_current.rect.y -= pos_delta;
+		break;
+	case SliderDirection::RIGHT:
+		_current.rect.x += pos_delta;
+		break;
+	case SliderDirection::LEFT:
+		_current.rect.x -= pos_delta;
+		break;
+	}
 }
 
 bool SpriteSlider::update(timestamp t)
@@ -706,14 +725,14 @@ bool SpriteSlider::update(timestamp t)
 	return false;
 }
 
-SpriteBargraph::SpriteBargraph(pTexture texture, SliderDirection d,
+SpriteBargraph::SpriteBargraph(pTexture texture, BargraphDirection d,
 	unsigned animRows, unsigned animCols, unsigned frameTime, eBargraph ind, eTimer timer,
 	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
 	SpriteBargraph(texture, texture ? texture->getRect() : Rect(), d,
 		animRows, animCols, frameTime, ind, timer, animVerticalIndexing,
 		selRows, selCols, selVerticalIndexing) {}
 
-SpriteBargraph::SpriteBargraph(pTexture texture, const Rect& rect, SliderDirection d,
+SpriteBargraph::SpriteBargraph(pTexture texture, const Rect& rect, BargraphDirection d,
 	unsigned animRows, unsigned animCols, unsigned frameTime, eBargraph ind, eTimer timer,
 	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
 	SpriteAnimated(texture, rect, animRows, animCols, frameTime, timer,
@@ -737,18 +756,18 @@ void SpriteBargraph::updateSize()
 	int tmp;
 	switch (_dir)
 	{
-	case VERT_DOWN:
+	case BargraphDirection::DOWN:
 		_current.rect.h *= _value;
 		break;
-	case VERT_UP:
+	case BargraphDirection::UP:
 		tmp = _current.rect.h;
 		_current.rect.h *= _value;
 		_current.rect.y += tmp - _current.rect.h;
 		break;
-	case HORI_RIGHT:
+	case BargraphDirection::RIGHT:
 		_current.rect.w *= _value;
 		break;
-	case HORI_LEFT:
+	case BargraphDirection::LEFT:
 		tmp = _current.rect.w;
 		_current.rect.w *= _value;
 		_current.rect.x += tmp - _current.rect.w;

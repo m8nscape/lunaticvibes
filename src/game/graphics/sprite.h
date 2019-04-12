@@ -57,6 +57,7 @@ protected:
 public:
     constexpr SpriteTypes type() { return _type; }
 protected:
+	bool _draw;
     pTexture _pTexture;
     BlendMode _blend = BlendMode::ALPHA;
     eTimer _timerInd = eTimer::SCENE_START;
@@ -262,36 +263,36 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 // Slider sprite:
 // Determine pos by inner value
-enum SliderDirection
+enum class SliderDirection
 {
-    HORI_RIGHT,
-    VERT_DOWN,
-    HORI_LEFT,
-    VERT_UP,
+    UP,
+    RIGHT,
+    DOWN,
+    LEFT,
 };
-
 class SpriteSlider : public SpriteAnimated
 {
 private:
     eSlider _ind;
     int _value;
     SliderDirection _dir;
+	int _range;
 
 public:
     SpriteSlider() = delete;
 
-    SpriteSlider(pTexture texture, SliderDirection dir,
+    SpriteSlider(pTexture texture, SliderDirection dir, int range,
         unsigned numRows, unsigned numCols, unsigned frameTime, eSlider s = eSlider::ZERO, eTimer timer = eTimer::SCENE_START,
         bool subVerticalIndexing = false, unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
 
-    SpriteSlider(pTexture texture, const Rect& rect, SliderDirection dir,
+    SpriteSlider(pTexture texture, const Rect& rect, SliderDirection dir, int range,
         unsigned numRows, unsigned numCols, unsigned frameTime, eSlider s = eSlider::ZERO, eTimer timer = eTimer::SCENE_START,
         bool subVerticalIndexing = false, unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
 
     virtual ~SpriteSlider() = default;
 
 public:
-    void updateVal(int v);
+    void updateVal(percent v);
     void updateValByInd();
     void updatePos();
 	virtual bool update(timestamp t);
@@ -300,21 +301,29 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 // Bargraph sprite:
 // Determine pos by inner value
+enum class BargraphDirection
+{
+    RIGHT,
+    DOWN,
+    LEFT,
+    UP,
+};
+
 class SpriteBargraph : public SpriteAnimated
 {
 private:
     eBargraph _ind;
     dpercent _value;
-    SliderDirection _dir;
+    BargraphDirection _dir;
 
 public:
     SpriteBargraph() = delete;
 
-    SpriteBargraph(pTexture texture, SliderDirection dir,
+    SpriteBargraph(pTexture texture, BargraphDirection dir,
         unsigned numRows, unsigned numCols, unsigned frameTime, eBargraph s = eBargraph::ZERO, eTimer timer = eTimer::SCENE_START,
         bool subVerticalIndexing = false, unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
 
-    SpriteBargraph(pTexture texture, const Rect& rect, SliderDirection dir,
+    SpriteBargraph(pTexture texture, const Rect& rect, BargraphDirection dir,
         unsigned numRows, unsigned numCols, unsigned frameTime, eBargraph s = eBargraph::ZERO, eTimer timer = eTimer::SCENE_START,
         bool subVerticalIndexing = false, unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
 

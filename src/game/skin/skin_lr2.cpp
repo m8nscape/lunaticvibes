@@ -218,6 +218,14 @@ namespace lr2skin
         int keta;
     };
 
+    struct s_slider : s_basic
+    {
+        int muki;
+		int range;
+        int type;
+		int disable;
+    };
+
     struct s_bargraph : s_basic
     {
         int type;
@@ -721,12 +729,20 @@ int SkinLR2::loadLR2src(const Tokens &t)
 
         ret = 2;
     }
-    /*
     else if (opt == "#SRC_SLIDER")
     {
+        if (t.size() < 14)
+            LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
+
+        convertLine(t, src, 10, 13);
+        lr2skin::s_slider& d = *(lr2skin::s_slider*)src;
+		// 14th: mouse_disable is ignored for now
+
+		_sprites.push_back(std::make_shared<SpriteSlider>(
+            _texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), (SliderDirection)d.muki, d.range, d.div_y, d.div_x, d.cycle, (eSlider)d.type, iTimer));
+        LOG_DEBUG << "[Skin] " << line << ": Set Slider sprite (texture: " << gr_key << ", type: " << d.type << ", timer: " << d.timer << ")";
         ret = 3;
     }
-	*/
     else if (opt == "#SRC_BARGRAPH")
     {
         if (t.size() < 14)
@@ -736,7 +752,7 @@ int SkinLR2::loadLR2src(const Tokens &t)
         lr2skin::s_bargraph& d = *(lr2skin::s_bargraph*)src;
 
 		_sprites.push_back(std::make_shared<SpriteBargraph>(
-            _texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), (SliderDirection)d.muki, d.div_y, d.div_x, d.cycle, (eBargraph)d.type, iTimer));
+            _texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), (BargraphDirection)d.muki, d.div_y, d.div_x, d.cycle, (eBargraph)d.type, iTimer));
         LOG_DEBUG << "[Skin] " << line << ": Set Bargraph sprite (texture: " << gr_key << ", type: " << d.type << ", timer: " << d.timer << ")";
         ret = 4;
     }

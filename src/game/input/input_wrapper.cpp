@@ -35,6 +35,8 @@ bool InputWrapper::_register(unsigned type, const std::string& key, INPUTCALLBAC
     if (_pCallbackMap.find(key) != _pCallbackMap.end())
         return false;
 
+	std::unique_lock<decltype(_mutex)> _lock(_mutex);
+
     switch (type)
     {
     case 0: _pCallbackMap[key] = f; break;
@@ -48,6 +50,8 @@ bool InputWrapper::_unregister(unsigned type, const std::string& key)
 {
     if (_pCallbackMap.find(key) == _pCallbackMap.end())
         return false;
+
+	std::unique_lock<decltype(_mutex)> _lock(_mutex);
 
     switch (type)
     {
