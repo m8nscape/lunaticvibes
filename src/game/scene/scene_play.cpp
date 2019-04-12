@@ -83,8 +83,8 @@ ScenePlay::ScenePlay(ePlayMode mode, unsigned keys, eRuleset ruleset):
     vScene(eMode::PLAY7, 1000), _mode(mode), _rule(ruleset), _keys(keys)
 {
     _currentKeySample.assign(Input::ESC, 0);
-	_inputAvailable = { ("1111111111111110000000000000001111111111111111111111111111", (size_t)Input::ESC) };
-	//                    SS123456789AEUDSS123456789AEUD_123456789012345UDLRIDHEUDRB
+	_inputAvailable = decltype(_inputAvailable)("1111111111111110000000000000001111111111111111111111111111");
+	//                                           SS123456789AEUDSS123456789AEUD_123456789012345UDLRIDHEUDRB
 
     // file loading may delayed
 
