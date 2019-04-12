@@ -5,6 +5,7 @@
 #include "game/data/timer.h"
 #include "game/data/text.h"
 #include "game/data/slider.h"
+#include "game/data/switch.h"
 #include "game/data/option.h"
 #include <vector>
 #include <memory>
@@ -294,28 +295,37 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 // Option sprite:
-// Unlike eSwitch, selections can be more than two.
 
 class SpriteOption : public SpriteAnimated
 {
+public:
+	enum class opType
+	{
+		UNDEF, SWITCH, OPTION,
+	};
 private:
-    eOption _opInd;
+	union {
+		eOption op;
+		eSwitch sw;
+	} _ind;
+	opType _type = opType::UNDEF;
     unsigned _value;
 
 public:
     SpriteOption() = delete;
 
     SpriteOption(pTexture texture,
-        unsigned numRows, unsigned numCols, unsigned frameTime, eOption s = eOption::DEFAULT, eTimer timer = eTimer::SCENE_START,
-        bool subVerticalIndexing = false, unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
+        unsigned animRows, unsigned animCols, unsigned frameTime, eTimer timer = eTimer::SCENE_START,
+		bool animVerticalIndexing = false, unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
 
     SpriteOption(pTexture texture, const Rect& rect,
-        unsigned numRows, unsigned numCols, unsigned frameTime, eOption s = eOption::DEFAULT, eTimer timer = eTimer::SCENE_START,
-        bool subVerticalIndexing = false, unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
+        unsigned animRows, unsigned animCols, unsigned frameTime, eTimer timer = eTimer::SCENE_START,
+		bool animVerticalIndexing = false, unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
 
     virtual ~SpriteOption() = default;
 
 public:
+	bool setInd(opType type, unsigned ind);
     void updateVal(unsigned v);     // invoke SpriteSplit::updateSplit(v)
     void updateValByInd();
 	virtual bool update(timestamp t);

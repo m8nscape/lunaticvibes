@@ -666,3 +666,70 @@ void SpriteNumber::draw() const
             d.draw();
     }
 }
+
+SpriteOption::SpriteOption(pTexture texture,
+	unsigned animRows, unsigned animCols, unsigned frameTime, eTimer timer,
+	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
+	SpriteOption(texture, texture ? texture->getRect() : Rect(),
+		animRows, animCols, frameTime, timer, animVerticalIndexing,
+		selRows, selCols, selVerticalIndexing) {}
+
+SpriteOption::SpriteOption(pTexture texture, const Rect& rect,
+	unsigned animRows, unsigned animCols, unsigned frameTime, eTimer timer,
+	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
+	SpriteAnimated(texture, rect, animRows, animCols, frameTime, timer,
+		animVerticalIndexing, selRows, selCols, selVerticalIndexing) {}
+
+bool SpriteOption::setInd(opType type, unsigned ind)
+{
+	if (_type != opType::UNDEF) return false;
+	switch (type)
+	{
+	case opType::UNDEF:
+		return false;
+
+	case opType::OPTION:
+		_type = opType::OPTION;
+		_ind.op = (eOption)ind;
+		return true;
+
+	case opType::SWITCH:
+		_type = opType::SWITCH;
+		_ind.sw = (eSwitch)ind;
+		return true;
+	}
+	return false;
+}
+
+void SpriteOption::updateVal(unsigned v)
+{
+	_value = v;
+	updateSelection(v);
+}
+
+void SpriteOption::updateValByInd()
+{
+	switch (_type)
+	{
+	case opType::UNDEF:
+		break;
+
+	case opType::OPTION:
+		updateVal(gOptions.get(_ind.op));
+		break;
+
+	case opType::SWITCH:
+		updateVal(gSwitches.get(_ind.sw));
+		break;
+	}
+}
+
+bool SpriteOption::update(timestamp t)
+{
+	if (updateByKeyframes(t))
+	{
+		updateValByInd();
+		return true;
+	}
+	return false;
+}

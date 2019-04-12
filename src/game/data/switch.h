@@ -16,6 +16,12 @@ enum class eSwitch: unsigned
     SELECT_PANEL8,
     SELECT_PANEL9,
 
+	SOUND_FX0,
+	SOUND_FX1,
+	SOUND_FX2,
+	SOUND_VOLUME,
+	SOUND_PITCH,
+
     SYSTEM_BGA,
     SYSTEM_AUTOPLAY,
     SYSTEM_SCOREGRAPH,  // for single player only
@@ -23,6 +29,7 @@ enum class eSwitch: unsigned
 	NETWORK,
 	PLAY_OPTION_EXTRA,
     PLAY_OPTION_AUTOSCR,
+	PLAY_OPTION_DP_FLIP,
 
     PLAY_LOADING,
     PLAY_LOAD_FINISHED,

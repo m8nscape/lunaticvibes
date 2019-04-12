@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <regex>
+#include <variant>
 #include "game/data/option.h"
 #include "game/data/switch.h"
 
@@ -51,6 +52,147 @@ enum sprite_type
     LR2_GAUGECHART_2P,
 };
 
+std::vector<std::variant<std::monostate, eSwitch, eOption>> buttonAdapter{
+	std::monostate(),
+
+	// 1~9
+	eSwitch::SELECT_PANEL1,
+	eSwitch::SELECT_PANEL2,
+	eSwitch::SELECT_PANEL3,
+	eSwitch::SELECT_PANEL4,
+	eSwitch::SELECT_PANEL5,
+	eSwitch::SELECT_PANEL6,
+	eSwitch::SELECT_PANEL7,
+	eSwitch::SELECT_PANEL8,
+	eSwitch::SELECT_PANEL9,
+	
+	// 10~12
+	eOption::SELECT_FILTER_DIFF,
+	eOption::SELECT_FILTER_KEYS,
+	eOption::SELECT_SORT,
+
+	// 13~19
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+
+	// 20~28
+	eOption::SOUND_FX0,
+	eOption::SOUND_FX1,
+	eOption::SOUND_FX2,
+	eSwitch::SOUND_FX0,
+	eSwitch::SOUND_FX1,
+	eSwitch::SOUND_FX2,
+	eOption::SOUND_TARGET_FX0,
+	eOption::SOUND_TARGET_FX1,
+	eOption::SOUND_TARGET_FX2,
+
+	//29~30
+	eSwitch::_FALSE,	// EQ off/on
+	eSwitch::_FALSE,	// EQ Preset
+
+	//31~33
+	eSwitch::SOUND_VOLUME,		// volume control
+	eSwitch::SOUND_PITCH,
+	eOption::SOUND_PITCH_TYPE,
+
+	//34~39
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+
+	//40~45
+	eOption::PLAY_GAUGE_TYPE,
+	eSwitch::_FALSE,	// 2p
+	eOption::PLAY_RANDOM_TYPE,
+	eSwitch::_FALSE,	// 2p
+	eSwitch::PLAY_OPTION_AUTOSCR,
+	eSwitch::_FALSE,	// 2p
+	
+	//46~49
+	eSwitch::_FALSE,	// shutter?
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,	// reserved
+	eSwitch::_FALSE,	// reserved
+
+	//50~51
+	eOption::PLAY_LANE_EFFECT_TYPE,
+	eSwitch::_FALSE,	// 2p
+
+	eSwitch::_FALSE,	// reserved
+	eSwitch::_FALSE,	// reserved
+
+	//54
+	eSwitch::PLAY_OPTION_DP_FLIP,
+	eOption::PLAY_HSFIX_TYPE,
+	eOption::PLAY_BATTLE_TYPE,
+	eSwitch::_FALSE,	// HS-1P
+	eSwitch::_FALSE,	// HS-2P
+
+	// 59~69
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+
+	// 70
+	eSwitch::SYSTEM_SCOREGRAPH,
+	eOption::PLAY_GHOST_TYPE,
+	eSwitch::_TRUE,	// bga off/on/autoplay only, special
+	eSwitch::_TRUE, // bga normal/extend, special
+	eSwitch::_FALSE,// JUDGE TIMING
+	eSwitch::_FALSE,// AUTO ADJUST, not supported
+	eSwitch::_FALSE, // default target rate
+	eSwitch::_FALSE, // target
+
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+
+		// 80
+	eSwitch::_TRUE, // screen mode full/window, special
+	eSwitch::_FALSE, // color mode, 32bit fixed
+	eSwitch::_TRUE, // vsync, special
+	eSwitch::_FALSE,//save replay, not supported
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+
+		//90
+	eSwitch::_FALSE,//off/favorite/ignore, not supported
+	eSwitch::_FALSE,	// select all
+	eSwitch::_FALSE,	// select beginner
+	eSwitch::_FALSE,	// select normal
+	eSwitch::_FALSE,	// select hyper
+	eSwitch::_FALSE,	// select another
+	eSwitch::_FALSE,	// select insane
+
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+	eSwitch::_FALSE,
+
+		// 101
+
+
+};
+
 namespace lr2skin
 {
 
@@ -84,12 +226,13 @@ namespace lr2skin
 
     struct s_button : s_basic
     {
-        int _null;
-        int gr;
-        int x, y, w, h;
-        int div_x, div_y;
-        int cycle;
-        int timer;
+		int type;
+		int click;
+		int panel;
+    };
+
+    struct s_onmouse : s_basic
+    {
         int panel;
         int x2, y2, w2, h2;
     };
@@ -581,87 +724,60 @@ int SkinLR2::loadLR2src(const Tokens &t)
     /*
     else if (opt == "#SRC_SLIDER")
     {
-        int muki, range, type, disable;
-        if (t.size() < 14)
-        {
-            LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
-            muki = range = type = disable = 0;
-        }
-        else
-        {
-            muki = it != t.end() ? stoine(*it++) : 0;
-            range = it != t.end() ? stoine(*it++) : 0;
-            type = it != t.end() ? stoine(*it++) : 0;
-            disable = 0;
-            if (it != t.end())
-                disable = stoine(*it++);
-        }
-
-        e = std::make_shared<elemSlider>(gr, x, y, w, h, div_x, div_y, cycle, timer,
-            muki, range, type, disable);
-
         ret = 3;
     }
     else if (opt == "#SRC_BARGRAPH")
     {
-        int type, muki;
-        if (t.size() < 13)
-        {
-            LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
-            type = muki = 0;
-        }
-        else
-        {
-            type = it != t.end() ? stoine(*it++) : 0;
-            muki = it != t.end() ? stoine(*it++) : 0;
-        }
-
-        e = std::make_shared<elemBargraph>(gr, x, y, w, h, div_x, div_y, cycle, timer,
-            type, muki);
-
         ret = 4;
     }
+	*/
     else if (opt == "#SRC_BUTTON")
     {
-        int type, click, panel, plusonly;
         if (t.size() < 14)
-        {
             LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
-            type = click = panel = plusonly = 0;
-        }
-        else
-        {
-            type = it != t.end() ? stoine(*it++) : 0;
-            click = it != t.end() ? stoine(*it++) : 0;
-            panel = it != t.end() ? stoine(*it++) : 0;
-            plusonly = 0;
-            if (it != t.end())
-                plusonly = stoine(*it++);
-        }
 
-        e = std::make_shared<elemButton>(gr, x, y, w, h, div_x, div_y, cycle, timer,
-            type, click, panel, plusonly);
+        convertLine(t, src, 10, 13);
+        lr2skin::s_button& d = *(lr2skin::s_button*)src;
+		
+		if (d.type < buttonAdapter.size())
+		{
+			if (auto sw = std::get_if<eSwitch>(&buttonAdapter[d.type]))
+			{
+				if (*sw == eSwitch::_TRUE)
+				{
+					switch (d.type)
+					{
+					case 72:	// bga off/on/autoplay only, special
+					case 73:	// bga normal/extend, special
+					case 80:	// window mode, windowed/fullscreen
+					case 82:	// vsync
+					default:
+						break;
+					}
+				}
+				auto s = std::make_shared<SpriteOption>(
+					_texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), 1, 1, 0, eTimer::SCENE_START, false,
+					d.div_y, d.div_x);
+				s->setInd(SpriteOption::opType::SWITCH, (unsigned)*sw);
+				_sprites.push_back(s);
+			}
+			else if (auto op = std::get_if<eOption>(&buttonAdapter[d.type]))
+			{
+				auto s = std::make_shared<SpriteOption>(
+					_texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), 1, 1, 0, eTimer::SCENE_START, false,
+					d.div_y, d.div_x);
+				s->setInd(SpriteOption::opType::OPTION, (unsigned)*op);
+				_sprites.push_back(s);
+			}
+		}
+
+        LOG_DEBUG << "[Skin] " << line << ": Set Option sprite (texture: " << gr_key << ", timer: " << d.timer << ")";
         ret = 5;
     }
+	/*
     else if (opt == "#SRC_ONMOUSE")
     {
-        int panel, x2, y2, w2, h2;
-        if (t.size() < 16)
-        {
-            LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
-            panel = x2 = y2 = w2 = h2 = 0;
-        }
-        else
-        {
-            panel = it != t.end() ? stoine(*it++) : 0;
-            x2 = it != t.end() ? stoine(*it++) : 0;
-            y2 = it != t.end() ? stoine(*it++) : 0;
-            w2 = it != t.end() ? stoine(*it++) : 0;
-            h2 = it != t.end() ? stoine(*it++) : 0;
-        }
 
-        e = std::make_shared<elemOnMouse>(gr, x, y, w, h, div_x, div_y, cycle, timer,
-            panel, x2, y2, w2, h2);
         ret = 6;
     }
     */
@@ -1858,8 +1974,7 @@ void SkinLR2::clearCustomDstOpt()
     memset(customizeDst, 0, sizeof(customizeDst) / sizeof(customizeDst[0]));
 }
 
-
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////
 
 void SkinLR2::update()
 {

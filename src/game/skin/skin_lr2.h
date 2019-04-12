@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include <variant>
 #include <filesystem>
 #include "types.h"
 #include "skin.h"
@@ -1367,7 +1368,7 @@ private:
 
 public:
     // adapting helpers
-    bool getDstOpt(dst_option);
+    static bool getDstOpt(dst_option);
     void setCustomDstOpt(unsigned base, unsigned offset, bool val);
     static void clearCustomDstOpt();
 
