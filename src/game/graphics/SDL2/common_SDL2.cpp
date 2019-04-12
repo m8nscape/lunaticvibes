@@ -186,12 +186,13 @@ Rect Texture::getRect() const
 }
 
 void Texture::_draw(const Rect& srcRect, Rect dstRect,
-    const Color c, const double angle) const
+    const Color c, const BlendMode b, const bool filter, const double angle) const
 {
 	if (dstRect.w < 0) { dstRect.w = -dstRect.w; dstRect.x -= dstRect.w; }
 	if (dstRect.h < 0) { dstRect.h = -dstRect.h; dstRect.y -= dstRect.h; }
 	SDL_SetTextureColorMod(&*_pTexture, c.r, c.g, c.b);
 	SDL_SetTextureAlphaMod(&*_pTexture, c.a);
+	SDL_SetTextureBlendMode(&*_pTexture, (SDL_BlendMode)b);
     SDL_RenderCopyEx(
         _frame_renderer,
         &*_pTexture,

@@ -37,6 +37,8 @@ struct RenderParams
         DISCONTINOUS
     } accel;
     Color color;
+	BlendMode blend;
+	bool filter;
     double angle;           // rotate angle / degree, 360 for one lap
 };
 
@@ -59,7 +61,6 @@ public:
 protected:
 	bool _draw;
     pTexture _pTexture;
-    BlendMode _blend = BlendMode::ALPHA;
     eTimer _timerInd = eTimer::SCENE_START;
     int _loopTo = -1;
 protected:
@@ -72,7 +73,6 @@ public:
     RenderParams getCurrentRenderParams();
     bool updateByKeyframes(timestamp time);
 	virtual bool update(timestamp time);
-    virtual void setBlendMode(BlendMode b);
     virtual void setLoopTime(int t);
 	virtual void setTimer(eTimer t);
     virtual void appendKeyFrame(RenderKeyFrame f);
@@ -254,7 +254,6 @@ public:
     void updateNumberByInd();
     void updateAnimationByTimer(timestamp t);   // invoke updateAnimation to change animation frames
 	virtual bool update(timestamp t);
-    virtual void setBlendMode(BlendMode b);
     virtual void setLoopTime(int t);
     virtual void appendKeyFrame(RenderKeyFrame f);
     virtual void draw() const;

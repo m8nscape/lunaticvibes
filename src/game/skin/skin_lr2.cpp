@@ -883,16 +883,17 @@ int SkinLR2::loadLR2dst(const Tokens &t)
 
         drawQueue.push_back({ e, false, d.op[0], d.op[1], d.op[2], d.op[3] });
         e->setLoopTime(d.loop);
-        e->setBlendMode(BlendMode::ALPHA);
 		e->setTimer((eTimer)d.timer);
         if (d.time > 0)
         {
             LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
-            e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), RenderParams::accTy::DISCONTINOUS, Color(d.r, d.g, d.b, 0), (double)d.angle } });
+            e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), RenderParams::accTy::DISCONTINOUS, Color(d.r, d.g, d.b, 0),
+				(BlendMode)d.blend, !!d.filter, (double)d.angle } });
         }
     }
 
-    e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a), (double)d.angle } });
+    e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
+		(BlendMode)d.blend, !!d.filter, (double)d.angle } });
     //e->pushKeyFrame(time, x, y, w, h, acc, r, g, b, a, blend, filter, angle, center);
     LOG_DEBUG << "[Skin] " << line << ": Set sprite Keyframe (time: " << d.time << ")";
 
@@ -954,7 +955,7 @@ int SkinLR2::loadLR2srcnote(const Tokens &t)
         LOG_DEBUG << "[Skin] " << line << ": Set Note " << idx << " sprite (texture: " << gr_key << ", timer: " << d.timer << ")";
 
 		_laneSprites[i]->pNote->appendKeyFrame({ 0, {Rect(),
-			RenderParams::accTy::CONSTANT, Color(0xffffffff), 0 } });
+			RenderParams::accTy::CONSTANT, Color(0xffffffff), BlendMode::ALPHA, 0, 0 } });
 		_laneSprites[i]->pNote->setLoopTime(0);
 
         return 1;
@@ -1007,7 +1008,8 @@ int SkinLR2::loadLR2dstnote(const Tokens &t)
 			e->clearKeyFrames();
 		}
 		e->pNote->clearKeyFrames();
-		e->pNote->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a), (double)d.angle } });
+		e->pNote->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
+			(BlendMode)d.blend, !!d.filter, (double)d.angle } });
 
 		// set sprite channel
 		auto p = std::static_pointer_cast<SpriteLaneVertical>(e);
@@ -1042,13 +1044,14 @@ int SkinLR2::loadLR2dstnote(const Tokens &t)
 
 		drawQueue.push_back({ e, false, d.op[0], d.op[1], d.op[2], d.op[3] });
 		e->setLoopTime(d.loop);
-		e->setBlendMode(BlendMode::ALPHA);
 		if (d.time > 0)
 		{
 			LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
-			e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), RenderParams::accTy::DISCONTINOUS, Color(d.r, d.g, d.b, 0), (double)d.angle } });
+			e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), RenderParams::accTy::DISCONTINOUS, Color(d.r, d.g, d.b, 0),
+				BlendMode::NONE, false, (double)d.angle } });
 		}
-		e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a), (double)d.angle } });
+		e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
+			(BlendMode)d.blend, !!d.filter, (double)d.angle } });
 		e->setLoopTime(0);
 		//e->pushKeyFrame(time, x, y, w, h, acc, r, g, b, a, blend, filter, angle, center);
 		LOG_DEBUG << "[Skin] " << line << ": Set Lane sprite Keyframe (time: " << d.time << ")";

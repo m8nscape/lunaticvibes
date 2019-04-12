@@ -129,9 +129,8 @@ protected:
 
 private:
     // Inner draw function.
-    // Blend modes and other parameters should be set by sprites BEFORE drawing.
     virtual void _draw(const Rect& srcRect, Rect dstRect, 
-        const Color c, const double angleInDegrees) const;
+        const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const;
     // TODO params of _draw: center, flip
 
 public:

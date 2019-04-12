@@ -6,7 +6,7 @@ static inline double grad(double dst, double src, double t) { return dst * t + s
 ////////////////////////////////////////////////////////////////////////////////
 // virtual base class functions
 vSprite::vSprite(pTexture tex, SpriteTypes type) :
-    _pTexture(tex), _type(type), _current({ 0, RenderParams::CONSTANT, 0x00000000, 0 }) {}
+    _pTexture(tex), _type(type), _current({ 0, RenderParams::CONSTANT, 0x00000000, BlendMode::NONE, false, 0 }) {}
 
 bool vSprite::updateByKeyframes(timestamp rawTime)
 {
@@ -113,6 +113,8 @@ bool vSprite::updateByKeyframes(timestamp rawTime)
     //    " @ " << _current.rect.x << "," << _current.rect.y << " " << _current.rect.w << "x" << _current.rect.h;
     //LOG_DEBUG<<"[Skin] keyFrameCurr: " << keyFrameCurr->param.rect.x << "," << keyFrameCurr->param.rect.y << " " << keyFrameCurr->param.rect.w << "x" << keyFrameCurr->param.rect.h;
     //LOG_DEBUG<<"[Skin] keyFrameNext: " << keyFrameNext->param.rect.x << "," << keyFrameNext->param.rect.y << " " << keyFrameNext->param.rect.w << "x" << keyFrameNext->param.rect.h;
+	_current.blend = keyFrameCurr->param.blend;
+	_current.filter = keyFrameCurr->param.filter;
     
     return true;
 }
@@ -125,11 +127,6 @@ bool vSprite::update(timestamp t)
 RenderParams vSprite::getCurrentRenderParams()
 {
     return _current;
-}
-
-void vSprite::setBlendMode(BlendMode b)
-{
-    _blend = b;
 }
 
 void vSprite::setLoopTime(int t)
@@ -163,7 +160,7 @@ bool SpriteStatic::update(timestamp t)
 void SpriteStatic::draw() const
 {
     if (_draw && _pTexture->_loaded)
-        _pTexture->_draw(_texRect, _current.rect, _current.color, _current.angle);
+        _pTexture->_draw(_texRect, _current.rect, _current.color, _current.blend, _current.filter, _current.angle);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -223,7 +220,7 @@ SpriteSelection::SpriteSelection(pTexture texture, const Rect& r, unsigned rows,
 void SpriteSelection::draw() const
 {
     if (_draw && _pTexture->_loaded)
-        _pTexture->_draw(_texRect[_segmentIdx], _current.rect, _current.color, _current.angle);
+        _pTexture->_draw(_texRect[_segmentIdx], _current.rect, _current.color, _current.blend, _current.filter, _current.angle);
 }
 
 void SpriteSelection::updateSelection(frameIdx frame)
@@ -331,7 +328,7 @@ void SpriteAnimated::draw() const
 {
     if (_draw && _pTexture != nullptr && _pTexture->_loaded)
     {
-        _pTexture->_draw(_drawRect, _current.rect, _current.color, _current.angle);
+        _pTexture->_draw(_drawRect, _current.rect, _current.color, _current.blend, _current.filter, _current.angle);
     }
 }
 
@@ -634,12 +631,6 @@ void SpriteNumber::updateAnimationByTimer(timestamp t)
 //        _sDigit[i]._current.color = _current.color;
 //    }
 //}
-void SpriteNumber::setBlendMode(BlendMode b)
-{
-    for (auto& d : _sDigit)
-        d.setBlendMode(b);
-}
-
 void SpriteNumber::setLoopTime(int t)
 {
     for (auto& d : _sDigit)
