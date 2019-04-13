@@ -238,6 +238,7 @@ void ScenePlay::_updateAsync()
     switch (_state)
     {
     case ePlayState::PREPARE:
+		gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_PREPARE);
         updatePrepare();
         break;
     case ePlayState::LOADING:
@@ -263,10 +264,12 @@ void ScenePlay::_updateAsync()
 
 void ScenePlay::updatePrepare()
 {
-    auto rt = timestamp() - gTimers.get(eTimer::SCENE_START);
+	auto t = timestamp();
+    auto rt = t - gTimers.get(eTimer::SCENE_START);
     if (rt.norm() > _skin->info.timeIntro)
     {
         _state = ePlayState::LOADING;
+		gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_LOADING);
 
         std::thread(&ScenePlay::loadChart, this).detach();
         LOG_DEBUG << "[Play] State changed to LOADING";
@@ -278,24 +281,28 @@ void ScenePlay::updateLoading()
     // TODO display progress
     //  set global bargraph values
 
-    auto rt = timestamp() - gTimers.get(eTimer::_LOAD_START);
+	auto t = timestamp();
+    auto rt = t - gTimers.get(eTimer::_LOAD_START);
     if (_scrollLoaded && _rulesetLoaded &&
         context_chart.isSampleLoaded && context_chart.isBgaLoaded && 
 		rt > _skin->info.timeMinimumLoad)
     {
         _state = ePlayState::LOAD_END;
-        gTimers.set(eTimer::PLAY_READY, timestamp().norm());
+		gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_READY);
+        gTimers.set(eTimer::PLAY_READY, t.norm());
         LOG_DEBUG << "[Play] State changed to READY";
     }
 }
 
 void ScenePlay::updateLoadEnd()
 {
-    auto rt = timestamp() - gTimers.get(eTimer::PLAY_READY);
+	auto t = timestamp();
+    auto rt = t - gTimers.get(eTimer::PLAY_READY);
     if (rt > _skin->info.timeGetReady)
     {
         _state = ePlayState::PLAYING;
-        gTimers.set(eTimer::PLAY_START, timestamp().norm());
+		gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_PLAYING);
+        gTimers.set(eTimer::PLAY_START, t.norm());
         setInputJudgeCallback();
 		context_chart.started = true;
         LOG_DEBUG << "[Play] State changed to PLAY_START";
@@ -321,6 +328,7 @@ void ScenePlay::updatePlaying()
      //{
      //    _state = ePlayState::FAILED;
      //    gTimers.set(eTimer::FAIL_BEGIN, rt);
+	//	gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FAILED);
      //    removeInputJudgeCallback(true);
      //}
 
@@ -329,6 +337,7 @@ void ScenePlay::updatePlaying()
     //{
     //    _state = ePlayState::LAST_NOTE_END;
 	//    context_chart.started = true;
+	//	gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_OUTRO);
     //    gTimers.set(eTimer::PLAY_LAST_NOTE_JUDGE, rt);
     //}
      
@@ -344,6 +353,7 @@ void ScenePlay::updateSongOutro()
     //{
     //    _state = ePlayState::FADEOUT;
     //    gTimers.set(eTimer::FADEOUT_BEGIN, rt);
+	//	gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FADEOUT);
     //    removeInputJudgeCallback(false);
     //}
 }

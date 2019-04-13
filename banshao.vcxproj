@@ -197,6 +197,7 @@ xcopy /y $(ProjectDir)ext\fmod\lib\fmod64.dll $(SolutionDir)$(Configuration)\</C
     <ClCompile Include="src\game\scroll\scroll.cpp" />
     <ClCompile Include="src\game\scroll\scroll_bms.cpp" />
     <ClCompile Include="src\game\skin\skin.cpp" />
+    <ClCompile Include="src\game\skin\skin_lr2_dst.cpp" />
     <ClCompile Include="src\game\skin\skin_mgr.cpp" />
     <ClCompile Include="src\game\skin\skin_lr2.cpp" />
     <ClCompile Include="src\game\sound\sound_fmod.cpp" />

@@ -24,7 +24,7 @@ enum class eSwitch: unsigned
 
     SYSTEM_BGA,
     SYSTEM_AUTOPLAY,
-    SYSTEM_SCOREGRAPH,  // for single player only
+    SYSTEM_SCOREGRAPH,
 
 	NETWORK,
 	PLAY_OPTION_EXTRA,

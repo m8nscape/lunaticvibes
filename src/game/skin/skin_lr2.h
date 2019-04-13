@@ -2,6 +2,7 @@
 #include <array>
 #include <variant>
 #include <filesystem>
+#include <bitset>
 #include "types.h"
 #include "skin.h"
 #include "game/graphics/sprite_lane.h"
@@ -1366,11 +1367,6 @@ private:
 
     //std::vector<SkinLR2> _csvIncluded;
 
-public:
-    // adapting helpers
-    static bool getDstOpt(dst_option);
-    void setCustomDstOpt(unsigned base, unsigned offset, bool val);
-    static void clearCustomDstOpt();
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -1390,3 +1386,9 @@ public:
     virtual void draw() const;
 
 };
+
+// adapt helper
+void updateDstOpt();
+void setCustomDstOpt(unsigned base, unsigned offset, bool val);
+void clearCustomDstOpt();
+bool getDstOpt(dst_option d);

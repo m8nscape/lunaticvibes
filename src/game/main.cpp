@@ -35,7 +35,7 @@ void mainLoop()
         {
             currentScene = __next_scene;
             scene = SceneMgr::get(currentScene);
-            SkinLR2::clearCustomDstOpt();
+            clearCustomDstOpt();
         }
 
         // draw

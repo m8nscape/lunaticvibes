@@ -69,13 +69,23 @@ namespace Option
         ENTRY_NEW_COURSE,
     };
 
+	enum e_chart_diff {
+		DIFF_ANY,
+		DIFF_BEGINNER,
+		DIFF_NORMAL,
+		DIFF_HYPER,
+		DIFF_ANOTHER,
+		DIFF_INSANE
+	};
+
 	enum e_play_scene_stat {
-		PREPARE,
-		LOADING,
-		READY,
-		PLAYING,
-		OUTRO,
-		FADEOUT,
+		SPLAY_PREPARE,
+		SPLAY_LOADING,
+		SPLAY_READY,
+		SPLAY_PLAYING,
+		SPLAY_OUTRO,
+		SPLAY_FADEOUT,
+		SPLAY_FAILED,
 	};
 
     enum e_play_mode {
