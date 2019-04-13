@@ -34,9 +34,9 @@ bool vSprite::updateByKeyframes(timestamp rawTime)
         return false;
 
     // Check if loop target is valid
-    if (_loopTo < 0)
+    if (_loopTo < 0 && time > endTime)
         return false;
-    else if (_loopTo > _keyFrames[frameCount - 1].time)
+    if (_loopTo > _keyFrames[frameCount - 1].time)
         time = _keyFrames[frameCount - 1].time;
 
 
