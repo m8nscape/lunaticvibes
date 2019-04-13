@@ -45,6 +45,104 @@ const judge_t judgeTime[] = {
     {5, 10, 10, 150, 600}          // XD
 };
 
+const eTimer bombTimer7k[] = {
+	eTimer::S1_BOMB,
+
+    eTimer::K11_BOMB,
+    eTimer::K12_BOMB,
+    eTimer::K13_BOMB,
+    eTimer::K14_BOMB,
+    eTimer::K15_BOMB,
+    eTimer::K16_BOMB,
+    eTimer::K17_BOMB,
+
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+
+	eTimer::_NEVER
+};
+
+const eTimer bombTimer14k[] = {
+	eTimer::S1_BOMB,
+
+    eTimer::K11_BOMB,
+    eTimer::K12_BOMB,
+    eTimer::K13_BOMB,
+    eTimer::K14_BOMB,
+    eTimer::K15_BOMB,
+    eTimer::K16_BOMB,
+    eTimer::K17_BOMB,
+
+    eTimer::K21_BOMB,
+    eTimer::K22_BOMB,
+    eTimer::K23_BOMB,
+    eTimer::K24_BOMB,
+    eTimer::K25_BOMB,
+    eTimer::K26_BOMB,
+    eTimer::K27_BOMB,
+
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+
+	eTimer::S2_BOMB
+};
+
+const eTimer bombTimer9k[] = {
+	eTimer::_NEVER,
+
+    eTimer::K11_BOMB,
+    eTimer::K12_BOMB,
+    eTimer::K13_BOMB,
+    eTimer::K14_BOMB,
+    eTimer::K15_BOMB,
+    eTimer::K16_BOMB,
+    eTimer::K17_BOMB,
+
+    eTimer::K18_BOMB,
+    eTimer::K19_BOMB,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+	eTimer::_NEVER,
+
+	eTimer::_NEVER
+};
 // Judge area definitions.
 // e.g. SOUNDONLY: play hitsound only but not judging
 //      EARLY_PERFECT: Perfect early half part

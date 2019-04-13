@@ -88,6 +88,7 @@ void RulesetClassic::updatePress(InputMask& pg, timestamp t)
                     ++_basic.combo;
                     if (_basic.combo > _basic.maxCombo) _basic.maxCombo = _basic.combo;
                     _basic.score2 += 2;
+					gTimers.set(bombTimer7k[c.second], t.norm());
                     break;
 
                 case EARLY_GREAT:
@@ -97,6 +98,7 @@ void RulesetClassic::updatePress(InputMask& pg, timestamp t)
                     ++_basic.combo;
                     if (_basic.combo > _basic.maxCombo) _basic.maxCombo = _basic.combo;
                     _basic.score2 += 1;
+					gTimers.set(bombTimer7k[c.second], t.norm());
                     break;
 
                 case EARLY_GOOD:

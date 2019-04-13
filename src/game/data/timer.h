@@ -19,6 +19,29 @@ enum class eTimer : unsigned
     PLAY_JUDGE_2P,
     PLAY_FULLCOMBO_1P, 
     PLAY_FULLCOMBO_2P,
+	
+	S1_BOMB = 50,
+    K11_BOMB,
+    K12_BOMB,
+    K13_BOMB,
+    K14_BOMB,
+    K15_BOMB,
+    K16_BOMB,
+    K17_BOMB,
+    K18_BOMB,
+    K19_BOMB,
+
+    S2_BOMB,
+    K21_BOMB,
+    K22_BOMB,
+    K23_BOMB,
+    K24_BOMB,
+    K25_BOMB,
+    K26_BOMB,
+    K27_BOMB,
+    K28_BOMB,
+    K29_BOMB,
+
 
     S1L_DOWN = 100,
     K11_DOWN,
@@ -92,6 +115,7 @@ enum class eTimer : unsigned
 	_CURRENT,
 	_LOAD_START,
 
+	_NEVER,
     TIMER_COUNT
 };
 
