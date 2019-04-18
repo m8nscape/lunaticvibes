@@ -5,6 +5,7 @@
 #include <sstream>
 #include <regex>
 #include <variant>
+#include <map>
 #include "game/data/option.h"
 #include "game/data/switch.h"
 
@@ -12,6 +13,9 @@
 // For GetWindowsDirectory
 #include <Windows.h>
 #endif
+
+using namespace std::placeholders;
+
 
 enum sprite_type
 {
@@ -378,8 +382,13 @@ int convertLine(const Tokens& t, int* pData, size_t start = 0, size_t end = size
     return end;
 }
 
-void refineRect(lr2skin::s_basic& d, unsigned line)
+void refineRect(lr2skin::s_basic& d, const Rect rect, unsigned line)
 {
+	if (d.w == -1)
+		d.w = rect.w;
+	if (d.h == -1)
+		d.h = rect.h;
+
     if (d.div_x == 0)
     {
         LOG_WARNING << "[Skin] " << line << ": div_x is 0 (Line " << line << ")";
@@ -643,41 +652,204 @@ int SkinLR2::loadLR2others(const Tokens &t)
 // Sprite parsing
 #pragma region
 
+static std::map<Token, LoadLR2SrcFunc> __src_supported
+{
+	{"#SRC_IMAGE",    std::bind(&SkinLR2::loadLR2_SRC_IMAGE,    _1, _2, _3)},
+	{"#SRC_JUDGELINE",std::bind(&SkinLR2::loadLR2_SRC_IMAGE,    _1, _2, _3)},
+	{"#SRC_NUMBER",   std::bind(&SkinLR2::loadLR2_SRC_NUMBER,   _1, _2, _3)},
+	{"#SRC_SLIDER",   std::bind(&SkinLR2::loadLR2_SRC_SLIDER,   _1, _2, _3)},
+	{"#SRC_BARGRAPH", std::bind(&SkinLR2::loadLR2_SRC_BARGRAPH, _1, _2, _3)},
+	{"#SRC_BUTTON",   std::bind(&SkinLR2::loadLR2_SRC_BUTTON,   _1, _2, _3)},
+	//{"#SRC_ONMOUSE", std::bind(&SkinLR2::loadLR2_SRC_ONMOUSE, _1, _2, _3)},
+	{"#SRC_TEXT",     std::bind(&SkinLR2::loadLR2_SRC_TEXT,     _1, _2, _3)}
+};
 int SkinLR2::loadLR2src(const Tokens &t)
 {
     auto opt = t[0];
 
+    // skip unsupported
+	if (__src_supported.find(opt) == __src_supported.end())
+		return 0;
+
     if (opt == "#SRC_TEXT")
     {
-        if (t.size() < 5)
-            LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
-
-        lr2skin::s_text src{ 0 };
-        for (size_t i = 0; i < sizeof(src) / sizeof(int); ++i)
-            *((int*)&src + i) = stoine(t[i + 1]);
-
-		_sprites.push_back(std::make_shared<SpriteText>(
-			_fontNameMap[std::to_string(src.font)], (eText)src.st, (TextAlign)src.align));
-
-        LOG_DEBUG << "[Skin] " << line << ": Added Text (font: " << src.font << ")";
-
+		__src_supported[opt](this, t, nullptr);
         return 7;
     }
-
-    // skip unsupported
-    if (opt != "#SRC_IMAGE" && opt != "#SRC_NUMBER" &&
-        opt != "#SRC_SLIDER" && opt != "#SRC_BARGRAPH" &&
-        opt != "#SRC_BUTTON" && opt != "#SRC_ONMOUSE")
-        return 0;
 
     if (t.size() < 11)
         LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
 
+    // Find texture from map by gr
+    pTexture tex = nullptr;
+    std::string gr_key = std::to_string(stoine(t[2]));
+    if (_texNameMap.find(gr_key) != _texNameMap.end())
+    {
+        tex = _texNameMap[gr_key];
+    }
+    else
+    {
+        tex = _texNameMap["Error"];
+    }
+
+	__src_supported[opt](this, t, tex);
+
+    return 1;
+}
+
+int SkinLR2::loadLR2_SRC_IMAGE(const Tokens &t, pTexture tex)
+{
+	if (t.size() < 11)
+	{
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
+		return 1;
+	}
+
+	lr2skin::s_basic d;
+	convertLine(t, (int*)&d);
+    refineRect(d, tex->getRect(), line);
+
+	_sprites.push_back(std::make_shared<SpriteAnimated>(
+		tex, Rect(d.x, d.y, d.w, d.h), d.div_y, d.div_x, d.cycle, (eTimer)d.timer));
+	
+	return 0;
+}
+
+int SkinLR2::loadLR2_SRC_NUMBER(const Tokens &t, pTexture tex)
+{
+	if (t.size() < 14)
+	{
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
+		return 1;
+	}
+
+	lr2skin::s_number d;
+	convertLine(t, (int*)&d, 0, 13);
+    refineRect(d, tex->getRect(), line);
+
+	// TODO convert num
+	eNumber iNum = (eNumber)d.num;
+
+	_sprites.emplace_back(std::make_shared<SpriteNumber>(
+		tex, Rect(d.x, d.y, d.w, d.h), (NumberAlign)d.align, d.keta, d.div_y, d.div_x, d.cycle, iNum, (eTimer)d.timer));
+
+	return 0;
+}
+
+int SkinLR2::loadLR2_SRC_SLIDER(const Tokens &t, pTexture tex)
+{
+	if (t.size() < 14)
+	{
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
+		return 1;
+	}
+
+	lr2skin::s_slider d;
+	convertLine(t, (int*)&d, 0, 13); // 14th: mouse_disable is ignored for now
+	
+    refineRect(d, tex->getRect(), line);
+
+	_sprites.push_back(std::make_shared<SpriteSlider>(
+		tex, Rect(d.x, d.y, d.w, d.h), (SliderDirection)d.muki, d.range, d.div_y, d.div_x, d.cycle, (eSlider)d.type, (eTimer)d.timer));
+	
+	return 0;
+}
+
+int SkinLR2::loadLR2_SRC_BARGRAPH(const Tokens &t, pTexture tex)
+{
+	if (t.size() < 14)
+	{
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
+		return 1;
+	}
+
+	lr2skin::s_bargraph d;
+	convertLine(t, (int*)&d, 0, 13);
+    refineRect(d, tex->getRect(), line);
+
+	_sprites.push_back(std::make_shared<SpriteBargraph>(
+		tex, Rect(d.x, d.y, d.w, d.h), (BargraphDirection)d.muki, d.div_y, d.div_x, d.cycle, (eBargraph)d.type, (eTimer)d.timer));
+
+	return 0;
+}
+
+int SkinLR2::loadLR2_SRC_BUTTON(const Tokens &t, pTexture tex)
+{
+	if (t.size() < 14)
+	{
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
+		return 1;
+	}
+
+	lr2skin::s_button d;
+	convertLine(t, (int*)&d, 0, 13);
+    refineRect(d, tex->getRect(), line);
+	
+	if (d.type < buttonAdapter.size())
+	{
+		if (auto sw = std::get_if<eSwitch>(&buttonAdapter[d.type]))
+		{
+			if (*sw == eSwitch::_TRUE)
+			{
+				switch (d.type)
+				{
+				case 72:	// bga off/on/autoplay only, special
+				case 73:	// bga normal/extend, special
+				case 80:	// window mode, windowed/fullscreen
+				case 82:	// vsync
+				default:
+					break;
+				}
+			}
+			auto s = std::make_shared<SpriteOption>(
+				tex, Rect(d.x, d.y, d.w, d.h), 1, 1, 0, eTimer::SCENE_START, false,
+				d.div_y, d.div_x);
+			s->setInd(SpriteOption::opType::SWITCH, (unsigned)*sw);
+			_sprites.push_back(s);
+		}
+		else if (auto op = std::get_if<eOption>(&buttonAdapter[d.type]))
+		{
+			auto s = std::make_shared<SpriteOption>(
+				tex, Rect(d.x, d.y, d.w, d.h), 1, 1, 0, eTimer::SCENE_START, false,
+				d.div_y, d.div_x);
+			s->setInd(SpriteOption::opType::OPTION, (unsigned)*op);
+			_sprites.push_back(s);
+		}
+	}
+
+	return 0;
+}
+
+int SkinLR2::loadLR2_SRC_TEXT(const Tokens &t, pTexture)
+{
+	if (t.size() < 5)
+	{
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
+		return 1;
+	}
+
+	lr2skin::s_text d;
+	convertLine(t, (int*)&d, 0, 4);
+
+	_sprites.push_back(std::make_shared<SpriteText>(
+		_fontNameMap[std::to_string(d.font)], (eText)d.st, (TextAlign)d.align));
+
+	return 0;
+}
+
+int SkinLR2::loadLR2_SRC_NOTE(const Tokens &t)
+{
+    // skip unsupported
+    if ( !(t[0] == "#SRC_NOTE" || t[0] == "#SRC_MINE" || t[0] == "#SRC_LN_END" || t[0] == "#SRC_LN_BODY"
+        || t[0] == "#SRC_LN_START"|| t[0] == "#SRC_AUTO_NOTE" || t[0] == "#SRC_AUTO_MINE" || t[0] == "#SRC_AUTO_LN_END" 
+        || t[0] == "#SRC_AUTO_LN_BODY" || t[0] == "#SRC_AUTO_LN_START"))
+    {
+        return 0;
+    }
+
     // load line into data struct
-    int src[32]{ 0 };
-    convertLine(t, src);
-    lr2skin::s_basic& d = *(lr2skin::s_basic*)src;
-    refineRect(d, line);
+	lr2skin::s_basic d;
+    convertLine(t, (int*)&d);
 
     // TODO convert timer
     eTimer iTimer = (eTimer)d.timer;
@@ -688,132 +860,57 @@ int SkinLR2::loadLR2src(const Tokens &t)
     if (_texNameMap.find(gr_key) != _texNameMap.end())
     {
         tex = _texNameMap[gr_key];
-        if (d.w == -1)
-            d.w = tex->getRect().w;
-        if (d.h == -1)
-            d.h = tex->getRect().h;
     }
     else
     {
         tex = _texNameMap["Error"];
-        d.x = d.y = 0;
-        d.w = d.h = 1;
     }
 
-    int ret = 0;
+    refineRect(d, tex->getRect(), line);
 
-    if (opt == "#SRC_IMAGE")
+    // SRC
+    if (t.size() < 11)
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
+
+    // SRC_NOTE
+    if (t[0] == "#SRC_NOTE")// || t[0] == "#SRC_AUTO_NOTE")
     {
-        _sprites.push_back(std::make_shared<SpriteAnimated>(
+		NoteChannelCategory cat = NoteChannelCategory::Note;
+		NoteChannelIndex idx = (NoteChannelIndex)d._null;
+		size_t i = channelToIdx(cat, idx);
+        _sprites.push_back(std::make_shared<SpriteLaneVertical>(
             _texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y, d.div_x, d.cycle, iTimer));
-        LOG_DEBUG << "[Skin] " << line << ": Set Image sprite (texture: " << gr_key << ", timer: " << d.timer << ")";
-        ret = 1;
+        _laneSprites[i] = std::static_pointer_cast<SpriteLaneVertical>(_sprites.back());
+		_laneSprites[i]->setChannel(cat, idx);
+        LOG_DEBUG << "[Skin] " << line << ": Set Note " << idx << " sprite (texture: " << gr_key << ", timer: " << d.timer << ")";
+
+		_laneSprites[i]->pNote->appendKeyFrame({ 0, {Rect(),
+			RenderParams::accTy::CONSTANT, Color(0xffffffff), BlendMode::ALPHA, 0, 0 } });
+		_laneSprites[i]->pNote->setLoopTime(0);
+
+        return 1;
     }
-
-    else if (opt == "#SRC_NUMBER")
-    {
-        if (t.size() < 14)
-            LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
-
-        convertLine(t, src, 10, 13);
-        lr2skin::s_number& d = *(lr2skin::s_number*)src;
-
-        // TODO convert num
-        eNumber iNum = (eNumber)d.num;
-
-		_sprites.emplace_back(std::make_shared<SpriteNumber>(
-			_texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), (NumberAlign)d.align, d.keta, d.div_y, d.div_x, d.cycle, iNum, iTimer));
-		LOG_DEBUG << "[Skin] " << line << ": Set Number sprite (gr: " << gr_key << ", num: " << (unsigned)iNum << ")";
-
-        ret = 2;
-    }
-    else if (opt == "#SRC_SLIDER")
-    {
-        if (t.size() < 14)
-            LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
-
-        convertLine(t, src, 10, 13);
-        lr2skin::s_slider& d = *(lr2skin::s_slider*)src;
-		// 14th: mouse_disable is ignored for now
-
-		_sprites.push_back(std::make_shared<SpriteSlider>(
-            _texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), (SliderDirection)d.muki, d.range, d.div_y, d.div_x, d.cycle, (eSlider)d.type, iTimer));
-        LOG_DEBUG << "[Skin] " << line << ": Set Slider sprite (texture: " << gr_key << ", type: " << d.type << ", timer: " << d.timer << ")";
-        ret = 3;
-    }
-    else if (opt == "#SRC_BARGRAPH")
-    {
-        if (t.size() < 14)
-            LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
-
-        convertLine(t, src, 10, 13);
-        lr2skin::s_bargraph& d = *(lr2skin::s_bargraph*)src;
-
-		_sprites.push_back(std::make_shared<SpriteBargraph>(
-            _texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), (BargraphDirection)d.muki, d.div_y, d.div_x, d.cycle, (eBargraph)d.type, iTimer));
-        LOG_DEBUG << "[Skin] " << line << ": Set Bargraph sprite (texture: " << gr_key << ", type: " << d.type << ", timer: " << d.timer << ")";
-        ret = 4;
-    }
-    else if (opt == "#SRC_BUTTON")
-    {
-        if (t.size() < 14)
-            LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
-
-        convertLine(t, src, 10, 13);
-        lr2skin::s_button& d = *(lr2skin::s_button*)src;
-		
-		if (d.type < buttonAdapter.size())
-		{
-			if (auto sw = std::get_if<eSwitch>(&buttonAdapter[d.type]))
-			{
-				if (*sw == eSwitch::_TRUE)
-				{
-					switch (d.type)
-					{
-					case 72:	// bga off/on/autoplay only, special
-					case 73:	// bga normal/extend, special
-					case 80:	// window mode, windowed/fullscreen
-					case 82:	// vsync
-					default:
-						break;
-					}
-				}
-				auto s = std::make_shared<SpriteOption>(
-					_texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), 1, 1, 0, eTimer::SCENE_START, false,
-					d.div_y, d.div_x);
-				s->setInd(SpriteOption::opType::SWITCH, (unsigned)*sw);
-				_sprites.push_back(s);
-			}
-			else if (auto op = std::get_if<eOption>(&buttonAdapter[d.type]))
-			{
-				auto s = std::make_shared<SpriteOption>(
-					_texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), 1, 1, 0, eTimer::SCENE_START, false,
-					d.div_y, d.div_x);
-				s->setInd(SpriteOption::opType::OPTION, (unsigned)*op);
-				_sprites.push_back(s);
-			}
-		}
-
-        LOG_DEBUG << "[Skin] " << line << ": Set Option sprite (texture: " << gr_key << ", timer: " << d.timer << ")";
-        ret = 5;
-    }
-	/*
-    else if (opt == "#SRC_ONMOUSE")
-    {
-
-        ret = 6;
-    }
-    */
-    return ret;
+    
+    // other types are not supported
+    return 0;
 }
 
+static std::map<Token, int> __dst_supported
+{
+	{"#DST_IMAGE",1},
+	{"#DST_NUMBER",2},
+	{"#DST_SLIDER",3},
+	{"#DST_BARGRAPH",4},
+	{"#DST_BUTTON",5},
+	{"#DST_ONMOUSE",6},
+	{"#DST_TEXT",7},
+	{"#DST_JUDGELINE",8}
+};
 int SkinLR2::loadLR2dst(const Tokens &t)
 {
     auto opt = t[0];
 
-    if (opt != "#DST_IMAGE" && opt != "#DST_NUMBER" && opt != "#DST_SLIDER" &&
-        opt != "#DST_BARGRAPH" && opt != "#DST_BUTTON" && opt != "#DST_ONMOUSE" &&
-        opt != "#DST_TEXT" || _sprites.empty())
+    if (__dst_supported.find(opt) == __dst_supported.end() || _sprites.empty())
         return 0;
 
     if (t.size() < 14)
@@ -834,26 +931,7 @@ int SkinLR2::loadLR2dst(const Tokens &t)
         return 0;
     }
 
-    if (opt == "#DST_IMAGE")
-    {
-        ret = 1;
-    }
-    else if (opt == "#DST_NUMBER")
-    {
-        ret = 2;
-    }
-    else if (opt == "#DST_BARGRAPH")
-    {
-        ret = 3;
-    }
-    else if (opt == "#DST_BUTTON")
-    {
-        ret = 4;
-    }
-    else if (opt == "#DST_ONMOUSE")
-    {
-        ret = 5;
-    }
+	ret = __dst_supported[opt];
 
     if (e->isKeyFrameEmpty())
     {
@@ -898,72 +976,8 @@ int SkinLR2::loadLR2dst(const Tokens &t)
     return ret;
 }
 
-int SkinLR2::loadLR2srcnote(const Tokens &t)
-{
-    // skip unsupported
-    if ( !(t[0] == "#SRC_NOTE" || t[0] == "#SRC_MINE" || t[0] == "#SRC_LN_END" || t[0] == "#SRC_LN_BODY"
-        || t[0] == "#SRC_LN_START"|| t[0] == "#SRC_AUTO_NOTE" || t[0] == "#SRC_AUTO_MINE" || t[0] == "#SRC_AUTO_LN_END" 
-        || t[0] == "#SRC_AUTO_LN_BODY" || t[0] == "#SRC_AUTO_LN_START"))
-    {
-        return 0;
-    }
 
-    // load line into data struct
-    int src[32]{ 0 };
-    convertLine(t, src);
-    lr2skin::s_basic& d = *(lr2skin::s_basic*)src;
-    refineRect(d, line);
-
-    // TODO convert timer
-    eTimer iTimer = (eTimer)d.timer;
-
-    // Find texture from map by gr
-    pTexture tex = nullptr;
-    std::string gr_key = std::to_string(d.gr);
-    if (_texNameMap.find(gr_key) != _texNameMap.end())
-    {
-        tex = _texNameMap[gr_key];
-        if (d.w == -1 && d.h == -1)
-        {
-            d.w = tex->getRect().w;
-            d.h = tex->getRect().h;
-        }
-    }
-    else
-    {
-        tex = _texNameMap["Error"];
-        d.x = d.y = 0;
-        d.w = d.h = 1;
-    }
-
-    // SRC
-    if (t.size() < 11)
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
-
-    // SRC_NOTE
-    if (t[0] == "#SRC_NOTE" || t[0] == "#SRC_AUTO_NOTE")
-    {
-		NoteChannelCategory cat = NoteChannelCategory::Note;
-		NoteChannelIndex idx = (NoteChannelIndex)d._null;
-		size_t i = channelToIdx(cat, idx);
-        _sprites.push_back(std::make_shared<SpriteLaneVertical>(
-            _texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y, d.div_x, d.cycle, iTimer));
-        _laneSprites[i] = std::static_pointer_cast<SpriteLaneVertical>(_sprites.back());
-		_laneSprites[i]->setChannel(cat, idx);
-        LOG_DEBUG << "[Skin] " << line << ": Set Note " << idx << " sprite (texture: " << gr_key << ", timer: " << d.timer << ")";
-
-		_laneSprites[i]->pNote->appendKeyFrame({ 0, {Rect(),
-			RenderParams::accTy::CONSTANT, Color(0xffffffff), BlendMode::ALPHA, 0, 0 } });
-		_laneSprites[i]->pNote->setLoopTime(0);
-
-        return 1;
-    }
-    
-    // other types are not supported
-    return 0;
-}
-
-int SkinLR2::loadLR2dstnote(const Tokens &t)
+int SkinLR2::loadLR2_DST_NOTE(const Tokens &t)
 {
     if (t[0] != "#DST_NOTE")
         return 0;
@@ -1087,9 +1101,9 @@ int SkinLR2::loadLR2SkinLine(const Tokens &raw)
             return 7;
         if (loadLR2dst(t))
             return 8;
-        if (loadLR2srcnote(t))
+        if (loadLR2_SRC_NOTE(t))
             return 9;
-        if (loadLR2dstnote(t))
+        if (loadLR2_DST_NOTE(t))
             return 10;
     }
     catch (std::invalid_argument e)

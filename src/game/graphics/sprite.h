@@ -374,3 +374,36 @@ public:
 };
 
 
+////////////////////////////////////////////////////////////////////////////////
+// Gauge sprite:
+// 50 grids, each represent 2%
+
+class SpriteGaugeGrid : public SpriteAnimated
+{
+private:
+	int _delta_x;
+	int _delta_y;
+	unsigned _min, _max;
+	unsigned _numInd;
+	unsigned short _val;		// 0~50
+
+public:
+    SpriteGaugeGrid() = delete;
+
+    SpriteGaugeGrid(pTexture texture,
+        unsigned animRows, unsigned animCols, unsigned frameTime, int dx, int dy, unsigned min = 0, unsigned max = 100, 
+		eTimer timer = eTimer::SCENE_START, eNumber num = eNumber::PLAY_1P_GROOVEGAUGE,
+		bool animVerticalIndexing = false, unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
+
+    SpriteGaugeGrid(pTexture texture, const Rect& rect,
+        unsigned animRows, unsigned animCols, unsigned frameTime, int dx, int dy, unsigned min = 0, unsigned max = 100, 
+		eTimer timer = eTimer::SCENE_START, eNumber num = eNumber::PLAY_1P_GROOVEGAUGE,
+		bool animVerticalIndexing = false, unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
+
+    virtual ~SpriteGaugeGrid() = default;
+
+public:
+    void updateVal(unsigned v);
+    void updateValByInd();
+	virtual bool update(timestamp t);
+};

@@ -3,6 +3,8 @@
 #include <variant>
 #include <filesystem>
 #include <bitset>
+#include <map>
+#include <functional>
 #include "types.h"
 #include "skin.h"
 #include "game/graphics/sprite_lane.h"
@@ -818,7 +820,7 @@ namespace LR2
 		MAXCOMBO,
 		TOTALNOTES,
 		GROOVEGAUGE,
-		EXSCORE_2P_DELTA,
+		EXSCORE_DELTA,
 		PERFECT,
 		GREAT,
 		GOOD,
@@ -836,7 +838,7 @@ namespace LR2
 		RIVAL_MAXCOMBO,
 		RIVAL_TOTALNOTES,
 		RIVAL_GROOVEGAUGE,
-		RIVAL_EXSCORE_2P_DELTA,
+		RIVAL_EXSCORE_DELTA,
 		RIVAL_PERFECT,
 		RIVAL_GREAT,
 		RIVAL_GOOD,
@@ -1297,6 +1299,7 @@ namespace LR2
 using namespace LR2;
 
 struct setDst { dst_option dst; bool set; };
+//typedef std::function<int(SkinLR2*, const Tokens&, pTexture)> LoadLR2SrcFunc;
 
 class SkinLR2: public vSkin
 {
@@ -1358,10 +1361,17 @@ private:
     int loadLR2others       (const Tokens &t);
     int loadLR2SkinLine     (const Tokens &t);
 
+public:
     int loadLR2src(const Tokens &t);
-    int loadLR2srcnote(const Tokens &t);
+    int loadLR2_SRC_IMAGE(const Tokens &t, pTexture tex);
+    int loadLR2_SRC_NUMBER(const Tokens &t, pTexture tex);
+    int loadLR2_SRC_SLIDER(const Tokens &t, pTexture tex);
+    int loadLR2_SRC_BARGRAPH(const Tokens &t, pTexture tex);
+    int loadLR2_SRC_BUTTON(const Tokens &t, pTexture tex);
+    int loadLR2_SRC_TEXT(const Tokens &t, pTexture dummy = nullptr);
+    int loadLR2_SRC_NOTE(const Tokens &t);
     int loadLR2dst(const Tokens &t);
-    int loadLR2dstnote(const Tokens &t);
+    int loadLR2_DST_NOTE(const Tokens &t);
 
     void loadLR2IF(const Tokens &t, std::ifstream&);
 
@@ -1386,6 +1396,8 @@ public:
     virtual void draw() const;
 
 };
+
+typedef std::function<int(SkinLR2*, const Tokens&, pTexture)> LoadLR2SrcFunc;
 
 // adapt helper
 void updateDstOpt();
