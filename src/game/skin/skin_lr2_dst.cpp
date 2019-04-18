@@ -99,14 +99,6 @@ void updateDstOpt()
 
 	// 20 パネル起動していない
 	// 21 パネル1起動時
-	// 22 パネル2起動時
-	// 23 パネル3起動時
-	// 24 パネル4起動時
-	// 25 パネル5起動時
-	// 26 パネル6起動時
-	// 27 パネル7起動時
-	// 28 パネル8起動時
-	// 29 パネル9起動時
 	{
 		set(20, sw({
 			eSwitch::SELECT_PANEL1,
@@ -144,7 +136,7 @@ void updateDstOpt()
 	// 35 ghost typeA
 	// 36 ghost typeB
 	// 37 ghost typeC
-	switch (gOptions.get(eOption::PLAY_GHOST_TYPE))
+	switch (gOptions.get(eOption::PLAY_GHOST_TYPE_1P))
 	{
 	using namespace Option;
 	case GHOST_OFF: set(34); break;
@@ -160,13 +152,15 @@ void updateDstOpt()
 
 	// 42 1P側がノーマルゲージ
 	// 43 1P側が赤ゲージ
-	{
-		using namespace Option;
-		set(42, dst(eOption::PLAY_GAUGE_TYPE, { GAUGE_ASSIST, GAUGE_EASY, GAUGE_NORMAL }));
-		set(43, dst(eOption::PLAY_GAUGE_TYPE, { GAUGE_HARD, GAUGE_EXHARD, GAUGE_DEATH }));
-	}
 	// 44 2P側がノーマルゲージ
 	// 45 2P側が赤ゲージ
+	{
+		using namespace Option;
+		set(42, dst(eOption::PLAY_GAUGE_TYPE_1P, { GAUGE_ASSIST, GAUGE_EASY, GAUGE_NORMAL }));
+		set(43, dst(eOption::PLAY_GAUGE_TYPE_1P, { GAUGE_HARD, GAUGE_EXHARD, GAUGE_DEATH }));
+		set(44, dst(eOption::PLAY_GAUGE_TYPE_2P, { GAUGE_ASSIST, GAUGE_EASY, GAUGE_NORMAL }));
+		set(45, dst(eOption::PLAY_GAUGE_TYPE_2P, { GAUGE_HARD, GAUGE_EXHARD, GAUGE_DEATH }));
+	}
 
 	// 46 難易度フィルタが有効
 	// 47 難易度フィルタが無効
@@ -183,23 +177,36 @@ void updateDstOpt()
 
 	// 52 EXTRA MODE OFF
 	// 53 EXTRA MODE ON
-	set(52, sw(eSwitch::PLAY_OPTION_EXTRA));
-	set(53, !sw(eSwitch::PLAY_OPTION_EXTRA));
+	set(52, !sw(eSwitch::PLAY_OPTION_EXTRA));
+	set(53, sw(eSwitch::PLAY_OPTION_EXTRA));
 
 	// 54 AUTOSCRATCH 1P OFF
 	// 55 AUTOSCRATCH 1P ON
-	set(54, !sw(eSwitch::PLAY_OPTION_AUTOSCR));
-	set(55, !sw(eSwitch::PLAY_OPTION_AUTOSCR));
 	// 56 AUTOSCRATCH 2P OFF
 	// 57 AUTOSCRATCH 2P ON
+	set(54, !sw(eSwitch::PLAY_OPTION_AUTOSCR_1P));
+	set(55, sw(eSwitch::PLAY_OPTION_AUTOSCR_1P));
+	set(56, !sw(eSwitch::PLAY_OPTION_AUTOSCR_2P));
+	set(57, sw(eSwitch::PLAY_OPTION_AUTOSCR_2P));
 
 	// 60 スコアセーブ不可能
 	// 61 スコアセーブ可能
+	set(60, !sw(eSwitch::CHART_CAN_SAVE_SCORE));
+	set(61, sw(eSwitch::CHART_CAN_SAVE_SCORE));
+
 	// 62 クリアセーブ不可能
 	// 63 EASYゲージ （仕様書では「イージーでセーブ」）
 	// 64 NORMALゲージ （仕様書では「ノーマルでセーブ」）
 	// 65 HARD/G-ATTACKゲージ （仕様書では「ハードでセーブ」）
 	// 66 DEATH/P-ATTACKゲージ （仕様書では「フルコンのみ」）
+	{
+		using namespace Option;
+		set(62, dst(eOption::CHART_CAN_SAVE_LAMP, { LAMP_NOPLAY, LAMP_FAILED }));
+		set(63, dst(eOption::CHART_CAN_SAVE_LAMP, { LAMP_ASSIST, LAMP_EASY }));
+		set(64, dst(eOption::CHART_CAN_SAVE_LAMP, LAMP_NORMAL));
+		set(65, dst(eOption::CHART_CAN_SAVE_LAMP, { LAMP_HARD, LAMP_EXHARD }));
+		set(66, dst(eOption::CHART_CAN_SAVE_LAMP, { LAMP_FULLCOMBO, LAMP_PERFECT, LAMP_MAX }));
+	}
 
 	// 70 同フォルダbeginnerのレベルが規定値を越えていない(5/10keysはLV9、7/14keysはLV12、9keysはLV42以内)
 	// 75 同フォルダbeginnerのレベルが規定値を越えている
@@ -247,6 +254,8 @@ void updateDstOpt()
 
 	// 90 リザ クリア
 	// 91 リザ ミス
+	set(90, !sw(eSwitch::RESULT_CLEAR));
+	set(91, sw(eSwitch::RESULT_CLEAR));
 
 
 	// /////////////////////////////////
@@ -291,6 +300,31 @@ void updateDstOpt()
 		}
 	}
 
+	// 624 自分と相手のスコアを比較する状況ではない (現状では、ランキング表示中とライバルフォルダ)
+	// 625 自分と相手のスコアを比較するべき状況である
+	set(624);
+
+
+	// rival
+	// 640 NOT PLAYED
+	// 641 FAILED
+	// 642 EASY CLEARED
+	// 643 NORMAL CLEARED
+	// 644 HARD CLEARED
+	// 645 FULL COMBO
+
+	// rival
+	// 650 AAA 8/9
+	// 651 AA 7/9
+	// 652 A 6/9
+	// 653 B 5/9
+	// 654 C 4/9
+	// 655 D 3/9
+	// 656 E 2/9
+	// 657 F 1/9
+
+
+
 	// //クリア済みオプションフラグ(ゲージ)
 	// 118 GROOVE
 	// 119 SURVIVAL
@@ -298,8 +332,7 @@ void updateDstOpt()
 	// 121 EASY
 	// 122 PERFECT ATTACK
 	// 123 GOOD ATTACK
-	// 124 未定
-	// 125 未定
+	set(118);
 
 	// //クリア済みオプションフラグ(ランダム)
 	// 126 正規
@@ -308,18 +341,14 @@ void updateDstOpt()
 	// 129 S-RANDOM
 	// 130 SCATTER
 	// 131 CONVERGE
-	// 132 未定
-	// 133 未定
+	set(126);
 
 	// //クリア済みオプションフラグ(エフェクト)
 	// 134 無し
 	// 135 HIDDEN
 	// 136 SUDDEN
 	// 137 HID+SUD
-	// 138 未定
-	// 139 未定
-	// 140 未定
-	// 141 未定
+	set(134);
 
 	// //その他オプションフラグ
 	// 142 AUTO SCRATCH (自動皿抜きでクリアすれば消えます)
@@ -433,6 +462,7 @@ void updateDstOpt()
 
 	// 196 リプレイ無し
 	// 197 リプレイ有り
+	set(196);
 
 
 	// /////////////////////////////////
@@ -440,7 +470,7 @@ void updateDstOpt()
 	// 200 1P AAA
 	{
 		using namespace Option;
-		switch (gOptions.get(eOption::PLAY_RANK_ESTIMATED))
+		switch (gOptions.get(eOption::PLAY_RANK_ESTIMATED_1P))
 		{
 		case RANK_0:
 		case RANK_1: set(200); break;
@@ -455,12 +485,27 @@ void updateDstOpt()
 	}
 
 	// 210 2P AAA
+	{
+		using namespace Option;
+		switch (gOptions.get(eOption::PLAY_RANK_ESTIMATED_2P))
+		{
+		case RANK_0:
+		case RANK_1: set(210); break;
+		case RANK_2: set(211); break;
+		case RANK_3: set(212); break;
+		case RANK_4: set(213); break;
+		case RANK_5: set(214); break;
+		case RANK_6: set(215); break;
+		case RANK_7: set(216); break;
+		case RANK_8: set(217); break;
+		}
+	}
 
 
 	// 220 AAA確定
 	{
 		using namespace Option;
-		switch (gOptions.get(eOption::PLAY_RANK_BORDER))
+		switch (gOptions.get(eOption::PLAY_RANK_BORDER_1P))
 		{
 		case RANK_0:
 		case RANK_1: set(220); break;
@@ -475,16 +520,23 @@ void updateDstOpt()
 	}
 
 	// 230 1P 0-10%
-	// 231 1P 10-19%
-	// 232 1P 20-29%
-	// 233 1P 30-39%
-	// 234 1P 40-49%
-	// 235 1P 50-59%
-	// 236 1P 60-69%
-	// 237 1P 70-79%
-	// 238 1P 80-89%
-	// 239 1P 90-99%
-	// 240 1P 100%
+	{
+		using namespace Option;
+		switch (gOptions.get(eOption::PLAY_ACCURACY_1P))
+		{
+		case ACC_0:  set(230); break;
+		case ACC_10: set(231); break;
+		case ACC_20: set(232); break;
+		case ACC_30: set(233); break;
+		case ACC_40: set(234); break;
+		case ACC_50: set(235); break;
+		case ACC_60: set(236); break;
+		case ACC_70: set(237); break;
+		case ACC_80: set(238); break;
+		case ACC_90: set(239); break;
+		case ACC_100: set(240); break;
+		}
+	}
 
 	// 241 1P PERFECT
 	// 242 1P GREAT
@@ -494,7 +546,7 @@ void updateDstOpt()
 	// 246 1P 空POOR
 	{
 		using namespace Option;
-		switch (gOptions.get(eOption::PLAY_LAST_JUDGE))
+		switch (gOptions.get(eOption::PLAY_LAST_JUDGE_1P))
 		{
 		case JUDGE_0: set(241); break;
 		case JUDGE_1: set(242); break;
@@ -508,18 +560,26 @@ void updateDstOpt()
 	// //公式ハーフスキンの左右のネオン用です 2P側も
 	// 247 1P POORBGA表示時間外
 	// 248 1P POORBGA表示時間中
+	set(247);
 
 	// 250 2P 0-10%
-	// 251 2P 10-19%
-	// 252 2P 20-29%
-	// 253 2P 30-39%
-	// 254 2P 40-49%
-	// 255 2P 50-59%
-	// 256 2P 60-69%
-	// 257 2P 70-79%
-	// 258 2P 80-89%
-	// 259 2P 90-99%
-	// 260 2P 100%
+	{
+		using namespace Option;
+		switch (gOptions.get(eOption::PLAY_ACCURACY_2P))
+		{
+		case ACC_0:  set(250); break;
+		case ACC_10: set(251); break;
+		case ACC_20: set(252); break;
+		case ACC_30: set(253); break;
+		case ACC_40: set(254); break;
+		case ACC_50: set(255); break;
+		case ACC_60: set(256); break;
+		case ACC_70: set(257); break;
+		case ACC_80: set(258); break;
+		case ACC_90: set(259); break;
+		case ACC_100: set(260); break;
+		}
+	}
 
 	// 261 2P PERFECT
 	// 262 2P GREAT
@@ -527,12 +587,27 @@ void updateDstOpt()
 	// 264 2P BAD
 	// 265 2P POOR
 	// 266 2P 空POOR
+	{
+		using namespace Option;
+		switch (gOptions.get(eOption::PLAY_LAST_JUDGE_2P))
+		{
+		case JUDGE_0: set(261); break;
+		case JUDGE_1: set(262); break;
+		case JUDGE_2: set(263); break;
+		case JUDGE_3: set(264); break;
+		case JUDGE_4: set(265); break;
+		case JUDGE_5: set(266); break;
+		}
+	}
 
 	// 267 2P POORBGA表示時間外
 	// 268 2P POORBGA表示時間中
+	set(267);
 
 	// 270 1P SUD+変更中
 	// 271 2P SUD+変更中
+	set(270, sw(eSwitch::P1_SETTING_SPEED));
+	set(271, sw(eSwitch::P2_SETTING_SPEED));
 
 	// 280 コースステージ1
 	// 281 コースステージ2
@@ -549,7 +624,7 @@ void updateDstOpt()
 		case STAGE_2: set(281); break;
 		case STAGE_3: set(282); break;
 		case STAGE_4: set(283); break;
-		case STAGE_FINAL: set(280); break;
+		case STAGE_FINAL: set(289); break;
 		}
 	}
 
@@ -564,7 +639,7 @@ void updateDstOpt()
 	// 300 1P AAA
 	{
 		using namespace Option;
-		switch (gOptions.get(eOption::RESULT_RANK))
+		switch (gOptions.get(eOption::RESULT_RANK_1P))
 		{
 		case RANK_0:
 		case RANK_1: set(300); break;
@@ -579,37 +654,60 @@ void updateDstOpt()
 		}
 	}
 
-
 	// 310 2P AAA
-	// 311 2P AA
-	// 312 2P A
-	// 313 2P B
-	// 314 2P C
-	// 315 2P D
-	// 316 2P E
-	// 317 2P F
-	// 318 2P 0
+	{
+		using namespace Option;
+		switch (gOptions.get(eOption::RESULT_RANK_2P))
+		{
+		case RANK_0:
+		case RANK_1: set(310); break;
+		case RANK_2: set(311); break;
+		case RANK_3: set(312); break;
+		case RANK_4: set(313); break;
+		case RANK_5: set(314); break;
+		case RANK_6: set(315); break;
+		case RANK_7: set(316); break;
+		case RANK_8: set(317); break;
+		case RANK_9: set(318); break;
+		}
+	}
 
 	// 320 更新前 AAA
-	// 321 更新前 AA
-	// 322 更新前 A
-	// 323 更新前 B
-	// 324 更新前 C
-	// 325 更新前 D
-	// 326 更新前 E
-	// 327 更新前 F
+	{
+		using namespace Option;
+		switch (gOptions.get(eOption::RESULT_MYBEST_RANK))
+		{
+		case RANK_0:
+		case RANK_1: set(320); break;
+		case RANK_2: set(321); break;
+		case RANK_3: set(322); break;
+		case RANK_4: set(323); break;
+		case RANK_5: set(324); break;
+		case RANK_6: set(325); break;
+		case RANK_7: set(326); break;
+		case RANK_8: set(327); break;
+		}
+	}
 
 	// 330 スコアが更新された
+	set(330, sw(eSwitch::RESULT_UPDATED_SCORE));
 	// 331 MAXCOMBOが更新された
+	set(331, sw(eSwitch::RESULT_UPDATED_MAXCOMBO));
 	// 332 最小B+Pが更新された
+	set(332, sw(eSwitch::RESULT_UPDATED_BP));
 	// 333 トライアルが更新された
+	//set(333, sw(eSwitch::RESULT_UPDATED_TRIAL));
+	set(333, false);
 	// 334 IRの順位が更新された
+	//set(334, sw(eSwitch::RESULT_UPDATED_IRRANK));
+	set(334, false);
 	// 335 スコアランクが更新された
+	set(335, sw(eSwitch::RESULT_UPDATED_RANK));
 
 	// 340 更新後 AAA
 	{
 		using namespace Option;
-		switch (gOptions.get(eOption::RESULT_MYBEST_RANK))
+		switch (gOptions.get(eOption::RESULT_UPDATED_RANK))
 		{
 		case RANK_0:
 		case RANK_1: set(340); break;
@@ -623,8 +721,10 @@ void updateDstOpt()
 		}
 	}
 
+
 	// 350 リザルトフリップ無効(プレイスキンで#FLIPRESULT命令無し、もしくは#DISABLEFLIP命令以降
 	// 351 リザルトフリップ有効(プレイスキンで#FLIPRESULT命令有り
+	set(350);
 
 	// 352 1PWIN 2PLOSE
 	// 353 1PLOSE 2PWIN
@@ -729,6 +829,7 @@ void updateDstOpt()
 
 	// 571 コースセレクト中である
 	// 572 コースセレクト中では無い
+	set(572);
 
 	// //コースstage1
 	// 700 コースstage1 difficulty未定義
@@ -782,33 +883,14 @@ void updateDstOpt()
 	// 606 IR更新待ち
 	// 607 IRアクセス中
 	// 608 IRビジー
+	set(600);
 
 
 	// 620 ランキング表示中ではない
 	// 621 ランキング表示中
+	set(620);
 
 	// 622 ゴーストバトルではない
 	// 623 ゴーストバトル発動中(決定演出～リザルトの間のみ)
-
-	// 624 自分と相手のスコアを比較する状況ではない (現状では、ランキング表示中とライバルフォルダ)
-	// 625 自分と相手のスコアを比較するべき状況である
-
-
-
-	// 640 NOT PLAYED
-	// 641 FAILED
-	// 642 EASY CLEARED
-	// 643 NORMAL CLEARED
-	// 644 HARD CLEARED
-	// 645 FULL COMBO
-
-	// 650 AAA 8/9
-	// 651 AA 7/9
-	// 652 A 6/9
-	// 653 B 5/9
-	// 654 C 4/9
-	// 655 D 3/9
-	// 656 E 2/9
-	// 657 F 1/9
-
+	set(622);
 }

@@ -107,12 +107,12 @@ std::vector<std::variant<std::monostate, eSwitch, eOption>> buttonAdapter{
 	eSwitch::_FALSE,
 
 	//40~45
-	eOption::PLAY_GAUGE_TYPE,
-	eSwitch::_FALSE,	// 2p
-	eOption::PLAY_RANDOM_TYPE,
-	eSwitch::_FALSE,	// 2p
-	eSwitch::PLAY_OPTION_AUTOSCR,
-	eSwitch::_FALSE,	// 2p
+	eOption::PLAY_GAUGE_TYPE_1P,
+	eOption::PLAY_GAUGE_TYPE_2P,
+	eOption::PLAY_RANDOM_TYPE_1P,
+	eOption::PLAY_RANDOM_TYPE_2P,
+	eSwitch::PLAY_OPTION_AUTOSCR_1P,
+	eSwitch::PLAY_OPTION_AUTOSCR_2P,
 	
 	//46~49
 	eSwitch::_FALSE,	// shutter?
@@ -121,15 +121,15 @@ std::vector<std::variant<std::monostate, eSwitch, eOption>> buttonAdapter{
 	eSwitch::_FALSE,	// reserved
 
 	//50~51
-	eOption::PLAY_LANE_EFFECT_TYPE,
-	eSwitch::_FALSE,	// 2p
+	eOption::PLAY_LANE_EFFECT_TYPE_1P,
+	eOption::PLAY_LANE_EFFECT_TYPE_2P,
 
 	eSwitch::_FALSE,	// reserved
 	eSwitch::_FALSE,	// reserved
 
 	//54
 	eSwitch::PLAY_OPTION_DP_FLIP,
-	eOption::PLAY_HSFIX_TYPE,
+	eOption::PLAY_HSFIX_TYPE_1P,
 	eOption::PLAY_BATTLE_TYPE,
 	eSwitch::_FALSE,	// HS-1P
 	eSwitch::_FALSE,	// HS-2P
@@ -149,7 +149,7 @@ std::vector<std::variant<std::monostate, eSwitch, eOption>> buttonAdapter{
 
 	// 70
 	eSwitch::SYSTEM_SCOREGRAPH,
-	eOption::PLAY_GHOST_TYPE,
+	eOption::PLAY_GHOST_TYPE_1P,
 	eSwitch::_TRUE,	// bga off/on/autoplay only, special
 	eSwitch::_TRUE, // bga normal/extend, special
 	eSwitch::_FALSE,// JUDGE TIMING
