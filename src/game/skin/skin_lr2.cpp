@@ -661,7 +661,9 @@ static std::map<Token, LoadLR2SrcFunc> __src_supported
 	{"#SRC_BARGRAPH", std::bind(&SkinLR2::loadLR2_SRC_BARGRAPH, _1, _2, _3)},
 	{"#SRC_BUTTON",   std::bind(&SkinLR2::loadLR2_SRC_BUTTON,   _1, _2, _3)},
 	//{"#SRC_ONMOUSE", std::bind(&SkinLR2::loadLR2_SRC_ONMOUSE, _1, _2, _3)},
-	{"#SRC_TEXT",     std::bind(&SkinLR2::loadLR2_SRC_TEXT,     _1, _2, _3)}
+	{"#SRC_TEXT",     std::bind(&SkinLR2::loadLR2_SRC_TEXT,     _1, _2, _3)},
+	{"#SRC_NOWJUDGE_1P", std::bind(&SkinLR2::loadLR2_SRC_NOWJUDGE1, _1, _2, _3)},
+	{"#SRC_NOWJUDGE_2P", std::bind(&SkinLR2::loadLR2_SRC_NOWJUDGE2, _1, _2, _3)},
 };
 int SkinLR2::loadLR2src(const Tokens &t)
 {
@@ -835,6 +837,68 @@ int SkinLR2::loadLR2_SRC_TEXT(const Tokens &t, pTexture)
 		_fontNameMap[std::to_string(d.font)], (eText)d.st, (TextAlign)d.align));
 
 	return 0;
+}
+
+int SkinLR2::loadLR2_SRC_NOWJUDGE1(const Tokens &t, pTexture tex)
+{
+	if (t.size() < 12)
+	{
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
+		return 1;
+	}
+	noshiftJudge1P = stoine(t[11]);
+	int ret = loadLR2_SRC_IMAGE(t, tex);
+	if (ret == 0)
+		pRectNowJudge1P = &(_sprites.back()->_current.rect);
+	return ret;
+}
+
+int SkinLR2::loadLR2_SRC_NOWJUDGE2(const Tokens &t, pTexture tex)
+{
+	if (t.size() < 12)
+	{
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
+		return 1;
+	}
+	noshiftJudge1P = stoine(t[11]);
+	int ret = loadLR2_SRC_IMAGE(t, tex);
+	if (ret == 0)
+		pRectNowJudge2P = &(_sprites.back()->_current.rect);
+	return ret;
+}
+
+int SkinLR2::loadLR2_SRC_NOWCOMBO1(const Tokens &t, pTexture tex)
+{
+	if (t.size() < 14)
+	{
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
+		return 1;
+	}
+	alignJudge1P = stoine(t[12]);
+	Tokens tt(t);
+	tt[11] = std::to_string((int)eNumber::_DISP_NOWCOMBO_1P);
+	tt[12] = stoine(t[12]) == 1 ? "2" : "0";
+	int ret = loadLR2_SRC_NUMBER(tt, tex);
+	if (ret == 0)
+		pRectNowCombo1P = &(_sprites.back()->_current.rect);
+	return ret;
+}
+
+int SkinLR2::loadLR2_SRC_NOWCOMBO2(const Tokens &t, pTexture tex)
+{
+	if (t.size() < 14)
+	{
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
+		return 1;
+	}
+	alignJudge2P = stoine(t[12]);
+	Tokens tt(t);
+	tt[11] = std::to_string((int)eNumber::_DISP_NOWCOMBO_2P);
+	tt[12] = stoine(t[12]) == 1 ? "2" : "0";
+	int ret = loadLR2_SRC_NUMBER(tt, tex);
+	if (ret == 0)
+		pRectNowCombo2P = &(_sprites.back()->_current.rect);
+	return ret;
 }
 
 int SkinLR2::loadLR2_SRC_NOTE(const Tokens &t)
@@ -1367,6 +1431,17 @@ void SkinLR2::update()
     {
         e.draw = getDstOpt(e.op1) && getDstOpt(e.op2) && getDstOpt(e.op3);
     }
+
+	// update nowjudge/nowcombo
+	// TODO
+	if (pRectNowJudge1P && pRectNowCombo1P)
+	{
+		(*pRectNowCombo1P) = *pRectNowJudge1P + *pRectNowCombo1P;
+	}
+	if (pRectNowJudge2P && pRectNowCombo2P)
+	{
+		(*pRectNowCombo2P) = *pRectNowJudge2P + *pRectNowCombo2P;
+	}
 
     // update what?
     //for (auto& c : _csvIncluded)

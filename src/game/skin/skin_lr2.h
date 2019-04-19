@@ -1373,6 +1373,21 @@ public:
     int loadLR2dst(const Tokens &t);
     int loadLR2_DST_NOTE(const Tokens &t);
 
+protected:
+	bool noshiftJudge1P;
+	bool noshiftJudge2P;
+	int  alignJudge1P;
+	int  alignJudge2P;
+	Rect *pRectNowJudge1P = nullptr;
+	Rect *pRectNowJudge2P = nullptr;
+	Rect *pRectNowCombo1P = nullptr;
+	Rect *pRectNowCombo2P = nullptr;
+public:
+    int loadLR2_SRC_NOWJUDGE1(const Tokens &t, pTexture tex);
+    int loadLR2_SRC_NOWJUDGE2(const Tokens &t, pTexture tex);
+    int loadLR2_SRC_NOWCOMBO1(const Tokens &t, pTexture tex);
+    int loadLR2_SRC_NOWCOMBO2(const Tokens &t, pTexture tex);
+
     void loadLR2IF(const Tokens &t, std::ifstream&);
 
     //std::vector<SkinLR2> _csvIncluded;

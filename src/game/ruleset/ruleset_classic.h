@@ -164,6 +164,14 @@ namespace judgeArea {
     };
 }
 
+enum class player {
+	SP_1P,
+	SP_2P,
+	DP,
+	BATTLE_1P,
+	BATTLE_2P,
+};
+
 struct judgeRes { judgeArea::area area; timestamp time; };
 }
 
@@ -172,8 +180,10 @@ class RulesetClassic : public vRuleset
 protected:
     rc::judgeDiff _diff;
     std::array<unsigned, rc::judge_idx::JUDGE_COUNT> _count;
+	player _player;
+	bool _k1P, _k2P;
 public:
-    RulesetClassic(vScroll* chart, rc::judgeDiff difficulty = rc::judgeDiff::NORMAL);
+    RulesetClassic(vScroll* chart, rc::judgeDiff difficulty = rc::judgeDiff::NORMAL, rc::player playerSP = rc::player::SP_1P);
 private:
     rc::judgeRes _judge(const Note& note, timestamp time);
 public:

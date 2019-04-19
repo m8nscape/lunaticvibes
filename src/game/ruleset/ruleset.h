@@ -30,8 +30,8 @@ protected:
     std::vector<unsigned> _judgeCount;
 public:
     vRuleset() = delete;
-    vRuleset(vScroll* c, size_t n) :
-        _scroll(c), _basic{ 0 }, _judgeCount(n, 0) {}
+    vRuleset(vScroll* chartObj, size_t judgeCount) :
+        _scroll(chartObj), _basic{ 0 }, _judgeCount(judgeCount, 0) {}
     virtual ~vRuleset() = default;
 public:
     virtual void updatePress(InputMask& pg, timestamp t) = 0;

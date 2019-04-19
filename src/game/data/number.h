@@ -135,6 +135,9 @@ enum class eNumber: unsigned
 	_TEST8,
 	_TEST9,
 
+	_DISP_NOWCOMBO_1P,
+	_DISP_NOWCOMBO_2P,
+
     NUMBER_COUNT
 };
 
