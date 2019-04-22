@@ -180,7 +180,7 @@ class RulesetClassic : public vRuleset
 protected:
     rc::judgeDiff _diff;
     std::array<unsigned, rc::judge_idx::JUDGE_COUNT> _count;
-	player _player;
+	rc::player _player;
 	bool _k1P, _k2P;
 public:
     RulesetClassic(vScroll* chart, rc::judgeDiff difficulty = rc::judgeDiff::NORMAL, rc::player playerSP = rc::player::SP_1P);

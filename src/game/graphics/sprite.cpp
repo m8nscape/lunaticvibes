@@ -467,7 +467,6 @@ void SpriteNumber::updateByTimer(timestamp time)
 void SpriteNumber::updateNumber(int n)
 {
     bool positive = n >= 0;
-	size_t numDigits = 1;
 	size_t zeroIdx = 0;
 	size_t blankIdx = (size_t)_numType;
 	switch (_numType)
@@ -480,15 +479,15 @@ void SpriteNumber::updateNumber(int n)
 	if (n == 0)
 	{
 		_digit[0] = 0;
-		numDigits = 1;
+		_numDigits = 1;
 	}
 	else
 	{
-		numDigits = 0;
+		_numDigits = 0;
 		int abs_n = positive ? n : -n;
 		for (unsigned i = 0; abs_n && i < _digit.size(); ++i)
 		{
-			++numDigits;
+			++_numDigits;
 			unsigned one = abs_n % 10;
 			abs_n /= 10;
 			switch (_numType)
@@ -537,13 +536,13 @@ void SpriteNumber::updateNumber(int n)
 		*/
         case NUM_TYPE_FULL:
         {
-            _digit[numDigits + 1] = positive ? NUM_FULL_PLUS : NUM_FULL_MINUS;
+            _digit[_numDigits + 1] = positive ? NUM_FULL_PLUS : NUM_FULL_MINUS;
             break;
         }
     }
 
     // sprites
-	size_t blanks = _digit.size() - numDigits;
+	size_t blanks = _digit.size() - _numDigits;
 	switch (_alignType)
 	{
 	case NUM_ALIGN_RIGHT:
@@ -553,9 +552,9 @@ void SpriteNumber::updateNumber(int n)
 			_sDigit[i].updateSelection(_digit[_digit.size() - 1 - i]);
 		break;
 	case NUM_ALIGN_LEFT:
-		for (size_t i = 0; i < numDigits; ++i)
+		for (size_t i = 0; i < _numDigits; ++i)
 			_sDigit[i].updateSelection(_digit[_digit.size() - 1 - i]);
-		for (size_t i = numDigits; i < _digit.size(); ++i)
+		for (size_t i = _numDigits; i < _digit.size(); ++i)
 			_sDigit[i].updateSelection(blankIdx);
 		break;
 	case NUM_ALIGN_CENTER:

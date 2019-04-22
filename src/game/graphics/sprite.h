@@ -228,8 +228,10 @@ const size_t NUM_FULL_MINUS     = 23;
 
 class SpriteNumber : public vSprite
 {
+	friend class SkinLR2;
 private:
     eNumber _numInd;
+	unsigned _numDigits;
     NumberType _numType;
 	NumberAlign _alignType;
     //std::vector<Rect> _drawRectDigit, _outRectDigit; // idx from low digit to high, e.g. [0] represents 1 digit, [1] represents 10 digit, etc.

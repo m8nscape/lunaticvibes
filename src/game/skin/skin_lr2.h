@@ -1378,6 +1378,10 @@ protected:
 	bool noshiftJudge2P;
 	int  alignJudge1P;
 	int  alignJudge2P;
+	unsigned *pDigits1P;
+	unsigned *pDigits2P;
+	unsigned totalDigits1P;
+	unsigned totalDigits2P;
 	Rect *pRectNowJudge1P = nullptr;
 	Rect *pRectNowJudge2P = nullptr;
 	Rect *pRectNowCombo1P = nullptr;

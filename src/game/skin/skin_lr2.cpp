@@ -6,6 +6,7 @@
 #include <regex>
 #include <variant>
 #include <map>
+#include <execution>
 #include "game/data/option.h"
 #include "game/data/switch.h"
 
@@ -880,7 +881,11 @@ int SkinLR2::loadLR2_SRC_NOWCOMBO1(const Tokens &t, pTexture tex)
 	tt[12] = stoine(t[12]) == 1 ? "2" : "0";
 	int ret = loadLR2_SRC_NUMBER(tt, tex);
 	if (ret == 0)
+	{
 		pRectNowCombo1P = &(_sprites.back()->_current.rect);
+		pDigits1P = &(std::dynamic_pointer_cast<SpriteNumber>(_sprites.back())->_numDigits);
+		totalDigits1P = std::dynamic_pointer_cast<SpriteNumber>(_sprites.back())->_digit.size();
+	}
 	return ret;
 }
 
@@ -897,7 +902,11 @@ int SkinLR2::loadLR2_SRC_NOWCOMBO2(const Tokens &t, pTexture tex)
 	tt[12] = stoine(t[12]) == 1 ? "2" : "0";
 	int ret = loadLR2_SRC_NUMBER(tt, tex);
 	if (ret == 0)
+	{
 		pRectNowCombo2P = &(_sprites.back()->_current.rect);
+		pDigits2P = &(std::dynamic_pointer_cast<SpriteNumber>(_sprites.back())->_numDigits);
+		totalDigits2P = std::dynamic_pointer_cast<SpriteNumber>(_sprites.back())->_digit.size();
+	}
 	return ret;
 }
 
@@ -1427,20 +1436,49 @@ void SkinLR2::update()
 	// update op
 	updateDstOpt();
 
-    for (auto& e : drawQueue)
-    {
+#ifndef _DEBUG
+	std::for_each(std::execution::par_unseq, drawQueue.begin(), drawQueue.end(), [](auto& e)
+#else
+	for (auto& e : drawQueue)
+#endif
+	{
         e.draw = getDstOpt(e.op1) && getDstOpt(e.op2) && getDstOpt(e.op3);
-    }
+	}
+#ifndef _DEBUG
+	);
+#endif
 
 	// update nowjudge/nowcombo
 	// TODO
 	if (pRectNowJudge1P && pRectNowCombo1P)
 	{
 		(*pRectNowCombo1P) = *pRectNowJudge1P + *pRectNowCombo1P;
+		int delta = pRectNowCombo1P->w * *pDigits1P / 2;
+		if (!noshiftJudge1P)
+		{
+			pRectNowJudge1P->x -= delta;
+		}
+		switch (alignJudge1P)
+		{
+		case 0: pRectNowCombo1P->x -= delta; break;
+		case 1:
+		case 2: pRectNowCombo1P->x -= pRectNowCombo1P->w * totalDigits1P / 2; break;
+		}
 	}
 	if (pRectNowJudge2P && pRectNowCombo2P)
 	{
 		(*pRectNowCombo2P) = *pRectNowJudge2P + *pRectNowCombo2P;
+		int delta = pRectNowCombo2P->w * *pDigits2P / 2;
+		if (!noshiftJudge2P)
+		{
+			pRectNowJudge2P->x -= delta;
+		}
+		switch (alignJudge2P)
+		{
+		case 0: pRectNowCombo2P->x -= delta; break;
+		case 1:
+		case 2: pRectNowCombo2P->x -= pRectNowCombo2P->w * totalDigits2P / 2; break;
+		}
 	}
 
     // update what?
