@@ -68,6 +68,22 @@ enum class BlendFactor
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+
+// Point: x, y
+class Point
+{
+public:
+	double x = 0;
+	double y = 0;
+public:
+	constexpr Point(int zero = 0) {}
+	constexpr Point(double x, double y) : x(x), y(y) {}
+	constexpr Point operator+ (const Point& rhs) const { return Point(x + rhs.x, y + rhs.y); }
+	constexpr Point operator- (const Point& rhs) const { return Point(x - rhs.x, y - rhs.y); }
+	constexpr Point operator* (const double& rhs) const { return Point(x * rhs, y * rhs); }
+	constexpr bool  operator== (const Point& rhs) const { return x == rhs.x && y == rhs.y; }
+};
+
 class Image;
 
 // Rect: x, y, w, h
@@ -187,4 +203,12 @@ public:
     std::shared_ptr<Texture> TextUTF8Shaded(const char* text, const Color& c, const Color& bg);
     Rect getRectUTF8(const char* text);
     //Rect getRectUTF16(const char* text);
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// Thick line wrapper
+class LineMeta
+{
+public:
+	static void draw(Point p1, Point p2, int width = 1, Color c = 0xffffffff);
 };

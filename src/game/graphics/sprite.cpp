@@ -845,3 +845,18 @@ bool SpriteOption::update(timestamp t)
 	}
 	return false;
 }
+
+SpriteLine::SpriteLine(int width, Color color) : SpriteStatic(nullptr), _width(width), _color(color)
+{
+	_type = SpriteTypes::LINE;
+}
+
+void SpriteLine::appendPoint(const ColorPoint& c) { _points.push_back(c); }
+
+void SpriteLine::draw() const
+{
+	for (size_t i = 0; i < _points.size() - 1; ++i)
+	{
+		LineMeta::draw(_points[i].p, _points[i+1].p, _width, _points[i].c);
+	}
+}

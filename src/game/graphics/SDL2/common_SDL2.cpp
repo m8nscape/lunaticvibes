@@ -1,5 +1,6 @@
 #include "graphics_SDL2.h"
 #include "window_SDL2.h"
+#include "SDL2_gfxPrimitives.h"
 #include <plog/Log.h>
 #include <memory>
 
@@ -237,4 +238,15 @@ void TextureFull::_draw(const Rect& ignored, const Rect& dstRect,
         angle,
         NULL, SDL_FLIP_NONE
     );
+}
+
+void LineMeta::draw(Point p1, Point p2, int width, Color c)
+{
+	thickLineColor(
+		_frame_renderer,
+		p1.x, p1.y,
+		p2.x, p2.y,
+		width,
+		c
+	);
 }

@@ -24,6 +24,8 @@ enum class SpriteTypes
 	BARGRAPH,
 	OPTION,
 
+	LINE,
+
     NOTE_VERT,
 };
 
@@ -409,4 +411,31 @@ public:
     void updateVal(unsigned v);
     void updateValByInd();
 	virtual bool update(timestamp t);
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// Line sprite
+struct ColorPoint
+{
+	Point p;
+	Color c;
+};
+
+class SpriteLine : public SpriteStatic
+{
+private:
+	int _width;
+	Color _color;
+	std::vector<ColorPoint> _points;
+
+public:
+    SpriteLine() = delete;
+	SpriteLine(int width = 1, Color color = 0xffffffff);
+    virtual ~SpriteLine() = default;
+
+public:
+	void appendPoint(const ColorPoint&);
+
+public:
+    virtual void draw() const;
 };
