@@ -741,6 +741,8 @@ void SpriteBargraph::updateValByInd()
 	updateVal(gBargraphs.get(_ind));
 }
 
+#pragma warning(push)
+#pragma warning(disable: 4244)
 void SpriteBargraph::updateSize()
 {
 	int tmp;
@@ -764,6 +766,7 @@ void SpriteBargraph::updateSize()
 		break;
 	}
 }
+#pragma warning(pop)
 
 bool SpriteBargraph::update(timestamp t)
 {

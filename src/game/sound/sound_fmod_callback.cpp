@@ -51,7 +51,7 @@ FMOD_RESULT F_CALLBACK FmodCallbackAsyncRead(FMOD_ASYNCREADINFO *info, void *use
         LOCK_QUEUE;
         asyncSampleLoadQueue.push(info);
     }
-    catch (std::exception &e)
+    catch (std::exception&)
     {
         return FMOD_ERR_MEMORY;
     }
@@ -74,7 +74,7 @@ FMOD_RESULT F_CALLBACK FmodCallbackAsyncReadCancel(FMOD_ASYNCREADINFO *handle, v
                 asyncSampleLoadQueue.pop();
         }
     }
-    catch (std::exception &e)
+    catch (std::exception&)
     {
         return FMOD_ERR_MEMORY;
     }

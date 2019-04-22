@@ -1,6 +1,7 @@
 #include "fraction.h"
 #include <utility>
 #include <numeric>
+#pragma warning(disable: 4244)
 
 bool trim(long long &_numerator, long long &_denominator)
 {

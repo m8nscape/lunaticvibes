@@ -278,7 +278,7 @@ class SpriteSlider : public SpriteAnimated
 {
 private:
     eSlider _ind;
-    int _value;
+    percent _value;
     SliderDirection _dir;
 	int _range;
 

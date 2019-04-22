@@ -12,6 +12,7 @@ pScene SceneMgr::get(eScene e)
         return nullptr;
     case eScene::PLAY:
         return std::make_shared<ScenePlay>(ePlayMode::SINGLE, 7, eRuleset::CLASSIC);
-
+	default:
+		return nullptr;
     }
 }

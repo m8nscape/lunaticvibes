@@ -788,7 +788,7 @@ int SkinLR2::loadLR2_SRC_BUTTON(const Tokens &t, pTexture tex)
 	convertLine(t, (int*)&d, 0, 13);
     refineRect(d, tex->getRect(), line);
 	
-	if (d.type < buttonAdapter.size())
+	if (d.type < (int)buttonAdapter.size())
 	{
 		if (auto sw = std::get_if<eSwitch>(&buttonAdapter[d.type]))
 		{
@@ -1100,7 +1100,7 @@ int SkinLR2::loadLR2_DST_NOTE(const Tokens &t)
 		auto p = std::static_pointer_cast<SpriteLaneVertical>(e);
 
 		// refine rect: x=dst_x, y=-dst_h, w=dst_w, h=dst_y
-		int dummy, dst_h;
+		int dst_h;
 		//p->getRectSize(d.w, dummy);
 		dst_h = d.h;
 		d.h = d.y;

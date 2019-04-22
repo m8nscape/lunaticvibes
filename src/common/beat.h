@@ -11,6 +11,9 @@ typedef fraction BeatNorm;  // Normal rhythm indicator, must be normalized (valu
 
 typedef std::chrono::milliseconds timeNormRes; // Regular time, expect millisecond (1/1e3 second). Used for general timing demand
 typedef std::chrono::nanoseconds  timeHighRes; // High resolution time, expect nanosecond (1/1e9 second). Used for note timings
+
+#pragma warning(push)
+#pragma warning(disable:4244)
 class timestamp
 {
 private:
@@ -61,6 +64,7 @@ public:
 	constexpr decltype(_rTime) norm() const { return _rTime; }
 	constexpr decltype(_hTime) hres() const { return _hTime; }
 };
+#pragma warning(pop)
 
 
 struct Note

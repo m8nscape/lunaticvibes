@@ -6,7 +6,7 @@ vScroll::vScroll( size_t pn, size_t en) :
 {
     reset();
 	_measureTimestamp.fill({LLONG_MAX, false});
-    _measureTimestamp[0] = 0.0;
+    _measureTimestamp[0] = 0;
     _bpmList.clear();
     //_bpmList.push_back({ 0, {0, 1}, 0, 130 });
     _stopList.clear();
@@ -220,5 +220,5 @@ void vScroll::update(timestamp t)
 	gNumbers.set(eNumber::_TEST1, _currentMeasure);
 	gNumbers.set(eNumber::_TEST2, (int)std::floor(_currentBeat * 1000));
 	gNumbers.set(eNumber::_TEST3, (int)std::floor(1000 * _currentBeat * 4) % 1000);
-	gNumbers.set(eNumber::_TEST4, currentMeasureTimePassed.norm());
+	gNumbers.set(eNumber::_TEST4, (int)currentMeasureTimePassed.norm());
 }

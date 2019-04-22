@@ -30,6 +30,7 @@ public:
         case 'P': return P.get(key, fallback);
         case 'I': return I.get(key, fallback);
         case 'S': return S.get(key, fallback);
+		default: break;
         }
     }
     template<class Ty_v>
@@ -42,6 +43,7 @@ public:
         case 'P': return P.set(key, value);
         case 'I': return I.set(key, value);
         case 'S': return S.set(key, value);
+		default: break;
         }
     }
 };
