@@ -4,7 +4,7 @@
 #include "game/data/text.h"
 #include "common/asynclooper.h"
 
-inline unsigned __frames = 0;
+inline unsigned __frames[10]{ 0 };
 
 // Should only have one instance at once.
 class GenericInfoUpdater : public AsyncLooper
@@ -14,8 +14,14 @@ public:
 private:
 	void _loop()
 	{
-		gNumbers.set(eNumber::FPS, __frames / _rate);
-		__frames = 0;
+		gNumbers.set(eNumber::FPS, __frames[0] / _rate);
+		__frames[0] = 0;
+
+		for (unsigned i = 1; i < 10; ++i)
+		{
+			gNumbers.set((eNumber)((int)eNumber::_PPS1 + i - 1), __frames[i] / _rate);
+			__frames[i] = 0;
+		}
 
 		std::time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 		auto d = localtime(&t);

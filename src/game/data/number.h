@@ -135,6 +135,16 @@ enum class eNumber: unsigned
 	_TEST8,
 	_TEST9,
 
+	_PPS1 = 311,
+	_PPS2,
+	_PPS3,
+	_PPS4,
+	_PPS5,
+	_PPS6,
+	_PPS7,
+	_PPS8,
+	_PPS9,
+
 	_DISP_NOWCOMBO_1P,
 	_DISP_NOWCOMBO_2P,
 	_DISP_NOWCOMBO_POPN_1,	// reserved
