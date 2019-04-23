@@ -268,3 +268,4 @@ __pycache__/
 !ext/SDL2/**
 !ext/SDL2_image/**
 !ext/SDL2_ttf/**
+!ext/SDL2_gfx/**
