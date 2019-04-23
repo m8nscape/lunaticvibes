@@ -427,6 +427,8 @@ private:
 	int _width;
 	Color _color;
 	std::vector<ColorPoint> _points;
+	int _timerStartOffset, _duration;
+	double _progress;	// 0 ~ 1
 
 public:
     SpriteLine() = delete;
@@ -437,5 +439,7 @@ public:
 	void appendPoint(const ColorPoint&);
 
 public:
+	void updateProgress(timestamp t);
+	virtual bool update(timestamp t);
     virtual void draw() const;
 };

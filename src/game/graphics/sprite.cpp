@@ -858,8 +858,26 @@ void SpriteLine::appendPoint(const ColorPoint& c) { _points.push_back(c); }
 
 void SpriteLine::draw() const
 {
-	for (size_t i = 0; i < _points.size() - 1; ++i)
+	size_t m = (size_t)std::floor((_points.size() - 1) * _progress);
+	for (size_t i = 0; i < m; ++i)
 	{
 		LineMeta::draw(_points[i].p, _points[i+1].p, _width, _points[i].c);
 	}
 }
+
+void SpriteLine::updateProgress(timestamp t)
+{
+	_progress = (double)(gTimers.get(_timerInd) - t.norm() - _timerStartOffset) / _duration;
+	std::clamp(_progress, 0.0, 1.0);
+}
+
+bool SpriteLine::update(timestamp t)
+{
+	if (SpriteStatic::update(t))
+	{
+		updateProgress(t);
+		return true;
+	}
+	return false;
+}
+
