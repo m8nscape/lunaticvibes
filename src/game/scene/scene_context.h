@@ -29,4 +29,10 @@ inline struct __chart_context_params
     BPM itlBPM = 150;
     BPM maxBPM = 150;
 
+	std::vector<int> graphGauge1P;
+	std::vector<int> graphGauge2P;
+	std::vector<int> graphScore1P;
+	std::vector<int> graphScore2P;
+	std::vector<int> graphScoreBest;
+
 } context_chart;
