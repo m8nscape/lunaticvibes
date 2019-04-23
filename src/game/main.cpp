@@ -43,7 +43,7 @@ void mainLoop()
         scene->update();
         scene->draw();
         graphics_flush();
-		++__frames;
+		++__frames[0];
     }
 	__ginfo.loopEnd();
 }

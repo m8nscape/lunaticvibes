@@ -767,7 +767,7 @@ int SkinLR2::loadLR2_SRC_BARGRAPH(const Tokens &t, pTexture tex)
 	}
 
 	lr2skin::s_bargraph d;
-	convertLine(t, (int*)&d, 0, 13);
+	convertLine(t, (int*)&d, 0, 12);
     refineRect(d, tex->getRect(), line);
 
 	_sprites.push_back(std::make_shared<SpriteBargraph>(
