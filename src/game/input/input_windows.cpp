@@ -129,7 +129,7 @@ const std::array<int , Input::Key::K_COUNT> vkeyMap
 
 bool isKeyPressed(Input::Key key)
 {
-    return GetAsyncKeyState(vkeyMap[key]);
+    return GetAsyncKeyState(vkeyMap[key]) & (1 << 15);
 }
 
 #endif

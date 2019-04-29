@@ -246,18 +246,20 @@ void RulesetClassic::updateHold(InputMask& hg, timestamp t)
         auto c = _scroll->getChannelFromKey((Input::Ingame)k);
 		if (c.first == NoteChannelCategory::_) return;
         auto n = _scroll->incomingNoteOfChannel(c.first, c.second);
-        auto j = _judge(*n, rt);
         switch (c.first)
         {
         case NoteChannelCategory::Mine:
-            if (j.area == judgeArea::EXACT_PERFECT ||
-                j.area == judgeArea::EARLY_PERFECT && j.time < -2 ||
-                j.area == judgeArea::LATE_PERFECT && j.time < 2)
-            {
-                n->hit = true;
-                // TODO play mine sound + volume
-            }
-            break;
+		{
+			auto j = _judge(*n, rt);
+			if (j.area == judgeArea::EXACT_PERFECT ||
+				j.area == judgeArea::EARLY_PERFECT && j.time < -2 ||
+				j.area == judgeArea::LATE_PERFECT && j.time < 2)
+			{
+				n->hit = true;
+				// TODO play mine sound + volume
+			}
+			break;
+		}
 
         default:
             break;
@@ -269,18 +271,20 @@ void RulesetClassic::updateHold(InputMask& hg, timestamp t)
         auto c = _scroll->getChannelFromKey((Input::Ingame)k);
 		if (c.first == NoteChannelCategory::_) return;
         auto n = _scroll->incomingNoteOfChannel(c.first, c.second);
-        auto j = _judge(*n, rt);
         switch (c.first)
         {
         case NoteChannelCategory::Mine:
-            if (j.area == judgeArea::EXACT_PERFECT ||
-                j.area == judgeArea::EARLY_PERFECT && j.time < -2 ||
-                j.area == judgeArea::LATE_PERFECT && j.time < 2)
-            {
-                n->hit = true;
-                // TODO play mine sound + volume
-            }
-            break;
+		{
+			auto j = _judge(*n, rt);
+			if (j.area == judgeArea::EXACT_PERFECT ||
+				j.area == judgeArea::EARLY_PERFECT && j.time < -2 ||
+				j.area == judgeArea::LATE_PERFECT && j.time < 2)
+			{
+				n->hit = true;
+				// TODO play mine sound + volume
+			}
+			break;
+		}
 
         default:
             break;
@@ -297,7 +301,7 @@ void RulesetClassic::updateRelease(InputMask& rg, timestamp t)
         auto c = _scroll->getChannelFromKey((Input::Ingame)k);
 		if (c.first == NoteChannelCategory::_) return;
         auto n = _scroll->incomingNoteOfChannel(c.first, c.second);
-        auto j = _judge(*n, rt);
+        //auto j = _judge(*n, rt);
         switch (c.first)
         {
         case NoteChannelCategory::LN:
@@ -314,7 +318,7 @@ void RulesetClassic::updateRelease(InputMask& rg, timestamp t)
         auto c = _scroll->getChannelFromKey((Input::Ingame)k);
 		if (c.first == NoteChannelCategory::_) return;
         auto n = _scroll->incomingNoteOfChannel(c.first, c.second);
-        auto j = _judge(*n, rt);
+        //auto j = _judge(*n, rt);
         switch (c.first)
         {
         case NoteChannelCategory::LN:
