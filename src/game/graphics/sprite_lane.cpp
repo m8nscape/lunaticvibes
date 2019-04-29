@@ -54,13 +54,18 @@ void SpriteLaneVertical::updateNoteRect(timestamp t, vScroll* s)
     {
 		if (measure < it->measure)
 		{
-			double extraBeats = s->getCurrentMeasureBeat() - beat;
-			while (++measure < it->measure) extraBeats += s->getMeasureBeat(measure);
+			double extraBeats = s->getMeasureBeat(measure) - beat;  // fill gap within current measure
+			while (measure + 1 < it->measure)                       // fill gap between measures
+			{
+				++measure;
+				extraBeats += s->getMeasureBeat(measure);
+			}
 			y = c.h - (int)std::floor((extraBeats + it++->rawBeat) * c.h * _basespd * _hispeed);
 		}
 		else
 		{
-			y = c.h - (int)std::floor((it++->rawBeat - beat) * c.h * _basespd * _hispeed);
+			//y = c.h - (int)std::floor((it++->rawBeat - beat) * c.h * _basespd * _hispeed);
+			y = -999;
 		}
         _outRect.push_front({ c.x, c.y + y, r.w, r.h });
     }

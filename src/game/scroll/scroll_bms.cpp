@@ -5,29 +5,30 @@ namespace bms
     const size_t NOPE = -1;
 
     // Need this since current parser stores channel directly
+	// TODO mapping is different between file formats
     const size_t BMSToChannelMap[] = 
     {
-        NOPE, // 0
+        Sc1,
         K1,
         K2,
         K3,
         K4,
         K5,
-        Sc1,  // pme 8 
-        NOPE, // pme 9 / FREE-ZONE / FOOT PEDAL
-        K6, // pme 6
-        K7, // pme 7
+        K6,
+        K7,
+        NOPE,
+        NOPE,
 
-        NOPE, // 10
-        K8, // OCT FOOT PEDAL
-        K9, // pms 6
-        K10, // pms 7
-        K11, // pms 8
-        K12, // pms 9
-        Sc2,  // pme 8
-        NOPE, // pme 9 / FREE-ZONE / FOOT PEDAL
-        K13, // pme 6
-        K14, // pme 7
+        Sc2,
+        K8,
+        K9,
+        K10,
+        K11,
+        K12,
+        K13,
+        K14,
+        NOPE,
+        NOPE,
     };
     
     // from NoteChannelIndex to Input::Ingame
@@ -189,6 +190,7 @@ void ScrollBMS::loadBMS(const BMS& objBms)
 
             if (lane >= 0 && lane < 100)
             {
+				// TODO mapping is different between file formats
                 if (BMSToChannelMap[lane] == NOPE) continue;
                 _noteLists[BMSToChannelMap[lane]].push_back({ m, beat, notetime, (long long)val, false });
             }
