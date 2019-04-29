@@ -150,6 +150,16 @@ Beat vScroll::getCurrentMeasureBeat()
 	return getMeasureBeat(_currentMeasure);
 }
 
+Beat vScroll::getMeasureTotalBeats(size_t measure)
+{
+    if (measure >= _measureTotalBeats.size())
+    {
+		return Beat(LLONG_MAX, 1);
+    }
+
+	return _measureTotalBeats[measure];
+}
+
 void vScroll::update(timestamp t)
 {
     noteExpired.clear();

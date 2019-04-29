@@ -84,6 +84,7 @@ void ScrollBMS::loadBMS(const BMS& objBms)
 	_noteCount_regular = objBms.notes - objBms.notes_ln;
 	_noteCount_ln = objBms.notes_ln;
 	timestamp basetime{ 0 };
+	Beat basebeat{ 0, 1 };
     BPM bpm = objBms.getInitialBPM();
     _bpmList.push_back({ 0, {0, 1}, 0, bpm });
 	_measureLength.fill({ 1, 1 });
@@ -91,6 +92,7 @@ void ScrollBMS::loadBMS(const BMS& objBms)
     for (unsigned m = 0; m <= objBms.maxMeasure; m++)
     {
 		_measureLength[m] = objBms._measureLength[m];
+		_measureTotalBeats[m] = basebeat;
         _measureTimestamp[m] = basetime;
 
         // notes [] {beat, {lane, sample/val}}
@@ -185,7 +187,7 @@ void ScrollBMS::loadBMS(const BMS& objBms)
             auto[segment, noteinfo] = note;
             auto[lane, val] = noteinfo;
             double piece = (segment - lastBPMChangedSegment) * measureBeat;
-            Beat beat = segment * d2fr(measureBeat + stopBeat);
+            Beat beat = basebeat + segment * d2fr(measureBeat + stopBeat);
 			timestamp notetime = bpmfucked ? LLONG_MAX : basetime + beatTime * piece;
 
             if (lane >= 0 && lane < 100)
@@ -239,6 +241,7 @@ void ScrollBMS::loadBMS(const BMS& objBms)
             }
         }
 		basetime += beatTime * (1.0 - lastBPMChangedSegment) * measureBeat;
+		basebeat += measureBeat;
     }
 
     setIterators();

@@ -47,11 +47,12 @@ void SpriteLaneVertical::updateNoteRect(timestamp t, vScroll* s)
     // generate note rects and store to buffer
     int y = c.h;
     _outRect.clear();
-	auto measure = s->getCurrentMeasure();
-	auto beat = s->getCurrentBeat();
+	//auto measure = s->getCurrentMeasure();
+	auto beat = s->getCurrentTotalBeats();
     auto it = s->incomingNoteOfChannel(_category, _index);
     while (!s->isLastNoteOfChannel(_category, _index, it) && y >= c.y)
     {
+		/*
 		if (measure < it->measure)
 		{
 			double extraBeats = s->getMeasureBeat(measure) - beat;  // fill gap within current measure
@@ -67,6 +68,9 @@ void SpriteLaneVertical::updateNoteRect(timestamp t, vScroll* s)
 			//y = c.h - (int)std::floor((it++->rawBeat - beat) * c.h * _basespd * _hispeed);
 			y = -999;
 		}
+		*/
+
+		y = c.h - (int)std::floor((it++->rawBeat - beat) * c.h * _basespd * _hispeed);
         _outRect.push_front({ c.x, c.y + y, r.w, r.h });
     }
 }
