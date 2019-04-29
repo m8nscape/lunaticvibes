@@ -6,6 +6,46 @@
 
 using namespace rc;
 
+void setJudgeTimer1PInner(int slot, long long t)
+{
+	gTimers.set(eTimer::_JUDGE_1P_0, -1);
+	gTimers.set(eTimer::_JUDGE_1P_1, -1);
+	gTimers.set(eTimer::_JUDGE_1P_2, -1);
+	gTimers.set(eTimer::_JUDGE_1P_3, -1);
+	gTimers.set(eTimer::_JUDGE_1P_4, -1);
+	gTimers.set(eTimer::_JUDGE_1P_5, -1);
+	switch (slot)
+	{
+	case 0: gTimers.set(eTimer::_JUDGE_1P_0, t); break;
+	case 1: gTimers.set(eTimer::_JUDGE_1P_1, t); break;
+	case 2: gTimers.set(eTimer::_JUDGE_1P_2, t); break;
+	case 3: gTimers.set(eTimer::_JUDGE_1P_3, t); break;
+	case 4: gTimers.set(eTimer::_JUDGE_1P_4, t); break;
+	case 5: gTimers.set(eTimer::_JUDGE_1P_5, t); break;
+	default: break;
+	}
+}
+
+void setJudgeTimer2PInner(int slot, long long t)
+{
+	gTimers.set(eTimer::_JUDGE_1P_0, -1);
+	gTimers.set(eTimer::_JUDGE_1P_1, -1);
+	gTimers.set(eTimer::_JUDGE_1P_2, -1);
+	gTimers.set(eTimer::_JUDGE_1P_3, -1);
+	gTimers.set(eTimer::_JUDGE_1P_4, -1);
+	gTimers.set(eTimer::_JUDGE_1P_5, -1);
+	switch (slot)
+	{
+	case 0: gTimers.set(eTimer::_JUDGE_1P_0, t); break;
+	case 1: gTimers.set(eTimer::_JUDGE_1P_1, t); break;
+	case 2: gTimers.set(eTimer::_JUDGE_1P_2, t); break;
+	case 3: gTimers.set(eTimer::_JUDGE_1P_3, t); break;
+	case 4: gTimers.set(eTimer::_JUDGE_1P_4, t); break;
+	case 5: gTimers.set(eTimer::_JUDGE_1P_5, t); break;
+	default: break;
+	}
+}
+
 RulesetClassic::RulesetClassic(vScroll* chart, rc::judgeDiff difficulty, rc::player p) : 
     vRuleset(chart, rc::JUDGE_COUNT), _diff(difficulty), _count{ 0 }, _player(p)
 {
@@ -116,6 +156,7 @@ void RulesetClassic::updatePress(InputMask& pg, timestamp t)
                     if (_basic.combo > _basic.maxCombo) _basic.maxCombo = _basic.combo;
                     _basic.score2 += 2;
 					gTimers.set(bombTimer7k[c.second], t.norm());
+					setJudgeTimer1PInner(5, t.norm());
                     break;
 
                 case EARLY_GREAT:
@@ -126,6 +167,7 @@ void RulesetClassic::updatePress(InputMask& pg, timestamp t)
                     if (_basic.combo > _basic.maxCombo) _basic.maxCombo = _basic.combo;
                     _basic.score2 += 1;
 					gTimers.set(bombTimer7k[c.second], t.norm());
+					setJudgeTimer1PInner(4, t.norm());
                     break;
 
                 case EARLY_GOOD:
@@ -134,6 +176,7 @@ void RulesetClassic::updatePress(InputMask& pg, timestamp t)
                     ++_basic.hit;
                     ++_basic.combo;
                     if (_basic.combo > _basic.maxCombo) _basic.maxCombo = _basic.combo;
+					setJudgeTimer1PInner(3, t.norm());
                     break;
 
                 case EARLY_BAD:
@@ -141,11 +184,13 @@ void RulesetClassic::updatePress(InputMask& pg, timestamp t)
                     ++_count[BAD];
                     ++_basic.miss;
                     _basic.combo = 0;
+					setJudgeTimer1PInner(2, t.norm());
                     break;
 
                 case EARLY_BPOOR:
                     ++_count[BPOOR];
                     ++_basic.miss;
+					setJudgeTimer1PInner(0, t.norm());
                     break;
             }
             if (j.area > judgeArea::EARLY_BPOOR) n->hit = true;
@@ -190,6 +235,7 @@ void RulesetClassic::updatePress(InputMask& pg, timestamp t)
                     if (_basic.combo > _basic.maxCombo) _basic.maxCombo = _basic.combo;
                     _basic.score2 += 2;
 					gTimers.set(bombTimer7k[c.second], t.norm());
+					setJudgeTimer2PInner(5, t.norm());
                     break;
 
                 case EARLY_GREAT:
@@ -200,6 +246,7 @@ void RulesetClassic::updatePress(InputMask& pg, timestamp t)
                     if (_basic.combo > _basic.maxCombo) _basic.maxCombo = _basic.combo;
                     _basic.score2 += 1;
 					gTimers.set(bombTimer7k[c.second], t.norm());
+					setJudgeTimer2PInner(4, t.norm());
                     break;
 
                 case EARLY_GOOD:
@@ -208,6 +255,7 @@ void RulesetClassic::updatePress(InputMask& pg, timestamp t)
                     ++_basic.hit;
                     ++_basic.combo;
                     if (_basic.combo > _basic.maxCombo) _basic.maxCombo = _basic.combo;
+					setJudgeTimer2PInner(3, t.norm());
                     break;
 
                 case EARLY_BAD:
@@ -215,11 +263,13 @@ void RulesetClassic::updatePress(InputMask& pg, timestamp t)
                     ++_count[BAD];
                     ++_basic.miss;
                     _basic.combo = 0;
+					setJudgeTimer2PInner(2, t.norm());
                     break;
 
                 case EARLY_BPOOR:
                     ++_count[BPOOR];
                     ++_basic.miss;
+					setJudgeTimer2PInner(0, t.norm());
                     break;
             }
             if (j.area > judgeArea::EARLY_BPOOR) n->hit = true;
@@ -351,6 +401,7 @@ void RulesetClassic::updateAsync(timestamp t)
 				++_count[MISS];
 				_basic.combo = 0;
 				gTimers.set(eTimer::PLAY_JUDGE_1P, t.norm());
+				setJudgeTimer1PInner(1, t.norm());
 				LOG_DEBUG << "LATE   POOR    "; break;
 				break;
 			}
@@ -373,6 +424,7 @@ void RulesetClassic::updateAsync(timestamp t)
 				++_count[MISS];
 				_basic.combo = 0;
 				gTimers.set(eTimer::PLAY_JUDGE_2P, t.norm());
+				setJudgeTimer2PInner(1, t.norm());
 				LOG_DEBUG << "LATE   POOR    "; break;
 				break;
 			}
@@ -388,6 +440,7 @@ void RulesetClassic::updateAsync(timestamp t)
 		gNumbers.set(eNumber::PLAY_1P_SCORE, _basic.score);
 		gNumbers.set(eNumber::PLAY_1P_NOWCOMBO, _basic.combo);
 		gNumbers.set(eNumber::PLAY_1P_MAXCOMBO, _basic.maxCombo);
+		gNumbers.set(eNumber::_DISP_NOWCOMBO_1P, _basic.combo);
 	}
 	else if (_k2P) // excludes DP
 	{
@@ -395,6 +448,7 @@ void RulesetClassic::updateAsync(timestamp t)
 		gNumbers.set(eNumber::PLAY_2P_SCORE, _basic.score);
 		gNumbers.set(eNumber::PLAY_2P_NOWCOMBO, _basic.combo);
 		gNumbers.set(eNumber::PLAY_2P_MAXCOMBO, _basic.maxCombo);
+		gNumbers.set(eNumber::_DISP_NOWCOMBO_2P, _basic.combo);
 	}
 
     // TODO global num update

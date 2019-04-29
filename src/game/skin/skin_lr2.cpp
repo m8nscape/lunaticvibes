@@ -665,6 +665,8 @@ static std::map<Token, LoadLR2SrcFunc> __src_supported
 	{"#SRC_TEXT",     std::bind(&SkinLR2::loadLR2_SRC_TEXT,     _1, _2, _3)},
 	{"#SRC_NOWJUDGE_1P", std::bind(&SkinLR2::loadLR2_SRC_NOWJUDGE1, _1, _2, _3)},
 	{"#SRC_NOWJUDGE_2P", std::bind(&SkinLR2::loadLR2_SRC_NOWJUDGE2, _1, _2, _3)},
+	{"#SRC_NOWCOMBO_1P", std::bind(&SkinLR2::loadLR2_SRC_NOWCOMBO1, _1, _2, _3)},
+	{"#SRC_NOWCOMBO_2P", std::bind(&SkinLR2::loadLR2_SRC_NOWCOMBO2, _1, _2, _3)},
 };
 int SkinLR2::loadLR2src(const Tokens &t)
 {
@@ -847,6 +849,7 @@ int SkinLR2::loadLR2_SRC_NOWJUDGE1(const Tokens &t, pTexture tex)
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
 		return 1;
 	}
+	bufJudge1PSlot = stoine(t[1]);
 	noshiftJudge1P = stoine(t[11]);
 	int ret = loadLR2_SRC_IMAGE(t, tex);
 	if (ret == 0)
@@ -861,6 +864,7 @@ int SkinLR2::loadLR2_SRC_NOWJUDGE2(const Tokens &t, pTexture tex)
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
 		return 1;
 	}
+	bufJudge2PSlot = stoine(t[1]);
 	noshiftJudge1P = stoine(t[11]);
 	int ret = loadLR2_SRC_IMAGE(t, tex);
 	if (ret == 0)
@@ -977,7 +981,11 @@ static std::map<Token, int> __dst_supported
 	{"#DST_BUTTON",5},
 	{"#DST_ONMOUSE",6},
 	{"#DST_TEXT",7},
-	{"#DST_JUDGELINE",8}
+	{"#DST_JUDGELINE",8},
+	{"#DST_NOWJUDGE_1P",10},
+	{"#DST_NOWCOMBO_1P",11},
+	{"#DST_NOWJUDGE_2P",12},
+	{"#DST_NOWCOMBO_2P",13}
 };
 int SkinLR2::loadLR2dst(const Tokens &t)
 {
@@ -1029,6 +1037,33 @@ int SkinLR2::loadLR2dst(const Tokens &t)
                     *(int*)&d.op[i] = stoine(ops);
             }
         }
+
+		if (opt == "#DST_NOWJUDGE_1P" || opt == "#DST_NOWCOMBO_1P" )
+		{
+			switch (bufJudge1PSlot)
+			{
+			case 0: d.timer = (int)eTimer::_JUDGE_1P_0; break;
+			case 1: d.timer = (int)eTimer::_JUDGE_1P_1; break;
+			case 2: d.timer = (int)eTimer::_JUDGE_1P_2; break;
+			case 3: d.timer = (int)eTimer::_JUDGE_1P_3; break;
+			case 4: d.timer = (int)eTimer::_JUDGE_1P_4; break;
+			case 5: d.timer = (int)eTimer::_JUDGE_1P_5; break;
+			default: break;
+			}
+		}
+		else if (opt == "#DST_NOWJUDGE_2P" || opt == "#DST_NOWCOMBO_2P" )
+		{
+			switch (bufJudge1PSlot)
+			{
+			case 0: d.timer = (int)eTimer::_JUDGE_2P_0; break;
+			case 1: d.timer = (int)eTimer::_JUDGE_2P_1; break;
+			case 2: d.timer = (int)eTimer::_JUDGE_2P_2; break;
+			case 3: d.timer = (int)eTimer::_JUDGE_2P_3; break;
+			case 4: d.timer = (int)eTimer::_JUDGE_2P_4; break;
+			case 5: d.timer = (int)eTimer::_JUDGE_2P_5; break;
+			default: break;
+			}
+		}
 
         drawQueue.push_back({ e, false, d.op[0], d.op[1], d.op[2], d.op[3] });
         e->setLoopTime(d.loop);

@@ -1374,6 +1374,8 @@ public:
     int loadLR2_DST_NOTE(const Tokens &t);
 
 protected:
+	int  bufJudge1PSlot;
+	int  bufJudge2PSlot;
 	bool noshiftJudge1P;
 	bool noshiftJudge2P;
 	int  alignJudge1P;

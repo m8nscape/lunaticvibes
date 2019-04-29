@@ -285,7 +285,7 @@ void SpriteAnimated::updateAnimation(timestamp time)
     if (_segments == 0) return;
     if (_period == -1) return;
 
-    frameIdx f = _period ? (time.norm() / _period % _aframes) : 0; 
+    frameIdx f = _period ? ((time.norm() % _period) / (_period / _aframes)) : 0; 
     _drawRect = _texRect[_segmentIdx];
     _drawRect.w = _aRect.w;
     _drawRect.h = _aRect.h;
@@ -442,7 +442,7 @@ SpriteNumber::SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align
 
 bool SpriteNumber::update(timestamp t)
 {
-	if (_sDigit[0].update(t))
+	if (!_sDigit.empty() && _sDigit[0].update(t))
 	{
 		for (size_t i = 1; i < _sDigit.size(); ++i)
 			_sDigit[i].update(t);

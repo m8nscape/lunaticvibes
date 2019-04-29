@@ -114,6 +114,18 @@ enum class eTimer : unsigned
 	// Inner timers
 	_CURRENT,
 	_LOAD_START,
+		_JUDGE_1P_0,
+		_JUDGE_1P_1,
+		_JUDGE_1P_2,
+		_JUDGE_1P_3,
+		_JUDGE_1P_4,
+		_JUDGE_1P_5,
+		_JUDGE_2P_0,
+		_JUDGE_2P_1,
+		_JUDGE_2P_2,
+		_JUDGE_2P_3,
+		_JUDGE_2P_4,
+		_JUDGE_2P_5,
 
 	_NEVER,
     TIMER_COUNT
