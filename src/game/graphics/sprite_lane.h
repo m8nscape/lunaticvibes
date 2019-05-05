@@ -26,7 +26,7 @@ public:
     // note gap = beat_gap * hispeed * lane_height * (basespeed * lanespeed)
     // e.g. 16th gap of 400px with 1.0hs, 1.0*1.0spd is g*1.0*400*(1.0*1.0) = 20px (?)
     SpriteLaneVertical(pTexture texture, Rect laneRect,
-        unsigned animRows, unsigned animCols, unsigned frameTime = 0, eTimer timer = eTimer::PLAY_START,
+        unsigned animFrames, unsigned frameTime = 0, eTimer timer = eTimer::PLAY_START,
         bool animVerticalIndexing = false,
         double basespeed = 1.0, double lanespeed = 1.0
         );

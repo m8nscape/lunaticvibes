@@ -2,10 +2,10 @@
 #include <cassert>
 
 SpriteLaneVertical::SpriteLaneVertical(pTexture texture, Rect r,
-    unsigned animRows, unsigned animCols, unsigned frameTime, eTimer timer,
+    unsigned animFrames, unsigned frameTime, eTimer timer,
     bool animVerticalIndexing,
     double basespeed, double lanespeed):
-    SpriteStatic(nullptr, Rect(0)), pNote(new SpriteAnimated(texture, r, animRows, animCols, frameTime, timer, animVerticalIndexing))
+    SpriteStatic(nullptr, Rect(0)), pNote(new SpriteAnimated(texture, r, animFrames, frameTime, timer, animVerticalIndexing))
 {
     _type = SpriteTypes::NOTE_VERT;
     _basespd = basespeed * lanespeed;
@@ -22,8 +22,15 @@ void SpriteLaneVertical::setChannel(NoteChannelCategory cat, NoteChannelIndex id
 
 void SpriteLaneVertical::getRectSize(int& w, int& h)
 {
-    w = pNote->_aRect.w;
-    h = pNote->_aRect.h;
+	if (pNote->_texRect.empty())
+	{
+		w = h = 0;
+	}
+	else
+	{
+		w = pNote->_texRect[0].w;
+		h = pNote->_texRect[0].h;
+	}
 }
 
 bool SpriteLaneVertical::update(timestamp t)
