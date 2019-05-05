@@ -194,7 +194,7 @@ public:
     // Register to InputWrapper
     virtual void updateRelease(InputMask& rg, timestamp t);
     // Called by ScenePlay
-    virtual void updateAsync(timestamp t);
+    virtual void update(timestamp t);
 public:
     constexpr auto getJudge() const { return _count; }
 };

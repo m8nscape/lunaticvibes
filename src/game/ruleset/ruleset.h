@@ -37,7 +37,7 @@ public:
     virtual void updatePress(InputMask& pg, timestamp t) = 0;
     virtual void updateHold(InputMask& hg, timestamp t) = 0;
     virtual void updateRelease(InputMask& rg, timestamp t) = 0;
-    virtual void updateAsync(timestamp t) = 0;
+    virtual void update(timestamp t) = 0;
 public:
     constexpr BasicData getData() const { return _basic; }
 };

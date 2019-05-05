@@ -381,7 +381,7 @@ void RulesetClassic::updateRelease(InputMask& rg, timestamp t)
     }
 }
 
-void RulesetClassic::updateAsync(timestamp t)
+void RulesetClassic::update(timestamp t)
 {
 	auto rt = t - gTimers.get(eTimer::PLAY_START);
     if (_k1P) for (size_t k = Input::S1L; k <= Input::K1SPDDN; ++k)

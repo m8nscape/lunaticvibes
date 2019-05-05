@@ -316,8 +316,8 @@ void ScenePlay::updatePlaying()
 	auto rt = t - gTimers.get(eTimer::PLAY_START);
     gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (context_chart.scrollObj->getCurrentBeat() * 4.0)) % 1000);
 
-    _pRuleset->updateAsync(t);
     context_chart.scrollObj->update(rt);
+    _pRuleset->update(t);
     playBGMSamples();
     changeKeySampleMapping(rt);
 
@@ -412,8 +412,9 @@ void ScenePlay::changeKeySampleMapping(timestamp t)
 
 void ScenePlay::inputGamePress(InputMask& m, timestamp t)
 {
-    // individual keys
     using namespace Input;
+
+    // individual keys
     size_t sampleCount = 0;
     for (size_t i = 0; i < ESC; ++i)
         if (_inputAvailable[i] && m[i])
@@ -430,7 +431,35 @@ void ScenePlay::inputGamePress(InputMask& m, timestamp t)
 
 void ScenePlay::inputGameHold(InputMask& m, timestamp t)
 {
+    using namespace Input;
 
+	// Reset scene: F1+F5+F9
+	if (_inputAvailable[F1] && m[F1] &&
+		_inputAvailable[F5] && m[F5] &&
+		_inputAvailable[F9] && m[F9])
+	{
+		loopEnd();
+		_input.loopEnd();
+
+		removeInputJudgeCallback();
+		context_chart.scrollObj = nullptr;
+		gNumbers.reset();
+		gSliders.reset();
+
+		gSwitches.set(eSwitch::_TRUE, false);
+		gSwitches.reset();
+		gSwitches.set(eSwitch::_TRUE, true);
+
+		gTimers.set(eTimer::SCENE_START, 0);
+		gTimers.reset();
+		gTimers.set(eTimer::SCENE_START, t.norm());
+		gTimers.set(eTimer::START_INPUT, t.norm() + _skin->info.timeIntro);
+
+		_currentKeySample.assign(Input::ESC, 0);
+		_state = ePlayState::PREPARE;
+		loopStart();
+		_input.loopStart();
+	}
 }
 
 void ScenePlay::inputGameRelease(InputMask& m, timestamp t)
