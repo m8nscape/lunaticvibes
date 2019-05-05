@@ -716,7 +716,7 @@ int SkinLR2::loadLR2_SRC_IMAGE(const Tokens &t, pTexture tex)
     refineRect(d, tex->getRect(), line);
 
 	_sprites.push_back(std::make_shared<SpriteAnimated>(
-		tex, Rect(d.x, d.y, d.w, d.h), d.div_y, d.div_x, d.cycle, (eTimer)d.timer));
+		tex, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x));
 	
 	return 0;
 }
@@ -736,8 +736,15 @@ int SkinLR2::loadLR2_SRC_NUMBER(const Tokens &t, pTexture tex)
 	// TODO convert num
 	eNumber iNum = (eNumber)d.num;
 
+	// get NumType from div_x, div_y
+	unsigned f = d.div_y * d.div_x;
+	if (f % NumberType::NUM_TYPE_NORMAL == 0) f = f / NumberType::NUM_TYPE_NORMAL;
+	else if (f % NumberType::NUM_TYPE_BLANKZERO == 0) f = f / NumberType::NUM_TYPE_BLANKZERO;
+	else if (f % NumberType::NUM_TYPE_FULL == 0) f = f / NumberType::NUM_TYPE_FULL;
+	else f = 0;
+
 	_sprites.emplace_back(std::make_shared<SpriteNumber>(
-		tex, Rect(d.x, d.y, d.w, d.h), (NumberAlign)d.align, d.keta, d.div_y, d.div_x, d.cycle, iNum, (eTimer)d.timer));
+		tex, Rect(d.x, d.y, d.w, d.h), (NumberAlign)d.align, d.keta, d.div_y, d.div_x, d.cycle, iNum, (eTimer)d.timer, f));
 
 	return 0;
 }
@@ -756,7 +763,7 @@ int SkinLR2::loadLR2_SRC_SLIDER(const Tokens &t, pTexture tex)
     refineRect(d, tex->getRect(), line);
 
 	_sprites.push_back(std::make_shared<SpriteSlider>(
-		tex, Rect(d.x, d.y, d.w, d.h), (SliderDirection)d.muki, d.range, d.div_y, d.div_x, d.cycle, (eSlider)d.type, (eTimer)d.timer));
+		tex, Rect(d.x, d.y, d.w, d.h), (SliderDirection)d.muki, d.range, d.div_y*d.div_x, d.cycle, (eSlider)d.type, (eTimer)d.timer, d.div_y, d.div_x));
 	
 	return 0;
 }
@@ -774,7 +781,7 @@ int SkinLR2::loadLR2_SRC_BARGRAPH(const Tokens &t, pTexture tex)
     refineRect(d, tex->getRect(), line);
 
 	_sprites.push_back(std::make_shared<SpriteBargraph>(
-		tex, Rect(d.x, d.y, d.w, d.h), (BargraphDirection)d.muki, d.div_y, d.div_x, d.cycle, (eBargraph)d.type, (eTimer)d.timer));
+		tex, Rect(d.x, d.y, d.w, d.h), (BargraphDirection)d.muki, d.div_y*d.div_x, d.cycle, (eBargraph)d.type, (eTimer)d.timer, d.div_y, d.div_x));
 
 	return 0;
 }
@@ -808,16 +815,14 @@ int SkinLR2::loadLR2_SRC_BUTTON(const Tokens &t, pTexture tex)
 				}
 			}
 			auto s = std::make_shared<SpriteOption>(
-				tex, Rect(d.x, d.y, d.w, d.h), 1, 1, 0, eTimer::SCENE_START, false,
-				d.div_y, d.div_x);
+				tex, Rect(d.x, d.y, d.w, d.h), 1, 0, eTimer::SCENE_START, false, d.div_y, d.div_x);
 			s->setInd(SpriteOption::opType::SWITCH, (unsigned)*sw);
 			_sprites.push_back(s);
 		}
 		else if (auto op = std::get_if<eOption>(&buttonAdapter[d.type]))
 		{
 			auto s = std::make_shared<SpriteOption>(
-				tex, Rect(d.x, d.y, d.w, d.h), 1, 1, 0, eTimer::SCENE_START, false,
-				d.div_y, d.div_x);
+				tex, Rect(d.x, d.y, d.w, d.h), 1, 0, eTimer::SCENE_START, false, d.div_y, d.div_x);
 			s->setInd(SpriteOption::opType::OPTION, (unsigned)*op);
 			_sprites.push_back(s);
 		}
@@ -982,7 +987,7 @@ int SkinLR2::loadLR2_SRC_NOTE(const Tokens &t)
 		NoteChannelIndex idx = (NoteChannelIndex)d._null;
 		size_t i = channelToIdx(cat, idx);
         _sprites.push_back(std::make_shared<SpriteLaneVertical>(
-            _texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y, d.div_x, d.cycle, iTimer));
+            _texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y*d.div_x, d.cycle, iTimer, d.div_y, d.div_x));
         _laneSprites[i] = std::static_pointer_cast<SpriteLaneVertical>(_sprites.back());
 		_laneSprites[i]->setChannel(cat, idx);
         LOG_DEBUG << "[Skin] " << line << ": Set Note " << idx << " sprite (texture: " << gr_key << ", timer: " << d.timer << ")";

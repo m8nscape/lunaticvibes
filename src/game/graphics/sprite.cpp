@@ -238,30 +238,31 @@ bool SpriteSelection::update(timestamp t)
 // Animated
 
 SpriteAnimated::SpriteAnimated(pTexture texture, 
-    unsigned animRows, unsigned animCols, unsigned frameTime, eTimer t, 
-    bool animVert, unsigned selRows, unsigned selCols, bool selVert):
-    SpriteAnimated(texture, texture ? texture->getRect() : Rect(), animRows, animCols, frameTime, t,
-		animVert, selRows, selCols, selVert)
+    unsigned animFrames, unsigned frameTime, eTimer t, 
+    unsigned selRows, unsigned selCols, bool selVert):
+    SpriteAnimated(texture, texture ? texture->getRect() : Rect(), animFrames, frameTime, t,
+		selRows, selCols, selVert)
 {
 }
 
 SpriteAnimated::SpriteAnimated(pTexture texture, const Rect& r, 
-    unsigned animRows, unsigned animCols, unsigned frameTime, eTimer t, 
-    bool animVert, unsigned selRows, unsigned selCols, bool selVert):
-    SpriteSelection(texture, r, selRows, selCols, selVert), _arows(0), _acols(0), _aframes(0), _resetAnimTimer(t)
+    unsigned animFrames, unsigned frameTime, eTimer t, 
+    unsigned selRows, unsigned selCols, bool selVert):
+    SpriteSelection(texture, r, selRows, selCols, selVert), _aframes(0), _resetAnimTimer(t)
 {
     _type = SpriteTypes::ANIMATED;
 
-    if (animRows == 0 || animCols == 0 || selRows == 0 || selCols == 0) return;
+    if (animFrames == 0 || selRows == 0 || selCols == 0) return;
 
-    _aRect.x = _aRect.y = 0;
-    _aRect.w = _texRect[0].w / animCols;
-    _aRect.h = _texRect[0].h / animRows;
-    _arows = animRows;
-    _acols = animCols;
-    _aframes = animRows * animCols;
+	if (_aframes != 0) _sframes = selRows * selCols / _aframes;
+	//_aframes = animFrames;
+    //_aRect.w = _texRect[0].w / animCols;
+    //_aRect.h = _texRect[0].h / animRows;
+    //_arows = animRows;
+    //_acols = animCols;
+    //_aframes = animRows * animCols;
     _period = frameTime;
-    _aVert = animVert;
+    //_aVert = animVert;
 }
 
 bool SpriteAnimated::update(timestamp t)
@@ -293,7 +294,7 @@ void SpriteAnimated::updateAnimation(timestamp time)
         auto animFrameTime = time.norm() % _period;
         f = std::round(animFrameTime / timeEachFrame);
     }
-
+	/*
     _drawRect = _texRect[_segmentIdx];
     _drawRect.w = _aRect.w;
     _drawRect.h = _aRect.h;
@@ -309,6 +310,8 @@ void SpriteAnimated::updateAnimation(timestamp time)
         _drawRect.x += _aRect.w * (f / _arows);
         _drawRect.y += _aRect.h * (f % _arows);
     }
+	*/
+	updateSelection(_segmentIdx + f * _sframes);
 }
 
 void SpriteAnimated::updateAnimationByTimer(timestamp time)
@@ -413,21 +416,22 @@ void SpriteText::draw() const
 
 SpriteNumber::SpriteNumber(pTexture texture, NumberAlign align, unsigned maxDigits,
     unsigned numRows, unsigned numCols, unsigned frameTime, eNumber n, eTimer t,
-    bool numVert, unsigned animRows, unsigned animCols, bool animVert) : 
+    unsigned animFrames, bool numVert):
     SpriteNumber(texture, texture ? texture->getRect() : Rect(), align, maxDigits,
 		numRows, numCols, frameTime, n, t,
-		numVert, animRows, animCols, animVert)
+		animFrames, numVert)
 {
 }
 
 SpriteNumber::SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align, unsigned maxDigits,
     unsigned numRows, unsigned numCols, unsigned frameTime, eNumber n, eTimer t,
-    bool numVert, unsigned animRows, unsigned animCols, bool animVert): 
+    unsigned animFrames, bool numVert):
     vSprite(texture, SpriteTypes::NUMBER), _alignType(align), _numInd(n)
 {
     _type = SpriteTypes::NUMBER;
 
-    _numType = NumberType(numRows * numCols);
+    //_numType = NumberType(numRows * numCols);
+	if (animFrames != 0) _numType = NumberType(numRows * numCols / animFrames);
     switch (_numType)
     {
     case NUM_TYPE_NORMAL:
@@ -445,7 +449,7 @@ SpriteNumber::SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align
     int subh = r.h / numRows;
 	for (size_t i = 0; i < maxDigits; ++i)
 	{
-		_sDigit.emplace_back(texture, r, animRows, animCols, frameTime, t, animVert, numRows, numCols, numVert);
+		_sDigit.emplace_back(texture, r, animFrames, frameTime, t, numRows, numCols, numVert);
 	}
 	//r.x = r.y = 0;
     // placeholder, to make idx 1 to last digit
@@ -675,17 +679,17 @@ void SpriteNumber::draw() const
 }
 
 SpriteSlider::SpriteSlider(pTexture texture, SliderDirection d, int range,
-	unsigned animRows, unsigned animCols, unsigned frameTime, eSlider ind, eTimer timer,
-	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
+	unsigned animFrames, unsigned frameTime, eSlider ind, eTimer timer,
+	unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
 	SpriteSlider(texture, texture ? texture->getRect() : Rect(), d, range,
-		animRows, animCols, frameTime, ind, timer, animVerticalIndexing,
+		animFrames, frameTime, ind, timer,
 		selRows, selCols, selVerticalIndexing) {}
 
 SpriteSlider::SpriteSlider(pTexture texture, const Rect& rect, SliderDirection d, int range,
-	unsigned animRows, unsigned animCols, unsigned frameTime, eSlider ind, eTimer timer,
-	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
-	SpriteAnimated(texture, rect, animRows, animCols, frameTime, timer,
-		animVerticalIndexing, selRows, selCols, selVerticalIndexing), _ind(ind), _dir(d), _range(range)
+	unsigned animFrames, unsigned frameTime, eSlider ind, eTimer timer,
+	unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
+	SpriteAnimated(texture, rect, animFrames, frameTime, timer,
+		selRows, selCols, selVerticalIndexing), _ind(ind), _dir(d), _range(range)
 {
 	_type = SpriteTypes::SLIDER;
 }
@@ -732,17 +736,17 @@ bool SpriteSlider::update(timestamp t)
 }
 
 SpriteBargraph::SpriteBargraph(pTexture texture, BargraphDirection d,
-	unsigned animRows, unsigned animCols, unsigned frameTime, eBargraph ind, eTimer timer,
-	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
+	unsigned animFrames, unsigned frameTime, eBargraph ind, eTimer timer,
+	unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
 	SpriteBargraph(texture, texture ? texture->getRect() : Rect(), d,
-		animRows, animCols, frameTime, ind, timer, animVerticalIndexing,
+		animFrames, frameTime, ind, timer,
 		selRows, selCols, selVerticalIndexing) {}
 
 SpriteBargraph::SpriteBargraph(pTexture texture, const Rect& rect, BargraphDirection d,
-	unsigned animRows, unsigned animCols, unsigned frameTime, eBargraph ind, eTimer timer,
-	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
-	SpriteAnimated(texture, rect, animRows, animCols, frameTime, timer,
-		animVerticalIndexing, selRows, selCols, selVerticalIndexing), _dir(d), _ind(ind)
+	unsigned animFrames, unsigned frameTime, eBargraph ind, eTimer timer,
+	unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
+	SpriteAnimated(texture, rect, animFrames, frameTime, timer,
+		selRows, selCols, selVerticalIndexing), _dir(d), _ind(ind)
 {
 	_type = SpriteTypes::BARGRAPH;
 }
@@ -796,17 +800,17 @@ bool SpriteBargraph::update(timestamp t)
 }
 
 SpriteOption::SpriteOption(pTexture texture,
-	unsigned animRows, unsigned animCols, unsigned frameTime, eTimer timer,
-	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
+	unsigned animFrames, unsigned frameTime, eTimer timer,
+	unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
 	SpriteOption(texture, texture ? texture->getRect() : Rect(),
-		animRows, animCols, frameTime, timer, animVerticalIndexing,
+		animFrames, frameTime, timer,
 		selRows, selCols, selVerticalIndexing) {}
 
 SpriteOption::SpriteOption(pTexture texture, const Rect& rect,
-	unsigned animRows, unsigned animCols, unsigned frameTime, eTimer timer,
-	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
-	SpriteAnimated(texture, rect, animRows, animCols, frameTime, timer,
-		animVerticalIndexing, selRows, selCols, selVerticalIndexing)
+	unsigned animFrames, unsigned frameTime, eTimer timer,
+	unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
+	SpriteAnimated(texture, rect, animFrames, frameTime, timer,
+		selRows, selCols, selVerticalIndexing)
 {
 	_type = SpriteTypes::OPTION;
 }
