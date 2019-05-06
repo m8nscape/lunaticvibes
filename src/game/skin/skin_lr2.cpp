@@ -662,6 +662,7 @@ static std::map<Token, LoadLR2SrcFunc> __src_supported
 	{"#SRC_BARGRAPH", std::bind(&SkinLR2::loadLR2_SRC_BARGRAPH, _1, _2, _3)},
 	{"#SRC_BUTTON",   std::bind(&SkinLR2::loadLR2_SRC_BUTTON,   _1, _2, _3)},
 	//{"#SRC_ONMOUSE", std::bind(&SkinLR2::loadLR2_SRC_ONMOUSE, _1, _2, _3)},
+	{"#SRC_GROOVEGAUGE", std::bind(&SkinLR2::loadLR2_SRC_GROOVEGAUGE, _1, _2, _3)},
 	{"#SRC_TEXT",     std::bind(&SkinLR2::loadLR2_SRC_TEXT,     _1, _2, _3)},
 	{"#SRC_NOWJUDGE_1P", std::bind(&SkinLR2::loadLR2_SRC_NOWJUDGE1, _1, _2, _3)},
 	{"#SRC_NOWJUDGE_2P", std::bind(&SkinLR2::loadLR2_SRC_NOWJUDGE2, _1, _2, _3)},
@@ -825,6 +826,31 @@ int SkinLR2::loadLR2_SRC_BUTTON(const Tokens &t, pTexture tex)
 	return 0;
 }
 
+int SkinLR2::loadLR2_SRC_GROOVEGAUGE(const Tokens &t, pTexture tex)
+{
+	if (t.size() < 13)
+	{
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
+		return 1;
+	}
+
+	lr2skin::s_groovegauge d;
+	convertLine(t, (int*)&d, 0, 12);
+    refineRect(d, tex->getRect(), line);
+
+	if (d.div_y * d.div_x < 4)
+	{
+		LOG_WARNING << "[Skin] " << line << ": div not enough (Line " << line << ")";
+		return 2;
+	}
+
+	_sprites.push_back(std::make_shared<SpriteGaugeGrid>(
+		tex, Rect(d.x, d.y, d.w, d.h), d.div_y, d.div_x, d.cycle, d.add_x, d.add_y, 0, 100, (eTimer)d.timer));
+	
+	return 0;
+}
+
+
 int SkinLR2::loadLR2_SRC_TEXT(const Tokens &t, pTexture)
 {
 	if (t.size() < 5)
@@ -982,10 +1008,11 @@ static std::map<Token, int> __dst_supported
 	{"#DST_ONMOUSE",6},
 	{"#DST_TEXT",7},
 	{"#DST_JUDGELINE",8},
+	{"#DST_GROOVEGAUGE",9},
 	{"#DST_NOWJUDGE_1P",10},
 	{"#DST_NOWCOMBO_1P",11},
 	{"#DST_NOWJUDGE_2P",12},
-	{"#DST_NOWCOMBO_2P",13}
+	{"#DST_NOWCOMBO_2P",13},
 };
 int SkinLR2::loadLR2dst(const Tokens &t)
 {

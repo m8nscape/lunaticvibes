@@ -1368,6 +1368,7 @@ public:
     int loadLR2_SRC_SLIDER(const Tokens &t, pTexture tex);
     int loadLR2_SRC_BARGRAPH(const Tokens &t, pTexture tex);
     int loadLR2_SRC_BUTTON(const Tokens &t, pTexture tex);
+	int loadLR2_SRC_GROOVEGAUGE(const Tokens &t, pTexture tex);
     int loadLR2_SRC_TEXT(const Tokens &t, pTexture dummy = nullptr);
     int loadLR2_SRC_NOTE(const Tokens &t);
     int loadLR2dst(const Tokens &t);
