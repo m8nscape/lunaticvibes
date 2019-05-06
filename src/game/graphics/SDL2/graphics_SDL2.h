@@ -129,33 +129,34 @@ public:
 // Convert SDL_Surface into SDL_Texture with subarea specified.
 class Texture
 {
-    friend class vSprite;
-    friend class SpriteStatic;
-    friend class SpriteSelection;
-    friend class SpriteAnimated;
-    friend class SpriteText;
-    friend class SpriteNumber;
+	friend class vSprite;
+	friend class SpriteStatic;
+	friend class SpriteSelection;
+	friend class SpriteAnimated;
+	friend class SpriteText;
+	friend class SpriteNumber;
 
-    friend class SpriteLaneVertical;
+	friend class SpriteLaneVertical;
 
 protected:
-    SDL_Texture* _pTexture = nullptr;
-    bool _loaded = false;
-    Rect _texRect;
-
-private:
-    // Inner draw function.
-    virtual void _draw(const Rect& srcRect, Rect dstRect, 
-        const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const;
-    // TODO params of _draw: center, flip
+	SDL_Texture* _pTexture = nullptr;
+	bool _loaded = false;
+	Rect _texRect;
 
 public:
-    Texture(const Image& srcImage);
-    Texture(const SDL_Surface* pSurface);
-    Texture(const SDL_Texture* pTexture, int w, int h);
-    virtual ~Texture();
+	// Inner draw function.
+	virtual void draw(const Rect& srcRect, Rect dstRect,
+		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const;
+	// TODO params of draw: center, flip
+
 public:
-    Rect getRect() const;
+	Texture(const Image& srcImage);
+	Texture(const SDL_Surface* pSurface);
+	Texture(const SDL_Texture* pTexture, int w, int h);
+	virtual ~Texture();
+public:
+	Rect getRect() const { return _texRect; }
+	bool isLoaded() const { return _loaded; }
 };
 
 
@@ -165,7 +166,7 @@ public:
 class TextureFull: public Texture
 {
 private:
-    virtual void _draw(const Rect& srcRect, const Rect& dstRect, 
+    virtual void draw(const Rect& srcRect, const Rect& dstRect, 
         const Color c, const double angleInDegrees) const;
 public:
     TextureFull(const Color& srcColor);

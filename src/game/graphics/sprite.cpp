@@ -160,7 +160,7 @@ bool SpriteStatic::update(timestamp t)
 void SpriteStatic::draw() const
 {
     if (_draw && _pTexture->_loaded)
-        _pTexture->_draw(_texRect, _current.rect, _current.color, _current.blend, _current.filter, _current.angle);
+        _pTexture->draw(_texRect, _current.rect, _current.color, _current.blend, _current.filter, _current.angle);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -220,7 +220,7 @@ SpriteSelection::SpriteSelection(pTexture texture, const Rect& r, unsigned rows,
 void SpriteSelection::draw() const
 {
     if (_draw && _pTexture->_loaded)
-        _pTexture->_draw(_texRect[_segmentIdx], _current.rect, _current.color, _current.blend, _current.filter, _current.angle);
+        _pTexture->draw(_texRect[_segmentIdx], _current.rect, _current.color, _current.blend, _current.filter, _current.angle);
 }
 
 void SpriteSelection::updateSelection(frameIdx frame)
@@ -328,7 +328,7 @@ void SpriteAnimated::draw() const
 {
     if (_draw && _pTexture != nullptr && _pTexture->_loaded)
     {
-        _pTexture->_draw(_drawRect, _current.rect, _current.color, _current.blend, _current.filter, _current.angle);
+        _pTexture->draw(_drawRect, _current.rect, _current.color, _current.blend, _current.filter, _current.angle);
     }
 }
 
@@ -651,7 +651,7 @@ void SpriteNumber::draw() const
     if (_pTexture->_loaded)
     {
         //for (size_t i = 0; i < _outRectDigit.size(); ++i)
-        //    _pTexture->_draw(_drawRectDigit[i], _outRectDigit[i], _current.angle);
+        //    _pTexture->draw(_drawRectDigit[i], _outRectDigit[i], _current.angle);
 
         for (const auto& d : _sDigit)
             d.draw();
@@ -847,6 +847,102 @@ bool SpriteOption::update(timestamp t)
 		return true;
 	}
 	return false;
+}
+
+
+SpriteGaugeGrid::SpriteGaugeGrid(pTexture texture,
+	unsigned animRows, unsigned animCols, unsigned frameTime, int dx, int dy, unsigned min, unsigned max,
+	eTimer timer, eNumber num,
+	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
+	SpriteGaugeGrid(texture, texture ? texture->getRect() : Rect(), animRows, animCols, frameTime, dx, dy, min, max, timer, num, animVerticalIndexing, selRows, selCols, selVerticalIndexing) {}
+
+SpriteGaugeGrid::SpriteGaugeGrid(pTexture texture, const Rect& rect,
+	unsigned animRows, unsigned animCols, unsigned frameTime, int dx, int dy, unsigned min, unsigned max, 
+	eTimer timer, eNumber num, 
+	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing): 
+	SpriteAnimated(texture, rect, animRows, animCols, frameTime, timer, animVerticalIndexing, selRows, selCols, selVerticalIndexing),
+	_delta_x(dx), _delta_y(dy), _min(min), _max(max), _numInd(num)
+{
+	memset(_color, 1, sizeof(_color));	// 0xFFFFFFFF x 50
+}
+
+void SpriteGaugeGrid::setFlashType(SpriteGaugeGrid::FlashType t)
+{
+	_flashType = t;
+}
+
+void SpriteGaugeGrid::setGaugeType(SpriteGaugeGrid::GaugeType t)
+{
+	_gaugeType = t;
+	switch (_gaugeType)
+	{
+	case GaugeType::NORMAL: _texIdxLight = NORMAL_LIGHT; _texIdxDark = NORMAL_DARK; break;
+	case GaugeType::HARD:   _texIdxLight = HARD_LIGHT;   _texIdxDark = HARD_DARK;   break;
+	case GaugeType::EXHARD: _texIdxLight = EXHARD_LIGHT; _texIdxDark = EXHARD_DARK; break;
+	default: break;
+	}
+}
+
+void SpriteGaugeGrid::updateVal(unsigned v)
+{
+	_val = 50 * (v - _min) / (_max - _min);
+}
+
+void SpriteGaugeGrid::updateValByInd()
+{
+	updateVal(gNumbers.get(_numInd));
+}
+
+bool SpriteGaugeGrid::update(timestamp t)
+{
+	updateSelection(_texIdxLight);
+	if (SpriteAnimated::update(t))
+	{
+		updateValByInd();
+		_lightRect = _drawRect;
+
+		// set darkRect
+		updateSelection(_texIdxDark);
+		SpriteAnimated::update(t);
+		_darkRect = _drawRect;
+
+		switch (_flashType)
+		{
+		case FlashType::NONE:
+			for (unsigned i = 0; i < _val; ++i)
+				_color[i] = _current.color;
+			for (unsigned i = _val; i < 50; ++i)
+				_color[i] = 0x00000000;
+			break;
+
+		case FlashType::CLASSIC:
+			for (unsigned i = 0; i < _val; ++i)
+				_color[i] = _current.color;
+			if (_val - 3 >= 0 && _val - 3 < 50 && !!t.norm() / 17 % 2) _color[_val - 3].a = 0; // 16.67ms, per 2f
+			if (_val - 2 >= 0 && _val - 2 < 50 && !!t.norm() / 17 % 4) _color[_val - 2].a = 0; // 16.67ms, per 4f
+			for (unsigned i = _val; i < 50; ++i)
+				_color[i] = 0x00000000;
+			break;
+			
+		default: break;
+		}
+		return true;
+	}
+	return false;
+}
+
+void SpriteGaugeGrid::draw() const
+{
+    if (_draw && _pTexture != nullptr && _pTexture->isLoaded())
+    {
+		Rect r = _current.rect;
+		for (unsigned i = 0; i = _val; ++i)
+		{
+			_pTexture->draw(_drawRect, r, _color[i], _current.blend, _current.filter, _current.angle);
+			r.x += _delta_x;
+			r.y += _delta_y;
+		}
+    }
 }
 
 SpriteLine::SpriteLine(int width, Color color) : SpriteStatic(nullptr), _width(width), _color(color)

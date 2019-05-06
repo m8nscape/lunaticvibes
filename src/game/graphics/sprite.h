@@ -385,12 +385,41 @@ public:
 
 class SpriteGaugeGrid : public SpriteAnimated
 {
+public:
+	enum class FlashType
+	{
+		NONE,
+		CLASSIC,	// LR2
+		// TBD
+	};
+
+	enum class GaugeType
+	{
+		NORMAL,
+		HARD,
+		EXHARD
+	};
+
+	enum TextureSelection
+	{
+		HARD_LIGHT,
+		NORMAL_LIGHT,
+		HARD_DARK,
+		NORMAL_DARK,
+		EXHARD_LIGHT,
+		EXHARD_DARK,
+	};
+
 private:
-	int _delta_x;
-	int _delta_y;
+	int _delta_x, _delta_y;
 	unsigned _min, _max;
-	unsigned _numInd;
-	unsigned short _val;		// 0~50
+	eNumber _numInd;
+	unsigned short _val = 25;		// 0~50
+	size_t _texIdxLight, _texIdxDark;
+	Color _color[50];		// filled with 1
+	FlashType _flashType = FlashType::CLASSIC;
+	GaugeType _gaugeType = GaugeType::NORMAL;
+	Rect _lightRect, _darkRect;
 
 public:
     SpriteGaugeGrid() = delete;
@@ -408,9 +437,14 @@ public:
     virtual ~SpriteGaugeGrid() = default;
 
 public:
+	void setFlashType(FlashType t);
+	void setGaugeType(GaugeType t);
+
+public:
     void updateVal(unsigned v);
     void updateValByInd();
 	virtual bool update(timestamp t);
+	virtual void draw() const;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -181,12 +181,7 @@ Texture::~Texture()
         SDL_DestroyTexture(_pTexture);
 }
 
-Rect Texture::getRect() const
-{
-    return _texRect;
-}
-
-void Texture::_draw(const Rect& srcRect, Rect dstRect,
+void Texture::draw(const Rect& srcRect, Rect dstRect,
     const Color c, const BlendMode b, const bool filter, const double angle) const
 {
 	if (dstRect.w < 0) { dstRect.w = -dstRect.w; dstRect.x -= dstRect.w; }
@@ -226,7 +221,7 @@ TextureFull::TextureFull(const SDL_Texture* pTexture, int w, int h): Texture(pTe
 
 TextureFull::~TextureFull() {}
 
-void TextureFull::_draw(const Rect& ignored, const Rect& dstRect,
+void TextureFull::draw(const Rect& ignored, const Rect& dstRect,
     const Color c, const double angle) const
 {
 	SDL_SetTextureColorMod(&*_pTexture, c.r, c.g, c.b);
