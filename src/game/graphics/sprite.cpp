@@ -1,6 +1,5 @@
 #include "sprite.h"
 #include <plog/Log.h>
-#include <gtest/gtest.h>
 
 static inline double grad(double dst, double src, double t) { return dst * t + src * (1.0 - t); }
 
@@ -248,13 +247,13 @@ SpriteAnimated::SpriteAnimated(pTexture texture,
 SpriteAnimated::SpriteAnimated(pTexture texture, const Rect& r, 
     unsigned animFrames, unsigned frameTime, eTimer t, 
     unsigned selRows, unsigned selCols, bool selVert):
-    SpriteSelection(texture, r, selRows, selCols, selVert), _aframes(0), _resetAnimTimer(t)
+    SpriteSelection(texture, r, selRows, selCols, selVert), _animFrames(animFrames), _resetAnimTimer(t)
 {
     _type = SpriteTypes::ANIMATED;
 
     if (animFrames == 0 || selRows == 0 || selCols == 0) return;
 
-	if (_aframes != 0) _sframes = selRows * selCols / _aframes;
+	if (_animFrames != 0) _selections = selRows * selCols / _animFrames;
 	//_aframes = animFrames;
     //_aRect.w = _texRect[0].w / animCols;
     //_aRect.h = _texRect[0].h / animRows;
@@ -311,7 +310,7 @@ void SpriteAnimated::updateAnimation(timestamp time)
         _drawRect.y += _aRect.h * (f % _arows);
     }
 	*/
-	updateSelection(_segmentIdx + f * _sframes);
+	updateSelection(_segmentIdx + f * _selections);
 }
 
 void SpriteAnimated::updateAnimationByTimer(timestamp time)

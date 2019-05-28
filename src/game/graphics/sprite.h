@@ -143,8 +143,8 @@ protected:
     //bool _aVert = false;
     //Rect _aRect;
     //unsigned _arows, _acols;
-    unsigned _aframes;
-	unsigned _sframes;
+    unsigned _animFrames;
+	unsigned _selections;
 	eTimer _resetAnimTimer;
     unsigned _period = -1;   // time for each ANIM LOOP lasts
     Rect _drawRect;
