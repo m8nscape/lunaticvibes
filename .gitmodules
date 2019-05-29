@@ -7,3 +7,6 @@
 [submodule "ext/digestpp"]
 	path = ext/digestpp
 	url = https://github.com/kerukuro/digestpp
+[submodule "ext/googletest"]
+	path = ext/googletest
+	url = https://github.com/google/googletest.git
