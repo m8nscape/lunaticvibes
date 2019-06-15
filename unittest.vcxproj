@@ -20,8 +20,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{C401E6C6-9DF9-4AD6-99AD-5F73CBC928A8}</ProjectGuid>
-    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{6448BF75-56F9-4393-BA9F-4C39876B94ED}</ProjectGuid>
+    <RootNamespace>unittest</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -29,21 +29,27 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -64,114 +70,107 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <OutDir>$(SolutionDir)$(Configuration)\test\</OutDir>
+    <IntDir>$(Configuration)\test\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <OutDir>$(SolutionDir)$(Configuration)\test\</OutDir>
+    <IntDir>$(Configuration)\test\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\test\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\test\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\test\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\test\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)ext\googletest\googlemock\include;$(ProjectDir)ext\googletest\googletest\include;$(ProjectDir)ext\fmod\inc;$(ProjectDir)ext\SDL2_gfx\include;$(ProjectDir)ext\SDL2_image\include;$(ProjectDir)ext\SDL2_ttf\include;$(ProjectDir)ext\SDL2\include;$(ProjectDir)ext\yaml-cpp\include;$(ProjectDir)ext\digestpp;$(ProjectDir)ext\plog\include;$(ProjectDir)src;$(ProjectDir)src\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)ext\fmod\inc;$(ProjectDir)ext\SDL2_gfx\include;$(ProjectDir)ext\SDL2_image\include;$(ProjectDir)ext\SDL2_ttf\include;$(ProjectDir)ext\SDL2\include;$(ProjectDir)ext\yaml-cpp\include;$(ProjectDir)ext\digestpp;$(ProjectDir)ext\plog\include;$(ProjectDir)src;$(ProjectDir)src\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
+      <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <TargetMachine>MachineX86</TargetMachine>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>$(ProjectDir)ext\fmod\lib;$(ProjectDir)ext\SDL2_gfx\lib;$(ProjectDir)ext\SDL2_image\lib;$(ProjectDir)ext\SDL2_ttf\lib;$(ProjectDir)ext\SDL2\lib;$(ProjectDir)ext\yaml-cpp\lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(PlatformTarget)\SDL2.lib;$(PlatformTarget)\SDL2main.lib;$(PlatformTarget)\SDL2_ttf.lib;$(PlatformTarget)\SDL2_image.lib;$(PlatformTarget)\SDL2_gfx.lib;$(PlatformTarget)\SDL2test.lib;fmodL_vc.lib;ext\yaml-cpp\build\Debug\libyaml-cppmdd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)ext;$(ProjectDir)ext\fmod\lib;$(ProjectDir)ext\SDL2_gfx\lib;$(ProjectDir)ext\SDL2_image\lib;$(ProjectDir)ext\SDL2_ttf\lib;$(ProjectDir)ext\SDL2\lib;$(ProjectDir)ext\yaml-cpp\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>googletest\lib\Debug\gtestd.lib;$(PlatformTarget)\SDL2.lib;$(PlatformTarget)\SDL2main.lib;$(PlatformTarget)\SDL2_ttf.lib;$(PlatformTarget)\SDL2_image.lib;$(PlatformTarget)\SDL2_gfx.lib;$(PlatformTarget)\SDL2test.lib;fmodL_vc.lib;ext\yaml-cpp\build\Debug\libyaml-cppmdd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>$(ProjectDir)build-dependencies.bat $(Configuration) $(Platform)</Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>xcopy /y $(ProjectDir)ext\SDL2\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
-xcopy /y $(ProjectDir)ext\SDL2_ttf\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
-xcopy /y $(ProjectDir)ext\SDL2_image\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
-xcopy /y $(ProjectDir)ext\fmod\lib\fmodL.dll $(SolutionDir)$(Configuration)\</Command>
-    </PostBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)ext\fmod\inc;$(ProjectDir)ext\SDL2_gfx\include;$(ProjectDir)ext\SDL2_image\include;$(ProjectDir)ext\SDL2_ttf\include;$(ProjectDir)ext\SDL2\include;$(ProjectDir)ext\yaml-cpp\include;$(ProjectDir)ext\digestpp;$(ProjectDir)ext\plog\include;$(ProjectDir)src;$(ProjectDir)src\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
-      <WholeProgramOptimization>true</WholeProgramOptimization>
-    </ClCompile>
-    <Link>
-      <TargetMachine>MachineX86</TargetMachine>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(ProjectDir)ext\fmod\lib;$(ProjectDir)ext\SDL2_gfx\lib;$(ProjectDir)ext\SDL2_image\lib;$(ProjectDir)ext\SDL2_ttf\lib;$(ProjectDir)ext\SDL2\lib;$(ProjectDir)ext\yaml-cpp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(PlatformTarget)\SDL2.lib;$(PlatformTarget)\SDL2main.lib;$(PlatformTarget)\SDL2_ttf.lib;$(PlatformTarget)\SDL2_image.lib;$(PlatformTarget)\SDL2_gfx.lib;fmod_vc.lib;ext\yaml-cpp\build\Release\libyaml-cppmd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-    <PreBuildEvent>
-      <Command>$(ProjectDir)build-dependencies.bat $(Configuration) $(Platform)</Command>
-    </PreBuildEvent>
-    <PostBuildEvent>
-      <Command>xcopy /y $(ProjectDir)ext\SDL2\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
-xcopy /y $(ProjectDir)ext\SDL2_ttf\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
-xcopy /y $(ProjectDir)ext\SDL2_image\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
-xcopy /y $(ProjectDir)ext\fmod\lib\fmod.dll $(SolutionDir)$(Configuration)\</Command>
+      <Command>xcopy /y $(ProjectDir)ext\SDL2\lib\$(PlatformTarget)\*.dll $(OutputPath)
+xcopy /y $(ProjectDir)ext\SDL2_ttf\lib\$(PlatformTarget)\*.dll $(OutputPath)
+xcopy /y $(ProjectDir)ext\SDL2_image\lib\$(PlatformTarget)\*.dll $(OutputPath)
+xcopy /y $(ProjectDir)ext\fmod\lib\fmodL.dll $(OutputPath)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir)ext\fmod\inc;$(ProjectDir)ext\SDL2_gfx\include;$(ProjectDir)ext\SDL2_image\include;$(ProjectDir)ext\SDL2_ttf\include;$(ProjectDir)ext\SDL2\include;$(ProjectDir)ext\yaml-cpp\include;$(ProjectDir)ext\digestpp;$(ProjectDir)ext\plog\include;$(ProjectDir)src;$(ProjectDir)src\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)ext\googletest\googlemock\include;$(ProjectDir)ext\googletest\googletest\include;$(ProjectDir)ext\fmod\inc;$(ProjectDir)ext\SDL2_gfx\include;$(ProjectDir)ext\SDL2_image\include;$(ProjectDir)ext\SDL2_ttf\include;$(ProjectDir)ext\SDL2\include;$(ProjectDir)ext\yaml-cpp\include;$(ProjectDir)ext\digestpp;$(ProjectDir)ext\plog\include;$(ProjectDir)src;$(ProjectDir)src\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(ProjectDir)ext\fmod\lib;$(ProjectDir)ext\SDL2_gfx\lib;$(ProjectDir)ext\SDL2_image\lib;$(ProjectDir)ext\SDL2_ttf\lib;$(ProjectDir)ext\SDL2\lib;$(ProjectDir)ext\yaml-cpp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(PlatformTarget)\SDL2.lib;$(PlatformTarget)\SDL2main.lib;$(PlatformTarget)\SDL2_ttf.lib;$(PlatformTarget)\SDL2_image.lib;$(PlatformTarget)\SDL2_gfx.lib;$(PlatformTarget)\SDL2test.lib;fmod64_vc.lib;ext\yaml-cpp\build\Debug\libyaml-cppmdd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)ext\fmod\lib;$(ProjectDir)ext\SDL2_gfx\lib;$(ProjectDir)ext\SDL2_image\lib;$(ProjectDir)ext\SDL2_ttf\lib;$(ProjectDir)ext\SDL2\lib;$(ProjectDir)ext\yaml-cpp\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(PlatformTarget)\SDL2.lib;$(PlatformTarget)\SDL2main.lib;$(PlatformTarget)\SDL2_ttf.lib;$(PlatformTarget)\SDL2_image.lib;$(PlatformTarget)\SDL2_gfx.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>$(ProjectDir)build-dependencies.bat $(Configuration) $(Platform)</Command>
     </PreBuildEvent>
-    <PostBuildEvent>
-      <Command>xcopy /y $(ProjectDir)ext\SDL2\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
-xcopy /y $(ProjectDir)ext\SDL2_ttf\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
-xcopy /y $(ProjectDir)ext\SDL2_image\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
-xcopy /y $(ProjectDir)ext\fmod\lib\fmodL64.dll $(SolutionDir)$(Configuration)\</Command>
-    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)ext\googletest\googlemock\include;$(ProjectDir)ext\googletest\googletest\include;$(ProjectDir)ext\fmod\inc;$(ProjectDir)ext\SDL2_gfx\include;$(ProjectDir)ext\SDL2_image\include;$(ProjectDir)ext\SDL2_ttf\include;$(ProjectDir)ext\SDL2\include;$(ProjectDir)ext\yaml-cpp\include;$(ProjectDir)ext\digestpp;$(ProjectDir)ext\plog\include;$(ProjectDir)src;$(ProjectDir)src\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(ProjectDir)ext\fmod\lib;$(ProjectDir)ext\SDL2_gfx\lib;$(ProjectDir)ext\SDL2_image\lib;$(ProjectDir)ext\SDL2_ttf\lib;$(ProjectDir)ext\SDL2\lib;$(ProjectDir)ext\yaml-cpp\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(PlatformTarget)\SDL2.lib;$(PlatformTarget)\SDL2main.lib;$(PlatformTarget)\SDL2_ttf.lib;$(PlatformTarget)\SDL2_image.lib;$(PlatformTarget)\SDL2_gfx.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PreBuildEvent>
+      <Command>$(ProjectDir)build-dependencies.bat $(Configuration) $(Platform)</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir)ext\fmod\inc;$(ProjectDir)ext\SDL2_gfx\include;$(ProjectDir)ext\SDL2_image\include;$(ProjectDir)ext\SDL2_ttf\include;$(ProjectDir)ext\SDL2\include;$(ProjectDir)ext\yaml-cpp\include;$(ProjectDir)ext\digestpp;$(ProjectDir)ext\plog\include;$(ProjectDir)src;$(ProjectDir)src\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)ext\googletest\googlemock\include;$(ProjectDir)ext\googletest\googletest\include;$(ProjectDir)ext\fmod\inc;$(ProjectDir)ext\SDL2_gfx\include;$(ProjectDir)ext\SDL2_image\include;$(ProjectDir)ext\SDL2_ttf\include;$(ProjectDir)ext\SDL2\include;$(ProjectDir)ext\yaml-cpp\include;$(ProjectDir)ext\digestpp;$(ProjectDir)ext\plog\include;$(ProjectDir)src;$(ProjectDir)src\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(ProjectDir)ext\fmod\lib;$(ProjectDir)ext\SDL2_gfx\lib;$(ProjectDir)ext\SDL2_image\lib;$(ProjectDir)ext\SDL2_ttf\lib;$(ProjectDir)ext\SDL2\lib;$(ProjectDir)ext\yaml-cpp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(PlatformTarget)\SDL2.lib;$(PlatformTarget)\SDL2main.lib;$(PlatformTarget)\SDL2_ttf.lib;$(PlatformTarget)\SDL2_image.lib;$(PlatformTarget)\SDL2_gfx.lib;fmod64_vc.lib;ext\yaml-cpp\build\Release\libyaml-cppmd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(ProjectDir)ext\fmod\lib;$(ProjectDir)ext\SDL2_gfx\lib;$(ProjectDir)ext\SDL2_image\lib;$(ProjectDir)ext\SDL2_ttf\lib;$(ProjectDir)ext\SDL2\lib;$(ProjectDir)ext\yaml-cpp\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(PlatformTarget)\SDL2.lib;$(PlatformTarget)\SDL2main.lib;$(PlatformTarget)\SDL2_ttf.lib;$(PlatformTarget)\SDL2_image.lib;$(PlatformTarget)\SDL2_gfx.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>$(ProjectDir)build-dependencies.bat $(Configuration) $(Platform)</Command>
     </PreBuildEvent>
-    <PostBuildEvent>
-      <Command>xcopy /y $(ProjectDir)ext\SDL2\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
-xcopy /y $(ProjectDir)ext\SDL2_ttf\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
-xcopy /y $(ProjectDir)ext\SDL2_image\lib\$(PlatformTarget)\*.dll $(SolutionDir)$(Configuration)\
-xcopy /y $(ProjectDir)ext\fmod\lib\fmod64.dll $(SolutionDir)$(Configuration)\</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\common\asynclooper.cpp" />
@@ -190,11 +189,10 @@ xcopy /y $(ProjectDir)ext\fmod\lib\fmod64.dll $(SolutionDir)$(Configuration)\</C
     <ClCompile Include="src\game\graphics\SDL2\window_SDL2.cpp" />
     <ClCompile Include="src\game\graphics\sprite.cpp" />
     <ClCompile Include="src\game\graphics\sprite_lane.cpp" />
+    <ClCompile Include="src\game\input\input_linux.cpp" />
     <ClCompile Include="src\game\input\input_mgr.cpp" />
     <ClCompile Include="src\game\input\input_windows.cpp" />
     <ClCompile Include="src\game\input\input_wrapper.cpp" />
-    <ClCompile Include="src\game\input\input_linux.cpp" />
-    <ClCompile Include="src\game\main.cpp" />
     <ClCompile Include="src\game\ruleset\ruleset_classic.cpp" />
     <ClCompile Include="src\game\scene\scene.cpp" />
     <ClCompile Include="src\game\scene\scene_mgr.cpp" />
@@ -202,12 +200,13 @@ xcopy /y $(ProjectDir)ext\fmod\lib\fmod64.dll $(SolutionDir)$(Configuration)\</C
     <ClCompile Include="src\game\scroll\scroll.cpp" />
     <ClCompile Include="src\game\scroll\scroll_bms.cpp" />
     <ClCompile Include="src\game\skin\skin.cpp" />
+    <ClCompile Include="src\game\skin\skin_lr2.cpp" />
     <ClCompile Include="src\game\skin\skin_lr2_dst.cpp" />
     <ClCompile Include="src\game\skin\skin_mgr.cpp" />
-    <ClCompile Include="src\game\skin\skin_lr2.cpp" />
     <ClCompile Include="src\game\sound\sound_fmod.cpp" />
     <ClCompile Include="src\game\sound\sound_fmod_callback.cpp" />
     <ClCompile Include="src\game\sound\sound_mgr.cpp" />
+    <ClCompile Include="src\game\test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common\asynclooper.h" />
@@ -221,12 +220,12 @@ xcopy /y $(ProjectDir)ext\fmod\lib\fmod64.dll $(SolutionDir)$(Configuration)\</C
     <ClInclude Include="src\common\meta.h" />
     <ClInclude Include="src\common\types.h" />
     <ClInclude Include="src\common\utils.h" />
+    <ClInclude Include="src\config\cfg_general.h" />
     <ClInclude Include="src\config\cfg_input.h" />
     <ClInclude Include="src\config\cfg_profile.h" />
     <ClInclude Include="src\config\cfg_skin.h" />
     <ClInclude Include="src\config\config.h" />
     <ClInclude Include="src\config\config_mgr.h" />
-    <ClInclude Include="src\config\cfg_general.h" />
     <ClInclude Include="src\game\data\bargraph.h" />
     <ClInclude Include="src\game\data\buffered_global.h" />
     <ClInclude Include="src\game\data\number.h" />
@@ -246,15 +245,15 @@ xcopy /y $(ProjectDir)ext\fmod\lib\fmod64.dll $(SolutionDir)$(Configuration)\</C
     <ClInclude Include="src\game\input\input_wrapper.h" />
     <ClInclude Include="src\game\ruleset\ruleset.h" />
     <ClInclude Include="src\game\ruleset\ruleset_classic.h" />
+    <ClInclude Include="src\game\scene\scene.h" />
     <ClInclude Include="src\game\scene\scene_context.h" />
     <ClInclude Include="src\game\scene\scene_mgr.h" />
     <ClInclude Include="src\game\scene\scene_play.h" />
-    <ClInclude Include="src\game\scene\scene.h" />
     <ClInclude Include="src\game\scroll\scroll.h" />
     <ClInclude Include="src\game\scroll\scroll_bms.h" />
     <ClInclude Include="src\game\skin\skin.h" />
-    <ClInclude Include="src\game\skin\skin_mgr.h" />
     <ClInclude Include="src\game\skin\skin_lr2.h" />
+    <ClInclude Include="src\game\skin\skin_mgr.h" />
     <ClInclude Include="src\game\skin\skin_new.h" />
     <ClInclude Include="src\game\sound\sound_driver.h" />
     <ClInclude Include="src\game\sound\sound_fmod.h" />

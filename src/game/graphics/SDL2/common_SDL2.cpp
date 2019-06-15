@@ -7,6 +7,10 @@
 #define SDL_LOAD_NOAUTOFREE 0
 #define SDL_LOAD_AUTOFREE 1
 
+#ifdef _MSC_VER
+#define strcpy strcpy_s
+#endif
+
 Color::Color(unsigned rgba)
 {
     r = rgba & 0xff000000 >> 24;

@@ -35,7 +35,7 @@ protected:
     LooperHandler handler = nullptr;
 
 public:
-    AsyncLooper::AsyncLooper(std::function<void()>, unsigned rate_per_sec);
+    AsyncLooper(std::function<void()>, unsigned rate_per_sec);
     virtual ~AsyncLooper();
     void loopStart();
     void loopEnd();
