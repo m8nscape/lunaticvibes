@@ -145,7 +145,7 @@ protected:
     unsigned _arows, _acols;
     unsigned _aframes;
 	eTimer _resetAnimTimer;
-    unsigned _period = -1;   // time for each frame lasts
+    unsigned _period = -1;   // time for each ANIM LOOP lasts
     Rect _drawRect;
 public:
     SpriteAnimated() = delete;

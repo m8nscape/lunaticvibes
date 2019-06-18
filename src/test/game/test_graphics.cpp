@@ -8,11 +8,11 @@ public:
     mock_Image() : Image("") {}
 };
 
-static Rect test_rect{ 0, 0, 256, 256 };
+static Rect TEST_RECT{ 0, 0, 256, 256 };
 class mock_Texture : public Texture
 {
 public:
-    mock_Texture() :Texture(mock_Image()) { _texRect = test_rect; _loaded = true; }
+    mock_Texture() :Texture(mock_Image()) { _texRect = TEST_RECT; _loaded = true; }
     MOCK_CONST_METHOD6(draw, void(const Rect&, Rect, const Color, const BlendMode, const bool, const double));
 };
 
@@ -165,7 +165,7 @@ public:
 TEST_F(test_Graphics_vSprite, func_update)
 {
     gTimers.set(eTimer::K11_BOMB, 0);
-    timestamp t(0), t1(128), t2(255), t3(256);
+    timestamp t(0), t1(128), t2(255), t3(256), t4(512);
 
     ss1.update(t);
     ASSERT_TRUE(ss1._draw);
@@ -207,6 +207,12 @@ TEST_F(test_Graphics_vSprite, func_update)
     ASSERT_EQ(ss1_2.getCurrentRenderParams().rect, Rect(1, 1, 255, 255));
     ASSERT_EQ(ss1_2.getCurrentRenderParams().color, Color(254, 254, 254, 254));
     ASSERT_EQ(ss1_2.getCurrentRenderParams().angle, 0);
+
+    ss1_2.update(t4);
+    ASSERT_TRUE(ss1_2._draw);
+    ASSERT_EQ(ss1_2.getCurrentRenderParams().rect, Rect(2, 2, 255, 255));
+    ASSERT_EQ(ss1_2.getCurrentRenderParams().color, Color(253, 253, 253, 253));
+    ASSERT_EQ(ss1_2.getCurrentRenderParams().angle, 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -245,10 +251,10 @@ public:
 TEST_F(test_Graphics_SpriteSelection, rectConstruct)
 {
     EXPECT_EQ(s0._segments, 1);
-    EXPECT_EQ(s0._texRect[0], test_rect);
+    EXPECT_EQ(s0._texRect[0], TEST_RECT);
 
-    int w = test_rect.w / 4;
-    int h = test_rect.h / 2;
+    int w = TEST_RECT.w / 4;
+    int h = TEST_RECT.h / 2;
     EXPECT_EQ(s._segments, 8);
     EXPECT_EQ(s._texRect[0], Rect(0 * w, 0 * h, w, h));
     EXPECT_EQ(s._texRect[1], Rect(1 * w, 0 * h, w, h));
@@ -272,3 +278,136 @@ TEST_F(test_Graphics_SpriteSelection, rectConstruct)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Animated sprite:
+
+class mock_SpriteAnimated : public SpriteAnimated
+{
+public:
+    mock_SpriteAnimated(pTexture texture,
+        unsigned animRows, unsigned animCols, unsigned frameTime, eTimer timer = eTimer::SCENE_START, bool animVerticalIndexing = false,
+        unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false) : SpriteAnimated(texture, animRows, animCols, frameTime, timer, animVerticalIndexing, rows, cols, verticalIndexing) {}
+    FRIEND_TEST(test_Graphics_SpriteAnimated, animRectConstruct);
+    FRIEND_TEST(test_Graphics_SpriteAnimated, animUpdate);
+};
+
+class test_Graphics_SpriteAnimated : public ::testing::Test
+{
+protected:
+    mock_Texture tex;
+    pTexture pt{ std::make_shared<Texture>(tex) };
+    mock_SpriteAnimated s{ pt, 4, 2, 8, eTimer::K11_BOMB, false };
+    mock_SpriteAnimated sv{ pt, 4, 2,8, eTimer::K11_BOMB,  true };
+    mock_SpriteAnimated ss{ pt, 4, 2,8, eTimer::K11_BOMB,  false, 2, 2, false };
+    mock_SpriteAnimated ssv{ pt, 4, 2,8, eTimer::K11_BOMB,  true,  2, 2, false };
+public:
+    test_Graphics_SpriteAnimated()
+    {
+        s.setTimer(eTimer::K11_BOMB);
+        s.appendKeyFrame({ 0, {Rect(0, 0, 255, 255), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        s.setLoopTime(0);
+        sv.setTimer(eTimer::K11_BOMB);
+        sv.appendKeyFrame({ 0, {Rect(0, 0, 255, 255), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        sv.setLoopTime(0);
+        ss.setTimer(eTimer::K11_BOMB);
+        ss.appendKeyFrame({ 0, {Rect(0, 0, 255, 255), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        ss.setLoopTime(0);
+        ssv.setTimer(eTimer::K11_BOMB);
+        ssv.appendKeyFrame({ 0, {Rect(0, 0, 255, 255), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        ssv.setLoopTime(0);
+    }
+};
+
+
+TEST_F(test_Graphics_SpriteAnimated, animRectConstruct)
+{
+    int w = TEST_RECT.w / 2;
+    int h = TEST_RECT.h / 4;
+    int ww = TEST_RECT.w / 2;
+    int hh = TEST_RECT.h / 2;
+
+    EXPECT_EQ(s._segments, 1);
+    EXPECT_EQ(s._aframes, 8);
+    EXPECT_EQ(s._aRect, Rect(0, 0, w, h));
+
+    EXPECT_EQ(ss._segments, 4);
+    EXPECT_EQ(ss._aframes, 8);
+    EXPECT_EQ(ss._aRect, Rect(0, 0, w/2 , h/2));
+    EXPECT_EQ(ss._texRect[0], Rect(0, 0, ww, hh));
+}
+
+TEST_F(test_Graphics_SpriteAnimated, animUpdate)
+{
+    timestamp t0{ 1 }, t1{ 2 }, t2{ 3 }, t3{ 4 }, t4{ 5 }, t5{ 6 }, t6{ 7 }, t7{ 8 };
+    gTimers.set(eTimer::K11_BOMB, t0.norm());
+    int w = TEST_RECT.w / 2;
+    int h = TEST_RECT.h / 4;
+    int ww = w / 2;
+    int hh = h / 2;
+
+    s.update(t0);
+    ASSERT_EQ(s._drawRect, Rect(0 * w, 0 * h, w, h));
+    s.update(t1);
+    ASSERT_EQ(s._drawRect, Rect(1 * w, 0 * h, w, h));
+    s.update(t2);
+    ASSERT_EQ(s._drawRect, Rect(0 * w, 1 * h, w, h));
+    s.update(t3);
+    ASSERT_EQ(s._drawRect, Rect(1 * w, 1 * h, w, h));
+    s.update(t4);
+    ASSERT_EQ(s._drawRect, Rect(0 * w, 2 * h, w, h));
+    s.update(t5);
+    ASSERT_EQ(s._drawRect, Rect(1 * w, 2 * h, w, h));
+    s.update(t6);
+    ASSERT_EQ(s._drawRect, Rect(0 * w, 3 * h, w, h));
+    s.update(t7);
+    ASSERT_EQ(s._drawRect, Rect(1 * w, 3 * h, w, h));
+
+    sv.update(t0);
+    ASSERT_EQ(sv._drawRect, Rect(0 * w, 0 * h, w, h));
+    sv.update(t1);
+    ASSERT_EQ(sv._drawRect, Rect(0 * w, 1 * h, w, h));
+    sv.update(t2);
+    ASSERT_EQ(sv._drawRect, Rect(0 * w, 2 * h, w, h));
+    sv.update(t3);
+    ASSERT_EQ(sv._drawRect, Rect(0 * w, 3 * h, w, h));
+    sv.update(t4);
+    ASSERT_EQ(sv._drawRect, Rect(1 * w, 0 * h, w, h));
+    sv.update(t5);
+    ASSERT_EQ(sv._drawRect, Rect(1 * w, 1 * h, w, h));
+    sv.update(t6);
+    ASSERT_EQ(sv._drawRect, Rect(1 * w, 2 * h, w, h));
+    sv.update(t7);
+    ASSERT_EQ(sv._drawRect, Rect(1 * w, 3 * h, w, h));
+
+    ss.update(t0);
+    ASSERT_EQ(ss._drawRect, Rect(0 * ww, 0 * hh, ww, hh));
+    ss.update(t1);
+    ASSERT_EQ(ss._drawRect, Rect(1 * ww, 0 * hh, ww, hh));
+    ss.update(t2);
+    ASSERT_EQ(ss._drawRect, Rect(0 * ww, 1 * hh, ww, hh));
+    ss.update(t3);
+    ASSERT_EQ(ss._drawRect, Rect(1 * ww, 1 * hh, ww, hh));
+    ss.update(t4);
+    ASSERT_EQ(ss._drawRect, Rect(0 * ww, 2 * hh, ww, hh));
+    ss.update(t5);
+    ASSERT_EQ(ss._drawRect, Rect(1 * ww, 2 * hh, ww, hh));
+    ss.update(t6);
+    ASSERT_EQ(ss._drawRect, Rect(0 * ww, 3 * hh, ww, hh));
+    ss.update(t7);
+    ASSERT_EQ(ss._drawRect, Rect(1 * ww, 3 * hh, ww, hh));
+
+    ssv.update(t0);
+    ASSERT_EQ(ssv._drawRect, Rect(0 * ww, 0 * hh, ww, hh));
+    ssv.update(t1);
+    ASSERT_EQ(ssv._drawRect, Rect(0 * ww, 1 * hh, ww, hh));
+    ssv.update(t2);
+    ASSERT_EQ(ssv._drawRect, Rect(0 * ww, 2 * hh, ww, hh));
+    ssv.update(t3);
+    ASSERT_EQ(ssv._drawRect, Rect(0 * ww, 3 * hh, ww, hh));
+    ssv.update(t4);
+    ASSERT_EQ(ssv._drawRect, Rect(1 * ww, 0 * hh, ww, hh));
+    ssv.update(t5);
+    ASSERT_EQ(ssv._drawRect, Rect(1 * ww, 1 * hh, ww, hh));
+    ssv.update(t6);
+    ASSERT_EQ(ssv._drawRect, Rect(1 * ww, 2 * hh, ww, hh));
+    ssv.update(t7);
+    ASSERT_EQ(ssv._drawRect, Rect(1 * ww, 3 * hh, ww, hh));
+}

@@ -28,7 +28,7 @@ bool vSprite::updateByKeyframes(timestamp rawTime)
 		time = gTimers.get(eTimer::MUSIC_BEAT);
 	else
 		time = rawTime - gTimers.get(_timerInd);
-
+    
     // Check if import time is valid
 	timestamp endTime = timestamp(_keyFrames[frameCount - 1].time);
     if (time.norm() < 0 || _loopTo < 0 && time > endTime)
@@ -248,12 +248,13 @@ SpriteAnimated::SpriteAnimated(pTexture texture,
 SpriteAnimated::SpriteAnimated(pTexture texture, const Rect& r, 
     unsigned animRows, unsigned animCols, unsigned frameTime, eTimer t, 
     bool animVert, unsigned selRows, unsigned selCols, bool selVert):
-    SpriteSelection(texture, r, selRows, selCols, selVert), _aframes(0), _resetAnimTimer(t)
+    SpriteSelection(texture, r, selRows, selCols, selVert), _arows(0), _acols(0), _aframes(0), _resetAnimTimer(t)
 {
     _type = SpriteTypes::ANIMATED;
 
     if (animRows == 0 || animCols == 0 || selRows == 0 || selCols == 0) return;
 
+    _aRect.x = _aRect.y = 0;
     _aRect.w = _texRect[0].w / animCols;
     _aRect.h = _texRect[0].h / animRows;
     _arows = animRows;
@@ -286,7 +287,13 @@ void SpriteAnimated::updateAnimation(timestamp time)
     if (_segments == 0) return;
     if (_period == -1) return;
 
-    frameIdx f = _period ? ((time.norm() % _period) / (_period / _aframes)) : 0; 
+    frameIdx f = 0;
+    if (double timeEachFrame = double(_period) / _aframes; timeEachFrame >= 1.0)
+    {
+        auto animFrameTime = time.norm() % _period;
+        f = std::round(animFrameTime / timeEachFrame);
+    }
+
     _drawRect = _texRect[_segmentIdx];
     _drawRect.w = _aRect.w;
     _drawRect.h = _aRect.h;
