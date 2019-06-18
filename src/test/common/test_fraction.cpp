@@ -12,7 +12,10 @@ TEST(Common_Fraction, trim)
 TEST(Common_Fraction, negatives)
 {
     EXPECT_EQ(fraction(-1, 2), fraction(1, -2));
-    EXPECT_NE(fraction(0, 2), fraction(0, -2));
+    EXPECT_NE(fraction(-1, 2), fraction(1, 2));
+    EXPECT_NE(fraction(1, -2), fraction(1, 2));
+    EXPECT_NE(fraction(1, -2), fraction(-1, -2));
+    EXPECT_EQ(fraction(0, 2), fraction(0, -2));
 }
 
 TEST(Common_Fraction, cast_to_double)

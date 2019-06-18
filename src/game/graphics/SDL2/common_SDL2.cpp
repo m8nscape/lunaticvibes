@@ -11,20 +11,24 @@
 #define strcpy strcpy_s
 #endif
 
-Color::Color(unsigned rgba)
+Color::Color(uint32_t rgba)
 {
-    r = rgba & 0xff000000 >> 24;
-    g = rgba & 0x00ff0000 >> 16;
-    b = rgba & 0x0000ff00 >> 8;
-    a = rgba & 0x000000ff;
+    r = (rgba & 0xff000000) >> 24;
+    g = (rgba & 0x00ff0000) >> 16;
+    b = (rgba & 0x0000ff00) >> 8;
+    a = (rgba & 0x000000ff);
 }
 
-Color::Color(unsigned r, unsigned g, unsigned b, unsigned a)
+Color::Color(int r, int g, int b, int a)
 {
-    this->r = r > 0xff ? 0xff : r;
-    this->g = g > 0xff ? 0xff : g;
-    this->b = b > 0xff ? 0xff : b;
-    this->a = a > 0xff ? 0xff : a;
+    if (r < 0) r = 0; if (r > 255) r = 255;
+    if (g < 0) g = 0; if (g > 255) g = 255;
+    if (b < 0) b = 0; if (b > 255) b = 255;
+    if (a < 0) a = 0; if (a > 255) a = 255;
+    this->r = r;
+    this->g = g;
+    this->b = b;
+    this->a = a;
 }
 
 uint32_t Color::hex() const
@@ -45,6 +49,7 @@ Color Color::operator+(const Color& rhs) const
 
 Color Color::operator*(const double& rhs) const
 {
+    if (rhs < 0) return Color(0);
     Color c;
     c.r = (r * rhs <= 255) ? (Uint8)(r * rhs) : 255;
     c.g = (g * rhs <= 255) ? (Uint8)(g * rhs) : 255;
