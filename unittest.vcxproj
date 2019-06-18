@@ -98,7 +98,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(ProjectDir)ext;$(ProjectDir)ext\fmod\lib;$(ProjectDir)ext\SDL2_gfx\lib;$(ProjectDir)ext\SDL2_image\lib;$(ProjectDir)ext\SDL2_ttf\lib;$(ProjectDir)ext\SDL2\lib;$(ProjectDir)ext\yaml-cpp\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>googletest\lib\Debug\gtestd.lib;$(PlatformTarget)\SDL2.lib;$(PlatformTarget)\SDL2main.lib;$(PlatformTarget)\SDL2_ttf.lib;$(PlatformTarget)\SDL2_image.lib;$(PlatformTarget)\SDL2_gfx.lib;$(PlatformTarget)\SDL2test.lib;fmodL_vc.lib;ext\yaml-cpp\build\Debug\libyaml-cppmdd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>googletest\build\lib\Debug\gtestd.lib;googletest\build\lib\Debug\gmockd.lib;$(PlatformTarget)\SDL2.lib;$(PlatformTarget)\SDL2main.lib;$(PlatformTarget)\SDL2_ttf.lib;$(PlatformTarget)\SDL2_image.lib;$(PlatformTarget)\SDL2_gfx.lib;$(PlatformTarget)\SDL2test.lib;fmodL_vc.lib;ext\yaml-cpp\build\Debug\libyaml-cppmdd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>$(ProjectDir)build-dependencies.bat $(Configuration) $(Platform)</Command>
@@ -121,8 +121,8 @@ xcopy /y $(ProjectDir)ext\fmod\lib\fmodL.dll $(OutputPath)</Command>
       <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(ProjectDir)ext\fmod\lib;$(ProjectDir)ext\SDL2_gfx\lib;$(ProjectDir)ext\SDL2_image\lib;$(ProjectDir)ext\SDL2_ttf\lib;$(ProjectDir)ext\SDL2\lib;$(ProjectDir)ext\yaml-cpp\lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(PlatformTarget)\SDL2.lib;$(PlatformTarget)\SDL2main.lib;$(PlatformTarget)\SDL2_ttf.lib;$(PlatformTarget)\SDL2_image.lib;$(PlatformTarget)\SDL2_gfx.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)ext;$(ProjectDir)ext\fmod\lib;$(ProjectDir)ext\SDL2_gfx\lib;$(ProjectDir)ext\SDL2_image\lib;$(ProjectDir)ext\SDL2_ttf\lib;$(ProjectDir)ext\SDL2\lib;$(ProjectDir)ext\yaml-cpp\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>googletest\build\lib\Debug\gtestd.lib;googletest\build\lib\Debug\gmockd.lib;$(PlatformTarget)\SDL2.lib;$(PlatformTarget)\SDL2main.lib;$(PlatformTarget)\SDL2_ttf.lib;$(PlatformTarget)\SDL2_image.lib;$(PlatformTarget)\SDL2_gfx.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>$(ProjectDir)build-dependencies.bat $(Configuration) $(Platform)</Command>
@@ -206,7 +206,9 @@ xcopy /y $(ProjectDir)ext\fmod\lib\fmodL.dll $(OutputPath)</Command>
     <ClCompile Include="src\game\sound\sound_fmod.cpp" />
     <ClCompile Include="src\game\sound\sound_fmod_callback.cpp" />
     <ClCompile Include="src\game\sound\sound_mgr.cpp" />
-    <ClCompile Include="src\game\test.cpp" />
+    <ClCompile Include="src\test\common\test_fraction.cpp" />
+    <ClCompile Include="src\test\game\test_graphics.cpp" />
+    <ClCompile Include="src\test\test_main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common\asynclooper.h" />

@@ -7,15 +7,18 @@
 #include "SDL_ttf.h"
 #include <vector>
 #include <memory>
+#include <string>
 
 class Color : public SDL_Color
 {
 public:
     Color(unsigned rgba = 0xffffffff);
     Color(unsigned r, unsigned g, unsigned b, unsigned a);
-    operator Uint8() const;
+    uint32_t hex() const;
     Color operator+ (const Color& rhs) const;
     Color operator* (const double& rhs) const;
+    bool operator== (const Color& rhs) const;
+    bool operator!= (const Color& rhs) const;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -99,6 +102,7 @@ public:
     Rect operator+ (const Rect& rhs) const;
     Rect operator* (const double& rhs) const;
     bool operator== (const Rect& rhs) const;
+    bool operator!= (const Rect& rhs) const;
     Rect standardize(const Image& image) const;
     Rect standardize(const Rect& rect) const;
 };

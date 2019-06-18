@@ -1,8 +1,8 @@
 #include "graphics_SDL2.h"
 #include "window_SDL2.h"
 #include "SDL2_gfxPrimitives.h"
-#include <plog/Log.h>
 #include <memory>
+#include <plog/Log.h>
 
 #define SDL_LOAD_NOAUTOFREE 0
 #define SDL_LOAD_AUTOFREE 1
@@ -27,7 +27,7 @@ Color::Color(unsigned r, unsigned g, unsigned b, unsigned a)
     this->a = a > 0xff ? 0xff : a;
 }
 
-Color::operator Uint8() const
+uint32_t Color::hex() const
 {
     return r << 24 | g << 16 | b << 8 | a;
 }
@@ -51,6 +51,15 @@ Color Color::operator*(const double& rhs) const
     c.b = (b * rhs <= 255) ? (Uint8)(b * rhs) : 255;
     c.a = (a * rhs <= 255) ? (Uint8)(a * rhs) : 255;
     return c;
+}
+
+bool Color::operator==(const Color& rhs) const
+{
+    return r == rhs.r && g == rhs.g && b == rhs.b && a == rhs.a;
+}
+bool Color::operator!=(const Color& rhs) const
+{
+    return !(*this == rhs);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -210,7 +219,7 @@ TextureFull::TextureFull(const Color& c): Texture(nullptr)
 {
     auto surface = SDL_CreateRGBSurface(0, 1, 1, 32, 0xff, 0xff, 0xff, 0xff);
     SDL_Rect r{ 0, 0, 1, 1 };
-    SDL_FillRect(&*surface, &r, c);
+    SDL_FillRect(&*surface, &r, c.hex());
     _pTexture = SDL_CreateTextureFromSurface(_frame_renderer, surface);
     SDL_FreeSurface(surface);
     _texRect = { 0,0,1,1 };
@@ -246,6 +255,6 @@ void LineMeta::draw(Point p1, Point p2, int width, Color c)
 		p1.x, p1.y,
 		p2.x, p2.y,
 		width,
-		c
+		c.hex()
 	);
 }

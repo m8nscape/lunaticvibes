@@ -1,5 +1,6 @@
 #include "sprite.h"
 #include <plog/Log.h>
+#include <gtest/gtest.h>
 
 static inline double grad(double dst, double src, double t) { return dst * t + src * (1.0 - t); }
 

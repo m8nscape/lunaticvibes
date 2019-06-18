@@ -114,7 +114,13 @@
     <ClCompile Include="src\game\sound\sound_mgr.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\test.cpp">
+    <ClCompile Include="src\test\test_main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\test\common\test_fraction.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\test\game\test_graphics.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

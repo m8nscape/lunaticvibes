@@ -82,7 +82,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)ext\fmod\inc;$(ProjectDir)ext\SDL2_gfx\include;$(ProjectDir)ext\SDL2_image\include;$(ProjectDir)ext\SDL2_ttf\include;$(ProjectDir)ext\SDL2\include;$(ProjectDir)ext\yaml-cpp\include;$(ProjectDir)ext\digestpp;$(ProjectDir)ext\plog\include;$(ProjectDir)src;$(ProjectDir)src\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)ext\fmod\inc;$(ProjectDir)ext\SDL2_gfx\include;$(ProjectDir)ext\SDL2_image\include;$(ProjectDir)ext\SDL2_ttf\include;$(ProjectDir)ext\SDL2\include;$(ProjectDir)ext\yaml-cpp\include;$(ProjectDir)ext\digestpp;$(ProjectDir)ext\plog\include;$(ProjectDir)ext\googletest\googlemock\include;$(ProjectDir)ext\googletest\googletest\include;$(ProjectDir)ext\googletest\googlemock\include;$(ProjectDir)ext\googletest\googletest\include;$(ProjectDir)src;$(ProjectDir)src\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
     </ClCompile>
     <Link>
@@ -109,7 +109,7 @@ xcopy /y $(ProjectDir)ext\fmod\lib\fmodL.dll $(SolutionDir)$(Configuration)\</Co
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)ext\fmod\inc;$(ProjectDir)ext\SDL2_gfx\include;$(ProjectDir)ext\SDL2_image\include;$(ProjectDir)ext\SDL2_ttf\include;$(ProjectDir)ext\SDL2\include;$(ProjectDir)ext\yaml-cpp\include;$(ProjectDir)ext\digestpp;$(ProjectDir)ext\plog\include;$(ProjectDir)src;$(ProjectDir)src\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)ext\fmod\inc;$(ProjectDir)ext\SDL2_gfx\include;$(ProjectDir)ext\SDL2_image\include;$(ProjectDir)ext\SDL2_ttf\include;$(ProjectDir)ext\SDL2\include;$(ProjectDir)ext\yaml-cpp\include;$(ProjectDir)ext\digestpp;$(ProjectDir)ext\plog\include;$(ProjectDir)ext\googletest\googlemock\include;$(ProjectDir)ext\googletest\googletest\include;$(ProjectDir)ext\googletest\googlemock\include;$(ProjectDir)ext\googletest\googletest\include;$(ProjectDir)src;$(ProjectDir)src\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
       <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
@@ -134,7 +134,7 @@ xcopy /y $(ProjectDir)ext\fmod\lib\fmod.dll $(SolutionDir)$(Configuration)\</Com
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir)ext\fmod\inc;$(ProjectDir)ext\SDL2_gfx\include;$(ProjectDir)ext\SDL2_image\include;$(ProjectDir)ext\SDL2_ttf\include;$(ProjectDir)ext\SDL2\include;$(ProjectDir)ext\yaml-cpp\include;$(ProjectDir)ext\digestpp;$(ProjectDir)ext\plog\include;$(ProjectDir)src;$(ProjectDir)src\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)ext\fmod\inc;$(ProjectDir)ext\SDL2_gfx\include;$(ProjectDir)ext\SDL2_image\include;$(ProjectDir)ext\SDL2_ttf\include;$(ProjectDir)ext\SDL2\include;$(ProjectDir)ext\yaml-cpp\include;$(ProjectDir)ext\digestpp;$(ProjectDir)ext\plog\include;$(ProjectDir)ext\googletest\googlemock\include;$(ProjectDir)ext\googletest\googletest\include;$(ProjectDir)src;$(ProjectDir)src\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -154,7 +154,7 @@ xcopy /y $(ProjectDir)ext\fmod\lib\fmodL64.dll $(SolutionDir)$(Configuration)\</
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir)ext\fmod\inc;$(ProjectDir)ext\SDL2_gfx\include;$(ProjectDir)ext\SDL2_image\include;$(ProjectDir)ext\SDL2_ttf\include;$(ProjectDir)ext\SDL2\include;$(ProjectDir)ext\yaml-cpp\include;$(ProjectDir)ext\digestpp;$(ProjectDir)ext\plog\include;$(ProjectDir)src;$(ProjectDir)src\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)ext\fmod\inc;$(ProjectDir)ext\SDL2_gfx\include;$(ProjectDir)ext\SDL2_image\include;$(ProjectDir)ext\SDL2_ttf\include;$(ProjectDir)ext\SDL2\include;$(ProjectDir)ext\yaml-cpp\include;$(ProjectDir)ext\digestpp;$(ProjectDir)ext\plog\include;$(ProjectDir)ext\googletest\googlemock\include;$(ProjectDir)ext\googletest\googletest\include;$(ProjectDir)src;$(ProjectDir)src\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <WholeProgramOptimization>true</WholeProgramOptimization>

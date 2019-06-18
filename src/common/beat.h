@@ -3,6 +3,7 @@
 #include <string>
 #include <chrono>
 #include <variant>
+#include <iostream>
 
 typedef unsigned Measure;
 typedef double BPM;
