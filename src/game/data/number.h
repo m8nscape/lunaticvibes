@@ -147,9 +147,6 @@ enum class eNumber: unsigned
 
 	_DISP_NOWCOMBO_1P,
 	_DISP_NOWCOMBO_2P,
-	_DISP_NOWCOMBO_POPN_1,	// reserved
-	_DISP_NOWCOMBO_POPN_2,	// reserved
-	_DISP_NOWCOMBO_POPN_3,	// reserved
 
     NUMBER_COUNT
 };

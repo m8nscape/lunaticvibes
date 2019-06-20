@@ -432,34 +432,39 @@ SpriteNumber::SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align
     {
     case NUM_TYPE_NORMAL:
     case NUM_TYPE_BLANKZERO:
+        break;
     //case NUM_SYMBOL:
-    case NUM_TYPE_FULL: break;
+    case NUM_TYPE_FULL: 
+        break;
     default: return;
     }
 
     _digit.resize(maxDigits);
 	Rect r = rect;
 	int subw = r.w / numCols;
+    int subh = r.h / numRows;
 	for (size_t i = 0; i < maxDigits; ++i)
 	{
 		_sDigit.emplace_back(texture, r, animRows, animCols, frameTime, t, animVert, numRows, numCols, numVert);
 	}
-	r.x = r.y = 0;
-	_sDigit.emplace_back(nullptr, r, animRows, animCols, frameTime, t, animVert, numRows, numCols, numVert);
+	//r.x = r.y = 0;
+    // placeholder, to make idx 1 to last digit
+	//_sDigit.emplace_back(nullptr, r, animRows, animCols, frameTime, t, animVert, numRows, numCols, numVert);    
 }
 
 bool SpriteNumber::update(timestamp t)
 {
 	if (!_sDigit.empty() && _sDigit[0].update(t))
 	{
-		for (size_t i = 1; i < _sDigit.size(); ++i)
+        updateNumberByInd();
+        updateByTimer(t);
+        //updateSplitByTimer(t);
+        updateAnimationByTimer(t);
+        //updateRectsByTimer(t);
+
+		for (size_t i = 0; i < _sDigit.size(); ++i)
 			_sDigit[i].update(t);
 
-		updateByTimer(t);
-		//updateSplitByTimer(t);
-		updateAnimationByTimer(t);
-		//updateRectsByTimer(t);
-		updateNumberByInd();
 		return true;
 	}
 	return false;
@@ -476,59 +481,33 @@ void SpriteNumber::updateNumber(int n)
 {
     bool positive = n >= 0;
 	size_t zeroIdx = 0;
-	size_t blankIdx = (size_t)_numType;
+    unsigned maxDigits = _digit.size();
 	switch (_numType)
 	{
 	case NUM_TYPE_NORMAL:    zeroIdx = 0; break;
 	case NUM_TYPE_BLANKZERO: zeroIdx = NUM_BZERO; break;
-	case NUM_TYPE_FULL:      zeroIdx = positive ? NUM_FULL_BZERO_POS : NUM_FULL_BZERO_NEG; break;
+    case NUM_TYPE_FULL:      zeroIdx = positive ? NUM_FULL_BZERO_POS : NUM_FULL_BZERO_NEG; maxDigits--; break;
 	}
+
+    // reset by zeroIdx to prevent unexpected glitches
+    for (auto& d : _digit) d = zeroIdx;
 
 	if (n == 0)
 	{
-		_digit[0] = 0;
+        _digit[0] = 0;
 		_numDigits = 1;
 	}
 	else
 	{
 		_numDigits = 0;
-		int abs_n = positive ? n : -n;
-		for (unsigned i = 0; abs_n && i < _digit.size(); ++i)
+		int abs_n = std::abs(n);
+		for (unsigned i = 0; abs_n && i < maxDigits; ++i)
 		{
 			++_numDigits;
-			unsigned one = abs_n % 10;
+			unsigned digit = abs_n % 10;
 			abs_n /= 10;
-			switch (_numType)
-			{
-			case NUM_TYPE_NORMAL:
-			{
-				_digit[i] = one;
-				break;
-			}
-			case NUM_TYPE_BLANKZERO:
-			{
-				if (one == 0 && abs_n == 0)
-					_digit[i] = NUM_BZERO;
-				else
-					_digit[i] = one;
-				break;
-			}
-			/*
-			case NUM_SYMBOL:
-			{
-				_digit[i] = positive ? one : one + 10;
-				break;
-			}
-			*/
-			case NUM_TYPE_FULL:
-			{
-				if (one == 0 && abs_n == 0)
-					_digit[i] = positive ? NUM_FULL_BZERO_POS : NUM_FULL_BZERO_NEG;
-				else
-					_digit[i] = positive ? one : one + NUM_FULL_BZERO_POS + 1;
-				break;
-			}
-			}
+            if (_numType == NUM_TYPE_FULL && !positive) digit += 12;
+			_digit[i] = digit;
 		}
 	}
 
@@ -544,31 +523,46 @@ void SpriteNumber::updateNumber(int n)
 		*/
         case NUM_TYPE_FULL:
         {
-            _digit[_numDigits + 1] = positive ? NUM_FULL_PLUS : NUM_FULL_MINUS;
+            switch (_alignType)
+            {
+
+            case NUM_ALIGN_RIGHT:
+                _numDigits = _digit.size();
+                _digit[_numDigits] = positive ? NUM_FULL_PLUS : NUM_FULL_MINUS;
+                break;
+
+            case NUM_ALIGN_LEFT:
+                _digit[_numDigits] = positive ? NUM_FULL_PLUS : NUM_FULL_MINUS;
+                _numDigits++;
+                break;
+
+            case NUM_ALIGN_CENTER:
+                // tbd
+                break;
+            }
             break;
         }
     }
 
     // sprites
 	size_t blanks = _digit.size() - _numDigits;
-	switch (_alignType)
-	{
-	case NUM_ALIGN_RIGHT:
-		for (size_t i = 0; i < blanks; ++i)
-			_sDigit[i].updateSelection(zeroIdx);
-		for (size_t i = blanks; i < _digit.size(); ++i)
-			_sDigit[i].updateSelection(_digit[_digit.size() - 1 - i]);
-		break;
-	case NUM_ALIGN_LEFT:
-		for (size_t i = 0; i < _numDigits; ++i)
-			_sDigit[i].updateSelection(_digit[_digit.size() - 1 - i]);
-		for (size_t i = _numDigits; i < _digit.size(); ++i)
-			_sDigit[i].updateSelection(blankIdx);
-		break;
-	case NUM_ALIGN_CENTER:
-		// WIP
-		break;
-	}
+    size_t symbolIdx = _numDigits - 1;
+    switch (_alignType)
+    {
+    case NUM_ALIGN_RIGHT:
+        for (size_t i = 0; i < blanks; ++i)
+            _sDigit[i].updateSelection(zeroIdx);
+        for (size_t i = blanks; i < _digit.size(); ++i)
+            _sDigit[i].updateSelection(_digit[_digit.size() - 1 - i]);
+        break;
+    case NUM_ALIGN_LEFT:
+        for (size_t i = 0; i < _numDigits; ++i)
+            _sDigit[i].updateSelection(_digit[_numDigits - 1 - i]);
+        break;
+    case NUM_ALIGN_CENTER:
+        // WIP
+        break;
+    }
 }
 
 void SpriteNumber::updateNumberByInd()
@@ -614,8 +608,8 @@ void SpriteNumber::updateAnimationByTimer(timestamp t)
     }
     */
 
-    for (auto& d : _sDigit)
-        d.updateAnimationByTimer(t);
+    for (size_t idx = 0; idx < _numDigits; ++idx)
+        _sDigit[idx].updateAnimationByTimer(t);
 }
 
 //void SpriteNumber::updateDigitsRenderParams()
@@ -661,8 +655,22 @@ void SpriteNumber::draw() const
         //for (size_t i = 0; i < _outRectDigit.size(); ++i)
         //    _pTexture->draw(_drawRectDigit[i], _outRectDigit[i], _current.angle);
 
-        for (const auto& d : _sDigit)
-            d.draw();
+        switch (_alignType)
+        {
+        case NUM_ALIGN_RIGHT:
+            for (const auto& d : _sDigit)
+                d.draw();
+            break;
+
+        case NUM_ALIGN_LEFT:
+            for (size_t idx = 0; idx < _numDigits; ++idx)
+                _sDigit[idx].draw();
+            break;
+
+        case NUM_ALIGN_CENTER:
+            //tbd
+            break;
+        }
     }
 }
 

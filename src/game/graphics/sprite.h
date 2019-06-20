@@ -166,6 +166,7 @@ public:
     //void updateSplitByTimer(timestamp t);
 	virtual bool update(timestamp t);
     virtual void draw() const;
+    Rect getDrawTextureRect() const;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -225,19 +226,19 @@ const size_t NUM_BZERO          = 10;
 const size_t NUM_SYMBOL_PLUS    = 20;
 const size_t NUM_SYMBOL_MINUS   = 21;
 const size_t NUM_FULL_BZERO_POS = 10;
-const size_t NUM_FULL_BZERO_NEG = 21;
-const size_t NUM_FULL_PLUS      = 22;
+const size_t NUM_FULL_BZERO_NEG = 22;
+const size_t NUM_FULL_PLUS      = 11;
 const size_t NUM_FULL_MINUS     = 23;
 
 class SpriteNumber : public vSprite
 {
 	friend class SkinLR2;
-private:
+protected:
     eNumber _numInd;
 	unsigned _numDigits;
     NumberType _numType;
 	NumberAlign _alignType;
-    //std::vector<Rect> _drawRectDigit, _outRectDigit; // idx from low digit to high, e.g. [0] represents 1 digit, [1] represents 10 digit, etc.
+    //std::vector<Rect> _drawRectDigit, _outRectDigit; // idx from low digit to high, e.g. [1] represents 1 digit, [2] represents 10 digit, etc.
     std::vector<SpriteAnimated> _sDigit;
     std::vector<unsigned>       _digit;
 
@@ -245,11 +246,11 @@ public:
     SpriteNumber() = delete;
 
     SpriteNumber(pTexture texture, NumberAlign align, unsigned maxDigits,
-        unsigned numRows, unsigned numCols, unsigned frameTime, eNumber num = eNumber::ZERO, eTimer timer = eTimer::SCENE_START,
+        unsigned numRows, unsigned numCols, unsigned frameTime, eNumber num = eNumber::ZERO, eTimer animtimer = eTimer::SCENE_START,
         bool numVerticalIndexing = false, unsigned animRows = 1, unsigned animCols = 1, bool animVerticalIndexing = false);
 
     SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align, unsigned maxDigits,
-        unsigned numRows, unsigned numCols, unsigned frameTime, eNumber num = eNumber::ZERO, eTimer timer = eTimer::SCENE_START,
+        unsigned numRows, unsigned numCols, unsigned frameTime, eNumber num = eNumber::ZERO, eTimer animtimer = eTimer::SCENE_START,
         bool numVerticalIndexing = false, unsigned animRows = 1, unsigned animCols = 1, bool animVerticalIndexing = false);
 
     virtual ~SpriteNumber() = default;
