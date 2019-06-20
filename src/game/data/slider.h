@@ -5,6 +5,8 @@ typedef double percent;
 enum class eSlider : unsigned
 {
     ZERO = 0,
+
+    _TEST1,
     SLIDER_COUNT
 };
 

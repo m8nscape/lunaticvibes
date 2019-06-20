@@ -9,6 +9,7 @@ public:
 };
 
 static Rect TEST_RECT{ 0, 0, 256, 256 };
+static timestamp t0{ 1 }, t1{ 2 }, t2{ 3 }, t3{ 4 }, t4{ 5 }, t5{ 6 }, t6{ 7 }, t7{ 8 };
 class mock_Texture : public Texture
 {
 public:
@@ -125,6 +126,8 @@ TEST(Graphics_Rect, add_normal)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Render interface
+
+#pragma region Render Interface (vSprite)
 class mock_vSprite : public vSprite
 {
 public:
@@ -149,14 +152,14 @@ public:
         ss1_1.setTimer(eTimer::K11_BOMB);
         ss1_2.setTimer(eTimer::K11_BOMB);
 
-        ss1.appendKeyFrame({ 0, {Rect(0, 0, 255, 255), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        ss1.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         ss1.setLoopTime(0);
 
-        ss1_1.appendKeyFrame({ 0, {Rect(0, 0, 255, 255), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        ss1_1.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         ss1_1.appendKeyFrame({ 255, {Rect(255, 255, 255, 255), RenderParams::CONSTANT, Color(0x00000000), BlendMode::ALPHA, 0, 0} });
         ss1_1.setLoopTime(-1);
 
-        ss1_2.appendKeyFrame({ 0, {Rect(0, 0, 255, 255), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        ss1_2.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         ss1_2.appendKeyFrame({ 255, {Rect(255, 255, 255, 255), RenderParams::CONSTANT, Color(0x00000000), BlendMode::ALPHA, 0, 0} });
         ss1_2.setLoopTime(0);
     }
@@ -169,24 +172,24 @@ TEST_F(test_Graphics_vSprite, func_update)
 
     ss1.update(t);
     ASSERT_TRUE(ss1._draw);
-    ASSERT_EQ(ss1.getCurrentRenderParams().rect, Rect(0, 0, 255, 255));
+    ASSERT_EQ(ss1.getCurrentRenderParams().rect, Rect(0, 0, 0, 0));
     ASSERT_EQ(ss1.getCurrentRenderParams().color, Color(255, 255, 255, 255));
     ASSERT_EQ(ss1.getCurrentRenderParams().angle, 0);
 
     ss1.update(t1);
     ASSERT_TRUE(ss1._draw);
-    ASSERT_EQ(ss1.getCurrentRenderParams().rect, Rect(0, 0, 255, 255));
+    ASSERT_EQ(ss1.getCurrentRenderParams().rect, Rect(0, 0, 0, 0));
     ASSERT_EQ(ss1.getCurrentRenderParams().color, Color(255, 255, 255, 255));
     ASSERT_EQ(ss1.getCurrentRenderParams().angle, 0);
     ss1_1.update(t1);
     ASSERT_TRUE(ss1_1._draw);
-    ASSERT_EQ(ss1_1.getCurrentRenderParams().rect, Rect(128, 128, 255, 255));
+    ASSERT_EQ(ss1_1.getCurrentRenderParams().rect, Rect(128, 128, 128, 128));
     ASSERT_EQ(ss1_1.getCurrentRenderParams().color, Color(127, 127, 127, 127));
     ASSERT_EQ(ss1_1.getCurrentRenderParams().angle, 0);
 
     ss1.update(t2);
     ASSERT_TRUE(ss1._draw);
-    ASSERT_EQ(ss1.getCurrentRenderParams().rect, Rect(0, 0, 255, 255));
+    ASSERT_EQ(ss1.getCurrentRenderParams().rect, Rect(0, 0, 0, 0));
     ASSERT_EQ(ss1.getCurrentRenderParams().color, Color(255, 255, 255, 255));
     ASSERT_EQ(ss1.getCurrentRenderParams().angle, 0);
     ss1_1.update(t2);
@@ -197,26 +200,29 @@ TEST_F(test_Graphics_vSprite, func_update)
 
     ss1.update(t3);
     ASSERT_TRUE(ss1._draw);
-    ASSERT_EQ(ss1.getCurrentRenderParams().rect, Rect(0, 0, 255, 255));
+    ASSERT_EQ(ss1.getCurrentRenderParams().rect, Rect(0, 0, 0, 0));
     ASSERT_EQ(ss1.getCurrentRenderParams().color, Color(255, 255, 255, 255));
     ASSERT_EQ(ss1.getCurrentRenderParams().angle, 0);
     ss1_1.update(t3);
     ASSERT_FALSE(ss1_1._draw);
     ss1_2.update(t3);
     ASSERT_TRUE(ss1_2._draw);
-    ASSERT_EQ(ss1_2.getCurrentRenderParams().rect, Rect(1, 1, 255, 255));
+    ASSERT_EQ(ss1_2.getCurrentRenderParams().rect, Rect(1, 1, 1, 1));
     ASSERT_EQ(ss1_2.getCurrentRenderParams().color, Color(254, 254, 254, 254));
     ASSERT_EQ(ss1_2.getCurrentRenderParams().angle, 0);
 
     ss1_2.update(t4);
     ASSERT_TRUE(ss1_2._draw);
-    ASSERT_EQ(ss1_2.getCurrentRenderParams().rect, Rect(2, 2, 255, 255));
+    ASSERT_EQ(ss1_2.getCurrentRenderParams().rect, Rect(2, 2, 2, 2));
     ASSERT_EQ(ss1_2.getCurrentRenderParams().color, Color(253, 253, 253, 253));
     ASSERT_EQ(ss1_2.getCurrentRenderParams().angle, 0);
 }
+#pragma endregion
 
 ////////////////////////////////////////////////////////////////////////////////
 // Texture-split sprite:
+
+#pragma region Texture-split Sprite (SpriteSelection)
 class mock_SpriteSelection : public SpriteSelection
 {
 public:
@@ -236,13 +242,13 @@ public:
     test_Graphics_SpriteSelection()
     {
         s0.setTimer(eTimer::K11_BOMB);
-        s0.appendKeyFrame({ 0, {Rect(0, 0, 255, 255), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        s0.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         s0.setLoopTime(0);
         s.setTimer(eTimer::K11_BOMB);
-        s.appendKeyFrame({ 0, {Rect(0, 0, 255, 255), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        s.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         s.setLoopTime(0);
         sv.setTimer(eTimer::K11_BOMB);
-        sv.appendKeyFrame({ 0, {Rect(0, 0, 255, 255), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        sv.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         sv.setLoopTime(0);
     }
 };
@@ -274,9 +280,12 @@ TEST_F(test_Graphics_SpriteSelection, rectConstruct)
     EXPECT_EQ(sv._texRect[6], Rect(3 * w, 0 * h, w, h));
     EXPECT_EQ(sv._texRect[7], Rect(3 * w, 1 * h, w, h));
 }
+#pragma endregion
 
 ////////////////////////////////////////////////////////////////////////////////
 // Animated sprite:
+
+#pragma region Animated Sprite (SpriteAnimated)
 
 class mock_SpriteAnimated : public SpriteAnimated
 {
@@ -300,16 +309,16 @@ public:
     test_Graphics_SpriteAnimated()
     {
         s.setTimer(eTimer::K11_BOMB);
-        s.appendKeyFrame({ 0, {Rect(0, 0, 255, 255), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        s.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         s.setLoopTime(0);
         sv.setTimer(eTimer::K11_BOMB);
-        sv.appendKeyFrame({ 0, {Rect(0, 0, 255, 255), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        sv.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         sv.setLoopTime(0);
         ss.setTimer(eTimer::K11_BOMB);
-        ss.appendKeyFrame({ 0, {Rect(0, 0, 255, 255), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        ss.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         ss.setLoopTime(0);
         ssv.setTimer(eTimer::K11_BOMB);
-        ssv.appendKeyFrame({ 0, {Rect(0, 0, 255, 255), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        ssv.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         ssv.setLoopTime(0);
     }
 };
@@ -334,7 +343,6 @@ TEST_F(test_Graphics_SpriteAnimated, animRectConstruct)
 
 TEST_F(test_Graphics_SpriteAnimated, animUpdate)
 {
-    timestamp t0{ 1 }, t1{ 2 }, t2{ 3 }, t3{ 4 }, t4{ 5 }, t5{ 6 }, t6{ 7 }, t7{ 8 };
     gTimers.set(eTimer::K11_BOMB, t0.norm());
     int w = TEST_RECT.w / 2;
     int h = TEST_RECT.h / 4;
@@ -409,9 +417,12 @@ TEST_F(test_Graphics_SpriteAnimated, animUpdate)
     ssv.update(t7);
     ASSERT_EQ(ssv._drawRect, Rect(1 * ww, 3 * hh, ww, hh));
 }
+#pragma endregion
 
 ////////////////////////////////////////////////////////////////////////////////
 // Number sprite:
+
+#pragma region Animated number Sprite (SpriteNumber)
 
 class mock_SpriteNumber : public SpriteNumber
 {
@@ -490,7 +501,6 @@ TEST_F(test_Graphics_SpriteNumber, construct)
 
 TEST_F(test_Graphics_SpriteNumber, numberUpdate)
 {
-    timestamp t0{ 1 }, t1{ 2 }, t2{ 3 }, t3{ 4 }, t4{ 5 }, t5{ 6 }, t6{ 7 }, t7{ 8 };
     gTimers.set(eTimer::K11_BOMB, t0.norm());
     using namespace ::testing;
 
@@ -570,7 +580,6 @@ TEST_F(test_Graphics_SpriteNumber, numberUpdate)
 
 TEST_F(test_Graphics_SpriteNumber, rectUpdate_normal_1)
 {
-    timestamp t0{ 1 }, t1{ 2 }, t2{ 3 }, t3{ 4 }, t4{ 5 }, t5{ 6 }, t6{ 7 }, t7{ 8 };
     gTimers.set(eTimer::K11_BOMB, t0.norm());
 
     gNumbers.set(eNumber::_TEST1, 1);
@@ -584,7 +593,6 @@ TEST_F(test_Graphics_SpriteNumber, rectUpdate_normal_1)
 
 TEST_F(test_Graphics_SpriteNumber, rectUpdate_normal_4)
 {
-    timestamp t0{ 1 }, t1{ 2 }, t2{ 3 }, t3{ 4 }, t4{ 5 }, t5{ 6 }, t6{ 7 }, t7{ 8 };
     gTimers.set(eTimer::K11_BOMB, t0.norm());
     using namespace ::testing;
 
@@ -635,7 +643,6 @@ TEST_F(test_Graphics_SpriteNumber, rectUpdate_normal_4)
 
 TEST_F(test_Graphics_SpriteNumber, rectUpdate_bzero_4)
 {
-    timestamp t0{ 1 }, t1{ 2 }, t2{ 3 }, t3{ 4 }, t4{ 5 }, t5{ 6 }, t6{ 7 }, t7{ 8 };
     gTimers.set(eTimer::K11_BOMB, t0.norm());
     using namespace ::testing;
 
@@ -682,7 +689,6 @@ TEST_F(test_Graphics_SpriteNumber, rectUpdate_bzero_4)
 
 TEST_F(test_Graphics_SpriteNumber, rectUpdate_full_4)
 {
-    timestamp t0{ 1 }, t1{ 2 }, t2{ 3 }, t3{ 4 }, t4{ 5 }, t5{ 6 }, t6{ 7 }, t7{ 8 };
     gTimers.set(eTimer::K11_BOMB, t0.norm());
     using namespace ::testing;
 
@@ -726,7 +732,6 @@ TEST_F(test_Graphics_SpriteNumber, rectUpdate_full_4)
 
 TEST_F(test_Graphics_SpriteNumber, rectUpdate_bzero_4_right)
 {
-    timestamp t0{ 1 }, t1{ 2 }, t2{ 3 }, t3{ 4 }, t4{ 5 }, t5{ 6 }, t6{ 7 }, t7{ 8 };
     gTimers.set(eTimer::K11_BOMB, t0.norm());
     using namespace ::testing;
 
@@ -769,7 +774,6 @@ TEST_F(test_Graphics_SpriteNumber, rectUpdate_bzero_4_right)
 
 TEST_F(test_Graphics_SpriteNumber, rectUpdate_bzero_4_anim)
 {
-    timestamp t0{ 1 }, t1{ 2 }, t2{ 3 }, t3{ 4 }, t4{ 5 }, t5{ 6 }, t6{ 7 }, t7{ 8 };
     gTimers.set(eTimer::K11_BOMB, t0.norm());
     using namespace ::testing;
 
@@ -838,4 +842,160 @@ TEST_F(test_Graphics_SpriteNumber, rectUpdate_bzero_4_anim)
         EXPECT_CALL(*pt, draw(Rect(0, 120, 10, 40), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         sa11.draw();
     }
+}
+#pragma endregion
+
+////////////////////////////////////////////////////////////////////////////////
+// Slider sprite:
+
+#pragma region Slider Sprite (SpriteSlider)
+class mock_SpriteSlider : public SpriteSlider
+{
+public:
+    mock_SpriteSlider(pTexture texture, const Rect& rect, SliderDirection dir, int range,
+        unsigned animRows, unsigned animCols, unsigned frameTime, eSlider ind = eSlider::_TEST1, eTimer animtimer = eTimer::K11_BOMB,
+        bool animVerticalIndexing = false, unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false) :
+        SpriteSlider(texture, rect, dir, range, animRows, animCols, frameTime, ind, animtimer, animVerticalIndexing, selRows, selCols, selVerticalIndexing) {}
+};
+
+class test_Graphics_SpriteSlider : public ::testing::Test
+{
+protected:
+    std::shared_ptr<mock_Texture> pt{ std::make_shared<mock_Texture>() };
+    mock_SpriteSlider sL{ pt, TEST_RECT, SliderDirection::LEFT, 101, 1, 1, 0 };
+    mock_SpriteSlider sR{ pt, TEST_RECT, SliderDirection::RIGHT, 101, 1, 1, 0};
+    mock_SpriteSlider sU{ pt, TEST_RECT, SliderDirection::UP, 201, 1, 1, 0 };
+    mock_SpriteSlider sD{ pt, TEST_RECT, SliderDirection::DOWN, 201, 1, 1, 0 };
+public:
+    test_Graphics_SpriteSlider()
+    {
+        sL.setTimer(eTimer::K11_BOMB);
+        sL.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        sL.setLoopTime(0);
+        sR.setTimer(eTimer::K11_BOMB);
+        sR.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        sR.setLoopTime(0);
+        sU.setTimer(eTimer::K11_BOMB);
+        sU.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        sU.setLoopTime(0);
+        sD.setTimer(eTimer::K11_BOMB);
+        sD.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        sD.setLoopTime(0);
+    }
+};
+
+TEST_F(test_Graphics_SpriteSlider, updateLeft)
+{
+    gTimers.set(eTimer::K11_BOMB, t0.norm());
+    using namespace ::testing;
+    auto& s = sL;
+
+    InSequence dummy;
+    gSliders.set(eSlider::_TEST1, 0);
+    s.update(t0);
+    //EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    //s.draw();
+    EXPECT_EQ(s.getCurrentRenderParams().rect, Rect(0, 0, 0, 0));
+
+    gSliders.set(eSlider::_TEST1, 0.33);
+    s.update(t0);
+    //EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 - 33, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    //s.draw();
+    EXPECT_EQ(s.getCurrentRenderParams().rect, Rect(-33, 0, 0, 0));
+
+    gSliders.set(eSlider::_TEST1, 0.50);
+    s.update(t0);
+    //EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 - 50, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    //s.draw();
+    EXPECT_EQ(s.getCurrentRenderParams().rect, Rect(-50, 0, 0, 0));
+
+    gSliders.set(eSlider::_TEST1, 1.00);
+    s.update(t0);
+    //EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 - 100, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    //s.draw();
+    EXPECT_EQ(s.getCurrentRenderParams().rect, Rect(-100, 0, 0, 0));
+}
+
+TEST_F(test_Graphics_SpriteSlider, updateRight)
+{
+    gTimers.set(eTimer::K11_BOMB, t0.norm());
+    using namespace ::testing;
+    auto& s = sR;
+
+    InSequence dummy;
+    gSliders.set(eSlider::_TEST1, 0);
+    s.update(t0);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    s.draw();
+
+    gSliders.set(eSlider::_TEST1, 0.33);
+    s.update(t0);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 + 33, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    s.draw();
+
+    gSliders.set(eSlider::_TEST1, 0.5);
+    s.update(t0);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 + 50, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    s.draw();
+
+    gSliders.set(eSlider::_TEST1, 1);
+    s.update(t0);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 + 100, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    s.draw();
+}
+
+TEST_F(test_Graphics_SpriteSlider, updateUp)
+{
+    gTimers.set(eTimer::K11_BOMB, t0.norm());
+    using namespace ::testing;
+    auto& s = sU;
+
+    InSequence dummy;
+    gSliders.set(eSlider::_TEST1, 0);
+    s.update(t0);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    s.draw();
+
+    gSliders.set(eSlider::_TEST1, 0.33);
+    s.update(t0);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0 - 66, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    s.draw();
+
+    gSliders.set(eSlider::_TEST1, 0.50);
+    s.update(t0);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0 - 100, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    s.draw();
+
+    gSliders.set(eSlider::_TEST1, 1.00);
+    s.update(t0);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0 - 200, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    s.draw();
+}
+
+TEST_F(test_Graphics_SpriteSlider, updateDown)
+{
+    gTimers.set(eTimer::K11_BOMB, t0.norm());
+    using namespace ::testing;
+    auto& s = sD;
+
+    InSequence dummy;
+    gSliders.set(eSlider::_TEST1, 0);
+    s.update(t0);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    s.draw();
+
+    gSliders.set(eSlider::_TEST1, 0.33);
+    s.update(t0);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0 + 66, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    s.draw();
+
+    gSliders.set(eSlider::_TEST1, 0.505);
+    s.update(t0);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0 + 101, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    s.draw();
+
+    gSliders.set(eSlider::_TEST1, 1.00);
+    s.update(t0);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0 + 200, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    s.draw();
 }

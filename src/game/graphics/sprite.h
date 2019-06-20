@@ -288,12 +288,12 @@ public:
     SpriteSlider() = delete;
 
     SpriteSlider(pTexture texture, SliderDirection dir, int range,
-        unsigned numRows, unsigned numCols, unsigned frameTime, eSlider s = eSlider::ZERO, eTimer timer = eTimer::SCENE_START,
-        bool subVerticalIndexing = false, unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
+        unsigned animRows, unsigned animCols, unsigned frameTime, eSlider ind = eSlider::_TEST1, eTimer animtimer = eTimer::K11_BOMB,
+        bool animVerticalIndexing = false, unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
 
     SpriteSlider(pTexture texture, const Rect& rect, SliderDirection dir, int range,
-        unsigned numRows, unsigned numCols, unsigned frameTime, eSlider s = eSlider::ZERO, eTimer timer = eTimer::SCENE_START,
-        bool subVerticalIndexing = false, unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
+        unsigned animRows, unsigned animCols, unsigned frameTime, eSlider ind = eSlider::_TEST1, eTimer animtimer = eTimer::K11_BOMB,
+        bool animVerticalIndexing = false, unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
 
     virtual ~SpriteSlider() = default;
 

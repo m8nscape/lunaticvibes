@@ -702,7 +702,7 @@ void SpriteSlider::updateValByInd()
 
 void SpriteSlider::updatePos()
 {
-	int pos_delta = _range * _value;
+	int pos_delta = (_range-1) * _value;
 	switch (_dir)
 	{
 	case SliderDirection::DOWN:
