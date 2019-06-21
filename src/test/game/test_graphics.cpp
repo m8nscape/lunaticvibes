@@ -1035,3 +1035,159 @@ TEST_F(test_Graphics_SpriteSlider, updateDown)
     s.draw();
 }
 #pragma endregion
+
+////////////////////////////////////////////////////////////////////////////////
+// Bargraph sprite:
+
+#pragma region Bargraph Sprite (SpriteBargraph)
+class mock_SpriteBargraph : public SpriteBargraph
+{
+public:
+    mock_SpriteBargraph(pTexture texture, const Rect& rect, BargraphDirection dir,
+        unsigned animRows, unsigned animCols, unsigned frameTime, eBargraph ind = eBargraph::_TEST1, eTimer animtimer = eTimer::K11_BOMB,
+        bool animVerticalIndexing = false, unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false) :
+        SpriteBargraph(texture, rect, dir, animRows, animCols, frameTime, ind, animtimer, animVerticalIndexing, selRows, selCols, selVerticalIndexing) {}
+};
+
+class test_Graphics_SpriteBargraph : public ::testing::Test
+{
+protected:
+    std::shared_ptr<mock_Texture> pt{ std::make_shared<mock_Texture>() };
+    mock_SpriteBargraph sL{ pt, TEST_RECT, BargraphDirection::LEFT, 1, 1, 0 };
+    mock_SpriteBargraph sR{ pt, TEST_RECT, BargraphDirection::RIGHT, 1, 1, 0 };
+    mock_SpriteBargraph sU{ pt, TEST_RECT, BargraphDirection::UP, 1, 1, 0 };
+    mock_SpriteBargraph sD{ pt, TEST_RECT, BargraphDirection::DOWN, 1, 1, 0 };
+public:
+    test_Graphics_SpriteBargraph()
+    {
+        sL.setTimer(eTimer::K11_BOMB);
+        sL.appendKeyFrame({ 0, {Rect(0, 0, 200, 200), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        sL.setLoopTime(0);
+        sR.setTimer(eTimer::K11_BOMB);
+        sR.appendKeyFrame({ 0, {Rect(0, 0, 200, 200), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        sR.setLoopTime(0);
+        sU.setTimer(eTimer::K11_BOMB);
+        sU.appendKeyFrame({ 0, {Rect(0, 0, 200, 200), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        sU.setLoopTime(0);
+        sD.setTimer(eTimer::K11_BOMB);
+        sD.appendKeyFrame({ 0, {Rect(0, 0, 200, 200), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        sD.setLoopTime(0);
+    }
+};
+
+TEST_F(test_Graphics_SpriteBargraph, updateLeft)
+{
+    gTimers.set(eTimer::K11_BOMB, t0.norm());
+    using namespace ::testing;
+    auto& s = sL;
+
+    InSequence dummy;
+    gBargraphs.set(eBargraph::_TEST1, 0);
+    s.update(t0);
+    //EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    //s.draw();
+    EXPECT_EQ(s.getCurrentRenderParams().rect, Rect(200, 0, 0, 200));
+
+    gBargraphs.set(eBargraph::_TEST1, 0.33);
+    s.update(t0);
+    //EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 - 33, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    //s.draw();
+    EXPECT_EQ(s.getCurrentRenderParams().rect, Rect(134, 0, 66, 200));
+
+    gBargraphs.set(eBargraph::_TEST1, 0.50);
+    s.update(t0);
+    //EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 - 50, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    //s.draw();
+    EXPECT_EQ(s.getCurrentRenderParams().rect, Rect(100, 0, 100, 200));
+
+    gBargraphs.set(eBargraph::_TEST1, 1.00);
+    s.update(t0);
+    //EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 - 100, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    //s.draw();
+    EXPECT_EQ(s.getCurrentRenderParams().rect, Rect(0, 0, 200, 200));
+}
+
+TEST_F(test_Graphics_SpriteBargraph, updateRight)
+{
+    gTimers.set(eTimer::K11_BOMB, t0.norm());
+    using namespace ::testing;
+    auto& s = sR;
+
+    InSequence dummy;
+    gBargraphs.set(eBargraph::_TEST1, 0);
+    s.update(t0);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    s.draw();
+
+    gBargraphs.set(eBargraph::_TEST1, 0.33);
+    s.update(t0);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 66, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    s.draw();
+
+    gBargraphs.set(eBargraph::_TEST1, 0.5);
+    s.update(t0);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 100, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    s.draw();
+
+    gBargraphs.set(eBargraph::_TEST1, 1);
+    s.update(t0);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 200, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    s.draw();
+}
+
+TEST_F(test_Graphics_SpriteBargraph, updateUp)
+{
+    gTimers.set(eTimer::K11_BOMB, t0.norm());
+    using namespace ::testing;
+    auto& s = sU;
+
+    InSequence dummy;
+    gBargraphs.set(eBargraph::_TEST1, 0);
+    s.update(t0);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 200, 200, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    s.draw();
+
+    gBargraphs.set(eBargraph::_TEST1, 0.33);
+    s.update(t0);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 134, 200, 66), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    s.draw();
+
+    gBargraphs.set(eBargraph::_TEST1, 0.50);
+    s.update(t0);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 100, 200, 100), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    s.draw();
+
+    gBargraphs.set(eBargraph::_TEST1, 1.00);
+    s.update(t0);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 200, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    s.draw();
+}
+
+TEST_F(test_Graphics_SpriteBargraph, updateDown)
+{
+    gTimers.set(eTimer::K11_BOMB, t0.norm());
+    using namespace ::testing;
+    auto& s = sD;
+
+    InSequence dummy;
+    gBargraphs.set(eBargraph::_TEST1, 0);
+    s.update(t0);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 200, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    s.draw();
+
+    gBargraphs.set(eBargraph::_TEST1, 0.33);
+    s.update(t0);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 200, 66), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    s.draw();
+
+    gBargraphs.set(eBargraph::_TEST1, 0.505);
+    s.update(t0);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 200, 101), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    s.draw();
+
+    gBargraphs.set(eBargraph::_TEST1, 1.00);
+    s.update(t0);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 200, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    s.draw();
+}
+#pragma endregion

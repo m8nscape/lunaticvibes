@@ -51,6 +51,7 @@ enum class eBargraph : unsigned
 	SELECT_MYBEST_SCORE,
 	SELECT_MYBEST_EXSCORE,
 
+    _TEST1,
 
     BARGRAPH_COUNT
 };
