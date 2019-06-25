@@ -1191,3 +1191,121 @@ TEST_F(test_Graphics_SpriteBargraph, updateDown)
     s.draw();
 }
 #pragma endregion
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Option sprite:
+
+#pragma region Option Sprite (SpriteOption)
+
+class mock_SpriteOption : public SpriteOption
+{
+public:
+    mock_SpriteOption(pTexture texture,
+        unsigned animRows, unsigned animCols, unsigned frameTime, eTimer timer = eTimer::SCENE_START, bool animVerticalIndexing = false,
+        unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false) : 
+        SpriteOption(texture, animRows, animCols, frameTime, timer, animVerticalIndexing, rows, cols, verticalIndexing) {}
+    FRIEND_TEST(test_Graphics_SpriteOption, switchTest);
+    FRIEND_TEST(test_Graphics_SpriteOption, optionTest);
+};
+
+class test_Graphics_SpriteOption : public ::testing::Test
+{
+protected:
+    std::shared_ptr<mock_Texture> pt{ std::make_shared<mock_Texture>() };
+    mock_SpriteOption ss{ pt, 1, 1, 0, eTimer::K11_BOMB, false, 1, 2 };
+    mock_SpriteOption ss0{ pt, 1, 1, 0, eTimer::K11_BOMB, false, 1, 1 };
+    mock_SpriteOption so{ pt, 1, 1, 0, eTimer::K11_BOMB, false, 2, 3 };
+public:
+    test_Graphics_SpriteOption()
+    {
+        ss.setTimer(eTimer::K11_BOMB);
+        ss.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        ss.setLoopTime(0);
+        ss.setInd(SpriteOption::opType::SWITCH, (unsigned)eSwitch::_TEST1);
+        ss0.setTimer(eTimer::K11_BOMB);
+        ss0.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        ss0.setLoopTime(0);
+        ss0.setInd(SpriteOption::opType::SWITCH, (unsigned)eSwitch::_TEST1);
+        so.setTimer(eTimer::K11_BOMB);
+        so.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        so.setLoopTime(0);
+        so.setInd(SpriteOption::opType::OPTION, (unsigned)eOption::_TEST1);
+    }
+};
+
+TEST_F(test_Graphics_SpriteOption, switchTest)
+{
+    ASSERT_EQ(ss._opType, SpriteOption::opType::SWITCH);
+    ASSERT_EQ(ss0._opType, SpriteOption::opType::SWITCH);
+
+    gTimers.set(eTimer::K11_BOMB, t0.norm());
+    gSwitches.set(eSwitch::_TEST1, false);
+    ss.update(t0);
+    EXPECT_EQ(ss._segmentIdx, 0);
+    gSwitches.set(eSwitch::_TEST1, true);
+    ss.update(t0);
+    EXPECT_EQ(ss._segmentIdx, 1);
+    ss0.update(t0);
+    EXPECT_EQ(ss0._segmentIdx, 0);
+}
+
+
+TEST_F(test_Graphics_SpriteOption, optionTest)
+{
+    ASSERT_EQ(so._opType, SpriteOption::opType::OPTION);
+    gOptions.set(eOption::_TEST1, 0);
+    so.update(t0);
+    EXPECT_EQ(so._segmentIdx, 0);
+    gOptions.set(eOption::_TEST1, 1);
+    so.update(t0);
+    EXPECT_EQ(so._segmentIdx, 1);
+    gOptions.set(eOption::_TEST1, 5);
+    so.update(t0);
+    EXPECT_EQ(so._segmentIdx, 5);
+    gOptions.set(eOption::_TEST1, 12);
+    so.update(t0);
+    EXPECT_EQ(so._segmentIdx, 5);
+
+}
+
+#pragma endregion
+
+////////////////////////////////////////////////////////////////////////////////
+// GaugeGrid sprite:
+
+#pragma region Grid type gauge Sprite (SpriteGaugeGrid)
+class mock_SpriteGaugeGrid : public SpriteGaugeGrid
+{
+public:
+    mock_SpriteGaugeGrid(pTexture texture, const Rect& rect,
+        unsigned animRows, unsigned animCols, unsigned frameTime, int dx, int dy, unsigned min = 0, unsigned max = 100,
+        eTimer timer = eTimer::SCENE_START, eNumber num = eNumber::PLAY_1P_GROOVEGAUGE,
+        bool animVerticalIndexing = false, unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false):
+        SpriteGaugeGrid(texture, rect, animRows, animCols, frameTime, dx, dy, min, max, timer, num, animVerticalIndexing, selRows, selCols, selVerticalIndexing) {}
+};
+
+class test_Graphics_SpriteGaugeGrid : public ::testing::Test
+{
+protected:
+    std::shared_ptr<mock_Texture> pt{ std::make_shared<mock_Texture>() };
+    mock_SpriteGaugeGrid s1{ pt, Rect(0, 0, 40, 40), 1, 1, 0, 10, 0};
+    mock_SpriteGaugeGrid s2{ pt, Rect(0, 0, 40, 40), 1, 1, 0, -10, 0};
+public:
+    test_Graphics_SpriteGaugeGrid()
+    {
+        s1.setTimer(eTimer::K11_BOMB);
+        s1.appendKeyFrame({ 0, {Rect(0, 0, 200, 200), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        s1.setLoopTime(0);
+        s2.setTimer(eTimer::K11_BOMB);
+        s2.appendKeyFrame({ 0, {Rect(0, 0, 200, 200), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        s2.setLoopTime(0);
+    }
+};
+
+TEST_F(test_Graphics_SpriteGaugeGrid, numberUpdate)
+{
+
+}
+
+#pragma endregion

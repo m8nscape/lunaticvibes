@@ -352,7 +352,7 @@ public:
 	{
 		UNDEF, SWITCH, OPTION,
 	};
-private:
+protected:
 	union {
 		eOption op;
 		eSwitch sw;
@@ -417,11 +417,11 @@ private:
 	unsigned _min, _max;
 	eNumber _numInd;
 	unsigned short _val = 25;		// 0~50
-	size_t _texIdxLight, _texIdxDark;
-	Color _color[50];		// filled with 1
+	TextureSelection _texIdxLight, _texIdxDark;
+    Rect _lightRect, _darkRect;
+    bool _lighting[50];
 	FlashType _flashType = FlashType::CLASSIC;
 	GaugeType _gaugeType = GaugeType::NORMAL;
-	Rect _lightRect, _darkRect;
 
 public:
     SpriteGaugeGrid() = delete;

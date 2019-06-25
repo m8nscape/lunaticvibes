@@ -879,7 +879,7 @@ SpriteGaugeGrid::SpriteGaugeGrid(pTexture texture, const Rect& rect,
 	SpriteAnimated(texture, rect, animRows, animCols, frameTime, timer, animVerticalIndexing, selRows, selCols, selVerticalIndexing),
 	_delta_x(dx), _delta_y(dy), _min(min), _max(max), _numInd(num)
 {
-	memset(_color, 1, sizeof(_color));	// 0xFFFFFFFF x 50
+	memset(_lighting, 0, sizeof(_lighting));
 }
 
 void SpriteGaugeGrid::setFlashType(SpriteGaugeGrid::FlashType t)
@@ -897,6 +897,11 @@ void SpriteGaugeGrid::setGaugeType(SpriteGaugeGrid::GaugeType t)
 	case GaugeType::EXHARD: _texIdxLight = EXHARD_LIGHT; _texIdxDark = EXHARD_DARK; break;
 	default: break;
 	}
+    for (auto& g : _lighting) g = false;
+    updateSelection(_texIdxLight);
+    _lightRect = _drawRect;
+    updateSelection(_texIdxDark);
+    _darkRect = _drawRect;
 }
 
 void SpriteGaugeGrid::updateVal(unsigned v)
@@ -915,29 +920,27 @@ bool SpriteGaugeGrid::update(timestamp t)
 	if (SpriteAnimated::update(t))
 	{
 		updateValByInd();
-		_lightRect = _drawRect;
 
 		// set darkRect
 		updateSelection(_texIdxDark);
 		SpriteAnimated::update(t);
-		_darkRect = _drawRect;
 
 		switch (_flashType)
 		{
 		case FlashType::NONE:
 			for (unsigned i = 0; i < _val; ++i)
-				_color[i] = _current.color;
+				_lighting[i] = true;
 			for (unsigned i = _val; i < 50; ++i)
-				_color[i] = 0x00000000;
+				_lighting[i] = false;
 			break;
 
 		case FlashType::CLASSIC:
 			for (unsigned i = 0; i < _val; ++i)
-				_color[i] = _current.color;
-			if (_val - 3 >= 0 && _val - 3 < 50 && !!t.norm() / 17 % 2) _color[_val - 3].a = 0; // 16.67ms, per 2f
-			if (_val - 2 >= 0 && _val - 2 < 50 && !!t.norm() / 17 % 4) _color[_val - 2].a = 0; // 16.67ms, per 4f
+				_lighting[i] = true;
+			if (_val - 3 >= 0 && _val - 3 < 50 && !!t.norm() / 17 % 2) _lighting[_val - 3] = false; // 16.67ms, per 2f
+			if (_val - 2 >= 0 && _val - 2 < 50 && !!t.norm() / 17 % 4) _lighting[_val - 2] = false; // 16.67ms, per 4f
 			for (unsigned i = _val; i < 50; ++i)
-				_color[i] = 0x00000000;
+				_lighting[i] = false;
 			break;
 			
 		default: break;
@@ -952,9 +955,11 @@ void SpriteGaugeGrid::draw() const
     if (_draw && _pTexture != nullptr && _pTexture->isLoaded())
     {
 		Rect r = _current.rect;
-		for (unsigned i = 0; i = _val; ++i)
+		for (unsigned i = 0; i < 50; ++i)
 		{
-			_pTexture->draw(_drawRect, r, _color[i], _current.blend, _current.filter, _current.angle);
+            _lighting[i] ?
+                _pTexture->draw(_lightRect, r, _current.color, _current.blend, _current.filter, _current.angle) :
+                _pTexture->draw(_darkRect,  r, _current.color, _current.blend, _current.filter, _current.angle);
 			r.x += _delta_x;
 			r.y += _delta_y;
 		}

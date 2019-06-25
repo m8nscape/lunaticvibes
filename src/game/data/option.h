@@ -62,6 +62,8 @@ enum class eOption: unsigned
     RESULT_MYBEST_RANK,
     RESULT_UPDATED_RANK,
 	RESULT_CLEARED,
+
+    _TEST1,
     
     OPTION_COUNT
 };

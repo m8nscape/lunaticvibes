@@ -92,6 +92,8 @@ enum class eSwitch: unsigned
 	P2_SETTING_SPEED,
 
     _FALSE = 999,        // should be initialized with false
+
+    _TEST1,
     SWITCH_COUNT
 };
 
