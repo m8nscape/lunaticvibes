@@ -866,19 +866,19 @@ bool SpriteOption::update(timestamp t)
 
 
 SpriteGaugeGrid::SpriteGaugeGrid(pTexture texture,
-	unsigned animRows, unsigned animCols, unsigned frameTime, int dx, int dy, unsigned min, unsigned max,
+	unsigned animRows, unsigned animCols, unsigned frameTime, int dx, int dy, unsigned short grids, unsigned min, unsigned max,
 	eTimer timer, eNumber num,
 	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
-	SpriteGaugeGrid(texture, texture ? texture->getRect() : Rect(), animRows, animCols, frameTime, dx, dy, min, max, timer, num, animVerticalIndexing, selRows, selCols, selVerticalIndexing) {}
+	SpriteGaugeGrid(texture, texture ? texture->getRect() : Rect(), animRows, animCols, frameTime, dx, dy, grids, min, max, timer, num, animVerticalIndexing, selRows, selCols, selVerticalIndexing) {}
 
 SpriteGaugeGrid::SpriteGaugeGrid(pTexture texture, const Rect& rect,
-	unsigned animRows, unsigned animCols, unsigned frameTime, int dx, int dy, unsigned min, unsigned max, 
+	unsigned animRows, unsigned animCols, unsigned frameTime, int dx, int dy, unsigned short grids, unsigned min, unsigned max,
 	eTimer timer, eNumber num, 
 	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing): 
 	SpriteAnimated(texture, rect, animRows, animCols, frameTime, timer, animVerticalIndexing, selRows, selCols, selVerticalIndexing),
-	_delta_x(dx), _delta_y(dy), _min(min), _max(max), _numInd(num)
+	_grids(grids), _delta_x(dx), _delta_y(dy), _min(min), _max(max), _numInd(num)
 {
-	memset(_lighting, 0, sizeof(_lighting));
+    _lighting.resize(_grids, false);
 }
 
 void SpriteGaugeGrid::setFlashType(SpriteGaugeGrid::FlashType t)
@@ -886,26 +886,50 @@ void SpriteGaugeGrid::setFlashType(SpriteGaugeGrid::FlashType t)
 	_flashType = t;
 }
 
-void SpriteGaugeGrid::setGaugeType(SpriteGaugeGrid::GaugeType t)
+void SpriteGaugeGrid::setGaugeType(SpriteGaugeGrid::GaugeType ty)
 {
-	_gaugeType = t;
+	_gaugeType = ty;
 	switch (_gaugeType)
 	{
-	case GaugeType::NORMAL: _texIdxLight = NORMAL_LIGHT; _texIdxDark = NORMAL_DARK; break;
-	case GaugeType::HARD:   _texIdxLight = HARD_LIGHT;   _texIdxDark = HARD_DARK;   break;
-	case GaugeType::EXHARD: _texIdxLight = EXHARD_LIGHT; _texIdxDark = EXHARD_DARK; break;
+    case GaugeType::NORMAL: 
+        _texIdxLightFail = NORMAL_LIGHT; _texIdxDarkFail = NORMAL_DARK; 
+        _texIdxLightClear = CLEAR_LIGHT; _texIdxDarkClear = CLEAR_DARK;
+        _req = 40; break;
+
+    case GaugeType::HARD:  
+        _texIdxLightFail = CLEAR_LIGHT; _texIdxDarkFail = CLEAR_DARK;
+        _texIdxLightClear = CLEAR_LIGHT; _texIdxDarkClear = CLEAR_DARK;
+        _req = 1; break;
+
+    case GaugeType::EXHARD: 
+        _texIdxLightFail = EXHARD_LIGHT; _texIdxDarkFail = EXHARD_DARK;
+        _texIdxLightClear = EXHARD_LIGHT; _texIdxDarkClear = EXHARD_DARK;
+        _req = 1; break;
 	default: break;
 	}
-    for (auto& g : _lighting) g = false;
-    updateSelection(_texIdxLight);
-    _lightRect = _drawRect;
-    updateSelection(_texIdxDark);
-    _darkRect = _drawRect;
+
+    timestamp t(1);
+
+    // set FailRect
+    updateSelection(_texIdxLightFail);
+    SpriteAnimated::update(t);
+    _lightRectFail = _drawRect;
+    updateSelection(_texIdxDarkFail);
+    SpriteAnimated::update(t);
+    _darkRectFail = _drawRect;
+
+    // set ClearRect
+    updateSelection(_texIdxLightClear);
+    SpriteAnimated::update(t);
+    _lightRectClear = _drawRect;
+    updateSelection(_texIdxDarkClear);
+    SpriteAnimated::update(t);
+    _darkRectClear = _drawRect;
 }
 
 void SpriteGaugeGrid::updateVal(unsigned v)
 {
-	_val = 50 * (v - _min) / (_max - _min);
+	_val = _grids * (v - _min) / (_max - _min);
 }
 
 void SpriteGaugeGrid::updateValByInd()
@@ -915,30 +939,25 @@ void SpriteGaugeGrid::updateValByInd()
 
 bool SpriteGaugeGrid::update(timestamp t)
 {
-	updateSelection(_texIdxLight);
 	if (SpriteAnimated::update(t))
 	{
 		updateValByInd();
-
-		// set darkRect
-		updateSelection(_texIdxDark);
-		SpriteAnimated::update(t);
 
 		switch (_flashType)
 		{
 		case FlashType::NONE:
 			for (unsigned i = 0; i < _val; ++i)
 				_lighting[i] = true;
-			for (unsigned i = _val; i < 50; ++i)
+			for (unsigned i = _val; i < _grids; ++i)
 				_lighting[i] = false;
 			break;
 
 		case FlashType::CLASSIC:
 			for (unsigned i = 0; i < _val; ++i)
 				_lighting[i] = true;
-			if (_val - 3 >= 0 && _val - 3 < 50 && !!t.norm() / 17 % 2) _lighting[_val - 3] = false; // 16.67ms, per 2f
-			if (_val - 2 >= 0 && _val - 2 < 50 && !!t.norm() / 17 % 4) _lighting[_val - 2] = false; // 16.67ms, per 4f
-			for (unsigned i = _val; i < 50; ++i)
+			if (_val - 3 >= 0 && _val - 3 < _grids && !!t.norm() / 17 % 2) _lighting[_val - 3] = false; // -3 grid: 17ms, per 2 units (1 0 1 0)
+			if (_val - 2 >= 0 && _val - 2 < _grids && !!t.norm() / 17 % 4) _lighting[_val - 2] = false; // -2 grid: 17ms, per 4 units (1 0 0 0)
+			for (unsigned i = _val; i < _grids; ++i)
 				_lighting[i] = false;
 			break;
 			
@@ -954,14 +973,22 @@ void SpriteGaugeGrid::draw() const
     if (_draw && _pTexture != nullptr && _pTexture->isLoaded())
     {
 		Rect r = _current.rect;
-		for (unsigned i = 0; i < 50; ++i)
+		for (unsigned i = 0; i < _req - 1; ++i)
 		{
             _lighting[i] ?
-                _pTexture->draw(_lightRect, r, _current.color, _current.blend, _current.filter, _current.angle) :
-                _pTexture->draw(_darkRect,  r, _current.color, _current.blend, _current.filter, _current.angle);
+                _pTexture->draw(_lightRectFail, r, _current.color, _current.blend, _current.filter, _current.angle) :
+                _pTexture->draw(_darkRectFail,  r, _current.color, _current.blend, _current.filter, _current.angle);
 			r.x += _delta_x;
 			r.y += _delta_y;
 		}
+        for (unsigned i = _req - 1; i < _grids; ++i)
+        {
+            _lighting[i] ?
+                _pTexture->draw(_lightRectClear, r, _current.color, _current.blend, _current.filter, _current.angle) :
+                _pTexture->draw(_darkRectClear, r, _current.color, _current.blend, _current.filter, _current.angle);
+            r.x += _delta_x;
+            r.y += _delta_y;
+        }
     }
 }
 

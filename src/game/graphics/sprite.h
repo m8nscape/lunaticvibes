@@ -404,9 +404,9 @@ public:
 
 	enum TextureSelection
 	{
-		HARD_LIGHT,
+		CLEAR_LIGHT,
 		NORMAL_LIGHT,
-		HARD_DARK,
+		CLEAR_DARK,
 		NORMAL_DARK,
 		EXHARD_LIGHT,
 		EXHARD_DARK,
@@ -416,10 +416,14 @@ private:
 	int _delta_x, _delta_y;
 	unsigned _min, _max;
 	eNumber _numInd;
-	unsigned short _val = 25;		// 0~50
-	TextureSelection _texIdxLight, _texIdxDark;
-    Rect _lightRect, _darkRect;
-    bool _lighting[50];
+    unsigned short _grids = 50;
+    unsigned short _req = 40;
+	unsigned short _val = _grids / 2;
+	TextureSelection _texIdxLightFail, _texIdxDarkFail;
+    TextureSelection _texIdxLightClear, _texIdxDarkClear;
+    Rect _lightRectFail, _darkRectFail;
+    Rect _lightRectClear, _darkRectClear;
+    std::vector<bool> _lighting;
 	FlashType _flashType = FlashType::CLASSIC;
 	GaugeType _gaugeType = GaugeType::NORMAL;
 
@@ -427,12 +431,12 @@ public:
     SpriteGaugeGrid() = delete;
 
     SpriteGaugeGrid(pTexture texture,
-        unsigned animRows, unsigned animCols, unsigned frameTime, int dx, int dy, unsigned min = 0, unsigned max = 100, 
+        unsigned animRows, unsigned animCols, unsigned frameTime, int dx, int dy, unsigned short grids = 50, unsigned min = 0, unsigned max = 100, 
 		eTimer timer = eTimer::SCENE_START, eNumber num = eNumber::PLAY_1P_GROOVEGAUGE,
 		bool animVerticalIndexing = false, unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
 
     SpriteGaugeGrid(pTexture texture, const Rect& rect,
-        unsigned animRows, unsigned animCols, unsigned frameTime, int dx, int dy, unsigned min = 0, unsigned max = 100, 
+        unsigned animRows, unsigned animCols, unsigned frameTime, int dx, int dy, unsigned short grids = 50, unsigned min = 0, unsigned max = 100,
 		eTimer timer = eTimer::SCENE_START, eNumber num = eNumber::PLAY_1P_GROOVEGAUGE,
 		bool animVerticalIndexing = false, unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
 

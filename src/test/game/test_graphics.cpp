@@ -291,7 +291,7 @@ class mock_SpriteAnimated : public SpriteAnimated
 {
 public:
     mock_SpriteAnimated(pTexture texture,
-        unsigned animRows, unsigned animCols, unsigned frameTime, eTimer timer = eTimer::SCENE_START, bool animVerticalIndexing = false,
+        unsigned animRows, unsigned animCols, unsigned frameTime, eTimer timer = eTimer::K11_BOMB, bool animVerticalIndexing = false,
         unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false) : SpriteAnimated(texture, animRows, animCols, frameTime, timer, animVerticalIndexing, rows, cols, verticalIndexing) {}
     FRIEND_TEST(test_Graphics_SpriteAnimated, animRectConstruct);
     FRIEND_TEST(test_Graphics_SpriteAnimated, animUpdate);
@@ -1202,7 +1202,7 @@ class mock_SpriteOption : public SpriteOption
 {
 public:
     mock_SpriteOption(pTexture texture,
-        unsigned animRows, unsigned animCols, unsigned frameTime, eTimer timer = eTimer::SCENE_START, bool animVerticalIndexing = false,
+        unsigned animRows, unsigned animCols, unsigned frameTime, eTimer timer = eTimer::K11_BOMB, bool animVerticalIndexing = false,
         unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false) : 
         SpriteOption(texture, animRows, animCols, frameTime, timer, animVerticalIndexing, rows, cols, verticalIndexing) {}
     FRIEND_TEST(test_Graphics_SpriteOption, switchTest);
@@ -1279,33 +1279,108 @@ class mock_SpriteGaugeGrid : public SpriteGaugeGrid
 {
 public:
     mock_SpriteGaugeGrid(pTexture texture, const Rect& rect,
-        unsigned animRows, unsigned animCols, unsigned frameTime, int dx, int dy, unsigned min = 0, unsigned max = 100,
-        eTimer timer = eTimer::SCENE_START, eNumber num = eNumber::PLAY_1P_GROOVEGAUGE,
+        unsigned animRows, unsigned animCols, unsigned frameTime, int dx, int dy, unsigned short grids = 50, unsigned min = 0, unsigned max = 100,
+        eTimer timer = eTimer::K11_BOMB, eNumber num = eNumber::PLAY_1P_GROOVEGAUGE,
         bool animVerticalIndexing = false, unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false):
-        SpriteGaugeGrid(texture, rect, animRows, animCols, frameTime, dx, dy, min, max, timer, num, animVerticalIndexing, selRows, selCols, selVerticalIndexing) {}
+        SpriteGaugeGrid(texture, rect, animRows, animCols, frameTime, dx, dy, grids, min, max, timer, num, animVerticalIndexing, selRows, selCols, selVerticalIndexing) {}
 };
 
 class test_Graphics_SpriteGaugeGrid : public ::testing::Test
 {
 protected:
     std::shared_ptr<mock_Texture> pt{ std::make_shared<mock_Texture>() };
-    mock_SpriteGaugeGrid s1{ pt, Rect(0, 0, 40, 40), 1, 1, 0, 10, 0};
-    mock_SpriteGaugeGrid s2{ pt, Rect(0, 0, 40, 40), 1, 1, 0, -10, 0};
+    mock_SpriteGaugeGrid s1{ pt, Rect(0, 0, 40, 40), 1, 1, 0, 10, 0, 50, 0, 100, eTimer::K11_BOMB, eNumber::PLAY_1P_GROOVEGAUGE, false, 1, 4 };
+    mock_SpriteGaugeGrid s2{ pt, Rect(0, 0, 60, 40), 1, 1, 0, -10, 0, 50, 0, 100, eTimer::K11_BOMB, eNumber::PLAY_2P_GROOVEGAUGE, false, 1, 6 };
 public:
     test_Graphics_SpriteGaugeGrid()
     {
         s1.setTimer(eTimer::K11_BOMB);
-        s1.appendKeyFrame({ 0, {Rect(0, 0, 200, 200), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        s1.appendKeyFrame({ 0, {Rect(0, 0, 10, 40), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         s1.setLoopTime(0);
+        s1.setFlashType(SpriteGaugeGrid::FlashType::NONE);
+        s1.setGaugeType(SpriteGaugeGrid::GaugeType::NORMAL);
         s2.setTimer(eTimer::K11_BOMB);
-        s2.appendKeyFrame({ 0, {Rect(0, 0, 200, 200), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        s2.appendKeyFrame({ 0, {Rect(490, 100, 10, 40), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         s2.setLoopTime(0);
+        s2.setFlashType(SpriteGaugeGrid::FlashType::NONE);
+        s2.setGaugeType(SpriteGaugeGrid::GaugeType::EXHARD);
     }
 };
 
-TEST_F(test_Graphics_SpriteGaugeGrid, numberUpdate)
+TEST_F(test_Graphics_SpriteGaugeGrid, valUpdate)
 {
+    using::testing::_;
+    {
+        gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, 74);
+        s1.update(t0);
+        EXPECT_CALL(*pt, draw(Rect(0, 0, 10, 40), _, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(0);    // clear light
+        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 40), _, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(37 - 3);    // normal light
+        EXPECT_CALL(*pt, draw(Rect(20, 0, 10, 40), _, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(11 - 1);    // clear dark
+        EXPECT_CALL(*pt, draw(Rect(30, 0, 10, 40), _, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(39 - 37 - 1); // normal dark
 
+        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 40), Rect(0, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 2%
+        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 40), Rect(240, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 50%
+        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 40), Rect(360, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 74%
+        EXPECT_CALL(*pt, draw(Rect(30, 0, 10, 40), Rect(370, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 76%
+        EXPECT_CALL(*pt, draw(Rect(20, 0, 10, 40), Rect(490, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 100%
+        s1.draw();
+    }
+    {
+        gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, 33); // 16.5, floor to 16
+        s1.update(t0);
+        EXPECT_CALL(*pt, draw(Rect(0, 0, 10, 40), _, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(0);    // clear light
+        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 40), _, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(16 - 2);    // normal light
+        EXPECT_CALL(*pt, draw(Rect(20, 0, 10, 40), _, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(11 - 1);    // clear dark
+        EXPECT_CALL(*pt, draw(Rect(30, 0, 10, 40), _, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(39 - 16 - 2); // normal dark
+
+        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 40), Rect(0, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 2%
+        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 40), Rect(150, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 32%
+        EXPECT_CALL(*pt, draw(Rect(30, 0, 10, 40), Rect(160, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 34%
+        EXPECT_CALL(*pt, draw(Rect(30, 0, 10, 40), Rect(370, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 76%
+        EXPECT_CALL(*pt, draw(Rect(20, 0, 10, 40), Rect(490, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 100%
+        s1.draw();
+    }
+    {
+        gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, 98);
+        s1.update(t0);
+        EXPECT_CALL(*pt, draw(Rect(0, 0, 10, 40), _, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(11 - 1 - 1);    // clear light
+        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 40), _, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(39 - 3);    // normal light
+        EXPECT_CALL(*pt, draw(Rect(20, 0, 10, 40), _, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1 - 1);    // clear dark
+        EXPECT_CALL(*pt, draw(Rect(30, 0, 10, 40), _, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(0); // normal dark
+
+        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 40), Rect(0, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 2%
+        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 40), Rect(150, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 32%
+        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 40), Rect(370, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 76%
+        EXPECT_CALL(*pt, draw(Rect(0, 0, 10, 40), Rect(430, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 88%
+        EXPECT_CALL(*pt, draw(Rect(20, 0, 10, 40), Rect(490, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 100%
+        s1.draw();
+    }
+    {
+        gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, 100);
+        s2.update(t0);
+        EXPECT_CALL(*pt, draw(Rect(40, 0, 10, 40), _, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(45);
+        EXPECT_CALL(*pt, draw(Rect(50, 0, 10, 40), _, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(0);
+
+        EXPECT_CALL(*pt, draw(Rect(40, 0, 10, 40), Rect(490, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 2%
+        EXPECT_CALL(*pt, draw(Rect(40, 0, 10, 40), Rect(250, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 50%
+        EXPECT_CALL(*pt, draw(Rect(40, 0, 10, 40), Rect(130, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 74%
+        EXPECT_CALL(*pt, draw(Rect(40, 0, 10, 40), Rect(120, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 76%
+        EXPECT_CALL(*pt, draw(Rect(40, 0, 10, 40), Rect(0, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 100%
+        s2.draw();
+    }
+    {
+        gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, 50);
+        s2.update(t0);
+        EXPECT_CALL(*pt, draw(Rect(40, 0, 10, 40), _, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(25 - 2);
+        EXPECT_CALL(*pt, draw(Rect(50, 0, 10, 40), _, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(45 - (25 - 2));
+
+        EXPECT_CALL(*pt, draw(Rect(40, 0, 10, 40), Rect(490, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 2%
+        EXPECT_CALL(*pt, draw(Rect(40, 0, 10, 40), Rect(250, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 50%
+        EXPECT_CALL(*pt, draw(Rect(50, 0, 10, 40), Rect(130, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 74%
+        EXPECT_CALL(*pt, draw(Rect(50, 0, 10, 40), Rect(120, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 76%
+        EXPECT_CALL(*pt, draw(Rect(50, 0, 10, 40), Rect(0, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 100%
+        s2.draw();
+    }
 }
 
 #pragma endregion
