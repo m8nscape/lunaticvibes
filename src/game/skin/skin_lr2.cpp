@@ -850,7 +850,7 @@ int SkinLR2::loadLR2_SRC_GROOVEGAUGE(const Tokens &t, pTexture tex)
 	}
 
 	_sprites.push_back(std::make_shared<SpriteGaugeGrid>(
-		tex, Rect(d.x, d.y, d.w, d.h), d.div_y, d.div_x, d.cycle, d.add_x, d.add_y, 0, 100, (eTimer)d.timer));
+		tex, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, d.add_x, d.add_y, 0, 100, (eTimer)d.timer));
 	
 	return 0;
 }

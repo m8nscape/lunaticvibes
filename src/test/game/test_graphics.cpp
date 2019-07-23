@@ -291,8 +291,8 @@ class mock_SpriteAnimated : public SpriteAnimated
 {
 public:
     mock_SpriteAnimated(pTexture texture,
-        unsigned animRows, unsigned animCols, unsigned frameTime, eTimer timer = eTimer::SCENE_START, bool animVerticalIndexing = false,
-        unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false) : SpriteAnimated(texture, animRows, animCols, frameTime, timer, animVerticalIndexing, rows, cols, verticalIndexing) {}
+        unsigned animFrames, unsigned frameTime, eTimer timer = eTimer::SCENE_START, 
+        unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false) : SpriteAnimated(texture, animFrames, frameTime, timer, rows, cols, verticalIndexing) {}
     FRIEND_TEST(test_Graphics_SpriteAnimated, animRectConstruct);
     FRIEND_TEST(test_Graphics_SpriteAnimated, animUpdate);
 };
@@ -301,25 +301,17 @@ class test_Graphics_SpriteAnimated : public ::testing::Test
 {
 protected:
     std::shared_ptr<mock_Texture> pt{ std::make_shared<mock_Texture>() };
-    mock_SpriteAnimated s{ pt, 4, 2, 8, eTimer::K11_BOMB, false };
-    mock_SpriteAnimated sv{ pt, 4, 2,8, eTimer::K11_BOMB,  true };
-    mock_SpriteAnimated ss{ pt, 4, 2,8, eTimer::K11_BOMB,  false, 2, 2, false };
-    mock_SpriteAnimated ssv{ pt, 4, 2,8, eTimer::K11_BOMB,  true,  2, 2, false };
+    mock_SpriteAnimated s{ pt, 8, 8, eTimer::K11_BOMB, 4, 2 };
+    mock_SpriteAnimated ss{ pt, 8,8, eTimer::K11_BOMB, 8, 4, false };
 public:
     test_Graphics_SpriteAnimated()
     {
         s.setTimer(eTimer::K11_BOMB);
         s.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         s.setLoopTime(0);
-        sv.setTimer(eTimer::K11_BOMB);
-        sv.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
-        sv.setLoopTime(0);
         ss.setTimer(eTimer::K11_BOMB);
         ss.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         ss.setLoopTime(0);
-        ssv.setTimer(eTimer::K11_BOMB);
-        ssv.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
-        ssv.setLoopTime(0);
     }
 };
 
@@ -328,16 +320,16 @@ TEST_F(test_Graphics_SpriteAnimated, animRectConstruct)
 {
     int w = TEST_RECT.w / 2;
     int h = TEST_RECT.h / 4;
-    int ww = TEST_RECT.w / 2;
-    int hh = TEST_RECT.h / 2;
+    int ww = TEST_RECT.w / 4;
+    int hh = TEST_RECT.h / 8;
 
-    EXPECT_EQ(s._segments, 1);
-    EXPECT_EQ(s._aframes, 8);
-    EXPECT_EQ(s._aRect, Rect(0, 0, w, h));
+    EXPECT_EQ(s._segments, 1 * 8);
+    EXPECT_EQ(s._animFrames, 8);
+    //EXPECT_EQ(s._aRect, Rect(0, 0, w, h));
 
-    EXPECT_EQ(ss._segments, 4);
-    EXPECT_EQ(ss._aframes, 8);
-    EXPECT_EQ(ss._aRect, Rect(0, 0, w/2 , h/2));
+    EXPECT_EQ(ss._segments, 4 * 8);
+    EXPECT_EQ(ss._animFrames, 8);
+    //EXPECT_EQ(ss._aRect, Rect(0, 0, w/2 , h/2));
     EXPECT_EQ(ss._texRect[0], Rect(0, 0, ww, hh));
 }
 
@@ -377,31 +369,6 @@ TEST_F(test_Graphics_SpriteAnimated, animUpdate)
     EXPECT_CALL(*pt, draw(Rect(1 * w, 3 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
     s.draw();
 
-    sv.update(t0);
-    EXPECT_CALL(*pt, draw(Rect(0 * w, 0 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
-    sv.draw();
-    sv.update(t1);
-    EXPECT_CALL(*pt, draw(Rect(0 * w, 1 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
-    sv.draw();
-    sv.update(t2);
-    EXPECT_CALL(*pt, draw(Rect(0 * w, 2 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
-    sv.draw();
-    sv.update(t3);
-    EXPECT_CALL(*pt, draw(Rect(0 * w, 3 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
-    sv.draw();
-    sv.update(t4);
-    EXPECT_CALL(*pt, draw(Rect(1 * w, 0 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
-    sv.draw();
-    sv.update(t5);
-    EXPECT_CALL(*pt, draw(Rect(1 * w, 1 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
-    sv.draw();
-    sv.update(t6);
-    EXPECT_CALL(*pt, draw(Rect(1 * w, 2 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
-    sv.draw();
-    sv.update(t7);
-    EXPECT_CALL(*pt, draw(Rect(1 * w, 3 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
-    sv.draw();
-
     ss.update(t0);
     EXPECT_CALL(*pt, draw(Rect(0 * ww, 0 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
     ss.draw();
@@ -409,48 +376,24 @@ TEST_F(test_Graphics_SpriteAnimated, animUpdate)
     EXPECT_CALL(*pt, draw(Rect(1 * ww, 0 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
     ss.draw();
     ss.update(t2);
-    EXPECT_CALL(*pt, draw(Rect(0 * ww, 1 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(2 * ww, 0 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
     ss.draw();
     ss.update(t3);
-    EXPECT_CALL(*pt, draw(Rect(1 * ww, 1 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(3 * ww, 0 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
     ss.draw();
     ss.update(t4);
-    EXPECT_CALL(*pt, draw(Rect(0 * ww, 2 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(0 * ww, 1 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
     ss.draw();
     ss.update(t5);
-    EXPECT_CALL(*pt, draw(Rect(1 * ww, 2 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(1 * ww, 1 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
     ss.draw();
     ss.update(t6);
-    EXPECT_CALL(*pt, draw(Rect(0 * ww, 3 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(2 * ww, 1 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
     ss.draw();
     ss.update(t7);
-    EXPECT_CALL(*pt, draw(Rect(1 * ww, 3 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(3 * ww, 1 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
     ss.draw();
 
-    ssv.update(t0);
-    EXPECT_CALL(*pt, draw(Rect(0 * ww, 0 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
-    ssv.draw();
-    ssv.update(t1);
-    EXPECT_CALL(*pt, draw(Rect(0 * ww, 1 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
-    ssv.draw();
-    ssv.update(t2);
-    EXPECT_CALL(*pt, draw(Rect(0 * ww, 2 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
-    ssv.draw();
-    ssv.update(t3);
-    EXPECT_CALL(*pt, draw(Rect(0 * ww, 3 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
-    ssv.draw();
-    ssv.update(t4);
-    EXPECT_CALL(*pt, draw(Rect(1 * ww, 0 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
-    ssv.draw();
-    ssv.update(t5);
-    EXPECT_CALL(*pt, draw(Rect(1 * ww, 1 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
-    ssv.draw();
-    ssv.update(t6);
-    EXPECT_CALL(*pt, draw(Rect(1 * ww, 2 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
-    ssv.draw();
-    ssv.update(t7);
-    EXPECT_CALL(*pt, draw(Rect(1 * ww, 3 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
-    ssv.draw();
 }
 #pragma endregion
 
@@ -464,8 +407,8 @@ class mock_SpriteNumber : public SpriteNumber
 public:
     mock_SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align, unsigned maxDigits,
         unsigned numRows, unsigned numCols, unsigned frameTime, eNumber num = eNumber::_TEST1, eTimer animtimer = eTimer::K11_BOMB,
-        bool numVerticalIndexing = false, unsigned animRows = 1, unsigned animCols = 1, bool animVerticalIndexing = false):
-        SpriteNumber(texture, rect, align, maxDigits, numRows, numCols, frameTime, num, animtimer, numVerticalIndexing, animRows, animCols, animVerticalIndexing) {}
+        unsigned animFrames = 1, bool numVerticalIndexing = false):
+        SpriteNumber(texture, rect, align, maxDigits, numRows, numCols, frameTime, num, animtimer, animFrames, numVerticalIndexing) {}
 
     FRIEND_TEST(test_Graphics_SpriteNumber, construct);
     FRIEND_TEST(test_Graphics_SpriteNumber, numberUpdate);
@@ -480,11 +423,11 @@ protected:
     Color dstColor{ 0xFFFFFFFF };
     mock_SpriteNumber s1{ pt, Rect(0, 0, 100, 160), NumberAlign::NUM_ALIGN_LEFT, 1, 2, 5, 0 };
     mock_SpriteNumber s{ pt, Rect(0, 0, 100, 160), NumberAlign::NUM_ALIGN_LEFT, 4, 2, 5, 0 };
-    mock_SpriteNumber sa{ pt, Rect(0, 0, 100, 160), NumberAlign::NUM_ALIGN_LEFT, 4, 2, 5, 2, eNumber::_TEST1, eTimer::K11_BOMB, false, 2, 1, false };
+    mock_SpriteNumber sa{ pt, Rect(0, 0, 100, 160), NumberAlign::NUM_ALIGN_LEFT, 4, 4, 5, 2, eNumber::_TEST1, eTimer::K11_BOMB, 2, false };
     mock_SpriteNumber s11{ pt, Rect(0, 0, 110, 160), NumberAlign::NUM_ALIGN_LEFT, 4, 1, 11, 0 };
-    mock_SpriteNumber sa11{ pt, Rect(0, 0, 110, 160), NumberAlign::NUM_ALIGN_LEFT, 4, 1, 11, 4, eNumber::_TEST1, eTimer::K11_BOMB, false, 4, 1, false };
+    mock_SpriteNumber sa11{ pt, Rect(0, 0, 110, 160), NumberAlign::NUM_ALIGN_LEFT, 4, 4, 11, 4, eNumber::_TEST1, eTimer::K11_BOMB, 4, false };
     mock_SpriteNumber s24{ pt, Rect(0, 0, 240, 160), NumberAlign::NUM_ALIGN_LEFT, 4, 2, 12, 0 };
-    mock_SpriteNumber sa24{ pt, Rect(0, 0, 240, 160), NumberAlign::NUM_ALIGN_LEFT, 4, 2, 12, 4, eNumber::_TEST1, eTimer::K11_BOMB, false, 4, 1, false };
+    mock_SpriteNumber sa24{ pt, Rect(0, 0, 240, 160), NumberAlign::NUM_ALIGN_LEFT, 4, 8, 12, 4, eNumber::_TEST1, eTimer::K11_BOMB, 4, false };
     mock_SpriteNumber sr{ pt, Rect(0, 0, 110, 160), NumberAlign::NUM_ALIGN_RIGHT, 4, 1, 11, 0 };
     mock_SpriteNumber sc{ pt, Rect(0, 0, 110, 160), NumberAlign::NUM_ALIGN_CENTER, 4, 1, 11, 0 };
 public:
@@ -888,19 +831,19 @@ class mock_SpriteSlider : public SpriteSlider
 {
 public:
     mock_SpriteSlider(pTexture texture, const Rect& rect, SliderDirection dir, int range,
-        unsigned animRows, unsigned animCols, unsigned frameTime, eSlider ind = eSlider::_TEST1, eTimer animtimer = eTimer::K11_BOMB,
-        bool animVerticalIndexing = false, unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false) :
-        SpriteSlider(texture, rect, dir, range, animRows, animCols, frameTime, ind, animtimer, animVerticalIndexing, selRows, selCols, selVerticalIndexing) {}
+        unsigned animFrames, unsigned frameTime, eSlider ind = eSlider::_TEST1, eTimer animtimer = eTimer::K11_BOMB,
+        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false) :
+        SpriteSlider(texture, rect, dir, range, animFrames, frameTime, ind, animtimer, selRows, selCols, selVerticalIndexing) {}
 };
 
 class test_Graphics_SpriteSlider : public ::testing::Test
 {
 protected:
     std::shared_ptr<mock_Texture> pt{ std::make_shared<mock_Texture>() };
-    mock_SpriteSlider sL{ pt, TEST_RECT, SliderDirection::LEFT, 101, 1, 1, 0 };
-    mock_SpriteSlider sR{ pt, TEST_RECT, SliderDirection::RIGHT, 101, 1, 1, 0};
-    mock_SpriteSlider sU{ pt, TEST_RECT, SliderDirection::UP, 201, 1, 1, 0 };
-    mock_SpriteSlider sD{ pt, TEST_RECT, SliderDirection::DOWN, 201, 1, 1, 0 };
+    mock_SpriteSlider sL{ pt, TEST_RECT, SliderDirection::LEFT, 101, 1, 0 };
+    mock_SpriteSlider sR{ pt, TEST_RECT, SliderDirection::RIGHT, 101, 1, 0};
+    mock_SpriteSlider sU{ pt, TEST_RECT, SliderDirection::UP, 201, 1, 0 };
+    mock_SpriteSlider sD{ pt, TEST_RECT, SliderDirection::DOWN, 201, 1, 0 };
 public:
     test_Graphics_SpriteSlider()
     {
@@ -1044,19 +987,19 @@ class mock_SpriteBargraph : public SpriteBargraph
 {
 public:
     mock_SpriteBargraph(pTexture texture, const Rect& rect, BargraphDirection dir,
-        unsigned animRows, unsigned animCols, unsigned frameTime, eBargraph ind = eBargraph::_TEST1, eTimer animtimer = eTimer::K11_BOMB,
-        bool animVerticalIndexing = false, unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false) :
-        SpriteBargraph(texture, rect, dir, animRows, animCols, frameTime, ind, animtimer, animVerticalIndexing, selRows, selCols, selVerticalIndexing) {}
+        unsigned animFrames, unsigned frameTime, eBargraph ind = eBargraph::_TEST1, eTimer animtimer = eTimer::K11_BOMB,
+        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false) :
+        SpriteBargraph(texture, rect, dir, animFrames, frameTime, ind, animtimer, selRows, selCols, selVerticalIndexing) {}
 };
 
 class test_Graphics_SpriteBargraph : public ::testing::Test
 {
 protected:
     std::shared_ptr<mock_Texture> pt{ std::make_shared<mock_Texture>() };
-    mock_SpriteBargraph sL{ pt, TEST_RECT, BargraphDirection::LEFT, 1, 1, 0 };
-    mock_SpriteBargraph sR{ pt, TEST_RECT, BargraphDirection::RIGHT, 1, 1, 0 };
-    mock_SpriteBargraph sU{ pt, TEST_RECT, BargraphDirection::UP, 1, 1, 0 };
-    mock_SpriteBargraph sD{ pt, TEST_RECT, BargraphDirection::DOWN, 1, 1, 0 };
+    mock_SpriteBargraph sL{ pt, TEST_RECT, BargraphDirection::LEFT, 1, 0 };
+    mock_SpriteBargraph sR{ pt, TEST_RECT, BargraphDirection::RIGHT, 1, 0 };
+    mock_SpriteBargraph sU{ pt, TEST_RECT, BargraphDirection::UP, 1, 0 };
+    mock_SpriteBargraph sD{ pt, TEST_RECT, BargraphDirection::DOWN, 1, 0 };
 public:
     test_Graphics_SpriteBargraph()
     {

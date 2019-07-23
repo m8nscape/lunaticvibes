@@ -86,10 +86,9 @@ void SpriteLaneVertical::draw() const
 {
     if (pNote->_pTexture->_loaded)
 	{
-		auto dr = pNote->_drawRect;
 		for (const auto& r : _outRect)
 		{
-			pNote->_pTexture->draw(dr, r, _current.color, _current.blend, _current.filter, _current.angle);
+			pNote->_pTexture->draw(pNote->_texRect[pNote->_segmentIdx], r, _current.color, _current.blend, _current.filter, _current.angle);
 		}
 	}
 }

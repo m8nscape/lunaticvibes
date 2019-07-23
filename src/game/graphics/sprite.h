@@ -147,7 +147,8 @@ protected:
 	unsigned _selections;
 	eTimer _resetAnimTimer;
     unsigned _period = -1;   // time for each ANIM LOOP lasts
-    Rect _drawRect;
+    frameIdx _currAnimFrame = 0;
+    //Rect _drawRect;
 public:
     SpriteAnimated() = delete;
 
@@ -167,7 +168,6 @@ public:
     //void updateSplitByTimer(timestamp t);
 	virtual bool update(timestamp t);
     virtual void draw() const;
-    Rect getDrawTextureRect() const;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -248,11 +248,11 @@ public:
 
 	SpriteNumber(pTexture texture, NumberAlign align, unsigned maxDigits,
         unsigned numRows, unsigned numCols, unsigned frameTime, eNumber num = eNumber::ZERO, eTimer animtimer = eTimer::SCENE_START,
-		unsigned animFrames = 0, bool numVerticalIndexing = false);
+		unsigned animFrames = 1, bool numVerticalIndexing = false);
 
 	SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align, unsigned maxDigits,
         unsigned numRows, unsigned numCols, unsigned frameTime, eNumber num = eNumber::ZERO, eTimer animtimer = eTimer::SCENE_START,
-		unsigned animFrames = 0, bool numVerticalIndexing = false);
+		unsigned animFrames = 1, bool numVerticalIndexing = false);
 
     virtual ~SpriteNumber() = default;
 

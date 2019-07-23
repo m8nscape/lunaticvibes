@@ -287,11 +287,10 @@ void SpriteAnimated::updateAnimation(timestamp time)
     if (_segments == 0) return;
     if (_period == -1) return;
 
-    frameIdx f = 0;
-    if (double timeEachFrame = double(_period) / _aframes; timeEachFrame >= 1.0)
+    if (double timeEachFrame = double(_period) / _animFrames; timeEachFrame >= 1.0)
     {
         auto animFrameTime = time.norm() % _period;
-        f = std::round(animFrameTime / timeEachFrame);
+        _currAnimFrame = std::round(animFrameTime / timeEachFrame);
     }
 	/*
     _drawRect = _texRect[_segmentIdx];
@@ -310,7 +309,6 @@ void SpriteAnimated::updateAnimation(timestamp time)
         _drawRect.y += _aRect.h * (f % _arows);
     }
 	*/
-	updateSelection(_segmentIdx + f * _selections);
 }
 
 void SpriteAnimated::updateAnimationByTimer(timestamp time)
@@ -333,12 +331,11 @@ void SpriteAnimated::updateSplitByTimer(rTime time)
         updateSplit((frameIdx)((time - gTimers.get(_timerInd)) / (_period / _aframes)));
 }
 */
-
 void SpriteAnimated::draw() const
 {
     if (_draw && _pTexture != nullptr && _pTexture->_loaded)
     {
-        _pTexture->draw(_drawRect, _current.rect, _current.color, _current.blend, _current.filter, _current.angle);
+        _pTexture->draw(_texRect[_segmentIdx * _animFrames + _currAnimFrame], _current.rect, _current.color, _current.blend, _current.filter, _current.angle);
     }
 }
 
@@ -870,16 +867,14 @@ bool SpriteOption::update(timestamp t)
 
 
 SpriteGaugeGrid::SpriteGaugeGrid(pTexture texture,
-	unsigned animRows, unsigned animCols, unsigned frameTime, int dx, int dy, unsigned min, unsigned max,
-	eTimer timer, eNumber num,
-	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
-	SpriteGaugeGrid(texture, texture ? texture->getRect() : Rect(), animRows, animCols, frameTime, dx, dy, min, max, timer, num, animVerticalIndexing, selRows, selCols, selVerticalIndexing) {}
+	unsigned animFrames, unsigned frameTime, int dx, int dy, unsigned min, unsigned max,
+	eTimer timer, eNumber num, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
+	SpriteGaugeGrid(texture, texture ? texture->getRect() : Rect(), animFrames, frameTime, dx, dy, min, max, timer, num, selRows, selCols, selVerticalIndexing) {}
 
 SpriteGaugeGrid::SpriteGaugeGrid(pTexture texture, const Rect& rect,
-	unsigned animRows, unsigned animCols, unsigned frameTime, int dx, int dy, unsigned min, unsigned max, 
-	eTimer timer, eNumber num, 
-	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing): 
-	SpriteAnimated(texture, rect, animRows, animCols, frameTime, timer, animVerticalIndexing, selRows, selCols, selVerticalIndexing),
+	unsigned animFrames, unsigned frameTime, int dx, int dy, unsigned min, unsigned max, 
+	eTimer timer, eNumber num, unsigned selRows, unsigned selCols, bool selVerticalIndexing): 
+	SpriteAnimated(texture, rect, animFrames, frameTime, timer, selRows, selCols, selVerticalIndexing),
 	_delta_x(dx), _delta_y(dy), _min(min), _max(max), _numInd(num)
 {
 	memset(_color, 1, sizeof(_color));	// 0xFFFFFFFF x 50
@@ -918,12 +913,12 @@ bool SpriteGaugeGrid::update(timestamp t)
 	if (SpriteAnimated::update(t))
 	{
 		updateValByInd();
-		_lightRect = _drawRect;
+		_lightRect = _texRect[_currAnimFrame];
 
 		// set darkRect
 		updateSelection(_texIdxDark);
 		SpriteAnimated::update(t);
-		_darkRect = _drawRect;
+		_darkRect = _texRect[_currAnimFrame];
 
 		switch (_flashType)
 		{
@@ -957,7 +952,7 @@ void SpriteGaugeGrid::draw() const
 		Rect r = _current.rect;
 		for (unsigned i = 0; i = _val; ++i)
 		{
-			_pTexture->draw(_drawRect, r, _color[i], _current.blend, _current.filter, _current.angle);
+			_pTexture->draw(_texRect[_segmentIdx * _animFrames + _currAnimFrame], r, _color[i], _current.blend, _current.filter, _current.angle);
 			r.x += _delta_x;
 			r.y += _delta_y;
 		}
