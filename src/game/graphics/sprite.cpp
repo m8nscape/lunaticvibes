@@ -9,6 +9,7 @@ vSprite::vSprite(pTexture tex, SpriteTypes type) :
     _pTexture(tex), _type(type), _current({ 0, RenderParams::CONSTANT, 0x00000000, BlendMode::NONE, false, 0 }) {}
 
 bool vSprite::updateByKeyframes(timestamp rawTime)
+
 {
     // Check if object is valid
 	// Note that nullptr texture shall pass
@@ -646,6 +647,14 @@ void SpriteNumber::appendKeyFrame(RenderKeyFrame f)
 		d.appendKeyFrame(f);
 		f.param.rect.x += f.param.rect.w;
 	}
+}
+
+void SpriteNumberDigit::draw() const
+{
+    if (_draw && _pTexture != nullptr && _pTexture->isLoaded())
+    {
+        _pTexture->draw(_texRect[_currAnimFrame * _selections + _segmentIdx], _current.rect, _current.color, _current.blend, _current.filter, _current.angle);
+    }
 }
 
 void SpriteNumber::draw() const

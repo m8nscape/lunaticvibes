@@ -231,6 +231,25 @@ const size_t NUM_FULL_BZERO_NEG = 22;
 const size_t NUM_FULL_PLUS      = 11;
 const size_t NUM_FULL_MINUS     = 23;
 
+class SpriteNumberDigit : public SpriteAnimated
+{
+public:
+    SpriteNumberDigit() = delete;
+
+    SpriteNumberDigit(pTexture texture,
+        unsigned animFrames, unsigned frameTime, eTimer timer = eTimer::SCENE_START,
+        unsigned numRows = 1, unsigned numCols = 1, bool selVerticalIndexing = false) :
+        SpriteAnimated(texture, animFrames, frameTime, timer, numRows, numCols, selVerticalIndexing) {}
+
+    SpriteNumberDigit(pTexture texture, const Rect& rect,
+        unsigned animFrames, unsigned frameTime, eTimer timer = eTimer::SCENE_START,
+        unsigned numRows = 1, unsigned numCols = 1, bool selVerticalIndexing = false) :
+        SpriteAnimated(texture, rect, animFrames, frameTime, timer, numRows, numCols, selVerticalIndexing) {}
+
+    virtual ~SpriteNumberDigit() = default;
+    virtual void draw() const;
+};
+
 class SpriteNumber : public vSprite
 {
 	friend class SkinLR2;
@@ -240,7 +259,7 @@ protected:
     NumberType _numType;
 	NumberAlign _alignType;
     //std::vector<Rect> _drawRectDigit, _outRectDigit; // idx from low digit to high, e.g. [1] represents 1 digit, [2] represents 10 digit, etc.
-    std::vector<SpriteAnimated> _sDigit;
+    std::vector<SpriteNumberDigit> _sDigit;
     std::vector<unsigned>       _digit;
 
 public:
