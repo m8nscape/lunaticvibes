@@ -460,7 +460,7 @@ struct ColorPoint
 class SpriteLine : public SpriteStatic
 {
 private:
-	int _width;
+    GraphLine _line;
 	Color _color;
 	std::vector<ColorPoint> _points;
 	int _timerStartOffset, _duration;

@@ -212,8 +212,11 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 // Thick line wrapper
-class LineMeta
+class GraphLine
 {
 public:
-	static void draw(Point p1, Point p2, int width = 1, Color c = 0xffffffff);
+    int _width = 1;
+    GraphLine(int width = 1) : _width(width) {}
+public:
+	void draw(Point p1, Point p2, Color c = 0xffffffff) const;
 };

@@ -965,7 +965,7 @@ void SpriteGaugeGrid::draw() const
     }
 }
 
-SpriteLine::SpriteLine(int width, Color color) : SpriteStatic(nullptr), _width(width), _color(color)
+SpriteLine::SpriteLine(int width, Color color) : SpriteStatic(nullptr), _line(width), _color(color)
 {
 	_type = SpriteTypes::LINE;
 }
@@ -977,7 +977,7 @@ void SpriteLine::draw() const
 	size_t m = (size_t)std::floor((_points.size() - 1) * _progress);
 	for (size_t i = 0; i < m; ++i)
 	{
-		LineMeta::draw(_points[i].p, _points[i+1].p, _width, _points[i].c);
+		_line.draw(_points[i].p, _points[i+1].p, _points[i].c);
 	}
 }
 

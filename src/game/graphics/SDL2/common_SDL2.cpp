@@ -253,13 +253,13 @@ void TextureFull::draw(const Rect& ignored, const Rect& dstRect,
     );
 }
 
-void LineMeta::draw(Point p1, Point p2, int width, Color c)
+void GraphLine::draw(Point p1, Point p2, Color c) const
 {
 	thickLineColor(
 		_frame_renderer,
 		p1.x, p1.y,
 		p2.x, p2.y,
-		width,
+		_width,
 		c.hex()
 	);
 }
