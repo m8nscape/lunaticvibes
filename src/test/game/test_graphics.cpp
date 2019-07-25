@@ -1145,9 +1145,9 @@ class mock_SpriteOption : public SpriteOption
 {
 public:
     mock_SpriteOption(pTexture texture,
-        unsigned animRows, unsigned animCols, unsigned frameTime, eTimer timer = eTimer::K11_BOMB, bool animVerticalIndexing = false,
+        unsigned animFrames, unsigned frameTime, eTimer timer = eTimer::K11_BOMB,
         unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false) : 
-        SpriteOption(texture, animRows, animCols, frameTime, timer, animVerticalIndexing, rows, cols, verticalIndexing) {}
+        SpriteOption(texture, animFrames, frameTime, timer, rows, cols, verticalIndexing) {}
     FRIEND_TEST(test_Graphics_SpriteOption, switchTest);
     FRIEND_TEST(test_Graphics_SpriteOption, optionTest);
 };
@@ -1156,9 +1156,9 @@ class test_Graphics_SpriteOption : public ::testing::Test
 {
 protected:
     std::shared_ptr<mock_Texture> pt{ std::make_shared<mock_Texture>() };
-    mock_SpriteOption ss{ pt, 1, 1, 0, eTimer::K11_BOMB, false, 1, 2 };
-    mock_SpriteOption ss0{ pt, 1, 1, 0, eTimer::K11_BOMB, false, 1, 1 };
-    mock_SpriteOption so{ pt, 1, 1, 0, eTimer::K11_BOMB, false, 2, 3 };
+    mock_SpriteOption ss{ pt, 1, 1, eTimer::K11_BOMB, 1, 2 };
+    mock_SpriteOption ss0{ pt, 1, 1, eTimer::K11_BOMB, 1, 1 };
+    mock_SpriteOption so{ pt, 1, 1, eTimer::K11_BOMB, 2, 3 };
 public:
     test_Graphics_SpriteOption()
     {
@@ -1222,18 +1222,19 @@ class mock_SpriteGaugeGrid : public SpriteGaugeGrid
 {
 public:
     mock_SpriteGaugeGrid(pTexture texture, const Rect& rect,
-        unsigned animRows, unsigned animCols, unsigned frameTime, int dx, int dy, unsigned short grids = 50, unsigned min = 0, unsigned max = 100,
+        unsigned animFrames, unsigned frameTime, int dx, int dy, 
+        unsigned min = 0, unsigned max = 100, unsigned grids = 50,
         eTimer timer = eTimer::K11_BOMB, eNumber num = eNumber::PLAY_1P_GROOVEGAUGE,
-        bool animVerticalIndexing = false, unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false):
-        SpriteGaugeGrid(texture, rect, animRows, animCols, frameTime, dx, dy, grids, min, max, timer, num, animVerticalIndexing, selRows, selCols, selVerticalIndexing) {}
+        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false):
+        SpriteGaugeGrid(texture, rect, animFrames, frameTime, dx, dy, min, max, grids, timer, num, selRows, selCols, selVerticalIndexing) {}
 };
 
 class test_Graphics_SpriteGaugeGrid : public ::testing::Test
 {
 protected:
     std::shared_ptr<mock_Texture> pt{ std::make_shared<mock_Texture>() };
-    mock_SpriteGaugeGrid s1{ pt, Rect(0, 0, 40, 40), 1, 1, 0, 10, 0, 50, 0, 100, eTimer::K11_BOMB, eNumber::PLAY_1P_GROOVEGAUGE, false, 1, 4 };
-    mock_SpriteGaugeGrid s2{ pt, Rect(0, 0, 60, 40), 1, 1, 0, -10, 0, 50, 0, 100, eTimer::K11_BOMB, eNumber::PLAY_2P_GROOVEGAUGE, false, 1, 6 };
+    mock_SpriteGaugeGrid s1{ pt, Rect(0, 0, 40, 40), 1, 0, 10, 0, 0, 100, 50, eTimer::K11_BOMB, eNumber::PLAY_1P_GROOVEGAUGE, 1, 4 };
+    mock_SpriteGaugeGrid s2{ pt, Rect(0, 0, 60, 40), 1, 0, -10, 0, 0, 100, 50, eTimer::K11_BOMB, eNumber::PLAY_2P_GROOVEGAUGE, 1, 6 };
 public:
     test_Graphics_SpriteGaugeGrid()
     {

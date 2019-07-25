@@ -441,8 +441,7 @@ private:
 	unsigned short _val = _grids / 2;
 	TextureSelection _texIdxLightFail, _texIdxDarkFail;
     TextureSelection _texIdxLightClear, _texIdxDarkClear;
-    Rect _lightRectFail, _darkRectFail;
-    Rect _lightRectClear, _darkRectClear;
+    unsigned _lightRectFailIdxOffset, _lightRectClearIdxOffset, _darkRectFailIdxOffset, _darkRectClearIdxOffset;
     std::vector<bool> _lighting;
 	FlashType _flashType = FlashType::CLASSIC;
 	GaugeType _gaugeType = GaugeType::NORMAL;
@@ -451,12 +450,14 @@ public:
     SpriteGaugeGrid() = delete;
 
     SpriteGaugeGrid(pTexture texture,
-        unsigned animFrames, unsigned frameTime, int dx, int dy, unsigned min = 0, unsigned max = 100, 
+        unsigned animFrames, unsigned frameTime, int dx, int dy, 
+        unsigned min = 0, unsigned max = 100, unsigned grids = 50,
 		eTimer timer = eTimer::SCENE_START, eNumber num = eNumber::PLAY_1P_GROOVEGAUGE,
 		 unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
 
     SpriteGaugeGrid(pTexture texture, const Rect& rect,
-        unsigned animFrames, unsigned frameTime, int dx, int dy, unsigned min = 0, unsigned max = 100, 
+        unsigned animFrames, unsigned frameTime, int dx, int dy, 
+        unsigned min = 0, unsigned max = 100, unsigned grids = 50,
 		eTimer timer = eTimer::SCENE_START, eNumber num = eNumber::PLAY_1P_GROOVEGAUGE,
 		 unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
 

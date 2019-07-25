@@ -876,15 +876,16 @@ bool SpriteOption::update(timestamp t)
 
 
 SpriteGaugeGrid::SpriteGaugeGrid(pTexture texture,
-	unsigned animFrames, unsigned frameTime, int dx, int dy, unsigned min, unsigned max,
+	unsigned animFrames, unsigned frameTime, int dx, int dy, unsigned min, unsigned max, unsigned grids,
 	eTimer timer, eNumber num, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
-	SpriteGaugeGrid(texture, texture ? texture->getRect() : Rect(), animFrames, frameTime, dx, dy, min, max, timer, num, selRows, selCols, selVerticalIndexing) {}
+	SpriteGaugeGrid(texture, texture ? texture->getRect() : Rect(), animFrames, frameTime, 
+        dx, dy, grids, min, max, timer, num, selRows, selCols, selVerticalIndexing) {}
 
 SpriteGaugeGrid::SpriteGaugeGrid(pTexture texture, const Rect& rect,
-	unsigned animFrames, unsigned frameTime, int dx, int dy, unsigned min, unsigned max, 
+	unsigned animFrames, unsigned frameTime,  int dx, int dy, unsigned min, unsigned max, unsigned grids,
 	eTimer timer, eNumber num, unsigned selRows, unsigned selCols, bool selVerticalIndexing): 
 	SpriteAnimated(texture, rect, animFrames, frameTime, timer, selRows, selCols, selVerticalIndexing),
-	_delta_x(dx), _delta_y(dy), _min(min), _max(max), _numInd(num)
+	_delta_x(dx), _delta_y(dy), _grids(grids), _min(min), _max(max), _numInd(num)
 {
     _lighting.resize(_grids, false);
 }
@@ -902,7 +903,7 @@ void SpriteGaugeGrid::setGaugeType(SpriteGaugeGrid::GaugeType ty)
     case GaugeType::NORMAL: 
         _texIdxLightFail = NORMAL_LIGHT; _texIdxDarkFail = NORMAL_DARK; 
         _texIdxLightClear = CLEAR_LIGHT; _texIdxDarkClear = CLEAR_DARK;
-        _req = 40; break;
+        _req = (unsigned short)std::floor(0.8 * _grids); break;
 
     case GaugeType::HARD:  
         _texIdxLightFail = CLEAR_LIGHT; _texIdxDarkFail = CLEAR_DARK;
@@ -921,18 +922,18 @@ void SpriteGaugeGrid::setGaugeType(SpriteGaugeGrid::GaugeType ty)
     // set FailRect
     updateSelection(_texIdxLightFail);
     SpriteAnimated::update(t);
-    _lightRectFail = _drawRect;
+    _lightRectFailIdxOffset = _segmentIdx * _animFrames;
     updateSelection(_texIdxDarkFail);
     SpriteAnimated::update(t);
-    _darkRectFail = _drawRect;
+    _darkRectFailIdxOffset = _segmentIdx * _animFrames;
 
     // set ClearRect
     updateSelection(_texIdxLightClear);
     SpriteAnimated::update(t);
-    _lightRectClear = _drawRect;
+    _lightRectClearIdxOffset = _segmentIdx * _animFrames;
     updateSelection(_texIdxDarkClear);
     SpriteAnimated::update(t);
-    _darkRectClear = _drawRect;
+    _darkRectClearIdxOffset = _segmentIdx * _animFrames;
 }
 
 void SpriteGaugeGrid::updateVal(unsigned v)
@@ -949,14 +950,7 @@ bool SpriteGaugeGrid::update(timestamp t)
 {
 	if (SpriteAnimated::update(t))
 	{
-		updateValByInd();
-		_lightRect = _texRect[_currAnimFrame];
-
-		// set darkRect
-		updateSelection(_texIdxDark);
-		SpriteAnimated::update(t);
-		_darkRect = _texRect[_currAnimFrame];
-
+        updateValByInd();
 		switch (_flashType)
 		{
 		case FlashType::NONE:
@@ -987,12 +981,22 @@ void SpriteGaugeGrid::draw() const
     if (_draw && _pTexture != nullptr && _pTexture->isLoaded())
     {
 		Rect r = _current.rect;
-		for (unsigned i = 0; i = _val; ++i)
-		{
-			_pTexture->draw(_texRect[_segmentIdx * _animFrames + _currAnimFrame], r, _color[i], _current.blend, _current.filter, _current.angle);
-			r.x += _delta_x;
-			r.y += _delta_y;
-		}
+        for (unsigned i = 0; i < _req - 1; ++i)
+        {
+            _lighting[i] ?
+                _pTexture->draw(_texRect[_lightRectFailIdxOffset + _currAnimFrame], r, _current.color, _current.blend, _current.filter, _current.angle) :
+                _pTexture->draw(_texRect[_darkRectFailIdxOffset + _currAnimFrame], r, _current.color, _current.blend, _current.filter, _current.angle);
+            r.x += _delta_x;
+            r.y += _delta_y;
+        }
+        for (unsigned i = _req - 1; i < _grids; ++i)
+        {
+            _lighting[i] ?
+                _pTexture->draw(_texRect[_lightRectClearIdxOffset + _currAnimFrame], r, _current.color, _current.blend, _current.filter, _current.angle) :
+                _pTexture->draw(_texRect[_darkRectClearIdxOffset + _currAnimFrame], r, _current.color, _current.blend, _current.filter, _current.angle);
+            r.x += _delta_x;
+            r.y += _delta_y;
+        }
     }
 }
 
