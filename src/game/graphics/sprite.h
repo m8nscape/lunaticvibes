@@ -134,28 +134,30 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 // Animated sprite:
 // Split resolution for animation frames.
-// Animation frame rect calculation is based on split rect
+// Animation frame rect is now strictly pointed to Selection rect
 class SpriteAnimated : public SpriteSelection
 {
     friend class SpriteLaneVertical;
     friend class SpriteSlider;
 protected:
-    bool _aVert = false;
-    Rect _aRect;
-    unsigned _arows, _acols;
-    unsigned _aframes;
+    //bool _aVert = false;
+    //Rect _aRect;
+    //unsigned _arows, _acols;
+    unsigned _animFrames;
+	unsigned _selections;
 	eTimer _resetAnimTimer;
     unsigned _period = -1;   // time for each ANIM LOOP lasts
-    Rect _drawRect;
+    frameIdx _currAnimFrame = 0;
+    //Rect _drawRect;
 public:
     SpriteAnimated() = delete;
 
     SpriteAnimated(pTexture texture,
-        unsigned animRows, unsigned animCols, unsigned frameTime, eTimer timer = eTimer::SCENE_START, bool animVerticalIndexing = false,
+        unsigned animFrames, unsigned frameTime, eTimer timer = eTimer::SCENE_START, 
         unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
 
     SpriteAnimated(pTexture texture, const Rect& rect,
-        unsigned animRows, unsigned animCols, unsigned frameTime, eTimer timer = eTimer::SCENE_START, bool animVerticalIndexing = false,
+        unsigned animFrames, unsigned frameTime, eTimer timer = eTimer::SCENE_START, 
         unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
 
     virtual ~SpriteAnimated() = default;
@@ -166,7 +168,6 @@ public:
     //void updateSplitByTimer(timestamp t);
 	virtual bool update(timestamp t);
     virtual void draw() const;
-    Rect getDrawTextureRect() const;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -230,6 +231,25 @@ const size_t NUM_FULL_BZERO_NEG = 22;
 const size_t NUM_FULL_PLUS      = 11;
 const size_t NUM_FULL_MINUS     = 23;
 
+class SpriteNumberDigit : public SpriteAnimated
+{
+public:
+    SpriteNumberDigit() = delete;
+
+    SpriteNumberDigit(pTexture texture,
+        unsigned animFrames, unsigned frameTime, eTimer timer = eTimer::SCENE_START,
+        unsigned numRows = 1, unsigned numCols = 1, bool selVerticalIndexing = false) :
+        SpriteAnimated(texture, animFrames, frameTime, timer, numRows, numCols, selVerticalIndexing) {}
+
+    SpriteNumberDigit(pTexture texture, const Rect& rect,
+        unsigned animFrames, unsigned frameTime, eTimer timer = eTimer::SCENE_START,
+        unsigned numRows = 1, unsigned numCols = 1, bool selVerticalIndexing = false) :
+        SpriteAnimated(texture, rect, animFrames, frameTime, timer, numRows, numCols, selVerticalIndexing) {}
+
+    virtual ~SpriteNumberDigit() = default;
+    virtual void draw() const;
+};
+
 class SpriteNumber : public vSprite
 {
 	friend class SkinLR2;
@@ -239,19 +259,19 @@ protected:
     NumberType _numType;
 	NumberAlign _alignType;
     //std::vector<Rect> _drawRectDigit, _outRectDigit; // idx from low digit to high, e.g. [1] represents 1 digit, [2] represents 10 digit, etc.
-    std::vector<SpriteAnimated> _sDigit;
+    std::vector<SpriteNumberDigit> _sDigit;
     std::vector<unsigned>       _digit;
 
 public:
     SpriteNumber() = delete;
 
-    SpriteNumber(pTexture texture, NumberAlign align, unsigned maxDigits,
+	SpriteNumber(pTexture texture, NumberAlign align, unsigned maxDigits,
         unsigned numRows, unsigned numCols, unsigned frameTime, eNumber num = eNumber::ZERO, eTimer animtimer = eTimer::SCENE_START,
-        bool numVerticalIndexing = false, unsigned animRows = 1, unsigned animCols = 1, bool animVerticalIndexing = false);
+		unsigned animFrames = 1, bool numVerticalIndexing = false);
 
-    SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align, unsigned maxDigits,
+	SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align, unsigned maxDigits,
         unsigned numRows, unsigned numCols, unsigned frameTime, eNumber num = eNumber::ZERO, eTimer animtimer = eTimer::SCENE_START,
-        bool numVerticalIndexing = false, unsigned animRows = 1, unsigned animCols = 1, bool animVerticalIndexing = false);
+		unsigned animFrames = 1, bool numVerticalIndexing = false);
 
     virtual ~SpriteNumber() = default;
 
@@ -288,12 +308,12 @@ public:
     SpriteSlider() = delete;
 
     SpriteSlider(pTexture texture, SliderDirection dir, int range,
-        unsigned animRows, unsigned animCols, unsigned frameTime, eSlider ind = eSlider::_TEST1, eTimer animtimer = eTimer::K11_BOMB,
-        bool animVerticalIndexing = false, unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
+        unsigned animFrames, unsigned frameTime, eSlider s = eSlider::ZERO, eTimer timer = eTimer::SCENE_START,
+        unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
 
     SpriteSlider(pTexture texture, const Rect& rect, SliderDirection dir, int range,
-        unsigned animRows, unsigned animCols, unsigned frameTime, eSlider ind = eSlider::_TEST1, eTimer animtimer = eTimer::K11_BOMB,
-        bool animVerticalIndexing = false, unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
+        unsigned animFrames, unsigned frameTime, eSlider s = eSlider::ZERO, eTimer timer = eTimer::SCENE_START,
+        unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
 
     virtual ~SpriteSlider() = default;
 
@@ -326,12 +346,12 @@ public:
     SpriteBargraph() = delete;
 
     SpriteBargraph(pTexture texture, BargraphDirection dir,
-        unsigned numRows, unsigned numCols, unsigned frameTime, eBargraph s = eBargraph::ZERO, eTimer timer = eTimer::SCENE_START,
-        bool subVerticalIndexing = false, unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
+        unsigned animFrames, unsigned frameTime, eBargraph s = eBargraph::ZERO, eTimer timer = eTimer::SCENE_START,
+        unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
 
     SpriteBargraph(pTexture texture, const Rect& rect, BargraphDirection dir,
-        unsigned numRows, unsigned numCols, unsigned frameTime, eBargraph s = eBargraph::ZERO, eTimer timer = eTimer::SCENE_START,
-        bool subVerticalIndexing = false, unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
+        unsigned animFrames, unsigned frameTime, eBargraph s = eBargraph::ZERO, eTimer timer = eTimer::SCENE_START,
+        unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
 
     virtual ~SpriteBargraph() = default;
 
@@ -364,12 +384,12 @@ public:
     SpriteOption() = delete;
 
     SpriteOption(pTexture texture,
-        unsigned animRows, unsigned animCols, unsigned frameTime, eTimer timer = eTimer::SCENE_START,
-		bool animVerticalIndexing = false, unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
+        unsigned animFrames, unsigned frameTime, eTimer timer = eTimer::SCENE_START,
+		 unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
 
     SpriteOption(pTexture texture, const Rect& rect,
-        unsigned animRows, unsigned animCols, unsigned frameTime, eTimer timer = eTimer::SCENE_START,
-		bool animVerticalIndexing = false, unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
+        unsigned animFrames, unsigned frameTime, eTimer timer = eTimer::SCENE_START,
+		 unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
 
     virtual ~SpriteOption() = default;
 
@@ -431,14 +451,14 @@ public:
     SpriteGaugeGrid() = delete;
 
     SpriteGaugeGrid(pTexture texture,
-        unsigned animRows, unsigned animCols, unsigned frameTime, int dx, int dy, unsigned short grids = 50, unsigned min = 0, unsigned max = 100, 
+        unsigned animFrames, unsigned frameTime, int dx, int dy, unsigned min = 0, unsigned max = 100, 
 		eTimer timer = eTimer::SCENE_START, eNumber num = eNumber::PLAY_1P_GROOVEGAUGE,
-		bool animVerticalIndexing = false, unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
+		 unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
 
     SpriteGaugeGrid(pTexture texture, const Rect& rect,
-        unsigned animRows, unsigned animCols, unsigned frameTime, int dx, int dy, unsigned short grids = 50, unsigned min = 0, unsigned max = 100,
+        unsigned animFrames, unsigned frameTime, int dx, int dy, unsigned min = 0, unsigned max = 100, 
 		eTimer timer = eTimer::SCENE_START, eNumber num = eNumber::PLAY_1P_GROOVEGAUGE,
-		bool animVerticalIndexing = false, unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
+		 unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
 
     virtual ~SpriteGaugeGrid() = default;
 

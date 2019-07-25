@@ -9,6 +9,7 @@ vSprite::vSprite(pTexture tex, SpriteTypes type) :
     _pTexture(tex), _type(type), _current({ 0, RenderParams::CONSTANT, 0x00000000, BlendMode::NONE, false, 0 }) {}
 
 bool vSprite::updateByKeyframes(timestamp rawTime)
+
 {
     // Check if object is valid
 	// Note that nullptr texture shall pass
@@ -237,30 +238,31 @@ bool SpriteSelection::update(timestamp t)
 // Animated
 
 SpriteAnimated::SpriteAnimated(pTexture texture, 
-    unsigned animRows, unsigned animCols, unsigned frameTime, eTimer t, 
-    bool animVert, unsigned selRows, unsigned selCols, bool selVert):
-    SpriteAnimated(texture, texture ? texture->getRect() : Rect(), animRows, animCols, frameTime, t,
-		animVert, selRows, selCols, selVert)
+    unsigned animFrames, unsigned frameTime, eTimer t, 
+    unsigned selRows, unsigned selCols, bool selVert):
+    SpriteAnimated(texture, texture ? texture->getRect() : Rect(), animFrames, frameTime, t,
+		selRows, selCols, selVert)
 {
 }
 
 SpriteAnimated::SpriteAnimated(pTexture texture, const Rect& r, 
-    unsigned animRows, unsigned animCols, unsigned frameTime, eTimer t, 
-    bool animVert, unsigned selRows, unsigned selCols, bool selVert):
-    SpriteSelection(texture, r, selRows, selCols, selVert), _arows(0), _acols(0), _aframes(0), _resetAnimTimer(t)
+    unsigned animFrames, unsigned frameTime, eTimer t, 
+    unsigned selRows, unsigned selCols, bool selVert):
+    SpriteSelection(texture, r, selRows, selCols, selVert), _animFrames(animFrames), _resetAnimTimer(t)
 {
     _type = SpriteTypes::ANIMATED;
 
-    if (animRows == 0 || animCols == 0 || selRows == 0 || selCols == 0) return;
+    if (animFrames == 0 || selRows == 0 || selCols == 0) return;
 
-    _aRect.x = _aRect.y = 0;
-    _aRect.w = _texRect[0].w / animCols;
-    _aRect.h = _texRect[0].h / animRows;
-    _arows = animRows;
-    _acols = animCols;
-    _aframes = animRows * animCols;
+	if (_animFrames != 0) _selections = selRows * selCols / _animFrames;
+	//_aframes = animFrames;
+    //_aRect.w = _texRect[0].w / animCols;
+    //_aRect.h = _texRect[0].h / animRows;
+    //_arows = animRows;
+    //_acols = animCols;
+    //_aframes = animRows * animCols;
     _period = frameTime;
-    _aVert = animVert;
+    //_aVert = animVert;
 }
 
 bool SpriteAnimated::update(timestamp t)
@@ -286,13 +288,12 @@ void SpriteAnimated::updateAnimation(timestamp time)
     if (_segments == 0) return;
     if (_period == -1) return;
 
-    frameIdx f = 0;
-    if (double timeEachFrame = double(_period) / _aframes; timeEachFrame >= 1.0)
+    if (double timeEachFrame = double(_period) / _animFrames; timeEachFrame >= 1.0)
     {
         auto animFrameTime = time.norm() % _period;
-        f = std::round(animFrameTime / timeEachFrame);
+        _currAnimFrame = std::round(animFrameTime / timeEachFrame);
     }
-
+	/*
     _drawRect = _texRect[_segmentIdx];
     _drawRect.w = _aRect.w;
     _drawRect.h = _aRect.h;
@@ -308,6 +309,7 @@ void SpriteAnimated::updateAnimation(timestamp time)
         _drawRect.x += _aRect.w * (f / _arows);
         _drawRect.y += _aRect.h * (f % _arows);
     }
+	*/
 }
 
 void SpriteAnimated::updateAnimationByTimer(timestamp time)
@@ -330,12 +332,11 @@ void SpriteAnimated::updateSplitByTimer(rTime time)
         updateSplit((frameIdx)((time - gTimers.get(_timerInd)) / (_period / _aframes)));
 }
 */
-
 void SpriteAnimated::draw() const
 {
     if (_draw && _pTexture != nullptr && _pTexture->_loaded)
     {
-        _pTexture->draw(_drawRect, _current.rect, _current.color, _current.blend, _current.filter, _current.angle);
+        _pTexture->draw(_texRect[_segmentIdx * _animFrames + _currAnimFrame], _current.rect, _current.color, _current.blend, _current.filter, _current.angle);
     }
 }
 
@@ -412,21 +413,22 @@ void SpriteText::draw() const
 
 SpriteNumber::SpriteNumber(pTexture texture, NumberAlign align, unsigned maxDigits,
     unsigned numRows, unsigned numCols, unsigned frameTime, eNumber n, eTimer t,
-    bool numVert, unsigned animRows, unsigned animCols, bool animVert) : 
+    unsigned animFrames, bool numVert):
     SpriteNumber(texture, texture ? texture->getRect() : Rect(), align, maxDigits,
 		numRows, numCols, frameTime, n, t,
-		numVert, animRows, animCols, animVert)
+		animFrames, numVert)
 {
 }
 
 SpriteNumber::SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align, unsigned maxDigits,
     unsigned numRows, unsigned numCols, unsigned frameTime, eNumber n, eTimer t,
-    bool numVert, unsigned animRows, unsigned animCols, bool animVert): 
+    unsigned animFrames, bool numVert):
     vSprite(texture, SpriteTypes::NUMBER), _alignType(align), _numInd(n)
 {
     _type = SpriteTypes::NUMBER;
 
-    _numType = NumberType(numRows * numCols);
+    //_numType = NumberType(numRows * numCols);
+	if (animFrames != 0) _numType = NumberType(numRows * numCols / animFrames);
     switch (_numType)
     {
     case NUM_TYPE_NORMAL:
@@ -444,7 +446,7 @@ SpriteNumber::SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align
     int subh = r.h / numRows;
 	for (size_t i = 0; i < maxDigits; ++i)
 	{
-		_sDigit.emplace_back(texture, r, animRows, animCols, frameTime, t, animVert, numRows, numCols, numVert);
+		_sDigit.emplace_back(texture, r, animFrames, frameTime, t, numRows, numCols, numVert);
 	}
 	//r.x = r.y = 0;
     // placeholder, to make idx 1 to last digit
@@ -647,6 +649,14 @@ void SpriteNumber::appendKeyFrame(RenderKeyFrame f)
 	}
 }
 
+void SpriteNumberDigit::draw() const
+{
+    if (_draw && _pTexture != nullptr && _pTexture->isLoaded())
+    {
+        _pTexture->draw(_texRect[_currAnimFrame * _selections + _segmentIdx], _current.rect, _current.color, _current.blend, _current.filter, _current.angle);
+    }
+}
+
 void SpriteNumber::draw() const
 {
     if (_pTexture->_loaded)
@@ -674,17 +684,17 @@ void SpriteNumber::draw() const
 }
 
 SpriteSlider::SpriteSlider(pTexture texture, SliderDirection d, int range,
-	unsigned animRows, unsigned animCols, unsigned frameTime, eSlider ind, eTimer timer,
-	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
+	unsigned animFrames, unsigned frameTime, eSlider ind, eTimer timer,
+	unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
 	SpriteSlider(texture, texture ? texture->getRect() : Rect(), d, range,
-		animRows, animCols, frameTime, ind, timer, animVerticalIndexing,
+		animFrames, frameTime, ind, timer,
 		selRows, selCols, selVerticalIndexing) {}
 
 SpriteSlider::SpriteSlider(pTexture texture, const Rect& rect, SliderDirection d, int range,
-	unsigned animRows, unsigned animCols, unsigned frameTime, eSlider ind, eTimer timer,
-	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
-	SpriteAnimated(texture, rect, animRows, animCols, frameTime, timer,
-		animVerticalIndexing, selRows, selCols, selVerticalIndexing), _ind(ind), _dir(d), _range(range)
+	unsigned animFrames, unsigned frameTime, eSlider ind, eTimer timer,
+	unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
+	SpriteAnimated(texture, rect, animFrames, frameTime, timer,
+		selRows, selCols, selVerticalIndexing), _ind(ind), _dir(d), _range(range)
 {
 	_type = SpriteTypes::SLIDER;
 }
@@ -731,17 +741,17 @@ bool SpriteSlider::update(timestamp t)
 }
 
 SpriteBargraph::SpriteBargraph(pTexture texture, BargraphDirection d,
-	unsigned animRows, unsigned animCols, unsigned frameTime, eBargraph ind, eTimer timer,
-	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
+	unsigned animFrames, unsigned frameTime, eBargraph ind, eTimer timer,
+	unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
 	SpriteBargraph(texture, texture ? texture->getRect() : Rect(), d,
-		animRows, animCols, frameTime, ind, timer, animVerticalIndexing,
+		animFrames, frameTime, ind, timer,
 		selRows, selCols, selVerticalIndexing) {}
 
 SpriteBargraph::SpriteBargraph(pTexture texture, const Rect& rect, BargraphDirection d,
-	unsigned animRows, unsigned animCols, unsigned frameTime, eBargraph ind, eTimer timer,
-	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
-	SpriteAnimated(texture, rect, animRows, animCols, frameTime, timer,
-		animVerticalIndexing, selRows, selCols, selVerticalIndexing), _dir(d), _ind(ind)
+	unsigned animFrames, unsigned frameTime, eBargraph ind, eTimer timer,
+	unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
+	SpriteAnimated(texture, rect, animFrames, frameTime, timer,
+		selRows, selCols, selVerticalIndexing), _dir(d), _ind(ind)
 {
 	_type = SpriteTypes::BARGRAPH;
 }
@@ -795,17 +805,17 @@ bool SpriteBargraph::update(timestamp t)
 }
 
 SpriteOption::SpriteOption(pTexture texture,
-	unsigned animRows, unsigned animCols, unsigned frameTime, eTimer timer,
-	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
+	unsigned animFrames, unsigned frameTime, eTimer timer,
+	unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
 	SpriteOption(texture, texture ? texture->getRect() : Rect(),
-		animRows, animCols, frameTime, timer, animVerticalIndexing,
+		animFrames, frameTime, timer,
 		selRows, selCols, selVerticalIndexing) {}
 
 SpriteOption::SpriteOption(pTexture texture, const Rect& rect,
-	unsigned animRows, unsigned animCols, unsigned frameTime, eTimer timer,
-	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
-	SpriteAnimated(texture, rect, animRows, animCols, frameTime, timer,
-		animVerticalIndexing, selRows, selCols, selVerticalIndexing)
+	unsigned animFrames, unsigned frameTime, eTimer timer,
+	unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
+	SpriteAnimated(texture, rect, animFrames, frameTime, timer,
+		selRows, selCols, selVerticalIndexing)
 {
 	_type = SpriteTypes::OPTION;
 }
@@ -866,17 +876,15 @@ bool SpriteOption::update(timestamp t)
 
 
 SpriteGaugeGrid::SpriteGaugeGrid(pTexture texture,
-	unsigned animRows, unsigned animCols, unsigned frameTime, int dx, int dy, unsigned short grids, unsigned min, unsigned max,
-	eTimer timer, eNumber num,
-	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
-	SpriteGaugeGrid(texture, texture ? texture->getRect() : Rect(), animRows, animCols, frameTime, dx, dy, grids, min, max, timer, num, animVerticalIndexing, selRows, selCols, selVerticalIndexing) {}
+	unsigned animFrames, unsigned frameTime, int dx, int dy, unsigned min, unsigned max,
+	eTimer timer, eNumber num, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
+	SpriteGaugeGrid(texture, texture ? texture->getRect() : Rect(), animFrames, frameTime, dx, dy, min, max, timer, num, selRows, selCols, selVerticalIndexing) {}
 
 SpriteGaugeGrid::SpriteGaugeGrid(pTexture texture, const Rect& rect,
-	unsigned animRows, unsigned animCols, unsigned frameTime, int dx, int dy, unsigned short grids, unsigned min, unsigned max,
-	eTimer timer, eNumber num, 
-	bool animVerticalIndexing, unsigned selRows, unsigned selCols, bool selVerticalIndexing): 
-	SpriteAnimated(texture, rect, animRows, animCols, frameTime, timer, animVerticalIndexing, selRows, selCols, selVerticalIndexing),
-	_grids(grids), _delta_x(dx), _delta_y(dy), _min(min), _max(max), _numInd(num)
+	unsigned animFrames, unsigned frameTime, int dx, int dy, unsigned min, unsigned max, 
+	eTimer timer, eNumber num, unsigned selRows, unsigned selCols, bool selVerticalIndexing): 
+	SpriteAnimated(texture, rect, animFrames, frameTime, timer, selRows, selCols, selVerticalIndexing),
+	_delta_x(dx), _delta_y(dy), _min(min), _max(max), _numInd(num)
 {
     _lighting.resize(_grids, false);
 }
@@ -942,6 +950,12 @@ bool SpriteGaugeGrid::update(timestamp t)
 	if (SpriteAnimated::update(t))
 	{
 		updateValByInd();
+		_lightRect = _texRect[_currAnimFrame];
+
+		// set darkRect
+		updateSelection(_texIdxDark);
+		SpriteAnimated::update(t);
+		_darkRect = _texRect[_currAnimFrame];
 
 		switch (_flashType)
 		{
@@ -973,22 +987,12 @@ void SpriteGaugeGrid::draw() const
     if (_draw && _pTexture != nullptr && _pTexture->isLoaded())
     {
 		Rect r = _current.rect;
-		for (unsigned i = 0; i < _req - 1; ++i)
+		for (unsigned i = 0; i = _val; ++i)
 		{
-            _lighting[i] ?
-                _pTexture->draw(_lightRectFail, r, _current.color, _current.blend, _current.filter, _current.angle) :
-                _pTexture->draw(_darkRectFail,  r, _current.color, _current.blend, _current.filter, _current.angle);
+			_pTexture->draw(_texRect[_segmentIdx * _animFrames + _currAnimFrame], r, _color[i], _current.blend, _current.filter, _current.angle);
 			r.x += _delta_x;
 			r.y += _delta_y;
 		}
-        for (unsigned i = _req - 1; i < _grids; ++i)
-        {
-            _lighting[i] ?
-                _pTexture->draw(_lightRectClear, r, _current.color, _current.blend, _current.filter, _current.angle) :
-                _pTexture->draw(_darkRectClear, r, _current.color, _current.blend, _current.filter, _current.angle);
-            r.x += _delta_x;
-            r.y += _delta_y;
-        }
     }
 }
 
