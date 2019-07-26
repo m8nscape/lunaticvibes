@@ -807,6 +807,7 @@ int SkinLR2::loadLR2_SRC_NOWCOMBO(const Tokens& t, pTexture tex, size_t idx)
     gSprites[idx] = std::make_shared<SpriteNumber>(
         tex, Rect(d.x, d.y, d.w, d.h), (NumberAlign)d.align, d.keta, d.div_y, d.div_x, d.cycle, iNum, (eTimer)d.timer, f);
     gSprites[idx]->setLine(line);
+    std::reinterpret_pointer_cast<SpriteNumber>(gSprites[idx])->setInhibitZero(true);
 
     return 0;
 }
@@ -1650,17 +1651,17 @@ void SkinLR2::update()
             std::shared_ptr<SpriteAnimated> judge = std::reinterpret_pointer_cast<SpriteAnimated>(gSprites[i]);
             std::shared_ptr<SpriteNumber> combo = std::reinterpret_pointer_cast<SpriteNumber>(gSprites[i + 6]);
             Rect delta{ 0,0,0,0 };
-            delta.x = int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
+            //delta.x = int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
             delta.x += judge->_current.rect.x;
             delta.y += judge->_current.rect.y;
             if (!noshiftJudge1P[i])
             {
                 judge->_current.rect.x -= int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
             }
-            for (auto& d : combo->_sDigit)
+            for (auto& d : combo->_rects)
             {
-                d._current.rect.x += delta.x;
-                d._current.rect.y += delta.y;
+                d.x += delta.x;
+                d.y += delta.y;
             }
         }
         if (gSprites[i + 12] && gSprites[i + 18] && gSprites[i + 12]->_draw && gSprites[i + 18]->_draw)
@@ -1668,17 +1669,17 @@ void SkinLR2::update()
             std::shared_ptr<SpriteAnimated> judge = std::reinterpret_pointer_cast<SpriteAnimated>(gSprites[i + 12]);
             std::shared_ptr<SpriteNumber> combo = std::reinterpret_pointer_cast<SpriteNumber>(gSprites[i + 18]);
             Rect delta{ 0,0,0,0 };
-            delta.x = int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
+            //delta.x = int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
             delta.x += judge->_current.rect.x;
             delta.y += judge->_current.rect.y;
             if (!noshiftJudge2P[i])
             {
                 judge->_current.rect.x -= int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
             }
-            for (auto& d : combo->_sDigit)
+            for (auto& d : combo->_rects)
             {
-                d._current.rect.x += delta.x;
-                d._current.rect.y += delta.y;
+                d.x += delta.x;
+                d.y += delta.y;
             }
         }
     }

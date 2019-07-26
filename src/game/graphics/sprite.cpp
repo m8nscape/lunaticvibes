@@ -1,7 +1,11 @@
 #include "sprite.h"
 #include <plog/Log.h>
 
-static inline double grad(double dst, double src, double t) { return dst * t + src * (1.0 - t); }
+static inline double grad(int dst, int src, double t)
+{
+    if (src == dst) return src;
+    return dst * t + src * (1.0 - t);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // virtual base class functions
@@ -99,15 +103,15 @@ bool vSprite::updateByKeyframes(timestamp rawTime)
     }
 
     // calculate parameters
-	_current.rect.x = (int)grad((double)keyFrameNext->param.rect.x, (double)keyFrameCurr->param.rect.x, t);
-	_current.rect.y = (int)grad((double)keyFrameNext->param.rect.y, (double)keyFrameCurr->param.rect.y, t);
-	_current.rect.w = (int)grad((double)keyFrameNext->param.rect.w, (double)keyFrameCurr->param.rect.w, t);
-	_current.rect.h = (int)grad((double)keyFrameNext->param.rect.h, (double)keyFrameCurr->param.rect.h, t);
+	_current.rect.x = (int)grad(keyFrameNext->param.rect.x, keyFrameCurr->param.rect.x, t);
+	_current.rect.y = (int)grad(keyFrameNext->param.rect.y, keyFrameCurr->param.rect.y, t);
+	_current.rect.w = (int)grad(keyFrameNext->param.rect.w, keyFrameCurr->param.rect.w, t);
+	_current.rect.h = (int)grad(keyFrameNext->param.rect.h, keyFrameCurr->param.rect.h, t);
     //_current.rect  = keyFrameNext->param.rect  * t + keyFrameCurr->param.rect  * (1.0 - t);
-	_current.color.r = (Uint8)grad((double)keyFrameNext->param.color.r, (double)keyFrameCurr->param.color.r, t);
-	_current.color.g = (Uint8)grad((double)keyFrameNext->param.color.g, (double)keyFrameCurr->param.color.g, t);
-	_current.color.b = (Uint8)grad((double)keyFrameNext->param.color.b, (double)keyFrameCurr->param.color.b, t);
-	_current.color.a = (Uint8)grad((double)keyFrameNext->param.color.a, (double)keyFrameCurr->param.color.a, t);
+	_current.color.r = (Uint8)grad(keyFrameNext->param.color.r, keyFrameCurr->param.color.r, t);
+	_current.color.g = (Uint8)grad(keyFrameNext->param.color.g, keyFrameCurr->param.color.g, t);
+	_current.color.b = (Uint8)grad(keyFrameNext->param.color.b, keyFrameCurr->param.color.b, t);
+	_current.color.a = (Uint8)grad(keyFrameNext->param.color.a, keyFrameCurr->param.color.a, t);
     //_current.color = keyFrameNext->param.color * t + keyFrameNext->param.color * (1.0 - t);
 	_current.angle = grad(keyFrameNext->param.angle, keyFrameNext->param.angle, t);
     //LOG_DEBUG << "[Skin] Time: " << time << 
@@ -423,10 +427,12 @@ SpriteNumber::SpriteNumber(pTexture texture, NumberAlign align, unsigned maxDigi
 SpriteNumber::SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align, unsigned maxDigits,
     unsigned numRows, unsigned numCols, unsigned frameTime, eNumber n, eTimer t,
     unsigned animFrames, bool numVert):
-    vSprite(texture, SpriteTypes::NUMBER), _alignType(align), _numInd(n)
+    SpriteAnimated(texture, rect, animFrames, frameTime, t, numRows, numCols, numVert),
+    _alignType(align), _numInd(n), _maxDigits(maxDigits)
 {
     _type = SpriteTypes::NUMBER;
 
+    // invalid num type guard
     //_numType = NumberType(numRows * numCols);
 	if (animFrames != 0) _numType = NumberType(numRows * numCols / animFrames);
     switch (_numType)
@@ -441,52 +447,58 @@ SpriteNumber::SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align
     }
 
     _digit.resize(maxDigits);
-	Rect r = rect;
-	int subw = r.w / numCols;
-    int subh = r.h / numRows;
-	for (size_t i = 0; i < maxDigits; ++i)
-	{
-		_sDigit.emplace_back(texture, r, animFrames, frameTime, t, numRows, numCols, numVert);
-	}
-	//r.x = r.y = 0;
-    // placeholder, to make idx 1 to last digit
-	//_sDigit.emplace_back(nullptr, r, animRows, animCols, frameTime, t, animVert, numRows, numCols, numVert);    
-}
-
-void SpriteNumber::setTimer(eTimer t)
-{
-    _timerInd = t;
-    for (auto& d : _sDigit)
-        d._timerInd = t;
+    _rects.resize(maxDigits);
 }
 
 bool SpriteNumber::update(timestamp t)
 {
-	if (!_sDigit.empty() && vSprite::update(t))
+	if (SpriteAnimated::update(t))
 	{
         updateNumberByInd();
-        updateByTimer(t);
-        //updateSplitByTimer(t);
-        updateAnimationByTimer(t);
-        //updateRectsByTimer(t);
 
-		for (size_t i = 0; i < _sDigit.size(); ++i)
-			_sDigit[i].update(t);
+        switch (_alignType)
+        {
+        case NUM_ALIGN_RIGHT:
+        {
+            Rect offset{ int(_current.rect.w * (_maxDigits - 1)),0,0,0 };
+            for (size_t i = 0; i < _maxDigits; ++i)
+            {
+                _rects[i] = _current.rect + offset;
+                offset.x -= _current.rect.w;
+            }
+            break;
+        }
 
-        if (_alignType == NUM_ALIGN_CENTER)
+        case NUM_ALIGN_LEFT:
+        {
+            Rect offset{ int(_current.rect.w * (_numDigits - 1)),0,0,0 };
+            for (size_t i = 0; i < _maxDigits; ++i)
+            {
+                _rects[i] = _current.rect + offset;
+                offset.x -= _current.rect.w;
+            }
+            break;
+        }
+
+        case NUM_ALIGN_CENTER:
+        {
+            double delta = 0.5 * _current.rect.w;
+            Rect offset{ 0,0,0,0 };
+            if (_inhibitZero)
+                offset.x = int(std::floor(delta * (_numDigits - 1)));
+            else
+                offset.x = int(std::floor(delta * (_maxDigits - _numDigits)));
             for (size_t i = 0; i < _numDigits; ++i)
-                _sDigit[i]._current.rect.x += int(std::floor(0.5 * _current.rect.w * (_sDigit.size() - _numDigits)));
-
+            {
+                _rects[i] = _current.rect + offset;
+                offset.x -= _current.rect.w;
+            }
+            break;
+        }
+        }
 		return true;
 	}
 	return false;
-}
-
-void SpriteNumber::updateByTimer(timestamp time)
-{
-	if (gTimers.get(_timerInd))
-		for (auto& d : _sDigit)
-			d.updateByKeyframes(time - timestamp(gTimers.get(_timerInd)));
 }
 
 void SpriteNumber::updateNumber(int n)
@@ -539,36 +551,20 @@ void SpriteNumber::updateNumber(int n)
             {
 
             case NUM_ALIGN_RIGHT:
-                _numDigits = _digit.size() - 1;
-                _digit[_numDigits] = positive ? NUM_FULL_PLUS : NUM_FULL_MINUS;
+                if (!_inhibitZero || _numDigits == _maxDigits)
+                    _numDigits = _maxDigits - 1;
+                _digit[_numDigits++] = positive ? NUM_FULL_PLUS : NUM_FULL_MINUS;
                 break;
 
             case NUM_ALIGN_LEFT:
-            case NUM_ALIGN_CENTER:
-                _digit[_numDigits] = positive ? NUM_FULL_PLUS : NUM_FULL_MINUS;
-                _numDigits++;
+            case NUM_ALIGN_CENTER: 
+                if (_numDigits == _maxDigits)
+                    --_numDigits;
+                _digit[_numDigits++] = positive ? NUM_FULL_PLUS : NUM_FULL_MINUS;
                 break;
             }
             break;
         }
-    }
-
-    // sprites
-	size_t blanks = _digit.size() - _numDigits;
-    size_t symbolIdx = _numDigits - 1;
-    switch (_alignType)
-    {
-    case NUM_ALIGN_RIGHT:
-        for (size_t i = 0; i < blanks; ++i)
-            _sDigit[i].updateSelection(zeroIdx);
-        for (size_t i = blanks; i < _digit.size(); ++i)
-            _sDigit[i].updateSelection(_digit[_digit.size() - 1 - i]);
-        break;
-    case NUM_ALIGN_LEFT:
-    case NUM_ALIGN_CENTER:
-        for (size_t i = 0; i < _numDigits; ++i)
-            _sDigit[i].updateSelection(_digit[_numDigits - 1 - i]);
-        break;
     }
 }
 
@@ -597,70 +593,9 @@ void SpriteNumber::updateNumberByInd()
     updateNumber(n);
 }
 
-void SpriteNumber::updateAnimationByTimer(timestamp t)
-{
-    //for (auto& d : _sDigit)
-    //    d.updateAnimation(t);
-
-    /*
-    for (size_t i = 0; i < _sDigit.size(); ++i)
-    {
-        auto& fRect = _current.rect;
-        auto& dRect = _outRectDigit[i];
-        dRect = _drawRect;
-        dRect.x = fRect.x + dRect.w * (_outRectDigit.size() - i - 1);
-        dRect.y = fRect.y;
-        dRect.w = (int)(dRect.w * ((double)fRect.w / ((long long)_texRect[0].w * _outRectDigit.size())));
-        dRect.h = (int)(dRect.h * ((double)fRect.h / (long long)_texRect[0].h));
-    }
-    */
-
-    for (size_t idx = 0; idx < _numDigits; ++idx)
-        _sDigit[idx].updateAnimationByTimer(t);
-}
-
-//void SpriteNumber::updateDigitsRenderParams()
-//{
-//    // calculate sub rect from _current.Rect
-//    for (size_t i = 0; i < _drawRectDigit.size(); ++i)
-//    {
-//        // get sub rect from right to left.
-//        // TODO align type support
-//
-//        const auto& fRect = _current.rect;
-//        auto& dRect = _sDigit[i]._current.rect;
-//        dRect.x = fRect.x + dRect.w * (_drawRectDigit.size() - i - 1);
-//        dRect.y = fRect.y;
-//        dRect.w = dRect.w * ((double)fRect.w / (_texRect[0].w * _drawRectDigit.size()));
-//        dRect.h = dRect.h * ((double)fRect.h / _texRect[0].h);
-//
-//        _sDigit[i]._current.angle = _current.angle;
-//        _sDigit[i]._current.accel = _current.accel;
-//        _sDigit[i]._current.color = _current.color;
-//    }
-//}
-void SpriteNumber::setLoopTime(int t)
-{
-    for (auto& d : _sDigit)
-        d.setLoopTime(t);
-}
-
 void SpriteNumber::appendKeyFrame(RenderKeyFrame f)
 {
     _keyFrames.push_back(f);
-	for (auto& d : _sDigit)
-	{
-		d.appendKeyFrame(f);
-		f.param.rect.x += f.param.rect.w;
-	}
-}
-
-void SpriteNumberDigit::draw() const
-{
-    if (_draw && _pTexture != nullptr && _pTexture->isLoaded())
-    {
-        _pTexture->draw(_texRect[_currAnimFrame * _selections + _segmentIdx], _current.rect, _current.color, _current.blend, _current.filter, _current.angle);
-    }
 }
 
 void SpriteNumber::draw() const
@@ -670,22 +605,11 @@ void SpriteNumber::draw() const
         //for (size_t i = 0; i < _outRectDigit.size(); ++i)
         //    _pTexture->draw(_drawRectDigit[i], _outRectDigit[i], _current.angle);
 
-        switch (_alignType)
+        size_t max = (_alignType == NUM_ALIGN_RIGHT && _inhibitZero) ? _numDigits : _maxDigits;
+        for (size_t i = 0; i < max; ++i)
         {
-        case NUM_ALIGN_RIGHT:
-            for (const auto& d : _sDigit)
-                d.draw();
-            break;
-
-        case NUM_ALIGN_LEFT:
-            for (size_t idx = 0; idx < _numDigits; ++idx)
-                _sDigit[idx].draw();
-            break;
-
-        case NUM_ALIGN_CENTER:
-            for (size_t idx = 0; idx < _numDigits; ++idx)
-                _sDigit[idx].draw();
-            break;
+            _pTexture->draw(_texRect[_currAnimFrame * _selections + _digit[i]], _rects[i],
+                _current.color, _current.blend, _current.filter, _current.angle);
         }
     }
 }

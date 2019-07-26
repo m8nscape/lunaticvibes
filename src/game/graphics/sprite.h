@@ -279,37 +279,17 @@ const size_t NUM_FULL_BZERO_NEG = 22;
 const size_t NUM_FULL_PLUS      = 11;
 const size_t NUM_FULL_MINUS     = 23;
 
-class SpriteNumberDigit : public SpriteAnimated
-{
-    friend class SkinLR2;
-    friend class SpriteNumber;
-public:
-    SpriteNumberDigit() = delete;
-
-    SpriteNumberDigit(pTexture texture,
-        unsigned animFrames, unsigned frameTime, eTimer timer = eTimer::SCENE_START,
-        unsigned numRows = 1, unsigned numCols = 1, bool selVerticalIndexing = false) :
-        SpriteAnimated(texture, animFrames, frameTime, timer, numRows, numCols, selVerticalIndexing) {}
-
-    SpriteNumberDigit(pTexture texture, const Rect& rect,
-        unsigned animFrames, unsigned frameTime, eTimer timer = eTimer::SCENE_START,
-        unsigned numRows = 1, unsigned numCols = 1, bool selVerticalIndexing = false) :
-        SpriteAnimated(texture, rect, animFrames, frameTime, timer, numRows, numCols, selVerticalIndexing) {}
-
-    virtual ~SpriteNumberDigit() = default;
-    virtual void draw() const;
-};
-
-class SpriteNumber : public vSprite
+class SpriteNumber : public SpriteAnimated
 {
 	friend class SkinLR2;
 protected:
     eNumber _numInd;
+    unsigned _maxDigits;
 	unsigned _numDigits;
     NumberType _numType;
 	NumberAlign _alignType;
     //std::vector<Rect> _drawRectDigit, _outRectDigit; // idx from low digit to high, e.g. [1] represents 1 digit, [2] represents 10 digit, etc.
-    std::vector<SpriteNumberDigit> _sDigit;
+    std::vector<Rect>           _rects;
     std::vector<unsigned>       _digit;
     bool _inhibitZero = false;
 
@@ -327,14 +307,10 @@ public:
     virtual ~SpriteNumber() = default;
 
 public:
-    void updateByTimer(timestamp t);
     void updateNumber(int n);           // invoke updateSplit to change number
     void updateNumberByInd();
-    void updateAnimationByTimer(timestamp t);   // invoke updateAnimation to change animation frames
     void setInhibitZero(bool b) { _inhibitZero = b; }
-    virtual void setTimer(eTimer t);
 	virtual bool update(timestamp t);
-    virtual void setLoopTime(int t);
     virtual void appendKeyFrame(RenderKeyFrame f);
     virtual void draw() const;
 };
