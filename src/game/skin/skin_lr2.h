@@ -1365,6 +1365,8 @@ public:
     int loadLR2src(const Tokens &t);
     int loadLR2_SRC_IMAGE(const Tokens &t, pTexture tex);
     int loadLR2_SRC_NUMBER(const Tokens &t, pTexture tex);
+    int loadLR2_SRC_NOWJUDGE(const Tokens& t, pTexture tex, size_t idx);
+    int loadLR2_SRC_NOWCOMBO(const Tokens& t, pTexture tex, size_t idx);
     int loadLR2_SRC_SLIDER(const Tokens &t, pTexture tex);
     int loadLR2_SRC_BARGRAPH(const Tokens &t, pTexture tex);
     int loadLR2_SRC_BUTTON(const Tokens &t, pTexture tex);
@@ -1377,18 +1379,8 @@ public:
 protected:
 	int  bufJudge1PSlot;
 	int  bufJudge2PSlot;
-	bool noshiftJudge1P;
-	bool noshiftJudge2P;
-	int  alignJudge1P;
-	int  alignJudge2P;
-	unsigned *pDigits1P;
-	unsigned *pDigits2P;
-	unsigned totalDigits1P;
-	unsigned totalDigits2P;
-	Rect *pRectNowJudge1P = nullptr;
-	Rect *pRectNowJudge2P = nullptr;
-	Rect *pRectNowCombo1P = nullptr;
-	Rect *pRectNowCombo2P = nullptr;
+    std::array<bool, 6> noshiftJudge1P{ false };
+    std::array<bool, 6> noshiftJudge2P{ false };
 public:
     int loadLR2_SRC_NOWJUDGE1(const Tokens &t, pTexture tex);
     int loadLR2_SRC_NOWJUDGE2(const Tokens &t, pTexture tex);

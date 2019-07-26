@@ -28,20 +28,20 @@ void setJudgeTimer1PInner(int slot, long long t)
 
 void setJudgeTimer2PInner(int slot, long long t)
 {
-	gTimers.set(eTimer::_JUDGE_1P_0, -1);
-	gTimers.set(eTimer::_JUDGE_1P_1, -1);
-	gTimers.set(eTimer::_JUDGE_1P_2, -1);
-	gTimers.set(eTimer::_JUDGE_1P_3, -1);
-	gTimers.set(eTimer::_JUDGE_1P_4, -1);
-	gTimers.set(eTimer::_JUDGE_1P_5, -1);
+	gTimers.set(eTimer::_JUDGE_2P_0, -1);
+	gTimers.set(eTimer::_JUDGE_2P_1, -1);
+	gTimers.set(eTimer::_JUDGE_2P_2, -1);
+	gTimers.set(eTimer::_JUDGE_2P_3, -1);
+	gTimers.set(eTimer::_JUDGE_2P_4, -1);
+	gTimers.set(eTimer::_JUDGE_2P_5, -1);
 	switch (slot)
 	{
-	case 0: gTimers.set(eTimer::_JUDGE_1P_0, t); break;
-	case 1: gTimers.set(eTimer::_JUDGE_1P_1, t); break;
-	case 2: gTimers.set(eTimer::_JUDGE_1P_2, t); break;
-	case 3: gTimers.set(eTimer::_JUDGE_1P_3, t); break;
-	case 4: gTimers.set(eTimer::_JUDGE_1P_4, t); break;
-	case 5: gTimers.set(eTimer::_JUDGE_1P_5, t); break;
+	case 0: gTimers.set(eTimer::_JUDGE_2P_0, t); break;
+	case 1: gTimers.set(eTimer::_JUDGE_2P_1, t); break;
+	case 2: gTimers.set(eTimer::_JUDGE_2P_2, t); break;
+	case 3: gTimers.set(eTimer::_JUDGE_2P_3, t); break;
+	case 4: gTimers.set(eTimer::_JUDGE_2P_4, t); break;
+	case 5: gTimers.set(eTimer::_JUDGE_2P_5, t); break;
 	default: break;
 	}
 }

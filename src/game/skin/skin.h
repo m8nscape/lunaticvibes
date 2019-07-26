@@ -18,13 +18,16 @@ typedef unsigned long timeMS;
 typedef StringContent Token;
 typedef std::vector<Token> Tokens;
 
+typedef std::shared_ptr<vSprite> pSprite;
+typedef std::shared_ptr<Texture> pTexture;
+typedef std::shared_ptr<Image>   pImage;
+typedef std::shared_ptr<TTFFont> pFont;
+
+inline std::array<pSprite, SPRITE_GLOBAL_MAX> gSprites{ nullptr };
+
 class vSkin
 {
 public:
-    typedef std::shared_ptr<vSprite> pSprite;
-    typedef std::shared_ptr<Texture> pTexture;
-    typedef std::shared_ptr<Image>   pImage;
-    typedef std::shared_ptr<TTFFont> pFont;
 
 protected:
     vSkin();

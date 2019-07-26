@@ -291,7 +291,7 @@ void SpriteAnimated::updateAnimation(timestamp time)
     if (double timeEachFrame = double(_period) / _animFrames; timeEachFrame >= 1.0)
     {
         auto animFrameTime = time.norm() % _period;
-        _currAnimFrame = std::round(animFrameTime / timeEachFrame);
+        _currAnimFrame = std::floor(animFrameTime / timeEachFrame);
     }
 	/*
     _drawRect = _texRect[_segmentIdx];
@@ -453,9 +453,16 @@ SpriteNumber::SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align
 	//_sDigit.emplace_back(nullptr, r, animRows, animCols, frameTime, t, animVert, numRows, numCols, numVert);    
 }
 
+void SpriteNumber::setTimer(eTimer t)
+{
+    _timerInd = t;
+    for (auto& d : _sDigit)
+        d._timerInd = t;
+}
+
 bool SpriteNumber::update(timestamp t)
 {
-	if (!_sDigit.empty() && _sDigit[0].update(t))
+	if (!_sDigit.empty() && vSprite::update(t))
 	{
         updateNumberByInd();
         updateByTimer(t);
@@ -465,6 +472,10 @@ bool SpriteNumber::update(timestamp t)
 
 		for (size_t i = 0; i < _sDigit.size(); ++i)
 			_sDigit[i].update(t);
+
+        if (_alignType == NUM_ALIGN_CENTER)
+            for (size_t i = 0; i < _numDigits; ++i)
+                _sDigit[i]._current.rect.x += int(std::floor(0.5 * _current.rect.w * (_sDigit.size() - _numDigits)));
 
 		return true;
 	}
@@ -528,17 +539,14 @@ void SpriteNumber::updateNumber(int n)
             {
 
             case NUM_ALIGN_RIGHT:
-                _numDigits = _digit.size();
+                _numDigits = _digit.size() - 1;
                 _digit[_numDigits] = positive ? NUM_FULL_PLUS : NUM_FULL_MINUS;
                 break;
 
             case NUM_ALIGN_LEFT:
+            case NUM_ALIGN_CENTER:
                 _digit[_numDigits] = positive ? NUM_FULL_PLUS : NUM_FULL_MINUS;
                 _numDigits++;
-                break;
-
-            case NUM_ALIGN_CENTER:
-                // tbd
                 break;
             }
             break;
@@ -557,11 +565,9 @@ void SpriteNumber::updateNumber(int n)
             _sDigit[i].updateSelection(_digit[_digit.size() - 1 - i]);
         break;
     case NUM_ALIGN_LEFT:
+    case NUM_ALIGN_CENTER:
         for (size_t i = 0; i < _numDigits; ++i)
             _sDigit[i].updateSelection(_digit[_numDigits - 1 - i]);
-        break;
-    case NUM_ALIGN_CENTER:
-        // WIP
         break;
     }
 }
@@ -659,7 +665,7 @@ void SpriteNumberDigit::draw() const
 
 void SpriteNumber::draw() const
 {
-    if (_pTexture->_loaded)
+    if (_pTexture->_loaded && _draw)
     {
         //for (size_t i = 0; i < _outRectDigit.size(); ++i)
         //    _pTexture->draw(_drawRectDigit[i], _outRectDigit[i], _current.angle);
@@ -677,7 +683,8 @@ void SpriteNumber::draw() const
             break;
 
         case NUM_ALIGN_CENTER:
-            //tbd
+            for (size_t idx = 0; idx < _numDigits; ++idx)
+                _sDigit[idx].draw();
             break;
         }
     }
@@ -888,6 +895,7 @@ SpriteGaugeGrid::SpriteGaugeGrid(pTexture texture, const Rect& rect,
 	_delta_x(dx), _delta_y(dy), _grids(grids), _min(min), _max(max), _numInd(num)
 {
     _lighting.resize(_grids, false);
+    setGaugeType(GaugeType::NORMAL);
 }
 
 void SpriteGaugeGrid::setFlashType(SpriteGaugeGrid::FlashType t)

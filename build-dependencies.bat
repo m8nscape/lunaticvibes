@@ -10,7 +10,7 @@ IF NOT EXIST %BATCH_PATH%ext\yaml-cpp\build (
 	mkdir %BATCH_PATH%ext\yaml-cpp\build
 	cd /d %BATCH_PATH%ext\yaml-cpp\build
 	IF NOT EXIST YAML_CPP.sln (
-		cmake -G "Visual Studio 15 2017" ..
+		cmake -G "Visual Studio 16 2019" ..
 	)
 )
 echo "Build configuration: %~1|%~2"

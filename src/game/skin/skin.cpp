@@ -22,6 +22,13 @@ void vSkin::update()
 	{
 		switch (s->type())
 		{
+        case SpriteTypes::GLOBAL:
+        {
+            auto& ref = (std::shared_ptr<SpriteGlobal>&)s;
+            if (gSprites[ref->get()]) ref->set(gSprites[ref->get()]);
+            ref->update(t);
+            break;
+        }
 		case SpriteTypes::NOTE_VERT:
 		{
 			auto& ref = (std::shared_ptr<SpriteLaneVertical>&)s;

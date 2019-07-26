@@ -14,6 +14,8 @@
 enum class SpriteTypes
 {
     VIRTUAL,
+    GLOBAL,
+
     STATIC,
     SPLIT,
     ANIMATED,
@@ -66,6 +68,7 @@ protected:
     pTexture _pTexture;
     eTimer _timerInd = eTimer::SCENE_START;
     int _loopTo = -1;
+    int __line;
 protected:
     RenderParams _current;
     std::vector<RenderKeyFrame> _keyFrames;
@@ -73,6 +76,7 @@ public:
     vSprite(pTexture pTexture, SpriteTypes type = SpriteTypes::VIRTUAL);
     virtual ~vSprite() = default;
 public:
+    void setLine(int i) { __line = i; }
     RenderParams getCurrentRenderParams();
     bool updateByKeyframes(timestamp time);
 	virtual bool update(timestamp time);
@@ -82,6 +86,50 @@ public:
     virtual void draw() const = 0;
     bool isKeyFrameEmpty() { return _keyFrames.empty(); }
     void clearKeyFrames() { _keyFrames.clear(); }
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Sprite placeholder
+inline const size_t SPRITE_GLOBAL_MAX = 32;
+class SpriteGlobal: public vSprite
+{
+protected:
+    size_t idx;
+    std::shared_ptr<vSprite> pS{ nullptr };
+
+public:
+    SpriteGlobal(size_t idx) :vSprite(nullptr, SpriteTypes::GLOBAL), idx(idx) {}
+    virtual ~SpriteGlobal() = default;
+
+    int get() {
+        return idx;
+    }
+
+    void set(std::shared_ptr<vSprite> p) {
+        pS = p;
+    }
+
+    virtual bool update(timestamp time) {
+        vSprite::update(time);
+        if (pS) return pS->update(time);
+        return false;
+    }
+    virtual void setLoopTime(int t) {
+        vSprite::setLoopTime(t);
+        if (pS) pS->setLoopTime(t);
+    }
+    virtual void setTimer(eTimer t) {
+        vSprite::setTimer(t);
+        if (pS) pS->setTimer(t);
+    }
+    virtual void appendKeyFrame(RenderKeyFrame f) {
+        vSprite::appendKeyFrame(f);
+        if (pS) pS->appendKeyFrame(f);
+    }
+    virtual void draw() const {
+        if (pS) pS->draw();
+    }
 };
 
 
@@ -233,6 +281,8 @@ const size_t NUM_FULL_MINUS     = 23;
 
 class SpriteNumberDigit : public SpriteAnimated
 {
+    friend class SkinLR2;
+    friend class SpriteNumber;
 public:
     SpriteNumberDigit() = delete;
 
@@ -261,6 +311,7 @@ protected:
     //std::vector<Rect> _drawRectDigit, _outRectDigit; // idx from low digit to high, e.g. [1] represents 1 digit, [2] represents 10 digit, etc.
     std::vector<SpriteNumberDigit> _sDigit;
     std::vector<unsigned>       _digit;
+    bool _inhibitZero = false;
 
 public:
     SpriteNumber() = delete;
@@ -280,6 +331,8 @@ public:
     void updateNumber(int n);           // invoke updateSplit to change number
     void updateNumberByInd();
     void updateAnimationByTimer(timestamp t);   // invoke updateAnimation to change animation frames
+    void setInhibitZero(bool b) { _inhibitZero = b; }
+    virtual void setTimer(eTimer t);
 	virtual bool update(timestamp t);
     virtual void setLoopTime(int t);
     virtual void appendKeyFrame(RenderKeyFrame f);

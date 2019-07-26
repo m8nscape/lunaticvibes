@@ -717,6 +717,7 @@ int SkinLR2::loadLR2_SRC_IMAGE(const Tokens &t, pTexture tex)
 
 	_sprites.push_back(std::make_shared<SpriteAnimated>(
 		tex, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x));
+    _sprites.back()->setLine(line);
 	
 	return 0;
 }
@@ -745,8 +746,69 @@ int SkinLR2::loadLR2_SRC_NUMBER(const Tokens &t, pTexture tex)
 
 	_sprites.emplace_back(std::make_shared<SpriteNumber>(
 		tex, Rect(d.x, d.y, d.w, d.h), (NumberAlign)d.align, d.keta, d.div_y, d.div_x, d.cycle, iNum, (eTimer)d.timer, f));
+    _sprites.back()->setLine(line);
 
 	return 0;
+}
+
+int SkinLR2::loadLR2_SRC_NOWJUDGE(const Tokens& t, pTexture tex, size_t idx)
+{
+    if (t.size() < 11)
+    {
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
+        return 1;
+    }
+
+    if (idx >= SPRITE_GLOBAL_MAX)
+    {
+        LOG_WARNING << "[Skin] " << line << ": Nowjudge idx out of range (Line " << line << ")";
+        return 2;
+    }
+
+    lr2skin::s_basic d;
+    convertLine(t, (int*)& d);
+    refineRect(d, tex->getRect(), line);
+
+    gSprites[idx] = std::make_shared<SpriteAnimated>(
+        tex, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x);
+    gSprites[idx]->setLine(line);
+
+    return 0;
+}
+
+int SkinLR2::loadLR2_SRC_NOWCOMBO(const Tokens& t, pTexture tex, size_t idx)
+{
+    if (t.size() < 14)
+    {
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
+        return 1;
+    }
+
+    if (idx >= SPRITE_GLOBAL_MAX)
+    {
+        LOG_WARNING << "[Skin] " << line << ": Nowjudge idx out of range (Line " << line << ")";
+        return 2;
+    }
+
+    lr2skin::s_number d;
+    convertLine(t, (int*)& d, 0, 13);
+    refineRect(d, tex->getRect(), line);
+
+    // TODO convert num
+    eNumber iNum = (eNumber)d.num;
+
+    // get NumType from div_x, div_y
+    unsigned f = d.div_y * d.div_x;
+    if (f % NumberType::NUM_TYPE_NORMAL == 0) f = f / NumberType::NUM_TYPE_NORMAL;
+    else if (f % NumberType::NUM_TYPE_BLANKZERO == 0) f = f / NumberType::NUM_TYPE_BLANKZERO;
+    else if (f % NumberType::NUM_TYPE_FULL == 0) f = f / NumberType::NUM_TYPE_FULL;
+    else f = 0;
+
+    gSprites[idx] = std::make_shared<SpriteNumber>(
+        tex, Rect(d.x, d.y, d.w, d.h), (NumberAlign)d.align, d.keta, d.div_y, d.div_x, d.cycle, iNum, (eTimer)d.timer, f);
+    gSprites[idx]->setLine(line);
+
+    return 0;
 }
 
 int SkinLR2::loadLR2_SRC_SLIDER(const Tokens &t, pTexture tex)
@@ -764,6 +826,7 @@ int SkinLR2::loadLR2_SRC_SLIDER(const Tokens &t, pTexture tex)
 
 	_sprites.push_back(std::make_shared<SpriteSlider>(
 		tex, Rect(d.x, d.y, d.w, d.h), (SliderDirection)d.muki, d.range, d.div_y*d.div_x, d.cycle, (eSlider)d.type, (eTimer)d.timer, d.div_y, d.div_x));
+    _sprites.back()->setLine(line);
 	
 	return 0;
 }
@@ -782,6 +845,7 @@ int SkinLR2::loadLR2_SRC_BARGRAPH(const Tokens &t, pTexture tex)
 
 	_sprites.push_back(std::make_shared<SpriteBargraph>(
 		tex, Rect(d.x, d.y, d.w, d.h), (BargraphDirection)d.muki, d.div_y*d.div_x, d.cycle, (eBargraph)d.type, (eTimer)d.timer, d.div_y, d.div_x));
+    _sprites.back()->setLine(line);
 
 	return 0;
 }
@@ -818,6 +882,7 @@ int SkinLR2::loadLR2_SRC_BUTTON(const Tokens &t, pTexture tex)
 				tex, Rect(d.x, d.y, d.w, d.h), 1, 0, eTimer::SCENE_START, false, d.div_y, d.div_x);
 			s->setInd(SpriteOption::opType::SWITCH, (unsigned)*sw);
 			_sprites.push_back(s);
+            _sprites.back()->setLine(line);
 		}
 		else if (auto op = std::get_if<eOption>(&buttonAdapter[d.type]))
 		{
@@ -825,6 +890,7 @@ int SkinLR2::loadLR2_SRC_BUTTON(const Tokens &t, pTexture tex)
 				tex, Rect(d.x, d.y, d.w, d.h), 1, 0, eTimer::SCENE_START, false, d.div_y, d.div_x);
 			s->setInd(SpriteOption::opType::OPTION, (unsigned)*op);
 			_sprites.push_back(s);
+            _sprites.back()->setLine(line);
 		}
 	}
 
@@ -852,6 +918,7 @@ int SkinLR2::loadLR2_SRC_GROOVEGAUGE(const Tokens &t, pTexture tex)
 	_sprites.push_back(std::make_shared<SpriteGaugeGrid>(
 		tex, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x / 4, d.cycle, d.add_x, d.add_y, 0, 100, 50,
         (eTimer)d.timer, eNumber::PLAY_1P_GROOVEGAUGE, d.div_y, d.div_x));
+    _sprites.back()->setLine(line);
 	
 	return 0;
 }
@@ -870,6 +937,7 @@ int SkinLR2::loadLR2_SRC_TEXT(const Tokens &t, pTexture)
 
 	_sprites.push_back(std::make_shared<SpriteText>(
 		_fontNameMap[std::to_string(d.font)], (eText)d.st, (TextAlign)d.align));
+    _sprites.back()->setLine(line);
 
 	return 0;
 }
@@ -882,10 +950,19 @@ int SkinLR2::loadLR2_SRC_NOWJUDGE1(const Tokens &t, pTexture tex)
 		return 1;
 	}
 	bufJudge1PSlot = stoine(t[1]);
-	noshiftJudge1P = stoine(t[11]);
-	int ret = loadLR2_SRC_IMAGE(t, tex);
-	if (ret == 0)
-		pRectNowJudge1P = &(_sprites.back()->_current.rect);
+    noshiftJudge1P[bufJudge1PSlot] = stoine(t[11]);
+    int ret = 0;
+    if (bufJudge1PSlot >= 0 && bufJudge1PSlot < 6)
+    {
+        size_t idx = 0 + bufJudge1PSlot;
+        ret = loadLR2_SRC_NOWJUDGE(t, tex, idx);
+        if (ret == 0)
+        {
+            auto p = std::make_shared<SpriteGlobal>(idx);
+            _sprites.push_back(p);
+            _sprites.back()->setLine(line);
+        }
+    }
 	return ret;
 }
 
@@ -897,10 +974,19 @@ int SkinLR2::loadLR2_SRC_NOWJUDGE2(const Tokens &t, pTexture tex)
 		return 1;
 	}
 	bufJudge2PSlot = stoine(t[1]);
-	noshiftJudge1P = stoine(t[11]);
-	int ret = loadLR2_SRC_IMAGE(t, tex);
-	if (ret == 0)
-		pRectNowJudge2P = &(_sprites.back()->_current.rect);
+    noshiftJudge2P[bufJudge2PSlot] = stoine(t[11]);
+    int ret = 0;
+    if (bufJudge2PSlot >= 0 && bufJudge2PSlot < 6)
+    {
+        size_t idx = 12 + bufJudge2PSlot;
+        ret = loadLR2_SRC_NOWJUDGE(t, tex, idx);
+        if (ret == 0)
+        {
+            auto p = std::make_shared<SpriteGlobal>(idx);
+            _sprites.push_back(p);
+            _sprites.back()->setLine(line);
+        }
+    }
 	return ret;
 }
 
@@ -911,16 +997,27 @@ int SkinLR2::loadLR2_SRC_NOWCOMBO1(const Tokens &t, pTexture tex)
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
 		return 1;
 	}
-	alignJudge1P = stoine(t[12]);
+    bufJudge1PSlot = stoine(t[1]);
 	Tokens tt(t);
 	tt[11] = std::to_string((int)eNumber::_DISP_NOWCOMBO_1P);
-	tt[12] = stoine(t[12]) == 1 ? "2" : "0";
-	int ret = loadLR2_SRC_NUMBER(tt, tex);
-	if (ret == 0)
-	{
-		pRectNowCombo1P = &(_sprites.back()->_current.rect);
-		pDigits1P = &(std::dynamic_pointer_cast<SpriteNumber>(_sprites.back())->_numDigits);
-		totalDigits1P = std::dynamic_pointer_cast<SpriteNumber>(_sprites.back())->_digit.size();
+    switch (stoine(t[12]))
+    {
+    case 0: tt[12] = "1"; break;
+    case 1: tt[12] = "2"; break;
+    case 2:
+    default:tt[12] = "0"; break;
+    }
+    int ret = 0;
+    if (ret == 0 && bufJudge1PSlot >= 0 && bufJudge1PSlot < 6)
+    {
+        size_t idx = 6 + bufJudge1PSlot;
+        ret = loadLR2_SRC_NOWCOMBO(tt, tex, idx);
+        if (ret == 0)
+        {
+            auto p = std::make_shared<SpriteGlobal>(idx);
+            _sprites.push_back(p);
+            _sprites.back()->setLine(line);
+        }
 	}
 	return ret;
 }
@@ -932,16 +1029,27 @@ int SkinLR2::loadLR2_SRC_NOWCOMBO2(const Tokens &t, pTexture tex)
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
 		return 1;
 	}
-	alignJudge2P = stoine(t[12]);
+    bufJudge2PSlot = stoine(t[1]);
 	Tokens tt(t);
 	tt[11] = std::to_string((int)eNumber::_DISP_NOWCOMBO_2P);
-	tt[12] = stoine(t[12]) == 1 ? "2" : "0";
-	int ret = loadLR2_SRC_NUMBER(tt, tex);
-	if (ret == 0)
+    switch (stoine(t[12]))
+    {
+    case 0: tt[12] = "1"; break;
+    case 1: tt[12] = "2"; break;
+    case 2: 
+    default:tt[12] = "0"; break;
+    }
+    int ret = 0;
+    if (ret == 0 && bufJudge2PSlot >= 0 && bufJudge2PSlot < 6)
 	{
-		pRectNowCombo2P = &(_sprites.back()->_current.rect);
-		pDigits2P = &(std::dynamic_pointer_cast<SpriteNumber>(_sprites.back())->_numDigits);
-		totalDigits2P = std::dynamic_pointer_cast<SpriteNumber>(_sprites.back())->_digit.size();
+        size_t idx = 18 + bufJudge2PSlot;
+        ret = loadLR2_SRC_NOWCOMBO(tt, tex, idx);
+        if (ret == 0)
+        {
+            auto p = std::make_shared<SpriteGlobal>(idx);
+            _sprites.push_back(p);
+            _sprites.back()->setLine(line);
+        }
 	}
 	return ret;
 }
@@ -1039,6 +1147,23 @@ int SkinLR2::loadLR2dst(const Tokens &t)
 
     int ret = 0;
     auto e = _sprites.back();
+    if (e && e->type() == SpriteTypes::GLOBAL)
+    {
+        auto ee = e;
+        do
+        {
+            ee = gSprites[std::reinterpret_pointer_cast<SpriteGlobal>(ee)->get()];
+            std::reinterpret_pointer_cast<SpriteGlobal>(e)->set(ee);
+
+            if (ee == nullptr)
+            {
+                LOG_WARNING << "[Skin] " << line << ": Previous src definition invalid (Line: " << line << ")";
+                return 0;
+            }
+
+        } while (ee->type() == SpriteTypes::GLOBAL);
+    }
+
     if (e == nullptr)
     {
         LOG_WARNING << "[Skin] " << line << ": Previous src definition invalid (Line: " << line << ")";
@@ -1086,7 +1211,7 @@ int SkinLR2::loadLR2dst(const Tokens &t)
 		}
 		else if (opt == "#DST_NOWJUDGE_2P" || opt == "#DST_NOWCOMBO_2P" )
 		{
-			switch (bufJudge1PSlot)
+			switch (bufJudge2PSlot)
 			{
 			case 0: d.timer = (int)eTimer::_JUDGE_2P_0; break;
 			case 1: d.timer = (int)eTimer::_JUDGE_2P_1; break;
@@ -1518,42 +1643,46 @@ void SkinLR2::update()
 
 	// update nowjudge/nowcombo
 	// TODO
-	if (pRectNowJudge1P && pRectNowCombo1P)
-	{
-		(*pRectNowCombo1P) = *pRectNowJudge1P + *pRectNowCombo1P;
-		int delta = pRectNowCombo1P->w * *pDigits1P / 2;
-		if (!noshiftJudge1P)
-		{
-			pRectNowJudge1P->x -= delta;
-		}
-		switch (alignJudge1P)
-		{
-		case 0: pRectNowCombo1P->x -= delta; break;
-		case 1:
-		case 2: pRectNowCombo1P->x -= pRectNowCombo1P->w * totalDigits1P / 2; break;
-		}
-	}
-	if (pRectNowJudge2P && pRectNowCombo2P)
-	{
-		(*pRectNowCombo2P) = *pRectNowJudge2P + *pRectNowCombo2P;
-		int delta = pRectNowCombo2P->w * *pDigits2P / 2;
-		if (!noshiftJudge2P)
-		{
-			pRectNowJudge2P->x -= delta;
-		}
-		switch (alignJudge2P)
-		{
-		case 0: pRectNowCombo2P->x -= delta; break;
-		case 1:
-		case 2: pRectNowCombo2P->x -= pRectNowCombo2P->w * totalDigits2P / 2; break;
-		}
-	}
+    for (size_t i = 0; i < 6; ++i)
+    {
+        if (gSprites[i] && gSprites[i + 6] && gSprites[i]->_draw && gSprites[i + 6]->_draw)
+        {
+            std::shared_ptr<SpriteAnimated> judge = std::reinterpret_pointer_cast<SpriteAnimated>(gSprites[i]);
+            std::shared_ptr<SpriteNumber> combo = std::reinterpret_pointer_cast<SpriteNumber>(gSprites[i + 6]);
+            Rect delta{ 0,0,0,0 };
+            delta.x = int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
+            delta.x += judge->_current.rect.x;
+            delta.y += judge->_current.rect.y;
+            if (!noshiftJudge1P[i])
+            {
+                judge->_current.rect.x -= int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
+            }
+            for (auto& d : combo->_sDigit)
+            {
+                d._current.rect.x += delta.x;
+                d._current.rect.y += delta.y;
+            }
+        }
+        if (gSprites[i + 12] && gSprites[i + 18] && gSprites[i + 12]->_draw && gSprites[i + 18]->_draw)
+        {
+            std::shared_ptr<SpriteAnimated> judge = std::reinterpret_pointer_cast<SpriteAnimated>(gSprites[i + 12]);
+            std::shared_ptr<SpriteNumber> combo = std::reinterpret_pointer_cast<SpriteNumber>(gSprites[i + 18]);
+            Rect delta{ 0,0,0,0 };
+            delta.x = int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
+            delta.x += judge->_current.rect.x;
+            delta.y += judge->_current.rect.y;
+            if (!noshiftJudge2P[i])
+            {
+                judge->_current.rect.x -= int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
+            }
+            for (auto& d : combo->_sDigit)
+            {
+                d._current.rect.x += delta.x;
+                d._current.rect.y += delta.y;
+            }
+        }
+    }
 
-    // update what?
-    //for (auto& c : _csvIncluded)
-    //{
-    //    c.update();
-    //}
 }
 
 void SkinLR2::draw() const
