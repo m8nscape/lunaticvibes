@@ -26,7 +26,7 @@ void vSkin::update()
 #ifdef _DEBUG
 	for(const auto& s: _sprites)
 #else
-	std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), [&t](const auto& s)
+	std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), [&t, beat, measure](const auto& s)
 #endif
     {
 		switch (s->type())

@@ -150,18 +150,18 @@ void ScrollBMS::loadBMS(const BMS& objBms)
                 }
             }
 
-            // BPM Change: 0xFE
+            // BPM Change: 0xFD
             {
                 auto ch = objBms.getChannel(ChannelCode::BPM, 0, m);
                 for (const auto& n : ch.notes)
-                    notes.push_back({ fraction(n.segment, ch.resolution),{ 0xFE, n.value } });
+                    notes.push_back({ fraction(n.segment, ch.resolution),{ 0xFD, n.value } });
             }
 
-            // EX BPM: 0xFD
+            // EX BPM: 0xFE
             {
                 auto ch = objBms.getChannel(ChannelCode::EXBPM, 0, m);
                 for (const auto& n : ch.notes)
-                    notes.push_back({ fraction(n.segment, ch.resolution),{ 0xFD, n.value } });
+                    notes.push_back({ fraction(n.segment, ch.resolution),{ 0xFE, n.value } });
             }
 
             // Stop: 0xFF
@@ -173,7 +173,7 @@ void ScrollBMS::loadBMS(const BMS& objBms)
         }
 
         // Sort by time / lane value
-        std::sort(notes.begin(), notes.end());
+        std::stable_sort(notes.begin(), notes.end());
 
         ///////////////////////////////////////////////////////////////////////
 
@@ -210,20 +210,22 @@ void ScrollBMS::loadBMS(const BMS& objBms)
                 // TODO BGA parsing
                 break;
 
-            case 0xFD:	// ExBPM Change
+            case 0xFD:	// BPM Change
+                if (bpm == static_cast<BPM>(val)) break;
                 basetime = notetime;
                 lastBPMChangedSegment = noteSegment;
-                bpm = objBms.exBPM[val];
+                bpm = static_cast<BPM>(val);
 				beatLength = timestamp::beatLengthFromBPM(bpm);
                 _bpmList.push_back({ m, beat, notetime, bpm });
                 if (bpm <= 0) bpmfucked = true;
                 break;
 
-            case 0xFE:	// BPM Change
+            case 0xFE:	// ExBPM Change
+                if (bpm == objBms.exBPM[val]) break;
                 basetime = notetime;
                 lastBPMChangedSegment = noteSegment;
-                bpm = static_cast<BPM>(val);
-				beatLength = timestamp::beatLengthFromBPM(bpm);
+                bpm = objBms.exBPM[val];
+                beatLength = timestamp::beatLengthFromBPM(bpm);
                 _bpmList.push_back({ m, beat, notetime, bpm });
                 if (bpm <= 0) bpmfucked = true;
                 break;
