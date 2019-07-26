@@ -26,4 +26,5 @@ public:
     virtual int loadSample(std::string path, size_t index, bool isStream = false, bool loop = false) = 0;
     virtual void playSample(size_t index) = 0;
     virtual void freeSamples() = 0;
+    virtual void update() = 0;
 };

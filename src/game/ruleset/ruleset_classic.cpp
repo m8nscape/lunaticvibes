@@ -1,6 +1,8 @@
 #include "ruleset_classic.h"
 #include <plog/Log.h>
 #include "game/data/timer.h"
+#include "game/data/switch.h"
+#include "game/data/option.h"
 #include "game/data/number.h"
 #include "game/data/bargraph.h"
 
@@ -83,29 +85,32 @@ judgeRes RulesetClassic::_judge(const Note& note, timestamp time)
     // spot judge area
     area a = NOTHING;
 	timestamp error = time - note.time;
-
-    if (error < -judgeTime[(size_t)_diff].BAD)
-        a = EARLY_BPOOR;
-    else if (error < -judgeTime[(size_t)_diff].GOOD)
-        a = EARLY_BAD;
-    else if (error < -judgeTime[(size_t)_diff].GREAT)
-        a = EARLY_GOOD;
-    else if (error < -judgeTime[(size_t)_diff].PERFECT)
-        a = EARLY_GREAT;
-    else if (error < 0)
-        a = EARLY_PERFECT;
-    else if (error == 0)
-        a = EXACT_PERFECT;
-    else if (error < judgeTime[(size_t)_diff].PERFECT)
-        a = LATE_PERFECT;
-    else if (error < judgeTime[(size_t)_diff].GREAT)
-        a = LATE_GREAT;
-    else if (error < judgeTime[(size_t)_diff].GOOD)
-        a = LATE_GOOD;
-    else if (error < judgeTime[(size_t)_diff].BAD)
-        a = LATE_BAD;
+    if (error > -judgeTime[(size_t)_diff].BPOOR)
+    {
+        if (error < -judgeTime[(size_t)_diff].BAD)
+            a = EARLY_BPOOR;
+        else if (error < -judgeTime[(size_t)_diff].GOOD)
+            a = EARLY_BAD;
+        else if (error < -judgeTime[(size_t)_diff].GREAT)
+            a = EARLY_GOOD;
+        else if (error < -judgeTime[(size_t)_diff].PERFECT)
+            a = EARLY_GREAT;
+        else if (error < 0)
+            a = EARLY_PERFECT;
+        else if (error == 0)
+            a = EXACT_PERFECT;
+        else if (error < judgeTime[(size_t)_diff].PERFECT)
+            a = LATE_PERFECT;
+        else if (error < judgeTime[(size_t)_diff].GREAT)
+            a = LATE_GREAT;
+        else if (error < judgeTime[(size_t)_diff].GOOD)
+            a = LATE_GOOD;
+        else if (error < judgeTime[(size_t)_diff].BAD)
+            a = LATE_BAD;
+    }
 
     // log
+    /*
     switch (a)
     {
     case EARLY_BPOOR:   LOG_DEBUG << "EARLY  BPOOR   " << error; break;
@@ -118,6 +123,7 @@ judgeRes RulesetClassic::_judge(const Note& note, timestamp time)
     case LATE_GOOD:     LOG_DEBUG << "LATE   GOOD    " << error; break;
     case LATE_BAD:      LOG_DEBUG << "LATE   BAD     " << error; break;
     }
+    */
 
     return { a, error };
 }
@@ -153,6 +159,7 @@ void RulesetClassic::updatePress(InputMask& pg, timestamp t)
                     ++_count[PERFECT];
                     ++_basic.hit;
                     ++_basic.combo;
+                    ++_basic.totaln;
                     if (_basic.combo > _basic.maxCombo) _basic.maxCombo = _basic.combo;
                     _basic.score2 += 2;
 					gTimers.set(bombTimer7k[c.second], t.norm());
@@ -164,6 +171,7 @@ void RulesetClassic::updatePress(InputMask& pg, timestamp t)
                     ++_count[GREAT];
                     ++_basic.hit;
                     ++_basic.combo;
+                    ++_basic.totaln;
                     if (_basic.combo > _basic.maxCombo) _basic.maxCombo = _basic.combo;
                     _basic.score2 += 1;
 					gTimers.set(bombTimer7k[c.second], t.norm());
@@ -175,6 +183,7 @@ void RulesetClassic::updatePress(InputMask& pg, timestamp t)
                     ++_count[GOOD];
                     ++_basic.hit;
                     ++_basic.combo;
+                    ++_basic.totaln;
                     if (_basic.combo > _basic.maxCombo) _basic.maxCombo = _basic.combo;
 					setJudgeTimer1PInner(3, t.norm());
                     break;
@@ -183,6 +192,7 @@ void RulesetClassic::updatePress(InputMask& pg, timestamp t)
                 case LATE_BAD:
                     ++_count[BAD];
                     ++_basic.miss;
+                    ++_basic.totaln;
                     _basic.combo = 0;
 					setJudgeTimer1PInner(2, t.norm());
                     break;
@@ -232,6 +242,7 @@ void RulesetClassic::updatePress(InputMask& pg, timestamp t)
                     ++_count[PERFECT];
                     ++_basic.hit;
                     ++_basic.combo;
+                    ++_basic.totaln;
                     if (_basic.combo > _basic.maxCombo) _basic.maxCombo = _basic.combo;
                     _basic.score2 += 2;
 					gTimers.set(bombTimer7k[c.second], t.norm());
@@ -243,6 +254,7 @@ void RulesetClassic::updatePress(InputMask& pg, timestamp t)
                     ++_count[GREAT];
                     ++_basic.hit;
                     ++_basic.combo;
+                    ++_basic.totaln;
                     if (_basic.combo > _basic.maxCombo) _basic.maxCombo = _basic.combo;
                     _basic.score2 += 1;
 					gTimers.set(bombTimer7k[c.second], t.norm());
@@ -254,6 +266,7 @@ void RulesetClassic::updatePress(InputMask& pg, timestamp t)
                     ++_count[GOOD];
                     ++_basic.hit;
                     ++_basic.combo;
+                    ++_basic.totaln;
                     if (_basic.combo > _basic.maxCombo) _basic.maxCombo = _basic.combo;
 					setJudgeTimer2PInner(3, t.norm());
                     break;
@@ -262,6 +275,7 @@ void RulesetClassic::updatePress(InputMask& pg, timestamp t)
                 case LATE_BAD:
                     ++_count[BAD];
                     ++_basic.miss;
+                    ++_basic.totaln;
                     _basic.combo = 0;
 					setJudgeTimer2PInner(2, t.norm());
                     break;
@@ -399,10 +413,11 @@ void RulesetClassic::update(timestamp t)
 			case NoteChannelCategory::LN:
 				n->hit = true;
 				++_count[MISS];
+                ++_basic.totaln;
 				_basic.combo = 0;
 				gTimers.set(eTimer::PLAY_JUDGE_1P, t.norm());
 				setJudgeTimer1PInner(1, t.norm());
-				LOG_DEBUG << "LATE   POOR    "; break;
+				//LOG_DEBUG << "LATE   POOR    "; break;
 				break;
 			}
 		}
@@ -422,25 +437,71 @@ void RulesetClassic::update(timestamp t)
 			case NoteChannelCategory::LN:
 				n->hit = true;
 				++_count[MISS];
+                ++_basic.totaln;
 				_basic.combo = 0;
 				gTimers.set(eTimer::PLAY_JUDGE_2P, t.norm());
 				setJudgeTimer2PInner(1, t.norm());
-				LOG_DEBUG << "LATE   POOR    "; break;
+				//LOG_DEBUG << "LATE   POOR    "; break;
 				break;
 			}
 		}
     }
 
 	unsigned max = _scroll->getNoteCount() * 2;
-	_basic.accuracy = (double)_basic.score2 / max;
-	gBargraphs.set(eBargraph::PLAY_EXSCORE, _basic.accuracy);
+	_basic.total_acc = 100.0 * _basic.score2 / max;
+    _basic.acc = _basic.totaln ? (100.0 * _basic.score2 / _basic.totaln / 2) : 0;
+	gBargraphs.set(eBargraph::PLAY_EXSCORE, _basic.total_acc);
 	if (_k1P) // includes DP
 	{
 		gNumbers.set(eNumber::PLAY_1P_EXSCORE, _basic.score2);
 		gNumbers.set(eNumber::PLAY_1P_SCORE, _basic.score);
 		gNumbers.set(eNumber::PLAY_1P_NOWCOMBO, _basic.combo);
 		gNumbers.set(eNumber::PLAY_1P_MAXCOMBO, _basic.maxCombo);
+		gNumbers.set(eNumber::PLAY_1P_RATE, int(std::floor(_basic.acc)));
+        gNumbers.set(eNumber::PLAY_1P_RATEDECIMAL, int(std::floor((_basic.acc - int(_basic.acc)) * 100)));
+        gNumbers.set(eNumber::PLAY_1P_TOTAL_RATE, int(std::floor(_basic.total_acc)));
+        gNumbers.set(eNumber::PLAY_1P_TOTAL_RATE_DECIMAL2, int(std::floor((_basic.total_acc - int(_basic.total_acc)) * 100)));
+        gNumbers.set(eNumber::PLAY_1P_PERFECT, _count[PERFECT]);
+        gNumbers.set(eNumber::PLAY_1P_GREAT, _count[GREAT]);
+        gNumbers.set(eNumber::PLAY_1P_GOOD, _count[GOOD]);
+        gNumbers.set(eNumber::PLAY_1P_BAD, _count[BAD]);
+        gNumbers.set(eNumber::PLAY_1P_POOR, _count[BPOOR]+_count[MISS]);
 		gNumbers.set(eNumber::_DISP_NOWCOMBO_1P, _basic.combo);
+
+        {
+            using namespace Option;
+            if (_basic.acc >= 100.0)      gOptions.set(eOption::PLAY_RANK_ESTIMATED_1P, Option::RANK_0);
+            else if (_basic.acc >= 88.88) gOptions.set(eOption::PLAY_RANK_ESTIMATED_1P, Option::RANK_1);
+            else if (_basic.acc >= 77.77) gOptions.set(eOption::PLAY_RANK_ESTIMATED_1P, Option::RANK_2);
+            else if (_basic.acc >= 66.66) gOptions.set(eOption::PLAY_RANK_ESTIMATED_1P, Option::RANK_3);
+            else if (_basic.acc >= 55.55) gOptions.set(eOption::PLAY_RANK_ESTIMATED_1P, Option::RANK_4);
+            else if (_basic.acc >= 44.44) gOptions.set(eOption::PLAY_RANK_ESTIMATED_1P, Option::RANK_5);
+            else if (_basic.acc >= 33.33) gOptions.set(eOption::PLAY_RANK_ESTIMATED_1P, Option::RANK_6);
+            else if (_basic.acc >= 22.22) gOptions.set(eOption::PLAY_RANK_ESTIMATED_1P, Option::RANK_7);
+            else                          gOptions.set(eOption::PLAY_RANK_ESTIMATED_1P, Option::RANK_8);
+
+            if (_basic.total_acc >= 100.0)      gOptions.set(eOption::PLAY_RANK_BORDER_1P, Option::RANK_0);
+            else if (_basic.total_acc >= 88.88) gOptions.set(eOption::PLAY_RANK_BORDER_1P, Option::RANK_1);
+            else if (_basic.total_acc >= 77.77) gOptions.set(eOption::PLAY_RANK_BORDER_1P, Option::RANK_2);
+            else if (_basic.total_acc >= 66.66) gOptions.set(eOption::PLAY_RANK_BORDER_1P, Option::RANK_3);
+            else if (_basic.total_acc >= 55.55) gOptions.set(eOption::PLAY_RANK_BORDER_1P, Option::RANK_4);
+            else if (_basic.total_acc >= 44.44) gOptions.set(eOption::PLAY_RANK_BORDER_1P, Option::RANK_5);
+            else if (_basic.total_acc >= 33.33) gOptions.set(eOption::PLAY_RANK_BORDER_1P, Option::RANK_6);
+            else if (_basic.total_acc >= 22.22) gOptions.set(eOption::PLAY_RANK_BORDER_1P, Option::RANK_7);
+            else                                gOptions.set(eOption::PLAY_RANK_BORDER_1P, Option::RANK_8);
+
+            if (_basic.acc >= 100.0)     gOptions.set(eOption::PLAY_ACCURACY_1P, Option::ACC_100);
+            else if (_basic.acc >= 90.0) gOptions.set(eOption::PLAY_ACCURACY_1P, Option::ACC_90);
+            else if (_basic.acc >= 80.0) gOptions.set(eOption::PLAY_ACCURACY_1P, Option::ACC_80);
+            else if (_basic.acc >= 70.0) gOptions.set(eOption::PLAY_ACCURACY_1P, Option::ACC_70);
+            else if (_basic.acc >= 60.0) gOptions.set(eOption::PLAY_ACCURACY_1P, Option::ACC_60);
+            else if (_basic.acc >= 50.0) gOptions.set(eOption::PLAY_ACCURACY_1P, Option::ACC_50);
+            else if (_basic.acc >= 40.0) gOptions.set(eOption::PLAY_ACCURACY_1P, Option::ACC_40);
+            else if (_basic.acc >= 30.0) gOptions.set(eOption::PLAY_ACCURACY_1P, Option::ACC_30);
+            else if (_basic.acc >= 20.0) gOptions.set(eOption::PLAY_ACCURACY_1P, Option::ACC_20);
+            else if (_basic.acc >= 10.0) gOptions.set(eOption::PLAY_ACCURACY_1P, Option::ACC_10);
+            else                         gOptions.set(eOption::PLAY_ACCURACY_1P, Option::ACC_0);
+        }
 	}
 	else if (_k2P) // excludes DP
 	{
@@ -448,7 +509,51 @@ void RulesetClassic::update(timestamp t)
 		gNumbers.set(eNumber::PLAY_2P_SCORE, _basic.score);
 		gNumbers.set(eNumber::PLAY_2P_NOWCOMBO, _basic.combo);
 		gNumbers.set(eNumber::PLAY_2P_MAXCOMBO, _basic.maxCombo);
+        gNumbers.set(eNumber::PLAY_2P_RATE, int(std::floor(_basic.acc)));
+        gNumbers.set(eNumber::PLAY_2P_RATEDECIMAL, int(std::floor((_basic.acc - int(_basic.acc)) * 100)));
+        gNumbers.set(eNumber::PLAY_2P_TOTAL_RATE, int(std::floor(_basic.total_acc)));
+        gNumbers.set(eNumber::PLAY_2P_TOTAL_RATE_DECIMAL2, int(std::floor((_basic.total_acc - int(_basic.total_acc)) * 100)));
+        gNumbers.set(eNumber::PLAY_2P_PERFECT, _count[PERFECT]);
+        gNumbers.set(eNumber::PLAY_2P_GREAT, _count[GREAT]);
+        gNumbers.set(eNumber::PLAY_2P_GOOD, _count[GOOD]);
+        gNumbers.set(eNumber::PLAY_2P_BAD, _count[BAD]);
+        gNumbers.set(eNumber::PLAY_2P_POOR, _count[BPOOR] + _count[MISS]);
 		gNumbers.set(eNumber::_DISP_NOWCOMBO_2P, _basic.combo);
+
+        {
+            using namespace Option;
+            if (_basic.acc >= 100.0)      gOptions.set(eOption::PLAY_RANK_ESTIMATED_2P, Option::RANK_0);
+            else if (_basic.acc >= 88.88) gOptions.set(eOption::PLAY_RANK_ESTIMATED_2P, Option::RANK_1);
+            else if (_basic.acc >= 77.77) gOptions.set(eOption::PLAY_RANK_ESTIMATED_2P, Option::RANK_2);
+            else if (_basic.acc >= 66.66) gOptions.set(eOption::PLAY_RANK_ESTIMATED_2P, Option::RANK_3);
+            else if (_basic.acc >= 55.55) gOptions.set(eOption::PLAY_RANK_ESTIMATED_2P, Option::RANK_4);
+            else if (_basic.acc >= 44.44) gOptions.set(eOption::PLAY_RANK_ESTIMATED_2P, Option::RANK_5);
+            else if (_basic.acc >= 33.33) gOptions.set(eOption::PLAY_RANK_ESTIMATED_2P, Option::RANK_6);
+            else if (_basic.acc >= 22.22) gOptions.set(eOption::PLAY_RANK_ESTIMATED_2P, Option::RANK_7);
+            else                          gOptions.set(eOption::PLAY_RANK_ESTIMATED_2P, Option::RANK_8);
+
+            if (_basic.total_acc >= 100.0)      gOptions.set(eOption::PLAY_RANK_BORDER_2P, Option::RANK_0);
+            else if (_basic.total_acc >= 88.88) gOptions.set(eOption::PLAY_RANK_BORDER_2P, Option::RANK_1);
+            else if (_basic.total_acc >= 77.77) gOptions.set(eOption::PLAY_RANK_BORDER_2P, Option::RANK_2);
+            else if (_basic.total_acc >= 66.66) gOptions.set(eOption::PLAY_RANK_BORDER_2P, Option::RANK_3);
+            else if (_basic.total_acc >= 55.55) gOptions.set(eOption::PLAY_RANK_BORDER_2P, Option::RANK_4);
+            else if (_basic.total_acc >= 44.44) gOptions.set(eOption::PLAY_RANK_BORDER_2P, Option::RANK_5);
+            else if (_basic.total_acc >= 33.33) gOptions.set(eOption::PLAY_RANK_BORDER_2P, Option::RANK_6);
+            else if (_basic.total_acc >= 22.22) gOptions.set(eOption::PLAY_RANK_BORDER_2P, Option::RANK_7);
+            else                                gOptions.set(eOption::PLAY_RANK_BORDER_2P, Option::RANK_8);
+
+            if (_basic.acc >= 100.0)     gOptions.set(eOption::PLAY_ACCURACY_2P, Option::ACC_100);
+            else if (_basic.acc >= 90.0) gOptions.set(eOption::PLAY_ACCURACY_2P, Option::ACC_90);
+            else if (_basic.acc >= 80.0) gOptions.set(eOption::PLAY_ACCURACY_2P, Option::ACC_80);
+            else if (_basic.acc >= 70.0) gOptions.set(eOption::PLAY_ACCURACY_2P, Option::ACC_70);
+            else if (_basic.acc >= 60.0) gOptions.set(eOption::PLAY_ACCURACY_2P, Option::ACC_60);
+            else if (_basic.acc >= 50.0) gOptions.set(eOption::PLAY_ACCURACY_2P, Option::ACC_50);
+            else if (_basic.acc >= 40.0) gOptions.set(eOption::PLAY_ACCURACY_2P, Option::ACC_40);
+            else if (_basic.acc >= 30.0) gOptions.set(eOption::PLAY_ACCURACY_2P, Option::ACC_30);
+            else if (_basic.acc >= 20.0) gOptions.set(eOption::PLAY_ACCURACY_2P, Option::ACC_20);
+            else if (_basic.acc >= 10.0) gOptions.set(eOption::PLAY_ACCURACY_2P, Option::ACC_10);
+            else                         gOptions.set(eOption::PLAY_ACCURACY_2P, Option::ACC_0);
+        }
 	}
 
     // TODO global num update

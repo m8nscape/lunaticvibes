@@ -9,6 +9,8 @@
 #include "game/generic_info.h"
 #include <plog/Log.h>
 
+#include "common/chart/bms.h"
+
 #if _DEBUG
 #include <plog/Appenders/ColorConsoleAppender.h>        // for command prompt log purpose
 #endif
@@ -44,6 +46,9 @@ void mainLoop()
         scene->draw();
         graphics_flush();
 		++__frames[0];
+
+        // sound update (temporary)
+        SoundMgr::update();
     }
 	__ginfo.loopEnd();
 }
@@ -87,32 +92,55 @@ int main(int argc, char* argv[])
     gTimers.reset();
 
     // temporary: hardcode bms file for test
-    context_chart = __chart_context_params{
-        "res/sample_7.bme",
-        "",
-        nullptr,
-        nullptr,
-        false,
-        false,
-		false,
+    if (argc >= 2)
+    {
+        std::shared_ptr<BMS> bms = std::make_shared<BMS>(argv[1]);
+        context_chart = __chart_context_params{
+            argv[1],
+            "",
+            bms,
+            nullptr,
+            false,
+            false,
+            false,
 
-        "TITLE",
-        "subtitle",
-        "ARTIST",
-        "subartist",
-        "GENRE",
-        "Version",
+            bms->_title,
+            bms->_title2,
+            bms->_artist,
+            bms->_artist2,
+            bms->_genre,
+            bms->_version,
 
-        2.0,
-        130,
-        150,
-        180
-    };
-    gTexts.set(eText::PLAY_TITLE, context_chart.title);
-    gTexts.set(eText::PLAY_SUBTITLE, context_chart.title2);
-    gTexts.set(eText::PLAY_ARTIST, context_chart.artist);
-    gTexts.set(eText::PLAY_SUBARTIST, context_chart.artist2);
-    gTexts.set(eText::PLAY_GENRE, context_chart.genre);
+            2.0,
+            bms->_minBPM,
+            bms->_itlBPM,
+            bms->_maxBPM,
+        };
+    }
+    else
+    {
+        context_chart = __chart_context_params{
+            "res/sample_7.bme",
+            "",
+            nullptr,
+            nullptr,
+            false,
+            false,
+            false,
+
+            "TITLE",
+            "subtitle",
+            "ARTIST",
+            "subartist",
+            "GENRE",
+            "Version",
+
+            2.0,
+            130,
+            150,
+            180
+        };
+    }
 
 #if WIN32
     timeBeginPeriod(1);

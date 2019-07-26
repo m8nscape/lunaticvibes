@@ -18,11 +18,13 @@ public:
         unsigned score;
         unsigned score2;
         double health;
-        double accuracy;
+        double acc;
+        double total_acc;
         unsigned combo;
         unsigned maxCombo;
         unsigned hit;       // total notes hit
         unsigned miss;      // total misses
+        unsigned totaln;    // total notes expired
     };
 protected:
     vScroll *_scroll;

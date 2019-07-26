@@ -57,9 +57,10 @@ public:
 
     BPM _minBPM = INFINITY;
     BPM _maxBPM = 0.0;
+    BPM _itlBPM = 130.0;
 
 public:
-    constexpr BPM getInitialBPM() const { return !_BPMs.empty() ? std::get<BPM>(_BPMs.front().value) : 130; }
     BPM getAvgBPM() const;
     BPM getNormBPM() const;
+    Path getDirectory() const;
 };

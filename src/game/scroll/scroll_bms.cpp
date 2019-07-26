@@ -83,9 +83,11 @@ void ScrollBMS::loadBMS(const BMS& objBms)
 	_noteCount = objBms.notes;
 	_noteCount_regular = objBms.notes - objBms.notes_ln;
 	_noteCount_ln = objBms.notes_ln;
-	timestamp basetime{ 0 };
-	Beat basebeat{ 0, 1 };
-    BPM bpm = objBms.getInitialBPM();
+	timestamp basetime{ 0 };        // BPM change / measure change time. Adds stop time
+	Beat basebeat{ 0, 1 };          // measure change total beat
+
+    BPM bpm = objBms._itlBPM;
+    _currentBPM = bpm;
     _bpmList.push_back({ 0, {0, 1}, 0, bpm });
 	_measureLength.fill({ 1, 1 });
     bool bpmfucked = false;
@@ -96,7 +98,7 @@ void ScrollBMS::loadBMS(const BMS& objBms)
         _measureTimestamp[m] = basetime;
 
         // notes [] {beat, {lane, sample/val}}
-        std::vector<std::pair<BeatNorm, std::pair<unsigned, unsigned>>> notes;
+        std::vector<std::pair<Segment, std::pair<unsigned, unsigned>>> notes;
 
         // In case the channel order is shuffled, read the data to buffer then sort it out
         // The following patterns must be arranged to keep process order by [Notes > BPM > Stop]
@@ -176,19 +178,19 @@ void ScrollBMS::loadBMS(const BMS& objBms)
         ///////////////////////////////////////////////////////////////////////
 
         // Calculate note times and push to note list
-        BeatNorm lastBPMChangedSegment(0, 1);
+        Segment lastBPMChangedSegment(0, 1);
         double stopBeat = 0;
         double currentSpd = 1.0;
-        Beat measureBeat = objBms._measureLength[m];      // in Beat, not including STOP
-		timestamp beatTime = timestamp::fromBPM(bpm);
+        Beat measureLength = objBms._measureLength[m];      // visual beat
+		timestamp beatLength = timestamp::beatLengthFromBPM(bpm);
 
         for (const auto& note : notes)
         {
-            auto[segment, noteinfo] = note;
+            auto[noteSegment, noteinfo] = note;
             auto[lane, val] = noteinfo;
-            double piece = (segment - lastBPMChangedSegment) * measureBeat;
-            Beat beat = basebeat + segment * d2fr(measureBeat + stopBeat);
-			timestamp notetime = bpmfucked ? LLONG_MAX : basetime + beatTime * piece;
+            double beatFromBPMChange = (noteSegment - lastBPMChangedSegment) * measureLength;
+            Beat beat = basebeat + noteSegment * measureLength;
+			timestamp notetime = bpmfucked ? LLONG_MAX : basetime + beatLength * beatFromBPMChange;
 
             if (lane >= 0 && lane < 100)
             {
@@ -210,39 +212,41 @@ void ScrollBMS::loadBMS(const BMS& objBms)
 
             case 0xFD:	// ExBPM Change
                 basetime = notetime;
-                lastBPMChangedSegment = segment;
+                lastBPMChangedSegment = noteSegment;
                 bpm = objBms.exBPM[val];
-				beatTime = timestamp::fromBPM(bpm);
+				beatLength = timestamp::beatLengthFromBPM(bpm);
                 _bpmList.push_back({ m, beat, notetime, bpm });
                 if (bpm <= 0) bpmfucked = true;
                 break;
 
             case 0xFE:	// BPM Change
                 basetime = notetime;
-                lastBPMChangedSegment = segment;
+                lastBPMChangedSegment = noteSegment;
                 bpm = static_cast<BPM>(val);
-				beatTime = timestamp::fromBPM(bpm);
-                stopBeat = 0;
+				beatLength = timestamp::beatLengthFromBPM(bpm);
                 _bpmList.push_back({ m, beat, notetime, bpm });
                 if (bpm <= 0) bpmfucked = true;
                 break;
 
             case 0xFF:	// Stop
-                double curStopBeat = objBms.stop[val];
-				timestamp  curStopTime{ (long long)std::floor(timestamp::fromBPM(bpm).hres() * curStopBeat / 192), true };
+                double curStopBeat = objBms.stop[val] / 192.0;
+				timestamp  curStopTime{ (long long)std::floor(timestamp::beatLengthFromBPM(bpm).hres() * curStopBeat), true };
                 if (curStopBeat <= 0) break;
                 //_extLists[(size_t)eNoteExt::STOP].push_back({ m, segment, baseY, noteht, curStopBeat });
 				_stopList.push_back({ m, beat, notetime, curStopBeat });
                 //_scrollingSpeedList.push_back({ m, beat, noteht, 0.0 });
                 //_scrollingSpeedList.push_back({ m, beat + d2fr(curStopBeat), noteht + curStopTime, currentSpd });
-                stopBeat += curStopBeat / 192;
+                stopBeat += curStopBeat;
                 basetime += curStopTime;
                 break;
             }
         }
-		basetime += beatTime * (1.0 - lastBPMChangedSegment) * measureBeat;
-		basebeat += measureBeat;
+		basetime += beatLength * (1.0 - lastBPMChangedSegment) * measureLength;
+		basebeat += measureLength;
+
     }
+
+    _totalLength = basetime;    // last measure + 1
 
     setIterators();
 }

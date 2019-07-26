@@ -1,10 +1,13 @@
 #include "graphics_SDL2.h"
+#include "plog/Log.h"
 
 TTFFont::TTFFont(const char* filePath, int ptsize): _pFont(TTF_OpenFont(filePath, ptsize))
 {
 	// FIXME Maybe we need a global buffer for fonts opened...
 	// Current implement may load the file EVERYTIME we declare a text instance.
-    _loaded = true;
+    if (!_pFont)
+        LOG_WARNING << "[TTF] " << filePath << ": " << TTF_GetError();
+    else _loaded = true;
 }
 
 TTFFont::~TTFFont()
@@ -50,20 +53,38 @@ void TTFFont::setKerning(bool enabled)
 std::shared_ptr<Texture> TTFFont::TextUTF8(const char* text, const Color& c)
 {
     if (!_loaded) return nullptr;
-    auto p = std::shared_ptr<SDL_Surface>(TTF_RenderUTF8_Blended(_pFont, text, c), SDL_FreeSurface);
-    return std::make_shared<Texture>(&*p);
+    auto pSurf = TTF_RenderUTF8_Blended(_pFont, text, c);
+    if (pSurf != NULL)
+    {
+        auto p = std::shared_ptr<SDL_Surface>(pSurf, SDL_FreeSurface);
+        return std::make_shared<Texture>(&*p);
+    }
+    LOG_WARNING << "[TTF] " << text << ": " << TTF_GetError();
+    return nullptr;
 }
 std::shared_ptr<Texture> TTFFont::TextUTF8Solid(const char* text, const Color& c)
 {
     if (!_loaded) return nullptr;
-    auto p = std::shared_ptr<SDL_Surface>(TTF_RenderUTF8_Solid(_pFont, text, c), SDL_FreeSurface);
-    return std::make_shared<Texture>(&*p);
+    auto pSurf = TTF_RenderUTF8_Solid(_pFont, text, c);
+    if (pSurf != NULL)
+    {
+        auto p = std::shared_ptr<SDL_Surface>(pSurf, SDL_FreeSurface);
+        return std::make_shared<Texture>(&*p);
+    }
+    LOG_WARNING << "[TTF] " << text << ": " << TTF_GetError();
+    return nullptr;
 }
 std::shared_ptr<Texture> TTFFont::TextUTF8Shaded(const char* text, const Color& c, const Color& bg)
 {
     if (!_loaded) return nullptr;
-    auto p = std::shared_ptr<SDL_Surface>(TTF_RenderUTF8_Shaded(_pFont, text, c, bg), SDL_FreeSurface);
-    return std::make_shared<Texture>(&*p);
+    auto pSurf = TTF_RenderUTF8_Shaded(_pFont, text, c, bg);
+    if (pSurf != NULL)
+    {
+        auto p = std::shared_ptr<SDL_Surface>(pSurf, SDL_FreeSurface);
+        return std::make_shared<Texture>(&*p);
+    }
+    LOG_WARNING << "[TTF] " << text << ": " << TTF_GetError();
+    return nullptr;
 }
 
 Rect TTFFont::getRectUTF8(const char* text)

@@ -16,6 +16,7 @@ private:
     double _basespd;
     double _hispeed;
     std::list<Rect> _outRect;
+    unsigned _currentMeasure = 0;
 
 public:
     std::shared_ptr<SpriteAnimated> pNote;
@@ -35,7 +36,7 @@ public:
     void setChannel(NoteChannelCategory cat, NoteChannelIndex idx);
     void getRectSize(int& w, int& h);
 	virtual bool update(timestamp t);
-    void updateNoteRect(timestamp t, vScroll* ps);
+    void updateNoteRect(timestamp t, vScroll* ps, double beat, unsigned measure);
     virtual void draw() const;
 
 public:

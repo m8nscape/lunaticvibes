@@ -224,13 +224,12 @@ void SoundDriverFMOD::freeSamples()
         }
 }
 
-int SoundDriverFMOD::update()
+void SoundDriverFMOD::update()
 {
-    if (!fmodSystem) return 1;
+    if (!fmodSystem) return;
     FMOD_RESULT r = fmodSystem->update();
     if (r != FMOD_OK)
         LOG_ERROR << "[FMOD] SoundDriverFMOD System Update Error: " << r << ", " << FMOD_ErrorString(r);
-    return r;
 }
 
 int SoundDriverFMOD::getChannelsPlaying()

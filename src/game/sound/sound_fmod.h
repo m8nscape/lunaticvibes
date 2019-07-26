@@ -32,7 +32,7 @@ public:
 	virtual int loadKeySample(std::string path, size_t index);
 	virtual void playKeySample(size_t count, size_t index[]);
 	virtual void freeKeySamples();
-	int update();
+	virtual void update();
 
 public:
 	virtual int loadSample(std::string path, size_t index, bool isStream = false, bool loop = false);

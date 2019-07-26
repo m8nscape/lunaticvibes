@@ -47,3 +47,9 @@ void SoundMgr::freeSamples()
     if (!_inst._initialized) return;
     return _inst.driver->freeSamples();
 }
+
+void SoundMgr::update()
+{
+    if (!_inst._initialized) return;
+    return _inst.driver->update();
+}

@@ -117,22 +117,22 @@ int BMS::initWithFile(std::string file)
                         ; // TODO #RANDOM
 
                     // #xxx00
-                    else if (std::regex_match(key, std::regex(R"(WAV[0-9A-Za-z]{1,2})")))
+                    else if (std::regex_match(key, std::regex(R"(WAV[0-9A-Za-z]{1,2})", std::regex_constants::icase)))
                     {
                         int idx = base36(key[3], key[4]);
                         _wavFiles[idx].assign(value.begin(), value.end());
                     }
-                    else if (std::regex_match(key, std::regex(R"(BMP[0-9A-Za-z]{1,2})")))
+                    else if (std::regex_match(key, std::regex(R"(BMP[0-9A-Za-z]{1,2})", std::regex_constants::icase)))
                     {
                         int idx = base36(key[3], key[4]);
                         _bgaFiles[idx].assign(value.begin(), value.end());
                     }
-                    else if (std::regex_match(key, std::regex(R"(BPM[0-9A-Za-z]{1,2})")))
+                    else if (std::regex_match(key, std::regex(R"(BPM[0-9A-Za-z]{1,2})", std::regex_constants::icase)))
                     {
                         int idx = base36(key[3], key[4]);
                         exBPM[idx] = std::stod(value);
                     }
-                    else if (std::regex_match(key, std::regex(R"(STOP[0-9A-Za-z]{1,2})")))
+                    else if (std::regex_match(key, std::regex(R"(STOP[0-9A-Za-z]{1,2})", std::regex_constants::icase)))
                     {
                         int idx = base36(key[4], key[5]);
                         stop[idx] = std::stod(value);
@@ -282,6 +282,7 @@ int BMS::initWithFile(std::string file)
 
     _minBPM = bpm;
     _maxBPM = bpm;
+    _itlBPM = bpm;
     if (haveBPMChange)
     {
         for (unsigned m = 0; m <= maxMeasure; m++)
@@ -421,7 +422,3 @@ auto BMS::getChannel(ChannelCode code, unsigned chIdx, unsigned measureIdx) cons
     // FIXME warning C4715 : “game::BMS::getChannel” : 不是所有的控件路径都返回值
 }
 
-StringPath BMS::getDirectory() const
-{
-    return _filePath.parent_path().string();
-}

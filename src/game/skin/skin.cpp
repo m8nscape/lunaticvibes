@@ -3,6 +3,7 @@
 #include "game/scene/scene_context.h"
 #include <execution>
 #include <algorithm>
+#include "utils.h"
 
 vSkin::vSkin()
 {
@@ -14,12 +15,20 @@ vSkin::vSkin()
 void vSkin::update()
 {
 	timestamp t;
+    double beat;
+    unsigned measure;
+    if (context_chart.scrollObj != nullptr)
+    {
+        beat = context_chart.scrollObj->getCurrentBeat();
+        measure = context_chart.scrollObj->getCurrentMeasure();
+        gNumbers.set(eNumber::_TEST3, (int)(beat * 1000));
+    }
 #ifdef _DEBUG
 	for(const auto& s: _sprites)
 #else
 	std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), [&t](const auto& s)
 #endif
-	{
+    {
 		switch (s->type())
 		{
         case SpriteTypes::GLOBAL:
@@ -35,7 +44,7 @@ void vSkin::update()
 			if (ref->haveDst() && context_chart.scrollObj != nullptr && context_chart.started)
 			{
 				ref->update(t);
-				ref->updateNoteRect(t, &*context_chart.scrollObj);
+				ref->updateNoteRect(t, &*context_chart.scrollObj, beat, measure);
 			}
 			break;
 		}

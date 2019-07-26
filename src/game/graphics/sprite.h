@@ -242,7 +242,7 @@ public:
     virtual ~SpriteText() = default;
 public:
     void updateTextRect();
-    void setText(const char* text, const Color& c);
+    void setText(std::string text, const Color& c);
 	virtual bool update(timestamp t);
     virtual void draw() const;
 };

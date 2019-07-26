@@ -101,6 +101,8 @@ protected:
     std::array<Beat,  MAX_MEASURES>   _measureTotalBeats;
     std::array<timestamp, MAX_MEASURES>   _measureTimestamp;
 
+    timestamp _totalLength;
+
 
 public:
     vScroll() = delete;
@@ -149,6 +151,8 @@ protected:
     BPM      _currentBPM        = 150.0;
     timestamp    _lastChangedBPMTime   = 0;
     double   _lastChangedBeat   = 0;
+    double   _currentStopBeat = 0;
+    bool     _currentStopBeatGuard = false;
 
 public:
     void reset();

@@ -20,7 +20,7 @@ vScene::vScene(eMode mode, unsigned rate) : _input(), AsyncLooper(std::bind(&vSc
     gSwitches.reset();
     gSwitches.set(eSwitch::_TRUE, true);
 
-    gTimers.set(eTimer::SCENE_START, 0);
+    gTimers.set(eTimer::SCENE_START, -1);
     gTimers.reset();
     gTimers.set(eTimer::SCENE_START, t.norm());
     gTimers.set(eTimer::START_INPUT, t.norm() + _skin->info.timeIntro);

@@ -27,11 +27,18 @@ bool vSprite::updateByKeyframes(timestamp rawTime)
 
 	timestamp time;
 
+
 	// Check if timer is 140
 	if (_timerInd == eTimer::MUSIC_BEAT)
 		time = gTimers.get(eTimer::MUSIC_BEAT);
-	else
-		time = rawTime - gTimers.get(_timerInd);
+    else
+    {
+        // Check if timer is valid
+        if (gTimers.get(_timerInd) < 0)
+            return false;
+
+        time = rawTime - gTimers.get(_timerInd);
+    }
     
     // Check if import time is valid
 	timestamp endTime = timestamp(_keyFrames[frameCount - 1].time);
@@ -367,7 +374,7 @@ bool SpriteText::update(timestamp t)
 {
 	if (updateByKeyframes(t))
 	{
-		setText(gTexts.get(_textInd).c_str(), _current.color);
+		setText(gTexts.get(_textInd), _current.color);
 		updateTextRect();
 		return true;
 	}
@@ -398,13 +405,14 @@ void SpriteText::updateTextRect()
 	}
 }
 
-void SpriteText::setText(const char* text, const Color& c)
+void SpriteText::setText(std::string text, const Color& c)
 {
     if (!_pFont->_loaded) return;
-    if (!strcmp(_currText.c_str(), text) && _color == c) return;
-    _currText = std::string(text);
+    if (!_pTexture) return;
+    if (_currText == text && _color == c) return;
+    _currText = text;
     _color = c;
-    _pTexture = _pFont->TextUTF8(text, c);
+    _pTexture = _pFont->TextUTF8(_currText.c_str(), c);
 	_texRect = _pTexture->getRect();
 }
 

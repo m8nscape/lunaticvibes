@@ -1,4 +1,5 @@
 #include "sprite_lane.h"
+#include "game/data/number.h"
 #include <cassert>
 
 SpriteLaneVertical::SpriteLaneVertical(pTexture texture, Rect r,
@@ -37,48 +38,35 @@ bool SpriteLaneVertical::update(timestamp t)
 {
 	if (updateByKeyframes(t))
 	{
+        _hispeed = double(gNumbers.get(eNumber::HS_1P)) / 100.0;
 		return true;
 	}
 	return false;
 }
 
-void SpriteLaneVertical::updateNoteRect(timestamp t, vScroll* s)
+void SpriteLaneVertical::updateNoteRect(timestamp t, vScroll* s, double beat, unsigned measure)
 {
     // refresh note sprites
 	pNote->update(t);
 
-    // fetch note size
+    // fetch note size, c.h = whole lane height, -c.y = note height
     auto c = _current.rect;
     auto r = pNote->getCurrentRenderParams().rect;
+    auto currTotalBeat = s->getMeasureTotalBeats(measure) + beat;
+    gNumbers.set(eNumber::_TEST5, (int)(currTotalBeat * 100.0));
 
     // generate note rects and store to buffer
     int y = c.h;
     _outRect.clear();
-	//auto measure = s->getCurrentMeasure();
-	auto beat = s->getCurrentTotalBeats();
     auto it = s->incomingNoteOfChannel(_category, _index);
     while (!s->isLastNoteOfChannel(_category, _index, it) && y >= c.y)
     {
-		/*
-		if (measure < it->measure)
-		{
-			double extraBeats = s->getMeasureBeat(measure) - beat;  // fill gap within current measure
-			while (measure + 1 < it->measure)                       // fill gap between measures
-			{
-				++measure;
-				extraBeats += s->getMeasureBeat(measure);
-			}
-			y = c.h - (int)std::floor((extraBeats + it++->rawBeat) * c.h * _basespd * _hispeed);
-		}
-		else
-		{
-			//y = c.h - (int)std::floor((it++->rawBeat - beat) * c.h * _basespd * _hispeed);
-			y = -999;
-		}
-		*/
-
-		y = c.h - (int)std::floor((it++->rawBeat - beat) * c.h * _basespd * _hispeed);
-        _outRect.push_front({ c.x, c.y + y, r.w, r.h });
+        if (currTotalBeat >= it->totalbeat)
+            y = c.h;
+        else
+            y = c.h - (int)std::floor((it->totalbeat - currTotalBeat) * c.h * _basespd * _hispeed);
+        it++;
+        _outRect.push_front({ c.x, y, r.w, r.h });
     }
 }
 

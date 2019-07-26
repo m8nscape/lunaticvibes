@@ -35,6 +35,7 @@ private:
     StringPath _chartPath;
     std::vector<size_t> _currentKeySample;
     std::shared_ptr<vRuleset> _pRuleset;
+    std::mutex _mutex;
 
 private:
     bool _isHoldingStart = false;
@@ -56,6 +57,7 @@ protected:
 
     void setInputJudgeCallback();
     void removeInputJudgeCallback(bool shutter = false);
+
 
 protected:
     // loading indicators

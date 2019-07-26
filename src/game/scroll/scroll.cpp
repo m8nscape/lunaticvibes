@@ -17,7 +17,7 @@ void vScroll::reset()
 {
     _currentMeasure    = 0;
     _currentBeat       = 0;
-    _currentBPM        = 150;
+    _currentBPM        = _bpmList.empty()? 150 : std::get<BPM>(_bpmList.front().value);
     _lastChangedBPMTime = 0;
     _lastChangedBeat   = 0;
 }
@@ -166,7 +166,7 @@ void vScroll::update(timestamp t)
     notePlainExpired.clear();
     noteExtExpired.clear();
 
-	timestamp beatLength = timestamp::fromBPM(_currentBPM);
+	timestamp beatLength = timestamp::beatLengthFromBPM(_currentBPM);
 
     // Go through expired measures
     while (_currentMeasure + 1 < MAX_MEASURES && t >= _measureTimestamp[_currentMeasure + 1])
@@ -175,18 +175,43 @@ void vScroll::update(timestamp t)
         _currentBeat = 0;
         _lastChangedBPMTime = 0;
         _lastChangedBeat = 0;
+        _currentStopBeat = 0;
+        _currentStopBeatGuard = false;
+
+        auto st = incomingNoteOfStop();
+        while (!isLastNoteOfStop(st) && st->measure < _currentMeasure)
+        {
+            st = succNoteOfStop();
+        }
     }
 
     // check inbounds BPM change
     auto b = incomingNoteOfBpm();
     while (!isLastNoteOfBpm(b) && t >= b->time)
     {
-        _currentBeat = b->rawBeat;
+        //_currentBeat = b->totalbeat - getCurrentMeasureBeat();
         _currentBPM = std::get<BPM>(b->value);
-		beatLength = timestamp::fromBPM(_currentBPM);
-        _lastChangedBPMTime = b->time;
-        _lastChangedBeat = b->rawBeat;
+		beatLength = timestamp::beatLengthFromBPM(_currentBPM);
+        _lastChangedBPMTime = b->time - _measureTimestamp[_currentMeasure];
+        _lastChangedBeat = b->totalbeat - _measureTotalBeats[_currentMeasure];
         b = succNoteOfBpm();
+    }
+
+    // check stop
+    bool inStop = false;
+    Beat inStopBeat;
+    auto st = incomingNoteOfStop();
+    while (!isLastNoteOfStop(st) && t >= st->time && 
+        t.hres() < st->time.hres() + std::get<double>(st->value) * beatLength.hres())
+    {
+        //_currentBeat = b->totalbeat - getCurrentMeasureBeat();
+        if (!_currentStopBeatGuard)
+        {
+            _currentStopBeat += std::get<double>(st->value);
+        }
+        inStop = true;
+        inStopBeat = st->totalbeat;
+        ++st;
     }
 
     // Skip expired notes
@@ -220,15 +245,37 @@ void vScroll::update(timestamp t)
             noteExtExpired.push_back(*it);
             it = succNoteOfExtChannel(idx);
         }
-    } 
+    }
 
     // update current info
-    timestamp currentMeasureTimePassed = t - _measureTimestamp[_currentMeasure];
-	timestamp cmtpFromBPMChange = currentMeasureTimePassed - _lastChangedBPMTime;
-	_currentBeat = _lastChangedBeat + (double)cmtpFromBPMChange.hres() / (beatLength.hres() * getCurrentMeasureBeat());
+    if (!inStop)
+    {
+        timestamp currentMeasureTimePassed = t - _measureTimestamp[_currentMeasure];
+        timestamp timeFromBPMChange = currentMeasureTimePassed - _lastChangedBPMTime;
+        gNumbers.set(eNumber::_TEST4, (int)currentMeasureTimePassed.norm());
+        _currentBeat = _lastChangedBeat + (double)timeFromBPMChange.hres() / beatLength.hres() - _currentStopBeat;
+        _currentStopBeatGuard = false;
+    }
+    else
+    {
+        _currentBeat = inStopBeat - _measureTotalBeats[_currentMeasure];
+        _currentStopBeatGuard = true;
+    }
+
+    gNumbers.set(eNumber::PLAY_BPM, _currentBPM);
+
+    // play time / remain time
+    {
+        auto startTime = t - gTimers.get(eTimer::PLAY_START);
+        auto playtime = t.norm() / 1000;
+        auto remaintime = _totalLength.norm() - playtime;
+        gNumbers.set(eNumber::PLAY_MIN, playtime / 60);
+        gNumbers.set(eNumber::PLAY_SEC, playtime % 60);
+        gNumbers.set(eNumber::PLAY_REMAIN_MIN, remaintime / 60);
+        gNumbers.set(eNumber::PLAY_REMAIN_SEC, remaintime % 60);
+    }
 
 	gNumbers.set(eNumber::_TEST1, _currentMeasure);
 	gNumbers.set(eNumber::_TEST2, (int)std::floor(_currentBeat * 1000));
-	gNumbers.set(eNumber::_TEST3, (int)std::floor(1000 * _currentBeat * 4) % 1000);
-	gNumbers.set(eNumber::_TEST4, (int)currentMeasureTimePassed.norm());
+	
 }

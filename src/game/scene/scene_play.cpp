@@ -83,12 +83,31 @@ ScenePlay::ScenePlay(ePlayMode mode, unsigned keys, eRuleset ruleset):
     vScene(eMode::PLAY7, 1000), _mode(mode), _rule(ruleset), _keys(keys)
 {
     _currentKeySample.assign(Input::ESC, 0);
-	_inputAvailable = decltype(_inputAvailable)("1111111111111110000000000000001111111111111111111111111111");
-	//                                           SS123456789AEUDSS123456789AEUD_123456789012345UDLRIDHEUDRB
+	_inputAvailable = decltype(_inputAvailable)("1111111111111111111111111111000000000000000111111111111111");
+	//                                           BRDUEHDIRLDU543210987654321_DUEA987654321SSDUEA987654321SS
 
     // file loading may delayed
 
     _state = ePlayState::PREPARE;
+
+    // basic info
+    gTexts.set(eText::PLAY_TITLE, context_chart.title);
+    gTexts.set(eText::PLAY_SUBTITLE, context_chart.title2);
+    gTexts.set(eText::PLAY_ARTIST, context_chart.artist);
+    gTexts.set(eText::PLAY_SUBARTIST, context_chart.artist2);
+    gTexts.set(eText::PLAY_GENRE, context_chart.genre);
+    gNumbers.set(eNumber::PLAY_BPM, context_chart.itlBPM);
+    gNumbers.set(eNumber::BPM_MIN, context_chart.minBPM);
+    gNumbers.set(eNumber::BPM_MAX, context_chart.maxBPM);
+
+    // player datas
+    gNumbers.set(eNumber::HS_1P, 100);
+    gNumbers.set(eNumber::HS_2P, 100);
+
+    using namespace std::placeholders;
+    _input.register_p("SCENE_PRESS", std::bind(&ScenePlay::inputGamePress, this, _1, _2));
+    _input.register_h("SCENE_HOLD", std::bind(&ScenePlay::inputGameHold, this, _1, _2));
+    _input.register_r("SCENE_RELEASE", std::bind(&ScenePlay::inputGameRelease, this, _1, _2));
 
     loopStart();
     _input.loopStart();
@@ -123,7 +142,7 @@ void ScenePlay::loadChart()
     context_chart.artist2 = context_chart.chartObj->_artist2;
     context_chart.genre = context_chart.chartObj->_genre;
     context_chart.minBPM = context_chart.chartObj->_minBPM;
-    context_chart.itlBPM = context_chart.chartObj->getInitialBPM();
+    context_chart.itlBPM = context_chart.chartObj->_itlBPM;
     context_chart.maxBPM = context_chart.chartObj->_maxBPM;
 
     // TODO load Scroll object from Chart object
@@ -148,6 +167,7 @@ void ScenePlay::loadChart()
     {
         std::async(std::launch::async, [&]() {
             auto _pChart = context_chart.chartObj;
+            auto chartDir = context_chart.chartObj->getDirectory();
             for (const auto& it : _pChart->_wavFiles)
             {
                 if (it.empty()) continue;
@@ -162,7 +182,7 @@ void ScenePlay::loadChart()
             {
                 const auto& wav = _pChart->_wavFiles[i];
                 if (wav.empty()) continue;
-                SoundMgr::loadKeySample(wav, i);
+                SoundMgr::loadKeySample((chartDir / wav).string(), i);
                 ++wavLoaded;
             }
         }).wait();
@@ -213,9 +233,6 @@ void ScenePlay::setInputJudgeCallback()
         LOG_DEBUG << "[Play] Bind frelease: " << &fr;
         _input.register_r("JUDGE_RELEASE", fr);
     }
-    _input.register_p("SCENE_PRESS",   std::bind(&ScenePlay::inputGamePress, this, _1, _2));
-    _input.register_h("SCENE_HOLD",    std::bind(&ScenePlay::inputGameHold, this, _1, _2));
-    _input.register_r("SCENE_RELEASE", std::bind(&ScenePlay::inputGameRelease, this, _1, _2));
 }
 
 void ScenePlay::removeInputJudgeCallback(bool shutter)
@@ -283,6 +300,12 @@ void ScenePlay::updateLoading()
 
 	auto t = timestamp();
     auto rt = t - gTimers.get(eTimer::_LOAD_START);
+
+    gNumbers.set(eNumber::PLAY_LOAD_PROGRESS_PERCENT,
+        ((int)_scrollLoaded * 50 + (int)_rulesetLoaded * 50 + 
+        getWavLoadProgress() * 100 + getBgaLoadProgress() * 100) / 300
+    );
+
     if (_scrollLoaded && _rulesetLoaded &&
         context_chart.isSampleLoaded && context_chart.isBgaLoaded && 
 		rt > _skin->info.timeMinimumLoad)
@@ -384,9 +407,9 @@ void ScenePlay::playBGMSamples()
     size_t i = 0;
     auto it = context_chart.scrollObj->notePlainExpired.begin();
     size_t max = _bgmSampleIdxBuf.size() < context_chart.scrollObj->notePlainExpired.size() ?
-        _bgmSampleIdxBuf.size() : context_chart.scrollObj->notePlainExpired.size();
-    for (; i < max; ++i)
-        _bgmSampleIdxBuf[i] = (unsigned)std::get<long long>(it->value);
+                 _bgmSampleIdxBuf.size() : context_chart.scrollObj->notePlainExpired.size();
+    for (; i < max && it != context_chart.scrollObj->notePlainExpired.end(); ++i)
+        _bgmSampleIdxBuf[i] = (unsigned)std::get<long long>(it++->value);
 
     // TODO also play keysound in auto
 
@@ -426,40 +449,25 @@ void ScenePlay::inputGamePress(InputMask& m, timestamp t)
         }
 
     SoundMgr::playKeySample(sampleCount, &_keySampleIdxBuf[0]);
+
+    if (_inputAvailable[UP] && m[UP])
+    {
+        int hs = gNumbers.get(eNumber::HS_1P);
+        if (hs < 900)
+            gNumbers.set(eNumber::HS_1P, hs + 25);
+    }
+    if (_inputAvailable[DOWN] && m[DOWN])
+    {
+        int hs = gNumbers.get(eNumber::HS_1P);
+        if (hs > 25)
+            gNumbers.set(eNumber::HS_1P, hs - 25);
+    }
 }
 
 
 void ScenePlay::inputGameHold(InputMask& m, timestamp t)
 {
     using namespace Input;
-
-	// Reset scene: F1+F5+F9
-	if (_inputAvailable[F1] && m[F1] &&
-		_inputAvailable[F5] && m[F5] &&
-		_inputAvailable[F9] && m[F9])
-	{
-		loopEnd();
-		_input.loopEnd();
-
-		removeInputJudgeCallback();
-		context_chart.scrollObj = nullptr;
-		gNumbers.reset();
-		gSliders.reset();
-
-		gSwitches.set(eSwitch::_TRUE, false);
-		gSwitches.reset();
-		gSwitches.set(eSwitch::_TRUE, true);
-
-		gTimers.set(eTimer::SCENE_START, 0);
-		gTimers.reset();
-		gTimers.set(eTimer::SCENE_START, t.norm());
-		gTimers.set(eTimer::START_INPUT, t.norm() + _skin->info.timeIntro);
-
-		_currentKeySample.assign(Input::ESC, 0);
-		_state = ePlayState::PREPARE;
-		loopStart();
-		_input.loopStart();
-	}
 }
 
 void ScenePlay::inputGameRelease(InputMask& m, timestamp t)

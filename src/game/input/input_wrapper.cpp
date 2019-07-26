@@ -43,6 +43,7 @@ bool InputWrapper::_register(unsigned type, const std::string& key, INPUTCALLBAC
     case 1: _hCallbackMap[key] = f; break;
     case 2: _rCallbackMap[key] = f; break;
     }
+    _lock.unlock();
     return true;
 }
 
@@ -59,5 +60,7 @@ bool InputWrapper::_unregister(unsigned type, const std::string& key)
     case 1: _hCallbackMap.erase(key); break;
     case 2: _rCallbackMap.erase(key); break;
     }
+
+    _lock.unlock();
     return true;
 }

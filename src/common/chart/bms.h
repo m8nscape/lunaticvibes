@@ -131,5 +131,4 @@ public:
 public:
     int getMode() const;
     auto getChannel(ChannelCode, unsigned chIdx, unsigned measureIdx) const -> const decltype(chBGM[0][0])&;
-    StringPath getDirectory() const;
 };

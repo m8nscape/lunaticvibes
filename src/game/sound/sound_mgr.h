@@ -23,4 +23,5 @@ public:
     static int loadSample(std::string path, size_t index, bool isStream = false, bool loop = false);
     static void playSample(size_t index);
     static void freeSamples();
+    static void update();
 };
