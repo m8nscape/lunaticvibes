@@ -1,5 +1,4 @@
 #include "graphics_SDL2.h"
-#include "gtest/gtest.h"
 
 Rect::Rect(int zero) { x = y = w = h = -1; }
 Rect::Rect(int w1, int h1) { x = y = 0; w = w1; h = h1; }

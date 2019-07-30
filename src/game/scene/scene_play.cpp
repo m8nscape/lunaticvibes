@@ -413,7 +413,7 @@ void ScenePlay::playBGMSamples()
 
     // TODO also play keysound in auto
 
-    SoundMgr::playKeySample(i, &_bgmSampleIdxBuf[0]);
+    SoundMgr::playKeySample(i, (size_t*)_bgmSampleIdxBuf.data());
 }
 
 void ScenePlay::changeKeySampleMapping(timestamp t)
@@ -448,7 +448,7 @@ void ScenePlay::inputGamePress(InputMask& m, timestamp t)
             gSwitches.set(InputGamePressMap[i].sw, true);
         }
 
-    SoundMgr::playKeySample(sampleCount, &_keySampleIdxBuf[0]);
+    SoundMgr::playKeySample(sampleCount, (size_t*)&_keySampleIdxBuf[0]);
 
     if (_inputAvailable[UP] && m[UP])
     {

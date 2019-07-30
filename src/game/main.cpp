@@ -117,30 +117,6 @@ int main(int argc, char* argv[])
             bms->_maxBPM,
         };
     }
-    else
-    {
-        context_chart = __chart_context_params{
-            "res/sample_7.bme",
-            "",
-            nullptr,
-            nullptr,
-            false,
-            false,
-            false,
-
-            "TITLE",
-            "subtitle",
-            "ARTIST",
-            "subartist",
-            "GENRE",
-            "Version",
-
-            2.0,
-            130,
-            150,
-            180
-        };
-    }
 
 #if WIN32
     timeBeginPeriod(1);

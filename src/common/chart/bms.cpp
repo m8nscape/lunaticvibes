@@ -329,7 +329,7 @@ int BMS::strToChannel16(channel& ch, const StringContent& str)
         throw new noteLineException;
 
     ch.resolution = str.length() / 2;
-    for (size_t i = 0; i < ch.resolution; i++)
+    for (unsigned i = 0; i < ch.resolution; i++)
         if (unsigned sample = base16(str[i * 2], str[i * 2 + 1]))
             ch.notes.push_back({ i, sample });
     return 0;
