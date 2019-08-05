@@ -35,6 +35,12 @@ Andreas Schiffler -- aschiffler at ferzkopp dot net
 extern "C" {
 #endif
 
+#if defined(_MSC_VER) && defined(_WIN64)
+#ifdef USE_MMX
+#undef USE_MMX
+#endif
+#endif
+
 	/* ---- Function Prototypes */
 
 #ifdef _MSC_VER
