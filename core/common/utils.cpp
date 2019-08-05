@@ -1,5 +1,8 @@
 #include "utils.h"
 #include <string>
+#include <openssl/md5.h>
+#include <iostream>
+#include <fstream>
 
 std::vector<fs::path> findFiles(fs::path p)
 {
@@ -65,4 +68,31 @@ std::pair<unsigned, bool> stoub(const std::string& str)
         return { val, notPref };
     else
         return { -1, false };
+}
+
+std::string md5(fs::path filePath)
+{
+    unsigned char digest[MD5_DIGEST_LENGTH];
+    memset(digest, 0, sizeof(digest));
+    if (fs::exists(filePath) && fs::is_regular_file(filePath))
+    {
+        MD5_CTX mdContext;
+        char data[1024];
+        std::streamsize bytes;
+        MD5_Init(&mdContext);
+        std::ifstream ifs(filePath.string(), std::ios_base::binary);
+        while ((bytes = ifs.readsome(data, 1024)) != 0)
+            MD5_Update(&mdContext, data, bytes);
+        MD5_Final(digest, &mdContext);
+    }
+
+    std::string ret(MD5_DIGEST_LENGTH * 2, 0);
+    for (size_t i = 0; i < MD5_DIGEST_LENGTH; ++i)
+    {
+        unsigned char high = digest[i] >> 4 & 0xF;
+        unsigned char low  = digest[i] & 0xF;
+        ret += (high <= 9 ? ('0' + high) : ('A' - 10 + high));
+        ret += (low  <= 9 ? ('0' + low)  : ('A' - 10 + low));
+    }
+    return ret;
 }

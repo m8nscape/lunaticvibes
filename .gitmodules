@@ -4,7 +4,3 @@
 [submodule "ext/plog"]
 	path = ext/plog
 	url = https://github.com/SergiusTheBest/plog
-[submodule "ext/digestpp"]
-	path = ext/digestpp
-	url = https://github.com/kerukuro/digestpp
-    

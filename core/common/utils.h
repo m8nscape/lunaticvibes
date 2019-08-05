@@ -86,3 +86,5 @@ inline void __SetThreadName(DWORD dwThreadID, const char* threadName) {
 #define SetThreadName(name) 0
 #define panic(title, msg) printf("%s: %s\n", title, msg)
 #endif
+
+std::string md5(fs::path filePath);

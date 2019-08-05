@@ -1,6 +1,5 @@
 #include "bms.h"
 #include <plog/Log.h>
-#include <digestpp.hpp>
 #include <iostream>
 #include <fstream>
 #include <regex>
@@ -300,9 +299,7 @@ int BMS::initWithFile(std::string file)
         }
     }
 
-    std::ifstream ifs(_filePath.string(), std::ios_base::binary);
-    _fileHash = digestpp::md5().absorb(ifs).hexdigest();
-    ifs.close();
+    _fileHash = md5(_filePath);
     LOG_INFO << "[BMS] MD5: " << _fileHash;
 
     _loaded = true;
