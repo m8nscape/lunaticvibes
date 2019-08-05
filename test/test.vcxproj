@@ -75,8 +75,8 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>$(OutDir);$(SolutionDir)ext\fmod\lib;$(SolutionDir)ext\SDL2_gfx\lib\$(PlatformTarget);$(SolutionDir)ext\SDL2_image\lib\$(PlatformTarget);$(SolutionDir)ext\SDL2_ttf\lib\$(PlatformTarget);$(SolutionDir)ext\SDL2\lib\$(PlatformTarget);$(SolutionDir)ext\yaml-cpp\build\$(IntDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>core.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;SDL2_image.lib;SDL2_gfx.lib;libyaml-cppmdd.lib;fmodL_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir);$(SolutionDir)ext\fmod\lib;$(SolutionDir)ext\SDL2_gfx\lib\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>core.lib;yaml-cpp.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;SDL2_image.lib;SDL2_gfx.lib;fmodL_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)$(IntDir)</AdditionalLibraryDirectories>
@@ -98,8 +98,8 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>$(OutDir);$(SolutionDir)ext\fmod\lib;$(SolutionDir)ext\SDL2_gfx\lib\$(PlatformTarget);$(SolutionDir)ext\SDL2_image\lib\$(PlatformTarget);$(SolutionDir)ext\SDL2_ttf\lib\$(PlatformTarget);$(SolutionDir)ext\SDL2\lib\$(PlatformTarget);$(SolutionDir)ext\yaml-cpp\build\$(IntDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>core.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;SDL2_image.lib;SDL2_gfx.lib;libyaml-cppmdd.lib;fmodL64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir);$(SolutionDir)ext\fmod\lib;$(SolutionDir)ext\SDL2_gfx\lib\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>core.lib;yaml-cpp.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;SDL2_image.lib;SDL2_gfx.lib;fmodL64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)$(IntDir)</AdditionalLibraryDirectories>
@@ -122,8 +122,8 @@
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <AdditionalLibraryDirectories>$(OutDir);$(SolutionDir)ext\fmod\lib;$(SolutionDir)ext\SDL2_gfx\lib\$(PlatformTarget);$(SolutionDir)ext\SDL2_image\lib\$(PlatformTarget);$(SolutionDir)ext\SDL2_ttf\lib\$(PlatformTarget);$(SolutionDir)ext\SDL2\lib\$(PlatformTarget);$(SolutionDir)ext\yaml-cpp\build\$(IntDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>core.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;SDL2_image.lib;SDL2_gfx.lib;libyaml-cppmd.lib;fmod_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir);$(SolutionDir)ext\fmod\lib;$(SolutionDir)ext\SDL2_gfx\lib\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>core.lib;yaml-cpp.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;SDL2_image.lib;SDL2_gfx.lib;fmod_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)$(IntDir)</AdditionalLibraryDirectories>
@@ -146,8 +146,8 @@
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <AdditionalLibraryDirectories>$(OutDir);$(SolutionDir)ext\fmod\lib;$(SolutionDir)ext\SDL2_gfx\lib\$(PlatformTarget);$(SolutionDir)ext\SDL2_image\lib\$(PlatformTarget);$(SolutionDir)ext\SDL2_ttf\lib\$(PlatformTarget);$(SolutionDir)ext\SDL2\lib\$(PlatformTarget);$(SolutionDir)ext\yaml-cpp\build\$(IntDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>core.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;SDL2_image.lib;SDL2_gfx.lib;libyaml-cppmd.lib;fmod64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir);$(SolutionDir)ext\fmod\lib;$(SolutionDir)ext\SDL2_gfx\lib\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>core.lib;yaml-cpp.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;SDL2_image.lib;SDL2_gfx.lib;fmod64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)$(IntDir)</AdditionalLibraryDirectories>
