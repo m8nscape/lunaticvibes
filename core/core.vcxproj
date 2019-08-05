@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="common\asynclooper.cpp" />
+    <ClCompile Include="common\chart\bms.cpp" />
+    <ClCompile Include="common\chart\chart.cpp" />
+    <ClCompile Include="common\fraction.cpp" />
+    <ClCompile Include="common\utils.cpp" />
+    <ClCompile Include="config\cfg_general.cpp" />
+    <ClCompile Include="config\cfg_input.cpp" />
+    <ClCompile Include="config\cfg_profile.cpp" />
+    <ClCompile Include="config\cfg_skin.cpp" />
+    <ClCompile Include="config\config.cpp" />
+    <ClCompile Include="game\graphics\SDL2\common_SDL2.cpp" />
+    <ClCompile Include="game\graphics\SDL2\rect_SDL2.cpp" />
+    <ClCompile Include="game\graphics\SDL2\ttf_SDL2.cpp" />
+    <ClCompile Include="game\graphics\SDL2\window_SDL2.cpp" />
+    <ClCompile Include="game\graphics\sprite.cpp" />
+    <ClCompile Include="game\graphics\sprite_lane.cpp" />
+    <ClCompile Include="game\input\input_linux.cpp" />
+    <ClCompile Include="game\input\input_mgr.cpp" />
+    <ClCompile Include="game\input\input_windows.cpp" />
+    <ClCompile Include="game\input\input_wrapper.cpp" />
+    <ClCompile Include="game\ruleset\ruleset_classic.cpp" />
+    <ClCompile Include="game\scene\scene.cpp" />
+    <ClCompile Include="game\scene\scene_mgr.cpp" />
+    <ClCompile Include="game\scene\scene_play.cpp" />
+    <ClCompile Include="game\scroll\scroll.cpp" />
+    <ClCompile Include="game\scroll\scroll_bms.cpp" />
+    <ClCompile Include="game\skin\skin.cpp" />
+    <ClCompile Include="game\skin\skin_lr2.cpp" />
+    <ClCompile Include="game\skin\skin_lr2_dst.cpp" />
+    <ClCompile Include="game\skin\skin_mgr.cpp" />
+    <ClCompile Include="game\sound\sound_fmod.cpp" />
+    <ClCompile Include="game\sound\sound_fmod_callback.cpp" />
+    <ClCompile Include="game\sound\sound_mgr.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="common\asynclooper.h" />
+    <ClInclude Include="common\beat.h" />
+    <ClInclude Include="common\chart\bms.h" />
+    <ClInclude Include="common\chart\chart.h" />
+    <ClInclude Include="common\defs\defs_file.h" />
+    <ClInclude Include="common\defs\defs_play.h" />
+    <ClInclude Include="common\defs\defs_scene.h" />
+    <ClInclude Include="common\fraction.h" />
+    <ClInclude Include="common\meta.h" />
+    <ClInclude Include="common\types.h" />
+    <ClInclude Include="common\utils.h" />
+    <ClInclude Include="config\cfg_general.h" />
+    <ClInclude Include="config\cfg_input.h" />
+    <ClInclude Include="config\cfg_profile.h" />
+    <ClInclude Include="config\cfg_skin.h" />
+    <ClInclude Include="config\config.h" />
+    <ClInclude Include="config\config_mgr.h" />
+    <ClInclude Include="game\data\bargraph.h" />
+    <ClInclude Include="game\data\buffered_global.h" />
+    <ClInclude Include="game\data\number.h" />
+    <ClInclude Include="game\data\option.h" />
+    <ClInclude Include="game\data\slider.h" />
+    <ClInclude Include="game\data\switch.h" />
+    <ClInclude Include="game\data\text.h" />
+    <ClInclude Include="game\data\timer.h" />
+    <ClInclude Include="game\generic_info.h" />
+    <ClInclude Include="game\graphics\graphics.h" />
+    <ClInclude Include="game\graphics\SDL2\graphics_SDL2.h" />
+    <ClInclude Include="game\graphics\SDL2\window_SDL2.h" />
+    <ClInclude Include="game\graphics\sprite.h" />
+    <ClInclude Include="game\graphics\sprite_lane.h" />
+    <ClInclude Include="game\input\input_keys.h" />
+    <ClInclude Include="game\input\input_mgr.h" />
+    <ClInclude Include="game\input\input_wrapper.h" />
+    <ClInclude Include="game\ruleset\ruleset.h" />
+    <ClInclude Include="game\ruleset\ruleset_classic.h" />
+    <ClInclude Include="game\scene\scene.h" />
+    <ClInclude Include="game\scene\scene_context.h" />
+    <ClInclude Include="game\scene\scene_mgr.h" />
+    <ClInclude Include="game\scene\scene_play.h" />
+    <ClInclude Include="game\scroll\scroll.h" />
+    <ClInclude Include="game\scroll\scroll_bms.h" />
+    <ClInclude Include="game\skin\skin.h" />
+    <ClInclude Include="game\skin\skin_lr2.h" />
+    <ClInclude Include="game\skin\skin_mgr.h" />
+    <ClInclude Include="game\skin\skin_new.h" />
+    <ClInclude Include="game\sound\sound_driver.h" />
+    <ClInclude Include="game\sound\sound_fmod.h" />
+    <ClInclude Include="game\sound\sound_fmod_callback.h" />
+    <ClInclude Include="game\sound\sound_mgr.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{C401E6C6-9DF9-4AD6-99AD-5F73CBC928A8}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)ext\fmod\inc;$(SolutionDir)ext\SDL2_gfx\include;$(SolutionDir)ext\SDL2_image\include;$(SolutionDir)ext\SDL2_ttf\include;$(SolutionDir)ext\SDL2\include;$(SolutionDir)ext\yaml-cpp\include;$(SolutionDir)ext\digestpp;$(SolutionDir)ext\plog\include;$(SolutionDir)core;$(SolutionDir)core\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>$(SolutionDir)ext\fmod\lib;$(SolutionDir)ext\SDL2_gfx\lib;$(SolutionDir)ext\SDL2_image\lib;$(SolutionDir)ext\SDL2_ttf\lib;$(SolutionDir)ext\SDL2\lib;$(SolutionDir)ext\yaml-cpp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(PlatformTarget)\SDL2.lib;$(PlatformTarget)\SDL2main.lib;$(PlatformTarget)\SDL2_ttf.lib;$(PlatformTarget)\SDL2_image.lib;$(PlatformTarget)\SDL2_gfx.lib;$(PlatformTarget)\SDL2test.lib;fmodL_vc.lib;ext\yaml-cpp\build\Debug\libyaml-cppmdd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)ext\fmod\inc;$(SolutionDir)ext\SDL2_gfx\include;$(SolutionDir)ext\SDL2_image\include;$(SolutionDir)ext\SDL2_ttf\include;$(SolutionDir)ext\SDL2\include;$(SolutionDir)ext\yaml-cpp\include;$(SolutionDir)ext\digestpp;$(SolutionDir)ext\plog\include;$(SolutionDir)core;$(SolutionDir)core\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(SolutionDir)ext\fmod\lib;$(SolutionDir)ext\SDL2_gfx\lib;$(SolutionDir)ext\SDL2_image\lib;$(SolutionDir)ext\SDL2_ttf\lib;$(SolutionDir)ext\SDL2\lib;$(SolutionDir)ext\yaml-cpp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(PlatformTarget)\SDL2.lib;$(PlatformTarget)\SDL2main.lib;$(PlatformTarget)\SDL2_ttf.lib;$(PlatformTarget)\SDL2_image.lib;$(PlatformTarget)\SDL2_gfx.lib;fmod_vc.lib;ext\yaml-cpp\build\Release\libyaml-cppmd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)ext\fmod\inc;$(SolutionDir)ext\SDL2_gfx\include;$(SolutionDir)ext\SDL2_image\include;$(SolutionDir)ext\SDL2_ttf\include;$(SolutionDir)ext\SDL2\include;$(SolutionDir)ext\yaml-cpp\include;$(SolutionDir)ext\digestpp;$(SolutionDir)ext\plog\include;$(SolutionDir)core;$(SolutionDir)core\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(SolutionDir)ext\fmod\lib;$(SolutionDir)ext\SDL2_gfx\lib;$(SolutionDir)ext\SDL2_image\lib;$(SolutionDir)ext\SDL2_ttf\lib;$(SolutionDir)ext\SDL2\lib;$(SolutionDir)ext\yaml-cpp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(PlatformTarget)\SDL2.lib;$(PlatformTarget)\SDL2main.lib;$(PlatformTarget)\SDL2_ttf.lib;$(PlatformTarget)\SDL2_image.lib;$(PlatformTarget)\SDL2_gfx.lib;$(PlatformTarget)\SDL2test.lib;fmodL64_vc.lib;ext\yaml-cpp\build\Debug\libyaml-cppmdd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)ext\fmod\inc;$(SolutionDir)ext\SDL2_gfx\include;$(SolutionDir)ext\SDL2_image\include;$(SolutionDir)ext\SDL2_ttf\include;$(SolutionDir)ext\SDL2\include;$(SolutionDir)ext\yaml-cpp\include;$(SolutionDir)ext\digestpp;$(SolutionDir)ext\plog\include;$(SolutionDir)core;$(SolutionDir)core\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(SolutionDir)ext\fmod\lib;$(SolutionDir)ext\SDL2_gfx\lib;$(SolutionDir)ext\SDL2_image\lib;$(SolutionDir)ext\SDL2_ttf\lib;$(SolutionDir)ext\SDL2\lib;$(SolutionDir)ext\yaml-cpp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(PlatformTarget)\SDL2.lib;$(PlatformTarget)\SDL2main.lib;$(PlatformTarget)\SDL2_ttf.lib;$(PlatformTarget)\SDL2_image.lib;$(PlatformTarget)\SDL2_gfx.lib;fmod64_vc.lib;ext\yaml-cpp\build\Release\libyaml-cppmd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>

@@ -11,6 +11,13 @@ doc/
 LR2files/
 log.txt
 
+# binary dependencies
+!ext/fmod/**
+!ext/SDL2/**
+!ext/SDL2_image/**
+!ext/SDL2_ttf/**
+!ext/SDL2_gfx/**
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
@@ -263,10 +270,3 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
-
-# dependencies
-!ext/fmod/**
-!ext/SDL2/**
-!ext/SDL2_image/**
-!ext/SDL2_ttf/**
-!ext/SDL2_gfx/**

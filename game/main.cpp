@@ -1,11 +1,11 @@
-#include "graphics/graphics.h"
+#include "game/graphics/graphics.h"
 #include "config/config_mgr.h"
-#include "sound/sound_mgr.h"
-#include "scene/scene_mgr.h"
-#include "input/input_mgr.h"
-#include "skin/skin_lr2.h"
+#include "game/sound/sound_mgr.h"
+#include "game/scene/scene_mgr.h"
+#include "game/input/input_mgr.h"
+#include "game/skin/skin_lr2.h"
 #include "utils.h"
-#include "scene/scene_context.h"
+#include "game/scene/scene_context.h"
 #include "game/generic_info.h"
 #include <plog/Log.h>
 
@@ -15,7 +15,7 @@
 #include <plog/Appenders/ColorConsoleAppender.h>        // for command prompt log purpose
 #endif
 
-#if WIN32
+#ifdef WIN32
 #include <Windows.h>
 #pragma comment(lib, "winmm.lib")
 #endif //WIN32
@@ -118,7 +118,7 @@ int main(int argc, char* argv[])
         };
     }
 
-#if WIN32
+#ifdef WIN32
     timeBeginPeriod(1);
 #endif
 
@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
 
     graphics_free();
 
-#if WIN32
+#ifdef WIN32
     timeEndPeriod(1);
 #endif
 

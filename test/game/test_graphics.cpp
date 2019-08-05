@@ -1,6 +1,5 @@
+#include "gmock/gmock.h"
 #include "game/graphics/sprite.h"
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
 
 class mock_Image : public Image
 {
@@ -19,7 +18,7 @@ public:
 };
 
 
-TEST(Graphics_Color, construct)
+TEST(Color, construct)
 {
     Color c{ 0x10, 0x20, 0x40, 0x80 };
     EXPECT_EQ(c, c);
@@ -34,7 +33,7 @@ TEST(Graphics_Color, construct)
     EXPECT_EQ(d, Color(0x10, -8124, 255, 255));
 }
 
-TEST(Graphics_Color, arithmetic)
+TEST(Color, arithmetic)
 {
     Color c{ 0x01020304 };
     Color d{ 0x05060708 };
@@ -45,7 +44,7 @@ TEST(Graphics_Color, arithmetic)
 }
 
 
-TEST(Graphics_Rect, self_equal)
+TEST(Rect, self_equal)
 {
     Rect r1{ 0, 0, 40, 60 };
     EXPECT_EQ(r1, r1);
@@ -68,7 +67,7 @@ TEST(Graphics_Rect, self_equal)
     EXPECT_NE(r3, r4);
 }
 
-TEST(Graphics_Rect, construct)
+TEST(Rect, construct)
 {
     EXPECT_EQ(Rect(0, 0, 40, 60), Rect(40, 60));
     EXPECT_EQ(Rect(-1, -1, -1, -1), Rect());
@@ -80,7 +79,7 @@ TEST(Graphics_Rect, construct)
     EXPECT_EQ(r, r1);
 }
 
-TEST(Graphics_Rect, wrapping)
+TEST(Rect, wrapping)
 {
     Rect r0{ 0, 0, 1024, 1024 };
 
@@ -116,7 +115,7 @@ TEST(Graphics_Rect, wrapping)
 
 }
 
-TEST(Graphics_Rect, add_normal)
+TEST(Rect, add_normal)
 {
     Rect r1{ 0, 0, 40, 60 };
     Rect r2{ 0, 0, 40, 60 };
@@ -133,11 +132,11 @@ class mock_vSprite : public vSprite
 public:
     mock_vSprite(pTexture pTexture, SpriteTypes type = SpriteTypes::VIRTUAL) : vSprite(pTexture, type) {}
     MOCK_CONST_METHOD0(draw, void());
-    FRIEND_TEST(test_Graphics_vSprite, rectConstruct);
-    FRIEND_TEST(test_Graphics_vSprite, func_update);
+    FRIEND_TEST(test_vSprite, rectConstruct);
+    FRIEND_TEST(test_vSprite, func_update);
 };
 
-class test_Graphics_vSprite : public ::testing::Test
+class test_vSprite : public ::testing::Test
 {
 protected:
     std::shared_ptr<mock_Texture> pt{ std::make_shared<mock_Texture>() };
@@ -146,7 +145,7 @@ protected:
     mock_vSprite ss1_1{ pt };
     mock_vSprite ss1_2{ pt };
 public:
-    test_Graphics_vSprite()
+    test_vSprite()
     {
         ss1.setTimer(eTimer::K11_BOMB);
         ss1_1.setTimer(eTimer::K11_BOMB);
@@ -165,7 +164,7 @@ public:
     }
 };
 
-TEST_F(test_Graphics_vSprite, func_update)
+TEST_F(test_vSprite, func_update)
 {
     gTimers.set(eTimer::K11_BOMB, 0);
     timestamp t(0), t1(128), t2(255), t3(256), t4(512);
@@ -228,10 +227,10 @@ class mock_SpriteSelection : public SpriteSelection
 public:
     mock_SpriteSelection(pTexture texture,
         unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false) : SpriteSelection(texture, rows, cols, verticalIndexing) {}
-    FRIEND_TEST(test_Graphics_SpriteSelection, rectConstruct);
+    FRIEND_TEST(sSelection, rectConstruct);
 };
 
-class test_Graphics_SpriteSelection : public ::testing::Test
+class sSelection : public ::testing::Test
 {
 protected:
     std::shared_ptr<mock_Texture> pt{ std::make_shared<mock_Texture>() };
@@ -239,7 +238,7 @@ protected:
     mock_SpriteSelection s{ pt, 2, 4, false };
     mock_SpriteSelection sv{ pt, 2, 4, true };
 public:
-    test_Graphics_SpriteSelection()
+    sSelection()
     {
         s0.setTimer(eTimer::K11_BOMB);
         s0.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
@@ -253,7 +252,7 @@ public:
     }
 };
 
-TEST_F(test_Graphics_SpriteSelection, rectConstruct)
+TEST_F(sSelection, rectConstruct)
 {
     EXPECT_EQ(s0._segments, 1);
     EXPECT_EQ(s0._texRect[0], TEST_RECT);
@@ -293,18 +292,18 @@ public:
     mock_SpriteAnimated(pTexture texture,
         unsigned animFrames, unsigned frameTime, eTimer timer = eTimer::SCENE_START, 
         unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false) : SpriteAnimated(texture, animFrames, frameTime, timer, rows, cols, verticalIndexing) {}
-    FRIEND_TEST(test_Graphics_SpriteAnimated, animRectConstruct);
-    FRIEND_TEST(test_Graphics_SpriteAnimated, animUpdate);
+    FRIEND_TEST(sAnimated, animRectConstruct);
+    FRIEND_TEST(sAnimated, animUpdate);
 };
 
-class test_Graphics_SpriteAnimated : public ::testing::Test
+class sAnimated : public ::testing::Test
 {
 protected:
     std::shared_ptr<mock_Texture> pt{ std::make_shared<mock_Texture>() };
     mock_SpriteAnimated s{ pt, 8, 8, eTimer::K11_BOMB, 4, 2 };
     mock_SpriteAnimated ss{ pt, 8,8, eTimer::K11_BOMB, 8, 4, false };
 public:
-    test_Graphics_SpriteAnimated()
+    sAnimated()
     {
         s.setTimer(eTimer::K11_BOMB);
         s.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
@@ -316,7 +315,7 @@ public:
 };
 
 
-TEST_F(test_Graphics_SpriteAnimated, animRectConstruct)
+TEST_F(sAnimated, animRectConstruct)
 {
     int w = TEST_RECT.w / 2;
     int h = TEST_RECT.h / 4;
@@ -333,7 +332,7 @@ TEST_F(test_Graphics_SpriteAnimated, animRectConstruct)
     EXPECT_EQ(ss._texRect[0], Rect(0, 0, ww, hh));
 }
 
-TEST_F(test_Graphics_SpriteAnimated, animUpdate)
+TEST_F(sAnimated, animUpdate)
 {
     gTimers.set(eTimer::K11_BOMB, t0.norm());
     int w = TEST_RECT.w / 2;
@@ -342,7 +341,7 @@ TEST_F(test_Graphics_SpriteAnimated, animUpdate)
     int hh = h / 2;
 
     using namespace ::testing;
-    InSequence dummy;
+    //InSequence dummy;
 
     s.update(t0);
     EXPECT_CALL(*pt, draw(Rect(0 * w, 0 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
@@ -410,28 +409,36 @@ public:
         unsigned animFrames = 1, bool numVerticalIndexing = false):
         SpriteNumber(texture, rect, align, maxDigits, numRows, numCols, frameTime, num, animtimer, animFrames, numVerticalIndexing) {}
 
-    FRIEND_TEST(test_Graphics_SpriteNumber, construct);
-    FRIEND_TEST(test_Graphics_SpriteNumber, numberUpdate);
-    FRIEND_TEST(test_Graphics_SpriteNumber, animUpdate);
+    FRIEND_TEST(sNumber, construct);
+    FRIEND_TEST(sNumber, num_1);
+    FRIEND_TEST(sNumber, num_23);
+    FRIEND_TEST(sNumber, num_456);
+    FRIEND_TEST(sNumber, num_1234);
+    FRIEND_TEST(sNumber, num_0);
+    FRIEND_TEST(sNumber, num_norm_9999);
+    FRIEND_TEST(sNumber, num_norm_m1);
+    FRIEND_TEST(sNumber, num_full_m65532);
+    FRIEND_TEST(sNumber, num_full_0);
+    FRIEND_TEST(sNumber, animUpdate);
 };
 
-class test_Graphics_SpriteNumber : public ::testing::Test
+class sNumber : public ::testing::Test
 {
 protected:
     std::shared_ptr<mock_Texture> pt{ std::make_shared<mock_Texture>() };
     Rect dstRect{ 0,0,10,10 };
     Color dstColor{ 0xFFFFFFFF };
-    mock_SpriteNumber s1{ pt, Rect(0, 0, 100, 160), NumberAlign::NUM_ALIGN_LEFT, 1, 2, 5, 0 };
-    mock_SpriteNumber s{ pt, Rect(0, 0, 100, 160), NumberAlign::NUM_ALIGN_LEFT, 4, 2, 5, 0 };
-    mock_SpriteNumber sa{ pt, Rect(0, 0, 100, 160), NumberAlign::NUM_ALIGN_LEFT, 4, 4, 5, 2, eNumber::_TEST1, eTimer::K11_BOMB, 2, false };
-    mock_SpriteNumber s11{ pt, Rect(0, 0, 110, 160), NumberAlign::NUM_ALIGN_LEFT, 4, 1, 11, 0 };
-    mock_SpriteNumber sa11{ pt, Rect(0, 0, 110, 160), NumberAlign::NUM_ALIGN_LEFT, 4, 4, 11, 4, eNumber::_TEST1, eTimer::K11_BOMB, 4, false };
-    mock_SpriteNumber s24{ pt, Rect(0, 0, 240, 160), NumberAlign::NUM_ALIGN_LEFT, 4, 2, 12, 0 };
-    mock_SpriteNumber sa24{ pt, Rect(0, 0, 240, 160), NumberAlign::NUM_ALIGN_LEFT, 4, 8, 12, 4, eNumber::_TEST1, eTimer::K11_BOMB, 4, false };
-    mock_SpriteNumber sr{ pt, Rect(0, 0, 110, 160), NumberAlign::NUM_ALIGN_RIGHT, 4, 1, 11, 0 };
-    mock_SpriteNumber sc{ pt, Rect(0, 0, 110, 160), NumberAlign::NUM_ALIGN_CENTER, 4, 1, 11, 0 };
+    mock_SpriteNumber s1{ pt, Rect(0, 0, 100, 160), NumberAlign::NUM_ALIGN_LEFT, 1, 2, 5, 0 };  // 20,80
+    mock_SpriteNumber s{ pt, Rect(0, 0, 100, 160), NumberAlign::NUM_ALIGN_LEFT, 4, 2, 5, 0 };   // 20,80
+    mock_SpriteNumber sa{ pt, Rect(0, 0, 100, 160), NumberAlign::NUM_ALIGN_LEFT, 4, 4, 5, 2, eNumber::_TEST1, eTimer::K11_BOMB, 2, false };     // 20,40
+    mock_SpriteNumber s11{ pt, Rect(0, 0, 110, 160), NumberAlign::NUM_ALIGN_LEFT, 4, 1, 11, 0 };    // 10,160
+    mock_SpriteNumber sa11{ pt, Rect(0, 0, 110, 160), NumberAlign::NUM_ALIGN_LEFT, 4, 4, 11, 4, eNumber::_TEST1, eTimer::K11_BOMB, 4, false };  // 10,40
+    mock_SpriteNumber s24{ pt, Rect(0, 0, 240, 160), NumberAlign::NUM_ALIGN_LEFT, 4, 2, 12, 0 };    // 20,80
+    mock_SpriteNumber sa24{ pt, Rect(0, 0, 240, 160), NumberAlign::NUM_ALIGN_LEFT, 4, 8, 12, 4, eNumber::_TEST1, eTimer::K11_BOMB, 4, false };  // 20,30
+    mock_SpriteNumber sr{ pt, Rect(0, 0, 110, 160), NumberAlign::NUM_ALIGN_RIGHT, 4, 1, 11, 0 };    // 10,160
+    mock_SpriteNumber sc{ pt, Rect(0, 0, 110, 160), NumberAlign::NUM_ALIGN_CENTER, 4, 1, 11, 0 };   // 10,160
 public:
-    test_Graphics_SpriteNumber()
+    sNumber()
     {
         s1.setTimer(eTimer::K11_BOMB);
         s1.appendKeyFrame({ 0, {dstRect, RenderParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
@@ -465,19 +472,19 @@ public:
     }
 };
 
-TEST_F(test_Graphics_SpriteNumber, construct)
+TEST_F(sNumber, construct)
 {
-    EXPECT_EQ(s1._sDigit.size(), 1);
+    EXPECT_EQ(s1._maxDigits, 1);
     EXPECT_EQ(s1._numType, NumberType::NUM_TYPE_NORMAL);
-    EXPECT_EQ(s._sDigit.size(), 4);
+    EXPECT_EQ(s._maxDigits, 4);
     EXPECT_EQ(s._numType, NumberType::NUM_TYPE_NORMAL);
-    EXPECT_EQ(sa11._sDigit.size(), 4);
+    EXPECT_EQ(sa11._maxDigits, 4);
     EXPECT_EQ(sa11._numType, NumberType::NUM_TYPE_BLANKZERO);
-    EXPECT_EQ(sa24._sDigit.size(), 4);
+    EXPECT_EQ(sa24._maxDigits, 4);
     EXPECT_EQ(sa24._numType, NumberType::NUM_TYPE_FULL);
 }
 
-TEST_F(test_Graphics_SpriteNumber, numberUpdate)
+TEST_F(sNumber, num_1)
 {
     gTimers.set(eTimer::K11_BOMB, t0.norm());
     using namespace ::testing;
@@ -490,6 +497,11 @@ TEST_F(test_Graphics_SpriteNumber, numberUpdate)
     sa24.update(t0);
     EXPECT_EQ(sa24._digit[0], 1);
     EXPECT_EQ(sa24._digit[1], NUM_FULL_PLUS);
+}
+TEST_F(sNumber, num_23)
+{
+    gTimers.set(eTimer::K11_BOMB, t0.norm());
+    using namespace ::testing;
 
     gNumbers.set(eNumber::_TEST1, 23);
     s.update(t0);
@@ -501,6 +513,12 @@ TEST_F(test_Graphics_SpriteNumber, numberUpdate)
     EXPECT_EQ(sa24._digit[0], 3);
     EXPECT_EQ(sa24._digit[1], 2);
     EXPECT_EQ(sa24._digit[2], NUM_FULL_PLUS);
+}
+TEST_F(sNumber, num_456)
+{
+    gTimers.set(eTimer::K11_BOMB, t0.norm());
+    using namespace ::testing;
+
 
     gNumbers.set(eNumber::_TEST1, 456);
     s.update(t0);
@@ -511,6 +529,12 @@ TEST_F(test_Graphics_SpriteNumber, numberUpdate)
     EXPECT_EQ(sa11._digit[2], 4);
     sa24.update(t0);
     EXPECT_THAT(sa24._digit, ElementsAre(6, 5, 4, NUM_FULL_PLUS));
+}
+TEST_F(sNumber, num_1234)
+{
+    gTimers.set(eTimer::K11_BOMB, t0.norm());
+    using namespace ::testing;
+
 
     gNumbers.set(eNumber::_TEST1, 1234);
     s.update(t0);
@@ -519,6 +543,12 @@ TEST_F(test_Graphics_SpriteNumber, numberUpdate)
     EXPECT_THAT(sa11._digit, ElementsAre(4, 3, 2, 1));
     sa24.update(t0);
     EXPECT_THAT(sa24._digit, ElementsAre(4, 3, 2, NUM_FULL_PLUS));
+}
+TEST_F(sNumber, num_0)
+{
+    gTimers.set(eTimer::K11_BOMB, t0.norm());
+    using namespace ::testing;
+
 
     gNumbers.set(eNumber::_TEST1, 0);
     s.update(t0);
@@ -528,14 +558,35 @@ TEST_F(test_Graphics_SpriteNumber, numberUpdate)
     sa24.update(t0);
     EXPECT_EQ(sa24._digit[0], 0);
     EXPECT_EQ(sa24._digit[1], NUM_FULL_PLUS);
+}
+
+TEST_F(sNumber, num_norm_9999)
+{
+    gTimers.set(eTimer::K11_BOMB, t0.norm());
+    using namespace ::testing;
+
 
     gNumbers.set(eNumber::_TEST1, 9999);
     s.update(t0);
     EXPECT_THAT(s._digit, ElementsAre(9, 9, 9, 9));
+}
+
+TEST_F(sNumber, num_norm_m1)
+{
+    gTimers.set(eTimer::K11_BOMB, t0.norm());
+    using namespace ::testing;
+
 
     gNumbers.set(eNumber::_TEST1, 2147483647);
     s.update(t0);
     EXPECT_THAT(s._digit, ElementsAre(7, 4, 6, 3));
+}
+
+TEST_F(sNumber, num_full_m65532)
+{
+    gTimers.set(eTimer::K11_BOMB, t0.norm());
+    using namespace ::testing;
+
 
     gNumbers.set(eNumber::_TEST1, -65532);
     s.update(t0);
@@ -544,6 +595,13 @@ TEST_F(test_Graphics_SpriteNumber, numberUpdate)
     EXPECT_THAT(sa11._digit, ElementsAre(2, 3, 5, 5));
     sa24.update(t0);
     EXPECT_THAT(sa24._digit, ElementsAre(12+2, 12+3, 12+5, NUM_FULL_MINUS));
+}
+
+TEST_F(sNumber, num_full_0)
+{
+    gTimers.set(eTimer::K11_BOMB, t0.norm());
+    using namespace ::testing;
+
 
     gNumbers.set(eNumber::_TEST1, 0);
     s.update(t0);
@@ -553,10 +611,9 @@ TEST_F(test_Graphics_SpriteNumber, numberUpdate)
     sa24.update(t0);
     EXPECT_EQ(sa24._digit[0], 0);
     EXPECT_EQ(sa24._digit[1], NUM_FULL_PLUS);
-
 }
 
-TEST_F(test_Graphics_SpriteNumber, rectUpdate_normal_1)
+TEST_F(sNumber, rect_normal_1)
 {
     gTimers.set(eTimer::K11_BOMB, t0.norm());
 
@@ -569,255 +626,297 @@ TEST_F(test_Graphics_SpriteNumber, rectUpdate_normal_1)
 }
 
 
-TEST_F(test_Graphics_SpriteNumber, rectUpdate_normal_4)
+TEST_F(sNumber, rect_normal_4)
 {
     gTimers.set(eTimer::K11_BOMB, t0.norm());
     using namespace ::testing;
 
     {
-        InSequence dummy;
+        //InSequence dummy;
         gNumbers.set(eNumber::_TEST1, 456);
         s.update(t0);
 
-        EXPECT_CALL(*pt, draw(Rect(80, 0, 20, 80), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(0, 80, 20, 80), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         EXPECT_CALL(*pt, draw(Rect(20, 80, 20, 80), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(0, 80, 20, 80), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(80, 0, 20, 80), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        //EXPECT_CALL(*pt, draw(Rect(0, 0, 20, 80), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
         s.draw();
     }
     {
-        InSequence dummy;
+        //InSequence dummy;
         gNumbers.set(eNumber::_TEST1, 1234);
         s.update(t0);
 
-        EXPECT_CALL(*pt, draw(Rect(20, 0, 20, 80), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(40, 0, 20, 80), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(60, 0, 20, 80), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         EXPECT_CALL(*pt, draw(Rect(80, 0, 20, 80), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(60, 0, 20, 80), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(40, 0, 20, 80), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(20, 0, 20, 80), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         s.draw();
     }
 
     {
-        InSequence dummy;
+        //InSequence dummy;
         gNumbers.set(eNumber::_TEST1, 6789);
         s.update(t0);
 
-        EXPECT_CALL(*pt, draw(Rect(20, 80, 20, 80), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(40, 80, 20, 80), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(60, 80, 20, 80), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         EXPECT_CALL(*pt, draw(Rect(80, 80, 20, 80), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(60, 80, 20, 80), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(40, 80, 20, 80), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(20, 80, 20, 80), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         s.draw();
     }
 
     {
-        InSequence dummy;
+        //InSequence dummy;
         gNumbers.set(eNumber::_TEST1, 0);
         s.update(t0);
 
         EXPECT_CALL(*pt, draw(Rect(0, 0, 20, 80), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        //EXPECT_CALL(*pt, draw(Rect(0, 0, 20, 80), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
+        //EXPECT_CALL(*pt, draw(Rect(0, 0, 20, 80), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
+        //EXPECT_CALL(*pt, draw(Rect(0, 0, 20, 80), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
         s.draw();
     }
 }
 
 
-TEST_F(test_Graphics_SpriteNumber, rectUpdate_bzero_4)
+TEST_F(sNumber, rect_bzero_4)
 {
     gTimers.set(eTimer::K11_BOMB, t0.norm());
     using namespace ::testing;
 
     {
-        InSequence dummy;
+        //InSequence dummy;
         gNumbers.set(eNumber::_TEST1, 123);
         s11.update(t0);
 
-        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 160), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(20, 0, 10, 160), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         EXPECT_CALL(*pt, draw(Rect(30, 0, 10, 160), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        // extra 0s for left align is not drawn
-        //EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(20, 0, 10, 160), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 160), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        //EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
         s11.draw();
     }
 
     {
-        InSequence dummy;
+        //InSequence dummy;
         gNumbers.set(eNumber::_TEST1, 6789);
         s11.update(t0);
 
-        EXPECT_CALL(*pt, draw(Rect(60, 0, 10, 160), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(70, 0, 10, 160), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(80, 0, 10, 160), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         EXPECT_CALL(*pt, draw(Rect(90, 0, 10, 160), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(80, 0, 10, 160), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(70, 0, 10, 160), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(60, 0, 10, 160), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         s11.draw();
     }
 
     {
-        InSequence dummy;
+        //InSequence dummy;
         gNumbers.set(eNumber::_TEST1, 0);
         s11.update(t0);
 
-        EXPECT_CALL(*pt, draw(Rect(0, 0, 10, 160), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        // extra 0s for left align is not drawn
-        //EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        //EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        //EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(0, 0, 10, 160), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);     //0
+
+        //EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
+        //EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
+        //EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
         s11.draw();
     }
 }
 
 
 
-TEST_F(test_Graphics_SpriteNumber, rectUpdate_full_4)
+TEST_F(sNumber, rect_full_4)
 {
     gTimers.set(eTimer::K11_BOMB, t0.norm());
     using namespace ::testing;
 
     {
-        InSequence dummy;
+        //InSequence dummy;
         gNumbers.set(eNumber::_TEST1, 123);
         s24.update(t0);
 
-        EXPECT_CALL(*pt, draw(Rect(220, 0, 20, 80), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1); // +
-        EXPECT_CALL(*pt, draw(Rect(20, 0, 20, 80), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1); // 1
-        EXPECT_CALL(*pt, draw(Rect(40, 0, 20, 80), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1); // 2
         EXPECT_CALL(*pt, draw(Rect(60, 0, 20, 80), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1); // 3
+        EXPECT_CALL(*pt, draw(Rect(40, 0, 20, 80), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1); // 2
+        EXPECT_CALL(*pt, draw(Rect(20, 0, 20, 80), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1); // 1
+        EXPECT_CALL(*pt, draw(Rect(220, 0, 20, 80), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1); // +
         s24.draw();
     }
 
     {
-        InSequence dummy;
+        //InSequence dummy;
         gNumbers.set(eNumber::_TEST1, 6789);
         s24.update(t0);
 
-        EXPECT_CALL(*pt, draw(Rect(220, 0, 20, 80), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  // +
-        EXPECT_CALL(*pt, draw(Rect(140, 0, 20, 80), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1); // 7
-        EXPECT_CALL(*pt, draw(Rect(160, 0, 20, 80), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1); // 8
         EXPECT_CALL(*pt, draw(Rect(180, 0, 20, 80), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1); // 9
+        EXPECT_CALL(*pt, draw(Rect(160, 0, 20, 80), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1); // 8
+        EXPECT_CALL(*pt, draw(Rect(140, 0, 20, 80), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1); // 7
+        EXPECT_CALL(*pt, draw(Rect(220, 0, 20, 80), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  // +
         s24.draw();
     }
 
     {
-        InSequence dummy;
+        //InSequence dummy;
         gNumbers.set(eNumber::_TEST1, -20);
         s24.update(t0);
 
-        EXPECT_CALL(*pt, draw(Rect(220, 80, 20, 80), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);   // -
-        EXPECT_CALL(*pt, draw(Rect(40, 80, 20, 80), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);   // 2
         EXPECT_CALL(*pt, draw(Rect(0, 80, 20, 80), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);    // 0
+        EXPECT_CALL(*pt, draw(Rect(40, 80, 20, 80), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);   // 2
+        EXPECT_CALL(*pt, draw(Rect(220, 80, 20, 80), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);   // -
+
         //EXPECT_CALL(*pt, draw(Rect(200, 80, 20, 80), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  // b
         s24.draw();
     }
 }
 
 
-TEST_F(test_Graphics_SpriteNumber, rectUpdate_bzero_4_right)
+TEST_F(sNumber, rect_bzero_4_right)
 {
     gTimers.set(eTimer::K11_BOMB, t0.norm());
     using namespace ::testing;
 
     {
-        InSequence dummy;
+        //InSequence dummy;
         gNumbers.set(eNumber::_TEST1, 123);
         sr.update(t0);
 
-        EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 160), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(20, 0, 10, 160), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         EXPECT_CALL(*pt, draw(Rect(30, 0, 10, 160), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(20, 0, 10, 160), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 160), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         sr.draw();
     }
 
     {
-        InSequence dummy;
+        //InSequence dummy;
         gNumbers.set(eNumber::_TEST1, 6789);
         sr.update(t0);
 
-        EXPECT_CALL(*pt, draw(Rect(60, 0, 10, 160), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(70, 0, 10, 160), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(80, 0, 10, 160), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         EXPECT_CALL(*pt, draw(Rect(90, 0, 10, 160), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(80, 0, 10, 160), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(70, 0, 10, 160), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(60, 0, 10, 160), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         sr.draw();
     }
 
     {
-        InSequence dummy;
+        //InSequence dummy;
         gNumbers.set(eNumber::_TEST1, 0);
         sr.update(t0);
 
-        EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         EXPECT_CALL(*pt, draw(Rect(0, 0, 10, 160), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         sr.draw();
     }
 }
 
-TEST_F(test_Graphics_SpriteNumber, rectUpdate_bzero_4_anim)
+TEST_F(sNumber, rect_bzero_4_anim_1_123)
 {
     gTimers.set(eTimer::K11_BOMB, t0.norm());
     using namespace ::testing;
 
     // time: 1
     {
-        InSequence dummy;
+        //InSequence dummy;
         gNumbers.set(eNumber::_TEST1, 123);
         sa11.update(t1);
 
-        EXPECT_CALL(*pt, draw(Rect(10, 40, 10, 40), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(20, 40, 10, 40), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         EXPECT_CALL(*pt, draw(Rect(30, 40, 10, 40), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(20, 40, 10, 40), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(10, 40, 10, 40), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        //EXPECT_CALL(*pt, draw(Rect(100, 40, 10, 40), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
         sa11.draw();
     }
 
+}
+TEST_F(sNumber, rect_bzero_4_anim_1_6789)
+{
+    gTimers.set(eTimer::K11_BOMB, t0.norm());
+    using namespace ::testing;
+
     {
-        InSequence dummy;
+        //InSequence dummy;
         gNumbers.set(eNumber::_TEST1, 6789);
         sa11.update(t1);
 
-        EXPECT_CALL(*pt, draw(Rect(60, 40, 10, 40), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(70, 40, 10, 40), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(80, 40, 10, 40), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         EXPECT_CALL(*pt, draw(Rect(90, 40, 10, 40), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(80, 40, 10, 40), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(70, 40, 10, 40), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(60, 40, 10, 40), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         sa11.draw();
     }
 
+}
+TEST_F(sNumber, rect_bzero_4_anim_1_0)
+{
+    gTimers.set(eTimer::K11_BOMB, t0.norm());
+    using namespace ::testing;
+
     {
-        InSequence dummy;
+        //InSequence dummy;
         gNumbers.set(eNumber::_TEST1, 0);
         sa11.update(t1);
 
         EXPECT_CALL(*pt, draw(Rect(0, 40, 10, 40), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        //EXPECT_CALL(*pt, draw(Rect(100, 40, 10, 40), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
+        //EXPECT_CALL(*pt, draw(Rect(100, 40, 10, 40), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
+        //EXPECT_CALL(*pt, draw(Rect(100, 40, 10, 40), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
         sa11.draw();
     }
+
+}
+TEST_F(sNumber, rect_bzero_4_anim_3_123)
+{
+    gTimers.set(eTimer::K11_BOMB, t0.norm());
+    using namespace ::testing;
 
     //time: 3
     {
-        InSequence dummy;
+        //InSequence dummy;
         gNumbers.set(eNumber::_TEST1, 123);
         sa11.update(t3);
 
-        EXPECT_CALL(*pt, draw(Rect(10, 120, 10, 40), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(20, 120, 10, 40), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         EXPECT_CALL(*pt, draw(Rect(30, 120, 10, 40), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(20, 120, 10, 40), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(10, 120, 10, 40), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        //EXPECT_CALL(*pt, draw(Rect(100, 40, 10, 40), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
         sa11.draw();
     }
 
+}
+TEST_F(sNumber, rect_bzero_4_anim_3_6789)
+{
+    gTimers.set(eTimer::K11_BOMB, t0.norm());
+    using namespace ::testing;
+
     {
-        InSequence dummy;
+        //InSequence dummy;
         gNumbers.set(eNumber::_TEST1, 6789);
         sa11.update(t3);
 
-        EXPECT_CALL(*pt, draw(Rect(60, 120, 10, 40), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(70, 120, 10, 40), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(80, 120, 10, 40), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         EXPECT_CALL(*pt, draw(Rect(90, 120, 10, 40), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(80, 120, 10, 40), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(70, 120, 10, 40), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(60, 120, 10, 40), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         sa11.draw();
     }
 
+}
+TEST_F(sNumber, rect_bzero_4_anim_3_0)
+{
+    gTimers.set(eTimer::K11_BOMB, t0.norm());
+    using namespace ::testing;
+
     {
-        InSequence dummy;
+        //InSequence dummy;
         gNumbers.set(eNumber::_TEST1, 0);
         sa11.update(t3);
 
         EXPECT_CALL(*pt, draw(Rect(0, 120, 10, 40), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        //EXPECT_CALL(*pt, draw(Rect(100, 40, 10, 40), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
+        //EXPECT_CALL(*pt, draw(Rect(100, 40, 10, 40), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
+        //EXPECT_CALL(*pt, draw(Rect(100, 40, 10, 40), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
         sa11.draw();
     }
 }
@@ -836,7 +935,7 @@ public:
         SpriteSlider(texture, rect, dir, range, animFrames, frameTime, ind, animtimer, selRows, selCols, selVerticalIndexing) {}
 };
 
-class test_Graphics_SpriteSlider : public ::testing::Test
+class sSlider : public ::testing::Test
 {
 protected:
     std::shared_ptr<mock_Texture> pt{ std::make_shared<mock_Texture>() };
@@ -845,7 +944,7 @@ protected:
     mock_SpriteSlider sU{ pt, TEST_RECT, SliderDirection::UP, 201, 1, 0 };
     mock_SpriteSlider sD{ pt, TEST_RECT, SliderDirection::DOWN, 201, 1, 0 };
 public:
-    test_Graphics_SpriteSlider()
+    sSlider()
     {
         sL.setTimer(eTimer::K11_BOMB);
         sL.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
@@ -862,13 +961,13 @@ public:
     }
 };
 
-TEST_F(test_Graphics_SpriteSlider, updateLeft)
+TEST_F(sSlider, updateLeft)
 {
     gTimers.set(eTimer::K11_BOMB, t0.norm());
     using namespace ::testing;
     auto& s = sL;
 
-    InSequence dummy;
+    //InSequence dummy;
     gSliders.set(eSlider::_TEST1, 0);
     s.update(t0);
     //EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
@@ -894,13 +993,13 @@ TEST_F(test_Graphics_SpriteSlider, updateLeft)
     EXPECT_EQ(s.getCurrentRenderParams().rect, Rect(-100, 0, 0, 0));
 }
 
-TEST_F(test_Graphics_SpriteSlider, updateRight)
+TEST_F(sSlider, updateRight)
 {
     gTimers.set(eTimer::K11_BOMB, t0.norm());
     using namespace ::testing;
     auto& s = sR;
 
-    InSequence dummy;
+    //InSequence dummy;
     gSliders.set(eSlider::_TEST1, 0);
     s.update(t0);
     EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
@@ -922,13 +1021,13 @@ TEST_F(test_Graphics_SpriteSlider, updateRight)
     s.draw();
 }
 
-TEST_F(test_Graphics_SpriteSlider, updateUp)
+TEST_F(sSlider, updateUp)
 {
     gTimers.set(eTimer::K11_BOMB, t0.norm());
     using namespace ::testing;
     auto& s = sU;
 
-    InSequence dummy;
+    //InSequence dummy;
     gSliders.set(eSlider::_TEST1, 0);
     s.update(t0);
     EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
@@ -950,13 +1049,13 @@ TEST_F(test_Graphics_SpriteSlider, updateUp)
     s.draw();
 }
 
-TEST_F(test_Graphics_SpriteSlider, updateDown)
+TEST_F(sSlider, updateDown)
 {
     gTimers.set(eTimer::K11_BOMB, t0.norm());
     using namespace ::testing;
     auto& s = sD;
 
-    InSequence dummy;
+    //InSequence dummy;
     gSliders.set(eSlider::_TEST1, 0);
     s.update(t0);
     EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
@@ -992,7 +1091,7 @@ public:
         SpriteBargraph(texture, rect, dir, animFrames, frameTime, ind, animtimer, selRows, selCols, selVerticalIndexing) {}
 };
 
-class test_Graphics_SpriteBargraph : public ::testing::Test
+class sBargraph : public ::testing::Test
 {
 protected:
     std::shared_ptr<mock_Texture> pt{ std::make_shared<mock_Texture>() };
@@ -1001,7 +1100,7 @@ protected:
     mock_SpriteBargraph sU{ pt, TEST_RECT, BargraphDirection::UP, 1, 0 };
     mock_SpriteBargraph sD{ pt, TEST_RECT, BargraphDirection::DOWN, 1, 0 };
 public:
-    test_Graphics_SpriteBargraph()
+    sBargraph()
     {
         sL.setTimer(eTimer::K11_BOMB);
         sL.appendKeyFrame({ 0, {Rect(0, 0, 200, 200), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
@@ -1018,13 +1117,13 @@ public:
     }
 };
 
-TEST_F(test_Graphics_SpriteBargraph, updateLeft)
+TEST_F(sBargraph, updateLeft)
 {
     gTimers.set(eTimer::K11_BOMB, t0.norm());
     using namespace ::testing;
     auto& s = sL;
 
-    InSequence dummy;
+    //InSequence dummy;
     gBargraphs.set(eBargraph::_TEST1, 0);
     s.update(t0);
     //EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
@@ -1050,13 +1149,13 @@ TEST_F(test_Graphics_SpriteBargraph, updateLeft)
     EXPECT_EQ(s.getCurrentRenderParams().rect, Rect(0, 0, 200, 200));
 }
 
-TEST_F(test_Graphics_SpriteBargraph, updateRight)
+TEST_F(sBargraph, updateRight)
 {
     gTimers.set(eTimer::K11_BOMB, t0.norm());
     using namespace ::testing;
     auto& s = sR;
 
-    InSequence dummy;
+    //InSequence dummy;
     gBargraphs.set(eBargraph::_TEST1, 0);
     s.update(t0);
     EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
@@ -1078,13 +1177,13 @@ TEST_F(test_Graphics_SpriteBargraph, updateRight)
     s.draw();
 }
 
-TEST_F(test_Graphics_SpriteBargraph, updateUp)
+TEST_F(sBargraph, updateUp)
 {
     gTimers.set(eTimer::K11_BOMB, t0.norm());
     using namespace ::testing;
     auto& s = sU;
 
-    InSequence dummy;
+    //InSequence dummy;
     gBargraphs.set(eBargraph::_TEST1, 0);
     s.update(t0);
     EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 200, 200, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
@@ -1106,13 +1205,13 @@ TEST_F(test_Graphics_SpriteBargraph, updateUp)
     s.draw();
 }
 
-TEST_F(test_Graphics_SpriteBargraph, updateDown)
+TEST_F(sBargraph, updateDown)
 {
     gTimers.set(eTimer::K11_BOMB, t0.norm());
     using namespace ::testing;
     auto& s = sD;
 
-    InSequence dummy;
+    //InSequence dummy;
     gBargraphs.set(eBargraph::_TEST1, 0);
     s.update(t0);
     EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 200, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
@@ -1148,11 +1247,11 @@ public:
         unsigned animFrames, unsigned frameTime, eTimer timer = eTimer::K11_BOMB,
         unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false) : 
         SpriteOption(texture, animFrames, frameTime, timer, rows, cols, verticalIndexing) {}
-    FRIEND_TEST(test_Graphics_SpriteOption, switchTest);
-    FRIEND_TEST(test_Graphics_SpriteOption, optionTest);
+    FRIEND_TEST(sOption, switchTest);
+    FRIEND_TEST(sOption, optionTest);
 };
 
-class test_Graphics_SpriteOption : public ::testing::Test
+class sOption : public ::testing::Test
 {
 protected:
     std::shared_ptr<mock_Texture> pt{ std::make_shared<mock_Texture>() };
@@ -1160,7 +1259,7 @@ protected:
     mock_SpriteOption ss0{ pt, 1, 1, eTimer::K11_BOMB, 1, 1 };
     mock_SpriteOption so{ pt, 1, 1, eTimer::K11_BOMB, 2, 3 };
 public:
-    test_Graphics_SpriteOption()
+    sOption()
     {
         ss.setTimer(eTimer::K11_BOMB);
         ss.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
@@ -1177,7 +1276,7 @@ public:
     }
 };
 
-TEST_F(test_Graphics_SpriteOption, switchTest)
+TEST_F(sOption, switchTest)
 {
     ASSERT_EQ(ss._opType, SpriteOption::opType::SWITCH);
     ASSERT_EQ(ss0._opType, SpriteOption::opType::SWITCH);
@@ -1194,7 +1293,7 @@ TEST_F(test_Graphics_SpriteOption, switchTest)
 }
 
 
-TEST_F(test_Graphics_SpriteOption, optionTest)
+TEST_F(sOption, optionTest)
 {
     ASSERT_EQ(so._opType, SpriteOption::opType::OPTION);
     gOptions.set(eOption::_TEST1, 0);
@@ -1229,14 +1328,14 @@ public:
         SpriteGaugeGrid(texture, rect, animFrames, frameTime, dx, dy, min, max, grids, timer, num, selRows, selCols, selVerticalIndexing) {}
 };
 
-class test_Graphics_SpriteGaugeGrid : public ::testing::Test
+class sGaugeGrid : public ::testing::Test
 {
 protected:
     std::shared_ptr<mock_Texture> pt{ std::make_shared<mock_Texture>() };
     mock_SpriteGaugeGrid s1{ pt, Rect(0, 0, 40, 40), 1, 0, 10, 0, 0, 100, 50, eTimer::K11_BOMB, eNumber::PLAY_1P_GROOVEGAUGE, 1, 4 };
     mock_SpriteGaugeGrid s2{ pt, Rect(0, 0, 60, 40), 1, 0, -10, 0, 0, 100, 50, eTimer::K11_BOMB, eNumber::PLAY_2P_GROOVEGAUGE, 1, 6 };
 public:
-    test_Graphics_SpriteGaugeGrid()
+    sGaugeGrid()
     {
         s1.setTimer(eTimer::K11_BOMB);
         s1.appendKeyFrame({ 0, {Rect(0, 0, 10, 40), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
@@ -1251,7 +1350,7 @@ public:
     }
 };
 
-TEST_F(test_Graphics_SpriteGaugeGrid, valUpdate)
+TEST_F(sGaugeGrid, valUpdate)
 {
     using::testing::_;
     {

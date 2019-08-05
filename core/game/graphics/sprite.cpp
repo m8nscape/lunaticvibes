@@ -480,7 +480,7 @@ bool SpriteNumber::update(timestamp t)
         case NUM_ALIGN_LEFT:
         {
             Rect offset{ int(_current.rect.w * (_numDigits - 1)),0,0,0 };
-            for (size_t i = 0; i < _maxDigits; ++i)
+            for (size_t i = 0; i < _numDigits; ++i)
             {
                 _rects[i] = _current.rect + offset;
                 offset.x -= _current.rect.w;
@@ -613,7 +613,19 @@ void SpriteNumber::draw() const
         //for (size_t i = 0; i < _outRectDigit.size(); ++i)
         //    _pTexture->draw(_drawRectDigit[i], _outRectDigit[i], _current.angle);
 
-        size_t max = (_alignType == NUM_ALIGN_RIGHT && _inhibitZero) ? _numDigits : _maxDigits;
+        size_t max = 0;
+        switch (_alignType)
+        {
+        case NUM_ALIGN_RIGHT:
+            max = _inhibitZero ? _numDigits : _maxDigits;
+            break;
+        case NUM_ALIGN_LEFT:
+        case NUM_ALIGN_CENTER:
+            max = _numDigits;
+            break;
+        default:
+            break;
+        }
         for (size_t i = 0; i < max; ++i)
         {
             _pTexture->draw(_texRect[_currAnimFrame * _selections + _digit[i]], _rects[i],

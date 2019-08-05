@@ -37,7 +37,7 @@ int stoine(const std::string& str) noexcept
         // Not using atoi, since overflow behavior is undefined
         return std::stoi(str);
     }
-    catch (std::invalid_argument& e)
+    catch (std::invalid_argument&)
     {
         return 0;
     }

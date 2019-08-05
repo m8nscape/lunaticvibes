@@ -15,258 +15,255 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\common\utils.cpp">
+    <ClCompile Include="common\asynclooper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\scene\scene.cpp">
+    <ClCompile Include="common\chart\bms.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\skin\skin.cpp">
+    <ClCompile Include="common\chart\chart.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\sound\sound_fmod.cpp">
+    <ClCompile Include="common\fraction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\sound\sound_mgr.cpp">
+    <ClCompile Include="common\utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\graphics\SDL2\common_SDL2.cpp">
+    <ClCompile Include="config\cfg_general.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\graphics\SDL2\rect_SDL2.cpp">
+    <ClCompile Include="config\cfg_input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\graphics\SDL2\ttf_SDL2.cpp">
+    <ClCompile Include="config\cfg_profile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\graphics\SDL2\window_SDL2.cpp">
+    <ClCompile Include="config\cfg_skin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\graphics\sprite.cpp">
+    <ClCompile Include="config\config.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\input\input_mgr.cpp">
+    <ClCompile Include="game\graphics\SDL2\common_SDL2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\input\input_windows.cpp">
+    <ClCompile Include="game\graphics\SDL2\rect_SDL2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\input\input_wrapper.cpp">
+    <ClCompile Include="game\graphics\SDL2\ttf_SDL2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\skin\skin_lr2.cpp">
+    <ClCompile Include="game\graphics\SDL2\window_SDL2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\sound\sound_fmod_callback.cpp">
+    <ClCompile Include="game\graphics\sprite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\main.cpp">
+    <ClCompile Include="game\graphics\sprite_lane.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\skin\skin_mgr.cpp">
+    <ClCompile Include="game\input\input_linux.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\common\chart\bms.cpp">
+    <ClCompile Include="game\input\input_mgr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\ruleset\ruleset_classic.cpp">
+    <ClCompile Include="game\input\input_windows.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\scroll\scroll_bms.cpp">
+    <ClCompile Include="game\input\input_wrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\scroll\scroll.cpp">
+    <ClCompile Include="game\ruleset\ruleset_classic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\scene\scene_play.cpp">
+    <ClCompile Include="game\scene\scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\graphics\sprite_lane.cpp">
+    <ClCompile Include="game\scene\scene_mgr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\scene\scene_mgr.cpp">
+    <ClCompile Include="game\scene\scene_play.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\common\fraction.cpp">
+    <ClCompile Include="game\scroll\scroll.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\common\asynclooper.cpp">
+    <ClCompile Include="game\scroll\scroll_bms.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\common\chart\chart.cpp">
+    <ClCompile Include="game\skin\skin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\config\config.cpp">
+    <ClCompile Include="game\skin\skin_lr2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\config\cfg_general.cpp">
+    <ClCompile Include="game\skin\skin_lr2_dst.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\config\cfg_profile.cpp">
+    <ClCompile Include="game\skin\skin_mgr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\config\cfg_input.cpp">
+    <ClCompile Include="game\sound\sound_fmod.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\input\input_linux.cpp">
+    <ClCompile Include="game\sound\sound_fmod_callback.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\config\cfg_skin.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\skin\skin_lr2_dst.cpp">
+    <ClCompile Include="game\sound\sound_mgr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\common\utils.h">
+    <ClInclude Include="common\asynclooper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\defs\defs_file.h">
+    <ClInclude Include="common\beat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\defs\defs_scene.h">
+    <ClInclude Include="common\chart\bms.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\scene\scene.h">
+    <ClInclude Include="common\chart\chart.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\skin\skin.h">
+    <ClInclude Include="common\defs\defs_file.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\sound\sound_driver.h">
+    <ClInclude Include="common\defs\defs_play.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\sound\sound_fmod.h">
+    <ClInclude Include="common\defs\defs_scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\sound\sound_mgr.h">
+    <ClInclude Include="common\fraction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\defs\defs_play.h">
+    <ClInclude Include="common\meta.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\data\number.h">
+    <ClInclude Include="common\types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\data\slider.h">
+    <ClInclude Include="common\utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\data\switch.h">
+    <ClInclude Include="config\cfg_general.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\data\timer.h">
+    <ClInclude Include="config\cfg_input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\graphics\SDL2\graphics_SDL2.h">
+    <ClInclude Include="config\cfg_profile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\graphics\SDL2\window_SDL2.h">
+    <ClInclude Include="config\cfg_skin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\graphics\graphics.h">
+    <ClInclude Include="config\config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\graphics\sprite.h">
+    <ClInclude Include="config\config_mgr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\input\input_mgr.h">
+    <ClInclude Include="game\data\bargraph.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\input\input_wrapper.h">
+    <ClInclude Include="game\data\buffered_global.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\skin\skin_lr2.h">
+    <ClInclude Include="game\data\number.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\skin\skin_new.h">
+    <ClInclude Include="game\data\option.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\sound\sound_fmod_callback.h">
+    <ClInclude Include="game\data\slider.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\types.h">
+    <ClInclude Include="game\data\switch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\data\buffered_global.h">
+    <ClInclude Include="game\data\text.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\skin\skin_mgr.h">
+    <ClInclude Include="game\data\timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\scene\scene_play.h">
+    <ClInclude Include="game\generic_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\data\option.h">
+    <ClInclude Include="game\graphics\graphics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\ruleset\ruleset.h">
+    <ClInclude Include="game\graphics\SDL2\graphics_SDL2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\beat.h">
+    <ClInclude Include="game\graphics\SDL2\window_SDL2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\chart\bms.h">
+    <ClInclude Include="game\graphics\sprite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\ruleset\ruleset_classic.h">
+    <ClInclude Include="game\graphics\sprite_lane.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\chart\chart.h">
+    <ClInclude Include="game\input\input_keys.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\scroll\scroll.h">
+    <ClInclude Include="game\input\input_mgr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\scroll\scroll_bms.h">
+    <ClInclude Include="game\input\input_wrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\graphics\sprite_lane.h">
+    <ClInclude Include="game\ruleset\ruleset.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\asynclooper.h">
+    <ClInclude Include="game\ruleset\ruleset_classic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\scene\scene_mgr.h">
+    <ClInclude Include="game\scene\scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\fraction.h">
+    <ClInclude Include="game\scene\scene_context.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\config\config.h">
+    <ClInclude Include="game\scene\scene_mgr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\config\config_mgr.h">
+    <ClInclude Include="game\scene\scene_play.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\config\cfg_general.h">
+    <ClInclude Include="game\scroll\scroll.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\config\cfg_profile.h">
+    <ClInclude Include="game\scroll\scroll_bms.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\config\cfg_input.h">
+    <ClInclude Include="game\skin\skin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\scene\scene_context.h">
+    <ClInclude Include="game\skin\skin_lr2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\input\input_keys.h">
+    <ClInclude Include="game\skin\skin_mgr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\config\cfg_skin.h">
+    <ClInclude Include="game\skin\skin_new.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\meta.h">
+    <ClInclude Include="game\sound\sound_driver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\data\text.h">
+    <ClInclude Include="game\sound\sound_fmod.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\generic_info.h">
+    <ClInclude Include="game\sound\sound_fmod_callback.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\data\bargraph.h">
+    <ClInclude Include="game\sound\sound_mgr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
