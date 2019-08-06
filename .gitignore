@@ -28,6 +28,8 @@ log.txt
 [Rr]eleases/
 x64/
 x86/
+Win32/
+build/
 bld/
 [Bb]in/
 [Oo]bj/

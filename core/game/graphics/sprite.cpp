@@ -915,8 +915,8 @@ bool SpriteGaugeGrid::update(timestamp t)
 		case FlashType::CLASSIC:
 			for (unsigned i = 0; i < _val; ++i)
 				_lighting[i] = true;
-			if (_val - 3 >= 0 && _val - 3 < _grids && !!t.norm() / 17 % 2) _lighting[_val - 3] = false; // -3 grid: 17ms, per 2 units (1 0 1 0)
-			if (_val - 2 >= 0 && _val - 2 < _grids && !!t.norm() / 17 % 4) _lighting[_val - 2] = false; // -2 grid: 17ms, per 4 units (1 0 0 0)
+			if (_val - 3 >= 0 && _val - 3 < _grids && t.norm() / 17 % 2) _lighting[_val - 3] = false; // -3 grid: 17ms, per 2 units (1 0 1 0)
+			if (_val - 2 >= 0 && _val - 2 < _grids && t.norm() / 17 % 4) _lighting[_val - 2] = false; // -2 grid: 17ms, per 4 units (1 0 0 0)
 			for (unsigned i = _val; i < _grids; ++i)
 				_lighting[i] = false;
 			break;
