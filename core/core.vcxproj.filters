@@ -114,6 +114,9 @@
     <ClCompile Include="game\sound\sound_mgr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="game\scene\scene_context.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\asynclooper.h">
@@ -126,15 +129,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="common\chart\chart.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="common\defs\defs_file.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="common\defs\defs_play.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="common\defs\defs_scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="common\fraction.h">

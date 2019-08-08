@@ -29,12 +29,9 @@ class ScenePlay : public vScene
 private:
     ePlayState _state;
     ePlayMode _mode;
-    eRuleset  _rule;
-    unsigned  _keys;
     InputMask _inputAvailable;
     StringPath _chartPath;
     std::vector<size_t> _currentKeySample;
-    std::shared_ptr<vRuleset> _pRuleset;
     std::mutex _mutex;
 
 private:
@@ -42,7 +39,7 @@ private:
     bool _isHoldingSelect = false;
 
 public:
-    ScenePlay(ePlayMode mode, unsigned keys, eRuleset ruleset);
+    ScenePlay(ePlayMode);
     virtual ~ScenePlay() = default;
 
 private:

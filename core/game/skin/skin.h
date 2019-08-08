@@ -1,6 +1,5 @@
 #pragma once
 #include "game/graphics/sprite.h"
-#include "defs/defs_scene.h"
 #include "types.h"
 #include <vector>
 #include <map>

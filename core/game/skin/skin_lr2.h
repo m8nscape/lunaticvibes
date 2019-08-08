@@ -1294,6 +1294,13 @@ namespace LR2
 		ONMOUSE,
 		TEXT
 	};
+
+    const size_t GLOBAL_SPRITE_IDX_1PJUDGE = 0;
+    const size_t GLOBAL_SPRITE_IDX_1PJUDGENUM = 6;
+    const size_t GLOBAL_SPRITE_IDX_2PJUDGE = 12;
+    const size_t GLOBAL_SPRITE_IDX_2PJUDGENUM = 18;
+    const size_t GLOBAL_SPRITE_IDX_1PGAUGE = 24;
+    const size_t GLOBAL_SPRITE_IDX_2PGAUGE = 25;
 }
 
 using namespace LR2;

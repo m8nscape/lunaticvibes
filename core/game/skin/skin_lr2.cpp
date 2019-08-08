@@ -916,9 +916,16 @@ int SkinLR2::loadLR2_SRC_GROOVEGAUGE(const Tokens &t, pTexture tex)
 		return 2;
 	}
 
-	_sprites.push_back(std::make_shared<SpriteGaugeGrid>(
-		tex, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x / 4, d.cycle, d.add_x, d.add_y, 0, 100, 50,
-        (eTimer)d.timer, eNumber::PLAY_1P_GROOVEGAUGE, d.div_y, d.div_x));
+    size_t idx = d._null == 0 ? GLOBAL_SPRITE_IDX_1PGAUGE : GLOBAL_SPRITE_IDX_2PGAUGE;
+    eNumber en = d._null == 0 ? eNumber::PLAY_1P_GROOVEGAUGE : eNumber::PLAY_2P_GROOVEGAUGE;
+
+    gSprites[idx] = std::make_shared<SpriteGaugeGrid>(
+        tex, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x / 4, d.cycle, d.add_x, d.add_y, 0, 100, 50,
+        (eTimer)d.timer, en, d.div_y, d.div_x);
+    gSprites[idx]->setLine(line);
+
+    auto p = std::make_shared<SpriteGlobal>(idx);
+    _sprites.push_back(p);
     _sprites.back()->setLine(line);
 	
 	return 0;
@@ -955,7 +962,7 @@ int SkinLR2::loadLR2_SRC_NOWJUDGE1(const Tokens &t, pTexture tex)
     int ret = 0;
     if (bufJudge1PSlot >= 0 && bufJudge1PSlot < 6)
     {
-        size_t idx = 0 + bufJudge1PSlot;
+        size_t idx = GLOBAL_SPRITE_IDX_1PJUDGE + bufJudge1PSlot;
         ret = loadLR2_SRC_NOWJUDGE(t, tex, idx);
         if (ret == 0)
         {
@@ -979,7 +986,7 @@ int SkinLR2::loadLR2_SRC_NOWJUDGE2(const Tokens &t, pTexture tex)
     int ret = 0;
     if (bufJudge2PSlot >= 0 && bufJudge2PSlot < 6)
     {
-        size_t idx = 12 + bufJudge2PSlot;
+        size_t idx = GLOBAL_SPRITE_IDX_2PJUDGE + bufJudge2PSlot;
         ret = loadLR2_SRC_NOWJUDGE(t, tex, idx);
         if (ret == 0)
         {
@@ -1011,7 +1018,7 @@ int SkinLR2::loadLR2_SRC_NOWCOMBO1(const Tokens &t, pTexture tex)
     int ret = 0;
     if (ret == 0 && bufJudge1PSlot >= 0 && bufJudge1PSlot < 6)
     {
-        size_t idx = 6 + bufJudge1PSlot;
+        size_t idx = GLOBAL_SPRITE_IDX_1PJUDGENUM + bufJudge1PSlot;
         ret = loadLR2_SRC_NOWCOMBO(tt, tex, idx);
         if (ret == 0)
         {
@@ -1043,7 +1050,7 @@ int SkinLR2::loadLR2_SRC_NOWCOMBO2(const Tokens &t, pTexture tex)
     int ret = 0;
     if (ret == 0 && bufJudge2PSlot >= 0 && bufJudge2PSlot < 6)
 	{
-        size_t idx = 18 + bufJudge2PSlot;
+        size_t idx = GLOBAL_SPRITE_IDX_2PJUDGENUM + bufJudge2PSlot;
         ret = loadLR2_SRC_NOWCOMBO(tt, tex, idx);
         if (ret == 0)
         {

@@ -41,6 +41,7 @@
     <ClCompile Include="game\input\input_wrapper.cpp" />
     <ClCompile Include="game\ruleset\ruleset_classic.cpp" />
     <ClCompile Include="game\scene\scene.cpp" />
+    <ClCompile Include="game\scene\scene_context.cpp" />
     <ClCompile Include="game\scene\scene_mgr.cpp" />
     <ClCompile Include="game\scene\scene_play.cpp" />
     <ClCompile Include="game\scroll\scroll.cpp" />
@@ -58,9 +59,6 @@
     <ClInclude Include="common\beat.h" />
     <ClInclude Include="common\chart\bms.h" />
     <ClInclude Include="common\chart\chart.h" />
-    <ClInclude Include="common\defs\defs_file.h" />
-    <ClInclude Include="common\defs\defs_play.h" />
-    <ClInclude Include="common\defs\defs_scene.h" />
     <ClInclude Include="common\fraction.h" />
     <ClInclude Include="common\meta.h" />
     <ClInclude Include="common\types.h" />

@@ -10,6 +10,13 @@ typedef std::function<void(InputMask&, timestamp)> INPUTCALLBACK;
 //typedef void(*HoldHandleCallback)(void* owner, InputMask&);
 //typedef void(*ReleasedHandleCallback)(void* owner, InputMask&);
 
+// FUNC:                                 BRDUEHDIRLDU543210987654321_
+inline const InputMask INPUT_MASK_FUNC{ "1111111111111111111111111111000000000000000000000000000000" };
+// 1P:                                                                              DUEA987654321SS
+inline const InputMask INPUT_MASK_1P  { "0000000000000000000000000000000000000000000111111111111111" };
+// 2P:                                                               DUEA987654321SS
+inline const InputMask INPUT_MASK_2P  { "0000000000000000000000000000111111111111111000000000000000" };
+
 // InputWrapper
 //  Start a process to check input by 1000hz rolling.
 // Interface: 

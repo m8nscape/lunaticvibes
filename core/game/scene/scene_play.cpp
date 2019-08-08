@@ -79,12 +79,20 @@ static const InputDataMap InputGameReleaseMap[] =
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ScenePlay::ScenePlay(ePlayMode mode, unsigned keys, eRuleset ruleset):
-    vScene(eMode::PLAY7, 1000), _mode(mode), _rule(ruleset), _keys(keys)
+ScenePlay::ScenePlay(ePlayMode playmode): vScene(context_play.mode, 1000)
 {
     _currentKeySample.assign(Input::ESC, 0);
-	_inputAvailable = decltype(_inputAvailable)("1111111111111111111111111111000000000000000111111111111111");
-	//                                           BRDUEHDIRLDU543210987654321_DUEA987654321SSDUEA987654321SS
+
+    _inputAvailable = INPUT_MASK_FUNC;
+
+    if (context_play.mode == eMode::PLAY14 || playmode == ePlayMode::PLAY_BATTLE)
+        _inputAvailable |= INPUT_MASK_1P | INPUT_MASK_2P;
+
+    if (context_play.playerSlot == PLAYER_SLOT_1P)
+        _inputAvailable |= INPUT_MASK_1P;
+
+    if (context_play.playerSlot == PLAYER_SLOT_2P)
+        _inputAvailable |= INPUT_MASK_2P;
 
     // file loading may delayed
 
@@ -151,16 +159,19 @@ void ScenePlay::loadChart()
     _scrollLoaded = true;
 
     // build Ruleset object
-    switch (_rule)
+    for (size_t i = 0; i < context_play.ruleset.size(); ++i)
     {
-    case eRuleset::CLASSIC:
-        _pRuleset = std::make_shared<RulesetClassic>(&*context_chart.scrollObj);
-        _rulesetLoaded = true;
-        break;
-    default:
-        _pRuleset = nullptr;
-        break;
+        switch (context_play.rulesetType[i])
+        {
+        case eRuleset::CLASSIC:
+            context_play.ruleset[i] = std::make_shared<RulesetClassic>(&*context_chart.scrollObj);
+            break;
+        default:
+            context_play.ruleset[i] = nullptr;
+            break;
+        }
     }
+    _rulesetLoaded = true;
 
     // load samples
     if (!context_chart.isSampleLoaded)
@@ -219,30 +230,59 @@ void ScenePlay::loadChart()
 void ScenePlay::setInputJudgeCallback()
 {
     using namespace std::placeholders;
-    if (_pRuleset != nullptr)
+    if (_mode == ePlayMode::PLAY_BATTLE)
     {
-        auto fp = std::bind(&vRuleset::updatePress, _pRuleset, _1, _2);
-        LOG_DEBUG << "[Play] Bind fpress: " << &fp;
-        _input.register_p("JUDGE_PRESS", fp);
+        if (context_play.ruleset[PLAYER_SLOT_1P] != nullptr)
+        {
+            auto fp = std::bind(&vRuleset::updatePress, context_play.ruleset[PLAYER_SLOT_1P], _1, _2);
+            _input.register_p("JUDGE_PRESS", fp);
+            auto fh = std::bind(&vRuleset::updateHold, context_play.ruleset[PLAYER_SLOT_1P], _1, _2);
+            _input.register_h("JUDGE_HOLD", fh);
+            auto fr = std::bind(&vRuleset::updateRelease, context_play.ruleset[PLAYER_SLOT_1P], _1, _2);
+            _input.register_r("JUDGE_RELEASE", fr);
+        }
+        else
+            LOG_ERROR << "[Play] Ruleset of 1P not initialized!";
 
-        auto fh = std::bind(&vRuleset::updateHold, _pRuleset, _1, _2);
-        LOG_DEBUG << "[Play] Bind fhold: " << &fh;
-        _input.register_h("JUDGE_HOLD", fh);
-
-        auto fr = std::bind(&vRuleset::updateRelease, _pRuleset, _1, _2);
-        LOG_DEBUG << "[Play] Bind frelease: " << &fr;
-        _input.register_r("JUDGE_RELEASE", fr);
+        if (context_play.ruleset[PLAYER_SLOT_2P] != nullptr)
+        {
+            auto fp = std::bind(&vRuleset::updatePress, context_play.ruleset[PLAYER_SLOT_2P], _1, _2);
+            _input.register_p("JUDGE_PRESS", fp);
+            auto fh = std::bind(&vRuleset::updateHold, context_play.ruleset[PLAYER_SLOT_2P], _1, _2);
+            _input.register_h("JUDGE_HOLD", fh);
+            auto fr = std::bind(&vRuleset::updateRelease, context_play.ruleset[PLAYER_SLOT_2P], _1, _2);
+            _input.register_r("JUDGE_RELEASE", fr);
+        }
+        else
+            LOG_ERROR << "[Play] Ruleset of 2P not initialized!";
+    }
+    else // SINGLE or MULTI
+    {
+        if (context_play.ruleset[context_play.playerSlot] != nullptr)
+        {
+            auto fp = std::bind(&vRuleset::updatePress, context_play.ruleset[context_play.playerSlot], _1, _2);
+            _input.register_p("JUDGE_PRESS", fp);
+            auto fh = std::bind(&vRuleset::updateHold, context_play.ruleset[context_play.playerSlot], _1, _2);
+            _input.register_h("JUDGE_HOLD", fh);
+            auto fr = std::bind(&vRuleset::updateRelease, context_play.ruleset[context_play.playerSlot], _1, _2);
+            _input.register_r("JUDGE_RELEASE", fr);
+        }
+        else
+            LOG_ERROR << "[Play] Ruleset not initialized!";
     }
 }
 
 void ScenePlay::removeInputJudgeCallback(bool shutter)
 {
-    _input.unregister_p("JUDGE_PRESS");
-    _input.unregister_h("JUDGE_HOLD");
-    _input.unregister_r("JUDGE_RELEASE");
-    _input.unregister_p("SCENE_PRESS");
-    _input.unregister_h("SCENE_HOLD");
-    _input.unregister_r("SCENE_RELEASE");
+    for (size_t i = 0; i < context_play.ruleset.size(); ++i)
+    {
+        _input.unregister_p("JUDGE_PRESS");
+        _input.unregister_h("JUDGE_HOLD");
+        _input.unregister_r("JUDGE_RELEASE");
+        _input.unregister_p("SCENE_PRESS");
+        _input.unregister_h("SCENE_HOLD");
+        _input.unregister_r("SCENE_RELEASE");
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -340,7 +380,15 @@ void ScenePlay::updatePlaying()
     gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (context_chart.scrollObj->getCurrentBeat() * 4.0)) % 1000);
 
     context_chart.scrollObj->update(rt);
-    _pRuleset->update(t);
+    if (_mode == ePlayMode::PLAY_BATTLE)
+    {
+        context_play.ruleset[PLAYER_SLOT_1P]->update(t);
+        context_play.ruleset[PLAYER_SLOT_2P]->update(t);
+    }
+    else
+    {
+        context_play.ruleset[context_play.playerSlot]->update(t);
+    }
     playBGMSamples();
     changeKeySampleMapping(rt);
 

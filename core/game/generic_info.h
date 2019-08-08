@@ -5,8 +5,8 @@
 #include "common/asynclooper.h"
 
 #ifdef _MSC_VER
-tm _localtime_res;
-char _ctime_res[26];
+inline tm _localtime_res;
+inline char _ctime_res[26];
 inline tm* localtime_msvc(const std::time_t* t) { errno_t err = localtime_s(&_localtime_res, t); return (err ? NULL : &_localtime_res); };
 inline const char* ctime_msvc(const std::time_t* t) { errno_t err = ctime_s(_ctime_res, 26, t); return (err ? "" : _ctime_res); };
 #define localtime localtime_msvc

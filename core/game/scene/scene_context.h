@@ -2,6 +2,7 @@
 #include "types.h"
 #include "chart/chart.h"
 #include "game/scroll/scroll.h"
+#include "game/ruleset/ruleset.h"
 #include <memory>
 #include <string>
 
@@ -29,10 +30,26 @@ inline struct __chart_context_params
     BPM itlBPM = 150;
     BPM maxBPM = 150;
 
-	std::vector<int> graphGauge1P;
-	std::vector<int> graphGauge2P;
-	std::vector<int> graphScore1P;
-	std::vector<int> graphScore2P;
-	std::vector<int> graphScoreBest;
-
 } context_chart;
+
+constexpr size_t MAX_PLAYERS = 8;
+constexpr size_t PLAYER_SLOT_1P = 0;
+constexpr size_t PLAYER_SLOT_2P = 1;
+inline struct __play_context_params
+{
+    eMode mode = eMode::PLAY7;
+    size_t playerSlot = PLAYER_SLOT_1P;  // 1P starts from 0
+
+    // gauge/score graph key points
+    // managed by SLOT, which includes local battle 1P/2P and multi battle player slots
+    // maximum slot is MAX_PLAYERS
+    std::array<std::vector<int>, MAX_PLAYERS> graphGauge;
+    std::array<std::vector<int>, MAX_PLAYERS> graphScore;
+    std::array<int, MAX_PLAYERS> gaugeType{ 0 };    // eGaugeOp:  GROOVE, EASY, ASSIST, HARD, EXHARD, DEATH
+    std::array<PlayMod, MAX_PLAYERS> mods{};         // eMod: 
+    std::array<eRuleset, MAX_PLAYERS> rulesetType;
+    std::array<std::shared_ptr<vRuleset>, MAX_PLAYERS> ruleset;
+
+} context_play;
+
+void clearContextPlay();
