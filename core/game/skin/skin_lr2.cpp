@@ -336,6 +336,65 @@ namespace lr2skin
 
 }
 
+int SkinLR2::setExtendedProperty(std::string& key, void* value)
+{
+    if (key == "GAUGETYPE_1P")
+    {
+        if (gSprites[GLOBAL_SPRITE_IDX_1PJUDGE] != nullptr)
+        {
+            auto type = *(eGaugeOp*)value;
+            auto pS = std::reinterpret_pointer_cast<SpriteGaugeGrid>(gSprites[GLOBAL_SPRITE_IDX_1PJUDGE]);
+            switch (type)
+            {
+            case eGaugeOp::SURVIVAL:
+                pS->setGaugeType(SpriteGaugeGrid::GaugeType::SURVIVAL);
+                break;
+
+            case eGaugeOp::EX_SURVIVAL:
+                pS->setGaugeType(SpriteGaugeGrid::GaugeType::EX_SURVIVAL);
+                break;
+
+            case eGaugeOp::GROOVE:
+            default:
+                pS->setGaugeType(SpriteGaugeGrid::GaugeType::GROOVE);
+                break;
+            }
+        }
+        else
+            return 1;
+        return 0;
+    }
+
+    if (key == "GAUGETYPE_2P")
+    {
+        if (gSprites[GLOBAL_SPRITE_IDX_2PJUDGE] != nullptr)
+        {
+            auto type = *(eGaugeOp*)value;
+            auto pS = std::reinterpret_pointer_cast<SpriteGaugeGrid>(gSprites[GLOBAL_SPRITE_IDX_2PJUDGE]);
+            switch (type)
+            {
+            case eGaugeOp::SURVIVAL:
+                pS->setGaugeType(SpriteGaugeGrid::GaugeType::SURVIVAL);
+                break;
+
+            case eGaugeOp::EX_SURVIVAL:
+                pS->setGaugeType(SpriteGaugeGrid::GaugeType::EX_SURVIVAL);
+                break;
+
+            case eGaugeOp::GROOVE:
+            default:
+                pS->setGaugeType(SpriteGaugeGrid::GaugeType::GROOVE);
+                break;
+            }
+        }
+        else
+            return 1;
+        return 0;
+    }
+
+    return -1;
+}
+
 #pragma region LR2 csv parsing
 
 Tokens SkinLR2::csvNextLineTokenize(std::istream& file)

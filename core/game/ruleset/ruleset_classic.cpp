@@ -1,5 +1,6 @@
 #include "ruleset_classic.h"
 #include <plog/Log.h>
+#include "common/chart/bms.h"
 #include "game/data/timer.h"
 #include "game/data/switch.h"
 #include "game/data/option.h"
@@ -48,9 +49,151 @@ void setJudgeTimer2PInner(int slot, long long t)
 	}
 }
 
-RulesetClassic::RulesetClassic(vScroll* chart, rc::judgeDiff difficulty, rc::player p) : 
-    vRuleset(chart, rc::JUDGE_COUNT), _diff(difficulty), _count{ 0 }, _player(p)
+RulesetClassic::RulesetClassic(std::shared_ptr<vChart> chart, std::shared_ptr<vScroll> scroll, 
+    rc::judgeDiff difficulty, rc::gauge_ty gauge, rc::player p) :
+    vRuleset(chart, scroll, rc::JUDGE_COUNT), _diff(difficulty), _count{ 0 }, _player(p)
 {
+    using namespace std::string_literals;
+
+    int total = 160;
+    switch (chart->type())
+    {
+    case eChartType::BMS:
+        chart->getExtendedProperty("TOTAL"s, (void*)total);
+        if (total < 0) total = 160;
+        break;
+
+    case eChartType::BMSON:
+    default:
+        break;
+    }
+
+    switch (gauge)
+    {
+    case HARD:
+        _basic.health = 1.0;
+        _minHealth = 0;
+        _clearHealth = 0;
+        _health[PERFECT] = 1000.0 / 1001.0 / 100.0;
+        _health[GREAT] = 1000.0 / 1001.0 / 100.0;
+        _health[GOOD] = 500.0 / 1001.0 / 100.0;
+        _health[BAD] = -0.06;
+        _health[MISS] = -0.1;
+        _health[BPOOR] = -0.02;
+        break;
+
+    case EXHARD:
+        _basic.health = 1.0;
+        _minHealth = 0;
+        _clearHealth = 0;
+        _health[PERFECT] = 1000.0 / 1001.0 / 100.0;
+        _health[GREAT] = 1000.0 / 1001.0 / 100.0;
+        _health[GOOD] = 500.0 / 1001.0 / 100.0;
+        _health[BAD] = -0.12;
+        _health[MISS] = -0.2;
+        _health[BPOOR] = -0.1;
+        break;
+
+    case DEATH:
+        _basic.health = 1.0;
+        _minHealth = 0;
+        _clearHealth = 0;
+        _health[PERFECT] = 1000.0 / 1001.0 / 100.0;
+        _health[GREAT] = 500.0 / 1001.0 / 100.0;
+        _health[GOOD] = 0.0;
+        _health[BAD] = -1.0;
+        _health[MISS] = -1.0;
+        _health[BPOOR] = -0.02;
+        break;
+
+    case P_ATK:
+        _basic.health = 1.0;
+        _minHealth = 0;
+        _clearHealth = 0;
+        _health[PERFECT] = 1000.0 / 1001.0 / 100.0;
+        _health[GREAT] = -0.02;
+        _health[GOOD] = -1.0;
+        _health[BAD] = -1.0;
+        _health[MISS] = -1.0;
+        _health[BPOOR] = -0.02;
+        break;
+
+    case G_ATK:
+        _basic.health = 1.0;
+        _minHealth = 0;
+        _clearHealth = 0;
+        _health[PERFECT] = -0.02;
+        _health[GREAT] = -0.02;
+        _health[GOOD] = 0.0;
+        _health[BAD] = -1.0;
+        _health[MISS] = -1.0;
+        _health[BPOOR] = -0.02;
+        break;
+
+    case GROOVE:
+        _basic.health = 0.2;
+        _minHealth = 0.02;
+        _clearHealth = 0.8;
+        _health[PERFECT] = 1.0 * scroll->getNoteCount() / total / 100.0;
+        _health[GREAT] = 1.0 * scroll->getNoteCount() / total / 100.0;
+        _health[GOOD] = 1.0 * scroll->getNoteCount() / total / 200.0;
+        _health[BAD] = -0.04;
+        _health[MISS] = -0.06;
+        _health[BPOOR] = -0.02;
+        break;
+
+    case EASY:
+        _basic.health = 0.2;
+        _minHealth = 0.02;
+        _clearHealth = 0.8;
+        _health[PERFECT] = 1.0 * scroll->getNoteCount() / total / 100.0 * 1.2;
+        _health[GREAT] = 1.0 * scroll->getNoteCount() / total / 100.0 * 1.2;
+        _health[GOOD] = 1.0 * scroll->getNoteCount() / total / 200.0 * 1.2;
+        _health[BAD] = -0.032;
+        _health[MISS] = -0.048;
+        _health[BPOOR] = -0.016;
+        break;
+
+    case ASSIST:
+        _basic.health = 0.2;
+        _minHealth = 0.02;
+        _clearHealth = 0.6;
+        _health[PERFECT] = 1.0 * scroll->getNoteCount() / total / 100.0 * 1.2;
+        _health[GREAT] = 1.0 * scroll->getNoteCount() / total / 100.0 * 1.2;
+        _health[GOOD] = 1.0 * scroll->getNoteCount() / total / 200.0 * 1.2;
+        _health[BAD] = -0.032;
+        _health[MISS] = -0.048;
+        _health[BPOOR] = -0.016;
+        break;
+
+    case GRADE:
+        _basic.health = 1.0;
+        _minHealth = 0;
+        _clearHealth = 0;
+        _health[PERFECT] = 1000.0 / 1001.0 / 100.0;
+        _health[GREAT] = 1000.0 / 1001.0 / 100.0;
+        _health[GOOD] = 500.0 / 1001.0 / 100.0;
+        _health[BAD] = -0.02;
+        _health[MISS] = -0.03;
+        _health[BPOOR] = -0.02;
+        break;
+
+    case EXGRADE:
+        _basic.health = 1.0;
+        _minHealth = 0;
+        _clearHealth = 0;
+        _health[PERFECT] = 1000.0 / 1001.0 / 100.0;
+        _health[GREAT] = 1000.0 / 1001.0 / 100.0;
+        _health[GOOD] = 500.0 / 1001.0 / 100.0;
+        _health[BAD] = -0.12;
+        _health[MISS] = -0.2;
+        _health[BPOOR] = -0.1;
+        break;
+
+    default:
+        break;
+    }
+
 	switch (p)
 	{
 	case rc::player::SP_1P:
@@ -128,6 +271,54 @@ judgeRes RulesetClassic::_judge(const Note& note, timestamp time)
     return { a, error };
 }
 
+void RulesetClassic::_updateHp(const double delta)
+{
+    double tmp = _basic.health + delta;
+    _basic.health = std::max(_minHealth, std::min(1.0, tmp));
+}
+
+void RulesetClassic::updateHit(timestamp& t, NoteChannelIndex ch, size_t judge, unsigned slot)
+{
+    ++_count[judge];
+    ++_basic.hit;
+    ++_basic.combo;
+    ++_basic.totaln;
+    switch (judge)
+    {
+    case PERFECT:
+        inner_score += 1.0 * 150000 / _scroll->getNoteCount() + 
+            1.0 * std::min(int(_basic.combo) - 1, 10) * 50000 / (10 * _scroll->getNoteCount() - 55);
+        break;
+    case GREAT:
+        inner_score += 1.0 * 100000 / _scroll->getNoteCount() + 
+            1.0 * std::min(int(_basic.combo) - 1, 10) * 50000 / (10 * _scroll->getNoteCount() - 55);
+        break;
+    case GOOD:
+        inner_score += 1.0 * 20000 / _scroll->getNoteCount() + 
+            1.0 * std::min(int(_basic.combo) - 1, 10) * 50000 / (10 * _scroll->getNoteCount() - 55);
+        break;
+    default:
+        break;
+    }
+    _updateHp(_health[judge]);
+    if (_basic.combo > _basic.maxCombo) _basic.maxCombo = _basic.combo;
+    _basic.score2 += 2;
+    gTimers.set(bombTimer7k[ch], t.norm());
+    slot == 0 ? setJudgeTimer1PInner(5 - judge, t.norm()) : setJudgeTimer2PInner(5 - judge, t.norm());
+    gNumbers.set(slot == 0 ? eNumber::_DISP_NOWCOMBO_1P : eNumber::_DISP_NOWCOMBO_2P, _basic.combo);
+}
+
+void RulesetClassic::updateMiss(timestamp& t, NoteChannelIndex ch, size_t judge, unsigned slot)
+{
+    ++_count[judge];
+    ++_basic.miss;
+    if (judge != BPOOR) ++_basic.totaln;
+    _updateHp(_health[judge]);
+    if (judge != BPOOR) _basic.combo = 0;
+    slot == 0 ? setJudgeTimer1PInner(5 - judge, t.norm()) : setJudgeTimer2PInner(5 - judge, t.norm());
+    gNumbers.set(slot == 0 ? eNumber::_DISP_NOWCOMBO_1P : eNumber::_DISP_NOWCOMBO_2P, _basic.combo);
+}
+
 void RulesetClassic::updatePress(InputMask& pg, timestamp t)
 {
 	timestamp rt = t - gTimers.get(eTimer::PLAY_START);
@@ -156,51 +347,26 @@ void RulesetClassic::updatePress(InputMask& pg, timestamp t)
                 case EARLY_PERFECT:
                 case EXACT_PERFECT:
                 case LATE_PERFECT:
-                    ++_count[PERFECT];
-                    ++_basic.hit;
-                    ++_basic.combo;
-                    ++_basic.totaln;
-                    if (_basic.combo > _basic.maxCombo) _basic.maxCombo = _basic.combo;
-                    _basic.score2 += 2;
-					gTimers.set(bombTimer7k[c.second], t.norm());
-					setJudgeTimer1PInner(5, t.norm());
+                    updateHit(t, c.second, PERFECT, 0);
                     break;
 
                 case EARLY_GREAT:
                 case LATE_GREAT:
-                    ++_count[GREAT];
-                    ++_basic.hit;
-                    ++_basic.combo;
-                    ++_basic.totaln;
-                    if (_basic.combo > _basic.maxCombo) _basic.maxCombo = _basic.combo;
-                    _basic.score2 += 1;
-					gTimers.set(bombTimer7k[c.second], t.norm());
-					setJudgeTimer1PInner(4, t.norm());
+                    updateHit(t, c.second, GREAT, 0);
                     break;
 
                 case EARLY_GOOD:
                 case LATE_GOOD:
-                    ++_count[GOOD];
-                    ++_basic.hit;
-                    ++_basic.combo;
-                    ++_basic.totaln;
-                    if (_basic.combo > _basic.maxCombo) _basic.maxCombo = _basic.combo;
-					setJudgeTimer1PInner(3, t.norm());
+                    updateHit(t, c.second, GOOD, 0);
                     break;
 
                 case EARLY_BAD:
                 case LATE_BAD:
-                    ++_count[BAD];
-                    ++_basic.miss;
-                    ++_basic.totaln;
-                    _basic.combo = 0;
-					setJudgeTimer1PInner(2, t.norm());
+                    updateMiss(t, c.second, BAD, 0);
                     break;
 
                 case EARLY_BPOOR:
-                    ++_count[BPOOR];
-                    ++_basic.miss;
-					setJudgeTimer1PInner(0, t.norm());
+                    updateMiss(t, c.second, BPOOR, 0);
                     break;
             }
             if (j.area > judgeArea::EARLY_BPOOR) n->hit = true;
@@ -236,55 +402,30 @@ void RulesetClassic::updatePress(InputMask& pg, timestamp t)
             switch (j.area)
             {
                 using namespace judgeArea;
-                case EARLY_PERFECT:
-                case EXACT_PERFECT:
-                case LATE_PERFECT:
-                    ++_count[PERFECT];
-                    ++_basic.hit;
-                    ++_basic.combo;
-                    ++_basic.totaln;
-                    if (_basic.combo > _basic.maxCombo) _basic.maxCombo = _basic.combo;
-                    _basic.score2 += 2;
-					gTimers.set(bombTimer7k[c.second], t.norm());
-					setJudgeTimer2PInner(5, t.norm());
-                    break;
+            case EARLY_PERFECT:
+            case EXACT_PERFECT:
+            case LATE_PERFECT:
+                updateHit(t, c.second, PERFECT, 1);
+                break;
 
-                case EARLY_GREAT:
-                case LATE_GREAT:
-                    ++_count[GREAT];
-                    ++_basic.hit;
-                    ++_basic.combo;
-                    ++_basic.totaln;
-                    if (_basic.combo > _basic.maxCombo) _basic.maxCombo = _basic.combo;
-                    _basic.score2 += 1;
-					gTimers.set(bombTimer7k[c.second], t.norm());
-					setJudgeTimer2PInner(4, t.norm());
-                    break;
+            case EARLY_GREAT:
+            case LATE_GREAT:
+                updateHit(t, c.second, GREAT, 1);
+                break;
 
-                case EARLY_GOOD:
-                case LATE_GOOD:
-                    ++_count[GOOD];
-                    ++_basic.hit;
-                    ++_basic.combo;
-                    ++_basic.totaln;
-                    if (_basic.combo > _basic.maxCombo) _basic.maxCombo = _basic.combo;
-					setJudgeTimer2PInner(3, t.norm());
-                    break;
+            case EARLY_GOOD:
+            case LATE_GOOD:
+                updateHit(t, c.second, GOOD, 1);
+                break;
 
-                case EARLY_BAD:
-                case LATE_BAD:
-                    ++_count[BAD];
-                    ++_basic.miss;
-                    ++_basic.totaln;
-                    _basic.combo = 0;
-					setJudgeTimer2PInner(2, t.norm());
-                    break;
+            case EARLY_BAD:
+            case LATE_BAD:
+                updateMiss(t, c.second, BAD, 1);
+                break;
 
-                case EARLY_BPOOR:
-                    ++_count[BPOOR];
-                    ++_basic.miss;
-					setJudgeTimer2PInner(0, t.norm());
-                    break;
+            case EARLY_BPOOR:
+                updateMiss(t, c.second, BPOOR, 1);
+                break;
             }
             if (j.area > judgeArea::EARLY_BPOOR) n->hit = true;
             break;
@@ -320,6 +461,7 @@ void RulesetClassic::updateHold(InputMask& hg, timestamp t)
 				j.area == judgeArea::LATE_PERFECT && j.time < 2)
 			{
 				n->hit = true;
+                _updateHp(-1.0 * std::get<long long>(n->value) / base36("ZZ"));
 				// TODO play mine sound + volume
 			}
 			break;
@@ -345,6 +487,7 @@ void RulesetClassic::updateHold(InputMask& hg, timestamp t)
 				j.area == judgeArea::LATE_PERFECT && j.time < 2)
 			{
 				n->hit = true;
+                _updateHp(-1.0 * std::get<long long>(n->value) / base36("ZZ"));
 				// TODO play mine sound + volume
 			}
 			break;
@@ -412,11 +555,7 @@ void RulesetClassic::update(timestamp t)
 			case NoteChannelCategory::Note:
 			case NoteChannelCategory::LN:
 				n->hit = true;
-				++_count[MISS];
-                ++_basic.totaln;
-				_basic.combo = 0;
-				gTimers.set(eTimer::PLAY_JUDGE_1P, t.norm());
-				setJudgeTimer1PInner(1, t.norm());
+                updateMiss(t, c.second, MISS, 0);
 				//LOG_DEBUG << "LATE   POOR    "; break;
 				break;
 			}
@@ -436,11 +575,7 @@ void RulesetClassic::update(timestamp t)
 			case NoteChannelCategory::Note:
 			case NoteChannelCategory::LN:
 				n->hit = true;
-				++_count[MISS];
-                ++_basic.totaln;
-				_basic.combo = 0;
-				gTimers.set(eTimer::PLAY_JUDGE_2P, t.norm());
-				setJudgeTimer2PInner(1, t.norm());
+                updateMiss(t, c.second, MISS, 1);
 				//LOG_DEBUG << "LATE   POOR    "; break;
 				break;
 			}
@@ -450,6 +585,7 @@ void RulesetClassic::update(timestamp t)
 	unsigned max = _scroll->getNoteCount() * 2;
 	_basic.total_acc = 100.0 * _basic.score2 / max;
     _basic.acc = _basic.totaln ? (100.0 * _basic.score2 / _basic.totaln / 2) : 0;
+    _basic.score = int(std::round(inner_score));
 	gBargraphs.set(eBargraph::PLAY_EXSCORE, _basic.total_acc);
 	if (_k1P) // includes DP
 	{
@@ -466,7 +602,7 @@ void RulesetClassic::update(timestamp t)
         gNumbers.set(eNumber::PLAY_1P_GOOD, _count[GOOD]);
         gNumbers.set(eNumber::PLAY_1P_BAD, _count[BAD]);
         gNumbers.set(eNumber::PLAY_1P_POOR, _count[BPOOR]+_count[MISS]);
-		gNumbers.set(eNumber::_DISP_NOWCOMBO_1P, _basic.combo);
+        gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, int(_basic.health * 100));
 
         {
             using namespace Option;
@@ -518,7 +654,7 @@ void RulesetClassic::update(timestamp t)
         gNumbers.set(eNumber::PLAY_2P_GOOD, _count[GOOD]);
         gNumbers.set(eNumber::PLAY_2P_BAD, _count[BAD]);
         gNumbers.set(eNumber::PLAY_2P_POOR, _count[BPOOR] + _count[MISS]);
-		gNumbers.set(eNumber::_DISP_NOWCOMBO_2P, _basic.combo);
+        gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, int(_basic.health * 100));
 
         {
             using namespace Option;

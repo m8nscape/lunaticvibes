@@ -9,6 +9,31 @@
 
 class noteLineException : public std::exception {};
 
+int BMS::getExtendedProperty(std::string key, void* ret)
+{
+    if (key == "PLAYER")
+    {
+        *(int*)ret = player;
+    }
+    if (key == "RANK")
+    {
+        *(int*)ret = rank;
+    }
+    if (key == "PLAYLEVEL")
+    {
+        *(int*)ret = playLevel;
+    }
+    if (key == "TOTAL")
+    {
+        *(double*)ret = total;
+    }
+    if (key == "DIFFICULTY")
+    {
+        *(int*)ret = difficulty;
+    }
+    return -1;
+}
+
 BMS::BMS(std::string file) {
     _type = eChartType::BMS;
     _wavFiles.resize(MAXSAMPLEIDX + 1);
@@ -89,7 +114,7 @@ int BMS::initWithFile(std::string file)
                     else if (key == "RANK")
                         rank = std::stoi(value);
                     else if (key == "TOTAL")
-                        total = std::stof(value);
+                        total = std::stoi(value);
                     else if (key == "PLAYLEVEL")
                         playLevel = std::stoi(value);
                     else if (key == "DIFFICULTY")

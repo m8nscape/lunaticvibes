@@ -839,7 +839,7 @@ SpriteGaugeGrid::SpriteGaugeGrid(pTexture texture, const Rect& rect,
 	_delta_x(dx), _delta_y(dy), _grids(grids), _min(min), _max(max), _numInd(num)
 {
     _lighting.resize(_grids, false);
-    setGaugeType(GaugeType::NORMAL);
+    setGaugeType(GaugeType::GROOVE);
 }
 
 void SpriteGaugeGrid::setFlashType(SpriteGaugeGrid::FlashType t)
@@ -852,17 +852,17 @@ void SpriteGaugeGrid::setGaugeType(SpriteGaugeGrid::GaugeType ty)
 	_gaugeType = ty;
 	switch (_gaugeType)
 	{
-    case GaugeType::NORMAL: 
+    case GaugeType::GROOVE: 
         _texIdxLightFail = NORMAL_LIGHT; _texIdxDarkFail = NORMAL_DARK; 
         _texIdxLightClear = CLEAR_LIGHT; _texIdxDarkClear = CLEAR_DARK;
         _req = (unsigned short)std::floor(0.8 * _grids); break;
 
-    case GaugeType::HARD:  
+    case GaugeType::SURVIVAL:  
         _texIdxLightFail = CLEAR_LIGHT; _texIdxDarkFail = CLEAR_DARK;
         _texIdxLightClear = CLEAR_LIGHT; _texIdxDarkClear = CLEAR_DARK;
         _req = 1; break;
 
-    case GaugeType::EXHARD: 
+    case GaugeType::EX_SURVIVAL: 
         _texIdxLightFail = EXHARD_LIGHT; _texIdxDarkFail = EXHARD_DARK;
         _texIdxLightClear = EXHARD_LIGHT; _texIdxDarkClear = EXHARD_DARK;
         _req = 1; break;

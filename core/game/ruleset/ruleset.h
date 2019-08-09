@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "game/input/input_wrapper.h"
+#include "common/chart/chart.h"
 #include "game/scroll/scroll.h"
 #include "beat.h"
 
@@ -27,13 +28,16 @@ public:
         unsigned totaln;    // total notes expired
     };
 protected:
-    vScroll *_scroll;
+    std::shared_ptr<vChart> _chart;
+    std::shared_ptr<vScroll> _scroll;
     BasicData _basic;
+    double _minHealth;
+    double _clearHealth;
     std::vector<unsigned> _judgeCount;
 public:
     vRuleset() = delete;
-    vRuleset(vScroll* chartObj, size_t judgeCount) :
-        _scroll(chartObj), _basic{ 0 }, _judgeCount(judgeCount, 0) {}
+    vRuleset(std::shared_ptr<vChart> chart, std::shared_ptr<vScroll> scroll, size_t judgeCount) :
+        _chart(chart), _scroll(scroll), _basic{ 0 }, _judgeCount(judgeCount, 0) {}
     virtual ~vRuleset() = default;
 public:
     virtual void updatePress(InputMask& pg, timestamp t) = 0;

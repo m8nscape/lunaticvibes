@@ -446,9 +446,9 @@ public:
 
 	enum class GaugeType
 	{
-		NORMAL,
-		HARD,
-		EXHARD
+		GROOVE,
+		SURVIVAL,
+		EX_SURVIVAL
 	};
 
 	enum TextureSelection
@@ -473,7 +473,7 @@ private:
     unsigned _lightRectFailIdxOffset, _lightRectClearIdxOffset, _darkRectFailIdxOffset, _darkRectClearIdxOffset;
     std::vector<bool> _lighting;
 	FlashType _flashType = FlashType::CLASSIC;
-	GaugeType _gaugeType = GaugeType::NORMAL;
+	GaugeType _gaugeType = GaugeType::GROOVE;
 
 public:
     SpriteGaugeGrid() = delete;

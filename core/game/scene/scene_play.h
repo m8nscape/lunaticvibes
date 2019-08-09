@@ -9,8 +9,7 @@
 enum class ePlayMode
 {
     SINGLE,
-    PLAY_BATTLE,
-    MULTIPLAYER
+    LOCAL_BATTLE,
 };
 
 enum class ePlayState
@@ -53,7 +52,7 @@ protected:
 	constexpr double getBgaLoadProgress() { return (bmpToLoad == 0) ? (wavLoaded ? 1.0 : 0.0) : (double)bmpLoaded / bmpToLoad; }
 
     void setInputJudgeCallback();
-    void removeInputJudgeCallback(bool shutter = false);
+    void removeInputJudgeCallback();
 
 
 protected:

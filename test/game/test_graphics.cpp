@@ -1341,12 +1341,12 @@ public:
         s1.appendKeyFrame({ 0, {Rect(0, 0, 10, 40), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         s1.setLoopTime(0);
         s1.setFlashType(SpriteGaugeGrid::FlashType::NONE);
-        s1.setGaugeType(SpriteGaugeGrid::GaugeType::NORMAL);
+        s1.setGaugeType(SpriteGaugeGrid::GaugeType::GROOVE);
         s2.setTimer(eTimer::K11_BOMB);
         s2.appendKeyFrame({ 0, {Rect(490, 100, 10, 40), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         s2.setLoopTime(0);
         s2.setFlashType(SpriteGaugeGrid::FlashType::NONE);
-        s2.setGaugeType(SpriteGaugeGrid::GaugeType::EXHARD);
+        s2.setGaugeType(SpriteGaugeGrid::GaugeType::EX_SURVIVAL);
     }
 };
 

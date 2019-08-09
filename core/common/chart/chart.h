@@ -63,4 +63,6 @@ public:
     BPM getAvgBPM() const;
     BPM getNormBPM() const;
     Path getDirectory() const;
+
+    virtual int getExtendedProperty(std::string key, void* ret) = 0;
 };

@@ -53,6 +53,8 @@ using namespace bms;
 
 class BMS: public vChart
 {
+public:
+    virtual int getExtendedProperty(std::string key, void* ret);
 
 public:
     BMS(std::string file);
@@ -78,7 +80,7 @@ protected:
     // Header.
     int player = 1;                // 1: single, 2: couple, 3: double, 4: battle
     int rank = 2;                 // judge, VHARD/HARD/NORMAL/EASY
-    double total;
+    int total = -1;
     int playLevel = 0;
     int difficulty = 3;            // N/H/A
     double bpm = 130.0;

@@ -39,15 +39,19 @@ inline struct __play_context_params
 {
     eMode mode = eMode::PLAY7;
     size_t playerSlot = PLAYER_SLOT_1P;  // 1P starts from 0
+    unsigned judgeLevel = 0;
+
+    std::shared_ptr<vScroll> scrollObj[2]{ nullptr, nullptr };
 
     // gauge/score graph key points
     // managed by SLOT, which includes local battle 1P/2P and multi battle player slots
     // maximum slot is MAX_PLAYERS
     std::array<std::vector<int>, MAX_PLAYERS> graphGauge;
     std::array<std::vector<int>, MAX_PLAYERS> graphScore;
-    std::array<int, MAX_PLAYERS> gaugeType{ 0 };    // eGaugeOp:  GROOVE, EASY, ASSIST, HARD, EXHARD, DEATH
+    std::array<eGaugeOp, MAX_PLAYERS> gaugeType{};        // resolve on ruleset construction
     std::array<PlayMod, MAX_PLAYERS> mods{};         // eMod: 
-    std::array<eRuleset, MAX_PLAYERS> rulesetType;
+
+    eRuleset rulesetType;
     std::array<std::shared_ptr<vRuleset>, MAX_PLAYERS> ruleset;
 
 } context_play;

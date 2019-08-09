@@ -33,16 +33,29 @@ enum judge_idx {
     JUDGE_COUNT
 };
 
+enum gauge_ty {
+    GROOVE,
+    EASY,
+    ASSIST,
+    HARD,
+    EXHARD,
+    DEATH,
+    P_ATK,
+    G_ATK,
+    GRADE,
+    EXGRADE,
+};
+
 // Judge Time definitions.
 // Values are one-way judge times in ms, representing
 // PERFECT, GREAT, GOOD, BAD, ¿ÕPOOR respectively.
 const judge_t judgeTime[] = {
-    { 8, 27, 40, 150, 600},        // VERY HARD
+    { 8, 27, 40, 200, 600},        // VERY HARD
     {15, 32, 60, 200, 600},        // HARD
-    {18, 40, 96, 250, 650},        // NORMAL
-    {21, 60, 116, 320, 800},       // EASY
+    {18, 40, 96, 200, 650},        // NORMAL
+    {21, 60, 116, 200, 800},       // EASY
     {},                            // VERY EASY??
-    {5, 10, 10, 150, 600}          // XD
+    {5, 5, 10, 200, 600}          // XD
 };
 
 const eTimer bombTimer7k[] = {
@@ -179,13 +192,22 @@ class RulesetClassic : public vRuleset
 {
 protected:
     rc::judgeDiff _diff;
+    double _health[rc::judge_idx::JUDGE_COUNT];
+    rc::gauge_ty _gauge;
     std::array<unsigned, rc::judge_idx::JUDGE_COUNT> _count;
 	rc::player _player;
 	bool _k1P, _k2P;
+    double inner_score = 0.0;
 public:
-    RulesetClassic(vScroll* chart, rc::judgeDiff difficulty = rc::judgeDiff::NORMAL, rc::player playerSP = rc::player::SP_1P);
+    RulesetClassic(
+        std::shared_ptr<vChart> chart, 
+        std::shared_ptr<vScroll> scroll,
+        rc::judgeDiff difficulty = rc::judgeDiff::NORMAL,
+        rc::gauge_ty gauge = rc::gauge_ty::GROOVE, 
+        rc::player playerSP = rc::player::SP_1P);
 private:
     rc::judgeRes _judge(const Note& note, timestamp time);
+    void _updateHp(const double delta);
 public:
     // Register to InputWrapper
     virtual void updatePress(InputMask& pg, timestamp t);
@@ -197,4 +219,6 @@ public:
     virtual void update(timestamp t);
 public:
     constexpr auto getJudge() const { return _count; }
+    void updateHit(timestamp& t, NoteChannelIndex ch, size_t judge, unsigned slot);
+    void updateMiss(timestamp& t, NoteChannelIndex ch, size_t judge, unsigned slot);
 };

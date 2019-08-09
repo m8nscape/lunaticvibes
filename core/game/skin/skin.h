@@ -37,6 +37,7 @@ protected:
     bool _loaded = false;
 public:
     constexpr bool isLoaded() { return _loaded; }
+    virtual int setExtendedProperty(std::string& key, void* value) = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Images

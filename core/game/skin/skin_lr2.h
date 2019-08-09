@@ -1310,6 +1310,9 @@ struct setDst { dst_option dst; bool set; };
 
 class SkinLR2: public vSkin
 {
+public:
+    virtual int setExtendedProperty(std::string& key, void* value);
+
 protected:
     static bool customizeDst[100];  // temporary workaround
 

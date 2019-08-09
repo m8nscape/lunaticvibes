@@ -93,3 +93,10 @@ struct PlayMod
         visual_mask = 0;
     }
 };
+
+enum class eGaugeOp
+{
+    GROOVE,
+    SURVIVAL,
+    EX_SURVIVAL,
+};

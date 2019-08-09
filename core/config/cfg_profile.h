@@ -59,15 +59,6 @@ namespace cfg
     inline const StringContent P_GAUGE_OP_HARD = "Hard";
     inline const StringContent P_GAUGE_OP_EXHARD = "ExHard";
     inline const StringContent P_GAUGE_OP_DEATH = "Death";
-    enum class eGaugeOp
-    {
-        GROOVE,
-        EASY,
-        ASSIST,
-        HARD,
-        EXHARD,
-        DEATH
-    };
 
     inline const StringContent P_COMBO_POS_X = "ComboPositionOffsetX";
     inline const StringContent P_COMBO_POS_Y = "ComboPositionOffsetY";
