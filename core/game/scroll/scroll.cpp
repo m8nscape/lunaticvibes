@@ -262,19 +262,6 @@ void vScroll::update(timestamp t)
         _currentStopBeatGuard = true;
     }
 
-    gNumbers.set(eNumber::PLAY_BPM, _currentBPM);
-
-    // play time / remain time
-    {
-        auto startTime = t - gTimers.get(eTimer::PLAY_START);
-        auto playtime = t.norm() / 1000;
-        auto remaintime = _totalLength.norm() - playtime;
-        gNumbers.set(eNumber::PLAY_MIN, playtime / 60);
-        gNumbers.set(eNumber::PLAY_SEC, playtime % 60);
-        gNumbers.set(eNumber::PLAY_REMAIN_MIN, remaintime / 60);
-        gNumbers.set(eNumber::PLAY_REMAIN_SEC, remaintime % 60);
-    }
-
 	gNumbers.set(eNumber::_TEST1, _currentMeasure);
 	gNumbers.set(eNumber::_TEST2, (int)std::floor(_currentBeat * 1000));
 	

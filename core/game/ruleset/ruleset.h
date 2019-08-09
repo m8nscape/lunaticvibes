@@ -46,4 +46,5 @@ public:
     virtual void update(timestamp t) = 0;
 public:
     constexpr BasicData getData() const { return _basic; }
+    constexpr bool isFinished() const { return _basic.totaln == _scroll->getNoteCount(); }
 };

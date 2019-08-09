@@ -13,4 +13,5 @@ void clearContextPlay()
         context_play.ruleset[i] = nullptr;
         context_play.mods[i].clear();
     }
+    context_play.remainTime = 0;
 }

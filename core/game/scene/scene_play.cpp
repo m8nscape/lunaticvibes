@@ -188,11 +188,15 @@ void ScenePlay::loadChart()
             context_play.scrollObj[context_play.playerSlot] = std::make_shared<ScrollBMS>((const BMS&)* context_chart.chartObj);
         }
         _scrollLoaded = true;
+        gNumbers.set(eNumber::PLAY_REMAIN_MIN, context_play.scrollObj[context_play.playerSlot]->getTotalLength().norm() / 1000 / 60);
+        gNumbers.set(eNumber::PLAY_REMAIN_SEC, context_play.scrollObj[context_play.playerSlot]->getTotalLength().norm() / 1000 % 60);
         break;
 
     default:
         break;
     }
+
+    context_play.remainTime = context_play.scrollObj[context_play.playerSlot]->getTotalLength();
 
     // build Ruleset object
     switch (context_play.rulesetType)
@@ -409,9 +413,6 @@ void ScenePlay::_updateAsync()
     case ePlayState::PLAYING:
         updatePlaying();
         break;
-    case ePlayState::LAST_NOTE_END:
-        updateSongOutro();
-        break;
     case ePlayState::FADEOUT:
         updateFadeout();
         break;
@@ -482,7 +483,6 @@ void ScenePlay::updateLoadEnd()
 
 void ScenePlay::updatePlaying()
 {
-    //gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (context_play.scrollObj[context_play.playerSlot]->getCurrentBeat() / 4.0)) % 1000);
 	auto t = timestamp();
 	auto rt = t - gTimers.get(eTimer::PLAY_START);
     gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (context_play.scrollObj[context_play.playerSlot]->getCurrentBeat() * 4.0)) % 1000);
@@ -496,6 +496,19 @@ void ScenePlay::updatePlaying()
     {
         context_play.ruleset[context_play.playerSlot]->update(t);
     }
+
+    gNumbers.set(eNumber::PLAY_BPM, context_play.scrollObj[context_play.playerSlot]->getCurrentBPM());
+    // play time / remain time
+    {
+        auto startTime = rt - gTimers.get(eTimer::PLAY_START);
+        auto playtime = rt.norm() / 1000;
+        auto remaintime = context_play.scrollObj[context_play.playerSlot]->getTotalLength().norm() - playtime;
+        gNumbers.set(eNumber::PLAY_MIN, playtime / 60);
+        gNumbers.set(eNumber::PLAY_SEC, playtime % 60);
+        gNumbers.set(eNumber::PLAY_REMAIN_MIN, remaintime / 60);
+        gNumbers.set(eNumber::PLAY_REMAIN_SEC, remaintime % 60);
+    }
+
     playBGMSamples();
     changeKeySampleMapping(rt);
 
@@ -509,10 +522,17 @@ void ScenePlay::updatePlaying()
         if (context_play.ruleset[context_play.playerSlot]->getData().health <= 0)
         {
             _state = ePlayState::FAILED;
-            gTimers.set(eTimer::FAIL_BEGIN, rt.norm());
+            gTimers.set(eTimer::FAIL_BEGIN, t.norm());
             gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FAILED);
             removeInputJudgeCallback();
             LOG_DEBUG << "[Play] State changed to PLAY_FAILED";
+        }
+
+        if (_isFinished[context_play.playerSlot] ^ context_play.ruleset[context_play.playerSlot]->isFinished())
+        {
+            _isFinished[context_play.playerSlot] = true;
+            if (context_play.ruleset[context_play.playerSlot]->getData().combo == context_play.scrollObj[context_play.playerSlot]->getNoteCount())
+                gTimers.set(context_play.playerSlot == 0 ? eTimer::PLAY_JUDGE_1P : eTimer::PLAY_JUDGE_2P, t.norm());
         }
     }
     break;
@@ -523,10 +543,23 @@ void ScenePlay::updatePlaying()
             context_play.ruleset[PLAYER_SLOT_2P]->getData().health <= 0)
         {
             _state = ePlayState::FAILED;
-            gTimers.set(eTimer::FAIL_BEGIN, rt.norm());
+            gTimers.set(eTimer::FAIL_BEGIN, t.norm());
             gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FAILED);
             removeInputJudgeCallback();
             LOG_DEBUG << "[Play] State changed to PLAY_FAILED";
+        }
+
+        if (_isFinished[PLAYER_SLOT_1P] ^ context_play.ruleset[PLAYER_SLOT_1P]->isFinished())
+        {
+            _isFinished[PLAYER_SLOT_1P] = true;
+            if (context_play.ruleset[PLAYER_SLOT_1P]->getData().combo == context_play.scrollObj[PLAYER_SLOT_1P]->getNoteCount())
+                gTimers.set(eTimer::PLAY_JUDGE_1P, t.norm());
+        }
+        if (_isFinished[PLAYER_SLOT_2P] ^ context_play.ruleset[PLAYER_SLOT_2P]->isFinished())
+        {
+            _isFinished[PLAYER_SLOT_2P] = true;
+            if (context_play.ruleset[PLAYER_SLOT_2P]->getData().combo == context_play.scrollObj[PLAYER_SLOT_2P]->getNoteCount())
+                gTimers.set(eTimer::PLAY_JUDGE_2P, t.norm());
         }
     }
     break;
@@ -535,30 +568,15 @@ void ScenePlay::updatePlaying()
         break;
     }
 
-    // TODO last note check
-    //if (*last note end*)
-    //{
-    //    _state = ePlayState::LAST_NOTE_END;
-	//    context_chart.started = true;
-	//	gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_OUTRO);
-    //    gTimers.set(eTimer::PLAY_LAST_NOTE_JUDGE, rt);
-    //}
+    //last note check
+    if (rt.norm() - context_play.scrollObj[context_play.playerSlot]->getTotalLength().norm() >= 0)
+    {
+        _state = ePlayState::FADEOUT;
+        gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
+        gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FADEOUT);
+        removeInputJudgeCallback();
+    }
      
-}
-
-void ScenePlay::updateSongOutro()
-{
-    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (context_play.scrollObj[context_play.playerSlot]->getCurrentBeat() * 4.0)) % 1000);
-	timestamp rt;
-
-    // TODO chart play finished
-    //if (*asdasfsa*)
-    //{
-    //    _state = ePlayState::FADEOUT;
-    //    gTimers.set(eTimer::FADEOUT_BEGIN, rt);
-	//	gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FADEOUT);
-    //    removeInputJudgeCallback(false);
-    //}
 }
 
 void ScenePlay::updateFadeout()
@@ -571,13 +589,16 @@ void ScenePlay::updateFadeout()
 
 void ScenePlay::updateFailed()
 {
-    // TODO failed play finished
-    //if (*asdasfsa*)
-    //{
-    //    _state = ePlayState::FADEOUT;
-    //    gTimers.set(eTimer::FADEOUT_BEGIN, rt);
-    //    removeInputJudgeCallback(false);
-    //}
+    auto t = timestamp();
+    auto rt = t - gTimers.get(eTimer::FAIL_BEGIN);
+
+    //failed play finished
+    if (rt.norm() >= _skin->info.timeFailed)
+    {
+        _state = ePlayState::FADEOUT;
+        gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
+        removeInputJudgeCallback();
+    }
 }
 
 

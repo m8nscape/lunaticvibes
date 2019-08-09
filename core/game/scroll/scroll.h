@@ -171,4 +171,6 @@ public:
 public:
     virtual std::pair<NoteChannelCategory, NoteChannelIndex> getChannelFromKey(Input::Ingame input) = 0;
     virtual std::vector<Input::Ingame> getInputFromChannel(size_t channel) = 0;
+
+    inline auto getTotalLength() const { return _totalLength; }
 };

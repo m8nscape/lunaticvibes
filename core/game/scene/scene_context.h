@@ -54,6 +54,8 @@ inline struct __play_context_params
     eRuleset rulesetType;
     std::array<std::shared_ptr<vRuleset>, MAX_PLAYERS> ruleset;
 
+    timestamp remainTime;
+
 } context_play;
 
 void clearContextPlay();

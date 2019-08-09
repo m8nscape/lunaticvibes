@@ -18,7 +18,6 @@ enum class ePlayState
     LOADING,
     LOAD_END,
     PLAYING,
-    LAST_NOTE_END,
     FAILED,
     FADEOUT,
 };
@@ -36,6 +35,7 @@ private:
 private:
     bool _isHoldingStart = false;
     bool _isHoldingSelect = false;
+    std::array<bool, 2> _isFinished{ false };
 
 public:
     ScenePlay(ePlayMode);
@@ -73,7 +73,6 @@ protected:
     void updateLoading();
     void updateLoadEnd();
     void updatePlaying();
-    void updateSongOutro();
     void updateFadeout();
     void updateFailed();
 
