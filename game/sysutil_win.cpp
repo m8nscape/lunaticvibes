@@ -59,7 +59,7 @@ void GetExecutablePath(char* output, size_t bufsize, size_t& len)
     char fullpath[256];
     memset(fullpath, 0, sizeof(fullpath));
 
-    if (GetModuleFileNameA(NULL, fullpath, 256))
+    if (!GetModuleFileNameA(NULL, fullpath, 256))
     {
         output[0] = 0;
         len = 0;
@@ -68,7 +68,7 @@ void GetExecutablePath(char* output, size_t bufsize, size_t& len)
 
     using namespace std::filesystem;
     auto parent = path(fullpath).parent_path();
-    strcpy(output, bufsize, (char*)parent.c_str());
+    strcpy(output, bufsize, (const char*)parent.string().c_str());
     len = strlen(output);
 }
 
