@@ -19,8 +19,10 @@ enum class NoteChannelCategory: size_t
     Mine,
     Invs,
     LN,
-    _, // INVALID
     NOTECATEGORY_COUNT,
+
+    BARLINE,
+    _ // INVALID
 };
 
 enum NoteChannelIndex: size_t
@@ -51,15 +53,26 @@ enum NoteChannelIndex: size_t
     K23,
     K24,
     Sc2,
-
     NOTECHANNEL_COUNT,
+
+    NOTECHANNEL_BARLINE_1P,
+    NOTECHANNEL_BARLINE_2P,
     _ // INVALID
 };
-
+constexpr size_t CHANNEL_KEY_COUNT = size_t(NoteChannelCategory::NOTECATEGORY_COUNT) * NOTECHANNEL_COUNT;
+constexpr size_t CHANNEL_BARLINE_1P = CHANNEL_KEY_COUNT;
+constexpr size_t CHANNEL_BARLINE_2P = CHANNEL_KEY_COUNT + 1;
+constexpr size_t CHANNEL_INVALID = CHANNEL_KEY_COUNT + 2;
+constexpr size_t CHANNEL_COUNT = CHANNEL_INVALID + 1;
 constexpr size_t channelToIdx(NoteChannelCategory cat, NoteChannelIndex idx)
 {
-	return (size_t)cat * NOTECHANNEL_COUNT + idx;
+    if (cat == NoteChannelCategory::BARLINE)
+        return idx == NOTECHANNEL_BARLINE_1P ? CHANNEL_BARLINE_1P : CHANNEL_BARLINE_2P;
+
+    auto ch = size_t(cat) * NOTECHANNEL_COUNT + idx;
+    return (ch >= CHANNEL_KEY_COUNT) ? CHANNEL_INVALID : ch;
 }
+
 
 // Chart in-game data representation. Contains following:
 //  - Converts plain-beat to real-beat (adds up Stop beat) 
@@ -76,7 +89,6 @@ class vScroll
 {
 public:
     static const size_t MAX_MEASURES = 1000;
-    static const size_t CHANNEL_COUNT = (size_t)NoteChannelCategory::NOTECATEGORY_COUNT * NOTECHANNEL_COUNT;
 
 protected:
 	unsigned _noteCount;
@@ -109,27 +121,31 @@ public:
     vScroll(size_t plain_n, size_t ext_n);
 
 private:
-    std::array<decltype(_noteLists.front().begin()), CHANNEL_COUNT> _noteListIterators;
+    std::array<decltype(_noteLists.front().begin()), CHANNEL_INVALID + 1> _noteListIterators;
     std::vector<decltype(_plainLists.front().begin())>  _plainListIterators;
     std::vector<decltype(_extLists.front().begin())>    _extListIterators;
     decltype(_bpmList.begin())   _bpmListIterator;
     decltype(_stopList.begin())  _stopListIterator;
+
 public:
     auto incomingNoteOfChannel      (NoteChannelCategory cat, NoteChannelIndex idx) -> decltype(_noteListIterators.front());
     auto incomingNoteOfPlainChannel (size_t idx) -> decltype(_plainListIterators.front());
     auto incomingNoteOfExtChannel   (size_t idx) -> decltype(_extListIterators.front());
     auto incomingNoteOfBpm          () -> decltype(_bpmListIterator);
     auto incomingNoteOfStop         () -> decltype(_stopListIterator);
+
     bool isLastNoteOfChannel      (NoteChannelCategory cat, NoteChannelIndex idx);
     bool isLastNoteOfPlainChannel (size_t idx);
     bool isLastNoteOfExtChannel   (size_t idx);
     bool isLastNoteOfBpm();
     bool isLastNoteOfStop();
+
     bool isLastNoteOfChannel      (NoteChannelCategory cat, NoteChannelIndex idx, decltype(_noteListIterators.front()) it);
     bool isLastNoteOfPlainChannel (size_t idx, decltype(_plainListIterators.front()) it);
     bool isLastNoteOfExtChannel   (size_t idx, decltype(_extListIterators.front()) it);
     bool isLastNoteOfBpm          (decltype(_bpmListIterator) it);
     bool isLastNoteOfStop         (decltype(_stopListIterator) it);
+
     auto succNoteOfChannel      (NoteChannelCategory cat, NoteChannelIndex idx) -> decltype(_noteListIterators.front());
     auto succNoteOfPlainChannel (size_t idx) -> decltype(_plainListIterators.front());
     auto succNoteOfExtChannel   (size_t idx) -> decltype(_extListIterators.front());

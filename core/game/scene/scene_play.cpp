@@ -124,9 +124,9 @@ ScenePlay::ScenePlay(ePlayMode playmode): vScene(context_play.mode, 1000), _mode
     gTexts.set(eText::PLAY_ARTIST, context_chart.artist);
     gTexts.set(eText::PLAY_SUBARTIST, context_chart.artist2);
     gTexts.set(eText::PLAY_GENRE, context_chart.genre);
-    gNumbers.set(eNumber::PLAY_BPM, context_chart.itlBPM);
-    gNumbers.set(eNumber::BPM_MIN, context_chart.minBPM);
-    gNumbers.set(eNumber::BPM_MAX, context_chart.maxBPM);
+    gNumbers.set(eNumber::PLAY_BPM, int(std::round(context_chart.itlBPM)));
+    gNumbers.set(eNumber::BPM_MIN, int(std::round(context_chart.minBPM)));
+    gNumbers.set(eNumber::BPM_MAX, int(std::round(context_chart.maxBPM)));
 
     // player datas
     gNumbers.set(eNumber::HS_1P, 100);
@@ -188,8 +188,8 @@ void ScenePlay::loadChart()
             context_play.scrollObj[context_play.playerSlot] = std::make_shared<ScrollBMS>((const BMS&)* context_chart.chartObj);
         }
         _scrollLoaded = true;
-        gNumbers.set(eNumber::PLAY_REMAIN_MIN, context_play.scrollObj[context_play.playerSlot]->getTotalLength().norm() / 1000 / 60);
-        gNumbers.set(eNumber::PLAY_REMAIN_SEC, context_play.scrollObj[context_play.playerSlot]->getTotalLength().norm() / 1000 % 60);
+        gNumbers.set(eNumber::PLAY_REMAIN_MIN, int(context_play.scrollObj[context_play.playerSlot]->getTotalLength().norm() / 1000 / 60));
+        gNumbers.set(eNumber::PLAY_REMAIN_SEC, int(context_play.scrollObj[context_play.playerSlot]->getTotalLength().norm() / 1000 % 60));
         break;
 
     default:
@@ -282,7 +282,7 @@ void ScenePlay::loadChart()
     // load samples
     if (!context_chart.isSampleLoaded)
     {
-        std::async(std::launch::async, [&]() {
+        auto dtor = std::async(std::launch::async, [&]() {
             auto _pChart = context_chart.chartObj;
             auto chartDir = context_chart.chartObj->getDirectory();
             for (const auto& it : _pChart->_wavFiles)
@@ -309,7 +309,7 @@ void ScenePlay::loadChart()
     // load bga
     if (!context_chart.isBgaLoaded)
     {
-        std::async(std::launch::async, [&]() {
+        auto dtor = std::async(std::launch::async, [&]() {
             auto _pChart = context_chart.chartObj;
             for (const auto& it : _pChart->_bgaFiles)
             {
@@ -444,14 +444,14 @@ void ScenePlay::updateLoading()
     gNumbers.set(eNumber::PLAY_LOAD_PROGRESS_SYS, int(_scrollLoaded * 50 + _rulesetLoaded * 50) / 100);
     gNumbers.set(eNumber::PLAY_LOAD_PROGRESS_WAV, int(getWavLoadProgress() * 100) / 100);
     gNumbers.set(eNumber::PLAY_LOAD_PROGRESS_BGA, int(getBgaLoadProgress() * 100) / 100);
-    gNumbers.set(eNumber::PLAY_LOAD_PROGRESS_PERCENT,
+    gNumbers.set(eNumber::PLAY_LOAD_PROGRESS_PERCENT, int
         (int(_scrollLoaded) * 50 + int(_rulesetLoaded) * 50 + 
         getWavLoadProgress() * 100 + getBgaLoadProgress() * 100) / 300);
 
     gBargraphs.set(eBargraph::MUSIC_LOAD_PROGRESS_SYS, int(_scrollLoaded) * 0.5 + int(_rulesetLoaded) * 0.5);
     gBargraphs.set(eBargraph::MUSIC_LOAD_PROGRESS_WAV, getWavLoadProgress());
     gBargraphs.set(eBargraph::MUSIC_LOAD_PROGRESS_BGA, getBgaLoadProgress());
-    gBargraphs.set(eBargraph::MUSIC_LOAD_PROGRESS, 
+    gBargraphs.set(eBargraph::MUSIC_LOAD_PROGRESS, int
         (int(_scrollLoaded) * 0.5 + int(_rulesetLoaded) * 0.5 +
         getWavLoadProgress() + getBgaLoadProgress()) / 3.0);
 
@@ -497,16 +497,16 @@ void ScenePlay::updatePlaying()
         context_play.ruleset[context_play.playerSlot]->update(t);
     }
 
-    gNumbers.set(eNumber::PLAY_BPM, context_play.scrollObj[context_play.playerSlot]->getCurrentBPM());
+    gNumbers.set(eNumber::PLAY_BPM, int(std::round(context_play.scrollObj[context_play.playerSlot]->getCurrentBPM())));
     // play time / remain time
     {
         auto startTime = rt - gTimers.get(eTimer::PLAY_START);
         auto playtime = rt.norm() / 1000;
         auto remaintime = context_play.scrollObj[context_play.playerSlot]->getTotalLength().norm() - playtime;
-        gNumbers.set(eNumber::PLAY_MIN, playtime / 60);
-        gNumbers.set(eNumber::PLAY_SEC, playtime % 60);
-        gNumbers.set(eNumber::PLAY_REMAIN_MIN, remaintime / 60);
-        gNumbers.set(eNumber::PLAY_REMAIN_SEC, remaintime % 60);
+        gNumbers.set(eNumber::PLAY_MIN, int(playtime / 60));
+        gNumbers.set(eNumber::PLAY_SEC, int(playtime % 60));
+        gNumbers.set(eNumber::PLAY_REMAIN_MIN, int(remaintime / 60));
+        gNumbers.set(eNumber::PLAY_REMAIN_SEC, int(remaintime % 60));
     }
 
     playBGMSamples();

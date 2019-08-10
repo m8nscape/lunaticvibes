@@ -1301,6 +1301,7 @@ namespace LR2
     const size_t GLOBAL_SPRITE_IDX_2PJUDGENUM = 18;
     const size_t GLOBAL_SPRITE_IDX_1PGAUGE = 24;
     const size_t GLOBAL_SPRITE_IDX_2PGAUGE = 25;
+    const size_t GLOBAL_SPRITE_IDX_JUDGELINE = 26;
 }
 
 using namespace LR2;
@@ -1374,6 +1375,7 @@ private:
 public:
     int loadLR2src(const Tokens &t);
     int loadLR2_SRC_IMAGE(const Tokens &t, pTexture tex);
+    int loadLR2_SRC_JUDGELINE(const Tokens &t, pTexture tex);
     int loadLR2_SRC_NUMBER(const Tokens &t, pTexture tex);
     int loadLR2_SRC_NOWJUDGE(const Tokens& t, pTexture tex, size_t idx);
     int loadLR2_SRC_NOWCOMBO(const Tokens& t, pTexture tex, size_t idx);
@@ -1385,6 +1387,7 @@ public:
     int loadLR2_SRC_NOTE(const Tokens &t);
     int loadLR2dst(const Tokens &t);
     int loadLR2_DST_NOTE(const Tokens &t);
+    int loadLR2_DST_LINE(const Tokens &t);
 
 protected:
 	int  bufJudge1PSlot;

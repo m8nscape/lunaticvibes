@@ -226,6 +226,20 @@ void vScroll::update(timestamp t)
         }
     } 
 
+    // Skip expired barline
+    {
+        NoteChannelCategory cat = NoteChannelCategory::BARLINE;
+        for (NoteChannelIndex idx = NOTECHANNEL_BARLINE_1P; idx <= NOTECHANNEL_BARLINE_2P; ++ * ((size_t*)& idx))
+        {
+            auto it = incomingNoteOfChannel(cat, idx);
+            while (!isLastNoteOfChannel(cat, idx, it) && t >= it->time && it->hit)
+            {
+                noteExpired.push_back(*it);
+                it = succNoteOfChannel(cat, idx);
+            }
+        }
+    }
+
     // Skip expired plain note
     for (size_t idx = 0; idx < _plainLists.size(); ++idx)
     {

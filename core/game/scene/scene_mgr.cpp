@@ -27,7 +27,7 @@ pScene SceneMgr::get(eScene e)
             return std::make_shared<ScenePlay>(ePlayMode::LOCAL_BATTLE);
 
         default:
-            LOG_ERROR << "[Scene] Invalid mode: " << context_play.mode;
+            LOG_ERROR << "[Scene] Invalid mode: " << int(context_play.mode);
             return nullptr;
         }
 	default:

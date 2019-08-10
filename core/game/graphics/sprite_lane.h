@@ -34,6 +34,8 @@ public:
 
 public:
     void setChannel(NoteChannelCategory cat, NoteChannelIndex idx);
+    decltype(_category) getChannelCat() const { return _category; }
+    decltype(_index) getChannelIdx() const { return _index; }
     void getRectSize(int& w, int& h);
 	virtual bool update(timestamp t);
     void updateNoteRect(timestamp t, vScroll* ps, double beat, unsigned measure);

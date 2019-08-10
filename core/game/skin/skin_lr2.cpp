@@ -715,7 +715,7 @@ int SkinLR2::loadLR2others(const Tokens &t)
 static std::map<Token, LoadLR2SrcFunc> __src_supported
 {
 	{"#SRC_IMAGE",    std::bind(&SkinLR2::loadLR2_SRC_IMAGE,    _1, _2, _3)},
-	{"#SRC_JUDGELINE",std::bind(&SkinLR2::loadLR2_SRC_IMAGE,    _1, _2, _3)},
+	{"#SRC_JUDGELINE",std::bind(&SkinLR2::loadLR2_SRC_JUDGELINE,_1, _2, _3)},
 	{"#SRC_NUMBER",   std::bind(&SkinLR2::loadLR2_SRC_NUMBER,   _1, _2, _3)},
 	{"#SRC_SLIDER",   std::bind(&SkinLR2::loadLR2_SRC_SLIDER,   _1, _2, _3)},
 	{"#SRC_BARGRAPH", std::bind(&SkinLR2::loadLR2_SRC_BARGRAPH, _1, _2, _3)},
@@ -779,6 +779,29 @@ int SkinLR2::loadLR2_SRC_IMAGE(const Tokens &t, pTexture tex)
     _sprites.back()->setLine(line);
 	
 	return 0;
+}
+
+int SkinLR2::loadLR2_SRC_JUDGELINE(const Tokens& t, pTexture tex)
+{
+    if (t.size() < 11)
+    {
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
+        return 1;
+    }
+
+    lr2skin::s_basic d;
+    convertLine(t, (int*)& d);
+    refineRect(d, tex->getRect(), line);
+
+    gSprites[GLOBAL_SPRITE_IDX_JUDGELINE] = std::make_shared<SpriteAnimated>(
+        tex, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x);
+    gSprites[GLOBAL_SPRITE_IDX_JUDGELINE]->setLine(line);
+
+    auto p = std::make_shared<SpriteGlobal>(GLOBAL_SPRITE_IDX_JUDGELINE);
+    _sprites.push_back(p);
+    _sprites.back()->setLine(line);
+
+    return 0;
 }
 
 int SkinLR2::loadLR2_SRC_NUMBER(const Tokens &t, pTexture tex)
@@ -1126,7 +1149,7 @@ int SkinLR2::loadLR2_SRC_NOTE(const Tokens &t)
     // skip unsupported
     if ( !(t[0] == "#SRC_NOTE" || t[0] == "#SRC_MINE" || t[0] == "#SRC_LN_END" || t[0] == "#SRC_LN_BODY"
         || t[0] == "#SRC_LN_START"|| t[0] == "#SRC_AUTO_NOTE" || t[0] == "#SRC_AUTO_MINE" || t[0] == "#SRC_AUTO_LN_END" 
-        || t[0] == "#SRC_AUTO_LN_BODY" || t[0] == "#SRC_AUTO_LN_START"))
+        || t[0] == "#SRC_AUTO_LN_BODY" || t[0] == "#SRC_AUTO_LN_START" || t[0] == "#SRC_LINE"))
     {
         return 0;
     }
@@ -1156,27 +1179,45 @@ int SkinLR2::loadLR2_SRC_NOTE(const Tokens &t)
     if (t.size() < 11)
         LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
 
+    NoteChannelCategory cat = NoteChannelCategory::_;
+    NoteChannelIndex idx = NoteChannelIndex::_;
+    int ret = 0;
+
     // SRC_NOTE
-    if (t[0] == "#SRC_NOTE")// || t[0] == "#SRC_AUTO_NOTE")
+    if (t[0] == "#SRC_NOTE")
     {
-		NoteChannelCategory cat = NoteChannelCategory::Note;
-		NoteChannelIndex idx = (NoteChannelIndex)d._null;
-		size_t i = channelToIdx(cat, idx);
-        _sprites.push_back(std::make_shared<SpriteLaneVertical>(
-            _texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y*d.div_x, d.cycle, iTimer, d.div_y, d.div_x));
-        _laneSprites[i] = std::static_pointer_cast<SpriteLaneVertical>(_sprites.back());
-		_laneSprites[i]->setChannel(cat, idx);
-        LOG_DEBUG << "[Skin] " << line << ": Set Note " << idx << " sprite (texture: " << gr_key << ", timer: " << d.timer << ")";
-
-		_laneSprites[i]->pNote->appendKeyFrame({ 0, {Rect(),
-			RenderParams::accTy::CONSTANT, Color(0xffffffff), BlendMode::ALPHA, 0, 0 } });
-		_laneSprites[i]->pNote->setLoopTime(0);
-
-        return 1;
+        cat = NoteChannelCategory::Note;
+        idx = (NoteChannelIndex)d._null;
+        ret = 1;
     }
-    
-    // other types are not supported
-    return 0;
+    else if (t[0] == "#SRC_LINE")
+    {
+        cat = NoteChannelCategory::BARLINE;
+        idx = d._null == 0 ? NOTECHANNEL_BARLINE_1P : NOTECHANNEL_BARLINE_2P;
+    }
+    else
+    {
+        // other types not supported
+        ret = 0;
+    }
+
+    size_t i = channelToIdx(cat, idx);
+    if (i == CHANNEL_INVALID)
+    {
+        LOG_WARNING << "[Skin] Note channel illegal: " << unsigned(cat) << ", " << unsigned(idx);
+        return 0;
+    }
+
+    _sprites.push_back(std::make_shared<SpriteLaneVertical>(
+        _texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, iTimer, d.div_y, d.div_x));
+    _laneSprites[i] = std::static_pointer_cast<SpriteLaneVertical>(_sprites.back());
+    _laneSprites[i]->setChannel(cat, idx);
+    LOG_DEBUG << "[Skin] " << line << ": Set Note " << idx << " sprite (texture: " << gr_key << ", timer: " << d.timer << ")";
+
+    _laneSprites[i]->pNote->appendKeyFrame({ 0, {Rect(),
+        RenderParams::accTy::CONSTANT, Color(0xffffffff), BlendMode::ALPHA, 0, 0 } });
+    _laneSprites[i]->pNote->setLoopTime(0);
+    return 1;
 }
 
 static std::map<Token, int> __dst_supported
@@ -1405,6 +1446,102 @@ int SkinLR2::loadLR2_DST_NOTE(const Tokens &t)
     return 1;
 }
 
+int SkinLR2::loadLR2_DST_LINE(const Tokens& t)
+{
+    if (t[0] != "#DST_LINE")
+        return 0;
+
+    if (t.size() < 14)
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
+
+    // load line into data struct
+    int src[32]{ 0 };
+    convertLine(t, src, 0, 14);
+    lr2skin::dst& d = *(lr2skin::dst*)src;
+
+    int ret = 0;
+    auto e = _sprites.back();
+    if (e == nullptr)
+    {
+        LOG_WARNING << "[Skin] " << line << ": Barline SRC definition invalid " <<
+            "(Line: " << line << ")";
+        return 0;
+    }
+
+    if (e->type() != SpriteTypes::NOTE_VERT)
+    {
+        LOG_WARNING << "[Skin] " << line << ": Barline SRC definition is not NOTE " <<
+            "(Line: " << line << ")";
+        return 0;
+    }
+    if (!e->isKeyFrameEmpty())
+    {
+        LOG_WARNING << "[Skin] " << line << ": Barline DST is already defined " <<
+            "(Line: " << line << ")";
+        e->clearKeyFrames();
+    }
+
+    // set sprite channel
+    auto p = std::static_pointer_cast<SpriteLaneVertical>(e);
+
+    NoteChannelCategory cat = p->getChannelCat();
+    NoteChannelIndex idx = p->getChannelIdx();
+    if (cat != NoteChannelCategory::BARLINE || (idx != NOTECHANNEL_BARLINE_1P && idx != NOTECHANNEL_BARLINE_2P))
+    {
+        LOG_WARNING << "[Skin] " << line << ": Previous SRC definition is not LINE " <<
+            "(Line: " << line << ")";
+        return 0;
+    }
+
+    p->pNote->clearKeyFrames();
+    p->pNote->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
+        (BlendMode)d.blend, !!d.filter, (double)d.angle } });
+
+    // refine rect: x=dst_x, y=-dst_h, w=dst_w, h=dst_y
+    int dst_h;
+    //p->getRectSize(d.w, dummy);
+    dst_h = d.h;
+    d.h = d.y;
+    d.y = -dst_h;
+
+    convertLine(t, src, 14, 16);
+    //lr2skin::dst& d = *(lr2skin::dst*)src;
+    if (t.size() < 17 || t[16].empty())
+    {
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (Line " << line << ")";
+        d.loop = -1;
+        d.timer = 0;
+        d.op[0] = d.op[1] = d.op[2] = d.op[3] = DST_TRUE;
+    }
+    else
+    {
+        for (size_t i = 0; i < 4; ++i)
+        {
+            StringContent ops = t[18 + i];
+            if (ops[0] == '!' || ops[0] == '-')
+                * (int*)& d.op[i] = -stoine(ops.substr(1));
+            else
+                *(int*)& d.op[i] = stoine(ops);
+        }
+    }
+
+    drawQueue.push_back({ e, false, d.op[0], d.op[1], d.op[2], d.op[3] });
+    e->setLoopTime(d.loop);
+    if (d.time > 0)
+    {
+        LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
+        e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), RenderParams::accTy::DISCONTINOUS, Color(d.r, d.g, d.b, 0),
+            BlendMode::NONE, false, (double)d.angle } });
+    }
+    e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
+        (BlendMode)d.blend, !!d.filter, (double)d.angle } });
+    e->setLoopTime(0);
+    //e->pushKeyFrame(time, x, y, w, h, acc, r, g, b, a, blend, filter, angle, center);
+    LOG_DEBUG << "[Skin] " << line << ": Set Lane sprite (Barline) Keyframe (time: " << d.time << ")";
+
+    return 1;
+}
+
 #pragma endregion
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1438,6 +1575,8 @@ int SkinLR2::loadLR2SkinLine(const Tokens &raw)
             return 9;
         if (loadLR2_DST_NOTE(t))
             return 10;
+        if (loadLR2_DST_LINE(t))
+            return 11;
     }
     catch (std::invalid_argument e)
     {
@@ -1617,7 +1756,7 @@ int SkinLR2::loadLR2header(const Tokens &t)
 
 SkinLR2::SkinLR2(Path p)
 {
-	_laneSprites.resize(channelToIdx(NoteChannelCategory::_, NoteChannelIndex::_));
+	_laneSprites.resize(CHANNEL_COUNT);
     loadCSV(p);
 }
 

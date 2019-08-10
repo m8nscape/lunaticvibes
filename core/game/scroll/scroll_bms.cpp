@@ -246,6 +246,10 @@ void ScrollBMS::loadBMS(const BMS& objBms)
 		basetime += beatLength * (1.0 - lastBPMChangedSegment) * measureLength;
 		basebeat += measureLength;
 
+        // add barline for next measure
+        _noteLists[CHANNEL_BARLINE_1P].push_back({ m + 1, Beat(0, 1), basetime, long long(0), false });
+        _noteLists[CHANNEL_BARLINE_2P].push_back({ m + 1, Beat(0, 1), basetime, long long(0), false });
+
     }
 
     _totalLength = basetime;    // last measure + 1
