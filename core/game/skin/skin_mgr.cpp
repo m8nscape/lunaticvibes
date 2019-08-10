@@ -1,6 +1,7 @@
 #include "skin_mgr.h"
 #include "game/skin/skin_lr2.h"
 #include "config/config_mgr.h"
+#include "utils.h"
 
 SkinMgr SkinMgr::_inst;
 
@@ -10,7 +11,8 @@ void SkinMgr::load(eMode e)
     if (skinObj != nullptr)
         unload(e);
 
-    Path skinFile(ConfigMgr::get(cfg::S_PATH_PLAY, cfg::S_DEFAULT_PATH_PLAY)); // FIXME load from config
+    Path skinFile(executablePath / fs::path(
+        ConfigMgr::get(cfg::S_PATH_PLAY, cfg::S_DEFAULT_PATH_PLAY))); // FIXME load from config
     eSkinType type = eSkinType::LR2; // FIXME load from config
     switch (type)
     {

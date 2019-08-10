@@ -69,7 +69,7 @@ public:
     struct channel {
         struct NoteParseValue { unsigned segment; unsigned value; };
         std::list<NoteParseValue> notes{};
-        int resolution = 1;
+        unsigned resolution = 1;
     };
     typedef std::array<std::string, MAXSAMPLEIDX + 1> FileIdxArray;
     typedef std::array<channel, MAXMEASUREIDX + 1> ChannelArray;

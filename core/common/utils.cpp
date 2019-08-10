@@ -78,10 +78,10 @@ std::string md5(fs::path filePath)
     {
         MD5_CTX mdContext;
         char data[1024];
-        std::streamsize bytes;
+        size_t bytes;
         MD5_Init(&mdContext);
         std::ifstream ifs(filePath.string(), std::ios_base::binary);
-        while ((bytes = ifs.readsome(data, 1024)) != 0)
+        while ((bytes = size_t(ifs.readsome(data, 1024))) != 0)
             MD5_Update(&mdContext, data, bytes);
         MD5_Final(digest, &mdContext);
     }

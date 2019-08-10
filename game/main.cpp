@@ -5,6 +5,7 @@
 #include "game/input/input_mgr.h"
 #include "game/skin/skin_lr2.h"
 #include "utils.h"
+#include "sysutil.h"
 #include "game/scene/scene_context.h"
 #include "game/generic_info.h"
 #include <plog/Log.h>
@@ -56,6 +57,11 @@ void mainLoop()
 int main(int argc, char* argv[])
 {
     SetThreadName("MainThread");
+
+    char exePath[256];
+    size_t exePathLen;
+    GetExecutablePath(exePath, 256, exePathLen);
+    executablePath = fs::path(exePath);
 
     // init logger
 #if _DEBUG
