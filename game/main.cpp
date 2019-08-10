@@ -62,6 +62,7 @@ int main(int argc, char* argv[])
     size_t exePathLen;
     GetExecutablePath(exePath, 256, exePathLen);
     executablePath = fs::path(exePath);
+    fs::current_path(executablePath);
 
     // init logger
 #if _DEBUG
