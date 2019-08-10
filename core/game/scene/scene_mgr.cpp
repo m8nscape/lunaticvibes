@@ -1,4 +1,5 @@
 #include "scene_mgr.h"
+#include "scene_context.h"
 #include "game/ruleset/ruleset.h"
 
 SceneMgr SceneMgr::_inst;
@@ -11,7 +12,24 @@ pScene SceneMgr::get(eScene e)
     case eScene::NOTHINGNESS:
         return nullptr;
     case eScene::PLAY:
-        return std::make_shared<ScenePlay>(ePlayMode::SINGLE);
+        switch (context_play.mode)
+        {
+        case eMode::PLAY5:
+        case eMode::PLAY7:
+        case eMode::PLAY9:
+        case eMode::PLAY10:
+        case eMode::PLAY14:
+            return std::make_shared<ScenePlay>(ePlayMode::SINGLE);
+
+        case eMode::PLAY5_2:
+        case eMode::PLAY7_2:
+        case eMode::PLAY9_2:
+            return std::make_shared<ScenePlay>(ePlayMode::LOCAL_BATTLE);
+
+        default:
+            LOG_ERROR << "[Scene] Invalid mode: " << context_play.mode;
+            return nullptr;
+        }
 	default:
 		return nullptr;
     }

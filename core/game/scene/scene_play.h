@@ -28,7 +28,6 @@ private:
     ePlayState _state;
     ePlayMode _mode;
     InputMask _inputAvailable;
-    StringPath _chartPath;
     std::vector<size_t> _currentKeySample;
     std::mutex _mutex;
 
