@@ -1,3 +1,4 @@
+#include "meta.h"
 #include "game/graphics/graphics.h"
 #include "config/config_mgr.h"
 #include "game/sound/sound_mgr.h"
@@ -69,7 +70,10 @@ int main(int argc, char* argv[])
     auto appender = plog::ColorConsoleAppender<plog::TxtFormatterImpl<false>>();
     plog::init(plog::debug, &appender);
 #else
-    plog::init(plog::info, "log.txt", 1000000, 5);
+    auto fmt = std::put_time(std::localtime(nullptr), "%F");
+    std::stringstream logfile;
+    logfile << MAIN_NAME << "-" << fmt << ".log";
+    plog::init(plog::info, logfile.str().c_str(), 1000000, 5);
 #endif
 
     ConfigMgr::init();
