@@ -11,18 +11,34 @@ void SkinMgr::load(eMode e)
     if (skinObj != nullptr)
         unload(e);
 
-    Path skinFile(fs::path(
-        ConfigMgr::get(cfg::S_PATH_PLAY, cfg::S_DEFAULT_PATH_PLAY))); // FIXME load from config
-    eSkinType type = eSkinType::LR2; // FIXME load from config
+    Path skinFile;
+    Path skinFileDefault;
+    eSkinType type = eSkinType::LR2;
+
+    // Get skin path from config
+    switch (e)
+    {
+    case eMode::PLAY7:
+        skinFileDefault = cfg::S_DEFAULT_PATH_PLAY_7;
+        skinFile = ConfigMgr::S.get(cfg::S_PATH_PLAY_7, cfg::S_DEFAULT_PATH_PLAY_7);
+        break;
+
+    case eMode::RESULT:
+        skinFileDefault = cfg::S_DEFAULT_PATH_RESULT;
+        skinFile = ConfigMgr::S.get(cfg::S_PATH_RESULT, cfg::S_DEFAULT_PATH_RESULT);
+        break;
+    }
+
     switch (type)
     {
     case eSkinType::LR2:
-    {
         skinObj = std::make_shared<SkinLR2>(skinFile);
         if (!skinObj->isLoaded())
-            /* Initialize with default skin path */;
+            skinObj = std::make_shared<SkinLR2>(skinFileDefault);
         break;
-    }
+
+    default:
+        break;
     }
 }
 

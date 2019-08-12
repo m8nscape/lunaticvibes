@@ -91,7 +91,7 @@ public:
         std::string maker;
 
         // General 
-        unsigned timeIntro;
+        unsigned timeIntro; // time before this cannot receive input. Implemented by derived class
         unsigned timeOutro;
 
         // Decide
@@ -106,6 +106,7 @@ public:
         // Result
         //unsigned resultStartInputTimeRank; //ignored
         //unsigned resultStartInputTimeUpdate; //ignored
+        unsigned timeResultDrawing;
     } info{};
 
     ///////////////////////////////////////////////////////////

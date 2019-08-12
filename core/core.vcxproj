@@ -44,6 +44,7 @@
     <ClCompile Include="game\scene\scene_context.cpp" />
     <ClCompile Include="game\scene\scene_mgr.cpp" />
     <ClCompile Include="game\scene\scene_play.cpp" />
+    <ClCompile Include="game\scene\scene_result.cpp" />
     <ClCompile Include="game\scroll\scroll.cpp" />
     <ClCompile Include="game\scroll\scroll_bms.cpp" />
     <ClCompile Include="game\skin\skin.cpp" />
@@ -92,6 +93,7 @@
     <ClInclude Include="game\scene\scene_context.h" />
     <ClInclude Include="game\scene\scene_mgr.h" />
     <ClInclude Include="game\scene\scene_play.h" />
+    <ClInclude Include="game\scene\scene_result.h" />
     <ClInclude Include="game\scroll\scroll.h" />
     <ClInclude Include="game\scroll\scroll_bms.h" />
     <ClInclude Include="game\skin\skin.h" />

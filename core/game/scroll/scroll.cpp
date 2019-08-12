@@ -20,6 +20,14 @@ void vScroll::reset()
     _currentBPM        = _bpmList.empty()? 150 : std::get<BPM>(_bpmList.front().value);
     _lastChangedBPMTime = 0;
     _lastChangedBeat   = 0;
+
+    // reset notes
+    for (auto& ch : _noteLists)
+        for (auto& n : ch)
+            n.hit = false;
+
+    // reset iterators
+    setIterators();
 }
 
 void vScroll::setIterators()

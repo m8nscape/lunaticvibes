@@ -1,10 +1,20 @@
 #pragma once
+#include <memory>
+#include <string>
 #include "types.h"
 #include "chart/chart.h"
 #include "game/scroll/scroll.h"
 #include "game/ruleset/ruleset.h"
-#include <memory>
-#include <string>
+
+enum class eScene
+{
+    NOTHINGNESS,
+    PLAY,
+    RESULT,
+    EXIT
+};
+
+inline eScene __next_scene = eScene::PLAY;
 
 inline struct __chart_context_params
 {
@@ -38,6 +48,7 @@ constexpr size_t PLAYER_SLOT_2P = 1;
 inline struct __play_context_params
 {
     eMode mode = eMode::PLAY7;
+    bool canRetry = false;
     size_t playerSlot = PLAYER_SLOT_1P;  // 1P starts from 0
     unsigned judgeLevel = 0;
 
@@ -58,4 +69,5 @@ inline struct __play_context_params
 
 } context_play;
 
+void clearContextPlayForRetry();
 void clearContextPlay();

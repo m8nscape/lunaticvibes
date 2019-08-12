@@ -1,7 +1,6 @@
 #pragma once
 #include <mutex>
 #include "scene.h"
-#include "asynclooper.h"
 #include "chart/chart.h"
 #include "game/scroll/scroll.h"
 #include "game/ruleset/ruleset.h"
@@ -25,16 +24,18 @@ enum class ePlayState
 class ScenePlay : public vScene
 {
 private:
-    ePlayState _state;
-    ePlayMode _mode;
-    InputMask _inputAvailable;
-    std::vector<size_t> _currentKeySample;
     std::mutex _mutex;
+    ePlayState _state;
+    InputMask _inputAvailable;
+
+private:
+    ePlayMode _mode;
+    std::vector<size_t> _currentKeySample;
 
 private:
     bool _isHoldingStart = false;
     bool _isHoldingSelect = false;
-    std::array<bool, 2> _isFinished{ false };
+    std::array<bool, 2> _isPlayerFinished{ false };
 
 public:
     ScenePlay(ePlayMode);

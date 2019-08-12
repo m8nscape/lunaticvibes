@@ -1,5 +1,7 @@
 #include "scene_mgr.h"
 #include "scene_context.h"
+#include "scene_play.h"
+#include "scene_result.h"
 #include "game/ruleset/ruleset.h"
 
 SceneMgr SceneMgr::_inst;
@@ -11,6 +13,7 @@ pScene SceneMgr::get(eScene e)
     case eScene::EXIT:
     case eScene::NOTHINGNESS:
         return nullptr;
+
     case eScene::PLAY:
         switch (context_play.mode)
         {
@@ -30,6 +33,10 @@ pScene SceneMgr::get(eScene e)
             LOG_ERROR << "[Scene] Invalid mode: " << int(context_play.mode);
             return nullptr;
         }
+
+    case eScene::RESULT:
+        return std::make_shared<SceneResult>();
+
 	default:
 		return nullptr;
     }

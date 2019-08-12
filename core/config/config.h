@@ -1,6 +1,6 @@
 #pragma once
 // FIXME: current TOML lib cause internal errors
-#include <yaml-cpp/yaml.h>	// I wonder how the YAML static lib was sized almost about 5MB...
+#include <yaml-cpp/yaml.h>	// I wonder how the YAML static lib was sized almost about 11MB...
 //#include <cpptoml.h> // From cpptoml
 #include "types.h"
 //#include <unordered_map>

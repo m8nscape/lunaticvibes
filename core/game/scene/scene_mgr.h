@@ -1,16 +1,7 @@
 #pragma once
 #include <memory>
 #include "scene.h"
-#include "scene_play.h"
-
-enum class eScene
-{
-    NOTHINGNESS,
-    PLAY,
-    EXIT
-};
-
-inline eScene __next_scene = eScene::PLAY;
+#include "scene_context.h"
 
 typedef std::shared_ptr<vScene> pScene;
 
