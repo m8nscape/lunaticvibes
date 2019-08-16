@@ -19,6 +19,7 @@ private:
     unsigned _currentMeasure = 0;
 
 public:
+    unsigned _playerSlot;
     std::shared_ptr<SpriteAnimated> pNote;
 
 public:
@@ -29,7 +30,7 @@ public:
     SpriteLaneVertical(pTexture texture, Rect laneRect,
         unsigned animFrames, unsigned frameTime = 0, eTimer timer = eTimer::PLAY_START,
         bool animVerticalIndexing = false,
-        double basespeed = 1.0, double lanespeed = 1.0
+        unsigned player = 0, double basespeed = 1.0, double lanespeed = 1.0
         );
 
 public:

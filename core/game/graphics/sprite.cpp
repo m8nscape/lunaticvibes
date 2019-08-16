@@ -971,7 +971,7 @@ void SpriteLine::draw() const
 void SpriteLine::updateProgress(timestamp t)
 {
 	_progress = (double)(gTimers.get(_timerInd) - t.norm() - _timerStartOffset) / _duration;
-	std::clamp(_progress, 0.0, 1.0);
+	_progress = std::clamp(_progress, 0.0, 1.0);
 }
 
 bool SpriteLine::update(timestamp t)

@@ -1193,7 +1193,7 @@ int SkinLR2::loadLR2_SRC_NOTE(const Tokens &t)
     else if (t[0] == "#SRC_LINE")
     {
         cat = NoteChannelCategory::BARLINE;
-        idx = d._null == 0 ? NOTECHANNEL_BARLINE_1P : NOTECHANNEL_BARLINE_2P;
+        idx = NOTECHANNEL_BARLINE;
     }
     else
     {
@@ -1484,9 +1484,11 @@ int SkinLR2::loadLR2_DST_LINE(const Tokens& t)
     // set sprite channel
     auto p = std::static_pointer_cast<SpriteLaneVertical>(e);
 
+    p->_playerSlot = d._null / 10;  // player slot, 1P:0, 2P:1
+
     NoteChannelCategory cat = p->getChannelCat();
     NoteChannelIndex idx = p->getChannelIdx();
-    if (cat != NoteChannelCategory::BARLINE || (idx != NOTECHANNEL_BARLINE_1P && idx != NOTECHANNEL_BARLINE_2P))
+    if (cat != NoteChannelCategory::BARLINE || idx != NOTECHANNEL_BARLINE)
     {
         LOG_WARNING << "[Skin] " << line << ": Previous SRC definition is not LINE " <<
             "(Line: " << line << ")";

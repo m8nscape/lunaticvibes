@@ -55,19 +55,17 @@ enum NoteChannelIndex: size_t
     Sc2,
     NOTECHANNEL_COUNT,
 
-    NOTECHANNEL_BARLINE_1P,
-    NOTECHANNEL_BARLINE_2P,
+    NOTECHANNEL_BARLINE,
     _ // INVALID
 };
 constexpr size_t CHANNEL_KEY_COUNT = size_t(NoteChannelCategory::NOTECATEGORY_COUNT) * NOTECHANNEL_COUNT;
-constexpr size_t CHANNEL_BARLINE_1P = CHANNEL_KEY_COUNT;
-constexpr size_t CHANNEL_BARLINE_2P = CHANNEL_KEY_COUNT + 1;
-constexpr size_t CHANNEL_INVALID = CHANNEL_KEY_COUNT + 2;
+constexpr size_t CHANNEL_BARLINE = CHANNEL_KEY_COUNT;
+constexpr size_t CHANNEL_INVALID = CHANNEL_KEY_COUNT + 1;
 constexpr size_t CHANNEL_COUNT = CHANNEL_INVALID + 1;
 constexpr size_t channelToIdx(NoteChannelCategory cat, NoteChannelIndex idx)
 {
     if (cat == NoteChannelCategory::BARLINE)
-        return idx == NOTECHANNEL_BARLINE_1P ? CHANNEL_BARLINE_1P : CHANNEL_BARLINE_2P;
+        return CHANNEL_BARLINE;
 
     auto ch = size_t(cat) * NOTECHANNEL_COUNT + idx;
     return (ch >= CHANNEL_KEY_COUNT) ? CHANNEL_INVALID : ch;

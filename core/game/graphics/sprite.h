@@ -102,7 +102,7 @@ public:
     SpriteGlobal(size_t idx) :vSprite(nullptr, SpriteTypes::GLOBAL), idx(idx) {}
     virtual ~SpriteGlobal() = default;
 
-    int get() {
+    size_t get() {
         return idx;
     }
 

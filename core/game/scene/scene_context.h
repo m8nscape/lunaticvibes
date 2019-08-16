@@ -21,7 +21,6 @@ inline struct __chart_context_params
     Path path{};
     HashMD5 hash{};
     std::shared_ptr<vChart> chartObj{ nullptr };
-    std::shared_ptr<vScroll> scrollObj{ nullptr };
     //bool isChartSamplesLoaded;
     bool isSampleLoaded = false;
     bool isBgaLoaded = false;

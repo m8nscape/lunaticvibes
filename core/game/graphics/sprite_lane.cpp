@@ -5,8 +5,8 @@
 SpriteLaneVertical::SpriteLaneVertical(pTexture texture, Rect r,
     unsigned animFrames, unsigned frameTime, eTimer timer,
     bool animVerticalIndexing,
-    double basespeed, double lanespeed):
-    SpriteStatic(nullptr, Rect(0)), pNote(new SpriteAnimated(texture, r, animFrames, frameTime, timer, animVerticalIndexing))
+    unsigned player, double basespeed, double lanespeed):
+    SpriteStatic(nullptr, Rect(0)), pNote(new SpriteAnimated(texture, r, animFrames, frameTime, timer, animVerticalIndexing)), _playerSlot(player)
 {
     _type = SpriteTypes::NOTE_VERT;
     _basespd = basespeed * lanespeed;

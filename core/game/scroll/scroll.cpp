@@ -237,14 +237,12 @@ void vScroll::update(timestamp t)
     // Skip expired barline
     {
         NoteChannelCategory cat = NoteChannelCategory::BARLINE;
-        for (NoteChannelIndex idx = NOTECHANNEL_BARLINE_1P; idx <= NOTECHANNEL_BARLINE_2P; ++ * ((size_t*)& idx))
+        NoteChannelIndex idx = NOTECHANNEL_BARLINE;
+        auto it = incomingNoteOfChannel(cat, idx);
+        while (!isLastNoteOfChannel(cat, idx, it) && t >= it->time && it->hit)
         {
-            auto it = incomingNoteOfChannel(cat, idx);
-            while (!isLastNoteOfChannel(cat, idx, it) && t >= it->time && it->hit)
-            {
-                noteExpired.push_back(*it);
-                it = succNoteOfChannel(cat, idx);
-            }
+            noteExpired.push_back(*it);
+            it = succNoteOfChannel(cat, idx);
         }
     }
 
