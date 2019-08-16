@@ -113,11 +113,12 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\;$(SolutionDir)ext\fmod\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\;$(SolutionDir)ext\sqlite3\lib\$(PlatformTarget)\;$(SolutionDir)ext\fmod\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>core.lib;yaml-cpp.lib;SDL2_gfx.lib;fmodL_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y $(SolutionDir)obj\$(PlatformTarget)\*.dll $(OutDir)
+xcopy /y $(SolutionDir)ext\sqlite3\lib\$(PlatformTarget)\*.dll $(OutDir)
 xcopy /y $(SolutionDir)ext\fmod\lib\fmodL.dll $(OutDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -133,11 +134,12 @@ xcopy /y $(SolutionDir)ext\fmod\lib\fmodL.dll $(OutDir)</Command>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\;$(SolutionDir)ext\fmod\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\;$(SolutionDir)ext\sqlite3\lib\$(PlatformTarget)\;$(SolutionDir)ext\fmod\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>core.lib;yaml-cpp.lib;SDL2_gfx.lib;fmodL64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y $(SolutionDir)obj\$(PlatformTarget)\*.dll $(OutDir)
+xcopy /y $(SolutionDir)ext\sqlite3\lib\$(PlatformTarget)\*.dll $(OutDir)
 xcopy /y $(SolutionDir)ext\fmod\lib\fmodL64.dll $(OutDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -157,11 +159,12 @@ xcopy /y $(SolutionDir)ext\fmod\lib\fmodL64.dll $(OutDir)</Command>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\;$(SolutionDir)ext\fmod\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\;$(SolutionDir)ext\sqlite3\lib\$(PlatformTarget)\;$(SolutionDir)ext\fmod\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>core.lib;yaml-cpp.lib;SDL2_gfx.lib;fmod_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y $(SolutionDir)obj\$(PlatformTarget)\*.dll $(OutDir)
+xcopy /y $(SolutionDir)ext\sqlite3\lib\$(PlatformTarget)\*.dll $(OutDir)
 xcopy /y $(SolutionDir)ext\fmod\lib\fmod.dll $(OutDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -181,11 +184,12 @@ xcopy /y $(SolutionDir)ext\fmod\lib\fmod.dll $(OutDir)</Command>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\;$(SolutionDir)ext\fmod\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\;$(SolutionDir)ext\sqlite3\lib\$(PlatformTarget)\;$(SolutionDir)ext\fmod\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>core.lib;yaml-cpp.lib;SDL2_gfx.lib;fmod64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y $(SolutionDir)obj\$(PlatformTarget)\*.dll $(OutDir)
+xcopy /y $(SolutionDir)ext\sqlite3\lib\$(PlatformTarget)\*.dll $(OutDir)
 xcopy /y $(SolutionDir)ext\fmod\lib\fmod64.dll $(OutDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

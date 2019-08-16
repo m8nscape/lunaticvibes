@@ -28,8 +28,8 @@ protected:
     bool _loaded = false;
     constexpr bool isLoaded() { return _loaded; }
 
+// following fields are generic info, which are stored in db
 public:
-
     Path _filePath;
     HashMD5 _fileHash;
 
@@ -47,6 +47,12 @@ public:
     StringPath _text2;
     StringPath _text3;
 
+    BPM _minBPM = INFINITY;
+    BPM _maxBPM = 0.0;
+    BPM _itlBPM = 130.0;
+
+// following fields are filled during loading
+public:
     std::vector<StringPath> _wavFiles;
     std::vector<StringPath> _bgaFiles;
 
@@ -54,10 +60,6 @@ public:
     std::vector<Beat> _measureLength;
     std::vector<Note> _notes;
     //std::vector<_Inherit_SpriteStatic_with_playbegin_timer_> _BGAsprites;
-
-    BPM _minBPM = INFINITY;
-    BPM _maxBPM = 0.0;
-    BPM _itlBPM = 130.0;
 
 public:
     BPM getAvgBPM() const;

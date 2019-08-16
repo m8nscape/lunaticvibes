@@ -29,6 +29,7 @@
     <ClCompile Include="config\cfg_profile.cpp" />
     <ClCompile Include="config\cfg_skin.cpp" />
     <ClCompile Include="config\config.cpp" />
+    <ClCompile Include="db\db_conn.cpp" />
     <ClCompile Include="game\graphics\SDL2\common_SDL2.cpp" />
     <ClCompile Include="game\graphics\SDL2\rect_SDL2.cpp" />
     <ClCompile Include="game\graphics\SDL2\ttf_SDL2.cpp" />
@@ -70,6 +71,8 @@
     <ClInclude Include="config\cfg_skin.h" />
     <ClInclude Include="config\config.h" />
     <ClInclude Include="config\config_mgr.h" />
+    <ClInclude Include="db\db_conn.h" />
+    <ClInclude Include="db\db_song.h" />
     <ClInclude Include="game\data\bargraph.h" />
     <ClInclude Include="game\data\buffered_global.h" />
     <ClInclude Include="game\data\number.h" />
@@ -177,7 +180,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)ext\fmod\inc;$(SolutionDir)ext\SDL2_gfx\include;$(SolutionDir)ext\yaml-cpp\include;$(SolutionDir)ext\plog\include;$(SolutionDir)core;$(SolutionDir)core\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)ext\fmod\inc;$(SolutionDir)ext\SDL2_gfx\include;$(SolutionDir)ext\sqlite3;$(SolutionDir)ext\yaml-cpp\include;$(SolutionDir)ext\plog\include;$(SolutionDir)core;$(SolutionDir)core\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
     </ClCompile>
     <Link>
@@ -203,7 +206,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)ext\fmod\inc;$(SolutionDir)ext\SDL2_gfx\include;$(SolutionDir)ext\yaml-cpp\include;$(SolutionDir)ext\plog\include;$(SolutionDir)core;$(SolutionDir)core\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)ext\fmod\inc;$(SolutionDir)ext\SDL2_gfx\include;$(SolutionDir)ext\sqlite3;$(SolutionDir)ext\yaml-cpp\include;$(SolutionDir)ext\plog\include;$(SolutionDir)core;$(SolutionDir)core\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
       <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
@@ -227,7 +230,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)ext\fmod\inc;$(SolutionDir)ext\SDL2_gfx\include;$(SolutionDir)ext\yaml-cpp\include;$(SolutionDir)ext\plog\include;$(SolutionDir)core;$(SolutionDir)core\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)ext\fmod\inc;$(SolutionDir)ext\SDL2_gfx\include;$(SolutionDir)ext\sqlite3;$(SolutionDir)ext\yaml-cpp\include;$(SolutionDir)ext\plog\include;$(SolutionDir)core;$(SolutionDir)core\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -247,7 +250,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)ext\fmod\inc;$(SolutionDir)ext\SDL2_gfx\include;$(SolutionDir)ext\yaml-cpp\include;$(SolutionDir)ext\plog\include;$(SolutionDir)core;$(SolutionDir)core\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)ext\fmod\inc;$(SolutionDir)ext\SDL2_gfx\include;$(SolutionDir)ext\sqlite3;$(SolutionDir)ext\yaml-cpp\include;$(SolutionDir)ext\plog\include;$(SolutionDir)core;$(SolutionDir)core\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <WholeProgramOptimization>true</WholeProgramOptimization>
