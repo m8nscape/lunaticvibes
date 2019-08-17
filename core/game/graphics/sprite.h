@@ -162,7 +162,7 @@ class SpriteSelection : public vSprite
 protected:
     std::vector<Rect> _texRect;
     unsigned _srows = 0, _scols = 0, _segments = 0;
-    frameIdx _segmentIdx = 0;        
+    frameIdx _selectionIdx = 0;        
 public:
     SpriteSelection() = delete;
 

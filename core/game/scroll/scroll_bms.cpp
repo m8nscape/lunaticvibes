@@ -247,7 +247,7 @@ void ScrollBMS::loadBMS(const BMS& objBms)
 		basebeat += measureLength;
 
         // add barline for next measure
-        _noteLists[CHANNEL_BARLINE].push_back({ m + 1, Beat(0, 1), basetime, long long(0), false });
+        _noteLists[CHANNEL_BARLINE].push_back({ m + 1, basebeat, basetime, long long(0), false });
 
     }
 

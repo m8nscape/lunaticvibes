@@ -59,7 +59,9 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChart> chart, std::shared_ptr<vS
     switch (chart->type())
     {
     case eChartType::BMS:
-        chart->getExtendedProperty("TOTAL"s, (void*)&total);
+        double total_bms;
+        chart->getExtendedProperty("TOTAL"s, (void*)&total_bms);
+        total = int(total_bms);
         if (total < 0) total = 160;
         break;
 

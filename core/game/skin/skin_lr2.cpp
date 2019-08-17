@@ -340,10 +340,10 @@ int SkinLR2::setExtendedProperty(std::string& key, void* value)
 {
     if (key == "GAUGETYPE_1P")
     {
-        if (gSprites[GLOBAL_SPRITE_IDX_1PJUDGE] != nullptr)
+        if (gSprites[GLOBAL_SPRITE_IDX_1PGAUGE] != nullptr)
         {
             auto type = *(eGaugeOp*)value;
-            auto pS = std::reinterpret_pointer_cast<SpriteGaugeGrid>(gSprites[GLOBAL_SPRITE_IDX_1PJUDGE]);
+            auto pS = std::reinterpret_pointer_cast<SpriteGaugeGrid>(gSprites[GLOBAL_SPRITE_IDX_1PGAUGE]);
             switch (type)
             {
             case eGaugeOp::SURVIVAL:
@@ -367,10 +367,10 @@ int SkinLR2::setExtendedProperty(std::string& key, void* value)
 
     if (key == "GAUGETYPE_2P")
     {
-        if (gSprites[GLOBAL_SPRITE_IDX_2PJUDGE] != nullptr)
+        if (gSprites[GLOBAL_SPRITE_IDX_2PGAUGE] != nullptr)
         {
             auto type = *(eGaugeOp*)value;
-            auto pS = std::reinterpret_pointer_cast<SpriteGaugeGrid>(gSprites[GLOBAL_SPRITE_IDX_2PJUDGE]);
+            auto pS = std::reinterpret_pointer_cast<SpriteGaugeGrid>(gSprites[GLOBAL_SPRITE_IDX_2PGAUGE]);
             switch (type)
             {
             case eGaugeOp::SURVIVAL:
@@ -1194,6 +1194,7 @@ int SkinLR2::loadLR2_SRC_NOTE(const Tokens &t)
     {
         cat = NoteChannelCategory::BARLINE;
         idx = NOTECHANNEL_BARLINE;
+        ret = 2;
     }
     else
     {
@@ -1217,7 +1218,7 @@ int SkinLR2::loadLR2_SRC_NOTE(const Tokens &t)
     _laneSprites[i]->pNote->appendKeyFrame({ 0, {Rect(),
         RenderParams::accTy::CONSTANT, Color(0xffffffff), BlendMode::ALPHA, 0, 0 } });
     _laneSprites[i]->pNote->setLoopTime(0);
-    return 1;
+    return ret;
 }
 
 static std::map<Token, int> __dst_supported
@@ -1365,7 +1366,7 @@ int SkinLR2::loadLR2_DST_NOTE(const Tokens &t)
     lr2skin::dst& d = *(lr2skin::dst*)src;
 	NoteChannelIndex idx = (NoteChannelIndex)d._null;
 
-	for (size_t i = (size_t)NoteChannelCategory::Note; i < (size_t)NoteChannelCategory::_; ++i)
+	for (size_t i = (size_t)NoteChannelCategory::Note; i < (size_t)NoteChannelCategory::NOTECATEGORY_COUNT; ++i)
 	{
 		NoteChannelCategory cat = (NoteChannelCategory)i;
 		int ret = 0;
@@ -1399,6 +1400,8 @@ int SkinLR2::loadLR2_DST_NOTE(const Tokens &t)
 
 		// set sprite channel
 		auto p = std::static_pointer_cast<SpriteLaneVertical>(e);
+
+        p->_playerSlot = d._null / 10;  // player slot, 1P:0, 2P:1
 
 		// refine rect: x=dst_x, y=-dst_h, w=dst_w, h=dst_y
 		int dst_h;

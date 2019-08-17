@@ -1284,12 +1284,12 @@ TEST_F(sOption, switchTest)
     gTimers.set(eTimer::K11_BOMB, t0.norm());
     gSwitches.set(eSwitch::_TEST1, false);
     ss.update(t0);
-    EXPECT_EQ(ss._segmentIdx, 0);
+    EXPECT_EQ(ss._selectionIdx, 0);
     gSwitches.set(eSwitch::_TEST1, true);
     ss.update(t0);
-    EXPECT_EQ(ss._segmentIdx, 1);
+    EXPECT_EQ(ss._selectionIdx, 1);
     ss0.update(t0);
-    EXPECT_EQ(ss0._segmentIdx, 0);
+    EXPECT_EQ(ss0._selectionIdx, 0);
 }
 
 
@@ -1298,16 +1298,16 @@ TEST_F(sOption, optionTest)
     ASSERT_EQ(so._opType, SpriteOption::opType::OPTION);
     gOptions.set(eOption::_TEST1, 0);
     so.update(t0);
-    EXPECT_EQ(so._segmentIdx, 0);
+    EXPECT_EQ(so._selectionIdx, 0);
     gOptions.set(eOption::_TEST1, 1);
     so.update(t0);
-    EXPECT_EQ(so._segmentIdx, 1);
+    EXPECT_EQ(so._selectionIdx, 1);
     gOptions.set(eOption::_TEST1, 5);
     so.update(t0);
-    EXPECT_EQ(so._segmentIdx, 5);
+    EXPECT_EQ(so._selectionIdx, 5);
     gOptions.set(eOption::_TEST1, 12);
     so.update(t0);
-    EXPECT_EQ(so._segmentIdx, 5);
+    EXPECT_EQ(so._selectionIdx, 5);
 
 }
 

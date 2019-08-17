@@ -61,7 +61,7 @@ inline struct __play_context_params
     std::array<eGaugeOp, MAX_PLAYERS> gaugeType{};        // resolve on ruleset construction
     std::array<PlayMod, MAX_PLAYERS> mods{};         // eMod: 
 
-    eRuleset rulesetType;
+    eRuleset rulesetType = eRuleset::CLASSIC;
     std::array<std::shared_ptr<vRuleset>, MAX_PLAYERS> ruleset;
 
     timestamp remainTime;

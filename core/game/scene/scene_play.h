@@ -42,8 +42,8 @@ public:
     virtual ~ScenePlay() = default;
 
 private:
-    std::array<unsigned, 128> _bgmSampleIdxBuf{};
-    std::array<unsigned, 128> _keySampleIdxBuf{};
+    std::array<size_t, 128> _bgmSampleIdxBuf{};
+    std::array<size_t, 128> _keySampleIdxBuf{};
 
 protected:
     // common

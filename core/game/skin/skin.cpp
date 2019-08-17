@@ -17,12 +17,15 @@ void vSkin::update()
 	timestamp t;
     double beat;
     unsigned measure;
+
+    // current beat, measure
     if (context_play.scrollObj[context_play.playerSlot] != nullptr)
     {
         beat = context_play.scrollObj[context_play.playerSlot]->getCurrentBeat();
         measure = context_play.scrollObj[context_play.playerSlot]->getCurrentMeasure();
         gNumbers.set(eNumber::_TEST3, (int)(beat * 1000));
     }
+
 #ifdef _DEBUG
 	for(const auto& s: _sprites)
 #else

@@ -232,12 +232,12 @@ SpriteSelection::SpriteSelection(pTexture texture, const Rect& r, unsigned rows,
 void SpriteSelection::draw() const
 {
     if (_draw && _pTexture->_loaded)
-        _pTexture->draw(_texRect[_segmentIdx], _current.rect, _current.color, _current.blend, _current.filter, _current.angle);
+        _pTexture->draw(_texRect[_selectionIdx], _current.rect, _current.color, _current.blend, _current.filter, _current.angle);
 }
 
 void SpriteSelection::updateSelection(frameIdx frame)
 {
-    _segmentIdx = frame < _segments ? frame : _segments - 1;
+    _selectionIdx = frame < _segments ? frame : _segments - 1;
 }
 
 bool SpriteSelection::update(timestamp t)
@@ -305,7 +305,7 @@ void SpriteAnimated::updateAnimation(timestamp time)
         _currAnimFrame = std::floor(animFrameTime / timeEachFrame);
     }
 	/*
-    _drawRect = _texRect[_segmentIdx];
+    _drawRect = _texRect[_selectionIdx];
     _drawRect.w = _aRect.w;
     _drawRect.h = _aRect.h;
     if (!_aVert)
@@ -347,7 +347,7 @@ void SpriteAnimated::draw() const
 {
     if (_draw && _pTexture != nullptr && _pTexture->_loaded)
     {
-        _pTexture->draw(_texRect[_segmentIdx * _animFrames + _currAnimFrame], _current.rect, _current.color, _current.blend, _current.filter, _current.angle);
+        _pTexture->draw(_texRect[_selectionIdx * _animFrames + _currAnimFrame], _current.rect, _current.color, _current.blend, _current.filter, _current.angle);
     }
 }
 
@@ -874,18 +874,18 @@ void SpriteGaugeGrid::setGaugeType(SpriteGaugeGrid::GaugeType ty)
     // set FailRect
     updateSelection(_texIdxLightFail);
     SpriteAnimated::update(t);
-    _lightRectFailIdxOffset = _segmentIdx * _animFrames;
+    _lightRectFailIdxOffset = _selectionIdx * _animFrames;
     updateSelection(_texIdxDarkFail);
     SpriteAnimated::update(t);
-    _darkRectFailIdxOffset = _segmentIdx * _animFrames;
+    _darkRectFailIdxOffset = _selectionIdx * _animFrames;
 
     // set ClearRect
     updateSelection(_texIdxLightClear);
     SpriteAnimated::update(t);
-    _lightRectClearIdxOffset = _segmentIdx * _animFrames;
+    _lightRectClearIdxOffset = _selectionIdx * _animFrames;
     updateSelection(_texIdxDarkClear);
     SpriteAnimated::update(t);
-    _darkRectClearIdxOffset = _segmentIdx * _animFrames;
+    _darkRectClearIdxOffset = _selectionIdx * _animFrames;
 }
 
 void SpriteGaugeGrid::updateVal(unsigned v)

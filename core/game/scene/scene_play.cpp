@@ -293,6 +293,7 @@ void ScenePlay::loadChart()
             if (wavToLoad == 0)
             {
                 wavLoaded = 1;
+                context_chart.isSampleLoaded = true;
                 return;
             }
             for (size_t i = 0; i < _pChart->_wavFiles.size(); ++i)
@@ -319,6 +320,7 @@ void ScenePlay::loadChart()
             if (bmpToLoad == 0)
             {
                 bmpLoaded = 1;
+                context_chart.isBgaLoaded = true;
                 return;
             }
             for (size_t i = 0; i < _pChart->_bgaFiles.size(); ++i)
@@ -486,11 +488,14 @@ void ScenePlay::updatePlaying()
 
     if (_mode == ePlayMode::LOCAL_BATTLE)
     {
+        context_play.scrollObj[PLAYER_SLOT_1P]->update(rt);
+        context_play.scrollObj[PLAYER_SLOT_2P]->update(rt);
         context_play.ruleset[PLAYER_SLOT_1P]->update(t);
         context_play.ruleset[PLAYER_SLOT_2P]->update(t);
     }
     else
     {
+        context_play.scrollObj[context_play.playerSlot]->update(rt);
         context_play.ruleset[context_play.playerSlot]->update(t);
     }
 
