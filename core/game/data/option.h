@@ -63,7 +63,7 @@ enum class eOption : unsigned
     RESULT_UPDATED_RANK,
     RESULT_CLEARED,
 
-    _TEST1,
+    _TEST1 = 200,
 
     OPTION_COUNT
 };

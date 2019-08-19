@@ -16,6 +16,8 @@ enum class eScene
 
 inline eScene __next_scene = eScene::PLAY;
 
+////////////////////////////////////////////////////////////////////////////////
+
 inline struct __chart_context_params
 {
     Path path{};
@@ -40,6 +42,8 @@ inline struct __chart_context_params
     BPM maxBPM = 150;
 
 } context_chart;
+
+////////////////////////////////////////////////////////////////////////////////
 
 constexpr size_t MAX_PLAYERS = 8;
 constexpr size_t PLAYER_SLOT_1P = 0;
@@ -70,3 +74,24 @@ inline struct __play_context_params
 
 void clearContextPlayForRetry();
 void clearContextPlay();
+
+////////////////////////////////////////////////////////////////////////////////
+
+struct SelectSongInfos
+{
+    std::string title;
+    int level;
+    unsigned lamp;
+    unsigned rank;
+    unsigned rival; // win / lose / draw / noplay
+    unsigned rivallamp_self;
+    unsigned rivallamp_rival;
+};
+
+inline struct __select_context_params
+{
+    unsigned barIndex;
+    std::vector<SelectSongInfos> info;
+} context_select;
+
+void updateContextTitles();

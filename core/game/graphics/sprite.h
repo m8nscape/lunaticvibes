@@ -27,8 +27,9 @@ enum class SpriteTypes
 	OPTION,
 
 	LINE,
-
     NOTE_VERT,
+
+    BAR_ENTRY,
 };
 
 struct RenderParams

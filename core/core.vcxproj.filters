@@ -123,6 +123,9 @@
     <ClCompile Include="db\db_conn.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="game\graphics\sprite_bar_entry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\asynclooper.h">
@@ -273,6 +276,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="db\db_song.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\graphics\sprite_bar_entry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

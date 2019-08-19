@@ -166,7 +166,9 @@ enum class eText: unsigned
     Θ«Με₯³©`₯Ή₯ͺ₯Χ₯·₯η₯σ₯Η₯Υ₯©₯λ₯Θ₯²©`₯Έ = 199,
 
 	// inner texts
-	_TEST1 = 200,
+    _SELECT_BAR_TITLE_FULL_0 = 200,
+
+	_TEST1 = 250,
 	_TEST2,
 
 

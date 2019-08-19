@@ -35,6 +35,7 @@
     <ClCompile Include="game\graphics\SDL2\ttf_SDL2.cpp" />
     <ClCompile Include="game\graphics\SDL2\window_SDL2.cpp" />
     <ClCompile Include="game\graphics\sprite.cpp" />
+    <ClCompile Include="game\graphics\sprite_bar_entry.cpp" />
     <ClCompile Include="game\graphics\sprite_lane.cpp" />
     <ClCompile Include="game\input\input_linux.cpp" />
     <ClCompile Include="game\input\input_mgr.cpp" />
@@ -86,6 +87,7 @@
     <ClInclude Include="game\graphics\SDL2\graphics_SDL2.h" />
     <ClInclude Include="game\graphics\SDL2\window_SDL2.h" />
     <ClInclude Include="game\graphics\sprite.h" />
+    <ClInclude Include="game\graphics\sprite_bar_entry.h" />
     <ClInclude Include="game\graphics\sprite_lane.h" />
     <ClInclude Include="game\input\input_keys.h" />
     <ClInclude Include="game\input\input_mgr.h" />
