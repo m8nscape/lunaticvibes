@@ -533,8 +533,9 @@ void ScenePlay::updatePlaying()
         if (_isPlayerFinished[context_play.playerSlot] ^ context_play.ruleset[context_play.playerSlot]->isFinished())
         {
             _isPlayerFinished[context_play.playerSlot] = true;
+            gTimers.set(context_play.playerSlot == 0 ? eTimer::PLAY_P1_FINISHED : eTimer::PLAY_P2_FINISHED, t.norm());
             if (context_play.ruleset[context_play.playerSlot]->getData().combo == context_play.scrollObj[context_play.playerSlot]->getNoteCount())
-                gTimers.set(context_play.playerSlot == 0 ? eTimer::PLAY_JUDGE_1P : eTimer::PLAY_JUDGE_2P, t.norm());
+                gTimers.set(context_play.playerSlot == 0 ? eTimer::PLAY_FULLCOMBO_1P : eTimer::PLAY_FULLCOMBO_2P, t.norm());
         }
     }
     break;
@@ -554,14 +555,16 @@ void ScenePlay::updatePlaying()
         if (_isPlayerFinished[PLAYER_SLOT_1P] ^ context_play.ruleset[PLAYER_SLOT_1P]->isFinished())
         {
             _isPlayerFinished[PLAYER_SLOT_1P] = true;
+            gTimers.set(eTimer::PLAY_P1_FINISHED, t.norm());
             if (context_play.ruleset[PLAYER_SLOT_1P]->getData().combo == context_play.scrollObj[PLAYER_SLOT_1P]->getNoteCount())
-                gTimers.set(eTimer::PLAY_JUDGE_1P, t.norm());
+                gTimers.set(eTimer::PLAY_FULLCOMBO_1P, t.norm());
         }
         if (_isPlayerFinished[PLAYER_SLOT_2P] ^ context_play.ruleset[PLAYER_SLOT_2P]->isFinished())
         {
             _isPlayerFinished[PLAYER_SLOT_2P] = true;
+            gTimers.set(eTimer::PLAY_P2_FINISHED, t.norm());
             if (context_play.ruleset[PLAYER_SLOT_2P]->getData().combo == context_play.scrollObj[PLAYER_SLOT_2P]->getNoteCount())
-                gTimers.set(eTimer::PLAY_JUDGE_2P, t.norm());
+                gTimers.set(eTimer::PLAY_FULLCOMBO_2P, t.norm());
         }
     }
     break;
@@ -601,14 +604,16 @@ void ScenePlay::updateFadeout()
 void ScenePlay::updateFailed()
 {
     auto t = timestamp();
-    auto rt = t - gTimers.get(eTimer::FAIL_BEGIN);
+    auto ft = t - gTimers.get(eTimer::FAIL_BEGIN);
+    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (context_play.scrollObj[context_play.playerSlot]->getCurrentBeat() * 4.0)) % 1000);
 
-    //failed play finished
-    if (rt.norm() >= _skin->info.timeFailed)
+    //failed play finished, move to next scene. No fadeout
+    if (ft.norm() >= _skin->info.timeFailed)
     {
-        _state = ePlayState::FADEOUT;
-        gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
         removeInputJudgeCallback();
+        loopEnd();
+        _input.loopEnd();
+        __next_scene = eScene::RESULT;
     }
 }
 
@@ -686,21 +691,6 @@ void ScenePlay::inputGamePress(InputMask& m, timestamp t)
         }
 
     SoundMgr::playKeySample(sampleCount, (size_t*)&_keySampleIdxBuf[0]);
-
-#if _DEBUG
-    if (_inputAvailable[UP] && m[UP])
-    {
-        int hs = gNumbers.get(eNumber::HS_1P);
-        if (hs < 900)
-            gNumbers.set(eNumber::HS_1P, hs + 25);
-    }
-    if (_inputAvailable[DOWN] && m[DOWN])
-    {
-        int hs = gNumbers.get(eNumber::HS_1P);
-        if (hs > 25)
-            gNumbers.set(eNumber::HS_1P, hs - 25);
-    }
-#endif
 
     if (_inputAvailable[K1SPDUP] && m[K1SPDUP])
     {

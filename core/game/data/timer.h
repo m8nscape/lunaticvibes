@@ -15,6 +15,11 @@ enum class eTimer : unsigned
     PLAY_READY = 40,
     PLAY_START,
 
+    PLAY_GAUGE_1P_ADD,
+    PLAY_GAUGE_2P_ADD,
+    PLAY_GAUGE_1P_MAX,
+    PLAY_GAUGE_2P_MAX,
+
     PLAY_JUDGE_1P = 46,
     PLAY_JUDGE_2P,
     PLAY_FULLCOMBO_1P, 
@@ -88,6 +93,13 @@ enum class eTimer : unsigned
     K29_UP,
 
     MUSIC_BEAT = 140,     // Special timer: [0, 1000), referring beat progress
+
+    PLAY_P1_FINISHED = 143,
+    PLAY_P2_FINISHED,
+
+    RESULT_GRAPH_START = 150,
+    RESULT_RANK_START,          // graph end
+    RESULT_HIGHSCORE_START,     // push any key from RESULT_RANK_START
 
     S1R_DOWN = 200,
     S1R_UP,

@@ -22,6 +22,9 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
     _input.register_h("SCENE_HOLD", std::bind(&SceneResult::inputGameHold, this, _1, _2));
     _input.register_r("SCENE_RELEASE", std::bind(&SceneResult::inputGameRelease, this, _1, _2));
 
+    timestamp t;
+    gTimers.set(eTimer::RESULT_GRAPH_START, t.norm());
+
     loopStart();
     _input.loopStart();
 }
@@ -112,21 +115,24 @@ void SceneResult::inputGamePress(InputMask& m, timestamp t)
         {
         case eResultState::DRAW:
             _state = eResultState::STOP;
+            gTimers.set(eTimer::RESULT_RANK_START, t.norm());
             // TODO play hit sound
             LOG_DEBUG << "[Result] State changed to STOP";
             break;
 
         case eResultState::STOP:
             _state = eResultState::RECORD;
+            gTimers.set(eTimer::RESULT_HIGHSCORE_START, t.norm());
             // TODO stop result sound
             // TODO play record sound
             LOG_DEBUG << "[Result] State changed to STOP";
             break;
 
         case eResultState::RECORD:
-            if (_scoreSyncFinished)
+            if (_scoreSyncFinished || true) // debug
             {
                 _state = eResultState::FADEOUT;
+                gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
                 LOG_DEBUG << "[Result] State changed to FADEOUT";
             }
             break;

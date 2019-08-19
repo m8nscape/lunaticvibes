@@ -106,7 +106,7 @@ public:
         // Result
         //unsigned resultStartInputTimeRank; //ignored
         //unsigned resultStartInputTimeUpdate; //ignored
-        unsigned timeResultDrawing;
+        unsigned timeResultDrawing = 3000;
     } info{};
 
     ///////////////////////////////////////////////////////////
