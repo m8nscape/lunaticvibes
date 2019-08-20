@@ -29,6 +29,7 @@ int SpriteBarEntry::setLevel(BarLevelType type, pTexture texture, const Rect& re
 
     sLevel[static_cast<size_t>(type)] = std::make_shared<SpriteNumber>(
         texture, rect, animFrames, frameTime, align, digits, timer, 1, 1, texVertSplit);
+    sLevel[static_cast<size_t>(type)]->setParent(weak_from_this());
     return 0;
 }
 
@@ -117,14 +118,50 @@ int SpriteBarEntry::setRivalLampRival(BarLampType type, pTexture texture, const 
 
 bool SpriteBarEntry::update(timestamp time)
 {
-    if (sBody) sBody->update(time);
-    if (sTitle) sTitle->update(time);
-    for (auto& p : sLevel) if (p) p->update(time);
-    for (auto& p : sLamp) if (p) p->update(time);
-    for (auto& p : sRank) if (p) p->update(time);
-    for (auto& p : sRivalWinLose) if (p) p->update(time);
-    for (auto& p : sRivalLampSelf) if (p) p->update(time);
-    for (auto& p : sRivalLampRival) if (p) p->update(time);
+    if (vSprite::update(time) && !context_select.info.empty())
+    {
+        const auto& info = context_select.info[index % context_select.info.size()];
+        if (sBody)
+        {
+            sBody->update(time);
+            drawBody = true;
+        }
+        if (sTitle)
+        {
+            sTitle->update(time);
+            drawTitle = true;
+        }
+        if (sLevel[info.level_type])
+        {
+            sLevel[info.level_type]->update(time); 
+            drawLevel = info.level_type;
+        }
+        if (sRank[info.rank])
+        {
+            sRank[info.rank]->update(time);
+            drawRank = info.rank;
+        }
+        if (sRivalWinLose[info.rival])
+        {
+            sRivalWinLose[info.rival]->update(time);
+            drawRival = info.rival;
+        }
+        if (sRivalLampSelf[info.rival_lamp_self])
+        {
+            sRivalLampSelf[info.rival_lamp_self]->update(time);
+            drawRivalLampSelf = info.rival_lamp_self;
+        }
+        if (sRivalLampRival[info.rival_lamp_rival])
+        {
+            sRivalLampRival[info.rival_lamp_rival]->update(time);
+            drawRivalLampRival = info.rival_lamp_rival;
+        }
+    }
+    else
+    {
+        drawBody = drawTitle = false;
+        drawLevel = drawRank = drawRival = drawRivalLampSelf = drawRivalLampRival = -1u;
+    }
 }
 
 
@@ -162,17 +199,13 @@ void SpriteBarEntry::appendKeyFrame(RenderKeyFrame f)
 // FIXME: should draw subparts following order in definition.
 void SpriteBarEntry::draw() const
 {
-    if (!context_select.info.empty())
-    {
-        const auto& info = context_select.info[index % context_select.info.size()];
-        if (sBody) sBody->draw();
-        if (sTitle) sTitle->draw();
-        if (sLevel[info.level_type]) sLevel[info.level_type]->draw();
-        if (sRank[info.rank]) sRank[info.rank]->draw();
-        if (sRivalWinLose[info.rival]) sRivalWinLose[info.rival]->draw();
-        if (sRivalLampSelf[info.rival_lamp_self]) sRivalLampSelf[info.rival_lamp_self]->draw();
-        if (sRivalLampRival[info.rival_lamp_rival]) sRivalLampRival[info.rival_lamp_rival]->draw();
-    }
+    if (drawBody) sBody->draw();
+    if (drawTitle) sTitle->draw();
+    if (drawLevel != -1u) sLevel[drawLevel]->draw();
+    if (drawRank != -1u) sRank[drawRank]->draw();
+    if (drawRival != -1u) sRivalWinLose[drawRival]->draw();
+    if (drawRivalLampSelf != -1u) sRivalLampSelf[drawRivalLampSelf]->draw();
+    if (drawRivalLampRival != -1u) sRivalLampRival[drawRivalLampRival]->draw();
 }
 
 void SpriteBarEntry::appendKeyFrameBody(RenderKeyFrame f)

@@ -51,8 +51,11 @@ namespace bms
 
 using namespace bms;
 
+class SceneSelect;
 class BMS: public vChart
 {
+    friend class SceneSelect;
+
 public:
     virtual int getExtendedProperty(std::string key, void* ret);
 

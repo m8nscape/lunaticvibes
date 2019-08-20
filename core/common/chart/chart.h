@@ -17,8 +17,6 @@ enum class eChartType
 
 class vChart
 {
-    friend class ScenePlay;
-
 protected:
     eChartType _type = eChartType::UNKNOWN;
 public:
@@ -39,6 +37,7 @@ public:
     StringContent _artist2;
     StringContent _genre;
     StringContent _version;     // mostly known as difficulty name
+    double _level;
 
     StringPath _BG;
     StringPath _banner;

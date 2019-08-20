@@ -126,6 +126,9 @@
     <ClCompile Include="game\graphics\sprite_bar_entry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="game\scene\scene_select.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\asynclooper.h">
@@ -279,6 +282,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="game\graphics\sprite_bar_entry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\scene\scene_select.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common\chart\chart_types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

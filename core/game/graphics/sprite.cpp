@@ -13,7 +13,6 @@ vSprite::vSprite(pTexture tex, SpriteTypes type) :
     _pTexture(tex), _type(type), _current({ 0, RenderParams::CONSTANT, 0x00000000, BlendMode::NONE, false, 0 }) {}
 
 bool vSprite::updateByKeyframes(timestamp rawTime)
-
 {
     // Check if object is valid
 	// Note that nullptr texture shall pass
@@ -127,6 +126,18 @@ bool vSprite::updateByKeyframes(timestamp rawTime)
     //LOG_DEBUG<<"[Skin] keyFrameNext: " << keyFrameNext->param.rect.x << "," << keyFrameNext->param.rect.y << " " << keyFrameNext->param.rect.w << "x" << keyFrameNext->param.rect.h;
 	_current.blend = keyFrameCurr->param.blend;
 	_current.filter = keyFrameCurr->param.filter;
+
+    if (!_parent.expired())
+    {
+        auto parent = _parent.lock();
+        _current.rect.x += parent->getCurrentRenderParams().rect.x;
+        _current.rect.y += parent->getCurrentRenderParams().rect.y;
+        _current.color.r = (Uint8)std::min(0.0, parent->getCurrentRenderParams().color.r / 255.0 * _current.color.r);
+        _current.color.g = (Uint8)std::min(0.0, parent->getCurrentRenderParams().color.g / 255.0 * _current.color.g);
+        _current.color.b = (Uint8)std::min(0.0, parent->getCurrentRenderParams().color.b / 255.0 * _current.color.b);
+        _current.color.a = (Uint8)std::min(0.0, parent->getCurrentRenderParams().color.a / 255.0 * _current.color.a);
+        _current.angle += parent->getCurrentRenderParams().angle;
+    }
     
     return true;
 }

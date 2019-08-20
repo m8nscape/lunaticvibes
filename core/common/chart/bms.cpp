@@ -116,7 +116,10 @@ int BMS::initWithFile(std::string file)
                     else if (key == "TOTAL")
                         total = std::stoi(value);
                     else if (key == "PLAYLEVEL")
+                    {
                         playLevel = std::stoi(value);
+                        _level = double(playLevel);
+                    }
                     else if (key == "DIFFICULTY")
                         difficulty = std::stoi(value);
                     else if (key == "BPM")

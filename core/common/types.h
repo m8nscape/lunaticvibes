@@ -100,3 +100,14 @@ enum class eGaugeOp
     SURVIVAL,
     EX_SURVIVAL,
 };
+
+enum class eLevel
+{
+    UNDEF,
+    BEGINNER,
+    NORMAL,
+    HYPER,
+    ANOTHER,
+    INSANE,
+    LEVEL_COUNT
+};

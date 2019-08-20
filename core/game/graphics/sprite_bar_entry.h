@@ -72,6 +72,8 @@ protected:
     std::array<psAnimated, static_cast<size_t>(BarRivalType::RIVAL_TYPE_COUNT)> sRivalWinLose{ nullptr };
     std::array<psAnimated, static_cast<size_t>(BarLampType::LAMP_TYPE_COUNT)> sRivalLampSelf{ nullptr };
     std::array<psAnimated, static_cast<size_t>(BarLampType::LAMP_TYPE_COUNT)> sRivalLampRival{ nullptr };
+    bool drawBody, drawTitle;
+    size_t drawLevel, drawLamp, drawRank, drawRival, drawRivalLampSelf, drawRivalLampRival;
 
 public:
     SpriteBarEntry(unsigned idx) : vSprite(nullptr, SpriteTypes::BAR_ENTRY), index(idx) {}

@@ -9,6 +9,8 @@
 enum class eScene
 {
     NOTHINGNESS,
+    SELECT,
+    DECIDE,
     PLAY,
     RESULT,
     EXIT
@@ -79,14 +81,14 @@ void clearContextPlay();
 
 struct SelectSongInfos
 {
-    std::string title;
-    int level;
-    unsigned level_type;
-    unsigned lamp;
-    unsigned rank;
-    unsigned rival; // win / lose / draw / noplay
-    unsigned rival_lamp_self;
-    unsigned rival_lamp_rival;
+    std::string title = "";
+    double level = 0.0;
+    unsigned level_type = 0;
+    unsigned lamp = 0;
+    unsigned rank = 0;
+    unsigned rival = 3; // win / lose / draw / noplay
+    unsigned rival_lamp_self = 0;
+    unsigned rival_lamp_rival = 0;
 };
 
 inline struct __select_context_params

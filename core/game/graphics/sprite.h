@@ -57,11 +57,12 @@ typedef std::shared_ptr<Texture> pTexture;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Render interface
-class vSprite
+class vSprite: public std::enable_shared_from_this<vSprite>
 {
 	friend class SkinLR2;
 protected:
     SpriteTypes _type;
+    std::weak_ptr<vSprite> _parent;
 public:
     constexpr SpriteTypes type() { return _type; }
 protected:
@@ -78,6 +79,7 @@ public:
     virtual ~vSprite() = default;
 public:
     void setLine(int i) { __line = i; }
+    void setParent(std::weak_ptr<vSprite> p) { _parent = p; }
     RenderParams getCurrentRenderParams();
     bool updateByKeyframes(timestamp time);
 	virtual bool update(timestamp time);
