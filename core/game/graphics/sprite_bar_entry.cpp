@@ -2,16 +2,17 @@
 #include <plog/Log.h>
 #include "game/scene/scene_context.h"
 
-int SpriteBarEntry::setBody(pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-    eTimer timer = eTimer::SCENE_START, bool texVertSplit = false)
+int SpriteBarEntry::setBody(BarType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
+    eTimer timer, bool texVertSplit)
 {
-    sBody = std::make_shared<SpriteAnimated>(
+    sBodyOff[static_cast<size_t>(type)] = std::make_shared<SpriteAnimated>(
         texture, rect, animFrames, frameTime, timer, 1, 1, texVertSplit);
     return 0;
 }
 
-int SpriteBarEntry::setLevel(BarLevelType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime, unsigned digits, NumberAlign align,
-    eTimer timer = eTimer::SCENE_START, bool texVertSplit = false)
+int SpriteBarEntry::setLevel(BarLevelType type, pTexture texture, const Rect& rect, NumberAlign align, unsigned digits,
+    unsigned numRows, unsigned numCols, unsigned frameTime, eNumber num, eTimer animtimer,
+    unsigned animFrames, bool texVertSplit)
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarLevelType::LEVEL_TYPE_COUNT))
     {
@@ -28,13 +29,13 @@ int SpriteBarEntry::setLevel(BarLevelType type, pTexture texture, const Rect& re
             << " (Line " << __line << ")";
 
     sLevel[static_cast<size_t>(type)] = std::make_shared<SpriteNumber>(
-        texture, rect, animFrames, frameTime, align, digits, timer, 1, 1, texVertSplit);
+        texture, rect, align, digits, numRows, numCols, frameTime, num, animtimer, animFrames, texVertSplit);
     sLevel[static_cast<size_t>(type)]->setParent(weak_from_this());
     return 0;
 }
 
 int SpriteBarEntry::setLamp(BarLampType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-    eTimer timer = eTimer::SCENE_START, bool texVertSplit = false)
+    eTimer timer, bool texVertSplit)
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarLampType::LAMP_TYPE_COUNT))
     {
@@ -48,15 +49,14 @@ int SpriteBarEntry::setLamp(BarLampType type, pTexture texture, const Rect& rect
     return 0;
 }
 
-int SpriteBarEntry::setTitle(pFont f,
-    TextAlign align = TEXT_ALIGN_LEFT, unsigned ptsize = 72, Color c = 0xffffffff)
+int SpriteBarEntry::setTitle(pFont f, TextAlign align, unsigned ptsize, Color c)
 {
     sTitle = std::make_shared<SpriteText>(f, eText(unsigned(eText::_SELECT_BAR_TITLE_FULL_0) + index), align, ptsize, c);
     return 0;
 }
 
 int SpriteBarEntry::setRank(BarRankType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-    eTimer timer = eTimer::SCENE_START, bool texVertSplit = false)
+    eTimer timer, bool texVertSplit)
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarRankType::RANK_TYPE_COUNT))
     {
@@ -71,7 +71,7 @@ int SpriteBarEntry::setRank(BarRankType type, pTexture texture, const Rect& rect
 }
 
 int SpriteBarEntry::setRivalWinLose(BarRivalType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-    eTimer timer = eTimer::SCENE_START, bool texVertSplit = false)
+    eTimer timer, bool texVertSplit)
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarRivalType::RIVAL_TYPE_COUNT))
     {
@@ -86,7 +86,7 @@ int SpriteBarEntry::setRivalWinLose(BarRivalType type, pTexture texture, const R
 }
 
 int SpriteBarEntry::setRivalLampSelf(BarLampType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-    eTimer timer = eTimer::SCENE_START, bool texVertSplit = false)
+    eTimer timer, bool texVertSplit)
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarLampType::LAMP_TYPE_COUNT))
     {
@@ -101,7 +101,7 @@ int SpriteBarEntry::setRivalLampSelf(BarLampType type, pTexture texture, const R
 }
 
 int SpriteBarEntry::setRivalLampRival(BarLampType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-    eTimer timer = eTimer::SCENE_START, bool texVertSplit = false)
+    eTimer timer, bool texVertSplit)
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarLampType::LAMP_TYPE_COUNT))
     {
@@ -118,14 +118,33 @@ int SpriteBarEntry::setRivalLampRival(BarLampType type, pTexture texture, const 
 
 bool SpriteBarEntry::update(timestamp time)
 {
-    if (vSprite::update(time) && !context_select.info.empty())
+    _draw = false;
+    if (!context_select.info.empty())
     {
         const auto& info = context_select.info[index % context_select.info.size()];
-        if (sBody)
+        drawBodyOn = index == context_select.barIndex;
+        if (!drawBodyOn && sBodyOff[info.type])
         {
-            sBody->update(time);
+            sBodyOff[info.type]->update(time);
             drawBody = true;
+            setParent(sBodyOff[info.type]);
         }
+        if (drawBodyOn && sBodyOn[info.type])
+        {
+            sBodyOn[info.type]->update(time);
+            drawBody = true;
+            setParent(sBodyOn[info.type]);
+        }
+        if (!_parent.expired())
+        {
+            _draw = true;
+            auto parent = _parent.lock();
+            _current.rect.x = parent->getCurrentRenderParams().rect.x;
+            _current.rect.y = parent->getCurrentRenderParams().rect.y;
+            //_current.color = parent->getCurrentRenderParams().color;
+            //_current.angle += parent->getCurrentRenderParams().angle;
+        }
+
         if (sTitle)
         {
             sTitle->update(time);
@@ -162,34 +181,19 @@ bool SpriteBarEntry::update(timestamp time)
         drawBody = drawTitle = false;
         drawLevel = drawRank = drawRival = drawRivalLampSelf = drawRivalLampRival = -1u;
     }
+    return _draw;
 }
 
 
 void SpriteBarEntry::setLoopTime(int t)
 {
-    if (sBody) sBody->setLoopTime(t);
-    if (sTitle) sTitle->setLoopTime(t);
-    for (auto& p : sLevel) if (p) p->setLoopTime(t);
-    for (auto& p : sLamp) if (p) p->setLoopTime(t);
-    for (auto& p : sRank) if (p) p->setLoopTime(t);
-    for (auto& p : sRivalWinLose) if (p) p->setLoopTime(t);
-    for (auto& p : sRivalLampSelf) if (p) p->setLoopTime(t);
-    for (auto& p : sRivalLampRival) if (p) p->setLoopTime(t);
+    LOG_ERROR << "[Sprite] setLoopTime(f) of SpriteBarEntry should not be used";
 }
 
-
-void SpriteBarEntry::setTimer(eTimer t)
+void SpriteBarEntry::setTrigTimer(eTimer t)
 {
-    if (sBody) sBody->setTimer(t);
-    if (sTitle) sTitle->setTimer(t);
-    for (auto& p : sLevel) if (p) p->setTimer(t);
-    for (auto& p : sLamp) if (p) p->setTimer(t);
-    for (auto& p : sRank) if (p) p->setTimer(t);
-    for (auto& p : sRivalWinLose) if (p) p->setTimer(t);
-    for (auto& p : sRivalLampSelf) if (p) p->setTimer(t);
-    for (auto& p : sRivalLampRival) if (p) p->setTimer(t);
+    LOG_ERROR << "[Sprite] setTrigTimer(f) of SpriteBarEntry should not be used";
 }
-
 
 void SpriteBarEntry::appendKeyFrame(RenderKeyFrame f)
 {
@@ -199,7 +203,7 @@ void SpriteBarEntry::appendKeyFrame(RenderKeyFrame f)
 // FIXME: should draw subparts following order in definition.
 void SpriteBarEntry::draw() const
 {
-    if (drawBody) sBody->draw();
+    if (drawBody != -1u) drawBodyOn ? sBodyOn[drawBody]->draw() : sBodyOff[drawBody]->draw();
     if (drawTitle) sTitle->draw();
     if (drawLevel != -1u) sLevel[drawLevel]->draw();
     if (drawRank != -1u) sRank[drawRank]->draw();
@@ -208,9 +212,148 @@ void SpriteBarEntry::draw() const
     if (drawRivalLampRival != -1u) sRivalLampRival[drawRivalLampRival]->draw();
 }
 
-void SpriteBarEntry::appendKeyFrameBody(RenderKeyFrame f)
+void SpriteBarEntry::setTrigTimerBodyOn(BarType type, eTimer t)
 {
-    sBody->appendKeyFrame(f);
+    if (sBodyOn[static_cast<size_t>(type)]) sBodyOn[static_cast<size_t>(type)]->setTrigTimer(t);
+}
+
+void SpriteBarEntry::setTrigTimerBodyOff(BarType type, eTimer t)
+{
+    if (sBodyOff[static_cast<size_t>(type)]) sBodyOff[static_cast<size_t>(type)]->setTrigTimer(t);
+}
+
+void SpriteBarEntry::setTrigTimerTitle(eTimer t)
+{
+    if (sTitle)
+    {
+        sTitle->setTrigTimer(t);
+        sTitle->setParent(weak_from_this());
+    }
+}
+
+void SpriteBarEntry::setTrigTimerLevel(BarLevelType type, eTimer t)
+{
+    auto& ps = sLevel[static_cast<size_t>(type)];
+    if (ps)
+    {
+        ps->setTrigTimer(t);
+        ps->setParent(weak_from_this());
+    }
+}
+
+void SpriteBarEntry::setTrigTimerLamp(BarLampType type, eTimer t)
+{
+    auto& ps = sLamp[static_cast<size_t>(type)];
+    if (ps)
+    {
+        ps->setTrigTimer(t);
+        ps->setParent(weak_from_this());
+    }
+}
+
+void SpriteBarEntry::setTrigTimerRank(BarRankType type, eTimer t)
+{
+    auto& ps = sRank[static_cast<size_t>(type)];
+    if (ps)
+    {
+        ps->setTrigTimer(t);
+        ps->setParent(weak_from_this());
+    }
+}
+
+void SpriteBarEntry::setTrigTimerRivalWinLose(BarRivalType type, eTimer t)
+{
+    auto& ps = sRivalWinLose[static_cast<size_t>(type)];
+    if (ps)
+    {
+        ps->setTrigTimer(t);
+        ps->setParent(weak_from_this());
+    }
+}
+
+void SpriteBarEntry::setTrigTimerRivalLampSelf(BarLampType type, eTimer t)
+{
+    auto& ps = sRivalLampSelf[static_cast<size_t>(type)];
+    if (ps)
+    {
+        ps->setTrigTimer(t);
+        ps->setParent(weak_from_this());
+    }
+}
+
+void SpriteBarEntry::setTrigTimerRivalLampRival(BarLampType type, eTimer t)
+{
+    auto& ps = sRivalLampRival[static_cast<size_t>(type)];
+    if (ps)
+    {
+        ps->setTrigTimer(t);
+        ps->setParent(weak_from_this());
+    }
+}
+
+void SpriteBarEntry::setLoopTimeBodyOff(BarType type, int t)
+{
+    auto& ps = sBodyOff[static_cast<size_t>(type)];
+    if (ps) ps->setLoopTime(t);
+}
+
+void SpriteBarEntry::setLoopTimeBodyOn(BarType type, int t)
+{
+    auto& ps = sBodyOn[static_cast<size_t>(type)];
+    if (ps) ps->setLoopTime(t);
+}
+
+void SpriteBarEntry::setLoopTimeTitle(int t)
+{
+    sTitle->setLoopTime(t);
+}
+
+void SpriteBarEntry::setLoopTimeLevel(BarLevelType type, int t)
+{
+    auto& ps = sLevel[static_cast<size_t>(type)];
+    if (ps) ps->setLoopTime(t);
+}
+
+void SpriteBarEntry::setLoopTimeLamp(BarLampType type, int t)
+{
+    auto& ps = sLamp[static_cast<size_t>(type)];
+    if (ps) ps->setLoopTime(t);
+}
+
+void SpriteBarEntry::setLoopTimeRank(BarRankType type, int t)
+{
+    auto& ps = sRank[static_cast<size_t>(type)];
+    if (ps) ps->setLoopTime(t);
+}
+
+void SpriteBarEntry::setLoopTimeRivalWinLose(BarRivalType type, int t)
+{
+    auto& ps = sRivalWinLose[static_cast<size_t>(type)];
+    if (ps) ps->setLoopTime(t);
+}
+
+void SpriteBarEntry::setLoopTimeRivalLampSelf(BarLampType type, int t)
+{
+    auto& ps = sRivalLampSelf[static_cast<size_t>(type)];
+    if (ps) ps->setLoopTime(t);
+}
+
+void SpriteBarEntry::setLoopTimeRivalLampRival(BarLampType type, int t)
+{
+    auto& ps = sRivalLampRival[static_cast<size_t>(type)];
+    if (ps) ps->setLoopTime(t);
+}
+
+void SpriteBarEntry::appendKeyFrameBodyOff(BarType type, RenderKeyFrame f)
+{
+    auto& ps = sBodyOff[static_cast<size_t>(type)];
+    if (ps) ps->appendKeyFrame(f);
+}
+
+void SpriteBarEntry::appendKeyFrameBodyOn(BarType type, RenderKeyFrame f)
+{
+    auto& ps = sBodyOn[static_cast<size_t>(type)];
+    if (ps) ps->appendKeyFrame(f);
 }
 
 void SpriteBarEntry::appendKeyFrameTitle(RenderKeyFrame f)
@@ -220,30 +363,36 @@ void SpriteBarEntry::appendKeyFrameTitle(RenderKeyFrame f)
 
 void SpriteBarEntry::appendKeyFrameLevel(BarLevelType type, RenderKeyFrame f)
 {
-    if (sLevel[static_cast<size_t>(type)]) sLevel[static_cast<size_t>(type)]->appendKeyFrame(f);
+    auto& ps = sLevel[static_cast<size_t>(type)];
+    if (ps) ps->appendKeyFrame(f);
 }
 
 void SpriteBarEntry::appendKeyFrameLamp(BarLampType type, RenderKeyFrame f)
 {
-    if (sLamp[static_cast<size_t>(type)]) sLamp[static_cast<size_t>(type)]->appendKeyFrame(f);
+    auto& ps = sLamp[static_cast<size_t>(type)];
+    if (ps) ps->appendKeyFrame(f);
 }
 
 void SpriteBarEntry::appendKeyFrameRank(BarRankType type, RenderKeyFrame f)
 {
-    if (sRank[static_cast<size_t>(type)]) sRank[static_cast<size_t>(type)]->appendKeyFrame(f);
+    auto& ps = sRank[static_cast<size_t>(type)];
+    if (ps) ps->appendKeyFrame(f);
 }
 
 void SpriteBarEntry::appendKeyFrameRivalWinLose(BarRivalType type, RenderKeyFrame f)
 {
-    if (sRivalWinLose[static_cast<size_t>(type)]) sRivalWinLose[static_cast<size_t>(type)]->appendKeyFrame(f);
+    auto& ps = sRivalWinLose[static_cast<size_t>(type)];
+    if (ps) ps->appendKeyFrame(f);
 }
 
 void SpriteBarEntry::appendKeyFrameRivalLampSelf(BarLampType type, RenderKeyFrame f)
 {
-    if (sRivalLampSelf[static_cast<size_t>(type)]) sRivalLampSelf[static_cast<size_t>(type)]->appendKeyFrame(f);
+    auto& ps = sRivalLampSelf[static_cast<size_t>(type)];
+    if (ps) ps->appendKeyFrame(f);
 }
 
 void SpriteBarEntry::appendKeyFrameRivalLampRival(BarLampType type, RenderKeyFrame f)
 {
-    if (sRivalLampRival[static_cast<size_t>(type)]) sRivalLampRival[static_cast<size_t>(type)]->appendKeyFrame(f);
+    auto& ps = sRivalLampRival[static_cast<size_t>(type)];
+    if (ps) ps->appendKeyFrame(f);
 }

@@ -28,15 +28,15 @@ bool vSprite::updateByKeyframes(timestamp rawTime)
 
 
 	// Check if timer is 140
-	if (_timerInd == eTimer::MUSIC_BEAT)
+	if (_triggerTimer == eTimer::MUSIC_BEAT)
 		time = gTimers.get(eTimer::MUSIC_BEAT);
     else
     {
         // Check if timer is valid
-        if (gTimers.get(_timerInd) < 0)
+        if (gTimers.get(_triggerTimer) < 0)
             return false;
 
-        time = rawTime - gTimers.get(_timerInd);
+        time = rawTime - gTimers.get(_triggerTimer);
     }
     
     // Check if import time is valid
@@ -157,9 +157,9 @@ void vSprite::setLoopTime(int t)
     _loopTo = t;
 }
 
-void vSprite::setTimer(eTimer t)
+void vSprite::setTrigTimer(eTimer t)
 {
-	_timerInd = t;
+	_triggerTimer = t;
 }
 
 void vSprite::appendKeyFrame(RenderKeyFrame f)
@@ -301,8 +301,8 @@ bool SpriteAnimated::update(timestamp t)
 
 void SpriteAnimated::updateByTimer(timestamp time)
 {
-	if (gTimers.get(_timerInd))
-		updateByKeyframes(time - timestamp(gTimers.get(_timerInd)));
+	if (gTimers.get(_triggerTimer))
+		updateByKeyframes(time - timestamp(gTimers.get(_triggerTimer)));
 }
 
 void SpriteAnimated::updateAnimation(timestamp time)
@@ -350,8 +350,8 @@ void SpriteAnimated::updateSplitByTimer(rTime time)
     // time per frame: _period / _aframes
     // current time:   t
     // current frame:  t / (_period / _aframes)
-    if (_period / _aframes > 0 && gTimers.get(_timerInd))
-        updateSplit((frameIdx)((time - gTimers.get(_timerInd)) / (_period / _aframes)));
+    if (_period / _aframes > 0 && gTimers.get(_triggerTimer))
+        updateSplit((frameIdx)((time - gTimers.get(_triggerTimer)) / (_period / _aframes)));
 }
 */
 void SpriteAnimated::draw() const
@@ -981,7 +981,7 @@ void SpriteLine::draw() const
 
 void SpriteLine::updateProgress(timestamp t)
 {
-	_progress = (double)(gTimers.get(_timerInd) - t.norm() - _timerStartOffset) / _duration;
+	_progress = (double)(gTimers.get(_triggerTimer) - t.norm() - _timerStartOffset) / _duration;
 	_progress = std::clamp(_progress, 0.0, 1.0);
 }
 

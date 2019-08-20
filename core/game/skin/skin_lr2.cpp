@@ -1334,7 +1334,7 @@ int SkinLR2::loadLR2dst(const Tokens &t)
 
         drawQueue.push_back({ e, false, d.op[0], d.op[1], d.op[2], d.op[3] });
         e->setLoopTime(d.loop);
-		e->setTimer((eTimer)d.timer);
+		e->setTrigTimer((eTimer)d.timer);
         if (d.time > 0)
         {
             LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";

@@ -147,9 +147,9 @@ protected:
 public:
     test_vSprite()
     {
-        ss1.setTimer(eTimer::K11_BOMB);
-        ss1_1.setTimer(eTimer::K11_BOMB);
-        ss1_2.setTimer(eTimer::K11_BOMB);
+        ss1.setTrigTimer(eTimer::K11_BOMB);
+        ss1_1.setTrigTimer(eTimer::K11_BOMB);
+        ss1_2.setTrigTimer(eTimer::K11_BOMB);
 
         ss1.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         ss1.setLoopTime(0);
@@ -240,13 +240,13 @@ protected:
 public:
     sSelection()
     {
-        s0.setTimer(eTimer::K11_BOMB);
+        s0.setTrigTimer(eTimer::K11_BOMB);
         s0.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         s0.setLoopTime(0);
-        s.setTimer(eTimer::K11_BOMB);
+        s.setTrigTimer(eTimer::K11_BOMB);
         s.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         s.setLoopTime(0);
-        sv.setTimer(eTimer::K11_BOMB);
+        sv.setTrigTimer(eTimer::K11_BOMB);
         sv.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         sv.setLoopTime(0);
     }
@@ -305,10 +305,10 @@ protected:
 public:
     sAnimated()
     {
-        s.setTimer(eTimer::K11_BOMB);
+        s.setTrigTimer(eTimer::K11_BOMB);
         s.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         s.setLoopTime(0);
-        ss.setTimer(eTimer::K11_BOMB);
+        ss.setTrigTimer(eTimer::K11_BOMB);
         ss.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         ss.setLoopTime(0);
     }
@@ -440,33 +440,33 @@ protected:
 public:
     sNumber()
     {
-        s1.setTimer(eTimer::K11_BOMB);
+        s1.setTrigTimer(eTimer::K11_BOMB);
         s1.appendKeyFrame({ 0, {dstRect, RenderParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
         s1.setLoopTime(0);
-        s.setTimer(eTimer::K11_BOMB);
+        s.setTrigTimer(eTimer::K11_BOMB);
         s.appendKeyFrame({ 0, {dstRect, RenderParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
         s.setLoopTime(0);
-        sa.setTimer(eTimer::K11_BOMB);
+        sa.setTrigTimer(eTimer::K11_BOMB);
         sa.appendKeyFrame({ 0, {dstRect, RenderParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
         sa.setLoopTime(0);
 
-        s11.setTimer(eTimer::K11_BOMB);
+        s11.setTrigTimer(eTimer::K11_BOMB);
         s11.appendKeyFrame({ 0, {dstRect, RenderParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
         s11.setLoopTime(0);
-        sa11.setTimer(eTimer::K11_BOMB);
+        sa11.setTrigTimer(eTimer::K11_BOMB);
         sa11.appendKeyFrame({ 0, {dstRect, RenderParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
         sa11.setLoopTime(0);
-        s24.setTimer(eTimer::K11_BOMB);
+        s24.setTrigTimer(eTimer::K11_BOMB);
         s24.appendKeyFrame({ 0, {dstRect, RenderParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
         s24.setLoopTime(0);
-        sa24.setTimer(eTimer::K11_BOMB);
+        sa24.setTrigTimer(eTimer::K11_BOMB);
         sa24.appendKeyFrame({ 0, {dstRect, RenderParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
         sa24.setLoopTime(0);
 
-        sr.setTimer(eTimer::K11_BOMB);
+        sr.setTrigTimer(eTimer::K11_BOMB);
         sr.appendKeyFrame({ 0, {dstRect, RenderParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
         sr.setLoopTime(0);
-        sc.setTimer(eTimer::K11_BOMB);
+        sc.setTrigTimer(eTimer::K11_BOMB);
         sc.appendKeyFrame({ 0, {dstRect, RenderParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
         sc.setLoopTime(0);
     }
@@ -946,16 +946,16 @@ protected:
 public:
     sSlider()
     {
-        sL.setTimer(eTimer::K11_BOMB);
+        sL.setTrigTimer(eTimer::K11_BOMB);
         sL.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         sL.setLoopTime(0);
-        sR.setTimer(eTimer::K11_BOMB);
+        sR.setTrigTimer(eTimer::K11_BOMB);
         sR.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         sR.setLoopTime(0);
-        sU.setTimer(eTimer::K11_BOMB);
+        sU.setTrigTimer(eTimer::K11_BOMB);
         sU.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         sU.setLoopTime(0);
-        sD.setTimer(eTimer::K11_BOMB);
+        sD.setTrigTimer(eTimer::K11_BOMB);
         sD.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         sD.setLoopTime(0);
     }
@@ -1102,16 +1102,16 @@ protected:
 public:
     sBargraph()
     {
-        sL.setTimer(eTimer::K11_BOMB);
+        sL.setTrigTimer(eTimer::K11_BOMB);
         sL.appendKeyFrame({ 0, {Rect(0, 0, 200, 200), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         sL.setLoopTime(0);
-        sR.setTimer(eTimer::K11_BOMB);
+        sR.setTrigTimer(eTimer::K11_BOMB);
         sR.appendKeyFrame({ 0, {Rect(0, 0, 200, 200), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         sR.setLoopTime(0);
-        sU.setTimer(eTimer::K11_BOMB);
+        sU.setTrigTimer(eTimer::K11_BOMB);
         sU.appendKeyFrame({ 0, {Rect(0, 0, 200, 200), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         sU.setLoopTime(0);
-        sD.setTimer(eTimer::K11_BOMB);
+        sD.setTrigTimer(eTimer::K11_BOMB);
         sD.appendKeyFrame({ 0, {Rect(0, 0, 200, 200), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         sD.setLoopTime(0);
     }
@@ -1261,15 +1261,15 @@ protected:
 public:
     sOption()
     {
-        ss.setTimer(eTimer::K11_BOMB);
+        ss.setTrigTimer(eTimer::K11_BOMB);
         ss.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         ss.setLoopTime(0);
         ss.setInd(SpriteOption::opType::SWITCH, (unsigned)eSwitch::_TEST1);
-        ss0.setTimer(eTimer::K11_BOMB);
+        ss0.setTrigTimer(eTimer::K11_BOMB);
         ss0.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         ss0.setLoopTime(0);
         ss0.setInd(SpriteOption::opType::SWITCH, (unsigned)eSwitch::_TEST1);
-        so.setTimer(eTimer::K11_BOMB);
+        so.setTrigTimer(eTimer::K11_BOMB);
         so.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         so.setLoopTime(0);
         so.setInd(SpriteOption::opType::OPTION, (unsigned)eOption::_TEST1);
@@ -1337,12 +1337,12 @@ protected:
 public:
     sGaugeGrid()
     {
-        s1.setTimer(eTimer::K11_BOMB);
+        s1.setTrigTimer(eTimer::K11_BOMB);
         s1.appendKeyFrame({ 0, {Rect(0, 0, 10, 40), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         s1.setLoopTime(0);
         s1.setFlashType(SpriteGaugeGrid::FlashType::NONE);
         s1.setGaugeType(SpriteGaugeGrid::GaugeType::GROOVE);
-        s2.setTimer(eTimer::K11_BOMB);
+        s2.setTrigTimer(eTimer::K11_BOMB);
         s2.appendKeyFrame({ 0, {Rect(490, 100, 10, 40), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         s2.setLoopTime(0);
         s2.setFlashType(SpriteGaugeGrid::FlashType::NONE);

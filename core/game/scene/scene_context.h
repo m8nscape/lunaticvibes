@@ -81,6 +81,7 @@ void clearContextPlay();
 
 struct SelectSongInfos
 {
+    unsigned type = 0; // song / folder / custom_folder / new_song / rival / rival_song / course_folder / new_course / course / random_course
     std::string title = "";
     double level = 0.0;
     unsigned level_type = 0;

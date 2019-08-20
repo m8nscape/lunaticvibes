@@ -68,7 +68,7 @@ public:
 protected:
 	bool _draw;
     pTexture _pTexture;
-    eTimer _timerInd = eTimer::SCENE_START;
+    eTimer _triggerTimer = eTimer::SCENE_START;
     int _loopTo = -1;
     int __line;
 protected:
@@ -84,7 +84,7 @@ public:
     bool updateByKeyframes(timestamp time);
 	virtual bool update(timestamp time);
     virtual void setLoopTime(int t);
-	virtual void setTimer(eTimer t);
+	virtual void setTrigTimer(eTimer t);
     virtual void appendKeyFrame(RenderKeyFrame f);
     virtual void draw() const = 0;
     bool isKeyFrameEmpty() { return _keyFrames.empty(); }
@@ -122,9 +122,9 @@ public:
         vSprite::setLoopTime(t);
         if (pS) pS->setLoopTime(t);
     }
-    virtual void setTimer(eTimer t) {
-        vSprite::setTimer(t);
-        if (pS) pS->setTimer(t);
+    virtual void setTrigTimer(eTimer t) {
+        vSprite::setTrigTimer(t);
+        if (pS) pS->setTrigTimer(t);
     }
     virtual void appendKeyFrame(RenderKeyFrame f) {
         vSprite::appendKeyFrame(f);
