@@ -81,11 +81,12 @@ struct SelectSongInfos
 {
     std::string title;
     int level;
+    unsigned level_type;
     unsigned lamp;
     unsigned rank;
     unsigned rival; // win / lose / draw / noplay
-    unsigned rivallamp_self;
-    unsigned rivallamp_rival;
+    unsigned rival_lamp_self;
+    unsigned rival_lamp_rival;
 };
 
 inline struct __select_context_params

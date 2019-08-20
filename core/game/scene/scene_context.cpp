@@ -1,4 +1,5 @@
 #include "scene_context.h"
+#include "game/data/text.h"
 
 void clearContextPlayForRetry()
 {
@@ -24,4 +25,14 @@ void clearContextPlay()
     }
     context_play.judgeLevel = 0;
     context_play.remainTime = 0;
+}
+
+void updateContextTitles()
+{
+    unsigned count = 0;
+    for (unsigned idx = context_select.barIndex; count < 32; ++idx, ++count)
+    {
+        if (idx == context_select.info.size()) idx = 0;
+        gTexts.set(eText(unsigned(eText::_SELECT_BAR_TITLE_FULL_0) + idx), context_select.info[idx].title);
+    }
 }

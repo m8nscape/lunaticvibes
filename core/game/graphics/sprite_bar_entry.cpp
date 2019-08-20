@@ -1,5 +1,6 @@
 #include "sprite_bar_entry.h"
 #include <plog/Log.h>
+#include "game/scene/scene_context.h"
 
 int SpriteBarEntry::setBody(pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
     eTimer timer = eTimer::SCENE_START, bool texVertSplit = false)
@@ -158,17 +159,20 @@ void SpriteBarEntry::appendKeyFrame(RenderKeyFrame f)
     LOG_ERROR << "[Sprite] appendKeyFrame(f) of SpriteBarEntry should not be used";
 }
 
-
+// FIXME: should draw subparts following order in definition.
 void SpriteBarEntry::draw() const
 {
-    if (sBody) sBody->draw();
-    if (sTitle) sTitle->draw();
-    for (auto& p : sLevel) if (p) p->draw();
-    for (auto& p : sLamp) if (p) p->draw();
-    for (auto& p : sRank) if (p) p->draw();
-    for (auto& p : sRivalWinLose) if (p) p->draw();
-    for (auto& p : sRivalLampSelf) if (p) p->draw();
-    for (auto& p : sRivalLampRival) if (p) p->draw();
+    if (!context_select.info.empty())
+    {
+        const auto& info = context_select.info[index % context_select.info.size()];
+        if (sBody) sBody->draw();
+        if (sTitle) sTitle->draw();
+        if (sLevel[info.level_type]) sLevel[info.level_type]->draw();
+        if (sRank[info.rank]) sRank[info.rank]->draw();
+        if (sRivalWinLose[info.rival]) sRivalWinLose[info.rival]->draw();
+        if (sRivalLampSelf[info.rival_lamp_self]) sRivalLampSelf[info.rival_lamp_self]->draw();
+        if (sRivalLampRival[info.rival_lamp_rival]) sRivalLampRival[info.rival_lamp_rival]->draw();
+    }
 }
 
 void SpriteBarEntry::appendKeyFrameBody(RenderKeyFrame f)
