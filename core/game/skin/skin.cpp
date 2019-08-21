@@ -26,11 +26,7 @@ void vSkin::update()
         gNumbers.set(eNumber::_TEST3, (int)(beat * 1000));
     }
 
-#ifdef _DEBUG
-	for(const auto& s: _sprites)
-#else
-	std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), [&t, beat, measure](const auto& s)
-#endif
+    auto updateSpriteLambda = [&t, beat, measure](const auto& s)
     {
 		switch (s->type())
 		{
@@ -55,9 +51,14 @@ void vSkin::update()
 			s->update(t);
 			break;
 		}
-	}
-#ifndef _DEBUG
-    );
+    };
+
+#ifdef _DEBUG
+    std::for_each(std::execution::seq, _sprites_parent.begin(), _sprites_parent.end(), updateSpriteLambda);
+    std::for_each(std::execution::seq, _sprites_child.begin(), _sprites_child.end(), updateSpriteLambda);
+#else
+    std::for_each(std::execution::par_unseq, _sprites_parent.begin(), _sprites_parent.end(), updateSpriteLambda);
+    std::for_each(std::execution::par_unseq, _sprites_child.begin(), _sprites_child.end(), updateSpriteLambda);
 #endif
 }
 

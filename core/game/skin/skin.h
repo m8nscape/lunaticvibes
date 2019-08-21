@@ -15,7 +15,7 @@ enum class eSkinType
 typedef unsigned long timeMS;
 
 typedef StringContent Token;
-typedef std::vector<Token> Tokens;
+typedef std::vector<StringContent> Tokens;
 
 typedef std::shared_ptr<vSprite> pSprite;
 typedef std::shared_ptr<Texture> pTexture;
@@ -65,17 +65,12 @@ public:
 // Sprite elements
 protected:
     std::list<pSprite> _sprites;                    // Push instance on parsing
+    std::list<pSprite> _sprites_parent;             // sublist of _sprites, managed by impl
+    std::list<pSprite> _sprites_child;              // sublist of _sprites, managed by impl
 
 // functional support
 protected:
     std::list<std::map<Rect, pSprite>> _mouseCursorAreaMap;
-
-////////////////////////////////////////////////////////////////////////////////
-// Input wrapping
-protected:
-    bool acceptInputGame = false;   // currently accept input from keyboard/joystick/etc
-    bool acceptInputFunc = false;   // currently accept FN keys
-    timeMS timeStartAcceptInput = 0;    // initialize in parsing
 
 ////////////////////////////////////////////////////////////////////////////////
 public:

@@ -1302,12 +1302,26 @@ namespace LR2
     const size_t GLOBAL_SPRITE_IDX_1PGAUGE = 24;
     const size_t GLOBAL_SPRITE_IDX_2PGAUGE = 25;
     const size_t GLOBAL_SPRITE_IDX_JUDGELINE = 26;
+
+    enum class ParseRet
+    {
+        OK,
+        PARAM_NOT_ENOUGH,
+        PARAM_INVALID,
+        DIV_NOT_ENOUGH,
+
+        SRC_DEF_INVALID,
+        SRC_DEF_WRONG_TYPE,
+    };
+    
 }
 
 using namespace LR2;
 
 struct setDst { dst_option dst; bool set; };
 //typedef std::function<int(SkinLR2*, const Tokens&, pTexture)> LoadLR2SrcFunc;
+class SkinLR2;
+typedef std::function<ParseRet(SkinLR2*)> LoadLR2SrcFunc;
 
 class SkinLR2: public vSkin
 {
@@ -1363,44 +1377,49 @@ private:
     unsigned line = 0;          // line parsing index
     Tokens csvNextLineTokenize(std::istream& file);
 
-    int loadLR2image        (const Tokens &t);
-    int loadLR2include      (const Tokens &t);
-    int loadLR2font         (const Tokens &t);
-    int loadLR2systemfont   (const Tokens &t);
-    int loadLR2header       (const Tokens &t);
-    int loadLR2timeoption   (const Tokens &t);
-    int loadLR2others       (const Tokens &t);
-    int loadLR2SkinLine     (const Tokens &t);
+    Tokens tokensBuf;
+    pTexture textureBuf;
+    int parseLine     (const Tokens& raw);
 
-public:
-    int loadLR2src(const Tokens &t);
-    int loadLR2_SRC_IMAGE(const Tokens &t, pTexture tex);
-    int loadLR2_SRC_JUDGELINE(const Tokens &t, pTexture tex);
-    int loadLR2_SRC_NUMBER(const Tokens &t, pTexture tex);
-    int loadLR2_SRC_NOWJUDGE(const Tokens& t, pTexture tex, size_t idx);
-    int loadLR2_SRC_NOWCOMBO(const Tokens& t, pTexture tex, size_t idx);
-    int loadLR2_SRC_SLIDER(const Tokens &t, pTexture tex);
-    int loadLR2_SRC_BARGRAPH(const Tokens &t, pTexture tex);
-    int loadLR2_SRC_BUTTON(const Tokens &t, pTexture tex);
-	int loadLR2_SRC_GROOVEGAUGE(const Tokens &t, pTexture tex);
-    int loadLR2_SRC_TEXT(const Tokens &t, pTexture dummy = nullptr);
-    int loadLR2_SRC_NOTE(const Tokens &t);
-    int loadLR2dst(const Tokens &t);
-    int loadLR2_DST_NOTE(const Tokens &t);
-    int loadLR2_DST_LINE(const Tokens &t);
+    int IMAGE        ();
+    int INCLUDE      ();
+    int FONT         ();
+    int SYSTEMFONT   ();
+    int HEADER       ();
+    int TIMEOPTION   ();
+    int others       ();
+
+    int SRC();
+    ParseRet SRC_IMAGE();
+    ParseRet SRC_JUDGELINE();
+    ParseRet SRC_NUMBER();
+    ParseRet SRC_NOWJUDGE(size_t idx);
+    ParseRet SRC_NOWCOMBO(size_t idx);
+    ParseRet SRC_SLIDER();
+    ParseRet SRC_BARGRAPH();
+    ParseRet SRC_BUTTON();
+	ParseRet SRC_GROOVEGAUGE();
+    ParseRet SRC_TEXT();
+    ParseRet SRC_NOTE();
+
+    int DST();
+    ParseRet DST_NOTE();
+    ParseRet DST_LINE();
+
+    ParseRet SRC_NOWJUDGE1();
+    ParseRet SRC_NOWJUDGE2();
+    ParseRet SRC_NOWCOMBO1();
+    ParseRet SRC_NOWCOMBO2();
+
+    static std::map<Token, LoadLR2SrcFunc> __src_supported;
 
 protected:
 	int  bufJudge1PSlot;
 	int  bufJudge2PSlot;
     std::array<bool, 6> noshiftJudge1P{ false };
     std::array<bool, 6> noshiftJudge2P{ false };
-public:
-    int loadLR2_SRC_NOWJUDGE1(const Tokens &t, pTexture tex);
-    int loadLR2_SRC_NOWJUDGE2(const Tokens &t, pTexture tex);
-    int loadLR2_SRC_NOWCOMBO1(const Tokens &t, pTexture tex);
-    int loadLR2_SRC_NOWCOMBO2(const Tokens &t, pTexture tex);
 
-    void loadLR2IF(const Tokens &t, std::ifstream&);
+    void IF(const Tokens &t, std::ifstream&);
 
     //std::vector<SkinLR2> _csvIncluded;
 
@@ -1424,7 +1443,6 @@ public:
 
 };
 
-typedef std::function<int(SkinLR2*, const Tokens&, pTexture)> LoadLR2SrcFunc;
 
 // adapt helper
 void updateDstOpt();
