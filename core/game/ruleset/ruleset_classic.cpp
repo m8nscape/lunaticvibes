@@ -463,7 +463,7 @@ void RulesetClassic::updateHold(InputMask& hg, timestamp t)
 				j.area == judgeArea::LATE_PERFECT && j.time < 2)
 			{
 				n->hit = true;
-                _updateHp(-1.0 * std::get<long long>(n->value) / base36("ZZ"));
+                _updateHp(-0.01 * std::get<long long>(n->value) / 2);
 				// TODO play mine sound + volume
 			}
 			break;
@@ -489,7 +489,7 @@ void RulesetClassic::updateHold(InputMask& hg, timestamp t)
 				j.area == judgeArea::LATE_PERFECT && j.time < 2)
 			{
 				n->hit = true;
-                _updateHp(-1.0 * std::get<long long>(n->value) / base36("ZZ"));
+                _updateHp(-0.01 * std::get<long long>(n->value) / 2);
 				// TODO play mine sound + volume
 			}
 			break;
