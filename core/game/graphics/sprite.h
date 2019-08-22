@@ -63,6 +63,7 @@ class vSprite: public std::enable_shared_from_this<vSprite>
 protected:
     SpriteTypes _type;
     std::weak_ptr<vSprite> _parent;
+    bool _haveParent = false;
 public:
     constexpr SpriteTypes type() { return _type; }
 protected:
@@ -79,13 +80,14 @@ public:
     virtual ~vSprite() = default;
 public:
     void setLine(int i) { __line = i; }
-    void setParent(std::weak_ptr<vSprite> p) { _parent = p; }
+    void setParent(std::weak_ptr<vSprite> p) { _parent = p; _haveParent = true; }
     RenderParams getCurrentRenderParams();
     bool updateByKeyframes(timestamp time);
 	virtual bool update(timestamp time);
     virtual void setLoopTime(int t);
 	virtual void setTrigTimer(eTimer t);
     virtual void appendKeyFrame(RenderKeyFrame f);
+    void appendInvisibleLeadingFrame();
     virtual void draw() const = 0;
     bool isKeyFrameEmpty() { return _keyFrames.empty(); }
     void clearKeyFrames() { _keyFrames.clear(); }

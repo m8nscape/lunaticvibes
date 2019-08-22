@@ -8,6 +8,7 @@
 #include "types.h"
 #include "skin.h"
 #include "game/graphics/sprite_lane.h"
+#include "game/graphics/sprite_bar_entry.h"
 #include "game/input/input_mgr.h"
 #include "game/data/switch.h"
 
@@ -1370,6 +1371,14 @@ public:
     void loadCSV(Path p);
 
 protected:
+    inline static const size_t BAR_ENTRY_SPRITE_COUNT = 32;
+    typedef std::shared_ptr<SpriteBarEntry> pSpriteBarEntry;
+    std::array<pSpriteBarEntry, BAR_ENTRY_SPRITE_COUNT> _barSprites;
+    unsigned barCenter = 0;
+    unsigned barClickableFrom = 0;
+    unsigned barClickableTo = 0;
+
+protected:
     typedef std::shared_ptr<SpriteLaneVertical> pSpriteLane;
     std::vector<pSpriteLane> _laneSprites;
 
@@ -1377,7 +1386,8 @@ private:
     unsigned line = 0;          // line parsing index
     Tokens csvNextLineTokenize(std::istream& file);
 
-    Tokens tokensBuf;
+    Token optBuf;       // #XXX_XXXXX
+    Tokens tokensBuf;   // stores parameters after #XXX_XXXXX
     pTexture textureBuf;
     int parseLine     (const Tokens& raw);
 
@@ -1391,25 +1401,45 @@ private:
 
     int SRC();
     ParseRet SRC_IMAGE();
-    ParseRet SRC_JUDGELINE();
     ParseRet SRC_NUMBER();
-    ParseRet SRC_NOWJUDGE(size_t idx);
-    ParseRet SRC_NOWCOMBO(size_t idx);
     ParseRet SRC_SLIDER();
     ParseRet SRC_BARGRAPH();
     ParseRet SRC_BUTTON();
-	ParseRet SRC_GROOVEGAUGE();
     ParseRet SRC_TEXT();
+
+    ParseRet SRC_JUDGELINE();
+	ParseRet SRC_GROOVEGAUGE();
     ParseRet SRC_NOTE();
+    ParseRet SRC_NOWJUDGE(size_t idx);
+    ParseRet SRC_NOWCOMBO(size_t idx);
+    ParseRet SRC_NOWJUDGE1();
+    ParseRet SRC_NOWJUDGE2();
+    ParseRet SRC_NOWCOMBO1();
+    ParseRet SRC_NOWCOMBO2();
+
+    ParseRet SRC_BAR_BODY();
+    ParseRet SRC_BAR_FLASH();
+    ParseRet SRC_BAR_LEVEL();
+    ParseRet SRC_BAR_LAMP();
+    ParseRet SRC_BAR_TITLE();
+    ParseRet SRC_BAR_RANK();
+    ParseRet SRC_BAR_RIVAL();
+    ParseRet SRC_BAR_RIVAL_MYLAMP();
+    ParseRet SRC_BAR_RIVAL_RIVALLAMP();
 
     int DST();
     ParseRet DST_NOTE();
     ParseRet DST_LINE();
 
-    ParseRet SRC_NOWJUDGE1();
-    ParseRet SRC_NOWJUDGE2();
-    ParseRet SRC_NOWCOMBO1();
-    ParseRet SRC_NOWCOMBO2();
+    ParseRet DST_BAR_BODY();
+    ParseRet DST_BAR_FLASH();
+    ParseRet DST_BAR_LEVEL();
+    ParseRet DST_BAR_LAMP();
+    ParseRet DST_BAR_TITLE();
+    ParseRet DST_BAR_RANK();
+    ParseRet DST_BAR_RIVAL();
+    ParseRet DST_BAR_RIVAL_MYLAMP();
+    ParseRet DST_BAR_RIVAL_RIVALLAMP();
 
     static std::map<Token, LoadLR2SrcFunc> __src_supported;
 

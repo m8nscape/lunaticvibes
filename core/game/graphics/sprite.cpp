@@ -144,6 +144,9 @@ bool vSprite::updateByKeyframes(timestamp rawTime)
 
 bool vSprite::update(timestamp t)
 {
+    if (_haveParent && !_parent.lock()->_draw)
+        return _draw = false;
+
 	return _draw = updateByKeyframes(t);
 }
 
@@ -165,6 +168,10 @@ void vSprite::setTrigTimer(eTimer t)
 void vSprite::appendKeyFrame(RenderKeyFrame f)
 {
     _keyFrames.push_back(f);
+}
+void vSprite::appendInvisibleLeadingFrame()
+{
+    appendKeyFrame({ 0, {Rect(), RenderParams::accTy::DISCONTINOUS, Color(0), BlendMode::NONE, false, 0.0} });
 }
 
 ////////////////////////////////////////////////////////////////////////////////
