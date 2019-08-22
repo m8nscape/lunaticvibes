@@ -14,11 +14,11 @@ private:
 
 protected:
     int addChart(const std::string& path);
-    int removeChart(const std::string& path);
+    int removeChart(const HashMD5& md5);
 
 public:
     std::vector<pChart> findChartByName(const std::string&) const;  // search from genre, version, artist, artist2, title, title2
-    std::vector<pChart> findChartByHash(const std::string&) const;  // chart may duplicate
+    std::vector<pChart> findChartByHash(const HashMD5&) const;  // chart may duplicate
 
     int addFolder(const std::string& path);
     int removeFolder(const std::string& path);

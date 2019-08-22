@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <numeric>
+#include <memory>
 #include "types.h"
 #include "beat.h"
 
@@ -21,6 +22,11 @@ protected:
     eChartType _type = eChartType::UNKNOWN;
 public:
     constexpr eChartType type() { return _type; }
+
+public:
+    vChart() = default;
+    virtual ~vChart() = default;
+    static std::shared_ptr<vChart> getFromFile(const Path& path);
 
 protected:
     bool _loaded = false;
@@ -66,5 +72,5 @@ public:
     BPM getNormBPM() const;
     Path getDirectory() const;
 
-    virtual int getExtendedProperty(std::string key, void* ret) = 0;
+    virtual int getExtendedProperty(const std::string& key, void* ret) = 0;
 };

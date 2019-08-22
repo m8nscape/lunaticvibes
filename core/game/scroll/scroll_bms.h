@@ -60,6 +60,7 @@ public:
     virtual std::vector<Input::Ingame> getInputFromChannel(size_t channel);
 public:
     ScrollBMS();
+    ScrollBMS(std::shared_ptr<BMS> bms);
     ScrollBMS(const BMS& bms);
 protected:
     void loadBMS(const BMS& bms);

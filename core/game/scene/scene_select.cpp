@@ -195,7 +195,7 @@ void SceneSelect::_decide()
     {
     case eChartType::BMS:
     {
-        auto& bms = std::dynamic_pointer_cast<BMS>(chart);
+        auto& bms = std::reinterpret_pointer_cast<BMS>(chart);
         p.judgeLevel = bms->rank;
         // TODO mods
         break;

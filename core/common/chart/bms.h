@@ -57,12 +57,14 @@ class BMS: public vChart
     friend class SceneSelect;
 
 public:
-    virtual int getExtendedProperty(std::string key, void* ret);
+    virtual int getExtendedProperty(const std::string& key, void* ret);
 
 public:
-    BMS(std::string file);
-    int initWithFile(std::string file);
+    BMS(const Path& file);
     std::string getError();
+
+protected:
+    int initWithFile(const Path& file);
 
 protected:
     ErrorCode errorCode = ErrorCode::OK;

@@ -9,7 +9,7 @@
 
 class noteLineException : public std::exception {};
 
-int BMS::getExtendedProperty(std::string key, void* ret)
+int BMS::getExtendedProperty(const std::string& key, void* ret)
 {
     if (key == "PLAYER")
     {
@@ -34,7 +34,7 @@ int BMS::getExtendedProperty(std::string key, void* ret)
     return -1;
 }
 
-BMS::BMS(std::string file) {
+BMS::BMS(const Path& file) {
     _type = eChartType::BMS;
     _wavFiles.resize(MAXSAMPLEIDX + 1);
     _bgaFiles.resize(MAXSAMPLEIDX + 1);
@@ -42,7 +42,7 @@ BMS::BMS(std::string file) {
     initWithFile(file);
 }
 
-int BMS::initWithFile(std::string file)
+int BMS::initWithFile(const Path& file)
 {
     using err = ErrorCode;
     if (_loaded)

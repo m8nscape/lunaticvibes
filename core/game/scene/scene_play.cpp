@@ -153,14 +153,12 @@ void ScenePlay::loadChart()
             return;
         }
 
-        // TODO dispatch Chart object upon filename extension
-        // currently hard coded for BMS
-        context_chart.chartObj = std::make_shared<BMS>(std::filesystem::absolute(context_chart.path).string());
+        context_chart.chartObj = vChart::getFromFile(context_chart.path);
     }
 
-    if (!context_chart.chartObj->isLoaded())
+    if (context_chart.chartObj == nullptr || !context_chart.chartObj->isLoaded())
     {
-        LOG_ERROR << "[Play] Invalid chart!";
+        LOG_ERROR << "[Play] Invalid chart: " << context_chart.path.string();
         return;
     }
 
@@ -177,21 +175,21 @@ void ScenePlay::loadChart()
     switch (context_chart.chartObj->type())
     {
     case eChartType::BMS:
-    case eChartType::BMSON:
         if (_mode == ePlayMode::LOCAL_BATTLE)
         {
-            context_play.scrollObj[0] = std::make_shared<ScrollBMS>((const BMS&)* context_chart.chartObj);
-            context_play.scrollObj[1] = std::make_shared<ScrollBMS>((const BMS&)* context_chart.chartObj);
+            context_play.scrollObj[0] = std::make_shared<ScrollBMS>(std::reinterpret_pointer_cast<BMS>(context_chart.chartObj));
+            context_play.scrollObj[1] = std::make_shared<ScrollBMS>(std::reinterpret_pointer_cast<BMS>(context_chart.chartObj));
         }
         else
         {
-            context_play.scrollObj[context_play.playerSlot] = std::make_shared<ScrollBMS>((const BMS&)* context_chart.chartObj);
+            context_play.scrollObj[context_play.playerSlot] = std::make_shared<ScrollBMS>(std::reinterpret_pointer_cast<BMS>(context_chart.chartObj));
         }
         _scrollLoaded = true;
         gNumbers.set(eNumber::PLAY_REMAIN_MIN, int(context_play.scrollObj[context_play.playerSlot]->getTotalLength().norm() / 1000 / 60));
         gNumbers.set(eNumber::PLAY_REMAIN_SEC, int(context_play.scrollObj[context_play.playerSlot]->getTotalLength().norm() / 1000 % 60));
         break;
 
+    case eChartType::BMSON:
     default:
         break;
     }

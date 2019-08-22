@@ -73,6 +73,10 @@ ScrollBMS::ScrollBMS() : vScroll((size_t)eNotePlain::PLAIN_COUNT, (size_t)eNoteE
 {
 }
 
+ScrollBMS::ScrollBMS(std::shared_ptr<BMS> b) : ScrollBMS()
+{
+    loadBMS(*b);
+}
 ScrollBMS::ScrollBMS(const BMS& b) : ScrollBMS()
 {
     loadBMS(b);
