@@ -96,3 +96,18 @@ std::string md5(fs::path filePath)
     }
     return ret;
 }
+
+std::string md5(const char* str, size_t len)
+{
+    auto digest = MD5((const unsigned char*)str, len, NULL);
+
+    std::string ret(MD5_DIGEST_LENGTH * 2, 0);
+    for (size_t i = 0; i < MD5_DIGEST_LENGTH; ++i)
+    {
+        unsigned char high = digest[i] >> 4 & 0xF;
+        unsigned char low  = digest[i] & 0xF;
+        ret += (high <= 9 ? ('0' + high) : ('A' - 10 + high));
+        ret += (low  <= 9 ? ('0' + low)  : ('A' - 10 + low));
+    }
+    return ret;
+}

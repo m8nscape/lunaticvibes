@@ -30,6 +30,7 @@
     <ClCompile Include="config\cfg_skin.cpp" />
     <ClCompile Include="config\config.cpp" />
     <ClCompile Include="db\db_conn.cpp" />
+    <ClCompile Include="db\db_song.cpp" />
     <ClCompile Include="game\graphics\SDL2\common_SDL2.cpp" />
     <ClCompile Include="game\graphics\SDL2\rect_SDL2.cpp" />
     <ClCompile Include="game\graphics\SDL2\ttf_SDL2.cpp" />
@@ -104,6 +105,7 @@
     <ClInclude Include="game\scene\scene_select.h" />
     <ClInclude Include="game\scroll\scroll.h" />
     <ClInclude Include="game\scroll\scroll_bms.h" />
+    <ClInclude Include="game\scroll\scroll_types.h" />
     <ClInclude Include="game\skin\skin.h" />
     <ClInclude Include="game\skin\skin_lr2.h" />
     <ClInclude Include="game\skin\skin_mgr.h" />
@@ -203,6 +205,12 @@
       <Command>
       </Command>
     </PostBuildEvent>
+    <Lib>
+      <AdditionalDependencies>sqlite3.lib</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>$(SolutionDir)ext\sqlite3\lib\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -232,6 +240,10 @@
       <Command>
       </Command>
     </PostBuildEvent>
+    <Lib>
+      <AdditionalLibraryDirectories>$(SolutionDir)ext\sqlite3\lib\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sqlite3.lib</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -252,6 +264,12 @@
       <Command>
       </Command>
     </PostBuildEvent>
+    <Lib>
+      <AdditionalDependencies>sqlite3.lib</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>$(SolutionDir)ext\sqlite3\lib\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -273,6 +291,12 @@
       <Command>
       </Command>
     </PostBuildEvent>
+    <Lib>
+      <AdditionalDependencies>sqlite3.lib</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>$(SolutionDir)ext\sqlite3\lib\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

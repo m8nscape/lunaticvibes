@@ -48,3 +48,4 @@ constexpr unsigned base16(const char* c)
 }
 
 std::string md5(fs::path filePath);
+std::string md5(const char* str, size_t len);

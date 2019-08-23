@@ -2,25 +2,39 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include "types.h"
 #include "db_conn.h"
-#include "chart/chart.h"
 
+class vChart;
 typedef std::shared_ptr<vChart> pChart;
 
-class SongDB
+class SongDB: public SQLite
 {
 private:
-    SQLite conn;
+    static SongDB _inst;
+public:
+    enum FolderType
+    {
+        FOLDER,
+        SONG_BMS,
+    };
+
+private:
+    SongDB();
+    ~SongDB() = default;
+    SongDB(SongDB&) = delete;
+    SongDB& operator= (SongDB&) = delete;
 
 protected:
-    int addChart(const std::string& path);
-    int removeChart(const HashMD5& md5);
+    static int addChart(const std::string& path);
+    static int removeChart(const HashMD5& md5);
 
 public:
-    std::vector<pChart> findChartByName(const std::string&) const;  // search from genre, version, artist, artist2, title, title2
-    std::vector<pChart> findChartByHash(const HashMD5&) const;  // chart may duplicate
+    static std::vector<pChart> findChartByName(const HashMD5& folder, const std::string&);  // search from genre, version, artist, artist2, title, title2
+    static std::vector<pChart> findChartByHash(const HashMD5&);  // chart may duplicate
 
-    int addFolder(const std::string& path);
-    int removeFolder(const std::string& path);
+    static int addFolder(const std::string& path);
+    static int removeFolder(const std::string& path);
 
+    static Path getFolderPath(const HashMD5& folder);
 };

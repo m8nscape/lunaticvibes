@@ -71,6 +71,7 @@ constexpr size_t channelToIdx(NoteChannelCategory cat, NoteChannelIndex idx)
     return (ch >= CHANNEL_KEY_COUNT) ? CHANNEL_INVALID : ch;
 }
 
+class vChart;
 
 // Chart in-game data representation. Contains following:
 //  - Converts plain-beat to real-beat (adds up Stop beat) 
@@ -117,6 +118,7 @@ protected:
 public:
     vScroll() = delete;
     vScroll(size_t plain_n, size_t ext_n);
+    static std::shared_ptr<vScroll> getFromChart(std::shared_ptr<vChart> p);
 
 private:
     std::array<decltype(_noteLists.front().begin()), CHANNEL_INVALID + 1> _noteListIterators;

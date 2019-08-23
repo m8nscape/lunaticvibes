@@ -6,6 +6,7 @@
 #include <utility>
 #include <exception>
 #include <filesystem>
+#include "db/db_song.h"
 
 class noteLineException : public std::exception {};
 
@@ -34,12 +35,29 @@ int BMS::getExtendedProperty(const std::string& key, void* ret)
     return -1;
 }
 
+BMS::BMS() {
+    _type = eChartType::BMS;
+    _wavFiles.resize(MAXSAMPLEIDX + 1);
+    _bgaFiles.resize(MAXSAMPLEIDX + 1);
+    _measureLength.resize(MAXMEASUREIDX + 1);
+}
+
 BMS::BMS(const Path& file) {
     _type = eChartType::BMS;
     _wavFiles.resize(MAXSAMPLEIDX + 1);
     _bgaFiles.resize(MAXSAMPLEIDX + 1);
     _measureLength.resize(MAXMEASUREIDX + 1);
     initWithFile(file);
+}
+
+int BMS::initWithPathParam()
+{
+    if (_filePath.is_absolute())
+        _absolutePath = _filePath;
+    else
+        _absolutePath = SongDB::getFolderPath(_folderHash) / _filePath;
+
+    return initWithFile(_absolutePath);
 }
 
 int BMS::initWithFile(const Path& file)
@@ -52,9 +70,10 @@ int BMS::initWithFile(const Path& file)
         return 1;
     }
 
-    _filePath = std::filesystem::absolute(file);
-    LOG_INFO << "[BMS] File: " << _filePath.string();
-    std::ifstream fs(_filePath.string());
+    _filePath = file.filename();
+    _absolutePath = std::filesystem::absolute(file);
+    LOG_INFO << "[BMS] File: " << _absolutePath.string();
+    std::ifstream fs(_absolutePath.string());
     if (fs.fail())
     {
         errorCode = err::FILE_ERROR;

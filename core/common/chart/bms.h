@@ -52,19 +52,23 @@ namespace bms
 using namespace bms;
 
 class SceneSelect;
+class SongDB;
 class BMS: public vChart
 {
     friend class SceneSelect;
+    friend class SongDB;
 
 public:
     virtual int getExtendedProperty(const std::string& key, void* ret);
 
 public:
-    BMS(const Path& file);
+    BMS();
+    BMS(const Path& absolutePath);
     std::string getError();
+    int initWithPathParam();
 
 protected:
-    int initWithFile(const Path& file);
+    int initWithFile(const Path& absolutePath);
 
 protected:
     ErrorCode errorCode = ErrorCode::OK;

@@ -171,7 +171,7 @@ void ScenePlay::loadChart()
     context_chart.itlBPM = context_chart.chartObj->_itlBPM;
     context_chart.maxBPM = context_chart.chartObj->_maxBPM;
 
-    // TODO load Scroll object from Chart object
+    //load Scroll object from Chart object
     switch (context_chart.chartObj->type())
     {
     case eChartType::BMS:

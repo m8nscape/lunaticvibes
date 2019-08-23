@@ -1,5 +1,9 @@
 #include "scroll.h"
+#include "common/chart/chart.h"
 #include "game/data/number.h"
+
+#include "scroll_types.h"
+#include "chart/chart_types.h"
 
 vScroll::vScroll( size_t pn, size_t en) :
     _noteLists{}, _plainLists(pn), _extLists(en), _plainListIterators(pn), _extListIterators(en)
@@ -11,6 +15,19 @@ vScroll::vScroll( size_t pn, size_t en) :
     //_bpmList.push_back({ 0, {0, 1}, 0, 130 });
     _stopList.clear();
     //_stopList.push_back({ 0, {0, 1}, 0.0, 0, 1.0 });
+}
+
+
+std::shared_ptr<vScroll> vScroll::getFromChart(std::shared_ptr<vChart> p)
+{
+    switch (p->type())
+    {
+    case eChartType::BMS:
+        return std::make_shared<ScrollBMS>(std::reinterpret_pointer_cast<BMS>(p));
+    default:
+        LOG_WARNING << "[Scroll] Chart type unknown (" << int(p->type()) << "): " << p->_filePath.string();
+        return nullptr;
+    }
 }
 
 void vScroll::reset()

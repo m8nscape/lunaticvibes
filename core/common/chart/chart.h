@@ -29,6 +29,7 @@ public:
     static std::shared_ptr<vChart> getFromFile(const Path& path);
 
 protected:
+    Path _absolutePath;
     bool _loaded = false;
 public:
     constexpr bool isLoaded() { return _loaded; }
@@ -37,6 +38,7 @@ public:
 public:
     Path _filePath;
     HashMD5 _fileHash;
+    HashMD5 _folderHash;
 
     StringContent _title;
     StringContent _title2;
@@ -45,6 +47,9 @@ public:
     StringContent _genre;
     StringContent _version;     // mostly known as difficulty name
     double _level;
+
+    int _totalLength_sec;
+    int _totalnotes;
 
     StringPath _BG;
     StringPath _banner;

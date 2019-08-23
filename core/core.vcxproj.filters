@@ -129,6 +129,9 @@
     <ClCompile Include="game\scene\scene_select.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="db\db_song.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\asynclooper.h">
@@ -288,6 +291,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="common\chart\chart_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\scroll\scroll_types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
