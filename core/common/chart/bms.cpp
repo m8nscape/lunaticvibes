@@ -86,9 +86,9 @@ int BMS::initWithFile(const Path& file)
     // TODO Ìì¹úµÄPARSER£¡£¡£¡
     // SUPER LAZY PARSER FOR TESTING
     std::vector<std::regex> skipRegex;
-    skipRegex.emplace_back(R"(\*-.*)");
-    skipRegex.emplace_back(R"(\/\/.*)");
-    skipRegex.emplace_back(R"(;.*)");
+    skipRegex.emplace_back(R"(\*-.*)");     // *-
+    skipRegex.emplace_back(R"(\/\/.*)");    // //
+    skipRegex.emplace_back(R"(;.*)");       // ;
     skipRegex.emplace_back(R"(#BPM00 .*)");
     skipRegex.emplace_back(R"(#STOP00 .*)");
     skipRegex.emplace_back(R"(#BMP00 .*)");
