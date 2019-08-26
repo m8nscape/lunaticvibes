@@ -15,6 +15,10 @@ struct sqlite3;
 typedef sqlite_int64 sqlite3_int64;
 typedef sqlite_uint64 sqlite3_uint64;
 
+inline long long    ANY_INT(const std::any& a) { return std::any_cast<sqlite3_int64>(a); }
+inline double       ANY_REAL(const std::any& a) { return std::any_cast<double>(a); }
+inline std::string  ANY_STR(const std::any& a) { return std::any_cast<std::string>(a); }
+
 
 #define SQLITE_OK 0
 

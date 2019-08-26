@@ -12,6 +12,8 @@ inline fs::path executablePath;
 // Searching is not recursive.
 std::vector<fs::path> findFiles(fs::path path);
 
+bool isParentPath(fs::path parent, fs::path dir);
+
 // For LR2 skin .csv parsing:
 // op1~4 may include a '!' before the number, split it out
 std::pair<unsigned, bool> stoub(const std::string&);
@@ -47,5 +49,6 @@ constexpr unsigned base16(const char* c)
 	return base16(c[0], c[1]);
 }
 
-std::string md5(fs::path filePath);
+std::string md5(const fs::path& filePath);
+std::string md5(const std::string& str);
 std::string md5(const char* str, size_t len);

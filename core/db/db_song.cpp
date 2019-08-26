@@ -4,21 +4,22 @@
 #include "common/chart/chart_types.h"
 #include "game/scroll/scroll_types.h"
 
-const HashMD5 ROOT_HASH = md5("ROOT", 4);
+const HashMD5 ROOT_HASH = md5("", 0);
 
 const char* CREATE_FOLDER_TABLE_STR =
 "CREATE TABLE IF NOT EXISTS folder(         \
-pathmd5 TEXT     PRIMARY KEY UNIQUE NOT NULL,   \
+md5     TEXT     PRIMARY KEY UNIQUE NOT NULL,   \
 parent  TEXT                            ,   \
-name    TEXT                    NOT NULL,   \
+path    TEXT                    NOT NULL,   \
+name    TEXT                            ,   \
 type    INTEGER                 NOT NULL DEFAULT 0, \
 removed INTEGER                 NOT NULL DEFAULT 0  \
 )";
 
 const char* CREATE_SONG_TABLE_STR =
 "CREATE TABLE IF NOT EXISTS song(           \
-songmd5 TEXT     PRIMARY KEY    NOT NULL,   \
-folder  TEXT     FOREIGN KEY REFERENCES folder(pathmd5), \
+md5     TEXT     PRIMARY KEY    NOT NULL,   \
+folder  TEXT     FOREIGN KEY REFERENCES folder(md5), \
 type    INTEGER                 NOT NULL,   \
 file    TEXT                    NOT NULL,   \
 title   TEXT                    NOT NULL,   \
@@ -55,7 +56,7 @@ SongDB::SongDB() : SQLite("song.db", "SONG")
         LOG_ERROR << "[SongDB] Create table folder ERROR! " << _inst.errmsg();
         abort();
     }
-    if (_inst.query("SELECT parent FROM folder WHERE pathmd5=?", 1, { ROOT_HASH }).empty())
+    if (_inst.query("SELECT parent FROM folder WHERE md5=?", 1, { ROOT_HASH }).empty())
     {
         if (_inst.exec("INSERT INTO folder VALUES(?,?,?,?,?", { ROOT_HASH, nullptr, "", 0, 0 }))
         {
@@ -127,7 +128,7 @@ int SongDB::addChart(const std::string& path)
     case eChartType::BMS:
     {
         auto bmsc = std::reinterpret_pointer_cast<BMS>(c);
-        if (SQLITE_OK != _inst.exec("INSERT INTO song VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        if (SQLITE_OK != exec("INSERT INTO song VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             {
                 c->_fileHash,
                 c->_filePath.parent_path().string(),
@@ -160,7 +161,7 @@ int SongDB::addChart(const std::string& path)
                 bmsc->haveRandom
             }))
         {
-            LOG_WARNING << "[SongDB] Insert into db error: " << path << ": " << _inst.errmsg();
+            LOG_WARNING << "[SongDB] Insert into db error: " << path << ": " << errmsg();
             return 1;
         }
     }
@@ -174,9 +175,9 @@ int SongDB::addChart(const std::string& path)
 
 int SongDB::removeChart(const HashMD5& md5)
 {
-    if (SQLITE_OK != _inst.exec("DELETE FROM song WHERE songmd5=?", { md5 }))
+    if (SQLITE_OK != exec("DELETE FROM song WHERE md5=?", { md5 }))
     {
-        LOG_WARNING << "[SongDB] Delete from db error: " << md5 << ": " << _inst.errmsg();
+        LOG_WARNING << "[SongDB] Delete from db error: " << md5 << ": " << errmsg();
         return 1;
     }
     return 0;
@@ -185,25 +186,27 @@ int SongDB::removeChart(const HashMD5& md5)
 auto convert_basic(pChart chart, const std::vector<std::any>& in)
 {
     if (in.size() < 18) return false;
-    chart->_fileHash = std::any_cast<std::string>(in[0]);
-    chart->_folderHash = std::any_cast<std::string>(in[1]);
-    chart->_filePath = std::any_cast<std::string>(in[3]);
-    chart->_title = std::any_cast<std::string>(in[4]);
-    chart->_title2 = std::any_cast<std::string>(in[5]);
-    chart->_artist = std::any_cast<std::string>(in[6]);
-    chart->_artist2 = std::any_cast<std::string>(in[7]);
-    chart->_genre = std::any_cast<std::string>(in[8]);
-    chart->_version = std::any_cast<std::string>(in[9]);
-    chart->_level = std::any_cast<double>(in[10]);
-    chart->_itlBPM = std::any_cast<double>(in[11]);
-    chart->_minBPM = std::any_cast<double>(in[12]);
-    chart->_maxBPM = std::any_cast<double>(in[13]);
-    chart->_totalLength_sec = std::any_cast<sqlite3_int64>(in[14]);
-    chart->_totalnotes = std::any_cast<sqlite3_int64>(in[15]);
-    chart->_BG = std::any_cast<std::string>(in[16]);
-    chart->_banner = std::any_cast<std::string>(in[17]);
+    chart->_fileHash = ANY_STR(in[0]);
+    chart->_folderHash = ANY_STR(in[1]);
+    chart->_filePath = ANY_STR(in[3]);
+    chart->_title = ANY_STR(in[4]);
+    chart->_title2 = ANY_STR(in[5]);
+    chart->_artist = ANY_STR(in[6]);
+    chart->_artist2 = ANY_STR(in[7]);
+    chart->_genre = ANY_STR(in[8]);
+    chart->_version = ANY_STR(in[9]);
+    chart->_level = ANY_REAL(in[10]);
+    chart->_itlBPM = ANY_REAL(in[11]);
+    chart->_minBPM = ANY_REAL(in[12]);
+    chart->_maxBPM = ANY_REAL(in[13]);
+    chart->_totalLength_sec = ANY_INT(in[14]);
+    chart->_totalnotes = ANY_INT(in[15]);
+    chart->_BG = ANY_STR(in[16]);
+    chart->_banner = ANY_STR(in[17]);
     return true;
 }
+
+
 
 // search from genre, version, artist, artist2, title, title2
 std::vector<pChart> SongDB::findChartByName(const HashMD5& folder, const std::string& tag)
@@ -223,22 +226,22 @@ INSTR(version, ?)",
     std::vector<pChart> ret;
     for (const auto& r : result)
     {
-        switch (eChartType(std::any_cast<sqlite3_int64>(r[2])))
+        switch (eChartType(ANY_INT(r[2])))
         {
         case eChartType::BMS:
         {
             auto bms = std::make_shared<BMS>();
-            bms->player = std::any_cast<sqlite3_int64>(r[18]);
-            bms->rank = std::any_cast<sqlite3_int64>(r[19]);
-            bms->total = std::any_cast<sqlite3_int64>(r[20]);
-            bms->playLevel = std::any_cast<sqlite3_int64>(r[21]);
-            bms->difficulty = std::any_cast<sqlite3_int64>(r[22]);
-            bms->haveLN = std::any_cast<sqlite3_int64>(r[23]);
-            bms->haveMine = std::any_cast<sqlite3_int64>(r[24]);
-            bms->haveBarChange = std::any_cast<sqlite3_int64>(r[25]);
-            bms->haveStop = std::any_cast<sqlite3_int64>(r[26]);
-            bms->haveBGA = std::any_cast<sqlite3_int64>(r[27]);
-            bms->haveRandom = std::any_cast<sqlite3_int64>(r[28]);
+            bms->player = ANY_INT(r[18]);
+            bms->rank = ANY_INT(r[19]);
+            bms->total = ANY_INT(r[20]);
+            bms->playLevel = ANY_INT(r[21]);
+            bms->difficulty = ANY_INT(r[22]);
+            bms->haveLN = ANY_INT(r[23]);
+            bms->haveMine = ANY_INT(r[24]);
+            bms->haveBarChange = ANY_INT(r[25]);
+            bms->haveStop = ANY_INT(r[26]);
+            bms->haveBGA = ANY_INT(r[27]);
+            bms->haveRandom = ANY_INT(r[28]);
             ret.push_back(bms);
             break;
         }
@@ -256,27 +259,27 @@ std::vector<pChart> SongDB::findChartByHash(const HashMD5& target)
 {
     LOG_INFO << "[SongDB] Search for song " << target;
 
-    auto result = _inst.query("SELECT * FROM song WHERE MD5=?", 29, { target });
+    auto result = _inst.query("SELECT * FROM song WHERE md5=?", 29, { target });
 
     std::vector<pChart> ret;
     for (const auto& r : result)
     {
-        switch (eChartType(std::any_cast<sqlite3_int64>(r[2])))
+        switch (eChartType(ANY_INT(r[2])))
         {
         case eChartType::BMS:
         {
             auto bms = std::make_shared<BMS>();
-            bms->player = std::any_cast<sqlite3_int64>(r[18]);
-            bms->rank = std::any_cast<sqlite3_int64>(r[19]);
-            bms->total = std::any_cast<sqlite3_int64>(r[20]);
-            bms->playLevel = std::any_cast<sqlite3_int64>(r[21]);
-            bms->difficulty = std::any_cast<sqlite3_int64>(r[22]);
-            bms->haveLN = std::any_cast<sqlite3_int64>(r[23]);
-            bms->haveMine = std::any_cast<sqlite3_int64>(r[24]);
-            bms->haveBarChange = std::any_cast<sqlite3_int64>(r[25]);
-            bms->haveStop = std::any_cast<sqlite3_int64>(r[26]);
-            bms->haveBGA = std::any_cast<sqlite3_int64>(r[27]);
-            bms->haveRandom = std::any_cast<sqlite3_int64>(r[28]);
+            bms->player = ANY_INT(r[18]);
+            bms->rank = ANY_INT(r[19]);
+            bms->total = ANY_INT(r[20]);
+            bms->playLevel = ANY_INT(r[21]);
+            bms->difficulty = ANY_INT(r[22]);
+            bms->haveLN = ANY_INT(r[23]);
+            bms->haveMine = ANY_INT(r[24]);
+            bms->haveBarChange = ANY_INT(r[25]);
+            bms->haveStop = ANY_INT(r[26]);
+            bms->haveBGA = ANY_INT(r[27]);
+            bms->haveRandom = ANY_INT(r[28]);
             ret.push_back(bms);
             break;
         }
@@ -290,37 +293,139 @@ std::vector<pChart> SongDB::findChartByHash(const HashMD5& target)
 
 }
 
-int SongDB::addFolder(const std::string& path)
+int SongDB::addFolder(const std::string& pathstr)
 {
-    // TODO addFolder
+    Path path(pathstr);
+    if (!fs::exists(path))
+    {
+        LOG_WARNING << "[SongDB] Add folder fail: folder not exist (" << pathstr << ")";
+        return 1;
+    }
+    if (!fs::is_directory(path))
+    {
+        LOG_WARNING << "[SongDB] Add folder fail: path is not folder (" << pathstr << ")";
+        return 1;
+    }
+
+    if (isParentPath(executablePath, path))
+    {
+        auto parentHash = _inst.searchFolderParent(path);
+        if (parentHash.empty())
+        {
+            // parent is empty, add with absolute path
+            HashMD5 folderHash = md5(fs::absolute(path).string());
+            if (SQLITE_OK != _inst.exec("INSERT INTO folder VALUES(?,?,?,?,?,?)", {
+                folderHash,
+                nullptr,
+                fs::absolute(path).string(),
+                path.filename(),
+                FOLDER,
+                0}))
+            {
+                LOG_WARNING << "[SongDB] Add folder fail: " << _inst.errmsg() << " (" << path.string() << ")";
+                return 1;
+            }
+
+            // TODO: add files
+        }
+        else
+        {
+            // parent is not empty, add with folder name with parent hash
+            HashMD5 folderHash = md5(path.string());
+            if (SQLITE_OK != _inst.exec("INSERT INTO folder VALUES(?,?,?,?,?,?)", {
+                folderHash,
+                parentHash,
+                path,
+                path.filename(),
+                FOLDER,
+                0}))
+            {
+                LOG_WARNING << "[SongDB] Add folder fail: " << _inst.errmsg() << " (" << path.string() << ")";
+                return 1;
+            }
+
+            // TODO: add files
+        }
+    }
+
     return 0;
 }
 
-int SongDB::removeFolder(const std::string& path)
+
+HashMD5 SongDB::searchFolderParent(const Path& path)
 {
-    // TODO removeFolder
-    return 0;
+    if (!fs::is_directory(path)) return "";
+
+    if (isParentPath(executablePath, path))
+    {
+        auto relative = fs::absolute(path).lexically_relative(executablePath);
+        Path currIteratePath;
+        HashMD5 currIterateHash = ROOT_HASH;
+        for (auto p : relative)
+        {
+            auto result = query("SELECT path,type,removed FROM folder WHERE md5=?", 3, { currIterateHash });
+            if (!result.empty())
+            {
+                for (const auto& leaf : result)
+                    if (ANY_INT(leaf[2]) != 0 && ANY_INT(leaf[1]) == FOLDER)
+                    {
+                        currIteratePath /= p;
+                        currIterateHash = md5(currIteratePath.string());
+                        break;
+                    }
+            }
+            else
+            {
+                LOG_INFO << "[SongDB] Folder parent not found for " << path.string();
+                currIterateHash = "";
+                break;
+            }
+        }
+
+        return currIterateHash;
+    }
+
+    return "";
 }
 
-Path SongDB::getFolderPath(const HashMD5& folder)
+int SongDB::removeFolder(const HashMD5& hash)
 {
-    auto result = _inst.query("SELECT * FROM song WHERE pathmd5=?", 5, { folder });
+    return _inst.exec("UPDATE folder SET removed=1 WHERE md5=?", { hash });
+}
+
+HashMD5 SongDB::getFolderParent(const HashMD5& folder)
+{
+    auto result = _inst.query("SELECT type,parent FROM folder WHERE md5=?", 2, { folder });
     if (!result.empty())
     {
         auto leaf = result[0];
-        Path path = std::any_cast<std::string>(leaf[2]);
-        while (leaf[1].type() == typeid(std::string))
+        if (ANY_INT(leaf[0]) != FOLDER)
         {
-            HashMD5 parent = std::any_cast<std::string>(leaf[1]);
-            if (!parent.empty())
-            {
-                auto more = _inst.query("SELECT * FROM song WHERE pathmd5=?", 5, { parent });
-                auto folder = std::any_cast<std::string>(more[2]);
-                if (!folder.empty()) path = folder / path;
-                leaf = more[0];
-            }
+            LOG_WARNING << "[SongDB] Get folder parent type error: excepted " << FOLDER << ", get " << ANY_INT(leaf[0]) <<
+                " (" << folder << ")";
+            return "";
         }
-        return executablePath / path;
+        return ANY_STR(leaf[1]);
     }
+    LOG_INFO << "[SongDB] Get folder parent fail: target " << folder << " not found";
+    return "";
+}
+
+
+Path SongDB::getFolderPath(const HashMD5& folder)
+{
+    auto result = _inst.query("SELECT type,path FROM folder WHERE md5=?", 2, { folder });
+    if (!result.empty())
+    {
+        auto leaf = result[0];
+        if (ANY_INT(leaf[0]) != FOLDER)
+        {
+            LOG_WARNING << "[SongDB] Get folder path type error: excepted " << FOLDER << ", get " << ANY_INT(leaf[0]) <<
+                " (" << folder << ")";
+            return Path();
+        }
+        return ANY_STR(leaf[1]);
+    }
+    LOG_INFO << "[SongDB] Get folder path fail: target " << folder << " not found";
     return Path();
 }

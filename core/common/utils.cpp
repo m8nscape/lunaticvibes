@@ -33,6 +33,18 @@ std::vector<fs::path> findFiles(fs::path p)
 	return res;
 }
 
+bool isParentPath(fs::path parent, fs::path dir)
+{
+    parent = fs::absolute(parent);
+    dir = fs::absolute(dir);
+
+    if (parent.root_directory() != dir.root_directory())
+        return false;
+
+    auto pair = std::mismatch(dir.begin(), dir.end(), parent.begin(), parent.end());
+    return pair.second == parent.end();
+}
+
 int stoine(const std::string& str) noexcept
 {
     try
@@ -70,7 +82,7 @@ std::pair<unsigned, bool> stoub(const std::string& str)
         return { -1, false };
 }
 
-std::string md5(fs::path filePath)
+std::string md5(const fs::path& filePath)
 {
     unsigned char digest[MD5_DIGEST_LENGTH];
     memset(digest, 0, sizeof(digest));
@@ -95,6 +107,11 @@ std::string md5(fs::path filePath)
         ret += (low  <= 9 ? ('0' + low)  : ('A' - 10 + low));
     }
     return ret;
+}
+
+std::string md5(std::string& str)
+{
+    return md5(str.c_str(), str.length());
 }
 
 std::string md5(const char* str, size_t len)
