@@ -305,6 +305,9 @@
     <ClInclude Include="common\score.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="db\db_mgr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

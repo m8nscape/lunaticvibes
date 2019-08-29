@@ -1,7 +1,5 @@
 #pragma once
-// FIXME: current TOML lib cause internal errors
-#include <yaml-cpp/yaml.h>	// I wonder how the YAML static lib was sized almost about 11MB...
-//#include <cpptoml.h> // From cpptoml
+#include <yaml-cpp/yaml.h>
 #include "types.h"
 //#include <unordered_map>
 
@@ -16,7 +14,6 @@ class vConfig
 protected:
 	StringPath _path;
 	YAML::Node _yaml;
-	//TomlFile _toml;
 
 public:
     vConfig();
@@ -27,33 +24,14 @@ public:
 
 	void load();
 	void save();
-
-    /* TOML get/set
-	template<class Ty_v>
-	inline Ty_v get(const std::string key, const Ty_v value)
-	{
-		auto val = _toml->get_as<Ty_v>(key);
-		if (val)
-		{
-			return *val;
-		}
-		else
-		{
-			throw new key_error(key);
-		}
-	}
-
-	template<class Ty_v>
-	inline void set(const std::string key, const Ty_v value) noexcept
-	{
-		_toml->insert(key, value);
-	}
-    */
     
     template<class Ty_v>
-    inline Ty_v get(const std::string key, const Ty_v fallback) { return _yaml[key].as<Ty_v>(fallback); }
+    inline Ty_v get(const std::string& key, const Ty_v& fallback) { return _yaml[key].as<Ty_v>(fallback); }
+    inline std::string get(const std::string& key, const char* fallback) { return _yaml[key].as<std::string>(std::string(fallback)); }
+
     template<class Ty_v>
-	inline void set(const std::string key, const Ty_v value) noexcept { _yaml[key] = value; } // untested when type mismatch
+	inline void set(const std::string& key, const Ty_v& value) noexcept { _yaml[key] = value; } // untested when type mismatch
+    inline void set(const std::string& key, const char* value) noexcept { _yaml[key] = std::string(value); }
 
 protected:
 

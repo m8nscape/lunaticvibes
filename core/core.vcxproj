@@ -78,6 +78,7 @@
     <ClInclude Include="config\config.h" />
     <ClInclude Include="config\config_mgr.h" />
     <ClInclude Include="db\db_conn.h" />
+    <ClInclude Include="db\db_mgr.h" />
     <ClInclude Include="db\db_score.h" />
     <ClInclude Include="db\db_song.h" />
     <ClInclude Include="game\data\bargraph.h" />

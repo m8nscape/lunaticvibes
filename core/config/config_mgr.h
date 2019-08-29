@@ -21,28 +21,28 @@ public:
 
 public:
     template<class Ty_v>
-    static Ty_v get(const std::string key, const Ty_v fallback)
+    static Ty_v get(const std::string& type, const std::string& key, const Ty_v& fallback)
     {
-        switch (key[0])
+        switch (type[0])
         {
-        case 'A':
-        case 'V': return G.get(key, fallback);
-        case 'P': return P.get(key, fallback);
-        case 'I': return I.get(key, fallback);
-        case 'S': return S.get(key, fallback);
+        case 'A':                               // Audio
+        case 'V': return G.get(key, fallback);  // Video
+        case 'P': return P.get(key, fallback);  // Play
+        case 'I': return I.get(key, fallback);  // Input
+        case 'S': return S.get(key, fallback);  // Skin
         default:  return Ty_v(); break;
         }
     }
     template<class Ty_v>
-    static void set(const std::string key, const Ty_v value) noexcept
+    static void set(const std::string& type, const std::string& key, const Ty_v& value) noexcept
     {
-        switch (key[0])
+        switch (type[0])
         {
-        case 'A':
-        case 'V': return G.set(key, value);
-        case 'P': return P.set(key, value);
-        case 'I': return I.set(key, value);
-        case 'S': return S.set(key, value);
+        case 'A':                               // Audio
+        case 'V': return G.set(key, value);     // Video
+        case 'P': return P.set(key, value);     // Play
+        case 'I': return I.set(key, value);     // Input
+        case 'S': return S.set(key, value);     // Skin
         default:  return Ty_v(); break;
         }
     }

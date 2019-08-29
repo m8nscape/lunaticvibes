@@ -58,6 +58,7 @@
   <ItemGroup>
     <ClCompile Include="common\test_fraction.cpp" />
     <ClCompile Include="game\test_graphics.cpp" />
+    <ClCompile Include="test_config.cpp" />
     <ClCompile Include="test_main.cpp" />
   </ItemGroup>
   <ItemGroup>
