@@ -49,60 +49,60 @@ bga         INTEGER                     ,   \
 random      INTEGER                         \
 )";
 
-SongDB::SongDB() : SQLite("song.db", "SONG")
+SongDB::SongDB(const char* path) : SQLite(path, "SONG")
 {
-    if (_inst.exec(CREATE_FOLDER_TABLE_STR) != SQLITE_OK)
+    if (exec(CREATE_FOLDER_TABLE_STR) != SQLITE_OK)
     {
-        LOG_ERROR << "[SongDB] Create table folder ERROR! " << _inst.errmsg();
+        LOG_ERROR << "[SongDB] Create table folder ERROR! " << errmsg();
         abort();
     }
-    if (_inst.query("SELECT parent FROM folder WHERE md5=?", 1, { ROOT_HASH }).empty())
+    if (query("SELECT parent FROM folder WHERE md5=?", 1, { ROOT_HASH }).empty())
     {
-        if (_inst.exec("INSERT INTO folder VALUES(?,?,?,?,?", { ROOT_HASH, nullptr, "", 0, 0 }))
+        if (exec("INSERT INTO folder VALUES(?,?,?,?,?", { ROOT_HASH, nullptr, "", 0, 0 }))
         {
-            LOG_ERROR << "[SongDB] Insert root folder to table ERROR! " << _inst.errmsg();
+            LOG_ERROR << "[SongDB] Insert root folder to table ERROR! " << errmsg();
             abort();
         }
     }
     
 
-    if (_inst.exec(CREATE_SONG_TABLE_STR) != SQLITE_OK)
+    if (exec(CREATE_SONG_TABLE_STR) != SQLITE_OK)
     {
-        LOG_ERROR << "[SongDB] Create table song ERROR! " << _inst.errmsg();
+        LOG_ERROR << "[SongDB] Create table song ERROR! " << errmsg();
         abort();
     }
 
-    if (_inst.exec("CREATE INDEX IF NOT EXISTS index_parent ON folder(parent)") != SQLITE_OK)
+    if (exec("CREATE INDEX IF NOT EXISTS index_parent ON folder(parent)") != SQLITE_OK)
     {
-        LOG_ERROR << "[SongDB] Create parent index for folder ERROR! " << _inst.errmsg();
+        LOG_ERROR << "[SongDB] Create parent index for folder ERROR! " << errmsg();
     }
-    if (_inst.exec("CREATE INDEX IF NOT EXISTS index_folder ON song(folder)") != SQLITE_OK)
+    if (exec("CREATE INDEX IF NOT EXISTS index_folder ON song(folder)") != SQLITE_OK)
     {
-        LOG_ERROR << "[SongDB] Create folder index for song ERROR! " << _inst.errmsg();
+        LOG_ERROR << "[SongDB] Create folder index for song ERROR! " << errmsg();
     }
-    if (_inst.exec("CREATE INDEX IF NOT EXISTS index_search ON song(title)") != SQLITE_OK)
+    if (exec("CREATE INDEX IF NOT EXISTS index_search1 ON song(title)") != SQLITE_OK)
     {
-        LOG_ERROR << "[SongDB] Create search index for song ERROR! " << _inst.errmsg();
+        LOG_ERROR << "[SongDB] Create search index for song ERROR! " << errmsg();
     }
-    if (_inst.exec("CREATE INDEX IF NOT EXISTS index_search ON song(title2)") != SQLITE_OK)
+    if (exec("CREATE INDEX IF NOT EXISTS index_searc2h ON song(title2)") != SQLITE_OK)
     {
-        LOG_ERROR << "[SongDB] Create search index for song ERROR! " << _inst.errmsg();
+        LOG_ERROR << "[SongDB] Create search index for song ERROR! " << errmsg();
     }
-    if (_inst.exec("CREATE INDEX IF NOT EXISTS index_search ON song(artist)") != SQLITE_OK)
+    if (exec("CREATE INDEX IF NOT EXISTS index_search3 ON song(artist)") != SQLITE_OK)
     {
-        LOG_ERROR << "[SongDB] Create search index for song ERROR! " << _inst.errmsg();
+        LOG_ERROR << "[SongDB] Create search index for song ERROR! " << errmsg();
     }
-    if (_inst.exec("CREATE INDEX IF NOT EXISTS index_search ON song(artist2)") != SQLITE_OK)
+    if (exec("CREATE INDEX IF NOT EXISTS index_search4 ON song(artist2)") != SQLITE_OK)
     {
-        LOG_ERROR << "[SongDB] Create search index for song ERROR! " << _inst.errmsg();
+        LOG_ERROR << "[SongDB] Create search index for song ERROR! " << errmsg();
     }
-    if (_inst.exec("CREATE INDEX IF NOT EXISTS index_search ON song(genre)") != SQLITE_OK)
+    if (exec("CREATE INDEX IF NOT EXISTS index_search5 ON song(genre)") != SQLITE_OK)
     {
-        LOG_ERROR << "[SongDB] Create search index for song ERROR! " << _inst.errmsg();
+        LOG_ERROR << "[SongDB] Create search index for song ERROR! " << errmsg();
     }
-    if (_inst.exec("CREATE INDEX IF NOT EXISTS index_search ON song(version)") != SQLITE_OK)
+    if (exec("CREATE INDEX IF NOT EXISTS index_search6 ON song(version)") != SQLITE_OK)
     {
-        LOG_ERROR << "[SongDB] Create search index for song ERROR! " << _inst.errmsg();
+        LOG_ERROR << "[SongDB] Create search index for song ERROR! " << errmsg();
     }
 
 }
@@ -209,19 +209,36 @@ auto convert_basic(pChart chart, const std::vector<std::any>& in)
 
 
 // search from genre, version, artist, artist2, title, title2
-std::vector<pChart> SongDB::findChartByName(const HashMD5& folder, const std::string& tag)
+std::vector<pChart> SongDB::findChartByName(const HashMD5& folder, const std::string& tag, unsigned limit) const
 {
     LOG_INFO << "[SongDB] Search for songs matching: " << tag;
 
-    auto result = _inst.query("SELECT * FROM song WHERE \
+    decltype(query("", {})) result;
+    if (limit > 0)
+    {
+        result = query("SELECT * FROM song WHERE \
 folder=? AND \
 INSTR(title, ?) != 0 OR \
 INSTR(title2, ?) OR \
 INSTR(artist, ?) != 0 OR \
 INSTR(artist2, ?) OR \
 INSTR(genre, ?) != 0 OR \
-INSTR(version, ?)",
-29, { folder, tag, tag, tag, tag, tag, tag });
+INSTR(version, ?) \
+LIMIT ?",
+29, { folder, tag, tag, tag, tag, tag, tag, limit });
+    }
+    else
+    {
+        result = query("SELECT * FROM song WHERE \
+folder=? AND \
+INSTR(title, ?) != 0 OR \
+INSTR(title2, ?) OR \
+INSTR(artist, ?) != 0 OR \
+INSTR(artist2, ?) OR \
+INSTR(genre, ?) != 0 OR \
+INSTR(version, ?)", 
+29, { folder, tag, tag, tag, tag, tag, tag});
+    }
 
     std::vector<pChart> ret;
     for (const auto& r : result)
@@ -255,11 +272,11 @@ INSTR(version, ?)",
 }
 
 // chart may duplicate, return all found
-std::vector<pChart> SongDB::findChartByHash(const HashMD5& target)
+std::vector<pChart> SongDB::findChartByHash(const HashMD5& target) const
 {
     LOG_INFO << "[SongDB] Search for song " << target;
 
-    auto result = _inst.query("SELECT * FROM song WHERE md5=?", 29, { target });
+    auto result = query("SELECT * FROM song WHERE md5=?", 29, { target });
 
     std::vector<pChart> ret;
     for (const auto& r : result)
@@ -309,12 +326,12 @@ int SongDB::addFolder(const std::string& pathstr)
 
     if (isParentPath(executablePath, path))
     {
-        auto parentHash = _inst.searchFolderParent(path);
+        auto parentHash = searchFolderParent(path);
         if (parentHash.empty())
         {
             // parent is empty, add with absolute path
             HashMD5 folderHash = md5(fs::absolute(path).string());
-            if (SQLITE_OK != _inst.exec("INSERT INTO folder VALUES(?,?,?,?,?,?)", {
+            if (SQLITE_OK != exec("INSERT INTO folder VALUES(?,?,?,?,?,?)", {
                 folderHash,
                 nullptr,
                 fs::absolute(path).string(),
@@ -322,7 +339,7 @@ int SongDB::addFolder(const std::string& pathstr)
                 FOLDER,
                 0}))
             {
-                LOG_WARNING << "[SongDB] Add folder fail: " << _inst.errmsg() << " (" << path.string() << ")";
+                LOG_WARNING << "[SongDB] Add folder fail: " << errmsg() << " (" << path.string() << ")";
                 return 1;
             }
 
@@ -332,7 +349,7 @@ int SongDB::addFolder(const std::string& pathstr)
         {
             // parent is not empty, add with folder name with parent hash
             HashMD5 folderHash = md5(path.string());
-            if (SQLITE_OK != _inst.exec("INSERT INTO folder VALUES(?,?,?,?,?,?)", {
+            if (SQLITE_OK != exec("INSERT INTO folder VALUES(?,?,?,?,?,?)", {
                 folderHash,
                 parentHash,
                 path,
@@ -340,7 +357,7 @@ int SongDB::addFolder(const std::string& pathstr)
                 FOLDER,
                 0}))
             {
-                LOG_WARNING << "[SongDB] Add folder fail: " << _inst.errmsg() << " (" << path.string() << ")";
+                LOG_WARNING << "[SongDB] Add folder fail: " << errmsg() << " (" << path.string() << ")";
                 return 1;
             }
 
@@ -352,7 +369,7 @@ int SongDB::addFolder(const std::string& pathstr)
 }
 
 
-HashMD5 SongDB::searchFolderParent(const Path& path)
+HashMD5 SongDB::searchFolderParent(const Path& path) const
 {
     if (!fs::is_directory(path)) return "";
 
@@ -390,12 +407,12 @@ HashMD5 SongDB::searchFolderParent(const Path& path)
 
 int SongDB::removeFolder(const HashMD5& hash)
 {
-    return _inst.exec("UPDATE folder SET removed=1 WHERE md5=?", { hash });
+    return exec("UPDATE folder SET removed=1 WHERE md5=?", { hash });
 }
 
-HashMD5 SongDB::getFolderParent(const HashMD5& folder)
+HashMD5 SongDB::getFolderParent(const HashMD5& folder) const
 {
-    auto result = _inst.query("SELECT type,parent FROM folder WHERE md5=?", 2, { folder });
+    auto result = query("SELECT type,parent FROM folder WHERE md5=?", 2, { folder });
     if (!result.empty())
     {
         auto leaf = result[0];
@@ -412,9 +429,9 @@ HashMD5 SongDB::getFolderParent(const HashMD5& folder)
 }
 
 
-Path SongDB::getFolderPath(const HashMD5& folder)
+Path SongDB::getFolderPath(const HashMD5& folder) const
 {
-    auto result = _inst.query("SELECT type,path FROM folder WHERE md5=?", 2, { folder });
+    auto result = query("SELECT type,path FROM folder WHERE md5=?", 2, { folder });
     if (!result.empty())
     {
         auto leaf = result[0];

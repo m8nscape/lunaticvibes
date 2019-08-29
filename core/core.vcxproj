@@ -30,6 +30,7 @@
     <ClCompile Include="config\cfg_skin.cpp" />
     <ClCompile Include="config\config.cpp" />
     <ClCompile Include="db\db_conn.cpp" />
+    <ClCompile Include="db\db_score.cpp" />
     <ClCompile Include="db\db_song.cpp" />
     <ClCompile Include="game\graphics\SDL2\common_SDL2.cpp" />
     <ClCompile Include="game\graphics\SDL2\rect_SDL2.cpp" />
@@ -65,6 +66,7 @@
     <ClInclude Include="common\chart\bms.h" />
     <ClInclude Include="common\chart\chart.h" />
     <ClInclude Include="common\chart\chart_types.h" />
+    <ClInclude Include="common\score.h" />
     <ClInclude Include="common\fraction.h" />
     <ClInclude Include="common\meta.h" />
     <ClInclude Include="common\types.h" />
@@ -76,6 +78,7 @@
     <ClInclude Include="config\config.h" />
     <ClInclude Include="config\config_mgr.h" />
     <ClInclude Include="db\db_conn.h" />
+    <ClInclude Include="db\db_score.h" />
     <ClInclude Include="db\db_song.h" />
     <ClInclude Include="game\data\bargraph.h" />
     <ClInclude Include="game\data\buffered_global.h" />

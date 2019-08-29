@@ -65,7 +65,7 @@ public:
     BMS();
     BMS(const Path& absolutePath);
     std::string getError();
-    int initWithPathParam();
+    int initWithPathParam(const SongDB& db);
 
 protected:
     int initWithFile(const Path& absolutePath);

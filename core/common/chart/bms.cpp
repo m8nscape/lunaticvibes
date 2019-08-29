@@ -50,12 +50,12 @@ BMS::BMS(const Path& file) {
     initWithFile(file);
 }
 
-int BMS::initWithPathParam()
+int BMS::initWithPathParam(const SongDB& db)
 {
     if (_filePath.is_absolute())
         _absolutePath = _filePath;
     else
-        _absolutePath = SongDB::getFolderPath(_folderHash) / _filePath;
+        _absolutePath = db.getFolderPath(_folderHash) / _filePath;
 
     return initWithFile(_absolutePath);
 }

@@ -26,8 +26,6 @@ typedef std::shared_ptr<vChart> pChart;
 */
 class SongDB: public SQLite
 {
-private:
-    static SongDB _inst;
 public:
     enum FolderType
     {
@@ -35,8 +33,9 @@ public:
         SONG_BMS,
     };
 
-private:
-    SongDB();
+public:
+    SongDB() = delete;
+    SongDB(const char* path);
     ~SongDB() = default;
     SongDB(SongDB&) = delete;
     SongDB& operator= (SongDB&) = delete;
@@ -45,18 +44,18 @@ protected:
     int addChart(const std::string& path);
     int removeChart(const HashMD5& md5);
     
-    HashMD5 searchFolderParent(const Path& path);
-    HashMD5 searchFolderHash(const Path& path);
+    HashMD5 searchFolderParent(const Path& path) const;
+    HashMD5 searchFolderHash(const Path& path) const;
     
 
 public:
-    static std::vector<pChart> findChartByName(const HashMD5& folder, const std::string&);  // search from genre, version, artist, artist2, title, title2
-    static std::vector<pChart> findChartByHash(const HashMD5&);  // chart may duplicate
+    std::vector<pChart> findChartByName(const HashMD5& folder, const std::string&, unsigned limit = 1000) const;  // search from genre, version, artist, artist2, title, title2
+    std::vector<pChart> findChartByHash(const HashMD5&) const;  // chart may duplicate
 
-    static int addFolder(const std::string& path);
-    static int removeFolder(const HashMD5& hash);
+    int addFolder(const std::string& path);
+    int removeFolder(const HashMD5& hash);
 
-    static HashMD5 getFolderParent(const HashMD5& folder);
-    static Path getFolderPath(const HashMD5& folder);
+    HashMD5 getFolderParent(const HashMD5& folder) const;
+    Path getFolderPath(const HashMD5& folder) const;
 
 };
