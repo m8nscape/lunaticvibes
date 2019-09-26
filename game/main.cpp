@@ -22,6 +22,7 @@
 #pragma comment(lib, "winmm.lib")
 #endif //WIN32
 
+bool __event_quit;
 GenericInfoUpdater __ginfo{ 1 };
 
 void mainLoop()
@@ -29,7 +30,7 @@ void mainLoop()
     eScene currentScene = __next_scene;
     auto scene = SceneMgr::get(currentScene);
 	__ginfo.loopStart();
-    while (currentScene != eScene::EXIT)
+    while (!__event_quit && currentScene != eScene::EXIT)
     {
         // Evenet handling
         event_handle();
