@@ -3,6 +3,9 @@
 
 namespace Input
 {
+    const std::size_t MAX_JOYSTICK_COUNT = 8;
+    const std::size_t MAX_BINDINGS_PER_KEY = 10;
+
     enum Ingame
     {
         S1L = 0,
@@ -209,7 +212,7 @@ namespace Input
 
     const std::string keyNameMap[0xFF]
     {
-        "ERROR",
+        "",             // ERROR
 
         "ESC",
 
@@ -279,7 +282,7 @@ namespace Input
         "PRTSC",
         "LALT",
         "Space",
-        "CAPSLOCK",
+        "CapsLock",
 
         // 0x3b
         "F1",
@@ -292,8 +295,8 @@ namespace Input
         "F8",
         "F9",
         "F10",
-        "NUMLOCK",
-        "SCROLLLOCK",
+        "NumLock",
+        "ScrollLock",
 
         // 0x47
         "Numpad7",
@@ -318,7 +321,7 @@ namespace Input
         "F14",
         "F15",
 
-        "PAUSE",
+        "Pause",
         "INS",
         "DEL",
         "HOME",
@@ -339,4 +342,13 @@ namespace Input
         "JP_CHANGE",
         "JP_HIRAGANA",
     };
+
+    inline Key getByName(const std::string& name)
+    {
+        for (size_t i = 0; i < 0xFF; ++i)
+            if (name == keyNameMap[i])
+                return static_cast<Key>(i);
+
+        return Key::K_ERROR;
+    }
 }
