@@ -2,7 +2,7 @@
 #include "config.h"
 
 // Stores in player folder
-inline const StringPath CONFIG_FILE_PROFILE = "profile.yml";
+inline const StringPath CONFIG_FILE_PROFILE = "profile.yml"_p;
 
 namespace cfg
 {
@@ -141,8 +141,10 @@ namespace cfg
 class ConfigProfile : public vConfig
 {
 public:
-    ConfigProfile();
-    virtual ~ConfigProfile();
+    ConfigProfile(const std::string& profile) : vConfig(profile, CONFIG_FILE_PROFILE) {}
+    virtual ~ConfigProfile() = default;
 
+    std::string getName() const;
+    void rename(const std::string& name);
     virtual void setDefaults() noexcept override;
 };

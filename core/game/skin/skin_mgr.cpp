@@ -20,12 +20,12 @@ void SkinMgr::load(eMode e)
     {
     case eMode::PLAY7:
         skinFileDefault = cfg::S_DEFAULT_PATH_PLAY_7;
-        skinFile = ConfigMgr::S.get(cfg::S_PATH_PLAY_7, cfg::S_DEFAULT_PATH_PLAY_7);
+        skinFile = ConfigMgr::S.get(cfg::S_PATH_PLAY_7, Path(cfg::S_DEFAULT_PATH_PLAY_7).generic_string());
         break;
 
     case eMode::RESULT:
         skinFileDefault = cfg::S_DEFAULT_PATH_RESULT;
-        skinFile = ConfigMgr::S.get(cfg::S_PATH_RESULT, cfg::S_DEFAULT_PATH_RESULT);
+        skinFile = ConfigMgr::S.get(cfg::S_PATH_RESULT, Path(cfg::S_DEFAULT_PATH_RESULT).generic_string());
         break;
     }
 

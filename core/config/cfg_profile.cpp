@@ -1,12 +1,24 @@
+#include <plog/Log.h>
+#include <filesystem>
+#include <fstream>
 #include "cfg_profile.h"
 
-ConfigProfile::ConfigProfile() : vConfig(CONFIG_FILE_PROFILE) {}
-ConfigProfile::~ConfigProfile() {}
+namespace fs = std::filesystem;
+
+std::string ConfigProfile::getName() const
+{
+    return _yaml[cfg::P_PLAYERNAME].as<std::string>("Unnamed"); 
+}
+void ConfigProfile::rename(const std::string& name)
+{
+    using namespace cfg;
+    _yaml[P_PLAYERNAME] = name;
+}
 
 void ConfigProfile::setDefaults() noexcept
 {
     using namespace cfg;
-    _yaml[P_PLAYERNAME] = "Unnamed";
+    //_yaml[P_PLAYERNAME] = "Unnamed";
     _yaml[P_BASESPEED] = 1.0;
     _yaml[P_HISPEED] = 1.0;
     _yaml[P_REGULAR_SPEED] = 1200;

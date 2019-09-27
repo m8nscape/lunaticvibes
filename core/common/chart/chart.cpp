@@ -6,21 +6,21 @@
 
 std::shared_ptr<vChart> vChart::getFromFile(const Path& path)
 {
-    StringPath filePath = fs::absolute(path).string();
+    Path filePath = fs::absolute(path);
     std::ifstream fs(filePath);
     if (fs.fail())
     {
-        LOG_WARNING << "[Chart] File invalid: " << filePath;
+        LOG_WARNING << "[Chart] File invalid: " << filePath.generic_string();
         return nullptr;
     }
 
     // dispatch Chart object upon filename extension
-    if (std::regex_match(filePath, std::regex(R"(.*\.(bms|bme|bml|pms)$)", std::regex::icase)))
+    if (std::regex_match(filePath.generic_string(), std::regex(R"(.*\.(bms|bme|bml|pms)$)", std::regex::icase)))
     {
         return std::make_shared<BMS>(filePath);
     }
 
-    LOG_WARNING << "[Chart] File type unknown: " << filePath;
+    LOG_WARNING << "[Chart] File type unknown: " << filePath.generic_string();
     return nullptr;
 }
 

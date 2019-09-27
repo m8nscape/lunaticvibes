@@ -2,12 +2,12 @@
 #include "config.h"
 #include "game/input/input_keys.h"
 
-inline const StringPath CONFIG_FILE_INPUT_5 = "input5.yml";
-inline const StringPath CONFIG_FILE_INPUT_7 = "input7.yml";
-inline const StringPath CONFIG_FILE_INPUT_9 = "input9.yml";
-inline const StringPath CONFIG_FILE_INPUT_DEFAULT_5 = "default5.yml";
-inline const StringPath CONFIG_FILE_INPUT_DEFAULT_7 = "default7.yml";
-inline const StringPath CONFIG_FILE_INPUT_DEFAULT_9 = "default9.yml";
+inline const StringPath CONFIG_FILE_INPUT_5 = "input5.yml"_p;
+inline const StringPath CONFIG_FILE_INPUT_7 = "input7.yml"_p;
+inline const StringPath CONFIG_FILE_INPUT_9 = "input9.yml"_p;
+inline const StringPath CONFIG_FILE_INPUT_DEFAULT_5 = "default5.yml"_p;
+inline const StringPath CONFIG_FILE_INPUT_DEFAULT_7 = "default7.yml"_p;
+inline const StringPath CONFIG_FILE_INPUT_DEFAULT_9 = "default9.yml"_p;
 
 namespace cfg
 {
@@ -56,7 +56,7 @@ private:
     YAML::Node blank_binding;
 public:
     ConfigInput() = delete;
-    ConfigInput(unsigned k);
+    ConfigInput(const std::string& profile, unsigned k);
     virtual ~ConfigInput();
 
     virtual void setDefaults() noexcept override;

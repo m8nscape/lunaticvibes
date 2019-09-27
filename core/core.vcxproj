@@ -29,6 +29,7 @@
     <ClCompile Include="config\cfg_profile.cpp" />
     <ClCompile Include="config\cfg_skin.cpp" />
     <ClCompile Include="config\config.cpp" />
+    <ClCompile Include="config\config_mgr.cpp" />
     <ClCompile Include="db\db_conn.cpp" />
     <ClCompile Include="db\db_score.cpp" />
     <ClCompile Include="db\db_song.cpp" />

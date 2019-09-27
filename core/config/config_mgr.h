@@ -5,21 +5,23 @@
 #include "cfg_skin.h"
 #include <string>
 
+inline const std::string PROFILE_DEFAULT = "default";
+
 class ConfigMgr
 {
 public:
-    static inline ConfigGeneral     G;
-    static inline ConfigProfile     P;
-    static inline ConfigInput       I5{5};
-    static inline ConfigInput       I7{7};
-    static inline ConfigInput       I9{9};
-    static inline ConfigSkin        S;
+    static inline ConfigGeneral     G{PROFILE_DEFAULT};
+    static inline ConfigProfile     P{PROFILE_DEFAULT};
+    static inline ConfigInput       I5{PROFILE_DEFAULT, 5};
+    static inline ConfigInput       I7{PROFILE_DEFAULT, 7};
+    static inline ConfigInput       I9{PROFILE_DEFAULT, 9};
+    static inline ConfigSkin        S{PROFILE_DEFAULT};
 
 public:
-    static void selectProfile(std::string name);
     static inline void init() { G.setDefaults(); P.setDefaults(); I5.setDefaults(); I7.setDefaults(); I9.setDefaults(); S.setDefaults(); }
-    static inline void load() { G.load(); P.load(); I5.load(); I7.load(); I9.load(); S.setDefaults(); }
-    static inline void save() { G.save(); P.save(); I5.save(); I7.save(); I9.save(); S.setDefaults(); }
+    static inline void load() { G.load(); P.load(); I5.load(); I7.load(); I9.load(); S.load(); }
+    static inline void save() { G.save(); P.save(); I5.save(); I7.save(); I9.save(); S.save(); }
+    static int selectProfile(const std::string& name);
 
 public:
     template<class Ty_v>

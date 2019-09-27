@@ -1,7 +1,7 @@
 #pragma once
 #include "config.h"
 
-inline const StringPath CONFIG_FILE_GENERAL = "config.yml";
+inline const StringPath CONFIG_FILE_GENERAL = "config.yml"_p;
 
 namespace cfg {
 
@@ -71,8 +71,8 @@ namespace cfg {
 class ConfigGeneral: public vConfig
 {
 public:
-	ConfigGeneral();
-	virtual ~ConfigGeneral();
+    ConfigGeneral(const std::string& profile) : vConfig(profile, CONFIG_FILE_GENERAL) {}
+    virtual ~ConfigGeneral() = default;
 
 	virtual void setDefaults() noexcept override;
 };

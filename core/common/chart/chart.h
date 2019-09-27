@@ -51,12 +51,12 @@ public:
     int _totalLength_sec;
     int _totalnotes;
 
-    StringPath _BG;
-    StringPath _banner;
+    StringContent _BG;
+    StringContent _banner;
 
-    StringPath _text1;
-    StringPath _text2;
-    StringPath _text3;
+    StringContent _text1;
+    StringContent _text2;
+    StringContent _text3;
 
     BPM _minBPM = INFINITY;
     BPM _maxBPM = 0.0;
@@ -64,8 +64,8 @@ public:
 
 // following fields are filled during loading
 public:
-    std::vector<StringPath> _wavFiles;
-    std::vector<StringPath> _bgaFiles;
+    std::vector<StringContent> _wavFiles;
+    std::vector<StringContent> _bgaFiles;
 
     std::vector<Note> _BPMs;
     std::vector<Beat> _measureLength;

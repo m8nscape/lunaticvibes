@@ -1,13 +1,5 @@
 #include "cfg_general.h"
 
-ConfigGeneral::ConfigGeneral() : vConfig(CONFIG_FILE_GENERAL)
-{
-}
-
-ConfigGeneral::~ConfigGeneral()
-{
-}
-
 void ConfigGeneral::setDefaults() noexcept
 {
     using namespace cfg;

@@ -1,8 +1,8 @@
 #include <plog/Log.h>
 #include "cfg_input.h"
 
-ConfigInput::ConfigInput(unsigned k) : keys(k),
-    vConfig((k == 5 ? CONFIG_FILE_INPUT_5 : (k == 7 ? CONFIG_FILE_INPUT_7 : (k == 9 ? CONFIG_FILE_INPUT_9 : "")))) 
+ConfigInput::ConfigInput(const std::string& profile, unsigned k) : keys(k),
+    vConfig(profile, (k == 5 ? CONFIG_FILE_INPUT_5 : (k == 7 ? CONFIG_FILE_INPUT_7 : (k == 9 ? CONFIG_FILE_INPUT_9 : ""_p)))) 
 {
     for (int i = 0; i < Input::MAX_BINDINGS_PER_KEY; ++i) blank_binding.push_back(cfg::I_NOTBOUND);
 }
@@ -15,14 +15,14 @@ void ConfigInput::setDefaults() noexcept
     _yaml.reset();
     clearAll();
 
-    std::string path;
+    StringPath path;
     path =
         keys == 5 ? CONFIG_FILE_INPUT_DEFAULT_5 :
         keys == 7 ? CONFIG_FILE_INPUT_DEFAULT_7 :
-        keys == 9 ? CONFIG_FILE_INPUT_DEFAULT_9 : "";
+        keys == 9 ? CONFIG_FILE_INPUT_DEFAULT_9 : ""_p;
     try
     {
-        _yaml = YAML::LoadFile(path);
+        _yaml = YAML::LoadFile(Path(path).generic_string());
     }
     catch (YAML::BadFile&)
     {
