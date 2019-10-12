@@ -12,7 +12,7 @@ namespace cfg
 
     inline const StringContent P_HISPEED = "Hispeed";
 
-    inline const StringContent P_REGULAR_SPEED = "GreenNbr";           // 0.1f in 60fps, iidx style
+    inline const StringContent P_REGULAR_SPEED = "RegularSpeed";           // 0.1f in 60fps
 
     inline const StringContent P_SPEED_TYPE = "SpeedType";
     inline const StringContent P_SPEED_TYPE_NORMAL = "Normal";
@@ -66,9 +66,9 @@ namespace cfg
     inline const StringContent P_JUDGE_POS_X = "JudgePositionOffsetX";
     inline const StringContent P_JUDGE_POS_Y = "JudgePositionOffsetY";
 
-    inline const StringContent P_DISPLAY_LATENCY = "DisplayLatency";
+    inline const StringContent P_DISPLAY_OFFSET = "DisplayOffset";
 
-    inline const StringContent P_JUDGE_LATENCY = "JudgeLatency";
+    inline const StringContent P_JUDGE_OFFSET = "JudgeOffset";
 
     inline const StringContent P_JUDGE_STAT = "JudgeStatistics";       // off, on
 

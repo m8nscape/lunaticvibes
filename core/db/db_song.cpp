@@ -1,3 +1,5 @@
+#include <set>
+#include <regex>
 #include "utils.h"
 #include "db_song.h"
 #include "plog/Log.h"
@@ -218,11 +220,11 @@ std::vector<pChart> SongDB::findChartByName(const HashMD5& folder, const std::st
     {
         result = query("SELECT * FROM song WHERE \
 folder=? AND \
-INSTR(title, ?) != 0 OR \
+INSTR(title, ?) OR \
 INSTR(title2, ?) OR \
-INSTR(artist, ?) != 0 OR \
+INSTR(artist, ?) OR \
 INSTR(artist2, ?) OR \
-INSTR(genre, ?) != 0 OR \
+INSTR(genre, ?) OR \
 INSTR(version, ?) \
 LIMIT ?",
 29, { folder, tag, tag, tag, tag, tag, tag, limit });
@@ -231,11 +233,11 @@ LIMIT ?",
     {
         result = query("SELECT * FROM song WHERE \
 folder=? AND \
-INSTR(title, ?) != 0 OR \
+INSTR(title, ?) OR \
 INSTR(title2, ?) OR \
-INSTR(artist, ?) != 0 OR \
+INSTR(artist, ?) OR \
 INSTR(artist2, ?) OR \
-INSTR(genre, ?) != 0 OR \
+INSTR(genre, ?) OR \
 INSTR(version, ?)", 
 29, { folder, tag, tag, tag, tag, tag, tag});
     }
@@ -326,50 +328,89 @@ int SongDB::addFolder(const std::string& pathstr)
 
     if (isParentPath(executablePath, path))
     {
-        auto parentHash = searchFolderParent(path);
+        auto parentHash = searchFolderParentFromPath(path);
+        HashMD5 folderHash;
         if (parentHash.empty())
         {
             // parent is empty, add with absolute path
-            HashMD5 folderHash = md5(fs::absolute(path).string());
-            if (SQLITE_OK != exec("INSERT INTO folder VALUES(?,?,?,?,?,?)", {
+            folderHash = md5(fs::absolute(path).string());
+            if (addFolderContent(path) > 0)
+            {
+                if (SQLITE_OK != exec("INSERT INTO folder VALUES(?,?,?,?,?,?)", {
                 folderHash,
                 nullptr,
                 fs::absolute(path).string(),
                 path.filename(),
                 FOLDER,
-                0}))
-            {
-                LOG_WARNING << "[SongDB] Add folder fail: " << errmsg() << " (" << path.string() << ")";
-                return 1;
+                0 }))
+                {
+                    LOG_WARNING << "[SongDB] Add folder fail: " << errmsg() << " (" << path.string() << ")";
+                    return 1;
+                }
             }
-
-            // TODO: add files
+            else 
+            {
+                return 2;
+            }
         }
         else
         {
             // parent is not empty, add with folder name with parent hash
-            HashMD5 folderHash = md5(path.string());
-            if (SQLITE_OK != exec("INSERT INTO folder VALUES(?,?,?,?,?,?)", {
+            folderHash = md5(path.string());
+            if (addFolderContent(path) > 0)
+            {
+                if (SQLITE_OK != exec("INSERT INTO folder VALUES(?,?,?,?,?,?)", {
                 folderHash,
                 parentHash,
                 path,
                 path.filename(),
                 FOLDER,
-                0}))
-            {
-                LOG_WARNING << "[SongDB] Add folder fail: " << errmsg() << " (" << path.string() << ")";
-                return 1;
+                0 }))
+                {
+                    LOG_WARNING << "[SongDB] Add folder fail: " << errmsg() << " (" << path.string() << ")";
+                    return 1;
+                }
             }
-
-            // TODO: add files
+            else 
+            {
+                return 2;
+            }
         }
     }
 
     return 0;
 }
 
+int SongDB::addFolderContent(const Path& folder)
+{
+    int count = 0;
+    auto files = findFiles(folder / "*");
 
-HashMD5 SongDB::searchFolderParent(const Path& path) const
+    bool isSongFolder = false;
+    for (auto& f : files)
+    {
+        if (fs::is_regular_file(f) && matchChartType(f) != eChartType::UNKNOWN)
+            isSongFolder = true;
+    }
+
+    for (const auto& f : files)
+    {
+        if (!isSongFolder && fs::is_directory(f))
+        {
+            if (0 == addFolder(f.string()))
+                ++count;
+        }
+        else if (isSongFolder && fs::is_regular_file(f) && matchChartType(f) != eChartType::UNKNOWN)
+        {
+            if (0 == addChart(f.string()))
+                ++count;
+        }
+    }
+    return count;
+}
+
+
+HashMD5 SongDB::searchFolderParentFromPath(const Path& path) const
 {
     if (!fs::is_directory(path)) return "";
 
@@ -429,7 +470,7 @@ HashMD5 SongDB::getFolderParent(const HashMD5& folder) const
 }
 
 
-Path SongDB::getFolderPath(const HashMD5& folder) const
+Path SongDB::getFolderPathFromHash(const HashMD5& folder) const
 {
     auto result = query("SELECT type,path FROM folder WHERE md5=?", 2, { folder });
     if (!result.empty())

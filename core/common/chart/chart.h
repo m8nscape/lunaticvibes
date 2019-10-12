@@ -1,4 +1,5 @@
 #pragma once
+#include <regex>
 #include <vector>
 #include <numeric>
 #include <memory>
@@ -15,6 +16,9 @@ enum class eChartType
     BMS,
     BMSON,
 };
+inline const std::regex regexFileExtBMS{ R"(\.(bms|bme|bml|pms)$)", std::regex::icase };
+inline const std::regex regexFileExtBMSON{ R"(\.(bmson)$)", std::regex::icase };
+eChartType matchChartType(const Path& p);
 
 class vChart
 {

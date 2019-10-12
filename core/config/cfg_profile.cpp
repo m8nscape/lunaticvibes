@@ -31,8 +31,8 @@ void ConfigProfile::setDefaults() noexcept
     _yaml[P_COMBO_POS_Y] = 0;
     _yaml[P_JUDGE_POS_X] = 0;
     _yaml[P_JUDGE_POS_Y] = 0;
-    _yaml[P_DISPLAY_LATENCY] = 0;
-    _yaml[P_JUDGE_LATENCY] = 0;
+    _yaml[P_DISPLAY_OFFSET] = 0;
+    _yaml[P_JUDGE_OFFSET] = 0;
     _yaml[P_JUDGE_STAT] = OFF;
     _yaml[P_GHOST_TYPE] = OFF;
     _yaml[P_GHOST_POS_X] = 0;
