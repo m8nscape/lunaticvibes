@@ -434,8 +434,6 @@ Tokens SkinLR2::csvNextLineTokenize(std::istream& file)
 int convertLine(const Tokens& t, int* pData, size_t start = 0, size_t count = sizeof(lr2skin::s_basic) / sizeof(int))
 {
     size_t end = start + count;
-    if (end > sizeof(lr2skin::s_basic) / sizeof(int))
-        end = sizeof(lr2skin::s_basic) / sizeof(int);
 
     size_t i;
     for (i = start; i < end && i < t.size(); ++i)

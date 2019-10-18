@@ -109,7 +109,7 @@ std::string md5(const fs::path& filePath)
     return ret;
 }
 
-std::string md5(std::string& str)
+std::string md5(const std::string& str)
 {
     return md5(str.c_str(), str.length());
 }
