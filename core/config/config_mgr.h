@@ -5,19 +5,23 @@
 #include "cfg_skin.h"
 #include <string>
 
+inline const std::string PROFILE_DEFAULT = "default";
+
 class ConfigMgr
 {
 public:
-    static inline ConfigGeneral     G;
-    static inline ConfigProfile     P;
-    static inline ConfigInput       I;
-    static inline ConfigSkin        S;
+    static inline ConfigGeneral     G{PROFILE_DEFAULT};
+    static inline ConfigProfile     P{PROFILE_DEFAULT};
+    static inline ConfigInput       I5{PROFILE_DEFAULT, 5};
+    static inline ConfigInput       I7{PROFILE_DEFAULT, 7};
+    static inline ConfigInput       I9{PROFILE_DEFAULT, 9};
+    static inline ConfigSkin        S{PROFILE_DEFAULT};
 
 public:
-    static void selectProfile(std::string name);
-    static inline void init() { G.setDefaults(); P.setDefaults(); I.setDefaults(); S.setDefaults(); }
-    static inline void load() { G.load(); P.load(); I.load(); S.setDefaults(); }
-    static inline void save() { G.save(); P.save(); I.save(); S.setDefaults(); }
+    static inline void init() { G.setDefaults(); P.setDefaults(); I5.setDefaults(); I7.setDefaults(); I9.setDefaults(); S.setDefaults(); }
+    static inline void load() { G.load(); P.load(); I5.load(); I7.load(); I9.load(); S.load(); }
+    static inline void save() { G.save(); P.save(); I5.save(); I7.save(); I9.save(); S.save(); }
+    static int selectProfile(const std::string& name);
 
 public:
     template<class Ty_v>
@@ -28,7 +32,9 @@ public:
         case 'A':                               // Audio
         case 'V': return G.get(key, fallback);  // Video
         case 'P': return P.get(key, fallback);  // Play
-        case 'I': return I.get(key, fallback);  // Input
+        case '5': return I5.get(key, fallback);  // Input
+        case '7': return I7.get(key, fallback);  // Input
+        case '9': return I9.get(key, fallback);  // Input
         case 'S': return S.get(key, fallback);  // Skin
         default:  return Ty_v(); break;
         }
@@ -41,7 +47,9 @@ public:
         case 'A':                               // Audio
         case 'V': return G.set(key, value);     // Video
         case 'P': return P.set(key, value);     // Play
-        case 'I': return I.set(key, value);     // Input
+        case '5': return I5.set(key, value);     // Input
+        case '7': return I7.set(key, value);     // Input
+        case '9': return I9.set(key, value);     // Input
         case 'S': return S.set(key, value);     // Skin
         default:  return Ty_v(); break;
         }

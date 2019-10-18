@@ -1,27 +1,47 @@
 #include "chart.h"
 #include "bms.h"
-#include <regex>
 #include <fstream>
 #include "plog/Log.h"
 
+eChartType matchChartType(const Path& p)
+{
+    if (!fs::is_regular_file(p) || !p.has_extension())
+        return eChartType::UNKNOWN;
+
+    if (std::regex_match(p.extension().string(), regexFileExtBMS))
+        return eChartType::BMS;
+
+    if (std::regex_match(p.extension().string(), regexFileExtBMSON))
+        return eChartType::BMSON;
+
+    return eChartType::UNKNOWN;
+}
+
 std::shared_ptr<vChart> vChart::getFromFile(const Path& path)
 {
-    StringPath filePath = fs::absolute(path).string();
+    Path filePath = fs::absolute(path);
     std::ifstream fs(filePath);
     if (fs.fail())
     {
-        LOG_WARNING << "[Chart] File invalid: " << filePath;
+        LOG_WARNING << "[Chart] File invalid: " << filePath.generic_string();
         return nullptr;
     }
 
     // dispatch Chart object upon filename extension
-    if (std::regex_match(filePath, std::regex(R"(.*\.(bms|bme|bml|pms)$)", std::regex::icase)))
+    switch (matchChartType(path))
     {
+    case eChartType::BMS:
         return std::make_shared<BMS>(filePath);
+
+    case eChartType::UNKNOWN:
+        LOG_WARNING << "[Chart] File type unknown: " << filePath.generic_string();
+        return nullptr;
+
+    default:
+        LOG_WARNING << "[Chart] File type unsupported: " << filePath.generic_string();
+        return nullptr;
     }
 
-    LOG_WARNING << "[Chart] File type unknown: " << filePath;
-    return nullptr;
 }
 
 Path vChart::getDirectory() const

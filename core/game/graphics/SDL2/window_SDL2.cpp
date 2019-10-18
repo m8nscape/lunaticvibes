@@ -102,12 +102,21 @@ int graphics_free()
     return 0;
 }
 
+extern bool __event_quit;
 void event_handle()
 {
     SDL_Event e;
     while (SDL_PollEvent(&e))
     {
-        ;
+        switch (e.type)
+        {
+        case SDL_QUIT:
+            __event_quit = true;
+            break;
+
+        default:
+            break;
+        }
     }
 }
 

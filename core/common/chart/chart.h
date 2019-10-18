@@ -1,4 +1,5 @@
 #pragma once
+#include <regex>
 #include <vector>
 #include <numeric>
 #include <memory>
@@ -15,6 +16,9 @@ enum class eChartType
     BMS,
     BMSON,
 };
+inline const std::regex regexFileExtBMS{ R"(\.(bms|bme|bml|pms)$)", std::regex::icase };
+inline const std::regex regexFileExtBMSON{ R"(\.(bmson)$)", std::regex::icase };
+eChartType matchChartType(const Path& p);
 
 class vChart
 {
@@ -51,12 +55,12 @@ public:
     int _totalLength_sec;
     int _totalnotes;
 
-    StringPath _BG;
-    StringPath _banner;
+    StringContent _BG;
+    StringContent _banner;
 
-    StringPath _text1;
-    StringPath _text2;
-    StringPath _text3;
+    StringContent _text1;
+    StringContent _text2;
+    StringContent _text3;
 
     BPM _minBPM = INFINITY;
     BPM _maxBPM = 0.0;
@@ -64,8 +68,8 @@ public:
 
 // following fields are filled during loading
 public:
-    std::vector<StringPath> _wavFiles;
-    std::vector<StringPath> _bgaFiles;
+    std::vector<StringContent> _wavFiles;
+    std::vector<StringContent> _bgaFiles;
 
     std::vector<Note> _BPMs;
     std::vector<Beat> _measureLength;

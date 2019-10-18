@@ -22,6 +22,7 @@
 #pragma comment(lib, "winmm.lib")
 #endif //WIN32
 
+bool __event_quit;
 GenericInfoUpdater __ginfo{ 1 };
 
 void mainLoop()
@@ -29,7 +30,7 @@ void mainLoop()
     eScene currentScene = __next_scene;
     auto scene = SceneMgr::get(currentScene);
 	__ginfo.loopStart();
-    while (currentScene != eScene::EXIT)
+    while (!__event_quit && currentScene != eScene::EXIT)
     {
         // Evenet handling
         event_handle();
@@ -86,7 +87,7 @@ int main(int argc, char* argv[])
 
 	// load input bindings
 	InputMgr::updateDevices();
-	InputMgr::updateBindings(Input::Ingame::S1L);
+	InputMgr::updateBindings(7, Input::Ingame::S1L);
 
     // reset globals
     gNumbers.set(eNumber::ZERO, 0);

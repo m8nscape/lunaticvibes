@@ -1,5 +1,6 @@
 #include <plog/Log.h>
 #include "input_mgr.h"
+#include "config/config_mgr.h"
 
 InputMgr InputMgr::_inst;
 
@@ -17,48 +18,44 @@ void InputMgr::updateDevices()
     //    }
 }
 
-#define bindKey(_, kk, idx, igk) _inst.bindings[kk][idx] = { KEYBOARD, 0, igk }
-void InputMgr::updateBindings(Ingame K)
+#define bindKey(kk, idx, igk) _inst.bindings[kk][idx] = { KEYBOARD, 0, igk }
+void InputMgr::updateBindings(unsigned keys, Ingame K)
 {
     // Clear current bindings
     for (auto& k : _inst.bindings)
         k = {};
 
-    // Update key binding
-	// TODO get bindings from config
-    //for (size_t k = S1L; k < ESC; k++)
-    //{
-    //    bindings[k].push_back(...);
-    //}
+    switch (keys)
+    {
+    case 5:
+        for (Input::Ingame key = Input::S1L; key < Input::ESC; ++(*(int*)&key))
+        {
+            auto bindings = ConfigMgr::I5.getBindings(key);
+            for (unsigned slot = 0; slot < bindings.size(); ++slot)
+                bindKey(key, slot, bindings[slot]);
+        }
+        break;
 
-	// for debug purpose
-	// TODO to be removed
-	{
-		bindKey(7, Input::S1L, 0, Input::Key::K_LSHIFT);
-		bindKey(7, Input::S1R, 0, Input::Key::K_LCTRL);
-		bindKey(7, Input::S1R, 1, Input::Key::K_SPACE);
-		bindKey(7, Input::K11, 0, Input::Key::K_Z);
-		bindKey(7, Input::K12, 0, Input::Key::K_S);
-		bindKey(7, Input::K13, 0, Input::Key::K_X);
-		bindKey(7, Input::K14, 0, Input::Key::K_D);
-		bindKey(7, Input::K15, 0, Input::Key::K_C);
-		bindKey(7, Input::K16, 0, Input::Key::K_F);
-		bindKey(7, Input::K17, 0, Input::Key::K_V);
-        bindKey(7, Input::K1START, 0, Input::Key::K_TAB);
-		bindKey(7, Input::K1SELECT, 0, Input::Key::K_Q);
+    case 7:
+        for (Input::Ingame key = Input::S1L; key < Input::ESC; ++(*(int*)&key))
+        {
+            auto bindings = ConfigMgr::I7.getBindings(key);
+            for (unsigned slot = 0; slot < bindings.size(); ++slot)
+                bindKey(key, slot, bindings[slot]);
+        }
+        break;
 
-		bindKey(7, Input::S2L, 0, Input::Key::K_RCTRL);
-		bindKey(7, Input::S2R, 0, Input::Key::K_RSHIFT);
-		bindKey(7, Input::K21, 0, Input::Key::K_M);
-		bindKey(7, Input::K22, 0, Input::Key::K_K);
-		bindKey(7, Input::K23, 0, Input::Key::K_COMMA);
-		bindKey(7, Input::K24, 0, Input::Key::K_L);
-		bindKey(7, Input::K25, 0, Input::Key::K_DOT);
-		bindKey(7, Input::K26, 0, Input::Key::K_SEMICOLON);
-		bindKey(7, Input::K27, 0, Input::Key::K_SLASH);
-		bindKey(7, Input::K2START, 0, Input::Key::K_BACKSLASH);
-		bindKey(7, Input::K2SELECT, 0, Input::Key::K_RBRACKET);
-	}
+    case 9:
+        for (Input::Ingame key = Input::S1L; key < Input::ESC; ++(*(int*)&key))
+        {
+            auto bindings = ConfigMgr::I9.getBindings(key);
+            for (unsigned slot = 0; slot < bindings.size(); ++slot)
+                bindKey(key, slot, bindings[slot]);
+        }
+        break;
+
+    default: break;
+    }
 
     LOG_INFO << "Key bindings updated";
 }

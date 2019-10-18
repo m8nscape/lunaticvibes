@@ -24,8 +24,6 @@ namespace Input
         Key		    key;
     };
 
-    const std::size_t MAX_JOYSTICK_COUNT = 8;
-    const std::size_t MAX_BINDINGS_PER_KEY = 10;
     typedef std::array<KeyMap, MAX_BINDINGS_PER_KEY> Binding;
 
 };
@@ -53,7 +51,7 @@ private:
 public:
     // Game keys param / functions
     static void updateDevices();
-    static void updateBindings(Input::Ingame K);
+    static void updateBindings(unsigned keys, Input::Ingame K);
     static std::bitset<Input::KEY_COUNT> detect();
 
 };

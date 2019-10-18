@@ -12,13 +12,14 @@ namespace cfg
 class vConfig
 {
 protected:
-	StringPath _path;
+	Path _path;
 	YAML::Node _yaml;
 
 public:
     vConfig();
-	vConfig(StringPath file);
-    virtual ~vConfig();
+	vConfig(const StringPath& file);
+	vConfig(const std::string& profile, const StringPath& file);
+    virtual ~vConfig() = default;
 
     virtual void setDefaults() noexcept = 0;
 

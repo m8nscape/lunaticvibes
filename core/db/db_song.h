@@ -44,7 +44,7 @@ protected:
     int addChart(const std::string& path);
     int removeChart(const HashMD5& md5);
     
-    HashMD5 searchFolderParent(const Path& path) const;
+    HashMD5 searchFolderParentFromPath(const Path& path) const;
     HashMD5 searchFolderHash(const Path& path) const;
     
 
@@ -53,9 +53,10 @@ public:
     std::vector<pChart> findChartByHash(const HashMD5&) const;  // chart may duplicate
 
     int addFolder(const std::string& path);
+    int addFolderContent(const Path& folder);
     int removeFolder(const HashMD5& hash);
 
     HashMD5 getFolderParent(const HashMD5& folder) const;
-    Path getFolderPath(const HashMD5& folder) const;
+    Path getFolderPathFromHash(const HashMD5& folder) const;
 
 };

@@ -6,8 +6,15 @@
 typedef std::string                             HashMD5;
 typedef std::string                             HashSHA1;
 typedef std::filesystem::path                   Path;
-typedef decltype(std::declval<Path>().string()) StringPath;
+typedef Path::string_type                       StringPath;
 typedef std::string                             StringContent; // std::ifstream, std::getline
+using namespace std::string_literals;
+
+[[nodiscard]] inline StringPath operator ""_p(const char *_Str, size_t _Len)
+{
+    std::string tmp(_Str, _Len);
+    return StringPath(tmp.begin(), tmp.end());
+}
 
 enum class eMode {
     EXIT = 0,
