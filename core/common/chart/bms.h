@@ -83,9 +83,8 @@ public:
     typedef std::array<std::string, MAXSAMPLEIDX + 1> FileIdxArray;
     typedef std::array<channel, MAXMEASUREIDX + 1> ChannelArray;
 
-protected:
+public:
     // File properties.
-
     // Header.
     int player = 1;                // 1: single, 2: couple, 3: double, 4: battle
     int rank = 2;                 // judge, VHARD/HARD/NORMAL/EASY
@@ -99,6 +98,7 @@ protected:
     // Ported to super class
 
     
+protected:
     // Channels.
     int strToChannel36(channel&, const StringContent& str);
     int strToChannel16(channel&, const StringContent& str);

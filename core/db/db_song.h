@@ -4,6 +4,7 @@
 #include <memory>
 #include "types.h"
 #include "db_conn.h"
+#include "entries/folder.h"
 
 class vChart;
 typedef std::shared_ptr<vChart> pChart;
@@ -31,32 +32,40 @@ public:
     {
         FOLDER,
         SONG_BMS,
+
+        CUSTOM_FOLDER,
+        COURSE,
+        GRADE,
     };
 
 public:
     SongDB() = delete;
     SongDB(const char* path);
+    SongDB(Path& path) : SongDB(path.string().c_str()) {}
     ~SongDB() = default;
     SongDB(SongDB&) = delete;
     SongDB& operator= (SongDB&) = delete;
 
 protected:
-    int addChart(const std::string& path);
+    int addChart(const HashMD5& folder, const Path& path);
     int removeChart(const HashMD5& md5);
     
-    HashMD5 searchFolderParentFromPath(const Path& path) const;
-    HashMD5 searchFolderHash(const Path& path) const;
-    
-
 public:
     std::vector<pChart> findChartByName(const HashMD5& folder, const std::string&, unsigned limit = 1000) const;  // search from genre, version, artist, artist2, title, title2
     std::vector<pChart> findChartByHash(const HashMD5&) const;  // chart may duplicate
 
-    int addFolder(const std::string& path);
-    int addFolderContent(const Path& folder);
-    int removeFolder(const HashMD5& hash);
+    int addFolder(Path path);
+    int addFolderContent(const HashMD5& hash, const Path& folder);
+    int refreshFolderContent(const HashMD5& hash, const Path& path, FolderType type);
+    int removeFolder(const HashMD5& hash, bool removeFromDb = false);
 
     HashMD5 getFolderParent(const HashMD5& folder) const;
-    Path getFolderPathFromHash(const HashMD5& folder) const;
+    HashMD5 getFolderParent(const Path& path) const;
+    Path getFolderPath(const HashMD5& folder) const;
+    HashMD5 getFolderHash(Path path) const;
+
+    FolderRegular browse(HashMD5 root, bool recursive = true);
+    FolderSong browseSong(HashMD5 root);
+    FolderSong search(HashMD5 root, std::string key);
 
 };

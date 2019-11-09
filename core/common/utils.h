@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include <filesystem>
 #include <vector>
 #include <utility>
@@ -49,6 +50,6 @@ constexpr unsigned base16(const char* c)
 	return base16(c[0], c[1]);
 }
 
-std::string md5(const fs::path& filePath);
 std::string md5(const std::string& str);
 std::string md5(const char* str, size_t len);
+std::string md5file(const fs::path& filePath);

@@ -7,7 +7,7 @@ namespace fs = std::filesystem;
 class tConfig : public vConfig
 {
 public:
-    tConfig() : vConfig("dummy.cfg") {}
+    tConfig() : vConfig("dummy.cfg"_p) {}
     tConfig(StringPath path) : vConfig(path) {}
 
     virtual void setDefaults() noexcept
@@ -24,7 +24,7 @@ public:
 
 TEST(Config, file_create)
 {
-    const char* file = "test_create.cfg";
+    auto file = "test_create.cfg"_p;
     {
         tConfig c(file);
         c.setDefaults();
@@ -37,7 +37,7 @@ TEST(Config, file_create)
 
 TEST(Config, modify)
 {
-    const char* file = "test_modify.cfg";
+    auto file = "test_modify.cfg"_p;
     {
         using namespace std::string_literals;
         tConfig c(file);
@@ -62,7 +62,7 @@ TEST(Config, modify)
 
 TEST(Config, add)
 {
-    const char* file = "test_add.cfg";
+    auto file = "test_add.cfg"_p;
     {
         tConfig c(file);
         c.setDefaults();
@@ -84,7 +84,7 @@ TEST(Config, add)
 
 TEST(Config, get_type_mismatch)
 {
-    const char* file = "test.cfg";
+    auto file = "test.cfg"_p;
     {
         using namespace std::string_literals;
         tConfig c(file);
@@ -99,7 +99,7 @@ TEST(Config, get_type_mismatch)
 
 TEST(Config, set_type_override)
 {
-    const char* file = "test.cfg";
+    auto file = "test.cfg"_p;
     {
         using namespace std::string_literals;
         tConfig c(file);

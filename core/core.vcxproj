@@ -22,6 +22,7 @@
     <ClCompile Include="common\asynclooper.cpp" />
     <ClCompile Include="common\chart\bms.cpp" />
     <ClCompile Include="common\chart\chart.cpp" />
+    <ClCompile Include="common\entries\folder.cpp" />
     <ClCompile Include="common\fraction.cpp" />
     <ClCompile Include="common\utils.cpp" />
     <ClCompile Include="config\cfg_general.cpp" />
@@ -67,6 +68,7 @@
     <ClInclude Include="common\chart\bms.h" />
     <ClInclude Include="common\chart\chart.h" />
     <ClInclude Include="common\chart\chart_types.h" />
+    <ClInclude Include="common\entries\folder.h" />
     <ClInclude Include="common\score.h" />
     <ClInclude Include="common\fraction.h" />
     <ClInclude Include="common\meta.h" />
@@ -211,10 +213,10 @@
       </Command>
     </PostBuildEvent>
     <Lib>
-      <AdditionalDependencies>sqlite3.lib</AdditionalDependencies>
+      <AdditionalDependencies>sqlite3\lib\$(PlatformTarget)\sqlite3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>$(SolutionDir)ext\sqlite3\lib\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)ext;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -246,8 +248,8 @@
       </Command>
     </PostBuildEvent>
     <Lib>
-      <AdditionalLibraryDirectories>$(SolutionDir)ext\sqlite3\lib\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>sqlite3.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)ext;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sqlite3\lib\$(PlatformTarget)\sqlite3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -270,10 +272,10 @@
       </Command>
     </PostBuildEvent>
     <Lib>
-      <AdditionalDependencies>sqlite3.lib</AdditionalDependencies>
+      <AdditionalDependencies>sqlite3\lib\$(PlatformTarget)\sqlite3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>$(SolutionDir)ext\sqlite3\lib\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)ext;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -297,10 +299,10 @@
       </Command>
     </PostBuildEvent>
     <Lib>
-      <AdditionalDependencies>sqlite3.lib</AdditionalDependencies>
+      <AdditionalDependencies>sqlite3\lib\$(PlatformTarget)\sqlite3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>$(SolutionDir)ext\sqlite3\lib\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)ext;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -55,7 +55,7 @@ int BMS::initWithPathParam(const SongDB& db)
     if (_filePath.is_absolute())
         _absolutePath = _filePath;
     else
-        _absolutePath = db.getFolderPathFromHash(_folderHash) / _filePath;
+        _absolutePath = db.getFolderPath(_folderHash) / _filePath;
 
     return initWithFile(_absolutePath);
 }
@@ -346,7 +346,7 @@ int BMS::initWithFile(const Path& file)
         }
     }
 
-    _fileHash = md5(_filePath);
+    _fileHash = md5file(_absolutePath);
     LOG_INFO << "[BMS] MD5: " << _fileHash;
 
     _loaded = true;
