@@ -93,13 +93,13 @@ ScenePlay::ScenePlay(ePlayMode playmode): vScene(context_play.mode, 1000), _mode
         if (context_play.playerSlot == PLAYER_SLOT_1P) slotmask |= 1;
         if (context_play.playerSlot == PLAYER_SLOT_2P) slotmask |= 2;
 
-        if (slotmask | 1)
+        if (slotmask & 1)
         {
             _skin->setExtendedProperty("GAUGETYPE_1P"s, (void*)&context_play.gaugeType[PLAYER_SLOT_1P]);
             _inputAvailable |= INPUT_MASK_1P;
         }
 
-        if (slotmask | 2)
+        if (slotmask & 2)
         {
             _skin->setExtendedProperty("GAUGETYPE_2P"s, (void*)&context_play.gaugeType[PLAYER_SLOT_2P]);
             _inputAvailable |= INPUT_MASK_2P;
