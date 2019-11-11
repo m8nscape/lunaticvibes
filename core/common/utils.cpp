@@ -1,8 +1,7 @@
 #include "utils.h"
 #include <string>
 #include <openssl/md5.h>
-#include <iostream>
-#include <fstream>
+#include <cstdio>
 
 std::vector<fs::path> findFiles(fs::path p)
 {
@@ -23,12 +22,12 @@ std::vector<fs::path> findFiles(fs::path p)
 	std::u16string dir = pstr.substr(0, offset);
 	std::u16string tail = pstr.substr(offset + 2);
     if (fs::exists(dir))
-        for (auto &f : fs::directory_iterator(dir))
+        for (auto f : fs::directory_iterator(dir))
         {
             std::u16string file = f.path().u16string();
             if (file.substr(file.length() - tail.length()) != tail)
                 continue;
-            res.push_back(f);
+            res.push_back(fs::canonical(f));
         }
 	return res;
 }
@@ -81,34 +80,6 @@ std::pair<unsigned, bool> stoub(const std::string& str)
     else
         return { -1, false };
 }
-
-std::string md5(const fs::path& filePath)
-{
-    unsigned char digest[MD5_DIGEST_LENGTH];
-    memset(digest, 0, sizeof(digest));
-    if (fs::exists(filePath) && fs::is_regular_file(filePath))
-    {
-        MD5_CTX mdContext;
-        char data[1024];
-        size_t bytes;
-        MD5_Init(&mdContext);
-        std::ifstream ifs(filePath.string(), std::ios_base::binary);
-        while ((bytes = size_t(ifs.readsome(data, 1024))) != 0)
-            MD5_Update(&mdContext, data, bytes);
-        MD5_Final(digest, &mdContext);
-    }
-
-    std::string ret(MD5_DIGEST_LENGTH * 2, 0);
-    for (size_t i = 0; i < MD5_DIGEST_LENGTH; ++i)
-    {
-        unsigned char high = digest[i] >> 4 & 0xF;
-        unsigned char low  = digest[i] & 0xF;
-        ret += (high <= 9 ? ('0' + high) : ('A' - 10 + high));
-        ret += (low  <= 9 ? ('0' + low)  : ('A' - 10 + low));
-    }
-    return ret;
-}
-
 std::string md5(const std::string& str)
 {
     return md5(str.c_str(), str.length());
@@ -118,7 +89,7 @@ std::string md5(const char* str, size_t len)
 {
     auto digest = MD5((const unsigned char*)str, len, NULL);
 
-    std::string ret(MD5_DIGEST_LENGTH * 2, 0);
+    std::string ret;
     for (size_t i = 0; i < MD5_DIGEST_LENGTH; ++i)
     {
         unsigned char high = digest[i] >> 4 & 0xF;
@@ -128,3 +99,35 @@ std::string md5(const char* str, size_t len)
     }
     return ret;
 }
+
+std::string md5file(const fs::path& filePath)
+{
+    unsigned char digest[MD5_DIGEST_LENGTH];
+    memset(digest, 0, sizeof(digest));
+    if (!fs::exists(filePath) || !fs::is_regular_file(filePath))
+    {
+        return "";
+    }
+
+    MD5_CTX mdContext;
+    char data[1024];
+    size_t bytes;
+
+    FILE* pf = fopen(filePath.string().c_str(), "rb");
+    MD5_Init(&mdContext);
+    while ((bytes = fread(data, sizeof(char), sizeof(data), pf)) != 0)
+        MD5_Update(&mdContext, data, bytes);
+    MD5_Final(digest, &mdContext);
+    fclose(pf);
+
+    std::string ret;
+    for (size_t i = 0; i < MD5_DIGEST_LENGTH; ++i)
+    {
+        unsigned char high = digest[i] >> 4 & 0xF;
+        unsigned char low  = digest[i] & 0xF;
+        ret += (high <= 9 ? ('0' + high) : ('A' - 10 + high));
+        ret += (low  <= 9 ? ('0' + low)  : ('A' - 10 + low));
+    }
+    return ret;
+}
+

@@ -26,6 +26,7 @@ class SQLite
 {
 private:
     mutable sqlite3* _db;
+    mutable char lastSql[128];
     char tag[128];
     bool inTransaction = false;
 public:
@@ -41,6 +42,6 @@ protected:
 public:
     void transactionStart();
     void transactionStop();
-    const char* errmsg();
+    const char* errmsg() const;
 };
 
