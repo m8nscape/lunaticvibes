@@ -460,7 +460,11 @@ SpriteNumber::SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align
 
     // invalid num type guard
     //_numType = NumberType(numRows * numCols);
-	if (animFrames != 0) _numType = NumberType(numRows * numCols / animFrames);
+    if (animFrames != 0)
+        _numType = NumberType(numRows * numCols / animFrames);
+    else
+        _numType = NumberType(0);
+
     switch (_numType)
     {
     case NUM_TYPE_NORMAL:
@@ -478,7 +482,7 @@ SpriteNumber::SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align
 
 bool SpriteNumber::update(timestamp t)
 {
-	if (SpriteAnimated::update(t))
+	if (!_rects.empty() && SpriteAnimated::update(t))
 	{
         updateNumberByInd();
 

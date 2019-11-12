@@ -57,7 +57,10 @@ unsigned AsyncLooper::getRateRealtime()
 typedef HANDLE LooperHandler;
 VOID CALLBACK WaitOrTimerCallback(_In_ PVOID lpParameter, _In_ BOOLEAN TimerOrWaitFired)
 {
+    if (((AsyncLooper*)lpParameter)->_inFunc) return;
+    ((AsyncLooper*)lpParameter)->_inFunc = true;
     ((AsyncLooper*)lpParameter)->_run();
+    ((AsyncLooper*)lpParameter)->_inFunc = false;
 }
 
 void AsyncLooper::loopStart()

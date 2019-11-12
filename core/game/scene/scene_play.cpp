@@ -140,7 +140,6 @@ ScenePlay::ScenePlay(ePlayMode playmode): vScene(context_play.mode, 1000), _mode
     loopStart();
     _input.loopStart();
 }
-
 ////////////////////////////////////////////////////////////////////////////////
 
 void ScenePlay::loadChart()
@@ -392,9 +391,6 @@ void ScenePlay::removeInputJudgeCallback()
 
 void ScenePlay::_updateAsync()
 {
-	std::unique_lock<decltype(_mutex)> _lock(_mutex, std::try_to_lock);
-	if (!_lock.owns_lock()) return;
-
     switch (_state)
     {
     case ePlayState::PREPARE:

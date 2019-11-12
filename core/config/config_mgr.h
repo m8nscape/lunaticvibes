@@ -10,12 +10,12 @@ inline const std::string PROFILE_DEFAULT = "default";
 class ConfigMgr
 {
 public:
-    static inline ConfigGeneral     G{PROFILE_DEFAULT};
-    static inline ConfigProfile     P{PROFILE_DEFAULT};
-    static inline ConfigInput       I5{PROFILE_DEFAULT, 5};
-    static inline ConfigInput       I7{PROFILE_DEFAULT, 7};
-    static inline ConfigInput       I9{PROFILE_DEFAULT, 9};
-    static inline ConfigSkin        S{PROFILE_DEFAULT};
+    static ConfigGeneral     G;
+    static ConfigProfile     P;
+    static ConfigInput       I5;
+    static ConfigInput       I7;
+    static ConfigInput       I9;
+    static ConfigSkin        S;
 
 public:
     static inline void init() { G.setDefaults(); P.setDefaults(); I5.setDefaults(); I7.setDefaults(); I9.setDefaults(); S.setDefaults(); }

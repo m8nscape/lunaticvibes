@@ -24,7 +24,6 @@ enum class ePlayState
 class ScenePlay : public vScene
 {
 private:
-    std::mutex _mutex;
     ePlayState _state;
     InputMask _inputAvailable;
 

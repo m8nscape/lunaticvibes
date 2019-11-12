@@ -77,8 +77,7 @@ int main(int argc, char* argv[])
     plog::init(plog::info, logfile.str().c_str(), 1000000, 5);
 #endif
 
-    ConfigMgr::init();
-    ConfigMgr::load();
+    ConfigMgr::selectProfile(PROFILE_DEFAULT);
 
     if (auto ginit = graphics_init())
         return ginit;

@@ -4,11 +4,19 @@
 #include <plog/Log.h>
 namespace fs = std::filesystem;
 
+
+ConfigGeneral     ConfigMgr::G{PROFILE_DEFAULT};
+ConfigProfile     ConfigMgr::P{PROFILE_DEFAULT};
+ConfigInput       ConfigMgr::I5{PROFILE_DEFAULT, 5};
+ConfigInput       ConfigMgr::I7{PROFILE_DEFAULT, 7};
+ConfigInput       ConfigMgr::I9{PROFILE_DEFAULT, 9};
+ConfigSkin        ConfigMgr::S{PROFILE_DEFAULT};
+
 int ConfigMgr::selectProfile(const std::string& name)
 {
     Path folder = Path(".") / "profile" / name;
     if (!fs::exists(folder))
-        fs::create_directory(folder);
+        fs::create_directories(folder);
 
     if (!fs::is_directory(folder))
     {

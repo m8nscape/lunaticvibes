@@ -32,6 +32,7 @@ protected:
     unsigned _rate;
     unsigned _rateTime;
     bool _running = false;
+    bool _inFunc = false;
     LooperHandler handler = nullptr;
 
 public:
