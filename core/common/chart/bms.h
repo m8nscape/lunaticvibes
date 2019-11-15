@@ -64,6 +64,7 @@ public:
 public:
     BMS();
     BMS(const Path& absolutePath);
+    virtual ~BMS() = default;
     std::string getError();
     int initWithPathParam(const SongDB& db);
 

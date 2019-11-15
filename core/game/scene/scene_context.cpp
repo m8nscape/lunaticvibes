@@ -1,10 +1,14 @@
 #include "scene_context.h"
 #include "game/data/text.h"
 
+__chart_context_params context_chart;
+__play_context_params context_play;
+__select_context_params context_select;
+
 void clearContextPlayForRetry()
 {
-    if (context_play.scrollObj[0] != nullptr) { context_play.scrollObj[0].reset(); }
-    if (context_play.scrollObj[1] != nullptr) { context_play.scrollObj[1].reset(); }
+    if (context_play.scrollObj[0] != nullptr) { context_play.scrollObj[0] = nullptr; }
+    if (context_play.scrollObj[1] != nullptr) { context_play.scrollObj[1] = nullptr; }
     for (size_t i = 0; i < MAX_PLAYERS; ++i)
     {
         context_play.graphGauge[i].clear();

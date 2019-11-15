@@ -1,5 +1,6 @@
 #pragma once
 #include <functional>
+#include <mutex>
 
 #if WIN32
 #include <Windows.h>
@@ -29,14 +30,15 @@ private:
     void _recordLoopTime();
 
 protected:
+    std::mutex _mutex;
+    bool _single_inst;
     unsigned _rate;
     unsigned _rateTime;
     bool _running = false;
-    bool _inFunc = false;
     LooperHandler handler = nullptr;
 
 public:
-    AsyncLooper(std::function<void()>, unsigned rate_per_sec);
+    AsyncLooper(std::function<void()>, unsigned rate_per_sec, bool single_inst = false);
     virtual ~AsyncLooper();
     void loopStart();
     void loopEnd();
@@ -44,7 +46,10 @@ public:
     unsigned getRateRealtime();
 
 private:
+    std::function<void()> _do;
     std::function<void()> _run;
+    void run();
+    void run_mutex();
 #if WIN32
     friend VOID CALLBACK WaitOrTimerCallback(_In_ PVOID lpParameter, _In_ BOOLEAN TimerOrWaitFired);
 #elif LINUX

@@ -2,32 +2,28 @@
 #include <plog/Log.h>
 #include <cassert>
 
-InputWrapper::InputWrapper(unsigned rate) : AsyncLooper(std::bind(&InputWrapper::_loop, this), rate)
+InputWrapper::InputWrapper(unsigned rate) : AsyncLooper(std::bind(&InputWrapper::_loop, this), rate, true)
 {
 }
 
 void InputWrapper::_loop()
 {
-	std::unique_lock<decltype(_mutex)> _lock(_mutex, std::try_to_lock);
-	if (_lock.owns_lock())
-	{
-		_prev = _curr;
-		_curr = InputMgr::detect();
-		timestamp t;
-		auto p = Pressed();
-		auto h = Holding();
-		auto r = Released();
+    _prev = _curr;
+    _curr = InputMgr::detect();
+    timestamp t;
+    auto p = Pressed();
+    auto h = Holding();
+    auto r = Released();
 
-		if (p != 0)
-			for (auto& pg : _pCallbackMap)
-				pg.second(p, t);
-		if (h != 0)
-			for (auto& hg : _hCallbackMap)
-				hg.second(h, t);
-		if (r != 0)
-			for (auto& rg : _rCallbackMap)
-				rg.second(r, t);
-	}
+    if (p != 0)
+        for (auto& pg : _pCallbackMap)
+            pg.second(p, t);
+    if (h != 0)
+        for (auto& hg : _hCallbackMap)
+            hg.second(h, t);
+    if (r != 0)
+        for (auto& rg : _rCallbackMap)
+            rg.second(r, t);
 }
 
 bool InputWrapper::_register(unsigned type, const std::string& key, INPUTCALLBACK f)

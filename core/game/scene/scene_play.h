@@ -38,7 +38,7 @@ private:
 
 public:
     ScenePlay(ePlayMode);
-    virtual ~ScenePlay() = default;
+    virtual ~ScenePlay() { loopEnd(); }
 
 private:
     std::array<size_t, 128> _bgmSampleIdxBuf{};

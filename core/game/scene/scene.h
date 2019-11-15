@@ -23,7 +23,7 @@ public:
 
 public:
     vScene() = delete;
-    virtual ~vScene() = default;
+    virtual ~vScene() { loopEnd(); }
     virtual void update();      // skin update
     virtual void draw() const;
 

@@ -28,7 +28,7 @@ void vConfig::load()
     {
         for (auto& node : YAML::LoadFile(_path.string()))
         {
-            _yaml[node.first] = node.second;
+            _yaml[node.first.as<std::string>()] = node.second;
         }
     }
     catch (YAML::BadFile&)
@@ -39,7 +39,7 @@ void vConfig::load()
 
 void vConfig::save()
 {
-	std::ofstream fout(_path);
+	std::ofstream fout(_path, std::ios_base::trunc);
 	fout << _yaml;
     fout.close();
 }

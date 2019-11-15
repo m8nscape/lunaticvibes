@@ -425,7 +425,7 @@ Tokens SkinLR2::csvNextLineTokenize(std::istream& file)
 
     // remove trailing empty tokens
     size_t lastToken;
-    for (lastToken = result.size() - 1; lastToken >= 0 && result[lastToken].empty(); --lastToken);
+    for (lastToken = result.size() - 1; lastToken >= 0 && lastToken < result.size() && result[lastToken].empty(); --lastToken);
     result.resize(lastToken + 1);
 
     return result;

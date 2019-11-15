@@ -31,6 +31,7 @@ class InputWrapper: public AsyncLooper
 {
 private:
 	std::mutex _mutex;
+    bool _busy;
 
 protected:
     InputMask _prev = 0;
@@ -38,7 +39,7 @@ protected:
 
 public:
     InputWrapper(unsigned rate = 1000);
-    virtual ~InputWrapper() = default;
+    virtual ~InputWrapper() { loopEnd(); }
 
 private:
     virtual void _loop();

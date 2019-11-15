@@ -20,11 +20,11 @@ inline eScene __next_scene = eScene::PLAY;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline struct __chart_context_params
+struct __chart_context_params
 {
     Path path{};
     HashMD5 hash{};
-    std::shared_ptr<vChart> chartObj{ nullptr };
+    std::shared_ptr<vChart> chartObj;
     //bool isChartSamplesLoaded;
     bool isSampleLoaded = false;
     bool isBgaLoaded = false;
@@ -43,14 +43,14 @@ inline struct __chart_context_params
     BPM itlBPM = 150;
     BPM maxBPM = 150;
 
-} context_chart;
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 
 constexpr size_t MAX_PLAYERS = 8;
 constexpr size_t PLAYER_SLOT_1P = 0;
 constexpr size_t PLAYER_SLOT_2P = 1;
-inline struct __play_context_params
+struct __play_context_params
 {
     eMode mode = eMode::PLAY7;
     bool canRetry = false;
@@ -72,7 +72,7 @@ inline struct __play_context_params
 
     timestamp remainTime;
 
-} context_play;
+};
 
 void clearContextPlayForRetry();
 void clearContextPlay();
@@ -92,10 +92,14 @@ struct SelectSongInfos
     unsigned rival_lamp_rival = 0;
 };
 
-inline struct __select_context_params
+struct __select_context_params
 {
     unsigned barIndex;
     std::vector<SelectSongInfos> info;
-} context_select;
+};
 
 void updateContextTitles();
+
+extern __chart_context_params context_chart;
+extern __play_context_params context_play;
+extern __select_context_params context_select;
