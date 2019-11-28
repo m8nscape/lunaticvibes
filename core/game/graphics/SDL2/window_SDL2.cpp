@@ -8,6 +8,7 @@
 #include "SDL_ttf.h"
 #include <plog/Log.h>
 #include <string>
+#include "config/config_mgr.h"
 
 int graphics_init()
 {
@@ -34,20 +35,50 @@ int graphics_init()
             title += std::to_string(VER_PATCH);
         }
 
-        _frame_window = SDL_CreateWindow(
-            title.c_str(),
-            SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-            CANVAS_WIDTH, CANVAS_HEIGHT,
-            SDL_WINDOW_OPENGL);
+        auto mode = ConfigMgr::G.get(cfg::V_WINMODE, cfg::V_WINMODE_WINDOWED);
+        if (mode == cfg::V_WINMODE_BORDERLESS)
+        {
+            _frame_window = SDL_CreateWindow(
+                title.c_str(),
+                SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                ConfigMgr::G.get(cfg::V_RES_X, CANVAS_WIDTH), ConfigMgr::G.get(cfg::V_RES_Y, CANVAS_HEIGHT),
+                SDL_WINDOW_BORDERLESS | SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
+        }
+        else if (mode == cfg::V_WINMODE_FULL)
+        {
+            _frame_window = SDL_CreateWindow(
+                title.c_str(),
+                SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                ConfigMgr::G.get(cfg::V_FULL_RES_X, CANVAS_WIDTH), ConfigMgr::G.get(cfg::V_FULL_RES_Y, CANVAS_HEIGHT),
+                SDL_WINDOW_FULLSCREEN | SDL_WINDOW_OPENGL);
+        }
+        else // fallback to windowed
+        {
+            _frame_window = SDL_CreateWindow(
+                title.c_str(),
+                SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                ConfigMgr::G.get(cfg::V_RES_X, CANVAS_WIDTH), ConfigMgr::G.get(cfg::V_RES_Y, CANVAS_HEIGHT),
+                SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
+        }
         if (!_frame_window)
         {
             LOG_ERROR << "[SDL2] Init window ERROR! " << SDL_GetError();
             return -1;
         }
 
-        _frame_renderer = SDL_CreateRenderer(
-            _frame_window, -1,
-            SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
+        auto vsync = ConfigMgr::G.get(cfg::V_VSYNC, cfg::OFF);
+        if (vsync == cfg::ON)
+        {
+            _frame_renderer = SDL_CreateRenderer(
+                _frame_window, -1,
+                SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
+        }
+        else
+        {
+            _frame_renderer = SDL_CreateRenderer(
+                _frame_window, -1,
+                SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
+        }
         if (!_frame_renderer)
         {
             LOG_ERROR << "[SDL2] Init renderer ERROR! " << SDL_GetError();
