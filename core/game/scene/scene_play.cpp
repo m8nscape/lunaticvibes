@@ -671,14 +671,14 @@ void ScenePlay::changeKeySampleMapping(timestamp t)
 void ScenePlay::inputGamePress(InputMask& m, timestamp t)
 {
     using namespace Input;
-    if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
 
     // individual keys
     size_t sampleCount = 0;
     for (size_t i = 0; i < ESC; ++i)
         if (_inputAvailable[i] && m[i])
         {
-            _keySampleIdxBuf[sampleCount++] = _currentKeySample[i];
+            if (_currentKeySample[i])
+                _keySampleIdxBuf[sampleCount++] = _currentKeySample[i];
             gTimers.set(InputGamePressMap[i].tm, t.norm());
             gTimers.set(InputGameReleaseMap[i].tm, LLONG_MAX);
             gSwitches.set(InputGamePressMap[i].sw, true);
@@ -728,14 +728,11 @@ void ScenePlay::inputGamePress(InputMask& m, timestamp t)
 // CALLBACK
 void ScenePlay::inputGameHold(InputMask& m, timestamp t)
 {
-    if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
 }
 
 // CALLBACK
 void ScenePlay::inputGameRelease(InputMask& m, timestamp t)
 {
-    if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
-
     size_t count = 0;
     for (size_t i = 0; i < Input::ESC; ++i)
         if (_inputAvailable[i] && m[i])

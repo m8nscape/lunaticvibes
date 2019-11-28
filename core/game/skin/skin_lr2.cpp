@@ -1544,8 +1544,8 @@ int SkinLR2::DST()
 
     if (e->isKeyFrameEmpty())
     {
-        if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
-			convertOps(tokensBuf, (int*)d.op, 16, 4);
+        if (convertLine(tokensBuf, (int*)&d, 14, 3) >= 3)
+			convertOps(tokensBuf, (int*)d.op, 17, 4);
         else 
             LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
