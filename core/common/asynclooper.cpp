@@ -3,8 +3,9 @@
 #include <chrono>
 #include <plog/Log.h>
 
-AsyncLooper::AsyncLooper(std::function<void()> func, unsigned rate_per_sec): _run(func)
+AsyncLooper::AsyncLooper(std::function<void()> func, unsigned rate_per_sec, bool single_inst) : _do(func), _single_inst(single_inst)
 {
+    _run = std::bind(single_inst ? &AsyncLooper::run_mutex : &AsyncLooper::run, this);
     _loopTimeBuffer.assign(LOOP_TIME_BUFFER_SIZE, 0);
     _bufferIt = _loopTimeBuffer.begin();
     
@@ -15,6 +16,20 @@ AsyncLooper::AsyncLooper(std::function<void()> func, unsigned rate_per_sec): _ru
 AsyncLooper::~AsyncLooper()
 {
     loopEnd();
+    if (_single_inst)
+        std::unique_lock<decltype(_mutex)> _lock(_mutex);
+}
+
+void AsyncLooper::run()
+{
+    _do();
+}
+
+void AsyncLooper::run_mutex()
+{
+	std::unique_lock<decltype(_mutex)> _lock(_mutex, std::try_to_lock);
+    if (_lock.owns_lock())
+        _do();
 }
 
 unsigned AsyncLooper::getRate()

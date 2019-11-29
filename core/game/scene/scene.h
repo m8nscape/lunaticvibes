@@ -2,7 +2,6 @@
 #include <bitset>
 #include <string>
 #include <memory>
-#include <mutex>
 #include "game/skin/skin.h"
 #include "game/data/timer.h"
 #include "game/data/switch.h"
@@ -16,9 +15,6 @@
 class vScene: public AsyncLooper
 {
 protected:
-	std::mutex _mutex;
-
-protected:
     std::shared_ptr<vSkin> _skin;
     InputWrapper _input;
 
@@ -27,7 +23,7 @@ public:
 
 public:
     vScene() = delete;
-    virtual ~vScene() = default;
+    virtual ~vScene() { loopEnd(); }
     virtual void update();      // skin update
     virtual void draw() const;
 

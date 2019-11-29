@@ -140,7 +140,6 @@ ScenePlay::ScenePlay(ePlayMode playmode): vScene(context_play.mode, 1000), _mode
     loopStart();
     _input.loopStart();
 }
-
 ////////////////////////////////////////////////////////////////////////////////
 
 void ScenePlay::loadChart()
@@ -392,9 +391,6 @@ void ScenePlay::removeInputJudgeCallback()
 
 void ScenePlay::_updateAsync()
 {
-	std::unique_lock<decltype(_mutex)> _lock(_mutex, std::try_to_lock);
-	if (!_lock.owns_lock()) return;
-
     switch (_state)
     {
     case ePlayState::PREPARE:
@@ -675,14 +671,14 @@ void ScenePlay::changeKeySampleMapping(timestamp t)
 void ScenePlay::inputGamePress(InputMask& m, timestamp t)
 {
     using namespace Input;
-    if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
 
     // individual keys
     size_t sampleCount = 0;
     for (size_t i = 0; i < ESC; ++i)
         if (_inputAvailable[i] && m[i])
         {
-            _keySampleIdxBuf[sampleCount++] = _currentKeySample[i];
+            if (_currentKeySample[i])
+                _keySampleIdxBuf[sampleCount++] = _currentKeySample[i];
             gTimers.set(InputGamePressMap[i].tm, t.norm());
             gTimers.set(InputGameReleaseMap[i].tm, LLONG_MAX);
             gSwitches.set(InputGamePressMap[i].sw, true);
@@ -732,14 +728,11 @@ void ScenePlay::inputGamePress(InputMask& m, timestamp t)
 // CALLBACK
 void ScenePlay::inputGameHold(InputMask& m, timestamp t)
 {
-    if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
 }
 
 // CALLBACK
 void ScenePlay::inputGameRelease(InputMask& m, timestamp t)
 {
-    if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
-
     size_t count = 0;
     for (size_t i = 0; i < Input::ESC; ++i)
         if (_inputAvailable[i] && m[i])

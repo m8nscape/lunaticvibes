@@ -425,7 +425,7 @@ Tokens SkinLR2::csvNextLineTokenize(std::istream& file)
 
     // remove trailing empty tokens
     size_t lastToken;
-    for (lastToken = result.size() - 1; lastToken >= 0 && result[lastToken].empty(); --lastToken);
+    for (lastToken = result.size() - 1; lastToken >= 0 && lastToken < result.size() && result[lastToken].empty(); --lastToken);
     result.resize(lastToken + 1);
 
     return result;
@@ -1201,7 +1201,7 @@ ParseRet SkinLR2::SRC_NOTE()
     // skip unsupported
     if (optBuf != "#SRC_LINE" &&
         !std::regex_match(optBuf, std::regex("#SRC_(AUTO_)?(NOTE|MINE|LN_END|LN_BODY|LN_START)")))
-        return ParseRet::OK;
+        return ParseRet::SRC_DEF_WRONG_TYPE;
 
     // load line into data struct
 	lr2skin::s_basic d;
@@ -1505,14 +1505,14 @@ int SkinLR2::DST()
     if (__general_dst_supported.find(opt) == __general_dst_supported.end() || _sprites.empty())
         return 0;
 
-    if (tokensBuf.size() < 13)
+    if (tokensBuf.size() < 15)
     {
         LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
     }
 
     // load line into data struct
     lr2skin::dst d;
-    convertLine(tokensBuf, (int*)&d, 0, 14);
+    convertLine(tokensBuf, (int*)&d, 0, 15);
     
 
     int ret = 0;
@@ -1544,8 +1544,8 @@ int SkinLR2::DST()
 
     if (e->isKeyFrameEmpty())
     {
-        if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
-			convertOps(tokensBuf, (int*)d.op, 16, 4);
+        if (convertLine(tokensBuf, (int*)&d, 15, 2) >= 2)
+			convertOps(tokensBuf, (int*)d.op, 17, 4);
         else 
             LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
@@ -1598,7 +1598,7 @@ int SkinLR2::DST()
 ParseRet SkinLR2::DST_NOTE()
 {
     if (optBuf != "#DST_NOTE")
-        return ParseRet::OK;
+        return ParseRet::SRC_DEF_WRONG_TYPE;
 
     if (tokensBuf.size() < 13)
         LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
@@ -1672,7 +1672,7 @@ ParseRet SkinLR2::DST_NOTE()
 ParseRet SkinLR2::DST_LINE()
 {
     if (optBuf != "#DST_LINE")
-        return ParseRet::OK;
+        return ParseRet::SRC_DEF_WRONG_TYPE;
 
     if (tokensBuf.size() < 13)
         LOG_WARNING << "[Skin] " << line << ": Parameter not enough";

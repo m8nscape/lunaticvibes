@@ -7,10 +7,11 @@
 #ifdef _MSC_VER
 inline tm _localtime_res;
 inline char _ctime_res[26];
-inline tm* localtime_msvc(const std::time_t* t) { errno_t err = localtime_s(&_localtime_res, t); return (err ? NULL : &_localtime_res); };
-inline const char* ctime_msvc(const std::time_t* t) { errno_t err = ctime_s(_ctime_res, 26, t); return (err ? "" : _ctime_res); };
-#define localtime localtime_msvc
-#define ctime ctime_msvc
+inline tm* localtime_(const std::time_t* t) { errno_t err = localtime_s(&_localtime_res, t); return (err ? NULL : &_localtime_res); };
+inline const char* ctime_(const std::time_t* t) { errno_t err = ctime_s(_ctime_res, 26, t); return (err ? "" : _ctime_res); };
+#else
+inline tm* localtime_(const std::time_t* t) { return localtime(t); };
+inline const char* ctime_(const std::time_t* t) { return ctime(t); };
 #endif
 
 inline unsigned __frames[10]{ 0 };
@@ -33,7 +34,7 @@ private:
 		}
 
 		std::time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-		auto d = localtime(&t);
+		auto d = localtime_(&t);
         if (d)
         {
             gNumbers.set(eNumber::DATE_YEAR, d->tm_year + 1900);
@@ -43,7 +44,7 @@ private:
             gNumbers.set(eNumber::DATE_MIN, d->tm_min);
             gNumbers.set(eNumber::DATE_SEC, d->tm_sec);
 
-            gTexts.set(eText::_TEST1, ctime(&t));
+            gTexts.set(eText::_TEST1, ctime_(&t));
         }
 	}
 };

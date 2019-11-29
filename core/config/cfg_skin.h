@@ -9,6 +9,7 @@ namespace cfg
 {
     inline const StringContent S_PATH_PLAY_7 = "Play7";
     inline const StringPath S_DEFAULT_PATH_PLAY_7 = "./LR2files/Theme/LR2/Play/play_7.lr2skin"_p;
+    //inline const StringPath S_DEFAULT_PATH_PLAY_7 = "./LR2files/test.lr2skin"_p;
 
     inline const StringContent S_PATH_RESULT = "Result";
     inline const StringPath S_DEFAULT_PATH_RESULT = "./LR2files/Theme/LR2/Result/result.lr2skin"_p;

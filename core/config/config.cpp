@@ -16,6 +16,7 @@ vConfig::vConfig(const StringPath& file)
 vConfig::vConfig(const std::string& profile, const StringPath& file)
 {
     _path = ".";
+    _path /= "profile";
     _path /= profile;
     _path /= file;
 }
@@ -25,17 +26,21 @@ void vConfig::load()
 	setDefaults();
     try
     {
-        _yaml = YAML::LoadFile(_path.generic_string());
+        for (auto& node : YAML::LoadFile(_path.string()))
+        {
+            _yaml[node.first.as<std::string>()] = node.second;
+        }
     }
     catch (YAML::BadFile&)
     {
-        LOG_WARNING << "[Config] Bad file: " << _path.generic_string();
+        LOG_WARNING << "[Config] Bad file: " << _path.string();
     }
 }
 
 void vConfig::save()
 {
-	std::ofstream fout(_path, std::ios_base::out);
+	std::ofstream fout(_path, std::ios_base::trunc);
 	fout << _yaml;
+    fout.close();
 }
 
