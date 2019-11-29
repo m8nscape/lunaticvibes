@@ -9,13 +9,6 @@
 #endif
 #endif
 
-std::tm local_time(const time_t* time)
-{
-    std::tm t;
-    localtime_s(&t, time);
-    return t;
-}
-
 const DWORD MS_VC_EXCEPTION = 0x406D1388;
 
 #pragma pack(push,8)  

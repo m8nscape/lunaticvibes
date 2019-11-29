@@ -71,8 +71,8 @@ int main(int argc, char* argv[])
     auto appender = plog::ColorConsoleAppender<plog::TxtFormatterImpl<false>>();
     plog::init(plog::debug, &appender);
 #else
-    std::tm t = local_time(nullptr);
-    auto fmt = std::put_time(&t, "%F");
+    std::time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    auto fmt = std::put_time(localtime_(&t), "%F");
     std::stringstream logfile;
     logfile << MAIN_NAME << "-" << fmt << ".log";
     plog::init(plog::info, logfile.str().c_str(), 1000000, 5);
