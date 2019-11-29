@@ -119,7 +119,7 @@ bool vSprite::updateByKeyframes(timestamp rawTime)
 	_current.color.b = (Uint8)grad(keyFrameNext->param.color.b, keyFrameCurr->param.color.b, t);
 	_current.color.a = (Uint8)grad(keyFrameNext->param.color.a, keyFrameCurr->param.color.a, t);
     //_current.color = keyFrameNext->param.color * t + keyFrameNext->param.color * (1.0 - t);
-	_current.angle = grad(keyFrameNext->param.angle, keyFrameNext->param.angle, t);
+	_current.angle = grad(keyFrameNext->param.angle, keyFrameCurr->param.angle, t);
     //LOG_DEBUG << "[Skin] Time: " << time << 
     //    " @ " << _current.rect.x << "," << _current.rect.y << " " << _current.rect.w << "x" << _current.rect.h;
     //LOG_DEBUG<<"[Skin] keyFrameCurr: " << keyFrameCurr->param.rect.x << "," << keyFrameCurr->param.rect.y << " " << keyFrameCurr->param.rect.w << "x" << keyFrameCurr->param.rect.h;
