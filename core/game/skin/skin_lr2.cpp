@@ -1573,7 +1573,7 @@ int SkinLR2::DST()
         else 
             LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
-        if (std::regex_match(opt, std::regex("#DST_NOW(JUDGE|COMBO)1P")))
+        if (std::regex_match(opt, std::regex("#DST_NOW(JUDGE|COMBO)_1P")))
 		{
 			switch (bufJudge1PSlot)
 			{
@@ -1586,7 +1586,7 @@ int SkinLR2::DST()
 			default: break;
 			}
 		}
-        else if (std::regex_match(opt, std::regex("#DST_NOW(JUDGE|COMBO)2P")))
+        else if (std::regex_match(opt, std::regex("#DST_NOW(JUDGE|COMBO)_2P")))
 		{
 			switch (bufJudge2PSlot)
 			{

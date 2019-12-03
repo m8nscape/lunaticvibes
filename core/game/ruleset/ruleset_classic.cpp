@@ -136,9 +136,9 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChart> chart, std::shared_ptr<vS
         _basic.health = 0.2;
         _minHealth = 0.02;
         _clearHealth = 0.8;
-        _health[PERFECT] = 0.01 * scroll->getNoteCount() / total;
-        _health[GREAT] = 0.01 * scroll->getNoteCount() / total;
-        _health[GOOD] = 0.01 * scroll->getNoteCount() / total / 2;
+        _health[PERFECT] = 0.01 * total / scroll->getNoteCount();
+        _health[GREAT] = 0.01 * total / scroll->getNoteCount();
+        _health[GOOD] = 0.01 * total / scroll->getNoteCount() / 2;
         _health[BAD] = -0.04;
         _health[MISS] = -0.06;
         _health[BPOOR] = -0.02;
@@ -148,9 +148,9 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChart> chart, std::shared_ptr<vS
         _basic.health = 0.2;
         _minHealth = 0.02;
         _clearHealth = 0.8;
-        _health[PERFECT] = 0.01 * scroll->getNoteCount() / total * 1.2;
-        _health[GREAT] = 0.01 * scroll->getNoteCount() / total * 1.2;
-        _health[GOOD] = 0.01 * scroll->getNoteCount() / total / 2 * 1.2;
+        _health[PERFECT] = 0.01 * total / scroll->getNoteCount() * 1.2;
+        _health[GREAT] = 0.01 * total / scroll->getNoteCount() * 1.2;
+        _health[GOOD] = 0.01 * total / scroll->getNoteCount() / 2 * 1.2;
         _health[BAD] = -0.032;
         _health[MISS] = -0.048;
         _health[BPOOR] = -0.016;
@@ -160,9 +160,9 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChart> chart, std::shared_ptr<vS
         _basic.health = 0.2;
         _minHealth = 0.02;
         _clearHealth = 0.6;
-        _health[PERFECT] = 0.01 * scroll->getNoteCount() / total * 1.2;
-        _health[GREAT] = 0.01 * scroll->getNoteCount() / total * 1.2;
-        _health[GOOD] = 0.01 * scroll->getNoteCount() / total / 2 * 1.2;
+        _health[PERFECT] = 0.01 * total / scroll->getNoteCount() * 1.2;
+        _health[GREAT] = 0.01 * total / scroll->getNoteCount() * 1.2;
+        _health[GOOD] = 0.01 * total / scroll->getNoteCount() / 2 * 1.2;
         _health[BAD] = -0.032;
         _health[MISS] = -0.048;
         _health[BPOOR] = -0.016;
@@ -290,10 +290,12 @@ void RulesetClassic::updateHit(timestamp& t, NoteChannelIndex ch, size_t judge, 
     case PERFECT:
         inner_score += 1.0 * 150000 / _scroll->getNoteCount() + 
             1.0 * std::min(int(_basic.combo) - 1, 10) * 50000 / (10 * _scroll->getNoteCount() - 55);
+        _basic.score2 += 2;
         break;
     case GREAT:
         inner_score += 1.0 * 100000 / _scroll->getNoteCount() + 
             1.0 * std::min(int(_basic.combo) - 1, 10) * 50000 / (10 * _scroll->getNoteCount() - 55);
+        _basic.score2 += 1;
         break;
     case GOOD:
         inner_score += 1.0 * 20000 / _scroll->getNoteCount() + 
@@ -304,7 +306,6 @@ void RulesetClassic::updateHit(timestamp& t, NoteChannelIndex ch, size_t judge, 
     }
     _updateHp(_health[judge]);
     if (_basic.combo > _basic.maxCombo) _basic.maxCombo = _basic.combo;
-    _basic.score2 += 2;
     gTimers.set(bombTimer7k[ch], t.norm());
     slot == 0 ? setJudgeTimer1PInner(5 - judge, t.norm()) : setJudgeTimer2PInner(5 - judge, t.norm());
     gNumbers.set(slot == 0 ? eNumber::_DISP_NOWCOMBO_1P : eNumber::_DISP_NOWCOMBO_2P, _basic.combo);

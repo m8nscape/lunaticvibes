@@ -256,9 +256,9 @@ void vScroll::update(timestamp t)
         NoteChannelCategory cat = NoteChannelCategory::BARLINE;
         NoteChannelIndex idx = NOTECHANNEL_BARLINE;
         auto it = incomingNoteOfChannel(cat, idx);
-        while (!isLastNoteOfChannel(cat, idx, it) && t >= it->time && it->hit)
+        while (!isLastNoteOfChannel(cat, idx, it) && t >= it->time)
         {
-            noteExpired.push_back(*it);
+            it->hit = true;
             it = succNoteOfChannel(cat, idx);
         }
     }
