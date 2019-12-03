@@ -30,10 +30,12 @@ void mainLoop()
     eScene currentScene = __next_scene;
     auto scene = SceneMgr::get(currentScene);
 	__ginfo.loopStart();
-    while (!__event_quit && currentScene != eScene::EXIT)
+    while (!__event_quit && currentScene != eScene::EXIT && __next_scene != eScene::EXIT)
     {
         // Evenet handling
         event_handle();
+        if (__event_quit)
+            __next_scene = eScene::EXIT;
 
         // Scene change
         if (currentScene != __next_scene)
@@ -41,6 +43,8 @@ void mainLoop()
             currentScene = __next_scene;
             scene = SceneMgr::get(currentScene);
             clearCustomDstOpt();
+            if (currentScene == eScene::EXIT)
+                break;
         }
 
         // draw
