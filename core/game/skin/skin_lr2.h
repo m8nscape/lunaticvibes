@@ -1387,7 +1387,19 @@ private:
     Tokens csvNextLineTokenize(std::istream& file);
 
     Token optBuf;       // #XXX_XXXXX
-    Tokens tokensBuf;   // stores parameters after #XXX_XXXXX
+
+    // SRC 0:index? 1:gr 2-5:xywh 6:divx 7:divy 8:cycle 9:timer
+    // SRC_IMAGE 10:op1 11:op2 12:op3
+    // SRC_BUTTON 10:type 11:click 12:panel 13:plusonly
+    // SRC_SLIDER 10:muki 11:type 12:range 13:disable
+    // SRC_ONMOUSE 10:panel 11-14:x2y2w2h2
+    // SRC_NOWJUDGE 10:noshift
+    // SRC_BARGRAPH 10:type 11:muki
+    // SRC_NUMBER(NOWCOMBO) 10:num 11:align 12:keta
+    // DST 0:index? 1:time 2-5:xywh 6:acc 7-10:argb 11:blend 12:filter 13:angle 14:center
+    // DST 15:loop 16:timer 17:op1 18:op2 19:op3
+    Tokens tokensBuf;
+
     pTexture textureBuf;
     int parseLine     (const Tokens& raw);
 

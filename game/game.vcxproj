@@ -156,7 +156,7 @@ xcopy /y $(SolutionDir)ext\fmod\lib\fmodL64.dll $(OutDir)</Command>
       <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\;$(SolutionDir)ext\sqlite3\lib\$(PlatformTarget)\;$(SolutionDir)ext\fmod\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -181,7 +181,7 @@ xcopy /y $(SolutionDir)ext\fmod\lib\fmod.dll $(OutDir)</Command>
       <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\;$(SolutionDir)ext\sqlite3\lib\$(PlatformTarget)\;$(SolutionDir)ext\fmod\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

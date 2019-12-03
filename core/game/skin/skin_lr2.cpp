@@ -239,6 +239,7 @@ namespace lr2skin
 		int type;
 		int click;
 		int panel;
+        int plusonly;
     };
 
     struct s_onmouse : s_basic
@@ -334,6 +335,8 @@ namespace lr2skin
     };
 
 }
+
+
 
 int SkinLR2::setExtendedProperty(std::string& key, void* value)
 {
@@ -433,6 +436,7 @@ Tokens SkinLR2::csvNextLineTokenize(std::istream& file)
 
 int convertLine(const Tokens& t, int* pData, size_t start = 0, size_t count = sizeof(lr2skin::s_basic) / sizeof(int))
 {
+    memset(&pData[start], 0, count * sizeof(int));
     size_t end = start + count;
 
     size_t i;
@@ -848,7 +852,7 @@ ParseRet SkinLR2::SRC_SLIDER()
 	}
 
 	lr2skin::s_slider d;
-	convertLine(tokensBuf, (int*)&d, 0, 13); // 14th: mouse_disable is ignored for now
+	convertLine(tokensBuf, (int*)&d, 0, 14); // 14th: mouse_disable is ignored for now
 	
     refineRect(d, textureBuf->getRect(), line);
 
@@ -1077,14 +1081,19 @@ ParseRet SkinLR2::SRC_NOWJUDGE1()
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
         return ParseRet::PARAM_NOT_ENOUGH;
 	}
-	bufJudge1PSlot = stoine(tokensBuf[0]);
-    noshiftJudge1P[bufJudge1PSlot] = stoine(tokensBuf[11]);
+
+    lr2skin::s_nowjudge d;
+    convertLine(tokensBuf, (int*)&d, 0, 11);
+    refineRect(d, textureBuf->getRect(), line);
+
+	bufJudge1PSlot = d._null;
     if (bufJudge1PSlot >= 0 && bufJudge1PSlot < 6)
     {
         size_t idx = GLOBAL_SPRITE_IDX_1PJUDGE + bufJudge1PSlot;
         auto ret = SRC_NOWJUDGE(idx);
         if (ret == ParseRet::OK)
         {
+            noshiftJudge1P[bufJudge1PSlot] = stoine(tokensBuf[10]);
             auto p = std::make_shared<SpriteGlobal>(idx);
             _sprites.push_back(p);
             _sprites_child.push_back(p);
@@ -1105,14 +1114,19 @@ ParseRet SkinLR2::SRC_NOWJUDGE2()
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
         return ParseRet::PARAM_NOT_ENOUGH;
 	}
-	bufJudge2PSlot = stoine(tokensBuf[0]);
-    noshiftJudge2P[bufJudge2PSlot] = stoine(tokensBuf[11]);
+
+    lr2skin::s_nowjudge d;
+    convertLine(tokensBuf, (int*)&d, 0, 11);
+    refineRect(d, textureBuf->getRect(), line);
+
+    bufJudge2PSlot = d._null;
     if (bufJudge2PSlot >= 0 && bufJudge2PSlot < 6)
     {
         size_t idx = GLOBAL_SPRITE_IDX_2PJUDGE + bufJudge2PSlot;
         auto ret = SRC_NOWJUDGE(idx);
         if (ret == ParseRet::OK)
         {
+            noshiftJudge2P[bufJudge2PSlot] = stoine(tokensBuf[10]);
             auto p = std::make_shared<SpriteGlobal>(idx);
             _sprites.push_back(p);
             _sprites_child.push_back(p);
@@ -1133,14 +1147,19 @@ ParseRet SkinLR2::SRC_NOWCOMBO1()
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
         return ParseRet::PARAM_NOT_ENOUGH;
 	}
-    bufJudge1PSlot = stoine(tokensBuf[0]);
-	tokensBuf[11] = std::to_string((int)eNumber::_DISP_NOWCOMBO_1P);
-    switch (stoine(tokensBuf[12]))
+
+    lr2skin::s_nowcombo d;
+    convertLine(tokensBuf, (int*)&d, 0, 11);
+    refineRect(d, textureBuf->getRect(), line);
+
+    bufJudge1PSlot = d._null;
+	tokensBuf[10] = std::to_string((int)eNumber::_DISP_NOWCOMBO_1P);
+    switch (stoine(tokensBuf[11]))
     {
-    case 0: tokensBuf[12] = "1"; break;
-    case 1: tokensBuf[12] = "2"; break;
+    case 0: tokensBuf[11] = "1"; break;
+    case 1: tokensBuf[11] = "2"; break;
     case 2:
-    default:tokensBuf[12] = "0"; break;
+    default:tokensBuf[11] = "0"; break;
     }
     if (bufJudge1PSlot >= 0 && bufJudge1PSlot < 6)
     {
@@ -1168,14 +1187,19 @@ ParseRet SkinLR2::SRC_NOWCOMBO2()
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
         return ParseRet::PARAM_NOT_ENOUGH;
 	}
-    bufJudge2PSlot = stoine(tokensBuf[0]);
-	tokensBuf[11] = std::to_string((int)eNumber::_DISP_NOWCOMBO_2P);
-    switch (stoine(tokensBuf[12]))
+
+    lr2skin::s_nowcombo d;
+    convertLine(tokensBuf, (int*)&d, 0, 11);
+    refineRect(d, textureBuf->getRect(), line);
+
+    bufJudge2PSlot = d._null;
+	tokensBuf[10] = std::to_string((int)eNumber::_DISP_NOWCOMBO_2P);
+    switch (stoine(tokensBuf[11]))
     {
-    case 0: tokensBuf[12] = "1"; break;
-    case 1: tokensBuf[12] = "2"; break;
+    case 0: tokensBuf[11] = "1"; break;
+    case 1: tokensBuf[11] = "2"; break;
     case 2: 
-    default:tokensBuf[12] = "0"; break;
+    default:tokensBuf[11] = "0"; break;
     }
     if (bufJudge2PSlot >= 0 && bufJudge2PSlot < 6)
 	{
