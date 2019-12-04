@@ -1674,7 +1674,7 @@ ParseRet SkinLR2::DST_NOTE()
 		int dst_h;
 		//p->getRectSize(d.w, dummy);
 		dst_h = d.h;
-		d.h = d.y;
+		d.h = d.y + dst_h;
 		d.y = -dst_h;
 
         if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
@@ -2488,6 +2488,8 @@ void SkinLR2::update()
 	// update op
 	updateDstOpt();
 
+    int ttAngle1P = gNumbers.get(eNumber::_ANGLE_TT_1P);
+    int ttAngle2P = gNumbers.get(eNumber::_ANGLE_TT_2P);
 #ifndef _DEBUG
 	std::for_each(std::execution::par_unseq, drawQueue.begin(), drawQueue.end(), [](auto& e)
 #else
@@ -2495,6 +2497,13 @@ void SkinLR2::update()
 #endif
 	{
         e.draw = getDstOpt(e.op1) && getDstOpt(e.op2) && getDstOpt(e.op3);
+        switch (e.op4)
+        {
+        case 1: e.ps->_current.angle += ttAngle1P; break;
+        case 2: e.ps->_current.angle += ttAngle2P; break;
+        default: break;
+        }
+            
 	}
 #ifndef _DEBUG
 	);

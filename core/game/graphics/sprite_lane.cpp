@@ -49,7 +49,7 @@ void SpriteLaneVertical::updateNoteRect(timestamp t, vScroll* s, double beat, un
     // refresh note sprites
 	pNote->update(t);
 
-    // fetch note size, c.h = whole lane height, -c.y = note height
+    // fetch note size, c.h = whole lane height, c.y = height start drawing -c.y = note height
     auto c = _current.rect;
     auto r = pNote->getCurrentRenderParams().rect;
     auto currTotalBeat = s->getMeasureTotalBeats(measure) + beat;

@@ -36,6 +36,7 @@ private:
     bool _isHoldingStart = false;
     bool _isHoldingSelect = false;
     std::array<bool, 2> _isPlayerFinished{ false };
+    std::array<int, 2> _ttAngleDelta{ 0 };
 
 public:
     ScenePlay(ePlayMode);
@@ -80,6 +81,7 @@ protected:
     // Inner-state updates
     void playBGMSamples();
     void changeKeySampleMapping(timestamp t);
+    void updateTTrotation(bool startedPlaying);
 
 protected:
     // Register to InputWrapper: judge / keysound

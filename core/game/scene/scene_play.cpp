@@ -514,6 +514,7 @@ void ScenePlay::updateLoadEnd()
 {
 	auto t = timestamp();
     auto rt = t - gTimers.get(eTimer::PLAY_READY);
+    updateTTrotation(false);
     if (rt > _skin->info.timeGetReady)
     {
         _state = ePlayState::PLAYING;
@@ -618,6 +619,8 @@ void ScenePlay::updatePlaying()
         break;
     }
 
+    updateTTrotation(true);
+
     //last note check
     if (rt.norm() - context_play.scrollObj[context_play.playerSlot]->getTotalLength().norm() >= 0)
     {
@@ -635,6 +638,7 @@ void ScenePlay::updateFadeout()
     auto rt = t - gTimers.get(eTimer::SCENE_START);
     auto ft = t - gTimers.get(eTimer::FADEOUT_BEGIN);
     gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (context_play.scrollObj[context_play.playerSlot]->getCurrentBeat() * 4.0)) % 1000);
+    updateTTrotation(context_chart.started);
 
     if (ft >= _skin->info.timeOutro)
     {
@@ -651,6 +655,7 @@ void ScenePlay::updateFailed()
     auto t = timestamp();
     auto ft = t - gTimers.get(eTimer::FAIL_BEGIN);
     gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (context_play.scrollObj[context_play.playerSlot]->getCurrentBeat() * 4.0)) % 1000);
+    updateTTrotation(context_chart.started);
 
     //failed play finished, move to next scene. No fadeout
     if (ft.norm() >= _skin->info.timeFailed)
@@ -715,7 +720,21 @@ void ScenePlay::changeKeySampleMapping(timestamp t)
     }
 }
 
-
+void ScenePlay::updateTTrotation(bool startedPlaying)
+{
+    auto a = _ttAngleDelta;
+    if (startedPlaying)
+    {
+        auto t = timestamp();
+        auto rt = t - gTimers.get(eTimer::PLAY_START);
+        for (auto& aa : a)
+            aa += rt.norm() * 180 / 500;
+    }
+    for (auto& aa : a)
+        aa %= 360;
+    gNumbers.set(eNumber::_ANGLE_TT_1P, a[0]);
+    gNumbers.set(eNumber::_ANGLE_TT_2P, a[1]);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // CALLBACK

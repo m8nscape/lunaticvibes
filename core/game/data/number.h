@@ -182,6 +182,8 @@ enum class eNumber: unsigned
 
 	_DISP_NOWCOMBO_1P,
 	_DISP_NOWCOMBO_2P,
+    _ANGLE_TT_1P,
+    _ANGLE_TT_2P,
 
     _SELECT_BAR_LEVEL_0 = 400,
 
