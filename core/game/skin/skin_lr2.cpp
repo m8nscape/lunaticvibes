@@ -798,7 +798,7 @@ ParseRet SkinLR2::SRC_IMAGE()
 	if (tokensBuf.size() < 10)
 	{
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
-        return ParseRet::PARAM_NOT_ENOUGH;
+        //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_basic d;
@@ -818,7 +818,7 @@ ParseRet SkinLR2::SRC_NUMBER()
 	if (tokensBuf.size() < 13)
 	{
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
-        return ParseRet::PARAM_NOT_ENOUGH;
+        //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_number d;
@@ -848,7 +848,7 @@ ParseRet SkinLR2::SRC_SLIDER()
 	if (tokensBuf.size() < 13)
 	{
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
-        return ParseRet::PARAM_NOT_ENOUGH;
+        //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_slider d;
@@ -869,7 +869,7 @@ ParseRet SkinLR2::SRC_BARGRAPH()
 	if (tokensBuf.size() < 12)
 	{
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
-        return ParseRet::PARAM_NOT_ENOUGH;
+        //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_bargraph d;
@@ -889,7 +889,7 @@ ParseRet SkinLR2::SRC_BUTTON()
 	if (tokensBuf.size() < 13)
 	{
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
-        return ParseRet::PARAM_NOT_ENOUGH;
+        //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_button d;
@@ -938,7 +938,7 @@ ParseRet SkinLR2::SRC_TEXT()
 	if (tokensBuf.size() < 4)
 	{
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
-        return ParseRet::PARAM_NOT_ENOUGH;
+        //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_text d;
@@ -959,7 +959,7 @@ ParseRet SkinLR2::SRC_JUDGELINE()
     if (tokensBuf.size() < 10)
     {
         LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
-        return ParseRet::PARAM_NOT_ENOUGH;
+        //return ParseRet::PARAM_NOT_ENOUGH;
     }
 
     lr2skin::s_basic d;
@@ -983,7 +983,7 @@ ParseRet SkinLR2::SRC_NOWJUDGE(size_t idx)
     if (tokensBuf.size() < 10)
     {
         LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
-        return ParseRet::PARAM_NOT_ENOUGH;
+        //return ParseRet::PARAM_NOT_ENOUGH;
     }
 
     if (idx >= SPRITE_GLOBAL_MAX)
@@ -1008,7 +1008,7 @@ ParseRet SkinLR2::SRC_NOWCOMBO(size_t idx)
     if (tokensBuf.size() < 13)
     {
         LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
-        return ParseRet::PARAM_NOT_ENOUGH;
+        //return ParseRet::PARAM_NOT_ENOUGH;
     }
 
     if (idx >= SPRITE_GLOBAL_MAX)
@@ -1044,7 +1044,7 @@ ParseRet SkinLR2::SRC_GROOVEGAUGE()
 	if (tokensBuf.size() < 12)
 	{
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
-        return ParseRet::PARAM_NOT_ENOUGH;
+        //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_groovegauge d;
@@ -1079,7 +1079,7 @@ ParseRet SkinLR2::SRC_NOWJUDGE1()
 	if (tokensBuf.size() < 11)
 	{
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
-        return ParseRet::PARAM_NOT_ENOUGH;
+        //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
     lr2skin::s_nowjudge d;
@@ -1112,7 +1112,7 @@ ParseRet SkinLR2::SRC_NOWJUDGE2()
 	if (tokensBuf.size() < 11)
 	{
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
-        return ParseRet::PARAM_NOT_ENOUGH;
+        //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
     lr2skin::s_nowjudge d;
@@ -1145,7 +1145,7 @@ ParseRet SkinLR2::SRC_NOWCOMBO1()
 	if (tokensBuf.size() < 13)
 	{
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
-        return ParseRet::PARAM_NOT_ENOUGH;
+        //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
     lr2skin::s_nowcombo d;
@@ -1185,7 +1185,7 @@ ParseRet SkinLR2::SRC_NOWCOMBO2()
 	if (tokensBuf.size() < 13)
 	{
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
-        return ParseRet::PARAM_NOT_ENOUGH;
+        //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
     lr2skin::s_nowcombo d;
@@ -1305,7 +1305,7 @@ ParseRet SkinLR2::SRC_BAR_BODY()
     if (tokensBuf.size() < 10)
 	{
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
-        return ParseRet::PARAM_NOT_ENOUGH;
+        //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_basic d;
@@ -1327,7 +1327,7 @@ ParseRet SkinLR2::SRC_BAR_FLASH()
     if (tokensBuf.size() < 10)
 	{
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
-        return ParseRet::PARAM_NOT_ENOUGH;
+        //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_basic d;
@@ -1348,7 +1348,7 @@ ParseRet SkinLR2::SRC_BAR_LEVEL()
     if (tokensBuf.size() < 10)
 	{
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
-        return ParseRet::PARAM_NOT_ENOUGH;
+        //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_number d;
@@ -1378,7 +1378,7 @@ ParseRet SkinLR2::SRC_BAR_LAMP()
     if (tokensBuf.size() < 10)
 	{
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
-        return ParseRet::PARAM_NOT_ENOUGH;
+        //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_basic d;
@@ -1400,7 +1400,7 @@ ParseRet SkinLR2::SRC_BAR_TITLE()
     if (tokensBuf.size() < 4)
 	{
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
-        return ParseRet::PARAM_NOT_ENOUGH;
+        //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_text d;
@@ -1420,7 +1420,7 @@ ParseRet SkinLR2::SRC_BAR_RANK()
     if (tokensBuf.size() < 10)
 	{
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
-        return ParseRet::PARAM_NOT_ENOUGH;
+        //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_basic d;
@@ -1442,7 +1442,7 @@ ParseRet SkinLR2::SRC_BAR_RIVAL()
     if (tokensBuf.size() < 10)
 	{
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
-        return ParseRet::PARAM_NOT_ENOUGH;
+        //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_basic d;
@@ -1464,7 +1464,7 @@ ParseRet SkinLR2::SRC_BAR_RIVAL_MYLAMP()
     if (tokensBuf.size() < 10)
 	{
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
-        return ParseRet::PARAM_NOT_ENOUGH;
+        //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_basic d;
@@ -1486,7 +1486,7 @@ ParseRet SkinLR2::SRC_BAR_RIVAL_RIVALLAMP()
     if (tokensBuf.size() < 10)
 	{
 		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
-        return ParseRet::PARAM_NOT_ENOUGH;
+        //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_basic d;

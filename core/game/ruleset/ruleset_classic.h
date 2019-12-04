@@ -204,6 +204,7 @@ public:
         std::shared_ptr<vScroll> scroll,
         rc::judgeDiff difficulty = rc::judgeDiff::NORMAL,
         rc::gauge_ty gauge = rc::gauge_ty::GROOVE, 
+        double health = 1.0,
         rc::player playerSP = rc::player::SP_1P);
 private:
     rc::judgeRes _judge(const Note& note, timestamp time);

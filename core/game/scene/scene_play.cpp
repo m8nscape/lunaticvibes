@@ -6,6 +6,7 @@
 #include "game/ruleset/ruleset_classic.h"
 #include "chart/bms.h"
 #include "game/scroll/scroll_bms.h"
+#include "config/config_mgr.h"
 #include <plog/Log.h>
 
 struct InputDataMap{
@@ -28,7 +29,8 @@ static const InputDataMap InputGamePressMap[] =
     { eTimer::K19_DOWN, eSwitch::K19_DOWN },
     { eTimer::K1START_DOWN, eSwitch::K1START_DOWN },
     { eTimer::K1SELECT_DOWN, eSwitch::K1SELECT_DOWN },
-    {},{},
+    { eTimer::K1SPDUP_DOWN, eSwitch::K1SPDUP_DOWN },
+    { eTimer::K1SPDDN_DOWN, eSwitch::K1SPDDN_DOWN },
     { eTimer::S2L_DOWN, eSwitch::S2L_DOWN },
     { eTimer::S2R_DOWN, eSwitch::S2R_DOWN },
     { eTimer::K21_DOWN, eSwitch::K21_DOWN },
@@ -42,7 +44,8 @@ static const InputDataMap InputGamePressMap[] =
     { eTimer::K29_DOWN, eSwitch::K29_DOWN },
     { eTimer::K2START_DOWN, eSwitch::K2START_DOWN },
     { eTimer::K2SELECT_DOWN, eSwitch::K2SELECT_DOWN },
-    {},{}
+    { eTimer::K2SPDUP_DOWN, eSwitch::K2SPDUP_DOWN },
+    { eTimer::K2SPDDN_DOWN, eSwitch::K2SPDDN_DOWN },
 };
 
 static const InputDataMap InputGameReleaseMap[] =
@@ -60,7 +63,8 @@ static const InputDataMap InputGameReleaseMap[] =
     { eTimer::K19_UP, eSwitch::K19_DOWN },
     { eTimer::K1START_UP, eSwitch::K1START_DOWN },
     { eTimer::K1SELECT_UP, eSwitch::K1SELECT_DOWN },
-    {},{},
+    { eTimer::K1SPDUP_UP, eSwitch::K1SPDUP_DOWN },
+    { eTimer::K1SPDDN_UP, eSwitch::K1SPDDN_DOWN },
     { eTimer::S2L_UP, eSwitch::S2L_DOWN },
     { eTimer::S2R_UP, eSwitch::S2R_DOWN },
     { eTimer::K21_UP, eSwitch::K21_DOWN },
@@ -74,7 +78,8 @@ static const InputDataMap InputGameReleaseMap[] =
     { eTimer::K29_UP, eSwitch::K29_DOWN },
     { eTimer::K2START_UP, eSwitch::K2START_DOWN },
     { eTimer::K2SELECT_UP, eSwitch::K2SELECT_DOWN },
-    {},{}
+    { eTimer::K2SPDUP_UP, eSwitch::K2SPDUP_DOWN },
+    { eTimer::K2SPDDN_UP, eSwitch::K2SPDDN_DOWN },
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -129,8 +134,76 @@ ScenePlay::ScenePlay(ePlayMode playmode): vScene(context_play.mode, 1000), _mode
     gNumbers.set(eNumber::BPM_MAX, int(std::round(context_chart.maxBPM)));
 
     // player datas
-    gNumbers.set(eNumber::HS_1P, 100);
+    gNumbers.set(eNumber::HS_1P, ConfigMgr::P.get(cfg::P_HISPEED, 1.0) * 100);
     gNumbers.set(eNumber::HS_2P, 100);
+
+    // set gauge type
+    switch (context_chart.chartObj->type())
+    {
+    case eChartType::BMS:
+    case eChartType::BMSON:
+        for (size_t i = 0; i < MAX_PLAYERS; ++i)
+        {
+            switch (context_play.mods[i].gauge)
+            {
+            case eModGauge::NORMAL: _gaugetype[i] = rc::gauge_ty::GROOVE; break;
+            case eModGauge::HARD:   _gaugetype[i] = rc::gauge_ty::HARD; break;
+            case eModGauge::EASY:   _gaugetype[i] = rc::gauge_ty::EASY; break;
+            case eModGauge::DEATH:  _gaugetype[i] = rc::gauge_ty::DEATH; break;
+            case eModGauge::PATTACK: _gaugetype[i] = rc::gauge_ty::P_ATK; break;
+            case eModGauge::GATTACK: _gaugetype[i] = rc::gauge_ty::G_ATK; break;
+            case eModGauge::ASSISTEASY: _gaugetype[i] = rc::gauge_ty::ASSIST; break;
+            case eModGauge::EXHARD:  _gaugetype[i] = rc::gauge_ty::EXHARD; break;
+            default: break;
+            }
+        }
+        break;
+    default:
+        break;
+    }
+
+    if (!context_play.isCourse || context_play.isCourseFirstStage)
+    {
+        if (_mode == ePlayMode::LOCAL_BATTLE)
+        {
+            for (size_t i = 0; i < MAX_PLAYERS; ++i)
+                switch (_gaugetype[i])
+                {
+                case rc::gauge_ty::GROOVE: 
+                case rc::gauge_ty::EASY:
+                case rc::gauge_ty::ASSIST:
+                    context_play.health[i] = 0.2; break;
+
+                case rc::gauge_ty::HARD: 
+                case rc::gauge_ty::DEATH:
+                case rc::gauge_ty::P_ATK:
+                case rc::gauge_ty::G_ATK:
+                case rc::gauge_ty::EXHARD:
+                    context_play.health[i] = 1.0; break;
+
+                default: break;
+                }
+        }
+        else
+        {
+            switch (_gaugetype[context_play.playerSlot])
+            {
+            case rc::gauge_ty::GROOVE:
+            case rc::gauge_ty::EASY:
+            case rc::gauge_ty::ASSIST:
+                context_play.health[context_play.playerSlot] = 0.2; break;
+
+            case rc::gauge_ty::HARD:
+            case rc::gauge_ty::DEATH:
+            case rc::gauge_ty::P_ATK:
+            case rc::gauge_ty::G_ATK:
+            case rc::gauge_ty::EXHARD:
+                context_play.health[context_play.playerSlot] = 1.0; break;
+
+            default: break;
+            }
+        }
+    }
 
     using namespace std::placeholders;
     _input.register_p("SCENE_PRESS", std::bind(&ScenePlay::inputGamePress, this, _1, _2));
@@ -205,8 +278,7 @@ void ScenePlay::loadChart()
         switch (context_chart.chartObj->type())
         {
         case eChartType::BMS:
-        case eChartType::BMSON:
-            switch (context_play.judgeLevel)
+            switch (std::reinterpret_pointer_cast<BMS>(context_chart.chartObj)->rank)
             {
             case 0: judgediff = rc::judgeDiff::VERYHARD; break;
             case 1: judgediff = rc::judgeDiff::HARD; break;
@@ -217,55 +289,34 @@ void ScenePlay::loadChart()
             case 6: judgediff = rc::judgeDiff::WHAT; break;
             default: break;
             }
-        default: break;
-        }
-
-        // set gauge type
-        std::array <rc::gauge_ty, MAX_PLAYERS> gaugetype{ rc::gauge_ty::GROOVE };
-        switch (context_chart.chartObj->type())
-        {
-        case eChartType::BMS:
         case eChartType::BMSON:
-            for (size_t i = 0; i < MAX_PLAYERS; ++i)
-            {
-                switch (context_play.mods[i].gauge)
-                {
-                case eModGauge::NORMAL: gaugetype[i] = rc::gauge_ty::GROOVE; break;
-                case eModGauge::HARD: gaugetype[i] = rc::gauge_ty::HARD; break;
-                case eModGauge::EASY: gaugetype[i] = rc::gauge_ty::EASY; break;
-                case eModGauge::DEATH: gaugetype[i] = rc::gauge_ty::DEATH; break;
-                case eModGauge::PATTACK: gaugetype[i] = rc::gauge_ty::P_ATK; break;
-                case eModGauge::GATTACK: gaugetype[i] = rc::gauge_ty::G_ATK; break;
-                case eModGauge::ASSISTEASY: gaugetype[i] = rc::gauge_ty::ASSIST; break;
-                case eModGauge::EXHARD: gaugetype[i] = rc::gauge_ty::EXHARD; break;
-                default: break;
-                }
-            }
-            break;
-        default:
-            break;
+        default: break;
         }
 
         if (context_play.mode == eMode::PLAY14)
         {
             context_play.ruleset[context_play.playerSlot] = std::make_shared<RulesetClassic>(
                 context_chart.chartObj,
-                context_play.scrollObj[context_play.playerSlot], judgediff, gaugetype[context_play.playerSlot], rc::player::DP);
+                context_play.scrollObj[context_play.playerSlot], judgediff, 
+                _gaugetype[context_play.playerSlot], context_play.health[context_play.playerSlot], rc::player::DP);
         }
         else if (_mode == ePlayMode::LOCAL_BATTLE)
         {
             context_play.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetClassic>(
                 context_chart.chartObj,
-                context_play.scrollObj[PLAYER_SLOT_1P], judgediff, gaugetype[PLAYER_SLOT_1P], rc::player::BATTLE_1P);
+                context_play.scrollObj[PLAYER_SLOT_1P], judgediff,
+                _gaugetype[PLAYER_SLOT_1P], context_play.health[PLAYER_SLOT_1P], rc::player::BATTLE_1P);
             context_play.ruleset[PLAYER_SLOT_2P] = std::make_shared<RulesetClassic>(
                 context_chart.chartObj,
-                context_play.scrollObj[PLAYER_SLOT_2P], judgediff, gaugetype[PLAYER_SLOT_2P], rc::player::BATTLE_2P);
+                context_play.scrollObj[PLAYER_SLOT_2P], judgediff,
+                _gaugetype[PLAYER_SLOT_2P], context_play.health[PLAYER_SLOT_2P], rc::player::BATTLE_2P);
         }
         else
         {
             context_play.ruleset[context_play.playerSlot] = std::make_shared<RulesetClassic>(
                 context_chart.chartObj,
-                context_play.scrollObj[context_play.playerSlot], judgediff, gaugetype[context_play.playerSlot],
+                context_play.scrollObj[context_play.playerSlot], judgediff, 
+                _gaugetype[context_play.playerSlot], context_play.health[context_play.playerSlot],
                 context_play.playerSlot == PLAYER_SLOT_1P ? rc::player::SP_1P : rc::player::SP_2P);
         }
         _rulesetLoaded = true;
@@ -686,18 +737,6 @@ void ScenePlay::inputGamePress(InputMask& m, timestamp t)
 
     SoundMgr::playKeySample(sampleCount, (size_t*)&_keySampleIdxBuf[0]);
 
-    if (_inputAvailable[K1SPDUP] && m[K1SPDUP])
-    {
-        int hs = gNumbers.get(eNumber::HS_1P);
-        if (hs < 900)
-            gNumbers.set(eNumber::HS_1P, hs + 25);
-    }
-    if (_inputAvailable[K1SPDDN] && m[K1SPDDN])
-    {
-        int hs = gNumbers.get(eNumber::HS_1P);
-        if (hs > 25)
-            gNumbers.set(eNumber::HS_1P, hs - 25);
-    }
     if (_inputAvailable[K1SPDUP] && m[K1SPDUP])
     {
         int hs = gNumbers.get(eNumber::HS_1P);

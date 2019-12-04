@@ -54,10 +54,13 @@ struct __play_context_params
 {
     eMode mode = eMode::PLAY7;
     bool canRetry = false;
+    bool isCourse = false;
+    bool isCourseFirstStage = false;
     size_t playerSlot = PLAYER_SLOT_1P;  // 1P starts from 0
     unsigned judgeLevel = 0;
 
     std::shared_ptr<vScroll> scrollObj[2]{ nullptr, nullptr };
+    double health[2]{ 1.0, 1.0 };
 
     // gauge/score graph key points
     // managed by SLOT, which includes local battle 1P/2P and multi battle player slots

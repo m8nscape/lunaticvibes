@@ -50,7 +50,7 @@ void setJudgeTimer2PInner(int slot, long long t)
 }
 
 RulesetClassic::RulesetClassic(std::shared_ptr<vChart> chart, std::shared_ptr<vScroll> scroll, 
-    rc::judgeDiff difficulty, rc::gauge_ty gauge, rc::player p) :
+    rc::judgeDiff difficulty, rc::gauge_ty gauge, double health, rc::player p) :
     vRuleset(chart, scroll, rc::JUDGE_COUNT), _diff(difficulty), _count{ 0 }, _player(p)
 {
     using namespace std::string_literals;
@@ -73,7 +73,7 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChart> chart, std::shared_ptr<vS
     switch (gauge)
     {
     case HARD:
-        _basic.health = 1.0;
+        //_basic.health = 1.0;
         _minHealth = 0;
         _clearHealth = 0;
         _health[PERFECT] = 1000.0 / 1001.0 / 100.0;
@@ -85,7 +85,7 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChart> chart, std::shared_ptr<vS
         break;
 
     case EXHARD:
-        _basic.health = 1.0;
+        //_basic.health = 1.0;
         _minHealth = 0;
         _clearHealth = 0;
         _health[PERFECT] = 1000.0 / 1001.0 / 100.0;
@@ -109,7 +109,7 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChart> chart, std::shared_ptr<vS
         break;
 
     case P_ATK:
-        _basic.health = 1.0;
+        //_basic.health = 1.0;
         _minHealth = 0;
         _clearHealth = 0;
         _health[PERFECT] = 1000.0 / 1001.0 / 100.0;
@@ -121,7 +121,7 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChart> chart, std::shared_ptr<vS
         break;
 
     case G_ATK:
-        _basic.health = 1.0;
+        //_basic.health = 1.0;
         _minHealth = 0;
         _clearHealth = 0;
         _health[PERFECT] = -0.02;
@@ -133,7 +133,7 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChart> chart, std::shared_ptr<vS
         break;
 
     case GROOVE:
-        _basic.health = 0.2;
+        //_basic.health = 0.2;
         _minHealth = 0.02;
         _clearHealth = 0.8;
         _health[PERFECT] = 0.01 * total / scroll->getNoteCount();
@@ -145,7 +145,7 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChart> chart, std::shared_ptr<vS
         break;
 
     case EASY:
-        _basic.health = 0.2;
+        //_basic.health = 0.2;
         _minHealth = 0.02;
         _clearHealth = 0.8;
         _health[PERFECT] = 0.01 * total / scroll->getNoteCount() * 1.2;
@@ -157,7 +157,7 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChart> chart, std::shared_ptr<vS
         break;
 
     case ASSIST:
-        _basic.health = 0.2;
+        //_basic.health = 0.2;
         _minHealth = 0.02;
         _clearHealth = 0.6;
         _health[PERFECT] = 0.01 * total / scroll->getNoteCount() * 1.2;
@@ -169,7 +169,7 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChart> chart, std::shared_ptr<vS
         break;
 
     case GRADE:
-        _basic.health = 1.0;
+        //_basic.health = 1.0;
         _minHealth = 0;
         _clearHealth = 0;
         _health[PERFECT] = 1000.0 / 1001.0 * 0.01;
@@ -181,7 +181,7 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChart> chart, std::shared_ptr<vS
         break;
 
     case EXGRADE:
-        _basic.health = 1.0;
+        //_basic.health = 1.0;
         _minHealth = 0;
         _clearHealth = 0;
         _health[PERFECT] = 1000.0 / 1001.0 * 0.01;

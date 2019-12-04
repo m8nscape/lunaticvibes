@@ -30,6 +30,7 @@ private:
 private:
     ePlayMode _mode;
     std::vector<size_t> _currentKeySample;
+    std::array <rc::gauge_ty, MAX_PLAYERS> _gaugetype{ rc::gauge_ty::GROOVE };
 
 private:
     bool _isHoldingStart = false;

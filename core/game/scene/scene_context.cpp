@@ -27,7 +27,6 @@ void clearContextPlay()
         context_play.gaugeType[i] = eGaugeOp::GROOVE;
         context_play.mods[i].clear();
     }
-    context_play.judgeLevel = 0;
     context_play.remainTime = 0;
 }
 
