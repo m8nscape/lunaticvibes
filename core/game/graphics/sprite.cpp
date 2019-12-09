@@ -482,7 +482,8 @@ SpriteNumber::SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align
 
 bool SpriteNumber::update(timestamp t)
 {
-	if (!_rects.empty() && SpriteAnimated::update(t))
+    if (_maxDigits == 0) return false;
+	if (SpriteAnimated::update(t))
 	{
         updateNumberByInd();
 
