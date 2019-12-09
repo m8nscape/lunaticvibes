@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
         std::shared_ptr<BMS> bms = std::make_shared<BMS>(argv[1]);
         context_chart = __chart_context_params{
             argv[1],
-            "",
+            md5file(argv[1]),
             bms,
             false,
             false,
