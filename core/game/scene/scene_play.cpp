@@ -333,7 +333,7 @@ void ScenePlay::loadChart()
         auto dtor = std::async(std::launch::async, [&]() {
             auto _pChart = context_chart.chartObj;
             auto chartDir = context_chart.chartObj->getDirectory();
-            LOG_DEBUG << "[Play] Load files from " << chartDir;
+            LOG_DEBUG << "[Play] Load files from " << chartDir.string();
             for (const auto& it : _pChart->_wavFiles)
             {
                 if (it.empty()) continue;

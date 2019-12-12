@@ -3,7 +3,9 @@
 #include "scene.h"
 #include "chart/chart.h"
 #include "game/scroll/scroll.h"
+#include "game/scene/scene_context.h"
 #include "game/ruleset/ruleset.h"
+#include "game/ruleset/ruleset_classic.h"
 
 enum class ePlayMode
 {
