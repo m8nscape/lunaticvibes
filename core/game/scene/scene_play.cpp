@@ -787,6 +787,19 @@ void ScenePlay::inputGamePress(InputMask& m, timestamp t)
 // CALLBACK
 void ScenePlay::inputGameHold(InputMask& m, timestamp t)
 {
+	using namespace Input;
+	for (size_t i = 0; i < ESC; ++i)
+	{
+		// TODO analog spin speed
+		switch (i)
+		{
+		case S1L: _ttAngleDelta[PLAYER_SLOT_1P] -= 5; break;
+		case S1R: _ttAngleDelta[PLAYER_SLOT_1P] += 5; break;
+		case S2L: _ttAngleDelta[PLAYER_SLOT_2P] -= 5; break;
+		case S2R: _ttAngleDelta[PLAYER_SLOT_2P] += 5; break;
+		default: break;
+		}
+	}
 }
 
 // CALLBACK
