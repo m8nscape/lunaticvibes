@@ -1,3 +1,4 @@
+#include <execution>
 #include "scene.h"
 #include "beat.h"
 #include "game/data/timer.h"
@@ -34,4 +35,42 @@ void vScene::update()
 void vScene::draw() const
 {
     _skin->draw();
+}
+
+int vScene::getVideoSlot() const
+{
+	for (size_t i = 0; i < SCENE_VIDEO_SLOT_MAX; ++i)
+	{
+		if (!_video[i].haveVideo) return i;
+	}
+	return -1;
+}
+
+void vScene::restartVideos()
+{
+#ifdef _DEBUG
+	std::for_each(std::execution::seq, _video.begin(), _video.end(), [](auto& v) {v.seek(0); });
+#else
+	std::for_each(std::execution::par_unseq, _video.begin(), _video.end(), [](auto& v) {v.seek(0); });
+#endif
+}
+
+void vScene::restartSkinVideos()
+{
+	if (!_skin) return;
+#ifdef _DEBUG
+	std::for_each(std::execution::seq, _skin->_video.begin(), _skin->_video.end(), [](auto& v) {v.seek(0); });
+#else
+	std::for_each(std::execution::par_unseq, _skin->_video.begin(), _skin->_video.end(), [](auto& v) {v.seek(0); });
+#endif
+}
+
+void vScene::playSkinVideos()
+{
+	if (!_skin) return;
+#ifdef _DEBUG
+	std::for_each(std::execution::seq, _skin->_video.begin(), _skin->_video.end(), [](auto& v) {v.startPlaying(); });
+#else
+	std::for_each(std::execution::par_unseq, _skin->_video.begin(), _skin->_video.end(), [](auto& v) {v.startPlaying(); });
+#endif
 }

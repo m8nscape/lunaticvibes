@@ -18,7 +18,7 @@ public:
     {
         unsigned score;
         unsigned score2;
-        double health;
+        double health = 1.0;
         double acc;
         double total_acc;
         unsigned combo;

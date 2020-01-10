@@ -1,4 +1,5 @@
 #include "input_wrapper.h"
+#include "game/data/number.h"
 #include <plog/Log.h>
 #include <cassert>
 
@@ -8,6 +9,7 @@ InputWrapper::InputWrapper(unsigned rate) : AsyncLooper(std::bind(&InputWrapper:
 
 void InputWrapper::_loop()
 {
+	gNumbers.set(eNumber::INPUT_DETECT_FPS, getRate());
     _prev = _curr;
     _curr = InputMgr::detect();
     timestamp t;

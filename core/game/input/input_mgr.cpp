@@ -60,6 +60,10 @@ void InputMgr::updateBindings(unsigned keys, Ingame K)
     LOG_INFO << "Key bindings updated";
 }
 
+#ifdef RENDER_SDL2
+#include "SDL_mouse.h"
+#endif
+
 std::bitset<KEY_COUNT> InputMgr::detect()
 {
     std::bitset<KEY_COUNT> res{};
@@ -115,6 +119,25 @@ std::bitset<KEY_COUNT> InputMgr::detect()
     res[RETURN] = isKeyPressed(K_ENTER);
     res[BACKSPACE] = isKeyPressed(K_BKSP);
 
+#ifdef RENDER_SDL2
+	auto mb = SDL_GetMouseState(&_inst.mouse_x, &_inst.mouse_y);
+	res[M1] = !!(mb & SDL_BUTTON(1));
+	res[M2] = !!(mb & SDL_BUTTON(2));
+	res[M3] = !!(mb & SDL_BUTTON(3));
+	res[M4] = !!(mb & SDL_BUTTON(4));
+	res[M5] = !!(mb & SDL_BUTTON(5));
+#endif
+
     return res;
 }
 
+int getMousePos(int& x, int& y)
+{
+#ifdef RENDER_SDL2
+	x = InputMgr::_inst.mouse_x;
+	y = InputMgr::_inst.mouse_y;
+	return 0;
+#else
+	return -1;
+#endif
+}

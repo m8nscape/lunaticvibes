@@ -87,7 +87,7 @@ protected:
 
 protected:
     // Inner-state updates
-    void playBGMSamples();
+    void procNotePlain();
     void changeKeySampleMapping(timestamp t);
 
 protected:

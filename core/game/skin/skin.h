@@ -1,5 +1,6 @@
 #pragma once
 #include "game/graphics/sprite.h"
+#include "game/graphics/video.h"
 #include "types.h"
 #include <vector>
 #include <map>
@@ -19,6 +20,7 @@ typedef std::vector<StringContent> Tokens;
 
 typedef std::shared_ptr<vSprite> pSprite;
 typedef std::shared_ptr<Texture> pTexture;
+typedef std::shared_ptr<sVideo>  pVideo;
 typedef std::shared_ptr<Image>   pImage;
 typedef std::shared_ptr<TTFFont> pFont;
 
@@ -48,10 +50,17 @@ protected:
 // Textures
 protected:
     std::map<std::string, pTexture> _texNameMap;    // Use this to get texture instance from name
+	std::map<std::string, pVideo>   _vidNameMap;	// Use this to get video instance from name
 
     //TextureFull _texBlack;   // _texNameMap["BlackDot"]
     //TextureFull _texWhite;   // _texNameMap["WhiteDot"]
     //TextureFull _texError;   // _texNameMap["Error"]
+
+////////////////////////////////////////////////////////////////////////////////\
+// Videos
+public:
+	const static size_t SKIN_VIDEO_SLOT_MAX = 32;
+	std::array<sVideo, SKIN_VIDEO_SLOT_MAX> _video;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Texture Cache for resources require dynamic loading, such as BG, banner

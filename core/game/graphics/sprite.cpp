@@ -120,6 +120,7 @@ bool vSprite::updateByKeyframes(timestamp rawTime)
 	_current.color.a = (Uint8)grad(keyFrameNext->param.color.a, keyFrameCurr->param.color.a, t);
     //_current.color = keyFrameNext->param.color * t + keyFrameNext->param.color * (1.0 - t);
 	_current.angle = grad(keyFrameNext->param.angle, keyFrameCurr->param.angle, t);
+	_current.center = keyFrameCurr->param.center;
     //LOG_DEBUG << "[Skin] Time: " << time << 
     //    " @ " << _current.rect.x << "," << _current.rect.y << " " << _current.rect.w << "x" << _current.rect.h;
     //LOG_DEBUG<<"[Skin] keyFrameCurr: " << keyFrameCurr->param.rect.x << "," << keyFrameCurr->param.rect.y << " " << keyFrameCurr->param.rect.w << "x" << keyFrameCurr->param.rect.h;
@@ -137,6 +138,7 @@ bool vSprite::updateByKeyframes(timestamp rawTime)
         _current.color.b = (Uint8)std::min(0.0, parent->getCurrentRenderParams().color.b / 255.0 * _current.color.b);
         _current.color.a = (Uint8)std::min(0.0, parent->getCurrentRenderParams().color.a / 255.0 * _current.color.a);
         _current.angle += parent->getCurrentRenderParams().angle;
+		_current.center = parent->getCurrentRenderParams().center;
     }
     
     return true;
@@ -171,7 +173,7 @@ void vSprite::appendKeyFrame(RenderKeyFrame f)
 }
 void vSprite::appendInvisibleLeadingFrame()
 {
-    appendKeyFrame({ 0, {Rect(), RenderParams::accTy::DISCONTINOUS, Color(0), BlendMode::NONE, false, 0.0} });
+	appendKeyFrame({ 0, {Rect(), RenderParams::accTy::DISCONTINOUS, Color(0), BlendMode::NONE, false, 0.0, {0.0, 0.0}} });
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -190,7 +192,7 @@ bool SpriteStatic::update(timestamp t)
 void SpriteStatic::draw() const
 {
     if (_draw && _pTexture->_loaded)
-        _pTexture->draw(_texRect, _current.rect, _current.color, _current.blend, _current.filter, _current.angle);
+        _pTexture->draw(_texRect, _current.rect, _current.color, _current.blend, _current.filter, _current.angle, _current.center);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -250,7 +252,7 @@ SpriteSelection::SpriteSelection(pTexture texture, const Rect& r, unsigned rows,
 void SpriteSelection::draw() const
 {
     if (_draw && _pTexture->_loaded)
-        _pTexture->draw(_texRect[_selectionIdx], _current.rect, _current.color, _current.blend, _current.filter, _current.angle);
+        _pTexture->draw(_texRect[_selectionIdx], _current.rect, _current.color, _current.blend, _current.filter, _current.angle, _current.center);
 }
 
 void SpriteSelection::updateSelection(frameIdx frame)
@@ -365,7 +367,7 @@ void SpriteAnimated::draw() const
 {
     if (_draw && _pTexture != nullptr && _pTexture->_loaded)
     {
-        _pTexture->draw(_texRect[_selectionIdx * _animFrames + _currAnimFrame], _current.rect, _current.color, _current.blend, _current.filter, _current.angle);
+        _pTexture->draw(_texRect[_selectionIdx * _animFrames + _currAnimFrame], _current.rect, _current.color, _current.blend, _current.filter, _current.angle, _current.center);
     }
 }
 

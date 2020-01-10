@@ -1,4 +1,5 @@
 #pragma once
+#include <variant>
 #include <mutex>
 #include "scene.h"
 #include "chart/chart.h"
@@ -22,6 +23,8 @@ enum class ePlayState
     FAILED,
     FADEOUT,
 };
+
+const size_t SOUND_FAILED_IDX = 63;
 
 class ScenePlay : public vScene
 {
@@ -47,6 +50,18 @@ public:
 private:
     std::array<size_t, 128> _bgmSampleIdxBuf{};
     std::array<size_t, 128> _keySampleIdxBuf{};
+
+private:
+	//std::map<size_t, std::variant<std::monostate, pVideo, pTexture>> _bgaIdxBuf{};
+	//std::map<size_t, std::list<std::shared_ptr<SpriteVideo>>> _bgaVideoSprites{};	// set when loading skins, to bind videos while loading chart
+	//size_t bgaBaseIdx = -1u;
+	//size_t bgaLayerIdx = -1u;
+	//size_t bgaPoorIdx = -1u;
+	//pTexture bgaBaseTexture;
+	//pTexture bgaLayerTexture;
+	//pTexture bgaPoorTexture;
+public:
+	//void bindBgaVideoSprite(size_t idx, std::shared_ptr<SpriteVideo> pv) { _bgaVideoSprites[idx].push_back(pv); }
 
 protected:
     // common
@@ -81,8 +96,9 @@ protected:
 
 protected:
     // Inner-state updates
-    void playBGMSamples();
+    void procNotePlain();
     void changeKeySampleMapping(timestamp t);
+	//void updateBga();
     void updateTTrotation(bool startedPlaying);
 
 protected:

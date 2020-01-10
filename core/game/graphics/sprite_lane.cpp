@@ -64,7 +64,7 @@ void SpriteLaneVertical::updateNoteRect(timestamp t, vScroll* s, double beat, un
         if (currTotalBeat >= it->totalbeat)
             y = c.h;
         else
-            y = c.h - (int)std::floor((it->totalbeat - currTotalBeat) * c.h * _basespd * _hispeed);
+            y = c.h - (int)std::floor((it->totalbeat - currTotalBeat) * (c.h - c.y) * _basespd * _hispeed);
         it++;
         _outRect.push_front({ c.x, y, r.w, r.h });
     }
@@ -76,7 +76,14 @@ void SpriteLaneVertical::draw() const
 	{
 		for (const auto& r : _outRect)
 		{
-			pNote->_pTexture->draw(pNote->_texRect[pNote->_selectionIdx], r, _current.color, _current.blend, _current.filter, _current.angle);
+			pNote->_pTexture->draw(
+				pNote->_texRect[pNote->_selectionIdx], 
+				r,
+				_current.color,
+				_current.blend, 
+				_current.filter,
+				_current.angle,
+				_current.center);
 		}
 	}
 }

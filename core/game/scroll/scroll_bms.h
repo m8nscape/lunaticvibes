@@ -58,6 +58,9 @@ class ScrollBMS : public vScroll
 public:
     virtual std::pair<NoteChannelCategory, NoteChannelIndex> getChannelFromKey(Input::Ingame input);
     virtual std::vector<Input::Ingame> getInputFromChannel(size_t channel);
+	decltype(_plainLists[0])& getBgaBase() { return _plainLists[(size_t)eNotePlain::BGABASE]; }
+	decltype(_plainLists[0])& getBgaLayer() { return _plainLists[(size_t)eNotePlain::BGALAYER]; }
+	decltype(_plainLists[0])& getBgaPoor() { return _plainLists[(size_t)eNotePlain::BGAPOOR]; }
 public:
     ScrollBMS();
     ScrollBMS(std::shared_ptr<BMS> bms);

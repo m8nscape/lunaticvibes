@@ -1,5 +1,6 @@
 #include "skin.h"
 #include "game/graphics/sprite_lane.h"
+#include "game/graphics/sprite_video.h"
 #include "game/scene/scene_context.h"
 #include <execution>
 #include <algorithm>
@@ -54,7 +55,7 @@ void vSkin::update()
     };
 
 #ifdef _DEBUG
-    std::for_each(std::execution::seq, _sprites_parent.begin(), _sprites_parent.end(), updateSpriteLambda);
+	std::for_each(std::execution::seq, _sprites_parent.begin(), _sprites_parent.end(), updateSpriteLambda);
     std::for_each(std::execution::seq, _sprites_child.begin(), _sprites_child.end(), updateSpriteLambda);
 #else
     std::for_each(std::execution::par_unseq, _sprites_parent.begin(), _sprites_parent.end(), updateSpriteLambda);

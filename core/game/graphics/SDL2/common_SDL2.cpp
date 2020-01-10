@@ -84,6 +84,8 @@ bool isTGA(const char* filePath)
     return strcmp("TGA", ext) == 0;
 }
 
+Image::Image(const std::filesystem::path& path) : Image(path.string().c_str()) {}
+
 Image::Image(const char* filePath) : _path(filePath), _pRWop(SDL_RWFromFile(filePath, "rb"), [](SDL_RWops* s) { if (s) s->close(s); })
 {
     if (!_pRWop && strlen(filePath) > 0)
@@ -193,29 +195,69 @@ Texture::Texture(const SDL_Texture* pTexture, int w, int h):
     _loaded = true;
 }
 
+Texture::Texture(int w, int h, PixelFormat fmt)
+{
+	SDL_PixelFormatEnum sdlfmt = SDL_PIXELFORMAT_UNKNOWN;
+	switch (fmt)
+	{
+		case PixelFormat::YV12:
+			sdlfmt = SDL_PIXELFORMAT_YV12; break;
+		case PixelFormat::IYUV:
+			sdlfmt = SDL_PIXELFORMAT_IYUV; break;
+		case PixelFormat::YUY2:
+			sdlfmt = SDL_PIXELFORMAT_YUY2; break;
+		case PixelFormat::UYVY:
+			sdlfmt = SDL_PIXELFORMAT_UYVY; break;
+		case PixelFormat::YVYU:
+			sdlfmt = SDL_PIXELFORMAT_YVYU; break;
+		default:
+			sdlfmt = SDL_PIXELFORMAT_UNKNOWN; break;
+	}
+
+	if (sdlfmt != SDL_PIXELFORMAT_UNKNOWN)
+	{
+		_pTexture = SDL_CreateTexture(_frame_renderer, sdlfmt, SDL_TEXTUREACCESS_STREAMING, w, h);
+		if (_pTexture) _loaded = true;
+	}
+}
+
 Texture::~Texture()
 {
     if (_loaded && _pTexture)
         SDL_DestroyTexture(_pTexture);
 }
 
-void Texture::draw(const Rect& srcRect, Rect dstRect,
-    const Color c, const BlendMode b, const bool filter, const double angle) const
+void Texture::_draw(SDL_Texture* pTex, const Rect& srcRect, Rect dstRect,
+	const Color c, const BlendMode b, const bool filter, const double angle, const Point* center)
 {
-	if (dstRect.w < 0) { dstRect.w = -dstRect.w; dstRect.x -= dstRect.w; }
-	if (dstRect.h < 0) { dstRect.h = -dstRect.h; dstRect.y -= dstRect.h; }
-	SDL_SetTextureColorMod(&*_pTexture, c.r, c.g, c.b);
-	SDL_SetTextureAlphaMod(&*_pTexture, c.a);
-	SDL_SetTextureBlendMode(&*_pTexture, (SDL_BlendMode)b);
-    SDL_RenderCopyEx(
-        _frame_renderer,
-        &*_pTexture,
-        &srcRect, &dstRect,
-        angle,
-        NULL, SDL_FLIP_NONE
-    );
+	int flipFlags = 0;
+	if (dstRect.w < 0) { dstRect.w = -dstRect.w; dstRect.x -= dstRect.w; flipFlags |= SDL_FLIP_HORIZONTAL; }
+	if (dstRect.h < 0) { dstRect.h = -dstRect.h; dstRect.y -= dstRect.h; flipFlags |= SDL_FLIP_VERTICAL; }
+	SDL_SetTextureColorMod(pTex, c.r, c.g, c.b);
+	SDL_SetTextureAlphaMod(pTex, c.a);
+	SDL_SetTextureBlendMode(pTex, (SDL_BlendMode)b);
+	SDL_Point scenter;
+	if (center) scenter = { (int)center->x, (int)center->y };
+	SDL_RenderCopyEx(
+		_frame_renderer,
+		pTex,
+		&srcRect, &dstRect,
+		angle,
+		center ? &scenter : NULL, SDL_RendererFlip(flipFlags)
+	);
 }
 
+void Texture::draw(const Rect& srcRect, Rect dstRect,
+	const Color c, const BlendMode b, const bool filter, const double angle) const
+{
+	_draw(&*_pTexture, srcRect, dstRect, c, b, filter, angle, NULL);
+}
+
+void Texture::draw(const Rect& srcRect, Rect dstRect,
+	const Color c, const BlendMode b, const bool filter, const double angle, const Point& center) const
+{
+	_draw(&*_pTexture, srcRect, dstRect, c, b, filter, angle, &center);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // TextureFull

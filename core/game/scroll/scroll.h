@@ -21,8 +21,8 @@ enum class NoteChannelCategory: size_t
     LN,
     NOTECATEGORY_COUNT,
 
-    BARLINE,
-    _ // INVALID
+	EXTRA,
+	_	// INVALID
 };
 
 enum NoteChannelIndex: size_t
@@ -55,20 +55,28 @@ enum NoteChannelIndex: size_t
     Sc2,
     NOTECHANNEL_COUNT,
 
-    NOTECHANNEL_BARLINE,
-    _ // INVALID
+	EXTRA_BARLINE,
+	EXTRA_INVALID,
+	_ = EXTRA_INVALID
 };
+
 constexpr size_t CHANNEL_KEY_COUNT = size_t(NoteChannelCategory::NOTECATEGORY_COUNT) * NOTECHANNEL_COUNT;
-constexpr size_t CHANNEL_BARLINE = CHANNEL_KEY_COUNT;
-constexpr size_t CHANNEL_INVALID = CHANNEL_KEY_COUNT + 1;
-constexpr size_t CHANNEL_COUNT = CHANNEL_INVALID + 1;
+constexpr size_t CHANNEL_COUNT = CHANNEL_KEY_COUNT + (EXTRA_INVALID - NOTECHANNEL_COUNT);
+constexpr size_t CHANNEL_INVALID = CHANNEL_COUNT;
 constexpr size_t channelToIdx(NoteChannelCategory cat, NoteChannelIndex idx)
 {
-    if (cat == NoteChannelCategory::BARLINE)
-        return CHANNEL_BARLINE;
-
-    auto ch = size_t(cat) * NOTECHANNEL_COUNT + idx;
-    return (ch >= CHANNEL_KEY_COUNT) ? CHANNEL_INVALID : ch;
+	if (cat == NoteChannelCategory::EXTRA)
+	{
+		if (idx > NOTECHANNEL_COUNT && idx < EXTRA_INVALID)
+			return CHANNEL_KEY_COUNT + (idx - NOTECHANNEL_COUNT);
+		else
+			return CHANNEL_INVALID;
+	}
+	else // keys
+	{
+		auto ch = size_t(cat) * NOTECHANNEL_COUNT + idx;
+		return (ch >= CHANNEL_KEY_COUNT) ? CHANNEL_INVALID : ch;
+	}
 }
 
 class vChart;

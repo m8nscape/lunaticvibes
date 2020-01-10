@@ -41,12 +41,15 @@
     <ClCompile Include="game\graphics\sprite.cpp" />
     <ClCompile Include="game\graphics\sprite_bar_entry.cpp" />
     <ClCompile Include="game\graphics\sprite_lane.cpp" />
+    <ClCompile Include="game\graphics\sprite_video.cpp" />
+    <ClCompile Include="game\graphics\texture_extra.cpp" />
     <ClCompile Include="game\input\input_linux.cpp" />
     <ClCompile Include="game\input\input_mgr.cpp" />
     <ClCompile Include="game\input\input_windows.cpp" />
     <ClCompile Include="game\input\input_wrapper.cpp" />
     <ClCompile Include="game\ruleset\ruleset_classic.cpp" />
     <ClCompile Include="game\scene\scene.cpp" />
+    <ClCompile Include="game\graphics\video.cpp" />
     <ClCompile Include="game\scene\scene_context.cpp" />
     <ClCompile Include="game\scene\scene_mgr.cpp" />
     <ClCompile Include="game\scene\scene_play.cpp" />
@@ -99,12 +102,15 @@
     <ClInclude Include="game\graphics\sprite.h" />
     <ClInclude Include="game\graphics\sprite_bar_entry.h" />
     <ClInclude Include="game\graphics\sprite_lane.h" />
+    <ClInclude Include="game\graphics\sprite_video.h" />
+    <ClInclude Include="game\graphics\texture_extra.h" />
     <ClInclude Include="game\input\input_keys.h" />
     <ClInclude Include="game\input\input_mgr.h" />
     <ClInclude Include="game\input\input_wrapper.h" />
     <ClInclude Include="game\ruleset\ruleset.h" />
     <ClInclude Include="game\ruleset\ruleset_classic.h" />
     <ClInclude Include="game\scene\scene.h" />
+    <ClInclude Include="game\graphics\video.h" />
     <ClInclude Include="game\scene\scene_context.h" />
     <ClInclude Include="game\scene\scene_mgr.h" />
     <ClInclude Include="game\scene\scene_play.h" />
@@ -194,7 +200,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)ext\fmod\inc;$(SolutionDir)ext\SDL2_gfx\include;$(SolutionDir)ext\sqlite3;$(SolutionDir)ext\yaml-cpp\include;$(SolutionDir)ext\plog\include;$(SolutionDir)core;$(SolutionDir)core\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)ext\fmod\inc;$(SolutionDir)ext\SDL2_gfx\include;$(SolutionDir)ext\sqlite3;$(SolutionDir)ext\yaml-cpp\include;$(SolutionDir)ext\plog\include;$(SolutionDir)ext\libav;$(SolutionDir)core;$(SolutionDir)core\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
     </ClCompile>
     <Link>
@@ -213,10 +219,10 @@
       </Command>
     </PostBuildEvent>
     <Lib>
-      <AdditionalDependencies>sqlite3\lib\$(PlatformTarget)\sqlite3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sqlite3\lib\$(PlatformTarget)\sqlite3.lib;libav\lib\$(PlatformTarget)\avcodec.lib;libav\lib\$(PlatformTarget)\avformat.lib;libav\lib\$(PlatformTarget)\avutil.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>$(ProjectDir)ext;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)ext;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -226,7 +232,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)ext\fmod\inc;$(SolutionDir)ext\SDL2_gfx\include;$(SolutionDir)ext\sqlite3;$(SolutionDir)ext\yaml-cpp\include;$(SolutionDir)ext\plog\include;$(SolutionDir)core;$(SolutionDir)core\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)ext\fmod\inc;$(SolutionDir)ext\SDL2_gfx\include;$(SolutionDir)ext\sqlite3;$(SolutionDir)ext\yaml-cpp\include;$(SolutionDir)ext\plog\include;$(SolutionDir)ext\libav;$(SolutionDir)core;$(SolutionDir)core\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
       <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
@@ -248,13 +254,13 @@
       </Command>
     </PostBuildEvent>
     <Lib>
-      <AdditionalLibraryDirectories>$(ProjectDir)ext;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>sqlite3\lib\$(PlatformTarget)\sqlite3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)ext;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sqlite3\lib\$(PlatformTarget)\sqlite3.lib;libav\lib\$(PlatformTarget)\avcodec.lib;libav\lib\$(PlatformTarget)\avformat.lib;libav\lib\$(PlatformTarget)\avutil.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)ext\fmod\inc;$(SolutionDir)ext\SDL2_gfx\include;$(SolutionDir)ext\sqlite3;$(SolutionDir)ext\yaml-cpp\include;$(SolutionDir)ext\plog\include;$(SolutionDir)core;$(SolutionDir)core\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)ext\fmod\inc;$(SolutionDir)ext\SDL2_gfx\include;$(SolutionDir)ext\sqlite3;$(SolutionDir)ext\yaml-cpp\include;$(SolutionDir)ext\plog\include;$(SolutionDir)ext\libav;$(SolutionDir)core;$(SolutionDir)core\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -272,7 +278,7 @@
       </Command>
     </PostBuildEvent>
     <Lib>
-      <AdditionalDependencies>sqlite3\lib\$(PlatformTarget)\sqlite3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sqlite3\lib\$(PlatformTarget)\sqlite3.lib;libav\lib\$(PlatformTarget)\avcodec.lib;libav\lib\$(PlatformTarget)\avformat.lib;libav\lib\$(PlatformTarget)\avutil.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)ext;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -280,7 +286,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)ext\fmod\inc;$(SolutionDir)ext\SDL2_gfx\include;$(SolutionDir)ext\sqlite3;$(SolutionDir)ext\yaml-cpp\include;$(SolutionDir)ext\plog\include;$(SolutionDir)core;$(SolutionDir)core\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)ext\fmod\inc;$(SolutionDir)ext\SDL2_gfx\include;$(SolutionDir)ext\sqlite3;$(SolutionDir)ext\yaml-cpp\include;$(SolutionDir)ext\plog\include;$(SolutionDir)ext\libav;$(SolutionDir)core;$(SolutionDir)core\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -299,7 +305,7 @@
       </Command>
     </PostBuildEvent>
     <Lib>
-      <AdditionalDependencies>sqlite3\lib\$(PlatformTarget)\sqlite3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sqlite3\lib\$(PlatformTarget)\sqlite3.lib;libav\lib\$(PlatformTarget)\avcodec.lib;libav\lib\$(PlatformTarget)\avformat.lib;libav\lib\$(PlatformTarget)\avutil.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)ext;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

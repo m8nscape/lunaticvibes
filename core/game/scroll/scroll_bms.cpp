@@ -134,23 +134,23 @@ void ScrollBMS::loadBMS(const BMS& objBms)
                     notes.push_back({ fraction(n.segment, ch.resolution),{ 100 + i, n.value } });
             }
 
-            // BGA: 0xF0 / 0xF1 / 0xF2
+            // BGA: 0xE0 / 0xE1 / 0xE2
             if (/* BGA switch */ false)
             {
                 {
                     auto ch = objBms.getChannel(ChannelCode::BGABASE, 0, m);
                     for (const auto& n : ch.notes)
-                        notes.push_back({ fraction(n.segment, ch.resolution),{ 0xF0, n.value } });
+                        notes.push_back({ fraction(n.segment, ch.resolution),{ 0xE0, n.value } });
                 }
                 {
                     auto ch = objBms.getChannel(ChannelCode::BGALAYER, 0, m);
                     for (const auto& n : ch.notes)
-                        notes.push_back({ fraction(n.segment, ch.resolution),{ 0xF1, n.value } });
+                        notes.push_back({ fraction(n.segment, ch.resolution),{ 0xE1, n.value } });
                 }
                 {
                     auto ch = objBms.getChannel(ChannelCode::BGAPOOR, 0, m);
                     for (const auto& n : ch.notes)
-                        notes.push_back({ fraction(n.segment, ch.resolution),{ 0xF2, n.value } });
+                        notes.push_back({ fraction(n.segment, ch.resolution),{ 0xE2, n.value } });
                 }
             }
 
@@ -208,11 +208,15 @@ void ScrollBMS::loadBMS(const BMS& objBms)
             }
             else if (!bpmfucked) switch (lane)
             {
-            case 0xF0:  // BGA base
-            case 0xF1:  // BGA layer
-            case 0xF2:  // BGA poor
-                // TODO BGA parsing
-                break;
+            case 0xE0:  // BGA base
+				_plainLists[(size_t)eNotePlain::BGABASE].push_back({ m, beat, notetime, (long long)val, 0xE0 });
+				break;
+            case 0xE1:  // BGA layer
+				_plainLists[(size_t)eNotePlain::BGALAYER].push_back({ m, beat, notetime, (long long)val, 0xE1 });
+				break;
+            case 0xE2:  // BGA poor
+				_plainLists[(size_t)eNotePlain::BGAPOOR].push_back({ m, beat, notetime, (long long)val, 0xE2 });
+				break;
 
             case 0xFD:	// BPM Change
                 if (bpm == static_cast<BPM>(val)) break;
@@ -251,7 +255,8 @@ void ScrollBMS::loadBMS(const BMS& objBms)
 		basebeat += measureLength;
 
         // add barline for next measure
-        _noteLists[CHANNEL_BARLINE].push_back({ m + 1, basebeat, basetime, long long(0), false });
+        _noteLists[channelToIdx(NoteChannelCategory::EXTRA, EXTRA_BARLINE)].push_back(
+			{ m + 1, basebeat, basetime, long long(0), false });
 
     }
 

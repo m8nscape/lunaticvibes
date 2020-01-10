@@ -10,6 +10,8 @@ typedef Path::string_type                       StringPath;
 typedef std::string                             StringContent; // std::ifstream, std::getline
 using namespace std::string_literals;
 
+const size_t INDEX_INVALID	= ~0;
+
 [[nodiscard]] inline StringPath operator ""_p(const char *_Str, size_t _Len)
 {
     std::string tmp(_Str, _Len);

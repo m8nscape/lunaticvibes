@@ -5,14 +5,16 @@
 #include <bitset>
 #include <map>
 #include <functional>
+#include <stack>
 #include "types.h"
 #include "skin.h"
 #include "game/graphics/sprite_lane.h"
+#include "game/graphics/sprite_video.h"
 #include "game/graphics/sprite_bar_entry.h"
 #include "game/input/input_mgr.h"
 #include "game/data/switch.h"
 
-namespace LR2
+namespace LR2SkinDef
 {
 	enum gr_
 	{
@@ -1317,7 +1319,7 @@ namespace LR2
     
 }
 
-using namespace LR2;
+using namespace LR2SkinDef;
 
 struct setDst { dst_option dst; bool set; };
 //typedef std::function<int(SkinLR2*, const Tokens&, pTexture)> LoadLR2SrcFunc;
@@ -1383,7 +1385,8 @@ protected:
     std::vector<pSpriteLane> _laneSprites;
 
 private:
-    unsigned line = 0;          // line parsing index
+	std::stack<unsigned> csvCurrentLineStk;
+    unsigned csvCurrentLine = 0;          // line parsing index
     Tokens csvNextLineTokenize(std::istream& file);
 
     Token optBuf;       // #XXX_XXXXX
@@ -1401,6 +1404,9 @@ private:
     Tokens tokensBuf;
 
     pTexture textureBuf;
+	pVideo   videoBuf;
+	bool     useVideo = false;
+
     int parseLine     (const Tokens& raw);
 
     int IMAGE        ();

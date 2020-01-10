@@ -1,11 +1,13 @@
 #include <cassert>
 #include <future>
+#include <set>
 #include "scene_play.h"
 #include "scene_context.h"
 #include "game/sound/sound_mgr.h"
 #include "game/ruleset/ruleset_classic.h"
 #include "chart/bms.h"
 #include "game/scroll/scroll_bms.h"
+#include "game/graphics/sprite_video.h"
 #include "config/config_mgr.h"
 #include <plog/Log.h>
 
@@ -123,6 +125,11 @@ ScenePlay::ScenePlay(ePlayMode playmode): vScene(context_play.mode, 1000), _mode
 
     _state = ePlayState::PREPARE;
 
+	if (context_chart.chartObj == nullptr)
+	{
+
+	}
+
     // basic info
     gTexts.set(eText::PLAY_TITLE, context_chart.title);
     gTexts.set(eText::PLAY_SUBTITLE, context_chart.title2);
@@ -138,29 +145,30 @@ ScenePlay::ScenePlay(ePlayMode playmode): vScene(context_play.mode, 1000), _mode
     gNumbers.set(eNumber::HS_2P, 100);
 
     // set gauge type
-    switch (context_chart.chartObj->type())
-    {
-    case eChartType::BMS:
-    case eChartType::BMSON:
-        for (size_t i = 0; i < MAX_PLAYERS; ++i)
-        {
-            switch (context_play.mods[i].gauge)
-            {
-            case eModGauge::NORMAL: _gaugetype[i] = rc::gauge_ty::GROOVE; break;
-            case eModGauge::HARD:   _gaugetype[i] = rc::gauge_ty::HARD; break;
-            case eModGauge::EASY:   _gaugetype[i] = rc::gauge_ty::EASY; break;
-            case eModGauge::DEATH:  _gaugetype[i] = rc::gauge_ty::DEATH; break;
-            case eModGauge::PATTACK: _gaugetype[i] = rc::gauge_ty::P_ATK; break;
-            case eModGauge::GATTACK: _gaugetype[i] = rc::gauge_ty::G_ATK; break;
-            case eModGauge::ASSISTEASY: _gaugetype[i] = rc::gauge_ty::ASSIST; break;
-            case eModGauge::EXHARD:  _gaugetype[i] = rc::gauge_ty::EXHARD; break;
-            default: break;
-            }
-        }
-        break;
-    default:
-        break;
-    }
+	if (context_chart.chartObj != nullptr)
+		switch (context_chart.chartObj->type())
+		{
+		case eChartType::BMS:
+		case eChartType::BMSON:
+			for (size_t i = 0; i < MAX_PLAYERS; ++i)
+			{
+				switch (context_play.mods[i].gauge)
+				{
+				case eModGauge::NORMAL: _gaugetype[i] = rc::gauge_ty::GROOVE; break;
+				case eModGauge::HARD:   _gaugetype[i] = rc::gauge_ty::HARD; break;
+				case eModGauge::EASY:   _gaugetype[i] = rc::gauge_ty::EASY; break;
+				case eModGauge::DEATH:  _gaugetype[i] = rc::gauge_ty::DEATH; break;
+				case eModGauge::PATTACK: _gaugetype[i] = rc::gauge_ty::P_ATK; break;
+				case eModGauge::GATTACK: _gaugetype[i] = rc::gauge_ty::G_ATK; break;
+				case eModGauge::ASSISTEASY: _gaugetype[i] = rc::gauge_ty::ASSIST; break;
+				case eModGauge::EXHARD:  _gaugetype[i] = rc::gauge_ty::EXHARD; break;
+				default: break;
+				}
+			}
+			break;
+		default:
+			break;
+		}
 
     if (!context_play.isCourse || context_play.isCourseFirstStage)
     {
@@ -204,6 +212,10 @@ ScenePlay::ScenePlay(ePlayMode playmode): vScene(context_play.mode, 1000), _mode
             }
         }
     }
+
+	// load failed sound
+	// TODO find failed sound path
+	SoundMgr::loadSample("failed.wav", SOUND_FAILED_IDX);
 
     using namespace std::placeholders;
     _input.register_p("SCENE_PRESS", std::bind(&ScenePlay::inputGamePress, this, _1, _2));
@@ -263,6 +275,7 @@ void ScenePlay::loadChart()
 
     case eChartType::BMSON:
     default:
+		LOG_WARNING << "[Play] chart format not supported.";
         break;
     }
 
@@ -290,7 +303,9 @@ void ScenePlay::loadChart()
             default: break;
             }
         case eChartType::BMSON:
-        default: break;
+        default: 
+			LOG_WARNING << "[Play] chart format not supported.";
+			break;
         }
 
         if (context_play.mode == eMode::PLAY14)
@@ -349,7 +364,11 @@ void ScenePlay::loadChart()
             {
                 const auto& wav = _pChart->_wavFiles[i];
                 if (wav.empty()) continue;
-                SoundMgr::loadKeySample((chartDir / wav).string(), i);
+				Path pWav(wav);
+				if (pWav.is_absolute())
+					SoundMgr::loadKeySample(wav, i);
+				else
+					SoundMgr::loadKeySample((chartDir / wav).string(), i);
                 ++wavLoaded;
             }
             context_chart.isSampleLoaded = true;
@@ -359,8 +378,10 @@ void ScenePlay::loadChart()
     // load bga
     if (!context_chart.isBgaLoaded)
     {
+		context_play.bgaTexture = std::make_shared<TextureBmsBga>();
         auto dtor = std::async(std::launch::async, [&]() {
             auto _pChart = context_chart.chartObj;
+			auto chartDir = context_chart.chartObj->getDirectory();
             for (const auto& it : _pChart->_bgaFiles)
             {
                 if (it.empty()) continue;
@@ -376,9 +397,38 @@ void ScenePlay::loadChart()
             {
                 const auto& bmp = _pChart->_bgaFiles[i];
                 if (bmp.empty()) continue;
-                // TODO load bga textures
+
+
+				Path pBmp(bmp);
+				if (pBmp.is_absolute())
+					context_play.bgaTexture->addBmp(i, pBmp);
+				else
+					context_play.bgaTexture->addBmp(i, chartDir / pBmp);
+
+				/*
+				if (fs::exists(bmp) && fs::is_regular_file(bmp) && pBmp.has_extension())
+				{
+					if (video_file_extensions.find(toLower(pBmp.extension().string())) != video_file_extensions.end())
+					{
+						if (int vi; (vi = getVideoSlot()) >= 0)
+						{
+							_video[vi].setVideo(pBmp);
+							auto pv = std::make_shared<sVideo>(_video[vi]);
+							_bgaIdxBuf[i] = pv;
+							for (auto& bv : _bgaVideoSprites[i])
+								bv->bindVideo(pv);
+						}
+					}
+					else
+					{
+						_bgaIdxBuf[i] = std::make_shared<Texture>(Image(bmp.c_str()));
+					}
+				}
+				*/
+
                 ++bmpLoaded;
             }
+			context_play.bgaTexture->setSlotFromBMS(*std::reinterpret_pointer_cast<ScrollBMS>(context_play.scrollObj[context_play.playerSlot]));
             context_chart.isBgaLoaded = true;
         });
     }
@@ -443,6 +493,7 @@ void ScenePlay::removeInputJudgeCallback()
 
 void ScenePlay::_updateAsync()
 {
+	gNumbers.set(eNumber::SCENE_UPDATE_FPS, getRate());
     switch (_state)
     {
     case ePlayState::PREPARE:
@@ -532,6 +583,7 @@ void ScenePlay::updatePlaying()
 	auto t = timestamp();
 	auto rt = t - gTimers.get(eTimer::PLAY_START);
     gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (context_play.scrollObj[context_play.playerSlot]->getCurrentBeat() * 4.0)) % 1000);
+	context_play.bgaTexture->update(rt, false);
 
     if (_mode == ePlayMode::LOCAL_BATTLE)
     {
@@ -558,9 +610,9 @@ void ScenePlay::updatePlaying()
         gNumbers.set(eNumber::PLAY_REMAIN_SEC, int(remaintime % 60));
     }
 
-    playBGMSamples();
+    procNotePlain();
     changeKeySampleMapping(rt);
-
+	//updateBga();
 
     // health check (-> to failed)
     // TODO also play failed sound
@@ -568,11 +620,13 @@ void ScenePlay::updatePlaying()
     {
     case ePlayMode::SINGLE:
     {
-        if (context_play.ruleset[context_play.playerSlot]->getData().health <= 0)
+        //if (context_play.ruleset[context_play.playerSlot]->getData().health <= 0)
+		if (context_play.health[context_play.playerSlot] <= 0)
         {
             _state = ePlayState::FAILED;
             gTimers.set(eTimer::FAIL_BEGIN, t.norm());
             gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FAILED);
+			SoundMgr::playSample(SOUND_FAILED_IDX);
             removeInputJudgeCallback();
             LOG_DEBUG << "[Play] State changed to PLAY_FAILED";
         }
@@ -595,6 +649,7 @@ void ScenePlay::updatePlaying()
             _state = ePlayState::FAILED;
             gTimers.set(eTimer::FAIL_BEGIN, t.norm());
             gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FAILED);
+			SoundMgr::playSample(SOUND_FAILED_IDX);
             removeInputJudgeCallback();
             LOG_DEBUG << "[Play] State changed to PLAY_FAILED";
         }
@@ -640,6 +695,7 @@ void ScenePlay::updateFadeout()
     auto ft = t - gTimers.get(eTimer::FADEOUT_BEGIN);
     gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (context_play.scrollObj[context_play.playerSlot]->getCurrentBeat() * 4.0)) % 1000);
     updateTTrotation(context_chart.started);
+	context_play.bgaTexture->update(rt, false);
 
     if (ft >= _skin->info.timeOutro)
     {
@@ -669,15 +725,34 @@ void ScenePlay::updateFailed()
 }
 
 
-void ScenePlay::playBGMSamples()
+void ScenePlay::procNotePlain()
 {
     assert(context_play.scrollObj[context_play.playerSlot] != nullptr);
     size_t i = 0;
     auto it = context_play.scrollObj[context_play.playerSlot]->notePlainExpired.begin();
     size_t max = _bgmSampleIdxBuf.size() < context_play.scrollObj[context_play.playerSlot]->notePlainExpired.size() ?
                  _bgmSampleIdxBuf.size() : context_play.scrollObj[context_play.playerSlot]->notePlainExpired.size();
-    for (; i < max && it != context_play.scrollObj[context_play.playerSlot]->notePlainExpired.end(); ++i)
-        _bgmSampleIdxBuf[i] = (unsigned)std::get<long long>(it++->value);
+	for (; i < max && it != context_play.scrollObj[context_play.playerSlot]->notePlainExpired.end(); ++i, ++it)
+	{
+		if (it->index & 0xF0 == 0xE0)
+		{
+			// BGA
+			/*
+			switch (it->index)
+			{
+			case 0xE0: bgaBaseIdx =  (unsigned)std::get<long long>(it->value); break;
+			case 0xE1: bgaLayerIdx = (unsigned)std::get<long long>(it->value); break;
+			case 0xE2: bgaPoorIdx =  (unsigned)std::get<long long>(it->value); break;
+			default: break;
+			}
+			*/
+		}
+		else
+		{
+			// BGM
+			_bgmSampleIdxBuf[i] = (unsigned)std::get<long long>(it->value);
+		}
+	}
 
     // TODO also play keysound in auto
 
@@ -720,6 +795,59 @@ void ScenePlay::changeKeySampleMapping(timestamp t)
             }
     }
 }
+
+/*
+void ScenePlay::updateBga()
+{
+	// base
+	if (std::holds_alternative<pVideo>(_bgaIdxBuf[bgaBaseIdx]))
+	{
+		auto pv = std::get<pVideo>(_bgaIdxBuf[bgaBaseIdx]);
+		bgaBaseTexture = nullptr;
+		pv->startPlaying();
+	}
+	else if (std::holds_alternative<pTexture>(_bgaIdxBuf[bgaBaseIdx]))
+	{
+		bgaBaseTexture = std::get<pTexture>(_bgaIdxBuf[bgaBaseIdx]);
+	}
+	else
+	{
+		bgaBaseTexture = nullptr;
+	}
+
+	// layer
+	if (std::holds_alternative<pVideo>(_bgaIdxBuf[bgaLayerIdx]))
+	{
+		auto pv = std::get<pVideo>(_bgaIdxBuf[bgaLayerIdx]);
+		bgaLayerTexture = nullptr;
+		pv->startPlaying();
+	}
+	else if (std::holds_alternative<pTexture>(_bgaIdxBuf[bgaLayerIdx]))
+	{
+		bgaLayerTexture = std::get<pTexture>(_bgaIdxBuf[bgaLayerIdx]);
+	}
+	else
+	{
+		bgaLayerTexture = nullptr;
+	}
+
+	// poor
+	if (std::holds_alternative<pVideo>(_bgaIdxBuf[bgaPoorIdx]))
+	{
+		auto pv = std::get<pVideo>(_bgaIdxBuf[bgaPoorIdx]);
+		bgaPoorTexture = nullptr;
+		pv->startPlaying();
+	}
+	else if (std::holds_alternative<pTexture>(_bgaIdxBuf[bgaPoorIdx]))
+	{
+		bgaPoorTexture = std::get<pTexture>(_bgaIdxBuf[bgaPoorIdx]);
+	}
+	else
+	{
+		bgaPoorTexture = nullptr;
+	}
+}
+*/
 
 void ScenePlay::updateTTrotation(bool startedPlaying)
 {

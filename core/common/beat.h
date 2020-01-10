@@ -1,4 +1,5 @@
 #pragma once
+#include "types.h"
 #include "fraction.h"
 #include <string>
 #include <chrono>
@@ -75,4 +76,5 @@ struct Note
     Beat totalbeat;        // Which beat the note is placed in visual (ignoring SV & STOP), can be above 1
     timestamp time;             // Time point
     std::variant<long long, double> value;              // varies from note type to type, e.g. #BGM, #BPM, etc
+	size_t index = INDEX_INVALID;			// used for distinguishing plain notes
 };

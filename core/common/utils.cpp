@@ -1,3 +1,4 @@
+
 #include "utils.h"
 #include <string>
 #include <openssl/md5.h>
@@ -131,3 +132,20 @@ std::string md5file(const fs::path& filePath)
     return ret;
 }
 
+std::string toLower(const std::string& s)
+{
+	std::string ret = s;
+	for (auto& c : ret)
+		if (c >= 'A' && c <= 'Z')
+			c = c - 'A' + 'a';
+	return ret;
+}
+
+std::string toUpper(const std::string& s)
+{
+	std::string ret = s;
+	for (auto& c : ret)
+		if (c >= 'a' && c <= 'z')
+			c = c - 'a' + 'A';
+	return ret;
+}

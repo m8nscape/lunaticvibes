@@ -53,3 +53,6 @@ constexpr unsigned base16(const char* c)
 std::string md5(const std::string& str);
 std::string md5(const char* str, size_t len);
 std::string md5file(const fs::path& filePath);
+
+std::string toLower(const std::string& s);
+std::string toUpper(const std::string& s);

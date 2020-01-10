@@ -141,6 +141,15 @@
     <ClCompile Include="common\entries\folder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="game\graphics\sprite_video.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="game\graphics\video.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="game\graphics\texture_extra.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\asynclooper.h">
@@ -315,6 +324,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="common\entries\folder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\graphics\sprite_video.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\graphics\video.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\graphics\texture_extra.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

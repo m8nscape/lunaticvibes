@@ -8,6 +8,7 @@
 #include <vector>
 #include <memory>
 #include <string>
+#include <filesystem>
 
 class Color : public SDL_Color
 {
@@ -76,11 +77,12 @@ enum class BlendFactor
 class Point
 {
 public:
+	bool valid = false;
 	double x = 0;
 	double y = 0;
 public:
 	constexpr Point(int zero = 0) {}
-	constexpr Point(double x, double y) : x(x), y(y) {}
+	constexpr Point(double x, double y) : x(x), y(y), valid(true) {}
 	constexpr Point operator+ (const Point& rhs) const { return Point(x + rhs.x, y + rhs.y); }
 	constexpr Point operator- (const Point& rhs) const { return Point(x - rhs.x, y - rhs.y); }
 	constexpr Point operator* (const double& rhs) const { return Point(x * rhs, y * rhs); }
@@ -122,6 +124,7 @@ private:
     bool _loaded = false;
     bool _haveAlphaLayer = false;
 public:
+	Image(const std::filesystem::path& path);
     Image(const char* filePath);
     ~Image();
 public:
@@ -141,26 +144,62 @@ class Texture
 	friend class SpriteNumber;
 
 	friend class SpriteLaneVertical;
+	friend class SpriteVideo;
+	friend class SpriteBmsBga;
 
 protected:
 	SDL_Texture* _pTexture = nullptr;
 	bool _loaded = false;
 	Rect _texRect;
 
+protected:
+	void static _draw(SDL_Texture* pTex, const Rect& srcRect, Rect dstRect,
+		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point* center = NULL);
+
 public:
 	// Inner draw function.
 	virtual void draw(const Rect& srcRect, Rect dstRect,
 		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const;
-	// TODO params of draw: center, flip
+	virtual void draw(const Rect& srcRect, Rect dstRect,
+		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees,
+		const Point& center) const;
+
+public:
+	enum class PixelFormat
+	{
+		UNKNOWN, 
+		UNSUPPORTED,
+
+		RGB24,
+		BGR24,
+
+		YV12,		// 4:2:0 Y + V + U
+		IYUV,		// 4:2:0 Y + U + V
+		I420 = IYUV,// 4:2:0 Y + U + V
+		YUY2,		// Y0 + U0 + Y1 + V0
+		YUYV = YUY2,// Y0 + U0 + Y1 + V0
+		UYVY,		// U0 + Y0 + V0 + Y1
+		YVYU,		// Y0 + V0 + Y1 + U0
+
+	};
 
 public:
 	Texture(const Image& srcImage);
 	Texture(const SDL_Surface* pSurface);
 	Texture(const SDL_Texture* pTexture, int w, int h);
+	Texture(int w, int h, PixelFormat fmt);	// for streaming texture
 	virtual ~Texture();
 public:
 	Rect getRect() const { return _texRect; }
 	bool isLoaded() const { return _loaded; }
+	int updateYUV(uint8_t* Y, int Ypitch, uint8_t* U, int Upitch, uint8_t* V, int Vpitch)
+	{
+		if (_loaded) return -1;
+		return SDL_UpdateYUVTexture(_pTexture, NULL,
+			Y, Ypitch,
+			U, Upitch, 
+			V, Vpitch);
+	}
 };
 
 

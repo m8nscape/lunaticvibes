@@ -46,6 +46,7 @@ private:
     std::bitset<Input::MAX_JOYSTICK_COUNT> joysticksConnected{};
     std::array<Input::Binding, Input::ESC> bindings{};
 	bool haveJoystick = false;
+	int mouse_x = 0, mouse_y = 0;
 	int analogDeadZone = 25;
 
 public:
@@ -53,7 +54,7 @@ public:
     static void updateDevices();
     static void updateBindings(unsigned keys, Input::Ingame K);
     static std::bitset<Input::KEY_COUNT> detect();
-
+	friend int getMousePos(int& x, int& y);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -67,3 +68,6 @@ bool isKeyPressed(Input::Key c);
 // Joystick detect
 typedef int JoyBtn;
 //bool isButtonPressed(Device d, Button b);
+
+// Mouse detect
+int getMousePos(int& x, int& y);

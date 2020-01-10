@@ -187,6 +187,9 @@ enum class eNumber: unsigned
 
     _SELECT_BAR_LEVEL_0 = 400,
 
+	SCENE_UPDATE_FPS = 1000,
+	INPUT_DETECT_FPS,
+
     NUMBER_COUNT
 };
 

@@ -29,6 +29,9 @@ enum class SpriteTypes
 	LINE,
     NOTE_VERT,
 
+	VIDEO,
+	BMS_BGA,
+
     BAR_ENTRY,
 };
 
@@ -45,6 +48,7 @@ struct RenderParams
 	BlendMode blend;
 	bool filter;
     double angle;           // rotate angle / degree, 360 for one lap
+	Point center;			// rotate center point, in doubles
 };
 
 struct RenderKeyFrame

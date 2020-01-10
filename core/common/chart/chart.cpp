@@ -46,5 +46,5 @@ std::shared_ptr<vChart> vChart::getFromFile(const Path& path)
 
 Path vChart::getDirectory() const
 {
-    return (_filePath / "..").lexically_normal();
+    return _absolutePath.parent_path().lexically_normal();
 }

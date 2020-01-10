@@ -1,0 +1,14 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: libavfilter
+Description: Libav video filtering library
+Version: 6.7.0
+Requires: 
+Requires.private: libswscale >= 4.0.0, libavresample >= 3.0.0, libavutil >= 55.20.0
+Conflicts:
+Libs: -L${libdir} -lavfilter 
+Libs.private: -lws2_32 -lm -lz -lpsapi -ladvapi32 -lshell32
+Cflags: -I${includedir}
