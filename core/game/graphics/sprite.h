@@ -81,7 +81,7 @@ protected:
     std::vector<RenderKeyFrame> _keyFrames;
 public:
     vSprite(pTexture pTexture, SpriteTypes type = SpriteTypes::VIRTUAL);
-    virtual ~vSprite() = default;
+	virtual ~vSprite() = default;
 public:
     void setLine(int i) { __line = i; }
     void setParent(std::weak_ptr<vSprite> p) { _parent = p; _haveParent = true; }

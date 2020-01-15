@@ -1,6 +1,7 @@
 #pragma once
 #include <variant>
 #include <mutex>
+#include <future>
 #include "scene.h"
 #include "chart/chart.h"
 #include "game/scroll/scroll.h"
@@ -29,6 +30,9 @@ const size_t SOUND_FAILED_IDX = 63;
 class ScenePlay : public vScene
 {
 private:
+	std::future<void> loadChartRet;
+
+private:
     ePlayState _state;
     InputMask _inputAvailable;
 
@@ -45,7 +49,13 @@ private:
 
 public:
     ScenePlay(ePlayMode);
-    virtual ~ScenePlay() { loopEnd(); }
+	virtual ~ScenePlay()
+	{
+		sceneEnding = true; 
+		if (loadChartRet.valid()) 
+			loadChartRet.wait();
+		loopEnd(); 
+	}
 
 private:
     std::array<size_t, 128> _bgmSampleIdxBuf{};

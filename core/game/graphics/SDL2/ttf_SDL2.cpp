@@ -13,7 +13,7 @@ TTFFont::TTFFont(const char* filePath, int ptsize): _pFont(TTF_OpenFont(filePath
 TTFFont::~TTFFont()
 {
     if (!_loaded) return;
-    TTF_CloseFont(_pFont);
+	TTF_CloseFont(_pFont);
 }
 
 

@@ -119,8 +119,8 @@ class Image
 
 private:
     std::string _path;
-    std::shared_ptr<SDL_RWops> _pRWop;
-    std::shared_ptr<SDL_Surface> _pSurface;
+    SDL_RWops* _pRWop;
+    SDL_Surface* _pSurface;
     bool _loaded = false;
     bool _haveAlphaLayer = false;
 public:
@@ -227,7 +227,7 @@ class TTFFont
     friend class SpriteText;
 
 protected:
-    TTF_Font* _pFont = nullptr;
+    TTF_Font* _pFont = NULL;
     bool _loaded = false;
 
 public:

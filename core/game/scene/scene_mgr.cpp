@@ -2,6 +2,7 @@
 #include "scene_context.h"
 #include "scene_play.h"
 #include "scene_result.h"
+#include "game/skin/skin_mgr.h"
 #include "game/ruleset/ruleset.h"
 
 SceneMgr SceneMgr::_inst;
@@ -53,4 +54,9 @@ pScene SceneMgr::get(eScene e)
 		ps->playSkinVideos();
 	}
 	return ps;
+}
+
+void SceneMgr::free()
+{
+	SkinMgr::free();
 }

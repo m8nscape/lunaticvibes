@@ -343,7 +343,7 @@ void ScenePlay::loadChart()
     }
 
     // load samples
-    if (!context_chart.isSampleLoaded)
+    if (!context_chart.isSampleLoaded && !sceneEnding)
     {
         auto dtor = std::async(std::launch::async, [&]() {
             auto _pChart = context_chart.chartObj;
@@ -351,6 +351,7 @@ void ScenePlay::loadChart()
             LOG_DEBUG << "[Play] Load files from " << chartDir.string();
             for (const auto& it : _pChart->_wavFiles)
             {
+				if (sceneEnding) break;
                 if (it.empty()) continue;
                 ++wavToLoad;
             }
@@ -362,6 +363,7 @@ void ScenePlay::loadChart()
             }
             for (size_t i = 0; i < _pChart->_wavFiles.size(); ++i)
             {
+				if (sceneEnding) break;
                 const auto& wav = _pChart->_wavFiles[i];
                 if (wav.empty()) continue;
 				Path pWav(wav);
@@ -376,7 +378,7 @@ void ScenePlay::loadChart()
     }
 
     // load bga
-    if (!context_chart.isBgaLoaded)
+    if (!context_chart.isBgaLoaded && !sceneEnding)
     {
 		context_play.bgaTexture = std::make_shared<TextureBmsBga>();
         auto dtor = std::async(std::launch::async, [&]() {
@@ -384,6 +386,7 @@ void ScenePlay::loadChart()
 			auto chartDir = context_chart.chartObj->getDirectory();
             for (const auto& it : _pChart->_bgaFiles)
             {
+				if (sceneEnding) return;
                 if (it.empty()) continue;
                 ++bmpToLoad;
             }
@@ -395,6 +398,7 @@ void ScenePlay::loadChart()
             }
             for (size_t i = 0; i < _pChart->_bgaFiles.size(); ++i)
             {
+				if (sceneEnding) return;
                 const auto& bmp = _pChart->_bgaFiles[i];
                 if (bmp.empty()) continue;
 
@@ -527,7 +531,7 @@ void ScenePlay::updatePrepare()
         _state = ePlayState::LOADING;
 		gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_LOADING);
 
-        std::thread(&ScenePlay::loadChart, this).detach();
+		loadChartRet = std::async(std::launch::async, std::bind(&ScenePlay::loadChart, this));
         LOG_DEBUG << "[Play] State changed to LOADING";
     }
 }

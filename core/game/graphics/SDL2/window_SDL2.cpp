@@ -126,9 +126,9 @@ int graphics_free()
 {
     SDL_DestroyRenderer(_frame_renderer);
     SDL_DestroyWindow(_frame_window);
-    SDL_Quit();
     TTF_Quit();
     IMG_Quit();
+	SDL_Quit();
 
     return 0;
 }

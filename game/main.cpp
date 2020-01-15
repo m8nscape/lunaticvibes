@@ -40,11 +40,12 @@ void mainLoop()
         // Scene change
         if (currentScene != __next_scene)
         {
-            currentScene = __next_scene;
-            scene = SceneMgr::get(currentScene);
+			scene->loopEnd();
             clearCustomDstOpt();
-            if (currentScene == eScene::EXIT)
-                break;
+			currentScene = __next_scene;
+			scene = SceneMgr::get(currentScene);
+			if (currentScene == eScene::EXIT)
+				break;
         }
 
         // draw
@@ -139,6 +140,7 @@ int main(int argc, char* argv[])
 
     mainLoop();
 
+	SceneMgr::free();	// clean resources before releasing framework
     graphics_free();
 
 #ifdef WIN32

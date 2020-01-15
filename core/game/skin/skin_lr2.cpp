@@ -1607,11 +1607,12 @@ int SkinLR2::DST()
     auto e = _sprites.back();
     if (e && e->type() == SpriteTypes::GLOBAL)
     {
+		auto eg = std::reinterpret_pointer_cast<SpriteGlobal>(e);
         auto ee = e;
         do
         {
             ee = gSprites[std::reinterpret_pointer_cast<SpriteGlobal>(ee)->get()];
-            std::reinterpret_pointer_cast<SpriteGlobal>(e)->set(ee);
+            eg->set(ee);
 
             if (ee == nullptr)
             {
@@ -1620,6 +1621,7 @@ int SkinLR2::DST()
             }
 
         } while (ee->type() == SpriteTypes::GLOBAL);
+		e = ee;
     }
 
     if (e == nullptr)

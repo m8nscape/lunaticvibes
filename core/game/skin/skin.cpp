@@ -33,14 +33,14 @@ void vSkin::update()
 		{
         case SpriteTypes::GLOBAL:
         {
-            auto& ref = (std::shared_ptr<SpriteGlobal>&)s;
+            auto ref = std::reinterpret_pointer_cast<SpriteGlobal>(s);
             if (gSprites[ref->get()]) ref->set(gSprites[ref->get()]);
             ref->update(t);
             break;
         }
 		case SpriteTypes::NOTE_VERT:
 		{
-			auto& ref = (std::shared_ptr<SpriteLaneVertical>&)s;
+			auto ref = std::reinterpret_pointer_cast<SpriteLaneVertical>(s);
 			if (ref->haveDst() && context_play.scrollObj[ref->_playerSlot] != nullptr && context_chart.started)
 			{
 				ref->update(t);

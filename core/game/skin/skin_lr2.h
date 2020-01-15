@@ -1370,6 +1370,7 @@ protected:
 public:
     SkinLR2() = delete;
     SkinLR2(Path p);
+	virtual ~SkinLR2() = default;
     void loadCSV(Path p);
 
 protected:

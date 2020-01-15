@@ -21,6 +21,9 @@ protected:
     InputWrapper _input;
 
 public:
+	bool sceneEnding = false;
+
+public:
 	const static size_t SCENE_VIDEO_SLOT_MAX = 32;
 	std::array<sVideo, SCENE_VIDEO_SLOT_MAX> _video;
 	int getVideoSlot() const;
@@ -33,7 +36,7 @@ public:
 
 public:
     vScene() = delete;
-    virtual ~vScene() { loopEnd(); }
+	virtual ~vScene() { sceneEnding = true; loopEnd(); }
     virtual void update();      // skin update
     virtual void draw() const;
 

@@ -52,3 +52,15 @@ void SkinMgr::unload(eMode e)
 {
     _inst.c[static_cast<size_t>(e)].reset();
 }
+
+void SkinMgr::free()
+{
+	for (auto& s : gSprites)
+	{
+		s.reset();
+	}
+	for (eMode e = eMode::TITLE; e < eMode::MODE_COUNT; ++*((int*)&e))
+	{
+		unload(e);
+	}
+}

@@ -33,7 +33,7 @@ public:
 protected:
     vSkin();
 public:
-    virtual ~vSkin() = default;
+	virtual ~vSkin() = default;
 
 protected:
     bool _loaded = false;

@@ -17,4 +17,5 @@ private:
 
 public:
     static pScene get(eScene);
+	static void free();
 };

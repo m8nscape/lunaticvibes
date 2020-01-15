@@ -86,7 +86,7 @@ bool isTGA(const char* filePath)
 
 Image::Image(const std::filesystem::path& path) : Image(path.string().c_str()) {}
 
-Image::Image(const char* filePath) : _path(filePath), _pRWop(SDL_RWFromFile(filePath, "rb"), [](SDL_RWops* s) { if (s) s->close(s); })
+Image::Image(const char* filePath) : _path(filePath), _pRWop(SDL_RWFromFile(filePath, "rb"))
 {
     if (!_pRWop && strlen(filePath) > 0)
     {
@@ -96,8 +96,7 @@ Image::Image(const char* filePath) : _path(filePath), _pRWop(SDL_RWFromFile(file
     if (!isTGA(filePath))
     {
         // Start non-TGA type loading
-        _pSurface = std::shared_ptr<SDL_Surface>(
-            IMG_Load_RW(&*_pRWop, SDL_LOAD_NOAUTOFREE), SDL_FreeSurface);
+        _pSurface = IMG_Load_RW(_pRWop, SDL_LOAD_NOAUTOFREE);
         if (!_pSurface)
         {
             LOG_WARNING << "[Image] Build surface object error! " << filePath;
@@ -106,14 +105,13 @@ Image::Image(const char* filePath) : _path(filePath), _pRWop(SDL_RWFromFile(file
         }
 
         _loaded = true;
-        if (IMG_isGIF(&*_pRWop) || IMG_isPNG(&*_pRWop))
+        if (IMG_isGIF(_pRWop) || IMG_isPNG(_pRWop))
             _haveAlphaLayer = true;
     }
     else
     {
         // separated TGA type loading since IMG_Load_RW does not support TGA.
-        _pSurface = std::shared_ptr<SDL_Surface>(
-            IMG_LoadTGA_RW(&*_pRWop), SDL_FreeSurface);
+        _pSurface = IMG_LoadTGA_RW(_pRWop);
         if (!_pSurface)
         {
             LOG_WARNING << "[Image] Build surface object error! " << filePath;
@@ -129,6 +127,8 @@ Image::Image(const char* filePath) : _path(filePath), _pRWop(SDL_RWFromFile(file
 
 Image::~Image() 
 {
+	if (_pRWop) _pRWop->close(_pRWop);
+	if (_pSurface) SDL_FreeSurface(_pSurface);
 }
 
 Rect Image::getRect() const
@@ -153,7 +153,7 @@ Texture::Texture(const Image& srcImage)
         Image tmpImage = srcImage;
         // TODO remove pixels that are equal to TRANSPARENT color
         // Requiring get full pixel data from instance, leading to long load time
-        _pTexture = SDL_CreateTextureFromSurface(_frame_renderer, &*tmpImage._pSurface);
+        _pTexture = SDL_CreateTextureFromSurface(_frame_renderer, tmpImage._pSurface);
         if (_pTexture)
         {
             _texRect = srcImage.getRect();
@@ -162,7 +162,7 @@ Texture::Texture(const Image& srcImage)
     }
     else
     {
-        _pTexture = SDL_CreateTextureFromSurface(_frame_renderer, &*srcImage._pSurface);
+        _pTexture = SDL_CreateTextureFromSurface(_frame_renderer, srcImage._pSurface);
         if (_pTexture)
         {
             _texRect = srcImage.getRect();
@@ -250,13 +250,13 @@ void Texture::_draw(SDL_Texture* pTex, const Rect& srcRect, Rect dstRect,
 void Texture::draw(const Rect& srcRect, Rect dstRect,
 	const Color c, const BlendMode b, const bool filter, const double angle) const
 {
-	_draw(&*_pTexture, srcRect, dstRect, c, b, filter, angle, NULL);
+	_draw(_pTexture, srcRect, dstRect, c, b, filter, angle, NULL);
 }
 
 void Texture::draw(const Rect& srcRect, Rect dstRect,
 	const Color c, const BlendMode b, const bool filter, const double angle, const Point& center) const
 {
-	_draw(&*_pTexture, srcRect, dstRect, c, b, filter, angle, &center);
+	_draw(_pTexture, srcRect, dstRect, c, b, filter, angle, &center);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -266,7 +266,7 @@ TextureFull::TextureFull(const Color& c): Texture(nullptr)
 {
     auto surface = SDL_CreateRGBSurface(0, 1, 1, 32, 0xff, 0xff, 0xff, 0xff);
     SDL_Rect r{ 0, 0, 1, 1 };
-    SDL_FillRect(&*surface, &r, c.hex());
+    SDL_FillRect(surface, &r, c.hex());
     _pTexture = SDL_CreateTextureFromSurface(_frame_renderer, surface);
     SDL_FreeSurface(surface);
     _texRect = { 0,0,1,1 };
@@ -284,11 +284,11 @@ TextureFull::~TextureFull() {}
 void TextureFull::draw(const Rect& ignored, const Rect& dstRect,
     const Color c, const double angle) const
 {
-	SDL_SetTextureColorMod(&*_pTexture, c.r, c.g, c.b);
-	SDL_SetTextureAlphaMod(&*_pTexture, c.a);
+	SDL_SetTextureColorMod(_pTexture, c.r, c.g, c.b);
+	SDL_SetTextureAlphaMod(_pTexture, c.a);
     SDL_RenderCopyEx(
         _frame_renderer,
-        &*_pTexture,
+        _pTexture,
         &_texRect, &dstRect,
         angle,
         NULL, SDL_FLIP_NONE

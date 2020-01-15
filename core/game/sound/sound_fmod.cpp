@@ -4,6 +4,8 @@
 #include "fmod_errors.h"
 #include <cstdlib>
 
+#include "utils.h"
+
 SoundDriverFMOD::SoundDriverFMOD()
 {
     initRet = FMOD::System_Create(&fmodSystem);      // Create the main system object.
@@ -153,7 +155,9 @@ void SoundDriverFMOD::loadSampleThread()
 int SoundDriverFMOD::loadKeySample(std::string path, size_t index)
 {
     if (path.empty()) return 0;
-    FMOD_RESULT r = fmodSystem->createSound(path.c_str(), FMOD_UNIQUE, 0, &keySamples[index]);
+	FMOD_RESULT r = FMOD_ERR_FILE_NOTFOUND;
+	if (fs::exists(path) && fs::is_regular_file(path))
+		r = fmodSystem->createSound(path.c_str(), FMOD_UNIQUE, 0, &keySamples[index]);
 
     // Also find ogg with the same filename
     if (r == FMOD_ERR_FILE_NOTFOUND && path.length() > 4 && path.substr(path.length() - 4) == ".wav")

@@ -22,4 +22,5 @@ public:
     static void load(eMode);
     static void unload(eMode);
     static pSkin get(eMode);
+	static void free();
 };
