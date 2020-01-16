@@ -45,6 +45,9 @@ TextureVideo::~TextureVideo()
 
 void TextureVideo::start()
 {
+	if (_running) return;
+	pVideo->seek(0);
+	pVideo->startPlaying();
 	loopStart();
 }
 
@@ -146,6 +149,7 @@ bool TextureBmsBga::setSlotFromBMS(ScrollBMS& bms)
 	for (const auto& l : lLayer) setSlot(std::get<long long>(l.value), l.time, false, true, false);
 	for (const auto& l : lPoor) setSlot(std::get<long long>(l.value), l.time, false, false, true);
 	sortSlot();
+	_loaded = true;
 	return true;
 }
 
@@ -169,7 +173,7 @@ void TextureBmsBga::seek(timestamp t)
 				return;
 			}
 		}
-		slotIt = slot.end();	// not found
+		//slotIt = slot.end();	// not found
 	};
 
 	seekSub(baseSlot, baseIdx, baseIt);
@@ -192,13 +196,14 @@ void TextureBmsBga::update(timestamp t, bool poor)
 				if (objs[idx].type == obj::Ty::VIDEO)
 				{
 					auto pt = std::reinterpret_pointer_cast<TextureVideo>(objs[idx].pt);
-					pt->seek((t - time).norm() / 1000);
+					pt->start();
+					//pt->seek((t - time).norm() / 1000);
 					pt->update();
 				}
 				return;
 			}
 		}
-		slotIt = slot.end();	// no bga
+		//slotIt = slot.end();	// no bga
 	};
 
 	seekSub(baseSlot, baseIdx, baseIt);
@@ -210,22 +215,22 @@ void TextureBmsBga::update(timestamp t, bool poor)
 void TextureBmsBga::draw(const Rect& sr, Rect dr,
 	const Color c, const BlendMode b, const bool f, const double a) const
 {
-	if (inPoor && poorIdx != -1u && objs.at(poorIdx).type != obj::Ty::EMPTY) objs.at(poorIdx).pt->draw(sr, dr, c, b, f, a);
+	if (inPoor && poorIdx != INDEX_INVALID && objs.at(poorIdx).type != obj::Ty::EMPTY) objs.at(poorIdx).pt->draw(dr, c, b, f, a);
 	else
 	{
-		if (baseIdx != -1u && objs.at(baseIdx).type != obj::Ty::EMPTY) objs.at(baseIdx).pt->draw(sr, dr, c, b, f, a);
-		if (layerIdx != -1u && objs.at(layerIdx).type != obj::Ty::EMPTY) objs.at(layerIdx).pt->draw(sr, dr, c, b, f, a);
+		if (baseIdx != INDEX_INVALID && objs.at(baseIdx).type != obj::Ty::EMPTY) objs.at(baseIdx).pt->draw(dr, c, b, f, a);
+		if (layerIdx != INDEX_INVALID && objs.at(layerIdx).type != obj::Ty::EMPTY) objs.at(layerIdx).pt->draw(dr, c, b, f, a);
 	}
 }
 
 void TextureBmsBga::draw(const Rect& sr, Rect dr,
 	const Color c, const BlendMode b, const bool f, const double a, const Point& ct) const
 {
-	if (inPoor && poorIdx != -1u && objs.at(poorIdx).type != obj::Ty::EMPTY) objs.at(poorIdx).pt->draw(sr, dr, c, b, f, a, ct);
+	if (inPoor && poorIdx != INDEX_INVALID && objs.at(poorIdx).type != obj::Ty::EMPTY) objs.at(poorIdx).pt->draw(dr, c, b, f, a, ct);
 	else
 	{
-		if (baseIdx != -1u && objs.at(baseIdx).type != obj::Ty::EMPTY) objs.at(baseIdx).pt->draw(sr, dr, c, b, f, a, ct);
-		if (layerIdx != -1u && objs.at(layerIdx).type != obj::Ty::EMPTY) objs.at(layerIdx).pt->draw(sr, dr, c, b, f, a, ct);
+		if (baseIdx != INDEX_INVALID && objs.at(baseIdx).type != obj::Ty::EMPTY) objs.at(baseIdx).pt->draw(dr, c, b, f, a, ct);
+		if (layerIdx != INDEX_INVALID && objs.at(layerIdx).type != obj::Ty::EMPTY) objs.at(layerIdx).pt->draw(dr, c, b, f, a, ct);
 	}
 }
 

@@ -117,9 +117,10 @@
       <AdditionalDependencies>core.lib;yaml-cpp.lib;SDL2_gfx.lib;fmodL_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y $(SolutionDir)obj\$(PlatformTarget)\*.dll $(OutDir)
+      <Command>xcopy /y $(SolutionDir)ext\fmod\lib\fmodL.dll $(OutDir)
+xcopy /y $(SolutionDir)obj\$(PlatformTarget)\*.dll $(OutDir)
 xcopy /y $(SolutionDir)ext\sqlite3\lib\$(PlatformTarget)\*.dll $(OutDir)
-xcopy /y $(SolutionDir)ext\fmod\lib\fmodL.dll $(OutDir)</Command>
+xcopy /y $(SolutionDir)ext\libav\lib\$(PlatformTarget)\*.dll $(OutDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -138,9 +139,10 @@ xcopy /y $(SolutionDir)ext\fmod\lib\fmodL.dll $(OutDir)</Command>
       <AdditionalDependencies>core.lib;yaml-cpp.lib;SDL2_gfx.lib;fmodL64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y $(SolutionDir)obj\$(PlatformTarget)\*.dll $(OutDir)
+      <Command>xcopy /y $(SolutionDir)ext\fmod\lib\fmodL64.dll $(OutDir)
+xcopy /y $(SolutionDir)obj\$(PlatformTarget)\*.dll $(OutDir)
 xcopy /y $(SolutionDir)ext\sqlite3\lib\$(PlatformTarget)\*.dll $(OutDir)
-xcopy /y $(SolutionDir)ext\fmod\lib\fmodL64.dll $(OutDir)</Command>
+xcopy /y $(SolutionDir)ext\libav\lib\$(PlatformTarget)\*.dll $(OutDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -163,9 +165,10 @@ xcopy /y $(SolutionDir)ext\fmod\lib\fmodL64.dll $(OutDir)</Command>
       <AdditionalDependencies>core.lib;yaml-cpp.lib;SDL2_gfx.lib;fmod_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y $(SolutionDir)obj\$(PlatformTarget)\*.dll $(OutDir)
+      <Command>xcopy /y $(SolutionDir)ext\fmod\lib\fmod.dll $(OutDir)
+xcopy /y $(SolutionDir)obj\$(PlatformTarget)\*.dll $(OutDir)
 xcopy /y $(SolutionDir)ext\sqlite3\lib\$(PlatformTarget)\*.dll $(OutDir)
-xcopy /y $(SolutionDir)ext\fmod\lib\fmod.dll $(OutDir)</Command>
+xcopy /y $(SolutionDir)ext\libav\lib\$(PlatformTarget)\*.dll $(OutDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -188,9 +191,10 @@ xcopy /y $(SolutionDir)ext\fmod\lib\fmod.dll $(OutDir)</Command>
       <AdditionalDependencies>core.lib;yaml-cpp.lib;SDL2_gfx.lib;fmod64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y $(SolutionDir)obj\$(PlatformTarget)\*.dll $(OutDir)
+      <Command>xcopy /y $(SolutionDir)ext\fmod\lib\fmod64.dll $(OutDir)
+xcopy /y $(SolutionDir)obj\$(PlatformTarget)\*.dll $(OutDir)
 xcopy /y $(SolutionDir)ext\sqlite3\lib\$(PlatformTarget)\*.dll $(OutDir)
-xcopy /y $(SolutionDir)ext\fmod\lib\fmod64.dll $(OutDir)</Command>
+xcopy /y $(SolutionDir)ext\libav\lib\$(PlatformTarget)\*.dll $(OutDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -17,12 +17,13 @@ void ConfigProfile::rename(const std::string& name)
 
 void ConfigProfile::setDefaults() noexcept
 {
-    using namespace cfg;
-    //_yaml[P_PLAYERNAME] = "Unnamed";
-    _yaml[P_BASESPEED] = 1.0;
-    _yaml[P_HISPEED] = 1.0;
-    _yaml[P_REGULAR_SPEED] = 1200;
-    _yaml[P_SPEED_TYPE] = P_SPEED_TYPE_NORMAL;
+	using namespace cfg;
+	//_yaml[P_PLAYERNAME] = "Unnamed";
+	_yaml[P_BASESPEED] = 1.0;
+	_yaml[P_HISPEED] = 1.0;
+	_yaml[P_REGULAR_SPEED] = 1200;
+	_yaml[P_SPEED_TYPE] = P_SPEED_TYPE_NORMAL;
+	_yaml[P_SHOW_BGA] = ON;
     _yaml[P_LANECOVER] = 0;
     _yaml[P_LIFT] = 0;
     _yaml[P_CHART_OP] = P_CHART_OP_NORMAL;

@@ -1435,6 +1435,7 @@ private:
     ParseRet SRC_NOWJUDGE2();
     ParseRet SRC_NOWCOMBO1();
     ParseRet SRC_NOWCOMBO2();
+	ParseRet SRC_BGA();
 
     ParseRet SRC_BAR_BODY();
     ParseRet SRC_BAR_FLASH();

@@ -145,7 +145,6 @@ class Texture
 
 	friend class SpriteLaneVertical;
 	friend class SpriteVideo;
-	friend class SpriteBmsBga;
 
 protected:
 	SDL_Texture* _pTexture = nullptr;
@@ -153,16 +152,19 @@ protected:
 	Rect _texRect;
 
 protected:
-	void static _draw(SDL_Texture* pTex, const Rect& srcRect, Rect dstRect,
+	void static _draw(SDL_Texture* pTex, const Rect* srcRect, Rect dstRect,
 		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point* center = NULL);
 
 public:
 	// Inner draw function.
+	virtual void draw(Rect dstRect,
+		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const;
+	virtual void draw(Rect dstRect,
+		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point& center) const;
 	virtual void draw(const Rect& srcRect, Rect dstRect,
 		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const;
 	virtual void draw(const Rect& srcRect, Rect dstRect,
-		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees,
-		const Point& center) const;
+		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point& center) const;
 
 public:
 	enum class PixelFormat
@@ -194,7 +196,7 @@ public:
 	bool isLoaded() const { return _loaded; }
 	int updateYUV(uint8_t* Y, int Ypitch, uint8_t* U, int Upitch, uint8_t* V, int Vpitch)
 	{
-		if (_loaded) return -1;
+		if (!_loaded) return -1;
 		return SDL_UpdateYUVTexture(_pTexture, NULL,
 			Y, Ypitch,
 			U, Upitch, 

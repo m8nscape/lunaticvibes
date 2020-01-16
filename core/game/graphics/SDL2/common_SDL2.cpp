@@ -227,12 +227,12 @@ Texture::~Texture()
         SDL_DestroyTexture(_pTexture);
 }
 
-void Texture::_draw(SDL_Texture* pTex, const Rect& srcRect, Rect dstRect,
+void Texture::_draw(SDL_Texture* pTex, const Rect* srcRect, Rect dstRect,
 	const Color c, const BlendMode b, const bool filter, const double angle, const Point* center)
 {
 	int flipFlags = 0;
-	if (dstRect.w < 0) { dstRect.w = -dstRect.w; dstRect.x -= dstRect.w; flipFlags |= SDL_FLIP_HORIZONTAL; }
-	if (dstRect.h < 0) { dstRect.h = -dstRect.h; dstRect.y -= dstRect.h; flipFlags |= SDL_FLIP_VERTICAL; }
+	//if (dstRect.w < 0) { dstRect.w = -dstRect.w; dstRect.x -= dstRect.w; flipFlags |= SDL_FLIP_HORIZONTAL; }
+	//if (dstRect.h < 0) { dstRect.h = -dstRect.h; dstRect.y -= dstRect.h; flipFlags |= SDL_FLIP_VERTICAL; }
 	SDL_SetTextureColorMod(pTex, c.r, c.g, c.b);
 	SDL_SetTextureAlphaMod(pTex, c.a);
 	SDL_SetTextureBlendMode(pTex, (SDL_BlendMode)b);
@@ -241,22 +241,34 @@ void Texture::_draw(SDL_Texture* pTex, const Rect& srcRect, Rect dstRect,
 	SDL_RenderCopyEx(
 		_frame_renderer,
 		pTex,
-		&srcRect, &dstRect,
+		srcRect, &dstRect,
 		angle,
 		center ? &scenter : NULL, SDL_RendererFlip(flipFlags)
 	);
 }
 
+void Texture::draw(Rect dstRect,
+	const Color c, const BlendMode b, const bool filter, const double angle) const
+{
+	_draw(_pTexture, NULL, dstRect, c, b, filter, angle, NULL);
+}
+
+void Texture::draw(Rect dstRect,
+	const Color c, const BlendMode b, const bool filter, const double angle, const Point& center) const
+{
+	_draw(_pTexture, NULL, dstRect, c, b, filter, angle, &center);
+}
+
 void Texture::draw(const Rect& srcRect, Rect dstRect,
 	const Color c, const BlendMode b, const bool filter, const double angle) const
 {
-	_draw(_pTexture, srcRect, dstRect, c, b, filter, angle, NULL);
+	_draw(_pTexture, &srcRect, dstRect, c, b, filter, angle, NULL);
 }
 
 void Texture::draw(const Rect& srcRect, Rect dstRect,
 	const Color c, const BlendMode b, const bool filter, const double angle, const Point& center) const
 {
-	_draw(_pTexture, srcRect, dstRect, c, b, filter, angle, &center);
+	_draw(_pTexture, &srcRect, dstRect, c, b, filter, angle, &center);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

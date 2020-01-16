@@ -13,7 +13,7 @@ class TextureVideo : public Texture, public AsyncLooper
 {
 protected:
 	std::shared_ptr<sVideo> pVideo;
-	unsigned decoded_frames;
+	unsigned decoded_frames = ~0;
 	PixelFormat format;
 
 public:
@@ -59,7 +59,7 @@ protected:
 	decltype(baseSlot.begin()) baseIt;
 	decltype(layerSlot.begin()) layerIt;
 	decltype(poorSlot.begin()) poorIt;
-	bool inPoor;
+	bool inPoor = false;
 	
 public:
 	TextureBmsBga(int x = 256, int y = 256) : Texture(nullptr, x, y) {}

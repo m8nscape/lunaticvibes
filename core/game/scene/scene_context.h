@@ -63,7 +63,7 @@ struct __play_context_params
     std::shared_ptr<vScroll> scrollObj[2]{ nullptr, nullptr };
     double health[2]{ 1.0, 1.0 };
 
-	std::shared_ptr<TextureBmsBga> bgaTexture;
+	std::shared_ptr<TextureBmsBga> bgaTexture = std::make_shared<TextureBmsBga>();
 
     // gauge/score graph key points
     // managed by SLOT, which includes local battle 1P/2P and multi battle player slots

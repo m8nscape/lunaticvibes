@@ -1,5 +1,6 @@
 #pragma once
 #include <shared_mutex>
+#include <future>
 #include "types.h"
 #include "game/graphics/graphics.h"
 
@@ -14,12 +15,15 @@ extern "C"
 class vScene;
 class vSkin;
 
+void video_init();
+
 // libav decoder wrap
 class sVideo
 {
 	friend class vScene;
 	friend class vSkin;
 public:
+	Path file;
 	bool haveVideo = false;
 
 private:
@@ -31,12 +35,14 @@ private:
 	AVFrame *pFrame = nullptr;
 	AVPacket *pPacket = nullptr;
 	int videoIndex = -1;
-	unsigned decoded_frames;
+	unsigned decoded_frames = 0;
+	std::chrono::time_point<std::chrono::system_clock> startTime;
+	std::future<void> decodeEnd;
 
 	// render properties
 	Path filePath;
 	double speed = 1.0;
-	int w, h;
+	int w = -1, h = -1;		// set in setVideo()
 	bool playing = false;
 	bool decoding = false;
 

@@ -14,6 +14,8 @@ extern "C"
 #include "common/utils.h"
 #include "plog/Log.h"
 
+void video_init() { av_register_all(); }
+
 sVideo::~sVideo()
 {
 	if (haveVideo)
@@ -29,8 +31,9 @@ int sVideo::setVideo(const Path& file)
 	if (!fs::is_regular_file(file)) return -2;
 
 	if (haveVideo) unsetVideo();
+	this->file = file;
 
-	if (int ret; (ret = avformat_open_input(&pFormatCtx, file.string().c_str(), NULL, NULL)) != 0)
+	if (int ret = avformat_open_input(&pFormatCtx, file.string().c_str(), NULL, NULL); ret != 0)
 	{
 		char buf[256];
 		av_strerror(ret, buf, 256);
@@ -38,7 +41,7 @@ int sVideo::setVideo(const Path& file)
 		return -1;
 	}
 
-	if (int ret; (ret = avformat_find_stream_info(pFormatCtx, NULL)) < 0)
+	if (int ret = avformat_find_stream_info(pFormatCtx, NULL); ret < 0)
 	{
 		char buf[256];
 		av_strerror(ret, buf, 256);
@@ -46,9 +49,30 @@ int sVideo::setVideo(const Path& file)
 		return -2;
 	}
 
-	if ((videoIndex = av_find_best_stream(pFormatCtx, AVMEDIA_TYPE_VIDEO, -1, -1, &pCodec, 0)) < 0)
+	//if ((videoIndex = av_find_best_stream(pFormatCtx, AVMEDIA_TYPE_VIDEO, -1, -1, &pCodec, 0)) < 0)
+	for (int i = 0; i < pFormatCtx->nb_streams; ++i)
+	{
+		if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO)
+		{
+			videoIndex = i;
+			break;
+		}
+	}
+	if (videoIndex < 0)
 	{
 		LOG_WARNING << "[Video] Could not find video stream of " << fs::absolute(file).string();
+		return -3;
+	}
+
+	if ((pCodec = avcodec_find_decoder(pFormatCtx->streams[videoIndex]->codecpar->codec_id)) == NULL)
+	{
+		auto id = pFormatCtx->streams[videoIndex]->codecpar->codec_id;
+		auto desc = avcodec_descriptor_get(id);
+		if (desc)
+			LOG_WARNING << "[Video] Could not find codec " << desc->long_name;
+		else
+			LOG_WARNING << "[Video] Could not find codec " << (int)id;
+
 		return -3;
 	}
 
@@ -58,7 +82,7 @@ int sVideo::setVideo(const Path& file)
 		return -4;
 	}
 
-	if (int ret; (ret = avcodec_parameters_to_context(pCodecCtx, pFormatCtx->streams[videoIndex]->codecpar)) < 0)
+	if (int ret = avcodec_parameters_to_context(pCodecCtx, pFormatCtx->streams[videoIndex]->codecpar); ret < 0)
 	{
 		char buf[256];
 		av_strerror(ret, buf, 256);
@@ -66,27 +90,9 @@ int sVideo::setVideo(const Path& file)
 		return -5;
 	}
 
-	if ((pFrame = av_frame_alloc()) == nullptr)
-	{
-		LOG_WARNING << "[Video] Could not alloc frame object of " << fs::absolute(file).string();
-		return -6;
-	}
-
-	if ((pPacket = av_packet_alloc()) == nullptr)
-	{
-		LOG_WARNING << "[Video] Could not alloc packet object of " << fs::absolute(file).string();
-		return -7;
-	}
-
-	if (int ret; (ret = avcodec_open2(pCodecCtx, pCodec, NULL)) < 0)
-	{
-		char buf[256];
-		av_strerror(ret, buf, 256);
-		LOG_WARNING << "[Video] Could not open codec of " << fs::absolute(file).string() << " (" << buf << ")";
-		return -8;
-	}
-
 	haveVideo = true;
+	w = pCodecCtx->width;
+	h = pCodecCtx->height;
 	return 0;
 }
 
@@ -120,33 +126,55 @@ Texture::PixelFormat sVideo::getFormat()
 void sVideo::startPlaying()
 {
 	if (playing) return;
-
-	std::thread([this]() { decodeLoop(); }).detach();
 	playing = true;
+	startTime = std::chrono::system_clock::now();
+	decodeEnd = std::async(std::launch::async, std::bind(&sVideo::decodeLoop, this));
 }
 
 void sVideo::stopPlaying()
 {
 	if (!playing) return;
-	using namespace std::chrono_literals;
-	while (decoding) std::this_thread::sleep_for(500ms);
 	playing = false;
+	decodeEnd.wait();
 }
 
 void sVideo::decodeLoop()
 {
 	if (!haveVideo) return;
+
+	if ((pFrame = av_frame_alloc()) == nullptr)
+	{
+		LOG_WARNING << "[Video] Could not alloc frame object of " << fs::absolute(file).string();
+		return;
+	}
+
+	if ((pPacket = av_packet_alloc()) == nullptr)
+	{
+		LOG_WARNING << "[Video] Could not alloc packet object of " << fs::absolute(file).string();
+		return;
+	}
+
+	if (int ret = avcodec_open2(pCodecCtx, pCodec, NULL); ret < 0)
+	{
+		char buf[256];
+		av_strerror(ret, buf, 256);
+		LOG_WARNING << "[Video] Could not open codec of " << fs::absolute(file).string() << " (" << buf << ")";
+		return;
+	}
+
 	decoding = true;
+
+	// timestamps per second
+	double tsps = pFormatCtx->streams[videoIndex]->time_base.num == 0 ?
+		AV_TIME_BASE : av_q2d(av_inv_q(pFormatCtx->streams[videoIndex]->time_base));
+	AVFrame *pFrame1 = av_frame_alloc();
 
 	while (av_read_frame(pFormatCtx, pPacket) == 0 && pPacket)
 	{
+		if (!playing) return;
 		avcodec_send_packet(pCodecCtx, pPacket);
 
-		int ret = 0;
-		{
-			std::unique_lock<decltype(lock)> l(lock);
-			ret = avcodec_receive_frame(pCodecCtx, pFrame);
-		}
+		int ret = avcodec_receive_frame(pCodecCtx, pFrame1);
 
 		if (ret < 0)
 		{
@@ -160,6 +188,21 @@ void sVideo::decodeLoop()
 				return;
 			}
 		}
+
+		if (pFrame1->pts >= 0)
+		{
+			auto frameTime_ms = decltype(std::declval<std::chrono::milliseconds>().count())(std::round(pFrame1->pts / tsps * 1000));
+			if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - startTime).count() < frameTime_ms)
+			{
+				std::this_thread::sleep_until(startTime + std::chrono::milliseconds(frameTime_ms));
+			}
+		}
+		{
+			std::unique_lock<decltype(lock)> l(lock);
+			av_frame_unref(pFrame);
+			av_frame_ref(pFrame, pFrame1);
+		}
+
 		decoded_frames = pCodecCtx->frame_number;
 	}
 
@@ -173,6 +216,7 @@ void sVideo::decodeLoop()
 		}
 	}
 	decoded_frames = pCodecCtx->frame_number;
+	av_frame_unref(pFrame);
 
 	decoding = false;
 }
@@ -180,9 +224,14 @@ void sVideo::decodeLoop()
 void sVideo::seek(int64_t second)
 {
 	if (!haveVideo) return;
-	double tps = pFormatCtx->streams[videoIndex]->time_base.num == 0 ? 
-		AV_TIME_BASE : av_q2d(pFormatCtx->streams[videoIndex]->time_base);
+
+	// timestamps per second
+	double tsps = pFormatCtx->streams[videoIndex]->time_base.num == 0 ? 
+		AV_TIME_BASE : av_q2d(av_inv_q(pFormatCtx->streams[videoIndex]->time_base));
 
 	std::unique_lock<decltype(lock)> l(lock);
-	av_seek_frame(pFormatCtx, videoIndex, int64_t(std::round(second / tps)), 0);
+	if (int ret = av_seek_frame(pFormatCtx, videoIndex, int64_t(std::round(second / tsps)), 0); ret < 0)
+	{
+		LOG_ERROR << "[Video] seek " << second << "s error (" << file.string() << ")";
+	}
 }

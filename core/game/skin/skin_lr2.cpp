@@ -10,6 +10,7 @@
 #include "game/data/option.h"
 #include "game/data/switch.h"
 #include "game/graphics/video.h"
+#include "game/scene/scene_context.h"
 
 #ifdef _WIN32
 // For GetWindowsDirectory
@@ -804,6 +805,7 @@ std::map<Token, LoadLR2SrcFunc> SkinLR2::__src_supported
     {"#SRC_NOWJUDGE_2P",std::bind(&SkinLR2::SRC_NOWJUDGE2,  _1)},
     {"#SRC_NOWCOMBO_1P",std::bind(&SkinLR2::SRC_NOWCOMBO1,  _1)},
     {"#SRC_NOWCOMBO_2P",std::bind(&SkinLR2::SRC_NOWCOMBO2,  _1)},
+	{"#SRC_BGA",        std::bind(&SkinLR2::SRC_BGA,        _1)},
 };
 
 int SkinLR2::SRC()
@@ -1360,6 +1362,25 @@ ParseRet SkinLR2::SRC_NOTE()
     return ParseRet::OK;
 }
 
+ParseRet SkinLR2::SRC_BGA()
+{
+	if (tokensBuf.size() < 12)
+	{
+		LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+		//return ParseRet::PARAM_NOT_ENOUGH;
+	}
+
+	lr2skin::s_bga d;
+	convertLine(tokensBuf, (int*)&d);
+
+	_sprites.push_back(std::make_shared<SpriteStatic>(context_play.bgaTexture, Rect()));
+
+	_sprites_child.push_back(_sprites.back());
+	_sprites.back()->setLine(csvCurrentLine);
+
+	return ParseRet::OK;
+}
+
 #pragma endregion
 
 #pragma region SRC: Select skin specified
@@ -1585,6 +1606,7 @@ static std::map<Token, int> __general_dst_supported
 	{"#DST_NOWCOMBO_1P",11},
 	{"#DST_NOWJUDGE_2P",12},
 	{"#DST_NOWCOMBO_2P",13},
+	{"#DST_BGA",14},
 };
 int SkinLR2::DST()
 {

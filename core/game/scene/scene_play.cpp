@@ -276,7 +276,7 @@ void ScenePlay::loadChart()
     case eChartType::BMSON:
     default:
 		LOG_WARNING << "[Play] chart format not supported.";
-        break;
+        return;
     }
 
     context_play.remainTime = context_play.scrollObj[context_play.playerSlot]->getTotalLength();
@@ -302,6 +302,7 @@ void ScenePlay::loadChart()
             case 6: judgediff = rc::judgeDiff::WHAT; break;
             default: break;
             }
+			break;
         case eChartType::BMSON:
         default: 
 			LOG_WARNING << "[Play] chart format not supported.";
@@ -380,7 +381,6 @@ void ScenePlay::loadChart()
     // load bga
     if (!context_chart.isBgaLoaded && !sceneEnding)
     {
-		context_play.bgaTexture = std::make_shared<TextureBmsBga>();
         auto dtor = std::async(std::launch::async, [&]() {
             auto _pChart = context_chart.chartObj;
 			auto chartDir = context_chart.chartObj->getDirectory();

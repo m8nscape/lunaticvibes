@@ -1,4 +1,5 @@
 #include "scroll_bms.h"
+#include "config/config_mgr.h"
 
 namespace bms
 {
@@ -135,24 +136,24 @@ void ScrollBMS::loadBMS(const BMS& objBms)
             }
 
             // BGA: 0xE0 / 0xE1 / 0xE2
-            if (/* BGA switch */ false)
-            {
-                {
-                    auto ch = objBms.getChannel(ChannelCode::BGABASE, 0, m);
-                    for (const auto& n : ch.notes)
-                        notes.push_back({ fraction(n.segment, ch.resolution),{ 0xE0, n.value } });
-                }
-                {
-                    auto ch = objBms.getChannel(ChannelCode::BGALAYER, 0, m);
-                    for (const auto& n : ch.notes)
-                        notes.push_back({ fraction(n.segment, ch.resolution),{ 0xE1, n.value } });
-                }
-                {
-                    auto ch = objBms.getChannel(ChannelCode::BGAPOOR, 0, m);
-                    for (const auto& n : ch.notes)
-                        notes.push_back({ fraction(n.segment, ch.resolution),{ 0xE2, n.value } });
-                }
-            }
+			if (ConfigMgr::P.get(cfg::P_SHOW_BGA, cfg::ON) == cfg::ON)
+			{
+				{
+					auto ch = objBms.getChannel(ChannelCode::BGABASE, 0, m);
+					for (const auto& n : ch.notes)
+						notes.push_back({ fraction(n.segment, ch.resolution),{ 0xE0, n.value } });
+				}
+				{
+					auto ch = objBms.getChannel(ChannelCode::BGALAYER, 0, m);
+					for (const auto& n : ch.notes)
+						notes.push_back({ fraction(n.segment, ch.resolution),{ 0xE1, n.value } });
+				}
+				{
+					auto ch = objBms.getChannel(ChannelCode::BGAPOOR, 0, m);
+					for (const auto& n : ch.notes)
+						notes.push_back({ fraction(n.segment, ch.resolution),{ 0xE2, n.value } });
+				}
+			}
 
             // BPM Change: 0xFD
             {

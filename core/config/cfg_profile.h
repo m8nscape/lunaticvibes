@@ -14,6 +14,8 @@ namespace cfg
 
     inline const StringContent P_REGULAR_SPEED = "RegularSpeed";           // 0.1f in 60fps
 
+	inline const StringContent P_SHOW_BGA = "ShowBga";
+
     inline const StringContent P_SPEED_TYPE = "SpeedType";
     inline const StringContent P_SPEED_TYPE_NORMAL = "Normal";
     inline const StringContent P_SPEED_TYPE_END = "End";

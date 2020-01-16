@@ -6,6 +6,7 @@
 #include "SDL.h"
 #include "SDL_Image.h"
 #include "SDL_ttf.h"
+#include "game/graphics/video.h"
 #include <plog/Log.h>
 #include <string>
 #include "config/config_mgr.h"
@@ -108,6 +109,9 @@ int graphics_init()
         }
         LOG_INFO << "[SDL2] TTF module version " << SDL_TTF_MAJOR_VERSION << '.' << SDL_TTF_MINOR_VERSION << "." << SDL_TTF_PATCHLEVEL;
     }
+
+	// libav
+	video_init();
 
     return 0;
 }
