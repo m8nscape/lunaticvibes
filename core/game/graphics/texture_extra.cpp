@@ -88,6 +88,13 @@ void TextureVideo::update()
 }
 
 
+void TextureVideo::reset()
+{
+	seek(0);
+	decoded_frames = 0;
+}
+
+
 bool TextureBmsBga::addBmp(size_t idx, const Path& pBmp)
 {
 	if (idx == -1u) return false;
@@ -232,5 +239,33 @@ void TextureBmsBga::draw(const Rect& sr, Rect dr,
 		if (baseIdx != INDEX_INVALID && objs.at(baseIdx).type != obj::Ty::EMPTY) objs.at(baseIdx).pt->draw(dr, c, b, f, a, ct);
 		if (layerIdx != INDEX_INVALID && objs.at(layerIdx).type != obj::Ty::EMPTY) objs.at(layerIdx).pt->draw(dr, c, b, f, a, ct);
 	}
+}
+
+void TextureBmsBga::reset()
+{
+	baseIt = baseSlot.begin();
+	layerIt = layerSlot.begin();
+	poorIt = poorSlot.begin();
+	baseIdx = INDEX_INVALID;
+	layerIdx = INDEX_INVALID;
+	poorIdx = INDEX_INVALID;
+
+	auto resetSub = [this](decltype(baseSlot)& slot)
+	{
+		for (auto it = slot.begin(); it != slot.end(); ++it)	// search from beginning
+		{
+			auto[time, idx] = *it;
+			if (objs[idx].type == obj::Ty::VIDEO)
+			{
+				auto pt = std::reinterpret_pointer_cast<TextureVideo>(objs[idx].pt);
+				pt->reset();
+			}
+		}
+		//slotIt = slot.end();	// not found
+	};
+
+	resetSub(baseSlot);
+	resetSub(layerSlot);
+	resetSub(poorSlot);
 }
 

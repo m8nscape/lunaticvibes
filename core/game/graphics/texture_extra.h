@@ -22,6 +22,7 @@ public:
 	void start();
 	void seek(int64_t sec);
 	void update();
+	void reset();
 };
 
 class ScrollBMS;
@@ -78,5 +79,7 @@ public:
 	virtual void draw(const Rect& srcRect, Rect dstRect,
 		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees,
 		const Point& center) const override;
+
+	void reset();
 
 };

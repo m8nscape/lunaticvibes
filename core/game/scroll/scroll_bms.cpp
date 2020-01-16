@@ -136,7 +136,7 @@ void ScrollBMS::loadBMS(const BMS& objBms)
             }
 
             // BGA: 0xE0 / 0xE1 / 0xE2
-			if (ConfigMgr::P.get(cfg::P_SHOW_BGA, cfg::ON) == cfg::ON)
+			if (ConfigMgr::P.get(cfg::P_LOAD_BGA, cfg::ON) == cfg::ON)
 			{
 				{
 					auto ch = objBms.getChannel(ChannelCode::BGABASE, 0, m);

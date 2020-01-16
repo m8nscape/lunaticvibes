@@ -379,7 +379,7 @@ void ScenePlay::loadChart()
     }
 
     // load bga
-    if (!context_chart.isBgaLoaded && !sceneEnding)
+    if (ConfigMgr::P.get(cfg::P_LOAD_BGA, cfg::ON) == cfg::ON && !context_chart.isBgaLoaded && !sceneEnding)
     {
         auto dtor = std::async(std::launch::async, [&]() {
             auto _pChart = context_chart.chartObj;
@@ -561,6 +561,7 @@ void ScenePlay::updateLoading()
     {
         _state = ePlayState::LOAD_END;
 		gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_READY);
+		if (context_play.bgaTexture) context_play.bgaTexture->reset();
         gTimers.set(eTimer::PLAY_READY, t.norm());
         LOG_DEBUG << "[Play] State changed to READY";
     }
