@@ -130,6 +130,17 @@ ScenePlay::ScenePlay(ePlayMode playmode): vScene(context_play.mode, 1000), _mode
 
 	}
 
+	// global info
+	if (ConfigMgr::P.get(cfg::P_LOAD_BGA, cfg::ON) == cfg::ON)
+	{
+		// TODO bga type
+		gOptions.set(eOption::PLAY_BGA_TYPE, Option::BGA_NORMAL);
+	}
+	else
+	{
+		gOptions.set(eOption::PLAY_BGA_TYPE, Option::BGA_OFF);
+	}
+
     // basic info
     gTexts.set(eText::PLAY_TITLE, context_chart.title);
     gTexts.set(eText::PLAY_SUBTITLE, context_chart.title2);
