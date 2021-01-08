@@ -1,5 +1,6 @@
 #include "scene_mgr.h"
 #include "scene_context.h"
+#include "scene_select.h"
 #include "scene_play.h"
 #include "scene_result.h"
 #include "game/skin/skin_mgr.h"
@@ -15,6 +16,9 @@ pScene SceneMgr::get(eScene e)
     case eScene::EXIT:
     case eScene::NOTHINGNESS:
 		return nullptr;
+
+    case eScene::SELECT:
+        return std::make_shared<SceneSelect>();
 
     case eScene::PLAY:
         switch (context_play.mode)

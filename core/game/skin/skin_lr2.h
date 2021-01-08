@@ -1386,8 +1386,7 @@ protected:
     std::vector<pSpriteLane> _laneSprites;
 
 private:
-	std::stack<unsigned> csvCurrentLineStk;
-    unsigned csvCurrentLine = 0;          // line parsing index
+    unsigned line = 0;          // line parsing index
     Tokens csvNextLineTokenize(std::istream& file);
 
     Token optBuf;       // #XXX_XXXXX
@@ -1408,13 +1407,13 @@ private:
 	pVideo   videoBuf;
 	bool     useVideo = false;
 
-    int parseLine     (const Tokens& raw);
+	int parseHeader(const Tokens& raw);
+	int parseBody(const Tokens& raw);
 
     int IMAGE        ();
     int INCLUDE      ();
     int FONT         ();
     int SYSTEMFONT   ();
-    int HEADER       ();
     int TIMEOPTION   ();
     int others       ();
 

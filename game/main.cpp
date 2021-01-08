@@ -10,8 +10,10 @@
 #include "game/scene/scene_context.h"
 #include "game/generic_info.h"
 #include <plog/Log.h>
+#include <plog/Init.h>
+#include <plog/Formatters/TxtFormatter.h>
 
-#include "common/chart/bms.h"
+#include "common/chartformat/format_bms.h"
 
 #if _DEBUG
 #include <plog/Appenders/ColorConsoleAppender.h>        // for command prompt log purpose
@@ -108,9 +110,24 @@ int main(int argc, char* argv[])
     gTimers.set(eTimer::SCENE_START, 0);
     gTimers.reset();
 
+    // initialize song list
+    pSongDB = std::make_shared<SongDB>("database/song.db");
+    pSongDB->addFolder("song");
+    SongListProperties rootFolderProp{
+        "",
+        ROOT_FOLDER_HASH,
+        "",
+        {},
+        0
+    };
+    rootFolderProp.list.push_back(pSongDB->browse("", false));
+    context_select.backtrace.push(rootFolderProp);
+
     // temporary: hardcode bms file for test
     if (argc >= 2)
     {
+        __next_scene = eScene::PLAY;
+
         std::shared_ptr<BMS> bms = std::make_shared<BMS>(argv[1]);
         context_chart = __chart_context_params{
             argv[1],

@@ -27,6 +27,9 @@
     <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\contrib\graphbuilder.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\depthguard.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
     <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\dll.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -55,9 +58,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\node\convert.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\node\detail\bool_type.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\node\detail\impl.h">
@@ -105,7 +105,7 @@
     <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\node\type.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\noncopyable.h">
+    <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\noexcept.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\null.h">
@@ -204,6 +204,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\ext\yaml-cpp\src\convert.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ext\yaml-cpp\src\depthguard.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\ext\yaml-cpp\src\directives.cpp">

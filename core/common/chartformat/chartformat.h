@@ -9,7 +9,7 @@
 // Subset of chart formats.
 // Currently including BMS
 
-enum class eChartType
+enum class eChartFormat
 {
     UNKNOWN,
 
@@ -18,22 +18,22 @@ enum class eChartType
 };
 inline const std::regex regexFileExtBMS{ R"(\.(bms|bme|bml|pms)$)", std::regex::icase };
 inline const std::regex regexFileExtBMSON{ R"(\.(bmson)$)", std::regex::icase };
-eChartType matchChartType(const Path& p);
+eChartFormat matchChartType(const Path& p);
 
-class vChart
+class vChartFormat: public std::enable_shared_from_this<vChartFormat>
 {
 protected:
-    eChartType _type = eChartType::UNKNOWN;
+    eChartFormat _type = eChartFormat::UNKNOWN;
 public:
-    constexpr eChartType type() { return _type; }
+    constexpr eChartFormat type() { return _type; }
 
 public:
-    vChart() = default;
-    virtual ~vChart() = default;
-    static std::shared_ptr<vChart> getFromFile(const Path& path);
+    vChartFormat() = default;
+    virtual ~vChartFormat() = default;
+    static std::shared_ptr<vChartFormat> getFromFile(const Path& path);
 
 protected:
-    Path _absolutePath;
+    Path _path;
     bool _loaded = false;
 public:
     constexpr bool isLoaded() { return _loaded; }
@@ -41,6 +41,7 @@ public:
 // following fields are generic info, which are stored in db
 public:
     Path _filePath;
+    Path _absolutePath;
     HashMD5 _fileHash;
     HashMD5 _folderHash;
 
@@ -81,5 +82,5 @@ public:
     BPM getNormBPM() const;
     Path getDirectory() const;
 
-    virtual int getExtendedProperty(const std::string& key, void* ret) = 0;
+    virtual int getExtendedProperty(const std::string& key, void* ret) { return -1; }
 };

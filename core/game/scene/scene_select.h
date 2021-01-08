@@ -6,6 +6,7 @@
 #include <list>
 #include <memory>
 #include "scene.h"
+#include "scene_context.h"
 
 enum class eSelectState
 {
@@ -24,42 +25,14 @@ enum class eSelectState
     FADEOUT,
 };
 
-class vChart;
+class vChartFormat;
 class SceneSelect : public vScene
 {
 protected:
-    enum class EntryType
-    {
-        FOLDER,
-        CUSTOM_FOLDER,
-        SONG,
-        COURSE,
-        SP_NEW_COURSE,
-    };
-    struct NextChart
-    {
-        bool have_one;
-        bool have_more;
-        std::shared_ptr<vChart> next;
-    };
-    struct SongEntry
-    {
-        EntryType type;
-        std::shared_ptr<vChart> chart;
-        unsigned level_type = 0;
-        unsigned lamp = 0;
-        unsigned rank = 0;
-
-        // extend info
-        unsigned rival = 3; // win / lose / draw / noplay
-        unsigned rival_lamp_self = 0;
-        unsigned rival_lamp_rival = 0;
-        std::array<NextChart, size_t(eLevel::LEVEL_COUNT)> next_chart;
-    };
     struct SongList
     {
-        std::string name;       // folder path, search query+result, etc.
-        std::vector<SongEntry> entries;
+        std::shared_ptr<SongListProperties> prop;   // point to __select_context_params::backtrace.top()
+        std::vector<vEntry> entries;             // actual list used to display
     };
 
 private:
@@ -68,9 +41,8 @@ private:
     InputMask _inputAvailable;
 
 private:
-    std::list<SongList> _songListHistory;
     SongList _filteredSongList;
-    size_t _currentSongIdx = 0;
+    size_t _selectedSongIdx = 0;
 
 public:
     SceneSelect();
@@ -87,14 +59,15 @@ protected:
 
 protected:
     // Inner-state updates
-    void procNotePlain();
-    void changeKeySampleMapping(timestamp t);
+    void procCommonNotes();
+    void playBGMSamples();
+    void changeKeySampleMapping(Time t);
 
 protected:
     // Register to InputWrapper: judge / keysound
-    void inputGamePress(InputMask&, timestamp);
-    void inputGameHold(InputMask&, timestamp);
-    void inputGameRelease(InputMask&, timestamp);
+    void inputGamePress(InputMask&, Time);
+    void inputGameHold(InputMask&, Time);
+    void inputGameRelease(InputMask&, Time);
 
 private:
     void _navigateEnter();

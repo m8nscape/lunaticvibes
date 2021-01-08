@@ -166,7 +166,7 @@ namespace Input
         K_F9,
         K_F10,
         K_NUMLOCK,
-        K_SCROLLLOCK,
+        K_chartLOCK,
 
         // 0x47
         K_NUM7,
@@ -302,7 +302,7 @@ namespace Input
         "F9",
         "F10",
         "NumLock",
-        "ScrollLock",
+        "chartLock",
 
         // 0x47
         "Numpad7",

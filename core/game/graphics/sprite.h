@@ -71,7 +71,7 @@ protected:
 public:
     constexpr SpriteTypes type() { return _type; }
 protected:
-	bool _draw;
+	bool _draw = false;
     pTexture _pTexture;
     eTimer _triggerTimer = eTimer::SCENE_START;
     int _loopTo = -1;
@@ -86,8 +86,8 @@ public:
     void setLine(int i) { __line = i; }
     void setParent(std::weak_ptr<vSprite> p) { _parent = p; _haveParent = true; }
     RenderParams getCurrentRenderParams();
-    bool updateByKeyframes(timestamp time);
-	virtual bool update(timestamp time);
+    bool updateByKeyframes(Time time);
+	virtual bool update(Time time);
     virtual void setLoopTime(int t);
 	virtual void setTrigTimer(eTimer t);
     virtual void appendKeyFrame(RenderKeyFrame f);
@@ -111,7 +111,7 @@ public:
     SpriteGlobal(size_t idx) :vSprite(nullptr, SpriteTypes::GLOBAL), idx(idx) {}
     virtual ~SpriteGlobal() = default;
 
-    size_t get() {
+    size_t getIdx() {
         return idx;
     }
 
@@ -119,7 +119,7 @@ public:
         pS = p;
     }
 
-    virtual bool update(timestamp time) {
+    virtual bool update(Time time) {
         vSprite::update(time);
         if (pS) return pS->update(time);
         return false;
@@ -155,7 +155,7 @@ public:
     SpriteStatic(pTexture texture, const Rect& rect);
     virtual ~SpriteStatic() = default;
 public:
-	virtual bool update(timestamp t);
+	virtual bool update(Time t);
     virtual void draw() const;
 
 };
@@ -183,7 +183,7 @@ public:
 
     virtual ~SpriteSelection() = default;
 public:
-	virtual bool update(timestamp t);
+	virtual bool update(Time t);
     virtual void updateSelection(frameIdx i);
     virtual void draw() const;
 };
@@ -219,11 +219,11 @@ public:
 
     virtual ~SpriteAnimated() = default;
 public:
-    void updateByTimer(timestamp t);
-    virtual void updateAnimation(timestamp t);
-    void updateAnimationByTimer(timestamp t);
+    void updateByTimer(Time t);
+    virtual void updateAnimation(Time t);
+    void updateAnimationByTimer(Time t);
     //void updateSplitByTimer(timestamp t);
-	virtual bool update(timestamp t);
+	virtual bool update(Time t);
     virtual void draw() const;
 };
 
@@ -252,7 +252,7 @@ public:
 public:
     void updateTextRect();
     void setText(std::string text, const Color& c);
-	virtual bool update(timestamp t);
+	virtual bool update(Time t);
     virtual void draw() const;
 };
 
@@ -319,7 +319,7 @@ public:
     void updateNumber(int n);           // invoke updateSplit to change number
     void updateNumberByInd();
     void setInhibitZero(bool b) { _inhibitZero = b; }
-	virtual bool update(timestamp t);
+	virtual bool update(Time t);
     virtual void appendKeyFrame(RenderKeyFrame f);
     virtual void draw() const;
 };
@@ -359,7 +359,7 @@ public:
     void updateVal(percent v);
     void updateValByInd();
     void updatePos();
-	virtual bool update(timestamp t);
+	virtual bool update(Time t);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -397,7 +397,7 @@ public:
     void updateVal(dpercent v);
     void updateValByInd();
     void updateSize();
-	virtual bool update(timestamp t);
+	virtual bool update(Time t);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -435,7 +435,7 @@ public:
 	bool setInd(opType type, unsigned ind);
     void updateVal(unsigned v);     // invoke SpriteSplit::updateSplit(v)
     void updateValByInd();
-	virtual bool update(timestamp t);
+	virtual bool update(Time t);
 };
 
 
@@ -508,7 +508,7 @@ public:
 public:
     void updateVal(unsigned v);
     void updateValByInd();
-	virtual bool update(timestamp t);
+	virtual bool update(Time t);
 	virtual void draw() const;
 };
 
@@ -538,7 +538,7 @@ public:
 	void appendPoint(const ColorPoint&);
 
 public:
-	void updateProgress(timestamp t);
-	virtual bool update(timestamp t);
+	void updateProgress(Time t);
+	virtual bool update(Time t);
     virtual void draw() const;
 };

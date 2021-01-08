@@ -1,19 +1,117 @@
+#include <algorithm>
+
 #include "scene_select.h"
 #include "scene_context.h"
-#include "chart/chart_types.h"
+#include "chartformat/chart_types.h"
 
-SceneSelect::SceneSelect() : vScene(eMode::RESULT, 1000)
+#include "entry/entry_song.h"
+
+SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
 {
     _inputAvailable = INPUT_MASK_FUNC;
 
-    //if (context_play.scrollObj[PLAYER_SLOT_1P] != nullptr)
+    //if (context_play.chartObj[PLAYER_SLOT_1P] != nullptr)
     {
         _inputAvailable |= INPUT_MASK_1P;
     }
         
-    //if (context_play.scrollObj[PLAYER_SLOT_2P] != nullptr)
+    //if (context_play.chartObj[PLAYER_SLOT_2P] != nullptr)
     {
         _inputAvailable |= INPUT_MASK_2P;
+    }
+
+    // TODO load song list
+    _filteredSongList.prop = std::make_shared<SongListProperties>(context_select.backtrace.top());
+    for (auto & e: _filteredSongList.prop->list)
+    {
+        // apply filter
+        if (e.type() == eEntryType::SONG)
+        {
+            auto& p = reinterpret_cast<Song&>(e)._file;
+            switch (p->type())
+            {
+            case eChartFormat::BMS:
+                // difficulty filter
+                if (context_select.difficulty != 0 && 
+                    std::reinterpret_pointer_cast<BMS>(p)->difficulty != context_select.difficulty)
+                    continue;
+
+                // gamemode filter
+                if (context_select.gamemode != 0 && 
+                    std::reinterpret_pointer_cast<BMS>(p)->gamemode != context_select.gamemode)
+                    continue;
+                break;
+
+            default:
+                break;
+            }
+        }
+
+        _filteredSongList.entries.push_back(e);
+    }
+
+    // TODO sort song list
+    switch (context_select.sort)
+    {
+    case SongListSort::DEFAULT:
+    {
+        auto& l = _filteredSongList.entries;
+        std::sort(l.begin(), l.end(), [](const vEntry& lhs, const vEntry& rhs) 
+        {
+            if (lhs.type() != rhs.type())
+                return lhs.type() > rhs.type();
+            else
+            {
+                if (lhs.type() == eEntryType::SONG)
+                {
+                    const auto& l = reinterpret_cast<const Song&>(lhs)._file;
+                    const auto& r = reinterpret_cast<const Song&>(rhs)._file;
+                    if (l->_level != r->_level) return l->_level > r->_level;
+                    if (l->_title != r->_title) return l->_title > r->_title;
+                    if (l->_title2 != r->_title2) return l->_title2 > r->_title2;
+                    if (l->_version != r->_version) return l->_version > r->_version;
+                    return l->_fileHash > r->_fileHash;
+                }
+                else
+                {
+                    if (lhs._name != rhs._name) return lhs._name > rhs._name;
+                    if (lhs._name2 != rhs._name2) return lhs._name2 > rhs._name2;
+                    return false;
+                }
+            }
+        });
+        break;
+    }
+    case SongListSort::TITLE:
+    {
+        auto& l = _filteredSongList.entries;
+        std::sort(l.begin(), l.end(), [](const vEntry& lhs, const vEntry& rhs)
+        {
+            if (lhs.type() != rhs.type())
+                return lhs.type() > rhs.type();
+            else
+            {
+                if (lhs.type() == eEntryType::SONG)
+                {
+                    const auto& l = reinterpret_cast<const Song&>(lhs)._file;
+                    const auto& r = reinterpret_cast<const Song&>(rhs)._file;
+                    if (l->_title != r->_title) return l->_title > r->_title;
+                    if (l->_title2 != r->_title2) return l->_title2 > r->_title2;
+                    if (l->_version != r->_version) return l->_version > r->_version;
+                    return l->_fileHash > r->_fileHash;
+                }
+                else
+                {
+                    if (lhs._name != rhs._name) return lhs._name > rhs._name;
+                    if (lhs._name2 != rhs._name2) return lhs._name2 > rhs._name2;
+                    return false;
+                }
+            }
+        });
+        break;
+    }
+    default:
+        break;
     }
 
     _state = eSelectState::PREPARE;
@@ -58,7 +156,7 @@ void SceneSelect::_updateAsync()
 
 void SceneSelect::updatePrepare()
 {
-    auto t = timestamp();
+    auto t = Time();
     auto rt = t - gTimers.get(eTimer::SCENE_START);
 
     if (rt.norm() >= _skin->info.timeIntro)
@@ -77,25 +175,25 @@ void SceneSelect::updatePrepare()
 
 void SceneSelect::updateSelect()
 {
-    auto t = timestamp();
+    auto t = Time();
     auto rt = t - gTimers.get(eTimer::SCENE_START);
 }
 
 void SceneSelect::updateSearch()
 {
-    auto t = timestamp();
+    auto t = Time();
     auto rt = t - gTimers.get(eTimer::SCENE_START);
 }
 
 void SceneSelect::updatePanel(unsigned idx)
 {
-    auto t = timestamp();
+    auto t = Time();
     auto rt = t - gTimers.get(eTimer::SCENE_START);
 }
 
 void SceneSelect::updateFadeout()
 {
-    auto t = timestamp();
+    auto t = Time();
     auto rt = t - gTimers.get(eTimer::SCENE_START);
     auto ft = t - gTimers.get(eTimer::FADEOUT_BEGIN);
 
@@ -110,7 +208,7 @@ void SceneSelect::updateFadeout()
 ////////////////////////////////////////////////////////////////////////////////
 
 // CALLBACK
-void SceneSelect::inputGamePress(InputMask& m, timestamp t)
+void SceneSelect::inputGamePress(InputMask& m, Time t)
 {
     if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
 
@@ -120,23 +218,22 @@ void SceneSelect::inputGamePress(InputMask& m, timestamp t)
         switch (_state)
         {
         case eSelectState::SELECT:
-            switch (_filteredSongList.entries[_currentSongIdx].type)
+            switch (_filteredSongList.entries[_selectedSongIdx].type())
             {
-                case EntryType::FOLDER:
-                case EntryType::CUSTOM_FOLDER:
+                case eEntryType::FOLDER:
+                case eEntryType::CUSTOM_FOLDER:
                     if ((input & INPUT_MASK_DECIDE).any())
                         _navigateEnter();
                     if ((input & INPUT_MASK_CANCEL).any())
                         _navigateBack();
                     break;
 
-                case EntryType::SONG:
-                case EntryType::COURSE:
+                case eEntryType::SONG:
+                case eEntryType::COURSE:
                     if ((input & INPUT_MASK_DECIDE).any())
                         _decide();
                     break;
 
-                case EntryType::SP_NEW_COURSE:
                 default:
                     // unsupported
                     break;
@@ -157,50 +254,72 @@ void SceneSelect::inputGamePress(InputMask& m, timestamp t)
 }
 
 // CALLBACK
-void SceneSelect::inputGameHold(InputMask& m, timestamp t)
+void SceneSelect::inputGameHold(InputMask& m, Time t)
 {
     if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
 }
 
 // CALLBACK
-void SceneSelect::inputGameRelease(InputMask& m, timestamp t)
+void SceneSelect::inputGameRelease(InputMask& m, Time t)
 {
     if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
 }
 
 void SceneSelect::_decide()
 {
-    auto& entry = _filteredSongList.entries[_currentSongIdx];
-    auto& chart = entry.chart;
+    auto& entry = _filteredSongList.entries[_selectedSongIdx];
+    //auto& chart = entry.charts[entry.chart_idx];
     auto& c = context_chart;
     auto& p = context_play;
 
-
-    c.path = chart->_filePath;
-    c.hash = chart->_fileHash;
-    c.chartObj = chart;
-    c.title = chart->_title;
-    c.title2 = chart->_title2;
-    c.artist = chart->_artist;
-    c.artist2 = chart->_artist2;
-    c.genre = chart->_genre;
-    c.version = chart->_version;
-    c.level = chart->_level;
-    c.minBPM = chart->_minBPM;
-    c.maxBPM = chart->_maxBPM;
-    c.itlBPM = chart->_itlBPM;
-
     clearContextPlay();
-    switch (chart->type())
+    switch (entry.type())
     {
-    case eChartType::BMS:
+    case eEntryType::SONG:
     {
-        auto& bms = std::reinterpret_pointer_cast<BMS>(chart);
-        // TODO mods
+        c.chartObj = reinterpret_cast<Song&>(entry)._file;
+        auto& chart = *c.chartObj;
+        c.path = chart._filePath;
+        c.hash = chart._fileHash;
+        //c.chartObj = std::make_shared<vChartFormat>(chart);
+        c.title = chart._title;
+        c.title2 = chart._title2;
+        c.artist = chart._artist;
+        c.artist2 = chart._artist2;
+        c.genre = chart._genre;
+        c.version = chart._version;
+        c.level = chart._level;
+        c.minBPM = chart._minBPM;
+        c.maxBPM = chart._maxBPM;
+        c.itlBPM = chart._itlBPM;
+
+        switch (c.chartObj->type())
+        {
+        case eChartFormat::BMS:
+        {
+            auto bms = std::reinterpret_pointer_cast<BMS>(c.chartObj);
+            // TODO mods
+            break;
+        }
+
+        default:
+            break;
+        }
         break;
     }
+    default:
+        break;
     }
     
     __next_scene = eScene::DECIDE;
 }
 
+
+void SceneSelect::_navigateEnter()
+{
+    // TODO
+}
+void SceneSelect::_navigateBack()
+{
+    // TODO
+}

@@ -4,11 +4,11 @@
 namespace rc {
 
 struct judge_t {
-    timestamp PERFECT;
-    timestamp GREAT;
-    timestamp GOOD;
-    timestamp BAD;
-    timestamp BPOOR;
+    Time PERFECT;
+    Time GREAT;
+    Time GOOD;
+    Time BAD;
+    Time BPOOR;
 };
 
 enum class judgeDiff
@@ -185,7 +185,7 @@ enum class player {
 	BATTLE_2P,
 };
 
-struct judgeRes { judgeArea::area area; timestamp time; };
+struct judgeRes { judgeArea::area area; Time time; };
 }
 
 class RulesetClassic : public vRuleset
@@ -200,26 +200,26 @@ protected:
     double inner_score = 0.0;
 public:
     RulesetClassic(
-        std::shared_ptr<vChart> chart, 
-        std::shared_ptr<vScroll> scroll,
+        std::shared_ptr<vChartFormat> format, 
+        std::shared_ptr<vChart> chart,
         rc::judgeDiff difficulty = rc::judgeDiff::NORMAL,
         rc::gauge_ty gauge = rc::gauge_ty::GROOVE, 
         double health = 1.0,
         rc::player playerSP = rc::player::SP_1P);
 private:
-    rc::judgeRes _judge(const Note& note, timestamp time);
+    rc::judgeRes _judge(const Note& note, Time time);
     void _updateHp(const double delta);
 public:
     // Register to InputWrapper
-    virtual void updatePress(InputMask& pg, timestamp t);
+    virtual void updatePress(InputMask& pg, Time t);
     // Register to InputWrapper
-    virtual void updateHold(InputMask& hg, timestamp t);
+    virtual void updateHold(InputMask& hg, Time t);
     // Register to InputWrapper
-    virtual void updateRelease(InputMask& rg, timestamp t);
+    virtual void updateRelease(InputMask& rg, Time t);
     // Called by ScenePlay
-    virtual void update(timestamp t);
+    virtual void update(Time t);
 public:
     constexpr auto getJudge() const { return _count; }
-    void updateHit(timestamp& t, NoteChannelIndex ch, size_t judge, unsigned slot);
-    void updateMiss(timestamp& t, NoteChannelIndex ch, size_t judge, unsigned slot);
+    void updateHit(Time& t, NoteLaneIndex ch, size_t judge, unsigned slot);
+    void updateMiss(Time& t, NoteLaneIndex ch, size_t judge, unsigned slot);
 };

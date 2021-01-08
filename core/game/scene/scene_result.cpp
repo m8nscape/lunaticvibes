@@ -5,12 +5,12 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
 {
     _inputAvailable = INPUT_MASK_FUNC;
 
-    if (context_play.scrollObj[PLAYER_SLOT_1P] != nullptr)
+    if (context_play.chartObj[PLAYER_SLOT_1P] != nullptr)
     {
         _inputAvailable |= INPUT_MASK_1P;
     }
         
-    if (context_play.scrollObj[PLAYER_SLOT_2P] != nullptr)
+    if (context_play.chartObj[PLAYER_SLOT_2P] != nullptr)
     {
         _inputAvailable |= INPUT_MASK_2P;
     }
@@ -22,7 +22,7 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
     _input.register_h("SCENE_HOLD", std::bind(&SceneResult::inputGameHold, this, _1, _2));
     _input.register_r("SCENE_RELEASE", std::bind(&SceneResult::inputGameRelease, this, _1, _2));
 
-    timestamp t;
+    Time t;
     gTimers.set(eTimer::RESULT_GRAPH_START, t.norm());
 
     loopStart();
@@ -55,7 +55,7 @@ void SceneResult::_updateAsync()
 
 void SceneResult::updateDraw()
 {
-    auto t = timestamp();
+    auto t = Time();
     auto rt = t - gTimers.get(eTimer::SCENE_START);
 
     if (rt.norm() >= _skin->info.timeResultDrawing)
@@ -68,19 +68,19 @@ void SceneResult::updateDraw()
 
 void SceneResult::updateStop()
 {
-    auto t = timestamp();
+    auto t = Time();
     auto rt = t - gTimers.get(eTimer::SCENE_START);
 }
 
 void SceneResult::updateRecord()
 {
-    auto t = timestamp();
+    auto t = Time();
     auto rt = t - gTimers.get(eTimer::SCENE_START);
 }
 
 void SceneResult::updateFadeout()
 {
-    auto t = timestamp();
+    auto t = Time();
     auto rt = t - gTimers.get(eTimer::SCENE_START);
     auto ft = t - gTimers.get(eTimer::FADEOUT_BEGIN);
 
@@ -105,7 +105,7 @@ void SceneResult::updateFadeout()
 ////////////////////////////////////////////////////////////////////////////////
 
 // CALLBACK
-void SceneResult::inputGamePress(InputMask& m, timestamp t)
+void SceneResult::inputGamePress(InputMask& m, Time t)
 {
     if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
 
@@ -147,7 +147,7 @@ void SceneResult::inputGamePress(InputMask& m, timestamp t)
 }
 
 // CALLBACK
-void SceneResult::inputGameHold(InputMask& m, timestamp t)
+void SceneResult::inputGameHold(InputMask& m, Time t)
 {
     if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
 
@@ -160,7 +160,7 @@ void SceneResult::inputGameHold(InputMask& m, timestamp t)
 }
 
 // CALLBACK
-void SceneResult::inputGameRelease(InputMask& m, timestamp t)
+void SceneResult::inputGameRelease(InputMask& m, Time t)
 {
     if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
 }

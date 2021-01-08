@@ -25,7 +25,7 @@ public:
 	void reset();
 };
 
-class ScrollBMS;
+class chartBMS;
 class TextureBmsBga: public Texture
 {
 protected:
@@ -43,12 +43,12 @@ protected:
 		} type = Ty::EMPTY;
 
 		struct playslot {
-			timestamp time;
+			Time time;
 			bool base, layer, poor;
 		};
 
 		std::shared_ptr<Texture> pt = nullptr;
-		timestamp playStartTime = 0;	// video
+		Time playStartTime = 0;	// video
 
 		obj() = default;
 		obj(Ty t, std::shared_ptr<Texture> pt) :type(t), pt(pt) {}
@@ -56,7 +56,7 @@ protected:
 
 protected:
 	std::map<size_t, obj> objs;
-	std::vector<std::pair<timestamp, size_t>> baseSlot, layerSlot, poorSlot;
+	std::vector<std::pair<Time, size_t>> baseSlot, layerSlot, poorSlot;
 	decltype(baseSlot.begin()) baseIt;
 	decltype(layerSlot.begin()) layerIt;
 	decltype(poorSlot.begin()) poorIt;
@@ -68,12 +68,12 @@ public:
 
 public:
 	bool addBmp(size_t idx, const Path& path);
-	bool setSlot(size_t idx, timestamp time, bool base, bool layer, bool poor);
+	bool setSlot(size_t idx, Time time, bool base, bool layer, bool poor);
 	void sortSlot();
-	bool setSlotFromBMS(ScrollBMS& bms);
-	virtual void seek(timestamp t);
+	bool setSlotFromBMS(chartBMS& bms);
+	virtual void seek(Time t);
 
-	virtual void update(timestamp t, bool poor);
+	virtual void update(Time t, bool poor);
 	virtual void draw(const Rect& srcRect, Rect dstRect,
 		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const override;
 	virtual void draw(const Rect& srcRect, Rect dstRect,

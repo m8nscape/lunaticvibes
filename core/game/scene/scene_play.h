@@ -3,10 +3,9 @@
 #include <mutex>
 #include <future>
 #include "scene.h"
-#include "chart/chart.h"
-#include "game/scroll/scroll.h"
-#include "game/scene/scene_context.h"
-#include "game/ruleset/ruleset.h"
+#include "scene_context.h"
+#include "chartformat/chartformat.h"
+#include "game/chart/chart.h"
 #include "game/ruleset/ruleset_classic.h"
 
 enum class ePlayMode
@@ -85,7 +84,7 @@ protected:
 
 protected:
     // loading indicators
-    bool _scrollLoaded = false;
+    bool _chartLoaded = false;
     bool _rulesetLoaded = false;
     //bool _sampleLoaded = false;
     //bool _bgaLoaded = false;
@@ -106,14 +105,14 @@ protected:
 
 protected:
     // Inner-state updates
-    void procNotePlain();
-    void changeKeySampleMapping(timestamp t);
-	//void updateBga();
+    void procCommonNotes();
+    void playBGMSamples();
+    void changeKeySampleMapping(Time t);
     void updateTTrotation(bool startedPlaying);
 
 protected:
     // Register to InputWrapper: judge / keysound
-    void inputGamePress(InputMask&, timestamp);
-    void inputGameHold(InputMask&, timestamp);
-    void inputGameRelease(InputMask&, timestamp);
+    void inputGamePress(InputMask&, Time);
+    void inputGameHold(InputMask&, Time);
+    void inputGameRelease(InputMask&, Time);
 };

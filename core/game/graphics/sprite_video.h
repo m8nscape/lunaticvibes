@@ -22,7 +22,7 @@ public:
 	
 public:
 	int bindVideo(std::shared_ptr<sVideo> pVid);
-	virtual bool update(timestamp t) override;
+	virtual bool update(Time t) override;
 };
 
 /*

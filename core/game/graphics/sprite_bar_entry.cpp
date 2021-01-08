@@ -1,6 +1,8 @@
 #include "sprite_bar_entry.h"
 #include <plog/Log.h>
 #include "game/scene/scene_context.h"
+#include "entry/entry_song.h"
+#include "chartformat/format_bms.h"
 
 int SpriteBarEntry::setBody(BarType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
     eTimer timer, bool texVertSplit)
@@ -141,24 +143,58 @@ int SpriteBarEntry::setRivalLampRival(BarLampType type, pTexture texture, const 
 }
 
 
-bool SpriteBarEntry::update(timestamp time)
+bool SpriteBarEntry::update(Time time)
 {
-    if (!context_select.info.empty())
+    auto& tinfo = context_select.backtrace.top();
+    if (!tinfo.list.empty())
     {
         _draw = true;
-        const auto& info = context_select.info[index % context_select.info.size()];
-        drawBodyOn = index == context_select.barIndex;
-        if (!drawBodyOn && sBodyOff[info.type])
+        const auto& info = tinfo.list[tinfo.index % tinfo.list.size()];
+        drawBodyOn = (index == tinfo.index);
+
+        size_t typeidx = (size_t)BarType::SONG;
+        switch (info.type())
         {
-            sBodyOff[info.type]->update(time);
-            drawBody = info.type;
-            setParent(sBodyOff[info.type]);
+        case eEntryType::UNKNOWN:
+            break;
+        case eEntryType::FOLDER:
+            typeidx = (size_t)BarType::FOLDER;
+            break;
+        case eEntryType::CUSTOM_FOLDER:
+            typeidx = (size_t)BarType::CUSTOM_FOLDER;
+            break;
+        case eEntryType::SONG:
+            // TODO addtime check -> NEW_SONG
+            typeidx = (size_t)BarType::SONG;
+            break;
+        case eEntryType::RIVAL:
+            typeidx = (size_t)BarType::RIVAL;
+            break;
+        case eEntryType::RIVAL_SONG:
+            typeidx = (size_t)BarType::SONG_RIVAL;
+            break;
+        case eEntryType::NEW_COURSE:
+            typeidx = (size_t)BarType::NEW_COURSE;
+            break;
+        case eEntryType::COURSE:
+            typeidx = (size_t)BarType::COURSE;
+            break;
+        case eEntryType::RANDOM_COURSE:
+            typeidx = (size_t)BarType::RANDOM_COURSE;
+            break;
         }
-        if (drawBodyOn && sBodyOn[info.type])
+
+        if (!drawBodyOn && sBodyOff[typeidx])
         {
-            sBodyOn[info.type]->update(time);
-            drawBody = info.type;
-            setParent(sBodyOn[info.type]);
+            sBodyOff[typeidx]->update(time);
+            drawBody = typeidx;
+            setParent(sBodyOff[typeidx]);
+        }
+        if (drawBodyOn && sBodyOn[typeidx])
+        {
+            sBodyOn[typeidx]->update(time);
+            drawBody = typeidx;
+            setParent(sBodyOn[typeidx]);
         }
         if (!_parent.expired())
         {
@@ -179,31 +215,50 @@ bool SpriteBarEntry::update(timestamp time)
             sFlash->update(time);
             drawFlash = true;
         }
-        if (sLevel[info.level_type])
+
+        if (info.type() == eEntryType::SONG)
         {
-            sLevel[info.level_type]->update(time); 
-            drawLevel = info.level_type;
+            const auto& e = reinterpret_cast<const Song&>(info);
+
+            switch (e._file->type())
+            {
+            case eChartFormat::BMS:
+            {
+                const auto& bms = reinterpret_cast<const BMS&>(e._file);
+                if ((size_t)bms.playLevel < sLevel.size() && sLevel[bms.playLevel])
+                {
+                    sLevel[bms.playLevel]->update(time);
+                    drawLevel = bms.playLevel;
+                }
+                if ((size_t)bms.rank < sRank.size() && sRank[bms.rank])
+                {
+                    sRank[bms.rank]->update(time);
+                    drawRank = bms.rank;
+                }
+                break;
+            }
+            default:
+                break;
+            }
+
+            // rival things
+            if ((size_t)e.rival < sRivalWinLose.size() && sRivalWinLose[e.rival])
+            {
+                sRivalWinLose[e.rival]->update(time);
+                drawRival = e.rival;
+            }
+            if ((size_t)e.rival_lamp_self < sRivalLampSelf.size() && sRivalLampSelf[e.rival_lamp_self])
+            {
+                sRivalLampSelf[e.rival_lamp_self]->update(time);
+                drawRivalLampSelf = e.rival_lamp_self;
+            }
+            if ((size_t)e.rival_lamp_rival < sRivalLampRival.size() && sRivalLampRival[e.rival_lamp_rival])
+            {
+                sRivalLampRival[e.rival_lamp_rival]->update(time);
+                drawRivalLampRival = e.rival_lamp_rival;
+            }
         }
-        if (sRank[info.rank])
-        {
-            sRank[info.rank]->update(time);
-            drawRank = info.rank;
-        }
-        if (sRivalWinLose[info.rival])
-        {
-            sRivalWinLose[info.rival]->update(time);
-            drawRival = info.rival;
-        }
-        if (sRivalLampSelf[info.rival_lamp_self])
-        {
-            sRivalLampSelf[info.rival_lamp_self]->update(time);
-            drawRivalLampSelf = info.rival_lamp_self;
-        }
-        if (sRivalLampRival[info.rival_lamp_rival])
-        {
-            sRivalLampRival[info.rival_lamp_rival]->update(time);
-            drawRivalLampRival = info.rival_lamp_rival;
-        }
+
     }
     else
     {

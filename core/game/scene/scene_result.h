@@ -35,7 +35,7 @@ protected:
 
 protected:
     // Register to InputWrapper: judge / keysound
-    void inputGamePress(InputMask&, timestamp);
-    void inputGameHold(InputMask&, timestamp);
-    void inputGameRelease(InputMask&, timestamp);
+    void inputGamePress(InputMask&, Time);
+    void inputGameHold(InputMask&, Time);
+    void inputGameRelease(InputMask&, Time);
 };

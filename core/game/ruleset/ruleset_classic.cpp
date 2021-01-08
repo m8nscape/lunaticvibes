@@ -1,6 +1,6 @@
 #include "ruleset_classic.h"
 #include <plog/Log.h>
-#include "common/chart/bms.h"
+#include "common/chartformat/format_bms.h"
 #include "game/data/timer.h"
 #include "game/data/switch.h"
 #include "game/data/option.h"
@@ -49,23 +49,25 @@ void setJudgeTimer2PInner(int slot, long long t)
 	}
 }
 
-RulesetClassic::RulesetClassic(std::shared_ptr<vChart> chart, std::shared_ptr<vScroll> scroll, 
+RulesetClassic::RulesetClassic(std::shared_ptr<vChartFormat> format, std::shared_ptr<vChart> chart, 
     rc::judgeDiff difficulty, rc::gauge_ty gauge, double health, rc::player p) :
-    vRuleset(chart, scroll, rc::JUDGE_COUNT), _diff(difficulty), _count{ 0 }, _player(p)
+    vRuleset(format, chart, rc::JUDGE_COUNT), _diff(difficulty), _count{ 0 }, _player(p)
 {
     using namespace std::string_literals;
 
+    _basic.health = health;
+
     int total = 160;
-    switch (chart->type())
+    switch (format->type())
     {
-    case eChartType::BMS:
+    case eChartFormat::BMS:
         double total_bms;
-        chart->getExtendedProperty("TOTAL"s, (void*)&total_bms);
+        format->getExtendedProperty("TOTAL"s, (void*)&total_bms);
         total = int(total_bms);
         if (total < 0) total = 160;
         break;
 
-    case eChartType::BMSON:
+    case eChartFormat::BMSON:
     default:
         break;
     }
@@ -136,9 +138,9 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChart> chart, std::shared_ptr<vS
         //_basic.health = 0.2;
         _minHealth = 0.02;
         _clearHealth = 0.8;
-        _health[PERFECT] = 0.01 * total / scroll->getNoteCount();
-        _health[GREAT] = 0.01 * total / scroll->getNoteCount();
-        _health[GOOD] = 0.01 * total / scroll->getNoteCount() / 2;
+        _health[PERFECT] = 0.01 * total / chart->getNoteCount();
+        _health[GREAT] = 0.01 * total / chart->getNoteCount();
+        _health[GOOD] = 0.01 * total / chart->getNoteCount() / 2;
         _health[BAD] = -0.04;
         _health[MISS] = -0.06;
         _health[BPOOR] = -0.02;
@@ -148,9 +150,9 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChart> chart, std::shared_ptr<vS
         //_basic.health = 0.2;
         _minHealth = 0.02;
         _clearHealth = 0.8;
-        _health[PERFECT] = 0.01 * total / scroll->getNoteCount() * 1.2;
-        _health[GREAT] = 0.01 * total / scroll->getNoteCount() * 1.2;
-        _health[GOOD] = 0.01 * total / scroll->getNoteCount() / 2 * 1.2;
+        _health[PERFECT] = 0.01 * total / chart->getNoteCount() * 1.2;
+        _health[GREAT] = 0.01 * total / chart->getNoteCount() * 1.2;
+        _health[GOOD] = 0.01 * total / chart->getNoteCount() / 2 * 1.2;
         _health[BAD] = -0.032;
         _health[MISS] = -0.048;
         _health[BPOOR] = -0.016;
@@ -160,9 +162,9 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChart> chart, std::shared_ptr<vS
         //_basic.health = 0.2;
         _minHealth = 0.02;
         _clearHealth = 0.6;
-        _health[PERFECT] = 0.01 * total / scroll->getNoteCount() * 1.2;
-        _health[GREAT] = 0.01 * total / scroll->getNoteCount() * 1.2;
-        _health[GOOD] = 0.01 * total / scroll->getNoteCount() / 2 * 1.2;
+        _health[PERFECT] = 0.01 * total / chart->getNoteCount() * 1.2;
+        _health[GREAT] = 0.01 * total / chart->getNoteCount() * 1.2;
+        _health[GOOD] = 0.01 * total / chart->getNoteCount() / 2 * 1.2;
         _health[BAD] = -0.032;
         _health[MISS] = -0.048;
         _health[BPOOR] = -0.016;
@@ -223,13 +225,13 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChart> chart, std::shared_ptr<vS
 	}
 }
 
-judgeRes RulesetClassic::_judge(const Note& note, timestamp time)
+judgeRes RulesetClassic::_judge(const Note& note, Time time)
 {
     using namespace judgeArea;
 
     // spot judge area
     area a = NOTHING;
-	timestamp error = time - note.time;
+	Time error = time - note.time;
     if (error > -judgeTime[(size_t)_diff].BPOOR)
     {
         if (error < -judgeTime[(size_t)_diff].BAD)
@@ -279,7 +281,7 @@ void RulesetClassic::_updateHp(const double delta)
     _basic.health = std::max(_minHealth, std::min(1.0, tmp));
 }
 
-void RulesetClassic::updateHit(timestamp& t, NoteChannelIndex ch, size_t judge, unsigned slot)
+void RulesetClassic::updateHit(Time& t, NoteLaneIndex ch, size_t judge, unsigned slot)
 {
     ++_count[judge];
     ++_basic.hit;
@@ -288,18 +290,18 @@ void RulesetClassic::updateHit(timestamp& t, NoteChannelIndex ch, size_t judge, 
     switch (judge)
     {
     case PERFECT:
-        inner_score += 1.0 * 150000 / _scroll->getNoteCount() + 
-            1.0 * std::min(int(_basic.combo) - 1, 10) * 50000 / (10 * _scroll->getNoteCount() - 55);
+        inner_score += 1.0 * 150000 / _chart->getNoteCount() + 
+            1.0 * std::min(int(_basic.combo) - 1, 10) * 50000 / (10 * _chart->getNoteCount() - 55);
         _basic.score2 += 2;
         break;
     case GREAT:
-        inner_score += 1.0 * 100000 / _scroll->getNoteCount() + 
-            1.0 * std::min(int(_basic.combo) - 1, 10) * 50000 / (10 * _scroll->getNoteCount() - 55);
+        inner_score += 1.0 * 100000 / _chart->getNoteCount() + 
+            1.0 * std::min(int(_basic.combo) - 1, 10) * 50000 / (10 * _chart->getNoteCount() - 55);
         _basic.score2 += 1;
         break;
     case GOOD:
-        inner_score += 1.0 * 20000 / _scroll->getNoteCount() + 
-            1.0 * std::min(int(_basic.combo) - 1, 10) * 50000 / (10 * _scroll->getNoteCount() - 55);
+        inner_score += 1.0 * 20000 / _chart->getNoteCount() + 
+            1.0 * std::min(int(_basic.combo) - 1, 10) * 50000 / (10 * _chart->getNoteCount() - 55);
         break;
     default:
         break;
@@ -311,7 +313,7 @@ void RulesetClassic::updateHit(timestamp& t, NoteChannelIndex ch, size_t judge, 
     gNumbers.set(slot == 0 ? eNumber::_DISP_NOWCOMBO_1P : eNumber::_DISP_NOWCOMBO_2P, _basic.combo);
 }
 
-void RulesetClassic::updateMiss(timestamp& t, NoteChannelIndex ch, size_t judge, unsigned slot)
+void RulesetClassic::updateMiss(Time& t, NoteLaneIndex ch, size_t judge, unsigned slot)
 {
     ++_count[judge];
     ++_basic.miss;
@@ -322,20 +324,20 @@ void RulesetClassic::updateMiss(timestamp& t, NoteChannelIndex ch, size_t judge,
     gNumbers.set(slot == 0 ? eNumber::_DISP_NOWCOMBO_1P : eNumber::_DISP_NOWCOMBO_2P, _basic.combo);
 }
 
-void RulesetClassic::updatePress(InputMask& pg, timestamp t)
+void RulesetClassic::updatePress(InputMask& pg, Time t)
 {
-	timestamp rt = t - gTimers.get(eTimer::PLAY_START);
+	Time rt = t - gTimers.get(eTimer::PLAY_START);
     if (rt.norm() < 0) return;
 	if (_k1P) for (size_t k = Input::S1L; k <= Input::K1SPDDN; ++k)
     {
         if (!pg[k]) continue;
-        auto c = _scroll->getChannelFromKey((Input::Ingame)k);
-		if (c.first == NoteChannelCategory::_) return;
-        auto n = _scroll->incomingNoteOfChannel(c.first, c.second);
+        auto c = _chart->getLaneFromKey((Input::Ingame)k);
+		if (c.first == NoteLaneCategory::_) return;
+        auto n = _chart->incomingNoteOfLane(c.first, c.second);
         auto j = _judge(*n, rt);
         switch (c.first)
         {
-        case NoteChannelCategory::Note:
+        case NoteLaneCategory::Note:
 			switch (j.area)
 			{
 			case judgeArea::NOTHING:
@@ -375,10 +377,10 @@ void RulesetClassic::updatePress(InputMask& pg, timestamp t)
             if (j.area > judgeArea::EARLY_BPOOR) n->hit = true;
             break;
 
-        case NoteChannelCategory::Invs:
+        case NoteLaneCategory::Invs:
             break;
 
-        case NoteChannelCategory::LN:
+        case NoteLaneCategory::LN:
             // TODO LN
             // TODO scratch LN miss
             break;
@@ -387,13 +389,13 @@ void RulesetClassic::updatePress(InputMask& pg, timestamp t)
 	if (_k2P) for (size_t k = Input::S2L; k <= Input::K2SPDDN; ++k)
     {
         if (!pg[k]) continue;
-        auto c = _scroll->getChannelFromKey((Input::Ingame)k);
-		if (c.first == NoteChannelCategory::_) return;
-        auto n = _scroll->incomingNoteOfChannel(c.first, c.second);
+        auto c = _chart->getLaneFromKey((Input::Ingame)k);
+		if (c.first == NoteLaneCategory::_) return;
+        auto n = _chart->incomingNoteOfLane(c.first, c.second);
         auto j = _judge(*n, rt);
         switch (c.first)
         {
-        case NoteChannelCategory::Note:
+        case NoteLaneCategory::Note:
 			switch (j.area)
 			{
 			case judgeArea::NOTHING:
@@ -433,30 +435,30 @@ void RulesetClassic::updatePress(InputMask& pg, timestamp t)
             if (j.area > judgeArea::EARLY_BPOOR) n->hit = true;
             break;
 
-        case NoteChannelCategory::Invs:
+        case NoteLaneCategory::Invs:
             break;
 
-        case NoteChannelCategory::LN:
+        case NoteLaneCategory::LN:
             // TODO LN
             // TODO scratch LN miss
             break;
         }
     }
 }
-void RulesetClassic::updateHold(InputMask& hg, timestamp t)
+void RulesetClassic::updateHold(InputMask& hg, Time t)
 {
-	timestamp rt = t - gTimers.get(eTimer::PLAY_START);
+	Time rt = t - gTimers.get(eTimer::PLAY_START);
     if (rt < 0) return;
 
     if (_k1P) for (size_t k = Input::S1L; k <= Input::K1SPDDN; ++k)
     {
         if (!hg[k]) continue;
-        auto c = _scroll->getChannelFromKey((Input::Ingame)k);
-		if (c.first == NoteChannelCategory::_) return;
-        auto n = _scroll->incomingNoteOfChannel(c.first, c.second);
+        auto c = _chart->getLaneFromKey((Input::Ingame)k);
+		if (c.first == NoteLaneCategory::_) return;
+        auto n = _chart->incomingNoteOfLane(c.first, c.second);
         switch (c.first)
         {
-        case NoteChannelCategory::Mine:
+        case NoteLaneCategory::Mine:
 		{
 			auto j = _judge(*n, rt);
 			if (j.area == judgeArea::EXACT_PERFECT ||
@@ -477,12 +479,12 @@ void RulesetClassic::updateHold(InputMask& hg, timestamp t)
     if (_k2P) for (size_t k = Input::S2L; k <= Input::K2SPDDN; ++k)
     {
         if (!hg[k]) continue;
-        auto c = _scroll->getChannelFromKey((Input::Ingame)k);
-		if (c.first == NoteChannelCategory::_) return;
-        auto n = _scroll->incomingNoteOfChannel(c.first, c.second);
+        auto c = _chart->getLaneFromKey((Input::Ingame)k);
+		if (c.first == NoteLaneCategory::_) return;
+        auto n = _chart->incomingNoteOfLane(c.first, c.second);
         switch (c.first)
         {
-        case NoteChannelCategory::Mine:
+        case NoteLaneCategory::Mine:
 		{
 			auto j = _judge(*n, rt);
 			if (j.area == judgeArea::EXACT_PERFECT ||
@@ -501,20 +503,20 @@ void RulesetClassic::updateHold(InputMask& hg, timestamp t)
         }
     }
 }
-void RulesetClassic::updateRelease(InputMask& rg, timestamp t)
+void RulesetClassic::updateRelease(InputMask& rg, Time t)
 {
-	timestamp rt = t - gTimers.get(eTimer::PLAY_START);
+	Time rt = t - gTimers.get(eTimer::PLAY_START);
     if (rt < 0) return;
     if (_k1P) for (size_t k = Input::S1L; k <= Input::K1SPDDN; ++k)
     {
         if (!rg[k]) continue;
-        auto c = _scroll->getChannelFromKey((Input::Ingame)k);
-		if (c.first == NoteChannelCategory::_) return;
-        auto n = _scroll->incomingNoteOfChannel(c.first, c.second);
+        auto c = _chart->getLaneFromKey((Input::Ingame)k);
+		if (c.first == NoteLaneCategory::_) return;
+        auto n = _chart->incomingNoteOfLane(c.first, c.second);
         //auto j = _judge(*n, rt);
         switch (c.first)
         {
-        case NoteChannelCategory::LN:
+        case NoteLaneCategory::LN:
             // TODO LN miss
             break;
 
@@ -525,13 +527,13 @@ void RulesetClassic::updateRelease(InputMask& rg, timestamp t)
     if (_k2P) for (size_t k = Input::S2L; k <= Input::K2SPDDN; ++k)
     {
         if (!rg[k]) continue;
-        auto c = _scroll->getChannelFromKey((Input::Ingame)k);
-		if (c.first == NoteChannelCategory::_) return;
-        auto n = _scroll->incomingNoteOfChannel(c.first, c.second);
+        auto c = _chart->getLaneFromKey((Input::Ingame)k);
+		if (c.first == NoteLaneCategory::_) return;
+        auto n = _chart->incomingNoteOfLane(c.first, c.second);
         //auto j = _judge(*n, rt);
         switch (c.first)
         {
-        case NoteChannelCategory::LN:
+        case NoteLaneCategory::LN:
             // TODO LN miss
             break;
 
@@ -541,22 +543,22 @@ void RulesetClassic::updateRelease(InputMask& rg, timestamp t)
     }
 }
 
-void RulesetClassic::update(timestamp t)
+void RulesetClassic::update(Time t)
 {
 	auto rt = t - gTimers.get(eTimer::PLAY_START);
     if (_k1P) for (size_t k = Input::S1L; k <= Input::K1SPDDN; ++k)
 	{
-		auto c = _scroll->getChannelFromKey((Input::Ingame)k);
-		if (c.first == NoteChannelCategory::_) continue;
+		auto c = _chart->getLaneFromKey((Input::Ingame)k);
+		if (c.first == NoteLaneCategory::_) continue;
 
-		auto n = _scroll->incomingNoteOfChannel(c.first, c.second);
-		if (!_scroll->isLastNoteOfChannel(c.first, c.second, n) && !n->hit &&
+		auto n = _chart->incomingNoteOfLane(c.first, c.second);
+		if (!_chart->isLastNoteOfLane(c.first, c.second, n) && !n->hit &&
 			rt - n->time >= judgeTime[(size_t)_diff].BAD)
 		{
 			switch (c.first)
 			{
-			case NoteChannelCategory::Note:
-			case NoteChannelCategory::LN:
+			case NoteLaneCategory::Note:
+			case NoteLaneCategory::LN:
 				n->hit = true;
                 updateMiss(t, c.second, MISS, 0);
 				//LOG_DEBUG << "LATE   POOR    "; break;
@@ -566,17 +568,17 @@ void RulesetClassic::update(timestamp t)
     }
     if (_k2P) for (size_t k = Input::S2L; k <= Input::K2SPDDN; ++k)
 	{
-		auto c = _scroll->getChannelFromKey((Input::Ingame)k);
-		if (c.first == NoteChannelCategory::_) continue;
+		auto c = _chart->getLaneFromKey((Input::Ingame)k);
+		if (c.first == NoteLaneCategory::_) continue;
 
-		auto n = _scroll->incomingNoteOfChannel(c.first, c.second);
-		if (!_scroll->isLastNoteOfChannel(c.first, c.second, n) && !n->hit &&
+		auto n = _chart->incomingNoteOfLane(c.first, c.second);
+		if (!_chart->isLastNoteOfLane(c.first, c.second, n) && !n->hit &&
 			rt - n->time >= judgeTime[(size_t)_diff].BAD)
 		{
 			switch (c.first)
 			{
-			case NoteChannelCategory::Note:
-			case NoteChannelCategory::LN:
+			case NoteLaneCategory::Note:
+			case NoteLaneCategory::LN:
 				n->hit = true;
                 updateMiss(t, c.second, MISS, 1);
 				//LOG_DEBUG << "LATE   POOR    "; break;
@@ -585,7 +587,7 @@ void RulesetClassic::update(timestamp t)
 		}
     }
 
-	unsigned max = _scroll->getNoteCount() * 2;
+	unsigned max = _chart->getNoteCount() * 2;
 	_basic.total_acc = 100.0 * _basic.score2 / max;
     _basic.acc = _basic.totaln ? (100.0 * _basic.score2 / _basic.totaln / 2) : 0;
     _basic.score = int(std::round(inner_score));

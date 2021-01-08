@@ -18,6 +18,11 @@ void SkinMgr::load(eMode e)
     // Get skin path from config
     switch (e)
     {
+    case eMode::MUSIC_SELECT:
+        skinFileDefault = cfg::S_DEFAULT_PATH_MUSIC_SELECT;
+        skinFile = ConfigMgr::S.get(cfg::S_PATH_MUSIC_SELECT, Path(cfg::S_DEFAULT_PATH_MUSIC_SELECT).generic_string());
+        break;
+
     case eMode::PLAY7:
         skinFileDefault = cfg::S_DEFAULT_PATH_PLAY_7;
         skinFile = ConfigMgr::S.get(cfg::S_PATH_PLAY_7, Path(cfg::S_DEFAULT_PATH_PLAY_7).generic_string());

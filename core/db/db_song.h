@@ -3,11 +3,14 @@
 #include <vector>
 #include <memory>
 #include "types.h"
+#include "utils.h"
 #include "db_conn.h"
-#include "entries/folder.h"
+#include "entry/entry_folder.h"
 
-class vChart;
-typedef std::shared_ptr<vChart> pChart;
+class vChartFormat;
+typedef std::shared_ptr<vChartFormat> pChart;
+
+inline const HashMD5 ROOT_FOLDER_HASH = md5("", 0);
 
 /* TABLE folder:
     md5(TEXT), parent(TEXT), path(TEXT), name(TEXT), type(INTEGER), removed(INTEGER)
@@ -22,7 +25,7 @@ typedef std::shared_ptr<vChart> pChart;
     md5(TEXT), folder(TEXT), type(INTEGER), file(TEXT), ...
     md5: file hash
     folder: folder hash
-    type: see enum eChartType in chart.h
+    type: see enum eChartFormat in chartformat.h
     file: file name (not including path)
 */
 class SongDB: public SQLite
@@ -54,10 +57,10 @@ public:
     std::vector<pChart> findChartByName(const HashMD5& folder, const std::string&, unsigned limit = 1000) const;  // search from genre, version, artist, artist2, title, title2
     std::vector<pChart> findChartByHash(const HashMD5&) const;  // chart may duplicate
 
-    int addFolder(Path path);
+    int addFolder(Path path, HashMD5 parent = ROOT_FOLDER_HASH);
     int addFolderContent(const HashMD5& hash, const Path& folder);
     int refreshFolderContent(const HashMD5& hash, const Path& path, FolderType type);
-    int removeFolder(const HashMD5& hash, bool removeFromDb = false);
+    int removeFolder(const HashMD5& hash, bool removeSong = false);
 
     HashMD5 getFolderParent(const HashMD5& folder) const;
     HashMD5 getFolderParent(const Path& path) const;
@@ -66,6 +69,6 @@ public:
 
     FolderRegular browse(HashMD5 root, bool recursive = true);
     FolderSong browseSong(HashMD5 root);
-    FolderSong search(HashMD5 root, std::string key);
+    FolderRegular search(HashMD5 root, std::string key);
 
 };

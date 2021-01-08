@@ -1,4 +1,4 @@
-#include "bms.h"
+#include "format_bms.h"
 #include <plog/Log.h>
 #include <iostream>
 #include <fstream>
@@ -36,17 +36,17 @@ int BMS::getExtendedProperty(const std::string& key, void* ret)
 }
 
 BMS::BMS() {
-    _type = eChartType::BMS;
+    _type = eChartFormat::BMS;
     _wavFiles.resize(MAXSAMPLEIDX + 1);
     _bgaFiles.resize(MAXSAMPLEIDX + 1);
-    _measureLength.resize(MAXMEASUREIDX + 1);
+    _measureLength.resize(MAXBARIDX + 1);
 }
 
 BMS::BMS(const Path& file) {
-    _type = eChartType::BMS;
+    _type = eChartFormat::BMS;
     _wavFiles.resize(MAXSAMPLEIDX + 1);
     _bgaFiles.resize(MAXSAMPLEIDX + 1);
-    _measureLength.resize(MAXMEASUREIDX + 1);
+    _measureLength.resize(MAXBARIDX + 1);
     initWithFile(file);
 }
 
@@ -129,20 +129,20 @@ int BMS::initWithFile(const Path& file)
 
                     // digits
                     if (key == "PLAYER")
-                        player = std::stoi(value);
+                        player = stoine(value);
                     else if (key == "RANK")
-                        rank = std::stoi(value);
+                        rank = stoine(value);
                     else if (key == "TOTAL")
-                        total = std::stoi(value);
+                        total = stoine(value);
                     else if (key == "PLAYLEVEL")
                     {
-                        playLevel = std::stoi(value);
+                        playLevel = stoine(value);
                         _level = double(playLevel);
                     }
                     else if (key == "DIFFICULTY")
-                        difficulty = std::stoi(value);
+                        difficulty = stoine(value);
                     else if (key == "BPM")
-                        bpm = std::stod(value);
+                        bpm = stodne(value);
 
                     // strings
                     else if (key == "TITLE")
@@ -201,12 +201,12 @@ int BMS::initWithFile(const Path& file)
                         return 1;
                     }
 
-                    // maxMeasure & channels
+                    // lastBarIdx & channels
                     if (std::regex_match(key, std::regex(R"(\d{3}[0-9A-Za-z]{2})")))
                     {
                         unsigned measure = std::stoi(key.substr(0, 3));
-                        if (maxMeasure < measure)
-                            maxMeasure = measure;
+                        if (lastBarIdx < measure)
+                            lastBarIdx = measure;
                         std::pair channel = { base36(key[3]), base36(key[4]) };
                         switch (channel.first)
                         {
@@ -214,43 +214,43 @@ int BMS::initWithFile(const Path& file)
                             switch (channel.second)
                             {
                             case 1:            // 01: BGM
-                                strToChannel36(chBGM[bgmLayersCount[measure]++][measure], value);
+                                strToLane36(chBGM[bgmLayersCount[measure]++][measure], value);
                                 if (bgmLayersCount[measure] > bgmLayers)
                                     bgmLayers = bgmLayersCount[measure];
                                 break;
 
                             case 2:            // 02: Measure Length
                                 _measureLength[measure] = std::stod(value);
-                                haveBarChange = true;
+                                haveMetricMod = true;
                                 break;
 
                             case 3:            // 03: BPM change
-                                strToChannel16(chBPMChange[measure], value);
+                                strToLane16(chBPMChange[measure], value);
                                 haveBPMChange = true;
                                 break;
 
                             case 4:            // 04: BGA Base
-                                strToChannel36(chBGABase[measure], value);
+                                strToLane36(chBGABase[measure], value);
                                 haveBGA = true;
                                 break;
 
                             case 6:            // 06: BGA Poor
-                                strToChannel36(chBGAPoor[measure], value);
+                                strToLane36(chBGAPoor[measure], value);
                                 haveBGA = true;
                                 break;
 
                             case 7:            // 07: BGA Layer
-                                strToChannel36(chBGALayer[measure], value);
+                                strToLane36(chBGALayer[measure], value);
                                 haveBGA = true;
                                 break;
 
                             case 8:            // 08: ExBPM
-                                strToChannel36(chExBPMChange[measure], value);
+                                strToLane36(chExBPMChange[measure], value);
                                 haveStop = true;
                                 break;
 
                             case 9:            // 09: Stop
-                                strToChannel36(chStop[measure], value);
+                                strToLane36(chStop[measure], value);
                                 haveStop = true;
                                 break;
                             }
@@ -258,22 +258,22 @@ int BMS::initWithFile(const Path& file)
 
                         case 1:            // 1x: 1P visible
                         case 2:            // 2x: 2P visible
-                            strToNoteChannelDispatcher(chNotesVisible, measure, channel.first, channel.second, value);
+                            strToNoteLaneDispatcher(chNotesVisible, measure, channel.first, channel.second, value);
                             haveNote = true;
                             break;
                         case 3:            // 3x: 1P invisible
                         case 4:            // 4x: 2P invisible
-                            strToNoteChannelDispatcher(chNotesInvisible, measure, channel.first, channel.second, value);
+                            strToNoteLaneDispatcher(chNotesInvisible, measure, channel.first, channel.second, value);
                             haveInvisible = true;
                             break;
                         case 5:            // 5x: 1P LN
                         case 6:            // 6x: 2P LN
-                            strToNoteChannelDispatcher(chNotesLN, measure, channel.first, channel.second, value);
+                            strToNoteLaneDispatcher(chNotesLN, measure, channel.first, channel.second, value);
                             haveLN = true;
                             break;
                         case 0xD:        // Dx: 1P mine
                         case 0xE:        // Ex: 2P mine
-                            strToNoteChannelDispatcher(chMines, measure, channel.first, channel.second, value);
+                            strToNoteLaneDispatcher(chMines, measure, channel.first, channel.second, value);
                             haveMine = true;
                             break;
                         }
@@ -307,20 +307,20 @@ int BMS::initWithFile(const Path& file)
     fs.close();
 
     // Get statistics
-    for (size_t i = 0; i <= maxMeasure; i++)
+    for (size_t i = 0; i <= lastBarIdx; i++)
         if (_measureLength[i] == 0.0)
             _measureLength[i] = 1.0;
 
     if (haveNote)
     for (const auto& chs : chNotesVisible)
-        for (unsigned m = 0; m <= maxMeasure; m++)
+        for (unsigned m = 0; m <= lastBarIdx; m++)
             for (const auto& ns : chs[m].notes)
                 notes++;
 
     if (haveLN)
     {
         for (const auto& chs : chNotesLN)
-            for (unsigned m = 0; m <= maxMeasure; m++)
+            for (unsigned m = 0; m <= lastBarIdx; m++)
                 for (const auto& ns : chs[m].notes)
                     notes_ln++;
         notes += notes_ln / 2;
@@ -331,7 +331,7 @@ int BMS::initWithFile(const Path& file)
     _itlBPM = bpm;
     if (haveBPMChange)
     {
-        for (unsigned m = 0; m <= maxMeasure; m++)
+        for (unsigned m = 0; m <= lastBarIdx; m++)
         {
             for (const auto& ns : chBPMChange[m].notes)
             {
@@ -355,7 +355,7 @@ int BMS::initWithFile(const Path& file)
     return 0;
 }
 
-int BMS::strToChannel36(channel& ch, const StringContent& str)
+int BMS::strToLane36(channel& ch, const StringContent& str)
 {
     if (!std::regex_match(str, std::regex(R"(([0-9A-Za-z][0-9A-Za-z]){1,})")))
         throw new noteLineException;
@@ -367,7 +367,7 @@ int BMS::strToChannel36(channel& ch, const StringContent& str)
     return 0;
 }
 
-int BMS::strToChannel16(channel& ch, const StringContent& str)
+int BMS::strToLane16(channel& ch, const StringContent& str)
 {
     if (!std::regex_match(str, std::regex(R"(([0-9A-Fa-f][0-9A-Fa-f]){1,})")))
         throw new noteLineException;
@@ -379,7 +379,7 @@ int BMS::strToChannel16(channel& ch, const StringContent& str)
     return 0;
 }
 
-int BMS::strToNoteChannelDispatcher(decltype(chNotesVisible)& arrCh, int measure, int layer, int ch, const StringContent& str)
+int BMS::strToNoteLaneDispatcher(decltype(chNotesVisible)& arrCh, int measure, int layer, int ch, const StringContent& str)
 {
     int idx = 0;
     switch (layer)
@@ -418,7 +418,7 @@ int BMS::strToNoteChannelDispatcher(decltype(chNotesVisible)& arrCh, int measure
         idx = 9;
         break;
     }
-    return strToChannel36(arrCh[idx][measure], str);
+    return strToLane36(arrCh[idx][measure], str);
 }
 
 std::string BMS::getError()
@@ -442,9 +442,9 @@ int BMS::getMode() const
 }
 
 #pragma warning(suppress: 4715)
-auto BMS::getChannel(ChannelCode code, unsigned chIdx, unsigned measureIdx) const -> const decltype(chBGM[0][0])&
+auto BMS::getLane(LaneCode code, unsigned chIdx, unsigned measureIdx) const -> const decltype(chBGM[0][0])&
 {
-    using eC = ChannelCode;
+    using eC = LaneCode;
     switch (code)
     {
     case eC::BGM:        return chBGM[chIdx][measureIdx]; break;
@@ -463,6 +463,5 @@ auto BMS::getChannel(ChannelCode code, unsigned chIdx, unsigned measureIdx) cons
     case eC::NOTEMINE1:    return chMines[chIdx][measureIdx]; break;
     case eC::NOTEMINE2:    return chMines[10 + chIdx][measureIdx]; break;
     }
-    // FIXME warning C4715 : “game::BMS::getChannel” : 不是所有的控件路径都返回值
+    // FIXME warning C4715 : “game::BMS::getLane” : 不是所有的控件路径都返回值
 }
-

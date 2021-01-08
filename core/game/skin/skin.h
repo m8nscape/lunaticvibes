@@ -49,12 +49,12 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 // Textures
 protected:
-    std::map<std::string, pTexture> _texNameMap;    // Use this to get texture instance from name
+    std::map<std::string, pTexture> _textureNameMap;    // Use this to get texture instance from name
 	std::map<std::string, pVideo>   _vidNameMap;	// Use this to get video instance from name
 
-    //TextureFull _texBlack;   // _texNameMap["BlackDot"]
-    //TextureFull _texWhite;   // _texNameMap["WhiteDot"]
-    //TextureFull _texError;   // _texNameMap["Error"]
+    //TextureFull _texBlack;   // _textureNameMap["BlackDot"]
+    //TextureFull _texWhite;   // _textureNameMap["WhiteDot"]
+    //TextureFull _texError;   // _textureNameMap["Error"]
 
 ////////////////////////////////////////////////////////////////////////////////\
 // Videos

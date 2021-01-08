@@ -23,6 +23,7 @@
     <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\binary.h" />
     <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\contrib\anchordict.h" />
     <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\contrib\graphbuilder.h" />
+    <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\depthguard.h" />
     <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\dll.h" />
     <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\emitfromevents.h" />
     <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\emitter.h" />
@@ -33,7 +34,6 @@
     <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\exceptions.h" />
     <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\mark.h" />
     <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\node\convert.h" />
-    <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\node\detail\bool_type.h" />
     <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\node\detail\impl.h" />
     <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\node\detail\iterator.h" />
     <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\node\detail\iterator_fwd.h" />
@@ -49,7 +49,7 @@
     <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\node\parse.h" />
     <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\node\ptr.h" />
     <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\node\type.h" />
-    <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\noncopyable.h" />
+    <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\noexcept.h" />
     <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\null.h" />
     <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\ostream_wrapper.h" />
     <ClInclude Include="..\ext\yaml-cpp\include\yaml-cpp\parser.h" />
@@ -84,6 +84,7 @@
     <ClCompile Include="..\ext\yaml-cpp\src\contrib\graphbuilder.cpp" />
     <ClCompile Include="..\ext\yaml-cpp\src\contrib\graphbuilderadapter.cpp" />
     <ClCompile Include="..\ext\yaml-cpp\src\convert.cpp" />
+    <ClCompile Include="..\ext\yaml-cpp\src\depthguard.cpp" />
     <ClCompile Include="..\ext\yaml-cpp\src\directives.cpp" />
     <ClCompile Include="..\ext\yaml-cpp\src\emit.cpp" />
     <ClCompile Include="..\ext\yaml-cpp\src\emitfromevents.cpp" />
@@ -116,32 +117,32 @@
     <ProjectGuid>{F0A435EA-0BFC-49F2-9048-FE2FFB6956F9}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>yamlcpp</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>

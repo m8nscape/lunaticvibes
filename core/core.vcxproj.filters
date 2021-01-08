@@ -18,12 +18,6 @@
     <ClCompile Include="common\asynclooper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="common\chart\bms.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="common\chart\chart.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="common\fraction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -87,12 +81,6 @@
     <ClCompile Include="game\scene\scene_play.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="game\scroll\scroll.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="game\scroll\scroll_bms.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="game\skin\skin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -138,7 +126,19 @@
     <ClCompile Include="config\config_mgr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="common\entries\folder.cpp">
+    <ClCompile Include="common\chartformat\chartformat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="game\chart\chart.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="game\chart\chart_bms.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="common\chartformat\format_bms.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="common\entry\entry_folder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="game\graphics\sprite_video.cpp">
@@ -156,12 +156,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="common\beat.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="common\chart\bms.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="common\chart\chart.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="common\fraction.h">
@@ -263,12 +257,6 @@
     <ClInclude Include="game\scene\scene_play.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="game\scroll\scroll.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="game\scroll\scroll_bms.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="game\skin\skin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -308,22 +296,37 @@
     <ClInclude Include="game\scene\scene_select.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="common\chart\chart_types.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="game\scroll\scroll_types.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="db\db_score.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="common\score.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="db\db_mgr.h">
+    <ClInclude Include="common\chartformat\chart_types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="common\entries\folder.h">
+    <ClInclude Include="common\chartformat\chartformat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\chart\chart.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\chart\chart_bms.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\chart\chart_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common\chartformat\format_bms.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common\entry\entry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common\entry\entry_folder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common\entry\entry_song.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="game\graphics\sprite_video.h">

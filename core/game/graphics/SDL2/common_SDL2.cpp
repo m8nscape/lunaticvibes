@@ -2,6 +2,7 @@
 #include "window_SDL2.h"
 #include "SDL2_gfxPrimitives.h"
 #include <memory>
+#include <map>
 #include <plog/Log.h>
 
 #define SDL_LOAD_NOAUTOFREE 0
@@ -10,6 +11,18 @@
 #ifdef _MSC_VER
 #define strcpy strcpy_s
 #endif
+
+const std::map<BlendMode, SDL_BlendMode> BlendMap =
+{
+
+    { BlendMode::NONE                       , SDL_BLENDMODE_BLEND      },  // ???
+    { BlendMode::ALPHA                      , SDL_BLENDMODE_BLEND      },
+    { BlendMode::ADD                        , SDL_BLENDMODE_ADD        },
+    { BlendMode::MULTIPLY                   , SDL_BLENDMODE_MOD        },
+    { BlendMode::SUBTRACT                   , SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_SRC_COLOR, SDL_BLENDFACTOR_DST_COLOR, SDL_BLENDOPERATION_SUBTRACT, SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_DST_ALPHA, SDL_BLENDOPERATION_ADD)  },
+    { BlendMode::ANTICOLOR                  , SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE_MINUS_SRC_COLOR, SDL_BLENDFACTOR_DST_COLOR, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_DST_ALPHA, SDL_BLENDOPERATION_ADD)  },
+};
+
 
 Color::Color(uint32_t rgba)
 {
@@ -83,10 +96,36 @@ bool isTGA(const char* filePath)
 
     return strcmp("TGA", ext) == 0;
 }
+bool isPNG(const char* filePath)
+{
+    std::size_t len = strlen(filePath);
+    if (len < 4) return false;
+
+    char ext[4];
+    strcpy(ext, &filePath[len - 3]);
+    if (ext[0] > 'Z') ext[0] -= ('a' - 'A');
+    if (ext[1] > 'Z') ext[1] -= ('a' - 'A');
+    if (ext[2] > 'Z') ext[2] -= ('a' - 'A');
+
+    return strcmp("PNG", ext) == 0;
+}
+bool isGIF(const char* filePath)
+{
+    std::size_t len = strlen(filePath);
+    if (len < 4) return false;
+
+    char ext[4];
+    strcpy(ext, &filePath[len - 3]);
+    if (ext[0] > 'Z') ext[0] -= ('a' - 'A');
+    if (ext[1] > 'Z') ext[1] -= ('a' - 'A');
+    if (ext[2] > 'Z') ext[2] -= ('a' - 'A');
+
+    return strcmp("GIF", ext) == 0;
+}
 
 Image::Image(const std::filesystem::path& path) : Image(path.string().c_str()) {}
 
-Image::Image(const char* filePath) : _path(filePath), _pRWop(SDL_RWFromFile(filePath, "rb"))
+Image::Image(const char* filePath) : _path(filePath), _pRWop(SDL_RWFromFile(filePath, "rb"), [](SDL_RWops* s) { if (s) s->close(s); })
 {
     if (!_pRWop && strlen(filePath) > 0)
     {
@@ -95,40 +134,44 @@ Image::Image(const char* filePath) : _path(filePath), _pRWop(SDL_RWFromFile(file
     }
     if (!isTGA(filePath))
     {
-        // Start non-TGA type loading
-        _pSurface = IMG_Load_RW(_pRWop, SDL_LOAD_NOAUTOFREE);
-        if (!_pSurface)
-        {
-            LOG_WARNING << "[Image] Build surface object error! " << filePath;
-            LOG_WARNING << "[Image] ^ " << IMG_GetError();
-            return;
-        }
-
-        _loaded = true;
-        if (IMG_isGIF(_pRWop) || IMG_isPNG(_pRWop))
-            _haveAlphaLayer = true;
+        _pSurface = std::shared_ptr<SDL_Surface>(IMG_LoadTGA_RW(&*_pRWop), SDL_FreeSurface);
+        setTransparentColorRGB(Color(0, 255, 0, -1));
+    }
+    else if (isPNG(filePath))
+    {
+        _pSurface = std::shared_ptr<SDL_Surface>(IMG_LoadPNG_RW(&*_pRWop), SDL_FreeSurface);
+    }
+    else if (isGIF(filePath))
+    {
+        _pSurface = std::shared_ptr<SDL_Surface>(IMG_LoadGIF_RW(&*_pRWop), SDL_FreeSurface);
+        setTransparentColorRGB(Color(0, 255, 0, -1));
     }
     else
     {
-        // separated TGA type loading since IMG_Load_RW does not support TGA.
-        _pSurface = IMG_LoadTGA_RW(_pRWop);
-        if (!_pSurface)
-        {
-            LOG_WARNING << "[Image] Build surface object error! " << filePath;
-            LOG_WARNING << "[Image] ^ " << IMG_GetError();
-            return;
-        }
-
-        _loaded = true;
-        _haveAlphaLayer = true;
+        _pSurface = std::shared_ptr<SDL_Surface>(IMG_Load_RW(&*_pRWop, SDL_LOAD_NOAUTOFREE), SDL_FreeSurface);
     }
+
+    if (!_pSurface)
+    {
+        LOG_WARNING << "[Image] Build surface object error! " << filePath;
+        LOG_WARNING << "[Image] ^ " << IMG_GetError();
+        return;
+    }
+
+    _loaded = true;
     LOG_DEBUG << "[Image] Load image file finished. " << _path.c_str();
 }
 
 Image::~Image() 
 {
-	if (_pRWop) _pRWop->close(_pRWop);
-	if (_pSurface) SDL_FreeSurface(_pSurface);
+}
+
+void Image::setTransparentColorRGB(Color c)
+{
+    if (_pSurface)
+    {
+        SDL_SetColorKey(&*_pSurface, SDL_TRUE, SDL_MapRGB(_pSurface->format, c.r, c.g, c.b));
+    }
 }
 
 Rect Image::getRect() const
@@ -148,27 +191,18 @@ Texture::Texture(const Image& srcImage)
 {
     if (!srcImage._loaded) return;
 
-    if (!srcImage._haveAlphaLayer)
-    {
         Image tmpImage = srcImage;
-        // TODO remove pixels that are equal to TRANSPARENT color
-        // Requiring get full pixel data from instance, leading to long load time
-        _pTexture = SDL_CreateTextureFromSurface(_frame_renderer, tmpImage._pSurface);
+
+        _pTexture = std::shared_ptr<SDL_Texture>(
+            SDL_CreateTextureFromSurface(_frame_renderer, &*tmpImage._pSurface),
+            [](SDL_Texture* p) {if (p) SDL_DestroyTexture(p); });
         if (_pTexture)
         {
+            // TODO set transparent color
+            SDL_SetColorKey(&*srcImage._pSurface, SDL_RLEACCEL, SDL_MapRGB(srcImage._pSurface->format, 0, 255, 0));
             _texRect = srcImage.getRect();
             _loaded = true;
         }
-    }
-    else
-    {
-        _pTexture = SDL_CreateTextureFromSurface(_frame_renderer, srcImage._pSurface);
-        if (_pTexture)
-        {
-            _texRect = srcImage.getRect();
-            _loaded = true;
-        }
-    }
 
     if (!_loaded)
     {
@@ -216,35 +250,40 @@ Texture::Texture(int w, int h, PixelFormat fmt)
 
 	if (sdlfmt != SDL_PIXELFORMAT_UNKNOWN)
 	{
-		_pTexture = SDL_CreateTexture(_frame_renderer, sdlfmt, SDL_TEXTUREACCESS_STREAMING, w, h);
+        _pTexture = std::shared_ptr<SDL_Texture>(
+            SDL_CreateTexture(_frame_renderer, sdlfmt, SDL_TEXTUREACCESS_STREAMING, w, h), 
+            [](SDL_Texture* p) {if (p) SDL_DestroyTexture(p); });
 		if (_pTexture) _loaded = true;
 	}
 }
 
 Texture::~Texture()
 {
-    if (_loaded && _pTexture)
-        SDL_DestroyTexture(_pTexture);
 }
 
-void Texture::_draw(SDL_Texture* pTex, const Rect* srcRect, Rect dstRect,
+void Texture::_draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, Rect dstRect,
 	const Color c, const BlendMode b, const bool filter, const double angle, const Point* center)
 {
-	int flipFlags = 0;
-	//if (dstRect.w < 0) { dstRect.w = -dstRect.w; dstRect.x -= dstRect.w; flipFlags |= SDL_FLIP_HORIZONTAL; }
-	//if (dstRect.h < 0) { dstRect.h = -dstRect.h; dstRect.y -= dstRect.h; flipFlags |= SDL_FLIP_VERTICAL; }
-	SDL_SetTextureColorMod(pTex, c.r, c.g, c.b);
-	SDL_SetTextureAlphaMod(pTex, c.a);
-	SDL_SetTextureBlendMode(pTex, (SDL_BlendMode)b);
-	SDL_Point scenter;
-	if (center) scenter = { (int)center->x, (int)center->y };
-	SDL_RenderCopyEx(
-		_frame_renderer,
-		pTex,
-		srcRect, &dstRect,
-		angle,
-		center ? &scenter : NULL, SDL_RendererFlip(flipFlags)
-	);
+    int flipFlags = 0;
+    //if (dstRect.w < 0) { dstRect.w = -dstRect.w; dstRect.x -= dstRect.w; flipFlags |= SDL_FLIP_HORIZONTAL; }
+    //if (dstRect.h < 0) { dstRect.h = -dstRect.h; dstRect.y -= dstRect.h; flipFlags |= SDL_FLIP_VERTICAL; }
+
+	SDL_SetTextureColorMod(&*pTex, c.r, c.g, c.b);
+	SDL_SetTextureAlphaMod(&*pTex, c.a);
+
+    SDL_BlendMode sb = SDL_BLENDMODE_INVALID;
+    if (BlendMap.find(b) != BlendMap.end()) SDL_SetTextureBlendMode(&*pTex, BlendMap.at(b));
+
+    SDL_Point scenter;
+    if (center) scenter = { (int)center->x, (int)center->y };
+
+    SDL_RenderCopyEx(
+        _frame_renderer,
+        &*pTex,
+        srcRect, &dstRect,
+        angle,
+        center ? &scenter : NULL, SDL_RendererFlip(flipFlags)
+    );
 }
 
 void Texture::draw(Rect dstRect,
@@ -276,12 +315,13 @@ void Texture::draw(const Rect& srcRect, Rect dstRect,
 
 TextureFull::TextureFull(const Color& c): Texture(nullptr)
 {
-    auto surface = SDL_CreateRGBSurface(0, 1, 1, 32, 0xff, 0xff, 0xff, 0xff);
-    SDL_Rect r{ 0, 0, 1, 1 };
-    SDL_FillRect(surface, &r, c.hex());
-    _pTexture = SDL_CreateTextureFromSurface(_frame_renderer, surface);
-    SDL_FreeSurface(surface);
+    auto surface = SDL_CreateRGBSurface(0, 1, 1, 24, 0xff, 0xff, 0xff, 0xff);   // needs to be 24bit
     _texRect = { 0,0,1,1 };
+    SDL_FillRect(&*surface, &_texRect, SDL_MapRGBA(surface->format, c.r, c.g, c.b, c.a));
+    _pTexture = std::shared_ptr<SDL_Texture>(
+        SDL_CreateTextureFromSurface(_frame_renderer, surface),
+        [](SDL_Texture* p) {if (p) SDL_DestroyTexture(p); });
+    SDL_FreeSurface(surface);
     _loaded = true;
 }
 
@@ -293,14 +333,18 @@ TextureFull::TextureFull(const SDL_Texture* pTexture, int w, int h): Texture(pTe
 
 TextureFull::~TextureFull() {}
 
-void TextureFull::draw(const Rect& ignored, const Rect& dstRect,
-    const Color c, const double angle) const
+void TextureFull::draw(const Rect& ignored, Rect dstRect,
+    const Color c, const BlendMode b, const bool filter, const double angle) const
 {
-	SDL_SetTextureColorMod(_pTexture, c.r, c.g, c.b);
-	SDL_SetTextureAlphaMod(_pTexture, c.a);
+	SDL_SetTextureColorMod(&*_pTexture, c.r, c.g, c.b);
+	SDL_SetTextureAlphaMod(&*_pTexture, c.a);
+
+    SDL_BlendMode sb = SDL_BLENDMODE_INVALID;
+    if (BlendMap.find(b) != BlendMap.end()) SDL_SetTextureBlendMode(&*_pTexture, BlendMap.at(b));
+
     SDL_RenderCopyEx(
         _frame_renderer,
-        _pTexture,
+        &*_pTexture,
         &_texRect, &dstRect,
         angle,
         NULL, SDL_FLIP_NONE

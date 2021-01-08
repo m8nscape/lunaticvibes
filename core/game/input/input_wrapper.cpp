@@ -12,7 +12,7 @@ void InputWrapper::_loop()
 	gNumbers.set(eNumber::INPUT_DETECT_FPS, getRate());
     _prev = _curr;
     _curr = InputMgr::detect();
-    timestamp t;
+    Time t;
     auto p = Pressed();
     auto h = Holding();
     auto r = Released();

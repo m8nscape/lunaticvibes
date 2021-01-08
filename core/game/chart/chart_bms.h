@@ -1,6 +1,6 @@
 #pragma once
-#include "scroll.h"
-#include "chart/bms.h"
+#include "chart.h"
+#include "chartformat/format_bms.h"
 
 namespace bms
 {
@@ -53,18 +53,18 @@ namespace bms
     };
 };
 
-class ScrollBMS : public vScroll
+class chartBMS : public vChart
 {
 public:
-    virtual std::pair<NoteChannelCategory, NoteChannelIndex> getChannelFromKey(Input::Ingame input);
-    virtual std::vector<Input::Ingame> getInputFromChannel(size_t channel);
-	decltype(_plainLists[0])& getBgaBase() { return _plainLists[(size_t)eNotePlain::BGABASE]; }
-	decltype(_plainLists[0])& getBgaLayer() { return _plainLists[(size_t)eNotePlain::BGALAYER]; }
-	decltype(_plainLists[0])& getBgaPoor() { return _plainLists[(size_t)eNotePlain::BGAPOOR]; }
+    virtual std::pair<NoteLaneCategory, NoteLaneIndex> getLaneFromKey(Input::Ingame input);
+    virtual std::vector<Input::Ingame> getInputFromLane(size_t channel);
+    decltype(_commonNoteLists[0])& getBgaBase() { return _commonNoteLists[(size_t)eNotePlain::BGABASE]; }
+    decltype(_commonNoteLists[0])& getBgaLayer() { return _commonNoteLists[(size_t)eNotePlain::BGALAYER]; }
+    decltype(_commonNoteLists[0])& getBgaPoor() { return _commonNoteLists[(size_t)eNotePlain::BGAPOOR]; }
 public:
-    ScrollBMS();
-    ScrollBMS(std::shared_ptr<BMS> bms);
-    ScrollBMS(const BMS& bms);
+    chartBMS();
+    chartBMS(std::shared_ptr<BMS> bms);
+    chartBMS(const BMS& bms);
 protected:
     void loadBMS(const BMS& bms);
 

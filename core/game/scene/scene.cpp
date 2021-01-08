@@ -12,7 +12,7 @@
 vScene::vScene(eMode mode, unsigned rate) : _input(), AsyncLooper(std::bind(&vScene::_updateAsync, this), rate, true)
 {
     _skin = SkinMgr::get(mode);
-	timestamp t;
+	Time t;
 
     //gNumbers.reset();
     gSliders.reset();

@@ -14,7 +14,7 @@ SpriteLaneVertical::SpriteLaneVertical(pTexture texture, Rect r,
 }
 
 
-void SpriteLaneVertical::setChannel(NoteChannelCategory cat, NoteChannelIndex idx)
+void SpriteLaneVertical::setLane(NoteLaneCategory cat, NoteLaneIndex idx)
 {
 	_category = cat;
 	_index = idx;
@@ -34,7 +34,7 @@ void SpriteLaneVertical::getRectSize(int& w, int& h)
 	}
 }
 
-bool SpriteLaneVertical::update(timestamp t)
+bool SpriteLaneVertical::update(Time t)
 {
 	if (updateByKeyframes(t))
 	{
@@ -44,7 +44,7 @@ bool SpriteLaneVertical::update(timestamp t)
 	return false;
 }
 
-void SpriteLaneVertical::updateNoteRect(timestamp t, vScroll* s, double beat, unsigned measure)
+void SpriteLaneVertical::updateNoteRect(Time t, vChart* s, double beat, unsigned measure)
 {
     // refresh note sprites
 	pNote->update(t);
@@ -52,27 +52,27 @@ void SpriteLaneVertical::updateNoteRect(timestamp t, vScroll* s, double beat, un
     // fetch note size, c.h = whole lane height, c.y = height start drawing -c.y = note height
     auto c = _current.rect;
     auto r = pNote->getCurrentRenderParams().rect;
-    auto currTotalBeat = s->getMeasureTotalBeats(measure) + beat;
+    auto currTotalBeat = s->getBarBeatstamp(measure) + beat;
     gNumbers.set(eNumber::_TEST5, (int)(currTotalBeat * 100.0));
 
     // generate note rects and store to buffer
     int y = c.h;
     _outRect.clear();
-    auto it = s->incomingNoteOfChannel(_category, _index);
-    while (!s->isLastNoteOfChannel(_category, _index, it) && y >= c.y)
+    auto it = s->incomingNoteOfLane(_category, _index);
+    while (!s->isLastNoteOfLane(_category, _index, it) && y >= c.y)
     {
         if (currTotalBeat >= it->totalbeat)
             y = c.h;
         else
             y = c.h - (int)std::floor((it->totalbeat - currTotalBeat) * (c.h - c.y) * _basespd * _hispeed);
         it++;
-        _outRect.push_front({ c.x, y, r.w, r.h });
+        _outRect.push_front({ c.x, y + c.y, r.w, r.h });
     }
 }
 
 void SpriteLaneVertical::draw() const 
 {
-    if (pNote->_pTexture->_loaded)
+    if (pNote->_pTexture && pNote->_pTexture->_loaded)
 	{
 		for (const auto& r : _outRect)
 		{

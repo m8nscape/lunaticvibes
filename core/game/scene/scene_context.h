@@ -1,11 +1,14 @@
 #pragma once
 #include <memory>
 #include <string>
+#include <stack>
 #include "types.h"
-#include "chart/chart.h"
-#include "game/scroll/scroll.h"
+#include "chartformat/chartformat.h"
+#include "game/chart/chart.h"
 #include "game/ruleset/ruleset.h"
 #include "game/graphics/texture_extra.h"
+#include "entry/entry_folder.h"
+#include "db/db_song.h"
 
 enum class eScene
 {
@@ -17,7 +20,7 @@ enum class eScene
     EXIT
 };
 
-inline eScene __next_scene = eScene::PLAY;
+inline eScene __next_scene = eScene::SELECT;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -25,7 +28,7 @@ struct __chart_context_params
 {
     Path path{};
     HashMD5 hash{};
-    std::shared_ptr<vChart> chartObj;
+    std::shared_ptr<vChartFormat> chartObj;
     //bool isChartSamplesLoaded;
     bool isSampleLoaded = false;
     bool isBgaLoaded = false;
@@ -60,8 +63,8 @@ struct __play_context_params
     size_t playerSlot = PLAYER_SLOT_1P;  // 1P starts from 0
     unsigned judgeLevel = 0;
 
-    std::shared_ptr<vScroll> scrollObj[2]{ nullptr, nullptr };
-    double health[2]{ 1.0, 1.0 };
+    std::shared_ptr<vChart> chartObj[2]{ nullptr, nullptr };
+    double initialHealth[2]{ 1.0, 1.0 };
 
 	std::shared_ptr<TextureBmsBga> bgaTexture = std::make_shared<TextureBmsBga>();
 
@@ -76,7 +79,7 @@ struct __play_context_params
     eRuleset rulesetType = eRuleset::CLASSIC;
     std::array<std::shared_ptr<vRuleset>, MAX_PLAYERS> ruleset;
 
-    timestamp remainTime;
+    Time remainTime;
 
 };
 
@@ -85,27 +88,33 @@ void clearContextPlay();
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct SelectSongInfos
+struct SongListProperties
 {
-    unsigned type = 0; // song / folder / custom_folder / new_song / rival / rival_song / course_folder / new_course / course / random_course
-    std::string title = "";
-    double level = 0.0;
-    unsigned level_type = 0;
-    unsigned lamp = 0;
-    unsigned rank = 0;
-    unsigned rival = 3; // win / lose / draw / noplay
-    unsigned rival_lamp_self = 0;
-    unsigned rival_lamp_rival = 0;
+    HashMD5 parent;
+    HashMD5 folder;
+    std::string name;       // folder path, search query+result, etc.
+    std::vector<vEntry> list;
+    unsigned index;
+};
+
+enum class SongListSort
+{
+    DEFAULT,    // LEVEL
+    TITLE,
 };
 
 struct __select_context_params
 {
-    unsigned barIndex;
-    std::vector<SelectSongInfos> info;
+    std::stack<SongListProperties> backtrace;
+    SongListSort sort = SongListSort::DEFAULT;
+    unsigned difficulty = 0; // all / B / N / H / A / I (type 0 is not included)
+    unsigned gamemode = 0; // all / 5, 7, 9, 10, 14, etc
+
 };
 
-void updateContextTitles();
+void updateContextSelectTitles();
 
 extern __chart_context_params context_chart;
 extern __play_context_params context_play;
 extern __select_context_params context_select;
+extern std::shared_ptr<SongDB> pSongDB;

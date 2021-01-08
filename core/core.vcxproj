@@ -20,9 +20,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="common\asynclooper.cpp" />
-    <ClCompile Include="common\chart\bms.cpp" />
-    <ClCompile Include="common\chart\chart.cpp" />
-    <ClCompile Include="common\entries\folder.cpp" />
+    <ClCompile Include="common\chartformat\format_bms.cpp" />
+    <ClCompile Include="common\chartformat\chartformat.cpp" />
+    <ClCompile Include="common\entry\entry_folder.cpp" />
     <ClCompile Include="common\fraction.cpp" />
     <ClCompile Include="common\utils.cpp" />
     <ClCompile Include="config\cfg_general.cpp" />
@@ -55,8 +55,8 @@
     <ClCompile Include="game\scene\scene_play.cpp" />
     <ClCompile Include="game\scene\scene_result.cpp" />
     <ClCompile Include="game\scene\scene_select.cpp" />
-    <ClCompile Include="game\scroll\scroll.cpp" />
-    <ClCompile Include="game\scroll\scroll_bms.cpp" />
+    <ClCompile Include="game\chart\chart.cpp" />
+    <ClCompile Include="game\chart\chart_bms.cpp" />
     <ClCompile Include="game\skin\skin.cpp" />
     <ClCompile Include="game\skin\skin_lr2.cpp" />
     <ClCompile Include="game\skin\skin_lr2_dst.cpp" />
@@ -68,10 +68,12 @@
   <ItemGroup>
     <ClInclude Include="common\asynclooper.h" />
     <ClInclude Include="common\beat.h" />
-    <ClInclude Include="common\chart\bms.h" />
-    <ClInclude Include="common\chart\chart.h" />
-    <ClInclude Include="common\chart\chart_types.h" />
-    <ClInclude Include="common\entries\folder.h" />
+    <ClInclude Include="common\chartformat\format_bms.h" />
+    <ClInclude Include="common\chartformat\chartformat.h" />
+    <ClInclude Include="common\chartformat\chart_types.h" />
+    <ClInclude Include="common\entry\entry.h" />
+    <ClInclude Include="common\entry\entry_folder.h" />
+    <ClInclude Include="common\entry\entry_song.h" />
     <ClInclude Include="common\score.h" />
     <ClInclude Include="common\fraction.h" />
     <ClInclude Include="common\meta.h" />
@@ -84,7 +86,6 @@
     <ClInclude Include="config\config.h" />
     <ClInclude Include="config\config_mgr.h" />
     <ClInclude Include="db\db_conn.h" />
-    <ClInclude Include="db\db_mgr.h" />
     <ClInclude Include="db\db_score.h" />
     <ClInclude Include="db\db_song.h" />
     <ClInclude Include="game\data\bargraph.h" />
@@ -116,9 +117,9 @@
     <ClInclude Include="game\scene\scene_play.h" />
     <ClInclude Include="game\scene\scene_result.h" />
     <ClInclude Include="game\scene\scene_select.h" />
-    <ClInclude Include="game\scroll\scroll.h" />
-    <ClInclude Include="game\scroll\scroll_bms.h" />
-    <ClInclude Include="game\scroll\scroll_types.h" />
+    <ClInclude Include="game\chart\chart.h" />
+    <ClInclude Include="game\chart\chart_bms.h" />
+    <ClInclude Include="game\chart\chart_types.h" />
     <ClInclude Include="game\skin\skin.h" />
     <ClInclude Include="game\skin\skin_lr2.h" />
     <ClInclude Include="game\skin\skin_mgr.h" />
@@ -135,28 +136,28 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{C401E6C6-9DF9-4AD6-99AD-5F73CBC928A8}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">

@@ -58,6 +58,19 @@ int stoine(const std::string& str) noexcept
     }
 }
 
+double stodne(const std::string& str) noexcept
+{
+    try
+    {
+        // Not using atoi, since overflow behavior is undefined
+        return std::stod(str);
+    }
+    catch (std::invalid_argument&)
+    {
+        return 0;
+    }
+}
+
 std::pair<unsigned, bool> stoub(const std::string& str)
 {
     if (str.empty())

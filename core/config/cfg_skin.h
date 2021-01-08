@@ -7,6 +7,9 @@ inline const StringPath CONFIG_FILE_SKIN = "skin.yml"_p;
 
 namespace cfg
 {
+    inline const StringContent S_PATH_MUSIC_SELECT = "Select";
+    inline const StringPath S_DEFAULT_PATH_MUSIC_SELECT = "./LR2files/Theme/LR2/Play/play_7.lr2skin"_p;
+
     inline const StringContent S_PATH_PLAY_7 = "Play7";
     inline const StringPath S_DEFAULT_PATH_PLAY_7 = "./LR2files/Theme/LR2/Play/play_7.lr2skin"_p;
     //inline const StringPath S_DEFAULT_PATH_PLAY_7 = "./LR2files/test.lr2skin"_p;

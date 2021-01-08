@@ -17,55 +17,56 @@ typedef std::chrono::nanoseconds  timeHighRes; // High resolution time, expect n
 
 #pragma warning(push)
 #pragma warning(disable:4244)
-class timestamp
+class Time
 {
 private:
-	decltype(std::declval<timeNormRes>().count()) _rTime;
-	decltype(std::declval<timeHighRes>().count()) _hTime;
+	decltype(std::declval<timeNormRes>().count()) _regular;
+	decltype(std::declval<timeHighRes>().count()) _highres;
 public:
-	timestamp()
+	Time()
 	{
 		auto now = std::chrono::system_clock::now().time_since_epoch();
-		_rTime = std::chrono::duration_cast<timeNormRes>(now).count();
-		_hTime = std::chrono::duration_cast<timeHighRes>(now).count();
+		_regular = std::chrono::duration_cast<timeNormRes>(now).count();
+		_highres = std::chrono::duration_cast<timeHighRes>(now).count();
 	}
-	timestamp(long long n, bool high_resolution = false)
+	Time(long long n, bool init_with_high_resolution_timestamp = false)
 	{
-		if (high_resolution || n > LLONG_MAX / 100000)
+		if (init_with_high_resolution_timestamp || n > LLONG_MAX / 100000)
 		{
-			_hTime = n;
-			_rTime = std::chrono::duration_cast<timeNormRes>(timeHighRes(n)).count();
+			_highres = n;
+			_regular = std::chrono::duration_cast<timeNormRes>(timeHighRes(n)).count();
 		}
 		else
 		{
-			_rTime = n;
-			_hTime = std::chrono::duration_cast<timeHighRes>(timeNormRes(n)).count();
+			_regular = n;
+			_highres = std::chrono::duration_cast<timeHighRes>(timeNormRes(n)).count();
 		}
 	}
-	timestamp(const timestamp& t) :_rTime(t._rTime), _hTime(t._hTime) {}
-	static timestamp beatLengthFromBPM(BPM bpm)
+	Time(const Time& t) :_regular(t._regular), _highres(t._highres) {}
+	~Time() {}
+
+	static Time singleBeatLengthFromBPM(BPM bpm)
 	{
 		using namespace std::chrono;
-		return timestamp(6e4 * 4 / bpm * duration_cast<timeHighRes>(1ms).count(), true);
+		return Time(6e4 * 4 / bpm * duration_cast<timeHighRes>(1ms).count(), true);
 	}
-	~timestamp() {}
 
-	timestamp operator-  ()                     const { return timestamp(-_hTime, true); }
-	timestamp operator+  (const timestamp& rhs) const { timestamp tmp(*this); tmp._rTime += rhs._rTime; tmp._hTime += rhs._hTime; return tmp; }
-	timestamp operator-  (const timestamp& rhs) const { timestamp tmp(*this); tmp._rTime -= rhs._rTime; tmp._hTime -= rhs._hTime; return tmp; }
-	timestamp operator*  (const double rhs) const { timestamp tmp(*this); tmp._rTime *= rhs;  tmp._hTime *= rhs; return tmp; }
-	timestamp& operator+= (const timestamp& rhs) { _rTime += rhs._rTime; _hTime += rhs._hTime; return *this; }
-	timestamp& operator-= (const timestamp& rhs) { _rTime -= rhs._rTime; _hTime -= rhs._hTime; return *this; }
-	bool   operator<  (const timestamp& rhs) const { return _hTime < rhs._hTime; }
-	bool   operator>  (const timestamp& rhs) const { return _hTime > rhs._hTime; }
-	bool   operator<= (const timestamp& rhs) const { return _hTime <= rhs._hTime; }
-	bool   operator>= (const timestamp& rhs) const { return _hTime >= rhs._hTime; }
-	bool   operator== (const timestamp& rhs) const { return _hTime == rhs._hTime; }
-	bool   operator!= (const timestamp& rhs) const { return _hTime != rhs._hTime; }
-	friend inline std::ostream& operator<< (std::ostream& os, const timestamp& t) { return os << t._rTime << "ms / " << t._hTime << "ns"; }
+	Time operator-  () const { return Time(-_highres, true); }
+	Time operator+  (const Time& rhs) const { Time tmp(*this); tmp._regular += rhs._regular; tmp._highres += rhs._highres; return tmp; }
+	Time operator-  (const Time& rhs) const { Time tmp(*this); tmp._regular -= rhs._regular; tmp._highres -= rhs._highres; return tmp; }
+	Time operator*  (const double rhs) const { Time tmp(*this); tmp._regular *= rhs;  tmp._highres *= rhs; return tmp; }
+	Time& operator+= (const Time& rhs) { _regular += rhs._regular; _highres += rhs._highres; return *this; }
+	Time& operator-= (const Time& rhs) { _regular -= rhs._regular; _highres -= rhs._highres; return *this; }
+	bool   operator<  (const Time& rhs) const { return _highres < rhs._highres; }
+	bool   operator>  (const Time& rhs) const { return _highres > rhs._highres; }
+	bool   operator<= (const Time& rhs) const { return _highres <= rhs._highres; }
+	bool   operator>= (const Time& rhs) const { return _highres >= rhs._highres; }
+	bool   operator== (const Time& rhs) const { return _highres == rhs._highres; }
+	bool   operator!= (const Time& rhs) const { return _highres != rhs._highres; }
+	friend inline std::ostream& operator<< (std::ostream& os, const Time& t) { return os << t._regular << "ms / " << t._highres << "ns"; }
 
-	constexpr decltype(_rTime) norm() const { return _rTime; }  // ms
-	constexpr decltype(_hTime) hres() const { return _hTime; }  // ns
+	constexpr decltype(_regular) norm() const { return _regular; }  // ms
+	constexpr decltype(_highres) hres() const { return _highres; }  // ns
 };
 #pragma warning(pop)
 
@@ -74,7 +75,7 @@ struct Note
 {
     Measure measure;        // Which measure the note is placed
     Beat totalbeat;        // Which beat the note is placed in visual (ignoring SV & STOP), can be above 1
-    timestamp time;             // Time point
+    Time time;             // Timestamp
     std::variant<long long, double> value;              // varies from note type to type, e.g. #BGM, #BPM, etc
 	size_t index = INDEX_INVALID;			// used for distinguishing plain notes
 };

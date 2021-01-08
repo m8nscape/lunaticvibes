@@ -404,7 +404,7 @@ int SkinLR2::setExtendedProperty(std::string& key, void* value)
 
 Tokens SkinLR2::csvNextLineTokenize(std::istream& file)
 {
-    ++csvCurrentLine;
+    ++line;
     StringContent linecsv;
     std::getline(file, linecsv);
     if (linecsv.empty()) return {};
@@ -471,7 +471,7 @@ int convertOps(const Tokens& tokensBuf, int* pData, size_t offset = 16, size_t s
 
 }
 
-void refineRect(lr2skin::s_basic& d, const Rect rect, unsigned csvCurrentLine)
+void refineRect(lr2skin::s_basic& d, const Rect rect, unsigned line)
 {
 	if (d.w == -1)
 		d.w = rect.w;
@@ -480,12 +480,12 @@ void refineRect(lr2skin::s_basic& d, const Rect rect, unsigned csvCurrentLine)
 
     if (d.div_x == 0)
     {
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": div_x is 0";
+        LOG_WARNING << "[Skin] " << line << ": div_x is 0";
         d.div_x = 1;
     }
     if (d.div_y == 0)
     {
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": div_y is 0";
+        LOG_WARNING << "[Skin] " << line << ": div_y is 0";
         d.div_y = 1;
     }
 
@@ -536,19 +536,19 @@ int SkinLR2::IMAGE()
                     const auto& paths = cf.pathList;
 					if (paths.empty())
 					{
-						_texNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(""));
-						LOG_DEBUG << "[Skin] " << csvCurrentLine << ": Added IMAGE[" << imageCount << "]: " << "(placeholder)";
+                        _textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(""));
+						LOG_DEBUG << "[Skin] " << line << ": Added IMAGE[" << imageCount << "]: " << "(placeholder)";
 					}
 					else
 					{
 						if (video_file_extensions.find(toLower(paths[cf.value].extension().string())) != video_file_extensions.end())
 						{
 							_vidNameMap[std::to_string(imageCount)] = std::make_shared<sVideo>(paths[cf.value]);
-							_texNameMap[std::to_string(imageCount)] = _texNameMap["Error"];
+							_textureNameMap[std::to_string(imageCount)] = _textureNameMap["Error"];
 						}
 						else
-							_texNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(paths[cf.value].string().c_str()));
-						LOG_DEBUG << "[Skin] " << csvCurrentLine << ": Added IMAGE[" << imageCount << "]: " << cf.filepath;
+                            _textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(paths[cf.value].string().c_str()));
+						LOG_DEBUG << "[Skin] " << line << ": Added IMAGE[" << imageCount << "]: " << cf.filepath;
 					}
                     ++imageCount;
                     return 2;
@@ -559,9 +559,9 @@ int SkinLR2::IMAGE()
             auto ls = findFiles(path);
             if (ls.empty())
 			{
-				_texNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(""));
+				_textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(""));
 				//imagePath.push_back(defs::file::errorTextureImage);
-				LOG_DEBUG << "[Skin] " << csvCurrentLine << ": Added random IMAGE[" << imageCount << "]: " << "(file not found)";
+				LOG_DEBUG << "[Skin] " << line << ": Added random IMAGE[" << imageCount << "]: " << "(file not found)";
 			}
             else
 			{
@@ -569,11 +569,11 @@ int SkinLR2::IMAGE()
 				if (video_file_extensions.find(toLower(ls[ranidx].extension().string())) != video_file_extensions.end())
 				{
 					_vidNameMap[std::to_string(imageCount)] = std::make_shared<sVideo>(ls[ranidx]);
-					_texNameMap[std::to_string(imageCount)] = _texNameMap["Error"];
+					_textureNameMap[std::to_string(imageCount)] = _textureNameMap["Error"];
 				}
 				else
-					_texNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(ls[ranidx].string().c_str()));
-				LOG_DEBUG << "[Skin] " << csvCurrentLine << ": Added random IMAGE[" << imageCount << "]: " << ls[ranidx].string();
+					_textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(ls[ranidx].string().c_str()));
+				LOG_DEBUG << "[Skin] " << line << ": Added random IMAGE[" << imageCount << "]: " << ls[ranidx].string();
 			}
             ++imageCount;
             return 3;
@@ -581,8 +581,8 @@ int SkinLR2::IMAGE()
         else
         {
             // Normal path
-            _texNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(path.string().c_str()));
-            LOG_DEBUG << "[Skin] " << csvCurrentLine << ": Added IMAGE[" << imageCount << "]: " << path.string();
+            _textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(path.string().c_str()));
+            LOG_DEBUG << "[Skin] " << line << ": Added IMAGE[" << imageCount << "]: " << path.string();
         }
         ++imageCount;
         return 1;
@@ -597,7 +597,7 @@ int SkinLR2::FONT()
     {
         Path path(tokensBuf[0]);
         //lr2fontPath.push_back(std::move(path));
-        LOG_DEBUG << "[Skin] " << csvCurrentLine << ": Skipped LR2FONT: " << path.string();
+        LOG_DEBUG << "[Skin] " << line << ": Skipped LR2FONT: " << path.string();
         return 1;
     }
     return 0;
@@ -622,7 +622,7 @@ int SkinLR2::SYSTEMFONT()
 #endif
         size_t idx = _fontNameMap.size();
         _fontNameMap[std::to_string(idx)] = std::make_shared<TTFFont>(name.c_str(), ptsize);
-        LOG_DEBUG << "[Skin] " << csvCurrentLine << ": Added FONT[" << idx << "]: " << name;
+        LOG_DEBUG << "[Skin] " << line << ": Added FONT[" << idx << "]: " << name;
     }
     return 0;
 }
@@ -632,15 +632,15 @@ int SkinLR2::INCLUDE()
     if (optBuf == "#INCLUDE")
     {
         Path path(tokensBuf[0]);
-        auto line = this->csvCurrentLine;
-        this->csvCurrentLine = 0;
-        LOG_DEBUG << "[Skin] " << line << ": INCLUDE: " << path.string();
+        auto line_parent = line;
+        line = 0;
+        LOG_DEBUG << "[Skin] " << line_parent << ": INCLUDE: " << path.string();
         //auto subCsv = SkinLR2(path);
         //if (subCsv._loaded)
         //    _csvIncluded.push_back(std::move(subCsv));
         loadCSV(path);
-        LOG_DEBUG << "[Skin] " << line << ": INCLUDE END //" << path.string();
-        this->csvCurrentLine = line;
+        LOG_DEBUG << "[Skin] " << line_parent << ": INCLUDE END //" << path.string();
+        line = line_parent;
         return 1;
     }
     return 0;
@@ -663,7 +663,7 @@ int SkinLR2::TIMEOPTION()
             int update = stoine(tokensBuf[2]);
             //if (rank > 0) info.resultStartInputTimeRank = rank;
             //if (update > 0) info.resultStartInputTimeUpdate = update;
-            LOG_DEBUG << "[Skin] " << csvCurrentLine << ": Skipped STARTINPUT " << rank << " " << update;
+            LOG_DEBUG << "[Skin] " << line << ": Skipped STARTINPUT " << rank << " " << update;
         }
 
         return 1;
@@ -673,7 +673,7 @@ int SkinLR2::TIMEOPTION()
     {
         int time = stoine(tokensBuf[0]);
         info.timeIntro = time;
-        LOG_DEBUG << "[Skin] " << csvCurrentLine << ": Set Intro freeze time: " << time;
+        LOG_DEBUG << "[Skin] " << line << ": Set Intro freeze time: " << time;
         return 2;
     }
 
@@ -681,7 +681,7 @@ int SkinLR2::TIMEOPTION()
     {
         int time = stoine(tokensBuf[0]);
         info.timeStartLoading = time;
-        LOG_DEBUG << "[Skin] " << csvCurrentLine << ": Set time colddown before loading: " << time;
+        LOG_DEBUG << "[Skin] " << line << ": Set time colddown before loading: " << time;
         return 3;
     }
 
@@ -689,7 +689,7 @@ int SkinLR2::TIMEOPTION()
     {
         int time = stoine(tokensBuf[0]);
         info.timeMinimumLoad = time;
-        LOG_DEBUG << "[Skin] " << csvCurrentLine << ": Set time colddown after loading: " << time;
+        LOG_DEBUG << "[Skin] " << line << ": Set time colddown after loading: " << time;
         return 4;
     }
 
@@ -697,7 +697,7 @@ int SkinLR2::TIMEOPTION()
     {
         int time = stoine(tokensBuf[0]);
         info.timeGetReady = time;
-        LOG_DEBUG << "[Skin] " << csvCurrentLine << ": Set time READY after loading: " << time;
+        LOG_DEBUG << "[Skin] " << line << ": Set time READY after loading: " << time;
         return 5;
     }
 
@@ -705,7 +705,7 @@ int SkinLR2::TIMEOPTION()
     {
         int time = stoine(tokensBuf[0]);
         info.timeFailed = time;
-        LOG_DEBUG << "[Skin] " << csvCurrentLine << ": Set FAILED time length: " << time;
+        LOG_DEBUG << "[Skin] " << line << ": Set FAILED time length: " << time;
         return 6;
     }
 
@@ -713,7 +713,7 @@ int SkinLR2::TIMEOPTION()
     {
         int time = stoine(tokensBuf[0]);
         info.timeOutro = time;
-        LOG_DEBUG << "[Skin] " << csvCurrentLine << ": Set fadeout time length: " << time;
+        LOG_DEBUG << "[Skin] " << line << ": Set fadeout time length: " << time;
         return 7;
     }
 
@@ -725,7 +725,7 @@ int SkinLR2::others()
     if (optBuf == "#RELOADBANNER")
     {
         reloadBanner = true;
-        LOG_DEBUG << "[Skin] " << csvCurrentLine << ": Set dynamic banner loading";
+        LOG_DEBUG << "[Skin] " << line << ": Set dynamic banner loading";
         return 1;
     }
     if (optBuf == "#TRANSCOLOR")
@@ -742,7 +742,7 @@ int SkinLR2::others()
             static_cast<unsigned>(g),
             static_cast<unsigned>(b)
         };
-        LOG_DEBUG << "[Skin] " << csvCurrentLine << ": Set transparent color: " << std::hex << r << ' ' << g << ' ' << b << ", but not implemented" << std::dec;
+        LOG_DEBUG << "[Skin] " << line << ": Set transparent color: " << std::hex << r << ' ' << g << ' ' << b << ", but not implemented" << std::dec;
         return 2;
     }
     if (optBuf == "#FLIPSIDE")
@@ -823,25 +823,36 @@ int SkinLR2::SRC()
     }
 
     if (tokensBuf.size() < 11)
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
     // Find texture from map by gr
-    std::string gr_key = std::to_string(stoine(tokensBuf[1]));
-	if (_texNameMap.find(gr_key) != _texNameMap.end())
+    int gr = stoine(tokensBuf[1]);
+    std::string gr_key;
+    switch (gr)
+    {
+    //case 100: gr_key = "STAGEFILE"; break;
+    //case 101: gr_key = "BACKBMP"; break;
+    //case 102: gr_key = "BANNER"; break;
+    case 105: gr_key = "THUMBNAIL"; break;
+    case 110: gr_key = "Black"; break;
+    case 111: gr_key = "White"; break;
+    default: gr_key = std::to_string(gr); break;
+    }
+	if (_textureNameMap.find(gr_key) != _textureNameMap.end())
 	{
-		textureBuf = _texNameMap[gr_key];
+		textureBuf = _textureNameMap[gr_key];
 		videoBuf = nullptr;
 		useVideo = false;
 	}
 	else if (_vidNameMap.find(gr_key) != _vidNameMap.end())
 	{
-		textureBuf = _texNameMap["White"];
+		textureBuf = _textureNameMap["White"];
 		videoBuf = _vidNameMap[gr_key];
 		useVideo = true;
 	}
 	else
 	{
-		textureBuf = _texNameMap["Error"];
+		textureBuf = _textureNameMap["Error"];
 		videoBuf = nullptr;
 		useVideo = false;
 	}
@@ -855,13 +866,13 @@ ParseRet SkinLR2::SRC_IMAGE()
 {
 	if (tokensBuf.size() < 10)
 	{
-		LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 		//return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_basic d;
 	convertLine(tokensBuf, (int*)&d);
-	refineRect(d, textureBuf->getRect(), csvCurrentLine);
+    if (textureBuf) refineRect(d, textureBuf->getRect(), line);
 
 	if (useVideo && videoBuf && videoBuf->haveVideo)
 	{
@@ -874,7 +885,7 @@ ParseRet SkinLR2::SRC_IMAGE()
 			textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x));
 
     _sprites_child.push_back(_sprites.back());
-    _sprites.back()->setLine(csvCurrentLine);
+    _sprites.back()->setLine(line);
 	
     return ParseRet::OK;
 }
@@ -883,13 +894,13 @@ ParseRet SkinLR2::SRC_NUMBER()
 {
 	if (tokensBuf.size() < 13)
 	{
-		LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_number d;
 	convertLine(tokensBuf, (int*)&d, 0, 13);
-    refineRect(d, textureBuf->getRect(), csvCurrentLine);
+    if (textureBuf) refineRect(d, textureBuf->getRect(), line);
 
 	// TODO convert num
 	eNumber iNum = (eNumber)d.num;
@@ -904,7 +915,7 @@ ParseRet SkinLR2::SRC_NUMBER()
 	_sprites.emplace_back(std::make_shared<SpriteNumber>(
 		textureBuf, Rect(d.x, d.y, d.w, d.h), (NumberAlign)d.align, d.keta, d.div_y, d.div_x, d.cycle, iNum, (eTimer)d.timer, f));
     _sprites_child.push_back(_sprites.back());
-    _sprites.back()->setLine(csvCurrentLine);
+    _sprites.back()->setLine(line);
 
     return ParseRet::OK;
 }
@@ -913,19 +924,19 @@ ParseRet SkinLR2::SRC_SLIDER()
 {
 	if (tokensBuf.size() < 13)
 	{
-		LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_slider d;
 	convertLine(tokensBuf, (int*)&d, 0, 14); // 14th: mouse_disable is ignored for now
 	
-    refineRect(d, textureBuf->getRect(), csvCurrentLine);
+    if (textureBuf) refineRect(d, textureBuf->getRect(), line);
 
 	_sprites.push_back(std::make_shared<SpriteSlider>(
 		textureBuf, Rect(d.x, d.y, d.w, d.h), (SliderDirection)d.muki, d.range, d.div_y*d.div_x, d.cycle, (eSlider)d.type, (eTimer)d.timer, d.div_y, d.div_x));
     _sprites_child.push_back(_sprites.back());
-    _sprites.back()->setLine(csvCurrentLine);
+    _sprites.back()->setLine(line);
 	
     return ParseRet::OK;
 }
@@ -934,18 +945,18 @@ ParseRet SkinLR2::SRC_BARGRAPH()
 {
 	if (tokensBuf.size() < 12)
 	{
-		LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_bargraph d;
 	convertLine(tokensBuf, (int*)&d, 0, 12);
-    refineRect(d, textureBuf->getRect(), csvCurrentLine);
+    if (textureBuf) refineRect(d, textureBuf->getRect(), line);
 
 	_sprites.push_back(std::make_shared<SpriteBargraph>(
 		textureBuf, Rect(d.x, d.y, d.w, d.h), (BargraphDirection)d.muki, d.div_y*d.div_x, d.cycle, (eBargraph)d.type, (eTimer)d.timer, d.div_y, d.div_x));
     _sprites_child.push_back(_sprites.back());
-    _sprites.back()->setLine(csvCurrentLine);
+    _sprites.back()->setLine(line);
 
     return ParseRet::OK;
 }
@@ -954,13 +965,13 @@ ParseRet SkinLR2::SRC_BUTTON()
 {
 	if (tokensBuf.size() < 13)
 	{
-		LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_button d;
 	convertLine(tokensBuf, (int*)&d, 0, 13);
-    refineRect(d, textureBuf->getRect(), csvCurrentLine);
+    if (textureBuf) refineRect(d, textureBuf->getRect(), line);
 	
 	if (d.type < (int)buttonAdapter.size())
 	{
@@ -979,20 +990,20 @@ ParseRet SkinLR2::SRC_BUTTON()
 				}
 			}
 			auto s = std::make_shared<SpriteOption>(
-				textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, eTimer::SCENE_START, false, d.div_y, d.div_x);
+				textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, eTimer::SCENE_START, d.div_y, d.div_x, false);
 			s->setInd(SpriteOption::opType::SWITCH, (unsigned)*sw);
 			_sprites.push_back(s);
             _sprites_child.push_back(_sprites.back());
-            _sprites.back()->setLine(csvCurrentLine);
+            _sprites.back()->setLine(line);
 		}
 		else if (auto op = std::get_if<eOption>(&buttonAdapter[d.type]))
 		{
 			auto s = std::make_shared<SpriteOption>(
-				textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, eTimer::SCENE_START, false, d.div_y, d.div_x);
+				textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, eTimer::SCENE_START, d.div_y, d.div_x, false);
 			s->setInd(SpriteOption::opType::OPTION, (unsigned)*op);
 			_sprites.push_back(s);
             _sprites_child.push_back(_sprites.back());
-            _sprites.back()->setLine(csvCurrentLine);
+            _sprites.back()->setLine(line);
 		}
 	}
 
@@ -1003,7 +1014,7 @@ ParseRet SkinLR2::SRC_TEXT()
 {
 	if (tokensBuf.size() < 4)
 	{
-		LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1013,7 +1024,7 @@ ParseRet SkinLR2::SRC_TEXT()
 	_sprites.push_back(std::make_shared<SpriteText>(
 		_fontNameMap[std::to_string(d.font)], (eText)d.st, (TextAlign)d.align));
     _sprites_child.push_back(_sprites.back());
-    _sprites.back()->setLine(csvCurrentLine);
+    _sprites.back()->setLine(line);
 
     return ParseRet::OK;
 }
@@ -1024,22 +1035,22 @@ ParseRet SkinLR2::SRC_JUDGELINE()
 {
     if (tokensBuf.size() < 10)
     {
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
         //return ParseRet::PARAM_NOT_ENOUGH;
     }
 
     lr2skin::s_basic d;
     convertLine(tokensBuf, (int*)& d);
-    refineRect(d, textureBuf->getRect(), csvCurrentLine);
+    if (textureBuf) refineRect(d, textureBuf->getRect(), line);
 
     gSprites[GLOBAL_SPRITE_IDX_JUDGELINE] = std::make_shared<SpriteAnimated>(
         textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x);
-    gSprites[GLOBAL_SPRITE_IDX_JUDGELINE]->setLine(csvCurrentLine);
+    gSprites[GLOBAL_SPRITE_IDX_JUDGELINE]->setLine(line);
 
     auto p = std::make_shared<SpriteGlobal>(GLOBAL_SPRITE_IDX_JUDGELINE);
     _sprites.push_back(p);
     _sprites_child.push_back(p);
-    _sprites.back()->setLine(csvCurrentLine);
+    _sprites.back()->setLine(line);
 
     return ParseRet::OK;
 }
@@ -1048,23 +1059,23 @@ ParseRet SkinLR2::SRC_NOWJUDGE(size_t idx)
 {
     if (tokensBuf.size() < 10)
     {
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
         //return ParseRet::PARAM_NOT_ENOUGH;
     }
 
     if (idx >= SPRITE_GLOBAL_MAX)
     {
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": Nowjudge idx out of range (Line " << csvCurrentLine << ")";
+        LOG_WARNING << "[Skin] " << line << ": Nowjudge idx out of range (Line " << line << ")";
         return ParseRet::PARAM_INVALID;
     }
 
     lr2skin::s_basic d;
     convertLine(tokensBuf, (int*)& d);
-    refineRect(d, textureBuf->getRect(), csvCurrentLine);
+    if (textureBuf) refineRect(d, textureBuf->getRect(), line);
 
     gSprites[idx] = std::make_shared<SpriteAnimated>(
         textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x);
-    gSprites[idx]->setLine(csvCurrentLine);
+    gSprites[idx]->setLine(line);
 
     return ParseRet::OK;
 }
@@ -1073,19 +1084,19 @@ ParseRet SkinLR2::SRC_NOWCOMBO(size_t idx)
 {
     if (tokensBuf.size() < 13)
     {
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
         //return ParseRet::PARAM_NOT_ENOUGH;
     }
 
     if (idx >= SPRITE_GLOBAL_MAX)
     {
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": Nowjudge idx out of range (Line " << csvCurrentLine << ")";
+        LOG_WARNING << "[Skin] " << line << ": Nowjudge idx out of range (Line " << line << ")";
         return ParseRet::PARAM_INVALID;
     }
 
     lr2skin::s_number d;
     convertLine(tokensBuf, (int*)& d, 0, 13);
-    refineRect(d, textureBuf->getRect(), csvCurrentLine);
+    if (textureBuf) refineRect(d, textureBuf->getRect(), line);
 
     // TODO convert num
     eNumber iNum = (eNumber)d.num;
@@ -1099,7 +1110,7 @@ ParseRet SkinLR2::SRC_NOWCOMBO(size_t idx)
 
     gSprites[idx] = std::make_shared<SpriteNumber>(
         textureBuf, Rect(d.x, d.y, d.w, d.h), (NumberAlign)d.align, d.keta, d.div_y, d.div_x, d.cycle, iNum, (eTimer)d.timer, f);
-    gSprites[idx]->setLine(csvCurrentLine);
+    gSprites[idx]->setLine(line);
     std::reinterpret_pointer_cast<SpriteNumber>(gSprites[idx])->setInhibitZero(true);
 
     return ParseRet::OK;
@@ -1109,17 +1120,17 @@ ParseRet SkinLR2::SRC_GROOVEGAUGE()
 {
 	if (tokensBuf.size() < 12)
 	{
-		LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_groovegauge d;
 	convertLine(tokensBuf, (int*)&d, 0, 12);
-    refineRect(d, textureBuf->getRect(), csvCurrentLine);
+    if (textureBuf) refineRect(d, textureBuf->getRect(), line);
 
 	if (d.div_y * d.div_x < 4)
 	{
-		LOG_WARNING << "[Skin] " << csvCurrentLine << ": div not enough (Line " << csvCurrentLine << ")";
+		LOG_WARNING << "[Skin] " << line << ": div not enough (Line " << line << ")";
         return ParseRet::DIV_NOT_ENOUGH;
 	}
 
@@ -1129,12 +1140,12 @@ ParseRet SkinLR2::SRC_GROOVEGAUGE()
     gSprites[idx] = std::make_shared<SpriteGaugeGrid>(
         textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x / 4, d.cycle, d.add_x, d.add_y, 0, 100, 50,
         (eTimer)d.timer, en, d.div_y, d.div_x);
-    gSprites[idx]->setLine(csvCurrentLine);
+    gSprites[idx]->setLine(line);
 
     auto p = std::make_shared<SpriteGlobal>(idx);
     _sprites.push_back(p);
     _sprites_child.push_back(p);
-    _sprites.back()->setLine(csvCurrentLine);
+    _sprites.back()->setLine(line);
 	
     return ParseRet::OK;
 }
@@ -1144,13 +1155,13 @@ ParseRet SkinLR2::SRC_NOWJUDGE1()
 {
 	if (tokensBuf.size() < 11)
 	{
-		LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
     lr2skin::s_nowjudge d;
     convertLine(tokensBuf, (int*)&d, 0, 11);
-    refineRect(d, textureBuf->getRect(), csvCurrentLine);
+    if (textureBuf) refineRect(d, textureBuf->getRect(), line);
 
 	bufJudge1PSlot = d._null;
     if (bufJudge1PSlot >= 0 && bufJudge1PSlot < 6)
@@ -1163,7 +1174,7 @@ ParseRet SkinLR2::SRC_NOWJUDGE1()
             auto p = std::make_shared<SpriteGlobal>(idx);
             _sprites.push_back(p);
             _sprites_child.push_back(p);
-            _sprites.back()->setLine(csvCurrentLine);
+            _sprites.back()->setLine(line);
         }
         else
         {
@@ -1177,13 +1188,13 @@ ParseRet SkinLR2::SRC_NOWJUDGE2()
 {
 	if (tokensBuf.size() < 11)
 	{
-		LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
     lr2skin::s_nowjudge d;
     convertLine(tokensBuf, (int*)&d, 0, 11);
-    refineRect(d, textureBuf->getRect(), csvCurrentLine);
+    if (textureBuf) refineRect(d, textureBuf->getRect(), line);
 
     bufJudge2PSlot = d._null;
     if (bufJudge2PSlot >= 0 && bufJudge2PSlot < 6)
@@ -1196,7 +1207,7 @@ ParseRet SkinLR2::SRC_NOWJUDGE2()
             auto p = std::make_shared<SpriteGlobal>(idx);
             _sprites.push_back(p);
             _sprites_child.push_back(p);
-            _sprites.back()->setLine(csvCurrentLine);
+            _sprites.back()->setLine(line);
         }
         else
         {
@@ -1210,13 +1221,13 @@ ParseRet SkinLR2::SRC_NOWCOMBO1()
 {
 	if (tokensBuf.size() < 13)
 	{
-		LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
     lr2skin::s_nowcombo d;
     convertLine(tokensBuf, (int*)&d, 0, 11);
-    refineRect(d, textureBuf->getRect(), csvCurrentLine);
+    if (textureBuf) refineRect(d, textureBuf->getRect(), line);
 
     bufJudge1PSlot = d._null;
 	tokensBuf[10] = std::to_string((int)eNumber::_DISP_NOWCOMBO_1P);
@@ -1236,7 +1247,7 @@ ParseRet SkinLR2::SRC_NOWCOMBO1()
             auto p = std::make_shared<SpriteGlobal>(idx);
             _sprites.push_back(p);
             _sprites_child.push_back(p);
-            _sprites.back()->setLine(csvCurrentLine);
+            _sprites.back()->setLine(line);
         }
         else
         {
@@ -1250,13 +1261,13 @@ ParseRet SkinLR2::SRC_NOWCOMBO2()
 {
 	if (tokensBuf.size() < 13)
 	{
-		LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
     lr2skin::s_nowcombo d;
     convertLine(tokensBuf, (int*)&d, 0, 11);
-    refineRect(d, textureBuf->getRect(), csvCurrentLine);
+    if (textureBuf) refineRect(d, textureBuf->getRect(), line);
 
     bufJudge2PSlot = d._null;
 	tokensBuf[10] = std::to_string((int)eNumber::_DISP_NOWCOMBO_2P);
@@ -1276,7 +1287,7 @@ ParseRet SkinLR2::SRC_NOWCOMBO2()
             auto p = std::make_shared<SpriteGlobal>(idx);
             _sprites.push_back(p);
             _sprites_child.push_back(p);
-            _sprites.back()->setLine(csvCurrentLine);
+            _sprites.back()->setLine(line);
         }
         else
         {
@@ -1303,57 +1314,59 @@ ParseRet SkinLR2::SRC_NOTE()
     // Find texture from map by gr
     pTexture tex = nullptr;
     std::string gr_key = std::to_string(d.gr);
-    if (_texNameMap.find(gr_key) != _texNameMap.end())
+    if (_textureNameMap.find(gr_key) != _textureNameMap.end())
     {
-        tex = _texNameMap[gr_key];
+        tex = _textureNameMap[gr_key];
     }
     else
     {
-        tex = _texNameMap["Error"];
+        tex = _textureNameMap["Error"];
     }
 
-    refineRect(d, textureBuf->getRect(), csvCurrentLine);
+    if (textureBuf) refineRect(d, textureBuf->getRect(), line);
 
     // SRC
     if (tokensBuf.size() < 10)
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
-    NoteChannelCategory cat = NoteChannelCategory::_;
-    NoteChannelIndex idx = NoteChannelIndex::_;
+    NoteLaneCategory cat = NoteLaneCategory::_;
+    NoteLaneIndex idx = NoteLaneIndex::_;
     int ret = 0;
 
     // SRC_NOTE
     if (optBuf == "#SRC_NOTE")
     {
-        cat = NoteChannelCategory::Note;
-        idx = (NoteChannelIndex)d._null;
+        cat = NoteLaneCategory::Note;
+        idx = (NoteLaneIndex)d._null;
         ret = 1;
     }
     else if (optBuf == "#SRC_LINE")
     {
-        cat = NoteChannelCategory::EXTRA;
-        idx = EXTRA_BARLINE;
+        cat = NoteLaneCategory::EXTRA;
+        idx = (NoteLaneIndex)EXTRA_BARLINE;
         ret = 2;
     }
     else
     {
         // other types not supported
+        LOG_WARNING << "[Skin] " << line << ": \"" << optBuf << "\" is not supported yet";
         ret = 0;
+        return ParseRet::OK;
     }
 
     size_t i = channelToIdx(cat, idx);
     if (i == CHANNEL_INVALID)
     {
-        LOG_WARNING << "[Skin] Note channel illegal: " << unsigned(cat) << ", " << unsigned(idx);
+        LOG_WARNING << "[Skin] " << line << ": Note channel illegal: " << unsigned(cat) << ", " << unsigned(idx);
         return ParseRet::PARAM_INVALID;
     }
 
     _sprites.push_back(std::make_shared<SpriteLaneVertical>(
-        _texNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, iTimer, d.div_y, d.div_x));
+        _textureNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, iTimer, d.div_y, d.div_x));
     _sprites_child.push_back(_sprites.back());
 
     _laneSprites[i] = std::static_pointer_cast<SpriteLaneVertical>(_sprites.back());
-    _laneSprites[i]->setChannel(cat, idx);
+    _laneSprites[i]->setLane(cat, idx);
     //LOG_DEBUG << "[Skin] " << line << ": Set Note " << idx << " sprite (texture: " << gr_key << ", timer: " << d.timer << ")";
 
     _laneSprites[i]->pNote->appendKeyFrame({ 0, {Rect(),
@@ -1366,7 +1379,7 @@ ParseRet SkinLR2::SRC_BGA()
 {
 	if (tokensBuf.size() < 12)
 	{
-		LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 		//return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1376,7 +1389,7 @@ ParseRet SkinLR2::SRC_BGA()
 	_sprites.push_back(std::make_shared<SpriteStatic>(context_play.bgaTexture, Rect()));
 
 	_sprites_child.push_back(_sprites.back());
-	_sprites.back()->setLine(csvCurrentLine);
+	_sprites.back()->setLine(line);
 
 	return ParseRet::OK;
 }
@@ -1389,13 +1402,13 @@ ParseRet SkinLR2::SRC_BAR_BODY()
 {
     if (tokensBuf.size() < 10)
 	{
-		LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_basic d;
 	convertLine(tokensBuf, (int*)&d);
-    refineRect(d, textureBuf->getRect(), csvCurrentLine);
+    if (textureBuf) refineRect(d, textureBuf->getRect(), line);
     size_t type = d._null & 0xFFFFFFFF;
 
     for (auto& bar : _barSprites)
@@ -1411,13 +1424,13 @@ ParseRet SkinLR2::SRC_BAR_FLASH()
 {
     if (tokensBuf.size() < 10)
 	{
-		LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_basic d;
 	convertLine(tokensBuf, (int*)&d);
-    refineRect(d, textureBuf->getRect(), csvCurrentLine);
+    if (textureBuf) refineRect(d, textureBuf->getRect(), line);
 
     for (auto& bar : _barSprites)
     {
@@ -1432,13 +1445,13 @@ ParseRet SkinLR2::SRC_BAR_LEVEL()
 {
     if (tokensBuf.size() < 10)
 	{
-		LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_number d;
 	convertLine(tokensBuf, (int*)&d, 0, 13);
-    refineRect(d, textureBuf->getRect(), csvCurrentLine);
+    if (textureBuf) refineRect(d, textureBuf->getRect(), line);
     BarLevelType type = BarLevelType(d._null & 0xFFFFFFFF);
 
 	// get NumType from div_x, div_y
@@ -1462,13 +1475,13 @@ ParseRet SkinLR2::SRC_BAR_LAMP()
 {
     if (tokensBuf.size() < 10)
 	{
-		LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_basic d;
 	convertLine(tokensBuf, (int*)&d);
-    refineRect(d, textureBuf->getRect(), csvCurrentLine);
+    if (textureBuf) refineRect(d, textureBuf->getRect(), line);
     BarLampType type = BarLampType(d._null & 0xFFFFFFFF);
 
     for (auto& bar : _barSprites)
@@ -1484,7 +1497,7 @@ ParseRet SkinLR2::SRC_BAR_TITLE()
 {
     if (tokensBuf.size() < 4)
 	{
-		LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1504,13 +1517,13 @@ ParseRet SkinLR2::SRC_BAR_RANK()
 {
     if (tokensBuf.size() < 10)
 	{
-		LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_basic d;
 	convertLine(tokensBuf, (int*)&d);
-    refineRect(d, textureBuf->getRect(), csvCurrentLine);
+    if (textureBuf) refineRect(d, textureBuf->getRect(), line);
     BarRankType type = BarRankType(d._null & 0xFFFFFFFF);
 
     for (auto& bar : _barSprites)
@@ -1526,13 +1539,13 @@ ParseRet SkinLR2::SRC_BAR_RIVAL()
 {
     if (tokensBuf.size() < 10)
 	{
-		LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_basic d;
 	convertLine(tokensBuf, (int*)&d);
-    refineRect(d, textureBuf->getRect(), csvCurrentLine);
+    if (textureBuf) refineRect(d, textureBuf->getRect(), line);
     BarRivalType type = BarRivalType(d._null & 0xFFFFFFFF);
 
     for (auto& bar : _barSprites)
@@ -1548,13 +1561,13 @@ ParseRet SkinLR2::SRC_BAR_RIVAL_MYLAMP()
 {
     if (tokensBuf.size() < 10)
 	{
-		LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_basic d;
 	convertLine(tokensBuf, (int*)&d);
-    refineRect(d, textureBuf->getRect(), csvCurrentLine);
+    if (textureBuf) refineRect(d, textureBuf->getRect(), line);
     BarLampType type = BarLampType(d._null & 0xFFFFFFFF);
 
     for (auto& bar : _barSprites)
@@ -1570,13 +1583,13 @@ ParseRet SkinLR2::SRC_BAR_RIVAL_RIVALLAMP()
 {
     if (tokensBuf.size() < 10)
 	{
-		LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
 	lr2skin::s_basic d;
 	convertLine(tokensBuf, (int*)&d);
-    refineRect(d, textureBuf->getRect(), csvCurrentLine);
+    if (textureBuf) refineRect(d, textureBuf->getRect(), line);
     BarLampType type = BarLampType(d._null & 0xFFFFFFFF);
 
     for (auto& bar : _barSprites)
@@ -1617,7 +1630,7 @@ int SkinLR2::DST()
 
     if (tokensBuf.size() < 15)
     {
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
     }
 
     // load line into data struct
@@ -1627,29 +1640,29 @@ int SkinLR2::DST()
 
     int ret = 0;
     auto e = _sprites.back();
-    if (e && e->type() == SpriteTypes::GLOBAL)
+    if (e == nullptr)
     {
-		auto eg = std::reinterpret_pointer_cast<SpriteGlobal>(e);
-        auto ee = e;
+        LOG_WARNING << "[Skin] " << line << ": Previous src definition invalid (Line: " << line << ")";
+        return 0;
+    }
+
+    if (e->type() == SpriteTypes::GLOBAL)
+    {
+        // unpack stacking references
+        auto p = std::reinterpret_pointer_cast<SpriteGlobal>(e);
+        auto enext = e;
         do
         {
-            ee = gSprites[std::reinterpret_pointer_cast<SpriteGlobal>(ee)->get()];
-            eg->set(ee);
+            enext = gSprites[p->getIdx()];
+            p->set(enext);
 
-            if (ee == nullptr)
+            if (enext == nullptr)
             {
-                LOG_WARNING << "[Skin] " << csvCurrentLine << ": Previous src definition invalid (Line: " << csvCurrentLine << ")";
+                LOG_WARNING << "[Skin] " << line << ": Previous src definition invalid (Line: " << line << ")";
                 return 0;
             }
 
-        } while (ee->type() == SpriteTypes::GLOBAL);
-		e = ee;
-    }
-
-    if (e == nullptr)
-    {
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": Previous src definition invalid (Line: " << csvCurrentLine << ")";
-        return 0;
+        } while (enext->type() == SpriteTypes::GLOBAL);
     }
 
 	ret = __general_dst_supported[opt];
@@ -1659,7 +1672,7 @@ int SkinLR2::DST()
         if (convertLine(tokensBuf, (int*)&d, 15, 2) >= 2)
 			convertOps(tokensBuf, (int*)d.op, 17, 4);
         else 
-            LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+            LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
         if (std::regex_match(opt, std::regex("#DST_NOW(JUDGE|COMBO)_1P")))
 		{
@@ -1693,7 +1706,7 @@ int SkinLR2::DST()
 		e->setTrigTimer((eTimer)d.timer);
         if (d.time > 0)
         {
-            LOG_WARNING << "[Skin] " << csvCurrentLine << ": First keyframe time is not 0";
+            //LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
             e->appendInvisibleLeadingFrame();
         }
     }
@@ -1713,70 +1726,71 @@ ParseRet SkinLR2::DST_NOTE()
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
     if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
     // load line into data struct
     lr2skin::dst d;
     convertLine(tokensBuf, (int*)&d, 0, 14);
     
-	NoteChannelIndex idx = (NoteChannelIndex)d._null;
+	NoteLaneIndex idx = (NoteLaneIndex)d._null;
 
-	for (size_t i = (size_t)NoteChannelCategory::Note; i < (size_t)NoteChannelCategory::NOTECATEGORY_COUNT; ++i)
-	{
-		NoteChannelCategory cat = (NoteChannelCategory)i;
-		int ret = 0;
-		auto e = _laneSprites[channelToIdx(cat, idx)];
-		if (e == nullptr)
-		{
-			LOG_WARNING << "[Skin] " << csvCurrentLine << ": Note SRC definition invalid " <<
-				"(Type: " << i << ", Index: " << idx << " ) " <<
-				"(Line: " << csvCurrentLine << ")";
-			continue;
-		}
+    auto setDstNoteLambda = [&](NoteLaneCategory i)
+    {
+        NoteLaneCategory cat = (NoteLaneCategory)i;
+        int ret = 0;
+        auto e = _laneSprites[channelToIdx(cat, idx)];
+        if (e == nullptr)
+        {
+            LOG_WARNING << "[Skin] " << line << ": Note SRC definition invalid " <<
+                "(Type: " << (int)i << ", Index: " << idx << " ) ";
+            return;
+        }
 
-		if (e->type() != SpriteTypes::NOTE_VERT)
-		{
-			LOG_WARNING << "[Skin] " << csvCurrentLine << ": Note SRC definition is not NOTE " <<
-				"(Type: " << i << ", Index: " << idx << " ) " <<
-				"(Line: " << csvCurrentLine << ")";
-			continue;
-		}
+        if (e->type() != SpriteTypes::NOTE_VERT)
+        {
+            LOG_WARNING << "[Skin] " << line << ": Note SRC definition is not NOTE " <<
+                "(Type: " << (int)i << ", Index: " << idx << " ) ";
+            return;
+        }
 
-		if (!e->isKeyFrameEmpty())
-		{
-			LOG_WARNING << "[Skin] " << csvCurrentLine << ": Note DST is already defined " << 
-				"(Type: " << i << ", Index: " << idx << " ) " <<
-				"(Line: " << csvCurrentLine << ")";
-			e->clearKeyFrames();
-		}
-		e->pNote->clearKeyFrames();
-		e->pNote->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
-			(BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
+        if (!e->isKeyFrameEmpty())
+        {
+            LOG_WARNING << "[Skin] " << line << ": Note DST is already defined " <<
+                "(Type: " << (int)i << ", Index: " << idx << " ) ";
+            e->clearKeyFrames();
+        }
+        e->pNote->clearKeyFrames();
+        e->pNote->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
+            (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center)  } });
 
-		// set sprite channel
-		auto p = std::static_pointer_cast<SpriteLaneVertical>(e);
+        // set sprite channel
+        auto p = std::static_pointer_cast<SpriteLaneVertical>(e);
 
         p->_playerSlot = d._null / 10;  // player slot, 1P:0, 2P:1
 
-		// refine rect: x=dst_x, y=-dst_h, w=dst_w, h=dst_y
-		int dst_h;
-		//p->getRectSize(d.w, dummy);
-		dst_h = d.h;
-		d.h = d.y + dst_h;
-		d.y = -dst_h;
+        // refine rect: x=dst_x, y=-dst_h, w=dst_w, h=dst_y
+        int dst_h;
+        //p->getRectSize(d.w, dummy);
+        dst_h = d.h;
+        d.h = d.y + dst_h;
+        d.y = -dst_h;
 
         if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
-			convertOps(tokensBuf, (int*)d.op, 16, 4);
-        else 
-            LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+            convertOps(tokensBuf, (int*)d.op, 16, 4);
+        else
+            LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
-		drawQueue.push_back({ e, false, d.op[0], d.op[1], d.op[2], d.op[3] });
-		e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
-			(BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
-		e->setLoopTime(0);
-		//e->pushKeyFrame(time, x, y, w, h, acc, r, g, b, a, blend, filter, angle, center);
-		//LOG_DEBUG << "[Skin] " << line << ": Set Lane sprite Keyframe (time: " << d.time << ")";
-	}
+        drawQueue.push_back({ e, false, d.op[0], d.op[1], d.op[2], d.op[3] });
+        e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
+            (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
+        e->setLoopTime(0);
+        //e->pushKeyFrame(time, x, y, w, h, acc, r, g, b, a, blend, filter, angle, center);
+        //LOG_DEBUG << "[Skin] " << line << ": Set Lane sprite Keyframe (time: " << d.time << ")";
+    };
+
+    setDstNoteLambda(NoteLaneCategory::Note);
+    //setDstNoteLambda(NoteLaneCategory::Mine);
+    //setDstNoteLambda(NoteLaneCategory::LN);
 
     return ParseRet::OK;
 }
@@ -1787,7 +1801,7 @@ ParseRet SkinLR2::DST_LINE()
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
     if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
     // load line into data struct
     lr2skin::dst d;
@@ -1798,21 +1812,21 @@ ParseRet SkinLR2::DST_LINE()
     auto e = _sprites.back();
     if (e == nullptr)
     {
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": Barline SRC definition invalid " <<
-            "(Line: " << csvCurrentLine << ")";
+        LOG_WARNING << "[Skin] " << line << ": Barline SRC definition invalid " <<
+            "(Line: " << line << ")";
         return ParseRet::SRC_DEF_INVALID;
     }
 
     if (e->type() != SpriteTypes::NOTE_VERT)
     {
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": Barline SRC definition is not NOTE " <<
-            "(Line: " << csvCurrentLine << ")";
+        LOG_WARNING << "[Skin] " << line << ": Barline SRC definition is not NOTE " <<
+            "(Line: " << line << ")";
         return ParseRet::SRC_DEF_WRONG_TYPE;
     }
     if (!e->isKeyFrameEmpty())
     {
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": Barline DST is already defined " <<
-            "(Line: " << csvCurrentLine << ")";
+        LOG_WARNING << "[Skin] " << line << ": Barline DST is already defined " <<
+            "(Line: " << line << ")";
         e->clearKeyFrames();
     }
 
@@ -1821,12 +1835,12 @@ ParseRet SkinLR2::DST_LINE()
 
     p->_playerSlot = d._null / 10;  // player slot, 1P:0, 2P:1
 
-    NoteChannelCategory cat = p->getChannelCat();
-    NoteChannelIndex idx = p->getChannelIdx();
-    if (!(cat == NoteChannelCategory::EXTRA && idx == EXTRA_BARLINE))
+    NoteLaneCategory cat = p->getLaneCat();
+    NoteLaneIndex idx = p->getLaneIdx();
+    if (cat != NoteLaneCategory::EXTRA || idx != EXTRA_BARLINE)
     {
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": Previous SRC definition is not LINE " <<
-            "(Line: " << csvCurrentLine << ")";
+        LOG_WARNING << "[Skin] " << line << ": Previous SRC definition is not LINE " <<
+            "(Line: " << line << ")";
         return ParseRet::SRC_DEF_WRONG_TYPE;
     }
 
@@ -1844,7 +1858,7 @@ ParseRet SkinLR2::DST_LINE()
     if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
         convertOps(tokensBuf, (int*)d.op, 16, 4);
     else 
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
     drawQueue.push_back({ e, false, d.op[0], d.op[1], d.op[2], d.op[3] });
     e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
@@ -1865,7 +1879,7 @@ ParseRet SkinLR2::DST_BAR_BODY()
     bool bodyOn = optBuf == "#DST_BAR_BODY_ON";
 
     if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
     // load line into data struct
     lr2skin::dst d;
@@ -1878,7 +1892,7 @@ ParseRet SkinLR2::DST_BAR_BODY()
         auto e = bodyOn ? _barSprites[idx]->getSpriteBodyOn(type) : _barSprites[idx]->getSpriteBodyOff(type);
         if (e == nullptr)
         {
-            LOG_WARNING << "[Skin] " << csvCurrentLine << ": SRC_BAR_BODY undefined";
+            LOG_WARNING << "[Skin] " << line << ": SRC_BAR_BODY undefined";
             return ParseRet::SRC_DEF_INVALID;
         }
 
@@ -1887,15 +1901,15 @@ ParseRet SkinLR2::DST_BAR_BODY()
             if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
                 convertOps(tokensBuf, (int*)d.op, 16, 4);
             else
-                LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+                LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
-            _barSprites[idx]->setLine(csvCurrentLine);
-            e->setLine(csvCurrentLine);
+            _barSprites[idx]->setLine(line);
+            e->setLine(line);
             e->setLoopTime(d.loop);
             e->setTrigTimer((eTimer)d.timer);
             if (d.time > 0)
             {
-                LOG_WARNING << "[Skin] " << csvCurrentLine << ": First keyframe time is not 0";
+                LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
                 e->appendInvisibleLeadingFrame();
             }
         }
@@ -1913,7 +1927,7 @@ ParseRet SkinLR2::DST_BAR_FLASH()
         return ParseRet::OK;
 
     if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
     // load line into data struct
     lr2skin::dst d;
@@ -1924,7 +1938,7 @@ ParseRet SkinLR2::DST_BAR_FLASH()
     auto e = _barSprites[idx]->getSpriteFlash();
     if (e == nullptr)
     {
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": SRC_BAR_FLASH undefined";
+        LOG_WARNING << "[Skin] " << line << ": SRC_BAR_FLASH undefined";
         return ParseRet::SRC_DEF_INVALID;
     }
 
@@ -1933,14 +1947,14 @@ ParseRet SkinLR2::DST_BAR_FLASH()
         if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
             convertOps(tokensBuf, (int*)d.op, 16, 4);
         else 
-            LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+            LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
-        e->setLine(csvCurrentLine);
+        e->setLine(line);
         e->setLoopTime(d.loop);
 		e->setTrigTimer((eTimer)d.timer);
         if (d.time > 0)
         {
-            LOG_WARNING << "[Skin] " << csvCurrentLine << ": First keyframe time is not 0";
+            LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
             e->appendInvisibleLeadingFrame();
         }
     }
@@ -1957,7 +1971,7 @@ ParseRet SkinLR2::DST_BAR_LEVEL()
         return ParseRet::OK;
 
     if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
     // load line into data struct
     lr2skin::dst d;
@@ -1970,7 +1984,7 @@ ParseRet SkinLR2::DST_BAR_LEVEL()
         auto e = _barSprites[idx]->getSpriteLevel(type);
         if (e == nullptr)
         {
-            LOG_WARNING << "[Skin] " << csvCurrentLine << ": SRC_BAR_LEVEL undefined";
+            LOG_WARNING << "[Skin] " << line << ": SRC_BAR_LEVEL undefined";
             return ParseRet::SRC_DEF_INVALID;
         }
 
@@ -1979,14 +1993,14 @@ ParseRet SkinLR2::DST_BAR_LEVEL()
             if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
                 convertOps(tokensBuf, (int*)d.op, 16, 4);
             else
-                LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+                LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
-            e->setLine(csvCurrentLine);
+            e->setLine(line);
             e->setLoopTime(d.loop);
             e->setTrigTimer((eTimer)d.timer);
             if (d.time > 0)
             {
-                LOG_WARNING << "[Skin] " << csvCurrentLine << ": First keyframe time is not 0";
+                LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
                 e->appendInvisibleLeadingFrame();
             }
         }
@@ -2004,7 +2018,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL_MYLAMP()
         return ParseRet::OK;
 
     if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
     // load line into data struct
     lr2skin::dst d;
@@ -2017,7 +2031,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL_MYLAMP()
         auto e = _barSprites[idx]->getSpriteRivalLampSelf(type);
         if (e == nullptr)
         {
-            LOG_WARNING << "[Skin] " << csvCurrentLine << ": SRC_BAR_MY_LAMP undefined";
+            LOG_WARNING << "[Skin] " << line << ": SRC_BAR_MY_LAMP undefined";
             return ParseRet::SRC_DEF_INVALID;
         }
 
@@ -2026,14 +2040,14 @@ ParseRet SkinLR2::DST_BAR_RIVAL_MYLAMP()
             if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
                 convertOps(tokensBuf, (int*)d.op, 16, 4);
             else
-                LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+                LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
-            e->setLine(csvCurrentLine);
+            e->setLine(line);
             e->setLoopTime(d.loop);
             e->setTrigTimer((eTimer)d.timer);
             if (d.time > 0)
             {
-                LOG_WARNING << "[Skin] " << csvCurrentLine << ": First keyframe time is not 0";
+                LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
                 e->appendInvisibleLeadingFrame();
             }
         }
@@ -2050,7 +2064,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL_RIVALLAMP()
         return ParseRet::OK;
 
     if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
     // load line into data struct
     lr2skin::dst d;
@@ -2063,7 +2077,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL_RIVALLAMP()
         auto e = _barSprites[idx]->getSpriteRivalLampRival(type);
         if (e == nullptr)
         {
-            LOG_WARNING << "[Skin] " << csvCurrentLine << ": SRC_BAR_RIVAL_LAMP undefined";
+            LOG_WARNING << "[Skin] " << line << ": SRC_BAR_RIVAL_LAMP undefined";
             return ParseRet::SRC_DEF_INVALID;
         }
 
@@ -2072,14 +2086,14 @@ ParseRet SkinLR2::DST_BAR_RIVAL_RIVALLAMP()
             if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
                 convertOps(tokensBuf, (int*)d.op, 16, 4);
             else
-                LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+                LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
-            e->setLine(csvCurrentLine);
+            e->setLine(line);
             e->setLoopTime(d.loop);
             e->setTrigTimer((eTimer)d.timer);
             if (d.time > 0)
             {
-                LOG_WARNING << "[Skin] " << csvCurrentLine << ": First keyframe time is not 0";
+                LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
                 e->appendInvisibleLeadingFrame();
             }
         }
@@ -2096,7 +2110,7 @@ ParseRet SkinLR2::DST_BAR_LAMP()
         return ParseRet::OK;
 
     if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
     // load line into data struct
     lr2skin::dst d;
@@ -2109,7 +2123,7 @@ ParseRet SkinLR2::DST_BAR_LAMP()
         auto e = _barSprites[idx]->getSpriteLamp(type);
         if (e == nullptr)
         {
-            LOG_WARNING << "[Skin] " << csvCurrentLine << ": SRC_BAR_LAMP undefined";
+            LOG_WARNING << "[Skin] " << line << ": SRC_BAR_LAMP undefined";
             return ParseRet::SRC_DEF_INVALID;
         }
 
@@ -2118,14 +2132,14 @@ ParseRet SkinLR2::DST_BAR_LAMP()
             if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
                 convertOps(tokensBuf, (int*)d.op, 16, 4);
             else
-                LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+                LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
-            e->setLine(csvCurrentLine);
+            e->setLine(line);
             e->setLoopTime(d.loop);
             e->setTrigTimer((eTimer)d.timer);
             if (d.time > 0)
             {
-                LOG_WARNING << "[Skin] " << csvCurrentLine << ": First keyframe time is not 0";
+                LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
                 e->appendInvisibleLeadingFrame();
             }
         }
@@ -2143,7 +2157,7 @@ ParseRet SkinLR2::DST_BAR_TITLE()
         return ParseRet::OK;
 
     if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
     // load line into data struct
     lr2skin::dst d;
@@ -2154,7 +2168,7 @@ ParseRet SkinLR2::DST_BAR_TITLE()
     auto e = _barSprites[idx]->getSpriteTitle();
     if (e == nullptr)
     {
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": SRC_BAR_TITLE undefined";
+        LOG_WARNING << "[Skin] " << line << ": SRC_BAR_TITLE undefined";
         return ParseRet::SRC_DEF_INVALID;
     }
 
@@ -2163,14 +2177,14 @@ ParseRet SkinLR2::DST_BAR_TITLE()
         if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
             convertOps(tokensBuf, (int*)d.op, 16, 4);
         else
-            LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+            LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
-        e->setLine(csvCurrentLine);
+        e->setLine(line);
         e->setLoopTime(d.loop);
         e->setTrigTimer((eTimer)d.timer);
         if (d.time > 0)
         {
-            LOG_WARNING << "[Skin] " << csvCurrentLine << ": First keyframe time is not 0";
+            LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
             e->appendInvisibleLeadingFrame();
         }
     }
@@ -2187,7 +2201,7 @@ ParseRet SkinLR2::DST_BAR_RANK()
         return ParseRet::OK;
 
     if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
     // load line into data struct
     lr2skin::dst d;
@@ -2199,7 +2213,7 @@ ParseRet SkinLR2::DST_BAR_RANK()
         auto e = _barSprites[idx]->getSpriteRank(type);
         if (e == nullptr)
         {
-            LOG_WARNING << "[Skin] " << csvCurrentLine << ": SRC_BAR_RANK undefined";
+            LOG_WARNING << "[Skin] " << line << ": SRC_BAR_RANK undefined";
             return ParseRet::SRC_DEF_INVALID;
         }
 
@@ -2208,14 +2222,14 @@ ParseRet SkinLR2::DST_BAR_RANK()
             if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
                 convertOps(tokensBuf, (int*)d.op, 16, 4);
             else
-                LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+                LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
-            e->setLine(csvCurrentLine);
+            e->setLine(line);
             e->setLoopTime(d.loop);
             e->setTrigTimer((eTimer)d.timer);
             if (d.time > 0)
             {
-                LOG_WARNING << "[Skin] " << csvCurrentLine << ": First keyframe time is not 0";
+                LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
                 e->appendInvisibleLeadingFrame();
             }
         }
@@ -2233,7 +2247,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL()
         return ParseRet::OK;
 
     if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
     // load line into data struct
     lr2skin::dst d;
@@ -2245,7 +2259,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL()
         auto e = _barSprites[idx]->getSpriteRivalWinLose(type);
         if (e == nullptr)
         {
-            LOG_WARNING << "[Skin] " << csvCurrentLine << ": SRC_BAR_RIVAL undefined";
+            LOG_WARNING << "[Skin] " << line << ": SRC_BAR_RIVAL undefined";
             return ParseRet::SRC_DEF_INVALID;
         }
 
@@ -2254,14 +2268,14 @@ ParseRet SkinLR2::DST_BAR_RIVAL()
             if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
                 convertOps(tokensBuf, (int*)d.op, 16, 4);
             else
-                LOG_WARNING << "[Skin] " << csvCurrentLine << ": Parameter not enough";
+                LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
 
-            e->setLine(csvCurrentLine);
+            e->setLine(line);
             e->setLoopTime(d.loop);
             e->setTrigTimer((eTimer)d.timer);
             if (d.time > 0)
             {
-                LOG_WARNING << "[Skin] " << csvCurrentLine << ": First keyframe time is not 0";
+                LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
                 e->appendInvisibleLeadingFrame();
             }
         }
@@ -2281,10 +2295,11 @@ ParseRet SkinLR2::DST_BAR_RIVAL()
 // Dispatcher
 #pragma region
 
-int SkinLR2::parseLine(const Tokens &raw)
+int SkinLR2::parseBody(const Tokens &raw)
 {
+    if (raw.empty()) return 0;
     tokensBuf.assign(raw.size() - 1, "");
-    optBuf = !raw.empty() ? raw[0] : "";
+    optBuf = raw[0];
     for (size_t idx = 0; idx < tokensBuf.size(); ++idx)
         tokensBuf[idx] = raw[idx + 1];
 
@@ -2311,59 +2326,69 @@ int SkinLR2::parseLine(const Tokens &raw)
             return 10;
         if (DST_LINE() == ParseRet::OK)
             return 11;
+
+        LOG_WARNING << "[Skin] " << line << ": Invalid def \"" << optBuf << "\" (Line " << line << ")";
     }
     catch (std::invalid_argument e)
     {
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": Invalid Argument: " << "(Line " << csvCurrentLine << ")";
+        LOG_WARNING << "[Skin] " << line << ": Invalid Argument: " << "(Line " << line << ")";
     }
     catch (std::out_of_range e)
     {
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": Out of range: " << "(Line " << csvCurrentLine << ")";
+        LOG_WARNING << "[Skin] " << line << ": Out of range: " << "(Line " << line << ")";
     }
     return 0;
 }
 
 void SkinLR2::IF(const Tokens &t, std::ifstream& lr2skin)
 {
-    bool optSwitch = true;
-    if (t[0] != "#ELSE")
+    bool ifCheckPassed = true;
+    if (t[0] != "#ELSE" && t.size() <= 1)
     {
-        LOG_WARNING << "[Skin] " << csvCurrentLine << ": No IF parameters " << " (Line " << csvCurrentLine << ")";
+        LOG_WARNING << "[Skin] " << line << ": No IF parameters " << " (Line " << line << ")";
     }
-    for (auto it = ++t.begin(); it != t.end(); ++it)
+
+    // get dst indexes
+    for (auto it = ++t.begin(); it != t.end() && ifCheckPassed; ++it)
     {
         auto [idx, val] = stoub(*it);
         if (idx == -1)
         {
-            LOG_WARNING << "[Skin] " << csvCurrentLine << ": Invalid DST_OPTION Index, deal as false (Line " << csvCurrentLine << ")";
-            optSwitch = false;
+            LOG_WARNING << "[Skin] " << line << ": Invalid DST_OPTION Index, deal as false (Line " << line << ")";
+            ifCheckPassed = false;
             break;
         }
         bool dst = getDstOpt((dst_option)idx);
         if (val) dst = !dst;
-        optSwitch = optSwitch && dst;
+        ifCheckPassed = ifCheckPassed && dst;
     }
 
-    if (optSwitch)
+    if (ifCheckPassed)
     {
         while (!lr2skin.eof())
         {
             auto tokens = csvNextLineTokenize(lr2skin);
             if (tokens.empty()) continue;
 
-            if (*tokens.begin() == "#ELSE" || *tokens.begin() == "#ELIF")
+            if (*tokens.begin() == "#ELSE" || *tokens.begin() == "#ELSEIF")
             {
-                while (!lr2skin.eof() && *tokens.begin() != "#ENDIF")
+                // skip other branches
+                while (!lr2skin.eof() && !tokens.empty() && *tokens.begin() != "#ENDIF")
                 {
                     tokens = csvNextLineTokenize(lr2skin);
-                    if (tokens.begin() == tokens.end()) continue;
                 }
                 return;
             }
             else if (*tokens.begin() == "#ENDIF")
+            {
+                // end #IF process
                 return;
+            }
             else
-                parseLine(tokens);
+            {
+                // parse current branch
+                parseBody(tokens);
+            }
         }
     }
     else
@@ -2393,10 +2418,18 @@ void SkinLR2::IF(const Tokens &t, std::ifstream& lr2skin)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-int SkinLR2::HEADER()
+int SkinLR2::parseHeader(const Tokens& raw)
 {
+    if (raw.empty()) return 0;
+    tokensBuf.assign(raw.size() - 1, "");
+    optBuf = raw[0];
+    for (size_t idx = 0; idx < tokensBuf.size(); ++idx)
+        tokensBuf[idx] = raw[idx + 1];
+
     if (optBuf == "#INFORMATION")
     {
+        while (tokensBuf.size() < 4) tokensBuf.push_back("");
+
         int type = stoine(tokensBuf[0]);
         StringContent title = tokensBuf[1];
         StringContent maker = tokensBuf[2];
@@ -2430,11 +2463,11 @@ int SkinLR2::HEADER()
         info.name = title;
         info.maker = maker;
 
-        _texNameMap["THUMBNAIL"] = std::make_shared<Texture>(Image(thumbnail.string().c_str()));
-        if (_texNameMap["THUMBNAIL"] == nullptr)
-            LOG_WARNING << "[Skin] " << csvCurrentLine << ": thumbnail loading failed: " << thumbnail.string() << " (Line " << csvCurrentLine << ")";
+        _textureNameMap["THUMBNAIL"] = std::make_shared<Texture>(Image(thumbnail.string().c_str()));
+        if (_textureNameMap["THUMBNAIL"] == nullptr)
+            LOG_WARNING << "[Skin] " << line << ": thumbnail loading failed: " << thumbnail.string() << " (Line " << line << ")";
 
-        LOG_DEBUG << "[Skin] " << csvCurrentLine << ": Loaded metadata: " << title << " | " << maker;
+        LOG_DEBUG << "[Skin] " << line << ": Loaded metadata: " << title << " | " << maker;
 
         return 1;
     }
@@ -2445,14 +2478,14 @@ int SkinLR2::HEADER()
         int dst_op = stoine(tokensBuf[1]);
         if (dst_op < 900 || dst_op > 999)
         {
-            LOG_WARNING << "[Skin] " << csvCurrentLine << ": Invalid option value: " << dst_op << " (Line " << csvCurrentLine << ")";
+            LOG_WARNING << "[Skin] " << line << ": Invalid option value: " << dst_op << " (Line " << line << ")";
             return -2;
         }
         Tokens op_label;
         for (size_t idx = 3; idx < tokensBuf.size() && !tokensBuf[idx].empty(); ++idx)
             op_label.push_back(tokensBuf[idx]);
 
-        LOG_DEBUG << "[Skin] " << csvCurrentLine << ": Loaded Custom option " << title << ": " << dst_op;
+        LOG_DEBUG << "[Skin] " << line << ": Loaded Custom option " << title << ": " << dst_op;
         customize.push_back({ (unsigned)dst_op, title, std::move(op_label), 0 });
         return 2;
     }
@@ -2473,7 +2506,7 @@ int SkinLR2::HEADER()
                 break;
             }
 
-        LOG_DEBUG << "[Skin] " << csvCurrentLine << ": Loaded Custom file " << title << ": " << pathf.string();
+        LOG_DEBUG << "[Skin] " << line << ": Loaded Custom file " << title << ": " << pathf.string();
         customFile.push_back({ title, p, std::move(ls), defVal, defVal });
         return 3;
     }
@@ -2503,9 +2536,8 @@ SkinLR2::SkinLR2(Path p)
 
 void SkinLR2::loadCSV(Path p)
 {
-	csvCurrentLineStk.push(csvCurrentLine);
-	csvCurrentLine = 0;
-
+    line = 0;
+    LOG_DEBUG << "[Skin] File: " << p.string();
     std::ifstream lr2skin(p, std::ios::binary);
     if (!lr2skin.is_open())
     {
@@ -2513,20 +2545,25 @@ void SkinLR2::loadCSV(Path p)
         return;
     }
 
+    bool haveEndOfHeader = false;
     while (!lr2skin.eof())
     {
-        tokensBuf = csvNextLineTokenize(lr2skin);
-        if (tokensBuf.begin() == tokensBuf.end()) continue;
+        auto raw = csvNextLineTokenize(lr2skin);
+        if (raw.begin() == raw.end()) continue;
 
-        if (HEADER() == -1)
+        if (parseHeader(raw) == -1)
+        {
+            haveEndOfHeader = true;
             break;
+        }
     }
-    LOG_DEBUG << "[Skin] " << csvCurrentLine << ": Header loading finished";
+    LOG_DEBUG << "[Skin] File: " << p.string() << "(Line " << line << "): Header loading finished";
 
     if (lr2skin.eof())
     {
         // reset position to head
         lr2skin.close();
+        line = 0;
         lr2skin.open(p, std::ios::binary);
     }
 
@@ -2547,11 +2584,11 @@ void SkinLR2::loadCSV(Path p)
         if (*tokens.begin() == "#IF")
             IF(tokens, lr2skin);
         else
-            parseLine(tokens);
+            parseBody(tokens);
     }
 
 
-    LOG_DEBUG << "[Skin] " << csvCurrentLine << ": Loaded " << p.string();
+    LOG_DEBUG << "[Skin] File: " << p.string() << "(Line " << line << "): Body loading finished";
     _loaded = true;
 
     /*
@@ -2565,9 +2602,6 @@ void SkinLR2::loadCSV(Path p)
         }
     }
     */
-
-	csvCurrentLine = csvCurrentLineStk.top();
-	csvCurrentLineStk.pop();
 }
 
 

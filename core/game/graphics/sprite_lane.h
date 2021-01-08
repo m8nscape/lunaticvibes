@@ -1,6 +1,6 @@
 #pragma once
 #include "sprite.h"
-#include "game/scroll/scroll.h"
+#include "game/chart/chart.h"
 #include <vector>
 #include <memory>
 
@@ -10,8 +10,8 @@
 class SpriteLaneVertical: public SpriteStatic
 {
 private:
-	NoteChannelCategory _category;
-    NoteChannelIndex _index;
+	NoteLaneCategory _category;
+    NoteLaneIndex _index;
 	bool _haveDst = false;
     double _basespd;
     double _hispeed;
@@ -34,12 +34,12 @@ public:
         );
 
 public:
-    void setChannel(NoteChannelCategory cat, NoteChannelIndex idx);
-    decltype(_category) getChannelCat() const { return _category; }
-    decltype(_index) getChannelIdx() const { return _index; }
+    void setLane(NoteLaneCategory cat, NoteLaneIndex idx);
+    decltype(_category) getLaneCat() const { return _category; }
+    decltype(_index) getLaneIdx() const { return _index; }
     void getRectSize(int& w, int& h);
-	virtual bool update(timestamp t);
-    void updateNoteRect(timestamp t, vScroll* ps, double beat, unsigned measure);
+	virtual bool update(Time t);
+    void updateNoteRect(Time t, vChart* ps, double beat, unsigned measure);
     virtual void draw() const;
 
 public:

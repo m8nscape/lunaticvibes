@@ -68,11 +68,11 @@ SoundDriverFMOD::SoundDriverFMOD()
         fmodSystem->getDriver(&driverId);
         char name[256];
         int systemRate;
-        int speakerChannels;
-        fmodSystem->getDriverInfo(driverId, name, 255, 0, &systemRate, 0, &speakerChannels);
+        int speakerLanes;
+        fmodSystem->getDriverInfo(driverId, name, 255, 0, &systemRate, 0, &speakerLanes);
         LOG_INFO << "[FMOD] Device Name: " << name;
         LOG_INFO << "[FMOD] Device Sample Rate: " << systemRate;
-        LOG_INFO << "[FMOD] Device Channels: " << speakerChannels;
+        LOG_INFO << "[FMOD] Device Channels: " << speakerLanes;
 
         unsigned bufferLen;
         int buffers;

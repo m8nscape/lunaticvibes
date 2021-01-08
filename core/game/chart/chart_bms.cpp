@@ -1,5 +1,4 @@
-#include "scroll_bms.h"
-#include "config/config_mgr.h"
+#include "chart_bms.h"
 
 namespace bms
 {
@@ -7,7 +6,7 @@ namespace bms
 
     // Need this since current parser stores channel directly
 	// TODO mapping is different between file formats
-    const size_t BMSToChannelMap[] = 
+    const size_t BMSToLaneMap[] = 
     {
         Sc1,
         K1,
@@ -32,8 +31,8 @@ namespace bms
         NOPE,
     };
     
-    // from NoteChannelIndex to Input::Ingame
-    const std::vector<Input::Ingame> ChannelToKeyMap[] = 
+    // from NoteLaneIndex to Input::Ingame
+    const std::vector<Input::Ingame> LaneToKeyMap[] = 
     {
         // 0: Notes
         {Input::Ingame::S1L, Input::Ingame::S1R}, // Sc1
@@ -55,8 +54,8 @@ namespace bms
         {Input::Ingame::S2L, Input::Ingame::S2R} // Sc2
     };
 
-    // from Input::Ingame to NoteChannelIndex
-    const NoteChannelIndex KeyToChannelMap[] = 
+    // from Input::Ingame to NoteLaneIndex
+    const NoteLaneIndex KeyToLaneMap[] = 
     {
         Sc1, Sc1,
         K1, K2, K3, K4, K5, K6, K7,
@@ -70,55 +69,55 @@ namespace bms
 
 using namespace bms;
 
-ScrollBMS::ScrollBMS() : vScroll((size_t)eNotePlain::PLAIN_COUNT, (size_t)eNoteExt::EXT_COUNT)
+chartBMS::chartBMS() : vChart((size_t)eNotePlain::PLAIN_COUNT, (size_t)eNoteExt::EXT_COUNT)
 {
 }
 
-ScrollBMS::ScrollBMS(std::shared_ptr<BMS> b) : ScrollBMS()
+chartBMS::chartBMS(std::shared_ptr<BMS> b) : chartBMS()
 {
     loadBMS(*b);
 }
-ScrollBMS::ScrollBMS(const BMS& b) : ScrollBMS()
+chartBMS::chartBMS(const BMS& b) : chartBMS()
 {
     loadBMS(b);
 }
 
-void ScrollBMS::loadBMS(const BMS& objBms)
+void chartBMS::loadBMS(const BMS& objBms)
 {
 	_noteCount = objBms.notes;
 	_noteCount_regular = objBms.notes - objBms.notes_ln;
 	_noteCount_ln = objBms.notes_ln;
-	timestamp basetime{ 0 };        // BPM change / measure change time. Adds stop time
-	Beat basebeat{ 0, 1 };          // measure change total beat
+	Time basetime{ 0 };
+	Beat basebeat{ 0, 1 };
 
     BPM bpm = objBms._itlBPM;
     _currentBPM = bpm;
-    _bpmList.push_back({ 0, {0, 1}, 0, bpm });
+    _bpmNoteList.push_back({ 0, {0, 1}, 0, bpm });
 	_measureLength.fill({ 1, 1 });
-    bool bpmfucked = false;
-    for (unsigned m = 0; m <= objBms.maxMeasure; m++)
+    bool bpmfucked = false; // set to true when BPM is changed to zero or negative value
+    for (unsigned m = 0; m <= objBms.lastBarIdx; m++)
     {
 		_measureLength[m] = objBms._measureLength[m];
-		_measureTotalBeats[m] = basebeat;
-        _measureTimestamp[m] = basetime;
+		_barBeatstamp[m] = basebeat;
+        _barTimestamp[m] = basetime;
 
         // notes [] {beat, {lane, sample/val}}
         std::vector<std::pair<Segment, std::pair<unsigned, unsigned>>> notes;
 
-        // In case the channel order is shuffled, read the data to buffer then sort it out
+        // In case the channels from the file are shuffled, store the data into buffer and sort it out first
         // The following patterns must be arranged to keep process order by [Notes > BPM > Stop]
         {
-            // Lookup BMSToChannelMap[]
+            // Lookup BMSToLaneMap[]
             // Visible Notes, bms: 1x/2x
             for (unsigned i = 0; i < 10; i++)
             {
-                auto ch = objBms.getChannel(ChannelCode::NOTE1, i, m);
+                auto ch = objBms.getLane(LaneCode::NOTE1, i, m);
                 for (const auto& n : ch.notes)
                     notes.push_back({ fraction(n.segment, ch.resolution),{ i, n.value } });
             }
             for (unsigned i = 0; i < 10; i++)
             {
-                auto ch = objBms.getChannel(ChannelCode::NOTE2, i, m);
+                auto ch = objBms.getLane(LaneCode::NOTE2, i, m);
                 for (const auto& n : ch.notes)
                     notes.push_back({ fraction(n.segment, ch.resolution),{ 10 + i, n.value } });
             }
@@ -130,48 +129,48 @@ void ScrollBMS::loadBMS(const BMS& objBms)
             // BGM: 
             for (unsigned i = 0; i < objBms.bgmLayersCount[m]; i++)
             {
-                auto ch = objBms.getChannel(ChannelCode::BGM, i, m);
+                auto ch = objBms.getLane(LaneCode::BGM, i, m);
                 for (const auto& n : ch.notes)
                     notes.push_back({ fraction(n.segment, ch.resolution),{ 100 + i, n.value } });
             }
 
-            // BGA: 0xE0 / 0xE1 / 0xE2
-			if (ConfigMgr::P.get(cfg::P_LOAD_BGA, cfg::ON) == cfg::ON)
-			{
-				{
-					auto ch = objBms.getChannel(ChannelCode::BGABASE, 0, m);
-					for (const auto& n : ch.notes)
-						notes.push_back({ fraction(n.segment, ch.resolution),{ 0xE0, n.value } });
-				}
-				{
-					auto ch = objBms.getChannel(ChannelCode::BGALAYER, 0, m);
-					for (const auto& n : ch.notes)
-						notes.push_back({ fraction(n.segment, ch.resolution),{ 0xE1, n.value } });
-				}
-				{
-					auto ch = objBms.getChannel(ChannelCode::BGAPOOR, 0, m);
-					for (const auto& n : ch.notes)
-						notes.push_back({ fraction(n.segment, ch.resolution),{ 0xE2, n.value } });
-				}
-			}
+            // BGA: 0xF0 / 0xF1 / 0xF2
+            if (/* BGA switch */ false)
+            {
+                {
+                    auto ch = objBms.getLane(LaneCode::BGABASE, 0, m);
+                    for (const auto& n : ch.notes)
+                        notes.push_back({ fraction(n.segment, ch.resolution),{ 0xF0, n.value } });
+                }
+                {
+                    auto ch = objBms.getLane(LaneCode::BGALAYER, 0, m);
+                    for (const auto& n : ch.notes)
+                        notes.push_back({ fraction(n.segment, ch.resolution),{ 0xF1, n.value } });
+                }
+                {
+                    auto ch = objBms.getLane(LaneCode::BGAPOOR, 0, m);
+                    for (const auto& n : ch.notes)
+                        notes.push_back({ fraction(n.segment, ch.resolution),{ 0xF2, n.value } });
+                }
+            }
 
             // BPM Change: 0xFD
             {
-                auto ch = objBms.getChannel(ChannelCode::BPM, 0, m);
+                auto ch = objBms.getLane(LaneCode::BPM, 0, m);
                 for (const auto& n : ch.notes)
                     notes.push_back({ fraction(n.segment, ch.resolution),{ 0xFD, n.value } });
             }
 
             // EX BPM: 0xFE
             {
-                auto ch = objBms.getChannel(ChannelCode::EXBPM, 0, m);
+                auto ch = objBms.getLane(LaneCode::EXBPM, 0, m);
                 for (const auto& n : ch.notes)
                     notes.push_back({ fraction(n.segment, ch.resolution),{ 0xFE, n.value } });
             }
 
             // Stop: 0xFF
             {
-                auto ch = objBms.getChannel(ChannelCode::STOP, 0, m);
+                auto ch = objBms.getLane(LaneCode::STOP, 0, m);
                 for (const auto& n : ch.notes)
                     notes.push_back({ fraction(n.segment, ch.resolution),{ 0xFF, n.value } });
             }
@@ -187,7 +186,7 @@ void ScrollBMS::loadBMS(const BMS& objBms)
         double stopBeat = 0;
         double currentSpd = 1.0;
         Beat measureLength = objBms._measureLength[m];      // visual beat
-		timestamp beatLength = timestamp::beatLengthFromBPM(bpm);
+		Time beatLength = Time::singleBeatLengthFromBPM(bpm);
 
         for (const auto& note : notes)
         {
@@ -195,28 +194,28 @@ void ScrollBMS::loadBMS(const BMS& objBms)
             auto[lane, val] = noteinfo;
             double beatFromBPMChange = (noteSegment - lastBPMChangedSegment) * measureLength;
             Beat beat = basebeat + noteSegment * measureLength;
-			timestamp notetime = bpmfucked ? LLONG_MAX : basetime + beatLength * beatFromBPMChange;
+			Time notetime = bpmfucked ? LLONG_MAX : basetime + beatLength * beatFromBPMChange;
 
             if (lane >= 0 && lane < 100)
             {
 				// TODO mapping is different between file formats
-                if (BMSToChannelMap[lane] == NOPE) continue;
-                _noteLists[BMSToChannelMap[lane]].push_back({ m, beat, notetime, (long long)val, false });
+                if (BMSToLaneMap[lane] == NOPE) continue;
+                _noteLists[BMSToLaneMap[lane]].push_back({ m, beat, notetime, (long long)val, false });
             }
             else if (lane >= 100 && lane < 131)
             {
-                _plainLists[lane - 100 + (size_t)eNotePlain::BGM0].push_back({ m, beat, notetime, (long long)val });
+                _commonNoteLists[lane - 100 + (size_t)eNotePlain::BGM0].push_back({ m, beat, notetime, (long long)val });
             }
             else if (!bpmfucked) switch (lane)
             {
             case 0xE0:  // BGA base
-				_plainLists[(size_t)eNotePlain::BGABASE].push_back({ m, beat, notetime, (long long)val, 0xE0 });
+				_commonNoteLists[(size_t)eNotePlain::BGABASE].push_back({ m, beat, notetime, (long long)val, 0xE0 });
 				break;
             case 0xE1:  // BGA layer
-				_plainLists[(size_t)eNotePlain::BGALAYER].push_back({ m, beat, notetime, (long long)val, 0xE1 });
+                _commonNoteLists[(size_t)eNotePlain::BGALAYER].push_back({ m, beat, notetime, (long long)val, 0xE1 });
 				break;
             case 0xE2:  // BGA poor
-				_plainLists[(size_t)eNotePlain::BGAPOOR].push_back({ m, beat, notetime, (long long)val, 0xE2 });
+                _commonNoteLists[(size_t)eNotePlain::BGAPOOR].push_back({ m, beat, notetime, (long long)val, 0xE2 });
 				break;
 
             case 0xFD:	// BPM Change
@@ -224,8 +223,8 @@ void ScrollBMS::loadBMS(const BMS& objBms)
                 basetime = notetime;
                 lastBPMChangedSegment = noteSegment;
                 bpm = static_cast<BPM>(val);
-				beatLength = timestamp::beatLengthFromBPM(bpm);
-                _bpmList.push_back({ m, beat, notetime, bpm });
+				beatLength = Time::singleBeatLengthFromBPM(bpm);
+                _bpmNoteList.push_back({ m, beat, notetime, bpm });
                 if (bpm <= 0) bpmfucked = true;
                 break;
 
@@ -234,19 +233,19 @@ void ScrollBMS::loadBMS(const BMS& objBms)
                 basetime = notetime;
                 lastBPMChangedSegment = noteSegment;
                 bpm = objBms.exBPM[val];
-                beatLength = timestamp::beatLengthFromBPM(bpm);
-                _bpmList.push_back({ m, beat, notetime, bpm });
+                beatLength = Time::singleBeatLengthFromBPM(bpm);
+                _bpmNoteList.push_back({ m, beat, notetime, bpm });
                 if (bpm <= 0) bpmfucked = true;
                 break;
 
             case 0xFF:	// Stop
                 double curStopBeat = objBms.stop[val] / 192.0;
-				timestamp  curStopTime{ (long long)std::floor(timestamp::beatLengthFromBPM(bpm).hres() * curStopBeat), true };
+				Time  curStopTime{ (long long)std::floor(Time::singleBeatLengthFromBPM(bpm).hres() * curStopBeat), true };
                 if (curStopBeat <= 0) break;
                 //_extLists[(size_t)eNoteExt::STOP].push_back({ m, segment, baseY, noteht, curStopBeat });
-				_stopList.push_back({ m, beat, notetime, curStopBeat });
-                //_scrollingSpeedList.push_back({ m, beat, noteht, 0.0 });
-                //_scrollingSpeedList.push_back({ m, beat + d2fr(curStopBeat), noteht + curStopTime, currentSpd });
+				_stopNoteList.push_back({ m, beat, notetime, curStopBeat });
+                //_chartingSpeedList.push_back({ m, beat, noteht, 0.0 });
+                //_chartingSpeedList.push_back({ m, beat + d2fr(curStopBeat), noteht + curStopTime, currentSpd });
                 stopBeat += curStopBeat;
                 basetime += curStopTime;
                 break;
@@ -256,40 +255,41 @@ void ScrollBMS::loadBMS(const BMS& objBms)
 		basebeat += measureLength;
 
         // add barline for next measure
-        _noteLists[channelToIdx(NoteChannelCategory::EXTRA, EXTRA_BARLINE)].push_back(
+        _noteLists[channelToIdx(NoteLaneCategory::EXTRA, EXTRA_BARLINE)].push_back(
 			{ m + 1, basebeat, basetime, long long(0), false });
 
     }
 
     _totalLength = basetime;    // last measure + 1
 
-    setIterators();
+    setNoteListsIterators();
 }
 
 
-std::pair<NoteChannelCategory, NoteChannelIndex> ScrollBMS::getChannelFromKey(Input::Ingame input)
+std::pair<NoteLaneCategory, NoteLaneIndex> chartBMS::getLaneFromKey(Input::Ingame input)
 {
-    if (input >= Input::S1L && input < Input::ESC && KeyToChannelMap[input] != _)
+    if (input >= Input::S1L && input < Input::ESC && KeyToLaneMap[input] != _)
     {
-        using cat = NoteChannelCategory;
-        NoteChannelIndex idx = KeyToChannelMap[input];
+        using cat = NoteLaneCategory;
+        NoteLaneIndex idx = KeyToLaneMap[input];
         std::vector<std::pair<cat, sNote>> note;
-        if (!isLastNoteOfChannel(cat::Note, idx))
-            note.push_back({ cat::Note, *incomingNoteOfChannel(cat::Note, idx) });
-        if (!isLastNoteOfChannel(cat::Invs, idx))
-            note.push_back({ cat::Invs, *incomingNoteOfChannel(cat::Invs, idx) });
-        if (!isLastNoteOfChannel(cat::LN, idx))
-            note.push_back({ cat::LN,   *incomingNoteOfChannel(cat::LN, idx) });
+        if (!isLastNoteOfLane(cat::Note, idx))
+            note.push_back({ cat::Note, *incomingNoteOfLane(cat::Note, idx) });
+        if (!isLastNoteOfLane(cat::Invs, idx))
+            note.push_back({ cat::Invs, *incomingNoteOfLane(cat::Invs, idx) });
+        if (!isLastNoteOfLane(cat::LN, idx))
+            note.push_back({ cat::LN,   *incomingNoteOfLane(cat::LN, idx) });
         std::sort(note.begin(), note.end(), [](decltype(note.front())& a, decltype(note.front())& b) { return b.second.time > a.second.time; });
         for (size_t i = 0; i < note.size(); ++i)
             if (!note[i].second.hit) return { note[i].first, idx };
     }
-    return { NoteChannelCategory::_, _ };
+    return { NoteLaneCategory::_, _ };
 }
 
-std::vector<Input::Ingame> ScrollBMS::getInputFromChannel(size_t channel)
+std::vector<Input::Ingame> chartBMS::getInputFromLane(size_t channel)
 {
-    if (channel > sizeof(bms::ChannelToKeyMap) / sizeof(bms::ChannelToKeyMap[0]))
+    if (channel >= bms::LaneToKeyMap->size())
         return {};
-    return bms::ChannelToKeyMap[channel];
+    else
+        return bms::LaneToKeyMap[channel];
 }

@@ -13,7 +13,11 @@ TTFFont::TTFFont(const char* filePath, int ptsize): _pFont(TTF_OpenFont(filePath
 TTFFont::~TTFFont()
 {
     if (!_loaded) return;
-	TTF_CloseFont(_pFont);
+#if _DEBUG
+    //FIXME: 0x000000006AE83926 (libfreetype - 6.dll)处(位于 game.exe 中)引发的异常: 0xC0000005 : 读取位置 0x0000000000000060 时发生访问冲突
+    return;
+#endif
+    TTF_CloseFont(_pFont);
 }
 
 

@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "sprite.h"
 #include <plog/Log.h>
 
@@ -12,7 +14,7 @@ static inline double grad(int dst, int src, double t)
 vSprite::vSprite(pTexture tex, SpriteTypes type) :
     _pTexture(tex), _type(type), _current({ 0, RenderParams::CONSTANT, 0x00000000, BlendMode::NONE, false, 0 }) {}
 
-bool vSprite::updateByKeyframes(timestamp rawTime)
+bool vSprite::updateByKeyframes(Time rawTime)
 {
     // Check if object is valid
 	// Note that nullptr texture shall pass
@@ -24,7 +26,7 @@ bool vSprite::updateByKeyframes(timestamp rawTime)
     if (frameCount < 1)
         return false;
 
-	timestamp time;
+	Time time;
 
 
 	// Check if timer is 140
@@ -40,7 +42,7 @@ bool vSprite::updateByKeyframes(timestamp rawTime)
     }
     
     // Check if import time is valid
-	timestamp endTime = timestamp(_keyFrames[frameCount - 1].time);
+	Time endTime = Time(_keyFrames[frameCount - 1].time);
     if (time.norm() < 0 || _loopTo < 0 && time > endTime)
         return false;
 
@@ -55,7 +57,7 @@ bool vSprite::updateByKeyframes(timestamp rawTime)
     if (time > endTime)
     {
 		if (endTime != _loopTo)
-			time = timestamp((time - _loopTo).norm() % (endTime - _loopTo).norm() + _loopTo);
+			time = Time((time - _loopTo).norm() % (endTime - _loopTo).norm() + _loopTo);
         else
             time = _loopTo;
     }
@@ -144,7 +146,7 @@ bool vSprite::updateByKeyframes(timestamp rawTime)
     return true;
 }
 
-bool vSprite::update(timestamp t)
+bool vSprite::update(Time t)
 {
     if (_haveParent && !_parent.lock()->_draw)
         return _draw = false;
@@ -184,7 +186,7 @@ SpriteStatic::SpriteStatic(pTexture texture) :
 SpriteStatic::SpriteStatic(pTexture texture, const Rect& rect):
     vSprite(texture, SpriteTypes::STATIC), _texRect(rect) {}
 
-bool SpriteStatic::update(timestamp t)
+bool SpriteStatic::update(Time t)
 {
 	return vSprite::update(t);
 }
@@ -260,7 +262,7 @@ void SpriteSelection::updateSelection(frameIdx frame)
     _selectionIdx = frame < _segments ? frame : _segments - 1;
 }
 
-bool SpriteSelection::update(timestamp t)
+bool SpriteSelection::update(Time t)
 {
 	return vSprite::update(t);
 }
@@ -296,7 +298,7 @@ SpriteAnimated::SpriteAnimated(pTexture texture, const Rect& r,
     //_aVert = animVert;
 }
 
-bool SpriteAnimated::update(timestamp t)
+bool SpriteAnimated::update(Time t)
 {
 	if (SpriteSelection::update(t))
 	{
@@ -308,13 +310,13 @@ bool SpriteAnimated::update(timestamp t)
 	return false;
 }
 
-void SpriteAnimated::updateByTimer(timestamp time)
+void SpriteAnimated::updateByTimer(Time time)
 {
 	if (gTimers.get(_triggerTimer))
-		updateByKeyframes(time - timestamp(gTimers.get(_triggerTimer)));
+		updateByKeyframes(time - Time(gTimers.get(_triggerTimer)));
 }
 
-void SpriteAnimated::updateAnimation(timestamp time)
+void SpriteAnimated::updateAnimation(Time time)
 {
     if (_segments == 0) return;
     if (_period == -1) return;
@@ -343,10 +345,10 @@ void SpriteAnimated::updateAnimation(timestamp time)
 	*/
 }
 
-void SpriteAnimated::updateAnimationByTimer(timestamp time)
+void SpriteAnimated::updateAnimationByTimer(Time time)
 {
 	if (gTimers.get(_resetAnimTimer))
-		updateAnimation(time - timestamp(gTimers.get(_resetAnimTimer)));
+		updateAnimation(time - Time(gTimers.get(_resetAnimTimer)));
 }
 
 // Commented for backup purpose. I don't think I can understand this...
@@ -390,7 +392,7 @@ SpriteText::SpriteText(pFont f, Rect rect, eText e, TextAlign a, unsigned ptsize
 }
 */
 
-bool SpriteText::update(timestamp t)
+bool SpriteText::update(Time t)
 {
 	if (updateByKeyframes(t))
 	{
@@ -427,7 +429,7 @@ void SpriteText::updateTextRect()
 
 void SpriteText::setText(std::string text, const Color& c)
 {
-    if (!_pFont->_loaded) return;
+    if (!_pFont || !_pFont->_loaded) return;
     if (!_pTexture) return;
     if (_currText == text && _color == c) return;
     _currText = text;
@@ -482,7 +484,7 @@ SpriteNumber::SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align
     _rects.resize(maxDigits);
 }
 
-bool SpriteNumber::update(timestamp t)
+bool SpriteNumber::update(Time t)
 {
     if (_maxDigits == 0) return false;
 	if (SpriteAnimated::update(t))
@@ -613,7 +615,7 @@ void SpriteNumber::updateNumberByInd()
         n = 0;
         break;
 	case (eNumber)10220:
-		n = timestamp().norm();
+		n = Time().norm();
 		break;
     default:
 #ifdef _DEBUG
@@ -705,7 +707,7 @@ void SpriteSlider::updatePos()
 	}
 }
 
-bool SpriteSlider::update(timestamp t)
+bool SpriteSlider::update(Time t)
 {
 	if (SpriteAnimated::update(t))
 	{
@@ -769,7 +771,7 @@ void SpriteBargraph::updateSize()
 }
 #pragma warning(pop)
 
-bool SpriteBargraph::update(timestamp t)
+bool SpriteBargraph::update(Time t)
 {
 	if (SpriteAnimated::update(t))
 	{
@@ -840,7 +842,7 @@ void SpriteOption::updateValByInd()
 	}
 }
 
-bool SpriteOption::update(timestamp t)
+bool SpriteOption::update(Time t)
 {
 	if (SpriteSelection::update(t))
 	{
@@ -894,7 +896,7 @@ void SpriteGaugeGrid::setGaugeType(SpriteGaugeGrid::GaugeType ty)
 	default: break;
 	}
 
-    timestamp t(1);
+    Time t(1);
 
     // set FailRect
     updateSelection(_texIdxLightFail);
@@ -923,7 +925,7 @@ void SpriteGaugeGrid::updateValByInd()
 	updateVal(gNumbers.get(_numInd));
 }
 
-bool SpriteGaugeGrid::update(timestamp t)
+bool SpriteGaugeGrid::update(Time t)
 {
 	if (SpriteAnimated::update(t))
 	{
@@ -993,13 +995,13 @@ void SpriteLine::draw() const
 	}
 }
 
-void SpriteLine::updateProgress(timestamp t)
+void SpriteLine::updateProgress(Time t)
 {
 	_progress = (double)(gTimers.get(_triggerTimer) - t.norm() - _timerStartOffset) / _duration;
 	_progress = std::clamp(_progress, 0.0, 1.0);
 }
 
-bool SpriteLine::update(timestamp t)
+bool SpriteLine::update(Time t)
 {
 	if (SpriteStatic::update(t))
 	{

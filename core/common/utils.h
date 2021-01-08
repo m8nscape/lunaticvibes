@@ -19,6 +19,7 @@ bool isParentPath(fs::path parent, fs::path dir);
 // op1~4 may include a '!' before the number, split it out
 std::pair<unsigned, bool> stoub(const std::string&);
 int stoine(const std::string& str) noexcept;
+double stodne(const std::string& str) noexcept;
 
 constexpr unsigned base36(char c)
 {

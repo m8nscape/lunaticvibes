@@ -45,30 +45,15 @@ enum class TTFHinting
 // Other blend modes should use SDL_ComposeCustomBlendMode(6).
 enum class BlendMode
 {
-    NONE        = SDL_BLENDMODE_NONE,
-    ALPHA       = SDL_BLENDMODE_BLEND,
-    ADD         = SDL_BLENDMODE_ADD,
-    MULTIPLY    = SDL_BLENDMODE_MOD,
-    // LR2 specific is decribed below. Refer to old element.cpp
-    // SUBTRACT,
-    // ANTICOLOR,
-    // MULTIPLY_ANTI_BACKGROUND,
-    // MULTIPLY_WITH_ALPHA,
-    // XOR,
-};
-
-enum class BlendFactor
-{
-    ZERO                = SDL_BLENDFACTOR_ZERO,
-    ONE                 = SDL_BLENDFACTOR_ONE,
-    COLOR               = SDL_BLENDFACTOR_SRC_COLOR,
-    ONE_MINUS_SRC       = SDL_BLENDFACTOR_ONE_MINUS_SRC_COLOR,
-    SRC_ALPHA           = SDL_BLENDFACTOR_SRC_ALPHA,
-    ONE_MINUS_SRC_ALPHA = SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
-    DST_COLOR           = SDL_BLENDFACTOR_DST_COLOR,
-    ONE_MINUS_DST_COLOR = SDL_BLENDFACTOR_ONE_MINUS_DST_COLOR,
-    DST_ALPHA           = SDL_BLENDFACTOR_DST_ALPHA,
-    ONE_MINUS_DST_ALPHA = SDL_BLENDFACTOR_ONE_MINUS_DST_ALPHA,
+    NONE,
+    ALPHA,
+    ADD,
+    MULTIPLY,
+    SUBTRACT,
+    ANTICOLOR,
+    //MULTIPLY_ANTI_BACKGROUND,
+    //MULTIPLY_WITH_ALPHA,
+    //XOR,
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -119,14 +104,15 @@ class Image
 
 private:
     std::string _path;
-    SDL_RWops* _pRWop;
-    SDL_Surface* _pSurface;
+    std::shared_ptr<SDL_RWops> _pRWop;
+    std::shared_ptr<SDL_Surface> _pSurface;
     bool _loaded = false;
-    bool _haveAlphaLayer = false;
+    //bool _haveAlphaLayer = false;
 public:
 	Image(const std::filesystem::path& path);
     Image(const char* filePath);
     ~Image();
+    void setTransparentColorRGB(Color c);
 public:
     Rect getRect() const;
 };
@@ -147,12 +133,12 @@ class Texture
 	friend class SpriteVideo;
 
 protected:
-	SDL_Texture* _pTexture = nullptr;
+	std::shared_ptr<SDL_Texture> _pTexture = nullptr;
 	bool _loaded = false;
 	Rect _texRect;
 
 protected:
-	void static _draw(SDL_Texture* pTex, const Rect* srcRect, Rect dstRect,
+	void static _draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, Rect dstRect,
 		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point* center = NULL);
 
 public:
@@ -197,7 +183,7 @@ public:
 	int updateYUV(uint8_t* Y, int Ypitch, uint8_t* U, int Upitch, uint8_t* V, int Vpitch)
 	{
 		if (!_loaded) return -1;
-		return SDL_UpdateYUVTexture(_pTexture, NULL,
+		return SDL_UpdateYUVTexture(&*_pTexture, NULL,
 			Y, Ypitch,
 			U, Upitch, 
 			V, Vpitch);
@@ -211,8 +197,8 @@ public:
 class TextureFull: public Texture
 {
 private:
-    virtual void draw(const Rect& srcRect, const Rect& dstRect, 
-        const Color c, const double angleInDegrees) const;
+    virtual void draw(const Rect& srcRect, Rect dstRect, 
+        const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const override;
 public:
     TextureFull(const Color& srcColor);
     TextureFull(const Image& srcImage);

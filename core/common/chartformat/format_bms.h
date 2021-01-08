@@ -4,7 +4,7 @@
 #include <list>
 #include <map>
 
-#include "chart.h"
+#include "chartformat.h"
 #include "utils.h"
 #include "types.h"
 
@@ -12,7 +12,7 @@ namespace bms
 {
     const unsigned BGMCHANNELS = 32;
     const unsigned MAXSAMPLEIDX = 36 * 36;
-    const unsigned MAXMEASUREIDX = 999;
+    const unsigned MAXBARIDX = 999;
     enum GameMode {
         MODE_5KEYS,
         MODE_7KEYS,
@@ -29,7 +29,7 @@ namespace bms
         TYPE_MISMATCH,
         NOTE_LINE_ERROR,
     };
-    enum class ChannelCode
+    enum class LaneCode
     {
         BGM = 0,
         BPM,
@@ -53,13 +53,13 @@ using namespace bms;
 
 class SceneSelect;
 class SongDB;
-class BMS: public vChart
+class BMS: public vChartFormat
 {
     friend class SceneSelect;
     friend class SongDB;
 
 public:
-    virtual int getExtendedProperty(const std::string& key, void* ret);
+    virtual int getExtendedProperty(const std::string& key, void* ret) override;
 
 public:
     BMS();
@@ -82,12 +82,13 @@ public:
         unsigned resolution = 1;
     };
     typedef std::array<std::string, MAXSAMPLEIDX + 1> FileIdxArray;
-    typedef std::array<channel, MAXMEASUREIDX + 1> ChannelArray;
+    typedef std::array<channel, MAXBARIDX + 1> LaneArray;
 
 public:
     // File properties.
     // Header.
     int player = 1;                // 1: single, 2: couple, 3: double, 4: battle
+    int gamemode = 7;               // 5, 7, 9, 10, 14, 24?, 48?
     int rank = 2;                 // judge, VHARD/HARD/NORMAL/EASY
     int total = -1;
     int playLevel = 0;
@@ -100,21 +101,21 @@ public:
 
     
 protected:
-    // Channels.
-    int strToChannel36(channel&, const StringContent& str);
-    int strToChannel16(channel&, const StringContent& str);
-    std::array<ChannelArray, BGMCHANNELS> chBGM{};
-    ChannelArray chStop{};
-    ChannelArray chBPMChange{};
-    ChannelArray chExBPMChange{};
-    ChannelArray chBGABase{};
-    ChannelArray chBGALayer{};
-    ChannelArray chBGAPoor{};
-    std::array<ChannelArray, 20> chNotesVisible{};
-    std::array<ChannelArray, 20> chNotesInvisible{};
-    std::array<ChannelArray, 20> chNotesLN{};
-    std::array<ChannelArray, 20> chMines{};
-    int strToNoteChannelDispatcher(decltype(chNotesVisible)&, int measure, int layer, int ch, const StringContent& str);
+    // Lanes.
+    int strToLane36(channel&, const StringContent& str);
+    int strToLane16(channel&, const StringContent& str);
+    std::array<LaneArray, BGMCHANNELS> chBGM{};
+    LaneArray chStop{};
+    LaneArray chBPMChange{};
+    LaneArray chExBPMChange{};
+    LaneArray chBGABase{};
+    LaneArray chBGALayer{};
+    LaneArray chBGAPoor{};
+    std::array<LaneArray, 20> chNotesVisible{};
+    std::array<LaneArray, 20> chNotesInvisible{};
+    std::array<LaneArray, 20> chNotesLN{};
+    std::array<LaneArray, 20> chMines{};
+    int strToNoteLaneDispatcher(decltype(chNotesVisible)&, int measure, int layer, int ch, const StringContent& str);
 
 public:
     // Measures related.
@@ -129,7 +130,7 @@ public:
     bool haveLN = false;
     bool haveMine = false;
     bool haveInvisible = false;
-    bool haveBarChange = false;
+    bool haveMetricMod = false;
     bool haveStop = false;
     bool haveBPMChange = false;
     bool haveBGA = false;
@@ -137,10 +138,10 @@ public:
     unsigned bgmLayers = 0;
     unsigned long notes = 0;
     unsigned long notes_ln = 0;
-    unsigned maxMeasure = 0;
-    std::array<unsigned, MAXMEASUREIDX + 1> bgmLayersCount{};
+    unsigned lastBarIdx = 0;
+    std::array<unsigned, MAXBARIDX + 1> bgmLayersCount{};
 
 public:
     int getMode() const;
-    auto getChannel(ChannelCode, unsigned chIdx, unsigned measureIdx) const -> const decltype(chBGM[0][0])&;
+    auto getLane(LaneCode, unsigned chIdx, unsigned measureIdx) const -> const decltype(chBGM[0][0])&;
 };

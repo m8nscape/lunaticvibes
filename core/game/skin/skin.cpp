@@ -8,22 +8,22 @@
 
 vSkin::vSkin()
 {
-    _texNameMap["Black"] = std::make_shared<TextureFull>(0x000000ff);
-    _texNameMap["White"] = std::make_shared<TextureFull>(0xffffffff);
-    _texNameMap["Error"] = std::make_shared<TextureFull>(0xff00ffff);
+    _textureNameMap["Black"] = std::make_shared<TextureFull>(0x000000ff);
+    _textureNameMap["White"] = std::make_shared<TextureFull>(0xffffffff);
+    _textureNameMap["Error"] = std::make_shared<TextureFull>(0xff00ffff);
 }
 
 void vSkin::update()
 {
-	timestamp t;
+	Time t;
     double beat;
     unsigned measure;
 
     // current beat, measure
-    if (context_play.scrollObj[context_play.playerSlot] != nullptr)
+    if (context_play.chartObj[context_play.playerSlot] != nullptr)
     {
-        beat = context_play.scrollObj[context_play.playerSlot]->getCurrentBeat();
-        measure = context_play.scrollObj[context_play.playerSlot]->getCurrentMeasure();
+        beat = context_play.chartObj[context_play.playerSlot]->getCurrentBeat();
+        measure = context_play.chartObj[context_play.playerSlot]->getCurrentMeasure();
         gNumbers.set(eNumber::_TEST3, (int)(beat * 1000));
     }
 
@@ -34,17 +34,17 @@ void vSkin::update()
         case SpriteTypes::GLOBAL:
         {
             auto ref = std::reinterpret_pointer_cast<SpriteGlobal>(s);
-            if (gSprites[ref->get()]) ref->set(gSprites[ref->get()]);
+            if (gSprites[ref->getIdx()]) ref->set(gSprites[ref->getIdx()]);
             ref->update(t);
             break;
         }
 		case SpriteTypes::NOTE_VERT:
 		{
-			auto ref = std::reinterpret_pointer_cast<SpriteLaneVertical>(s);
-			if (ref->haveDst() && context_play.scrollObj[ref->_playerSlot] != nullptr && context_chart.started)
+            auto ref = std::reinterpret_pointer_cast<SpriteLaneVertical>(s);
+            if (ref->haveDst() && context_play.chartObj[ref->_playerSlot] != nullptr && context_chart.started)
 			{
 				ref->update(t);
-				ref->updateNoteRect(t, &*context_play.scrollObj[ref->_playerSlot], beat, measure);
+				ref->updateNoteRect(t, &*context_play.chartObj[ref->_playerSlot], beat, measure);
 			}
 			break;
 		}

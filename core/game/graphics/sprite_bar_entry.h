@@ -3,6 +3,7 @@
 #include <array>
 #include <list>
 #include <utility>
+#include <map>
 #include "sprite.h"
 
 enum class BarType
@@ -136,7 +137,7 @@ public:
     void pushDrawQueue(BarPartsType type, unsigned subtype) { drawQueue.emplace_back(type, subtype); }
 
 public:
-    virtual bool update(timestamp time);
+    virtual bool update(Time time);
     virtual void setLoopTime(int t);
     virtual void setTrigTimer(eTimer t);
     virtual void appendKeyFrame(RenderKeyFrame f);

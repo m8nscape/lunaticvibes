@@ -22,7 +22,7 @@ int SpriteVideo::bindVideo(std::shared_ptr<sVideo> pVid)
 	return 0;
 }
 
-bool SpriteVideo::update(timestamp t)
+bool SpriteVideo::update(Time t)
 {
 	if (!pVid) return false;
 	if (!pVid->haveVideo) return false;

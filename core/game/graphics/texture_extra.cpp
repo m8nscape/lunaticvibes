@@ -11,7 +11,7 @@ extern "C"
 
 #include <plog/Log.h>
 
-#include "game/scroll/scroll_bms.h"
+#include "game/chart/chart_bms.h"
 #include "texture_extra.h"
 #include "types.h"
 #include "utils.h"
@@ -119,7 +119,7 @@ bool TextureBmsBga::addBmp(size_t idx, const Path& pBmp)
 	return false;
 }
 
-bool TextureBmsBga::setSlot(size_t idx, timestamp time, bool base, bool layer, bool poor)
+bool TextureBmsBga::setSlot(size_t idx, Time time, bool base, bool layer, bool poor)
 {
 	if (objs.find(idx) == objs.end()) return false;
 	if (base) baseSlot.emplace_back(time, idx);
@@ -130,7 +130,7 @@ bool TextureBmsBga::setSlot(size_t idx, timestamp time, bool base, bool layer, b
 
 void TextureBmsBga::sortSlot()
 {
-	auto less = [](const std::pair<timestamp, size_t>& l, const std::pair<timestamp, size_t>& r)
+	auto less = [](const std::pair<Time, size_t>& l, const std::pair<Time, size_t>& r)
 	{
 		if (l.first < r.first) return true;
 		else if (l.first == r.first && l.second < r.second) return true;
@@ -144,7 +144,7 @@ void TextureBmsBga::sortSlot()
 	poorIt = poorSlot.begin();
 }
 
-bool TextureBmsBga::setSlotFromBMS(ScrollBMS& bms)
+bool TextureBmsBga::setSlotFromBMS(chartBMS& bms)
 {
 	baseSlot.clear();
 	layerSlot.clear();
@@ -160,7 +160,7 @@ bool TextureBmsBga::setSlotFromBMS(ScrollBMS& bms)
 	return true;
 }
 
-void TextureBmsBga::seek(timestamp t)
+void TextureBmsBga::seek(Time t)
 {
 	auto seekSub = [&t, this](decltype(baseSlot)& slot, size_t& slotIdx, decltype(baseSlot.begin())& slotIt)
 	{
@@ -189,7 +189,7 @@ void TextureBmsBga::seek(timestamp t)
 	inPoor = false;
 }
 
-void TextureBmsBga::update(timestamp t, bool poor)
+void TextureBmsBga::update(Time t, bool poor)
 {
 	auto seekSub = [&t, this](decltype(baseSlot)& slot, size_t& slotIdx, decltype(baseSlot.begin())& slotIt)
 	{
