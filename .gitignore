@@ -6,7 +6,6 @@
 *.user
 *.userosscache
 *.sln.docstates
-L9/
 doc/
 LR2files/
 log.txt

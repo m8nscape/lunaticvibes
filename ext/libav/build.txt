@@ -1,4 +1,13 @@
-./configure --enable-cross-compile --enable-shared --arch=x86_64 --target-os=mingw64  --cross-prefix=x86_64-w64-mingw32- \
+
+
+make
+mingw32-w64-gcc
+yasm
+nasm
+libmfx
+libvpx
+
+./configure --enable-cross-compile --enable-shared --arch=x86_64 --target-os=mingw64 --cross-prefix=x86_64-w64-mingw32- \
   --disable-everything \
   --enable-decoder=amv,flv,h264,h264_qsv,hevc,mpeg2video,msmpeg4v1,msmpeg4v2,msmpeg4v3,vp8,vp9,webp,wmv1,wmv2,wmv3 \
   --enable-libmfx --enable-vdpau \
@@ -6,3 +15,5 @@
   --enable-parser=dirac,h264,hevc,mpeg4video,mpegvideo,vc1,vp8 \
   --enable-protocol=file,pipe,rtmp,unix \
   --enable-filter=fps,setpts
+
+make -jN
