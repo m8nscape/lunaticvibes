@@ -155,10 +155,26 @@ void SceneSelect::_updateAsync()
     }
 }
 
+void setBarTitles()
+{
+    const auto& e = context_select.entries;
+    const size_t idx = context_select.idx;
+    for (size_t i = 0; i < 30; ++i)
+    {
+        gTexts.set(eText(int(eText::_SELECT_BAR_TITLE_FULL_0) + i), e[(idx + i) % e.size()]._name);
+    }
+
+    gTexts.set(eText::PLAY_TITLE, e[idx]._name);
+    gTexts.set(eText::PLAY_SUBTITLE, e[idx]._name2);
+    // TODO BMS text updates
+}
+
 void SceneSelect::updatePrepare()
 {
     auto t = Time();
     auto rt = t - gTimers.get(eTimer::SCENE_START);
+
+    setBarTitles();
 
     if (rt.norm() >= _skin->info.timeIntro)
     {
@@ -178,6 +194,8 @@ void SceneSelect::updateSelect()
 {
     auto t = Time();
     auto rt = t - gTimers.get(eTimer::SCENE_START);
+
+    setBarTitles();
 }
 
 void SceneSelect::updateSearch()

@@ -130,7 +130,7 @@ bool vSprite::updateByKeyframes(Time rawTime)
 	_current.blend = keyFrameCurr->param.blend;
 	_current.filter = keyFrameCurr->param.filter;
 
-    if (!_parent.expired())
+    if (_haveParent && !_parent.expired())
     {
         auto parent = _parent.lock();
         _current.rect.x += parent->getCurrentRenderParams().rect.x;
@@ -394,13 +394,12 @@ SpriteText::SpriteText(pFont f, Rect rect, eText e, TextAlign a, unsigned ptsize
 
 bool SpriteText::update(Time t)
 {
-	if (updateByKeyframes(t))
+	if (_draw = updateByKeyframes(t))
 	{
 		setText(gTexts.get(_textInd), _current.color);
 		updateTextRect();
-		return true;
 	}
-	return false;
+	return _draw;
 }
 
 void SpriteText::updateTextRect()
@@ -425,12 +424,19 @@ void SpriteText::updateTextRect()
 		}
 		_current.rect.w = text_w;
 	}
+
+    if (_haveParent && !_parent.expired())
+    {
+        auto parent = _parent.lock();
+        _current.rect.x += parent->getCurrentRenderParams().rect.x;
+        _current.rect.y += parent->getCurrentRenderParams().rect.y;
+    }
+
 }
 
 void SpriteText::setText(std::string text, const Color& c)
 {
     if (!_pFont || !_pFont->_loaded) return;
-    if (!_pTexture) return;
     if (_currText == text && _color == c) return;
     _currText = text;
     _color = c;

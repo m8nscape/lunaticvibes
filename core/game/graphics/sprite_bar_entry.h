@@ -11,7 +11,7 @@ enum class BarType
     SONG,
     FOLDER,
     CUSTOM_FOLDER,
-    NEW_SONG,
+    NEW_SONG_FOLDER,
     RIVAL,
     SONG_RIVAL,
     COURSE_FOLDER,
@@ -86,6 +86,13 @@ enum class BarPartsType
     PARTS_TYPE_COUNT
 };
 
+enum class BarTitleType
+{
+    NORMAL,
+    NEW_SONG,
+    TITLE_TYPE_COUNT
+};
+
 // Bar Entry sprite:
 // select screen song bar. Have many sub-parts
 class SpriteBarEntry : public vSprite
@@ -99,7 +106,7 @@ protected:
     size_t      index = 0;
     std::array<psAnimated, static_cast<size_t>(BarType::TYPE_COUNT)> sBodyOff{ nullptr };
     std::array<psAnimated, static_cast<size_t>(BarType::TYPE_COUNT)> sBodyOn{ nullptr };
-    psText      sTitle{ nullptr };
+    std::array<psText, static_cast<size_t>(BarTitleType::TITLE_TYPE_COUNT)> sTitle{ nullptr };
     psAnimated  sFlash{ nullptr };
     std::array<psNumber, static_cast<size_t>(BarLevelType::LEVEL_TYPE_COUNT)> sLevel{ nullptr };
     std::array<psAnimated, static_cast<size_t>(BarLampType::LAMP_TYPE_COUNT)> sLamp{ nullptr };
@@ -107,8 +114,8 @@ protected:
     std::array<psAnimated, static_cast<size_t>(BarRivalType::RIVAL_TYPE_COUNT)> sRivalWinLose{ nullptr };
     std::array<psAnimated, static_cast<size_t>(BarLampType::LAMP_TYPE_COUNT)> sRivalLampSelf{ nullptr };
     std::array<psAnimated, static_cast<size_t>(BarLampType::LAMP_TYPE_COUNT)> sRivalLampRival{ nullptr };
-    bool drawBodyOn, drawTitle, drawFlash;
-    size_t drawBodyType, drawLevelType, drawLampType, drawRankType, drawRivalType, drawRivalLampSelfType, drawRivalLampRivalType;
+    bool drawBodyOn, drawTitle, drawFlash, drawLevel, drawLamp, drawRank, drawRival, drawRivalLampSelf, drawRivalLampRival;
+    size_t drawBodyType, drawTitleType, drawLevelType, drawLampType, drawRankType, drawRivalType, drawRivalLampSelfType, drawRivalLampRivalType;
 
     std::list<BarPartsType> partsOrder;
     std::list<std::pair<BarPartsType, unsigned>> drawQueue;
@@ -125,7 +132,7 @@ public:
 		unsigned animFrames = 1, bool texVertSplit = false);
     int setLamp(BarLampType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
         eTimer timer = eTimer::SCENE_START, bool texVertSplit = false);
-    int setTitle(pFont f,
+    int setTitle(BarTitleType type, pFont f,
         TextAlign align = TEXT_ALIGN_LEFT, unsigned ptsize = 72, Color c = 0xffffffff);
     int setRank(BarRankType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
         eTimer timer = eTimer::SCENE_START, bool texVertSplit = false);
@@ -149,7 +156,7 @@ public:
     auto getSpriteBodyOff(BarType type) { return sBodyOff[static_cast<size_t>(type)]; }
     auto getSpriteBodyOn(BarType type) { return sBodyOn[static_cast<size_t>(type)]; }
     auto getSpriteFlash() { return sFlash; }
-    auto getSpriteTitle() { return sTitle; }
+    auto getSpriteTitle(BarTitleType type) { return sTitle[static_cast<size_t>(type)]; }
     auto getSpriteLevel(BarLevelType type) { return sLevel[static_cast<size_t>(type)]; }
     auto getSpriteLamp(BarLampType type) { return sLamp[static_cast<size_t>(type)]; }
     auto getSpriteRank(BarRankType type) { return sRank[static_cast<size_t>(type)]; }

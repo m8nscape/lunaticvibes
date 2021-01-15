@@ -814,6 +814,8 @@ std::map<Token, LoadLR2SrcFunc> SkinLR2::__src_supported
     {"#SRC_BAR_TITLE",  std::bind(&SkinLR2::SRC_BAR_TITLE,  _1)},
     {"#SRC_BAR_RANK",   std::bind(&SkinLR2::SRC_BAR_RANK,   _1)},
     {"#SRC_BAR_RIVAL",  std::bind(&SkinLR2::SRC_BAR_RIVAL,  _1)},
+    {"#SRC_BAR_MY_LAMP",  std::bind(&SkinLR2::SRC_BAR_RIVAL_MYLAMP,  _1)},
+    {"#SRC_BAR_RIVAL_LAMP",  std::bind(&SkinLR2::SRC_BAR_RIVAL_RIVALLAMP,  _1)},
 };
 
 int SkinLR2::SRC()
@@ -1511,11 +1513,12 @@ ParseRet SkinLR2::SRC_BAR_TITLE()
 
 	lr2skin::s_text d;
 	convertLine(tokensBuf, (int*)&d, 0, 4);
+    BarTitleType type = BarTitleType(d._null & 0xFFFFFFFF);
 
     for (auto& bar : _barSprites)
     {
-        bar->setTitle(_fontNameMap[std::to_string(d.font)], (TextAlign)d.align);
-        bar->getSpriteTitle()->setParent(bar->weak_from_this());
+        bar->setTitle(type, _fontNameMap[std::to_string(d.font)], (TextAlign)d.align);
+        bar->getSpriteTitle(type)->setParent(bar->weak_from_this());
     }
 
     return ParseRet::OK;
@@ -1882,7 +1885,7 @@ ParseRet SkinLR2::DST_LINE()
 ParseRet SkinLR2::DST_BAR_BODY()
 {
     if (optBuf != "#DST_BAR_BODY_OFF" && optBuf != "#DST_BAR_BODY_ON")
-        return ParseRet::OK;
+        return ParseRet::SRC_DEF_WRONG_TYPE;
 
     bool bodyOn = optBuf == "#DST_BAR_BODY_ON";
 
@@ -1934,7 +1937,7 @@ ParseRet SkinLR2::DST_BAR_BODY()
 ParseRet SkinLR2::DST_BAR_FLASH()
 {
     if (optBuf != "#DST_BAR_FLASH")
-        return ParseRet::OK;
+        return ParseRet::SRC_DEF_WRONG_TYPE;
 
     if (tokensBuf.size() < 13)
         LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
@@ -1942,37 +1945,39 @@ ParseRet SkinLR2::DST_BAR_FLASH()
     // load line into data struct
     lr2skin::dst d;
     convertLine(tokensBuf, (int*)&d, 0, 14);
-    
-    unsigned idx = unsigned(d._null);
 
-    auto e = _barSprites[idx]->getSpriteFlash();
-    if (e == nullptr)
+    for (auto& bar : _barSprites)
     {
-        LOG_WARNING << "[Skin] " << line << ": SRC_BAR_FLASH undefined";
-        return ParseRet::SRC_DEF_INVALID;
-    }
-
-    if (e->isKeyFrameEmpty())
-    {
-        if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
-            convertOps(tokensBuf, (int*)d.op, 16, 4);
-        else 
-            LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
-
-        e->setLine(line);
-        e->setLoopTime(d.loop);
-		e->setTrigTimer((eTimer)d.timer);
-        if (d.time > 0)
+        auto e = bar->getSpriteFlash();
+        if (e == nullptr)
         {
-            //LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
-            e->appendInvisibleLeadingFrame();
+            LOG_WARNING << "[Skin] " << line << ": SRC_BAR_FLASH undefined";
+            return ParseRet::SRC_DEF_INVALID;
         }
+
+        if (e->isKeyFrameEmpty())
+        {
+            if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
+                convertOps(tokensBuf, (int*)d.op, 16, 4);
+            else
+                LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
+
+            e->setLine(line);
+            e->setLoopTime(d.loop);
+            e->setTrigTimer((eTimer)d.timer);
+            if (d.time > 0)
+            {
+                //LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
+                e->appendInvisibleLeadingFrame();
+            }
+        }
+
+        e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
+            (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
+
+        bar->pushPartsOrder(BarPartsType::FLASH);
     }
 
-    e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
-		(BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
-
-    _barSprites[idx]->pushPartsOrder(BarPartsType::FLASH);
 
     return ParseRet::OK;
 }
@@ -1980,7 +1985,7 @@ ParseRet SkinLR2::DST_BAR_FLASH()
 ParseRet SkinLR2::DST_BAR_LEVEL()
 {
     if (optBuf != "#DST_BAR_LEVEL")
-        return ParseRet::OK;
+        return ParseRet::SRC_DEF_WRONG_TYPE;
 
     if (tokensBuf.size() < 13)
         LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
@@ -1989,14 +1994,14 @@ ParseRet SkinLR2::DST_BAR_LEVEL()
     lr2skin::dst d;
     convertLine(tokensBuf, (int*)&d, 0, 14);
     
-    unsigned idx = unsigned(d._null);
+    BarLevelType type = BarLevelType(d._null);
 
-    for (BarLevelType type = BarLevelType(0); type != BarLevelType::LEVEL_TYPE_COUNT; ++*(unsigned*)&type)
+    for (auto& bar : _barSprites)
     {
-        auto e = _barSprites[idx]->getSpriteLevel(type);
+        auto e = bar->getSpriteLevel(type);
         if (e == nullptr)
         {
-            LOG_WARNING << "[Skin] " << line << ": SRC_BAR_LEVEL undefined";
+            LOG_WARNING << "[Skin] " << line << ": SRC_BAR_LEVEL " << std::to_string(size_t(type)) << " undefined";
             return ParseRet::SRC_DEF_INVALID;
         }
 
@@ -2019,9 +2024,10 @@ ParseRet SkinLR2::DST_BAR_LEVEL()
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
+
+        bar->pushPartsOrder(BarPartsType::LEVEL);
     }
 
-    _barSprites[idx]->pushPartsOrder(BarPartsType::LEVEL);
 
     return ParseRet::OK;
 }
@@ -2029,7 +2035,7 @@ ParseRet SkinLR2::DST_BAR_LEVEL()
 ParseRet SkinLR2::DST_BAR_RIVAL_MYLAMP()
 {
     if (optBuf != "#DST_BAR_MY_LAMP")
-        return ParseRet::OK;
+        return ParseRet::SRC_DEF_WRONG_TYPE;
 
     if (tokensBuf.size() < 13)
         LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
@@ -2038,14 +2044,14 @@ ParseRet SkinLR2::DST_BAR_RIVAL_MYLAMP()
     lr2skin::dst d;
     convertLine(tokensBuf, (int*)&d, 0, 14);
     
-    unsigned idx = unsigned(d._null);
+    auto type = BarLampType(d._null);
 
-    for (BarLampType type = BarLampType(0); type != BarLampType::LAMP_TYPE_COUNT; ++*(unsigned*)&type)
+    for (auto& bar : _barSprites)
     {
-        auto e = _barSprites[idx]->getSpriteRivalLampSelf(type);
+        auto e = bar->getSpriteRivalLampSelf(type);
         if (e == nullptr)
         {
-            LOG_WARNING << "[Skin] " << line << ": SRC_BAR_MY_LAMP undefined";
+            LOG_WARNING << "[Skin] " << line << ": SRC_BAR_MY_LAMP " << std::to_string(size_t(type)) << " undefined";
             return ParseRet::SRC_DEF_INVALID;
         }
 
@@ -2068,16 +2074,16 @@ ParseRet SkinLR2::DST_BAR_RIVAL_MYLAMP()
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
-    }
 
-    _barSprites[idx]->pushPartsOrder(BarPartsType::MYLAMP);
+        bar->pushPartsOrder(BarPartsType::MYLAMP);
+    }
 
     return ParseRet::OK;
 }
 ParseRet SkinLR2::DST_BAR_RIVAL_RIVALLAMP()
 {
     if (optBuf != "#DST_BAR_RIVAL_LAMP")
-        return ParseRet::OK;
+        return ParseRet::SRC_DEF_WRONG_TYPE;
 
     if (tokensBuf.size() < 13)
         LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
@@ -2086,14 +2092,14 @@ ParseRet SkinLR2::DST_BAR_RIVAL_RIVALLAMP()
     lr2skin::dst d;
     convertLine(tokensBuf, (int*)&d, 0, 14);
     
-    unsigned idx = unsigned(d._null);
+    auto type = BarLampType(d._null);
 
-    for (BarLampType type = BarLampType(0); type != BarLampType::LAMP_TYPE_COUNT; ++*(unsigned*)&type)
+    for (auto& bar : _barSprites)
     {
-        auto e = _barSprites[idx]->getSpriteRivalLampRival(type);
+        auto e = bar->getSpriteRivalLampRival(type);
         if (e == nullptr)
         {
-            LOG_WARNING << "[Skin] " << line << ": SRC_BAR_RIVAL_LAMP undefined";
+            LOG_WARNING << "[Skin] " << line << ": SRC_BAR_RIVAL_LAMP " << std::to_string(size_t(type)) << " undefined";
             return ParseRet::SRC_DEF_INVALID;
         }
 
@@ -2116,16 +2122,17 @@ ParseRet SkinLR2::DST_BAR_RIVAL_RIVALLAMP()
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
-    }
 
-    _barSprites[idx]->pushPartsOrder(BarPartsType::RIVALLAMP);
+        bar->pushPartsOrder(BarPartsType::RIVALLAMP);
+    }
 
     return ParseRet::OK;
 }
+
 ParseRet SkinLR2::DST_BAR_LAMP()
 {
     if (optBuf != "#DST_BAR_LAMP")
-        return ParseRet::OK;
+        return ParseRet::SRC_DEF_WRONG_TYPE;
 
     if (tokensBuf.size() < 13)
         LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
@@ -2134,14 +2141,14 @@ ParseRet SkinLR2::DST_BAR_LAMP()
     lr2skin::dst d;
     convertLine(tokensBuf, (int*)&d, 0, 14);
     
-    unsigned idx = unsigned(d._null);
+    auto type = BarLampType(d._null);
 
-    for (BarLampType type = BarLampType(0); type != BarLampType::LAMP_TYPE_COUNT; ++*(unsigned*)&type)
+    for (auto& bar : _barSprites)
     {
-        auto e = _barSprites[idx]->getSpriteLamp(type);
+        auto e = bar->getSpriteLamp(type);
         if (e == nullptr)
         {
-            LOG_WARNING << "[Skin] " << line << ": SRC_BAR_LAMP undefined";
+            LOG_WARNING << "[Skin] " << line << ": SRC_BAR_LAMP " << std::to_string(size_t(type)) << " undefined";
             return ParseRet::SRC_DEF_INVALID;
         }
 
@@ -2164,9 +2171,9 @@ ParseRet SkinLR2::DST_BAR_LAMP()
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
-    }
 
-    _barSprites[idx]->pushPartsOrder(BarPartsType::LAMP);
+        bar->pushPartsOrder(BarPartsType::LAMP);
+    }
 
     return ParseRet::OK;
 }
@@ -2174,7 +2181,7 @@ ParseRet SkinLR2::DST_BAR_LAMP()
 ParseRet SkinLR2::DST_BAR_TITLE()
 {
     if (optBuf != "#DST_BAR_TITLE")
-        return ParseRet::OK;
+        return ParseRet::SRC_DEF_WRONG_TYPE;
 
     if (tokensBuf.size() < 13)
         LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
@@ -2182,37 +2189,40 @@ ParseRet SkinLR2::DST_BAR_TITLE()
     // load line into data struct
     lr2skin::dst d;
     convertLine(tokensBuf, (int*)&d, 0, 14);
-    
-    unsigned idx = unsigned(d._null);
 
-    auto e = _barSprites[idx]->getSpriteTitle();
-    if (e == nullptr)
+    auto type = BarTitleType(d._null);
+
+    for (auto& bar : _barSprites)
     {
-        LOG_WARNING << "[Skin] " << line << ": SRC_BAR_TITLE undefined";
-        return ParseRet::SRC_DEF_INVALID;
-    }
-
-    if (e->isKeyFrameEmpty())
-    {
-        if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
-            convertOps(tokensBuf, (int*)d.op, 16, 4);
-        else
-            LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
-
-        e->setLine(line);
-        e->setLoopTime(d.loop);
-        e->setTrigTimer((eTimer)d.timer);
-        if (d.time > 0)
+        auto e = bar->getSpriteTitle(type);
+        if (e == nullptr)
         {
-            //LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
-            e->appendInvisibleLeadingFrame();
+            LOG_WARNING << "[Skin] " << line << ": SRC_BAR_TITLE undefined";
+            return ParseRet::SRC_DEF_INVALID;
         }
+
+        if (e->isKeyFrameEmpty())
+        {
+            if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
+                convertOps(tokensBuf, (int*)d.op, 16, 4);
+            else
+                LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
+
+            e->setLine(line);
+            e->setLoopTime(d.loop);
+            e->setTrigTimer((eTimer)d.timer);
+            if (d.time > 0)
+            {
+                //LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
+                e->appendInvisibleLeadingFrame();
+            }
+        }
+
+        e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
+            (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
+
+        bar->pushPartsOrder(BarPartsType::TITLE);
     }
-
-    e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
-        (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
-
-    _barSprites[idx]->pushPartsOrder(BarPartsType::TITLE);
 
     return ParseRet::OK;
 }
@@ -2220,7 +2230,7 @@ ParseRet SkinLR2::DST_BAR_TITLE()
 ParseRet SkinLR2::DST_BAR_RANK()
 {
     if (optBuf != "#DST_BAR_RANK")
-        return ParseRet::OK;
+        return ParseRet::SRC_DEF_WRONG_TYPE;
 
     if (tokensBuf.size() < 13)
         LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
@@ -2228,14 +2238,15 @@ ParseRet SkinLR2::DST_BAR_RANK()
     // load line into data struct
     lr2skin::dst d;
     convertLine(tokensBuf, (int*)&d, 0, 14);
-    unsigned idx = unsigned(d._null);
 
-    for (BarRankType type = BarRankType(0); type != BarRankType::RANK_TYPE_COUNT; ++*(unsigned*)&type)
+    auto type = BarRankType(d._null);
+
+    for (auto& bar : _barSprites)
     {
-        auto e = _barSprites[idx]->getSpriteRank(type);
+        auto e = bar->getSpriteRank(type);
         if (e == nullptr)
         {
-            LOG_WARNING << "[Skin] " << line << ": SRC_BAR_RANK undefined";
+            LOG_WARNING << "[Skin] " << line << ": SRC_BAR_RANK " << std::to_string(size_t(type)) << " undefined";
             return ParseRet::SRC_DEF_INVALID;
         }
 
@@ -2258,9 +2269,9 @@ ParseRet SkinLR2::DST_BAR_RANK()
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
-    }
 
-    _barSprites[idx]->pushPartsOrder(BarPartsType::RANK);
+        bar->pushPartsOrder(BarPartsType::RANK);
+    }
 
     return ParseRet::OK;
 }
@@ -2268,7 +2279,7 @@ ParseRet SkinLR2::DST_BAR_RANK()
 ParseRet SkinLR2::DST_BAR_RIVAL()
 {
     if (optBuf != "#DST_BAR_RIVAL")
-        return ParseRet::OK;
+        return ParseRet::SRC_DEF_WRONG_TYPE;
 
     if (tokensBuf.size() < 13)
         LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
@@ -2276,14 +2287,15 @@ ParseRet SkinLR2::DST_BAR_RIVAL()
     // load line into data struct
     lr2skin::dst d;
     convertLine(tokensBuf, (int*)&d, 0, 14);
-    unsigned idx = unsigned(d._null);
 
-    for (BarRivalType type = BarRivalType(0); type != BarRivalType::RIVAL_TYPE_COUNT; ++*(unsigned*)&type)
+    auto type = BarRivalType(d._null);
+
+    for (auto& bar : _barSprites)
     {
-        auto e = _barSprites[idx]->getSpriteRivalWinLose(type);
+        auto e = bar->getSpriteRivalWinLose(type);
         if (e == nullptr)
         {
-            LOG_WARNING << "[Skin] " << line << ": SRC_BAR_RIVAL undefined";
+            LOG_WARNING << "[Skin] " << line << ": SRC_BAR_RIVAL " << std::to_string(size_t(type)) << " undefined";
             return ParseRet::SRC_DEF_INVALID;
         }
 
@@ -2306,9 +2318,9 @@ ParseRet SkinLR2::DST_BAR_RIVAL()
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
-    }
 
-    _barSprites[idx]->pushPartsOrder(BarPartsType::RIVAL);
+        bar->pushPartsOrder(BarPartsType::RIVAL);
+    }
 
     return ParseRet::OK;
 }
@@ -2366,6 +2378,10 @@ int SkinLR2::parseBody(const Tokens &raw)
             return 17;
         if (DST_BAR_RIVAL() == ParseRet::OK)
             return 18;
+        if (DST_BAR_RIVAL_MYLAMP() == ParseRet::OK)
+            return 19;
+        if (DST_BAR_RIVAL_RIVALLAMP() == ParseRet::OK)
+            return 20;
 
         LOG_WARNING << "[Skin] " << line << ": Invalid def \"" << optBuf << "\" (Line " << line << ")";
     }

@@ -71,10 +71,10 @@ int SpriteBarEntry::setLamp(BarLampType type, pTexture texture, const Rect& rect
     return 0;
 }
 
-int SpriteBarEntry::setTitle(pFont f, TextAlign align, unsigned ptsize, Color c)
+int SpriteBarEntry::setTitle(BarTitleType type, pFont f, TextAlign align, unsigned ptsize, Color c)
 {
-    sTitle = std::make_shared<SpriteText>(f, eText(unsigned(eText::_SELECT_BAR_TITLE_FULL_0) + index), align, ptsize, c);
-    sTitle->setParent(weak_from_this());
+    sTitle[static_cast<size_t>(type)] = std::make_shared<SpriteText>(f, eText(unsigned(eText::_SELECT_BAR_TITLE_FULL_0) + index), align, ptsize, c);
+    sTitle[static_cast<size_t>(type)]->setParent(weak_from_this());
     return 0;
 }
 
@@ -206,17 +206,27 @@ bool SpriteBarEntry::update(Time time)
             //_current.angle += parent->getCurrentRenderParams().angle;
         }
 
-        if (sTitle)
+        drawTitle = false;
+        if (/* TODO NEW SONG */true)
         {
-            sTitle->update(time);
+            drawTitleType = size_t(BarTitleType::NORMAL);
+            sTitle[drawTitleType]->update(time);
             drawTitle = true;
         }
+
+        drawFlash = false;
         if (sFlash)
         {
             sFlash->update(time);
             drawFlash = true;
         }
 
+        drawLevel = false;
+        drawRank = false;
+        drawLamp = false;
+        drawRival = false;
+        drawRivalLampSelf = false;
+        drawRivalLampRival = false;
         if (info.type() == eEntryType::SONG)
         {
             const auto& e = reinterpret_cast<const Song&>(info);
@@ -230,12 +240,15 @@ bool SpriteBarEntry::update(Time time)
                 {
                     sLevel[bms.difficulty]->update(time);
                     drawLevelType = bms.difficulty;
+                    drawLevel = true;
                 }
                 if ((size_t)bms.rank < sRank.size() && sRank[bms.rank])
                 {
                     sRank[bms.rank]->update(time);
                     drawRankType = bms.rank;
+                    drawRank = true;
                 }
+                // TODO lamp
                 break;
             }
             default:
@@ -247,18 +260,22 @@ bool SpriteBarEntry::update(Time time)
             {
                 sRivalWinLose[e.rival]->update(time);
                 drawRivalType = e.rival;
+                drawRival = true;
             }
             if ((size_t)e.rival_lamp_self < sRivalLampSelf.size() && sRivalLampSelf[e.rival_lamp_self])
             {
                 sRivalLampSelf[e.rival_lamp_self]->update(time);
                 drawRivalLampSelfType = e.rival_lamp_self;
+                drawRivalLampSelf = true;
             }
             if ((size_t)e.rival_lamp_rival < sRivalLampRival.size() && sRivalLampRival[e.rival_lamp_rival])
             {
                 sRivalLampRival[e.rival_lamp_rival]->update(time);
                 drawRivalLampRivalType = e.rival_lamp_rival;
+                drawRivalLampRival = true;
             }
         }
+        // TODO folder lamp
 
         drawQueue.clear();
         for (const auto& p : partsOrder)
@@ -266,38 +283,49 @@ bool SpriteBarEntry::update(Time time)
             switch (p)
             {
             case BarPartsType::BODY_OFF:
+                if (!drawBodyOn && sBodyOff[drawBodyType])
+                    drawQueue.emplace_back(p, drawBodyType);
+                break;
             case BarPartsType::BODY_ON:
-                drawQueue.emplace_back(p, drawBodyType);
+                if (drawBodyOn && sBodyOn[drawBodyType])
+                    drawQueue.emplace_back(p, drawBodyType);
                 break;
-
             case BarPartsType::TITLE:
-            case BarPartsType::FLASH:
-                drawQueue.emplace_back(p, 0);
+                if (drawTitle && sTitle[drawTitleType])
+                    drawQueue.emplace_back(p, drawTitleType);
                 break;
-
+            case BarPartsType::FLASH:
+                if (drawFlash && sFlash)
+                    drawQueue.emplace_back(p, 0);
+                break;
             case BarPartsType::LEVEL:
-                drawQueue.emplace_back(p, drawLevelType);
+                if (drawLevel && sLevel[drawLevelType])
+                    drawQueue.emplace_back(p, drawLevelType);
                 break;
             case BarPartsType::LAMP:
-                drawQueue.emplace_back(p, drawLampType);
+                if (drawLamp && sLamp[drawLampType])
+                    drawQueue.emplace_back(p, drawLampType);
                 break;
             case BarPartsType::RANK:
-                drawQueue.emplace_back(p, drawRankType);
+                if (drawRank && sRank[drawRankType])
+                    drawQueue.emplace_back(p, drawRankType);
                 break;
             case BarPartsType::RIVAL:
-                drawQueue.emplace_back(p, drawRivalType);
+                if (drawRival && sRivalWinLose[drawRivalType])
+                    drawQueue.emplace_back(p, drawRivalType);
                 break;
             case BarPartsType::MYLAMP:
-                drawQueue.emplace_back(p, drawRivalLampSelfType);
+                if (drawRivalLampSelf && sRivalLampSelf[drawRivalLampSelfType])
+                    drawQueue.emplace_back(p, drawRivalLampSelfType);
                 break;
             case BarPartsType::RIVALLAMP:
-                drawQueue.emplace_back(p, drawRivalLampRivalType);
+                if (drawRivalLampRival && sRivalLampRival[drawRivalLampRivalType])
+                    drawQueue.emplace_back(p, drawRivalLampRivalType);
                 break;
             default:
                 break;
             }
         }
-
     }
     else
     {
@@ -326,13 +354,14 @@ void SpriteBarEntry::appendKeyFrame(RenderKeyFrame f)
 
 void SpriteBarEntry::draw() const
 {
+    if (!_draw) return;
     for (auto[type, subType] : drawQueue)
     {
         switch (type)
         {
         case BarPartsType::BODY_OFF:    sBodyOff[drawBodyType]->draw(); break;
         case BarPartsType::BODY_ON:     sBodyOn[drawBodyType]->draw(); break;
-        case BarPartsType::TITLE:       sTitle->draw(); break;
+        case BarPartsType::TITLE:       sTitle[drawTitleType]->draw(); break;
         case BarPartsType::FLASH:       sFlash->draw(); break;
         case BarPartsType::LEVEL:       sLevel[drawLevelType]->draw(); break;
         case BarPartsType::LAMP:        sLamp[drawLampType]->draw(); break;
