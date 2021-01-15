@@ -214,7 +214,9 @@ int BMS::initWithFile(const Path& file)
                             switch (channel.second)
                             {
                             case 1:            // 01: BGM
-                                strToLane36(chBGM[bgmLayersCount[measure]++][measure], value);
+                                bgmLayersCount[measure]++;
+                                chBGM.emplace_back();
+                                strToLane36(chBGM.back()[measure], value);
                                 if (bgmLayersCount[measure] > bgmLayers)
                                     bgmLayers = bgmLayersCount[measure];
                                 break;
@@ -357,8 +359,12 @@ int BMS::initWithFile(const Path& file)
 
 int BMS::strToLane36(channel& ch, const StringContent& str)
 {
-    if (!std::regex_match(str, std::regex(R"(([0-9A-Za-z][0-9A-Za-z]){1,})")))
-        throw new noteLineException;
+    //if (str.length() % 2 != 0)
+    //    throw new noteLineException;
+
+    for (auto c: str)
+        if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')))
+            throw new noteLineException;
 
     ch.resolution = str.length() / 2;
     for (unsigned i = 0; i < ch.resolution; i++)
@@ -369,8 +375,12 @@ int BMS::strToLane36(channel& ch, const StringContent& str)
 
 int BMS::strToLane16(channel& ch, const StringContent& str)
 {
-    if (!std::regex_match(str, std::regex(R"(([0-9A-Fa-f][0-9A-Fa-f]){1,})")))
-        throw new noteLineException;
+    //if (str.length() % 2 != 0)
+    //    throw new noteLineException;
+
+    for (auto c : str)
+        if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')))
+            throw new noteLineException;
 
     ch.resolution = str.length() / 2;
     for (unsigned i = 0; i < ch.resolution; i++)

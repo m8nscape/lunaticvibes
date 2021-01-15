@@ -104,7 +104,7 @@ protected:
     // Lanes.
     int strToLane36(channel&, const StringContent& str);
     int strToLane16(channel&, const StringContent& str);
-    std::array<LaneArray, BGMCHANNELS> chBGM{};
+    std::vector<LaneArray> chBGM{};
     LaneArray chStop{};
     LaneArray chBPMChange{};
     LaneArray chExBPMChange{};
