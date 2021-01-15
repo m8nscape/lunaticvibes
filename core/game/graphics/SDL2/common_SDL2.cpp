@@ -132,7 +132,7 @@ Image::Image(const char* filePath) : _path(filePath), _pRWop(SDL_RWFromFile(file
         LOG_WARNING << "[Image] Load image file error! " << filePath;
         LOG_WARNING << "[Image] " << SDL_GetError();
     }
-    if (!isTGA(filePath))
+    if (isTGA(filePath))
     {
         _pSurface = std::shared_ptr<SDL_Surface>(IMG_LoadTGA_RW(&*_pRWop), SDL_FreeSurface);
         setTransparentColorRGB(Color(0, 255, 0, -1));

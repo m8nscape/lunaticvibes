@@ -97,13 +97,23 @@ SongDB::SongDB(const char* path) : SQLite(path, "SONG")
 int SongDB::addChart(const HashMD5& folder, const Path& path)
 {
     auto filename = path.filename();
-    if (!query("SELECT md5 FROM song WHERE parent=? AND file=?", 1, { folder, filename.string() }).empty())
+    if (auto result = query("SELECT md5 FROM song WHERE parent=? AND file=?", 1, { folder, filename.string() }); !result.empty() && !result[0].empty())
     {
-        // file exist in db
-        if (SQLITE_OK != exec("DELETE FROM song WHERE parent=? AND file=?", { folder, filename.string() }))
+        // file exists in db
+        auto dbmd5 = ANY_STR(result[0][0]);
+        auto filemd5 = md5file(path);
+        if (dbmd5 == filemd5)
         {
-            LOG_WARNING << "[SongDB] Remove existing chart from db failed: " << path.string();
-            return 1;
+            return 0;
+        }
+        else
+        {
+            LOG_INFO << "[SongDB] File " << path.string() << " exists, but hash not match. Removing old entry from db";
+            if (SQLITE_OK != exec("DELETE FROM song WHERE parent=? AND file=?", { folder, filename.string() }))
+            {
+                LOG_WARNING << "[SongDB] Remove existing chart from db failed: " << path.string();
+                return 1;
+            }
         }
     }
 

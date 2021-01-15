@@ -111,7 +111,7 @@ int SQLite::exec(const char* zsql, std::initializer_list<std::any> args)
         sqlite3_finalize(stmt);
         return ret;
     }
-    LOG_INFO << "[sqlite3] " << tag << ": " << " exec " << zsql;
+    LOG_DEBUG << "[sqlite3] " << tag << ": " << " exec " << zsql;
     sqlite3_finalize(stmt);
     return SQLITE_OK;
 }
