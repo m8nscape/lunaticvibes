@@ -145,12 +145,13 @@ int SpriteBarEntry::setRivalLampRival(BarLampType type, pTexture texture, const 
 
 bool SpriteBarEntry::update(Time time)
 {
-    auto& tinfo = context_select.backtrace.top();
-    if (!tinfo.list.empty())
+    size_t listidx = context_select.idx;
+    auto& list = context_select.entries;
+    if (!list.empty())
     {
         _draw = true;
-        const auto& info = tinfo.list[tinfo.index % tinfo.list.size()];
-        drawBodyOn = (index == tinfo.index);
+        const auto& info = list[listidx % list.size()];
+        drawBodyOn = (index == listidx);
 
         size_t typeidx = (size_t)BarType::SONG;
         switch (info.type())
@@ -187,13 +188,13 @@ bool SpriteBarEntry::update(Time time)
         if (!drawBodyOn && sBodyOff[typeidx])
         {
             sBodyOff[typeidx]->update(time);
-            drawBody = typeidx;
+            drawBodyType = typeidx;
             setParent(sBodyOff[typeidx]);
         }
         if (drawBodyOn && sBodyOn[typeidx])
         {
             sBodyOn[typeidx]->update(time);
-            drawBody = typeidx;
+            drawBodyType = typeidx;
             setParent(sBodyOn[typeidx]);
         }
         if (!_parent.expired())
@@ -225,15 +226,15 @@ bool SpriteBarEntry::update(Time time)
             case eChartFormat::BMS:
             {
                 const auto& bms = reinterpret_cast<const BMS&>(e._file);
-                if ((size_t)bms.playLevel < sLevel.size() && sLevel[bms.playLevel])
+                if ((size_t)bms.difficulty < sLevel.size() && sLevel[bms.difficulty])
                 {
-                    sLevel[bms.playLevel]->update(time);
-                    drawLevel = bms.playLevel;
+                    sLevel[bms.difficulty]->update(time);
+                    drawLevelType = bms.difficulty;
                 }
                 if ((size_t)bms.rank < sRank.size() && sRank[bms.rank])
                 {
                     sRank[bms.rank]->update(time);
-                    drawRank = bms.rank;
+                    drawRankType = bms.rank;
                 }
                 break;
             }
@@ -245,17 +246,55 @@ bool SpriteBarEntry::update(Time time)
             if ((size_t)e.rival < sRivalWinLose.size() && sRivalWinLose[e.rival])
             {
                 sRivalWinLose[e.rival]->update(time);
-                drawRival = e.rival;
+                drawRivalType = e.rival;
             }
             if ((size_t)e.rival_lamp_self < sRivalLampSelf.size() && sRivalLampSelf[e.rival_lamp_self])
             {
                 sRivalLampSelf[e.rival_lamp_self]->update(time);
-                drawRivalLampSelf = e.rival_lamp_self;
+                drawRivalLampSelfType = e.rival_lamp_self;
             }
             if ((size_t)e.rival_lamp_rival < sRivalLampRival.size() && sRivalLampRival[e.rival_lamp_rival])
             {
                 sRivalLampRival[e.rival_lamp_rival]->update(time);
-                drawRivalLampRival = e.rival_lamp_rival;
+                drawRivalLampRivalType = e.rival_lamp_rival;
+            }
+        }
+
+        drawQueue.clear();
+        for (const auto& p : partsOrder)
+        {
+            switch (p)
+            {
+            case BarPartsType::BODY_OFF:
+            case BarPartsType::BODY_ON:
+                drawQueue.emplace_back(p, drawBodyType);
+                break;
+
+            case BarPartsType::TITLE:
+            case BarPartsType::FLASH:
+                drawQueue.emplace_back(p, 0);
+                break;
+
+            case BarPartsType::LEVEL:
+                drawQueue.emplace_back(p, drawLevelType);
+                break;
+            case BarPartsType::LAMP:
+                drawQueue.emplace_back(p, drawLampType);
+                break;
+            case BarPartsType::RANK:
+                drawQueue.emplace_back(p, drawRankType);
+                break;
+            case BarPartsType::RIVAL:
+                drawQueue.emplace_back(p, drawRivalType);
+                break;
+            case BarPartsType::MYLAMP:
+                drawQueue.emplace_back(p, drawRivalLampSelfType);
+                break;
+            case BarPartsType::RIVALLAMP:
+                drawQueue.emplace_back(p, drawRivalLampRivalType);
+                break;
+            default:
+                break;
             }
         }
 
@@ -263,8 +302,8 @@ bool SpriteBarEntry::update(Time time)
     else
     {
         _draw = false;
-        //drawBody = drawTitle = false;
-        //drawLevel = drawRank = drawRival = drawRivalLampSelf = drawRivalLampRival = -1u;
+        //drawBodyType = drawTitle = false;
+        //drawLevelType = drawRankType = drawRivalType = drawRivalLampSelfType = drawRivalLampRivalType = -1u;
     }
     return _draw;
 }
@@ -289,22 +328,19 @@ void SpriteBarEntry::draw() const
 {
     for (auto[type, subType] : drawQueue)
     {
-        try {
-            switch (type)
-            {
-            case BarPartsType::BODY_OFF:    if (subType == drawBody) sBodyOff[drawBody]->draw(); break;
-            case BarPartsType::BODY_ON:     if (subType == drawBody) sBodyOn[drawBody]->draw(); break;
-            case BarPartsType::TITLE:       if (drawTitle) sTitle->draw(); break;
-            case BarPartsType::FLASH:       if (drawFlash) sFlash->draw(); break;
-            case BarPartsType::LEVEL:       if (subType == drawLevel) sLevel[drawLevel]->draw(); break;
-            case BarPartsType::LAMP:        if (subType == drawLamp) sLamp[drawLamp]->draw(); break;
-            case BarPartsType::RANK:        if (subType == drawRank) sRank[drawRank]->draw(); break;
-            case BarPartsType::RIVAL:       if (subType == drawRival) sRivalWinLose[drawRival]->draw(); break;
-            case BarPartsType::MYLAMP:      if (subType == drawRivalLampSelf) sRivalLampSelf[drawRivalLampSelf]->draw(); break;
-            case BarPartsType::RIVALLAMP:   if (subType == drawRivalLampRival) sRivalLampRival[drawRivalLampRival]->draw(); break;
-            default: break;
-            }
+        switch (type)
+        {
+        case BarPartsType::BODY_OFF:    sBodyOff[drawBodyType]->draw(); break;
+        case BarPartsType::BODY_ON:     sBodyOn[drawBodyType]->draw(); break;
+        case BarPartsType::TITLE:       sTitle->draw(); break;
+        case BarPartsType::FLASH:       sFlash->draw(); break;
+        case BarPartsType::LEVEL:       sLevel[drawLevelType]->draw(); break;
+        case BarPartsType::LAMP:        sLamp[drawLampType]->draw(); break;
+        case BarPartsType::RANK:        sRank[drawRankType]->draw(); break;
+        case BarPartsType::RIVAL:       sRivalWinLose[drawRivalType]->draw(); break;
+        case BarPartsType::MYLAMP:      sRivalLampSelf[drawRivalLampSelfType]->draw(); break;
+        case BarPartsType::RIVALLAMP:   sRivalLampRival[drawRivalLampRivalType]->draw(); break;
+        default: break;
         }
-        catch (std::out_of_range&) {}
     }
 }

@@ -28,21 +28,10 @@ enum class eSelectState
 class vChartFormat;
 class SceneSelect : public vScene
 {
-protected:
-    struct SongList
-    {
-        std::shared_ptr<SongListProperties> prop;   // point to __select_context_params::backtrace.top()
-        std::vector<vEntry> entries;             // actual list used to display
-    };
-
 private:
     std::mutex _mutex;
     eSelectState _state;
     InputMask _inputAvailable;
-
-private:
-    SongList _filteredSongList;
-    size_t _selectedSongIdx = 0;
 
 public:
     SceneSelect();

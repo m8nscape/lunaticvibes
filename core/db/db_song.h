@@ -64,7 +64,7 @@ public:
 
     HashMD5 getFolderParent(const HashMD5& folder) const;
     HashMD5 getFolderParent(const Path& path) const;
-    Path getFolderPath(const HashMD5& folder) const;
+    int getFolderPath(const HashMD5& folder, Path& output) const;
     HashMD5 getFolderHash(Path path) const;
 
     FolderRegular browse(HashMD5 root, bool recursive = true);

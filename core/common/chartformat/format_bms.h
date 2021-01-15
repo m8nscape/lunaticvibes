@@ -53,7 +53,49 @@ using namespace bms;
 
 class SceneSelect;
 class SongDB;
-class BMS: public vChartFormat
+
+class BMS_prop : public vChartFormat
+{
+public:
+    // File properties.
+    // Header.
+    int player = 1;                // 1: single, 2: couple, 3: double, 4: battle
+    int gamemode = 7;               // 5, 7, 9, 10, 14, 24?, 48?
+    int rank = 2;                 // judge, VHARD/HARD/NORMAL/EASY
+    int total = -1;
+    int playLevel = 0;
+    int difficulty = 3;            // N/H/A
+    double bpm = 130.0;
+    std::map<std::string, StringContent> extraCommands;
+
+    // File assigned by the BMS file.
+    // Ported to super class
+
+public:
+    // Properties detected when parsing.
+    bool haveNote = false;
+    bool have67 = false;
+    bool have89 = false;
+    bool haveLN = false;
+    bool haveMine = false;
+    bool haveInvisible = false;
+    bool haveMetricMod = false;
+    bool haveStop = false;
+    bool haveBPMChange = false;
+    bool haveBGA = false;
+    bool haveRandom = false;
+    unsigned bgmLayers = 0;
+    unsigned long notes = 0;
+    unsigned long notes_ln = 0;
+    unsigned lastBarIdx = 0;
+
+public:
+    BMS_prop() { _type = eChartFormat::BMS; }
+    virtual ~BMS_prop() = default;
+};
+
+// the size of parsing result is kinda large..
+class BMS: public BMS_prop
 {
     friend class SceneSelect;
     friend class SongDB;
@@ -83,22 +125,6 @@ public:
     };
     typedef std::array<std::string, MAXSAMPLEIDX + 1> FileIdxArray;
     typedef std::array<channel, MAXBARIDX + 1> LaneArray;
-
-public:
-    // File properties.
-    // Header.
-    int player = 1;                // 1: single, 2: couple, 3: double, 4: battle
-    int gamemode = 7;               // 5, 7, 9, 10, 14, 24?, 48?
-    int rank = 2;                 // judge, VHARD/HARD/NORMAL/EASY
-    int total = -1;
-    int playLevel = 0;
-    int difficulty = 3;            // N/H/A
-    double bpm = 130.0;
-    std::map<std::string, StringContent> extraCommands;
-
-    // File assigned by the BMS file.
-    // Ported to super class
-
     
 protected:
     // Lanes.
@@ -122,23 +148,6 @@ public:
     std::array<double, MAXSAMPLEIDX + 1> exBPM{};
     std::array<double, MAXSAMPLEIDX + 1> stop{};
 
-public:
-    // Properties detected when parsing.
-    bool haveNote = false;
-    bool have67 = false;
-    bool have89 = false;
-    bool haveLN = false;
-    bool haveMine = false;
-    bool haveInvisible = false;
-    bool haveMetricMod = false;
-    bool haveStop = false;
-    bool haveBPMChange = false;
-    bool haveBGA = false;
-    bool haveRandom = false;
-    unsigned bgmLayers = 0;
-    unsigned long notes = 0;
-    unsigned long notes_ln = 0;
-    unsigned lastBarIdx = 0;
     std::array<unsigned, MAXBARIDX + 1> bgmLayersCount{};
 
 public:

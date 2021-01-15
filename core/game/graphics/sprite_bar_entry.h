@@ -108,7 +108,9 @@ protected:
     std::array<psAnimated, static_cast<size_t>(BarLampType::LAMP_TYPE_COUNT)> sRivalLampSelf{ nullptr };
     std::array<psAnimated, static_cast<size_t>(BarLampType::LAMP_TYPE_COUNT)> sRivalLampRival{ nullptr };
     bool drawBodyOn, drawTitle, drawFlash;
-    size_t drawBody, drawLevel, drawLamp, drawRank, drawRival, drawRivalLampSelf, drawRivalLampRival;
+    size_t drawBodyType, drawLevelType, drawLampType, drawRankType, drawRivalType, drawRivalLampSelfType, drawRivalLampRivalType;
+
+    std::list<BarPartsType> partsOrder;
     std::list<std::pair<BarPartsType, unsigned>> drawQueue;
 
 public:
@@ -134,7 +136,7 @@ public:
     int setRivalLampRival(BarLampType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
         eTimer timer = eTimer::SCENE_START, bool texVertSplit = false);
 
-    void pushDrawQueue(BarPartsType type, unsigned subtype) { drawQueue.emplace_back(type, subtype); }
+    void pushPartsOrder(BarPartsType type) { partsOrder.emplace_back(type); }
 
 public:
     virtual bool update(Time time);

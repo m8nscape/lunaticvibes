@@ -120,7 +120,10 @@ int main(int argc, char* argv[])
         {},
         0
     };
-    rootFolderProp.list.push_back(pSongDB->browse("", false));
+    auto top = pSongDB->browse(ROOT_FOLDER_HASH, false);
+    for (size_t i = 0; i < top.getContentsCount(); ++i)
+        rootFolderProp.list.push_back(*top.getEntry(i));
+
     context_select.backtrace.push(rootFolderProp);
 
     // temporary: hardcode bms file for test

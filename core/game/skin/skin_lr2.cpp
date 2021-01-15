@@ -623,6 +623,7 @@ int SkinLR2::SYSTEMFONT()
         size_t idx = _fontNameMap.size();
         _fontNameMap[std::to_string(idx)] = std::make_shared<TTFFont>(name.c_str(), ptsize);
         LOG_DEBUG << "[Skin] " << line << ": Added FONT[" << idx << "]: " << name;
+        return 1;
     }
     return 0;
 }
@@ -806,6 +807,13 @@ std::map<Token, LoadLR2SrcFunc> SkinLR2::__src_supported
     {"#SRC_NOWCOMBO_1P",std::bind(&SkinLR2::SRC_NOWCOMBO1,  _1)},
     {"#SRC_NOWCOMBO_2P",std::bind(&SkinLR2::SRC_NOWCOMBO2,  _1)},
 	{"#SRC_BGA",        std::bind(&SkinLR2::SRC_BGA,        _1)},
+    {"#SRC_BAR_BODY",   std::bind(&SkinLR2::SRC_BAR_BODY,   _1)},
+    {"#SRC_BAR_FLASH",  std::bind(&SkinLR2::SRC_BAR_FLASH,  _1)},
+    {"#SRC_BAR_LEVEL",  std::bind(&SkinLR2::SRC_BAR_LEVEL,  _1)},
+    {"#SRC_BAR_LAMP",   std::bind(&SkinLR2::SRC_BAR_LAMP,   _1)},
+    {"#SRC_BAR_TITLE",  std::bind(&SkinLR2::SRC_BAR_TITLE,  _1)},
+    {"#SRC_BAR_RANK",   std::bind(&SkinLR2::SRC_BAR_RANK,   _1)},
+    {"#SRC_BAR_RIVAL",  std::bind(&SkinLR2::SRC_BAR_RIVAL,  _1)},
 };
 
 int SkinLR2::SRC()
@@ -823,7 +831,7 @@ int SkinLR2::SRC()
     }
 
     if (tokensBuf.size() < 11)
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/11)";
 
     // Find texture from map by gr
     int gr = stoine(tokensBuf[1]);
@@ -866,7 +874,7 @@ ParseRet SkinLR2::SRC_IMAGE()
 {
 	if (tokensBuf.size() < 10)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
 		//return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -894,7 +902,7 @@ ParseRet SkinLR2::SRC_NUMBER()
 {
 	if (tokensBuf.size() < 13)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -924,7 +932,7 @@ ParseRet SkinLR2::SRC_SLIDER()
 {
 	if (tokensBuf.size() < 13)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -945,7 +953,7 @@ ParseRet SkinLR2::SRC_BARGRAPH()
 {
 	if (tokensBuf.size() < 12)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/12)";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -965,7 +973,7 @@ ParseRet SkinLR2::SRC_BUTTON()
 {
 	if (tokensBuf.size() < 13)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1014,7 +1022,7 @@ ParseRet SkinLR2::SRC_TEXT()
 {
 	if (tokensBuf.size() < 4)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/4)";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1035,7 +1043,7 @@ ParseRet SkinLR2::SRC_JUDGELINE()
 {
     if (tokensBuf.size() < 10)
     {
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
         //return ParseRet::PARAM_NOT_ENOUGH;
     }
 
@@ -1059,7 +1067,7 @@ ParseRet SkinLR2::SRC_NOWJUDGE(size_t idx)
 {
     if (tokensBuf.size() < 10)
     {
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
         //return ParseRet::PARAM_NOT_ENOUGH;
     }
 
@@ -1084,7 +1092,7 @@ ParseRet SkinLR2::SRC_NOWCOMBO(size_t idx)
 {
     if (tokensBuf.size() < 13)
     {
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
         //return ParseRet::PARAM_NOT_ENOUGH;
     }
 
@@ -1120,7 +1128,7 @@ ParseRet SkinLR2::SRC_GROOVEGAUGE()
 {
 	if (tokensBuf.size() < 12)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/12)";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1155,7 +1163,7 @@ ParseRet SkinLR2::SRC_NOWJUDGE1()
 {
 	if (tokensBuf.size() < 11)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/11)";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1188,7 +1196,7 @@ ParseRet SkinLR2::SRC_NOWJUDGE2()
 {
 	if (tokensBuf.size() < 11)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/11)";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1221,7 +1229,7 @@ ParseRet SkinLR2::SRC_NOWCOMBO1()
 {
 	if (tokensBuf.size() < 13)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1261,7 +1269,7 @@ ParseRet SkinLR2::SRC_NOWCOMBO2()
 {
 	if (tokensBuf.size() < 13)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/12)";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1327,7 +1335,7 @@ ParseRet SkinLR2::SRC_NOTE()
 
     // SRC
     if (tokensBuf.size() < 10)
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
 
     NoteLaneCategory cat = NoteLaneCategory::_;
     NoteLaneIndex idx = NoteLaneIndex::_;
@@ -1379,7 +1387,7 @@ ParseRet SkinLR2::SRC_BGA()
 {
 	if (tokensBuf.size() < 12)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/12)";
 		//return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1402,7 +1410,7 @@ ParseRet SkinLR2::SRC_BAR_BODY()
 {
     if (tokensBuf.size() < 10)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1424,7 +1432,7 @@ ParseRet SkinLR2::SRC_BAR_FLASH()
 {
     if (tokensBuf.size() < 10)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1445,7 +1453,7 @@ ParseRet SkinLR2::SRC_BAR_LEVEL()
 {
     if (tokensBuf.size() < 10)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1475,7 +1483,7 @@ ParseRet SkinLR2::SRC_BAR_LAMP()
 {
     if (tokensBuf.size() < 10)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1497,7 +1505,7 @@ ParseRet SkinLR2::SRC_BAR_TITLE()
 {
     if (tokensBuf.size() < 4)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/4)";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1517,7 +1525,7 @@ ParseRet SkinLR2::SRC_BAR_RANK()
 {
     if (tokensBuf.size() < 10)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1539,7 +1547,7 @@ ParseRet SkinLR2::SRC_BAR_RIVAL()
 {
     if (tokensBuf.size() < 10)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1561,7 +1569,7 @@ ParseRet SkinLR2::SRC_BAR_RIVAL_MYLAMP()
 {
     if (tokensBuf.size() < 10)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1583,7 +1591,7 @@ ParseRet SkinLR2::SRC_BAR_RIVAL_RIVALLAMP()
 {
     if (tokensBuf.size() < 10)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1630,7 +1638,7 @@ int SkinLR2::DST()
 
     if (tokensBuf.size() < 15)
     {
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/15)";
     }
 
     // load line into data struct
@@ -1672,7 +1680,7 @@ int SkinLR2::DST()
         if (convertLine(tokensBuf, (int*)&d, 15, 2) >= 2)
 			convertOps(tokensBuf, (int*)d.op, 17, 4);
         else 
-            LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+            LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/17)";
 
         if (std::regex_match(opt, std::regex("#DST_NOW(JUDGE|COMBO)_1P")))
 		{
@@ -1726,7 +1734,7 @@ ParseRet SkinLR2::DST_NOTE()
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
     if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
 
     // load line into data struct
     lr2skin::dst d;
@@ -1778,7 +1786,7 @@ ParseRet SkinLR2::DST_NOTE()
         if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
             convertOps(tokensBuf, (int*)d.op, 16, 4);
         else
-            LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+            LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
 
         drawQueue.push_back({ e, false, d.op[0], d.op[1], d.op[2], d.op[3] });
         e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
@@ -1801,7 +1809,7 @@ ParseRet SkinLR2::DST_LINE()
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
     if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
 
     // load line into data struct
     lr2skin::dst d;
@@ -1858,7 +1866,7 @@ ParseRet SkinLR2::DST_LINE()
     if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
         convertOps(tokensBuf, (int*)d.op, 16, 4);
     else 
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
 
     drawQueue.push_back({ e, false, d.op[0], d.op[1], d.op[2], d.op[3] });
     e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
@@ -1879,7 +1887,7 @@ ParseRet SkinLR2::DST_BAR_BODY()
     bool bodyOn = optBuf == "#DST_BAR_BODY_ON";
 
     if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
 
     // load line into data struct
     lr2skin::dst d;
@@ -1901,7 +1909,7 @@ ParseRet SkinLR2::DST_BAR_BODY()
             if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
                 convertOps(tokensBuf, (int*)d.op, 16, 4);
             else
-                LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+                LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
 
             _barSprites[idx]->setLine(line);
             e->setLine(line);
@@ -1909,7 +1917,7 @@ ParseRet SkinLR2::DST_BAR_BODY()
             e->setTrigTimer((eTimer)d.timer);
             if (d.time > 0)
             {
-                LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
+                //LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
                 e->appendInvisibleLeadingFrame();
             }
         }
@@ -1917,6 +1925,8 @@ ParseRet SkinLR2::DST_BAR_BODY()
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
     }
+
+    _barSprites[idx]->pushPartsOrder(bodyOn ? BarPartsType::BODY_ON : BarPartsType::BODY_OFF);
 
     return ParseRet::OK;
 }
@@ -1927,7 +1937,7 @@ ParseRet SkinLR2::DST_BAR_FLASH()
         return ParseRet::OK;
 
     if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
 
     // load line into data struct
     lr2skin::dst d;
@@ -1947,20 +1957,22 @@ ParseRet SkinLR2::DST_BAR_FLASH()
         if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
             convertOps(tokensBuf, (int*)d.op, 16, 4);
         else 
-            LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+            LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
 
         e->setLine(line);
         e->setLoopTime(d.loop);
 		e->setTrigTimer((eTimer)d.timer);
         if (d.time > 0)
         {
-            LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
+            //LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
             e->appendInvisibleLeadingFrame();
         }
     }
 
     e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
 		(BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
+
+    _barSprites[idx]->pushPartsOrder(BarPartsType::FLASH);
 
     return ParseRet::OK;
 }
@@ -1971,7 +1983,7 @@ ParseRet SkinLR2::DST_BAR_LEVEL()
         return ParseRet::OK;
 
     if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
 
     // load line into data struct
     lr2skin::dst d;
@@ -1993,14 +2005,14 @@ ParseRet SkinLR2::DST_BAR_LEVEL()
             if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
                 convertOps(tokensBuf, (int*)d.op, 16, 4);
             else
-                LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+                LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
 
             e->setLine(line);
             e->setLoopTime(d.loop);
             e->setTrigTimer((eTimer)d.timer);
             if (d.time > 0)
             {
-                LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
+                //LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
                 e->appendInvisibleLeadingFrame();
             }
         }
@@ -2008,6 +2020,8 @@ ParseRet SkinLR2::DST_BAR_LEVEL()
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
     }
+
+    _barSprites[idx]->pushPartsOrder(BarPartsType::LEVEL);
 
     return ParseRet::OK;
 }
@@ -2018,7 +2032,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL_MYLAMP()
         return ParseRet::OK;
 
     if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
 
     // load line into data struct
     lr2skin::dst d;
@@ -2040,14 +2054,14 @@ ParseRet SkinLR2::DST_BAR_RIVAL_MYLAMP()
             if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
                 convertOps(tokensBuf, (int*)d.op, 16, 4);
             else
-                LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+                LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
 
             e->setLine(line);
             e->setLoopTime(d.loop);
             e->setTrigTimer((eTimer)d.timer);
             if (d.time > 0)
             {
-                LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
+                //LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
                 e->appendInvisibleLeadingFrame();
             }
         }
@@ -2055,6 +2069,8 @@ ParseRet SkinLR2::DST_BAR_RIVAL_MYLAMP()
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
     }
+
+    _barSprites[idx]->pushPartsOrder(BarPartsType::MYLAMP);
 
     return ParseRet::OK;
 }
@@ -2064,7 +2080,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL_RIVALLAMP()
         return ParseRet::OK;
 
     if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
 
     // load line into data struct
     lr2skin::dst d;
@@ -2086,14 +2102,14 @@ ParseRet SkinLR2::DST_BAR_RIVAL_RIVALLAMP()
             if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
                 convertOps(tokensBuf, (int*)d.op, 16, 4);
             else
-                LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+                LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
 
             e->setLine(line);
             e->setLoopTime(d.loop);
             e->setTrigTimer((eTimer)d.timer);
             if (d.time > 0)
             {
-                LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
+                //LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
                 e->appendInvisibleLeadingFrame();
             }
         }
@@ -2101,6 +2117,8 @@ ParseRet SkinLR2::DST_BAR_RIVAL_RIVALLAMP()
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
     }
+
+    _barSprites[idx]->pushPartsOrder(BarPartsType::RIVALLAMP);
 
     return ParseRet::OK;
 }
@@ -2110,7 +2128,7 @@ ParseRet SkinLR2::DST_BAR_LAMP()
         return ParseRet::OK;
 
     if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
 
     // load line into data struct
     lr2skin::dst d;
@@ -2132,14 +2150,14 @@ ParseRet SkinLR2::DST_BAR_LAMP()
             if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
                 convertOps(tokensBuf, (int*)d.op, 16, 4);
             else
-                LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+                LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
 
             e->setLine(line);
             e->setLoopTime(d.loop);
             e->setTrigTimer((eTimer)d.timer);
             if (d.time > 0)
             {
-                LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
+                //LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
                 e->appendInvisibleLeadingFrame();
             }
         }
@@ -2147,6 +2165,8 @@ ParseRet SkinLR2::DST_BAR_LAMP()
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
     }
+
+    _barSprites[idx]->pushPartsOrder(BarPartsType::LAMP);
 
     return ParseRet::OK;
 }
@@ -2157,7 +2177,7 @@ ParseRet SkinLR2::DST_BAR_TITLE()
         return ParseRet::OK;
 
     if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
 
     // load line into data struct
     lr2skin::dst d;
@@ -2177,20 +2197,22 @@ ParseRet SkinLR2::DST_BAR_TITLE()
         if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
             convertOps(tokensBuf, (int*)d.op, 16, 4);
         else
-            LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+            LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
 
         e->setLine(line);
         e->setLoopTime(d.loop);
         e->setTrigTimer((eTimer)d.timer);
         if (d.time > 0)
         {
-            LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
+            //LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
             e->appendInvisibleLeadingFrame();
         }
     }
 
     e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
         (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
+
+    _barSprites[idx]->pushPartsOrder(BarPartsType::TITLE);
 
     return ParseRet::OK;
 }
@@ -2201,7 +2223,7 @@ ParseRet SkinLR2::DST_BAR_RANK()
         return ParseRet::OK;
 
     if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
 
     // load line into data struct
     lr2skin::dst d;
@@ -2222,14 +2244,14 @@ ParseRet SkinLR2::DST_BAR_RANK()
             if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
                 convertOps(tokensBuf, (int*)d.op, 16, 4);
             else
-                LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+                LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
 
             e->setLine(line);
             e->setLoopTime(d.loop);
             e->setTrigTimer((eTimer)d.timer);
             if (d.time > 0)
             {
-                LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
+                //LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
                 e->appendInvisibleLeadingFrame();
             }
         }
@@ -2237,6 +2259,8 @@ ParseRet SkinLR2::DST_BAR_RANK()
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
     }
+
+    _barSprites[idx]->pushPartsOrder(BarPartsType::RANK);
 
     return ParseRet::OK;
 }
@@ -2247,7 +2271,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL()
         return ParseRet::OK;
 
     if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
 
     // load line into data struct
     lr2skin::dst d;
@@ -2268,14 +2292,14 @@ ParseRet SkinLR2::DST_BAR_RIVAL()
             if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
                 convertOps(tokensBuf, (int*)d.op, 16, 4);
             else
-                LOG_WARNING << "[Skin] " << line << ": Parameter not enough";
+                LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
 
             e->setLine(line);
             e->setLoopTime(d.loop);
             e->setTrigTimer((eTimer)d.timer);
             if (d.time > 0)
             {
-                LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
+                //LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
                 e->appendInvisibleLeadingFrame();
             }
         }
@@ -2283,6 +2307,8 @@ ParseRet SkinLR2::DST_BAR_RIVAL()
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
     }
+
+    _barSprites[idx]->pushPartsOrder(BarPartsType::RIVAL);
 
     return ParseRet::OK;
 }
@@ -2326,6 +2352,20 @@ int SkinLR2::parseBody(const Tokens &raw)
             return 10;
         if (DST_LINE() == ParseRet::OK)
             return 11;
+        if (DST_BAR_BODY() == ParseRet::OK)
+            return 12;
+        if (DST_BAR_FLASH() == ParseRet::OK)
+            return 13;
+        if (DST_BAR_LEVEL() == ParseRet::OK)
+            return 14;
+        if (DST_BAR_LAMP() == ParseRet::OK)
+            return 15;
+        if (DST_BAR_TITLE() == ParseRet::OK)
+            return 16;
+        if (DST_BAR_RANK() == ParseRet::OK)
+            return 17;
+        if (DST_BAR_RIVAL() == ParseRet::OK)
+            return 18;
 
         LOG_WARNING << "[Skin] " << line << ": Invalid def \"" << optBuf << "\" (Line " << line << ")";
     }

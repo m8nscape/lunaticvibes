@@ -41,7 +41,12 @@ class FolderRegular : public vFolder
 {
 public:
     FolderRegular() = delete;
-    FolderRegular(HashMD5 md5, const Path& path) : vFolder(eFolderType::FOLDER, md5, path) {}
+    FolderRegular(HashMD5 md5, const Path& path, const std::string& name = "", const std::string& name2 = "") : 
+        vFolder(eFolderType::FOLDER, md5, path)
+    {
+        _name = name;
+        _name2 = name2;
+    }
 
 protected:
     std::vector<std::shared_ptr<vFolder>> entries;
@@ -56,7 +61,12 @@ class FolderSong : public vFolder
 {
 public:
     FolderSong() = delete;
-    FolderSong(HashMD5 md5, const Path& path) : vFolder(eFolderType::SONG, md5, path) {}
+    FolderSong(HashMD5 md5, const Path& path, const std::string& name = "", const std::string& name2 = "") :
+        vFolder(eFolderType::SONG, md5, path)
+    {
+        _name = name;
+        _name2 = name2;
+    }
 
 protected:
     std::vector<std::shared_ptr<vChartFormat>> charts;

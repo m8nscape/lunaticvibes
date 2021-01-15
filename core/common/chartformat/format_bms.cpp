@@ -36,14 +36,12 @@ int BMS::getExtendedProperty(const std::string& key, void* ret)
 }
 
 BMS::BMS() {
-    _type = eChartFormat::BMS;
     _wavFiles.resize(MAXSAMPLEIDX + 1);
     _bgaFiles.resize(MAXSAMPLEIDX + 1);
     _measureLength.resize(MAXBARIDX + 1);
 }
 
-BMS::BMS(const Path& file) {
-    _type = eChartFormat::BMS;
+BMS::BMS(const Path& file): BMS_prop() {
     _wavFiles.resize(MAXSAMPLEIDX + 1);
     _bgaFiles.resize(MAXSAMPLEIDX + 1);
     _measureLength.resize(MAXBARIDX + 1);
@@ -55,7 +53,11 @@ int BMS::initWithPathParam(const SongDB& db)
     if (_filePath.is_absolute())
         _absolutePath = _filePath;
     else
-        _absolutePath = db.getFolderPath(_folderHash) / _filePath;
+    {
+        Path fp;
+        db.getFolderPath(_folderHash, fp);
+        _absolutePath = fp / _filePath;
+    }
 
     return initWithFile(_absolutePath);
 }

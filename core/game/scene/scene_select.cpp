@@ -21,9 +21,10 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
     }
 
     // TODO load song list
-    _filteredSongList.prop = std::make_shared<SongListProperties>(context_select.backtrace.top());
-    for (auto & e: _filteredSongList.prop->list)
+    for (auto & e: context_select.backtrace.top().list)
     {
+        // TODO replace name/name2 by tag.db
+
         // apply filter
         if (e.type() == eEntryType::SONG)
         {
@@ -47,7 +48,7 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
             }
         }
 
-        _filteredSongList.entries.push_back(e);
+        context_select.entries.push_back(e);
     }
 
     // TODO sort song list
@@ -55,7 +56,7 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
     {
     case SongListSort::DEFAULT:
     {
-        auto& l = _filteredSongList.entries;
+        auto& l = context_select.entries;
         std::sort(l.begin(), l.end(), [](const vEntry& lhs, const vEntry& rhs) 
         {
             if (lhs.type() != rhs.type())
@@ -84,7 +85,7 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
     }
     case SongListSort::TITLE:
     {
-        auto& l = _filteredSongList.entries;
+        auto& l = context_select.entries;
         std::sort(l.begin(), l.end(), [](const vEntry& lhs, const vEntry& rhs)
         {
             if (lhs.type() != rhs.type())
@@ -218,7 +219,7 @@ void SceneSelect::inputGamePress(InputMask& m, Time t)
         switch (_state)
         {
         case eSelectState::SELECT:
-            switch (_filteredSongList.entries[_selectedSongIdx].type())
+            switch (context_select.entries[context_select.idx].type())
             {
                 case eEntryType::FOLDER:
                 case eEntryType::CUSTOM_FOLDER:
@@ -267,7 +268,7 @@ void SceneSelect::inputGameRelease(InputMask& m, Time t)
 
 void SceneSelect::_decide()
 {
-    auto& entry = _filteredSongList.entries[_selectedSongIdx];
+    auto& entry = context_select.entries[context_select.idx];
     //auto& chart = entry.charts[entry.chart_idx];
     auto& c = context_chart;
     auto& p = context_play;

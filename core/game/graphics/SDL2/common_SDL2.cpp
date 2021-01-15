@@ -129,8 +129,7 @@ Image::Image(const char* filePath) : _path(filePath), _pRWop(SDL_RWFromFile(file
 {
     if (!_pRWop && strlen(filePath) > 0)
     {
-        LOG_WARNING << "[Image] Load image file error! " << filePath;
-        LOG_WARNING << "[Image] " << SDL_GetError();
+        LOG_WARNING << "[Image] Load image file error! " << SDL_GetError();
     }
     if (isTGA(filePath))
     {
@@ -153,8 +152,7 @@ Image::Image(const char* filePath) : _path(filePath), _pRWop(SDL_RWFromFile(file
 
     if (!_pSurface)
     {
-        LOG_WARNING << "[Image] Build surface object error! " << filePath;
-        LOG_WARNING << "[Image] ^ " << IMG_GetError();
+        LOG_WARNING << "[Image] Build surface object error! " << IMG_GetError();
         return;
     }
 

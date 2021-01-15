@@ -218,7 +218,7 @@ bool convert_basic(pChart chart, const std::vector<std::any>& in)
     return true;
 }
 
-bool convert_bms(std::shared_ptr<BMS> chart, const std::vector<std::any>& in)
+bool convert_bms(std::shared_ptr<BMS_prop> chart, const std::vector<std::any>& in)
 {
     if (in.size() < 29) return false;
     if (!convert_basic(chart, in)) return false;
@@ -531,7 +531,7 @@ HashMD5 SongDB::getFolderParent(const HashMD5& folder) const
 }
 
 
-Path SongDB::getFolderPath(const HashMD5& folder) const
+int SongDB::getFolderPath(const HashMD5& folder, Path& output) const
 {
     auto result = query("SELECT type,path FROM folder WHERE pathmd5=?", 2, { folder });
     if (!result.empty())
@@ -543,10 +543,11 @@ Path SongDB::getFolderPath(const HashMD5& folder) const
         //        " (" << folder << ")";
         //    return Path();
         //}
-        return ANY_STR(leaf[1]);
+        output = ANY_STR(leaf[1]);
+        return 0;
     }
     LOG_INFO << "[SongDB] Get folder path fail: target " << folder << " not found";
-    return Path();
+    return -1;
 }
 
 HashMD5 SongDB::getFolderHash(Path path) const
@@ -576,8 +577,8 @@ HashMD5 SongDB::getFolderHash(Path path) const
 
 FolderRegular SongDB::browse(HashMD5 root, bool recursive)
 {
-    auto path = getFolderPath(root);
-    if (path.empty())
+    Path path;
+    if (getFolderPath(root, path) < 0)
         return FolderRegular("", path);
 
     FolderRegular list(root, path);
@@ -595,10 +596,15 @@ FolderRegular SongDB::browse(HashMD5 root, bool recursive)
             switch (type)
             {
             case FOLDER:
-                list.pushEntry(std::make_shared<FolderRegular>(browse(md5, false)));
+            {
+                auto sub = std::make_shared<FolderRegular>(browse(md5, false));
+                sub->_name = name;
+                list.pushEntry(sub);
                 break;
+            }
             case SONG_BMS:
                 auto bmsList = std::make_shared<FolderSong>(browseSong(md5));
+                // name is set inside browseSong
                 if (!bmsList->empty())
                     list.pushEntry(bmsList);
                 break;
@@ -611,11 +617,13 @@ FolderRegular SongDB::browse(HashMD5 root, bool recursive)
 
 FolderSong SongDB::browseSong(HashMD5 root)
 {
-    auto path = getFolderPath(root);
-    if (path.empty())
+    Path path;
+    if (getFolderPath(root, path) < 0)
         return FolderSong("", path);
 
     FolderSong list(root, path);
+    bool isNameSet = false;
+
     auto result = query("SELECT * from song WHERE parent=?", 30, { root });
     if (!result.empty())
     {
@@ -626,8 +634,17 @@ FolderSong SongDB::browseSong(HashMD5 root)
             {
             case eChartFormat::BMS:
             {
-                auto p = std::make_shared<BMS>();
-                if (convert_bms(p, c)) list.pushChart(p);
+                auto p = std::make_shared<BMS_prop>();
+                if (convert_bms(p, c))
+                {
+                    list.pushChart(p);
+                }
+                if (!isNameSet)
+                {
+                    isNameSet = true;
+                    list._name = p->_title;
+                    list._name2 = p->_title2;
+                }
                 break;
             }
             default:
@@ -642,8 +659,8 @@ FolderSong SongDB::browseSong(HashMD5 root)
 
 FolderRegular SongDB::search(HashMD5 root, std::string key)
 {
-    auto path = getFolderPath(root);
-    if (path.empty())
+    Path path;
+    if (getFolderPath(root, path) < 0)
         return FolderRegular("", "");
 
     FolderRegular list("", "");

@@ -18,5 +18,9 @@ public:
 
 public:
     Song() = delete;
-    Song(vChartFormat& f) : _file(std::make_shared<vChartFormat>(f)) {}
+    Song(vChartFormat& f) : _file(std::make_shared<vChartFormat>(f))
+    {
+        _name = _file->_title; 
+        _name2 = _file->_title2; 
+    }
 };
