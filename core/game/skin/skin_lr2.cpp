@@ -2649,7 +2649,10 @@ void SkinLR2::loadCSV(Path p)
 
     // set barcenter
     if (barCenter < _barSprites.size())
+    {
         _barSprites[barCenter]->drawFlash = true;
+        context_select.cursor = barCenter;
+    }
 
 
     LOG_DEBUG << "[Skin] File: " << p.string() << "(Line " << line << "): Body loading finished";

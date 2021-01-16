@@ -78,7 +78,8 @@ int SpriteBarEntry::setLamp(BarLampType type, pTexture texture, const Rect& rect
 
 int SpriteBarEntry::setTitle(BarTitleType type, pFont f, TextAlign align, unsigned ptsize, Color c)
 {
-    sTitle[static_cast<size_t>(type)] = std::make_shared<SpriteText>(f, eText(unsigned(eText::_SELECT_BAR_TITLE_FULL_0) + index), align, ptsize, c);
+    const size_t i = int(eText::_SELECT_BAR_TITLE_FULL_0) + index;
+    sTitle[static_cast<size_t>(type)] = std::make_shared<SpriteText>(f, eText(i), align, ptsize, c);
     sTitle[static_cast<size_t>(type)]->setParent(weak_from_this());
     return 0;
 }

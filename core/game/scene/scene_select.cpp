@@ -159,9 +159,12 @@ void setBarTitles()
 {
     const auto& e = context_select.entries;
     const size_t idx = context_select.idx;
-    for (size_t i = 0; i < 30; ++i)
+    const size_t cursor = context_select.cursor;
+    const size_t count = int(eText::_SELECT_BAR_TITLE_FULL_MAX) - int(eText::_SELECT_BAR_TITLE_FULL_0) + 1;
+    for (size_t i = 0; i < count; ++i)
     {
-        gTexts.set(eText(int(eText::_SELECT_BAR_TITLE_FULL_0) + i), e[(idx + i) % e.size()]._name);
+        size_t text_idx = int(eText::_SELECT_BAR_TITLE_FULL_0) + (cursor + i) % count;
+        gTexts.set(eText(text_idx), e[(idx + i) % e.size()]._name);
     }
 
     gTexts.set(eText::PLAY_TITLE, e[idx]._name);

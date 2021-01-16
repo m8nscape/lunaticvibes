@@ -61,7 +61,7 @@ std::shared_ptr<Texture> TTFFont::TextUTF8(const char* text, const Color& c)
     if (pSurf != NULL)
     {
         auto p = std::shared_ptr<SDL_Surface>(pSurf, SDL_FreeSurface);
-        return std::make_shared<Texture>(&*p);
+        return std::move(std::make_shared<Texture>(&*p));
     }
     LOG_WARNING << "[TTF] " << text << ": " << TTF_GetError();
     return nullptr;
@@ -73,7 +73,7 @@ std::shared_ptr<Texture> TTFFont::TextUTF8Solid(const char* text, const Color& c
     if (pSurf != NULL)
     {
         auto p = std::shared_ptr<SDL_Surface>(pSurf, SDL_FreeSurface);
-        return std::make_shared<Texture>(&*p);
+        return std::move(std::make_shared<Texture>(&*p));
     }
     LOG_WARNING << "[TTF] " << text << ": " << TTF_GetError();
     return nullptr;
@@ -85,7 +85,7 @@ std::shared_ptr<Texture> TTFFont::TextUTF8Shaded(const char* text, const Color& 
     if (pSurf != NULL)
     {
         auto p = std::shared_ptr<SDL_Surface>(pSurf, SDL_FreeSurface);
-        return std::make_shared<Texture>(&*p);
+        return std::move(std::make_shared<Texture>(&*p));
     }
     LOG_WARNING << "[TTF] " << text << ": " << TTF_GetError();
     return nullptr;

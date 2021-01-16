@@ -212,7 +212,7 @@ Texture::Texture(const Image& srcImage)
 }
 
 Texture::Texture(const SDL_Surface* pSurface):
-    _pTexture(SDL_CreateTextureFromSurface(_frame_renderer, const_cast<SDL_Surface*>(pSurface)))
+    _pTexture(SDL_CreateTextureFromSurface(_frame_renderer, const_cast<SDL_Surface*>(pSurface)), SDL_DestroyTexture)
 {
     if (!_pTexture) return;
     _texRect = pSurface->clip_rect;
@@ -220,7 +220,7 @@ Texture::Texture(const SDL_Surface* pSurface):
 }
 
 Texture::Texture(const SDL_Texture* pTexture, int w, int h):
-    _pTexture(const_cast<SDL_Texture*>(pTexture))
+    _pTexture(const_cast<SDL_Texture*>(pTexture), SDL_DestroyTexture)
 {
     if (!pTexture) return;
     _texRect = {0, 0, w, h};
@@ -249,8 +249,7 @@ Texture::Texture(int w, int h, PixelFormat fmt)
 	if (sdlfmt != SDL_PIXELFORMAT_UNKNOWN)
 	{
         _pTexture = std::shared_ptr<SDL_Texture>(
-            SDL_CreateTexture(_frame_renderer, sdlfmt, SDL_TEXTUREACCESS_STREAMING, w, h), 
-            [](SDL_Texture* p) {if (p) SDL_DestroyTexture(p); });
+            SDL_CreateTexture(_frame_renderer, sdlfmt, SDL_TEXTUREACCESS_STREAMING, w, h), SDL_DestroyTexture);
 		if (_pTexture) _loaded = true;
 	}
 }

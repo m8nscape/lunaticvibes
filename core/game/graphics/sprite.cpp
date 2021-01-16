@@ -446,8 +446,17 @@ void SpriteText::setText(std::string text, const Color& c)
     if (_currText == text && _color == c) return;
     _currText = text;
     _color = c;
+
     _pTexture = _pFont->TextUTF8(_currText.c_str(), c);
-	_texRect = _pTexture->getRect();
+    if (_pTexture)
+    {
+        _texRect = _pTexture->getRect();
+        _draw = true;
+    }
+    else
+    {
+        _draw = false;
+    }
 }
 
 void SpriteText::draw() const

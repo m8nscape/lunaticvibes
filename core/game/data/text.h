@@ -167,6 +167,7 @@ enum class eText: unsigned
 
 	// inner texts
     _SELECT_BAR_TITLE_FULL_0 = 200,
+    _SELECT_BAR_TITLE_FULL_MAX = 231,
 
 	_TEST1 = 250,
 	_TEST2,
