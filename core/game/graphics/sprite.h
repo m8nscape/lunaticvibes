@@ -91,7 +91,7 @@ public:
     virtual void setLoopTime(int t);
 	virtual void setTrigTimer(eTimer t);
     virtual void appendKeyFrame(RenderKeyFrame f);
-    void appendInvisibleLeadingFrame();
+    void appendInvisibleLeadingFrame(int x, int y);
     virtual void draw() const = 0;
     bool isKeyFrameEmpty() { return _keyFrames.empty(); }
     void clearKeyFrames() { _keyFrames.clear(); }

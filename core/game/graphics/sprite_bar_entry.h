@@ -93,6 +93,8 @@ enum class BarTitleType
     TITLE_TYPE_COUNT
 };
 
+class SkinLR2;
+
 // Bar Entry sprite:
 // select screen song bar. Have many sub-parts
 class SpriteBarEntry : public vSprite
@@ -101,6 +103,8 @@ class SpriteBarEntry : public vSprite
     typedef std::shared_ptr<SpriteNumber>   psNumber;
     typedef std::shared_ptr<SpriteOption>   psOption;
     typedef std::shared_ptr<SpriteText>     psText;
+
+    friend class SkinLR2;
 
 protected:
     size_t      index = 0;
@@ -114,7 +118,7 @@ protected:
     std::array<psAnimated, static_cast<size_t>(BarRivalType::RIVAL_TYPE_COUNT)> sRivalWinLose{ nullptr };
     std::array<psAnimated, static_cast<size_t>(BarLampType::LAMP_TYPE_COUNT)> sRivalLampSelf{ nullptr };
     std::array<psAnimated, static_cast<size_t>(BarLampType::LAMP_TYPE_COUNT)> sRivalLampRival{ nullptr };
-    bool drawBodyOn, drawTitle, drawFlash, drawLevel, drawLamp, drawRank, drawRival, drawRivalLampSelf, drawRivalLampRival;
+    bool drawBodyOn, drawTitle, drawFlash = false, drawLevel, drawLamp, drawRank, drawRival, drawRivalLampSelf, drawRivalLampRival;
     size_t drawBodyType, drawTitleType, drawLevelType, drawLampType, drawRankType, drawRivalType, drawRivalLampSelfType, drawRivalLampRivalType;
 
     std::list<BarPartsType> partsOrder;
@@ -143,7 +147,7 @@ public:
     int setRivalLampRival(BarLampType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
         eTimer timer = eTimer::SCENE_START, bool texVertSplit = false);
 
-    void pushPartsOrder(BarPartsType type) { partsOrder.emplace_back(type); }
+    void pushPartsOrder(BarPartsType type);
 
 public:
     virtual bool update(Time time);

@@ -1,6 +1,6 @@
 #pragma once
 
-inline const char* MAIN_NAME = "asdf";
+inline const char* MAIN_NAME = "modelLR";
 inline const char* SUB_NAME = "alpha";
 constexpr unsigned VER_MAJOR = 0;
 constexpr unsigned VER_MINOR = 1;

@@ -15,10 +15,15 @@ int SpriteBarEntry::setBody(BarType type, pTexture texture, const Rect& rect, un
     }
 
     auto idx = static_cast<size_t>(type);
+
     sBodyOff[idx] = std::make_shared<SpriteAnimated>(
         texture, rect, animFrames, frameTime, timer, 1, 1, texVertSplit);
-    sBodyOff[idx]->setParent(weak_from_this());
-    sBodyOn[idx] = sBodyOff[idx];
+    //sBodyOff[idx]->setParent(weak_from_this());
+
+    sBodyOn[idx] = std::make_shared<SpriteAnimated>(
+        texture, rect, animFrames, frameTime, timer, 1, 1, texVertSplit);
+    //sBodyOn[idx]->setParent(weak_from_this());
+
     return 0;
 }
 
@@ -143,6 +148,13 @@ int SpriteBarEntry::setRivalLampRival(BarLampType type, pTexture texture, const 
 }
 
 
+void SpriteBarEntry::pushPartsOrder(BarPartsType type)
+{
+    if (std::find(partsOrder.begin(), partsOrder.end(), type) == partsOrder.end())
+        partsOrder.emplace_back(type);
+}
+
+
 bool SpriteBarEntry::update(Time time)
 {
     size_t listidx = context_select.idx;
@@ -187,13 +199,21 @@ bool SpriteBarEntry::update(Time time)
 
         if (!drawBodyOn && sBodyOff[typeidx])
         {
-            sBodyOff[typeidx]->update(time);
+            if (!sBodyOff[typeidx]->update(time))
+            {
+                _draw = false;
+                return false;
+            }
             drawBodyType = typeidx;
             setParent(sBodyOff[typeidx]);
         }
         if (drawBodyOn && sBodyOn[typeidx])
         {
-            sBodyOn[typeidx]->update(time);
+            if (!sBodyOn[typeidx]->update(time))
+            {
+                _draw = false;
+                return false;
+            }
             drawBodyType = typeidx;
             setParent(sBodyOn[typeidx]);
         }
@@ -202,8 +222,10 @@ bool SpriteBarEntry::update(Time time)
             auto parent = _parent.lock();
             _current.rect.x = parent->getCurrentRenderParams().rect.x;
             _current.rect.y = parent->getCurrentRenderParams().rect.y;
-            //_current.color = parent->getCurrentRenderParams().color;
-            //_current.angle += parent->getCurrentRenderParams().angle;
+            _current.rect.w = 0;
+            _current.rect.h = 0;
+            _current.color = parent->getCurrentRenderParams().color;
+            _current.angle = parent->getCurrentRenderParams().angle;
         }
 
         drawTitle = false;
@@ -214,12 +236,16 @@ bool SpriteBarEntry::update(Time time)
             drawTitle = true;
         }
 
+        /*
         drawFlash = false;
         if (sFlash)
         {
             sFlash->update(time);
             drawFlash = true;
         }
+        */
+        if (drawFlash)
+            sFlash->update(time);
 
         drawLevel = false;
         drawRank = false;

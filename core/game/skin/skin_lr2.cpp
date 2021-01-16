@@ -1718,7 +1718,7 @@ int SkinLR2::DST()
         if (d.time > 0)
         {
             //LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
-            e->appendInvisibleLeadingFrame();
+            e->appendInvisibleLeadingFrame(d.x, d.y);
         }
     }
 
@@ -1914,14 +1914,20 @@ ParseRet SkinLR2::DST_BAR_BODY()
             else
                 LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
 
-            _barSprites[idx]->setLine(line);
             e->setLine(line);
             e->setLoopTime(d.loop);
             e->setTrigTimer((eTimer)d.timer);
             if (d.time > 0)
             {
                 //LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
-                e->appendInvisibleLeadingFrame();
+                e->appendInvisibleLeadingFrame(d.x, d.y);
+            }
+
+            if (!_barSpriteAdded[idx])
+            {
+                _barSprites[idx]->setLine(line);
+                _barSpriteAdded[idx] = true;
+                drawQueue.push_back({ _barSprites[idx], false, d.op[0], d.op[1], d.op[2], d.op[3] });
             }
         }
 
@@ -1968,7 +1974,7 @@ ParseRet SkinLR2::DST_BAR_FLASH()
             if (d.time > 0)
             {
                 //LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
-                e->appendInvisibleLeadingFrame();
+                e->appendInvisibleLeadingFrame(d.x, d.y);
             }
         }
 
@@ -1977,7 +1983,6 @@ ParseRet SkinLR2::DST_BAR_FLASH()
 
         bar->pushPartsOrder(BarPartsType::FLASH);
     }
-
 
     return ParseRet::OK;
 }
@@ -2018,7 +2023,7 @@ ParseRet SkinLR2::DST_BAR_LEVEL()
             if (d.time > 0)
             {
                 //LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
-                e->appendInvisibleLeadingFrame();
+                e->appendInvisibleLeadingFrame(d.x, d.y);
             }
         }
 
@@ -2068,7 +2073,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL_MYLAMP()
             if (d.time > 0)
             {
                 //LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
-                e->appendInvisibleLeadingFrame();
+                e->appendInvisibleLeadingFrame(d.x, d.y);
             }
         }
 
@@ -2116,7 +2121,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL_RIVALLAMP()
             if (d.time > 0)
             {
                 //LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
-                e->appendInvisibleLeadingFrame();
+                e->appendInvisibleLeadingFrame(d.x, d.y);
             }
         }
 
@@ -2165,7 +2170,7 @@ ParseRet SkinLR2::DST_BAR_LAMP()
             if (d.time > 0)
             {
                 //LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
-                e->appendInvisibleLeadingFrame();
+                e->appendInvisibleLeadingFrame(d.x, d.y);
             }
         }
 
@@ -2214,7 +2219,7 @@ ParseRet SkinLR2::DST_BAR_TITLE()
             if (d.time > 0)
             {
                 //LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
-                e->appendInvisibleLeadingFrame();
+                e->appendInvisibleLeadingFrame(d.x, d.y);
             }
         }
 
@@ -2263,7 +2268,7 @@ ParseRet SkinLR2::DST_BAR_RANK()
             if (d.time > 0)
             {
                 //LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
-                e->appendInvisibleLeadingFrame();
+                e->appendInvisibleLeadingFrame(d.x, d.y);
             }
         }
 
@@ -2312,7 +2317,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL()
             if (d.time > 0)
             {
                 //LOG_WARNING << "[Skin] " << line << ": First keyframe time is not 0";
-                e->appendInvisibleLeadingFrame();
+                e->appendInvisibleLeadingFrame(d.x, d.y);
             }
         }
 
@@ -2584,7 +2589,6 @@ SkinLR2::SkinLR2(Path p)
         _barSprites[i] = std::make_shared<SpriteBarEntry>(i);
         _sprites.push_back(_barSprites[i]);
         _sprites_parent.push_back(_barSprites[i]);
-        drawQueue.push_back({ _barSprites[i], false, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE });
     }
 	_laneSprites.resize(CHANNEL_COUNT);
     loadCSV(p);
@@ -2642,6 +2646,10 @@ void SkinLR2::loadCSV(Path p)
         else
             parseBody(tokens);
     }
+
+    // set barcenter
+    if (barCenter < _barSprites.size())
+        _barSprites[barCenter]->drawFlash = true;
 
 
     LOG_DEBUG << "[Skin] File: " << p.string() << "(Line " << line << "): Body loading finished";

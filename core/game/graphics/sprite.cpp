@@ -135,12 +135,12 @@ bool vSprite::updateByKeyframes(Time rawTime)
         auto parent = _parent.lock();
         _current.rect.x += parent->getCurrentRenderParams().rect.x;
         _current.rect.y += parent->getCurrentRenderParams().rect.y;
-        _current.color.r = (Uint8)std::min(0.0, parent->getCurrentRenderParams().color.r / 255.0 * _current.color.r);
-        _current.color.g = (Uint8)std::min(0.0, parent->getCurrentRenderParams().color.g / 255.0 * _current.color.g);
-        _current.color.b = (Uint8)std::min(0.0, parent->getCurrentRenderParams().color.b / 255.0 * _current.color.b);
-        _current.color.a = (Uint8)std::min(0.0, parent->getCurrentRenderParams().color.a / 255.0 * _current.color.a);
-        _current.angle += parent->getCurrentRenderParams().angle;
-		_current.center = parent->getCurrentRenderParams().center;
+        //_current.color.r = (Uint8)std::min(0.0, parent->getCurrentRenderParams().color.r / 255.0 * _current.color.r);
+        //_current.color.g = (Uint8)std::min(0.0, parent->getCurrentRenderParams().color.g / 255.0 * _current.color.g);
+        //_current.color.b = (Uint8)std::min(0.0, parent->getCurrentRenderParams().color.b / 255.0 * _current.color.b);
+        //_current.color.a = (Uint8)std::min(0.0, parent->getCurrentRenderParams().color.a / 255.0 * _current.color.a);
+        //_current.angle += parent->getCurrentRenderParams().angle;
+		//_current.center = parent->getCurrentRenderParams().center;
     }
     
     return true;
@@ -148,9 +148,6 @@ bool vSprite::updateByKeyframes(Time rawTime)
 
 bool vSprite::update(Time t)
 {
-    if (_haveParent && !_parent.lock()->_draw)
-        return _draw = false;
-
 	return _draw = updateByKeyframes(t);
 }
 
@@ -173,9 +170,9 @@ void vSprite::appendKeyFrame(RenderKeyFrame f)
 {
     _keyFrames.push_back(f);
 }
-void vSprite::appendInvisibleLeadingFrame()
+void vSprite::appendInvisibleLeadingFrame(int x, int y)
 {
-	appendKeyFrame({ 0, {Rect(), RenderParams::accTy::DISCONTINOUS, Color(0), BlendMode::NONE, false, 0.0, {0.0, 0.0}} });
+	appendKeyFrame({ 0, {Rect(x, y, 0, 0), RenderParams::accTy::DISCONTINOUS, Color(0), BlendMode::NONE, false, 0.0, {0.0, 0.0}} });
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -428,8 +425,17 @@ void SpriteText::updateTextRect()
     if (_haveParent && !_parent.expired())
     {
         auto parent = _parent.lock();
-        _current.rect.x += parent->getCurrentRenderParams().rect.x;
-        _current.rect.y += parent->getCurrentRenderParams().rect.y;
+        auto r = parent->getCurrentRenderParams().rect;
+        if (r.w == -1 && r.h == -1)
+        {
+            _current.rect.x = 0;
+            _current.rect.y = 0;
+        }
+        else
+        {
+            _current.rect.x += parent->getCurrentRenderParams().rect.x;
+            _current.rect.y += parent->getCurrentRenderParams().rect.y;
+        }
     }
 
 }
@@ -446,7 +452,7 @@ void SpriteText::setText(std::string text, const Color& c)
 
 void SpriteText::draw() const
 {
-	if (_pTexture)
+	if (_draw && _pTexture)
 		SpriteStatic::draw();
 }
 
