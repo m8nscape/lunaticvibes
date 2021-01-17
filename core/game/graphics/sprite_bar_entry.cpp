@@ -163,11 +163,11 @@ bool SpriteBarEntry::update(Time time)
     if (!list.empty())
     {
         _draw = true;
-        const auto& info = list[listidx % list.size()];
+        auto pinfo = list[listidx % list.size()];
         drawBodyOn = (index == listidx);
 
         size_t typeidx = (size_t)BarType::SONG;
-        switch (info.type())
+        switch (pinfo->type())
         {
         case eEntryType::UNKNOWN:
             break;
@@ -254,15 +254,15 @@ bool SpriteBarEntry::update(Time time)
         drawRival = false;
         drawRivalLampSelf = false;
         drawRivalLampRival = false;
-        if (info.type() == eEntryType::SONG)
+        if (pinfo->type() == eEntryType::SONG)
         {
-            const auto& e = reinterpret_cast<const Song&>(info);
+            auto e = std::reinterpret_pointer_cast<Song>(pinfo);
 
-            switch (e._file->type())
+            switch (e->_file->type())
             {
             case eChartFormat::BMS:
             {
-                const auto& bms = reinterpret_cast<const BMS&>(e._file);
+                const auto& bms = reinterpret_cast<const BMS&>(e->_file);
                 if ((size_t)bms.difficulty < sLevel.size() && sLevel[bms.difficulty])
                 {
                     sLevel[bms.difficulty]->update(time);
@@ -283,22 +283,22 @@ bool SpriteBarEntry::update(Time time)
             }
 
             // rival things
-            if ((size_t)e.rival < sRivalWinLose.size() && sRivalWinLose[e.rival])
+            if ((size_t)e->rival < sRivalWinLose.size() && sRivalWinLose[e->rival])
             {
-                sRivalWinLose[e.rival]->update(time);
-                drawRivalType = e.rival;
+                sRivalWinLose[e->rival]->update(time);
+                drawRivalType = e->rival;
                 drawRival = true;
             }
-            if ((size_t)e.rival_lamp_self < sRivalLampSelf.size() && sRivalLampSelf[e.rival_lamp_self])
+            if ((size_t)e->rival_lamp_self < sRivalLampSelf.size() && sRivalLampSelf[e->rival_lamp_self])
             {
-                sRivalLampSelf[e.rival_lamp_self]->update(time);
-                drawRivalLampSelfType = e.rival_lamp_self;
+                sRivalLampSelf[e->rival_lamp_self]->update(time);
+                drawRivalLampSelfType = e->rival_lamp_self;
                 drawRivalLampSelf = true;
             }
-            if ((size_t)e.rival_lamp_rival < sRivalLampRival.size() && sRivalLampRival[e.rival_lamp_rival])
+            if ((size_t)e->rival_lamp_rival < sRivalLampRival.size() && sRivalLampRival[e->rival_lamp_rival])
             {
-                sRivalLampRival[e.rival_lamp_rival]->update(time);
-                drawRivalLampRivalType = e.rival_lamp_rival;
+                sRivalLampRival[e->rival_lamp_rival]->update(time);
+                drawRivalLampRivalType = e->rival_lamp_rival;
                 drawRivalLampRival = true;
             }
         }

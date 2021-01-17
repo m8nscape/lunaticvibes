@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
     };
     auto top = pSongDB->browse(ROOT_FOLDER_HASH, false);
     for (size_t i = 0; i < top.getContentsCount(); ++i)
-        rootFolderProp.list.push_back(*top.getEntry(i));
+        rootFolderProp.list.push_back(top.getEntry(i));
 
     context_select.backtrace.push(rootFolderProp);
 

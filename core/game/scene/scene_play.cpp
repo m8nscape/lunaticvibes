@@ -909,10 +909,12 @@ void ScenePlay::inputGamePress(InputMask& m, Time t)
 {
     using namespace Input;
 
+    auto input = _inputAvailable & m;
+
     // individual keys
     size_t sampleCount = 0;
     for (size_t i = 0; i < ESC; ++i)
-        if (_inputAvailable[i] && m[i])
+        if (input[i])
         {
             if (_currentKeySample[i])
                 _keySampleIdxBuf[sampleCount++] = _currentKeySample[i];
@@ -923,26 +925,26 @@ void ScenePlay::inputGamePress(InputMask& m, Time t)
 
     SoundMgr::playKeySample(sampleCount, (size_t*)&_keySampleIdxBuf[0]);
 
-    if (_inputAvailable[K1SPDUP] && m[K1SPDUP])
+    if (input[K1SPDUP])
     {
         int hs = gNumbers.get(eNumber::HS_1P);
         if (hs < 900)
             gNumbers.set(eNumber::HS_1P, hs + 25);
     }
-    if (_inputAvailable[K1SPDDN] && m[K1SPDDN])
+    if (input[K1SPDDN])
     {
         int hs = gNumbers.get(eNumber::HS_1P);
         if (hs > 25)
             gNumbers.set(eNumber::HS_1P, hs - 25);
     }
 
-    if (_inputAvailable[K2SPDUP] && m[K2SPDUP])
+    if (input[K2SPDUP])
     {
         int hs = gNumbers.get(eNumber::HS_2P);
         if (hs < 900)
             gNumbers.set(eNumber::HS_2P, hs + 25);
     }
-    if (_inputAvailable[K2SPDDN] && m[K2SPDDN])
+    if (input[K2SPDDN])
     {
         int hs = gNumbers.get(eNumber::HS_2P);
         if (hs > 25)

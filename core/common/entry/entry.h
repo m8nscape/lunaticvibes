@@ -26,6 +26,7 @@ public:
     virtual ~vEntry() = default;
 
 public:
+    HashMD5 md5;
     StringContent _name;
     StringContent _name2;
 

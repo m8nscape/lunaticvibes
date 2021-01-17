@@ -27,7 +27,6 @@ public:
 
 // following fields are generic info, which are stored in db
 public:
-    HashMD5 pathmd5;
 
 // following fields are filled during loading
 public:

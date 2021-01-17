@@ -1,8 +1,9 @@
 #include "entry_folder.h"
 #include "chartformat/chartformat.h"
 
-vFolder::vFolder(eFolderType t, HashMD5 md5, const Path& path): pathmd5(md5), _path(path)
+vFolder::vFolder(eFolderType t, HashMD5 md5, const Path& path): _path(path)
 {
+    this->md5 = md5;
     switch (t)
     {
     case eFolderType::FOLDER: 

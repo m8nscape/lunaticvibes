@@ -93,7 +93,7 @@ struct SongListProperties
     HashMD5 parent;
     HashMD5 folder;
     std::string name;       // folder path, search query+result, etc.
-    std::vector<vEntry> list;
+    std::vector<std::shared_ptr<vEntry>> list;
     unsigned index;
 };
 
@@ -105,8 +105,9 @@ enum class SongListSort
 
 struct __select_context_params
 {
+    std::mutex _mutex;
     std::stack<SongListProperties> backtrace;
-    std::vector<vEntry> entries;
+    std::vector<std::shared_ptr<vEntry>> entries;
     size_t idx = 0;
     size_t cursor = 0;
     SongListSort sort = SongListSort::DEFAULT;

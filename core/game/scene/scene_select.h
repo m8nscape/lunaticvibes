@@ -59,6 +59,9 @@ protected:
     void inputGameRelease(InputMask&, Time);
 
 private:
+    void loadSongList();
+    void _navigateUpBy1();
+    void _navigateDownBy1();
     void _navigateEnter();
     void _navigateBack();
     void _decide();

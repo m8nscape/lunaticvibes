@@ -2684,24 +2684,30 @@ void SkinLR2::update()
 
     int ttAngle1P = gNumbers.get(eNumber::_ANGLE_TT_1P);
     int ttAngle2P = gNumbers.get(eNumber::_ANGLE_TT_2P);
+
+    {
+        // acquire lock
+        std::lock_guard<std::mutex> u(context_select._mutex);
+
 #ifndef _DEBUG
-	std::for_each(std::execution::par_unseq, drawQueue.begin(), drawQueue.end(), [](auto& e)
+        std::for_each(std::execution::par_unseq, drawQueue.begin(), drawQueue.end(), [](auto& e)
 #else
-	for (auto& e : drawQueue)
+        for (auto& e : drawQueue)
 #endif
-	{
-        e.draw = getDstOpt(e.op1) && getDstOpt(e.op2) && getDstOpt(e.op3);
-        switch (e.op4)
         {
-        case 1: e.ps->_current.angle += ttAngle1P; break;
-        case 2: e.ps->_current.angle += ttAngle2P; break;
-        default: break;
+            e.draw = getDstOpt(e.op1) && getDstOpt(e.op2) && getDstOpt(e.op3);
+            switch (e.op4)
+            {
+            case 1: e.ps->_current.angle += ttAngle1P; break;
+            case 2: e.ps->_current.angle += ttAngle2P; break;
+            default: break;
+            }
+
         }
-            
-	}
 #ifndef _DEBUG
-	);
+        );
 #endif
+    }
 
 	// update nowjudge/nowcombo
     for (size_t i = 0; i < 6; ++i)
