@@ -167,8 +167,6 @@ void SceneSelect::inputGamePress(InputMask& m, Time t)
                 case eEntryType::CUSTOM_FOLDER:
                     if ((input & INPUT_MASK_DECIDE).any())
                         _navigateEnter();
-                    if ((input & INPUT_MASK_CANCEL).any())
-                        _navigateBack();
                     break;
 
                 case eEntryType::SONG:
@@ -180,14 +178,12 @@ void SceneSelect::inputGamePress(InputMask& m, Time t)
                 default:
                     break;
             }
+            if ((input & INPUT_MASK_CANCEL).any())
+                _navigateBack();
             if ((input & INPUT_MASK_NAV_UP).any())
-            {
                 _navigateUpBy1();
-            }
             if ((input & INPUT_MASK_NAV_DN).any())
-            {
                 _navigateDownBy1();
-            }
 
             break;
 
@@ -413,6 +409,7 @@ void SceneSelect::_navigateEnter()
             prop.list.push_back(top.getEntry(i));
 
         context_select.backtrace.push(prop);
+        context_select.entries.clear();
         context_select.idx = 0;
         loadSongList();
         break;

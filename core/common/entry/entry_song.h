@@ -20,6 +20,7 @@ public:
     Song() = delete;
     Song(std::shared_ptr<vChartFormat> p): _file(p)
     {
+        _type = eEntryType::SONG;
         _name = _file->_title;
         _name2 = _file->_title2;
     }
