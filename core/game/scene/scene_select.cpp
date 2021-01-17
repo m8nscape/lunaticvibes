@@ -74,10 +74,9 @@ void setBarTitles()
     const size_t idx = context_select.idx;
     const size_t cursor = context_select.cursor;
     const size_t count = int(eText::_SELECT_BAR_TITLE_FULL_MAX) - int(eText::_SELECT_BAR_TITLE_FULL_0) + 1;
-    for (size_t i = 0; i < count; ++i)
+    for (size_t list_idx = (e.size() + idx - cursor) % e.size(), i = 0; i < count; list_idx = (list_idx + 1) % e.size(), ++i)
     {
-        size_t text_idx = int(eText::_SELECT_BAR_TITLE_FULL_0) + (cursor + i) % count;
-        gTexts.set(eText(text_idx), e[(idx + i) % e.size()]->_name);
+        gTexts.set(eText(int(eText::_SELECT_BAR_TITLE_FULL_0) + i), e[list_idx]->_name);
     }
 
     gTexts.set(eText::PLAY_TITLE, e[idx]->_name);

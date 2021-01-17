@@ -158,13 +158,13 @@ void SpriteBarEntry::pushPartsOrder(BarPartsType type)
 
 bool SpriteBarEntry::update(Time time)
 {
-    size_t listidx = context_select.idx;
     auto& list = context_select.entries;
+    size_t listidx = (context_select.idx + list.size() - context_select.cursor + index) % list.size();
     if (!list.empty())
     {
         _draw = true;
-        auto pinfo = list[listidx % list.size()];
-        drawBodyOn = (index == listidx);
+        auto pinfo = list[listidx];
+        drawBodyOn = (index == context_select.cursor);
 
         size_t typeidx = (size_t)BarType::SONG;
         switch (pinfo->type())
