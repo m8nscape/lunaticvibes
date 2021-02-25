@@ -2690,7 +2690,7 @@ void SkinLR2::update()
         std::lock_guard<std::mutex> u(context_select._mutex);
 
 #ifndef _DEBUG
-        std::for_each(std::execution::par_unseq, drawQueue.begin(), drawQueue.end(), [](auto& e)
+        std::for_each(std::execution::par_unseq, drawQueue.begin(), drawQueue.end(), [ttAngle1P, ttAngle2P](auto& e)
 #else
         for (auto& e : drawQueue)
 #endif

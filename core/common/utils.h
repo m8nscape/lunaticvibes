@@ -57,3 +57,13 @@ std::string md5file(const fs::path& filePath);
 
 std::string toLower(const std::string& s);
 std::string toUpper(const std::string& s);
+
+enum class eFileEncoding
+{
+	LATIN1,
+	SHIFT_JIS,
+	EUC_KR,
+	UTF8,
+};
+eFileEncoding getFileEncoding(const fs::path& path);
+std::string to_utf8(const std::string& str, eFileEncoding fromEncoding);

@@ -159,9 +159,10 @@ void SpriteBarEntry::pushPartsOrder(BarPartsType type)
 bool SpriteBarEntry::update(Time time)
 {
     auto& list = context_select.entries;
-    size_t listidx = (context_select.idx + list.size() - context_select.cursor + index) % list.size();
     if (!list.empty())
     {
+        size_t listidx = (context_select.idx + list.size() - context_select.cursor + index) % list.size();
+
         _draw = true;
         auto pinfo = list[listidx];
         drawBodyOn = (index == context_select.cursor);
@@ -233,8 +234,11 @@ bool SpriteBarEntry::update(Time time)
         if (/* TODO NEW SONG */true)
         {
             drawTitleType = size_t(BarTitleType::NORMAL);
-            sTitle[drawTitleType]->update(time);
-            drawTitle = true;
+            if (sTitle[drawTitleType])
+            {
+                sTitle[drawTitleType]->update(time);
+                drawTitle = true;
+            }
         }
 
         /*
@@ -245,7 +249,7 @@ bool SpriteBarEntry::update(Time time)
             drawFlash = true;
         }
         */
-        if (drawFlash)
+        if (drawFlash && sFlash)
             sFlash->update(time);
 
         drawLevel = false;

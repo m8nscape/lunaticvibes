@@ -1,6 +1,7 @@
 #include "scene_context.h"
 #include "game/data/text.h"
 
+bool _quit_on_finish = false;
 __chart_context_params context_chart;
 __play_context_params context_play;
 __select_context_params context_select;

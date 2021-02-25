@@ -118,6 +118,7 @@ struct __select_context_params
 
 void updateContextSelectTitles();
 
+extern bool _quit_on_finish;
 extern __chart_context_params context_chart;
 extern __play_context_params context_play;
 extern __select_context_params context_select;

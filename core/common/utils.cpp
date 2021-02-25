@@ -3,6 +3,12 @@
 #include <string>
 #include <openssl/md5.h>
 #include <cstdio>
+#include <iostream>
+#include <fstream>
+
+#ifdef _WIN32
+#include <Windows.h>
+#endif
 
 std::vector<fs::path> findFiles(fs::path p)
 {
@@ -161,4 +167,180 @@ std::string toUpper(const std::string& s)
 		if (c >= 'a' && c <= 'z')
 			c = c - 'a' + 'A';
 	return ret;
+}
+
+bool is_shiftjis(const std::string& str)
+{
+    for (auto it = str.begin(); it != str.end(); ++it)
+    {
+        uint8_t c = *it;
+        int bytes = 0;
+
+        // ascii / hankaku gana
+        if ((c <= 0x7f) || (c >= 0xa1 && c <= 0xdf))
+            continue;
+
+        // JIS X 0208
+        else if ((c >= 0x81 && c <= 0x9f) || (c >= 0xe0 && c <= 0xef))
+        {
+            if (++it == str.end()) return false;
+            uint8_t cc = *it;
+            if ((c >= 0x40 && c <= 0x7e) || (c >= 0x80 && c <= 0xfc))
+                continue;
+        }
+
+        // user defined
+        else if (c >= 0xf0 && c <= 0xfc)
+        {
+            if (++it == str.end()) return false;
+            uint8_t cc = *it;
+            if ((c >= 0x40 && c <= 0x7e) || (c >= 0x80 && c <= 0xfc))
+                continue;
+        }
+
+        else return false;
+    }
+
+    return true;
+}
+
+bool is_euckr(const std::string& str)
+{
+    for (auto it = str.begin(); it != str.end(); ++it)
+    {
+        uint8_t c = *it;
+        int bytes = 0;
+
+        // ascii
+        if (c <= 0x7f) continue;
+
+        // euc-jp
+        if (c == 0x8e || c == 0x8f)
+            return false;
+
+        // gbk
+        else if (0 /* nobody write bms in gbk */)
+            return false;
+
+        // shared range
+        else if (c >= 0xa1 && c <= 0xfe)
+        {
+            if (++it == str.end()) return false;
+            uint8_t cc = *it;
+            if (c >= 0xa1 && c <= 0xfe)
+                continue;
+        }
+
+        else return false;
+    }
+
+    return true;
+}
+
+bool is_utf8(const std::string& str)
+{
+    for (auto it = str.begin(); it != str.end(); ++it)
+    {
+        uint8_t c = *it;
+        int bytes = 0;
+
+        // invalid
+        if ((c & 0b1100'0000) == 0b1000'0000 || (c & 0b1111'1110) == 0b1111'1110)
+            return false;
+
+        // 1 byte
+        else if ((c & 0b1000'0000) == 0)
+            continue;
+
+        // 2~6 bytes
+        else if ((c & 0b1110'0000) == 0b1100'0000) bytes = 2;
+        else if ((c & 0b1111'0000) == 0b1110'0000) bytes = 3;
+        else if ((c & 0b1111'1000) == 0b1111'0000) bytes = 4;
+        else if ((c & 0b1111'1100) == 0b1111'1000) bytes = 5;
+        else if ((c & 0b1111'1110) == 0b1111'1100) bytes = 6;
+        else return false;
+
+        while (--bytes)
+        {
+            if (++it == str.end()) return false;
+            uint8_t cc = *it;
+            if ((cc & 0b1100'0000) != 0b10000000) return false;
+        }
+    }
+
+    return true;
+}
+
+eFileEncoding getFileEncoding(const fs::path& path)
+{
+    std::ifstream fs(path);
+    if (fs.fail())
+    {
+        return eFileEncoding::LATIN1;
+    }
+
+    std::string buf;
+    while (!fs.eof())
+    {
+        std::getline(fs, buf, '\n');
+
+        if (is_shiftjis(buf)) return eFileEncoding::SHIFT_JIS;
+        if (is_euckr(buf)) return eFileEncoding::EUC_KR;
+        if (is_utf8(buf)) return eFileEncoding::UTF8;
+    }
+
+    return eFileEncoding::LATIN1;
+}
+
+std::string to_utf8(const std::string& input, eFileEncoding fromEncoding)
+{
+    switch (fromEncoding)
+    {
+    case eFileEncoding::SHIFT_JIS:
+    {
+#ifdef _WIN32
+        DWORD dwNum;
+
+        dwNum = MultiByteToWideChar(932, 0, input.c_str(), -1, NULL, 0);
+        wchar_t* wstr = new wchar_t[dwNum];
+        MultiByteToWideChar(932, 0, input.c_str(), -1, wstr, dwNum);
+
+        dwNum = WideCharToMultiByte(CP_UTF8, NULL, wstr, -1, NULL, 0, NULL, FALSE);
+        char* ustr = new char[dwNum];
+        WideCharToMultiByte(CP_UTF8, NULL, wstr, -1, ustr, dwNum, NULL, FALSE);
+
+        std::string ret(ustr);
+
+        delete[] wstr;
+        delete[] ustr;
+        return ret;
+#endif
+    }
+
+    case eFileEncoding::EUC_KR:
+    {
+#ifdef _WIN32
+        DWORD dwNum;
+
+        dwNum = MultiByteToWideChar(949, 0, input.c_str(), -1, NULL, 0);
+        wchar_t* wstr = new wchar_t[dwNum];
+        MultiByteToWideChar(949, 0, input.c_str(), -1, wstr, dwNum);
+
+        dwNum = WideCharToMultiByte(CP_UTF8, NULL, wstr, -1, NULL, 0, NULL, FALSE);
+        char* ustr = new char[dwNum];
+        WideCharToMultiByte(CP_UTF8, NULL, wstr, -1, ustr, dwNum, NULL, FALSE);
+
+        std::string ret(ustr);
+
+        delete[] wstr;
+        delete[] ustr;
+        return ret;
+#endif
+    }
+
+    case eFileEncoding::LATIN1:
+    case eFileEncoding::UTF8:
+    default:
+        return input;
+    }
 }

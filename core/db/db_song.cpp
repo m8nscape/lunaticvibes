@@ -637,6 +637,11 @@ FolderSong SongDB::browseSong(HashMD5 root)
                 auto p = std::make_shared<BMS_prop>();
                 if (convert_bms(p, c))
                 {
+                    if (p->_filePath.is_absolute())
+                        p->_absolutePath = p->_filePath;
+                    else
+                        p->_absolutePath = path / p->_filePath;
+
                     list.pushChart(p);
                 }
                 if (!isNameSet)

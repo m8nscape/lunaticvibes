@@ -17,6 +17,8 @@
 
 #if _DEBUG
 #include <plog/Appenders/ColorConsoleAppender.h>        // for command prompt log purpose
+#else
+#include <plog/Appenders/RollingFileAppender.h>
 #endif
 
 #ifdef WIN32
@@ -75,14 +77,15 @@ int main(int argc, char* argv[])
 
     // init logger
 #if _DEBUG
-    auto appender = plog::ColorConsoleAppender<plog::TxtFormatterImpl<false>>();
+    static auto appender = plog::ColorConsoleAppender<plog::TxtFormatterImpl<false>>();
     plog::init(plog::debug, &appender);
 #else
     std::time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     auto fmt = std::put_time(localtime_(&t), "%F");
     std::stringstream logfile;
     logfile << MAIN_NAME << "-" << fmt << ".log";
-    plog::init(plog::info, logfile.str().c_str(), 1000000, 5);
+    static auto appender = plog::RollingFileAppender<plog::TxtFormatterImpl<false>>{ logfile.str().c_str(), 1000000, 5 };
+    plog::init(plog::info, &appender);
 #endif
 
     ConfigMgr::selectProfile(PROFILE_DEFAULT);
@@ -126,7 +129,6 @@ int main(int argc, char* argv[])
 
     context_select.backtrace.push(rootFolderProp);
 
-    // temporary: hardcode bms file for test
     if (argc >= 2)
     {
         __next_scene = eScene::PLAY;

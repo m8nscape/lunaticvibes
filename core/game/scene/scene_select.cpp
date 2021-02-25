@@ -224,8 +224,10 @@ void SceneSelect::_decide()
     case eEntryType::SONG:
     {
         c.chartObj = std::reinterpret_pointer_cast<Song>(entry)->_file;
+
         auto& chart = *c.chartObj;
-        c.path = chart._filePath;
+        //c.path = chart._filePath;
+        c.path = chart._absolutePath;
         c.hash = chart._fileHash;
         //c.chartObj = std::make_shared<vChartFormat>(chart);
         c.title = chart._title;
@@ -239,25 +241,15 @@ void SceneSelect::_decide()
         c.maxBPM = chart._maxBPM;
         c.itlBPM = chart._itlBPM;
 
-        switch (c.chartObj->type())
-        {
-        case eChartFormat::BMS:
-        {
-            auto bms = std::reinterpret_pointer_cast<BMS>(c.chartObj);
-            // TODO mods
-            break;
-        }
-
-        default:
-            break;
-        }
         break;
     }
     default:
         break;
     }
     
-    __next_scene = eScene::DECIDE;
+    // FIXME change to decide scene
+    //__next_scene = eScene::DECIDE;
+    __next_scene = eScene::PLAY;
 }
 
 void SceneSelect::loadSongList()

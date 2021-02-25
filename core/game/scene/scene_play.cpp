@@ -264,7 +264,7 @@ ScenePlay::ScenePlay(ePlayMode gamemode): vScene(context_play.mode, 1000), _mode
 
 void ScenePlay::loadChart()
 {
-    if (context_chart.chartObj == nullptr)
+    if (context_chart.chartObj == nullptr || !context_chart.chartObj->isLoaded())
     {
         if (context_chart.path.empty())
         {
@@ -279,6 +279,19 @@ void ScenePlay::loadChart()
     {
         LOG_ERROR << "[Play] Invalid chart: " << context_chart.path.string();
         return;
+    }
+
+    switch (context_chart.chartObj->type())
+    {
+    case eChartFormat::BMS:
+    {
+        auto bms = std::reinterpret_pointer_cast<BMS>(context_chart.chartObj);
+        // TODO mods
+        break;
+    }
+
+    default:
+        break;
     }
 
     context_chart.title = context_chart.chartObj->_title;

@@ -96,8 +96,7 @@ void SceneResult::updateFadeout()
         else
         {
             clearContextPlay();
-            // TODO return to select
-            __next_scene = eScene::EXIT;
+            __next_scene = _quit_on_finish ? eScene::EXIT : eScene::SELECT;
         }
     }
 }
@@ -125,7 +124,7 @@ void SceneResult::inputGamePress(InputMask& m, Time t)
             gTimers.set(eTimer::RESULT_HIGHSCORE_START, t.norm());
             // TODO stop result sound
             // TODO play record sound
-            LOG_DEBUG << "[Result] State changed to STOP";
+            LOG_DEBUG << "[Result] State changed to RECORD";
             break;
 
         case eResultState::RECORD:

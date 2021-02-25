@@ -84,16 +84,19 @@ int BMS::initWithFile(const Path& file)
         return 1;
     }
 
+    auto encoding = getFileEncoding(_absolutePath);
 
     // TODO Ìì¹úµÄPARSER£¡£¡£¡
     // SUPER LAZY PARSER FOR TESTING
-    std::vector<std::regex> skipRegex;
-    skipRegex.emplace_back(R"(\*-.*)");     // *-
-    skipRegex.emplace_back(R"(\/\/.*)");    // //
-    skipRegex.emplace_back(R"(;.*)");       // ;
-    skipRegex.emplace_back(R"(#BPM00 .*)");
-    skipRegex.emplace_back(R"(#STOP00 .*)");
-    skipRegex.emplace_back(R"(#BMP00 .*)");
+    const std::vector<std::regex> skipRegex
+    {
+        std::regex(R"(\*-.*)"),     // *-
+        std::regex(R"(\/\/.*)"),    // //
+        std::regex(R"(;.*)"),       // ;
+        std::regex(R"(#BPM00 .*)"),
+        std::regex(R"(#STOP00 .*)"),
+        std::regex(R"(#BMP00 .*)"),
+    };
 
     StringContent buf;
     unsigned line = 0;
@@ -103,8 +106,13 @@ int BMS::initWithFile(const Path& file)
         line++;
         if (buf.length() <= 1) continue;
 
+        // remove not needed spaces
         buf = buf.substr(buf.find_first_not_of(' '),  buf.find_first_of('\r') - buf.find_first_not_of(' '));
 
+        // convert codepage
+        buf = to_utf8(buf, encoding);
+
+        // skip comments
         bool skip = false;
         for (auto& reg: skipRegex)
             if (std::regex_match(buf, reg))
@@ -114,6 +122,7 @@ int BMS::initWithFile(const Path& file)
             }
         if (skip) continue;
 
+        // parsing
         if (buf[0] == '#')
         {
             auto space_idx = buf.find_first_of(' ');
