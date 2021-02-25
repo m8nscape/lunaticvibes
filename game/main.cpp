@@ -68,6 +68,12 @@ void mainLoop()
 int main(int argc, char* argv[])
 {
     SetThreadName("MainThread");
+#ifdef _WIN32
+#ifdef _DEBUG
+    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+    _CrtDumpMemoryLeaks();
+#endif
+#endif
 
     char exePath[256];
     size_t exePathLen;
@@ -162,7 +168,7 @@ int main(int argc, char* argv[])
 
     mainLoop();
 
-	SceneMgr::free();	// clean resources before releasing framework
+    SceneMgr::clean ();	// clean resources before releasing framework
     graphics_free();
 
 #ifdef WIN32

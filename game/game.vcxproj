@@ -19,20 +19,122 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="common\asynclooper.cpp" />
+    <ClCompile Include="common\chartformat\chartformat.cpp" />
+    <ClCompile Include="common\chartformat\format_bms.cpp" />
+    <ClCompile Include="common\entry\entry_folder.cpp" />
+    <ClCompile Include="common\fraction.cpp" />
+    <ClCompile Include="common\utils.cpp" />
+    <ClCompile Include="config\cfg_general.cpp" />
+    <ClCompile Include="config\cfg_input.cpp" />
+    <ClCompile Include="config\cfg_profile.cpp" />
+    <ClCompile Include="config\cfg_skin.cpp" />
+    <ClCompile Include="config\config.cpp" />
+    <ClCompile Include="config\config_mgr.cpp" />
+    <ClCompile Include="db\db_conn.cpp" />
+    <ClCompile Include="db\db_score.cpp" />
+    <ClCompile Include="db\db_song.cpp" />
+    <ClCompile Include="game\chart\chart.cpp" />
+    <ClCompile Include="game\chart\chart_bms.cpp" />
+    <ClCompile Include="game\graphics\SDL2\common_SDL2.cpp" />
+    <ClCompile Include="game\graphics\SDL2\rect_SDL2.cpp" />
+    <ClCompile Include="game\graphics\SDL2\ttf_SDL2.cpp" />
+    <ClCompile Include="game\graphics\SDL2\window_SDL2.cpp" />
+    <ClCompile Include="game\graphics\sprite.cpp" />
+    <ClCompile Include="game\graphics\sprite_bar_entry.cpp" />
+    <ClCompile Include="game\graphics\sprite_lane.cpp" />
+    <ClCompile Include="game\graphics\sprite_video.cpp" />
+    <ClCompile Include="game\graphics\texture_extra.cpp" />
+    <ClCompile Include="game\graphics\video.cpp" />
+    <ClCompile Include="game\input\input_linux.cpp" />
+    <ClCompile Include="game\input\input_mgr.cpp" />
+    <ClCompile Include="game\input\input_windows.cpp" />
+    <ClCompile Include="game\input\input_wrapper.cpp" />
+    <ClCompile Include="game\ruleset\ruleset_classic.cpp" />
+    <ClCompile Include="game\scene\scene.cpp" />
+    <ClCompile Include="game\scene\scene_context.cpp" />
+    <ClCompile Include="game\scene\scene_mgr.cpp" />
+    <ClCompile Include="game\scene\scene_play.cpp" />
+    <ClCompile Include="game\scene\scene_result.cpp" />
+    <ClCompile Include="game\scene\scene_select.cpp" />
+    <ClCompile Include="game\skin\skin.cpp" />
+    <ClCompile Include="game\skin\skin_lr2.cpp" />
+    <ClCompile Include="game\skin\skin_lr2_dst.cpp" />
+    <ClCompile Include="game\skin\skin_mgr.cpp" />
+    <ClCompile Include="game\sound\sound_fmod.cpp" />
+    <ClCompile Include="game\sound\sound_fmod_callback.cpp" />
+    <ClCompile Include="game\sound\sound_mgr.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="sysutil_linux.cpp" />
     <ClCompile Include="sysutil_win.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\core\core.vcxproj">
-      <Project>{c401e6c6-9df9-4ad6-99ad-5f73cbc928a8}</Project>
-    </ProjectReference>
+    <ClInclude Include="common\asynclooper.h" />
+    <ClInclude Include="common\beat.h" />
+    <ClInclude Include="common\chartformat\chartformat.h" />
+    <ClInclude Include="common\chartformat\chart_types.h" />
+    <ClInclude Include="common\chartformat\format_bms.h" />
+    <ClInclude Include="common\entry\entry.h" />
+    <ClInclude Include="common\entry\entry_folder.h" />
+    <ClInclude Include="common\entry\entry_song.h" />
+    <ClInclude Include="common\fraction.h" />
+    <ClInclude Include="common\meta.h" />
+    <ClInclude Include="common\score.h" />
+    <ClInclude Include="common\types.h" />
+    <ClInclude Include="common\utils.h" />
+    <ClInclude Include="config\cfg_general.h" />
+    <ClInclude Include="config\cfg_input.h" />
+    <ClInclude Include="config\cfg_profile.h" />
+    <ClInclude Include="config\cfg_skin.h" />
+    <ClInclude Include="config\config.h" />
+    <ClInclude Include="config\config_mgr.h" />
+    <ClInclude Include="db\db_conn.h" />
+    <ClInclude Include="db\db_score.h" />
+    <ClInclude Include="db\db_song.h" />
+    <ClInclude Include="game\chart\chart.h" />
+    <ClInclude Include="game\chart\chart_bms.h" />
+    <ClInclude Include="game\chart\chart_types.h" />
+    <ClInclude Include="game\data\bargraph.h" />
+    <ClInclude Include="game\data\buffered_global.h" />
+    <ClInclude Include="game\data\number.h" />
+    <ClInclude Include="game\data\option.h" />
+    <ClInclude Include="game\data\slider.h" />
+    <ClInclude Include="game\data\switch.h" />
+    <ClInclude Include="game\data\text.h" />
+    <ClInclude Include="game\data\timer.h" />
+    <ClInclude Include="game\generic_info.h" />
+    <ClInclude Include="game\graphics\graphics.h" />
+    <ClInclude Include="game\graphics\SDL2\graphics_SDL2.h" />
+    <ClInclude Include="game\graphics\SDL2\window_SDL2.h" />
+    <ClInclude Include="game\graphics\sprite.h" />
+    <ClInclude Include="game\graphics\sprite_bar_entry.h" />
+    <ClInclude Include="game\graphics\sprite_lane.h" />
+    <ClInclude Include="game\graphics\sprite_video.h" />
+    <ClInclude Include="game\graphics\texture_extra.h" />
+    <ClInclude Include="game\graphics\video.h" />
+    <ClInclude Include="game\input\input_keys.h" />
+    <ClInclude Include="game\input\input_mgr.h" />
+    <ClInclude Include="game\input\input_wrapper.h" />
+    <ClInclude Include="game\ruleset\ruleset.h" />
+    <ClInclude Include="game\ruleset\ruleset_classic.h" />
+    <ClInclude Include="game\scene\scene.h" />
+    <ClInclude Include="game\scene\scene_context.h" />
+    <ClInclude Include="game\scene\scene_mgr.h" />
+    <ClInclude Include="game\scene\scene_play.h" />
+    <ClInclude Include="game\scene\scene_result.h" />
+    <ClInclude Include="game\scene\scene_select.h" />
+    <ClInclude Include="game\skin\skin.h" />
+    <ClInclude Include="game\skin\skin_lr2.h" />
+    <ClInclude Include="game\skin\skin_mgr.h" />
+    <ClInclude Include="game\skin\skin_new.h" />
+    <ClInclude Include="game\sound\sound_driver.h" />
+    <ClInclude Include="game\sound\sound_fmod.h" />
+    <ClInclude Include="game\sound\sound_fmod_callback.h" />
+    <ClInclude Include="game\sound\sound_mgr.h" />
+    <ClInclude Include="sysutil.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="sysutil.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -129,14 +231,14 @@ xcopy /y $(SolutionDir)ext\libav\lib\$(PlatformTarget)\*.dll $(OutDir)</Command>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)ext\fmod\inc;$(SolutionDir)ext\SDL2_gfx\include;$(SolutionDir)ext\yaml-cpp\include;$(SolutionDir)ext\plog\include;$(SolutionDir)core;$(SolutionDir)core\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)ext\fmod\inc;$(SolutionDir)ext\SDL2_gfx\include;$(SolutionDir)ext\yaml-cpp\include;$(SolutionDir)ext\plog\include;$(SolutionDir)ext\sqlite3;$(SolutionDir)ext\libav;$(SolutionDir)game;$(SolutionDir)game\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\;$(SolutionDir)ext\sqlite3\lib\$(PlatformTarget)\;$(SolutionDir)ext\fmod\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>core.lib;yaml-cpp.lib;SDL2_gfx.lib;fmodL64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\;$(SolutionDir)ext\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sqlite3\lib\$(PlatformTarget)\sqlite3.lib;libav\lib\$(PlatformTarget)\avcodec.lib;libav\lib\$(PlatformTarget)\avformat.lib;libav\lib\$(PlatformTarget)\avutil.lib;yaml-cpp.lib;SDL2_gfx.lib;fmod\lib\fmodL64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y $(SolutionDir)ext\fmod\lib\fmodL64.dll $(OutDir)
@@ -179,7 +281,7 @@ xcopy /y $(SolutionDir)ext\libav\lib\$(PlatformTarget)\*.dll $(OutDir)</Command>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)ext\fmod\inc;$(SolutionDir)ext\SDL2_gfx\include;$(SolutionDir)ext\yaml-cpp\include;$(SolutionDir)ext\plog\include;$(SolutionDir)core;$(SolutionDir)core\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)ext\fmod\inc;$(SolutionDir)ext\SDL2_gfx\include;$(SolutionDir)ext\yaml-cpp\include;$(SolutionDir)ext\plog\include;$(SolutionDir)ext\sqlite3;$(SolutionDir)ext\libav;$(SolutionDir)game;$(SolutionDir)game\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -187,8 +289,8 @@ xcopy /y $(SolutionDir)ext\libav\lib\$(PlatformTarget)\*.dll $(OutDir)</Command>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\;$(SolutionDir)ext\sqlite3\lib\$(PlatformTarget)\;$(SolutionDir)ext\fmod\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>core.lib;yaml-cpp.lib;SDL2_gfx.lib;fmod64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\;$(SolutionDir)ext\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sqlite3\lib\$(PlatformTarget)\sqlite3.lib;libav\lib\$(PlatformTarget)\avcodec.lib;libav\lib\$(PlatformTarget)\avformat.lib;libav\lib\$(PlatformTarget)\avutil.lib;yaml-cpp.lib;SDL2_gfx.lib;fmod\lib\fmod64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y $(SolutionDir)ext\fmod\lib\fmod64.dll $(OutDir)

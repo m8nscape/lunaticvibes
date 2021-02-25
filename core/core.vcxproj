@@ -262,7 +262,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)ext\fmod\inc;$(SolutionDir)ext\SDL2_gfx\include;$(SolutionDir)ext\sqlite3;$(SolutionDir)ext\yaml-cpp\include;$(SolutionDir)ext\plog\include;$(SolutionDir)ext\libav;$(SolutionDir)core;$(SolutionDir)core\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NOMINMAX;RENDER_SDL2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CRTDBG_MAP_ALLOC;new=new(_NORMAL_BLOCK,__FILE__,__LINE__);WIN32;NOMINMAX;RENDER_SDL2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>

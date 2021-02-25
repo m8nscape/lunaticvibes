@@ -51,11 +51,6 @@
     <OutDir>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\core\core.vcxproj">
-      <Project>{c401e6c6-9df9-4ad6-99ad-5f73cbc928a8}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="common\test_fraction.cpp" />
     <ClCompile Include="game\test_graphics.cpp" />
     <ClCompile Include="test_config.cpp" />
