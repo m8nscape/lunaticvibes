@@ -64,7 +64,7 @@ void SceneSelect::_updateAsync()
     }
 }
 
-void setBarTitles()
+void setBarInfo()
 {
     std::lock_guard<std::mutex> u(context_select._mutex);
 
@@ -76,7 +76,28 @@ void setBarTitles()
     const size_t count = int(eText::_SELECT_BAR_TITLE_FULL_MAX) - int(eText::_SELECT_BAR_TITLE_FULL_0) + 1;
     for (size_t list_idx = (e.size() + idx - cursor) % e.size(), i = 0; i < count; list_idx = (list_idx + 1) % e.size(), ++i)
     {
+        // set title
         gTexts.set(eText(int(eText::_SELECT_BAR_TITLE_FULL_0) + i), e[list_idx]->_name);
+
+        // set level
+        if (e[list_idx]->type() == eEntryType::SONG)
+        {
+            auto ps = std::reinterpret_pointer_cast<Song>(e[list_idx]);
+
+            switch (ps->_file->type())
+            {
+            case eChartFormat::BMS:
+            {
+                const auto bms = std::reinterpret_pointer_cast<const BMS_prop>(ps->_file);
+                gNumbers.set(eNumber(int(eNumber::_SELECT_BAR_LEVEL_0) + i), bms->playLevel);
+                break;
+            }
+
+            default:
+                gNumbers.set(eNumber(int(eNumber::_SELECT_BAR_LEVEL_0) + i), 0);
+                break;
+            }
+        }
     }
 
     gTexts.set(eText::PLAY_TITLE, e[idx]->_name);
@@ -89,7 +110,7 @@ void SceneSelect::updatePrepare()
     auto t = Time();
     auto rt = t - gTimers.get(eTimer::SCENE_START);
 
-    setBarTitles();
+    setBarInfo();
 
     if (rt.norm() >= _skin->info.timeIntro)
     {
@@ -110,7 +131,7 @@ void SceneSelect::updateSelect()
     auto t = Time();
     auto rt = t - gTimers.get(eTimer::SCENE_START);
 
-    setBarTitles();
+    setBarInfo();
 }
 
 void SceneSelect::updateSearch()

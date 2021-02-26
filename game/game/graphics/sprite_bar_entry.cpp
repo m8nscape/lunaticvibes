@@ -165,6 +165,22 @@ bool SpriteBarEntry::update(Time time)
         size_t listidx = (context_select.idx + list.size() - context_select.cursor + index) % list.size();
 
         _draw = true;
+
+        drawLevel = false;
+        drawRank = false;
+        drawLamp = false;
+        drawRival = false;
+        drawRivalLampSelf = false;
+        drawRivalLampRival = false;
+        drawBodyType = 0;
+        drawTitleType = 0;
+        drawLevelType = 0;
+        drawLampType = 0;
+        drawRankType = 0;
+        drawRivalType = 0;
+        drawRivalLampSelfType = 0;
+        drawRivalLampRivalType = 0;
+
         auto pinfo = list[listidx];
         drawBodyOn = (index == context_select.cursor);
 
@@ -253,12 +269,6 @@ bool SpriteBarEntry::update(Time time)
         if (drawFlash && sFlash)
             sFlash->update(time);
 
-        drawLevel = false;
-        drawRank = false;
-        drawLamp = false;
-        drawRival = false;
-        drawRivalLampSelf = false;
-        drawRivalLampRival = false;
         if (pinfo->type() == eEntryType::SONG)
         {
             auto e = std::reinterpret_pointer_cast<Song>(pinfo);
@@ -267,19 +277,21 @@ bool SpriteBarEntry::update(Time time)
             {
             case eChartFormat::BMS:
             {
-                const auto& bms = reinterpret_cast<const BMS&>(e->_file);
+                const auto& bms = *std::reinterpret_pointer_cast<const BMS_prop>(e->_file);
                 if ((size_t)bms.difficulty < sLevel.size() && sLevel[bms.difficulty])
                 {
                     sLevel[bms.difficulty]->update(time);
                     drawLevelType = bms.difficulty;
                     drawLevel = true;
                 }
+                /* bms.rank is judge rank, not play rank
                 if ((size_t)bms.rank < sRank.size() && sRank[bms.rank])
                 {
                     sRank[bms.rank]->update(time);
                     drawRankType = bms.rank;
                     drawRank = true;
                 }
+                */
                 // TODO lamp
                 break;
             }

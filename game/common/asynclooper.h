@@ -30,7 +30,7 @@ private:
     void _recordLoopTime();
 
 protected:
-    std::mutex _mutex;
+    bool _in_do = false;
     bool _single_inst;
     unsigned _rate;
     unsigned _rateTime;
@@ -49,7 +49,7 @@ private:
     std::function<void()> _do;
     std::function<void()> _run;
     void run();
-    void run_mutex();
+    void run_single();
 #if WIN32
     friend VOID CALLBACK WaitOrTimerCallback(_In_ PVOID lpParameter, _In_ BOOLEAN TimerOrWaitFired);
 #elif LINUX

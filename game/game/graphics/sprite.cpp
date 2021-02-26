@@ -67,68 +67,70 @@ bool vSprite::updateByKeyframes(Time rawTime)
     {
         // exactly first frame
         _current = _keyFrames[0].param;
-        return true;
     }
     else if (time == _keyFrames[frameCount - 1].time)       
     {
         // exactly last frame
         _current = _keyFrames[frameCount - 1].param;
-        return true;
     }
-
-    // get keyFrame section (iterators)
-    decltype(_keyFrames.begin()) keyFrameCurr, keyFrameNext;
-    for (auto it = _keyFrames.begin(); it != _keyFrames.end(); ++it)
+    else
     {
-        if (it->time <= time.norm()) keyFrameCurr = it;
-        else break;
-    }
-    keyFrameNext = keyFrameCurr;
-    if (keyFrameCurr + 1 != _keyFrames.end()) ++keyFrameNext;
 
-    // Check if section period is 0
-    auto keyFrameLength = keyFrameNext->time - keyFrameCurr->time;
-    if (keyFrameLength == 0)
-    {
-        _current = keyFrameCurr->param;
-        return true;
-    }
+        // get keyFrame section (iterators)
+        decltype(_keyFrames.begin()) keyFrameCurr, keyFrameNext;
+        for (auto it = _keyFrames.begin(); it != _keyFrames.end(); ++it)
+        {
+            if (it->time <= time.norm()) keyFrameCurr = it;
+            else break;
+        }
+        keyFrameNext = keyFrameCurr;
+        if (keyFrameCurr + 1 != _keyFrames.end()) ++keyFrameNext;
 
-    // normalize time
-    double t = 1.0 * (time.norm() - keyFrameCurr->time) / keyFrameLength;
-    switch (keyFrameCurr->param.accel)
-    {
-    case RenderParams::CONSTANT:
-        break;
-    case RenderParams::ACCEL:
-        t = std::pow(t, 2.0);
-        break;
-    case RenderParams::DECEL:
-        t = std::pow(t, 0.5);
-        break;
-    case RenderParams::DISCONTINOUS:
-        t = 0.0;
-    }
+        // Check if section period is 0
+        auto keyFrameLength = keyFrameNext->time - keyFrameCurr->time;
+        if (keyFrameLength == 0)
+        {
+            _current = keyFrameCurr->param;
+        }
+        else
+        {
+            // normalize time
+            double t = 1.0 * (time.norm() - keyFrameCurr->time) / keyFrameLength;
+            switch (keyFrameCurr->param.accel)
+            {
+            case RenderParams::CONSTANT:
+                break;
+            case RenderParams::ACCEL:
+                t = std::pow(t, 2.0);
+                break;
+            case RenderParams::DECEL:
+                t = std::pow(t, 0.5);
+                break;
+            case RenderParams::DISCONTINOUS:
+                t = 0.0;
+            }
 
-    // calculate parameters
-	_current.rect.x = (int)grad(keyFrameNext->param.rect.x, keyFrameCurr->param.rect.x, t);
-	_current.rect.y = (int)grad(keyFrameNext->param.rect.y, keyFrameCurr->param.rect.y, t);
-	_current.rect.w = (int)grad(keyFrameNext->param.rect.w, keyFrameCurr->param.rect.w, t);
-	_current.rect.h = (int)grad(keyFrameNext->param.rect.h, keyFrameCurr->param.rect.h, t);
-    //_current.rect  = keyFrameNext->param.rect  * t + keyFrameCurr->param.rect  * (1.0 - t);
-	_current.color.r = (Uint8)grad(keyFrameNext->param.color.r, keyFrameCurr->param.color.r, t);
-	_current.color.g = (Uint8)grad(keyFrameNext->param.color.g, keyFrameCurr->param.color.g, t);
-	_current.color.b = (Uint8)grad(keyFrameNext->param.color.b, keyFrameCurr->param.color.b, t);
-	_current.color.a = (Uint8)grad(keyFrameNext->param.color.a, keyFrameCurr->param.color.a, t);
-    //_current.color = keyFrameNext->param.color * t + keyFrameNext->param.color * (1.0 - t);
-	_current.angle = grad(keyFrameNext->param.angle, keyFrameCurr->param.angle, t);
-	_current.center = keyFrameCurr->param.center;
-    //LOG_DEBUG << "[Skin] Time: " << time << 
-    //    " @ " << _current.rect.x << "," << _current.rect.y << " " << _current.rect.w << "x" << _current.rect.h;
-    //LOG_DEBUG<<"[Skin] keyFrameCurr: " << keyFrameCurr->param.rect.x << "," << keyFrameCurr->param.rect.y << " " << keyFrameCurr->param.rect.w << "x" << keyFrameCurr->param.rect.h;
-    //LOG_DEBUG<<"[Skin] keyFrameNext: " << keyFrameNext->param.rect.x << "," << keyFrameNext->param.rect.y << " " << keyFrameNext->param.rect.w << "x" << keyFrameNext->param.rect.h;
-	_current.blend = keyFrameCurr->param.blend;
-	_current.filter = keyFrameCurr->param.filter;
+            // calculate parameters
+            _current.rect.x = (int)grad(keyFrameNext->param.rect.x, keyFrameCurr->param.rect.x, t);
+            _current.rect.y = (int)grad(keyFrameNext->param.rect.y, keyFrameCurr->param.rect.y, t);
+            _current.rect.w = (int)grad(keyFrameNext->param.rect.w, keyFrameCurr->param.rect.w, t);
+            _current.rect.h = (int)grad(keyFrameNext->param.rect.h, keyFrameCurr->param.rect.h, t);
+            //_current.rect  = keyFrameNext->param.rect  * t + keyFrameCurr->param.rect  * (1.0 - t);
+            _current.color.r = (Uint8)grad(keyFrameNext->param.color.r, keyFrameCurr->param.color.r, t);
+            _current.color.g = (Uint8)grad(keyFrameNext->param.color.g, keyFrameCurr->param.color.g, t);
+            _current.color.b = (Uint8)grad(keyFrameNext->param.color.b, keyFrameCurr->param.color.b, t);
+            _current.color.a = (Uint8)grad(keyFrameNext->param.color.a, keyFrameCurr->param.color.a, t);
+            //_current.color = keyFrameNext->param.color * t + keyFrameNext->param.color * (1.0 - t);
+            _current.angle = grad(keyFrameNext->param.angle, keyFrameCurr->param.angle, t);
+            _current.center = keyFrameCurr->param.center;
+            //LOG_DEBUG << "[Skin] Time: " << time << 
+            //    " @ " << _current.rect.x << "," << _current.rect.y << " " << _current.rect.w << "x" << _current.rect.h;
+            //LOG_DEBUG<<"[Skin] keyFrameCurr: " << keyFrameCurr->param.rect.x << "," << keyFrameCurr->param.rect.y << " " << keyFrameCurr->param.rect.w << "x" << keyFrameCurr->param.rect.h;
+            //LOG_DEBUG<<"[Skin] keyFrameNext: " << keyFrameNext->param.rect.x << "," << keyFrameNext->param.rect.y << " " << keyFrameNext->param.rect.w << "x" << keyFrameNext->param.rect.h;
+            _current.blend = keyFrameCurr->param.blend;
+            _current.filter = keyFrameCurr->param.filter;
+        }
+    }
 
     if (_haveParent && !_parent.expired())
     {
@@ -310,7 +312,7 @@ bool SpriteAnimated::update(Time t)
 void SpriteAnimated::updateByTimer(Time time)
 {
 	if (gTimers.get(_triggerTimer))
-		updateByKeyframes(time - Time(gTimers.get(_triggerTimer)));
+		updateByKeyframes(time);
 }
 
 void SpriteAnimated::updateAnimation(Time time)
@@ -422,6 +424,7 @@ void SpriteText::updateTextRect()
 		_current.rect.w = text_w;
 	}
 
+    /*
     if (_haveParent && !_parent.expired())
     {
         auto parent = _parent.lock();
@@ -437,6 +440,7 @@ void SpriteText::updateTextRect()
             _current.rect.y += parent->getCurrentRenderParams().rect.y;
         }
     }
+    */
 
 }
 

@@ -104,8 +104,9 @@ enum class SongListSort
     TITLE,
 };
 
-struct __select_context_params
+class __select_context_params
 {
+public:
     std::mutex _mutex;
     std::stack<SongListProperties> backtrace;
     std::vector<std::shared_ptr<vEntry>> entries;
@@ -114,6 +115,11 @@ struct __select_context_params
     SongListSort sort = SongListSort::DEFAULT;
     unsigned difficulty = 0; // all / B / N / H / A / I (type 0 is not included)
     unsigned gamemode = 0; // all / 5, 7, 9, 10, 14, etc
+
+public:
+    __select_context_params() = default;
+    ~__select_context_params() { std::lock_guard<std::mutex> u(_mutex); }
+
 };
 
 void updateContextSelectTitles();

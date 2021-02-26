@@ -186,6 +186,7 @@ enum class eNumber: unsigned
     _ANGLE_TT_2P,
 
     _SELECT_BAR_LEVEL_0 = 400,
+	_SELECT_BAR_LEVEL_MAX = 431,
 
 	SCENE_UPDATE_FPS = 1000,
 	INPUT_DETECT_FPS,

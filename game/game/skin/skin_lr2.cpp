@@ -2667,7 +2667,12 @@ void SkinLR2::loadCSV(Path p)
     if (barCenter < _barSprites.size())
     {
         _barSprites[barCenter]->drawFlash = true;
-        context_select.cursor = barCenter;
+
+        if (_reset_select_cursor)
+        {
+            _reset_select_cursor = false;
+            context_select.cursor = barCenter;
+        }
     }
 
 
