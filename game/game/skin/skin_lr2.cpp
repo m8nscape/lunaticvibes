@@ -558,8 +558,8 @@ int SkinLR2::IMAGE()
 					{
 						if (video_file_extensions.find(toLower(paths[cf.value].extension().string())) != video_file_extensions.end())
 						{
-							_vidNameMap[std::to_string(imageCount)] = std::make_shared<sVideo>(paths[cf.value]);
-							_textureNameMap[std::to_string(imageCount)] = _textureNameMap["Error"];
+							_vidNameMap[std::to_string(imageCount)] = std::make_shared<sVideo>(paths[cf.value], true);
+							_textureNameMap[std::to_string(imageCount)] = _textureNameMap["White"];
 						}
 						else
                             _textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(paths[cf.value].string().c_str()));
@@ -583,7 +583,7 @@ int SkinLR2::IMAGE()
 				size_t ranidx = std::rand() % ls.size();
 				if (video_file_extensions.find(toLower(ls[ranidx].extension().string())) != video_file_extensions.end())
 				{
-					_vidNameMap[std::to_string(imageCount)] = std::make_shared<sVideo>(ls[ranidx]);
+					_vidNameMap[std::to_string(imageCount)] = std::make_shared<sVideo>(ls[ranidx], true);
 					_textureNameMap[std::to_string(imageCount)] = _textureNameMap["Error"];
 				}
 				else
@@ -863,18 +863,18 @@ int SkinLR2::SRC()
     case 111: gr_key = "White"; break;
     default: gr_key = std::to_string(gr); break;
     }
-	if (_textureNameMap.find(gr_key) != _textureNameMap.end())
-	{
-		textureBuf = _textureNameMap[gr_key];
-		videoBuf = nullptr;
-		useVideo = false;
-	}
-	else if (_vidNameMap.find(gr_key) != _vidNameMap.end())
+	if (_vidNameMap.find(gr_key) != _vidNameMap.end())
 	{
 		textureBuf = _textureNameMap["White"];
 		videoBuf = _vidNameMap[gr_key];
 		useVideo = true;
 	}
+    else if (_textureNameMap.find(gr_key) != _textureNameMap.end())
+    {
+        textureBuf = _textureNameMap[gr_key];
+        videoBuf = nullptr;
+        useVideo = false;
+    }
 	else
 	{
 		textureBuf = _textureNameMap["Error"];
@@ -897,17 +897,18 @@ ParseRet SkinLR2::SRC_IMAGE()
 
 	lr2skin::s_basic d;
 	convertLine(tokensBuf, (int*)&d);
-    if (textureBuf) refineRect(d, textureBuf->getRect(), line);
-
 	if (useVideo && videoBuf && videoBuf->haveVideo)
 	{
-		auto psv = std::make_shared<SpriteVideo>(d.w, d.h, videoBuf->getFormat());
-		psv->bindVideo(videoBuf);
+        refineRect(d, { 0, 0, videoBuf->getW(), videoBuf->getH() }, line);
+		auto psv = std::make_shared<SpriteVideo>(d.w, d.h, videoBuf);
 		_sprites.push_back(psv);
 	}
-	else
-		_sprites.push_back(std::make_shared<SpriteAnimated>(
-			textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x));
+    else
+    {
+        if (textureBuf) refineRect(d, textureBuf->getRect(), line);
+        _sprites.push_back(std::make_shared<SpriteAnimated>(
+            textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x));
+    }
 
     _sprites_child.push_back(_sprites.back());
     _sprites.back()->setLine(line);
@@ -2594,7 +2595,7 @@ int SkinLR2::parseHeader(const Tokens& raw)
         auto ls = findFiles(pathf);
         size_t defVal = 0;
         for (size_t param = 0; param < ls.size(); ++param)
-            if (ls[param].stem() == def)
+            if (ls[param].filename().stem() == def)
             {
                 defVal = param;
                 break;
@@ -2625,6 +2626,15 @@ SkinLR2::SkinLR2(Path p)
     }
 	_laneSprites.resize(CHANNEL_COUNT);
     loadCSV(p);
+
+    for (auto& p : _sprites)
+    {
+        if (p->type() == SpriteTypes::VIDEO)
+        {
+            auto v = std::reinterpret_pointer_cast<SpriteVideo>(p);
+            v->startPlaying();
+        }
+    }
 }
 
 void SkinLR2::loadCSV(Path p)

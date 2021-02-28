@@ -35,6 +35,13 @@ void TextureVideo::start()
 	loopStart();
 }
 
+void TextureVideo::stop()
+{
+	if (!_running) return;
+	pVideo->stopPlaying();
+	loopEnd();
+}
+
 void TextureVideo::seek(int64_t sec)
 {
 	pVideo->seek(sec);
@@ -49,24 +56,30 @@ void TextureVideo::update()
 	if (decoded_frames == vrfc) return;
 	decoded_frames = vrfc;
 
-	auto pf = pVideo->getFrame();
-	if (!pf) return;
-
 	{
 		// read lock
-		std::shared_lock<std::shared_mutex> l(pVideo->lock);
-
-		switch (format)
+		using namespace std::chrono_literals;
+		std::unique_lock lg(sVideo::static_render_mutex, std::defer_lock);
+		lg.try_lock_for(10ms);
+		if (lg)
 		{
-		case Texture::PixelFormat::IYUV:
-			updateYUV(
-				pf->data[0], pf->linesize[0],
-				pf->data[1], pf->linesize[1],
-				pf->data[2], pf->linesize[2]);
-			break;
+			std::shared_lock l(pVideo->video_frame_mutex);
 
-		default:
-			break;
+			auto pf = pVideo->getFrame();
+			if (!pf) return;
+
+			switch (format)
+			{
+			case Texture::PixelFormat::IYUV:
+				updateYUV(
+					pf->data[0], pf->linesize[0],
+					pf->data[1], pf->linesize[1],
+					pf->data[2], pf->linesize[2]);
+				break;
+
+			default:
+				break;
+			}
 		}
 	}
 }

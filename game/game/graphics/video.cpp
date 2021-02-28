@@ -25,13 +25,14 @@ sVideo::~sVideo()
 	}
 }
 
-int sVideo::setVideo(const Path& file)
+int sVideo::setVideo(const Path& file, bool loop)
 {
 	if (!fs::exists(file)) return -1;
 	if (!fs::is_regular_file(file)) return -2;
 
 	if (haveVideo) unsetVideo();
 	this->file = file;
+	loop_playback = loop;
 
 	if (int ret = avformat_open_input(&pFormatCtx, file.string().c_str(), NULL, NULL); ret != 0)
 	{
@@ -102,7 +103,7 @@ int sVideo::unsetVideo()
 	if (pPacket) av_packet_free(&pPacket);
 	if (pFrame) av_frame_free(&pFrame);
 	if (pCodecCtx) avcodec_free_context(&pCodecCtx);
-	if (pFormatCtx) avformat_free_context(pFormatCtx);
+	if (pFormatCtx) avformat_close_input(&pFormatCtx);
 	return 0;
 }
 
@@ -142,6 +143,11 @@ void sVideo::decodeLoop()
 {
 	if (!haveVideo) return;
 
+	valid = false;
+
+	if (pFrame) av_frame_free(&pFrame);
+	if (pPacket) av_packet_free(&pPacket);
+
 	if ((pFrame = av_frame_alloc()) == nullptr)
 	{
 		LOG_WARNING << "[Video] Could not alloc frame object of " << fs::absolute(file).string();
@@ -169,59 +175,92 @@ void sVideo::decodeLoop()
 		AV_TIME_BASE : av_q2d(av_inv_q(pFormatCtx->streams[videoIndex]->time_base));
 	AVFrame *pFrame1 = av_frame_alloc();
 
-	while (av_read_frame(pFormatCtx, pPacket) == 0 && pPacket)
+	do
 	{
-		if (!playing) return;
-		avcodec_send_packet(pCodecCtx, pPacket);
-
-		int ret = avcodec_receive_frame(pCodecCtx, pFrame1);
-
-		if (ret < 0)
+		while (av_read_frame(pFormatCtx, pPacket) == 0 && pPacket)
 		{
-			if (ret == AVERROR(EAGAIN)) continue;
-			else
+			if (!playing) return;
+
+			avcodec_send_packet(pCodecCtx, pPacket);
+
+			int ret = avcodec_receive_frame(pCodecCtx, pFrame1);
+			av_packet_unref(pPacket);
+
+			if (ret < 0)
 			{
-				char buf[128];
-				av_strerror(ret, buf, 128);
-				LOG_ERROR << "[Video] playback error: " << buf;
-				decoding = false;
-				return;
+				if (ret == AVERROR(EAGAIN))
+				{
+					continue;
+				}
+				else
+				{
+					char buf[128];
+					av_strerror(ret, buf, 128);
+					LOG_ERROR << "[Video] playback error: " << buf;
+					decoding = false;
+					return;
+				}
 			}
-		}
 
-		if (pFrame1->pts >= 0)
-		{
-			auto frameTime_ms = decltype(std::declval<std::chrono::milliseconds>().count())(std::round(pFrame1->pts / tsps * 1000));
-			if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - startTime).count() < frameTime_ms)
+			if (pFrame1->pts >= 0)
 			{
-				std::this_thread::sleep_until(startTime + std::chrono::milliseconds(frameTime_ms));
+				{
+					std::lock_guard l(video_frame_mutex);
+
+					av_frame_unref(pFrame);
+					av_frame_ref(pFrame, pFrame1);
+					valid = true;
+				}
+
+				auto frameTime_ms = decltype(std::declval<std::chrono::milliseconds>().count())(std::round(pFrame1->pts / tsps * 1000));
+				if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - startTime).count() < frameTime_ms)
+				{
+					std::this_thread::sleep_until(startTime + std::chrono::milliseconds(frameTime_ms));
+				}
 			}
-		}
-		{
-			std::unique_lock<decltype(lock)> l(lock);
-			av_frame_unref(pFrame);
-			av_frame_ref(pFrame, pFrame1);
+			decoded_frames = pCodecCtx->frame_number;
 		}
 
-		decoded_frames = pCodecCtx->frame_number;
-	}
-
-	// drain
-	avcodec_send_packet(pCodecCtx, NULL);
-	{
-		std::unique_lock<decltype(lock)> l(lock);
-		if (avcodec_receive_frame(pCodecCtx, pFrame) != 0)
+		if (loop_playback)
 		{
-			LOG_ERROR << "[Video] playback drain error";
+			using namespace std::chrono_literals;
+			std::this_thread::sleep_for(40ms);
+			decoded_frames = 0;
+			seek(0, true);
+			startTime = std::chrono::system_clock::now();
 		}
-	}
-	decoded_frames = pCodecCtx->frame_number;
-	av_frame_unref(pFrame);
+		else
+		{
+			// drain
+			avcodec_send_packet(pCodecCtx, NULL);
+			{
+				// av_frame_unref(frame) is omitted
+				if (int ret = avcodec_receive_frame(pCodecCtx, pFrame1))
+				{
+					char buf[128];
+					av_strerror(ret, buf, 128);
+					LOG_ERROR << "[Video] playback drain error: " << buf;
+				}
+				if (pFrame1->pts >= 0)
+				{
+					std::lock_guard l(video_frame_mutex);
+
+					av_frame_unref(pFrame);
+					av_frame_ref(pFrame, pFrame1);
+					valid = true;
+				}
+				decoded_frames = pCodecCtx->frame_number;
+			}
+
+			playing = false;
+		}
+
+	} while (playing);
 
 	decoding = false;
 }
 
-void sVideo::seek(int64_t second)
+void sVideo::seek(int64_t second, bool backwards)
 {
 	if (!haveVideo) return;
 
@@ -229,8 +268,7 @@ void sVideo::seek(int64_t second)
 	double tsps = pFormatCtx->streams[videoIndex]->time_base.num == 0 ? 
 		AV_TIME_BASE : av_q2d(av_inv_q(pFormatCtx->streams[videoIndex]->time_base));
 
-	std::unique_lock<decltype(lock)> l(lock);
-	if (int ret = av_seek_frame(pFormatCtx, videoIndex, int64_t(std::round(second / tsps)), 0); ret < 0)
+	if (int ret = av_seek_frame(pFormatCtx, videoIndex, int64_t(std::round(second / tsps)), backwards ? AVSEEK_FLAG_BACKWARD : 0); ret < 0)
 	{
 		LOG_ERROR << "[Video] seek " << second << "s error (" << file.string() << ")";
 	}

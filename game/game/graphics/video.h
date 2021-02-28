@@ -45,12 +45,14 @@ private:
 	int w = -1, h = -1;		// set in setVideo()
 	bool playing = false;
 	bool decoding = false;
+	bool valid = false;
+	bool loop_playback = false;
 
 public:
 	sVideo() = default;
-	sVideo(const Path& file) { setVideo(file); }
+	sVideo(const Path& file, bool loop = false) { setVideo(file, loop); }
 	virtual ~sVideo();
-	int setVideo(const Path& file);
+	int setVideo(const Path& file, bool loop = false);
 	int unsetVideo();
 	int getW() { return w; }
 	int getH() { return h; }
@@ -63,16 +65,16 @@ public:
 	// video playback control
 	void startPlaying();
 	void stopPlaying();
-	bool isPlaying() { return playing; }
 	void decodeLoop();
 
 	int getDecodedFrames() { return decoded_frames; }
-	AVFrame* getFrame() { return pFrame; }
+	AVFrame* getFrame() { return valid ? pFrame : NULL; }
 
 public:
-	std::shared_mutex lock;
+	std::shared_mutex video_frame_mutex;
+	inline static std::timed_mutex static_render_mutex;
 
 public:
-	void seek(int64_t second);
+	void seek(int64_t second, bool backwards = false);
 	
 };

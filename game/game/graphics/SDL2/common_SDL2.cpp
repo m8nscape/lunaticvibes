@@ -246,6 +246,16 @@ Texture::~Texture()
 {
 }
 
+int Texture::updateYUV(uint8_t* Y, int Ypitch, uint8_t* U, int Upitch, uint8_t* V, int Vpitch)
+{
+    if (!_loaded) return -1;
+    if (!Ypitch || !Upitch || !Vpitch) return -2;
+    return SDL_UpdateYUVTexture(&*_pTexture, NULL,
+        Y, Ypitch,
+        U, Upitch,
+        V, Vpitch);
+}
+
 void Texture::_draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, Rect dstRect,
 	const Color c, const BlendMode b, const bool filter, const double angle, const Point* center)
 {

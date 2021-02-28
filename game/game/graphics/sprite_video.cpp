@@ -9,48 +9,22 @@ extern "C"
 }
 #include "game/graphics/video.h"
 
-SpriteVideo::SpriteVideo(int w, int h, Texture::PixelFormat fmt) : SpriteStatic(nullptr, { 0, 0, w, h }), format(fmt)
+SpriteVideo::SpriteVideo(int w, int h, std::shared_ptr<sVideo> pVid) :
+	SpriteStatic(std::make_shared<TextureVideo>(pVid), { 0, 0, w, h })
 {
 	_type = SpriteTypes::VIDEO;
-	_pTexture = std::make_shared<Texture>(w, h, fmt);
 }
 
-int SpriteVideo::bindVideo(std::shared_ptr<sVideo> pVid)
+void SpriteVideo::startPlaying()
 {
-	if (pVid->haveVideo) return -1;
-	this->pVid = pVid;
-	return 0;
+	auto pVid = std::reinterpret_pointer_cast<TextureVideo>(_pTexture);
+	if (!pVid) return;
+	pVid->start();
 }
 
-bool SpriteVideo::update(Time t)
+void SpriteVideo::stopPlaying()
 {
-	if (!pVid) return false;
-	if (!pVid->haveVideo) return false;
-	if (!SpriteStatic::update(t)) return false;
-
-	auto vrfc = pVid->getDecodedFrames();
-	if (decoded_frames == vrfc) return true;
-	decoded_frames = vrfc;
-
-	auto pf = pVid->getFrame();
-	if (!pf) return false;
-
-	{
-		// read lock
-		std::shared_lock<std::shared_mutex> l(pVid->lock);
-
-		switch (format)
-		{
-		case Texture::PixelFormat::IYUV:
-			_pTexture->updateYUV(
-				pf->data[0], pf->linesize[0],
-				pf->data[1], pf->linesize[1],
-				pf->data[2], pf->linesize[2]);
-			break;
-
-		default:
-			break;
-		}
-	}
-	return true;
+	auto pVid = std::reinterpret_pointer_cast<TextureVideo>(_pTexture);
+	if (!pVid) return;
+	pVid->stop();
 }

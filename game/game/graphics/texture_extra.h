@@ -18,6 +18,7 @@ public:
 	TextureVideo(std::shared_ptr<sVideo> pv);
 	virtual ~TextureVideo();
 	void start();
+	void stop();
 	void seek(int64_t sec);
 	void update();
 	void reset();

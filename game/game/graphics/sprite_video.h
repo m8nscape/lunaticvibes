@@ -13,16 +13,13 @@ protected:
 	int w, h;
 	Texture::PixelFormat format;
 
-	std::shared_ptr<sVideo> pVid;
-	unsigned decoded_frames;
-
 public:
-	SpriteVideo(int w, int h, Texture::PixelFormat fmt);
+	SpriteVideo(int w, int h, std::shared_ptr<sVideo> pVid);
 	virtual ~SpriteVideo() = default;
 	
 public:
-	int bindVideo(std::shared_ptr<sVideo> pVid);
-	virtual bool update(Time t) override;
+	void startPlaying();
+	void stopPlaying();
 };
 
 /*
