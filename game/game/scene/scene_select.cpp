@@ -6,66 +6,10 @@
 
 #include "entry/entry_song.h"
 
-SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
-{
-    _inputAvailable = INPUT_MASK_FUNC;
-
-    //if (context_play.chartObj[PLAYER_SLOT_1P] != nullptr)
-    {
-        _inputAvailable |= INPUT_MASK_1P;
-    }
-        
-    //if (context_play.chartObj[PLAYER_SLOT_2P] != nullptr)
-    {
-        _inputAvailable |= INPUT_MASK_2P;
-    }
-
-    {
-        std::lock_guard<std::mutex> u(context_select._mutex);
-        loadSongList();
-    }
-
-    _state = eSelectState::PREPARE;
-
-    loopStart();
-}
-
 ////////////////////////////////////////////////////////////////////////////////
-
-void SceneSelect::_updateAsync()
-{
-    switch (_state)
-    {
-    case eSelectState::PREPARE:
-        updatePrepare();
-        break;
-    case eSelectState::SELECT:
-        updateSelect();
-        break;
-    case eSelectState::SEARCH:
-        updateSearch();
-        break;
-    case eSelectState::PANEL1:
-    case eSelectState::PANEL2:
-    case eSelectState::PANEL3:
-    case eSelectState::PANEL4:
-    case eSelectState::PANEL5:
-    case eSelectState::PANEL6:
-    case eSelectState::PANEL7:
-    case eSelectState::PANEL8:
-    case eSelectState::PANEL9:
-        updatePanel(unsigned(_state) - unsigned(eSelectState::PANEL1) + 1);
-        break;
-    case eSelectState::FADEOUT:
-        updateFadeout();
-        break;
-    }
-}
 
 void setBarInfo()
 {
-    std::lock_guard<std::mutex> u(context_select._mutex);
-
     const auto& e = context_select.entries;
     if (e.empty()) return;
 
@@ -98,27 +42,137 @@ void setBarInfo()
         }
     }
 
+}
+
+void setEntryInfo()
+{
+    const auto& e = context_select.entries;
+    if (e.empty()) return;
+
+    const size_t idx = context_select.idx;
+    const size_t cursor = context_select.cursor;
+
+    // entry parameters
     gTexts.set(eText::PLAY_TITLE, e[idx]->_name);
     gTexts.set(eText::PLAY_SUBTITLE, e[idx]->_name2);
-    // TODO BMS text updates
 
+    // chart parameters
+    if (e[idx]->type() == eEntryType::SONG || e[idx]->type() == eEntryType::RIVAL_SONG)
+    {
+        auto ps = std::reinterpret_pointer_cast<Song>(e[idx]);
+        auto pf = std::reinterpret_pointer_cast<vChartFormat>(ps->_file);
+
+        gSwitches.set(eSwitch::CHART_HAVE_README, 
+            !(pf->_text1.empty() && pf->_text2.empty() && pf->_text3.empty()));
+        gSwitches.set(eSwitch::CHART_HAVE_BANNER, !pf->_banner.empty());
+        gSwitches.set(eSwitch::CHART_HAVE_STAGEFILE, !pf->_BG.empty());
+
+        gTexts.set(eText::PLAY_TITLE, pf->_title);
+        gTexts.set(eText::PLAY_SUBTITLE, pf->_title2);
+        gTexts.set(eText::PLAY_ARTIST, pf->_artist);
+        gTexts.set(eText::PLAY_SUBARTIST, pf->_artist2);
+        gTexts.set(eText::PLAY_GENRE, pf->_genre);
+        gTexts.set(eText::PLAY_DIFFICULTY, pf->_version);
+        // _level
+
+        // _totalLength_sec
+        gNumbers.set(eNumber::INFO_TOTALNOTE, pf->_totalnotes);
+
+        // _BG
+        // _banner
+
+        gNumbers.set(eNumber::PLAY_BPM, static_cast<int>(std::round(pf->_itlBPM)));
+        gNumbers.set(eNumber::INFO_BPM_MIN, static_cast<int>(std::round(pf->_minBPM)));
+        gNumbers.set(eNumber::INFO_BPM_MAX, static_cast<int>(std::round(pf->_maxBPM)));
+
+        switch (ps->_file->type())
+        {
+        case eChartFormat::BMS:
+        {
+            const auto bms = std::reinterpret_pointer_cast<const BMS_prop>(pf);
+
+            // gamemode
+            switch (bms->player)
+            {
+            case 5:
+            case 7:
+            case 9:
+            case 24:
+                gOptions.set(eOption::CHART_PLAY_MODE, Option::PLAY_SINGLE);
+                break;
+
+            case 10:
+            case 14:
+            case 48:
+                gOptions.set(eOption::CHART_PLAY_MODE, Option::PLAY_DOUBLE);
+                break;
+
+            default:
+                break;
+            }
+
+            gNumbers.set(eNumber::PLAY_BPM, static_cast<int>(std::round(bms->bpm)));
+
+            // gamemode
+            unsigned op_keys = Option::KEYS_NOT_PLAYABLE;
+            switch (bms->gamemode)
+            {
+            case 7:  op_keys = Option::KEYS_7; break;
+            case 5:  op_keys = Option::KEYS_5; break;
+            case 14: op_keys = Option::KEYS_14; break;
+            case 10: op_keys = Option::KEYS_10; break;
+            case 9:  op_keys = Option::KEYS_9; break;
+            case 24: op_keys = Option::KEYS_24; break;
+            case 48: op_keys = Option::KEYS_48; break;
+            default: break;
+            }
+            gOptions.set(eOption::CHART_PLAY_KEYS, op_keys);
+
+            // judge
+            unsigned op_judgerank = Option::JUDGE_NORMAL;
+            switch (bms->rank)
+            {
+            case 0: op_judgerank = Option::JUDGE_VHARD; break;
+            case 1: op_judgerank = Option::JUDGE_HARD; break;
+            case 2: op_judgerank = Option::JUDGE_NORMAL; break;
+            case 3: op_judgerank = Option::JUDGE_EASY; break;
+            default: break;
+            }
+            gOptions.set(eOption::CHART_JUDGE_TYPE, op_judgerank);
+
+            // TODO TOTAL
+
+            gSwitches.set(eSwitch::CHART_HAVE_BGA, bms->haveBGA);
+            gSwitches.set(eSwitch::CHART_HAVE_BPMCHANGE, bms->haveBPMChange);
+            gSwitches.set(eSwitch::CHART_HAVE_LN, bms->haveLN);
+            gSwitches.set(eSwitch::CHART_HAVE_RANDOM, bms->haveRandom);
+
+            //gSwitches.set(eSwitch::CHART_HAVE_BACKBMP, ?);
+
+            //gSwitches.set(eSwitch::CHART_HAVE_SPEEDCHANGE, ?);
+
+            break;
+        }
+
+        default:
+            break;
+        }
+    }
+
+    // score.db
     switch (e[idx]->type())
     {
     case eEntryType::SONG:
-    case eEntryType::RIVAL_SONG: 
+    case eEntryType::RIVAL_SONG:
         gOptions.set(eOption::SELECT_ENTRY_TYPE, Option::ENTRY_SONG);
         gOptions.set(eOption::SELECT_ENTRY_LAMP, Option::LAMP_NOPLAY);
-        // TODO get play rank from db
         gOptions.set(eOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
-        // TODO get play mode
-        gOptions.set(eOption::CHART_PLAY_KEYS, Option::KEYS_7);
         break;
 
     case eEntryType::COURSE:
         gOptions.set(eOption::SELECT_ENTRY_TYPE, Option::ENTRY_COURSE);
         gOptions.set(eOption::SELECT_ENTRY_LAMP, Option::LAMP_NOPLAY);
         gOptions.set(eOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
-        gOptions.set(eOption::CHART_PLAY_KEYS, Option::KEYS_7);
         break;
 
     case eEntryType::NEW_COURSE:
@@ -140,12 +194,69 @@ void setBarInfo()
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
+{
+    _inputAvailable = INPUT_MASK_FUNC;
+
+    //if (context_play.chartObj[PLAYER_SLOT_1P] != nullptr)
+    {
+        _inputAvailable |= INPUT_MASK_1P;
+    }
+
+    //if (context_play.chartObj[PLAYER_SLOT_2P] != nullptr)
+    {
+        _inputAvailable |= INPUT_MASK_2P;
+    }
+
+    {
+        std::lock_guard<std::mutex> u(context_select._mutex);
+        loadSongList();
+        setBarInfo();
+        setEntryInfo();
+    }
+
+    _state = eSelectState::PREPARE;
+
+    loopStart();
+
+}
+
+void SceneSelect::_updateAsync()
+{
+    switch (_state)
+    {
+    case eSelectState::PREPARE:
+        updatePrepare();
+        break;
+    case eSelectState::SELECT:
+        updateSelect();
+        break;
+    case eSelectState::SEARCH:
+        updateSearch();
+        break;
+    case eSelectState::PANEL1:
+    case eSelectState::PANEL2:
+    case eSelectState::PANEL3:
+    case eSelectState::PANEL4:
+    case eSelectState::PANEL5:
+    case eSelectState::PANEL6:
+    case eSelectState::PANEL7:
+    case eSelectState::PANEL8:
+    case eSelectState::PANEL9:
+        updatePanel(unsigned(_state) - unsigned(eSelectState::PANEL1) + 1);
+        break;
+    case eSelectState::FADEOUT:
+        updateFadeout();
+        break;
+    }
+}
+
 void SceneSelect::updatePrepare()
 {
     auto t = Time();
     auto rt = t - gTimers.get(eTimer::SCENE_START);
-
-    setBarInfo();
 
     if (rt.norm() >= _skin->info.timeIntro)
     {
@@ -168,8 +279,6 @@ void SceneSelect::updateSelect()
 {
     auto t = Time();
     auto rt = t - gTimers.get(eTimer::SCENE_START);
-
-    setBarInfo();
 }
 
 void SceneSelect::updateSearch()
@@ -436,7 +545,11 @@ void SceneSelect::_navigateUpBy1(Time t)
     // TODO animation
     gTimers.set(eTimer::LIST_MOVE, t.norm());
     gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());
+
+    setBarInfo();
+    setEntryInfo();
 }
+
 void SceneSelect::_navigateDownBy1(Time t)
 {
     std::lock_guard<std::mutex> u(context_select._mutex);
@@ -445,6 +558,9 @@ void SceneSelect::_navigateDownBy1(Time t)
     // TODO animation
     gTimers.set(eTimer::LIST_MOVE, t.norm());
     gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());
+
+    setBarInfo();
+    setEntryInfo();
 }
 
 void SceneSelect::_navigateEnter(Time t)
@@ -476,6 +592,9 @@ void SceneSelect::_navigateEnter(Time t)
 
         gTimers.set(eTimer::LIST_MOVE, t.norm());
         gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());
+
+        setBarInfo();
+        setEntryInfo();
         break;
     }
     default:
@@ -498,5 +617,8 @@ void SceneSelect::_navigateBack(Time t)
 
         gTimers.set(eTimer::LIST_MOVE, t.norm());
         gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());
+
+        setBarInfo();
+        setEntryInfo();
     }
 }
