@@ -112,6 +112,7 @@ namespace Option
     };
 
     enum e_play_keys {
+        KEYS_NOT_PLAYABLE,
         KEYS_7,
         KEYS_5,
         KEYS_14,
@@ -153,6 +154,7 @@ namespace Option
     };
 
     enum e_lamp_type {
+        LAMP_NOT_APPLICIABLE,
         LAMP_NOPLAY,
         LAMP_FAILED,
         LAMP_ASSIST,
@@ -166,6 +168,7 @@ namespace Option
     };
 
     enum e_rank_type {
+        RANK_NONE,  // -
         RANK_0, // MAX
         RANK_1, // AAA
         RANK_2, // AA
@@ -175,7 +178,6 @@ namespace Option
         RANK_6, // D
         RANK_7, // E
         RANK_8, // F
-        RANK_9  // -
     };
 
     enum e_acc_type {
@@ -201,6 +203,7 @@ namespace Option
     };
 
     enum e_judge_type {
+        JUDGE_NONE,
         JUDGE_0,
         JUDGE_1,
         JUDGE_2,
@@ -212,6 +215,7 @@ namespace Option
     };
 
     enum e_course_stage {
+        STAGE_NOT_COURSE,
         STAGE_FINAL, 
         STAGE_1, 
         STAGE_2, 

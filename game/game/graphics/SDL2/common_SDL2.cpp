@@ -12,7 +12,6 @@
 #define strcpy strcpy_s
 #endif
 
-
 Color::Color(uint32_t rgba)
 {
     r = (rgba & 0xff000000) >> 24;

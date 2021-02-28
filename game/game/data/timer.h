@@ -12,6 +12,17 @@ enum class eTimer : unsigned
     FAIL_BEGIN,
     TEXT_INPUT_FINISHED,
 
+    LIST_MOVING = 10,
+    LIST_MOVE,
+    LIST_MOVE_UP,
+    LIST_MOVE_DOWN,
+    LIST_MOVE_STOP,
+    README_START,
+    README_END,
+    COURSE_SELECT_START,
+    COURSE_SELECT_END,
+
+
     PLAY_READY = 40,
     PLAY_START,
 

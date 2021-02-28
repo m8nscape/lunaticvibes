@@ -1496,4 +1496,4 @@ public:
 void updateDstOpt();
 void setCustomDstOpt(unsigned base, unsigned offset, bool val);
 void clearCustomDstOpt();
-bool getDstOpt(dst_option d);
+bool getDstOpt(int d);

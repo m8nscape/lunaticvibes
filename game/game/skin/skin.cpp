@@ -54,12 +54,12 @@ void vSkin::update()
 		}
     };
 
-#ifdef _dfdfdDEBUG
+#ifdef ddd_DEBUG
 	std::for_each(std::execution::seq, _sprites_parent.begin(), _sprites_parent.end(), updateSpriteLambda);
     std::for_each(std::execution::seq, _sprites_child.begin(), _sprites_child.end(), updateSpriteLambda);
 #else
-    std::for_each(std::execution::par_unseq, _sprites_parent.begin(), _sprites_parent.end(), updateSpriteLambda);
-    std::for_each(std::execution::par_unseq, _sprites_child.begin(), _sprites_child.end(), updateSpriteLambda);
+    std::for_each(std::execution::par, _sprites_parent.begin(), _sprites_parent.end(), updateSpriteLambda);
+    std::for_each(std::execution::par, _sprites_child.begin(), _sprites_child.end(), updateSpriteLambda);
 #endif
 }
 

@@ -29,7 +29,6 @@ class vChartFormat;
 class SceneSelect : public vScene
 {
 private:
-    std::mutex _mutex;
     eSelectState _state;
     InputMask _inputAvailable;
 
@@ -60,9 +59,9 @@ protected:
 
 private:
     void loadSongList();
-    void _navigateUpBy1();
-    void _navigateDownBy1();
-    void _navigateEnter();
-    void _navigateBack();
+    void _navigateUpBy1(Time t);
+    void _navigateDownBy1(Time t);
+    void _navigateEnter(Time t);
+    void _navigateBack(Time t);
     void _decide();
 };

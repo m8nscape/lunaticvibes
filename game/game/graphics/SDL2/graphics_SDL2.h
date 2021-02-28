@@ -217,7 +217,6 @@ class TTFFont
 
 protected:
     TTF_Font* _pFont = NULL;
-    std::mutex _fontMutex;
     bool _loaded = false;
 
 public:

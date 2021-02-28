@@ -393,10 +393,13 @@ SpriteText::SpriteText(pFont f, Rect rect, eText e, TextAlign a, unsigned ptsize
 
 bool SpriteText::update(Time t)
 {
+    // it takes me 2 hours to figure out that font LIBRARY can not be accessed by parallel
+    std::lock_guard<std::mutex> u{_updateMutex};
+
 	if (_draw = updateByKeyframes(t))
 	{
 		setText(gTexts.get(_textInd), _current.color);
-		updateTextRect();
+		if (_draw) updateTextRect();
 	}
 	return _draw;
 }
@@ -444,10 +447,21 @@ void SpriteText::updateTextRect()
 
 }
 
-void SpriteText::setText(std::string text, const Color& c)
+void SpriteText::setText(std::string&& text, const Color& c)
 {
-    if (!_pFont || !_pFont->_loaded) return;
-    if (_currText == text && _color == c) return;
+    if (!_pFont || !_pFont->_loaded)
+        return;
+
+    if (_currText == text && _color == c)
+        return;
+
+    if (text.empty() || c.a == 0)
+    {
+        _pTexture = nullptr;
+        _draw = false;
+        return;
+    }
+
     _currText = text;
     _color = c;
 
@@ -542,12 +556,11 @@ bool SpriteNumber::update(Time t)
 
         case NUM_ALIGN_CENTER:
         {
-            double delta = 0.5 * _current.rect.w;
             Rect offset{ 0,0,0,0 };
             if (_inhibitZero)
-                offset.x = int(std::floor(delta * (_numDigits - 1)));
+                offset.x = int(std::floor(_current.rect.w * 0.5 * (_numDigits - 1)));
             else
-                offset.x = int(std::floor(delta * (_maxDigits - _numDigits)));
+                offset.x = int(std::floor(_current.rect.w * (0.5 * (_maxDigits + _numDigits) - 1)));
             for (size_t i = 0; i < _numDigits; ++i)
             {
                 _rects[i] = _current.rect + offset;

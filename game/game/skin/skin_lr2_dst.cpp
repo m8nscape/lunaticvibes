@@ -9,6 +9,7 @@ inline void set(std::initializer_list<int> idx, bool val = true)
 	for (auto& i : idx)
 		_op.set(i, val);
 }
+inline bool get(int idx) { return _op[idx]; }
 
 constexpr bool dst(eOption option_entry, std::initializer_list<unsigned> entries)
 {
@@ -33,17 +34,25 @@ constexpr bool sw(eSwitch entry)
 	return gSwitches.get(entry);
 }
 
-bool getDstOpt(dst_option d)
+bool getDstOpt(int d)
 {
-    if (d == DST_TRUE) return true;
-    if (d == DST_FALSE) return false;
-	if ((unsigned)d >= 900) {
-		if ((unsigned)d > 999)
-			return false;
+	bool result = false;
+	dst_option op = (dst_option)std::abs(d);
+
+	if (d == DST_TRUE)
+		result = true;
+	else if (d == DST_FALSE)
+		result = false;
+	else if (op < 900)
+		result = _op[op];
+	else if (op >= 900) 
+	{
+		if (op > 999)
+			result = false;
 		else
-			return _customOp[d - 900];
+			result = _customOp[op - 900];
 	}
-	return _op[d];
+	return (d >= 0) ? result : !result;
 }
 
 void setCustomDstOpt(unsigned base, unsigned offset, bool val)
@@ -270,6 +279,7 @@ void updateDstOpt()
 		using namespace Option;
 		switch (gOptions.get(eOption::SELECT_ENTRY_LAMP))
 		{
+		case LAMP_NOT_APPLICIABLE: break;
 		case LAMP_NOPLAY: set(100); break;
 		case LAMP_FAILED: set(101); break;
 		case LAMP_ASSIST:
@@ -332,7 +342,7 @@ void updateDstOpt()
 	// 121 EASY
 	// 122 PERFECT ATTACK
 	// 123 GOOD ATTACK
-	set(118);
+	// set(118);
 
 	// //クリア済みオプションフラグ(ランダム)
 	// 126 正規
@@ -341,14 +351,14 @@ void updateDstOpt()
 	// 129 S-RANDOM
 	// 130 SCATTER
 	// 131 CONVERGE
-	set(126);
+	// set(126);
 
 	// //クリア済みオプションフラグ(エフェクト)
 	// 134 無し
 	// 135 HIDDEN
 	// 136 SUDDEN
 	// 137 HID+SUD
-	set(134);
+	// set(134);
 
 	// //その他オプションフラグ
 	// 142 AUTO SCRATCH (自動皿抜きでクリアすれば消えます)
@@ -368,102 +378,106 @@ void updateDstOpt()
 	case DIFF_INSANE: set(155); break;
 	}
 
-	// //元データ
-	// 160 7keys
-	// 161 5keys
-	// 162 14keys
-	// 163 10keys
-	// 164 9keys
+	if (get(5))	// is playable
 	{
-		using namespace Option;
-		switch (gOptions.get(eOption::CHART_PLAY_KEYS))
+
+		// //元データ
+		// 160 7keys
+		// 161 5keys
+		// 162 14keys
+		// 163 10keys
+		// 164 9keys
 		{
-		case KEYS_7: set(160); break;
-		case KEYS_5: set(161); break;
-		case KEYS_14: set(162); break;
-		case KEYS_10: set(163); break;
-		case KEYS_9: set(164); break;
+			using namespace Option;
+			switch (gOptions.get(eOption::CHART_PLAY_KEYS))
+			{
+			case KEYS_NOT_PLAYABLE: break;
+			case KEYS_7: set(160); break;
+			case KEYS_5: set(161); break;
+			case KEYS_14: set(162); break;
+			case KEYS_10: set(163); break;
+			case KEYS_9: set(164); break;
+			}
 		}
+
+		// //オプション全適用後の最終的な鍵盤数
+		// //165 7keys
+		// //166 5keys
+		// //167 14keys
+		// //168 10keys
+		// //169 9keys
+
+
+		// 170 BGA無し
+		// 171 BGA有り
+		set(170, !sw(eSwitch::CHART_HAVE_BGA));
+		set(171, sw(eSwitch::CHART_HAVE_BGA));
+
+		// 172 ロングノート無し
+		// 173 ロングノート有り
+		set(172, !sw(eSwitch::CHART_HAVE_LN));
+		set(173, sw(eSwitch::CHART_HAVE_LN));
+
+		// 174 付属テキスト無し
+		// 175 付属テキスト有り
+		set(174, !sw(eSwitch::CHART_HAVE_README));
+		set(175, sw(eSwitch::CHART_HAVE_README));
+
+		// 176 BPM変化無し
+		// 177 BPM変化有り
+		set(176, !sw(eSwitch::CHART_HAVE_BPMCHANGE));
+		set(177, sw(eSwitch::CHART_HAVE_BPMCHANGE));
+
+		// 178 ランダム命令無し
+		// 179 ランダム命令有り
+		set(178, !sw(eSwitch::CHART_HAVE_RANDOM));
+		set(179, sw(eSwitch::CHART_HAVE_RANDOM));
+
+		// 180 判定veryhard
+		// 181 判定hard
+		// 182 判定normal
+		// 183 判定easy
+		switch (gOptions.get(eOption::CHART_JUDGE_TYPE))
+		{
+			using namespace Option;
+		case JUDGE_VHARD: set(180); break;
+		case JUDGE_HARD: set(181); break;
+		case JUDGE_NORMAL: set(182); break;
+		case JUDGE_EASY: set(183); break;
+		}
+
+		// 185 レベルが規定値内にある(5/10keysはLV9、7/14keysはLV12、9keysはLV42以内)
+		// 186 レベルが規定値を越えている
+		switch (gOptions.get(eOption::CHART_DIFFICULTY))
+		{
+			using namespace Option;
+			//case DIFF_ANY: set(185); break;
+		case DIFF_BEGINNER: set(185, _op[70]); set(186, _op[75]);  break;
+		case DIFF_NORMAL:  set(185, _op[71]); set(186, _op[76]); break;
+		case DIFF_HYPER:  set(185, _op[72]); set(186, _op[77]); break;
+		case DIFF_ANOTHER:  set(185, _op[73]); set(186, _op[78]); break;
+		case DIFF_INSANE:  set(185, _op[74]); set(186, _op[79]); break;
+		}
+
+		// 190 STAGEFILE無し
+		// 191 STAGEFILE有り
+		set(190, !sw(eSwitch::CHART_HAVE_STAGEFILE));
+		set(191, sw(eSwitch::CHART_HAVE_STAGEFILE));
+
+		// 192 BANNER無し
+		// 193 BANNER有り
+		set(192, !sw(eSwitch::CHART_HAVE_BANNER));
+		set(193, sw(eSwitch::CHART_HAVE_BANNER));
+
+		// 194 BACKBMP無し
+		// 195 BACKBMP有り
+		set(194, !sw(eSwitch::CHART_HAVE_BACKBMP));
+		set(195, sw(eSwitch::CHART_HAVE_BACKBMP));
+
+		// 196 リプレイ無し
+		// 197 リプレイ有り
+		set(196);
 	}
-
-	// //オプション全適用後の最終的な鍵盤数
-	// //165 7keys
-	// //166 5keys
-	// //167 14keys
-	// //168 10keys
-	// //169 9keys
-
-
-	// 170 BGA無し
-	// 171 BGA有り
-	set(170, !sw(eSwitch::CHART_HAVE_BGA));
-	set(171, sw(eSwitch::CHART_HAVE_BGA));
-
-	// 172 ロングノート無し
-	// 173 ロングノート有り
-	set(172, !sw(eSwitch::CHART_HAVE_LN));
-	set(173, sw(eSwitch::CHART_HAVE_LN));
-
-	// 174 付属テキスト無し
-	// 175 付属テキスト有り
-	set(174, !sw(eSwitch::CHART_HAVE_README));
-	set(175, sw(eSwitch::CHART_HAVE_README));
-
-	// 176 BPM変化無し
-	// 177 BPM変化有り
-	set(176, !sw(eSwitch::CHART_HAVE_BPMCHANGE));
-	set(177, sw(eSwitch::CHART_HAVE_BPMCHANGE));
-
-	// 178 ランダム命令無し
-	// 179 ランダム命令有り
-	set(178, !sw(eSwitch::CHART_HAVE_RANDOM));
-	set(179, sw(eSwitch::CHART_HAVE_RANDOM));
-
-	// 180 判定veryhard
-	// 181 判定hard
-	// 182 判定normal
-	// 183 判定easy
-	switch (gOptions.get(eOption::CHART_JUDGE_TYPE))
-	{
-		using namespace Option;
-	case JUDGE_VHARD: set(180); break;
-	case JUDGE_HARD: set(181); break;
-	case JUDGE_NORMAL: set(182); break;
-	case JUDGE_EASY: set(183); break;
-	}
-
-	// 185 レベルが規定値内にある(5/10keysはLV9、7/14keysはLV12、9keysはLV42以内)
-	// 186 レベルが規定値を越えている
-	switch (gOptions.get(eOption::CHART_DIFFICULTY))
-	{
-	using namespace Option;
-	//case DIFF_ANY: set(185); break;
-	case DIFF_BEGINNER: set(185, _op[70]); set(186, _op[75]);  break;
-	case DIFF_NORMAL:  set(185, _op[71]); set(186, _op[76]); break;
-	case DIFF_HYPER:  set(185, _op[72]); set(186, _op[77]); break;
-	case DIFF_ANOTHER:  set(185, _op[73]); set(186, _op[78]); break;
-	case DIFF_INSANE:  set(185, _op[74]); set(186, _op[79]); break;
-	}
-
-	// 190 STAGEFILE無し
-	// 191 STAGEFILE有り
-	set(190, !sw(eSwitch::CHART_HAVE_STAGEFILE));
-	set(191, sw(eSwitch::CHART_HAVE_STAGEFILE));
-
-	// 192 BANNER無し
-	// 193 BANNER有り
-	set(192, !sw(eSwitch::CHART_HAVE_BANNER));
-	set(193, sw(eSwitch::CHART_HAVE_BANNER));
-
-	// 194 BACKBMP無し
-	// 195 BACKBMP有り
-	set(194, !sw(eSwitch::CHART_HAVE_BACKBMP));
-	set(195, sw(eSwitch::CHART_HAVE_BACKBMP));
-
-	// 196 リプレイ無し
-	// 197 リプレイ有り
-	set(196);
-
 
 	// /////////////////////////////////
 	// //プレイ中
@@ -481,6 +495,7 @@ void updateDstOpt()
 		case RANK_6: set(205); break;
 		case RANK_7: set(206); break;
 		case RANK_8: set(207); break;
+		case RANK_NONE: break;
 		}
 	}
 
@@ -498,6 +513,7 @@ void updateDstOpt()
 		case RANK_6: set(215); break;
 		case RANK_7: set(216); break;
 		case RANK_8: set(217); break;
+		case RANK_NONE: break;
 		}
 	}
 
@@ -516,6 +532,7 @@ void updateDstOpt()
 		case RANK_6: set(225); break;
 		case RANK_7: set(226); break;
 		case RANK_8: set(227); break;
+		case RANK_NONE: break;
 		}
 	}
 
@@ -548,6 +565,7 @@ void updateDstOpt()
 		using namespace Option;
 		switch (gOptions.get(eOption::PLAY_LAST_JUDGE_1P))
 		{
+		case JUDGE_NONE: break;
 		case JUDGE_0: set(241); break;
 		case JUDGE_1: set(242); break;
 		case JUDGE_2: set(243); break;
@@ -620,6 +638,7 @@ void updateDstOpt()
 		switch (gOptions.get(eOption::PLAY_COURSE_STAGE))
 		{
 			using namespace Option;
+		case STAGE_NOT_COURSE: break;
 		case STAGE_1: set(280); break;
 		case STAGE_2: set(281); break;
 		case STAGE_3: set(282); break;
@@ -650,7 +669,7 @@ void updateDstOpt()
 		case RANK_6: set(305); break;
 		case RANK_7: set(306); break;
 		case RANK_8: set(307); break;
-		case RANK_9: set(308); break;
+		case RANK_NONE: set(308); break;
 		}
 	}
 
@@ -668,7 +687,7 @@ void updateDstOpt()
 		case RANK_6: set(315); break;
 		case RANK_7: set(316); break;
 		case RANK_8: set(317); break;
-		case RANK_9: set(318); break;
+		case RANK_NONE: set(318); break;
 		}
 	}
 
@@ -686,6 +705,7 @@ void updateDstOpt()
 		case RANK_6: set(325); break;
 		case RANK_7: set(326); break;
 		case RANK_8: set(327); break;
+		case RANK_NONE: break;
 		}
 	}
 

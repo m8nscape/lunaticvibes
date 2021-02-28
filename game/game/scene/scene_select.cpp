@@ -20,9 +20,10 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
         _inputAvailable |= INPUT_MASK_2P;
     }
 
-    std::lock_guard<std::mutex> u(context_select._mutex);
-
-    loadSongList();
+    {
+        std::lock_guard<std::mutex> u(context_select._mutex);
+        loadSongList();
+    }
 
     _state = eSelectState::PREPARE;
 
@@ -33,9 +34,6 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
 
 void SceneSelect::_updateAsync()
 {
-    std::unique_lock<decltype(_mutex)> _lock(_mutex, std::try_to_lock);
-    if (!_lock.owns_lock()) return;
-
     switch (_state)
     {
     case eSelectState::PREPARE:
@@ -103,6 +101,43 @@ void setBarInfo()
     gTexts.set(eText::PLAY_TITLE, e[idx]->_name);
     gTexts.set(eText::PLAY_SUBTITLE, e[idx]->_name2);
     // TODO BMS text updates
+
+    switch (e[idx]->type())
+    {
+    case eEntryType::SONG:
+    case eEntryType::RIVAL_SONG: 
+        gOptions.set(eOption::SELECT_ENTRY_TYPE, Option::ENTRY_SONG);
+        gOptions.set(eOption::SELECT_ENTRY_LAMP, Option::LAMP_NOPLAY);
+        // TODO get play rank from db
+        gOptions.set(eOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
+        // TODO get play mode
+        gOptions.set(eOption::CHART_PLAY_KEYS, Option::KEYS_7);
+        break;
+
+    case eEntryType::COURSE:
+        gOptions.set(eOption::SELECT_ENTRY_TYPE, Option::ENTRY_COURSE);
+        gOptions.set(eOption::SELECT_ENTRY_LAMP, Option::LAMP_NOPLAY);
+        gOptions.set(eOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
+        gOptions.set(eOption::CHART_PLAY_KEYS, Option::KEYS_7);
+        break;
+
+    case eEntryType::NEW_COURSE:
+        gOptions.set(eOption::SELECT_ENTRY_TYPE, Option::ENTRY_NEW_COURSE);
+        gOptions.set(eOption::SELECT_ENTRY_LAMP, Option::LAMP_NOT_APPLICIABLE);
+        gOptions.set(eOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
+        gOptions.set(eOption::CHART_PLAY_KEYS, Option::KEYS_NOT_PLAYABLE);
+        break;
+
+    case eEntryType::FOLDER:
+    case eEntryType::CUSTOM_FOLDER:
+    case eEntryType::RIVAL:
+    default:
+        gOptions.set(eOption::SELECT_ENTRY_TYPE, Option::ENTRY_FOLDER);
+        gOptions.set(eOption::SELECT_ENTRY_LAMP, Option::LAMP_NOT_APPLICIABLE);
+        gOptions.set(eOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
+        gOptions.set(eOption::CHART_PLAY_KEYS, Option::KEYS_NOT_PLAYABLE);
+        break;
+    }
 }
 
 void SceneSelect::updatePrepare()
@@ -121,6 +156,9 @@ void SceneSelect::updatePrepare()
         _input.register_h("SCENE_HOLD", std::bind(&SceneSelect::inputGameHold, this, _1, _2));
         _input.register_r("SCENE_RELEASE", std::bind(&SceneSelect::inputGameRelease, this, _1, _2));
         _input.loopStart();
+
+        gTimers.set(eTimer::LIST_MOVE, t.norm());
+        gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());
 
         LOG_DEBUG << "[Select] State changed to SELECT";
     }
@@ -187,7 +225,7 @@ void SceneSelect::inputGamePress(InputMask& m, Time t)
                 case eEntryType::FOLDER:
                 case eEntryType::CUSTOM_FOLDER:
                     if ((input & INPUT_MASK_DECIDE).any())
-                        _navigateEnter();
+                        _navigateEnter(t);
                     break;
 
                 case eEntryType::SONG:
@@ -200,11 +238,11 @@ void SceneSelect::inputGamePress(InputMask& m, Time t)
                     break;
             }
             if ((input & INPUT_MASK_CANCEL).any())
-                _navigateBack();
+                _navigateBack(t);
             if ((input & INPUT_MASK_NAV_UP).any())
-                _navigateUpBy1();
+                _navigateUpBy1(t);
             if ((input & INPUT_MASK_NAV_DN).any())
-                _navigateDownBy1();
+                _navigateDownBy1(t);
 
             break;
 
@@ -234,6 +272,8 @@ void SceneSelect::inputGameRelease(InputMask& m, Time t)
 
 void SceneSelect::_decide()
 {
+    std::lock_guard<std::mutex> u(context_select._mutex);
+
     auto entry = context_select.entries[context_select.idx];
     //auto& chart = entry.charts[entry.chart_idx];
     auto& c = context_chart;
@@ -388,18 +428,26 @@ void SceneSelect::loadSongList()
 
 }
 
-void SceneSelect::_navigateUpBy1()
+void SceneSelect::_navigateUpBy1(Time t)
 {
+    std::lock_guard<std::mutex> u(context_select._mutex);
+
     context_select.idx = (context_select.entries.size() + context_select.idx - 1) % context_select.entries.size();
     // TODO animation
+    gTimers.set(eTimer::LIST_MOVE, t.norm());
+    gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());
 }
-void SceneSelect::_navigateDownBy1()
+void SceneSelect::_navigateDownBy1(Time t)
 {
+    std::lock_guard<std::mutex> u(context_select._mutex);
+
     context_select.idx = (context_select.idx + 1) % context_select.entries.size();
     // TODO animation
+    gTimers.set(eTimer::LIST_MOVE, t.norm());
+    gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());
 }
 
-void SceneSelect::_navigateEnter()
+void SceneSelect::_navigateEnter(Time t)
 {
     std::lock_guard<std::mutex> u(context_select._mutex);
 
@@ -425,13 +473,16 @@ void SceneSelect::_navigateEnter()
         context_select.entries.clear();
         context_select.idx = 0;
         loadSongList();
+
+        gTimers.set(eTimer::LIST_MOVE, t.norm());
+        gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());
         break;
     }
     default:
         break;
     }
 }
-void SceneSelect::_navigateBack()
+void SceneSelect::_navigateBack(Time t)
 {
     std::lock_guard<std::mutex> u(context_select._mutex);
 
@@ -444,5 +495,8 @@ void SceneSelect::_navigateBack()
         top = context_select.backtrace.top();
         context_select.entries = top.list;
         context_select.idx = top.index;
+
+        gTimers.set(eTimer::LIST_MOVE, t.norm());
+        gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());
     }
 }

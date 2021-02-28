@@ -24,7 +24,7 @@ TTFFont::~TTFFont()
 void TTFFont::setStyle(TTFStyle style)
 {
     if (!_loaded) return;
-    std::lock_guard<std::mutex> guard(_fontMutex);
+
     switch (style)
     {
     case TTFStyle::Normal:    TTF_SetFontStyle(_pFont, TTF_STYLE_NORMAL); break;
@@ -36,13 +36,13 @@ void TTFFont::setStyle(TTFStyle style)
 void TTFFont::setOutline(bool enabled)
 {
     if (!_loaded) return;
-    std::lock_guard<std::mutex> guard(_fontMutex);
+
     TTF_SetFontOutline(_pFont, enabled);
 }
 void TTFFont::setHinting(TTFHinting mode)
 {
     if (!_loaded) return;
-    std::lock_guard<std::mutex> guard(_fontMutex);
+
     switch (mode)
     {
     case TTFHinting::Normal:    TTF_SetFontHinting(_pFont, TTF_HINTING_NORMAL); break;
@@ -54,27 +54,26 @@ void TTFFont::setHinting(TTFHinting mode)
 void TTFFont::setKerning(bool enabled)
 {
     if (!_loaded) return;
-    std::lock_guard<std::mutex> guard(_fontMutex);
     TTF_SetFontKerning(_pFont, enabled);
 }
 
 std::shared_ptr<Texture> TTFFont::TextUTF8(const char* text, const Color& c)
 {
     if (!_loaded) return nullptr;
-    std::lock_guard<std::mutex> guard(_fontMutex);
+
     auto pSurf = TTF_RenderUTF8_Blended(_pFont, text, c);
     if (pSurf != NULL)
     {
         auto p = std::shared_ptr<SDL_Surface>(pSurf, SDL_FreeSurface);
         return std::move(std::make_shared<Texture>(&*p));
     }
-    LOG_WARNING << "[TTF] " << text << ": " << TTF_GetError();
+    //LOG_WARNING << "[TTF] " << text << ": " << TTF_GetError();
     return nullptr;
 }
 std::shared_ptr<Texture> TTFFont::TextUTF8Solid(const char* text, const Color& c)
 {
     if (!_loaded) return nullptr;
-    std::lock_guard<std::mutex> guard(_fontMutex);
+
     auto pSurf = TTF_RenderUTF8_Solid(_pFont, text, c);
     if (pSurf != NULL)
     {
@@ -87,7 +86,7 @@ std::shared_ptr<Texture> TTFFont::TextUTF8Solid(const char* text, const Color& c
 std::shared_ptr<Texture> TTFFont::TextUTF8Shaded(const char* text, const Color& c, const Color& bg)
 {
     if (!_loaded) return nullptr;
-    std::lock_guard<std::mutex> guard(_fontMutex);
+
     auto pSurf = TTF_RenderUTF8_Shaded(_pFont, text, c, bg);
     if (pSurf != NULL)
     {
@@ -101,7 +100,8 @@ std::shared_ptr<Texture> TTFFont::TextUTF8Shaded(const char* text, const Color& 
 Rect TTFFont::getRectUTF8(const char* text)
 {
     Rect r{ 0, 0, 0, 0 };
-    std::lock_guard<std::mutex> guard(_fontMutex);
-    if (_loaded) TTF_SizeUTF8(_pFont, text, &r.w, &r.h);
+
+    if (!_loaded) return r;
+    TTF_SizeUTF8(_pFont, text, &r.w, &r.h);
     return r;
 }

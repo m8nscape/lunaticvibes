@@ -241,6 +241,7 @@ private:
     std::string _currText;
 	TextAlign _align;
     Color _color;
+    inline static std::mutex _updateMutex;
     //bool _haveRect = false;
 	//Rect _frameRect;
 
@@ -251,9 +252,10 @@ public:
     virtual ~SpriteText() = default;
 public:
     void updateTextRect();
-    void setText(std::string text, const Color& c);
+    void setText(std::string&& text, const Color& c);
 	virtual bool update(Time t);
     virtual void draw() const;
+    TextAlign getAlignType() const { return _align; }
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -158,7 +158,6 @@ void SpriteBarEntry::pushPartsOrder(BarPartsType type)
 
 bool SpriteBarEntry::update(Time time)
 {
-    std::lock_guard<std::mutex> u(context_select._mutex);
     auto& list = context_select.entries;
     if (!list.empty())
     {
