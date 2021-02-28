@@ -211,8 +211,8 @@ bool convert_basic(pChart chart, const std::vector<std::any>& in)
     chart->_itlBPM = ANY_REAL(in[11]);
     chart->_minBPM = ANY_REAL(in[12]);
     chart->_maxBPM = ANY_REAL(in[13]);
-    chart->_totalLength_sec = ANY_INT(in[14]);
-    chart->_totalnotes = ANY_INT(in[15]);
+    chart->_totalLength_sec = (int)ANY_INT(in[14]);
+    chart->_totalnotes = (int)ANY_INT(in[15]);
     chart->_BG = ANY_STR(in[16]);
     chart->_banner = ANY_STR(in[17]);
     return true;
@@ -222,17 +222,17 @@ bool convert_bms(std::shared_ptr<BMS_prop> chart, const std::vector<std::any>& i
 {
     if (in.size() < 29) return false;
     if (!convert_basic(chart, in)) return false;
-    chart->gamemode = ANY_INT(in[18]);
-    chart->rank = ANY_INT(in[19]);
-    chart->total = ANY_INT(in[20]);
-    chart->playLevel = ANY_INT(in[21]);
-    chart->difficulty = ANY_INT(in[22]);
-    chart->haveLN = ANY_INT(in[23]);
-    chart->haveMine = ANY_INT(in[24]);
-    chart->haveMetricMod = ANY_INT(in[25]);
-    chart->haveStop = ANY_INT(in[26]);
-    chart->haveBGA = ANY_INT(in[27]);
-    chart->haveRandom = ANY_INT(in[28]);
+    chart->gamemode = (int)ANY_INT(in[18]);
+    chart->rank = (int)ANY_INT(in[19]);
+    chart->total = (int)ANY_INT(in[20]);
+    chart->playLevel = (int)ANY_INT(in[21]);
+    chart->difficulty = (int)ANY_INT(in[22]);
+    chart->haveLN = (bool)ANY_INT(in[23]);
+    chart->haveMine = (bool)ANY_INT(in[24]);
+    chart->haveMetricMod = (bool)ANY_INT(in[25]);
+    chart->haveStop = (bool)ANY_INT(in[26]);
+    chart->haveBGA = (bool)ANY_INT(in[27]);
+    chart->haveRandom = (bool)ANY_INT(in[28]);
     if (chart->_totalnotes > 0)
     {
         chart->haveNote = true;
@@ -252,17 +252,17 @@ int pushResult(std::vector<pChart>& list, const std::vector<std::vector<std::any
         case eChartFormat::BMS:
         {
             auto bms = std::make_shared<BMS>();
-            bms->gamemode = ANY_INT(r[18]);
-            bms->rank = ANY_INT(r[19]);
-            bms->total = ANY_INT(r[20]);
-            bms->playLevel = ANY_INT(r[21]);
-            bms->difficulty = ANY_INT(r[22]);
-            bms->haveLN = ANY_INT(r[23]);
-            bms->haveMine = ANY_INT(r[24]);
-            bms->haveMetricMod = ANY_INT(r[25]);
-            bms->haveStop = ANY_INT(r[26]);
-            bms->haveBGA = ANY_INT(r[27]);
-            bms->haveRandom = ANY_INT(r[28]);
+            bms->gamemode = (int)ANY_INT(r[18]);
+            bms->rank = (int)ANY_INT(r[19]);
+            bms->total = (int)ANY_INT(r[20]);
+            bms->playLevel = (int)ANY_INT(r[21]);
+            bms->difficulty = (int)ANY_INT(r[22]);
+            bms->haveLN = (bool)ANY_INT(r[23]);
+            bms->haveMine = (bool)ANY_INT(r[24]);
+            bms->haveMetricMod = (bool)ANY_INT(r[25]);
+            bms->haveStop = (bool)ANY_INT(r[26]);
+            bms->haveBGA = (bool)ANY_INT(r[27]);
+            bms->haveRandom = (bool)ANY_INT(r[28]);
             list.push_back(bms);
             ++count;
             break;

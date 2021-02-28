@@ -49,10 +49,10 @@ public:
     StringContent _artist2;
     StringContent _genre;
     StringContent _version;     // mostly known as difficulty name
-    double _level;
+    double _level = 0.0;
 
-    int _totalLength_sec;
-    int _totalnotes;
+    int _totalLength_sec = 0;
+    int _totalnotes = 0;
 
     StringContent _BG;
     StringContent _banner;

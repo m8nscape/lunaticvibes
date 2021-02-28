@@ -50,7 +50,7 @@ int sVideo::setVideo(const Path& file)
 	}
 
 	//if ((videoIndex = av_find_best_stream(pFormatCtx, AVMEDIA_TYPE_VIDEO, -1, -1, &pCodec, 0)) < 0)
-	for (int i = 0; i < pFormatCtx->nb_streams; ++i)
+	for (size_t i = 0; i < pFormatCtx->nb_streams; ++i)
 	{
 		if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO)
 		{

@@ -1494,6 +1494,6 @@ public:
 
 // adapt helper
 void updateDstOpt();
-void setCustomDstOpt(unsigned base, unsigned offset, bool val);
+void setCustomDstOpt(unsigned base, size_t offset, bool val);
 void clearCustomDstOpt();
 bool getDstOpt(int d);

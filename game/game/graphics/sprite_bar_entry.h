@@ -118,8 +118,23 @@ protected:
     std::array<psAnimated, static_cast<size_t>(BarRivalType::RIVAL_TYPE_COUNT)> sRivalWinLose{ nullptr };
     std::array<psAnimated, static_cast<size_t>(BarLampType::LAMP_TYPE_COUNT)> sRivalLampSelf{ nullptr };
     std::array<psAnimated, static_cast<size_t>(BarLampType::LAMP_TYPE_COUNT)> sRivalLampRival{ nullptr };
-    bool drawBodyOn, drawTitle, drawFlash = false, drawLevel, drawLamp, drawRank, drawRival, drawRivalLampSelf, drawRivalLampRival;
-    size_t drawBodyType, drawTitleType, drawLevelType, drawLampType, drawRankType, drawRivalType, drawRivalLampSelfType, drawRivalLampRivalType;
+    bool drawBodyOn = false;
+    bool drawTitle = false;
+    bool drawFlash = false;
+    bool drawLevel = false;
+    bool drawLamp = false;
+    bool drawRank = false;
+    bool drawRival = false;
+    bool drawRivalLampSelf = false;
+    bool drawRivalLampRival = false;
+    size_t drawBodyType = 0;
+    size_t drawTitleType = 0;
+    size_t drawLevelType = 0;
+    size_t drawLampType = 0;
+    size_t drawRankType = 0;
+    size_t drawRivalType = 0;
+    size_t drawRivalLampSelfType = 0;
+    size_t drawRivalLampRivalType = 0;
 
     std::list<BarPartsType> partsOrder;
     std::list<std::pair<BarPartsType, unsigned>> drawQueue;

@@ -43,18 +43,18 @@ std::shared_ptr<ScoreClassic> ScoreDB::getChartScoreClassic(const HashMD5& hash)
     {
         const auto& r = result[0];
         auto ret = std::make_shared<ScoreClassic>();
-        ret->notes = ANY_INT(r[1]);
-        ret->score = ANY_INT(r[2]);
+        ret->notes = (int)ANY_INT(r[1]);
+        ret->score = (int)ANY_INT(r[2]);
         ret->rate = ANY_REAL(r[3]);
-        ret->exscore = ANY_INT(r[10]);
+        ret->exscore = (int)ANY_INT(r[10]);
         ret->lamp = (ScoreClassic::Lamp)ANY_INT(r[11]);
-        ret->pgreat = ANY_INT(r[12]);
-        ret->great = ANY_INT(r[13]);
-        ret->good = ANY_INT(r[14]);
-        ret->bad = ANY_INT(r[15]);
-        ret->bpoor = ANY_INT(r[16]);
-        ret->miss = ANY_INT(r[17]);
-        ret->bp = ANY_INT(r[18]);
+        ret->pgreat = (int)ANY_INT(r[12]);
+        ret->great = (int)ANY_INT(r[13]);
+        ret->good = (int)ANY_INT(r[14]);
+        ret->bad = (int)ANY_INT(r[15]);
+        ret->bpoor = (int)ANY_INT(r[16]);
+        ret->miss = (int)ANY_INT(r[17]);
+        ret->bp = (int)ANY_INT(r[18]);
         return ret;
     }
     return nullptr;

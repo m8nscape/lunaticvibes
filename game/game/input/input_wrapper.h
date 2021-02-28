@@ -35,7 +35,7 @@ class InputWrapper: public AsyncLooper
 {
 private:
 	std::mutex _mutex;
-    bool _busy;
+    bool _busy = false;
 
 protected:
     InputMask _prev = 0;

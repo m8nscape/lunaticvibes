@@ -121,7 +121,7 @@ bool vSprite::updateByKeyframes(Time rawTime)
             _current.color.b = (Uint8)grad(keyFrameNext->param.color.b, keyFrameCurr->param.color.b, t);
             _current.color.a = (Uint8)grad(keyFrameNext->param.color.a, keyFrameCurr->param.color.a, t);
             //_current.color = keyFrameNext->param.color * t + keyFrameNext->param.color * (1.0 - t);
-            _current.angle = grad(keyFrameNext->param.angle, keyFrameCurr->param.angle, t);
+            _current.angle = grad(static_cast<int>(std::round(keyFrameNext->param.angle)), static_cast<int>(std::round(keyFrameCurr->param.angle)), t);
             _current.center = keyFrameCurr->param.center;
             //LOG_DEBUG << "[Skin] Time: " << time << 
             //    " @ " << _current.rect.x << "," << _current.rect.y << " " << _current.rect.w << "x" << _current.rect.h;
@@ -323,7 +323,7 @@ void SpriteAnimated::updateAnimation(Time time)
     if (double timeEachFrame = double(_period) / _animFrames; timeEachFrame >= 1.0)
     {
         auto animFrameTime = time.norm() % _period;
-        _currAnimFrame = std::floor(animFrameTime / timeEachFrame);
+        _currAnimFrame = static_cast<frameIdx>(std::floor(animFrameTime / timeEachFrame));
     }
 	/*
     _drawRect = _texRect[_selectionIdx];
@@ -409,7 +409,7 @@ void SpriteText::updateTextRect()
 	// fitting
 	Rect textRect = _texRect;
 	double sizeFactor = (double)_current.rect.h / textRect.h;
-	int text_w = textRect.w * sizeFactor;
+	int text_w = static_cast<int>(std::round(textRect.w * sizeFactor));
 	double widthFactor = (double)_current.rect.w / text_w;
 	if (widthFactor > 1.0)
 	{
@@ -577,8 +577,8 @@ bool SpriteNumber::update(Time t)
 void SpriteNumber::updateNumber(int n)
 {
     bool positive = n >= 0;
-	size_t zeroIdx = 0;
-    unsigned maxDigits = _digit.size();
+	unsigned zeroIdx = 0;
+    unsigned maxDigits = static_cast<unsigned>(_digit.size());
 	switch (_numType)
 	{
 	case NUM_TYPE_NORMAL:    zeroIdx = 0; break;
@@ -653,7 +653,7 @@ void SpriteNumber::updateNumberByInd()
         n = 0;
         break;
 	case (eNumber)10220:
-		n = Time().norm();
+		n = int(Time().norm() & 0xFFFFFFFF);
 		break;
     default:
 #ifdef _DEBUG
@@ -727,7 +727,7 @@ void SpriteSlider::updateValByInd()
 
 void SpriteSlider::updatePos()
 {
-	int pos_delta = (_range-1) * _value;
+	int pos_delta = static_cast<int>(std::floor((_range-1) * _value));
 	switch (_dir)
 	{
 	case SliderDirection::DOWN:
@@ -939,18 +939,18 @@ void SpriteGaugeGrid::setGaugeType(SpriteGaugeGrid::GaugeType ty)
     // set FailRect
     updateSelection(_texIdxLightFail);
     SpriteAnimated::update(t);
-    _lightRectFailIdxOffset = _selectionIdx * _animFrames;
+    _lightRectFailIdxOffset = unsigned(_selectionIdx * _animFrames);
     updateSelection(_texIdxDarkFail);
     SpriteAnimated::update(t);
-    _darkRectFailIdxOffset = _selectionIdx * _animFrames;
+    _darkRectFailIdxOffset = unsigned(_selectionIdx * _animFrames);
 
     // set ClearRect
     updateSelection(_texIdxLightClear);
     SpriteAnimated::update(t);
-    _lightRectClearIdxOffset = _selectionIdx * _animFrames;
+    _lightRectClearIdxOffset = unsigned(_selectionIdx * _animFrames);
     updateSelection(_texIdxDarkClear);
     SpriteAnimated::update(t);
-    _darkRectClearIdxOffset = _selectionIdx * _animFrames;
+    _darkRectClearIdxOffset = unsigned(_selectionIdx * _animFrames);
 }
 
 void SpriteGaugeGrid::updateVal(unsigned v)
@@ -998,7 +998,8 @@ void SpriteGaugeGrid::draw() const
     if (_draw && _pTexture != nullptr && _pTexture->isLoaded())
     {
 		Rect r = _current.rect;
-        for (unsigned i = 0; i < _req - 1; ++i)
+        unsigned grid_val = unsigned(_req - 1);
+        for (unsigned i = 0; i < grid_val; ++i)
         {
             _lighting[i] ?
                 _pTexture->draw(_texRect[_lightRectFailIdxOffset + _currAnimFrame], r, _current.color, _current.blend, _current.filter, _current.angle) :
@@ -1006,7 +1007,7 @@ void SpriteGaugeGrid::draw() const
             r.x += _delta_x;
             r.y += _delta_y;
         }
-        for (unsigned i = _req - 1; i < _grids; ++i)
+        for (unsigned i = grid_val; i < _grids; ++i)
         {
             _lighting[i] ?
                 _pTexture->draw(_texRect[_lightRectClearIdxOffset + _currAnimFrame], r, _current.color, _current.blend, _current.filter, _current.angle) :

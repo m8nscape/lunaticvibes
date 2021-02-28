@@ -101,7 +101,10 @@ void AsyncLooper::loopStart()
 void AsyncLooper::loopEnd()
 {
     if (!_running) return;
-    DeleteTimerQueueTimer(NULL, handler, NULL);
+    if (DeleteTimerQueueTimer(NULL, handler, NULL))
+    {
+        // ..?
+    }
     _running = false;
     LOG_INFO << "[Looper] Ended of rate " << _rateTime;
 }

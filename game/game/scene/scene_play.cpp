@@ -152,7 +152,7 @@ ScenePlay::ScenePlay(ePlayMode gamemode): vScene(context_play.mode, 1000), _mode
     gNumbers.set(eNumber::BPM_MAX, int(std::round(context_chart.maxBPM)));
 
     // player datas
-    gNumbers.set(eNumber::HS_1P, ConfigMgr::get("P", cfg::P_HISPEED, 1.0) * 100);
+    gNumbers.set(eNumber::HS_1P, (int)ConfigMgr::get("P", cfg::P_HISPEED, 1.0) * 100);
     gNumbers.set(eNumber::HS_2P, 100);
 
     // set gauge type
@@ -185,7 +185,7 @@ ScenePlay::ScenePlay(ePlayMode gamemode): vScene(context_play.mode, 1000), _mode
     {
         if (_mode == ePlayMode::LOCAL_BATTLE)
         {
-            for (size_t i = 0; i < MAX_PLAYERS; ++i)
+            for (size_t i = 0; i < 2; ++i)
                 switch (_gaugetype[i])
                 {
                 case rc::gauge_ty::GROOVE: 
@@ -238,13 +238,13 @@ ScenePlay::ScenePlay(ePlayMode gamemode): vScene(context_play.mode, 1000), _mode
     {
         if (_mode == ePlayMode::LOCAL_BATTLE)
         {
-            gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, context_play.initialHealth[0]);
-            gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, context_play.initialHealth[1]);
+            gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, (int)context_play.initialHealth[0]);
+            gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, (int)context_play.initialHealth[1]);
         }
         else
         {
-            if (context_play.playerSlot == 0) gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, context_play.initialHealth[0]);
-            if (context_play.playerSlot == 1) gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, context_play.initialHealth[1]);
+            if (context_play.playerSlot == 0) gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, (int)context_play.initialHealth[0]);
+            if (context_play.playerSlot == 1) gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, (int)context_play.initialHealth[1]);
         }
     }
 
@@ -786,7 +786,7 @@ void ScenePlay::procCommonNotes()
                  _bgmSampleIdxBuf.size() : context_play.chartObj[context_play.playerSlot]->notePlainExpired.size();
     for (; i < max && it != context_play.chartObj[context_play.playerSlot]->notePlainExpired.end(); ++i, ++it)
     {
-        if (it->index & 0xF0 == 0xE0)
+        if ((it->index & 0xF0) == 0xE0)
         {
             // BGA
             /*
@@ -908,7 +908,7 @@ void ScenePlay::updateTTrotation(bool startedPlaying)
         auto t = Time();
         auto rt = t - gTimers.get(eTimer::PLAY_START);
         for (auto& aa : a)
-            aa += rt.norm() * 180 / 1000;
+            aa += int(rt.norm() * 180 / 1000);
     }
     for (auto& aa : a)
         aa %= 360;

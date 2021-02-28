@@ -41,7 +41,7 @@ int vScene::getVideoSlot() const
 {
 	for (size_t i = 0; i < SCENE_VIDEO_SLOT_MAX; ++i)
 	{
-		if (!_video[i].haveVideo) return i;
+		if (!_video[i].haveVideo) return (int)i;
 	}
 	return -1;
 }

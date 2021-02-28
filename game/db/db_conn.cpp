@@ -31,7 +31,7 @@ std::vector<std::vector<std::any>> SQLite::query(const char* zsql, size_t retSiz
 
     sqlite3_stmt* stmt = nullptr;
     const char* pzTail;
-    if (int ret = sqlite3_prepare_v3(_db, zsql, strlen(zsql), 0, &stmt, &pzTail))
+    if (int ret = sqlite3_prepare_v3(_db, zsql, (int)strlen(zsql), 0, &stmt, &pzTail))
     {
         LOG_ERROR << "[sqlite3] sql \"" << zsql << "\" prepare error: [" << ret << "] " << errmsg();
         return {};
@@ -45,8 +45,8 @@ std::vector<std::vector<std::any>> SQLite::query(const char* zsql, size_t retSiz
         else if (a.type() == typeid(long long)) sqlite3_bind_int64(stmt, i, std::any_cast<long long>(a));
         else if (a.type() == typeid(time_t)) sqlite3_bind_int64(stmt, i, std::any_cast<time_t>(a));
         else if (a.type() == typeid(double)) sqlite3_bind_double(stmt, i, std::any_cast<double>(a));
-        else if (a.type() == typeid(std::string)) sqlite3_bind_text(stmt, i, std::any_cast<std::string>(a).c_str(), std::any_cast<std::string>(a).length(), SQLITE_TRANSIENT);
-        else if (a.type() == typeid(const char*)) sqlite3_bind_text(stmt, i, std::any_cast<const char*>(a), strlen(std::any_cast<const char*>(a)), SQLITE_TRANSIENT);
+        else if (a.type() == typeid(std::string)) sqlite3_bind_text(stmt, i, std::any_cast<std::string>(a).c_str(), (int)std::any_cast<std::string>(a).length(), SQLITE_TRANSIENT);
+        else if (a.type() == typeid(const char*)) sqlite3_bind_text(stmt, i, std::any_cast<const char*>(a), (int)strlen(std::any_cast<const char*>(a)), SQLITE_TRANSIENT);
         else if (a.type() == typeid(nullptr)) sqlite3_bind_null(stmt, i);
         ++i;
     }
@@ -57,7 +57,7 @@ std::vector<std::vector<std::any>> SQLite::query(const char* zsql, size_t retSiz
     {
         ret.push_back({});
         ret[idx].resize(retSize);
-        for (size_t i = 0; i < retSize; ++i)
+        for (int i = 0; i < retSize; ++i)
         {
             auto c = sqlite3_column_type(stmt, i);
             if (SQLITE_INTEGER == c)
@@ -82,7 +82,7 @@ int SQLite::exec(const char* zsql, std::initializer_list<std::any> args)
     sqlite3_stmt* stmt = nullptr;
     const char* pzTail;
     int ret;
-    if (ret = sqlite3_prepare_v3(_db, zsql, strlen(zsql), 0, &stmt, &pzTail))
+    if (ret = sqlite3_prepare_v3(_db, zsql, (int)strlen(zsql), 0, &stmt, &pzTail))
     {
         LOG_ERROR << "[sqlite3] sql \"" << zsql << "\" prepare error: [" << ret << "] " << errmsg();
         return ret;
@@ -96,8 +96,8 @@ int SQLite::exec(const char* zsql, std::initializer_list<std::any> args)
         else if (a.type() == typeid(long long)) sqlite3_bind_int64(stmt, i, std::any_cast<long long>(a));
         else if (a.type() == typeid(time_t)) sqlite3_bind_int64(stmt, i, std::any_cast<time_t>(a));
         else if (a.type() == typeid(double)) sqlite3_bind_double(stmt, i, std::any_cast<double>(a));
-        else if (a.type() == typeid(std::string)) sqlite3_bind_text(stmt, i, std::any_cast<std::string>(a).c_str(), std::any_cast<std::string>(a).length(), SQLITE_TRANSIENT);
-        else if (a.type() == typeid(const char*)) sqlite3_bind_text(stmt, i, std::any_cast<const char*>(a), strlen(std::any_cast<const char*>(a)), SQLITE_TRANSIENT);
+        else if (a.type() == typeid(std::string)) sqlite3_bind_text(stmt, i, std::any_cast<std::string>(a).c_str(), (int)std::any_cast<std::string>(a).length(), SQLITE_TRANSIENT);
+        else if (a.type() == typeid(const char*)) sqlite3_bind_text(stmt, i, std::any_cast<const char*>(a), (int)strlen(std::any_cast<const char*>(a)), SQLITE_TRANSIENT);
         else if (a.type() == typeid(nullptr)) sqlite3_bind_null(stmt, i);
         else
         {

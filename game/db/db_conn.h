@@ -25,9 +25,9 @@ inline std::string  ANY_STR(const std::any& a) { return std::any_cast<std::strin
 class SQLite
 {
 private:
-    mutable sqlite3* _db;
-    mutable char lastSql[128];
-    char tag[128];
+    mutable sqlite3* _db = NULL;
+    mutable char lastSql[128]{ 0 };
+    char tag[128]{ 0 };
     bool inTransaction = false;
 public:
     SQLite() = delete;

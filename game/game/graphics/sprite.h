@@ -75,7 +75,7 @@ protected:
     pTexture _pTexture;
     eTimer _triggerTimer = eTimer::SCENE_START;
     int _loopTo = -1;
-    int __line;
+    int __line = -1;
 protected:
     RenderParams _current;
     std::vector<RenderKeyFrame> _keyFrames;
@@ -200,8 +200,8 @@ protected:
     //bool _aVert = false;
     //Rect _aRect;
     //unsigned _arows, _acols;
-    unsigned _animFrames;
-	unsigned _selections;
+    unsigned _animFrames = 0;
+	unsigned _selections = 0;
 	eTimer _resetAnimTimer;
     unsigned _period = -1;   // time for each ANIM LOOP lasts
     frameIdx _currAnimFrame = 0;
@@ -282,23 +282,23 @@ enum NumberAlign
 	NUM_ALIGN_CENTER
 };
 
-const size_t NUM_BZERO          = 10;
-const size_t NUM_SYMBOL_PLUS    = 20;
-const size_t NUM_SYMBOL_MINUS   = 21;
-const size_t NUM_FULL_BZERO_POS = 10;
-const size_t NUM_FULL_BZERO_NEG = 22;
-const size_t NUM_FULL_PLUS      = 11;
-const size_t NUM_FULL_MINUS     = 23;
+const unsigned NUM_BZERO          = 10;
+const unsigned NUM_SYMBOL_PLUS    = 20;
+const unsigned NUM_SYMBOL_MINUS   = 21;
+const unsigned NUM_FULL_BZERO_POS = 10;
+const unsigned NUM_FULL_BZERO_NEG = 22;
+const unsigned NUM_FULL_PLUS      = 11;
+const unsigned NUM_FULL_MINUS     = 23;
 
 class SpriteNumber : public SpriteAnimated
 {
 	friend class SkinLR2;
 protected:
     eNumber _numInd;
-    unsigned _maxDigits;
-	unsigned _numDigits;
-    NumberType _numType;
-	NumberAlign _alignType;
+    unsigned _maxDigits = 0;
+	unsigned _numDigits = 0;
+    NumberType _numType = NUM_TYPE_NORMAL;
+	NumberAlign _alignType = NUM_ALIGN_RIGHT;
     //std::vector<Rect> _drawRectDigit, _outRectDigit; // idx from low digit to high, e.g. [1] represents 1 digit, [2] represents 10 digit, etc.
     std::vector<Rect>           _rects;
     std::vector<unsigned>       _digit;
@@ -340,7 +340,7 @@ class SpriteSlider : public SpriteAnimated
 {
 private:
     eSlider _ind;
-    percent _value;
+    percent _value = 100;
     SliderDirection _dir;
 	int _range;
 
@@ -379,7 +379,7 @@ class SpriteBargraph : public SpriteAnimated
 {
 private:
     eBargraph _ind;
-    dpercent _value;
+    dpercent _value = 1.0;
     BargraphDirection _dir;
 
 public:
@@ -418,7 +418,7 @@ protected:
 		eSwitch sw;
 	} _ind;
 	opType _opType = opType::UNDEF;
-    unsigned _value;
+    unsigned _value = 0;
 
 public:
     SpriteOption() = delete;
@@ -528,7 +528,7 @@ private:
     GraphLine _line;
 	Color _color;
 	std::vector<ColorPoint> _points;
-	int _timerStartOffset, _duration;
+	int _timerStartOffset = 0, _duration = 0;
 	double _progress;	// 0 ~ 1
 
 public:

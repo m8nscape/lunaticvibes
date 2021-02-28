@@ -309,7 +309,7 @@ void RulesetClassic::updateHit(Time& t, NoteLaneIndex ch, size_t judge, unsigned
     _updateHp(_health[judge]);
     if (_basic.combo > _basic.maxCombo) _basic.maxCombo = _basic.combo;
     gTimers.set(bombTimer7k[ch], t.norm());
-    slot == 0 ? setJudgeTimer1PInner(5 - judge, t.norm()) : setJudgeTimer2PInner(5 - judge, t.norm());
+    slot == 0 ? setJudgeTimer1PInner(5 - (int)judge, t.norm()) : setJudgeTimer2PInner(5 - (int)judge, t.norm());
     gNumbers.set(slot == 0 ? eNumber::_DISP_NOWCOMBO_1P : eNumber::_DISP_NOWCOMBO_2P, _basic.combo);
 }
 
@@ -320,7 +320,7 @@ void RulesetClassic::updateMiss(Time& t, NoteLaneIndex ch, size_t judge, unsigne
     if (judge != BPOOR) ++_basic.totaln;
     _updateHp(_health[judge]);
     if (judge != BPOOR) _basic.combo = 0;
-    slot == 0 ? setJudgeTimer1PInner(5 - judge, t.norm()) : setJudgeTimer2PInner(5 - judge, t.norm());
+    slot == 0 ? setJudgeTimer1PInner(5 - (int)judge, t.norm()) : setJudgeTimer2PInner(5 - (int)judge, t.norm());
     gNumbers.set(slot == 0 ? eNumber::_DISP_NOWCOMBO_1P : eNumber::_DISP_NOWCOMBO_2P, _basic.combo);
 }
 

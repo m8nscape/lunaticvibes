@@ -11,7 +11,7 @@ private:
     std::array<_Value, _size> _data;
     std::array<_Value, _size> _dataBuffer;
 public:
-    constexpr _Value get(_Key n) { return ((size_t)n < _size) ? _data[(size_t)n] : (_Value)0; }
+    constexpr _Value get(_Key n) { return ((size_t)n < _size) ? _data[(size_t)n] : _Value{0}; }
     inline void queue(_Key n, _Value value) { if ((size_t)n < _size) _dataBuffer[(size_t)n] = value; }
     inline void flush() { _data = _dataBuffer; }
     inline void reset() { for (size_t i = 1; i < _size; ++i) _reset_nolog((_Key)i, _data[0]); }

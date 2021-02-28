@@ -11,6 +11,8 @@ SpriteLaneVertical::SpriteLaneVertical(pTexture texture, Rect r,
     _type = SpriteTypes::NOTE_VERT;
     _basespd = basespeed * lanespeed;
     _hispeed = 1.0;
+	_category = NoteLaneCategory::_;
+	_index = NoteLaneIndex::_;
 }
 
 

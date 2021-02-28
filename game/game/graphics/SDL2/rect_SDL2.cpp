@@ -18,10 +18,10 @@ Rect Rect::operator+ (const Rect& rhs) const
 Rect Rect::operator* (const double& rhs) const
 {
     Rect r = *this;
-    r.x *= rhs;
-    r.y *= rhs;
-    r.w *= rhs;
-    r.h *= rhs;
+    r.x *= (int)rhs;
+    r.y *= (int)rhs;
+    r.w *= (int)rhs;
+    r.h *= (int)rhs;
     return r;
 }
 

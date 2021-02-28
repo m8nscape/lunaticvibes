@@ -71,7 +71,7 @@ std::bitset<KEY_COUNT> InputMgr::detect()
     // game input
     for (int k = S1L; k < ESC; k++)
     {
-        for (auto b : _inst.bindings[k])
+        for (const auto& b : _inst.bindings[k])
         {
 			switch (b.type)
 			{

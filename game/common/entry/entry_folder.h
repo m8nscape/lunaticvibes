@@ -50,7 +50,7 @@ public:
 protected:
     std::vector<std::shared_ptr<vFolder>> entries;
 public:
-    std::shared_ptr<vFolder> getEntry(int idx);
+    std::shared_ptr<vFolder> getEntry(size_t idx);
     void pushEntry(std::shared_ptr<vFolder> f);
     virtual size_t getContentsCount() { return entries.size(); }
     virtual bool empty() { return entries.empty(); }
@@ -71,7 +71,7 @@ protected:
     std::vector<std::shared_ptr<vChartFormat>> charts;
 
 public:
-    std::shared_ptr<vChartFormat> getChart(int idx);
+    std::shared_ptr<vChartFormat> getChart(size_t idx);
     void pushChart(std::shared_ptr<vChartFormat> c);
     virtual size_t getContentsCount() { return charts.size(); }
     virtual bool empty() { return charts.empty(); }

@@ -360,8 +360,8 @@ void GraphLine::draw(Point p1, Point p2, Color c) const
 {
 	thickLineColor(
 		_frame_renderer,
-		p1.x, p1.y,
-		p2.x, p2.y,
+		(Sint16)p1.x, (Sint16)p1.y,
+        (Sint16)p2.x, (Sint16)p2.y,
 		_width,
 		c.hex()
 	);

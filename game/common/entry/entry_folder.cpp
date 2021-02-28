@@ -20,7 +20,7 @@ vFolder::vFolder(eFolderType t, HashMD5 md5, const Path& path): _path(path)
     }
 }
 
-std::shared_ptr<vFolder> FolderRegular::getEntry(int idx)
+std::shared_ptr<vFolder> FolderRegular::getEntry(size_t idx)
 {
     idx %= getContentsCount();
     return entries[idx];
@@ -32,7 +32,7 @@ void FolderRegular::pushEntry(std::shared_ptr<vFolder> f)
 }
 
 
-std::shared_ptr<vChartFormat> FolderSong::getChart(int idx)
+std::shared_ptr<vChartFormat> FolderSong::getChart(size_t idx)
 {
     idx %= getContentsCount();
     return charts[idx];

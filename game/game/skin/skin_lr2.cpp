@@ -437,7 +437,7 @@ Tokens SkinLR2::csvNextLineTokenize(std::istream& file)
     return result;
 }
 
-int convertLine(const Tokens& t, int* pData, size_t start = 0, size_t count = sizeof(lr2skin::s_basic) / sizeof(int))
+size_t convertLine(const Tokens& t, int* pData, size_t start = 0, size_t count = sizeof(lr2skin::s_basic) / sizeof(int))
 {
     memset(&pData[start], 0, count * sizeof(int));
     size_t end = start + count;
@@ -450,7 +450,7 @@ int convertLine(const Tokens& t, int* pData, size_t start = 0, size_t count = si
     return i;
 }
 
-int convertOps(const Tokens& tokensBuf, int* pData, size_t offset = 16, size_t size = 3)
+size_t convertOps(const Tokens& tokensBuf, int* pData, size_t offset = 16, size_t size = 3)
 {
     for (int i = 0; i < size; ++i) pData[i] = DST_TRUE;
     if (tokensBuf.size() < offset || offset > 0 && tokensBuf[offset - 1].empty())
@@ -2592,7 +2592,7 @@ int SkinLR2::parseHeader(const Tokens& raw)
         Path def(tokensBuf[2]);
 
         auto ls = findFiles(pathf);
-        unsigned defVal = 0;
+        size_t defVal = 0;
         for (size_t param = 0; param < ls.size(); ++param)
             if (ls[param].stem() == def)
             {

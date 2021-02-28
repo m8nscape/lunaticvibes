@@ -138,10 +138,11 @@ void SoundDriverFMOD::loadSampleThread()
 
             FILE* pFile = (FILE*)info->handle;
             info->buffer = std::malloc(info->bytesread * sizeof(char));
-            size_t sizeread = fread((void*)info->buffer, sizeof(char), info->bytesread, pFile);
+            if (info->buffer == NULL) return;
+            size_t sizeread = fread((void*)info->buffer, sizeof(char), (unsigned)info->bytesread, pFile);
             if (sizeread < info->bytesread)
             {
-                info->bytesread = sizeread;
+                info->bytesread = (unsigned)sizeread;
                 info->done(info, FMOD_ERR_FILE_EOF);
             }
             else

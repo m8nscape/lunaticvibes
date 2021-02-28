@@ -95,7 +95,7 @@ struct SongListProperties
     HashMD5 folder;
     std::string name;       // folder path, search query+result, etc.
     std::vector<std::shared_ptr<vEntry>> list;
-    unsigned index;
+    size_t index;
 };
 
 enum class SongListSort

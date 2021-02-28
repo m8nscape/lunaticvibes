@@ -55,7 +55,7 @@ bool getDstOpt(int d)
 	return (d >= 0) ? result : !result;
 }
 
-void setCustomDstOpt(unsigned base, unsigned offset, bool val)
+void setCustomDstOpt(unsigned base, size_t offset, bool val)
 {
     if (base + offset < 900 || base + offset > 999) return;
     _customOp[base + offset - 900] = val;

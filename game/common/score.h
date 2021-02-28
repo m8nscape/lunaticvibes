@@ -8,15 +8,15 @@ public:
         UNKNOWN,
         CLASSIC,
     };
-    Type type;
+    Type type = Type::UNKNOWN;
 
-    int notes;
-    int score;
-    double rate;
-    int fast;
-    int slow;
-    int reserved[4];
-    double reservedlf[2];
+    int notes = 0;
+    int score = 0;
+    double rate = 0.0;
+    int fast = 0;
+    int slow = 0;
+    int reserved[4]{ 0 };
+    double reservedlf[2]{ 0.0 };
 
 public:
     vScore(Type t) : type(t) {}

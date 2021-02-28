@@ -377,7 +377,7 @@ int BMS::strToLane36(channel& ch, const StringContent& str)
         if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')))
             throw new noteLineException;
 
-    ch.resolution = str.length() / 2;
+    ch.resolution = static_cast<unsigned>(str.length() / 2);
     for (unsigned i = 0; i < ch.resolution; i++)
         if (unsigned sample = base36(str[i * 2], str[i * 2 + 1]))
             ch.notes.push_back({ i, sample });
@@ -393,7 +393,7 @@ int BMS::strToLane16(channel& ch, const StringContent& str)
         if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')))
             throw new noteLineException;
 
-    ch.resolution = str.length() / 2;
+    ch.resolution = static_cast<unsigned>(str.length() / 2);
     for (unsigned i = 0; i < ch.resolution; i++)
         if (unsigned sample = base16(str[i * 2], str[i * 2 + 1]))
             ch.notes.push_back({ i, sample });
