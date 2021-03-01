@@ -9,12 +9,14 @@ InputWrapper::InputWrapper(unsigned rate) : AsyncLooper(std::bind(&InputWrapper:
 
 InputWrapper::~InputWrapper()
 {
-    std::lock_guard _lock(_mutex);
-    _pCallbackMap.clear();
-    _hCallbackMap.clear();
-    _rCallbackMap.clear();
-
     loopEnd();
+
+    {
+        std::lock_guard _lock(_mutex);
+        _pCallbackMap.clear();
+        _hCallbackMap.clear();
+        _rCallbackMap.clear();
+    }
 }
 
 void InputWrapper::_loop()
@@ -58,6 +60,7 @@ void InputWrapper::_loop()
 
     {
         std::lock_guard l(_mutex);
+
         if (p != 0)
             for (auto& [cbname, callback] : _pCallbackMap)
                 callback(p, t);

@@ -61,6 +61,7 @@ void SceneResult::updateDraw()
     if (rt.norm() >= _skin->info.timeResultDrawing)
     {
         _state = eResultState::STOP;
+        gTimers.set(eTimer::RESULT_RANK_START, t.norm());
         // TODO play hit sound
         LOG_DEBUG << "[Result] State changed to STOP";
     }

@@ -51,12 +51,6 @@ pScene SceneMgr::get(eScene e)
 		return nullptr;
     }
 
-	if (ps)
-	{
-		ps->restartVideos();
-		ps->restartSkinVideos();
-		ps->playSkinVideos();
-	}
 	return ps;
 }
 

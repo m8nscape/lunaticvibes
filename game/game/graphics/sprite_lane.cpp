@@ -51,24 +51,26 @@ void SpriteLaneVertical::updateNoteRect(Time t, vChart* s, double beat, unsigned
     // refresh note sprites
 	pNote->update(t);
 
-    // fetch note size, c.h = whole lane height, c.y = height start drawing -c.y = note height
+    // fetch note size, c.h = whole lane height, c.y = height start drawing
     auto c = _current.rect;
     auto r = pNote->getCurrentRenderParams().rect;
     auto currTotalBeat = s->getBarBeatstamp(measure) + beat;
     gNumbers.set(eNumber::_TEST5, (int)(currTotalBeat * 100.0));
 
     // generate note rects and store to buffer
+	// 150BPM with 1.0x HS is 1600ms
     int y = c.h;
     _outRect.clear();
     auto it = s->incomingNoteOfLane(_category, _index);
     while (!s->isLastNoteOfLane(_category, _index, it) && y >= c.y)
     {
-        if (currTotalBeat >= it->totalbeat)
-            y = c.h;
+		auto noteBeatOffset = currTotalBeat - it->totalbeat;
+        if (noteBeatOffset >= 0)
+			y = (c.y + c.h); // expired notes stay on judge line, LR2 / pre RA behavior
         else
-            y = c.h - (int)std::floor((it->totalbeat - currTotalBeat) * (c.h - c.y) * _basespd * _hispeed);
+            y = (c.y + c.h) - static_cast<int>( std::floor((-noteBeatOffset * 4 / 4) * c.h * _basespd * _hispeed) );
         it++;
-        _outRect.push_front({ c.x, y + c.y, r.w, r.h });
+        _outRect.push_front({ c.x, y, r.w, r.h });
     }
 }
 

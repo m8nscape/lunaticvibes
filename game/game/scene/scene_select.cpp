@@ -52,10 +52,6 @@ void setEntryInfo()
     const size_t idx = context_select.idx;
     const size_t cursor = context_select.cursor;
 
-    // entry parameters
-    gTexts.set(eText::PLAY_TITLE, e[idx]->_name);
-    gTexts.set(eText::PLAY_SUBTITLE, e[idx]->_name2);
-
     // chart parameters
     if (e[idx]->type() == eEntryType::SONG || e[idx]->type() == eEntryType::RIVAL_SONG)
     {
@@ -158,6 +154,15 @@ void setEntryInfo()
             break;
         }
     }
+    else
+    {
+        gTexts.set(eText::PLAY_TITLE, e[idx]->_name);
+        gTexts.set(eText::PLAY_SUBTITLE, e[idx]->_name2);
+        gTexts.set(eText::PLAY_ARTIST, "");
+        gTexts.set(eText::PLAY_SUBARTIST, "");
+        gTexts.set(eText::PLAY_GENRE, "");
+        gTexts.set(eText::PLAY_DIFFICULTY, "");
+     }
 
     // score.db
     switch (e[idx]->type())
@@ -425,6 +430,7 @@ void SceneSelect::_decide()
 void SceneSelect::loadSongList()
 {
     // TODO load song list
+    context_select.entries.clear();
     for (auto& e : context_select.backtrace.top().list)
     {
         // TODO replace name/name2 by tag.db

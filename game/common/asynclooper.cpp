@@ -94,7 +94,7 @@ void AsyncLooper::loopStart()
 
     if (!_running)
     {
-        LOG_INFO << "[Looper] Started with rate " << _rateTime;
+        LOG_DEBUG << "[Looper] Started with rate " << _rateTime;
     }
 }
 
@@ -107,7 +107,7 @@ void AsyncLooper::loopEnd()
         // ..?
     }
     _running = false;
-    LOG_INFO << "[Looper] Ended of rate " << _rateTime;
+    LOG_DEBUG << "[Looper] Ended of rate " << _rateTime;
 }
 
 #elif LINUX

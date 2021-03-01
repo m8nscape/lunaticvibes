@@ -847,8 +847,9 @@ int SkinLR2::SRC()
         return 7;
     }
 
-    if (tokensBuf.size() < 11)
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/11)";
+    //if (tokensBuf.size() < 11)
+        //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/11)";
+
 
     // Find texture from map by gr
     int gr = stoine(tokensBuf[1]);
@@ -891,7 +892,8 @@ ParseRet SkinLR2::SRC_IMAGE()
 {
 	if (tokensBuf.size() < 10)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
+		//LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
+
 		//return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -920,7 +922,8 @@ ParseRet SkinLR2::SRC_NUMBER()
 {
 	if (tokensBuf.size() < 13)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+		//LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -950,7 +953,8 @@ ParseRet SkinLR2::SRC_SLIDER()
 {
 	if (tokensBuf.size() < 13)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+		//LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -971,7 +975,8 @@ ParseRet SkinLR2::SRC_BARGRAPH()
 {
 	if (tokensBuf.size() < 12)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/12)";
+		//LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/12)";
+
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -991,7 +996,8 @@ ParseRet SkinLR2::SRC_BUTTON()
 {
 	if (tokensBuf.size() < 13)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+		//LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1040,7 +1046,8 @@ ParseRet SkinLR2::SRC_TEXT()
 {
 	if (tokensBuf.size() < 4)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/4)";
+		//LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/4)";
+
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1061,7 +1068,8 @@ ParseRet SkinLR2::SRC_JUDGELINE()
 {
     if (tokensBuf.size() < 10)
     {
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
+        //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
+
         //return ParseRet::PARAM_NOT_ENOUGH;
     }
 
@@ -1085,7 +1093,8 @@ ParseRet SkinLR2::SRC_NOWJUDGE(size_t idx)
 {
     if (tokensBuf.size() < 10)
     {
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
+        //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
+
         //return ParseRet::PARAM_NOT_ENOUGH;
     }
 
@@ -1110,7 +1119,8 @@ ParseRet SkinLR2::SRC_NOWCOMBO(size_t idx)
 {
     if (tokensBuf.size() < 13)
     {
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+        //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+
         //return ParseRet::PARAM_NOT_ENOUGH;
     }
 
@@ -1146,7 +1156,8 @@ ParseRet SkinLR2::SRC_GROOVEGAUGE()
 {
 	if (tokensBuf.size() < 12)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/12)";
+		//LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/12)";
+
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1181,7 +1192,8 @@ ParseRet SkinLR2::SRC_NOWJUDGE1()
 {
 	if (tokensBuf.size() < 11)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/11)";
+		//LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/11)";
+
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1214,7 +1226,8 @@ ParseRet SkinLR2::SRC_NOWJUDGE2()
 {
 	if (tokensBuf.size() < 11)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/11)";
+		//LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/11)";
+
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1247,7 +1260,8 @@ ParseRet SkinLR2::SRC_NOWCOMBO1()
 {
 	if (tokensBuf.size() < 13)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+		//LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1287,7 +1301,8 @@ ParseRet SkinLR2::SRC_NOWCOMBO2()
 {
 	if (tokensBuf.size() < 13)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/12)";
+		//LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/12)";
+
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1352,8 +1367,9 @@ ParseRet SkinLR2::SRC_NOTE()
     if (textureBuf) refineRect(d, textureBuf->getRect(), line);
 
     // SRC
-    if (tokensBuf.size() < 10)
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
+    //if (tokensBuf.size() < 10)
+        //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
+
 
     NoteLaneCategory cat = NoteLaneCategory::_;
     NoteLaneIndex idx = NoteLaneIndex::_;
@@ -1405,7 +1421,8 @@ ParseRet SkinLR2::SRC_BGA()
 {
 	if (tokensBuf.size() < 12)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/12)";
+		//LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/12)";
+
 		//return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1428,7 +1445,8 @@ ParseRet SkinLR2::SRC_BAR_BODY()
 {
     if (tokensBuf.size() < 10)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
+		//LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
+
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1450,7 +1468,8 @@ ParseRet SkinLR2::SRC_BAR_FLASH()
 {
     if (tokensBuf.size() < 10)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
+		//LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
+
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1471,7 +1490,8 @@ ParseRet SkinLR2::SRC_BAR_LEVEL()
 {
     if (tokensBuf.size() < 10)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
+		//LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
+
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1501,7 +1521,8 @@ ParseRet SkinLR2::SRC_BAR_LAMP()
 {
     if (tokensBuf.size() < 10)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
+		//LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
+
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1523,7 +1544,8 @@ ParseRet SkinLR2::SRC_BAR_TITLE()
 {
     if (tokensBuf.size() < 4)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/4)";
+		//LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/4)";
+
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1544,7 +1566,8 @@ ParseRet SkinLR2::SRC_BAR_RANK()
 {
     if (tokensBuf.size() < 10)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
+		//LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
+
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1566,7 +1589,8 @@ ParseRet SkinLR2::SRC_BAR_RIVAL()
 {
     if (tokensBuf.size() < 10)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
+		//LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
+
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1588,7 +1612,8 @@ ParseRet SkinLR2::SRC_BAR_RIVAL_MYLAMP()
 {
     if (tokensBuf.size() < 10)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
+		//LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
+
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1610,7 +1635,8 @@ ParseRet SkinLR2::SRC_BAR_RIVAL_RIVALLAMP()
 {
     if (tokensBuf.size() < 10)
 	{
-		LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
+		//LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
+
         //return ParseRet::PARAM_NOT_ENOUGH;
 	}
 
@@ -1658,7 +1684,8 @@ int SkinLR2::DST()
 
     if (tokensBuf.size() < 15)
     {
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/15)";
+        //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/15)";
+
     }
 
     // load line into data struct
@@ -1716,8 +1743,9 @@ int SkinLR2::DST()
     {
         if (convertLine(tokensBuf, (int*)&d, 15, 2) >= 2)
 			convertOps(tokensBuf, (int*)d.op, 17, 4);
-        else 
-            LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/17)";
+        //else 
+            //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/17)";
+
 
         if (std::regex_match(opt, std::regex("#DST_NOW(JUDGE|COMBO)_1P")))
 		{
@@ -1770,8 +1798,9 @@ ParseRet SkinLR2::DST_NOTE()
     if (optBuf != "#DST_NOTE")
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
-    if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+    //if (tokensBuf.size() < 13)
+        //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+
 
     // load line into data struct
     lr2skin::dst d;
@@ -1822,8 +1851,9 @@ ParseRet SkinLR2::DST_NOTE()
 
         if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
             convertOps(tokensBuf, (int*)d.op, 16, 4);
-        else
-            LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
+        //else
+            //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
+
 
         drawQueue.push_back({ e, false, d.op[0], d.op[1], d.op[2], d.op[3] });
         e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
@@ -1845,8 +1875,9 @@ ParseRet SkinLR2::DST_LINE()
     if (optBuf != "#DST_LINE")
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
-    if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+    //if (tokensBuf.size() < 13)
+        //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+
 
     // load line into data struct
     lr2skin::dst d;
@@ -1902,8 +1933,9 @@ ParseRet SkinLR2::DST_LINE()
 
     if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
         convertOps(tokensBuf, (int*)d.op, 16, 4);
-    else 
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
+    //else 
+        //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
+
 
     drawQueue.push_back({ e, false, d.op[0], d.op[1], d.op[2], d.op[3] });
     e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
@@ -1923,8 +1955,9 @@ ParseRet SkinLR2::DST_BAR_BODY()
 
     bool bodyOn = optBuf == "#DST_BAR_BODY_ON";
 
-    if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+    //if (tokensBuf.size() < 13)
+        //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+
 
     // load line into data struct
     lr2skin::dst d;
@@ -1945,8 +1978,9 @@ ParseRet SkinLR2::DST_BAR_BODY()
         {
             if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
                 convertOps(tokensBuf, (int*)d.op, 16, 4);
-            else
-                LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
+            //else
+                //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
+
 
             e->setLine(line);
             e->setLoopTime(d.loop);
@@ -1979,8 +2013,9 @@ ParseRet SkinLR2::DST_BAR_FLASH()
     if (optBuf != "#DST_BAR_FLASH")
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
-    if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+    //if (tokensBuf.size() < 13)
+        //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+
 
     // load line into data struct
     lr2skin::dst d;
@@ -1999,8 +2034,9 @@ ParseRet SkinLR2::DST_BAR_FLASH()
         {
             if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
                 convertOps(tokensBuf, (int*)d.op, 16, 4);
-            else
-                LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
+            //else
+                //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
+
 
             e->setLine(line);
             e->setLoopTime(d.loop);
@@ -2026,8 +2062,9 @@ ParseRet SkinLR2::DST_BAR_LEVEL()
     if (optBuf != "#DST_BAR_LEVEL")
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
-    if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+    //if (tokensBuf.size() < 13)
+        //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+
 
     // load line into data struct
     lr2skin::dst d;
@@ -2048,8 +2085,9 @@ ParseRet SkinLR2::DST_BAR_LEVEL()
         {
             if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
                 convertOps(tokensBuf, (int*)d.op, 16, 4);
-            else
-                LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
+            //else
+                //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
+
 
             e->setLine(line);
             e->setLoopTime(d.loop);
@@ -2076,8 +2114,9 @@ ParseRet SkinLR2::DST_BAR_RIVAL_MYLAMP()
     if (optBuf != "#DST_BAR_MY_LAMP")
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
-    if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+    //if (tokensBuf.size() < 13)
+        //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+
 
     // load line into data struct
     lr2skin::dst d;
@@ -2098,8 +2137,9 @@ ParseRet SkinLR2::DST_BAR_RIVAL_MYLAMP()
         {
             if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
                 convertOps(tokensBuf, (int*)d.op, 16, 4);
-            else
-                LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
+            //else
+                //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
+
 
             e->setLine(line);
             e->setLoopTime(d.loop);
@@ -2124,8 +2164,9 @@ ParseRet SkinLR2::DST_BAR_RIVAL_RIVALLAMP()
     if (optBuf != "#DST_BAR_RIVAL_LAMP")
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
-    if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+    //if (tokensBuf.size() < 13)
+        //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+
 
     // load line into data struct
     lr2skin::dst d;
@@ -2146,8 +2187,9 @@ ParseRet SkinLR2::DST_BAR_RIVAL_RIVALLAMP()
         {
             if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
                 convertOps(tokensBuf, (int*)d.op, 16, 4);
-            else
-                LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
+            //else
+                //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
+
 
             e->setLine(line);
             e->setLoopTime(d.loop);
@@ -2173,8 +2215,9 @@ ParseRet SkinLR2::DST_BAR_LAMP()
     if (optBuf != "#DST_BAR_LAMP")
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
-    if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+    //if (tokensBuf.size() < 13)
+        //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+
 
     // load line into data struct
     lr2skin::dst d;
@@ -2195,8 +2238,9 @@ ParseRet SkinLR2::DST_BAR_LAMP()
         {
             if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
                 convertOps(tokensBuf, (int*)d.op, 16, 4);
-            else
-                LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
+            //else
+                //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
+
 
             e->setLine(line);
             e->setLoopTime(d.loop);
@@ -2222,8 +2266,9 @@ ParseRet SkinLR2::DST_BAR_TITLE()
     if (optBuf != "#DST_BAR_TITLE")
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
-    if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+    //if (tokensBuf.size() < 13)
+        //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+
 
     // load line into data struct
     lr2skin::dst d;
@@ -2244,8 +2289,9 @@ ParseRet SkinLR2::DST_BAR_TITLE()
         {
             if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
                 convertOps(tokensBuf, (int*)d.op, 16, 4);
-            else
-                LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
+            //else
+                //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
+
 
             e->setLine(line);
             e->setLoopTime(d.loop);
@@ -2271,8 +2317,9 @@ ParseRet SkinLR2::DST_BAR_RANK()
     if (optBuf != "#DST_BAR_RANK")
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
-    if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+    //if (tokensBuf.size() < 13)
+        //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+
 
     // load line into data struct
     lr2skin::dst d;
@@ -2293,8 +2340,9 @@ ParseRet SkinLR2::DST_BAR_RANK()
         {
             if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
                 convertOps(tokensBuf, (int*)d.op, 16, 4);
-            else
-                LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
+            //else
+                //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
+
 
             e->setLine(line);
             e->setLoopTime(d.loop);
@@ -2320,8 +2368,9 @@ ParseRet SkinLR2::DST_BAR_RIVAL()
     if (optBuf != "#DST_BAR_RIVAL")
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
-    if (tokensBuf.size() < 13)
-        LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+    //if (tokensBuf.size() < 13)
+        //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+
 
     // load line into data struct
     lr2skin::dst d;
@@ -2342,8 +2391,9 @@ ParseRet SkinLR2::DST_BAR_RIVAL()
         {
             if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
                 convertOps(tokensBuf, (int*)d.op, 16, 4);
-            else
-                LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
+            //else
+                //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
+
 
             e->setLine(line);
             e->setLoopTime(d.loop);
