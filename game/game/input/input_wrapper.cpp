@@ -7,25 +7,67 @@ InputWrapper::InputWrapper(unsigned rate) : AsyncLooper(std::bind(&InputWrapper:
 {
 }
 
+InputWrapper::~InputWrapper()
+{
+    std::lock_guard _lock(_mutex);
+    _pCallbackMap.clear();
+    _hCallbackMap.clear();
+    _rCallbackMap.clear();
+
+    loopEnd();
+}
+
 void InputWrapper::_loop()
 {
-	gNumbers.set(eNumber::INPUT_DETECT_FPS, getRate());
+	gNumbers.set(eNumber::INPUT_DETECT_FPS, getRateRealtime());
     _prev = _curr;
     _curr = InputMgr::detect();
     Time t;
-    auto p = Pressed();
-    auto h = Holding();
-    auto r = Released();
 
-    if (p != 0)
-        for (auto& pg : _pCallbackMap)
-            pg.second(p, t);
-    if (h != 0)
-        for (auto& hg : _hCallbackMap)
-            hg.second(h, t);
-    if (r != 0)
-        for (auto& rg : _rCallbackMap)
-            rg.second(r, t);
+    InputMask p{ 0 }, h{ 0 }, r{ 0 };
+
+    auto d = InputMgr::detect();
+    for (Input::Ingame i = Input::S1L; i < Input::KEY_COUNT; ++(int&)i)
+    {
+        auto& [ms, stat] = _inputBuffer[i];
+        if (d[i] && !stat)
+        {
+            ms = t.norm();
+            stat = true;
+            p.set(i);
+        }
+        else if (!d[i] && stat)
+        {
+            if (_releaseBuffer[i] == -1)
+            {
+                _releaseBuffer[i] = t.norm();
+            }
+            else if (t.norm() - _releaseBuffer[i] >= release_delay_ms)
+            {
+                ms = t.norm();
+                stat = false;
+                _releaseBuffer[i] = -1;
+                r.set(i);
+            }
+        }
+        else if (stat)
+        {
+            h.set(i);
+        }
+    }
+
+    {
+        std::lock_guard l(_mutex);
+        if (p != 0)
+            for (auto& [cbname, callback] : _pCallbackMap)
+                callback(p, t);
+        if (h != 0)
+            for (auto& [cbname, callback] : _hCallbackMap)
+                callback(h, t);
+        if (r != 0)
+            for (auto& [cbname, callback] : _rCallbackMap)
+                callback(r, t);
+    }
 }
 
 bool InputWrapper::_register(unsigned type, const std::string& key, INPUTCALLBACK f)
@@ -33,7 +75,7 @@ bool InputWrapper::_register(unsigned type, const std::string& key, INPUTCALLBAC
     if (_pCallbackMap.find(key) != _pCallbackMap.end())
         return false;
 
-	std::unique_lock<decltype(_mutex)> _lock(_mutex);
+	std::lock_guard _lock(_mutex);
 
     switch (type)
     {
@@ -41,7 +83,6 @@ bool InputWrapper::_register(unsigned type, const std::string& key, INPUTCALLBAC
     case 1: _hCallbackMap[key] = f; break;
     case 2: _rCallbackMap[key] = f; break;
     }
-    _lock.unlock();
     return true;
 }
 
@@ -50,7 +91,7 @@ bool InputWrapper::_unregister(unsigned type, const std::string& key)
     if (_pCallbackMap.find(key) == _pCallbackMap.end())
         return false;
 
-	std::unique_lock<decltype(_mutex)> _lock(_mutex);
+	std::lock_guard _lock(_mutex);
 
     switch (type)
     {
@@ -59,6 +100,5 @@ bool InputWrapper::_unregister(unsigned type, const std::string& key)
     case 2: _rCallbackMap.erase(key); break;
     }
 
-    _lock.unlock();
     return true;
 }

@@ -31,8 +31,8 @@ namespace cfg
     inline const char* I_BINDINGS_K1SpdUp = "1P_SpdUp";
     inline const char* I_BINDINGS_K1SpdDn = "1P_SpdDn";
 
-    inline const char* I_BINDINGS_K2ScL = "1P_ScL";
-    inline const char* I_BINDINGS_K2ScR = "1P_ScR";
+    inline const char* I_BINDINGS_K2ScL = "2P_ScL";
+    inline const char* I_BINDINGS_K2ScR = "2P_ScR";
     inline const char* I_BINDINGS_K21 = "2P_1";
     inline const char* I_BINDINGS_K22 = "2P_2";
     inline const char* I_BINDINGS_K23 = "2P_3";

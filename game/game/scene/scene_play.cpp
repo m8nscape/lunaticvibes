@@ -936,6 +936,20 @@ void ScenePlay::inputGamePress(InputMask& m, Time t)
             gSwitches.set(InputGamePressMap[i].sw, true);
         }
 
+    if (input[S1L] || input[S1R])
+    {
+        gTimers.set(eTimer::S1_DOWN, t.norm());
+        gTimers.set(eTimer::S1_UP, LLONG_MAX);
+        gSwitches.set(eSwitch::S1_DOWN, true);
+    }
+
+    if (input[S2L] || input[S2R])
+    {
+        gTimers.set(eTimer::S2_DOWN, t.norm());
+        gTimers.set(eTimer::S2_UP, LLONG_MAX);
+        gSwitches.set(eSwitch::S2_DOWN, true);
+    }
+
     SoundMgr::playKeySample(sampleCount, (size_t*)&_keySampleIdxBuf[0]);
 
     if (input[K1SPDUP])
@@ -986,9 +1000,12 @@ void ScenePlay::inputGameHold(InputMask& m, Time t)
 // CALLBACK
 void ScenePlay::inputGameRelease(InputMask& m, Time t)
 {
+    using namespace Input;
+    auto input = _inputAvailable & m;
+
     size_t count = 0;
     for (size_t i = 0; i < Input::ESC; ++i)
-        if (_inputAvailable[i] && m[i])
+        if (input[i])
         {
             gTimers.set(InputGamePressMap[i].tm, LLONG_MAX);
             gTimers.set(InputGameReleaseMap[i].tm, t.norm());
@@ -996,4 +1013,20 @@ void ScenePlay::inputGameRelease(InputMask& m, Time t)
 
             // TODO stop sample playing while release in LN notes
         }
+
+
+    if (input[S1L] || input[S1R])
+    {
+        gTimers.set(eTimer::S1_DOWN, LLONG_MAX);
+        gTimers.set(eTimer::S1_UP, t.norm());
+        gSwitches.set(eSwitch::S1_DOWN, false);
+    }
+
+    if (input[S2L] || input[S2R])
+    {
+        gTimers.set(eTimer::S2_DOWN, LLONG_MAX);
+        gTimers.set(eTimer::S2_UP, t.norm());
+        gSwitches.set(eSwitch::S2_DOWN, false);
+    }
+
 }

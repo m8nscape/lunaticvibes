@@ -260,8 +260,8 @@ void Texture::_draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, Rect
 	const Color c, const BlendMode b, const bool filter, const double angle, const Point* center)
 {
     int flipFlags = 0;
-    //if (dstRect.w < 0) { dstRect.w = -dstRect.w; dstRect.x -= dstRect.w; flipFlags |= SDL_FLIP_HORIZONTAL; }
-    //if (dstRect.h < 0) { dstRect.h = -dstRect.h; dstRect.y -= dstRect.h; flipFlags |= SDL_FLIP_VERTICAL; }
+    if (dstRect.w < 0) { dstRect.w = -dstRect.w; dstRect.x -= dstRect.w; /*flipFlags |= SDL_FLIP_HORIZONTAL;*/ }
+    if (dstRect.h < 0) { dstRect.h = -dstRect.h; dstRect.y -= dstRect.h; /*flipFlags |= SDL_FLIP_VERTICAL;*/ }
 
 	SDL_SetTextureColorMod(&*pTex, c.r, c.g, c.b);
 	SDL_SetTextureAlphaMod(&*pTex, c.a);

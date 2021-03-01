@@ -59,7 +59,7 @@ enum class eTimer : unsigned
     K29_BOMB,
 
 
-    S1L_DOWN = 100,
+    S1_DOWN = 100,
     K11_DOWN,
     K12_DOWN,
     K13_DOWN,
@@ -70,7 +70,7 @@ enum class eTimer : unsigned
     K18_DOWN,
     K19_DOWN,
 
-    S2L_DOWN,
+    S2_DOWN,
     K21_DOWN,
     K22_DOWN,
     K23_DOWN,
@@ -81,7 +81,7 @@ enum class eTimer : unsigned
     K28_DOWN,
     K29_DOWN,
 
-    S1L_UP,
+    S1_UP,
     K11_UP,
     K12_UP,
     K13_UP,
@@ -92,7 +92,7 @@ enum class eTimer : unsigned
     K18_UP,
     K19_UP,
 
-    S2L_UP,
+    S2_UP,
     K21_UP,
     K22_UP,
     K23_UP,
@@ -112,7 +112,9 @@ enum class eTimer : unsigned
     RESULT_RANK_START,          // graph end
     RESULT_HIGHSCORE_START,     // push any key from RESULT_RANK_START
 
-    S1R_DOWN = 200,
+    S1L_DOWN = 200,
+    S1L_UP,
+    S1R_DOWN,
     S1R_UP,
     K1START_DOWN,
     K1SELECT_DOWN,
@@ -123,6 +125,8 @@ enum class eTimer : unsigned
     K1SPDUP_UP,
     K1SPDDN_UP,
 
+    S2L_DOWN = 220,
+    S2L_UP,
     S2R_DOWN,
     S2R_UP,
     K2START_DOWN,
@@ -135,7 +139,7 @@ enum class eTimer : unsigned
     K2SPDDN_UP,
 
 	// Inner timers
-	_CURRENT,
+	_CURRENT = 240,
 	_LOAD_START,
 		_JUDGE_1P_0,
 		_JUDGE_1P_1,

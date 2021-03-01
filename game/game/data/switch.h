@@ -56,6 +56,7 @@ enum class eSwitch: unsigned
 
 	CHART_CAN_SAVE_SCORE,
 
+    S1_DOWN,
     S1L_DOWN,
     S1R_DOWN,
     K11_DOWN,
@@ -72,6 +73,7 @@ enum class eSwitch: unsigned
     K1SPDUP_DOWN,
     K1SPDDN_DOWN,
 
+    S2_DOWN,
     S2L_DOWN,
     S2R_DOWN,
     K21_DOWN,

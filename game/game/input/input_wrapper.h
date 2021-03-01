@@ -1,5 +1,7 @@
 #pragma once
 #include <mutex>
+#include <array>
+#include <queue>
 #include "input_mgr.h"
 #include "asynclooper.h"
 #include "beat.h"
@@ -27,12 +29,14 @@ inline const InputMask INPUT_MASK_NAV_UP{ "0000000001010000000000000000000000000
 inline const InputMask INPUT_MASK_NAV_DN{ "0000000010100000000000000000000000000000010000000000000010" };
 
 // InputWrapper
-//  Start a process to check input by 1000hz rolling.
+//  Start a process to check input upon 1000hz polling.
 // Interface: 
 //  Pressed / Holding / Released FULL bitset
 //  Pressed / Holding / Released per key
 class InputWrapper: public AsyncLooper
 {
+public:
+    inline static unsigned release_delay_ms = 5;
 private:
 	std::mutex _mutex;
     bool _busy = false;
@@ -40,10 +44,12 @@ private:
 protected:
     InputMask _prev = 0;
     InputMask _curr = 0;
+    std::array<std::pair<long long, bool>, Input::KEY_COUNT> _inputBuffer{ {{0, false}} };
+    std::array<long long, Input::KEY_COUNT> _releaseBuffer{ -1 };
 
 public:
     InputWrapper(unsigned rate = 1000);
-    virtual ~InputWrapper() { loopEnd(); }
+    virtual ~InputWrapper();
 
 private:
     virtual void _loop();

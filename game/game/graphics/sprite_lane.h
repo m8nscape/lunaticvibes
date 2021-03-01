@@ -4,7 +4,7 @@
 #include <vector>
 #include <memory>
 
-// Draw the whole lane (on screen) from one single note sprite.
+// Draw the whole lane (on screen) with only one sprite per key.
 // Currently only handles normal notes. LN, mines or others are meant to be managed by other Sprite class.
 // Note that an instance of this class handles ONE note lane. That is, a 7+1 chart needs 8 instances of this class.
 class SpriteLaneVertical: public SpriteStatic
