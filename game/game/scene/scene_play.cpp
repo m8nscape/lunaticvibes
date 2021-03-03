@@ -977,6 +977,33 @@ void ScenePlay::inputGamePress(InputMask& m, Time t)
         if (hs > 25)
             gNumbers.set(eNumber::HS_2P, hs - 25);
     }
+
+    if (input[Input::ESC] || (input[Input::K1START] && input[Input::K1SELECT]) || (input[Input::K2START] && input[Input::K2SELECT]))
+    {
+        _state = ePlayState::FADEOUT;
+        gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
+        gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FADEOUT);
+
+        // TODO set health to 0
+        switch (_mode)
+        {
+        case ePlayMode::SINGLE:
+        {
+            // 
+        }
+        break;
+
+        case ePlayMode::LOCAL_BATTLE:
+        {
+            // 
+        }
+        break;
+
+        default:
+            break;
+        }
+
+    }
 }
 
 // CALLBACK

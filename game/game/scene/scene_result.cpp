@@ -17,6 +17,70 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
 
     _state = eResultState::DRAW;
 
+    // set options
+    if (context_play.ruleset[PLAYER_SLOT_1P])
+    {
+        auto d1p = context_play.ruleset[PLAYER_SLOT_1P]->getData();
+
+        if (d1p.total_acc >= 100.0)      gOptions.set(eOption::RESULT_RANK_1P, Option::RANK_0);
+        else if (d1p.total_acc >= 88.88) gOptions.set(eOption::RESULT_RANK_1P, Option::RANK_1);
+        else if (d1p.total_acc >= 77.77) gOptions.set(eOption::RESULT_RANK_1P, Option::RANK_2);
+        else if (d1p.total_acc >= 66.66) gOptions.set(eOption::RESULT_RANK_1P, Option::RANK_3);
+        else if (d1p.total_acc >= 55.55) gOptions.set(eOption::RESULT_RANK_1P, Option::RANK_4);
+        else if (d1p.total_acc >= 44.44) gOptions.set(eOption::RESULT_RANK_1P, Option::RANK_5);
+        else if (d1p.total_acc >= 33.33) gOptions.set(eOption::RESULT_RANK_1P, Option::RANK_6);
+        else if (d1p.total_acc >= 22.22) gOptions.set(eOption::RESULT_RANK_1P, Option::RANK_7);
+        else                             gOptions.set(eOption::RESULT_RANK_1P, Option::RANK_8);
+    }
+
+    if (context_play.ruleset[PLAYER_SLOT_2P])
+    {
+        auto d2p = context_play.ruleset[PLAYER_SLOT_2P]->getData();
+        if (d2p.total_acc >= 100.0)      gOptions.set(eOption::RESULT_RANK_2P, Option::RANK_0);
+        else if (d2p.total_acc >= 88.88) gOptions.set(eOption::RESULT_RANK_2P, Option::RANK_1);
+        else if (d2p.total_acc >= 77.77) gOptions.set(eOption::RESULT_RANK_2P, Option::RANK_2);
+        else if (d2p.total_acc >= 66.66) gOptions.set(eOption::RESULT_RANK_2P, Option::RANK_3);
+        else if (d2p.total_acc >= 55.55) gOptions.set(eOption::RESULT_RANK_2P, Option::RANK_4);
+        else if (d2p.total_acc >= 44.44) gOptions.set(eOption::RESULT_RANK_2P, Option::RANK_5);
+        else if (d2p.total_acc >= 33.33) gOptions.set(eOption::RESULT_RANK_2P, Option::RANK_6);
+        else if (d2p.total_acc >= 22.22) gOptions.set(eOption::RESULT_RANK_2P, Option::RANK_7);
+        else                             gOptions.set(eOption::RESULT_RANK_2P, Option::RANK_8);
+
+    }
+
+    // TODO compare to db record
+    auto dp = context_play.ruleset[context_play.playerSlot]->getData();
+
+    // TODO WIN/LOSE
+    switch (context_play.mode)
+    {
+    case eMode::PLAY5_2:
+    case eMode::PLAY7_2:
+    case eMode::PLAY9_2:
+    {
+        auto d1p = context_play.ruleset[PLAYER_SLOT_1P]->getData();
+        auto d2p = context_play.ruleset[PLAYER_SLOT_2P]->getData();
+        /*
+        switch (context_play.rulesetType)
+        {
+        case eRuleset::CLASSIC:
+            if (d1p.score2 > d2p.score2)
+                // TODO
+                break;
+
+        default:
+            if (d1p.score > d2p.score)
+                break;
+        }
+        */
+        break;
+    }
+
+    default:
+        break;
+    }
+
+
     using namespace std::placeholders;
     _input.register_p("SCENE_PRESS", std::bind(&SceneResult::inputGamePress, this, _1, _2));
     _input.register_h("SCENE_HOLD", std::bind(&SceneResult::inputGameHold, this, _1, _2));

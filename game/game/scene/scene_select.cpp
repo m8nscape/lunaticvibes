@@ -136,6 +136,19 @@ void setEntryInfo()
             }
             gOptions.set(eOption::CHART_JUDGE_TYPE, op_judgerank);
 
+            // difficulty
+            unsigned op_difficulty = Option::DIFF_0;
+            switch (bms->difficulty)
+            {
+            case 0: op_difficulty = Option::DIFF_0; break;
+            case 1: op_difficulty = Option::DIFF_1; break;
+            case 2: op_difficulty = Option::DIFF_2; break;
+            case 3: op_difficulty = Option::DIFF_3; break;
+            case 4: op_difficulty = Option::DIFF_4; break;
+            case 5: op_difficulty = Option::DIFF_5; break;
+            }
+            gOptions.set(eOption::CHART_DIFFICULTY, op_judgerank);
+
             // TODO TOTAL
 
             gSwitches.set(eSwitch::CHART_HAVE_BGA, bms->haveBGA);

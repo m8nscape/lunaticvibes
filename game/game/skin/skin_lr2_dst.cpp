@@ -77,14 +77,17 @@ void updateDstOpt()
 	// 3 選択中バーがコース
 	// 4 選択中バーが新規コース作成
 	// 5 選択中バーがプレイ可能(曲、コース等ならtrue
+	// 46 難易度フィルタが有効
+	// 47 難易度フィルタが無効
 	{
 		switch (gOptions.get(eOption::SELECT_ENTRY_TYPE))
 		{
 		using namespace Option;
-		case ENTRY_FOLDER: set({ 1 }); break;
-		case ENTRY_SONG: set({ 2, 5 }); break;
-		case ENTRY_COURSE: set({ 3, 5 }); break;
-		case ENTRY_NEW_COURSE: set(4); break;
+		case ENTRY_FOLDER: set({ 1, 47 }); break;
+		case ENTRY_SONG: set({ 2, 5, 46 }); break;
+		case ENTRY_COURSE: set({ 3, 5, 47 }); break;
+		case ENTRY_NEW_COURSE: set({ 4, 47 }); break;
+		default: set(47); break;
 		}
 	}
 
@@ -169,14 +172,6 @@ void updateDstOpt()
 		set(43, dst(eOption::PLAY_GAUGE_TYPE_1P, { GAUGE_HARD, GAUGE_EXHARD, GAUGE_DEATH }));
 		set(44, dst(eOption::PLAY_GAUGE_TYPE_2P, { GAUGE_ASSIST, GAUGE_EASY, GAUGE_NORMAL }));
 		set(45, dst(eOption::PLAY_GAUGE_TYPE_2P, { GAUGE_HARD, GAUGE_EXHARD, GAUGE_DEATH }));
-	}
-
-	// 46 難易度フィルタが有効
-	// 47 難易度フィルタが無効
-	{
-		using namespace Option;
-		set(46, !dst(eOption::SELECT_FILTER_DIFF, DIFF_ANY));
-		set(47, dst(eOption::SELECT_FILTER_DIFF, DIFF_ANY));
 	}
 
 	// 50 オフライン

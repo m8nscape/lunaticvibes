@@ -102,7 +102,7 @@ void SceneDecide::inputGamePress(InputMask& m, Time t)
         }
     }
 
-    if ((_inputAvailable & m & INPUT_MASK_DECIDE)[Input::ESC])
+    if ((_inputAvailable & m)[Input::ESC])
     {
         switch (_state)
         {
@@ -125,7 +125,7 @@ void SceneDecide::inputGameHold(InputMask& m, Time t)
 
     if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
 
-    auto k = _inputAvailable & m & INPUT_MASK_DECIDE;
+    auto k = _inputAvailable & m;
     if ((k[Input::K1START] && k[Input::K1SELECT]) || (k[Input::K2START] && k[Input::K2SELECT]))
     {
         switch (_state)
