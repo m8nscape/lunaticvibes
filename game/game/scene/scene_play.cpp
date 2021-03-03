@@ -780,11 +780,10 @@ void ScenePlay::updateFailed()
 void ScenePlay::procCommonNotes()
 {
     assert(context_play.chartObj[context_play.playerSlot] != nullptr);
-    size_t i = 0;
     auto it = context_play.chartObj[context_play.playerSlot]->notePlainExpired.begin();
-    size_t max = _bgmSampleIdxBuf.size() < context_play.chartObj[context_play.playerSlot]->notePlainExpired.size() ?
-                 _bgmSampleIdxBuf.size() : context_play.chartObj[context_play.playerSlot]->notePlainExpired.size();
-    for (; i < max && it != context_play.chartObj[context_play.playerSlot]->notePlainExpired.end(); ++i, ++it)
+    size_t i;
+    size_t max = std::min(_bgmSampleIdxBuf.size(), context_play.chartObj[context_play.playerSlot]->notePlainExpired.size());
+    for (i = 0; i < max && it != context_play.chartObj[context_play.playerSlot]->notePlainExpired.end(); ++i, ++it)
     {
         if ((it->index & 0xF0) == 0xE0)
         {

@@ -143,6 +143,7 @@ int main(int argc, char* argv[])
     if (argc >= 2)
     {
         __next_scene = eScene::PLAY;
+        _quit_on_finish = true;
 
         std::shared_ptr<BMS> bms = std::make_shared<BMS>(argv[1]);
         context_chart = __chart_context_params{

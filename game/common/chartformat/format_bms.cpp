@@ -225,11 +225,16 @@ int BMS::initWithFile(const Path& file)
                             switch (channel.second)
                             {
                             case 1:            // 01: BGM
-                                bgmLayersCount[measure]++;
-                                chBGM.emplace_back();
-                                strToLane36(chBGM.back()[measure], value);
-                                if (bgmLayersCount[measure] > bgmLayers)
-                                    bgmLayers = bgmLayersCount[measure];
+                                if (bgmLayersCount[measure] >= chBGM.size())
+                                {
+                                    chBGM.emplace_back();
+                                    strToLane36(chBGM.back()[measure], value);
+                                }
+                                else
+                                {
+                                    strToLane36(chBGM[bgmLayersCount[measure]][measure], value);
+                                }
+                                ++bgmLayersCount[measure];
                                 break;
 
                             case 2:            // 02: Measure Length

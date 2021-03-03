@@ -202,7 +202,7 @@ void chartBMS::loadBMS(const BMS& objBms)
                 if (BMSToLaneMap[lane] == NOPE) continue;
                 _noteLists[BMSToLaneMap[lane]].push_back({ m, beat, notetime, (long long)val, false });
             }
-            else if (lane >= 100 && lane < 131)
+            else if (lane >= 100 && lane <= 131)
             {
                 _commonNoteLists[lane - 100 + (size_t)eNotePlain::BGM0].push_back({ m, beat, notetime, (long long)val });
             }

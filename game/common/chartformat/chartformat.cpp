@@ -49,5 +49,5 @@ std::shared_ptr<vChartFormat> vChartFormat::getFromFile(const Path& path)
 
 Path vChartFormat::getDirectory() const
 {
-    return (_filePath / "..").lexically_normal();
+    return (_absolutePath / "..").lexically_normal();
 }
