@@ -138,16 +138,48 @@ void setEntryInfo()
 
             // difficulty
             unsigned op_difficulty = Option::DIFF_0;
+            gNumbers.set(eNumber::MUSIC_BEGINNER_LEVEL, 0);
+            gNumbers.set(eNumber::MUSIC_NORMAL_LEVEL, 0);
+            gNumbers.set(eNumber::MUSIC_HYPER_LEVEL, 0);
+            gNumbers.set(eNumber::MUSIC_ANOTHER_LEVEL, 0);
+            gNumbers.set(eNumber::MUSIC_INSANE_LEVEL, 0);
+            gBargraphs.set(eBargraph::LEVEL_BAR_BEGINNER, 0);
+            gBargraphs.set(eBargraph::LEVEL_BAR_NORMAL, 0);
+            gBargraphs.set(eBargraph::LEVEL_BAR_HYPER, 0);
+            gBargraphs.set(eBargraph::LEVEL_BAR_ANOTHER, 0);
+            gBargraphs.set(eBargraph::LEVEL_BAR_INSANE, 0);
             switch (bms->difficulty)
             {
-            case 0: op_difficulty = Option::DIFF_0; break;
-            case 1: op_difficulty = Option::DIFF_1; break;
-            case 2: op_difficulty = Option::DIFF_2; break;
-            case 3: op_difficulty = Option::DIFF_3; break;
-            case 4: op_difficulty = Option::DIFF_4; break;
-            case 5: op_difficulty = Option::DIFF_5; break;
+            case 0:
+                op_difficulty = Option::DIFF_0; 
+                break;
+            case 1: 
+                op_difficulty = Option::DIFF_1; 
+                gNumbers.set(eNumber::MUSIC_BEGINNER_LEVEL, bms->playLevel); 
+                gBargraphs.set(eBargraph::LEVEL_BAR_BEGINNER, bms->playLevel / 12.0); 
+                break;
+            case 2: 
+                op_difficulty = Option::DIFF_2; 
+                gNumbers.set(eNumber::MUSIC_NORMAL_LEVEL, bms->playLevel); 
+                gBargraphs.set(eBargraph::LEVEL_BAR_NORMAL, bms->playLevel / 12.0);
+                break;
+            case 3: 
+                op_difficulty = Option::DIFF_3; 
+                gNumbers.set(eNumber::MUSIC_HYPER_LEVEL, bms->playLevel); 
+                gBargraphs.set(eBargraph::LEVEL_BAR_HYPER, bms->playLevel / 12.0); 
+                break;
+            case 4: 
+                op_difficulty = Option::DIFF_4; 
+                gNumbers.set(eNumber::MUSIC_ANOTHER_LEVEL, bms->playLevel); 
+                gBargraphs.set(eBargraph::LEVEL_BAR_ANOTHER, bms->playLevel / 12.0); 
+                break;
+            case 5: 
+                op_difficulty = Option::DIFF_5; 
+                gNumbers.set(eNumber::MUSIC_INSANE_LEVEL, bms->playLevel); 
+                gBargraphs.set(eBargraph::LEVEL_BAR_INSANE, bms->playLevel / 12.0); 
+                break;
             }
-            gOptions.set(eOption::CHART_DIFFICULTY, op_judgerank);
+            gOptions.set(eOption::CHART_DIFFICULTY, op_difficulty);
 
             // TODO TOTAL
 

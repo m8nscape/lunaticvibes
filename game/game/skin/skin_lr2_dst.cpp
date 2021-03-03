@@ -77,17 +77,14 @@ void updateDstOpt()
 	// 3 選択中バーがコース
 	// 4 選択中バーが新規コース作成
 	// 5 選択中バーがプレイ可能(曲、コース等ならtrue
-	// 46 難易度フィルタが有効
-	// 47 難易度フィルタが無効
 	{
 		switch (gOptions.get(eOption::SELECT_ENTRY_TYPE))
 		{
 		using namespace Option;
-		case ENTRY_FOLDER: set({ 1, 47 }); break;
-		case ENTRY_SONG: set({ 2, 5, 46 }); break;
-		case ENTRY_COURSE: set({ 3, 5, 47 }); break;
-		case ENTRY_NEW_COURSE: set({ 4, 47 }); break;
-		default: set(47); break;
+		case ENTRY_FOLDER: set({ 1 }); break;
+		case ENTRY_SONG: set({ 2, 5 }); break;
+		case ENTRY_COURSE: set({ 3, 5 }); break;
+		case ENTRY_NEW_COURSE: set(4); break;
 		}
 	}
 
@@ -172,6 +169,13 @@ void updateDstOpt()
 		set(43, dst(eOption::PLAY_GAUGE_TYPE_1P, { GAUGE_HARD, GAUGE_EXHARD, GAUGE_DEATH }));
 		set(44, dst(eOption::PLAY_GAUGE_TYPE_2P, { GAUGE_ASSIST, GAUGE_EASY, GAUGE_NORMAL }));
 		set(45, dst(eOption::PLAY_GAUGE_TYPE_2P, { GAUGE_HARD, GAUGE_EXHARD, GAUGE_DEATH }));
+	}
+
+	// 46 難易度フィルタが有効
+	// 47 難易度フィルタが無効
+	{
+		using namespace Option;
+		set(46);
 	}
 
 	// 50 オフライン
@@ -362,15 +366,18 @@ void updateDstOpt()
 	// 145 SP TO DP (もしかしたら今後DP TO SPや 9 TO 7と共有項目になるかも。
 
 	// 150 difficulty0 (未設定)
-	switch (gOptions.get(eOption::CHART_DIFFICULTY))
+	if (get(5))
 	{
-	using namespace Option;
-	case DIFF_ANY: set(150); break;
-	case DIFF_BEGINNER: set(151); break;
-	case DIFF_NORMAL: set(152); break;
-	case DIFF_HYPER: set(153); break;
-	case DIFF_ANOTHER: set(154); break;
-	case DIFF_INSANE: set(155); break;
+		switch (gOptions.get(eOption::CHART_DIFFICULTY))
+		{
+			using namespace Option;
+		case DIFF_ANY: set(150); break;
+		case DIFF_BEGINNER: set(151); break;
+		case DIFF_NORMAL: set(152); break;
+		case DIFF_HYPER: set(153); break;
+		case DIFF_ANOTHER: set(154); break;
+		case DIFF_INSANE: set(155); break;
+		}
 	}
 
 	if (get(5))	// is playable
@@ -768,7 +775,6 @@ void updateDstOpt()
 	// 508 同じフォルダにanother譜面が存在する
 	// 509 同じフォルダにinsane譜面が存在する
 
-
 	// 510 同じフォルダに一個のbeginner譜面が存在する
 	// 511 同じフォルダに一個のnormal譜面が存在する
 	// 512 同じフォルダに一個のhyper譜面が存在する
@@ -780,6 +786,37 @@ void updateDstOpt()
 	// 517 同じフォルダに複数のhyper譜面が存在する
 	// 518 同じフォルダに複数のanother譜面が存在する
 	// 519 同じフォルダに複数のnsane譜面が存在する
+	if (get(5))
+	{
+		set({ 500, 501, 502, 503, 504 });
+
+		switch (gOptions.get(eOption::CHART_DIFFICULTY))
+		{
+			using namespace Option;
+		case DIFF_BEGINNER:
+			set(500, false); 
+			set({ 505, 510 }); 
+			break;
+		case DIFF_NORMAL: 
+			set(501, false); 
+			set({ 506, 511 });  
+			break;
+		case DIFF_HYPER: 
+			set(502, false);
+			set({ 507, 512 });  
+			break;
+		case DIFF_ANOTHER: 
+			set(503, false); 
+			set({ 508, 513 }); 
+			break;
+		case DIFF_INSANE: 
+			set(504, false);
+			set({ 509, 514 });
+			break;
+		default: 
+			break;
+		}
+	}
 
 	// 520 レベルバー beginner no play
 	// 521 レベルバー beginner failed

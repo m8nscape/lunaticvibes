@@ -1,6 +1,14 @@
 #pragma once
 #include "buffered_global.h"
-typedef double dpercent;  // 0.0 ~ 1.0
+class dpercent
+{
+protected:
+	double _data;
+public:
+	dpercent() : dpercent(0) {}
+	dpercent(double d) { _data = std::clamp(d, 0.0, 1.0); }
+	operator double() const { return _data; }
+};
 
 enum class eBargraph : unsigned
 {

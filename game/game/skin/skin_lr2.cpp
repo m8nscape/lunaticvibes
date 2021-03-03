@@ -2683,6 +2683,7 @@ SkinLR2::SkinLR2(Path p)
         _sprites_parent.push_back(_barSprites[i]);
     }
 	_laneSprites.resize(CHANNEL_COUNT);
+    updateDstOpt();
     loadCSV(p);
 
     for (auto& p : _sprites)
