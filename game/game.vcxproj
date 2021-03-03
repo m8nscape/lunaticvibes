@@ -53,6 +53,7 @@
     <ClCompile Include="game\ruleset\ruleset_classic.cpp" />
     <ClCompile Include="game\scene\scene.cpp" />
     <ClCompile Include="game\scene\scene_context.cpp" />
+    <ClCompile Include="game\scene\scene_decide.cpp" />
     <ClCompile Include="game\scene\scene_mgr.cpp" />
     <ClCompile Include="game\scene\scene_play.cpp" />
     <ClCompile Include="game\scene\scene_result.cpp" />
@@ -119,6 +120,7 @@
     <ClInclude Include="game\ruleset\ruleset_classic.h" />
     <ClInclude Include="game\scene\scene.h" />
     <ClInclude Include="game\scene\scene_context.h" />
+    <ClInclude Include="game\scene\scene_decide.h" />
     <ClInclude Include="game\scene\scene_mgr.h" />
     <ClInclude Include="game\scene\scene_play.h" />
     <ClInclude Include="game\scene\scene_result.h" />

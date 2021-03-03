@@ -58,7 +58,7 @@ void SceneResult::updateDraw()
     auto t = Time();
     auto rt = t - gTimers.get(eTimer::SCENE_START);
 
-    if (rt.norm() >= _skin->info.timeResultDrawing)
+    if (rt.norm() >= _skin->info.timeResultRank)
     {
         _state = eResultState::STOP;
         gTimers.set(eTimer::RESULT_RANK_START, t.norm());

@@ -95,11 +95,12 @@ public:
         std::string maker;
 
         // General 
-        unsigned timeIntro; // time before this cannot receive input. Implemented by derived class
-        unsigned timeOutro;
+        unsigned timeIntro; // #STARTINPUT | before this time the scene cannot receive input. Implemented by derived class
+        unsigned timeOutro; // #FADEOUT
 
         // Decide
-        //unsigned startSkipTime; // handled by Intro
+        unsigned timeDecideSkip; // #SKIP | after this time the scene can be skipped. Solely for decide scene
+        unsigned timeDecideExpiry; // #SCENETIME | switch to play scene if not skipped
 
         // Play
         unsigned timeStartLoading;
@@ -108,9 +109,8 @@ public:
         unsigned timeFailed;
 
         // Result
-        //unsigned resultStartInputTimeRank; //ignored
-        //unsigned resultStartInputTimeUpdate; //ignored
-        unsigned timeResultDrawing = 3000;
+        unsigned timeResultRank; //ignored
+        unsigned timeResultRecord; //ignored
     } info{};
 
     ///////////////////////////////////////////////////////////

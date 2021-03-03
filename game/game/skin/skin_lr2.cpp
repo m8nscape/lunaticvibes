@@ -677,20 +677,12 @@ int SkinLR2::TIMEOPTION()
         {
             int rank = stoine(tokensBuf[1]);
             int update = stoine(tokensBuf[2]);
-            //if (rank > 0) info.resultStartInputTimeRank = rank;
-            //if (update > 0) info.resultStartInputTimeUpdate = update;
-            LOG_DEBUG << "[Skin] " << line << ": Skipped STARTINPUT " << rank << " " << update;
+            if (rank > 0) info.timeResultRank = rank;
+            if (update > 0) info.timeResultRecord = update;
+            LOG_DEBUG << "[Skin] " << line << ": STARTINPUT " << info.timeIntro << " " << rank << " " << update;
         }
 
         return 1;
-    }
-
-    else if (optBuf == "#SKIP")
-    {
-        int time = stoine(tokensBuf[0]);
-        info.timeIntro = time;
-        LOG_DEBUG << "[Skin] " << line << ": Set Intro freeze time: " << time;
-        return 2;
     }
 
     else if (optBuf == "#LOADSTART")
@@ -731,6 +723,22 @@ int SkinLR2::TIMEOPTION()
         info.timeOutro = time;
         LOG_DEBUG << "[Skin] " << line << ": Set fadeout time length: " << time;
         return 7;
+    }
+
+    else if (optBuf == "#SKIP")
+    {
+        int time = stoine(tokensBuf[0]);
+        info.timeDecideSkip = time;
+        LOG_DEBUG << "[Skin] " << line << ": Set Decide skip time: " << time;
+        return 8;
+    }
+
+    else if (optBuf == "#SCENETIME")
+    {
+        int time = stoine(tokensBuf[0]);
+        info.timeDecideExpiry = time;
+        LOG_DEBUG << "[Skin] " << line << ": Set Decide expiry time: " << time;
+        return 9;
     }
 
     return 0;

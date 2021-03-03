@@ -44,6 +44,17 @@ void mainLoop()
         // Scene change
         if (currentScene != __next_scene)
         {
+            switch (__next_scene)
+            {
+                using e = eScene;
+            case e::SELECT: LOG_INFO << "Scene changed to SELECT"; break;
+            case e::DECIDE: LOG_INFO << "Scene changed to DECIDE"; break;
+            case e::PLAY: LOG_INFO << "Scene changed to PLAY"; break;
+            case e::RESULT: LOG_INFO << "Scene changed to RESULT"; break;
+            case e::EXIT: LOG_INFO << "Scene changed to EXIT"; break;
+            default: break;
+            }
+
 			scene->loopEnd();
             clearCustomDstOpt();
 			currentScene = __next_scene;

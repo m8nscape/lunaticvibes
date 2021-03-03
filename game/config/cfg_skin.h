@@ -8,7 +8,10 @@ inline const char* CONFIG_FILE_SKIN = "skin.yml";
 namespace cfg
 {
     inline const char* S_PATH_MUSIC_SELECT = "Select";
-    inline const char* S_DEFAULT_PATH_MUSIC_SELECT = "./LR2files/Theme/LR2/Play/play_7.lr2skin";
+    inline const char* S_DEFAULT_PATH_MUSIC_SELECT = "./LR2files/Theme/LR2/Decide/decide.lr2skin";
+
+    inline const char* S_PATH_DECIDE = "Decide";
+    inline const char* S_DEFAULT_PATH_DECIDE = "./LR2files/Theme/LR2/Decide/decide.lr2skin";
 
     inline const char* S_PATH_PLAY_7 = "Play7";
     inline const char* S_DEFAULT_PATH_PLAY_7 = "./LR2files/Theme/LR2/Play/play_7.lr2skin";

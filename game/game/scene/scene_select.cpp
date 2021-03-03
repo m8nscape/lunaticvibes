@@ -423,8 +423,7 @@ void SceneSelect::_decide()
     }
     
     // FIXME change to decide scene
-    //__next_scene = eScene::DECIDE;
-    __next_scene = eScene::PLAY;
+    __next_scene = eScene::DECIDE;
 }
 
 void SceneSelect::loadSongList()
