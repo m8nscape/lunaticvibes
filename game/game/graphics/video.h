@@ -72,7 +72,6 @@ public:
 
 public:
 	std::shared_mutex video_frame_mutex;
-	inline static std::timed_mutex static_render_mutex;
 
 public:
 	void seek(int64_t second, bool backwards = false);

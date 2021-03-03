@@ -1383,8 +1383,7 @@ protected:
     unsigned barClickableTo = 0;
 
 protected:
-    typedef std::shared_ptr<SpriteLaneVertical> pSpriteLane;
-    std::vector<pSpriteLane> _laneSprites;
+    std::vector<std::shared_ptr<SpriteLaneVertical>> _laneSprites;
 
 private:
     unsigned line = 0;          // line parsing index

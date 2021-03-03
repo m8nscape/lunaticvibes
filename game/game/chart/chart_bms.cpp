@@ -8,6 +8,7 @@ namespace bms
 	// TODO mapping is different between file formats
     const size_t BMSToLaneMap[] = 
     {
+        // Normal notes
         Sc1,
         K1,
         K2,
@@ -27,6 +28,29 @@ namespace bms
         K12,
         K13,
         K14,
+        NOPE,
+        NOPE,
+
+        // LN
+        channelToIdx(NoteLaneCategory::LN, Sc1),
+        channelToIdx(NoteLaneCategory::LN, K1),
+        channelToIdx(NoteLaneCategory::LN, K2),
+        channelToIdx(NoteLaneCategory::LN, K3),
+        channelToIdx(NoteLaneCategory::LN, K4),
+        channelToIdx(NoteLaneCategory::LN, K5),
+        channelToIdx(NoteLaneCategory::LN, K6),
+        channelToIdx(NoteLaneCategory::LN, K7),
+        NOPE,
+        NOPE,
+
+        channelToIdx(NoteLaneCategory::LN, Sc2),
+        channelToIdx(NoteLaneCategory::LN, K8),
+        channelToIdx(NoteLaneCategory::LN, K9),
+        channelToIdx(NoteLaneCategory::LN, K10),
+        channelToIdx(NoteLaneCategory::LN, K11),
+        channelToIdx(NoteLaneCategory::LN, K12),
+        channelToIdx(NoteLaneCategory::LN, K13),
+        channelToIdx(NoteLaneCategory::LN, K14),
         NOPE,
         NOPE,
     };
@@ -123,6 +147,19 @@ void chartBMS::loadBMS(const BMS& objBms)
             }
 
             // LN: , bms: 5x/6x
+            for (unsigned i = 0; i < 10; i++)
+            {
+                auto ch = objBms.getLane(LaneCode::NOTELN1, i, m);
+                for (const auto& n : ch.notes)
+                    notes.push_back({ fraction(n.segment, ch.resolution),{ 20 + i, n.value } });
+            }
+            for (unsigned i = 0; i < 10; i++)
+            {
+                auto ch = objBms.getLane(LaneCode::NOTELN2, i, m);
+                for (const auto& n : ch.notes)
+                    notes.push_back({ fraction(n.segment, ch.resolution),{ 30 + i, n.value } });
+            }
+
             // invisible: , bms: 3x/4x
             // mine: , bms: Dx/Ex, specify a damage by [01-ZZ] (decimalize/2) ZZ: instant gameover
 

@@ -1346,6 +1346,31 @@ ParseRet SkinLR2::SRC_NOWCOMBO2()
     return ParseRet::OK;
 }
 
+const size_t NoteIdxToLaneMap[] =
+{
+    Sc1,
+    K1,
+    K2,
+    K3,
+    K4,
+    K5,
+    K6,
+    K7,
+    _,
+    _,
+
+    Sc2,
+    K8,
+    K9,
+    K10,
+    K11,
+    K12,
+    K13,
+    K14,
+    _,
+    _,
+};
+
 ParseRet SkinLR2::SRC_NOTE()
 {
     // skip unsupported
@@ -1378,6 +1403,10 @@ ParseRet SkinLR2::SRC_NOTE()
     //if (tokensBuf.size() < 10)
         //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
 
+    if (d._null >= 20)
+    {
+        return ParseRet::PARAM_INVALID;
+    }
 
     NoteLaneCategory cat = NoteLaneCategory::_;
     NoteLaneIndex idx = NoteLaneIndex::_;
@@ -1387,7 +1416,7 @@ ParseRet SkinLR2::SRC_NOTE()
     if (optBuf == "#SRC_NOTE")
     {
         cat = NoteLaneCategory::Note;
-        idx = (NoteLaneIndex)d._null;
+        idx = (NoteLaneIndex)NoteIdxToLaneMap[d._null];
         ret = 1;
     }
     else if (optBuf == "#SRC_LINE")
@@ -1395,6 +1424,24 @@ ParseRet SkinLR2::SRC_NOTE()
         cat = NoteLaneCategory::EXTRA;
         idx = (NoteLaneIndex)EXTRA_BARLINE;
         ret = 2;
+    }
+    else if (optBuf == "#SRC_LN_START")
+    {
+        cat = NoteLaneCategory::LN;
+        idx = (NoteLaneIndex)NoteIdxToLaneMap[d._null];
+        ret = 3;
+    }
+    else if (optBuf == "#SRC_LN_BODY")
+    {
+        cat = NoteLaneCategory::LN;
+        idx = (NoteLaneIndex)NoteIdxToLaneMap[d._null];
+        ret = 4;
+    }
+    else if (optBuf == "#SRC_LN_END")
+    {
+        cat = NoteLaneCategory::LN;
+        idx = (NoteLaneIndex)NoteIdxToLaneMap[d._null];
+        ret = 5;
     }
     else
     {
@@ -1411,17 +1458,64 @@ ParseRet SkinLR2::SRC_NOTE()
         return ParseRet::PARAM_INVALID;
     }
 
-    _sprites.push_back(std::make_shared<SpriteLaneVertical>(
-        _textureNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, iTimer, d.div_y, d.div_x));
-    _sprites_child.push_back(_sprites.back());
+    switch (ret)
+    {
+    case 1:
+    case 2:
+        _sprites.push_back(std::make_shared<SpriteLaneVertical>(
+            _textureNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, iTimer, d.div_y, d.div_x, false, !!(d._null >= 20)));
+        _sprites_child.push_back(_sprites.back());
 
-    _laneSprites[i] = std::static_pointer_cast<SpriteLaneVertical>(_sprites.back());
-    _laneSprites[i]->setLane(cat, idx);
-    //LOG_DEBUG << "[Skin] " << line << ": Set Note " << idx << " sprite (texture: " << gr_key << ", timer: " << d.timer << ")";
+        _laneSprites[i] = std::static_pointer_cast<SpriteLaneVertical>(_sprites.back());
+        _laneSprites[i]->setLane(cat, idx);
+        _laneSprites[i]->pNote->appendKeyFrame({ 0, {Rect(),
+            RenderParams::accTy::CONSTANT, Color(0xffffffff), BlendMode::ALPHA, 0, 0.0 } });
+        _laneSprites[i]->pNote->setLoopTime(0);
+        break;
 
-    _laneSprites[i]->pNote->appendKeyFrame({ 0, {Rect(),
-        RenderParams::accTy::CONSTANT, Color(0xffffffff), BlendMode::ALPHA, 0, 0.0 } });
-    _laneSprites[i]->pNote->setLoopTime(0);
+    case 3:
+    case 4:
+    case 5:
+    {
+        if (_laneSprites[i] == nullptr)
+        {
+            _sprites.push_back(std::make_shared<SpriteLaneVerticalLN>(!!(d._null >= 20)));
+            _sprites_child.push_back(_sprites.back());
+            _laneSprites[i] = std::static_pointer_cast<SpriteLaneVerticalLN>(_sprites.back());
+            _laneSprites[i]->setLane(cat, idx);
+        }
+
+        auto p = std::static_pointer_cast<SpriteLaneVerticalLN>(_laneSprites[i]);
+        std::shared_ptr<SpriteAnimated> *pn = nullptr;
+        switch (ret)
+        {
+        case 3:
+            pn = &p->pNote;
+            break;
+        case 4:
+            pn = &p->pNoteBody;
+            break;
+        case 5:
+            pn = &p->pNoteTail;
+            break;
+        default:
+            break;
+        }
+        if (pn)
+        {
+            *pn = std::make_shared<SpriteAnimated>(
+                _textureNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, iTimer, d.div_y, d.div_x);
+            (*pn)->appendKeyFrame({ 0, {Rect(), RenderParams::accTy::CONSTANT, Color(0xffffffff), BlendMode::ALPHA, 0, 0.0 } });
+            (*pn)->setLoopTime(0);
+        }
+        break;
+    }
+    default:
+        break;
+    }
+
+
+
     return ParseRet::OK;
 }
 
@@ -1806,62 +1900,27 @@ ParseRet SkinLR2::DST_NOTE()
     if (optBuf != "#DST_NOTE")
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
-    //if (tokensBuf.size() < 13)
-        //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
-
-
     // load line into data struct
     lr2skin::dst d;
     convertLine(tokensBuf, (int*)&d, 0, 14);
-    
-	NoteLaneIndex idx = (NoteLaneIndex)d._null;
 
-    auto setDstNoteLambda = [&](NoteLaneCategory i)
+    if (d._null >= 20)
+        return ParseRet::PARAM_INVALID;
+
+    if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
+        convertOps(tokensBuf, (int*)d.op, 16, 4);
+    //else
+        //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
+
+	NoteLaneIndex idx = NoteLaneIndex(NoteIdxToLaneMap[d._null]);
+
+    auto setDstNoteLambda = [&](NoteLaneCategory i, std::shared_ptr<SpriteLaneVertical> e)
     {
-        NoteLaneCategory cat = (NoteLaneCategory)i;
-        int ret = 0;
-        auto e = _laneSprites[channelToIdx(cat, idx)];
-        if (e == nullptr)
-        {
-            LOG_WARNING << "[Skin] " << line << ": Note SRC definition invalid " <<
-                "(Type: " << (int)i << ", Index: " << idx << " ) ";
-            return;
-        }
-
-        if (e->type() != SpriteTypes::NOTE_VERT)
-        {
-            LOG_WARNING << "[Skin] " << line << ": Note SRC definition is not NOTE " <<
-                "(Type: " << (int)i << ", Index: " << idx << " ) ";
-            return;
-        }
-
-        if (!e->isKeyFrameEmpty())
-        {
-            LOG_WARNING << "[Skin] " << line << ": Note DST is already defined " <<
-                "(Type: " << (int)i << ", Index: " << idx << " ) ";
-            e->clearKeyFrames();
-        }
+        /*
         e->pNote->clearKeyFrames();
         e->pNote->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center)  } });
-
-        // set sprite channel
-        auto p = std::static_pointer_cast<SpriteLaneVertical>(e);
-
-        p->_playerSlot = d._null / 10;  // player slot, 1P:0, 2P:1
-
-        // refine rect: x=dst_x, y=-dst_h, w=dst_w, h=dst_y
-        int dst_h;
-        //p->getRectSize(d.w, dummy);
-        dst_h = d.h;
-        d.h = d.y + dst_h;
-        d.y = -dst_h;
-
-        if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
-            convertOps(tokensBuf, (int*)d.op, 16, 4);
-        //else
-            //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/16)";
-
+            */
 
         drawQueue.push_back({ e, false, d.op[0], d.op[1], d.op[2], d.op[3] });
         e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
@@ -1871,9 +1930,14 @@ ParseRet SkinLR2::DST_NOTE()
         //LOG_DEBUG << "[Skin] " << line << ": Set Lane sprite Keyframe (time: " << d.time << ")";
     };
 
-    setDstNoteLambda(NoteLaneCategory::Note);
+    auto e1 = _laneSprites[channelToIdx(NoteLaneCategory::Note, idx)];
+    setDstNoteLambda(NoteLaneCategory::Note, e1);
+
+    // TODO add mine sprite
     //setDstNoteLambda(NoteLaneCategory::Mine);
-    //setDstNoteLambda(NoteLaneCategory::LN);
+
+    auto e3 = _laneSprites[channelToIdx(NoteLaneCategory::LN, idx)];
+    setDstNoteLambda(NoteLaneCategory::LN, e3);
 
     return ParseRet::OK;
 }
@@ -1917,7 +1981,7 @@ ParseRet SkinLR2::DST_LINE()
     // set sprite channel
     auto p = std::static_pointer_cast<SpriteLaneVertical>(e);
 
-    p->_playerSlot = d._null / 10;  // player slot, 1P:0, 2P:1
+    p->playerSlot = d._null / 10;  // player slot, 1P:0, 2P:1
 
     NoteLaneCategory cat = p->getLaneCat();
     NoteLaneIndex idx = p->getLaneIdx();

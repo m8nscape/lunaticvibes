@@ -59,7 +59,7 @@ void TextureVideo::update()
 	{
 		// read lock
 		using namespace std::chrono_literals;
-		std::unique_lock lg(sVideo::static_render_mutex, std::defer_lock);
+		std::unique_lock lg(_static_render_mutex);
 		lg.try_lock_for(10ms);
 		if (lg)
 		{

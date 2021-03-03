@@ -177,18 +177,17 @@ Texture::Texture(const Image& srcImage)
 {
     if (!srcImage._loaded) return;
 
-        Image tmpImage = srcImage;
-
-        _pTexture = std::shared_ptr<SDL_Texture>(
-            SDL_CreateTextureFromSurface(_frame_renderer, &*tmpImage._pSurface),
-            [](SDL_Texture* p) {if (p) SDL_DestroyTexture(p); });
-        if (_pTexture)
-        {
-            // TODO set transparent color
-            SDL_SetColorKey(&*srcImage._pSurface, SDL_RLEACCEL, SDL_MapRGB(srcImage._pSurface->format, 0, 255, 0));
-            _texRect = srcImage.getRect();
-            _loaded = true;
-        }
+    std::unique_lock u(_static_render_mutex);
+    _pTexture = std::shared_ptr<SDL_Texture>(
+        SDL_CreateTextureFromSurface(_frame_renderer, &*srcImage._pSurface),
+        [](SDL_Texture* p) {if (p) SDL_DestroyTexture(p); });
+    if (_pTexture)
+    {
+        // TODO set transparent color
+        SDL_SetColorKey(&*srcImage._pSurface, SDL_RLEACCEL, SDL_MapRGB(srcImage._pSurface->format, 0, 255, 0));
+        _texRect = srcImage.getRect();
+        _loaded = true;
+    }
 
     if (!_loaded)
     {
@@ -200,7 +199,7 @@ Texture::Texture(const Image& srcImage)
 }
 
 Texture::Texture(const SDL_Surface* pSurface):
-    _pTexture(SDL_CreateTextureFromSurface(_frame_renderer, const_cast<SDL_Surface*>(pSurface)), SDL_DestroyTexture)
+    _pTexture(SDL_CreateTextureFromSurface(_frame_renderer, const_cast<SDL_Surface*>(pSurface)), [](SDL_Texture* p) { if (p) SDL_DestroyTexture(p); })
 {
     if (!_pTexture) return;
     _texRect = pSurface->clip_rect;
@@ -208,7 +207,7 @@ Texture::Texture(const SDL_Surface* pSurface):
 }
 
 Texture::Texture(const SDL_Texture* pTexture, int w, int h):
-    _pTexture(const_cast<SDL_Texture*>(pTexture), SDL_DestroyTexture)
+    _pTexture(const_cast<SDL_Texture*>(pTexture), [](SDL_Texture* p) { if (p) SDL_DestroyTexture(p); })
 {
     if (!pTexture) return;
     _texRect = {0, 0, w, h};
@@ -237,7 +236,7 @@ Texture::Texture(int w, int h, PixelFormat fmt)
 	if (sdlfmt != SDL_PIXELFORMAT_UNKNOWN)
 	{
         _pTexture = std::shared_ptr<SDL_Texture>(
-            SDL_CreateTexture(_frame_renderer, sdlfmt, SDL_TEXTUREACCESS_STREAMING, w, h), SDL_DestroyTexture);
+            SDL_CreateTexture(_frame_renderer, sdlfmt, SDL_TEXTUREACCESS_STREAMING, w, h), [](SDL_Texture* p) { if (p) SDL_DestroyTexture(p); });
 		if (_pTexture) _loaded = true;
 	}
 }

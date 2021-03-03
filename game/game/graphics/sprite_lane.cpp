@@ -2,17 +2,23 @@
 #include "game/data/number.h"
 #include <cassert>
 
-SpriteLaneVertical::SpriteLaneVertical(pTexture texture, Rect r,
-    unsigned animFrames, unsigned frameTime, eTimer timer,
-    bool animVerticalIndexing,
-    unsigned player, double basespeed, double lanespeed):
-    SpriteStatic(nullptr, Rect(0)), pNote(new SpriteAnimated(texture, r, animFrames, frameTime, timer, animVerticalIndexing)), _playerSlot(player)
+SpriteLaneVertical::SpriteLaneVertical(unsigned player, double basespeed, double lanespeed):
+	SpriteStatic(nullptr, Rect(0)), playerSlot(player)
 {
-    _type = SpriteTypes::NOTE_VERT;
-    _basespd = basespeed * lanespeed;
-    _hispeed = 1.0;
+	_type = SpriteTypes::NOTE_VERT;
+	_basespd = basespeed * lanespeed;
+	_hispeed = 1.0;
 	_category = NoteLaneCategory::_;
 	_index = NoteLaneIndex::_;
+}
+
+SpriteLaneVertical::SpriteLaneVertical(pTexture texture, Rect r,
+    unsigned animFrames, unsigned frameTime, eTimer timer,
+	unsigned animRows, unsigned animCols, bool animVerticalIndexing,
+    unsigned player, double basespeed, double lanespeed):
+	SpriteLaneVertical(player, basespeed, lanespeed)
+{
+	pNote = std::make_shared<SpriteAnimated>(texture, r, animFrames, frameTime, timer, animRows, animCols, animVerticalIndexing);
 }
 
 
@@ -20,7 +26,6 @@ void SpriteLaneVertical::setLane(NoteLaneCategory cat, NoteLaneIndex idx)
 {
 	_category = cat;
 	_index = idx;
-	_haveDst = true;
 }
 
 void SpriteLaneVertical::getRectSize(int& w, int& h)
@@ -40,7 +45,17 @@ bool SpriteLaneVertical::update(Time t)
 {
 	if (updateByKeyframes(t))
 	{
-        _hispeed = double(gNumbers.get(eNumber::HS_1P)) / 100.0;
+		switch (playerSlot)
+		{
+		case 0:
+			_hispeed = double(gNumbers.get(eNumber::HS_1P)) / 100.0;
+			break;
+		case 1:
+			_hispeed = double(gNumbers.get(eNumber::HS_2P)) / 100.0;
+			break;
+		default:
+			break;
+		}
 		return true;
 	}
 	return false;
@@ -51,26 +66,24 @@ void SpriteLaneVertical::updateNoteRect(Time t, vChart* s, double beat, unsigned
     // refresh note sprites
 	pNote->update(t);
 
-    // fetch note size, c.h = whole lane height, c.y = height start drawing
+    // fetch note size, c.y + c.h = judge line pos (top-left corner), -c.h = height start drawing
     auto c = _current.rect;
-    auto r = pNote->getCurrentRenderParams().rect;
     auto currTotalBeat = s->getBarBeatstamp(measure) + beat;
-    gNumbers.set(eNumber::_TEST5, (int)(currTotalBeat * 100.0));
 
     // generate note rects and store to buffer
 	// 150BPM with 1.0x HS is 1600ms
-    int y = c.h;
+    int y = c.y + c.h;
     _outRect.clear();
     auto it = s->incomingNoteOfLane(_category, _index);
-    while (!s->isLastNoteOfLane(_category, _index, it) && y >= c.y)
+    while (!s->isLastNoteOfLane(_category, _index, it) && y >= -c.h)
     {
 		auto noteBeatOffset = currTotalBeat - it->totalbeat;
         if (noteBeatOffset >= 0)
-			y = (c.y + c.h); // expired notes stay on judge line, LR2 / pre RA behavior
+			y = c.y + c.h; // expired notes stay on judge line, LR2 / pre RA behavior
         else
-            y = (c.y + c.h) - static_cast<int>( std::floor((-noteBeatOffset * 4 / 4) * c.h * _basespd * _hispeed) );
+            y = (c.y + c.h) - static_cast<int>( std::floor((-noteBeatOffset * 4 / 4) * c.y * _basespd * _hispeed) );
         it++;
-        _outRect.push_front({ c.x, y, r.w, r.h });
+        _outRect.push_front({ c.x, y, c.w, -c.h });
     }
 }
 
@@ -92,3 +105,113 @@ void SpriteLaneVertical::draw() const
 	}
 }
 
+
+void SpriteLaneVerticalLN::updateNoteRect(Time t, vChart* s, double beat, unsigned measure)
+{
+	// refresh note sprites
+	pNote->update(t);
+
+	// fetch note size, c.y + c.h = judge line pos (top-left corner), -c.h = height start drawing
+	auto c = _current.rect;
+	auto currTotalBeat = s->getBarBeatstamp(measure) + beat;
+
+	// generate note rects and store to buffer
+	// 150BPM with 1.0x HS is 1600ms
+	_outRect.clear();
+	_outRectBody.clear();
+	_outRectTail.clear();
+
+	auto it = s->incomingNoteOfLane(_category, _index);
+	if (currentHead && currentHead->hit)
+	{
+		if (currentTail && !s->isLastNoteOfLane(_category, _index, it) && &*it == currentTail)
+		{
+			++it;
+			if (currentTail->hit)
+			{
+				currentHead = currentTail = nullptr;
+			}
+			else
+			{
+				// *it is tail
+				auto headBeatOffset = currTotalBeat - currentHead->totalbeat;
+				int head_y = (c.y + c.h) - static_cast<int>(std::floor((-headBeatOffset * 4 / 4) * c.y * _basespd * _hispeed));
+
+				auto tailBeatOffset = currTotalBeat - currentTail->totalbeat;
+				int tail_y = (c.y + c.h) - static_cast<int>(std::floor((-tailBeatOffset * 4 / 4) * c.y * _basespd * _hispeed));
+
+				_outRect.push_front({ c.x, head_y, c.w, -c.h });
+				_outRectBody.push_front({ c.x, tail_y, c.w, head_y - tail_y - c.h });
+				_outRectTail.push_front({ c.x, tail_y, c.w, -c.h });
+				// TODO hold animation..?
+			}
+		}
+		else
+		{
+			currentHead = currentTail = nullptr;
+		}
+	}
+
+	int head_y = c.y + c.h;
+	while (!s->isLastNoteOfLane(_category, _index, it) && head_y >= c.y)
+	{
+		const auto &head = *it;
+		if (!currentHead) currentHead = &*it;
+		++it;
+
+		if (s->isLastNoteOfLane(_category, _index, it)) break;
+
+		const auto &tail = *it;
+		if (!currentTail) currentTail = &*it;
+		++it;
+
+
+		auto headBeatOffset = currTotalBeat - head.totalbeat;
+		head_y = (c.y + c.h) - static_cast<int>(std::floor((-headBeatOffset * 4 / 4) * c.y * _basespd * _hispeed));
+
+		auto tailBeatOffset = currTotalBeat - tail.totalbeat;
+		int tail_y = (c.y + c.h) - static_cast<int>(std::floor((-tailBeatOffset * 4 / 4) * c.y * _basespd * _hispeed));
+
+		_outRect.push_front({ c.x, head_y, c.w, -c.h });
+		_outRectBody.push_front({ c.x, tail_y, c.w, head_y - tail_y - c.h });
+		_outRectTail.push_front({ c.x, tail_y, c.w, -c.h });
+	}
+}
+
+void SpriteLaneVerticalLN::draw() const
+{
+	// body
+	if (pNoteBody->_pTexture && pNoteBody->_pTexture->_loaded)
+	{
+		for (const auto& r : _outRectBody)
+		{
+			pNoteBody->_pTexture->draw(
+				pNoteBody->_texRect[pNoteBody->_selectionIdx],
+				r,
+				_current.color,
+				_current.blend,
+				_current.filter,
+				_current.angle,
+				_current.center);
+		}
+	}
+
+	// head
+	SpriteLaneVertical::draw();
+
+	// tail
+	if (pNoteTail->_pTexture && pNoteTail->_pTexture->_loaded)
+	{
+		for (const auto& r : _outRectTail)
+		{
+			pNoteTail->_pTexture->draw(
+				pNoteTail->_texRect[pNoteTail->_selectionIdx],
+				r,
+				_current.color,
+				_current.blend,
+				_current.filter,
+				_current.angle,
+				_current.center);
+		}
+	}
+}

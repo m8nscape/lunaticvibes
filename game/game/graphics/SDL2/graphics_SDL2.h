@@ -11,6 +11,10 @@
 #include <filesystem>
 #include <mutex>
 
+// global control pointer, do not modify
+inline SDL_Renderer* _frame_renderer;
+inline std::timed_mutex _static_render_mutex;
+
 class Color : public SDL_Color
 {
 public:
@@ -130,7 +134,8 @@ class Texture
 	friend class SpriteText;
 	friend class SpriteNumber;
 
-	friend class SpriteLaneVertical;
+    friend class SpriteLaneVertical;
+    friend class SpriteLaneVerticalLN;
 	friend class SpriteVideo;
 
 protected:

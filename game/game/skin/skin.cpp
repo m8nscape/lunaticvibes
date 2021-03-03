@@ -41,10 +41,10 @@ void vSkin::update()
 		case SpriteTypes::NOTE_VERT:
 		{
             auto ref = std::reinterpret_pointer_cast<SpriteLaneVertical>(s);
-            if (ref->haveDst() && context_play.chartObj[ref->_playerSlot] != nullptr && context_chart.started)
+            if (context_play.chartObj[ref->playerSlot] != nullptr && context_chart.started)
 			{
 				ref->update(t);
-				ref->updateNoteRect(t, &*context_play.chartObj[ref->_playerSlot], beat, measure);
+				ref->updateNoteRect(t, &*context_play.chartObj[ref->playerSlot], beat, measure);
 			}
 			break;
 		}
@@ -54,7 +54,7 @@ void vSkin::update()
 		}
     };
 
-#ifdef ddd_DEBUG
+#ifdef _DEBUG
 	std::for_each(std::execution::seq, _sprites_parent.begin(), _sprites_parent.end(), updateSpriteLambda);
     std::for_each(std::execution::seq, _sprites_child.begin(), _sprites_child.end(), updateSpriteLambda);
 #else

@@ -195,6 +195,7 @@ public:
 class SpriteAnimated : public SpriteSelection
 {
     friend class SpriteLaneVertical;
+    friend class SpriteLaneVerticalLN;
     friend class SpriteSlider;
 protected:
     //bool _aVert = false;
