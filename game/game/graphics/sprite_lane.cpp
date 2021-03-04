@@ -121,61 +121,40 @@ void SpriteLaneVerticalLN::updateNoteRect(Time t, vChart* s, double beat, unsign
 	_outRectBody.clear();
 	_outRectTail.clear();
 
+	int head_y_actual = c.y + c.h;
 	auto it = s->incomingNoteOfLane(_category, _index);
-	if (currentHead && currentHead->hit)
+	while (!s->isLastNoteOfLane(_category, _index, it) && head_y_actual >= -c.h)
 	{
-		if (currentTail && !s->isLastNoteOfLane(_category, _index, it) && &*it == currentTail)
+		int head_y = c.y + c.h;
+		int tail_y = 0;
+
+		if (it->index == NOTE_INDEX_LN_TAIL)
 		{
-			while (!s->isLastNoteOfLane(_category, _index, it) && it->index == 0x10 && &*it == currentTail)
-				++it;
+			head_y_actual = c.y + c.h;
 
-			if (currentTail->hit)
-			{
-				currentHead = currentTail = nullptr;
-			}
-			else
-			{
-				// *it is tail
-				auto headBeatOffset = currTotalBeat - currentHead->totalbeat;
-				int head_y = (c.y + c.h) - static_cast<int>(std::floor((-headBeatOffset * 4 / 4) * (c.y + c.h) * _basespd * _hispeed));
+			const auto& tail = *it;
+			auto tailBeatOffset = currTotalBeat - tail.totalbeat;
+			tail_y = (c.y + c.h) - static_cast<int>(std::floor((-tailBeatOffset * 4 / 4) * (c.y + c.h) * _basespd * _hispeed));
 
-				auto tailBeatOffset = currTotalBeat - currentTail->totalbeat;
-				int tail_y = (c.y + c.h) - static_cast<int>(std::floor((-tailBeatOffset * 4 / 4) * (c.y + c.h) * _basespd * _hispeed));
-
-				_outRect.push_front({ c.x, head_y, c.w, -c.h });
-				_outRectBody.push_front({ c.x, tail_y, c.w, head_y - tail_y - c.h });
-				_outRectTail.push_front({ c.x, tail_y, c.w, -c.h });
-				// TODO hold animation..?
-			}
+			++it;
 		}
 		else
 		{
-			currentHead = currentTail = nullptr;
-		}
-	}
-
-	int head_y = c.y + c.h;
-	while (!s->isLastNoteOfLane(_category, _index, it) && head_y >= -c.h)
-	{
-		const auto &head = *it;
-		if (!currentHead) currentHead = &*it;
-		++it;
-		if (s->isLastNoteOfLane(_category, _index, it)) break;
-
-		while (!s->isLastNoteOfLane(_category, _index, it) && (head.totalbeat > it->totalbeat || it->index != NOTE_INDEX_LN_TAIL))
+			const auto& head = *it;
 			++it;
-		if (s->isLastNoteOfLane(_category, _index, it)) break;
+			if (s->isLastNoteOfLane(_category, _index, it)) break;
 
-		const auto &tail = *it;
-		if (!currentTail) currentTail = &*it;
-		++it;
+			const auto& tail = *it;
 
+			auto headBeatOffset = currTotalBeat - head.totalbeat;
+			head_y_actual = (c.y + c.h) - static_cast<int>(std::floor((-headBeatOffset * 4 / 4) * (c.y + c.h) * _basespd * _hispeed));
+			if (head_y_actual < head_y) head_y = head_y_actual;
 
-		auto headBeatOffset = currTotalBeat - head.totalbeat;
-		head_y = (c.y + c.h) - static_cast<int>(std::floor((-headBeatOffset * 4 / 4) * (c.y + c.h) * _basespd * _hispeed));
+			auto tailBeatOffset = currTotalBeat - tail.totalbeat;
+			tail_y = (c.y + c.h) - static_cast<int>(std::floor((-tailBeatOffset * 4 / 4) * (c.y + c.h) * _basespd * _hispeed));
 
-		auto tailBeatOffset = currTotalBeat - tail.totalbeat;
-		int tail_y = (c.y + c.h) - static_cast<int>(std::floor((-tailBeatOffset * 4 / 4) * (c.y + c.h) * _basespd * _hispeed));
+			++it;
+		}
 
 		_outRect.push_front({ c.x, head_y, c.w, -c.h });
 		_outRectBody.push_front({ c.x, tail_y, c.w, head_y - tail_y - c.h });

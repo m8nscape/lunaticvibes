@@ -123,7 +123,7 @@ void graphics_clear()
 
 void graphics_flush()
 {
-    std::unique_lock u(_static_render_mutex);
+    std::lock_guard u(_static_render_mutex);
     SDL_RenderPresent(_frame_renderer);
 }
 

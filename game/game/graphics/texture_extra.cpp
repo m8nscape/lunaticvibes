@@ -60,8 +60,7 @@ void TextureVideo::update()
 		// read lock
 		using namespace std::chrono_literals;
 		std::unique_lock lg(_static_render_mutex);
-		lg.try_lock_for(10ms);
-		if (lg)
+		if (lg.try_lock_for(10ms))
 		{
 			std::shared_lock l(pVideo->video_frame_mutex);
 
@@ -116,7 +115,6 @@ bool TextureBmsBga::addBmp(size_t idx, const Path& pBmp)
 	{
 		if (video_file_extensions.find(toLower(pBmp.extension().string())) != video_file_extensions.end())
 		{
-			std::unique_lock u(_static_render_mutex);
 			objs[idx].type = obj::Ty::VIDEO;
 			objs[idx].pt = std::make_shared<TextureVideo>(std::make_shared<sVideo>(pBmp));
 			LOG_DEBUG << "[TextureBmsBga] added video: " << pBmp.string();
@@ -124,7 +122,6 @@ bool TextureBmsBga::addBmp(size_t idx, const Path& pBmp)
 		}
 		else
 		{
-			std::unique_lock u(_static_render_mutex);
 			objs[idx].type = obj::Ty::PIC;
 			objs[idx].pt = std::make_shared<Texture>(Image(pBmp));
 			LOG_DEBUG << "[TextureBmsBga] added pic: " << pBmp.string();

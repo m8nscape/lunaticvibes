@@ -565,6 +565,7 @@ void RulesetClassic::updateHold(InputMask& hg, Time t)
                     j.area == judgeArea::LATE_PERFECT && j.time < 2)
                 {
                     n->hit = true;
+                    gTimers.set(bombTimer7k[26 + c.second], LLONG_MAX);
                     updateHit(t, c.second, _lnJudge[c.second], 0);
                 }
             }
@@ -604,6 +605,7 @@ void RulesetClassic::updateHold(InputMask& hg, Time t)
                     j.area == judgeArea::LATE_PERFECT && j.time < 2)
                 {
                     n->hit = true;
+                    gTimers.set(bombTimer7k[26 + c.second], LLONG_MAX);
                     updateHit(t, c.second, _lnJudge[c.second], 1);
                 }
             }

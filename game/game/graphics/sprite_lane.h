@@ -54,9 +54,6 @@ public:
     SpriteLaneVerticalLN(unsigned player = 0, double basespeed = 1.0, double lanespeed = 1.0) : 
         SpriteLaneVertical(player, basespeed, lanespeed) {}
 
-protected:
-    sNote *currentHead = nullptr, *currentTail = nullptr;
-
 public:
     virtual void updateNoteRect(Time t, vChart* ps, double beat, unsigned measure) override;
     virtual void draw() const;
