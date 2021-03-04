@@ -58,6 +58,28 @@ enum class eTimer : unsigned
     K28_BOMB,
     K29_BOMB,
 
+    S1_LN_BOMB = 70,
+    K11_LN_BOMB,
+    K12_LN_BOMB,
+    K13_LN_BOMB,
+    K14_LN_BOMB,
+    K15_LN_BOMB,
+    K16_LN_BOMB,
+    K17_LN_BOMB,
+    K18_LN_BOMB,
+    K19_LN_BOMB,
+
+    S2_LN_BOMB,
+    K21_LN_BOMB,
+    K22_LN_BOMB,
+    K23_LN_BOMB,
+    K24_LN_BOMB,
+    K25_LN_BOMB,
+    K26_LN_BOMB,
+    K27_LN_BOMB,
+    K28_LN_BOMB,
+    K29_LN_BOMB,
+
 
     S1_DOWN = 100,
     K11_DOWN,

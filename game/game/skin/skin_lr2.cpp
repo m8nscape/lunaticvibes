@@ -1996,13 +1996,6 @@ ParseRet SkinLR2::DST_LINE()
     p->pNote->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
         (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
 
-    // refine rect: x=dst_x, y=-dst_h, w=dst_w, h=dst_y
-    int dst_h;
-    //p->getRectSize(d.w, dummy);
-    dst_h = d.h;
-    d.h = d.y;
-    d.y = -dst_h;
-
     if (convertLine(tokensBuf, (int*)&d, 14, 2) >= 2)
         convertOps(tokensBuf, (int*)d.op, 16, 4);
     //else 

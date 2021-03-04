@@ -3,9 +3,11 @@
 #include <iostream>
 #include <fstream>
 #include <regex>
+#include <set>
 #include <utility>
 #include <exception>
 #include <filesystem>
+#include <numeric>
 #include "db/db_song.h"
 
 class noteLineException : public std::exception {};
@@ -172,6 +174,8 @@ int BMS::initWithFile(const Path& file)
                         _banner.assign(value.begin(), value.end());
                     else if (key == "RANDOM" || key == "RONDAM")
                         ; // TODO #RANDOM
+                    else if (key == "LNOBJ" && value.length() >= 2)
+                        lnobjSet.insert(base36(value[0], value[1]));
 
                     // #xxx00
                     else if (std::regex_match(key, std::regex(R"(WAV[0-9A-Za-z]{1,2})", std::regex_constants::icase)))
@@ -197,7 +201,7 @@ int BMS::initWithFile(const Path& file)
 
                     // unknown
                     else
-                        extraCommands[key].assign(value.begin(), value.end());
+                        extraCommands[key] = StringContent(value.begin(), value.end());
                 }
 
                 else if (colon_idx != buf.npos)
@@ -324,11 +328,82 @@ int BMS::initWithFile(const Path& file)
 
     fs.close();
 
-    // Get statistics
     for (size_t i = 0; i <= lastBarIdx; i++)
         if (_measureLength[i] == 0.0)
             _measureLength[i] = 1.0;
 
+    for (size_t ch = 0; ch < 20; ++ch)
+    {
+        decltype(chNotesVisible[ch][0].notes.begin()) it_head;
+        decltype(&chNotesVisible[ch][0].notes) notes_head = nullptr;
+        unsigned res_head = 1;
+        unsigned m_head = 0;
+        unsigned m = 0;
+        for (; m <= lastBarIdx; m++)
+        {
+            if (!chNotesVisible[ch][m].notes.empty())
+            {
+                notes_head = &chNotesVisible[ch][m].notes;
+                it_head = notes_head->begin();
+                res_head = chNotesVisible[ch][m].resolution;
+                m_head = m;
+                break;
+            }
+        }
+        if (!notes_head) continue;
+
+        for (; m <= lastBarIdx; m++)
+        {
+            auto& notes_tail = chNotesVisible[ch][m].notes;
+            unsigned res_tail = chNotesVisible[ch][m].resolution;
+            if (notes_tail.empty()) continue;
+
+            auto it_tail = notes_tail.begin();
+            while (it_tail != notes_tail.end())
+            {
+                if (notes_head && it_head == notes_head->end())
+                {
+                    notes_head = &notes_tail;
+                    it_head = notes_head->begin();
+                    res_head = res_tail;
+                    m_head = m;
+                }
+
+                if (notes_head == &notes_tail && it_head == it_tail)
+                {
+                    ++it_tail;
+                    continue;
+                }
+
+                if (lnobjSet.count(it_tail->value))
+                {
+                    unsigned pow1 = chNotesLN[ch][m_head].relax(res_head) / res_head;
+                    it_head->segment *= pow1;
+                    chNotesLN[ch][m_head].notes.push_back(*it_head);
+                    auto tmp1 = it_head++;
+                    notes_head->erase(tmp1);
+
+                    if (notes_head == &notes_tail && it_head == it_tail)
+                        ++it_head;
+
+                    unsigned pow2 = chNotesLN[ch][m].relax(res_tail) / res_tail;
+                    it_tail->segment *= pow2;
+                    chNotesLN[ch][m].notes.push_back(*it_tail);
+                    auto tmp2 = it_tail++;
+                    notes_tail.erase(tmp2);
+
+                    haveLN = true;
+                }
+                else
+                {
+                    ++it_head;
+                    ++it_tail;
+                }
+            }
+        }
+    }
+
+    // Get statistics
     if (haveNote)
     for (const auto& chs : chNotesVisible)
         for (unsigned m = 0; m <= lastBarIdx; m++)
@@ -490,4 +565,19 @@ auto BMS::getLane(LaneCode code, unsigned chIdx, unsigned measureIdx) const -> c
     case eC::NOTEMINE2:    return chMines[10 + chIdx][measureIdx]; break;
     }
     // FIXME warning C4715 : “game::BMS::getLane” : 不是所有的控件路径都返回值
+}
+
+unsigned BMS::channel::relax(unsigned target_resolution)
+{
+    if (target_resolution < resolution) return 0;
+    unsigned target = std::lcm(target_resolution, resolution);
+    unsigned pow = target / resolution;
+    if (pow == 1) return target;
+
+    resolution = target;
+    for (auto& n : notes)
+    {
+        n.segment *= pow;
+    }
+    return target;
 }

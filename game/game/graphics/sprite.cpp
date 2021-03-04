@@ -576,6 +576,8 @@ bool SpriteNumber::update(Time t)
 
 void SpriteNumber::updateNumber(int n)
 {
+    if (n == INT_MIN) n = 0;
+
     bool positive = n >= 0;
 	unsigned zeroIdx = 0;
     unsigned maxDigits = static_cast<unsigned>(_digit.size());

@@ -88,7 +88,38 @@ const eTimer bombTimer7k[] = {
 	eTimer::_NEVER,
 	eTimer::_NEVER,
 
-	eTimer::_NEVER
+	eTimer::_NEVER,
+
+    eTimer::S1_LN_BOMB,
+
+    eTimer::K11_LN_BOMB,
+    eTimer::K12_LN_BOMB,
+    eTimer::K13_LN_BOMB,
+    eTimer::K14_LN_BOMB,
+    eTimer::K15_LN_BOMB,
+    eTimer::K16_LN_BOMB,
+    eTimer::K17_LN_BOMB,
+
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+
+    eTimer::_NEVER
 };
 
 const eTimer bombTimer14k[] = {
@@ -121,7 +152,38 @@ const eTimer bombTimer14k[] = {
 	eTimer::_NEVER,
 	eTimer::_NEVER,
 
-	eTimer::S2_BOMB
+	eTimer::S2_BOMB,
+
+    eTimer::S1_LN_BOMB,
+
+    eTimer::K11_LN_BOMB,
+    eTimer::K12_LN_BOMB,
+    eTimer::K13_LN_BOMB,
+    eTimer::K14_LN_BOMB,
+    eTimer::K15_LN_BOMB,
+    eTimer::K16_LN_BOMB,
+    eTimer::K17_LN_BOMB,
+
+    eTimer::K21_LN_BOMB,
+    eTimer::K22_LN_BOMB,
+    eTimer::K23_LN_BOMB,
+    eTimer::K24_LN_BOMB,
+    eTimer::K25_LN_BOMB,
+    eTimer::K26_LN_BOMB,
+    eTimer::K27_LN_BOMB,
+
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+
+    eTimer::S2_LN_BOMB
 };
 
 const eTimer bombTimer9k[] = {
@@ -154,8 +216,40 @@ const eTimer bombTimer9k[] = {
 	eTimer::_NEVER,
 	eTimer::_NEVER,
 
-	eTimer::_NEVER
+	eTimer::_NEVER,
+
+    eTimer::_NEVER,
+
+    eTimer::K11_LN_BOMB,
+    eTimer::K12_LN_BOMB,
+    eTimer::K13_LN_BOMB,
+    eTimer::K14_LN_BOMB,
+    eTimer::K15_LN_BOMB,
+    eTimer::K16_LN_BOMB,
+    eTimer::K17_LN_BOMB,
+
+    eTimer::K18_LN_BOMB,
+    eTimer::K19_LN_BOMB,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+
+    eTimer::_NEVER
 };
+
 // Judge area definitions.
 // e.g. SOUNDONLY: play hitsound only but not judging
 //      EARLY_PERFECT: Perfect early half part
@@ -198,6 +292,7 @@ protected:
 	rc::player _player;
 	bool _k1P, _k2P;
     double inner_score = 0.0;
+    std::array<rc::judge_idx, NOTECHANNEL_COUNT> _lnJudge{rc::judge_idx::MISS};
 public:
     RulesetClassic(
         std::shared_ptr<vChartFormat> format, 

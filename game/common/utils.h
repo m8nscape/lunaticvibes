@@ -23,7 +23,7 @@ double stodne(const std::string& str) noexcept;
 
 constexpr unsigned base36(char c)
 {
-	return (c > '9') ? (10 + c - 'A') : (c - '0');
+	return (c > '9') ? (c >= 'a' ? 10 + c - 'a' : 10 + c - 'A') : (c - '0');
 }
 
 constexpr unsigned base36(char first, char second)
@@ -38,7 +38,7 @@ constexpr unsigned base36(const char* c)
 
 constexpr unsigned base16(char c)
 {
-	return (c > '9') ? (10 + c - 'A') : (c - '0');
+	return (c > '9') ? (c >= 'a' ? 10 + c - 'a' : 10 + c - 'A') : (c - '0');
 }
 
 constexpr unsigned base16(char first, char second)

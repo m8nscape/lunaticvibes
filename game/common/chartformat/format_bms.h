@@ -3,6 +3,7 @@
 #include <string>
 #include <list>
 #include <map>
+#include <set>
 
 #include "chartformat.h"
 #include "utils.h"
@@ -121,6 +122,7 @@ public:
         struct NoteParseValue { unsigned segment; unsigned value; };
         std::list<NoteParseValue> notes{};
         unsigned resolution = 1;
+        unsigned relax(unsigned target_resolution);
     };
     typedef std::array<std::string, MAXSAMPLEIDX + 1> FileIdxArray;
     typedef std::array<channel, MAXBARIDX + 1> LaneArray;
@@ -141,6 +143,9 @@ protected:
     std::array<LaneArray, 20> chNotesLN{};
     std::array<LaneArray, 20> chMines{};
     int strToNoteLaneDispatcher(decltype(chNotesVisible)&, int measure, int layer, int ch, const StringContent& str);
+
+public:
+    std::set<unsigned> lnobjSet;
 
 public:
     // Measures related.

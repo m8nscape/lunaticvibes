@@ -70,6 +70,10 @@ public:
 };
 #pragma warning(pop)
 
+const size_t NOTE_INDEX_LN_TAIL = 0x10;
+const size_t NOTE_INDEX_BGA_BASE = 0xE0;
+const size_t NOTE_INDEX_BGA_LAYER = 0xE1;
+const size_t NOTE_INDEX_BGA_POOR = 0xE2;
 
 struct Note
 {

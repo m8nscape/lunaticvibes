@@ -72,16 +72,16 @@ void SpriteLaneVertical::updateNoteRect(Time t, vChart* s, double beat, unsigned
 
     // generate note rects and store to buffer
 	// 150BPM with 1.0x HS is 1600ms
-    int y = c.y + c.h;
+    int y = (c.y + c.h);
     _outRect.clear();
     auto it = s->incomingNoteOfLane(_category, _index);
     while (!s->isLastNoteOfLane(_category, _index, it) && y >= -c.h)
     {
 		auto noteBeatOffset = currTotalBeat - it->totalbeat;
         if (noteBeatOffset >= 0)
-			y = c.y + c.h; // expired notes stay on judge line, LR2 / pre RA behavior
+			y = (c.y + c.h); // expired notes stay on judge line, LR2 / pre RA behavior
         else
-            y = (c.y + c.h) - static_cast<int>( std::floor((-noteBeatOffset * 4 / 4) * c.y * _basespd * _hispeed) );
+            y = (c.y + c.h) - static_cast<int>( std::floor((-noteBeatOffset * 4 / 4) * (c.y + c.h) * _basespd * _hispeed) );
         it++;
         _outRect.push_front({ c.x, y, c.w, -c.h });
     }
@@ -126,7 +126,9 @@ void SpriteLaneVerticalLN::updateNoteRect(Time t, vChart* s, double beat, unsign
 	{
 		if (currentTail && !s->isLastNoteOfLane(_category, _index, it) && &*it == currentTail)
 		{
-			++it;
+			while (!s->isLastNoteOfLane(_category, _index, it) && it->index == 0x10 && &*it == currentTail)
+				++it;
+
 			if (currentTail->hit)
 			{
 				currentHead = currentTail = nullptr;
@@ -135,10 +137,10 @@ void SpriteLaneVerticalLN::updateNoteRect(Time t, vChart* s, double beat, unsign
 			{
 				// *it is tail
 				auto headBeatOffset = currTotalBeat - currentHead->totalbeat;
-				int head_y = (c.y + c.h) - static_cast<int>(std::floor((-headBeatOffset * 4 / 4) * c.y * _basespd * _hispeed));
+				int head_y = (c.y + c.h) - static_cast<int>(std::floor((-headBeatOffset * 4 / 4) * (c.y + c.h) * _basespd * _hispeed));
 
 				auto tailBeatOffset = currTotalBeat - currentTail->totalbeat;
-				int tail_y = (c.y + c.h) - static_cast<int>(std::floor((-tailBeatOffset * 4 / 4) * c.y * _basespd * _hispeed));
+				int tail_y = (c.y + c.h) - static_cast<int>(std::floor((-tailBeatOffset * 4 / 4) * (c.y + c.h) * _basespd * _hispeed));
 
 				_outRect.push_front({ c.x, head_y, c.w, -c.h });
 				_outRectBody.push_front({ c.x, tail_y, c.w, head_y - tail_y - c.h });
@@ -153,12 +155,15 @@ void SpriteLaneVerticalLN::updateNoteRect(Time t, vChart* s, double beat, unsign
 	}
 
 	int head_y = c.y + c.h;
-	while (!s->isLastNoteOfLane(_category, _index, it) && head_y >= c.y)
+	while (!s->isLastNoteOfLane(_category, _index, it) && head_y >= -c.h)
 	{
 		const auto &head = *it;
 		if (!currentHead) currentHead = &*it;
 		++it;
+		if (s->isLastNoteOfLane(_category, _index, it)) break;
 
+		while (!s->isLastNoteOfLane(_category, _index, it) && (head.totalbeat > it->totalbeat || it->index != NOTE_INDEX_LN_TAIL))
+			++it;
 		if (s->isLastNoteOfLane(_category, _index, it)) break;
 
 		const auto &tail = *it;
@@ -167,10 +172,10 @@ void SpriteLaneVerticalLN::updateNoteRect(Time t, vChart* s, double beat, unsign
 
 
 		auto headBeatOffset = currTotalBeat - head.totalbeat;
-		head_y = (c.y + c.h) - static_cast<int>(std::floor((-headBeatOffset * 4 / 4) * c.y * _basespd * _hispeed));
+		head_y = (c.y + c.h) - static_cast<int>(std::floor((-headBeatOffset * 4 / 4) * (c.y + c.h) * _basespd * _hispeed));
 
 		auto tailBeatOffset = currTotalBeat - tail.totalbeat;
-		int tail_y = (c.y + c.h) - static_cast<int>(std::floor((-tailBeatOffset * 4 / 4) * c.y * _basespd * _hispeed));
+		int tail_y = (c.y + c.h) - static_cast<int>(std::floor((-tailBeatOffset * 4 / 4) * (c.y + c.h) * _basespd * _hispeed));
 
 		_outRect.push_front({ c.x, head_y, c.w, -c.h });
 		_outRectBody.push_front({ c.x, tail_y, c.w, head_y - tail_y - c.h });

@@ -31,7 +31,30 @@ namespace bms
         NOPE,
         NOPE,
 
-        // LN
+        // LN Head
+        channelToIdx(NoteLaneCategory::LN, Sc1),
+        channelToIdx(NoteLaneCategory::LN, K1),
+        channelToIdx(NoteLaneCategory::LN, K2),
+        channelToIdx(NoteLaneCategory::LN, K3),
+        channelToIdx(NoteLaneCategory::LN, K4),
+        channelToIdx(NoteLaneCategory::LN, K5),
+        channelToIdx(NoteLaneCategory::LN, K6),
+        channelToIdx(NoteLaneCategory::LN, K7),
+        NOPE,
+        NOPE,
+
+        channelToIdx(NoteLaneCategory::LN, Sc2),
+        channelToIdx(NoteLaneCategory::LN, K8),
+        channelToIdx(NoteLaneCategory::LN, K9),
+        channelToIdx(NoteLaneCategory::LN, K10),
+        channelToIdx(NoteLaneCategory::LN, K11),
+        channelToIdx(NoteLaneCategory::LN, K12),
+        channelToIdx(NoteLaneCategory::LN, K13),
+        channelToIdx(NoteLaneCategory::LN, K14),
+        NOPE,
+        NOPE,
+
+        // LN Tail
         channelToIdx(NoteLaneCategory::LN, Sc1),
         channelToIdx(NoteLaneCategory::LN, K1),
         channelToIdx(NoteLaneCategory::LN, K2),
@@ -119,6 +142,8 @@ void chartBMS::loadBMS(const BMS& objBms)
     _bpmNoteList.push_back({ 0, {0, 1}, 0, bpm });
 	_measureLength.fill({ 1, 1 });
     bool bpmfucked = false; // set to true when BPM is changed to zero or negative value
+    std::bitset<10> isLnTail[2]{ 0 };
+
     for (unsigned m = 0; m <= objBms.lastBarIdx; m++)
     {
 		_measureLength[m] = objBms._measureLength[m];
@@ -151,13 +176,21 @@ void chartBMS::loadBMS(const BMS& objBms)
             {
                 auto ch = objBms.getLane(LaneCode::NOTELN1, i, m);
                 for (const auto& n : ch.notes)
-                    notes.push_back({ fraction(n.segment, ch.resolution),{ 20 + i, n.value } });
+                {
+                    int lane = isLnTail[0][i] ? 40 + i : 20 + i;
+                    notes.push_back({ fraction(n.segment, ch.resolution),{ lane, n.value } });
+                    isLnTail[0][i].flip();
+                }
             }
             for (unsigned i = 0; i < 10; i++)
             {
                 auto ch = objBms.getLane(LaneCode::NOTELN2, i, m);
                 for (const auto& n : ch.notes)
-                    notes.push_back({ fraction(n.segment, ch.resolution),{ 30 + i, n.value } });
+                {
+                    int lane = isLnTail[1][i] ? 50 + i : 30 + i;
+                    notes.push_back({ fraction(n.segment, ch.resolution),{ lane, n.value } });
+                    isLnTail[1][i].flip();
+                }
             }
 
             // invisible: , bms: 3x/4x
@@ -237,22 +270,25 @@ void chartBMS::loadBMS(const BMS& objBms)
             {
 				// TODO mapping is different between file formats
                 if (BMSToLaneMap[lane] == NOPE) continue;
-                _noteLists[BMSToLaneMap[lane]].push_back({ m, beat, notetime, (long long)val, false });
+                if (lane >= 40 && lane < 60)
+                    _noteLists[BMSToLaneMap[lane]].push_back({ m, beat, notetime, (long long)val, NOTE_INDEX_LN_TAIL, false });// LN tail
+                else
+                    _noteLists[BMSToLaneMap[lane]].push_back({ m, beat, notetime, (long long)val });// normal, LN head
             }
             else if (lane >= 100 && lane <= 131)
             {
-                _commonNoteLists[lane - 100 + (size_t)eNotePlain::BGM0].push_back({ m, beat, notetime, (long long)val });
+                _commonNoteLists[lane - 100 + (size_t)eNotePlain::BGM0].push_back({ m, beat, notetime, (long long)val, 0 });
             }
             else if (!bpmfucked) switch (lane)
             {
             case 0xE0:  // BGA base
-				_commonNoteLists[(size_t)eNotePlain::BGABASE].push_back({ m, beat, notetime, (long long)val, 0xE0 });
+				_commonNoteLists[(size_t)eNotePlain::BGABASE].push_back({ m, beat, notetime, (long long)val, NOTE_INDEX_BGA_BASE });
 				break;
             case 0xE1:  // BGA layer
-                _commonNoteLists[(size_t)eNotePlain::BGALAYER].push_back({ m, beat, notetime, (long long)val, 0xE1 });
+                _commonNoteLists[(size_t)eNotePlain::BGALAYER].push_back({ m, beat, notetime, (long long)val, NOTE_INDEX_BGA_LAYER });
 				break;
             case 0xE2:  // BGA poor
-                _commonNoteLists[(size_t)eNotePlain::BGAPOOR].push_back({ m, beat, notetime, (long long)val, 0xE2 });
+                _commonNoteLists[(size_t)eNotePlain::BGAPOOR].push_back({ m, beat, notetime, (long long)val, NOTE_INDEX_BGA_POOR });
 				break;
 
             case 0xFD:	// BPM Change
