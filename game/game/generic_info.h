@@ -5,16 +5,16 @@
 #include "common/asynclooper.h"
 
 #ifdef _MSC_VER
-inline tm _localtime_res;
-inline char _ctime_res[26];
-inline tm* localtime_(const std::time_t* t) { errno_t err = localtime_s(&_localtime_res, t); return (err ? NULL : &_localtime_res); };
-inline const char* ctime_(const std::time_t* t) { errno_t err = ctime_s(_ctime_res, 26, t); return (err ? "" : _ctime_res); };
+inline tm gLocaltimeResult;
+inline char gCtimeResult[26];
+inline tm* localtime_(const std::time_t* t) { errno_t err = localtime_s(&gLocaltimeResult, t); return (err ? NULL : &gLocaltimeResult); };
+inline const char* ctime_(const std::time_t* t) { errno_t err = ctime_s(gCtimeResult, 26, t); return (err ? "" : gCtimeResult); };
 #else
 inline tm* localtime_(const std::time_t* t) { return localtime(t); };
 inline const char* ctime_(const std::time_t* t) { return ctime(t); };
 #endif
 
-inline unsigned __frames[10]{ 0 };
+inline unsigned gFrameCount[10]{ 0 };
 
 // Should only have one instance at once.
 class GenericInfoUpdater : public AsyncLooper
@@ -24,13 +24,13 @@ public:
 private:
 	void _loop()
 	{
-		gNumbers.set(eNumber::FPS, __frames[0] / _rate);
-		__frames[0] = 0;
+		gNumbers.set(eNumber::FPS, gFrameCount[0] / _rate);
+		gFrameCount[0] = 0;
 
 		for (unsigned i = 1; i < 10; ++i)
 		{
-			gNumbers.set((eNumber)((int)eNumber::_PPS1 + i - 1), __frames[i] / _rate);
-			__frames[i] = 0;
+			gNumbers.set((eNumber)((int)eNumber::_PPS1 + i - 1), gFrameCount[i] / _rate);
+			gFrameCount[i] = 0;
 		}
 
 		std::time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());

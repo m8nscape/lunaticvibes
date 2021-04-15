@@ -21,8 +21,8 @@ public:
     Song(std::shared_ptr<vChartFormat> p): _file(p)
     {
         _type = eEntryType::SONG;
-        _name = _file->_title;
-        _name2 = _file->_title2;
+        _name = _file->title;
+        _name2 = _file->title2;
     }
     Song(vChartFormat& f) : Song(std::make_shared<vChartFormat>(f)) {}
 };

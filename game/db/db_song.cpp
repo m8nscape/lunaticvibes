@@ -151,24 +151,24 @@ int SongDB::addChart(const HashMD5& folder, const Path& path)
             "gamemode,judgerank,total,playlevel,difficulty,longnote,landmine,metricmod,stop,bga,random) "
             "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);",
             {
-                c->_fileHash,
+                c->fileHash,
                 folder,
                 int(c->type()),
-                c->_filePath.filename().string(),
-                c->_title,
-                c->_title2,
-                c->_artist,
-                c->_artist2,
-                c->_genre,
-                c->_version,
-                c->_level,
-                c->_itlBPM,
-                c->_minBPM,
-                c->_maxBPM,
+                c->filePath.filename().string(),
+                c->title,
+                c->title2,
+                c->artist,
+                c->artist2,
+                c->genre,
+                c->version,
+                c->levelEstimated,
+                c->startBPM,
+                c->minBPM,
+                c->maxBPM,
                 s->getTotalLength().norm() / 1000,
                 static_cast<int>(s->getNoteCount()),
-                c->_BG,
-                c->_banner,
+                c->stagefile,
+                c->banner,
                 bmsc->gamemode,
                 bmsc->rank,
                 bmsc->total,
@@ -207,24 +207,24 @@ int SongDB::removeChart(const HashMD5& md5)
 bool convert_basic(pChart chart, const std::vector<std::any>& in)
 {
     if (in.size() < 18) return false;
-    chart->_fileHash = ANY_STR(in[0]);
-    chart->_folderHash = ANY_STR(in[1]);
-    chart->_filePath = ANY_STR(in[2]);
+    chart->fileHash = ANY_STR(in[0]);
+    chart->folderHash = ANY_STR(in[1]);
+    chart->filePath = ANY_STR(in[2]);
     // 3: type
-    chart->_title = ANY_STR(in[4]);
-    chart->_title2 = ANY_STR(in[5]);
-    chart->_artist = ANY_STR(in[6]);
-    chart->_artist2 = ANY_STR(in[7]);
-    chart->_genre = ANY_STR(in[8]);
-    chart->_version = ANY_STR(in[9]);
-    chart->_level = ANY_REAL(in[10]);
-    chart->_itlBPM = ANY_REAL(in[11]);
-    chart->_minBPM = ANY_REAL(in[12]);
-    chart->_maxBPM = ANY_REAL(in[13]);
-    chart->_totalLength_sec = (int)ANY_INT(in[14]);
-    chart->_totalnotes = (int)ANY_INT(in[15]);
-    chart->_BG = ANY_STR(in[16]);
-    chart->_banner = ANY_STR(in[17]);
+    chart->title = ANY_STR(in[4]);
+    chart->title2 = ANY_STR(in[5]);
+    chart->artist = ANY_STR(in[6]);
+    chart->artist2 = ANY_STR(in[7]);
+    chart->genre = ANY_STR(in[8]);
+    chart->version = ANY_STR(in[9]);
+    chart->levelEstimated = ANY_REAL(in[10]);
+    chart->startBPM = ANY_REAL(in[11]);
+    chart->minBPM = ANY_REAL(in[12]);
+    chart->maxBPM = ANY_REAL(in[13]);
+    chart->totalLength = (int)ANY_INT(in[14]);
+    chart->totalNotes = (int)ANY_INT(in[15]);
+    chart->stagefile = ANY_STR(in[16]);
+    chart->banner = ANY_STR(in[17]);
     return true;
 }
 
@@ -243,10 +243,10 @@ bool convert_bms(std::shared_ptr<BMS_prop> chart, const std::vector<std::any>& i
     chart->haveStop = (bool)ANY_INT(in[26]);
     chart->haveBGA = (bool)ANY_INT(in[27]);
     chart->haveRandom = (bool)ANY_INT(in[28]);
-    if (chart->_totalnotes > 0)
+    if (chart->totalNotes > 0)
     {
         chart->haveNote = true;
-        chart->notes = chart->_totalnotes;
+        chart->notes = chart->totalNotes;
     }
 
     return true;
@@ -647,18 +647,18 @@ FolderSong SongDB::browseSong(HashMD5 root)
                 auto p = std::make_shared<BMS_prop>();
                 if (convert_bms(p, c))
                 {
-                    if (p->_filePath.is_absolute())
-                        p->_absolutePath = p->_filePath;
+                    if (p->filePath.is_absolute())
+                        p->absolutePath = p->filePath;
                     else
-                        p->_absolutePath = path / p->_filePath;
+                        p->absolutePath = path / p->filePath;
 
                     list.pushChart(p);
                 }
                 if (!isNameSet)
                 {
                     isNameSet = true;
-                    list._name = p->_title;
-                    list._name2 = p->_title2;
+                    list._name = p->title;
+                    list._name2 = p->title2;
                 }
                 break;
             }

@@ -25,7 +25,7 @@ pScene SceneMgr::get(eScene e)
         return std::make_shared<SceneDecide>();
 
     case eScene::PLAY:
-        switch (context_play.mode)
+        switch (gPlayContext.mode)
         {
         case eMode::PLAY5:
         case eMode::PLAY7:
@@ -42,7 +42,7 @@ pScene SceneMgr::get(eScene e)
 			break;
 
         default:
-            LOG_ERROR << "[Scene] Invalid mode: " << int(context_play.mode);
+            LOG_ERROR << "[Scene] Invalid mode: " << int(gPlayContext.mode);
             return nullptr;
         }
 		break;

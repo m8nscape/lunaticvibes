@@ -38,41 +38,41 @@ public:
 
 // following fields are generic info, which are stored in db
 public:
-    Path _filePath;
-    Path _absolutePath;
-    HashMD5 _fileHash;
-    HashMD5 _folderHash;
+    Path filePath;
+    Path absolutePath;
+    HashMD5 fileHash;
+    HashMD5 folderHash;
 
-    StringContent _title;
-    StringContent _title2;
-    StringContent _artist;
-    StringContent _artist2;
-    StringContent _genre;
-    StringContent _version;     // mostly known as difficulty name
-    double _level = 0.0;
+    StringContent title;
+    StringContent title2;
+    StringContent artist;
+    StringContent artist2;
+    StringContent genre;
+    StringContent version;     // mostly known as difficulty name
+    double levelEstimated = 0.0;
 
-    int _totalLength_sec = 0;
-    int _totalnotes = 0;
+    int totalLength = 0;// in seconds
+    int totalNotes = 0;
 
-    StringContent _BG;
-    StringContent _banner;
+    StringContent stagefile;
+    StringContent banner;
 
-    StringContent _text1;
-    StringContent _text2;
-    StringContent _text3;
+    StringContent text1;
+    StringContent text2;
+    StringContent text3;
 
-    BPM _minBPM = INFINITY;
-    BPM _maxBPM = 0.0;
-    BPM _itlBPM = 130.0;
+    BPM minBPM = INFINITY;
+    BPM maxBPM = 0.0;
+    BPM startBPM = 130.0;
 
 // following fields are filled during loading
 public:
-    std::vector<StringContent> _wavFiles;
-    std::vector<StringContent> _bgaFiles;
+    std::vector<StringContent> wavFiles;
+    std::vector<StringContent> bgaFiles;
 
-    std::vector<Note> _BPMs;
-    std::vector<Beat> _measureLength;
-    std::vector<Note> _notes;
+    std::vector<Note> BPMNotes;
+    std::vector<Beat> barLength;
+    std::vector<Note> notes;
     //std::vector<_Inherit_SpriteStatic_with_playbegin_timer_> _BGAsprites;
 
 public:

@@ -5,12 +5,12 @@ SceneDecide::SceneDecide() : vScene(eMode::DECIDE, 1000)
 {
     _inputAvailable = INPUT_MASK_FUNC;
 
-    if (context_play.chartObj[PLAYER_SLOT_1P] != nullptr)
+    if (gPlayContext.chartObj[PLAYER_SLOT_1P] != nullptr)
     {
         _inputAvailable |= INPUT_MASK_1P;
     }
         
-    if (context_play.chartObj[PLAYER_SLOT_2P] != nullptr)
+    if (gPlayContext.chartObj[PLAYER_SLOT_2P] != nullptr)
     {
         _inputAvailable |= INPUT_MASK_2P;
     }
@@ -46,7 +46,7 @@ void SceneDecide::updateStart()
     {
         loopEnd();
         _input.loopEnd();
-        __next_scene = eScene::PLAY;
+        gNextScene = eScene::PLAY;
     }
 }
 
@@ -61,7 +61,7 @@ void SceneDecide::updateSkip()
         loopEnd();
         _input.loopEnd();
         clearContextPlay();
-        __next_scene = eScene::SELECT;
+        gNextScene = eScene::SELECT;
     }
 }
 
@@ -76,7 +76,7 @@ void SceneDecide::updateCancel()
         loopEnd();
         _input.loopEnd();
         clearContextPlay();
-        __next_scene = eScene::SELECT;
+        gNextScene = eScene::SELECT;
     }
 }
 

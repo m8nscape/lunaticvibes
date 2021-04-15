@@ -20,10 +20,10 @@ void vSkin::update()
     unsigned measure;
 
     // current beat, measure
-    if (context_play.chartObj[context_play.playerSlot] != nullptr)
+    if (gPlayContext.chartObj[gPlayContext.playerSlot] != nullptr)
     {
-        beat = context_play.chartObj[context_play.playerSlot]->getCurrentBeat();
-        measure = context_play.chartObj[context_play.playerSlot]->getCurrentMeasure();
+        beat = gPlayContext.chartObj[gPlayContext.playerSlot]->getCurrentBeat();
+        measure = gPlayContext.chartObj[gPlayContext.playerSlot]->getCurrentMeasure();
         gNumbers.set(eNumber::_TEST3, (int)(beat * 1000));
     }
 
@@ -41,10 +41,10 @@ void vSkin::update()
 		case SpriteTypes::NOTE_VERT:
 		{
             auto ref = std::reinterpret_pointer_cast<SpriteLaneVertical>(s);
-            if (context_play.chartObj[ref->playerSlot] != nullptr && context_chart.started)
+            if (gPlayContext.chartObj[ref->playerSlot] != nullptr && gChartContext.started)
 			{
 				ref->update(t);
-				ref->updateNoteRect(t, &*context_play.chartObj[ref->playerSlot], beat, measure);
+				ref->updateNoteRect(t, &*gPlayContext.chartObj[ref->playerSlot], beat, measure);
 			}
 			break;
 		}

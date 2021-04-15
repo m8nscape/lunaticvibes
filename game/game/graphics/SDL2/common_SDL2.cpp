@@ -177,9 +177,9 @@ Texture::Texture(const Image& srcImage)
 {
     if (!srcImage._loaded) return;
 
-    std::unique_lock u(_static_render_mutex);
+    std::unique_lock u(gRenderMutex);
     _pTexture = std::shared_ptr<SDL_Texture>(
-        SDL_CreateTextureFromSurface(_frame_renderer, &*srcImage._pSurface),
+        SDL_CreateTextureFromSurface(gFrameRenderer, &*srcImage._pSurface),
         [](SDL_Texture* p) {if (p) SDL_DestroyTexture(p); });
     if (_pTexture)
     {
@@ -199,7 +199,7 @@ Texture::Texture(const Image& srcImage)
 }
 
 Texture::Texture(const SDL_Surface* pSurface):
-    _pTexture(SDL_CreateTextureFromSurface(_frame_renderer, const_cast<SDL_Surface*>(pSurface)), [](SDL_Texture* p) { if (p) SDL_DestroyTexture(p); })
+    _pTexture(SDL_CreateTextureFromSurface(gFrameRenderer, const_cast<SDL_Surface*>(pSurface)), [](SDL_Texture* p) { if (p) SDL_DestroyTexture(p); })
 {
     if (!_pTexture) return;
     _texRect = pSurface->clip_rect;
@@ -236,7 +236,7 @@ Texture::Texture(int w, int h, PixelFormat fmt)
 	if (sdlfmt != SDL_PIXELFORMAT_UNKNOWN)
 	{
         _pTexture = std::shared_ptr<SDL_Texture>(
-            SDL_CreateTexture(_frame_renderer, sdlfmt, SDL_TEXTUREACCESS_STREAMING, w, h), [](SDL_Texture* p) { if (p) SDL_DestroyTexture(p); });
+            SDL_CreateTexture(gFrameRenderer, sdlfmt, SDL_TEXTUREACCESS_STREAMING, w, h), [](SDL_Texture* p) { if (p) SDL_DestroyTexture(p); });
 		if (_pTexture) _loaded = true;
 	}
 }
@@ -282,7 +282,7 @@ void Texture::_draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, Rect
     if (center) scenter = { (int)center->x, (int)center->y };
 
     SDL_RenderCopyEx(
-        _frame_renderer,
+        gFrameRenderer,
         &*pTex,
         srcRect, &dstRect,
         angle,
@@ -323,7 +323,7 @@ TextureFull::TextureFull(const Color& c): Texture(nullptr)
     _texRect = { 0,0,1,1 };
     SDL_FillRect(&*surface, &_texRect, SDL_MapRGBA(surface->format, c.r, c.g, c.b, c.a));
     _pTexture = std::shared_ptr<SDL_Texture>(
-        SDL_CreateTextureFromSurface(_frame_renderer, surface),
+        SDL_CreateTextureFromSurface(gFrameRenderer, surface),
         [](SDL_Texture* p) {if (p) SDL_DestroyTexture(p); });
     SDL_FreeSurface(surface);
     _loaded = true;
@@ -357,7 +357,7 @@ void TextureFull::draw(const Rect& ignored, Rect dstRect,
     if (BlendMap.find(b) != BlendMap.end()) SDL_SetTextureBlendMode(&*_pTexture, BlendMap.at(b));
 
     SDL_RenderCopyEx(
-        _frame_renderer,
+        gFrameRenderer,
         &*_pTexture,
         &_texRect, &dstRect,
         angle,
@@ -368,7 +368,7 @@ void TextureFull::draw(const Rect& ignored, Rect dstRect,
 void GraphLine::draw(Point p1, Point p2, Color c) const
 {
 	thickLineColor(
-		_frame_renderer,
+		gFrameRenderer,
 		(Sint16)p1.x, (Sint16)p1.y,
         (Sint16)p2.x, (Sint16)p2.y,
 		_width,

@@ -158,10 +158,10 @@ void SpriteBarEntry::pushPartsOrder(BarPartsType type)
 
 bool SpriteBarEntry::update(Time time)
 {
-    auto& list = context_select.entries;
+    auto& list = gSelectContext.entries;
     if (!list.empty())
     {
-        size_t listidx = (context_select.idx + list.size() - context_select.cursor + index) % list.size();
+        size_t listidx = (gSelectContext.idx + list.size() - gSelectContext.cursor + index) % list.size();
 
         _draw = true;
 
@@ -181,7 +181,7 @@ bool SpriteBarEntry::update(Time time)
         drawRivalLampRivalType = 0;
 
         auto pinfo = list[listidx];
-        drawBodyOn = (index == context_select.cursor);
+        drawBodyOn = (index == gSelectContext.cursor);
 
         size_t typeidx = (size_t)BarType::SONG;
         switch (pinfo->type())

@@ -10,11 +10,11 @@
 
 void setBarInfo()
 {
-    const auto& e = context_select.entries;
+    const auto& e = gSelectContext.entries;
     if (e.empty()) return;
 
-    const size_t idx = context_select.idx;
-    const size_t cursor = context_select.cursor;
+    const size_t idx = gSelectContext.idx;
+    const size_t cursor = gSelectContext.cursor;
     const size_t count = int(eText::_SELECT_BAR_TITLE_FULL_MAX) - int(eText::_SELECT_BAR_TITLE_FULL_0) + 1;
     for (size_t list_idx = (e.size() + idx - cursor) % e.size(), i = 0; i < count; list_idx = (list_idx + 1) % e.size(), ++i)
     {
@@ -46,11 +46,11 @@ void setBarInfo()
 
 void setEntryInfo()
 {
-    const auto& e = context_select.entries;
+    const auto& e = gSelectContext.entries;
     if (e.empty()) return;
 
-    const size_t idx = context_select.idx;
-    const size_t cursor = context_select.cursor;
+    const size_t idx = gSelectContext.idx;
+    const size_t cursor = gSelectContext.cursor;
 
     // chart parameters
     if (e[idx]->type() == eEntryType::SONG || e[idx]->type() == eEntryType::RIVAL_SONG)
@@ -59,27 +59,27 @@ void setEntryInfo()
         auto pf = std::reinterpret_pointer_cast<vChartFormat>(ps->_file);
 
         gSwitches.set(eSwitch::CHART_HAVE_README, 
-            !(pf->_text1.empty() && pf->_text2.empty() && pf->_text3.empty()));
-        gSwitches.set(eSwitch::CHART_HAVE_BANNER, !pf->_banner.empty());
-        gSwitches.set(eSwitch::CHART_HAVE_STAGEFILE, !pf->_BG.empty());
+            !(pf->text1.empty() && pf->text2.empty() && pf->text3.empty()));
+        gSwitches.set(eSwitch::CHART_HAVE_BANNER, !pf->banner.empty());
+        gSwitches.set(eSwitch::CHART_HAVE_STAGEFILE, !pf->stagefile.empty());
 
-        gTexts.set(eText::PLAY_TITLE, pf->_title);
-        gTexts.set(eText::PLAY_SUBTITLE, pf->_title2);
-        gTexts.set(eText::PLAY_ARTIST, pf->_artist);
-        gTexts.set(eText::PLAY_SUBARTIST, pf->_artist2);
-        gTexts.set(eText::PLAY_GENRE, pf->_genre);
-        gTexts.set(eText::PLAY_DIFFICULTY, pf->_version);
+        gTexts.set(eText::PLAY_TITLE, pf->title);
+        gTexts.set(eText::PLAY_SUBTITLE, pf->title2);
+        gTexts.set(eText::PLAY_ARTIST, pf->artist);
+        gTexts.set(eText::PLAY_SUBARTIST, pf->artist2);
+        gTexts.set(eText::PLAY_GENRE, pf->genre);
+        gTexts.set(eText::PLAY_DIFFICULTY, pf->version);
         // _level
 
         // _totalLength_sec
-        gNumbers.set(eNumber::INFO_TOTALNOTE, pf->_totalnotes);
+        gNumbers.set(eNumber::INFO_TOTALNOTE, pf->totalNotes);
 
         // _BG
         // _banner
 
-        gNumbers.set(eNumber::PLAY_BPM, static_cast<int>(std::round(pf->_itlBPM)));
-        gNumbers.set(eNumber::INFO_BPM_MIN, static_cast<int>(std::round(pf->_minBPM)));
-        gNumbers.set(eNumber::INFO_BPM_MAX, static_cast<int>(std::round(pf->_maxBPM)));
+        gNumbers.set(eNumber::PLAY_BPM, static_cast<int>(std::round(pf->startBPM)));
+        gNumbers.set(eNumber::INFO_BPM_MIN, static_cast<int>(std::round(pf->minBPM)));
+        gNumbers.set(eNumber::INFO_BPM_MAX, static_cast<int>(std::round(pf->maxBPM)));
 
         switch (ps->_file->type())
         {
@@ -261,7 +261,7 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
     }
 
     {
-        std::lock_guard<std::mutex> u(context_select._mutex);
+        std::lock_guard<std::mutex> u(gSelectContext._mutex);
         loadSongList();
         setBarInfo();
         setEntryInfo();
@@ -353,7 +353,7 @@ void SceneSelect::updateFadeout()
     {
         loopEnd();
         _input.loopEnd();
-        __next_scene = eScene::EXIT;
+        gNextScene = eScene::EXIT;
     }
 }
 
@@ -372,14 +372,14 @@ void SceneSelect::inputGamePress(InputMask& m, Time t)
         if (input[ESC])
         {
             LOG_DEBUG << "[Select] ESC";
-            __next_scene = eScene::EXIT;
+            gNextScene = eScene::EXIT;
             return;
         }
 
         switch (_state)
         {
         case eSelectState::SELECT:
-            switch (context_select.entries[context_select.idx]->type())
+            switch (gSelectContext.entries[gSelectContext.idx]->type())
             {
                 case eEntryType::FOLDER:
                 case eEntryType::CUSTOM_FOLDER:
@@ -431,12 +431,12 @@ void SceneSelect::inputGameRelease(InputMask& m, Time t)
 
 void SceneSelect::_decide()
 {
-    std::lock_guard<std::mutex> u(context_select._mutex);
+    std::lock_guard<std::mutex> u(gSelectContext._mutex);
 
-    auto entry = context_select.entries[context_select.idx];
+    auto entry = gSelectContext.entries[gSelectContext.idx];
     //auto& chart = entry.charts[entry.chart_idx];
-    auto& c = context_chart;
-    auto& p = context_play;
+    auto& c = gChartContext;
+    auto& p = gPlayContext;
 
     clearContextPlay();
     switch (entry->type())
@@ -447,19 +447,19 @@ void SceneSelect::_decide()
 
         auto& chart = *c.chartObj;
         //c.path = chart._filePath;
-        c.path = chart._absolutePath;
-        c.hash = chart._fileHash;
+        c.path = chart.absolutePath;
+        c.hash = chart.fileHash;
         //c.chartObj = std::make_shared<vChartFormat>(chart);
-        c.title = chart._title;
-        c.title2 = chart._title2;
-        c.artist = chart._artist;
-        c.artist2 = chart._artist2;
-        c.genre = chart._genre;
-        c.version = chart._version;
-        c.level = chart._level;
-        c.minBPM = chart._minBPM;
-        c.maxBPM = chart._maxBPM;
-        c.itlBPM = chart._itlBPM;
+        c.title = chart.title;
+        c.title2 = chart.title2;
+        c.artist = chart.artist;
+        c.artist2 = chart.artist2;
+        c.genre = chart.genre;
+        c.version = chart.version;
+        c.level = chart.levelEstimated;
+        c.minBPM = chart.minBPM;
+        c.maxBPM = chart.maxBPM;
+        c.startBPM = chart.startBPM;
 
         break;
     }
@@ -468,14 +468,14 @@ void SceneSelect::_decide()
     }
     
     // FIXME change to decide scene
-    __next_scene = eScene::DECIDE;
+    gNextScene = eScene::DECIDE;
 }
 
 void SceneSelect::loadSongList()
 {
     // TODO load song list
-    context_select.entries.clear();
-    for (auto& e : context_select.backtrace.top().list)
+    gSelectContext.entries.clear();
+    for (auto& e : gSelectContext.backtrace.top().list)
     {
         // TODO replace name/name2 by tag.db
 
@@ -493,14 +493,14 @@ void SceneSelect::loadSongList()
                 {
                 case eChartFormat::BMS:
                     // difficulty filter
-                    if (context_select.difficulty != 0 &&
-                        std::reinterpret_pointer_cast<BMS_prop>(p)->difficulty != context_select.difficulty)
+                    if (gSelectContext.difficulty != 0 &&
+                        std::reinterpret_pointer_cast<BMS_prop>(p)->difficulty != gSelectContext.difficulty)
                     {
                         continue;
                     }
                     // gamemode filter
-                    if (context_select.gamemode != 0 &&
-                        std::reinterpret_pointer_cast<BMS_prop>(p)->gamemode != context_select.gamemode)
+                    if (gSelectContext.gamemode != 0 &&
+                        std::reinterpret_pointer_cast<BMS_prop>(p)->gamemode != gSelectContext.gamemode)
                     {
                         continue;
                     }
@@ -511,22 +511,22 @@ void SceneSelect::loadSongList()
                 }
 
                 // currently add all charts into list
-                context_select.entries.push_back(std::make_shared<Song>(p));
+                gSelectContext.entries.push_back(std::make_shared<Song>(p));
             }
             break;
         }
         default:
-            context_select.entries.push_back(e);
+            gSelectContext.entries.push_back(e);
             break;
         }
     }
 
     // TODO sort song list
-    switch (context_select.sort)
+    switch (gSelectContext.sort)
     {
     case SongListSort::DEFAULT:
     {
-        auto& l = context_select.entries;
+        auto& l = gSelectContext.entries;
         std::sort(l.begin(), l.end(), [](const std::shared_ptr<vEntry>& lhs, const std::shared_ptr<vEntry>& rhs)
         {
             if (lhs->type() != rhs->type())
@@ -537,11 +537,11 @@ void SceneSelect::loadSongList()
                 {
                     const auto& l = std::reinterpret_pointer_cast<const Song>(lhs)->_file;
                     const auto& r = std::reinterpret_pointer_cast<const Song>(rhs)->_file;
-                    if (l->_level != r->_level) return l->_level > r->_level;
-                    if (l->_title != r->_title) return l->_title > r->_title;
-                    if (l->_title2 != r->_title2) return l->_title2 > r->_title2;
-                    if (l->_version != r->_version) return l->_version > r->_version;
-                    return l->_fileHash > r->_fileHash;
+                    if (l->levelEstimated != r->levelEstimated) return l->levelEstimated > r->levelEstimated;
+                    if (l->title != r->title) return l->title > r->title;
+                    if (l->title2 != r->title2) return l->title2 > r->title2;
+                    if (l->version != r->version) return l->version > r->version;
+                    return l->fileHash > r->fileHash;
                 }
                 else
                 {
@@ -555,7 +555,7 @@ void SceneSelect::loadSongList()
     }
     case SongListSort::TITLE:
     {
-        auto& l = context_select.entries;
+        auto& l = gSelectContext.entries;
         std::sort(l.begin(), l.end(), [](const std::shared_ptr<vEntry>& lhs, const std::shared_ptr<vEntry>& rhs)
         {
             if (lhs->type() != rhs->type())
@@ -566,10 +566,10 @@ void SceneSelect::loadSongList()
                 {
                     const auto& l = std::reinterpret_pointer_cast<const Song>(lhs)->_file;
                     const auto& r = std::reinterpret_pointer_cast<const Song>(rhs)->_file;
-                    if (l->_title != r->_title) return l->_title > r->_title;
-                    if (l->_title2 != r->_title2) return l->_title2 > r->_title2;
-                    if (l->_version != r->_version) return l->_version > r->_version;
-                    return l->_fileHash > r->_fileHash;
+                    if (l->title != r->title) return l->title > r->title;
+                    if (l->title2 != r->title2) return l->title2 > r->title2;
+                    if (l->version != r->version) return l->version > r->version;
+                    return l->fileHash > r->fileHash;
                 }
                 else
                 {
@@ -589,9 +589,9 @@ void SceneSelect::loadSongList()
 
 void SceneSelect::_navigateUpBy1(Time t)
 {
-    std::lock_guard<std::mutex> u(context_select._mutex);
+    std::lock_guard<std::mutex> u(gSelectContext._mutex);
 
-    context_select.idx = (context_select.entries.size() + context_select.idx - 1) % context_select.entries.size();
+    gSelectContext.idx = (gSelectContext.entries.size() + gSelectContext.idx - 1) % gSelectContext.entries.size();
     // TODO animation
     gTimers.set(eTimer::LIST_MOVE, t.norm());
     gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());
@@ -602,9 +602,9 @@ void SceneSelect::_navigateUpBy1(Time t)
 
 void SceneSelect::_navigateDownBy1(Time t)
 {
-    std::lock_guard<std::mutex> u(context_select._mutex);
+    std::lock_guard<std::mutex> u(gSelectContext._mutex);
 
-    context_select.idx = (context_select.idx + 1) % context_select.entries.size();
+    gSelectContext.idx = (gSelectContext.idx + 1) % gSelectContext.entries.size();
     // TODO animation
     gTimers.set(eTimer::LIST_MOVE, t.norm());
     gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());
@@ -615,29 +615,29 @@ void SceneSelect::_navigateDownBy1(Time t)
 
 void SceneSelect::_navigateEnter(Time t)
 {
-    std::lock_guard<std::mutex> u(context_select._mutex);
+    std::lock_guard<std::mutex> u(gSelectContext._mutex);
 
     // TODO
-    const auto& e = context_select.entries[context_select.idx];
+    const auto& e = gSelectContext.entries[gSelectContext.idx];
     switch (e->type())
     {
     case eEntryType::FOLDER:
     case eEntryType::CUSTOM_FOLDER:
     {
         SongListProperties prop{
-            context_select.backtrace.top().folder,
+            gSelectContext.backtrace.top().folder,
             e->md5,
             e->_name,
             {},
-            context_select.idx
+            gSelectContext.idx
         };
-        auto top = pSongDB->browse(e->md5, false);
+        auto top = g_pSongDB->browse(e->md5, false);
         for (size_t i = 0; i < top.getContentsCount(); ++i)
             prop.list.push_back(top.getEntry(i));
 
-        context_select.backtrace.push(prop);
-        context_select.entries.clear();
-        context_select.idx = 0;
+        gSelectContext.backtrace.push(prop);
+        gSelectContext.entries.clear();
+        gSelectContext.idx = 0;
         loadSongList();
 
         gTimers.set(eTimer::LIST_MOVE, t.norm());
@@ -653,17 +653,17 @@ void SceneSelect::_navigateEnter(Time t)
 }
 void SceneSelect::_navigateBack(Time t)
 {
-    std::lock_guard<std::mutex> u(context_select._mutex);
+    std::lock_guard<std::mutex> u(gSelectContext._mutex);
 
     // TODO
-    auto top = context_select.backtrace.top();
+    auto top = gSelectContext.backtrace.top();
     if (!top.parent.empty())
     {
-        context_select.idx = 0;
-        context_select.backtrace.pop();
-        top = context_select.backtrace.top();
-        context_select.entries = top.list;
-        context_select.idx = top.index;
+        gSelectContext.idx = 0;
+        gSelectContext.backtrace.pop();
+        top = gSelectContext.backtrace.top();
+        gSelectContext.entries = top.list;
+        gSelectContext.idx = top.index;
 
         gTimers.set(eTimer::LIST_MOVE, t.norm());
         gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());

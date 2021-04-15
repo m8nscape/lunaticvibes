@@ -38,30 +38,30 @@ int BMS::getExtendedProperty(const std::string& key, void* ret)
 }
 
 BMS::BMS() {
-    _wavFiles.resize(MAXSAMPLEIDX + 1);
-    _bgaFiles.resize(MAXSAMPLEIDX + 1);
-    _measureLength.resize(MAXBARIDX + 1);
+    wavFiles.resize(MAXSAMPLEIDX + 1);
+    bgaFiles.resize(MAXSAMPLEIDX + 1);
+    barLength.resize(MAXBARIDX + 1);
 }
 
 BMS::BMS(const Path& file): BMS_prop() {
-    _wavFiles.resize(MAXSAMPLEIDX + 1);
-    _bgaFiles.resize(MAXSAMPLEIDX + 1);
-    _measureLength.resize(MAXBARIDX + 1);
+    wavFiles.resize(MAXSAMPLEIDX + 1);
+    bgaFiles.resize(MAXSAMPLEIDX + 1);
+    barLength.resize(MAXBARIDX + 1);
     initWithFile(file);
 }
 
 int BMS::initWithPathParam(const SongDB& db)
 {
-    if (_filePath.is_absolute())
-        _absolutePath = _filePath;
+    if (filePath.is_absolute())
+        absolutePath = filePath;
     else
     {
         Path fp;
-        db.getFolderPath(_folderHash, fp);
-        _absolutePath = fp / _filePath;
+        db.getFolderPath(folderHash, fp);
+        absolutePath = fp / filePath;
     }
 
-    return initWithFile(_absolutePath);
+    return initWithFile(absolutePath);
 }
 
 int BMS::initWithFile(const Path& file)
@@ -74,10 +74,10 @@ int BMS::initWithFile(const Path& file)
         return 1;
     }
 
-    _filePath = file.filename();
-    _absolutePath = std::filesystem::absolute(file);
-    LOG_INFO << "[BMS] File: " << _absolutePath.string();
-    std::ifstream fs(_absolutePath.string());
+    filePath = file.filename();
+    absolutePath = std::filesystem::absolute(file);
+    LOG_INFO << "[BMS] File: " << absolutePath.string();
+    std::ifstream fs(absolutePath.string());
     if (fs.fail())
     {
         errorCode = err::FILE_ERROR;
@@ -86,7 +86,7 @@ int BMS::initWithFile(const Path& file)
         return 1;
     }
 
-    auto encoding = getFileEncoding(_absolutePath);
+    auto encoding = getFileEncoding(absolutePath);
 
     // TODO Ìì¹úµÄPARSER£¡£¡£¡
     // SUPER LAZY PARSER FOR TESTING
@@ -150,7 +150,7 @@ int BMS::initWithFile(const Path& file)
                     else if (key == "PLAYLEVEL")
                     {
                         playLevel = stoine(value);
-                        _level = double(playLevel);
+                        levelEstimated = double(playLevel);
                     }
                     else if (key == "DIFFICULTY")
                         difficulty = stoine(value);
@@ -159,19 +159,19 @@ int BMS::initWithFile(const Path& file)
 
                     // strings
                     else if (key == "TITLE")
-                        _title.assign(value.begin(), value.end());
+                        title.assign(value.begin(), value.end());
                     else if (key == "SUBTITLE")
-                        _title2.assign(value.begin(), value.end());
+                        title2.assign(value.begin(), value.end());
                     else if (key == "ARTIST")
-                        _artist.assign(value.begin(), value.end());
+                        artist.assign(value.begin(), value.end());
                     else if (key == "SUBARTIST")
-                        _artist2.assign(value.begin(), value.end());
+                        artist2.assign(value.begin(), value.end());
                     else if (key == "GENRE")
-                        _genre.assign(value.begin(), value.end());
+                        genre.assign(value.begin(), value.end());
                     else if (key == "STAGEFILE")
-                        _BG.assign(value.begin(), value.end());
+                        stagefile.assign(value.begin(), value.end());
                     else if (key == "BANNER")
-                        _banner.assign(value.begin(), value.end());
+                        banner.assign(value.begin(), value.end());
                     else if (key == "RANDOM" || key == "RONDAM")
                         ; // TODO #RANDOM
                     else if (key == "LNOBJ" && value.length() >= 2)
@@ -181,12 +181,12 @@ int BMS::initWithFile(const Path& file)
                     else if (std::regex_match(key, std::regex(R"(WAV[0-9A-Za-z]{1,2})", std::regex_constants::icase)))
                     {
                         int idx = base36(key[3], key[4]);
-                        _wavFiles[idx].assign(value.begin(), value.end());
+                        wavFiles[idx].assign(value.begin(), value.end());
                     }
                     else if (std::regex_match(key, std::regex(R"(BMP[0-9A-Za-z]{1,2})", std::regex_constants::icase)))
                     {
                         int idx = base36(key[3], key[4]);
-                        _bgaFiles[idx].assign(value.begin(), value.end());
+                        bgaFiles[idx].assign(value.begin(), value.end());
                     }
                     else if (std::regex_match(key, std::regex(R"(BPM[0-9A-Za-z]{1,2})", std::regex_constants::icase)))
                     {
@@ -242,7 +242,7 @@ int BMS::initWithFile(const Path& file)
                                 break;
 
                             case 2:            // 02: Measure Length
-                                _measureLength[measure] = std::stod(value);
+                                barLength[measure] = std::stod(value);
                                 haveMetricMod = true;
                                 break;
 
@@ -329,8 +329,8 @@ int BMS::initWithFile(const Path& file)
     fs.close();
 
     for (size_t i = 0; i <= lastBarIdx; i++)
-        if (_measureLength[i] == 0.0)
-            _measureLength[i] = 1.0;
+        if (barLength[i] == 0.0)
+            barLength[i] = 1.0;
 
     for (size_t ch = 0; ch < 20; ++ch)
     {
@@ -419,28 +419,28 @@ int BMS::initWithFile(const Path& file)
         notes += notes_ln / 2;
     }
 
-    _minBPM = bpm;
-    _maxBPM = bpm;
-    _itlBPM = bpm;
+    minBPM = bpm;
+    maxBPM = bpm;
+    startBPM = bpm;
     if (haveBPMChange)
     {
         for (unsigned m = 0; m <= lastBarIdx; m++)
         {
             for (const auto& ns : chBPMChange[m].notes)
             {
-                if (ns.value > _maxBPM) _maxBPM = ns.value;
-                if (ns.value < _minBPM) _minBPM = ns.value;
+                if (ns.value > maxBPM) maxBPM = ns.value;
+                if (ns.value < minBPM) minBPM = ns.value;
             }
             for (const auto& ns : chExBPMChange[m].notes)
             {
-                if (exBPM[ns.value] > _maxBPM) _maxBPM = exBPM[ns.value];
-                if (exBPM[ns.value] < _minBPM) _minBPM = exBPM[ns.value];
+                if (exBPM[ns.value] > maxBPM) maxBPM = exBPM[ns.value];
+                if (exBPM[ns.value] < minBPM) minBPM = exBPM[ns.value];
             }
         }
     }
 
-    _fileHash = md5file(_absolutePath);
-    LOG_INFO << "[BMS] MD5: " << _fileHash;
+    fileHash = md5file(absolutePath);
+    LOG_INFO << "[BMS] MD5: " << fileHash;
 
     _loaded = true;
     LOG_INFO << "[BMS] Parsing BMS complete.";

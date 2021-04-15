@@ -12,8 +12,8 @@
 #include <mutex>
 
 // global control pointer, do not modify
-inline SDL_Renderer* _frame_renderer;
-inline std::timed_mutex _static_render_mutex;
+inline SDL_Renderer* gFrameRenderer;
+inline std::timed_mutex gRenderMutex;
 
 class Color : public SDL_Color
 {

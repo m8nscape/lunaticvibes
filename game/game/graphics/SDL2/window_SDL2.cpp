@@ -39,7 +39,7 @@ int graphics_init()
         auto mode = ConfigMgr::get("V", cfg::V_WINMODE, cfg::V_WINMODE_WINDOWED);
         if (mode == cfg::V_WINMODE_BORDERLESS)
         {
-            _frame_window = SDL_CreateWindow(
+            gFrameWindow = SDL_CreateWindow(
                 title.c_str(),
                 SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                 ConfigMgr::get("V", cfg::V_RES_X, CANVAS_WIDTH), ConfigMgr::get("V", cfg::V_RES_Y, CANVAS_HEIGHT),
@@ -47,7 +47,7 @@ int graphics_init()
         }
         else if (mode == cfg::V_WINMODE_FULL)
         {
-            _frame_window = SDL_CreateWindow(
+            gFrameWindow = SDL_CreateWindow(
                 title.c_str(),
                 SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                 ConfigMgr::get("V", cfg::V_FULL_RES_X, CANVAS_WIDTH), ConfigMgr::get("V", cfg::V_FULL_RES_Y, CANVAS_HEIGHT),
@@ -55,13 +55,13 @@ int graphics_init()
         }
         else // fallback to windowed
         {
-            _frame_window = SDL_CreateWindow(
+            gFrameWindow = SDL_CreateWindow(
                 title.c_str(),
                 SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                 ConfigMgr::get("V", cfg::V_RES_X, CANVAS_WIDTH), ConfigMgr::get("V", cfg::V_RES_Y, CANVAS_HEIGHT),
                 SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
         }
-        if (!_frame_window)
+        if (!gFrameWindow)
         {
             LOG_ERROR << "[SDL2] Init window ERROR! " << SDL_GetError();
             return -1;
@@ -70,17 +70,17 @@ int graphics_init()
         auto vsync = ConfigMgr::get("V", cfg::V_VSYNC, cfg::OFF);
         if (vsync == cfg::ON)
         {
-            _frame_renderer = SDL_CreateRenderer(
-                _frame_window, -1,
+            gFrameRenderer = SDL_CreateRenderer(
+                gFrameWindow, -1,
                 SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
         }
         else
         {
-            _frame_renderer = SDL_CreateRenderer(
-                _frame_window, -1,
+            gFrameRenderer = SDL_CreateRenderer(
+                gFrameWindow, -1,
                 SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
         }
-        if (!_frame_renderer)
+        if (!gFrameRenderer)
         {
             LOG_ERROR << "[SDL2] Init renderer ERROR! " << SDL_GetError();
             return -2;
@@ -118,19 +118,19 @@ int graphics_init()
 
 void graphics_clear()
 {
-    SDL_RenderClear(_frame_renderer);
+    SDL_RenderClear(gFrameRenderer);
 }
 
 void graphics_flush()
 {
-    std::lock_guard u(_static_render_mutex);
-    SDL_RenderPresent(_frame_renderer);
+    std::lock_guard u(gRenderMutex);
+    SDL_RenderPresent(gFrameRenderer);
 }
 
 int graphics_free()
 {
-    SDL_DestroyRenderer(_frame_renderer);
-    SDL_DestroyWindow(_frame_window);
+    SDL_DestroyRenderer(gFrameRenderer);
+    SDL_DestroyWindow(gFrameWindow);
     TTF_Quit();
     IMG_Quit();
 	SDL_Quit();
@@ -138,7 +138,7 @@ int graphics_free()
     return 0;
 }
 
-extern bool __event_quit;
+extern bool gEventQuit;
 void event_handle()
 {
     SDL_Event e;
@@ -147,7 +147,7 @@ void event_handle()
         switch (e.type)
         {
         case SDL_QUIT:
-            __event_quit = true;
+            gEventQuit = true;
             break;
 
         default:

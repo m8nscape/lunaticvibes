@@ -5,12 +5,12 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
 {
     _inputAvailable = INPUT_MASK_FUNC;
 
-    if (context_play.chartObj[PLAYER_SLOT_1P] != nullptr)
+    if (gPlayContext.chartObj[PLAYER_SLOT_1P] != nullptr)
     {
         _inputAvailable |= INPUT_MASK_1P;
     }
         
-    if (context_play.chartObj[PLAYER_SLOT_2P] != nullptr)
+    if (gPlayContext.chartObj[PLAYER_SLOT_2P] != nullptr)
     {
         _inputAvailable |= INPUT_MASK_2P;
     }
@@ -18,9 +18,9 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
     _state = eResultState::DRAW;
 
     // set options
-    if (context_play.ruleset[PLAYER_SLOT_1P])
+    if (gPlayContext.ruleset[PLAYER_SLOT_1P])
     {
-        auto d1p = context_play.ruleset[PLAYER_SLOT_1P]->getData();
+        auto d1p = gPlayContext.ruleset[PLAYER_SLOT_1P]->getData();
 
         if (d1p.total_acc >= 100.0)      gOptions.set(eOption::RESULT_RANK_1P, Option::RANK_0);
         else if (d1p.total_acc >= 88.88) gOptions.set(eOption::RESULT_RANK_1P, Option::RANK_1);
@@ -33,9 +33,9 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
         else                             gOptions.set(eOption::RESULT_RANK_1P, Option::RANK_8);
     }
 
-    if (context_play.ruleset[PLAYER_SLOT_2P])
+    if (gPlayContext.ruleset[PLAYER_SLOT_2P])
     {
-        auto d2p = context_play.ruleset[PLAYER_SLOT_2P]->getData();
+        auto d2p = gPlayContext.ruleset[PLAYER_SLOT_2P]->getData();
         if (d2p.total_acc >= 100.0)      gOptions.set(eOption::RESULT_RANK_2P, Option::RANK_0);
         else if (d2p.total_acc >= 88.88) gOptions.set(eOption::RESULT_RANK_2P, Option::RANK_1);
         else if (d2p.total_acc >= 77.77) gOptions.set(eOption::RESULT_RANK_2P, Option::RANK_2);
@@ -49,17 +49,17 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
     }
 
     // TODO compare to db record
-    auto dp = context_play.ruleset[context_play.playerSlot]->getData();
+    auto dp = gPlayContext.ruleset[gPlayContext.playerSlot]->getData();
 
     // TODO WIN/LOSE
-    switch (context_play.mode)
+    switch (gPlayContext.mode)
     {
     case eMode::PLAY5_2:
     case eMode::PLAY7_2:
     case eMode::PLAY9_2:
     {
-        auto d1p = context_play.ruleset[PLAYER_SLOT_1P]->getData();
-        auto d2p = context_play.ruleset[PLAYER_SLOT_2P]->getData();
+        auto d1p = gPlayContext.ruleset[PLAYER_SLOT_1P]->getData();
+        auto d2p = gPlayContext.ruleset[PLAYER_SLOT_2P]->getData();
         /*
         switch (context_play.rulesetType)
         {
@@ -153,15 +153,15 @@ void SceneResult::updateFadeout()
     {
         loopEnd();
         _input.loopEnd();
-        if (_retryRequested && context_play.canRetry)
+        if (_retryRequested && gPlayContext.canRetry)
         {
             clearContextPlayForRetry();
-            __next_scene = eScene::PLAY;
+            gNextScene = eScene::PLAY;
         }
         else
         {
             clearContextPlay();
-            __next_scene = _quit_on_finish ? eScene::EXIT : eScene::SELECT;
+            gNextScene = gQuitOnFinish ? eScene::EXIT : eScene::SELECT;
         }
     }
 }

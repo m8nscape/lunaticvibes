@@ -1531,7 +1531,7 @@ ParseRet SkinLR2::SRC_BGA()
 	lr2skin::s_bga d;
 	convertLine(tokensBuf, (int*)&d);
 
-	_sprites.push_back(std::make_shared<SpriteStatic>(context_play.bgaTexture, Rect()));
+	_sprites.push_back(std::make_shared<SpriteStatic>(gPlayContext.bgaTexture, Rect()));
 
 	_sprites_child.push_back(_sprites.back());
 	_sprites.back()->setLine(line);
@@ -2811,10 +2811,10 @@ void SkinLR2::loadCSV(Path p)
     {
         _barSprites[barCenter]->drawFlash = true;
 
-        if (_reset_select_cursor)
+        if (gResetSelectCursor)
         {
-            _reset_select_cursor = false;
-            context_select.cursor = barCenter;
+            gResetSelectCursor = false;
+            gSelectContext.cursor = barCenter;
         }
     }
 
@@ -2851,7 +2851,7 @@ void SkinLR2::update()
 
     {
         // acquire lock
-        std::lock_guard<std::mutex> u(context_select._mutex);
+        std::lock_guard<std::mutex> u(gSelectContext._mutex);
 
 #ifndef _DEBUG
         std::for_each(std::execution::par_unseq, drawQueue.begin(), drawQueue.end(), [ttAngle1P, ttAngle2P](auto& e)

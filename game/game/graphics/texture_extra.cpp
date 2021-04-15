@@ -59,7 +59,7 @@ void TextureVideo::update()
 	{
 		// read lock
 		using namespace std::chrono_literals;
-		std::unique_lock lg(_static_render_mutex);
+		std::unique_lock lg(gRenderMutex);
 		if (lg.try_lock_for(10ms))
 		{
 			std::shared_lock l(pVideo->video_frame_mutex);

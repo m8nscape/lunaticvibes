@@ -137,16 +137,16 @@ void chartBMS::loadBMS(const BMS& objBms)
 	Time basetime{ 0 };
 	Beat basebeat{ 0, 1 };
 
-    BPM bpm = objBms._itlBPM;
+    BPM bpm = objBms.startBPM;
     _currentBPM = bpm;
     _bpmNoteList.push_back({ 0, {0, 1}, 0, bpm });
-	_measureLength.fill({ 1, 1 });
+	barLength.fill({ 1, 1 });
     bool bpmfucked = false; // set to true when BPM is changed to zero or negative value
     std::bitset<10> isLnTail[2]{ 0 };
 
     for (unsigned m = 0; m <= objBms.lastBarIdx; m++)
     {
-		_measureLength[m] = objBms._measureLength[m];
+		barLength[m] = objBms.barLength[m];
 		_barBeatstamp[m] = basebeat;
         _barTimestamp[m] = basetime;
 
@@ -255,7 +255,7 @@ void chartBMS::loadBMS(const BMS& objBms)
         Segment lastBPMChangedSegment(0, 1);
         double stopBeat = 0;
         double currentSpd = 1.0;
-        Beat measureLength = objBms._measureLength[m];      // visual beat
+        Beat measureLength = objBms.barLength[m];      // visual beat
 		Time beatLength = Time::singleBeatLengthFromBPM(bpm);
 
         for (const auto& note : notes)

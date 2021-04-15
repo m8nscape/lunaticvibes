@@ -86,7 +86,7 @@ static const InputDataMap InputGameReleaseMap[] =
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ScenePlay::ScenePlay(ePlayMode gamemode): vScene(context_play.mode, 1000), _mode(gamemode)
+ScenePlay::ScenePlay(ePlayMode gamemode): vScene(gPlayContext.mode, 1000), _mode(gamemode)
 {
     _currentKeySample.assign(Input::ESC, 0);
 
@@ -96,28 +96,28 @@ ScenePlay::ScenePlay(ePlayMode gamemode): vScene(context_play.mode, 1000), _mode
         using namespace std::string_literals;
         uint8_t slotmask = 0;
 
-        if (context_play.mode == eMode::PLAY14 || _mode == ePlayMode::LOCAL_BATTLE) slotmask = 1 | 2;
-        if (context_play.playerSlot == PLAYER_SLOT_1P) slotmask |= 1;
-        if (context_play.playerSlot == PLAYER_SLOT_2P) slotmask |= 2;
+        if (gPlayContext.mode == eMode::PLAY14 || _mode == ePlayMode::LOCAL_BATTLE) slotmask = 1 | 2;
+        if (gPlayContext.playerSlot == PLAYER_SLOT_1P) slotmask |= 1;
+        if (gPlayContext.playerSlot == PLAYER_SLOT_2P) slotmask |= 2;
 
         if (slotmask & 1)
         {
-            _skin->setExtendedProperty("GAUGETYPE_1P"s, (void*)&context_play.gaugeType[PLAYER_SLOT_1P]);
+            _skin->setExtendedProperty("GAUGETYPE_1P"s, (void*)&gPlayContext.gaugeType[PLAYER_SLOT_1P]);
             _inputAvailable |= INPUT_MASK_1P;
         }
 
         if (slotmask & 2)
         {
-            _skin->setExtendedProperty("GAUGETYPE_2P"s, (void*)&context_play.gaugeType[PLAYER_SLOT_2P]);
+            _skin->setExtendedProperty("GAUGETYPE_2P"s, (void*)&gPlayContext.gaugeType[PLAYER_SLOT_2P]);
             _inputAvailable |= INPUT_MASK_2P;
         }
 
-        if (context_play.mode == eMode::PLAY14)
+        if (gPlayContext.mode == eMode::PLAY14)
         {
-            if (context_play.playerSlot == PLAYER_SLOT_1P)
-                _skin->setExtendedProperty("GAUGETYPE_1P"s, (void*)&context_play.gaugeType[PLAYER_SLOT_1P]);
-            if (context_play.playerSlot == PLAYER_SLOT_2P)
-                _skin->setExtendedProperty("GAUGETYPE_2P"s, (void*)&context_play.gaugeType[PLAYER_SLOT_2P]);
+            if (gPlayContext.playerSlot == PLAYER_SLOT_1P)
+                _skin->setExtendedProperty("GAUGETYPE_1P"s, (void*)&gPlayContext.gaugeType[PLAYER_SLOT_1P]);
+            if (gPlayContext.playerSlot == PLAYER_SLOT_2P)
+                _skin->setExtendedProperty("GAUGETYPE_2P"s, (void*)&gPlayContext.gaugeType[PLAYER_SLOT_2P]);
         }
     }
 
@@ -125,7 +125,7 @@ ScenePlay::ScenePlay(ePlayMode gamemode): vScene(context_play.mode, 1000), _mode
 
     _state = ePlayState::PREPARE;
 
-	if (context_chart.chartObj == nullptr)
+	if (gChartContext.chartObj == nullptr)
 	{
 
 	}
@@ -142,28 +142,28 @@ ScenePlay::ScenePlay(ePlayMode gamemode): vScene(context_play.mode, 1000), _mode
 	}
 
     // basic info
-    gTexts.set(eText::PLAY_TITLE, context_chart.title);
-    gTexts.set(eText::PLAY_SUBTITLE, context_chart.title2);
-    gTexts.set(eText::PLAY_ARTIST, context_chart.artist);
-    gTexts.set(eText::PLAY_SUBARTIST, context_chart.artist2);
-    gTexts.set(eText::PLAY_GENRE, context_chart.genre);
-    gNumbers.set(eNumber::PLAY_BPM, int(std::round(context_chart.itlBPM)));
-    gNumbers.set(eNumber::BPM_MIN, int(std::round(context_chart.minBPM)));
-    gNumbers.set(eNumber::BPM_MAX, int(std::round(context_chart.maxBPM)));
+    gTexts.set(eText::PLAY_TITLE, gChartContext.title);
+    gTexts.set(eText::PLAY_SUBTITLE, gChartContext.title2);
+    gTexts.set(eText::PLAY_ARTIST, gChartContext.artist);
+    gTexts.set(eText::PLAY_SUBARTIST, gChartContext.artist2);
+    gTexts.set(eText::PLAY_GENRE, gChartContext.genre);
+    gNumbers.set(eNumber::PLAY_BPM, int(std::round(gChartContext.startBPM)));
+    gNumbers.set(eNumber::BPM_MIN, int(std::round(gChartContext.minBPM)));
+    gNumbers.set(eNumber::BPM_MAX, int(std::round(gChartContext.maxBPM)));
 
     // player datas
     gNumbers.set(eNumber::HS_1P, (int)ConfigMgr::get("P", cfg::P_HISPEED, 1.0) * 100);
     gNumbers.set(eNumber::HS_2P, 100);
 
     // set gauge type
-    if (context_chart.chartObj)
-        switch (context_chart.chartObj->type())
+    if (gChartContext.chartObj)
+        switch (gChartContext.chartObj->type())
         {
         case eChartFormat::BMS:
         case eChartFormat::BMSON:
             for (size_t i = 0; i < MAX_PLAYERS; ++i)
             {
-                switch (context_play.mods[i].gauge)
+                switch (gPlayContext.mods[i].gauge)
                 {
                 case eModGauge::NORMAL:     _gaugetype[i] = rc::gauge_ty::GROOVE; break;
                 case eModGauge::HARD:       _gaugetype[i] = rc::gauge_ty::HARD; break;
@@ -181,7 +181,7 @@ ScenePlay::ScenePlay(ePlayMode gamemode): vScene(context_play.mode, 1000), _mode
             break;
         }
 
-    if (!context_play.isCourse || context_play.isCourseFirstStage)
+    if (!gPlayContext.isCourse || gPlayContext.isCourseFirstStage)
     {
         if (_mode == ePlayMode::LOCAL_BATTLE)
         {
@@ -191,7 +191,7 @@ ScenePlay::ScenePlay(ePlayMode gamemode): vScene(context_play.mode, 1000), _mode
                 case rc::gauge_ty::GROOVE: 
                 case rc::gauge_ty::EASY:
                 case rc::gauge_ty::ASSIST:
-                    context_play.initialHealth[i] = 0.2;
+                    gPlayContext.initialHealth[i] = 0.2;
                     gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, 20);
                     gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, 20);
                     break;
@@ -201,7 +201,7 @@ ScenePlay::ScenePlay(ePlayMode gamemode): vScene(context_play.mode, 1000), _mode
                 case rc::gauge_ty::P_ATK:
                 case rc::gauge_ty::G_ATK:
                 case rc::gauge_ty::EXHARD:
-                    context_play.initialHealth[i] = 1.0;
+                    gPlayContext.initialHealth[i] = 1.0;
                     gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, 100);
                     gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, 100);
                     break;
@@ -211,14 +211,14 @@ ScenePlay::ScenePlay(ePlayMode gamemode): vScene(context_play.mode, 1000), _mode
         }
         else
         {
-            switch (_gaugetype[context_play.playerSlot])
+            switch (_gaugetype[gPlayContext.playerSlot])
             {
             case rc::gauge_ty::GROOVE:
             case rc::gauge_ty::EASY:
             case rc::gauge_ty::ASSIST:
-                context_play.initialHealth[context_play.playerSlot] = 0.2; 
-                if (context_play.playerSlot == 0) gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, 20);
-                if (context_play.playerSlot == 1) gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, 20);
+                gPlayContext.initialHealth[gPlayContext.playerSlot] = 0.2; 
+                if (gPlayContext.playerSlot == 0) gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, 20);
+                if (gPlayContext.playerSlot == 1) gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, 20);
                 break;
 
             case rc::gauge_ty::HARD:
@@ -226,9 +226,9 @@ ScenePlay::ScenePlay(ePlayMode gamemode): vScene(context_play.mode, 1000), _mode
             case rc::gauge_ty::P_ATK:
             case rc::gauge_ty::G_ATK:
             case rc::gauge_ty::EXHARD:
-                context_play.initialHealth[context_play.playerSlot] = 1.0; break;
-                if (context_play.playerSlot == 0) gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, 100);
-                if (context_play.playerSlot == 1) gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, 100);
+                gPlayContext.initialHealth[gPlayContext.playerSlot] = 1.0; break;
+                if (gPlayContext.playerSlot == 0) gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, 100);
+                if (gPlayContext.playerSlot == 1) gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, 100);
 
             default: break;
             }
@@ -238,13 +238,13 @@ ScenePlay::ScenePlay(ePlayMode gamemode): vScene(context_play.mode, 1000), _mode
     {
         if (_mode == ePlayMode::LOCAL_BATTLE)
         {
-            gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, (int)context_play.initialHealth[0]);
-            gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, (int)context_play.initialHealth[1]);
+            gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, (int)gPlayContext.initialHealth[0]);
+            gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, (int)gPlayContext.initialHealth[1]);
         }
         else
         {
-            if (context_play.playerSlot == 0) gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, (int)context_play.initialHealth[0]);
-            if (context_play.playerSlot == 1) gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, (int)context_play.initialHealth[1]);
+            if (gPlayContext.playerSlot == 0) gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, (int)gPlayContext.initialHealth[0]);
+            if (gPlayContext.playerSlot == 1) gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, (int)gPlayContext.initialHealth[1]);
         }
     }
 
@@ -264,28 +264,28 @@ ScenePlay::ScenePlay(ePlayMode gamemode): vScene(context_play.mode, 1000), _mode
 
 void ScenePlay::loadChart()
 {
-    if (context_chart.chartObj == nullptr || !context_chart.chartObj->isLoaded())
+    if (gChartContext.chartObj == nullptr || !gChartContext.chartObj->isLoaded())
     {
-        if (context_chart.path.empty())
+        if (gChartContext.path.empty())
         {
             LOG_ERROR << "[Play] Chart not specified!";
             return;
         }
 
-        context_chart.chartObj = vChartFormat::getFromFile(context_chart.path);
+        gChartContext.chartObj = vChartFormat::getFromFile(gChartContext.path);
     }
 
-    if (context_chart.chartObj == nullptr || !context_chart.chartObj->isLoaded())
+    if (gChartContext.chartObj == nullptr || !gChartContext.chartObj->isLoaded())
     {
-        LOG_ERROR << "[Play] Invalid chart: " << context_chart.path.string();
+        LOG_ERROR << "[Play] Invalid chart: " << gChartContext.path.string();
         return;
     }
 
-    switch (context_chart.chartObj->type())
+    switch (gChartContext.chartObj->type())
     {
     case eChartFormat::BMS:
     {
-        auto bms = std::reinterpret_pointer_cast<BMS>(context_chart.chartObj);
+        auto bms = std::reinterpret_pointer_cast<BMS>(gChartContext.chartObj);
         // TODO mods
         break;
     }
@@ -294,31 +294,31 @@ void ScenePlay::loadChart()
         break;
     }
 
-    context_chart.title = context_chart.chartObj->_title;
-    context_chart.title2 = context_chart.chartObj->_title2;
-    context_chart.artist = context_chart.chartObj->_artist;
-    context_chart.artist2 = context_chart.chartObj->_artist2;
-    context_chart.genre = context_chart.chartObj->_genre;
-    context_chart.minBPM = context_chart.chartObj->_minBPM;
-    context_chart.itlBPM = context_chart.chartObj->_itlBPM;
-    context_chart.maxBPM = context_chart.chartObj->_maxBPM;
+    gChartContext.title = gChartContext.chartObj->title;
+    gChartContext.title2 = gChartContext.chartObj->title2;
+    gChartContext.artist = gChartContext.chartObj->artist;
+    gChartContext.artist2 = gChartContext.chartObj->artist2;
+    gChartContext.genre = gChartContext.chartObj->genre;
+    gChartContext.minBPM = gChartContext.chartObj->minBPM;
+    gChartContext.startBPM = gChartContext.chartObj->startBPM;
+    gChartContext.maxBPM = gChartContext.chartObj->maxBPM;
 
     //load chart object from Chart object
-    switch (context_chart.chartObj->type())
+    switch (gChartContext.chartObj->type())
     {
     case eChartFormat::BMS:
         if (_mode == ePlayMode::LOCAL_BATTLE)
         {
-            context_play.chartObj[0] = std::make_shared<chartBMS>(std::reinterpret_pointer_cast<BMS>(context_chart.chartObj));
-            context_play.chartObj[1] = std::make_shared<chartBMS>(std::reinterpret_pointer_cast<BMS>(context_chart.chartObj));
+            gPlayContext.chartObj[0] = std::make_shared<chartBMS>(std::reinterpret_pointer_cast<BMS>(gChartContext.chartObj));
+            gPlayContext.chartObj[1] = std::make_shared<chartBMS>(std::reinterpret_pointer_cast<BMS>(gChartContext.chartObj));
         }
         else
         {
-            context_play.chartObj[context_play.playerSlot] = std::make_shared<chartBMS>(std::reinterpret_pointer_cast<BMS>(context_chart.chartObj));
+            gPlayContext.chartObj[gPlayContext.playerSlot] = std::make_shared<chartBMS>(std::reinterpret_pointer_cast<BMS>(gChartContext.chartObj));
         }
         _chartLoaded = true;
-        gNumbers.set(eNumber::PLAY_REMAIN_MIN, int(context_play.chartObj[context_play.playerSlot]->getTotalLength().norm() / 1000 / 60));
-        gNumbers.set(eNumber::PLAY_REMAIN_SEC, int(context_play.chartObj[context_play.playerSlot]->getTotalLength().norm() / 1000 % 60));
+        gNumbers.set(eNumber::PLAY_REMAIN_MIN, int(gPlayContext.chartObj[gPlayContext.playerSlot]->getTotalLength().norm() / 1000 / 60));
+        gNumbers.set(eNumber::PLAY_REMAIN_SEC, int(gPlayContext.chartObj[gPlayContext.playerSlot]->getTotalLength().norm() / 1000 % 60));
         break;
 
     case eChartFormat::BMSON:
@@ -327,19 +327,19 @@ void ScenePlay::loadChart()
         return;
     }
 
-    context_play.remainTime = context_play.chartObj[context_play.playerSlot]->getTotalLength();
+    gPlayContext.remainTime = gPlayContext.chartObj[gPlayContext.playerSlot]->getTotalLength();
 
     // build Ruleset object
-    switch (context_play.rulesetType)
+    switch (gPlayContext.rulesetType)
     {
     case eRuleset::CLASSIC:
     {
         // set judge diff
         rc::judgeDiff judgediff = rc::judgeDiff::NORMAL;
-        switch (context_chart.chartObj->type())
+        switch (gChartContext.chartObj->type())
         {
         case eChartFormat::BMS:
-            switch (std::reinterpret_pointer_cast<BMS>(context_chart.chartObj)->rank)
+            switch (std::reinterpret_pointer_cast<BMS>(gChartContext.chartObj)->rank)
             {
             case 0: judgediff = rc::judgeDiff::VERYHARD; break;
             case 1: judgediff = rc::judgeDiff::HARD; break;
@@ -356,31 +356,31 @@ void ScenePlay::loadChart()
 			break;
         }
 
-        if (context_play.mode == eMode::PLAY14)
+        if (gPlayContext.mode == eMode::PLAY14)
         {
-            context_play.ruleset[context_play.playerSlot] = std::make_shared<RulesetClassic>(
-                context_chart.chartObj,
-                context_play.chartObj[context_play.playerSlot], judgediff, 
-                _gaugetype[context_play.playerSlot], context_play.initialHealth[context_play.playerSlot], rc::player::DP);
+            gPlayContext.ruleset[gPlayContext.playerSlot] = std::make_shared<RulesetClassic>(
+                gChartContext.chartObj,
+                gPlayContext.chartObj[gPlayContext.playerSlot], judgediff, 
+                _gaugetype[gPlayContext.playerSlot], gPlayContext.initialHealth[gPlayContext.playerSlot], rc::player::DP);
         }
         else if (_mode == ePlayMode::LOCAL_BATTLE)
         {
-            context_play.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetClassic>(
-                context_chart.chartObj,
-                context_play.chartObj[PLAYER_SLOT_1P], judgediff,
-                _gaugetype[PLAYER_SLOT_1P], context_play.initialHealth[PLAYER_SLOT_1P], rc::player::BATTLE_1P);
-            context_play.ruleset[PLAYER_SLOT_2P] = std::make_shared<RulesetClassic>(
-                context_chart.chartObj,
-                context_play.chartObj[PLAYER_SLOT_2P], judgediff,
-                _gaugetype[PLAYER_SLOT_2P], context_play.initialHealth[PLAYER_SLOT_2P], rc::player::BATTLE_2P);
+            gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetClassic>(
+                gChartContext.chartObj,
+                gPlayContext.chartObj[PLAYER_SLOT_1P], judgediff,
+                _gaugetype[PLAYER_SLOT_1P], gPlayContext.initialHealth[PLAYER_SLOT_1P], rc::player::BATTLE_1P);
+            gPlayContext.ruleset[PLAYER_SLOT_2P] = std::make_shared<RulesetClassic>(
+                gChartContext.chartObj,
+                gPlayContext.chartObj[PLAYER_SLOT_2P], judgediff,
+                _gaugetype[PLAYER_SLOT_2P], gPlayContext.initialHealth[PLAYER_SLOT_2P], rc::player::BATTLE_2P);
         }
         else
         {
-            context_play.ruleset[context_play.playerSlot] = std::make_shared<RulesetClassic>(
-                context_chart.chartObj,
-                context_play.chartObj[context_play.playerSlot], judgediff, 
-                _gaugetype[context_play.playerSlot], context_play.initialHealth[context_play.playerSlot],
-                context_play.playerSlot == PLAYER_SLOT_1P ? rc::player::SP_1P : rc::player::SP_2P);
+            gPlayContext.ruleset[gPlayContext.playerSlot] = std::make_shared<RulesetClassic>(
+                gChartContext.chartObj,
+                gPlayContext.chartObj[gPlayContext.playerSlot], judgediff, 
+                _gaugetype[gPlayContext.playerSlot], gPlayContext.initialHealth[gPlayContext.playerSlot],
+                gPlayContext.playerSlot == PLAYER_SLOT_1P ? rc::player::SP_1P : rc::player::SP_2P);
         }
         _rulesetLoaded = true;
     }
@@ -391,70 +391,70 @@ void ScenePlay::loadChart()
     }
 
     // load samples
-    if (!context_chart.isSampleLoaded && !sceneEnding)
+    if (!gChartContext.isSampleLoaded && !sceneEnding)
     {
         auto dtor = std::async(std::launch::async, [&]() {
-            auto _pChart = context_chart.chartObj;
-            auto chartDir = context_chart.chartObj->getDirectory();
+            auto _pChart = gChartContext.chartObj;
+            auto chartDir = gChartContext.chartObj->getDirectory();
             LOG_DEBUG << "[Play] Load files from " << chartDir.c_str();
-            for (const auto& it : _pChart->_wavFiles)
+            for (const auto& it : _pChart->wavFiles)
             {
 				if (sceneEnding) break;
                 if (it.empty()) continue;
-                ++wavToLoad;
+                ++_wavToLoad;
             }
-            if (wavToLoad == 0)
+            if (_wavToLoad == 0)
             {
-                wavLoaded = 1;
-                context_chart.isSampleLoaded = true;
+                _wavLoaded = 1;
+                gChartContext.isSampleLoaded = true;
                 return;
             }
-            for (size_t i = 0; i < _pChart->_wavFiles.size(); ++i)
+            for (size_t i = 0; i < _pChart->wavFiles.size(); ++i)
             {
 				if (sceneEnding) break;
-                const auto& wav = _pChart->_wavFiles[i];
+                const auto& wav = _pChart->wavFiles[i];
                 if (wav.empty()) continue;
 				Path pWav(wav);
 				if (pWav.is_absolute())
 					SoundMgr::loadKeySample(wav, i);
 				else
 					SoundMgr::loadKeySample((chartDir / wav).string(), i);
-                ++wavLoaded;
+                ++_wavLoaded;
             }
-            context_chart.isSampleLoaded = true;
+            gChartContext.isSampleLoaded = true;
         });
     }
 
     // load bga
-    if (ConfigMgr::get("P", cfg::P_LOAD_BGA, cfg::ON) == cfg::ON && !context_chart.isBgaLoaded && !sceneEnding)
+    if (ConfigMgr::get("P", cfg::P_LOAD_BGA, cfg::ON) == cfg::ON && !gChartContext.isBgaLoaded && !sceneEnding)
     {
         auto dtor = std::async(std::launch::async, [&]() {
-            auto _pChart = context_chart.chartObj;
-			auto chartDir = context_chart.chartObj->getDirectory();
-            for (const auto& it : _pChart->_bgaFiles)
+            auto _pChart = gChartContext.chartObj;
+			auto chartDir = gChartContext.chartObj->getDirectory();
+            for (const auto& it : _pChart->bgaFiles)
             {
 				if (sceneEnding) return;
                 if (it.empty()) continue;
-                ++bmpToLoad;
+                ++_bmpToLoad;
             }
-            if (bmpToLoad == 0)
+            if (_bmpToLoad == 0)
             {
-                bmpLoaded = 1;
-                context_chart.isBgaLoaded = true;
+                _bmpLoaded = 1;
+                gChartContext.isBgaLoaded = true;
                 return;
             }
-            for (size_t i = 0; i < _pChart->_bgaFiles.size(); ++i)
+            for (size_t i = 0; i < _pChart->bgaFiles.size(); ++i)
             {
 				if (sceneEnding) return;
-                const auto& bmp = _pChart->_bgaFiles[i];
+                const auto& bmp = _pChart->bgaFiles[i];
                 if (bmp.empty()) continue;
 
 
 				Path pBmp(bmp);
 				if (pBmp.is_absolute())
-					context_play.bgaTexture->addBmp(i, pBmp);
+					gPlayContext.bgaTexture->addBmp(i, pBmp);
 				else
-					context_play.bgaTexture->addBmp(i, chartDir / pBmp);
+					gPlayContext.bgaTexture->addBmp(i, chartDir / pBmp);
 
 				/*
 				if (fs::exists(bmp) && fs::is_regular_file(bmp) && pBmp.has_extension())
@@ -477,10 +477,10 @@ void ScenePlay::loadChart()
 				}
 				*/
 
-                ++bmpLoaded;
+                ++_bmpLoaded;
             }
-			context_play.bgaTexture->setSlotFromBMS(*std::reinterpret_pointer_cast<chartBMS>(context_play.chartObj[context_play.playerSlot]));
-            context_chart.isBgaLoaded = true;
+			gPlayContext.bgaTexture->setSlotFromBMS(*std::reinterpret_pointer_cast<chartBMS>(gPlayContext.chartObj[gPlayContext.playerSlot]));
+            gChartContext.isBgaLoaded = true;
         });
     }
 }
@@ -490,25 +490,25 @@ void ScenePlay::setInputJudgeCallback()
     using namespace std::placeholders;
     if (_mode == ePlayMode::LOCAL_BATTLE)
     {
-        if (context_play.ruleset[PLAYER_SLOT_1P] != nullptr)
+        if (gPlayContext.ruleset[PLAYER_SLOT_1P] != nullptr)
         {
-            auto fp = std::bind(&vRuleset::updatePress, context_play.ruleset[PLAYER_SLOT_1P], _1, _2);
+            auto fp = std::bind(&vRuleset::updatePress, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2);
             _input.register_p("JUDGE_PRESS", fp);
-            auto fh = std::bind(&vRuleset::updateHold, context_play.ruleset[PLAYER_SLOT_1P], _1, _2);
+            auto fh = std::bind(&vRuleset::updateHold, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2);
             _input.register_h("JUDGE_HOLD", fh);
-            auto fr = std::bind(&vRuleset::updateRelease, context_play.ruleset[PLAYER_SLOT_1P], _1, _2);
+            auto fr = std::bind(&vRuleset::updateRelease, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2);
             _input.register_r("JUDGE_RELEASE", fr);
         }
         else
             LOG_ERROR << "[Play] Ruleset of 1P not initialized!";
 
-        if (context_play.ruleset[PLAYER_SLOT_2P] != nullptr)
+        if (gPlayContext.ruleset[PLAYER_SLOT_2P] != nullptr)
         {
-            auto fp = std::bind(&vRuleset::updatePress, context_play.ruleset[PLAYER_SLOT_2P], _1, _2);
+            auto fp = std::bind(&vRuleset::updatePress, gPlayContext.ruleset[PLAYER_SLOT_2P], _1, _2);
             _input.register_p("JUDGE_PRESS", fp);
-            auto fh = std::bind(&vRuleset::updateHold, context_play.ruleset[PLAYER_SLOT_2P], _1, _2);
+            auto fh = std::bind(&vRuleset::updateHold, gPlayContext.ruleset[PLAYER_SLOT_2P], _1, _2);
             _input.register_h("JUDGE_HOLD", fh);
-            auto fr = std::bind(&vRuleset::updateRelease, context_play.ruleset[PLAYER_SLOT_2P], _1, _2);
+            auto fr = std::bind(&vRuleset::updateRelease, gPlayContext.ruleset[PLAYER_SLOT_2P], _1, _2);
             _input.register_r("JUDGE_RELEASE", fr);
         }
         else
@@ -516,13 +516,13 @@ void ScenePlay::setInputJudgeCallback()
     }
     else // SINGLE or MULTI
     {
-        if (context_play.ruleset[context_play.playerSlot] != nullptr)
+        if (gPlayContext.ruleset[gPlayContext.playerSlot] != nullptr)
         {
-            auto fp = std::bind(&vRuleset::updatePress, context_play.ruleset[context_play.playerSlot], _1, _2);
+            auto fp = std::bind(&vRuleset::updatePress, gPlayContext.ruleset[gPlayContext.playerSlot], _1, _2);
             _input.register_p("JUDGE_PRESS", fp);
-            auto fh = std::bind(&vRuleset::updateHold, context_play.ruleset[context_play.playerSlot], _1, _2);
+            auto fh = std::bind(&vRuleset::updateHold, gPlayContext.ruleset[gPlayContext.playerSlot], _1, _2);
             _input.register_h("JUDGE_HOLD", fh);
-            auto fr = std::bind(&vRuleset::updateRelease, context_play.ruleset[context_play.playerSlot], _1, _2);
+            auto fr = std::bind(&vRuleset::updateRelease, gPlayContext.ruleset[gPlayContext.playerSlot], _1, _2);
             _input.register_r("JUDGE_RELEASE", fr);
         }
         else
@@ -532,7 +532,7 @@ void ScenePlay::setInputJudgeCallback()
 
 void ScenePlay::removeInputJudgeCallback()
 {
-    for (size_t i = 0; i < context_play.ruleset.size(); ++i)
+    for (size_t i = 0; i < gPlayContext.ruleset.size(); ++i)
     {
         _input.unregister_p("JUDGE_PRESS");
         _input.unregister_h("JUDGE_HOLD");
@@ -578,7 +578,7 @@ void ScenePlay::updatePrepare()
         _state = ePlayState::LOADING;
 		gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_LOADING);
 
-		loadChartRet = std::async(std::launch::async, std::bind(&ScenePlay::loadChart, this));
+		_loadChartFuture = std::async(std::launch::async, std::bind(&ScenePlay::loadChart, this));
         LOG_DEBUG << "[Play] State changed to LOADING";
     }
 }
@@ -603,12 +603,12 @@ void ScenePlay::updateLoading()
         getWavLoadProgress() + getBgaLoadProgress()) / 3.0);
 
     if (_chartLoaded && _rulesetLoaded &&
-        context_chart.isSampleLoaded && context_chart.isBgaLoaded && 
+        gChartContext.isSampleLoaded && gChartContext.isBgaLoaded && 
 		rt > _skin->info.timeMinimumLoad)
     {
         _state = ePlayState::LOAD_END;
 		gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_READY);
-		if (context_play.bgaTexture) context_play.bgaTexture->reset();
+		if (gPlayContext.bgaTexture) gPlayContext.bgaTexture->reset();
         gTimers.set(eTimer::PLAY_READY, t.norm());
         LOG_DEBUG << "[Play] State changed to READY";
     }
@@ -625,7 +625,7 @@ void ScenePlay::updateLoadEnd()
 		gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_PLAYING);
         gTimers.set(eTimer::PLAY_START, t.norm());
         setInputJudgeCallback();
-		context_chart.started = true;
+		gChartContext.started = true;
         LOG_DEBUG << "[Play] State changed to PLAY_START";
     }
 }
@@ -634,28 +634,28 @@ void ScenePlay::updatePlaying()
 {
 	auto t = Time();
 	auto rt = t - gTimers.get(eTimer::PLAY_START);
-    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (context_play.chartObj[context_play.playerSlot]->getCurrentBeat() * 4.0)) % 1000);
-    context_play.bgaTexture->update(rt, false);
+    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[gPlayContext.playerSlot]->getCurrentBeat() * 4.0)) % 1000);
+    gPlayContext.bgaTexture->update(rt, false);
 
     if (_mode == ePlayMode::LOCAL_BATTLE)
     {
-        context_play.chartObj[PLAYER_SLOT_1P]->update(rt);
-        context_play.chartObj[PLAYER_SLOT_2P]->update(rt);
-        context_play.ruleset[PLAYER_SLOT_1P]->update(t);
-        context_play.ruleset[PLAYER_SLOT_2P]->update(t);
+        gPlayContext.chartObj[PLAYER_SLOT_1P]->update(rt);
+        gPlayContext.chartObj[PLAYER_SLOT_2P]->update(rt);
+        gPlayContext.ruleset[PLAYER_SLOT_1P]->update(t);
+        gPlayContext.ruleset[PLAYER_SLOT_2P]->update(t);
     }
     else
     {
-        context_play.chartObj[context_play.playerSlot]->update(rt);
-        context_play.ruleset[context_play.playerSlot]->update(t);
+        gPlayContext.chartObj[gPlayContext.playerSlot]->update(rt);
+        gPlayContext.ruleset[gPlayContext.playerSlot]->update(t);
     }
 
-    gNumbers.set(eNumber::PLAY_BPM, int(std::round(context_play.chartObj[context_play.playerSlot]->getCurrentBPM())));
+    gNumbers.set(eNumber::PLAY_BPM, int(std::round(gPlayContext.chartObj[gPlayContext.playerSlot]->getCurrentBPM())));
     // play time / remain time
     {
         auto startTime = rt - gTimers.get(eTimer::PLAY_START);
         auto playtime = rt.norm() / 1000;
-        auto remaintime = context_play.chartObj[context_play.playerSlot]->getTotalLength().norm() - playtime;
+        auto remaintime = gPlayContext.chartObj[gPlayContext.playerSlot]->getTotalLength().norm() - playtime;
         gNumbers.set(eNumber::PLAY_MIN, int(playtime / 60));
         gNumbers.set(eNumber::PLAY_SEC, int(playtime % 60));
         gNumbers.set(eNumber::PLAY_REMAIN_MIN, int(remaintime / 60));
@@ -673,7 +673,7 @@ void ScenePlay::updatePlaying()
     case ePlayMode::SINGLE:
     {
 		//if (context_play.health[context_play.playerSlot] <= 0)
-        if (context_play.ruleset[context_play.playerSlot]->getData().health <= 0)
+        if (gPlayContext.ruleset[gPlayContext.playerSlot]->getData().health <= 0)
         {
             _state = ePlayState::FAILED;
             gTimers.set(eTimer::FAIL_BEGIN, t.norm());
@@ -683,20 +683,20 @@ void ScenePlay::updatePlaying()
             LOG_DEBUG << "[Play] State changed to PLAY_FAILED";
         }
 
-        if (_isPlayerFinished[context_play.playerSlot] ^ context_play.ruleset[context_play.playerSlot]->isFinished())
+        if (_isPlayerFinished[gPlayContext.playerSlot] ^ gPlayContext.ruleset[gPlayContext.playerSlot]->isFinished())
         {
-            _isPlayerFinished[context_play.playerSlot] = true;
-            gTimers.set(context_play.playerSlot == 0 ? eTimer::PLAY_P1_FINISHED : eTimer::PLAY_P2_FINISHED, t.norm());
-            if (context_play.ruleset[context_play.playerSlot]->getData().combo == context_play.chartObj[context_play.playerSlot]->getNoteCount())
-                gTimers.set(context_play.playerSlot == 0 ? eTimer::PLAY_FULLCOMBO_1P : eTimer::PLAY_FULLCOMBO_2P, t.norm());
+            _isPlayerFinished[gPlayContext.playerSlot] = true;
+            gTimers.set(gPlayContext.playerSlot == 0 ? eTimer::PLAY_P1_FINISHED : eTimer::PLAY_P2_FINISHED, t.norm());
+            if (gPlayContext.ruleset[gPlayContext.playerSlot]->getData().combo == gPlayContext.chartObj[gPlayContext.playerSlot]->getNoteCount())
+                gTimers.set(gPlayContext.playerSlot == 0 ? eTimer::PLAY_FULLCOMBO_1P : eTimer::PLAY_FULLCOMBO_2P, t.norm());
         }
     }
     break;
 
     case ePlayMode::LOCAL_BATTLE:
     {
-        if (context_play.ruleset[PLAYER_SLOT_1P]->getData().health <= 0 && 
-            context_play.ruleset[PLAYER_SLOT_2P]->getData().health <= 0)
+        if (gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().health <= 0 && 
+            gPlayContext.ruleset[PLAYER_SLOT_2P]->getData().health <= 0)
         {
             _state = ePlayState::FAILED;
             gTimers.set(eTimer::FAIL_BEGIN, t.norm());
@@ -706,18 +706,18 @@ void ScenePlay::updatePlaying()
             LOG_DEBUG << "[Play] State changed to PLAY_FAILED";
         }
 
-        if (_isPlayerFinished[PLAYER_SLOT_1P] ^ context_play.ruleset[PLAYER_SLOT_1P]->isFinished())
+        if (_isPlayerFinished[PLAYER_SLOT_1P] ^ gPlayContext.ruleset[PLAYER_SLOT_1P]->isFinished())
         {
             _isPlayerFinished[PLAYER_SLOT_1P] = true;
             gTimers.set(eTimer::PLAY_P1_FINISHED, t.norm());
-            if (context_play.ruleset[PLAYER_SLOT_1P]->getData().combo == context_play.chartObj[PLAYER_SLOT_1P]->getNoteCount())
+            if (gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().combo == gPlayContext.chartObj[PLAYER_SLOT_1P]->getNoteCount())
                 gTimers.set(eTimer::PLAY_FULLCOMBO_1P, t.norm());
         }
-        if (_isPlayerFinished[PLAYER_SLOT_2P] ^ context_play.ruleset[PLAYER_SLOT_2P]->isFinished())
+        if (_isPlayerFinished[PLAYER_SLOT_2P] ^ gPlayContext.ruleset[PLAYER_SLOT_2P]->isFinished())
         {
             _isPlayerFinished[PLAYER_SLOT_2P] = true;
             gTimers.set(eTimer::PLAY_P2_FINISHED, t.norm());
-            if (context_play.ruleset[PLAYER_SLOT_2P]->getData().combo == context_play.chartObj[PLAYER_SLOT_2P]->getNoteCount())
+            if (gPlayContext.ruleset[PLAYER_SLOT_2P]->getData().combo == gPlayContext.chartObj[PLAYER_SLOT_2P]->getNoteCount())
                 gTimers.set(eTimer::PLAY_FULLCOMBO_2P, t.norm());
         }
     }
@@ -730,7 +730,7 @@ void ScenePlay::updatePlaying()
     updateTTrotation(true);
 
     //last note check
-    if (rt.norm() - context_play.chartObj[context_play.playerSlot]->getTotalLength().norm() >= 0)
+    if (rt.norm() - gPlayContext.chartObj[gPlayContext.playerSlot]->getTotalLength().norm() >= 0)
     {
         _state = ePlayState::FADEOUT;
         gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
@@ -745,16 +745,16 @@ void ScenePlay::updateFadeout()
     auto t = Time();
     auto rt = t - gTimers.get(eTimer::SCENE_START);
     auto ft = t - gTimers.get(eTimer::FADEOUT_BEGIN);
-    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (context_play.chartObj[context_play.playerSlot]->getCurrentBeat() * 4.0)) % 1000);
-    updateTTrotation(context_chart.started);
-	context_play.bgaTexture->update(rt, false);
+    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[gPlayContext.playerSlot]->getCurrentBeat() * 4.0)) % 1000);
+    updateTTrotation(gChartContext.started);
+	gPlayContext.bgaTexture->update(rt, false);
 
     if (ft >= _skin->info.timeOutro)
     {
         removeInputJudgeCallback();
         loopEnd();
         _input.loopEnd();
-        __next_scene = eScene::RESULT;
+        gNextScene = eScene::RESULT;
     }
 
 }
@@ -763,8 +763,8 @@ void ScenePlay::updateFailed()
 {
     auto t = Time();
     auto ft = t - gTimers.get(eTimer::FAIL_BEGIN);
-    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (context_play.chartObj[context_play.playerSlot]->getCurrentBeat() * 4.0)) % 1000);
-    updateTTrotation(context_chart.started);
+    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[gPlayContext.playerSlot]->getCurrentBeat() * 4.0)) % 1000);
+    updateTTrotation(gChartContext.started);
 
     //failed play finished, move to next scene. No fadeout
     if (ft.norm() >= _skin->info.timeFailed)
@@ -772,18 +772,18 @@ void ScenePlay::updateFailed()
         removeInputJudgeCallback();
         loopEnd();
         _input.loopEnd();
-        __next_scene = eScene::RESULT;
+        gNextScene = eScene::RESULT;
     }
 }
 
 
 void ScenePlay::procCommonNotes()
 {
-    assert(context_play.chartObj[context_play.playerSlot] != nullptr);
-    auto it = context_play.chartObj[context_play.playerSlot]->notePlainExpired.begin();
+    assert(gPlayContext.chartObj[gPlayContext.playerSlot] != nullptr);
+    auto it = gPlayContext.chartObj[gPlayContext.playerSlot]->notePlainExpired.begin();
     size_t i;
-    size_t max = std::min(_bgmSampleIdxBuf.size(), context_play.chartObj[context_play.playerSlot]->notePlainExpired.size());
-    for (i = 0; i < max && it != context_play.chartObj[context_play.playerSlot]->notePlainExpired.end(); ++i, ++it)
+    size_t max = std::min(_bgmSampleIdxBuf.size(), gPlayContext.chartObj[gPlayContext.playerSlot]->notePlainExpired.size());
+    for (i = 0; i < max && it != gPlayContext.chartObj[gPlayContext.playerSlot]->notePlainExpired.end(); ++i, ++it)
     {
         if ((it->index & 0xF0) == 0xE0)
         {
@@ -816,19 +816,19 @@ void ScenePlay::changeKeySampleMapping(Time t)
         for (auto i = 0; i < Input::S2L; ++i)
             if (_inputAvailable[i])
             {
-                assert(context_play.chartObj[PLAYER_SLOT_1P] != nullptr);
-                auto chan = context_play.chartObj[PLAYER_SLOT_1P]->getLaneFromKey((Input::Ingame)i);
+                assert(gPlayContext.chartObj[PLAYER_SLOT_1P] != nullptr);
+                auto chan = gPlayContext.chartObj[PLAYER_SLOT_1P]->getLaneFromKey((Input::Ingame)i);
                 if (chan.first == NoteLaneCategory::_) continue;
-                auto note = context_play.chartObj[PLAYER_SLOT_1P]->incomingNoteOfLane(chan.first, chan.second);
+                auto note = gPlayContext.chartObj[PLAYER_SLOT_1P]->incomingNoteOfLane(chan.first, chan.second);
                 _currentKeySample[i] = (size_t)std::get<long long>(note->value);
             }
         for (auto i = 0; i < Input::ESC; ++i)
             if (_inputAvailable[i])
             {
-                assert(context_play.chartObj[PLAYER_SLOT_2P] != nullptr);
-                auto chan = context_play.chartObj[PLAYER_SLOT_2P]->getLaneFromKey((Input::Ingame)i);
+                assert(gPlayContext.chartObj[PLAYER_SLOT_2P] != nullptr);
+                auto chan = gPlayContext.chartObj[PLAYER_SLOT_2P]->getLaneFromKey((Input::Ingame)i);
                 if (chan.first == NoteLaneCategory::_) continue;
-                auto note = context_play.chartObj[PLAYER_SLOT_2P]->incomingNoteOfLane(chan.first, chan.second);
+                auto note = gPlayContext.chartObj[PLAYER_SLOT_2P]->incomingNoteOfLane(chan.first, chan.second);
                 _currentKeySample[i] = (size_t)std::get<long long>(note->value);
             }
     }
@@ -837,10 +837,10 @@ void ScenePlay::changeKeySampleMapping(Time t)
         for (auto i = 0; i < Input::ESC; ++i)
             if (_inputAvailable[i])
             {
-                assert(context_play.chartObj[context_play.playerSlot] != nullptr);
-                auto chan = context_play.chartObj[context_play.playerSlot]->getLaneFromKey((Input::Ingame)i);
+                assert(gPlayContext.chartObj[gPlayContext.playerSlot] != nullptr);
+                auto chan = gPlayContext.chartObj[gPlayContext.playerSlot]->getLaneFromKey((Input::Ingame)i);
                 if (chan.first == NoteLaneCategory::_) continue;
-                auto note = context_play.chartObj[context_play.playerSlot]->incomingNoteOfLane(chan.first, chan.second);
+                auto note = gPlayContext.chartObj[gPlayContext.playerSlot]->incomingNoteOfLane(chan.first, chan.second);
                 _currentKeySample[i] = (size_t)std::get<long long>(note->value);
             }
     }

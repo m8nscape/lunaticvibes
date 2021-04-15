@@ -113,7 +113,7 @@ protected:
     std::list<Note>              _bpmNoteList;
     std::list<Note>              _stopNoteList;
 
-    std::array<Beat,  MAX_MEASURES>   _measureLength;
+    std::array<Beat,  MAX_MEASURES>   barLength;
     std::array<Beat,  MAX_MEASURES>   _barBeatstamp;
     std::array<Time, MAX_MEASURES>   _barTimestamp;
 

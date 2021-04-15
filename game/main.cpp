@@ -26,25 +26,25 @@
 #pragma comment(lib, "winmm.lib")
 #endif //WIN32
 
-bool __event_quit;
-GenericInfoUpdater __ginfo{ 1 };
+bool gEventQuit;
+GenericInfoUpdater gGenericInfo{ 1 };
 
 void mainLoop()
 {
-    eScene currentScene = __next_scene;
+    eScene currentScene = gNextScene;
     auto scene = SceneMgr::get(currentScene);
-	__ginfo.loopStart();
-    while (!__event_quit && currentScene != eScene::EXIT && __next_scene != eScene::EXIT)
+	gGenericInfo.loopStart();
+    while (!gEventQuit && currentScene != eScene::EXIT && gNextScene != eScene::EXIT)
     {
         // Evenet handling
         event_handle();
-        if (__event_quit)
-            __next_scene = eScene::EXIT;
+        if (gEventQuit)
+            gNextScene = eScene::EXIT;
 
         // Scene change
-        if (currentScene != __next_scene)
+        if (currentScene != gNextScene)
         {
-            switch (__next_scene)
+            switch (gNextScene)
             {
                 using e = eScene;
             case e::SELECT: LOG_INFO << "Scene changed to SELECT"; break;
@@ -57,7 +57,7 @@ void mainLoop()
 
 			scene->loopEnd();
             clearCustomDstOpt();
-			currentScene = __next_scene;
+			currentScene = gNextScene;
 			scene = SceneMgr::get(currentScene);
 			if (currentScene == eScene::EXIT)
 				break;
@@ -68,12 +68,12 @@ void mainLoop()
         scene->update();
         scene->draw();
         graphics_flush();
-		++__frames[0];
+		++gFrameCount[0];
 
         // sound update (temporary)
         SoundMgr::update();
     }
-	__ginfo.loopEnd();
+	gGenericInfo.loopEnd();
 }
 
 int main(int argc, char* argv[])
@@ -125,8 +125,8 @@ int main(int argc, char* argv[])
     gTimers.reset();
 
     // initialize song list
-    pSongDB = std::make_shared<SongDB>("database/song.db");
-    pSongDB->addFolder("song");
+    g_pSongDB = std::make_shared<SongDB>("database/song.db");
+    g_pSongDB->addFolder("song");
     SongListProperties rootFolderProp{
         "",
         ROOT_FOLDER_HASH,
@@ -134,19 +134,19 @@ int main(int argc, char* argv[])
         {},
         0
     };
-    auto top = pSongDB->browse(ROOT_FOLDER_HASH, false);
+    auto top = g_pSongDB->browse(ROOT_FOLDER_HASH, false);
     for (size_t i = 0; i < top.getContentsCount(); ++i)
         rootFolderProp.list.push_back(top.getEntry(i));
 
-    context_select.backtrace.push(rootFolderProp);
+    gSelectContext.backtrace.push(rootFolderProp);
 
     if (argc >= 2)
     {
-        __next_scene = eScene::PLAY;
-        _quit_on_finish = true;
+        gNextScene = eScene::PLAY;
+        gQuitOnFinish = true;
 
         std::shared_ptr<BMS> bms = std::make_shared<BMS>(argv[1]);
-        context_chart = __chart_context_params{
+        gChartContext = ChartContextParams{
             argv[1],
             md5file(argv[1]),
             bms,
@@ -154,17 +154,17 @@ int main(int argc, char* argv[])
             false,
             false,
 
-            bms->_title,
-            bms->_title2,
-            bms->_artist,
-            bms->_artist2,
-            bms->_genre,
-            bms->_version,
+            bms->title,
+            bms->title2,
+            bms->artist,
+            bms->artist2,
+            bms->genre,
+            bms->version,
 
             2.0,
-            bms->_minBPM,
-            bms->_itlBPM,
-            bms->_maxBPM,
+            bms->minBPM,
+            bms->startBPM,
+            bms->maxBPM,
         };
     }
 

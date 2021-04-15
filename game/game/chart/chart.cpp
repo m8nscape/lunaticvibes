@@ -25,7 +25,7 @@ std::shared_ptr<vChart> vChart::getFromChart(std::shared_ptr<vChartFormat> p)
     case eChartFormat::BMS:
         return std::make_shared<chartBMS>(std::reinterpret_pointer_cast<BMS>(p));
     default:
-        LOG_WARNING << "[chart] Chart type unknown (" << int(p->type()) << "): " << p->_filePath.string();
+        LOG_WARNING << "[chart] Chart type unknown (" << int(p->type()) << "): " << p->filePath.string();
         return nullptr;
     }
 }
@@ -162,12 +162,12 @@ Time vChart::getCurrentBarLength()
 
 Beat vChart::getBarLengthInBeats(size_t measure)
 {
-    if (measure >= _measureLength.size())
+    if (measure >= barLength.size())
     {
 		return { 1, 1 };
     }
 
-	return _measureLength[measure];
+	return barLength[measure];
 }
 
 Beat vChart::getCurrentBarLengthInBeats()

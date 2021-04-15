@@ -29,7 +29,7 @@ const size_t SOUND_FAILED_IDX = 63;
 class ScenePlay : public vScene
 {
 private:
-	std::future<void> loadChartRet;
+	std::future<void> _loadChartFuture;
 
 private:
     ePlayState _state;
@@ -51,8 +51,8 @@ public:
 	virtual ~ScenePlay()
 	{
 		sceneEnding = true; 
-		if (loadChartRet.valid()) 
-			loadChartRet.wait();
+		if (_loadChartFuture.valid()) 
+			_loadChartFuture.wait();
 		loopEnd(); 
 	}
 
@@ -75,8 +75,8 @@ public:
 protected:
     // common
     void loadChart();
-	constexpr double getWavLoadProgress() { return (wavToLoad == 0) ? (wavLoaded ? 1.0 : 0.0) : (double)wavLoaded / wavToLoad; }
-	constexpr double getBgaLoadProgress() { return (bmpToLoad == 0) ? (wavLoaded ? 1.0 : 0.0) : (double)bmpLoaded / bmpToLoad; }
+	constexpr double getWavLoadProgress() { return (_wavToLoad == 0) ? (_wavLoaded ? 1.0 : 0.0) : (double)_wavLoaded / _wavToLoad; }
+	constexpr double getBgaLoadProgress() { return (_bmpToLoad == 0) ? (_wavLoaded ? 1.0 : 0.0) : (double)_bmpLoaded / _bmpToLoad; }
 
     void setInputJudgeCallback();
     void removeInputJudgeCallback();
@@ -88,10 +88,10 @@ protected:
     bool _rulesetLoaded = false;
     //bool _sampleLoaded = false;
     //bool _bgaLoaded = false;
-    unsigned wavLoaded = 0;
-    unsigned wavToLoad = 0;
-    unsigned bmpLoaded = 0;
-    unsigned bmpToLoad = 0;
+    unsigned _wavLoaded = 0;
+    unsigned _wavToLoad = 0;
+    unsigned _bmpLoaded = 0;
+    unsigned _bmpToLoad = 0;
 
 protected:
     // Looper callbacks

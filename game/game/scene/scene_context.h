@@ -21,11 +21,11 @@ enum class eScene
     EXIT
 };
 
-inline eScene __next_scene = eScene::SELECT;
+inline eScene gNextScene = eScene::SELECT;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct __chart_context_params
+struct ChartContextParams
 {
     Path path{};
     HashMD5 hash{};
@@ -45,8 +45,8 @@ struct __chart_context_params
     double level = 0.0;
 
     BPM minBPM = 150;
-    BPM itlBPM = 150;
     BPM maxBPM = 150;
+    BPM startBPM = 150;
 
 };
 
@@ -55,7 +55,7 @@ struct __chart_context_params
 constexpr size_t MAX_PLAYERS = 8;
 constexpr size_t PLAYER_SLOT_1P = 0;
 constexpr size_t PLAYER_SLOT_2P = 1;
-struct __play_context_params
+struct PlayContextParams
 {
     eMode mode = eMode::PLAY7;
     bool canRetry = false;
@@ -104,7 +104,7 @@ enum class SongListSort
     TITLE,
 };
 
-struct __select_context_params
+struct SelectContextParams
 {
     std::mutex _mutex;
     std::stack<SongListProperties> backtrace;
@@ -118,9 +118,9 @@ struct __select_context_params
 
 void updateContextSelectTitles();
 
-extern bool _reset_select_cursor;
-extern bool _quit_on_finish;
-extern __chart_context_params context_chart;
-extern __play_context_params context_play;
-extern __select_context_params context_select;
-extern std::shared_ptr<SongDB> pSongDB;
+extern bool gResetSelectCursor;
+extern bool gQuitOnFinish;
+extern ChartContextParams gChartContext;
+extern PlayContextParams gPlayContext;
+extern SelectContextParams gSelectContext;
+extern std::shared_ptr<SongDB> g_pSongDB;
