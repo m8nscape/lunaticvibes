@@ -649,14 +649,13 @@ int SkinLR2::INCLUDE()
     {
         Path path(tokensBuf[0]);
         auto line_parent = srcLine;
-        srcLine = 0;
         LOG_DEBUG << "[Skin] " << line_parent << ": INCLUDE: " << path.string();
         //auto subCsv = SkinLR2(path);
         //if (subCsv._loaded)
         //    _csvIncluded.push_back(std::move(subCsv));
         loadCSV(path);
         LOG_DEBUG << "[Skin] " << line_parent << ": INCLUDE END //" << path.string();
-        srcLine = line_parent;
+        srcLine = line_parent + 1;
         return 1;
     }
     return 0;
@@ -1046,6 +1045,30 @@ ParseRet SkinLR2::SRC_BUTTON()
             _sprites.back()->setSrcLine(srcLine);
 		}
 	}
+    else if (d.type == 200)
+    {
+        // SRC type 200 (¥á¥¤¥ó¥Ø¥ë¥×Æð„Ó)
+        // why
+
+        // FIXME don't know what to do on this case, deal as false
+
+        auto s = std::make_shared<SpriteOption>(
+            textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, eTimer::SCENE_START, d.div_y, d.div_x, false);
+        s->setInd(SpriteOption::opType::SWITCH, (unsigned)eSwitch::_FALSE);
+        _sprites.push_back(s);
+        _sprites_child.push_back(_sprites.back());
+        _sprites.back()->setSrcLine(srcLine);
+    }
+    else
+    {
+        // deal as eSwitch::_FALSE
+        auto s = std::make_shared<SpriteOption>(
+            textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, eTimer::SCENE_START, d.div_y, d.div_x, false);
+        s->setInd(SpriteOption::opType::SWITCH, (unsigned)eSwitch::_FALSE);
+        _sprites.push_back(s);
+        _sprites_child.push_back(_sprites.back());
+        _sprites.back()->setSrcLine(srcLine);
+    }
 
     return ParseRet::OK;
 }
