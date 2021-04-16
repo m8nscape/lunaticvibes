@@ -101,11 +101,11 @@ int BMS::initWithFile(const Path& file)
     };
 
     StringContent buf;
-    unsigned line = 0;
+    unsigned srcLine = 0;
     while (!fs.eof())
     {
         std::getline(fs, buf, '\n');
-        line++;
+        srcLine++;
         if (buf.length() <= 1) continue;
 
         // remove not needed spaces
@@ -210,8 +210,8 @@ int BMS::initWithFile(const Path& file)
                     StringContent value = buf.substr(colon_idx + 1);
                     if (value.empty())
                     {
-                        LOG_WARNING << "[BMS] Empty note line detected: line " << line;
-                        errorLine = line;
+                        LOG_WARNING << "[BMS] Empty note line detected: line " << srcLine;
+                        errorLine = srcLine;
                         errorCode = err::NOTE_LINE_ERROR;
                         return 1;
                     }
@@ -320,7 +320,7 @@ int BMS::initWithFile(const Path& file)
             catch (std::exception)
             {
                 fs.close();
-                errorLine = line;
+                errorLine = srcLine;
                 return 1;
             }
         }

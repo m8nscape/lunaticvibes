@@ -1052,3 +1052,55 @@ bool SpriteLine::update(Time t)
 	return false;
 }
 
+SpriteOnMouse::SpriteOnMouse(pTexture texture, int panel, 
+    unsigned animFrames, unsigned frameTime, const Rect& mouseArea, eTimer timer,
+    unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
+    SpriteOnMouse(texture, texture ? texture->getRect() : Rect(), 
+        animFrames, frameTime, panel, mouseArea, timer,
+        selRows, selCols, selVerticalIndexing) {}
+
+SpriteOnMouse::SpriteOnMouse(pTexture texture, const Rect& rect, 
+    unsigned animFrames, unsigned frameTime, int panel, const Rect& mouseArea, eTimer timer,
+    unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
+    SpriteAnimated(texture, rect, animFrames, frameTime, timer,
+        selRows, selCols, selVerticalIndexing), panelIdx(panel), area(mouseArea)
+{
+    _type = SpriteTypes::ONMOUSE;
+}
+
+bool SpriteOnMouse::update(Time t)
+{
+    if (SpriteSelection::update(t))
+    {
+        return true;
+    }
+    return false;
+}
+
+bool SpriteOnMouse::checkPanel()
+{
+    switch (panelIdx)
+    {
+    case -1: _draw = true; break;
+    case 1: _draw = gSwitches.get(eSwitch::SELECT_PANEL1); break;
+    case 2: _draw = gSwitches.get(eSwitch::SELECT_PANEL2); break;
+    case 3: _draw = gSwitches.get(eSwitch::SELECT_PANEL3); break;
+    case 4: _draw = gSwitches.get(eSwitch::SELECT_PANEL4); break;
+    case 5: _draw = gSwitches.get(eSwitch::SELECT_PANEL5); break;
+    case 6: _draw = gSwitches.get(eSwitch::SELECT_PANEL6); break;
+    case 7: _draw = gSwitches.get(eSwitch::SELECT_PANEL7); break;
+    case 8: _draw = gSwitches.get(eSwitch::SELECT_PANEL8); break;
+    case 9: _draw = gSwitches.get(eSwitch::SELECT_PANEL9); break;
+    default: _draw = false; break;
+    }
+    return _draw;
+}
+
+bool SpriteOnMouse::checkMouseArea(int x, int y)
+{
+    _draw = false;
+    if (x > area.x && x < area.x + area.w)
+        if (y > area.y && y < area.y + area.h)
+            _draw = true;
+    return _draw;
+}

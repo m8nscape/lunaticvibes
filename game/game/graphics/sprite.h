@@ -25,6 +25,7 @@ enum class SpriteTypes
 	SLIDER,
 	BARGRAPH,
 	OPTION,
+    ONMOUSE,
 
 	LINE,
     NOTE_VERT,
@@ -75,7 +76,7 @@ protected:
     pTexture _pTexture;
     eTimer _triggerTimer = eTimer::SCENE_START;
     int _loopTo = -1;
-    int __line = -1;
+    int _srcLine = -1;
 protected:
     RenderParams _current;
     std::vector<RenderKeyFrame> _keyFrames;
@@ -83,7 +84,7 @@ public:
     vSprite(pTexture pTexture, SpriteTypes type = SpriteTypes::VIRTUAL);
 	virtual ~vSprite() = default;
 public:
-    void setLine(int i) { __line = i; }
+    void setSrcLine(int i) { _srcLine = i; }
     void setParent(std::weak_ptr<vSprite> p) { _parent = p; _haveParent = true; }
     RenderParams getCurrentRenderParams();
     bool updateByKeyframes(Time time);
@@ -544,4 +545,32 @@ public:
 	void updateProgress(Time t);
 	virtual bool update(Time t);
     virtual void draw() const;
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+// OnMouse
+class SpriteOnMouse : public SpriteAnimated
+{
+protected:
+    int panelIdx;
+    Rect area;
+
+public:
+    SpriteOnMouse() = delete;
+
+    SpriteOnMouse(pTexture texture, int panel, 
+        unsigned animFrames, unsigned frameTime, const Rect& mouseArea, eTimer timer = eTimer::SCENE_START,
+        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
+
+    SpriteOnMouse(pTexture texture, const Rect& rect, 
+        unsigned animFrames, unsigned frameTime, int panel, const Rect& mouseArea, eTimer timer = eTimer::SCENE_START,
+        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
+
+    virtual ~SpriteOnMouse() = default;
+
+public:
+    virtual bool update(Time t);
+    bool checkPanel();
+    bool checkMouseArea(int x, int y);
 };

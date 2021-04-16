@@ -798,7 +798,7 @@ int boxRGBA(SDL_Renderer * renderer, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2,
 
 \returns Returns 0 on success, -1 on failure.
 */
-int line(SDL_Renderer * renderer, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2)
+int srcLine(SDL_Renderer * renderer, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2)
 {
 	/*
 	* Draw
@@ -3707,7 +3707,7 @@ int bezierRGBA(SDL_Renderer * renderer, const Sint16 * vx, const Sint16 * vy, in
 		t += stepsize;
 		x2=(Sint16)_evaluateBezier(x,n,t);
 		y2=(Sint16)_evaluateBezier(y,n,t);
-		result |= line(renderer, x1, y1, x2, y2);
+		result |= srcLine(renderer, x1, y1, x2, y2);
 		x1 = x2;
 		y1 = y2;
 	}

@@ -48,6 +48,13 @@ void vSkin::update()
 			}
 			break;
 		}
+        case SpriteTypes::ONMOUSE:
+        {
+            auto ref = std::reinterpret_pointer_cast<SpriteOnMouse>(s);
+            if (ref->checkPanel() && ref->checkMouseArea(-1, -1))
+                ref->update(t);
+            break;
+        }
 		default:
 			s->update(t);
 			break;

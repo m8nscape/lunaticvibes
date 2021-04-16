@@ -226,7 +226,7 @@ ScenePlay::ScenePlay(ePlayMode gamemode): vScene(gPlayContext.mode, 1000), _mode
             case rc::gauge_ty::P_ATK:
             case rc::gauge_ty::G_ATK:
             case rc::gauge_ty::EXHARD:
-                gPlayContext.initialHealth[gPlayContext.playerSlot] = 1.0; break;
+                gPlayContext.initialHealth[gPlayContext.playerSlot] = 1.0; 
                 if (gPlayContext.playerSlot == 0) gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, 100);
                 if (gPlayContext.playerSlot == 1) gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, 100);
 

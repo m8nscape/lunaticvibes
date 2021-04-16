@@ -1386,7 +1386,7 @@ protected:
     std::vector<std::shared_ptr<SpriteLaneVertical>> _laneSprites;
 
 private:
-    unsigned line = 0;          // line parsing index
+    unsigned srcLine = 0;          // line parsing index
     Tokens csvNextLineTokenize(std::istream& file);
 
     Token optBuf;       // #XXX_XXXXX
@@ -1423,6 +1423,7 @@ private:
     ParseRet SRC_SLIDER();
     ParseRet SRC_BARGRAPH();
     ParseRet SRC_BUTTON();
+	ParseRet SRC_ONMOUSE();
     ParseRet SRC_TEXT();
 
     ParseRet SRC_JUDGELINE();
