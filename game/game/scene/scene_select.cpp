@@ -448,7 +448,14 @@ void SceneSelect::_decide()
         auto& chart = *c.chartObj;
         //c.path = chart._filePath;
         c.path = chart.absolutePath;
+
+        if (c.hash != chart.fileHash)
+        {
+            c.isBgaLoaded = false;
+            c.isSampleLoaded = false;
+        }
         c.hash = chart.fileHash;
+
         //c.chartObj = std::make_shared<vChartFormat>(chart);
         c.title = chart.title;
         c.title2 = chart.title2;
