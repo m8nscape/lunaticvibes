@@ -1070,6 +1070,7 @@ SpriteOnMouse::SpriteOnMouse(pTexture texture, const Rect& rect,
 
 bool SpriteOnMouse::update(Time t)
 {
+    if (!checkPanel()) return false;
     if (SpriteSelection::update(t))
     {
         return true;
@@ -1081,26 +1082,41 @@ bool SpriteOnMouse::checkPanel()
 {
     switch (panelIdx)
     {
-    case -1: _draw = true; break;
-    case 1: _draw = gSwitches.get(eSwitch::SELECT_PANEL1); break;
-    case 2: _draw = gSwitches.get(eSwitch::SELECT_PANEL2); break;
-    case 3: _draw = gSwitches.get(eSwitch::SELECT_PANEL3); break;
-    case 4: _draw = gSwitches.get(eSwitch::SELECT_PANEL4); break;
-    case 5: _draw = gSwitches.get(eSwitch::SELECT_PANEL5); break;
-    case 6: _draw = gSwitches.get(eSwitch::SELECT_PANEL6); break;
-    case 7: _draw = gSwitches.get(eSwitch::SELECT_PANEL7); break;
-    case 8: _draw = gSwitches.get(eSwitch::SELECT_PANEL8); break;
-    case 9: _draw = gSwitches.get(eSwitch::SELECT_PANEL9); break;
-    default: _draw = false; break;
+    case -1:
+    {
+        bool panel =
+            gSwitches.get(eSwitch::SELECT_PANEL1) ||
+            gSwitches.get(eSwitch::SELECT_PANEL2) ||
+            gSwitches.get(eSwitch::SELECT_PANEL3) ||
+            gSwitches.get(eSwitch::SELECT_PANEL4) ||
+            gSwitches.get(eSwitch::SELECT_PANEL5) ||
+            gSwitches.get(eSwitch::SELECT_PANEL6) ||
+            gSwitches.get(eSwitch::SELECT_PANEL7) ||
+            gSwitches.get(eSwitch::SELECT_PANEL8) ||
+            gSwitches.get(eSwitch::SELECT_PANEL9);
+        return !panel;
     }
-    return _draw;
+    case 0: return true;
+    case 1: return gSwitches.get(eSwitch::SELECT_PANEL1);
+    case 2: return gSwitches.get(eSwitch::SELECT_PANEL2);
+    case 3: return gSwitches.get(eSwitch::SELECT_PANEL3);
+    case 4: return gSwitches.get(eSwitch::SELECT_PANEL4);
+    case 5: return gSwitches.get(eSwitch::SELECT_PANEL5);
+    case 6: return gSwitches.get(eSwitch::SELECT_PANEL6);
+    case 7: return gSwitches.get(eSwitch::SELECT_PANEL7);
+    case 8: return gSwitches.get(eSwitch::SELECT_PANEL8);
+    case 9: return gSwitches.get(eSwitch::SELECT_PANEL9);
+    default: return false;
+    }
 }
 
-bool SpriteOnMouse::checkMouseArea(int x, int y)
+void SpriteOnMouse::checkMouseArea(int x, int y)
 {
-    _draw = false;
-    if (x > area.x && x < area.x + area.w)
-        if (y > area.y && y < area.y + area.h)
-            _draw = true;
-    return _draw;
+    if (_draw)
+    {
+        int bx = _current.rect.x + area.x;
+        int by = _current.rect.y + area.y;
+        if (x < bx || x > bx + area.w) _draw = false;
+        if (y < by || y > by + area.h) _draw = false;
+    }
 }

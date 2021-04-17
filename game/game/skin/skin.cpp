@@ -27,7 +27,10 @@ void vSkin::update()
         gNumbers.set(eNumber::_TEST3, (int)(beat * 1000));
     }
 
-    auto updateSpriteLambda = [&t, beat, measure](const auto& s)
+    int x, y;
+    InputMgr::getMousePos(x, y);
+
+    auto updateSpriteLambda = [&t, beat, measure, x, y](const auto& s)
     {
 		switch (s->type())
 		{
@@ -51,8 +54,8 @@ void vSkin::update()
         case SpriteTypes::ONMOUSE:
         {
             auto ref = std::reinterpret_pointer_cast<SpriteOnMouse>(s);
-            if (ref->checkPanel() && ref->checkMouseArea(-1, -1))
-                ref->update(t);
+            if (ref->update(t))
+                ref->checkMouseArea(x, y);
             break;
         }
 		default:

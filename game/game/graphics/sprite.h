@@ -572,5 +572,5 @@ public:
 public:
     virtual bool update(Time t);
     bool checkPanel();
-    bool checkMouseArea(int x, int y);
+    void checkMouseArea(int x, int y);
 };
