@@ -6,10 +6,12 @@
 #include "SDL.h"
 #include "SDL_Image.h"
 #include "SDL_ttf.h"
+#include "SDL_syswm.h"
 #include "game/graphics/video.h"
 #include <plog/Log.h>
 #include <string>
 #include "config/config_mgr.h"
+#include "sysutil.h"
 
 int graphics_init()
 {
@@ -66,6 +68,14 @@ int graphics_init()
             LOG_ERROR << "[SDL2] Init window ERROR! " << SDL_GetError();
             return -1;
         }
+
+        SDL_SysWMinfo wmInfo;
+        SDL_VERSION(&wmInfo.version);
+        SDL_GetWindowWMInfo(gFrameWindow, &wmInfo);
+
+#if _WIN32 || _WIN64
+        setWindowHandle((void*)&wmInfo.info.win.window);
+#endif
 
         auto vsync = ConfigMgr::get("V", cfg::V_VSYNC, cfg::OFF);
         if (vsync == cfg::ON)

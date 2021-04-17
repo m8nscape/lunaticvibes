@@ -1,5 +1,6 @@
 #include <plog/Log.h>
 #include "input_mgr.h"
+#include "sysutil.h"
 #include "config/config_mgr.h"
 
 InputMgr InputMgr::_inst;
@@ -119,25 +120,16 @@ std::bitset<KEY_COUNT> InputMgr::detect()
     res[RETURN] = isKeyPressed(K_ENTER);
     res[BACKSPACE] = isKeyPressed(K_BKSP);
 
-#ifdef RENDER_SDL2
-	auto mb = SDL_GetMouseState(&_inst.mouse_x, &_inst.mouse_y);
-	res[M1] = !!(mb & SDL_BUTTON(1));
-	res[M2] = !!(mb & SDL_BUTTON(2));
-	res[M3] = !!(mb & SDL_BUTTON(3));
-	res[M4] = !!(mb & SDL_BUTTON(4));
-	res[M5] = !!(mb & SDL_BUTTON(5));
-#endif
+    res[M1] = isMouseButtonPressed(1);
+    res[M2] = isMouseButtonPressed(2);
+    res[M3] = isMouseButtonPressed(3);
+    res[M4] = isMouseButtonPressed(4);
+    res[M5] = isMouseButtonPressed(5);
 
     return res;
 }
 
-int getMousePos(int& x, int& y)
+void InputMgr::getMousePos(int& x, int& y)
 {
-#ifdef RENDER_SDL2
-	x = InputMgr::_inst.mouse_x;
-	y = InputMgr::_inst.mouse_y;
-	return 0;
-#else
-	return -1;
-#endif
+    getMouseCursorPos(x, y);
 }

@@ -132,4 +132,17 @@ bool isKeyPressed(Input::Key key)
     return GetAsyncKeyState(vkeyMap[key]) & (1 << (sizeof(SHORT) * 8 - 1));
 }
 
+bool isMouseButtonPressed(int idx)
+{
+    switch (idx)
+    {
+    case 1: return GetAsyncKeyState(VK_LBUTTON);
+    case 2: return GetAsyncKeyState(VK_RBUTTON);
+    case 3: return GetAsyncKeyState(VK_MBUTTON);
+    case 4: return GetAsyncKeyState(VK_XBUTTON1);
+    case 5: return GetAsyncKeyState(VK_XBUTTON2);
+    default: return false;
+    }
+}
+
 #endif

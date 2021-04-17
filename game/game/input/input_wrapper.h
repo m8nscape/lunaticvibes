@@ -46,6 +46,7 @@ protected:
     InputMask _curr = 0;
     std::array<std::pair<long long, bool>, Input::KEY_COUNT> _inputBuffer{ {{0, false}} };
     std::array<long long, Input::KEY_COUNT> _releaseBuffer{ -1 };
+    int _cursor_x = 0, _cursor_y = 0;
 
 public:
     InputWrapper(unsigned rate = 1000);
@@ -73,6 +74,8 @@ public:
     InputMask Pressed() { return ~_prev & _curr; }
     InputMask Holding() { return _prev & _curr; }
     InputMask Released() { return _prev & ~_curr; }
+
+    std::pair<int, int> getCursorPos() { return { _cursor_x, _cursor_y }; }
 
 private:
     // Callback function maps

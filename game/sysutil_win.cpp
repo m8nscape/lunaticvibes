@@ -72,4 +72,27 @@ void GetExecutablePath(char* output, size_t bufsize, size_t& len)
     len = strlen(output);
 }
 
+HWND hwnd = (HWND)INVALID_HANDLE_VALUE;
+void setWindowHandle(void* handle)
+{
+    hwnd = *(HWND*)handle;
+}
+
+void getMouseCursorPos(int& x, int& y)
+{
+    x = 0;
+    y = 0;
+
+    RECT rect{ 0 };
+    if (GetWindowRect(hwnd, &rect))
+    {
+        POINT point{ 0 };
+        if (GetCursorPos(&point) && ScreenToClient(hwnd, &point))
+        {
+            x = point.x;
+            y = point.y;
+        }
+    }
+}
+
 #endif

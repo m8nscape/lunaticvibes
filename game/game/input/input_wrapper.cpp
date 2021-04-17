@@ -58,6 +58,8 @@ void InputWrapper::_loop()
         }
     }
 
+    InputMgr::getMousePos(_cursor_x, _cursor_y);
+
     {
         std::lock_guard l(_mutex);
 

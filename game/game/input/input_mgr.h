@@ -54,7 +54,7 @@ public:
     static void updateDevices();
     static void updateBindings(unsigned keys, Input::Ingame K);
     static std::bitset<Input::KEY_COUNT> detect();
-	friend int getMousePos(int& x, int& y);
+	static void getMousePos(int& x, int& y);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -68,4 +68,4 @@ typedef int JoyBtn;
 //bool isButtonPressed(Device d, Button b);
 
 // Mouse detect
-int getMousePos(int& x, int& y);
+bool isMouseButtonPressed(int idx);
