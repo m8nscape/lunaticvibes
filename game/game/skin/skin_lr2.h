@@ -1424,6 +1424,7 @@ private:
     ParseRet SRC_BARGRAPH();
     ParseRet SRC_BUTTON();
 	ParseRet SRC_ONMOUSE();
+	ParseRet SRC_MOUSECURSOR();
     ParseRet SRC_TEXT();
 
     ParseRet SRC_JUDGELINE();

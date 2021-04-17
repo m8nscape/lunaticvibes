@@ -58,6 +58,13 @@ void vSkin::update()
                 ref->checkMouseArea(x, y);
             break;
         }
+        case SpriteTypes::MOUSE_CURSOR:
+        {
+            auto ref = std::reinterpret_pointer_cast<SpriteCursor>(s);
+            if (ref->update(t))
+                ref->moveToPos(x, y);
+            break;
+        }
 		default:
 			s->update(t);
 			break;

@@ -826,6 +826,7 @@ int SkinLR2::SRC()
         {"#SRC_BARGRAPH",   std::bind(&SkinLR2::SRC_BARGRAPH,   _1)},
         {"#SRC_BUTTON",     std::bind(&SkinLR2::SRC_BUTTON,     _1)},
         {"#SRC_ONMOUSE",    std::bind(&SkinLR2::SRC_ONMOUSE,    _1)},
+        {"#SRC_MOUSECURSOR",std::bind(&SkinLR2::SRC_MOUSECURSOR,_1)},
         {"#SRC_GROOVEGAUGE",std::bind(&SkinLR2::SRC_GROOVEGAUGE,_1)},
         {"#SRC_TEXT",       std::bind(&SkinLR2::SRC_TEXT,       _1)},
         {"#SRC_NOWJUDGE_1P",std::bind(&SkinLR2::SRC_NOWJUDGE1,  _1)},
@@ -1089,6 +1090,28 @@ ParseRet SkinLR2::SRC_ONMOUSE()
 
     _sprites.push_back(std::make_shared<SpriteOnMouse>(
         textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, d.panel, Rect(d.x2, d.y2, d.w2, d.h2), (eTimer)d.timer, d.div_y, d.div_x));
+    _sprites_child.push_back(_sprites.back());
+    _sprites.back()->setSrcLine(srcLine);
+
+    return ParseRet::OK;
+}
+
+ParseRet SkinLR2::SRC_MOUSECURSOR()
+{
+    if (tokensBuf.size() < 10)
+    {
+        //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/13)";
+
+        //return ParseRet::PARAM_NOT_ENOUGH;
+    }
+
+    lr2skin::s_mousecursor d;
+    convertLine(tokensBuf, (int*)&d, 0, 10);
+
+    if (textureBuf) refineRect(d, textureBuf->getRect(), srcLine);
+
+    _sprites.push_back(std::make_shared<SpriteCursor>(
+        textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x));
     _sprites_child.push_back(_sprites.back());
     _sprites.back()->setSrcLine(srcLine);
 
@@ -1824,6 +1847,7 @@ int SkinLR2::DST()
         {"#DST_NOWJUDGE_2P",12},
         {"#DST_NOWCOMBO_2P",13},
         {"#DST_BGA",14},
+        {"#DST_MOUSECURSOR",15},
     };
 
     if (__general_dst_supported.find(opt) == __general_dst_supported.end() || _sprites.empty())
@@ -1847,6 +1871,8 @@ int SkinLR2::DST()
         LOG_WARNING << "[Skin] " << srcLine << ": Previous src definition invalid (Line: " << srcLine << ")";
         return 0;
     }
+
+    // TODO check if type of previous src definition matches
 
     if (e->type() == SpriteTypes::GLOBAL)
     {

@@ -34,6 +34,8 @@ enum class SpriteTypes
 	BMS_BGA,
 
     BAR_ENTRY,
+
+    MOUSE_CURSOR,
 };
 
 struct RenderParams
@@ -559,8 +561,8 @@ protected:
 public:
     SpriteOnMouse() = delete;
 
-    SpriteOnMouse(pTexture texture, int panel, 
-        unsigned animFrames, unsigned frameTime, const Rect& mouseArea, eTimer timer = eTimer::SCENE_START,
+    SpriteOnMouse(pTexture texture, 
+        unsigned animFrames, unsigned frameTime, int panel, const Rect& mouseArea, eTimer timer = eTimer::SCENE_START,
         unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
 
     SpriteOnMouse(pTexture texture, const Rect& rect, 
@@ -573,4 +575,31 @@ public:
     virtual bool update(Time t);
     bool checkPanel();
     void checkMouseArea(int x, int y);
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Cursor
+class SpriteCursor : public SpriteAnimated
+{
+protected:
+    int panelIdx;
+    Rect area;
+
+public:
+    SpriteCursor() = delete;
+
+    SpriteCursor(pTexture texture, 
+        unsigned animFrames, unsigned frameTime, eTimer timer = eTimer::SCENE_START,
+        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
+
+    SpriteCursor(pTexture texture, const Rect& rect,
+        unsigned animFrames, unsigned frameTime, eTimer timer = eTimer::SCENE_START,
+        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
+
+    virtual ~SpriteCursor() = default;
+
+public:
+    virtual bool update(Time t);
+    void moveToPos(int x, int y);
 };

@@ -1052,8 +1052,8 @@ bool SpriteLine::update(Time t)
 	return false;
 }
 
-SpriteOnMouse::SpriteOnMouse(pTexture texture, int panel, 
-    unsigned animFrames, unsigned frameTime, const Rect& mouseArea, eTimer timer,
+SpriteOnMouse::SpriteOnMouse(pTexture texture,
+    unsigned animFrames, unsigned frameTime, int panel, const Rect& mouseArea, eTimer timer,
     unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
     SpriteOnMouse(texture, texture ? texture->getRect() : Rect(), 
         animFrames, frameTime, panel, mouseArea, timer,
@@ -1118,5 +1118,39 @@ void SpriteOnMouse::checkMouseArea(int x, int y)
         int by = _current.rect.y + area.y;
         if (x < bx || x > bx + area.w) _draw = false;
         if (y < by || y > by + area.h) _draw = false;
+    }
+}
+
+SpriteCursor::SpriteCursor(pTexture texture, 
+    unsigned animFrames, unsigned frameTime, eTimer timer,
+    unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
+    SpriteCursor(texture, texture ? texture->getRect() : Rect(),
+        animFrames, frameTime, timer,
+        selRows, selCols, selVerticalIndexing) {}
+
+SpriteCursor::SpriteCursor(pTexture texture, const Rect& rect,
+    unsigned animFrames, unsigned frameTime, eTimer timer,
+    unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
+    SpriteAnimated(texture, rect, animFrames, frameTime, timer,
+        selRows, selCols, selVerticalIndexing)
+{
+    _type = SpriteTypes::MOUSE_CURSOR;
+}
+
+bool SpriteCursor::update(Time t)
+{
+    if (SpriteSelection::update(t))
+    {
+        return true;
+    }
+    return false;
+}
+
+void SpriteCursor::moveToPos(int x, int y)
+{
+    if (_draw)
+    {
+        _current.rect.x += x;
+        _current.rect.y += y;
     }
 }
