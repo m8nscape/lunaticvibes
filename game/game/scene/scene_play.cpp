@@ -811,6 +811,7 @@ void ScenePlay::procCommonNotes()
 
 void ScenePlay::changeKeySampleMapping(Time t)
 {
+    static const Time MIN_REMAP_INTERVAL{ 1000 };
     if (_mode == ePlayMode::LOCAL_BATTLE)
     {
         for (auto i = 0; i < Input::S2L; ++i)
@@ -820,6 +821,7 @@ void ScenePlay::changeKeySampleMapping(Time t)
                 auto chan = gPlayContext.chartObj[PLAYER_SLOT_1P]->getLaneFromKey((Input::Ingame)i);
                 if (chan.first == NoteLaneCategory::_) continue;
                 auto note = gPlayContext.chartObj[PLAYER_SLOT_1P]->incomingNoteOfLane(chan.first, chan.second);
+                if (note->time - t > MIN_REMAP_INTERVAL) continue;
                 _currentKeySample[i] = (size_t)std::get<long long>(note->value);
             }
         for (auto i = 0; i < Input::ESC; ++i)
@@ -829,6 +831,7 @@ void ScenePlay::changeKeySampleMapping(Time t)
                 auto chan = gPlayContext.chartObj[PLAYER_SLOT_2P]->getLaneFromKey((Input::Ingame)i);
                 if (chan.first == NoteLaneCategory::_) continue;
                 auto note = gPlayContext.chartObj[PLAYER_SLOT_2P]->incomingNoteOfLane(chan.first, chan.second);
+                if (note->time - t > MIN_REMAP_INTERVAL) continue;
                 _currentKeySample[i] = (size_t)std::get<long long>(note->value);
             }
     }
@@ -841,6 +844,7 @@ void ScenePlay::changeKeySampleMapping(Time t)
                 auto chan = gPlayContext.chartObj[gPlayContext.playerSlot]->getLaneFromKey((Input::Ingame)i);
                 if (chan.first == NoteLaneCategory::_) continue;
                 auto note = gPlayContext.chartObj[gPlayContext.playerSlot]->incomingNoteOfLane(chan.first, chan.second);
+                if (note->time - t > MIN_REMAP_INTERVAL) continue;
                 _currentKeySample[i] = (size_t)std::get<long long>(note->value);
             }
     }
