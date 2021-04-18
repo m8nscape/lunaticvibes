@@ -129,7 +129,7 @@ std::bitset<KEY_COUNT> InputMgr::detect()
     return res;
 }
 
-void InputMgr::getMousePos(int& x, int& y)
+bool InputMgr::getMousePos(int& x, int& y)
 {
-    getMouseCursorPos(x, y);
+    return getMouseCursorPos(x, y);
 }

@@ -78,11 +78,8 @@ void setWindowHandle(void* handle)
     hwnd = *(HWND*)handle;
 }
 
-void getMouseCursorPos(int& x, int& y)
+bool getMouseCursorPos(int& x, int& y)
 {
-    x = 0;
-    y = 0;
-
     RECT rect{ 0 };
     if (GetWindowRect(hwnd, &rect))
     {
@@ -91,8 +88,10 @@ void getMouseCursorPos(int& x, int& y)
         {
             x = point.x;
             y = point.y;
+            return true;
         }
     }
+    return false;
 }
 
 #endif

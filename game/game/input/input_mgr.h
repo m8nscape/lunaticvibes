@@ -54,7 +54,7 @@ public:
     static void updateDevices();
     static void updateBindings(unsigned keys, Input::Ingame K);
     static std::bitset<Input::KEY_COUNT> detect();
-	static void getMousePos(int& x, int& y);
+	static bool getMousePos(int& x, int& y);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
