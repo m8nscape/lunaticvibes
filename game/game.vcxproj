@@ -60,6 +60,7 @@
     <ClCompile Include="game\scene\scene_select.cpp" />
     <ClCompile Include="game\skin\skin.cpp" />
     <ClCompile Include="game\skin\skin_lr2.cpp" />
+    <ClCompile Include="game\skin\skin_lr2_button_callbacks.cpp" />
     <ClCompile Include="game\skin\skin_lr2_dst.cpp" />
     <ClCompile Include="game\skin\skin_mgr.cpp" />
     <ClCompile Include="game\sound\sound_fmod.cpp" />
@@ -127,6 +128,7 @@
     <ClInclude Include="game\scene\scene_select.h" />
     <ClInclude Include="game\skin\skin.h" />
     <ClInclude Include="game\skin\skin_lr2.h" />
+    <ClInclude Include="game\skin\skin_lr2_button_callbacks.h" />
     <ClInclude Include="game\skin\skin_mgr.h" />
     <ClInclude Include="game\skin\skin_new.h" />
     <ClInclude Include="game\sound\sound_driver.h" />

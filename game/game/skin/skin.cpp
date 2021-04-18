@@ -27,44 +27,27 @@ void vSkin::update()
         gNumbers.set(eNumber::_TEST3, (int)(beat * 1000));
     }
 
-    int x, y;
-    InputMgr::getMousePos(x, y);
-
-    auto updateSpriteLambda = [&t, beat, measure, x, y](const auto& s)
+    auto updateSpriteLambda = [&t, beat, measure](const pSprite& s)
     {
 		switch (s->type())
 		{
         case SpriteTypes::GLOBAL:
         {
-            auto ref = std::reinterpret_pointer_cast<SpriteGlobal>(s);
-            if (gSprites[ref->getIdx()]) ref->set(gSprites[ref->getIdx()]);
-            ref->update(t);
+            auto ps = std::dynamic_pointer_cast<SpriteGlobal>(s);
+            if (gSprites[ps->getIdx()]) ps->set(gSprites[ps->getIdx()]);
+            ps->update(t);
             break;
         }
 		case SpriteTypes::NOTE_VERT:
 		{
-            auto ref = std::reinterpret_pointer_cast<SpriteLaneVertical>(s);
-            if (gPlayContext.chartObj[ref->playerSlot] != nullptr && gChartContext.started)
+            auto ps = std::dynamic_pointer_cast<SpriteLaneVertical>(s);
+            if (gPlayContext.chartObj[ps->playerSlot] != nullptr && gChartContext.started)
 			{
-				ref->update(t);
-				ref->updateNoteRect(t, &*gPlayContext.chartObj[ref->playerSlot], beat, measure);
+				ps->update(t);
+				ps->updateNoteRect(t, &*gPlayContext.chartObj[ps->playerSlot], beat, measure);
 			}
 			break;
 		}
-        case SpriteTypes::ONMOUSE:
-        {
-            auto ref = std::reinterpret_pointer_cast<SpriteOnMouse>(s);
-            if (ref->update(t))
-                ref->checkMouseArea(x, y);
-            break;
-        }
-        case SpriteTypes::MOUSE_CURSOR:
-        {
-            auto ref = std::reinterpret_pointer_cast<SpriteCursor>(s);
-            if (ref->update(t))
-                ref->moveToPos(x, y);
-            break;
-        }
 		default:
 			s->update(t);
 			break;
@@ -78,6 +61,59 @@ void vSkin::update()
     std::for_each(std::execution::par, _sprites_parent.begin(), _sprites_parent.end(), updateSpriteLambda);
     std::for_each(std::execution::par, _sprites_child.begin(), _sprites_child.end(), updateSpriteLambda);
 #endif
+}
+
+void vSkin::update_mouse(int x, int y)
+{
+    auto clickSpriteLambda = [x, y](const pSprite& s)
+    {
+        switch (s->type())
+        {
+        case SpriteTypes::ONMOUSE:
+        {
+            auto ps = std::dynamic_pointer_cast<SpriteOnMouse>(s);
+            ps->checkMouseArea(x, y);
+            break;
+        }
+        case SpriteTypes::MOUSE_CURSOR:
+        {
+            auto ps = std::dynamic_pointer_cast<SpriteCursor>(s);
+            ps->moveToPos(x, y);
+            break;
+        }
+        default:
+            break;
+        }
+    };
+
+#ifdef _DEBUG
+        std::for_each(std::execution::seq, _sprites.begin(), _sprites.end(), clickSpriteLambda);
+#else
+        std::for_each(std::execution::par, _sprites.begin(), _sprites.end(), clickSpriteLambda);
+#endif
+}
+
+void vSkin::update_mouse_click(int x, int y)
+{
+    bool invoked = false;
+    for (auto it = _sprites.rend(); it != _sprites.rbegin() && !invoked;)
+    {
+        --it;
+        auto s = *it;
+        switch (s->type())
+        {
+        case SpriteTypes::BUTTON:
+        {
+            auto ps = std::dynamic_pointer_cast<SpriteButton>(s);
+            if (ps->doIfInRange(x, y))
+                invoked = true;
+            break;
+        }
+        default:
+            break;
+        }
+    }
+
 }
 
 void vSkin::draw() const

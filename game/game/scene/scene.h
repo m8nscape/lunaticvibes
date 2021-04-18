@@ -24,11 +24,12 @@ public:
 
 public:
     vScene(eMode mode, unsigned rate = 240);
+    virtual ~vScene();
 
 public:
     vScene() = delete;
-	virtual ~vScene() { sceneEnding = true; loopEnd(); }
     virtual void update();      // skin update
+    void update_mouse(InputMask& m, Time t);
     virtual void draw() const;
 
 protected:

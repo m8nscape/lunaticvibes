@@ -84,6 +84,8 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 public:
     virtual void update();
+    virtual void update_mouse(int x, int y);
+    virtual void update_mouse_click(int x, int y);
     virtual void draw() const;
 
     ///////////////////////////////////////////////////////////

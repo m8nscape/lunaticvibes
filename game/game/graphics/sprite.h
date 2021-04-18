@@ -10,6 +10,7 @@
 #include "game/data/bargraph.h"
 #include <vector>
 #include <memory>
+#include <functional>
 
 enum class SpriteTypes
 {
@@ -25,6 +26,7 @@ enum class SpriteTypes
 	SLIDER,
 	BARGRAPH,
 	OPTION,
+    BUTTON,
     ONMOUSE,
 
 	LINE,
@@ -442,6 +444,31 @@ public:
     void updateVal(unsigned v);     // invoke SpriteSplit::updateSplit(v)
     void updateValByInd();
 	virtual bool update(Time t);
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// Button sprite (clickable):
+
+class SpriteButton : public SpriteOption
+{
+protected:
+    std::function<void()> _callback;
+
+public:
+    SpriteButton() = delete;
+
+    SpriteButton(pTexture texture,
+        unsigned animFrames, unsigned frameTime, std::function<void()> cb, eTimer timer = eTimer::SCENE_START,
+        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
+
+    SpriteButton(pTexture texture, const Rect& rect,
+        unsigned animFrames, unsigned frameTime, std::function<void()> cb, eTimer timer = eTimer::SCENE_START,
+        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
+
+    virtual ~SpriteButton() = default;
+
+public:
+    bool doIfInRange(int x, int y);
 };
 
 

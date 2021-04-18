@@ -7,6 +7,7 @@
 #include <set>
 #include <variant>
 #include <execution>
+#include "skin_lr2_button_callbacks.h"
 #include "game/data/option.h"
 #include "game/data/switch.h"
 #include "game/graphics/video.h"
@@ -398,6 +399,27 @@ int SkinLR2::setExtendedProperty(std::string&& key, void* value)
     }
 
     return -1;
+}
+
+std::function<void()> getButtonCallback(int type)
+{
+    using namespace lr2skin::button;
+    switch (type)
+    {
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+    case 9:
+        return std::bind(panel_switch, type);
+
+    default:
+        return [] {};
+    }
 }
 
 #pragma region LR2 csv parsing
@@ -1015,6 +1037,19 @@ ParseRet SkinLR2::SRC_BUTTON()
 	
 	if (d.type < (int)buttonAdapter.size())
 	{
+        std::shared_ptr<SpriteOption> s;
+
+        if (d.click)
+        {
+            s = std::make_shared<SpriteButton>(
+                textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, getButtonCallback(d.type), eTimer::SCENE_START, d.div_y, d.div_x, false);
+        }
+        else
+        {
+            s = std::make_shared<SpriteOption>(
+                textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, eTimer::SCENE_START, d.div_y, d.div_x, false);
+        }
+
 		if (auto sw = std::get_if<eSwitch>(&buttonAdapter[d.type]))
 		{
 			if (*sw == eSwitch::_TRUE)
@@ -1029,22 +1064,16 @@ ParseRet SkinLR2::SRC_BUTTON()
 					break;
 				}
 			}
-			auto s = std::make_shared<SpriteOption>(
-				textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, eTimer::SCENE_START, d.div_y, d.div_x, false);
 			s->setInd(SpriteOption::opType::SWITCH, (unsigned)*sw);
-			_sprites.push_back(s);
-            _sprites_child.push_back(_sprites.back());
-            _sprites.back()->setSrcLine(srcLine);
 		}
 		else if (auto op = std::get_if<eOption>(&buttonAdapter[d.type]))
 		{
-			auto s = std::make_shared<SpriteOption>(
-				textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, eTimer::SCENE_START, d.div_y, d.div_x, false);
 			s->setInd(SpriteOption::opType::OPTION, (unsigned)*op);
-			_sprites.push_back(s);
-            _sprites_child.push_back(_sprites.back());
-            _sprites.back()->setSrcLine(srcLine);
 		}
+
+        _sprites.push_back(s);
+        _sprites_child.push_back(_sprites.back());
+        _sprites.back()->setSrcLine(srcLine);
 	}
     else if (d.type == 200)
     {

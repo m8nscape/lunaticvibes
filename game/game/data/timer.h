@@ -22,6 +22,9 @@ enum class eTimer : unsigned
     COURSE_SELECT_START,
     COURSE_SELECT_END,
 
+    PANEL1_START = 21,
+
+    PANEL1_END = 31,
 
     PLAY_READY = 40,
     PLAY_START,

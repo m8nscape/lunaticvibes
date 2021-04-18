@@ -892,6 +892,35 @@ bool SpriteOption::update(Time t)
 	return false;
 }
 
+SpriteButton::SpriteButton(pTexture texture,
+    unsigned animFrames, unsigned frameTime, std::function<void()> cb, eTimer timer,
+    unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
+    SpriteButton(texture, texture ? texture->getRect() : Rect(),
+        animFrames, frameTime, cb, timer,
+        selRows, selCols, selVerticalIndexing) {}
+
+SpriteButton::SpriteButton(pTexture texture, const Rect& rect,
+    unsigned animFrames, unsigned frameTime, std::function<void()> cb, eTimer timer,
+    unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
+    SpriteOption(texture, rect, animFrames, frameTime, timer,
+        selRows, selCols, selVerticalIndexing), _callback(cb)
+{
+    _type = SpriteTypes::BUTTON;
+}
+
+bool SpriteButton::doIfInRange(int x, int y)
+{
+    if (!_draw) return false;
+    if (x >= _current.rect.x &&
+        x < _current.rect.x + _current.rect.w &&
+        y >= _current.rect.y &&
+        y < _current.rect.y + _current.rect.h)
+    {
+        _callback();
+        return true;
+    }
+    return false;
+}
 
 SpriteGaugeGrid::SpriteGaugeGrid(pTexture texture,
 	unsigned animFrames, unsigned frameTime, int dx, int dy, unsigned min, unsigned max, unsigned grids,
