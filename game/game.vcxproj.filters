@@ -165,6 +165,9 @@
     <ClCompile Include="game\skin\skin_lr2_button_callbacks.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="game\sound\sound_sample.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sysutil.h">
@@ -360,6 +363,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="game\skin\skin_lr2_button_callbacks.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="game\sound\sound_sample.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -39,6 +39,9 @@ enum class eMode {
     RESULT,
     COURSE_RESULT,
 
+    BGM,
+    SOUND,
+
     TMPL,
     TEST,
 

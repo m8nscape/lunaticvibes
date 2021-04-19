@@ -28,6 +28,25 @@ SoundDriverFMOD::SoundDriverFMOD()
         return;
     }
 
+    FMOD::ChannelGroup* pk = nullptr;
+    initRet = fmodSystem->createChannelGroup("KEY_SAMPLES", &pk);
+    if (initRet != FMOD_OK)
+    {
+        LOG_ERROR << "Create Key channel group Failed: " << FMOD_ErrorString((FMOD_RESULT)initRet);
+        return;
+    }
+    keySamplesChannelGroup = std::shared_ptr<FMOD::ChannelGroup>(pk, [](FMOD::ChannelGroup* p) { p->release(); });
+
+    FMOD::ChannelGroup* pe = nullptr;
+    initRet = fmodSystem->createChannelGroup("SYS_SAMPLES", &pe);
+    if (initRet != FMOD_OK)
+    {
+        LOG_ERROR << "Create sys channel group Failed: " << FMOD_ErrorString((FMOD_RESULT)initRet);
+        return;
+    }
+    etcSamplesChannelGroup = std::shared_ptr<FMOD::ChannelGroup>(pe, [](FMOD::ChannelGroup* p) { p->release(); });
+
+
     if (initRet == FMOD_OK)
     {
         LOG_DEBUG << "FMOD System Initialize Finished.";
@@ -88,6 +107,11 @@ SoundDriverFMOD::~SoundDriverFMOD()
     bLoading = false;
     if (tLoadSampleThread.joinable())
         tLoadSampleThread.join();
+
+    // release before system release
+    keySamplesChannelGroup.reset();
+    etcSamplesChannelGroup.reset();
+
     if (initRet == FMOD_OK && fmodSystem != nullptr)
         fmodSystem->release();
     LOG_DEBUG << "FMOD System released.";
@@ -176,10 +200,15 @@ void SoundDriverFMOD::playKeySample(size_t count, size_t index[])
     {
         FMOD_RESULT r = FMOD_OK;
         if (keySamples[index[i]] != nullptr)
-            r = fmodSystem->playSound(keySamples[index[i]], 0, false, 0);
+            r = fmodSystem->playSound(keySamples[index[i]], &*keySamplesChannelGroup, false, 0);
         if (r != FMOD_OK)
             LOG_WARNING << "[FMOD] Playing Sample Error: " << r << ", " << FMOD_ErrorString(r);
     }
+}
+
+void SoundDriverFMOD::stopKeySamples()
+{
+    keySamplesChannelGroup->stop();
 }
 
 void SoundDriverFMOD::freeKeySamples()
@@ -202,8 +231,14 @@ int SoundDriverFMOD::loadSample(std::string path,size_t index, bool isStream, bo
         flag |= FMOD_CREATESTREAM;
     if (loop)
         flag |= FMOD_LOOP_NORMAL;
-    FMOD_RESULT r =
-        fmodSystem->createSound(path.c_str(), flag, 0, &etcSamples[index]);
+
+    FMOD_RESULT r = FMOD_ERR_FILE_NOTFOUND;
+    if (fs::exists(path) && fs::is_regular_file(path))
+        r = fmodSystem->createSound(path.c_str(), flag, 0, &etcSamples[index]);
+
+    // Also find ogg with the same filename
+    if (r == FMOD_ERR_FILE_NOTFOUND && path.length() > 4 && path.substr(path.length() - 4) == ".wav")
+        r = fmodSystem->createSound(path.replace(path.length() - 4, 4, ".ogg").c_str(), flag, 0, &etcSamples[index]);
     
     if (r != FMOD_OK)
         LOG_WARNING << "[FMOD] Loading Sample (" << path << ") Error: " << r << ", " << FMOD_ErrorString(r);
@@ -214,9 +249,14 @@ void SoundDriverFMOD::playSample(size_t index)
 {
     FMOD_RESULT r = FMOD_OK;
     if (etcSamples[index] != nullptr)
-        r = fmodSystem->playSound(etcSamples[index], 0, false, 0);
+        r = fmodSystem->playSound(etcSamples[index], &*etcSamplesChannelGroup, false, 0);
     if (r != FMOD_OK)
         LOG_WARNING << "[FMOD] Playing Sample Error: " << r << ", " << FMOD_ErrorString(r);
+}
+
+void SoundDriverFMOD::stopSamples()
+{
+    etcSamplesChannelGroup->stop();
 }
 
 void SoundDriverFMOD::freeSamples()

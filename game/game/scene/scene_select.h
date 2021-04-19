@@ -47,9 +47,6 @@ protected:
 
 protected:
     // Inner-state updates
-    void procCommonNotes();
-    void playBGMSamples();
-    void changeKeySampleMapping(Time t);
 
 protected:
     // Register to InputWrapper: judge / keysound

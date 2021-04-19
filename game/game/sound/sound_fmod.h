@@ -16,6 +16,10 @@ private:
 	FMOD::System *fmodSystem = nullptr;
 	int initRet;
 
+protected:
+	std::shared_ptr<FMOD::ChannelGroup> keySamplesChannelGroup;
+	std::shared_ptr<FMOD::ChannelGroup> etcSamplesChannelGroup;
+
 public:
 	SoundDriverFMOD();
 	virtual ~SoundDriverFMOD();
@@ -31,12 +35,14 @@ public:
 public:
 	virtual int loadKeySample(std::string path, size_t index);
 	virtual void playKeySample(size_t count, size_t index[]);
+	virtual void stopKeySamples();
 	virtual void freeKeySamples();
 	virtual void update();
 
 public:
 	virtual int loadSample(std::string path, size_t index, bool isStream = false, bool loop = false);
 	virtual void playSample(size_t index);
+	virtual void stopSamples();
 	virtual void freeSamples();
 	int getChannelsPlaying();
 

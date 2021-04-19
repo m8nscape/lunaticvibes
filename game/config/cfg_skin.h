@@ -19,6 +19,12 @@ namespace cfg
 
     inline const char* S_PATH_RESULT = "Result";
     inline const char* S_DEFAULT_PATH_RESULT = "./LR2files/Theme/LR2/Result/result.lr2skin";
+
+    inline const char* S_PATH_BGM = "BGM folder (LR2)";
+    inline const char* S_DEFAULT_PATH_BGM = "./LR2files/Bgm/LR2 ver sta";
+
+    inline const char* S_PATH_SOUND = "Sound folder (LR2)";
+    inline const char* S_DEFAULT_PATH_SOUND = "./LR2files/Sound/lr2";
 }
 
 class ConfigSkin : public vConfig

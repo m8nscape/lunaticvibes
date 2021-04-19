@@ -65,6 +65,7 @@
     <ClCompile Include="game\skin\skin_mgr.cpp" />
     <ClCompile Include="game\sound\sound_fmod.cpp" />
     <ClCompile Include="game\sound\sound_fmod_callback.cpp" />
+    <ClCompile Include="game\sound\sound_sample.cpp" />
     <ClCompile Include="game\sound\sound_mgr.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="sysutil_linux.cpp" />
@@ -134,6 +135,7 @@
     <ClInclude Include="game\sound\sound_driver.h" />
     <ClInclude Include="game\sound\sound_fmod.h" />
     <ClInclude Include="game\sound\sound_fmod_callback.h" />
+    <ClInclude Include="game\sound\sound_sample.h" />
     <ClInclude Include="game\sound\sound_mgr.h" />
     <ClInclude Include="sysutil.h" />
   </ItemGroup>

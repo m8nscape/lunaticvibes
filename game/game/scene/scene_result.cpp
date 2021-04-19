@@ -1,6 +1,9 @@
 #include "scene_result.h"
 #include "scene_context.h"
 
+#include "game/sound/sound_mgr.h"
+#include "game/sound/sound_sample.h"
+
 SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
 {
     _inputAvailable = INPUT_MASK_FUNC;
@@ -45,13 +48,13 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
         else if (d2p.total_acc >= 33.33) gOptions.set(eOption::RESULT_RANK_2P, Option::RANK_6);
         else if (d2p.total_acc >= 22.22) gOptions.set(eOption::RESULT_RANK_2P, Option::RANK_7);
         else                             gOptions.set(eOption::RESULT_RANK_2P, Option::RANK_8);
-
     }
 
     // TODO compare to db record
     auto dp = gPlayContext.ruleset[gPlayContext.playerSlot]->getData();
 
-    // TODO WIN/LOSE
+    bool cleared = false;
+
     switch (gPlayContext.mode)
     {
     case eMode::PLAY5_2:
@@ -60,6 +63,8 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
     {
         auto d1p = gPlayContext.ruleset[PLAYER_SLOT_1P]->getData();
         auto d2p = gPlayContext.ruleset[PLAYER_SLOT_2P]->getData();
+
+        // TODO WIN/LOSE
         /*
         switch (context_play.rulesetType)
         {
@@ -73,13 +78,46 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
                 break;
         }
         */
+
+        // clear or failed?
+        bool c1, c2;
+        switch (gPlayContext.gaugeType[PLAYER_SLOT_1P])
+        {
+        case eGaugeOp::GROOVE:
+            c1 = d1p.health >= 80.0;
+            break;
+        default:
+            c1 = d1p.health > 0.0;
+            break;
+        }
+        switch (gPlayContext.gaugeType[PLAYER_SLOT_2P])
+        {
+        case eGaugeOp::GROOVE:
+            c2 = d2p.health >= 80.0;
+            break;
+        default:
+            c2 = d2p.health > 0.0;
+            break;
+        }
+        cleared = c1 || c2;
+
         break;
     }
 
     default:
+        switch (gPlayContext.gaugeType[gPlayContext.playerSlot])
+        {
+        case eGaugeOp::GROOVE:
+            cleared = dp.health >= 80.0;
+            break;
+        default:
+            cleared = dp.health > 0.0;
+            break;
+        }
         break;
     }
 
+    gSwitches.set(eSwitch::RESULT_CLEAR, cleared);
 
     using namespace std::placeholders;
     _input.register_p("SCENE_PRESS", std::bind(&SceneResult::inputGamePress, this, _1, _2));
@@ -91,6 +129,12 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
 
     loopStart();
     _input.loopStart();
+
+    SoundMgr::stopSamples();
+    if (cleared) 
+        SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_CLEAR));
+    else
+        SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_FAIL));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -153,6 +197,7 @@ void SceneResult::updateFadeout()
     {
         loopEnd();
         _input.loopEnd();
+        SoundMgr::stopKeySamples();
         if (_retryRequested && gPlayContext.canRetry)
         {
             clearContextPlayForRetry();

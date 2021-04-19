@@ -22,9 +22,11 @@ protected:
 public:
     virtual int loadKeySample(std::string path, size_t index) = 0;
     virtual void playKeySample(size_t count, size_t index[]) = 0;
+    virtual void stopKeySamples() = 0;
     virtual void freeKeySamples() = 0;
     virtual int loadSample(std::string path, size_t index, bool isStream = false, bool loop = false) = 0;
     virtual void playSample(size_t index) = 0;
+    virtual void stopSamples() = 0;
     virtual void freeSamples() = 0;
     virtual void update() = 0;
 };

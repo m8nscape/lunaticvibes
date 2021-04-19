@@ -1,6 +1,9 @@
 #include "scene_decide.h"
 #include "scene_context.h"
 
+#include "game/sound/sound_mgr.h"
+#include "game/sound/sound_sample.h"
+
 SceneDecide::SceneDecide() : vScene(eMode::DECIDE, 1000)
 {
     _inputAvailable = INPUT_MASK_FUNC;
@@ -25,6 +28,9 @@ SceneDecide::SceneDecide() : vScene(eMode::DECIDE, 1000)
 
     loopStart();
     _input.loopStart();
+
+    SoundMgr::stopSamples();
+    SoundMgr::playSample(static_cast<size_t>(eSoundSample::BGM_DECIDE));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

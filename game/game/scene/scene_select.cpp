@@ -3,8 +3,10 @@
 #include "scene_select.h"
 #include "scene_context.h"
 #include "chartformat/chart_types.h"
-
 #include "entry/entry_song.h"
+
+#include "game/sound/sound_mgr.h"
+#include "game/sound/sound_sample.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -271,6 +273,8 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
 
     loopStart();
 
+    SoundMgr::stopSamples();
+    SoundMgr::playSample(static_cast<size_t>(eSoundSample::BGM_SELECT));
 }
 
 void SceneSelect::_updateAsync()
@@ -473,8 +477,7 @@ void SceneSelect::_decide()
     default:
         break;
     }
-    
-    // FIXME change to decide scene
+
     gNextScene = eScene::DECIDE;
 }
 
@@ -605,6 +608,8 @@ void SceneSelect::_navigateUpBy1(Time t)
 
     setBarInfo();
     setEntryInfo();
+
+    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_SCRATCH));
 }
 
 void SceneSelect::_navigateDownBy1(Time t)
@@ -618,13 +623,14 @@ void SceneSelect::_navigateDownBy1(Time t)
 
     setBarInfo();
     setEntryInfo();
+
+    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_SCRATCH));
 }
 
 void SceneSelect::_navigateEnter(Time t)
 {
     std::lock_guard<std::mutex> u(gSelectContext._mutex);
 
-    // TODO
     const auto& e = gSelectContext.entries[gSelectContext.idx];
     switch (e->type())
     {
@@ -652,6 +658,8 @@ void SceneSelect::_navigateEnter(Time t)
 
         setBarInfo();
         setEntryInfo();
+
+        SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_F_OPEN));
         break;
     }
     default:
@@ -677,5 +685,7 @@ void SceneSelect::_navigateBack(Time t)
 
         setBarInfo();
         setEntryInfo();
+
+        SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_F_CLOSE));
     }
 }
