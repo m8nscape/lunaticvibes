@@ -9,7 +9,7 @@ void loadLR2Bgm()
 
     //SoundMgr::loadSample((path / "").string(), static_cast<size_t>(eSoundSample::BGM_TITLE), true);
     //SoundMgr::loadSample((path / "").string(), static_cast<size_t>(eSoundSample::BGM_MODE), true);
-    SoundMgr::loadSample((path / "select.wav").string(), static_cast<size_t>(eSoundSample::BGM_SELECT), true);
+    SoundMgr::loadSample((path / "select.wav").string(), static_cast<size_t>(eSoundSample::BGM_SELECT), true, true);
     SoundMgr::loadSample((path / "decide.wav").string(), static_cast<size_t>(eSoundSample::BGM_DECIDE), false);
 }
 
@@ -28,11 +28,11 @@ void loadLR2Sound()
 
     SoundMgr::loadSample((path / "decide.wav").string(), static_cast<size_t>(eSoundSample::SOUND_DECIDE), false);
     SoundMgr::loadSample((path / "playstop.wav").string(), static_cast<size_t>(eSoundSample::SOUND_PLAYSTOP), false);
-    SoundMgr::loadSample((path / "clear.wav").string(), static_cast<size_t>(eSoundSample::SOUND_CLEAR), false);
-    SoundMgr::loadSample((path / "fail.wav").string(), static_cast<size_t>(eSoundSample::SOUND_FAIL), false);
+    SoundMgr::loadSample((path / "clear.wav").string(), static_cast<size_t>(eSoundSample::SOUND_CLEAR), false, true);
+    SoundMgr::loadSample((path / "fail.wav").string(), static_cast<size_t>(eSoundSample::SOUND_FAIL), false, true);
 
     SoundMgr::loadSample((path / "screenshot.wav").string(), static_cast<size_t>(eSoundSample::SOUND_SCREENSHOT), false);
 
-    SoundMgr::loadSample((path / "course_clear.wav").string(), static_cast<size_t>(eSoundSample::SOUND_COURSE_CLEAR), false);
-    SoundMgr::loadSample((path / "course_fail.wav").string(), static_cast<size_t>(eSoundSample::SOUND_COURSE_FAIL), false);
+    SoundMgr::loadSample((path / "course_clear.wav").string(), static_cast<size_t>(eSoundSample::SOUND_COURSE_CLEAR), false, true);
+    SoundMgr::loadSample((path / "course_fail.wav").string(), static_cast<size_t>(eSoundSample::SOUND_COURSE_FAIL), false, true);
 }

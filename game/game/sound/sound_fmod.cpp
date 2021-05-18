@@ -227,10 +227,8 @@ int SoundDriverFMOD::loadSample(std::string path,size_t index, bool isStream, bo
         etcSamples[index]->release();
 
     int flag = FMOD_DEFAULT;
-    if (isStream)
-        flag |= FMOD_CREATESTREAM;
-    if (loop)
-        flag |= FMOD_LOOP_NORMAL;
+    flag |= isStream ? FMOD_CREATESTREAM : FMOD_CREATESAMPLE;
+    flag |= loop ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF;
 
     FMOD_RESULT r = FMOD_ERR_FILE_NOTFOUND;
     if (fs::exists(path) && fs::is_regular_file(path))
