@@ -123,6 +123,7 @@ int main(int argc, char* argv[])
     gTexts.reset();
     gTimers.set(eTimer::SCENE_START, 0);
     gTimers.reset();
+    ConfigMgr::setGlobals();
 
     // initialize song list
     g_pSongDB = std::make_shared<SongDB>("database/song.db");

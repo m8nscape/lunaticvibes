@@ -99,6 +99,7 @@
     <ClInclude Include="game\chart\chart_types.h" />
     <ClInclude Include="game\data\bargraph.h" />
     <ClInclude Include="game\data\buffered_global.h" />
+    <ClInclude Include="game\data\data.h" />
     <ClInclude Include="game\data\number.h" />
     <ClInclude Include="game\data\option.h" />
     <ClInclude Include="game\data\slider.h" />

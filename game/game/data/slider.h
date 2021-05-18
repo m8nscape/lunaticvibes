@@ -22,6 +22,7 @@ enum class eSlider : unsigned
     EQ3,
     EQ4,
     EQ5,
+    EQ6,
 
     VOLUME_MASTER = 17,
     VOLUME_KEY,

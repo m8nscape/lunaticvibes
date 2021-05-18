@@ -14,6 +14,8 @@
 
 #include "game/scene/scene_context.h"
 
+#include "config/config_mgr.h"
+
 namespace lr2skin::button
 {
 
@@ -340,7 +342,7 @@ void random_type(int player, int plus)
     gOptions.set(op, val);
     switch (val)
     {
-    case 0: gPlayContext.mods[slot].chart = eModChart::NONE; gTexts.set(tx, "NORMAL");  break;
+    case 0: gPlayContext.mods[slot].chart = eModChart::NONE; gTexts.set(tx, "NORMAL"); break;
     case 1: gPlayContext.mods[slot].chart = eModChart::MIRROR; gTexts.set(tx, "MIRROR"); break;
     case 2: gPlayContext.mods[slot].chart = eModChart::RANDOM; gTexts.set(tx, "RANDOM"); break;
     case 3: gPlayContext.mods[slot].chart = eModChart::SRAN; gTexts.set(tx, "S-RANDOM"); break;

@@ -32,7 +32,7 @@ namespace cfg
         AVG,
         CONSTANT
     };
-
+    
     inline const char* P_LANECOVER = "Lanecover";
 
     inline const char* P_LIFT = "Lift";
@@ -74,20 +74,36 @@ namespace cfg
 
     inline const char* P_JUDGE_STAT = "JudgeStatistics";       // off, on
 
-    inline const char* P_GHOST_TYPE = "GhostType";
-    inline const char* P_GHOST_TYPE_NORMAL = "Normal";
-    inline const char* P_GHOST_TYPE_MONOCHROME = "Mono";
-    enum class eGhostType
+
+    inline const char* P_GHOST_COLOR = "GhostColor";
+    inline const char* P_GHOST_COLOR_NORMAL = "Normal";
+    inline const char* P_GHOST_COLOR_MONOCHROME = "Mono";
+    enum class eGhostColor
     {
-        OFF,
         NORMAL,
         MONO
     };
 
-    inline const char* P_GHOST_POS_X = "GhostPosX";
-    inline const char* P_GHOST_POS_Y = "GhostPosY";
+    inline const char* P_GHOST_TYPE = "GhostType";;
+    inline const char* P_GHOST_TYPE_A = "A";
+    inline const char* P_GHOST_TYPE_B = "B";
+    inline const char* P_GHOST_TYPE_C = "C";
+    enum class eGhostType
+    {
+        OFF,
+        ABOVE_JUDGE,
+        NEAR_JUDGE,
+        NEAR_JUDGE_DOWN,
+    };
 
     inline const char* P_GHOST_TARGET = "GhostTarget";         // Rate (since multi ruleset)
+
+    inline const char* P_TARGET = "Target";
+    inline const char* P_TARGET_MYBEST = "Best score";
+    inline const char* P_TARGET_RANK_A = "Rank A";
+    inline const char* P_TARGET_RANK_AA = "Rank AA";
+    inline const char* P_TARGET_RANK_AAA = "Rank AAA";
+
 
     inline const char* P_GHOST_FS_TRIGGER = "GhostFSTrigger";  // except PERFECT, always
     inline const char* P_GHOST_FS_TRIGGER_SUB = "Normal";
@@ -110,6 +126,79 @@ namespace cfg
 
     inline const char* P_GHOST_FS_POS_X = "GhostFSPosX";           // off, normal, ms, both
     inline const char* P_GHOST_FS_POS_Y = "GhostFSPosY";           // off, normal, ms, both
+
+    inline const char* P_PLAY_MODE = "PlayMode";
+    inline const char* P_PLAY_MODE_ALL = "All";
+    inline const char* P_PLAY_MODE_7K = "7K";
+    inline const char* P_PLAY_MODE_5K = "5K";
+    inline const char* P_PLAY_MODE_14K = "14K";
+    inline const char* P_PLAY_MODE_10K = "10K";
+    inline const char* P_PLAY_MODE_9K = "9K";
+
+    inline const char* P_SORT_MODE = "SortMode";
+    inline const char* P_SORT_MODE_FOLDER = "Folder";
+    inline const char* P_SORT_MODE_TITLE = "Title";
+    inline const char* P_SORT_MODE_LEVEL = "Level";
+    inline const char* P_SORT_MODE_CLEAR = "Clear";
+    inline const char* P_SORT_MODE_RATE = "Rate";
+
+    inline const char* P_DIFFICULTY_FILTER = "DifficultyFilter";
+    inline const char* P_DIFFICULTY_FILTER_ALL = "All";
+    inline const char* P_DIFFICULTY_FILTER_BEGINNER = "Beginner";
+    inline const char* P_DIFFICULTY_FILTER_NORMAL = "Normal";
+    inline const char* P_DIFFICULTY_FILTER_HYPER = "Hyper";
+    inline const char* P_DIFFICULTY_FILTER_ANOTHER = "Another";
+    inline const char* P_DIFFICULTY_FILTER_INSANE = "Insane";
+
+    inline const char* P_BATTLE = "Battle";
+    inline const char* P_FLIP = "Flip";
+    inline const char* P_SCORE_GRAPH = "ScoreGraph";
+
+    inline const char* P_VOL_MASTER = "MasterVolume";
+    inline const char* P_VOL_KEY = "KeyVolume";
+    inline const char* P_VOL_BGM = "BgmVolume";
+
+    inline const char* P_EQ = "EQ";
+    inline const char* P_EQ0 = "EQ 62";
+    inline const char* P_EQ1 = "EQ 160";
+    inline const char* P_EQ2 = "EQ 400";
+    inline const char* P_EQ3 = "EQ 1k";
+    inline const char* P_EQ4 = "EQ 2.5k";
+    inline const char* P_EQ5 = "EQ 6.3k";
+    inline const char* P_EQ6 = "EQ 16k";
+
+    inline const char* P_FREQ = "Freq";
+    inline const char* P_FREQ_TYPE = "FreqType";
+    inline const char* P_FREQ_TYPE_FREQ = "Frequency";
+    inline const char* P_FREQ_TYPE_PITCH = "Pitch";
+    inline const char* P_FREQ_TYPE_SPEED = "Speed";
+    inline const char* P_FREQ_VAL = "FreqVal";
+
+    inline const char* P_FX0 = "FX0";
+    inline const char* P_FX1 = "FX1";
+    inline const char* P_FX2 = "FX2";
+    inline const char* P_FX0_TARGET = "FX0Target";
+    inline const char* P_FX1_TARGET = "FX1Target";
+    inline const char* P_FX2_TARGET = "FX2Target";
+    inline const char* P_FX0_TYPE = "FX0Type";
+    inline const char* P_FX1_TYPE = "FX1Type";
+    inline const char* P_FX2_TYPE = "FX2Type";
+    inline const char* P_FX0_P1 = "FX0P1";
+    inline const char* P_FX1_P1 = "FX1P1";
+    inline const char* P_FX2_P1 = "FX2P1";
+    inline const char* P_FX0_P2 = "FX0P2";
+    inline const char* P_FX1_P2 = "FX1P2";
+    inline const char* P_FX2_P2 = "FX2P2";
+    inline const char* P_FX_TARGET_MASTER = "MASTER";
+    inline const char* P_FX_TARGET_KEY = "KEY";
+    inline const char* P_FX_TARGET_BGM = "BGM";
+    inline const char* P_FX_TYPE_REVERB = "Reverb";
+    inline const char* P_FX_TYPE_DELAY = "Delay";
+    inline const char* P_FX_TYPE_LOWPASS = "Low Pass";
+    inline const char* P_FX_TYPE_HIGHPASS = "High Pass";
+    inline const char* P_FX_TYPE_FLANGER = "Flanger";
+    inline const char* P_FX_TYPE_CHORUS = "Chorus";
+    inline const char* P_FX_TYPE_DIST = "Distortion";
 
     enum class eProfile
     {

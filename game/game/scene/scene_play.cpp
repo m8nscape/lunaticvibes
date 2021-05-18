@@ -745,7 +745,8 @@ void ScenePlay::updateFadeout()
     auto t = Time();
     auto rt = t - gTimers.get(eTimer::SCENE_START);
     auto ft = t - gTimers.get(eTimer::FADEOUT_BEGIN);
-    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[gPlayContext.playerSlot]->getCurrentBeat() * 4.0)) % 1000);
+    if (gChartContext.started)
+        gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[gPlayContext.playerSlot]->getCurrentBeat() * 4.0)) % 1000);
     updateTTrotation(gChartContext.started);
 	gPlayContext.bgaTexture->update(rt, false);
 
@@ -763,7 +764,8 @@ void ScenePlay::updateFailed()
 {
     auto t = Time();
     auto ft = t - gTimers.get(eTimer::FAIL_BEGIN);
-    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[gPlayContext.playerSlot]->getCurrentBeat() * 4.0)) % 1000);
+    if (gChartContext.started)
+        gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[gPlayContext.playerSlot]->getCurrentBeat() * 4.0)) % 1000);
     updateTTrotation(gChartContext.started);
 
     //failed play finished, move to next scene. No fadeout

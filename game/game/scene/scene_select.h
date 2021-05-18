@@ -34,7 +34,7 @@ private:
 
 public:
     SceneSelect();
-    virtual ~SceneSelect() = default;
+    virtual ~SceneSelect();
 
 protected:
     // Looper callbacks

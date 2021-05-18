@@ -58,7 +58,7 @@ enum class eText: unsigned
     SCORE_GRAPH,
     GHOST,
     SHUTTER,
-    chart_TYPE,
+    SCROLL_TYPE,
     BGA_SIZE,
     BGA,
     COLOR_DEPTH,

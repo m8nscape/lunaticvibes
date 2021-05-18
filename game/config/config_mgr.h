@@ -39,6 +39,7 @@ public:
     static inline void load() { G->load(); P->load(); I5->load(); I7->load(); I9->load(); S->load(); }
     static inline void save() { G->save(); P->save(); I5->save(); I7->save(); I9->save(); S->save(); }
     static int selectProfile(const std::string& name);
+    static void setGlobals();
 
 public:
     template<class Ty_v>

@@ -9,7 +9,7 @@ enum class eNumber: unsigned
 	HS_1P = 10,
 	HS_2P,
 
-	TIMING_ADJUST_SOUND = 12,
+	TIMING_ADJUST_VISUAL = 12,
 	DEFAULT_TARGET_RATE,
 
 	LANECOVER_1P = 14,

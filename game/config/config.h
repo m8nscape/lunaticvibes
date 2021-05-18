@@ -28,8 +28,8 @@ public:
 	void save();
     
     template<class Ty_v>
-    inline Ty_v get(const std::string& key, const Ty_v& fallback) { return _yaml[key].as<Ty_v>(fallback); }
-    inline std::string get(const std::string& key, const char* fallback) { return _yaml[key].as<std::string>(std::string(fallback)); }
+    inline Ty_v get(const std::string& key, const Ty_v& fallback) const { return _yaml[key].as<Ty_v>(fallback); }
+    inline std::string get(const std::string& key, const char* fallback) const { return _yaml[key].as<std::string>(std::string(fallback)); }
 
     template<class Ty_v>
 	inline void set(const std::string& key, const Ty_v& value) noexcept { _yaml[key] = value; } // untested when type mismatch

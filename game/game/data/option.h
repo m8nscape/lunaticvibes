@@ -63,6 +63,8 @@ enum class eOption : unsigned
     RESULT_UPDATED_RANK,
     RESULT_CLEARED,
 
+    SYS_WINDOWED,
+
     _TEST1 = 200,
 
     OPTION_COUNT
@@ -86,7 +88,7 @@ namespace Option
         ENTRY_NEW_COURSE,
     };
 
-	enum e_chart_diff {
+	enum e_select_diff {
 		DIFF_ANY,
 		DIFF_BEGINNER,
 		DIFF_NORMAL,
@@ -94,6 +96,14 @@ namespace Option
 		DIFF_ANOTHER,
 		DIFF_INSANE
 	};
+
+    enum e_select_sort {
+        SORT_FOLDER,
+        SORT_TITLE,
+        SORT_LEVEL,
+        SORT_CLEAR,
+        SORT_RATE,
+    };
 
 	enum e_play_scene_stat {
 		SPLAY_PREPARE,
@@ -113,6 +123,7 @@ namespace Option
 
     enum e_play_keys {
         KEYS_NOT_PLAYABLE,
+        KEYS_ALL,
         KEYS_7,
         KEYS_5,
         KEYS_14,
@@ -135,6 +146,15 @@ namespace Option
         BGA_EXTEND,
     };
 
+    enum e_speed_type {
+        SPEED_NORMAL,
+        //SPEED_FIX_END,
+        SPEED_FIX_MIN,
+        SPEED_FIX_MAX,
+        SPEED_FIX_AVG,
+        SPEED_FIX_CONSTANT,
+    };
+
     enum e_gauge_type{
         GAUGE_ASSIST,
         GAUGE_EASY,
@@ -142,6 +162,15 @@ namespace Option
         GAUGE_HARD,
         GAUGE_EXHARD,
         GAUGE_DEATH,
+    };
+
+    enum e_random_type {
+        RAN_NORMAL,
+        RAN_MIRROR,
+        RAN_RANDOM,
+        RAN_SRAN,
+        RAN_HRAN,
+        RAN_ALLSCR,
     };
 
     enum e_chart_difficulty {
@@ -224,6 +253,35 @@ namespace Option
         STAGE_5, 
         STAGE_6, 
         STAGE_7, 
+    };
+
+    enum e_freq_type {
+        FREQ_FREQ,
+        FREQ_PITCH,
+        FREQ_SPEED
+    };
+
+    enum e_fx_target {
+        FX_MASTER,
+        FX_KEY,
+        FX_BGM
+    };
+
+    enum e_fx_type {
+        FX_OFF,
+        FX_REVERB,
+        FX_DELAY,
+        FX_LOWPASS,
+        FX_HIGHPASS,
+        FX_FLANGER,
+        FX_CHORUS,
+        FX_DISTORTION,
+    };
+
+    enum e_windowed {
+        WIN_FULLSCREEN,
+        WIN_BORDERLESS,
+        WIN_WINDOWED
     };
 
 }
