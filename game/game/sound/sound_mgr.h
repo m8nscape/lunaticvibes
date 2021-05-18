@@ -28,4 +28,8 @@ public:
     static void update();
 
     static void setDSP(DSPType type, SampleChannel ch, int p1, int p2);
+    static void updateDSP();
+
+    static void setFrequencyFactor(double freq);
+    static void setPitch(double pitch);
 };

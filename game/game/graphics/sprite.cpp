@@ -911,7 +911,7 @@ SpriteButton::SpriteButton(pTexture texture, const Rect& rect,
 bool SpriteButton::doIfInRange(int x, int y)
 {
     if (!_draw) return false;
-    if (_plusonly_value != 0)
+    if (_plusonly_value == 0)
     {
         int w_opt = _current.rect.w / 2;
         if (y >= _current.rect.y && y < _current.rect.y + _current.rect.h)

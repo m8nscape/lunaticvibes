@@ -51,8 +51,8 @@ enum class eMode {
 enum class eModChart: uint8_t
 {
     NONE = 0,
-    RANDOM,
     MIRROR,
+    RANDOM,
     SRAN,
     HRAN,			// Scatter
     ALLSCR,			// Converge

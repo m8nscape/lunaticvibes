@@ -15,7 +15,6 @@ enum class DSPType
     FLANGER,
     CHORUS,
     DISTORTION,
-    PITCH
 };
 
 enum class SampleChannel

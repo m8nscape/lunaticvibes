@@ -16,6 +16,7 @@ enum class eSwitch: unsigned
     SELECT_PANEL8,
     SELECT_PANEL9,
 
+    SOUND_EQ,
 	SOUND_FX0,
 	SOUND_FX1,
 	SOUND_FX2,

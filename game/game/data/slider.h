@@ -6,12 +6,35 @@ enum class eSlider : unsigned
 {
     ZERO = 0,
 
+    SELECT_LIST = 1,
+
+    HISPEED_1P = 2,
+    HISPEED_2P,
+
+    SUD_1P = 4,
+    SUD_2P,
+
+    SONG_PROGRESS = 6,
+
+    EQ0 = 10,
+    EQ1,
+    EQ2,
+    EQ3,
+    EQ4,
+    EQ5,
+
+    VOLUME_MASTER = 17,
+    VOLUME_KEY,
+    VOLUME_BGM,
+
     FX0_P1 = 20,
     FX0_P2,
     FX1_P1,
     FX1_P2,
     FX2_P1,
     FX2_P2,
+
+    PITCH = 26,
 
     _TEST1,
     SLIDER_COUNT
