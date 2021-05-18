@@ -67,3 +67,9 @@ void SoundMgr::update()
     if (!_inst._initialized) return;
     return _inst.driver->update();
 }
+
+void SoundMgr::setDSP(DSPType type, SampleChannel ch, int p1, int p2)
+{
+    if (!_inst._initialized) return;
+    return _inst.driver->setDSP(type, ch, p1, p2);
+}

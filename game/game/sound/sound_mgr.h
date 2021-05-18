@@ -26,4 +26,6 @@ public:
     static void stopSamples();
     static void freeSamples();
     static void update();
+
+    static void setDSP(DSPType type, SampleChannel ch, int p1, int p2);
 };

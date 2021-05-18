@@ -46,4 +46,6 @@ public:
 	virtual void freeSamples();
 	int getChannelsPlaying();
 
+public:
+	virtual void setDSP(DSPType type, SampleChannel ch, int p1, int p2);
 };

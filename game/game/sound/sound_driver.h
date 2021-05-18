@@ -5,6 +5,26 @@
 
 typedef std::size_t size_t;
 
+enum class DSPType
+{
+    OFF,
+    REVERB,
+    DELAY,
+    LOWPASS,
+    HIGHPASS,
+    FLANGER,
+    CHORUS,
+    DISTORTION,
+    PITCH
+};
+
+enum class SampleChannel
+{
+    MASTER,
+    KEY,
+    BGM,
+};
+
 class SoundDriver
 {
     friend class SoundMgr;
@@ -29,4 +49,7 @@ public:
     virtual void stopSamples() = 0;
     virtual void freeSamples() = 0;
     virtual void update() = 0;
+
+public:
+    virtual void setDSP(DSPType type, SampleChannel ch, int p1, int p2) = 0;
 };

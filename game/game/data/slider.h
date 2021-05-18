@@ -6,6 +6,13 @@ enum class eSlider : unsigned
 {
     ZERO = 0,
 
+    FX0_P1 = 20,
+    FX0_P2,
+    FX1_P1,
+    FX1_P2,
+    FX2_P1,
+    FX2_P2,
+
     _TEST1,
     SLIDER_COUNT
 };

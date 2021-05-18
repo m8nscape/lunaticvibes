@@ -17,9 +17,9 @@ void type17_textview(int plus);
 void type18_reset_tag(int plus);
 void type19_replay(int plus);
 
-void type20_fx0_type(int plus);
-void type21_fx1_type(int plus);
-void type22_fx2_type(int plus);
+void fx_type(int idx, int plus);
+void fx_switch(int idx, int plus);
+void fx_target(int idx, int plus);
 
 void type23_fx0(int plus);
 void type24_fx1(int plus);

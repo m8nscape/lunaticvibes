@@ -281,3 +281,8 @@ int SoundDriverFMOD::getChannelsPlaying()
     fmodSystem->getChannelsPlaying(&c);
     return c;
 }
+
+void SoundDriverFMOD::setDSP(DSPType type, SampleChannel ch, int p1, int p2)
+{
+
+}

@@ -59,6 +59,7 @@ enum sprite_type
 };
 
 std::vector<std::variant<std::monostate, eSwitch, eOption>> buttonAdapter{
+    // 0
 	std::monostate(),
 
 	// 1~9
@@ -404,6 +405,7 @@ int SkinLR2::setExtendedProperty(std::string&& key, void* value)
 std::function<void(bool)> getButtonCallback(int type)
 {
     using namespace lr2skin::button;
+    using namespace std::placeholders;
     switch (type)
     {
     case 1:
@@ -415,7 +417,22 @@ std::function<void(bool)> getButtonCallback(int type)
     case 7:
     case 8:
     case 9:
-        return std::bind(panel_switch, type, std::placeholders::_1);
+        return std::bind(panel_switch, type, _1);
+
+    case 20:
+    case 21:
+    case 22:
+        return std::bind(fx_type, type - 20, _1);
+
+    case 23:
+    case 24:
+    case 25:
+        return std::bind(fx_switch, type - 23, _1);
+
+    case 26:
+    case 27:
+    case 28:
+        return std::bind(fx_target, type - 26, _1);
 
     default:
         return [](bool) {};
@@ -1032,7 +1049,7 @@ ParseRet SkinLR2::SRC_BUTTON()
 	}
 
 	lr2skin::s_button d;
-	convertLine(tokensBuf, (int*)&d, 0, 13);
+	convertLine(tokensBuf, (int*)&d, 0, 14);
     if (textureBuf) refineRect(d, textureBuf->getRect(), srcLine);
 	
 	if (d.type < (int)buttonAdapter.size())
