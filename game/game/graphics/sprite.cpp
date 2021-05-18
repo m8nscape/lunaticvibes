@@ -893,17 +893,17 @@ bool SpriteOption::update(Time t)
 }
 
 SpriteButton::SpriteButton(pTexture texture,
-    unsigned animFrames, unsigned frameTime, std::function<void()> cb, eTimer timer,
+    unsigned animFrames, unsigned frameTime, std::function<void(int)> cb, int plusonlyValue, eTimer timer,
     unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
     SpriteButton(texture, texture ? texture->getRect() : Rect(),
-        animFrames, frameTime, cb, timer,
+        animFrames, frameTime, cb, plusonlyValue, timer,
         selRows, selCols, selVerticalIndexing) {}
 
 SpriteButton::SpriteButton(pTexture texture, const Rect& rect,
-    unsigned animFrames, unsigned frameTime, std::function<void()> cb, eTimer timer,
+    unsigned animFrames, unsigned frameTime, std::function<void(int)> cb, int plusonlyValue, eTimer timer,
     unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
     SpriteOption(texture, rect, animFrames, frameTime, timer,
-        selRows, selCols, selVerticalIndexing), _callback(cb)
+        selRows, selCols, selVerticalIndexing), _callback(cb), _plusonly_value(plusonlyValue)
 {
     _type = SpriteTypes::BUTTON;
 }
@@ -911,13 +911,36 @@ SpriteButton::SpriteButton(pTexture texture, const Rect& rect,
 bool SpriteButton::doIfInRange(int x, int y)
 {
     if (!_draw) return false;
-    if (x >= _current.rect.x &&
-        x < _current.rect.x + _current.rect.w &&
-        y >= _current.rect.y &&
-        y < _current.rect.y + _current.rect.h)
+    if (_plusonly_value != 0)
     {
-        _callback();
-        return true;
+        int w_opt = _current.rect.w / 2;
+        if (y >= _current.rect.y && y < _current.rect.y + _current.rect.h)
+        {
+            if (x >= _current.rect.x && x < _current.rect.x + w_opt)
+            {
+                // minus
+                _callback(-1);
+                return true;
+            }
+            else if (x >= _current.rect.x + w_opt && x < _current.rect.x + _current.rect.w)
+            {
+                // plus
+                _callback(1);
+                return true;
+            }
+        }
+    }
+    else
+    {
+        if (x >= _current.rect.x &&
+            x < _current.rect.x + _current.rect.w &&
+            y >= _current.rect.y &&
+            y < _current.rect.y + _current.rect.h)
+        {
+            // plusonly
+            _callback(_plusonly_value);
+            return true;
+        }
     }
     return false;
 }

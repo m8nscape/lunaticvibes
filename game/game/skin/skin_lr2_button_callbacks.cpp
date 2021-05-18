@@ -12,7 +12,7 @@
 namespace lr2skin::button
 {
 
-void panel_switch(int idx)
+void panel_switch(int idx, int plus)
 {
     if (idx < 1 || idx > 9) return;
     eSwitch panel = static_cast<eSwitch>(int(eSwitch::SELECT_PANEL1) - 1 + idx);
@@ -36,5 +36,19 @@ void panel_switch(int idx)
     }
 }
 
+void type20_fx0_type(int plus)
+{
+
+}
+
+void type21_fx1_type(int plus)
+{
+
+}
+
+void type22_fx2_type(int plus)
+{
+
+}
 
 }

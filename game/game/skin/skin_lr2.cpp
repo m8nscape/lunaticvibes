@@ -401,7 +401,7 @@ int SkinLR2::setExtendedProperty(std::string&& key, void* value)
     return -1;
 }
 
-std::function<void()> getButtonCallback(int type)
+std::function<void(bool)> getButtonCallback(int type)
 {
     using namespace lr2skin::button;
     switch (type)
@@ -415,10 +415,10 @@ std::function<void()> getButtonCallback(int type)
     case 7:
     case 8:
     case 9:
-        return std::bind(panel_switch, type);
+        return std::bind(panel_switch, type, std::placeholders::_1);
 
     default:
-        return [] {};
+        return [](bool) {};
     }
 }
 
@@ -1042,7 +1042,7 @@ ParseRet SkinLR2::SRC_BUTTON()
         if (d.click)
         {
             s = std::make_shared<SpriteButton>(
-                textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, getButtonCallback(d.type), eTimer::SCENE_START, d.div_y, d.div_x, false);
+                textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, getButtonCallback(d.type), d.plusonly, eTimer::SCENE_START, d.div_y, d.div_x, false);
         }
         else
         {
