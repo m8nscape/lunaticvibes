@@ -110,6 +110,21 @@ void update_fx_all()
     // SoundMgr::updateDSP();
 }
 
+void number_change(eNumber type, int plus)
+{
+    gNumbers.set(type, gNumbers.get(type) + plus);
+
+    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+}
+
+void number_change_clamp(eNumber type, int min, int max, int plus)
+{
+    int val = std::clamp(gNumbers.get(type) + plus, min, max);
+    gNumbers.set(type, val);
+
+    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+}
+
 #pragma region end
 
 #pragma region button type callbacks
@@ -322,6 +337,8 @@ void gauge_type(int player, int plus)
     //case 7: gPlayContext.mods[slot].gauge = eModGauge::EXHARD; break;
     default: break;
     }
+
+    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
 }
 
 // 42, 43
@@ -350,6 +367,8 @@ void random_type(int player, int plus)
     case 5: gPlayContext.mods[slot].chart = eModChart::ALLSCR; gTexts.set(tx, "ALL-SCR"); break;
     default: break;
     }
+
+    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
 }
 
 // 44, 45
@@ -370,15 +389,237 @@ void autoscr(int player, int plus)
     gSwitches.set(sw, !val);
     gPlayContext.mods[slot].assist_mask ^= PLAY_MOD_ASSIST_AUTOSCR;
     gTexts.set(tx, (!val) ? "AUTO-SCR" : "NONE");
+
+    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
 }
 
+// 46
 void shutter(int plus)
 {
+
+    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+}
+
+// 54
+void flip(int plus)
+{
+
+    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+}
+
+// 55
+void hs_fix(int plus)
+{
+    // eModHs
+    //OFF/MAXBPM/MINBPM/AVERAGE/CONSTANT
+    int val = (gOptions.get(eOption::PLAY_HSFIX_TYPE_1P) + plus) % 5;
+    
+    gOptions.set(eOption::PLAY_HSFIX_TYPE_1P, val);
+    gOptions.set(eOption::PLAY_HSFIX_TYPE_2P, val);
+
+    switch (val)
+    {
+    case 0: 
+        gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::NONE;
+        gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::NONE;
+        gTexts.set(eText::SCROLL_TYPE, "OFF"); 
+        break;
+    case 1:
+        gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::MAXBPM;
+        gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::MAXBPM;
+        gTexts.set(eText::SCROLL_TYPE, "MAX");
+        break;
+    case 2:
+        gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::MINBPM;
+        gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::MINBPM;
+        gTexts.set(eText::SCROLL_TYPE, "MIN");
+        break;
+    case 3:
+        gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::AVERAGE;
+        gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::AVERAGE;
+        gTexts.set(eText::SCROLL_TYPE, "AVERAGE");
+        break;
+    case 4:
+        gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::CONSTANT;
+        gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::CONSTANT;
+        gTexts.set(eText::SCROLL_TYPE, "CONSTANT");
+        break;
+    default: 
+        break;
+    }
+
+    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+}
+
+// 56
+void battle(int plus)
+{
+
+
+    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+}
+
+// 57, 58
+void hs(int player, int plus)
+{
+    // TODO margin, min/max
+    plus = plus > 0 ? 25 : -25;
+    switch (player)
+    {
+    case 0: number_change_clamp(eNumber::HS_1P, 50, 1000, plus); break;
+    case 1: number_change_clamp(eNumber::HS_2P, 50, 1000, plus); break;
+    default: break;
+    }
+}
+
+// 70
+void score_graph(int plus)
+{
+    if (gSwitches.get(eSwitch::SYSTEM_SCOREGRAPH))
+    {
+        // close
+        gSwitches.set(eSwitch::SYSTEM_SCOREGRAPH, false);
+    }
+    else
+    {
+        // open
+        gSwitches.set(eSwitch::SYSTEM_SCOREGRAPH, true);
+    }
+
+    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+}
+
+// 71
+void ghost_type(int plus)
+{
+    int val = (gOptions.get(eOption::PLAY_GHOST_TYPE_1P) + plus) % 4;
+
+    gOptions.set(eOption::PLAY_GHOST_TYPE_1P, val);
+    gOptions.set(eOption::PLAY_GHOST_TYPE_2P, val);
+
+    switch (val)
+    {
+    case 0:
+        gTexts.set(eText::GHOST, "OFF");
+        break;
+    case 1:
+        gTexts.set(eText::GHOST, "TYPE A");
+        break;
+    case 2:
+        gTexts.set(eText::GHOST, "TYPE B");
+        break;
+    case 3:
+        gTexts.set(eText::GHOST, "TYPE C");
+        break;
+    default:
+        break;
+    }
+
+    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+}
+
+// 72
+void bga(int plus)
+{
+    int val = (gOptions.get(eOption::PLAY_BGA_TYPE) + plus) % 2;
+
+    gOptions.set(eOption::PLAY_BGA_TYPE, val);
+
+    switch (val)
+    {
+    case 0:
+        gTexts.set(eText::BGA, "OFF");
+        break;
+    case 1:
+        gTexts.set(eText::BGA, "ON");
+        break;
+    //case 2:
+    //    gTexts.set(eText::BGA, "AUTOPLAY");
+    //    break;
+    default:
+        break;
+    }
+
+    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+}
+
+// 73
+void bga_size(int plus)
+{
+
+    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+}
+
+// 75
+void judge_auto_adjust(int plus)
+{
+
+    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+
+}
+
+// 77
+void target_type(int plus)
+{
+
+    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+}
+
+// 80
+void window_mode(int plus)
+{
+    int val = (gOptions.get(eOption::SYS_WINDOWED) + plus) % 3;
+
+    gOptions.set(eOption::SYS_WINDOWED, val);
+
+    // TODO recreate window
+    switch (val)
+    {
+    case Option::WIN_FULLSCREEN: 
+        gTexts.set(eText::WINDOWMODE, "FULLSCREEN");
+        break;
+    case Option::WIN_BORDERLESS:
+        gTexts.set(eText::WINDOWMODE, "BORDERLESS");
+        break;
+    case Option::WIN_WINDOWED:
+        gTexts.set(eText::WINDOWMODE, "WINDOWED");
+        break;
+    default:
+        break;
+    }
+
+    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+}
+
+// 82
+void vsync(int plus)
+{
+    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+}
+
+// 83
+void save_replay_type(int plus)
+{
+    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+}
+
+// 90
+void favorite_ignore(int plus)
+{
+    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+}
+
+// 91 - 96
+void difficulty(int diff, int plus)
+{
+    gOptions.set(eOption::SELECT_FILTER_DIFF, diff);
+    // TODO refresh song list
+    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_DIFFICULTY));
 }
 
 #pragma region end
 
-std::function<void(bool)> getButtonCallback(int type)
+std::function<void(int)> getButtonCallback(int type)
 {
     using namespace lr2skin::button;
     using namespace std::placeholders;
@@ -439,6 +680,64 @@ std::function<void(bool)> getButtonCallback(int type)
 
     case 46:
         return std::bind(shutter, _1);
+
+    case 54:
+        return std::bind(flip, _1);
+
+    case 55: 
+        return std::bind(hs_fix, _1);
+
+    case 56:
+        return std::bind(battle, _1);
+
+    case 57:
+        return std::bind(hs, 0, _1);
+    case 58:
+        return std::bind(hs, 1, _1);
+
+    case 70:
+        return std::bind(score_graph, _1);
+
+    case 71:
+        return std::bind(ghost_type, _1);
+
+    case 72:
+        return std::bind(bga, _1);
+
+    case 73:
+        return std::bind(bga_size, _1);
+
+    case 74:
+        return std::bind(number_change_clamp, eNumber::TIMING_ADJUST_VISUAL, -99, 99, _1);
+
+    case 75:
+        return std::bind(judge_auto_adjust, _1);
+
+    case 76:
+        return std::bind(number_change_clamp, eNumber::DEFAULT_TARGET_RATE, 0, 100, _1);
+
+    case 77:
+        return std::bind(target_type, _1);
+
+    case 80:
+        return std::bind(window_mode, _1);
+
+    case 82:
+        return std::bind(vsync, _1);
+
+    case 83:
+        return std::bind(save_replay_type, _1);
+
+    case 90:
+        return std::bind(favorite_ignore, _1);
+
+    case 91:
+    case 92:
+    case 93:
+    case 94:
+    case 95:
+    case 96:
+        return std::bind(difficulty, type - 91, _1);
 
     default:
         return [](bool) {};

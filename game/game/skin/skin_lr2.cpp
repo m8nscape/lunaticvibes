@@ -1022,7 +1022,7 @@ ParseRet SkinLR2::SRC_BUTTON()
         if (d.click)
         {
             s = std::make_shared<SpriteButton>(
-                textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, lr2skin::button::getButtonCallback(d.type), d.plusonly, eTimer::SCENE_START, d.div_y, d.div_x, false);
+                textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, lr2skin::button::getButtonCallback(d.type), d.panel, d.plusonly, eTimer::SCENE_START, d.div_y, d.div_x, false);
         }
         else
         {

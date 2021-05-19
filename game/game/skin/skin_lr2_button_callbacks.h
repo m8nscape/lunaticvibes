@@ -5,6 +5,6 @@
 namespace lr2skin::button
 {
 
-std::function<void(bool)> getButtonCallback(int type);
+std::function<void(int)> getButtonCallback(int type);
 
 }

@@ -9,6 +9,38 @@ static inline double grad(int dst, int src, double t)
     return dst * t + src * (1.0 - t);
 }
 
+bool checkPanel(int panelIdx)
+{
+    switch (panelIdx)
+    {
+    case -1:
+    {
+        bool panel =
+            gSwitches.get(eSwitch::SELECT_PANEL1) ||
+            gSwitches.get(eSwitch::SELECT_PANEL2) ||
+            gSwitches.get(eSwitch::SELECT_PANEL3) ||
+            gSwitches.get(eSwitch::SELECT_PANEL4) ||
+            gSwitches.get(eSwitch::SELECT_PANEL5) ||
+            gSwitches.get(eSwitch::SELECT_PANEL6) ||
+            gSwitches.get(eSwitch::SELECT_PANEL7) ||
+            gSwitches.get(eSwitch::SELECT_PANEL8) ||
+            gSwitches.get(eSwitch::SELECT_PANEL9);
+        return !panel;
+    }
+    case 0: return true;
+    case 1: return gSwitches.get(eSwitch::SELECT_PANEL1);
+    case 2: return gSwitches.get(eSwitch::SELECT_PANEL2);
+    case 3: return gSwitches.get(eSwitch::SELECT_PANEL3);
+    case 4: return gSwitches.get(eSwitch::SELECT_PANEL4);
+    case 5: return gSwitches.get(eSwitch::SELECT_PANEL5);
+    case 6: return gSwitches.get(eSwitch::SELECT_PANEL6);
+    case 7: return gSwitches.get(eSwitch::SELECT_PANEL7);
+    case 8: return gSwitches.get(eSwitch::SELECT_PANEL8);
+    case 9: return gSwitches.get(eSwitch::SELECT_PANEL9);
+    default: return false;
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // virtual base class functions
 vSprite::vSprite(pTexture tex, SpriteTypes type) :
@@ -893,24 +925,29 @@ bool SpriteOption::update(Time t)
 }
 
 SpriteButton::SpriteButton(pTexture texture,
-    unsigned animFrames, unsigned frameTime, std::function<void(int)> cb, int plusonlyValue, eTimer timer,
+    unsigned animFrames, unsigned frameTime, std::function<void(int)> cb, int panel, int plusonlyValue, eTimer timer,
     unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
     SpriteButton(texture, texture ? texture->getRect() : Rect(),
-        animFrames, frameTime, cb, plusonlyValue, timer,
+        animFrames, frameTime, cb, panel, plusonlyValue, timer,
         selRows, selCols, selVerticalIndexing) {}
 
 SpriteButton::SpriteButton(pTexture texture, const Rect& rect,
-    unsigned animFrames, unsigned frameTime, std::function<void(int)> cb, int plusonlyValue, eTimer timer,
+    unsigned animFrames, unsigned frameTime, std::function<void(int)> cb, int panel, int plusonlyValue, eTimer timer,
     unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
     SpriteOption(texture, rect, animFrames, frameTime, timer,
-        selRows, selCols, selVerticalIndexing), _callback(cb), _plusonly_value(plusonlyValue)
+        selRows, selCols, selVerticalIndexing), _callback(cb), _panel(panel), _plusonly_value(plusonlyValue)
 {
     _type = SpriteTypes::BUTTON;
 }
 
+
 bool SpriteButton::doIfInRange(int x, int y)
 {
     if (!_draw) return false;
+
+    if (_panel < -1 || _panel > 9) return false;
+    if (!checkPanel(_panel)) return false;
+
     if (_plusonly_value == 0)
     {
         int w_opt = _current.rect.w / 2;
@@ -920,12 +957,14 @@ bool SpriteButton::doIfInRange(int x, int y)
             {
                 // minus
                 _callback(-1);
+                LOG_DEBUG << "minus";
                 return true;
             }
             else if (x >= _current.rect.x + w_opt && x < _current.rect.x + _current.rect.w)
             {
                 // plus
                 _callback(1);
+                LOG_DEBUG << "plus";
                 return true;
             }
         }
@@ -1122,44 +1161,12 @@ SpriteOnMouse::SpriteOnMouse(pTexture texture, const Rect& rect,
 
 bool SpriteOnMouse::update(Time t)
 {
-    if (!checkPanel()) return false;
+    if (!checkPanel(panelIdx)) return false;
     if (SpriteSelection::update(t))
     {
         return true;
     }
     return false;
-}
-
-bool SpriteOnMouse::checkPanel()
-{
-    switch (panelIdx)
-    {
-    case -1:
-    {
-        bool panel =
-            gSwitches.get(eSwitch::SELECT_PANEL1) ||
-            gSwitches.get(eSwitch::SELECT_PANEL2) ||
-            gSwitches.get(eSwitch::SELECT_PANEL3) ||
-            gSwitches.get(eSwitch::SELECT_PANEL4) ||
-            gSwitches.get(eSwitch::SELECT_PANEL5) ||
-            gSwitches.get(eSwitch::SELECT_PANEL6) ||
-            gSwitches.get(eSwitch::SELECT_PANEL7) ||
-            gSwitches.get(eSwitch::SELECT_PANEL8) ||
-            gSwitches.get(eSwitch::SELECT_PANEL9);
-        return !panel;
-    }
-    case 0: return true;
-    case 1: return gSwitches.get(eSwitch::SELECT_PANEL1);
-    case 2: return gSwitches.get(eSwitch::SELECT_PANEL2);
-    case 3: return gSwitches.get(eSwitch::SELECT_PANEL3);
-    case 4: return gSwitches.get(eSwitch::SELECT_PANEL4);
-    case 5: return gSwitches.get(eSwitch::SELECT_PANEL5);
-    case 6: return gSwitches.get(eSwitch::SELECT_PANEL6);
-    case 7: return gSwitches.get(eSwitch::SELECT_PANEL7);
-    case 8: return gSwitches.get(eSwitch::SELECT_PANEL8);
-    case 9: return gSwitches.get(eSwitch::SELECT_PANEL9);
-    default: return false;
-    }
 }
 
 void SpriteOnMouse::checkMouseArea(int x, int y)

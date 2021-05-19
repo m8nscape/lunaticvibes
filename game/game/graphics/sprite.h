@@ -452,18 +452,19 @@ public:
 class SpriteButton : public SpriteOption
 {
 protected:
-    std::function<void(bool)> _callback;
+    std::function<void(int)> _callback;
+    int _panel;
     int _plusonly_value;
 
 public:
     SpriteButton() = delete;
 
     SpriteButton(pTexture texture,
-        unsigned animFrames, unsigned frameTime, std::function<void(int)> cb, int plusonlyValue, eTimer timer = eTimer::SCENE_START,
+        unsigned animFrames, unsigned frameTime, std::function<void(int)> cb, int panel, int plusonlyValue, eTimer timer = eTimer::SCENE_START,
         unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
 
     SpriteButton(pTexture texture, const Rect& rect,
-        unsigned animFrames, unsigned frameTime, std::function<void(int)> cb, int plusonlyValue, eTimer timer = eTimer::SCENE_START,
+        unsigned animFrames, unsigned frameTime, std::function<void(int)> cb, int panel, int plusonlyValue, eTimer timer = eTimer::SCENE_START,
         unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
 
     virtual ~SpriteButton() = default;
@@ -601,7 +602,6 @@ public:
 
 public:
     virtual bool update(Time t);
-    bool checkPanel();
     void checkMouseArea(int x, int y);
 };
 

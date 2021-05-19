@@ -77,6 +77,8 @@ struct PlayContextParams
     std::array<eGaugeOp, MAX_PLAYERS> gaugeType{};        // resolve on ruleset construction
     std::array<PlayMod, MAX_PLAYERS> mods{};         // eMod: 
 
+    // TODO FLIP
+
     eRuleset rulesetType = eRuleset::CLASSIC;
     std::array<std::shared_ptr<vRuleset>, MAX_PLAYERS> ruleset;
 
