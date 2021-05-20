@@ -543,7 +543,6 @@ int DecodeArchive(Path& path, DXArchive* output = NULL)
 {
 	u8* HeadBuffer = NULL;
 	DARC_HEAD_VER5 Head;
-	char OldDir[MAX_PATH];
 	u8 Key[DXA_KEYSTR_LENGTH_VER5];
 
 	// 鍵文字列の作成

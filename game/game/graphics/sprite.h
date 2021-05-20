@@ -244,13 +244,13 @@ class SpriteText: public SpriteStatic
 {
 private:
 	pFont _pFont;
+    Color _color;
     inline static std::mutex _updateMutex;
 
 protected:
     eText _textInd;
     std::string _currText;
 	TextAlign _align;
-    Color _color;
     //bool _haveRect = false;
 	//Rect _frameRect;
 
@@ -260,11 +260,12 @@ public:
     //SpriteText(pFont f, Rect rect, eText textInd = eText::INVALID, TextAlign align = TEXT_ALIGN_LEFT, unsigned ptsize = 72, Color c = 0xffffffff);
     virtual ~SpriteText() = default;
 public:
-    void updateTextRect();
-    void setText(std::string&& text, const Color& c);
+    virtual void updateTextRect();
 	virtual bool update(Time t);
     virtual void draw() const;
     TextAlign getAlignType() const { return _align; }
+private:
+    void setText(std::string&& text, const Color& c);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
