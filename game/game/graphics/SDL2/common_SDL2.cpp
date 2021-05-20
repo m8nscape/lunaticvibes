@@ -113,22 +113,32 @@ bool isGIF(const char* filePath)
 
 Image::Image(const std::filesystem::path& path) : Image(path.string().c_str()) {}
 
-Image::Image(const char* filePath) : _path(filePath), _pRWop(SDL_RWFromFile(filePath, "rb"), [](SDL_RWops* s) { if (s) s->close(s); })
+Image::Image(const char* filePath) : 
+    Image(filePath, std::shared_ptr<SDL_RWops>(SDL_RWFromFile(filePath, "rb"), [](SDL_RWops* s) { if (s) s->close(s); }))
 {
-    if (!_pRWop && strlen(filePath) > 0)
+}
+
+Image::Image(const char* format, void* data, size_t size): 
+    Image(format, std::shared_ptr<SDL_RWops>(SDL_RWFromMem(data, size), [](SDL_RWops* s) { if (s) s->close(s); }))
+{
+}
+
+Image::Image(const char* path, std::shared_ptr<SDL_RWops>&& rw): _path(path), _pRWop(rw)
+{
+    if (!_pRWop && strlen(path) > 0)
     {
         LOG_WARNING << "[Image] Load image file error! " << SDL_GetError();
     }
-    if (isTGA(filePath))
+    if (isTGA(path))
     {
         _pSurface = std::shared_ptr<SDL_Surface>(IMG_LoadTGA_RW(&*_pRWop), SDL_FreeSurface);
         setTransparentColorRGB(Color(0, 255, 0, -1));
     }
-    else if (isPNG(filePath))
+    else if (isPNG(path))
     {
         _pSurface = std::shared_ptr<SDL_Surface>(IMG_LoadPNG_RW(&*_pRWop), SDL_FreeSurface);
     }
-    else if (isGIF(filePath))
+    else if (isGIF(path))
     {
         _pSurface = std::shared_ptr<SDL_Surface>(IMG_LoadGIF_RW(&*_pRWop), SDL_FreeSurface);
         setTransparentColorRGB(Color(0, 255, 0, -1));

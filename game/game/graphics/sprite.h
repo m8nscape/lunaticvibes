@@ -21,6 +21,7 @@ enum class SpriteTypes
     SPLIT,
     ANIMATED,
     TEXT,
+    IMAGE_TEXT,
 
     NUMBER,
 	SLIDER,
@@ -243,11 +244,13 @@ class SpriteText: public SpriteStatic
 {
 private:
 	pFont _pFont;
+    inline static std::mutex _updateMutex;
+
+protected:
     eText _textInd;
     std::string _currText;
 	TextAlign _align;
     Color _color;
-    inline static std::mutex _updateMutex;
     //bool _haveRect = false;
 	//Rect _frameRect;
 

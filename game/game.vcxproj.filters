@@ -168,6 +168,12 @@
     <ClCompile Include="game\sound\sound_sample.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="game\graphics\sprite_imagetext.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="common\dxa.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sysutil.h">
@@ -369,6 +375,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="game\data\data.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="game\graphics\sprite_imagetext.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="common\dxa.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -9,6 +9,7 @@
 #include "sysutil.h"
 #include "game/scene/scene_context.h"
 #include "game/generic_info.h"
+#include "dxa.h"
 #include <plog/Log.h>
 #include <plog/Init.h>
 #include <plog/Formatters/TxtFormatter.h>
@@ -25,6 +26,8 @@
 #include <Windows.h>
 #pragma comment(lib, "winmm.lib")
 #endif //WIN32
+
+#include <regex>
 
 bool gEventQuit;
 GenericInfoUpdater gGenericInfo{ 1 };
@@ -105,6 +108,21 @@ int main(int argc, char* argv[])
         return ginit;
     if (auto sinit = SoundMgr::initFMOD())
         return sinit;
+
+    // extract dxa
+    for (auto& it : std::filesystem::recursive_directory_iterator("./LR2Files/Theme"))
+    {
+        if (std::filesystem::is_regular_file(it))
+        {
+            auto ext = it.path().extension().string();
+            for (char& c: ext) c = std::tolower(c);
+            if (ext == ".dxa")
+            {
+                LOG_INFO << "Extracting DXArchive file " << it.path().string() << "...";
+                extractDxaToFile(it.path());
+            }
+        }
+    }
 
 	// load input bindings
 	InputMgr::updateDevices();

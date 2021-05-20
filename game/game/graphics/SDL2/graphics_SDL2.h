@@ -113,9 +113,12 @@ private:
     std::shared_ptr<SDL_Surface> _pSurface;
     bool _loaded = false;
     //bool _haveAlphaLayer = false;
+private:
+    Image(const char* path, std::shared_ptr<SDL_RWops>&& rw);
 public:
 	Image(const std::filesystem::path& path);
     Image(const char* filePath);
+    Image(const char* format, void* bmp, size_t size);
     ~Image();
     void setTransparentColorRGB(Color c);
 public:
