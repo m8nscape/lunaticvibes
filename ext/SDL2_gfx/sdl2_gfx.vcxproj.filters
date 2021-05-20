@@ -15,38 +15,38 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\ext\SDL2_gfx\include\SDL2_framerate.h">
+    <ClInclude Include="include\SDL2_framerate.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\ext\SDL2_gfx\include\SDL2_gfxPrimitives.h">
+    <ClInclude Include="include\SDL2_gfxPrimitives.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\ext\SDL2_gfx\include\SDL2_gfxPrimitives_font.h">
+    <ClInclude Include="include\SDL2_gfxPrimitives_font.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\ext\SDL2_gfx\include\SDL2_imageFilter.h">
+    <ClInclude Include="include\SDL2_imageFilter.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\ext\SDL2_gfx\include\SDL2_rotozoom.h">
+    <ClInclude Include="include\SDL2_rotozoom.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\ext\SDL2_gfx\src\SDL2_framerate.c">
+    <ClCompile Include="src\SDL2_framerate.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\ext\SDL2_gfx\src\SDL2_gfxPrimitives.c">
+    <ClCompile Include="src\SDL2_gfxPrimitives.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\ext\SDL2_gfx\src\SDL2_imageFilter.c">
+    <ClCompile Include="src\SDL2_imageFilter.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\ext\SDL2_gfx\src\SDL2_rotozoom.c">
+    <ClCompile Include="src\SDL2_rotozoom.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\ext\SDL2_gfx\src\SDL2_gfxMMX.asm">
+    <None Include="src\SDL2_gfxMMX.asm">
       <Filter>源文件</Filter>
     </None>
     <None Include="packages.config" />
