@@ -424,6 +424,10 @@ void ScenePlay::loadChart()
             gChartContext.isSampleLoaded = true;
         });
     }
+    else
+    {
+        gChartContext.isSampleLoaded = true;
+    }
 
     // load bga
     if (ConfigMgr::get("P", cfg::P_LOAD_BGA, cfg::ON) == cfg::ON && !gChartContext.isBgaLoaded && !sceneEnding)
@@ -482,6 +486,10 @@ void ScenePlay::loadChart()
 			gPlayContext.bgaTexture->setSlotFromBMS(*std::reinterpret_pointer_cast<chartBMS>(gPlayContext.chartObj[gPlayContext.playerSlot]));
             gChartContext.isBgaLoaded = true;
         });
+    }
+    else
+    {
+        gChartContext.isBgaLoaded = true;
     }
 }
 
