@@ -50,8 +50,8 @@ void SpriteImageText::setText(std::string&& text)
     */
 
     // convert UTF-8 to UTF-32
-    auto& ex_utf32 = std::use_facet<std::codecvt<char32_t, char, std::mbstate_t>>(std::locale(""));
-    std::u32string u32Text(_currText.size() * ex_utf32.max_length(), '\0');
+    auto& in_utf32 = std::use_facet<std::codecvt<char32_t, char, std::mbstate_t>>(std::locale(""));
+    std::u32string u32Text(_currText.size() * in_utf32.max_length(), '\0');
 
     std::mbstate_t s;
     const char* from_next = &_currText[0];
@@ -59,7 +59,7 @@ void SpriteImageText::setText(std::string&& text)
 
     std::codecvt_base::result res;
     do {
-        res = ex_utf32.in(s,
+        res = in_utf32.in(s,
             from_next, &_currText[_currText.size()], from_next,
             to_next, &u32Text[u32Text.size()], to_next);
 
@@ -81,9 +81,8 @@ void SpriteImageText::setText(std::string&& text)
         {
             auto r = _chrList[c].textureRect;
             _drawList.push_back({ c, {x, 0, r.w, r.h} });
-            x += r.x + _margin;
-
             w = x + r.w;
+            x += r.w + _margin;
             h = std::max(h, r.h);
         }
     }
@@ -92,30 +91,52 @@ void SpriteImageText::setText(std::string&& text)
 
 void SpriteImageText::updateTextRect()
 {
-    // fitting
-    double sizeFactor = (double)_current.rect.h / _drawRect.h;
+    // size
+    double sizeFactor = 1.0;
+    if (_current.rect.h != _drawRect.h)
+    {
+        double sizeFactor = (double)_current.rect.h / _drawRect.h;
+        for (auto& [c, r] : _drawList)
+        {
+            r.x *= sizeFactor;
+            r.w *= sizeFactor;
+            r.h *= sizeFactor;
+        }
+    }
+
     int text_w = static_cast<int>(std::round(_drawRect.w * sizeFactor));
-    double widthFactor = (double)_current.rect.w / text_w;
-    if (widthFactor > 1.0)
+    // align
+    //if (text_w < _current.rect.w)
     {
         switch (_align)
         {
         case TEXT_ALIGN_LEFT:
             break;
         case TEXT_ALIGN_CENTER:
-            _current.rect.x += (_current.rect.w - text_w) / 2;
+            for (auto& [c, r] : _drawList) r.x -= text_w / 2;
             break;
         case TEXT_ALIGN_RIGHT:
-            _current.rect.x += (_current.rect.w - text_w);
+            for (auto& [c, r] : _drawList) r.x -= text_w;
             break;
         }
-        _current.rect.w = text_w;
     }
 
-    for (auto [c, r] : _drawList)
+    // shrink
+    if (text_w > _current.rect.w)
     {
-        r.x *= sizeFactor;
-        r.h *= sizeFactor;
+        double widthFactor = (double)_current.rect.w / text_w;
+        for (auto& [c, r] : _drawList)
+        {
+            r.x *= widthFactor;
+            r.w *= widthFactor;
+        }
+    }
+
+    // move
+    for (auto& [c, r] : _drawList)
+    {
+        r.x += _current.rect.x;
+        r.y = _current.rect.y;
     }
 
     /*
@@ -155,7 +176,7 @@ void SpriteImageText::draw() const
         for (auto [c, r] : _drawList)
         {
             size_t idx = _chrList.at(c).textureIdx;
-            _textures[idx]->draw(r, _current.color, _current.blend, _current.filter, _current.angle);
+            _textures[idx]->draw(_chrList.at(c).textureRect, r, _current.color, _current.blend, _current.filter, _current.angle);
         }
     }
 }

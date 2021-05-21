@@ -607,14 +607,95 @@ int SkinLR2::IMAGE()
     return 0;
 }
 
-int SkinLR2::FONT()
+int SkinLR2::LR2FONT()
 {
-	// TODO load LR2FONT
     if (optBuf == "#LR2FONT")
     {
         Path path(tokensBuf[0]);
-        //lr2fontPath.push_back(std::move(path));
-        LOG_DEBUG << "[Skin] " << srcLine << ": Skipped LR2FONT: " << path.string();
+        if (!std::filesystem::is_regular_file(path))
+        {
+            size_t idx = LR2FontNameMap.size();
+            LR2FontNameMap[std::to_string(idx)] = nullptr;
+            LOG_WARNING << "[Skin] " << srcLine << ": LR2FONT file not found: " << path.string();
+            return 0;
+        }
+
+        std::ifstream lr2font(path, std::ios::binary); 
+
+        auto pf = std::make_shared<LR2Font>();
+
+        while (!lr2font.eof())
+        {
+            auto raw = csvNextLineTokenize(lr2font);
+            if (raw.begin() == raw.end()) continue;
+            auto optBuf = raw[0];
+
+            if (optBuf == "#S")
+            {
+                pf->S = stoine(raw[1]);
+            }
+            else if (optBuf == "#M")
+            {
+                pf->M = stoine(raw[1]);
+            }
+            else if (optBuf == "#T")
+            {
+                size_t idx = pf->T_id.size();
+                pf->T_id[stoine(raw[1])] = idx;
+
+                // スキンcsvとは違って「lr2fontファイルからの相対参照」で画像ファイルを指定します。
+                Path p = path.parent_path() / Path(raw[2]);
+                pf->T_texture.push_back(std::make_shared<Texture>(Image(p.string().c_str())));
+            }
+            else if (optBuf == "#R")
+            {
+                int imgId = stoine(raw[2]);
+                if (pf->T_id.find(imgId) == pf->T_id.end()) continue;
+
+                int chrId = stoine(raw[1]);
+                char s_sjis[3]{ 0 };
+                char32_t c_utf32 = '\0';
+                if (chrId >= 0 && chrId <= 255)
+                {
+                    // ID = ASCII
+                    s_sjis[0] = chrId & 0xFF;
+                }
+                else if (chrId >= 256 && chrId <= 8126)
+                {
+                    // ID = Shift-JIS文字コードを10進数に変換して32832を引いた値
+                    int i = chrId + 32832;
+                    s_sjis[0] = (i >> 8) & 0xFF;
+                    s_sjis[1] = i & 0xFF;
+
+                }
+                else if (chrId >= 8127 && chrId <= 15306)
+                {
+                    // ID = Shift-JIS文字コードを10進数に変換して49281を引いてた値
+                    int i = chrId + 49281;
+                    s_sjis[0] = (i >> 8) & 0xFF;
+                    s_sjis[1] = i & 0xFF;
+                }
+                else continue;
+
+                // convert Shift-JIS to UTF-32
+                {
+                    Path tmp{ s_sjis, std::locale(".932") };
+                    c_utf32 = tmp.u32string()[0];
+                }
+
+                Rect r;
+                r.x = stoine(raw[3]);
+                r.y = stoine(raw[4]);
+                r.w = stoine(raw[5]);
+                r.h = stoine(raw[6]);
+
+                pf->R[c_utf32] = {pf->T_id.at(imgId), r};
+            }
+        }
+
+        size_t idx = LR2FontNameMap.size();
+        LR2FontNameMap[std::to_string(idx)] = pf;
+        LOG_DEBUG << "[Skin] " << srcLine << ": Added LR2FONT: " << path.string();
         return 1;
     }
     return 0;
@@ -1139,8 +1220,19 @@ ParseRet SkinLR2::SRC_TEXT()
 	lr2skin::s_text d;
 	convertLine(tokensBuf, (int*)&d, 0, 4);
 
-	_sprites.push_back(std::make_shared<SpriteText>(
-		_fontNameMap[std::to_string(d.font)], (eText)d.st, (TextAlign)d.align));
+    auto font = std::to_string(d.font);
+    if (LR2FontNameMap.find(font) != LR2FontNameMap.end() && LR2FontNameMap[font] != nullptr)
+    {
+        auto& pf = LR2FontNameMap[font];
+        _sprites.push_back(std::make_shared<SpriteImageText>(
+            pf->T_texture, pf->R, (eText)d.st, (TextAlign)d.align, pf->S, pf->M));
+    }
+    else
+    {
+        _sprites.push_back(std::make_shared<SpriteText>(
+            _fontNameMap[std::to_string(d.font)], (eText)d.st, (TextAlign)d.align));
+    }
+
     _sprites_child.push_back(_sprites.back());
     _sprites.back()->setSrcLine(srcLine);
 
@@ -1734,7 +1826,17 @@ ParseRet SkinLR2::SRC_BAR_TITLE()
 
     for (auto& bar : _barSprites)
     {
-        bar->setTitle(type, _fontNameMap[std::to_string(d.font)], (TextAlign)d.align);
+        auto font = std::to_string(d.font);
+        if (LR2FontNameMap.find(font) != LR2FontNameMap.end() && LR2FontNameMap[font] != nullptr)
+        {
+            auto& pf = LR2FontNameMap[font];
+            bar->setTitle(type, pf->T_texture, pf->R, (TextAlign)d.align, pf->S, pf->M);
+        }
+        else
+        {
+            bar->setTitle(type, _fontNameMap[font], (TextAlign)d.align);
+        }
+
         bar->getSpriteTitle(type)->setParent(bar->weak_from_this());
     }
 
@@ -2578,7 +2680,7 @@ int SkinLR2::parseBody(const Tokens &raw)
     try {
         if (IMAGE())
             return 1;
-        if (FONT())
+        if (LR2FONT())
             return 2;
         if (SYSTEMFONT())
             return 3;

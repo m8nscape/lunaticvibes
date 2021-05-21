@@ -6,12 +6,12 @@
 
 struct CharMapping
 {
-    int textureIdx;
+    size_t textureIdx;
     Rect textureRect;
 };
 using CharMappingList = std::map<char32_t, CharMapping>;
 
-class SpriteImageText : SpriteText
+class SpriteImageText : public SpriteText
 {
 protected:
     std::vector<pTexture> _textures;

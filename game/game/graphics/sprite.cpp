@@ -442,8 +442,7 @@ void SpriteText::updateTextRect()
 	Rect textRect = _texRect;
 	double sizeFactor = (double)_current.rect.h / textRect.h;
 	int text_w = static_cast<int>(std::round(textRect.w * sizeFactor));
-	double widthFactor = (double)_current.rect.w / text_w;
-	if (widthFactor > 1.0)
+    if (text_w < _current.rect.w)
 	{
 		switch (_align)
 		{

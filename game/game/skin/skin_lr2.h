@@ -11,6 +11,7 @@
 #include "game/graphics/sprite_lane.h"
 #include "game/graphics/sprite_video.h"
 #include "game/graphics/sprite_bar_entry.h"
+#include "game/graphics/sprite_imagetext.h"
 #include "game/input/input_mgr.h"
 #include "game/data/switch.h"
 
@@ -1322,9 +1323,10 @@ namespace LR2SkinDef
 using namespace LR2SkinDef;
 
 struct setDst { dst_option dst; bool set; };
-//typedef std::function<int(SkinLR2*, const Tokens&, pTexture)> LoadLR2SrcFunc;
+
 class SkinLR2;
 typedef std::function<ParseRet(SkinLR2*)> LoadLR2SrcFunc;
+
 
 class SkinLR2: public vSkin
 {
@@ -1353,6 +1355,16 @@ private:
         size_t value;
     };
     std::vector<CustomFile> customFile;
+
+	struct LR2Font
+	{
+		int S = 1;
+		int M = 0;
+		std::map<int, size_t> T_id;
+		std::vector<pTexture> T_texture;
+		CharMappingList R;
+	};
+	std::map<std::string, std::shared_ptr<LR2Font>> LR2FontNameMap;
 
 protected:
     size_t imageCount = 0;
@@ -1384,6 +1396,7 @@ protected:
 
 protected:
     std::vector<std::shared_ptr<SpriteLaneVertical>> _laneSprites;
+	std::map<std::string, pFont>  _fontNameMap;
 
 private:
     unsigned srcLine = 0;          // line parsing index
@@ -1412,7 +1425,7 @@ private:
 
     int IMAGE        ();
     int INCLUDE      ();
-    int FONT         ();
+    int LR2FONT         ();
     int SYSTEMFONT   ();
     int TIMEOPTION   ();
     int others       ();

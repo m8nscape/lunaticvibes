@@ -84,6 +84,15 @@ int SpriteBarEntry::setTitle(BarTitleType type, pFont f, TextAlign align, unsign
     return 0;
 }
 
+int SpriteBarEntry::setTitle(BarTitleType type, std::vector<pTexture>& textures, CharMappingList& chrList,
+    TextAlign align, unsigned height, int margin)
+{
+    const size_t i = int(eText::_SELECT_BAR_TITLE_FULL_0) + index;
+    sTitle[static_cast<size_t>(type)] = std::make_shared<SpriteImageText>(textures, chrList, eText(i), align, height, margin);
+    sTitle[static_cast<size_t>(type)]->setParent(weak_from_this());
+    return 0;
+}
+
 int SpriteBarEntry::setRank(BarRankType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
     eTimer timer, bool texVertSplit)
 {
