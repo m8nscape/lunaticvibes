@@ -341,7 +341,7 @@ namespace lr2skin
 
 }
 
-
+std::map<Path, std::shared_ptr<SkinLR2::LR2Font>> SkinLR2::LR2FontCache;
 
 int SkinLR2::setExtendedProperty(std::string&& key, void* value)
 {
@@ -611,13 +611,20 @@ int SkinLR2::LR2FONT()
 {
     if (optBuf == "#LR2FONT")
     {
-        Path path(tokensBuf[0]);
+        Path path = std::filesystem::absolute(Path(tokensBuf[0]));
+        size_t idx = LR2FontNameMap.size();
+
         if (!std::filesystem::is_regular_file(path))
         {
-            size_t idx = LR2FontNameMap.size();
             LR2FontNameMap[std::to_string(idx)] = nullptr;
             LOG_WARNING << "[Skin] " << srcLine << ": LR2FONT file not found: " << path.string();
             return 0;
+        }
+
+        if (LR2FontCache.find(path) != LR2FontCache.end())
+        {
+            LR2FontNameMap[std::to_string(idx)] = LR2FontCache[path];
+            return 1;
         }
 
         std::ifstream lr2font(path, std::ios::binary); 
@@ -693,7 +700,7 @@ int SkinLR2::LR2FONT()
             }
         }
 
-        size_t idx = LR2FontNameMap.size();
+        LR2FontCache[path] = pf;
         LR2FontNameMap[std::to_string(idx)] = pf;
         LOG_DEBUG << "[Skin] " << srcLine << ": Added LR2FONT: " << path.string();
         return 1;

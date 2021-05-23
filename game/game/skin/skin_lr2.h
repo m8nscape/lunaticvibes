@@ -1364,6 +1364,7 @@ private:
 		std::vector<pTexture> T_texture;
 		CharMappingList R;
 	};
+	static std::map<Path, std::shared_ptr<LR2Font>> LR2FontCache;
 	std::map<std::string, std::shared_ptr<LR2Font>> LR2FontNameMap;
 
 protected:
