@@ -38,6 +38,16 @@ int graphics_init()
             title += std::to_string(VER_PATCH);
         }
 
+        /*
+        for (int i = 0; i < SDL_GetNumRenderDrivers(); ++i)
+        {
+            SDL_RendererInfo rendererInfo = {};
+            SDL_GetRenderDriverInfo(i, &rendererInfo);
+            LOG_INFO << rendererInfo.name;
+        }
+        */
+        SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
+
         auto mode = ConfigMgr::get("V", cfg::V_WINMODE, cfg::V_WINMODE_WINDOWED);
         if (mode == cfg::V_WINMODE_BORDERLESS)
         {
