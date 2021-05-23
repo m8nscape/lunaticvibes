@@ -3,9 +3,8 @@
 #include <chrono>
 #include <plog/Log.h>
 
-AsyncLooper::AsyncLooper(std::function<void()> func, unsigned rate_per_sec, bool single_inst) : _do(func), _single_inst(single_inst)
+AsyncLooper::AsyncLooper(std::function<void()> func, unsigned rate_per_sec, bool single_inst) : _loopFunc(func)
 {
-    _run = std::bind(single_inst ? &AsyncLooper::run_single : &AsyncLooper::run, this);
     _loopTimeBuffer.assign(LOOP_TIME_BUFFER_SIZE, 0);
     _bufferIt = _loopTimeBuffer.begin();
     
@@ -15,27 +14,17 @@ AsyncLooper::AsyncLooper(std::function<void()> func, unsigned rate_per_sec, bool
 
 AsyncLooper::~AsyncLooper()
 {
+    std::lock_guard<decltype(_loopMutex)> _lock(_loopMutex);
+
     loopEnd();
     //if (_single_inst)
-    //    std::unique_lock<decltype(_mutex)> _lock(_mutex);
+    //    std::unique_lock<decltype(_loopMutex)> _lock(_loopMutex);
 }
 
 void AsyncLooper::run()
 {
-    _do();
-}
-
-void AsyncLooper::run_single()
-{
-    //std::unique_lock<decltype(_mutex)> _lock(_mutex, std::try_to_lock);
-    //if (_lock.owns_lock())
-    //    _do();
-
-    if (_in_do) return;
-
-    _in_do = true;
-    _do();
-    _in_do = false;
+    std::lock_guard<decltype(_loopMutex)> _lock(_loopMutex);
+    _loopFunc();
 }
 
 unsigned AsyncLooper::getRate()
@@ -78,7 +67,7 @@ unsigned AsyncLooper::getRateRealtime()
 typedef HANDLE LooperHandler;
 VOID CALLBACK WaitOrTimerCallback(_In_ PVOID lpParameter, _In_ BOOLEAN TimerOrWaitFired)
 {
-    ((AsyncLooper*)lpParameter)->_run();
+    ((AsyncLooper*)lpParameter)->run();
 }
 
 void AsyncLooper::loopStart()
@@ -107,6 +96,7 @@ void AsyncLooper::loopEnd()
         // ..?
     }
     _running = false;
+
     LOG_DEBUG << "[Looper] Ended of rate " << _rateTime;
 }
 

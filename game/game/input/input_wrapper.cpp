@@ -3,7 +3,7 @@
 #include <plog/Log.h>
 #include <cassert>
 
-InputWrapper::InputWrapper(unsigned rate) : AsyncLooper(std::bind(&InputWrapper::_loop, this), rate, true)
+InputWrapper::InputWrapper(unsigned rate) : AsyncLooper(std::bind(&InputWrapper::_loop, this), rate)
 {
 }
 
@@ -12,7 +12,7 @@ InputWrapper::~InputWrapper()
     loopEnd();
 
     {
-        std::lock_guard _lock(_mutex);
+        std::lock_guard _lock(_inputMutex);
         _pCallbackMap.clear();
         _hCallbackMap.clear();
         _rCallbackMap.clear();
@@ -61,7 +61,7 @@ void InputWrapper::_loop()
     InputMgr::getMousePos(_cursor_x, _cursor_y);
 
     {
-        std::lock_guard l(_mutex);
+        std::lock_guard l(_inputMutex);
 
         if (p != 0)
             for (auto& [cbname, callback] : _pCallbackMap)
@@ -80,7 +80,7 @@ bool InputWrapper::_register(unsigned type, const std::string& key, INPUTCALLBAC
     if (_pCallbackMap.find(key) != _pCallbackMap.end())
         return false;
 
-	std::lock_guard _lock(_mutex);
+	std::lock_guard _lock(_inputMutex);
 
     switch (type)
     {
@@ -96,7 +96,7 @@ bool InputWrapper::_unregister(unsigned type, const std::string& key)
     if (_pCallbackMap.find(key) == _pCallbackMap.end())
         return false;
 
-	std::lock_guard _lock(_mutex);
+	std::lock_guard _lock(_inputMutex);
 
     switch (type)
     {

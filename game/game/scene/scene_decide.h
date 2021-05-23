@@ -12,7 +12,6 @@ enum class eDecideState
 class SceneDecide : public vScene
 {
 private:
-    std::mutex _mutex;
     eDecideState _state;
     InputMask _inputAvailable;
 

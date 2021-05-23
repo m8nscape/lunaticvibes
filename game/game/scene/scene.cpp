@@ -9,7 +9,7 @@
 #include "game/skin/skin_mgr.h"
 
 // prototype
-vScene::vScene(eMode mode, unsigned rate) : _input(), AsyncLooper(std::bind(&vScene::_updateAsync, this), rate, true)
+vScene::vScene(eMode mode, unsigned rate) : _input(), AsyncLooper(std::bind(&vScene::_updateAsync, this), rate)
 {
     _skin = SkinMgr::get(mode);
 	Time t;

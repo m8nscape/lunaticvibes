@@ -709,6 +709,8 @@ void SceneSelect::_decide()
         break;
     }
 
+    loopEnd();
+    _input.loopEnd();
     gNextScene = eScene::DECIDE;
 }
 

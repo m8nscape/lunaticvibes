@@ -30,12 +30,11 @@ private:
     void _recordLoopTime();
 
 protected:
-    bool _in_do = false;
-    bool _single_inst;
     unsigned _rate;
     unsigned _rateTime;
     bool _running = false;
     LooperHandler handler = nullptr;
+    std::mutex _loopMutex;
 
 public:
     AsyncLooper(std::function<void()>, unsigned rate_per_sec, bool single_inst = false);
@@ -46,10 +45,8 @@ public:
     unsigned getRateRealtime();
 
 private:
-    std::function<void()> _do;
-    std::function<void()> _run;
+    std::function<void()> _loopFunc;
     void run();
-    void run_single();
 #if WIN32
     friend VOID CALLBACK WaitOrTimerCallback(_In_ PVOID lpParameter, _In_ BOOLEAN TimerOrWaitFired);
 #elif LINUX

@@ -38,7 +38,7 @@ class InputWrapper: public AsyncLooper
 public:
     inline static unsigned release_delay_ms = 5;
 private:
-	std::mutex _mutex;
+	std::mutex _inputMutex;
     bool _busy = false;
 
 protected:
