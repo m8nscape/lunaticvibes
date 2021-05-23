@@ -140,7 +140,9 @@ void graphics_flush()
 int graphics_free()
 {
     SDL_DestroyRenderer(gFrameRenderer);
+    gFrameRenderer = nullptr;
     SDL_DestroyWindow(gFrameWindow);
+    gFrameWindow = nullptr;
     TTF_Quit();
     IMG_Quit();
 	SDL_Quit();

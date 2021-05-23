@@ -190,7 +190,7 @@ Texture::Texture(const Image& srcImage)
     std::lock_guard u(gRenderMutex);
     _pTexture = std::shared_ptr<SDL_Texture>(
         SDL_CreateTextureFromSurface(gFrameRenderer, &*srcImage._pSurface),
-        [](SDL_Texture* p) {if (p) SDL_DestroyTexture(p); });
+        [](SDL_Texture* p) {if (p && gFrameRenderer) SDL_DestroyTexture(p); });
     if (_pTexture)
     {
         // TODO set transparent color
@@ -213,7 +213,7 @@ Texture::Texture(const SDL_Surface* pSurface)
     std::lock_guard u(gRenderMutex);
     _pTexture = std::shared_ptr<SDL_Texture>(
         SDL_CreateTextureFromSurface(gFrameRenderer, const_cast<SDL_Surface*>(pSurface)),
-        [](SDL_Texture* p) { if (p) SDL_DestroyTexture(p); });
+        [](SDL_Texture* p) { if (p && gFrameRenderer) SDL_DestroyTexture(p); });
     if (!_pTexture) return;
     _texRect = pSurface->clip_rect;
     _loaded = true;
@@ -224,7 +224,7 @@ Texture::Texture(const SDL_Texture* pTexture, int w, int h)
     std::lock_guard u(gRenderMutex);
     _pTexture = std::shared_ptr<SDL_Texture>(
         const_cast<SDL_Texture*>(pTexture), 
-        [](SDL_Texture* p) { if (p) SDL_DestroyTexture(p); });
+        [](SDL_Texture* p) { if (p && gFrameRenderer) SDL_DestroyTexture(p); });
     if (!pTexture) return;
     _texRect = {0, 0, w, h};
     _loaded = true;
@@ -254,7 +254,7 @@ Texture::Texture(int w, int h, PixelFormat fmt)
         std::lock_guard u(gRenderMutex);
         _pTexture = std::shared_ptr<SDL_Texture>(
             SDL_CreateTexture(gFrameRenderer, sdlfmt, SDL_TEXTUREACCESS_STREAMING, w, h), 
-            [](SDL_Texture* p) { if (p) SDL_DestroyTexture(p); });
+            [](SDL_Texture* p) { if (p && gFrameRenderer) SDL_DestroyTexture(p); });
 		if (_pTexture) _loaded = true;
 	}
 }
@@ -342,7 +342,7 @@ TextureFull::TextureFull(const Color& c): Texture(nullptr)
     SDL_FillRect(&*surface, &_texRect, SDL_MapRGBA(surface->format, c.r, c.g, c.b, c.a));
     _pTexture = std::shared_ptr<SDL_Texture>(
         SDL_CreateTextureFromSurface(gFrameRenderer, surface),
-        [](SDL_Texture* p) {if (p) SDL_DestroyTexture(p); });
+        [](SDL_Texture* p) {if (p && gFrameRenderer) SDL_DestroyTexture(p); });
     SDL_FreeSurface(surface);
     _loaded = true;
 }
