@@ -2014,23 +2014,6 @@ int SkinLR2::DST()
 
 	ret = __general_dst_supported.at(opt);
 
-    // DST_TEXT align adjust
-    if (e->type() == SpriteTypes::TEXT)
-    {
-        auto p = std::reinterpret_pointer_cast<SpriteText>(e);
-        switch (p->getAlignType())
-        {
-        case TEXT_ALIGN_CENTER:
-            d.x -= d.w / 2;
-            break;
-        case TEXT_ALIGN_RIGHT:
-            d.x -= d.w;
-            break;
-        default:
-            break;
-        }
-    }
-
     if (e->isKeyFrameEmpty())
     {
         if (convertLine(tokensBuf, (int*)&d, 15, 2) >= 2)

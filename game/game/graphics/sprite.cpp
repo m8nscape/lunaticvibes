@@ -442,21 +442,18 @@ void SpriteText::updateTextRect()
 	Rect textRect = _texRect;
 	double sizeFactor = (double)_current.rect.h / textRect.h;
 	int text_w = static_cast<int>(std::round(textRect.w * sizeFactor));
-    if (text_w < _current.rect.w)
+	switch (_align)
 	{
-		switch (_align)
-		{
-		case TEXT_ALIGN_LEFT:
-			break;
-		case TEXT_ALIGN_CENTER:
-			_current.rect.x += (_current.rect.w - text_w) / 2;
-			break;
-		case TEXT_ALIGN_RIGHT:
-			_current.rect.x += (_current.rect.w - text_w);
-			break;
-		}
-		_current.rect.w = text_w;
+	case TEXT_ALIGN_LEFT:
+		break;
+	case TEXT_ALIGN_CENTER:
+		_current.rect.x -= text_w / 2;
+		break;
+	case TEXT_ALIGN_RIGHT:
+		_current.rect.x -= text_w;
+		break;
 	}
+	_current.rect.w = text_w;
 
     /*
     if (_haveParent && !_parent.expired())

@@ -95,7 +95,7 @@ void SpriteImageText::updateTextRect()
     double sizeFactor = 1.0;
     if (_current.rect.h != _drawRect.h)
     {
-        double sizeFactor = (double)_current.rect.h / _drawRect.h;
+        sizeFactor = (double)_current.rect.h / _drawRect.h;
         for (auto& [c, r] : _drawList)
         {
             r.x *= sizeFactor;
@@ -104,24 +104,8 @@ void SpriteImageText::updateTextRect()
         }
     }
 
-    int text_w = static_cast<int>(std::round(_drawRect.w * sizeFactor));
-    // align
-    //if (text_w < _current.rect.w)
-    {
-        switch (_align)
-        {
-        case TEXT_ALIGN_LEFT:
-            break;
-        case TEXT_ALIGN_CENTER:
-            for (auto& [c, r] : _drawList) r.x -= text_w / 2;
-            break;
-        case TEXT_ALIGN_RIGHT:
-            for (auto& [c, r] : _drawList) r.x -= text_w;
-            break;
-        }
-    }
-
     // shrink
+    int text_w = static_cast<int>(std::round(_drawRect.w * sizeFactor));
     if (text_w > _current.rect.w)
     {
         double widthFactor = (double)_current.rect.w / text_w;
@@ -130,13 +114,27 @@ void SpriteImageText::updateTextRect()
             r.x *= widthFactor;
             r.w *= widthFactor;
         }
+        text_w = _current.rect.w;
+    }
+
+    // align
+    switch (_align)
+    {
+    case TEXT_ALIGN_LEFT:
+        break;
+    case TEXT_ALIGN_CENTER:
+        for (auto& [c, r] : _drawList) r.x -= text_w / 2;
+        break;
+    case TEXT_ALIGN_RIGHT:
+        for (auto& [c, r] : _drawList) r.x -= text_w;
+        break;
     }
 
     // move
     for (auto& [c, r] : _drawList)
     {
         r.x += _current.rect.x;
-        r.y = _current.rect.y;
+        r.y += _current.rect.y;
     }
 
     /*
