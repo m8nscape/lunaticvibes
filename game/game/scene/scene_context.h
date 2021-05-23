@@ -61,7 +61,6 @@ struct PlayContextParams
     bool canRetry = false;
     bool isCourse = false;
     bool isCourseFirstStage = false;
-    size_t playerSlot = PLAYER_SLOT_1P;  // 1P starts from 0
     unsigned judgeLevel = 0;
 
     std::shared_ptr<vChart> chartObj[2]{ nullptr, nullptr };

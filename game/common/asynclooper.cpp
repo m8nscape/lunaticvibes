@@ -24,7 +24,8 @@ AsyncLooper::~AsyncLooper()
 void AsyncLooper::run()
 {
     std::lock_guard<decltype(_loopMutex)> _lock(_loopMutex);
-    _loopFunc();
+    if (_running)
+        _loopFunc();
 }
 
 unsigned AsyncLooper::getRate()
@@ -90,12 +91,12 @@ void AsyncLooper::loopStart()
 void AsyncLooper::loopEnd()
 {
     if (!_running) return;
+    _running = false;
 
     if (DeleteTimerQueueTimer(NULL, handler, NULL))
     {
         // ..?
     }
-    _running = false;
 
     LOG_DEBUG << "[Looper] Ended of rate " << _rateTime;
 }

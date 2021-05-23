@@ -36,6 +36,74 @@ static const InputDataMap InputGamePressMap[] =
     { eTimer::K1SPDDN_DOWN, eSwitch::K1SPDDN_DOWN },
     { eTimer::S2L_DOWN, eSwitch::S2L_DOWN },
     { eTimer::S2R_DOWN, eSwitch::S2R_DOWN },
+    { eTimer::K21_DOWN, eSwitch::K11_DOWN },
+    { eTimer::K22_DOWN, eSwitch::K12_DOWN },
+    { eTimer::K23_DOWN, eSwitch::K13_DOWN },
+    { eTimer::K24_DOWN, eSwitch::K14_DOWN },
+    { eTimer::K25_DOWN, eSwitch::K15_DOWN },
+    { eTimer::K26_DOWN, eSwitch::K16_DOWN },
+    { eTimer::K27_DOWN, eSwitch::K17_DOWN },
+    { eTimer::K28_DOWN, eSwitch::K18_DOWN },
+    { eTimer::K29_DOWN, eSwitch::K19_DOWN },
+    { eTimer::K2START_DOWN, eSwitch::K1START_DOWN },
+    { eTimer::K2SELECT_DOWN, eSwitch::K1SELECT_DOWN },
+    { eTimer::K2SPDUP_DOWN, eSwitch::K1SPDUP_DOWN },
+    { eTimer::K2SPDDN_DOWN, eSwitch::K1SPDDN_DOWN },
+};
+
+static const InputDataMap InputGameReleaseMap[] =
+{
+    { eTimer::S1L_UP, eSwitch::S1L_DOWN },
+    { eTimer::S1R_UP, eSwitch::S1R_DOWN },
+    { eTimer::K11_UP, eSwitch::K11_DOWN },
+    { eTimer::K12_UP, eSwitch::K12_DOWN },
+    { eTimer::K13_UP, eSwitch::K13_DOWN },
+    { eTimer::K14_UP, eSwitch::K14_DOWN },
+    { eTimer::K15_UP, eSwitch::K15_DOWN },
+    { eTimer::K16_UP, eSwitch::K16_DOWN },
+    { eTimer::K17_UP, eSwitch::K17_DOWN },
+    { eTimer::K18_UP, eSwitch::K18_DOWN },
+    { eTimer::K19_UP, eSwitch::K19_DOWN },
+    { eTimer::K1START_UP, eSwitch::K1START_DOWN },
+    { eTimer::K1SELECT_UP, eSwitch::K1SELECT_DOWN },
+    { eTimer::K1SPDUP_UP, eSwitch::K1SPDUP_DOWN },
+    { eTimer::K1SPDDN_UP, eSwitch::K1SPDDN_DOWN },
+    { eTimer::S2L_UP, eSwitch::S2L_DOWN },
+    { eTimer::S2R_UP, eSwitch::S2R_DOWN },
+    { eTimer::K21_UP, eSwitch::K11_DOWN },
+    { eTimer::K22_UP, eSwitch::K12_DOWN },
+    { eTimer::K23_UP, eSwitch::K13_DOWN },
+    { eTimer::K24_UP, eSwitch::K14_DOWN },
+    { eTimer::K25_UP, eSwitch::K15_DOWN },
+    { eTimer::K26_UP, eSwitch::K16_DOWN },
+    { eTimer::K27_UP, eSwitch::K17_DOWN },
+    { eTimer::K28_UP, eSwitch::K18_DOWN },
+    { eTimer::K29_UP, eSwitch::K19_DOWN },
+    { eTimer::K2START_UP, eSwitch::K1START_DOWN },
+    { eTimer::K2SELECT_UP, eSwitch::K1SELECT_DOWN },
+    { eTimer::K2SPDUP_UP, eSwitch::K1SPDUP_DOWN },
+    { eTimer::K2SPDDN_UP, eSwitch::K1SPDDN_DOWN },
+};
+
+static const InputDataMap InputGamePressMap2[] =
+{
+    { eTimer::S1L_DOWN, eSwitch::S1L_DOWN },
+    { eTimer::S1R_DOWN, eSwitch::S1R_DOWN },
+    { eTimer::K11_DOWN, eSwitch::K11_DOWN },
+    { eTimer::K12_DOWN, eSwitch::K12_DOWN },
+    { eTimer::K13_DOWN, eSwitch::K13_DOWN },
+    { eTimer::K14_DOWN, eSwitch::K14_DOWN },
+    { eTimer::K15_DOWN, eSwitch::K15_DOWN },
+    { eTimer::K16_DOWN, eSwitch::K16_DOWN },
+    { eTimer::K17_DOWN, eSwitch::K17_DOWN },
+    { eTimer::K18_DOWN, eSwitch::K18_DOWN },
+    { eTimer::K19_DOWN, eSwitch::K19_DOWN },
+    { eTimer::K1START_DOWN, eSwitch::K1START_DOWN },
+    { eTimer::K1SELECT_DOWN, eSwitch::K1SELECT_DOWN },
+    { eTimer::K1SPDUP_DOWN, eSwitch::K1SPDUP_DOWN },
+    { eTimer::K1SPDDN_DOWN, eSwitch::K1SPDDN_DOWN },
+    { eTimer::S2L_DOWN, eSwitch::S2L_DOWN },
+    { eTimer::S2R_DOWN, eSwitch::S2R_DOWN },
     { eTimer::K21_DOWN, eSwitch::K21_DOWN },
     { eTimer::K22_DOWN, eSwitch::K22_DOWN },
     { eTimer::K23_DOWN, eSwitch::K23_DOWN },
@@ -51,7 +119,7 @@ static const InputDataMap InputGamePressMap[] =
     { eTimer::K2SPDDN_DOWN, eSwitch::K2SPDDN_DOWN },
 };
 
-static const InputDataMap InputGameReleaseMap[] =
+static const InputDataMap InputGameReleaseMap2[] =
 {
     { eTimer::S1L_UP, eSwitch::S1L_DOWN },
     { eTimer::S1R_UP, eSwitch::S1R_DOWN },
@@ -92,35 +160,7 @@ ScenePlay::ScenePlay(ePlayMode gamemode): vScene(gPlayContext.mode, 1000), _mode
     _currentKeySample.assign(Input::ESC, 0);
 
     _inputAvailable = INPUT_MASK_FUNC;
-
-    {
-        using namespace std::string_literals;
-        uint8_t slotmask = 0;
-
-        if (gPlayContext.mode == eMode::PLAY14 || _mode == ePlayMode::LOCAL_BATTLE) slotmask = 1 | 2;
-        if (gPlayContext.playerSlot == PLAYER_SLOT_1P) slotmask |= 1;
-        if (gPlayContext.playerSlot == PLAYER_SLOT_2P) slotmask |= 2;
-
-        if (slotmask & 1)
-        {
-            _skin->setExtendedProperty("GAUGETYPE_1P"s, (void*)&gPlayContext.gaugeType[PLAYER_SLOT_1P]);
-            _inputAvailable |= INPUT_MASK_1P;
-        }
-
-        if (slotmask & 2)
-        {
-            _skin->setExtendedProperty("GAUGETYPE_2P"s, (void*)&gPlayContext.gaugeType[PLAYER_SLOT_2P]);
-            _inputAvailable |= INPUT_MASK_2P;
-        }
-
-        if (gPlayContext.mode == eMode::PLAY14)
-        {
-            if (gPlayContext.playerSlot == PLAYER_SLOT_1P)
-                _skin->setExtendedProperty("GAUGETYPE_1P"s, (void*)&gPlayContext.gaugeType[PLAYER_SLOT_1P]);
-            if (gPlayContext.playerSlot == PLAYER_SLOT_2P)
-                _skin->setExtendedProperty("GAUGETYPE_2P"s, (void*)&gPlayContext.gaugeType[PLAYER_SLOT_2P]);
-        }
-    }
+    _inputAvailable |= INPUT_MASK_1P | INPUT_MASK_2P;
 
     // file loading may delayed
 
@@ -132,15 +172,6 @@ ScenePlay::ScenePlay(ePlayMode gamemode): vScene(gPlayContext.mode, 1000), _mode
 	}
 
 	// global info
-	if (ConfigMgr::get("P", cfg::P_LOAD_BGA, cfg::ON) == cfg::ON)
-	{
-		// TODO bga type
-		gOptions.set(eOption::PLAY_BGA_TYPE, Option::BGA_NORMAL);
-	}
-	else
-	{
-		gOptions.set(eOption::PLAY_BGA_TYPE, Option::BGA_OFF);
-	}
 
     // basic info
     gTexts.set(eText::PLAY_TITLE, gChartContext.title);
@@ -153,8 +184,6 @@ ScenePlay::ScenePlay(ePlayMode gamemode): vScene(gPlayContext.mode, 1000), _mode
     gNumbers.set(eNumber::BPM_MAX, int(std::round(gChartContext.maxBPM)));
 
     // player datas
-    gNumbers.set(eNumber::HS_1P, (int)ConfigMgr::get("P", cfg::P_HISPEED, 1.0) * 100);
-    gNumbers.set(eNumber::HS_2P, 100);
 
     // set gauge type
     if (gChartContext.chartObj)
@@ -182,44 +211,96 @@ ScenePlay::ScenePlay(ePlayMode gamemode): vScene(gPlayContext.mode, 1000), _mode
             break;
         }
 
+    {
+        using namespace std::string_literals;
+        eGaugeOp tmp = eGaugeOp::GROOVE;
+        switch (gPlayContext.mods[PLAYER_SLOT_1P].gauge)
+        {
+        case eModGauge::NORMAL:    tmp = eGaugeOp::GROOVE; break;
+        case eModGauge::HARD:      tmp = eGaugeOp::SURVIVAL; break;
+        case eModGauge::DEATH:     tmp = eGaugeOp::EX_SURVIVAL; break;
+        case eModGauge::EASY:      tmp = eGaugeOp::GROOVE; break;
+        case eModGauge::PATTACK:   tmp = eGaugeOp::EX_SURVIVAL; break;
+        case eModGauge::GATTACK:   tmp = eGaugeOp::EX_SURVIVAL; break;
+        case eModGauge::ASSISTEASY:tmp = eGaugeOp::GROOVE; break;
+        case eModGauge::EXHARD:    tmp = eGaugeOp::EX_SURVIVAL; break;
+        default: break;
+        }
+        _skin->setExtendedProperty("GAUGETYPE_1P"s, (void*)&tmp);
+
+        if (_mode == ePlayMode::LOCAL_BATTLE)
+        {
+            switch (gPlayContext.mods[PLAYER_SLOT_2P].gauge)
+            {
+            case eModGauge::NORMAL:    tmp = eGaugeOp::GROOVE; break;
+            case eModGauge::HARD:      tmp = eGaugeOp::SURVIVAL; break;
+            case eModGauge::EASY:      tmp = eGaugeOp::GROOVE; break;
+            case eModGauge::DEATH:     tmp = eGaugeOp::EX_SURVIVAL; break;
+            case eModGauge::PATTACK:   tmp = eGaugeOp::EX_SURVIVAL; break;
+            case eModGauge::GATTACK:   tmp = eGaugeOp::EX_SURVIVAL; break;
+            case eModGauge::ASSISTEASY:tmp = eGaugeOp::GROOVE; break;
+            case eModGauge::EXHARD:    tmp = eGaugeOp::EX_SURVIVAL; break;
+            default: break;
+            }
+            _skin->setExtendedProperty("GAUGETYPE_2P"s, (void*)&tmp);
+        }
+    }
+
     if (!gPlayContext.isCourse || gPlayContext.isCourseFirstStage)
     {
         if (_mode == ePlayMode::LOCAL_BATTLE)
         {
-            for (size_t i = 0; i < 2; ++i)
-                switch (_gaugetype[i])
-                {
-                case rc::gauge_ty::GROOVE: 
-                case rc::gauge_ty::EASY:
-                case rc::gauge_ty::ASSIST:
-                    gPlayContext.initialHealth[i] = 0.2;
-                    gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, 20);
-                    gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, 20);
-                    break;
+            switch (_gaugetype[PLAYER_SLOT_1P])
+            {
+            case rc::gauge_ty::GROOVE: 
+            case rc::gauge_ty::EASY:
+            case rc::gauge_ty::ASSIST:
+                gPlayContext.initialHealth[PLAYER_SLOT_1P] = 0.2;
+                gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, 20);
+                break;
 
-                case rc::gauge_ty::HARD: 
-                case rc::gauge_ty::DEATH:
-                case rc::gauge_ty::P_ATK:
-                case rc::gauge_ty::G_ATK:
-                case rc::gauge_ty::EXHARD:
-                    gPlayContext.initialHealth[i] = 1.0;
-                    gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, 100);
-                    gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, 100);
-                    break;
+            case rc::gauge_ty::HARD: 
+            case rc::gauge_ty::DEATH:
+            case rc::gauge_ty::P_ATK:
+            case rc::gauge_ty::G_ATK:
+            case rc::gauge_ty::EXHARD:
+                gPlayContext.initialHealth[PLAYER_SLOT_1P] = 1.0;
+                gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, 100);
+                break;
 
-                default: break;
-                }
+            default: break;
+            }
+
+            switch (_gaugetype[PLAYER_SLOT_2P])
+            {
+            case rc::gauge_ty::GROOVE: 
+            case rc::gauge_ty::EASY:
+            case rc::gauge_ty::ASSIST:
+                gPlayContext.initialHealth[PLAYER_SLOT_2P] = 0.2;
+                gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, 20);
+                break;
+
+            case rc::gauge_ty::HARD: 
+            case rc::gauge_ty::DEATH:
+            case rc::gauge_ty::P_ATK:
+            case rc::gauge_ty::G_ATK:
+            case rc::gauge_ty::EXHARD:
+                gPlayContext.initialHealth[PLAYER_SLOT_2P] = 1.0;
+                gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, 100);
+                break;
+
+            default: break;
+            }
         }
         else
         {
-            switch (_gaugetype[gPlayContext.playerSlot])
+            switch (_gaugetype[PLAYER_SLOT_1P])
             {
             case rc::gauge_ty::GROOVE:
             case rc::gauge_ty::EASY:
             case rc::gauge_ty::ASSIST:
-                gPlayContext.initialHealth[gPlayContext.playerSlot] = 0.2; 
-                if (gPlayContext.playerSlot == 0) gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, 20);
-                if (gPlayContext.playerSlot == 1) gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, 20);
+                gPlayContext.initialHealth[PLAYER_SLOT_1P] = 0.2; 
+                gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, 20);
                 break;
 
             case rc::gauge_ty::HARD:
@@ -227,9 +308,8 @@ ScenePlay::ScenePlay(ePlayMode gamemode): vScene(gPlayContext.mode, 1000), _mode
             case rc::gauge_ty::P_ATK:
             case rc::gauge_ty::G_ATK:
             case rc::gauge_ty::EXHARD:
-                gPlayContext.initialHealth[gPlayContext.playerSlot] = 1.0; 
-                if (gPlayContext.playerSlot == 0) gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, 100);
-                if (gPlayContext.playerSlot == 1) gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, 100);
+                gPlayContext.initialHealth[PLAYER_SLOT_1P] = 1.0; 
+                gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, 100);
 
             default: break;
             }
@@ -244,14 +324,9 @@ ScenePlay::ScenePlay(ePlayMode gamemode): vScene(gPlayContext.mode, 1000), _mode
         }
         else
         {
-            if (gPlayContext.playerSlot == 0) gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, (int)gPlayContext.initialHealth[0]);
-            if (gPlayContext.playerSlot == 1) gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, (int)gPlayContext.initialHealth[1]);
+            gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, (int)gPlayContext.initialHealth[0]);
         }
     }
-
-	// load failed sound
-	// TODO find failed sound path
-	SoundMgr::loadSample("failed.wav", SOUND_FAILED_IDX);
 
     using namespace std::placeholders;
     _input.register_p("SCENE_PRESS", std::bind(&ScenePlay::inputGamePress, this, _1, _2));
@@ -315,11 +390,11 @@ void ScenePlay::loadChart()
         }
         else
         {
-            gPlayContext.chartObj[gPlayContext.playerSlot] = std::make_shared<chartBMS>(std::reinterpret_pointer_cast<BMS>(gChartContext.chartObj));
+            gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<chartBMS>(std::reinterpret_pointer_cast<BMS>(gChartContext.chartObj));
         }
         _chartLoaded = true;
-        gNumbers.set(eNumber::PLAY_REMAIN_MIN, int(gPlayContext.chartObj[gPlayContext.playerSlot]->getTotalLength().norm() / 1000 / 60));
-        gNumbers.set(eNumber::PLAY_REMAIN_SEC, int(gPlayContext.chartObj[gPlayContext.playerSlot]->getTotalLength().norm() / 1000 % 60));
+        gNumbers.set(eNumber::PLAY_REMAIN_MIN, int(gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() / 1000 / 60));
+        gNumbers.set(eNumber::PLAY_REMAIN_SEC, int(gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() / 1000 % 60));
         break;
 
     case eChartFormat::BMSON:
@@ -328,7 +403,7 @@ void ScenePlay::loadChart()
         return;
     }
 
-    gPlayContext.remainTime = gPlayContext.chartObj[gPlayContext.playerSlot]->getTotalLength();
+    gPlayContext.remainTime = gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength();
 
     // build Ruleset object
     switch (gPlayContext.rulesetType)
@@ -359,10 +434,10 @@ void ScenePlay::loadChart()
 
         if (gPlayContext.mode == eMode::PLAY14)
         {
-            gPlayContext.ruleset[gPlayContext.playerSlot] = std::make_shared<RulesetClassic>(
+            gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetClassic>(
                 gChartContext.chartObj,
-                gPlayContext.chartObj[gPlayContext.playerSlot], judgediff, 
-                _gaugetype[gPlayContext.playerSlot], gPlayContext.initialHealth[gPlayContext.playerSlot], rc::player::DP);
+                gPlayContext.chartObj[PLAYER_SLOT_1P], judgediff, 
+                _gaugetype[PLAYER_SLOT_1P], gPlayContext.initialHealth[PLAYER_SLOT_1P], rc::player::DP);
         }
         else if (_mode == ePlayMode::LOCAL_BATTLE)
         {
@@ -377,11 +452,10 @@ void ScenePlay::loadChart()
         }
         else
         {
-            gPlayContext.ruleset[gPlayContext.playerSlot] = std::make_shared<RulesetClassic>(
+            gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetClassic>(
                 gChartContext.chartObj,
-                gPlayContext.chartObj[gPlayContext.playerSlot], judgediff, 
-                _gaugetype[gPlayContext.playerSlot], gPlayContext.initialHealth[gPlayContext.playerSlot],
-                gPlayContext.playerSlot == PLAYER_SLOT_1P ? rc::player::SP_1P : rc::player::SP_2P);
+                gPlayContext.chartObj[PLAYER_SLOT_1P], judgediff, 
+                _gaugetype[PLAYER_SLOT_1P], gPlayContext.initialHealth[PLAYER_SLOT_1P], rc::player::SP);
         }
         _rulesetLoaded = true;
     }
@@ -433,7 +507,7 @@ void ScenePlay::loadChart()
     }
 
     // load bga
-    if (ConfigMgr::get("P", cfg::P_LOAD_BGA, cfg::ON) == cfg::ON && !gChartContext.isBgaLoaded && !sceneEnding)
+    if (gSwitches.get(eSwitch::SYSTEM_BGA) && !gChartContext.isBgaLoaded && !sceneEnding)
     {
         auto dtor = std::async(std::launch::async, [&]() {
             SetThreadName("Chart BGA loading thread");
@@ -449,7 +523,6 @@ void ScenePlay::loadChart()
             if (_bmpToLoad == 0)
             {
                 _bmpLoaded = 1;
-                gChartContext.isBgaLoaded = true;
                 return;
             }
             for (size_t i = 0; i < _pChart->bgaFiles.size(); ++i)
@@ -488,13 +561,9 @@ void ScenePlay::loadChart()
 
                 ++_bmpLoaded;
             }
-			gPlayContext.bgaTexture->setSlotFromBMS(*std::reinterpret_pointer_cast<chartBMS>(gPlayContext.chartObj[gPlayContext.playerSlot]));
+			gPlayContext.bgaTexture->setSlotFromBMS(*std::reinterpret_pointer_cast<chartBMS>(gPlayContext.chartObj[PLAYER_SLOT_1P]));
             gChartContext.isBgaLoaded = true;
         });
-    }
-    else
-    {
-        gChartContext.isBgaLoaded = true;
     }
 }
 
@@ -529,13 +598,13 @@ void ScenePlay::setInputJudgeCallback()
     }
     else // SINGLE or MULTI
     {
-        if (gPlayContext.ruleset[gPlayContext.playerSlot] != nullptr)
+        if (gPlayContext.ruleset[PLAYER_SLOT_1P] != nullptr)
         {
-            auto fp = std::bind(&vRuleset::updatePress, gPlayContext.ruleset[gPlayContext.playerSlot], _1, _2);
+            auto fp = std::bind(&vRuleset::updatePress, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2);
             _input.register_p("JUDGE_PRESS", fp);
-            auto fh = std::bind(&vRuleset::updateHold, gPlayContext.ruleset[gPlayContext.playerSlot], _1, _2);
+            auto fh = std::bind(&vRuleset::updateHold, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2);
             _input.register_h("JUDGE_HOLD", fh);
-            auto fr = std::bind(&vRuleset::updateRelease, gPlayContext.ruleset[gPlayContext.playerSlot], _1, _2);
+            auto fr = std::bind(&vRuleset::updateRelease, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2);
             _input.register_r("JUDGE_RELEASE", fr);
         }
         else
@@ -615,8 +684,10 @@ void ScenePlay::updateLoading()
         (int(_chartLoaded) * 0.5 + int(_rulesetLoaded) * 0.5 +
         getWavLoadProgress() + getBgaLoadProgress()) / 3.0);
 
-    if (_chartLoaded && _rulesetLoaded &&
-        gChartContext.isSampleLoaded && gChartContext.isBgaLoaded && 
+    if (_chartLoaded && 
+        _rulesetLoaded &&
+        gChartContext.isSampleLoaded && 
+        (!gSwitches.get(eSwitch::SYSTEM_BGA) || gChartContext.isBgaLoaded) &&
 		rt > _skin->info.timeMinimumLoad)
     {
         _state = ePlayState::LOAD_END;
@@ -647,7 +718,7 @@ void ScenePlay::updatePlaying()
 {
 	auto t = Time();
 	auto rt = t - gTimers.get(eTimer::PLAY_START);
-    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[gPlayContext.playerSlot]->getCurrentBeat() * 4.0)) % 1000);
+    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentBeat() * 4.0)) % 1000);
     gPlayContext.bgaTexture->update(rt, false);
 
     if (_mode == ePlayMode::LOCAL_BATTLE)
@@ -659,16 +730,16 @@ void ScenePlay::updatePlaying()
     }
     else
     {
-        gPlayContext.chartObj[gPlayContext.playerSlot]->update(rt);
-        gPlayContext.ruleset[gPlayContext.playerSlot]->update(t);
+        gPlayContext.chartObj[PLAYER_SLOT_1P]->update(rt);
+        gPlayContext.ruleset[PLAYER_SLOT_1P]->update(t);
     }
 
-    gNumbers.set(eNumber::PLAY_BPM, int(std::round(gPlayContext.chartObj[gPlayContext.playerSlot]->getCurrentBPM())));
+    gNumbers.set(eNumber::PLAY_BPM, int(std::round(gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentBPM())));
     // play time / remain time
     {
         auto startTime = rt - gTimers.get(eTimer::PLAY_START);
         auto playtime = rt.norm() / 1000;
-        auto remaintime = gPlayContext.chartObj[gPlayContext.playerSlot]->getTotalLength().norm() - playtime;
+        auto remaintime = gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() - playtime;
         gNumbers.set(eNumber::PLAY_MIN, int(playtime / 60));
         gNumbers.set(eNumber::PLAY_SEC, int(playtime % 60));
         gNumbers.set(eNumber::PLAY_REMAIN_MIN, int(remaintime / 60));
@@ -686,7 +757,7 @@ void ScenePlay::updatePlaying()
     case ePlayMode::SINGLE:
     {
 		//if (context_play.health[context_play.playerSlot] <= 0)
-        if (gPlayContext.ruleset[gPlayContext.playerSlot]->getData().health <= 0)
+        if (gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().health <= 0)
         {
             _state = ePlayState::FAILED;
             gTimers.set(eTimer::FAIL_BEGIN, t.norm());
@@ -696,12 +767,12 @@ void ScenePlay::updatePlaying()
             LOG_DEBUG << "[Play] State changed to PLAY_FAILED";
         }
 
-        if (_isPlayerFinished[gPlayContext.playerSlot] ^ gPlayContext.ruleset[gPlayContext.playerSlot]->isFinished())
+        if (_isPlayerFinished[PLAYER_SLOT_1P] ^ gPlayContext.ruleset[PLAYER_SLOT_1P]->isFinished())
         {
-            _isPlayerFinished[gPlayContext.playerSlot] = true;
-            gTimers.set(gPlayContext.playerSlot == 0 ? eTimer::PLAY_P1_FINISHED : eTimer::PLAY_P2_FINISHED, t.norm());
-            if (gPlayContext.ruleset[gPlayContext.playerSlot]->getData().combo == gPlayContext.chartObj[gPlayContext.playerSlot]->getNoteCount())
-                gTimers.set(gPlayContext.playerSlot == 0 ? eTimer::PLAY_FULLCOMBO_1P : eTimer::PLAY_FULLCOMBO_2P, t.norm());
+            _isPlayerFinished[PLAYER_SLOT_1P] = true;
+            gTimers.set(PLAYER_SLOT_1P == 0 ? eTimer::PLAY_P1_FINISHED : eTimer::PLAY_P2_FINISHED, t.norm());
+            if (gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().combo == gPlayContext.chartObj[PLAYER_SLOT_1P]->getNoteCount())
+                gTimers.set(PLAYER_SLOT_1P == 0 ? eTimer::PLAY_FULLCOMBO_1P : eTimer::PLAY_FULLCOMBO_2P, t.norm());
         }
     }
     break;
@@ -743,7 +814,7 @@ void ScenePlay::updatePlaying()
     updateTTrotation(true);
 
     //last note check
-    if (rt.norm() - gPlayContext.chartObj[gPlayContext.playerSlot]->getTotalLength().norm() >= 0)
+    if (rt.norm() - gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() >= 0)
     {
         _state = ePlayState::FADEOUT;
         gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
@@ -759,7 +830,7 @@ void ScenePlay::updateFadeout()
     auto rt = t - gTimers.get(eTimer::SCENE_START);
     auto ft = t - gTimers.get(eTimer::FADEOUT_BEGIN);
     if (gChartContext.started)
-        gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[gPlayContext.playerSlot]->getCurrentBeat() * 4.0)) % 1000);
+        gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentBeat() * 4.0)) % 1000);
     updateTTrotation(gChartContext.started);
 	gPlayContext.bgaTexture->update(rt, false);
 
@@ -778,7 +849,7 @@ void ScenePlay::updateFailed()
     auto t = Time();
     auto ft = t - gTimers.get(eTimer::FAIL_BEGIN);
     if (gChartContext.started)
-        gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[gPlayContext.playerSlot]->getCurrentBeat() * 4.0)) % 1000);
+        gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentBeat() * 4.0)) % 1000);
     updateTTrotation(gChartContext.started);
 
     //failed play finished, move to next scene. No fadeout
@@ -794,11 +865,11 @@ void ScenePlay::updateFailed()
 
 void ScenePlay::procCommonNotes()
 {
-    assert(gPlayContext.chartObj[gPlayContext.playerSlot] != nullptr);
-    auto it = gPlayContext.chartObj[gPlayContext.playerSlot]->notePlainExpired.begin();
+    assert(gPlayContext.chartObj[PLAYER_SLOT_1P] != nullptr);
+    auto it = gPlayContext.chartObj[PLAYER_SLOT_1P]->notePlainExpired.begin();
     size_t i;
-    size_t max = std::min(_bgmSampleIdxBuf.size(), gPlayContext.chartObj[gPlayContext.playerSlot]->notePlainExpired.size());
-    for (i = 0; i < max && it != gPlayContext.chartObj[gPlayContext.playerSlot]->notePlainExpired.end(); ++i, ++it)
+    size_t max = std::min(_bgmSampleIdxBuf.size(), gPlayContext.chartObj[PLAYER_SLOT_1P]->notePlainExpired.size());
+    for (i = 0; i < max && it != gPlayContext.chartObj[PLAYER_SLOT_1P]->notePlainExpired.end(); ++i, ++it)
     {
         if ((it->index & 0xF0) == 0xE0)
         {
@@ -829,7 +900,7 @@ void ScenePlay::changeKeySampleMapping(Time t)
     static const Time MIN_REMAP_INTERVAL{ 1000 };
     if (_mode == ePlayMode::LOCAL_BATTLE)
     {
-        for (auto i = 0; i < Input::S2L; ++i)
+        for (size_t i = 0; i < Input::S2L; ++i)
             if (_inputAvailable[i])
             {
                 assert(gPlayContext.chartObj[PLAYER_SLOT_1P] != nullptr);
@@ -839,7 +910,7 @@ void ScenePlay::changeKeySampleMapping(Time t)
                 if (note->time - t > MIN_REMAP_INTERVAL) continue;
                 _currentKeySample[i] = (size_t)std::get<long long>(note->value);
             }
-        for (auto i = 0; i < Input::ESC; ++i)
+        for (size_t i = Input::S2L; i < Input::ESC; ++i)
             if (_inputAvailable[i])
             {
                 assert(gPlayContext.chartObj[PLAYER_SLOT_2P] != nullptr);
@@ -855,10 +926,10 @@ void ScenePlay::changeKeySampleMapping(Time t)
         for (auto i = 0; i < Input::ESC; ++i)
             if (_inputAvailable[i])
             {
-                assert(gPlayContext.chartObj[gPlayContext.playerSlot] != nullptr);
-                auto chan = gPlayContext.chartObj[gPlayContext.playerSlot]->getLaneFromKey((Input::Ingame)i);
+                assert(gPlayContext.chartObj[PLAYER_SLOT_1P] != nullptr);
+                auto chan = gPlayContext.chartObj[PLAYER_SLOT_1P]->getLaneFromKey((Input::Ingame)i);
                 if (chan.first == NoteLaneCategory::_) continue;
-                auto note = gPlayContext.chartObj[gPlayContext.playerSlot]->incomingNoteOfLane(chan.first, chan.second);
+                auto note = gPlayContext.chartObj[PLAYER_SLOT_1P]->incomingNoteOfLane(chan.first, chan.second);
                 if (note->time - t > MIN_REMAP_INTERVAL) continue;
                 _currentKeySample[i] = (size_t)std::get<long long>(note->value);
             }
@@ -960,22 +1031,13 @@ void ScenePlay::inputGamePress(InputMask& m, Time t)
         gTimers.set(eTimer::S1_UP, LLONG_MAX);
         gSwitches.set(eSwitch::S1_DOWN, true);
     }
-
-    if (input[S2L] || input[S2R])
-    {
-        gTimers.set(eTimer::S2_DOWN, t.norm());
-        gTimers.set(eTimer::S2_UP, LLONG_MAX);
-        gSwitches.set(eSwitch::S2_DOWN, true);
-    }
-
-    SoundMgr::playKeySample(sampleCount, (size_t*)&_keySampleIdxBuf[0]);
-
     if (input[K1SPDUP])
     {
         int hs = gNumbers.get(eNumber::HS_1P);
         if (hs < 900)
             gNumbers.set(eNumber::HS_1P, hs + 25);
     }
+
     if (input[K1SPDDN])
     {
         int hs = gNumbers.get(eNumber::HS_1P);
@@ -983,17 +1045,51 @@ void ScenePlay::inputGamePress(InputMask& m, Time t)
             gNumbers.set(eNumber::HS_1P, hs - 25);
     }
 
-    if (input[K2SPDUP])
+    SoundMgr::playKeySample(sampleCount, (size_t*)&_keySampleIdxBuf[0]);
+
+    if (_mode == ePlayMode::LOCAL_BATTLE)
     {
-        int hs = gNumbers.get(eNumber::HS_2P);
-        if (hs < 900)
-            gNumbers.set(eNumber::HS_2P, hs + 25);
+        if (input[S2L] || input[S2R])
+        {
+            gTimers.set(eTimer::S2_DOWN, t.norm());
+            gTimers.set(eTimer::S2_UP, LLONG_MAX);
+            gSwitches.set(eSwitch::S2_DOWN, true);
+        }
+
+        if (input[K2SPDUP])
+        {
+            int hs = gNumbers.get(eNumber::HS_2P);
+            if (hs < 900)
+                gNumbers.set(eNumber::HS_2P, hs + 25);
+        }
+        if (input[K2SPDDN])
+        {
+            int hs = gNumbers.get(eNumber::HS_2P);
+            if (hs > 25)
+                gNumbers.set(eNumber::HS_2P, hs - 25);
+        }
     }
-    if (input[K2SPDDN])
+    else
     {
-        int hs = gNumbers.get(eNumber::HS_2P);
-        if (hs > 25)
-            gNumbers.set(eNumber::HS_2P, hs - 25);
+        if (input[S2L] || input[S2R])
+        {
+            gTimers.set(eTimer::S1_DOWN, t.norm());
+            gTimers.set(eTimer::S1_UP, LLONG_MAX);
+            gSwitches.set(eSwitch::S1_DOWN, true);
+        }
+
+        if (input[K2SPDUP])
+        {
+            int hs = gNumbers.get(eNumber::HS_1P);
+            if (hs < 900)
+                gNumbers.set(eNumber::HS_1P, hs + 25);
+        }
+        if (input[K2SPDDN])
+        {
+            int hs = gNumbers.get(eNumber::HS_1P);
+            if (hs > 25)
+                gNumbers.set(eNumber::HS_1P, hs - 25);
+        }
     }
 
     if (input[Input::ESC] || (input[Input::K1START] && input[Input::K1SELECT]) || (input[Input::K2START] && input[Input::K2SELECT]))
@@ -1002,18 +1098,27 @@ void ScenePlay::inputGamePress(InputMask& m, Time t)
         gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
         gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FADEOUT);
 
-        // TODO set health to 0
         switch (_mode)
         {
         case ePlayMode::SINGLE:
         {
-            // 
+            if (!_isPlayerFinished[PLAYER_SLOT_1P])
+            {
+                gPlayContext.ruleset[PLAYER_SLOT_1P]->fail();
+            }
         }
         break;
 
         case ePlayMode::LOCAL_BATTLE:
         {
-            // 
+            if (!_isPlayerFinished[PLAYER_SLOT_1P])
+            {
+                gPlayContext.ruleset[PLAYER_SLOT_1P]->fail();
+            }
+            if (!_isPlayerFinished[PLAYER_SLOT_2P])
+            {
+                gPlayContext.ruleset[PLAYER_SLOT_2P]->fail();
+            }
         }
         break;
 
@@ -1067,11 +1172,22 @@ void ScenePlay::inputGameRelease(InputMask& m, Time t)
         gSwitches.set(eSwitch::S1_DOWN, false);
     }
 
-    if (input[S2L] || input[S2R])
+    if (_mode == ePlayMode::LOCAL_BATTLE)
     {
-        gTimers.set(eTimer::S2_DOWN, LLONG_MAX);
-        gTimers.set(eTimer::S2_UP, t.norm());
-        gSwitches.set(eSwitch::S2_DOWN, false);
+        if (input[S2L] || input[S2R])
+        {
+            gTimers.set(eTimer::S2_DOWN, t.norm());
+            gTimers.set(eTimer::S2_UP, LLONG_MAX);
+            gSwitches.set(eSwitch::S2_DOWN, true);
+        }
     }
-
+    else
+    {
+        if (input[S2L] || input[S2R])
+        {
+            gTimers.set(eTimer::S1_DOWN, t.norm());
+            gTimers.set(eTimer::S1_UP, LLONG_MAX);
+            gSwitches.set(eSwitch::S1_DOWN, true);
+        }
+    }
 }

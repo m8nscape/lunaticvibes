@@ -272,8 +272,7 @@ namespace judgeArea {
 }
 
 enum class player {
-	SP_1P,
-	SP_2P,
+	SP,
 	DP,
 	BATTLE_1P,
 	BATTLE_2P,
@@ -300,7 +299,7 @@ public:
         rc::judgeDiff difficulty = rc::judgeDiff::NORMAL,
         rc::gauge_ty gauge = rc::gauge_ty::GROOVE, 
         double health = 1.0,
-        rc::player playerSP = rc::player::SP_1P);
+        rc::player playerSP = rc::player::SP);
 private:
     rc::judgeRes _judge(const Note& note, Time time);
     void _updateHp(const double delta);

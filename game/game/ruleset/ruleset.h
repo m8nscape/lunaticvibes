@@ -47,4 +47,5 @@ public:
 public:
     constexpr BasicData getData() const { return _basic; }
     constexpr bool isFinished() const { return _basic.totaln == _chart->getNoteCount(); }
+    void fail() { _basic.health = 0.0; }
 };

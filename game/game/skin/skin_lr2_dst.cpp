@@ -262,8 +262,8 @@ void updateDstOpt()
 
 	// 90 リザ クリア
 	// 91 リザ ミス
-	set(90, !sw(eSwitch::RESULT_CLEAR));
-	set(91, sw(eSwitch::RESULT_CLEAR));
+	set(90, sw(eSwitch::RESULT_CLEAR));
+	set(91, !sw(eSwitch::RESULT_CLEAR));
 
 
 	// /////////////////////////////////

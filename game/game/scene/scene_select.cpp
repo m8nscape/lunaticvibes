@@ -10,6 +10,8 @@
 
 #include "config/config_mgr.h"
 
+#include "game/skin/skin_lr2_button_callbacks.h"
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void setBarInfo()
@@ -610,12 +612,100 @@ void SceneSelect::inputGamePress(InputMask& m, Time t)
             gNextScene = eScene::EXIT;
             return;
         }
+        if (!gSwitches.get(eSwitch::SELECT_PANEL1) && (input[K1START] || input[K2START]))
+        {
+            // close other panels
+            for (int i = 2; i <= 9; ++i)
+            {
+                eSwitch p = static_cast<eSwitch>(int(eSwitch::SELECT_PANEL1) - 1 + i);
+                if (gSwitches.get(p))
+                {
+                    gSwitches.set(p, false);
+                    gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_START) - 1 + i), -1);
+                    gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_END) - 1 + i), t.norm());
+                    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CLOSE));
+                }
+            }
+
+            // open panel 1
+            gSwitches.set(eSwitch::SELECT_PANEL1, true);
+            gTimers.set(eTimer::PANEL1_START, t.norm());
+            gTimers.set(eTimer::PANEL1_END, -1);
+            SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_OPEN));
+        }
+
+        // lights
+        for (size_t k = Ingame::K11; k <= Ingame::K19; ++k)
+        {
+            if (input[k])
+            {
+                gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_DOWN) + k - Ingame::K11), t.norm());
+                gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_UP) + k - Ingame::K11), -1);
+            }
+        }
+        if (gOptions.get(eOption::PLAY_BATTLE_TYPE) == 1)
+        {
+            for (size_t k = Ingame::K21; k <= Ingame::K29; ++k)
+            {
+                if (input[k])
+                {
+                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K21_DOWN) + k - Ingame::K21), t.norm());
+                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K21_UP) + k - Ingame::K21), -1);
+                }
+            }
+        }
+        else
+        {
+            for (size_t k = Ingame::K21; k <= Ingame::K29; ++k)
+            {
+                if (input[k])
+                {
+                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_DOWN) + k - Ingame::K21), t.norm());
+                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_UP) + k - Ingame::K21), -1);
+                }
+            }
+        }
+
+        // TODO check skin type
+        if (gSwitches.get(eSwitch::SELECT_PANEL1))
+        {
+            // 1: KEYS
+            if (input[Ingame::K12]) lr2skin::button::random_type(0, 1);
+            if (input[Ingame::K13]) lr2skin::button::battle(1);
+            if (input[Ingame::K14]) lr2skin::button::gauge_type(0, 1);
+            if (input[Ingame::K15]) lr2skin::button::hs(0, -1);
+            if (input[Ingame::K16]) lr2skin::button::autoscr(0, 1);
+            if (input[Ingame::K17]) lr2skin::button::hs(0, 1);
+
+            if (gOptions.get(eOption::PLAY_BATTLE_TYPE) == 1)
+            {
+                // 1: KEYS
+                if (input[Ingame::K22]) lr2skin::button::random_type(1, 1);
+                if (input[Ingame::K23]) lr2skin::button::battle(1);
+                if (input[Ingame::K24]) lr2skin::button::gauge_type(1, 1);
+                if (input[Ingame::K25]) lr2skin::button::hs(1, -1);
+                if (input[Ingame::K26]) lr2skin::button::autoscr(1, 1);
+                if (input[Ingame::K27]) lr2skin::button::hs(1, 1);
+            }
+            else
+            {
+                // 1: KEYS
+                if (input[Ingame::K22]) lr2skin::button::random_type(0, 1);
+                if (input[Ingame::K23]) lr2skin::button::battle(1);
+                if (input[Ingame::K24]) lr2skin::button::gauge_type(0, 1);
+                if (input[Ingame::K25]) lr2skin::button::hs(0, -1);
+                if (input[Ingame::K26]) lr2skin::button::autoscr(0, 1);
+                if (input[Ingame::K27]) lr2skin::button::hs(0, 1);
+            }
+        }
 
         switch (_state)
         {
         case eSelectState::SELECT:
-            switch (gSelectContext.entries[gSelectContext.idx]->type())
+            if (!gSwitches.get(eSwitch::SELECT_PANEL1))
             {
+                switch (gSelectContext.entries[gSelectContext.idx]->type())
+                {
                 case eEntryType::FOLDER:
                 case eEntryType::CUSTOM_FOLDER:
                     if ((input & INPUT_MASK_DECIDE).any())
@@ -630,17 +720,15 @@ void SceneSelect::inputGamePress(InputMask& m, Time t)
 
                 default:
                     break;
+                }
+                if ((input & INPUT_MASK_CANCEL).any())
+                    _navigateBack(t);
             }
-            if ((input & INPUT_MASK_CANCEL).any())
-                _navigateBack(t);
             if ((input & INPUT_MASK_NAV_UP).any())
                 _navigateUpBy1(t);
             if ((input & INPUT_MASK_NAV_DN).any())
                 _navigateDownBy1(t);
 
-            break;
-
-        case eSelectState::PANEL1:
             break;
 
         case eSelectState::FADEOUT:
@@ -662,6 +750,53 @@ void SceneSelect::inputGameHold(InputMask& m, Time t)
 void SceneSelect::inputGameRelease(InputMask& m, Time t)
 {
     if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
+
+    using namespace Input;
+
+    auto input = _inputAvailable & m;
+    if (input.any())
+    {
+        if (gSwitches.get(eSwitch::SELECT_PANEL1) && (input[K1START] || input[K2START]))
+        {
+            // close panel 1
+            gSwitches.set(eSwitch::SELECT_PANEL1, false);
+            gTimers.set(eTimer::PANEL1_START, -1);
+            gTimers.set(eTimer::PANEL1_END, t.norm());
+            SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CLOSE));
+        }
+
+        // lights
+        for (size_t k = Ingame::K11; k <= Ingame::K19; ++k)
+        {
+            if (input[k])
+            {
+                gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_UP) + k - Ingame::K11), t.norm());
+                gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_DOWN) + k - Ingame::K11), -1);
+            }
+        }
+        if (gOptions.get(eOption::PLAY_BATTLE_TYPE) == 1)
+        {
+            for (size_t k = Ingame::K21; k <= Ingame::K29; ++k)
+            {
+                if (input[k])
+                {
+                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K21_UP) + k - Ingame::K21), t.norm());
+                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K21_DOWN) + k - Ingame::K21), -1);
+                }
+            }
+        }
+        else
+        {
+            for (size_t k = Ingame::K21; k <= Ingame::K29; ++k)
+            {
+                if (input[k])
+                {
+                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_UP) + k - Ingame::K21), t.norm());
+                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_DOWN) + k - Ingame::K21), -1);
+                }
+            }
+        }
+    }
 }
 
 void SceneSelect::_decide()
@@ -674,6 +809,102 @@ void SceneSelect::_decide()
     auto& p = gPlayContext;
 
     clearContextPlay();
+
+    // gauge
+    switch (gOptions.get(eOption::PLAY_GAUGE_TYPE_1P))
+    {
+    case 0: gPlayContext.mods[PLAYER_SLOT_1P].gauge = eModGauge::NORMAL; break;
+    case 1: gPlayContext.mods[PLAYER_SLOT_1P].gauge = eModGauge::HARD; break;
+    case 2: gPlayContext.mods[PLAYER_SLOT_1P].gauge = eModGauge::DEATH; break;
+    case 3: gPlayContext.mods[PLAYER_SLOT_1P].gauge = eModGauge::EASY; break;
+    case 4: gPlayContext.mods[PLAYER_SLOT_1P].gauge = eModGauge::PATTACK; break;
+    case 5: gPlayContext.mods[PLAYER_SLOT_1P].gauge = eModGauge::GATTACK; break;
+    case 6: gPlayContext.mods[PLAYER_SLOT_1P].gauge = eModGauge::ASSISTEASY;break;
+    case 7: gPlayContext.mods[PLAYER_SLOT_1P].gauge = eModGauge::EXHARD; break;
+    default: break;
+    }
+    switch (gOptions.get(eOption::PLAY_GAUGE_TYPE_2P))
+    {
+    case 0: gPlayContext.mods[PLAYER_SLOT_2P].gauge = eModGauge::NORMAL; break;
+    case 1: gPlayContext.mods[PLAYER_SLOT_2P].gauge = eModGauge::HARD; break;
+    case 2: gPlayContext.mods[PLAYER_SLOT_2P].gauge = eModGauge::DEATH; break;
+    case 3: gPlayContext.mods[PLAYER_SLOT_2P].gauge = eModGauge::EASY; break;
+    case 4: gPlayContext.mods[PLAYER_SLOT_2P].gauge = eModGauge::PATTACK; break;
+    case 5: gPlayContext.mods[PLAYER_SLOT_2P].gauge = eModGauge::GATTACK; break;
+    case 6: gPlayContext.mods[PLAYER_SLOT_2P].gauge = eModGauge::ASSISTEASY;break;
+    case 7: gPlayContext.mods[PLAYER_SLOT_2P].gauge = eModGauge::EXHARD; break;
+    default: break;
+    }
+
+    // random
+    switch (gOptions.get(eOption::PLAY_RANDOM_TYPE_1P))
+    {
+    case 0: gPlayContext.mods[PLAYER_SLOT_1P].chart = eModChart::NONE; break;
+    case 1: gPlayContext.mods[PLAYER_SLOT_1P].chart = eModChart::MIRROR; break;
+    case 2: gPlayContext.mods[PLAYER_SLOT_1P].chart = eModChart::RANDOM; break;
+    case 3: gPlayContext.mods[PLAYER_SLOT_1P].chart = eModChart::SRAN; break;
+    case 4: gPlayContext.mods[PLAYER_SLOT_1P].chart = eModChart::HRAN; break;
+    case 5: gPlayContext.mods[PLAYER_SLOT_1P].chart = eModChart::ALLSCR; break;
+    default: break;
+    }
+    switch (gOptions.get(eOption::PLAY_RANDOM_TYPE_2P))
+    {
+    case 0: gPlayContext.mods[PLAYER_SLOT_2P].chart = eModChart::NONE; break;
+    case 1: gPlayContext.mods[PLAYER_SLOT_2P].chart = eModChart::MIRROR; break;
+    case 2: gPlayContext.mods[PLAYER_SLOT_2P].chart = eModChart::RANDOM; break;
+    case 3: gPlayContext.mods[PLAYER_SLOT_2P].chart = eModChart::SRAN; break;
+    case 4: gPlayContext.mods[PLAYER_SLOT_2P].chart = eModChart::HRAN; break;
+    case 5: gPlayContext.mods[PLAYER_SLOT_2P].chart = eModChart::ALLSCR; break;
+    default: break;
+    }
+
+    // assist
+    gPlayContext.mods[PLAYER_SLOT_1P].assist_mask |= gSwitches.get(eSwitch::PLAY_OPTION_AUTOSCR_1P);
+    gPlayContext.mods[PLAYER_SLOT_2P].assist_mask |= gSwitches.get(eSwitch::PLAY_OPTION_AUTOSCR_2P);
+
+    // HS fix
+    switch (gOptions.get(eOption::PLAY_HSFIX_TYPE_1P))
+    {
+    case 0:
+        gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::NONE;
+        break;
+    case 1:
+        gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::MAXBPM;
+        break;
+    case 2:
+        gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::MINBPM;
+        break;
+    case 3:
+        gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::AVERAGE;
+        break;
+    case 4:
+        gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::CONSTANT;
+        break;
+    default:
+        break;
+    }
+    switch (gOptions.get(eOption::PLAY_HSFIX_TYPE_2P))
+    {
+    case 0:
+        gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::NONE;
+        break;
+    case 1:
+        gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::MAXBPM;
+        break;
+    case 2:
+        gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::MINBPM;
+        break;
+    case 3:
+        gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::AVERAGE;
+        break;
+    case 4:
+        gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::CONSTANT;
+        break;
+    default:
+        break;
+    }
+
+    // chart
     switch (entry->type())
     {
     case eEntryType::SONG:
@@ -702,6 +933,9 @@ void SceneSelect::_decide()
         c.minBPM = chart.minBPM;
         c.maxBPM = chart.maxBPM;
         c.startBPM = chart.startBPM;
+
+        // FIXME get play mode
+        gPlayContext.mode = eMode::PLAY7;
 
         break;
     }

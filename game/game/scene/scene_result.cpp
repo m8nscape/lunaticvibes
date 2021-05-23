@@ -51,7 +51,7 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
     }
 
     // TODO compare to db record
-    auto dp = gPlayContext.ruleset[gPlayContext.playerSlot]->getData();
+    auto dp = gPlayContext.ruleset[PLAYER_SLOT_1P]->getData();
 
     bool cleared = false;
 
@@ -84,7 +84,7 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
         switch (gPlayContext.gaugeType[PLAYER_SLOT_1P])
         {
         case eGaugeOp::GROOVE:
-            c1 = d1p.health >= 80.0;
+            c1 = d1p.health >= 0.80;
             break;
         default:
             c1 = d1p.health > 0.0;
@@ -93,7 +93,7 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
         switch (gPlayContext.gaugeType[PLAYER_SLOT_2P])
         {
         case eGaugeOp::GROOVE:
-            c2 = d2p.health >= 80.0;
+            c2 = d2p.health >= 0.80;
             break;
         default:
             c2 = d2p.health > 0.0;
@@ -105,10 +105,10 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
     }
 
     default:
-        switch (gPlayContext.gaugeType[gPlayContext.playerSlot])
+        switch (gPlayContext.gaugeType[PLAYER_SLOT_1P])
         {
         case eGaugeOp::GROOVE:
-            cleared = dp.health >= 80.0;
+            cleared = dp.health >= 0.80;
             break;
         default:
             cleared = dp.health > 0.0;

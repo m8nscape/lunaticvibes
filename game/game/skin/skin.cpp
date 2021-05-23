@@ -20,10 +20,10 @@ void vSkin::update()
     unsigned measure;
 
     // current beat, measure
-    if (gPlayContext.chartObj[gPlayContext.playerSlot] != nullptr)
+    if (gPlayContext.chartObj[PLAYER_SLOT_1P] != nullptr)
     {
-        beat = gPlayContext.chartObj[gPlayContext.playerSlot]->getCurrentBeat();
-        measure = gPlayContext.chartObj[gPlayContext.playerSlot]->getCurrentMeasure();
+        beat = gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentBeat();
+        measure = gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentMeasure();
         gNumbers.set(eNumber::_TEST3, (int)(beat * 1000));
     }
 

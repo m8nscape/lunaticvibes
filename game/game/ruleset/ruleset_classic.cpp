@@ -51,7 +51,7 @@ void setJudgeTimer2PInner(int slot, long long t)
 
 RulesetClassic::RulesetClassic(std::shared_ptr<vChartFormat> format, std::shared_ptr<vChart> chart, 
     rc::judgeDiff difficulty, rc::gauge_ty gauge, double health, rc::player p) :
-    vRuleset(format, chart, rc::JUDGE_COUNT), _diff(difficulty), _count{ 0 }, _player(p)
+    vRuleset(format, chart, rc::JUDGE_COUNT), _diff(difficulty), _count{ 0 }, _gauge(gauge), _player(p)
 {
     using namespace std::string_literals;
 
@@ -78,9 +78,9 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChartFormat> format, std::shared
         //_basic.health = 1.0;
         _minHealth = 0;
         _clearHealth = 0;
-        _health[PERFECT] = 1000.0 / 1001.0 / 100.0;
-        _health[GREAT] = 1000.0 / 1001.0 / 100.0;
-        _health[GOOD] = 500.0 / 1001.0 / 100.0;
+        _health[PERFECT] = 1.0 / 1001.0;
+        _health[GREAT] = 1.0 / 1001.0;
+        _health[GOOD] = 1.0 / 1001.0 / 2;
         _health[BAD] = -0.06;
         _health[MISS] = -0.1;
         _health[BPOOR] = -0.02;
@@ -90,9 +90,9 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChartFormat> format, std::shared
         //_basic.health = 1.0;
         _minHealth = 0;
         _clearHealth = 0;
-        _health[PERFECT] = 1000.0 / 1001.0 / 100.0;
-        _health[GREAT] = 1000.0 / 1001.0 / 100.0;
-        _health[GOOD] = 500.0 / 1001.0 / 100.0;
+        _health[PERFECT] = 1.0 / 1001.0;
+        _health[GREAT] = 1.0 / 1001.0;
+        _health[GOOD] = 1.0 / 1001.0 / 2;
         _health[BAD] = -0.12;
         _health[MISS] = -0.2;
         _health[BPOOR] = -0.1;
@@ -102,8 +102,8 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChartFormat> format, std::shared
         _basic.health = 1.0;
         _minHealth = 0;
         _clearHealth = 0;
-        _health[PERFECT] = 1000.0 / 1001.0 / 100.0;
-        _health[GREAT] = 500.0 / 1001.0 / 100.0;
+        _health[PERFECT] = 1.0 / 1001.0;
+        _health[GREAT] = 1.0 / 1001.0 / 2;
         _health[GOOD] = 0.0;
         _health[BAD] = -1.0;
         _health[MISS] = -1.0;
@@ -114,7 +114,7 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChartFormat> format, std::shared
         //_basic.health = 1.0;
         _minHealth = 0;
         _clearHealth = 0;
-        _health[PERFECT] = 1000.0 / 1001.0 / 100.0;
+        _health[PERFECT] = 1.0 / 1001.0;
         _health[GREAT] = -0.02;
         _health[GOOD] = -1.0;
         _health[BAD] = -1.0;
@@ -174,9 +174,9 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChartFormat> format, std::shared
         //_basic.health = 1.0;
         _minHealth = 0;
         _clearHealth = 0;
-        _health[PERFECT] = 1000.0 / 1001.0 * 0.01;
-        _health[GREAT] = 1000.0 / 1001.0 * 0.01;
-        _health[GOOD] = 500.0 / 1001.0 * 0.01;
+        _health[PERFECT] = 1.0 / 1001.0;
+        _health[GREAT] = 1.0 / 1001.0;
+        _health[GOOD] = 1.0 / 1001.0 / 2;
         _health[BAD] = -0.02;
         _health[MISS] = -0.03;
         _health[BPOOR] = -0.02;
@@ -186,9 +186,9 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChartFormat> format, std::shared
         //_basic.health = 1.0;
         _minHealth = 0;
         _clearHealth = 0;
-        _health[PERFECT] = 1000.0 / 1001.0 * 0.01;
-        _health[GREAT] = 1000.0 / 1001.0 * 0.01;
-        _health[GOOD] = 500.0 / 1001.0 * 0.01;
+        _health[PERFECT] = 1.0 / 1001.0;
+        _health[GREAT] = 1.0 / 1001.0;
+        _health[GOOD] = 1.0 / 1001.0 / 2;
         _health[BAD] = -0.12;
         _health[MISS] = -0.2;
         _health[BPOOR] = -0.1;
@@ -200,14 +200,7 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChartFormat> format, std::shared
 
 	switch (p)
 	{
-	case rc::player::SP_1P:
-		_k1P = true;
-		_k2P = false;
-		break;
-	case rc::player::SP_2P:
-		_k1P = false;
-		_k2P = true;
-		break;
+	case rc::player::SP:
 	case rc::player::DP:
 		_k1P = true;
 		_k2P = true;
@@ -277,7 +270,20 @@ judgeRes RulesetClassic::_judge(const Note& note, Time time)
 
 void RulesetClassic::_updateHp(const double delta)
 {
-    double tmp = _basic.health + delta;
+    double tmp = _basic.health;
+    switch (_gauge)
+    {
+    case rc::gauge_ty::HARD:
+    case rc::gauge_ty::GRADE:
+        if (tmp < 0.30 && delta < 0.0)
+            tmp += delta * 0.6;
+        else
+            tmp += delta;
+        break;
+    default:
+        tmp += delta;
+        break;
+    }
     _basic.health = std::max(_minHealth, std::min(1.0, tmp));
 }
 

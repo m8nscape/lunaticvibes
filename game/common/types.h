@@ -62,8 +62,8 @@ enum class eModGauge : uint8_t
 {
     NORMAL = 0,
     HARD,
-    EASY,
     DEATH,
+    EASY,
     PATTACK,
     GATTACK,
     ASSISTEASY,

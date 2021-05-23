@@ -136,6 +136,20 @@ void panel_switch(int idx, int plus)
     eSwitch panel = static_cast<eSwitch>(int(eSwitch::SELECT_PANEL1) - 1 + idx);
     Time t{};
 
+    // close other panels
+    for (int i = 1; i <= 9; ++i)
+    {
+        if (i == idx) continue;
+        eSwitch p = static_cast<eSwitch>(int(eSwitch::SELECT_PANEL1) - 1 + i);
+        if (gSwitches.get(p))
+        {
+            gSwitches.set(p, false);
+            gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_START) - 1 + i), -1);
+            gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_END) - 1 + i), t.norm());
+            SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CLOSE));
+        }
+    }
+
     if (gSwitches.get(panel))
     {
         // close panel
@@ -323,18 +337,18 @@ void gauge_type(int player, int plus)
     }
 
     // eModGauge
-    int val = (gOptions.get(op) + plus) % 6;
+    int val = (gOptions.get(op) + plus) % 4;
     gOptions.set(op, val);
     switch (val)
     {
-    case 0: gPlayContext.mods[slot].gauge = eModGauge::NORMAL; gTexts.set(tx, "NORMAL"); break;
-    case 1: gPlayContext.mods[slot].gauge = eModGauge::HARD; gTexts.set(tx, "HARD"); break;
-    case 2: gPlayContext.mods[slot].gauge = eModGauge::EASY; gTexts.set(tx, "EASY"); break;
-    case 3: gPlayContext.mods[slot].gauge = eModGauge::DEATH; gTexts.set(tx, "DEATH"); break;
-    case 4: gPlayContext.mods[slot].gauge = eModGauge::PATTACK; gTexts.set(tx, "P-ATTACK"); break;
-    case 5: gPlayContext.mods[slot].gauge = eModGauge::GATTACK; gTexts.set(tx, "G-ATTACK"); break;
-    //case 6: gPlayContext.mods[slot].gauge = eModGauge::ASSISTEASY; gTexts.set(tx, "ASSIST-E"); break;
-    //case 7: gPlayContext.mods[slot].gauge = eModGauge::EXHARD; break;
+    case 0: gTexts.set(tx, "NORMAL"); break;
+    case 1: gTexts.set(tx, "HARD"); break;
+    case 2: gTexts.set(tx, "DEATH"); break;
+    case 3: gTexts.set(tx, "EASY"); break;
+    //case 4: gTexts.set(tx, "P-ATTACK"); break;
+    //case 5: gTexts.set(tx, "G-ATTACK"); break;
+    //case 6: gTexts.set(tx, "ASSIST-E"); break;
+    //case 7: break;
     default: break;
     }
 
@@ -385,9 +399,8 @@ void autoscr(int player, int plus)
     }
 
     // eModChart
-    bool val = gPlayContext.mods[slot].assist_mask & PLAY_MOD_ASSIST_AUTOSCR;
+    bool val = gSwitches.get(sw);
     gSwitches.set(sw, !val);
-    gPlayContext.mods[slot].assist_mask ^= PLAY_MOD_ASSIST_AUTOSCR;
     gTexts.set(tx, (!val) ? "AUTO-SCR" : "NONE");
 
     SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
@@ -420,28 +433,18 @@ void hs_fix(int plus)
     switch (val)
     {
     case 0: 
-        gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::NONE;
-        gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::NONE;
         gTexts.set(eText::SCROLL_TYPE, "OFF"); 
         break;
     case 1:
-        gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::MAXBPM;
-        gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::MAXBPM;
         gTexts.set(eText::SCROLL_TYPE, "MAX");
         break;
     case 2:
-        gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::MINBPM;
-        gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::MINBPM;
         gTexts.set(eText::SCROLL_TYPE, "MIN");
         break;
     case 3:
-        gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::AVERAGE;
-        gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::AVERAGE;
         gTexts.set(eText::SCROLL_TYPE, "AVERAGE");
         break;
     case 4:
-        gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::CONSTANT;
-        gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::CONSTANT;
         gTexts.set(eText::SCROLL_TYPE, "CONSTANT");
         break;
     default: 
@@ -454,7 +457,6 @@ void hs_fix(int plus)
 // 56
 void battle(int plus)
 {
-
 
     SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
 }

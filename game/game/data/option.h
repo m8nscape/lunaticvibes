@@ -156,12 +156,12 @@ namespace Option
     };
 
     enum e_gauge_type{
-        GAUGE_ASSIST,
-        GAUGE_EASY,
         GAUGE_NORMAL,
         GAUGE_HARD,
-        GAUGE_EXHARD,
         GAUGE_DEATH,
+        GAUGE_EASY,
+        GAUGE_ASSIST,
+        GAUGE_EXHARD,
     };
 
     enum e_random_type {
