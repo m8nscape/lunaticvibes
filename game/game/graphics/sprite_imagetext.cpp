@@ -50,7 +50,7 @@ void SpriteImageText::setText(std::string&& text)
     */
 
     // convert UTF-8 to UTF-32
-    auto& in_utf32 = std::use_facet<std::codecvt<char32_t, char, std::mbstate_t>>(std::locale(""));
+    static auto& in_utf32 = std::use_facet<std::codecvt<char32_t, char, std::mbstate_t>>(std::locale(""));
     std::u32string u32Text(_currText.size() * in_utf32.max_length(), '\0');
 
     std::mbstate_t s;
