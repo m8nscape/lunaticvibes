@@ -10,6 +10,7 @@
 #include "game/graphics/sprite_video.h"
 #include "config/config_mgr.h"
 #include <plog/Log.h>
+#include "sysutil.h"
 
 struct InputDataMap{
     eTimer tm;
@@ -394,6 +395,8 @@ void ScenePlay::loadChart()
     if (!gChartContext.isSampleLoaded && !sceneEnding)
     {
         auto dtor = std::async(std::launch::async, [&]() {
+            SetThreadName("Chart sound sample loading thread");
+
             auto _pChart = gChartContext.chartObj;
             auto chartDir = gChartContext.chartObj->getDirectory();
             LOG_DEBUG << "[Play] Load files from " << chartDir.c_str();
@@ -433,6 +436,8 @@ void ScenePlay::loadChart()
     if (ConfigMgr::get("P", cfg::P_LOAD_BGA, cfg::ON) == cfg::ON && !gChartContext.isBgaLoaded && !sceneEnding)
     {
         auto dtor = std::async(std::launch::async, [&]() {
+            SetThreadName("Chart BGA loading thread");
+
             auto _pChart = gChartContext.chartObj;
 			auto chartDir = gChartContext.chartObj->getDirectory();
             for (const auto& it : _pChart->bgaFiles)

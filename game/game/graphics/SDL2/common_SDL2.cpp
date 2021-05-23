@@ -187,7 +187,7 @@ Texture::Texture(const Image& srcImage)
 {
     if (!srcImage._loaded) return;
 
-    std::unique_lock u(gRenderMutex);
+    std::lock_guard u(gRenderMutex);
     _pTexture = std::shared_ptr<SDL_Texture>(
         SDL_CreateTextureFromSurface(gFrameRenderer, &*srcImage._pSurface),
         [](SDL_Texture* p) {if (p) SDL_DestroyTexture(p); });
@@ -208,17 +208,23 @@ Texture::Texture(const Image& srcImage)
         LOG_DEBUG << "[Texture] Build texture object finished. " << srcImage._path.c_str();
 }
 
-Texture::Texture(const SDL_Surface* pSurface):
-    _pTexture(SDL_CreateTextureFromSurface(gFrameRenderer, const_cast<SDL_Surface*>(pSurface)), [](SDL_Texture* p) { if (p) SDL_DestroyTexture(p); })
+Texture::Texture(const SDL_Surface* pSurface)
 {
+    std::lock_guard u(gRenderMutex);
+    _pTexture = std::shared_ptr<SDL_Texture>(
+        SDL_CreateTextureFromSurface(gFrameRenderer, const_cast<SDL_Surface*>(pSurface)),
+        [](SDL_Texture* p) { if (p) SDL_DestroyTexture(p); });
     if (!_pTexture) return;
     _texRect = pSurface->clip_rect;
     _loaded = true;
 }
 
-Texture::Texture(const SDL_Texture* pTexture, int w, int h):
-    _pTexture(const_cast<SDL_Texture*>(pTexture), [](SDL_Texture* p) { if (p) SDL_DestroyTexture(p); })
+Texture::Texture(const SDL_Texture* pTexture, int w, int h)
 {
+    std::lock_guard u(gRenderMutex);
+    _pTexture = std::shared_ptr<SDL_Texture>(
+        const_cast<SDL_Texture*>(pTexture), 
+        [](SDL_Texture* p) { if (p) SDL_DestroyTexture(p); });
     if (!pTexture) return;
     _texRect = {0, 0, w, h};
     _loaded = true;
@@ -245,8 +251,10 @@ Texture::Texture(int w, int h, PixelFormat fmt)
 
 	if (sdlfmt != SDL_PIXELFORMAT_UNKNOWN)
 	{
+        std::lock_guard u(gRenderMutex);
         _pTexture = std::shared_ptr<SDL_Texture>(
-            SDL_CreateTexture(gFrameRenderer, sdlfmt, SDL_TEXTUREACCESS_STREAMING, w, h), [](SDL_Texture* p) { if (p) SDL_DestroyTexture(p); });
+            SDL_CreateTexture(gFrameRenderer, sdlfmt, SDL_TEXTUREACCESS_STREAMING, w, h), 
+            [](SDL_Texture* p) { if (p) SDL_DestroyTexture(p); });
 		if (_pTexture) _loaded = true;
 	}
 }

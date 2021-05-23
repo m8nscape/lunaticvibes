@@ -993,6 +993,7 @@ ParseRet SkinLR2::SRC_IMAGE()
 	if (useVideo && videoBuf && videoBuf->haveVideo)
 	{
         refineRect(d, { 0, 0, videoBuf->getW(), videoBuf->getH() }, srcLine);
+        std::lock_guard u(gRenderMutex);
 		auto psv = std::make_shared<SpriteVideo>(d.w, d.h, videoBuf);
 		_sprites.push_back(psv);
 	}
