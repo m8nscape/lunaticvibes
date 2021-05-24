@@ -15,7 +15,6 @@ AsyncLooper::AsyncLooper(std::function<void()> func, unsigned rate_per_sec, bool
 AsyncLooper::~AsyncLooper()
 {
     std::lock_guard<decltype(_loopMutex)> _lock(_loopMutex);
-
     loopEnd();
     //if (_single_inst)
     //    std::unique_lock<decltype(_loopMutex)> _lock(_loopMutex);
@@ -25,7 +24,7 @@ void AsyncLooper::run()
 {
     std::lock_guard<decltype(_loopMutex)> _lock(_loopMutex);
     if (_running)
-        _loopFunc();
+        _loopFuncBody();
 }
 
 unsigned AsyncLooper::getRate()
@@ -73,6 +72,7 @@ VOID CALLBACK WaitOrTimerCallback(_In_ PVOID lpParameter, _In_ BOOLEAN TimerOrWa
 
 void AsyncLooper::loopStart()
 {
+    _loopFuncBody = _loopFunc;
     _running = CreateTimerQueueTimer(
         &handler,
         NULL, WaitOrTimerCallback,
@@ -92,6 +92,7 @@ void AsyncLooper::loopEnd()
 {
     if (!_running) return;
     _running = false;
+    _loopFuncBody = [] {};
 
     if (DeleteTimerQueueTimer(NULL, handler, NULL))
     {

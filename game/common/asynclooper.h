@@ -46,6 +46,7 @@ public:
 
 private:
     std::function<void()> _loopFunc;
+    std::function<void()> _loopFuncBody;
     void run();
 #if WIN32
     friend VOID CALLBACK WaitOrTimerCallback(_In_ PVOID lpParameter, _In_ BOOLEAN TimerOrWaitFired);
