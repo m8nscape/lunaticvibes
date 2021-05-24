@@ -1757,7 +1757,7 @@ int filledCircleRGBA(SDL_Renderer * renderer, Sint16 x, Sint16 y, Sint16 rad, Ui
 /* ----- AA Ellipse */
 
 /* Windows targets do not have lrint, so provide a local inline version */
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && _MSC_FULL_VER < 192829913
 /* Detect 64bit and use intrinsic version */
 #ifdef _M_X64
 #include <emmintrin.h>
