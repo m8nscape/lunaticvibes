@@ -92,6 +92,7 @@ public:
     void setSrcLine(int i) { _srcLine = i; }
     void setParent(std::weak_ptr<vSprite> p) { _parent = p; _haveParent = true; }
     RenderParams getCurrentRenderParams();
+    RenderParams& getCurrentRenderParamsRef();
     bool updateByKeyframes(Time time);
 	virtual bool update(Time time);
     virtual void setLoopTime(int t);
@@ -331,6 +332,7 @@ public:
     void updateNumber(int n);           // invoke updateSplit to change number
     void updateNumberByInd();
     void setInhibitZero(bool b) { _inhibitZero = b; }
+    void updateNumberRect();
 	virtual bool update(Time t);
     virtual void appendKeyFrame(RenderKeyFrame f);
     virtual void draw() const;

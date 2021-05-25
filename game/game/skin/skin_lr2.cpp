@@ -2910,7 +2910,6 @@ SkinLR2::SkinLR2(Path p)
     {
         _barSprites[i] = std::make_shared<SpriteBarEntry>(i);
         _sprites.push_back(_barSprites[i]);
-        _sprites_parent.push_back(_barSprites[i]);
     }
 	_laneSprites.resize(CHANNEL_COUNT);
     updateDstOpt();
@@ -3019,12 +3018,12 @@ void SkinLR2::update()
 	// update op
 	updateDstOpt();
 
-    int ttAngle1P = gNumbers.get(eNumber::_ANGLE_TT_1P);
-    int ttAngle2P = gNumbers.get(eNumber::_ANGLE_TT_2P);
+    Time t;
 
+    // update turntables
     {
-        // acquire lock
-        std::lock_guard<std::mutex> u(gSelectContext._mutex);
+        int ttAngle1P = gNumbers.get(eNumber::_ANGLE_TT_1P);
+        int ttAngle2P = gNumbers.get(eNumber::_ANGLE_TT_2P);
 
 #ifndef _DEBUG
         std::for_each(std::execution::par_unseq, drawQueue.begin(), drawQueue.end(), [ttAngle1P, ttAngle2P](auto& e)
@@ -3087,6 +3086,56 @@ void SkinLR2::update()
         }
     }
 
+    // update songlist bar
+    {
+        std::lock_guard<std::mutex> u(gSelectContext._mutex);
+        for (auto& s : _barSprites) s->update(t);
+
+        auto tMove = gTimers.get(eTimer::LIST_MOVE);
+        if (t.norm() - tMove < 300)
+        {
+            setListStopTimer = true;
+            for (size_t i = 1; i + 1 < _barSprites.size(); ++i)
+            {
+                double factor = 1.0 - (t.norm() - tMove) / 300.0;
+
+                auto& r1 = _barAnimOrigin[i];
+                auto& r2 = _barSprites[i]->_current.rect;
+                Rect dr{
+                    static_cast<int>(std::round((r1.x - r2.x) * factor)),
+                    static_cast<int>(std::round((r1.y - r2.y) * factor)),
+                    0, 0
+                };
+                _barSprites[i]->setRectOffset(dr);
+
+            }
+        }
+        else
+        {
+            if (setListStopTimer)
+            {
+                setListStopTimer = false;
+                gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());
+            }
+        }
+    }
+}
+
+void SkinLR2::start_bar_animation(int direction)
+{
+    for (size_t i = 0; i < BAR_ENTRY_SPRITE_COUNT; ++i)
+    {
+        int di = direction + i;
+        if (di < 0 || di >= BAR_ENTRY_SPRITE_COUNT || !_barSpriteAdded[di])
+        {
+            _barAnimOrigin[i] = _barSprites[i]->_current.rect;
+        }
+        else
+        {
+            int j = di % BAR_ENTRY_SPRITE_COUNT;
+            _barAnimOrigin[i] = _barSprites[j]->_current.rect;
+        }
+    }
 }
 
 void SkinLR2::draw() const

@@ -190,6 +190,11 @@ RenderParams vSprite::getCurrentRenderParams()
     return _current;
 }
 
+RenderParams& vSprite::getCurrentRenderParamsRef()
+{
+    return _current;
+}
+
 void vSprite::setLoopTime(int t)
 {
     _loopTo = t;
@@ -557,46 +562,7 @@ bool SpriteNumber::update(Time t)
 	if (SpriteAnimated::update(t))
 	{
         updateNumberByInd();
-
-        switch (_alignType)
-        {
-        case NUM_ALIGN_RIGHT:
-        {
-            Rect offset{ int(_current.rect.w * (_maxDigits - 1)),0,0,0 };
-            for (size_t i = 0; i < _maxDigits; ++i)
-            {
-                _rects[i] = _current.rect + offset;
-                offset.x -= _current.rect.w;
-            }
-            break;
-        }
-
-        case NUM_ALIGN_LEFT:
-        {
-            Rect offset{ int(_current.rect.w * (_numDigits - 1)),0,0,0 };
-            for (size_t i = 0; i < _numDigits; ++i)
-            {
-                _rects[i] = _current.rect + offset;
-                offset.x -= _current.rect.w;
-            }
-            break;
-        }
-
-        case NUM_ALIGN_CENTER:
-        {
-            Rect offset{ 0,0,0,0 };
-            if (_inhibitZero)
-                offset.x = int(std::floor(_current.rect.w * 0.5 * (_numDigits - 1)));
-            else
-                offset.x = int(std::floor(_current.rect.w * (0.5 * (_maxDigits + _numDigits) - 1)));
-            for (size_t i = 0; i < _numDigits; ++i)
-            {
-                _rects[i] = _current.rect + offset;
-                offset.x -= _current.rect.w;
-            }
-            break;
-        }
-        }
+        updateNumberRect();
 		return true;
 	}
 	return false;
@@ -694,6 +660,49 @@ void SpriteNumber::updateNumberByInd()
         break;
     }
     updateNumber(n);
+}
+
+void SpriteNumber::updateNumberRect()
+{
+    switch (_alignType)
+    {
+    case NUM_ALIGN_RIGHT:
+    {
+        Rect offset{ int(_current.rect.w * (_maxDigits - 1)),0,0,0 };
+        for (size_t i = 0; i < _maxDigits; ++i)
+        {
+            _rects[i] = _current.rect + offset;
+            offset.x -= _current.rect.w;
+        }
+        break;
+    }
+
+    case NUM_ALIGN_LEFT:
+    {
+        Rect offset{ int(_current.rect.w * (_numDigits - 1)),0,0,0 };
+        for (size_t i = 0; i < _numDigits; ++i)
+        {
+            _rects[i] = _current.rect + offset;
+            offset.x -= _current.rect.w;
+        }
+        break;
+    }
+
+    case NUM_ALIGN_CENTER:
+    {
+        Rect offset{ 0,0,0,0 };
+        if (_inhibitZero)
+            offset.x = int(std::floor(_current.rect.w * 0.5 * (_numDigits - 1)));
+        else
+            offset.x = int(std::floor(_current.rect.w * (0.5 * (_maxDigits + _numDigits) - 1)));
+        for (size_t i = 0; i < _numDigits; ++i)
+        {
+            _rects[i] = _current.rect + offset;
+            offset.x -= _current.rect.w;
+        }
+        break;
+    }
+    }
 }
 
 void SpriteNumber::appendKeyFrame(RenderKeyFrame f)

@@ -185,4 +185,6 @@ public:
     auto getSpriteRivalWinLose(BarRivalType type) { return sRivalWinLose[static_cast<size_t>(type)]; }
     auto getSpriteRivalLampSelf(BarLampType type) { return sRivalLampSelf[static_cast<size_t>(type)]; }
     auto getSpriteRivalLampRival(BarLampType type) { return sRivalLampRival[static_cast<size_t>(type)]; }
+
+    void setRectOffset(const Rect& r);
 };

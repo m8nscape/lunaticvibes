@@ -1394,6 +1394,8 @@ protected:
     unsigned barCenter = 0;
     unsigned barClickableFrom = 0;
     unsigned barClickableTo = 0;
+	std::array<Rect, BAR_ENTRY_SPRITE_COUNT> _barAnimOrigin;
+	bool setListStopTimer = false;
 
 protected:
     std::vector<std::shared_ptr<SpriteLaneVertical>> _laneSprites;
@@ -1502,6 +1504,7 @@ private:
     std::vector<element> drawQueue;
 public:
     virtual void update();
+	virtual void start_bar_animation(int direction) override;
     virtual void draw() const;
 
 };

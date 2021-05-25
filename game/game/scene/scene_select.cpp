@@ -489,6 +489,7 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
         loadSongList();
         setBarInfo();
         setEntryInfo();
+        _skin->start_bar_animation(0);
     }
 
     _state = eSelectState::PREPARE;
@@ -1069,13 +1070,12 @@ void SceneSelect::_navigateUpBy1(Time t)
     std::lock_guard<std::mutex> u(gSelectContext._mutex);
 
     gSelectContext.idx = (gSelectContext.entries.size() + gSelectContext.idx - 1) % gSelectContext.entries.size();
-    // TODO animation
-    gTimers.set(eTimer::LIST_MOVE, t.norm());
-    gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());
+    _skin->start_bar_animation(-1);
 
     setBarInfo();
     setEntryInfo();
 
+    gTimers.set(eTimer::LIST_MOVE, t.norm());
     SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_SCRATCH));
 }
 
@@ -1084,13 +1084,12 @@ void SceneSelect::_navigateDownBy1(Time t)
     std::lock_guard<std::mutex> u(gSelectContext._mutex);
 
     gSelectContext.idx = (gSelectContext.idx + 1) % gSelectContext.entries.size();
-    // TODO animation
-    gTimers.set(eTimer::LIST_MOVE, t.norm());
-    gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());
+    _skin->start_bar_animation(+1);
 
     setBarInfo();
     setEntryInfo();
 
+    gTimers.set(eTimer::LIST_MOVE, t.norm());
     SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_SCRATCH));
 }
 
@@ -1120,9 +1119,6 @@ void SceneSelect::_navigateEnter(Time t)
         gSelectContext.idx = 0;
         loadSongList();
 
-        gTimers.set(eTimer::LIST_MOVE, t.norm());
-        gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());
-
         setBarInfo();
         setEntryInfo();
 
@@ -1146,9 +1142,6 @@ void SceneSelect::_navigateBack(Time t)
         top = gSelectContext.backtrace.top();
         gSelectContext.entries = top.list;
         gSelectContext.idx = top.index;
-
-        gTimers.set(eTimer::LIST_MOVE, t.norm());
-        gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());
 
         setBarInfo();
         setEntryInfo();

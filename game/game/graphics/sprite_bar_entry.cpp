@@ -167,7 +167,6 @@ void SpriteBarEntry::pushPartsOrder(BarPartsType type)
 
 bool SpriteBarEntry::update(Time time)
 {
-    std::lock_guard<std::mutex> u(gSelectContext._mutex);
     auto& list = gSelectContext.entries;
     if (!list.empty())
     {
@@ -193,37 +192,21 @@ bool SpriteBarEntry::update(Time time)
         auto pinfo = list[listidx];
         drawBodyOn = (index == gSelectContext.cursor);
 
-        size_t typeidx = (size_t)BarType::SONG;
-        switch (pinfo->type())
+        static const std::map<eEntryType, size_t> BAR_TYPE_MAP =
         {
-        case eEntryType::UNKNOWN:
-            break;
-        case eEntryType::FOLDER:
-            typeidx = (size_t)BarType::FOLDER;
-            break;
-        case eEntryType::CUSTOM_FOLDER:
-            typeidx = (size_t)BarType::CUSTOM_FOLDER;
-            break;
-        case eEntryType::SONG:
-            // TODO addtime check -> NEW_SONG
-            typeidx = (size_t)BarType::SONG;
-            break;
-        case eEntryType::RIVAL:
-            typeidx = (size_t)BarType::RIVAL;
-            break;
-        case eEntryType::RIVAL_SONG:
-            typeidx = (size_t)BarType::SONG_RIVAL;
-            break;
-        case eEntryType::NEW_COURSE:
-            typeidx = (size_t)BarType::NEW_COURSE;
-            break;
-        case eEntryType::COURSE:
-            typeidx = (size_t)BarType::COURSE;
-            break;
-        case eEntryType::RANDOM_COURSE:
-            typeidx = (size_t)BarType::RANDOM_COURSE;
-            break;
-        }
+            {eEntryType::UNKNOWN, (size_t)BarType::SONG},
+            {eEntryType::FOLDER, (size_t)BarType::FOLDER},
+            {eEntryType::CUSTOM_FOLDER, (size_t)BarType::CUSTOM_FOLDER},
+            {eEntryType::SONG, (size_t)BarType::SONG},
+            {eEntryType::RIVAL, (size_t)BarType::RIVAL},
+            {eEntryType::RIVAL_SONG, (size_t)BarType::SONG_RIVAL},
+            {eEntryType::NEW_COURSE, (size_t)BarType::NEW_COURSE},
+            {eEntryType::COURSE, (size_t)BarType::COURSE},
+            {eEntryType::RANDOM_COURSE, (size_t)BarType::RANDOM_COURSE},
+        };
+        size_t typeidx = (size_t)BarType::SONG;
+        if (BAR_TYPE_MAP.find(pinfo->type()) != BAR_TYPE_MAP.end())
+            typeidx = BAR_TYPE_MAP.at(pinfo->type());
 
         if (!drawBodyOn && sBodyOff[typeidx])
         {
@@ -250,8 +233,6 @@ bool SpriteBarEntry::update(Time time)
             auto parent = _parent.lock();
             _current.rect.x = parent->getCurrentRenderParams().rect.x;
             _current.rect.y = parent->getCurrentRenderParams().rect.y;
-            _current.rect.w = 0;
-            _current.rect.h = 0;
             _current.color = parent->getCurrentRenderParams().color;
             _current.angle = parent->getCurrentRenderParams().angle;
         }
@@ -425,4 +406,27 @@ void SpriteBarEntry::draw() const
         default: break;
         }
     }
+}
+
+void SpriteBarEntry::setRectOffset(const Rect& dr)
+{
+    auto adjust_rect = [](Rect& r, const Rect& dr)
+    {
+        r.x += dr.x;
+        r.y += dr.y;
+    };
+
+    if (drawBodyOn) adjust_rect(sBodyOn[drawBodyType]->getCurrentRenderParamsRef().rect, dr);
+    else adjust_rect(sBodyOff[drawBodyType]->getCurrentRenderParamsRef().rect, dr);
+    if (drawTitle) adjust_rect(sTitle[drawTitleType]->getCurrentRenderParamsRef().rect, dr);
+    if (drawLevel)
+    {
+        adjust_rect(sLevel[drawLevelType]->getCurrentRenderParamsRef().rect, dr);
+        sLevel[drawLevelType]->updateNumberRect();
+    }
+    if (drawLamp) adjust_rect(sLamp[drawLampType]->getCurrentRenderParamsRef().rect, dr);
+    if (drawRank) adjust_rect(sRank[drawRankType]->getCurrentRenderParamsRef().rect, dr);
+    if (drawRival) adjust_rect(sRivalWinLose[drawRivalType]->getCurrentRenderParamsRef().rect, dr);
+    if (drawRivalLampSelf) adjust_rect(sRivalLampSelf[drawRivalLampSelfType]->getCurrentRenderParamsRef().rect, dr);
+    if (drawRivalLampRival) adjust_rect(sRivalLampRival[drawRivalLampRivalType]->getCurrentRenderParamsRef().rect, dr);
 }
