@@ -62,7 +62,12 @@ protected:
 	bool inPoor = false;
 	
 public:
-	TextureBmsBga(int x = 256, int y = 256) : Texture(nullptr, x, y) {}
+	TextureBmsBga(int x = 256, int y = 256) : Texture(nullptr, x, y)
+	{
+		baseIt = baseSlot.begin();
+		layerIt = layerSlot.begin();
+		poorIt = poorSlot.begin();
+	}
 	virtual ~TextureBmsBga() = default;
 
 public:

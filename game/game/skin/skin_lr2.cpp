@@ -933,6 +933,7 @@ int SkinLR2::SRC()
         {"#SRC_BAR_RIVAL",  std::bind(&SkinLR2::SRC_BAR_RIVAL,  _1)},
         {"#SRC_BAR_MY_LAMP",  std::bind(&SkinLR2::SRC_BAR_RIVAL_MYLAMP,  _1)},
         {"#SRC_BAR_RIVAL_LAMP",  std::bind(&SkinLR2::SRC_BAR_RIVAL_RIVALLAMP,  _1)},
+        {"#SRC_GAUGECHART_1P", std::bind(&SkinLR2::SRC_GAUGECHART1, _1)}
     };
 
     // skip unsupported
@@ -1246,6 +1247,39 @@ ParseRet SkinLR2::SRC_TEXT()
 
     return ParseRet::OK;
 }
+
+ParseRet SkinLR2::SRC_GAUGECHART1()
+{
+    if (tokensBuf.size() < 14)
+    {
+        //LOG_WARNING << "[Skin] " << line << ": Parameter not enough (" << tokensBuf.size() << "/10)";
+
+        //return ParseRet::PARAM_NOT_ENOUGH;
+    }
+
+    lr2skin::s_gaugechart d;
+    convertLine(tokensBuf, (int*)&d, 0, 14);
+    //if (textureBuf) refineRect(d, textureBuf->getRect(), srcLine);
+
+    LineType type = LineType::GAUGE_F;
+    switch (d._null)
+    {
+    case 0: type = LineType::GAUGE_F; break;
+    case 1: type = LineType::GAUGE_C; break;
+    default: break;
+    }
+
+    _sprites.push_back(std::make_shared<SpriteLine>(
+        PLAYER_SLOT_1P,
+        type,
+        d.field_w, d.field_h, d.start, d.end, d.w));
+
+    _sprites_child.push_back(_sprites.back());
+    _sprites.back()->setSrcLine(srcLine);
+
+    return ParseRet::OK;
+}
+
 
 #pragma region SRC: Play skin specified
 
@@ -1716,6 +1750,7 @@ ParseRet SkinLR2::SRC_BGA()
 	return ParseRet::OK;
 }
 
+
 #pragma endregion
 
 #pragma region SRC: Select skin specified
@@ -1967,6 +2002,7 @@ int SkinLR2::DST()
         {"#DST_NOWCOMBO_2P",13},
         {"#DST_BGA",14},
         {"#DST_MOUSECURSOR",15},
+        {"#DST_GAUGECHART_1P",16},
     };
 
     if (__general_dst_supported.find(opt) == __general_dst_supported.end() || _sprites.empty())

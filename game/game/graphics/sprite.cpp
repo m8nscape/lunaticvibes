@@ -1117,38 +1117,6 @@ void SpriteGaugeGrid::draw() const
     }
 }
 
-SpriteLine::SpriteLine(int width, Color color) : SpriteStatic(nullptr), _line(width), _color(color)
-{
-	_type = SpriteTypes::LINE;
-}
-
-void SpriteLine::appendPoint(const ColorPoint& c) { _points.push_back(c); }
-
-void SpriteLine::draw() const
-{
-	size_t m = (size_t)std::floor((_points.size() - 1) * _progress);
-	for (size_t i = 0; i < m; ++i)
-	{
-		_line.draw(_points[i].p, _points[i+1].p, _points[i].c);
-	}
-}
-
-void SpriteLine::updateProgress(Time t)
-{
-	_progress = (double)(gTimers.get(_triggerTimer) - t.norm() - _timerStartOffset) / _duration;
-	_progress = std::clamp(_progress, 0.0, 1.0);
-}
-
-bool SpriteLine::update(Time t)
-{
-	if (SpriteStatic::update(t))
-	{
-		updateProgress(t);
-		return true;
-	}
-	return false;
-}
-
 SpriteOnMouse::SpriteOnMouse(pTexture texture,
     unsigned animFrames, unsigned frameTime, int panel, const Rect& mouseArea, eTimer timer,
     unsigned selRows, unsigned selCols, bool selVerticalIndexing) :

@@ -750,6 +750,27 @@ void ScenePlay::updatePlaying()
     changeKeySampleMapping(rt);
 	//updateBga();
 
+    // charts
+    if (rt.norm() / 500 >= gPlayContext.graphGauge[PLAYER_SLOT_1P].size())
+    {
+        auto& g = gPlayContext.graphGauge[PLAYER_SLOT_1P];
+        auto& r = gPlayContext.ruleset[PLAYER_SLOT_1P];
+        int h = r->getClearHealth() * 100;
+        if (!g.empty())
+        {
+            int ch = r->getData().health * 100;
+            if ((g.back() < h && ch > h) || (g.back() > h && ch < h))
+            {
+                // just insert an interim point, as for a game we don't need to be too precise
+                g.push_back(h);
+            }
+        }
+
+        gPlayContext.graphGauge[PLAYER_SLOT_1P].push_back(gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().health * 100);
+
+        gPlayContext.graphScore[PLAYER_SLOT_1P].push_back(gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().score2);
+    }
+
     // health check (-> to failed)
     // TODO also play failed sound
     switch (_mode)
@@ -1098,32 +1119,35 @@ void ScenePlay::inputGamePress(InputMask& m, Time t)
         gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
         gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FADEOUT);
 
-        switch (_mode)
+        if (gChartContext.started)
         {
-        case ePlayMode::SINGLE:
-        {
-            if (!_isPlayerFinished[PLAYER_SLOT_1P])
+            switch (_mode)
             {
-                gPlayContext.ruleset[PLAYER_SLOT_1P]->fail();
-            }
-        }
-        break;
-
-        case ePlayMode::LOCAL_BATTLE:
-        {
-            if (!_isPlayerFinished[PLAYER_SLOT_1P])
+            case ePlayMode::SINGLE:
             {
-                gPlayContext.ruleset[PLAYER_SLOT_1P]->fail();
+                if (!_isPlayerFinished[PLAYER_SLOT_1P])
+                {
+                    gPlayContext.ruleset[PLAYER_SLOT_1P]->fail();
+                }
             }
-            if (!_isPlayerFinished[PLAYER_SLOT_2P])
-            {
-                gPlayContext.ruleset[PLAYER_SLOT_2P]->fail();
-            }
-        }
-        break;
-
-        default:
             break;
+
+            case ePlayMode::LOCAL_BATTLE:
+            {
+                if (!_isPlayerFinished[PLAYER_SLOT_1P])
+                {
+                    gPlayContext.ruleset[PLAYER_SLOT_1P]->fail();
+                }
+                if (!_isPlayerFinished[PLAYER_SLOT_2P])
+                {
+                    gPlayContext.ruleset[PLAYER_SLOT_2P]->fail();
+                }
+            }
+            break;
+
+            default:
+                break;
+            }
         }
 
     }

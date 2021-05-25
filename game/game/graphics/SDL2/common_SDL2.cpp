@@ -385,11 +385,12 @@ void TextureFull::draw(const Rect& ignored, Rect dstRect,
 
 void GraphLine::draw(Point p1, Point p2, Color c) const
 {
-	thickLineColor(
+	thickLineRGBA(
 		gFrameRenderer,
 		(Sint16)p1.x, (Sint16)p1.y,
         (Sint16)p2.x, (Sint16)p2.y,
 		_width,
-		c.hex()
+		c.r, c.g, c.b, c.a
 	);
+    SDL_SetRenderDrawColor(gFrameRenderer, 0, 0, 0, 255);
 }

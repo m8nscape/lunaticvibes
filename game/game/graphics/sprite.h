@@ -554,38 +554,6 @@ public:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-// Line sprite
-struct ColorPoint
-{
-	Point p;
-	Color c;
-};
-
-class SpriteLine : public SpriteStatic
-{
-private:
-    GraphLine _line;
-	Color _color;
-	std::vector<ColorPoint> _points;
-	int _timerStartOffset = 0, _duration = 0;
-	double _progress;	// 0 ~ 1
-
-public:
-    SpriteLine() = delete;
-	SpriteLine(int width = 1, Color color = 0xffffffff);
-    virtual ~SpriteLine() = default;
-
-public:
-	void appendPoint(const ColorPoint&);
-
-public:
-	void updateProgress(Time t);
-	virtual bool update(Time t);
-    virtual void draw() const;
-};
-
-
-////////////////////////////////////////////////////////////////////////////////
 // OnMouse
 class SpriteOnMouse : public SpriteAnimated
 {

@@ -67,12 +67,11 @@ enum class BlendMode
 class Point
 {
 public:
-	bool valid = false;
 	double x = 0;
 	double y = 0;
 public:
 	constexpr Point(int zero = 0) {}
-	constexpr Point(double x, double y) : x(x), y(y), valid(true) {}
+	constexpr Point(double x, double y) : x(x), y(y) {}
 	constexpr Point operator+ (const Point& rhs) const { return Point(x + rhs.x, y + rhs.y); }
 	constexpr Point operator- (const Point& rhs) const { return Point(x - rhs.x, y - rhs.y); }
 	constexpr Point operator* (const double& rhs) const { return Point(x * rhs, y * rhs); }

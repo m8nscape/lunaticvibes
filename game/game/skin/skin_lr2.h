@@ -12,6 +12,7 @@
 #include "game/graphics/sprite_video.h"
 #include "game/graphics/sprite_bar_entry.h"
 #include "game/graphics/sprite_imagetext.h"
+#include "game/graphics/sprite_graph.h"
 #include "game/input/input_mgr.h"
 #include "game/data/switch.h"
 
@@ -1402,6 +1403,9 @@ protected:
     std::vector<std::shared_ptr<SpriteLaneVertical>> _laneSprites;
 	std::map<std::string, pFont>  _fontNameMap;
 
+protected:
+	typedef std::shared_ptr<SpriteLine> psLine;
+
 private:
     unsigned srcLine = 0;          // line parsing index
     Tokens csvNextLineTokenize(std::istream& file);
@@ -1464,6 +1468,11 @@ private:
     ParseRet SRC_BAR_RIVAL();
     ParseRet SRC_BAR_RIVAL_MYLAMP();
     ParseRet SRC_BAR_RIVAL_RIVALLAMP();
+
+	ParseRet SRC_GAUGECHART1();
+	ParseRet SRC_GAUGECHART2();
+	ParseRet SRC_SCORECHART1();
+	ParseRet SRC_SCORECHART2();
 
     int DST();
     ParseRet DST_NOTE();

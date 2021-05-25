@@ -43,6 +43,7 @@
     <ClCompile Include="game\graphics\SDL2\window_SDL2.cpp" />
     <ClCompile Include="game\graphics\sprite.cpp" />
     <ClCompile Include="game\graphics\sprite_bar_entry.cpp" />
+    <ClCompile Include="game\graphics\sprite_graph.cpp" />
     <ClCompile Include="game\graphics\sprite_imagetext.cpp" />
     <ClCompile Include="game\graphics\sprite_lane.cpp" />
     <ClCompile Include="game\graphics\sprite_video.cpp" />
@@ -115,6 +116,7 @@
     <ClInclude Include="game\graphics\SDL2\window_SDL2.h" />
     <ClInclude Include="game\graphics\sprite.h" />
     <ClInclude Include="game\graphics\sprite_bar_entry.h" />
+    <ClInclude Include="game\graphics\sprite_graph.h" />
     <ClInclude Include="game\graphics\sprite_imagetext.h" />
     <ClInclude Include="game\graphics\sprite_lane.h" />
     <ClInclude Include="game\graphics\sprite_video.h" />
