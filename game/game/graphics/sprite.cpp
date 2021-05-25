@@ -573,11 +573,11 @@ void SpriteNumber::updateNumber(int n)
     if (n == INT_MIN) n = 0;
 
     bool positive = n >= 0;
-	unsigned zeroIdx = 0;
+	int zeroIdx = -1;
     unsigned maxDigits = static_cast<unsigned>(_digit.size());
 	switch (_numType)
 	{
-	case NUM_TYPE_NORMAL:    zeroIdx = 0; break;
+	case NUM_TYPE_NORMAL:    zeroIdx = -1; break;
 	case NUM_TYPE_BLANKZERO: zeroIdx = NUM_BZERO; break;
     case NUM_TYPE_FULL:      zeroIdx = positive ? NUM_FULL_BZERO_POS : NUM_FULL_BZERO_NEG; maxDigits--; break;
 	}
@@ -732,8 +732,9 @@ void SpriteNumber::draw() const
         }
         for (size_t i = 0; i < max; ++i)
         {
-            _pTexture->draw(_texRect[_currAnimFrame * _selections + _digit[i]], _rects[i],
-                _current.color, _current.blend, _current.filter, _current.angle);
+            if (_digit[i] != -1)
+                _pTexture->draw(_texRect[_currAnimFrame * _selections + _digit[i]], _rects[i],
+                    _current.color, _current.blend, _current.filter, _current.angle);
         }
     }
 }

@@ -312,7 +312,7 @@ protected:
 	NumberAlign _alignType = NUM_ALIGN_RIGHT;
     //std::vector<Rect> _drawRectDigit, _outRectDigit; // idx from low digit to high, e.g. [1] represents 1 digit, [2] represents 10 digit, etc.
     std::vector<Rect>           _rects;
-    std::vector<unsigned>       _digit;
+    std::vector<int>       _digit;
     bool _inhibitZero = false;
 
 public:
