@@ -31,6 +31,11 @@ class SceneSelect : public vScene
 private:
     eSelectState _state;
     InputMask _inputAvailable;
+    
+    // navigate input
+    long long scrollTimestamp;
+    bool isHoldingUp = false;
+    bool isHoldingDown = false;
 
 public:
     SceneSelect();

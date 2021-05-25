@@ -700,6 +700,7 @@ void SceneSelect::inputGamePress(InputMask& m, Time t)
             }
         }
 
+        // navigate
         switch (_state)
         {
         case eSelectState::SELECT:
@@ -725,10 +726,18 @@ void SceneSelect::inputGamePress(InputMask& m, Time t)
                 if ((input & INPUT_MASK_CANCEL).any())
                     _navigateBack(t);
             }
-            if ((input & INPUT_MASK_NAV_UP).any())
+            if ((input & INPUT_MASK_NAV_UP).any() && t.norm() - scrollTimestamp >= gSelectContext.scrollTime)
+            {
+                scrollTimestamp = t.norm();
+                isHoldingUp = true;
                 _navigateUpBy1(t);
-            if ((input & INPUT_MASK_NAV_DN).any())
+            }
+            if ((input & INPUT_MASK_NAV_DN).any() && t.norm() - scrollTimestamp >= gSelectContext.scrollTime)
+            {
+                scrollTimestamp = t.norm();
+                isHoldingDown = true;
                 _navigateDownBy1(t);
+            }
 
             break;
 
@@ -745,6 +754,37 @@ void SceneSelect::inputGamePress(InputMask& m, Time t)
 void SceneSelect::inputGameHold(InputMask& m, Time t)
 {
     if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
+
+    using namespace Input;
+
+    auto input = _inputAvailable & m;
+    if (input.any())
+    {
+        // navigate
+        switch (_state)
+        {
+        case eSelectState::SELECT:
+            if (!gSwitches.get(eSwitch::SELECT_PANEL1))
+            {
+                if (isHoldingUp && t.norm() - scrollTimestamp >= gSelectContext.scrollTime)
+                {
+                    gSelectContext.scrollTime = 150;
+                    scrollTimestamp = t.norm();
+                    _navigateUpBy1(t);
+                }
+                if (isHoldingDown && t.norm() - scrollTimestamp >= gSelectContext.scrollTime)
+                {
+                    gSelectContext.scrollTime = 150;
+                    scrollTimestamp = t.norm();
+                    _navigateDownBy1(t);
+                }
+            }
+            break;
+
+        default:
+            break;
+        }
+    }
 }
 
 // CALLBACK
@@ -796,6 +836,29 @@ void SceneSelect::inputGameRelease(InputMask& m, Time t)
                     gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_DOWN) + k - Ingame::K21), -1);
                 }
             }
+        }
+
+        // navigate
+        switch (_state)
+        {
+        case eSelectState::SELECT:
+            if (!gSwitches.get(eSwitch::SELECT_PANEL1))
+            {
+                if ((input & INPUT_MASK_NAV_UP).any())
+                {
+                    isHoldingUp = false;
+                    gSelectContext.scrollTime = 300;
+                }
+                if ((input & INPUT_MASK_NAV_DN).any())
+                {
+                    isHoldingDown = false;
+                    gSelectContext.scrollTime = 300;
+                }
+            }
+            break;
+
+        default:
+            break;
         }
     }
 }

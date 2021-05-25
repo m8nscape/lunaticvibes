@@ -1396,6 +1396,7 @@ protected:
     unsigned barClickableTo = 0;
 	std::array<Rect, BAR_ENTRY_SPRITE_COUNT> _barAnimOrigin;
 	bool setListStopTimer = false;
+	unsigned barAnimTimeLength = 300;
 
 protected:
     std::vector<std::shared_ptr<SpriteLaneVertical>> _laneSprites;

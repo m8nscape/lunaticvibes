@@ -3092,12 +3092,12 @@ void SkinLR2::update()
         for (auto& s : _barSprites) s->update(t);
 
         auto tMove = gTimers.get(eTimer::LIST_MOVE);
-        if (t.norm() - tMove < 300)
+        if (t.norm() - tMove < barAnimTimeLength)
         {
             setListStopTimer = true;
             for (size_t i = 1; i + 1 < _barSprites.size(); ++i)
             {
-                double factor = 1.0 - (t.norm() - tMove) / 300.0;
+                double factor = 1.0 - (t.norm() - tMove) / double(barAnimTimeLength);
 
                 auto& r1 = _barAnimOrigin[i];
                 auto& r2 = _barSprites[i]->_current.rect;
@@ -3123,6 +3123,7 @@ void SkinLR2::update()
 
 void SkinLR2::start_bar_animation(int direction)
 {
+    barAnimTimeLength = gSelectContext.scrollTime;
     for (size_t i = 0; i < BAR_ENTRY_SPRITE_COUNT; ++i)
     {
         int di = direction + i;
