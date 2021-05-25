@@ -768,13 +768,13 @@ void SceneSelect::inputGameHold(InputMask& m, Time t)
             {
                 if (isHoldingUp && t.norm() - scrollTimestamp >= gSelectContext.scrollTime)
                 {
-                    gSelectContext.scrollTime = 150;
+                    gSelectContext.scrollTime = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);
                     scrollTimestamp = t.norm();
                     _navigateUpBy1(t);
                 }
                 if (isHoldingDown && t.norm() - scrollTimestamp >= gSelectContext.scrollTime)
                 {
-                    gSelectContext.scrollTime = 150;
+                    gSelectContext.scrollTime = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);;
                     scrollTimestamp = t.norm();
                     _navigateDownBy1(t);
                 }
@@ -847,12 +847,12 @@ void SceneSelect::inputGameRelease(InputMask& m, Time t)
                 if ((input & INPUT_MASK_NAV_UP).any())
                 {
                     isHoldingUp = false;
-                    gSelectContext.scrollTime = 300;
+                    gSelectContext.scrollTime = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_INITIAL, 300);
                 }
                 if ((input & INPUT_MASK_NAV_DN).any())
                 {
                     isHoldingDown = false;
-                    gSelectContext.scrollTime = 300;
+                    gSelectContext.scrollTime = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_INITIAL, 300);
                 }
             }
             break;

@@ -50,6 +50,9 @@ void ConfigProfile::setDefaults() noexcept
     _yaml[P_FLIP] = OFF;
     _yaml[P_SCORE_GRAPH] = OFF;
 
+    _yaml[P_LIST_SCROLL_TIME_INITIAL] = 300;
+    _yaml[P_LIST_SCROLL_TIME_HOLD] = 150;
+
     _yaml[P_VOL_MASTER] = 1.0;
     _yaml[P_VOL_BGM] = 1.0;
     _yaml[P_VOL_KEY] = 1.0;

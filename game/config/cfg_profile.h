@@ -154,6 +154,9 @@ namespace cfg
     inline const char* P_FLIP = "Flip";
     inline const char* P_SCORE_GRAPH = "ScoreGraph";
 
+    inline const char* P_LIST_SCROLL_TIME_INITIAL = "SongListScrollTimeInit";
+    inline const char* P_LIST_SCROLL_TIME_HOLD = "SongListScrollTimeHold";
+
     inline const char* P_VOL_MASTER = "MasterVolume";
     inline const char* P_VOL_KEY = "KeyVolume";
     inline const char* P_VOL_BGM = "BgmVolume";
