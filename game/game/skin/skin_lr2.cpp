@@ -3097,6 +3097,8 @@ void SkinLR2::update()
             setListStopTimer = true;
             for (size_t i = 1; i + 1 < _barSprites.size(); ++i)
             {
+                if (!_barSpriteAdded[i]) continue;
+
                 double factor = 1.0 - (t.norm() - tMove) / double(barAnimTimeLength);
 
                 auto& r1 = _barAnimOrigin[i];
