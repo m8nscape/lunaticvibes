@@ -714,6 +714,19 @@ void ScenePlay::updateLoadEnd()
     }
 }
 
+void pushGraphPoints()
+{
+    gPlayContext.graphGauge[PLAYER_SLOT_1P].push_back(gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().health * 100);
+
+    gPlayContext.graphScore[PLAYER_SLOT_1P].push_back(gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().score2);
+
+    if (gPlayContext.ruleset[PLAYER_SLOT_2P])
+        gPlayContext.graphScore[PLAYER_SLOT_2P].push_back(gPlayContext.ruleset[PLAYER_SLOT_2P]->getData().score2);
+
+    gPlayContext.graphScoreTarget.push_back(static_cast<int>(std::floor(
+        gPlayContext.ruleset[PLAYER_SLOT_1P]->getCurrentMaxScore() * (0.01 * gNumbers.get(eNumber::DEFAULT_TARGET_RATE)))));
+}
+
 void ScenePlay::updatePlaying()
 {
 	auto t = Time();
@@ -766,15 +779,7 @@ void ScenePlay::updatePlaying()
             }
         }
 
-        gPlayContext.graphGauge[PLAYER_SLOT_1P].push_back(gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().health * 100);
-
-        gPlayContext.graphScore[PLAYER_SLOT_1P].push_back(gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().score2);
-
-        if (gPlayContext.ruleset[PLAYER_SLOT_2P])
-            gPlayContext.graphScore[PLAYER_SLOT_2P].push_back(gPlayContext.ruleset[PLAYER_SLOT_2P]->getData().score2);
-
-        gPlayContext.graphScoreTarget.push_back(static_cast<int>(std::floor(
-            gPlayContext.ruleset[PLAYER_SLOT_1P]->getCurrentMaxScore() * (0.01 * gNumbers.get(eNumber::DEFAULT_TARGET_RATE)))));
+        pushGraphPoints();
     }
 
     // health check (-> to failed)
@@ -786,10 +791,15 @@ void ScenePlay::updatePlaying()
 		//if (context_play.health[context_play.playerSlot] <= 0)
         if (gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().health <= 0)
         {
+            pushGraphPoints();
             _state = ePlayState::FAILED;
             gTimers.set(eTimer::FAIL_BEGIN, t.norm());
             gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FAILED);
 			SoundMgr::playSample(SOUND_FAILED_IDX);
+            for (size_t i = 0; i < gPlayContext.ruleset.size(); ++i)
+            {
+                _input.unregister_p("SCENE_PRESS");
+            }
             removeInputJudgeCallback();
             LOG_DEBUG << "[Play] State changed to PLAY_FAILED";
         }
@@ -809,10 +819,15 @@ void ScenePlay::updatePlaying()
         if (gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().health <= 0 && 
             gPlayContext.ruleset[PLAYER_SLOT_2P]->getData().health <= 0)
         {
+            pushGraphPoints();
             _state = ePlayState::FAILED;
             gTimers.set(eTimer::FAIL_BEGIN, t.norm());
             gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FAILED);
 			SoundMgr::playSample(SOUND_FAILED_IDX);
+            for (size_t i = 0; i < gPlayContext.ruleset.size(); ++i)
+            {
+                _input.unregister_p("SCENE_PRESS");
+            }
             removeInputJudgeCallback();
             LOG_DEBUG << "[Play] State changed to PLAY_FAILED";
         }
@@ -866,7 +881,10 @@ void ScenePlay::updateFadeout()
         removeInputJudgeCallback();
         loopEnd();
         _input.loopEnd();
-        gNextScene = eScene::RESULT;
+        if (gChartContext.started)
+            gNextScene = eScene::RESULT;
+        else
+            gNextScene = eScene::SELECT;
     }
 
 }
@@ -1154,6 +1172,9 @@ void ScenePlay::inputGamePress(InputMask& m, Time t)
             default:
                 break;
             }
+
+            pushGraphPoints();
+
         }
 
     }

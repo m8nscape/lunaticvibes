@@ -80,40 +80,12 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
         */
 
         // clear or failed?
-        bool c1, c2;
-        switch (gPlayContext.gaugeType[PLAYER_SLOT_1P])
-        {
-        case eGaugeOp::GROOVE:
-            c1 = d1p.health >= 0.80;
-            break;
-        default:
-            c1 = d1p.health > 0.0;
-            break;
-        }
-        switch (gPlayContext.gaugeType[PLAYER_SLOT_2P])
-        {
-        case eGaugeOp::GROOVE:
-            c2 = d2p.health >= 0.80;
-            break;
-        default:
-            c2 = d2p.health > 0.0;
-            break;
-        }
-        cleared = c1 || c2;
-
+        cleared = d1p.health >= gPlayContext.ruleset[PLAYER_SLOT_1P]->getClearHealth() || d2p.health >= gPlayContext.ruleset[PLAYER_SLOT_2P]->getClearHealth();
         break;
     }
 
     default:
-        switch (gPlayContext.gaugeType[PLAYER_SLOT_1P])
-        {
-        case eGaugeOp::GROOVE:
-            cleared = dp.health >= 0.80;
-            break;
-        default:
-            cleared = dp.health > 0.0;
-            break;
-        }
+        cleared = dp.health >= gPlayContext.ruleset[PLAYER_SLOT_1P]->getClearHealth();
         break;
     }
 

@@ -97,7 +97,7 @@ void SpriteLine::updateRects()
         _rects.clear();
         for (auto& [p1, p2] : tmp)
         {
-            if (p1.x != p2.x || p1.y != p2.y)
+            if (int(p1.x) != int(p2.x) || int(p1.y) != int(p2.y))
                 _rects.push_back({ p1, p2 });
         }
     };

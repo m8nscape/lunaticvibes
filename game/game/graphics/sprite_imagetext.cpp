@@ -74,23 +74,26 @@ void SpriteImageText::setText(std::string&& text)
     // save characters
     int x = 0;
     int w = 0, h = 0;
-    _drawList.clear();
+    _drawListOrig.clear();
     for (auto c : u32Text)
     {
         if (_chrList.find(c) != _chrList.end() && _chrList[c].textureIdx < _textures.size())
         {
             auto r = _chrList[c].textureRect;
-            _drawList.push_back({ c, {x, 0, r.w, r.h} });
+            _drawListOrig.push_back({ c, {x, 0, r.w, r.h} });
             w = x + r.w;
             x += r.w + _margin;
             h = std::max(h, r.h);
         }
     }
+    //_drawList = _drawListOrig;
     _drawRect = { 0, 0, w, h };
 }
 
 void SpriteImageText::updateTextRect()
 {
+    _drawList = _drawListOrig;
+
     // size
     double sizeFactor = 1.0;
     if (_current.rect.h != _drawRect.h)

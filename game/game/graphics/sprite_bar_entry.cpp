@@ -418,7 +418,11 @@ void SpriteBarEntry::setRectOffset(const Rect& dr)
 
     if (drawBodyOn) adjust_rect(sBodyOn[drawBodyType]->getCurrentRenderParamsRef().rect, dr);
     else adjust_rect(sBodyOff[drawBodyType]->getCurrentRenderParamsRef().rect, dr);
-    if (drawTitle) adjust_rect(sTitle[drawTitleType]->getCurrentRenderParamsRef().rect, dr);
+    if (drawTitle)
+    {
+        adjust_rect(sTitle[drawTitleType]->getCurrentRenderParamsRef().rect, dr);
+        sTitle[drawTitleType]->updateTextRect();
+    }
     if (drawLevel)
     {
         adjust_rect(sLevel[drawLevelType]->getCurrentRenderParamsRef().rect, dr);
