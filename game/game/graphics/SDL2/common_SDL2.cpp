@@ -59,6 +59,18 @@ Color Color::operator*(const double& rhs) const
     return c;
 }
 
+Color Color::operator*(const Color& rhs) const
+{
+    if (hex() == 0xffffffff) return rhs;
+
+    Color c;
+    c.r = Uint8(r * (rhs.r / 255.0));
+    c.g = Uint8(g * (rhs.g / 255.0));
+    c.b = Uint8(b * (rhs.b / 255.0));
+    c.a = Uint8(a * (rhs.a / 255.0));
+    return c;
+}
+
 bool Color::operator==(const Color& rhs) const
 {
     return r == rhs.r && g == rhs.g && b == rhs.b && a == rhs.a;

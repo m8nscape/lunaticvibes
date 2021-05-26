@@ -75,6 +75,14 @@ constexpr size_t channelToIdx(NoteLaneCategory cat, size_t idx)
     auto ch = size_t(cat) * NOTECHANNEL_COUNT + idx;
     return (ch >= CHANNEL_KEY_COUNT) ? CHANNEL_INVALID : ch;
 }
+constexpr std::pair<NoteLaneCategory, NoteLaneIndex> idxToChannel(size_t idx)
+{
+    if (idx >= size_t(NoteLaneCategory::EXTRA) * NoteLaneIndex::NOTECHANNEL_COUNT + NoteLaneExtra::NOTEEXTRA_COUNT)
+        return { NoteLaneCategory::_, NoteLaneIndex::_};
+
+    size_t ch = idx / NOTECHANNEL_COUNT;
+    return { NoteLaneCategory(ch), NoteLaneIndex(idx % ch) };
+}
 
 class vChartFormat;
 
@@ -133,6 +141,8 @@ private:
     decltype(_stopNoteList.begin())  _stopNoteListIter;
 
 public:
+    auto firstNoteOfLane(NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteLists.front().begin());
+
     auto incomingNoteOfLane      (NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteListIterators.front());
     auto incomingNoteOfCommonLane (size_t idx) -> decltype(_commonNoteListIters.front());
     auto incomingNoteOfSpecialLane   (size_t idx) -> decltype(_specialNoteListIters.front());

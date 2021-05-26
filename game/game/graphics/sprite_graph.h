@@ -15,7 +15,8 @@ enum class LineType
 {
     GAUGE_F,
     GAUGE_C,
-    SCORE
+    SCORE,
+    SCORE_TARGET
 };
 
 class SpriteLine : public SpriteStatic
@@ -34,7 +35,7 @@ private:
 
 public:
     SpriteLine() = delete;
-    SpriteLine(int player, LineType ltype, int field_w, int field_h, int start, int end, int width = 1);
+    SpriteLine(int player, LineType ltype, int field_w, int field_h, int start, int end, int width = 1, Color color = 0xffffffff);
     virtual ~SpriteLine() = default;
 
 public:

@@ -26,6 +26,7 @@ public:
         unsigned hit;       // total notes hit
         unsigned miss;      // total misses
         unsigned totaln;    // total notes expired
+        unsigned totalnr;    // total notes reached
     };
 protected:
     std::shared_ptr<vChartFormat> _format;
@@ -48,5 +49,7 @@ public:
     constexpr BasicData getData() const { return _basic; }
     constexpr bool isFinished() const { return _basic.totaln == _chart->getNoteCount(); }
     double getClearHealth() const { return _clearHealth; }
+    virtual unsigned getCurrentMaxScore() const = 0;
+    virtual unsigned getMaxScore() const = 0;
     void fail() { _basic.health = 0.0; }
 };

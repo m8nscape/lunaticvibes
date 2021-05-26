@@ -1459,6 +1459,9 @@ private:
     ParseRet SRC_NOWCOMBO2();
 	ParseRet SRC_BGA();
 
+	ParseRet SRC_GAUGECHART(int player);
+	ParseRet SRC_SCORECHART();
+
     ParseRet SRC_BAR_BODY();
     ParseRet SRC_BAR_FLASH();
     ParseRet SRC_BAR_LEVEL();
@@ -1468,11 +1471,6 @@ private:
     ParseRet SRC_BAR_RIVAL();
     ParseRet SRC_BAR_RIVAL_MYLAMP();
     ParseRet SRC_BAR_RIVAL_RIVALLAMP();
-
-	ParseRet SRC_GAUGECHART1();
-	ParseRet SRC_GAUGECHART2();
-	ParseRet SRC_SCORECHART1();
-	ParseRet SRC_SCORECHART2();
 
     int DST();
     ParseRet DST_NOTE();

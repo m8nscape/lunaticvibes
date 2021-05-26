@@ -73,6 +73,7 @@ struct PlayContextParams
     // maximum slot is MAX_PLAYERS
     std::array<std::vector<int>, MAX_PLAYERS> graphGauge;
     std::array<std::vector<int>, MAX_PLAYERS> graphScore;
+    std::vector<int> graphScoreTarget;
     std::array<eGaugeOp, MAX_PLAYERS> gaugeType{};        // resolve on ruleset construction
     std::array<PlayMod, MAX_PLAYERS> mods{};         // eMod: 
 

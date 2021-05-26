@@ -56,6 +56,12 @@ void vChart::setNoteListsIterators()
     _stopNoteListIter = _stopNoteList.begin();
 }
 
+auto vChart::firstNoteOfLane(NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteLists.front().begin())
+{
+    size_t channel = channelToIdx(cat, idx);
+    return _noteLists[channel].begin();
+}
+
 auto vChart::incomingNoteOfLane(NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteListIterators.front())
 {
     size_t channel = channelToIdx(cat, idx);

@@ -216,6 +216,14 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChartFormat> format, std::shared
 		// TODO: volume
 		break;
 	}
+
+    for (size_t k = Input::S1L; k <= Input::K1SPDDN; ++k)
+    {
+        auto [cat, idx] = _chart->getLaneFromKey((Input::Ingame)k);
+        if (cat == NoteLaneCategory::_) continue;
+        if (idx == NoteLaneIndex::_) continue;
+        _noteListIterators[{cat, idx}] = _chart->firstNoteOfLane(cat, idx);
+    }
 }
 
 judgeRes RulesetClassic::_judge(const Note& note, Time time)
@@ -630,7 +638,7 @@ void RulesetClassic::updateRelease(InputMask& rg, Time t)
     {
         if (!rg[k]) continue;
         auto c = _chart->getLaneFromKey((Input::Ingame)k);
-		if (c.first == NoteLaneCategory::_) return;
+		if (c.first == NoteLaneCategory::_) continue;
         auto n = _chart->incomingNoteOfLane(c.first, c.second);
         gTimers.set(bombTimer7k[26 + c.second], LLONG_MAX);
         //auto j = _judge(*n, rt);
@@ -679,7 +687,7 @@ void RulesetClassic::updateRelease(InputMask& rg, Time t)
     {
         if (!rg[k]) continue;
         auto c = _chart->getLaneFromKey((Input::Ingame)k);
-		if (c.first == NoteLaneCategory::_) return;
+        if (c.first == NoteLaneCategory::_) continue;
         auto n = _chart->incomingNoteOfLane(c.first, c.second);
         gTimers.set(bombTimer7k[26 + c.second], LLONG_MAX);
         //auto j = _judge(*n, rt);
@@ -729,6 +737,27 @@ void RulesetClassic::updateRelease(InputMask& rg, Time t)
 void RulesetClassic::update(Time t)
 {
 	auto rt = t - gTimers.get(eTimer::PLAY_START);
+
+    for (auto& [c, n]: _noteListIterators)
+    {
+        while (!_chart->isLastNoteOfLane(c.first, c.second, n) && rt >= n->time)
+        {
+            switch (c.first)
+            {
+            case NoteLaneCategory::Note:
+                _basic.totalnr++;
+                break;
+
+            case NoteLaneCategory::LN:
+                if (n->index == NOTE_INDEX_LN_TAIL)
+                    _basic.totalnr++;
+                break;
+            }
+
+            n++;
+        }
+    }
+
     if (_k1P) for (size_t k = Input::S1L; k <= Input::K1SPDDN; ++k)
 	{
 		auto c = _chart->getLaneFromKey((Input::Ingame)k);

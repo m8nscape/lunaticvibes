@@ -23,6 +23,7 @@ public:
     uint32_t hex() const;
     Color operator+ (const Color& rhs) const;
     Color operator* (const double& rhs) const;
+    Color operator* (const Color& rhs) const;
     bool operator== (const Color& rhs) const;
     bool operator!= (const Color& rhs) const;
 };

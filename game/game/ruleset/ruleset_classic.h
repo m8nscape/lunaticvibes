@@ -292,6 +292,9 @@ protected:
 	bool _k1P, _k2P;
     double inner_score = 0.0;
     std::array<rc::judge_idx, NOTECHANNEL_COUNT> _lnJudge{rc::judge_idx::MISS};
+
+    std::map<std::pair<NoteLaneCategory, NoteLaneIndex>, decltype(_chart->firstNoteOfLane(NoteLaneCategory::_, NoteLaneIndex::_))> _noteListIterators;
+
 public:
     RulesetClassic(
         std::shared_ptr<vChartFormat> format, 
@@ -316,4 +319,6 @@ public:
     constexpr auto getJudge() const { return _count; }
     void updateHit(Time& t, NoteLaneIndex ch, size_t judge, unsigned slot);
     void updateMiss(Time& t, NoteLaneIndex ch, size_t judge, unsigned slot);
+    virtual unsigned getCurrentMaxScore() const { return _basic.totalnr * 2; }
+    virtual unsigned getMaxScore() const { return _chart->getNoteRegularCount() * 2 + _chart->getNoteLnCount() * 2; }
 };

@@ -769,6 +769,12 @@ void ScenePlay::updatePlaying()
         gPlayContext.graphGauge[PLAYER_SLOT_1P].push_back(gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().health * 100);
 
         gPlayContext.graphScore[PLAYER_SLOT_1P].push_back(gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().score2);
+
+        if (gPlayContext.ruleset[PLAYER_SLOT_2P])
+            gPlayContext.graphScore[PLAYER_SLOT_2P].push_back(gPlayContext.ruleset[PLAYER_SLOT_2P]->getData().score2);
+
+        gPlayContext.graphScoreTarget.push_back(static_cast<int>(std::floor(
+            gPlayContext.ruleset[PLAYER_SLOT_1P]->getCurrentMaxScore() * (0.01 * gNumbers.get(eNumber::DEFAULT_TARGET_RATE)))));
     }
 
     // health check (-> to failed)

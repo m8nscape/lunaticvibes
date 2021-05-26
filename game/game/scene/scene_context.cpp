@@ -19,6 +19,7 @@ void clearContextPlayForRetry()
         gPlayContext.graphScore[i].clear();
         gPlayContext.ruleset[i] = nullptr;
     }
+    gPlayContext.graphScoreTarget.clear();
 }
 
 void clearContextPlay()
