@@ -2,7 +2,7 @@
 #include <memory>
 #include <string>
 #include <stack>
-#include <mutex>
+#include <shared_mutex>
 #include "types.h"
 #include "chartformat/chartformat.h"
 #include "game/chart/chart.h"
@@ -48,6 +48,9 @@ struct ChartContextParams
     BPM maxBPM = 150;
     BPM startBPM = 150;
 
+    TextureDynamic texStagefile;
+    TextureDynamic texBackbmp;
+    TextureDynamic texBanner;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -108,7 +111,7 @@ enum class SongListSort
 
 struct SelectContextParams
 {
-    std::mutex _mutex;
+    std::shared_mutex _mutex;
     std::stack<SongListProperties> backtrace;
     std::vector<std::shared_ptr<vEntry>> entries;
     size_t idx = 0;
@@ -127,3 +130,8 @@ extern ChartContextParams gChartContext;
 extern PlayContextParams gPlayContext;
 extern SelectContextParams gSelectContext;
 extern std::shared_ptr<SongDB> g_pSongDB;
+
+////////////////////////////////////////////////////////////////////////////////
+
+void pushMainThreadTask(std::function<void()> f);
+void doMainThreadTask();

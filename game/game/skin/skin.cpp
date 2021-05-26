@@ -11,6 +11,10 @@ vSkin::vSkin()
     _textureNameMap["Black"] = std::make_shared<TextureFull>(0x000000ff);
     _textureNameMap["White"] = std::make_shared<TextureFull>(0xffffffff);
     _textureNameMap["Error"] = std::make_shared<TextureFull>(0xff00ffff);
+    _textureNameMap["STAGEFILE"] = std::shared_ptr<Texture>(&gChartContext.texStagefile, [](Texture*) {});
+    _textureNameMap["BACKBMP"] = std::shared_ptr<Texture>(&gChartContext.texBackbmp, [](Texture*) {});
+    _textureNameMap["BANNER"] = std::shared_ptr<Texture>(&gChartContext.texBanner, [](Texture*) {});
+
 }
 
 void vSkin::update()

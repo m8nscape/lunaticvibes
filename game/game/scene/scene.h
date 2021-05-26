@@ -19,6 +19,7 @@ protected:
     std::shared_ptr<vSkin> _skin;
     InputWrapper _input;
 
+
 public:
 	bool sceneEnding = false;
 

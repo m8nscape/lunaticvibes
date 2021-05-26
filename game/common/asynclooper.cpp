@@ -22,9 +22,10 @@ AsyncLooper::~AsyncLooper()
 
 void AsyncLooper::run()
 {
-    std::lock_guard<decltype(_loopMutex)> _lock(_loopMutex);
-    if (_running)
-        _loopFuncBody();
+    std::unique_lock<decltype(_loopMutex)> _lock(_loopMutex, std::defer_lock);
+    if (_lock.try_lock_for(std::chrono::milliseconds(_rateTime)))
+        if (_running)
+            _loopFuncBody();
 }
 
 unsigned AsyncLooper::getRate()

@@ -13,6 +13,7 @@ extern "C"
 
 #include "game/chart/chart_bms.h"
 #include "texture_extra.h"
+#include "game/scene/scene_context.h"
 #include "types.h"
 #include "utils.h"
 
@@ -57,28 +58,28 @@ void TextureVideo::update()
 	decoded_frames = vrfc;
 
 	{
-		// read lock
 		using namespace std::chrono_literals;
-		std::unique_lock lg(gRenderMutex, std::defer_lock);
-		if (lg.try_lock_for(10ms))
+		std::shared_lock l(pVideo->video_frame_mutex);
+
+		auto pf = pVideo->getFrame();
+		if (!pf) return;
+
+		switch (format)
 		{
-			std::shared_lock l(pVideo->video_frame_mutex);
+		case Texture::PixelFormat::IYUV:
+			pushMainThreadTask([this]() {
+				auto pf = pVideo->getFrame();
+				if (!pf) return;
 
-			auto pf = pVideo->getFrame();
-			if (!pf) return;
-
-			switch (format)
-			{
-			case Texture::PixelFormat::IYUV:
 				updateYUV(
 					pf->data[0], pf->linesize[0],
 					pf->data[1], pf->linesize[1],
 					pf->data[2], pf->linesize[2]);
-				break;
+			});
+			break;
 
-			default:
-				break;
-			}
+		default:
+			break;
 		}
 	}
 }
@@ -282,3 +283,62 @@ void TextureBmsBga::reset()
 	resetSub(poorSlot);
 }
 
+TextureDynamic::TextureDynamic() : Texture(nullptr, 0, 0)
+{
+}
+
+void TextureDynamic::setPath(const Path& path)
+{
+	_loaded = false;
+
+	if (path.empty())
+	{
+		return;
+	}
+
+	pushMainThreadTask(std::bind([this](Path path) {
+		static std::map<Path, Texture> dynTexCache;
+		if (dynTexCache.find(path) == dynTexCache.end())
+		{
+			Image tmp(path);
+			if (!tmp._loaded)
+			{
+				dynTexCache.emplace(std::piecewise_construct, std::forward_as_tuple(path), std::forward_as_tuple(nullptr, 0, 0));
+				_loaded = false;
+				return;
+			}
+			dynTexCache.emplace(path, tmp);
+		}
+
+		_dynTexture = &dynTexCache.at(path);
+		if (_dynTexture->isLoaded())
+		{
+			_loaded = true;
+			_texRect = _dynTexture->getRect();
+		}
+	}, path));
+}
+
+void TextureDynamic::draw(Rect dstRect,
+	const Color c, const BlendMode b, const bool filter, const double angle) const
+{
+	_dynTexture->draw(dstRect, c, b, filter, angle);
+}
+
+void TextureDynamic::draw(Rect dstRect,
+	const Color c, const BlendMode b, const bool filter, const double angle, const Point& center) const
+{
+	_dynTexture->draw(dstRect, c, b, filter, angle, center);
+}
+
+void TextureDynamic::draw(const Rect& srcRect, Rect dstRect,
+	const Color c, const BlendMode b, const bool filter, const double angle) const
+{
+	_dynTexture->draw(srcRect, dstRect, c, b, filter, angle);
+}
+
+void TextureDynamic::draw(const Rect& srcRect, Rect dstRect,
+	const Color c, const BlendMode b, const bool filter, const double angle, const Point& center) const
+{
+	_dynTexture->draw(srcRect, dstRect, c, b, filter, angle, center);
+}

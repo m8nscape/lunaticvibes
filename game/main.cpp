@@ -67,10 +67,13 @@ void mainLoop()
         }
 
         // draw
-        graphics_clear();
-        scene->update();
-        scene->draw();
-        graphics_flush();
+        {
+            graphics_clear();
+            doMainThreadTask();
+            scene->update();
+            scene->draw();
+            graphics_flush();
+        }
 		++gFrameCount[0];
 
         // sound update (temporary)

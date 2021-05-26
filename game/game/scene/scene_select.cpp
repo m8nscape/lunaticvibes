@@ -80,9 +80,6 @@ void setEntryInfo()
         // _totalLength_sec
         gNumbers.set(eNumber::INFO_TOTALNOTE, pf->totalNotes);
 
-        // _BG
-        // _banner
-
         gNumbers.set(eNumber::PLAY_BPM, static_cast<int>(std::round(pf->startBPM)));
         gNumbers.set(eNumber::INFO_BPM_MIN, static_cast<int>(std::round(pf->minBPM)));
         gNumbers.set(eNumber::INFO_BPM_MAX, static_cast<int>(std::round(pf->maxBPM)));
@@ -248,6 +245,37 @@ void setEntryInfo()
         gOptions.set(eOption::CHART_PLAY_KEYS, Option::KEYS_NOT_PLAYABLE);
         break;
     }
+}
+
+void setDynamicTextures()
+{
+    std::shared_lock<std::shared_mutex> u(gSelectContext._mutex);
+
+    const auto& e = gSelectContext.entries;
+    if (e.empty()) return;
+
+    const size_t idx = gSelectContext.idx;
+    const size_t cursor = gSelectContext.cursor;
+
+    // chart parameters
+    if (e[idx]->type() == eEntryType::SONG || e[idx]->type() == eEntryType::RIVAL_SONG)
+    {
+        auto ps = std::reinterpret_pointer_cast<Song>(e[idx]);
+        auto pf = std::reinterpret_pointer_cast<vChartFormat>(ps->_file);
+
+        // _BG
+        if (!pf->stagefile.empty())
+            gChartContext.texStagefile.setPath(pf->getDirectory() / pf->stagefile);
+
+        // backbmp
+        if (!pf->backbmp.empty())
+            gChartContext.texBackbmp.setPath(pf->getDirectory() / pf->backbmp);
+
+        // _banner
+        if (!pf->banner.empty())
+            gChartContext.texBanner.setPath(pf->getDirectory() / pf->banner);
+    }
+
 }
 
 void config_sys()
@@ -485,7 +513,7 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
     }
 
     {
-        std::lock_guard<std::mutex> u(gSelectContext._mutex);
+        std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
         loadSongList();
         setBarInfo();
         setEntryInfo();
@@ -865,7 +893,7 @@ void SceneSelect::inputGameRelease(InputMask& m, Time t)
 
 void SceneSelect::_decide()
 {
-    std::lock_guard<std::mutex> u(gSelectContext._mutex);
+    std::shared_lock<std::shared_mutex> u(gSelectContext._mutex);
 
     auto entry = gSelectContext.entries[gSelectContext.idx];
     //auto& chart = entry.charts[entry.chart_idx];
@@ -1130,85 +1158,98 @@ void SceneSelect::loadSongList()
 
 void SceneSelect::_navigateUpBy1(Time t)
 {
-    std::lock_guard<std::mutex> u(gSelectContext._mutex);
+    {
+        std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
 
-    gSelectContext.idx = (gSelectContext.entries.size() + gSelectContext.idx - 1) % gSelectContext.entries.size();
-    _skin->start_bar_animation(-1);
+        gSelectContext.idx = (gSelectContext.entries.size() + gSelectContext.idx - 1) % gSelectContext.entries.size();
+        _skin->start_bar_animation(-1);
 
-    setBarInfo();
-    setEntryInfo();
+        setBarInfo();
+        setEntryInfo();
 
-    gTimers.set(eTimer::LIST_MOVE, t.norm());
-    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_SCRATCH));
+        gTimers.set(eTimer::LIST_MOVE, t.norm());
+        SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_SCRATCH));
+    }
+    setDynamicTextures();
 }
 
 void SceneSelect::_navigateDownBy1(Time t)
 {
-    std::lock_guard<std::mutex> u(gSelectContext._mutex);
+    {
+        std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
 
-    gSelectContext.idx = (gSelectContext.idx + 1) % gSelectContext.entries.size();
-    _skin->start_bar_animation(+1);
+        gSelectContext.idx = (gSelectContext.idx + 1) % gSelectContext.entries.size();
+        _skin->start_bar_animation(+1);
 
-    setBarInfo();
-    setEntryInfo();
+        setBarInfo();
+        setEntryInfo();
 
-    gTimers.set(eTimer::LIST_MOVE, t.norm());
-    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_SCRATCH));
+        gTimers.set(eTimer::LIST_MOVE, t.norm());
+        SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_SCRATCH));
+    }
+    setDynamicTextures();
 }
 
 void SceneSelect::_navigateEnter(Time t)
 {
-    std::lock_guard<std::mutex> u(gSelectContext._mutex);
-
-    const auto& e = gSelectContext.entries[gSelectContext.idx];
-    switch (e->type())
     {
-    case eEntryType::FOLDER:
-    case eEntryType::CUSTOM_FOLDER:
-    {
-        SongListProperties prop{
-            gSelectContext.backtrace.top().folder,
-            e->md5,
-            e->_name,
-            {},
-            gSelectContext.idx
-        };
-        auto top = g_pSongDB->browse(e->md5, false);
-        for (size_t i = 0; i < top.getContentsCount(); ++i)
-            prop.list.push_back(top.getEntry(i));
+        std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
 
-        gSelectContext.backtrace.push(prop);
-        gSelectContext.entries.clear();
-        gSelectContext.idx = 0;
-        loadSongList();
+        const auto& e = gSelectContext.entries[gSelectContext.idx];
+        switch (e->type())
+        {
+        case eEntryType::FOLDER:
+        case eEntryType::CUSTOM_FOLDER:
+        {
+            SongListProperties prop{
+                gSelectContext.backtrace.top().folder,
+                e->md5,
+                e->_name,
+                {},
+                gSelectContext.idx
+            };
+            auto top = g_pSongDB->browse(e->md5, false);
+            for (size_t i = 0; i < top.getContentsCount(); ++i)
+                prop.list.push_back(top.getEntry(i));
 
-        setBarInfo();
-        setEntryInfo();
+            gSelectContext.backtrace.push(prop);
+            gSelectContext.entries.clear();
+            gSelectContext.idx = 0;
+            loadSongList();
 
-        SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_F_OPEN));
-        break;
+            setBarInfo();
+            setEntryInfo();
+
+            SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_F_OPEN));
+            break;
+        }
+        default:
+            break;
+        }
     }
-    default:
-        break;
-    }
+
+    setDynamicTextures();
 }
 void SceneSelect::_navigateBack(Time t)
 {
-    std::lock_guard<std::mutex> u(gSelectContext._mutex);
-
-    // TODO
-    auto top = gSelectContext.backtrace.top();
-    if (!top.parent.empty())
     {
-        gSelectContext.idx = 0;
-        gSelectContext.backtrace.pop();
-        top = gSelectContext.backtrace.top();
-        gSelectContext.entries = top.list;
-        gSelectContext.idx = top.index;
+        std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
 
-        setBarInfo();
-        setEntryInfo();
+        // TODO
+        auto top = gSelectContext.backtrace.top();
+        if (!top.parent.empty())
+        {
+            gSelectContext.idx = 0;
+            gSelectContext.backtrace.pop();
+            top = gSelectContext.backtrace.top();
+            gSelectContext.entries = top.list;
+            gSelectContext.idx = top.index;
 
-        SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_F_CLOSE));
+            setBarInfo();
+            setEntryInfo();
+
+            SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_F_CLOSE));
+        }
     }
+    setDynamicTextures();
 }

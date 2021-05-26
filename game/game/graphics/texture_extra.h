@@ -24,6 +24,8 @@ public:
 	void reset();
 };
 
+///////////////////////////////////////////////////////////////////////////////
+
 class chartBMS;
 class TextureBmsBga: public Texture
 {
@@ -86,4 +88,29 @@ public:
 
 	void reset();
 
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+
+class TextureDynamic : public Texture
+{
+protected:
+	Texture* _dynTexture = nullptr;
+
+public:
+	TextureDynamic();
+	virtual ~TextureDynamic() = default;
+
+public:
+	void setPath(const Path& path);
+
+	virtual void draw(Rect dstRect,
+		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const;
+	virtual void draw(Rect dstRect,
+		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point& center) const;
+	virtual void draw(const Rect& srcRect, Rect dstRect,
+		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const;
+	virtual void draw(const Rect& srcRect, Rect dstRect,
+		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point& center) const;
 };

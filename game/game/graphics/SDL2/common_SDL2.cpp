@@ -123,7 +123,7 @@ bool isGIF(const char* filePath)
     return strcmp("GIF", ext) == 0;
 }
 
-Image::Image(const std::filesystem::path& path) : Image(path.string().c_str()) {}
+Image::Image(const std::filesystem::path& path) : Image(path.u8string().c_str()) {}
 
 Image::Image(const char* filePath) : 
     Image(filePath, std::shared_ptr<SDL_RWops>(SDL_RWFromFile(filePath, "rb"), [](SDL_RWops* s) { if (s) s->close(s); }))
@@ -199,7 +199,6 @@ Texture::Texture(const Image& srcImage)
 {
     if (!srcImage._loaded) return;
 
-    std::lock_guard u(gRenderMutex);
     _pTexture = std::shared_ptr<SDL_Texture>(
         SDL_CreateTextureFromSurface(gFrameRenderer, &*srcImage._pSurface),
         [](SDL_Texture* p) {if (p && gFrameRenderer) SDL_DestroyTexture(p); });
@@ -222,7 +221,6 @@ Texture::Texture(const Image& srcImage)
 
 Texture::Texture(const SDL_Surface* pSurface)
 {
-    std::lock_guard u(gRenderMutex);
     _pTexture = std::shared_ptr<SDL_Texture>(
         SDL_CreateTextureFromSurface(gFrameRenderer, const_cast<SDL_Surface*>(pSurface)),
         [](SDL_Texture* p) { if (p && gFrameRenderer) SDL_DestroyTexture(p); });
@@ -233,7 +231,6 @@ Texture::Texture(const SDL_Surface* pSurface)
 
 Texture::Texture(const SDL_Texture* pTexture, int w, int h)
 {
-    std::lock_guard u(gRenderMutex);
     _pTexture = std::shared_ptr<SDL_Texture>(
         const_cast<SDL_Texture*>(pTexture), 
         [](SDL_Texture* p) { if (p && gFrameRenderer) SDL_DestroyTexture(p); });
@@ -263,7 +260,6 @@ Texture::Texture(int w, int h, PixelFormat fmt)
 
 	if (sdlfmt != SDL_PIXELFORMAT_UNKNOWN)
 	{
-        std::lock_guard u(gRenderMutex);
         _pTexture = std::shared_ptr<SDL_Texture>(
             SDL_CreateTexture(gFrameRenderer, sdlfmt, SDL_TEXTUREACCESS_STREAMING, w, h), 
             [](SDL_Texture* p) { if (p && gFrameRenderer) SDL_DestroyTexture(p); });
@@ -311,7 +307,7 @@ void Texture::_draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, Rect
     SDL_Point scenter;
     if (center) scenter = { (int)center->x, (int)center->y };
 
-    SDL_RenderCopyEx(
+    int r = SDL_RenderCopyEx(
         gFrameRenderer,
         &*pTex,
         srcRect, &dstRect,

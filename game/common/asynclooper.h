@@ -34,7 +34,7 @@ protected:
     unsigned _rateTime;
     bool _running = false;
     LooperHandler handler = nullptr;
-    std::mutex _loopMutex;
+    std::timed_mutex _loopMutex;
 
 public:
     AsyncLooper(std::function<void()>, unsigned rate_per_sec, bool single_inst = false);

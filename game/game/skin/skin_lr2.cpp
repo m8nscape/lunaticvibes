@@ -564,7 +564,7 @@ int SkinLR2::IMAGE()
 							_textureNameMap[std::to_string(imageCount)] = _textureNameMap["White"];
 						}
 						else
-                            _textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(paths[cf.value].string().c_str()));
+                            _textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(paths[cf.value].u8string().c_str()));
 						LOG_DEBUG << "[Skin] " << srcLine << ": Added IMAGE[" << imageCount << "]: " << cf.filepath;
 					}
                     ++imageCount;
@@ -589,7 +589,7 @@ int SkinLR2::IMAGE()
 					_textureNameMap[std::to_string(imageCount)] = _textureNameMap["Error"];
 				}
 				else
-					_textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(ls[ranidx].string().c_str()));
+					_textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(ls[ranidx].u8string().c_str()));
 				LOG_DEBUG << "[Skin] " << srcLine << ": Added random IMAGE[" << imageCount << "]: " << ls[ranidx].string();
 			}
             ++imageCount;
@@ -598,7 +598,7 @@ int SkinLR2::IMAGE()
         else
         {
             // Normal path
-            _textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(path.string().c_str()));
+            _textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(path.u8string().c_str()));
             LOG_DEBUG << "[Skin] " << srcLine << ": Added IMAGE[" << imageCount << "]: " << path.string();
         }
         ++imageCount;
@@ -652,7 +652,7 @@ int SkinLR2::LR2FONT()
 
                 // スキンcsvとは違って「lr2fontファイルからの相対参照」で画像ファイルを指定します。
                 Path p = path.parent_path() / Path(raw[2]);
-                pf->T_texture.push_back(std::make_shared<Texture>(Image(p.string().c_str())));
+                pf->T_texture.push_back(std::make_shared<Texture>(Image(p.u8string().c_str())));
             }
             else if (optBuf == "#R")
             {
@@ -957,9 +957,9 @@ int SkinLR2::SRC()
     std::string gr_key;
     switch (gr)
     {
-    //case 100: gr_key = "STAGEFILE"; break;
-    //case 101: gr_key = "BACKBMP"; break;
-    //case 102: gr_key = "BANNER"; break;
+    case 100: gr_key = "STAGEFILE"; break;
+    case 101: gr_key = "BACKBMP"; break;
+    case 102: gr_key = "BANNER"; break;
     case 105: gr_key = "THUMBNAIL"; break;
     case 110: gr_key = "Black"; break;
     case 111: gr_key = "White"; break;
@@ -1003,7 +1003,6 @@ ParseRet SkinLR2::SRC_IMAGE()
 	if (useVideo && videoBuf && videoBuf->haveVideo)
 	{
         refineRect(d, { 0, 0, videoBuf->getW(), videoBuf->getH() }, srcLine);
-        std::lock_guard u(gRenderMutex);
 		auto psv = std::make_shared<SpriteVideo>(d.w, d.h, videoBuf);
 		_sprites.push_back(psv);
 	}
@@ -2920,7 +2919,7 @@ int SkinLR2::parseHeader(const Tokens& raw)
         info.name = title;
         info.maker = maker;
 
-        _textureNameMap["THUMBNAIL"] = std::make_shared<Texture>(Image(thumbnail.string().c_str()));
+        _textureNameMap["THUMBNAIL"] = std::make_shared<Texture>(Image(thumbnail.u8string().c_str()));
         if (_textureNameMap["THUMBNAIL"] == nullptr)
             LOG_WARNING << "[Skin] " << srcLine << ": thumbnail loading failed: " << thumbnail.string() << " (Line " << srcLine << ")";
 
@@ -3162,7 +3161,8 @@ void SkinLR2::update()
 
     // update songlist bar
     {
-        std::lock_guard<std::mutex> u(gSelectContext._mutex);
+        // read lock
+        std::shared_lock<std::shared_mutex> u(gSelectContext._mutex);
         for (auto& s : _barSprites) s->update(t);
 
         auto tMove = gTimers.get(eTimer::LIST_MOVE);

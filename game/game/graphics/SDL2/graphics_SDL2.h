@@ -9,11 +9,10 @@
 #include <memory>
 #include <string>
 #include <filesystem>
-#include <mutex>
+#include <shared_mutex>
 
 // global control pointer, do not modify
 inline SDL_Renderer* gFrameRenderer;
-inline std::timed_mutex gRenderMutex;
 
 class Color : public SDL_Color
 {
@@ -106,6 +105,7 @@ public:
 class Image
 {
     friend class Texture;
+    friend class TextureDynamic;
 
 private:
     std::string _path;

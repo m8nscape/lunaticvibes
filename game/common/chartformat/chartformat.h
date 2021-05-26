@@ -55,6 +55,7 @@ public:
     int totalNotes = 0;
 
     StringContent stagefile;
+    StringContent backbmp;
     StringContent banner;
 
     StringContent text1;

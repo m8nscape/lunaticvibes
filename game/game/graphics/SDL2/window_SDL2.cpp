@@ -143,7 +143,6 @@ void graphics_clear()
 
 void graphics_flush()
 {
-    std::lock_guard u(gRenderMutex);
     SDL_RenderPresent(gFrameRenderer);
 }
 
