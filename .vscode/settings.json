@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "xstring": "cpp",
+        "vector": "cpp",
+        "filesystem": "cpp",
+        "exception": "cpp",
+        "functional": "cpp",
+        "iomanip": "cpp",
+        "string": "cpp"
+    }
+}

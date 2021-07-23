@@ -1,0 +1,47 @@
+#pragma once
+
+// DO NOT ADD IMPLEMENTATIONS HERE
+
+// common
+#include "asynclooper.h"
+#include "beat.h"
+#include "fraction.h"
+#include "log.h"
+#include "meta.h"
+#include "sysutil.h"
+#include "types.h"
+#include "utils.h"
+#include "chartformat/chartformat.h"
+#include "entry/entry.h"
+
+// std
+#include <algorithm>
+#include <array>
+#include <bitset>
+#include <chrono>
+#include <exception>
+#include <execution>
+#include <filesystem>
+#include <fstream>
+#include <functional>
+#include <map>
+#include <memory>
+#include <mutex>
+#include <numeric>
+#include <queue>
+#include <regex>
+#include <sstream>
+#include <stack>
+#include <string>
+#include <thread>
+#include <unordered_map>
+#include <utility>
+#include <variant>
+#include <vector>
+
+// system
+#ifdef WIN32
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <Windows.h>
+#endif
