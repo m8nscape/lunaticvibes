@@ -154,10 +154,10 @@ void updateDstOpt()
 	case GHOST_SIDE_BOTTOM: set(37); break;
 	}
 
-	// 38 sgamegraph off
-	// 39 sgamegraph on
-	set(38, !sw(eSwitch::SYSTEM_SgameGRAPH));
-	set(39, sw(eSwitch::SYSTEM_SgameGRAPH));
+	// 38 scoregraph off
+	// 39 scoregraph on
+	set(38, !sw(eSwitch::SYSTEM_SCOREGRAPH));
+	set(39, sw(eSwitch::SYSTEM_SCOREGRAPH));
 
 	// 42 1P側がノーマルゲージ
 	// 43 1P側が赤ゲージ
@@ -199,8 +199,8 @@ void updateDstOpt()
 
 	// 60 スコアセーブ不可能
 	// 61 スコアセーブ可能
-	set(60, !sw(eSwitch::CHART_CAN_SAVE_Sgame));
-	set(61, sw(eSwitch::CHART_CAN_SAVE_Sgame));
+	set(60, !sw(eSwitch::CHART_CAN_SAVE_SCORE));
+	set(61, sw(eSwitch::CHART_CAN_SAVE_SCORE));
 
 	// 62 クリアセーブ不可能
 	// 63 EASYゲージ （仕様書では「イージーでセーブ」）
@@ -712,7 +712,7 @@ void updateDstOpt()
 	}
 
 	// 330 スコアが更新された
-	set(330, sw(eSwitch::RESULT_UPDATED_Sgame));
+	set(330, sw(eSwitch::RESULT_UPDATED_SCORE));
 	// 331 MAXCOMBOが更新された
 	set(331, sw(eSwitch::RESULT_UPDATED_MAXCOMBO));
 	// 332 最小B+Pが更新された

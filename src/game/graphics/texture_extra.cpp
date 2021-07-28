@@ -1,6 +1,16 @@
 
 #include <execution>
 #include <algorithm>
+
+#include "game/chart/chart_bms.h"
+#include "texture_extra.h"
+#include "game/scene/scene_context.h"
+#include "common/types.h"
+#include "common/utils.h"
+#include "common/log.h"
+
+#ifndef VIDEO_DISABLED
+
 extern "C"
 {
 #include "libavcodec/avcodec.h"
@@ -8,13 +18,6 @@ extern "C"
 #include "libavformat/avformat.h"
 #include "libavutil/avutil.h"
 }
-
-#include "chart/chart_bms.h"
-#include "texture_extra.h"
-#include "game/scene/scene_context.h"
-#include "types.h"
-#include "utils.h"
-#include "common/log.h"
 
 TextureVideo::TextureVideo(std::shared_ptr<sVideo> pv) :
 	Texture(pv->getW(), pv->getH(), pv->getFormat()),
@@ -90,6 +93,7 @@ void TextureVideo::reset()
 	decoded_frames = 0;
 }
 
+#endif
 
 bool TextureBmsBga::addBmp(size_t idx, const Path& pBmp)
 {
@@ -115,10 +119,15 @@ bool TextureBmsBga::addBmp(size_t idx, const Path& pBmp)
 	{
 		if (video_file_extensions.find(toLower(pBmp.extension().string())) != video_file_extensions.end())
 		{
+#ifndef VIDEO_DISABLED
 			objs[idx].type = obj::Ty::VIDEO;
 			objs[idx].pt = std::make_shared<TextureVideo>(std::make_shared<sVideo>(pBmp));
 			LOG_DEBUG << "[TextureBmsBga] added video: " << pBmp.string();
 			return true;
+#else
+			LOG_DEBUG << "[TextureBmsBga] video support is disabled: " << pBmp.string();
+			return false;
+#endif
 		}
 		else
 		{
@@ -186,9 +195,11 @@ void TextureBmsBga::seek(Time t)
 				slotIt = it;
 				if (objs[idx].type == obj::Ty::VIDEO)
 				{
+#ifndef VIDEO_DISABLED
 					auto pt = std::reinterpret_pointer_cast<TextureVideo>(objs[idx].pt);
 					pt->seek((t - time).norm() / 1000);
 					pt->update();
+#endif
 				}
 				return;
 			}
@@ -215,10 +226,12 @@ void TextureBmsBga::update(Time t, bool poor)
 				slotIt = it;
 				if (objs[idx].type == obj::Ty::VIDEO)
 				{
+#ifndef VIDEO_DISABLED
 					auto pt = std::reinterpret_pointer_cast<TextureVideo>(objs[idx].pt);
 					pt->start();
 					//pt->seek((t - time).norm() / 1000);
 					pt->update();
+#endif
 				}
 				return;
 			}
@@ -270,8 +283,10 @@ void TextureBmsBga::reset()
 			auto[time, idx] = *it;
 			if (objs[idx].type == obj::Ty::VIDEO)
 			{
+#ifndef VIDEO_DISABLED
 				auto pt = std::reinterpret_pointer_cast<TextureVideo>(objs[idx].pt);
 				pt->reset();
+#endif
 			}
 		}
 		//slotIt = slot.end();	// not found

@@ -23,31 +23,25 @@ if (WIN32)
             IMPORTED_LOCATION   ${CMAKE_CURRENT_LIST_DIR}/lib/x64/SDL2_ttf.dll
             IMPORTED_IMPLIB     ${CMAKE_CURRENT_LIST_DIR}/lib/x64/SDL2_ttf.lib  
         )
+        set(EXT_DEPEND_LIBFILES ${EXT_DEPEND_LIBFILES}
+            "${CMAKE_CURRENT_LIST_DIR}/lib/x64/libfreetype-6.dll"
+            "${CMAKE_CURRENT_LIST_DIR}/lib/x64/zlib1.dll"
+             CACHE INTERNAL "dependencies"
+            )
+        set(EXT_DEPEND_LIBFILES_SET TRUE CACHE INTERNAL "dependencies")
     else()
         set_target_properties(SDL2_ttf PROPERTIES
             IMPORTED_LOCATION   ${CMAKE_CURRENT_LIST_DIR}/lib/x86/SDL2_ttf.dll
             IMPORTED_IMPLIB     ${CMAKE_CURRENT_LIST_DIR}/lib/x86/SDL2_ttf.lib  
         )
+        set(EXT_DEPEND_LIBFILES ${EXT_DEPEND_LIBFILES}
+            "${CMAKE_CURRENT_LIST_DIR}/lib/x86/libfreetype-6.dll"
+            "${CMAKE_CURRENT_LIST_DIR}/lib/x86/zlib1.dll"
+             CACHE INTERNAL "dependencies"
+        set(EXT_DEPEND_LIBFILES_SET TRUE CACHE INTERNAL "dependencies")
+        )
     endif()
 elseif (LINUX)
 endif()
 
-add_library(SDL2_ttf_libfreetype    SHARED IMPORTED)
-add_library(SDL2_ttf_zlib           SHARED IMPORTED)
-if (WIN32)
-    if (${BUILD_X64})
-        set_target_properties(SDL2_ttf_libfreetype  PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/lib/x64/libfreetype-6.dll)
-        set_target_properties(SDL2_ttf_zlib         PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/lib/x64/zlib1.dll)
-    else()
-        set_target_properties(SDL2_ttf_libfreetype  PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/lib/x86/libfreetype-6.dll)
-        set_target_properties(SDL2_ttf_zlib         PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/lib/x86/zlib1.dll)
-    endif()
-elseif (LINUX)
-endif()
-
-target_link_libraries(SDL2_ttf
-    INTERFACE SDL2
-    INTERFACE SDL2_ttf_libfreetype
-    INTERFACE SDL2_ttf_zlib   
-)
 target_include_directories(SDL2_ttf INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)

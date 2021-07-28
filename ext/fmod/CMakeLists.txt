@@ -1,4 +1,4 @@
-add_library (fmod SHARED IMPORTED)
+add_library (fmod SHARED IMPORTED GLOBAL)
 
 if (${BUILD_X64})
     set(FMOD_SUFFIX_64 64)

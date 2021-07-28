@@ -5,12 +5,12 @@
 #include "scene_context.h"
 #include "game/sound/sound_mgr.h"
 #include "game/ruleset/ruleset_classic.h"
-#include "chartformat/format_bms.h"
+#include "common/chartformat/format_bms.h"
 #include "game/chart/chart_bms.h"
 #include "game/graphics/sprite_video.h"
 #include "config/config_mgr.h"
 #include "common/log.h"
-#include "sysutil.h"
+#include "common/sysutil.h"
 
 struct InputDataMap{
     eTimer tm;
@@ -718,13 +718,13 @@ void pushGraphPoints()
 {
     gPlayContext.graphGauge[PLAYER_SLOT_1P].push_back(gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().health * 100);
 
-    gPlayContext.graphSgame[PLAYER_SLOT_1P].push_back(gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().sgame2);
+    gPlayContext.graphScore[PLAYER_SLOT_1P].push_back(gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().score2);
 
     if (gPlayContext.ruleset[PLAYER_SLOT_2P])
-        gPlayContext.graphSgame[PLAYER_SLOT_2P].push_back(gPlayContext.ruleset[PLAYER_SLOT_2P]->getData().sgame2);
+        gPlayContext.graphScore[PLAYER_SLOT_2P].push_back(gPlayContext.ruleset[PLAYER_SLOT_2P]->getData().score2);
 
-    gPlayContext.graphSgameTarget.push_back(static_cast<int>(std::floor(
-        gPlayContext.ruleset[PLAYER_SLOT_1P]->getCurrentMaxSgame() * (0.01 * gNumbers.get(eNumber::DEFAULT_TARGET_RATE)))));
+    gPlayContext.graphScoreTarget.push_back(static_cast<int>(std::floor(
+        gPlayContext.ruleset[PLAYER_SLOT_1P]->getCurrentMaxScore() * (0.01 * gNumbers.get(eNumber::DEFAULT_TARGET_RATE)))));
 }
 
 void ScenePlay::updatePlaying()

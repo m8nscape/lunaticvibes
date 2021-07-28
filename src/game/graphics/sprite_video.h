@@ -1,4 +1,6 @@
 #pragma once
+#ifndef VIDEO_DISABLED
+
 #include "sprite.h"
 #include "game/graphics/texture_extra.h"
 #include "common/types.h"
@@ -39,3 +41,5 @@ public:
 	//virtual void draw() const override;
 };
 */
+
+#endif

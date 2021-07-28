@@ -6,6 +6,7 @@
         "exception": "cpp",
         "functional": "cpp",
         "iomanip": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "xlocale": "cpp"
     }
 }

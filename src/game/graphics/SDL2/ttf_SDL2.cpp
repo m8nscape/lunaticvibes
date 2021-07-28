@@ -14,7 +14,7 @@ TTFFont::~TTFFont()
 {
     if (!_loaded) return;
 #if _DEBUG
-    //FIXME: 0x000000006AE83926 (libfreetype - 6.dll)´¦(Î»ÓÚ game.exe ÖĞ)Òı·¢µÄÒì³£: 0xC0000005 : ¶ÁÈ¡Î»ÖÃ 0x0000000000000060 Ê±·¢Éú·ÃÎÊ³åÍ»
+    //FIXME: 0x000000006AE83926 (libfreetype - 6.dll)å¤„(ä½äº game.exe ä¸­)å¼•å‘çš„å¼‚å¸¸: 0xC0000005 : è¯»å–ä½ç½® 0x0000000000000060 æ—¶å‘ç”Ÿè®¿é—®å†²çª
     return;
 #endif
     TTF_CloseFont(_pFont);

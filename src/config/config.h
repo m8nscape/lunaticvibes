@@ -1,7 +1,7 @@
 #pragma once
 
 #include <yaml-cpp/yaml.h>
-#include "types.h"
+#include "common/types.h"
 //#include <unordered_map>
 
 namespace cfg

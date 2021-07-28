@@ -51,16 +51,25 @@ target_include_directories(game PRIVATE
 set_target_properties(game PROPERTIES
     CXX_STANDARD 17)
 
+target_link_libraries(game 
+    PUBLIC common
+    PUBLIC config
+    PUBLIC db
+    PUBLIC fmod
+)
+
 if (${GRAPHICS_BACKEND} STREQUAL SDL2)
-    add_definitions(-DRENDER_SDL2)
-    target_link_libraries(game PUBLIC
-        sdl2
-        sdl2_gfx
+    target_link_libraries(game
+        PUBLIC SDL2
+        PUBLIC SDL2_main
+        PUBLIC SDL2_gfx
+        PUBLIC SDL2_ttf
+        PUBLIC SDL2_image
     )
 endif()
 
-target_link_libraries(game PUBLIC
-    fmod
-)
+if (NOT ${VIDEO_ENABLED})
+    add_definitions(-DVIDEO_DISABLED)
+endif()
 
 target_precompile_headers(game REUSE_FROM common)

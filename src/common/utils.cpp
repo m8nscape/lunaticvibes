@@ -1,14 +1,17 @@
 
 #include "utils.h"
 #include <string>
-#include <openssl/md5.h>
 #include <cstdio>
 #include <iostream>
 #include <fstream>
 
 #ifdef _WIN32
 #include <Windows.h>
+#include <wincrypt.h>
+#else
+#include <openssl/md5.h>
 #endif
+
 
 std::vector<fs::path> findFiles(fs::path p)
 {
@@ -100,10 +103,86 @@ std::pair<unsigned, bool> stoub(const std::string& str)
     else
         return { -1, false };
 }
+
+std::string bin2hex(const void* bin, size_t size)
+{
+    std::string res;
+    res.reserve(size * 2 + 1);
+    static const char rgbDigits[] = "0123456789abcdef";
+    for (size_t i = 0; i < size; ++i)
+    {
+        unsigned char c = ((unsigned char*)bin)[i];
+        res += rgbDigits[(c >> 4) & 0xf];
+        res += rgbDigits[(c >> 0) & 0xf];
+    }
+    return res;
+}
+
 std::string md5(const std::string& str)
 {
     return md5(str.c_str(), str.length());
 }
+
+#ifdef WIN32
+
+std::string md5(const char* str, size_t len)
+{
+    HCRYPTPROV hProv = 0;
+    HCRYPTHASH hHash = 0;
+
+    CryptAcquireContext(&hProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT);
+    CryptCreateHash(hProv, CALG_MD5, 0, 0, &hHash);
+
+    CryptHashData(hHash, (const BYTE*)str, len, 0);
+
+    static const size_t MD5_LEN = 16;
+    BYTE rgbHash[MD5_LEN];
+    DWORD cbHash = MD5_LEN;
+    CryptGetHashParam(hHash, HP_HASHVAL, rgbHash, &cbHash, 0);
+
+    CryptDestroyHash(hHash);
+    CryptReleaseContext(hProv, 0);
+
+    return bin2hex(rgbHash, MD5_LEN);
+}
+
+std::string md5file(const fs::path& filePath)
+{
+    if (!fs::exists(filePath) || !fs::is_regular_file(filePath))
+    {
+        return "";
+    }
+
+    HCRYPTPROV hProv = 0;
+    HCRYPTHASH hHash = 0;
+
+    CryptAcquireContext(&hProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT);
+    CryptCreateHash(hProv, CALG_MD5, 0, 0, &hHash);
+
+    std::ifstream ifs(filePath, std::ios::in | std::ios::binary);
+    while (!ifs.eof())
+    {
+        static const size_t BUFSIZE = 1024;
+        char rgbFile[BUFSIZE];
+        DWORD cbRead = 0;
+        ifs.read(rgbFile, BUFSIZE);
+        cbRead = ifs.gcount();
+        if (cbRead == 0) break;
+        CryptHashData(hHash, (const BYTE*)rgbFile, cbRead, 0);
+    }
+
+    static const size_t MD5_LEN = 16;
+    BYTE rgbHash[MD5_LEN];
+    DWORD cbHash = MD5_LEN;
+    CryptGetHashParam(hHash, HP_HASHVAL, rgbHash, &cbHash, 0);
+
+    CryptDestroyHash(hHash);
+    CryptReleaseContext(hProv, 0);
+
+    return bin2hex(rgbHash, MD5_LEN);
+}
+
+#else
 
 std::string md5(const char* str, size_t len)
 {
@@ -157,6 +236,8 @@ std::string md5file(const fs::path& filePath)
     }
     return ret;
 }
+
+#endif
 
 std::string toLower(const std::string& s)
 {

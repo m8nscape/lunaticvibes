@@ -1,6 +1,9 @@
 #pragma once
 
+#ifndef VIDEO_DISABLED
 #include "SDL_video.h"
+#endif
+
 #include "SDL_render.h"
 #include "SDL_image.h"
 #include "SDL_filesystem.h"

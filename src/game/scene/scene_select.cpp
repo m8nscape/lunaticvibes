@@ -2,8 +2,8 @@
 
 #include "scene_select.h"
 #include "scene_context.h"
-#include "chartformat/chart_types.h"
-#include "entry/entry_song.h"
+#include "common/chartformat/chart_types.h"
+#include "common/entry/entry_song.h"
 
 #include "game/sound/sound_mgr.h"
 #include "game/sound/sound_sample.h"

@@ -4,7 +4,7 @@
 #include "fmod_errors.h"
 #include <cstdlib>
 
-#include "utils.h"
+#include "common/utils.h"
 
 SoundDriverFMOD::SoundDriverFMOD()
 {

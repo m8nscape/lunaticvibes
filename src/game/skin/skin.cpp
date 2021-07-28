@@ -4,7 +4,7 @@
 #include "game/scene/scene_context.h"
 #include <execution>
 #include <algorithm>
-#include "utils.h"
+#include "common/utils.h"
 
 vSkin::vSkin()
 {

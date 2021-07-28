@@ -48,7 +48,7 @@ enum gauge_ty {
 
 // Judge Time definitions.
 // Values are one-way judge times in ms, representing
-// PERFECT, GREAT, GOOD, BAD, ¿ÕPOOR respectively.
+// PERFECT, GREAT, GOOD, BAD, ÐŸÐµPOOR respectively.
 const judge_t judgeTime[] = {
     { 8, 27, 40, 200, 600},        // VERY HARD
     {15, 32, 60, 200, 600},        // HARD

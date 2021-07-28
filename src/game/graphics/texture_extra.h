@@ -2,10 +2,13 @@
 #include <map>
 #include <set>
 #include <variant>
-#include "asynclooper.h"
+#include "common/asynclooper.h"
+#include "common/beat.h"
 #include "graphics.h"
 #include "video.h"
-#include "beat.h"
+
+
+#ifndef VIDEO_DISABLED
 
 class TextureVideo : public Texture, public AsyncLooper
 {
@@ -23,6 +26,8 @@ public:
 	void update();
 	void reset();
 };
+
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

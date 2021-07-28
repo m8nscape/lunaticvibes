@@ -1,4 +1,5 @@
 #include "video.h"
+#ifndef VIDEO_DISABLED
 
 #include <thread>
 #include <chrono>
@@ -273,3 +274,5 @@ void sVideo::seek(int64_t second, bool backwards)
 		LOG_ERROR << "[Video] seek " << second << "s error (" << file.string() << ")";
 	}
 }
+
+#endif

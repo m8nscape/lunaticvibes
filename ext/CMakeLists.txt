@@ -1,11 +1,13 @@
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
-set(CMAKE_PREFIX_PATH SDL2)
+set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_LIST_DIR})
 
 # Add fmod
 add_subdirectory(fmod)
 
 # Add libav
-#find_package(libav REQUIRED)
+if (${VIDEO_ENABLED})
+    find_package(libav REQUIRED)
+endif()
 
 # Add plog
 add_subdirectory(plog)

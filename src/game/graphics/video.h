@@ -1,4 +1,6 @@
 #pragma once
+#ifndef VIDEO_DISABLED
+
 #include <shared_mutex>
 #include <future>
 #include "common/types.h"
@@ -77,3 +79,13 @@ public:
 	void seek(int64_t second, bool backwards = false);
 	
 };
+
+#else
+
+class sVideo
+{
+public:
+	sVideo() = default;
+	virtual ~sVideo() = default;
+};
+#endif

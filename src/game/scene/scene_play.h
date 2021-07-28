@@ -4,7 +4,7 @@
 #include <future>
 #include "scene.h"
 #include "scene_context.h"
-#include "chartformat/chartformat.h"
+#include "common/chartformat/chartformat.h"
 #include "game/chart/chart.h"
 #include "game/ruleset/ruleset_classic.h"
 

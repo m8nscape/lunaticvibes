@@ -6,7 +6,7 @@
 #include "game/skin/skin.h"
 #include "game/data/data.h"
 #include "game/input/input_wrapper.h"
-#include "types.h"
+#include "common/types.h"
 
 // Parent class of scenes, defines how an object being stored and drawn.
 // Every classes of scenes should inherit this class.

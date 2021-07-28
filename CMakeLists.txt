@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-set(PROJECT_NAME dexceed)
+set(PROJECT_NAME dexceed CACHE STRING "The project name")
 
 #########################################################################
 # PROJECT CONFIG
@@ -42,9 +42,16 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 
 # SDL2, 
 set(GRAPHICS_BACKEND SDL2 CACHE STRING "Graphics backend" )
+set(VIDEO_ENABLED TRUE CACHE BOOL "Build the app with video playback support")
+
+if (${GRAPHICS_BACKEND} STREQUAL SDL2)
+    add_definitions(-DRENDER_SDL2)
+endif()
 
 #########################################################################
 # DEPENDENCIES
+set(EXT_DEPEND_LIBFILES "" CACHE INTERNAL "dependencies")
+set(EXT_DEPEND_LIBFILES_SET FALSE CACHE INTERNAL "dependencies")
 add_subdirectory(ext)
 
 #########################################################################
@@ -56,9 +63,14 @@ add_subdirectory(src)
 
 #########################################################################
 # SOURCE
-target_link_libraries(${PROJECT_NAME} PRIVATE
-    common
-    config
-    db
-    game
+target_link_libraries(${PROJECT_NAME} 
+    PUBLIC game
 )
+
+if (${EXT_DEPEND_LIBFILES_SET})
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${EXT_DEPEND_LIBFILES}
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    )
+endif()

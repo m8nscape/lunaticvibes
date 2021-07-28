@@ -11,7 +11,7 @@
 #include "common/log.h"
 #include <string>
 #include "config/config_mgr.h"
-#include "sysutil.h"
+#include "common/sysutil.h"
 
 int graphics_init()
 {
@@ -130,8 +130,10 @@ int graphics_init()
         LOG_INFO << "[SDL2] TTF module version " << SDL_TTF_MAJOR_VERSION << '.' << SDL_TTF_MINOR_VERSION << "." << SDL_TTF_PATCHLEVEL;
     }
 
+#ifndef VIDEO_DISABLED
 	// libav
 	video_init();
+#endif
 
     return 0;
 }

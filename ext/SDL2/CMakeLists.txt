@@ -18,16 +18,35 @@ add_library(SDL2 SHARED IMPORTED GLOBAL)
 if (WIN32)
     if (${BUILD_X64})
         set_target_properties(SDL2 PROPERTIES
-            IMPORTED_LOCATION_SDL2    ${CMAKE_CURRENT_LIST_DIR}/lib/x64/SDL2.dll
-            IMPORTED_IMPLIB_SDL2      ${CMAKE_CURRENT_LIST_DIR}/lib/x64/SDL2.lib
+            IMPORTED_LOCATION   ${CMAKE_CURRENT_LIST_DIR}/lib/x64/SDL2.dll
+            IMPORTED_IMPLIB     ${CMAKE_CURRENT_LIST_DIR}/lib/x64/SDL2.lib
         )
     else()
         set_target_properties(SDL2 PROPERTIES
-            IMPORTED_LOCATION_SDL2    ${CMAKE_CURRENT_LIST_DIR}/lib/x86/SDL2.dll
-            IMPORTED_IMPLIB_SDL2      ${CMAKE_CURRENT_LIST_DIR}/lib/x86/SDL2.lib
+            IMPORTED_LOCATION   ${CMAKE_CURRENT_LIST_DIR}/lib/x86/SDL2.dll
+            IMPORTED_IMPLIB     ${CMAKE_CURRENT_LIST_DIR}/lib/x86/SDL2.lib
         )
     endif()
 elseif (LINUX)
 endif()
 
 target_include_directories(SDL2 INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+
+
+add_library(SDL2_main SHARED IMPORTED GLOBAL)
+if (WIN32)
+    if (${BUILD_X64})
+        set_target_properties(SDL2_main PROPERTIES
+            IMPORTED_LOCATION   ${CMAKE_CURRENT_LIST_DIR}/lib/x64/SDL2.dll
+            IMPORTED_IMPLIB     ${CMAKE_CURRENT_LIST_DIR}/lib/x64/SDL2main.lib
+        )
+    else()
+        set_target_properties(SDL2_main PROPERTIES
+            IMPORTED_LOCATION   ${CMAKE_CURRENT_LIST_DIR}/lib/x86/SDL2.dll
+            IMPORTED_IMPLIB     ${CMAKE_CURRENT_LIST_DIR}/lib/x86/SDL2main.lib
+        )
+    endif()
+elseif (LINUX)
+endif()
+
+target_include_directories(SDL2_main INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)

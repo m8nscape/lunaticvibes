@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 #include "entry.h"
-#include "chartformat/chartformat.h"
+#include "common/chartformat/chartformat.h"
 
 class Song : public vEntry
 {

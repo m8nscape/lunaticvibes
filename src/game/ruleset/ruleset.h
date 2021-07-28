@@ -3,7 +3,7 @@
 #include "game/input/input_wrapper.h"
 #include "common/chartformat/chartformat.h"
 #include "game/chart/chart.h"
-#include "beat.h"
+#include "common/beat.h"
 
 enum class eRuleset
 {

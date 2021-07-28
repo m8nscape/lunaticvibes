@@ -1,7 +1,7 @@
 #include "sprite_bar_entry.h"
 #include "game/scene/scene_context.h"
-#include "entry/entry_song.h"
-#include "chartformat/format_bms.h"
+#include "common/entry/entry_song.h"
+#include "common/chartformat/format_bms.h"
 
 int SpriteBarEntry::setBody(BarType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
     eTimer timer, bool texVertSplit)

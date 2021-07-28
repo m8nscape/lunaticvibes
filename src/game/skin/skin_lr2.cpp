@@ -1,6 +1,6 @@
 #include "skin_lr2.h"
 #include "common/log.h"
-#include "utils.h"
+#include "common/utils.h"
 #include <fstream>
 #include <sstream>
 #include <regex>
@@ -560,8 +560,12 @@ int SkinLR2::IMAGE()
 					{
 						if (video_file_extensions.find(toLower(paths[cf.value].extension().string())) != video_file_extensions.end())
 						{
+#ifndef VIDEO_DISABLED
 							_vidNameMap[std::to_string(imageCount)] = std::make_shared<sVideo>(paths[cf.value], true);
 							_textureNameMap[std::to_string(imageCount)] = _textureNameMap["White"];
+#else
+                            _textureNameMap[std::to_string(imageCount)] = _textureNameMap["Black"];
+#endif
 						}
 						else
                             _textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(paths[cf.value].u8string().c_str()));
@@ -585,8 +589,12 @@ int SkinLR2::IMAGE()
 				size_t ranidx = std::rand() % ls.size();
 				if (video_file_extensions.find(toLower(ls[ranidx].extension().string())) != video_file_extensions.end())
 				{
+#ifndef VIDEO_DISABLED
 					_vidNameMap[std::to_string(imageCount)] = std::make_shared<sVideo>(ls[ranidx], true);
 					_textureNameMap[std::to_string(imageCount)] = _textureNameMap["Error"];
+#else
+                    _textureNameMap[std::to_string(imageCount)] = _textureNameMap["Black"];
+#endif
 				}
 				else
 					_textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(ls[ranidx].u8string().c_str()));
@@ -1000,6 +1008,7 @@ ParseRet SkinLR2::SRC_IMAGE()
 
 	lr2skin::s_basic d;
 	convertLine(tokensBuf, (int*)&d);
+#ifndef VIDEO_DISABLED
 	if (useVideo && videoBuf && videoBuf->haveVideo)
 	{
         refineRect(d, { 0, 0, videoBuf->getW(), videoBuf->getH() }, srcLine);
@@ -1007,6 +1016,7 @@ ParseRet SkinLR2::SRC_IMAGE()
 		_sprites.push_back(psv);
 	}
     else
+#endif
     {
         if (textureBuf) refineRect(d, textureBuf->getRect(), srcLine);
         _sprites.push_back(std::make_shared<SpriteAnimated>(
@@ -2992,8 +3002,10 @@ SkinLR2::SkinLR2(Path p)
     {
         if (p->type() == SpriteTypes::VIDEO)
         {
+#ifndef VIDEO_DISABLED
             auto v = std::reinterpret_pointer_cast<SpriteVideo>(p);
             v->startPlaying();
+#endif
         }
     }
 }

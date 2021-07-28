@@ -1,6 +1,6 @@
 #include <execution>
 #include "scene.h"
-#include "beat.h"
+#include "common/beat.h"
 #include "game/data/data.h"
 #include "game/skin/skin_mgr.h"
 

@@ -51,6 +51,8 @@ constexpr unsigned base16(const char* c)
 	return base16(c[0], c[1]);
 }
 
+std::string bin2hex(const void* bin, size_t size);
+
 std::string md5(const std::string& str);
 std::string md5(const char* str, size_t len);
 std::string md5file(const fs::path& filePath);

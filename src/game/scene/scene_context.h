@@ -55,9 +55,9 @@ struct ChartContextParams
 
 ////////////////////////////////////////////////////////////////////////////////
 
-constexpr size_t MAX_PLAYERS = 8;
-constexpr size_t PLAYER_SLOT_1P = 0;
-constexpr size_t PLAYER_SLOT_2P = 1;
+constexpr unsigned MAX_PLAYERS = 8;
+constexpr unsigned PLAYER_SLOT_1P = 0;
+constexpr unsigned PLAYER_SLOT_2P = 1;
 struct PlayContextParams
 {
     eMode mode = eMode::PLAY7;
