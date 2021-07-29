@@ -5,6 +5,7 @@
 // common
 #include "asynclooper.h"
 #include "beat.h"
+#include "encoding.h"
 #include "fraction.h"
 #include "log.h"
 #include "meta.h"

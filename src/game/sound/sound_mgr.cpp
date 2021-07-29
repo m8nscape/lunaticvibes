@@ -21,7 +21,7 @@ int SoundMgr::initFMOD()
     return 1;
 }
 
-int SoundMgr::loadKeySample(std::string path, size_t index)
+int SoundMgr::loadKeySample(const Path& path, size_t index)
 {
     if (!_inst._initialized) return 1;
     return _inst.driver->loadKeySample(path, index);
@@ -41,7 +41,7 @@ void SoundMgr::freeKeySamples()
     if (!_inst._initialized) return;
     return _inst.driver->freeKeySamples();
 }
-int SoundMgr::loadSample(std::string path, size_t index, bool isStream, bool loop)
+int SoundMgr::loadSample(const Path& path, size_t index, bool isStream, bool loop)
 {
     if (!_inst._initialized) return 1;
     return _inst.driver->loadSample(path, index, isStream, loop); 

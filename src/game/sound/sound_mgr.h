@@ -17,11 +17,11 @@ public:
     static int initFMOD();
 
 public:
-    static int loadKeySample(std::string path, size_t index);
+    static int loadKeySample(const Path& path, size_t index);
     static void playKeySample(size_t count, size_t index[]);
     static void stopKeySamples();
     static void freeKeySamples();
-    static int loadSample(std::string path, size_t index, bool isStream = false, bool loop = false);
+    static int loadSample(const Path& path, size_t index, bool isStream = false, bool loop = false);
     static void playSample(size_t index);
     static void stopSamples();
     static void freeSamples();

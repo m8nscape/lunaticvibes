@@ -81,5 +81,5 @@ public:
     BPM getNormBPM() const;
     Path getDirectory() const;
 
-    virtual int getExtendedProperty(const std::string& key, void* ret) { return -1; }
+    virtual int getExtendedProperty(const StringContent& key, void* ret) { return -1; }
 };

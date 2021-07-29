@@ -5,6 +5,7 @@
 #include <thread>
 #include "sound_driver.h"
 #include "fmod.hpp"
+#include "common/types.h"
 
 // This game uses FMOD Low Level API to play sounds as we don't use FMOD Studio,
 
@@ -33,14 +34,14 @@ public:
     int setAsyncIO(bool async = true);
 
 public:
-	virtual int loadKeySample(std::string path, size_t index);
+	virtual int loadKeySample(const Path& path, size_t index);
 	virtual void playKeySample(size_t count, size_t index[]);
 	virtual void stopKeySamples();
 	virtual void freeKeySamples();
 	virtual void update();
 
 public:
-	virtual int loadSample(std::string path, size_t index, bool isStream = false, bool loop = false);
+	virtual int loadSample(const Path& path, size_t index, bool isStream = false, bool loop = false);
 	virtual void playSample(size_t index);
 	virtual void stopSamples();
 	virtual void freeSamples();

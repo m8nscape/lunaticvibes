@@ -493,9 +493,9 @@ void ScenePlay::loadChart()
                 if (wav.empty()) continue;
 				Path pWav(wav);
 				if (pWav.is_absolute())
-					SoundMgr::loadKeySample(wav, i);
+					SoundMgr::loadKeySample(pWav, i);
 				else
-					SoundMgr::loadKeySample((chartDir / wav).string(), i);
+					SoundMgr::loadKeySample((chartDir / wav), i);
                 ++_wavLoaded;
             }
             gChartContext.isSampleLoaded = true;

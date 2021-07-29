@@ -1,11 +1,12 @@
 
 #include "utils.h"
+#include "types.h"
 #include <string>
 #include <cstdio>
 #include <iostream>
 #include <fstream>
 
-#ifdef _WIN32
+#ifdef WIN32
 #include <Windows.h>
 #include <wincrypt.h>
 #else
@@ -13,15 +14,18 @@
 #endif
 
 
-std::vector<fs::path> findFiles(fs::path p)
+
+std::vector<Path> findFiles(Path p)
 {
+#ifdef WIN32
 	auto pstr = p.u16string();
-#ifdef _WIN32
 	size_t offset = pstr.find(u"\\*");
 #else
+	auto pstr = p.string();
 	size_t offset = pstr.find(u"/*");
 #endif
-	std::vector<fs::path> res;
+
+	std::vector<Path> res;
 	if (offset == pstr.npos)
 	{
 		if (!pstr.empty() && pstr.find(u'*') == pstr.npos)
@@ -29,12 +33,16 @@ std::vector<fs::path> findFiles(fs::path p)
 		return res;
 	}
 	
-	std::u16string dir = pstr.substr(0, offset);
-	std::u16string tail = pstr.substr(offset + 2);
+	auto dir = pstr.substr(0, offset);
+	auto tail = pstr.substr(offset + 2);
     if (fs::exists(dir))
         for (auto f : fs::directory_iterator(dir))
         {
-            std::u16string file = f.path().u16string();
+#ifdef WIN32
+            auto file = f.path().u16string();
+#else
+            auto file = f.path().string();
+#endif
             if (file.substr(file.length() - tail.length()) != tail)
                 continue;
             res.push_back(fs::canonical(f));
@@ -42,7 +50,7 @@ std::vector<fs::path> findFiles(fs::path p)
 	return res;
 }
 
-bool isParentPath(fs::path parent, fs::path dir)
+bool isParentPath(Path parent, Path dir)
 {
     parent = fs::absolute(parent);
     dir = fs::absolute(dir);
@@ -118,14 +126,14 @@ std::string bin2hex(const void* bin, size_t size)
     return res;
 }
 
-std::string md5(const std::string& str)
+HashMD5 md5(const std::string& str)
 {
     return md5(str.c_str(), str.length());
 }
 
 #ifdef WIN32
 
-std::string md5(const char* str, size_t len)
+HashMD5 md5(const char* str, size_t len)
 {
     HCRYPTPROV hProv = 0;
     HCRYPTHASH hHash = 0;
@@ -146,7 +154,7 @@ std::string md5(const char* str, size_t len)
     return bin2hex(rgbHash, MD5_LEN);
 }
 
-std::string md5file(const fs::path& filePath)
+HashMD5 md5file(const Path& filePath)
 {
     if (!fs::exists(filePath) || !fs::is_regular_file(filePath))
     {
@@ -184,7 +192,7 @@ std::string md5file(const fs::path& filePath)
 
 #else
 
-std::string md5(const char* str, size_t len)
+HashMD5 md5(const char* str, size_t len)
 {
     auto digest = MD5((const unsigned char*)str, len, NULL);
 
@@ -199,7 +207,7 @@ std::string md5(const char* str, size_t len)
     return ret;
 }
 
-std::string md5file(const fs::path& filePath)
+HashMD5 md5file(const Path& filePath)
 {
     unsigned char digest[MD5_DIGEST_LENGTH];
     memset(digest, 0, sizeof(digest));
@@ -255,180 +263,4 @@ std::string toUpper(const std::string& s)
 		if (c >= 'a' && c <= 'z')
 			c = c - 'a' + 'A';
 	return ret;
-}
-
-bool is_shiftjis(const std::string& str)
-{
-    for (auto it = str.begin(); it != str.end(); ++it)
-    {
-        uint8_t c = *it;
-        int bytes = 0;
-
-        // ascii / hankaku gana
-        if ((c <= 0x7f) || (c >= 0xa1 && c <= 0xdf))
-            continue;
-
-        // JIS X 0208
-        else if ((c >= 0x81 && c <= 0x9f) || (c >= 0xe0 && c <= 0xef))
-        {
-            if (++it == str.end()) return false;
-            uint8_t cc = *it;
-            if ((c >= 0x40 && c <= 0x7e) || (c >= 0x80 && c <= 0xfc))
-                continue;
-        }
-
-        // user defined
-        else if (c >= 0xf0 && c <= 0xfc)
-        {
-            if (++it == str.end()) return false;
-            uint8_t cc = *it;
-            if ((c >= 0x40 && c <= 0x7e) || (c >= 0x80 && c <= 0xfc))
-                continue;
-        }
-
-        else return false;
-    }
-
-    return true;
-}
-
-bool is_euckr(const std::string& str)
-{
-    for (auto it = str.begin(); it != str.end(); ++it)
-    {
-        uint8_t c = *it;
-        int bytes = 0;
-
-        // ascii
-        if (c <= 0x7f) continue;
-
-        // euc-jp
-        if (c == 0x8e || c == 0x8f)
-            return false;
-
-        // gbk
-        else if (0 /* nobody write bms in gbk */)
-            return false;
-
-        // shared range
-        else if (c >= 0xa1 && c <= 0xfe)
-        {
-            if (++it == str.end()) return false;
-            uint8_t cc = *it;
-            if (c >= 0xa1 && c <= 0xfe)
-                continue;
-        }
-
-        else return false;
-    }
-
-    return true;
-}
-
-bool is_utf8(const std::string& str)
-{
-    for (auto it = str.begin(); it != str.end(); ++it)
-    {
-        uint8_t c = *it;
-        int bytes = 0;
-
-        // invalid
-        if ((c & 0b1100'0000) == 0b1000'0000 || (c & 0b1111'1110) == 0b1111'1110)
-            return false;
-
-        // 1 byte
-        else if ((c & 0b1000'0000) == 0)
-            continue;
-
-        // 2~6 bytes
-        else if ((c & 0b1110'0000) == 0b1100'0000) bytes = 2;
-        else if ((c & 0b1111'0000) == 0b1110'0000) bytes = 3;
-        else if ((c & 0b1111'1000) == 0b1111'0000) bytes = 4;
-        else if ((c & 0b1111'1100) == 0b1111'1000) bytes = 5;
-        else if ((c & 0b1111'1110) == 0b1111'1100) bytes = 6;
-        else return false;
-
-        while (--bytes)
-        {
-            if (++it == str.end()) return false;
-            uint8_t cc = *it;
-            if ((cc & 0b1100'0000) != 0b10000000) return false;
-        }
-    }
-
-    return true;
-}
-
-eFileEncoding getFileEncoding(const fs::path& path)
-{
-    std::ifstream fs(path);
-    if (fs.fail())
-    {
-        return eFileEncoding::LATIN1;
-    }
-
-    std::string buf;
-    while (!fs.eof())
-    {
-        std::getline(fs, buf, '\n');
-
-        if (is_shiftjis(buf)) return eFileEncoding::SHIFT_JIS;
-        if (is_euckr(buf)) return eFileEncoding::EUC_KR;
-        if (is_utf8(buf)) return eFileEncoding::UTF8;
-    }
-
-    return eFileEncoding::LATIN1;
-}
-
-std::string to_utf8(const std::string& input, eFileEncoding fromEncoding)
-{
-    switch (fromEncoding)
-    {
-    case eFileEncoding::SHIFT_JIS:
-    {
-#ifdef _WIN32
-        DWORD dwNum;
-
-        dwNum = MultiByteToWideChar(932, 0, input.c_str(), -1, NULL, 0);
-        wchar_t* wstr = new wchar_t[dwNum];
-        MultiByteToWideChar(932, 0, input.c_str(), -1, wstr, dwNum);
-
-        dwNum = WideCharToMultiByte(CP_UTF8, NULL, wstr, -1, NULL, 0, NULL, FALSE);
-        char* ustr = new char[dwNum];
-        WideCharToMultiByte(CP_UTF8, NULL, wstr, -1, ustr, dwNum, NULL, FALSE);
-
-        std::string ret(ustr);
-
-        delete[] wstr;
-        delete[] ustr;
-        return ret;
-#endif
-    }
-
-    case eFileEncoding::EUC_KR:
-    {
-#ifdef _WIN32
-        DWORD dwNum;
-
-        dwNum = MultiByteToWideChar(949, 0, input.c_str(), -1, NULL, 0);
-        wchar_t* wstr = new wchar_t[dwNum];
-        MultiByteToWideChar(949, 0, input.c_str(), -1, wstr, dwNum);
-
-        dwNum = WideCharToMultiByte(CP_UTF8, NULL, wstr, -1, NULL, 0, NULL, FALSE);
-        char* ustr = new char[dwNum];
-        WideCharToMultiByte(CP_UTF8, NULL, wstr, -1, ustr, dwNum, NULL, FALSE);
-
-        std::string ret(ustr);
-
-        delete[] wstr;
-        delete[] ustr;
-        return ret;
-#endif
-    }
-
-    case eFileEncoding::LATIN1:
-    case eFileEncoding::UTF8:
-    default:
-        return input;
-    }
 }

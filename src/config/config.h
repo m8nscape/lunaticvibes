@@ -32,8 +32,16 @@ public:
     inline std::string get(const std::string& key, const char* fallback) const { return _yaml[key].as<std::string>(std::string(fallback)); }
 
     template<class Ty_v>
+    inline Ty_v get(const std::string& key, unsigned idx, const Ty_v& fallback) const { return _yaml[key][idx].as<Ty_v>(fallback); }
+    inline std::string get(const std::string& key, unsigned idx, const char* fallback) const { return _yaml[key][idx].as<std::string>(std::string(fallback)); }
+
+    template<class Ty_v>
 	inline void set(const std::string& key, const Ty_v& value) noexcept { _yaml[key] = value; } // untested when type mismatch
     inline void set(const std::string& key, const char* value) noexcept { _yaml[key] = std::string(value); }
+    
+    template<class Ty_v>
+	inline void set(const std::string& key, unsigned idx, const Ty_v& value) noexcept { if (_yaml[key].IsSequence()) _yaml[key][idx] = value; } // untested when type mismatch
+    inline void set(const std::string& key, unsigned idx, const char* value) noexcept { _yaml[key][idx] = std::string(value); }
     
 protected:
 

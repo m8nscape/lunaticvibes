@@ -6,14 +6,14 @@
 
 namespace fs = std::filesystem;
 
-inline fs::path executablePath;
+inline Path executablePath;
 
 // Following LR2skin path rules:
 // Only filename (not including folders) could have wildcards "*"
 // Searching is not recursive.
-std::vector<fs::path> findFiles(fs::path path);
+std::vector<Path> findFiles(Path path);
 
-bool isParentPath(fs::path parent, fs::path dir);
+bool isParentPath(Path parent, Path dir);
 
 // For LR2 skin .csv parsing:
 // op1~4 may include a '!' before the number, split it out
@@ -53,19 +53,9 @@ constexpr unsigned base16(const char* c)
 
 std::string bin2hex(const void* bin, size_t size);
 
-std::string md5(const std::string& str);
-std::string md5(const char* str, size_t len);
-std::string md5file(const fs::path& filePath);
+HashMD5 md5(const std::string& str);
+HashMD5 md5(const char* str, size_t len);
+HashMD5 md5file(const Path& filePath);
 
 std::string toLower(const std::string& s);
 std::string toUpper(const std::string& s);
-
-enum class eFileEncoding
-{
-	LATIN1,
-	SHIFT_JIS,
-	EUC_KR,
-	UTF8,
-};
-eFileEncoding getFileEncoding(const fs::path& path);
-std::string to_utf8(const std::string& str, eFileEncoding fromEncoding);

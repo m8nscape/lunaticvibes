@@ -177,11 +177,14 @@ void SoundDriverFMOD::loadSampleThread()
     }
 }
 
-int SoundDriverFMOD::loadKeySample(std::string path, size_t index)
+int SoundDriverFMOD::loadKeySample(const Path& spath, size_t index)
 {
-    if (path.empty()) return 0;
+    if (spath.empty()) return 0;
+    
+    std::string path = spath.string();
+
 	FMOD_RESULT r = FMOD_ERR_FILE_NOTFOUND;
-	if (fs::exists(path) && fs::is_regular_file(path))
+	if (fs::exists(spath) && fs::is_regular_file(spath))
 		r = fmodSystem->createSound(path.c_str(), FMOD_UNIQUE, 0, &keySamples[index]);
 
     // Also find ogg with the same filename
@@ -221,17 +224,21 @@ void SoundDriverFMOD::freeKeySamples()
         }
 }
 
-int SoundDriverFMOD::loadSample(std::string path,size_t index, bool isStream, bool loop)
+int SoundDriverFMOD::loadSample(const Path& spath, size_t index, bool isStream, bool loop)
 {
+    if (spath.empty()) return 0;
+    
     if (etcSamples[index] != nullptr)
         etcSamples[index]->release();
+
+    std::string path = spath.string();
 
     int flag = FMOD_DEFAULT;
     flag |= isStream ? FMOD_CREATESTREAM : FMOD_CREATESAMPLE;
     flag |= loop ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF;
 
     FMOD_RESULT r = FMOD_ERR_FILE_NOTFOUND;
-    if (fs::exists(path) && fs::is_regular_file(path))
+    if (fs::exists(spath) && fs::is_regular_file(spath))
         r = fmodSystem->createSound(path.c_str(), flag, 0, &etcSamples[index]);
 
     // Also find ogg with the same filename

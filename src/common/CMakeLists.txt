@@ -1,5 +1,6 @@
 add_library(common STATIC
     asynclooper.cpp
+    encoding.cpp
     fraction.cpp
     log.cpp
     utils.cpp

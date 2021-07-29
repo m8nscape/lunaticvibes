@@ -1,6 +1,6 @@
 #include "sprite_imagetext.h"
 
-#include <codecvt>
+#include "common/encoding.h"
 
 SpriteImageText::SpriteImageText(std::vector<pTexture>& textures, CharMappingList& chrList, eText textInd, TextAlign align, unsigned height, int margin):
     SpriteText(nullptr, textInd, align), _textures(textures), _chrList(chrList), _height(height), _margin(margin)
@@ -20,23 +20,7 @@ void SpriteImageText::setText(std::string&& text)
 
     /*
     // convert UTF-8 to SHIFT-JIS
-    auto& ex_sjis = std::use_facet<std::codecvt<char, char16_t, std::mbstate_t>>(std::locale("ja_JP.sjis"));
-    std::u16string sjisText(_currText.size() * ex_sjis.max_length(), '\0');
-
-    std::mbstate_t s;
-    const char* in_next = &_currText[0];
-    char16_t* ex_next = &sjisText[0];
-
-    std::codecvt_base::result res;
-    do {
-        ex_sjis.out(s,
-            in_next, &_currText[_currText.size()], in_next,
-            ex_next, &sjisText[sjisText.size()], ex_next);
-        if (res == std::codecvt_base::error)
-            in_next++;
-    } while (res == std::codecvt_base::error);
-
-    sjisText.resize(ex_next - &sjisText[0]);
+    std::u16string sjisText = utf8_to_sjis(_currText)
 
     // save characters
     int x_margin = 0;
@@ -50,26 +34,7 @@ void SpriteImageText::setText(std::string&& text)
     */
 
     // convert UTF-8 to UTF-32
-    static auto& in_utf32 = std::use_facet<std::codecvt<char32_t, char, std::mbstate_t>>(std::locale(""));
-    std::u32string u32Text(_currText.size() * in_utf32.max_length(), '\0');
-
-    std::mbstate_t s;
-    const char* from_next = &_currText[0];
-    char32_t* to_next = &u32Text[0];
-
-    std::codecvt_base::result res;
-    do {
-        res = in_utf32.in(s,
-            from_next, &_currText[_currText.size()], from_next,
-            to_next, &u32Text[u32Text.size()], to_next);
-
-        // skip unconvertiable chars (which is impossible though)
-        if (res == std::codecvt_base::error)
-            from_next++;
-
-    } while (res == std::codecvt_base::error);
-
-    u32Text.resize(to_next - &u32Text[0]);
+    std::u32string u32Text = utf8_to_utf32(_currText);
 
     // save characters
     int x = 0;
