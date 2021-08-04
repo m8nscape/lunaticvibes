@@ -1,0 +1,40 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_JoyAxisEvent</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_JoyAxisEvent</h1>
+<p>A structure that contains joystick axis motion event information.
+<h2>Data Fields</h2>
+<table>
+<tr><td>Uint32</td><td><strong>type</strong></td><td>SDL_JOYAXISMOTION</td></tr>
+<tr><td>Uint32</td><td><strong>timestamp</strong></td><td>timestamp of the event</td></tr>
+<tr><td>SDL_JoystickID</td><td><strong>which</strong></td><td>the index of the joystick that reported the event</td></tr>
+<tr><td>Uint8</td><td><strong>axis</strong></td><td>the index of the axis that changed</td></tr>
+<tr style="color: #808080;"><td>Uint8</td><td><strong>padding1</strong></td><td>&nbsp;</td></tr>
+<tr style="color: #808080;"><td>Uint8</td><td><strong>padding2</strong></td><td>&nbsp;</td></tr>
+<tr style="color: #808080;"><td>Uint8</td><td><strong>padding3</strong></td><td>&nbsp;</td></tr>
+<tr><td>Sint16</td><td><strong>value</strong></td><td>the current position of the axis (range: -32768 to 32767)</td></tr>
+<tr style="color: #808080;"><td>Uint16</td><td><strong>padding4</strong></td><td>&nbsp;</td></tr>
+</table>	
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p><a href="SDL_JoyAxisEvent.html">SDL_JoyAxisEvent</a> is a member of the <a href="SDL_Event.html">SDL_Event</a> union and is used when an event of type SDL_JOYAXISMOTION is reported. You would access it through the event's jaxis field.
+<p>An SDL_JOYAXISMOTION event occurs whenever a user moves an axis on the joystick.
+<h2>Related Enumerations</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_EventType.html">SDL_EventType</a></li></ul> 
+<h2>Related Structures</h2>
+<ul style="list-style-type:none"><li><a href="SDL_Event.html">SDL_Event</a></li>
+<li><a href="SDL_JoyBallEvent.html">SDL_JoyBallEvent</a></li>
+<li><a href="SDL_JoyButtonEvent.html">SDL_JoyButtonEvent</a></li>
+<li><a href="SDL_JoyHatEvent.html">SDL_JoyHatEvent</a></li></ul> 
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_JoystickEventState.html">SDL_JoystickEventState</a></li>
+<li><a href="../SDL_JoystickGetAxis.html">SDL_JoystickGetAxis</a></li></ul>
+</div>
+</BODY>
+</HTML>

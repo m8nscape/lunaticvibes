@@ -1,0 +1,36 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetTextureColorMod</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetTextureColorMod</h1>
+<p>Use this function to get the additional color value multiplied into render copy operations.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_GetTextureColorMod(SDL_Texture* texture,
+                           Uint8*       r,
+                           Uint8*       g,
+                           Uint8*       b)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>texture</strong></td><td>the texture to query</td></tr>
+<tr><td><strong>r</strong></td><td>a pointer filled in with the current red color value</td></tr>
+<tr><td><strong>g</strong></td><td>a pointer filled in with the current green color value</td></tr>
+<tr><td><strong>b</strong></td><td>a pointer filled in with the current blue color value</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetTextureAlphaMod.html">SDL_GetTextureAlphaMod</a></li>
+<li><a href="SDL_SetTextureColorMod.html">SDL_SetTextureColorMod</a></li></ul>
+</div>
+</BODY>
+</HTML>

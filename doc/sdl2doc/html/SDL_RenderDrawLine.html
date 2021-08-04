@@ -1,0 +1,47 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_RenderDrawLine</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_RenderDrawLine</h1>
+<p>Use this function to draw a line on the current rendering target.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_RenderDrawLine(SDL_Renderer* renderer,
+                       int           x1,
+                       int           y1,
+                       int           x2,
+                       int           y2)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>renderer</strong></td><td>the rendering context</td></tr>
+<tr><td><strong>x1</strong></td><td>the x coordinate of the start point</td></tr>
+<tr><td><strong>y1</strong></td><td>the y coordinate of the start point</td></tr>
+<tr><td><strong>x2</strong></td><td>the x coordinate of the end point</td></tr>
+<tr><td><strong>y2</strong></td><td>the y coordinate of the end point</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p><a href="SDL_RenderDrawLine.html">SDL_RenderDrawLine</a>() draws the line to include both end points. If you want to draw multiple, connecting lines use <a href="SDL_RenderDrawLines.html">SDL_RenderDrawLines</a>() instead.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_RenderDrawLines.html">SDL_RenderDrawLines</a></li>
+<li><a href="SDL_RenderDrawPoint.html">SDL_RenderDrawPoint</a></li>
+<li><a href="SDL_RenderDrawPoints.html">SDL_RenderDrawPoints</a></li>
+<li><a href="SDL_RenderDrawRect.html">SDL_RenderDrawRect</a></li>
+<li><a href="SDL_RenderDrawRects.html">SDL_RenderDrawRects</a></li>
+<li><a href="SDL_RenderFillRect.html">SDL_RenderFillRect</a></li>
+<li><a href="SDL_RenderFillRects.html">SDL_RenderFillRects</a></li>
+<li><a href="SDL_RenderPresent.html">SDL_RenderPresent</a></li>
+<li><a href="SDL_SetRenderDrawBlendMode.html">SDL_SetRenderDrawBlendMode</a></li>
+<li><a href="SDL_SetRenderDrawColor.html">SDL_SetRenderDrawColor</a></li></ul>
+</div>
+</BODY>
+</HTML>

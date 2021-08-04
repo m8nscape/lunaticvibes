@@ -1,0 +1,31 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GL_SetSwapInterval</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GL_SetSwapInterval</h1>
+<p>Use this function to set the swap interval for the current OpenGL context.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_GL_SetSwapInterval(int interval)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>interval</strong></td><td>0 for immediate updates, 1 for updates synchronized with the vertical retrace, -1 for late swap tearing; see <a href="#Remarks">Remarks</a></td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or -1 if setting the swap interval is not supported; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<p>Some systems allow specifying -1 for the interval, to enable late swap tearing. Late swap tearing works the same as vsync, but if you've already missed the vertical retrace for a given frame, it swaps buffers immediately, which might be less jarring for the user during occasional framerate drops. If application requests late swap tearing and the system does not support it, this function will fail and return -1. In such a case, you should probably retry the call with 1 for the interval.
+<p>Late swap tearing is implemented for some glX drivers with <a class="http" href="http://www.opengl.org/registry/specs/EXT/glx_swap_control_tear.txt">GLX_EXT_swap_control_tear</a> and for some Windows drivers with <a class="http" href="http://www.opengl.org/registry/specs/EXT/wgl_swap_control_tear.txt">WGL_EXT_swap_control_tear</a>.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GL_GetSwapInterval.html">SDL_GL_GetSwapInterval</a></li></ul>
+</div>
+</BODY>
+</HTML>

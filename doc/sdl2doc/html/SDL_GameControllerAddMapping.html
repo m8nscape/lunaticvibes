@@ -1,0 +1,38 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GameControllerAddMapping</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GameControllerAddMapping</h1>
+<p>Use this function to add support for controllers that SDL is unaware of or to cause an existing controller to have a different binding.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_GameControllerAddMapping(const char* mappingString)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>mappingString</strong></td><td>the mapping string; see below</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 1 if a new mapping is added, 0 if an existing mapping is updated, -1 on error; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>The mapping string has the format "GUID,name,mapping", where GUID is the string value from <a href="SDL_JoystickGetGUIDString.html">SDL_JoystickGetGUIDString</a>(), name is the human readable string for the device and mappings are controller mappings to joystick ones. Under Windows there is a reserved GUID of "xinput" that covers all XInput devices. The mapping format for joystick is:
+<table>
+<tr><td>bX</td><td>a joystick button, index X</td></tr>
+<tr><td>hX.Y</td><td>hat X with value Y</td></tr>
+<tr><td>aX</td><td>axis X of the joystick</td></tr>
+</table>
+<p>Buttons can be used as a controller axes and vice versa.
+<p>This string shows an example of a valid mapping for a controller: "341a3608000000000000504944564944,Afterglow PS3 Controller,a:b1,b:b2,y:b3,x:b0,start:b9,guide:b12,back:b8,dpup:h0.1,dpleft:h0.8,dpdown:h0.4,<br>dpright:h0.2,leftshoulder:b4,rightshoulder:b5,leftstick:b10,rightstick:b11,leftx:a0,lefty:a1,rightx:a2,righty:a3,<br>lefttrigger:b6,righttrigger:b7"
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GameControllerMappingForGUID.html">SDL_GameControllerMappingForGUID</a></li>
+<li><a href="SDL_GameControllerMapping.html">SDL_GameControllerMapping</a></li></ul>
+</div>
+</BODY>
+</HTML>

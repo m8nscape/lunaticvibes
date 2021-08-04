@@ -1,0 +1,32 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_Palette</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_Palette</h1>
+<p>A structure that contains palette information.
+<h2>Data Fields</h2>
+<table>
+<tr><td>int</td><td><strong>ncolors</strong></td><td>the number of colors in the palette</td></tr>
+<tr><td><a href="SDL_Color.html">SDL_Color</a>*</td><td><strong>colors</strong></td><td>an array of <a href="SDL_Color.html">SDL_Color</a> structures representing the palette</td></tr>
+<tr style="color: #808080;"><td>Uint32</td><td><strong>version</strong></td><td>incrementally tracks changes to the palette (internal use)</td></tr>
+<tr style="color: #808080;"><td>int</td><td><strong>refcount</strong></td><td>reference count (internal use)</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>Each pixel in an 8-bit surface is an index into the <strong>colors</strong> field of the SDL_Palette structure stored in <a href="SDL_PixelFormat.html">SDL_PixelFormat</a>. An <a href="SDL_Palette.html">SDL_Palette</a> should never need to be created manually. It is automatically created when SDL allocates an <a href="SDL_PixelFormat.html">SDL_PixelFormat</a> for a surface. The <strong>colors</strong> values of an <a href="SDL_Surface.html">SDL_Surface<a/>'s palette can be set with <a href="../SDL_SetPaletteColors.html">SDL_SetPaletteColors</a>().
+<h2>Related Structures</h2>
+<ul style="list-style-type:none"><li><a href="SDL_PixelFormat.html">SDL_PixelFormat</a></li></ul> 
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_AddPaletteWatch.html">SDL_AddPaletteWatch</a></li>
+<li><a href="../SDL_AllocPalette.html">SDL_AllocPalette</a></li>
+<li><a href="../SDL_DelPaletteWatch.html">SDL_DelPaletteWatch</a></li>
+<li><a href="../SDL_FreePalette.html">SDL_FreePalette</a></li>
+<li><a href="../SDL_SetPaletteColors.html">SDL_SetPaletteColors</a></li></ul>
+</div>
+</BODY>
+</HTML>

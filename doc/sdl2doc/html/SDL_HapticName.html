@@ -1,0 +1,30 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_HapticName</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_HapticName</h1>
+<p>Use this function to get the implementation dependent name of a haptic device.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+const char* SDL_HapticName(int device_index)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>device_index</strong></td><td>index of the device to get it's name the name of / to query</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns the name of the device or NULL on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>This can be called before any joysticks are opened. If no name can be found, this function returns NULL.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_NumHaptics.html">SDL_NumHaptics</a></li></ul>
+</div>
+</BODY>
+</HTML>

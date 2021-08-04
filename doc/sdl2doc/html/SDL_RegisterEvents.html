@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_RegisterEvents</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_RegisterEvents</h1>
+<p>Use this function to allocate a set of user-defined events, and return the beginning event number for that set of events.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+Uint32 SDL_RegisterEvents(int numevents)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>numevents</strong></td><td>the number of events to be allocated</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>The beginning event number, or (Uint32)-1 if there are not enough user-defined events left.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+Uint32 myEventType = SDL_RegisterEvents(1);
+if (myEventType != ((Uint32)-1)) {
+    SDL_Event event;
+    SDL_zero(event);
+    event.type = myEventType;
+    event.user.code = my_event_code;
+    event.user.data1 = significant_data;
+    event.user.data2 = 0;
+    SDL_PushEvent(&event);
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>Calling this function with <strong>numevents</strong> <= 0 is an error and will return (Uint32)-1.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_PushEvent.html">SDL_PushEvent</a></li></ul>
+</div>
+</BODY>
+</HTML>

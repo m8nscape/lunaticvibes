@@ -1,0 +1,57 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>Log Handling</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>Log Handling</h1>
+<h2>Introduction</h2>
+<p>This category contains functions for handling simple log messages with categories and priorities.
+<p>The default log priorities are as follows:
+<table>
+<tr><td><tt style="backtick">SDL_LOG_CATEGORY_APPLICATION</tt></td><td><tt style="backtick">SDL_LOG_PRIORITY_INFO</tt></td></tr>
+<tr><td><tt style="backtick">SDL_LOG_CATEGORY_ASSERT</tt></td><td><tt style="backtick">SDL_LOG_PRIORITY_WARN</tt></td></tr>
+<tr><td><tt style="backtick">SDL_LOG_CATEGORY_TEST</tt></td><td><tt style="backtick">SDL_LOG_PRIORITY_VERBOSE</tt></td></tr>
+<tr><td>everything else</td><td><tt style="backtick">SDL_LOG_PRIORITY_CRITICAL</tt></td></tr>
+</table>
+<p>If you're debugging SDL you might want to call:
+<ul><li style="list-style-type:none"><tt style="backtick">SDL_LogSetAllPriority(SDL_LOG_PRIORITY_WARN); </tt></li></ul>
+<p>Here's where the messages go on different platforms:
+<ul><li style="list-style-type:none">
+<table>
+<tr><td>Windows</td><td>debug output stream</td></tr>
+<tr><td>Android</td><td>log output</td></tr>
+<tr><td>Others</td><td>standard error output (stderr)</td></tr>
+</table></li>
+</ul>
+<p>Messages longer than the maximum size (4096 bytes) will be truncated.
+<h2>Enumerations</h2>
+<ol start="1">
+<li><a href="SDL_LOG_CATEGORY.html">SDL_LOG_CATEGORY</a></li>
+<li><a href="SDL_LogPriority.html">SDL_LogPriority</a></li>
+</ol>
+<h2>Functions</h2>
+<ol start="1">
+<li><a href="SDL_Log.html">SDL_Log</a></li>
+<li><a href="SDL_LogCritical.html">SDL_LogCritical</a></li>
+<li><a href="SDL_LogDebug.html">SDL_LogDebug</a></li>
+<li><a href="SDL_LogError.html">SDL_LogError</a></li>
+<li><a href="SDL_LogGetOutputFunction.html">SDL_LogGetOutputFunction</a></li>
+<li><a href="SDL_LogGetPriority.html">SDL_LogGetPriority</a></li>
+<li><a href="SDL_LogInfo.html">SDL_LogInfo</a></li>
+<li><a href="SDL_LogMessage.html">SDL_LogMessage</a></li>
+<li><a href="SDL_LogMessageV.html">SDL_LogMessageV</a></li>
+<li><a href="SDL_LogResetPriorities.html">SDL_LogResetPriorities</a></li>
+<li><a href="SDL_LogSetAllPriority.html">SDL_LogSetAllPriority</a></li>
+<li><a href="SDL_LogSetOutputFunction.html">SDL_LogSetOutputFunction</a></li>
+<li><a href="SDL_LogSetPriority.html">SDL_LogSetPriority</a></li>
+<li><a href="SDL_LogVerbose.html">SDL_LogVerbose</a></li>
+<li><a href="SDL_LogWarn.html">SDL_LogWarn</a></li>
+</ol>
+
+</div>
+</BODY>
+</HTML>

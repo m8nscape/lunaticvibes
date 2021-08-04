@@ -1,0 +1,32 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_assert_data</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_assert_data</h1>
+<p>A structure that contains information about an assertion.
+<h2>Data Fields</h2>
+<table>
+<tr><td>int</td><td><strong>always_ignore</strong></td><td>1 if set, 0 otherwise</td></tr>
+<tr><td>unsigned int</td><td><strong>trigger_count</strong></td><td>number of times this assertion was triggered</td></tr>
+<tr><td>const char*</td><td><strong>condition</strong></td><td>the assertion condition to check</td></tr>
+<tr><td>const char*</td><td><strong>filename</strong></td><td>the file containing the assertion</td></tr>
+<tr><td>int</td><td><strong>linenum</strong></td><td>the location of the assertion in the file</td></tr>
+<tr><td>const char*</td><td><strong>function</strong></td><td>the function containing the assertion</td></tr>
+<tr><td>const struct SDL_assert_data*</td><td><strong>next</strong></td><td>Pointer to next triggered assertion's info</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>This structure is filled in with information about the assertion and is used by the assertion handler then added to the assertion report. This is returned as a linked list from <a href="../SDL_GetAssertionReport.html">SDL_GetAssertionReport</a>().
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_assert.html">SDL_assert</a></li>
+<li><a href="../SDL_assert_paranoid.html">SDL_assert_paranoid</a></li>
+<li><a href="../SDL_assert_release.html">SDL_assert_release</a></li>
+<li><a href="../SDL_GetAssertionReport.html">SDL_GetAssertionReport</a></li></ul>
+</div>
+</BODY>
+</HTML>

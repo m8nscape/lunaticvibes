@@ -1,0 +1,38 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_PauseAudioDevice</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_PauseAudioDevice</h1>
+<p>Use this function to pause and unpause audio playback on a specified device.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_PauseAudioDevice(SDL_AudioDeviceID dev, int pause_on)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>dev</strong></td><td>a device opened by <a href="SDL_OpenAudioDevice.html">SDL_OpenAudioDevice</a>()
+<tr><td><strong>pause_on</strong></td><td>non-zero to pause, 0 to unpause
+</table>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+extern SDL_AudioDeviceID devid;
+SDL_PauseAudioDevice(devid, 1);  // audio callback is stopped when this returns.
+SDL_Delay(5000);  // audio device plays silence for 5 seconds
+SDL_PauseAudioDevice(devid, 0);  // audio callback starts running again.
+</pre></div>
+<h2>Remarks</h2>
+<p>This function pauses and unpauses the audio callback processing for a given device. Newly-opened audio devices start in the paused state, so you must call this function with <strong>pause_on</strong>=0 after opening the specified audio device to start playing sound. This allows you to safely initialize data for your callback function after opening the audio device. Silence will be written to the audio device while paused, and the audio callback is guaranteed to not be called. Pausing one device does not prevent other unpaused devices from running their callbacks.
+<p>Pausing state does not stack; even if you pause a device several times, a single unpause will start the device playing again, and vice versa. This is different from how <a href="SDL_LockAudioDevice.html">SDL_LockAudioDevice</a>() works.
+<p>If you just need to protect a few variables from race conditions vs your callback, you shouldn't pause the audio device, as it will lead to dropouts in the audio playback. Instead, you should use <a href="SDL_LockAudioDevice.html">SDL_LockAudioDevice</a>().
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_LockAudioDevice.html">SDL_LockAudioDevice</a></li></ul>
+</div>
+</BODY>
+</HTML>

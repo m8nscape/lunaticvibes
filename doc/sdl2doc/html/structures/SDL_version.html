@@ -1,0 +1,46 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_version</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_version</h1>
+<p>A structure that contains information about the version of SDL in use.
+<h2>Data Fields</h2>
+<table>
+<tr><td>Uint8</td><td><strong>major</strong></td><td>major version</td></tr>
+<tr><td>Uint8</td><td><strong>minor</strong></td><td>minor version</td></tr>
+<tr><td>Uint8</td><td><strong>patch</strong></td><td>update version (patchlevel)</td></tr>
+</table>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+SDL_version compiled;
+SDL_version linked;
+
+SDL_VERSION(&compiled);
+SDL_GetVersion(&linked);
+printf("We compiled against SDL version %d.%d.%d ...\n",
+       compiled.major, compiled.minor, compiled.patch);
+printf("But we are linking against SDL version %d.%d.%d.\n",
+       linked.major, linked.minor, linked.patch);
+</pre></div>
+<h2>Remarks</h2>
+<p>Represents the library's version as three levels:
+<ul><li>major revision (increments with massive changes, additions, and enhancements)/li>
+    <li>minor revision (increments with backwards-compatible changes to the major revision), and</li>
+    <li>patchlevel (increments with fixes to the minor revision) </li></ul>
+<p>The macro <a href="../SDL_VERSION.html">SDL_VERSION</a> can be used to populate this structure with information.
+<h2>Related Macros</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_COMPILEDVERSION.html">SDL_COMPILEDVERSION</a></li>
+<li><a href="../SDL_VERSION.html">SDL_VERSION</a></li>
+<li><a href="../SDL_VERSIONNUM.html">SDL_VERSIONNUM</a></li>
+<li><a href="../SDL_VERSION_ATLEAST.html">SDL_VERSION_ATLEAST</a></li></ul>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_GetVersion.html">SDL_GetVersion</a></li></ul>
+</div>
+</BODY>
+</HTML>

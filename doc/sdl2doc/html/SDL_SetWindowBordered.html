@@ -1,0 +1,33 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_SetWindowBordered</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_SetWindowBordered</h1>
+<p>Use this function to set the border state of a window.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_SetWindowBordered(SDL_Window* window,
+                           SDL_bool    bordered)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>window</strong></td><td>the window of which to change the border state</td></tr>
+<tr><td><strong>bordered</strong></td><td>SDL_FALSE to remove border, SDL_TRUE to add border</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>This will add or remove the window's SDL_WINDOW_BORDERLESS flag and add or remove the border from the actual window. This is a no-op if the window's border already matches the requested state.
+<p>You can't change the border state of a fullscreen window.
+<h2>Version</h2>
+<p>This function is available since SDL 2.0.0.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetWindowFlags.html">SDL_GetWindowFlags</a></li></ul>
+</div>
+</BODY>
+</HTML>

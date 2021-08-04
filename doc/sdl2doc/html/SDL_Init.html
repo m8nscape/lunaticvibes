@@ -1,0 +1,132 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_Init</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_Init</h1>
+<p>Use this function to initialize the SDL library. This must be called before using any other SDL function.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_Init(Uint32 flags)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>flags</strong></td><td>subsystem initialization flags; see <a href="#Remarks">Remarks</a> for details</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h3>C</h3>
+<div style=codearea>
+<pre>
+#include "SDL.h"
+#include <stdio.h> /* for fprintf() */
+#include <stdlib.h> /* for atexit() */
+
+int main(int argv, char** argc)  {
+    if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER) != 0) {
+        fprintf(stderr, 
+                "\nUnable to initialize SDL:  %s\n", 
+                SDL_GetError()
+               );
+        return 1;
+    }
+    atexit(SDL_Quit);
+  
+    /* ... */
+  
+    return 0;
+}
+</pre></div>
+<h3>C++</h3>
+<div style=codearea>
+<pre>
+#include <exception>
+#include <string>
+#include "SDL.h"
+
+class InitError: public std::exception {
+    public:
+        InitError();
+        InitError(const std::string&);
+        virtual ~InitError() throw();
+        virtual const char* what() const throw();
+    private:
+        std::string msg;
+};
+
+InitError::InitError():
+  exception(), msg(SDL_GetError()) {}
+InitError::InitError(const std::string& m):
+  exception(), msg(m) {}
+InitError::~InitError() throw() {}
+const char* InitError::what() const throw() {
+    return msg.c_str();
+}
+
+class SDL {
+    public:
+        SDL(Uint32 flags = 0) throw(InitError);
+        virtual ~SDL();
+};
+
+SDL::SDL(Uint32 flags) throw(InitError) {
+    if (SDL_Init(flags) != 0)
+        throw InitError();
+}
+
+SDL::~SDL() {
+    SDL_Quit();
+}
+
+/* ... */
+
+#include <iostream>
+
+int main(int argc, char **argv) {
+    try {
+        SDL sdl(SDL_INIT_VIDEO|SDL_INIT_TIMER);
+
+        /* ... */
+
+        return 0;
+    }
+
+    catch (const InitError& err) {
+        std::cerr
+            << "Error while initializing SDL:  " 
+            << err.what() << std::endl;
+    }
+    
+    return 1;
+}
+</pre></div>
+<h2 id="Remarks">Remarks</h2>
+<p>The <a href="CategoryEvents.html">Event Handling</a>, <a href="CategoryIO.html">File I/O</a>, and <a href="CategoryThread.html">Threading</a> subsystems are initialized by default. You must specifically initialize other subsystems if you use them in your application.
+<p><strong>flags</strong> may be any of the following OR'd together:
+<table>
+<tr><td><strong>SDL_INIT_TIMER</strong></td><td>timer subsystem</td></tr>
+<tr><td><strong>SDL_INIT_AUDIO</strong></td><td>audio subsystem</td></tr>
+<tr><td><strong>SDL_INIT_VIDEO</strong></td><td>video subsystem</td></tr>
+<tr><td><strong>SDL_INIT_JOYSTICK</strong></td><td>joystick subsystem</td></tr>
+<tr><td><strong>SDL_INIT_HAPTIC</strong></td><td>haptic (force feedback) subsystem</td></tr>
+<tr><td><strong>SDL_INIT_GAMECONTROLLER</strong></td><td>controller subsystem</td></tr>
+<tr><td><strong>SDL_INIT_EVENTS</strong></td><td>events subsystem</td></tr>
+<tr><td><strong>SDL_INIT_EVERYTHING</strong></td><td>all of the above subsystems</td></tr>
+<tr><td><strong>SDL_INIT_NOPARACHUTE</strong></td><td>don't catch fatal signals</td></tr>
+</table>
+<p>Unless the SDL_INIT_NOPARACHUTE flag is set, it will install cleanup signal handlers for some commonly ignored fatal signals (like SIGSEGV).
+<p>If you want to initialize subsystems separately you would call <a href="SDL_Init.html">SDL_Init</a>(0) followed by <a href="SDL_InitSubSystem.html">SDL_InitSubSystem</a>() with the desired subsystem flag.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_InitSubSystem.html">SDL_InitSubSystem</a></li>
+<li><a href="SDL_Quit.html">SDL_Quit</a></li>
+<li><a href="SDL_WasInit.html">SDL_WasInit</a></li>
+<li><a href="SDL_SetMainReady.html">SDL_SetMainReady</a></li></ul>
+</div>
+</BODY>
+</HTML>

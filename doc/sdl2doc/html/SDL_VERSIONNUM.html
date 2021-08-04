@@ -1,0 +1,32 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_VERSIONNUM</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_VERSIONNUM</h1>
+<p>Use this macro to convert separate version components into a single numeric value.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_VERSIONNUM(X, Y, Z)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>X</strong></td><td>major version; reported in thousands place</td></tr>
+<tr><td><strong>Y</strong></td><td>minor version; reported in hundreds place</td></tr>
+<tr><td><strong>Z</strong></td><td>update version (patchlevel); reported in tens and ones places</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>This assumes that there will never be more than 100 patchlevels.
+<ul style="list-style-type:none"><li><em>Example:</em><tt style="backtick">SDL_VERSIONNUM(1,2,3) -> (1203)</tt></li></ul>
+<h2>Related Macros</h2>
+<ul style="list-style-type:none"><li><a href="SDL_COMPILEDVERSION.html">SDL_COMPILEDVERSION</a></li>
+<li><a href="SDL_VERSION_ATLEAST.html">SDL_VERSION_ATLEAST</a></li></ul>
+</div>
+</BODY>
+</HTML>

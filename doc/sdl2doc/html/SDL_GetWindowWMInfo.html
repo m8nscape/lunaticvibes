@@ -1,0 +1,74 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetWindowWMInfo</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetWindowWMInfo</h1>
+<p>Use this function to get driver specific information about a window.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_bool SDL_GetWindowWMInfo(SDL_Window*    window,
+                             SDL_SysWMinfo* info)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>window</strong></td><td>the window about which information is being requested</td></tr>
+<tr><td><strong>info</strong></td><td>an <a href="structures/SDL_SysWMinfo.html">SDL_SysWMinfo</a> structure filled in with window information; see <a href="#Remarks">Remarks</a> for details</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns SDL_TRUE if the function is implemented and the version member of the <strong>info</strong> struct is valid, or SDL_FALSE if the information could not be retrieved; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2 id="Code Example">Code Examples</h2>
+<div style=codearea>
+<pre>
+#include "SDL.h"
+#include "SDL_syswm.h"
+
+int main(int argc, char *argv[]) {
+  SDL_Window* window;
+  SDL_SysWMinfo info;
+
+  SDL_Init(0);
+
+  window = SDL_CreateWindow("", 0, 0, 0, 0, SDL_WINDOW_HIDDEN);
+
+  SDL_VERSION(&info.version); // initialize info structure with SDL version info
+
+  if(SDL_GetWindowWMInfo(window,&info)) { // the call returns true on success
+    // success
+    const char *subsystem = "an unknown system!";
+    switch(info.subsystem) {
+      case SDL_SYSWM_UNKNOWN:   break;
+      case SDL_SYSWM_WINDOWS:   subsystem = "Microsoft Windows(TM)";  break;
+      case SDL_SYSWM_X11:       subsystem = "X Window System";        break;
+      case SDL_SYSWM_DIRECTFB:  subsystem = "DirectFB";               break;
+      case SDL_SYSWM_COCOA:     subsystem = "Apple OS X";             break;
+      case SDL_SYSWM_UIKIT:     subsystem = "UIKit";                  break;
+    }
+
+    SDL_Log("This program is running SDL version %d.%d.%d on %s\n", 
+        (int)info.version.major,
+        (int)info.version.minor,
+        (int)info.version.patch,
+        subsystem);
+  } else {
+    // call failed
+    SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Couldn't get window information: %s\n", SDL_GetError());
+  }
+
+  SDL_DestroyWindow(window);
+  SDL_Quit();
+
+  return 0;
+}
+</pre></div>
+<h2 id="Remarks">Remarks</h2>
+<p>You must include SDL_syswm.h for the declaration of <a href="structures/SDL_SysWMinfo.html">SDL_SysWMinfo</a>.
+<p>The <strong>info</strong> structure must be initialized with the SDL version, and is then filled in with information about the given window, as shown in the <a href="#Code Example">Code Example</a>. 
+</div>
+</BODY>
+</HTML>

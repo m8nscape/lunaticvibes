@@ -1,0 +1,45 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_LockSurface</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_LockSurface</h1>
+<p>Use this function to set up a surface for directly accessing the pixels.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_LockSurface(SDL_Surface* surface)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>surface</strong></td><td>the <a href="structures/SDL_Surface.html">SDL_Surface</a> structure to be locked</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+/* Make the pixels pointer valid in the surface */
+
+SDL_LockSurface( surface );
+
+/* Surface is locked */
+/* Direct pixel access on surface here */
+
+SDL_UnlockSurface( surface );
+
+/* Surface is now unlocked */
+</pre></div>
+<h2>Remarks</h2>
+<p>Between calls to <a href="SDL_LockSurface.html">SDL_LockSurface</a>() / <a href="SDL_UnlockSurface.html">SDL_UnlockSurface</a>(), you can write to and read from <tt style="backtick">surface->pixels</tt>, using the pixel format stored in <tt style="backtick">surface->format</tt>. Once you are done accessing the surface, you should use <a href="SDL_UnlockSurface.html">SDL_UnlockSurface</a>() to release it.
+<p>Not all surfaces require locking. If <a href="SDL_MUSTLOCK.html">SDL_MUSTLOCK</a>(surface) evaluates to 0, then you can read and write to the surface at any time, and the pixel format of the surface will not change.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_MUSTLOCK.html">SDL_MUSTLOCK</a></li>
+<li><a href="SDL_UnlockSurface.html">SDL_UnlockSurface</a></li></ul>
+</div>
+</BODY>
+</HTML>

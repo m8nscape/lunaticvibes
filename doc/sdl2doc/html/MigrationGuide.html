@@ -1,0 +1,343 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>Migration Guide</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent >
+<h1>SDL 1.2 to 2.0 Migration Guide</h1>
+<h2>Introduction</h2>
+<p>After many years in development, SDL 2.0.0 has finally been released!
+<p>We are quite proud of it, and we'd like games that are using SDL 1.2 to move up right away. As this can feel like a daunting task, this document is a simple walkthrough of how to migrate to the new library. We think you'll find it's not as hard as you think, and often times, you'll be either replacing function calls with direct equivalents or undoing some hacks in your code to deal with 1.2 deficiencies.
+<p>We think you'll be very happy with SDL 2.0, both for the new features and the better experience over SDL 1.2. This document doesn't try to cover all the awesome new things in SDL2--and there are many--but just the things you need to do to get running <em>right now</em>. Once you've ported your code, definitely check out the new stuff, you'll probably want to add some of it to your application, too.
+
+<h3 id="Overview_of_new_features">Overview of new features</h3>
+<p>These are the most important new features in SDL 2.0:
+<ul>
+<li>Full 3D hardware acceleration</li>
+<li>Support for OpenGL 3.0+ in various profiles (core, compatibility, debug, robust, etc)</li>
+<li>Support for OpenGL ES</li>
+<li>Support for multiple windows</li>
+<li>Support for multiple displays</li>
+<li>Support for multiple audio devices</li>
+<li>Android and iOS support</li>
+<li>Simple 2D rendering API that can use Direct3D, OpenGL, OpenGL ES, or software rendering behind the scenes</li>
+<li>Force Feedback available on Windows, Mac OS X and Linux</li>
+<li>XInput and XAudio2 support for Windows</li>
+<li>Atomic operations</li>
+<li>Power management (exposes battery life remaining, etc)</li>
+<li>Shaped windows</li>
+<li>32-bit audio (int and float)</li>
+<li>Simplified Game Controller API (the Joystick API is still here, too!)</li>
+<li>Touch support (multitouch, gestures, etc)</li>
+<li>Better fullscreen support</li>
+<li>Better keyboard support (scancodes vs keycodes, etc).</li>
+<li>Message boxes</li>
+<li>Clipboard support</li>
+<li>Basic Drag'n'Drop support</li>
+<li>Proper unicode input and IME support</li>
+<li><a href="CategoryAssertions.html">A really powerful assert macro</a></li>
+<li>zlib license instead of LGPL.</li>
+<li>Lots of old annoyances from 1.2 are gone</li>
+<li>Many other things! </li>
+</ul>
+<p>The <a href="Introduction.html">Introduction</a> page has a more extensive listing about what features SDL offers in overall (including old 1.2 features).
+
+<h3>Looking for more information</h3>
+
+<p>The best place for information are:
+<ul>
+<li>this simplified html version of the online wiki :)</li>
+<li>the up-to-date (online) <a class="http" href="http://wiki.libsdl.org/MigrationGuide">wiki</a> :)</li>
+<li>the tests included in SDL, in the test/ directory <a class="http" href="http://hg.libsdl.org/SDL/file/default/test">(browse online)</a></li>
+<li>the SDL <a class="http" href="http://lists.libsdl.org/listinfo.cgi/sdl-libsdl.org">mailing list</a> </li>
+</ul>
+
+<h2>Moving from SDL 1.2 to 2.0</h2>
+
+<p><h3>Some general truths</h3>
+<p>There is no compatibility layer built in to SDL2. If an API changed for 2.0, we've changed or removed the old functions where it makes sense. If you point your 1.2 program at the 2.0 headers, it will probably fail to compile. This document will try to talk you through the most important changes, and the ones most likely to trip you up.
+<p>There's no SDL_main! Well, okay, there is, and it now does what it was always meant to: be a small piece of code that hides the difference between <tt style=backtick>main()</tt> and <tt style=backtick>WinMain()</tt> on Windows. There's no initialization code in it, and it's completely optional. This means you can use SDL without it taking over your mainline, which is nice for plugins that use SDL, or scripting languages with an SDL module. All the stuff you'd want the 1.2 SDL_main for is now in SDL_Init() where it belongs.
+<p>There's no SDL parachute anymore. What 1.2 called <tt style=backtick>SDL_INIT_NOPARACHUTE</tt> is a default and only state now. This would cause problems if something other than the main thread crashed, and it would interfere with apps setting up their own signal/exception handlers. On the downside, some platforms don't clean up fullscreen video well when crashing. You should install your own crash handler, or call <a href="SDL_Quit.html">SDL_Quit</a>() in an <tt style=backtick>atexit()</tt> function or whatnot if this is a concern. Note that on Unix platforms, SDL still catches <tt style=backtick>SIGINT</tt> and maps it to an <a href="SDL_EventType.html">SDL_QUIT</a> event.
+
+<p><h3>Video</h3>
+
+<p>The video API is the most dramatic change from 1.2. Needs have changed a great deal since SDL's API was designed in the late 1990's. To deal with modern hardware and OS features, we have almost completely replaced the old 1.2 video API.
+<p>Don't worry, the new one is pretty great, and once you understand what's changed, you're going to be very happy with the new features it can bring to your 1.2 game. We'll discuss those later.
+<p>The good news: if your game used OpenGL, you probably don't have much to do: change a handful of function calls to their SDL2 equivalents, and you're good to go.
+<p>For 2D graphics, SDL 1.2 offered a concept called "surfaces," which were memory buffers of pixels. The screen itself was a "surface," if you were doing 2D software rendering, and we provided functions to copy ("blit") pixels between surfaces, converting formats as necessary. You were almost always working on the CPU in system RAM, not on the GPU in video memory. SDL 2.0 changes this; you almost always get hardware acceleration now, and the API has changed to reflect this.
+<p>If you have a 2D game, chances are you've taken one of three approaches to rendering. We'll go through them all, but first, let's talk about introductory stuff.
+<p>Remember SDL_SetVideoMode()? It's completely gone. SDL 2.0 allows you to have multiple windows, so the old function didn't make sense any more.
+<p>So you might have had something like this:
+
+<div style=codearea>
+<pre>
+SDL_WM_SetCaption("My Game Window", "game");
+SDL_Surface *screen = SDL_SetVideoMode(640, 480, 0, SDL_FULLSCREEN | SDL_OPENGL);
+</pre></div>
+Which is now this:
+
+<div style=codearea><pre>
+SDL_Window *screen = SDL_CreateWindow("My Game Window",
+                          SDL_WINDOWPOS_UNDEFINED,
+                          SDL_WINDOWPOS_UNDEFINED,
+                          640, 480,
+                          SDL_WINDOW_FULLSCREEN | SDL_WINDOW_OPENGL);
+</pre></div>
+<p>You can see that this maps pretty closely to 1.2. The difference is that you can have multiple windows (if you want), and you can control them more. <tt style=backtick>SDL_WM_SetCaption</tt> is gone, because we want to allow each window to have its own title (you can change it later with <a href="SDL_SetWindowTitle.html">SDL_SetWindowTitle</a>()), and we want to let you specify a window position (or, in this case, use <strong>SDL_WINDOWPOS_UNDEFINED</strong> since we don't care where the system places it. <strong>SDL_WINDOWPOS_CENTERED</strong> is also a good choice).
+<p>Extra credit for letting users specify a display for the window: SDL2 also allows you to manage systems with multiple monitors. Don't worry about that right now, though.
+<p>So now that your window is back on the screen, let's talk strategy. SDL2 still has <a href="SDL_Surface.html">SDL_Surface</a>, but what you want, if possible, is the new <a href="SDL_Texture.html">SDL_Texture</a>. Surfaces are always in system RAM now, and are always operated on by the CPU, so we want to get away from there. SDL2 has a new rendering API. It's meant for use by simple 2D games, but most notably, it's meant to get all that software rendering into video RAM and onto the GPU. And even if you just want to use it to get your software renderer's work to the screen, it brings some very nice benefits: if possible, it will use OpenGL or Direct3D behind the scenes, which means you'll get faster blits, a working Steam Overlay, and scaling for free.
+<p>The setup looks like this.
+<p><tt style=backtick>SDL_SetVideoMode()</tt> becomes <a href="SDL_CreateWindow.html">SDL_CreateWindow</a>(), as we discussed before. But what do we put for the resolution? If your game was hardcoded to 640x480, for example, you probably were running into monitors that couldn't do that fullscreen resolution at this point, and in windowed mode, your game probably looked like an animated postage stamp on really high-end monitors. There's a better solution in SDL2.
+<p>We don't call <tt style=backtick>SDL_ListModes()</tt> anymore. There's an equivalent in SDL2 (call <a href="SDL_GetDisplayMode.html">SDL_GetDisplayMode</a>() in a loop, <a href="SDL_GetNumDisplayModes.html">SDL_GetNumDisplayModes</a>() times), but instead we're going to use a new feature called "fullscreen desktop," which tells SDL "give me the whole screen and don't change the resolution." For our hypothetical 640x480 game, it might look like this:
+
+<div style=codearea>
+<pre>
+SDL_Window *sdlWindow = SDL_CreateWindow(title,
+                             SDL_WINDOWPOS_UNDEFINED,
+                             SDL_WINDOWPOS_UNDEFINED,
+                             0, 0,
+                             SDL_WINDOW_FULLSCREEN_DESKTOP);
+</pre></div>
+<p>Notice how we didn't specify 640 or 480...fullscreen desktop gives you the whole display and ignores any dimensions you specify. The game window should come up immediately, without waiting for the monitor to click into a new resolution, and we'll be using the GPU to scale to the desktop size, which tends to be faster and cleaner-looking than if an LCD is faking a lower resolution. Added bonus: none of your background windows are resizing themselves right now.
+<p>Now we need a rendering context.
+<div style=codearea>
+<pre>
+SDL_Renderer *renderer = SDL_CreateRenderer(sdlWindow, -1, 0);
+</pre></div>
+<p>A renderer hides the details of how we draw into the window. This might be using Direct3D, OpenGL, OpenGL ES, or software surfaces behind the scenes, depending on what the system offers; your code doesn't change, regardless of what SDL chooses (although you are welcome to force one kind of renderer or another). If you want to attempt to force sync-to-vblank to reduce tearing, you can use <strong>SDL_RENDERER_PRESENTVSYNC</strong> instead of zero for the third parameter. You shouldn't create a window with the <strong>SDL_WINDOW_OPENGL</strong> flag here. If <a href="SDL_CreateRenderer.html">SDL_CreateRenderer</a>() decides it wants to use OpenGL, it'll update the window appropriately for you.
+<p>Now that you understand how this works, you can also do this all in one step with <a href="SDL_CreateWindowAndRenderer.html">SDL_CreateWindowAndRenderer</a>(), if you don't want anything fancy:
+<div style=codearea>
+<pre>
+SDL_Window *sdlWindow;
+SDL_Renderer *sdlRenderer;
+SDL_CreateWindowAndRenderer(0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP, &sdlWindow, &sdlRenderer);
+</pre></div>
+<p>Assuming these functions didn't fail (always check for NULLs!), you are ready to start drawing to the screen. Let's get started by clearing the screen to black.
+<div style=codearea>
+<pre>
+SDL_SetRenderDrawColor(sdlRenderer, 0, 0, 0, 255);
+SDL_RenderClear(sdlRenderer);
+SDL_RenderPresent(sdlRenderer);
+</pre></div>
+<p>This works like you might think; draw in black (r,g,b all zero, alpha full), clear the whole window, put the cleared window on the screen. That's right, if you've been using <tt style=backtick>SDL_UpdateRect()</tt> or <tt style=backtick>SDL_Flip()</tt> to get your bits to the screen, the render API uses <a href="SDL_RenderPresent.html">SDL_RenderPresent</a>().
+<p>One more general thing to set up here. Since we're using <strong>SDL_WINDOW_FULLSCREEN_DESKTOP</strong>, we don't actually know how much screen we've got to draw to. Fortunately, we don't have to know. One of the nice things about 1.2 is that you could say "I want a 640x480 window and I don't care how you get it done," even if getting it done meant centering the window in a larger resolution on behalf of your application.
+<p>For 2.0, the render API lets you do this...
+
+<div style=codearea>
+<pre>
+SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");  // make the scaled rendering look smoother.
+SDL_RenderSetLogicalSize(sdlRenderer, 640, 480);
+</pre></div>
+<p>...and it will do the right thing for you. This is nice in that you can change the logical rendering size to achieve various effects, but the primary use is this: instead of trying to make the system work with your rendering size, we can now make your rendering size work with the system. On my 1920x1200 monitor, this app thinks it's talking to a 640x480 resolution now, but SDL is using the GPU to scale it up to use all those pixels. Note that 640x480 and 1920x1200 aren't the same aspect ratio: SDL takes care of that, too, scaling as much as possible and letterboxing the difference.
+<p>Now we're ready to start drawing for real.
+
+<h4>If your game just wants to get fully-rendered frames to the screen</h4>
+<p>An example of a game like this is <em>Doom</em>, or <em>Duke Nukem 3D</em>, or many others. The application wants to draw every pixel itself and get that final set of pixels to the screen efficiently in one big blit.
+<p>For this, you're going to want a single SDL_Texture that will represent the screen. Let's create one now for our 640x480 game:
+<div style=codearea>
+<pre>
+sdlTexture = SDL_CreateTexture(sdlRenderer,
+                               SDL_PIXELFORMAT_ARGB8888,
+                               SDL_TEXTUREACCESS_STREAMING,
+                               640, 480);
+</pre></div>
+<p>This represents a texture on the GPU. The gameplan is to finish each frame by uploading pixels to this texture, drawing the texture to the window, and flipping this drawing onto the screen. <strong>SDL_TEXTUREACCESS_STREAMING</strong> tells SDL that this texture's contents are going to change frequently.
+<p>Before you probably had an <a href="SDL_Surface.html">SDL_Surface</a> for the screen that your app drew into, then called <tt style=backtick>SDL_Flip()</tt> to put to the screen. Now you can create an <a href="SDL_Surface.html">SDL_Surface</a> that is always in RAM instead of using the one you would have gotten from <tt style=backtick>SDL_SetVideoMode()</tt>, or just malloc() a block of pixels to write into. Ideally you write to a buffer of RGBA pixels, but if you need to do a conversion, that's okay too.
+<div style=codearea>
+<pre>
+extern Uint32 *myPixels;  // maybe this is a surface->pixels, or a malloc()'d buffer, or whatever.
+</pre></div>
+<p>At the end of the frame, we want to upload to the texture like this:
+<div style=codearea>
+<pre>
+SDL_UpdateTexture(sdlTexture, NULL, myPixels, 640 * sizeof (Uint32));
+</pre></div>
+<p>This will upload your pixels to GPU memory. That NULL can be a subregion if you want to mess around with dirty rectangles, but chances are modern hardware can just swallow the whole framebuffer without much trouble. The final argument is the pitch--the number of bytes from the start of one row to the next--and since we have a linear RGBA buffer in this example, it's just 640 times 4 (r,g,b,a).
+<p>Now get that texture to the screen:
+<div style=codearea>
+<pre>
+SDL_RenderClear(sdlRenderer);
+SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
+SDL_RenderPresent(sdlRenderer);
+</pre></div>
+<p>That's all. <a href="SDL_RenderClear.html">SDL_RenderClear</a>() wipes out the existing video framebuffer (in case, say, the Steam Overlay wrote over it last frame), <a href="SDL_RenderCopy.html">SDL_RenderCopy</a>() moves the texture's contents to the video framebuffer (and thanks to <a href="SDL_RenderSetLogicalSize.html">SDL_RenderSetLogicalSize</a>(), it will be scaled/centered as if the monitor was 640x480), and <a href="SDL_RenderPresent.html">SDL_RenderPresent</a>() puts it on the screen.
+
+<h4>If your game wants to blit surfaces to the screen</h4>
+
+<p>This scenario has your SDL 1.2 game loading a bunch of graphics from disk into a bunch of <a href="SDL_Surface.html">SDL_Surfaces</a>, possibly trying to get them into video RAM with <tt style=backtick>SDL_HWSURFACE</tt>. You load these once, and you blit them over and over to the framebuffer as necessary, but otherwise they never change. A simple 2D platformer might do this. If you tend to think of your surfaces as "sprites," and not buffers of pixels, then this is probably you.
+<p>You can build individual textures (surfaces that live in GPU memory) like we did for that one big texture:
+<div style=codearea>
+<pre>
+sdlTexture = SDL_CreateTexture(sdlRenderer,
+                               SDL_PIXELFORMAT_ARGB8888,
+                               SDL_TEXTUREACCESS_STATIC,
+                               myWidth, myHeight);
+</pre></div>
+<p>Which does what you'd expect. We use <strong>SDL_TEXTUREACCESS_STATIC</strong>, because we're going to upload our pixels once instead of over and over. But a more convenient solution might be:
+<div style=codearea>
+<pre>
+sdlTexture = SDL_CreateTextureFromSurface(sdlRenderer, mySurface);
+</pre></div>
+<p>Use this, and you load your <a href="SDL_Surface.html">SDL_Surface</a> as usual, but then at the end you make a texture out of it. Once you have an <a href="SDL_Texture.html">SDL_Texture</a>, you can free the original surface.
+<p>At this point, your 1.2 game had a bunch of <a href="SDL_Surface.html">SDL_Surfaces</a>, which it would <a href="SDL_BlitSurface.html">SDL_BlitSurface</a>() to the screen surface to compose the final framebuffer, and eventually <tt style=backtick>SDL_Flip()</tt> to the screen. For SDL 2.0, you have a bunch of <a href="SDL_Texture.html">SDL_Textures</a>, that you will <a href="SDL_RenderCopy.html">SDL_RenderCopy</a>() to your Renderer to compose the final framebuffer, and eventually <a href="SDL_RenderPresent.html">SDL_RenderPresent</a>() to the screen. It's that simple. If these textures never need modification, you might find your framerate has just gone through the roof, too.
+<h4>If your game wants to do both</h4>
+<p>Things get slightly more complicated if you want to blit surfaces and modify individual pixels in the framebuffer. Round trips--reading data back from textures--can be painfully expensive; generally you want to be pushing data in one direction always. You are probably best off, in this case, keeping everything in software until the final push to the screen, so we'll combine the two previous techniques.
+
+<p>The good news: the 1.2 <a href="SDL_Surface.html">SDL_Surface</a> API mostly still exists. So change your screen surface from this:
+<div style=codearea>
+<pre>
+SDL_Surface *screen = SDL_SetVideoMode(640, 480, 32, 0);
+</pre></div>
+<p>...to this...
+<div style=codearea>
+<pre>
+// if all this hex scares you, check out SDL_PixelFormatEnumToMasks()!
+SDL_Surface *screen = SDL_CreateRGBSurface(0, 640, 480, 32,
+                                        0x00FF000,
+                                        0x0000FF00,
+                                        0x000000FF,
+                                        0xFF000000);
+SDL_Texture *sdlTexture = SDL_CreateTexture(sdlRenderer,
+                                            SDL_PIXELFORMAT_ARGB8888,
+                                            SDL_TEXTUREACCESS_STREAMING,
+                                            640, 480);
+</pre></div>
+<p>...and continue blitting things around and tweaking pixels as before, composing your final framebuffer into this <a href="SDL_Surface.html">SDL_Surface</a>. Once you're ready to get those pixels on the screen, you do this just like in our first scenario:
+<div style=codearea>
+<pre>
+SDL_UpdateTexture(sdlTexture, NULL, screen->pixels, screen->pitch);
+SDL_RenderClear(sdlRenderer);
+SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
+SDL_RenderPresent(sdlRenderer);
+</pre></div>
+<p>Note that texture creation may be both expensive and a limited resource: don't call <a href="SDL_CreateTextureFromSurface.html">SDL_CreateTextureFromSurface</a>() every frame. Set up one texture and one surface and update the former from the latter.
+<p>There are more features to the Render API, some of which may be able to replace your application's code: scaling, line drawing, etc. If you are reading this section because you have simple needs beyond blitting surfaces, you might be able to stop poking individual pixels and move everything onto the GPU, which will give your program a significant speed boost and probably simplify your code greatly.
+<h4>Other Renderer API notes</h4>
+<p>You can do some simple effects with the render API without having to get down into direct pixel manipulation. Some of these were available on 1.2 surfaces.
+<ul>
+<li>Color alpha: <a href="SDL_Color.html">SDL_Color</a> now contains a fourth, <strong>alpha</strong> component. Your 1.2 code that deals with SDL_Colors might be not copying/setting that value (which was named unused). In 2.0, you should.</li>
+<li>Alpha blending: use <a href="SDL_SetSurfaceAlphaMod.html">SDL_SetSurfaceAlphaMod</a> and <a href="SDL_SetTextureAlphaMod.html">SDL_SetTextureAlphaMod</a> instead of <tt style=backtick>SDL_SetAlpha()</tt>. Alpha-blending on surfaces can be disabled via <a href="SDL_SetSurfaceBlendMode.html">SDL_SetSurfaceBlendMode</a>() and on textures with <a href="SDL_SetTextureBlendMode.html">SDL_SetTextureBlendMode</a>().</li>
+<li>Colorkey: When calling <a href="SDL_SetColorKey.html">SDL_SetColorKey</a>(), you should pass <tt style=backtick>SDL_TRUE</tt> instead of <tt style=backtick>SDL_SRCCOLORKEY</tt>.</li>
+<li>Color modulation: Some renderers now support a global color alteration (srcC = srcC * color), check <a href="SDL_SetTextureColorMod.html">SDL_SetTextureColorMod</a>() for details. </li>
+</ul>
+<h3>OpenGL</h3>
+<p>If you were already using OpenGL directly, your migration is pretty simple. Change your <tt style=backtick>SDL_SetVideoMode()</tt> call to <a href="SDL_CreateWindow.html">SDL_CreateWindow</a>() followed by <a href="SDL_GL_CreateContext.html">SDL_GL_CreateContext</a>(), and your <tt style=backtick>SDL_GL_SwapBuffers()</tt> call to <a href="SDL_GL_SwapWindow.html">SDL_GL_SwapWindow</a>(window). All the actual calls into the GL are exactly the same.
+<p>If you had used <a href="SDL_GL_SetAttribute.html">SDL_GL_SetAttribute</a>(SDL_GL_SWAP_CONTROL, x), this has changed. There is now an <a href="SDL_GL_SetSwapInterval.html">SDL_GL_SetSwapInterval</a>(x) call, so you can change this on an existing GL context.
+<p>Note that SDL 2.0 can toggle windowed/fullscreen and back with OpenGL windows without losing the GL context (hooray!). Use <a href="SDL_SetWindowFullscreen.html">SDL_SetWindowFullscreen</a>() for this.
+<h3>Input</h3>
+<p>The good news is that SDL 2.0 has made Unicode input usable. The bad news is that it will take some minor changes to your application.
+<p>In 1.2, many applications that only cared about US English still called <tt style=backtick>SDL_EnableUNICODE(1)</tt>, because it was useful to get the character that was associated with a keypress. This didn't work well once you got outside of English, and it really didn't work <em>at all</em> once you got to Asian languages.
+<p>It turns out, i18n is hard.
+<p>SDL changed this. <tt style=backtick>SDL_EnableUNICODE()</tt> is gone, and so is <a href="SDL_keysym.html">SDL_keysym</a>'s unicode field. You no longer get character input from <a href="SDL_EventType.html">SDL_KEYDOWN<a> events. Use <a href="SDL_EventType.html">SDL_KEYDOWN</a> to treat the keyboard like a 101-button joystick now. Text input comes from somewhere else.
+<p>The new event is <a href="SDL_EventType.html">SDL_TEXTINPUT</a>. This is triggered whenever there's new text entered by the user. Note that this text might be coming from keypresses, or it might be coming from some sort of IME (which is a fancy way of entering complicated, multi-character text). This event returns entire strings, which might be one char long, or several codepoints of multi-character data. This string is always in UTF-8 encoding.
+<p>If all you care about is whether the user pressed a certain key, that's still <a href="SDL_EventType.html">SDL_KEYDOWN</a>, but we've split this system into two pieces since 1.2: keycodes and scancodes.
+<p>Scancodes are meant to be layout-independent. Think of this as "the user pressed the Q key as it would be on a US QWERTY keyboard" regardless of whether this is actually a European keyboard or a Dvorak keyboard or whatever. The scancode is always the same key position.
+<p>Keycodes are meant to be layout-dependent. Think of this as "the user pressed the key that is labelled 'Q' on his specific keyboard."
+<p>In example, if you pressed the key that's two keys to the right of CAPS LOCK on a US QWERTY keyboard, it'll report a scancode of SDL_SCANCODE_S and a keycode of SDLK_S. The same key on a Dvorak keyboard, will report a scancode of SDL_SCANCODE_S and a keycode of SDLK_O.
+<p>Note that both keycodes and scancodes are now 32 bits, and use a wide range of numbers. There's no <tt style=backtick>SDLK_LAST</tt> anymore. If your program had a lookup table of SDLK_LAST elements, to map between SDL keys and whatever your application wanted internally, that's no longer feasible. Use a hash table instead. A std::map will do. If you're mapping scancodes instead of keycodes, there's <strong>SDL_NUM_SCANCODES</strong>, which you can use for array bounds. It's 512 at the moment.
+<p><tt style=backtick>SDLMod</tt> is now <a href="SDL_Keymod.html">SDL_Keymod</a> and its "META" keys (the "Windows" keys) are now called the "GUI" keys.
+<p><tt style=backtick>SDL_GetKeyState()</tt> has been renamed to <a href="SDL_GetKeyboardState.html">SDL_GetKeyboardState</a>(). The returned array should now be indexed by SDL_SCANCODE_* values (see <a href="SDL_Scancode.html">SDL_Scancode</a>) instead of <a href="SDL_Keysym.html">SDL_Keysym</a> values.
+<p>Now, for mouse input.
+<p>The first change, simply enough, is that the mousewheel is no longer a button. This was a mistake of history, and we've corrected it in SDL 2.0. Look for <a href="SDL_EventType.html">SDL_MOUSEWHEEL</a> events. We support both vertical and horizontal wheels, and some platforms can treat two-finger scrolling on a trackpad as wheel input, too. You will no longer receive <a href="SDL_EventType.html">SDL_BUTTONDOWN</a> events for mouse wheels, and buttons 4 and 5 are real mouse buttons now.
+<p>If your game needed to roll the mouse in one direction forever, for example to let a player in an FPS to spin around without the mouse hitting the edge of the screen and stopping, you probably hid the mouse cursor and grabbed input:
+<div style=codearea>
+<pre>
+SDL_ShowCursor(0);
+SDL_WM_GrabInput(SDL_GRAB_ON);
+</pre></div>
+<p>In SDL2, this works slightly differently. You call...
+<div style=codearea>
+<pre>
+SDL_SetRelativeMouseMode(SDL_TRUE);
+</pre></div>
+<p>...and SDL does the rest.
+<h3>Events</h3>
+<a href="SDL_PushEvent.html">SDL_PushEvent</a>() now returns 1 on success instead of 0.
+<p>Events mask are now specified using ranges:
+<div style=codearea>
+<pre>
+SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_EVENTMASK(SDL_MOUSEBUTTONDOWN));
+</pre></div>
+<p>becomes:
+<div style=codearea>
+<pre>
+SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONDOWN);
+</pre></div>
+<h3>Audio</h3>
+<p>The good news for audio is that, with one exception, it's entirely backwards compatible with 1.2. If you want the new features, they're available to you, but you'll probably just compile and run without them.
+<p>That one really important exception: The audio callback does NOT start with a fully initialized buffer anymore. You <em><strong>must</strong></em> fully write to the buffer in all cases. If you don't have enough audio, your callback should write silence. If you fail to do this, you'll hear repeated audio, or maybe audio corruption. If you want to restore the old behavior of unconditionally initializing the buffer, just put an SDL_memset(stream, 0, len) at the start of your callback.
+<h3>Joysticks</h3>
+<p>This is almost completely compatible with 1.2. The only real exception is that joystick events now refer to an SDL_JoystickID. This is because SDL 2.0 can handle joysticks coming and going, as devices are plugged in and pulled out during your game's lifetime, so the index into the device list that 1.2 uses would be meaningless as the available device list changes.
+<p>To get an SDL_JoystickID for your opened <a href="SDL_Joystick.html">SDL_Joystick</a>*, just call:
+<div style=codearea>
+<pre>
+SDL_JoystickID myID = SDL_JoystickInstanceID(myOpenedStick);
+</pre></div>
+<p>And compare the joystick events' <strong>which</strong> field against <tt style=backtick>myID</tt>. If you aren't using the event queue for joysticks, <a href="SDL_JoystickGetAxis.html">SDL_JoystickGetAxis</a>() and friends work just like SDL 1.2.
+<p>You should also check out the new <a href="CategoryGameController.html">Game Controller API</a> too, because it's cool, and maybe you did a lot of tap dancing with the 1.2 API that this new code would solve more cleanly. You can find it in SDL_gamecontroller.h. As an added bonus: the Game Controller API integrates really nicely with Steam Big Picture Mode: you get automatic configuration of most controllers, and a nice UI if you have to manually configure it. In either case, Steam passes this configuration on to your SDL application.
+<h3>Threads</h3>
+<p><tt style=backtick>SDL_KillThread()</tt> is gone. It was never safe or reliable. The best replacement is to set a flag that tells a thread it should quit. That thread should check the flag with some frequency, and then the "killing" thread calls <a href="SDL_WaitThread.html">SDL_WaitThread</a>() to clean up.
+<p><a href="SDL_CreateThread.html">SDL_CreateThread</a>() takes an extra parameter now, a name for the thread, which can be used by debuggers to identify it. If you don't care about that, just stuff an extra NULL into your function call.
+<h3>Audio CDs</h3>
+<p>The 1.2 CD API is completely gone. There's no replacement. Chances are you aren't shipping your music as CD-Audio tracks on a disc at this point, if you're shipping a disc at all. You can use <a href="www.vorbis.com">Ogg Vorbis</a> or some other audio file format for music, many of which are provided by SDL_mixer.
+<h3>Dead platforms</h3>
+<p>We ripped out a bunch of old platforms, like OS/2 and Mac OS 9. It would be easier to list the ones we still support: Windows (XP and later), Linux, Mac OS X, iOS, Android. In SDL tradition, there are others on the periphery that work but aren't heavily supported, like Haiku and Sony PSP. We'll add any platform that someone sends patches for, but it seemed like it was time to say goodbye to some old friends when moving to the new version.
+<h3>Mobile platforms</h3>
+<p>There have been, for many years, unofficial ports of SDL 1.2 to iOS and Android. SDL now supports these platforms directly, and the 2.0 API is much better suited to them. Most of the advice you've gotten elsewhere in this document applies, but there are a few other things worth noting.
+<p>First, there are certain events that only apply to mobile devices, or better said, apply to the way mobile device OSes tend to operate in a post-iPhone world. We originally tried to map these to the existing SDL events (such as "your application is going to the background" being treated like a desktop window losing focus), but there's a more urgent concern: most of these events need an immediate response, and if the app doesn't give one, the OS will kill your application.
+<p>As such, we've added new SDL events for some Android and iOS specific details, but you should set up an SDL event filter to catch them as soon as the OS reports them, because waiting until your next <a href="SDL_PollEvent.html">SDL_PollEvent</a>() loop will be too late.
+<p>For example, there's SDL_APP_WILLENTERBACKGROUND, which is iOS's <tt style=backtick>applicationWillResignActive()</tt>, and if you draw to the screen after this event arrives, iOS terminates your process. So you want to catch this immediately:
+<div style=codearea>
+<pre>
+int SDLCALL myEventFilter(void *userdata, SDL_Event * event)
+{
+    if (event->type == SDL_APP_WILLENTERBACKGROUND) {
+        // free up resources, DON'T DRAW ANY MORE until you're in the foreground again!
+    }
+    // etc
+    return 1;
+}
+
+// somewhere near startup...
+
+// this calls myEventFilter(data, event) as soon as event is generated.
+SDL_AddEventWatch(myEventFilter, data);
+</pre></div>
+<p>Second, there are real touch events now, instead of trying to map this to mouse input. You can track touches, multiple fingers, and even complex gestures. You probably want to use those. Refer to SDL_touch.h for a list of these functions, and look for SDL_FINGER* in SDL_events.h.
+<p>There are a handful of other mobile-friendly functions, like <a href="SDL_StartTextInput.html">SDL_StartTextInput</a>(), which will show the on-screen keyboard. Make use of them.
+<p>In addition, there are also Android and iOS specific functions, to let you access platform-specific features that wouldn't make sense in a general API. Refer to SDL_system.h for a list of these functions.
+<h3>RWops</h3>
+<p><a href="SDL_RWread.html">SDL_RWread</a>() and <a href="SDL_RWwrite.html">SDL_RWwrite</a>() now return <tt style=backtick>0</tt> on error instead of <tt style=backtick>-1</tt>.
+<p>If you wrote your own <a href="SDL_RWops.html">SDL_RWops</a> implementation, the function signatures have changed. Functions now use <tt style=backtick>Sint64</tt> and <tt style=backtick>size_t</tt> instead of <tt style=backtick>int</tt> so they can work with large files. In many cases, you can just update your function signatures and keep working as before, but if you had bumped up against these limitations, you might be happy to have a solution. Calling applications should know that the return values have changed.
+<p>There is also a <strong>size</strong> method to RWops, now. This lets a RWops report the size of the stream without having to make the app seek to zero bytes from the end; in other words, you can report a total size for streams that can't seek. For streams that can't even do that, you can still return -1.
+<h3>Add-on libraries</h3>
+<p>The official extensions SDL_image, SDL_ttf, SDL_mixer and SDL_net have a version dedicated to SDL 2.0 : SDL2_image, SDL2_ttf, SDL2_mixer and SDL2_net. You may need to download them from the <a href="http://hg.libsdl.org">mercurial repositories</a> for the latest fixes. Subsequently, of course, you will have to link e.g. SDL2_image, not SDL_image, to compile your program.
+<p>These libraries will not be supporting 1.2 going forward, and any compatibility with 1.2 is likely to vanish at some point from newer versions.
+<p><a href="http:/www.ferzkopp.net/joomla/content/view/19/14">SDL_gfx</a> can also be compiled with 2.0 starting since 2.0.21 (May 2010).
+<h3>Summary of some renamed or replaced things</h3>
+<p>A short cheat sheet where some of the old functions and other stuff went:
+<ul>
+<li>SDL_SetVideoMode(): use <a href="SDL_CreateWindow.html">SDL_CreateWindow</a>() instead (along with <a href="SDL_CreateRenderer.html">SDL_CreateRenderer</a>() if you want to do classic 2D rendering and not OpenGL)</li>
+<li>SDL_ListModes(): use <a href="SDL_GetDisplayMode.html">SDL_GetDisplayMode</a>()/<a href="SDL_GetNumDisplayModes.html">SDL_GetNumDisplayModes</a>() instead</li>
+<li>SDL_UpdateRect()/SDL_Flip(): use <a href="SDL_RenderPresent.html">SDL_RenderPresent</a>() instead</li>
+<li>SDL_Surface/2D rendering: surfaces still exist, but it is recommended that instead of using SDL_Surfaces, you use <a href="SDL_Texture.html">SDL_Textures</a> with an 2D accelerated renderer (<a href="SDL_CreateRenderer.html">SDL_CreateRenderer</a>()) where possible</li>
+<li>SDL_VideoInfo: use <a href="SDL_GetRendererInfo.html">SDL_GetRendererInfo</a>()/<a href="SDL_GetRenderDriverInfo.html">SDL_GetRenderDriverInfo</a>() instead</li>
+<li>SDL_GetCurrentVideoDisplay(): use <a href="SDL_GetWindowDisplayIndex.html">SDL_GetWindowDisplayIndex</a>() instead</li>
+<li>SDL_VIDEORESIZE event: the new equivalent is <a href="SDL_WindowEvent">SDL_WINDOWEVENT_RESIZE</a></li> 
+</ul>
+<h3>Other stuff</h3>
+<p>There's an enormous amount of new and interesting functionality in SDL 2.0 that 1.2 couldn't even dream of. We've only tried to explain what you might have to do to get your 1.2 program running on 2.0 here, but you should explore the documentation for things that you might have always wished for and, until now, done without. For example, every game I've ever ported ended up with a message box function that looked like this:
+<div style=codearea>
+<pre>
+#if USING_SDL
+fprintf(stderr, "MSGBOX: %s\n%s\n", title, text);   // oh well.
+#endif
+</pre></div>
+<p>Now there's <a href="SDL_ShowSimpleMessageBox.html">SDL_ShowSimpleMessageBox</a>(). You're welcome!
+<p>If you skipped ahead, go back and check out all the new features <a href="MigrationGuide.html#Overview_of_new_features">at the overview</a>! 
+</div>
+</BODY>
+</HTML>

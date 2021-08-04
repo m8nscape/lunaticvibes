@@ -1,0 +1,30 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GameControllerGetAxisFromString</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GameControllerGetAxisFromString</h1>
+<p>Use this function to convert a string into an enum representation for a GameController axis.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_GameControllerAxis SDL_GameControllerGetAxisFromString(const char* pchString)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>pchString</strong></td><td>string representing a GameController axis</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns the GameController axis enum corresponding to the input string, or SDL_CONTROLLER_AXIS_INVALID if no match was found.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>This function is called internally to translate GameController mapping strings for the underlying joystick device into the consistent GameController mapping. You do not normally need to call this function unless you are parsing GameController mappings in your own code.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GameControllerGetStringForAxis.html">SDL_GameControllerGetStringForAxis</a></li></ul>
+</div>
+</BODY>
+</HTML>

@@ -1,0 +1,30 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetNumDisplayModes</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetNumDisplayModes</h1>
+<p>Use this function to return the number of available display modes.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_GetNumDisplayModes(int displayIndex)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>displayIndex</strong></td><td>the index of the display to query</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns a number >= 1 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>The displayIndex needs to be in the range from 0 to <a href="SDL_GetNumDisplayModes.html">SDL_GetNumDisplayModes</a>() - 1. (0 being the first display/first screen, 1 being the second one etc..) This allows you to supporting multiple screens nicely.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetDisplayMode.html">SDL_GetDisplayMode</a></li></ul>
+</div>
+</BODY>
+</HTML>

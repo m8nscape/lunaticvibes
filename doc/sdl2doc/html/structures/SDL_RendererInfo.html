@@ -1,0 +1,92 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_RendererInfo</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_RendererInfo</h1>
+<p>A structure that contains information on the capabilities of a render driver or the current render context.
+<h2>Data Fields</h2>
+<table>
+<tr><td>const char*</td><td><strong>name</strong></td><td>the name of the renderer</td></tr>
+<tr><td>Uint32</td><td><strong>flags</strong></td><td>a mask of supported renderer flags; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td>Uint32</td><td><strong>num_texture_formats</strong></td><td>the number of available texture formats</td></tr>
+<tr><td>Uint32[16]</td><td><strong>texture_formats</strong></td><td>the available texture formats; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td>int</td><td><strong>max_texture_width</strong></td><td>the maximimum texture width</td></tr>
+<tr><td>int</td><td><strong>max_texture_height</strong></td><td>the maximimum texture height</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<p><strong>flags</strong> may be 0 or a mask of any of the following <a href="../SDL_RendererFlags.html">SDL_RendererFlags</a> values OR'd together:
+<table>
+<tr><td>SDL_RENDERER_SOFTWARE</td><td>the renderer is a software fallback</td></tr>
+<tr><td>SDL_RENDERER_ACCELERATED</td><td>the renderer uses hardware acceleration</td></tr>
+<tr><td>SDL_RENDERER_PRESENTVSYNC</td><td>present is synchronized with the refresh rate</td></tr>
+<tr><td>SDL_RENDERER_TARGETTEXTURE</td><td>the renderer supports rendering to texture</td></tr>
+</table>
+<p><strong>texture_formats</strong> is an array of <a href="../SDL_PixelFormatEnum.html">SDL_PixelFormatEnum</a> values representing the available texture formats for the renderer
+<h3>Pixel Format Macros</h3>
+<table>
+<tr><td>SDL_PIXELTYPE(format)</td><td>the type of the pixel format; see <a href="#Remarks">Remarks</a> for details
+<tr><td>SDL_PIXELORDER(format)</td><td>the ordering of channels or bits in the pixel format; see <a href="#Remarks">Remarks</a> for details
+<tr><td>SDL_PIXELLAYOUT(format)</td><td>the channel bit pattern of the pixel format; see <a href="#Remarks">Remarks</a> for details
+<tr><td>SDL_BITSPERPIXEL(format)</td><td>the number of bits of color information in the pixel format
+<tr><td>SDL_BYTESPERPIXEL(format)</td><td>the number of bytes used to represent a pixel
+<tr><td>SDL_ISPIXELFORMAT_INDEXED(format)</td><td>true for pixel formats that have a palette
+<tr><td>SDL_ISPIXELFORMAT_ALPHA(format)</td><td>true for pixel formats that have an alpha channel
+<tr><td>SDL_ISPIXELFORMAT_FOURCC(format)</td><td>true for pixel formats representing unique formats, for example YUV formats
+</table>
+<h3>Pixel Format Values</h3>
+<table>
+<tr><td>SDL_PIXELFORMAT_UNKNOWN</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX1LSB</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX1MSB</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX4LSB</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX4MSB</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX8</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB332</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB444</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB555</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGR555</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ARGB4444</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGBA4444</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ABGR4444</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGRA4444</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ARGB1555</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGBA5551</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ABGR1555</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGRA5551</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB565</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGR565</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB24</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGR24</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGBX8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGR888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGRX8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ARGB8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGBA8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ABGR8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGRA8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ARGB2101010</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_YV12</td><td>planar mode: Y + V + U (3 planes)</td></tr>
+<tr><td>SDL_PIXELFORMAT_IYUV</td><td>planar mode: Y + U + V (3 planes)</td></tr>
+<tr><td>SDL_PIXELFORMAT_YUY2</td><td>packed mode: Y0+U0+Y1+V0 (1 plane)</td></tr>
+<tr><td>SDL_PIXELFORMAT_UYVY</td><td>packed mode: U0+Y0+V0+Y1 (1 plane)</td></tr>
+<tr><td>SDL_PIXELFORMAT_YVYU</td><td>packed mode: Y0+V0+Y1+U0 (1 plane)</td></tr>
+</table>
+<h2>Related Enumerations</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_BlendMode.html">SDL_BlendMode</a></li>
+<li><a href="../SDL_PixelFormatEnum.html">SDL_PixelFormatEnum</a></li>
+<li><a href="../SDL_RendererFlags.html">SDL_RendererFlags</a></li>
+<li><a href="../SDL_TextureModulate.html">SDL_TextureModulate</a></li></ul>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_GetRenderDriverInfo.html">SDL_GetRenderDriverInfo</a></li>
+<li><a href="../SDL_GetRendererInfo">SDL_GetRendererInfo</a></li>
+<li><a href="../SDL_RenderCopy.html">SDL_RenderCopy</a></li></ul>
+</div>
+</BODY>
+</HTML>

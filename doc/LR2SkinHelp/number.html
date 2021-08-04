@@ -1,0 +1,238 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>NUMBER TYPE</title>
+<meta name="author" content=".RED">
+<meta name="GENERATOR" content="MSHTML 8.00.6001.23520">
+<meta name="ROBOTS" content="NOINDEX,NOFOLLOW">
+    <style type="text/css">
+body {FONT-SIZE: 12px;}
+</style></head>
+<body>
+<p>//プレイオプションとか</p>
+<p>10 HS-1P<br>
+11 HS-2P</p>
+<p>12 JUDGE TIMING<br>
+13 DEFAULT TARGET RATE</p>
+<p>14 SUD+ / 1P<br>
+15 SUD+ / 2P</p>
+<p><br>
+//なんかいろいろ<br>
+20 fps<br>
+21 年<br>
+22 月<br>
+23 日<br>
+24 時<br>
+25 分<br>
+26 秒</p>
+<p>//プレイヤーステータスとか</p>
+<p>30 TOTAL PLAY COUNT<br>
+31 TOTAL CLEAR COUNT<br>
+32 TOTAL FAIL COUNT</p>
+<p>33 TOTAL PERFECT<br>
+34 TOTAL GREAT<br>
+35 TOTAL GOOD<br>
+36 TOTAL BAD<br>
+37 
+TOTAL POOR</p>
+<p>38 RUNNING COMBO<br>
+39 RUNNING COMBO(MAX)</p>
+<p>40 TRIAL LEVEL<br>
+41 TRIAL LEVEL-1 (更新表示のときに使うかも)</p>
+<p><br>
+45 同フォルダのbeginner譜面の曲レベル<br>
+46 同フォルダのnormal譜面の曲レベル<br>
+47 
+同フォルダのhyper譜面の曲レベル<br>
+48 同フォルダのanother譜面の曲レベル<br>
+49 同フォルダのinsane譜面の曲レベル</p>
+<p><br>
+//エフェクタとか<br>
+50 EQ0<br>
+51 EQ1<br>
+52 EQ2<br>
+53 EQ3<br>
+54 EQ4<br>
+55 
+EQ5<br>
+56 EQ6</p>
+<p>57 MASTER VOLUME<br>
+58 KEY VOLUME<br>
+59 BGM VOLUME</p>
+<p>60 FX0 P1<br>
+61 FX0 P2<br>
+62 FX1 P1<br>
+63 FX1 P2<br>
+64 FX2 P1<br>
+65 FX2 
+P2</p>
+<p>66 PITCH</p>
+<p>//選曲時<br>
+70 score<br>
+71 exscore<br>
+72 exscore理論値<br>
+73 rate<br>
+74 
+totalnotes<br>
+75 maxcombo<br>
+76 min b+p<br>
+77 playcount<br>
+78 clear<br>
+79 
+fail<br>
+//<br>
+80 perfect<br>
+81 great<br>
+82 good<br>
+83 bad<br>
+84 poor<br>
+85 
+perfect %<br>
+86 great %<br>
+87 good %<br>
+88 bad %<br>
+89 poor %</p>
+<p>90 bpm max<br>
+91 bpm min</p>
+<p>92 IR rank<br>
+93 IR totalplayer<br>
+94 IR clearrate</p>
+<p>95 IR ライバルとの差分</p>
+<p><br></p>
+<p>//bmsプレイ時</p>
+<p>//1P<br>
+100 score<br>
+101 exscore<br>
+102 rate<br>
+103 rate(小数点下二桁<br>
+104 
+nowcombo<br>
+105 maxcombo<br>
+106 totalnotes<br>
+107 groovegauge<br>
+108 
+exscore2pとの差<br>
+110 perfect<br>
+111 great<br>
+112 good<br>
+113 bad<br>
+114 
+poor<br>
+115 total rate<br>
+116 total rate(小数点下二桁</p>
+<p>//対戦相手orゴースト<br>
+120 score<br>
+121 exscore<br>
+122 rate<br>
+123 
+rate(小数点下二桁<br>
+124 nowcombo<br>
+125 maxcombo<br>
+126 totalnotes<br>
+127 
+groovegauge<br>
+128 exscore2pとの差<br>
+130 perfect<br>
+131 great<br>
+132 good<br>
+133 
+bad<br>
+134 poor<br>
+135 total rate<br>
+136 total rate(小数点下二桁</p>
+<p>//120-139は設定によってハイスコアかゴーストか不定なので、スコアグラフ上で指定して表示する場合<br>
+//リザルトで使用する場合は#DISABLEFLIP必須<br>
+150 
+ハイスコア現在値<br>
+151 ターゲット現在値<br>
+152 ハイスコアと1pスコアの差<br>
+153 ターゲットと1pスコアの差<br>
+154 
+次のランクとの差<br>
+155 ハイスコアrate<br>
+156 ハイスコアrate小数点2桁<br>
+157 ターゲットrate<br>
+158 
+ターゲットrate小数点2桁</p>
+<p><br></p>
+<p><br>
+//BMSの状態<br>
+160 bpm<br>
+161 分<br>
+162 秒<br>
+163 残り時間分<br>
+164 残り時間秒<br>
+165 
+ロード状況(%)</p>
+<p>//リザのハイスコア表示用<br>
+170 EXSCORE更新前<br>
+171 EXSCORE今回<br>
+172 EXSCORE差分</p>
+<p>173 MAXCOMBO更新前<br>
+174 MAXCOMBO今回<br>
+175 MAXCOMBO差分</p>
+<p>176 最小BP更新前<br>
+177 最小BP更新後<br>
+178 最小BP差分</p>
+<p>179 IR rank<br>
+180 IR totalplayer<br>
+181 IR clearrate<br>
+182 IR rank 
+(更新前)</p>
+<p>183 rate更新前<br>
+184 rate更新前(小数点下二桁</p>
+<p><br></p>
+<p><br>
+//IR(beta3以降用)</p>
+<p>200 IR TOTALPLAYER<br>
+201 IR TOTALプレイ回数</p>
+<p>210 FAILED人数 *FAST/SLOW 誤差<br>
+211 FAILED割合<br>
+212 EASY人数<br>
+213 EASY割合<br>
+214 
+CLEAR人数<br>
+215 CLEAR割合<br>
+216 HARD人数<br>
+217 HARD割合<br>
+218 FULLCOMBO人数<br>
+219 
+FULLCOMBO割合</p>
+<p>220 IR自動更新までの残り時間</p>
+<p>250 コースのレベルstage1<br>
+251 stage2<br>
+252 stage3<br>
+253 stage4<br>
+254 stage5</p>
+<p><br>
+//選曲時ライバル<br>
+270 score<br>
+271 exscore<br>
+272 exscore理論値<br>
+273 
+rate<br>
+274 totalnotes<br>
+275 maxcombo<br>
+276 min b+p<br>
+277 playcount<br>
+278 
+clear<br>
+279 fail<br>
+//<br>
+280 perfect<br>
+281 great<br>
+282 good<br>
+283 
+bad<br>
+284 poor<br>
+285 perfect %<br>
+286 great %<br>
+287 good %<br>
+288 bad 
+%<br>
+289 poor %</p>
+<p>290 bpm max<br>
+291 bpm min</p>
+<p>292 IR rank<br>
+293 IR totalplayer<br>
+294 IR 
+clearrate<br>
+</p></font></body></html>

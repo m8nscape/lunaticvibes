@@ -1,0 +1,37 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_LogSetAllPriority</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_LogSetAllPriority</h1>
+<p>Use this function to set the priority of all log categories.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_LogSetAllPriority(SDL_LogPriority priority)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>priority</strong></td><td>the <a href="SDL_LogPriority.html">SDL_LogPriority</a> to assign; see <a href="#Remarks">Remarks</a> for details</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<p>The <strong>priority</strong> can be one of:
+<table>
+<tr><td>SDL_LOG_PRIORITY_VERBOSE</td><td>&nbsp;</td></tr>
+<tr><td>SDL_LOG_PRIORITY_DEBUG</td><td>&nbsp;</td></tr>
+<tr><td>SDL_LOG_PRIORITY_INFO</td><td>&nbsp;</td></tr>
+<tr><td>SDL_LOG_PRIORITY_WARN</td><td>&nbsp;</td></tr>
+<tr><td>SDL_LOG_PRIORITY_ERROR</td><td>&nbsp;</td></tr>
+<tr><td>SDL_LOG_PRIORITY_CRITICAL</td><td>&nbsp;</td></tr>
+<tr style="color: #808080;"><td>SDL_NUM_LOG_PRIORITIES</td><td>(internal use)</td></tr>
+</table>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_LogSetPriority.html">SDL_LogSetPriority</a></li></ul>
+</div>
+</BODY>
+</HTML>

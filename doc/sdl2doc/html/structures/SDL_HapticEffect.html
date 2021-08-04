@@ -1,0 +1,78 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_HapticEffect</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_HapticEffect</h1>
+<p>A union that contains the generic template for any haptic effect.
+<h2>Data Fields</h2>
+<table>
+<tr><td>Uint16</td><td><strong>type</strong></td><td>effect type; see <a href="SDL_HapticPeriodic.html">SDL_HapticPeriodic</a> for details???</td></tr>
+<tr><td><a href="SDL_HapticConstant.html">SDL_HapticConstant</a></td><td><strong>constant</strong></td><td>constant effect; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td><a href="SDL_HapticPeriodic.html">SDL_HapticPeriodic</a></td><td><strong>periodic</strong></td><td>periodic effect; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td><a href="SDL_HapticCondition.html">SDL_HapticCondition</a></td><td><strong>condition</strong></td><td>condition effect; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td><a href="SDL_HapticRamp.html">SDL_HapticRamp</a></td><td><strong>ramp</strong></td><td>ramp effect; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td><a href="SDL_HapticLeftRight.html">SDL_HapticLeftRight</a></td><td><strong>leftright</strong></td><td>left/right effect; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td><a href="SDL_HapticCustom.html">SDL_HapticCustom</a></td><td><strong>custom</strong></td><td>custom effect; see <a href="#Remarks">Remarks</a> for details</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<p>All structures in this union contain the following common parts:
+<table>
+<tr><td  style="text-align: center" colspan="3"><em>Replay (all effects have this)</em></td></tr>
+<tr><td>Uint32</td><td><strong>length</strong></td><td>duration of effect (ms)</td></tr>
+<tr><td>Uint16</td><td><strong>delay</strong></td><td>delay before starting effect</td></tr>
+<tr><td  style="text-align: center" colspan="3"><em>Trigger (all effects have this)</em></td></tr>
+<tr><td>Uint16</td><td><strong>button</strong></td><td>button that triggers effect</td></tr>
+<tr><td>Uint16</td><td><strong>interval</strong></td><td>how soon before effect can be triggered again</td></tr>
+<tr><td  style="text-align: center" colspan="3"><em>Envelope (all effects except condition effects have this)</em></td></tr>
+<tr><td>Uint16</td><td><strong>attack_length</strong></td><td>duration of the attack (ms)</td></tr>
+<tr><td>Uint16</td><td><strong>attack_level</strong></td><td>level at the start of the attack</td></tr>
+<tr><td>Uint16</td><td><strong>fade_length</strong></td><td>duration of the fade out (ms)</td></tr>
+<tr><td>Uint16</td><td><strong>fade_level</strong></td><td>level at the end of the fade</td></tr>
+</table>
+<p>All values max at 32767 (0x7FFF). Signed values can be negative. Time values, unless specified otherwise, are in milliseconds.
+<p>You can pass SDL_HAPTIC_INFINITY to <strong>length</strong> instead of a 0-32767 value. Neither <strong>delay</strong>, <strong>interval</strong>, <strong>attack_length</strong>, nor <strong>fade_length</strong> support SDL_HAPTIC_INFINITY. The SDL_HAPTIC_RAMP effect does not support a duration of SDL_HAPTIC_INFINITY. Fade will also not be used since effect never ends.
+<p>Button triggers may not be supported on all devices. It is advised not to use them if possible. Buttons start at index 1 instead of index 0 like the joystick.
+<p>If both <strong>attack_length</strong> and <strong>fade_level</strong> are 0 the <strong>envelope</strong> is not used, otherwise both values are used.
+<p>Here is an example of a constant effect evolution in time:
+<div style=codearea>
+<pre>
+Strength
+^
+|
+|    effect level -->  _________________
+|                     /                 \
+|                    /                   \
+|                   /                     \
+|                  /                       \ 
+| attack_level --> |                        \
+|                  |                        |  <---  fade_level
+|
++--------------------------------------------------> Time
+
+                   [--]                 [---]
+               attack_length          fade_length
+
+[------------------][-----------------------]
+       delay                 length
+</pre></div>
+<p>Note that either the <strong>attack_level</strong> or the <strong>fade_level</strong> may be above the actual effect level.
+<h2>Related Structures</h2>
+<ul style="list-style-type:none"><li><a href="SDL_HapticCondition.html">SDL_HapticCondition</a></li>
+<li><a href="SDL_HapticConstant.html">SDL_HapticConstant</a></li>
+<li><a href="SDL_HapticCustom.html">SDL_HapticCustom</a></li>
+<li><a href="SDL_HapticDirection.html">SDL_HapticDirection</a> ???</li>
+<li><a href="SDL_HapticPeriodic.html">SDL_HapticPeriodic</a></li>
+<li><a href="SDL_HapticRamp.html">SDL_HapticRamp</a></li></ul>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_HapticEffectSupported.html">SDL_HapticEffectSupported</a></li>
+<li><a href="../SDL_HapticNewEffect.html">SDL_HapticNewEffect</a></li>
+<li><a href="../SDL_HapticUpdateEffect.html">SDL_HapticUpdateEffect</a></li></ul>
+</div>
+</BODY>
+</HTML>

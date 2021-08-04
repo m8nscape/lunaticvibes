@@ -1,0 +1,42 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>Initialisation and Shutdown</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>Initialization and Shutdown</h1>
+<h2>Introduction</h2>
+<p>The functions in this category are used to set up SDL for use and generally have global effects in your program.
+<h3>Introduction to Initialization</h3>
+<p>To begin using SDL in your program <a href="SDL_Init.html">SDL_Init</a>() must be called before most other SDL functions. The role of <a href="SDL_Init.html">SDL_Init</a>() is to properly initialize the SDL library and start each of the various subsystems requested as part of the call.
+<ul><li>The <a href="CategoryEvents.html">Event Handling</a>, <a href="CategoryIO">File I/O</a>, and <a href="CategoryThread.html">Threading</a> subsystems are initialized by default. To initialize other subsystems you must specifically call them. Multiple subsystems may be OR'd together.</li>
+<li><em>Example:</em>
+  <ul><li style="list-style-type:none">
+<div style=codearea>
+<pre>
+SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO);
+</pre></div></li
+<li>This initializes the 3 default subsystems plus the <a href="CategoryVideo.html">Video</a> and <a href="CategoryAudio.html">Audio</a> subsystems.</li>
+  </ul>
+</ul>
+<p>It should be noted that on some operating systems, <a href="SDL_Init.html">SDL_Init</a>() will fail if <a href="SDL_main.html">SDL_main</a>() has not been defined as the entry point for the program. Calling <a href="SDL_SetMainReady.html">SDL_SetMainReady</a>() prior to <a href="SDL_Init.html">SDL_Init</a>() will circumvent this failure condition, however, users should be careful when calling <a href="SDL_SetMainReady.html">SDL_SetMainReady</a>() as improper initalization may cause crashes and hard to diagnose problems.
+<h3>Introduction to Shut Down</h3>
+<p><a href="SDL_Quit.html">SDL_Quit</a>() should be called before an SDL application exits to safely shut down all subsystems, including the default ones.
+<ul><li>It is not necessary to specify individual subsystems when using <a href="SDL_Quit.html">SDL_Quit()</a> as it will automatically shut down all active subsystems. </li>
+</ul>
+<h2>Functions</h2>
+<ol start="1">
+<li><a href="SDL_Init.html">SDL_Init</a></li>
+<li><a href="SDL_InitSubSystem.html">SDL_InitSubSystem</a></li>
+<li><a href="SDL_Quit.html">SDL_Quit</a></li>
+<li><a href="SDL_QuitSubSystem.html">SDL_QuitSubSystem</a></li>
+<li><a href="SDL_SetMainReady.html">SDL_SetMainReady</a></li>
+<li><a href="SDL_WasInit.html">SDL_WasInit</a></li>
+</ol>
+
+</div>
+</BODY>
+</HTML>

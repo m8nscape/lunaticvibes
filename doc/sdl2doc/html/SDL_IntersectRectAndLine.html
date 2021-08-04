@@ -1,0 +1,36 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_IntersectRectAndLine</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_IntersectRectAndLine</h1>
+<p>Use this function to calculate the intersection of a rectangle and line segment.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_bool SDL_IntersectRectAndLine(const SDL_Rect* rect,
+                                  int*            X1,
+                                  int*            Y1,
+                                  int*            X2,
+                                  int*            Y2)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>rect</strong></td><td>an <a href="structures/SDL_Rect.html">SDL_Rect</a> structure representing the rectangle to intersect</td></tr>
+<tr><td><strong>X1</strong></td><td>a pointer to the starting X-coordinate of the line</td></tr>
+<tr><td><strong>Y1</strong></td><td>a pointer to the starting Y-coordinate of the line</td></tr>
+<tr><td><strong>X2</strong></td><td>a pointer to the ending X-coordinate of the line</td></tr>
+<tr><td><strong>Y2</strong></td><td>a pointer to the ending Y-coordinate of the line</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns SDL_TRUE if there is an intersection, SDL_FALSE otherwise.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>This function is used to clip a line segment to a rectangle. A line segment contained entirely within the rectangle or that does not intersect will remain unchanged. A line segment that crosses the rectangle at either or both ends will be clipped to the boundary of the rectangle and the new coordinates saved in <strong>X1</strong>, <strong>Y1</strong>, <strong>X2</strong>, and/or <strong>Y2</strong> as necessary. 
+</div>
+</BODY>
+</HTML>

@@ -1,0 +1,764 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+    <meta content="text/html; charset=Shift_JIS" http-equiv="content-type">
+    <title>汎用定義</title>
+    <meta name="author" content=".RED">
+    <meta name="GENERATOR" content="MSHTML 8.00.6001.23520">
+    <meta name="ROBOTS" content="NOINDEX,NOFOLLOW">
+    <style type="text/css">
+        body,
+        textarea,
+        td {
+            font-size: 12px
+        }
+        
+        div {
+            margin-left: 10px;
+            padding-bottom: 30px;
+        }
+        
+        div > p,
+        div > table{
+            margin-left: 20px;
+        }
+        
+        h4 {
+            margin-top: 3em;
+            margin-left: 10px;
+        }
+        
+        #important h4 {
+            margin-top: 1em;
+        }
+        
+        iframe {
+            padding: 0px;
+            width: 100%;
+            border: none;
+        }
+        
+        td.iframe {
+            padding: 0px !important;
+        }
+        
+        iframe[src="dst.html"] {
+            border-top: solid 1px #c0c0c0 !important;
+        }
+        
+        .template {
+            width: 1000px
+        }
+        
+        h3 {
+            margin-top: 4em;
+            width: 96%;
+            width: calc(100% - 14px);
+            background: -moz-linear-gradient(white, #E0E0E0);
+            background: -webkit-gradient(linear, left top, left bottom, from(white), to(#E0E0E0));
+            background: -ms-linear-gradient(top, white, #E0E0E0);
+            -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#cFFF', endColorstr='#E0E0E0', GradientType=0)";
+            padding: 6px;
+            border: solid 1px #999;
+            border-radius: 3px;
+        }
+        
+        h3:before {
+            width: 5px;
+            display: inline-block;
+            background: #666;
+            content: "　";
+            margin-right: 5px;
+            padding: 2px;
+        }
+        
+        ul.link li,
+        ul.index li {
+            display: inline-block;
+            font-size: 12px;
+        }
+        
+        ul.link,
+        ul.index {
+            font-size: 0px;
+            margin-left: -20px;
+        }
+        
+        ul.link li:nth-of-type(n+2) {
+            margin-right: 10px;
+        }
+        
+        ul.index li {
+            margin: 0px 10px 10px 0px;
+        }
+        
+        td {
+            vertical-align: top;
+            padding: 3px;
+        }
+        
+        div#important {
+            margin-left: 30px;
+            padding: 0px 10px;
+            background: #F5F5F5;
+            display: inline-block;
+        }
+        
+        .caution {
+            padding-left: 1em;
+            text-indent: -1em;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>その他の汎用定義</h2>
+    <div id="content">
+        <p>画像定義以外の定義です。数字や文字、グラフやボタンなど何らかの機能を持った定義になります。
+            <br> 画像定義同様何個でも使えます。
+        </p>
+        <ul class="index">
+            <li><a href="hanyou.html#src_number">#SRC_NUMBER</a></li>
+            <li><a href="hanyou.html#src_slider">#SRC_SLIDER</a></li>
+            <li><a href="hanyou.html#src_bargraph">#SRC_BARGRAPH</a></li>
+            <li><a href="hanyou.html#src_button">#SRC_BUTTON</a></li>
+            <li><a href="hanyou.html#src_onmouse">#SRC_ONMOUSE</a></li>
+            <li><a href="hanyou.html#src_text">#SRC_TEXT</a></li>
+        </ul>
+        <h3><a name="src_number">#SRC_NUMBER</a></h3>
+        <p>数値定義です。スコアや日付などを参照します。</p>
+        <p><img alt="src_number.png" src="src_number.png" border="0" height="33" width="897"></p>
+        <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0" height="570">
+            <tbody>
+                <tr>
+                    <td align="center" valign="top">（NULL）</td>
+                    <td colspan="2" valign="top">#IMAGEと同じです。NUMBER定義では0以外を入力しても意味はありません。</td>
+                    <td class="iframe" rowspan="9">
+                        <iframe noresize="" src="number.html" name="num" height="100%"></iframe>
+                        <br>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">gr</td>
+                    <td colspan="2" valign="top">
+                        <p>number.pngを使うのでここでは1。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">xywh</td>
+                    <td valign="top">
+                        <p>IMAGEと同じですが、NUMBER定義では「使用する数字全体の座標」を指定します。
+                            <br> 右図の赤枠で示した範囲を指定し、これをdivで分割して使用します。
+                            <br> このため、各数字の横幅を統一しておく必要があります。
+                        </p>
+                        <p>※csv側での文字間隔の指定は不可能なので必要に応じて画像制作段階でスペースを入れておきましょう。</p>
+                    </td>
+                    <td align="center" valign="top"><img alt="number_xywh.png" src="number_xywh.png" border="0" height="56" width="165"></td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">divx_ div_y</td>
+                    <td colspan="2" valign="top">
+                        <p>SRC_NUMBERのdiv_xとdiv_yを掛けた値は以下のいずれかでなければなりません。</p>
+                        <p>10の倍数：0～9の文字セット
+                            <br> 11の倍数：0～9の文字セットと裏0
+                            <br> 24の倍数：0～9の文字セットと裏0と+符号、同じく値が負の場合の0～9裏0と-符号
+                        </p>
+                        <p>ここでいう「裏0」は表示桁数が指定桁数より少ない場合に桁を埋めるために使用する0を指します。
+                            <br> サンプルでは分かりやすく半透明にしましたが、必ずしも透過する必要はありませんし、
+                            <br> 11分割にした上で画像を用意しなくても特に問題はありません。
+                            <br>
+                            <img alt="urazero.png" src="urazero.png" border="0" height="18" width="124"></p>
+                        <p>11分割で裏0を使用しないのであればそもそも10分割にした方が早いですが、
+                            <br> マイナス側の値を参照し、かつ裏0を表示したくない場合は24分割で裏0だけ透明にする手法が使われます。
+                        </p>
+                        <p>※裏0ありだとalignによっては正確な値が出せません。</p>
+                        <p class="caution">※「○の倍数」となっているのはdiv分割アニメーションが使用可能という意味です。
+                            <br>また、仕様書によると10・11・24のいずれか2つで割りきれる値に分割した場合は10分割アニメーション優先だそうです。
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">cycle</td>
+                    <td colspan="2" valign="top">div分割アニメーション数値定義の場合のみ入力します。0で省略。
+                        <br> IMAGE定義同様、アニメーション周期を指定します。
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">timer</td>
+                    <td colspan="2" valign="top">
+                        <p>div分割アニメーション（cycle値）の動作開始timerを指定します。利用可能なtimer値はスキン関連ドキュメント内timer.txt参照。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">num</td>
+                    <td colspan="2" valign="top">
+                        <p>この数値定義で何の数値データを参照するのかを指定します。利用可能なnum値は右表参照。</p>
+                        <p>※当然ですが、間違うと大変です。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">align</td>
+                    <td colspan="2" valign="top">
+                        <p>数値定義の配置指定です。</p>
+                        <p>0：右寄せ
+                            <br> 1：左寄せ
+                            <br> 2：中央
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">keta</td>
+                    <td colspan="2" valign="top">
+                        <p>表示する桁数を指定します。ketaが少ないときちんと表示されない場合があるので、
+                            <br> 「この定義で表示する可能性がある最大値」に合わせておくのがベストです。
+                        </p>
+                        <p>スキン関連ドキュメントには「ketaは+-文字を含めた桁数です」と記述されていますが、
+                            <br> 正しくは「+-符号を含まない桁数」指定です。
+                        </p>
+                        <p>つまり24分割NUMBER定義を使う場合、keta4の数値を表示するには5桁分の横幅が必要になります。</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>#DST_NUMBERのwh値で指定するのは数字1桁分のサイズで、DST_xy座標からalignとketaに従って数値が表示されます。</p>
+        <div id="important">
+            <h4>NUMBER定義のalignとDST_xy座標</h4>
+            <p>keta8のNUMBER定義のalign0～2をそれぞれ裏0無しと有りで全て同じDST_x座標に並べた時の表示は以下の様になります。
+                <br> ※緑の実線がDST_x座標、黒の破線は座標確認用補助線
+            </p>
+            <p><img alt="number_align.gif" src="number_align.gif" border="0" height="174" width="253"></p>
+            <p>NUMBER定義のDST座標は、まず先にDST_w値をketa数倍にして定義全体のw値が割り出され、そこから有効桁数でalign調整され、最後に裏0.が付加されます。
+                <br> この時、align1・2では裏0が何故か値の右側に表示されるため、効果が無いばかりか値がおかしくなります。
+            </p>
+            <p>また、24分割時のみ符号分も含めて幅を取るので、算出される座標は(keta値+1)×DST_w値になります。
+                <br> 他の定義と特性がちょっと違うので注意。
+            </p>
+        </div>
+        <p>
+            <br>
+        </p>
+        <ul class="link">
+            <li>関連リンク：</li>
+            <li><a href="specification.html#dynamic_option">特定条件下でのみ参照値が異なる機能</a></li>
+            <li><a title="NUMBER定義のalign2（中央寄せ）特有の注意点" href="bug.html#number_align2">NUMBER定義のalign2（中央寄せ）特有の注意点</a></li>
+            <li><a title="NUMBER定義のketaとalignの組み合わせによる特殊参照" href="application.html#number_align">NUMBER定義のketaとalignの組み合わせによる特殊参照</a></li>
+            <li><a title="NUMBER定義を用いたバーグラフ" href="application.html#number2bargraph">NUMBER定義を用いたバーグラフ</a></li>
+            <li><a title="既フルコン時のMAXCOMBO差分検出によるフルコン分岐" href="application.html#max_combo">既フルコン時のMAXCOMBO差分検出によるフルコン分岐</a></li>
+        </ul>
+        <h4>NUMBER定義テンプレート</h4>
+        <p>カンマ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="number_txt">//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer,num,align,keta
+#SRC_NUMBER,0,0,0,0,0,0,1,1,0,0,0,0,0
+//DST定義,(NULL),time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NUMBER,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NUMBER,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0</textarea>
+        </p>
+        <p>タブ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="number_csv">//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer	num	align	keta
+#SRC_NUMBER	0	0	0	0	0	0	1	1	0	0	0	0	0
+//DST定義	(NULL)	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NUMBER	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NUMBER	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0</textarea>
+        </p>
+        <h3><a name="src_slider">#SRC_SLIDER</a></h3>
+        <p>パラメータ変更用のスライダーです。クリックで摘むことにより、値を自由に変更できます。</p>
+        <p><img alt="src_slider.png" src="src_slider.png" border="0" height="33" width="961"></p>
+        <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0" height="452">
+            <tbody>
+                <tr>
+                    <td align="center" valign="top">（NULL）</td>
+                    <td valign="top">#IMAGEと同じです。SLIDER定義では0以外を入力しても意味はありません。</td>
+                    <td class="iframe" rowspan="10">
+                        <iframe noresize="" src="slider.html" name="slider" height="100%"></iframe>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">gr</td>
+                    <td valign="top">
+                        <p>slider.pngを使うのでここでは2。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">xywh</td>
+                    <td valign="top">
+                        <p>実際にスライダーとして動くパーツを選択します。スライダーの枠ではないのでちょっと注意。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">divx_ div_y</td>
+                    <td valign="top">
+                        <p>IMAGE定義同様、アニメーションさせる場合のみ指定します。省略する場合はどちらも1。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">cycle</td>
+                    <td valign="top">div分割アニメーション定義の場合のみ入力します。0で省略。
+                        <br> IMAGE定義同様、アニメーション周期を指定します。
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">timer</td>
+                    <td valign="top">
+                        <p>div分割アニメーション（cycle値）の動作開始timerを指定します。利用可能なtimer値はスキン関連ドキュメント内timer.txt参照。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">muki</td>
+                    <td valign="top">
+                        <p>スライダーの移動方向を指定します。</p>
+                        <p>0：上
+                            <br> 1：右
+                            <br> 2：下
+                            <br> 3：左
+                        </p>
+                        <p>※時間で変化する場合はスタート地点からどちらに進むか、値を変化させる場合は最小値から最大値までの向きです。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">range</td>
+                    <td valign="top">
+                        <p>スライダーの移動範囲を指定します。
+                            <br> 変更する値の最大値が決まっている場合はなるべくサイズを合わせた方が正確な動作になります。
+                        </p>
+                        <p>※書いてて気付きましたが音量調整って0～100までの「101段階」なんですね&hellip;綺麗に動かない訳だ&hellip;</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">type</td>
+                    <td valign="top">
+                        <p>スライダーの種別を指定します。利用可能な値は右表参照。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">disable</td>
+                    <td valign="top">
+                        <p>マウスでの値の変更の可否を指定します。</p>
+                        <p>0：変更可
+                            <br> 1：変更不可
+                        </p>
+                        <p>※値が変更可能なものに限ります。
+                            <br> ※省略した場合は0扱いになります。
+                        </p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>#DST_SLIDERのxy座標はスタート地点もしくは最小値の時の座標を指定します。
+            <br> DST_whは拡縮を行わないのであればSRCと同じ値を指定します。（スライダーの移動幅はSRC側で定義するのでDST側では不要）
+            <br> 他は#DST_IMAGE同様。
+        </p>
+        <h4>SLIDER定義テンプレート</h4>
+        <p>カンマ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="100" readonly="readonly" name="slider_txt">//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer,muki,range,type
+#SRC_SLIDER,0,0,0,0,0,0,1,1,0,0,0,0,0
+//DST定義,(NULL),time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_SLIDER,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_SLIDER,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0</textarea>
+        </p>
+        <p>タブ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="100" readonly="readonly" name="slider_csv">//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer	muki	range	type
+#SRC_SLIDER	0	0	0	0	0	0	1	1	0	0	0	0	0
+//DST定義	(NULL)	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_SLIDER	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_SLIDER	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0</textarea></p>
+        <h3><a name="src_bargraph">#SRC_BARGRAPH</a></h3>
+        <p>棒グラフ描画用です。スコア関連の視覚化に利用してください。</p>
+        <p><img alt="src_bargraph.png" src="src_bargraph.png" border="0" height="33" width="833"></p>
+        <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0" height="295">
+            <tbody>
+                <tr>
+                    <td align="center" valign="top">（NULL）</td>
+                    <td valign="top">#IMAGEと同じです。BARGRAPH定義では0以外を入力しても意味はありません。</td>
+                    <td class="iframe" rowspan="8">
+                        <iframe noresize="" src="bargraph.html" name="bargraph" height="100%"></iframe>
+                        <br>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">gr</td>
+                    <td valign="top">
+                        <p>bargraph.pngを使うのでここでは3。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">xywh</td>
+                    <td valign="top">
+                        <p>グラフが100%のときの画像を指定します。
+                            <br> 棒グラフである以上、ほぼ間違いなく縮小されるのでサンプルのように枠を付けてしまうと、値によってはきちんと表示されません。
+                            <br> どうしても枠が必要な場合は2px太くした黒グラフを1pxずらして下に重ねる方が確実です。
+                            <br> ※ただしこの方法では透過が出来ません。
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">divx_ div_y</td>
+                    <td valign="top">
+                        <p>IMAGE定義同様、アニメーションさせる場合のみ指定します。省略する場合はどちらも1。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">cycle</td>
+                    <td valign="top">div分割アニメーション定義の場合のみ入力します。0で省略。
+                        <br> IMAGE定義同様、アニメーション周期を指定します。
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">timer</td>
+                    <td valign="top">
+                        <p>div分割アニメーション（cycle値）の動作開始timerを指定します。利用可能なtimer値はスキン関連ドキュメント内timer.txt参照。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">type</td>
+                    <td valign="top">
+                        <p>グラフ種別を指定します。利用可能な値は右表参照。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">muki</td>
+                    <td valign="top">
+                        <p>グラフの伸びていく向きを指定します。</p>
+                        <p>0：右
+                            <br> 1：下
+                        </p>
+                        <p>※スライダーのmukiと違い、方向が限定されています。向きを逆にしたい場合はDSTのwやhを負の値にします。
+                            <br> ※こっちの方がしっくりくるのでデフォスキンの解説とちょっと表現変えてます。
+                        </p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>#DST_BARGRAPHは省略。xywhはSRC同様100%状態の座標を指定します。wとhの値だけ注意しましょう。</p>
+        <ul class="link">
+            <li>関連リンク：</li>
+            <li><a href="specification.html#dynamic_option">特定条件下でのみ参照値が異なる機能</a></li>
+        </ul>
+        <h4>BARGRAPH定義テンプレート</h4>
+        <p>カンマ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="100" readonly="readonly" name="bargraph_txt">//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer,type,muki
+#SRC_BARGRAPH,0,0,0,0,0,0,1,1,0,0,0,0
+//DST定義,(NULL),time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op1,op3
+#DST_BARGRAPH,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_BARGRAPH,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0</textarea>
+        </p>
+        <p>タブ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="100" readonly="readonly" name="bargraph_csv">//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer	type	muki
+#SRC_BARGRAPH	0	0	0	0	0	0	1	1	0	0	0	0
+//DST定義	(NULL)	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op1	op3
+#DST_BARGRAPH	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_BARGRAPH	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0</textarea></p>
+        <h3><a name="src_button">#SRC_BUTTON</a></h3>
+        <p>クリックすることにより、オプションの値等を変更することができ、また値によってボタンの画像を変えることが出来ます。
+            <br> クリックを無効にすることにより、現在のオプション状態のみを表示、という使い方も可能です。
+            <br> 回転描画をさせてもクリック判定は回転していない状態となります。
+        </p>
+        <p style="font-weight:bold;">※『現在のゲージ種別（HARDやEASY）』の値に応じて画像を切り替えられるのはボタン定義だけです。</p>
+        <p><img alt="src_button.png" src="src_button.png" border="0" height="33" width="961"></p>
+        <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0" height="407">
+            <tbody>
+                <tr>
+                    <td align="center" valign="top">（NULL）</td>
+                    <td valign="top">#IMAGEと同じです。BUTTON定義では0以外を入力しても意味はありません。</td>
+                    <td class="iframe" rowspan="10">
+                        <iframe noresize="" src="button.html" name="button" height="100%"></iframe>
+                        <br>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">gr</td>
+                    <td valign="top">
+                        <p>button.pngを使うのでここでは4。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">xywh</td>
+                    <td valign="top">
+                        <p>NUMBER定義同様、必要な全ボタン画像を指定し、div値で分割します。
+                            <br> 必要なボタン個数（項目数）はボタンタイプによって異なるのでスキン関連ドキュメント内button.txtで事前にしっかり確認しましょう。
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">divx_ div_y</td>
+                    <td valign="top">
+                        <p>ボタンタイプによって個数が決まっていますが、分割方向に指定はありません。
+                        <br> 項目数が奇数個の場合は縦か横に直列させるしかないので結構サイズ使います。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">cycle</td>
+                    <td valign="top">
+                        <p>BUTTON定義では規定数の整数倍に分割してもdiv分割アニメーションを利用することが出来ません。
+                            <br> このため0以外を入力しても意味無いです。
+                        </p>
+                        <p>※通常はONMOUSE定義を使います。
+                            <br> ※どうしてもアニメーションさせたい場合は複数ボタン定義を重ねてtime切るしかありません。
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">timer</td>
+                    <td valign="top">
+                        <p>上記理由によりtimerも0固定になります。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">type</td>
+                    <td valign="top">
+                        <p>ボタンタイプを指定します。利用可能な値は右表参照。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">click</td>
+                    <td valign="top">
+                        <p>ボタンクリックによる値の変更の可否を指定します。</p>
+                        <p>0：変更不可
+                            <br> 1：変更可
+                        </p>
+                        <p>※右半分クリックで値+、左半分クリックで値-です。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">panel</td>
+                    <td valign="top">panelを指定すると、規定のパネルが出ているときのみクリック可能になります。
+                        <br> またpanel=-1の場合のみ、パネルがすべてオフのときのみクリック可能になります。
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">plusonly</td>
+                    <td valign="top">
+                        <p>何故か仕様書には記載されていませんが、plusonly=1で値+のみ、plusonly=-1で値-のみの動作になります。
+                            <br> この時のクリック判定はボタン全体になります。
+                        </p>
+                        <p>※省略可能。</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>#DSTは省略。</p>
+        <ul class="link">
+            <li>関連リンク：</li>
+            <li><a title="エフェクタボタンのピッチ" href="specification.html#pitch">エフェクタボタンのピッチ</a></li>
+            <li><a title="ボタン定義の重ね順" href="specification.html#double_button">ボタン定義の重ね順</a></li>
+            <li><a title="ボタン定義のボタン以外の用途" href="application.html#button_other">ボタン定義のボタン以外の用途</a></li>
+            <li><a title="バトルボタンの画像定義分岐" href="application.html#battle_button">バトルボタンの画像定義分岐</a></li>
+        </ul>
+        <h4>BUTTON定義テンプレート</h4>
+        <p>カンマ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="100" readonly="readonly" name="button_txt">//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer,type,click,panel,plusonly
+#SRC_BUTTON,0,0,0,0,0,0,1,1,0,0,0,0,0,0
+//DST定義,(NULL),time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BUTTON,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_BUTTON,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0</textarea>
+        </p>
+        <p>タブ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="100" readonly="readonly" name="button_csv">//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer	type	click	panel	plusonly
+#SRC_BUTTON	0	0	0	0	0	0	1	1	0	0	0	0	0	0
+//DST定義	(NULL)	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BUTTON	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_BUTTON	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0</textarea></p>
+        <h3><a name="src_onmouse">#SRC_ONMOUSE</a></h3>
+        <p>汎用定義で唯一、デフォスキンや仕様書に解説が存在しない定義です。
+            <br> 定義名からも分かる通り、マウスカーソルが重なった場合にのみパーツを表示します。
+        </p>
+        <p><img alt="src_onmouse.png" src="src_onmouse.png" border="0" height="33" width="1025"></p>
+        <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td align="center" valign="top">（NULL）</td>
+                    <td colspan="2" valign="top">#IMAGEと同じです。ONMOUSE定義では0以外を入力しても意味はありません。</td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">gr</td>
+                    <td colspan="2" valign="top">
+                        <p>onmouse.pngを使うのでここでは5。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">xywh</td>
+                    <td colspan="2" valign="top">
+                        <p>#IMAGEと同様。表示する画像パーツを指定します。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">divx_ div_y</td>
+                    <td colspan="2" valign="top">
+                        <p>IMAGE定義同様、アニメーションさせる場合のみ指定します。省略する場合はどちらも1。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">cycle</td>
+                    <td colspan="2" valign="top">
+                        <p>div分割アニメーション定義の場合のみ入力します。0で省略。
+                            <br> IMAGE定義同様、アニメーション周期を指定します。
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">timer</td>
+                    <td colspan="2" valign="top">
+                        <p>div分割アニメーション（cycle値）の動作開始timerを指定します。利用可能なtimer値はスキン関連ドキュメント内timer.txt参照。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">panel</td>
+                    <td colspan="2" valign="top">
+                        <p>panelを指定すると、規定のパネルが出ているときのみ表示されます。
+                            <br> またpanel=-1の場合のみ、パネルがすべてオフのときのみ表示となります。
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">x2y2w2h2</td>
+                    <td valign="top">
+                        <p>問題はここです。
+                            <br> ONMOUSE定義ではこれら4つの値でマウスの判定座標を指定しますが、
+                            <br> このx2y2はxyからの相対座標になります。ちなみにx2とy2では負の値も使えます。
+                            <br> 試してませんがおそらくwhでも出来ると思います。
+                        </p>
+                        <p>右図は赤の範囲をSRCで切り出す画像全体、
+                            <br> 緑の範囲をマウス判定座標とした時の各値の関係です。
+                            <br> つまり
+                            <span style="font-weight:bold;">緑の範囲にマウスカーソルが重なると赤の範囲が表示</span>されます。</p>
+                        <p>この時の判定座標は切り出し画像内に無くても問題ありません。
+                            <br> （マウス判定のみ画面の反対側で行う、といったことも可能です）
+                        </p>
+                        <p>表示するパーツがマウス判定座標と同じ位置・サイズであれば、
+                            <br> x2y2が0、w2h2はSRCと同じ値で済みますが、
+                            <br> サイズが異なる場合の方が多いのがこの定義の面倒くさいところ。
+                        </p>
+                        <p>x2y2に緑範囲の左上座標点も含めて取ってしまいよく失敗しましたが、
+                            <br> x2y2には緑範囲（マウス判定範囲）は含まれません。注意しましょう。
+                        </p>
+                    </td>
+                    <td valign="top">
+                        <p align="center"><img alt="onmouse_x2y2w2h2.png" src="onmouse_x2y2w2h2.png" border="0" height="214" width="212"></p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>#DSTは省略。</p>
+        <h4>ONMOUSE定義テンプレート</h4>
+        <p>カンマ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="100" readonly="readonly" name="onmouse_txt">//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer,panel,x2,y2,w2,h2
+#SRC_ONMOUSE,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0
+//DST定義,(NULL),time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_ONMOUSE,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_ONMOUSE,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0</textarea>
+        </p>
+        <p>タブ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="100" readonly="readonly" name="onmouse_csv">//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer	panel	x2	y2	w2	h2
+#SRC_ONMOUSE	0	0	0	0	0	0	1	1	0	0	0	0	0	0	0
+//DST定義	(NULL)	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_ONMOUSE	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_ONMOUSE	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0</textarea></p>
+        <h3><a name="src_text">#SRC_TEXT</a></h3>
+        <p>文字列定義です。
+            <br> LR2スキン定義の中で唯一製作側の想定しないものを表示する可能性がある定義です。
+            <br> 表示文字列の横幅がDSTのw値を超えるサイズになった場合は自動的に縮小されます。このためほぼfilter必須。
+            <br> また、回転描画には対応していません。
+        </p>
+        <p><img alt="src_text.png" src="src_text.png" border="0" height="33" width="449"></p>
+        <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0" height="197">
+            <tbody>
+                <tr>
+                    <td>（NULL）</td>
+                    <td>#IMAGEと同じです。TEXT定義では0以外を入力しても意味はありません。</td>
+                    <td class="iframe" rowspan="6">
+                        <iframe noresize="" src="text.html" name="text" height="100%"></iframe>
+                        <br>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">font</td>
+                    <td valign="top">
+                        <p>画像定義でのgrと同じです。#LR2FONTでの記述順番号を指定します。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">st</td>
+                    <td valign="top">
+                        <p>参照文字列タイプを指定します。利用可能な値は右表参照。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">align</td>
+                    <td valign="top">
+                        <p>文字の表示位置を指定します。alignによってDST行で指定するx座標の位置が変わるので注意。</p>
+                        <p>0：左寄せ（xは文字列の左端を指定）
+                            <br> 1：センタリング（同中央）
+                            <br> 2：右寄せ（同右端）
+                        </p>
+                        <p>※NUMBER定義のalignとは微妙に違うので注意。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">edit</td>
+                    <td valign="top">
+                        <p>edit=1でクリック時の編集が可能になります。ただし対応しているもの以外は編集しても無意味です。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">panel</td>
+                    <td valign="top">指定のパネル起動中のみ編集できます。panel=-1でパネルが起動していないときのみ編集できます。</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>表示文字列のサイズはDST側のh値に依存します。</p>
+        <div id="important">
+            <h4>※文字の描画順序</h4>
+            <p>DST_TEXTの文字の描画は左の文字から順に行われるようで、
+                <br> lr2fontでの#Mを負の値で大きめに設定し、表示文字列が全て重なる状態で文字列「1234」を表示させると4が最前面になります。
+            </p>
+            <h4>※文字の表示サイズ</h4>
+            <p>lr2fontファイル内で#SRC定義のように文字単位での切り出し座標が記述されており、
+                <br> 切り出された画像の高さが同じくlr2font内の#S値に合わせて拡縮され、更にDST_TEXTでのh値に拡縮されて表示されます。
+                <br> （基本的に高さ基準です。横幅は最終的にDST側のw値依存になるので拡縮を完全に避けることは出来ません）
+            </p>
+            <p>このため、lr2fontでの全文字のh値・S値・DST_TEXTのh値はすべて統一しておいた方が表示が綺麗になります。
+                <br> が、
+                <a href="lr2font.html#fontutil">FontUtil</a>で狙ったサイズを出力するのは難しいので、基本的にはlr2fontを作ってから文字定義を作りましょう。</p>
+        </div>
+        <p>
+            <br>
+        </p>
+        <ul class="link">
+            <li>関連リンク：</li>
+            <li><a title="FONT関連" href="lr2font.html">FONT関連</a></li>
+            <li><a href="specification.html#dynamic_option">特定条件下でのみ参照値が異なる機能</a></li>
+            <li><a title="スキンで参照可能なフォント数" href="specification.html#lr2font">スキンで参照可能なフォント数</a></li>
+            <li><a title="LR2フォント調整時の注意" href="specification.html#lr2fontfile">LR2フォント調整時の注意</a></li>
+            <li><a title="テキスト連動パーツ" href="application.html#text_parts">テキスト連動パーツ</a></li>
+            <li><a title="テキスト定義を用いたバーグラフ" href="application.html#txt2bargraph">テキスト定義を用いたバーグラフ</a></li>
+        </ul>
+        <h4>TEXT定義テンプレート</h4>
+        <p>カンマ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="100" readonly="readonly" name="text_txt">//SRC定義,(NULL),font,st,align,edit,panel
+#SRC_TEXT,0,0,0,0,0,0
+//DST定義,(NULL),time,x,y,w,size,acc,a,r,g,b,blend,filter,(NULL),(NULL),loop,timer,op1,op2,op3
+#DST_TEXT,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_TEXT,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0</textarea>
+        </p>
+        <p>タブ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="100" readonly="readonly" name="text_csv">//SRC定義	(NULL)	font	st	align	edit	panel
+#SRC_TEXT	0	0	0	0	0	0
+//DST定義	(NULL)	time	x	y	w	size	acc	a	r	g	b	blend	filter	(NULL)	(NULL)	loop	timer	op1	op2	op3
+#DST_TEXT	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_TEXT	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0</textarea></p>
+    </div>
+</body>
+
+</html>

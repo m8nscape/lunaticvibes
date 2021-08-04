@@ -1,0 +1,30 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_JoystickGetGUIDFromString</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_JoystickGetGUIDFromString</h1>
+<p>Use this function to convert a GUID string into a SDL_JoystickGUID structure.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_JoystickGUID SDL_JoystickGetGUIDFromString(const char* pchGUID)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>pchGUID</td><td>string containing an ASCII representation of a GUID</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns a SDL_JoystickGUID structure.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>Performs no error checking. If this function is given a string containing an invalid GUID, the function will silently succeed, but the GUID generated will not be useful.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_JoystickGetGUIDString.html">SDL_JoystickGetGUIDString</a></li</ul>
+</div>
+</BODY>
+</HTML>

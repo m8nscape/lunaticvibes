@@ -1,0 +1,61 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_RWread</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_RWread</h1>
+<p>Use this function to read from a data source.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+size_t SDL_RWread(struct SDL_RWops* context,
+                  void*             ptr,
+                  size_t            size,
+                  size_t            maxnum)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>context</strong></td><td>a pointer to an <a href="structures/SDL_RWops.html">SDL_RWops</a> structure</td></tr>
+<tr><td><strong>ptr</strong></td><td>a pointer to a buffer to read data into</td></tr>
+<tr><td><strong>size</strong></td><td>the size of each object to read, in bytes</td></tr>
+<tr><td><strong>maxnum</strong></td><td>the maximum number of objects to be read</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns the number of objects read, or 0 at error or end of file; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+SDL_RWops *rw = SDL_RWFromFile("test.bin","r");
+if (rw != NULL) {
+  extern Uint8 buf[256];
+  SDL_RWread(rw, buf, sizeof (buf), 1);
+  SDL_RWclose(rw);
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>This function reads up to <strong>maxnum</strong> objects each of size <strong>size</strong> from the data source to the area pointed at by <strong>ptr</strong>. This function may read less objects than requested. It will return zero when there has been an error or the data stream is completely read.
+<p>SDL_RWread is actually a macro that calls the SDL_RWops's <strong>read</strong> method appropriately, to simplify application development.
+<h3>More Examples</h3>
+<div style=codearea>
+<pre>
+int buffer[10]
+SDL_RWread(rwop, buffer, sizeof(buffer), 4)
+<pre></div>
+<p>This will read 40 bytes of data, and put it into 'buffer', which is intended to hold 32-bit integers. Each int is 4 bytes, or 32-bits.
+<div style=codearea>
+<pre>
+long buffer[10]
+SDL_RWread(rwop, buffer, sizeof(buffer), 8)
+</pre></div>
+<p>This will read 80 bytes of data, and place them into 'buffer', which is now designed for 64-bit integers (long values). Each int (long) is 8 bytes, and we are reading 10 of them (as shown by buffer[10] when we make it).
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_RWclose.html">SDL_RWclose</a></li>
+<li><a href="SDL_RWseek.html">SDL_RWseek</a></li>
+<li><a href="SDL_RWwrite.html">SDL_RWwrite</a></li></ul>
+</div>
+</BODY>
+</HTML>

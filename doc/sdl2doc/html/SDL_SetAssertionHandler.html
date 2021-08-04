@@ -1,0 +1,44 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_SetAssertionHandler</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_SetAssertionHandler</h1>
+<p>Use this function to set an application-defined assertion handler.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_SetAssertionHandler(SDL_AssertionHandler handler,
+                             void*                userdata)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>handler</strong></td><td>the function to call when an assertion fails or NULL for the default handler; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td><strong>userdata</strong></td><td>a pointer that is passed to <strong>handler</strong></td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<p>This function allows an application to show its own assertion UI and/or force the response to an assertion failure. If the application doesn't provide this, SDL will try to do the right thing, popping up a system-specific GUI dialog, and probably minimizing any fullscreen windows.
+<p>The function prototype for <strong>handler</strong> is:
+<div style=codearea>
+<pre>
+SDL_assert_state YourAssertionHandler(const SDL_assert_data* data,
+                                      void*                  userdata)
+</pre></div>
+<ul style="list-style-type:none"><li>where <tt style="backtick">YourAssertionHandler</tt> is the name of your function and its parameters are:
+<table>
+<tr><td>data</td><td>a pointer to the <a href="structures/SDL_assert_data.html">SDL_assert_data</a> structure corresponding to the current assertion
+<tr><td>userdata</td><td>what was passed as <strong>userdata</strong> to <a href="SDL_SetAssertionHandler.html">SDL_SetAssertionHandler</a>()
+</table>
+</li>
+<li>This callback should return an SDL_assert_state value indicating how to handle the assertion failure. </li>
+</ul>
+<p>This callback may fire from any thread, but it runs wrapped in a mutex, so it will only fire from one thread at a time.
+<p>This callback is NOT reset to SDL's internal handler upon <A href="SDL_Quit.html">SDL_Quit</a>()! 
+</div>
+</BODY>
+</HTML>

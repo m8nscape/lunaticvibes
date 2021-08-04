@@ -1,0 +1,30 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GameControllerMappingForGUID</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GameControllerMappingForGUID</h1>
+<p>Use this function to get the GameController mapping string for a given GUID.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+char* SDL_GameControllerMappingForGUID(SDL_JoystickGUID guid)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>guid</strong></td><td>a structure containing the GUID for which a mapping is desired</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns a mapping string or NULL on error; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_JoystickGetDeviceGUID.html">SDL_JoystickGetDeviceGUID</a></li>
+<li><a href="SDL_JoystickGetGUID.html">SDL_JoystickGetGUID</a></li></ul>
+</div>
+</BODY>
+</HTML>

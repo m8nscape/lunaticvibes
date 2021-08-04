@@ -1,0 +1,30 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>Thread Management</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>Thread Management</h1>
+<h2>Introduction</h2>
+<p>This category contains functions for system independent thread management routines.
+<p><em>NOTE:</em> You should not expect to be able to create a window, render, or receive events on any thread other than the main one. For platform-specific exceptions or complicated options ask on the <a href="http://lists.libsdl.org/listinfo.cgi/sdl-libsdl.org">mailing list</a> or <a href="http://forums.libsdl.org/viewtopic.php?t=5973">forum</a>.
+<p><em>NOTE:</em> Avoid creating threads or synchronization primitives prior to calling <a href="SDL_Init.html">SDL_Init</a>. While on some platforms (i.e. Windows) these functions will work correctly before SDL initialization, other platforms (i.e. Linux) may not.
+<h2>Enumerations</h2>
+<ol start="1">
+<li><a href="SDL_ThreadPriority.html">SDL_ThreadPriority</a></li>
+</ol>
+<h2>Functions</h2>
+<ol start="1">
+<li><a href="SDL_CreateThread.html">SDL_CreateThread</a></li>
+<li><a href="SDL_GetThreadID.html">SDL_GetThreadID</a></li>
+<li><a href="SDL_GetThreadName.html">SDL_GetThreadName</a></li>
+<li><a href="SDL_SetThreadPriority.html">SDL_SetThreadPriority</a></li>
+<li><a href="SDL_ThreadID.html">SDL_ThreadID</a></li>
+<li><a href="SDL_WaitThread.html">SDL_WaitThread</a></li>
+</ol>
+</div>
+</BODY>
+</HTML>

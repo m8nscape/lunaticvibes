@@ -1,0 +1,38 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_HapticOpen</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_HapticOpen</h1>
+<p>Use this function to open a haptic device for usage.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_Haptic* SDL_HapticOpen(int device_index)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>device_index</strong></td><td>index of the device to open</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns the device identifier or NULL on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>The index passed as an argument refers to the N'th Haptic device on this system.
+<p>When opening a haptic device, it's gain will be set to maximum and autocenter will be disabled. To modify these values use <a href="SDL_HapticSetGain.html">SDL_HapticSetGain</a>() and <a href="SDL_HapticSetAutocenter.html">SDL_HapticSetAutocenter</a>().
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_HapticClose.html">SDL_HapticClose</a></li>
+<li><a href="SDL_HapticIndex.html">SDL_HapticIndex</a></li>
+<li><a href="SDL_HapticOpenFromJoystick.html">SDL_HapticOpenFromJoystick</a></li>
+<li><a href="SDL_HapticOpenFromMouse.html">SDL_HapticOpenFromMouse</a></li>
+<li><a href="SDL_HapticPause.html">SDL_HapticPause</a></li>
+<li><a href="SDL_HapticSetAutocenter.html">SDL_HapticSetAutocenter</a></li>
+<li><a href="SDL_HapticSetGain.html">SDL_HapticSetGain</a></li>
+<li><a href="SDL_HapticStopAll.html">SDL_HapticStopAll</a></li></ul>
+</div>
+</BODY>
+</HTML>

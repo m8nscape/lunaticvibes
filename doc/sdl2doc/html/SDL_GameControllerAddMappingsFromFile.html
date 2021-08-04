@@ -1,0 +1,40 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GameControllerAddMappingsFromFile</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GameControllerAddMappingsFromFile</h1>
+<p>Load a set of Game Controller mappings from a file, filtered by the current <a href="SDL_GetPlatform.html">SDL_GetPlatform</a>(). A community sourced database of controllers is available <a class="https" href="https://raw.github.com/gabomdq/SDL_GameControllerDB/master/gamecontrollerdb.txt">here</a> (on GitHub).
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_GameControllerAddMappingsFromFile(const char* filename)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>filename</strong></td><td>the name of the database you want to load</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns the number of mappings added, -1 on error; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+SDL_GameControllerAddMappingsFromFile("gamecontrollerdb.txt");
+</pre></div>
+<h2>Remarks</h2>
+<p>You can call this function several times if needed to load different database files.
+<p>If a new mapping is loaded for an already known controller GUID, the later version will overwrite the one currently loaded.
+<p>Mappings not belonging to the current platform or with no platform field specified will be ignored (i.e. mappings for Linux will be ignored in Windows, etc).
+<p>This function will load the text database entirely in memory before processing it, so take this into consideration if you are in a memory constrained environment.
+<h2>Version</h2>
+<p>This function is available in SDL 2.0.2.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GameControllerAddMapping.html">SDL_GameControllerAddMapping</a></li>
+<li><a href="SDL_GameControllerMappingForGUID.html">SDL_GameControllerMappingForGUID</a></li></ul>
+</div>
+</BODY>
+</HTML>

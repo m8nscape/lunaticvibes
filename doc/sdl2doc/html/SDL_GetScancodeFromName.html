@@ -1,0 +1,32 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetScancodeFromName</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetScancodeFromName</h1>
+<p>Use this function to get a scancode from a human-readable name.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_Scancode SDL_GetScancodeFromName(const char* name)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>name</strong></td><td>the human-readable scancode name</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns the scancode, or SDL_SCANCODE_UNKNOWN if the name wasn't recognized; call [[SDL_GetError]]() for more information.
+<p><span style="color:green; ">Should this refer to the SDL_Scancode instead of just scancode? Leave error call in?</span>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetKeyFromName.html">SDL_GetKeyFromName ???</a></li>
+<li><a href="SDL_GetScancodeFromKey.html">SDL_GetScancodeFromKey</a></li>
+<li><a href="SDL_GetScancodeName.html">SDL_GetScancodeName</a></li></ul>
+</div>
+</BODY>
+</HTML>

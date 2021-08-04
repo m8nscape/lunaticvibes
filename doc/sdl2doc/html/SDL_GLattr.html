@@ -1,0 +1,60 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GLattr</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GLattr</h1>
+<p>An enumeration of OpenGL configuration attributes.
+<h2>Values</h2>
+<table>
+<tr><td>SDL_GL_RED_SIZE</td><td>the minimum number of bits for the red channel of the color buffer; defaults to 3</td></tr>
+<tr><td>SDL_GL_GREEN_SIZE</td><td>the minimum number of bits for the green channel of the color buffer; defaults to 3</td></tr>
+<tr><td>SDL_GL_BLUE_SIZE</td><td>the minimum number of bits for the blue channel of the color buffer; defaults to 2</td></tr>
+<tr><td>SDL_GL_ALPHA_SIZE</td><td>the minimum number of bits for the alpha channel of the color buffer; defaults to 0</td></tr>
+<tr><td>SDL_GL_BUFFER_SIZE</td><td>the minimum number of bits for frame buffer size; defaults to 0</td></tr>
+<tr><td>SDL_GL_DOUBLEBUFFER</td><td>whether the output is single or double buffered; defaults to double buffering on</td></tr>
+<tr><td>SDL_GL_DEPTH_SIZE</td><td>the minimum number of bits in the depth buffer; defaults to 16</td></tr>
+<tr><td>SDL_GL_STENCIL_SIZE</td><td>the minimum number of bits in the stencil buffer; defaults to 0</td></tr>
+<tr><td>SDL_GL_ACCUM_RED_SIZE</td><td>the minimum number of bits for the red channel of the accumulation buffer; defaults to 0</td></tr>
+<tr><td>SDL_GL_ACCUM_GREEN_SIZE</td><td>the minimum number of bits for the green channel of the accumulation buffer; defaults to 0</td></tr>
+<tr><td>SDL_GL_ACCUM_BLUE_SIZE</td><td>the minimum number of bits for the blue channel of the accumulation buffer; defaults to 0</td></tr>
+<tr><td>SDL_GL_ACCUM_ALPHA_SIZE</td><td>the minimum number of bits for the alpha channel of the accumulation buffer; defaults to 0</td></tr>
+<tr><td>SDL_GL_STEREO</td><td>whether the output is stereo 3D; defaults to off</td></tr>
+<tr><td>SDL_GL_MULTISAMPLEBUFFERS</td><td>the number of buffers used for multisample anti-aliasing; defaults to 0; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td>SDL_GL_MULTISAMPLESAMPLES</td><td>the number of samples used around the current pixel used for multisample anti-aliasing; defaults to 0; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td>SDL_GL_ACCELERATED_VISUAL</td><td>set to 1 to require hardware acceleration, set to 0 to force software rendering; defaults to allow either</td></tr>
+<tr style="color: #808080;"><td>SDL_GL_RETAINED_BACKING</td><td>not used (deprecated)</td></tr>
+<tr><td>SDL_GL_CONTEXT_MAJOR_VERSION</td><td>OpenGL context major version; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td>SDL_GL_CONTEXT_MINOR_VERSION</td><td>OpenGL context minor version; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td>SDL_GL_CONTEXT_EGL</td><td>set to 1 to use EGL; default is platform-dependent</td></tr>
+<tr><td>SDL_GL_CONTEXT_FLAGS</td><td>some combination of 0 or more of elements of the <a href="SDL_GLcontextFlag.html">SDL_GLcontextFlag</a> enumeration; defaults to 0</td></tr>
+<tr><td>SDL_GL_CONTEXT_PROFILE_MASK</td><td>one of the members of the <a href="SDL_GLprofile.html">SDL_GLprofile</a> enumeration or 0 to allow any profile; defaults to 0</td></tr>
+<tr><td>SDL_GL_SHARE_WITH_CURRENT_CONTEXT</td><td>OpenGL context sharing; defaults to 0</td></tr>
+<tr><td>SDL_GL_FRAMEBUFFER_SRGB_CAPABLE</td><td>requests sRGB capable visual; defaults to 0 (>= SDL 2.0.1)</td></tr>
+</table>
+<div style=codearea>
+<pre>
+SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+SDL_GL_SetAttribute(SDL_DOUBLEBUFFER, 1);
+SDL_GL_CreateContext(window);
+</pre></div>
+<h2 id="Remarks">Remarks</h2>
+<p>While you can set most OpenGL attributes normally, the attributes listed above must be known before SDL creates an OpenGL context. These attributes are set and read with <a href="SDL_GL_SetAttribute.html">SDL_GL_SetAttribute</a>() and <a href="SDL_GL_GetAttribute.html">SDL_GL_GetAttribute</a>().
+<p>In some cases, these attributes are minimum requests; the GL does not promise to give you exactly what you asked for. It's possible to ask for a 16-bit depth buffer and get a 24-bit one instead, for example, or to ask for no stencil buffer and still have one available. Context creation should fail if the GL can't provide your requested attributes at a minimum, but you should check to see exactly what you got.
+<p><a id="multisample" class="http" href="http://en.wikipedia.org/wiki/Multisample_anti-aliasing">Multisample anti-aliasing</a> is a type of full screen anti-aliasing. Multipsampling defaults to off but can be turned on by setting SDL_GL_MULTISAMPLEBUFFERS to 1 and SDL_GL_MULTISAMPLESAMPLES to a value greater than 0. Typical values are 2 and 4.
+<p id="OpenGL">SDL_GL_CONTEXT_MAJOR_VERSION and SDL_GL_CONTEXT_MINOR_VERSION are used when creating an OpenGL 3.x context.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GL_GetAttribute.html">SDL_GL_GetAttribute</a></li>
+<li><a href="SDL_GL_SetAttribute.html">SDL_GL_SetAttribute</a></li>
+<li><a href="SDL_GL_CreateContext.html">SDL_GL_CreateContext</a></li>
+</ul>
+</div>
+</BODY>
+</HTML>

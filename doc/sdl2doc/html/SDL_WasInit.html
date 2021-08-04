@@ -1,0 +1,77 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_WasInit</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_WasInit</h1>
+<p>Use this function to return a mask of the specified subsystems which have previously been initialized.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+Uint32 SDL_WasInit(Uint32 flags)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>flags</strong></td><td>any of the flags used by <a href="SDL_Init.html">SDL_Init</a>(); see <a href="#Remarks">Remarks</a> for details</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>If flags is 0 it returns a mask of all initialized subsystems, otherwise it returns the initialization status of the specified subsystems.
+<p>The return value does not include SDL_INIT_NOPARACHUTE.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+/* Get init data on all the subsystems */
+Uint32 subsystem_init;
+
+subsystem_init = SDL_WasInit(SDL_INIT_EVERYTHING);
+
+if (subsystem_init & SDL_INIT_VIDEO) {
+    printf("Video is initialized.\n");
+} else {
+    printf("Video is not initialized.\n");
+}
+</pre></div>
+<div style=codearea>
+<pre>
+/* Just check for one specific subsystem */
+
+if (SDL_WasInit(SDL_INIT_VIDEO) != 0) {
+    printf("Video is initialized.\n");
+} else {
+    printf("Video is not initialized.\n");
+}
+</pre></div>
+<div style=codearea>
+<pre>
+/* Check for two subsystems */
+Uint32 subsystem_mask = SDL_INIT_VIDEO | SDL_INIT_AUDIO;
+
+if (SDL_WasInit(subsystem_mask) == subsystem_mask) {
+    printf("Video and Audio initialized.\n");
+} else {
+    printf("Video and Audio not initialized.\n");
+}
+</pre></div>
+<h2 id="Remarks">Remarks</h2>
+<p>These are the flags which may be passed to <a href="SDL_WasInit.html">SDL_WasInit</a>() and may be OR'd together to query multiple subsystems simultaneously.
+<table>
+<tr><td><strong>SDL_INIT_TIMER</strong></td><td>timer subsystem</td></tr>
+<tr><td><strong>SDL_INIT_AUDIO</strong></td><td>audio subsystem</td></tr>
+<tr><td><strong>SDL_INIT_VIDEO</strong></td><td>video subsystem</td></tr>
+<tr><td><strong>SDL_INIT_JOYSTICK</strong></td><td>joystick subsystem</td></tr>
+<tr><td><strong>SDL_INIT_HAPTIC</strong></td><td>haptic (force feedback) subsystem</td></tr>
+<tr><td><strong>SDL_INIT_GAMECONTROLLER</strong></td><td>controller subsystem</td></tr>
+<tr><td><strong>SDL_INIT_EVENTS</strong></td><td>events subsystem</td></tr>
+<tr><td><strong>SDL_INIT_EVERYTHING</strong></td><td>all of the above subsystems</td></tr>
+<tr><td><strong>SDL_INIT_NOPARACHUTE</strong></td><td>don't catch fatal signals</td></tr>
+</table>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_Init.html">SDL_Init</a></li>
+<li><a href="SDL_InitSubSystem.html">SDL_InitSubSystem</a></li></ul>
+</div>
+</BODY>
+</HTML>

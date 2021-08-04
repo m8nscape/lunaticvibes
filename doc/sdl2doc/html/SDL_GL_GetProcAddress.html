@@ -1,0 +1,62 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GL_GetProcAddress</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GL_GetProcAddress</h1>
+<p>Use this function to get an OpenGL function by name.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void* SDL_GL_GetProcAddress(const char* proc)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>proc</strong></td><td>the name of an OpenGL function</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns a pointer to the named OpenGL function, or NULL if the function is not found. The returned pointer should be cast to the appropriate function signature.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+typedef void (APIENTRY * GL_ActiveTextureARB_Func)(unsigned int);
+GL_ActiveTextureARB_Func glActiveTextureARB_ptr = 0;
+int has_multitexture=1;
+.
+.
+.
+/* Get function pointer */
+glActiveTextureARB_ptr=(GL_ActiveTextureARB_Func) SDL_GL_GetProcAddress("glActiveTextureARB");
+
+/* Check for a valid function ptr */
+if(!glActiveTextureARB_ptr){
+  fprintf(stderr, "Multitexture Extensions not present.\n");
+  has_multitexture=0;
+}
+.
+.
+.
+.
+if(has_multitexture){
+  glActiveTextureARB_ptr(GL_TEXTURE0_ARB);
+  .
+  .
+}
+else{
+  .
+  .
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>If the GL library is loaded at runtime with <a href="SDL_GL_LoadLibrary.html">SDL_GL_LoadLibrary</a>(), then all GL functions must be retrieved this way. Usually this is used to retrieve function pointers to OpenGL extensions. Note that this function needs an OpenGL context to work properly, so it should be called after creating the OpenGL context.
+<p>OpenGL function pointers must be declared APIENTRY as in the example code. This will ensure the proper calling convention is followed on platforms where this matters (Win32) thereby avoiding stack corruption.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GL_LoadLibrary.html">SDL_GL_LoadLibrary</a></li>
+<li><a href="SDL_GL_UnloadLibrary.html">SDL_GL_UnloadLibrary</a></li></ul>
+</div>
+</BODY>
+</HTML>

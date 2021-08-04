@@ -1,0 +1,42 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_DetachThread</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_DetachThread</h1>
+<p>Use this function to let a thread clean up on exit without intervention.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_DetachThread(SDL_Thread* thread)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>thread</strong></td><td>the SDL_Thread pointer that was returned from the <a href="SDL_CreateThread.html">SDL_CreateThread</a>() call that started this thread</td></tr>
+</table>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+extern int TestThread(void *ptr);
+SDL_Thread *thread = SDL_CreateThread(TestThread, "TestThread", (void *)NULL);
+SDL_DetachThread(thread);  /* will go away on its own upon completion. */
+</pre></div>
+<h2>Remarks</h2>
+<p>A thread may be "detached" to signify that it should not remain until another thread has called <a href="SDL_WaitThread.html">SDL_WaitThread</a>() on it. Detaching a thread is useful for long-running threads that nothing needs to synchronize with or further manage. When a detached thread is done, it simply goes away.
+<p>There is no way to recover the return code of a detached thread. If you need this, don't detach the thread and instead use <a href="SDL_WaitThread.html">SDL_WaitThread</a>().
+<p>Once a thread is detached, you should usually assume the SDL_Thread isn't safe to reference again, as it will become invalid immediately upon the detached thread's exit, instead of remaining until someone has called <a href="SDL_WaitThread.html">SDL_WaitThread</a>() to finally clean it up. As such, don't detach the same thread more than once.
+<p>If a thread has already exited when passed to <a href="SDL_DetachThread.html">SDL_DetachThread</a>(), it will stop waiting for a call to <a href="SDL_WaitThread.html">SDL_WaitThread</a>() and clean up immediately. It is not safe to detach a thread that might be used with <a href="SDL_WaitThread.html">SDL_WaitThread</a>().
+<p>You may not call <a href="SDL_WaitThread.html">SDL_WaitThread</a>() on a thread that has been detached. Use either that function or this one, but not both, or behavior is undefined.
+<p>It is safe to pass NULL to this function; it is a no-op.
+<h2>Version</h2>
+<p>This function is available since SDL 2.0.2.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_CreateThread.html">SDL_CreateThread</a></li>
+<li><a href="SDL_WaitThread.html">SDL_WaitThread</a></li></ul>
+</div>
+</BODY>
+</HTML>

@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetVersion</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetVersion</h1>
+<p>Use this function to get the version of SDL that is linked against your program.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_GetVersion(SDL_version* ver)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>ver</strong></td><td>the SDL_version structure that contains the version information</td></tr>
+</table>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+SDL_version compiled;
+SDL_version linked;
+
+SDL_VERSION(&compiled);
+SDL_GetVersion(&linked);
+printf("We compiled against SDL version %d.%d.%d ...\n",
+       compiled.major, compiled.minor, compiled.patch);
+printf("But we are linking against SDL version %d.%d.%d.\n",
+       linked.major, linked.minor, linked.patch);
+</pre></div>
+<h2>Remarks</h2>
+<p>If you are linking to SDL dynamically, then it is possible that the current version will be different than the version you compiled against. This function returns the current version, while <a href="SDL_VERSION.html">SDL_VERSION</a>() is a macro that tells you what version you compiled with.
+<p>This function may be called safely at any time, even before <a href="SDL_Init.html">SDL_Init</a>().
+<h2>Related Macros</h2>
+<ul style="list-style-type:none"><li><a href="SDL_VERSION.html">SDL_VERSION</a></li></ul>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetRevision.html">SDL_GetRevision</a></li></ul>
+</div>
+</BODY>
+</HTML>

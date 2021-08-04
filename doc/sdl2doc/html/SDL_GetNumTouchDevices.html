@@ -1,0 +1,29 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetNumTouchDevices</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetNumTouchDevices</h1>
+<p>Use this function to get the number of registered touch devices.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_GetNumTouchDevices(void)
+</pre></div>
+<h2>Return Value</h2>
+<p>Returns the number of registered touch devices.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>On some platforms SDL first sees the touch device if it was actually used. Therefore <a href="SDL_GetNumTouchDevices.html">SDL_GetNumTouchDevices</a>() may return 0 although devices are available. After using all devices at least once the number will be correct.
+<p>This was fixed for Android in SDL 2.0.1.
+<h2>Version</h2>
+<p>This function is available since SDL 2.0.0.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetTouchDevice.html">SDL_GetTouchDevice</a></li></ul>
+</div>
+</BODY>
+</HTML>

@@ -1,0 +1,33 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_SetHint</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_SetHint</h1>
+<p>Use this function to set a hint with normal priority.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_bool SDL_SetHint(const char* name,
+                     const char* value)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>name</strong></td><td>the hint to set; see the list of hints on <a href="CategoryHints.html">CategoryHints</a> for details</td></tr>
+<tr><td><strong>value</strong></td><td>the value of the hint variable</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns SDL_TRUE if the hint was set, SDL_FALSE otherwise.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>Hints will not be set if there is an existing override hint or environment variable that takes precedence. You can use <a href="SDL_SetHintWithPriority.html">SDL_SetHintWithPriority</a>() to set the hint with override priority instead.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetHint.html">SDL_GetHint</a></li>
+<li><a href="SDL_SetHintWithPriority.html">SDL_SetHintWithPriority</a></li></ul>
+</div>
+</BODY>
+</HTML>

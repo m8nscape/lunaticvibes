@@ -1,0 +1,82 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_CreateRenderer</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_CreateRenderer</h1>
+<p>Use this function to create a 2D rendering context for a window.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_Renderer* SDL_CreateRenderer(SDL_Window* window,
+                                 int         index,
+                                 Uint32      flags)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>window</strong></td><td>the window where rendering is displayed</td></tr>
+<tr><td><strong>index</strong></td><td>the index of the rendering driver to initialize, or -1 to initialize the first one supporting the requested flags</td></tr>
+<tr><td><strong>flags</strong></td><td>0, or one or more <a href="SDL_RendererFlags.html">SDL_RendererFlags</a> OR'd together; see <a href="#Remarks">Remarks</a> for details</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns a valid rendering context or NULL if there was an error; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+#include "SDL.h"
+
+int main(int argc, char *argv[]) {
+    SDL_Window *win = NULL;
+    SDL_Renderer *renderer = NULL;
+    SDL_Texture *bitmapTex = NULL;
+    SDL_Surface *bitmapSurface = NULL;
+    int posX = 100, posY = 100, width = 320, height = 240;
+
+    win = SDL_CreateWindow("Hello World", posX, posY, width, height, 0);
+
+    renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
+
+    bitmapSurface = SDL_LoadBMP("img/hello.bmp");
+    bitmapTex = SDL_CreateTextureFromSurface(renderer, bitmapSurface);
+    SDL_FreeSurface(bitmapSurface);
+
+    while (1) {
+        SDL_Event e;
+        if (SDL_PollEvent(&e)) {
+            if (e.type == SDL_QUIT) {
+                break;
+            }
+        }
+
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, bitmapTex, NULL, NULL);
+        SDL_RenderPresent(renderer);
+    }
+
+    SDL_DestroyTexture(bitmapTex);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(win);
+
+    return 0;
+}
+</pre></div>
+<h2 id="Remarks">Remarks</h2>
+<p><strong>flags</strong> may be any of the following OR'd together:
+<table>
+<tr><td>SDL_RENDERER_SOFTWARE</td><td>the renderer is a software fallback</td></tr>
+<tr><td>SDL_RENDERER_ACCELERATED</td><td>the renderer uses hardware acceleration</td></tr>
+<tr><td>SDL_RENDERER_PRESENTVSYNC</td><td>present is synchronized with the refresh rate</td></tr>
+<tr><td>SDL_RENDERER_TARGETTEXTURE</td><td>the renderer supports rendering to texture</td></tr>
+</table>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_CreateSoftwareRenderer.html">SDL_CreateSoftwareRenderer</a></li>
+<li><a href="SDL_DestroyRenderer.html">SDL_DestroyRenderer</a></li>
+<li><a href="SDL_GetNumRenderDrivers.html">SDL_GetNumRenderDrivers</a></li>
+<li><a href="SDL_GetRendererInfo.html">SDL_GetRendererInfo</a></li></ul>
+</div>
+</BODY>
+</HTML>

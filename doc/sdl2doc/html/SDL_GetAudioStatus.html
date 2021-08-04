@@ -1,0 +1,63 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetAudioStatus</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetAudioStatus</h1>
+<p>This function is a legacy means of querying the audio device. New programs might want to use <a href="SDL_GetAudioDeviceStatus.html">SDL_GetAudioDeviceStatus</a>() instead.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_AudioStatus SDL_GetAudioStatus(void)
+</pre></div>
+<h2>Return Value</h2>
+<p>Returns the <a href="SDL_AudioStatus.html">SDL_AudioStatus</a> of the specified audio device which may be one of the following:
+<table>
+<tr><td>SDL_AUDIO_STOPPED</td><td>audio device is stopped</td></tr>
+<tr><td>SDL_AUDIO_PLAYING</td><td>audio device is playing</td></tr>
+<tr><td>SDL_AUDIO_PAUSED</td><td>audio device is paused</td></tr>
+</table>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+void printStatus(void)
+{
+    switch (SDL_GetAudioStatus())
+    {
+        case SDL_AUDIO_STOPPED: printf("stopped\n"); break;
+        case SDL_AUDIO_PLAYING: printf("playing\n"); break;
+        case SDL_AUDIO_PAUSED: printf("paused\n"); break;
+        default: printf("???"); break;
+    }
+}
+
+extern SDL_AudioSpec desired;
+extern SDL_AudioSpec obtained;
+
+// device starts paused
+if (SDL_OpenAudio(&desired, &obtained) == 0) {
+     printStatus();  // prints "paused"
+     SDL_PauseAudio(0);
+     printStatus();  // prints "playing"
+     SDL_PauseAudio(1);
+     printStatus();  // prints "paused"
+     SDL_CloseAudio();
+     printStatus();  // prints "stopped"
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>This function is equivalent to calling
+<div style=codearea>
+<pre>
+SDL_GetAudioDeviceStatus(1);
+</pre></div>
+<p>and is only useful if you used the legacy <a href="SDL_OpenAudio.html">SDL_OpenAudio</a>() function.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetAudioDeviceStatus.html">SDL_GetAudioDeviceStatus</a></li></ul>
+</div>
+</BODY>
+</HTML>

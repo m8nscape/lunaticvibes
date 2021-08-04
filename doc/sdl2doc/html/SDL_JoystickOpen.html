@@ -1,0 +1,61 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_JoystickOpen</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_JoystickOpen</h1>
+<p>Use this function to open a joystick for use.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_Joystick* SDL_JoystickOpen(int device_index)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>device_index</strong></td><td>the index of the joystick to query</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns a joystick identifier or NULL if an error occurred; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+SDL_Joystick *joy;
+
+// Initialize the joystick subsystem
+SDL_InitSubSystem(SDL_INIT_JOYSTICK);
+
+// Check for joystick
+if (SDL_NumJoysticks() > 0) {
+    // Open joystick
+    joy = SDL_JoystickOpen(0);
+
+    if (joy) {
+        printf("Opened Joystick 0\n");
+        printf("Name: %s\n", SDL_JoystickNameForIndex(0));
+        printf("Number of Axes: %d\n", SDL_JoystickNumAxes(joy));
+        printf("Number of Buttons: %d\n", SDL_JoystickNumButtons(joy));
+        printf("Number of Balls: %d\n", SDL_JoystickNumBalls(joy));
+    } else {
+        printf("Couldn't open Joystick 0\n");
+    }
+
+    // Close if opened
+    if (SDL_JoystickGetAttached(joy)) {
+        SDL_JoystickClose(joy);
+    }
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>* The device_index passed as an argument refers to the N'th joystick presently recognized by SDL on the system. It is <strong>NOT</strong> the same as the instance ID used to identify the joystick in future events. See <a href="SDL_JoystickInstanceID.html">SDL_JoystickInstanceID</a> for more details about instance IDs.
+<p>* The joystick subsystem must be initialized before a joystick can be opened for use.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_JoystickClose.html">SDL_JoystickClose</a></li>
+<li><a href="SDL_JoystickInstanceID.html">SDL_JoystickInstanceID</a></li></ul>
+<p><span style="color:green; ">There are a number of functions that list this one as a RF based on the old wiki. Do we want them all to be reciprocated here?</span>
+</div>
+</BODY>
+</HTML>

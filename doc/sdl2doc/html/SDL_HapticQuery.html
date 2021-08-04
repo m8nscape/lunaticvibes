@@ -1,0 +1,40 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_HapticQuery</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_HapticQuery</h1>
+<p>Use this function to get the haptic devices device's supported features in bitwise matter manner.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+unsigned int SDL_HapticQuery(SDL_Haptic* haptic)
+</pre></div>
+<p><span style="color:green; ">Should that say Uint8 or Uint16 etc instead of unsigned int"?"</span>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>haptic</strong></td><td>the SDL_Haptic device to query</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns a list of supported haptic features in bitwise manner (OR'd), or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<p><span style="color:green; ">It seems there is probably a more clear or complete way to describe this... Is there a struct that should be Included here? Maybe the <a href="structures/SDL_HapticEffect.html">SDL_HapticEffect</a> union?</span>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+extern SDL_Haptic *haptic;
+if (SDL_HapticQuery(haptic) & SDL_HAPTIC_CONSTANT) {
+    printf("We have constant haptic effect!");
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>You can add useful comments here
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_HapticEffectSupported.html">SDL_HapticEffectSupported</a></li>
+<li><a href="SDL_HapticNumEffects.html">SDL_HapticNumEffects</a></li></ul>
+</div>
+</BODY>
+</HTML>

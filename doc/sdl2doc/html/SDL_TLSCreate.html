@@ -1,0 +1,50 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_TLSCreate</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_TLSCreate</h1>
+<p>Use this function to create an identifier that is globally visible to all threads but refers to data that is thread-specific.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_TLSID SDL_TLSCreate(void)
+</pre></div>
+<h2>Return Value</h2>
+<p>Returns the newly created thread local storage identifier or 0 on error.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+static SDL_SpinLock tls_lock;
+static SDL_TLSID thread_local_storage;
+
+void SetMyThreadData(void *value)
+{
+    if (!thread_local_storage) {
+        SDL_AtomicLock(&tls_lock);
+        if (!thread_local_storage) {
+            thread_local_storage = SDL_TLSCreate();
+        }
+        SDL_AtomicUnLock(&tls_lock);
+    }
+    SDL_TLSSet(thread_local_storage, value);
+}
+
+void *GetMyThreadData(void)
+{
+    return SDL_TLSGet(thread_local_storage);
+}
+</pre></div>
+<h2>Remarks</h2>
+<h2>Version</h2>
+<p>This function is available since SDL 2.0.0.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_TLSGet.html">SDL_TLSGet</a></li>
+<li><a href="SDL_TLSSet.html">SDL_TLSSet</a></li></ul>
+</div>
+</BODY>
+</HTML>

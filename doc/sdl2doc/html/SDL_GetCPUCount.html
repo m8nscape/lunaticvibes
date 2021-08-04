@@ -1,0 +1,26 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetCPUCount</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetCPUCount</h1>
+<p>Use this function to return the number of CPU cores available.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_GetCPUCount(void)
+</pre></div>
+<h2>Return Value</h2>
+<p>Returns the total number of logical CPU cores. On CPUs that include technologies such as hyperthreading, the number of logical cores may be more than the number of physical cores.
+<h2>Code Example</h2>
+<div style=codearea>
+<pre>
+printf("Number of logical CPU cores: %d\n", SDL_GetCPUCount());
+</pre></div>
+</div>
+</BODY>
+</HTML>

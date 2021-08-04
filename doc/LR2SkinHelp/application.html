@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+    <title>LR2beta3 スキンcsv仕様書 応用編</title>
+    <meta name="author" content=".RED">
+    <meta name="GENERATOR" content="MSHTML 8.00.6001.23520">
+    <meta name="ROBOTS" content="NOINDEX,NOFOLLOW">
+    <style type="text/css">
+        body {
+            font-size: 12px;
+        }
+        
+        div {
+            margin-left: 10px;
+            padding-bottom: 30px;
+        }
+        
+        p,
+        video {
+            margin-left: 20px;
+        }
+        
+        h4 {
+            margin-top: 4em;
+            width: 96%;
+            width: calc(100% - 14px);
+            background: -moz-linear-gradient(white, #E0E0E0);
+            background: -webkit-gradient(linear, left top, left bottom, from(white), to(#E0E0E0));
+            background: -ms-linear-gradient(top, white, #E0E0E0);
+            -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#cFFF', endColorstr='#E0E0E0', GradientType=0)";
+            padding: 6px;
+            border: solid 1px #999;
+            border-radius: 3px;
+        }
+        
+        h4:before {
+            width: 5px;
+            display: inline-block;
+            background: #666;
+            content: "　";
+            margin-right: 5px;
+            padding: 2px;
+        }
+        
+        h4.expert {
+            margin-top: 4em;
+            width: 96%;
+            width: calc(100% - 14px);
+            background: -moz-linear-gradient(red, black);
+            background: -webkit-gradient(linear, left top, left bottom, from(red), to(black));
+            background: -ms-linear-gradient(top, red, black);
+            -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#FF0000', endColorstr='#000000', GradientType=0)";
+            padding: 6px;
+            border: solid 1px #999;
+            border-radius: 3px;
+            color: white;
+            wont-weight: bold;
+        }
+        
+        h4.expert:before {
+            width: 5px;
+            display: inline-block;
+            background: #FF8000;
+            content: "　";
+            margin-right: 5px;
+            padding: 2px;
+        }
+        
+        .entry2 {
+            margin-left: 30px;
+        }
+        
+        .caution {
+            padding-left: 1em;
+            text-indent: -1em;
+            margin-left: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>応用定義</h2>
+    <div id="content">
+        <a id="skin_type" name="skin_type">
+            <h4>キーコンフィグとスキンセレクトとスキン種別</h4>
+        </a>
+        <p> キーコンフィグとスキンセレクトにはスキン固有の特殊定義が存在しないため
+            <br> スキン種別に捉われずに一部機能が参照可能なのでRB選曲のように「別なスキンに擬似的に実装」することが出来ます。
+            <br>
+            <br>
+            <span style="text-decoration: line-through;"> スキンプレビューも現行のLR2では特殊定義を使わなくなっているのでRB選曲でも実装は可能でしたが、断念した理由は単純にスペースが足りなかったからです。
+            <br> （スキンやスキンオプション切り替え時には必ずバックグラウンドでスキンプレビュー用パーツの再読み込みが行われるため、プレビューを非表示にしても負荷は変わりません）
+            <br> また、キーコンフィグを積まなかったのは利用頻度が低く、万が一マウスやボタンが暴発すると面倒だからです。
+            <br>
+            <span style="font-size:x-small;">今にして思えばスキンセレクトとキーコンフィグはまとめて1つにした方がCSっぽかったかなぁとか。</span></span>
+        </p>
+        <p>どうやら当該スキン以外では制限付きのようです。スキンセレクト以外ではスキンプレビューは使えず、キーコンフィグ以外ではキー配置の変更は出来ません。
+            <br> 実用性は低いですがこういうのも可能ではあります。
+        </p>
+        <p>
+            <a href="effector_play.png" target="_blank"><img src="effector_play.png" alt="effector_play" border="0" height="240" width="320">
+            </a>
+        </p>
+        <p>※画像はイメージです。</p>
+        <a id="option_change" name="course">
+            <h4>LR2でのDSTオプション遷移</h4>
+        </a>
+        <p> 本来は仕様のとこに書くべきなんですが、なかなか興味深かったので応用に。
+            <br> LR2では通常、選曲&rarr;決定&rarr;プレイ&rarr;リザルト（&rarr;コースリザ）間では曲に関連するオプションは変化しません。
+            <br> （現在のスキンでの曲オプション状態は次のスキンでも維持されます）
+            <br> ここまでは当然なんですが先日組みあがった
+            <a title="DSTオプションの動作解析システム" target="_blank" href="https://twitter.com/right_stick/status/408613442119950336">DSTオプションの動作解析システム</a>で色々試していたところ、リザルト&rarr;選曲間でも大部分のオプション値が引き継がれることが分かりました。
+            <br> 何パターンか試した感じだとop70～349までは大体引き継げるようです。
+            <br> 一部のオプションはLR2起動直後の選曲画面で既におかしな値を返すので実装の際にはなるべく自前で動作DSTオプションを解析できる環境があった方が良いと思います。
+            <br>
+            <br> 取り敢えずうちで軽く試した結果だけ纏めておきます。この利用方法では以下の値の使用はなるべく避けましょう。
+        </p>
+        <ul>
+            <li> op80番台はプレイスキン以外では正常に動作しません</li>
+            <li>op100～145は今回の値かどうか判別できません</li>
+            <li>op280番台はどのシーンでも必ずいずれかの値がONになります（大体は280か289）</li>
+            <li>op333 トライアルが更新された はリザルト以外では正常に動作しません（ほとんど常時ON）</li>
+        </ul>
+        <p>※動作オプションはスロット分岐とIF分岐で特性が微妙に異なります。（ここに挙げているものは全てIF分岐の測定結果）</p>
+        <p>これを使うと例えば「☆12以上の譜面を赤ゲージでAAAクリアした後の選曲画面背景」をピンポイントで変更出来ます。
+            <br> 選曲BGMには手が出せないので旧CSシリーズのアレにはあと一歩な感じも否めませんが夢は広がりますね。もうちょい早く知りたかったです。
+            <br>
+            <br> なお、コースリザルトからの引き継ぎは出来ないっぽいですが、
+            <br> スキンセレクトのリザルトプレビューからは引き継げたので動作確認はここから行ったほうが早いと思います。
+        </p>
+        <p class="caution">※スキンプレビューでクリアリザルトプレビューを表示するにはスキンセレクト動作開始直後のプレイスキンプレビューを
+            <br> 曲進行バーが停止するまで見届ける必要があります。これより前に別なスキンに切り替えるとFAILED扱いになります。
+            <br> この方法で表示されるリザルト画面は必然的にスコア/ゲージ共に100%でのフルコンクリアになります。
+            <br> ちなみにオートプレイ時のリザルト画面はこの方法でしか見れません。
+        </p>
+        <p>関連リンク：<a href="specification.html#skinselect">スキンセレクト画面の特性</a></p>
+        <a id="dummy" name="dummy">
+            <h4>疑似ジャッジ・疑似コンボ定義</h4>
+        </a>
+        <p>通常、ジャッジとコンボはそれぞれNOWJUDGE_1P、NOWCOMBO_1P定義を使いますが、
+            <br> op240番台および260番台（1P PERFECT～1P 空POOR・2P PERFECT～2P 空POOR）までの各判定オプションはどんな状況でもどれか一つしかONにならないため、
+            <br> timer46 1P ジャッジタイマーと各判定オプションを組み合わせて判定画像を参照することで、
+            <br> NOWJUDGE定義を使わずに判定定義を構成することが出来ます。
+        </p>
+        <p>同様にtimer46と各判定オプションを組み合わせてNUMBER定義のnum104 1P nowcomboを定義すればコンボ定義も作れます。
+            <br> （ただしnum104 nowcomboは純正コンボに比べて値の反映が遅れる場合があります）
+            <br>
+        </p>
+        <p>純正定義は特殊定義なのでopスロット分岐が使えないため、最初から最後まで各判定のモーションは同じになりますが、
+            <br> 疑似定義を使えば（コンボが偶に遅れるものの）opスロットによって動的にモーションを変化させることが出来ます。
+            <br> ランクやゲージ量に応じて判定を切り替えたりと色々応用が利きます。
+        </p>
+        <p>纏めてて気付きましたが、要するにNOWJUDGEやNOWCOMBOといった特殊定義は、
+            <br> noshift0を使うことでジャッジとコンボを1つの定義として扱い、全体を中央寄せするためにのみ必要なのであって、
+            <br> noshift1、つまりコンボの桁数によるx座標の左シフトを考慮しないのであればそもそも使う必要が無い定義と言えます。
+            <br> （NOWJUDGE・NOWCOMBOのindex値による定義発動条件はいずれもop240・260番台と同じ）
+        </p>
+        <a id="triple" name="triple">
+            <h4 class="expert">3列コンボ</h4>
+        </a>
+        <p> 疑似ジャッジとコンボの応用例その1。
+            <br>
+            <iframe style="border:solid 1px #CCC;" src="http://ext.nicovideo.jp/thumb/sm19690951" frameborder="0" height="176" scrolling="no" width="312">&amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;lt;a href="http://www.nicovideo.jp/watch/sm19690951"&amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;gt;【ニコニコ動画】第三期発狂PMS段位認定　十段　CLEAR&amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;lt;/a&amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;gt;</iframe>
+            <br>
+            <a href="http://lapislazuri-4.dyndns.info/pms/" target="_blank" title="LP EX">LP EX</a>での3列コンボ実装時にみすてぃ氏に軽く助言はしたものの、
+            <br> 実際の定義が.REDの予想よりも遥かに込み入っていたためちょっと自信無いんですが簡単に纏めますと
+            <br>
+        </p>
+        <ul>
+            <li> op240番台とtimer46を用いた定義で判定文字とコンボ数値を参照する</li>
+            <li>1～3鍵/7～9鍵タイマー動作時はそれぞれ反対側のコンボ表示にレーンカバーを被せる</li>
+            <li>456鍵タイマー動作時はセンターコンボ表示優先</li>
+        </ul>
+        <p>
+            <br> 大体こんな感じだと思います。
+            <br> 一応レーン周りの立体構造図作ってみましたが複雑過ぎてあまり意味が&hellip;
+        </p>
+        <p>
+            <a href="3line_judge.png" target="_blank"><img src="3line_judge.png" alt="3line_judge" border="0" height="256" width="320">
+            </a>
+        </p>
+        <p>3列判定表示は既に<a href="http://lapislazuri-4.dyndns.info/pms/" target="_blank" title="LP EX">LP EX</a>に実装されているので
+            <br> 詳しくはOA_LP_EX/standard/common_csv/3line_frame.csvと3line_judge.csvを参照。
+            <br>
+            <br> 構造上の欠陥としてコンボ表示の上にノーツが重なって表示されたりコンボ表記が横に瞬間移動したりするんですが
+            <br> .REDの考えていたLR2での9keyスキンの限界点を僅かに越えている奇跡の技。
+        </p>
+        <a id="3rdmix" name="3rdmix">
+            <h4 class="expert">疑似定義と純正定義の併用によるコンボ桁数分岐</h4>
+        </a>
+        <p>疑似ジャッジとコンボの応用例その2。純正ジャッジとの併用による桁数別参照です。
+            <br> 具体的な挙動としては某ゲームの某バージョンにあった『10コンボを超えると判定文字が光りだす』といったもの。
+            <br> （当時はピカグレという概念はまだ無く、単純に判定文字が点滅するだけ）
+        </p>
+        <p>この応用方法で最も重要なのがNOWJUDGEとNOWCOMBOの特性です。
+            <br> 仕様と言うよりはほとんどバグなんですが、これを逆手に取るのがこの手法の肝。
+        </p>
+        <p>NOWJUDGEとNOWCOMBOのパラメータと表示座標の関係をまとめると以下の図の様になります。
+        </p>
+        <p>
+            <img src="combo_align.gif" alt="NOWJUDGEとNOWCOMBOのパラメータと表示座標の関係" width="272" height="358" borde="0">
+        </p>
+        <p>純粋にスキン用の定義として考えるとnoshiftに関わらずalign0は使い道が無いんですが、
+            <br> よくよく見ると唯一、桁が上がると初期位置にスペースが出来ることが分かります。
+            <br> この時のx座標移動幅はDST_NOWCOMBO_w値/2、つまり幅1280pxの数値画像を10個使ってNOWCOMBOを組めば
+            <br> 桁が上がると同時にコンボ数値座標は左に640pxシフトして自動的に画面外に消えます。
+            <br> NOWJUDGEもnoshift0にしておくことでNOWCOMBOと同じ幅だけ左にシフトして画面外行きです。
+            <br> 背面に疑似ジャッジと疑似コンボを仕込んでおけば『10コンボ繋ぐと切り替わる判定』になります。
+        </p>
+        <p>配置構成のイメージはこんな感じ。NOWCOMBOのxy座標はNOWJUDGEからの相対座標になるため計算が色々面倒です。
+        </p>
+        <p>
+            <a target="_blank" href="extra_judge.gif"><img src="extra_judge.gif" alt="NOWCOMBO定義の指定座標" width="843" height="60" borde="0">
+            </a>
+        </p>
+        <p>また、参考画像ではNOWCOMBOをketa5で作ってますが、
+            <br> これはコンボの値がketaを超えた際に桁が詰まって数値が画面内に戻ってくるのを避けるためです。（この特性はNUMBER定義と同じ）
+        </p>
+        <p>注意点としては上からカバーを被せているだけなので、透過や拡縮との相性が悪いところです。
+            <br> 疑似定義はいずれもその動作を停止させておく方法が無いので、純正定義の下で常に動作している形になるため、
+            <br> あまり派手なモーションは10コンボ以下でも純正定義からはみ出てチラチラ見えてしまう可能性があります。
+        </p>
+        <p class="caution">※疑似ジャッジ定義をNUMBER定義+num104で構成するという荒業で桁数別参照させれば別な道が見つかるかと思って試してみましたが、
+            <br>幅1280pxの3サイクル×3色点滅NUMBER定義は負荷が高過ぎたのか、先読み定義を入れても最初の1ノーツ目がカクつくという異常事態に。
+        </p>
+        <a id="bar_body" name="bar_body">
+            <h4>DST_BAR_BODY定義の座標補間と特殊配置</h4>
+        </a>
+        <p> DST_BAR_BODY定義はON/OFFいずれも曲リストスクロール時に前後のindex値との間の座標を補間する形で動きます。
+            <br> また、曲バー上に表示する動的要素、つまり曲タイトルや曲難易度はいずれも別定義での相対座標で指定されるため、
+            <br> 曲バー自体のサイズに関わらず常に一定の位置に表示されます。
+            <br> このため、曲バー自体のサイズをかなり大きめに取った上で配置を調整することで選曲背景にレコード画像を表示することが出来ます。
+        </p>
+        <p>
+            <a target="_blank" href="5keys_select.gif"><img alt="5keys_select" src="5keys_select.gif" border="0" height="289" width="466"></a>
+        </p>
+        <p> 黒部分がLR2ウィンドウ、灰色の枠が曲バー1本分のサイズ、☆マークと曲タイトルはそれぞれ相対座標指定の動的要素、
+            <br> 赤矢印がDST_BAR_BODY定義のindex値の流れ、オレンジの●が曲バー内に入れておくレコード画像です。
+        <p> 緑の☆と●は巨大な難易度レベル表示で再現されるレコードレーベル面で、0～9までの10通りxBeginner～Insaneまでの5通りで全50色使用できますが、
+            <br> これを実装すると2桁の難易度レベルは表示出来なくなります。
+        </p>
+        </p>
+        <p> aの地点（曲リストの終端）からdの地点に直接index値を繋げるとリストスクロール時に画面内を斜めに横切ってしまうため、一度b地点（右画面外）に飛ばします。
+            <br> その後画面内に被らないようにc地点→d地点を経由させ、レコード画像だけが画面内に表示されるような形で曲バーを配置します。
+        </p>
+        <p> 参考画像ではLR2ウィンドウ内に表示しているレコードは全部で3枚ですが、画面外に消える際の座標移動も考慮してd地点とh地点の座標も用意してます。
+            <br> つまり、この構成の選曲スキンでは『画面内に表示したいレコード数+画面外移動時の座標4個（bとcとdとh）』が実際の曲リスト以外に必要な定義数となります。
+            <br> DST_BAR_BODY定義では最大30本まで曲バーを用意することが出来るのでこの場合だと曲リストとして利用できる個数は30-3-4で23本という事になります。
+        </p>
+        <video autoplay loop height="272px" width="480px">
+          <source src="5th_sample.webm" type="video/webm">
+          <source src="5th_sample.mp4" type="video/mp4">
+          <p>動画を再生するにはvideoタグをサポートしたブラウザが必要です。</p>
+        </video>
+        <p class="caution">※実際にはb地点のx座標は相当大きい値を使わないと画面外に消える際に『消えていく様子』が見えてしまうので注意。
+            <br> また、b地点のx座標が限りなく大きい場合はc地点の定義は不要な可能性が高いです。（試してません）
+        </p>
+        <p class="caution">※曲タイトルが極端に長い場合はf地点では特にタイトルが画面内に表示される恐れがあります。
+        </p>
+        <p class="caution">※曲バー定義をレコード込みのサイズで作った場合、必然的にフォルダバーやコースバーなども同じサイズで作る必要があります。
+        </p>
+        <a id="button_other" name="button_other">
+            <h4>ボタン定義のボタン以外の用途</h4>
+        </a>
+        <p> DX+ではHAZARD/P-ATTACK/G-ATTACK使用時の%表記点滅に利用したのでこれを参考に解説。
+            <br> DSTオプションではノーマル/赤ゲージでしか分岐出来ないため、例えば「HARD使用時のみ」といった条件を使うことが出来ません。
+            <br> そこでゲージオプションボタンを画像パーツとして扱うことで擬似的に挙動を変更する方法をとっています。
+        </p>
+        <p>
+            <a target="_blank" href="groove_button.png"><img alt="groove_button" src="groove_button.png" border="0" height="90" width="362">
+            </a>
+        </p>
+        <p>フレームパーツ内に％表記ボックスをボタン用画像として複数個配置しておき、
+            <br> これを上から重ねて点滅表示させることで％数字そのものが点滅しているように見せています。
+            <br> （詳しくはDX+のAC7left.csv内を「G-ATTACK用グルーヴカバー」で検索）
+        </p>
+        <p>基本的には「上から被せる」事しかできないので、条件を満たした場合に表示するor隠す、
+            <br> といった限定的な使い方しか出来ないため、実装には何らかの工夫が必要ですが応用の幅は広いです。
+            <br>
+            <br> これと同様の手法でグルーブゲージにエフェクトを掛けることも可能ですが、
+            <br> ゲージの点滅は半透過点滅ではなく、明暗点滅なのでもう一捻りしないといけません。
+            <br> また、ゲージ関連の分岐はLR2の仕様上リプレイとの整合性が取りにくいので気を付けましょう。
+        </p>
+        <p class="caution">※プレイスキンのDSTによるノーマル/赤ゲージ分岐は、IF分岐ではその時に使用しているゲージオプション優先になります。
+            <br>（リプレイでのゲージ関連DSTオプションは切り替えがワンテンポ遅れます）
+        </p>
+        <a id="text_parts" name="text_parts">
+            <h4>テキスト連動パーツ</h4>
+        </a>
+        <p>例としてRBコースリザルトの段位別リザルトの説明を。
+            <br> 段位によって背景画像を切り替える、と考えると難易度高いんですがやってる事はlr2fontファイルで「段位漢数字のみを640x480の画像で表す」というもの。
+            <br> lr2fontで漢数字の初～十と、皆伝用に「皆」の文字（以下、識別文字）だけ個別の画像を定義し、それ以外の文字は全て1x480の画像を使い、#M定義（文字間隔）を-1にします。
+            <br> これで一文字につき-1pxシフトするため全体の文字数に関わらず、初～十と皆の文字画像を所定の位置に表示出来ます。
+        </p>
+        <p class="caution">※他の文字もちゃんと定義しておかないと挙動がおかしくなります。</p>
+        <p>RBコースリザルトでは更に「発」の文字に640x480の透明画像を割り当てることで発狂段位の場合のみ右に640pxシフトさせて発狂用と通常用で別々の画像を表示させています。
+            <br> このため、一文字当たりの横幅は発狂用と通常用合わせて1280x480になっています。
+        </p>
+        <p>
+            <a target="_blank" href="course_result_font.png"><img alt="course_result_font" src="course_result_font.png" border="0" height="232" width="480">
+            </a>
+        </p>
+        <p>発狂用と通常用で別な画像を表示させることが可能だと気付いたのがv1.00公開の5日前だったため、
+            <br> RBコースリザでは色違いを表示する形を取りましたが、これは当然色違いじゃなくても大丈夫です。
+            <br>
+            <br> 注意点はマニュアルにも書きましたが、常に一文字しか表示できないこの方法では必然的に左側の識別文字が優先になります。
+            <br> 例えば 「段位認定 十五段」の場合には十段用リザルトが表示されます。
+            <br> また、公開後に何回か問い合わせが来ましたが段位数字の半角/全角英数表記には対応していません。
+            <br> 単純に面倒だったのも大きいですが「10段」表記の解決案が咄嗟に思い付かなかったので。
+            <br>
+            <br> このフォーマットのlr2fontファイルは誰が作っても大体同じものになるので利用したい方はご連絡下さい。
+            <br> ファイルの場所はLR2files/Theme/RED_BELT/font/Gradefont_SPBG.lr2font です。
+            <br> また、このlr2fontファイルでは上位階層への相対参照も使っているのでちょっと離れたフォルダのファイルを使いたい場合もご参考下さい。
+            <br> スキン側のテキスト定義はLR2files\Theme\RED_BELT\CourseResult\grade.csv内を「テキストを背景画像扱いに」で検索して下さい。
+            <br>
+            <br> ※関連定義近辺のコメントにある右寄せ云々は開発段階のもので現行フォーマットではalign0（左寄せ）で大丈夫です。
+            <br>
+        </p>
+        <p class="caution">※公開してしばらく経つまで気付きませんでしたが、LR2公式段位には通常皆伝が存在しませんので
+            <br> この方法だと公式段位で皆伝リザルトが表示されるのは「発狂皆伝」のみです。滅多に見てもらえないので注意。
+        </p>
+        <p class="caution">※半角/全角/大文字/小文字が面倒だったので実装しませんでしたが「overjoy」のいずれかの文字を使うことでoverjoy用リザルトも可能っちゃ可能です。
+            <br> 誤爆の可能性が高いのとゴリラの上を表現するイラストが思い付かなかったので止めましたが。
+        </p>
+        <p class="caution">※RBリザルトのIRメッセージでも参照する識別文字は異なりますが同じ手法を使っています。 </p>
+        <a id="number_align" name="number_align">
+            <h4>NUMBER定義のketaとalignの組み合わせによる特殊参照</h4>
+        </a>
+        <p> alignはketa数の中で右寄せ(=0)か左寄せ(=1)か中央(=2)を指定しますが、表示桁数が足りない場合にはalignによって表示される値が異なります。
+            <br>
+            <br> 例 本来1234と表示される項目に対してketa=2を使用した場合</p>
+        <ul>
+            <li>align=0の時は12のみ表示</li>
+            <li>align=1の時は34のみ表示</li>
+            <li>align=2の時は12のみ表示</li>
+        </ul>
+        <p> これによりNUMBER定義keta=1で数値の先頭/終端桁のみを参照することが出来るため、本来DSTオプションでは分岐出来ないパターンで分岐させることが可能です。
+            <br> （馬鹿でかい数字画像を使って画面外の座標を指定すれば先頭/終端桁以外も参照可能 *<a title="後述" href="#txt2bargraph">後述</a>）
+            <br>
+            <br> 例 ミスカウントが0の時に「ノーミス」と表示する場合
+            <br> 　 align0keta1でミスカウントを参照し、数字画像の0部分にのみ「ノーミス」と打ち込んでおく
+            <br> &rarr;ミスカウント10や20の場合は1や2になるため画像は表示されず、0の場合のみ画像が表示される
+            <br>
+            <br> RBリザの全一表示やボーダークリアなど、リザルトを中心に応用が利きます。
+            <br> 先頭/終端桁以外を参照するにはちょっと負荷が高すぎるのでリザルト以外での参照には注意が必要です。
+            <br> なお、以前RBリザでこの参照方法絡みの不具合が発生した際、「分割方向で特性が変わる」と推測していましたが
+            <br> 後の追跡調査により単にalignの指定ミスだったと判明しました。その節ではお騒がせして申し訳ないです。
+        </p>
+        <p>
+            <br>
+        </p>
+        <a id="txt2bargraph" name="txt2bargraph">
+            <h4 class="expert">テキスト定義を用いたバーグラフ</h4>
+        </a>
+        <p> 詳しくは<a title="ht51 -Deep Forest- v2" target="_blank" href="http://ht3217835367723874.web.fc2.com/index.html">ht51 -Deep Forest- v2選曲スキン</a>参照。ht51v2_select.csv内を「発狂バー用」で検索して下さい。
+            <br> この手法の肝は文章にすると「テキスト定義を用いた数値データの桁数別参照」。
+            <br> 基本概念は
+            <a href="http://overactive.nobody.jp/" target="_blank" title="fivemania">fivemania</a>のダンサーに近いんですが、この方法には黒カバーが不要という利点があります。
+            <br> EX LEVEL以外の数値はNUMBER定義で参照できるため基本的にはEX LEVEL専用の手法ですが、
+            <br> このalignの使い方は他の様々な定義に応用出来るので覚えておいて損はないです。
+            <br>
+            <br> RB選曲でもEX LEVEL表示機能で「EX LEVEL=0の場合のみ"0"を表示しない」という動作が必要になったんですが
+            <br> EX LEVELはテキスト定義でしか呼べないので、桁数ごとに異なる画像を参照するために同じ手法を使ってます。
+            <br>
+            <br> こっちの方が図にし易かったのでRB選曲の例で解説。（ここでの図解は厳密にはテキスト定義のNUMBER定義扱い）
+            <br> 黒の太字がEX LEVELで緑・赤・青はそれぞれ別のテキスト定義を表しています。
+            <br> 各定義のalignと役割は図参照。なお、図ではそれぞれのy位置をずらしていますが実際には同じ高さに表示します。
+        </p>
+        <p>
+            <a target="_blank" href="keta.png"><img alt="keta" src="keta.png" border="0" height="270" width="640">
+            </a>
+        </p>
+        <ul>
+            <li> EX LEVELが一桁の時（図の上、EX LEVEL=5）
+                <br> 赤定義と緑定義はそれぞれ左と右に寄せているため一桁の場合は画面外に表示されます。（つまり表示されない）
+                <br> 青定義のみ中寄せで画面内に表示され、発狂レベル5となります。
+            </li>
+        </ul>
+        <ul>
+            <li> EX LEVELが二桁の時（図の下、EX LEVEL=25）
+                <br> 赤定義と緑定義の1桁目と2桁目が画面内に現れて、同時に青定義は画面からはみ出します。
+                <br> この時の表示は発狂レベル25になります。
+            </li>
+        </ul>
+        <p> 青定義の「0」を透明にしておくと「発狂レベル0の時だけレベル数字自体を表示しない」定義になります。
+            <br> ht51ではこの次の解説にある「NUMBER定義のバーグラフ参照」と併用し、
+            <br> TEXT定義&rarr;NUMBER扱い&rarr;BARGRAPH扱い とする事でほぼ完璧な発狂レベルバーを実装しています。
+            <br> ここの解説風に言えば応用定義を2つ組み合わせている形になります。moge-laaさんマジ天才。
+            <br> （ただ画像をじっくり見ると分かるんですが、EX LEVEL3桁時に表示がおかしくなります）
+            <br>
+            <br> 注意点としては青定義が2桁時にしっかり画面外に出るように横幅を調整するところくらいでしょうか。
+            <br> 定義自体の難解さも超一級品ですが、この安定度は応用定義の中でもトップレベルです。
+            <br> この方法を使えば理論上、テキスト定義で参照できる全ての数字でグラフが組めます。
+            <br> 最大値が決まっている場合であればおそらく擬似的なスライダーも表現出来るはずです。
+            <br> 「NUMBER定義のketaとalignの特殊参照」以上の負荷が掛かるのと結構な数のフォント定義を消費するので
+            <br> 実装する場合は設計段階で組み込んでおかないと後からの追加は結構メンドイです。
+        </p>
+        <a id="number2bargraph" name="number2bargraph">
+            <h4 class="expert">NUMBER定義を用いたバーグラフ</h4>
+        </a>
+        <p> おおよそ上記と同じ作りでNUMBER定義型のグラフやスライダーも実装可能です。
+            <br> こちらも一桁目と二桁目で別々の画像を参照するところが肝。
+            <br> .REDは今のところグルーブゲージを参照する以外に面白い応用方法が思い付かないのでとりあえずそれを例に。
+            <br>
+            <br> 一桁目と二桁目を別々なNUMBER定義で参照し、これらを重ねて定義します。
+            <br> 二桁目はht51 -Deep Forest- v2/Select/hakkyo_bar/hakkyo_bar_dai.png の下半分のように
+            <br> 一桁目表示部分だけ穴を空けた特殊なゲージ画像が必要なので注意。
+            <br>
+            <br> alignによっては11分割NUMBER定義（裏0あり）じゃないと表示位置がズレます。
+            <br> また、実際には画面内に重複しないように上記テキスト定義同様、横幅を大きめに取る必要があります。
+        </p>
+        <p>
+            <a target="_blank" href="graph.png"><img alt="graph" src="graph.png" border="0" height="200" width="500">
+            </a>
+        </p>
+        <p>三桁になった時（100%時）は00%時と同じ画像になってしまうので、op240 1P 100% を使って100%状態のゲージも上から重ねておきます。
+            <br>
+            <br> そこそこ重くなりますが粒の数を任意の数に変更出来る点に加えて、GROOVEGAUGE定義と違って
+            <br> ゲージ右端のアニメーションを無効化する事が可能なのでちょっと面白いゲージにはなります。
+            <br> ただし、NUMBER定義で参照されるグルーブ数値は2%刻みなのでこの方法でも最大50粒が限界です。
+            <br> 見た目だけなら100粒でもいけますがどのみち2%ずつしか動きません。
+            <br>
+            <br> また、定義と画像サイズが増えてしまいますが、ゲージ一桁目をop230番台のグルーブゲージ量別分岐でガッチリ分ければオリジナルのゲージアニメーションを実装することも可能です。
+            <br> この場合は10％刻みで個別のcycleやtimerを設定出来るのでBPM連動やDJランク連動、ゲージ量連動などの変則的なアニメーションパターンが組めます。
+            <br> ちなみにClassicのゲージアニメーションは次期バージョンからBPM連動になる事が確定しています。試作品が素敵過ぎた。
+            <br>
+            <br> ※2%上がるとゲージ1粒分右にシフトする数字画像が必要です。
+            <br>
+            <br>
+        </p>
+        <p style="margin-left: 40px;">色々試しましたが本体側の仕様上分割定義は横方向優先であるため、
+            <br> 最終的には横分割NUMBER定義にしないと危険なサイズになるので最初に縦分割で形だけ整えてから
+            <br>
+            <a href="gauge_row.png" target="_blank"><img src="gauge_row.png" alt="gauge_row" border="0" height="200" width="78">
+            </a>
+            <br>
+            <br> 横分割に並べ替えて
+            <br>
+            <a href="gauge_column.png" target="_blank"><img src="gauge_column.png" alt="gauge_column" border="0" height="50" width="490">
+            </a>
+            <br>
+            <br> 縦にズラッとコピーしまくってからアニメーションパターンを組む、という手法が一番楽でした。
+            <br>
+            <a target="_blank" href="gauge_animation.png"><img alt="gauge_animation" src="gauge_animation.png" border="0" height="200" width="490">
+            </a>
+            <br>
+        </p>
+        <p class="caution">※見れば大体分かるかと思いますが、LR2純正のゲージ定義と比べて結構なサイズの画像が必要です。
+            <br> （試作品は1000x2000くらい使ってます）
+        </p>
+        <p>※緑ゲージ・赤ゲージに加えて緑&rarr;赤ゲージ（ゲージ80%前後）を作らないといけません。
+            <br> ※50粒以外だと粒数計算がスゲー面倒です。（上記に加えて4・5粒混在パターンが必要になります）
+            <br>
+            <br> なお、ゲージ関連の分岐はLR2の仕様上リプレイとの整合性が取りにくいので気を付けましょう。 </p>
+        <p class="caution">※プレイスキンのDSTによるノーマル/赤ゲージ分岐は、IF分岐ではその時に使用しているゲージオプション優先になります。
+            <br>（リプレイでのゲージ関連DSTオプションは切り替えがワンテンポ遅れます）
+        </p>
+        <a id="include_csv" name="include_csv">
+            <h4>複数個でセットになっている子csvをランダムで参照する（二重INCLUDE）</h4>
+        </a>
+        <p> ①単体csvの分岐</p>
+        <table style="margin-left: 30px;" border="0">
+            <tbody>
+                <tr>
+                    <td style="text-align: center;">...aaa\test-1\bbb.csv
+                        <br> ...aaa\test-2\bbb.csv
+                        <br> ：
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p class="entry2">上記のファイル構成で
+            <br> #INCULUDE ...aaa\test-*\bbb.csv
+            <br> というランダム分岐は使用できない。
+            <br>
+            <br> しかし
+        </p>
+        <table style="margin-left: 30px;" border="0">
+            <tbody>
+                <tr>
+                    <td style="text-align: center;">...aaa\bbb\test-1.csv
+                        <br> ...aaa\bbb\test-2.csv
+                        <br> ：
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p class="entry2"> この構成で
+            <br> #INCLUDE ...aaa\bbb\test-*.csv
+            <br> ならランダム可。
+        </p>
+        <p class="entry2">
+            <br>
+        </p>
+        <p> ②複数csvの同期分岐</p>
+        <p class="entry2">①を踏まえた上で
+            <br>
+        </p>
+        <table style="margin-left: 30px;" border="0">
+            <tbody>
+                <tr>
+                    <td style="text-align: center;">...aaa\bbb\test-1.csv
+                        <br> ...aaa\bbb\test-2.csv
+                        <br> ：
+                        <br> ...aaa\ccc\test-1.csv
+                        <br> ...aaa\ccc\test-2.csv
+                        <br> ：
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p class="entry2"> これらのファイル群から同じファイル名のcsvを同時にランダムで選択したい場合、
+            <br> #INCLUDE ...aaa\bbb\test-*.csv
+            <br> #INCLUDE ...aaa\ccc\test-*.csv
+            <br>
+            <br> とするしかないが、これでは別々なcsvを参照してしまう可能性が出てくる。
+            <br>
+            <br> そこで
+            <br>
+        </p>
+        <table style="margin-left: 30px;" border="0">
+            <tbody>
+                <tr>
+                    <td style="text-align: center;"> ...aaa\include\test-1.csv
+                        <br> ...aaa\include\test-2.csv
+                        <br> ：
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p class="entry2"> を作成し、各csvから更にINCLUDEを使って子csvにリンクさせる。</p>
+        <a id="customfile_include" name="customfile_include">
+            <h4>CUSTOMFILE命令による画像と子csvの同期分岐</h4>
+        </a>
+        <p> 以前試した時は失敗した気がしたんですが<a title="LPforWide" target="_blank" href="http://lapislazuri-4.dyndns.info/pms/">LPforWide（現LP EX）</a>での設定を見て正解が分かりました。
+            <br> CUSTOMFILEでの対象をフォルダにしておき、そのフォルダ内にIMAGE命令を記述した子csvと画像を入れることで、
+            <br> スキンオプション側でフォルダが固定されると画像と子csvが一緒に切り替わる、という流れ。
+            <br> 差分製作時に子csv必須なので汎用性がやや落ちる（差分製作難易度が高くなる）のがネックですが、
+            <br> それをカバー出来るくらいの拡張性があります。（フレームごとに専用の組立モーションを使ったりとか）
+            <br> また、CUSTOMFILEで参照する子csvの切り替えが可能という事は、CUSTOMOPTION命令じゃなくても良くなるので
+            <br> オプション分岐項目を20個以上実装できるという事でもあります。
+            <br>
+            <br> CUSTOMFILEからの子csv指定も久々に試したら普通に動いたので、後々選択肢を追加する場合がある機能はこれの方が良さげ。
+            <br> 900番台のオプションを消費しない・子csv作ってフォルダに入れるだけ、というのは魅力的です。
+            <br> が、v2.8系で採用しなかったのはプリセットのようにSETOPTIONからの一括固定が出来ない為です。
+        </p>
+        <a id="battle_button" name="battle_button">
+            <h4>バトルボタンの画像定義分岐</h4>
+        </a>
+        <p> バトルボタンではSP/DP/9keysによってボタンの機能が異なるため、
+            <br> バトルオプション用ボタンの項目名はテキスト定義で動的にボタン文字を切り替えるのが一般的ですが、
+            <br> やや強引ではありますが以下の方法で個別のボタン画像を表示させることが出来ます。
+            <br>
+            <br> DOUBLE BATTLE・GHOST BATTLE・SP TO DPがONの時は元データ種別がSP・DP共にONになるため、
+            <br> これを逆手にとって各鍵盤種別ごとにがっちり分岐させます。
+            <br>
+        </p>
+        <table style="margin-left: 20px;" border="1" cellpadding="3" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td style="text-align: center;">op160 and op!162 元データが7keys かつ 元データが14keysではない
+                        <br> or
+                        <br> op161 and op!163 元データが5keys かつ 元データが10keysではない</td>
+                    <td style="text-align: center;">SP用バトルオプション（BATTLE～）</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">op!160 and op162 元データが14keys かつ 元データが7keysではない
+                        <br> or
+                        <br> op!161 and op163 元データが10keys かつ 元データが5keysではない</td>
+                    <td style="text-align: center;">DP用バトルオプション（COUPLE～）</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">op160 and op162 元データが7keys かつ 元データが14keys
+                        <br> or
+                        <br> op161 and op163 元データが5keys かつ 元データが10keys </td>
+                    <td style="text-align: center;">SP用バトルオプション（BATTLE～）
+                        <br> ※DOUBLE BATTLE or GHOST BATTLE or SP TO DP</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">op164 元データが9keys</td>
+                    <td style="text-align: center;">9keys用バトルオプション（～9 TO 7～）</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>リザルトスキンではこの分岐だと何故かGHOST BATTLEが上手く表示されませんでした。
+            <br> オプションスロットでの分岐では3条件までしか設定できないため、1つの定義につき4条件が必要なこの方法では
+            <br> アルファブレンドや加算などの透過が含まれる参照方法の場合だと全分岐パターン（7定義）必要です。
+            <br>
+            <br> RB選曲とリザルトで使っていますが確かリザルトの方が分かりやすいはずなのでRED_BELT/Result/result.lr2skinを「//ボタン画像(バトル7keys)」で検索。
+            <br>
+            <br> なお、選曲スキン以外では元データの鍵盤種別は変化しないため、#IF命令を使ったOR分岐でも行けるかもしれません。（未確認）
+        </p>
+        <a id="oa_dx_link" name="oa_dx_link">
+            <h4 class="expert">リザルトでのプレイスキンとの連携によるクリアマーク更新分岐</h4>
+        </a>
+        <p> プレイスキン側でop100番台によるプレイ前のクリアマーク画像の分岐読み込みを行い、
+            <br> その画像をCONTINUE命令で引き継ぎリザルトスキン側で再度op100番台の分岐を掛けて更新を割り出します。
+            <br> コースモードでも同様の機能を実装するにはリザルト後に再びプレイスキンに戻る場合を考慮して
+            <br> プレイスキン側もCONTINUE命令を使わなければならないので分岐読み込みは決定スキンの段階で行う必要があります。（RB SKIN LINKオプション）
+            <br>
+        </p>
+        <table style="margin-left: 20px;" border="1" cellpadding="1" cellspacing="1">
+            <tbody>
+                <tr>
+                    <td style="text-align: center;">
+                        <br>
+                    </td>
+                    <td style="text-align: center;">決定スキン</td>
+                    <td style="text-align: center;">プレイスキン</td>
+                    <td style="text-align: center;">リザルトスキン</td>
+                    <td style="text-align: center;">コースリザルト</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">単曲プレイ時</td>
+                    <td style="text-align: center;">―</td>
+                    <td style="text-align: center;">分岐読み込み</td>
+                    <td style="text-align: center;">分岐表示</td>
+                    <td style="text-align: center;">―</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">コースプレイ時</td>
+                    <td style="text-align: center;">分岐読み込み</td>
+                    <td style="text-align: center;">CONTINUE</td>
+                    <td style="text-align: center;">CONTINUE</td>
+                    <td style="text-align: center;">分岐表示</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>
+            <a target="_blank" href="oa_dx_link.png"><img alt="oa_dx_link" src="oa_dx_link.png" border="0" height="358" width="432">
+            </a>
+        </p>
+        <p>また、参考画像には写っていませんがop100番台は元々選曲画面でのクリアマーク表示オプションであるため、
+            <br> 上位のクリアマークで上書きされていく（下位のクリアマークの参照が行えない）仕様なので、
+            <br> これらのクリアマークとは別枠でクリア失敗時の分岐用にゲージオプションボタンもセットで読み込んでいます。
+            <br> （HARDクリア済みの譜面をEASYでクリアしてもop102 EASY CLEAREDはONになりません。この分岐をオプションで行うためにはop60番台を使います。）
+            <br> 詳しくは実際のスキン画像で確認して下さい。
+        </p>
+        <p>分岐読み込みはOA_DX+/setting/result_parts.csv、
+            <br> 画像ファイルはRED_BELT/Result/Clear_Markフォルダ内参照。
+            <br> 分岐表示はRED_BELT/Result/UPDATE/ACtype1P.csvかCourse.csvを「//クリアマーク更新」で検索して下さい。</p>
+        <p>なお、ASSISTクリア（op142）がONの時はEASYクリアも同時にONになっているので、
+            <br> ASSISTも表示したい場合はIF op142&rarr; ELSEIF op102の順に分岐させないとASSIST画像を取得出来ません。</p>
+        <p class="caution">※ASSISTクリアはASSIST抜きでクリアしても消えないのでASSIST&rarr;EASYの更新マークは実質更新無し扱いになります。</p>
+        <p>初フルコン時はこれで対処可能ですが2回目以降のフルコン時にはプレイスキン・リザルトスキン共に
+            <br> フルコンボ扱いになるため、厳密に今回フルコンしたかどうかは判別できません。このため、もう一手間が必要になります。&darr;に続く。
+        </p>
+        <a id="max_combo" name="max_combo">
+            <h4 class="expert">既フルコン時のMAXCOMBO差分検出によるフルコン分岐</h4>
+        </a>
+        <p> RBリザのlr2skinファイルにも書いてある通り、この方法を思い付くまでに2ヶ月掛かりましたが、
+            <br> 原理としてはフルコン済みの譜面でもう一度フルコンを出すとMAXCOMBOの差分値は必ず0になり、フルコンを逃すと-1より小さくなる、という至って単純な理屈です。</p>
+        <p>op105を使ってフルコン済みの場合に専用の数字画像を読み込ませます。（上記とは別の画像）
+            <br> この時のNUMBER定義はketa1align0で+側の0は念のため+-0時のみの表示にし（+10や+20はそれぞれ+1、+2に）、
+            <br> 数字の「0」部分をフルコン用画像に、残りの数字全てを通常クリア用画像にします。
+            <br> （実際にはNUMBER定義24分割時の+-0の表示は+0優先なのでketa/align未調整でも-0は空白で大丈夫）
+        </p>
+        <p><img alt="result_fullcombo_sample" src="result_fullcombo_sample.png">
+            <br>
+            <br> 24分割定義なので裏0部分がカットできませんが、keta1動作なので裏0画像は空白で問題ありません。
+            <br> ただし、符号は空白にしても本体側が参照してしまうため、DST_x座標は実際に表示したい目的座標からDST_w値を引いた値になります。
+        </p>
+        <p>既フルコン時のみの動作のため、MAXCOMBO差分値で+1以上の値が出ることは本来有り得ませんが、
+            <br> EXTRAモード時は自己べのMAXCOMBOよりもトータルノーツが増えるため、
+            <br> 既フルコン譜面であってもコンボ数によっては+側の値が参照されてしまうので+側も作る必要があります。
+            <br> このためEXTRAモード時の「今回フルコンボ」をリザルト側で検出する方法は多分存在しません。
+            <br> （クリアマークは別枠で保存されますがDSTオプションでは検出出来ません）
+            <br>
+            <br> ちょっと分かりにくいかもですが、OA DX+ LINKの心臓部です。
+            <br> 物自体は24分割NUMBER定義なんですが、表示させたいパーツサイズによってはかなりのサイズになります。
+        </p>
+        <p>画像はRED_BELT/Result/Clear_Mark/FULLCOMBO2.PNG、
+            <br> 定義はRED_BELT/Result/result.lr2skin内を「//STAGE FULLCOMBO(初回用)」で検索。</p>
+        <br>
+    </div>
+</body>
+
+</html>

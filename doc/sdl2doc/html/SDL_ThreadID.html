@@ -1,0 +1,34 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_ThreadID</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_ThreadID</h1>
+<p>Use this function to get the thread identifier for the current thread.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_threadID SDL_ThreadID(void)
+</pre></div>
+<h2>Return Value</h2>
+<p>Returns the ID of the current thread.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+SDL_threadID  threadID;
+
+// Retrieve our current thread identifier
+threadID = SDL_ThreadID();
+</pre></div>
+<h2>Remarks</h2>
+<p>This thread identifier is as reported by the underlying operating system. If SDL is running on a platform that does not support threads the return value will always be zero.
+<p>This function also returns a valid thread ID when called from the main thread.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetThreadID.html">SDL_GetThreadID</a></li></ul>
+</div>
+</BODY>
+</HTML>

@@ -1,0 +1,28 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_RectEmpty</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_RectEmpty</h1>
+<p>Use this function to check whether a rectangle has no area.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_bool SDL_RectEmpty(const SDL_Rect* r)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>r</strong></td><td>the <A href="structures/SDL_Rect.html">SDL_Rect</a> structure representing the rectangle to check</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns SDL_TRUE if the rectangle has no area or SDL_FALSE if it does; see <a href="#Remarks">Remarks</a> for details.
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<p>If the rectangle defined by <strong>r</strong> is NULL or has a width or height <= 0 it has no area and this function returns SDL_TRUE. If both width and height are > 0 the rectangle has area and this function returns SDL_FALSE. 
+</div>
+</BODY>
+</HTML>

@@ -1,0 +1,94 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_DropEvent</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_DropEvent</h1>
+<p>A structure that contains an event used to request a file open by the system.
+<h2>Data Fields</h2>
+<table>
+<tr><td>Uint32</td><td><strong>type</strong></td><td>the event type; SDL_DROPFILE</td></tr>
+<tr><td>Uint32</td><td><strong>timestamp</strong></td><td>timestamp of the event</td></tr>
+<tr><td>char*</td><td><strong>file</strong></td><td>the file name, which should be freed with <a href="../SDL_free.html">SDL_free</a>()</td></tr>
+</table>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+// Example program:
+// SDL_DropEvent usage
+
+#include "SDL.h"
+#include <stdio.h>
+
+int main(int argc, char *argv[]) {
+    SDL_Window *window;
+    SDL_Event event;                        //  Declare event handle
+    char* dropped_filedir;                  //  Pointer for directory of dropped file
+
+    SDL_Init(SDL_INIT_VIDEO);               //  SDL2 initialization
+
+    window = SDL_CreateWindow(  //  Create a window
+        "SDL_DropEvent usage, please drop the file on window",
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
+        640,
+        480,
+        SDL_WINDOW_OPENGL
+    );
+
+    // Check that the window was successfully made
+    if (window == NULL) {
+        // In the event that the window could not be made...
+        printf("Could not create window: %s\n", SDL_GetError());
+        return 1;
+    }
+
+    for(;;) {                               //  Program loop
+        while (SDL_PollEvent(&event)) {
+            switch (event.type) {
+                case (SDL_QUIT): {          //  In case of exit
+                    return 0;               //  This skips the clean up
+                }
+
+                case (SDL_DROPFILE): {      //  In case if dropped file
+                    dropped_filedir = event.drop.file;
+                    //  Shows directory of dropped file
+                    SDL_ShowSimpleMessageBox(
+                        SDL_MESSAGEBOX_INFORMATION,
+                        "File dropped on window",
+                        dropped_filedir,
+                        window
+                    );
+                    SDL_free(dropped_filedir);    //  Free dropped_filedir memory
+                    break;
+               }
+            }
+        }
+        SDL_Delay(0);
+    }
+
+    SDL_DestroyWindow(window);        //  Close and destroy the window
+
+    SDL_Quit();                       //  Clean up
+    return 0;
+}
+</pre></div>
+<h2>Remarks</h2>
+<p><a href="SDL_DropEvent.html">SDL_DropEvent</a> is a member of the <a href="SDL_Event.html">SDL_Event</a> union and is used when an event of type SDL_DROPFILE is reported. You would access it through the event's drop field.
+<p>This event is disabled by default. You can enable it with <a href="../SDL_EventState.html">SDL_EventState</a>().
+<p>If you enable this event you must free the filename in the event.
+<h3>Mac OS X</h3>
+<p>To enable drag&drop on your SDL app, you must <em>also</em> edit your info.plist file. Add/Modify <strong>Document Types</strong>. For example, to enable all document types, add the "public.data" mime type as a document type.
+<h2>Related Enumerations</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_EventType.html">SDL_EventType</a></li></ul>
+<h2>Related Structures</h2>
+<ul style="list-style-type:none"><li><a href="SDL_Event.html">SDL_Event</a></li></ul>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_EventState.html">SDL_EventState</a></li></ul>
+</div>
+</BODY>
+</HTML>

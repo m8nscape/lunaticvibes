@@ -1,0 +1,39 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_IsGameController</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_IsGameController</h1>
+<p>Use this function to check if the given joystick is supported by the game controller interface.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_bool SDL_IsGameController(int joystick_index)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>joystick_index</strong></td><td>the device_index of a device, up to <a href="SDL_NumJoysticks.html">SDL_NumJoysticks</a>()</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns SDL_TRUE if the given joystick is supported by the game controller interface, SDL_FALSE if it isn't or it's an invalid index.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+for (int i = 0; i < SDL_NumJoysticks(); ++i) {
+    if (SDL_IsGameController(i)) {
+        printf("Joystick %i is supported by the game controller interface!\n", i);
+    }
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>joystick_index is the same as the device_index passed to <a href="SDL_JoystickOpen.html">SDL_JoystickOpen</a>.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GameControllerNameForIndex.html">SDL_GameControllerNameForIndex</a></li>
+<li><a href="SDL_GameControllerOpen.html">SDL_GameControllerOpen</a></li></ul>
+</div>
+</BODY>
+</HTML>

@@ -1,0 +1,25 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_HINT_FRAMEBUFFER_ACCELERATION</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_HINT_FRAMEBUFFER_ACCELERATION</h1>
+<p>A hint that specifies how 3D acceleration is used with <a href="SDL_GetWindowSurface.html">SDL_GetWindowSurface</a>().
+<h2>Values</h2>
+<table>
+<tr><td>0</td><td>disable 3D acceleration</td></tr>
+<tr><td>1</td><td>enable 3D acceleration, using the default renderer</td></tr>
+<tr><td>X</td><td>enable 3D acceleration, using X where X is one of the valid rendering drivers. (e.g. "direct3d", "opengl", etc.)</td></tr>
+</table>
+<h2>Default</h2>
+<p>By default SDL tries to make a best guess whether to use acceleration or not on each platform.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>SDL can try to accelerate the screen surface returned by <a href="SDL_GetWindowSurface.html">SDL_GetWindowSurface</a>() by using streaming textures with a 3D rendering engine. This variable controls whether and how this is done. 
+</div>
+</BODY>
+</HTML>

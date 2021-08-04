@@ -1,0 +1,47 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_UnlockAudioDevice</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_UnlockAudioDevice</h1>
+<p>Use this function to unlock the audio callback function for a specified device.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_UnlockAudioDevice(SDL_AudioDeviceID dev)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>dev</strong></td><td>the ID of the device to be unlocked</td></tr>
+</table>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+void myAudioCallback(void *userdata, Uint8* stream, int len)
+{
+    printf("The audio callback is running!\n");
+    SDL_memset(stream, 0, len);  // just silence.
+    printf("The audio callback is done!\n");
+}
+
+// don't lock for 2 seconds at a time in real life, please.
+extern SDL_AudioDeviceID devid;
+SDL_Delay(2000);  // callback runs for 2 seconds.
+SDL_LockAudioDevice(devid);
+printf("The audio callback can't be running right now!\n");
+SDL_Delay(2000);  // callback doesn't run for 2 seconds.
+printf("Ok, unlocking!\n");
+SDL_UnlockAudioDevice(devid);
+SDL_Delay(2000);  // callback runs for 2 seconds.
+</pre></div>
+<h2>Remarks</h2>
+<p>Unlocks a previous <a href="SDL_LockAudioDevice.html">SDL_LockAudioDevice</a>() call. Please see <a href="SDL_LockAudioDevice.html#Remarks">that function's remarks</a> for more details.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_LockAudioDevice.html">SDL_LockAudioDevice</a></li></ul>
+</div>
+</BODY>
+</HTML>

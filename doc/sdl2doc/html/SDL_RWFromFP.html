@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_RWFromFP</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_RWFromFP</h1>
+<p>Use this function to create an SDL_RWops structure from a standard I/O file pointer (stdio.h's FILE*).
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_RWops* SDL_RWFromFP(void*    fp,
+                        SDL_bool autoclose)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>fp</strong></td><td>the FILE* that feeds the <a href="structures/SDL_RWops.html">SDL_RWops</a> stream</td></tr>
+<tr><td><strong>autoclose</strong></td><td>SDL_TRUE to close the FILE* when closing the <a href="structures/SDL_RWops.html">SDL_RWops</a>, SDL_FALSE to leave the FILE* open when the RWops is closed</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns a pointer to the <a href="structures/SDL_RWops.html">SDL_RWops</a> structure that is created, or NULL on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+FILE *fp = fopen("myfile.dat", "rb");
+SDL_RWops *rw = SDL_RWFromFP(fp, SDL_TRUE);
+// Do things with rw...
+SDL_RWclose(rw); /* Automatically does an fclose(fp) in this case */
+</pre></div>
+<h2>Remarks</h2>
+<p>This function is not available on Windows, since files opened in an application on that platform cannot be used by a dynamically linked library.
+<p>On some platforms, the first parameter is a void*, on others, it's a FILE*, depending on what system headers are available to SDL. It is always intended to be the FILE* type from the C runtime's stdio.h.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_RWclose.html">SDL_RWclose</a></li>
+<li><a href="SDL_RWFromConstMem.html">SDL_RWFromConstMem</a></li>
+<li><a href="SDL_RWFromFile.html">SDL_RWFromFile</a></li>
+<li><a href="SDL_RWFromMem.html">SDL_RWFromMem</a></li></ul>
+</div>
+</BODY>
+</HTML>

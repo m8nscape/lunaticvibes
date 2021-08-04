@@ -1,0 +1,39 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_LogPriority</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_LogPriority</h1>
+<p>An enumeration of the predefined log priorities.
+<h2>Values</h2>
+<table>
+<tr><td>SDL_LOG_PRIORITY_VERBOSE</td><td>&nbsp;</td></tr>
+<tr><td>SDL_LOG_PRIORITY_DEBUG</td><td>&nbsp;</td></tr>
+<tr><td>SDL_LOG_PRIORITY_INFO</td><td>&nbsp;</td></tr>
+<tr><td>SDL_LOG_PRIORITY_WARN</td><td>&nbsp;</td></tr>
+<tr><td>SDL_LOG_PRIORITY_ERROR</td><td>&nbsp;</td></tr>
+<tr><td>SDL_LOG_PRIORITY_CRITICAL</td><td>&nbsp;</td></tr>
+<tr style="color: #808080;"><td>SDL_NUM_LOG_PRIORITIES</td><td>(internal use)</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>The default log priorities are as follows:
+<tr><td>SDL_LOG_CATEGORY_APPLICATION</td><td>SDL_LOG_PRIORITY_INFO</td></tr>
+<tr><td>SDL_LOG_CATEGORY_ASSERT</td><td>SDL_LOG_PRIORITY_WARN</td></tr>
+<tr><td>SDL_LOG_CATEGORY_TEST</td><td>SDL_LOG_PRIORITY_VERBOSE</td></tr>
+<tr><td>everything else</td><td>SDL_LOG_PRIORITY_CRITICAL</td></tr>
+</table>
+<p>If you're debugging SDL you might want to call:
+<tt style="backtick">SDL_LogSetAllPriority(SDL_LOG_PRIORITY_WARN); </tt>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_LogMessage.html">SDL_LogMessage</a></li>
+<li><a href="SDL_LogMessageV.html">SDL_LogMessageV</a></li>
+<li><a href="SDL_LogSetAllPriority.html">SDL_LogSetAllPriority</a></li>
+<li><a href="SDL_LogSetPriority.html">SDL_LogSetPriority</a><li></ul>
+</div>
+</BODY>
+</HTML>

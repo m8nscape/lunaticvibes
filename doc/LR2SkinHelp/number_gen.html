@@ -1,0 +1,2510 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html; charset=Shift_JIS" http-equiv="content-type">
+    <title>LR2skin NUMBER Generator</title>
+    <meta content=".RED" name="author">
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+<!--[if lt IE 9]>
+<script>
+$(function() {
+var el;
+$("select.fix-me")
+.each(function() {
+el = $(this);
+el.data("origWidth", el.outerWidth()) // IE 8 will take padding on selects
+})
+.mouseenter(function(){
+$(this).css("width", "auto");
+})
+.bind("blur change", function(){
+el = $(this);
+el.css("width", el.data("origWidth"));
+});
+});
+</script>
+<![endif]-->
+    <style type="text/css">
+.generator {  
+  width: 800px;
+}
+
+td, body, textarea, input, select {  
+  font-size: 12px;
+}
+
+input, select {  
+  vertical-align: -0.2em;
+}
+
+.small {  
+  width: 60px;
+}
+
+.radio {
+}
+
+select {  
+  width: 110px;
+}
+
+.sel_min {  
+  width: 70px;
+}
+
+.csv {  
+  width: 200px;
+}
+
+.src_number_commentary {  
+  vertical-align: top;
+}
+
+.minibtn {  
+  width: 14px;
+  height: 16px;  
+  font-size: 10px;
+}
+
+</style></head>
+  <body>
+    <h1>NUMBER定義 </h1>
+    <form id="NUMBER" name="NUMBER">
+      <div class="radio"><input checked="checked" value="	" name="kugiri"
+
+          onchange="gen()" type="radio">タブ区切り<input value="," name="kugiri"
+
+          onchange="gen()" type="radio">カンマ区切り</div>
+      <p>//<input class="csv" name="csv" value="定義名を入力してください" onblur="gen()"
+
+          type="text"> </p>
+      <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+        <tbody>
+          <tr>
+            <td>//SRC定義</td>
+            <td>(NULL)</td>
+            <td>gr</td>
+            <td>x</td>
+            <td>y</td>
+            <td>w</td>
+            <td>h</td>
+            <td>div_x</td>
+            <td>div_y</td>
+            <td>cycle</td>
+            <td>timer</td>
+            <td>num</td>
+            <td>align</td>
+            <td>keta</td>
+          </tr>
+          <tr>
+            <td>#SRC_NUMBER</td>
+            <td>0</td>
+            <td><input class="small" name="gr" value="0" onblur="gen()"
+
+                type="text"></td>
+            <td><input class="small" name="x" value="0" onblur="gen()" type="text"></td>
+            <td><input class="small" name="y" value="0" onblur="gen()" type="text"></td>
+            <td><input class="small" name="w" value="0" onblur="gen()" type="text"></td>
+            <td><input class="small" name="h" value="0" onblur="gen()" type="text"></td>
+            <td><input class="small" name="divx" value="1" onblur="gen()"
+
+                type="text"></td>
+            <td><input class="small" name="divy" value="1" onblur="gen()"
+
+                type="text"></td>
+            <td><input class="small" name="cycle" value="0" onblur="gen()"
+
+                type="text"></td>
+            <td>
+              <select class="fix-me" name="timer" onchange="gen()">
+                <optgroup label="timer"></optgroup>
+                <option selected="selected" value="0">0 メインタイマー</option>
+                <optgroup label="シーンの開始時に作動します。"></optgroup><optgroup label="　"></optgroup>
+                <option value="1">1 入力開始タイマー</option>
+                <optgroup label="#STARTINPUTで定義された時間が過ぎると作動します。"></optgroup><optgroup
+
+                  label="　"></optgroup>
+                <option value="2">2 フェードアウトタイマー</option>
+                <optgroup label="フェードアウト時に作動します。"></optgroup> <optgroup
+
+                  label="#FADEOUTで定義された時間が過ぎると次のシーンに移行します。"></optgroup><optgroup
+
+                  label="　"></optgroup>
+                <option value="3">3 閉店タイマー</option>
+                <optgroup label="閉店時に作動します。"></optgroup> <optgroup label="#CLOSEで定義された時間が過ぎると次のシーンに移行します。"></optgroup><optgroup
+
+                  label="　"></optgroup>
+                <option value="4">4 文字入力終了タイマー</option>
+                <optgroup label="文字入力が完了したら作動します。"></optgroup> <optgroup
+
+                  label="基本的にプログラム内で用いるものであり、スキン側ではあまり実用は無さそうな気がします。"></optgroup><optgroup
+
+                  label="　"></optgroup>
+                <option value="10">10 曲リスト移動タイマー</option>
+                <optgroup label="曲リスト移動開始時に作動します。"></optgroup> <optgroup
+
+                  label="曲リスト移動停止時にオフになります。"></optgroup><optgroup label="　"></optgroup>
+                <option value="11">11 曲変更タイマー</option>
+                <optgroup label="#STARTINPUTで定義された時間が過ぎると作動します。"></optgroup> <optgroup
+
+                  label="曲が変更されるたびに、タイマーはリセットされます。"></optgroup><optgroup
+
+                  label="　"></optgroup>
+                <option value="12">12 曲リスト上移動タイマー (未)</option>
+                <optgroup label="曲リスト上移動開始時に作動します。"></optgroup> <optgroup
+
+                  label="曲リスト上移動終了時にオフになります。"></optgroup><optgroup label="　"></optgroup>
+                <option value="13曲">13 曲リスト下移動タイマー (未)</option>
+                <optgroup label="リスト下移動開始時に作動します。"></optgroup> <optgroup
+
+                  label="曲リスト下移動終了時にオフになります。"></optgroup><optgroup label="　"></optgroup>
+                <option value="14">14 曲リスト停止タイマー (未)</option>
+                <optgroup label="#STARTINPUTで定義された時間が過ぎると作動します。"></optgroup> <optgroup
+
+                  label="曲リスト移動状態から停止状態に移るときに作動します。"></optgroup> <optgroup
+
+                  label="曲リスト移動開始時にオフになります。"></optgroup><optgroup label="　"></optgroup>
+                <option value="15">15 リードミー開始タイマー</option>
+                <optgroup label="付属テキスト表示の開始時に作動します。"></optgroup> <optgroup
+
+                  label="閉じるときにオフになります。"></optgroup><optgroup label="　"></optgroup>
+                <option value="16">16 リードミー終了タイマー</option>
+                <optgroup label="付属テキスト表示の終了時に作動します。"></optgroup> <optgroup
+
+                  label="開くときにオフになります。"></optgroup><optgroup label="　"></optgroup>
+                <option value="17">17 コースセレクト開始タイマー</option>
+                <option value="18">18 コースセレクト終了タイマー</option>
+                <optgroup label="　"></optgroup> <optgroup label="21-29 パネル1-9起動"></optgroup> <optgroup
+
+                  label="パネル1-8起動ボタンが押されたら作動します。"></optgroup> <optgroup
+
+                  label="パネルが閉じたらオフになります。"></optgroup>
+                <option value="21">21 パネル1起動</option>
+                <option value="22">22 パネル2起動</option>
+                <option value="23">23 パネル3起動</option>
+                <option value="24">24 パネル4起動</option>
+                <option value="25">25 パネル5起動</option>
+                <option value="26">26 パネル6起動</option>
+                <option value="27">27 パネル7起動</option>
+                <option value="28">28 パネル8起動</option>
+                <option value="29">29 パネル9起動</option>
+                <optgroup label="　"></optgroup> <optgroup label="31-39 コントロールパネル1-9終了"></optgroup> <optgroup
+
+                  label="パネル1-9が閉じられるときに作動します。"></optgroup>
+                <option value="31">31 パネル1終了</option>
+                <option value="32">32 パネル2終了</option>
+                <option value="33">33 パネル3終了</option>
+                <option value="34">34 パネル4終了</option>
+                <option value="35">35 パネル5終了</option>
+                <option value="36">36 パネル6終了</option>
+                <option value="37">37 パネル7終了</option>
+                <option value="38">38 パネル8終了</option>
+                <option value="39">39 パネル9終了</option>
+                <optgroup label="　"></optgroup>
+                <option value="40">40 READY</option>
+                <optgroup label="プレイスキンの#LOADENDで定義された時間が過ぎていて、"></optgroup> <optgroup
+
+                  label="かつバックグラウンドでのロードが完了していたら作動します。"></optgroup><optgroup
+
+                  label="　"></optgroup>
+                <option value="41">41 プレイ開始</option>
+                <optgroup label="READY作動から指定の時間が過ぎたときに作動します。"></optgroup><optgroup
+
+                  label="　"></optgroup> <optgroup label="bms演奏用のメインタイマーです。"></optgroup>
+                <option value="42">42 ゲージ上昇タイマー 1P</option>
+                <option value="43">43 ゲージ上昇タイマー 2P</option>
+                <optgroup label="ジャッジ時にゲージが上昇した場合に作動するタイマーです。"></optgroup><optgroup
+
+                  label="　"></optgroup>
+                <option value="44">44 ゲージマックスタイマー 1P</option>
+                <option value="45">45 ゲージマックスタイマー 2P</option>
+                <optgroup label="ゲージが100%になった場合作動するタイマーです。"></optgroup> <optgroup
+
+                  label="ゲージが下がるたびに停止して、100%になればまた最初から作動します。"></optgroup><optgroup
+
+                  label="　"></optgroup>
+                <option value="46">46 ジャッジタイマー 1P</option>
+                <option value="47">47 ジャッジタイマー 2P</option>
+                <optgroup label="判定時に作動するタイマーです。"></optgroup><optgroup label="　"></optgroup>
+                <option value="48">48 フルコンタイマー 1P</option>
+                <option value="49">49 フルコンタイマー 2P</option>
+                <optgroup label="フルコン達成時に作動するタイマーです。"></optgroup><optgroup
+
+                  label="　"></optgroup> <optgroup label="50- ボムタイマー"></optgroup> <optgroup
+
+                  label="GREAT以上判定時に作動します。"></optgroup>
+                <option value="50">50 1Pボムタイマー 皿</option>
+                <option value="51">51 1Pボムタイマー 1鍵</option>
+                <option value="52">52 1Pボムタイマー 2鍵</option>
+                <option value="53">53 1Pボムタイマー 3鍵</option>
+                <option value="54">54 1Pボムタイマー 4鍵</option>
+                <option value="55">55 1Pボムタイマー 5鍵</option>
+                <option value="56">56 1Pボムタイマー 6鍵</option>
+                <option value="57">57 1Pボムタイマー 7鍵</option>
+                <option value="58">58 1Pボムタイマー 8鍵</option>
+                <option value="59">59 1Pボムタイマー 9鍵</option>
+                <option value="60">60 2Pボムタイマー 皿</option>
+                <option value="61">61 2Pボムタイマー 1鍵</option>
+                <option value="62">62 2Pボムタイマー 2鍵</option>
+                <option value="63">63 2Pボムタイマー 3鍵</option>
+                <option value="64">64 2Pボムタイマー 4鍵</option>
+                <option value="65">65 2Pボムタイマー 5鍵</option>
+                <option value="66">66 2Pボムタイマー 6鍵</option>
+                <option value="67">67 2Pボムタイマー 7鍵</option>
+                <option value="68">68 2Pボムタイマー 8鍵</option>
+                <option value="69">69 2Pボムタイマー 9鍵</option>
+                <optgroup label="　"></optgroup> <optgroup label="70- ホールドエフェクトタイマー"></optgroup> <optgroup
+
+                  label="ロングノートホールド開始時に作動し、ホールド終了時に停止います。"></optgroup>
+                <option value="70">70 1PLNエフェクトタイマー 皿</option>
+                <option value="71">71 1PLNエフェクトタイマー 1鍵</option>
+                <option value="72">72 1PLNエフェクトタイマー 2鍵</option>
+                <option value="73">73 1PLNエフェクトタイマー 3鍵</option>
+                <option value="74">74 1PLNエフェクトタイマー 4鍵</option>
+                <option value="75">75 1PLNエフェクトタイマー 5鍵</option>
+                <option value="76">76 1PLNエフェクトタイマー 6鍵</option>
+                <option value="77">77 1PLNエフェクトタイマー 7鍵</option>
+                <option value="78">78 1PLNエフェクトタイマー 8鍵</option>
+                <option value="79">79 1PLNエフェクトタイマー 9鍵</option>
+                <option value="80">80 2PLNエフェクトタイマー 皿</option>
+                <option value="81">81 2PLNエフェクトタイマー 1鍵</option>
+                <option value="82">82 2PLNエフェクトタイマー 2鍵</option>
+                <option value="83">83 2PLNエフェクトタイマー 3鍵</option>
+                <option value="84">84 2PLNエフェクトタイマー 4鍵</option>
+                <option value="85">85 2PLNエフェクトタイマー 5鍵</option>
+                <option value="86">86 2PLNエフェクトタイマー 6鍵</option>
+                <option value="87">87 2PLNエフェクトタイマー 7鍵</option>
+                <option value="88">88 2PLNエフェクトタイマー 8鍵</option>
+                <option value="89">89 2PLNエフェクトタイマー 9鍵</option>
+                <optgroup label="　"></optgroup> <optgroup label="100- キーオンタイマー"></optgroup> <optgroup
+
+                  label="キーがオンになったら作動します。"></optgroup> <optgroup label="キーがオフになったら停止します。"></optgroup>
+                <option value="100">100 1Pキーオンタイマー 皿</option>
+                <option value="101">101 1Pキーオンタイマー 1鍵</option>
+                <option value="102">102 1Pキーオンタイマー 2鍵</option>
+                <option value="103">103 1Pキーオンタイマー 3鍵</option>
+                <option value="104">104 1Pキーオンタイマー 4鍵</option>
+                <option value="105">105 1Pキーオンタイマー 5鍵</option>
+                <option value="106">106 1Pキーオンタイマー 6鍵</option>
+                <option value="107">107 1Pキーオンタイマー 7鍵</option>
+                <option value="108">108 1Pキーオンタイマー 8鍵</option>
+                <option value="109">109 1Pキーオンタイマー 9鍵</option>
+                <option value="110">110 2Pキーオンタイマー 皿</option>
+                <option value="111">111 2Pキーオンタイマー 1鍵</option>
+                <option value="112">112 2Pキーオンタイマー 2鍵</option>
+                <option value="113">113 2Pキーオンタイマー 3鍵</option>
+                <option value="114">114 2Pキーオンタイマー 4鍵</option>
+                <option value="115">115 2Pキーオンタイマー 5鍵</option>
+                <option value="116">116 2Pキーオンタイマー 6鍵</option>
+                <option value="117">117 2Pキーオンタイマー 7鍵</option>
+                <option value="118">118 2Pキーオンタイマー 8鍵</option>
+                <option value="119">119 2Pキーオンタイマー 9鍵</option>
+                <optgroup label="　"></optgroup> <optgroup label="120- キーオフタイマー"></optgroup> <optgroup
+
+                  label="キーがオフになったら作動します。"></optgroup> <optgroup label="キーがオンになったら停止します。"></optgroup>
+                <option value="120">120 1Pキーオフタイマー 皿</option>
+                <option value="121">121 1Pキーオフタイマー 1鍵</option>
+                <option value="122">122 1Pキーオフタイマー 2鍵</option>
+                <option value="123">123 1Pキーオフタイマー 3鍵</option>
+                <option value="124">124 1Pキーオフタイマー 4鍵</option>
+                <option value="125">125 1Pキーオフタイマー 5鍵</option>
+                <option value="126">126 1Pキーオフタイマー 6鍵</option>
+                <option value="127">127 1Pキーオフタイマー 7鍵</option>
+                <option value="128">128 1Pキーオフタイマー 8鍵</option>
+                <option value="129">129 1Pキーオフタイマー 9鍵</option>
+                <option value="130">130 2Pキーオフタイマー 皿</option>
+                <option value="131">131 2Pキーオフタイマー 1鍵</option>
+                <option value="132">132 2Pキーオフタイマー 2鍵</option>
+                <option value="133">133 2Pキーオフタイマー 3鍵</option>
+                <option value="134">134 2Pキーオフタイマー 4鍵</option>
+                <option value="135">135 2Pキーオフタイマー 5鍵</option>
+                <option value="136">136 2Pキーオフタイマー 6鍵</option>
+                <option value="137">137 2Pキーオフタイマー 7鍵</option>
+                <option value="138">138 2Pキーオフタイマー 8鍵</option>
+                <option value="139">139 2Pキーオフタイマー 9鍵</option>
+                <optgroup label="　"></optgroup>
+                <option value="140">140 リズムタイマー</option>
+                <optgroup label="1拍を1000としたときのタイマーです。"></optgroup> <optgroup
+
+                  label="曲の開始と同時に作動します。"></optgroup> <optgroup label="小節が切り替わるごとにリセットされます。"></optgroup><optgroup
+
+                  label="　"></optgroup>
+                <option value="143">143 最終ノートタイマー 1P</option>
+                <option value="144">144 最終ノートタイマー 2P</option>
+                <optgroup label="最後のノートが判定されたときに作動します。"></optgroup><optgroup
+
+                  label="　"></optgroup>
+                <option value="150">150 リザルトグラフ描画開始タイマー</option>
+                <optgroup label="リザルトにおいてグラフ描画開始時に作動します。"></optgroup><optgroup
+
+                  label="　"></optgroup>
+                <option value="151">151 リザルトグラフ描画終了タイマー(プレイランク表示タイマー)</option>
+                <optgroup label="リザルトにおいてグラフ描画終了時に作動します。"></optgroup> <optgroup
+
+                  label="グラフ描画中にキーを押すとスキップしていきなりこのタイマーが作動します。"></optgroup><optgroup
+
+                  label="　"></optgroup>
+                <option value="152">152 リザルトハイスコア更新タイマー</option>
+                <optgroup label="リザルトにおいてグラフ描画終了後、なにかキーを押すと作動します。"></optgroup><optgroup
+
+                  label="　"></optgroup>
+                <option value="170">170 データベースロード中タイマー</option>
+                <option value="171">171 データベースロード完了タイマー</option>
+                <option value="172">172 IR 接続開始タイマー</option>
+                <option value="173">173 IR 接続成功タイマー</option>
+                <option value="174">174 IR 接続失敗タイマー</option>
+                <option value="180">180 コースエディター開始タイマー</option>
+                <option value="181">181 コースエディター終了タイマー</option>
+              </select>
+            </td>
+            <td>
+              <select class="fix-me" name="num" onchange="gen()">
+                <optgroup label="num"></optgroup> <optgroup label="プレイオプションとか"></optgroup>
+                <option selected="selected" value="10">10 HS-1P</option>
+                <option value="11">11 HS-2P</option>
+                <option value="12">12 JUDGE TIMING</option>
+                <option value="13">13 DEFAULT TARGET RATE</option>
+                <option value="14">14 SUD+ / 1P</option>
+                <option value="15">15 SUD+ / 2P</option>
+                <optgroup label="　"></optgroup> <optgroup label="なんかいろいろ"></optgroup>
+                <option value="20">20 fps</option>
+                <option value="21">21 年</option>
+                <option value="22">22 月</option>
+                <option value="23">23 日</option>
+                <option value="24">24 時</option>
+                <option value="25">25 分</option>
+                <option value="26">26 秒</option>
+                <optgroup label="　"></optgroup> <optgroup label="プレイヤーステータスとか"></optgroup>
+                <option value="30">30 TOTAL PLAY COUNT</option>
+                <option value="31">31 TOTAL CLEAR COUNT</option>
+                <option value="32">32 TOTAL FAIL COUNT</option>
+                <option value="33">33 TOTAL PERFECT</option>
+                <option value="34">34 TOTAL GREAT</option>
+                <option value="35">35 TOTAL GOOD</option>
+                <option value="36">36 TOTAL BAD</option>
+                <option value="37">37 TOTAL POOR</option>
+                <option value="38">38 RUNNING COMBO</option>
+                <option value="39">39 RUNNING COMBO(MAX)</option>
+                <option value="40">40 TRIAL LEVEL</option>
+                <option value="41">41 TRIAL LEVEL-1 (更新表示のときに使うかも)</option>
+                <option value="45">45 同フォルダのbeginner譜面の曲レベル</option>
+                <option value="46">46 同フォルダのnormal譜面の曲レベル</option>
+                <option value="47">47 同フォルダのhyper譜面の曲レベル</option>
+                <option value="48">48 同フォルダのanother譜面の曲レベル</option>
+                <option value="49">49 同フォルダのinsane譜面の曲レベル</option>
+                <optgroup label="　"></optgroup> <optgroup label="エフェクタとか"></optgroup>
+                <option value="50">50 EQ0</option>
+                <option value="51">51 EQ1</option>
+                <option value="52">52 EQ2</option>
+                <option value="53">53 EQ3</option>
+                <option value="54">54 EQ4</option>
+                <option value="55">55 EQ5</option>
+                <option value="56">56 EQ6</option>
+                <option value="57">57 MASTER VOLUME</option>
+                <option value="58">58 KEY VOLUME</option>
+                <option value="59">59 BGM VOLUME</option>
+                <option value="60">60 FX0 P1</option>
+                <option value="61">61 FX0 P2</option>
+                <option value="62">62 FX1 P1</option>
+                <option value="63">63 FX1 P2</option>
+                <option value="64">64 FX2 P1</option>
+                <option value="65">65 FX2 P2</option>
+                <option value="66">66 PITCH</option>
+                <optgroup label="　"></optgroup> <optgroup label="選曲時"></optgroup>
+                <option value="70">70 score</option>
+                <option value="71">71 exscore</option>
+                <option value="72">72 exscore理論値</option>
+                <option value="73">73 rate</option>
+                <option value="74">74 totalnotes</option>
+                <option value="75">75 maxcombo</option>
+                <option value="76">76 min b+p</option>
+                <option value="77">77 playcount</option>
+                <option value="78">78 clear</option>
+                <option value="79">79 fail</option>
+                <optgroup label="　"></optgroup>
+                <option value="80">80 perfect</option>
+                <option value="81">81 great</option>
+                <option value="82">82 good</option>
+                <option value="83">83 bad</option>
+                <option value="84">84 poor</option>
+                <option value="85">85 perfect %</option>
+                <option value="86">86 great %</option>
+                <option value="87">87 good %</option>
+                <option value="88">88 bad %</option>
+                <option value="89">89 poor %</option>
+                <option value="90">90 bpm max</option>
+                <option value="91">91 bpm min</option>
+                <option value="92">92 IR rank</option>
+                <option value="93">93 IR totalplayer</option>
+                <option value="94">94 IR clearrate</option>
+                <option value="95">95 IR ライバルとの差分</option>
+                <optgroup label="　"></optgroup> <optgroup label="bmsプレイ時"></optgroup> <optgroup
+
+                  label="1P"></optgroup>
+                <option value="100">100 score</option>
+                <option value="101">101 exscore</option>
+                <option value="102">102 rate</option>
+                <option value="103">103 rate(小数点下二桁</option>
+                <option value="104">104 nowcombo</option>
+                <option value="105">105 maxcombo</option>
+                <option value="106">106 totalnotes</option>
+                <option value="107">107 groovegauge</option>
+                <option value="108">108 exscore2pとの差</option>
+                <option value="110">110 perfect</option>
+                <option value="111">111 great</option>
+                <option value="112">112 good</option>
+                <option value="113">113 bad</option>
+                <option value="114">114 poor</option>
+                <option value="115">115 total rate</option>
+                <option value="116">116 total rate(小数点下二桁</option>
+                <optgroup label="　"></optgroup> <optgroup label="対戦相手orゴースト"></optgroup>
+                <option value="120">120 score</option>
+                <option value="121">121 exscore</option>
+                <option value="122">122 rate</option>
+                <option value="123">123 rate(小数点下二桁</option>
+                <option value="124">124 nowcombo</option>
+                <option value="125">125 maxcombo</option>
+                <option value="126">126 totalnotes</option>
+                <option value="127">127 groovegauge</option>
+                <option value="128">128 exscore2pとの差</option>
+                <option value="130">130 perfect</option>
+                <option value="131">131 great</option>
+                <option value="132">132 good</option>
+                <option value="133">133 bad</option>
+                <option value="134">134 poor</option>
+                <option value="135">135 total rate</option>
+                <option value="136">136 total rate(小数点下二桁)</option>
+                <optgroup label="　"></optgroup> <optgroup label="120-139は設定によってハイスコアかゴーストか不定なので、"></optgroup> <optgroup
+
+                  label="スコアグラフ上で指定して表示する場合"></optgroup> <optgroup label="リザルトで使用する場合は#DISABLEFLIP必須"></optgroup>
+                <option value="150">150 ハイスコア現在値</option>
+                <option value="151">151 ターゲット現在値</option>
+                <option value="152">152 ハイスコアと1pスコアの差</option>
+                <option value="153">153 ターゲットと1pスコアの差</option>
+                <option value="154">154 次のランクとの差</option>
+                <option value="155">155 ハイスコアrate</option>
+                <option value="156">156 ハイスコアrate小数点2桁</option>
+                <option value="157">157 ターゲットrate</option>
+                <option value="158">158 ターゲットrate小数点2桁</option>
+                <optgroup label="　"></optgroup> <optgroup label="BMSの状態"></optgroup>
+                <option value="160">160 bpm</option>
+                <option value="161">161 分</option>
+                <option value="162">162 秒</option>
+                <option value="163">163 残り時間分</option>
+                <option value="164">164 残り時間秒</option>
+                <option value="165">165 ロード状況(%)</option>
+                <optgroup label="　"></optgroup> <optgroup label="リザのハイスコア表示用"></optgroup>
+                <option value="170">170 EXSCORE更新前</option>
+                <option value="171">171 EXSCORE今回</option>
+                <option value="172">172 EXSCORE差分</option>
+                <option value="173">173 MAXCOMBO更新前</option>
+                <option value="174">174 MAXCOMBO今回</option>
+                <option value="175">175 MAXCOMBO差分</option>
+                <option value="176">176 最小BP更新前</option>
+                <option value="177">177 最小BP更新後</option>
+                <option value="178">178 最小BP差分</option>
+                <option value="179">179 IR rank</option>
+                <option value="180">180 IR totalplayer</option>
+                <option value="181">181 IR clearrate</option>
+                <option value="182">182 IR rank (更新前)</option>
+                <option value="183">183 rate更新前</option>
+                <option value="184">184 rate更新前(小数点下二桁</option>
+                <optgroup label="　"></optgroup> <optgroup label="IR(beta3以降用)"></optgroup>
+                <option value="200">200 IR TOTALPLAYER</option>
+                <option value="201">201 IR TOTALプレイ回数</option>
+                <option value="210">210 FAILED人数</option>
+                <option value="211">211 FAILED割合</option>
+                <option value="212">212 EASY人数</option>
+                <option value="213">213 EASY割合</option>
+                <option value="214">214 CLEAR人数</option>
+                <option value="215">215 CLEAR割合</option>
+                <option value="216">216 HARD人数</option>
+                <option value="217">217 HARD割合</option>
+                <option value="218">218 FULLCOMBO人数</option>
+                <option value="219">219 FULLCOMBO割合</option>
+                <option value="220">220 IR自動更新までの残り時間</option>
+                <option value="250">250 コースのレベルstage1</option>
+                <option value="251">251 stage2</option>
+                <option value="252">252 stage3</option>
+                <option value="253">253 stage4</option>
+                <option value="254">254 stage5</option>
+                <optgroup label="　"></optgroup> <optgroup label="選曲時ライバル"></optgroup>
+                <option value="270">270 score</option>
+                <option value="271">271 exscore</option>
+                <option value="272">272 exscore理論値</option>
+                <option value="273">273 rate</option>
+                <option value="274">274 totalnotes</option>
+                <option value="275">275 maxcombo</option>
+                <option value="276">276 min b+p</option>
+                <option value="277">277 playcount</option>
+                <option value="278">278 clear</option>
+                <option value="279">279 fail</option>
+                <optgroup label="　"></optgroup>
+                <option value="280">280 perfect</option>
+                <option value="281">281 great</option>
+                <option value="282">282 good</option>
+                <option value="283">283 bad</option>
+                <option value="284">284 poor</option>
+                <option value="285">285 perfect %</option>
+                <option value="286">286 great %</option>
+                <option value="287">287 good %</option>
+                <option value="288">288 bad %</option>
+                <option value="289">289 poor %</option>
+                <option value="290">290 bpm max</option>
+                <option value="291">291 bpm min</option>
+                <option value="292">292 IR rank</option>
+                <option value="293">293 IR totalplayer</option>
+                <option value="294">294 IR clearrate</option>
+              </select>
+            </td>
+            <td>
+              <select name="align" onchange="gen()">
+                <optgroup label="数字align">
+                  <option selected="selected" value="0">0 右寄せ</option>
+                  <option value="1">1 左寄せ</option>
+                  <option value="2">2 中央寄せ</option>
+                </optgroup>
+              </select>
+            </td>
+            <td><input class="small" value="0" name="keta" onblur="gen()"
+
+                type="text"> </td>
+          </tr>
+        </tbody>
+      </table>
+      <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+        <tbody>
+          <tr>
+            <td>//DST定義</td>
+            <td>(NULL)</td>
+            <td>time</td>
+            <td>dstx</td>
+            <td>dsty</td>
+            <td>dstw</td>
+            <td>dsth</td>
+            <td>acc</td>
+            <td>a</td>
+            <td>r</td>
+            <td>g</td>
+            <td>b</td>
+            <td>blend</td>
+            <td>filter</td>
+            <td>angle</td>
+            <td>center</td>
+            <td>loop</td>
+            <td>dtimer</td>
+            <td>op1</td>
+            <td>op2</td>
+            <td>op3</td>
+          </tr>
+          <tr>
+            <td>#DST_NUMBER</td>
+            <td>0</td>
+            <td><input class="small" name="time" value="0" onblur="gen()"
+
+                type="text"></td>
+            <td><input class="small" name="dstx" value="0" onblur="gen()"
+
+                type="text"></td>
+            <td><input class="small" name="dsty" value="0" onblur="gen()"
+
+                type="text"></td>
+            <td><input class="small" name="dstw" value="0" onblur="gen()"
+
+                type="text"></td>
+            <td><input class="small" name="dsth" value="0" onblur="gen()"
+
+                type="text"></td>
+            <td>
+              <select class="sel_min" name="acc" onchange="gen()">
+                <optgroup label="acc">
+                  <option selected="selected" value="0">0 等速</option>
+                  <option value="1">1 加速</option>
+                  <option value="2">2 減速</option>
+                  <option value="3">3 不連続</option>
+                </optgroup>
+              </select>
+            </td>
+            <td><input class="small" name="a" value="255" onblur="gen()"
+
+                type="text"></td>
+            <td><input class="small" name="r" value="255" onblur="gen()"
+
+                type="text"></td>
+            <td><input class="small" name="g" value="255" onblur="gen()"
+
+                type="text"></td>
+            <td><input class="small" name="b" value="255" onblur="gen()"
+
+                type="text"></td>
+            <td>
+              <select class="sel_min" name="blend" onchange="gen()">
+                <optgroup label="blend">
+                  <option selected="selected" value="0">0 無し</option>
+                  <option value="1">1 アルファ</option>
+                  <option value="2">2 加算描画</option>
+                  <option value="3">3 減算描画</option>
+                  <option value="4">4 乗算描画</option>
+                  <option value="6">6 XOR</option>
+                  <option value="9">9 描画先の色の反転値を掛ける</option>
+                  <option value="10">10 反転描画</option>
+                  <option value="11">11 αチャンネル考慮付乗算</option>
+                </optgroup>
+              </select>
+            </td>
+            <td>
+              <select class="sel_min" name="filter" onchange="gen()">
+                <optgroup label="filter">
+                  <option selected="selected" value="0">0 無し</option>
+                  <option value="1">1 有り</option>
+                </optgroup>
+              </select>
+            </td>
+            <td><input class="small" name="angle" value="0" onblur="gen()"
+
+                type="text"></td>
+            <td>
+              <select class="sel_min" name="center" onchange="gen()">
+                <optgroup label="center">
+                  <option selected="selected" value="0">0 中央</option>
+                  <option value="1">1 左下</option>
+                  <option value="2">2 下</option>
+                  <option value="3">3 右下</option>
+                  <option value="4">4 左</option>
+                  <option value="5">5 中央</option>
+                  <option value="6">6 右</option>
+                  <option value="7">7 左上</option>
+                  <option value="8">8 上</option>
+                  <option value="9">9 右上</option>
+                </optgroup>
+              </select>
+            </td>
+            <td><input class="small" name="loop" value="0" onblur="gen()"
+
+                type="text"></td>
+            <td>
+              <select class="fix-me" name="dsttimer" onchange="gen()">
+                <optgroup label="timer"></optgroup>
+                <option selected="selected" value="0">0 メインタイマー</option>
+                <optgroup label="シーンの開始時に作動します。"></optgroup><optgroup label="　"></optgroup>
+                <option value="1">1 入力開始タイマー</option>
+                <optgroup label="#STARTINPUTで定義された時間が過ぎると作動します。"></optgroup><optgroup
+
+                  label="　"></optgroup>
+                <option value="2">2 フェードアウトタイマー</option>
+                <optgroup label="フェードアウト時に作動します。"></optgroup> <optgroup
+
+                  label="#FADEOUTで定義された時間が過ぎると次のシーンに移行します。"></optgroup><optgroup
+
+                  label="　"></optgroup>
+                <option value="3">3 閉店タイマー</option>
+                <optgroup label="閉店時に作動します。"></optgroup> <optgroup label="#CLOSEで定義された時間が過ぎると次のシーンに移行します。"></optgroup><optgroup
+
+                  label="　"></optgroup>
+                <option value="4">4 文字入力終了タイマー</option>
+                <optgroup label="文字入力が完了したら作動します。"></optgroup> <optgroup
+
+                  label="基本的にプログラム内で用いるものであり、スキン側ではあまり実用は無さそうな気がします。"></optgroup><optgroup
+
+                  label="　"></optgroup>
+                <option value="10">10 曲リスト移動タイマー</option>
+                <optgroup label="曲リスト移動開始時に作動します。"></optgroup> <optgroup
+
+                  label="曲リスト移動停止時にオフになります。"></optgroup><optgroup label="　"></optgroup>
+                <option value="11">11 曲変更タイマー</option>
+                <optgroup label="#STARTINPUTで定義された時間が過ぎると作動します。"></optgroup> <optgroup
+
+                  label="曲が変更されるたびに、タイマーはリセットされます。"></optgroup><optgroup
+
+                  label="　"></optgroup>
+                <option value="12">12 曲リスト上移動タイマー (未)</option>
+                <optgroup label="曲リスト上移動開始時に作動します。"></optgroup> <optgroup
+
+                  label="曲リスト上移動終了時にオフになります。"></optgroup><optgroup label="　"></optgroup>
+                <option value="13曲">13 曲リスト下移動タイマー (未)</option>
+                <optgroup label="リスト下移動開始時に作動します。"></optgroup> <optgroup
+
+                  label="曲リスト下移動終了時にオフになります。"></optgroup><optgroup label="　"></optgroup>
+                <option value="14">14 曲リスト停止タイマー (未)</option>
+                <optgroup label="#STARTINPUTで定義された時間が過ぎると作動します。"></optgroup> <optgroup
+
+                  label="曲リスト移動状態から停止状態に移るときに作動します。"></optgroup> <optgroup
+
+                  label="曲リスト移動開始時にオフになります。"></optgroup><optgroup label="　"></optgroup>
+                <option value="15">15 リードミー開始タイマー</option>
+                <optgroup label="付属テキスト表示の開始時に作動します。"></optgroup> <optgroup
+
+                  label="閉じるときにオフになります。"></optgroup><optgroup label="　"></optgroup>
+                <option value="16">16 リードミー終了タイマー</option>
+                <optgroup label="付属テキスト表示の終了時に作動します。"></optgroup> <optgroup
+
+                  label="開くときにオフになります。"></optgroup><optgroup label="　"></optgroup>
+                <option value="17">17 コースセレクト開始タイマー</option>
+                <option value="18">18 コースセレクト終了タイマー</option>
+                <optgroup label="　"></optgroup> <optgroup label="21-29 パネル1-9起動"></optgroup> <optgroup
+
+                  label="パネル1-8起動ボタンが押されたら作動します。"></optgroup> <optgroup
+
+                  label="パネルが閉じたらオフになります。"></optgroup>
+                <option value="21">21 パネル1起動</option>
+                <option value="22">22 パネル2起動</option>
+                <option value="23">23 パネル3起動</option>
+                <option value="24">24 パネル4起動</option>
+                <option value="25">25 パネル5起動</option>
+                <option value="26">26 パネル6起動</option>
+                <option value="27">27 パネル7起動</option>
+                <option value="28">28 パネル8起動</option>
+                <option value="29">29 パネル9起動</option>
+                <optgroup label="　"></optgroup> <optgroup label="31-39 コントロールパネル1-9終了"></optgroup> <optgroup
+
+                  label="パネル1-9が閉じられるときに作動します。"></optgroup>
+                <option value="31">31 パネル1終了</option>
+                <option value="32">32 パネル2終了</option>
+                <option value="33">33 パネル3終了</option>
+                <option value="34">34 パネル4終了</option>
+                <option value="35">35 パネル5終了</option>
+                <option value="36">36 パネル6終了</option>
+                <option value="37">37 パネル7終了</option>
+                <option value="38">38 パネル8終了</option>
+                <option value="39">39 パネル9終了</option>
+                <optgroup label="　"></optgroup>
+                <option value="40">40 READY</option>
+                <optgroup label="プレイスキンの#LOADENDで定義された時間が過ぎていて、"></optgroup> <optgroup
+
+                  label="かつバックグラウンドでのロードが完了していたら作動します。"></optgroup><optgroup
+
+                  label="　"></optgroup>
+                <option value="41">41 プレイ開始</option>
+                <optgroup label="READY作動から指定の時間が過ぎたときに作動します。"></optgroup><optgroup
+
+                  label="　"></optgroup> <optgroup label="bms演奏用のメインタイマーです。"></optgroup>
+                <option value="42">42 ゲージ上昇タイマー 1P</option>
+                <option value="43">43 ゲージ上昇タイマー 2P</option>
+                <optgroup label="ジャッジ時にゲージが上昇した場合に作動するタイマーです。"></optgroup><optgroup
+
+                  label="　"></optgroup>
+                <option value="44">44 ゲージマックスタイマー 1P</option>
+                <option value="45">45 ゲージマックスタイマー 2P</option>
+                <optgroup label="ゲージが100%になった場合作動するタイマーです。"></optgroup> <optgroup
+
+                  label="ゲージが下がるたびに停止して、100%になればまた最初から作動します。"></optgroup><optgroup
+
+                  label="　"></optgroup>
+                <option value="46">46 ジャッジタイマー 1P</option>
+                <option value="47">47 ジャッジタイマー 2P</option>
+                <optgroup label="判定時に作動するタイマーです。"></optgroup><optgroup label="　"></optgroup>
+                <option value="48">48 フルコンタイマー 1P</option>
+                <option value="49">49 フルコンタイマー 2P</option>
+                <optgroup label="フルコン達成時に作動するタイマーです。"></optgroup><optgroup
+
+                  label="　"></optgroup> <optgroup label="50- ボムタイマー"></optgroup> <optgroup
+
+                  label="GREAT以上判定時に作動します。"></optgroup>
+                <option value="50">50 1Pボムタイマー 皿</option>
+                <option value="51">51 1Pボムタイマー 1鍵</option>
+                <option value="52">52 1Pボムタイマー 2鍵</option>
+                <option value="53">53 1Pボムタイマー 3鍵</option>
+                <option value="54">54 1Pボムタイマー 4鍵</option>
+                <option value="55">55 1Pボムタイマー 5鍵</option>
+                <option value="56">56 1Pボムタイマー 6鍵</option>
+                <option value="57">57 1Pボムタイマー 7鍵</option>
+                <option value="58">58 1Pボムタイマー 8鍵</option>
+                <option value="59">59 1Pボムタイマー 9鍵</option>
+                <option value="60">60 2Pボムタイマー 皿</option>
+                <option value="61">61 2Pボムタイマー 1鍵</option>
+                <option value="62">62 2Pボムタイマー 2鍵</option>
+                <option value="63">63 2Pボムタイマー 3鍵</option>
+                <option value="64">64 2Pボムタイマー 4鍵</option>
+                <option value="65">65 2Pボムタイマー 5鍵</option>
+                <option value="66">66 2Pボムタイマー 6鍵</option>
+                <option value="67">67 2Pボムタイマー 7鍵</option>
+                <option value="68">68 2Pボムタイマー 8鍵</option>
+                <option value="69">69 2Pボムタイマー 9鍵</option>
+                <optgroup label="　"></optgroup> <optgroup label="70- ホールドエフェクトタイマー"></optgroup> <optgroup
+
+                  label="ロングノートホールド開始時に作動し、ホールド終了時に停止います。"></optgroup>
+                <option value="70">70 1PLNエフェクトタイマー 皿</option>
+                <option value="71">71 1PLNエフェクトタイマー 1鍵</option>
+                <option value="72">72 1PLNエフェクトタイマー 2鍵</option>
+                <option value="73">73 1PLNエフェクトタイマー 3鍵</option>
+                <option value="74">74 1PLNエフェクトタイマー 4鍵</option>
+                <option value="75">75 1PLNエフェクトタイマー 5鍵</option>
+                <option value="76">76 1PLNエフェクトタイマー 6鍵</option>
+                <option value="77">77 1PLNエフェクトタイマー 7鍵</option>
+                <option value="78">78 1PLNエフェクトタイマー 8鍵</option>
+                <option value="79">79 1PLNエフェクトタイマー 9鍵</option>
+                <option value="80">80 2PLNエフェクトタイマー 皿</option>
+                <option value="81">81 2PLNエフェクトタイマー 1鍵</option>
+                <option value="82">82 2PLNエフェクトタイマー 2鍵</option>
+                <option value="83">83 2PLNエフェクトタイマー 3鍵</option>
+                <option value="84">84 2PLNエフェクトタイマー 4鍵</option>
+                <option value="85">85 2PLNエフェクトタイマー 5鍵</option>
+                <option value="86">86 2PLNエフェクトタイマー 6鍵</option>
+                <option value="87">87 2PLNエフェクトタイマー 7鍵</option>
+                <option value="88">88 2PLNエフェクトタイマー 8鍵</option>
+                <option value="89">89 2PLNエフェクトタイマー 9鍵</option>
+                <optgroup label="　"></optgroup> <optgroup label="100- キーオンタイマー"></optgroup> <optgroup
+
+                  label="キーがオンになったら作動します。"></optgroup> <optgroup label="キーがオフになったら停止します。"></optgroup>
+                <option value="100">100 1Pキーオンタイマー 皿</option>
+                <option value="101">101 1Pキーオンタイマー 1鍵</option>
+                <option value="102">102 1Pキーオンタイマー 2鍵</option>
+                <option value="103">103 1Pキーオンタイマー 3鍵</option>
+                <option value="104">104 1Pキーオンタイマー 4鍵</option>
+                <option value="105">105 1Pキーオンタイマー 5鍵</option>
+                <option value="106">106 1Pキーオンタイマー 6鍵</option>
+                <option value="107">107 1Pキーオンタイマー 7鍵</option>
+                <option value="108">108 1Pキーオンタイマー 8鍵</option>
+                <option value="109">109 1Pキーオンタイマー 9鍵</option>
+                <option value="110">110 2Pキーオンタイマー 皿</option>
+                <option value="111">111 2Pキーオンタイマー 1鍵</option>
+                <option value="112">112 2Pキーオンタイマー 2鍵</option>
+                <option value="113">113 2Pキーオンタイマー 3鍵</option>
+                <option value="114">114 2Pキーオンタイマー 4鍵</option>
+                <option value="115">115 2Pキーオンタイマー 5鍵</option>
+                <option value="116">116 2Pキーオンタイマー 6鍵</option>
+                <option value="117">117 2Pキーオンタイマー 7鍵</option>
+                <option value="118">118 2Pキーオンタイマー 8鍵</option>
+                <option value="119">119 2Pキーオンタイマー 9鍵</option>
+                <optgroup label="　"></optgroup> <optgroup label="120- キーオフタイマー"></optgroup> <optgroup
+
+                  label="キーがオフになったら作動します。"></optgroup> <optgroup label="キーがオンになったら停止します。"></optgroup>
+                <option value="120">120 1Pキーオフタイマー 皿</option>
+                <option value="121">121 1Pキーオフタイマー 1鍵</option>
+                <option value="122">122 1Pキーオフタイマー 2鍵</option>
+                <option value="123">123 1Pキーオフタイマー 3鍵</option>
+                <option value="124">124 1Pキーオフタイマー 4鍵</option>
+                <option value="125">125 1Pキーオフタイマー 5鍵</option>
+                <option value="126">126 1Pキーオフタイマー 6鍵</option>
+                <option value="127">127 1Pキーオフタイマー 7鍵</option>
+                <option value="128">128 1Pキーオフタイマー 8鍵</option>
+                <option value="129">129 1Pキーオフタイマー 9鍵</option>
+                <option value="130">130 2Pキーオフタイマー 皿</option>
+                <option value="131">131 2Pキーオフタイマー 1鍵</option>
+                <option value="132">132 2Pキーオフタイマー 2鍵</option>
+                <option value="133">133 2Pキーオフタイマー 3鍵</option>
+                <option value="134">134 2Pキーオフタイマー 4鍵</option>
+                <option value="135">135 2Pキーオフタイマー 5鍵</option>
+                <option value="136">136 2Pキーオフタイマー 6鍵</option>
+                <option value="137">137 2Pキーオフタイマー 7鍵</option>
+                <option value="138">138 2Pキーオフタイマー 8鍵</option>
+                <option value="139">139 2Pキーオフタイマー 9鍵</option>
+                <optgroup label="　"></optgroup>
+                <option value="140">140 リズムタイマー</option>
+                <optgroup label="1拍を1000としたときのタイマーです。"></optgroup> <optgroup
+
+                  label="曲の開始と同時に作動します。"></optgroup> <optgroup label="小節が切り替わるごとにリセットされます。"></optgroup><optgroup
+
+                  label="　"></optgroup>
+                <option value="143">143 最終ノートタイマー 1P</option>
+                <option value="144">144 最終ノートタイマー 2P</option>
+                <optgroup label="最後のノートが判定されたときに作動します。"></optgroup><optgroup
+
+                  label="　"></optgroup>
+                <option value="150">150 リザルトグラフ描画開始タイマー</option>
+                <optgroup label="リザルトにおいてグラフ描画開始時に作動します。"></optgroup><optgroup
+
+                  label="　"></optgroup>
+                <option value="151">151 リザルトグラフ描画終了タイマー(プレイランク表示タイマー)</option>
+                <optgroup label="リザルトにおいてグラフ描画終了時に作動します。"></optgroup> <optgroup
+
+                  label="グラフ描画中にキーを押すとスキップしていきなりこのタイマーが作動します。"></optgroup><optgroup
+
+                  label="　"></optgroup>
+                <option value="152">152 リザルトハイスコア更新タイマー</option>
+                <optgroup label="リザルトにおいてグラフ描画終了後、なにかキーを押すと作動します。"></optgroup><optgroup
+
+                  label="　"></optgroup>
+                <option value="170">170 データベースロード中タイマー</option>
+                <option value="171">171 データベースロード完了タイマー</option>
+                <option value="172">172 IR 接続開始タイマー</option>
+                <option value="173">173 IR 接続成功タイマー</option>
+                <option value="174">174 IR 接続失敗タイマー</option>
+                <option value="180">180 コースエディター開始タイマー</option>
+                <option value="181">181 コースエディター終了タイマー</option>
+              </select>
+            </td>
+            <td>
+              <select class="fix-me" name="op1" onchange="gen()">
+                <optgroup label="op1"></optgroup>
+                <option value="0">0 常にtrue</option>
+                <option value="1">1 選択中バーがフォルダ</option>
+                <option value="2">2 選択中バーが曲</option>
+                <option value="3">3 選択中バーがコース</option>
+                <option value="4">4 選択中バーが新規コース作成</option>
+                <option value="5">5 選択中バーがプレイ可能(曲、コース等ならtrue</option>
+                <option value="10">10 ダブルorダブルバトルならtrue</option>
+                <option value="11">11 バトルならtrue</option>
+                <option value="12">12 ダブルorバトルorダブルバトルならtrue</option>
+                <option value="13">13 ゴーストバトルorバトルならtrue</option>
+                <option value="20">20 パネル起動していない</option>
+                <option value="21">21 パネル1起動時</option>
+                <option value="22">22 パネル2起動時</option>
+                <option value="23">23 パネル3起動時</option>
+                <option value="24">24 パネル4起動時</option>
+                <option value="25">25 パネル5起動時</option>
+                <option value="26">26 パネル6起動時</option>
+                <option value="27">27 パネル7起動時</option>
+                <option value="28">28 パネル8起動時</option>
+                <option value="29">29 パネル9起動時</option>
+                <option value="30">30 BGA normal </option>
+                <option value="31">31 BGA extend</option>
+                <option value="32">32 autoplay off</option>
+                <option value="33">33 autoplay on</option>
+                <option value="34">34 ghost off</option>
+                <option value="35">35 ghost typeA</option>
+                <option value="36">36 ghost typeB</option>
+                <option value="37">37 ghost typeC</option>
+                <option value="38">38 scoregraph off</option>
+                <option value="39">39 scoregraph on</option>
+                <option value="40">40 BGA off</option>
+                <option value="41">41 BGA on</option>
+                <option value="42">42 1P側がノーマルゲージ</option>
+                <option value="43">43 1P側が赤ゲージ</option>
+                <option value="44">44 2P側がノーマルゲージ</option>
+                <option value="45">45 2P側が赤ゲージ</option>
+                <option value="46">46 難易度フィルタが有効</option>
+                <option value="47">47 難易度フィルタが無効</option>
+                <option value="50">50 オフライン</option>
+                <option value="51">51 オンライン</option>
+                <option value="52">52 EXTRA MODE OFF</option>
+                <option value="53">53 EXTRA MODE ON</option>
+                <option value="54">54 AUTOSCRATCH 1P OFF</option>
+                <option value="55">55 AUTOSCRATCH 1P ON</option>
+                <option value="56">56 AUTOSCRATCH 2P OFF</option>
+                <option value="57">57 AUTOSCRATCH 2P ON</option>
+                <option value="60">60 スコアセーブ不可能</option>
+                <option value="61">61 スコアセーブ可能</option>
+                <option value="62">62 クリアセーブ不可能</option>
+                <option value="63">63 イージーでセーブ</option>
+                <option value="64">64 ノーマルでセーブ</option>
+                <option value="65">65 ハードでセーブ</option>
+                <option value="66">66 フルコンのみ</option>
+                <option value="70">70 同フォルダbeginnerのレベルが規定値を越えていない</option>
+                <option value="71">71 normal</option>
+                <option value="72">72 hyper</option>
+                <option value="73">73 another</option>
+                <option value="74">74 insane</option>
+                <option value="75">75 同フォルダbeginnerのレベルが規定値を越えている</option>
+                <option value="76">76 normal </option>
+                <option value="77">77 hyper</option>
+                <option value="78">78 another</option>
+                <option value="79">79 insane</option>
+                <option value="80">80 ロード未完了</option>
+                <option value="81">81 ロード完了</option>
+                <option value="82">82 リプレイオフ</option>
+                <option value="83">83 リプレイ録画中</option>
+                <option value="84">84 リプレイ再生中</option>
+                <option value="90">90 リザ クリア</option>
+                <option value="91">91 リザ ミス</option>
+                <optgroup label="　"></optgroup> <optgroup label="選曲リスト用"></optgroup>
+                <option value="100">100 NOT PLAYED</option>
+                <option value="101">101 FAILED</option>
+                <option value="102">102 EASY CLEARED</option>
+                <option value="103">103 NORMAL CLEARED</option>
+                <option value="104">104 HARD CLEARED</option>
+                <option value="105">105 FULL COMBO</option>
+                <option value="110">110 AAA 89</option>
+                <option value="111">111 AA 79</option>
+                <option value="112">112 A 69</option>
+                <option value="113">113 B 59</option>
+                <option value="114">114 C 49</option>
+                <option value="115">115 D 39</option>
+                <option value="116">116 E 29</option>
+                <option value="117">117 F 19</option>
+                <optgroup label="　"></optgroup> <optgroup label="クリア済みオプションフラグ(ゲージ)"></optgroup>
+                <option value="118">118 GROOVE</option>
+                <option value="119">119 SURVIVAL</option>
+                <option value="120">120 SUDDEN DEATH</option>
+                <option value="121">121 EASY</option>
+                <option value="122">122 PERFECT ATTACK</option>
+                <option value="123">123 GOOD ATTACK</option>
+                <option value="124">124 未定</option>
+                <option value="125">125 未定</option>
+                <optgroup label="　"></optgroup> <optgroup label="クリア済みオプションフラグ(ランダム)"></optgroup>
+                <option value="126">126 正規</option>
+                <option value="127">127 MIRROR</option>
+                <option value="128">128 RANDOM</option>
+                <option value="129">129 S-RANDOM</option>
+                <option value="130">130 SCATTER</option>
+                <option value="131">131 CONVERGE</option>
+                <option value="132">132 未定</option>
+                <option value="133">133 未定</option>
+                <optgroup label="　"></optgroup> <optgroup label="クリア済みオプションフラグ(エフェクト)"></optgroup>
+                <option value="134">134 無し</option>
+                <option value="135">135 HIDDEN</option>
+                <option value="136">136 SUDDEN</option>
+                <option value="137">137 HID+SUD</option>
+                <option value="138">138 未定</option>
+                <option value="139">139 未定</option>
+                <option value="140">140 未定</option>
+                <option value="141">141 未定</option>
+                <optgroup label="　"></optgroup> <optgroup label="その他オプションフラグ"></optgroup>
+                <option value="142">142 AUTO SCRATCH (自動皿抜きでクリアすれば消えます)</option>
+                <option value="143">143 EXTRA MODE</option>
+                <option value="144">144 DOUBLE BATTLE</option>
+                <option value="145">145 SP TO DP (もしかしたら今後DP TO SPや 9 TO 7と共有項目になるかも。</option>
+                <option value="150">150 difficulty0 (未設定)</option>
+                <option value="151">151 difficulty1 (easy)</option>
+                <option value="152">152 difficulty2 (normal)</option>
+                <option value="153">153 difficulty3 (hyper)</option>
+                <option value="154">154 difficulty4 (another)</option>
+                <option value="155">155 difficulty5 (insane)</option>
+                <optgroup label="　"></optgroup> <optgroup label="元データ"></optgroup>
+                <option value="160">160 7keys</option>
+                <option value="161">161 5keys</option>
+                <option value="162">162 14keys</option>
+                <option value="163">163 10keys</option>
+                <option value="164">164 9keys</option>
+                <optgroup label="　"></optgroup> <optgroup label="オプション全適用後の最終的な鍵盤数"></optgroup>
+                <option value="165">165 7keys</option>
+                <option value="166">166 5keys</option>
+                <option value="167">167 14keys</option>
+                <option value="168">168 10keys</option>
+                <option value="169">169 9keys</option>
+                <option value="170">170 BGA無し</option>
+                <option value="171">171 BGA有り</option>
+                <option value="172">172 ロングノート無し</option>
+                <option value="173">173 ロングノート有り</option>
+                <option value="174">174 付属テキスト無し</option>
+                <option value="175">175 付属テキスト有り</option>
+                <option value="176">176 BPM変化無し</option>
+                <option value="177">177 BPM変化有り</option>
+                <option value="178">178 ランダム命令無し</option>
+                <option value="179">179 ランダム命令有り </option>
+                <option value="180">180 判定veryhard</option>
+                <option value="181">181 判定hard</option>
+                <option value="182">182 判定normal</option>
+                <option value="183">183 判定easy</option>
+                <option value="185">185 レベルが規定値内にある(510keysはLV9、714keysはLV12、9keysはLV42以内)</option>
+                <option value="186">186 レベルが規定値を越えている</option>
+                <option value="190">190 STAGEFILE無し</option>
+                <option value="191">191 STAGEFILE有り</option>
+                <option value="192">192 BANNER無し</option>
+                <option value="193">193 BANNER有り</option>
+                <option value="194">194 BACKBMP無し</option>
+                <option value="195">195 BACKBMP有り</option>
+                <option value="196">196 リプレイ無し</option>
+                <option value="197">197 リプレイ有り</option>
+                <optgroup label="　"></optgroup> <optgroup label="プレイ中"></optgroup>
+                <option value="200">200 1P AAA</option>
+                <option value="201">201 1P AA</option>
+                <option value="202">202 1P A</option>
+                <option value="203">203 1P B</option>
+                <option value="204">204 1P C</option>
+                <option value="205">205 1P D</option>
+                <option value="206">206 1P E</option>
+                <option value="207">207 1P F</option>
+                <option value="210">210 2P AAA</option>
+                <option value="211">211 2P AA</option>
+                <option value="212">212 2P A</option>
+                <option value="213">213 2P B</option>
+                <option value="214">214 2P C</option>
+                <option value="215">215 2P D</option>
+                <option value="216">216 2P E</option>
+                <option value="217">217 2P F</option>
+                <option value="220">220 AAA確定</option>
+                <option value="221">221 AA確定</option>
+                <option value="222">222 A確定</option>
+                <option value="223">223 B確定</option>
+                <option value="224">224 C確定</option>
+                <option value="225">225 D確定</option>
+                <option value="226">226 E確定</option>
+                <option value="227">227 F確定</option>
+                <option value="230">230 1P 0-10%</option>
+                <option value="231">231 1P 10-19%</option>
+                <option value="232">232 1P 20-29%</option>
+                <option value="233">233 1P 30-39%</option>
+                <option value="234">234 1P 40-49%</option>
+                <option value="235">235 1P 50-59%</option>
+                <option value="236">236 1P 60-69%</option>
+                <option value="237">237 1P 70-79%</option>
+                <option value="238">238 1P 80-89%</option>
+                <option value="239">239 1P 90-99%</option>
+                <option value="240">240 1P 100%</option>
+                <option value="241">241 1P PERFECT</option>
+                <option value="242">242 1P GREAT</option>
+                <option value="243">243 1P GOOD</option>
+                <option value="244">244 1P BAD</option>
+                <option value="245">245 1P POOR</option>
+                <option value="246">246 1P 空POOR</option>
+                <optgroup label="　"></optgroup> <optgroup label="公式ハーフスキンの左右のネオン用です 2P側も"></optgroup>
+                <option value="247">247 1P POORBGA表示時間外</option>
+                <option value="248">248 1P POORBGA表示時間中 </option>
+                <option value="250">250 2P 0-10%</option>
+                <option value="251">251 2P 10-19%</option>
+                <option value="252">252 2P 20-29%</option>
+                <option value="253">253 2P 30-39%</option>
+                <option value="254">254 2P 40-49%</option>
+                <option value="255">255 2P 50-59%</option>
+                <option value="256">256 2P 60-69%</option>
+                <option value="257">257 2P 70-79%</option>
+                <option value="258">258 2P 80-89%</option>
+                <option value="259">259 2P 90-99%</option>
+                <option value="250">250 2P 100%</option>
+                <option value="261">261 2P PERFECT</option>
+                <option value="262">262 2P GREAT</option>
+                <option value="263">263 2P GOOD</option>
+                <option value="264">264 2P BAD</option>
+                <option value="265">265 2P POOR</option>
+                <option value="266">266 2P 空POOR</option>
+                <option value="267">267 2P POORBGA表示時間外</option>
+                <option value="268">268 2P POORBGA表示時間中 </option>
+                <option value="270">270 1P SUD+変更中</option>
+                <option value="271">271 2P SUD+変更中</option>
+                <option value="280">280 コースステージ1</option>
+                <option value="281">281 コースステージ2</option>
+                <option value="282">282 コースステージ3</option>
+                <option value="283">283 コースステージ4</option>
+                <option value="289">289 コースステージFINAL</option>
+                <optgroup label="　"></optgroup> <optgroup label="注意 例えばSTAGE3が最終ステージの場合、"></optgroup> <optgroup
+
+                  label="ステージFINALが優先され、283オン、282オフとなります。)"></optgroup>
+                <option value="290">290 コース</option>
+                <option value="291">291 ノンストップ</option>
+                <option value="292">292 エキスパート</option>
+                <option value="293">293 段位認定</option>
+                <optgroup label="リザ"></optgroup>
+                <option value="300">300 1P AAA</option>
+                <option value="301">301 1P AA</option>
+                <option value="302">302 1P A</option>
+                <option value="303">303 1P B</option>
+                <option value="304">304 1P C</option>
+                <option value="305">305 1P D</option>
+                <option value="306">306 1P E</option>
+                <option value="307">307 1P F</option>
+                <option value="308">308 1P 0</option>
+                <option value="310">310 2P AAA</option>
+                <option value="311">311 2P AA</option>
+                <option value="312">312 2P A</option>
+                <option value="313">313 2P B</option>
+                <option value="314">314 2P C</option>
+                <option value="315">315 2P D</option>
+                <option value="316">316 2P E</option>
+                <option value="317">317 2P F</option>
+                <option value="318">318 2P 0</option>
+                <option value="320">320 更新前 AAA</option>
+                <option value="321">321 更新前 AA</option>
+                <option value="322">322 更新前 A</option>
+                <option value="323">323 更新前 B</option>
+                <option value="324">324 更新前 C</option>
+                <option value="325">325 更新前 D</option>
+                <option value="326">326 更新前 E</option>
+                <option value="327">327 更新前 F</option>
+                <option value="330">330 スコアが更新された</option>
+                <option value="331">331 MAXCOMBOが更新された</option>
+                <option value="332">332 最小B+Pが更新された</option>
+                <option value="333">333 トライアルが更新された</option>
+                <option value="334">334 IRの順位が更新された</option>
+                <option value="335">335 スコアランクが更新された</option>
+                <option value="340">340 更新後 AAA</option>
+                <option value="341">341 更新後 AA</option>
+                <option value="342">342 更新後 A</option>
+                <option value="343">343 更新後 B</option>
+                <option value="344">344 更新後 C</option>
+                <option value="345">345 更新後 D</option>
+                <option value="346">346 更新後 E</option>
+                <option value="347">347 更新後 F</option>
+                <option value="350">350 リザルトフリップ無効(プレイスキンで#FLIPRESULT命令無し、もしくは#DISABLEFLIP命令以降</option>
+                <option value="351">351 リザルトフリップ有効(プレイスキンで#FLIPRESULT命令有り</option>
+                <option value="352">352 1PWIN 2PLOSE</option>
+                <option value="353">353 1PLOSE 2PWIN</option>
+                <option value="354">354 DRAW</option>
+                <optgroup label="　"></optgroup> <optgroup label="キーコンフィグ"></optgroup>
+                <option value="400">400 714KEYS</option>
+                <option value="401">401 9KEYS</option>
+                <option value="402">402 510KEYS</option>
+                <optgroup label="　"></optgroup> <optgroup label="その他"></optgroup>
+                <option value="500">500 同じフォルダにbeginner譜面が存在しない</option>
+                <option value="501">501 同じフォルダにnormal譜面が存在しない</option>
+                <option value="502">502 同じフォルダにhyper譜面が存在しない</option>
+                <option value="503">503 同じフォルダにanother譜面が存在しない</option>
+                <option value="504">504 同じフォルダにinsane譜面が存在しない</option>
+                <option value="505">505 同じフォルダにbeginner譜面が存在する</option>
+                <option value="506">506 同じフォルダにnormal譜面が存在する</option>
+                <option value="507">507 同じフォルダにhyper譜面が存在する</option>
+                <option value="508">508 同じフォルダにanother譜面が存在する</option>
+                <option value="509">509 同じフォルダにinsane譜面が存在する</option>
+                <option value="510">510 同じフォルダに一個のbeginner譜面が存在する</option>
+                <option value="511">511 同じフォルダに一個のnormal譜面が存在する</option>
+                <option value="512">512 同じフォルダに一個のhyper譜面が存在する</option>
+                <option value="513">513 同じフォルダに一個のanother譜面が存在する</option>
+                <option value="514">514 同じフォルダに一個のnsane譜面が存在する</option>
+                <option value="515">515 同じフォルダに複数のbeginner譜面が存在する</option>
+                <option value="516">516 同じフォルダに複数のnormal譜面が存在する</option>
+                <option value="517">517 同じフォルダに複数のhyper譜面が存在する</option>
+                <option value="518">518 同じフォルダに複数のanother譜面が存在する</option>
+                <option value="519">519 同じフォルダに複数のnsane譜面が存在する</option>
+                <option value="520">520 レベルバー beginner no play</option>
+                <option value="521">521 レベルバー beginner failed</option>
+                <option value="522">522 レベルバー beginner easy</option>
+                <option value="523">523 レベルバー beginner clear</option>
+                <option value="524">524 レベルバー beginner hardclear</option>
+                <option value="525">525 レベルバー beginner fullcombo</option>
+                <option value="530">530 レベルバー normal no play</option>
+                <option value="531">531 レベルバー normal failed</option>
+                <option value="532">532 レベルバー normal easy</option>
+                <option value="533">533 レベルバー normal clear</option>
+                <option value="534">534 レベルバー normal hardclear</option>
+                <option value="535">535 レベルバー normal fullcombo</option>
+                <option value="540">540 レベルバー hyper no play</option>
+                <option value="541">541 レベルバー hyper failed</option>
+                <option value="542">542 レベルバー hyper easy</option>
+                <option value="543">543 レベルバー hyper clear</option>
+                <option value="544">544 レベルバー hyper hardclear</option>
+                <option value="545">545 レベルバー hyper fullcombo</option>
+                <option value="550">550 レベルバー another no play</option>
+                <option value="551">551 レベルバー another failed</option>
+                <option value="552">552 レベルバー another easy</option>
+                <option value="553">553 レベルバー another clear</option>
+                <option value="554">554 レベルバー another hardclear</option>
+                <option value="555">555 レベルバー another fullcombo</option>
+                <option value="560">560 レベルバー insane no play</option>
+                <option value="561">561 レベルバー insane failed</option>
+                <option value="562">562 レベルバー insane easy</option>
+                <option value="563">563 レベルバー insane clear</option>
+                <option value="564">564 レベルバー insane hardclear</option>
+                <option value="565">565 レベルバー insane fullcombo</option>
+                <optgroup label="　"></optgroup> <optgroup label="コースセレクト関連"></optgroup>
+                <option value="580">580 コースstage数1以上</option>
+                <option value="581">581 コースstage数2以上</option>
+                <option value="582">582 コースstage数3以上</option>
+                <option value="583">583 コースstage数4以上</option>
+                <option value="584">584 コースstage数5以上</option>
+                <option value="585">585 コースstage数6以上</option>
+                <option value="586">586 コースstage数7以上</option>
+                <option value="587">587 コースstage数8以上</option>
+                <option value="588">588 コースstage数9以上</option>
+                <option value="589">589 コースstage数10以上</option>
+                <option value="590">590 コースセレクト stage1選択中</option>
+                <option value="591">591 コースセレクト stage2選択中</option>
+                <option value="592">592 コースセレクト stage3選択中</option>
+                <option value="593">593 コースセレクト stage4選択中</option>
+                <option value="594">594 コースセレクト stage5選択中</option>
+                <option value="595">595 コースセレクト stage6選択中</option>
+                <option value="596">596 コースセレクト stage7選択中</option>
+                <option value="597">597 コースセレクト stage8選択中</option>
+                <option value="598">598 コースセレクト stage9選択中</option>
+                <option value="599">599 コースセレクト stage10選択中</option>
+                <option value="571">571 コースセレクト中である</option>
+                <option value="572">572 コースセレクト中では無い</option>
+                <optgroup label="　"></optgroup> <optgroup label="コースstage1"></optgroup>
+                <option value="700">700 コースstage1 difficulty未定義</option>
+                <option value="701">701 コースstage1 difficulty1</option>
+                <option value="702">702 コースstage1 difficulty2</option>
+                <option value="703">703 コースstage1 difficulty3</option>
+                <option value="704">704 コースstage1 difficulty4</option>
+                <option value="705">705 コースstage1 difficulty5</option>
+                <optgroup label="　"></optgroup> <optgroup label="コースstage2"></optgroup>
+                <option value="710">710 コースstage2 difficulty未定義</option>
+                <option value="711">711 コースstage2 difficulty1</option>
+                <option value="712">712 コースstage2 difficulty2</option>
+                <option value="713">713 コースstage2 difficulty3</option>
+                <option value="714">714 コースstage2 difficulty4</option>
+                <option value="715">715 コースstage2 difficulty5</option>
+                <optgroup label="　"></optgroup> <optgroup label="コースstage3"></optgroup>
+                <option value="720">720 コースstage3 difficulty未定義</option>
+                <option value="721">721 コースstage3 difficulty1</option>
+                <option value="722">722 コースstage3 difficulty2</option>
+                <option value="723">723 コースstage3 difficulty3</option>
+                <option value="724">724 コースstage3 difficulty4</option>
+                <option value="725">725 コースstage3 difficulty5</option>
+                <optgroup label="　"></optgroup> <optgroup label="コースstage4"></optgroup>
+                <option value="730">730 コースstage4 difficulty未定義</option>
+                <option value="731">731 コースstage4 difficulty1</option>
+                <option value="732">732 コースstage4 difficulty2</option>
+                <option value="733">733 コースstage4 difficulty3</option>
+                <option value="734">734 コースstage4 difficulty4</option>
+                <option value="735">735 コースstage4 difficulty5</option>
+                <optgroup label="　"></optgroup> <optgroup label="コースstage5"></optgroup>
+                <option value="740">740 コースstage5 difficulty未定義</option>
+                <option value="741">741 コースstage5 difficulty1</option>
+                <option value="742">742 コースstage5 difficulty2</option>
+                <option value="743">743 コースstage5 difficulty3</option>
+                <option value="744">744 コースstage5 difficulty4</option>
+                <option value="745">745 コースstage5 difficulty5</option>
+                <optgroup label="　"></optgroup> <optgroup label="LR2IR関連"></optgroup>
+                <option value="600">600 IR対象ではない</option>
+                <option value="601">601 IR読み込み中</option>
+                <option value="602">602 IR読み込み完了</option>
+                <option value="603">603 IRプレイヤー無し</option>
+                <option value="604">604 IR接続失敗</option>
+                <option value="605">605 BAN曲</option>
+                <option value="606">606 IR更新待ち</option>
+                <option value="607">607 IRアクセス中</option>
+                <option value="608">608 IRビジー</option>
+                <option value="620">620 ランキング表示中ではない</option>
+                <option value="621">621 ランキング表示中</option>
+                <option value="622">622 ゴーストバトルではない</option>
+                <option value="623">623 ゴーストバトル発動中(決定演出～リザルトの間のみ)</option>
+                <option value="624">624 自分と相手のスコアを比較する状況ではない (現状では、ランキング表示中とライバルフォルダ)</option>
+                <option value="625">625 自分と相手のスコアを比較するべき状況である</option>
+                <option value="640">640 NOT PLAYED</option>
+                <option value="641">641 FAILED</option>
+                <option value="642">642 EASY CLEARED</option>
+                <option value="643">643 NORMAL CLEARED</option>
+                <option value="644">644 HARD CLEARED</option>
+                <option value="645">645 FULL COMBO</option>
+                <option value="650">650 AAA 89</option>
+                <option value="651">651 AA 79</option>
+                <option value="652">652 A 69</option>
+                <option value="653">653 B 59</option>
+                <option value="654">654 C 49</option>
+                <option value="655">655 D 39</option>
+                <option value="656">656 E 29</option>
+                <option value="657">657 F 19</option>
+                <optgroup label="　"></optgroup> <optgroup label="900-998"></optgroup> <optgroup
+
+                  label="スキンカスタマイズ用のユーザー定義コンフィグに使用"></optgroup>
+                <option value="999">999 常にfalse</option>
+              </select>
+            </td>
+            <td>
+              <select class="fix-me" name="op2" onchange="gen()">
+                <optgroup label="op2"></optgroup>
+                <option value="0">0 常にtrue</option>
+                <option value="1">1 選択中バーがフォルダ</option>
+                <option value="2">2 選択中バーが曲</option>
+                <option value="3">3 選択中バーがコース</option>
+                <option value="4">4 選択中バーが新規コース作成</option>
+                <option value="5">5 選択中バーがプレイ可能(曲、コース等ならtrue</option>
+                <option value="10">10 ダブルorダブルバトルならtrue</option>
+                <option value="11">11 バトルならtrue</option>
+                <option value="12">12 ダブルorバトルorダブルバトルならtrue</option>
+                <option value="13">13 ゴーストバトルorバトルならtrue</option>
+                <option value="20">20 パネル起動していない</option>
+                <option value="21">21 パネル1起動時</option>
+                <option value="22">22 パネル2起動時</option>
+                <option value="23">23 パネル3起動時</option>
+                <option value="24">24 パネル4起動時</option>
+                <option value="25">25 パネル5起動時</option>
+                <option value="26">26 パネル6起動時</option>
+                <option value="27">27 パネル7起動時</option>
+                <option value="28">28 パネル8起動時</option>
+                <option value="29">29 パネル9起動時</option>
+                <option value="30">30 BGA normal </option>
+                <option value="31">31 BGA extend</option>
+                <option value="32">32 autoplay off</option>
+                <option value="33">33 autoplay on</option>
+                <option value="34">34 ghost off</option>
+                <option value="35">35 ghost typeA</option>
+                <option value="36">36 ghost typeB</option>
+                <option value="37">37 ghost typeC</option>
+                <option value="38">38 scoregraph off</option>
+                <option value="39">39 scoregraph on</option>
+                <option value="40">40 BGA off</option>
+                <option value="41">41 BGA on</option>
+                <option value="42">42 1P側がノーマルゲージ</option>
+                <option value="43">43 1P側が赤ゲージ</option>
+                <option value="44">44 2P側がノーマルゲージ</option>
+                <option value="45">45 2P側が赤ゲージ</option>
+                <option value="46">46 難易度フィルタが有効</option>
+                <option value="47">47 難易度フィルタが無効</option>
+                <option value="50">50 オフライン</option>
+                <option value="51">51 オンライン</option>
+                <option value="52">52 EXTRA MODE OFF</option>
+                <option value="53">53 EXTRA MODE ON</option>
+                <option value="54">54 AUTOSCRATCH 1P OFF</option>
+                <option value="55">55 AUTOSCRATCH 1P ON</option>
+                <option value="56">56 AUTOSCRATCH 2P OFF</option>
+                <option value="57">57 AUTOSCRATCH 2P ON</option>
+                <option value="60">60 スコアセーブ不可能</option>
+                <option value="61">61 スコアセーブ可能</option>
+                <option value="62">62 クリアセーブ不可能</option>
+                <option value="63">63 イージーでセーブ</option>
+                <option value="64">64 ノーマルでセーブ</option>
+                <option value="65">65 ハードでセーブ</option>
+                <option value="66">66 フルコンのみ</option>
+                <option value="70">70 同フォルダbeginnerのレベルが規定値を越えていない</option>
+                <option value="71">71 normal</option>
+                <option value="72">72 hyper</option>
+                <option value="73">73 another</option>
+                <option value="74">74 insane</option>
+                <option value="75">75 同フォルダbeginnerのレベルが規定値を越えている</option>
+                <option value="76">76 normal </option>
+                <option value="77">77 hyper</option>
+                <option value="78">78 another</option>
+                <option value="79">79 insane</option>
+                <option value="80">80 ロード未完了</option>
+                <option value="81">81 ロード完了</option>
+                <option value="82">82 リプレイオフ</option>
+                <option value="83">83 リプレイ録画中</option>
+                <option value="84">84 リプレイ再生中</option>
+                <option value="90">90 リザ クリア</option>
+                <option value="91">91 リザ ミス</option>
+                <optgroup label="　"></optgroup> <optgroup label="選曲リスト用"></optgroup>
+                <option value="100">100 NOT PLAYED</option>
+                <option value="101">101 FAILED</option>
+                <option value="102">102 EASY CLEARED</option>
+                <option value="103">103 NORMAL CLEARED</option>
+                <option value="104">104 HARD CLEARED</option>
+                <option value="105">105 FULL COMBO</option>
+                <option value="110">110 AAA 89</option>
+                <option value="111">111 AA 79</option>
+                <option value="112">112 A 69</option>
+                <option value="113">113 B 59</option>
+                <option value="114">114 C 49</option>
+                <option value="115">115 D 39</option>
+                <option value="116">116 E 29</option>
+                <option value="117">117 F 19</option>
+                <optgroup label="　"></optgroup> <optgroup label="クリア済みオプションフラグ(ゲージ)"></optgroup>
+                <option value="118">118 GROOVE</option>
+                <option value="119">119 SURVIVAL</option>
+                <option value="120">120 SUDDEN DEATH</option>
+                <option value="121">121 EASY</option>
+                <option value="122">122 PERFECT ATTACK</option>
+                <option value="123">123 GOOD ATTACK</option>
+                <option value="124">124 未定</option>
+                <option value="125">125 未定</option>
+                <optgroup label="　"></optgroup> <optgroup label="クリア済みオプションフラグ(ランダム)"></optgroup>
+                <option value="126">126 正規</option>
+                <option value="127">127 MIRROR</option>
+                <option value="128">128 RANDOM</option>
+                <option value="129">129 S-RANDOM</option>
+                <option value="130">130 SCATTER</option>
+                <option value="131">131 CONVERGE</option>
+                <option value="132">132 未定</option>
+                <option value="133">133 未定</option>
+                <optgroup label="　"></optgroup> <optgroup label="クリア済みオプションフラグ(エフェクト)"></optgroup>
+                <option value="134">134 無し</option>
+                <option value="135">135 HIDDEN</option>
+                <option value="136">136 SUDDEN</option>
+                <option value="137">137 HID+SUD</option>
+                <option value="138">138 未定</option>
+                <option value="139">139 未定</option>
+                <option value="140">140 未定</option>
+                <option value="141">141 未定</option>
+                <optgroup label="　"></optgroup> <optgroup label="その他オプションフラグ"></optgroup>
+                <option value="142">142 AUTO SCRATCH (自動皿抜きでクリアすれば消えます)</option>
+                <option value="143">143 EXTRA MODE</option>
+                <option value="144">144 DOUBLE BATTLE</option>
+                <option value="145">145 SP TO DP (もしかしたら今後DP TO SPや 9 TO 7と共有項目になるかも。</option>
+                <option value="150">150 difficulty0 (未設定)</option>
+                <option value="151">151 difficulty1 (easy)</option>
+                <option value="152">152 difficulty2 (normal)</option>
+                <option value="153">153 difficulty3 (hyper)</option>
+                <option value="154">154 difficulty4 (another)</option>
+                <option value="155">155 difficulty5 (insane)</option>
+                <optgroup label="　"></optgroup> <optgroup label="元データ"></optgroup>
+                <option value="160">160 7keys</option>
+                <option value="161">161 5keys</option>
+                <option value="162">162 14keys</option>
+                <option value="163">163 10keys</option>
+                <option value="164">164 9keys</option>
+                <optgroup label="　"></optgroup> <optgroup label="オプション全適用後の最終的な鍵盤数"></optgroup>
+                <option value="165">165 7keys</option>
+                <option value="166">166 5keys</option>
+                <option value="167">167 14keys</option>
+                <option value="168">168 10keys</option>
+                <option value="169">169 9keys</option>
+                <option value="170">170 BGA無し</option>
+                <option value="171">171 BGA有り</option>
+                <option value="172">172 ロングノート無し</option>
+                <option value="173">173 ロングノート有り</option>
+                <option value="174">174 付属テキスト無し</option>
+                <option value="175">175 付属テキスト有り</option>
+                <option value="176">176 BPM変化無し</option>
+                <option value="177">177 BPM変化有り</option>
+                <option value="178">178 ランダム命令無し</option>
+                <option value="179">179 ランダム命令有り </option>
+                <option value="180">180 判定veryhard</option>
+                <option value="181">181 判定hard</option>
+                <option value="182">182 判定normal</option>
+                <option value="183">183 判定easy</option>
+                <option value="185">185 レベルが規定値内にある(510keysはLV9、714keysはLV12、9keysはLV42以内)</option>
+                <option value="186">186 レベルが規定値を越えている</option>
+                <option value="190">190 STAGEFILE無し</option>
+                <option value="191">191 STAGEFILE有り</option>
+                <option value="192">192 BANNER無し</option>
+                <option value="193">193 BANNER有り</option>
+                <option value="194">194 BACKBMP無し</option>
+                <option value="195">195 BACKBMP有り</option>
+                <option value="196">196 リプレイ無し</option>
+                <option value="197">197 リプレイ有り</option>
+                <optgroup label="　"></optgroup> <optgroup label="プレイ中"></optgroup>
+                <option value="200">200 1P AAA</option>
+                <option value="201">201 1P AA</option>
+                <option value="202">202 1P A</option>
+                <option value="203">203 1P B</option>
+                <option value="204">204 1P C</option>
+                <option value="205">205 1P D</option>
+                <option value="206">206 1P E</option>
+                <option value="207">207 1P F</option>
+                <option value="210">210 2P AAA</option>
+                <option value="211">211 2P AA</option>
+                <option value="212">212 2P A</option>
+                <option value="213">213 2P B</option>
+                <option value="214">214 2P C</option>
+                <option value="215">215 2P D</option>
+                <option value="216">216 2P E</option>
+                <option value="217">217 2P F</option>
+                <option value="220">220 AAA確定</option>
+                <option value="221">221 AA確定</option>
+                <option value="222">222 A確定</option>
+                <option value="223">223 B確定</option>
+                <option value="224">224 C確定</option>
+                <option value="225">225 D確定</option>
+                <option value="226">226 E確定</option>
+                <option value="227">227 F確定</option>
+                <option value="230">230 1P 0-10%</option>
+                <option value="231">231 1P 10-19%</option>
+                <option value="232">232 1P 20-29%</option>
+                <option value="233">233 1P 30-39%</option>
+                <option value="234">234 1P 40-49%</option>
+                <option value="235">235 1P 50-59%</option>
+                <option value="236">236 1P 60-69%</option>
+                <option value="237">237 1P 70-79%</option>
+                <option value="238">238 1P 80-89%</option>
+                <option value="239">239 1P 90-99%</option>
+                <option value="240">240 1P 100%</option>
+                <option value="241">241 1P PERFECT</option>
+                <option value="242">242 1P GREAT</option>
+                <option value="243">243 1P GOOD</option>
+                <option value="244">244 1P BAD</option>
+                <option value="245">245 1P POOR</option>
+                <option value="246">246 1P 空POOR</option>
+                <optgroup label="　"></optgroup> <optgroup label="公式ハーフスキンの左右のネオン用です 2P側も"></optgroup>
+                <option value="247">247 1P POORBGA表示時間外</option>
+                <option value="248">248 1P POORBGA表示時間中 </option>
+                <option value="250">250 2P 0-10%</option>
+                <option value="251">251 2P 10-19%</option>
+                <option value="252">252 2P 20-29%</option>
+                <option value="253">253 2P 30-39%</option>
+                <option value="254">254 2P 40-49%</option>
+                <option value="255">255 2P 50-59%</option>
+                <option value="256">256 2P 60-69%</option>
+                <option value="257">257 2P 70-79%</option>
+                <option value="258">258 2P 80-89%</option>
+                <option value="259">259 2P 90-99%</option>
+                <option value="250">250 2P 100%</option>
+                <option value="261">261 2P PERFECT</option>
+                <option value="262">262 2P GREAT</option>
+                <option value="263">263 2P GOOD</option>
+                <option value="264">264 2P BAD</option>
+                <option value="265">265 2P POOR</option>
+                <option value="266">266 2P 空POOR</option>
+                <option value="267">267 2P POORBGA表示時間外</option>
+                <option value="268">268 2P POORBGA表示時間中 </option>
+                <option value="270">270 1P SUD+変更中</option>
+                <option value="271">271 2P SUD+変更中</option>
+                <option value="280">280 コースステージ1</option>
+                <option value="281">281 コースステージ2</option>
+                <option value="282">282 コースステージ3</option>
+                <option value="283">283 コースステージ4</option>
+                <option value="289">289 コースステージFINAL</option>
+                <optgroup label="　"></optgroup> <optgroup label="注意 例えばSTAGE3が最終ステージの場合、"></optgroup> <optgroup
+
+                  label="ステージFINALが優先され、283オン、282オフとなります。)"></optgroup>
+                <option value="290">290 コース</option>
+                <option value="291">291 ノンストップ</option>
+                <option value="292">292 エキスパート</option>
+                <option value="293">293 段位認定</option>
+                <optgroup label="リザ"></optgroup>
+                <option value="300">300 1P AAA</option>
+                <option value="301">301 1P AA</option>
+                <option value="302">302 1P A</option>
+                <option value="303">303 1P B</option>
+                <option value="304">304 1P C</option>
+                <option value="305">305 1P D</option>
+                <option value="306">306 1P E</option>
+                <option value="307">307 1P F</option>
+                <option value="308">308 1P 0</option>
+                <option value="310">310 2P AAA</option>
+                <option value="311">311 2P AA</option>
+                <option value="312">312 2P A</option>
+                <option value="313">313 2P B</option>
+                <option value="314">314 2P C</option>
+                <option value="315">315 2P D</option>
+                <option value="316">316 2P E</option>
+                <option value="317">317 2P F</option>
+                <option value="318">318 2P 0</option>
+                <option value="320">320 更新前 AAA</option>
+                <option value="321">321 更新前 AA</option>
+                <option value="322">322 更新前 A</option>
+                <option value="323">323 更新前 B</option>
+                <option value="324">324 更新前 C</option>
+                <option value="325">325 更新前 D</option>
+                <option value="326">326 更新前 E</option>
+                <option value="327">327 更新前 F</option>
+                <option value="330">330 スコアが更新された</option>
+                <option value="331">331 MAXCOMBOが更新された</option>
+                <option value="332">332 最小B+Pが更新された</option>
+                <option value="333">333 トライアルが更新された</option>
+                <option value="334">334 IRの順位が更新された</option>
+                <option value="335">335 スコアランクが更新された</option>
+                <option value="340">340 更新後 AAA</option>
+                <option value="341">341 更新後 AA</option>
+                <option value="342">342 更新後 A</option>
+                <option value="343">343 更新後 B</option>
+                <option value="344">344 更新後 C</option>
+                <option value="345">345 更新後 D</option>
+                <option value="346">346 更新後 E</option>
+                <option value="347">347 更新後 F</option>
+                <option value="350">350 リザルトフリップ無効(プレイスキンで#FLIPRESULT命令無し、もしくは#DISABLEFLIP命令以降</option>
+                <option value="351">351 リザルトフリップ有効(プレイスキンで#FLIPRESULT命令有り</option>
+                <option value="352">352 1PWIN 2PLOSE</option>
+                <option value="353">353 1PLOSE 2PWIN</option>
+                <option value="354">354 DRAW</option>
+                <optgroup label="　"></optgroup> <optgroup label="キーコンフィグ"></optgroup>
+                <option value="400">400 714KEYS</option>
+                <option value="401">401 9KEYS</option>
+                <option value="402">402 510KEYS</option>
+                <optgroup label="　"></optgroup> <optgroup label="その他"></optgroup>
+                <option value="500">500 同じフォルダにbeginner譜面が存在しない</option>
+                <option value="501">501 同じフォルダにnormal譜面が存在しない</option>
+                <option value="502">502 同じフォルダにhyper譜面が存在しない</option>
+                <option value="503">503 同じフォルダにanother譜面が存在しない</option>
+                <option value="504">504 同じフォルダにinsane譜面が存在しない</option>
+                <option value="505">505 同じフォルダにbeginner譜面が存在する</option>
+                <option value="506">506 同じフォルダにnormal譜面が存在する</option>
+                <option value="507">507 同じフォルダにhyper譜面が存在する</option>
+                <option value="508">508 同じフォルダにanother譜面が存在する</option>
+                <option value="509">509 同じフォルダにinsane譜面が存在する</option>
+                <option value="510">510 同じフォルダに一個のbeginner譜面が存在する</option>
+                <option value="511">511 同じフォルダに一個のnormal譜面が存在する</option>
+                <option value="512">512 同じフォルダに一個のhyper譜面が存在する</option>
+                <option value="513">513 同じフォルダに一個のanother譜面が存在する</option>
+                <option value="514">514 同じフォルダに一個のnsane譜面が存在する</option>
+                <option value="515">515 同じフォルダに複数のbeginner譜面が存在する</option>
+                <option value="516">516 同じフォルダに複数のnormal譜面が存在する</option>
+                <option value="517">517 同じフォルダに複数のhyper譜面が存在する</option>
+                <option value="518">518 同じフォルダに複数のanother譜面が存在する</option>
+                <option value="519">519 同じフォルダに複数のnsane譜面が存在する</option>
+                <option value="520">520 レベルバー beginner no play</option>
+                <option value="521">521 レベルバー beginner failed</option>
+                <option value="522">522 レベルバー beginner easy</option>
+                <option value="523">523 レベルバー beginner clear</option>
+                <option value="524">524 レベルバー beginner hardclear</option>
+                <option value="525">525 レベルバー beginner fullcombo</option>
+                <option value="530">530 レベルバー normal no play</option>
+                <option value="531">531 レベルバー normal failed</option>
+                <option value="532">532 レベルバー normal easy</option>
+                <option value="533">533 レベルバー normal clear</option>
+                <option value="534">534 レベルバー normal hardclear</option>
+                <option value="535">535 レベルバー normal fullcombo</option>
+                <option value="540">540 レベルバー hyper no play</option>
+                <option value="541">541 レベルバー hyper failed</option>
+                <option value="542">542 レベルバー hyper easy</option>
+                <option value="543">543 レベルバー hyper clear</option>
+                <option value="544">544 レベルバー hyper hardclear</option>
+                <option value="545">545 レベルバー hyper fullcombo</option>
+                <option value="550">550 レベルバー another no play</option>
+                <option value="551">551 レベルバー another failed</option>
+                <option value="552">552 レベルバー another easy</option>
+                <option value="553">553 レベルバー another clear</option>
+                <option value="554">554 レベルバー another hardclear</option>
+                <option value="555">555 レベルバー another fullcombo</option>
+                <option value="560">560 レベルバー insane no play</option>
+                <option value="561">561 レベルバー insane failed</option>
+                <option value="562">562 レベルバー insane easy</option>
+                <option value="563">563 レベルバー insane clear</option>
+                <option value="564">564 レベルバー insane hardclear</option>
+                <option value="565">565 レベルバー insane fullcombo</option>
+                <optgroup label="　"></optgroup> <optgroup label="コースセレクト関連"></optgroup>
+                <option value="580">580 コースstage数1以上</option>
+                <option value="581">581 コースstage数2以上</option>
+                <option value="582">582 コースstage数3以上</option>
+                <option value="583">583 コースstage数4以上</option>
+                <option value="584">584 コースstage数5以上</option>
+                <option value="585">585 コースstage数6以上</option>
+                <option value="586">586 コースstage数7以上</option>
+                <option value="587">587 コースstage数8以上</option>
+                <option value="588">588 コースstage数9以上</option>
+                <option value="589">589 コースstage数10以上</option>
+                <option value="590">590 コースセレクト stage1選択中</option>
+                <option value="591">591 コースセレクト stage2選択中</option>
+                <option value="592">592 コースセレクト stage3選択中</option>
+                <option value="593">593 コースセレクト stage4選択中</option>
+                <option value="594">594 コースセレクト stage5選択中</option>
+                <option value="595">595 コースセレクト stage6選択中</option>
+                <option value="596">596 コースセレクト stage7選択中</option>
+                <option value="597">597 コースセレクト stage8選択中</option>
+                <option value="598">598 コースセレクト stage9選択中</option>
+                <option value="599">599 コースセレクト stage10選択中</option>
+                <option value="571">571 コースセレクト中である</option>
+                <option value="572">572 コースセレクト中では無い</option>
+                <optgroup label="　"></optgroup> <optgroup label="コースstage1"></optgroup>
+                <option value="700">700 コースstage1 difficulty未定義</option>
+                <option value="701">701 コースstage1 difficulty1</option>
+                <option value="702">702 コースstage1 difficulty2</option>
+                <option value="703">703 コースstage1 difficulty3</option>
+                <option value="704">704 コースstage1 difficulty4</option>
+                <option value="705">705 コースstage1 difficulty5</option>
+                <optgroup label="　"></optgroup> <optgroup label="コースstage2"></optgroup>
+                <option value="710">710 コースstage2 difficulty未定義</option>
+                <option value="711">711 コースstage2 difficulty1</option>
+                <option value="712">712 コースstage2 difficulty2</option>
+                <option value="713">713 コースstage2 difficulty3</option>
+                <option value="714">714 コースstage2 difficulty4</option>
+                <option value="715">715 コースstage2 difficulty5</option>
+                <optgroup label="　"></optgroup> <optgroup label="コースstage3"></optgroup>
+                <option value="720">720 コースstage3 difficulty未定義</option>
+                <option value="721">721 コースstage3 difficulty1</option>
+                <option value="722">722 コースstage3 difficulty2</option>
+                <option value="723">723 コースstage3 difficulty3</option>
+                <option value="724">724 コースstage3 difficulty4</option>
+                <option value="725">725 コースstage3 difficulty5</option>
+                <optgroup label="　"></optgroup> <optgroup label="コースstage4"></optgroup>
+                <option value="730">730 コースstage4 difficulty未定義</option>
+                <option value="731">731 コースstage4 difficulty1</option>
+                <option value="732">732 コースstage4 difficulty2</option>
+                <option value="733">733 コースstage4 difficulty3</option>
+                <option value="734">734 コースstage4 difficulty4</option>
+                <option value="735">735 コースstage4 difficulty5</option>
+                <optgroup label="　"></optgroup> <optgroup label="コースstage5"></optgroup>
+                <option value="740">740 コースstage5 difficulty未定義</option>
+                <option value="741">741 コースstage5 difficulty1</option>
+                <option value="742">742 コースstage5 difficulty2</option>
+                <option value="743">743 コースstage5 difficulty3</option>
+                <option value="744">744 コースstage5 difficulty4</option>
+                <option value="745">745 コースstage5 difficulty5</option>
+                <optgroup label="　"></optgroup> <optgroup label="LR2IR関連"></optgroup>
+                <option value="600">600 IR対象ではない</option>
+                <option value="601">601 IR読み込み中</option>
+                <option value="602">602 IR読み込み完了</option>
+                <option value="603">603 IRプレイヤー無し</option>
+                <option value="604">604 IR接続失敗</option>
+                <option value="605">605 BAN曲</option>
+                <option value="606">606 IR更新待ち</option>
+                <option value="607">607 IRアクセス中</option>
+                <option value="608">608 IRビジー</option>
+                <option value="620">620 ランキング表示中ではない</option>
+                <option value="621">621 ランキング表示中</option>
+                <option value="622">622 ゴーストバトルではない</option>
+                <option value="623">623 ゴーストバトル発動中(決定演出～リザルトの間のみ)</option>
+                <option value="624">624 自分と相手のスコアを比較する状況ではない (現状では、ランキング表示中とライバルフォルダ)</option>
+                <option value="625">625 自分と相手のスコアを比較するべき状況である</option>
+                <option value="640">640 NOT PLAYED</option>
+                <option value="641">641 FAILED</option>
+                <option value="642">642 EASY CLEARED</option>
+                <option value="643">643 NORMAL CLEARED</option>
+                <option value="644">644 HARD CLEARED</option>
+                <option value="645">645 FULL COMBO</option>
+                <option value="650">650 AAA 89</option>
+                <option value="651">651 AA 79</option>
+                <option value="652">652 A 69</option>
+                <option value="653">653 B 59</option>
+                <option value="654">654 C 49</option>
+                <option value="655">655 D 39</option>
+                <option value="656">656 E 29</option>
+                <option value="657">657 F 19</option>
+                <optgroup label="　"></optgroup> <optgroup label="900-998"></optgroup> <optgroup
+
+                  label="スキンカスタマイズ用のユーザー定義コンフィグに使用"></optgroup>
+                <option value="999">999 常にfalse</option>
+              </select>
+            </td>
+            <td>
+              <select class="fix-me" name="op3" onchange="gen()">
+                <optgroup label="op3"></optgroup>
+                <option value="0">0 常にtrue</option>
+                <option value="1">1 選択中バーがフォルダ</option>
+                <option value="2">2 選択中バーが曲</option>
+                <option value="3">3 選択中バーがコース</option>
+                <option value="4">4 選択中バーが新規コース作成</option>
+                <option value="5">5 選択中バーがプレイ可能(曲、コース等ならtrue</option>
+                <option value="10">10 ダブルorダブルバトルならtrue</option>
+                <option value="11">11 バトルならtrue</option>
+                <option value="12">12 ダブルorバトルorダブルバトルならtrue</option>
+                <option value="13">13 ゴーストバトルorバトルならtrue</option>
+                <option value="20">20 パネル起動していない</option>
+                <option value="21">21 パネル1起動時</option>
+                <option value="22">22 パネル2起動時</option>
+                <option value="23">23 パネル3起動時</option>
+                <option value="24">24 パネル4起動時</option>
+                <option value="25">25 パネル5起動時</option>
+                <option value="26">26 パネル6起動時</option>
+                <option value="27">27 パネル7起動時</option>
+                <option value="28">28 パネル8起動時</option>
+                <option value="29">29 パネル9起動時</option>
+                <option value="30">30 BGA normal </option>
+                <option value="31">31 BGA extend</option>
+                <option value="32">32 autoplay off</option>
+                <option value="33">33 autoplay on</option>
+                <option value="34">34 ghost off</option>
+                <option value="35">35 ghost typeA</option>
+                <option value="36">36 ghost typeB</option>
+                <option value="37">37 ghost typeC</option>
+                <option value="38">38 scoregraph off</option>
+                <option value="39">39 scoregraph on</option>
+                <option value="40">40 BGA off</option>
+                <option value="41">41 BGA on</option>
+                <option value="42">42 1P側がノーマルゲージ</option>
+                <option value="43">43 1P側が赤ゲージ</option>
+                <option value="44">44 2P側がノーマルゲージ</option>
+                <option value="45">45 2P側が赤ゲージ</option>
+                <option value="46">46 難易度フィルタが有効</option>
+                <option value="47">47 難易度フィルタが無効</option>
+                <option value="50">50 オフライン</option>
+                <option value="51">51 オンライン</option>
+                <option value="52">52 EXTRA MODE OFF</option>
+                <option value="53">53 EXTRA MODE ON</option>
+                <option value="54">54 AUTOSCRATCH 1P OFF</option>
+                <option value="55">55 AUTOSCRATCH 1P ON</option>
+                <option value="56">56 AUTOSCRATCH 2P OFF</option>
+                <option value="57">57 AUTOSCRATCH 2P ON</option>
+                <option value="60">60 スコアセーブ不可能</option>
+                <option value="61">61 スコアセーブ可能</option>
+                <option value="62">62 クリアセーブ不可能</option>
+                <option value="63">63 イージーでセーブ</option>
+                <option value="64">64 ノーマルでセーブ</option>
+                <option value="65">65 ハードでセーブ</option>
+                <option value="66">66 フルコンのみ</option>
+                <option value="70">70 同フォルダbeginnerのレベルが規定値を越えていない</option>
+                <option value="71">71 normal</option>
+                <option value="72">72 hyper</option>
+                <option value="73">73 another</option>
+                <option value="74">74 insane</option>
+                <option value="75">75 同フォルダbeginnerのレベルが規定値を越えている</option>
+                <option value="76">76 normal </option>
+                <option value="77">77 hyper</option>
+                <option value="78">78 another</option>
+                <option value="79">79 insane</option>
+                <option value="80">80 ロード未完了</option>
+                <option value="81">81 ロード完了</option>
+                <option value="82">82 リプレイオフ</option>
+                <option value="83">83 リプレイ録画中</option>
+                <option value="84">84 リプレイ再生中</option>
+                <option value="90">90 リザ クリア</option>
+                <option value="91">91 リザ ミス</option>
+                <optgroup label="　"></optgroup> <optgroup label="選曲リスト用"></optgroup>
+                <option value="100">100 NOT PLAYED</option>
+                <option value="101">101 FAILED</option>
+                <option value="102">102 EASY CLEARED</option>
+                <option value="103">103 NORMAL CLEARED</option>
+                <option value="104">104 HARD CLEARED</option>
+                <option value="105">105 FULL COMBO</option>
+                <option value="110">110 AAA 89</option>
+                <option value="111">111 AA 79</option>
+                <option value="112">112 A 69</option>
+                <option value="113">113 B 59</option>
+                <option value="114">114 C 49</option>
+                <option value="115">115 D 39</option>
+                <option value="116">116 E 29</option>
+                <option value="117">117 F 19</option>
+                <optgroup label="　"></optgroup> <optgroup label="クリア済みオプションフラグ(ゲージ)"></optgroup>
+                <option value="118">118 GROOVE</option>
+                <option value="119">119 SURVIVAL</option>
+                <option value="120">120 SUDDEN DEATH</option>
+                <option value="121">121 EASY</option>
+                <option value="122">122 PERFECT ATTACK</option>
+                <option value="123">123 GOOD ATTACK</option>
+                <option value="124">124 未定</option>
+                <option value="125">125 未定</option>
+                <optgroup label="　"></optgroup> <optgroup label="クリア済みオプションフラグ(ランダム)"></optgroup>
+                <option value="126">126 正規</option>
+                <option value="127">127 MIRROR</option>
+                <option value="128">128 RANDOM</option>
+                <option value="129">129 S-RANDOM</option>
+                <option value="130">130 SCATTER</option>
+                <option value="131">131 CONVERGE</option>
+                <option value="132">132 未定</option>
+                <option value="133">133 未定</option>
+                <optgroup label="　"></optgroup> <optgroup label="クリア済みオプションフラグ(エフェクト)"></optgroup>
+                <option value="134">134 無し</option>
+                <option value="135">135 HIDDEN</option>
+                <option value="136">136 SUDDEN</option>
+                <option value="137">137 HID+SUD</option>
+                <option value="138">138 未定</option>
+                <option value="139">139 未定</option>
+                <option value="140">140 未定</option>
+                <option value="141">141 未定</option>
+                <optgroup label="　"></optgroup> <optgroup label="その他オプションフラグ"></optgroup>
+                <option value="142">142 AUTO SCRATCH (自動皿抜きでクリアすれば消えます)</option>
+                <option value="143">143 EXTRA MODE</option>
+                <option value="144">144 DOUBLE BATTLE</option>
+                <option value="145">145 SP TO DP (もしかしたら今後DP TO SPや 9 TO 7と共有項目になるかも。</option>
+                <option value="150">150 difficulty0 (未設定)</option>
+                <option value="151">151 difficulty1 (easy)</option>
+                <option value="152">152 difficulty2 (normal)</option>
+                <option value="153">153 difficulty3 (hyper)</option>
+                <option value="154">154 difficulty4 (another)</option>
+                <option value="155">155 difficulty5 (insane)</option>
+                <optgroup label="　"></optgroup> <optgroup label="元データ"></optgroup>
+                <option value="160">160 7keys</option>
+                <option value="161">161 5keys</option>
+                <option value="162">162 14keys</option>
+                <option value="163">163 10keys</option>
+                <option value="164">164 9keys</option>
+                <optgroup label="　"></optgroup> <optgroup label="オプション全適用後の最終的な鍵盤数"></optgroup>
+                <option value="165">165 7keys</option>
+                <option value="166">166 5keys</option>
+                <option value="167">167 14keys</option>
+                <option value="168">168 10keys</option>
+                <option value="169">169 9keys</option>
+                <option value="170">170 BGA無し</option>
+                <option value="171">171 BGA有り</option>
+                <option value="172">172 ロングノート無し</option>
+                <option value="173">173 ロングノート有り</option>
+                <option value="174">174 付属テキスト無し</option>
+                <option value="175">175 付属テキスト有り</option>
+                <option value="176">176 BPM変化無し</option>
+                <option value="177">177 BPM変化有り</option>
+                <option value="178">178 ランダム命令無し</option>
+                <option value="179">179 ランダム命令有り </option>
+                <option value="180">180 判定veryhard</option>
+                <option value="181">181 判定hard</option>
+                <option value="182">182 判定normal</option>
+                <option value="183">183 判定easy</option>
+                <option value="185">185 レベルが規定値内にある(510keysはLV9、714keysはLV12、9keysはLV42以内)</option>
+                <option value="186">186 レベルが規定値を越えている</option>
+                <option value="190">190 STAGEFILE無し</option>
+                <option value="191">191 STAGEFILE有り</option>
+                <option value="192">192 BANNER無し</option>
+                <option value="193">193 BANNER有り</option>
+                <option value="194">194 BACKBMP無し</option>
+                <option value="195">195 BACKBMP有り</option>
+                <option value="196">196 リプレイ無し</option>
+                <option value="197">197 リプレイ有り</option>
+                <optgroup label="　"></optgroup> <optgroup label="プレイ中"></optgroup>
+                <option value="200">200 1P AAA</option>
+                <option value="201">201 1P AA</option>
+                <option value="202">202 1P A</option>
+                <option value="203">203 1P B</option>
+                <option value="204">204 1P C</option>
+                <option value="205">205 1P D</option>
+                <option value="206">206 1P E</option>
+                <option value="207">207 1P F</option>
+                <option value="210">210 2P AAA</option>
+                <option value="211">211 2P AA</option>
+                <option value="212">212 2P A</option>
+                <option value="213">213 2P B</option>
+                <option value="214">214 2P C</option>
+                <option value="215">215 2P D</option>
+                <option value="216">216 2P E</option>
+                <option value="217">217 2P F</option>
+                <option value="220">220 AAA確定</option>
+                <option value="221">221 AA確定</option>
+                <option value="222">222 A確定</option>
+                <option value="223">223 B確定</option>
+                <option value="224">224 C確定</option>
+                <option value="225">225 D確定</option>
+                <option value="226">226 E確定</option>
+                <option value="227">227 F確定</option>
+                <option value="230">230 1P 0-10%</option>
+                <option value="231">231 1P 10-19%</option>
+                <option value="232">232 1P 20-29%</option>
+                <option value="233">233 1P 30-39%</option>
+                <option value="234">234 1P 40-49%</option>
+                <option value="235">235 1P 50-59%</option>
+                <option value="236">236 1P 60-69%</option>
+                <option value="237">237 1P 70-79%</option>
+                <option value="238">238 1P 80-89%</option>
+                <option value="239">239 1P 90-99%</option>
+                <option value="240">240 1P 100%</option>
+                <option value="241">241 1P PERFECT</option>
+                <option value="242">242 1P GREAT</option>
+                <option value="243">243 1P GOOD</option>
+                <option value="244">244 1P BAD</option>
+                <option value="245">245 1P POOR</option>
+                <option value="246">246 1P 空POOR</option>
+                <optgroup label="　"></optgroup> <optgroup label="公式ハーフスキンの左右のネオン用です 2P側も"></optgroup>
+                <option value="247">247 1P POORBGA表示時間外</option>
+                <option value="248">248 1P POORBGA表示時間中 </option>
+                <option value="250">250 2P 0-10%</option>
+                <option value="251">251 2P 10-19%</option>
+                <option value="252">252 2P 20-29%</option>
+                <option value="253">253 2P 30-39%</option>
+                <option value="254">254 2P 40-49%</option>
+                <option value="255">255 2P 50-59%</option>
+                <option value="256">256 2P 60-69%</option>
+                <option value="257">257 2P 70-79%</option>
+                <option value="258">258 2P 80-89%</option>
+                <option value="259">259 2P 90-99%</option>
+                <option value="250">250 2P 100%</option>
+                <option value="261">261 2P PERFECT</option>
+                <option value="262">262 2P GREAT</option>
+                <option value="263">263 2P GOOD</option>
+                <option value="264">264 2P BAD</option>
+                <option value="265">265 2P POOR</option>
+                <option value="266">266 2P 空POOR</option>
+                <option value="267">267 2P POORBGA表示時間外</option>
+                <option value="268">268 2P POORBGA表示時間中 </option>
+                <option value="270">270 1P SUD+変更中</option>
+                <option value="271">271 2P SUD+変更中</option>
+                <option value="280">280 コースステージ1</option>
+                <option value="281">281 コースステージ2</option>
+                <option value="282">282 コースステージ3</option>
+                <option value="283">283 コースステージ4</option>
+                <option value="289">289 コースステージFINAL</option>
+                <optgroup label="　"></optgroup> <optgroup label="注意 例えばSTAGE3が最終ステージの場合、"></optgroup> <optgroup
+
+                  label="ステージFINALが優先され、283オン、282オフとなります。)"></optgroup>
+                <option value="290">290 コース</option>
+                <option value="291">291 ノンストップ</option>
+                <option value="292">292 エキスパート</option>
+                <option value="293">293 段位認定</option>
+                <optgroup label="リザ"></optgroup>
+                <option value="300">300 1P AAA</option>
+                <option value="301">301 1P AA</option>
+                <option value="302">302 1P A</option>
+                <option value="303">303 1P B</option>
+                <option value="304">304 1P C</option>
+                <option value="305">305 1P D</option>
+                <option value="306">306 1P E</option>
+                <option value="307">307 1P F</option>
+                <option value="308">308 1P 0</option>
+                <option value="310">310 2P AAA</option>
+                <option value="311">311 2P AA</option>
+                <option value="312">312 2P A</option>
+                <option value="313">313 2P B</option>
+                <option value="314">314 2P C</option>
+                <option value="315">315 2P D</option>
+                <option value="316">316 2P E</option>
+                <option value="317">317 2P F</option>
+                <option value="318">318 2P 0</option>
+                <option value="320">320 更新前 AAA</option>
+                <option value="321">321 更新前 AA</option>
+                <option value="322">322 更新前 A</option>
+                <option value="323">323 更新前 B</option>
+                <option value="324">324 更新前 C</option>
+                <option value="325">325 更新前 D</option>
+                <option value="326">326 更新前 E</option>
+                <option value="327">327 更新前 F</option>
+                <option value="330">330 スコアが更新された</option>
+                <option value="331">331 MAXCOMBOが更新された</option>
+                <option value="332">332 最小B+Pが更新された</option>
+                <option value="333">333 トライアルが更新された</option>
+                <option value="334">334 IRの順位が更新された</option>
+                <option value="335">335 スコアランクが更新された</option>
+                <option value="340">340 更新後 AAA</option>
+                <option value="341">341 更新後 AA</option>
+                <option value="342">342 更新後 A</option>
+                <option value="343">343 更新後 B</option>
+                <option value="344">344 更新後 C</option>
+                <option value="345">345 更新後 D</option>
+                <option value="346">346 更新後 E</option>
+                <option value="347">347 更新後 F</option>
+                <option value="350">350 リザルトフリップ無効(プレイスキンで#FLIPRESULT命令無し、もしくは#DISABLEFLIP命令以降</option>
+                <option value="351">351 リザルトフリップ有効(プレイスキンで#FLIPRESULT命令有り</option>
+                <option value="352">352 1PWIN 2PLOSE</option>
+                <option value="353">353 1PLOSE 2PWIN</option>
+                <option value="354">354 DRAW</option>
+                <optgroup label="　"></optgroup> <optgroup label="キーコンフィグ"></optgroup>
+                <option value="400">400 714KEYS</option>
+                <option value="401">401 9KEYS</option>
+                <option value="402">402 510KEYS</option>
+                <optgroup label="　"></optgroup> <optgroup label="その他"></optgroup>
+                <option value="500">500 同じフォルダにbeginner譜面が存在しない</option>
+                <option value="501">501 同じフォルダにnormal譜面が存在しない</option>
+                <option value="502">502 同じフォルダにhyper譜面が存在しない</option>
+                <option value="503">503 同じフォルダにanother譜面が存在しない</option>
+                <option value="504">504 同じフォルダにinsane譜面が存在しない</option>
+                <option value="505">505 同じフォルダにbeginner譜面が存在する</option>
+                <option value="506">506 同じフォルダにnormal譜面が存在する</option>
+                <option value="507">507 同じフォルダにhyper譜面が存在する</option>
+                <option value="508">508 同じフォルダにanother譜面が存在する</option>
+                <option value="509">509 同じフォルダにinsane譜面が存在する</option>
+                <option value="510">510 同じフォルダに一個のbeginner譜面が存在する</option>
+                <option value="511">511 同じフォルダに一個のnormal譜面が存在する</option>
+                <option value="512">512 同じフォルダに一個のhyper譜面が存在する</option>
+                <option value="513">513 同じフォルダに一個のanother譜面が存在する</option>
+                <option value="514">514 同じフォルダに一個のnsane譜面が存在する</option>
+                <option value="515">515 同じフォルダに複数のbeginner譜面が存在する</option>
+                <option value="516">516 同じフォルダに複数のnormal譜面が存在する</option>
+                <option value="517">517 同じフォルダに複数のhyper譜面が存在する</option>
+                <option value="518">518 同じフォルダに複数のanother譜面が存在する</option>
+                <option value="519">519 同じフォルダに複数のnsane譜面が存在する</option>
+                <option value="520">520 レベルバー beginner no play</option>
+                <option value="521">521 レベルバー beginner failed</option>
+                <option value="522">522 レベルバー beginner easy</option>
+                <option value="523">523 レベルバー beginner clear</option>
+                <option value="524">524 レベルバー beginner hardclear</option>
+                <option value="525">525 レベルバー beginner fullcombo</option>
+                <option value="530">530 レベルバー normal no play</option>
+                <option value="531">531 レベルバー normal failed</option>
+                <option value="532">532 レベルバー normal easy</option>
+                <option value="533">533 レベルバー normal clear</option>
+                <option value="534">534 レベルバー normal hardclear</option>
+                <option value="535">535 レベルバー normal fullcombo</option>
+                <option value="540">540 レベルバー hyper no play</option>
+                <option value="541">541 レベルバー hyper failed</option>
+                <option value="542">542 レベルバー hyper easy</option>
+                <option value="543">543 レベルバー hyper clear</option>
+                <option value="544">544 レベルバー hyper hardclear</option>
+                <option value="545">545 レベルバー hyper fullcombo</option>
+                <option value="550">550 レベルバー another no play</option>
+                <option value="551">551 レベルバー another failed</option>
+                <option value="552">552 レベルバー another easy</option>
+                <option value="553">553 レベルバー another clear</option>
+                <option value="554">554 レベルバー another hardclear</option>
+                <option value="555">555 レベルバー another fullcombo</option>
+                <option value="560">560 レベルバー insane no play</option>
+                <option value="561">561 レベルバー insane failed</option>
+                <option value="562">562 レベルバー insane easy</option>
+                <option value="563">563 レベルバー insane clear</option>
+                <option value="564">564 レベルバー insane hardclear</option>
+                <option value="565">565 レベルバー insane fullcombo</option>
+                <optgroup label="　"></optgroup> <optgroup label="コースセレクト関連"></optgroup>
+                <option value="580">580 コースstage数1以上</option>
+                <option value="581">581 コースstage数2以上</option>
+                <option value="582">582 コースstage数3以上</option>
+                <option value="583">583 コースstage数4以上</option>
+                <option value="584">584 コースstage数5以上</option>
+                <option value="585">585 コースstage数6以上</option>
+                <option value="586">586 コースstage数7以上</option>
+                <option value="587">587 コースstage数8以上</option>
+                <option value="588">588 コースstage数9以上</option>
+                <option value="589">589 コースstage数10以上</option>
+                <option value="590">590 コースセレクト stage1選択中</option>
+                <option value="591">591 コースセレクト stage2選択中</option>
+                <option value="592">592 コースセレクト stage3選択中</option>
+                <option value="593">593 コースセレクト stage4選択中</option>
+                <option value="594">594 コースセレクト stage5選択中</option>
+                <option value="595">595 コースセレクト stage6選択中</option>
+                <option value="596">596 コースセレクト stage7選択中</option>
+                <option value="597">597 コースセレクト stage8選択中</option>
+                <option value="598">598 コースセレクト stage9選択中</option>
+                <option value="599">599 コースセレクト stage10選択中</option>
+                <option value="571">571 コースセレクト中である</option>
+                <option value="572">572 コースセレクト中では無い</option>
+                <optgroup label="　"></optgroup> <optgroup label="コースstage1"></optgroup>
+                <option value="700">700 コースstage1 difficulty未定義</option>
+                <option value="701">701 コースstage1 difficulty1</option>
+                <option value="702">702 コースstage1 difficulty2</option>
+                <option value="703">703 コースstage1 difficulty3</option>
+                <option value="704">704 コースstage1 difficulty4</option>
+                <option value="705">705 コースstage1 difficulty5</option>
+                <optgroup label="　"></optgroup> <optgroup label="コースstage2"></optgroup>
+                <option value="710">710 コースstage2 difficulty未定義</option>
+                <option value="711">711 コースstage2 difficulty1</option>
+                <option value="712">712 コースstage2 difficulty2</option>
+                <option value="713">713 コースstage2 difficulty3</option>
+                <option value="714">714 コースstage2 difficulty4</option>
+                <option value="715">715 コースstage2 difficulty5</option>
+                <optgroup label="　"></optgroup> <optgroup label="コースstage3"></optgroup>
+                <option value="720">720 コースstage3 difficulty未定義</option>
+                <option value="721">721 コースstage3 difficulty1</option>
+                <option value="722">722 コースstage3 difficulty2</option>
+                <option value="723">723 コースstage3 difficulty3</option>
+                <option value="724">724 コースstage3 difficulty4</option>
+                <option value="725">725 コースstage3 difficulty5</option>
+                <optgroup label="　"></optgroup> <optgroup label="コースstage4"></optgroup>
+                <option value="730">730 コースstage4 difficulty未定義</option>
+                <option value="731">731 コースstage4 difficulty1</option>
+                <option value="732">732 コースstage4 difficulty2</option>
+                <option value="733">733 コースstage4 difficulty3</option>
+                <option value="734">734 コースstage4 difficulty4</option>
+                <option value="735">735 コースstage4 difficulty5</option>
+                <optgroup label="　"></optgroup> <optgroup label="コースstage5"></optgroup>
+                <option value="740">740 コースstage5 difficulty未定義</option>
+                <option value="741">741 コースstage5 difficulty1</option>
+                <option value="742">742 コースstage5 difficulty2</option>
+                <option value="743">743 コースstage5 difficulty3</option>
+                <option value="744">744 コースstage5 difficulty4</option>
+                <option value="745">745 コースstage5 difficulty5</option>
+                <optgroup label="　"></optgroup> <optgroup label="LR2IR関連"></optgroup>
+                <option value="600">600 IR対象ではない</option>
+                <option value="601">601 IR読み込み中</option>
+                <option value="602">602 IR読み込み完了</option>
+                <option value="603">603 IRプレイヤー無し</option>
+                <option value="604">604 IR接続失敗</option>
+                <option value="605">605 BAN曲</option>
+                <option value="606">606 IR更新待ち</option>
+                <option value="607">607 IRアクセス中</option>
+                <option value="608">608 IRビジー</option>
+                <option value="620">620 ランキング表示中ではない</option>
+                <option value="621">621 ランキング表示中</option>
+                <option value="622">622 ゴーストバトルではない</option>
+                <option value="623">623 ゴーストバトル発動中(決定演出～リザルトの間のみ)</option>
+                <option value="624">624 自分と相手のスコアを比較する状況ではない (現状では、ランキング表示中とライバルフォルダ)</option>
+                <option value="625">625 自分と相手のスコアを比較するべき状況である</option>
+                <option value="640">640 NOT PLAYED</option>
+                <option value="641">641 FAILED</option>
+                <option value="642">642 EASY CLEARED</option>
+                <option value="643">643 NORMAL CLEARED</option>
+                <option value="644">644 HARD CLEARED</option>
+                <option value="645">645 FULL COMBO</option>
+                <option value="650">650 AAA 89</option>
+                <option value="651">651 AA 79</option>
+                <option value="652">652 A 69</option>
+                <option value="653">653 B 59</option>
+                <option value="654">654 C 49</option>
+                <option value="655">655 D 39</option>
+                <option value="656">656 E 29</option>
+                <option value="657">657 F 19</option>
+                <optgroup label="　"></optgroup> <optgroup label="900-998"></optgroup> <optgroup
+
+                  label="スキンカスタマイズ用のユーザー定義コンフィグに使用"></optgroup>
+                <option value="999">999 常にfalse</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td>#DST_NUMBER</td>
+            <td>0</td>
+            <td><input class="small" name="time2" value="0" onblur="gen()"
+
+                type="text"></td>
+            <td><input class="small" name="dstx2" value="0" onblur="gen()"
+
+                type="text"></td>
+            <td><input class="small" name="dsty2" value="0" onblur="gen()"
+
+                type="text"></td>
+            <td><input class="small" name="dstw2" value="0" onblur="gen()"
+
+                type="text"></td>
+            <td><input class="small" name="dsth2" value="0" onblur="gen()"
+
+                type="text"></td>
+            <td>
+              <select class="sel_min" name="acc2" onchange="gen()">
+                <optgroup label="acc">
+                  <option selected="selected" value="0">0 等速</option>
+                  <option value="1">1 加速</option>
+                  <option value="2">2 減速</option>
+                  <option value="3">3 不連続</option>
+                </optgroup>
+              </select>
+            </td>
+            <td><input class="small" name="a2" value="255" onblur="gen()"
+
+                type="text"></td>
+            <td><input class="small" name="r2" value="255" onblur="gen()"
+
+                type="text"></td>
+            <td><input class="small" name="g2" value="255" onblur="gen()"
+
+                type="text"></td>
+            <td><input class="small" name="b2" value="255" onblur="gen()"
+
+                type="text"></td>
+            <td>
+              <select class="sel_min" name="blend2" onchange="gen()">
+                <optgroup label="blend">
+                  <option selected="selected" value="0">0 無し</option>
+                  <option value="1">1 アルファ</option>
+                  <option value="2">2 加算描画</option>
+                  <option value="3">3 減算描画</option>
+                  <option value="4">4 乗算描画</option>
+                  <option value="6">6 XOR</option>
+                  <option value="9">9 描画先の色の反転値を掛ける</option>
+                  <option value="10">10 反転描画</option>
+                  <option value="11">11 αチャンネル考慮付乗算</option>
+                </optgroup>
+              </select>
+            </td>
+            <td>
+              <select class="sel_min" name="filter2" onchange="gen()">
+                <optgroup label="filter">
+                  <option selected="selected" value="0">0 無し</option>
+                  <option value="1">1 有り</option>
+                </optgroup>
+              </select>
+            </td>
+            <td><input class="small" name="angle2" value="0" onblur="gen()"
+
+                type="text"></td>
+            <td>
+              <select class="sel_min" name="center2" onchange="gen()">
+                <optgroup label="center">
+                  <option selected="selected" value="0">0 中央</option>
+                  <option value="1">1 左下</option>
+                  <option value="2">2 下</option>
+                  <option value="3">3 右下</option>
+                  <option value="4">4 左</option>
+                  <option value="5">5 中央</option>
+                  <option value="6">6 右</option>
+                  <option value="7">7 左上</option>
+                  <option value="8">8 上</option>
+                  <option value="9">9 右上</option>
+                </optgroup>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td>演算用項目名</td>
+            <td>(NULL)</td>
+            <td>time2</td>
+            <td>dstx2</td>
+            <td>dsty2</td>
+            <td>dstw2</td>
+            <td>dsth2</td>
+            <td>acc2</td>
+            <td>a2</td>
+            <td>r2</td>
+            <td>g2</td>
+            <td>b2</td>
+            <td>blend2</td>
+            <td>filter2</td>
+            <td>angle2</td>
+            <td>center2</td>
+          </tr>
+        </tbody>
+      </table>
+    <ul>
+      <li>定義名をデフォルトから変更するとコメント行（オプション値やタイマー値詳細など）も生成されます。</li>
+      <li>各ボックス内で数値計算ができます。（例．40+50）<br>
+      ※除算用にDST側のwh値は全て四捨五入しています。</li>
+      <li>数値計算には項目名が使えます。（例．w/div_x）<br>
+      ※加算だけちょっとおかしくなります。</li>
+    </ul>
+      <textarea onclick="this.select();" name="generator" cols="180" rows="5">//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer	num	align	keta
+#SRC_NUMBER	0	0	0	0	0	0	1	1	0	0	10	0	0
+//DST定義	(NULL)	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NUMBER	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NUMBER	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0</textarea><br>
+      <p><br>
+      </p>
+      <input value="リセット" type="reset"><br>
+    </form>
+    <p><br>
+    </p>
+    <div>
+      <table class="src_number_commentary" border="1" bordercolor="#c0c0c0"
+
+        cellpadding="1" cellspacing="0">
+        <tbody>
+          <tr>
+            <td style="text-align: center;">（NULL）</td>
+            <td colspan="3" valign="top">#IMAGEと同じです。NUMBER定義では0以外を入力しても意味はありません。</td>
+          </tr>
+          <tr>
+            <td style="text-align: center;">gr</td>
+            <td colspan="3" valign="top"> #IMAGE定義で記述した画像番号を指定します。</td>
+          </tr>
+          <tr>
+            <td style="text-align: center; vertical-align: top;">xywh</td>
+            <td valign="top"> IMAGEと同じですが、NUMBER定義は使用する数字全体の座標を指定し、divで分割して参照します。このため、各数字の横幅を統一しておく必要があります。 <br>
+              <br>
+              ※csv側での文字間の指定は不可能なので必要に応じて画像制作段階でスペースを入れておきましょう。 </td>
+          </tr>
+          <tr>
+            <td style="text-align: center; vertical-align: top;">divx_ div_y</td>
+            <td colspan="3" valign="top"> SRC_NUMBERのdiv_xとdiv_yを掛けた値は以下のいずれかでなければなりません。 <br>
+              10の倍数：0～9の文字セット<br>
+              11の倍数：0～9の文字セットと裏0<br>
+              24の倍数：0～9の文字セットと裏0と+符号、同じく値が負の場合の0～9裏0と-符号<br>
+              <br>
+              ここでいう「裏0」は表示桁数が指定桁数より少ない場合に桁を埋めるために使用する0を指します。<br>
+              サンプルでは分かりやすく半透明にしましたが、必ずしも透過する必要はありませんし、11分割にした上で画像を用意しなくても特に問題はありません。 <br>
+              11分割で裏0を使用しないのであればそもそも10分割にした方が早いですが、マイナス側の値を参照し、かつ裏0を表示したくない場合は24分割で裏0だけ透明にする手法が使われます。<br>
+              <br>
+              ※「○の倍数」となっているのはdiv分割アニメーションが使用可能という意味です。</td>
+          </tr>
+          <tr>
+            <td style="text-align: center;">cycle</td>
+            <td colspan="3" valign="top">div分割アニメーション数値定義の場合のみ入力します。0で省略。IMAGE定義同様、アニメーション周期を指定します。</td>
+          </tr>
+          <tr>
+            <td style="text-align: center;">timer</td>
+            <td colspan="3" valign="top">div分割アニメーション（cycle値）の動作開始timerを指定します。</td>
+          </tr>
+          <tr>
+            <td style="text-align: center; vertical-align: top;">num</td>
+            <td colspan="3" valign="top"> この数字定義で何の数値データを参照するのかを指定します。<br>
+              <br>
+              ※当然ですが、間違うと大変です。 </td>
+          </tr>
+          <tr>
+            <td style="text-align: center;">align</td>
+            <td colspan="3" valign="top"> 数値定義の配置指定です。 </td>
+          </tr>
+          <tr>
+            <td style="text-align: center;">keta</td>
+            <td colspan="3" valign="top"> スキン関連ドキュメントには「ketaは+-文字を含めた桁数です」と記述されていますが、正しくは「+-符号を含まない桁数」指定です。 </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <script>
+
+//テキストボックスの文字を操作する
+function gen(){
+
+  document.NUMBER.generator.value="";
+  var str1 = $('#NUMBER [name=kugiri]:checked').val();
+  var gr = $('#NUMBER [name=gr]').val();
+  var x = $('#NUMBER [name=x]').val();
+  var y = $('#NUMBER [name=y]').val();
+  var w = $('#NUMBER [name=w]').val();
+  var h = $('#NUMBER [name=h]').val();
+  var div_x = $('#NUMBER [name=divx]').val();
+  var div_y = $('#NUMBER [name=divy]').val();
+  var cycle = $('#NUMBER [name=cycle]').val();
+  var timer = $('#NUMBER [name=timer]').val();
+  var num = $('#NUMBER [name=num]').val();
+  var align = $('#NUMBER [name=align]').val();
+  var keta = $('#NUMBER [name=keta]').val();
+  var time = $('#NUMBER [name=time]').val();
+  var dstx = $('#NUMBER [name=dstx]').val();
+  var dsty = $('#NUMBER [name=dsty]').val();
+  var dstw = $('#NUMBER [name=dstw]').val();
+  var dsth = $('#NUMBER [name=dsth]').val();
+  var acc = $('#NUMBER [name=acc]').val();
+  var a = $('#NUMBER [name=a]').val();
+  var r = $('#NUMBER [name=r]').val();
+  var g = $('#NUMBER [name=g]').val();
+  var b = $('#NUMBER [name=b]').val();
+  var blend = $('#NUMBER [name=blend]').val();
+  var filter = $('#NUMBER [name=filter]').val();
+  var angle = $('#NUMBER [name=angle]').val();
+  var center = $('#NUMBER [name=center]').val();
+  var loop = $('#NUMBER [name=loop]').val();
+  var dsttimer = $('#NUMBER [name=dsttimer]').val();
+  var op1 = $('#NUMBER [name=op1]').val();
+  var op2 = $('#NUMBER [name=op2]').val();
+  var op3 = $('#NUMBER [name=op3]').val();
+  var time2 = $('#NUMBER [name=time2]').val();
+  var dstx2 = $('#NUMBER [name=dstx2]').val();
+  var dsty2 = $('#NUMBER [name=dsty2]').val();
+  var dstw2 = $('#NUMBER [name=dstw2]').val();
+  var dsth2 = $('#NUMBER [name=dsth2]').val();
+  var acc2 = $('#NUMBER [name=acc2]').val();
+  var a2 = $('#NUMBER [name=a2]').val();
+  var r2 = $('#NUMBER [name=r2]').val();
+  var g2 = $('#NUMBER [name=g2]').val();
+  var b2 = $('#NUMBER [name=b2]').val();
+  var blend2 = $('#NUMBER [name=blend2]').val();
+  var filter2 = $('#NUMBER [name=filter2]').val();
+  var angle2 = $('#NUMBER [name=angle2]').val();
+  var center2 = $('#NUMBER [name=center2]').val();
+  var strnum = $('#NUMBER [name=num] option:selected').text();
+  
+  if($('#NUMBER [name=timer]').val() > 0) {
+    var strtimer = " timer"+$('#NUMBER [name=timer] option:selected').text();
+  }
+  else{
+    var strtimer = ""
+  }
+  if($('#NUMBER [name=dsttimer]').val() > 0) {
+    var strdsttimer = " dsttimer"+$('#NUMBER [name=dsttimer] option:selected').text();
+  }
+  else{
+    var strdsttimer = ""
+  }
+  if($('#NUMBER [name=op1]').val() > 0) {
+    var strop1 = " op"+$('#NUMBER [name=op1] option:selected').text();
+  }
+  else{
+    var strop1 = ""
+  }
+  if($('#NUMBER [name=op2]').val() > 0) {
+    var strop2 = " op"+$('#NUMBER [name=op2] option:selected').text();
+  }
+  else{
+    var strop2 = ""
+  }
+  if($('#NUMBER [name=op3]').val() > 0) {
+    var strop3 = " op"+$('#NUMBER [name=op3] option:selected').text();
+  }
+  else{
+    var strop3 = ""
+  }
+   
+  var strcsv = $('#NUMBER [name=csv]').val();
+  
+  if(strcsv=="定義名を入力してください") {
+    var strcomment = ""
+  }
+  else{
+    var strcomment = "//"+strcsv+str1+"//num"+strnum+strtimer+strdsttimer+strop1+strop2+strop3+"\n"
+  }
+  document.NUMBER.generator.value=strcomment+"//SRC定義"+str1+"(NULL)"+str1+"gr"+str1+"x"+str1+"y"+str1+"w"+str1+"h"+str1+"div_x"+str1+"div_y"+str1+"cycle"+str1+"timer"+str1+"num"+str1+"align"+str1+"keta"+"\n"+"#SRC_NUMBER"+str1+"0"+str1+eval(gr)+str1+eval(x)+str1+eval(y)+str1+eval(w)+str1+eval(h)+str1+eval(div_x)+str1+eval(div_y)+str1+eval(cycle)+str1+timer+str1+num+str1+align+str1+eval(keta)+"\n"+"//DST定義"+str1+"(NULL)"+str1+"time"+str1+"x"+str1+"y"+str1+"w"+str1+"h"+str1+"acc"+str1+"a"+str1+"r"+str1+"g"+str1+"b"+str1+"blend"+str1+"filter"+str1+"angle"+str1+"center"+str1+"loop"+str1+"timer"+str1+"op1"+str1+"op2"+str1+"op3"+"\n"+"#DST_NUMBER"+str1+"0"+str1+eval(time)+str1+eval(dstx)+str1+eval(dsty)+str1+Math.round(eval(dstw))+str1+Math.round(eval(dsth))+str1+acc+str1+eval(a)+str1+eval(r)+str1+eval(g)+str1+eval(b)+str1+blend+str1+filter+str1+eval(angle)+str1+center+str1+eval(loop)+str1+dsttimer+str1+op1+str1+op2+str1+op3+"\n"+"#DST_NUMBER"+str1+"0"+str1+eval(time2)+str1+eval(dstx2)+str1+eval(dsty2)+str1+Math.round(eval(dstw2))+str1+Math.round(eval(dsth2))+str1+acc2+str1+eval(a2)+str1+eval(r2)+str1+eval(g2)+str1+eval(b2)+str1+blend2+str1+filter2+str1+eval(angle2)+str1+center2;
+
+}
+
+</script>
+  </body>
+</html>

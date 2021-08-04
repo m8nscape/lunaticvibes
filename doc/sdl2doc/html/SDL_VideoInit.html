@@ -1,0 +1,69 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_VideoInit</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_VideoInit</h1>
+<p>Use this function to initialize the video subsystem, optionally specifying a video driver.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_VideoInit(const char* driver_name)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>driver_name</strong></td><td>the name of a video driver to initialize, or NULL for the default driver</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+#include "SDL.h"
+#include <stdio.h> /* for printf() */
+#include <stdlib.h> /* for atexit() */
+
+SDL_bool videoinit = SDL_FALSE;
+
+void OnQuit(void) {
+    if (videoinit) {
+        SDL_VideoQuit();
+    }
+    SDL_Quit();
+}
+
+int main(int argc, char** argv) {
+    if (SDL_Init(0) != 0) {
+        printf("Error initializing SDL:  %s\n", SDL_GetError());
+        return 1;
+    }
+    atexit(OnQuit);
+
+    if (SDL_VideoInit(NULL) != 0) {
+        printf("Error initializing SDL video:  %s\n", SDL_GetError());
+        return 2;
+    }
+    videoinit = SDL_TRUE;
+
+    /* ... */
+
+    return 0;
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>This function initializes the video subsystem, setting up a connection to the window manager, etc, and determines the available display modes and pixel formats, but does not initialize a window or graphics mode.
+<p>If you use this function and you haven't used the SDL_INIT_VIDEO flag with either <a href="SDL_Init.html">SDL_Init</a>() or <a href="SDL_InitSubSystem.html">SDL_InitSubSystem</a>(), you should call <a href="SDL_VideoQuit.html">SDL_VideoQuit</a>() before calling <a href="SDL_Quit.html">SDL_Quit</a>().
+<p>It is safe to call this function multiple times. <a href="SDL_VideoInit.html">SDL_VideoInit</a>() will call <a href="SDL_VideoQuit.html">SDL_VideoQuit</a>() itself if the video subsystem has already been initialized.
+<p>You can use <a href="SDL_GetNumVideoDrivers.html">SDL_GetNumVideoDrivers</a>() and <a href="SDL_GetVideoDriver.html">SDL_GetVideoDriver</a>() to find a specific <strong>driver_name</strong>.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetNumVideoDrivers.html">SDL_GetNumVideoDrivers</a></li>
+<li><a href="SDL_GetVideoDriver.html">SDL_GetVideoDriver</a></li>
+<li><a href="SDL_InitSubSystem.html">SDL_InitSubSystem</a></li>
+<li><a href="SDL_VideoQuit.html">SDL_VideoQuit</a></li></ul>
+</div>
+</BODY>
+</HTML>

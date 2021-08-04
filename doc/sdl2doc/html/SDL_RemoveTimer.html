@@ -1,0 +1,41 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_RemoveTimer</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_RemoveTimer</h1>
+<p>Use this function to remove a timer created with <A href="SDL_AddTimer.html">SDL_AddTimer</a>().
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_bool SDL_RemoveTimer(SDL_TimerID id)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>id</strong></td><td>the ID of the timer to remove</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns SDL_TRUE if the timer is removed or SDL_FALSE if the timer wasn't found.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+delay = (33 / 10) * 10;  /* To round it down to the nearest 10 ms */
+
+...
+
+my_timer_id = SDL_AddTimer(delay, my_callbackfunc, my_callback_param);
+
+...
+
+SDL_RemoveTimer(my_timer_id);
+</pre></div>
+<h2>Remarks</h2>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_AddTimer.html">SDL_AddTimer</a></li></ul>
+</div>
+</BODY>
+</HTML>

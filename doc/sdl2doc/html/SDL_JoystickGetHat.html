@@ -1,0 +1,50 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_JoystickGetHat</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_JoystickGetHat</h1>
+<p>Use this function to get the current state of a POV hat on a joystick.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+Uint8 SDL_JoystickGetHat(SDL_Joystick* joystick,
+                         int           hat)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>joystick</strong></td><td>an SDL_Joystick structure containing joystick information ???</td></tr>
+<tr><td><strong>hat</strong></td><td>the hat indices index; starts at index 0</td></tr>
+</table>
+<p><span style="color:green; ">Is it possible to use more than one index at the same time for hat?</span>
+<h2>Return Value</h2>
+<p>Returns one of the following positions:
+<table>
+<tr><td>SDL_HAT_CENTERED</td></tr>
+<tr><td>SDL_HAT_UP</td></tr>
+<tr><td>SDL_HAT_RIGHT</td></tr>
+<tr><td>SDL_HAT_DOWN</td></tr>
+<tr><td>SDL_HAT_LEFT</td></tr>
+<tr><td>SDL_HAT_RIGHTUP</td></tr>
+<tr><td>SDL_HAT_RIGHTDOWN</td></tr>
+<tr><td>SDL_HAT_LEFTUP</td></tr>
+<tr><td>SDL_HAT_LEFTDOWN</td></tr>
+</table>
+<p><span style="color:green; ">Should the defines/descriptions for each be included here since the RV is actually a Uint8 or will the user never see those? Should it be a list instead of a table?</span>
+<p><span style="color:green; ">Is this alternative table structure better?</span>
+<table>
+<tr><td>SDL_HAT_LEFTUP</td><td>SDL_HAT_UP</td><td>SDL_HAT_RIGHTUP</td></tr>
+<tr><td>SDL_HAT_LEFT</td><td>SDL_HAT_CENTERED</td><td>SDL_HAT_RIGHT</td></tr>
+<tr><td>SDL_HAT_LEFTDOWN</td><td>SDL_HAT_DOWN</td><td>SDL_HAT_RIGHTDOWN</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_JoystickNumHats.html">SDL_JoystickNumHats *</a></li></ul>
+</div>
+</BODY>
+</HTML>

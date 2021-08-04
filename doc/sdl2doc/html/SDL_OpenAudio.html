@@ -1,0 +1,66 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_OpenAudio</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_OpenAudio</h1>
+<p>This function is a legacy means of opening the audio device. New programs might want to use <a href="SDL_OpenAudioDevice.html">SDL_OpenAudioDevice</a>() instead.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_OpenAudio(SDL_AudioSpec* desired, SDL_AudioSpec* obtained)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>desired</strong></td><td>an <a href="structures/SDL_AudioSpec.html">SDL_AudioSpec</a> structure representing the desired output format</td></tr>
+<tr><td><strong>obtained</strong></td><td>an <a href="structures/SDL_AudioSpec.html">SDL_AudioSpec</a> structure filled in with the actual parameters, or NULL</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>This function opens the audio device with the desired parameters, and returns 0 if successful, placing the actual hardware parameters in the structure pointed to by <strong>obtained</strong>.
+<p>If <strong>obtained</strong> is NULL, the audio data passed to the callback function will be guaranteed to be in the requested format, and will be automatically converted to the actual hardware audio format if necessary. If <strong>obtained</strong> is NULL, <strong>desired</strong> will have fields modified.
+<p>This function returns a negative error code on failure to open the audio device or failure to set up the audio thread; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+SDL_AudioSpec want, have;
+
+SDL_zero(want);
+want.freq = 48000;
+want.format = AUDIO_F32;
+want.channels = 2;
+want.samples = 4096;
+want.callback = MyAudioCallback;  // you wrote this function elsewhere.
+
+if (SDL_OpenAudio(&want, &have) < 0) {
+    printf("Failed to open audio: %s\n", SDL_GetError());
+} else {
+    if (have.format != want.format)
+        printf("We didn't get Float32 audio format.\n");
+    SDL_PauseAudio(0);  // start audio playing.
+    SDL_Delay(5000);  // let the audio callback play some sound for 5 seconds.
+    SDL_CloseAudio();
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>This function remains for compatibility with SDL 1.2, but also because it's slightly easier to use than the new functions in SDL2. The new, more powerful, and preferred way to do this is <a href="SDL_OpenAudioDevice.html">SDL_OpenAudioDevice</a>().
+<p>This function is roughly equivalent to:
+<div style=codearea>
+<pre>
+SDL_OpenAudioDevice(NULL, 0, desired, obtained, SDL_AUDIO_ALLOW_ANY_CHANGE);
+</pre></div>
+<p>With two notable exceptions:
+<ul><li>If <strong>obtained</strong> is NULL, we use <strong>desired</strong> (and allow no changes), which means desired will be modified to have the correct values for silence, etc, and SDL will convert any differences between your app's specific request and the hardware behind the scenes.</li>
+<li>The return value is always success or failure, and not a device ID, which means you can only have one device open at a time with this function. </li>
+</ul>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_CloseAudio.html">SDL_CloseAudio</a></li>
+<li><a href="SDL_LockAudio.html">SDL_LockAudio</a></li>
+<li><a href="SDL_PauseAudio.html">SDL_PauseAudio</a></li>
+<li><a href="SDL_UnlockAudio.html">SDL_UnlockAudio</a></li></ul>
+</div>
+</BODY>
+</HTML>

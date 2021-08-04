@@ -1,0 +1,35 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_MostSignificantBitIndex32</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_MostSignificantBitIndex32</h1>
+<p>Use this function to get the index of the most significant (set) bit in a 32-bit number. This is also the same as the base 2 logarithm of the number.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_MostSignificantBitIndex32(Uint32 x)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>x</strong></td><td>the number to find the MSB of</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns the index of the most significant bit of x, or -1 if x is 0.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+#include "SDL_bits.h"
+
+if (bitmask) {
+    int index = SDL_MostSignificantBitIndex32(bitmask);
+}
+</pre></div>
+<h2>Remarks</h2>
+</div>
+</BODY>
+</HTML>

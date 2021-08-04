@@ -1,0 +1,47 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_CreateMutex</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_CreateMutex</h1>
+<p>Use this function to create a new mutex.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_mutex* SDL_CreateMutex(void)
+</pre></div>
+<h2>Return Value</h2>
+<p>Returns the initialized and unlocked mutex or NULL on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+SDL_mutex *mutex;
+
+mutex = SDL_CreateMutex();
+if (!mutex) {
+  fprintf(stderr, "Couldn't create mutex\n");
+  return;
+}
+
+if (SDL_LockMutex(mutex) == 0) {
+  /* Do stuff while mutex is locked */
+  SDL_UnlockMutex(mutex);
+} else {
+  fprintf(stderr, "Couldn't lock mutex\n");
+}
+
+SDL_DestroyMutex(mutex);
+</pre></div>
+<h2>Remarks</h2>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_DestroyMutex.html">SDL_DestroyMutex</a></li>
+<li><a href="SDL_LockMutex.html">SDL_LockMutex</a></li>
+<li><a href="SDL_TryLockMutex.html">SDL_TryLockMutex</a></li>
+<li><a href="SDL_UnlockMutex.html">SDL_UnlockMutex</a></li></ul>
+</div>
+</BODY>
+</HTML>

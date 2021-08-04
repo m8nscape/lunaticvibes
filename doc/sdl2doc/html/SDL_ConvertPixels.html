@@ -1,0 +1,80 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_ConvertPixels</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_ConvertPixels</h1>
+<p>Use this function to copy a block of pixels of one format to another format.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_ConvertPixels(int         width,
+                      int         height,
+                      Uint32      src_format,
+                      const void* src,
+                      int         src_pitch,
+                      Uint32      dst_format,
+                      void*       dst,
+                      int         dst_pitch)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>width</strong></td><td>the width of the block to copy, in pixels</td></tr>
+<tr><td><strong>height</strong></td><td>the height of the block to copy, in pixels</td></tr>
+<tr><td><strong>src_format</strong></td><td>the format of the source pixels; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td><strong>src</strong></td><td>a pointer to the source pixels</td></tr>
+<tr><td><strong>src_pitch</strong></td><td>the pitch of the block to copy</td></tr>
+<tr><td><strong>dst_format</strong></td><td>the format of the destination pixels; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td><strong>dst</strong></td><td>a pointer to be filled in with new pixel data</td></tr>
+<tr><td><strong>dst_pitch</strong></td><td>the pitch of the destination pixels</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<p><strong>src_format</strong> and <strong>dst_format</strong> may each be one of the following <a href="SDL_PixelFormatEnum.html">SDL_PixelFormatEnum</a> values:
+<table>
+<tr><td>SDL_PIXELFORMAT_UNKNOWN</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX1LSB</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX1MSB</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX4LSB</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX4MSB</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX8</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB332</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB444</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB555</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGR555</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ARGB4444</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGBA4444</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ABGR4444</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGRA4444</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ARGB1555</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGBA5551</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ABGR1555</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGRA5551</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB565</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGR565</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB24</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGR24</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGBX8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGR888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGRX8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ARGB8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGBA8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ABGR8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGRA8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ARGB2101010</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_YV12</td><td>planar mode: Y + V + U (3 planes)</td></tr>
+<tr><td>SDL_PIXELFORMAT_IYUV</td><td>planar mode: Y + U + V (3 planes)</td></tr>
+<tr><td>SDL_PIXELFORMAT_YUY2</td><td>packed mode: Y0+U0+Y1+V0 (1 plane)</td></tr>
+<tr><td>SDL_PIXELFORMAT_UYVY</td><td>packed mode: U0+Y0+V0+Y1 (1 plane)</td></tr>
+<tr><td>SDL_PIXELFORMAT_YVYU</td><td>packed mode: Y0+V0+Y1+U0 (1 plane)</td></tr>
+</table>
+</div>
+</BODY>
+</HTML>

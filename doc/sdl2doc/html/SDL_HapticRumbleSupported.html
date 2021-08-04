@@ -1,0 +1,40 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_HapticRumbleSupported</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_HapticRumbleSupported</h1>
+<p>Use this function to check whether rumble is supported on a haptic device.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_HapticRumbleSupported(SDL_Haptic* haptic)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>haptic</strong></td><td>haptic device to check for rumble support</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns SDL_TRUE if effect is supported, SDL_FALSE if it isn't, or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+extern SDL_Haptic* dev;
+if (SDL_HapticRumbleSupported(dev)) {
+    SDL_HapticRumbleInit(dev);
+    SDL_HapticRumblePlay(dev, 1.0f, 3000);
+    SDL_Delay(3000);
+}
+</pre></div>
+<h2>Remarks</h2>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_HapticRumbleInit.html">SDL_HapticRumbleInit</a></li>
+<li><a href="SDL_HapticRumblePlay.html">SDL_HapticRumblePlay</a></li>
+<li><a href="SDL_HapticRumbleStop.html">SDL_HapticRumbleStop</a></li></ul>
+</div>
+</BODY>
+</HTML>

@@ -1,0 +1,36 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_KeyboardEvent</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_KeyboardEvent</h1>
+<p>A structure that contains keyboard button event information.
+<h2>Data Fields</h2>
+<table>
+<tr><td>Uint32</td><td><strong>type</strong></td><td>the event type; SDL_KEYDOWN or SDL_KEYUP</td></tr>
+<tr><td>Uint32</td><td><strong>timestamp</strong></td><td>timestamp of the event</td></tr>
+<tr><td>Uint32</td><td><strong>windowID</strong></td><td>the window with keyboard focus, if any</td></tr>
+<tr><td>Uint8</td><td><strong>state</strong></td><td>the state of the key; SDL_PRESSED or SDL_RELEASED</td></tr>
+<tr><td>Uint8</td><td><strong>repeat</strong></td><td>non-zero if this is a key repeat</td></tr>
+<tr style="color: #808080;"><td>Uint8</td><td><strong>padding2</strong></td><td>&nbsp;</td></tr>
+<tr style="color: #808080;"><td>Uint8</td><td><strong>padding3</strong></td><td>&nbsp;</td></tr>
+<tr><td><a href="SDL_Keysym.html">SDL_Keysym</a></td><td><strong>keysym</strong></td><td>the <a href="SDL_Keysym.html">SDL_Keysym</a> representing the key that was pressed or released</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p><a href="SDL_KeyboardEvent.html">SDL_KeyboardEvent</a> is a member of the <a href="SDL_Event.html">SDL_Event</a> union and is used when an event of type SDL_KEYDOWN or SDL_KEYUP is reported. You would access it through the event's <tt style="backtick">key</tt> field.
+<p>An SDL_KEYDOWN or SDL_KEYUP event occurs whenever a user presses or releases a button on a keyboard. The information on what key was pressed or released is in the <strong>keysym</strong> member.
+<h2>Related Enumerations</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_EventType.html">SDL_EventType</a></li></ul>
+<h2>Related Structures</h2>
+<ul style="list-style-type:none"><li><a href="SDL_Event.html">SDL_Event</a></li></ul>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_GetKeyboardState.html">SDL_GetKeyboardState</a></li>
+<li><a href="../SDL_GetModState.html">SDL_GetModState</a></li></ul>
+</div>
+</BODY>
+</HTML>

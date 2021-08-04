@@ -1,0 +1,36 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_HapticUpdateEffect</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_HapticUpdateEffect</h1>
+<p>Use this function to update the properties of an effect.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_HapticUpdateEffect(SDL_Haptic*       haptic,
+                           int               effect,
+                           SDL_HapticEffect* data)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>haptic</strong></td><td>the SDL_Haptic device that has the effect</td></tr>
+<tr><td><strong>effect</strong></td><td>the index of the effect to update</td></tr>
+<tr><td><strong>data</strong></td><td>an <a href="structures/SDL_HapticEffect.html">SDL_HapticEffect</a> structure containing the new effect properties to use</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a -1 on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>Can be used dynamically, although behavior when dynamically changing direction may be strange. Specifically the effect may re-upload itself and start playing from the start. You also cannot change the type either when running <a href="SDL_HapticUpdateEffect.html">SDL_HapticUpdateEffect</a>().
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_HapticDestroyEffect.html">SDL_HapticDestroyEffect</a></li>
+<li><a href="SDL_HapticNewEffect.html">SDL_HapticNewEffect</a></li>
+<li><a href="SDL_HapticRunEffect.html">SDL_HapticRunEffect</a></li></ul>
+</div>
+</BODY>
+</HTML>

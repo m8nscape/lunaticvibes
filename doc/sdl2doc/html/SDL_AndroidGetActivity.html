@@ -1,0 +1,53 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_AndroidGetActivity</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_AndroidGetActivity</h1>
+<p>Use this function to retrieve the Java instance of the activity class in an Android application.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+jobject SDL_AndroidGetActivity(void)
+</pre></div>
+<h2>Return Value</h2>
+<p>Returns the jobject representing the instance of the activity class of the Android application, or NULL on error.
+<p>The jobject returned by the function is a local reference and must be released by the caller. See the PushLocalFrame()/PopLocalFrame() or DeleteLocalRef() functions of the Java native interface (<a class="http" href="http://docs.oracle.com/javase/1.5.0/docs/guide/jni/spec/functions.html">in Oracle's documentation</a>).
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+// Calls the void MyActivity.showHome() method of the Java instance of the activity.
+void showHome(void)
+{
+    // retrieve the JNI environment.
+    JNIEnv* env = (JNIEnv*)SDL_AndroidGetJNIEnv();
+
+    // retrieve the Java instance of the SDLActivity
+    jobject activity = (jobject)SDL_AndroidGetActivity();
+
+    // find the Java class of the activity. It should be SDLActivity or a subclass of it.
+    jclass clazz( env->GetObjectClass(activity) );
+
+    // find the identifier of the method to call
+    jmethodID method_id = env->GetMethodID( clazz, "showHome", "()V" );
+
+    // effectively call the Java method
+    env->CallVoidMethod( activity, method_id );
+    
+    // clean up the local references.
+    env->DeleteLocalRef(activity);
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>The prototype of the function in SDL's code actually declares a void* return type, even if the implementation returns a jobject. The rationale being that it allows not to include jni.h in the headers of the SDL.
+<h2>Version</h2>
+<p>This function is available in SDL 2.0.0
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_AndroidGetJNIEnv.html">SDL_AndroidGetJNIEnv</a></li></ul>
+</div>
+</BODY>
+</HTML>

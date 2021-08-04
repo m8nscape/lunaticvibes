@@ -1,0 +1,42 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_RWclose</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_RWclose</h1>
+<p>Use this function to close and free an allocated <a href="structures/SDL_RWops.html">SDL_RWops</a> structure.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_RWclose(struct SDL_RWops* context)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>context</strong></td><td><a href="structures/SDL_RWops.html">SDL_RWops</a> structure to close</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+SDL_RWops *rw = SDL_RWFromFile("test.bin","r");
+if(rw != NULL) {
+  extern Uint8 buf[256];
+  SDL_RWread(rw, buf, sizeof (buf), 1);
+  SDL_RWclose(rw);
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>Note that if this fails to flush the stream to disk, this function reports an error, but the RWops is still invalid once this function returns.
+<p>SDL_RWclose is actually a macro that calls the SDL_RWops's <strong>close</strong> method appropriately, to simplify application development.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_RWread.html">SDL_RWread</a></li>
+<li><a href="SDL_RWseek.html">SDL_RWseek</a></li>
+<li><a href="SDL_RWwrite.html">SDL_RWwrite</a></li></ul>
+</div>
+</BODY>
+</HTML>

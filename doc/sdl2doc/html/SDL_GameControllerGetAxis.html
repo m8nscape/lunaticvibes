@@ -1,0 +1,35 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GameControllerGetAxis</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GameControllerGetAxis</h1>
+<p>Use this function to get the current state of an axis control on a game controller.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+Sint16 SDL_GameControllerGetAxis(SDL_GameController*    gamecontroller,
+                                 SDL_GameControllerAxis axis)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>gamecontroller</strong></td><td>a game controller</td></tr>
+<tr><td><strong>axis</strong></td><td>an axis index</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns axis state (including 0) on success or 0 (also) on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>The axis indices start at index 0.
+<p>The state is a value ranging from -32768 to 32767.
+<h2>Version</h2>
+<p>This function is available since SDL 2.0.0.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GameControllerGetButton.html">SDL_GameControllerGetButton</a></li></ul>
+</div>
+</BODY>
+</HTML>

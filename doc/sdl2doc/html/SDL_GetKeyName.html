@@ -1,0 +1,31 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetKeyName</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetKeyName</h1>
+<p>Use this function to get a human-readable name for a key.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+const char* SDL_GetKeyName(SDL_Keycode key)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>key</strong></td><td>the desired <a href="SDL_Keycode.html">SDL_Keycode</a> to query ???</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns a pointer to a UTF-8 string that stays valid at least until the next call to this function. If you need it around any longer, you must copy it. If the key doesn't have a name, this function returns an empty string (""). <span style="color:green; ">Should key here be bold? Don't think so.</span>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>See <a href="SDL_Scancode.html">SDL_Scancode</a> for details. ??? <span style="color:green; ">Should this section mention</span> <a href="SDL_Keycode.html">SDL_Keycode</a>?
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetKeyFromScancode.html">SDL_GetKeyFromScancode</a></li>
+<li><a href="SDL_GetScancodeFromKey.html">SDL_GetScancodeFromKey</a> ???</li></ul>
+</div>
+</BODY>
+</HTML>

@@ -1,0 +1,59 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_RWseek</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_RWseek</h1>
+<p>Use this function to seek within an SDL_RWops data stream.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+Sint64 SDL_RWseek(SDL_RWops* context,
+                  Sint64     offset, 
+                  int        whence)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>context</strong></td><td>A pointer to an <a href="structures/SDL_RWops.html">SDL_RWops</a> structure</td></tr>
+<tr><td><strong>offset</strong></td><td>an offset in bytes, relative to <strong>whence</strong> location; can be negative</td></tr>
+<tr><td><strong>whence</strong></td><td>any of RW_SEEK_SET, RW_SEEK_CUR, RW_SEEK_END; see <a href="#Remarks">Remarks</a> for details</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns the final offset in the data stream after the seek or -1 on error.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+SDL_RWops *rw = SDL_RWFromFile("myfile.bin","rb");
+if (rw != NULL) {
+    /* Seek to 0 bytes from the end of the file */
+    Sint64 length = SDL_RWseek(rw,0,SEEK_END);
+    SDL_RWclose(rw);
+    if (length < 0) {
+        printf("Could not seek inside myfile.bin\n");
+    } else {
+        printf("myfile.bin is %d bytes long\n",length);
+    }
+}
+</pre></div>
+<h2 id="Remarks">Remarks</h2>
+<p>This function seeks to <strong>offset</strong> relative to <strong>whence</strong>
+<p><strong>whence</strong> may be any of the following values:
+<table>
+<tr><td>RW_SEEK_SET</td><td>seek from the beginning of data</td></tr>
+<tr><td>RW_SEEK_CUR</td><td>seek relative to current read point</td></tr>
+<tr><td>RW_SEEK_END</td><td>seek relative to the end of data</td></tr>
+</table>
+<p>If this stream can not seek, it will return -1.
+<p>SDL_RWseek is actually a macro that calls the SDL_RWops's <strong>seek</strong> method appropriately, to simplify application development.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_RWclose.html">SDL_RWclose</a></li>
+<li><a href="SDL_RWread.html">SDL_RWread</a></li>
+<li><a href="SDL_RWtell.html">SDL_RWtell</a></li>
+<li><a href="SDL_RWwrite.html">SDL_RWwrite</a></li></ul>
+</div>
+</BODY>
+</HTML>

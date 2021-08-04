@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GameControllerNameForIndex</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GameControllerNameForIndex</h1>
+<p>Use this function to get the implementation dependent name for the game controller.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+const char *SDL_GameControllerNameForIndex(int joystick_index)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>joystick_index</strong></td><td>the device_index of a device, up to <a href="SDL_NumJoysticks.html">SDL_NumJoysticks</a>()</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns the implementation dependent name for the game controller, or NULL if there is no name or the index is invalid.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+for (int i = 0; i < SDL_NumJoysticks(); ++i) {
+    const char *name = SDL_GameControllerNameForIndex(i);
+    if (name) {
+        printf("Joystick %i has game controller name '%s'\n", i, name);
+    } else {
+        printf("Joystick %i has no game controller name.\n", i);
+    }
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>joystick_index is the same as the device_index passed to <a href="SDL_JoystickOpen.html">SDL_JoystickOpen</a>.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_IsGameController.html">SDL_IsGameController</a></li>
+<li><a href="SDL_GameControllerOpen.html">SDL_GameControllerOpen</a></li>
+<li><a href="SDL_GameControllerName.html">SDL_GameControllerName</a></li></ul>
+</div>
+</BODY>
+</HTML>

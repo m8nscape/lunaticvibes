@@ -1,0 +1,40 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_SetTextureColorMod</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_SetTextureColorMod</h1>
+<p>Use this function to set an additional color value multiplied into render copy operations.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_SetTextureColorMod(SDL_Texture* texture,
+                           Uint8        r,
+                           Uint8        g,
+                           Uint8        b)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>texture</strong></td><td>the texture to update</td></tr>
+<tr><td><strong>r</strong></td><td>the red color value multiplied into copy operations</td></tr>
+<tr><td><strong>g</strong></td><td>the green color value multiplied into copy operations</td></tr>
+<tr><td><strong>b</strong></td><td>the blue color value multiplied into copy operations</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>When this texture is rendered, during the copy operation each source color channel is modulated by the appropriate color value according to the following formula:
+<ul style="list-style-type:none"><li><tt style="backtick">srcC = srcC * (color / 255)</tt></li></ul>
+<p>Color modulation is not always supported by the renderer; it will return -1 if color modulation is not supported.
+<p>You can call <a href="SDL_GetRendererInfo.html">SDL_GetRendererInfo</a>() to fill in an <a href="structures/SDL_RendererInfo.html">SDL_RendererInfo</a> structure with the information about the current renderer. This structure will have SDL_TEXTUREMODULATE_COLOR set in the mod_modes mask if color modulation is supported.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetTextureColorMod.html">SDL_GetTextureColorMod</a></li>
+<li><a href="SDL_SetTextureAlphaMod.html">SDL_SetTextureAlphaMod</a></li></ul>
+</div>
+</BODY>
+</HTML>

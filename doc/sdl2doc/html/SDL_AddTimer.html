@@ -1,0 +1,109 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_AddTimer</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_AddTimer</h1>
+<p>Use this function to set up a callback function to be run on a separate thread after the specified number of milliseconds has elapsed.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_TimerID SDL_AddTimer(Uint32            interval,
+                         SDL_TimerCallback callback,
+                         void*             param)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>interval</strong></td><td>the timer delay (ms) passed to <strong>callback</strong>
+<tr><td><strong>callback</strong></td><td>the function to call when the specified <strong>interval</strong> elapses; see <a href="#Remarks">Remarks</a> for details
+<tr><td><strong>param</strong></td><td>a pointer that is passed to <strong>callback</strong>
+</table>
+<h2>Return Value</h2>
+<p>Returns a timer ID or 0 if an error occurs; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<p>*
+<div style=codearea>
+<pre>
+/* Start the timer; the callback below will be executed after the delay */
+
+delay = (33 / 10) * 10;  /* To round it down to the nearest 10 ms */
+my_timer_id = SDL_AddTimer(delay, my_callbackfunc, my_callback_param);
+
+...
+
+Uint32 my_callbackfunc(Uint32 interval, void *param)
+{
+    SDL_Event event;
+    SDL_UserEvent userevent;
+
+    /* In this example, our callback pushes an SDL_USEREVENT event
+    into the queue, and causes our callback to be called again at the
+    same interval: */
+
+    userevent.type = SDL_USEREVENT;
+    userevent.code = 0;
+    userevent.data1 = NULL;
+    userevent.data2 = NULL;
+
+    event.type = SDL_USEREVENT;
+    event.user = userevent;
+
+    SDL_PushEvent(&event);
+    return(interval);
+}
+</pre></div>
+<p>Note that it is possible to avoid the multithreading problems with SDL timers by giving to <tt style="backtick">userevent.data1</tt> the address of a function you want to be executed and to <tt style="backtick">userevent.data2</tt> its params, and then deal with it in the event loop.
+<div style=codearea>
+<pre>
+/* with the same code as before: */
+Uint32 my_callbackfunc(Uint32 interval, void *param)
+{
+    SDL_Event event;
+    SDL_UserEvent userevent;
+
+    /* In this example, our callback pushes a function
+    into the queue, and causes our callback to be called again at the
+    same interval: */
+
+    userevent.type = SDL_USEREVENT;
+    userevent.code = 0;
+    userevent.data1 = &my_function;
+    userevent.data2 = param;
+
+    event.type = SDL_USEREVENT;
+    event.user = userevent;
+
+    SDL_PushEvent(&event);
+    return(interval);
+}
+
+/* Now the event loop */
+SDL_Event event;
+while (SDL_PollEvent (&event))
+{
+    switch(event.type)
+    {
+        case SDL_USEREVENT: {
+            /* and now we can call the function we wanted to call in the timer but couldn't because of the multithreading problems */
+            void (*p) (void*) = event.user.data1;
+            p(event.user.data2);
+            break;
+        }
+        /* ... */
+    }
+}
+</pre></div>
+<p>*
+<h2 if="Remarks">Remarks</h2>
+<p>If you use this function, you must pass SDL_INIT_TIMER to <a href="SDL_Init.html">SDL_Init</a>().
+<p>The callback function is passed the current timer interval and the user supplied parameter from the <a href="SDL_AddTimer.html">SDL_AddTimer</a>() call and returns the next timer interval. If the returned value from the callback is 0, the timer is canceled.
+<p>The callback is run on a separate thread. See the code examples for a method of processing the timer callbacks on the main thread if that's desired.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_RemoveTimer.html">SDL_RemoveTimer</a></li></ul>
+</div>
+</BODY>
+</HTML>

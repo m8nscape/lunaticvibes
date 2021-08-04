@@ -1,0 +1,47 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_RenderCopyEx</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_RenderCopyEx</h1>
+<p>Use this function to copy a portion of the texture to the current rendering target, optionally rotating it by angle around the given center and also flipping it top-bottom and/or left-right
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_RenderCopyEx(SDL_Renderer*          renderer,
+                     SDL_Texture*           texture,
+                     const SDL_Rect*        srcrect,
+                     const SDL_Rect*        dstrect,
+                     const double           angle,
+                     const SDL_Point*       center,
+                     const SDL_RendererFlip flip)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>renderer</strong></td><td>the rendering context</td></tr>
+<tr><td><strong>texture</strong></td><td>the source texture; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td><strong>srcrect</strong></td><td>the source <a href="structures/SDL_Rect.html">SDL_Rect</a> structure or NULL for the entire texture</td></tr>
+<tr><td><strong>dstrect</strong></td><td>the destination <a href="structures/SDL_Rect.html">SDL_Rect</a> structure or NULL for the entire rendering target</td></tr>
+<tr><td><strong>angle</strong></td><td>an angle in degrees that indicates the rotation that will be applied to dstrect</td></tr>
+<tr><td><strong>center</strong></td><td>a pointer to a point indicating the point around which dstrect will be rotated (if NULL, rotation will be done aroud dstrect.w/2, dstrect.h/2)</td></tr>
+<tr><td><strong>flip</strong></td><td>a <a href="SDL_RendererFlip.html">SDL_RendererFlip</a> value stating which flipping actions should be performed on the texture</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<p>The texture is blended with the destination based on its blend mode set with <a href="SDL_SetTextureBlendMode.html">SDL_SetTextureBlendMode</a>().
+<p>The texture color is affected based on its color modulation set by <a href="SDL_SetTextureColorMod.html">SDL_SetTextureColorMod</a>().
+<p>The texture alpha is affected based on its alpha modulation set by <a href="SDL_SetTextureAlphaMod.html">SDL_SetTextureAlphaMod</a>().
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_SetTextureAlphaMod.html">SDL_SetTextureAlphaMod</a></li>
+<li><a href="SDL_SetTextureBlendMode.html">SDL_SetTextureBlendMode</a></li>
+<li><a href="SDL_SetTextureColorMod.html">SDL_SetTextureColorMod</a></li>
+<li><a href="SDL_RenderCopy.html">SDL_RenderCopy</a></li></ul>
+</div>
+</BODY>
+</HTML>

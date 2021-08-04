@@ -1,0 +1,37 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_LoadObject</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_LoadObject</h1>
+<p>Use this function to dynamically load a shared object and return a pointer to the object handle.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void* SDL_LoadObject(const char* sofile)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>sofile</strong></td><td>a system dependent name of the object file</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns a pointer to the object handle or NULL if there was an error; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+#include "SDL_loadso.h"
+
+// Dynamically load mylib.so
+SDL_LoadObject("mylib.so");
+</pre></div>
+<h2>Remarks</h2>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_LoadFunction.html">SDL_LoadFunction</a></li>
+<li><a href="SDL_UnloadObject.html">SDL_UnloadObject</a></li></ul>
+</div>
+</BODY>
+</HTML>

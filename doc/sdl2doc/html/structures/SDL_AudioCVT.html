@@ -1,0 +1,50 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_AudioCVT</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_AudioCVT</h1>
+<p>A structure that contains audio data conversion information.
+<h2>Data Fields</h2>
+<table>
+<tr><td>int</td><td><strong>needed</strong></td><td>set to 1 if conversion possible</td></tr>
+<tr><td><a href="../SDL_AudioFormat.html">SDL_AudioFormat</a></td><td><strong>src_format</strong></td><td>source audio format</td></tr>
+<tr><td><a href="../SDL_AudioFormat.html">SDL_AudioFormat</a></td><td><strong>dst_format</strong></td><td>target audio format</td></tr>
+<tr><td>double</td><td><strong>rate_incr</strong></td><td>rate conversion increment</td></tr>
+<tr><td>Uint8*</td><td><strong>buf</strong></td><td>the buffer to hold entire audio data; see <a href="#Remarks">Remarks<a> for details</td></tr>
+<tr><td>int</td><td><strong>len</strong></td><td>length of original audio buffer; see <a href="#Remarks">Remarks<a> for details</td></tr>
+<tr><td>int</td><td><strong>len_cvt</strong></td><td>length of converted audio buffer</td></tr>
+<tr><td>int</td><td><strong>len_mult</strong></td><td>buf must be len*len_mult big; see <a href="#Remarks">Remarks<a> for details</td></tr>
+<tr><td>double</td><td><strong>len_ratio</strong></td><td>given len, final size is len*len_ratio; see <a href="#Remarks">Remarks<a> for details</td></tr>
+<tr style="color: #808080;"><td>SDL_AudioFilter[10]</td><td><strong>filters</strong></td><td>filter list (internal use)</td></tr>
+<tr style="color: #808080;"><td>int</td><td><strong>filter_index</strong></td><td>current audio conversion function (internal use)</td></tr>
+</table>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+// Change 1024 stereo sample frames at 48000Hz from Float32 to Int16.
+SDL_AudioCVT cvt;
+SDL_BuildAudioCVT(&cvt, AUDIO_F32, 2, 48000, AUDIO_S16, 2, 48000);
+SDL_assert(cvt.needed); // obviously, this one is always needed.
+cvt.len = 1024 * 2 * 4;  // 1024 stereo float32 sample frames.
+cvt.buf = (Uint8 *) SDL_malloc(cvt.len * cvt.len_mult);
+// read your float32 data into cvt.buf here.
+SDL_ConvertAudio(cvt);
+// cvt.buf has cvt.len_cvt bytes of converted data now.
+</pre></div>
+<h2 id="Remarks">Remarks</h2>
+<p>The <a href="SDL_AudioCVT.html">SDL_AudioCVT</a> structure is used to convert audio data between different formats. An <a href="SDL_AudioCVT.html">SDL_AudioCVT</a> structure is initialized with the <a href="../SDL_BuildAudioCVT.html">SDL_BuildAudioCVT</a>() function, while the actual conversion is done by the <a href="../SDL_ConvertAudio.html">SDL_ConvertAudio</a>() function, once the application has set up appropriately-sized buffers between these two function calls.
+<p><strong>buf</strong> points to the audio data that will be used in the conversion. It is both the source and the destination, which means the converted audio data overwrites the original data. It also means that the converted data may be larger than the original data (if you were converting from 8-bit to 16-bit, for instance), so you must ensure <strong>buf</strong> is large enough for any stage of the conversion, regardless of the final converted data's size. See <strong>len_mult</strong> below for more info.
+<p><strong>len</strong> is the length of the original audio data in bytes.
+<p><strong>len_mult</strong> is the length multiplier for determining the size of the converted data. The audio buffer may need to be larger than either the original data or the converted data.. The allocated size of <strong>bufM</strong> should be <strong>len*len_mult</strong>.
+<p><strong>len_ratio</strong> is the length ratio of the converted data to the original data. When you have finished converting your audio data, you need to know how much of your audio buffer is valid. <strong>len*len_ratio</strong> is the size of the converted audio data in bytes. This is very similar to <strong>len_mult</strong>, however when the converted audio data is shorter than the original, <strong>len_mult</strong> would be 1. <strong>len_ratio</strong>, on the other hand, would be a fractional number between 0 and 1.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_BuildAudioCVT.html">SDL_BuildAudioCVT</a></li>
+<li><a href="../SDL_ConvertAudio.html">SDL_ConvertAudio</a></li></ul>
+</div>
+</BODY>
+</HTML>

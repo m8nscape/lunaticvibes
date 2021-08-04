@@ -1,0 +1,95 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_CreateWindow</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_CreateWindow</h1>
+<p>Use this function to create a window with the specified position, dimensions, and flags.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_Window* SDL_CreateWindow(const char* title,
+                             int         x,
+                             int         y,
+                             int         w,
+                             int         h,
+                             Uint32      flags)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>title</strong></td><td>the title of the window, in UTF-8 encoding
+<tr><td><strong>x</strong></td><td>the x position of the window, SDL_WINDOWPOS_CENTERED, or SDL_WINDOWPOS_UNDEFINED</td></tr>
+<tr><td><strong>y</strong></td><td>the y position of the window, SDL_WINDOWPOS_CENTERED, or SDL_WINDOWPOS_UNDEFINED</td></tr>
+<tr><td><strong>w</strong></td><td>the width of the window</td></tr>
+<tr><td><strong>h</strong></td><td>the height of the window</td></tr>
+<tr><td><strong>flags</strong></td><td>0, or one or more <a href="SDL_WindowFlags.html">SDL_WindowFlags</a> OR'd together; see <a href="#Remarks">Remarks</a> for details</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns the window that was created or NULL on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+// Example program:
+// Using SDL2 to create an application window
+
+#include "SDL.h"
+#include <stdio.h>
+
+int main(int argc, char* argv[]) {
+
+    SDL_Window *window;                    // Declare a pointer
+
+    SDL_Init(SDL_INIT_VIDEO);              // Initialize SDL2
+
+    // Create an application window with the following settings:
+    window = SDL_CreateWindow(
+        "An SDL2 window",                  // window title
+        SDL_WINDOWPOS_UNDEFINED,           // initial x position
+        SDL_WINDOWPOS_UNDEFINED,           // initial y position
+        640,                               // width, in pixels
+        480,                               // height, in pixels
+        SDL_WINDOW_OPENGL                  // flags - see below
+    );
+
+    // Check that the window was successfully made
+    if (window == NULL) {
+        // In the event that the window could not be made...
+        printf("Could not create window: %s\n", SDL_GetError());
+        return 1;
+    }
+
+    // The window is open: enter program loop (see SDL_PollEvent)
+
+    SDL_Delay(3000);  // Pause execution for 3000 milliseconds, for example
+
+    // Close and destroy the window
+    SDL_DestroyWindow(window);
+
+    // Clean up
+    SDL_Quit();
+    return 0;
+}
+</pre></div>
+<h2 id="Remarks">Remarks</h2>
+<p><strong>flags</strong> may be any of the following OR'd together:
+<table>
+<tr><td>SDL_WINDOW_FULLSCREEN</td><td>fullscreen window</td></tr>
+<tr><td>SDL_WINDOW_FULLSCREEN_DESKTOP</td><td>fullscreen window at the current desktop resolution</td></tr>
+<tr><td>SDL_WINDOW_OPENGL</td><td>window usable with OpenGL context</td></tr>
+<tr><td>SDL_WINDOW_HIDDEN</td><td>window is not visible</td></tr>
+<tr><td>SDL_WINDOW_BORDERLESS</td><td>no window decoration</td></tr>
+<tr><td>SDL_WINDOW_RESIZABLE</td><td>window can be resized</td></tr>
+<tr><td>SDL_WINDOW_MINIMIZED</td><td>window is minimized</td></tr>
+<tr><td>SDL_WINDOW_MAXIMIZED</td><td>window is maximized</td></tr>
+<tr><td>SDL_WINDOW_INPUT_GRABBED</td><td>window has grabbed input focus</td></tr>
+<tr><td>SDL_WINDOW_ALLOW_HIGHDPI</td><td>window should be created in high-DPI mode if supported (>= SDL 2.0.1)</td></tr>
+</table>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_DestroyWindow.html">SDL_DestroyWindow</a></li></ul>
+</div>
+</BODY>
+</HTML>

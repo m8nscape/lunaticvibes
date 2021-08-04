@@ -1,0 +1,32 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_HasEvents</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_HasEvents</h1>
+<p>Use this function to check for the existence of a range of event types in the event queue.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_bool SDL_HasEvents(Uint32 minType,
+                       Uint32 maxType)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>minType</strong></td><td>the minimum type of event to be queried; see <a href="SDL_EventType.html">SDL_EventType</a> for details</td></tr>
+<tr><td><strong>maxType</strong></td><td>the maximum type of event to be queried; see <a href="SDL_EventType.html">SDL_EventType</a> for details</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns SDL_TRUE if events with types in the range between <strong>minType</strong> and <strong>maxType</strong> are present, or SDL_FALSE if not.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>If you need to check for a single event type, you can use <a href="SDL_HasEvent.html">SDL_HasEvent</a>() instead.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_HasEvent.html">SDL_HasEvent</a></li></ul>
+</div>
+</BODY>
+</HTML>

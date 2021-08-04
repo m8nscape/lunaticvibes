@@ -1,0 +1,55 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_PeepEvents</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_PeepEvents</h1>
+<p>Use this function to check the event queue for messages and optionally return them.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_PeepEvents(SDL_Event*      events,
+                   int             numevents,
+                   SDL_eventaction action,
+                   Uint32          minType,
+                   Uint32          maxType)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>events</strong></td><td>Destination buffer for the retrieved events.</td></tr>
+<tr><td><strong>numevents</strong></td><td>If action is SDL_ADDEVENT, the number of events to add back to the event queue. If action is SDL_PEEKEVENT or SDL_GETEVENT, the maximum number of events to retrieve.</td></tr>
+<tr><td><strong>action</strong></td><td>Action to take; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td><strong>minType</strong></td><td>Minimum value of the event type to be considered. SDL_FIRSTEVENT is a safe choice.</td></tr>
+<tr><td><strong>maxType</strong></td><td>Maximum value of the event type to be considered. SDL_LASTEVENT is a safe choice.</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns the number of events actually stored or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<p><strong>action</strong> may be any of the following <span style="color:green; ">(from enum SDL_eventaction which has no page)</span>
+<p>:
+<table>
+<tr><td>SDL_ADDEVENT</td><td>up to <strong>numevents</strong> events will be added to the back of the event queue
+<tr><td>SDL_PEEKEVENT</td><td>up to <strong>numevents</strong> events at the front of the event queue, within the specified minimum and maximum type, will be returned and will not be removed from the queue
+<tr><td>SDL_GETEVENT</td><td>up to <strong>numevents</strong> events at the front of the event queue, within the specified minimum and maximum type, will be returned and will be removed from the queue
+</table>
+<span style="color:green; ">The below is taken directly from the header. The info has been transferred to the table above as an optional way of being presented. Which should be kept?</span>
+<p>If <strong>action</strong> is SDL_ADDEVENT, up to <strong>numevents</strong> events will be added to the back of the event queue.
+<p>If <strong>action</strong> is SDL_PEEKEVENT, up to <strong>numevents</strong> events at the front of the event queue, within the specified minimum and maximum type, will be returned and will not be removed from the queue.
+<p>If <strong>action</strong> is SDL_GETEVENT, up to <strong>numevents</strong> events at the front of the event queue, within the specified minimum and maximum type, will be returned and will be removed from the queue.
+<p><img height="16" width="16" title="{i}" src="icon-info.png" alt="{i}"></img> This function is thread-safe.
+<p>*
+<span style="color:green; ">Is the following true in 2.0?</span>
+<p>You may have to call <a href="SDL_PumpEvents.html">SDL_PumpEvents</a>() before calling this function. Otherwise, the events may not be ready to be filtered when you call <a href="SDL_PeepEvents.html">SDL_PeepEvents</a>().
+<p>*
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_PollEvent.html">SDL_PollEvent</a> *</li>
+<li><a href="SDL_PumpEvents.html">SDL_PumpEvents</a> *</li>
+<li><a href="SDL_PushEvent.html">SDL_PushEvent</a> *</li></ul>
+</div>
+</BODY>
+</HTML>

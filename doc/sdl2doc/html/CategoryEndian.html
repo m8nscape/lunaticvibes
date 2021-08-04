@@ -1,0 +1,45 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>Byte Order and Byte Swapping</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>Byte Order and Byte Swapping</h1>
+<h2>Introduction</h2>
+<p>This category contains functions for handling endian-specific values.
+<p>Endianness comes in two forms - big and little.
+<ul><li>SDL_LIL_ENDIAN means byte order is 1234, where the smaller (little) numbered position comes first</li>
+<li>SDL_BIG_ENDIAN means byte order is 4321, where the larger (big) numbered position comes first
+<p><em>Example:</em> Imagine the hexadecimal sequence in byte form of <tt style="backtick">DE AD BE EF</tt>
+    <ul><li style="list-style-type:none">When the bytes are read as a little-endian value, the bytes are read lowest byte first, producing the value:
+      <ul><li style="list-style-type:none"><tt style="backtick">0xEFBEADDE</tt></li></ul>
+        <li style="list-style-type:none">When the bytes are read as a big-endian value, the bytes are read highest byte first, producing the value:
+       <ul><li style="list-style-type:none"><tt style="backtick">0xDEADBEEF</tt></li></ul> 
+       </li>
+     </ul>
+</li></ul>       
+<p>SDL_BYTEORDER is a macro that corresponds to the byte order used by the processor type it was compiled for.
+<ul><li>SDL_BYTEORDER is SDL_LIL_ENDIAN for x86, x64, and similar systems that use the little endian byte order.</li>
+<li>SDL_BYTEORDER is SDL_BIG_ENDIAN for PowerPC and similar systems that use the big endian byte order.</li>
+</ul>
+<h2>Functions</h2>
+<ol start="1">
+<li><a href="SDL_Swap16.html">SDL_Swap16</a></li>
+<li><a href="SDL_Swap32.html">SDL_Swap32</a></li>
+<li><a href="SDL_Swap64.html">SDL_Swap64</a></li>
+<li><a href="SDL_SwapBE16.html">SDL_SwapBE16</a></li>
+<li><a href="SDL_SwapBE32.html">SDL_SwapBE32</a></li>
+<li><a href="SDL_SwapBE64.html">SDL_SwapBE64</a></li>
+<li><a href="SDL_SwapFloat.html">SDL_SwapFloat</a></li>
+<li><a href="SDL_SwapFloatBE.html">SDL_SwapFloatBE</a></li>
+<li><a href="SDL_SwapFloatLE.html">SDL_SwapFloatLE</a></li>
+<li><a href="SDL_SwapLE16.html">SDL_SwapLE16</a></li>
+<li><a href="SDL_SwapLE32.html">SDL_SwapLE32</a></li>
+<li><a href="SDL_SwapLE64.html">SDL_SwapLE64</a></li>
+</ol>
+</div>
+</BODY>
+</HTML>

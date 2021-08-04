@@ -1,0 +1,33 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_PowerState</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_PowerState</h1>
+<p>An enumeration of the basic state of the system's power supply.
+<h2>Values</h2>
+<table>
+<tr><td>SDL_POWERSTATE_UNKNOWN</td><td>cannot determine power status</td></tr>
+<tr><td>SDL_POWERSTATE_ON_BATTERY</td><td>not plugged in, running on the battery</td></tr>
+<tr><td>SDL_POWERSTATE_NO_BATTERY</td><td>plugged in, no battery available</td></tr>
+<tr><td>SDL_POWERSTATE_CHARGING</td><td>plugged in, charging battery</td></tr>
+<tr><td>SDL_POWERSTATE_CHARGED</td><td>plugged in, battery charged</td></tr>
+</table>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+if (SDL_GetPowerInfo(NULL, NULL) == SDL_POWERSTATE_ON_BATTERY) {
+    printf("You should plug in your laptop before running this update.\n");
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>Not all machines can have batteries at all, and not all platforms can report battery status. Those that do can still having minor moments of confusion about the state of the battery. As such, you should always be prepared to get an otherwise-unexpected SDL_POWERSTATE_UNKNOWN from <a href="SDL_GetPowerInfo.html">SDL_GetPowerInfo</a>(). Also, batteries are fickle hardware: reported status can flicker between two states for no obvious reason on occasion.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetPowerInfo.html">SDL_GetPowerInfo</a></li></ul>
+</div>
+</BODY>
+</HTML>

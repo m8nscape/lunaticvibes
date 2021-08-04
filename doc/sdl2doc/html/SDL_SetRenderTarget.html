@@ -1,0 +1,32 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_SetRenderTarget</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_SetRenderTarget</h1>
+<p>Use this function to set a texture as the current rendering target.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_SetRenderTarget(SDL_Renderer *renderer,
+                        SDL_Texture  *texture)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>renderer</strong></td><td>the rendering context
+<tr><td><strong>texture</strong></td><td>the targeted texture, which must be created with the SDL_TEXTUREACCESS_TARGET flag, or NULL for the default render target
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>Before using this function, you should check the SDL_RENDERER_TARGETTEXTURE bit in the flags of <a href="structures/SDL_RendererInfo.html">SDL_RendererInfo</a> to see if render targets are supported.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_RenderCopy.html">SDL_RenderCopy</a></li></ul>
+</div>
+</BODY>
+</HTML>

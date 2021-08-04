@@ -1,0 +1,46 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_SysWMmsg</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_SysWMmsg</h1>
+<p>A structure that contains system-dependent window manager messages.
+<h2>Data Fields</h2>
+<table>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>All Subsystems</em></td></tr>
+<tr><td><a href="../SDL_version.html">SDL_version</a></td><td><strong>version</strong></td><td>an <a href="../SDL_version.html">SDL_version</a> structure that contains the current <a href="../SDL version.html">SDL version</a></td></tr>
+<tr><td><a href="../SDL_SYSWM_TYPE.html">SDL_SYSWM_TYPE</a></td><td><strong>subsystem</strong></td><td>the windowing system type; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr style="color: #808080;"><td>int</td><td><strong>dummy</strong></td><td>unused (to help compilers when no specific system is available)</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>SDL_SYSWM_WINDOWS</em></td></tr>
+<tr><td>HWND</td><td><strong>win.hwnd</strong></td><td>the window for the message</td></tr>
+<tr><td>UINT</td><td><strong>win.msg</strong></td><td>the type of message</td></tr>
+<tr><td>WPARAM</td><td><strong>win.wParam</strong></td><td>WORD message parameter</td></tr>
+<tr><td>LPARAM</td><td><strong>win.lParam</strong></td><td>LONG message parameter</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>SDL_SYSWM_X11</em></td></tr>
+<tr><td>XEvent</td><td><strong>x11.event</strong></td><td>the native x11 event structure</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>SDL_SYSWM_DIRECTFB</em></td></tr>
+<tr><td>DFBEvent</td><td><strong>dfb.event</strong></td><td>the DirectFB event</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<p><strong>subsystem</strong> may be one of the following:
+<table>
+<tr><td>SDL_SYSWM_UNKNOWN</td><td>&nbsp;</td></tr>
+<tr><td>SDL_SYSWM_WINDOWS</td><td>Microsoft Windows</td></tr>
+<tr><td>SDL_SYSWM_X11</td><td>X Window System</td></tr>
+<tr><td>SDL_SYSWM_DIRECTFB</td><td><a class="http" href="http://www.directfb.org">DirectFB</a></td></tr>
+<tr><td>SDL_SYSWM_COCOA</td><td>Apple Mac OS X</td></tr>
+<tr><td>SDL_SYSWM_UIKIT</td><td>Apple iOS</td></tr>
+</table>
+<p>There are currently no Cocoa or UIKit window events.
+<h2>Related Enumerations</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_SYSWM_TYPE.html">SDL_SYSWM_TYPE</a></li></ul>
+<h2>Related Structures</h2>
+<ul style="list-style-type:none"><li><a href="SDL_version.html">SDL_version</a></li></ul>
+</div>
+</BODY>
+</HTML>

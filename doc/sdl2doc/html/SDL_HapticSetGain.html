@@ -1,0 +1,33 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_HapticSetGain</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_HapticSetGain</h1>
+<p>Use this function to set the global gain of the specified haptic device.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_HapticSetGain(SDL_Haptic* haptic,
+                      int         gain)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>haptic</strong></td><td>the SDL_Haptic device to set the gain on</td></tr>
+<tr><td><strong>gain</strong></td><td>value to set the gain to, should be between 0 and 100 (0 - 100)</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>Device must support the SDL_HAPTIC_GAIN feature.
+<p>The user may specify the maximum gain by setting the environment variable SDL_HAPTIC_GAIN_MAX which should be between 0 and 100. All calls to <a href="SDL_HapticSetGain.html">SDL_HapticSetGain</a>() will scale linearly using SDL_HAPTIC_GAIN_MAX as the maximum.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_HapticQuery.html">SDL_HapticQuery</a></li></ul>
+</div>
+</BODY>
+</HTML>

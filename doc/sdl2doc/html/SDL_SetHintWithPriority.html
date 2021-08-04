@@ -1,0 +1,35 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_SetHintWithPriority</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_SetHintWithPriority</h1>
+<p>Use this function to set a hint with a specific priority.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_bool SDL_SetHintWithPriority(const char*      name,
+                                 const char*      value,
+                                 SDL_HintPriority priority)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>name</strong></td><td>the hint to set; see the list of hints on <a href="CategoryHints.html">CategoryHints</a> for details
+<tr><td><strong>value</strong></td><td>the value of the hint variable
+<tr><td><strong>priority</strong></td><td>the <A href="SDL_HintPriority.html">SDL_HintPriority</a> level for the hint
+</table>
+<h2>Return Value</h2>
+<p>Returns SDL_TRUE if the hint was set, SDL_FALSE otherwise.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>The priority controls the behavior when setting a hint that already has a value. Hints will replace existing hints of their priority and lower. Environment variables are considered to have override priority.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetHint.html">SDL_GetHint</a></li>
+<li><a href="SDL_SetHint.html">SDL_SetHint</a></li></ul>
+</div>
+</BODY>
+</HTML>

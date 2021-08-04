@@ -1,0 +1,49 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_LockAudio</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_LockAudio</h1>
+<p>This function is a legacy means of locking the audio device. New programs might want to use <a href="SDL_LockAudioDevice.html">SDL_LockAudioDevice</a>() instead.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_LockAudio(void)
+</pre></div>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+void myAudioCallback(void *userdata, Uint8* stream, int len)
+{
+    printf("The audio callback is running!\n");
+    SDL_memset(stream, 0, len);  // just silence.
+    printf("The audio callback is done!\n");
+}
+
+// don't lock for 2 seconds at a time in real life, please.
+SDL_Delay(2000);  // callback runs for 2 seconds.
+SDL_LockAudio();
+printf("The audio callback can't be running right now!\n");
+SDL_Delay(2000);  // callback doesn't run for 2 seconds.
+printf("Ok, unlocking!\n");
+SDL_UnlockAudio();
+SDL_Delay(2000);  // callback runs for 2 seconds.
+</pre></div>
+<h2>Remarks</h2>
+<p>This function is equivalent to calling
+<div style=codearea>
+<pre>
+SDL_LockAudioDevice(1);
+</pre></div>
+<p>and is only useful if you used the legacy <a href="SDL_OpenAudio.html">SDL_OpenAudio</a>() function.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_LockAudioDevice.html">SDL_LockAudioDevice</a></li>
+<li><a href="SDL_UnlockAudio.html">SDL_UnlockAudio</a></li>
+<li><a href="SDL_UnlockAudioDevice.html">SDL_UnlockAudioDevice</a></li></ul>
+</div>
+</BODY>
+</HTML>

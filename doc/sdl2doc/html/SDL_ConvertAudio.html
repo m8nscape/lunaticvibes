@@ -1,0 +1,45 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_ConvertAudio</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_ConvertAudio</h1>
+<p>Use this function to convert audio data to a desired audio format.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_ConvertAudio(SDL_AudioCVT* cvt)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>cvt</strong></td><td>an <a href="SDL_AudioCVT.html">SDL_AudioCVT</a> structure that was previously set up; see <a href="#Remarks">Remarks</a> for details</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 if the conversion was completed successfully or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+// Change 1024 stereo sample frames at 48000Hz from Float32 to Int16.
+SDL_AudioCVT cvt;
+SDL_BuildAudioCVT(&cvt, AUDIO_F32, 2, 48000, AUDIO_S16, 2, 48000);
+SDL_assert(cvt.needed); // obviously, this one is always needed.
+cvt.len = 1024 * 2 * 4;  // 1024 stereo float32 sample frames.
+cvt.buf = (Uint8 *) SDL_malloc(cvt.len * cvt.len_mult);
+// read your float32 data into cvt.buf here.
+SDL_ConvertAudio(&cvt);
+// cvt.buf has cvt.len_cvt bytes of converted data now.
+</pre></div>
+<h2 id="Remarks">Remarks</h2>
+<p>This function does the actual audio data conversion, after the application has called <a href="SDL_BuildAudioCVT.html">SDL_BuildAudioCVT</a>() to prepare the conversion information and then filled in the buffer details.
+<p>Once the application has initialized the <strong>cvt</strong> structure using <a href="SDL_BuildAudioCVT.html">SDL_BuildAudioCVT</a>(), allocated an audio buffer and filled it with audio data in the source format, this function will convert the buffer, in-place, to the desired format.
+<p>The data conversion may go through several passes; any given pass may possibly temporarily increase the size of the data. For example, SDL might expand 16-bit data to 32 bits before resampling to a lower frequency, shrinking the data size after having grown it briefly. Since the supplied buffer will be both the source and destination, converting as necessary in-place, the application must allocate a buffer that will fully contain the data during its largest conversion pass. After <a href="SDL_BuildAudioCVT.html">SDL_BuildAudioCVT</a>() returns, the application should set the the <strong>cvt</strong> structure's <strong>len</strong> field to the size, in bytes, of the source data, and allocate a buffer that is <strong>len</strong> * <strong>len_mult</strong> bytes long for the <strong>buf</strong> field.
+<p>The source data should be copied into this buffer before the call to <a href="SDL_ConvertAudio.html">SDL_ConvertAudio</a>(). Upon successful return, this buffer will contain the converted audio, and the <strong>cvt</strong> structure's <strong>len_cvt</strong> field will be the size of the converted data, in bytes. Any bytes in the buffer past <strong>len_cvt</strong> are undefined once this function returns.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_BuildAudioCVT.html">SDL_BuildAudioCVT</a></li></ul>
+</div>
+</BODY>
+</HTML>

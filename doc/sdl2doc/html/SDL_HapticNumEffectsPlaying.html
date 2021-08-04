@@ -1,0 +1,31 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_HapticNumEffectsPlaying</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_HapticNumEffectsPlaying</h1>
+<p>Use this function to return the number of effects a haptic device can play at the same time.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_HapticNumEffectsPlaying(SDL_Haptic* haptic)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>haptic</strong></td><td>the SDL_Haptic device to query maximum playing effects</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns the number of effects the haptic device can play at the same time or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information. <span style="color:green; ">Should there be a link to Remarks here?</span>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>This is not supported on all platforms, but will always return a value. This function is available/included Added here for the sake of completeness. <span style="color:green; ">Is it important to note what the value would be if it is not supported? Would it just be 1 or 0?</span>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_HapticNumEffects.html">SDL_HapticNumEffects</a></li>
+<li><a href="SDL_HapticQuery.html">SDL_HapticQuery</a></li></ul>
+</div>
+</BODY>
+</HTML>

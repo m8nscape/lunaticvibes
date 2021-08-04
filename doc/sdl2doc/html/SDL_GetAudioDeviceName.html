@@ -1,0 +1,41 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetAudioDeviceName</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetAudioDeviceName</h1>
+<p>Use this function to get the name of a specific audio device.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+const char* SDL_GetAudioDeviceName(int index,
+                                   int iscapture)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>index</strong></td><td>the index of the audio device; the value ranges from 0 to 1 - <a href="SDL_GetNumAudioDevices.html">SDL_GetNumAudioDevices</a>()</td></tr>
+<tr><td><strong>iscapture</strong></td><td>non-zero to specify a device that has recording capability</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns the name of the audio device at the requested index, or NULL on error.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+int i, count = SDL_GetNumAudioDevices(0);
+
+for ( i = 0; i < count; ++i ) {
+    printf("Audio device %d: %s\n", i, SDL_GetAudioDeviceName(i, 0));
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>This function is only valid after successfully initializing the audio subsystem. The values returned by this function reflect the latest call to <a href="SDL_GetNumAudioDevices.html">SDL_GetNumAudioDevices</a>(); re-call that function to re-detect available hardware.
+<p>The string returned by this function is UTF-8 encoded, read-only, and managed internally. You are not to free it. If you need to keep the string for any length of time, you should make your own copy of it, as it will be invalid next time any of several other SDL functions is called.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetNumAudioDevices.html">SDL_GetNumAudioDevices</a></li></ul>
+</div>
+</BODY>
+</HTML>

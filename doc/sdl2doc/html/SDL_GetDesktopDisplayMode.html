@@ -1,0 +1,34 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetDesktopDisplayMode</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetDesktopDisplayMode</h1>
+<p>Use this function to get information about the desktop display mode.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_GetDesktopDisplayMode(int              displayIndex,
+                              SDL_DisplayMode* mode)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>displayIndex</strong></td><td>the index of the display to query</td></tr>
+<tr><td><strong>mode</strong></td><td>an <a href="SDL_DisplayMode.html">SDL_DisplayMode</a> structure filled in with the current display mode</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>There's a difference between this function and <a href="SDL_GetCurrentDisplayMode.html">SDL_GetCurrentDisplayMode</a> when SDL runs fullscreen and has changed the resolution. In that case this function will return the previous native display mode, and not the current display mode.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetCurrentDisplayMode.html">SDL_GetCurrentDisplayMode</a></li>
+<li><a href="SDL_GetDisplayMode.html">SDL_GetDisplayMode</a></li>
+<li><a href="SDL_SetWindowDisplayMode.html">SDL_SetWindowDisplayMode</a></li></ul>
+</div>
+</BODY>
+</HTML>

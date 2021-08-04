@@ -1,0 +1,32 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_SetThreadPriority</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_SetThreadPriority</h1>
+<p>Use this function to set the priority for the current thread.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_SetThreadPriority(SDL_ThreadPriority priority)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>priority</strong></td><td>the <A href="SDL_ThreadPriority.html">SDL_ThreadPriority</a> to set; see <a href="#Remarks">Remarks</a> for details</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<p><strong>priority</strong> may be one of the following:
+<table>
+<tr><td>SDL_THREAD_PRIORITY_LOW</td><td>for non-urgent, background processing</td></tr>
+<tr><td>SDL_THREAD_PRIORITY_NORMAL</td><td>for general purpose processing (default)</td></tr>
+<tr><td>SDL_THREAD_PRIORITY_HIGH</td><td>for timing-critical processing</td></tr>
+</div>
+</BODY>
+</HTML>

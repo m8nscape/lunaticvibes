@@ -1,0 +1,65 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_InitSubSystem</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_InitSubSystem</h1>
+<p>Use this function to initialize specific SDL subsystems.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_InitSubSystem(Uint32 flags)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>flags</strong></td><td>any of the flags used by <a href="SDL_Init.html">SDL_Init</a>(); see <a href="#Remarks">Remarks</a> for details</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+/* Separating Joystick and Video initialization. */
+SDL_Init(SDL_INIT_VIDEO);
+
+SDL_Window* window = SDL_CreateWindow("A Window", 
+    SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480,
+    SDL_WINDOW_FULLSCREEN);
+SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
+
+/* Do Some Video stuff */
+
+/* Initialize the joystick subsystem */
+SDL_InitSubSystem(SDL_INIT_JOYSTICK);
+
+/* Do some stuff with video and joystick */
+
+/* Shut them both down */
+SDL_Quit();
+</pre></div>
+<h2 id="Remarks">Remarks</h2>
+<p>After SDL has been initialized with <a href="SDL_Init.html">SDL_Init</a>() you may initialize uninitialized subsystems with <a href="SDL_InitSubSystem.html">SDL_InitSubSystem</a>().
+<p>These are the flags which may be passed to <a href="SDL_InitSubSystem.html">SDL_InitSubSystem</a>() and may be OR'd together to initialize multiple subsystems simultaneously.
+<table>
+<tr><td><strong>SDL_INIT_TIMER</strong></td><td>timer subsystem</td></tr>
+<tr><td><strong>SDL_INIT_AUDIO</strong></td><td>audio subsystem</td></tr>
+<tr><td><strong>SDL_INIT_VIDEO</strong></td><td>video subsystem</td></tr>
+<tr><td><strong>SDL_INIT_JOYSTICK</strong></td><td>joystick subsystem</td></tr>
+<tr><td><strong>SDL_INIT_HAPTIC</strong></td><td>haptic (force feedback) subsystem</td></tr>
+<tr><td><strong>SDL_INIT_GAMECONTROLLER</strong></td><td>controller subsystem</td></tr>
+<tr><td><strong>SDL_INIT_EVENTS</strong></td><td>events subsystem</td></tr>
+<tr><td><strong>SDL_INIT_EVERYTHING</strong></td><td>all of the above subsystems</td></tr>
+<tr><td><strong>SDL_INIT_NOPARACHUTE</strong></td><td>don't catch fatal signals</td></tr>
+</table>
+<p><a href="SDL_Init">SDL_Init</a>() initializes assertions and crash protection and then calls <a href="SDL_InitSubSystem.html">SDL_InitSubSystem</a>(). If you want to bypass those protections you can call <a href="SDL_InitSubSystem.html">SDL_InitSubSystem</a>() directly.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_Init.html">SDL_Init</a></li>
+<li><a href="SDL_Quit.html">SDL_Quit</a></li>
+<li><a href="SDL_QuitSubSystem.html">SDL_QuitSubSystem</a></li></ul>
+</div>
+</BODY>
+</HTML>

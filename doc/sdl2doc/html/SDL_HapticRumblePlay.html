@@ -1,0 +1,35 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_HapticRumblePlay</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_HapticRumblePlay</h1>
+<p>Use this function to run a simple rumble effect on a haptic device.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_HapticRumblePlay(SDL_Haptic* haptic,
+                         float       strength,
+                         Uint32      length)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>haptic</strong></td><td>the haptic device to play the rumble effect on</td></tr>
+<tr><td><strong>strength</strong></td><td>strength of the rumble to play as a 0-1 float value</td></tr>
+<tr><td><strong>length</strong></td><td>length of the rumble to play in milliseconds</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_HapticRumbleInit.html">SDL_HapticRumbleInit</a></li>
+<li><a href="SDL_HapticRumbleStop.html">SDL_HapticRumbleStop</a></li>
+<li><a href="SDL_apticRumbleSupported.html">SDL_apticRumbleSupported</a></li></ul>
+</div>
+</BODY>
+</HTML>

@@ -1,0 +1,34 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_TextEditingEvent</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_TextEditingEvent</h1>
+<p>A structure that contains keyboard text editing event information.
+<h2>Data Fields</h2>
+<table>
+<tr><td>Uint32</td><td><strong>type</strong></td><td>SDL_TEXTEDITING</td></tr>
+<tr><td>Uint32</td><td><strong>timestamp</strong></td><td>timestamp of the event</td></tr>
+<tr><td>Uint32</td><td><strong>windowID</strong></td><td>the window with keyboard focus, if any</td></tr>
+<tr><td>char</td><td><strong>text</strong></td><td>the editing text</td></tr>
+<tr><td>Sint32</td><td><strong>start</strong></td><td>the location to begin editing from</td></tr>
+<tr><td>Sint32</td><td><strong>length</strong></td><td>the number of characters to edit from the start point</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p><a href="../SDL_TextEditingEvent.html">SDL_TextEditingEvent</a> is a member of the <a href="../SDL_Event">SDL_Event</a> union and is used when an event of type SDL_TEXTEDITING is reported. You would access it through the event's <tt style="backtick">edit</tt> field.
+<h2>Related Enumerations</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_EventType.html">SDL_EventType</a></li></ul>
+<h2>Related Structures</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_Event.html">SDL_Event</a></li>
+<li><a href="../SDL_TextInputEvent.html">SDL_TextInputEvent</a></li></ul>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_StartTextInput.html">SDL_StartTextInput</a></li>
+<li><a href="../SDL_StopTextInput.html">SDL_StopTextInput</a></li></ul>
+</div>
+</BODY>
+</HTML>

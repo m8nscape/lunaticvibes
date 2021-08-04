@@ -1,0 +1,70 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_RenderClear</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_RenderClear</h1>
+<p>Use this function to clear the current rendering target with the drawing color.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_RenderClear(SDL_Renderer* renderer)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>renderer</strong></td><td>the rendering context</td></tr>
+<table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+#include "SDL.h"
+
+int main(int argc, char* argv[])
+{
+        SDL_Window* window;
+        SDL_Renderer* renderer;
+
+        // Initialize SDL.
+        if (SDL_Init(SDL_INIT_VIDEO) < 0)
+                return 1;
+
+        // Create the window where we will draw.
+        window = SDL_CreateWindow("SDL_RenderClear",
+                        SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                        512, 512,
+                        0);
+
+        // We must call SDL_CreateRenderer in order for draw calls to affect this window.
+        renderer = SDL_CreateRenderer(window, -1, 0);
+
+        // Select the color for drawing. It is set to red here.
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+
+        // Clear the entire screen to our selected color.
+        SDL_RenderClear(renderer);
+
+        // Up until now everything was drawn behind the scenes.
+        // This will show the new, red contents of the window.
+        SDL_RenderPresent(renderer);
+
+        // Give us time to see the window.
+        SDL_Delay(5000);
+
+        // Always be sure to clean up
+        SDL_Quit();
+        return 0;
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>This function clears the entire rendering target, ignoring the viewport.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_SetRenderDrawColor.html">SDL_SetRenderDrawColor</a></li></ul>
+</div>
+</BODY>
+</HTML>

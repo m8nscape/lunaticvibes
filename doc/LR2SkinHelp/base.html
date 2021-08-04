@@ -1,0 +1,543 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+    <meta content="text/html; charset=Shift_JIS" http-equiv="content-type">
+    <title>基本定義</title>
+    <meta name="author" content=".RED">
+    <meta name="GENERATOR" content="MSHTML 8.00.6001.23520">
+    <meta name="ROBOTS" content="NOINDEX,NOFOLLOW">
+    <style type="text/css">
+        body,
+        textarea,
+        td {
+            font-size: 12px
+        }
+        
+        div {
+            margin-left: 10px;
+            padding-bottom: 30px;
+        }
+        
+        div > p,
+        div > table {
+            margin-left: 20px;
+        }
+        
+        h4 {
+            margin-top: 3em;
+            margin-left: 10px;
+        }
+        
+        #important h4 {
+            margin-top: 1em;
+        }
+        
+        iframe {
+            padding: 0px;
+            width: 100%;
+            border: none;
+        }
+        
+        td.iframe {
+            padding: 0px !important;
+        }
+        
+        iframe[src="dst.html"] {
+            border-top: solid 1px #c0c0c0 !important;
+        }
+        
+        .template {
+            width: 1000px
+        }
+        
+        h3 {
+            margin-top: 4em;
+            width: 96%;
+            width: calc(100% - 14px);
+            background: -moz-linear-gradient(white, #E0E0E0);
+            background: -webkit-gradient(linear, left top, left bottom, from(white), to(#E0E0E0));
+            background: -ms-linear-gradient(top, white, #E0E0E0);
+            -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#cFFF', endColorstr='#E0E0E0', GradientType=0)";
+            padding: 6px;
+            border: solid 1px #999;
+            border-radius: 3px;
+        }
+        
+        h3:before {
+            width: 5px;
+            display: inline-block;
+            background: #666;
+            content: "　";
+            margin-right: 5px;
+            padding: 2px;
+        }
+        
+        .caution {
+            padding-left: 1em;
+            text-indent: -1em;
+        }
+        
+        ul.link li,
+        ul.index li {
+            display: inline-block;
+            font-size: 12px;
+        }
+        
+        ul.link,
+        ul.index {
+            margin-left: -20px;
+            font-size: 0px;
+        }
+        
+        ul.link li:nth-of-type(n+2) {
+            margin-right: 10px;
+        }
+        
+        ul.index li {
+            margin: 0px 10px 10px 0px;
+        }
+        
+        td {
+            vertical-align: top;
+            padding: 3px;
+        }
+        
+        div#important {
+            margin-left: 30px;
+            padding: 0px 10px;
+            background: #F5F5F5;
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>LR2スキンcsvにおける基本形</h1>
+    <div id="content">
+        <p>スキンcsvのパーツを描画する各定義は一部の例外を除いて</p>
+        <ol>
+            <li>#IMAGEで定義したファイルから</li>
+            <li>#SRC_XX定義で特定範囲を切り出し、</li>
+            <li>#DST_XX定義でLR2の画面内に貼り付けます。</li>
+        </ol>
+        <p>この時の#SRC_XXと#DST_XXは同種の定義のセットでないと正常に動作しません。
+        </p>
+        <p>
+            行間を空けてその間に他の定義を記述する事も可能ですが、
+            <br> 例えば#SRC_IMAGEで切り出した画像はその直後に宣言された#DST_IMAGE定義でのみ使用できます。
+        </p>
+        <p>LR2スキン定義はいくつかありますが、ここでは最も利用頻度が高い#SRC_IMAGEと#DST_IMAGE、
+            <br> そしてこれらの定義でファイルを取り扱えるように#IMAGE定義を解説します。
+        </p>
+        <p>#SRC_IMAGE定義は他のSRC定義と共通部分も多く、
+            <br> DST定義に至っては全て統一されているのできっちり理解しておくと後々楽です。
+        </p>
+        <p class="caution">※「/」から始まる行は全てコメント行です。また、行の途中でも「/」があるとそれ以降の値は読み込まれません。
+            <br>読み込み高速化のためにコメントを削るスキンも増えてますが正直そこまで早くならないので残しておいた方が後々の為だと思います。</p>
+        <ul class="index">
+            <li><a href="base.html#image">#IMAGE</a></li>
+            <li><a href="base.html#src_image">#SRC_IMAGE</a></li>
+            <li><a href="base.html#dst_image">#DST_IMAGE</a></li>
+            <li><a href="base.html#quick">パラメータ早見表</a></li>
+            <li><a href="base.html#animation">アニメーションサンプル</a></li>
+        </ul>
+        <h3><a name="image">#IMAGE</a></h3>
+        <p>#IMAGEはそのスキンで参照する画像・動画ファイルを指定する定義です。100個まで記述することが出来ます。
+            <br> 記述した順に0、1、2…と本体側から自動的に番号が割り当てられ、
+            <br> この番号をスキン定義のgr値で指定することで、その定義で使う画像ファイルを決定します。</p>
+        <p>実際にスキン定義で使用するのはこのgr値なので、どのファイルを何番目に記述したかは常に把握しておきましょう。
+            <br> 仕様上、割り当てられたgr値は実際に定義を組まないと確認出来ないので、
+            <br> #IMAGEを作成する際には下の画像のようにコメントとしてgr値を書き込むことをお勧めします。
+        </p>
+        <p>せっかくなので解説に使う画像を全部分けました。</p>
+        <p><img alt="image_teigi.png" src="image_teigi.png" border="0" height="129" width="257"></p>
+            <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+                <tbody>
+                    <tr align="center" valign="center">
+                        <td align="center" valign="middle"><img alt="image.png" src="image.png" border="0" height="56" width="97"></td>
+                        <td align="center" valign="middle"><img alt="number.png" src="number.png" border="0" height="56" width="165"></td>
+                        <td align="center" valign="middle"><img alt="slider.png" src="slider.png" border="0" height="56" width="51"></td>
+                        <td align="center" valign="middle"><img alt="bargraph.png" src="bargraph.png" border="0" height="56" width="70"></td>
+                        <td align="center" valign="middle"><img alt="button.png" src="button.png" border="0" height="62" width="67"></td>
+                        <td align="center" valign="middle"><img alt="onmouse.png" src="onmouse.png" border="0" height="56" width="60"></td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="middle">image.png</td>
+                        <td align="center" valign="middle">number.png</td>
+                        <td align="center" valign="middle">slider.png</td>
+                        <td align="center" valign="middle">bargraph.png</td>
+                        <td align="center" valign="middle">button.png</td>
+                        <td align="center" valign="middle">onmouse.png</td>
+                    </tr>
+                </tbody>
+            </table>
+        <p>これでこのスキンではこれらの画像ファイルを使うことが出来るようになります。</p>
+        <div id="important">
+            <h4>gr値の参照例</h4>
+            <p>例えば#IMAGEで2番目に宣言した『number.png』を使用する定義のgr値は1、
+            <br><img alt="gr_sample1.gif" src="gr_sample1.gif" border="0" height="31" width="258"></p>
+            <p>#IMAGEで5番目に宣言した『button.png』を用する定義のgr値は4になります。
+            <br><img alt="gr_sample2.gif" src="gr_sample2.gif" border="0" height="31" width="258"></p>
+        </div>
+        <p class="caution">※実際にはLR2.exeからの相対パスを指定します。記述方法は既存のスキン参照。
+            <br> 実行ファイルからの相対パス指定はスキンで使うすべてのファイル共通ですが、
+            <br> lr2fontファイルに記述する画像ファイルのみ"lr2fontファイルからの"相対パス指定になります。
+            <br> また、一般的なスキンはLR2files/Themeフォルダを使いますが、配置場所に厳密な決まりはありません。
+        </p>
+        <p>ファイルの定義は一応これで完了です。</p>
+        <h4>※#IMAGEのCONTINUE宣言</h4>
+        <p>#IMAGEのファイルパスにCONTINUEと記述すると1つ前のシーンで動作していたスキンの"同じ画像番号の"ファイルを引き継いで読み込みます。</p>
+        <p><img alt="continue.png" src="continue.png" border="0" height="17" width="257"></p>
+        <p>再読み込みが行われないため、スキンの読み込み動作が高速化出来る、と思われがちですが
+            <br> 実際には直前のスキンで読み込んだパーツはCONTINUE宣言無しでも高速読み込みされるので高速化の観点からはあまり意味ありません。（安定性は多少上がります）
+            <br> むしろ特定のスキンとの連携が前提となってしまい、スキン単体での汎用性が落ちるので多用は避けましょう。
+        </p>
+        <p>関連リンク：<a href="application.html#oa_dx_link">リザルトでのプレイスキンとの連携によるクリアマーク更新分岐</a></p>
+        <h3><a name="src_image">#SRC_IMAGE</a></h3>
+        <p>まずはimage.pngから「TEST」の文字を切り出してみます。</p>
+        <p><img alt="teigi02.png" src="teigi02.png" border="0" height="33" width="897"></p>
+        <p>では各値を個別に。</p>
+            <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+                <tbody>
+                    <tr>
+                        <td align="center" valign="top">（NULL）</td>
+                        <td colspan="2" valign="top">のっけからちょっとややこしいんですが、ここは無視して構いません。
+                            <br> 定義によっては「index」となり、その場合にのみ所定の値を入力します。通常は0で。
+                            <br>
+                            <br> ※スキン種別固有の特殊定義におけるindex値は
+                            <a href="tokusyu.html">こちら</a>。</td>
+                        <td class="iframe" rowspan="7" valign="top">
+                            <iframe src="timer.html" name="timer" height="675"></iframe>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top">gr</td>
+                        <td colspan="2" valign="top">#IMAGEで定義した画像/動画の『この定義で使用するファイルの記述順番号』を指定します。
+                            <br>ここでは一番最初に登録したimage.pngを使うので0。
+                            <br>
+                            <br> [特殊gr番号]
+                            <br> 100：STAGEFILE
+                            <br> 101：BACKBMP
+                            <br> 102：BANNER
+                            <br> 105：スキンセレクト時のサムネ
+                            <br> 110：黒1ドット
+                            <br> 111：白1ドット
+                            <br>
+                            <br> ※試したことはありませんが、おそらく100個までしか使えないという事だと思います。
+                            <p>関連リンク：<a href="specification.html#course">コースモードでは使えない機能</a></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top">xywh</td>
+                        <td valign="top">
+                            <p>SRC画像内の切り出し座標を指定します。指定範囲は右図参照。
+                                <br>
+                                <br> 画像編集ソフトで範囲選択すると
+                                <br> どこかに座標が出るはずなのでその値を入力します。
+                                <br>
+                                <br> whに-1を指定するとSRC画像全体を取得します。
+                                <br> 背景画像定義などで使うと用意する画像のサイズ指定が不要になります。
+                                <br> （用途が限定されていますがwのみ-1、hのみ-1指定も可能です）
+                            </p>
+                            <p>※xyでは負の値は使えません。
+                                <br> ※動画ファイルはwh共に強制的に-1扱いになります。（切り出し不可）
+                            </p>
+                        </td>
+                        <td valign="top">
+                            <p align="center"><img style="WIDTH: 247px; HEIGHT: 145px" alt="src_xywh.png" src="src_xywh.png" border="0" height="119" width="200"></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top">div_x div_y</td>
+                        <td colspan="2" valign="top">
+                            <p>画像パーツの横方向と縦方向の分割数を指定します。
+                                <br> div分割アニメーションやNUMBER定義、ボタン定義や一部の特殊定義で使います。
+                            </p>
+                            <p>例えばここでdiv_x=4にすると横に4分割され、T→E→S→Tの4コマアニメーションになります。
+                                <br> この時のDSTのwhは分割後の値を指定します。このパーツはアニメーションさせないのでdiv_x div_y共に1。</p>
+                            <p>関連リンク：<a href="specification.html#div">div_x・div_yパラメータ</a></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top">cycle</td>
+                        <td colspan="2" valign="top">div分割アニメーションの再生周期をms単位で指定します。1周に掛かる時間を決めるので再生速度がこれで決まります。
+                            <br> 上記の横4分割を例に取ると、cycle=2000で1文字500msずつ表示され、
+                            <br> 計2000msで1周し最初のTに戻って以降繰り返しとなります。ここでは0。
+                            <br>
+                            <br> ※div分割アニメーションは基本的に停止させることが出来ません。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top">timer</td>
+                        <td colspan="2" valign="top">div分割アニメーション（cycle値）の動作開始timerを指定します。利用可能なtimer値はスキン関連ドキュメント内timer.txt参照。
+                            <br>
+                            <br> ※リズムタイマー以外で使うことはあまりないと思います。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top">op1～3</td>
+                        <td colspan="2" valign="top">利用出来ません。（仕様書には「予約」と書いてあります。おそらく未実装）</td>
+                    </tr>
+                </tbody>
+            </table>
+        <p>これで「TEST」と描かれた画像を切り出して読み込んだ状態です。
+            <br> 画像の切り出しはこれで完了。
+        </p>
+        <h3><a name="dst_image">#DST_IMAGE</a></h3>
+        <p>続いて、LR2画面内への貼り付けです。</p>
+        <p><img alt="teigi03.png" src="teigi03.png" border="0" height="33" width="1304"></p>
+            <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0" height="1555">
+                <tbody>
+                    <tr>
+                        <td align="center" valign="top">（NULL）</td>
+                        <td colspan="2" valign="top">SRCと同じです。通常は0で。</td>
+                        <td class="iframe" rowspan="14">
+                            <iframe noresize="" src="timer.html" name="timer" height="50%"></iframe>
+                            <br>
+                            <iframe noresize="" src="dst.html" name="dst_option" height="50%"></iframe>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top">time</td>
+                        <td colspan="2" valign="top">
+                            <p>DST定義側のtimerで指定した条件を満たしてからの動作時間を指定します。単位はms。
+                                <br>例えばパーツを動かす場合には最初の時間とその時の座標、最後の時間とその時の座標を記述するためにDST行が2行必要になります。
+                                <br>割と簡単に捉えられがちですが、実はこれだけだとちょっと不十分なので詳しくはtimerの方で説明します。</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top">xywh</td>
+                        <td valign="top">
+                            <p>LR2画面内の貼り付け座標を指定します。指定範囲は右図参照。</p>
+                            <p>640x480の範囲に収めないと画面に表示されませんが、SRCと違ってxy値に負の値が使えます。
+                                <br> つまり画面外も指定可能です。画面の外からパーツが移動してくるアニメーションなどに使います。
+                                <br> また、wh値に負の値を使う事も可能ですが画像の上下・左右が反転するわけではありません。
+                                <br> （whに負の値を使った場合はxyの座標指定位置がパーツ左上から右下に変わるだけです）
+                                <br>
+                                <br> whの値にSRC側と違う値を指定した場合は本体側で自動的に拡大縮小されます。
+                                <br> （1pxミスった時とかだと気付きにくいです）
+                                <br>
+                                <br> この時の拡縮方法はニアレストネイバー固定になっており、
+                                <br> アンチエイリアス（ぼかし）が必要な場合はfilter値を使わなければなりません。
+                            </p>
+                        </td>
+                        <td valign="top">
+                            <p align="center"><img alt="dst_xywh.png" src="dst_xywh.png" border="0" width="100%" height="auto"></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top">acc</td>
+                        <td colspan="2" valign="top">後述するloop値の解説にあるようなDST定義のパラメータ変化に対する加速度を指定します。
+                            <br> あくまでも座標移動や透明度・色合い等のDST定義で指定出来るパラメータの時間的な変化に対する加速度指定であり、
+                            <br> 動画やdiv分割アニメーションの再生速度を指定する値ではありません。
+                            <br> （そもそもLR2では動画の再生/停止制御は出来ません。表示のON/OFFのみ）
+                            <br>
+                            <br> 0：等速
+                            <br> 1：加速
+                            <br> 2：減速
+                            <br> 3：不連続
+                            <br>
+                            <br> ※滅多に使いません。あと意外と癖が強いのでおそらく思い通りの挙動にはなりません。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top">a</td>
+                        <td colspan="2" valign="top">
+                            <p>パーツの透明度を指定します。（0～255）
+                                <br> ただし、この値でパーツの透明度を指定する場合にはblend値が0以外でなくてはなりません。
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top">rgb</td>
+                        <td colspan="2" valign="top">
+                            <p>パーツの色を指定します。（0～255）
+                                <br> rgb共に255でSRC画像と同じ色になりますが、そこから各rgb値を減らす事しか出来ないためSRC画像が黒の場合には値を変えても意味がありません。
+                                <br> 逆にSRC画像が白ならば何色でも出せます。色を変更しない場合は全て255。
+                                <br>
+                                <br> ※rgb値で色指定してしまうと、ユーザーが色を変更したい場合にcsv編集が必須になるので親切設計のスキンではあまり使われません。
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top">blend</td>
+                        <td colspan="2" valign="top">
+                            <p>画像編集ソフトで言うところの「レイヤーの合成モード」です。
+                                <br> a値で透明度を指定する場合にはblendを0以外にする必要があります。また、
+                                <a href="base.html#transcolor">透過色設定</a>で指定した色はblend=0でのみ透過されます。
+                                <br>
+                                <br> 0：無し
+                                <br> 1：アルファ
+                                <br> 2：加算描画
+                                <br> 3：減算描画
+                                <br> 4：乗算描画
+                                <br> 6：XOR
+                                <br> 9：描画先の色の反転値を掛ける
+                                <br> 10：反転描画
+                                <br> 11：αチャンネル考慮付乗算
+                            </p>
+                            <p>※フェードインやフェードアウトを使う場合はとりあえず「1」使っておけば失敗しにくいです。</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top">filter</td>
+                        <td colspan="2" valign="top">拡縮時のぼかしフィルタです。拡縮しない場合は画像がぼやけるだけです。割と重いらしいです。
+                            <br>
+                            <br> 0：無し
+                            <br> 1：有り
+                            <p>関連リンク：<a href="specification.html#filter">拡大縮小とfilter値</a></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top">angle</td>
+                        <td colspan="2" valign="top">パーツの回転角度を指定します。回転の中心はcenter値で指定します。360で1周。</td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top">center</td>
+                        <td colspan="2" valign="top">パーツ回転時の中心を指定します。10キー配列に対応しており、例えば3なら画像右下を中心に回転します。
+                            <br> 0の場合はパーツの真ん中になります。（5と同じです）
+                            <br>
+                            <br> 中心点のpx単位での座標指定は出来ないので、回転軸を指定したい場合は狙った点が中心となるようにSRC範囲を取る必要があります。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top">loop</td>
+                        <td colspan="2" valign="top">
+                            この画像パーツにおける全DST定義行の動作が終わった時の「繰り返す時間」を指定します。ちょっとややこしいので具体例を。
+                            <br> 適当なflash作ってみましたが再生ボタンとか入れてないので、最初から再生させたい場合はページごとリロードして下さい。
+                            <br>
+                            <br> timeによって透明度だけが変化する全2行のDST定義があったとします。
+                            <br>
+                            <br>
+                            <img alt="teigi04.png" src="teigi04.png" border="0" height="49" width="769">
+                            <br>
+                            <br> この時、loop=1000では動作開始から1秒間でフェードインしてそのまま表示され続けます。（time=1000を繰り返します）
+                            <br>
+                            <embed src="loop1000.swf" loop="true" height="17" width="44">
+                            <br>
+                            <br> loop=0とすると開始から1秒間でフェードインし、その後time=0に戻り、一旦表示が消えて再度1秒掛けてフェードインし、以降これを繰り返します。
+                            <br> つまりa=0～255までの「1秒間のフェードイン付き」の点滅動作になります。
+                            <br>
+                            <embed src="loop0.swf" loop="true" height="17" width="44">
+                            <br>
+                            <br> loop=500の場合は開始から1秒間でフェードインし、time=500に戻ってa=128～255まで0.5秒間でのフェードインを繰り返します。
+                            <br>
+                            <embed src="loop500.swf" loop="true" height="17" width="44">
+                            <br>
+                            <br> また、loop=-1の場合のみ、動作が終了した後にパーツが非表示になります。（この例だと1秒でフェードインした後、唐突に消えます）
+                            <br>
+                            <br> つまりDST行は必ず全定義行が動作し、その後loop値で特定の時間に戻り、そこからのDST動作を繰り返します。
+                            <a href="loop.png">いまいち分かりにくい図解</a>
+                            <br> 例で挙げた通り、間違えると全然違う挙動になるので気を付けましょう。
+                            <br>
+                            <br>※1つのDST定義で1度しか指定できません。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top">timer</td>
+                        <td colspan="2" valign="top">値自体はSRC側のtimerと同じようなものですが、DST側のtimer値はDST定義のtime値の基準タイマーになります。
+                            <br> 例えば「timer48 1Pフルコンタイマー」の48を指定した場合、フルコンした瞬間がこの画像パーツにとっての「time=0」になり、
+                            <br> そこから指定したタイミングでDST定義の動作が始まります。
+                            <br>
+                            <br> 大体のパーツでは「timer0 スキン動作開始」が使われるため、timeを変えることで動作時間を変えることが出来ますが、
+                            <br> 同じtime=0であってもtimerが異なる場合は動作開始タイミングが違うので気を付けましょう。
+                            <br>
+                            <br> ※1つのDST定義で1度しか指定できません。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top">op1～3</td>
+                        <td colspan="2" rowspan="1" valign="top">表示条件となるDSTオプション値を指定します。利用可能なop値は右表参照。
+                            <br> 例えば「op50 オフライン」の50を入力するとオフライン時に表示される、といった形になります。
+                            <br>
+                            <br> 3つまで定義可能ですがこれらはAND条件になっており、複数定義した場合は全ての条件を満たした場合のみ動作します。
+                            <br> また、!50や-50で否定（NOT条件）になります。
+                            <br> ※dstオプションには「op51 オンライン」があるのでop51=op!50=op"-50"になります。
+                            <br>
+                            <br> ※1つのDST定義で1度しか指定できません。
+                            <p>関連リンク：<a href="kakutyou.html#if">#IF(#ELSEIF・#ELSE・#ENDIF)</a></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top">op4
+                            <br>
+                        </td>
+                        <td colspan="2" valign="top"> スクラッチの回転に合わせて回転させることができる特殊オプションです。通常は使用しません。
+                            <br> いわゆるターンテーブルマスコット以外で使うことはないでしょう。
+                            <br>
+                            <br> 1：1P側スクラッチ
+                            <br> 2：2P側スクラッチ
+                            <br>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        <p>貼り付けはこれで完了です。
+            <br> SRCとDSTを合わせるとよくあるLR2スキンcsvの定義になります。
+        </p>
+        <p><img alt="teigi01.png" src="teigi01.png" border="0" height="65" width="1304"></p>
+        <h4>各パーツの重ね順</h4>
+        <p>LR2スキンcsvではcsv内で先に記述した定義から順に描画されていきます。
+            <br> 画像Aと画像Bという2つの定義を重ねて表示する場合、
+        </p>
+        <p><img alt="dst_ab_01.png" src="dst_ab_01.png" border="0" height="54" width="109"></p>
+        <p>csv内で画像A定義を先に記述するとこうなります。</p>
+        <p><img alt="dst_ab_02.png" src="dst_ab_02.png" border="0" height="71" width="73"></p>
+        <p>
+            <br>
+        </p>
+        <p>また、1つのスキンで1つしか使えない定義を複数個宣言した場合は一番最後の定義が適用されます。</p>
+        <h4>IMAGE定義テンプレート</h4>
+        <p>カンマ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="100" readonly="readonly" name="image_txt">//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_IMAGE,0,0,0,0,0,0,1,1,0,0
+//DST定義,(NULL),time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_IMAGE,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_IMAGE,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0</textarea>
+        </p>
+        <p>タブ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="100" readonly="readonly" name="image_csv">//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_IMAGE	0	0	0	0	0	0	1	1	0	0
+//DST定義	(NULL)	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_IMAGE	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_IMAGE	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0</textarea>
+        </p>
+        <h3><a name="quick">パラメータ早見表</a></h3>
+        <p><img alt="teigi06.gif" src="teigi06.gif" border="0" height="300" width="1304"></p>
+        <h3><a name="animation">アニメーションサンプル</a></h3>
+        <p>スキンcsvのパラメータを使ってアニメーションさせる場合、複数のDST行が必要になります。
+            <br> それぞれの行でパラメータの値が変化すると、その間の値が自動的に補間されます。</p>
+        <p>先のloop値を用いた点滅アニメーションなどでも使うため、非常に重要な特性と言えます。
+            <br>各パラメータによる画像変化例を以下に纏めます。何となくでも覚えておくと色々幅が広がると思います。</p>
+        <h4>アニメーション無し</h4>
+        <p><img alt="csv_default.gif" src="csv_default.gif" border="0" height="76" width="1177"></p>
+        <p><img alt="motion_default.gif" src="motion_default.gif" border="0" height="120" width="240"></p>
+        <h4>座標移動</h4>
+        <p><img alt="csv_move_x.gif" src="csv_move_x.gif" border="0" height="91" width="1177"></p>
+        <p><img alt="motion_move_x.gif" src="motion_move_x.gif" border="0" height="120" width="240"></p>
+        <h4>色変更</h4>
+        <p><img alt="csv_color.gif" src="csv_color.gif" border="0" height="91" width="1177"></p>
+        <p><img alt="motion_color.gif" src="motion_color.gif" border="0" height="120" width="240"></p>
+        <h4>回転</h4>
+        <p><img alt="csv_angle.gif" src="csv_angle.gif" border="0" height="91" width="1177"></p>
+        <p><img alt="motion_angle.gif" src="motion_angle.gif" border="0" height="120" width="240"></p>
+        <h4>透明度</h4>
+        <p><img alt="csv_alpha.gif" src="csv_alpha.gif" border="0" height="91" width="1177"></p>
+        <p><img alt="motion_alpha.gif" src="motion_alpha.gif" border="0" height="120" width="240"></p>
+        <h4>加速度</h4>
+        <p><img alt="csv_acc.gif" src="csv_acc.gif" border="0" height="91" width="1177"></p>
+        <p><img alt="motion_acc.gif" src="motion_acc.gif" border="0" height="120" width="240"></p>
+        <h4>拡大・縮小</h4>
+        <p><img alt="csv_wh.gif" src="csv_wh.gif" border="0" height="91" width="1177"></p>
+        <p><img alt="motion_wh.gif" src="motion_wh.gif" border="0" height="120" width="240"></p>
+        <h4>補間無し</h4>
+        <p>acc値は細かい指定が出来ないので、パーツを急激に動かしたい場合は1ms間隔でtimeを切るかdiv分割アニメーションにする必要があります。</p>
+        <p><img alt="csv_non_interpolation.gif" src="csv_non_interpolation.gif" border="0" height="226" width="1177"></p>
+        <p><img alt="motion_non_interpolation.gif" src="motion_non_interpolation.gif" border="0" height="120" width="240"></p>
+    </div>
+</body>
+
+</html>

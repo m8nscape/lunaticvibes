@@ -1,0 +1,34 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_SetSurfaceRLE</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_SetSurfaceRLE</h1>
+<p>Use this function to set the RLE acceleration hint for a surface.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_SetSurfaceRLE(SDL_Surface* surface,
+                      int          flag)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>surface</strong></td><td>the <a href="structures/SDL_Surface.html">SDL_Surface</a> structure to optimize</td></tr>
+<tr><td><strong>flag</strong></td><td>0 to disable, non-zero to enable RLE acceleration</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>If RLE is enabled, color key and alpha blending blits are much faster, but the surface must be locked before directly accessing the pixels.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_BlitSurface.html">SDL_BlitSurface</a></li>
+<li><a href="SDL_LockSurface.html">SDL_LockSurface</a></li>
+<li><a href="SDL_UnlockSurface.html">SDL_UnlockSurface</a></li></ul>
+</div>
+</BODY>
+</HTML>

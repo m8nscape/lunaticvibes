@@ -1,0 +1,34 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetNumAudioDrivers</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetNumAudioDrivers</h1>
+<p>Use this function to return the number of built in audio drivers.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_GetNumAudioDrivers(void)
+</pre></div>
+<h2>Return Value</h2>
+<p>Returns the number of built in audio drivers.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+int i;
+for ( i = 0; i < SDL_GetNumAudioDrivers(); ++i ) {
+    printf("Audio driver %d: %s\n", i, SDL_GetAudioDriver(i));
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>This function returns a hardcoded number. This never returns a negative value; if there are no drivers compiled into this build of SDL, this function returns zero. The presence of a driver in this list does not mean it will function, it just means SDL is capable of interacting with that interface. For example, a build of SDL might have esound support, but if there's no esound server available, SDL's esound driver would fail if used.
+<p>By default, SDL tries all drivers, in its preferred order, until one is found to be usable.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetAudioDriver.html">SDL_GetAudioDriver</a></li></ul>
+</div>
+</BODY>
+</HTML>

@@ -1,0 +1,35 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GL_GetDrawableSize</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GL_GetDrawableSize</h1>
+<p>Use this function to get the size of a window's underlying drawable (for use with glViewport).
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_GL_GetDrawableSize(SDL_Window* window,
+                            int*        w,
+                            int*        h)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>window</strong></td><td>the Window from which the drawable size should be queried</td></tr>
+<tr><td><strong>w</strong></td><td>a Pointer to variable for storing the width, may be NULL</td></tr>
+<tr><td><strong>h</strong></td><td>a Pointer to variable for storing the height, may be NULL</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>This may differ from SDL_GetWindowSize if we're rendering to a high-DPI drawable, i.e. the window was created with <a href="SDL_WINDOW_ALLOW_HIGHDPI.html">SDL_WINDOW_ALLOW_HIGHDPI</a> on a platform with high-DPI support (Apple calls this "Retina"), and not disabled by the <a href="SDL_HINT_VIDEO_HIGHDPI_DISABLED.html">SDL_HINT_VIDEO_HIGHDPI_DISABLED</a> hint.
+<h2>Version</h2>
+<p>This function is available since SDL 2.0.1.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetWindowSize.html">SDL_GetWindowSize</a></li>
+<li><a href="SDL_CreateWindow.html">SDL_CreateWindow</a></li></ul>
+</div>
+</BODY>
+</HTML>

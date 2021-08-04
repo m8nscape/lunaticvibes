@@ -1,0 +1,32 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_HapticOpenFromJoystick</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_HapticOpenFromJoystick</h1>
+<p>Use this function to open a haptic device for usage use from a joystick device.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_Haptic* SDL_HapticOpenFromJoystick(SDL_Joystick* joystick)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>joystick</strong></td><td>the SDL_Joystick to create a haptic device from</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns a valid haptic device identifier on success or NULL on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>You must still close the haptic device seperately. It will not be closed with the joystick.
+<p>When opening opened from a joystick you should first close the haptic device before closing the joystick device. If not, on some implementations the haptic device will also get unallocated and you'll be unable to use force feedback on that device.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_HapticClose.html">SDL_HapticClose</a></li>
+<li><a href="SDL_HapticOpen.html">SDL_HapticOpen</a></li></ul>
+</div>
+</BODY>
+</HTML>

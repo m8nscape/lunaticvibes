@@ -1,0 +1,28 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetRevision</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetRevision</h1>
+<p>Use this function to get the code revision of SDL that is linked against your program.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+const char* SDL_GetRevision(void)
+</pre></div>
+<h2>Return Value</h2>
+<p>Returns an arbitrary string, uniquely identifying the exact revision of the SDL library in use.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>The revision is a string including sequential revision number that is incremented with each commit, and a hash of the last code change.
+<ul style="list-style-type:none"><li><em>Example:</em> <tt style="backtick">hg-5344:94189aa89b54</tt></li></ul>
+<p>This value is the revision of the code you are linked with and may be different from the code you are compiling with, which is found in the constant <a href="SDL_REVISION.html">SDL_REVISION</a>.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetVersion.html">SDL_GetVersion</a></li></ul>
+</div>
+</BODY>
+</HTML>

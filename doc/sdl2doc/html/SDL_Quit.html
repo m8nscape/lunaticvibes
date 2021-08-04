@@ -1,0 +1,45 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_Quit</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_Quit</h1>
+<p>Use this function to clean up all initialized subsystems. You should call it upon all exit conditions.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_Quit(void)
+</pre></div>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+#include "SDL.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(int argc, char** argv) {
+    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
+        fprintf(stderr, "Unable to initialize SDL:  %s\n", SDL_GetError());
+        return 1;
+    }
+    atexit(SDL_Quit);
+
+    /* ... */
+
+    return 0;
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>You should call this function even if you have already shutdown each initialized subsystem with <a href="SDL_QuitSubSystem.html">SDL_QuitSubSystem</a>().
+<p>If you start a subsystem using a call to that subsystem's init function (for example <a href="SDL_VideoInit.html">SDL_VideoInit</a>()) instead of <a href="SDL_Init.html">SDL_Init</a>() or <a href="SDL_InitSubSystem.html">SDL_InitSubSystem</a>(), then you must use that subsystem's quit function (<a href="SDL_VideoQuit.html">SDL_VideoQuit</a>()) to shut it down before calling <a href="SDL_Quit.html">SDL_Quit</a>().
+<p>You can use this function with atexit() to ensure that it is run when your application is shutdown, but it is not wise to do this from a library or other dynamically loaded code.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_Init.html">SDL_Init</a></li>
+<li><a href="SDL_QuitSubSystem.html">SDL_QuitSubSystem</a></li></ul>
+</div>
+</BODY>
+</HTML>

@@ -1,0 +1,129 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_PixelFormatEnum</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_PixelFormatEnum</h1>
+<p>An enumeration of pixel formats.
+<h2>Values</h2>
+<h3>Pixel Format Macros</h3>
+<table>
+<tr><td>SDL_PIXELTYPE(format)</td><td>the type of the pixel format; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td>SDL_PIXELORDER(format)</td><td>the ordering of channels or bits in the pixel format; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td>SDL_PIXELLAYOUT(format)</td><td>the channel bit pattern of the pixel format; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td>SDL_BITSPERPIXEL(format)</td><td>the number of bits of color information in the pixel format</td></tr>
+<tr><td>SDL_BYTESPERPIXEL(format)</td><td>the number of bytes used to represent a pixel</td></tr>
+<tr><td>SDL_ISPIXELFORMAT_INDEXED(format)</td><td>true for pixel formats that have a palette</td></tr>
+<tr><td>SDL_ISPIXELFORMAT_ALPHA(format)</td><td>true for pixel formats that have an alpha channel</td></tr>
+<tr><td>SDL_ISPIXELFORMAT_FOURCC(format)</td><td>true for pixel formats representing unique formats, for example YUV formats</td></tr>
+</table>
+<h3>Pixel Format Values</h3>
+<table>
+<tr><td>SDL_PIXELFORMAT_UNKNOWN</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX1LSB</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX1MSB</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX4LSB</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX4MSB</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX8</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB332</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB444</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB555</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGR555</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_ARGB4444</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGBA4444</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_ABGR4444</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGRA4444</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_ARGB1555</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGBA5551</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_ABGR1555</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGRA5551</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB565</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGR565</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB24</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGR24</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB888</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGBX8888</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGR888</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGRX8888</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_ARGB8888</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGBA8888</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_ABGR8888</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGRA8888</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_ARGB2101010</td><td>&nbsp</td></tr>
+<tr><td>SDL_PIXELFORMAT_YV12</td><td>planar mode: Y + V + U (3 planes)</td></tr>
+<tr><td>SDL_PIXELFORMAT_IYUV</td><td>planar mode: Y + U + V (3 planes)</td></tr>
+<tr><td>SDL_PIXELFORMAT_YUY2</td><td>packed mode: Y0+U0+Y1+V0 (1 plane)</td></tr>
+<tr><td>SDL_PIXELFORMAT_UYVY</td><td>packed mode: U0+Y0+V0+Y1 (1 plane)</td></tr>
+<tr><td>SDL_PIXELFORMAT_YVYU</td><td>packed mode: Y0+V0+Y1+U0 (1 plane)</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<p>The pixel type is one of the following values:
+<table>
+<tr><td>SDL_PIXELTYPE_UNKNOWN</td></tr>
+<tr><td>SDL_PIXELTYPE_INDEX1</td></tr>
+<tr><td>SDL_PIXELTYPE_INDEX4</td></tr>
+<tr><td>SDL_PIXELTYPE_INDEX8</td></tr>
+<tr><td>SDL_PIXELTYPE_PACKED8</td></tr>
+<tr><td>SDL_PIXELTYPE_PACKED16</td></tr>
+<tr><td>SDL_PIXELTYPE_PACKED32</td></tr>
+<tr><td>SDL_PIXELTYPE_ARRAYU8</td></tr>
+<tr><td>SDL_PIXELTYPE_ARRAYU16</td></tr>
+<tr><td>SDL_PIXELTYPE_ARRAYU32</td></tr>
+<tr><td>SDL_PIXELTYPE_ARRAYF16</td></tr>
+<tr><td>SDL_PIXELTYPE_ARRAYF32</td></tr>
+<table>
+<p>Depending on the pixel type there are three different types of orderings - bitmapped, packed, or array.
+<table>
+<tr><td><strong>Bitmap pixel order</strong> (high bit -> low bit)</td></tr>
+<tr><td>SDL_BITMAPORDER_NONE</td></tr>
+<tr><td>SDL_BITMAPORDER_4321</td></tr>
+<tr><td>SDL_BITMAPORDER_1234</td></tr>
+<tr><td><strong>Packed component order</strong> (high bit -> low bit)</td></tr>
+<tr><td>SDL_PACKEDORDER_NONE</td></tr>
+<tr><td>SDL_PACKEDORDER_XRGB</td></tr>
+<tr><td>SDL_PACKEDORDER_RGBX</td></tr>
+<tr><td>SDL_PACKEDORDER_ARGB</td></tr>
+<tr><td>SDL_PACKEDORDER_RGBA</td></tr>
+<tr><td>SDL_PACKEDORDER_XBGR</td></tr>
+<tr><td>SDL_PACKEDORDER_BGRX</td></tr>
+<tr><td>SDL_PACKEDORDER_ABGR</td></tr>
+<tr><td>SDL_PACKEDORDER_BGRA</td></tr>
+<tr><td><strong>Array component order</strong> (low byte -> high byte)</td></tr>
+<tr><td>SDL_ARRAYORDER_NONE</td></tr>
+<tr><td>SDL_ARRAYORDER_RGB</td></tr>
+<tr><td>SDL_ARRAYORDER_RGBA</td></tr>
+<tr><td>SDL_ARRAYORDER_ARGB</td></tr>
+<tr><td>SDL_ARRAYORDER_BGR</td></tr>
+<tr><td>SDL_ARRAYORDER_BGRA</td></tr>
+<tr><td>SDL_ARRAYORDER_ABGR</td></tr>
+</table>
+Packed pixel formats have one of the following channel layouts:
+<table>
+<tr><td>SDL_PACKEDLAYOUT_NONE</td></tr>
+<tr><td>SDL_PACKEDLAYOUT_332</td></tr>
+<tr><td>SDL_PACKEDLAYOUT_4444</td></tr>
+<tr><td>SDL_PACKEDLAYOUT_1555</td></tr>
+<tr><td>SDL_PACKEDLAYOUT_5551</td></tr>
+<tr><td>SDL_PACKEDLAYOUT_565</td></tr>
+<tr><td>SDL_PACKEDLAYOUT_8888</td></tr>
+<tr><td>SDL_PACKEDLAYOUT_2101010</td></tr>
+<tr><td>SDL_PACKEDLAYOUT_1010102</td></tr>
+</table>
+<h2>Related Structures</h2>
+<ul style="list-style-type:none"><li><a href="SDL_DisplayMode.html">SDL_DisplayMode</a></li>
+<li><a href="SDL_RendererInfo.html">SDL_RendererInfo</a></li></ul>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_CreateTexture.html">SDL_CreateTexture</a></li>
+<li><a href="SDL_CreateTextureFromSurface.html">SDL_CreateTextureFromSurface</a></li>
+<li><a href="SDL_MasksToPixelFormatEnum.html">SDL_MasksToPixelFormatEnum</a></li>
+<li><a href="SDL_PixelFormatEnumToMasks.html">SDL_PixelFormatEnumToMasks</a></li>
+<li><a href="SDL_QueryTexture.html">SDL_QueryTexture</a></li>
+<li><a href="SDL_RenderReadPixels.html">SDL_RenderReadPixels</a></li></ul>
+</div>
+</BODY>
+</HTML>

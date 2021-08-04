@@ -1,0 +1,30 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_SetSurfacePalette</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_SetSurfacePalette</h1>
+<p>Use this function to set the palette used by a surface.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_SetSurfacePalette(SDL_Surface* surface,
+                          SDL_Palette* palette)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>surface</strong></td><td>the <a href="structures/SDL_Surface.html">SDL_Surface</a> structure to update</td></tr>
+<tr><td><strong>palette</strong></td><td>the <a href="structures/SDL_Palette.html">SDL_Palette</a> structure to use</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <A href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>A single palette can be shared with many surfaces. 
+</div>
+</BODY>
+</HTML>

@@ -1,0 +1,41 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GLcontextFlag</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GLcontextFlag</h1>
+<p>An enumeration of OpenGL context configuration flags.
+<h2>Values</h2>
+<table>
+<tr><td>SDL_GL_CONTEXT_DEBUG_FLAG</td><td>see <a href="#Remarks">Remarks</a></td></tr>
+<tr><td>SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG</td><td>see <a href="#Remarks">Remarks</a></td></tr>
+<tr><td>SDL_GL_CONTEXT_ROBUST_ACCESS_FLAG</td><td>see <a href="#Remarks">Remarks</a></td></tr>
+<tr><td>SDL_GL_CONTEXT_RESET_ISOLATION_FLAG</td><td>see <a href="#Remarks">Remarks</a></td></tr>
+</table>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+</pre></div>
+<h2 id="Remarks">Remarks</h2>
+<p>This enumeration is used in conjunction with <a href="SDL_GL_SetAttribute.html">SDL_GL_SetAttribute</a> and <a href="SDL_GLattr.html">SDL_GL_CONTEXT_FLAGS</a>. Multiple flags can be OR'd together.
+<h3>SDL_GL_CONTEXT_DEBUG_FLAG</h3>
+<p>This flag maps to GLX_CONTEXT_DEBUG_BIT_ARB in the <a class="http" href="http://www.opengl.org/registry/specs/ARB/glx_create_context.txt">GLX_ARB_create_context</a> extension for X11 and WGL_CONTEXT_DEBUG_BIT_ARB in the <a class="http" href="http://www.opengl.org/registry/specs/ARB/wgl_create_context.txt">WGL_ARB_create_context</a> extension for Windows. This flag is currently ignored on other targets that don't support equivalent functionality.
+<h3>SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG</h3>
+<p>This flag maps to GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB in the GLX_ARB_create_context extension for X11 and WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB in the <a class="http" href="http://www.opengl.org/registry/specs/ARB/wgl_create_context.txt">WGL_ARB_create_context extension</a> for Windows. This flag is currently ignored on other targets that don't support equivalent functionality.
+<h3>SDL_GL_CONTEXT_ROBUST_ACCESS_FLAG</h3>
+<p>This flag maps to GLX_CONTEXT_ROBUST_ACCESS_BIT_ARB in the <a class="http" href="http://www.opengl.org/registry/specs/ARB/glx_create_context_robustness.txt">GLX_ARB_create_context_robustness</a> extension for X11 and WGL_CONTEXT_ROBUST_ACCESS_BIT_ARB in the <a class="http" href="http://www.opengl.org/registry/specs/ARB/wgl_create_context_robustness.txt">WGL_ARB_create_context_robustness</a> extension for Windows. This flag is currently ignored on other targets that don't support equivalent functionality.
+<h3>SDL_GL_CONTEXT_RESET_ISOLATION_FLAG</h3>
+<p>This flag maps to GLX_CONTEXT_RESET_ISOLATION_BIT_ARB in the <a class="http" href="http://www.opengl.org/registry/specs/ARB/glx_robustness_isolation.txt">GLX_ARB_robustness_isolation</a> extension for X11 and WGL_CONTEXT_RESET_ISOLATION_BIT_ARB in the <a class="http" href="http://www.opengl.org/registry/specs/ARB/wgl_robustness_isolation.txt">WGL_ARB_create_context_robustness</a> extension for Windows. This flag is currently ignored on other targets that don't support equivalent functionality.
+<h2>Related Enumerations</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GLattr.html">SDL_GLattr</a></li></ul>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GL_GetAttribute.html">SDL_GL_GetAttribute</a></li>
+<li><a href="SDL_GL_SetAttribute.html">SDL_GL_SetAttribute</a></li></ul>
+</div>
+</BODY>
+</HTML>

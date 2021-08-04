@@ -1,0 +1,33 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_SetWindowDisplayMode</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_SetWindowDisplayMode</h1>
+<p>Use this function to set the display mode to use when a window is visible at fullscreen.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_SetWindowDisplayMode(SDL_Window*            window,
+                             const SDL_DisplayMode* mode)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>window</strong></td><td>the window to affect</td></tr>
+<tr><td><strong>mode</strong></td><td>the <a href="structures/SDL_DisplayMode.html">SDL_DisplayMode</a> structure representing the mode to use, or NULL to use the window's dimensions and the desktop's format and refresh rate</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>This only affects the display mode used when the window is fullscreen. To change the window size when the window is not fullscreen, use <a href="SDL_SetWindowSize.html">SDL_SetWindowSize</a>().
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetWindowDisplayMode.html">SDL_GetWindowDisplayMode</a></li>
+<li><a href="SDL_SetWindowFullscreen.html">SDL_SetWindowFullscreen</a></li></ul>
+</div>
+</BODY>
+</HTML>

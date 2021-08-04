@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_MapRGBA</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_MapRGBA</h1>
+<p>Use this function to map an RGBA quadruple to a pixel value for a given pixel format.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+Uint32 SDL_MapRGBA(const SDL_PixelFormat* format,
+                   Uint8                  r, 
+                   Uint8                  g, 
+                   Uint8                  b,
+                   Uint8                  a)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>format</strong></td><td>an <a href="structures/SDL_PixelFormat.html">SDL_PixelFormat</a> structure describing the format of the pixel</td></tr>
+<tr><td><strong>r</strong></td><td>the red component of the pixel in the range 0-255</td></tr>
+<tr><td><strong>g</strong></td><td>the green component of the pixel in the range 0-255</td></tr>
+<tr><td><strong>b</strong></td><td>the blue component of the pixel in the range 0-255</td></tr>
+<tr><td><strong>a</strong></td><td>the alpha component of the pixel in the range 0-255</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns a pixel value; see <a href="#Remarks">Remarks</a> for details.
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<p>This function maps the RGBA color value to the specified pixel format and returns the pixel value best approximating the given RGBA color value for the given pixel format.
+<p>If the specified pixel format has no alpha component the alpha value will be ignored (as it will be in formats with a palette).
+<p>If the format has a palette (8-bit) the index of the closest matching color in the palette will be returned.
+<p>If the pixel format bpp (color depth) is less than 32-bpp then the unused upper bits of the return value can safely be ignored (e.g., with a 16-bpp format the return value can be assigned to a Uint16, and similarly a Uint8 for an 8-bpp format).
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetRGB.html">SDL_GetRGB</a></li>
+<li><a href="SDL_GetRGBA.html">SDL_GetRGBA</a></li>
+<li><a href="SDL_MapRGB.html">SDL_MapRGB</a></li></ul>
+</div>
+</BODY>
+</HTML>

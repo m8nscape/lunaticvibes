@@ -1,0 +1,36 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_SetMainReady</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_SetMainReady</h1>
+<p>Use this function to circumvent failure of SDL_Init() when not using SDL_main() as an entry point.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_SetMainReady(void)
+</pre></div>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+#define SDL_MAIN_HANDLED
+#include "SDL.h"
+
+int main(int argc, char *argv[])
+{
+    SDL_SetMainReady( );
+    SDL_Init( SDL_INIT_VIDEO );
+    ...
+}
+</pre></div>
+<h2>Remarks</h2>
+<p><em>This function is defined in SDL_main.h, along with the preprocessor rule to redefine main() as SDL_main(). Thus to ensure that your main() function will not be changed it is necessary to define SDL_MAIN_HANDLED before including SDL.h</em>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_Init.html">SDL_Init</a></li></ul>
+</div>
+</BODY>
+</HTML>

@@ -1,0 +1,32 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_AtomicTryLock</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_AtomicTryLock</h1>
+<p>Use this function to try to lock a spin lock by setting it to a non-zero value.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_bool SDL_AtomicTryLock(SDL_SpinLock* lock)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>lock</strong></td><td>a pointer to a lock variable</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns SDL_TRUE if the lock succeeded, SDL_FALSE if the lock is already held.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>The atomic locks are efficient spinlocks using CPU instructions, but are vulnerable to starvation and can spin forever if a thread holding a lock has been terminated. For this reason you should minimize the code executed inside an atomic lock and never do expensive things like API or system calls while holding them.
+<p><img height="16" width="16" title="/!\" src="alert.png" alt="/!\"></img> The atomic locks are not safe to lock recursively.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_AtomicLock.html">SDL_AtomicLock</a></li>
+<li><a href="SDL_AtomicUnlock.html">SDL_AtomicUnlock</a></li></ul>
+</div>
+</BODY>
+</HTML>

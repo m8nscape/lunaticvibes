@@ -1,0 +1,36 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_WaitEventTimeout</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_WaitEventTimeout</h1>
+<p>Use this function to wait until the specified timeout (in milliseconds) for the next available event.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_WaitEventTimeout(SDL_Event* event,
+                         int        timeout)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>event</strong></td><td>the <a href="structures/SDL_Event.html">SDL_Event</a> structure to be filled in with the next event from the queue, or NULL</td></tr>
+<tr><td><strong>timeout</strong></td><td>the maximum number of milliseconds to wait for the next available event</td><tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 1 on success or 0 if there was an error while waiting for events; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information. This also returns 0 if the timeout elapsed without an event arriving.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>If event is not NULL, the next event is removed from the queue and stored in the <a href="structures/SDL_Event.html">SDL_Event</a> structure pointed to by <strong>event</strong>.
+<p>As this function implicitly calls <a href="SDL_PumpEvents.html">SDL_PumpEvents</a>(), you can only call this function in the thread that set the video mode.
+<p>As of SDL 2.0, this function does not put the application's process to sleep waiting for events; it polls for events in a loop internally. This may change in the future to improve power savings.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_PumpEvents.html">SDL_PumpEvents</a></li>
+<li><a href="SDL_PollEvent.html">SDL_PollEvent</a></li>
+<li><a href="SDL_WaitEvent.html">SDL_WaitEvent.html</a></li></ul>
+</div>
+</BODY>
+</HTML>

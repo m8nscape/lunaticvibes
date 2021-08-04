@@ -1,0 +1,58 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_SetRenderDrawColor</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_SetRenderDrawColor</h1>
+<p>Use this function to set the color used for drawing operations (Rect, Line and Clear).
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_SetRenderDrawColor(SDL_Renderer* renderer,
+                           Uint8         r,
+                           Uint8         g,
+                           Uint8         b,
+                           Uint8         a)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>renderer</strong></td><td>the rendering context</td></tr>
+<tr><td><strong>r</strong></td><td>the red value used to draw on the rendering target</td></tr>
+<tr><td><strong>g</strong></td><td>the green value used to draw on the rendering target</td></tr>
+<tr><td><strong>b</strong></td><td>the blue value used to draw on the rendering target</td></tr>
+<tr><td><strong>a</strong></td><td>the alpha value used to draw on the rendering target; usually SDL_ALPHA_OPAQUE (255). Use <a href="SDL_SetRenderDrawBlendMode.html">SDL_SetRenderDrawBlendMode</a> to specify how the alpha channel is used</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+SDL_Rect rectangle;
+
+rectangle.x = 0;
+rectangle.y = 0;
+rectangle.w = 50;
+rectangle.h = 50;
+SDL_RenderFillRect(renderer, &rectangle);
+</pre></div>
+<h2>Remarks</h2>
+<p>Use this function to set the color for drawing or filling rectangles, lines, and points, and for <a href="SDL_RenderClear.html">SDL_RenderClear</a>().
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetRenderDrawColor.html">SDL_GetRenderDrawColor</a></li>
+<li><a href="SDL_RenderClear.html">SDL_RenderClear</a></li>
+<li><a href="SDL_RenderDrawLine.html">SDL_RenderDrawLine</a></li>
+<li><a href="SDL_RenderDrawLines.html">SDL_RenderDrawLines</a></li>
+<li><a href="SDL_RenderDrawPoint.html">SDL_RenderDrawPoint</a></li>
+<li><a href="SDL_RenderDrawPoints.html">SDL_RenderDrawPoints</a></li>
+<li><a href="SDL_RenderDrawRect.html">SDL_RenderDrawRect</a></li>
+<li><a href="SDL_RenderDrawRects.html">SDL_RenderDrawRects</a></li>
+<li><a href="SDL_RenderFillRect.html">SDL_RenderFillRect</a></li>
+<li><a href="SDL_RenderFillRects.html">SDL_RenderFillRects</a></li></ul>
+</div>
+</BODY>
+</HTML>

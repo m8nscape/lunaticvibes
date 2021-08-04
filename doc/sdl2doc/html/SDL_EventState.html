@@ -1,0 +1,35 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_EventState</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_EventState</h1>
+<p>Use this function to set the state of processing events by type.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+Uint8 SDL_EventState(Uint32 type,
+                     int    state)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>type</strong></td><td>the type of event; see <a href="SDL_EventType.html">SDL_EventType</a> for details</td></tr>
+<tr><td><strong>state</strong></td><td>how to process the event; see <a href="#Remarks">Remarks</a> for details</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns SDL_DISABLE or SDL_ENABLE, representing the processing state of the event before this function makes any changes to it.
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<p><strong>state</strong> may be any of the following:
+<table>
+<tr><td>-1</td><td>SDL_QUERY</td><td>returns the current processing state of the specified event</td></tr>
+<tr><td>0</td><td>SDL_IGNORE (aka SDL_DISABLE)</td><td>the event will automatically be dropped from the event queue and will not be filtered</td></tr>
+<tr><td>1</td><td>SDL_ENABLE</td><td>the event will be processed normally</td></tr>
+</table>
+</div>
+</BODY>
+</HTML>

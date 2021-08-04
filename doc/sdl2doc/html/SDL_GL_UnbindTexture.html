@@ -1,0 +1,30 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GL_UnbindTexture</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GL_UnbindTexture</h1>
+<p>Use this function to bind an OpenGL/ES/ES2 texture to the current context for use with when rendering OpenGL primitives directly.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_GL_UnbindTexture(SDL_Texture *texture)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>texture</strong></td><td>the texture to unbind from the current OpenGL/ES/ES2 context</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success, or -1 if the operation is not supported
+<h2>Remarks</h2>
+<p>See <a href="SDL_GL_BindTexture.html">SDL_GL_BindTexture</a> for examples on how to use these functions
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GL_BindTexture.html">SDL_GL_BindTexture</a></li>
+<li><a href="SDL_GL_MakeCurrent.html">SDL_GL_MakeCurrent</a></li></ul>
+</div>
+</BODY>
+</HTML>

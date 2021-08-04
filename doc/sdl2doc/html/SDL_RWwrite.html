@@ -1,0 +1,53 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_RWwrite</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_RWwrite</h1>
+<p>Use this function to write to a data stream.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+size_t SDL_RWwrite(struct SDL_RWops* context,
+                   const void*       ptr,
+                   size_t            size,
+                   size_t            num)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>context</strong></td><td>a pointer to an <A href="structures/SDL_RWops.html">SDL_RWops</a> structure</td></tr>
+<tr><td><strong>ptr</strong></td><td>a pointer to a buffer containing data to write</td></tr>
+<tr><td><strong>size</strong></td><td>the size of an object to write, in bytes</td></tr>
+<tr><td><strong>num</strong></td><td>the number of objects to write</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns the number of objects written, which will be less than <strong>num</strong> on error; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+SDL_RWops *rw = SDL_RWFromFile("hello.txt", "w");
+if(rw != NULL) {
+    const char *str = "Hello World";
+    size_t len = SDL_strlen(str);
+    if (SDL_RWwrite(rw, str, 1, len) != len) {
+        printf("Couldn't fully write string\n");
+    } else {
+        printf("Wrote %d 1-byte blocks\n", len);
+    }
+    SDL_RWclose(rw);
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>This function writes exactly <strong>num</strong> objects each of size <strong>size</strong> from the area pointed at by <strong>ptr</strong> to the stream. If this fails for any reason, it'll return less than <strong>num</strong> to demonstrate how far the write progressed. On success, it returns <strong>num</strong>.
+<p>SDL_RWwrite is actually a macro that calls the SDL_RWops's <strong>write</strong> method appropriately, to simplify application development.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_RWclose.html">SDL_RWclose</a></li>
+<li><a href="SDL_RWread.html">SDL_RWread</a></li>
+<li><a href="SDL_RWseek.html">SDL_RWseek</a></li></ul>
+</div>
+</BODY>
+</HTML>

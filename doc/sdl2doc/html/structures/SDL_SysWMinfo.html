@@ -1,0 +1,52 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_SysWMinfo</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_SysWMinfo</h1>
+<p>A structure that contains system-dependent information about a window.
+<h2>Data Fields</h2>
+<table>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>All Subsystems</em></td><tr>
+<tr><td><a href="../SDL_version.html">SDL_version</a></td><td><strong>version</strong></td><td>an <a href="../SDL_version.html">SDL_version</a> structure that contains the current SDL version</td><tr>
+<tr><td><a href="../SDL_SYSWM_TYPE.html">SDL_SYSWM_TYPE</a></td><td><strong>subsystem</strong></td><td>the windowing system type; see <a href="#Remarks">Remarks</a> for details</td><tr>
+<tr style="color: #808080;"><td>int</td><td><strong>dummy</strong></td><td>unused (to help compilers when no specific system is available)</td><tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>SDL_SYSWM_WINDOWS</em></td><tr>
+<tr><td>HWND</td><td><strong>win.window</strong></td><td>the window handle</td><tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>SDL_SYSWM_X11</em></td><tr>
+<tr><td>Display*</td><td><strong>x11.display</strong></td><td>the X11 display</td><tr>
+<tr><td>Window</td><td><strong>x11.window</strong></td><td>the X11 window</td><tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>SDL_SYSWM_DIRECTFB</em></td><tr>
+<tr><td>IDirectFB*</td><td><strong>dfb.dfb</strong></td><td>the DirectFB main interface</td><tr>
+<tr><td>IDirectFBWindow*</td><td><strong>dfb.window</strong></td><td>the DirectFB window handle</td><tr>
+<tr><td>IDirectFBSurface*</td><td><strong>dfb.surface</strong></td><td>the DirectFB client surface</td><tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>SDL_SYSWM_COCOA</em></td><tr>
+<tr><td>NSWindow*</td><td><strong>cocoa.window</strong></td><td>the Cocoa window</td><tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>SDL_SYSWM_UIKIT</em></td><tr>
+<tr><td>UIWindow*</td><td><strong>uikit.window</strong></td><td>the UIKit window</td><tr>
+</table>
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<p>This structure is filled in by <a href="../SDL_GetWindowWMInfo.html">SDL_GetWindowWMInfo</a>().
+<p>This structure holds low level information about the window and <strong>subsystem</strong> is set to the windowing system in use, one of:
+<table>
+<tr><td>SDL_SYSWM_UNKNOWN</td><td>&nbsp;</td></tr>
+<tr><td>SDL_SYSWM_WINDOWS</td><td>Microsoft Windows</td></tr>
+<tr><td>SDL_SYSWM_X11</td><td>X Window System</td></tr>
+<tr><td>SDL_SYSWM_DIRECTFB</td><td><a class="http" href="http://www.directfb.org">DirectFB</a></td></tr>
+<tr><td>SDL_SYSWM_COCOA</td><td>Apple Mac OS X</td></tr>
+<tr><td>SDL_SYSWM_UIKIT</td><td>Apple iOS</td></tr>
+</table>
+<h2>Related Enumerations</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_SYSWM_TYPE.html">SDL_SYSWM_TYPE</a></li></ul>
+<h2>Related Structures</h2>
+<ul style="list-style-type:none"><li><a href="SDL_version.htm">SDL_version</a></li></ul>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_GetWindowWMInfo.html">SDL_GetWindowWMInfo</a></li></ul>
+</div>
+</BODY>
+</HTML>

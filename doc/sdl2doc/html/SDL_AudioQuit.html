@@ -1,0 +1,37 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_AudioQuit</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_AudioQuit</h1>
+<p>Use this function to shut down audio if you initialized it with <a href="SDL_AudioInit.html">SDL_AudioInit</a>().
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_AudioQuit(void)
+</pre></div>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+int i;
+
+for (i = 0; i < SDL_GetNumAudioDrivers(); ++i) {
+    const char* driver_name = SDL_GetAudioDriver(i);
+    if (SDL_AudioInit(driver_name)) {
+        printf("Audio driver failed to initialize: %s\n", driver_name);
+        continue;
+    }
+    SDL_AudioQuit();
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>This function is used internally, and should not be used unless you have a specific need to specify the audio driver you want to use. You should normally use <a href="SDL_Quit.html">SDL_Quit</a>() or <a href="SDL_QuitSubSystem.html">SDL_QuitSubSystem</a>().
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_AudioInit.html">SDL_AudioInit</a></li></ul>
+</div>
+</BODY>
+</HTML>

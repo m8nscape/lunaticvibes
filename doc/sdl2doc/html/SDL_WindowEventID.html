@@ -1,0 +1,96 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_WindowEventID</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_WindowEventID</h1>
+<p>An enumeration of window events.
+<h2>Values</h2>
+<table>
+<tr style="color: #808080;"><td>SDL_WINDOWEVENT_NONE</td><td>(never used)</td></tr>
+<tr><td>SDL_WINDOWEVENT_SHOWN</td><td>window has been shown</td></tr>
+<tr><td>SDL_WINDOWEVENT_HIDDEN</td><td>window has been hidden</td></tr>
+<tr><td>SDL_WINDOWEVENT_EXPOSED</td><td>window has been exposed and should be redrawn</td></tr>
+<tr><td>SDL_WINDOWEVENT_MOVED</td><td>window has been moved to data1, data2</td></tr>
+<tr><td>SDL_WINDOWEVENT_RESIZED</td><td>window has been resized to data1xdata2; this is event is always preceded by SDL_WINDOWEVENT_SIZE_CHANGED</td></tr>
+<tr><td>SDL_WINDOWEVENT_SIZE_CHANGED</td><td>window size has changed, either as a result of an API call or through the system or user changing the window size; this event is followed by SDL_WINDOWEVENT_RESIZED if the size was changed by an external event, i.e. the user or the window manager</td></tr>
+<tr><td>SDL_WINDOWEVENT_MINIMIZED</td><td>window has been minimized</td></tr>
+<tr><td>SDL_WINDOWEVENT_MAXIMIZED</td><td>window has been maximized</td></tr>
+<tr><td>SDL_WINDOWEVENT_RESTORED</td><td>window has been restored to normal size and position</td></tr>
+<tr><td>SDL_WINDOWEVENT_ENTER</td><td>window has gained mouse focus</td></tr>
+<tr><td>SDL_WINDOWEVENT_LEAVE</td><td>window has lost mouse focus</td></tr>
+<tr><td>SDL_WINDOWEVENT_FOCUS_GAINED</td><td>window has gained keyboard focus</td></tr>
+<tr><td>SDL_WINDOWEVENT_FOCUS_LOST</td><td>window has lost keyboard focus</td></tr>
+<tr><td>SDL_WINDOWEVENT_CLOSE</td><td>the window manager requests that the window be closed</td></tr>
+</table>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+#include "SDL.h"
+
+int main(int, char**)  {
+  int width = 640;
+  int height = 480;
+  
+  if (SDL_Init(SDL_INIT_VIDEO) != 0)  {
+    return 1;
+  }
+  atexit(SDL_Quit);
+  
+  SDL_Window* window = SDL_CreateWindow(
+    "Example", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 
+    width, height, SDL_WINDOW_RESIZABLE
+  );
+  Uint32 windowID = SDL_GetWindowFromID(window);
+  
+  while (true)  {
+    SDL_Event event;
+    while (SDL_PollEvent(&event))  {
+      switch (event.type)  {
+        
+        case SDL_WINDOWEVENT:  {
+          if (event.window.windowID == windowID)  {
+            switch (event.window.event)  {
+              
+              case SDL_WINDOWEVENT_SIZE_CHANGED:  {
+                width = event.window.data1;
+                height = event.window.data2;
+                break;
+              }
+              
+              case SDL_WINDOWEVENT_CLOSE:  {
+                event.type = SDL_QUIT;
+                SDL_PushEvent(&event);
+                break;
+              }
+              
+            }
+          }
+          break;
+        }
+        
+        case SDL_QUIT:  {
+          return 0;
+        }
+        
+        /* ... */
+        
+      }
+    }
+    
+    /* ... */
+    
+    SDL_Delay(1);
+  }
+}
+</pre></div>
+<h2>Remarks</h2>
+<h2>Related Structures</h2>
+<ul style="list-style-type:none"><li><a href="SDL_WindowEvent.html">SDL_WindowEvent</a></li></ul>
+</div>
+</BODY>
+</HTML>

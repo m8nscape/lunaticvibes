@@ -1,0 +1,63 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_DestroySemaphore</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_DestroySemaphore</h1>
+<p>Use this function to destroy a semaphore.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_DestroySemaphore(SDL_sem* sem)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>sem</strong></td><td>the semaphore to destroy</td></tr>
+</table>
+<h2>Code Examples</h2>
+<p>Typical use of semaphores:
+<div style=codearea>
+<pre>
+SDL_atomic_t done;
+SDL_sem *sem;
+
+SDL_AtomicSet(&done, 0);
+sem = SDL_CreateSemaphore(0);
+.
+.
+Thread A:
+    while (!SDL_AtomicGet(&done)) {
+        add_data_to_queue();
+        SDL_SemPost(sem);
+    }
+
+Thread B:
+    while (!SDL_AtomicGet(&done)) {
+        SDL_SemWait(sem);
+        if (data_available()) {
+            get_data_from_queue();
+        }
+    }
+.
+.
+SDL_AtomicSet(&done, 1);
+SDL_SemPost(sem);
+wait_for_threads();
+SDL_DestroySemaphore(sem);
+</pre></div>
+<h2>Remarks</h2>
+<p>It is not safe to destroy a semaphore if there are threads currently waiting on it.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_CreateSemaphore.html"></a></li>
+<li><a href="SDL_SemPost.html">SDL_SemPost</a></li>
+<li><a href="SDL_SemTryWait.html">SDL_SemTryWait</a></li>
+<li><a href="SDL_SemValue.html">SDL_SemValue</a></li>
+<li><a href="SDL_SemWait.html">SDL_SemWait</a></li>
+<li><a href="SDL_SemWaitTimeout.html">SDL_SemWaitTimeout</a></li></ul>
+</div>
+</BODY>
+</HTML>

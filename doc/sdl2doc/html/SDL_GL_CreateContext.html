@@ -1,0 +1,49 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GL_CreateContext</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GL_CreateContext</h1>
+<p>Use this function to create an OpenGL context for use with an OpenGL window, and make it current.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_GLContext SDL_GL_CreateContext(SDL_Window* window)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>window</strong></td><td>the window to associate with the context</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns the OpenGL context associated with window or NULL on error; call <a href="SDL_GetError.html">SDL_GetError</a>() for more details.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+// Window mode MUST include SDL_WINDOW_OPENGL for use with OpenGL.
+SDL_Window *window = SDL_CreateWindow(
+    "SDL2/OpenGL Demo", 0, 0, 640, 480, 
+    SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE);
+  
+// Create an OpenGL context associated with the window.
+SDL_GLContext glcontext = SDL_GL_CreateContext(window);
+
+// now you can make GL calls.
+glClearColor(0,0,0,1);
+glClear(GL_COLOR_BUFFER_BIT);
+SDL_GL_SwapWindow(window);
+
+// Once finished with OpenGL functions, the SDL_GLContext can be deleted.
+SDL_GL_DeleteContext(glcontext);  
+</pre></div>
+<h2>Remarks</h2>
+<p>Windows users new to OpenGL should note that, for historical reasons, GL functions added after OpenGL version 1.1 are not available by default. Those functions must be loaded at run-time, either with an OpenGL extension-handling library or with <a href="SDL_GL_GetProcAddress.html">SDL_GL_GetProcAddress</a>() and its related functions.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GL_DeleteContext.html">SDL_GL_DeleteContext</a></li>
+<li><a href="SDL_GL_MakeCurrent.html">SDL_GL_MakeCurrent</a></li></ul>
+</div>
+</BODY>
+</HTML>

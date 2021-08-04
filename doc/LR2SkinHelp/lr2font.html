@@ -1,0 +1,440 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+    <meta content="text/html; charset=Shift_JIS" http-equiv="content-type">
+    <title>拡張定義</title>
+    <meta name="author" content=".RED">
+    <meta name="GENERATOR" content="MSHTML 8.00.6001.23520">
+    <meta name="ROBOTS" content="NOINDEX,NOFOLLOW">
+    <style type="text/css">
+        body,
+        textarea,
+        td {
+            font-size: 12px
+        }
+        
+        div {
+            margin-left: 10px;
+            padding-bottom: 30px;
+        }
+        
+        div > p,
+        div > table {
+            margin-left: 20px;
+        }
+        
+        h4 {
+            margin-top: 3em;
+            margin-left: 10px;
+        }
+        
+        h3 {
+            margin-top: 4em;
+            width: 96%;
+            width: calc(100% - 14px);
+            background: -moz-linear-gradient(white, #E0E0E0);
+            background: -webkit-gradient(linear, left top, left bottom, from(white), to(#E0E0E0));
+            background: -ms-linear-gradient(top, white, #E0E0E0);
+            -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#cFFF', endColorstr='#E0E0E0', GradientType=0)";
+            padding: 6px;
+            border: solid 1px #999;
+            border-radius: 3px;
+        }
+        
+        h3:before {
+            width: 5px;
+            display: inline-block;
+            background: #666;
+            content: "　";
+            margin-right: 5px;
+            padding: 2px;
+        }
+        
+        li h4 {
+            margin-bottom: 0px;
+        }
+        
+        ul.link li,
+        ul.index li {
+            display: inline-block;
+            font-size: 12px;
+        }
+        
+        ul.link,
+        ul.index {
+            margin-left: -20px;
+            font-size: 0px;
+        }
+        
+        ul.link li:nth-of-type(n+2) {
+            margin-right: 10px;
+        }
+        
+        ul.index li {
+            margin: 0px 10px 10px 0px;
+        }
+        
+        td {
+            vertical-align: top;
+            padding: 3px;
+        }
+        
+        td ul li {
+            margin-bottom: 1.1em;
+        }
+        
+        blockquote > p,
+        blockquote > table {
+            margin-left: 20px;
+        }
+        
+        blockquote > h3 {
+            width: 600px;
+            margin-top: 2em;
+        }
+        
+        span.strike {
+            text-decoration: line-through;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="content">
+        <h2>LR2でのフォントの登録</h2>
+        <p>LR2スキンでは使用する画像ファイルを#IMAGEで指定しますが、これと同様に使用するフォントも#LR2FONTという定義で指定します。
+            <br>この時指定するのはlr2fontファイルというLR2における文字列表示に使う専用形式で、
+            <br>全文字列を画像化して格納し、それを元に本体側で各文字を参照して文字列として表示しています。
+            <br>画像ファイル定義を積んでいたりxywhで各文字列を指定したりと、これ単体がスキンcsvに近い働きをします。
+            <br>これによりLRemでは不可能だったグラデーションの掛かった文字列を表示したり、文字の輪郭に色を付けたりといった事が可能になりました。
+        </p>
+        <p>lr2fontファイルが存在しない場合、もしくはLR2 SET UPオプションで画像フォントを無効にしている場合は、
+            <br>#FONT定義で指定した『PCにインストール済みのフォント』が使われる、
+            <br>と思わせて実際にはFONT定義のname値は認識されないのでLR2 SET UPオプションで指定したフォントが使われます。
+        </p>
+        <ul class="index">
+            <li><a href="#lr2font">#LR2FONT</a></li>
+            <li><a href="#font">#FONT</a></li>
+            <li><a href="#lr2font_more">lr2fontファイルの仕様詳細</a></li>
+            <li><a href="#fontutil">FontUtil</a></li>
+            <li><a href="#r">一部機能向け識別文字</a></li>
+            <li><a href="#dxa">フォントデータとDXA圧縮</a></li>
+        </ul>
+        <h3><a name="lr2font">#LR2FONT</a></h3>
+        <p>ほぼ#IMAGE定義と同じで、指定したいlr2fontファイルの『LR2body.exeからの相対パス』を記述します。
+            <br>そしてこれも#IMAGE同様、記述した順に0、1、2…と本体側から自動的に番号が割り当てられていき、この値（TEXT定義の場合はfont値）をSRC_TEXTで指定します。
+            <br>パスの次を1とすると、画像フォント使用不可設定が無効になり、かならず使用されます。</p>
+        <p><img title="#LR2FONT" alt="#LR2FONT" src="lr2font.gif"></p>
+        <p>この時コメントとしてfont値の他に各lr2fontの文字サイズも併記しておくと後々便利です。
+        </p>
+        <p>関連リンク：<a href="hanyou.html#src_text">#SRC_TEXT</a></p>
+        <h3>#FONT</h3>
+        <p>#LR2FONT定義で指定したlr2fontファイルが存在しない・#LR2FONT定義自体が存在しない、
+        <br>あるいはSET UPオプションの『画像フォントを無効にする』にチェックした場合にのみ使用されます。
+        <br>こちらも#LR2FONT同様、記述順に0、1、2…とfont値が割り当てられます。（#LR2FONT定義の個数とは独立してカウントされます）</p>
+        <p>フォーマットはLR2の前身であるLRemと同じになっており、PCにインストールされているフォントを使うので画像フォントと違って負荷が少なく動作も安定します。<br>
+      <span class="strike">ただ、フォントを持っていない場合は代替フォントでの表示になってしまい、表示サイズごと変わってしまう事も少なくないので<br>
+      こちらをメインで使用しているLR2スキンは見た事がありません。文字間隔も指定できませんし。</span></p>
+        <p>実際に使ってみたところname値によるフォント指定は機能していない事が分かりました。
+            <br>参照フォントはLR2 SETUPオプションで指定した『画像フォント無効時のフォント』固定のようです。</p>
+        <p>また、#FONT定義の文字列はsize値で指定したサイズでレンダリングされ、その後更に#DST_TEXTのh値に拡縮されてから表示されるので
+            <br>文字サイズが異なる場合はなるべく別なFONT定義に分けた方が綺麗な表示になります。
+        </p>
+        <p><img alt="font.png" src="font.png" border="0" height="33" width="385"></p>
+        <p>一応各パラメータ詳細。</p>
+        <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td align="center" valign="top">size</td>
+                    <td valign="top">px単位でのサイズ指定です。そのまんまです。
+                        <br>前述のとおり#DST_TEXTのh値に合わせた方がきれいに表示されます。</td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">thick</td>
+                    <td valign="top">太さ指定。こちらもpx単位？</td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">aa/edge</td>
+                    <td valign="top">
+                        <p>表示文字のオプション。</p>
+                        <p>0：ノーマル
+                            <br> 1：輪郭付き
+                            <br> 2：アンチエイリアス（ぼかし）
+                            <br> 3：輪郭 + アンチエイリアス</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">name</td>
+                    <td valign="top">
+                        <p>利用できません。
+                            <br><span style="text-decoration:line-through;">フォント名を指定します。正確なフォント名を入力する必要があります。<br>
+                ここより右のセルに指定フォントを持っていなかった場合の代替フォントを何個でも設定できます。</span></p>
+                        <p><span style="text-decoration:line-through;">※指定するのはフォントファイル名ではありません。全角/半角表記にも注意。<br>
+                ※代替フォントも持ってなかった場合はSET UPオプションで指定したフォントが使われます。（多分）</span></p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>関連リンク：<a href="hanyou.html#src_text">#SRC_TEXT</a></p>
+        <h3><a name="lr2font_more">lr2fontファイルの仕様詳細</a></h3>
+        <p>LR2起動中に一度でも読み込ませると終了させるまでプロセスでロックされ続けるため、LR2起動中の編集作業は出来ません。（画像編集は可）
+            <br> また、改変箇所を反映させるにはその都度LR2を再起動する必要があります。（スキンオプションの切り替え等では反映されません）
+        </p>
+        <blockquote style="MARGIN-RIGHT: 0px" dir="ltr">
+            <h3><a name="Size">#S</a></h3>
+            <p><img title="S" alt="S" src="s.png"></p>
+            <p>本体側に渡すフォントサイズになります。
+                <br> この値からDST_TEXTのh値に拡縮を行って最終的なサイズが決まります。
+            </p>
+            <h3><a name="customfile">#M</a></h3>
+            <p><img title="M" alt="M" src="m.png"></p>
+            <p>文字間隔を指定します。単位はpx。FontUtilでは設定出来ないので基本的には手動で変更します。</p>
+            <h3><a name="t">#T</a></h3>
+            <p><img title="T" alt="T" src="t.png"></p>
+            <p>画像ファイル定義です。スキンcsvで言うところの#IMAGEに相当します。
+                <br> 画像番号（gr値相当）、ファイルパスの順で記述します。
+                <br> スキンcsvとは違って「lr2fontファイルからの相対参照」で画像ファイルを指定します。
+                <br> LR2body.exeからの相対参照ではないので注意。
+            </p>
+            <p>また、画像番号も宣言順の自動割り当てではないため、並べ替えや任意の値を割り当てることが出来ます。
+            </p>
+            <h3><a name="r">#R</a></h3>
+            <p><img title="R" alt="R" src="r.png">
+                <p/>
+                <p>#SRC_IMAGEに近い構造です。
+                    <br> 文字単位で画像から切り出しを行い、テキストとして表示します。
+                </p>
+                <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td>文字番号</td>
+                            <td>Shift-JIS文字コードからいくつかの特殊文字を除外して生成されるLR2専用の文字コードです。
+                                <br> 各文字番号の求め方は以下の通りです。
+                                <ul>
+                                    <li>0 ～ 255
+                                        <br> ASCIIの文字コードと同じ値
+                                    </li>
+                                    <li>256 ～ 8126
+                                        <br> Shift-JIS文字コードを10進数に変換して32832を引いた値
+                                    </li>
+                                    <li>8127 ～ 15306
+                                        <br> Shift-JIS文字コードを10進数に変換して49281を引いてた値
+                                    </li>
+                                </ul>
+                                ※founfainさん情報有難うございました
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>画像番号
+                                <br>
+                            </td>
+                            <td>#Tで指定した画像番号を指定します。
+                                <br>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center;">xywh
+                                <br>
+                            </td>
+                            <td>スキンcsv同様、座標値を指定します。
+                                <br>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>この座標指定におけるh値が文字列の初期サイズであり、これを#S値まで拡縮して本体に渡し、
+                    <br> そこからDST_TEXTのh値に拡縮されるという非常にややこしい仕組みになっています。
+                </p>
+                <p>また、実際に表示される文字列の横幅は「lr2fontの#S値基準で算出されたDST_TEXTのw値」になります。
+                    <br> つまり
+                    <span style="font-weight: bold;">DSTのh値が#S値より大きければ描画される実サイズはDSTのw値より大きくなり、#S値より小さければ実サイズも縮みます。</span></p>
+                <p>これらの拡縮をなるべく避けるには　lr2fontのh値=#S値=DST_TEXTのｈ値　になっている必要があります。</p>
+                <p>※文字列の横幅がDSTw値を超えると縮小されるので、どう足掻いても画質には限界があります。</p>
+        </blockquote>
+        <h3><a name="fontutil">FontUtil</a></h3>
+        <p>lr2fontファイルとそのlr2fontに対応した各文字画像は本体付属のFontUtilというソフトで出力します。
+            <br>が、ほとんどのフォントはLR2の様な「全文字データを画像として格納し、ソフト側で文字列として表示する」という利用におけるデータの配布を禁じているため、
+            <br>利用できるフォントには制限があります。詳しくは<a target="_blank" href="http://wikinavi.net/vipgamecreator/index.php?%E3%82%B2%E3%83%BC%E3%83%A0%E3%81%AB%E4%BD%BF%E3%81%88%E3%82%8B%E3%83%95%E3%82%A9%E3%83%B3%E3%83%88">こちら</a>。</p>
+        <p>FontUtilのバッチ出力機能はこれを回避するための苦肉の策なのかなとも思いますが、
+            <br> 今のところバッチファイルを同封しているスキンは見たことがありません。
+        </p>
+        <p><img alt="FontUtil" src="fontutil.png"></p>
+        <blockquote style="MARGIN-RIGHT: 0px" dir="ltr">
+            <h3>コンバートファイルパス</h3>
+            <p>sampleフォルダに入っているSHIFT-JIS.txtを指定します。
+                <br> これ以外を使うとどうなるかは未確認。
+            </p>
+            <h3>マップファイル</h3>
+            <p>グラデーションやテクスチャのbmpファイルを指定します。
+                <br> パッと見64ｘ64固定に見えますが実際には出力するフォントサイズに合ったサイズのテクスチャが必要です。
+                <br>
+                <br> 例．64x64の白黒テクスチャをサイズ50の文字に適用した際のプレビュー
+                <br>
+                <img alt="texture_size" src="texture_size.gif">
+                <br>
+            </p>
+            <h3>出力データ名</h3>
+            <p>出力するlr2fontファイル名です。
+                <br> 出力後に変更可能なので深く考える必要無し。
+            </p>
+            <h3>フォント情報</h3>
+            <p>書体サイズ+（エッジサイズx2）がlr2fontファイルの#S値、すなわちDST_TEXTのh値になります。
+                <br> 拡縮を避けてより綺麗なテキストを表示するためには再出力の20～30回は覚悟しましょう。
+            </p>
+            <h3>特殊効果</h3>
+            <p>ここもほとんど解説不要ですが特記事項が2点。
+                <br>
+                <br> サンプリング数はアンチエイリアスの設定です。フォントサイズをx倍で描画した後に縮小するそうです。
+                <br> 数字を増やすと処理時間が増えますが、増やしても変化は徐々に微量になっていきます。
+                <br> 通常は2～3で問題無いと思います。
+                <br>
+                <br> 押し出しは文字を押し出してその軌跡を表示することで立体感を出すエフェクトです。（多分）
+                <br> また、押し出すことでlr2font側のh値や#S値を大きく取りつつ文字画像自体は小さく抑えることが出来るため、
+                <br> 「後から輪郭加工を施せるlr2フォント」を生成することも可能です。
+                <br> 「何に使うの？」と思った人には不要な機能と言えます。
+                <br>
+                <br> 例．S値・h値が同じで文字サイズが小さい文字画像（※どちらも大文字です）
+                <br>
+                <img alt="押し出し例" src="font_oshidashi.gif">
+                <br>
+                <br> うちではRB段位リザフォントのように「FontUtilでは作れない輪郭エフェクト」を打ち込むため、
+                <br> 緑色で押し出し出力しておいて、一枚ずつ押し出し部分を透過してから画像をずらし輪郭を加工していく、といった用途に使いました。
+                <br> この使い方であってるのか分かりませんがあくまでも一例として。
+                <br>
+                <br> 例．黒字に輪郭グラデーションに輪郭黒エッジの文字画像
+                <br>
+                <img alt="RB段位リザフォント" src="rb_grade.png"></p>
+            <h3>テクスチャサイズ</h3>
+            <p>推奨サイズは256の倍数だそうです。
+                <br> これは読み込める画像ファイル解像度の最小単位が2のべき乗である事が関係しているそうで、
+                <br> 例えば257ｘ257の画像を参照する際には内部的に512ｘ512を取ってしまうためとかそんなんらしいです。（詳しくは知りません）
+                <br> 必要な文字列が記述されている画像ファイルをその都度読みに行くため、なるべく小さい方が付加は少ない気がします。 </p>
+        </blockquote>
+        <h3><a name="r">一部機能向け識別文字</a></h3>
+        <p>主にRBリザ・段位リザで使用した専用識別子です。
+            <br> 使い方は各スキンcsvとlr2font参照。
+        </p>
+        <h4>段位リザルト向け段位別背景分岐用識別子</h4>
+        <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td style="text-align: center;"><strong>文字番号</strong></td>
+                    <td style="text-align: center;"><strong>文字列</strong></td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">3913</td>
+                    <td style="text-align: center;">初</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">5041</td>
+                    <td style="text-align: center;">二</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">3599</td>
+                    <td style="text-align: center;">三</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">3628</td>
+                    <td style="text-align: center;">四</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">3228</td>
+                    <td style="text-align: center;">五</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">6170</td>
+                    <td style="text-align: center;">六</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">3701</td>
+                    <td style="text-align: center;">七</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">5226</td>
+                    <td style="text-align: center;">八</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">2979</td>
+                    <td style="text-align: center;">九</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">3868</td>
+                    <td style="text-align: center;">十</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">2566</td>
+                    <td style="text-align: center;">皆</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">5229</td>
+                    <td style="text-align: center;">発</td>
+                </tr>
+            </tbody>
+        </table>
+        <h4>IRメッセージ分岐用識別子</h4>
+        <p>※LR2body.exeのバイナリより抜粋</p>
+        <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td style="text-align: center;"><strong>文字番号</strong></td>
+                    <td style="text-align: center;"><strong>文字列</strong></td>
+                    <td><strong>内容</strong></td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">625</td>
+                    <td style="text-align: center;">こ</td>
+                    <td>この曲はIRに登録できません</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">788</td>
+                    <td style="text-align: center;">サ</td>
+                    <td>サーバーの接続に失敗しました</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">792</td>
+                    <td style="text-align: center;">ス</td>
+                    <td>スコアを送信しました</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">4624</td>
+                    <td style="text-align: center;">単</td>
+                    <td>単体でプレイしたことの無い曲はIRに登録されません</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">4664</td>
+                    <td style="text-align: center;">遅</td>
+                    <td>遅延率が規定値を超えたので、スコアは保存されません</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>RBリザルトでは「現在サーバーメンテナンス中です」も作ってありますが、これはおそらくリザルト画面用のメッセージでは無いので省略。</p>
+        <ul class="link">
+            <li>関連リンク：</li>
+            <li><a href="hanyou.html#src_text">#SRC_TEXT</a></li>
+            <li><a href="application.html#text_parts">テキスト連動パーツ</a></li>
+            <li><a href="application.html#txt2bargraph">テキスト定義を用いたバーグラフ</a></li>
+        </ul>
+        <h3><a name="dxa">フォントデータとDXA圧縮</a></h3>
+        <p>拡張子がdxaになります。多分DirectXArchiveだと思います。
+            <br> DireｃｔXライブラリから中身を直接参照出来る専用圧縮形式と考えて良いでしょう。
+            <br> LR2files\スキン関連ドキュメント\DxaEncode.exe で圧縮、DxaDecode.exe で展開できます。
+            <br> パス指定は圧縮前の状態の物がそのまま使えるので配布時にdxa圧縮するのが一般的です。
+        </p>
+        <p>LR2では画像ファイル全般とlr2fontファイル以外はDXA圧縮しても認識できません。
+            <br> 通常はDXA圧縮してもファイルサイズはほとんど変わりませんが、tga形式RLE圧縮無しの場合には最高圧縮のpng形式くらいまで圧縮できます。
+        </p>
+        <span style="margin-left: 10px;font-weight: bold;">利点</span>
+        <ul>
+            <li>ファイル数削減</li>
+            <li>（前述のtga無圧縮の場合）画像データ読み込みの高速化</li>
+        </ul>
+        <span style="margin-left: 10px;font-weight: bold;">欠点</span>
+        <ul>
+            <li>LR2プロセスによるlr2fontのロックがDXA全体になるため、LR2で当該スキン使用中には文字列画像の編集も不可能になる（DXA展開自体出来なくなるので）</li>
+            <li>改変・修正時に展開・再圧縮が面倒</li>
+        </ul>
+    </div>
+</body>
+
+</html>

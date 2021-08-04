@@ -1,0 +1,32 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_UpdateWindowSurface</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_UpdateWindowSurface</h1>
+<p>Use this function to copy the window surface to the screen.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_UpdateWindowSurface(SDL_Window* window)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>window</strong></td><td>the window to update</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>This is the function you use to reflect any changes to the surface on the screen.
+<p>This function is equivalent to the SDL 1.2 API SDL_Flip().
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetWindowSurface.html">SDL_GetWindowSurface</a></li>
+<li><a href="SDL_UpdateWindowSurfaceRects.html">SDL_UpdateWindowSurfaceRects</a></li></ul>
+</div>
+</BODY>
+</HTML>

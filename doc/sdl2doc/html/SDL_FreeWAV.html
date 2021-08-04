@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_FreeWAV</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_FreeWAV</h1>
+<p>Use this function to free data previously allocated with <a href="SDL_LoadWAV.html">SDL_LoadWAV</a>() or <a href="SDL_LoadWAV_RW.html">SDL_LoadWAV_RW</a>().
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_FreeWAV(Uint8* audio_buf)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>audio_buf</strong></td><td>a pointer to the buffer created by <a href="SDL_LoadWAV.html">SDL_LoadWAV</a>() or <a href="SDL_LoadWAV_RW.html">SDL_LoadWAV_RW</a>()</td></tr>
+</table>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+SDL_AudioSpec wav_spec;
+Uint32 wav_length;
+Uint8 *wav_buffer;
+
+/* Load the WAV */
+if (SDL_LoadWAV("test.wav", &wav_spec, &wav_buffer, &wav_length) == NULL) {
+    fprintf(stderr, "Could not open test.wav: %s\n", SDL_GetError());
+} else {
+    /* Do stuff with the WAV data, and then... */
+    SDL_FreeWAV(wav_buffer);
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>After a WAVE file has been opened with <a href="SDL_LoadWAV.html">SDL_LoadWAV</a>() or <a href="SDL_LoadWAV_RW.html">SDL_LoadWAV_RW</a>() its data can eventually be freed with <a href="SDL_FreeWAV.html">SDL_FreeWAV</a>(). It is safe to call this function with a NULL pointer.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_LoadWAV.html">SDL_LoadWAV</a></li>
+<li><a href="SDL_LoadWAV_RW.html">SDL_LoadWAV_RW</a></li></ul>
+</div>
+</BODY>
+</HTML>

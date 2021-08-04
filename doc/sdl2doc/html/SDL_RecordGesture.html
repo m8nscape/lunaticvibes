@@ -1,0 +1,30 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_RecordGesture</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_RecordGesture</h1>
+<p>Use this function to begin recording a gesture on a specified touch device or all touch devices.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_RecordGesture(SDL_TouchID touchId)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>touchId</strong></td><td>the touch device index, or -1 for all touch devices</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 1 on success or 0 if the specified device could not be found.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>If the parameter is -1 (i.e., all devices), this function will always return 1, regardless of whether there actually are any devices.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetTouch.html">SDL_GetTouch</a></li></ul>
+</div>
+</BODY>
+</HTML>

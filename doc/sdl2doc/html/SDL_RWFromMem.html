@@ -1,0 +1,45 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_RWFromMem</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_RWFromMem</h1>
+<p>Use this function to prepare a read-only memory buffer for use with RWops.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_RWops* SDL_RWFromMem(void* mem,
+                         int   size)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>mem</strong></td><td>a pointer to a buffer to feed an <a href="structures/SDL_RWops.html">SDL_RWops</a> stream</td></tr>
+<tr><td><strong>size</strong></td><td>the buffer size, in bytes</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns a pointer to a new <a href="structures/SDL_RWops.html">SDL_RWops</a> structure, or NULL if it fails; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+char bitmap[310000];
+SDL_RWops *rw = SDL_RWFromMem(bitmap, sizeof(bitmap));
+SDL_SaveBMP_RW(screen, rw, 1);  /* closes RWOPS, leaves us memory buffer of data */
+</pre></div>
+<h2>Remarks</h2>
+<p>This function sets up an <a href="structures/SDL_RWops.html">SDL_RWops</a> struct based on a memory area of a certain size, for both read and write access.
+<p>This memory buffer is not copied by the RWops; the pointer you provide must remain valid until you close the stream. Closing the stream will not free the original buffer.
+<p>If you need to make sure the RWops never writes to the memory buffer, you should use <a href="SDL_RWFromConstMem.html">SDL_RWFromConstMem</a> with a read-only buffer of memory instead.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_RWFromConstMem.html">SDL_RWFromConstMem</a></li>
+<li><a href="SDL_RWclose.html">SDL_RWclose</a></li>
+<li><a href="SDL_RWread.html">SDL_RWread</a></li>
+<li><a href="SDL_RWwrite.html">SDL_RWwrite</a></li>
+<li><a href="SDL_RWseek.html">SDL_RWseek</a></li>
+<li><a href="SDL_RWtell.html">SDL_RWtell</a></li></ul>
+</div>
+</BODY>
+</HTML>

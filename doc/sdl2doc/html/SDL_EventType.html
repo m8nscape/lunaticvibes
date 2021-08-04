@@ -1,0 +1,126 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_EventType</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_EventType</h1>
+<p>An enumeration of the types of events that can be delivered.
+<h2>Values</h2>
+<table>
+<tr style="color: #808080;"><td>SDL_FIRSTEVENT</td><td>do not remove (unused)</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="2"><em>Application events</em></td></tr>
+<tr><td>SDL_QUIT</td><td>user-requested quit; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="2">Android and iOS events; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td>SDL_APP_TERMINATING</td><td>OS is terminating the application</td></tr>
+<tr><td>SDL_APP_LOWMEMORY</td><td>OS is low on memory; free some</td></tr>
+<tr><td>SDL_APP_WILLENTERBACKGROUND</td><td>application is entering background</td></tr>
+<tr><td>SDL_APP_DIDENTERBACKGROUND</td><td>application entered background</td></tr>
+<tr><td>SDL_APP_WILLENTERFOREGROUND</td><td>application is entering foreground</td></tr>
+<tr><td>SDL_APP_DIDENTERFOREGROUND</td><td>application entered foreground</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="2"><em>Window events</em></td></tr>
+<tr><td><a href="SDL_WindowEvent.html">SDL_WINDOWEVENT</a></td><td>window state change</td></tr>
+<tr><td><a href="SDL_SysWMEvent.html">SDL_SYSWMEVENT</a></td><td>system specific event</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="2"><em>Keyboard events</em></td></tr>
+<tr><td><a href="SDL_KeyboardEvent.html">SDL_KEYDOWN</a></td><td>key pressed</td></tr>
+<tr><td><a href="SDL_KeyboardEvent.html">SDL_KEYUP</a></td><td>key released</td></tr>
+<tr><td><a href="SDL_KeyboardEvent.html">SDL_TEXTEDITING</a></td><td>keyboard text editing (composition)</td></tr>
+<tr><td><a href="SDL_KeyboardEvent.html">SDL_TEXTINPUT</a></td><td>keyboard text input</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="2"><em>Mouse events</em></td></tr>
+<tr><td><a href="SDL_MouseMotionEvent.html">SDL_MOUSEMOTION</a></td><td>mouse moved</td></tr>
+<tr><td><a href="SDL_MouseButtonEvent.html">SDL_MOUSEBUTTONDOWN</a></td><td>mouse button pressed</td></tr>
+<tr><td><a href="SDL_MouseButtonEvent.html">SDL_MOUSEBUTTONUP<a></td><td>mouse button released</td></tr>
+<tr><td><a href="SDL_MouseWheelEvent.html">SDL_MOUSEWHEEL</a></td><td>mouse wheel motion</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="2"><em>Joystick events</em></td></tr>
+<tr><td><a href="SDL_JoyAxisEvent.html">SDL_JOYAXISMOTION</a></td><td>joystick axis motion</td></tr>
+<tr><td><a href="SDL_JoyBallEvent.html">SDL_JOYBALLMOTION</a></td><td>joystick trackball motion</td></tr>
+<tr><td><a href="SDL_JoyHatEvent.html">SDL_JOYHATMOTION</a></td><td><tr><td>joystick hat position change</td></tr>
+<tr><td><a href="SDL_JoyButtonEvent.html">SDL_JOYBUTTONDOWN</a></td><td>joystick button pressed</td></tr>
+<tr><td><a href="SDL_JoyButtonEvent.html">SDL_JOYBUTTONUP</a></td><td>joystick button released</td></tr>
+<tr><td><a href="SDL_JoyDeviceEvent.html">SDL_JOYDEVICEADDED</a></td><td>joystick connected</td></tr>
+<tr><td><a href="SDL_JoyDeviceEvent.html">SDL_JOYDEVICEREMOVED</a></td><td>joystick disconnected</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="2"><em>Controller events</em></td></tr>
+<tr><td><a href="SDL_ControllerAxisEvent.html">SDL_CONTROLLERAXISMOTION</a></td><td>controller axis motion</td></tr>
+<tr><td><a href="SDL_ControllerButtonEvent.html">SDL_CONTROLLERBUTTONDOWN</a></td><td>controller button pressed</td></tr>
+<tr><td><a href="SDL_ControllerButtonEvent.html">SDL_CONTROLLERBUTTONUP</a></td><td>controller button released</td></tr>
+<tr><td><a href="SDL_ControllerDeviceEvent.html">SDL_CONTROLLERDEVICEADDED</a></td><td>controller connected</td></tr>
+<tr><td><a href="SDL_ControllerDeviceEvent.html">SDL_CONTROLLERDEVICEREMOVED</a></td><td>controller disconnected</td></tr>
+<tr><td><a href="SDL_ControllerDeviceEvent.html">SDL_CONTROLLERDEVICEREMAPPED</a></td><td>controller mapping updated</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="2"><em>Touch events</em></td></tr>
+<tr><td><a href="SDL_TouchFingerEvent.html">SDL_FINGERDOWN</a></td><td>user has touched input device</td></tr>
+<tr><td><a href="SDL_TouchFingerEvent.html">SDL_FINGERUP</a></td><td>user stopped touching input device</td></tr>
+<tr><td><a href="SDL_TouchFingerEvent.html">SDL_FINGERMOTION</a></td><td>user is dragging finger on input device</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="2"><em>Gesture events</em></td></tr>
+<tr><td><a href="SDL_DollarGestureEvent.html">SDL_DOLLARGESTURE</a></td><td>&nbsp;</td></tr>
+<tr><td><a href="SDL_DollarGestureEvent.html">SDL_DOLLARRECORD</a></td><td>&nbsp;</td></tr>
+<tr><td><a href="SDL_MultiGestureEvent.html">SDL_MULTIGESTURE</a></td><td>&nbsp;</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="2"><em>Clipboard events</em></td></tr>
+<tr><td>SDL_CLIPBOARDUPDATE</td><td>the clipboard changed</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="2"><em>Drag and drop events</em></td></tr>
+<tr><td><a href="SDL_DropEvent.html">SDL_DROPFILE</a></td><td>the system requests a file open</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="2"><em>These are for your use, and should be allocated with <a href="SDL_RegisterEvents.html">SDL_RegisterEvents</a>()</em></td></tr>
+<tr><td>SDL_USEREVENT</td><td>a user-specified event</td></tr>
+<tr><td>SDL_LASTEVENT</td><td>only for bounding internal arrays</td></tr>
+</table>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+SDL_Event e;
+while (SDL_PollEvent(&e) {
+    if (e.type == SDL_KEYDOWN) {
+        printf("User just pressed down a key!\n");
+    }
+}
+</pre></div>
+<h2 id="Remarks">Remarks</h2>
+<h3 id="SDL_QUIT">SDL_QUIT</h3>
+<p>SDL_QUIT events are generated for a variety of reasons. An application can choose to ignore the event, for example, if it wants to offer a prompt asking the user to save the current work.
+<p>An SDL_QUIT event is generated when the user clicks on the close button of the last existing window. This happens in addition to the SDL_WINDOWEVENT/SDL_WINDOWEVENT_CLOSE event, so the application can check whichever is appropriate, or both, or neither. If the application ignores this event and creates another window, SDL_QUIT will be sent again the next time the user clicks on the last remaining window's close button.
+<p>SDL_QUIT is not limited to window closing. On Mac OS X, pressing Command-Q (the standard keyboard shortcut for "Quit this application") will cause SDL to generate an SDL_QUIT event, regardless of what windows exist at the time. The application is still responsible for terminating itself properly, however. Applications that completely ignore Command-Q will fail Mac App Store certification.
+<p><a href="SDL_Init.html">SDL_Init</a>() installs signal handlers for SIGINT (keyboard interrupt) and SIGTERM (system termination request), if handlers do not already exist, that generate SDL_QUIT events as well. There is no way to determine the cause of an SDL_QUIT event, but setting a signal handler in your application will override the default generation of quit events for that signal.
+<h3>Android and iOS Events</h3>
+<p>What we currently label as "Android and iOS events" are specific to mobile and embedded devices that have different requirements than your usual desktop application. These events must be handled in an event filter, since often the OS needs an immediate response and will terminate your process shortly after sending the event, and if it sits in the SDL event queue, it'll be too late. You can handle everything else through a normal <a href="SDL_PollEvent.html">SDL_PollEvent</a>() loop, but you should set up a callback with <a href="SDL_SetEventFilter.html">SDL_SetEventFilter</a>() for these specific events.
+<p>This is how these events currently map to the underlying OS:
+<table>
+<tr><td>SDL event</td><td>What</td><td>iOS</td><td>Android</td></tr>
+<tr><td>SDL_APP_TERMINATING</td><td>The application is being terminated by the OS.</td><td>applicationWillTerminate()</td><td>onDestroy()</td></tr>
+<tr><td>SDL_APP_LOWMEMORY</td><td>The application is low on memory, free memory if possible.</td><td>applicationDidReceiveMemoryWarning()</td><td>onLowMemory()</td></tr>
+<tr><td>SDL_APP_WILLENTERBACKGROUND</td><td>The application is about to enter the background.</td><td>applicationWillResignActive()</td><td>onPause()</td></tr>
+<tr><td>SDL_APP_DIDENTERBACKGROUND</td><td>The application did enter the background and may not get CPU for some time.</td><td>applicationDidEnterBackground()</td><td>onPause()</td></tr>
+<tr><td>SDL_APP_WILLENTERFOREGROUND</td><td>The application is about to enter the foreground.</td><td>applicationWillEnterForeground()</td><td>onResume()</td></tr>
+<tr><td>SDL_APP_DIDENTERFOREGROUND</td><td>The application is now interactive.</td><td>applicationDidBecomeActive()</td><td>onResume()</td></tr>
+</table>
+<h2>Related Structures</h2>
+<ul style="list-style-type:none"><li><a href="SDL_JoyAxisEvent.html">SDL_JoyAxisEvent</a></li>
+<li><a href="SDL_JoyBallEvent.html">SDL_JoyBallEvent</a></li>
+<li><a href="SDL_JoyButtonEvent.html">SDL_JoyButtonEvent</a></li>
+<li><a href="SDL_JoyHatEvent.html">SDL_JoyHatEvent</a></li>
+<li><a href="SDL_JoyDeviceEvent.html">SDL_JoyDeviceEvent</a></li>
+<li><a href="SDL_ControllerAxisEvent.html">SDL_ControllerAxisEvent</a></li>
+<li><a href="SDL_ControllerButtonEvent.html">SDL_ControllerButtonEvent</a></li>
+<li><a href="SDL_ControllerDeviceEvent.html">SDL_ControllerDeviceEvent</a></li>
+<li><a href="SDL_KeyboardEvent.html">SDL_KeyboardEvent</a></li>
+<li><a href="SDL_MouseButtonEvent.html">SDL_MouseButtonEvent</a></li>
+<li><a href="SDL_MouseMotionEvent.html">SDL_MouseMotionEvent</a></li>
+<li><a href="SDL_MouseWheelEvent.html">SDL_MouseWheelEvent</a></li>
+<li><a href="SDL_QuitEvent.html">SDL_QuitEvent</a></li>
+<li><a href="SDL_SysWMEvent.html">SDL_SysWMEvent</a></li>
+<li><a href="SDL_TextEditingEvent.html">SDL_TextEditingEvent</a></li>
+<li><a href="SDL_TextInputEvent.html">SDL_TextInputEvent</a></li>
+<li><a href="SDL_UserEvent.html">SDL_UserEvent</a></li>
+<li><a href="SDL_WindowEvent.html">SDL_WindowEvent</a></li>
+<li><a href="SDL_DropEvent.html">SDL_DropEvent</a></li>
+<li><a href="SDL_TouchFingerEvent.html">SDL_TouchFingerEvent</a></li>
+<li><a href="SDL_DollarGestureEvent.html">SDL_DollarGestureEvent</a></li>
+<li><a href="SDL_MultiGestureEvent.html">SDL_MultiGestureEvent</a></li>
+</ul>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_PollEvent.html">SDL_PollEvent</a></li>
+<li><a href="SDL_SetEventFilter.html">SDL_SetEventFilter</a></li>
+</ul>
+</div>
+</BODY>
+</HTML>

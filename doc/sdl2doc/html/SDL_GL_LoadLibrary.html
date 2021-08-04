@@ -1,0 +1,32 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GL_LoadLibrary</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GL_LoadLibrary</h1>
+<p>Use this function to dynamically load an OpenGL library.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_GL_LoadLibrary(const char* path)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>path</strong></td><td>the platform dependent OpenGL library name, or NULL to open the default OpenGL library</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>This should be done after initializing the video driver, but before creating any OpenGL windows. If no OpenGL library is loaded, the default library will be loaded upon creation of the first OpenGL window.
+<p>If you do this, you need to retrieve all of the GL functions used in your program from the dynamic library using <a href="SDL_GL_GetProcAddress.html">SDL_GL_GetProcAddress</a>().
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GL_GetProcAddress.html">SDL_GL_GetProcAddress</a></li>
+<li><a href="SDL_GL_UnloadLibrary.html">SDL_GL_UnloadLibrary</a></li></ul>
+</div>
+</BODY>
+</HTML>

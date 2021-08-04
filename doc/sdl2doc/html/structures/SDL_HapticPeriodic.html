@@ -1,0 +1,83 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_HapticPeriodic</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_HapticPeriodic</h1>
+<p>A structure that contains a template for a periodic effect.
+<h2>Data Fields</h2>
+<table>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>Header</em></td><tr>
+<tr><td>Uint16</td><td><strong>type</strong></td><td>the shape of the waves; see <a href="#Remarks">Remarks</a> for details</td><tr>
+<tr><td><a href="SDL_HapticDirection.html">SDL_HapticDirection</a></td><td><strong>direction</strong></td><td>direction of the effect (relative to the user)</td><tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>Replay</em></td><tr>
+<tr><td>Uint32</td><td><strong>length</strong></td><td>duration of the effect</td><tr>
+<tr><td>Uint16</td><td><strong>delay</strong></td><td>delay before starting the effect</td><tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>Trigger</em></td><tr>
+<tr><td>Uint16</td><td><strong>button</strong></td><td>button that triggers the effect</td><tr>
+<tr><td>Uint16</td><td><strong>interval</strong></td><td>how soon it can be triggered again after <strong>button</strong></td><tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>Periodic</em></td><tr>
+<tr><td>Uint16</td><td><strong>period</strong></td><td>period of the wave</td><tr>
+<tr><td>Sint16</td><td><strong>magnitude</strong></td><td>peak value</td><tr>
+<tr><td>Sint16</td><td><strong>offset</strong></td><td>mean value of the wave</td><tr>
+<tr><td>Uint16</td><td><strong>phase</strong></td><td>horizontal shift given by hundredths of a cycle; see <a href="#Remarks">Remarks</a> for details</td><tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>Envelope</em></td><tr>
+<tr><td>Uint16</td><td><strong>attack_length</strong></td><td>duration of the attack</td><tr>
+<tr><td>Uint16</td><td><strong>attack_level</strong></td><td>level at the start of the attack</td><tr>
+<tr><td>Uint16</td><td><strong>fade_length</strong></td><td>duration of the fade</td><tr>
+<tr><td>Uint16</td><td><strong>fade_level</strong></td><td>level at the end of the fade</td><tr>
+</table>
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<p>A periodic effect consists of a wave-shaped effect that repeats itself over time. The type determines the shape of the wave and the other parameters determine the dimensions of the wave.
+<div style=codearea>
+<pre>
+button         period
+press          |     |
+  ||      __    __    __    __    __    _
+  ||     |  |  |  |  |  |  |  |  |  |   magnitude
+  \/     |  |__|  |__|  |__|  |__|  |   _
+    -----
+      |            offset?
+    delay          phase?
+
+-------------------------------------
+              length
+===================================================
+                      interval
+</pre></div>
+<p><strong>type</strong> may be one of the following:
+<table>
+<tr><td>SDL_HAPTIC_SINE</td><td><tt class="backtick">  __      __      __      __
+ /  \    /  \    /  \    /  
+/    \__/    \__/    \__/   </tt></td></tr>
+<tr><td>SDL_HAPTIC_SQUARE</td><td><tt class="backtick"> __    __    __    __    __ 
+|  |  |  |  |  |  |  |  |  |
+|  |__|  |__|  |__|  |__|  |</tt></td></tr>
+<tr><td>SDL_HAPTIC_TRIANGLE</td><td><tt class="backtick">  /\    /\    /\    /\    /\
+ /  \  /  \  /  \  /  \  /  
+/    \/    \/    \/    \/   </tt></td></tr>
+<tr><td>SDL_HAPTIC_SAWTOOTHUP</td><td><tt class="backtick">  /|  /|  /|  /|  /|  /|  /|
+ / | / | / | / | / | / | / |
+/  |/  |/  |/  |/  |/  |/  |</tt></td></tr>
+<tr><td>SDL_HAPTIC_SAWTOOTHDOWN</td><td><tt class="backtick">\  |\  |\  |\  |\  |\  |\  |
+ \ | \ | \ | \ | \ | \ | \ |
+  \|  \|  \|  \|  \|  \|  \|</tt></td></tr>
+</table>
+<p><strong>phase</strong> is given by hundredths of a cycle, meaning that giving the phase a value of 9000 will displace it 25% of it's period. Here are sample values:
+<table>
+<tr><td>0</td><td>No phase displacement</td></tr>
+<tr><td>9000</td><td>Displaced 25% of it's period</td></tr>
+<tr><td>18000</td><td>Displaced 50% of it's period</td></tr>
+<tr><td>27000</td><td>Displaced 75% of it's period</td></tr>
+<tr><td>36000</td><td>Displaced 100% of it's period, same as 0, but 0 is preferred</td></tr>
+</table>
+<h2>Related Structures</h2>
+<ul style="list-style-type:none"><li><a href="SDL_HapticDirection.html">SDL_HapticDirection</a></li></ul>
+</div>
+</BODY>
+</HTML>

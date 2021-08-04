@@ -1,0 +1,30 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetThreadName</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetThreadName</h1>
+<p>Use this function to get the thread name as it was specified in <a href="SDL_CreateThread.html">SDL_CreateThread</a>().
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+const char* SDL_GetThreadName(SDL_Thread* thread)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>thread</strong></td><td>the thread to query</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns a pointer to a UTF-8 string that names the specified thread, or NULL if it doesn't have a name.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>This is internal memory, not to be freed by the caller, and remains valid until the specified thread is cleaned up by <a href="SDL_WaitThread.html">SDL_WaitThread</a>().
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_CreateThread.html">SDL_CreateThread</a></li></ul>
+</div>
+</BODY>
+</HTML>

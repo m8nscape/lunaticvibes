@@ -1,0 +1,55 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>Atomic Operations</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>Atomic Operations</h1>
+<h2>Introduction</h2>
+<p>This category contains functions for handling atomic operations.
+<p><img height="16" width="16" src="alert.png" alt="/!\" style="width: 16px; height: 16px;"></img> IMPORTANT:
+<ul><li style="list-style-type:none">If you are not an expert in concurrent lockless programming, you should only be using the atomic lock and reference counting functions in this file. In all other cases you should be protecting your data structures with full mutexes. <em>Seriously, here be dragons!</em></li> 
+</ul>
+<p>"Safe" functions to use are:
+<ul>
+<li><a href="SDL_AtomicLock.html">SDL_AtomicLock</a>()</li>
+<li><a href="SDL_AtomicUnlock.html">SDL_AtomicUnlock</a>()</li>
+<li><a href="SDL_AtomicIncRef.html">SDL_AtomicIncRef</a>()</li>
+<li><a href="SDL_AtomicDecRef.html">SDL_AtomicDecRef</a>()</li>
+</ul>
+<p>You can find out a little more about lockless programming and the subtle issues that can arise here:
+<ul><li style="list-style-type:none"><a href="http://msdn.microsoft.com/en-us/library/ee418650%28v=vs.85%29.aspx">
+    http://msdn.microsoft.com/en-us/library/ee418650%28v=vs.85%29.aspx</a></li></ul>
+<p>There's also lots of good information here:
+<ul><li style="list-style-type:none"><a href="http://www.1024cores.net/home/lock-free-algorithms">http://www.1024cores.net/home/lock-free-algorithms</a></li></ul> 
+<p>These operations may or may not actually be implemented using processor specific atomic operations. When possible they are implemented as true processor specific atomic operations. When that is not possible the are implemented using locks that <strong>do</strong> use the available atomic operations.
+<p>All of the atomic operations that modify memory are full memory barriers.
+<h3>Atomic Locks</h3>
+<p>The atomic locks are efficient spinlocks using CPU instructions, but are vulnerable to starvation and can spin forever if a thread holding a lock has been terminated. For this reason you should minimize the code executed inside an atomic lock and never do expensive things like API or system calls while holding them.
+<p><img height="16" width="16" src="alert.png" alt="/!\" style="width: 16px; height: 16px;"></img> The atomic locks are not safe to lock recursively.
+<h3>Structures</h3>
+<ol start="1">
+<li><a href="structures/SDL_atomic_t.html">SDL_atomic_t</a></li>
+</ol>
+<h3>Functions</h3>
+<ol start="1">
+<li><a href="SDL_AtomicAdd.html">SDL_AtomicAdd</a></li>
+<li><a href="SDL_AtomicCAS.html">SDL_AtomicCAS</a></li>
+<li><a href="SDL_AtomicCASPtr.html">SDL_AtomicCASPtr</a></li>
+<li><a href="SDL_AtomicDecRef.html">SDL_AtomicDecRef</a></li>
+<li><a href="SDL_AtomicGet.html">SDL_AtomicGet</a></li>
+<li><a href="SDL_AtomicGetPtr.html">SDL_AtomicGetPtr</a></li>
+<li><a href="SDL_AtomicIncRef.html">SDL_AtomicIncRef</a></li>
+<li><a href="SDL_AtomicLock.html">SDL_AtomicLock</a></li>
+<li><a href="SDL_AtomicSet.html">SDL_AtomicSet</a></li>
+<li><a href="SDL_AtomicSetPtr.html">SDL_AtomicSetPtr</a></li>
+<li><a href="SDL_AtomicTryLock.html">SDL_AtomicTryLock</a></li>
+<li><a href="SDL_AtomicUnlock.html">SDL_AtomicUnlock</a></li>
+<li><a href="SDL_CompilerBarrier.html">SDL_CompilerBarrier</a></li>
+</ol>
+</div>
+</BODY>
+</HTML>

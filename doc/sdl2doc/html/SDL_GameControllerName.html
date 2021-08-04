@@ -1,0 +1,45 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GameControllerName</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GameControllerName</h1>
+<p>Use this function to get the implementation dependent name for an opened game controller.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+const char* SDL_GameControllerName(SDL_GameController* gamecontroller)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>gamecontroller</strong></td><td>a game controller identifier previously returned by <a href="SDL_GameControllerOpen.html">SDL_GameControllerOpen</a>()</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns the implementation dependent name for the game controller, or NULL if there is no name or the identifier passed is invalid.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+SDL_GameController *controller = NULL;
+for (int i = 0; i < SDL_NumJoysticks(); ++i) {
+    controller = SDL_GameControllerOpen(i);
+    if (controller) {
+        break;
+    }
+}
+
+if (controller) {
+    printf("Found a valid controller, named: %s\n", SDL_GameControllerName(controller));
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>This is the same name as returned by <a href="SDL_GameControllerNameForIndex.html">SDL_GameControllerNameForIndex</a>, but it takes a controller identifier instead of the (unstable) device index.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GameControllerOpen.html">SDL_GameControllerOpen</a></li>
+<li><a href="SDL_GameControllerNameForIndex.html">SDL_GameControllerNameForIndex</a></li></ul>
+</div>
+</BODY>
+</HTML>

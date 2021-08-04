@@ -1,0 +1,72 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetCurrentDisplayMode</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetCurrentDisplayMode</h1>
+<p>Use this function to get information about the current display mode.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_GetCurrentDisplayMode(int              displayIndex,
+                              SDL_DisplayMode* mode)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>displayIndex</strong></td><td>the index of the display to query</td></tr>
+<tr><td><strong>mode</strong></td><td>an <a href="SDL_DisplayMode.html">SDL_DisplayMode</a> structure filled in with the current display mode</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+// Using SDL2's SDL_GetCurrentDisplayMode()
+
+#include "SDL.h"
+#include <stdio.h>
+
+int main(int argc, char* argv[]){
+
+  int i;
+
+  // Declare display mode structure to be filled in.
+  SDL_DisplayMode current;
+
+  SDL_Init(SDL_INIT_VIDEO); 
+
+  // Get current display mode of all displays.
+  for(i = 0; i < SDL_GetNumVideoDisplays(); ++i){
+  
+    int should_be_zero = SDL_GetCurrentDisplayMode(i, &current);
+
+    if(should_be_zero != 0)
+      // In case of error...
+      printf("Could not get display mode for video display #%d: %s", i, SDL_GetError());
+    
+    else 
+      // On success, print the current display mode.
+      printf("Display #%d: current display mode is %dx%dpx @ %dhz. \n", i, current.w, current.h, current.refresh_rate);
+
+  }
+ 
+  // Clean up and exit the program.
+  SDL_Quit();     
+  return 0;   
+ 
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>There's a difference between this function and <a href="SDL_GetDesktopDisplayMode.html">SDL_GetDesktopDisplayMode</a> when SDL runs fullscreen and has changed the resolution. In that case this function will return the current display mode, and not the previous native display mode.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetDesktopDisplayMode.html">SDL_GetDesktopDisplayMode</a></li>
+<li><a href="SDL_GetDisplayMode.html">SDL_GetDisplayMode</a></li>
+<li><a href="SDL_SetWindowDisplayMode.html">SDL_SetWindowDisplayMode</a></li>
+<li><a href="SDL_GetNumVideoDisplays.html">SDL_GetNumVideoDisplays</a></li></ul>
+</div>
+</BODY>
+</HTML>

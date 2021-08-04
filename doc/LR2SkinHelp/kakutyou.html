@@ -1,0 +1,590 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+    <meta content="text/html; charset=Shift_JIS" http-equiv="content-type">
+    <title>拡張定義</title>
+    <meta name="author" content=".RED">
+    <meta name="GENERATOR" content="MSHTML 8.00.6001.23520">
+    <meta name="ROBOTS" content="NOINDEX,NOFOLLOW">
+    <style type="text/css">
+        body,
+        textarea,
+        td {
+            font-size: 12px
+        }
+        
+        html > div {
+            margin-left: 10px;
+            padding-bottom: 30px;
+        }
+        
+        div > p,
+        div > table{
+            margin-left: 20px;
+        }
+        
+        h4 {
+            margin-top: 3em;
+            margin-left: 10px;
+        }
+        
+        h3 {
+            margin-top: 4em;
+            width: 96%;
+            width: calc(100% - 14px);
+            background: -moz-linear-gradient(white, #E0E0E0);
+            background: -webkit-gradient(linear, left top, left bottom, from(white), to(#E0E0E0));
+            background: -ms-linear-gradient(top, white, #E0E0E0);
+            -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#cFFF', endColorstr='#E0E0E0', GradientType=0)";
+            padding: 6px;
+            border: solid 1px #999;
+            border-radius: 3px;
+        }
+        
+        h3:before {
+            width: 5px;
+            display: inline-block;
+            background: #666;
+            content: "　";
+            margin-right: 5px;
+            padding: 2px;
+        }
+        
+        .caution {
+            padding-left: 1em;
+            text-indent: -1em;
+        }
+        
+        ul.link li,
+        ul.index li {
+            display: inline-block;
+            font-size: 12px;
+        }
+        
+        ul.link,
+        ul.index {
+            margin-left: -20px;
+            font-size: 0px;
+        }
+        
+        blockquote > p,
+        blockquote > table {
+            margin-left: 20px;
+        }
+        
+        blockquote ul.link {
+            margin-left: -20px;
+        }
+        
+        blockquote {
+            margin-bottom: 3em;
+        }
+        
+        table {
+            margin-bottom: 1em;
+        }
+        
+        blockquote div#if_box div#right_box ul.link {
+            margin-left: -20px;
+        }
+        
+        ul.link li:nth-of-type(n+2) {
+            margin-right: 10px;
+        }
+        
+        ul.index li {
+            margin: 0px 10px 10px 0px;
+        }
+        
+        div#left_box,
+        div#right_box {
+            display: inline-block;
+            vertical-align: top;
+            width: 49%;
+        }
+        
+        #left_box {
+            border-right-width: 1px;
+            border-right-style: solid;
+            border-right-color: black;
+        }
+        
+        #right_box {
+            margin-left: 15px;
+        }
+        
+        td {
+            vertical-align: top;
+            padding: 3px;
+        }
+        
+        blockquote > h3 {
+            width: 600px;
+            margin-top: 3em;
+        }
+        
+        hr {
+            margin-top: 4em;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>拡張定義</h2>
+    <div id="content">
+        <p>拡張定義と勝手に名付けましたが、これは画像や文字を表示する定義ではなく、スキンの動作そのものを指定する定義です。
+            <br> いくつかの項目には解説用に適当な名前を付けてますが、特にこれといった呼び名はありません。
+            <br> 定義によっては使用できるスキン種別が決まっています。#IMAGEも厳密にはこれに分類されそうです。
+        </p>
+        <ul class="index">
+            <li><a href="kakutyou.html#information">#INFORMATION</a></li>
+            <li><a href="kakutyou.html#customoption">#CUSTOMOPTION</a></li>
+            <li><a href="kakutyou.html#customfile">#CUSTOMFILE</a></li>
+            <li><a href="kakutyou.html#endofheader">#ENDOFHEADER</a></li>
+            <li><a href="kakutyou.html#if">#IF</a></li>
+            <li><a href="kakutyou.html#include">#INCLUDE</a></li>
+            <li><a href="kakutyou.html#setoption">#SETOPTION</a></li>
+            <li><a href="kakutyou.html#startinput">#STARTINPUT</a></li>
+            <li><a href="kakutyou.html#skip">#SKIP</a></li>
+            <li><a href="kakutyou.html#loadstart">#LOADSTART</a></li>
+            <li><a href="kakutyou.html#loadend">#LOADEND</a></li>
+            <li><a href="kakutyou.html#playstart">#PLAYSTART</a></li>
+            <li><a href="kakutyou.html#close">#CLOSE</a></li>
+            <li><a href="kakutyou.html#fadeout">#FADEOUT</a></li>
+            <li><a href="kakutyou.html#reloadbanner">#RELOADBANNER</a></li>
+            <li><a href="kakutyou.html#transcolor">#TRANSCOLOR</a></li>
+            <li><a href="kakutyou.html#flipside">#FLIPSIDE</a></li>
+            <li><a href="kakutyou.html#flipresult">#FLIPRESULT</a></li>
+            <li><a href="kakutyou.html#disableflip">#DISABLEFLIP</a></li>
+            <li><a href="kakutyou.html#scratch">#SCRATCH</a></li>
+        </ul>
+        <h3><a name="information">#INFORMATION</a></h3>
+        <p>スキン種別やスキンタイトルなどを指定します。lr2skinファイル内で宣言する必要があります。</p>
+        <p>※#IFや#INCLUDEでの分岐内で宣言しても認識されません。</p>
+        <p><img alt="information.png" src="information.png" border="0" height="33" width="577"></p>
+        <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td align="center" valign="top">type</td>
+                    <td colspan="2" valign="top">
+                        <p>スキンタイプ番号を指定します。</p>
+                        <p>0：7KEYS
+                            <br> 1：5KEYS
+                            <br> 2：14KEYS
+                            <br> 3：10KEYS
+                            <br> 4：9KEYS
+                            <br> 5：MUSICSELECT
+                            <br> 6：DECIDE
+                            <br> 7：RESULT
+                            <br> 8：KEYCONFIG
+                            <br> 9：SKINSELECT
+                            <br> 10：SOUNDSET
+                            <br> 12：5KEYS BATTLE
+                            <br> 13：7KEYS BATTLE
+                            <br> 15：COURSE RESULT</p>
+                        <p>ここから未対応<cite><br>
+                11：THEME<br>
+                14：COURSE EDIT<br>
+                16：9KEYS BATTLE<br>
+                17：OPENING<br>
+                18：MODE SELECT<br>
+                19：MODE DECIDE<br>
+                20：COURSE SELECT</cite></p>
+                        <p>※システムログでは何故か14と15が入れ替わりますが、作る時はこの値で合ってます。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">title</td>
+                    <td colspan="2" valign="top">
+                        <p>スキンタイトルを指定します。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">maker</td>
+                    <td colspan="2" valign="top">
+                        <p>スキン製作者名を指定します。</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">thumbnail</td>
+                    <td colspan="2" valign="top">
+                        <p>スキンセレクト時、プレビューがオフの場合に表示されるスキンサムネイルを指定します。</p>
+                        <p>※省略可能。</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <ul class="link">
+            <li>関連リンク：</li>
+            <li><a title="キーコンフィグとスキンセレクトとスキン種別" href="application.html#skin_type">キーコンフィグとスキンセレクトとスキン種別</a></li>
+            <li><a href="bug.html#courseskin">コースリザルトスキンの切り替え</a></li>
+        </ul>
+        <hr size="1px">
+        <h2><a name="customize">スキンカスタマイズ関連</a></h2>
+        <p>いわゆるスキンオプション用の定義です。lr2skinファイル内で宣言する必要があります。
+            <br> 1つのスキンで#CUSTOMOPTIONと#CUSTOMFILE合わせて40個まで利用可能です。
+            <br> ただし、本体側の仕様により#CUSTOMOPTION定義は21個目以降に定義しても正常に動作しないため、
+            <br> 合計数が21個を超える場合は#CUSTOMOPTIONを先に記述しておく必要があります。
+        </p>
+        <p>また、合計数が21個を超えるとDX+同様、カスタマイズ関連のバグが発生します。
+            <br> ※#IFや#INCLUDEでの分岐内で宣言しても認識されません。
+        </p>
+        <blockquote style="MARGIN-RIGHT: 0px" dir="ltr">
+            <h3><a name="customoption">#CUSTOMOPTION</a></h3>
+            <p><img alt="customoption.png" src="customoption.png" border="0" height="49" width="321"></p>
+            <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+                <tbody>
+                    <tr>
+                        <td align="center" valign="top">title</td>
+                        <td colspan="2" valign="top">
+                            <p>オプション名を指定します。スキンセレクト画面で表示される項目なのでなるべく分かりやすく簡潔に。</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top">dst_op</td>
+                        <td colspan="2" valign="top">
+                            <p>このスキンオプションに割り当てるDSTオプション値を指定します。</p>
+                            <p>※CUSTOMOPTIONで利用可能なop値は900番台のみです。実質99個しか使えないので機能追加は慎重に。</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top">op_label</td>
+                        <td colspan="2" valign="top">
+                            <p>オプションの項目名を指定します。
+                                <br> ここで定義した項目数分だけ、dst_opで指定した値から順に連番でop値が割り当てられます。
+                            </p>
+                            <p>この例の場合ではop920 ADVANCE MODE OFF op921 ADVANCE MODE ON になりますが、
+                                <br> dst_op値に960を指定するとそれぞれop960とop961になります。
+                            </p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>LR2上でスキンカスタマイズ画面からオプション項目を選択すると、割り当てたdst_op値がONになります。
+                <br> あとは後述する#IF定義と各op値を用いて項目名通りの動作になるようにスキン側で分岐を作ります。 </p>
+            <ul class="link">
+                <li>関連リンク：</li>
+                <li><a href="kakutyou.html#if">#IF(#ELSEIF・#ELSE・#ENDIF)</a></li>
+                <li><a href="specification.html#skin_option">カスタマイズオプションの保存先</a></li>
+            </ul>
+            <h3><a name="customfile">#CUSTOMFILE</a></h3>
+            <p><img alt="customfile.png" src="customfile.png" border="0" height="49" width="257"></p>
+            <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+                <tbody>
+                    <tr>
+                        <td align="center" valign="top">title</td>
+                        <td colspan="2" valign="top">
+                            <p>オプション名を指定します。スキンセレクト画面で表示される項目なのでなるべく分かりやすく簡潔に。</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top">path</td>
+                        <td colspan="2" valign="top">
+                            <p>このオプションで切り替えるファイル/フォルダを指定します。
+                                <br> パスやファイル名にワイルドカード「*」を使用することで、本体側が条件に合致するファイルやフォルダを列挙します。
+                                <br> また、CUSTOMFILE定義の場合には用意したファイルやフォルダのほかに「RANDOM」という選択肢が追加されます。
+                            </p>
+                            <p>#IMAGEや#INCLUDEのpathに同じものを指定することで、パス内の『*』がスキンオプションで指定した項目に置換されます。</p>
+                            <p>例
+                                <br> ファイル指定の場合
+                                <br> LR2files\Theme\OA_DX+\parts_AC\frame_AC\*.png
+                            </p>
+                            <p>フォルダ指定の場合
+                                <br> LR2files\Bgm\*
+                            </p>
+                            <p>ファイル指定時は拡張子でフィルタリングすることが出来ますが、
+                                <br> フォルダ指定時はフォルダ以外のデータも参照されてしまうので使用するフォルダ以外は配置しないように気を付けましょう。
+                            </p>
+                            <p class="caution">※.\LR2files\&hellip;とLR2files\&hellip;のようにどちらも同じようなファイルの指定であっても、
+                                <br> #CUSTOMFILEと#IMAGE（#INCLUDE）でパス表記を完全に一致させなければパーツの切り替えは行えません。
+                            </p>
+                            <p class="caution">※機械的に項目名が代入されるので、仕様上『*』を2つ以上使っての複合分岐は出来ません。
+                                <br>（かなり複雑な実装が必要です。詳しくは<a href="http://lapislazuri-4.dyndns.info/pms/">LP EX</a>や関連リンク参照。）
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top">default</td>
+                        <td colspan="2" valign="top">
+                            <p>初期選択ファイルを指定します。
+                                <br> 通常、項目を切り替える際はパス順で切り替わりますが、
+                                <br> defaultで指定したファイル/フォルダが存在する場合はスキン導入後の初回起動時にそのファイル/フォルダが選択状態になります。
+                            </p>
+                            <p>※省略可能。</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>スキンカスタマイズ画面で選択したファイル/フォルダのパスが、スキン内で<strong>同じパス表記</strong>にした#IMAGE定義や#INCLUDE定義に代入されます。</p>
+            <p>一般的には画像を切り替える用途で使われるため、画像の規格（各パーツサイズやファイル形式）を統一する必要がありますが、
+                <br> #INCLUDE定義で参照フォルダごと切り替える場合には画像と子csvを同時に切り替えることが出来るため、異なるフォーマットやモーションを使うことが可能です。
+            </p>
+            <p><img alt="folder_select.gif" src="folder_select.gif" border="0" height="166" width="337"></p>
+            <ul class="link">
+                <li>関連リンク：</li>
+                <li><a href="kakutyou.html#if">#IF(#ELSEIF・#ELSE・#ENDIF)</a></li>
+                <li><a href="specification.html#skin_option">カスタマイズオプションの保存先</a></li>
+                <li><a href="application.html#include_csv">複数個でセットの子csvランダム分岐</a></li>
+                <li><a href="application.html#customfile_include">CUSTOMFILE命令による画像と子csvの同期分岐</a></li>
+            </ul>
+            <h3><a name="endofheader">#ENDOFHEADER</a></h3>
+            <p dir="ltr">#INFORMATIONと#CUSTOMIZEの終了時に入れてください。
+                <br> 必須ではありませんが、起動が少しばかり高速になります。
+            </p>
+        </blockquote>
+        <hr size="1px">
+        <h2><a name="bunki">条件分岐関連</a></h2>
+        <p>実際に条件分岐するのは#IF～#ENDIFまでですが、セットで使う機会が多いのでまとめました。
+        <br>なお、かなり特殊な例なので先に書いておきますがサウンドセットで使用する音声ファイル定義はいずれもIF定義で条件分岐させることは出来ません。</p>
+        <blockquote style="MARGIN-RIGHT: 0px" dir="ltr">
+            <h3><a name="if">#IF・#ELSEIF・#ELSE・#ENDIF</a></h3>
+            <div id="if_box">
+                <div id="left_box">
+                    <p>DST定義のop1～3と違い、スキンのロード時に一度だけ分岐が行われます。
+                        <br> このためスキン動作中に切り替わるオプションに対しては効果がありません。
+                    </p>
+                    <p>#IFと#ELSEIFの右に分岐条件となる<a title="dst_option値" href="dst.html">dst_option値</a>を記述します。
+                        <br> 複数指定した場合はAND条件分岐となり、全オプションがONの場合のみ分岐します。
+                    </p>
+                    <p>なお、この時条件から外れた範囲は読み込み自体スキップされます。
+                        <br>#IMAGEなどで読み込み分岐を行うとgr値がズレる場合があるので注意しましょう。
+                        <br>逆にELSE等の記述ミスにより複数の分岐が同時に発生してしまい、
+                        <br> 『本来1つしか使用できない定義』が複数読み込まれるといった不具合も充分考えられます。
+                    </p>
+                    <p>※オプションスロット分岐とは異なりオプション値にマイナス符号や『！』を付けても否定条件分岐にはなりません。
+                    </p>
+                    <p>基本書式
+                        <br>
+                        <img alt="if.png" src="if.png" border="0" height="225" width="193">
+                        <br>
+                        <br> #IF～#ENDIF内が一連の分岐となり、ENDIFで分岐を終了します。
+                    </p>
+                    <p style="font-weight: bold;">※#ENDIFを忘れると結構な大惨事になるので#IFを記述したらそのまま#ENDIFもセットで作りましょう。</p>
+                    <p>例では1行の定義を分岐させていますが分岐内行数に制限はありません。
+                        <br> また、分岐可能な定義には汎用定義だけでなく特殊定義や拡張定義も含まれます。
+                        <br> #IMAGEで読み込み画像を切り替えたり、時間制御関連定義を分岐させてスキン動作そのものを切り替えることが出来ます。
+                        <br> ※#INFORMATION・#CUSTOMOPTION・#CUSTOMFILE・音声ファイル定義全般は分岐させることが出来ません。
+                    </p>
+                    <p>#ELSEは1つの分岐内で1回しか使えませんが#ELSEIFには個数制限がありません。
+                        <br> スキンによっては30通りの並列分岐なども珍しくありません。
+                    </p>
+                    <p>※#ELSEIFと#ELSEは省略可能。
+                        <br> ※オプション値によってはスキンセレクト専用に#ELSEを入れないとスキンセレクト時のみバグる場合があります。
+                    </p>
+                    <p>関連リンク：<a title="IF命令とSETOPTION命令を使ったOR分岐とNOT分岐" href="specification.html#or_and_not">IF命令とSETOPTION命令を使ったOR分岐とNOT分岐</a></p>
+                    <p>
+                        <br>
+                    </p>
+                    <p>先の基本書式の様に通常は本体側の<a title="dst_option値" href="dst.html">dst_option値</a>を用いて条件分岐を作りますが、
+                        <br> スキンオプションで定義した900番台のオプション値では前述の#CUSTOMOPTIONの場合を例にすると
+                    </p>
+                    <p>#CUSTOMOPTION定義
+                        <br>
+                        <img alt="customoption.png" src="customoption.png" border="0" height="49" width="321"></p>
+                    <p>に対して#IF定義の分岐は</p>
+                    <p>#IF定義
+                        <br>
+                        <img title="ADVANCE MODE #IF分岐" alt="ADVANCE MODE #IF分岐" src="advance_sample.gif"></p>
+                    <p>このようになります。
+                        <br> ※ON/OFFの分岐なので#ELSE定義は省略。
+                    </p>
+                </div>
+                <div id="right_box">
+                    <h4>補足：オプションスロット分岐</h4>
+                    <p>#IF定義と同じくその時のオプション値による条件分岐としてDST定義内のオプション指定があります。
+                        <br> 全DST定義共通でDST定義1行目の右端の3列で動作条件となるオプション値を指定します。
+                    </p>
+                    <p><img alt="op_slot" src="teigi05.gif"></p>
+                    <p>
+                        <br>
+                    </p>
+                    <p>#IF定義と同じ点</p>
+                    <ul>
+                        <li>本体側の<a title="dst_option値" href="dst.html">dst_option値</a>及びスキン側のカスタムオプション値が使用可能</li>
+                        <li>複数オプションを指定した場合はAND条件として扱われる（ただしオプションスロットは最大3個まで）</li>
+                    </ul>
+                    <p>
+                        <br>
+                    </p>
+                    <p>#IF定義と異なる点</p>
+                    <ul>
+                        <li>単体で否定条件（NOT）が使用可能（例：op50の反対 = -50 or !50）
+                            <br> ※Excelの場合だと計算し始める恐れがあるのでなるべく「！」推奨
+                        </li>
+                        <li>定義単位での読み込みは事前に行われ、オプション値に合致した時に表示される
+                            <br> （#IF定義はスキン読み込み時のみ分岐するので、スキン動作中のオプション値の変化には非対応）
+                        </li>
+                        <li>あくまでも表示/非表示の制御のみ（読み込み自体は行われる）ため、csv内で1つしか宣言できない特殊定義系には使えません
+                            <br> （仕様上、最後に記述した定義のみ動作します）
+                        </li>
+                        <li>DST行を持たない宣言系定義には使えません</li>
+                    </ul>
+                    <p>
+                        <br>
+                    </p>
+                    <p>ほとんどの場合はIF分岐・スロット分岐どちらでも問題無く動作しますが、
+                        <br> 定義を読み込んでから分岐するスロット分岐に対して、スキン動作開始段階で分岐が確定するIF分岐は優先的に動きます。
+                        <br> 仕様上、事前に動作定義を絞り込めるIF分岐の方がより低負荷化が見込めますが、
+                        <br> 『スキン動作中にリアルタイムに切り替わるオプション値に応じて表示を変化させたいパーツ』定義では
+                        <br> スロット分岐を使わないと意味がありません。
+                    </p>
+                    <p>
+                        IF分岐は読み込みのON/OFF、スロット分岐は表示のON/OFFと覚えましょう。
+                    </p>
+                    <ul class="link">
+                        <li>関連リンク：</li>
+                        <li><a title="LR2でのDSTオプション遷移" href="application.html#option_change">LR2でのDSTオプション遷移</a></li>
+                    </ul>
+                </div>
+            </div>
+            <h3><a name="include">#INCLUDE</a></h3>
+            <p>他のcsvファイルを参照する命令です。スキンを複数のファイルに別けて記述することができます。
+                <br> #INCLUDEで自身を指定すると、無限ループが発生してwiindowsごと死亡する恐れがあるので注意して下さい。
+            </p>
+            <p>基本書式
+                <br>
+                <img alt="include.png" src="include.png" border="0" height="17" width="449"></p>
+            <p class="caution">※通常は#IFと組み合わせてDSTオプションで分岐させますが、
+                <br> CUSTOMFILE定義で対象をcsvファイルにすることでスキンカスタマイズからの切り替えが可能です。
+            </p>
+            <p>関連リンク：<a title="CUSTOMFILE命令による画像と子csvの同期分岐" href="application.html#customfile_include">CUSTOMFILE命令による画像と子csvの同期分岐</a></p>
+            <h3><a name="setoption">#SETOPTION</a></h3>
+            <p>900番台のオプションのオンオフを制御します。
+                <br> #CUSTOMOPTION定義で指定されたオプション値も
+                <br> #CUSTOMOPTIONより後に#SETOPTIONを記述することで上書きできます。
+            </p>
+            <p>基本書式
+                <br>
+                <img alt="setoption.png" src="setoption.png" border="0" height="33" width="193"></p>
+            <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+                <tbody>
+                    <tr>
+                        <td align="center" valign="top">dst_op</td>
+                        <td colspan="2" valign="top">
+                            <p>制御対象のop値を指定します。</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top">switch</td>
+                        <td colspan="2" valign="top">
+                            <p>オンかオフを指定します。</p>
+                            <p>0：オフ
+                                <br> 1：オン
+                            </p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <ul class="link">
+                <li>関連リンク：</li>
+                <li><a href="specification.html#or_and_not">IF命令とSETOPTION命令を使ったOR分岐とNOT分岐</a></li>
+                <li><a title="SETOPTION命令の特性" href="specification.html#setoption">SETOPTION命令の特性</a></li>
+            </ul>
+        </blockquote>
+        <p dir="ltr">#IF～#ENDIFまでの間に別な#IF～#ENDIFを入れても分岐することは出来ませんが、
+            <br> #IFと#INCLUDEの条件分岐子csv読み込みならばIF内IF分岐が可能です。
+        </p>
+        <hr size="1px">
+        <h2><a name="time">時間制御関連</a></h2>
+        <p>スキンの動作タイミングを指定します。単位はすべてms。いくつかのtimerの動作開始タイミングに影響します。
+            <br> 基本的には1スキンで1回ずつしか使用しませんが、#IFでオプション分岐させることが可能です。
+        </p>
+        <blockquote style="MARGIN-RIGHT: 0px" dir="ltr">
+            <h3><a name="startinput">#STARTINPUT</a></h3>
+            <p>スキン動作開始からボタン入力受付開始までの時間を指定します。
+                <br> この指定時間が過ぎないとボタンを押しても反応しません。（スキップも出来ません）
+            </p>
+            <p>通常は1つだけですがリザルトスキンとコースリザルトスキンでのみ、3つ指定します。</p>
+            <p><img alt="result_start.png" src="result_start.png" border="0" height="33" width="257"></p>
+            <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+                <tbody>
+                    <tr>
+                        <td align="center" valign="top">start</td>
+                        <td colspan="2" valign="top">
+                            <p>スキン動作開始からボタン入力受付開始までの時間を指定します。</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top">rank（リザルトのみ）</td>
+                        <td colspan="2" valign="top">
+                            <p>ランクが表示されてから入力受付開始までの時間を指定します。</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top">update（リザルトのみ）</td>
+                        <td colspan="2" valign="top">更新画面が表示されてから入力受付開始までの時間を指定します。</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>timer150番台とのタイミング調整が非常に面倒です。計算し易い値にしましょう。</p>
+            <h3><a name="skip">#SKIP</a></h3>
+            <p>決定スキン専用。この時間が過ぎるとスキップ可能です。
+                <br> ※#STARTINPUTの方が優先なのでそれより大きい値を取らないと意味無いです。
+            </p>
+            <h3><a name="loadstart">#LOADSTART</a></h3>
+            <p>プレイスキン専用。スキンの動作開始から曲データのロード開始までの時間を指定します。</p>
+            <h3><a name="loadend">#LOADEND</a></h3>
+            <p>プレイスキン専用。ロード開始からロード終了までの最短時間を指定します。
+                <br> パーツの動作をロード時間に合わせたい場合にはtimer40 READY を用いてタイミングを調整します。
+                <br> ※あくまでも最短時間であり、実際のロード時間は曲データのサイズやフォーマットによって異なります。
+            </p>
+            <h3><a name="playstart">#PLAYSTART</a></h3>
+            <p>プレイスキン専用。ロード終了から曲開始までの時間を指定します。
+                <br> timer40からtimer41が動作するまでの時間になります。
+            </p>
+            <h3><a name="close">#CLOSE</a></h3>
+            <p>プレイスキン専用。閉店時にこの時間が過ぎると次のスキンに移行します。</p>
+            <h3><a name="fadeout">#FADEOUT</a></h3>
+            <p>フェードアウト時にこの時間が過ぎると次のスキンに移行します。
+                <br> ※選曲&rarr;決定間ではフェードアウトしません。
+            </p>
+        </blockquote>
+            <ul class="link">
+                <li>関連リンク：</li>
+                <li><a href="tokusyu.html#play">プレイスキン</a></li>
+                <li><a href="tokusyu.html#result">リザルトスキン</a></li>
+            </ul>
+        <hr size="1px">
+        <h2><a name="other">その他の定義</a></h2>
+        <p>上記以外の定義です。あまり変更されることがない気がします。基本的には使うか使わないかでしょう。
+            <br> こちらも1スキンで1回ずつしか使用しませんが、#IFでオプション分岐させることが可能です
+        </p>
+        <blockquote style="MARGIN-RIGHT: 0px" dir="ltr">
+            <h3><a name="reloadbanner">#RELOADBANNER</a></h3>
+            <p>選曲スキンでバナーを参照する場合はこの定義を入れておかないとカーソル移動時に切り替わってくれません。
+                <br> ちなみにちゃんと定義してもたまに切り替わってくれません。（仕様です）
+            </p>
+            <h3><a name="transcolor">#TRANSCOLOR</a></h3>
+            <p>画像パーツの透過色をRGB値で指定します。ただし、DST定義のblend値が0の時しか透過されません。
+                <br> ※省略できないらしいです。
+            </p>
+            <p><img alt="transcolor.png" src="transcolor.png" border="0" height="33" width="257"></p>
+            <h3><a name="flipside">#FLIPSIDE</a></h3>
+            <p>プレイスキン専用。
+                <br> 1P用定義と2P用定義が存在する場合にこの定義を宣言すると1P用と2P用が入れ替わります。
+            </p>
+            <p class="caution">※DP FLIPはこの定義が無くても左右が入れ替わるので実質バトル専用です。
+                <br> （そもそもDP FLIPには専用のop値が無いのでスキン側で分岐組めません）</p>
+            <h3><a name="flipresult">#FLIPRESULT</a></h3>
+            <p>プレイスキンとリザルト・コースリザルトスキンで使用できます。
+                <br> #FLIPSIDEのリザルト版ですが、プレイスキンでの宣言を引き継ぐことが出来る非常に珍しい定義です。
+            </p>
+            <p>※この定義を使用するとリザルトでop330番台の#IF分岐が正常に動作しなくなります。</p>
+            <h3><a name="disableflip">#DISABLEFLIP</a></h3>
+            <p>#FLIPRESULTを無効化します。
+                <br> #FLIPRESULTがプレイスキンでの宣言を引き継いでしまうため、
+                <br> 他のプレイスキンからの意図しないリザルト反転を防ぐために使用される定義です。
+            </p>
+            <h3><a name="scratch">#SCRATCH</a></h3>
+            <p>プレイスキン専用。スクラッチサイドを指定します。
+                <br> 通常は#DST_NOTEでノーツ落下座標が決まる為、しっかり合わせなくてもプレイは可能ですが
+                <br> 5鍵譜面を7鍵スキンでプレイする場合に左側の2レーンか右側の2レーン、どちらを省略するかという定義です。
+                <br> 0が左、1が右です。「デフォルトは0」と書いてあるので省略時は左側2レーンがカットになるんだと思います。
+            </p>
+            <p><img alt="scratch.png" src="scratch.png" border="0" height="33" width="193"></p>
+        </blockquote>
+    </div>
+</body>
+
+</html>

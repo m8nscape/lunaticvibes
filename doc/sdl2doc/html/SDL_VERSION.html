@@ -1,0 +1,48 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_VERSION</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_VERSION</h1>
+<p>Use this macro to determine the SDL version your program was compiled against.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_VERSION(x)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>x</strong></td><td>an <a href="structures/SDL_version.html">SDL_version</a> structure to initialize</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Fills the selected struct with:
+<ul style="list-style-type:none"><li>(x)->major = SDL_MAJOR_VERSION</li>
+<li>(x)->minor = SDL_MINOR_VERSION</li>
+<li>(x)->patch = SDL_PATCHLEVEL</li>
+</ul>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+SDL_version compiled;
+SDL_version linked;
+
+SDL_VERSION(&compiled);
+SDL_GetVersion(&linked);
+printf("We compiled against SDL version %d.%d.%d ...\n",
+       compiled.major, compiled.minor, compiled.patch);
+printf("But we are linking against SDL version %d.%d.%d.\n",
+       linked.major, linked.minor, linked.patch);
+</pre></div>
+<h2>Remarks</h2>
+<p>This macro fills in an <a href="structures/SDL_version.html">SDL_version</a> structure with the version of the library you compiled against. This is determined by what header the compiler uses. Note that if you dynamically linked the library, you might have a slightly newer or older version at runtime. That version can be determined with <a href="SDL_GetVersion.html">SDL_GetVersion</a>() which, unlike <a href="SDL_VERSION.html">SDL_VERSION</a>(), is not a macro.
+<h2>Related Structures</h2>
+<ul style="list-style-type:none"><li><a href="structures/SDL_version.html">SDL_version</a></li></ul>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetVersion.html">SDL_GetVersion</a></li></ul>
+</div>
+</BODY>
+</HTML>

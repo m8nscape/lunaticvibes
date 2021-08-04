@@ -1,0 +1,33 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_CreateTextureFromSurface</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_CreateTextureFromSurface</h1>
+<p>Use this function to create a texture from an existing surface.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_Texture* SDL_CreateTextureFromSurface(SDL_Renderer* renderer,
+                                          SDL_Surface*  surface)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>renderer</strong></td><td>the rendering context</td></tr>
+<tr><td><strong>surface</strong></td><td>the <a href="SDL_Surface.html">SDL_Surface</a> structure containing pixel data used to fill the texture</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns the created texture or 0 on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>The surface is not modified or freed by this function.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_DestroyTexture.html">SDL_DestroyTexture</a></li>
+<li><a href="SDL_QueryTexture.html">SDL_QueryTexture</a></li></ul>
+</div>
+</BODY>
+</HTML>

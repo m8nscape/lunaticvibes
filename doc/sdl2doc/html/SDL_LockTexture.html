@@ -1,0 +1,37 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_LockTexture</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_LockTexture</h1>
+<p>Use this function to lock a portion of the texture for <strong>write-only</strong> pixel access.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_LockTexture(SDL_Texture*    texture,
+                    const SDL_Rect* rect,
+                    void**          pixels,
+                    int*            pitch)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>texture</strong></td><td>the texture to lock for access, which was created with SDL_TEXTUREACCESS_STREAMING</td></tr>
+<tr><td><strong>rect</strong></td><td>an <a href="structures/SDL_Rect.html">SDL_Rect</a> structure representing the area to lock for access; NULL to lock the entire texture</td></tr>
+<tr><td><strong>pixels</strong></td><td>this is filled in with a pointer to the locked pixels, appropriately offset by the locked area</td></tr>
+<tr><td><strong>pitch</strong></td><td>this is filled in with the pitch of the locked pixels</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code if the texture is not valid or was not created with SDL_TEXTUREACCESS_STREAMING; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>As an optimization, the pixels made available for editing don't necessarily contain the old texture data. This is a write-only operation, and if you need to keep a copy of the texture data you should do that at the application level.
+<p>You must use <a href="SDL_UnlockTexture.html">SDL_UnlockTexture</a>() to unlock the pixels and apply any changes.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_UnlockTexture.html">SDL_UnlockTexture</a></li></ul>
+</div>
+</BODY>
+</HTML>

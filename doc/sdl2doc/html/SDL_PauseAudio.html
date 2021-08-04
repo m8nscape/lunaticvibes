@@ -1,0 +1,40 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_PauseAudio</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_PauseAudio</h1>
+<p>This function is a legacy means of pausing the audio device. New programs might want to use <a href="SDL_PauseAudioDevice.html">SDL_PauseAudioDevice</a>() instead.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_PauseAudio(int pause_on)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>pause_on</strong></td><td>non-zero to pause, 0 to unpause</td></tr>
+</table>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+SDL_PauseAudio(1);  // audio callback is stopped when this returns.
+SDL_Delay(5000);  // audio device plays silence for 5 seconds
+SDL_PauseAudio(0);  // audio callback starts running again.
+</pre></div>
+<h2>Remarks</h2>
+<p>This function is equivalent to calling
+<div style=codearea>
+<pre>
+SDL_PauseAudioDevice(1, pause_on);
+</pre></div>
+<p>and is only useful if you used the legacy <a href="SDL_OpenAudio.html">SDL_OpenAudio</a>() function.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetAudioStatus.html">SDL_GetAudioStatus</a></li>
+<li><a href="SDL_PauseAudioDevice.html">SDL_PauseAudioDevice</a></li></ul>
+</div>
+</BODY>
+</HTML>

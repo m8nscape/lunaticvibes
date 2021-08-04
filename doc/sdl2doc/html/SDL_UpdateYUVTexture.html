@@ -1,0 +1,46 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_UpdateYUVTexture</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_UpdateYUVTexture</h1>
+<p>Use this function to update a rectangle within a planar YV12 or IYUV texture with new pixel data.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_UpdateYUVTexture(SDL_Texture*    texture,
+                         const SDL_Rect* rect,
+                         const Uint8 *   Yplane,
+                         int             Ypitch,
+                         const Uint8*    Uplane,
+                         int             Upitch,
+                         const Uint8*    Vplane,
+                         int             Vpitch)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>texture</strong></td><td>the texture to update</td></tr>
+<tr><td><strong>rect</strong></td><td>a pointer to the rectangle of pixels to update, or NULL to update the entire texture</td></tr>
+<tr><td><strong>Yplane</strong></td><td>the raw pixel data for the Y plane</td></tr>
+<tr><td><strong>Ypitch</strong></td><td>the number of bytes between rows of pixel data for the Y plane</td></tr>
+<tr><td><strong>Uplane</strong></td><td>the raw pixel data for the U plane</td></tr>
+<tr><td><strong>Upitch</strong></td><td>the number of bytes between rows of pixel data for the U plane</td></tr>
+<tr><td><strong>Vplane</strong></td><td>the raw pixel data for the V plane</td></tr>
+<tr><td><strong>Vpitch</strong></td><td>the number of bytes between rows of pixel data for the V plane</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or -1 if the texture is not valid; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>You can use <A href="SDL_UpdateTexture.html">SDL_UpdateTexture</a>() as long as your pixel data is a contiguous block of Y and U/V planes in the proper order, but this function is available if your pixel data is not contiguous.
+<h2>Version</h2>
+<p>This function is available since SDL 2.0.1.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_UpdateTexture.html">SDL_UpdateTexture</a></li></ul>
+</div>
+</BODY>
+</HTML>

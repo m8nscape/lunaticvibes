@@ -1,0 +1,41 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_JoyBallEvent</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_JoyBallEvent</h1>
+<p>A structure that contains joystick trackball motion event information.
+<h2>Data Fields</h2>
+<table>
+<tr><td>Uint32</td><td><strong>type</strong></td><td>SDL_JOYBALLMOTION</td></tr>
+<tr><td>Uint32</td><td><strong>timestamp</strong></td><td>timestamp of the event</td></tr>
+<tr><td>SDL_JoystickID</td><td><strong>which</strong></td><td>the index of the joystick that reported the event</td></tr>
+<tr><td>Uint8</td><td><strong>ball</strong></td><td>the index of the trackball that changed</td></tr>
+<tr style="color: #808080;"><td>Uint8</td><td><strong>padding1</strong></td><td>&nbsp;</td></tr>
+<tr style="color: #808080;"><td>Uint8</td><td><strong>padding2</strong></td><td>&nbsp;</td></tr>
+<tr style="color: #808080;"><td>Uint8</td><td><strong>padding3</strong></td><td>&nbsp;</td></tr>
+<tr><td>Sint16</td><td><strong>xrel</strong></td><td>the relative motion in the X direction</td></tr>
+<tr><td>Sint16</td><td><strong>yrel</strong></td><td>the relative motion in the Y direction</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p><a href="SDL_JoyBallEvent.html">SDL_JoyBallEvent</a> is a member of the <a href="SDL_Event.html">SDL_Event</a> union and is used when an event of type SDL_JOYBALLMOTION is reported. You would access it through the event's jball field.
+<p>An SDL_JOYBALLMOTION event occurs when a user moves a trackball on the joystick.
+<p>Trackballs only return relative motion. This is the change in position of the ball since it was last polled (last cycle of the event loop).
+<h2>Related Enumerations</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_EventType.html">SDL_EventType</a></li></ul>
+<h2>Related Structures</h2>
+<ul style="list-style-type:none"><li><a href="SDL_Event.html">SDL_Event</a></li>
+<li><a href="SDL_JoyAxisEvent.html">SDL_JoyAxisEvent</a></li>
+<li><a href="SDL_JoyButtonEvent.html">SDL_JoyButtonEvent</a></li>
+<li><a href="SDL_JoyHatEvent.html">SDL_JoyHatEvent</a></li></ul>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_JoystickEventState.html">SDL_JoystickEventState</a></li>
+<li><a href="../SDL_JoystickGetBall.html">SDL_JoystickGetBall</a></li></ul>
+</div>
+</BODY>
+</HTML>

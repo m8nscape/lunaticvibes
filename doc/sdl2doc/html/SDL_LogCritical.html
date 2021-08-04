@@ -1,0 +1,50 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_LogCritical</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_LogCritical</h1>
+<p>Use this function to log a message with SDL_LOG_PRIORITY_CRITICAL.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_LogCritical(int         category,
+                     const char* fmt,
+                     ...)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>category</strong></td><td>the category of the message; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td><strong>fmt</strong></td><td>a printf() style message format string</td></tr>
+<tr><td><strong>...</strong></td><td>additional parameters matching % tokens in the <strong>fmt</strong> string, if any</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<p>The category can be one of:
+<table>
+<tr><td>SDL_LOG_CATEGORY_APPLICATION</td><td>application log</td></tr>
+<tr><td>SDL_LOG_CATEGORY_ERROR</td><td>error log</td></tr>
+<tr><td>SDL_LOG_CATEGORY_SYSTEM</td><td>system log</td></tr>
+<tr><td>SDL_LOG_CATEGORY_AUDIO</td><td>audio log</td></tr>
+<tr><td>SDL_LOG_CATEGORY_VIDEO</td><td>video log</td></tr>
+<tr><td>SDL_LOG_CATEGORY_RENDER</td><td>render log</td></tr>
+<tr><td>SDL_LOG_CATEGORY_INPUT</td><td>input log</td></tr>
+<tr style="color: #808080;"><td>SDL_LOG_CATEGORY_RESERVED#</td><td># = 1-10; reserved for future SDL library use</td></tr>
+<tr><td>SDL_LOG_CATEGORY_CUSTOM</td><td>reserved for application use; see <a href="SDL_LOG_CATEGORY.html#Remarks">Remarks</a> for details</td></tr>
+</table>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_Log.html">SDL_Log</a></li>
+<li><a href="SDL_LogDebug.html">SDL_LogDebug</a></li>
+<li><a href="SDL_LogError.html">SDL_LogError</a></li>
+<li><a href="SDL_LogInfo.html">SDL_LogInfo</a></li>
+<li><a href="SDL_LogMessage.html">SDL_LogMessage</a></li>
+<li><a href="SDL_LogMessageV.html">SDL_LogMessageV</a></li>
+<li><a href="SDL_LogVerbose.html">SDL_LogVerbose</a></li>
+<li><a href="SDL_LogWarn.html">SDL_LogWarn</a></li></ul>
+</div>
+</BODY>
+</HTML>

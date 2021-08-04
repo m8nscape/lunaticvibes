@@ -1,0 +1,101 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_HapticDirection</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_HapticDirection</h1>
+<p>A structure that contains a template for a haptic direction effect. ??? <span style="color:green; ">Does this structure define individual directions or a set of directions used by a particular device? Seems like you'd have to create an awful lot of these structures to make anything with any complexity. Am I understanding this correctly?</span>
+<h2>Data Fields</h2>
+<table>
+<tr><td>Uint8</td><td><strong>type</strong></td><td>the type of encoding; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td>Sint32</td><td><strong>dir</strong></td><td>the encoded direction; see <a href="#Remarks">Remarks</a> for details</td></tr>
+</table>
+<p><span style="color:green; ">There was a [3] attached to dir but I thought I remembered that we aren't including those details here. Is that right or should I put it back in because it's important?</span>
+<h2>Code Examples</h2>
+<p>Example of force coming from the south with all encodings (force coming from the south means the user will have to pull the stick to counteract):
+<div style=codearea>
+<pre>
+SDL_HapticDirection direction;
+
+// Cartesian directions
+direction.type = SDL_HAPTIC_CARTESIAN; // Using cartesian direction encoding.
+direction.dir[0] = 0; // X position
+direction.dir[1] = 1; // Y position
+// Assuming the device has 2 axes, we don't need to specify third parameter.
+
+// Polar directions
+direction.type = SDL_HAPTIC_POLAR; // We'll be using polar direction encoding.
+direction.dir[0] = 18000; // Polar only uses first parameter
+
+// Spherical coordinates
+direction.type = SDL_HAPTIC_SPHERICAL; // Spherical encoding
+direction.dir[0] = 9000; // Since we only have two axes we don't need more parameters.
+</pre></div>
+<h2 id="Remarks">Remarks</h2>
+<p>Cardinal directions of the haptic device are relative to the positioning of the device. North is considered to be away from the user. South is toward the user, east is right, and west is left of the user.
+<p>The following diagram represents the cardinal directions:
+<div style=codearea>
+<pre>
+               .--.
+               |__| .-------.
+               |=.| |.-----.|
+               |--| ||     ||
+               |  | |'-----'|
+               |__|~')_____('
+                [ COMPUTER ]
+
+
+                North (0,-1)
+                     ^
+                     |
+                     |
+(1,0) West <----[ HAPTIC ]----> East (-1,0)
+                     |
+                     |
+                     v
+                South (0,1)
+
+
+                 [ USER ]
+                   \|||/
+                   (o o)
+             ---ooO-(_)-Ooo---
+</pre></div>
+<p><span style="color:green; ">The following paragraph was at the beginning in the header. Seemed to logically fit better here.</span>
+<p>Directions can be specified by:
+<table>
+<tr><td>SDL_HAPTIC_POLAR</td><td>Specified by polar coordinates</td></tr>
+<tr><td>SDL_HAPTIC_CARTESIAN</td><td>Specified by cartesian coordinates</td></tr>
+<tr><td>SDL_HAPTIC_SPHERICAL</td><td>Specified by spherical coordinates</td></tr>
+</table>
+<p>If <strong>type</strong> is SDL_HAPTIC_POLAR, direction is encoded by hundredths of a degree starting north and turning clockwise. SDL_HAPTIC_POLAR only uses the first <strong>dir</strong> parameter. The cardinal directions would be:
+<table>
+<tr><td>North</td><td>0 (0 degrees)</td></tr>
+<tr><td>East</td><td>9000 (90 degrees)</td></tr>
+<tr><td>South</td><td>18000 (180 degrees)</td></tr>
+<tr><td>West</td><td>27000 (270 degrees)</td></tr>
+</table>
+<p>If <strong>type</strong> is SDL_HAPTIC_CARTESIAN, direction is encoded by three positions (X axis, Y axis and Z axis (with 3 axes)). SDL_HAPTIC_CARTESIAN uses the first three <strong>dir</strong> parameters. The cardinal directions would be:
+<table>
+<tr><td>North</td><td>0,-1, 0</td></tr>
+<tr><td>East</td><td>-1, 0, 0</td></tr>
+<tr><td>South</td><td>0, 1, 0</td></tr>
+<tr><td>West</td><td>1, 0, 0</td></tr>
+</table>
+<ul style="list-style-type:none"><li>The Z axis represents the height of the effect if supported, otherwise it's unused. In cartesian encoding (1, 2) would be the same as (2, 4), you can use any multiple you want, only the direction matters.</li></ul>
+<p>If <strong>type</strong> is ::SDL_HAPTIC_SPHERICAL, direction is encoded by two rotations. The first two <strong>dir</strong> parameters are used. The <strong>dir</strong> parameters are as follows (all values are in hundredths of degrees):
+<table>
+<tr><td>Degrees from (1, 0) rotated towards (0, 1)</td></tr>
+<tr><td>Degrees towards (0, 0, 1) (device needs at least 3 axes)</td></tr>
+</table>
+<h2>Related Structures</h2>
+<ul style="list-style-type:none"><li><a href="SDL_HapticPeriodic.html">SDL_HapticPeriodic</a></li></ul>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_HapticNumAxes.html">SDL_HapticNumAxes</a></li></ul>
+</div>
+</BODY>
+</HTML>

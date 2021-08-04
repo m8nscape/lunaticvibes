@@ -1,0 +1,37 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_DollarGestureEvent</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_DollarGestureEvent</h1>
+<p>A structure that contains complex gesture event information???.
+<h2>Data Fields</h2>
+<table>
+<tr><td>Uint32</td><td><strong>type</strong></td><td>SDL_DOLLARGESTURE</td></tr>
+<tr><td>Uint32</td><td><strong>timestamp</strong></td><td>timestamp of the event</td></tr>
+<tr><td>SDL_TouchID</td><td><strong>touchId</strong></td><td>the touch device index</td></tr>
+<tr><td>SDL_GestureID</td><td><strong>gestureId</strong></td><td>description</td></tr>
+<tr><td>Uint32</td><td><strong>numFingers</strong></td><td>description</td></tr>
+<tr><td>float</td><td><strong>error</strong></td><td>description</td></tr>
+<tr><td>float</td><td><strong>x</strong></td><td>//currently 0...1. Change to screen coords?</td></tr>
+<tr><td>float</td><td><strong>y</strong></td><td>description</td></tr>
+</table>
+<p><span style="color:green; ">Note that SDL_GestureID is not defined in this header.</span>
+<p><span style="color:green; ">Worth changing touchId and gestureId to touchID and gestureID for consistency?</span>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p><a href="SDL_DollarGestureEvent">SDL_DollarGestureEvent</a> is a member of the <a href="SDL_Event.html">SDL_Event</a> union and is used when an event of type SDL_DOLLARGESTURE is reported. You would access it through the event's <tt style="backtick">dgesture</tt> field.
+<h2>Related Enumerations</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_EventType.html">SDL_EventType</a></li></ul>
+<h2>Related Structures</h2>
+<ul style="list-style-type:none"><li><a href="SDL_Event.html">SDL_Event</a></li>
+<li><a href="SDL_MultiGestureEvent.html">SDL_MultiGestureEvent</a></li></ul>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_FunctionLeaveSectionIfEmpty.html">SDL_FunctionLeaveSectionIfEmpty</a></li></ul>
+</div>
+</BODY>
+</HTML>

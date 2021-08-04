@@ -1,0 +1,75 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_RenderReadPixels</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_RenderReadPixels</h1>
+<p>Use this function to read pixels from the current rendering target.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_RenderReadPixels(SDL_Renderer*   renderer,
+                         const SDL_Rect* rect,
+                         Uint32          format,
+                         void*           pixels,
+                         int             pitch)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>renderer</strong></td><td>the rendering context</td></tr>
+<tr><td><strong>rect</strong></td><td>an <A href="structures/SDL_Rect.html">SDL_Rect</a> structure representing the area to read, or NULL for the entire render target</td></tr>
+<tr><td><strong>format</strong></td><td>the desired format of the pixel data, or 0 to use the format of the rendering target; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td><strong>pixels</strong></td><td>a pointer filled in with the pixel data</td></tr>
+<tr><td><strong>pitch</strong></td><td>the pitch of the <strong>pixels</strong> parameter</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<p>WARNING: This is a very slow operation, and should not be used frequently.
+<p><strong>format</strong> may be one of the following:
+<table>
+<tr><td>SDL_PIXELFORMAT_UNKNOWN</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX1LSB</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX1MSB</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX4LSB</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX4MSB</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX8</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB332</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB444</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB555</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGR555</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ARGB4444</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGBA4444</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ABGR4444</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGRA4444</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ARGB1555</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGBA5551</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ABGR1555</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGRA5551</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB565</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGR565</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB24</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGR24</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGBX8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGR888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGRX8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ARGB8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGBA8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ABGR8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGRA8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ARGB2101010</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_YV12</td><td>planar mode: Y + V + U (3 planes)</td></tr>
+<tr><td>SDL_PIXELFORMAT_IYUV</td><td>planar mode: Y + U + V (3 planes)</td></tr>
+<tr><td>SDL_PIXELFORMAT_YUY2</td><td>packed mode: Y0+U0+Y1+V0 (1 plane)</td></tr>
+<tr><td>SDL_PIXELFORMAT_UYVY</td><td>packed mode: U0+Y0+V0+Y1 (1 plane)</td></tr>
+<tr><td>SDL_PIXELFORMAT_YVYU</td><td>packed mode: Y0+V0+Y1+U0 (1 plane)</td></tr>
+</table>
+</div>
+</BODY>
+</HTML>

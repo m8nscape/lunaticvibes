@@ -1,0 +1,44 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>Assertions</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>Assertions</h1>
+<h2>Introduction</h2>
+<p>This category contains functions for managing assertions.
+<p>A fairly detailed discussion of the features of SDL_assert vs the standard assert() macro, and some technical explanation about how this is implemented can be found <a href="https://plus.google.com/103391075724026391227/posts/KzV6sLdALX7">in this Google+ post from Ryan</a>.
+<p>SDL_ASSERT_LEVEL affects which assertions, if any, are processed during compiling based on which function was used to create the assertion (see functions below).
+<p>SDL_ASSERT_LEVEL can be defined in your project. If not otherwise set, SDL_ASSERT_LEVEL will default to level 2 for debug builds or level 1 for release builds.
+<p>The following table describes each SDL_ASSERT_LEVEL setting and the corresponding impact on the three SDL_assert functions:
+<table>
+<tr style="background-color: #EDEDED"><th>SDL_ASSERT_LEVEL</th><th>Description</th><th>Function</th><th>Function Status</th></tr>
+<tr><td style="text-align: center"><strong>0</strong></td><td>all assertions disabled</td><td>SDL_assert<br>SDL_assert_release<br>SDL_assert_paranoid</td><td>disabled<br>disabled<br>disabled</td></tr>
+<tr><td style="text-align: center"><strong>1</strong></td><td>for release (default)</td><td>SDL_assert<br>SDL_assert_release<br>SDL_assert_paranoid</td><td>disabled<br>enabled<br>disabled</td></tr>
+<tr><td style="text-align: center"><strong>2</strong></td><td>for debugging (default)</td><td>SDL_assert<br>SDL_assert_release<br>SDL_assert_paranoid</td><td>enabled<br>enabled<br>disabled</td><tr>
+<tr><td style="text-align: center"><strong>3</strong></td><td>stringent for detailed checking</td><td>SDL_assert<br>SDL_assert_release<br>SDL_assert_paranoid</td><td>enabled<br>enabled<br>enabled</td><tr>
+</table>
+<h2>Enumerations</h2>
+<ol start="1">
+<li><a href="SDL_assert_state.html">SDL_assert_state<a></li>
+</ol>
+<h2>Structures</h2>
+<ol start="1">
+<li><a href="structures/SDL_assert_data.html">SDL_assert_data</a></li>
+</ol>
+<h2>Functions</h2>
+<ol start="1">
+<li><a href="SDL_GetAssertionReport.html">SDL_GetAssertionReport</a></li>
+<li><a href="SDL_ResetAssertionReport.html">SDL_ResetAssertionReport</a></li>
+<li><a href="SDL_SetAssertionHandler.html">SDL_SetAssertionHandler</a></li>
+<li><a href="SDL_TriggerBreakpoint.html">SDL_TriggerBreakpoint</a></li>
+<li><a href="SDL_assert.html">SDL_assert</a></li>
+<li><a href="SDL_assert_paranoid.html">SDL_assert_paranoid</a></li>
+<li><a href="SDL_assert_release.html">SDL_assert_release</a></li>
+</ol>
+</div>
+</BODY>
+</HTML>

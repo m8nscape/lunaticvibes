@@ -1,0 +1,45 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_JoyHatEvent</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_JoyHatEvent</h1>
+<p>A structure that contains joystick hat position change event information.
+<h2>Data Fields</h2>
+<table>
+<tr><td>Uint32</td><td><strong>type</strong></td><td>SDL_JOYHATMOTION</td></tr>
+<tr><td>Uint32</td><td><strong>timestamp</strong></td><td>timestamp of the event</td></tr>
+<tr><td>SDL_JoystickID</td><td><strong>which</strong></td><td>the index of the joystick that reported the event</td></tr>
+<tr><td>Uint8</td><td><strong>hat</strong></td><td>the index of the hat that changed</td></tr>
+<tr><td>Uint8</td><td><strong>value</strong></td><td>the new position of the hat; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr style="color: #808080;"><td>Uint8</td><td><strong>padding1</strong></td><td>&nbsp;</td></tr>
+<tr style="color: #808080;"><td>Uint8</td><td><strong>padding2</strong></td><td>&nbsp;</td></tr>
+</table>	
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<p><a href="SDL_JoyHatEvent.html">SDL_JoyHatEvent</a> is a member of the <a href="SDL_Event.html">SDL_Event</a> union and is used when an event of type SDL_JOYHATMOTION is reported. You would access it through the event's jhat field.
+<p>An SDL_JOYHATMOTION event occurs whenever a user moves a hat on the joystick.
+<p><strong>value</strong> may be one of the following:
+<table>
+<tr><td>SDL_HAT_LEFTUP</td><td style="text-align: center">SDL_HAT_UP</td><td style="text-align: center">SDL_HAT_RIGHTUP</td></tr>
+<tr><td>SDL_HAT_LEFT</td><td style="text-align: center">SDL_HAT_CENTERED</td><td style="text-align: center">SDL_HAT_RIGHT</td></tr>
+<tr><td>SDL_HAT_LEFTDOWN</td><td style="text-align: center">SDL_HAT_DOWN</td><td style="text-align: center">SDL_HAT_RIGHTDOWN</td></tr>
+</table>
+<p>Note that zero means the POV is centered.
+<h2>Related Enumerations</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_EventType.html">SDL_EventType</a></li></ul>
+<h2>Related Structures</h2>
+<ul style="list-style-type:none"><li><a href="SDL_Event.html">SDL_Event</a></li>
+<li><a href="SDL_JoyAxisEvent.html">SDL_JoyAxisEvent</a></li>
+<li><a href="SDL_JoyBallEvent.html">SDL_JoyBallEvent</a></li>
+<li><a href="SDL_JoyButtonEvent.html">SDL_JoyButtonEvent</a></li></ul>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_JoystickEventState.html">SDL_JoystickEventState</a></li>
+<li><a href="../SDL_JoystickGetHat.html">SDL_JoystickGetHat</a></li></ul>
+</div>
+</BODY>
+</HTML>

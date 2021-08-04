@@ -1,0 +1,32 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_SetWindowBrightness</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_SetWindowBrightness</h1>
+<p>Use this function to set the brightness (gamma correction) for a window.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_SetWindowBrightness(SDL_Window* window,
+                            float       brightness)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>window</strong></td><td>the window to change</td></tr>
+<tr><td><strong>brightness</strong></td><td>the brightness (gamma) value to set where 0.0 is completely dark and 1.0 is normal brightness</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetWindowBrightness.html">SDL_GetWindowBrightness</a></li>
+<li><a href="SDL_SetWindowGammaRamp.html">SDL_SetWindowGammaRamp</a></li></ul>
+</div>
+</BODY>
+</HTML>

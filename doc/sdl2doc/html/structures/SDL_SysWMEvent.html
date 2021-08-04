@@ -1,0 +1,35 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_SysWMEvent</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_SysWMEvent</h1>
+<p>A structure that contains a video driver dependent system event.
+<h2>Data Fields</h2>
+<table>
+<tr><td>Uint32</td><td><strong>type</strong></td><td>SDL_SYSWMEVENT</td></tr>
+<tr><td>Uint32</td><td><strong>timestamp</strong></td><td>timestamp of the event</td></tr>
+<tr><td><a href="../SDL_SysWMmsg.html">SDL_SysWMmsg</a>*</td><td><strong>msg</strong></td><td>driver dependent data, defined in SDL_syswm.h</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>This event is disabled by default. You can enable it with <a href="../SDL_EventState.html">SDL_EventState</a>(). You are encouraged to avoid this if you can find a less platform-specific way to accomplish your goals.
+<p>If you want to use this event you should include SDL_syswm.h and have access to the appropriate system headers.
+<p><a href="../SDL_SysWMEvent.html">SDL_SysWMEvent</a> is a member of the <a href="../SDL_Event.html">SDL_Event</a> union and is used when an event of type SDL_SYSWMEVENT is reported. You would access it through the event's <tt style="backtick">syswm</tt> field.
+<p>If you want to obtain system-specific information about the window manager you can fill in the <tt style="backtick">version</tt> member of an <a href="SDL_SysWMinfo.html">SDL_SysWMinfo</a> structure using the <a href="../SDL_VERSION.html">SDL_VERSION</a>() macro found in SDL_version.h, and pass it to the function <a href="../SDL_GetWindowWMInfo.html">SDL_GetWindowWMInfo</a>().
+<h2>Related Enumerations</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_EventType.html">SDL_EventType</a></li></ul>
+<h2>Related Structures</h2>
+<ul style="list-style-type:none"><li><a href="SDL_Event.html">SDL_Event</a></li>
+<li><a href="SDL_SysWMinfo.html">SDL_SysWMinfo</a></li>
+<li><a href="SDL_SysWMmsg.html">SDL_SysWMmsg</a></li></ul>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_EventState.html">SDL_EventState</a></li>
+<li><a href="../SDL_GetWindowWMInfo.html">SDL_GetWindowWMInfo</a></li></ul>
+</div>
+</BODY>
+</HTML>

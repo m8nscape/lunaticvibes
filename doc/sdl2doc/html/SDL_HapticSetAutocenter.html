@@ -1,0 +1,33 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_HapticSetAutocenter</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_HapticSetAutocenter</h1>
+<p>Use this function to set the global autocenter of the device.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_HapticSetAutocenter(SDL_Haptic* haptic,
+                            int         autocenter)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>haptic</strong></td><td>the SDL_Haptic device to set autocentering on</td></tr>
+<tr><td><strong>autocenter</strong></td><td>value to set autocenter to(0-100), 0 disables autocentering; see <a href="#Remarks">Remarks</a> for details</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<p>Autocenter should be between 0 and 100. Setting it to 0 will disable autocentering. <span style="color:green; ">This is redundant w/ the FP section and could all be contained there (as shown). Should it be removed from here?</span>
+<p>Device must support the SDL_HAPTIC_AUTOCENTER feature.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_HapticQuery.html">SDL_HapticQuery</a></li></ul>
+</div>
+</BODY>
+</HTML>

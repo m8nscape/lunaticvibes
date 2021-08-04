@@ -1,0 +1,25 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_HINT_RENDER_SCALE_QUALITY</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_HINT_RENDER_SCALE_QUALITY</h1>
+<p>A hint that specifies scaling quality.
+<h2>Values</h2>
+<table>
+<tr><td>0 or nearest</td><td>nearest pixel sampling</td></tr>
+<tr><td>1 or linear</td><td>linear filtering (supported by OpenGL and Direct3D)</td></tr>
+<tr><td>2 or best</td><td>anisotropic filtering (supported by Direct3D)</td></tr>
+</table>
+<h2>Default</h2>
+<p>By default nearest pixel sampling is used.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>This hint is checked when a texture is created and it affects scaling when copying that texture. 
+</div>
+</BODY>
+</HTML>

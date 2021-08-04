@@ -1,0 +1,108 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_AudioFormat</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_AudioFormat</h1>
+<P>An enumeration of audio formats.
+<h2>Values</h2>
+<h3>Bit Meanings</h3>
+<p>These are what the 16 bits in <a href="SDL_AudioFormat.html">SDL_AudioFormat</a> currently mean:
+<div style=codearea>
+<pre>
+ +----------------------sample is signed if set
+ |
+ |        +----------sample is bigendian if set
+ |        |
+ |        |           +--sample is float if set
+ |        |           |
+ |        |           |  +--sample bit size---+
+ |        |           |  |                    |
+15 14 13 12 11 10  9  8  7  6  5  4  3  2  1  0 
+</pre></div>
+<p>Unspecified bits are always zero, but may be used in later versions of SDL. There are macros to query the specified bits.
+
+<h3>Audio Format Macros</h3>
+<table>
+<tr><td>SDL_AUDIO_MASK_BITSIZE</td><td>(0xFF)</td></tr>
+<tr><td>SDL_AUDIO_MASK_DATATYPE</td><td>(1<<8)</td></tr>
+<tr><td>SDL_AUDIO_MASK_ENDIAN</td><td>(1<<12)</td></tr>
+<tr><td>SDL_AUDIO_MASK_SIGNED</td><td>(1<<15)</td></tr>
+<tr><td>SDL_AUDIO_BITSIZE(x)</td><td>(x & SDL_AUDIO_MASK_BITSIZE)</td></tr>
+<tr><td>SDL_AUDIO_ISFLOAT(x)</td><td>(x & SDL_AUDIO_MASK_DATATYPE)</td></tr>
+<tr><td>SDL_AUDIO_ISBIGENDIAN(x)</td><td>(x & SDL_AUDIO_MASK_ENDIAN)</td></tr>
+<tr><td>SDL_AUDIO_ISSIGNED(x)</td><td>(x & SDL_AUDIO_MASK_SIGNED)</td></tr>
+<tr><td>SDL_AUDIO_ISINT(x)</td><td>(!SDL_AUDIO_ISFLOAT(x))</td></tr>
+<tr><td>SDL_AUDIO_ISLITTLEENDIAN(x)</td><td>(!SDL_AUDIO_ISBIGENDIAN(x))</td></tr>
+<tr><td>SDL_AUDIO_ISUNSIGNED(x)</td><td>(!SDL_AUDIO_ISSIGNED(x))</td></tr>
+</table>
+<h3>Audio Format Values</h3>
+<table>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="2">8-bit support</td></tr>
+<tr><td>AUDIO_S8</td><td>signed 8-bit samples</td></tr>
+<tr><td>AUDIO_U8</td><td>unsigned 8-bit samples</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="2">16-bit support</td></tr>
+<tr><td>AUDIO_S16LSB</td><td>signed 16-bit samples in little-endian byte order</td></tr>
+
+<tr><td>AUDIO_S16MSB</td><td>signed 16-bit samples in big-endian byte order</td></tr>
+
+<tr><td>AUDIO_S16SYS</td><td>signed 16-bit samples in native byte order</td></tr>
+
+<tr><td>AUDIO_S16</td><td>AUDIO_S16LSB</td></tr>
+
+<tr><td>AUDIO_U16LSB</td><td>unsigned 16-bit samples in little-endian byte order</td></tr>
+
+<tr><td>AUDIO_U16MSB</td><td>unsigned 16-bit samples in big-endian byte order</td></tr>
+
+<tr><td>AUDIO_U16SYS</td><td>unsigned 16-bit samples in native byte order</td></tr>
+
+<tr><td>AUDIO_U16</td><td>AUDIO_U16LSB</td></tr>
+
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="2">32-bit support (new to SDL 2.0)</td></tr>
+<tr><td>AUDIO_S32LSB</td><td>32-bit integer samples in little-endian byte order</td></tr>
+
+<tr><td>AUDIO_S32MSB</td><td>32-bit integer samples in big-endian byte order</td></tr>
+
+<tr><td>AUDIO_S32SYS</td><td>32-bit integer samples in native byte order</td></tr>
+
+<tr><td>AUDIO_S32</td><td>AUDIO_S32LSB</td></tr>
+
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="2">float support (new to SDL 2.0)</td></tr>
+
+<tr><td>AUDIO_F32LSB</td><td>32-bit floating point samples in little-endian byte order</td></tr>
+
+<tr><td>AUDIO_F32MSB</td><td>32-bit floating point samples in big-endian byte order</td></tr>
+
+<tr><td>AUDIO_F32SYS</td><td>32-bit floating point samples in native byte order</td></tr>
+
+<tr><td>AUDIO_F32</td><td>AUDIO_F32LSB</td></tr>
+</table>
+
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+extern SDL_AudioFormat fmt;
+if (SDL_AUDIO_ISFLOAT(fmt)) {
+    printf("floating point data\n");
+} else {
+    printf("integer data\n");
+}
+printf("%d bits per sample\n", (int) SDL_AUDIO_BITSIZE(fmt));
+</pre></div>
+<h2>Remarks</h2>
+<p>Be careful about assuming details of a data format. If you only check SDL_AUDIO_ISFLOAT, you might be surprised to find a later version of SDL adds Float64 support when you expected there to be only 32-bit data, for example.
+<h2>Related Structures</h2>
+<ul style="list-style-type:none"><li><a href="SDL_AudioCVT.html">SDL_AudioCVT</a></li>
+<li><a href="SDL_AudioSpec.html">SDL_AudioSpec</a></li>
+</ul>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_BuildAudioCVT.html">SDL_BuildAudioCVT</a></li>
+<li><a href="SDL_MixAudioFormat.html">SDL_MixAudioFormat</a></li>
+</ul>
+</div>
+</BODY>
+</HTML>

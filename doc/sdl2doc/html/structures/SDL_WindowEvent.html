@@ -1,0 +1,94 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_WindowEvent</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_WindowEvent</h1>
+<p>A structure that contains window state change event data.
+<h2>Data Fields</h2>
+<table>
+<tr><td>Uint32</td><td><strong>type</strong></td><td>SDL_WINDOWEVENT</td></tr>
+<tr><td>Uint32</td><td><strong>timestamp</strong></td><td>timestamp of the event</td></tr>
+<tr><td>Uint32</td><td><strong>windowID</strong></td><td>the associated window</td></tr>
+<tr><td>Uint8</td><td><strong>event</strong></td><td><a href="../SDL_WindowEventID.html">SDL_WindowEventID</a></td></tr>
+<tr style="color: #808080;"><td>Uint8</td><td><strong>padding1</strong></td><td>&nbsp;</td></tr>
+<tr style="color: #808080;"><td>Uint8</td><td><strong>padding2</strong></td><td>&nbsp;</td></tr>
+<tr style="color: #808080;"><td>Uint8</td><td><strong>padding3</strong></td><td>&nbsp;</td></tr>
+<tr><td>Sint32</td><td><strong>data1</strong></td><td>event dependent data</td></tr>
+<tr><td>Sint32</td><td><strong>data2</strong></td><td>event dependent data</td></tr>
+</table>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+void PrintEvent(const SDL_Event * event)
+{
+    if (event->type == SDL_WINDOWEVENT) {
+        switch (event->window.event) {
+        case SDL_WINDOWEVENT_SHOWN:
+            SDL_Log("Window %d shown", event->window.windowID);
+            break;
+        case SDL_WINDOWEVENT_HIDDEN:
+            SDL_Log("Window %d hidden", event->window.windowID);
+            break;
+        case SDL_WINDOWEVENT_EXPOSED:
+            SDL_Log("Window %d exposed", event->window.windowID);
+            break;
+        case SDL_WINDOWEVENT_MOVED:
+            SDL_Log("Window %d moved to %d,%d",
+                    event->window.windowID, event->window.data1,
+                    event->window.data2);
+            break;
+        case SDL_WINDOWEVENT_RESIZED:
+            SDL_Log("Window %d resized to %dx%d",
+                    event->window.windowID, event->window.data1,
+                    event->window.data2);
+            break;
+        case SDL_WINDOWEVENT_MINIMIZED:
+            SDL_Log("Window %d minimized", event->window.windowID);
+            break;
+        case SDL_WINDOWEVENT_MAXIMIZED:
+            SDL_Log("Window %d maximized", event->window.windowID);
+            break;
+        case SDL_WINDOWEVENT_RESTORED:
+            SDL_Log("Window %d restored", event->window.windowID);
+            break;
+        case SDL_WINDOWEVENT_ENTER:
+            SDL_Log("Mouse entered window %d",
+                    event->window.windowID);
+            break;
+        case SDL_WINDOWEVENT_LEAVE:
+            SDL_Log("Mouse left window %d", event->window.windowID);
+            break;
+        case SDL_WINDOWEVENT_FOCUS_GAINED:
+            SDL_Log("Window %d gained keyboard focus",
+                    event->window.windowID);
+            break;
+        case SDL_WINDOWEVENT_FOCUS_LOST:
+            SDL_Log("Window %d lost keyboard focus",
+                    event->window.windowID);
+            break;
+        case SDL_WINDOWEVENT_CLOSE:
+            SDL_Log("Window %d closed", event->window.windowID);
+            break;
+        default:
+            SDL_Log("Window %d got unknown event %d",
+                    event->window.windowID, event->window.event);
+            break;
+        }
+    }
+}
+</pre></div>
+<h2>Remarks</h2>
+<p><a href="../SDL_WindowEvent.html">SDL_WindowEvent</a> is a member of the <a href="../SDL_Event.html">SDL_Event</a> union and is used when an event of type SDL_WINDOWEVENT is reported. You would access it through the event's <tt style="backtick">window</tt> field.
+<h2>Related Enumerations</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_EventType.html">SDL_EventType</a></li>
+<li><a href="../SDL_WindowEventID.html">SDL_WindowEventID</a></li></ul> 
+<h2>Related Structures</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_Event.html">SDL_Event</a></li></ul>
+</div>
+</BODY>
+</HTML>

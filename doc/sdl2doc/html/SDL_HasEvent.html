@@ -1,0 +1,30 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_HasEvent</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_HasEvent</h1>
+<p>Use this function to check for the existence of certain event types in the event queue.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_bool SDL_HasEvent(Uint32 type)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>type</strong></td><td>the type of event to be queried; see <a href="SDL_EventType.html">SDL_EventType</a> for details</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns SDL_TRUE if events matching <strong>type</strong> are present, or SDL_FALSE if events matching <strong>type</strong> are not present.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>If you need to check for a range of event types, use <a href="SDL_HasEvents.html">SDL_HasEvents</a>() instead.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_HasEvents.html">SDL_HasEvents</a></li></ul>
+</div>
+</BODY>
+</HTML>

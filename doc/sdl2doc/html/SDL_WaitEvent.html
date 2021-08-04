@@ -1,0 +1,34 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_WaitEvent</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_WaitEvent</h1>
+<p>Use this function to wait indefinitely for the next available event.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_WaitEvent(SDL_Event* event)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>event</strong></td><td>the <a href="structures/SDL_Event.html">SDL_Event</a> structure to be filled in with the next event from the queue, or NULL</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 1 on success or 0 if there was an error while waiting for events; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>If <strong>event</strong> is not NULL, the next event is removed from the queue and stored in the <a href="structures/SDL_Event.html">SDL_Event</a> structure pointed to by <strong>event</strong>.
+<p>As this function implicitly calls <a href="SDL_PumpEvents.html">SDL_PumpEvents</a>(), you can only call this function in the thread that set the video mode.
+<p>As of SDL 2.0, this function does not put the application's process to sleep waiting for events; it polls for events in a loop internally. This may change in the future to improve power savings.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_PumpEvents.html">SDL_PumpEvents</a></li>
+<li><a href="SDL_PollEvent.html">SDL_PollEvent</a></li>
+<li><a href="SDL_WaitEventTimeout.html">SDL_WaitEventTimeout</a></li></ul>
+</div>
+</BODY>
+</HTML>

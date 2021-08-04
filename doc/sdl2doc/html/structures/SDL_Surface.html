@@ -1,0 +1,58 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_Surface</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_Surface<h1>
+<p>A structure that contains a collection of pixels used in software blitting.
+<h2>Data Fields</h2>
+<table>
+<tr style="color:#808080;"><td>Uint32</td><td><strong>flags</strong></td><td>(internal use)</td></tr>
+<tr><td>SDL_PixelFormat*</td><td><strong>format</strong></td><td>the format of the pixels stored in the surface; see <a href="SDL_PixelFormat.html">SDL_PixelFormat</a> for details (read-only)</td></tr>
+<tr><td>int</td><td><strong>w, h</strong></td><td>the width and height in pixels (read-only)</td></tr>
+<tr><td>int</td><td><strong>pitch</strong></td><td>the length of a row of pixels in bytes (read-only)</td></tr>
+<tr><td>void*</td><td><strong>pixels</strong></td><td>the pointer to the actual pixel data; see <a href="#Remarks">Remarks</a> for details (read-write)</td></tr>
+<tr><td>void*</td><td><strong>userdata</strong></td><td>an arbitrary pointer you can set (read-write)</td></tr>
+<tr style="color:#808080;"><td>int</td><td><strong>locked</strong></td><td>used for surfaces that require locking (internal use)</td></tr>
+<tr style="color:#808080;"><td>void*</td><td><strong>lock_data</strong></td><td>used for surfaces that require locking (internal use)</td></tr>
+<tr><td><a href="SDL_Rect.html">SDL_Rect</a></td><td><strong>clip_rect</strong></td><td>an <a href="SDL_Rect.html">SDL_Rect</a> structure used to clip blits to the surface which can be set by <a href="../SDL_SetClipRect.html">SDL_SetClipRect</a>() (read-only)</td></tr>
+<tr style="color:#808080;"><td>SDL_!BlitMap*</td><td><strong>map</strong></td><td>info for fast blit mapping to other surfaces (internal use)</td></tr>
+<tr><td>int</td><td><strong>refcount</strong></td><td>reference count that can be incremented by the application</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<p>With most surfaces you can access the pixels directly. Surfaces that have been optimized with <a href="../SDL_SetSurfaceRLE.html">SDL_SetSurfaceRLE</a>() should be locked with <A href="../SDL_LockSurface.html">SDL_LockSurface</a>() before accessing <strong>pixels</strong>. When you are done you should call <a href="../SDL_UnlockSurface.html">SDL_UnlockSurface</a>() before blitting.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_ConvertSurface.html"></a></li>
+<li><a href="../SDL_CreateRGBSurface.html">SDL_CreateRGBSurface</a></li>
+<li><a href="../SDL_CreateRGBSurfaceFrom.html">SDL_CreateRGBSurfaceFrom</a></li>
+<li><a href="../SDL_FillRect.html">SDL_FillRect</a></li>
+<li><a href="../SDL_FillRects.html">SDL_FillRects</a></li>
+<li><a href="../SDL_FreeSurface.html">SDL_FreeSurface</a></li>
+<li><a href="../SDL_GetClipRect.html">SDL_GetClipRect</a></li>
+<li><a href="../SDL_GetColorKey.html">SDL_GetColorKey</a></li>
+<li><a href="../SDL_GetSurfaceAlphaMod.html">SDL_GetSurfaceAlphaMod</a></li>
+<li><a href="../SDL_GetSurfaceBlendMode.html">SDL_GetSurfaceBlendMode</a></li>
+<li><a href="../SDL_GetSurfaceColorMod.html">SDL_GetSurfaceColorMod</a></li>
+<li><a href="../SDL_LoadBMP_RW.html">SDL_LoadBMP_RW</a></li>
+<li><a href="../SDL_LockSurface.html">SDL_LockSurface</a></li>
+<li><a href="../SDL_LowerBlit.html">SDL_LowerBlit</a></li>
+<li><a href="../SDL_MUSTLOCK.html">SDL_MUSTLOCK</a></li>
+<li><a href="../SDL_SaveBMP_RW.html">SDL_SaveBMP_RW</a></li>
+<li><a href="../SDL_SetClipRect.html">SDL_SetClipRect</a></li>
+<li><a href="../SDL_SetColorKey.html">SDL_SetColorKey</a></li>
+<li><a href="../SDL_SetSurfaceAlphaMod.html">SDL_SetSurfaceAlphaMod</a></li>
+<li><a href="../SDL_SetSurfaceBlendMode.html">SDL_SetSurfaceBlendMode</a></li>
+<li><a href="../SDL_SetSurfaceColorMod.html">SDL_SetSurfaceColorMod</a></li>
+<li><a href="../SDL_SetSurfacePalette.html">SDL_SetSurfacePalette</a></li>
+<li><a href="../SDL_SetSurfaceRLE.html">SDL_SetSurfaceRLE</a></li>
+<li><a href="../SDL_SoftStretch.html">SDL_SoftStretch</a></li>
+<li><a href="../SDL_UnlockSurface.html">SDL_UnlockSurface</a></li>
+<li><a href="../SDL_UpperBlit.html">SDL_UpperBlit</a></li></ul>
+</div>
+</BODY>
+</HTML>

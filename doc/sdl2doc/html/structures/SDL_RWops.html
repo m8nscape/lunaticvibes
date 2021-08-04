@@ -1,0 +1,82 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_RWops</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_RWops</h1>
+<p>A structure that provides an abstract interface to stream I/O. Applications can generally ignore the specifics of this structure's internals and treat them as opaque pointers. The details are important to lower-level code that might need to implement one of these, however.
+<h2>Data Fields</h2>
+<table>
+<tr><td>Sint64 (*)(SDL_RWops *)</td><td><strong>size</strong></td><td>Callback that reports stream size; see <a href="#Remarks">Remarks</a></td></tr>
+<tr><td>Sint64 (*)(SDL_RWops *, Sint64, int)</td><td><strong>seek</strong></td><td>Callback that seeks in stream; see <a href="#Remarks">Remarks</a></td></tr>
+<tr><td>size_t (*)(SDL_RWops *, void *, size_t, size_t)</td><td><strong>read</strong></td><td>Callback that reads from the stream; see <a href="#Remarks">Remarks</a></td></tr>
+<tr><td>size_t (*)(SDL_RWops *, const void *, size_t, size_t)</td><td><strong>write</strong></td><td>Callback that writes to the stream; see <a href="#Remarks">Remarks</a></td></tr>
+<tr><td>int (*)(SDL_RWops *)</td><td><strong>close</strong></td><td>Callback that closes the stream; see <a href="#Remarks">Remarks</a></td></tr>
+<tr><td>Uint32</td><td><strong>type</strong></td><td>Type of stream; see <a href="#Remarks">Remarks</a></td></tr>
+<tr><td>union</td><td><strong>hidden</strong></td><td>Type-specific data; see <a href="#Remarks">Remarks</a></td></tr>
+</table>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+SDL_RWops *io = SDL_RWFromFile("username.txt", "rb");
+if (io != NULL) {
+    char name[256];
+    if (io->read(io, name, sizeof (name), 1) > 0) {
+        printf("Hello, %s!\n", name);
+    }
+    io->close(io);
+}
+</pre></div>
+<h2 id="Remarks">Remarks</h2>
+<p>SDL_RWops is an abstraction over I/O. It provides interfaces to read, write and seek data in a stream, without the caller needing to know where the data is coming from.
+<p>For example, a RWops might be fed by a memory buffer, or a file on disk, or a connection to a web server, without any changes to how the caller consumes the data.
+<p>SDL provides some internal methods for reading from common stream types, like files and memory buffers, but this structure can be used by the application or third party libraries to implement whatever type of stream it pleases.
+<p>Most of the fields of this structure are function pointers that are used as callbacks to implement the stream interface. All of them use SDLCALL calling convention.
+<p>Please note that many of these function pointers used ints in SDL 1.2; to give them a better range, they have become Sint64 in SDL 2.0.
+<p>Applications shouldn't have to care about the internals of this structure. They can treat it as an opaque data pointer and use the <a href="../SDL_RWread.html">SDL_RWread</a>(), <a href="../SDL_RWwrite.html">SDL_RWwrite</a>(), <a href="../SDL_RWseek.html">SDL_RWseek</a>(), <a href="../SDL_RWtell.html">SDL_RWtell</a>() and <a href="../SDL_RWclose.html">SDL_RWclose</a>() functions on them. Applications almost never create or modify these structures either, instead favoring creation functions like <a href="../SDL_RWFromFile.html">SDL_RWFromFile</a>(), <a href="../SDL_RWFromMem.html">SDL_RWFromMem</a>(), etc.
+<p>Third-party libraries and special, low-level code may need to know how to properly implement this struct, however.
+<h3>Size Function</h3>
+<p><strong>size</strong> is a function pointer that reports the stream's total size in bytes. If the stream size can't be determined (either because it doesn't make sense for the stream type, or there was an error), this function returns -1.
+<h3>Seek Function</h3>
+<p><strong>seek</strong> is a function pointer that positions the next read/write operation in the stream. This seeks in byte offsets. If the stream can not seek (either because it doesn't make sense for the stream type, or there was an error), this function returns -1, otherwise it returns the new position. Seeking zero bytes from RW_SEEK_CUR is a common way to determine the current stream position.
+<p>The final argument works like the standard fseek() "whence":
+<table>
+<tr><td>Identifier</td><td>Value</td><td>Explanation</td></tr>
+<tr><td>RW_SEEK_SET</td><td>0</td><td>Seek from the beginning of data</td></tr>
+<tr><td>RW_SEEK_CUR</td><td>1</td><td>Seek relative to current read point</td></tr>
+<tr><td>RW_SEEK_END</td><td>2</td><td>Seek relative to the end of data</td></tr>
+</table>
+<h3>Read Function</h3>
+<p><strong>read</strong> is a function pointer that reads from the stream. It reads up to num objects each of size bytes into the buffer pointer to by ptr. Returns the number of objects read, which may be less than requested. Returns 0 on error or EOF.
+<h3>Write Function</h3>
+<p><strong>write</strong> is a function pointer that writes to the stream. It writes exactly num objects each of size bytes from the buffer pointer to by ptr. Returns the number of objects written, which will be less than requested on error.
+<h3>Close Function</h3>
+<p><strong>close</strong> is a fucntion pointer that cleans up the stream. It should release any resources used by the stream and free the SDL_RWops itself with </a href="../SDL_FreeRW.html">SDL_FreeRW</a>(). This returns 0 on success, or -1 if the stream failed to flush to disk (or whereever). The SDL_RWops is no longer valid after this call, even if flushing the stream failed.
+<h3>Stream Type</h3>
+<p>The <strong>type</strong> field is currently one of these values. An application can usually ignore this information.
+<table>
+<tr><td>Identifier</td><td>Value</td><td>Description</td></tr>
+<tr><td>SDL_RWOPS_UNKNOWN</td><td>0</td><td>Unknown stream type or application-defined</td></tr>
+<tr><td>SDL_RWOPS_WINFILE</td><td>1</td><td>Win32 file handle</td></tr>
+<tr><td>SDL_RWOPS_STDFILE</td><td>2</td><td>stdio.h FILE*</td></tr>
+<tr><td>SDL_RWOPS_JNIFILE</td><td>3</td><td>Android asset</td></tr>
+<tr><td>SDL_RWOPS_MEMORY</td><td>4</td><td>Memory stream (read/write)</td></tr>
+<tr><td>SDL_RWOPS_MEMORY_RO</td><td>5</td><td>Memory stream (read-only)</td></tr>
+</table>
+<p>Applications and libraries rolling their own RWops implementations should use SDL_RWOPS_UNKNOWN. All other values are currently reserved for SDL's internal use.
+<h3>Hidden Union</h3>
+<p>Applications can ignore this union completely. All of the fields in this union are platform-specific and off-limits, used internally by SDL, with one exception. You may use the <strong>unknown</strong> struct to store your own RWops implementation's data, possibly cleaning it up during the <strong>close</strong> method. If your data doesn't fit in two pointers, use these pointers to hold an allocated structure that contains the real data.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_AllocRW.html">SDL_AllocRW</a></li>
+<li><a href="../SDL_RWFromFile.html">SDL_RWFromFile</a></li>
+<li><a href="../SDL_RWFromFP.html">SDL_RWFromFP</a></li>
+<li><a href="../SDL_RWFromMem.html">SDL_RWFromMem</a></li>
+<li><a href="../SDL_RWFromConstMem.html">SDL_RWFromConstMem</a></li>
+<li><a href="../SDL_FreeRW.html">SDL_FreeRW</a></li></ul>
+</div>
+</BODY>
+</HTML>

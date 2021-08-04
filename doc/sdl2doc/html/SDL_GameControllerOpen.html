@@ -1,0 +1,46 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GameControllerOpen</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GameControllerOpen</h1>
+<p>Use this function to open a gamecontroller for use.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_GameController *SDL_GameControllerOpen(int joystick_index)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>joystick_index</strong></td><td>the device_index of a device, up to <a href="SDL_NumJoysticks.html">SDL_NumJoysticks</a>()</a></td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns a gamecontroller identifier or NULL if an error occurred; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+/* Open the first available controller. */
+SDL_GameController *controller = NULL;
+for (int i = 0; i < SDL_NumJoysticks(); ++i) {
+    if (SDL_IsGameController(i)) {
+        controller = SDL_GameControllerOpen(i);
+        if (controller) {
+            break;
+        } else {
+            fprintf(stderr, "Could not open gamecontroller %i: %s\n", i, SDL_GetError());
+        }
+    }
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>joystick_index is the same as the device_index passed to <a href="SDL_JoystickOpen.html">SDL_JoystickOpen</a>.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_IsGameController.html">SDL_IsGameController</a></li>
+<li><a href="SDL_GameControllerNameForIndex.html">SDL_GameControllerNameForIndex</a></li></ul>
+</div>
+</BODY>
+</HTML>

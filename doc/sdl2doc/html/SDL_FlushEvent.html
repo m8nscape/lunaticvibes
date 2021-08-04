@@ -1,0 +1,29 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_FlushEvent</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_FlushEvent</h1>
+<p>Use this function to clear events from the event queue.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_FlushEvent(Uint32 type)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>type</strong></td><td>the type of event to be cleared; see <a ref="SDL_EventType.html">SDL_EventType</a> for details</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>This will unconditionally remove any events from the queue that match <strong>type</strong>. If you need to remove a range of event types, use <a href="SDL_FlushEvents.html">SDL_FlushEvents</a>() instead.
+<p>It's also normal to just ignore events you don't care about in your event loop without calling this function.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_FlushEvents.html">SDL_FlushEvents</a></li></ul>
+</div>
+</BODY>
+</HTML>

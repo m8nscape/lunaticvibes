@@ -1,0 +1,80 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_CreateRGBSurface</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_CreateRGBSurface</h1>
+<p>Use this function to allocate a new RGB surface.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_Surface* SDL_CreateRGBSurface(Uint32 flags,
+                                  int    width,
+                                  int    height,
+                                  int    depth,
+                                  Uint32 Rmask,
+                                  Uint32 Gmask,
+                                  Uint32 Bmask,
+                                  Uint32 Amask)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>flags</strong></td><td>the flags are unused and should be set to 0</td></tr>
+<tr><td><strong>width</strong></td><td>the width of the surface</td></tr>
+<tr><td><strong>height</strong></td><td>the height of the surface</td></tr>
+<tr><td><strong>depth</strong></td><td>the depth of the surface in bits; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td><strong>Rmask</strong></td><td>the red mask for the pixels</td></tr>
+<tr><td><strong>Gmask</strong></td><td>the green mask for the pixels</td></tr>
+<tr><td><strong>Bmask</strong></td><td>the blue mask for the pixels</td></tr>
+<tr><td><strong>Amask</strong></td><td>the alpha mask for the pixels</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns the new <a href="SDL_Surface.html">SDL_Surface</a> structure that is created or NULL if it fails; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+    /* Create a 32-bit surface with the bytes of each pixel in R,G,B,A order,
+       as expected by OpenGL for textures */
+    SDL_Surface *surface;
+    Uint32 rmask, gmask, bmask, amask;
+
+    /* SDL interprets each pixel as a 32-bit number, so our masks must depend
+       on the endianness (byte order) of the machine */
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    rmask = 0xff000000;
+    gmask = 0x00ff0000;
+    bmask = 0x0000ff00;
+    amask = 0x000000ff;
+#else
+    rmask = 0x000000ff;
+    gmask = 0x0000ff00;
+    bmask = 0x00ff0000;
+    amask = 0xff000000;
+#endif
+
+    surface = SDL_CreateRGBSurface(0, width, height, 32,
+                                   rmask, gmask, bmask, amask);
+    if(surface == NULL) {
+        fprintf(stderr, "CreateRGBSurface failed: %s\n", SDL_GetError());
+        exit(1);
+    }
+
+    /* or using the default masks for the depth: */
+    surface = SDL_CreateRGBSurface(0,width,height,32,0,0,0,0);
+</pre></div>
+<h2 id="Remarks">Remarks</h2>
+<p>If <strong>depth</strong> is 4 or 8 bits, an empty palette is allocated for the surface. If <strong>depth</strong> is greater than 8 bits, the pixel format is set using the [RGBA]mask parameters.
+<p>The [RGBA]mask parameters are the bitmasks used to extract that color from a pixel. For instance, <strong>Rmask</strong> being FF000000 means the red data is stored in the most significant byte. Using zeros for the RGB masks sets a default value, based on the depth. (e.g. SDL_CreateRGBSurface(0,w,h,32,0,0,0,0);) However, using zero for the Amask results in an Amask of 0.
+<p>By default surfaces with an alpha mask are set up for blending as with
+<ul style="list-style-type:none"><li><tt style="backtick">SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_BLEND)</tt></li></ul>
+<p>You can change this by calling <a href="SDL_SetSurfaceBlendMode.html">SDL_SetSurfaceBlendMode</a>() and selecting a different blendMode.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_CreateRGBSurfaceFrom.html">SDL_CreateRGBSurfaceFrom</a></li>
+<li><a href="SDL_FreeSurface.html">SDL_FreeSurface</a></li></ul>
+</div>
+</BODY>
+</HTML>

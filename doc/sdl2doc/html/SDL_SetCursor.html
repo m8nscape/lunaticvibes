@@ -1,0 +1,41 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_SetCursor</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_SetCursor</h1>
+<p>Use this function to set the active cursor.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_SetCursor(SDL_Cursor* cursor)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>cursor</strong></td><td>a cursor to make active <span style="color:green; "> (Should this be linked to Remarks?)</span></td></tr>
+</table>
+<h2>Code Examples</h2>
+<p>*
+<div style=codearea>
+<pre>
+int main(int argc, char** argv) {
+     SDL_ShowCursor(SDL_DISABLE);
+     ...
+}
+/* creates a blank cursor */
+</pre></div>
+<h2>Remarks</h2>
+<p>*
+<p>This function sets the currently active cursor to the specified one. If the cursor is currently visible, the change will be immediately represented on the display. <a href="SDL_SetCursor.html">SDL_SetCursor</a>(NULL) can be used to force cursor redraw, if this is desired for any reason.
+<p>*
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_CreateCursor.html">SDL_CreateCursor *</a></li>
+<li><a href="SDL_GetCursor.html">SDL_GetCursor *</a></li>
+<li><a href="SDL_ShowCursor.html">SDL_ShowCursor * </a></li></ul>
+</div>
+</BODY>
+</HTML>

@@ -1,0 +1,26 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_MouseIsHaptic</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_MouseIsHaptic</h1>
+<p>Use this function to get determine/find/query whether or not the current mouse has haptic capabilities.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_MouseIsHaptic(void)
+</pre></div>
+<p><span style="color:green; ">Should this be SDL_bool instead of int given the RVs? Are the RVs wrong?</span>
+<h2>Return Value</h2>
+<p>Returns SDL_TRUE if the mouse is haptic, SDL_FALSE if it isn't, or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_HapticOpenFromMouse.html">SDL_HapticOpenFromMouse</a></li></ul>
+</div>
+</BODY>
+</HTML>

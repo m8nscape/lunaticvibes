@@ -1,0 +1,47 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_HapticCondition</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_HapticCondition</h1>
+<p>A structure that contains a template for a condition effect.
+<h2>Data Fields</h2>
+<table>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>Header</em></td></tr>
+<tr><td>Uint16</td><td><strong>type</strong></td><td>one of the effects handled by this structure; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr style="color: #808080;"><td>SDL_HapticDirection</td><td><strong>direction</strong></td><td>direction of the effect - not used at the moment; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>Replay</em></td></tr>
+<tr><td>Uint32</td><td><strong>length</strong></td><td>duration of the effect</td></tr>
+<tr><td>Uint16</td><td><strong>delay</strong></td><td>delay before starting the effect</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>Trigger</em></td></tr>
+<tr><td>Uint16</td><td><strong>button</strong></td><td>button that triggers the effect</td></tr>
+<tr><td>Uint16</td><td><strong>interval</strong></td><td>how soon it can be triggered again after button</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>Condition</em></td></tr>
+<tr><td>Uint16</td><td><strong>right_sat</strong></td><td>level when joystick is to the positive side</td></tr>
+<tr><td>Uint16</td><td><strong>left_sat</strong></td><td>level when joystick is to the negative side</td></tr>
+<tr><td>Sint16</td><td><strong>right_coeff</strong></td><td>how fast to increase the force towards the positive side</td></tr>
+<tr><td>Sint16</td><td><strong>left_coeff</strong></td><td>how fast to increase the force towards the negative side</td></tr>
+<tr><td>Uint16</td><td><strong>deadband</strong></td><td>size of the dead zone (units)?</td></tr>
+<tr><td>Sint16</td><td><strong>center</strong></td><td>position of the dead zone
+</table>
+<p><span style="color:green; ">All of the Condition fields had a [3] that was left out. Should it be in?</span>
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<p>type may be one of the following:
+<table>
+<tr><td>SDL_HAPTIC_SPRING</td><td>effect based on axis <em>position/axes positions</em>?</td></tr>
+<tr><td>SDL_HAPTIC_DAMPER</td><td>effect based on <em>axis velocity/axes velocities</em>?</td></tr>
+<tr><td>SDL_HAPTIC_INERTIA</td><td>effect based on <em>axis/axes acceleration</em>?</td></tr>
+<tr><td>SDL_HAPTIC_FRICTION</td><td>effect based on <em>axis/axes movement/movements</em>?</td></tr>
+</table>
+<p><strong>direction</strong> is <em>currently</em> handled by condition internals instead of a direction member. The condition effect specific members have three parameters. The first refers to the X axis, the second refers to the Y axis and the third refers to the Z axis. The right terms refer to the positive side of the axis and the left terms refer to the negative side of the axis. Please refer to the <a href="SDL_HapticDirection.html">SDL_HapticDirection</a> diagram for which side is positive and which is negative.
+<h2>Related Structures</h2>
+<ul style="list-style-type:none"><li><a href="SDL_HapticDirection.html">SDL_HapticDirection</a></li></ul>
+<h2>Related Functions</h2>
+</div>
+</BODY>
+</HTML>

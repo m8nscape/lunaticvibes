@@ -1,0 +1,31 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetRendererInfo</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetRendererInfo</h1>
+<p>Use this function to get information about a rendering context.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_GetRendererInfo(SDL_Renderer*     renderer,
+                        SDL_RendererInfo* info)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>renderer</strong></td><td>the rendering context</td></tr>
+<tr><td><strong>info</strong></td><td>an <a href="SDL_RendererInfo.html">SDL_RendererInfo</a> structure filled with information about the current renderer</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_CreateRenderer.html">SDL_CreateRenderer</a></li></ul>
+</div>
+</BODY>
+</HTML>

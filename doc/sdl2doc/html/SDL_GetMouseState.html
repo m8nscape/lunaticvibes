@@ -1,0 +1,41 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetMouseState</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetMouseState</h1>
+<p>Use this function to retrieve the current state of the mouse.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+Uint32 SDL_GetMouseState(int* x,
+                         int* y)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>x</strong></td><td>the x coordinate of the mouse cursor position relative to the focus window</td></tr>
+<tr><td><strong>y</strong></td><td>the y coordinate of the mouse cursor position relative to the focus window</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns a 32 bit button bitmask of the current button state.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+SDL_PumpEvents();
+if(SDL_GetMouseState(NULL, NULL)&SDL_BUTTON(1))
+  printf("Mouse Button 1(left) is pressed.\n");
+</pre></div>
+<h2>Remarks</h2>
+<p>The current button state is returned as a button bitmask, which can be tested using the SDL_BUTTON(X) macros *(where X is generally 1 for the left, 2 for middle, 3 for the right button)*, and <strong>x</strong> and <strong>y</strong> are set to the mouse cursor position relative to the focus window for the currently selected mouse. You can pass NULL for either <strong>x</strong> or <strong>y</strong>.
+
+<p><span style="color:green; ">Suggest splitting the first sentence into two. Should the subscripted portion be removed to reflect the lack of multi-mouse support?</span>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetRelativeMouseState.html">SDL_GetRelativeMouseState *</a></li>
+<li><a href="SDL_PumpEvents.html">SDL_PumpEvents * </a></li></ul>
+</div>
+</BODY>
+</HTML>

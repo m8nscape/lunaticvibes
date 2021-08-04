@@ -1,0 +1,30 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_SetModState</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_SetModState</h1>
+<p>Use this function to set the current key modifier state for the keyboard.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_SetModState(SDL_Keymod modstate)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>modstate</strong></td><td>the desired <A href="SDL_Keymod.html">SDL_Keymod</a> for the keyboard</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>*
+<p>The inverse of <A href="SDL_GetModState.html">SDL_GetModState</a>(), <a href="SDL_SetModState.html">SDL_SetModState</a>() allows you to impose modifier key states on your application. Simply pass your desired modifier states into <strong>modstate</strong>. This value may be a bitwise, OR'd combination of* [[SDL_Keymod]] values.
+<p>This does not change the keyboard state, only the key modifier flags.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetModState.html">SDL_GetModState</a></li></ul>
+</div>
+</BODY>
+</HTML>

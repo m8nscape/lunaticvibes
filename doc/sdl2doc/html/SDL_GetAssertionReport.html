@@ -1,0 +1,38 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetAssertionReport</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetAssertionReport</h1>
+<p>Use this function to get a list of all assertion failures.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+const SDL_assert_data* SDL_GetAssertionReport(void)
+</pre></div>
+<h2>Return Value</h2>
+<p>Returns a list of all failed assertions or NULL if the list is empty. This memory should not be modified or freed by the application.
+<h2>Code Examples</h2>
+<p>The proper way to examine this data looks something like this:
+<div style=codearea>
+<pre>
+const SDL_assert_data *item = SDL_GetAssertionReport();
+while (item) {
+     printf("'%s', %s (%s:%d), triggered %u times, always ignore: %s.\n",
+          item->condition, item->function, item->filename,
+          item->linenum, item->trigger_count,
+          item->always_ignore ? "yes" : "no");
+     item = item->next;
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>This function gets all assertions triggered since the last call to <a href="SDL_ResetAssertionReport.html">SDL_ResetAssertionReport</a>(), or the start of the program.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_ResetAssertionReport.html">SDL_ResetAssertionReport</a></li></ul>
+</div>
+</BODY>
+</HTML>

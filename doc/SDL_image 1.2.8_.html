@@ -1,0 +1,2691 @@
+
+<!-- saved from url=(0061)https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html -->
+<html><!-- Created on November, 3  2009 by texi2html 1.64 --><!-- 
+Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
+            Karl Berry  <karl@freefriends.org>
+            Olaf Bachmann <obachman@mathematik.uni-kl.de>
+            and many others.
+Maintained by: Olaf Bachmann <obachman@mathematik.uni-kl.de>
+Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
+ 
+--><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>SDL_image 1.2.8: </title>
+
+<meta name="description" content="SDL_image 1.2.8: ">
+<meta name="keywords" content="SDL_image 1.2.8: ">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="texi2html 1.64">
+
+</head>
+
+<body lang="" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+
+<a name="SEC_Top"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h1>SDL_image 1.2.8</h1><p></p><p>
+
+</p><blockquote><table border="0" cellspacing="0"> 
+<tbody><tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC1">1. Overview</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">The README from the SDL_image distribution</td></tr>
+</tbody></table>
+
+<br>
+<table border="0" cellspacing="0">
+<tbody><tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC2">2. Getting Started</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Using SDL_image</td></tr>
+</tbody></table>
+
+<br>
+<table border="0" cellspacing="0">
+<tbody><tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC5">3. Functions</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Functions supported by the SDL_image API</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC46">4. Defines</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Defined values/macros in the SDL_image API</td></tr>
+</tbody></table>
+
+<br>
+<table border="0" cellspacing="0">
+<tbody><tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Index of selected words</td></tr>
+</tbody></table></blockquote>
+<hr size="1">
+<a name="SEC1"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC2"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[ &lt;&lt; ]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC2"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<a name="Overview"></a>
+<h1> 1. Overview </h1>
+<!--docid::SEC1::-->
+<p>
+
+</p><center>
+ <b>A Little Bit About Me</b>
+</center>
+<p></p><p>
+
+I am currently, as I write this document, a programmer for Raytheon.  There I do all sorts of communications, network, GUI, and other general programming tasks in C/C++ on the Solaris, Linux, and Windows Operating Systems.
+</p><p>
+
+Feel free to contact me: <a href="mailto:JonathanCAtkins@gmail.com">JonathanCAtkins@gmail.com</a><br>
+</p><p>
+
+I am also usually on IRC at irc.freenode.net in the #SDL channel as LIM
+</p><p>
+
+</p><center>
+ <b>Why is this for you?</b>
+</center>
+<p></p><p>
+
+Images provide the basic visual building blocks for any user interface.  Colors and fun shapes are the stuff that we as kids looked at for hours at a time while trying to shoot down big aliens and rescue pixelated princesses.  Now it's our turn to make the images that others will remember later in life perhaps.  Now how do we get this dang images into our SDL programs, and be flexible in the handling of the images so that we don't even have to worry about what various formats they may be in?  This is where SDLimage makes all of our lives easier.  This document doesn't help you make artwork, but it will give you the functional knowledge on how to get that art into your game.  Now go forth and make your Stick Figure of Justice, someone else might fill in for your lack of artistry, at least you won't have to make much of an effort to include the new and better art into your code.
+</p><p>
+
+<a name="IDX1"></a>
+</p><p>
+
+This is the README, updated by me for accuracy, in the SDL_image source archive.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>SDL_image 1.2
+
+The latest version of this library is available from:
+<a href="http://www.libsdl.org/projects/SDL_image/">SDL_image Homepage</a>
+
+This is a simple library to load images of various formats as SDL surfaces.
+This library supports ICO(Icon)/CUR(Cursor)/BMP, PNM (PPM/PGM/PBM), XPM,
+LBM(IFF ILBM), PCX, GIF, JPEG, PNG, TGA, TIFF, and XV thumbnail formats.
+
+API:
+#include "SDL_image.h"
+
+	SDL_Surface *IMG_Load(const char *file);
+or
+	SDL_Surface *IMG_Load_RW(SDL_RWops *src, int freesrc);
+or
+	SDL_Surface *IMG_LoadTyped_RW(SDL_RWops *src, int freesrc, char *type);
+
+where type is a string specifying the format (i.e. "PNG" or "pcx").
+Note that IMG_Load_RW cannot load TGA images.
+
+To create a surface from an XPM image included in C source, use:
+
+	SDL_Surface *IMG_ReadXPMFromArray(char **xpm);
+
+An example program 'showimage' is included, with source in showimage.c
+
+JPEG support requires the JPEG library:
+    <a href="http://www.ijg.org/">IJG Homepage</a>
+PNG support requires the PNG library:
+    <a href="http://www.libpng.org/pub/png/libpng.html">PNG Homepage</a>
+  and the Zlib library:
+    <a href="http://www.gzip.org/zlib/">Zlib Homepage</a>
+TIFF support requires the TIFF library:
+    <a href="ftp://ftp.sgi.com/graphics/tiff/">SGI TIFF FTP Site</a>
+
+If you have these libraries installed in non-standard places, you can
+try adding those paths to the configure script, e.g.
+sh ./configure CPPFLAGS="-I/somewhere/include" LDFLAGS="-L/somewhere/lib"
+If this works, you may need to add /somewhere/lib to your LD_LIBRARY_PATH
+so shared library loading works correctly.
+
+This library is under the GNU Library General Public License, see the file
+"COPYING" for details.  Certain image loaders may be under a different
+license, see the individual image loader source files for details.
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<a name="Getting Started"></a>
+</p><hr size="6">
+<a name="SEC2"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC1"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC3"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC5"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC5"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h1> 2. Getting Started </h1>
+<!--docid::SEC2::-->
+<p>
+
+This assumes you have gotten SDL_image and installed it on your system.
+SDL_image has an README document in the source distribution to help you
+get it compiled and installed.  Well it at least points you to locations
+for the source code of some of the image libraries SDL_image can use.
+Most of the other image formats are builtin to SDL_image.
+</p><p>
+
+Generally, in UNIX-like environments, installation consists of:
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>./configure
+make
+make install
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+SDL_image supports loading and decoding images from the following formats:<br>
+</p><dl compact="">
+<dt><b>TGA</b>
+</dt><dd>TrueVision Targa (MUST have .tga)
+</dd><dt><b>BMP</b>
+</dt><dd>Windows Bitmap(.bmp)
+</dd><dt><b>PNM</b>
+</dt><dd>Portable Anymap (.pnm)<br>
+<code>.pbm</code> = Portable BitMap (mono)<br>
+<code>.pgm</code> = Portable GreyMap (256 greys)<br>
+<code>.ppm</code> = Portable PixMap (full color)
+</dd><dt><b>XPM</b>
+</dt><dd>X11 Pixmap (.xpm) can be #included directly in code<br>
+This is NOT the same as XBM(X11 Bitmap) format, which is for monocolor images.
+</dd><dt><b>XCF</b>
+</dt><dd>GIMP native (.xcf) (XCF = eXperimental Computing Facility?)<br>
+This format is always changing, and since there's no library supplied by the GIMP project to load XCF, the loader may frequently fail to load much of any image from an XCF file.  It's better to load this in GIMP and convert to a better supported image format.
+</dd><dt><b>PCX</b>
+</dt><dd>ZSoft IBM PC Paintbrush (.pcx)
+</dd><dt><b>GIF</b>
+</dt><dd>CompuServe Graphics Interchange Format (.gif)
+</dd><dt><b>JPG</b>
+</dt><dd>Joint Photographic Experts Group JFIF format (.jpg or .jpeg)
+</dd><dt><b>TIF</b>
+</dt><dd>Tagged Image File Format (.tif or .tiff)
+</dd><dt><b>LBM</b>
+</dt><dd>Interleaved Bitmap (.lbm or .iff) FORM : ILBM or PBM(packed bitmap)<br>
+HAM6, HAM8, and 24bit types are not supported.
+</dd><dt><b>PNG</b>
+</dt><dd>Portable Network Graphics (.png)
+</dd></dl>
+<p>
+
+You may also want to look at some demonstration code which may be downloaded from:<br>
+<a href="http://www.jonatkins.org/SDL_image/">http://www.jonatkins.org/SDL_image/</a>
+</p><p>
+
+</p><blockquote><table border="0" cellspacing="0"> 
+<tbody><tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC3">2.1 Includes</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">The include files to use for SDL_image</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC4">2.2 Compiling</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Using the SDL_image library and header file.</td></tr>
+</tbody></table></blockquote>
+<p>
+
+<a name="Includes"></a>
+</p><hr size="6">
+<a name="SEC3"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC2"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC4"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC2"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC2"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC5"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h2> 2.1 Includes </h2>
+<!--docid::SEC3::-->
+<p>
+
+To use SDL_image functions in a C/C++ source code file, you must use the 
+SDL_image.h include file:
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<code>  #include "SDL_image.h"</code>
+</td></tr></tbody></table></p><p>
+
+<a name="Compiling"></a>
+</p><hr size="6">
+<a name="SEC4"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC3"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC5"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC2"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC2"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC5"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h2> 2.2 Compiling </h2>
+<!--docid::SEC4::-->
+<p>
+
+To link with SDL_image you should use sdl-config to get the required SDL
+compilation options.  After that, compiling with SDL_image is quite easy.<br>
+<b>Note</b>: Some systems may not have the SDL_image library and include file in the same place as the SDL library and includes are located, in that case you will need to add more -I and -L paths to these command lines.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+Simple Example for compiling an object file:
+<p></p><p>
+
+<code>  cc -c `sdl-config --cflags` mysource.c</code>
+</p><p>
+
+Simple Example for compiling an object file:
+</p><p>
+
+<code>  cc -o myprogram mysource.o `sdl-config --libs` -lSDL_image</code>
+</p></td></tr></tbody></table></p><p>
+
+Now <code>myprogram</code> is ready to run.
+</p><p>
+
+<a name="Functions"></a>
+</p><hr size="6">
+<a name="SEC5"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC4"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC6"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC46"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC46"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h1> 3. Functions </h1>
+<!--docid::SEC5::-->
+<p>
+
+These are the functions in the SDL_image API.
+</p><p>
+
+</p><blockquote><table border="0" cellspacing="0"> 
+<tbody><tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC6">3.1 General</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Versioning, Initialization and Cleanup</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10">3.2 Loading</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">From Image Data to SDL_Surface</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29">3.3 Info</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Image Type Detection</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC43">3.4 Errors</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Error Handling</td></tr>
+</tbody></table></blockquote>
+<p>
+
+<a name="General"></a>
+</p><hr size="6">
+<a name="SEC6"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC5"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC7"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC5"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC5"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h2> 3.1 General </h2>
+<!--docid::SEC6::-->
+<p>
+
+These functions query, initialize, and cleanup the SDL_image library.
+</p><p>
+
+</p><blockquote><table border="0" cellspacing="0"> 
+<tbody><tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC7">3.1.1 IMG_Linked_Version</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Get version number</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC8">3.1.2 IMG_Init</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Initialize SDL_image</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC9">3.1.3 IMG_Quit</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Cleanup SDL_image</td></tr>
+</tbody></table></blockquote>
+<p>
+
+<a name="IMG_Linked_Version"></a>
+</p><hr size="6">
+<a name="SEC7"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC6"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC8"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC5"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC6"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.1.1 IMG_Linked_Version </h3>
+<!--docid::SEC7::-->
+<p>
+
+<code>const SDL_version *<b>IMG_Linked_Version</b>()</code><br>
+<code>void <b>SDL_IMAGE_VERSION</b>(SDL_version *compile_version)</code>
+</p><p>
+
+This works similar to <code>SDL_Linked_Version</code> and <b>SDL_VERSION</b>.<br>
+Using these you can compare the runtime version to the version that you compiled with.<br>
+These functions/macros do not require any library initialization calls before using them.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>SDL_version compile_version;
+const SDL_version *link_version=IMG_Linked_Version();
+SDL_IMAGE_VERSION(&amp;compile_version);
+printf("compiled with SDL_image version: %d.%d.%d\n", 
+        compile_version.major,
+        compile_version.minor,
+        compile_version.patch);
+printf("running with SDL_image version: %d.%d.%d\n", 
+        link_version-&gt;major,
+        link_version-&gt;minor,
+        link_version-&gt;patch);
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC8">3.1.2 IMG_Init</a>
+</p><p>
+
+<a name="IMG_Init"></a>
+</p><hr size="6">
+<a name="SEC8"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC7"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC9"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC9"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC6"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.1.2 IMG_Init </h3>
+<!--docid::SEC8::-->
+<p>
+
+<code>int <b>IMG_Init</b>(int <var>flags</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>flags</var>
+</dt><dd>bitwise OR'd set of image formats to support by loading a library now.  The values you may OR together to pass in are:<br>
+<b>IMG_INIT_JPG</b><br>
+<b>IMG_INIT_PNG</b><br>
+<b>IMG_INIT_TIF</b>
+</dd></dl>
+<p>
+
+Initialize by loading support as indicated by the <var>flags</var>, or at least return success if support is already loaded.  You may call this multiple times, which will actually require you to call <code>IMG_Quit</code> just once to clean up.  You may call this function with a 0 to retrieve whether support was built-in or not loaded yet.<br>
+<b>Note</b>: to load JPG, PNG, and/or TIF images you can call <code>IMG_Init</code> with the right <b>IMG_INIT_*</b> flags OR'd together before you program gets busy, to prevent a later hiccup while it loads the library, and to check that you do have the support that you need before you try and use it.<br>
+<b>Note</b>: No initialization is needed nor performed when using the <code>IMG_isJPG</code>, <code>IMG_isPNG</code>, and <code>IMG_isTIF</code> functions.<br>
+<b>Note</b>: this function does <i>not</i> always set the error string, so do not depend on <code>IMG_GetError</code> being meaningful all the time.
+</p><p>
+
+<b>Returns</b>: a bitmask of all the currently initted image loaders.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// load support for the JPG and PNG image formats
+int flags=IMG_INIT_JPG|IMG_INIT_PNG;
+int initted=IMG_Init(flags);
+if((initted&amp;flags) != flags) {
+    printf("IMG_Init: Failed to init required jpg and png support!\n");
+    printf("IMG_Init: %s\n", IMG_GetError());
+    // handle error
+}
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC9">3.1.3 IMG_Quit</a>
+</p><p>
+
+<a name="IMG_Quit"></a>
+</p><hr size="6">
+<a name="SEC9"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC8"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC5"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC6"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.1.3 IMG_Quit </h3>
+<!--docid::SEC9::-->
+<p>
+
+<code>void <b>IMG_Quit</b>()</code>
+</p><p>
+
+This function cleans up all dynamically loaded library handles, freeing memory.  If support is required again it will be initialized again, either by <code>IMG_Init</code> or loading an image with dynamic support required.  You may call this function when IMG_Load functions are no longer needed for the JPG, PNG, and TIF image formats.  You only need to call this function once, no matter how many times <code>IMG_Init</code> was called.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// unload the dynamically loaded image libraries
+IMG_Quit();
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC8">3.1.2 IMG_Init</a>
+</p><p>
+
+<a name="Loading"></a>
+</p><hr size="6">
+<a name="SEC10"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC9"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC11"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC5"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h2> 3.2 Loading </h2>
+<!--docid::SEC10::-->
+<p>
+
+These functions create an <tt>SDL_Surface</tt> from image data either from a file, or
+SDL_RWop, or from an array of data in memory.
+</p><p>
+
+</p><blockquote><table border="0" cellspacing="0"> 
+</table>
+<b>Automagic&nbsp;Loading</b>
+<br>
+<table border="0" cellspacing="0">
+<tbody><tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC11">3.2.1 IMG_Load</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Load from a file</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC12">3.2.2 IMG_Load_RW</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Load using a SDL_RWop</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Load more format specifically with a SDL_RWop</td></tr>
+</tbody></table>
+<b>Specific&nbsp;Loaders</b>
+<br>
+<table border="0" cellspacing="0">
+<tbody><tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC16">3.2.6 IMG_LoadBMP_RW</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Load BMP using a SDL_RWop</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC14">3.2.4 IMG_LoadCUR_RW</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Load CUR using a SDL_RWop</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC21">3.2.11 IMG_LoadGIF_RW</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Load GIF using a SDL_RWop</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC15">3.2.5 IMG_LoadICO_RW</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Load ICO using a SDL_RWop</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC22">3.2.12 IMG_LoadJPG_RW</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Load JPG using a SDL_RWop</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC26">3.2.16 IMG_LoadLBM_RW</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Load LBM using a SDL_RWop</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC20">3.2.10 IMG_LoadPCX_RW</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Load PCX using a SDL_RWop</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC24">3.2.14 IMG_LoadPNG_RW</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Load PNG using a SDL_RWop</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC17">3.2.7 IMG_LoadPNM_RW</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Load PNM using a SDL_RWop</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC25">3.2.15 IMG_LoadTGA_RW</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Load TGA using a SDL_RWop</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC23">3.2.13 IMG_LoadTIF_RW</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Load TIF using a SDL_RWop</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC19">3.2.9 IMG_LoadXCF_RW</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Load XCF using a SDL_RWop</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC18">3.2.8 IMG_LoadXPM_RW</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Load XPM using a SDL_RWop</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC27">3.2.17 IMG_LoadXV_RW</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Load XV  using a SDL_RWop</td></tr>
+</tbody></table>
+<b>Array&nbsp;Loaders</b>
+<br>
+<table border="0" cellspacing="0">
+<tbody><tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC28">3.2.18 IMG_ReadXPMFromArray</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Load XPM from compiled XPM data</td></tr>
+</tbody></table></blockquote>
+<p>
+
+<a name="IMG_Load"></a>
+</p><hr size="6">
+<a name="SEC11"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC12"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.2.1 IMG_Load </h3>
+<!--docid::SEC11::-->
+<p>
+
+<code>SDL_Surface *<b>IMG_Load</b>(const char *<var>file</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>file</var>
+</dt><dd>Image file name to load a surface from.
+</dd></dl>
+<p>
+
+Load <var>file</var> for use as an image in a new surface.  This actually calls <code>IMG_LoadTyped_RW</code>, with the file extension used as the <var>type</var> string.  This can load all supported image files, including TGA as long as the filename ends with ".tga".  It is best to call this outside of event loops, and rather keep the loaded images around until you are really done with them, as disk speed and image conversion to a surface is not <i>that</i> speedy.  Don't forget to SDL_FreeSurface the returned surface pointer when you are through with it.<br>
+<b>Note</b>: If the image format loader requires initialization, it will attempt to do that the first time it is needed if you have not already called <code>IMG_Init</code> to load support for your image format.<br>
+<b>Note</b>: If the image format supports a transparent pixel, SDL_image will set the colorkey for the surface.  You can enable RLE acceleration on the surface afterwards by calling:<br>
+<code> SDL_SetColorKey(image, SDL_RLEACCEL, image-&gt;format-&gt;colorkey); </code>
+</p><p>
+
+<b>Returns</b>: a pointer to the image as a new <code>SDL_Surface</code>.  <b>NULL</b> is returned on errors, such as no support built for the image, or a file reading error.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// load sample.png into image
+SDL_Surface *image;
+image=IMG_Load("sample.png");
+if(!image) {
+    printf("IMG_Load: %s\n", IMG_GetError());
+    // handle error
+}
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC8">3.1.2 IMG_Init</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC12">3.2.2 IMG_Load_RW</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>
+</p><p>
+
+<a name="IMG_Load_RW"></a>
+</p><hr size="6">
+<a name="SEC12"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC11"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.2.2 IMG_Load_RW </h3>
+<!--docid::SEC12::-->
+<p>
+
+<code>SDL_Surface *<b>IMG_Load_RW</b>(SDL_RWops *<var>src</var>, int <var>freesrc</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd>The source SDL_RWops as a pointer.  The image is loaded from this.
+</dd><dt><var>freesrc</var>
+</dt><dd>A non-zero value mean is will automatically close/free the <var>src</var> for you.
+</dd></dl>
+<p>
+
+Load <var>src</var> for use as a surface.  This can load all supported image formats, <b>except TGA</b>.
+Using <code>SDL_RWops</code> is not covered here, but they enable you to load from almost any source.<br>
+<b>Note</b>: If the image format loader requires initialization, it will attempt to do that the first time it is needed if you have not already called <code>IMG_Init</code> to load support for your image format.<br>
+<b>Note</b>: If the image format supports a transparent pixel, SDL_image will set the colorkey for the surface.  You can enable RLE acceleration on the surface afterwards by calling:<br>
+<code> SDL_SetColorKey(image, SDL_RLEACCEL, image-&gt;format-&gt;colorkey); </code>
+</p><p>
+
+<b>Returns</b>: a pointer to the image as a new <code>SDL_Surface</code>.  <b>NULL</b> is returned on errors.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// load sample.png in to image
+SDL_Surface *image;
+image=IMG_Load_RW(SDL_RWFromFile("sample.png", "rb"), 1);
+if(!image) {
+    printf("IMG_Load_RW: %s\n", IMG_GetError());
+    // handle error
+}
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC8">3.1.2 IMG_Init</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC11">3.2.1 IMG_Load</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>
+</p><p>
+
+<a name="IMG_LoadTyped_RW"></a>
+</p><hr size="6">
+<a name="SEC13"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC12"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC14"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC14"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.2.3 IMG_LoadTyped_RW </h3>
+<!--docid::SEC13::-->
+<p>
+
+<code>SDL_Surface *<b>IMG_LoadTyped_RW</b>(SDL_RWops *<var>src</var>, int <var>freesrc</var>, char *<var>type</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd>The source SDL_RWops as a pointer.  The image is loaded from this.
+</dd><dt><var>freesrc</var>
+</dt><dd>A non-zero value mean is will automatically close/free the <var>src</var> for you.
+</dd><dt><var>type</var>
+</dt><dd>A string that indicates which format type to interpret the image as.<br>
+Here is a list of the currently recognized strings (case is not important):<br>
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>"BMP"
+"CUR"
+"GIF"
+"ICO"
+"JPG"
+"LBM"
+"PCX"
+"PNG"
+"PNM"
+"TGA"
+"TIF"
+"XCF"
+"XPM"
+"XV"
+</pre></td></tr></tbody></table></dd></dl>
+<p>
+
+Load <var>src</var> for use as a surface.  This can load all supported image formats.  This method does not guarantee that the format specified by type is the format of the loaded image, except in the case when TGA format is specified (or any other non-magicable format in the future).
+Using <code>SDL_RWops</code> is not covered here, but they enable you to load from almost any source.<br>
+<b>Note</b>: If the image format loader requires initialization, it will attempt to do that the first time it is needed if you have not already called <code>IMG_Init</code> to load support for your image format.<br>
+<b>Note</b>: If the image format supports a transparent pixel, SDL_image will set the colorkey for the surface.  You can enable RLE acceleration on the surface afterwards by calling:<br>
+<code> SDL_SetColorKey(image, SDL_RLEACCEL, image-&gt;format-&gt;colorkey); </code>
+</p><p>
+
+<b>Returns</b>: a pointer to the image as a new <code>SDL_Surface</code>.  <b>NULL</b> is returned on errors.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// load sample.tga into image
+SDL_Surface *image;
+image=IMG_LoadTyped_RW(SDL_RWFromFile("sample.tga", "rb"), 1, "TGA");
+if(!image) {
+    printf("IMG_LoadTyped_RW: %s\n", IMG_GetError());
+    // handle error
+}
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC8">3.1.2 IMG_Init</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC11">3.2.1 IMG_Load</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC12">3.2.2 IMG_Load_RW</a>
+</p><p>
+
+<a name="IMG_LoadCUR_RW"></a>
+</p><hr size="6">
+<a name="SEC14"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC15"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC15"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.2.4 IMG_LoadCUR_RW </h3>
+<!--docid::SEC14::-->
+<p>
+
+<code>SDL_Surface *<b>IMG_LoadCUR_RW</b>(SDL_RWops *<var>src</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd>The source SDL_RWops as a pointer.  The icon image is loaded from this.
+</dd></dl>
+<p>
+
+Load <var>src</var> as a Windows Cursor image for use as a surface, if BMP support is compiled into the SDL_image library.  The CUR's mask is put into to per pixel alpha in the surface.  For files with multiple images, the first one found with the highest color count is chosen.
+</p><p>
+
+<b>Returns</b>: a pointer to the image as a new <code>SDL_Surface</code>.  <b>NULL</b> is returned on errors, like if BMP is not supported, or a read error.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// load sample.cur into image
+SDL_Surface *image;
+SDL_RWops *rwop;
+rwop=SDL_RWFromFile("sample.cur", "rb");
+image=IMG_LoadCUR_RW(rwop);
+if(!image) {
+    printf("IMG_LoadCUR_RW: %s\n", IMG_GetError());
+    // handle error
+}
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC30">3.3.1 IMG_isCUR</a>
+</p><p>
+
+<a name="IMG_LoadICO_RW"></a>
+</p><hr size="6">
+<a name="SEC15"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC14"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC16"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC16"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.2.5 IMG_LoadICO_RW </h3>
+<!--docid::SEC15::-->
+<p>
+
+<code>SDL_Surface *<b>IMG_LoadICO_RW</b>(SDL_RWops *<var>src</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd>The source SDL_RWops as a pointer.  The icon image is loaded from this.
+</dd></dl>
+<p>
+
+Load <var>src</var> as a Windows Icon image for use as a surface, if BMP support is compiled into the SDL_image library.  The ICO's mask is put into to per pixel alpha in the surface.  For files with multiple images, the first one found with the highest color count is chosen.
+</p><p>
+
+<b>Returns</b>: a pointer to the image as a new <code>SDL_Surface</code>.  <b>NULL</b> is returned on errors, like if BMP is not supported, or a read error.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// load sample.ico into image
+SDL_Surface *image;
+SDL_RWops *rwop;
+rwop=SDL_RWFromFile("sample.ico", "rb");
+image=IMG_LoadICO_RW(rwop);
+if(!image) {
+    printf("IMG_LoadICO_RW: %s\n", IMG_GetError());
+    // handle error
+}
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC31">3.3.2 IMG_isICO</a>
+</p><p>
+
+<a name="IMG_LoadBMP_RW"></a>
+</p><hr size="6">
+<a name="SEC16"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC15"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC17"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC17"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.2.6 IMG_LoadBMP_RW </h3>
+<!--docid::SEC16::-->
+<p>
+
+<code>SDL_Surface *<b>IMG_LoadBMP_RW</b>(SDL_RWops *<var>src</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd>The source SDL_RWops as a pointer.  The BMP image is loaded from this.
+</dd></dl>
+<p>
+
+Load <var>src</var> as a BMP image for use as a surface, if BMP support is compiled into the SDL_image library.
+</p><p>
+
+<b>Returns</b>: a pointer to the image as a new <code>SDL_Surface</code>.  <b>NULL</b> is returned on errors, like if BMP is not supported, or a read error.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// load sample.bmp into image
+SDL_Surface *image;
+SDL_RWops *rwop;
+rwop=SDL_RWFromFile("sample.bmp", "rb");
+image=IMG_LoadBMP_RW(rwop);
+if(!image) {
+    printf("IMG_LoadBMP_RW: %s\n", IMG_GetError());
+    // handle error
+}
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC32">3.3.3 IMG_isBMP</a>
+</p><p>
+
+<a name="IMG_LoadPNM_RW"></a>
+</p><hr size="6">
+<a name="SEC17"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC16"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC18"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC18"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.2.7 IMG_LoadPNM_RW </h3>
+<!--docid::SEC17::-->
+<p>
+
+<code>SDL_Surface *<b>IMG_LoadPNM_RW</b>(SDL_RWops *<var>src</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd>The source SDL_RWops as a pointer.  The PNM image is loaded from this.
+</dd></dl>
+<p>
+
+Load <var>src</var> as a PNM image for use as a surface, if PNM support is compiled into the SDL_image library.
+</p><p>
+
+<b>Returns</b>: a pointer to the image as a new <code>SDL_Surface</code>.  <b>NULL</b> is returned on errors, like if PNM is not supported, or a read error.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// load sample.pnm into image
+SDL_Surface *image;
+SDL_RWops *rwop;
+rwop=SDL_RWFromFile("sample.pnm", "rb");
+image=IMG_LoadPNM_RW(rwop);
+if(!image) {
+    printf("IMG_LoadPNM_RW: %s\n", IMG_GetError());
+    // handle error
+}
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC33">3.3.4 IMG_isPNM</a>
+</p><p>
+
+<a name="IMG_LoadXPM_RW"></a>
+</p><hr size="6">
+<a name="SEC18"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC17"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC19"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC19"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.2.8 IMG_LoadXPM_RW </h3>
+<!--docid::SEC18::-->
+<p>
+
+<code>SDL_Surface *<b>IMG_LoadXPM_RW</b>(SDL_RWops *<var>src</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd>The source SDL_RWops as a pointer.  The XPM image is loaded from this.
+</dd></dl>
+<p>
+
+Load <var>src</var> as a XPM image for use as a surface, if XPM support is compiled into the SDL_image library.
+</p><p>
+
+<b>Returns</b>: a pointer to the image as a new <code>SDL_Surface</code>.  <b>NULL</b> is returned on errors, like if XPM is not supported, or a read error.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// load sample.xpm into image
+SDL_Surface *image;
+SDL_RWops *rwop;
+rwop=SDL_RWFromFile("sample.xpm", "rb");
+image=IMG_LoadXPM_RW(rwop);
+if(!image) {
+    printf("IMG_LoadXPM_RW: %s\n", IMG_GetError());
+    // handle error
+}
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC28">3.2.18 IMG_ReadXPMFromArray</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC34">3.3.5 IMG_isXPM</a>
+</p><p>
+
+<a name="IMG_LoadXCF_RW"></a>
+</p><hr size="6">
+<a name="SEC19"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC18"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC20"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.2.9 IMG_LoadXCF_RW </h3>
+<!--docid::SEC19::-->
+<p>
+
+<code>SDL_Surface *<b>IMG_LoadXCF_RW</b>(SDL_RWops *<var>src</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd>The source SDL_RWops as a pointer.  The XCF image is loaded from this.
+</dd></dl>
+<p>
+
+Load <var>src</var> as a XCF image for use as a surface, if XCF support is compiled into the SDL_image library.
+</p><p>
+
+<b>Returns</b>: a pointer to the image as a new <code>SDL_Surface</code>.  <b>NULL</b> is returned on errors, like if XCF is not supported, or a read error.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// load sample.xcf into image
+SDL_Surface *image;
+SDL_RWops *rwop;
+rwop=SDL_RWFromFile("sample.xcf", "rb");
+image=IMG_LoadXCF_RW(rwop);
+if(!image) {
+    printf("IMG_LoadXCF_RW: %s\n", IMG_GetError());
+    // handle error
+}
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC35">3.3.6 IMG_isXCF</a>
+</p><p>
+
+<a name="IMG_LoadPCX_RW"></a>
+</p><hr size="6">
+<a name="SEC20"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC19"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC21"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC12"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.2.10 IMG_LoadPCX_RW </h3>
+<!--docid::SEC20::-->
+<p>
+
+<code>SDL_Surface *<b>IMG_LoadPCX_RW</b>(SDL_RWops *<var>src</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd>The source SDL_RWops as a pointer.  The PCX image is loaded from this.
+</dd></dl>
+<p>
+
+Load <var>src</var> as a PCX image for use as a surface, if PCX support is compiled into the SDL_image library.
+</p><p>
+
+<b>Returns</b>: a pointer to the image as a new <code>SDL_Surface</code>.  <b>NULL</b> is returned on errors, like if PCX is not supported, or a read error.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// load sample.pcx into image
+SDL_Surface *image;
+SDL_RWops *rwop;
+rwop=SDL_RWFromFile("sample.pcx", "rb");
+image=IMG_LoadPCX_RW(rwop);
+if(!image) {
+    printf("IMG_LoadPCX_RW: %s\n", IMG_GetError());
+    // handle error
+}
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC36">3.3.7 IMG_isPCX</a>
+</p><p>
+
+<a name="IMG_LoadGIF_RW"></a>
+</p><hr size="6">
+<a name="SEC21"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC20"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC22"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC12"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.2.11 IMG_LoadGIF_RW </h3>
+<!--docid::SEC21::-->
+<p>
+
+<code>SDL_Surface *<b>IMG_LoadGIF_RW</b>(SDL_RWops *<var>src</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd>The source SDL_RWops as a pointer.  The GIF image is loaded from this.
+</dd></dl>
+<p>
+
+Load <var>src</var> as a GIF image for use as a surface, if GIF support is compiled into the SDL_image library.
+</p><p>
+
+<b>Returns</b>: a pointer to the image as a new <code>SDL_Surface</code>.  <b>NULL</b> is returned on errors, like if GIF is not supported, or a read error.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// load sample.gif into image
+SDL_Surface *image;
+SDL_RWops *rwop;
+rwop=SDL_RWFromFile("sample.gif", "rb");
+image=IMG_LoadGIF_RW(rwop);
+if(!image) {
+    printf("IMG_LoadGIF_RW: %s\n", IMG_GetError());
+    // handle error
+}
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC37">3.3.8 IMG_isGIF</a>
+</p><p>
+
+<a name="IMG_LoadJPG_RW"></a>
+</p><hr size="6">
+<a name="SEC22"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC21"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC23"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC12"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.2.12 IMG_LoadJPG_RW </h3>
+<!--docid::SEC22::-->
+<p>
+
+<code>SDL_Surface *<b>IMG_LoadJPG_RW</b>(SDL_RWops *<var>src</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd>The source SDL_RWops as a pointer.  The JPG image is loaded from this.
+</dd></dl>
+<p>
+
+Load <var>src</var> as a JPG image for use as a surface, if JPG support is compiled into the SDL_image library.<br>
+<b>Note</b>: If the image format loader requires initialization, it will attempt to do that the first time it is needed if you have not already called <code>IMG_Init</code> to load support for your image format.<br>
+</p><p>
+
+<b>Returns</b>: a pointer to the image as a new <code>SDL_Surface</code>.  <b>NULL</b> is returned on errors, like if JPG is not supported, or a read error.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// load sample.jpg into image
+SDL_Surface *image;
+SDL_RWops *rwop;
+rwop=SDL_RWFromFile("sample.jpg", "rb");
+image=IMG_LoadJPG_RW(rwop);
+if(!image) {
+    printf("IMG_LoadJPG_RW: %s\n", IMG_GetError());
+    // handle error
+}
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC8">3.1.2 IMG_Init</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC38">3.3.9 IMG_isJPG</a>
+</p><p>
+
+<a name="IMG_LoadTIF_RW"></a>
+</p><hr size="6">
+<a name="SEC23"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC22"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC24"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC12"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.2.13 IMG_LoadTIF_RW </h3>
+<!--docid::SEC23::-->
+<p>
+
+<code>SDL_Surface *<b>IMG_LoadTIF_RW</b>(SDL_RWops *<var>src</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd>The source SDL_RWops as a pointer.  The TIF image is loaded from this.
+</dd></dl>
+<p>
+
+Load <var>src</var> as a TIF image for use as a surface, if TIF support is compiled into the SDL_image library.<br>
+<b>Note</b>: If the image format loader requires initialization, it will attempt to do that the first time it is needed if you have not already called <code>IMG_Init</code> to load support for your image format.<br>
+</p><p>
+
+<b>Returns</b>: a pointer to the image as a new <code>SDL_Surface</code>.  <b>NULL</b> is returned on errors, like if TIF is not supported, or a read error.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// load sample.tif into image
+SDL_Surface *image;
+SDL_RWops *rwop;
+rwop=SDL_RWFromFile("sample.tif", "rb");
+image=IMG_LoadTIF_RW(rwop);
+if(!image) {
+    printf("IMG_LoadTIF_RW: %s\n", IMG_GetError());
+    // handle error
+}
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC8">3.1.2 IMG_Init</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC39">3.3.10 IMG_isTIF</a>
+</p><p>
+
+<a name="IMG_LoadPNG_RW"></a>
+</p><hr size="6">
+<a name="SEC24"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC23"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC25"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC12"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.2.14 IMG_LoadPNG_RW </h3>
+<!--docid::SEC24::-->
+<p>
+
+<code>SDL_Surface *<b>IMG_LoadPNG_RW</b>(SDL_RWops *<var>src</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd>The source SDL_RWops as a pointer.  The PNG image is loaded from this.
+</dd></dl>
+<p>
+
+Load <var>src</var> as a PNG image for use as a surface, if PNG support is compiled into the SDL_image library.<br>
+<b>Note</b>: If the image format loader requires initialization, it will attempt to do that the first time it is needed if you have not already called <code>IMG_Init</code> to load support for your image format.<br>
+</p><p>
+
+<b>Returns</b>: a pointer to the image as a new <code>SDL_Surface</code>.  <b>NULL</b> is returned on errors, like if PNG is not supported, or a read error.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// load sample.png into image
+SDL_Surface *image;
+SDL_RWops *rwop;
+rwop=SDL_RWFromFile("sample.png", "rb");
+image=IMG_LoadPNG_RW(rwop);
+if(!image) {
+    printf("IMG_LoadPNG_RW: %s\n", IMG_GetError());
+    // handle error
+}
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC8">3.1.2 IMG_Init</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC40">3.3.11 IMG_isPNG</a>
+</p><p>
+
+<a name="IMG_LoadTGA_RW"></a>
+</p><hr size="6">
+<a name="SEC25"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC24"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC26"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC12"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.2.15 IMG_LoadTGA_RW </h3>
+<!--docid::SEC25::-->
+<p>
+
+<code>SDL_Surface *<b>IMG_LoadTGA_RW</b>(SDL_RWops *<var>src</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd>The source SDL_RWops as a pointer.  The TGA image is loaded from this.
+</dd></dl>
+<p>
+
+Load <var>src</var> as a TGA image for use as a surface, if TGA support is compiled into the SDL_image library.  If you try to load a non TGA image, you might succeed even when it's not TGA image formatted data, this is because the TGA has no magic, which is a way of identifying a filetype from a signature in it's contents.  So be careful with this.
+</p><p>
+
+<b>Returns</b>: a pointer to the image as a new <code>SDL_Surface</code>.  <b>NULL</b> is returned on errors, like if TGA is not supported, or a read error.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// load sample.tga into image
+SDL_Surface *image;
+SDL_RWops *rwop;
+rwop=SDL_RWFromFile("sample.tga", "rb");
+image=IMG_LoadTGA_RW(rwop);
+if(!image) {
+    printf("IMG_LoadTGA_RW: %s\n", IMG_GetError());
+    // handle error
+}
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>
+</p><p>
+
+<a name="IMG_LoadLBM_RW"></a>
+</p><hr size="6">
+<a name="SEC26"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC25"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC27"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC12"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.2.16 IMG_LoadLBM_RW </h3>
+<!--docid::SEC26::-->
+<p>
+
+<code>SDL_Surface *<b>IMG_LoadLBM_RW</b>(SDL_RWops *<var>src</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd>The source SDL_RWops as a pointer.  The LBM image is loaded from this.
+</dd></dl>
+<p>
+
+Load <var>src</var> as a LBM image for use as a surface, if LBM support is compiled into the SDL_image library.
+</p><p>
+
+<b>Returns</b>: a pointer to the image as a new <code>SDL_Surface</code>.  <b>NULL</b> is returned on errors, like if LBM is not supported, or a read error.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// load sample.lbm into image
+SDL_Surface *image;
+SDL_RWops *rwop;
+rwop=SDL_RWFromFile("sample.lbm", "rb");
+image=IMG_LoadLBM_RW(rwop);
+if(!image) {
+    printf("IMG_LoadLBM_RW: %s\n", IMG_GetError());
+    // handle error
+}
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC41">3.3.12 IMG_isLBM</a>
+</p><p>
+
+<a name="IMG_LoadXV_RW"></a>
+</p><hr size="6">
+<a name="SEC27"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC26"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC28"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC12"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.2.17 IMG_LoadXV_RW </h3>
+<!--docid::SEC27::-->
+<p>
+
+<code>SDL_Surface *<b>IMG_LoadXV_RW</b>(SDL_RWops *<var>src</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd>The source SDL_RWops as a pointer.  The XV image is loaded from this.
+</dd></dl>
+<p>
+
+Load <var>src</var> as a XV thumbnail image for use as a surface, if XV support is compiled into the SDL_image library.
+</p><p>
+
+<b>Returns</b>: a pointer to the image as a new <code>SDL_Surface</code>.  <b>NULL</b> is returned on errors, like if XV is not supported, or a read error.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// load sample.xv into image
+SDL_Surface *image;
+SDL_RWops *rwop;
+rwop=SDL_RWFromFile("sample.xv", "rb");
+image=IMG_LoadXV_RW(rwop);
+if(!image) {
+    printf("IMG_LoadXV_RW: %s\n", IMG_GetError());
+    // handle error
+}
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC42">3.3.13 IMG_isXV</a>
+</p><p>
+
+<a name="IMG_ReadXPMFromArray"></a>
+</p><hr size="6">
+<a name="SEC28"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC27"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC12"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.2.18 IMG_ReadXPMFromArray </h3>
+<!--docid::SEC28::-->
+<p>
+
+<code>SDL_Surface *<b>IMG_ReadXPMFromArray</b>(char **<var>xpm</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>xpm</var>
+</dt><dd>The source xpm data.  The XPM image is loaded from this.  XPM files are C header files that define a char **variable, that variable name is what you use here.
+</dd></dl>
+<p>
+
+Load <var>xpm</var> as a XPM image for use as a surface, if XPM support is compiled into the SDL_image library.
+</p><p>
+
+<b>Returns</b>: a pointer to the image as a new <code>SDL_Surface</code>.  <b>NULL</b> is returned on errors, like if XPM is not supported, or a read error.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// load sample.xpm into image
+#include "sample.xpm"
+SDL_Surface *image;
+image=IMG_ReadXPMFromArray(sample_xpm);
+if(!image) {
+    printf("IMG_ReadXPMFromArray: %s\n", IMG_GetError());
+    // handle error
+}
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC18">3.2.8 IMG_LoadXPM_RW</a>
+</p><p>
+
+<a name="Info"></a>
+</p><hr size="6">
+<a name="SEC29"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC28"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC30"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC43"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC5"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC43"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h2> 3.3 Info </h2>
+<!--docid::SEC29::-->
+<p>
+
+These functions are tests for specific file formats.
+They also show if the format is supported in the linked SDL_image library, assuming you have a valid image of that type.
+</p><p>
+
+</p><blockquote><table border="0" cellspacing="0"> 
+<tbody><tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC32">3.3.3 IMG_isBMP</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Test for valid, supportted BMP file</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC30">3.3.1 IMG_isCUR</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Test for valid, supportted CUR file</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC37">3.3.8 IMG_isGIF</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Test for valid, supportted GIF file</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC31">3.3.2 IMG_isICO</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Test for valid, supportted ICO file</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC38">3.3.9 IMG_isJPG</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Test for valid, supportted JPG file</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC41">3.3.12 IMG_isLBM</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Test for valid, supportted LBM file</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC36">3.3.7 IMG_isPCX</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Test for valid, supportted PCX file</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC40">3.3.11 IMG_isPNG</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Test for valid, supportted PNG file</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC33">3.3.4 IMG_isPNM</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Test for valid, supportted PNM file</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC39">3.3.10 IMG_isTIF</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Test for valid, supportted TIF file</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC35">3.3.6 IMG_isXCF</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Test for valid, supportted XCF file</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC34">3.3.5 IMG_isXPM</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Test for valid, supportted XPM file</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC42">3.3.13 IMG_isXV</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Test for valid, supportted XV  file</td></tr>
+</tbody></table></blockquote>
+<p>
+
+<a name="IMG_isCUR"></a>
+</p><hr size="6">
+<a name="SEC30"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC31"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC43"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC43"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.3.1 IMG_isCUR </h3>
+<!--docid::SEC30::-->
+<p>
+
+<code>int <b>IMG_isCUR</b>(SDL_RWops *<var>src</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd><p>
+
+</p></dd></dl>
+<p>
+
+If the BMP format is supported, then the image data is tested to see if it is readable as a CUR, otherwise it returns false (Zero).
+</p><p>
+
+<b>Returns</b>: 1 if the image is a CUR and the BMP format support is compiled into SDL_image.  0 is returned otherwise.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// Test sample.cur to see if it is a CUR
+SDL_RWops *rwop;
+rwop=SDL_RWFromFile("sample.cur", "rb");
+if(IMG_isCUR(rwop))
+	printf("sample.cur is a CUR file.\n");
+else
+	printf("sample.cur is not a CUR file, or BMP support is not available.\n");
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC14">3.2.4 IMG_LoadCUR_RW</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>
+</p><p>
+
+<a name="IMG_isICO"></a>
+</p><hr size="6">
+<a name="SEC31"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC30"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC32"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC32"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC43"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.3.2 IMG_isICO </h3>
+<!--docid::SEC31::-->
+<p>
+
+<code>int <b>IMG_isICO</b>(SDL_RWops *<var>src</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd><p>
+
+</p></dd></dl>
+<p>
+
+If the BMP format is supported, then the image data is tested to see if it is readable as an ICO, otherwise it returns false (Zero).
+</p><p>
+
+<b>Returns</b>: 1 if the image is an ICO and the BMP format support is compiled into SDL_image.  0 is returned otherwise.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// Test sample.ico to see if it is an ICO
+SDL_RWops *rwop;
+rwop=SDL_RWFromFile("sample.ico", "rb");
+if(IMG_isICO(rwop))
+	printf("sample.ico is an ICO file.\n");
+else
+	printf("sample.ico is not an ICO file, or BMP support is not available.\n");
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC15">3.2.5 IMG_LoadICO_RW</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>
+</p><p>
+
+<a name="IMG_isBMP"></a>
+</p><hr size="6">
+<a name="SEC32"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC31"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC33"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC33"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC43"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.3.3 IMG_isBMP </h3>
+<!--docid::SEC32::-->
+<p>
+
+<code>int <b>IMG_isBMP</b>(SDL_RWops *<var>src</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd><p>
+
+</p></dd></dl>
+<p>
+
+If the BMP format is supported, then the image data is tested to see if it is readable as a BMP, otherwise it returns false (Zero).
+</p><p>
+
+<b>Returns</b>: 1 if the image is a BMP and the BMP format support is compiled into SDL_image.  0 is returned otherwise.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// Test sample.bmp to see if it is a BMP
+SDL_RWops *rwop;
+rwop=SDL_RWFromFile("sample.bmp", "rb");
+if(IMG_isBMP(rwop))
+	printf("sample.bmp is a BMP file.\n");
+else
+	printf("sample.bmp is not a BMP file, or BMP support is not available.\n");
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC16">3.2.6 IMG_LoadBMP_RW</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>
+</p><p>
+
+<a name="IMG_isPNM"></a>
+</p><hr size="6">
+<a name="SEC33"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC32"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC34"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC34"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC43"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.3.4 IMG_isPNM </h3>
+<!--docid::SEC33::-->
+<p>
+
+<code>int <b>IMG_isPNM</b>(SDL_RWops *<var>src</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd><p>
+
+</p></dd></dl>
+<p>
+
+If the PNM format is supported, then the image data is tested to see if it is readable as a PNM, otherwise it returns false (Zero).
+</p><p>
+
+<b>Returns</b>: 1 if the image is a PNM and the PNM format support is compiled into SDL_image.  0 is returned otherwise.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// Test sample.pnm to see if it is a PNM
+SDL_RWops *rwop;
+rwop=SDL_RWFromFile("sample.pnm", "rb");
+if(IMG_isPNM(rwop))
+	printf("sample.pnm is a PNM file.\n");
+else
+	printf("sample.pnm is not a PNM file, or PNM support is not available.\n");
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC17">3.2.7 IMG_LoadPNM_RW</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>
+</p><p>
+
+<a name="IMG_isXPM"></a>
+</p><hr size="6">
+<a name="SEC34"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC33"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC35"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC35"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC43"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.3.5 IMG_isXPM </h3>
+<!--docid::SEC34::-->
+<p>
+
+<code>int <b>IMG_isXPM</b>(SDL_RWops *<var>src</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd><p>
+
+</p></dd></dl>
+<p>
+
+If the XPM format is supported, then the image data is tested to see if it is readable as a XPM, otherwise it returns false (Zero).
+</p><p>
+
+<b>Returns</b>: 1 if the image is a XPM and the XPM format support is compiled into SDL_image.  0 is returned otherwise.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// Test sample.xpm to see if it is a XPM
+SDL_RWops *rwop;
+rwop=SDL_RWFromFile("sample.xpm", "rb");
+if(IMG_isXPM(rwop))
+	printf("sample.xpm is a XPM file.\n");
+else
+	printf("sample.xpm is not a XPM file, or XPM support is not available.\n");
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC18">3.2.8 IMG_LoadXPM_RW</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>
+</p><p>
+
+<a name="IMG_isXCF"></a>
+</p><hr size="6">
+<a name="SEC35"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC34"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC36"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC36"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC43"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.3.6 IMG_isXCF </h3>
+<!--docid::SEC35::-->
+<p>
+
+<code>int <b>IMG_isXCF</b>(SDL_RWops *<var>src</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd><p>
+
+</p></dd></dl>
+<p>
+
+If the XCF format is supported, then the image data is tested to see if it is readable as a XCF, otherwise it returns false (Zero).
+</p><p>
+
+<b>Returns</b>: 1 if the image is a XCF and the XCF format support is compiled into SDL_image.  0 is returned otherwise.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// Test sample.xcf to see if it is a XCF
+SDL_RWops *rwop;
+rwop=SDL_RWFromFile("sample.xcf", "rb");
+if(IMG_isXCF(rwop))
+	printf("sample.xcf is a XCF file.\n");
+else
+	printf("sample.xcf is not a XCF file, or XCF support is not available.\n");
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC19">3.2.9 IMG_LoadXCF_RW</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>
+</p><p>
+
+<a name="IMG_isPCX"></a>
+</p><hr size="6">
+<a name="SEC36"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC35"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC37"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC37"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC43"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.3.7 IMG_isPCX </h3>
+<!--docid::SEC36::-->
+<p>
+
+<code>int <b>IMG_isPCX</b>(SDL_RWops *<var>src</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd><p>
+
+</p></dd></dl>
+<p>
+
+If the PCX format is supported, then the image data is tested to see if it is readable as a PCX, otherwise it returns false (Zero).
+</p><p>
+
+<b>Returns</b>: 1 if the image is a PCX and the PCX format support is compiled into SDL_image.  0 is returned otherwise.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// Test sample.pcx to see if it is a PCX
+SDL_RWops *rwop;
+rwop=SDL_RWFromFile("sample.pcx", "rb");
+if(IMG_isPCX(rwop))
+	printf("sample.pcx is a PCX file.\n");
+else
+	printf("sample.pcx is not a PCX file, or PCX support is not available.\n");
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC20">3.2.10 IMG_LoadPCX_RW</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>
+</p><p>
+
+<a name="IMG_isGIF"></a>
+</p><hr size="6">
+<a name="SEC37"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC36"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC38"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC38"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC43"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.3.8 IMG_isGIF </h3>
+<!--docid::SEC37::-->
+<p>
+
+<code>int <b>IMG_isGIF</b>(SDL_RWops *<var>src</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd><p>
+
+</p></dd></dl>
+<p>
+
+If the GIF format is supported, then the image data is tested to see if it is readable as a GIF, otherwise it returns false (Zero).
+</p><p>
+
+<b>Returns</b>: 1 if the image is a GIF and the GIF format support is compiled into SDL_image.  0 is returned otherwise.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// Test sample.gif to see if it is a GIF
+SDL_RWops *rwop;
+rwop=SDL_RWFromFile("sample.gif", "rb");
+if(IMG_isGIF(rwop))
+	printf("sample.gif is a GIF file.\n");
+else
+	printf("sample.gif is not a GIF file, or GIF support is not available.\n");
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC21">3.2.11 IMG_LoadGIF_RW</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>
+</p><p>
+
+<a name="IMG_isJPG"></a>
+</p><hr size="6">
+<a name="SEC38"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC37"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC39"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC43"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC43"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.3.9 IMG_isJPG </h3>
+<!--docid::SEC38::-->
+<p>
+
+<code>int <b>IMG_isJPG</b>(SDL_RWops *<var>src</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd><p>
+
+</p></dd></dl>
+<p>
+
+If the JPG format is supported, then the image data is tested to see if it is readable as a JPG, otherwise it returns false (Zero).
+</p><p>
+
+<b>Returns</b>: 1 if the image is a JPG and the JPG format support is compiled into SDL_image.  0 is returned otherwise.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// Test sample.jpg to see if it is a JPG
+SDL_RWops *rwop;
+rwop=SDL_RWFromFile("sample.jpg", "rb");
+if(IMG_isJPG(rwop))
+	printf("sample.jpg is a JPG file.\n");
+else
+	printf("sample.jpg is not a JPG file, or JPG support is not available.\n");
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC22">3.2.12 IMG_LoadJPG_RW</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>
+</p><p>
+
+<a name="IMG_isTIF"></a>
+</p><hr size="6">
+<a name="SEC39"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC38"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC40"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC31"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC43"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.3.10 IMG_isTIF </h3>
+<!--docid::SEC39::-->
+<p>
+
+<code>int <b>IMG_isTIF</b>(SDL_RWops *<var>src</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd><p>
+
+</p></dd></dl>
+<p>
+
+If the TIF format is supported, then the image data is tested to see if it is readable as a TIF, otherwise it returns false (Zero).
+</p><p>
+
+<b>Returns</b>: 1 if the image is a TIF and the TIF format support is compiled into SDL_image.  0 is returned otherwise.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// Test sample.tif to see if it is a TIF
+SDL_RWops *rwop;
+rwop=SDL_RWFromFile("sample.tif", "rb");
+if(IMG_isTIF(rwop))
+	printf("sample.tif is a TIF file.\n");
+else
+	printf("sample.tif is not a TIF file, or TIF support is not available.\n");
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC23">3.2.13 IMG_LoadTIF_RW</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>
+</p><p>
+
+<a name="IMG_isPNG"></a>
+</p><hr size="6">
+<a name="SEC40"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC39"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC41"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC31"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC43"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.3.11 IMG_isPNG </h3>
+<!--docid::SEC40::-->
+<p>
+
+<code>int <b>IMG_isPNG</b>(SDL_RWops *<var>src</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd><p>
+
+</p></dd></dl>
+<p>
+
+If the PNG format is supported, then the image data is tested to see if it is readable as a PNG, otherwise it returns false (Zero).
+</p><p>
+
+<b>Returns</b>: 1 if the image is a PNG and the PNG format support is compiled into SDL_image.  0 is returned otherwise.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// Test sample.png to see if it is a PNG
+SDL_RWops *rwop;
+rwop=SDL_RWFromFile("sample.png", "rb");
+if(IMG_isPNG(rwop))
+	printf("sample.png is a PNG file.\n");
+else
+	printf("sample.png is not a PNG file, or PNG support is not available.\n");
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC24">3.2.14 IMG_LoadPNG_RW</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>
+</p><p>
+
+<a name="IMG_isLBM"></a>
+</p><hr size="6">
+<a name="SEC41"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC40"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC42"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC31"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC43"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.3.12 IMG_isLBM </h3>
+<!--docid::SEC41::-->
+<p>
+
+<code>int <b>IMG_isLBM</b>(SDL_RWops *<var>src</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd><p>
+
+</p></dd></dl>
+<p>
+
+If the LBM format is supported, then the image data is tested to see if it is readable as a LBM, otherwise it returns false (Zero).
+</p><p>
+
+<b>Returns</b>: 1 if the image is a LBM and the LBM format support is compiled into SDL_image.  0 is returned otherwise.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// Test sample.lbm to see if it is a LBM
+SDL_RWops *rwop;
+rwop=SDL_RWFromFile("sample.lbm", "rb");
+if(IMG_isLBM(rwop))
+	printf("sample.lbm is a LBM file.\n");
+else
+	printf("sample.lbm is not a LBM file, or LBM support is not available.\n");
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC26">3.2.16 IMG_LoadLBM_RW</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>
+</p><p>
+
+<a name="IMG_isXV"></a>
+</p><hr size="6">
+<a name="SEC42"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC41"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC43"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC31"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC43"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.3.13 IMG_isXV </h3>
+<!--docid::SEC42::-->
+<p>
+
+<code>int <b>IMG_isXV</b>(SDL_RWops *<var>src</var>)</code>
+</p><p>
+
+</p><dl compact="">
+<dt><var>src</var>
+</dt><dd><p>
+
+</p></dd></dl>
+<p>
+
+If the XV format is supported, then the image data is tested to see if it is readable as an XV thumbnail, otherwise it returns false (Zero).
+</p><p>
+
+<b>Returns</b>: 1 if the image is an XV thumbnail and the XV format support is compiled into SDL_image.  0 is returned otherwise.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>// Test sample.xv to see if it is an XV thumbnail
+SDL_RWops *rwop;
+rwop=SDL_RWFromFile("sample.xv", "rb");
+if(IMG_isXV(rwop))
+	printf("sample.xv is an XV file.\n");
+else
+	printf("sample.xv is not an XV file, or XV support is not available.\n");
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC27">3.2.17 IMG_LoadXV_RW</a>,
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>
+</p><p>
+
+<a name="Errors"></a>
+</p><hr size="6">
+<a name="SEC43"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC42"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC44"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC5"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC5"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC46"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h2> 3.4 Errors </h2>
+<!--docid::SEC43::-->
+<p>
+
+These functions are used for error status strings that should help the user
+and developer understand why a function failed.
+</p><p>
+
+</p><blockquote><table border="0" cellspacing="0"> 
+<tbody><tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC44">3.4.1 IMG_SetError</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Set the current error string</td></tr>
+<tr><td align="left" valign="TOP"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC45">3.4.2 IMG_GetError</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="TOP">Get the current error string</td></tr>
+</tbody></table></blockquote>
+<p>
+
+<a name="IMG_SetError"></a>
+</p><hr size="6">
+<a name="SEC44"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC43"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC45"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC5"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC43"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC46"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.4.1 IMG_SetError </h3>
+<!--docid::SEC44::-->
+<p>
+
+<code>void <b>IMG_SetError</b>(const char *<var>fmt</var>, ...)</code>
+</p><p>
+
+This is the same as SDL_SetError, which sets the error string which may be fetched with IMG_GetError (or SDL_GetError).
+This functions acts like printf, except that it is limited to <b>SDL_ERRBUFIZE</b>(1024) chars in length.  It only accepts the following format types: <code>%s, %d, %f, %p</code>.  No variations are supported, like <code>%.2f</code> would not work. For any more specifics read the SDL docs.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>int myimagefunc(int i) {
+    IMG_SetError("myimagefunc is not implemented! %d was passed in.",i);
+    return(-1);
+}
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC45">3.4.2 IMG_GetError</a>
+</p><p>
+
+<a name="IMG_GetError"></a>
+</p><hr size="6">
+<a name="SEC45"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC44"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC46"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC5"> &lt;&lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC43"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC46"> &gt;&gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h3> 3.4.2 IMG_GetError </h3>
+<!--docid::SEC45::-->
+<p>
+
+<code>char *<b>IMG_GetError</b>()</code>
+</p><p>
+
+This is the same as SDL_GetError, which returns the last error set as a string
+which you may use to tell the user what happened when an error status has been returned
+from an SDL_image function call.
+</p><p>
+
+<b>Returns</b>: a char pointer (string) containing a humam readble version or the reason for the last error that occured.
+</p><p>
+
+<table border="1" cellspacing="0"><tbody><tr><td bgcolor="silver">
+<table><tbody><tr><td>&nbsp;</td><td class="example"><pre>printf("Oh My Goodness, an error : %s", IMG_GetError());
+</pre></td></tr></tbody></table></td></tr></tbody></table></p><p>
+
+<b>See Also</b>:<br>
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC44">3.4.1 IMG_SetError</a>
+</p><p>
+
+<a name="Defines"></a>
+</p><hr size="6">
+<a name="SEC46"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC45"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47"> &gt; </a>]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[ &lt;&lt; ]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[ &gt;&gt; ]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h1> 4. Defines </h1>
+<!--docid::SEC46::-->
+<p>
+
+</p><dl compact="">
+<a name="IDX2"></a>
+<dt><b>IMG_MAJOR_VERSION</b>
+</dt><dd><code>1</code><br>
+SDL_image library major number at compilation time
+<a name="IDX3"></a>
+</dd><dt><b>IMG_MINOR_VERSION</b>
+</dt><dd><code>2</code><br>
+SDL_image library minor number at compilation time
+</dd><dt><b>IMG_PATCHLEVEL</b>
+</dt><dd><a name="IDX4"></a>
+<code>8</code><br>
+SDL_image library patch level at compilation time
+<a name="IDX5"></a>
+</dd><dt><b>IMG_INIT_JPG</b>
+</dt><dd><code>1</code><br>
+IMG_Init JPG image format support flag
+<a name="IDX6"></a>
+</dd><dt><b>IMG_INIT_PNG</b>
+</dt><dd><code>2</code><br>
+IMG_Init PNG image format support flag
+<a name="IDX7"></a>
+</dd><dt><b>IMG_INIT_TIF</b>
+</dt><dd><code>4</code><br>
+IMG_Init TIF image format support flag
+</dd></dl>
+<p>
+
+<a name="Index"></a>
+</p><hr size="6">
+<a name="SEC47"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC46"> &lt; </a>]</td>
+<td valign="MIDDLE" align="LEFT">[ &gt; ]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[ &lt;&lt; ]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top"> Up </a>]</td>
+<td valign="MIDDLE" align="LEFT">[ &gt;&gt; ]</td>
+<td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT"> &nbsp; </td><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h1> Index </h1>
+<!--docid::SEC47::-->
+<p>
+
+<table><tbody><tr><th valign="top">Jump to: &nbsp; </th><td><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#cp_I" style="text-decoration:none"><b>I</b></a>
+ &nbsp; 
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#cp_R" style="text-decoration:none"><b>R</b></a>
+ &nbsp; 
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#cp_S" style="text-decoration:none"><b>S</b></a>
+ &nbsp; 
+</td></tr></tbody></table><br></p><p></p>
+<table border="0">
+<tbody><tr><td></td><th align="LEFT">Index Entry</th><th align="LEFT"> Section</th></tr>
+<tr><td colspan="3"> <hr></td></tr>
+<tr><th><a name="cp_I"></a>I</th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC45"><code>IMG_GetError</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC45">3.4.2 IMG_GetError</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC8"><code>IMG_Init</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC8">3.1.2 IMG_Init</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#IDX5">IMG_INIT_JPG</a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC46">4. Defines</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#IDX6">IMG_INIT_PNG</a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC46">4. Defines</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#IDX7">IMG_INIT_TIF</a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC46">4. Defines</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC32"><code>IMG_isBMP</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC32">3.3.3 IMG_isBMP</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC30"><code>IMG_isCUR</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC30">3.3.1 IMG_isCUR</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC37"><code>IMG_isGIF</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC37">3.3.8 IMG_isGIF</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC31"><code>IMG_isICO</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC31">3.3.2 IMG_isICO</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC38"><code>IMG_isJPG</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC38">3.3.9 IMG_isJPG</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC41"><code>IMG_isLBM</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC41">3.3.12 IMG_isLBM</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC36"><code>IMG_isPCX</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC36">3.3.7 IMG_isPCX</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC40"><code>IMG_isPNG</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC40">3.3.11 IMG_isPNG</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC33"><code>IMG_isPNM</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC33">3.3.4 IMG_isPNM</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC39"><code>IMG_isTIF</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC39">3.3.10 IMG_isTIF</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC35"><code>IMG_isXCF</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC35">3.3.6 IMG_isXCF</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC34"><code>IMG_isXPM</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC34">3.3.5 IMG_isXPM</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC42"><code>IMG_isXV</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC42">3.3.13 IMG_isXV</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC7"><code>IMG_Linked_Version</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC7">3.1.1 IMG_Linked_Version</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC11"><code>IMG_Load</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC11">3.2.1 IMG_Load</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC12"><code>IMG_Load_RW</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC12">3.2.2 IMG_Load_RW</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC16"><code>IMG_LoadBMP_RW</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC16">3.2.6 IMG_LoadBMP_RW</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC14"><code>IMG_LoadCUR_RW</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC14">3.2.4 IMG_LoadCUR_RW</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC21"><code>IMG_LoadGIF_RW</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC21">3.2.11 IMG_LoadGIF_RW</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC15"><code>IMG_LoadICO_RW</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC15">3.2.5 IMG_LoadICO_RW</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC22"><code>IMG_LoadJPG_RW</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC22">3.2.12 IMG_LoadJPG_RW</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC26"><code>IMG_LoadLBM_RW</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC26">3.2.16 IMG_LoadLBM_RW</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC20"><code>IMG_LoadPCX_RW</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC20">3.2.10 IMG_LoadPCX_RW</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC24"><code>IMG_LoadPNG_RW</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC24">3.2.14 IMG_LoadPNG_RW</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC17"><code>IMG_LoadPNM_RW</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC17">3.2.7 IMG_LoadPNM_RW</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC25"><code>IMG_LoadTGA_RW</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC25">3.2.15 IMG_LoadTGA_RW</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC23"><code>IMG_LoadTIF_RW</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC23">3.2.13 IMG_LoadTIF_RW</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13"><code>IMG_LoadTyped_RW</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC19"><code>IMG_LoadXCF_RW</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC19">3.2.9 IMG_LoadXCF_RW</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC18"><code>IMG_LoadXPM_RW</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC18">3.2.8 IMG_LoadXPM_RW</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC27"><code>IMG_LoadXV_RW</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC27">3.2.17 IMG_LoadXV_RW</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#IDX2">IMG_MAJOR_VERSION</a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC46">4. Defines</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#IDX3">IMG_MINOR_VERSION</a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC46">4. Defines</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#IDX4">IMG_PATCHLEVEL</a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC46">4. Defines</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC9"><code>IMG_Quit</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC9">3.1.3 IMG_Quit</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC28"><code>IMG_ReadXPMFromArray</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC28">3.2.18 IMG_ReadXPMFromArray</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC44"><code>IMG_SetError</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC44">3.4.1 IMG_SetError</a></td></tr>
+<tr><td colspan="3"> <hr></td></tr>
+<tr><th><a name="cp_R"></a>R</th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#IDX1">README</a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC1">1. Overview</a></td></tr>
+<tr><td colspan="3"> <hr></td></tr>
+<tr><th><a name="cp_S"></a>S</th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC4">sdl-config</a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC4">2.2 Compiling</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC7"><code>SDL_IMAGE_VERSION</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC7">3.1.1 IMG_Linked_Version</a></td></tr>
+<tr><td></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10"><code>SDL_Surface</code></a></td><td valign="top"><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10">3.2 Loading</a></td></tr>
+<tr><td colspan="3"> <hr></td></tr>
+</tbody></table><p></p><table><tbody><tr><th valign="top">Jump to: &nbsp; </th><td><a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#cp_I" style="text-decoration:none"><b>I</b></a>
+ &nbsp; 
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#cp_R" style="text-decoration:none"><b>R</b></a>
+ &nbsp; 
+<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#cp_S" style="text-decoration:none"><b>S</b></a>
+ &nbsp; 
+</td></tr></tbody></table><br><p></p><p>
+
+</p><hr size="6">
+<a name="SEC_Contents"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h1>Table of Contents</h1>
+<ul>
+<a name="TOC1" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC1">1. Overview</a>
+<br>
+<a name="TOC2" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC2">2. Getting Started</a>
+<br>
+<ul>
+<a name="TOC3" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC3">2.1 Includes</a>
+<br>
+<a name="TOC4" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC4">2.2 Compiling</a>
+<br>
+</ul>
+<a name="TOC5" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC5">3. Functions</a>
+<br>
+<ul>
+<a name="TOC6" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC6">3.1 General</a>
+<br>
+<ul>
+<a name="TOC7" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC7">3.1.1 IMG_Linked_Version</a>
+<br>
+<a name="TOC8" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC8">3.1.2 IMG_Init</a>
+<br>
+<a name="TOC9" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC9">3.1.3 IMG_Quit</a>
+<br>
+</ul>
+<a name="TOC10" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC10">3.2 Loading</a>
+<br>
+<ul>
+<a name="TOC11" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC11">3.2.1 IMG_Load</a>
+<br>
+<a name="TOC12" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC12">3.2.2 IMG_Load_RW</a>
+<br>
+<a name="TOC13" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC13">3.2.3 IMG_LoadTyped_RW</a>
+<br>
+<a name="TOC14" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC14">3.2.4 IMG_LoadCUR_RW</a>
+<br>
+<a name="TOC15" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC15">3.2.5 IMG_LoadICO_RW</a>
+<br>
+<a name="TOC16" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC16">3.2.6 IMG_LoadBMP_RW</a>
+<br>
+<a name="TOC17" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC17">3.2.7 IMG_LoadPNM_RW</a>
+<br>
+<a name="TOC18" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC18">3.2.8 IMG_LoadXPM_RW</a>
+<br>
+<a name="TOC19" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC19">3.2.9 IMG_LoadXCF_RW</a>
+<br>
+<a name="TOC20" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC20">3.2.10 IMG_LoadPCX_RW</a>
+<br>
+<a name="TOC21" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC21">3.2.11 IMG_LoadGIF_RW</a>
+<br>
+<a name="TOC22" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC22">3.2.12 IMG_LoadJPG_RW</a>
+<br>
+<a name="TOC23" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC23">3.2.13 IMG_LoadTIF_RW</a>
+<br>
+<a name="TOC24" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC24">3.2.14 IMG_LoadPNG_RW</a>
+<br>
+<a name="TOC25" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC25">3.2.15 IMG_LoadTGA_RW</a>
+<br>
+<a name="TOC26" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC26">3.2.16 IMG_LoadLBM_RW</a>
+<br>
+<a name="TOC27" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC27">3.2.17 IMG_LoadXV_RW</a>
+<br>
+<a name="TOC28" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC28">3.2.18 IMG_ReadXPMFromArray</a>
+<br>
+</ul>
+<a name="TOC29" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC29">3.3 Info</a>
+<br>
+<ul>
+<a name="TOC30" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC30">3.3.1 IMG_isCUR</a>
+<br>
+<a name="TOC31" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC31">3.3.2 IMG_isICO</a>
+<br>
+<a name="TOC32" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC32">3.3.3 IMG_isBMP</a>
+<br>
+<a name="TOC33" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC33">3.3.4 IMG_isPNM</a>
+<br>
+<a name="TOC34" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC34">3.3.5 IMG_isXPM</a>
+<br>
+<a name="TOC35" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC35">3.3.6 IMG_isXCF</a>
+<br>
+<a name="TOC36" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC36">3.3.7 IMG_isPCX</a>
+<br>
+<a name="TOC37" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC37">3.3.8 IMG_isGIF</a>
+<br>
+<a name="TOC38" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC38">3.3.9 IMG_isJPG</a>
+<br>
+<a name="TOC39" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC39">3.3.10 IMG_isTIF</a>
+<br>
+<a name="TOC40" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC40">3.3.11 IMG_isPNG</a>
+<br>
+<a name="TOC41" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC41">3.3.12 IMG_isLBM</a>
+<br>
+<a name="TOC42" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC42">3.3.13 IMG_isXV</a>
+<br>
+</ul>
+<a name="TOC43" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC43">3.4 Errors</a>
+<br>
+<ul>
+<a name="TOC44" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC44">3.4.1 IMG_SetError</a>
+<br>
+<a name="TOC45" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC45">3.4.2 IMG_GetError</a>
+<br>
+</ul>
+</ul>
+<a name="TOC46" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC46">4. Defines</a>
+<br>
+<a name="TOC47" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>
+<br>
+</ul>
+<hr size="1">
+<a name="SEC_OVERVIEW"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h1>Short Table of Contents</h1>
+<blockquote>
+<a name="TOC1" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC1">1. Overview</a>
+<br>
+<a name="TOC2" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC2">2. Getting Started</a>
+<br>
+<a name="TOC5" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC5">3. Functions</a>
+<br>
+<a name="TOC46" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC46">4. Defines</a>
+<br>
+<a name="TOC47" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>
+<br>
+
+</blockquote>
+<hr size="1">
+<a name="SEC_About"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tbody><tr><td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Top">Top</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_Contents">Contents</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC47">Index</a>]</td>
+<td valign="MIDDLE" align="LEFT">[<a href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image.html#SEC_About"> ? </a>]</td>
+</tr></tbody></table>
+<h1>About this document</h1>
+This document was generated on <i>November, 3  2009</i>
+using <a href="http://www.mathematik.uni-kl.de/~obachman/Texi2html"><i>texi2html</i></a>
+<p></p>  
+The buttons in the navigation panels have the following meaning:
+<p></p>
+<table border="1">
+<tbody><tr>
+<th> Button </th>
+<th> Name </th>
+<th> Go to </th>
+<th> From 1.2.3 go to</th>
+</tr>
+<tr>
+<td align="CENTER">
+ [ &lt; ] </td>
+<td align="CENTER">
+Back
+</td>
+<td>
+previous section in reading order
+</td>
+<td>
+1.2.2
+</td>
+</tr>
+<tr>
+<td align="CENTER">
+ [ &gt; ] </td>
+<td align="CENTER">
+Forward
+</td>
+<td>
+next section in reading order
+</td>
+<td>
+1.2.4
+</td>
+</tr>
+<tr>
+<td align="CENTER">
+ [ &lt;&lt; ] </td>
+<td align="CENTER">
+FastBack
+</td>
+<td>
+previous or up-and-previous section 
+</td>
+<td>
+1.1
+</td>
+</tr>
+<tr>
+<td align="CENTER">
+ [ Up ] </td>
+<td align="CENTER">
+Up
+</td>
+<td>
+up section
+</td>
+<td>
+1.2
+</td>
+</tr>
+<tr>
+<td align="CENTER">
+ [ &gt;&gt; ] </td>
+<td align="CENTER">
+FastForward
+</td>
+<td>
+next or up-and-next section
+</td>
+<td>
+1.3
+</td>
+</tr>
+<tr>
+<td align="CENTER">
+ [Top] </td>
+<td align="CENTER">
+Top
+</td>
+<td>
+cover (top) of document
+</td>
+<td>
+ &nbsp; 
+</td>
+</tr>
+<tr>
+<td align="CENTER">
+ [Contents] </td>
+<td align="CENTER">
+Contents
+</td>
+<td>
+table of contents
+</td>
+<td>
+ &nbsp; 
+</td>
+</tr>
+<tr>
+<td align="CENTER">
+ [Index] </td>
+<td align="CENTER">
+Index
+</td>
+<td>
+concept index
+</td>
+<td>
+ &nbsp; 
+</td>
+</tr>
+<tr>
+<td align="CENTER">
+ [ ? ] </td>
+<td align="CENTER">
+About
+</td>
+<td>
+this page
+</td>
+<td>
+ &nbsp; 
+</td>
+</tr>
+</tbody></table>
+<p></p>
+where the <strong> Example </strong> assumes that the current position 
+is at <strong> Subsubsection One-Two-Three </strong> of a document of 
+the following structure:
+<ul>
+<li> 1. Section One  </li>
+<ul>
+<li>1.1 Subsection One-One</li>
+<ul>
+<li> ... </li>
+</ul>
+<li>1.2 Subsection One-Two</li>
+<ul>
+<li>1.2.1 Subsubsection One-Two-One
+</li><li>1.2.2 Subsubsection One-Two-Two
+</li><li>1.2.3 Subsubsection One-Two-Three &nbsp; &nbsp; <strong>
+&lt;== Current Position </strong>
+</li><li>1.2.4 Subsubsection One-Two-Four
+</li></ul>
+<li>1.3 Subsection One-Three</li>
+<ul>
+<li> ... </li>
+</ul>
+<li>1.4 Subsection One-Four</li>
+</ul>
+</ul>
+
+<hr size="1">
+<br>  
+<font size="-1">
+This document was generated
+on <i>November, 3  2009</i>
+using <a href="http://www.mathematik.uni-kl.de/~obachman/Texi2html"><i>texi2html</i></a>
+
+
+
+</font></body></html>

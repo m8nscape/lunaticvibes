@@ -1,0 +1,9 @@
+/*jslint this */
+(function (g, elms) {
+    "use strict";
+    if (typeof g.addEventListener !== "function" && typeof g.createElement === "function") {
+        while (elms.length) {
+            g.createElement(elms.pop());
+        }
+    }
+}(this.document, ["abbr", "article", "footer", "header", "mark", "nav", "section", "time"]));

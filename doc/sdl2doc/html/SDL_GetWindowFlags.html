@@ -1,0 +1,52 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetWindowFlags</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetWindowFlags</h1>
+<p>Use this function to get the window flags.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+Uint32 SDL_GetWindowFlags(SDL_Window* window)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>window</strong></td><td>the window to query</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns a mask of the <a href="SDL_WindowFlags.html">SDL_WindowFlags</a> associated with window; see <A href="#Remarks">Remarks</a> for details.
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<p>The flags may be any of the following OR'd together:
+<table>
+<tr><td>SDL_WINDOW_FULLSCREEN</td><td>fullscreen window</td></tr>
+<tr><td>SDL_WINDOW_FULLSCREEN_DESKTOP</td><td>fullscreen window at the current desktop resolution</td></tr>
+<tr><td>SDL_WINDOW_OPENGL</td><td>Window usable with OpenGL context</td></tr>
+<tr><td>SDL_WINDOW_SHOWN</td><td>window is visible</td></tr>
+<tr><td>SDL_WINDOW_HIDDEN</td><td>window is not visible</td></tr>
+<tr><td>SDL_WINDOW_BORDERLESS</td><td>no window decoration</td></tr>
+<tr><td>SDL_WINDOW_RESIZABLE</td><td>window can be resized</td></tr>
+<tr><td>SDL_WINDOW_MINIMIZED</td><td>window is minimized</td></tr>
+<tr><td>SDL_WINDOW_MAXIMIZED</td><td>window is maximized</td></tr>
+<tr><td>SDL_WINDOW_INPUT_GRABBED</td><td>window has grabbed input focus</td></tr>
+<tr><td>SDL_WINDOW_INPUT_FOCUS</td><td>window has input focus</td></tr>
+<tr><td>SDL_WINDOW_MOUSE_FOCUS</td><td>window has mouse focus</td></tr>
+<tr><td>SDL_WINDOW_FOREIGN</td><td>window not created by SDL</td></tr>
+<tr><td>SDL_WINDOW_ALLOW_HIGHDPI</td><td>window should be created in high-DPI mode if supported (available since SDL 2.0.1)</td></tr>
+</table>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_CreateWindow.html">SDL_CreateWindow</a></li>
+<li><a href="SDL_HideWindow.html">SDL_HideWindow</a></li>
+<li><a href="SDL_MaximizeWindow.html">SDL_MaximizeWindow</a></li>
+<li><a href="SDL_MinimizeWindow.html">SDL_MinimizeWindow</a></li>
+<li><a href="SDL_SetWindowFullscreen.html">SDL_SetWindowFullscreen</a></li>
+<li><a href="SDL_SetWindowGrab.html">SDL_SetWindowGrab</a></li>
+<li><a href="SDL_ShowWindow.html">SDL_ShowWindow</a></li></ul>
+</div>
+</BODY>
+</HTML>

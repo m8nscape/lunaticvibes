@@ -1,0 +1,51 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_JoystickGetBall</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_JoystickGetBall</h1>
+<p>Use this function to get the ball axis change since the last poll.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_JoystickGetBall(SDL_Joystick* joystick,
+                        int           ball,
+                        int*          dx,
+                        int*          dy)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>joystick</strong></td><td>the SDL_Joystick to query</td></tr>
+<tr><td><strong>ball</strong></td><td>the ball indices index; starts at index 0</td></tr>
+<tr><td><strong>dx</strong></td><td>the difference in the x axis position since the last poll</td></tr>
+<tr><td><strong>dy</strong></td><td>the difference in the y axis position since the last poll</td></tr>
+</table>
+<p><span style="color:green; ">Is it possible to use more than one index for ball?</span>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+int delta_x, delta_y;
+SDL_Joystick *joy;
+.
+.
+.
+SDL_JoystickUpdate();
+if(SDL_JoystickGetBall(joy, 0, &delta_x, &delta_y)==-1)
+  printf("TrackBall Read Error!\n");
+printf("Trackball Delta- X:%d, Y:%d\n", delta_x, delta_y);
+</pre></div>
+<h2>Remarks</h2>
+<p>*
+<p>Trackballs can only return relative motion since the last call to <a href="SDL_JoystickGetBall.html">SDL_JoystickGetBall</a>(), these motion deltas are placed into <strong>dx</strong> and <strong>dy</strong>.
+<p>*
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_JoystickNumBalls.html">SDL_JoystickNumBalls *</a></li></ul>
+</div>
+</BODY>
+</HTML>

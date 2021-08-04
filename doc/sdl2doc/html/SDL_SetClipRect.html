@@ -1,0 +1,34 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_SetClipRect</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_SetClipRect</h1>
+<p>Use this function to set the clipping rectangle for a surface.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_bool SDL_SetClipRect(SDL_Surface*    surface,
+                         const SDL_Rect* rect)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>surface</strong></td><td>the <a href="structures/SDL_Surface.html">SDL_Surface</a> structure to be clipped</td></tr>
+<tr><td><strong>rect</strong></td><td>the <a href="structures/SDL_Rect.html">SDL_Rect</a> structure representing the clipping rectangle, or NULL to disable clipping</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns SDL_TRUE if the rectangle intersects the surface, otherwise SDL_FALSE and blits will be completely clipped.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>When <strong>surface</strong> is the destination of a blit, only the area within the clip rectangle is drawn into.
+<p>Note that blits are automatically clipped to the edges of the source and destination surfaces.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_BlitSurface.html">SDL_BlitSurface</a></li>
+<li><a href="SDL_GetClipRect.html">SDL_GetClipRect</a></li></ul>
+</div>
+</BODY>
+</HTML>

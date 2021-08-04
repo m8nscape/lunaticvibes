@@ -1,0 +1,36 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetCurrentAudioDriver</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetCurrentAudioDriver</h1>
+<p>Use this function to return the name of the current audio driver.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+const char* SDL_GetCurrentAudioDriver(void)
+</pre></div>
+<h2>Return Value</h2>
+<p>Returns the name of the current audio driver or NULL if no driver has been initialized.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+const char* driver_name = SDL_GetCurrentAudioDriver();
+
+if ( driver_name ) {
+    printf("Audio subsystem initialized; driver = %s.\n", driver_name);
+} else {
+    printf("Audio subsystem not initialized.\n");
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>The returned string points to internal static memory and thus never becomes invalid, even if you quit the audio subsystem and initialize a new driver (although such a case would return a different static string from another call to this function, of course). As such, you should not modify or free the returned string.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_AudioInit.html">SDL_AudioInit</a></li></ul>
+</div>
+</BODY>
+</HTML>

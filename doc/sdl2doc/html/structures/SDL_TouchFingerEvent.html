@@ -1,0 +1,34 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_TouchFingerEvent</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_TouchFingerEvent</h1>
+<p>A structure that contains finger touch event information.
+<h2>Data Fields</h2>
+<table>
+<tr><td>Uint32</td><td><strong>type</strong></td><td>SDL_FINGERMOTION, SDL_FINGERDOWN, or SDL_FINGERUP</td></tr>
+<tr><td>Uint32</td><td><strong>timestamp</strong></td><td>timestamp of the event</td></tr>
+<tr><td>SDL_TouchID</td><td><strong>touchId</strong></td><td>the touch device index</td></tr>
+<tr><td>SDL_FingerID</td><td><strong>fingerId</strong></td><td>the finger index</td></tr>
+<tr><td>float</td><td><strong>x</strong></td><td>the x-axis location of the touch event, normalized (0...1)</td></tr>
+<tr><td>float</td><td><strong>y</strong></td><td>the y-axis location of the touch event, normalized (0...1)</td></tr>
+<tr><td>float</td><td><strong>dx</strong></td><td>the distance moved in the x-axis, normalized (0...1)</td></tr>
+<tr><td>float</td><td><strong>dy</strong></td><td>the distance moved in the y-axis, normalized (0...1)</td></tr>
+<tr><td>float</td><td><strong>pressure</strong></td><td>the quantity of pressure applied, normalized (0...1)</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p><a href="../SDL_TouchFingerEvent.html">SDL_TouchFingerEvent</a> is a member of the <a href="../SDL_Event.html">SDL_Event</a> union and is used when an event of type SDL_FINGERMOTION, SDL_FINGERDOWN, or SDL_FINGERUP is reported. You would access it through the event's <tt style="backtick">tfinger</tt> field.
+<h2>Related Enumerations</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_EventType.html">SDL_EventType</a></li></ul>
+<h2>Related Structures</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_Event.html">SDL_Event</a></li></ul>
+<h2>Related Functions</h2>
+</div>
+</BODY>
+</HTML>

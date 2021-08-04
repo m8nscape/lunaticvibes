@@ -1,0 +1,30 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_DelEventWatch</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_DelEventWatch</h1>
+<p>Use this function to remove an event watch callback added with <a href="SDL_AddEventWatch.html">SDL_AddEventWatch</a>().
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_DelEventWatch(SDL_EventFilter filter,
+                       void*           userdata)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>filter</strong></td><td>the function originally passed to <a href="SDL_AddEventWatch.html">SDL_AddEventWatch</a>(); see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td><strong>userdata</strong></td><td>the pointer originally passed to <a href="SDL_AddEventWatch.html">SDL_AddEventWatch</a>()</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<p>This function takes the same input as <a href="SDL_AddEventWatch.html">SDL_AddEventWatch</a>() to identify and delete the corresponding callback.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_AddEventWatch.html">SDL_AddEventWatch</a></li></ul>
+</div>
+</BODY>
+</HTML>

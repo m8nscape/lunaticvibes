@@ -1,0 +1,39 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetTicks</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetTicks</h1>
+<p>Use this function to get the number of milliseconds since the SDL library initialization.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+Uint32 SDL_GetTicks(void)
+</pre></div>
+<h2>Return Value</h2>
+<p>Returns an unsigned 32-bit value representing the number of milliseconds since the SDL library initialized.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+unsigned int lastTime = 0, currentTime;
+while (!quit) {
+  // do stuff
+  // ...
+
+  // Print a report once per second
+  currentTime = SDL_GetTicks();
+  if (currentTime > lastTime + 1000) {
+    printf("Report: %d\n", variable);
+    lastTime = currentTime;
+  }
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>This value wraps if the program runs for more than ~49 days. 
+</div>
+</BODY>
+</HTML>

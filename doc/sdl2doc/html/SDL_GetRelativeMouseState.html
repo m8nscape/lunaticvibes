@@ -1,0 +1,34 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetRelativeMouseState</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetRelativeMouseState</h1>
+<p>Use this function to retrieve the relative state of the mouse.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+Uint32 SDL_GetRelativeMouseState(int* x,
+                                 int* y)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>x</strong></td><td>a pointer filled with the last recorded x coordinate of the mouse</td></tr>
+<tr><td><strong>y</strong></td><td>a pointer filled with the last recorded y coordinate of the mouse</td></tr>
+</table>
+<p><span style="color:green; ">Should this be an exception to the 'pointer rule'?</span>
+<h2>Return Value</h2>
+<p>Returns a 32 bit button bitmask of the relative button state. ??? <span style="color:green; ">Does this have an error state?</span>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>The current button state is returned as a button bitmask, which can be tested using the SDL_BUTTON(X) macros *(where X is generally 1 for the left, 2 for middle, 3 for the right button)(<span style="color:green; ">parens is from <a href="SDL_GetMouseState.html">SDL_GetMouseState</a> because remark is otherwise the same</span>
+<p>)*, and x and y are set to the mouse deltas since the last call to <a href="SDL_GetRelativeMouseState.html">SDL_GetRelativeMouseState</a>() *or since event initialization. You can pass NULL for either x or y.*
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetMouseState.html">SDL_GetMouseState * </a></li></ul>
+</div>
+</BODY>
+</HTML>

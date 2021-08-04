@@ -1,0 +1,32 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetScancodeName</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetScancodeName</h1>
+<p>Use this function to get a human-readable name for a scancode.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+const char* SDL_GetScancodeName(SDL_Scancode scancode)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>scancode</strong></td><td>the desired <a href="SDL_Scancode.html">SDL_Scancode</a> to query ???</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns a pointer to the name for the scancode. If the scancode doesn't have a name this function returns an empty string ("").
+<p><span style="color:green; ">Should scancode here be bold? Should the pointer be mentioned? Any error state?</span>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>See <a href="SDL_Scancode.html">SDL_Scancode</a> for details.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetScancodeFromKey.html">SDL_GetScancodeFromKey</a></li>
+<li><a href="SDL_GetScancodeFromName.html">SDL_GetScancodeFromName</a></li></ul>
+</div>
+</BODY>
+</HTML>

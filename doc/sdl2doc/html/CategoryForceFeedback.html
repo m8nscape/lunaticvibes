@@ -1,0 +1,141 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>Force Feedback Support</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>Force Feedback Support</h1>
+<h2>Introduction</h2>
+<p>The SDL Haptic subsystem allows you to control haptic (force feedback) devices.
+<p>The basic usage is as follows:
+<ol start="1">
+<li>Initialize the Subsystem (SDL_INIT_HAPTIC)</li>
+<li>Open a Haptic Device
+<ol type="a">
+   <li><a href="SDL_HapticOpen.html">SDL_HapticOpen</a>() to open from index</li>
+   <li><a href="SDL_HapticOpenFromJoystick.html">SDL_HapticOpenFromJoystick</a>() to open from an existing joystick</li>
+</ol></li>
+<li>Create an effect (<a href="SDL_HapticEffect.html">SDL_HapticEffect</a>)</li>
+<li>Upload the effect with <a href="SDL_HapticNewEffect.html">SDL_HapticNewEffect</a>()</li>
+<li>Run the effect with <a href="SDL_HapticRunEffect.html">SDL_HapticRunEffect</a>()</li>
+<li>(optional) Free the effect with <a href="SDL_HapticDestroyEffect.html">SDL_HapticDestroyEffect</a>()</li>
+</li>Close the haptic device with <a href="SDL_HapticClose.html">SDL_HapticClose</a>()</li>
+</ol>
+<h2>Code Examples</h2>
+<p>Simple rumble example:
+<div style=codearea>
+<pre>
+SDL_Haptic *haptic;
+
+// Open the device
+haptic = SDL_HapticOpen( 0 );
+if (haptic == NULL)
+   return -1;
+
+// Initialize simple rumble
+if (SDL_HapticRumbleInit( haptic ) != 0)
+   return -1;
+
+// Play effect at 50% strength for 2 seconds
+if (SDL_HapticRumblePlay( haptic, 0.5, 2000 ) != 0)
+   return -1;
+SDL_Delay( 2000 );
+
+// Clean up
+SDL_HapticClose( haptic );
+</pre></div>
+<p>Complete example:
+<div style=codearea>
+<pre>
+int test_haptic( SDL_Joystick * joystick ) {
+ SDL_Haptic *haptic;
+ SDL_HapticEffect effect;
+ int effect_id;
+
+ // Open the device
+ haptic = SDL_HapticOpenFromJoystick( joystick );
+ if (haptic == NULL) return -1; // Most likely joystick isn't haptic
+
+ // See if it can do sine waves
+ if ((SDL_HapticQuery(haptic) & SDL_HAPTIC_SINE)==0) {
+  SDL_HapticClose(haptic); // No sine effect
+  return -1;
+ }
+
+ // Create the effect
+ memset( &effect, 0, sizeof(SDL_HapticEffect) ); // 0 is safe default
+ effect.type = SDL_HAPTIC_SINE;
+ effect.periodic.direction.type = SDL_HAPTIC_POLAR; // Polar coordinates
+ effect.periodic.direction.dir[0] = 18000; // Force comes from south
+ effect.periodic.period = 1000; // 1000 ms
+ effect.periodic.magnitude = 20000; // 20000/32767 strength
+ effect.periodic.length = 5000; // 5 seconds long
+ effect.periodic.attack_length = 1000; // Takes 1 second to get max strength
+ effect.periodic.fade_length = 1000; // Takes 1 second to fade away
+
+ // Upload the effect
+ effect_id = SDL_HapticNewEffect( haptic, &effect );
+
+ // Test the effect
+ SDL_HapticRunEffect( haptic, effect_id, 1 );
+ SDL_Delay( 5000); // Wait for the effect to finish
+
+ // We destroy the effect, although closing the device also does this
+ SDL_HapticDestroyEffect( haptic, effect_id );
+
+ // Close the device
+ SDL_HapticClose(haptic);
+
+ return 0; // Success
+}
+</pre></div>
+<p>You can find more information in this blog by Edgar Simo Serra: <a href="http://bobbens.dyndns.org/journal/2010/sdl_haptic/">SDL Haptic In Depth</a>
+<h2>Structures</h2>
+<ol start="1">
+<li><a href="structures/SDL_HapticCondition.html">SDL_HapticCondition</a></li>
+<li><a href="structures/SDL_HapticConstant.html">SDL_HapticConstant</a></li>
+<li><a href="structures/SDL_HapticCustom.html">SDL_HapticCustom</a></li>
+<li><a href="structures/SDL_HapticDirection.html">SDL_HapticDirection</a></li>
+<li><a href="structures/SDL_HapticEffect.html">SDL_HapticEffect</a></li>
+<li><a href="structures/SDL_HapticPeriodic.html">SDL_HapticPeriodic</a></li>
+<li><a href="structures/SDL_HapticRamp.html">SDL_HapticRamp</a></li>
+</ol>
+<h2>Functions</h2>
+<ol start="1">
+<li><a href="SDL_HapticClose.html">SDL_HapticClose</a></li>
+<li><a href="SDL_HapticDestroyEffect.html">SDL_HapticDestroyEffect</a></li>
+<li><a href="SDL_HapticEffectSupported.html">SDL_HapticEffectSupported</a></li>
+<li><a href="SDL_HapticGetEffectStatus.html">SDL_HapticGetEffectStatus</a></li>
+<li><a href="SDL_HapticIndex.html">SDL_HapticIndex</a></li>
+<li><a href="SDL_HapticName.html">SDL_HapticName</a></li>
+<li><a href="SDL_HapticNewEffect.html">SDL_HapticNewEffect</a></li>
+<li><a href="SDL_HapticNumAxes.html">SDL_HapticNumAxes</a></li>
+<li><a href="SDL_HapticNumEffects.html">SDL_HapticNumEffects</a></li>
+<li><a href="SDL_HapticNumEffectsPlaying.html">SDL_HapticNumEffectsPlaying</a></li>
+<li><a href="SDL_HapticOpen.html">SDL_HapticOpen</a></li>
+<li><a href="SDL_HapticOpenFromJoystick.html">SDL_HapticOpenFromJoystick</a></li>
+<li><a href="SDL_HapticOpenFromMouse.html">SDL_HapticOpenFromMouse</a></li>
+<li><a href="SDL_HapticOpened.html">SDL_HapticOpened</a></li>
+<li><a href="SDL_HapticPause.html">SDL_HapticPause</a></li>
+<li><a href="SDL_HapticQuery.html">SDL_HapticQuery</a></li>
+<li><a href="SDL_HapticRumbleInit.html">SDL_HapticRumbleInit</a></li>
+<li><a href="SDL_HapticRumblePlay.html">SDL_HapticRumblePlay</a></li>
+<li><a href="SDL_HapticRumbleStop.html">SDL_HapticRumbleStop</a></li>
+<li><a href="SDL_HapticRumbleSupported.html">SDL_HapticRumbleSupported</a></li>
+<li><a href="SDL_HapticRunEffect.html">SDL_HapticRunEffect</a></li>
+<li><a href="SDL_HapticSetAutocenter.html">SDL_HapticSetAutocenter</a></li>
+<li><a href="SDL_HapticSetGain.html">SDL_HapticSetGain</a></li>
+<li><a href="SDL_HapticStopAll.html">SDL_HapticStopAll</a></li>
+<li><a href="SDL_HapticStopEffect.html">SDL_HapticStopEffect</a></li>
+<li><a href="SDL_HapticUnpause.html">SDL_HapticUnpause</a></li>
+<li><a href="SDL_HapticUpdateEffect.html">SDL_HapticUpdateEffect</a></li>
+<li><a href="SDL_JoystickIsHaptic.html">SDL_JoystickIsHaptic</a></li>
+<li><a href="SDL_MouseIsHaptic.html">SDL_MouseIsHaptic</a></li>
+<li><a href="SDL_NumHaptics.html">SDL_NumHaptics</a></li>
+</ol>
+</div>
+</BODY>
+</HTML>

@@ -1,0 +1,45 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetRenderDrawBlendMode</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetRenderDrawBlendMode</h1>
+<p>Use this function to get the blend mode used for drawing operations.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_GetRenderDrawBlendMode(SDL_Renderer*  renderer,
+                               SDL_BlendMode* blendMode)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>renderer</strong></td><td>the rendering context</td></tr>
+<tr><td><strong>blendMode</strong></td><td>a pointer filled in with the current <a href="SDL_BlendMode.html">SDL_BlendMode</a>; see <a href="#Remarks">Remarks</a> for details</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<p><strong>blendMode</strong> will be filled in with one of the following:
+<table>
+<tr><td>SDL_BLENDMODE_NONE</td><td>no blending</td></tr>
+<tr><td>&nbsp;</td><td>dstRGBA = srcRGBA</td></tr>
+<tr><td>SDL_BLENDMODE_BLEND</td><td>alpha blending</td></tr>
+<tr><td>&nbsp;</td><td>dstRGB = (srcRGB * srcA) + (dstRGB * (1-srcA))</td></tr>
+<tr><td>&nbsp;</td><td>dstA = srcA + (dstA * (1-srcA))</td></tr>
+<tr><td>SDL_BLENDMODE_ADD</td><td>additive blending</td></tr>
+<tr><td>&nbsp;</td><td>dstRGB = (srcRGB * srcA) + dstRGB</td></tr>
+<tr><td>&nbsp;</td><td>dstA = dstA</td></tr>
+<tr><td>SDL_BLENDMODE_MOD</td><td>color modulate</td></tr>
+<tr><td>&nbsp;</td><td>dstRGB = srcRGB * dstRGB</td></tr>
+<tr><td>&nbsp;</td><td>dstA = dstA</td></tr>
+</table>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_SetRenderDrawBlendMode.html">SDL_SetRenderDrawBlendMode</a></li></ul>
+</div>
+</BODY>
+</HTML>

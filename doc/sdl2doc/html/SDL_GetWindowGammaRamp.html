@@ -1,0 +1,35 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetWindowGammaRamp</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetWindowGammaRamp</h1>
+<p>Use this function to get the gamma ramp for a window.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_GetWindowGammaRamp(SDL_Window* window,
+                           Uint16*     red,
+                           Uint16*     green,
+                           Uint16*     blue)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>window</strong></td><td>the window to query</td><tr>
+<tr><td><strong>red</strong></td><td>a 256 element array of 16-bit quantities filled in with the translation table for the red channel, or NULL</td><tr>
+<tr><td><strong>green</strong></td><td>a 256 element array of 16-bit quantities filled in with the translation table for the green channel, or NULL</td><tr>
+<tr><td><strong>blue</strong></td><td>a 256 element array of 16-bit quantities filled in with the translation table for the blue channel, or NULL</td><tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_SetWindowGammaRamp.html">SDL_SetWindowGammaRamp</a></li></ul>
+</div>
+</BODY>
+</HTML>

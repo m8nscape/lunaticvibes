@@ -1,0 +1,34 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_JoystickGetGUIDString</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_JoystickGetGUIDString</h1>
+<p>Use this function to get an ASCII string representation for a given SDL_JoystickGUID.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_JoystickGetGUIDString(SDL_JoystickGUID guid,
+                               char*            pszGUID,
+                               int              cbGUID)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>guid</strong></td><td>the SDL_JoystickGUID you wish to convert to string</td></tr>
+<tr><td><strong>pszGUID</strong></td><td>buffer in which to write the ASCII string</td></tr>
+<tr><td><strong>cbGUID</strong></td><td>the size of pszGUID</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>You should supply at least 33 bytes for pszGUID.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_JoystickGetGUIDFromString.html">SDL_JoystickGetGUIDFromString</a></li>
+<li><a href="SDL_JoystickGetDeviceGUID.html">SDL_JoystickGetDeviceGUID</a></li>
+<li><a href="SDL_JoystickGetGUID.html">SDL_JoystickGetGUID</a></li></ul>
+</div>
+</BODY>
+</HTML>

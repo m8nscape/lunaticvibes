@@ -1,0 +1,48 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_MixAudioFormat</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_MixAudioFormat</h1>
+<p>Use this function to mix audio data in a specified format.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_MixAudioFormat(Uint8*          dst,
+                        const Uint8*    src,
+                        SDL_AudioFormat format,
+                        Uint32          len, 
+                        int             volume)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>dst</strong></td><td>the destination for the mixed audio</td></tr>
+<tr><td><strong>src</strong></td><td>the source audio buffer to be mixed</td></tr>
+<tr><td><strong>format</strong></td><td>the <a href="SDL_AudioFormat.html">SDL_AudioFormat</a> structure representing the desired audio format</td></tr>
+<tr><td><strong>len</strong></td><td>the length of the audio buffer in bytes</td></tr>
+<tr><td><strong>volume</strong></td><td>ranges from 0 - 128, and should be set to SDL_MIX_MAXVOLUME for full audio volume</td></tr>
+</table>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+void myAudioCallback(void *udata, Uint8 *stream, int len)
+{
+    extern SDL_AudioFormat deviceFormat;
+    extern const Uint8 *mixData;
+    SDL_memset(stream, 0, len);  // make sure this is silence.
+    // mix our audio against the silence, at 50% volume.
+    SDL_MixAudioFormat(stream, mixData, deviceFormat, len, SDL_MIX_MAXVOLUME / 2);
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>This takes an audio buffer <strong>src</strong> of <strong>len</strong> bytes of <strong>format</strong> data and mixes it into <strong>dst</strong>, performing addition, volume adjustment, and overflow clipping. The buffer pointed to by <strong>dst</strong> must also be <strong>len</strong> bytes of <strong>format</strong> data.
+<p>This is provided for convenience -- you can mix your own audio data.
+<p>Do not use this function for mixing together more than two streams of sample data. The output from repeated application of this function may be distorted by clipping, because there is no accumulator with greater range than the input (not to mention this being an inefficient way of doing it). Use mixing functions from SDL_mixer, OpenAL, or write your own mixer instead.
+<p>It is a common misconception that this function is required to write audio data to an output stream in an audio callback. While you can do that, <a href="SDL_MixAudioFormat.html">SDL_MixAudioFormat</a>() is really only needed when you're mixing a single audio stream with a volume adjustment. 
+</div>
+</BODY>
+</HTML>

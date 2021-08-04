@@ -1,0 +1,60 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_LoadFunction</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_LoadFunction</h1>
+<p>Use this function to look up the address of the named function in the shared object and return it.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void* SDL_LoadFunction(void*       handle,
+                       const char* name)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>handle</strong></td><td>a valid shared object handle returned by <a href="SDL_LoadObject.html">SDL_LoadObject</a>()</td></tr>
+<tr><td><strong>name</strong></td><td>the name of the function to look up</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns a pointer to the function or NULL if there was an error; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+#include "SDL_loadso.h"
+
+// Variable declaration
+void* myHandle = NULL;
+char* myFunctionName = "myFancyFunction";
+void (*myFancyFunction)(int anInt);
+
+// Dynamically load mylib.so
+myHandle = SDL_LoadObject("mylib.so");
+
+// Load the exported function from mylib.so
+// The exported function has the following prototype
+// void myFancyFunction(int anInt);
+myFancyFunction = (void (*)(int))SDL_LoadFunction( myHandle, myFunctionName );
+
+// Call myFancyFunction with a random integer
+if (myFancyFunction != NULL) {
+    myFancyFunction( 15 );
+}
+else {
+   // Error handling here
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>This function pointer is no longer valid after calling <a href="SDL_UnloadObject.html">SDL_UnloadObject</a>().
+<p>This function can only look up C function names. Other languages may have name mangling and intrinsic language support that varies from compiler to compiler.
+<p>Make sure you declare your function pointers with the same calling convention as the actual library function. Your code will crash mysteriously if you do not do this.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_LoadObject.html">SDL_LoadObject</a></li>
+<li><a href="SDL_UnloadObject.html">SDL_UnloadObject</a></li></ul>
+</div>
+</BODY>
+</HTML>

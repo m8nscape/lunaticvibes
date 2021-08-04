@@ -1,0 +1,52 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetBasePath</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetBasePath</h1>
+<p>Use this function to get the directory where the application was run from. This is where the application data directory is.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+char* SDL_GetBasePath(void)
+</pre></div>
+<h2>Return Value</h2>
+<p>Returns the an absolute path in UTF-8 encoding to the application data directory. NULL will be returned on error or when the platform doesn't implement this functionality, call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<p>The return path will be guaranteed to end with a path separator ('\' on Windows, '/' on most other platforms)
+<p>The pointer returned is owned by you. Please call <a href="SDL_free.html">SDL_free</a>() on the pointer when you are done with it.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+char *data_path = NULL;
+
+void InitializeDataPath() {
+    char *base_path = SDL_GetBasePath();
+    if (base_path) {
+        data_path = SDL_strdup(base_path);
+        SDL_free(base_path);
+    } else {
+        data_path = SDL_strdup("./");
+    }
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>This is not necessarily a fast call, though, so you should call this once near startup and save the string if you need it.
+<p>*Mac OS X and iOS Specific Functionality* If the application is in a ".app" bundle, this function returns the Resource directory (e.g. MyApp.app/Contents/Resources/). This behaviour can be overridden by adding a property to the Info.plist file. Adding a string key with the name SDL_FILESYSTEM_BASE_DIR_TYPE with a supported value will change the behaviour.
+<p>Supported values for the SDL_FILESYSTEM_BASE_DIR_TYPE property (Given an application in /Applications/SDLApp/MyApp.app):
+<table>
+<tr><td><em>Value</em></td><td><em>Description</em></td><td><em>Example returned path</em></td></tr>
+<tr><td><strong>resource</strong></td><td>The bundle resource directory (the default)</td><td>/Applications/SDLApp/MyApp.app/Contents/Resources</td></tr>
+<tr><td><strong>bundle</strong></td><td>The Bundle directory</td><td>/Applications/SDLApp/MyApp.app/</td></tr>
+<tr><td><strong>parent</strong></td><td>The containing directory of the bundle</td><td>/Applications/SDLApp/</td></tr>
+</table>
+<h2>Version</h2>
+<p>This function is available since SDL 2.0.1.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetPrefPath.html">SDL_GetPrefPath</a></li></ul>
+</div>
+</BODY>
+</HTML>

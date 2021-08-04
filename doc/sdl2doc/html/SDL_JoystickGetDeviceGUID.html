@@ -1,0 +1,31 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_JoystickGetDeviceGUID</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_JoystickGetDeviceGUID</h1>
+<p>Use this function to get the implementation-dependent GUID for the joystick at a given device index.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_JoystickGUID SDL_JoystickGetDeviceGUID(int device_index)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>device_index</strong></td><td>the index of the joystick to query (the N'th joystick on the system</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns the GUID of the selected joystick. If called on an invalid index, this function returns a zero GUID; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>This function can be called before any joysticks are opened.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_JoystickGetGUID.html">SDL_JoystickGetGUID</a></li>
+<li><a href="SDL_JoystickGetGUIDString.html">SDL_JoystickGetGUIDString</a></li></ul>
+</div>
+</BODY>
+</HTML>

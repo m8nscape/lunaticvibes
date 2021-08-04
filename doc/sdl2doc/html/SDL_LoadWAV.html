@@ -1,0 +1,54 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_LoadWAV</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_LoadWAV</h1>
+<p>Use this function to load a WAVE from a file.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_AudioSpec* SDL_LoadWAV(const char*    file,
+                           SDL_AudioSpec* spec,
+                           Uint8**        audio_buf,
+                           Uint32*        audio_len)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>file</strong></td><td>the name of the file to load</td></tr>
+<tr><td><strong>spec</strong></td><td>an <a href="structures/SDL_AudioSpec.html">SDL_AudioSpec</a> structure representing the desired output format</td></tr>
+<tr><td><strong>audio_buf</strong></td><td>the audio buffer</td></tr>
+<tr><td><strong>audio_len</strong></td><td>the length of the audio buffer in bytes</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>This function, if successfully called, returns a pointer to an <a href="structures/SDL_AudioSpec.html">SDL_AudioSpec</a> structure filled with the audio data format of the wave source data. <strong>audio_buf</strong> is filled with a pointer to an allocated buffer containing the audio data, and <strong>audio_len</strong> is filled with the length of that audio buffer in bytes.
+<p>This function returns NULL if the wave file cannot be opened, uses an unknown data format, or is corrupt; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<p>When the application is done with the data returned in <strong>audio_buf</strong>, it should call <a href="SDL_FreeWAV.html">SDL_FreeWAV</a>() to dispose of it.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+SDL_AudioSpec wav_spec;
+Uint32 wav_length;
+Uint8 *wav_buffer;
+
+/* Load the WAV */
+if (SDL_LoadWAV("test.wav", &wav_spec, &wav_buffer, &wav_length) == NULL) {
+    fprintf(stderr, "Could not open test.wav: %s\n", SDL_GetError());
+} else {
+    /* Do stuff with the WAV data, and then... */
+    SDL_FreeWAV(wav_buffer);
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>SDL_LoadWAV is a convenience macro that calls <a href="SDL_LoadWAV_RW.html">SDL_LoadWAV_RW</a>().
+<p>This macro exists so you can pass a filename to <a href="SDL_LoadWAV_RW.html">SDL_LoadWAV_RW</a>() without having to deal with the <a href="CategoryIO.html">RWOPS</a> API.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_LoadWAV_RW.html">SDL_LoadWAV_RW</a></li>
+<li><a href="SDL_FreeWAV.html">SDL_FreeWAV</a></li></ul>
+</div>
+</BODY>
+</HTML>

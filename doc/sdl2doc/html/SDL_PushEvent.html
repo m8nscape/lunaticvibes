@@ -1,0 +1,36 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_PushEvent</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_PushEvent</h1>
+<p>Use this function to add an event to the event queue.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_PushEvent(SDL_Event* event)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>event</strong></td><td>the <a href="structures/SDL_Event.html">SDL_Event</a> to be added to the queue</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 1 on success, 0 if the event was filtered, or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information. A common reason for error is the event queue being full.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>The event queue can actually be used as a two way communication channel. Not only can events be read from the queue, but the user can also push their own events onto it. <strong>event</strong> is a pointer to the event structure you wish to push onto the queue. The event is copied into the queue, and the caller may dispose of the memory pointed to after <a hreg="SDL_PushEvent.html">SDL_PushEvent</a>() returns.
+<p>Note: Pushing device input events onto the queue doesn't modify the state of the device within SDL.
+<p>This function is thread safe, and can be called from other threads safely.
+<p>Note: Events pushed onto the queue with <a href="SDL_PushEvent.html">SDL_PushEvent</a>() or <a href="SDL_PeepEvents.html">SDL_PeepEvents</a>() do not get passed through the event filter.
+<p>For pushing application-specific events, please use <a href="SDL_RegisterEvents.html">SDL_RegisterEvents</a>() to get an event type that does not conflict with other code that also wants its own custom event types.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_PeepEvents.html">SDL_PeepEvents</a></li>
+<li><a href="SDL_PollEvent.html">SDL_PollEvent</a></li>
+<li><a href="SDL_RegisterEvents.html">SDL_RegisterEvents</a></li></ul>
+</div>
+</BODY>
+</HTML>

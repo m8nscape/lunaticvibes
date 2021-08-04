@@ -1,0 +1,49 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_MixAudio</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_MixAudio</h1>
+<p>This function is a legacy means of mixing audio. New programs might want to use <a href="SDL_MixAudioFormat.html">SDL_MixAudioFormat</a>() instead.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_MixAudio(Uint8*       dst, 
+                  const Uint8* src,
+                  Uint32       len, 
+                  int          volume)
+</pre><div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>dst</strong></td><td>the destination for the mixed audio</td></tr>
+<tr><td><strong>src</strong></td><td>the source audio buffer to be mixed</td></tr>
+<tr><td><strong>len</strong></td><td>defines the length of the audio buffer in bytes</td></tr>
+<tr><td><strong>volume</strong></td><td>ranges from 0 - 128, and should be set to SDL_MIX_MAXVOLUME for full audio volume</td></tr>
+</table>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+void myAudioCallback(void *udata, Uint8 *stream, int len)
+{
+    extern const Uint8 *mixData;
+    SDL_memset(stream, 0, len);  // make sure this is silence.
+    // mix our audio against the silence, at 50% volume.
+    SDL_MixAudio(stream, mixData, len, SDL_MIX_MAXVOLUME / 2);
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>This function is equivalent to calling
+<div style=codearea>
+<pre>
+SDL_MixAudioFormat(dst, src, format, len, volume);
+</pre></div>
+<p>where <strong>format</strong> is the obtained format of the audio device from the legacy <a href="SDL_OpenAudio.html">SDL_OpenAudio</a>() function.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_MixAudioFormat.html">SDL_MixAudioFormat</a></li></ul>
+</div>
+</BODY>
+</HTML>

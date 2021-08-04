@@ -1,0 +1,47 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_TLSSet</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_TLSSet</h1>
+<p>Use this function to set the value associated with a thread local storage ID for the current thread.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_TLSSet(SDL_TLSID   id,
+               const void* value,
+               void (*destructor)(void*))
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>id</strong></td><td>the thread local storage ID</td></tr>
+<tr><td><strong>value</strong></td><td>the value to associate with the ID for the current thread</td></tr>
+<tr><td><strong>destructor</strong></td><td>a function called when the thread exits, to free the value</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>The function prototype for <strong>destructor</strong> is:
+<ul style="list-style-type:none"><li>
+<div style=codearea>
+<pre>
+    void destructor(void* value)
+</pre></div></li>
+<li>where its parameters are</li>
+<li><table>
+<tr><td>value</td><td>what was passed as <strong>value</strong> to <a href="SDL_TLSSet.html">SDL_TLSSet</a>()</td></tr>
+</table></li>
+</ul>
+<h2>Version</h2>
+<p>This function is available since SDL 2.0.0.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_TLSCreate.html">SDL_TLSCreate</a></li>
+<li><a href="SDL_TLSGet.html">SDL_TLSGet</a></li></ul>
+</div>
+</BODY>
+</HTML>

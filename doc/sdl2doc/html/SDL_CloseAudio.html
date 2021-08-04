@@ -1,0 +1,38 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_CloseAudio</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_CloseAudio</h1>
+<p>This function is a legacy means of closing the audio device. New programs might want to use <a href="SDL_CloseAudioDevice.html">SDL_CloseAudioDevice</a>() instead.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_CloseAudio(void)
+</pre></div>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+extern SDL_AudioSpec want;
+if (SDL_OpenAudio(&want, NULL) == 0) {
+    SDL_PauseAudio(0);
+    SDL_Delay(5000);  // let audio callback run for 5 seconds.
+    SDL_CloseAudio();
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>This function is equivalent to calling
+<div style=codearea>
+<pre>
+SDL_CloseAudioDevice(1);
+</pre></div>
+<p>and is only useful if you used the legacy <a href="SDL_OpenAudio.html">SDL_OpenAudio</a>() function.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_OpenAudio.html">SDL_OpenAudio</a></li></ul>
+</div>
+</BODY>
+</HTML>

@@ -1,0 +1,31 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_WriteBE64</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_WriteBE64</h1>
+<p>Use this function to write 64 bits in native format to a <a href="structures/SDL_RWops.html">SDL_RWops</a> as big-endian data.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+size_t SDL_WriteBE64(SDL_RWops* dst, Uint64 value)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>dst</strong></td><td>the stream to which data will be written</td></tr>
+<tr><td><strong>value</strong></td><td>the data to be written, in native format</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 1 on successful write, 0 on error.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>SDL byteswaps the data only if necessary, so the application always specifies native format, and the data written will be in big-endian format.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_WriteLE64.html">SDL_WriteLE64</a></li></ul>
+</div>
+</BODY>
+</HTML>

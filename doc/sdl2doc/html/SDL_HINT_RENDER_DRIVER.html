@@ -1,0 +1,28 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_HINT_RENDER_DRIVER</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_HINT_RENDER_DRIVER</h1>
+<p>A hint that specifies which render driver to use.
+<h2>Values</h2>
+<table>
+<tr><td>direct3d</td></tr>
+<tr><td>opengl</td></tr>
+<tr><td>opengles2</td></tr>
+<tr><td>opengles</td></tr>
+<tr><td>software</td></tr>
+</table>
+<h2>Default</h2>
+<p>By default the first one in the list that is available on the current platform is chosen.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>The values are case-insensitive.
+<p>If the application doesn't pick a specific renderer to use, this variable specifies the name of the preferred renderer. If the preferred renderer can't be initialized, the normal default renderer is used. 
+</div>
+</BODY>
+</HTML>

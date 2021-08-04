@@ -1,0 +1,44 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_AudioInit</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_AudioInit</h1>
+<p>Use this function to initialize a particular audio driver.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_AudioInit(const char* driver_name)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>driver_name</strong></td><td>the name of the desired audio driver</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>
+Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+int i;
+
+for (i = 0; i < SDL_GetNumAudioDrivers(); ++i) {
+    const char* driver_name = SDL_GetAudioDriver(i);
+    if (SDL_AudioInit(driver_name)) {
+        printf("Audio driver failed to initialize: %s\n", driver_name);
+        continue;
+    }
+    SDL_AudioQuit();
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>This function is used internally, and should not be used unless you have a specific need to designate the audio driver you want to use. You should normally use <a href="SDL_Init.html">SDL_Init</a>() or <a href="SDL_InitSubSystem.html">SDL_InitSubSystem</a>().
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_AudioQuit.html">SDL_AudioQuit</a></li></ul>
+</div>
+</BODY>
+</HTML>

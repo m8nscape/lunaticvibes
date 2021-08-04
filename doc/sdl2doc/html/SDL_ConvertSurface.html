@@ -1,0 +1,34 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_ConvertSurface</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_ConvertSurface</h1>
+<p>Use this function to copy an existing surface into a new one that is optimized for blitting to a surface of a specified pixel format.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_Surface* SDL_ConvertSurface(SDL_Surface*           src,
+                                const SDL_PixelFormat* fmt,
+                                Uint32                 flags)
+</pre></div>
+<h2>Function Parameters<h2>
+<table>
+<tr><td><strong>src</strong></td><td>the existing SDL_Surface structure to convert</td></tr>
+<tr><td><strong>fmt</strong></td><td>the SDL_PixelFormat structure that the new surface is optimized for</td></tr>
+<tr><td><strong>flags</strong></td><td>the flags are unused and should be set to 0</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns the new <a href="SDL_Surface.html">SDL_Surface</a> structure that is created or NULL if it fails; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>This function is used to optimize images for faster repeat blitting. This is accomplished by converting the original and storing the result as a new surface. The new, optimized surface can then be used as the source for future blits, making them faster.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_CreateRGBSurface.html">SDL_CreateRGBSurface</a></li></ul>
+</div>
+</BODY>
+</HTML>

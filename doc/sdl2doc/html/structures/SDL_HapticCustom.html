@@ -1,0 +1,42 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_HapticCustom</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_HapticCustom</h1>
+<p>A structure that contains a template for the SDL_HAPTIC_CUSTOM a custom effect.
+<h2>Data Fields</h2>
+<table>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>Header</em></td></tr>
+<tr><td>Uint16</td><td><strong>type</strong></td><td>SDL_HAPTIC_CUSTOM</td></tr>
+<tr><td><a href="SDL_HapticDirection.html">SDL_HapticDirection</a></td><td><strong>direction</strong></td><td>direction of the effect (relative to the user)</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>Replay</em></td></tr>
+<tr><td>Uint32</td><td><strong>length</strong></td><td>duration of the effect</td></tr>
+<tr><td>Uint16</td><td><strong>delay</strong></td><td>delay before starting the effect</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>Trigger</em></td></tr>
+<tr><td>Uint16</td><td><strong>button</strong></td><td>button that triggers the effect</td></tr>
+<tr><td>Uint16</td><td><strong>interval</strong></td><td>how soon it can be triggered again after <strong>button</strong></td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>Custom</em></td></tr>
+<tr><td>Uint8</td><td><strong>channels</strong></td><td>axes to use, minimum of 1; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td>Uint16</td><td><strong>period</strong></td><td>sample periods</td></tr>
+<tr><td>Uint16</td><td><strong>samples</strong></td><td>amount number of samples</td></tr>
+<tr><td>Uint16*</td><td><strong>data</strong></td><td>should contain <strong>channels*samples</strong> items; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>Envelope</em></td></tr>
+<tr><td>Uint16</td><td><strong>attack_length</strong></td><td>duration of the attack</td></tr>
+<tr><td>Uint16</td><td><strong>attack_level</strong></td><td>level at the start of the attack</td></tr>
+<tr><td>Uint16</td><td><strong>fade_length</strong></td><td>duration of the fade</td></tr>
+<tr><td>Uint16</td><td><strong>fade_level</strong></td><td>level at the end of the fade</td></tr>
+</table>
+<h2>Code Examples</2>
+<h2 id="Remarks">Remarks</h2>
+<p>A custom force feedback effect is much like a periodic effect, where the application can define its exact shape. You will have to allocate the data yourself. I think this should be a new paragraph or moved down to connect to the next one.
+<p><strong>data</strong> should consist of <strong>channels * samples</strong> Uint16 samples. This is basically repeated above. Is there a better way to say this and still be correct and readable to programmers but also to people who speak English?
+<p>If <strong>channels</strong> is 1, the effect is rotated using the defined direction. Otherwise it uses the samples in <strong>data</strong> for the different axes.
+<h2>Related Functions</h2>
+</div>
+</BODY>
+</HTML>

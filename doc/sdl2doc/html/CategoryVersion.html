@@ -1,0 +1,41 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>Querying SDL Version</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>Querying SDL Version</h1>
+<h2>Introduction</h2>
+<p>These functions are used to collect or display information about the version of SDL that is currently being used by the program or that it was compiled against.
+<ul><li style="list-style-type:none">The version consists of three segments (X.Y.Z)
+  <ul><li>X = <strong>Major Version</strong>, which increments with massive changes, additions, and enhancements</li>
+    <li>Y = <strong>Minor Version</strong>, which increments with backwards-compatible changes to the major revision</li>
+    <li>Z = <strong>Patchlevel</strong>, which increments with fixes to the minor revision</li>
+  </ul>
+  <p><em>Example:</em> The current version is 2.0.0
+  <p>The version may also be reported as a 4-digit numeric value where the thousands place represents the major version, the hundreds place represents the minor version, and the tens and ones places represent the patchlevel (update version).
+  <p><em>Example:</em> The current version number is 2000 
+  </li>
+</ul>
+<p>SDL_revision.h must be included in your program explicitly if you want to use the SDL_REVISION constant.
+<h2>Structures</h2>
+<ol start="1">
+<li><a href="structures/SDL_version.html">SDL_version</a></li>
+</ol>
+<h2>Functions</h2>
+<ol start="1">
+<li><a href="SDL_COMPILEDVERSION.html">SDL_COMPILEDVERSION</a></li>
+<li><a href="SDL_GetRevision.html">SDL_GetRevision</a></li>
+<li><a href="SDL_GetRevisionNumber.html">SDL_GetRevisionNumber</a></li>
+<li><a href="SDL_GetVersion.html">SDL_GetVersion</a></li>
+<li><a href="SDL_REVISION.html">SDL_REVISION</a></li>
+<li><a href="SDL_VERSION.html">SDL_VERSION</a></li>
+<li><a href="SDL_VERSIONNUM.html">SDL_VERSIONNUM</a></li>
+<li><a href="SDL_VERSION_ATLEAST.html">SDL_VERSION_ATLEAST</a></li>
+</ol>
+</div>
+</BODY>
+</HTML>

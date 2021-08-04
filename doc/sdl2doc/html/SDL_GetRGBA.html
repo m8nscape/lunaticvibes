@@ -1,0 +1,42 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetRGBA</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetRGBA</h1>
+<p>Use this function to get RGBA values from a pixel in the specified format.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_GetRGBA(Uint32                 pixel,
+                 const SDL_PixelFormat* format,
+                 Uint8*                 r,
+                 Uint8*                 g,
+                 Uint8*                 b,
+                 Uint8*                 a)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>pixel
+a pixel value
+<tr><td><strong>format</strong></td><td>an <a href="SDL_PixelFormat.html">SDL_PixelFormat</a> structure describing the format of the pixel</td></tr>
+<tr><td><strong>r</strong></td><td>a pointer filled in with the red component</td></tr>
+<tr><td><strong>g</strong></td><td>a pointer filled in with the green component</td></tr>
+<tr><td><strong>b</strong></td><td>a pointer filled in with the blue component</td></tr>
+<tr><td><strong>a</strong></td><td>a pointer filled in with the alpha component</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>This function uses the entire 8-bit [0..255] range when converting color components from pixel formats with less than 8-bits per RGB component (e.g., a completely white pixel in 16-bit RGB565 format would return [0xff, 0xff, 0xff] not [0xf8, 0xfc, 0xf8]).
+<p>If the surface has no alpha component, the alpha will be returned as 0xff (100% opaque).
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetRGB.html">SDL_GetRGB</a></li>
+<li><a href="SDL_MapRGB.html">SDL_MapRGB</a></li>
+<li><a href="SDL_MapRGBA.html">SDL_MapRGBA</a></li></ul>
+</div>
+</BODY>
+</HTML>

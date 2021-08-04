@@ -1,0 +1,49 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GameControllerMapping</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GameControllerMapping</h1>
+<p>Use this function to get the current mapping of a Game Controller.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+char* SDL_GameControllerMapping(SDL_GameController* gamecontroller)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>gamecontroller</strong></td><td>the game controller you want to get the current mapping for</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns a string that has the controller's mapping. More information about the mapping can be found on <a href="SDL_GameControllerAddMapping.html">SDL_GameControllerAddMapping</a>; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+#include <stdio.h> /* for printf() */
+
+/* ... */
+
+SDL_GameController *ctrl;
+int i;
+
+for (i = 0; i < SDL_NumJoysticks(); ++i) {
+    if (SDL_IsGameController(i)) {
+        printf("Index \'%i\' is a compatible controller, named \'%s\'\n", i, SDL_GameControllerNameForIndex(i));
+        ctrl = SDL_GameControllerOpen(i);
+        printf("Controller %i is mapped as \"%s\".\n", i, SDL_GameControllerMapping(ctrl));
+    } else {
+        printf("Index \'%i\' is not a compatible controller.", i);
+    }
+}
+</pre></div>
+<h2>Remarks</h2>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GameControllerAddMapping.html">SDL_GameControllerAddMapping</a></li>
+<li><a href="SDL_GameControllerMappingForGUID.html">SDL_GameControllerMappingForGUID</a></li></ul>
+</div>
+</BODY>
+</HTML>

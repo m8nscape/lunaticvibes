@@ -1,0 +1,74 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>Event Handling</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>Event Handling</h1>
+<h2>Introduction</h2>
+<p>Event handling allows your application to receive input from the user. Event handling is initialized (along with video) with a call to:
+<ul><li style="list-style-type:none">
+<div style=codearea>
+<pre>
+SDL_Init(SDL_INIT_VIDEO);
+</pre></div>
+<p>(<em>see</em> <a href="CategoryInit.html">Initialization & Shutdown</a> and <a href="SDL_Init.html">SDL_Init</a>() for details) </li>
+</ul>
+<p>Internally, SDL stores all the events waiting to be handled in an event queue. Using functions like <a href="SDL_PollEvent.html">SDL_PollEvent</a>(), <a href="SDL_PeepEvents.html">SDL_PeepEvents</a>() and <a href="SDL_WaitEvent.html">SDL_WaitEvent</a>() you can observe and handle waiting input events.
+<p>The event queue itself is composed of a series of <a href="SDL_Event.html">SDL_Event</a> structures, one for each waiting event. <a href="SDL_Event.html">SDL_Event</a> structures are read from the queue with the <a href="SDL_PollEvent.html">SDL_PollEvent</a>() function and it is then up to the application to process the information stored with them.
+<h2>Enumerations</h2>
+<ol start="1">
+<li><a href="SDL_EventType.html">SDL_EventType</a></li>
+<li><a href="SDL_WindowEventID.html">SDL_WindowEventID</a></li>
+</ol>
+<h2>Structures</h2>
+<ol start="1">
+<li><a href="structures/SDL_DollarGestureEvent.html">SDL_DollarGestureEvent</a></li>
+<li><a href="structures/SDL_DropEvent.html">SDL_DropEvent</a></li>
+<li><a href="structures/SDL_Event.html">SDL_Event</a></li>
+<li><a href="structures/SDL_JoyAxisEvent.html">SDL_JoyAxisEvent</a></li>
+<li><a href="structures/SDL_JoyBallEvent.html">SDL_JoyBallEvent</a></li>
+<li><a href="structures/SDL_JoyButtonEvent.html">SDL_JoyButtonEvent</a></li>
+<li><a href="structures/SDL_JoyHatEvent.html">SDL_JoyHatEvent</a></li>
+<li><a href="structures/SDL_KeyboardEvent.html">SDL_KeyboardEvent</a></li>
+<li><a href="structures/SDL_MouseButtonEvent.html">SDL_MouseButtonEvent</a></li>
+<li><a href="structures/SDL_MouseMotionEvent.html">SDL_MouseMotionEvent</a></li>
+<li><a href="structures/SDL_MouseWheelEvent.html">SDL_MouseWheelEvent</a></li>
+<li><a href="structures/SDL_MultiGestureEvent.html">SDL_MultiGestureEvent</a></li>
+<li><a href="structures/SDL_QuitEvent.html">SDL_QuitEvent</a></li>
+<li><a href="structures/SDL_SysWMEvent.html">SDL_SysWMEvent</a></li>
+<li><a href="structures/SDL_TextEditingEvent.html">SDL_TextEditingEvent</a></li>
+<li><a href="structures/SDL_TextInputEvent.html">SDL_TextInputEvent</a></li>
+<li><a href="structures/SDL_TouchFingerEvent.html">SDL_TouchFingerEvent</a></li>
+<li><a href="structures/SDL_UserEvent.html">SDL_UserEvent</a></li>
+<li><a href="structures/SDL_WindowEvent.html">SDL_WindowEvent</a></li>
+</ol>
+<h2>Functions</h2>
+<ol start="1">
+<li><a href="SDL_AddEventWatch.html">SDL_AddEventWatch</a></li>
+<li><a href="SDL_DelEventWatch.html">SDL_DelEventWatch</a></li>
+<li><a href="SDL_EventState.html">SDL_EventState</a></li>
+<li><a href="SDL_FilterEvents.html">SDL_FilterEvents</a></li>
+<li><a href="SDL_FlushEvent.html">SDL_FlushEvent</a></li>
+<li><a href="SDL_FlushEvents.html">SDL_FlushEvents</a></li>
+<li><a href="SDL_GetEventFilter.html">SDL_GetEventFilter</a></li>
+<li><a href="SDL_GetTouchFinger.html">SDL_GetTouchFinger</a></li>
+<li><a href="SDL_HasEvent.html">SDL_HasEvent</a></li>
+<li><a href="SDL_HasEvents.html">SDL_HasEvents</a></li>
+<li><a href="SDL_PeepEvents.html">SDL_PeepEvents</a></li>
+<li><a href="SDL_PollEvent.html">SDL_PollEvent</a></li>
+<li><a href="SDL_PumpEvents.html">SDL_PumpEvents</a></li>
+<li><a href="SDL_PushEvent.html">SDL_PushEvent</a></li>
+<li><a href="SDL_QuitRequested.html">SDL_QuitRequested</a></li>
+<li><a href="SDL_RecordGesture.html">SDL_RecordGesture</a></li>
+<li><a href="SDL_RegisterEvents.html">SDL_RegisterEvents</a></li>
+<li><a href="SDL_SetEventFilter.html">SDL_SetEventFilter</a></li>
+<li><a href="SDL_WaitEvent.html">SDL_WaitEvent</a></li>
+<li><a href="SDL_WaitEventTimeout.html">SDL_WaitEventTimeout</a></li>
+</ol>
+</div>
+</BODY>
+</HTML>

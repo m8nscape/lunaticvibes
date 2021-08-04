@@ -1,0 +1,31 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_ClearError</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_ClearError</h1>
+<p>Use this function to clear any previous error message.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_ClearError(void)
+</pre></div>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+const char *error = SDL_GetError();
+if (*error) {
+  printf("SDL_Error : %s\n", error);
+  SDL_ClearError();
+}
+</pre></div>
+<h2>Remarks</h2>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetError.html">SDL_GetError</a></li></ul>
+</div>
+</BODY>
+</HTML>

@@ -1,0 +1,81 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_WaitThread</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_WaitThread</h1>
+<p>Use this function to wait for a thread to finish.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_WaitThread(SDL_Thread* thread,
+                    int*        status)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>thread</strong></td><td>the SDL_Thread pointer that was returned from the <a href="SDL_CreateThread.html">SDL_CreateThread</a>() call that started this thread</td></tr>
+<tr><td><strong>status</strong></td><td>pointer to an integer that will receive the value returned from the thread function by its 'return', see <a href="#Remarks">Remarks</a> for details</td></tr>
+</table>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+#include <stdio.h>
+#include "SDL_thread.h"
+#include "SDL_timer.h"
+
+int TestThread(void *ptr);
+
+int main(int argc, char *argv[])
+{
+    SDL_Thread *thread;
+    int         threadReturnValue;
+
+    printf("\nSimple SDL_CreateThread test:");
+
+    // Simply create a thread
+    thread = SDL_CreateThread(TestThread, "TestThread", (void *)NULL);
+
+    if (NULL == thread) {
+        printf("\nSDL_CreateThread failed: %s\n", SDL_GetError());
+    } else {
+        // Wait for the thread to complete. The thread functions return code will
+        //       be placed in the "threadReturnValue" variable when it completes.
+        //
+        SDL_WaitThread(thread, &threadReturnValue);
+        printf("\nThread returned value:%d", threadReturnValue);
+    }
+
+    return 1;
+}
+
+// Very simple thread - counts 0 to 9 delaying 50ms between increments
+int TestThread(void *ptr)
+{
+    int        cnt;
+
+    for (cnt = 0; cnt < 10; cnt++) {
+        printf("\nThread counter: %d", cnt);
+        SDL_Delay(50);
+    }
+
+    // Return the final value to the SDL_WaitThread function above
+    return cnt;
+}
+</pre></div>
+<h2 id="Remarks">Remarks</h2>
+<p>Wait for a thread to finish. Threads that haven't been detached will remain (as a "zombie") until this function cleans them up. Not doing so is a resource leak.
+<p>Once a thread has been cleaned up through this function, the <a href="SDL_Thread.html">SDL_Thread</a> that references it becomes invalid and should not be referenced again. As such, only one thread may call <a href="SDL_WaitThread.html">SDL_WaitThread</a>() on another.
+<p>The return code for the thread function is placed in the area pointed to by <strong>status</strong>, if <strong>status</strong> is not NULL.
+<p>You may not wait on a thread that has been used in a call to <a href="SDL_DetachThread.html">SDL_DetachThread</a>(). Use either that function or this one, but not both, or behavior is undefined.
+<p>It is safe to pass a NULL thread to this function; it is a no-op.
+<p>Note that the thread pointer is freed by this function and is not valid afterward.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_CreateThread.html">SDL_CreateThread</a></li>
+<li><a href="SDL_DetachThread.html">SDL_DetachThread</a></li></ul>
+</div>
+</BODY>
+</HTML>

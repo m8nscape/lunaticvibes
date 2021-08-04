@@ -1,0 +1,34 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_TextInputEvent</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_TextInputEvent</h1>
+<p>A structure that contains keyboard text input event information.
+<h2>Data Fields</h2>
+<table>
+<tr><td>Uint32</td><td><strong>type</strong></td><td>SDL_TEXTINPUT</td></tr>
+<tr><td>Uint32</td><td><strong>timestamp</strong></td><td>timestamp of the event</td></tr>
+<tr><td>Uint32</td><td><strong>windowID</strong></td><td>The window with keyboard focus, if any</td></tr>
+<tr><td>char</td><td><strong>text</strong></td><td>The null-terminated input text in UTF-8 encoding</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p><a href="../SDL_TextInputEvent.html">SDL_TextInputEvent</a>() is a member of the <a href="../SDL_Event.html">SDL_Event</a> union and is used when an event of type SDL_TEXTINPUT is reported. You would access it through the event's <tt style="backtick">text</tt> field.
+<p><strong>Detailed explanation</strong> (by Jiang Jiang <gzjjgod@gmail.com>)
+<p>In a typical GUI application, the OS will be responsible for telling you the candidate text (via SDL_TEXTEDITING), you can choose how (and where) to show it in your UI. Let's say with an input method I typed "abc" and got unicode character "X", the SDL application will first receive three SDL_TEXTEDITING events with 'a', 'ab' and 'abc', then finally receive SDL_TEXTINPUT event with unicode character 'X'. During this text compositing process, user can press any arbitrary keys such as Function, backspace, both the SDL application and OS input method will receive it and decide whether to deal with these keys or not. For instance when user press backspace, most input methods will delete the last candidate character typed and SDL app will receive a new SDL_TEXTEDITING event (let's say user typed a, b, backspace, c, then the application will receive 4 events containing 'a', 'ab', 'a', 'ac' each). <a href="../SDL_SetTextInputRect.html">SDL_SetTextInputRect</a>() gives the OS a hint for where to show the candidate text list, since the OS doesn't know where you want to draw the text you received via SDL_TEXTEDITING event.
+<h2>Related Enumerations</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_EventType.html">SDL_EventType</a></li></ul>
+<h2>Related Structures</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_Event.html">SDL_Event</a></li>
+<li><a href="../SDL_TextEditingEvent.html">SDL_TextEditingEvent</a></li></ul>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_StartTextInput.html">SDL_StartTextInput</a></li>
+<li><a href="../SDL_StopTextInput.html">SDL_StopTextInput</a></li></ul>
+</div>
+</BODY>
+</HTML>

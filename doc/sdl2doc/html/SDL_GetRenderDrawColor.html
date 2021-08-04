@@ -1,0 +1,37 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetRenderDrawColor</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetRenderDrawColor</h1>
+<p>Use this function to get the color used for drawing operations (Rect, Line and Clear).
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_GetRenderDrawColor(SDL_Renderer* renderer,
+                           Uint8*        r,
+                           Uint8*        g,
+                           Uint8*        b,
+                           Uint8*        a)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>renderer</strong></td><td>the rendering context</td></tr>
+<tr><td><strong>r</strong></td><td>a pointer filled in with the red value used to draw on the rendering target</td></tr>
+<tr><td><strong>g</strong></td><td>a pointer filled in with the green value used to draw on the rendering target</td></tr>
+<tr><td><strong>b</strong></td><td>a pointer filled in with the blue value used to draw on the rendering target</td></tr>
+<tr><td><strong>a</strong></td><td>a pointer filled in with the alpha value used to draw on the rendering target; usually SDL_ALPHA_OPAQUE (255)</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_SetRenderDrawColor.html">SDL_SetRenderDrawColor</a></li></ul>
+</div>
+</BODY>
+</HTML>

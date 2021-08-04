@@ -1,0 +1,3481 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta content="text/html; charset=Shift_JIS" http-equiv="content-type">
+    <meta content=".RED" name="author">
+    <meta name="ROBOTS" content="NOINDEX,NOFOLLOW">
+    <title>特殊定義</title>
+    <style type="text/css">
+        body,
+        textarea,
+        td {
+            font-size: 12px
+        }
+        
+        div {
+            margin-left: 10px;
+            padding-bottom: 30px;
+        }
+        
+        div > p,
+        div > table {
+            margin-left: 20px;
+        }
+        
+        h4 {
+            margin-top: 3em;
+            margin-left: 10px;
+        }
+        
+        .template {
+            width: 1000px
+        }
+        
+        h3 {
+            margin-top: 4em;
+            width: 96%;
+            width: calc(100% - 14px);
+            background: -moz-linear-gradient(white, #E0E0E0);
+            background: -webkit-gradient(linear, left top, left bottom, from(white), to(#E0E0E0));
+            background: -ms-linear-gradient(top, white, #E0E0E0);
+            -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#cFFF', endColorstr='#E0E0E0', GradientType=0)";
+            padding: 6px;
+            border: solid 1px #999;
+            border-radius: 3px;
+        }
+        
+        h3:before {
+            width: 5px;
+            display: inline-block;
+            background: #666;
+            content: "　";
+            margin-right: 5px;
+            padding: 2px;
+        }
+        
+        .dir1 {
+            margin-left: 10px;
+        }
+        
+        .caution {
+            padding-left: 1em;
+            text-indent: -1em;
+        }
+        
+        ul.link li,
+        ul.index li {
+            display: inline-block;
+            font-size: 12px;
+        }
+        
+        ul.link,
+        ul.index {
+            margin-left: -20px;
+            font-size: 0px;
+        }
+        
+        ul.link {
+            margin-top: 20px;
+        }
+        
+        ul.link li:nth-of-type(n+2) {
+            margin-right: 10px;
+        }
+        
+        ul.index li {
+            margin: 0px 10px 10px 0px;
+        }
+        
+        .template2 {
+            WIDTH: 500px
+        }
+        
+        .template5 {
+            WIDTH: 200px
+        }
+        
+        p.cite {
+            font-style: italic;
+            display: inline-block;
+            background-color: #F2F2F2;
+            padding: 5px;
+            margin-left: 20px;
+            font-size: 13px;
+            border-radius: 8px;
+        }
+        
+        td {
+            vertical-align: top;
+            padding: 3px;
+        }
+        
+        div#important {
+            margin-left: 30px;
+            padding: 0px 10px;
+            background: #F5F5F5;
+            display: inline-block;
+        }
+        
+        #important h4 {
+            margin-top: 1em;
+        }
+        
+        hr {
+            margin-top: 4em;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="content">
+        <h1>特殊定義</h1>
+        <p>ざっくり纏めると「音ゲーとして最低限必要なパーツの定義」です。
+            <br> プレイスキンのノーツ定義や選曲スキンの選曲バー定義などが該当します。
+            <br> 用途が完全に固定されているため、基本的に他の種別のスキンでは動作しません。
+        </p>
+        <p>汎用定義では使用しなかったindex値（専用op値のようなもの）でその種別を指定する定義が多々あります。
+            <br> また、その定義でしか使用しない専用パラメータもいくつか出てきます。
+        </p>
+        <p>なお、これらの定義は原則として1つのスキン内で1個しか定義できません。（ただしindex値が異なる場合は別定義扱い）
+            <br> このためDST行のop1～3のスロット分岐は定義しても意味がありません。（IF分岐は可能）
+        </p>
+        <p>いくつかの定義では2P側用の定義が存在しますが、これはプレイサイドを示すものではなく
+            <br> 1P用・2P用定義がともに存在する場合、つまりバトル・DP用です。（リザルトではバトル時のみ）
+        </p>
+        <p class="caution"><span style="font-weight: bold;">※DPとBATTLE</span>
+            <br> イメージとしてはDPスキンでのJUDGEやCOMBO定義は左右共に1P用定義っぽく思えたりもするんですが、
+            <br> LR2ではレーンが2つあるスキンでは必ず片方が1P用定義、もう片方が2P用定義になります。（timerも47 2Pジャッジタイマーを使います）</p>
+        <ul>
+            <li><a target="index_main" href="tokusyu.html#play">プレイスキン</a></li>
+            <ul class="index">
+                <li><a target="index_main" href="tokusyu.html#src_bga">#SRC_BGA</a></li>
+                <li><a target="index_main" href="tokusyu.html#src_judgeline">#SRC_JUDGELINE</a></li>
+                <li><a target="index_main" href="tokusyu.html#src_line">#SRC_LINE</a></li>
+                <li><a target="index_main" href="tokusyu.html#src_note">#SRC_NOTE</a></li>
+                <li><a target="index_main" href="tokusyu.html#src_nowjudge">#SRC_NOWJUDGE_1P</a></li>
+                <li><a target="index_main" href="tokusyu.html#src_nowcombo">#SRC_NOWCOMBO_1P</a></li>
+                <li><a target="index_main" href="tokusyu.html#src_groovegauge">#SRC_GROOVEGAUGE</a></li>
+            </ul>
+        </ul>
+        <ul>
+            <li><a target="index_main" href="tokusyu.html#select">選曲スキン</a></li>
+            <ul class="index">
+                <li><a target="index_main" href="tokusyu.html#src_bar_body">#SRC_BAR_BODY</a></li>
+                <li><a target="index_main" href="tokusyu.html#dst_bar_body">#DST_BAR_BODY</a></li>
+                <li><a target="index_main" href="tokusyu.html#bar_center">#BAR_CENTER</a></li>
+                <li><a target="index_main" href="tokusyu.html#bar_available">#BAR_AVAILABLE</a></li>
+                <li><a target="index_main" href="tokusyu.html#bar_flash">#SRC_BAR_FLASH</a></li>
+                <li><a target="index_main" href="tokusyu.html#bar_level">#SRC_BAR_LEVEL</a></li>
+                <li><a target="index_main" href="tokusyu.html#bar_lamp">#SRC_BAR_LAMP</a></li>
+                <li><a target="index_main" href="tokusyu.html#bar_title">#SRC_BAR_TITLE</a></li>
+                <li><a target="index_main" href="tokusyu.html#bar_rank">#SRC_BAR_RANK</a></li>
+                <li><a target="index_main" href="tokusyu.html#bar_rival">#SRC_BAR_RIVAL</a></li>
+                <li><a target="index_main" href="tokusyu.html#readme">#SRC_README</a></li>
+                <li><a target="index_main" href="tokusyu.html#mousecursor">#SRC_MOUSECURSOR</a></li>
+            </ul>
+        </ul>
+        <ul>
+            <li><a target="index_main" href="tokusyu.html#result">リザルトスキン</a></li>
+            <ul class="index">
+                <li><a target="index_main" href="tokusyu.html#src_gaugechart">#SRC_GAUGECHART_1P</a></li>
+                <li><a target="index_main" href="tokusyu.html#src_scorechart">#SRC_SCORECHART</a></li>
+            </ul>
+        </ul>
+        <ul>
+            <li><a target="index_main" href="tokusyu.html#other_skin">その他のスキン</a></li>
+        </ul>
+        <hr size="1px">
+        <h1><a name="play">プレイスキン</a></h1>
+        <p>LR2はプレイスキンでのみ、10キーでない方の数字キーを押しながらカーソルキーで本体側のスキンオプションを設定できます。
+            <br>利用できるオプションは以下の通りです。</p>
+        <p>1キー ：スキン位置の変更
+        <br>2キー ：スキン拡大率の変更
+        <br>3キー：ジャッジ表示位置の変更
+        <br>4キー：ノートサイズの変更
+        <br>5キー：スキン描画制限
+        <br>6キー：ノート位置（1P）の変更
+        <br>7キー：ノート位置（2P）の変更</p>
+        <p>図：曲ロード時間が無視できるほど高速だった場合のプレイスキンにおける各定義とtimerとop80番台の相関図
+            <br>
+            <img alt="play_timer" src="play_timer.gif"></p>
+        <p class="caution">※スキンによって異なるかもしれませんが、DX3.999作成時にはop80とop81の間、
+            <br> つまり曲ロード後にtimer40が動作開始するまで10ms前後の間がありました。
+            <br> 3.999ではop80とop81で『表示を変えずに定義の重ね順の変更』を行う箇所があったため、
+            <br> 該当箇所のop80を使う定義の動作時間を10ms長く取っています。
+        </p>
+        <ul class="link">
+            <li>関連リンク：</li>
+            <li><a href="kakutyou.html#startinput">#STARTINPUT</a></li>
+            <li><a href="specification.html#dark">スキン描画制限の仕様</a></li>
+        </ul>
+        <h3><a name="src_bga">#SRC_BGA</a></h3>
+        <p>BGA定義です。
+            <br> 再生開始タイミングや再生速度などは譜面やBGAファイル側で決まっているため、表示サイズくらいしか指定できません。
+        </p>
+        <p><img alt="src_bga" src="src_bga.png"></p>
+        <p>デフォスキンcsvには</p>
+        <p class="cite">SRCはほとんど形式を共通にするためのダミーでしかありませんが、一応表示に関するオプションを設定できます。
+            <br> nobase、nolayer、nopoor=1にするとその階層のBGAは表示されません。
+        </p>
+        <p>と書いてありますが、いずれの機能も未実装のためSRC_BGA定義で指定可能なパラメータはありません。
+            <br> SRC自体がダミーと書いてあるので下手したらDSTのみで動くのかもしれません。
+            <br> ※定義個数制限無し
+        </p>
+        <p>DST_BGAは省略。</p>
+        <h4>BGA定義テンプレート</h4>
+        <p>カンマ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="bga_txt">//[BGA]
+//SRC定義,(NULL),(NULL),(NULL),(NULL),(NULL),(NULL),(NULL),(NULL),(NULL),(NULL),nobase,nolayer,nopoor
+#SRC_BGA,0,0,0,0,0,0,0,0,0,0,0,0,0
+//DST定義,(NULL),time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BGA,0,0,0,0,0,0,0,255,255,255,255,0,1,0,0,0,0,0,0,0</textarea>
+        </p>
+        <p>タブ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="bga_csv">//[BGA]
+//SRC定義	(NULL)	(NULL)	(NULL)	(NULL)	(NULL)	(NULL)	(NULL)	(NULL)	(NULL)	(NULL)	nobase	nolayer	nopoor
+#SRC_BGA	0	0	0	0	0	0	0	0	0	0	0	0	0
+//DST定義	(NULL)	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BGA	0	0	0	0	0	0	0	255	255	255	255	0	1	0	0	0	0	0	0	0</textarea>
+        </p>
+        <h3><a name="src_judgeline">#SRC_JUDGELINE</a></h3>
+        <p>判定ライン定義です。が、実際に判定処理に使われるのはノーツ定義なので注意。
+            <br> この定義は本体側の疑似LIFTオプションで上下動するパーツを指定するのに使います。
+        </p>
+        <p><img alt="src_judgeline" src="src_judgeline.png"></p>
+        <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td align="center" valign="top">index</td>
+                    <td valign="top">プレイサイドを指定します。
+                        <br>
+                        <br> 0：1P側
+                        <br> 1：2P側
+                        <br>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>DSTは省略。</p>
+        <h4>JUDGELINE定義テンプレート</h4>
+        <p>カンマ区切り
+        </p>
+        <table style="width: 1000px;" border="0">
+            <tbody>
+                <tr>
+                    <td>1P
+                        <br>
+                        <textarea class="template2" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="judgeline_txt">//[判定ライン]
+//1P index = 0 //2P index = 1
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_JUDGELINE,0,0,0,0,0,0,1,1,0,0
+//DST定義,(NULL),time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_JUDGELINE,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_JUDGELINE,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0</textarea>
+                    </td>
+                    <td>1P & 2P
+                        <br>
+                        <textarea class="template2" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="judgeline_txt">//[判定ライン]
+//1P index = 0 //2P index = 1
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_JUDGELINE,0,0,0,0,0,0,1,1,0,0
+//DST定義,(NULL),time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_JUDGELINE,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_JUDGELINE,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_JUDGELINE,1,0,0,0,0,0,1,1,0,0
+//DST定義,(NULL),time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_JUDGELINE,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_JUDGELINE,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0</textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>タブ区切り
+        </p>
+        <table style="width: 1000px;" border="0">
+            <tbody>
+                <tr>
+                    <td>1P
+                        <br>
+                        <textarea class="template2" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="judgeline_txt">//[判定ライン]
+//1P index = 0 //2P index = 1
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_JUDGELINE	0	0	0	0	0	0	1	1	0	0
+//DST定義	(NULL)	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_JUDGELINE	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_JUDGELINE	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0</textarea>
+                    </td>
+                    <td>1P & 2P
+                        <br>
+                        <textarea class="template2" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="judgeline_txt">//[判定ライン]
+//1P index = 0 //2P index = 1
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_JUDGELINE	0	0	0	0	0	0	1	1	0	0
+//DST定義	(NULL)	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_JUDGELINE	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_JUDGELINE	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_JUDGELINE	1	0	0	0	0	0	1	1	0	0
+//DST定義	(NULL)	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_JUDGELINE	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_JUDGELINE	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0</textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <h3><a name="src_line">#SRC_LINE</a></h3>
+        <p>小節線定義です。
+            <br> 必要かどうかはプレイスキンの方向性によりますが、定義しないと
+            <span style="font-weight: bold; color: red;">曲開始時にLR2が落ちます</span>。
+            <br> 透明でも良いのでとりあえず定義しておかないとデバッグすら出来ないので気を付けましょう。
+        </p>
+        <p><img alt="src_line" src="src_line.png"></p>
+        <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td align="center" valign="top">index</td>
+                    <td valign="top">プレイサイドを指定します。
+                        <br>
+                        <br> 0：1P側
+                        <br> 1：2P側
+                        <br>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>DSTは省略。</p>
+        <h4>LINE定義テンプレート</h4>
+        <p>カンマ区切り
+        </p>
+        <table style="width: 1000px;" border="0">
+            <tbody>
+                <tr>
+                    <td>1P
+                        <br>
+                        <textarea class="template2" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="line_txt">//[小節線]
+//1P index = 0 //2P index = 1
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_LINE,0,0,0,0,0,1,1,1,0,0
+//DST定義,(NULL),time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_LINE,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_LINE,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0</textarea>
+                    </td>
+                    <td>1P & 2P
+                        <br>
+                        <textarea class="template2" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="line_txt">//[小節線]
+//1P index = 0 //2P index = 1
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_LINE,0,0,0,0,0,1,1,1,0,0
+//DST定義,(NULL),time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_LINE,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_LINE,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_LINE,1,0,0,0,0,1,1,1,0,0
+//DST定義,(NULL),time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_LINE,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_LINE,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0</textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>タブ区切り
+        </p>
+        <table style="width: 1000px;" border="0">
+            <tbody>
+                <tr>
+                    <td>1P
+                        <br>
+                        <textarea class="template2" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="line_txt">//[小節線]
+//1P index = 0 //2P index = 1
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_LINE	0	0	0	0	0	1	1	1	0	0
+//DST定義	(NULL)	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_LINE	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_LINE	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0</textarea>
+                    </td>
+                    <td>1P & 2P
+                        <br>
+                        <textarea class="template2" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="line_txt">//[小節線]
+//1P index = 0 //2P index = 1
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_LINE	0	0	0	0	0	1	1	1	0	0
+//DST定義	(NULL)	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_LINE	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_LINE	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_LINE	1	0	0	0	0	1	1	1	0	0
+//DST定義	(NULL)	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_LINE	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_LINE	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0</textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <h3><a name="src_note">#SRC_NOTE</a></h3>
+        <p>ノーツ定義です。各ノーツの着地点で判定処理が行われるため、特にDST側での定義ミスは避けましょう。
+            <br> 落下方向は↓向き固定となっており、←向きにノートを動かしたりとかは出来ません。
+            <br> 落下開始座標はx座標がDST_x固定、y座標が-DST_h固定になります。
+            <br> ※バトルスキンでは2P側ノーツ定義が存在しないとターゲットスコアが参照できません。
+        </p>
+        <p><img alt="src_note" src="src_note.png"></p>
+        <p> </p>
+        <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td align="center" valign="top">SRC定義</td>
+                    <td valign="top">ノーツ定義は全部で10種あります。
+                        <br>
+                        <br> SRC_NOTE：通常ノーツ
+                        <br> SRC_MINE：地雷ノーツ
+                        <br> SRC_LN_END：ロングノーツ上端
+                        <br> SRC_LN_BODY：ロングノーツ中間
+                        <br> SRC_LN_START：ロングノーツ下端
+                        <br>
+                        <br> SRC_AUTO_NOTE：オートプレイ通常ノーツ
+                        <br> SRC_AUTO_MINE：オートプレイ地雷ノーツ
+                        <br> SRC_AUTO_LN_END：オートプレイロングノーツ上端
+                        <br> SRC_AUTO_LN_BODY：オートプレイロングノーツ中間
+                        <br> SRC_AUTO_LN_START：オートプレイロングノーツ下端
+                        <br>
+                        <br> ※オートプレイ用ノーツ省略時は通常ノーツが表示されます。 </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">index</td>
+                    <td valign="top">0がスクラッチで1～9が鍵盤です。pmsの場合はindex1～9で指定します。
+                        <br> 2P側は+10。
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>7keys/14keysはそれぞれ5keys/10keysとして使用される場合があるため<a href="kakutyou.html#scratch">#SCRATCH定義</a>の設定を忘れずに。
+            <br> DST定義はレーン単位での指定なので、地雷ノーツなどを異なる横幅にしたい場合はSRC画像側で調整します。
+        </p>
+        <h4>NOTE定義テンプレート</h4>
+        <p>カンマ区切り
+        </p>
+        <table style="width: 1000px;" border="0">
+            <tbody>
+                <tr>
+                    <td>5keys
+                        <br>
+                        <textarea class="template5" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="note_txt">//[ノーツ]
+//通常ノーツ
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_NOTE,0,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,1,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,2,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,3,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,4,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,5,0,0,0,0,0,1,1,0,0
+
+//ロングノート上
+#SRC_LN_END,0,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,1,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,2,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,3,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,4,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,5,0,0,0,0,0,1,1,0,0
+
+//ロングノートの中間のバー
+#SRC_LN_BODY,0,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,1,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,2,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,3,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,4,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,5,0,0,0,0,0,1,1,0,0
+
+//ロングノート下
+#SRC_LN_START,0,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,1,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,2,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,3,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,4,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,5,0,0,0,0,0,1,1,0,0
+
+//地雷
+#SRC_MINE,0,0,0,0,0,0,1,1,0,0
+#SRC_MINE,1,0,0,0,0,0,1,1,0,0
+#SRC_MINE,2,0,0,0,0,0,1,1,0,0
+#SRC_MINE,3,0,0,0,0,0,1,1,0,0
+#SRC_MINE,4,0,0,0,0,0,1,1,0,0
+#SRC_MINE,5,0,0,0,0,0,1,1,0,0
+
+//[オートプレイ用ノーツ]
+//通常ノーツ
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_AUTO_NOTE,0,0,0,0,0,0,1,1,0,0
+
+//ロングノート上
+#SRC_AUTO_LN_END,0,0,0,0,0,0,1,1,0,0
+
+//ロングノートの中間のバー
+#SRC_AUTO_LN_BODY,0,0,0,0,0,0,1,1,0,0
+
+//ロングノート下
+#SRC_AUTO_LN_START,0,0,0,0,0,0,1,1,0,0
+
+//地雷
+#SRC_MINE,0,0,0,0,0,0,1,1,0,0
+
+//ノート落下地点
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOTE,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,2,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,3,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,4,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,5,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0</textarea>
+                    </td>
+                    <td>7keys
+                        <br>
+                        <textarea class="template5" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="note_txt">//[ノーツ]
+//通常ノーツ
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_NOTE,0,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,1,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,2,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,3,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,4,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,5,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,6,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,7,0,0,0,0,0,1,1,0,0
+
+//ロングノート上
+#SRC_LN_END,0,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,1,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,2,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,3,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,4,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,5,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,6,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,7,0,0,0,0,0,1,1,0,0
+
+//ロングノートの中間のバー
+#SRC_LN_BODY,0,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,1,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,2,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,3,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,4,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,5,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,6,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,7,0,0,0,0,0,1,1,0,0
+
+//ロングノート下
+#SRC_LN_START,0,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,1,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,2,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,3,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,4,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,5,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,6,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,7,0,0,0,0,0,1,1,0,0
+
+//地雷
+#SRC_MINE,0,0,0,0,0,0,1,1,0,0
+#SRC_MINE,1,0,0,0,0,0,1,1,0,0
+#SRC_MINE,2,0,0,0,0,0,1,1,0,0
+#SRC_MINE,3,0,0,0,0,0,1,1,0,0
+#SRC_MINE,4,0,0,0,0,0,1,1,0,0
+#SRC_MINE,5,0,0,0,0,0,1,1,0,0
+#SRC_MINE,6,0,0,0,0,0,1,1,0,0
+#SRC_MINE,7,0,0,0,0,0,1,1,0,0
+
+//[オートプレイ用ノーツ]
+//通常ノーツ
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_AUTO_NOTE,0,0,0,0,0,0,1,1,0,0
+
+//ロングノート上
+#SRC_AUTO_LN_END,0,0,0,0,0,0,1,1,0,0
+
+//ロングノートの中間のバー
+#SRC_AUTO_LN_BODY,0,0,0,0,0,0,1,1,0,0
+
+//ロングノート下
+#SRC_AUTO_LN_START,0,0,0,0,0,0,1,1,0,0
+
+//地雷
+#SRC_MINE,0,0,0,0,0,0,1,1,0,0
+
+//ノート落下地点
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOTE,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,2,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,3,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,4,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,5,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,6,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,7,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0</textarea>
+                    </td>
+                    <td>9keys
+                        <br>
+                        <textarea class="template5" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="note_txt">//[ノーツ]
+//通常ノーツ
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_NOTE,1,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,2,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,3,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,4,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,5,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,6,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,7,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,8,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,9,0,0,0,0,0,1,1,0,0
+
+//ロングノート上
+#SRC_LN_END,1,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,2,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,3,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,4,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,5,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,6,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,7,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,8,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,9,0,0,0,0,0,1,1,0,0
+
+//ロングノートの中間のバー
+#SRC_LN_BODY,1,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,2,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,3,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,4,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,5,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,6,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,7,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,8,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,9,0,0,0,0,0,1,1,0,0
+
+//ロングノート下
+#SRC_LN_START,1,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,2,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,3,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,4,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,5,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,6,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,7,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,8,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,9,0,0,0,0,0,1,1,0,0
+
+//地雷
+#SRC_MINE,1,0,0,0,0,0,1,1,0,0
+#SRC_MINE,2,0,0,0,0,0,1,1,0,0
+#SRC_MINE,3,0,0,0,0,0,1,1,0,0
+#SRC_MINE,4,0,0,0,0,0,1,1,0,0
+#SRC_MINE,5,0,0,0,0,0,1,1,0,0
+#SRC_MINE,6,0,0,0,0,0,1,1,0,0
+#SRC_MINE,7,0,0,0,0,0,1,1,0,0
+#SRC_MINE,8,0,0,0,0,0,1,1,0,0
+#SRC_MINE,90,0,0,0,0,1,1,0,0
+
+//ノート落下地点
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOTE,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,2,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,3,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,4,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,5,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,6,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,7,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,8,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,9,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0</textarea>
+                    </td>
+                    <td>10keys or 5keys BATTLE
+                        <br>
+                        <textarea class="template5" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="note_txt">//[ノーツ]
+//通常ノーツ
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_NOTE,0,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,1,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,2,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,3,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,4,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,5,0,0,0,0,0,1,1,0,0
+
+#SRC_NOTE,10,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,11,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,12,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,13,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,14,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,15,0,0,0,0,0,1,1,0,0
+
+//ロングノート上
+#SRC_LN_END,0,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,1,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,2,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,3,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,4,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,5,0,0,0,0,0,1,1,0,0
+
+#SRC_LN_END,10,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,11,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,12,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,13,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,14,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,15,0,0,0,0,0,1,1,0,0
+
+//ロングノートの中間のバー
+#SRC_LN_BODY,0,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,1,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,2,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,3,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,4,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,5,0,0,0,0,0,1,1,0,0
+
+#SRC_LN_BODY,10,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,11,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,12,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,13,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,14,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,15,0,0,0,0,0,1,1,0,0
+
+//ロングノート下
+#SRC_LN_START,0,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,1,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,2,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,3,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,4,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,5,0,0,0,0,0,1,1,0,0
+
+#SRC_LN_START,10,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,11,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,12,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,13,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,14,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,15,0,0,0,0,0,1,1,0,0
+
+
+//地雷
+#SRC_MINE,0,0,0,0,0,0,1,1,0,0
+#SRC_MINE,1,0,0,0,0,0,1,1,0,0
+#SRC_MINE,2,0,0,0,0,0,1,1,0,0
+#SRC_MINE,3,0,0,0,0,0,1,1,0,0
+#SRC_MINE,4,0,0,0,0,0,1,1,0,0
+#SRC_MINE,5,0,0,0,0,0,1,1,0,0
+
+#SRC_MINE,10,0,0,0,0,0,1,1,0,0
+#SRC_MINE,11,0,0,0,0,0,1,1,0,0
+#SRC_MINE,12,0,0,0,0,0,1,1,0,0
+#SRC_MINE,13,0,0,0,0,0,1,1,0,0
+#SRC_MINE,14,0,0,0,0,0,1,1,0,0
+#SRC_MINE,15,0,0,0,0,0,1,1,0,0
+
+//[オートプレイ用ノーツ]
+//通常ノーツ
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_AUTO_NOTE,0,0,0,0,0,0,1,1,0,0
+#SRC_AUTO_NOTE,10,0,0,0,0,0,1,1,0,0
+
+//ロングノート上
+#SRC_AUTO_LN_END,0,0,0,0,0,0,1,1,0,0
+#SRC_AUTO_LN_END,10,0,0,0,0,0,1,1,0,0
+
+//ロングノートの中間のバー
+#SRC_AUTO_LN_BODY,0,0,0,0,0,0,1,1,0,0
+#SRC_AUTO_LN_BODY,10,0,0,0,0,0,1,1,0,0
+
+//ロングノート下
+#SRC_AUTO_LN_START,0,0,0,0,0,0,1,1,0,0
+#SRC_AUTO_LN_START,10,0,0,0,0,0,1,1,0,0
+
+//地雷
+#SRC_MINE,0,0,0,0,0,0,1,1,0,0
+#SRC_MINE,10,0,0,0,0,0,1,1,0,0
+
+//ノート落下地点
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOTE,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,2,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,3,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,4,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,5,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+
+#DST_NOTE,10,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,11,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,12,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,13,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,14,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,15,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0</textarea>
+                    </td>
+                    <td>14keys or 7keys BATTLE
+                        <br>
+                        <textarea class="template5" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="note_txt">//[ノーツ]
+//通常ノーツ
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_NOTE,0,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,1,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,2,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,3,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,4,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,5,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,6,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,7,0,0,0,0,0,1,1,0,0
+
+#SRC_NOTE,10,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,11,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,12,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,13,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,14,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,15,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,16,0,0,0,0,0,1,1,0,0
+#SRC_NOTE,17,0,0,0,0,0,1,1,0,0
+
+//ロングノート上
+#SRC_LN_END,0,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,1,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,2,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,3,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,4,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,5,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,6,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,7,0,0,0,0,0,1,1,0,0
+
+#SRC_LN_END,10,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,11,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,12,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,13,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,14,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,15,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,16,0,0,0,0,0,1,1,0,0
+#SRC_LN_END,17,0,0,0,0,0,1,1,0,0
+
+//ロングノートの中間のバー
+#SRC_LN_BODY,0,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,1,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,2,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,3,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,4,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,5,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,6,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,7,0,0,0,0,0,1,1,0,0
+
+#SRC_LN_BODY,10,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,11,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,12,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,13,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,14,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,15,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,16,0,0,0,0,0,1,1,0,0
+#SRC_LN_BODY,17,0,0,0,0,0,1,1,0,0
+
+//ロングノート下
+#SRC_LN_START,0,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,1,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,2,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,3,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,4,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,5,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,6,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,7,0,0,0,0,0,1,1,0,0
+
+#SRC_LN_START,10,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,11,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,12,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,13,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,14,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,15,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,16,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,17,0,0,0,0,0,1,1,0,0
+
+//地雷
+#SRC_MINE,0,0,0,0,0,0,1,1,0,0
+#SRC_MINE,1,0,0,0,0,0,1,1,0,0
+#SRC_MINE,2,0,0,0,0,0,1,1,0,0
+#SRC_MINE,3,0,0,0,0,0,1,1,0,0
+#SRC_MINE,4,0,0,0,0,0,1,1,0,0
+#SRC_MINE,5,0,0,0,0,0,1,1,0,0
+#SRC_MINE,6,0,0,0,0,0,1,1,0,0
+#SRC_MINE,7,0,0,0,0,0,1,1,0,0
+
+#SRC_LN_START,10,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,11,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,12,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,13,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,14,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,15,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,16,0,0,0,0,0,1,1,0,0
+#SRC_LN_START,17,0,0,0,0,0,1,1,0,0
+
+//[オートプレイ用ノーツ]
+//通常ノーツ
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_AUTO_NOTE,0,0,0,0,0,0,1,1,0,0
+#SRC_AUTO_NOTE,10,0,0,0,0,0,1,1,0,0
+
+//ロングノート上
+#SRC_AUTO_LN_END,0,0,0,0,0,0,1,1,0,0
+#SRC_AUTO_LN_END,10,0,0,0,0,0,1,1,0,0
+
+//ロングノートの中間のバー
+#SRC_AUTO_LN_BODY,0,0,0,0,0,0,1,1,0,0
+#SRC_AUTO_LN_BODY,10,0,0,0,0,0,1,1,0,0
+
+//ロングノート下
+#SRC_AUTO_LN_START,0,0,0,0,0,0,1,1,0,0
+#SRC_AUTO_LN_START,10,0,0,0,0,0,1,1,0,0
+
+//地雷
+#SRC_MINE,0,0,0,0,0,0,1,1,0,0
+#SRC_MINE,10,0,0,0,0,0,1,1,0,0
+
+//ノート落下地点
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOTE,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,2,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,3,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,4,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,5,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,6,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,7,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+
+#DST_NOTE,10,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,11,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,12,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,13,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,14,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,15,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,16,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOTE,17,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0</textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>タブ区切り
+        </p>
+        <table style="width: 1000px;" border="0">
+            <tbody>
+                <tr>
+                    <td>5keys
+                        <br>
+                        <textarea class="template5" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="note_txt">//[ノーツ]
+//通常ノーツ
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_NOTE	0	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	1	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	2	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	3	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	4	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	5	0	0	0	0	0	1	1	0	0
+
+//ロングノート上
+#SRC_LN_END	0	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	1	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	2	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	3	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	4	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	5	0	0	0	0	0	1	1	0	0
+
+//ロングノートの中間のバー
+#SRC_LN_BODY	0	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	1	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	2	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	3	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	4	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	5	0	0	0	0	0	1	1	0	0
+
+//ロングノート下
+#SRC_LN_START	0	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	1	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	2	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	3	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	4	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	5	0	0	0	0	0	1	1	0	0
+
+//地雷
+#SRC_MINE	0	0	0	0	0	0	1	1	0	0
+#SRC_MINE	1	0	0	0	0	0	1	1	0	0
+#SRC_MINE	2	0	0	0	0	0	1	1	0	0
+#SRC_MINE	3	0	0	0	0	0	1	1	0	0
+#SRC_MINE	4	0	0	0	0	0	1	1	0	0
+#SRC_MINE	5	0	0	0	0	0	1	1	0	0
+
+//[オートプレイ用ノーツ]
+//通常ノーツ
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_AUTO_NOTE	0	0	0	0	0	0	1	1	0	0
+
+//ロングノート上
+#SRC_AUTO_LN_END	0	0	0	0	0	0	1	1	0	0
+
+//ロングノートの中間のバー
+#SRC_AUTO_LN_BODY	0	0	0	0	0	0	1	1	0	0
+
+//ロングノート下
+#SRC_AUTO_LN_START	0	0	0	0	0	0	1	1	0	0
+
+//地雷
+#SRC_MINE	0	0	0	0	0	0	1	1	0	0
+
+//ノート落下地点
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOTE	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	2	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	3	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	4	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	5	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0</textarea>
+                    </td>
+                    <td>7keys
+                        <br>
+                        <textarea class="template5" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="note_txt">//[ノーツ]
+//通常ノーツ
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_NOTE	0	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	1	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	2	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	3	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	4	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	5	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	6	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	7	0	0	0	0	0	1	1	0	0
+
+//ロングノート上
+#SRC_LN_END	0	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	1	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	2	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	3	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	4	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	5	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	6	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	7	0	0	0	0	0	1	1	0	0
+
+//ロングノートの中間のバー
+#SRC_LN_BODY	0	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	1	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	2	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	3	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	4	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	5	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	6	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	7	0	0	0	0	0	1	1	0	0
+
+//ロングノート下
+#SRC_LN_START	0	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	1	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	2	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	3	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	4	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	5	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	6	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	7	0	0	0	0	0	1	1	0	0
+
+//地雷
+#SRC_MINE	0	0	0	0	0	0	1	1	0	0
+#SRC_MINE	1	0	0	0	0	0	1	1	0	0
+#SRC_MINE	2	0	0	0	0	0	1	1	0	0
+#SRC_MINE	3	0	0	0	0	0	1	1	0	0
+#SRC_MINE	4	0	0	0	0	0	1	1	0	0
+#SRC_MINE	5	0	0	0	0	0	1	1	0	0
+#SRC_MINE	6	0	0	0	0	0	1	1	0	0
+#SRC_MINE	7	0	0	0	0	0	1	1	0	0
+
+//[オートプレイ用ノーツ]
+//通常ノーツ
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_AUTO_NOTE	0	0	0	0	0	0	1	1	0	0
+
+//ロングノート上
+#SRC_AUTO_LN_END	0	0	0	0	0	0	1	1	0	0
+
+//ロングノートの中間のバー
+#SRC_AUTO_LN_BODY	0	0	0	0	0	0	1	1	0	0
+
+//ロングノート下
+#SRC_AUTO_LN_START	0	0	0	0	0	0	1	1	0	0
+
+//地雷
+#SRC_MINE	0	0	0	0	0	0	1	1	0	0
+
+//ノート落下地点
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOTE	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	2	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	3	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	4	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	5	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	6	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	7	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0</textarea>
+                    </td>
+                    <td>9keys
+                        <br>
+                        <textarea class="template5" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="note_txt">//[ノーツ]
+//通常ノーツ
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_NOTE	1	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	2	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	3	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	4	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	5	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	6	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	7	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	8	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	9	0	0	0	0	0	1	1	0	0
+
+//ロングノート上
+#SRC_LN_END	1	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	2	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	3	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	4	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	5	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	6	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	7	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	8	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	9	0	0	0	0	0	1	1	0	0
+
+//ロングノートの中間のバー
+#SRC_LN_BODY	1	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	2	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	3	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	4	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	5	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	6	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	7	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	8	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	9	0	0	0	0	0	1	1	0	0
+
+//ロングノート下
+#SRC_LN_START	1	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	2	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	3	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	4	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	5	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	6	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	7	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	8	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	9	0	0	0	0	0	1	1	0	0
+
+//地雷
+#SRC_MINE	1	0	0	0	0	0	1	1	0	0
+#SRC_MINE	2	0	0	0	0	0	1	1	0	0
+#SRC_MINE	3	0	0	0	0	0	1	1	0	0
+#SRC_MINE	4	0	0	0	0	0	1	1	0	0
+#SRC_MINE	5	0	0	0	0	0	1	1	0	0
+#SRC_MINE	6	0	0	0	0	0	1	1	0	0
+#SRC_MINE	7	0	0	0	0	0	1	1	0	0
+#SRC_MINE	8	0	0	0	0	0	1	1	0	0
+#SRC_MINE	90	0	0	0	0	1	1	0	0
+
+//ノート落下地点
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOTE	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	2	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	3	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	4	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	5	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	6	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	7	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	8	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	9	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0</textarea>
+                    </td>
+                    <td>10keys or 5keys BATTLE
+                        <br>
+                        <textarea class="template5" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="note_txt">//[ノーツ]
+//通常ノーツ
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_NOTE	0	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	1	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	2	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	3	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	4	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	5	0	0	0	0	0	1	1	0	0
+
+#SRC_NOTE	10	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	11	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	12	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	13	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	14	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	15	0	0	0	0	0	1	1	0	0
+
+//ロングノート上
+#SRC_LN_END	0	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	1	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	2	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	3	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	4	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	5	0	0	0	0	0	1	1	0	0
+
+#SRC_LN_END	10	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	11	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	12	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	13	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	14	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	15	0	0	0	0	0	1	1	0	0
+
+//ロングノートの中間のバー
+#SRC_LN_BODY	0	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	1	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	2	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	3	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	4	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	5	0	0	0	0	0	1	1	0	0
+
+#SRC_LN_BODY	10	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	11	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	12	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	13	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	14	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	15	0	0	0	0	0	1	1	0	0
+
+//ロングノート下
+#SRC_LN_START	0	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	1	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	2	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	3	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	4	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	5	0	0	0	0	0	1	1	0	0
+
+#SRC_LN_START	10	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	11	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	12	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	13	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	14	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	15	0	0	0	0	0	1	1	0	0
+
+
+//地雷
+#SRC_MINE	0	0	0	0	0	0	1	1	0	0
+#SRC_MINE	1	0	0	0	0	0	1	1	0	0
+#SRC_MINE	2	0	0	0	0	0	1	1	0	0
+#SRC_MINE	3	0	0	0	0	0	1	1	0	0
+#SRC_MINE	4	0	0	0	0	0	1	1	0	0
+#SRC_MINE	5	0	0	0	0	0	1	1	0	0
+
+#SRC_MINE	10	0	0	0	0	0	1	1	0	0
+#SRC_MINE	11	0	0	0	0	0	1	1	0	0
+#SRC_MINE	12	0	0	0	0	0	1	1	0	0
+#SRC_MINE	13	0	0	0	0	0	1	1	0	0
+#SRC_MINE	14	0	0	0	0	0	1	1	0	0
+#SRC_MINE	15	0	0	0	0	0	1	1	0	0
+
+//[オートプレイ用ノーツ]
+//通常ノーツ
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_AUTO_NOTE	0	0	0	0	0	0	1	1	0	0
+#SRC_AUTO_NOTE	10	0	0	0	0	0	1	1	0	0
+
+//ロングノート上
+#SRC_AUTO_LN_END	0	0	0	0	0	0	1	1	0	0
+#SRC_AUTO_LN_END	10	0	0	0	0	0	1	1	0	0
+
+//ロングノートの中間のバー
+#SRC_AUTO_LN_BODY	0	0	0	0	0	0	1	1	0	0
+#SRC_AUTO_LN_BODY	10	0	0	0	0	0	1	1	0	0
+
+//ロングノート下
+#SRC_AUTO_LN_START	0	0	0	0	0	0	1	1	0	0
+#SRC_AUTO_LN_START	10	0	0	0	0	0	1	1	0	0
+
+//地雷
+#SRC_MINE	0	0	0	0	0	0	1	1	0	0
+#SRC_MINE	10	0	0	0	0	0	1	1	0	0
+
+//ノート落下地点
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOTE	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	2	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	3	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	4	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	5	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+
+#DST_NOTE	10	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	11	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	12	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	13	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	14	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	15	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0</textarea>
+                    </td>
+                    <td>14keys or 7keys BATTLE
+                        <br>
+                        <textarea class="template5" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="note_txt">//[ノーツ]
+//通常ノーツ
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_NOTE	0	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	1	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	2	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	3	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	4	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	5	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	6	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	7	0	0	0	0	0	1	1	0	0
+
+#SRC_NOTE	10	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	11	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	12	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	13	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	14	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	15	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	16	0	0	0	0	0	1	1	0	0
+#SRC_NOTE	17	0	0	0	0	0	1	1	0	0
+
+//ロングノート上
+#SRC_LN_END	0	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	1	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	2	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	3	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	4	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	5	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	6	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	7	0	0	0	0	0	1	1	0	0
+
+#SRC_LN_END	10	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	11	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	12	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	13	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	14	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	15	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	16	0	0	0	0	0	1	1	0	0
+#SRC_LN_END	17	0	0	0	0	0	1	1	0	0
+
+//ロングノートの中間のバー
+#SRC_LN_BODY	0	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	1	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	2	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	3	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	4	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	5	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	6	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	7	0	0	0	0	0	1	1	0	0
+
+#SRC_LN_BODY	10	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	11	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	12	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	13	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	14	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	15	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	16	0	0	0	0	0	1	1	0	0
+#SRC_LN_BODY	17	0	0	0	0	0	1	1	0	0
+
+//ロングノート下
+#SRC_LN_START	0	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	1	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	2	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	3	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	4	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	5	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	6	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	7	0	0	0	0	0	1	1	0	0
+
+#SRC_LN_START	10	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	11	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	12	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	13	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	14	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	15	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	16	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	17	0	0	0	0	0	1	1	0	0
+
+//地雷
+#SRC_MINE	0	0	0	0	0	0	1	1	0	0
+#SRC_MINE	1	0	0	0	0	0	1	1	0	0
+#SRC_MINE	2	0	0	0	0	0	1	1	0	0
+#SRC_MINE	3	0	0	0	0	0	1	1	0	0
+#SRC_MINE	4	0	0	0	0	0	1	1	0	0
+#SRC_MINE	5	0	0	0	0	0	1	1	0	0
+#SRC_MINE	6	0	0	0	0	0	1	1	0	0
+#SRC_MINE	7	0	0	0	0	0	1	1	0	0
+
+#SRC_LN_START	10	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	11	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	12	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	13	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	14	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	15	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	16	0	0	0	0	0	1	1	0	0
+#SRC_LN_START	17	0	0	0	0	0	1	1	0	0
+
+//[オートプレイ用ノーツ]
+//通常ノーツ
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_AUTO_NOTE	0	0	0	0	0	0	1	1	0	0
+#SRC_AUTO_NOTE	10	0	0	0	0	0	1	1	0	0
+
+//ロングノート上
+#SRC_AUTO_LN_END	0	0	0	0	0	0	1	1	0	0
+#SRC_AUTO_LN_END	10	0	0	0	0	0	1	1	0	0
+
+//ロングノートの中間のバー
+#SRC_AUTO_LN_BODY	0	0	0	0	0	0	1	1	0	0
+#SRC_AUTO_LN_BODY	10	0	0	0	0	0	1	1	0	0
+
+//ロングノート下
+#SRC_AUTO_LN_START	0	0	0	0	0	0	1	1	0	0
+#SRC_AUTO_LN_START	10	0	0	0	0	0	1	1	0	0
+
+//地雷
+#SRC_MINE	0	0	0	0	0	0	1	1	0	0
+#SRC_MINE	10	0	0	0	0	0	1	1	0	0
+
+//ノート落下地点
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOTE	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	2	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	3	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	4	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	5	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	6	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	7	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+
+#DST_NOTE	10	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	11	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	12	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	13	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	14	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	15	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	16	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOTE	17	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0</textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <h3><a name="src_nowjudge">#SRC_NOWJUDGE_1P</a></h3>
+        <p>判定表示です。2P側の定義はSRC_NOWJUDGE_2Pです。
+            <br> 通常はtimer46～47のジャッジタイマーと組み合わせて使います。
+        </p>
+        <p><img alt="src_nowjudge" src="src_nowjudge.png"></p>
+        <p> </p>
+        <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td align="center" valign="top">index</td>
+                    <td valign="top">判定を指定します。
+                        <br>
+                        <br> 0：空poor
+                        <br> 1：見逃しpoor
+                        <br> 2：BAD
+                        <br> 3：GOOD
+                        <br> 4：GREAT
+                        <br> 5：PERFECT
+                        <br>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">noshift</td>
+                    <td>NOWJUDGE定義はコンボの幅の半分だけ左に自動的にシフトして表示されます。
+                        <br> シフトをオフにする場合（ジャッジとコンボを二列に分けて表示するときとか）は、noshift=1にして下さい
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>noshiftの扱いがちょっとややこしいんですが、これは要するに後述するNOWCOMBO定義とNOWJUDGE定義を合わせて1つの定義とみなして中寄せするための機能です。
+            <br>最近まで気付きませんでしたがnoshift=1を使う場合であればそもそもこれらの特殊定義を使う必要はありません。（汎用定義で代用可能です）</p>
+        <p>DSTは省略。DSTでは大体loop-1を使います。</p>
+        <h4>NOWJUDGE定義テンプレート</h4>
+        <p>カンマ区切り
+        </p>
+        <table style="width: 1000px;" border="0">
+            <tbody>
+                <tr>
+                    <td>1P
+                        <br>
+                        <textarea class="template2" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="nowjudge_txt">//[ジャッジ表示]
+//空Poor index = 0
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,noshift
+#SRC_NOWJUDGE_1P,0,0,0,0,0,0,1,1,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOWJUDGE_1P,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOWJUDGE_1P,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//見逃しPoor index = 1
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,noshift
+#SRC_NOWJUDGE_1P,1,0,0,0,0,0,1,1,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOWJUDGE_1P,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOWJUDGE_1P,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//Bad index = 2
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,noshift
+#SRC_NOWJUDGE_1P,2,0,0,0,0,0,1,1,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOWJUDGE_1P,2,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOWJUDGE_1P,2,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//Good index = 3
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,noshift
+#SRC_NOWJUDGE_1P,3,0,0,0,0,0,1,1,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOWJUDGE_1P,3,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOWJUDGE_1P,3,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//Great index = 4
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,noshift
+#SRC_NOWJUDGE_1P,4,0,0,0,0,0,1,1,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOWJUDGE_1P,4,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOWJUDGE_1P,4,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//PERFECT index = 5
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,noshift
+#SRC_NOWJUDGE_1P,5,0,0,0,0,0,1,1,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOWJUDGE_1P,5,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOWJUDGE_1P,5,0,0,0,0,0,0,255,255,255,255,0,0,0,0</textarea>
+                    </td>
+                    <td>1P & 2P
+                        <br>
+                        <textarea class="template2" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="nowjudge_txt">//[ジャッジ表示]
+//1P
+//空Poor index = 0
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,noshift
+#SRC_NOWJUDGE_1P,0,0,0,0,0,0,1,1,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOWJUDGE_1P,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOWJUDGE_1P,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//見逃しPoor index = 1
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,noshift
+#SRC_NOWJUDGE_1P,1,0,0,0,0,0,1,1,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOWJUDGE_1P,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOWJUDGE_1P,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//Bad index = 2
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,noshift
+#SRC_NOWJUDGE_1P,2,0,0,0,0,0,1,1,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOWJUDGE_1P,2,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOWJUDGE_1P,2,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//Good index = 3
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,noshift
+#SRC_NOWJUDGE_1P,3,0,0,0,0,0,1,1,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOWJUDGE_1P,3,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOWJUDGE_1P,3,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//Great index = 4
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,noshift
+#SRC_NOWJUDGE_1P,4,0,0,0,0,0,1,1,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOWJUDGE_1P,4,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOWJUDGE_1P,4,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//PERFECT index = 5
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,noshift
+#SRC_NOWJUDGE_1P,5,0,0,0,0,0,1,1,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOWJUDGE_1P,5,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOWJUDGE_1P,5,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//2P
+//空Poor index = 0
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,noshift
+#SRC_NOWJUDGE_2P,0,0,0,0,0,0,1,1,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOWJUDGE_2P,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOWJUDGE_2P,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//見逃しPoor index = 1
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,noshift
+#SRC_NOWJUDGE_2P,1,0,0,0,0,0,1,1,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOWJUDGE_2P,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOWJUDGE_2P,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//Bad index = 2
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,noshift
+#SRC_NOWJUDGE_2P,2,0,0,0,0,0,1,1,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOWJUDGE_2P,2,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOWJUDGE_2P,2,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//Good index = 3
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,noshift
+#SRC_NOWJUDGE_2P,3,0,0,0,0,0,1,1,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOWJUDGE_2P,3,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOWJUDGE_2P,3,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//Great index = 4
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,noshift
+#SRC_NOWJUDGE_2P,4,0,0,0,0,0,1,1,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOWJUDGE_2P,4,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOWJUDGE_2P,4,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//PERFECT index = 5
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,noshift
+#SRC_NOWJUDGE_2P,5,0,0,0,0,0,1,1,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOWJUDGE_2P,5,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOWJUDGE_2P,5,0,0,0,0,0,0,255,255,255,255,0,0,0,0</textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>タブ区切り
+        </p>
+        <table style="width: 1000px;" border="0">
+            <tbody>
+                <tr>
+                    <td>1P
+                        <br>
+                        <textarea class="template2" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="nowjudge_txt">//[ジャッジ表示]
+//空Poor index = 0
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	noshift
+#SRC_NOWJUDGE_1P	0	0	0	0	0	0	1	1	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOWJUDGE_1P	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOWJUDGE_1P	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//見逃しPoor index = 1
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	noshift
+#SRC_NOWJUDGE_1P	1	0	0	0	0	0	1	1	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOWJUDGE_1P	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOWJUDGE_1P	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//Bad index = 2
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	noshift
+#SRC_NOWJUDGE_1P	2	0	0	0	0	0	1	1	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOWJUDGE_1P	2	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOWJUDGE_1P	2	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//Good index = 3
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	noshift
+#SRC_NOWJUDGE_1P	3	0	0	0	0	0	1	1	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOWJUDGE_1P	3	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOWJUDGE_1P	3	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//Great index = 4
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	noshift
+#SRC_NOWJUDGE_1P	4	0	0	0	0	0	1	1	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOWJUDGE_1P	4	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOWJUDGE_1P	4	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//PERFECT index = 5
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	noshift
+#SRC_NOWJUDGE_1P	5	0	0	0	0	0	1	1	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOWJUDGE_1P	5	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOWJUDGE_1P	5	0	0	0	0	0	0	255	255	255	255	0	0	0	0</textarea>
+                    </td>
+                    <td>1P & 2P
+                        <br>
+                        <textarea class="template2" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="nowjudge_txt">//[ジャッジ表示]
+//1P
+//空Poor index = 0
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	noshift
+#SRC_NOWJUDGE_1P	0	0	0	0	0	0	1	1	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOWJUDGE_1P	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOWJUDGE_1P	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//見逃しPoor index = 1
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	noshift
+#SRC_NOWJUDGE_1P	1	0	0	0	0	0	1	1	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOWJUDGE_1P	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOWJUDGE_1P	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//Bad index = 2
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	noshift
+#SRC_NOWJUDGE_1P	2	0	0	0	0	0	1	1	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOWJUDGE_1P	2	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOWJUDGE_1P	2	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//Good index = 3
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	noshift
+#SRC_NOWJUDGE_1P	3	0	0	0	0	0	1	1	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOWJUDGE_1P	3	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOWJUDGE_1P	3	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//Great index = 4
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	noshift
+#SRC_NOWJUDGE_1P	4	0	0	0	0	0	1	1	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOWJUDGE_1P	4	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOWJUDGE_1P	4	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//PERFECT index = 5
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	noshift
+#SRC_NOWJUDGE_1P	5	0	0	0	0	0	1	1	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOWJUDGE_1P	5	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOWJUDGE_1P	5	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//2P
+//空Poor index = 0
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	noshift
+#SRC_NOWJUDGE_2P	0	0	0	0	0	0	1	1	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOWJUDGE_2P	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOWJUDGE_2P	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//見逃しPoor index = 1
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	noshift
+#SRC_NOWJUDGE_2P	1	0	0	0	0	0	1	1	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOWJUDGE_2P	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOWJUDGE_2P	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//Bad index = 2
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	noshift
+#SRC_NOWJUDGE_2P	2	0	0	0	0	0	1	1	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOWJUDGE_2P	2	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOWJUDGE_2P	2	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//Good index = 3
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	noshift
+#SRC_NOWJUDGE_2P	3	0	0	0	0	0	1	1	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOWJUDGE_2P	3	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOWJUDGE_2P	3	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//Great index = 4
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	noshift
+#SRC_NOWJUDGE_2P	4	0	0	0	0	0	1	1	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOWJUDGE_2P	4	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOWJUDGE_2P	4	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//PERFECT index = 5
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	noshift
+#SRC_NOWJUDGE_2P	5	0	0	0	0	0	1	1	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOWJUDGE_2P	5	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOWJUDGE_2P	5	0	0	0	0	0	0	255	255	255	255	0	0	0	0</textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <ul class="link">
+            <li>関連リンク：</li>
+            <li><a href="application.html#dummy">疑似ジャッジ・疑似コンボ定義</a></li>
+            <li><a href="application.html#3rdmix">疑似定義と純正定義の併用によるコンボ桁数分岐</a></li>
+        </ul>
+        <h3><a name="src_nowcombo">#SRC_NOWCOMBO_1P</a></h3>
+        <p>コンボ表示定義です。表示される値はNUMBER定義のnum38 RUNNING COMBOと同じですが、
+            <br> 相対座標を使う事で前述のNOWJUDGE定義と組み合わせて中寄せするための専用定義です。2P側定義にはSRC_NOWCOMBO_2Pを使います。
+        </p>
+        <p>デフォスキンには「NUMBER定義と同じ」と書いてありますがalignや相対座標指定位置などが微妙に違います。
+            <br> LR2ではBAD以下でコンボが切れるため、index2以下は定義しても意味がありません。
+            <br> また、DST_NOWCOMBO定義のxy値はDST_NOWJUDGE定義からの相対座標になります。このため、alignによる表示座標特性もNUMBER定義とは異なります。
+        </p>
+        <p>NOWJUDGE定義のalignもNUMBER定義同様、有効数値部分のみで座標調整されるため裏0はalign0以外では使えません。
+        </p>
+        <p><img alt="src_nowcombo" src="src_nowcombo.png"></p>
+        <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td align="center" valign="top">index</td>
+                    <td valign="top">判定を指定します。
+                        <br>
+                        <br> 3：GOOD
+                        <br> 4：GREAT
+                        <br> 5：PERFECT
+                        <br>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">align</td>
+                    <td valign="top">数値定義の配置指定です。
+                        <br>
+                        <br> 0：左寄せ？
+                        <br> 1：中央
+                        <br> 2：右寄せ
+                        <br>
+                        <br> ※さりげなくNUMBER定義と値が違うので注意。
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">keta</td>
+                    <td valign="top">表示する桁数を指定します。ketaが少ないときちんと表示されない場合があるので、
+                        <br> 「この定義で表示する可能性がある最大値」に合わせておくのがベストです。
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>こちらもDSTでは大体loop-1を使います。 </p>
+        <div id="important">
+            <h4>NOWCOMBO定義のalignとDST_xy座標</h4>
+            <p>keta7のNOWCOMBO定義のalign0～2を一桁～三桁まで表示させ、一覧にまとめると以下の様になります。
+                <br> ※座標値との関係を見やすくする為に四角い破線で桁埋めてますが、実際には裏0を使ってもこの位置には表示されません。（裏0はalign1・2では必ず数値の右側に出ます）
+                <br> ※赤の実線がNOWJUDGE_x座標、赤の実線から緑の実線までの幅がNOWCOMBO_x座標
+            </p>
+            <p><img alt="combo_align.gif" src="combo_align.gif" border="0" height="358" width="272"></p>
+            <p>NOWCOMBO定義のDST_xyはNOWJUDGE定義からの相対座標指定なので
+                <br> noshift=0の場合はDST_NOWCOMBO_w値/2だけ左にズレますが、ジャッジも同じように左にズレるので相対距離は変わりません。
+            </p>
+            <p>また、noshiftの値に関わらずalign0はほぼ使い物にならないことも見て取れます。
+                <br> align2もこの挙動なら通常のNUMBER定義で作れるため、実質align1固定でしょう。
+            </p>
+            <p>ジャッジ・コンボ表示のいずれかに拡縮アニメーションが含まれる場合には座標指定がやや複雑になりますが、
+                <br> align0以外という前提で言えば『最大桁数時の中央の数値の左上座標（あるいはその値-w/2）に合わせる』という点だけ抑えておけばどうにかなります。
+            </p>
+        </div>
+        <h4>NOWCOMBO定義テンプレート</h4>
+        <p>カンマ区切り
+        </p>
+        <table style="width: 1000px;" border="0">
+            <tbody>
+                <tr>
+                    <td>1P
+                        <br>
+                        <textarea class="template2" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="nowcombo_txt">//[コンボカウント]
+//Good index = 3
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,(null),align,keta
+#SRC_NOWCOMBO_1P,3,0,0,0,0,0,1,1,0,0,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOWCOMBO_1P,3,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOWCOMBO_1P,3,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//Great index = 4
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,(null),align,keta
+#SRC_NOWCOMBO_1P,4,0,0,0,0,0,1,1,0,0,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOWCOMBO_1P,4,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOWCOMBO_1P,4,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//Just Great index = 5
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,(null),align,keta
+#SRC_NOWCOMBO_1P,5,0,0,0,0,0,1,1,0,0,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOWCOMBO_1P,5,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOWCOMBO_1P,5,0,0,0,0,0,0,255,255,255,255,0,0,0,0</textarea>
+                    </td>
+                    <td>1P & 2P
+                        <br>
+                        <textarea class="template2" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="nowcombo_txt">//[コンボカウント]
+//1P
+//Good index = 3
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,(null),align,keta
+#SRC_NOWCOMBO_1P,3,0,0,0,0,0,1,1,0,0,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOWCOMBO_1P,3,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOWCOMBO_1P,3,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//Great index = 4
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,(null),align,keta
+#SRC_NOWCOMBO_1P,4,0,0,0,0,0,1,1,0,0,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOWCOMBO_1P,4,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOWCOMBO_1P,4,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//Just Great index = 5
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,(null),align,keta
+#SRC_NOWCOMBO_1P,5,0,0,0,0,0,1,1,0,0,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOWCOMBO_1P,5,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOWCOMBO_1P,5,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//2P
+//Good index = 3
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,(null),align,keta
+#SRC_NOWCOMBO_2P,3,0,0,0,0,0,1,1,0,0,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOWCOMBO_2P,3,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOWCOMBO_2P,3,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//Great index = 4
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,(null),align,keta
+#SRC_NOWCOMBO_2P,4,0,0,0,0,0,1,1,0,0,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOWCOMBO_2P,4,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOWCOMBO_2P,4,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//Just Great index = 5
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,(null),align,keta
+#SRC_NOWCOMBO_2P,5,0,0,0,0,0,1,1,0,0,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_NOWCOMBO_2P,5,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_NOWCOMBO_2P,5,0,0,0,0,0,0,255,255,255,255,0,0,0,0</textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>タブ区切り
+        </p>
+        <table style="width: 1000px;" border="0">
+            <tbody>
+                <tr>
+                    <td>1P
+                        <br>
+                        <textarea class="template2" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="nowcombo_txt">//[コンボカウント]
+//Good index = 3
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	(null)	align	keta
+#SRC_NOWCOMBO_1P	3	0	0	0	0	0	1	1	0	0	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOWCOMBO_1P	3	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOWCOMBO_1P	3	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//Great index = 4
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	(null)	align	keta
+#SRC_NOWCOMBO_1P	4	0	0	0	0	0	1	1	0	0	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOWCOMBO_1P	4	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOWCOMBO_1P	4	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//Just Great index = 5
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	(null)	align	keta
+#SRC_NOWCOMBO_1P	5	0	0	0	0	0	1	1	0	0	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOWCOMBO_1P	5	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOWCOMBO_1P	5	0	0	0	0	0	0	255	255	255	255	0	0	0	0</textarea>
+                    </td>
+                    <td>1P & 2P
+                        <br>
+                        <textarea class="template2" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="nowcombo_txt">//[コンボカウント]
+//1P
+//Good index = 3
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	(null)	align	keta
+#SRC_NOWCOMBO_1P	3	0	0	0	0	0	1	1	0	0	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOWCOMBO_1P	3	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOWCOMBO_1P	3	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//Great index = 4
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	(null)	align	keta
+#SRC_NOWCOMBO_1P	4	0	0	0	0	0	1	1	0	0	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOWCOMBO_1P	4	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOWCOMBO_1P	4	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//Just Great index = 5
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	(null)	align	keta
+#SRC_NOWCOMBO_1P	5	0	0	0	0	0	1	1	0	0	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOWCOMBO_1P	5	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOWCOMBO_1P	5	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//2P
+//Good index = 3
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	(null)	align	keta
+#SRC_NOWCOMBO_2P	3	0	0	0	0	0	1	1	0	0	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOWCOMBO_2P	3	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOWCOMBO_2P	3	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//Great index = 4
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	(null)	align	keta
+#SRC_NOWCOMBO_2P	4	0	0	0	0	0	1	1	0	0	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOWCOMBO_2P	4	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOWCOMBO_2P	4	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//Just Great index = 5
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	(null)	align	keta
+#SRC_NOWCOMBO_2P	5	0	0	0	0	0	1	1	0	0	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_NOWCOMBO_2P	5	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_NOWCOMBO_2P	5	0	0	0	0	0	0	255	255	255	255	0	0	0	0</textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <ul class="link">
+            <li>関連リンク：</li>
+            <li><a href="hanyou.html#src_number">#SRC_NUMBER</a></li>
+            <li><a href="application.html#triple">3列コンボ</a></li>
+            <li><a href="application.html#dummy">疑似ジャッジ・疑似コンボ定義</a></li>
+            <li><a href="application.html#3rdmix">疑似定義と純正定義の併用によるコンボ桁数分岐</a></li>
+        </ul>
+        <h3><a name="src_groovegauge">#SRC_GROOVEGAUGE</a></h3>
+        <p>LR2のグルーヴゲージ定義は各色の粒画像を分割で指定します。
+            <br> ゲージ点灯時の赤・緑、ゲージ消灯時の赤・緑の順に並べてsrc分割を行ってください。
+            <br> あとは本体側が各粒画像とadd_x add_y、DST定義を用いてグルーブゲージを形成してくれます。
+        </p>
+        <p><img alt="src_groovegauge" src="src_groovegauge.png"></p>
+        <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td align="center" valign="top">index</td>
+                    <td valign="top">プレイサイドを指定します。
+                        <br>
+                        <br> 0：1P
+                        <br> 1：2P
+                        <br>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">add_x add_y</td>
+                    <td valign="top">この値で次の粒の相対位置を指定します。
+                        <br> ゲージ全体の幅をpx単位で指定することは出来ません。（必ず50の倍数になります）
+                        <br>
+                        <br> 某ゲーム準拠の場合、2P側ではゲージが左右反転するのでadd_xが負の値になり、
+                        <br> DSTのx座標は右端の粒座標を指定することになります。
+                        <br>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>LR2純正のゲージ定義ではゲージ先端に点滅アニメーションが入ります。（OFFに出来ません）
+            <br> また、粒の数も50粒固定です。
+        </p>
+        <p>汎用定義の応用で自力で組むことも可能ですが、純正ゲージよりも負荷が高いです。</p>
+        <h4>GROOVEGAUGE定義テンプレート</h4>
+        <p>カンマ区切り
+        </p>
+        <table style="width: 1000px;" border="0">
+            <tbody>
+                <tr>
+                    <td>1P
+                        <br>
+                        <textarea class="template2" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="groovegauge_txt">//[グルーヴゲージ]
+//表赤、表緑、裏赤、裏緑の順にsrc分割を行ってください。4の倍数でcycle>0ならちゃんとアニメーションします
+//次のゲージの相対位置はadd_x、add_yで指定して下さい。
+//1P index = 0 //2P index = 1
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,add_x,add_y
+#SRC_GROOVEGAUGE,0,0,0,0,0,0,1,1,0,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_GROOVEGAUGE,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_GROOVEGAUGE,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0</textarea>
+                    </td>
+                    <td>1P & 2P
+                        <br>
+                        <textarea class="template2" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="groovegauge_txt">//[グルーヴゲージ]
+//表赤、表緑、裏赤、裏緑の順にsrc分割を行ってください。4の倍数でcycle>0ならちゃんとアニメーションします
+//次のゲージの相対位置はadd_x、add_yで指定して下さい。
+//1P index = 0
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,add_x,add_y
+#SRC_GROOVEGAUGE,0,0,0,0,0,0,1,1,0,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_GROOVEGAUGE,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_GROOVEGAUGE,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//2P index = 1
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,add_x,add_y
+#SRC_GROOVEGAUGE,1,0,0,0,0,0,1,1,0,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_GROOVEGAUGE,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_GROOVEGAUGE,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0</textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>タブ区切り
+        </p>
+        <table style="width: 1000px;" border="0">
+            <tbody>
+                <tr>
+                    <td>1P
+                        <br>
+                        <textarea class="template2" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="groovegauge_txt">//[グルーヴゲージ]
+//表赤、表緑、裏赤、裏緑の順にsrc分割を行ってください。4の倍数でcycle>0ならちゃんとアニメーションします
+//次のゲージの相対位置はadd_x、add_yで指定して下さい。
+//1P index = 0 //2P index = 1
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	add_x	add_y
+#SRC_GROOVEGAUGE	0	0	0	0	0	0	1	1	0	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_GROOVEGAUGE	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_GROOVEGAUGE	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0</textarea>
+                    </td>
+                    <td>1P & 2P
+                        <br>
+                        <textarea class="template2" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="groovegauge_txt">//[グルーヴゲージ]
+//表赤、表緑、裏赤、裏緑の順にsrc分割を行ってください。4の倍数でcycle>0ならちゃんとアニメーションします
+//次のゲージの相対位置はadd_x、add_yで指定して下さい。
+//1P index = 0
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	add_x	add_y
+#SRC_GROOVEGAUGE	0	0	0	0	0	0	1	1	0	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_GROOVEGAUGE	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_GROOVEGAUGE	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//2P index = 1
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	add_x	add_y
+#SRC_GROOVEGAUGE	1	0	0	0	0	0	1	1	0	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_GROOVEGAUGE	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_GROOVEGAUGE	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0</textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <ul class="link">
+            <li>関連リンク：</li>
+            <li><a href="specification.html#div">div_x・div_yパラメータ</a></li>
+            <li><a href="specification.html#gauge_option">ゲージ色に関わるオプションと分岐</a></li>
+            <li><a href="application.html#number2bargraph">NUMBER定義を用いたバーグラフ</a></li>
+        </ul>
+        <hr size="1px">
+        <h1><a name="select">選曲スキン</a></h1>
+        <p>数ある特殊定義のうち、選曲バー定義のみSRCとDSTでindex値の扱いが異なります。
+            <br> SRCでは選曲バーの種類を指定するのに対してDSTでは選曲バーの位置を指定します。
+            <br> このためBAR_BODY定義のみSRCとDSTで別項目にしてあります。
+        </p>
+        <p>また、特殊定義以外にも選曲スキンには『パネル』という概念があります。
+            <br> パネルは専用定義がある訳ではなく、汎用定義にtimer21～39までを使用することで各種パーツをパネルに割り当てて形成します。
+            <br> パネルボタンがクリックされるとパネルオプションがONに切り替わり、同時にパネルタイマーが動き始めます。
+            <br> 後はパネルタイマーに合わせて画面外から移動させたりフェードインさせたりと色々な方法でパネルオープンのモーションを組めばよくあるパネルになります。
+            <br> ※パネルクローズタイマーもあるのでキッチリ作るとパネル内のボタンやテキストなどの全定義がオープン・クローズで2個ずつ必要になります。
+        </p>
+        <p>パネル自体は他の種別のスキンでも使用することは可能ですが、選曲スキンでのみ『スタートボタンでパネル1の呼び出し』が行えます。
+            <br> 通常はプレイオプションパネルに使われますが、その気になればスタートボタンでエフェクタパネルを開くことも可能ですし、
+            <br> それとは逆にプレイオプションパネル内にエフェクタパーツを配置、という手もあります。
+        </p>
+        <ul class="link">
+            <li>関連リンク：</li>
+            <li><a href="bug.html#op3">op3の注意点</a></li>
+            <li><a href="application.html#option_change">LR2でのDSTオプション遷移</a></li>
+            <li><a href="application.html#skin_type">キーコンフィグとスキンセレクトとスキン種別</a></li>
+        </ul>
+        <h3><a name="src_bar_body">#SRC_BAR_BODY</a></h3>
+        <p>選曲バー定義です。ボタンやスライダーの様な機能を持っており、
+            <br> 加えて相対座標で大量のパーツが連動して動くので選曲の負荷の大部分を占めます。
+        </p>
+        <p><img alt="src_bar_body" src="src_bar_body.png"></p>
+        <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td align="center" valign="top">index</td>
+                    <td valign="top">選曲バーの種別を指定します。
+                        <br>
+                        <br> 0：曲
+                        <br> 1：フォルダ
+                        <br> 2：カスタムフォルダ
+                        <br> 3：新曲フォルダ
+                        <br> 4：ライバルフォルダ
+                        <br> 5：曲（ライバルモード用）
+                        <br> 6：コースフォルダ
+                        <br> 7：コース作成
+                        <br> 8：コース
+                        <br> 9：ランダムコース
+                        <br>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <h4>SRC_BAR_BODY定義テンプレート</h4>
+        <p>カンマ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="src_bar_body_txt">//[#SRC_BAR_BODY]
+//曲バー画像を切り出します。
+//index:0 曲 1 フォルダ 2 カスタムフォルダ 3 新曲フォルダ 4 ライバルフォルダ 5 曲(ライバルモード用) 6 コースフォルダ 7 コース作成 8 コース 9 ランダムコース
+
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_BODY,0,0,0,0,0,0,1,1,0,0
+#SRC_BAR_BODY,1,0,0,0,0,0,1,1,0,0
+#SRC_BAR_BODY,2,0,0,0,0,0,1,1,0,0
+#SRC_BAR_BODY,3,0,0,0,0,0,1,1,0,0
+#SRC_BAR_BODY,4,0,0,0,0,0,1,1,0,0
+#SRC_BAR_BODY,5,0,0,0,0,0,1,1,0,0
+#SRC_BAR_BODY,6,0,0,0,0,0,1,1,0,0
+#SRC_BAR_BODY,7,0,0,0,0,0,1,1,0,0
+#SRC_BAR_BODY,8,0,0,0,0,0,1,1,0,0
+#SRC_BAR_BODY,9,0,0,0,0,0,1,1,0,0</textarea>
+        </p>
+        <p>タブ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="src_bar_body_csv">//[#SRC_BAR_BODY]
+//曲バー画像を切り出します。
+//index:0 曲 1 フォルダ 2 カスタムフォルダ 3 新曲フォルダ 4 ライバルフォルダ 5 曲(ライバルモード用) 6 コースフォルダ 7 コース作成 8 コース 9 ランダムコース
+
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_BODY	0	0	0	0	0	0	1	1	0	0
+#SRC_BAR_BODY	1	0	0	0	0	0	1	1	0	0
+#SRC_BAR_BODY	2	0	0	0	0	0	1	1	0	0
+#SRC_BAR_BODY	3	0	0	0	0	0	1	1	0	0
+#SRC_BAR_BODY	4	0	0	0	0	0	1	1	0	0
+#SRC_BAR_BODY	5	0	0	0	0	0	1	1	0	0
+#SRC_BAR_BODY	6	0	0	0	0	0	1	1	0	0
+#SRC_BAR_BODY	7	0	0	0	0	0	1	1	0	0
+#SRC_BAR_BODY	8	0	0	0	0	0	1	1	0	0
+#SRC_BAR_BODY	9	0	0	0	0	0	1	1	0	0</textarea>
+        </p>
+        <h3><a name="dst_bar_body">#DST_BAR_BODY</a></h3>
+        <p>SRC_BAR_BODYのindex値がバー種別を指定するのに対してDST_BAR_BODYではバー配置（n本目のバー座標）の指定になります。
+            <br> 動作開始時のバーアニメーションは個別に指定出来ます。
+        </p>
+        <p>また、これ以降の#DST_BAR_○○定義のxy座標は#DST_BAR_BODYからの相対座標になります。
+            <br> ちなみに#DST_BAR_BODYが存在しない場合は通常のxy座標として動作します。（大体画面の左上に集中します）
+        </p>
+        <p><img alt="dst_bar_body" src="dst_bar_body.png"></p>
+        <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td align="center" valign="top">DST定義</td>
+                    <td valign="top">選曲バー定義は2通りあります。
+                        <br>
+                        <br> DST_BAR_BODY_OFF：カーソルが合っていない時用
+                        <br> DST_BAR_BODY_ON：カーソルが合っている時用
+                        <br>
+                        <br> ※BAR_AVAILABLE定義で指定した範囲内の選曲バーには必ずDST_BAR_BODY_ON定義が必要です。
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">index</td>
+                    <td valign="top">SRC側のindex値とは違い、バーの種別ではなく個々の選曲バーの配置毎に個別のindexを使用します。
+                        <br> 0～29まで利用可能なので最大で30個の選曲バーを配置出来ます。
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <h4>DST_BAR_BODY定義テンプレート</h4>
+        <p>カンマ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="dst_bar_body_txt">//[#DST_BAR_BODY_OFF]
+//上10個
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer
+#DST_BAR_BODY_OFF,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_OFF,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_OFF,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_OFF,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_OFF,2,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_OFF,2,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_OFF,3,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_OFF,3,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_OFF,4,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_OFF,4,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_OFF,5,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_OFF,5,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_OFF,6,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_OFF,6,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_OFF,7,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_OFF,7,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_OFF,8,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_OFF,8,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_OFF,9,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_OFF,9,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//中央
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer
+#DST_BAR_BODY_OFF,10,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_OFF,10,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//下10個
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer
+#DST_BAR_BODY_OFF,11,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_OFF,11,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_OFF,12,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_OFF,12,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_OFF,13,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_OFF,13,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_OFF,14,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_OFF,14,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_OFF,15,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_OFF,15,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_OFF,16,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_OFF,16,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_OFF,17,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_OFF,17,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_OFF,18,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_OFF,18,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_OFF,19,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_OFF,19,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_OFF,20,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_OFF,20,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//#[DST_BAR_BODY_ON]
+//上10個
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer
+#DST_BAR_BODY_ON,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_ON,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_ON,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_ON,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_ON,2,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_ON,2,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_ON,3,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_ON,3,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_ON,4,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_ON,4,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_ON,5,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_ON,5,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_ON,6,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_ON,6,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_ON,7,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_ON,7,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_ON,8,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_ON,8,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_ON,9,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_ON,9,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//中央
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer
+#DST_BAR_BODY_ON,10,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_ON,10,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//下10個
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer
+#DST_BAR_BODY_ON,11,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_ON,11,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_ON,12,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_ON,12,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_ON,13,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_ON,13,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_ON,14,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_ON,14,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_ON,15,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_ON,15,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_ON,16,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_ON,16,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_ON,17,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_ON,17,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_ON,18,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_ON,18,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_ON,19,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_ON,19,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_BODY_ON,20,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+#DST_BAR_BODY_ON,20,0,0,0,0,0,0,255,255,255,255,0,0,0,0</textarea>
+        </p>
+        <p>タブ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="dst_bar_body_csv">//[#DST_BAR_BODY_OFF]
+//上10個
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer
+#DST_BAR_BODY_OFF	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_OFF	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_OFF	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_OFF	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_OFF	2	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_OFF	2	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_OFF	3	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_OFF	3	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_OFF	4	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_OFF	4	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_OFF	5	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_OFF	5	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_OFF	6	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_OFF	6	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_OFF	7	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_OFF	7	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_OFF	8	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_OFF	8	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_OFF	9	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_OFF	9	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//中央
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer
+#DST_BAR_BODY_OFF	10	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_OFF	10	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//下10個
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer
+#DST_BAR_BODY_OFF	11	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_OFF	11	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_OFF	12	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_OFF	12	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_OFF	13	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_OFF	13	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_OFF	14	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_OFF	14	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_OFF	15	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_OFF	15	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_OFF	16	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_OFF	16	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_OFF	17	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_OFF	17	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_OFF	18	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_OFF	18	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_OFF	19	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_OFF	19	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_OFF	20	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_OFF	20	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//[#DST_BAR_BODY_ON]
+//上10個
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer
+#DST_BAR_BODY_ON	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_ON	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_ON	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_ON	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_ON	2	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_ON	2	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_ON	3	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_ON	3	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_ON	4	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_ON	4	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_ON	5	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_ON	5	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_ON	6	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_ON	6	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_ON	7	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_ON	7	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_ON	8	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_ON	8	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_ON	9	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_ON	9	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//中央
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer
+#DST_BAR_BODY_ON	10	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_ON	10	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//下10個
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer
+#DST_BAR_BODY_ON	11	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_ON	11	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_ON	12	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_ON	12	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_ON	13	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_ON	13	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_ON	14	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_ON	14	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_ON	15	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_ON	15	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_ON	16	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_ON	16	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_ON	17	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_ON	17	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_ON	18	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_ON	18	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_ON	19	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_ON	19	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_BODY_ON	20	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+#DST_BAR_BODY_ON	20	0	0	0	0	0	0	255	255	255	255	0	0	0	0</textarea>
+        </p>
+        <p>関連リンク：<a href="application.html#bar_body">DST_BAR_BODY定義の座標補間と特殊配置</a></p>
+        <h3><a name="bar_center">#BAR_CENTER</a></h3>
+        <p>デフォルトで選択状態にするバーの位置をDST_BAR_BODY定義のindex値で指定します。</p>
+        <p><img alt="bar_center" src="bar_center.png"></p>
+        <h3><a name="bar_available">#BAR_AVAILABLE</a></h3>
+        <p>選曲バーでクリック可能な範囲をDST_BAR_BODY定義のindex値で指定します。
+            <br> この値の範囲内の選曲バーにはDST_BAR_BODY_ON定義が必須です。
+            <br> 範囲外のバーをクリックするとバーはスクロールします。
+        </p>
+        <p>BAR_FLASH定義以外の定義を重ねる場合はBAR_CENTERと同数に固定する必要があります。</p>
+        <p><img alt="bar_available" src="bar_available.png"></p>
+        <h3><a name="bar_flash">#SRC_BAR_FLASH</a></h3>
+        <p>フォーカス中のバーに重なって表示されます。DST座標はバーのxy座標からの相対位置を指定して下さい。</p>
+        <p><img alt="src_bar_flash" src="src_bar_flash.png"></p>
+        <p>DST定義は省略。</p>
+        <h4>BAR_FLASH定義テンプレート</h4>
+        <p>カンマ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="bar_flash_txt">//[バーフラッシュ]
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_FLASH,0,0,0,0,0,0,1,1,0,0
+//DST定義,(NULL),time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_FLASH,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_BAR_FLASH,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0</textarea>
+        </p>
+        <p>タブ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="bar_flash_csv">//[バーフラッシュ]
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_FLASH	0	0	0	0	0	0	1	1	0	0
+//DST定義	(NULL)	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_FLASH	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_BAR_FLASH	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0</textarea>
+        </p>
+        <h3><a name="bar_level">#SRC_BAR_LEVEL</a></h3>
+        <p>曲バー上に表示される曲レベル数字用定義です。
+            <br> 基本的にはNUMBER定義と同じですがDST座標はバーのxy座標からの相対位置を指定して下さい。
+        </p>
+        <p>名前こそNUMBER定義ではないものの、条件が揃えばNUMBER定義同様align2のバグが発生します。
+            <br> 一般的なNUMBER定義に比べて裏0無しのalign2を使う可能性が高いので、
+            <br> このバグに出会うとすればまずこの定義です。詳しくは関連リンクをご覧下さい。
+        </p>
+        <p><img alt="bar_level" src="src_bar_level.png"></p>
+        <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td align="center" valign="top">index</td>
+                    <td valign="top">数字種別を指定します。
+                        <br>
+                        <br> 0：難易度未定義
+                        <br> 1：BEGINNER
+                        <br> 2：NORMAL
+                        <br> 3：HYPER
+                        <br> 4：ANOTHER
+                        <br> 5：INSANE
+                        <br> 6：IR RANKING
+                        <br>
+                        <p class="caution">※IR RANKINGは3桁表示できるサイズにしておく必要があります。
+                            <br> （ランキング一覧自体はketa値に関わらず最大で999位まで参照されます）
+                        </p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>LR2は難易度未定義譜面には自動的に難易度を割り当てるためindex0：難易度未定義は不要に思えますが、
+            <br> SETUPオプションの「難度フィルタを使用しない」がONの場合に必要になります。忘れずに必ず作りましょう。
+            <br> DST定義は省略。
+        </p>
+        <h4>BAR_LEVEL定義テンプレート</h4>
+        <p>カンマ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="bar_level_txt">//[曲バーレベル]
+//未定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,(null),align,keta
+#SRC_BAR_LEVEL,0,0,0,0,0,0,1,1,0,0,0,0,0
+//DST定義,(NULL),time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_LEVEL,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+
+//BEGINNER,index,gr,x,y,w,h,div_x,div_y,cycle,timer,(null),align,keta
+#SRC_BAR_LEVEL,1,0,0,0,0,0,1,1,0,0,0,0,0
+//DST定義,(NULL),time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_LEVEL,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+
+//NORMAL,index,gr,x,y,w,h,div_x,div_y,cycle,timer,(null),align,keta
+#SRC_BAR_LEVEL,2,0,0,0,0,0,1,1,0,0,0,0,0
+//DST定義,(NULL),time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_LEVEL,2,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+
+//HYPER,index,gr,x,y,w,h,div_x,div_y,cycle,timer,(null),align,keta
+#SRC_BAR_LEVEL,3,0,0,0,0,0,1,1,0,0,0,0,0
+//DST定義,(NULL),time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_LEVEL,3,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+
+//ANOTHEr,index,gr,x,y,w,h,div_x,div_y,cycle,timer,(null),align,keta
+#SRC_BAR_LEVEL,4,0,0,0,0,0,1,1,0,0,0,0,0
+//DST定義,(NULL),time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_LEVEL,4,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+
+//INSANE,index,gr,x,y,w,,div_x,div_y,cycle,timer,(null),align,keta
+#SRC_BAR_LEVEL,5,0,0,0,0,0,1,1,0,0,0,0,0
+//DST定義,(NULL),time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_LEVEL,5,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+
+//RANKING,index,gr,x,y,w,,div_x,div_y,cycle,timer,(null),align,keta
+#SRC_BAR_LEVEL,6,0,0,0,0,0,1,1,0,0,0,0,0
+//DST定義,(NULL),time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_LEVEL,6,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0</textarea>
+        </p>
+        <p>タブ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="bar_level_csv">//[曲バーレベル]
+//未定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	(null)	align	keta
+#SRC_BAR_LEVEL	0	0	0	0	0	0	1	1	0	0	0	0	0
+//DST定義	(NULL)	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_LEVEL	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+
+//BEGINNER	index	gr	x	y	w	h	div_x	div_y	cycle	timer	(null)	align	keta
+#SRC_BAR_LEVEL	1	0	0	0	0	0	1	1	0	0	0	0	0
+//DST定義	(NULL)	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_LEVEL	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+
+//NORMAL	index	gr	x	y	w	h	div_x	div_y	cycle	timer	(null)	align	keta
+#SRC_BAR_LEVEL	2	0	0	0	0	0	1	1	0	0	0	0	0
+//DST定義	(NULL)	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_LEVEL	2	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+
+//HYPER	index	gr	x	y	w	h	div_x	div_y	cycle	timer	(null)	align	keta
+#SRC_BAR_LEVEL	3	0	0	0	0	0	1	1	0	0	0	0	0
+//DST定義	(NULL)	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_LEVEL	3	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+
+//ANOTHEr	index	gr	x	y	w	h	div_x	div_y	cycle	timer	(null)	align	keta
+#SRC_BAR_LEVEL	4	0	0	0	0	0	1	1	0	0	0	0	0
+//DST定義	(NULL)	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_LEVEL	4	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+
+//INSANE	index	gr	x	y	w		div_x	div_y	cycle	timer	(null)	align	keta
+#SRC_BAR_LEVEL	5	0	0	0	0	0	1	1	0	0	0	0	0
+//DST定義	(NULL)	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_LEVEL	5	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+
+//RANKING	index	gr	x	y	w		div_x	div_y	cycle	timer	(null)	align	keta
+#SRC_BAR_LEVEL	6	0	0	0	0	0	1	1	0	0	0	0	0
+//DST定義	(NULL)	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_LEVEL	6	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0</textarea>
+        </p>
+        <ul class="link">
+            <li>関連リンク：</li>
+            <li><a href="hanyou.html#src_number">#SRC_NUMBER</a></li>
+            <li><a href="bug.html#number_align2">NUMBER定義のalign2（中央寄せ）特有の注意点</a></li>
+        </ul>
+        <h3><a name="bar_lamp">#SRC_BAR_LAMP</a></h3>
+        <p>曲バーのクリアランプ定義です。
+            <br> DST座標はバーのxy座標からの相対位置を指定して下さい。
+        </p>
+        <p><img alt="bar_lamp" src="src_bar_lamp.png"></p>
+        <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td align="center" valign="top">SRC定義</td>
+                    <td valign="top">BAR_LAMP定義は3種類あります。
+                        <br>
+                        <br> #SRC_BAR_LAMP：通常のクリアランプ
+                        <br> #SRC_BAR_MY_LAMP：ライバルフォルダ内での自クリアランプ
+                        <br> #SRC_BAR_RIVAL_LAMP：ライバルフォルダ内でのライバルクリアランプ
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">index</td>
+                    <td valign="top">クリアランプ種別を指定します。
+                        <br>
+                        <br> 0：NO PLAY
+                        <br> 1：FAILED
+                        <br> 2：EASY CLEAR
+                        <br> 3：CLEAR
+                        <br> 4：HARD CLEAR
+                        <br> 6：FULL COMBO
+                        <br>
+                        <br> ※以下は未実装
+                        <br>
+                        <cite>5：P-ATTACK/G-ATTACK CLEAR？<br>
+              7：PERFECT<br>
+            </cite> </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>DST定義は省略。</p>
+        <h4>BAR_LAMP定義テンプレート</h4>
+        <p>カンマ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="bar_lamp_txt">//[曲バーランプ]
+//点滅　failed
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_LAMP,1,0,0,0,0,0,1,1,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_LAMP,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_BAR_LAMP,1,0,0,0,0,0,0,255,255,255,255,0,0,0
+
+//緑 クリア
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_LAMP,2,0,0,0,0,0,1,1,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_LAMP,2,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_BAR_LAMP,2,0,0,0,0,0,0,255,255,255,255,0,0,0
+
+//黄クリア
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_LAMP,3,0,0,0,0,0,1,1,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_LAMP,3,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_BAR_LAMP,3,0,0,0,0,0,0,255,255,255,255,0,0,0
+
+//白 難クリア
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_LAMP,4,0,0,0,0,0,1,1,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_LAMP,4,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_BAR_LAMP,4,0,0,0,0,0,0,255,255,255,255,0,0,0
+
+//フラッシュ フルコン
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_LAMP,5,0,0,0,0,0,1,1,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_LAMP,5,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_BAR_LAMP,5,0,0,0,0,0,0,255,255,255,255,0,0,0
+
+
+
+//[ライバルモード自分]
+//点滅　failed
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_MY_LAMP,1,0,0,0,0,0,1,1,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_MY_LAMP,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_BAR_MY_LAMP,1,0,0,0,0,0,0,255,255,255,255,0,0,0
+
+//緑 クリア
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_MY_LAMP,2,0,0,0,0,0,1,1,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_MY_LAMP,2,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_BAR_MY_LAMP,2,0,0,0,0,0,0,255,255,255,255,0,0,0
+
+//黄クリア
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_MY_LAMP,3,0,0,0,0,0,1,1,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_MY_LAMP,3,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_BAR_MY_LAMP,3,0,0,0,0,0,0,255,255,255,255,0,0,0
+
+//白 難クリア
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_MY_LAMP,4,0,0,0,0,0,1,1,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_MY_LAMP,4,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_BAR_MY_LAMP,4,0,0,0,0,0,0,255,255,255,255,0,0,0
+
+//フラッシュ フルコン
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_MY_LAMP,5,0,0,0,0,0,1,1,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_MY_LAMP,5,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_BAR_MY_LAMP,5,0,0,0,0,0,0,255,255,255,255,0,0,0
+
+
+
+
+//[ライバルモード相手]
+//点滅　failed
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_RIVAL_LAMP,1,0,0,0,0,0,1,1,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_RIVAL_LAMP,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_BAR_RIVAL_LAMP,1,0,0,0,0,0,0,255,255,255,255,0,0,0
+
+//緑 クリア
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_RIVAL_LAMP,2,0,0,0,0,0,1,1,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_RIVAL_LAMP,2,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_BAR_RIVAL_LAMP,2,0,0,0,0,0,0,255,255,255,255,0,0,0
+
+//黄クリア
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_RIVAL_LAMP,3,0,0,0,0,0,1,1,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_RIVAL_LAMP,3,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_BAR_RIVAL_LAMP,3,0,0,0,0,0,0,255,255,255,255,0,0,0
+
+//白 難クリア
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_RIVAL_LAMP,4,0,0,0,0,0,1,1,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_RIVAL_LAMP,4,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_BAR_RIVAL_LAMP,4,0,0,0,0,0,0,255,255,255,255,0,0,0
+
+//フラッシュ フルコン
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_RIVAL_LAMP,5,0,0,0,0,0,1,1,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_RIVAL_LAMP,5,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_BAR_RIVAL_LAMP,5,0,0,0,0,0,0,255,255,255,255,0,0,0</textarea>
+        </p>
+        <p>タブ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="bar_lamp_csv">//[曲バーランプ]
+//点滅　failed
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_LAMP	1	0	0	0	0	0	1	1	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_LAMP	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_BAR_LAMP	1	0	0	0	0	0	0	255	255	255	255	0	0	0
+
+//緑 クリア
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_LAMP	2	0	0	0	0	0	1	1	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_LAMP	2	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_BAR_LAMP	2	0	0	0	0	0	0	255	255	255	255	0	0	0
+
+//黄クリア
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_LAMP	3	0	0	0	0	0	1	1	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_LAMP	3	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_BAR_LAMP	3	0	0	0	0	0	0	255	255	255	255	0	0	0
+
+//白 難クリア
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_LAMP	4	0	0	0	0	0	1	1	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_LAMP	4	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_BAR_LAMP	4	0	0	0	0	0	0	255	255	255	255	0	0	0
+
+//フラッシュ フルコン
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_LAMP	5	0	0	0	0	0	1	1	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_LAMP	5	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_BAR_LAMP	5	0	0	0	0	0	0	255	255	255	255	0	0	0
+
+
+
+//[ライバルモード自分]
+//点滅　failed
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_MY_LAMP	1	0	0	0	0	0	1	1	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_MY_LAMP	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_BAR_MY_LAMP	1	0	0	0	0	0	0	255	255	255	255	0	0	0
+
+//緑 クリア
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_MY_LAMP	2	0	0	0	0	0	1	1	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_MY_LAMP	2	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_BAR_MY_LAMP	2	0	0	0	0	0	0	255	255	255	255	0	0	0
+
+//黄クリア
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_MY_LAMP	3	0	0	0	0	0	1	1	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_MY_LAMP	3	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_BAR_MY_LAMP	3	0	0	0	0	0	0	255	255	255	255	0	0	0
+
+//白 難クリア
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_MY_LAMP	4	0	0	0	0	0	1	1	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_MY_LAMP	4	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_BAR_MY_LAMP	4	0	0	0	0	0	0	255	255	255	255	0	0	0
+
+//フラッシュ フルコン
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_MY_LAMP	5	0	0	0	0	0	1	1	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_MY_LAMP	5	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_BAR_MY_LAMP	5	0	0	0	0	0	0	255	255	255	255	0	0	0
+
+
+
+
+//[ライバルモード相手]
+//点滅　failed
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_RIVAL_LAMP	1	0	0	0	0	0	1	1	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_RIVAL_LAMP	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_BAR_RIVAL_LAMP	1	0	0	0	0	0	0	255	255	255	255	0	0	0
+
+//緑 クリア
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_RIVAL_LAMP	2	0	0	0	0	0	1	1	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_RIVAL_LAMP	2	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_BAR_RIVAL_LAMP	2	0	0	0	0	0	0	255	255	255	255	0	0	0
+
+//黄クリア
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_RIVAL_LAMP	3	0	0	0	0	0	1	1	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_RIVAL_LAMP	3	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_BAR_RIVAL_LAMP	3	0	0	0	0	0	0	255	255	255	255	0	0	0
+
+//白 難クリア
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_RIVAL_LAMP	4	0	0	0	0	0	1	1	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_RIVAL_LAMP	4	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_BAR_RIVAL_LAMP	4	0	0	0	0	0	0	255	255	255	255	0	0	0
+
+//フラッシュ フルコン
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_RIVAL_LAMP	5	0	0	0	0	0	1	1	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_RIVAL_LAMP	5	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_BAR_RIVAL_LAMP	5	0	0	0	0	0	0	255	255	255	255	0	0	0</textarea>
+        </p>
+        <h3><a name="bar_title">#SRC_BAR_TITLE</a></h3>
+        <p>曲バーのタイトルです。
+            <br> DST座標はバーのxy座標からの相対位置を指定して下さい。
+        </p>
+        <p><img alt="bar_title" src="src_bar_title.png"></p>
+        <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td align="center" valign="top">index</td>
+                    <td valign="top">曲タイトル種別を指定します。
+                        <br>
+                        <br> 0：通常曲
+                        <br> 1：新規追加曲
+                        <br>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>基本的にはTEXT定義なので文字数が多くなるとDSTのw値に収まるように縮小されます。
+            <br> このためw値は出来るだけ大きめに取った方が被害は少なく済みます。
+            <br> （デフォスキンでw10000です。参考までに）
+        </p>
+        <p>DST定義は省略。</p>
+        <h4>BAR_TITLE定義テンプレート</h4>
+        <p>カンマ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="bar_title_txt">//[曲バータイトル]
+//SRC定義,index,font,(NULL),align
+#SRC_BAR_TITLE,0,0,0,0
+//DST定義,index,time,x,y,w,size,acc,a,r,g,b,blend,filter,(NULL),(NULL),loop,timer,(NULL),(NULL),(NULL)
+#DST_BAR_TITLE,0,0,0,0,10000,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_BAR_TITLE,0,0,0,0,10000,0,0,255,255,255,255,0,0,0,0
+
+//新規追加曲 index = 1
+//SRC定義,index,font,(NULL),align
+#SRC_BAR_TITLE,1,0,0,0
+//DST定義,index,time,x,y,w,size,acc,a,r,g,b,blend,filter,(NULL),(NULL),loop,timer,(NULL),(NULL),(NULL)
+#DST_BAR_TITLE,1,0,0,0,10000,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_BAR_TITLE,1,0,0,0,10000,0,0,255,255,255,255,0,0,0,0</textarea>
+        </p>
+        <p>タブ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="bar_title_csv">//[曲バータイトル]
+//SRC定義	index	font	(NULL)	align
+#SRC_BAR_TITLE	0	0	0	0
+//DST定義	index	time	x	y	w	size	acc	a	r	g	b	blend	filter	(NULL)	(NULL)	loop	timer	(NULL)	(NULL)	(NULL)
+#DST_BAR_TITLE	0	0	0	0	10000	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_BAR_TITLE	0	0	0	0	10000	0	0	255	255	255	255	0	0	0	0
+
+//新規追加曲 index = 1
+//SRC定義	index	font	(NULL)	align
+#SRC_BAR_TITLE	1	0	0	0
+//DST定義	index	time	x	y	w	size	acc	a	r	g	b	blend	filter	(NULL)	(NULL)	loop	timer	(NULL)	(NULL)	(NULL)
+#DST_BAR_TITLE	1	0	0	0	10000	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_BAR_TITLE	1	0	0	0	10000	0	0	255	255	255	255	0	0	0	0</textarea>
+        </p>
+        <p>関連リンク：<a href="hanyou.html#src_text">#SRC_TEXT</a></p>
+        <h3><a name="bar_rank">#SRC_BAR_RANK</a></h3>
+        <p>ライバルフォルダ内での曲バーのDJランク定義です。
+            <br> DST座標はバーのxy座標からの相対位置を指定して下さい。
+        </p>
+        <p><img alt="bar_rank" src="src_bar_rank.png"></p>
+        <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td align="center" valign="top">index</td>
+                    <td valign="top">DJランクを指定します。
+                        <br>
+                        <br> 1：F
+                        <br> 2：E
+                        <br> 3：D
+                        <br> 4：C
+                        <br> 5：B
+                        <br> 6：A
+                        <br> 7：AA
+                        <br> 8：AAA
+                        <br>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>DST定義は省略。</p>
+        <h4>BAR_RANK定義テンプレート</h4>
+        <p>カンマ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="bar_rank_txt">//[曲バーのDJレベル]
+//AAA
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_RANK,8,0,0,0,0,0,1,1,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_RANK,8,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+
+//AA
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_RANK,7,0,0,0,0,0,1,1,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_RANK,7,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+
+//A
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_RANK,6,0,0,0,0,0,1,1,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_RANK,6,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+
+//B
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_RANK,5,0,0,0,0,0,1,1,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_RANK,5,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+
+//C
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_RANK,4,0,0,0,0,0,1,1,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_RANK,4,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+
+//D
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_RANK,3,0,0,0,0,0,1,1,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_RANK,3,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+
+//E
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_RANK,2,0,0,0,0,0,1,1,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_RANK,2,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+
+//F
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_RANK,1,0,0,0,0,0,1,1,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_RANK,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0</textarea>
+        </p>
+        <p>タブ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="bar_rank_csv">//[曲バーのDJレベル]
+//AAA
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_RANK	8	0	0	0	0	0	1	1	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_RANK	8	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+
+//AA
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_RANK	7	0	0	0	0	0	1	1	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_RANK	7	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+
+//A
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_RANK	6	0	0	0	0	0	1	1	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_RANK	6	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+
+//B
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_RANK	5	0	0	0	0	0	1	1	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_RANK	5	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+
+//C
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_RANK	4	0	0	0	0	0	1	1	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_RANK	4	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+
+//D
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_RANK	3	0	0	0	0	0	1	1	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_RANK	3	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+
+//E
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_RANK	2	0	0	0	0	0	1	1	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_RANK	2	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+
+//F
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_RANK	1	0	0	0	0	0	1	1	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_RANK	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0</textarea>
+        </p>
+        <h3><a name="bar_rival">#SRC_BAR_RIVAL</a></h3>
+        <p>ライバルフォルダ内での勝敗定義です。
+            <br> DST座標はバーのxy座標からの相対位置を指定して下さい。
+        </p>
+        <p><img alt="bar_rival" src="src_bar_rival.png"></p>
+        <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td align="center" valign="top">index</td>
+                    <td valign="top">勝敗を指定します。
+                        <br>
+                        <br> 0：WIN
+                        <br> 1：LOSE
+                        <br> 2：DRAW
+                        <br> 3：NOT PLAYED
+                        <br>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>index3は無理に使う必要はないでしょう。DST定義は省略。</p>
+        <h4>BAR_RIVAL定義テンプレート</h4>
+        <p>カンマ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="bar_rival_txt">//[曲バーの勝敗表示]
+//WIN index=0
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_RIVAL,0,0,0,0,0,0,1,1,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_RIVAL,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_BAR_RIVAL,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_RIVAL,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//LOSE index=1
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_RIVAL,1,0,0,0,0,0,1,1,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_RIVAL,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_BAR_RIVAL,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_RIVAL,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+
+//DRAW index=2
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_BAR_RIVAL,2,0,0,0,0,0,1,1,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_BAR_RIVAL,2,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_BAR_RIVAL,2,0,0,0,0,0,0,255,255,255,255,0,0,0,0
+#DST_BAR_RIVAL,2,0,0,0,0,0,0,255,255,255,255,0,0,0,0</textarea>
+        </p>
+        <p>タブ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="bar_rival_csv">//[曲バーの勝敗表示]
+//WIN index=0
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_RIVAL	0	0	0	0	0	0	1	1	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_RIVAL	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_BAR_RIVAL	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_RIVAL	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//LOSE index=1
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_RIVAL	1	0	0	0	0	0	1	1	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_RIVAL	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_BAR_RIVAL	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_RIVAL	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+
+//DRAW index=2
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_BAR_RIVAL	2	0	0	0	0	0	1	1	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_BAR_RIVAL	2	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_BAR_RIVAL	2	0	0	0	0	0	0	255	255	255	255	0	0	0	0
+#DST_BAR_RIVAL	2	0	0	0	0	0	0	255	255	255	255	0	0	0	0</textarea>
+        </p>
+        <h3><a name="readme">#SRC_README</a></h3>
+        <p>テキストビューアー定義です。
+            <br> 最初の一行分だけ定義し、それ以降は本体側が自動的に無限に下に並べます。
+        </p>
+        <p><img alt="readme" src="src_readme.png"></p>
+        <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td align="center" valign="top">kankaku</td>
+                    <td valign="top">行間をpx単位で指定します。
+                        <br>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>これもほぼTEXT定義なので改行無しの長文が表示されないことを祈りながらDSTのw値を大きめに取りましょう。（デフォスキンでは99999）
+            <br> デフォスキンではindex値に1が入ったりしてますが本来は不要です。
+            <br> DST定義は省略。
+        </p>
+        <h4>README定義テンプレート</h4>
+        <p>カンマ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="readme_txt">//[テキストビューア]
+//SRC定義,(NULL),font,(NULL),(NULL),kankaku
+#SRC_README,0,0,0,0,0
+//DST定義,(NULL),time,x,y,w,size,acc,a,r,g,b,blend,filter,(NULL),(NULL),loop,timer,(NULL),(NULL),(NULL)
+#DST_README,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_README,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0</textarea>
+        </p>
+        <p>タブ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="readme_csv">//[テキストビューア]
+//SRC定義	(NULL)	font	(NULL)	(NULL)	kankaku
+#SRC_README	0	0	0	0	0
+//DST定義	(NULL)	time	x	y	w	size	acc	a	r	g	b	blend	filter	(NULL)	(NULL)	loop	timer	(NULL)	(NULL)	(NULL)
+#DST_README	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_README	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0</textarea>
+        </p>
+        <p>関連リンク：<a href="hanyou.html#src_text">#SRC_TEXT</a></p>
+        <h3><a name="mousecursor">#SRC_MOUSECURSOR</a></h3>
+        <p>マウスカーソル定義です。
+            <br> ボタンなどのクリック判定はマウスカーソル定義の左上座標点で行われるため、画像側もこの仕様に合わせる必要があります。
+            <br> ※DST座標で負の値を使えば任意の位置にずらせると思います（未確認）。
+        </p>
+        <p>マウス停止後、一定時間が経過すると自動的に消えますがフェードアウト関連の設定は存在しません。
+            <br> また、スキンセレクトやキーコンフィグスキンでも利用されますが、おそらくスキン種別問わず参照可能だと思います（未確認）。
+        </p>
+        <p>※定義しなくてもボタンやスライダーのクリック自体は可能です。</p>
+        <p><img alt="mousecursor" src="src_mousecursor.png"></p>
+        <p>DSTのxy座標は実際のマウスカーソルからの相対座標指定になるので通常はxy共に0です。</p>
+        <h4>MOUSECURSOR定義テンプレート</h4>
+        <p>カンマ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="mousecursor_txt">//[マウスカーソル]
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer
+#SRC_MOUSECURSOR,0,0,0,0,0,0,1,1,0,0
+//DST定義,(NULL),time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3
+#DST_MOUSECURSOR,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0
+#DST_MOUSECURSOR,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0</textarea>
+        </p>
+        <p>タブ区切り
+            <br>
+            <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="mousecursor_csv">//[マウスカーソル]
+//SRC定義	(NULL)	gr	x	y	w	h	div_x	div_y	cycle	timer
+#SRC_MOUSECURSOR	0	0	0	0	0	0	1	1	0	0
+//DST定義	(NULL)	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer	op1	op2	op3
+#DST_MOUSECURSOR	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0	0	0	0
+#DST_MOUSECURSOR	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0</textarea>
+        </p>
+        <hr size="1px">
+        <h1><a name="result">リザルトスキン</a></h1>
+        <p>リザルトスキンの設計において最も重要な各種タイマーの説明を先に。
+            <br> SRC定義内で動作時間を設定する箇所があるのでしっかり把握しておきましょう。
+        </p>
+        <p>リザルトスキンでは各#STARTINPUT値を過ぎてからマウス・キーボード・コントローラー等から入力が発生するとその次のタイマーが動作します。
+            <br> ※参考画像ではGAUGECHART定義のみ触れていますが、実際にはSCORECHART定義のstart/end値でも個別にスキップ処理が行われます。
+        </p>
+        <p>図：リザルトスキンにおける各定義とtimerの相関図
+            <br>
+            <img alt="result_timer" src="result_timer.gif">
+        </p>
+        <p>具体例を挙げますと、#STARTINPUT start値を過ぎた状態でチャート描画終了後あるいは描画中であっても入力が発生するとtimer151が動作します。
+            <br> 逆に#STARTINPUT start値を過ぎていて、かつチャート描画終了後でも入力が発生しない限りtimer151は動作しません。</p>
+        <p>また、チャート描画中にスキップした場合のみ、描画アニメーションは強制的に終了します。
+            <br> timer151・152はただのタイマーなのでスキップしても個々のアニメーションは継続されたまま次のタイマーも動き始めます。
+        </p>
+        <p>
+            <br>
+        </p>
+        <p>例：上記設定のリザルトスキンでボタンガチャ押しした場合（つまり最短動作時間）の各定義とtimerの相関図
+            <br>
+            <img alt="result_timer2" src="result_timer2.gif"></p>
+        <p>なお、チャート描画こそ存在しませんが各定義とtimerの関係性はコースリザルトスキンでも同様です。
+            <br> チャート定義だけSRC側に独立した時間制御パラメータがあるのはリザルトとコースリザでほとんど同じ構造を取ることで使い回しやすくしたものと思われます。
+        </p>
+        <ul class="link">
+            <li>関連リンク：</li>
+            <li><a href="kakutyou.html#startinput">#STARTINPUT</a></li>
+            <li><a href="specification.html#dynamic_option">特定条件下でのみ参照値が異なる機能</a></li>
+            <li><a href="bug.html#if_op330">op330番台のIF分岐</a></li>
+            <li><a href="bug.html#fullcombo_failed">フルコン落ち時のクリア判定の分岐特性</a></li>
+            <li><a href="application.html#oa_dx_link">リザルトでのプレイスキンとの連携によるクリアマーク更新分岐</a></li>
+            <li><a href="application.html#max_combo">既フルコン時のMAXCOMBO差分検出によるフルコン分岐</a></li>
+        </ul>
+        <h3><a name="src_gaugechart">#SRC_GAUGECHART_1P</a></h3>
+        <p>ゲージ推移定義です。2P側の定義はSRC_GAUGECHART_2Pです。
+            <br> かなり珍しいパラメータがいくつか含まれているので注意しましょう。
+            <br> DSTのxy座標は左下座標点を指定します。
+        </p>
+        <p>また、SCORECHART定義でも同様ですがDSTのwh値はチャートグラフの線の太さになります。</p>
+        <p class="caution">※DST定義のwh値を1にした時、稀に曲タイトルが表示されなくなりました。
+            <br> デフォスキンでは発生しなかったため、現時点ではRBリザ固有バグ扱いですが一応注意。
+        </p>
+        <p><img alt="gaugechart" src="src_gaugechart.png"></p>
+        <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td align="center" valign="top">index
+                        <br>
+                    </td>
+                    <td valign="top">ゲージ種別を指定します。
+                        <br>
+                        <br> 0：緑ゲージ
+                        <br> 1：赤ゲージ
+                        <br>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">field_w/field_h </td>
+                    <td valign="top">グラフ領域を指定します。 </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">start </td>
+                    <td valign="top">グラフの描画開始時間をms単位で指定します。
+                        <br>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" valign="top">end
+                        <br>
+                    </td>
+                    <td valign="top">グラフの描画終了時間をms単位で指定します。
+                        <br>
+                        <br> ※各種timerとの連携を考慮して設定しましょう。
+                        <br>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>DST定義は省略。</p>
+        <h4>GAUGECHART_1P定義テンプレート</h4>
+        <p>カンマ区切り
+            <br>
+            <table style="width: 1000px;" border="0">
+                <tbody>
+                    <tr>
+                        <td>1P
+                            <br>
+                            <textarea class="template2" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="gaugechart_txt">//[ゲージ推移グラフ]
+//field_wとfield_hはグラフ領域です。
+//startはグラフ描画開始時間、endはグラフ描画終了時間
+//DSTは左下を指定して下さい。
+
+//1P緑
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,field_w,field_h,start,end
+#SRC_GAUGECHART_1P,0,0,0,0,0,0,1,1,0,0,0,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer
+#DST_GAUGECHART_1P,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+
+//1P赤
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,field_w,field_h,start,end
+#SRC_GAUGECHART_1P,1,0,0,0,0,0,1,1,0,0,0,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer
+#DST_GAUGECHART_1P,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0</textarea>
+                        </td>
+                        <td>1P & 2P
+                            <br>
+                            <textarea class="template2" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="gaugechart_txt">//[ゲージ推移グラフ]
+//field_wとfield_hはグラフ領域です。
+//startはグラフ描画開始時間、endはグラフ描画終了時間
+//DSTは左下を指定して下さい。
+
+//1P緑
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,field_w,field_h,start,end
+#SRC_GAUGECHART_1P,0,0,0,0,0,0,1,1,0,0,0,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer
+#DST_GAUGECHART_1P,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+
+//1P赤
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,field_w,field_h,start,end
+#SRC_GAUGECHART_1P,1,0,0,0,0,0,1,1,0,0,0,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer
+#DST_GAUGECHART_1P,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+
+//2P緑
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,field_w,field_h,start,end
+#SRC_GAUGECHART_2P,0,0,0,0,0,0,1,1,0,0,0,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer
+#DST_GAUGECHART_2P,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+
+//2P赤
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,field_w,field_h,start,end
+#SRC_GAUGECHART_2P,1,0,0,0,0,0,1,1,0,0,0,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer
+#DST_GAUGECHART_2P,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0</textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>タブ区切り
+                <br>
+                <table style="width: 1000px;" border="0">
+                    <tbody>
+                        <tr>
+                            <td>1P
+                                <br>
+                                <textarea class="template2" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="gaugechart_txt">//[ゲージ推移グラフ]
+//field_wとfield_hはグラフ領域です。
+//startはグラフ描画開始時間、endはグラフ描画終了時間
+//DSTは左下を指定して下さい。
+
+//1P緑
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	field_w	field_h	start	end
+#SRC_GAUGECHART_1P	0	0	0	0	0	0	1	1	0	0	0	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer
+#DST_GAUGECHART_1P	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+
+//1P赤
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	field_w	field_h	start	end
+#SRC_GAUGECHART_1P	1	0	0	0	0	0	1	1	0	0	0	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer
+#DST_GAUGECHART_1P	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0</textarea>
+                            </td>
+                            <td>1P & 2P
+                                <br>
+                                <textarea class="template2" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="gaugechart_txt">//[ゲージ推移グラフ]
+//field_wとfield_hはグラフ領域です。
+//startはグラフ描画開始時間、endはグラフ描画終了時間
+//DSTは左下を指定して下さい。
+
+//1P緑
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	field_w	field_h	start	end
+#SRC_GAUGECHART_1P	0	0	0	0	0	0	1	1	0	0	0	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer
+#DST_GAUGECHART_1P	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+
+//1P赤
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	field_w	field_h	start	end
+#SRC_GAUGECHART_1P	1	0	0	0	0	0	1	1	0	0	0	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer
+#DST_GAUGECHART_1P	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+
+//2P緑
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	field_w	field_h	start	end
+#SRC_GAUGECHART_2P	0	0	0	0	0	0	1	1	0	0	0	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer
+#DST_GAUGECHART_2P	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+
+//2P赤
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	field_w	field_h	start	end
+#SRC_GAUGECHART_2P	1	0	0	0	0	0	1	1	0	0	0	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer
+#DST_GAUGECHART_2P	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0</textarea>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>関連リンク：<a href="kakutyou.html#startinput">#STARTINPUT</a></p>
+                <h3><a name="src_scorechart">#SRC_SCORECHART</a></h3>
+                <p>スコア推移定義です。上記と似てますが2P側定義は存在せず、indexでライバルの値を参照する形になります。
+                    <br> それ以外はほぼ同じです。こちらもDSTのxy座標は左下座標点を指定します。
+                </p>
+                <p><img alt="scorechart" src="src_scorechart.png"></p>
+                <table border="1" bordercolor="#c0c0c0" cellpadding="1" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td align="center" valign="top">index
+                                <br>
+                            </td>
+                            <td valign="top">ゲージ種別を指定します。
+                                <br>
+                                <br> 0：今回のスコア
+                                <br> 1：自己ベストスコア
+                                <br> 2：ライバル（ターゲット）スコア
+                                <br>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="center" valign="top">field_w/field_h </td>
+                            <td valign="top">グラフ領域を指定します。 </td>
+                        </tr>
+                        <tr>
+                            <td align="center" valign="top">start </td>
+                            <td valign="top">グラフの描画開始時間をms単位で指定します。
+                                <br>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="center" valign="top">end
+                                <br>
+                            </td>
+                            <td valign="top">グラフの描画終了時間をms単位で指定します。
+                                <br>
+                                <br> ※各種timerとの連携を考慮して設定しましょう。
+                                <br>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>DST定義は省略。</p>
+                <h4>SCORECHART定義テンプレート</h4>
+                <p>カンマ区切り
+                    <br>
+                    <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="scorechart_txt">//[スコア推移グラフ]
+//field_wとfield_hはグラフ領域です。
+//startはグラフ描画開始時間、endはグラフ描画終了時間
+//DSTは左下を指定して下さい。
+
+//exスコアチャートのテスト 自分
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,field_w,field_h,start,end
+#SRC_SCORECHART,0,0,0,0,0,0,1,1,0,0,0,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer
+#DST_SCORECHART,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+
+//exスコアチャートのテスト ハイスコア
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,field_w,field_h,start,end
+#SRC_SCORECHART,1,0,0,0,0,0,1,1,0,0,0,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer
+#DST_SCORECHART,1,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0
+
+//exスコアチャートのテスト ターゲット
+//SRC定義,index,gr,x,y,w,h,div_x,div_y,cycle,timer,field_w,field_h,start,end
+#SRC_SCORECHART,2,0,0,0,0,0,1,1,0,0,0,0,0,0
+//DST定義,index,time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer
+#DST_SCORECHART,2,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0</textarea>
+                </p>
+                <p>タブ区切り
+                    <br>
+                    <textarea class="template" onclick="this.select();" wrap="off" rows="4" cols="154" readonly="readonly" name="scorechart_csv">//[スコア推移グラフ]
+//field_wとfield_hはグラフ領域です。
+//startはグラフ描画開始時間、endはグラフ描画終了時間
+//DSTは左下を指定して下さい。
+
+//exスコアチャートのテスト 自分
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	field_w	field_h	start	end
+#SRC_SCORECHART	0	0	0	0	0	0	1	1	0	0	0	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer
+#DST_SCORECHART	0	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+
+//exスコアチャートのテスト ハイスコア
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	field_w	field_h	start	end
+#SRC_SCORECHART	1	0	0	0	0	0	1	1	0	0	0	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer
+#DST_SCORECHART	1	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0
+
+//exスコアチャートのテスト ターゲット
+//SRC定義	index	gr	x	y	w	h	div_x	div_y	cycle	timer	field_w	field_h	start	end
+#SRC_SCORECHART	2	0	0	0	0	0	1	1	0	0	0	0	0	0
+//DST定義	index	time	x	y	w	h	acc	a	r	g	b	blend	filter	angle	center	loop	timer
+#DST_SCORECHART	2	0	0	0	0	0	0	255	255	255	255	0	0	0	0	0	0</textarea>
+                </p>
+                <p>関連リンク：<a href="kakutyou.html#startinput">#STARTINPUT</a></p>
+                <hr size="1px">
+                <h1><a name="other_skin">その他のスキン</a></h1>
+                <p>決定・コースリザルト・スキンセレクト・キーコンフィグスキンには専用の特殊定義は存在しません。
+                    <br> （スキンセレクト・キーコンフィグスキンではMOUSECURSOR定義のみ使います）
+                </p>
+    </div>
+</body>
+
+</html>

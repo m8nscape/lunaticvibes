@@ -1,0 +1,49 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_ShowSimpleMessageBox</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_ShowSimpleMessageBox</h1>
+<p>Use this function to display a simple message box.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_ShowSimpleMessageBox(Uint32      flags,
+                             const char* title,
+                             const char* message,
+                             SDL_Window* window)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>flags</strong></td><td>an SDL_MessageBoxFlag; see <A href="#Remarks">Remarks</a> for details.</td></tr>
+<tr><td><strong>title</strong></td><td>UTF-8 title text</td></tr>
+<tr><td><strong>message</strong></td><td>UTF-8 message text</td></tr>
+<tr><td><strong>window</strong></td><td>the parent window, or NULL for no parent</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, 
+                         "Missing file",
+                         "File is missing. Please reinstall the program.",
+                         NULL);
+</pre></div>
+<h2 id="Remarks">Remarks</h2>
+<p><strong>flags</strong> may be any of the following:
+<table>
+<tr><td>SDL_MESSAGEBOX_ERROR</td><td>error dialog</td></tr>
+<tr><td>SDL_MESSAGEBOX_WARNING</td><td>warning dialog</td></tr>
+<tr><td>SDL_MESSAGEBOX_INFORMATION</td><td>informational dialog</td></tr>
+</table>
+<p>This function may be called at any time, even before <A href="SDL_Init.html">SDL_Init</a>(). This makes it useful for reporting errors like a failure to create a renderer or OpenGL context.
+<p>On X11, SDL rolls its own dialog box with X11 primitives instead of a formal toolkit like GTK+ or Qt.
+<p>Note that if <a href="SDL_Init.html">SDL_Init</a>() would fail because there isn't any available video target, this function is likely to fail for the same reasons. If this is a concern, check the return value from this function and fall back to writing to stderr if you can.
+</div>
+</BODY>
+</HTML>

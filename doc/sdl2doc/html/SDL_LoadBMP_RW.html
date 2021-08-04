@@ -1,0 +1,34 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_LoadBMP_RW</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_LoadBMP_RW</h1>
+<p>Use this function to load a BMP image from a seekable SDL data stream (memory or file).
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_Surface* SDL_LoadBMP_RW(SDL_RWops* src,
+                            int        freesrc)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>src</strong></td><td>the data stream for the surface</td></tr>
+<tr><td><strong>freesrc</strong></td><td>non-zero to close the stream after being read</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns a pointer to a new <a href="structures/SDL_Surface.html">SDL_Surface</a> structure or NULL if there was an error; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>The new surface should be freed with <a href="SDL_FreeSurface.html">SDL_FreeSurface</a>().
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_FreeSurface.html">SDL_FreeSurface</a></li>
+<li><a href="SDL_LoadBMP.html">SDL_LoadBMP</a></li>
+<li><a href="SDL_SaveBMP_RW.html">SDL_SaveBMP_RW</a></li></ul>
+</div>
+</BODY>
+</HTML>

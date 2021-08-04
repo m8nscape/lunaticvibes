@@ -1,0 +1,38 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_HapticConstant</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_HapticConstant</h1>
+<p>A structure that contains a template for a constant effect.
+<h2>Data Fields</h2>
+<table>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>Header</em></td></tr>
+<tr><td>Uint16</td><td><strong>type</strong></td><td>SDL_HAPTIC_CONSTANT</td></tr>
+<tr><td><a href="SDL_HapticDirection.html">SDL_HapticDirection</a></td><td><strong>direction</strong></td><td>direction of the effect</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>Replay</em></td></tr>
+<tr><td>Uint32</td><td><strong>length</strong></td><td>duration of the effect</td></tr>
+<tr><td>Uint16</td><td><strong>delay</strong></td><td>delay before starting the effect</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>Trigger</em></td></tr>
+<tr><td>Uint16</td><td><strong>button</strong></td><td>button that triggers the effect</td></tr>
+<tr><td>Uint16</td><td><strong>interval</strong></td><td>how soon it can be triggered again after button</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>Constant</em></td></tr>
+<tr><td>Sint16</td><td><strong>level</strong></td><td>strength of the constant effect</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="3"><em>Envelope</em></td></tr>
+<tr><td>Uint16</td><td><strong>attack_length</strong></td><td>duration of the attack</td></tr>
+<tr><td>Uint16</td><td><strong>attack_level</strong></td><td>level at the start of the attack</td></tr>
+<tr><td>Uint16</td><td><strong>fade_length</strong></td><td>duration of the fade</td></tr>
+<tr><td>Uint16</td><td><strong>fade_level</strong></td><td>level at the end of the fade</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>This structure is exclusive to the SDL_HAPTIC_CONSTANT effect.
+<p>A constant effect applies a constant force to the joystick in the specified direction.
+<h2>Related Functions</h2>
+</div>
+</BODY>
+</HTML>

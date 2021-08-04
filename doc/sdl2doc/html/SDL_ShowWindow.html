@@ -1,0 +1,32 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_ShowWindow</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_ShowWindow</h1>
+<p>Use this function to show a window.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_ShowWindow(SDL_Window* window)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>window</strong></td><td>the window to show</td></tr>
+</table>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+SDL_ShowWindow(window);
+</pre></div>
+<h2>Remarks</h2>
+<p>In SDL 1.2 you might have used BOOL WINAPI ShowWindow(_In_ HWND hWnd, _In_ int nCmdShow) for Win32 builds. SDL_ShowWindow() replaces this.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_HideWindow.html">SDL_HideWindow</a></li></ul>
+</div>
+</BODY>
+</HTML>

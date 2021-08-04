@@ -1,0 +1,30 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_ReadBE16</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_ReadBE16</h1>
+<p>Use this function to read 16 bits of big-endian data from an <a href="structures/SDL_RWops.html">SDL_RWops</a> and return in native format.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+Uint16 SDL_ReadBE16(SDL_RWops* src)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+</tr><td><strong>src</strong></td><td>the stream from which to read data</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 16 bits of data in the native byte order of the platform.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>SDL byteswaps the data only if necessary, so the data returned will be in the native byte order.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_ReadLE16.htm">SDL_ReadLE16</a></li></ul>
+</div>
+</BODY>
+</HTML>

@@ -1,0 +1,40 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_TICKS_PASSED</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_TICKS_PASSED</h1>
+<p>Use this macro to compare SDL ticks values.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_TICKS_PASSED(A, B)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>A</strong></td><td>the first ticks values</td></tr>
+<tr><td><strong>B</strong></td><td>the second ticks values</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns return "true" if A has passed B.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+/* if you want to wait 100 ms, you could do this: */
+Uint32 timeout = SDL_GetTicks() + 100;
+while (!SDL_TICKS_PASSED(SDL_GetTicks(), timeout)) {
+    /* ... do work until timeout has elapsed */
+}
+</pre></div>
+<h2>Remarks</h2>
+<h2>Version</h2>
+<p>This function is available since SDL 2.0.1.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetTicks.html">SDL_GetTicks</a></li></ul>
+</div>
+</BODY>
+</HTML>

@@ -1,0 +1,44 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_UserEvent</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_UserEvent</h1>
+<p>A structure that contains an application-defined event type.
+<h2>Data Fields</h2>
+<table>
+<tr><td>Uint32</td><td><strong>type</strong></td><td>value obtained from <a href="../SDL_RegisterEvents.html">SDL_RegisterEvents<a>()</td></tr>
+<tr><td>Uint32</td><td><strong>timestamp</strong></td><td>timestamp of the event</td></tr>
+<tr><td>Uint32</td><td><strong>windowID</strong></td><td>the associated window, if any</td></tr>
+<tr><td>Sint32</td><td><strong>code</strong></td><td>user defined event code</td></tr>
+<tr><td>void*</td><td><strong>data1</strong></td><td>user defined data pointer</td></tr>
+<tr><td>void*</td><td><strong>data2</strong></td><td>user defined data pointer</td></tr>
+</table>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+Uint32 myEventType = SDL_RegisterEvents(1);
+if (myEventType != ((Uint32)-1)) {
+    SDL_Event event;
+    SDL_zero(event);
+    event.type = myEventType;
+    event.user.code = my_event_code;
+    event.user.data1 = significant_data;
+    event.user.data2 = 0;
+    SDL_PushEvent(&event);
+}
+</pre></div>
+<h2>Remarks</h2>
+<p><a href="../SDL_UserEvent.html">SDL_UserEvent</a> is in the <strong>user</strong> member of the <a href="../SDL_Event.html">SDL_Event</a> union. This event is unique; it is never created by SDL but only by the application. The event can be pushed onto the event queue using <a href="../SDL_PushEvent.html">SDL_PushEvent</a>(). The contents of the structure members are completely up to the programmer; the only requirement is that <strong>type</strong> is a value obtained from <a href="../SDL_RegisterEvents.html">SDL_RegisterEvents</a>().
+<h2>Related Enumerations</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_EventType.html">SDL_EventType</a></li></ul> 
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_RegisterEvent.html">SDL_RegisterEvent</a></li>
+<li><a href="../SDL_PushEvent.html">SDL_PushEvent</a></li></ul>
+</div>
+</BODY>
+</HTML>

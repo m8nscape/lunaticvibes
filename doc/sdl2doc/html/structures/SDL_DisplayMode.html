@@ -1,0 +1,71 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_DisplayMode</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_DisplayMode</h1>
+<p>A structure that describes a display mode.
+<h2>Data Fields</h2>
+<table>
+<tr><td>Uint32</td><td><strong>format</strong></td><td>one of the <a href="../SDL_PixelFormatEnum.html">SDL_PixelFormatEnum</a> values; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td>int</td><td><strong>w</strong></td><td>width</td></tr>
+<tr><td>int</td><td><strong>h</strong></td><td>height</td></tr>
+<tr><td>int</td><td><strong>refresh_rate</strong></td><td>refresh rate (in Hz), or 0 for unspecified</td></tr>
+<tr><td>void*</td><td><strong>driverdata</strong></td><td>driver-specific data, initialize to 0</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<strong>format</strong> may be one of the following:
+<table>
+<tr><td>SDL_PIXELFORMAT_UNKNOWN</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX1LSB</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX1MSB</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX4LSB</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX4MSB</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX8</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB332</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB444</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB555</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGR555</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ARGB4444</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGBA4444</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ABGR4444</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGRA4444</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ARGB1555</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGBA5551</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ABGR1555</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGRA5551</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB565</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGR565</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB24</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGR24</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGBX8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGR888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGRX8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ARGB8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGBA8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ABGR8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGRA8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ARGB2101010</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_YV12</td><td>planar mode: Y + V + U (3 planes)</td></tr>
+<tr><td>SDL_PIXELFORMAT_IYUV</td><td>planar mode: Y + U + V (3 planes)</td></tr>
+<tr><td>SDL_PIXELFORMAT_YUY2</td><td>packed mode: Y0+U0+Y1+V0 (1 plane)</td></tr>
+<tr><td>SDL_PIXELFORMAT_UYVY</td><td>packed mode: U0+Y0+V0+Y1 (1 plane)</td></tr>
+<tr><td>SDL_PIXELFORMAT_YVYU</td><td>packed mode: Y0+V0+Y1+U0 (1 plane)</td></tr>
+</table>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_GetClosestDisplayMode.html">SDL_GetClosestDisplayMode</a></li>
+<li><a href="../SDL_GetCurrentDisplayMode.html">SDL_GetCurrentDisplayMode</a></li>
+<li><a href="../SDL_GetDesktopDisplayMode.html">SDL_GetDesktopDisplayMode</a></li>
+<li><a href="../SDL_GetDisplayMode.html">SDL_GetDisplayMode</a></li>
+<li><a href="../SDL_GetNumDisplayModes.html">SDL_GetNumDisplayModes</a></li>
+<li><a href="../SDL_GetWindowDisplayMode.html">SDL_GetWindowDisplayMode</a></li>
+<li><a href="../SDL_SetWindowDisplayMode.html">SDL_SetWindowDisplayMode</a></li></ul>
+</div>
+</BODY>
+</HTML>

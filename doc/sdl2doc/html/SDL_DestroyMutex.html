@@ -1,0 +1,50 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_DestroyMutex</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_DestroyMutex</h1>
+<p>Use this function to destroy a mutex created with <a href="SDL_CreateMutex.html">SDL_CreateMutex</a>().
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_DestroyMutex(SDL_mutex* mutex)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>mutex</strong></td><td>the mutex to destroy</td></tr>
+</table>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+SDL_mutex *mutex;
+
+mutex = SDL_CreateMutex();
+if (!mutex) {
+  fprintf(stderr, "Couldn't create mutex\n");
+  return;
+}
+
+if (SDL_LockMutex(mutex) == 0) {
+  /* Do stuff while mutex is locked */
+  SDL_UnlockMutex(mutex);
+} else {
+  fprintf(stderr, "Couldn't lock mutex\n");
+}
+
+SDL_DestroyMutex(mutex);
+</pre></div>
+<h2>Remarks</h2>
+<p>This function must be called on any mutex that is no longer needed. Failure to destroy a mutex will result in a system memory or resource leak. While it is safe to destroy a mutex that is UNLOCKED, it is not safe to attempt to destroy a locked mutex and may result in undefined behavior depending on the platform.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_CreateMutex.html">SDL_CreateMutex</a></li>
+<li><a href="SDL_LockMutex.html">SDL_LockMutex</a></li>
+<li><a href="SDL_TryLockMutex.html">SDL_TryLockMutex</a></li>
+<li><a href="SDL_UnlockMutex.html">SDL_UnlockMutex</a></li></ul>
+</div>
+</BODY>
+</HTML>

@@ -1,0 +1,36 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetError</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetError</h1>
+<p>Use this function to retrieve a message about the last error that occurred.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+const char* SDL_GetError(void)
+</pre></div>
+<h2>Return Value</h2>
+<p>Returns a message with information about the specific error that occurred, or an empty string if there hasn't been an error since the last call to <a href="SDL_ClearError.html">SDL_ClearError</a>(). Without calling <a href="SDL_ClearError.html">SDL_ClearError</a>(), the message is only applicable when an SDL function has signaled an error. You must check the return values of SDL function calls to determine when to appropriately call <a href="SDL_GetError.html">SDL_GetError</a>().
+<p>This string is statically allocated and must not be freed by the application.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+if (SDL_Init( SDL_INIT_EVERYTHING ) < 0) {
+    // Unrecoverable error, exit here.
+    printf("SDL_Init failed: %s\n", SDL_GetError());
+}
+</pre></div>
+<p>Note: Although this example uses <a href="SDL_Init.html">SDL_Init</a>(), <a href="SDL_GetError.html">SDL_GetError</a>() provides an error message for any failed SDL operation which supports error reporting, see the documentation page for each particular SDL function.
+<h2>Remarks</h2>
+<p>It is possible for multiple errors to occur before calling <a href="SDL_GetError.html">SDL_GetError</a>(). Only the last error is returned.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_ClearError.html">SDL_ClearError</a></li>
+<li><a href="SDL_SetError.html">SDL_SetError</a></li></ul>
+</div>
+</BODY>
+</HTML>

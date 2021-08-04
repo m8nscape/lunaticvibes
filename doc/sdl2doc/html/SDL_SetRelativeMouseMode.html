@@ -1,0 +1,32 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_SetRelativeMouseMode</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_SetRelativeMouseMode</h1>
+<p>Use this function to set the relative mouse mode.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_SetRelativeMouseMode(SDL_bool enabled)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>enabled</strong></td><td>whether or not to enable relative mode; SDL_TRUE for enabled???</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <A href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<p><span style="color:green; ">If relative mode is not supported this returns -1.</span>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>While the mouse is in relative mode, the cursor is hidden, and the driver will try to report continuous motion in the current window. Only relative motion events will be delivered, the mouse position will not change.
+<p>This function will flush any pending mouse motion.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetRelativeMouseMode.html">SDL_GetRelativeMouseMode</a></li></ul>
+</div>
+</BODY>
+</HTML>

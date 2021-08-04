@@ -1,0 +1,27 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_PumpEvents</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_PumpEvents</h1>
+<p>Use this function to pump the event loop, gathering events from the input devices.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_PumpEvents(void)
+</pre></div>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>This function updates the event queue and internal input device state.
+<p><img height="16" width="16" title="/!\" src="alert.png" alt="/!\"></img> This should only be run in the thread that sets the video mode, and for extra safety, you should consider only doing those things on the main thread in any case.
+<p><a href="SDL_PumpEvents.html">SDL_PumpEvents</a>() gathers all the pending input information from devices and places it in the event queue. Without calls to <a href="SDL_PumpEvents.html">SDL_PumpEvents</a>() no events would ever be placed on the queue. Often the need for calls to <a href="SDL_PumpEvents.html">SDL_PumpEvents</a>() is hidden from the user since <a href="SDL_PollEvent.html">SDL_PollEvent</a>() and <A href="SDL_WaitEvent.html">SDL_WaitEvent</a>() implicitly call <a href="SDL_PumpEvents.html">SDL_PumpEvents</a>(). However, if you are not polling or waiting for events (e.g. you are filtering them), then you must call <a href="SDL_PumpEvents.html">SDL_PumpEvents</a>() to force an event queue update.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_PollEvent.html">SDL_PollEvent</a></li>
+<li><a href="SDL_WaitEvent.html">SDL_WaitEvent</a></li></ul>
+</div>
+</BODY>
+</HTML>

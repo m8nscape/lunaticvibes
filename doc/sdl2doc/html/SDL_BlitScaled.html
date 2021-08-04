@@ -1,0 +1,37 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_BlitScaled</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_BlitScaled</h1>
+<p>Use this function to perform a scaled surface copy to a destination surface.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int BlitScaled(SDL_Surface*    src,
+               const SDL_Rect* srcrect,
+               SDL_Surface*    dst,
+               SDL_Rect*       dstrect)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>src</strong></td><td>the <a href="SDL_Surface.html">SDL_Surface</a> structure to be copied from</td></td>
+<tr><td><strong>srcrect</strong></td><td>the <a href="SDL_Rect.html">SDL_Rect</a> structure representing the rectangle to be copied, or NULL to copy the entire surface</td></td>
+<tr><td><strong>dst</strong></td><td>the <a href="SDL_Surface.html">SDL_Surface</a> structure that is the blit target</td></td>
+<tr><td><strong>dstrect</strong></td><td>the <a href="SDL_Rect.html">SDL_Rect</a> structure representing the rectangle that is copied into, or NULL to copy into the entire surface</td></td>
+</table>
+</h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>This is the public scaled blit function. This function calls <a href="SDL_LowerBlitScaled.html">SDL_LowerBlitScaled</a>() internally.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_BlitSurface.html">SDL_BlitSurface</a></li>
+<li><a href="SDL_LowerBlitScaled.html">SDL_LowerBlitScaled</a></li></ul>
+</div>
+</BODY>
+</HTML>

@@ -1,0 +1,27 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_assert_state</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_assert_state</h1>
+<p>An enumeration of assertion handling states.
+<h2>Values</h2>
+<table>
+<tr><td>SDL_ASSERTION_RETRY</td><td>retry the assert immediately</td></tr>
+<tr><td>SDL_ASSERTION_BREAK</td><td>trigger a breakpoint under the debugger</td></tr>
+<tr><td>SDL_ASSERTION_ABORT</td><td>terminate the program</td></tr>
+<tr><td>SDL_ASSERTION_IGNORE</td><td>ignore the assert</td></tr>
+<tr><td>SDL_ASSERTION_ALWAYS_IGNORE</td><td>ignore the assert from now on</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>This enumeration is returned by the callback function in <a href="SDL_SetAssertionHandler.html">SDL_SetAssertionHandler</a>() to determine the response to failed assertions.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_SetAssertionHandler.html">SDL_SetAssertionHandler</a></li></ul>
+</div>
+</BODY>
+</HTML>

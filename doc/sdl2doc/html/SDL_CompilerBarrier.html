@@ -1,0 +1,26 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_CompilerBarrier</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_CompilerBarrier</h1>
+<p>Use this function to prevent the compiler from reordering reads and writes to globally visible variables across the call.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_CompilerBarrier(void)
+</pre></div>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>This function only prevents the compiler from reordering reads and writes, it does not prevent the CPU from reordering reads and writes. However, all of the atomic operations that modify memory are full memory barriers.
+<p>This function is used in <a href="SDL_AtomicGet.html">SDL_AtomicGet</a>() and <a href="SDL_AtomicGetPtr.html">SDL_AtomicGetPtr</a>().
+<h2>Related Functions</h2
+<ul style="list-style-type:none"><li><a href="SDL_AtomicGet.html">SDL_AtomicGet</a></li>
+<li><a href="SDL_AtomicGetPtr.html">SDL_AtomicGetPtr</a></li></ul>
+</div>
+</BODY>
+</HTML>

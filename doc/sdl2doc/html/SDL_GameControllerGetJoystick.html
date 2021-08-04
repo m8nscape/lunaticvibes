@@ -1,0 +1,49 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GameControllerGetJoystick</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GameControllerGetJoystick</h1>
+<p>Use this function to get the Joystick ID from a Game Controller. The game controller builds on the Joystick API, but to be able to use the Joystick's functions with a gamepad, you need to use this first to get the joystick object.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_Joystick* SDL_GameControllerGetJoystick(SDL_GameController* gamecontroller)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>gamecontroller</strong></td><td>the game controller object that you want to get a joystick from</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns a SDL_Joystick object; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+#include <stdio.h> /* for printf() */
+
+/* ... */
+
+SDL_GameController *ctrl;
+SDL_Joystick *joy;
+int i;
+
+for(i = 0; i < SDL_NumJoysticks(); ++i) {
+    if (SDL_IsGameController(i)) {
+        printf("Index \'%i\' is a compatible controller, named \'%s\'\n", i, SDL_GameControllerNameForIndex(i));
+        ctrl = SDL_GameControllerOpen(i);
+        joy = SDL_GameControllerGetJoystick(ctrl);
+    } else {
+        printf("Index \'%i\' is not a compatible controller.\n", i);
+    }
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>This function will give you a SDL_Joystick object, which allows you to use the SDL_Joystick functions with a SDL_GameController object. This would be useful for getting a joystick's position at any given time, even if it hasn't moved (moving it would produce an event, which would have the axis' value).
+<p>The pointer returned is owned by the GameController. You should not call <a href="SDL_JoystickClose.html">SDL_JoystickClose</a>() on it, for example, since doing so will likely cause SDL to crash. 
+</div>
+</BODY>
+</HTML>

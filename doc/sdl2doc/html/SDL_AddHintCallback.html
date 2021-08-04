@@ -1,0 +1,49 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_AddHintCallback</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_AddHintCallback</h1>
+<p>Use this function to add a function to watch a particular hint.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_AddHintCallback(const char*      name,
+                         SDL_HintCallback callback,
+                         void*            userdata)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>name</strong></td><td>the hint to watch</td></tr>
+<tr><td><strong>callback</strong></td><td>the function to call when the hint value changes</td></tr>
+<tr><td><strong>userdata</strong></td><td>a pointer to pass to the callback function</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>The function prototype for <strong>callback</strong> is:
+<ul style="list-style-type:none"><li>
+<div style=codearea>
+<pre>
+    void SDL_HintCallback(void*       userdata,
+                          const char* name,
+                          const char* oldValue,
+                          const char* newValue)
+</pre></div></li>
+    <li>where its parameters are:<p>
+<table>
+<tr><td>userdata</td><td>what was passed as <strong>userdata</strong> to <a href="SDL_AddHintCallback.html">SDL_AddHintCallback</a>()</td></tr>
+<tr><td>name</td><td>what was passed as <strong>name</strong> to <a href="SDL_AddHintCallback.html">SDL_AddHintCallback</a>()</td></tr>
+<tr><td>oldValue</td><td>the old value</td></tr>
+<tr><td>newValue</td><td>the new value</td></tr>
+</table></li></ul>
+<h2>Version</h2>
+<p>This function is available since SDL 2.0.0.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_DelHintCallback.html">SDL_DelHintCallback</a></li></ul>
+</div>
+</BODY>
+</HTML>

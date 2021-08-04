@@ -1,0 +1,66 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetWindowSurface</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetWindowSurface</h1>
+<p>Use this function to get the SDL surface associated with the window.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_Surface* SDL_GetWindowSurface(SDL_Window* window)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>window</strong></td><td>the window to query</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns the surface associated with the window, or NULL on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+#include "SDL.h" // include SDL header
+
+int main(int argc, char* argv[])
+{
+    SDL_Surface *screen; // even with SDL2, we can still bring ancient code back
+    SDL_Window *window;
+    SDL_Surface *image;
+
+    SDL_Init(SDL_INIT_VIDEO); // init video
+
+    // create the window like normal
+    window = SDL_CreateWindow("SDL2 Example", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_SHOWN);
+
+    // but instead of creating a renderer, we can draw directly to the screen
+    screen = SDL_GetWindowSurface(window);
+
+    // let's just show some classic code for reference
+    image = SDL_LoadBMP("box.bmp"); // loads image
+    SDL_BlitSurface(image, NULL, screen, NULL); // blit it to the screen
+    SDL_FreeSurface(image);
+
+    // this works just like SDL_Flip
+    SDL_UpdateWindowSurface(window);
+
+    // show image for 2 seconds
+    SDL_Delay(2000);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+    return 0;
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>A new surface will be created with the optimal format for the window, if necessary. This surface will be freed when the window is destroyed.
+<p>You may not combine this with 3D or the rendering API on this window.
+<p>This function is affected by <a href="SDL_HINT_FRAMEBUFFER_ACCELERATION.html">SDL_HINT_FRAMEBUFFER_ACCELERATION</a>.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_UpdateWindowSurface.html">SDL_UpdateWindowSurface</a></li>
+<li><a href="SDL_UpdateWindowSurfaceRects.html">SDL_UpdateWindowSurfaceRects</a></li></ul>
+</div>
+</BODY>
+</HTML>

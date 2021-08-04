@@ -1,0 +1,41 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_RWtell</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_RWtell</h1>
+<p>Use this function to determine the current read/write offset in an SDL_RWops data stream.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+Sint64 SDL_RWtell(struct SDL_RWops* context)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>context</strong></td><td>a SDL_RWops data stream object from which to get the current offset</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns the current offset in the stream, or -1 if the information can not be determined.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+extern SDL_RWops *rw;
+printf("Current position in stream: %lld\n", (long long) SDL_RWtell(rw));
+if (SDL_RWseek(rw, 0, RW_SEEK_END) != -1) {
+    printf("Final position in stream: %lld\n", (long long) SDL_RWtell(rw));
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>SDL_RWtell is actually a macro that calls the SDL_RWops's <strong>seek</strong> method, with an offset of 0 bytes from RW_SEEK_CUR, to simplify application development.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_RWclose.html">SDL_RWclose</a></li>
+<li><a href="SDL_RWread.html">SDL_RWread</a></li>
+<li><a href="SDL_RWseek.html">SDL_RWseek</a></li>
+<li><a href="SDL_RWwrite.html">SDL_RWwrite</a></li></ul>
+</div>
+</BODY>
+</HTML>

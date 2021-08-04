@@ -1,0 +1,32 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetTouchFinger</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetTouchFinger</h1>
+<p>Use this function to get the finger object for specified touch device ID and finger index.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_Finger* SDL_GetTouchFinger(SDL_TouchID touchID,
+                               int         index)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>touchID</strong></td><td>the ID of the requested touch device</td></tr>
+<tr><td><strong>index</strong></td><td>the index of the requested finger</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns a pointer to the <a href="SDL_Finger.html">SDL_Finger</a> object or NULL if no object at the given ID and index could be found.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>The returned resource is owned by SDL and should not be deallocated.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_RecordGesture.html">SDL_RecordGesture</a></li></ul>
+</div>
+</BODY>
+</HTML>

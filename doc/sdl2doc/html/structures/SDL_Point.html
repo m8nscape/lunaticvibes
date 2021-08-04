@@ -1,0 +1,81 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_Point</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_Point</h1>
+<p>A structure that defines a two dimensional point.
+<h2>Data Fields</h2>
+<table>
+<tr><td>int</td><td><strong>x</strong></td><td>the x coordinate of the point</td></tr>
+<tr><td>int</td><td><strong>y</strong></td><td>the y coordinate of the point</td></tr>
+</table>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+// Example program:
+// Using SDL_Point in some places of your code
+
+#include "SDL.h"
+#include <stdio.h>
+
+int main(int argc, char *argv[]) {
+
+    SDL_Window *window;
+
+    SDL_Point window_position = {         //    Position of window
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED
+    };
+    SDL_Point window_size = {640, 480};   //    Size of window
+
+    SDL_Point mouse_position;             //    Mouse position coords
+
+    SDL_Init(SDL_INIT_VIDEO);             //    Initialize SDL2
+
+    // Create an application window with the following settings:
+    window = SDL_CreateWindow( 
+        "SDL_Point usage",                //    window title
+        window_position.x,                //    initial x position
+        window_position.y,                //    initial y position
+        window_size.x,                    //    width, in pixels
+        window_size.y,                    //    height, in pixels
+        SDL_WINDOW_OPENGL                 //    flags - see below
+    );
+
+    // Check that the window was successfully made
+    if (window == NULL) {
+        printf("Could not create window: %s\n", SDL_GetError());
+        return 1;
+    }
+
+    SDL_GetMouseState(                    //    Sets mouse_position to...
+        &mouse_position.x,                // ...mouse arrow coords on window
+        &mouse_position.y
+    );
+
+    printf("Mouse position: x=%i y=%i\n", //    Print mouse position
+         mouse_position.x, mouse_position.y
+    );
+
+    // Close and destroy the window
+    SDL_DestroyWindow(window); 
+
+    // Clean up
+    SDL_Quit();
+    return 0; 
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>An <a href="SDL_Point.html">SDL_Point</a> defines single two dimensional point. It can be used not only for points, but also for size. <a href="SDL_Point.html">SDL_Point</a> is used by <a href="../SDL_EnclosePoints.html">SDL_EnclosePoints</a>() to check if array of points is inside rectangle (<a href="SDL_Rect.html">SDL_Rect</a>). You can also make your own functions using <a href="SDL_Point.html">SDL_Point</a> to simplify your code, it's very helpful.
+<h2>Related Structures</h2>
+<ul style="list-style-type:none"><li><a href="SDL_Rect.html">SDL_Rect</a></li></ul> 
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_EnclosePoints.html">SDL_EnclosePoints</a></li></ul>
+</div>
+</BODY>
+</HTML>

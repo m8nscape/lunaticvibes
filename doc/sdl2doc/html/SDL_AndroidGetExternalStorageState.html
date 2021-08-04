@@ -1,0 +1,29 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_AndroidGetExternalStorageState</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_AndroidGetExternalStorageState</h1>
+<p>Use this function to get the current state of external storage.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_AndroidGetExternalStorageState()
+</pre></div>
+<h2>Return Value</h2>
+<p>Returns the current state of external storage on success or 0 on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>The current state of external storage, a bitmask of these values: <br>SDL_ANDROID_EXTERNAL_STORAGE_READ,<br>SDL_ANDROID_EXTERNAL_STORAGE_WRITE.
+<p>If external storage is currently unavailable, this will return 0.
+<H2>Version</h2>
+<p>This function is available since SDL 2.0.0.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_AndroidGetExternalStoragePath.html">SDL_AndroidGetExternalStoragePath</a></li></ul>
+</div>
+</BODY>
+</HTML>

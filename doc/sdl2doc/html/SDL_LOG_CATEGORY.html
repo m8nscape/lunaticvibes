@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_LOG_CATEGORY</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_LOG_CATEGORY</h1>
+<p>An enumeration of the predefined log categories.
+<h2>Values</h2>
+<table>
+<tr><td>SDL_LOG_CATEGORY_APPLICATION</td><td>application log</td></tr>
+<tr><td>SDL_LOG_CATEGORY_ERROR</td><td>error log</td></tr>
+<tr><td>SDL_LOG_CATEGORY_SYSTEM</td><td>system log</td></tr>
+<tr><td>SDL_LOG_CATEGORY_AUDIO</td><td>audio log</td></tr>
+<tr><td>SDL_LOG_CATEGORY_VIDEO</td><td>video log</td></tr>
+<tr><td>SDL_LOG_CATEGORY_RENDER</td><td>render log</td></tr>
+<tr><td>SDL_LOG_CATEGORY_INPUT</td><td>input log</td></tr>
+<tr style="color: #808080;"><td>SDL_LOG_CATEGORY_RESERVED#</td><td># = 1-10; reserved for future SDL library use</td></tr>
+<tr><td>SDL_LOG_CATEGORY_CUSTOM</td><td>reserved for application use; see <a href="#Remarks">Remarks</a> for details</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<p>By default the APPLICATION category is enabled at the SDL_LOG_PRIORITY_INFO level and all other categories are enabled at the SDL_LOG_PRIORITY_CRITICAL level. See <a href="SDL_LogPriority.html">SDL_LogPriority</a> for details.
+<p>SDL_LOG_CATEGORY_CUSTOM is reserved for application use; for example:
+<div style=codearea>
+<pre>
+    enum {
+          MYAPP_CATEGORY_AWESOME1 = SDL_LOG_CATEGORY_CUSTOM,
+          MYAPP_CATEGORY_AWESOME2,
+          MYAPP_CATEGORY_AWESOME3,
+          ...
+    };
+</pre></div>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_Log.html">SDL_Log</a></li>
+<li><a href="SDL_LogMessage.html">SDL_LogMessage</a></li>
+<li><a href="SDL_LogMessageV.html">SDL_LogMessageV</a></li></ul>
+</div>
+</BODY>
+</HTML>

@@ -1,0 +1,36 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_SetTextureAlphaMod</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_SetTextureAlphaMod</h1>
+<p>Use this function to set an additional alpha value multiplied into render copy operations.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_SetTextureAlphaMod(SDL_Texture* texture,
+                           Uint8        alpha)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>texture</strong></td><td>the texture to update</td></tr>
+<tr><td><strong>alpha</strong></td><td>the source alpha value multiplied into copy operations</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 0 on success or a negative error code on failure; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p>When this texture is rendered, during the copy operation the source alpha value is modulated by this alpha value according to the following formula:
+<ul style="list-style-type:none"><li><tt style="backtick">srcA = srcA * (alpha / 255)</tt></li></ul>
+<p>Alpha modulation is not always supported by the renderer; it will return -1 if alpha modulation is not supported.
+<p>You can call <a href="SDL_GetRendererInfo.html">SDL_GetRendererInfo</a>() to fill in an <a href="structures/SDL_RendererInfo.html">SDL_RendererInfo</a> structure with the information about the current renderer. This structure will have SDL_TEXTUREMODULATE_ALPHA set in the mod_modes mask if alpha modulation is supported.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetTextureAlphaMod">SDL_GetTextureAlphaMod</a></li>
+<li><a href="SDL_SetTextureColorMod.html">SDL_SetTextureColorMod</a></li></ul>
+</div>
+</BODY>
+</HTML>

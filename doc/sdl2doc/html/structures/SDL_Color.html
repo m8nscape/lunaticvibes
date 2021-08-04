@@ -1,0 +1,33 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_Color</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_Color</h1>
+<p>A structure that represents a color.
+<h2>Data Fields</h2>
+<table>
+<tr><td>Uint8</td><td><strong>r</strong></td><td>the red component in the range 0-255</td></tr>
+<tr><td>Uint8</td><td><strong>g</strong></td><td>the green component in the range 0-255</td></tr>
+<tr><td>Uint8</td><td><strong>b</strong></td><td>the blue component in the range 0-255</td></tr>
+<tr><td>Uint8</td><td><strong>a</strong></td><td>the alpha component in the range 0-255</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2>Remarks</h2>
+<p><a href="SDL_Color.html">SDL_Color</a> and SDL_Colour are interchangeable.
+<p>If you have RGB color values you would use decimal values in this struct.
+<ul style="list-style-type:none"><li><em>Example:</em> orange = 255,165,0 so set r=255, g=165, b=0, a=255.</li></ul> 
+<p>If you have HTML color codes you would use hexidecimal values in this struct.
+<ul style="list-style-type:none"><li><em>Example:</em> orange = #FFA500 so set r=0xFF, g=0xA5, b=0x00, a=0xFF.</li></ul>
+<p><a href="SDL_Color.html">SDL_Color</a> describes a color in a format independent way. You can convert an <a href="SDL_Color.html">SDL_Color</a> to a pixel value for a certain pixel format using <a href="../SDL_MapRGB.html">SDL_MapRGB</a>().
+<h2>Related Structures</h2>
+<ul style="list-style-type:none"><li><a href="SDL_Palette.html">SDL_Palette</a></li></ul>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_SetPaletteColors.html">SDL_SetPaletteColors</a></li></ul>
+</div>
+</BODY>
+</HTML>

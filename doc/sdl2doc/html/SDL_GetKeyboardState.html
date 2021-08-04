@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetKeyboardState</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetKeyboardState</h1>
+<p>Use this function to get a snapshot of the current state of the keyboard.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+const Uint8* SDL_GetKeyboardState(int* numkeys)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>numkeys</strong></td><td>if non-NULL, receives the length of the returned array</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns a pointer to an array of key states. *A value of 1 means that the key is pressed and a value of 0 means that it is not.* Indexes into this array are obtained by using <a href="SDL_Scancode.html">SDL_Scancode</a> values. *The pointer returned is a pointer to an internal SDL array. It will be valid for the whole lifetime of the application and should not be freed by the caller.*
+<h2>Code Examples</h2>
+<p><span style="color:green; ">Is this entered correctly? Does the \code and \endcode go in or is that doxygen markup in the header? There is a different example in the old wiki.</span>
+<div style=codearea>
+<pre>
+const Uint8 *state = SDL_GetKeyboardState(NULL);
+if ( state[SDL_SCANCODE_RETURN] ) {
+    printf("<RETURN> is pressed.\n");
+}
+</pre></div>
+<h2>Remarks</h2>
+<p><span style="color:green; ">*From</span> <a href="SDL_GetKeyState.html">SDL_GetKeyState</a> <span style="color:green; ">in old wiki.</span>
+<p>Note: Use <a href="SDL_PumpEvents.html">SDL_PumpEvents</a>() to update the state array.
+<p>Note: This function gives you the current state after all events have been processed, so if a key or button has been pressed and released before you process events, then the pressed state will never show up in the <tt style="backtick">getstate</tt> <span style="color:green; ">formatting here ok?</span>
+<p>calls.
+<p>Note: This function doesn't take into account whether shift has been pressed or not.
+<p>*
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_PumpEvents.html">SDL_PumpEvents * </a></li></ul>
+</div>
+</BODY>
+</HTML>

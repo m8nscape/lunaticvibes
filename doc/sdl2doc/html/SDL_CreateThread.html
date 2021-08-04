@@ -1,0 +1,106 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_CreateThread</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_CreateThread</h1>
+<p>Use this function to create a new thread.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_Thread* SDL_CreateThread(SDL_ThreadFunction fn,
+                             const char*        name,
+                             void*              data)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>fn</strong></td><td>the function to call in the new thread; see Remarks for details</td></tr>
+<tr><td><strong>name</strong></td><td>the name of the thread; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td><strong>data</strong></td><td>a pointer that is passed to fn</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns an opaque pointer to the new thread object on success, NULL if the new thread could not be created; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+#include <stdio.h>
+#include <SDL_thread.h>
+#include <SDL_timer.h>
+
+int TestThread( void *ptr );
+
+int main(int argc, char *argv[])
+{
+        SDL_Thread *thread;
+        int         threadReturnValue;
+
+        printf("\nSimple SDL_CreateThread test:");
+
+        // Simply create a thread
+        thread = SDL_CreateThread( TestThread, "TestThread", (void *)NULL);
+
+        if( NULL == thread )
+           printf("\nSDL_CreateThread failed: %s\n", SDL_GetError());
+        else
+        {
+           SDL_WaitThread( thread, &threadReturnValue);
+           printf("\nThread returned value:%d", threadReturnValue);
+        }
+
+        return 1;
+}
+
+// Very simple thread - counts 0 to 9 delaying 50ms between increments
+int TestThread( void *ptr )
+{
+        int        cnt;
+
+        for(cnt=0;cnt<10;cnt++)
+        {
+                printf( "\nThread counter: %d", cnt);
+                SDL_Delay(50);
+        }
+
+        return cnt;
+}
+</pre></div>
+<div style=codearea>
+<pre>
+Output:
+
+Simple SDL_CreateThread test:
+Thread counter: 0
+Thread counter: 1
+Thread counter: 2
+Thread counter: 3
+Thread counter: 4
+Thread counter: 5
+Thread counter: 6
+Thread counter: 7
+Thread counter: 8
+Thread counter: 9
+Thread returned value:10
+</pre></div>
+<h2 id="Remarks">Remarks</h2>
+<p><a href="SDL_CreateThread.html">SDL_CreateThread</a>() creates a new thread of execution that shares all of its parent's global memory, signal handlers, file descriptors, etc, and runs the function <strong>fn,</strong> passing it the void pointer <strong>data</strong>. The thread quits when <strong>fn</strong> returns.
+<p>The function prototype for <strong>fn</strong> is:
+<div style=codearea>
+<pre>
+int SDL_ThreadFunction(void* data)
+</pre></div>
+<ul style="list-style-type:none"><li>where its parameter is: </li>
+    <li><table><tr><td>data</td><td>what was passed as <strong>data</strong> to <a href="SDL_CreateThread.html">SDL_CreateThread</a>()</td></tr></table>
+</ul>
+<p>There are no requirements for thread naming conventions, so long as the string is null-terminated UTF-8, but these guidelines are helpful in choosing a name:
+
+    <a class="http" href="http://stackoverflow.com/questions/149932/naming-conventions-for-threads">http://stackoverflow.com/questions/149932/naming-conventions-for-threads</a> 
+<p>If a system imposes requirements, SDL will try to munge the string for it (truncate, etc), but the original string contents will be available from <a href="SDL_GetThreadName.html">SDL_GetThreadName</a>().
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_WaitThread.html">SDL_WaitThread</a></li></ul>
+</div>
+</BODY>
+</HTML>

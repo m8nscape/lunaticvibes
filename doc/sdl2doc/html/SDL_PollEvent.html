@@ -1,0 +1,47 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_PollEvent</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_PollEvent</h1>
+<p>Use this function to poll for currently pending events.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_PollEvent(SDL_Event* event)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>event</strong></td><td>the <a href="structures/SDL_Event.html">SDL_Event</a> structure to be filled with the next event from the queue, or NULL</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns 1 if there is a pending event or 0 if there are none available.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+while (1) {
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+         // handle your event here
+    }
+    // do some other stuff here -- draw your app, etc.
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>If event is not NULL, the next event is removed from the queue and stored in the <a href="structures/SDL_Event.html">SDL_Event</a> structure pointed to by event.
+<p>As this function implicitly calls <a href="SDL_PumpEvents.html">SDL_PumpEvents</a>(), you can only call this function in the thread that set the video mode.
+<p><a href="SDL_PollEvent.html">SDL_PollEvent</a>() is the favored way of receiving system events since it can be done from the main loop and does not suspend the main loop while waiting on an event to be posted.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetEventFilter.html">SDL_GetEventFilter</a></li>
+<li><a href="SDL_PeepEvents.html">SDL_PeepEvents</a></li>
+<li><a href="SDL_PushEvent.html">SDL_PushEvent</a></li>
+<li><a href="SDL_SetEventFilter.html">SDL_SetEventFilter</a></li>
+<li><a href="SDL_WaitEvent.html">SDL_WaitEvent</a></li>
+<li><a href="SDL_WaitEventTimeout.html">SDL_WaitEventTimeout</a></li></ul>
+</div>
+</BODY>
+</HTML>

@@ -1,0 +1,37 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GameControllerEventState</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GameControllerEventState</h1>
+<p>Use this function to find the current state of, enable, or disable events dealing with Game Controllers. This will not disable Joystick events, which can also be fired by a controller (See <a href="SDL_JoystickEventState.html">SDL_JoystickEventState</a>)
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+int SDL_GameControllerEventState(int state)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>state</strong></td><td>can be one of SDL_QUERY, SDL_IGNORE, or SDL_ENABLE</td></tr>
+</table>
+<p>Note: You may use -1, 0, or 1 in place of SDL_QUERY, SDL_IGNORE, or SDL_ENABLE respectively.
+<h2>Return Value</h2>
+<p>Returns the same value passed to the function, with exception to -1 (SDL_QUERY), which will return the current state.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+printf("%i\n", SDL_GameControllerEventState(SDL_QUERY));  /* prints 1 */
+printf("%i\n", SDL_GameControllerEventState(SDL_IGNORE)); /* prints 0 */
+printf("%i\n", SDL_GameControllerEventState(SDL_QUERY));  /* prints 0 */
+</pre></div>
+<h2>Remarks</h2>
+<p>Any number can be passed to SDL_GameControllerEventState, but only -1, 0, and 1 will have any effect. Other numbers will just be returned.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_JoystickEventState.html">SDL_JoystickEventState</a></li></ul>
+</div>
+</BODY>
+</HTML>

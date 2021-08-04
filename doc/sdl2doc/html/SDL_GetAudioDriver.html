@@ -1,0 +1,38 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetAudioDriver</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetAudioDriver</h1>
+<p>Use this function to get the name of a built in audio driver.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+const char* SDL_GetAudioDriver(int index)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>index</strong></td><td>the index of the audio driver; the value ranges from 0 to <A href="SDL_GetNumAudioDrivers.html">SDL_GetNumAudioDrivers</a>() - 1.</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns the name of the audio driver at the requested index, or NULL if an invalid index was specified.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+int i;
+for ( i = 0; i < SDL_GetNumAudioDrivers(); ++i ) {
+    printf("Audio driver %d: %s\n", i, SDL_GetAudioDriver(i));
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>The list of audio drivers is given in the order that they are normally initialized by default; the drivers that seem more reasonable to choose first (as far as the SDL developers believe) are earlier in the list.
+<p>The names of drivers are all simple, low-ASCII identifiers, like "alsa", "coreaudio" or "xaudio2". These never have Unicode characters, and are not meant to be proper names.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetNumAudioDrivers.html">SDL_GetNumAudioDrivers</a></li></ul>
+</div>
+</BODY>
+</HTML>

@@ -1,0 +1,90 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="../layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_AudioSpec</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_AudioSpec</h1>
+<p>A structure that contains the audio output format. It also contains a callback that is called when the audio device needs more data.
+<h2>Data Fields</h2>
+<table>
+<tr><td>int</td><td><strong>freq</strong></td><td>DSP frequency (samples per second); see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td><a href="../SDL_AudioFormat.html">SDL_AudioFormat</a></td><td><strong>format</strong></td><td>audio data format; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td>Uint8</td><td><strong>channels</strong></td><td>number of separate sound channels: see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td>Uint8</td><td><strong>silence</strong></td><td>audio buffer silence value (calculated)</td></tr>
+<tr><td>Uint16</td><td><strong>samples</strong></td><td>audio buffer size in samples (power of 2); see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr style="color: #808080;"><td>Uint16</td><td><strong>padding</strong></td><td>&nbsp;</td></tr>
+<tr><td>Uint32</td><td><strong>size</strong></td><td>audio buffer size in bytes (calculated)</td></tr>
+<tr><td>SDL_AudioCallback</td><td><strong>callback</strong></td><td>the function to call when the audio device needs more data; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td>void*</td><td><strong>userdata</strong></td><td>a pointer that is passed to <strong>callback</strong> (otherwise ignored by SDL)</td></tr>
+</table>
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+SDL_AudioSpec want, have;
+SDL_AudioDeviceID dev;
+
+SDL_zero(want);
+want.freq = 48000;
+want.format = AUDIO_F32;
+want.channels = 2;
+want.samples = 4096;
+want.callback = MyAudioCallback;  // you wrote this function elsewhere.
+dev = SDL_OpenAudioDevice(NULL, 0, &want, &have, SDL_AUDIO_ALLOW_FORMAT_CHANGE);
+</pre></div>
+<h2 id="Remarks">Remarks</h2>
+<p>This structure is used by <a href="../SDL_OpenAudioDevice.html">SDL_OpenAudioDevice<a>() and <a href="../SDL_LoadWAV.html">SDL_LoadWAV</a>(). While all fields are used by <a href="../SDL_OpenAudioDevice.html">SDL_OpenAudioDevice</a>(), only <strong>freq</strong>, <strong>format</strong>, <strong>channels</strong>, and <strong>samples</strong> are used by <a href="../SDL_LoadWAV.html">SDL_LoadWAV</a>().
+<p><strong>freq</strong> specifies the number of sample frames sent to the sound device per second. Common values are 11025, 22050, 44100 and 48000. Larger values produce cleaner audio, in much the same way that larger resolutions produce cleaner graphics.
+<p><strong>format</strong> specifies the size and type of each sample element and may be one of the following:
+<table>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="2"><em>8-bit support</em></td></tr>
+<tr><td>AUDIO_S8</td><td>signed 8-bit samples</td></tr>
+<tr><td>AUDIO_U8</td><td>unsigned 8-bit samples</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="2"><em>16-bit support</em></td></tr>
+<tr><td>AUDIO_S16LSB</td><td>signed 16-bit samples in little-endian byte order</td></tr>
+<tr><td>AUDIO_S16MSB</td><td>signed 16-bit samples in big-endian byte order</td></tr>
+<tr><td>AUDIO_S16SYS</td><td>signed 16-bit samples in native byte order</td></tr>
+<tr><td>AUDIO_S16</td><td>AUDIO_S16LSB</td></tr>
+<tr><td>AUDIO_U16LSB</td><td>unsigned 16-bit samples in little-endian byte order</td></tr>
+<tr><td>AUDIO_U16MSB</td><td>unsigned 16-bit samples in big-endian byte order</td></tr>
+<tr><td>AUDIO_U16SYS</td><td>unsigned 16-bit samples in native byte order</td></tr>
+<tr><td>AUDIO_U16</td><td>AUDIO_U16LSB</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="2"><em>32-bit support (new to SDL 2.0)</em></td></tr>
+<tr><td>AUDIO_S32LSB</td><td>32-bit integer samples in little-endian byte order</td></tr>
+<tr><td>AUDIO_S32MSB</td><td>32-bit integer samples in big-endian byte order</td></tr>
+<tr><td>AUDIO_S32SYS</td><td>32-bit integer samples in native byte order</td></tr>
+<tr><td>AUDIO_S32</td><td>AUDIO_S32LSB</td></tr>
+<tr><td style="background-color: #EDEDED; text-align: center" colspan="2"><em>float support (new to SDL 2.0)</em></td></tr>
+<tr><td>AUDIO_F32LSB</td><td>32-bit floating point samples in little-endian byte order</td></tr>
+<tr><td>AUDIO_F32MSB</td><td>32-bit floating point samples in big-endian byte order</td></tr>
+<tr><td>AUDIO_F32SYS</td><td>32-bit floating point samples in native byte order</td></tr>
+<tr><td>AUDIO_F32</td><td>AUDIO_F32LSB</td></tr>
+</table>
+<p>See <a href="../SDL_AudioFormat.html">SDL_AudioFormat</a> for more info.
+<p><strong>channels</strong> specifies the number of output channels. As of SDL 2.0, supported values are 1 (mono), 2 (stereo), 4 (quad), and 6 (5.1).
+<p><strong>samples</strong> specifies a unit of audio data. When used with <a href="../SDL_OpenAudioDevice.html">SDL_OpenAudioDevice</a>() this refers to the size of the audio buffer in sample frames. A sample frame is a chunk of audio data of the size specified in <strong>format</strong> multiplied by the number of channels. When the <a href="SDL_AudioSpec.html">SDL_AudioSpec</a> is used with <a href="../SDL_LoadWAV.html">SDL_LoadWAV</a>() <strong>samples</strong> is set to 4096. This field's value must be a power of two.
+<p>The values <strong>silence</strong> and <strong>size</strong> are calculated by <a href="../SDL_OpenAudioDevice.html">SDL_OpenAudioDevice</a>().
+<p>Channel data is interleaved. Stereo samples are stored in left/right ordering. Quad is stored in front-left/front-right/rear-left/rear-right order. 5.1 is stored in front-left/front-right/center/low-freq/rear-left/rear-right ordering ("low-freq" is the ".1" speaker).
+<p>The function prototype for <strong>callback</strong> is:
+<div style=codearea>
+<pre>
+void SDL_AudioCallback(void* userdata, Uint8* stream, int len);
+</pre></div>
+<ul style="list-style-type:none"><li>where its parameters are:</li>
+<li><table>
+<tr><td>userdata</td><td>an application-specific parameter saved in the <a href="SDL_AudioSpec.html">SDL_AudioSpec</a> structure's <strong>userdata</strong> field</td></tr>
+<tr><td>stream</td><td>a pointer to the audio data buffer filled in by <a href="SDL_AudioCallback.html">SDL_AudioCallback</a>()</td></tr>
+<tr><td>len</td><td>the length of that buffer in bytes</td></tr>
+</table></li></ul>
+<p>Once the callback returns, the buffer will no longer be valid.
+<p>The callback <em>must</em> completely initialize the buffer; as of SDL 2.0, this buffer is not initialized before the callback is called. If there is nothing to play, the callback should fill the buffer with silence.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="../SDL_LoadWAV.html">SDL_LoadWAV</a></li>
+<li><a href="../SDL_LoadWAV_RW.html">SDL_LoadWAV_RW</a></li>
+<li><a href="../SDL_OpenAudioDevice.html">SDL_OpenAudioDevice</a></li></ul>
+</div>
+</BODY>
+</HTML>

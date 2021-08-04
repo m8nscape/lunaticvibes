@@ -1,0 +1,75 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_GetClosestDisplayMode</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_GetClosestDisplayMode</h1>
+<p>Use this function to get the closest match to the requested display mode.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_DisplayMode* SDL_GetClosestDisplayMode(int                    displayIndex,
+                                           const SDL_DisplayMode* mode,
+                                           SDL_DisplayMode*       closest)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>displayIndex</strong>/td><td>the index of the display to query</td></tr>
+<tr><td><strong>mode</strong>/td><td>an <a href="SDL_DisplayMode.html">SDL_DisplayMode</a> structure containing the desired display mode</td></tr>
+<tr><td><strong>closest</strong>/td><td>an <a href="SDL_DisplayMode.html">SDL_DisplayMode</a> structure filled in with the closest match of the available display modes</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns the passed in value <strong>closest</strong> or NULL if no matching video mode was available; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<div style=codearea>
+<pre>
+// Using SDL2's SDL_GetClosestDisplayMode()
+
+#include "SDL.h"
+#include <stdio.h>
+
+int main(int argc, char* argv[]){
+
+  // Declare structures to be filled in.
+  SDL_DisplayMode target, closest;
+
+  SDL_Init(SDL_INIT_VIDEO);
+
+  // Set the desired resolution, etc.
+  target.w = 600;
+  target.h = 500;
+  target.format = 0;  // don't care
+  target.refresh_rate = 0; // don't care
+  target.driverdata   = 0; // initialize to 0
+  printf("Requesting: \t%dx%dpx @ %dhz \n", target.w, target.h, target.refresh_rate);
+
+  // Pass the display mode structures by reference to SDL_GetClosestDisplay
+  // and check whether the result is a null pointer.
+  if(SDL_GetClosestDisplayMode(0, &target, &closest)==NULL)
+
+    // If the returned pointer is null, no match was found.
+    printf("\nNo suitable display mode was found!\n\n");
+
+  else
+    // Otherwise, a display mode close to the target is available.
+    // Access the SDL_DisplayMode structure to see what was received.
+    printf("  Received: \t%dx%dpx @ %dhz \n", closest.w, closest.h, closest.refresh_rate);
+
+  // Clean up and exit the program.
+  SDL_Quit();
+  return 0;
+
+}
+</pre></div>
+<h2>Remarks</h2>
+<p>The available display modes are scanned and <strong>closest</strong> is filled in with the closest mode matching the requested mode and returned. The mode format and refresh rate default to the desktop mode if they are set to 0. The modes are scanned with size being first priority, format being second priority, and finally checking the refresh rate. If all the available modes are too small, then NULL is returned.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetDisplayMode.html">SDL_GetDisplayMode</a></li>
+<li><a href="SDL_GetNumDisplayModes.html">SDL_GetNumDisplayModes</a></li></ul>
+</div>
+</BODY>
+</HTML>

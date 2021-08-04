@@ -1,0 +1,83 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_CreateTexture</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_CreateTexture</h1>
+<p>Use this function to create a texture for a rendering context.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+SDL_Texture* SDL_CreateTexture(SDL_Renderer* renderer,
+                               Uint32        format,
+                               int           access, 
+                               int           w,
+                               int           h)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>renderer</strong></td><td>the rendering context</td></tr>
+<tr><td><strong>format</strong></td><td>one of the enumerated values in <a href="SDL_PixelFormatEnum.html">SDL_PixelFormatEnum</a>; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td><strong>access</strong></td><td>one of the enumerated values in <a href="SDL_TextureAccess.html">SDL_TextureAccess</a>; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td><strong>w</strong></td><td>the width of the texture in pixels</td></tr>
+<tr><td><strong>h</strong></td><td>the height of the texture in pixels</td></tr>
+</table>
+<h2>Return Value</h2>
+<p>Returns a pointer to the created texture or 0 if no rendering context was active, the format was unsupported, or the width or height were out of range; call <a href="SDL_GetError.html">SDL_GetError</a>() for more information.
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2
+<p><strong>format</strong> may be one of the following:
+<table>
+<tr><td>SDL_PIXELFORMAT_UNKNOWN</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX1LSB</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX1MSB</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX4LSB</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX4MSB</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_INDEX8</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB332</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB444</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB555</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGR555</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ARGB4444</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGBA4444</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ABGR4444</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGRA4444</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ARGB1555</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGBA5551</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ABGR1555</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGRA5551</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB565</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGR565</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB24</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGR24</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGB888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGBX8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGR888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGRX8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ARGB8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_RGBA8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ABGR8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_BGRA8888</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_ARGB2101010</td><td>&nbsp;</td></tr>
+<tr><td>SDL_PIXELFORMAT_YV12</td><td>planar mode: Y + V + U (3 planes)</td></tr>
+<tr><td>SDL_PIXELFORMAT_IYUV</td><td>planar mode: Y + U + V (3 planes)</td></tr>
+<tr><td>SDL_PIXELFORMAT_YUY2</td><td>packed mode: Y0+U0+Y1+V0 (1 plane)</td></tr>
+<tr><td>SDL_PIXELFORMAT_UYVY</td><td>packed mode: U0+Y0+V0+Y1 (1 plane)</td></tr>
+<tr><td>SDL_PIXELFORMAT_YVYU</td><td>packed mode: Y0+V0+Y1+U0 (1 plane)</td></tr>
+</table>
+<p><strong>access</strong> may be one of the following:
+<table>
+<tr><td>SDL_TEXTUREACCESS_STATIC</td><td>changes rarely, not lockable</td></tr>
+<tr><td>SDL_TEXTUREACCESS_STREAMING</td><td>changes frequently, lockable</td></tr>
+</table>
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_DestroyTexture.html">SDL_DestroyTexture</a></li>
+<li><a href="SDL_QueryTexture.html">SDL_QueryTexture</a></li>
+<li><a href="SDL_UpdateTexture.html">SDL_UpdateTexture</a></li></ul>
+</div>
+</BODY>
+</HTML>

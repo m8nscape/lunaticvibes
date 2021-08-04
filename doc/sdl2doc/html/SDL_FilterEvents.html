@@ -1,0 +1,40 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link href="layout.css" charset="utf-8" type="text/css" rel="stylesheet"></link>
+<TITLE>SDL_FilterEvents</TITLE>
+</HEAD>
+<BODY>
+<script src="menu.js"></script>
+<div id=pagecontent>
+<h1>SDL_FilterEvents</h1>
+<p>Use this function to run a specific filter function on the current event queue, removing any events for which the filter returns 0.
+<h2>Syntax</h2>
+<div style=codearea>
+<pre>
+void SDL_FilterEvents(SDL_EventFilter filter, void* userdata)
+</pre></div>
+<h2>Function Parameters</h2>
+<table>
+<tr><td><strong>filter</strong></td><td>function to call when an event happens; see <a href="#Remarks">Remarks</a> for details</td></tr>
+<tr><td><strong>userdata</strong></td><td>a pointer that is passed to filter</td></tr>
+</table>
+<h2>Code Examples</h2>
+<h2 id="Remarks">Remarks</h2>
+<p>The function prototype for filter is:
+<div style=codearea>
+<pre>
+int SDL_EventFilter(void* userdata, SDL_Event* event)
+</pre></div>
+<ul style="list-style-type:none"><li>where its parameters are:</li>
+<li><table>
+<tr><td>userdata</td><td>what was passed as userdata to <a href="SDL_FilterEvents.html">SDL_FilterEvents</a>()</td></tr>
+<tr><td>event</td><td>the desired event to pull from the queue</td></tr>
+</table></li></ul>
+<p>See <a href="SDL_SetEventFilter.html">SDL_SetEventFilter</a>() for more information. Unlike <a href="SDL_SetEventFilter.html">SDL_SetEventFilter</a>(), this function does not change the filter permanently, it only uses the supplied filter until this function returns.
+<h2>Related Functions</h2>
+<ul style="list-style-type:none"><li><a href="SDL_GetEventFilter.html">SDL_GetEventFilter</a></li>
+<li><a href="SDL_SetEventFilter.html">SDL_SetEventFilter</a></li></ul>
+</div>
+</BODY>
+</HTML>
