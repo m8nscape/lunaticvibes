@@ -11,8 +11,9 @@ target_include_directories(db PRIVATE
 set_target_properties(db PROPERTIES
     CXX_STANDARD 17)
 
-target_link_libraries(db PUBLIC
-    ${sqlite3_LIBRARY}
+target_link_libraries(db
+    PUBLIC ${sqlite3_LIBRARY}
+    PUBLIC common
 )
 
 target_precompile_headers(db REUSE_FROM common)

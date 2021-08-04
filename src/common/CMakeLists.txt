@@ -18,8 +18,8 @@ target_include_directories(common PRIVATE
 set_target_properties(common PROPERTIES
     CXX_STANDARD 17)
 
-target_link_libraries(common PUBLIC
-    plog
+target_link_libraries(common 
+    PUBLIC plog
 )
 
 target_precompile_headers(common PUBLIC pch.h)
