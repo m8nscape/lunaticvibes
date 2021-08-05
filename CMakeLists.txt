@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-set(PROJECT_NAME dexceed CACHE STRING "The project name")
+set(PROJECT_NAME modelLR CACHE STRING "The project name")
 
 #########################################################################
 # PROJECT CONFIG

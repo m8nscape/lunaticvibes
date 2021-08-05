@@ -6,7 +6,10 @@ add_subdirectory(fmod)
 
 # Add libav
 if (${VIDEO_ENABLED})
-    find_package(libav REQUIRED)
+    find_package(libavcodec QUIET)
+    if (NOT libavcodec_FOUND)
+        add_subdirectory(libav)
+    endif()
 endif()
 
 # Add plog

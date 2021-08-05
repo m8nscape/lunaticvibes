@@ -68,7 +68,17 @@ if (${GRAPHICS_BACKEND} STREQUAL SDL2)
     )
 endif()
 
-if (NOT ${VIDEO_ENABLED})
+if (${VIDEO_ENABLED})
+    target_link_libraries(game
+        PUBLIC libavcodec    
+        PUBLIC libavdevice   
+        PUBLIC libavfilter   
+        PUBLIC libavformat   
+        PUBLIC libavresample 
+        PUBLIC libavutil     
+        PUBLIC libswscale   
+    )
+else()
     add_definitions(-DVIDEO_DISABLED)
 endif()
 

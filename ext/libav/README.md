@@ -1,42 +1,42 @@
-## Build
+Libav
+=====
 
-Dependencies: 
-- make
-- mingw32-w64-gcc
-- yasm
-- nasm
-- libmfx (intel quick sync library, may hard to find and configure (disabled for now))
-- libvpx
+[![Build Status](https://travis-ci.org/libav/libav.svg)](https://travis-ci.org/libav/libav)
 
-Command: 
-```
-./configure --enable-cross-compile --enable-shared --arch=x86_64 --target-os=mingw64 --cross-prefix=x86_64-w64-mingw32- \
-  --disable-everything \
-  --enable-decoder=amv,flv,h264,h264_qsv,hevc,mpeg1video,mpeg2video,msmpeg4v1,msmpeg4v2,msmpeg4v3,vp8,vp9,webp,wmv1,wmv2,wmv3 \
-  --enable-vdpau \
-  --enable-demuxer=avi,dirac,flv,h264,hevc,m4v,matroska,mov,mpegvideo,mv,vc1,vc1t \
-  --enable-parser=dirac,h264,hevc,mpeg4video,mpegvideo,vc1,vp8 \
-  --enable-protocol=file,pipe,rtmp,unix \
-  --enable-filter=fps,setpts
+Libav is a collection of libraries and tools to process multimedia content
+such as audio, video, subtitles and related metadata.
 
-make -jN
-```
+## Libraries
 
+* `libavcodec` provides implementation of a wider range of codecs.
+* `libavformat` implements streaming protocols, container formats and basic I/O access.
+* `libavutil` includes hashers, decompressors and miscellaneous utility functions.
+* `libavfilter` provides a mean to alter decoded Audio and Video through chain of filters.
+* `libavdevice` provides an abstraction to access capture and playback devices.
+* `libavresample` implements audio mixing and resampling routines.
+* `libswscale` implements color conversion and scaling routines.
 
-should output binaries under LGPL 2.1
+## Tools
 
-------
+* [avconv](http://libav.org/avconv.html) is a command line toolbox to
+  manipulate, convert and stream multimedia content.
+* [avplay](http://libav.org/avplay.html) is a minimalistic multimedia player.
+* [avprobe](http://libav.org/avprobe.html) is a simple analisys tool to inspect
+  multimedia content.
+* Additional small tools such as `aviocat`, `ismindex` and `qt-faststart`.
 
-### notes
+## Documentation
 
-I removed --enable-libmfx from build command
+The offline documentation is available in the **doc/** directory.
 
-BGAs around 2010 mostly use mpeg1 / mpeg2
+The online documentation is available in the main [website](http://libav.org)
+and in the [wiki](http://wiki.libav.org).
 
-------
+### Examples
 
-### TODO
+Conding examples are available in the **doc/example** directory.
 
-Add license
+## License
 
-How to build this...
+Libav codebase is mainly LGPL-licensed with optional components licensed under
+GPL. Please refer to the LICENSE file for detailed information.

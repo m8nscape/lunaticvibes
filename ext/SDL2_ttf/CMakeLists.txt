@@ -38,8 +38,8 @@ if (WIN32)
             "${CMAKE_CURRENT_LIST_DIR}/lib/x86/libfreetype-6.dll"
             "${CMAKE_CURRENT_LIST_DIR}/lib/x86/zlib1.dll"
              CACHE INTERNAL "dependencies"
-        set(EXT_DEPEND_LIBFILES_SET TRUE CACHE INTERNAL "dependencies")
         )
+        set(EXT_DEPEND_LIBFILES_SET TRUE CACHE INTERNAL "dependencies")
     endif()
 elseif (LINUX)
 endif()
