@@ -12,7 +12,7 @@ extern "C"
 #include "libavutil/avutil.h"
 }
 
-#include "utils.h"
+#include "common/utils.h"
 #include "common/log.h"
 
 void video_init() { av_register_all(); }
