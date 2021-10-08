@@ -6,7 +6,7 @@ namespace Input
     const std::size_t MAX_JOYSTICK_COUNT = 8;
     const std::size_t MAX_BINDINGS_PER_KEY = 10;
 
-    enum Ingame
+    enum Pad
     {
         S1L = 0,
         S1R,
@@ -80,7 +80,7 @@ namespace Input
 
     // Ingame key definitions, mostly based on scancodes.
     // I hate jp keyboard layout. Just mentioning.
-    enum Key    
+    enum Keyboard: unsigned
     {
         K_ERROR = 0,
 
@@ -216,7 +216,7 @@ namespace Input
     };
 
 
-    inline const char* keyNameMap[0xFF]
+    inline const char* keyboardNameMap[0xFF]
     {
         "",             // ERROR
 
@@ -349,12 +349,12 @@ namespace Input
         "JP_HIRAGANA",
     };
 
-    inline Key getByName(const std::string& name)
+    inline Keyboard getByName(const std::string& name)
     {
         for (size_t i = 0; i < 0xFF; ++i)
-            if (keyNameMap[i] != NULL && name == keyNameMap[i])
-                return static_cast<Key>(i);
+            if (keyboardNameMap[i] != NULL && name == keyboardNameMap[i])
+                return static_cast<Keyboard>(i);
 
-        return Key::K_ERROR;
+        return Keyboard::K_ERROR;
     }
 }

@@ -2,8 +2,7 @@
 #include "common/chartformat/chartformat.h"
 #include "game/data/number.h"
 
-#include "chart_types.h"
-#include "common/chartformat/chart_types.h"
+#include "common/chartformat/chartformat_types.h"
 
 vChart::vChart( size_t pn, size_t en) :
     _noteLists{}, _commonNoteLists(pn), _specialNoteLists(en), _commonNoteListIters(pn), _specialNoteListIters(en)

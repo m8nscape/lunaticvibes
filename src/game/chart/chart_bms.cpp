@@ -78,30 +78,30 @@ namespace bms
         NOPE,
     };
     
-    // from NoteLaneIndex to Input::Ingame
-    const std::vector<Input::Ingame> LaneToKeyMap[] = 
+    // from NoteLaneIndex to Input::Pad
+    const std::vector<Input::Pad> LaneToKeyMap[] = 
     {
         // 0: Notes
-        {Input::Ingame::S1L, Input::Ingame::S1R}, // Sc1
-        {Input::Ingame::K11},
-        {Input::Ingame::K12},
-        {Input::Ingame::K13},
-        {Input::Ingame::K14},
-        {Input::Ingame::K15},
-        {Input::Ingame::K16},
-        {Input::Ingame::K17},
-        {Input::Ingame::K21}, //8
-        {Input::Ingame::K22}, //9
-        {Input::Ingame::K23}, //10
-        {Input::Ingame::K24}, //11
-        {Input::Ingame::K25}, //12
-        {Input::Ingame::K26}, //13
-        {Input::Ingame::K27}, //14
+        {Input::Pad::S1L, Input::Pad::S1R}, // Sc1
+        {Input::Pad::K11},
+        {Input::Pad::K12},
+        {Input::Pad::K13},
+        {Input::Pad::K14},
+        {Input::Pad::K15},
+        {Input::Pad::K16},
+        {Input::Pad::K17},
+        {Input::Pad::K21}, //8
+        {Input::Pad::K22}, //9
+        {Input::Pad::K23}, //10
+        {Input::Pad::K24}, //11
+        {Input::Pad::K25}, //12
+        {Input::Pad::K26}, //13
+        {Input::Pad::K27}, //14
         {},{},{},{},{},{},{},{},{},{}, //15~24
-        {Input::Ingame::S2L, Input::Ingame::S2R} // Sc2
+        {Input::Pad::S2L, Input::Pad::S2R} // Sc2
     };
 
-    // from Input::Ingame to NoteLaneIndex
+    // from Input::Pad to NoteLaneIndex
     const NoteLaneIndex KeyToLaneMap[] = 
     {
         Sc1, Sc1,
@@ -339,7 +339,7 @@ void chartBMS::loadBMS(const BMS& objBms)
 }
 
 
-std::pair<NoteLaneCategory, NoteLaneIndex> chartBMS::getLaneFromKey(Input::Ingame input)
+std::pair<NoteLaneCategory, NoteLaneIndex> chartBMS::getLaneFromKey(Input::Pad input)
 {
     if (input >= Input::S1L && input < Input::ESC && KeyToLaneMap[input] != _)
     {
@@ -359,7 +359,7 @@ std::pair<NoteLaneCategory, NoteLaneIndex> chartBMS::getLaneFromKey(Input::Ingam
     return { NoteLaneCategory::_, _ };
 }
 
-std::vector<Input::Ingame> chartBMS::getInputFromLane(size_t channel)
+std::vector<Input::Pad> chartBMS::getInputFromLane(size_t channel)
 {
     if (channel >= bms::LaneToKeyMap->size())
         return {};

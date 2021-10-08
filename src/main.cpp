@@ -11,7 +11,7 @@
 #include "game/generic_info.h"
 #include "game/graphics/dxa.h"
 
-#include "common/chartformat/format_bms.h"
+#include "common/chartformat/chartformat_bms.h"
 
 #include "common/log.h"
 

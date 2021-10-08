@@ -3,7 +3,7 @@
 #include <Windows.h>
 
 // refer to virtual key definition in MSDN
-const std::array<int , Input::Key::K_COUNT> vkeyMap
+const std::array<int, Input::Keyboard::K_COUNT> vkMap
 {
     0,
     VK_ESCAPE,
@@ -127,9 +127,9 @@ const std::array<int , Input::Key::K_COUNT> vkeyMap
     VK_OEM_COPY,
 };
 
-bool isKeyPressed(Input::Key key)
+bool isKeyPressed(Input::Keyboard key)
 {
-    return GetAsyncKeyState(vkeyMap[key]) & (1 << (sizeof(SHORT) * 8 - 1));
+    return GetAsyncKeyState(vkMap[key]) & (1 << (sizeof(SHORT) * 8 - 1));
 }
 
 bool isMouseButtonPressed(int idx)

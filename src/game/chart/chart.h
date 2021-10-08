@@ -201,7 +201,7 @@ public:
 
 public:
     virtual std::pair<NoteLaneCategory, NoteLaneIndex> getLaneFromKey(Input::Ingame input) = 0;
-    virtual std::vector<Input::Ingame> getInputFromLane(size_t channel) = 0;
+    virtual std::vector<Input::Pad> getInputFromLane(size_t channel) = 0;
 
     inline auto getTotalLength() const { return _totalLength; }
 };

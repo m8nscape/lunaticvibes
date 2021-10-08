@@ -41,7 +41,7 @@ void vScene::update()
 
 void vScene::update_mouse(InputMask& m, Time t)
 {
-    if (m[Input::Ingame::M1])
+    if (m[Input::Pad::M1])
     {
         auto [x, y] = _input.getCursorPos();
         _skin->update_mouse_click(x, y);

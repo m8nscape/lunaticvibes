@@ -3,8 +3,8 @@
 #include <vector>
 #include <numeric>
 #include <memory>
-#include "types.h"
-#include "beat.h"
+#include "common/types.h"
+#include "common/beat.h"
 
 // Subset of chart formats.
 // Currently including BMS

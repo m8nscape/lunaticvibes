@@ -21,7 +21,7 @@ namespace Input
     {
         DeviceType  type;
         DeviceID    device;
-        Key		    key;
+        Keyboard		    key;
     };
 
     typedef std::array<KeyMap, MAX_BINDINGS_PER_KEY> Binding;
@@ -52,7 +52,7 @@ private:
 public:
     // Game keys param / functions
     static void updateDevices();
-    static void updateBindings(unsigned keys, Input::Ingame K);
+    static void updateBindings(unsigned keys, Input::Pad K);
     static std::bitset<Input::KEY_COUNT> detect();
 	static bool getMousePos(int& x, int& y);
 };
@@ -61,7 +61,7 @@ public:
 // System specific range
 
 // Keyboard detect
-bool isKeyPressed(Input::Key c);
+bool isKeyPressed(Input::Keyboard c);
 
 // Joystick detect
 typedef int JoyBtn;

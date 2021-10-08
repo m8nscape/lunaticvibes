@@ -1,6 +1,6 @@
 #pragma once
 #include "chart.h"
-#include "common/chartformat/format_bms.h"
+#include "common/chartformat/chartformat_bms.h"
 
 namespace bms
 {
@@ -56,8 +56,8 @@ namespace bms
 class chartBMS : public vChart
 {
 public:
-    virtual std::pair<NoteLaneCategory, NoteLaneIndex> getLaneFromKey(Input::Ingame input);
-    virtual std::vector<Input::Ingame> getInputFromLane(size_t channel);
+    virtual std::pair<NoteLaneCategory, NoteLaneIndex> getLaneFromKey(Input::Pad input);
+    virtual std::vector<Input::Pad> getInputFromLane(size_t channel);
     decltype(_commonNoteLists[0])& getBgaBase() { return _commonNoteLists[(size_t)eNotePlain::BGABASE]; }
     decltype(_commonNoteLists[0])& getBgaLayer() { return _commonNoteLists[(size_t)eNotePlain::BGALAYER]; }
     decltype(_commonNoteLists[0])& getBgaPoor() { return _commonNoteLists[(size_t)eNotePlain::BGAPOOR]; }

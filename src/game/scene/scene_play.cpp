@@ -5,7 +5,7 @@
 #include "scene_context.h"
 #include "game/sound/sound_mgr.h"
 #include "game/ruleset/ruleset_classic.h"
-#include "common/chartformat/format_bms.h"
+#include "common/chartformat/chartformat_bms.h"
 #include "game/chart/chart_bms.h"
 #include "game/graphics/sprite_video.h"
 #include "config/config_mgr.h"
@@ -783,7 +783,6 @@ void ScenePlay::updatePlaying()
     }
 
     // health check (-> to failed)
-    // TODO also play failed sound
     switch (_mode)
     {
     case ePlayMode::SINGLE:
@@ -949,7 +948,7 @@ void ScenePlay::changeKeySampleMapping(Time t)
             if (_inputAvailable[i])
             {
                 assert(gPlayContext.chartObj[PLAYER_SLOT_1P] != nullptr);
-                auto chan = gPlayContext.chartObj[PLAYER_SLOT_1P]->getLaneFromKey((Input::Ingame)i);
+                auto chan = gPlayContext.chartObj[PLAYER_SLOT_1P]->getLaneFromKey((Input::Pad)i);
                 if (chan.first == NoteLaneCategory::_) continue;
                 auto note = gPlayContext.chartObj[PLAYER_SLOT_1P]->incomingNoteOfLane(chan.first, chan.second);
                 if (note->time - t > MIN_REMAP_INTERVAL) continue;
@@ -959,7 +958,7 @@ void ScenePlay::changeKeySampleMapping(Time t)
             if (_inputAvailable[i])
             {
                 assert(gPlayContext.chartObj[PLAYER_SLOT_2P] != nullptr);
-                auto chan = gPlayContext.chartObj[PLAYER_SLOT_2P]->getLaneFromKey((Input::Ingame)i);
+                auto chan = gPlayContext.chartObj[PLAYER_SLOT_2P]->getLaneFromKey((Input::Pad)i);
                 if (chan.first == NoteLaneCategory::_) continue;
                 auto note = gPlayContext.chartObj[PLAYER_SLOT_2P]->incomingNoteOfLane(chan.first, chan.second);
                 if (note->time - t > MIN_REMAP_INTERVAL) continue;
@@ -972,7 +971,7 @@ void ScenePlay::changeKeySampleMapping(Time t)
             if (_inputAvailable[i])
             {
                 assert(gPlayContext.chartObj[PLAYER_SLOT_1P] != nullptr);
-                auto chan = gPlayContext.chartObj[PLAYER_SLOT_1P]->getLaneFromKey((Input::Ingame)i);
+                auto chan = gPlayContext.chartObj[PLAYER_SLOT_1P]->getLaneFromKey((Input::Pad)i);
                 if (chan.first == NoteLaneCategory::_) continue;
                 auto note = gPlayContext.chartObj[PLAYER_SLOT_1P]->incomingNoteOfLane(chan.first, chan.second);
                 if (note->time - t > MIN_REMAP_INTERVAL) continue;

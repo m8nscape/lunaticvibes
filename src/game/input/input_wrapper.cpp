@@ -29,7 +29,7 @@ void InputWrapper::_loop()
     InputMask p{ 0 }, h{ 0 }, r{ 0 };
 
     auto d = InputMgr::detect();
-    for (Input::Ingame i = Input::S1L; i < Input::KEY_COUNT; ++(int&)i)
+    for (Input::Pad i = Input::S1L; i < Input::KEY_COUNT; ++(int&)i)
     {
         auto& [ms, stat] = _inputBuffer[i];
         if (d[i] && !stat)

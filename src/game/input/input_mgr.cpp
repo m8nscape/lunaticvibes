@@ -20,7 +20,7 @@ void InputMgr::updateDevices()
 }
 
 #define bindKey(kk, idx, igk) _inst.bindings[kk][idx] = { KEYBOARD, 0, igk }
-void InputMgr::updateBindings(unsigned keys, Ingame K)
+void InputMgr::updateBindings(unsigned keys, Pad K)
 {
     // Clear current bindings
     for (auto& k : _inst.bindings)
@@ -29,7 +29,7 @@ void InputMgr::updateBindings(unsigned keys, Ingame K)
     switch (keys)
     {
     case 5:
-        for (Input::Ingame key = Input::S1L; key < Input::ESC; ++(*(int*)&key))
+        for (Input::Pad key = Input::S1L; key < Input::ESC; ++(*(int*)&key))
         {
             auto bindings = ConfigMgr::getKeyBindings(5, key);
             for (unsigned slot = 0; slot < bindings.size(); ++slot)
@@ -38,7 +38,7 @@ void InputMgr::updateBindings(unsigned keys, Ingame K)
         break;
 
     case 7:
-        for (Input::Ingame key = Input::S1L; key < Input::ESC; ++(*(int*)&key))
+        for (Input::Pad key = Input::S1L; key < Input::ESC; ++(*(int*)&key))
         {
             auto bindings = ConfigMgr::getKeyBindings(7, key);
             for (unsigned slot = 0; slot < bindings.size(); ++slot)
@@ -47,7 +47,7 @@ void InputMgr::updateBindings(unsigned keys, Ingame K)
         break;
 
     case 9:
-        for (Input::Ingame key = Input::S1L; key < Input::ESC; ++(*(int*)&key))
+        for (Input::Pad key = Input::S1L; key < Input::ESC; ++(*(int*)&key))
         {
             auto bindings = ConfigMgr::getKeyBindings(9, key);
             for (unsigned slot = 0; slot < bindings.size(); ++slot)

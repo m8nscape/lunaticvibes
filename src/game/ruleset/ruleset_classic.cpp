@@ -1,6 +1,6 @@
 #include "ruleset_classic.h"
 #include "common/log.h"
-#include "common/chartformat/format_bms.h"
+#include "common/chartformat/chartformat_bms.h"
 #include "game/data/data.h"
 
 using namespace rc;
@@ -215,7 +215,7 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChartFormat> format, std::shared
 
     for (size_t k = Input::S1L; k <= Input::K1SPDDN; ++k)
     {
-        auto [cat, idx] = _chart->getLaneFromKey((Input::Ingame)k);
+        auto [cat, idx] = _chart->getLaneFromKey((Input::Pad)k);
         if (cat == NoteLaneCategory::_) continue;
         if (idx == NoteLaneIndex::_) continue;
         _noteListIterators[{cat, idx}] = _chart->firstNoteOfLane(cat, idx);
@@ -342,7 +342,7 @@ void RulesetClassic::updatePress(InputMask& pg, Time t)
 	if (_k1P) for (size_t k = Input::S1L; k <= Input::K1SPDDN; ++k)
     {
         if (!pg[k]) continue;
-        auto c = _chart->getLaneFromKey((Input::Ingame)k);
+        auto c = _chart->getLaneFromKey((Input::Pad)k);
 		if (c.first == NoteLaneCategory::_) return;
         auto n = _chart->incomingNoteOfLane(c.first, c.second);
         auto j = _judge(*n, rt);
@@ -442,7 +442,7 @@ void RulesetClassic::updatePress(InputMask& pg, Time t)
 	if (_k2P) for (size_t k = Input::S2L; k <= Input::K2SPDDN; ++k)
     {
         if (!pg[k]) continue;
-        auto c = _chart->getLaneFromKey((Input::Ingame)k);
+        auto c = _chart->getLaneFromKey((Input::Pad)k);
 		if (c.first == NoteLaneCategory::_) return;
         auto n = _chart->incomingNoteOfLane(c.first, c.second);
         auto j = _judge(*n, rt);
@@ -548,7 +548,7 @@ void RulesetClassic::updateHold(InputMask& hg, Time t)
     if (_k1P) for (size_t k = Input::S1L; k <= Input::K1SPDDN; ++k)
     {
         if (!hg[k]) continue;
-        auto c = _chart->getLaneFromKey((Input::Ingame)k);
+        auto c = _chart->getLaneFromKey((Input::Pad)k);
 		if (c.first == NoteLaneCategory::_) return;
         auto n = _chart->incomingNoteOfLane(c.first, c.second);
         switch (c.first)
@@ -588,7 +588,7 @@ void RulesetClassic::updateHold(InputMask& hg, Time t)
     if (_k2P) for (size_t k = Input::S2L; k <= Input::K2SPDDN; ++k)
     {
         if (!hg[k]) continue;
-        auto c = _chart->getLaneFromKey((Input::Ingame)k);
+        auto c = _chart->getLaneFromKey((Input::Pad)k);
 		if (c.first == NoteLaneCategory::_) return;
         auto n = _chart->incomingNoteOfLane(c.first, c.second);
         switch (c.first)
@@ -633,7 +633,7 @@ void RulesetClassic::updateRelease(InputMask& rg, Time t)
     if (_k1P) for (size_t k = Input::S1L; k <= Input::K1SPDDN; ++k)
     {
         if (!rg[k]) continue;
-        auto c = _chart->getLaneFromKey((Input::Ingame)k);
+        auto c = _chart->getLaneFromKey((Input::Pad)k);
 		if (c.first == NoteLaneCategory::_) continue;
         auto n = _chart->incomingNoteOfLane(c.first, c.second);
         gTimers.set(bombTimer7k[26 + c.second], LLONG_MAX);
@@ -682,7 +682,7 @@ void RulesetClassic::updateRelease(InputMask& rg, Time t)
     if (_k2P) for (size_t k = Input::S2L; k <= Input::K2SPDDN; ++k)
     {
         if (!rg[k]) continue;
-        auto c = _chart->getLaneFromKey((Input::Ingame)k);
+        auto c = _chart->getLaneFromKey((Input::Pad)k);
         if (c.first == NoteLaneCategory::_) continue;
         auto n = _chart->incomingNoteOfLane(c.first, c.second);
         gTimers.set(bombTimer7k[26 + c.second], LLONG_MAX);
@@ -756,7 +756,7 @@ void RulesetClassic::update(Time t)
 
     if (_k1P) for (size_t k = Input::S1L; k <= Input::K1SPDDN; ++k)
 	{
-		auto c = _chart->getLaneFromKey((Input::Ingame)k);
+		auto c = _chart->getLaneFromKey((Input::Pad)k);
 		if (c.first == NoteLaneCategory::_) continue;
 
 		auto n = _chart->incomingNoteOfLane(c.first, c.second);
@@ -795,7 +795,7 @@ void RulesetClassic::update(Time t)
     }
     if (_k2P) for (size_t k = Input::S2L; k <= Input::K2SPDDN; ++k)
 	{
-		auto c = _chart->getLaneFromKey((Input::Ingame)k);
+		auto c = _chart->getLaneFromKey((Input::Pad)k);
 		if (c.first == NoteLaneCategory::_) continue;
 
 		auto n = _chart->incomingNoteOfLane(c.first, c.second);

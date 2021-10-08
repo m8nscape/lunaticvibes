@@ -7,7 +7,7 @@ add_library(common STATIC
     sysutil_win.cpp
     sysutil_linux.cpp
     chartformat/chartformat.cpp
-    chartformat/format_bms.cpp
+    chartformat/chartformat_bms.cpp
     entry/entry_folder.cpp
 )
 

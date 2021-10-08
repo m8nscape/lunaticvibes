@@ -2,7 +2,7 @@
 
 #include "scene_select.h"
 #include "scene_context.h"
-#include "common/chartformat/chart_types.h"
+#include "common/chartformat/chartformat_types.h"
 #include "common/entry/entry_song.h"
 
 #include "game/sound/sound_mgr.h"
@@ -664,33 +664,33 @@ void SceneSelect::inputGamePress(InputMask& m, Time t)
         }
 
         // lights
-        for (size_t k = Ingame::K11; k <= Ingame::K19; ++k)
+        for (size_t k = Pad::K11; k <= Pad::K19; ++k)
         {
             if (input[k])
             {
-                gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_DOWN) + k - Ingame::K11), t.norm());
-                gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_UP) + k - Ingame::K11), -1);
+                gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_DOWN) + k - Pad::K11), t.norm());
+                gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_UP) + k - Pad::K11), -1);
             }
         }
         if (gOptions.get(eOption::PLAY_BATTLE_TYPE) == 1)
         {
-            for (size_t k = Ingame::K21; k <= Ingame::K29; ++k)
+            for (size_t k = Pad::K21; k <= Pad::K29; ++k)
             {
                 if (input[k])
                 {
-                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K21_DOWN) + k - Ingame::K21), t.norm());
-                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K21_UP) + k - Ingame::K21), -1);
+                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K21_DOWN) + k - Pad::K21), t.norm());
+                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K21_UP) + k - Pad::K21), -1);
                 }
             }
         }
         else
         {
-            for (size_t k = Ingame::K21; k <= Ingame::K29; ++k)
+            for (size_t k = Pad::K21; k <= Pad::K29; ++k)
             {
                 if (input[k])
                 {
-                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_DOWN) + k - Ingame::K21), t.norm());
-                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_UP) + k - Ingame::K21), -1);
+                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_DOWN) + k - Pad::K21), t.norm());
+                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_UP) + k - Pad::K21), -1);
                 }
             }
         }
@@ -699,32 +699,32 @@ void SceneSelect::inputGamePress(InputMask& m, Time t)
         if (gSwitches.get(eSwitch::SELECT_PANEL1))
         {
             // 1: KEYS
-            if (input[Ingame::K12]) lr2skin::button::random_type(0, 1);
-            if (input[Ingame::K13]) lr2skin::button::battle(1);
-            if (input[Ingame::K14]) lr2skin::button::gauge_type(0, 1);
-            if (input[Ingame::K15]) lr2skin::button::hs(0, -1);
-            if (input[Ingame::K16]) lr2skin::button::autoscr(0, 1);
-            if (input[Ingame::K17]) lr2skin::button::hs(0, 1);
+            if (input[Pad::K12]) lr2skin::button::random_type(0, 1);
+            if (input[Pad::K13]) lr2skin::button::battle(1);
+            if (input[Pad::K14]) lr2skin::button::gauge_type(0, 1);
+            if (input[Pad::K15]) lr2skin::button::hs(0, -1);
+            if (input[Pad::K16]) lr2skin::button::autoscr(0, 1);
+            if (input[Pad::K17]) lr2skin::button::hs(0, 1);
 
             if (gOptions.get(eOption::PLAY_BATTLE_TYPE) == 1)
             {
                 // 1: KEYS
-                if (input[Ingame::K22]) lr2skin::button::random_type(1, 1);
-                if (input[Ingame::K23]) lr2skin::button::battle(1);
-                if (input[Ingame::K24]) lr2skin::button::gauge_type(1, 1);
-                if (input[Ingame::K25]) lr2skin::button::hs(1, -1);
-                if (input[Ingame::K26]) lr2skin::button::autoscr(1, 1);
-                if (input[Ingame::K27]) lr2skin::button::hs(1, 1);
+                if (input[Pad::K22]) lr2skin::button::random_type(1, 1);
+                if (input[Pad::K23]) lr2skin::button::battle(1);
+                if (input[Pad::K24]) lr2skin::button::gauge_type(1, 1);
+                if (input[Pad::K25]) lr2skin::button::hs(1, -1);
+                if (input[Pad::K26]) lr2skin::button::autoscr(1, 1);
+                if (input[Pad::K27]) lr2skin::button::hs(1, 1);
             }
             else
             {
                 // 1: KEYS
-                if (input[Ingame::K22]) lr2skin::button::random_type(0, 1);
-                if (input[Ingame::K23]) lr2skin::button::battle(1);
-                if (input[Ingame::K24]) lr2skin::button::gauge_type(0, 1);
-                if (input[Ingame::K25]) lr2skin::button::hs(0, -1);
-                if (input[Ingame::K26]) lr2skin::button::autoscr(0, 1);
-                if (input[Ingame::K27]) lr2skin::button::hs(0, 1);
+                if (input[Pad::K22]) lr2skin::button::random_type(0, 1);
+                if (input[Pad::K23]) lr2skin::button::battle(1);
+                if (input[Pad::K24]) lr2skin::button::gauge_type(0, 1);
+                if (input[Pad::K25]) lr2skin::button::hs(0, -1);
+                if (input[Pad::K26]) lr2skin::button::autoscr(0, 1);
+                if (input[Pad::K27]) lr2skin::button::hs(0, 1);
             }
         }
 
@@ -835,33 +835,33 @@ void SceneSelect::inputGameRelease(InputMask& m, Time t)
         }
 
         // lights
-        for (size_t k = Ingame::K11; k <= Ingame::K19; ++k)
+        for (size_t k = Pad::K11; k <= Pad::K19; ++k)
         {
             if (input[k])
             {
-                gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_UP) + k - Ingame::K11), t.norm());
-                gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_DOWN) + k - Ingame::K11), -1);
+                gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_UP) + k - Pad::K11), t.norm());
+                gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_DOWN) + k - Pad::K11), -1);
             }
         }
         if (gOptions.get(eOption::PLAY_BATTLE_TYPE) == 1)
         {
-            for (size_t k = Ingame::K21; k <= Ingame::K29; ++k)
+            for (size_t k = Pad::K21; k <= Pad::K29; ++k)
             {
                 if (input[k])
                 {
-                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K21_UP) + k - Ingame::K21), t.norm());
-                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K21_DOWN) + k - Ingame::K21), -1);
+                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K21_UP) + k - Pad::K21), t.norm());
+                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K21_DOWN) + k - Pad::K21), -1);
                 }
             }
         }
         else
         {
-            for (size_t k = Ingame::K21; k <= Ingame::K29; ++k)
+            for (size_t k = Pad::K21; k <= Pad::K29; ++k)
             {
                 if (input[k])
                 {
-                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_UP) + k - Ingame::K21), t.norm());
-                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_DOWN) + k - Ingame::K21), -1);
+                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_UP) + k - Pad::K21), t.norm());
+                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_DOWN) + k - Pad::K21), -1);
                 }
             }
         }

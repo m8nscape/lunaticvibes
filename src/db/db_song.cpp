@@ -3,7 +3,7 @@
 #include "common/utils.h"
 #include "db_song.h"
 #include "common/log.h"
-#include "common/chartformat/chart_types.h"
+#include "common/chartformat/chartformat_types.h"
 #include "game/chart/chart_types.h"
 
 const char* CREATE_FOLDER_TABLE_STR =
