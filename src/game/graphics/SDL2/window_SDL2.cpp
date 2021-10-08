@@ -173,6 +173,20 @@ void event_handle()
             gEventQuit = true;
             break;
 
+        case SDL_WINDOWEVENT:
+            switch (e.window.event)
+            {
+            case SDL_WINDOWEVENT_FOCUS_GAINED:
+                SetWindowForeground(true);
+                break;
+            case SDL_WINDOWEVENT_FOCUS_LOST:
+                SetWindowForeground(false);
+                break;
+            default:
+                break;
+            }
+            break;
+
         default:
             break;
         }

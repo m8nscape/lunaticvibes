@@ -155,7 +155,7 @@ static const InputDataMap InputGameReleaseMap2[] =
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ScenePlay::ScenePlay(ePlayMode gamemode): vScene(gPlayContext.mode, 1000), _mode(gamemode)
+ScenePlay::ScenePlay(ePlayMode gamemode): vScene(gPlayContext.mode, 1000, true), _mode(gamemode)
 {
     _currentKeySample.assign(Input::ESC, 0);
 

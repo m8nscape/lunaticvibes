@@ -63,8 +63,7 @@ void SceneDecide::updateSkip()
     {
         loopEnd();
         _input.loopEnd();
-        clearContextPlay();
-        gNextScene = eScene::SELECT;
+        gNextScene = eScene::PLAY;
     }
 }
 

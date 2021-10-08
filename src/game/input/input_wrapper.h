@@ -20,9 +20,9 @@ inline const InputMask INPUT_MASK_1P    { "0000000000000000000000000000000000000
 inline const InputMask INPUT_MASK_2P    { "0000000000000000000000000000111111111111111000000000000000" };
 
 //                                                                     2P: 9 7 5 3 1  1P: 9 7 5 3 1  
-inline const InputMask INPUT_MASK_DECIDE{ "0000000000000000000000000000000010101010100000010101010100" };
+inline const InputMask INPUT_MASK_DECIDE{ "0100000000000000000000000000000010101010100000010101010100" };
 //                                                                     2P:  8 6 4 2   1P:  8 6 4 2
-inline const InputMask INPUT_MASK_CANCEL{ "0000000000000000000000000000000001010101000000001010101000" };
+inline const InputMask INPUT_MASK_CANCEL{ "1000000000000000000000000000000001010101000000001010101000" };
 //                                                  < ^                2P:           S1P:           S
 inline const InputMask INPUT_MASK_NAV_UP{ "0000000001010000000000000000000000000000001000000000000001" };
 //                                                 > v                 2P:          S 1P:          S
@@ -47,9 +47,10 @@ protected:
     std::array<std::pair<long long, bool>, Input::KEY_COUNT> _inputBuffer{ {{0, false}} };
     std::array<long long, Input::KEY_COUNT> _releaseBuffer{ -1 };
     int _cursor_x = 0, _cursor_y = 0;
+    bool _background = false;
 
 public:
-    InputWrapper(unsigned rate = 1000);
+    InputWrapper(unsigned rate = 1000, bool background = false);
     virtual ~InputWrapper();
 
 private:

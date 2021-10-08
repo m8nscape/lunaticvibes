@@ -3,7 +3,8 @@
 #include "common/log.h"
 #include <cassert>
 
-InputWrapper::InputWrapper(unsigned rate) : AsyncLooper(std::bind(&InputWrapper::_loop, this), rate)
+InputWrapper::InputWrapper(unsigned rate, bool background) : 
+    AsyncLooper(std::bind(&InputWrapper::_loop, this), rate), _background(background)
 {
 }
 
@@ -29,6 +30,7 @@ void InputWrapper::_loop()
     InputMask p{ 0 }, h{ 0 }, r{ 0 };
 
     auto d = InputMgr::detect();
+    if (!_background && !IsWindowForeground()) d.reset();
     for (Input::Pad i = Input::S1L; i < Input::KEY_COUNT; ++(int&)i)
     {
         auto& [ms, stat] = _inputBuffer[i];

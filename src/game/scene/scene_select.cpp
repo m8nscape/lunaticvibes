@@ -652,7 +652,7 @@ void SceneSelect::inputGamePress(InputMask& m, Time t)
                     gSwitches.set(p, false);
                     gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_START) - 1 + i), -1);
                     gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_END) - 1 + i), t.norm());
-                    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CLOSE));
+                    //SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CLOSE));
                 }
             }
 

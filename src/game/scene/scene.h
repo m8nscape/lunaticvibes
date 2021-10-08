@@ -21,7 +21,7 @@ public:
 	bool sceneEnding = false;
 
 public:
-    vScene(eMode mode, unsigned rate = 240);
+    vScene(eMode mode, unsigned rate = 240, bool backgroundInput = false);
     virtual ~vScene();
 
 public:

@@ -72,7 +72,7 @@ void GetExecutablePath(char* output, size_t bufsize, size_t& len)
     len = strlen(output);
 }
 
-HWND hwnd = (HWND)INVALID_HANDLE_VALUE;
+static HWND hwnd = (HWND)INVALID_HANDLE_VALUE;
 void setWindowHandle(void* handle)
 {
     hwnd = *(HWND*)handle;
@@ -92,6 +92,17 @@ bool getMouseCursorPos(int& x, int& y)
         }
     }
     return false;
+}
+
+static bool foreground = true;
+bool IsWindowForeground()
+{
+    return foreground;
+}
+
+void SetWindowForeground(bool f)
+{
+    foreground = f;
 }
 
 #endif
