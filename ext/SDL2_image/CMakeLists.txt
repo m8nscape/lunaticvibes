@@ -51,3 +51,10 @@ elseif (LINUX)
 endif()
 
 target_include_directories(SDL2_image INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+
+get_target_property(SDL2IMAGE_LIB_FILES SDL2_image IMPORTED_LOCATION)
+set(EXT_DEPEND_LIBFILES ${EXT_DEPEND_LIBFILES} 
+        ${SDL2IMAGE_LIB_FILES}
+        CACHE INTERNAL "dependencies"
+)
+set(EXT_DEPEND_LIBFILES_SET TRUE CACHE INTERNAL "dependencies")
