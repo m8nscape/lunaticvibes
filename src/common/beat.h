@@ -70,16 +70,20 @@ public:
 };
 #pragma warning(pop)
 
-const size_t NOTE_INDEX_LN_TAIL = 0x10;
-const size_t NOTE_INDEX_BGA_BASE = 0xE0;
-const size_t NOTE_INDEX_BGA_LAYER = 0xE1;
-const size_t NOTE_INDEX_BGA_POOR = 0xE2;
-
 struct Note
 {
     Measure measure;        // Which measure the note is placed
     Beat totalbeat;        // Which beat the note is placed in visual (ignoring SV & STOP), can be above 1
     Time time;             // Timestamp
     std::variant<long long, double> value;              // varies from note type to type, e.g. #BGM, #BPM, etc
-	size_t index = INDEX_INVALID;			// used for distinguishing plain notes
+
+	enum Flags
+	{
+		LN_TAIL   = 1 << 0,
+
+		BGA_BASE  = 0b01 << 1,
+		BGA_LAYER = 0b10 << 1,
+		BGA_MISS  = 0b11 << 1,
+	};
+	size_t flags = 0;			// used for distinguishing plain notes
 };

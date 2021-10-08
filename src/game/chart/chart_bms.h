@@ -4,50 +4,15 @@
 
 namespace bms
 {
-    enum class eNotePlain: unsigned
-    {
-		BGM0 = 0,
-        BGM1,
-        BGM2,
-        BGM3,
-        BGM4,
-        BGM5,
-        BGM6,
-        BGM7,
-        BGM8,
-        BGM9,
-        BGM10,
-        BGM11,
-        BGM12,
-        BGM13,
-        BGM14,
-        BGM15,
-        BGM16,
-        BGM17,
-        BGM18,
-        BGM19,
-        BGM20,
-        BGM21,
-        BGM22,
-        BGM23,
-        BGM24,
-        BGM25,
-        BGM26,
-        BGM27,
-        BGM28,
-        BGM29,
-        BGM30,
-        BGM31,
-
-		BGABASE,
-		BGALAYER,
-		BGAPOOR,
-
-        PLAIN_COUNT
-    };
+    const size_t BGM_LANE_COUNT = 32;
 
     enum class eNoteExt: unsigned
     {
+        BGABASE,
+        BGALAYER,
+        BGAPOOR,
+
+        STOP,
 
         EXT_COUNT
     };
@@ -58,9 +23,9 @@ class chartBMS : public vChart
 public:
     virtual std::pair<NoteLaneCategory, NoteLaneIndex> getLaneFromKey(Input::Pad input);
     virtual std::vector<Input::Pad> getInputFromLane(size_t channel);
-    decltype(_commonNoteLists[0])& getBgaBase() { return _commonNoteLists[(size_t)eNotePlain::BGABASE]; }
-    decltype(_commonNoteLists[0])& getBgaLayer() { return _commonNoteLists[(size_t)eNotePlain::BGALAYER]; }
-    decltype(_commonNoteLists[0])& getBgaPoor() { return _commonNoteLists[(size_t)eNotePlain::BGAPOOR]; }
+    decltype(_specialNoteLists[0])& getBgaBase()  { return _specialNoteLists[(size_t)eNoteExt::BGABASE]; }
+    decltype(_specialNoteLists[0])& getBgaLayer() { return _specialNoteLists[(size_t)eNoteExt::BGALAYER]; }
+    decltype(_specialNoteLists[0])& getBgaPoor()  { return _specialNoteLists[(size_t)eNoteExt::BGAPOOR]; }
 public:
     chartBMS();
     chartBMS(std::shared_ptr<BMS> bms);
@@ -68,6 +33,12 @@ public:
 protected:
     void loadBMS(const BMS& bms);
 
+protected:
+    double   _currentStopBeat = 0;
+    bool     _currentStopBeatGuard = false;
+
 public:
     //virtual void update(hTime t);
+    virtual void preUpdate(const Time& t) override;
+    virtual void postUpdate(const Time& t) override;
 };

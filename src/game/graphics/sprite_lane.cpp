@@ -128,7 +128,7 @@ void SpriteLaneVerticalLN::updateNoteRect(Time t, vChart* s, double beat, unsign
 		int head_y = c.y + c.h;
 		int tail_y = 0;
 
-		if (it->index == NOTE_INDEX_LN_TAIL)
+		if (it->flags & Note::LN_TAIL)
 		{
 			head_y_actual = c.y + c.h;
 

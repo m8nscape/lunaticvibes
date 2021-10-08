@@ -65,8 +65,8 @@ public:
 public:
     void clearAll();
 
-    void clearKey(Input::Ingame ingame);
-    void bindKey(Input::Ingame ingame, Input::Key key, size_t slot);
-    //void bindButton(unsigned id, Input::Ingame ingame, unsigned input);
-    std::vector<Input::Key> getBindings(Input::Ingame key);
+    void clearKey(Input::Pad ingame);
+    void bindKey(Input::Pad ingame, Input::Keyboard key, size_t slot);
+    //void bindButton(unsigned id, Input::Pad ingame, unsigned input);
+    std::vector<Input::Keyboard> getBindings(Input::Pad key);
 };

@@ -1708,7 +1708,7 @@ ParseRet SkinLR2::SRC_NOTE()
     }
 
     size_t i = channelToIdx(cat, idx);
-    if (i == CHANNEL_INVALID)
+    if (i == LANE_INVALID)
     {
         LOG_WARNING << "[Skin] " << srcLine << ": Note channel illegal: " << unsigned(cat) << ", " << unsigned(idx);
         return ParseRet::PARAM_INVALID;
@@ -2994,7 +2994,7 @@ SkinLR2::SkinLR2(Path p)
         _barSprites[i] = std::make_shared<SpriteBarEntry>(i);
         _sprites.push_back(_barSprites[i]);
     }
-	_laneSprites.resize(CHANNEL_COUNT);
+	_laneSprites.resize(LANE_COUNT);
     updateDstOpt();
     loadCSV(p);
 

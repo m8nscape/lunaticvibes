@@ -66,7 +66,7 @@ void ConfigInput::clearAll()
     _yaml[I_BINDINGS_K2SpdDn] = blank_binding;
 }
 
-void ConfigInput::clearKey(Input::Ingame ingame)
+void ConfigInput::clearKey(Input::Pad ingame)
 {
     using namespace cfg;
     using namespace Input;
@@ -109,12 +109,12 @@ void ConfigInput::clearKey(Input::Ingame ingame)
     }
 }
 
-void ConfigInput::bindKey(Input::Ingame ingame, Input::Key key, size_t slot)
+void ConfigInput::bindKey(Input::Pad ingame, Input::Keyboard key, size_t slot)
 {
     using namespace cfg;
     using namespace Input;
     slot = std::min(slot, MAX_BINDINGS_PER_KEY - 1);
-    std::string value = std::string("K_") + keyNameMap[key];
+    std::string value = std::string("K_") + keyboardNameMap[key];
 
     switch (ingame)
     {
@@ -155,7 +155,7 @@ void ConfigInput::bindKey(Input::Ingame ingame, Input::Key key, size_t slot)
 
 }
 
-std::vector<Input::Key> ConfigInput::getBindings(Input::Ingame key)
+std::vector<Input::Keyboard> ConfigInput::getBindings(Input::Pad key)
 {
     using namespace Input;
     using namespace cfg;
@@ -198,7 +198,7 @@ std::vector<Input::Key> ConfigInput::getBindings(Input::Ingame key)
     }
 
     auto keys = _yaml[mapKey];
-    std::vector<Input::Key> ret;
+    std::vector<Input::Keyboard> ret;
     for (const auto& k : keys)
     {
         std::string name = k.as<std::string>("INVALID");
@@ -220,7 +220,7 @@ std::vector<Input::Key> ConfigInput::getBindings(Input::Ingame key)
 
         default: break;
         }
-        ret.push_back(Input::getByName(k.as<std::string>(Input::keyNameMap[Input::K_ERROR])));
+        ret.push_back(Input::getByName(k.as<std::string>(Input::keyboardNameMap[Input::K_ERROR])));
     }
     
     return ret;

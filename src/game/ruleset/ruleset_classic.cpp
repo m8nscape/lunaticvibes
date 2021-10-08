@@ -5,7 +5,7 @@
 
 using namespace rc;
 
-void setJudgeTimer1PInner(int slot, long long t)
+void setJudgeTimer1PInner(int judge, long long t)
 {
 	gTimers.set(eTimer::_JUDGE_1P_0, -1);
 	gTimers.set(eTimer::_JUDGE_1P_1, -1);
@@ -13,7 +13,7 @@ void setJudgeTimer1PInner(int slot, long long t)
 	gTimers.set(eTimer::_JUDGE_1P_3, -1);
 	gTimers.set(eTimer::_JUDGE_1P_4, -1);
 	gTimers.set(eTimer::_JUDGE_1P_5, -1);
-	switch (slot)
+	switch (judge)
 	{
 	case 0: gTimers.set(eTimer::_JUDGE_1P_0, t); break;
 	case 1: gTimers.set(eTimer::_JUDGE_1P_1, t); break;
@@ -25,7 +25,7 @@ void setJudgeTimer1PInner(int slot, long long t)
 	}
 }
 
-void setJudgeTimer2PInner(int slot, long long t)
+void setJudgeTimer2PInner(int judge, long long t)
 {
 	gTimers.set(eTimer::_JUDGE_2P_0, -1);
 	gTimers.set(eTimer::_JUDGE_2P_1, -1);
@@ -33,7 +33,7 @@ void setJudgeTimer2PInner(int slot, long long t)
 	gTimers.set(eTimer::_JUDGE_2P_3, -1);
 	gTimers.set(eTimer::_JUDGE_2P_4, -1);
 	gTimers.set(eTimer::_JUDGE_2P_5, -1);
-	switch (slot)
+	switch (judge)
 	{
 	case 0: gTimers.set(eTimer::_JUDGE_2P_0, t); break;
 	case 1: gTimers.set(eTimer::_JUDGE_2P_1, t); break;
@@ -46,8 +46,8 @@ void setJudgeTimer2PInner(int slot, long long t)
 }
 
 RulesetClassic::RulesetClassic(std::shared_ptr<vChartFormat> format, std::shared_ptr<vChart> chart, 
-    rc::judgeDiff difficulty, rc::gauge_ty gauge, double health, rc::player p) :
-    vRuleset(format, chart, rc::JUDGE_COUNT), _diff(difficulty), _count{ 0 }, _gauge(gauge), _player(p)
+    rc::judgeDiff difficulty, rc::gauge_ty gauge, double health, rc::mode p) :
+    vRuleset(format, chart, rc::JUDGE_COUNT), _diff(difficulty), _count{ 0 }, _gauge(gauge), _mode(p)
 {
     using namespace std::string_literals;
 
@@ -58,7 +58,7 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChartFormat> format, std::shared
     {
     case eChartFormat::BMS:
         double total_bms;
-        format->getExtendedProperty("TOTAL"s, (void*)&total_bms);
+        format->getExtendedProperty("TOTAL", (void*)&total_bms);
         total = int(total_bms);
         if (total < 0) total = 160;
         break;
@@ -196,24 +196,22 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChartFormat> format, std::shared
 
 	switch (p)
 	{
-	case rc::player::SP:
-	case rc::player::DP:
+	case rc::mode::SP:
+	case rc::mode::DP:
 		_k1P = true;
 		_k2P = true;
 		break;
-	case rc::player::BATTLE_1P:
+	case rc::mode::BATTLE_1P:
 		_k1P = true;
 		_k2P = false;
-		// TODO: volume
 		break;
-	case rc::player::BATTLE_2P:
+	case rc::mode::BATTLE_2P:
 		_k1P = false;
 		_k2P = true;
-		// TODO: volume
 		break;
 	}
 
-    for (size_t k = Input::S1L; k <= Input::K1SPDDN; ++k)
+    for (size_t k = Input::S1L; k <= Input::K2SPDDN; ++k)
     {
         auto [cat, idx] = _chart->getLaneFromKey((Input::Pad)k);
         if (cat == NoteLaneCategory::_) continue;
@@ -339,68 +337,24 @@ void RulesetClassic::updatePress(InputMask& pg, Time t)
 {
 	Time rt = t - gTimers.get(eTimer::PLAY_START);
     if (rt.norm() < 0) return;
-	if (_k1P) for (size_t k = Input::S1L; k <= Input::K1SPDDN; ++k)
+    auto updatePressRange = [&](Input::Pad begin, Input::Pad end, int slot)
     {
-        if (!pg[k]) continue;
-        auto c = _chart->getLaneFromKey((Input::Pad)k);
-		if (c.first == NoteLaneCategory::_) return;
-        auto n = _chart->incomingNoteOfLane(c.first, c.second);
-        auto j = _judge(*n, rt);
-        switch (c.first)
+        for (size_t k = begin; k <= end; ++k)
         {
-        case NoteLaneCategory::Note:
-			switch (j.area)
-			{
-			case judgeArea::NOTHING:
-				break;
-			default:
-				gTimers.set(eTimer::PLAY_JUDGE_1P, t.norm());
-				break;
-			}
-            switch (j.area)
+            if (!pg[k]) continue;
+            auto [cat, idx] = _chart->getLaneFromKey((Input::Pad)k);
+            if (cat == NoteLaneCategory::_) return;
+            auto n = _chart->incomingNoteOfLane(cat, idx);
+            auto j = _judge(*n, rt);
+            switch (cat)
             {
-                using namespace judgeArea;
-                case EARLY_PERFECT:
-                case EXACT_PERFECT:
-                case LATE_PERFECT:
-                    updateHit(t, c.second, PERFECT, 0);
-                    break;
-
-                case EARLY_GREAT:
-                case LATE_GREAT:
-                    updateHit(t, c.second, GREAT, 0);
-                    break;
-
-                case EARLY_GOOD:
-                case LATE_GOOD:
-                    updateHit(t, c.second, GOOD, 0);
-                    break;
-
-                case EARLY_BAD:
-                case LATE_BAD:
-                    updateMiss(t, c.second, BAD, 0);
-                    break;
-
-                case EARLY_BPOOR:
-                    updateMiss(t, c.second, BPOOR, 0);
-                    break;
-            }
-            if (j.area > judgeArea::EARLY_BPOOR) n->hit = true;
-            break;
-
-        case NoteLaneCategory::Invs:
-            break;
-
-        case NoteLaneCategory::LN:
-            if (n->index != NOTE_INDEX_LN_TAIL)
-            {
+            case NoteLaneCategory::Note:
                 switch (j.area)
                 {
                 case judgeArea::NOTHING:
-                    _lnJudge[c.second] = MISS;
                     break;
                 default:
-                    gTimers.set(bombTimer7k[26 + c.second], t.norm());
+                    gTimers.set(eTimer::PLAY_JUDGE_1P, t.norm());
                     break;
                 }
                 switch (j.area)
@@ -409,165 +363,102 @@ void RulesetClassic::updatePress(InputMask& pg, Time t)
                 case EARLY_PERFECT:
                 case EXACT_PERFECT:
                 case LATE_PERFECT:
-                    _lnJudge[c.second] = PERFECT;
+                    updateHit(t, idx, PERFECT, slot);
                     break;
 
                 case EARLY_GREAT:
                 case LATE_GREAT:
-                    _lnJudge[c.second] = GREAT;
+                    updateHit(t, idx, GREAT, slot);
                     break;
 
                 case EARLY_GOOD:
                 case LATE_GOOD:
-                    _lnJudge[c.second] = GOOD;
+                    updateHit(t, idx, GOOD, slot);
                     break;
 
                 case EARLY_BAD:
                 case LATE_BAD:
-                    _lnJudge[c.second] = BAD;
+                    updateMiss(t, idx, BAD, slot);
                     break;
 
                 case EARLY_BPOOR:
-                    _lnJudge[c.second] = BPOOR;
+                    updateMiss(t, idx, BPOOR, slot);
                     break;
                 }
                 if (j.area > judgeArea::EARLY_BPOOR) n->hit = true;
                 break;
-            }
-            
-            // TODO scratch LN miss
-            break;
-        }
-    }
-	if (_k2P) for (size_t k = Input::S2L; k <= Input::K2SPDDN; ++k)
-    {
-        if (!pg[k]) continue;
-        auto c = _chart->getLaneFromKey((Input::Pad)k);
-		if (c.first == NoteLaneCategory::_) return;
-        auto n = _chart->incomingNoteOfLane(c.first, c.second);
-        auto j = _judge(*n, rt);
-        switch (c.first)
-        {
-        case NoteLaneCategory::Note:
-			switch (j.area)
-			{
-			case judgeArea::NOTHING:
-				break;
-			default:
-				gTimers.set(eTimer::PLAY_JUDGE_2P, t.norm());
-				break;
-			}
-            switch (j.area)
-            {
-                using namespace judgeArea;
-            case EARLY_PERFECT:
-            case EXACT_PERFECT:
-            case LATE_PERFECT:
-                updateHit(t, c.second, PERFECT, 1);
+
+            case NoteLaneCategory::Invs:
                 break;
 
-            case EARLY_GREAT:
-            case LATE_GREAT:
-                updateHit(t, c.second, GREAT, 1);
-                break;
-
-            case EARLY_GOOD:
-            case LATE_GOOD:
-                updateHit(t, c.second, GOOD, 1);
-                break;
-
-            case EARLY_BAD:
-            case LATE_BAD:
-                updateMiss(t, c.second, BAD, 1);
-                break;
-
-            case EARLY_BPOOR:
-                updateMiss(t, c.second, BPOOR, 1);
-                break;
-            }
-            if (j.area > judgeArea::EARLY_BPOOR) n->hit = true;
-            break;
-
-        case NoteLaneCategory::Invs:
-            break;
-
-        case NoteLaneCategory::LN:
-            // TODO LN
-            if (n->index != NOTE_INDEX_LN_TAIL)
-            {
-                switch (j.area)
+            case NoteLaneCategory::LN:
+                if (!(n->flags & Note::LN_TAIL))
                 {
-                case judgeArea::NOTHING:
-                    _lnJudge[c.second] = MISS;
-                    break;
-                default:
-                    gTimers.set(bombTimer7k[26 + c.second], t.norm());
+                    switch (j.area)
+                    {
+                    case judgeArea::NOTHING:
+                        _lnJudge[idx] = MISS;
+                        break;
+                    default:
+                        gTimers.set(bombTimer7kLN[idx], t.norm());
+                        break;
+                    }
+                    switch (j.area)
+                    {
+                        using namespace judgeArea;
+                    case EARLY_PERFECT:
+                    case EXACT_PERFECT:
+                    case LATE_PERFECT:
+                        _lnJudge[idx] = PERFECT;
+                        break;
+
+                    case EARLY_GREAT:
+                    case LATE_GREAT:
+                        _lnJudge[idx] = GREAT;
+                        break;
+
+                    case EARLY_GOOD:
+                    case LATE_GOOD:
+                        _lnJudge[idx] = GOOD;
+                        break;
+
+                    case EARLY_BAD:
+                    case LATE_BAD:
+                        _lnJudge[idx] = BAD;
+                        break;
+
+                    case EARLY_BPOOR:
+                        _lnJudge[idx] = BPOOR;
+                        break;
+                    }
+                    if (j.area > judgeArea::EARLY_BPOOR) n->hit = true;
                     break;
                 }
-                switch (j.area)
-                {
-                    using namespace judgeArea;
-                case EARLY_PERFECT:
-                case EXACT_PERFECT:
-                case LATE_PERFECT:
-                    _lnJudge[c.second] = PERFECT;
-                    break;
 
-                case EARLY_GREAT:
-                case LATE_GREAT:
-                    _lnJudge[c.second] = GREAT;
-                    break;
-
-                case EARLY_GOOD:
-                case LATE_GOOD:
-                    _lnJudge[c.second] = GOOD;
-                    break;
-
-                case EARLY_BAD:
-                case LATE_BAD:
-                    _lnJudge[c.second] = BAD;
-                    break;
-
-                case EARLY_BPOOR:
-                    _lnJudge[c.second] = BPOOR;
-                    break;
-                }
-                if (j.area > judgeArea::EARLY_BPOOR) n->hit = true;
+                // TODO scratch LN miss
                 break;
             }
-            // TODO scratch LN miss
-            break;
         }
-    }
+    };
+    if (_k1P) updatePressRange(Input::S1L, Input::K1SPDDN, 0);
+    if (_k2P) updatePressRange(Input::S2L, Input::K2SPDDN, 1);
 }
 void RulesetClassic::updateHold(InputMask& hg, Time t)
 {
 	Time rt = t - gTimers.get(eTimer::PLAY_START);
     if (rt < 0) return;
 
-    if (_k1P) for (size_t k = Input::S1L; k <= Input::K1SPDDN; ++k)
+    auto updateHoldRange = [&](Input::Pad begin, Input::Pad end, int slot)
     {
-        if (!hg[k]) continue;
-        auto c = _chart->getLaneFromKey((Input::Pad)k);
-		if (c.first == NoteLaneCategory::_) return;
-        auto n = _chart->incomingNoteOfLane(c.first, c.second);
-        switch (c.first)
+        for (size_t k = begin; k <= end; ++k)
         {
-        case NoteLaneCategory::Mine:
-		{
-			auto j = _judge(*n, rt);
-			if (j.area == judgeArea::EXACT_PERFECT ||
-				j.area == judgeArea::EARLY_PERFECT && j.time < -2 ||
-				j.area == judgeArea::LATE_PERFECT && j.time < 2)
-			{
-				n->hit = true;
-                _updateHp(-0.01 * std::get<long long>(n->value) / 2);
-				// TODO play mine sound + volume
-			}
-			break;
-		}
-        case NoteLaneCategory::LN:
-            if (n->index == NOTE_INDEX_LN_TAIL)
+            if (!hg[k]) continue;
+            auto [cat, idx] = _chart->getLaneFromKey((Input::Pad)k);
+            if (cat == NoteLaneCategory::_) return;
+            auto n = _chart->incomingNoteOfLane(cat, idx);
+            switch (cat)
+            {
+            case NoteLaneCategory::Mine:
             {
                 auto j = _judge(*n, rt);
                 if (j.area == judgeArea::EXACT_PERFECT ||
@@ -575,159 +466,93 @@ void RulesetClassic::updateHold(InputMask& hg, Time t)
                     j.area == judgeArea::LATE_PERFECT && j.time < 2)
                 {
                     n->hit = true;
-                    gTimers.set(bombTimer7k[26 + c.second], LLONG_MAX);
-                    updateHit(t, c.second, _lnJudge[c.second], 0);
+                    _updateHp(-0.01 * std::get<long long>(n->value) / 2);
+                    // TODO play mine sound + volume
                 }
+                break;
             }
-            break;
-
-        default:
-            break;
-        }
-    }
-    if (_k2P) for (size_t k = Input::S2L; k <= Input::K2SPDDN; ++k)
-    {
-        if (!hg[k]) continue;
-        auto c = _chart->getLaneFromKey((Input::Pad)k);
-		if (c.first == NoteLaneCategory::_) return;
-        auto n = _chart->incomingNoteOfLane(c.first, c.second);
-        switch (c.first)
-        {
-        case NoteLaneCategory::Mine:
-		{
-			auto j = _judge(*n, rt);
-			if (j.area == judgeArea::EXACT_PERFECT ||
-				j.area == judgeArea::EARLY_PERFECT && j.time < -2 ||
-				j.area == judgeArea::LATE_PERFECT && j.time < 2)
-			{
-				n->hit = true;
-                _updateHp(-0.01 * std::get<long long>(n->value) / 2);
-				// TODO play mine sound + volume
-			}
-			break;
-		}
-        case NoteLaneCategory::LN:
-            if (n->index == NOTE_INDEX_LN_TAIL)
-            {
-                auto j = _judge(*n, rt);
-                if (j.area == judgeArea::EXACT_PERFECT ||
-                    j.area == judgeArea::EARLY_PERFECT && j.time < -2 ||
-                    j.area == judgeArea::LATE_PERFECT && j.time < 2)
+            case NoteLaneCategory::LN:
+                if (n->flags & Note::LN_TAIL)
                 {
-                    n->hit = true;
-                    gTimers.set(bombTimer7k[26 + c.second], LLONG_MAX);
-                    updateHit(t, c.second, _lnJudge[c.second], 1);
+                    auto j = _judge(*n, rt);
+                    if (j.area == judgeArea::EXACT_PERFECT ||
+                        j.area == judgeArea::EARLY_PERFECT && j.time < -2 ||
+                        j.area == judgeArea::LATE_PERFECT && j.time < 2)
+                    {
+                        n->hit = true;
+                        gTimers.set(bombTimer7kLN[idx], LLONG_MAX);
+                        updateHit(t, idx, _lnJudge[idx], slot);
+                    }
                 }
-            }
-            break;
+                break;
 
-        default:
-            break;
+            default:
+                break;
+            }
         }
-    }
+    };
+    if (_k1P) updateHoldRange(Input::S1L, Input::K1SPDDN, 0);
+    if (_k2P) updateHoldRange(Input::S2L, Input::K2SPDDN, 1);
 }
 void RulesetClassic::updateRelease(InputMask& rg, Time t)
 {
 	Time rt = t - gTimers.get(eTimer::PLAY_START);
     if (rt < 0) return;
-    if (_k1P) for (size_t k = Input::S1L; k <= Input::K1SPDDN; ++k)
+
+    auto updateReleaseRange = [&](Input::Pad begin, Input::Pad end, int slot)
     {
-        if (!rg[k]) continue;
-        auto c = _chart->getLaneFromKey((Input::Pad)k);
-		if (c.first == NoteLaneCategory::_) continue;
-        auto n = _chart->incomingNoteOfLane(c.first, c.second);
-        gTimers.set(bombTimer7k[26 + c.second], LLONG_MAX);
-        //auto j = _judge(*n, rt);
-        switch (c.first)
+        for (size_t k = begin; k <= end; ++k)
         {
-        case NoteLaneCategory::LN:
-            // TODO LN miss
-            if (_lnJudge[c.second] != judge_idx::MISS && n->index == NOTE_INDEX_LN_TAIL)
+            if (!rg[k]) continue;
+            auto [cat, idx] = _chart->getLaneFromKey((Input::Pad)k);
+            if (cat == NoteLaneCategory::_) continue;
+            auto n = _chart->incomingNoteOfLane(cat, idx);
+            gTimers.set(bombTimer7kLN[idx], LLONG_MAX);
+            //auto j = _judge(*n, rt);
+            switch (cat)
             {
-                auto j = _judge(*n, rt);
-                switch (j.area)
+            case NoteLaneCategory::LN:
+                // TODO LN miss
+                if (_lnJudge[idx] != judge_idx::MISS && (n->flags & Note::LN_TAIL))
                 {
-                    using namespace judgeArea;
-                case EARLY_PERFECT:
-                case EXACT_PERFECT:
-                    updateHit(t, c.second, _lnJudge[c.second], 0);
-                    _lnJudge[c.second] = judge_idx::MISS;
-                    break;
+                    auto j = _judge(*n, rt);
+                    switch (j.area)
+                    {
+                        using namespace judgeArea;
+                    case EARLY_PERFECT:
+                    case EXACT_PERFECT:
+                        updateHit(t, idx, _lnJudge[idx], slot);
+                        _lnJudge[idx] = judge_idx::MISS;
+                        break;
 
-                case EARLY_GREAT:
-                    updateHit(t, c.second, std::max(GREAT, _lnJudge[c.second]), 0);
-                    _lnJudge[c.second] = judge_idx::MISS;
-                    break;
+                    case EARLY_GREAT:
+                        updateHit(t, idx, std::max(GREAT, _lnJudge[idx]), slot);
+                        _lnJudge[idx] = judge_idx::MISS;
+                        break;
 
-                case EARLY_GOOD:
-                    updateHit(t, c.second, GOOD, 0);
-                    _lnJudge[c.second] = judge_idx::MISS;
-                    break;
+                    case EARLY_GOOD:
+                        updateHit(t, idx, GOOD, slot);
+                        _lnJudge[idx] = judge_idx::MISS;
+                        break;
 
-                case EARLY_BAD:
-                default:
-                    updateMiss(t, c.second, BAD, 0);
-                    _lnJudge[c.second] = judge_idx::MISS;
+                    case EARLY_BAD:
+                    default:
+                        updateMiss(t, idx, BAD, slot);
+                        _lnJudge[idx] = judge_idx::MISS;
+                        break;
+                    }
+                    n->hit = true;
                     break;
                 }
-                n->hit = true;
+                break;
+
+            default:
                 break;
             }
-            break;
-
-        default:
-            break;
         }
-    }
-    if (_k2P) for (size_t k = Input::S2L; k <= Input::K2SPDDN; ++k)
-    {
-        if (!rg[k]) continue;
-        auto c = _chart->getLaneFromKey((Input::Pad)k);
-        if (c.first == NoteLaneCategory::_) continue;
-        auto n = _chart->incomingNoteOfLane(c.first, c.second);
-        gTimers.set(bombTimer7k[26 + c.second], LLONG_MAX);
-        //auto j = _judge(*n, rt);
-        switch (c.first)
-        {
-        case NoteLaneCategory::LN:
-            // TODO LN miss
-            if (_lnJudge[c.second] != judge_idx::MISS && n->index == NOTE_INDEX_LN_TAIL)
-            {
-                auto j = _judge(*n, rt);
-                switch (j.area)
-                {
-                    using namespace judgeArea;
-                case EARLY_PERFECT:
-                case EXACT_PERFECT:
-                    updateHit(t, NoteLaneIndex(26 + c.second), _lnJudge[c.second], 0);
-                    _lnJudge[c.second] = judge_idx::MISS;
-                    break;
-
-                case EARLY_GREAT:
-                    updateHit(t, NoteLaneIndex(26 + c.second), std::max(GREAT, _lnJudge[c.second]), 0);
-                    _lnJudge[c.second] = judge_idx::MISS;
-                    break;
-
-                case EARLY_GOOD:
-                    updateHit(t, NoteLaneIndex(26 + c.second), GOOD, 0);
-                    _lnJudge[c.second] = judge_idx::MISS;
-                    break;
-
-                case EARLY_BAD:
-                default:
-                    updateMiss(t, NoteLaneIndex(26 + c.second), BAD, 0);
-                    _lnJudge[c.second] = judge_idx::MISS;
-                    break;
-                }
-                n->hit = true;
-                break;
-            }
-            break;
-
-        default:
-            break;
-        }
-    }
+    };
+    if (_k1P) updateReleaseRange(Input::S1L, Input::K1SPDDN, 0);
+    if (_k2P) updateReleaseRange(Input::S2L, Input::K2SPDDN, 1);
 }
 
 void RulesetClassic::update(Time t)
@@ -736,16 +561,17 @@ void RulesetClassic::update(Time t)
 
     for (auto& [c, n]: _noteListIterators)
     {
-        while (!_chart->isLastNoteOfLane(c.first, c.second, n) && rt >= n->time)
+        auto [cat, idx] = c;
+        while (!_chart->isLastNoteOfLane(cat, idx, n) && rt >= n->time)
         {
-            switch (c.first)
+            switch (cat)
             {
             case NoteLaneCategory::Note:
                 _basic.totalnr++;
                 break;
 
             case NoteLaneCategory::LN:
-                if (n->index == NOTE_INDEX_LN_TAIL)
+                if (n->flags & Note::LN_TAIL)
                     _basic.totalnr++;
                 break;
             }
@@ -754,84 +580,50 @@ void RulesetClassic::update(Time t)
         }
     }
 
-    if (_k1P) for (size_t k = Input::S1L; k <= Input::K1SPDDN; ++k)
-	{
-		auto c = _chart->getLaneFromKey((Input::Pad)k);
-		if (c.first == NoteLaneCategory::_) continue;
-
-		auto n = _chart->incomingNoteOfLane(c.first, c.second);
-        if (!_chart->isLastNoteOfLane(c.first, c.second, n) && !n->hit)
+    auto updateRange = [&](Input::Pad begin, Input::Pad end, int slot)
+    {
+        for (size_t k = begin; k <= end; ++k)
         {
-            if (n->index != NOTE_INDEX_LN_TAIL)
+            auto [cat, idx] = _chart->getLaneFromKey((Input::Pad)k);
+            if (cat == NoteLaneCategory::_) continue;
+
+            auto n = _chart->incomingNoteOfLane(cat, idx);
+            if (!_chart->isLastNoteOfLane(cat, idx, n) && !n->hit)
             {
-                if (rt - n->time >= judgeTime[(size_t)_diff].BAD)
+                if (!(n->flags & Note::LN_TAIL))
                 {
-                    switch (c.first)
+                    if (rt - n->time >= judgeTime[(size_t)_diff].BAD)
                     {
-                    case NoteLaneCategory::Note:
-                    case NoteLaneCategory::LN:
-                        n->hit = true;
-                        updateMiss(t, c.second, MISS, 0);
-                        //LOG_DEBUG << "LATE   POOR    "; break;
-                        break;
+                        switch (cat)
+                        {
+                        case NoteLaneCategory::Note:
+                        case NoteLaneCategory::LN:
+                            n->hit = true;
+                            updateMiss(t, idx, MISS, slot);
+                            //LOG_DEBUG << "LATE   POOR    "; break;
+                            break;
+                        }
                     }
                 }
-            }
-            else
-            {
-                if (rt >= n->time)
+                else
                 {
-                    switch (c.first)
+                    if (rt >= n->time)
                     {
-                    case NoteLaneCategory::Note:
-                    case NoteLaneCategory::LN:
-                        n->hit = true;
-                        //LOG_DEBUG << "LATE   POOR    "; break;
-                        break;
+                        switch (cat)
+                        {
+                        case NoteLaneCategory::Note:
+                        case NoteLaneCategory::LN:
+                            n->hit = true;
+                            //LOG_DEBUG << "LATE   POOR    "; break;
+                            break;
+                        }
                     }
                 }
             }
         }
-    }
-    if (_k2P) for (size_t k = Input::S2L; k <= Input::K2SPDDN; ++k)
-	{
-		auto c = _chart->getLaneFromKey((Input::Pad)k);
-		if (c.first == NoteLaneCategory::_) continue;
-
-		auto n = _chart->incomingNoteOfLane(c.first, c.second);
-        if (!_chart->isLastNoteOfLane(c.first, c.second, n) && !n->hit)
-        {
-            if (n->index != NOTE_INDEX_LN_TAIL)
-            {
-                if (rt - n->time >= judgeTime[(size_t)_diff].BAD)
-                {
-                    switch (c.first)
-                    {
-                    case NoteLaneCategory::Note:
-                    case NoteLaneCategory::LN:
-                        n->hit = true;
-                        updateMiss(t, c.second, MISS, 1);
-                        //LOG_DEBUG << "LATE   POOR    "; break;
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                if (rt >= n->time)
-                {
-                    switch (c.first)
-                    {
-                    case NoteLaneCategory::Note:
-                    case NoteLaneCategory::LN:
-                        n->hit = true;
-                        //LOG_DEBUG << "LATE   POOR    "; break;
-                        break;
-                    }
-                }
-            }
-        }
-    }
+    };
+    if (_k1P) updateRange(Input::S1L, Input::K1SPDDN, 0);
+    if (_k2P) updateRange(Input::S2L, Input::K2SPDDN, 1);
 
 	unsigned max = _chart->getNoteCount() * 2;
 	_basic.total_acc = 100.0 * _basic.score2 / max;

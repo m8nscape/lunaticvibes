@@ -134,7 +134,7 @@ int SongDB::addChart(const HashMD5& folder, const Path& path)
         return 1;
     }
 
-    auto s = vChart::getFromChart(c);
+    auto s = vChart::createFromChartFormat(c);
     if (s == nullptr)
     {
         LOG_WARNING << "[SongDB] File parsing error: " << path.string();

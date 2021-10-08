@@ -59,7 +59,7 @@ const judge_t judgeTime[] = {
 };
 
 const eTimer bombTimer7k[] = {
-	eTimer::S1_BOMB,
+    eTimer::S1_BOMB,
 
     eTimer::K11_BOMB,
     eTimer::K12_BOMB,
@@ -69,27 +69,29 @@ const eTimer bombTimer7k[] = {
     eTimer::K16_BOMB,
     eTimer::K17_BOMB,
 
-	eTimer::_NEVER,
-	eTimer::_NEVER,
-	eTimer::_NEVER,
-	eTimer::_NEVER,
-	eTimer::_NEVER,
-	eTimer::_NEVER,
-	eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
 
-	eTimer::_NEVER,
-	eTimer::_NEVER,
-	eTimer::_NEVER,
-	eTimer::_NEVER,
-	eTimer::_NEVER,
-	eTimer::_NEVER,
-	eTimer::_NEVER,
-	eTimer::_NEVER,
-	eTimer::_NEVER,
-	eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
+    eTimer::_NEVER,
 
-	eTimer::_NEVER,
+    eTimer::_NEVER,
+};
 
+const eTimer bombTimer7kLN[] = {
     eTimer::S1_LN_BOMB,
 
     eTimer::K11_LN_BOMB,
@@ -153,7 +155,9 @@ const eTimer bombTimer14k[] = {
 	eTimer::_NEVER,
 
 	eTimer::S2_BOMB,
+};
 
+const eTimer bombTimer14kLN[] = {
     eTimer::S1_LN_BOMB,
 
     eTimer::K11_LN_BOMB,
@@ -217,7 +221,9 @@ const eTimer bombTimer9k[] = {
 	eTimer::_NEVER,
 
 	eTimer::_NEVER,
+};
 
+const eTimer bombTimer9kLN[] = {
     eTimer::_NEVER,
 
     eTimer::K11_LN_BOMB,
@@ -271,7 +277,7 @@ namespace judgeArea {
     };
 }
 
-enum class player {
+enum class mode {
 	SP,
 	DP,
 	BATTLE_1P,
@@ -288,12 +294,12 @@ protected:
     double _health[rc::judge_idx::JUDGE_COUNT];
     rc::gauge_ty _gauge;
     std::array<unsigned, rc::judge_idx::JUDGE_COUNT> _count;
-	rc::player _player;
+	rc::mode _mode;
 	bool _k1P, _k2P;
     double inner_score = 0.0;
-    std::array<rc::judge_idx, NOTECHANNEL_COUNT> _lnJudge{rc::judge_idx::MISS};
+    std::array<rc::judge_idx, NOTELANEINDEX_COUNT> _lnJudge{rc::judge_idx::MISS};
 
-    std::map<std::pair<NoteLaneCategory, NoteLaneIndex>, decltype(_chart->firstNoteOfLane(NoteLaneCategory::_, NoteLaneIndex::_))> _noteListIterators;
+    std::map<NoteLane, decltype(_chart->firstNoteOfLane(NoteLaneCategory::_, NoteLaneIndex::_))> _noteListIterators;
 
 public:
     RulesetClassic(
@@ -302,7 +308,7 @@ public:
         rc::judgeDiff difficulty = rc::judgeDiff::NORMAL,
         rc::gauge_ty gauge = rc::gauge_ty::GROOVE, 
         double health = 1.0,
-        rc::player playerSP = rc::player::SP);
+        rc::mode players = rc::mode::SP);
 private:
     rc::judgeRes _judge(const Note& note, Time time);
     void _updateHp(const double delta);

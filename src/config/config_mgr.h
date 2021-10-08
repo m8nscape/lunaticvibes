@@ -81,7 +81,7 @@ public:
         set<std::string>(type, key, value);
     }
 
-    static std::vector<Input::Key> getKeyBindings(int mode, Input::Ingame key)
+    static std::vector<Input::Keyboard> getKeyBindings(int mode, Input::Pad key)
     {
         switch (mode)
         {

@@ -108,7 +108,7 @@ protected:
     void procCommonNotes();
     void playBGMSamples();
     void changeKeySampleMapping(Time t);
-    void updateTTrotation(bool startedPlaying);
+    void spinTurntable(bool startedPlaying);
 
 protected:
     // Register to InputWrapper: judge / keysound

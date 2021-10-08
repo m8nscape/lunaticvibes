@@ -437,25 +437,25 @@ void ScenePlay::loadChart()
             gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetClassic>(
                 gChartContext.chartObj,
                 gPlayContext.chartObj[PLAYER_SLOT_1P], judgediff, 
-                _gaugetype[PLAYER_SLOT_1P], gPlayContext.initialHealth[PLAYER_SLOT_1P], rc::player::DP);
+                _gaugetype[PLAYER_SLOT_1P], gPlayContext.initialHealth[PLAYER_SLOT_1P], rc::mode::DP);
         }
         else if (_mode == ePlayMode::LOCAL_BATTLE)
         {
             gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetClassic>(
                 gChartContext.chartObj,
                 gPlayContext.chartObj[PLAYER_SLOT_1P], judgediff,
-                _gaugetype[PLAYER_SLOT_1P], gPlayContext.initialHealth[PLAYER_SLOT_1P], rc::player::BATTLE_1P);
+                _gaugetype[PLAYER_SLOT_1P], gPlayContext.initialHealth[PLAYER_SLOT_1P], rc::mode::BATTLE_1P);
             gPlayContext.ruleset[PLAYER_SLOT_2P] = std::make_shared<RulesetClassic>(
                 gChartContext.chartObj,
                 gPlayContext.chartObj[PLAYER_SLOT_2P], judgediff,
-                _gaugetype[PLAYER_SLOT_2P], gPlayContext.initialHealth[PLAYER_SLOT_2P], rc::player::BATTLE_2P);
+                _gaugetype[PLAYER_SLOT_2P], gPlayContext.initialHealth[PLAYER_SLOT_2P], rc::mode::BATTLE_2P);
         }
         else
         {
             gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetClassic>(
                 gChartContext.chartObj,
                 gPlayContext.chartObj[PLAYER_SLOT_1P], judgediff, 
-                _gaugetype[PLAYER_SLOT_1P], gPlayContext.initialHealth[PLAYER_SLOT_1P], rc::player::SP);
+                _gaugetype[PLAYER_SLOT_1P], gPlayContext.initialHealth[PLAYER_SLOT_1P], rc::mode::SP);
         }
         _rulesetLoaded = true;
     }
@@ -702,7 +702,7 @@ void ScenePlay::updateLoadEnd()
 {
 	auto t = Time();
     auto rt = t - gTimers.get(eTimer::PLAY_READY);
-    updateTTrotation(false);
+    spinTurntable(false);
     if (rt > _skin->info.timeGetReady)
     {
         _state = ePlayState::PLAYING;
@@ -852,7 +852,7 @@ void ScenePlay::updatePlaying()
         break;
     }
 
-    updateTTrotation(true);
+    spinTurntable(true);
 
     //last note check
     if (rt.norm() - gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() >= 0)
@@ -872,7 +872,7 @@ void ScenePlay::updateFadeout()
     auto ft = t - gTimers.get(eTimer::FADEOUT_BEGIN);
     if (gChartContext.started)
         gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentBeat() * 4.0)) % 1000);
-    updateTTrotation(gChartContext.started);
+    spinTurntable(gChartContext.started);
 	gPlayContext.bgaTexture->update(rt, false);
 
     if (ft >= _skin->info.timeOutro)
@@ -894,7 +894,7 @@ void ScenePlay::updateFailed()
     auto ft = t - gTimers.get(eTimer::FAIL_BEGIN);
     if (gChartContext.started)
         gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentBeat() * 4.0)) % 1000);
-    updateTTrotation(gChartContext.started);
+    spinTurntable(gChartContext.started);
 
     //failed play finished, move to next scene. No fadeout
     if (ft.norm() >= _skin->info.timeFailed)
@@ -910,12 +910,12 @@ void ScenePlay::updateFailed()
 void ScenePlay::procCommonNotes()
 {
     assert(gPlayContext.chartObj[PLAYER_SLOT_1P] != nullptr);
-    auto it = gPlayContext.chartObj[PLAYER_SLOT_1P]->notePlainExpired.begin();
+    auto it = gPlayContext.chartObj[PLAYER_SLOT_1P]->noteBgmExpired.begin();
     size_t i;
-    size_t max = std::min(_bgmSampleIdxBuf.size(), gPlayContext.chartObj[PLAYER_SLOT_1P]->notePlainExpired.size());
-    for (i = 0; i < max && it != gPlayContext.chartObj[PLAYER_SLOT_1P]->notePlainExpired.end(); ++i, ++it)
+    size_t max = std::min(_bgmSampleIdxBuf.size(), gPlayContext.chartObj[PLAYER_SLOT_1P]->noteBgmExpired.size());
+    for (i = 0; i < max && it != gPlayContext.chartObj[PLAYER_SLOT_1P]->noteBgmExpired.end(); ++i, ++it)
     {
-        if ((it->index & 0xF0) == 0xE0)
+        //if ((it->index & 0xF0) == 0xE0)
         {
             // BGA
             /*
@@ -928,7 +928,7 @@ void ScenePlay::procCommonNotes()
             }
             */
         }
-        else
+        //else
         {
             // BGM
             _bgmSampleIdxBuf[i] = (unsigned)std::get<long long>(it->value);
@@ -1033,7 +1033,7 @@ void ScenePlay::updateBga()
 }
 */
 
-void ScenePlay::updateTTrotation(bool startedPlaying)
+void ScenePlay::spinTurntable(bool startedPlaying)
 {
     auto a = _ttAngleDelta;
     if (startedPlaying)

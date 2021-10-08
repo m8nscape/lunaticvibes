@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
 
 	// load input bindings
 	InputMgr::updateDevices();
-	InputMgr::updateBindings(7, Input::Ingame::S1L);
+	InputMgr::updateBindings(7, Input::Pad::S1L);
 
     // reset globals
     gNumbers.set(eNumber::ZERO, 0);

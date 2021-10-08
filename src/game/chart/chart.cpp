@@ -4,20 +4,21 @@
 
 #include "common/chartformat/chartformat_types.h"
 
+#include "chart_types.h"
+
 vChart::vChart( size_t pn, size_t en) :
-    _noteLists{}, _commonNoteLists(pn), _specialNoteLists(en), _commonNoteListIters(pn), _specialNoteListIters(en)
+    _noteLists{}, _bgmNoteLists(pn), _specialNoteLists(en), _bgmNoteListIters(pn), _specialNoteListIters(en)
 {
     reset();
 	_barTimestamp.fill({LLONG_MAX, false});
     _barTimestamp[0] = 0;
     _bpmNoteList.clear();
     //_bpmList.push_back({ 0, {0, 1}, 0, 130 });
-    _stopNoteList.clear();
     //_stopList.push_back({ 0, {0, 1}, 0.0, 0, 1.0 });
 }
 
 
-std::shared_ptr<vChart> vChart::getFromChart(std::shared_ptr<vChartFormat> p)
+std::shared_ptr<vChart> vChart::createFromChartFormat(std::shared_ptr<vChartFormat> p)
 {
     switch (p->type())
     {
@@ -31,11 +32,11 @@ std::shared_ptr<vChart> vChart::getFromChart(std::shared_ptr<vChartFormat> p)
 
 void vChart::reset()
 {
-    _currentBar    = 0;
-    _currentBeat       = 0;
-    _currentBPM        = _bpmNoteList.empty()? 150 : std::get<BPM>(_bpmNoteList.front().value);
+    _currentBar         = 0;
+    _currentBeat        = 0;
+    _currentBPM         = _bpmNoteList.empty()? 150 : std::get<BPM>(_bpmNoteList.front().value);
     _lastChangedBPMTime = 0;
-    _lastChangedBeat   = 0;
+    _lastChangedBeat    = 0;
 
     // reset notes
     for (auto& ch : _noteLists)
@@ -43,16 +44,18 @@ void vChart::reset()
             n.hit = false;
 
     // reset iterators
-    setNoteListsIterators();
+    resetNoteListsIterators();
 }
 
-void vChart::setNoteListsIterators()
+void vChart::resetNoteListsIterators()
 {
-    for (size_t i = 0; i < _noteLists.size(); ++i)  _noteListIterators[i]  = _noteLists[i].begin();
-    for (size_t i = 0; i < _commonNoteLists.size(); ++i) _commonNoteListIters[i] = _commonNoteLists[i].begin();
-    for (size_t i = 0; i < _specialNoteLists.size(); ++i)   _specialNoteListIters[i]   = _specialNoteLists[i].begin();
-    _bpmNoteListIter   = _bpmNoteList.begin();
-    _stopNoteListIter = _stopNoteList.begin();
+    for (size_t i = 0; i < _noteLists.size(); ++i)         
+        _noteListIterators[i]  = _noteLists[i].begin();
+    for (size_t i = 0; i < _bgmNoteLists.size(); ++i)      
+        _bgmNoteListIters[i] = _bgmNoteLists[i].begin();
+    for (size_t i = 0; i < _specialNoteLists.size(); ++i)   
+        _specialNoteListIters[i] = _specialNoteLists[i].begin();
+    _bpmNoteListIter = _bpmNoteList.begin();
 }
 
 auto vChart::firstNoteOfLane(NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteLists.front().begin())
@@ -67,9 +70,9 @@ auto vChart::incomingNoteOfLane(NoteLaneCategory cat, NoteLaneIndex idx) -> decl
     return _noteListIterators[channel];
 }
 
-auto vChart::incomingNoteOfCommonLane(size_t channel) -> decltype(_commonNoteListIters.front())
+auto vChart::incomingNoteOfBgmLane(size_t channel) -> decltype(_bgmNoteListIters.front())
 {
-    return _commonNoteListIters[channel];
+    return _bgmNoteListIters[channel];
 }
 auto vChart::incomingNoteOfSpecialLane(size_t channel) -> decltype(_specialNoteListIters.front())
 {
@@ -79,39 +82,31 @@ auto vChart::incomingNoteOfBpmLane() -> decltype(_bpmNoteListIter)
 {
     return _bpmNoteListIter;
 }
-auto vChart::incomingNoteOfStopLane() -> decltype(_stopNoteListIter)
-{
-    return _stopNoteListIter;
-}
 bool vChart::isLastNoteOfLane(NoteLaneCategory cat, NoteLaneIndex idx, decltype(_noteListIterators.front()) it)
 {
     size_t channel = channelToIdx(cat, idx);
     return _noteLists[channel].empty() || it == _noteLists[channel].end();
 }
-bool vChart::isLastNoteOfCommonLane(size_t idx, decltype(_commonNoteListIters.front()) it)
+bool vChart::isLastNoteOfBgmLane(size_t idx, decltype(_bgmNoteListIters.front()) it)
 {
-    return _commonNoteLists[idx].empty()    || it == _commonNoteLists[idx].end();
+    return _bgmNoteLists[idx].empty() || it == _bgmNoteLists[idx].end();
 }
 bool vChart::isLastNoteOfSpecialLane(size_t idx, decltype(_specialNoteListIters.front()) it)
 {
-    return _specialNoteLists[idx].empty()      ||  it == _specialNoteLists[idx].end(); 
+    return _specialNoteLists[idx].empty() || it == _specialNoteLists[idx].end(); 
 }
 bool vChart::isLastNoteOfBpmLane(decltype(_bpmNoteListIter) it)
 {
-	return _bpmNoteList.empty()            || it == _bpmNoteList.end(); 
-}
-bool vChart::isLastNoteOfStopLane(decltype(_stopNoteListIter) it)
-{
-	return _stopNoteList.empty() || it == _stopNoteList.end(); 
+	return _bpmNoteList.empty() || it == _bpmNoteList.end(); 
 }
 
 bool vChart::isLastNoteOfLane(NoteLaneCategory cat, NoteLaneIndex idx)
 {
 	return isLastNoteOfLane(cat, idx, incomingNoteOfLane(cat, idx));
 }
-bool vChart::isLastNoteOfCommonLane(size_t channel)
+bool vChart::isLastNoteOfBgmLane(size_t channel)
 {
-	return isLastNoteOfCommonLane(channel, incomingNoteOfCommonLane(channel));
+	return isLastNoteOfBgmLane(channel, incomingNoteOfBgmLane(channel));
 }
 bool vChart::isLastNoteOfSpecialLane(size_t channel)
 {
@@ -121,10 +116,6 @@ bool vChart::isLastNoteOfBpmLane()
 {
 	return isLastNoteOfBpmLane(incomingNoteOfBpmLane());
 }
-bool vChart::isLastNoteOfStopLane()
-{
-	return isLastNoteOfStopLane(incomingNoteOfStopLane());
-}
 
 auto vChart::nextNoteOfLane(NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteListIterators.front())
 {
@@ -132,9 +123,9 @@ auto vChart::nextNoteOfLane(NoteLaneCategory cat, NoteLaneIndex idx) -> decltype
     return ++_noteListIterators[channel];
 }
 
-auto vChart::nextNoteOfCommonLane(size_t channel) -> decltype(_commonNoteListIters.front())
+auto vChart::nextNoteOfBgmLane(size_t channel) -> decltype(_bgmNoteListIters.front())
 {
-    return ++_commonNoteListIters[channel];
+    return ++_bgmNoteListIters[channel];
 }
 auto vChart::nextNoteOfSpecialLane(size_t channel) -> decltype(_specialNoteListIters.front())
 {
@@ -143,10 +134,6 @@ auto vChart::nextNoteOfSpecialLane(size_t channel) -> decltype(_specialNoteListI
 auto vChart::nextNoteOfBpmLane() -> decltype(_bpmNoteListIter)
 {
     return ++_bpmNoteListIter;
-}
-auto vChart::nextNoteOfStopLane() -> decltype(_stopNoteListIter)
-{
-    return ++_stopNoteListIter;
 }
 
 Time vChart::getBarLength(size_t measure)
@@ -193,8 +180,10 @@ Beat vChart::getBarBeatstamp(size_t measure)
 void vChart::update(Time t)
 {
     noteExpired.clear();
-    notePlainExpired.clear();
-    noteExtExpired.clear();
+    noteBgmExpired.clear();
+    noteSpecialExpired.clear();
+
+    preUpdate(t);
 
 	Time beatLength = Time::singleBeatLengthFromBPM(_currentBPM);
 
@@ -205,14 +194,6 @@ void vChart::update(Time t)
         _currentBeat = 0;
         _lastChangedBPMTime = 0;
         _lastChangedBeat = 0;
-        _currentStopBeat = 0;
-        _currentStopBeatGuard = false;
-
-        auto st = incomingNoteOfStopLane();
-        while (!isLastNoteOfStopLane(st) && st->measure < _currentBar)
-        {
-            st = nextNoteOfStopLane();
-        }
     }
 
     // check inbounds BPM change
@@ -227,34 +208,17 @@ void vChart::update(Time t)
         b = nextNoteOfBpmLane();
     }
 
-    // check stop
-    bool inStop = false;
-    Beat inStopBeat;
-    auto st = incomingNoteOfStopLane();
-    while (!isLastNoteOfStopLane(st) && t >= st->time && 
-        t.hres() < st->time.hres() + std::get<double>(st->value) * beatLength.hres())
-    {
-        //_currentBeat = b->totalbeat - getCurrentMeasureBeat();
-        if (!_currentStopBeatGuard)
-        {
-            _currentStopBeat += std::get<double>(st->value);
-        }
-        inStop = true;
-        inStopBeat = st->totalbeat;
-        ++st;
-    }
-
     // Skip expired notes
     for (NoteLaneCategory cat = NoteLaneCategory::Note; (size_t)cat < (size_t)NoteLaneCategory::NOTECATEGORY_COUNT; ++*((size_t*)&cat))
-    for (NoteLaneIndex idx = Sc1; idx < NOTECHANNEL_COUNT; ++*((size_t*)&idx))
-    {
-        auto it = incomingNoteOfLane(cat, idx);
-        while (!isLastNoteOfLane(cat, idx, it) && t >= it->time && it->hit)
+        for (NoteLaneIndex idx = Sc1; idx < NOTELANEINDEX_COUNT; ++*((size_t*)&idx))
         {
-            noteExpired.push_back(*it);
-            it = nextNoteOfLane(cat, idx);
-        }
-    } 
+            auto it = incomingNoteOfLane(cat, idx);
+            while (!isLastNoteOfLane(cat, idx, it) && t >= it->time && it->hit)
+            {
+                noteExpired.push_back(*it);
+                it = nextNoteOfLane(cat, idx);
+            }
+        } 
 
     // Skip expired barline
     {
@@ -269,13 +233,13 @@ void vChart::update(Time t)
     }
 
     // Skip expired plain note
-    for (size_t idx = 0; idx < _commonNoteLists.size(); ++idx)
+    for (size_t idx = 0; idx < _bgmNoteLists.size(); ++idx)
     {
-        auto it = incomingNoteOfCommonLane(idx);
-        while (!isLastNoteOfCommonLane(idx) && t >= it->time)
+        auto it = incomingNoteOfBgmLane(idx);
+        while (!isLastNoteOfBgmLane(idx) && t >= it->time)
         {
-            notePlainExpired.push_back(*it);
-            it = nextNoteOfCommonLane(idx);
+            noteBgmExpired.push_back(*it);
+            it = nextNoteOfBgmLane(idx);
         }
     } 
     // Skip expired extended note
@@ -284,25 +248,18 @@ void vChart::update(Time t)
         auto it = incomingNoteOfSpecialLane(idx);
         while (!isLastNoteOfSpecialLane(idx) && t >= it->time)
         {
-            noteExtExpired.push_back(*it);
+            noteSpecialExpired.push_back(*it);
             it = nextNoteOfSpecialLane(idx);
         }
     }
 
-    // update current info
-    if (!inStop)
-    {
-        Time currentMeasureTimePassed = t - _barTimestamp[_currentBar];
-        Time timeFromBPMChange = currentMeasureTimePassed - _lastChangedBPMTime;
-        gNumbers.set(eNumber::_TEST4, (int)currentMeasureTimePassed.norm());
-        _currentBeat = _lastChangedBeat + (double)timeFromBPMChange.hres() / beatLength.hres() - _currentStopBeat;
-        _currentStopBeatGuard = false;
-    }
-    else
-    {
-        _currentBeat = inStopBeat - _barBeatstamp[_currentBar];
-        _currentStopBeatGuard = true;
-    }
+    // update beat
+    Time currentMeasureTimePassed = t - _barTimestamp[_currentBar];
+    Time timeFromBPMChange = currentMeasureTimePassed - _lastChangedBPMTime;
+    gNumbers.set(eNumber::_TEST4, (int)currentMeasureTimePassed.norm());
+    _currentBeat = _lastChangedBeat + (double)timeFromBPMChange.hres() / beatLength.hres();
+
+    postUpdate(t);
 
 	gNumbers.set(eNumber::_TEST1, _currentBar);
 	gNumbers.set(eNumber::_TEST2, (int)std::floor(_currentBeat * 1000));

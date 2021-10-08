@@ -116,7 +116,7 @@ namespace bms
 
 using namespace bms;
 
-chartBMS::chartBMS() : vChart((size_t)eNotePlain::PLAIN_COUNT, (size_t)eNoteExt::EXT_COUNT)
+chartBMS::chartBMS() : vChart(BGM_LANE_COUNT, (size_t)eNoteExt::EXT_COUNT)
 {
 }
 
@@ -268,27 +268,27 @@ void chartBMS::loadBMS(const BMS& objBms)
 
             if (lane >= 0 && lane < 100)
             {
-				// TODO mapping is different between file formats
+				// TODO mapping is different between file formats (bms, bme, etc)
                 if (BMSToLaneMap[lane] == NOPE) continue;
                 if (lane >= 40 && lane < 60)
-                    _noteLists[BMSToLaneMap[lane]].push_back({ m, beat, notetime, (long long)val, NOTE_INDEX_LN_TAIL, false });// LN tail
+                    _noteLists[BMSToLaneMap[lane]].push_back({ m, beat, notetime, (long long)val, Note::LN_TAIL, false });// LN tail
                 else
                     _noteLists[BMSToLaneMap[lane]].push_back({ m, beat, notetime, (long long)val });// normal, LN head
             }
             else if (lane >= 100 && lane <= 131)
             {
-                _commonNoteLists[lane - 100 + (size_t)eNotePlain::BGM0].push_back({ m, beat, notetime, (long long)val, 0 });
+                _bgmNoteLists[lane - 100].push_back({ m, beat, notetime, (long long)val, 0 });
             }
             else if (!bpmfucked) switch (lane)
             {
             case 0xE0:  // BGA base
-				_commonNoteLists[(size_t)eNotePlain::BGABASE].push_back({ m, beat, notetime, (long long)val, NOTE_INDEX_BGA_BASE });
+				_specialNoteLists[(size_t)eNoteExt::BGABASE].push_back({ m, beat, notetime, (long long)val });
 				break;
             case 0xE1:  // BGA layer
-                _commonNoteLists[(size_t)eNotePlain::BGALAYER].push_back({ m, beat, notetime, (long long)val, NOTE_INDEX_BGA_LAYER });
+                _specialNoteLists[(size_t)eNoteExt::BGALAYER].push_back({ m, beat, notetime, (long long)val });
 				break;
             case 0xE2:  // BGA poor
-                _commonNoteLists[(size_t)eNotePlain::BGAPOOR].push_back({ m, beat, notetime, (long long)val, NOTE_INDEX_BGA_POOR });
+                _specialNoteLists[(size_t)eNoteExt::BGAPOOR].push_back({ m, beat, notetime, (long long)val });
 				break;
 
             case 0xFD:	// BPM Change
@@ -315,8 +315,7 @@ void chartBMS::loadBMS(const BMS& objBms)
                 double curStopBeat = objBms.stop[val] / 192.0;
 				Time  curStopTime{ (long long)std::floor(Time::singleBeatLengthFromBPM(bpm).hres() * curStopBeat), true };
                 if (curStopBeat <= 0) break;
-                //_extLists[(size_t)eNoteExt::STOP].push_back({ m, segment, baseY, noteht, curStopBeat });
-				_stopNoteList.push_back({ m, beat, notetime, curStopBeat });
+				_specialNoteLists[(size_t)eNoteExt::STOP].push_back({ m, beat, notetime, curStopBeat });
                 //_chartingSpeedList.push_back({ m, beat, noteht, 0.0 });
                 //_chartingSpeedList.push_back({ m, beat + d2fr(curStopBeat), noteht + curStopTime, currentSpd });
                 stopBeat += curStopBeat;
@@ -335,7 +334,7 @@ void chartBMS::loadBMS(const BMS& objBms)
 
     _totalLength = basetime;    // last measure + 1
 
-    setNoteListsIterators();
+    resetNoteListsIterators();
 }
 
 
@@ -345,7 +344,7 @@ std::pair<NoteLaneCategory, NoteLaneIndex> chartBMS::getLaneFromKey(Input::Pad i
     {
         using cat = NoteLaneCategory;
         NoteLaneIndex idx = KeyToLaneMap[input];
-        std::vector<std::pair<cat, sNote>> note;
+        std::vector<std::pair<cat, HitableNote>> note;
         if (!isLastNoteOfLane(cat::Note, idx))
             note.push_back({ cat::Note, *incomingNoteOfLane(cat::Note, idx) });
         if (!isLastNoteOfLane(cat::Invs, idx))
@@ -365,4 +364,50 @@ std::vector<Input::Pad> chartBMS::getInputFromLane(size_t channel)
         return {};
     else
         return bms::LaneToKeyMap[channel];
+}
+
+void chartBMS::preUpdate(const Time& t)
+{
+    if (_currentBar + 1 < MAX_MEASURES && t >= _barTimestamp[_currentBar + 1])
+    {
+        _currentStopBeat = 0;
+        _currentStopBeatGuard = false;
+    }
+}
+
+void chartBMS::postUpdate(const Time& t)
+{
+    Time beatLength = Time::singleBeatLengthFromBPM(_currentBPM);
+
+    // check stop
+    bool inStop = false;
+    Beat inStopBeat;
+    size_t idx = (size_t)eNoteExt::STOP;
+    auto st = incomingNoteOfSpecialLane(idx);
+    while (!isLastNoteOfSpecialLane(idx, st) && t >= st->time &&
+        t.hres() < st->time.hres() + std::get<double>(st->value) * beatLength.hres())
+    {
+        //_currentBeat = b->totalbeat - getCurrentMeasureBeat();
+        if (!_currentStopBeatGuard)
+        {
+            _currentStopBeat += std::get<double>(st->value);
+        }
+        inStop = true;
+        inStopBeat = st->totalbeat;
+        ++st;
+    }
+
+
+    // update current info
+    if (!inStop)
+    {
+        _currentStopBeatGuard = false;
+        _currentBeat -= _currentStopBeat;
+    }
+    else
+    {
+        _currentStopBeatGuard = true;
+        _currentBeat = inStopBeat - _barBeatstamp[_currentBar];
+    }
+
 }
