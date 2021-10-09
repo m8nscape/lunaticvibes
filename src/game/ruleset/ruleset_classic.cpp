@@ -216,7 +216,7 @@ RulesetClassic::RulesetClassic(std::shared_ptr<vChartFormat> format, std::shared
         auto [cat, idx] = _chart->getLaneFromKey((Input::Pad)k);
         if (cat == NoteLaneCategory::_) continue;
         if (idx == NoteLaneIndex::_) continue;
-        _noteListIterators[{cat, idx}] = _chart->firstNoteOfLane(cat, idx);
+        _noteListIterators[{cat, idx}] = _chart->firstNote(cat, idx);
     }
 }
 
@@ -344,7 +344,7 @@ void RulesetClassic::updatePress(InputMask& pg, Time t)
             if (!pg[k]) continue;
             auto [cat, idx] = _chart->getLaneFromKey((Input::Pad)k);
             if (cat == NoteLaneCategory::_) return;
-            auto n = _chart->incomingNoteOfLane(cat, idx);
+            auto n = _chart->incomingNote(cat, idx);
             auto j = _judge(*n, rt);
             switch (cat)
             {
@@ -455,7 +455,7 @@ void RulesetClassic::updateHold(InputMask& hg, Time t)
             if (!hg[k]) continue;
             auto [cat, idx] = _chart->getLaneFromKey((Input::Pad)k);
             if (cat == NoteLaneCategory::_) return;
-            auto n = _chart->incomingNoteOfLane(cat, idx);
+            auto n = _chart->incomingNote(cat, idx);
             switch (cat)
             {
             case NoteLaneCategory::Mine:
@@ -506,7 +506,7 @@ void RulesetClassic::updateRelease(InputMask& rg, Time t)
             if (!rg[k]) continue;
             auto [cat, idx] = _chart->getLaneFromKey((Input::Pad)k);
             if (cat == NoteLaneCategory::_) continue;
-            auto n = _chart->incomingNoteOfLane(cat, idx);
+            auto n = _chart->incomingNote(cat, idx);
             gTimers.set(bombTimer7kLN[idx], LLONG_MAX);
             //auto j = _judge(*n, rt);
             switch (cat)
@@ -562,7 +562,7 @@ void RulesetClassic::update(Time t)
     for (auto& [c, n]: _noteListIterators)
     {
         auto [cat, idx] = c;
-        while (!_chart->isLastNoteOfLane(cat, idx, n) && rt >= n->time)
+        while (!_chart->isLastNote(cat, idx, n) && rt >= n->time)
         {
             switch (cat)
             {
@@ -587,8 +587,8 @@ void RulesetClassic::update(Time t)
             auto [cat, idx] = _chart->getLaneFromKey((Input::Pad)k);
             if (cat == NoteLaneCategory::_) continue;
 
-            auto n = _chart->incomingNoteOfLane(cat, idx);
-            if (!_chart->isLastNoteOfLane(cat, idx, n) && !n->hit)
+            auto n = _chart->incomingNote(cat, idx);
+            if (!_chart->isLastNote(cat, idx, n) && !n->hit)
             {
                 if (!(n->flags & Note::LN_TAIL))
                 {

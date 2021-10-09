@@ -957,43 +957,21 @@ void SceneSelect::_decide()
     // HS fix
     switch (gOptions.get(eOption::PLAY_HSFIX_TYPE_1P))
     {
-    case 0:
-        gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::NONE;
-        break;
-    case 1:
-        gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::MAXBPM;
-        break;
-    case 2:
-        gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::MINBPM;
-        break;
-    case 3:
-        gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::AVERAGE;
-        break;
-    case 4:
-        gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::CONSTANT;
-        break;
-    default:
-        break;
+    case 0: gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::NONE; break;
+    case 1: gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::MAXBPM; break;
+    case 2: gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::MINBPM; break;
+    case 3: gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::AVERAGE; break;
+    case 4: gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::CONSTANT; break;
+    default: break;
     }
     switch (gOptions.get(eOption::PLAY_HSFIX_TYPE_2P))
     {
-    case 0:
-        gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::NONE;
-        break;
-    case 1:
-        gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::MAXBPM;
-        break;
-    case 2:
-        gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::MINBPM;
-        break;
-    case 3:
-        gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::AVERAGE;
-        break;
-    case 4:
-        gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::CONSTANT;
-        break;
-    default:
-        break;
+    case 0: gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::NONE; break;
+    case 1: gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::MAXBPM; break;
+    case 2: gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::MINBPM; break;
+    case 3: gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::AVERAGE; break;
+    case 4: gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::CONSTANT; break;
+    default: break;
     }
 
     // chart

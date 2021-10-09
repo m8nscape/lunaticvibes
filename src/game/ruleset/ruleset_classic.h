@@ -299,7 +299,7 @@ protected:
     double inner_score = 0.0;
     std::array<rc::judge_idx, NOTELANEINDEX_COUNT> _lnJudge{rc::judge_idx::MISS};
 
-    std::map<NoteLane, decltype(_chart->firstNoteOfLane(NoteLaneCategory::_, NoteLaneIndex::_))> _noteListIterators;
+    std::map<NoteLane, decltype(_chart->firstNote(NoteLaneCategory::_, NoteLaneIndex::_))> _noteListIterators;
 
 public:
     RulesetClassic(

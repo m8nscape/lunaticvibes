@@ -140,27 +140,27 @@ private:
     decltype(_bpmNoteList.begin())                                  _bpmNoteListIter;
 
 public:
-    auto firstNoteOfLane(NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteLists.front().begin());
+    auto firstNote(NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteLists.front().begin());
 
-    auto incomingNoteOfLane         (NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteListIterators.front());
-    auto incomingNoteOfBgmLane      (size_t idx) -> decltype(_bgmNoteListIters.front());
-    auto incomingNoteOfSpecialLane  (size_t idx) -> decltype(_specialNoteListIters.front());
-    auto incomingNoteOfBpmLane      () -> decltype(_bpmNoteListIter);
+    auto incomingNote         (NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteListIterators.front());
+    auto incomingNoteBgm      (size_t idx) -> decltype(_bgmNoteListIters.front());
+    auto incomingNoteSpecial  (size_t idx) -> decltype(_specialNoteListIters.front());
+    auto incomingNoteBpm      () -> decltype(_bpmNoteListIter);
 
-    bool isLastNoteOfLane           (NoteLaneCategory cat, NoteLaneIndex idx);
-    bool isLastNoteOfBgmLane        (size_t idx);
-    bool isLastNoteOfSpecialLane    (size_t idx);
-    bool isLastNoteOfBpmLane        ();
+    bool isLastNote           (NoteLaneCategory cat, NoteLaneIndex idx);
+    bool isLastNoteBgm        (size_t idx);
+    bool isLastNoteSpecial    (size_t idx);
+    bool isLastNoteBpm        ();
 
-    bool isLastNoteOfLane           (NoteLaneCategory cat, NoteLaneIndex idx, decltype(_noteListIterators.front()) it);
-    bool isLastNoteOfBgmLane        (size_t idx, decltype(_bgmNoteListIters.front()) it);
-    bool isLastNoteOfSpecialLane    (size_t idx, decltype(_specialNoteListIters.front()) it);
-    bool isLastNoteOfBpmLane        (decltype(_bpmNoteListIter) it);
+    bool isLastNote           (NoteLaneCategory cat, NoteLaneIndex idx, decltype(_noteListIterators.front()) it);
+    bool isLastNoteBgm        (size_t idx, decltype(_bgmNoteListIters.front()) it);
+    bool isLastNoteSpecial    (size_t idx, decltype(_specialNoteListIters.front()) it);
+    bool isLastNoteBpm        (decltype(_bpmNoteListIter) it);
 
-    auto nextNoteOfLane             (NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteListIterators.front());
-    auto nextNoteOfBgmLane          (size_t idx) -> decltype(_bgmNoteListIters.front());
-    auto nextNoteOfSpecialLane      (size_t idx) -> decltype(_specialNoteListIters.front());
-    auto nextNoteOfBpmLane          () -> decltype(_bpmNoteListIter);
+    auto nextNote             (NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteListIterators.front());
+    auto nextNoteBgm          (size_t idx) -> decltype(_bgmNoteListIters.front());
+    auto nextNoteSpecial      (size_t idx) -> decltype(_specialNoteListIters.front());
+    auto nextNoteBpm          () -> decltype(_bpmNoteListIter);
 
 public:
     Time getBarLength(size_t measure);

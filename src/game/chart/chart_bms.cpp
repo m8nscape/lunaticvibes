@@ -345,12 +345,12 @@ std::pair<NoteLaneCategory, NoteLaneIndex> chartBMS::getLaneFromKey(Input::Pad i
         using cat = NoteLaneCategory;
         NoteLaneIndex idx = KeyToLaneMap[input];
         std::vector<std::pair<cat, HitableNote>> note;
-        if (!isLastNoteOfLane(cat::Note, idx))
-            note.push_back({ cat::Note, *incomingNoteOfLane(cat::Note, idx) });
-        if (!isLastNoteOfLane(cat::Invs, idx))
-            note.push_back({ cat::Invs, *incomingNoteOfLane(cat::Invs, idx) });
-        if (!isLastNoteOfLane(cat::LN, idx))
-            note.push_back({ cat::LN,   *incomingNoteOfLane(cat::LN, idx) });
+        if (!isLastNote(cat::Note, idx))
+            note.push_back({ cat::Note, *incomingNote(cat::Note, idx) });
+        if (!isLastNote(cat::Invs, idx))
+            note.push_back({ cat::Invs, *incomingNote(cat::Invs, idx) });
+        if (!isLastNote(cat::LN, idx))
+            note.push_back({ cat::LN,   *incomingNote(cat::LN, idx) });
         std::sort(note.begin(), note.end(), [](decltype(note.front())& a, decltype(note.front())& b) { return b.second.time > a.second.time; });
         for (size_t i = 0; i < note.size(); ++i)
             if (!note[i].second.hit) return { note[i].first, idx };
@@ -383,8 +383,8 @@ void chartBMS::postUpdate(const Time& t)
     bool inStop = false;
     Beat inStopBeat;
     size_t idx = (size_t)eNoteExt::STOP;
-    auto st = incomingNoteOfSpecialLane(idx);
-    while (!isLastNoteOfSpecialLane(idx, st) && t >= st->time &&
+    auto st = incomingNoteSpecial(idx);
+    while (!isLastNoteSpecial(idx, st) && t >= st->time &&
         t.hres() < st->time.hres() + std::get<double>(st->value) * beatLength.hres())
     {
         //_currentBeat = b->totalbeat - getCurrentMeasureBeat();
