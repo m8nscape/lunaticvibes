@@ -657,10 +657,9 @@ void ScenePlay::updatePrepare()
     auto rt = t - gTimers.get(eTimer::SCENE_START);
     if (rt.norm() > _skin->info.timeIntro)
     {
-        _state = ePlayState::LOADING;
 		gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_LOADING);
-
 		_loadChartFuture = std::async(std::launch::async, std::bind(&ScenePlay::loadChart, this));
+        _state = ePlayState::LOADING;
         LOG_DEBUG << "[Play] State changed to LOADING";
     }
 }
@@ -690,10 +689,10 @@ void ScenePlay::updateLoading()
         (!gSwitches.get(eSwitch::SYSTEM_BGA) || gChartContext.isBgaLoaded) &&
 		rt > _skin->info.timeMinimumLoad)
     {
-        _state = ePlayState::LOAD_END;
 		gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_READY);
 		if (gPlayContext.bgaTexture) gPlayContext.bgaTexture->reset();
         gTimers.set(eTimer::PLAY_READY, t.norm());
+        _state = ePlayState::LOAD_END;
         LOG_DEBUG << "[Play] State changed to READY";
     }
 }
@@ -705,11 +704,11 @@ void ScenePlay::updateLoadEnd()
     spinTurntable(false);
     if (rt > _skin->info.timeGetReady)
     {
-        _state = ePlayState::PLAYING;
 		gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_PLAYING);
         gTimers.set(eTimer::PLAY_START, t.norm());
         setInputJudgeCallback();
 		gChartContext.started = true;
+        _state = ePlayState::PLAYING;
         LOG_DEBUG << "[Play] State changed to PLAY_START";
     }
 }
@@ -793,10 +792,10 @@ void ScenePlay::updatePlaying()
             if (gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().health <= 0)
             {
                 pushGraphPoints();
-                _state = ePlayState::FAILED;
                 gTimers.set(eTimer::FAIL_BEGIN, t.norm());
                 gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FAILED);
                 _isExitingFromPlay = true;
+                _state = ePlayState::FAILED;
                 SoundMgr::playSample(SOUND_FAILED_IDX);
                 for (size_t i = 0; i < gPlayContext.ruleset.size(); ++i)
                 {
@@ -821,10 +820,10 @@ void ScenePlay::updatePlaying()
                 gPlayContext.ruleset[PLAYER_SLOT_2P]->getData().health <= 0)
             {
                 pushGraphPoints();
-                _state = ePlayState::FAILED;
                 gTimers.set(eTimer::FAIL_BEGIN, t.norm());
                 gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FAILED);
                 _isExitingFromPlay = true;
+                _state = ePlayState::FAILED;
                 SoundMgr::playSample(SOUND_FAILED_IDX);
                 for (size_t i = 0; i < gPlayContext.ruleset.size(); ++i)
                 {
@@ -860,10 +859,10 @@ void ScenePlay::updatePlaying()
     //last note check
     if (rt.norm() - gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() >= 0)
     {
-        _state = ePlayState::FADEOUT;
         gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
         gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FADEOUT);
         _isExitingFromPlay = true;
+        _state = ePlayState::FADEOUT;
     }
      
 }
@@ -910,8 +909,8 @@ void ScenePlay::updateFailed()
         // TODO check quick retry (start+select / white+black)
 
         gTimers.set(eTimer::FAIL_BEGIN, t.norm());
-        _state = ePlayState::FADEOUT;
         gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FADEOUT);
+        _state = ePlayState::FADEOUT;
     }
 }
 
@@ -1147,10 +1146,6 @@ void ScenePlay::inputGamePress(InputMask& m, Time t)
 
     if (input[Input::ESC] || (input[Input::K1START] && input[Input::K1SELECT]) || (input[Input::K2START] && input[Input::K2SELECT]))
     {
-        _state = ePlayState::FADEOUT;
-        gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
-        gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FADEOUT);
-
         if (gChartContext.started)
         {
             _isExitingFromPlay = true;
@@ -1187,6 +1182,9 @@ void ScenePlay::inputGamePress(InputMask& m, Time t)
 
         }
 
+        gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
+        gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FADEOUT);
+        _state = ePlayState::FADEOUT;
     }
 }
 

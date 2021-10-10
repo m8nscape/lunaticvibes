@@ -140,9 +140,9 @@ void SceneResult::updateDraw()
 
     if (rt.norm() >= _skin->info.timeResultRank)
     {
-        _state = eResultState::STOP;
         gTimers.set(eTimer::RESULT_RANK_START, t.norm());
         // TODO play hit sound
+        _state = eResultState::STOP;
         LOG_DEBUG << "[Result] State changed to STOP";
     }
 }
@@ -195,25 +195,25 @@ void SceneResult::inputGamePress(InputMask& m, Time t)
         switch (_state)
         {
         case eResultState::DRAW:
-            _state = eResultState::STOP;
             gTimers.set(eTimer::RESULT_RANK_START, t.norm());
             // TODO play hit sound
+            _state = eResultState::STOP;
             LOG_DEBUG << "[Result] State changed to STOP";
             break;
 
         case eResultState::STOP:
-            _state = eResultState::RECORD;
             gTimers.set(eTimer::RESULT_HIGHSCORE_START, t.norm());
             // TODO stop result sound
             // TODO play record sound
+            _state = eResultState::RECORD;
             LOG_DEBUG << "[Result] State changed to RECORD";
             break;
 
         case eResultState::RECORD:
             if (_scoreSyncFinished || true) // debug
             {
-                _state = eResultState::FADEOUT;
                 gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
+                _state = eResultState::FADEOUT;
                 LOG_DEBUG << "[Result] State changed to FADEOUT";
             }
             break;

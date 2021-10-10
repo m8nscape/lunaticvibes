@@ -59,7 +59,7 @@ void SceneDecide::updateSkip()
     auto rt = t - gTimers.get(eTimer::SCENE_START);
     auto ft = t - gTimers.get(eTimer::FADEOUT_BEGIN);
 
-    if (ft.norm() >= _skin->info.timeDecideSkip)
+    if (ft.norm() >= _skin->info.timeOutro)
     {
         loopEnd();
         _input.loopEnd();
@@ -73,7 +73,7 @@ void SceneDecide::updateCancel()
     auto rt = t - gTimers.get(eTimer::SCENE_START);
     auto ft = t - gTimers.get(eTimer::FADEOUT_BEGIN);
 
-    if (rt.norm() >= _skin->info.timeOutro)
+    if (ft.norm() >= _skin->info.timeOutro)
     {
         loopEnd();
         _input.loopEnd();
@@ -87,15 +87,17 @@ void SceneDecide::updateCancel()
 // CALLBACK
 void SceneDecide::inputGamePress(InputMask& m, Time t)
 {
-    if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
+    unsigned rt = (t - gTimers.get(eTimer::SCENE_START)).norm();
+    if (rt < _skin->info.timeIntro) return;
 
-    if ((_inputAvailable & m & INPUT_MASK_DECIDE).any())
+    if ((_inputAvailable & m & INPUT_MASK_DECIDE).any() && rt >= _skin->info.timeDecideSkip)
     {
         switch (_state)
         {
         case eDecideState::START:
-            _state = eDecideState::SKIP;
+            gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
             _updateCallback = std::bind(&SceneDecide::updateSkip, this);
+            _state = eDecideState::SKIP;
             LOG_DEBUG << "[Decide] State changed to SKIP";
             break;
 
@@ -109,8 +111,9 @@ void SceneDecide::inputGamePress(InputMask& m, Time t)
         switch (_state)
         {
         case eDecideState::START:
-            _state = eDecideState::CANCEL;
+            gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
             _updateCallback = std::bind(&SceneDecide::updateCancel, this);
+            _state = eDecideState::CANCEL;
             LOG_DEBUG << "[Decide] State changed to CANCEL";
             break;
 
@@ -133,8 +136,9 @@ void SceneDecide::inputGameHold(InputMask& m, Time t)
         switch (_state)
         {
         case eDecideState::START:
-            _state = eDecideState::CANCEL;
+            gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
             _updateCallback = std::bind(&SceneDecide::updateCancel, this);
+            _state = eDecideState::CANCEL;
             LOG_DEBUG << "[Decide] State changed to CANCEL";
             break;
 
