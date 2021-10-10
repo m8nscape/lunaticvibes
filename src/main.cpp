@@ -115,17 +115,17 @@ int main(int argc, char* argv[])
 	InputMgr::updateBindings(7, Input::Pad::S1L);
 
     // reset globals
-    gNumbers.set(eNumber::ZERO, 0);
-    gSwitches.set(eSwitch::_FALSE, false);
-    gSliders.set(eSlider::ZERO, 0);
-    gTexts.set(eText::INVALID, "");
+    //gNumbers.setDefault(eNumber::ZERO, 0);
+    gSwitches.setDefault(eSwitch::_FALSE, false);
+    gSwitches.setDefault(eSwitch::_TRUE, true);
+    //gSliders.setDefault(eSlider::ZERO, 0);
+    //gTexts.setDefault(eText::INVALID, "");
+    gTimers.setDefault(eTimer::_NEVER, LLONG_MAX);
+
     gNumbers.reset();
-    gSwitches.set(eSwitch::_TRUE, false);
     gSwitches.reset();
-    gSwitches.set(eSwitch::_TRUE, true);
     gSliders.reset();
     gTexts.reset();
-    gTimers.set(eTimer::SCENE_START, 0);
     gTimers.reset();
     ConfigMgr::setGlobals();
 

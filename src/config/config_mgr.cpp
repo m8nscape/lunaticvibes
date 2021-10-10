@@ -22,28 +22,30 @@ void setNumbers()
     auto& g = gNumbers;
     using namespace cfg;
 
-    g.set(e::HS_1P, p->get(P_HISPEED, 1.0) * 100);
-    g.set(e::HS_2P, p->get(P_HISPEED, 1.0) * 100);
+    g.queue(e::HS_1P, p->get(P_HISPEED, 1.0) * 100);
+    g.queue(e::HS_2P, p->get(P_HISPEED, 1.0) * 100);
 
-    g.set(e::LANECOVER_1P, p->get(P_LANECOVER, 0));
-    g.set(e::LANECOVER_2P, p->get(P_LANECOVER, 0));
+    g.queue(e::LANECOVER_1P, p->get(P_LANECOVER, 0));
+    g.queue(e::LANECOVER_2P, p->get(P_LANECOVER, 0));
 
-    g.set(e::TIMING_ADJUST_VISUAL, p->get(P_JUDGE_OFFSET, 0));
+    g.queue(e::TIMING_ADJUST_VISUAL, p->get(P_JUDGE_OFFSET, 0));
     
-    g.set(e::DEFAULT_TARGET_RATE, p->get(P_GHOST_TARGET, 50));
+    g.queue(e::DEFAULT_TARGET_RATE, p->get(P_GHOST_TARGET, 50));
 
-    g.set(e::VOLUME_MASTER, p->get(P_VOL_MASTER, 1.0) * 100);
-    g.set(e::VOLUME_KEY, p->get(P_VOL_KEY, 1.0) * 100);
-    g.set(e::VOLUME_BGM, p->get(P_VOL_BGM, 1.0) * 100);
+    g.queue(e::VOLUME_MASTER, p->get(P_VOL_MASTER, 1.0) * 100);
+    g.queue(e::VOLUME_KEY, p->get(P_VOL_KEY, 1.0) * 100);
+    g.queue(e::VOLUME_BGM, p->get(P_VOL_BGM, 1.0) * 100);
 
-    g.set(e::FX0_P1, p->get(P_FX0_P1, 0));
-    g.set(e::FX0_P2, p->get(P_FX0_P2, 0));
-    g.set(e::FX1_P1, p->get(P_FX1_P1, 0));
-    g.set(e::FX1_P2, p->get(P_FX1_P2, 0));
-    g.set(e::FX2_P1, p->get(P_FX2_P1, 0));
-    g.set(e::FX2_P2, p->get(P_FX2_P2, 0));
+    g.queue(e::FX0_P1, p->get(P_FX0_P1, 0));
+    g.queue(e::FX0_P2, p->get(P_FX0_P2, 0));
+    g.queue(e::FX1_P1, p->get(P_FX1_P1, 0));
+    g.queue(e::FX1_P2, p->get(P_FX1_P2, 0));
+    g.queue(e::FX2_P1, p->get(P_FX2_P1, 0));
+    g.queue(e::FX2_P2, p->get(P_FX2_P2, 0));
 
-    g.set(e::PITCH, p->get(P_FREQ_VAL, 0));
+    g.queue(e::PITCH, p->get(P_FREQ_VAL, 0));
+
+    g.flush();
 }
 
 void setOptions()
@@ -57,7 +59,7 @@ void setOptions()
     using std::string;
 
     // bga
-    g.set(e::PLAY_BGA_TYPE, p->get<string>(P_LOAD_BGA, cfg::ON) == cfg::ON ? BGA_NORMAL : BGA_OFF);
+    g.queue(e::PLAY_BGA_TYPE, p->get<string>(P_LOAD_BGA, cfg::ON) == cfg::ON ? BGA_NORMAL : BGA_OFF);
 
     // speed type
     {
@@ -72,13 +74,13 @@ void setOptions()
         auto&& s = p->get<string>(P_SPEED_TYPE, P_SPEED_TYPE_NORMAL);
         if (smap.find(s) != smap.end())
         {
-            g.set(e::PLAY_HSFIX_TYPE_1P, smap.at(s));
-            g.set(e::PLAY_HSFIX_TYPE_2P, smap.at(s));
+            g.queue(e::PLAY_HSFIX_TYPE_1P, smap.at(s));
+            g.queue(e::PLAY_HSFIX_TYPE_2P, smap.at(s));
         }
         else
         {
-            g.set(e::PLAY_HSFIX_TYPE_1P, SPEED_NORMAL);
-            g.set(e::PLAY_HSFIX_TYPE_2P, SPEED_NORMAL);
+            g.queue(e::PLAY_HSFIX_TYPE_1P, SPEED_NORMAL);
+            g.queue(e::PLAY_HSFIX_TYPE_2P, SPEED_NORMAL);
         }
     }
 
@@ -96,13 +98,13 @@ void setOptions()
         auto&& s = p->get<string>(P_CHART_OP, P_CHART_OP_NORMAL);
         if (smap.find(s) != smap.end())
         {
-            g.set(e::PLAY_RANDOM_TYPE_1P, smap.at(s));
-            g.set(e::PLAY_RANDOM_TYPE_2P, smap.at(s));
+            g.queue(e::PLAY_RANDOM_TYPE_1P, smap.at(s));
+            g.queue(e::PLAY_RANDOM_TYPE_2P, smap.at(s));
         }
         else
         {
-            g.set(e::PLAY_RANDOM_TYPE_1P, RAN_NORMAL);
-            g.set(e::PLAY_RANDOM_TYPE_2P, RAN_NORMAL);
+            g.queue(e::PLAY_RANDOM_TYPE_1P, RAN_NORMAL);
+            g.queue(e::PLAY_RANDOM_TYPE_2P, RAN_NORMAL);
         }
     }
 
@@ -118,13 +120,13 @@ void setOptions()
         auto&& s = p->get<string>(P_GAUGE_OP, P_GAUGE_OP);
         if (smap.find(s) != smap.end())
         {
-            g.set(e::PLAY_GAUGE_TYPE_1P, smap.at(s));
-            g.set(e::PLAY_GAUGE_TYPE_2P, smap.at(s));
+            g.queue(e::PLAY_GAUGE_TYPE_1P, smap.at(s));
+            g.queue(e::PLAY_GAUGE_TYPE_2P, smap.at(s));
         }
         else
         {
-            g.set(e::PLAY_GAUGE_TYPE_1P, GAUGE_NORMAL);
-            g.set(e::PLAY_GAUGE_TYPE_2P, GAUGE_NORMAL);
+            g.queue(e::PLAY_GAUGE_TYPE_1P, GAUGE_NORMAL);
+            g.queue(e::PLAY_GAUGE_TYPE_2P, GAUGE_NORMAL);
         }
     }
 
@@ -140,13 +142,13 @@ void setOptions()
         auto&& s = p->get<string>(P_GHOST_TYPE, cfg::OFF);
         if (smap.find(s) != smap.end())
         {
-            g.set(e::PLAY_GHOST_TYPE_1P, smap.at(s));
-            g.set(e::PLAY_GHOST_TYPE_2P, smap.at(s));
+            g.queue(e::PLAY_GHOST_TYPE_1P, smap.at(s));
+            g.queue(e::PLAY_GHOST_TYPE_2P, smap.at(s));
         }
         else
         {
-            g.set(e::PLAY_GHOST_TYPE_1P, GHOST_OFF);
-            g.set(e::PLAY_GHOST_TYPE_2P, GHOST_OFF);
+            g.queue(e::PLAY_GHOST_TYPE_1P, GHOST_OFF);
+            g.queue(e::PLAY_GHOST_TYPE_2P, GHOST_OFF);
         }
     }
 
@@ -164,9 +166,9 @@ void setOptions()
 
         auto&& s = p->get<string>(P_PLAY_MODE, P_PLAY_MODE_ALL);
         if (smap.find(s) != smap.end())
-            g.set(e::SELECT_FILTER_KEYS, smap.at(s));
+            g.queue(e::SELECT_FILTER_KEYS, smap.at(s));
         else
-            g.set(e::SELECT_FILTER_KEYS, KEYS_ALL);
+            g.queue(e::SELECT_FILTER_KEYS, KEYS_ALL);
     }
 
     // sort mode
@@ -182,9 +184,9 @@ void setOptions()
 
         auto&& s = p->get<string>(P_SORT_MODE, P_SORT_MODE_FOLDER);
         if (smap.find(s) != smap.end())
-            g.set(e::SELECT_SORT, smap.at(s));
+            g.queue(e::SELECT_SORT, smap.at(s));
         else
-            g.set(e::SELECT_SORT, SORT_FOLDER);
+            g.queue(e::SELECT_SORT, SORT_FOLDER);
     }
 
     // diff filter mode
@@ -201,9 +203,9 @@ void setOptions()
 
         auto&& s = p->get<string>(P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_ALL);
         if (smap.find(s) != smap.end())
-            g.set(e::SELECT_FILTER_DIFF, smap.at(s));
+            g.queue(e::SELECT_FILTER_DIFF, smap.at(s));
         else
-            g.set(e::SELECT_FILTER_DIFF, DIFF_ANY);
+            g.queue(e::SELECT_FILTER_DIFF, DIFF_ANY);
     }
 
     // freq type
@@ -217,9 +219,9 @@ void setOptions()
 
         auto&& s = p->get<string>(P_FREQ_TYPE, P_FREQ_TYPE_FREQ);
         if (smap.find(s) != smap.end())
-            g.set(e::SOUND_PITCH_TYPE, smap.at(s));
+            g.queue(e::SOUND_PITCH_TYPE, smap.at(s));
         else
-            g.set(e::SOUND_PITCH_TYPE, FREQ_FREQ);
+            g.queue(e::SOUND_PITCH_TYPE, FREQ_FREQ);
     }
 
     // fx target
@@ -233,21 +235,21 @@ void setOptions()
 
         auto&& s0 = p->get<string>(P_FX0_TARGET, P_FX_TARGET_MASTER);
         if (smap.find(s0) != smap.end())
-            g.set(e::SOUND_TARGET_FX0, smap.at(s0));
+            g.queue(e::SOUND_TARGET_FX0, smap.at(s0));
         else
-            g.set(e::SOUND_TARGET_FX0, FX_MASTER);
+            g.queue(e::SOUND_TARGET_FX0, FX_MASTER);
 
         auto&& s1 = p->get<string>(P_FX1_TARGET, P_FX_TARGET_MASTER);
         if (smap.find(s1) != smap.end())
-            g.set(e::SOUND_TARGET_FX1, smap.at(s1));
+            g.queue(e::SOUND_TARGET_FX1, smap.at(s1));
         else
-            g.set(e::SOUND_TARGET_FX1, FX_MASTER);
+            g.queue(e::SOUND_TARGET_FX1, FX_MASTER);
 
         auto&& s2 = p->get<string>(P_FX2_TARGET, P_FX_TARGET_MASTER);
         if (smap.find(s2) != smap.end())
-            g.set(e::SOUND_TARGET_FX2, smap.at(s2));
+            g.queue(e::SOUND_TARGET_FX2, smap.at(s2));
         else
-            g.set(e::SOUND_TARGET_FX2, FX_MASTER);
+            g.queue(e::SOUND_TARGET_FX2, FX_MASTER);
     }
 
     // fx type
@@ -265,25 +267,25 @@ void setOptions()
 
         auto&& s0 = p->get<string>(P_FX0_TYPE, cfg::OFF);
         if (smap.find(s0) != smap.end())
-            g.set(e::SOUND_FX0, smap.at(s0));
+            g.queue(e::SOUND_FX0, smap.at(s0));
         else
-            g.set(e::SOUND_FX0, FX_OFF);
+            g.queue(e::SOUND_FX0, FX_OFF);
 
         auto&& s1 = p->get<string>(P_FX1_TYPE, cfg::OFF);
         if (smap.find(s1) != smap.end())
-            g.set(e::SOUND_FX1, smap.at(s1));
+            g.queue(e::SOUND_FX1, smap.at(s1));
         else
-            g.set(e::SOUND_FX1, FX_OFF);
+            g.queue(e::SOUND_FX1, FX_OFF);
 
         auto&& s2 = p->get<string>(P_FX2_TYPE, cfg::OFF);
         if (smap.find(s2) != smap.end())
-            g.set(e::SOUND_FX2, smap.at(s2));
+            g.queue(e::SOUND_FX2, smap.at(s2));
         else
-            g.set(e::SOUND_FX2, FX_OFF);
+            g.queue(e::SOUND_FX2, FX_OFF);
     }
 
     // battle
-    g.set(e::PLAY_BATTLE_TYPE, 0);
+    g.queue(e::PLAY_BATTLE_TYPE, 0);
 
     // windowed
     {
@@ -296,10 +298,12 @@ void setOptions()
 
         auto&& s = c->get<string>(V_WINMODE, V_WINMODE_WINDOWED);
         if (smap.find(s) != smap.end())
-            g.set(e::SYS_WINDOWED, smap.at(s));
+            g.queue(e::SYS_WINDOWED, smap.at(s));
         else
-            g.set(e::SYS_WINDOWED, WIN_WINDOWED);
+            g.queue(e::SYS_WINDOWED, WIN_WINDOWED);
     }
+
+    g.flush();
 }
 
 void setSliders()
@@ -309,26 +313,28 @@ void setSliders()
     auto& g = gSliders;
     using namespace cfg;
 
-    g.set(e::VOLUME_MASTER, p->get(P_VOL_MASTER, 1.0));
-    g.set(e::VOLUME_KEY, p->get(P_VOL_KEY, 1.0));
-    g.set(e::VOLUME_BGM, p->get(P_VOL_BGM, 1.0));
+    g.queue(e::VOLUME_MASTER, p->get(P_VOL_MASTER, 1.0));
+    g.queue(e::VOLUME_KEY, p->get(P_VOL_KEY, 1.0));
+    g.queue(e::VOLUME_BGM, p->get(P_VOL_BGM, 1.0));
 
-    g.set(e::EQ0, (p->get(P_EQ0, 0.0) + 1.0) / 2);
-    g.set(e::EQ1, (p->get(P_EQ1, 0.0) + 1.0) / 2);
-    g.set(e::EQ2, (p->get(P_EQ2, 0.0) + 1.0) / 2);
-    g.set(e::EQ3, (p->get(P_EQ3, 0.0) + 1.0) / 2);
-    g.set(e::EQ4, (p->get(P_EQ4, 0.0) + 1.0) / 2);
-    g.set(e::EQ5, (p->get(P_EQ5, 0.0) + 1.0) / 2);
-    g.set(e::EQ6, (p->get(P_EQ6, 0.0) + 1.0) / 2);
+    g.queue(e::EQ0, (p->get(P_EQ0, 0.0) + 1.0) / 2);
+    g.queue(e::EQ1, (p->get(P_EQ1, 0.0) + 1.0) / 2);
+    g.queue(e::EQ2, (p->get(P_EQ2, 0.0) + 1.0) / 2);
+    g.queue(e::EQ3, (p->get(P_EQ3, 0.0) + 1.0) / 2);
+    g.queue(e::EQ4, (p->get(P_EQ4, 0.0) + 1.0) / 2);
+    g.queue(e::EQ5, (p->get(P_EQ5, 0.0) + 1.0) / 2);
+    g.queue(e::EQ6, (p->get(P_EQ6, 0.0) + 1.0) / 2);
 
-    g.set(e::PITCH, (p->get(P_FREQ_VAL, 0.0) + 1.0) / 2);
+    g.queue(e::PITCH, (p->get(P_FREQ_VAL, 0.0) + 1.0) / 2);
 
-    g.set(e::FX0_P1, p->get(P_FX0_P1, 0.0));
-    g.set(e::FX0_P2, p->get(P_FX0_P2, 0.0));
-    g.set(e::FX1_P1, p->get(P_FX1_P1, 0.0));
-    g.set(e::FX1_P2, p->get(P_FX1_P2, 0.0));
-    g.set(e::FX2_P1, p->get(P_FX2_P1, 0.0));
-    g.set(e::FX2_P2, p->get(P_FX2_P2, 0.0));
+    g.queue(e::FX0_P1, p->get(P_FX0_P1, 0.0));
+    g.queue(e::FX0_P2, p->get(P_FX0_P2, 0.0));
+    g.queue(e::FX1_P1, p->get(P_FX1_P1, 0.0));
+    g.queue(e::FX1_P2, p->get(P_FX1_P2, 0.0));
+    g.queue(e::FX2_P1, p->get(P_FX2_P1, 0.0));
+    g.queue(e::FX2_P2, p->get(P_FX2_P2, 0.0));
+
+    g.flush();
 
 }
 
@@ -341,15 +347,17 @@ void setSwitches()
     using namespace cfg;
     using std::string;
 
-    g.set(e::SYSTEM_BGA, p->get<string>(P_LOAD_BGA, ON) == ON);
-    g.set(e::PLAY_OPTION_DP_FLIP, p->get<string>(P_FLIP, ON) == ON);
-    g.set(e::SYSTEM_SCOREGRAPH, p->get<string>(P_SCORE_GRAPH, ON) == ON);
-    g.set(e::SOUND_VOLUME, true);
-    g.set(e::SOUND_EQ, p->get<string>(P_EQ, ON) == ON);
-    g.set(e::SOUND_PITCH, p->get<string>(P_FREQ, ON) == ON);
-    g.set(e::SOUND_FX0, p->get<string>(P_FX0, ON) == ON);
-    g.set(e::SOUND_FX1, p->get<string>(P_FX1, ON) == ON);
-    g.set(e::SOUND_FX2, p->get<string>(P_FX2, ON) == ON);
+    g.queue(e::SYSTEM_BGA, p->get<string>(P_LOAD_BGA, ON) == ON);
+    g.queue(e::PLAY_OPTION_DP_FLIP, p->get<string>(P_FLIP, ON) == ON);
+    g.queue(e::SYSTEM_SCOREGRAPH, p->get<string>(P_SCORE_GRAPH, ON) == ON);
+    g.queue(e::SOUND_VOLUME, true);
+    g.queue(e::SOUND_EQ, p->get<string>(P_EQ, ON) == ON);
+    g.queue(e::SOUND_PITCH, p->get<string>(P_FREQ, ON) == ON);
+    g.queue(e::SOUND_FX0, p->get<string>(P_FX0, ON) == ON);
+    g.queue(e::SOUND_FX1, p->get<string>(P_FX1, ON) == ON);
+    g.queue(e::SOUND_FX2, p->get<string>(P_FX2, ON) == ON);
+
+    g.flush();
 }
 
 void setText()
@@ -362,10 +370,10 @@ void setText()
     using std::string;
 
     // player name
-    g.set(e::PLAYER_NAME, p->getName());
+    g.queue(e::PLAYER_NAME, p->getName());
 
     // bga
-    g.set(e::BGA, p->get<string>(P_LOAD_BGA, ON) == ON ? "ON" : "OFF");
+    g.queue(e::BGA, p->get<string>(P_LOAD_BGA, ON) == ON ? "ON" : "OFF");
 
     // speed type
     {
@@ -379,13 +387,13 @@ void setText()
 
         auto&& s = p->get<string>(P_SPEED_TYPE, P_SPEED_TYPE_NORMAL);
         if (smap.find(s) != smap.end())
-            g.set(e::SCROLL_TYPE, smap.at(s));
+            g.queue(e::SCROLL_TYPE, smap.at(s));
         else
-            g.set(e::SCROLL_TYPE, "NORMAL");
+            g.queue(e::SCROLL_TYPE, "NORMAL");
     }
 
     // lanecover
-    g.set(e::SHUTTER, p->get(P_LANECOVER, 0) > 0 ? "ON" : "OFF");
+    g.queue(e::SHUTTER, p->get(P_LANECOVER, 0) > 0 ? "ON" : "OFF");
 
     // chart op
     {
@@ -401,13 +409,13 @@ void setText()
         auto&& s = p->get<string>(P_CHART_OP, P_CHART_OP_NORMAL);
         if (smap.find(s) != smap.end())
         {
-            g.set(e::RANDOM_1P, smap.at(s));
-            g.set(e::RANDOM_2P, smap.at(s));
+            g.queue(e::RANDOM_1P, smap.at(s));
+            g.queue(e::RANDOM_2P, smap.at(s));
         }
         else
         {
-            g.set(e::RANDOM_1P, "NORMAL");
-            g.set(e::RANDOM_2P, "NORMAL");
+            g.queue(e::RANDOM_1P, "NORMAL");
+            g.queue(e::RANDOM_2P, "NORMAL");
         }
     }
 
@@ -423,13 +431,13 @@ void setText()
         auto&& s = p->get<string>(P_GAUGE_OP, P_GAUGE_OP);
         if (smap.find(s) != smap.end())
         {
-            g.set(e::GAUGE_1P, smap.at(s));
-            g.set(e::GAUGE_2P, smap.at(s));
+            g.queue(e::GAUGE_1P, smap.at(s));
+            g.queue(e::GAUGE_2P, smap.at(s));
         }
         else
         {
-            g.set(e::GAUGE_1P, "NORMAL");
-            g.set(e::GAUGE_2P, "NORMAL");
+            g.queue(e::GAUGE_1P, "NORMAL");
+            g.queue(e::GAUGE_2P, "NORMAL");
         }
     }
 
@@ -444,9 +452,9 @@ void setText()
 
         auto&& s = p->get<string>(P_GHOST_TYPE, OFF);
         if (smap.find(s) != smap.end())
-            g.set(e::GHOST, smap.at(s));
+            g.queue(e::GHOST, smap.at(s));
         else
-            g.set(e::GHOST, "OFF");
+            g.queue(e::GHOST, "OFF");
     }
 
     // target
@@ -461,9 +469,9 @@ void setText()
 
         auto&& s = p->get<string>(P_TARGET, OFF);
         if (smap.find(s) != smap.end())
-            g.set(e::TARGET_NAME, smap.at(s));
+            g.queue(e::TARGET_NAME, smap.at(s));
         else
-            g.set(e::TARGET_NAME, "OFF");
+            g.queue(e::TARGET_NAME, "OFF");
     }
 
     // play mode
@@ -480,9 +488,9 @@ void setText()
 
         auto&& s = p->get<string>(P_PLAY_MODE, P_PLAY_MODE_ALL);
         if (smap.find(s) != smap.end())
-            g.set(e::PLAY_MODE, smap.at(s));
+            g.queue(e::PLAY_MODE, smap.at(s));
         else
-            g.set(e::PLAY_MODE, "ALL");
+            g.queue(e::PLAY_MODE, "ALL");
     }
 
     // sort mode
@@ -498,9 +506,9 @@ void setText()
 
         auto&& s = p->get<string>(P_SORT_MODE, P_SORT_MODE_FOLDER);
         if (smap.find(s) != smap.end())
-            g.set(e::SORT_MODE, smap.at(s));
+            g.queue(e::SORT_MODE, smap.at(s));
         else
-            g.set(e::SORT_MODE, "FOLDER");
+            g.queue(e::SORT_MODE, "FOLDER");
     }
 
     // diff filter mode
@@ -517,19 +525,19 @@ void setText()
 
         auto&& s = p->get<string>(P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_ALL);
         if (smap.find(s) != smap.end())
-            g.set(e::DIFFICULTY, smap.at(s));
+            g.queue(e::DIFFICULTY, smap.at(s));
         else
-            g.set(e::DIFFICULTY, "ALL");
+            g.queue(e::DIFFICULTY, "ALL");
     }
 
     // battle
-    g.set(e::BATTLE, p->get<string>(P_BATTLE, ON) == ON ? "ON" : "OFF");
+    g.queue(e::BATTLE, p->get<string>(P_BATTLE, ON) == ON ? "ON" : "OFF");
 
     // flip
-    g.set(e::FLIP, p->get<string>(P_FLIP, ON) == ON ? "ON" : "OFF");
+    g.queue(e::FLIP, p->get<string>(P_FLIP, ON) == ON ? "ON" : "OFF");
 
     // graph
-    g.set(e::SCORE_GRAPH, p->get<string>(P_SCORE_GRAPH, ON) == ON ? "ON" : "OFF");
+    g.queue(e::SCORE_GRAPH, p->get<string>(P_SCORE_GRAPH, ON) == ON ? "ON" : "OFF");
 
     // windowed
     {
@@ -542,21 +550,23 @@ void setText()
 
         auto&& s = c->get<string>(V_WINMODE, V_WINMODE_WINDOWED);
         if (smap.find(s) != smap.end())
-            g.set(e::WINDOWMODE, smap.at(s));
+            g.queue(e::WINDOWMODE, smap.at(s));
         else
-            g.set(e::WINDOWMODE, "WINDOWED");
+            g.queue(e::WINDOWMODE, "WINDOWED");
     }
 
     // vsync
-    g.set(e::VSYNC, c->get<string>(V_VSYNC, ON) == ON ? "ON" : "OFF");
+    g.queue(e::VSYNC, c->get<string>(V_VSYNC, ON) == ON ? "ON" : "OFF");
 
     // fixed tokens
-    g.set(e::BGA_SIZE, "NORMAL");
-    g.set(e::COLOR_DEPTH, "WHAT DO YOU WANT FROM THIS");
-    g.set(e::JUDGE_AUTO, "NOT SUPPORTED");
-    g.set(e::REPLAY_SAVE_TYPE, "NOT SUPPORTED");
-    g.set(e::TRIAL1, "NOT SUPPORTED");
-    g.set(e::TRIAL2, "NOT SUPPORTED");
+    g.queue(e::BGA_SIZE, "NORMAL");
+    g.queue(e::COLOR_DEPTH, "WHAT DO YOU WANT FROM THIS");
+    g.queue(e::JUDGE_AUTO, "NOT SUPPORTED");
+    g.queue(e::REPLAY_SAVE_TYPE, "NOT SUPPORTED");
+    g.queue(e::TRIAL1, "NOT SUPPORTED");
+    g.queue(e::TRIAL2, "NOT SUPPORTED");
+
+    g.flush();
 }
 
 int ConfigMgr::selectProfile(const std::string& name)

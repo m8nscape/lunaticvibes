@@ -183,4 +183,4 @@ enum class eTimer : unsigned
     TIMER_COUNT
 };
 
-inline buffered_global<eTimer, long long, (size_t)eTimer::TIMER_COUNT> gTimers;
+inline buffered_global<eTimer, long long, (size_t)eTimer::TIMER_COUNT> gTimers{ -1 };

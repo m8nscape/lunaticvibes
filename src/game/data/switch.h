@@ -4,7 +4,7 @@
 
 enum class eSwitch: unsigned
 {
-    _TRUE = 0,           // should be initialized with true AFTER reset
+    _TRUE = 0,           // should be initialized with true
 
     SELECT_PANEL1,
     SELECT_PANEL2,
