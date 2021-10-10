@@ -12,12 +12,12 @@
 #include "common/log.h"
 #include "common/sysutil.h"
 
-struct InputDataMap{
+struct InputTimerSwitchMap{
     eTimer tm;
     eSwitch sw;
 };
 
-static const InputDataMap InputGamePressMap[] =
+static const InputTimerSwitchMap InputGamePressMap[] =
 {
     { eTimer::S1L_DOWN, eSwitch::S1L_DOWN },
     { eTimer::S1R_DOWN, eSwitch::S1R_DOWN },
@@ -51,7 +51,7 @@ static const InputDataMap InputGamePressMap[] =
     { eTimer::K2SPDDN_DOWN, eSwitch::K1SPDDN_DOWN },
 };
 
-static const InputDataMap InputGameReleaseMap[] =
+static const InputTimerSwitchMap InputGameReleaseMap[] =
 {
     { eTimer::S1L_UP, eSwitch::S1L_DOWN },
     { eTimer::S1R_UP, eSwitch::S1R_DOWN },
@@ -85,7 +85,7 @@ static const InputDataMap InputGameReleaseMap[] =
     { eTimer::K2SPDDN_UP, eSwitch::K1SPDDN_DOWN },
 };
 
-static const InputDataMap InputGamePressMap2[] =
+static const InputTimerSwitchMap InputGamePressMap2[] =
 {
     { eTimer::S1L_DOWN, eSwitch::S1L_DOWN },
     { eTimer::S1R_DOWN, eSwitch::S1R_DOWN },
@@ -119,7 +119,7 @@ static const InputDataMap InputGamePressMap2[] =
     { eTimer::K2SPDDN_DOWN, eSwitch::K2SPDDN_DOWN },
 };
 
-static const InputDataMap InputGameReleaseMap2[] =
+static const InputTimerSwitchMap InputGameReleaseMap2[] =
 {
     { eTimer::S1L_UP, eSwitch::S1L_DOWN },
     { eTimer::S1R_UP, eSwitch::S1R_DOWN },

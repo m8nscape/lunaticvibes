@@ -82,9 +82,9 @@ public:
 	bool setSlot(size_t idx, Time time, bool base, bool layer, bool poor);
 	void sortSlot();
 	bool setSlotFromBMS(chartBMS& bms);
-	virtual void seek(Time t);
+	virtual void seek(const Time& t);
 
-	virtual void update(Time t, bool poor);
+	virtual void update(const Time& t, bool poor);
 	virtual void draw(const Rect& srcRect, Rect dstRect,
 		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const override;
 	virtual void draw(const Rect& srcRect, Rect dstRect,

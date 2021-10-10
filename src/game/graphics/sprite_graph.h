@@ -42,9 +42,9 @@ public:
     void appendPoint(const ColorPoint&);
 
 public:
-    void updateProgress(Time t);
+    void updateProgress(const Time& t);
     void updateRects();
-    virtual bool update(Time t);
+    virtual bool update(const Time& t);
     virtual void draw() const;
 };
 

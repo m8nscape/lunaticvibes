@@ -517,7 +517,7 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
         loadSongList();
         setBarInfo();
         setEntryInfo();
-        _skin->start_bar_animation(0);
+        _skin->reset_bar_animation();
     }
 
     _state = eSelectState::PREPARE;

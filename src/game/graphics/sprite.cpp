@@ -45,7 +45,7 @@ bool checkPanel(int panelIdx)
 vSprite::vSprite(pTexture tex, SpriteTypes type) :
     _pTexture(tex), _type(type), _current({ 0, RenderParams::CONSTANT, 0x00000000, BlendMode::NONE, false, 0 }) {}
 
-bool vSprite::updateByKeyframes(Time rawTime)
+bool vSprite::updateByKeyframes(const Time& rawTime)
 {
     // Check if object is valid
 	// Note that nullptr texture shall pass
@@ -166,12 +166,13 @@ bool vSprite::updateByKeyframes(Time rawTime)
     if (_haveParent && !_parent.expired())
     {
         auto parent = _parent.lock();
-        _current.rect.x += parent->getCurrentRenderParams().rect.x;
-        _current.rect.y += parent->getCurrentRenderParams().rect.y;
-        //_current.color.r = (Uint8)std::min(0.0, parent->getCurrentRenderParams().color.r / 255.0 * _current.color.r);
-        //_current.color.g = (Uint8)std::min(0.0, parent->getCurrentRenderParams().color.g / 255.0 * _current.color.g);
-        //_current.color.b = (Uint8)std::min(0.0, parent->getCurrentRenderParams().color.b / 255.0 * _current.color.b);
-        //_current.color.a = (Uint8)std::min(0.0, parent->getCurrentRenderParams().color.a / 255.0 * _current.color.a);
+        const auto& parentRect = parent->getCurrentRenderParams().rect;
+        _current.rect.x += parentRect.x;
+        _current.rect.y += parentRect.y;
+        _current.color.r = (Uint8)(parent->getCurrentRenderParams().color.r / 255.0 * _current.color.r);
+        _current.color.g = (Uint8)(parent->getCurrentRenderParams().color.g / 255.0 * _current.color.g);
+        _current.color.b = (Uint8)(parent->getCurrentRenderParams().color.b / 255.0 * _current.color.b);
+        _current.color.a = (Uint8)(parent->getCurrentRenderParams().color.a / 255.0 * _current.color.a);
         //_current.angle += parent->getCurrentRenderParams().angle;
 		//_current.center = parent->getCurrentRenderParams().center;
     }
@@ -179,9 +180,9 @@ bool vSprite::updateByKeyframes(Time rawTime)
     return true;
 }
 
-bool vSprite::update(Time t)
+bool vSprite::update(const Time& t)
 {
-	return _draw = updateByKeyframes(t);
+    return _draw = updateByKeyframes(t);
 }
 
 RenderParams vSprite::getCurrentRenderParams()
@@ -220,11 +221,6 @@ SpriteStatic::SpriteStatic(pTexture texture) :
 	SpriteStatic(texture, texture ? texture->getRect(): Rect()) {}
 SpriteStatic::SpriteStatic(pTexture texture, const Rect& rect):
     vSprite(texture, SpriteTypes::STATIC), _texRect(rect) {}
-
-bool SpriteStatic::update(Time t)
-{
-	return vSprite::update(t);
-}
 
 void SpriteStatic::draw() const
 {
@@ -297,7 +293,7 @@ void SpriteSelection::updateSelection(frameIdx frame)
     _selectionIdx = frame < _segments ? frame : _segments - 1;
 }
 
-bool SpriteSelection::update(Time t)
+bool SpriteSelection::update(const Time& t)
 {
 	return vSprite::update(t);
 }
@@ -333,7 +329,7 @@ SpriteAnimated::SpriteAnimated(pTexture texture, const Rect& r,
     //_aVert = animVert;
 }
 
-bool SpriteAnimated::update(Time t)
+bool SpriteAnimated::update(const Time& t)
 {
 	if (SpriteSelection::update(t))
 	{
@@ -345,13 +341,13 @@ bool SpriteAnimated::update(Time t)
 	return false;
 }
 
-void SpriteAnimated::updateByTimer(Time time)
+void SpriteAnimated::updateByTimer(const Time& time)
 {
 	if (gTimers.get(_triggerTimer))
 		updateByKeyframes(time);
 }
 
-void SpriteAnimated::updateAnimation(Time time)
+void SpriteAnimated::updateAnimation(const Time& time)
 {
     if (_segments == 0) return;
     if (_period == -1) return;
@@ -380,7 +376,7 @@ void SpriteAnimated::updateAnimation(Time time)
 	*/
 }
 
-void SpriteAnimated::updateAnimationByTimer(Time time)
+void SpriteAnimated::updateAnimationByTimer(const Time& time)
 {
 	if (gTimers.get(_resetAnimTimer))
 		updateAnimation(time - Time(gTimers.get(_resetAnimTimer)));
@@ -427,7 +423,7 @@ SpriteText::SpriteText(pFont f, Rect rect, eText e, TextAlign a, unsigned ptsize
 }
 */
 
-bool SpriteText::update(Time t)
+bool SpriteText::update(const Time& t)
 {
     // it takes me 2 hours to figure out that font LIBRARY can not be accessed by parallel
     std::lock_guard<std::mutex> u{_updateMutex};
@@ -484,7 +480,7 @@ void SpriteText::setText(std::string&& text, const Color& c)
     if (!_pFont || !_pFont->_loaded)
         return;
 
-    if (_currText == text && _color == c)
+    if (_pTexture != nullptr && _currText == text && _color == c)
         return;
 
     if (text.empty() || c.a == 0)
@@ -555,7 +551,7 @@ SpriteNumber::SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align
     _rects.resize(maxDigits);
 }
 
-bool SpriteNumber::update(Time t)
+bool SpriteNumber::update(const Time& t)
 {
     if (_maxDigits == 0) return false;
 	if (SpriteAnimated::update(t))
@@ -784,7 +780,7 @@ void SpriteSlider::updatePos()
 	}
 }
 
-bool SpriteSlider::update(Time t)
+bool SpriteSlider::update(const Time& t)
 {
 	if (SpriteAnimated::update(t))
 	{
@@ -848,7 +844,7 @@ void SpriteBargraph::updateSize()
 }
 #pragma warning(pop)
 
-bool SpriteBargraph::update(Time t)
+bool SpriteBargraph::update(const Time& t)
 {
 	if (SpriteAnimated::update(t))
 	{
@@ -919,7 +915,7 @@ void SpriteOption::updateValByInd()
 	}
 }
 
-bool SpriteOption::update(Time t)
+bool SpriteOption::update(const Time& t)
 {
 	if (SpriteSelection::update(t))
 	{
@@ -1059,7 +1055,7 @@ void SpriteGaugeGrid::updateValByInd()
 	updateVal(gNumbers.get(_numInd));
 }
 
-bool SpriteGaugeGrid::update(Time t)
+bool SpriteGaugeGrid::update(const Time& t)
 {
 	if (SpriteAnimated::update(t))
 	{
@@ -1130,7 +1126,7 @@ SpriteOnMouse::SpriteOnMouse(pTexture texture, const Rect& rect,
     _type = SpriteTypes::ONMOUSE;
 }
 
-bool SpriteOnMouse::update(Time t)
+bool SpriteOnMouse::update(const Time& t)
 {
     if (!checkPanel(panelIdx)) return false;
     if (SpriteSelection::update(t))
@@ -1167,7 +1163,7 @@ SpriteCursor::SpriteCursor(pTexture texture, const Rect& rect,
     _type = SpriteTypes::MOUSE_CURSOR;
 }
 
-bool SpriteCursor::update(Time t)
+bool SpriteCursor::update(const Time& t)
 {
     if (SpriteSelection::update(t))
     {

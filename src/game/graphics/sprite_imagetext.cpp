@@ -125,7 +125,7 @@ void SpriteImageText::updateTextRect()
 
 }
 
-bool SpriteImageText::update(Time t)
+bool SpriteImageText::update(const Time& t)
 {
     if (_draw = updateByKeyframes(t))
     {

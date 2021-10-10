@@ -19,7 +19,7 @@ void SpriteLine::draw() const
     }
 }
 
-void SpriteLine::updateProgress(Time t)
+void SpriteLine::updateProgress(const Time& t)
 {
     //_progress = (double)(gTimers.get(_triggerTimer) - t.norm() - _timerStartOffset) / _duration;
     //_progress = std::clamp(_progress, 0.0, 1.0);
@@ -143,7 +143,7 @@ void SpriteLine::updateRects()
     }
 }
 
-bool SpriteLine::update(Time t)
+bool SpriteLine::update(const Time& t)
 {
     if (SpriteStatic::update(t))
     {

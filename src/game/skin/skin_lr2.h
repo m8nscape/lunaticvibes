@@ -1395,6 +1395,7 @@ protected:
     unsigned barCenter = 0;
     unsigned barClickableFrom = 0;
     unsigned barClickableTo = 0;
+	bool hasBarAnimOrigin = false;
 	std::array<Rect, BAR_ENTRY_SPRITE_COUNT> _barAnimOrigin;
 	bool setListStopTimer = false;
 	unsigned barAnimTimeLength = 300;
@@ -1512,6 +1513,7 @@ private:
     std::vector<element> drawQueue;
 public:
     virtual void update();
+	virtual void reset_bar_animation();
 	virtual void start_bar_animation(int direction) override;
     virtual void draw() const;
 

@@ -41,7 +41,7 @@ void SpriteLaneVertical::getRectSize(int& w, int& h)
 	}
 }
 
-bool SpriteLaneVertical::update(Time t)
+bool SpriteLaneVertical::update(const Time& t)
 {
 	if (updateByKeyframes(t))
 	{
@@ -61,7 +61,7 @@ bool SpriteLaneVertical::update(Time t)
 	return false;
 }
 
-void SpriteLaneVertical::updateNoteRect(Time t, vChart* s, double beat, unsigned measure)
+void SpriteLaneVertical::updateNoteRect(const Time& t, vChart* s, double beat, unsigned measure)
 {
     // refresh note sprites
 	pNote->update(t);
@@ -106,7 +106,7 @@ void SpriteLaneVertical::draw() const
 }
 
 
-void SpriteLaneVerticalLN::updateNoteRect(Time t, vChart* s, double beat, unsigned measure)
+void SpriteLaneVerticalLN::updateNoteRect(const Time& t, vChart* s, double beat, unsigned measure)
 {
 	// refresh note sprites
 	pNote->update(t);

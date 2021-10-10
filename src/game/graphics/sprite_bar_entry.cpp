@@ -227,7 +227,12 @@ bool SpriteBarEntry::update(Time time)
             drawBodyType = typeidx;
             setParent(sBodyOn[typeidx]);
         }
-        if (!_parent.expired())
+        if (_parent.expired())
+        {
+            _draw = false;
+            return false;
+        }
+        else
         {
             auto parent = _parent.lock();
             _current.rect.x = parent->getCurrentRenderParams().rect.x;
@@ -415,8 +420,11 @@ void SpriteBarEntry::setRectOffset(const Rect& dr)
         r.y += dr.y;
     };
 
-    if (drawBodyOn) adjust_rect(sBodyOn[drawBodyType]->getCurrentRenderParamsRef().rect, dr);
-    else adjust_rect(sBodyOff[drawBodyType]->getCurrentRenderParamsRef().rect, dr);
+    if (drawBodyOn) 
+        adjust_rect(sBodyOn[drawBodyType]->getCurrentRenderParamsRef().rect, dr);
+    else 
+        adjust_rect(sBodyOff[drawBodyType]->getCurrentRenderParamsRef().rect, dr);
+
     if (drawTitle)
     {
         adjust_rect(sTitle[drawTitleType]->getCurrentRenderParamsRef().rect, dr);

@@ -1839,7 +1839,6 @@ ParseRet SkinLR2::SRC_BAR_FLASH()
     for (auto& bar : _barSprites)
     {
         bar->setFlash(textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer);
-        bar->getSpriteFlash()->setParent(bar->weak_from_this());
     }
 
     return ParseRet::OK;
@@ -1870,7 +1869,6 @@ ParseRet SkinLR2::SRC_BAR_LEVEL()
     {
         bar->setLevel(type,
             textureBuf, Rect(d.x, d.y, d.w, d.h), (NumberAlign)d.align, d.keta, d.div_y, d.div_x, d.cycle, (eTimer)d.timer, f);
-        bar->getSpriteLevel(type)->setParent(bar->weak_from_this());
     }
 
     return ParseRet::OK;
@@ -1893,7 +1891,6 @@ ParseRet SkinLR2::SRC_BAR_LAMP()
     for (auto& bar : _barSprites)
     {
         bar->setLamp(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer);
-        bar->getSpriteLamp(type)->setParent(bar->weak_from_this());
     }
 
     return ParseRet::OK;
@@ -1924,8 +1921,6 @@ ParseRet SkinLR2::SRC_BAR_TITLE()
         {
             bar->setTitle(type, _fontNameMap[font], (TextAlign)d.align);
         }
-
-        bar->getSpriteTitle(type)->setParent(bar->weak_from_this());
     }
 
     return ParseRet::OK;
@@ -1948,7 +1943,6 @@ ParseRet SkinLR2::SRC_BAR_RANK()
     for (auto& bar : _barSprites)
     {
         bar->setRank(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer);
-        bar->getSpriteRank(type)->setParent(bar->weak_from_this());
     }
 
     return ParseRet::OK;
@@ -1971,7 +1965,6 @@ ParseRet SkinLR2::SRC_BAR_RIVAL()
     for (auto& bar : _barSprites)
     {
         bar->setRivalWinLose(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer);
-        bar->getSpriteRivalWinLose(type)->setParent(bar->weak_from_this());
     }
 
     return ParseRet::OK;
@@ -1994,7 +1987,6 @@ ParseRet SkinLR2::SRC_BAR_RIVAL_MYLAMP()
     for (auto& bar : _barSprites)
     {
         bar->setRivalLampSelf(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer);
-        bar->getSpriteRivalLampSelf(type)->setParent(bar->weak_from_this());
     }
 
     return ParseRet::OK;
@@ -2017,7 +2009,6 @@ ParseRet SkinLR2::SRC_BAR_RIVAL_RIVALLAMP()
     for (auto& bar : _barSprites)
     {
         bar->setRivalLampRival(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer);
-        bar->getSpriteRivalLampRival(type)->setParent(bar->weak_from_this());
     }
 
     return ParseRet::OK;
@@ -3177,36 +3168,45 @@ void SkinLR2::update()
         std::shared_lock<std::shared_mutex> u(gSelectContext._mutex);
         for (auto& s : _barSprites) s->update(t);
 
-        auto tMove = gTimers.get(eTimer::LIST_MOVE);
-        if (t.norm() - tMove < barAnimTimeLength)
+        if (hasBarAnimOrigin)
         {
-            setListStopTimer = true;
-            for (size_t i = 1; i + 1 < _barSprites.size(); ++i)
+            auto tMove = gTimers.get(eTimer::LIST_MOVE);
+            if (t.norm() - tMove < barAnimTimeLength)
             {
-                if (!_barSpriteAdded[i]) continue;
+                setListStopTimer = true;
+                for (size_t i = 1; i + 1 < _barSprites.size(); ++i)
+                {
+                    if (!_barSpriteAdded[i]) continue;
 
-                double factor = 1.0 - (t.norm() - tMove) / double(barAnimTimeLength);
+                    double factor = 1.0 - (t.norm() - tMove) / double(barAnimTimeLength);
 
-                auto& r1 = _barAnimOrigin[i];
-                auto& r2 = _barSprites[i]->_current.rect;
-                Rect dr{
-                    static_cast<int>(std::round((r1.x - r2.x) * factor)),
-                    static_cast<int>(std::round((r1.y - r2.y) * factor)),
-                    0, 0
-                };
-                _barSprites[i]->setRectOffset(dr);
+                    auto& rectStored = _barAnimOrigin[i];
+                    auto& rectSprite = _barSprites[i]->_current.rect;
+                    Rect dr{
+                        static_cast<int>(std::round((rectStored.x - rectSprite.x) * factor)),
+                        static_cast<int>(std::round((rectStored.y - rectSprite.y) * factor)),
+                        0, 0
+                    };
+                    _barSprites[i]->setRectOffset(dr);
 
+                }
             }
-        }
-        else
-        {
-            if (setListStopTimer)
+            else
             {
-                setListStopTimer = false;
-                gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());
+                if (setListStopTimer)
+                {
+                    setListStopTimer = false;
+                    gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());
+                }
             }
         }
     }
+}
+
+void SkinLR2::reset_bar_animation()
+{
+    hasBarAnimOrigin = false;
+    _barAnimOrigin.fill(Rect(0, 0, 0, 0));
 }
 
 void SkinLR2::start_bar_animation(int direction)
@@ -3225,6 +3225,7 @@ void SkinLR2::start_bar_animation(int direction)
             _barAnimOrigin[i] = _barSprites[j]->_current.rect;
         }
     }
+    hasBarAnimOrigin = true;
 }
 
 void SkinLR2::draw() const

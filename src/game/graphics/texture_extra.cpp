@@ -182,7 +182,7 @@ bool TextureBmsBga::setSlotFromBMS(chartBMS& bms)
 	return true;
 }
 
-void TextureBmsBga::seek(Time t)
+void TextureBmsBga::seek(const Time& t)
 {
 	auto seekSub = [&t, this](decltype(baseSlot)& slot, size_t& slotIdx, decltype(baseSlot.begin())& slotIt)
 	{
@@ -213,7 +213,7 @@ void TextureBmsBga::seek(Time t)
 	inPoor = false;
 }
 
-void TextureBmsBga::update(Time t, bool poor)
+void TextureBmsBga::update(const Time& t, bool poor)
 {
 	auto seekSub = [&t, this](decltype(baseSlot)& slot, size_t& slotIdx, decltype(baseSlot.begin())& slotIt)
 	{
