@@ -80,12 +80,12 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
         */
 
         // clear or failed?
-        cleared = d1p.health >= gPlayContext.ruleset[PLAYER_SLOT_1P]->getClearHealth() || d2p.health >= gPlayContext.ruleset[PLAYER_SLOT_2P]->getClearHealth();
+        cleared = gPlayContext.ruleset[PLAYER_SLOT_1P]->isCleared() || gPlayContext.ruleset[PLAYER_SLOT_2P]->isCleared();
         break;
     }
 
     default:
-        cleared = dp.health >= gPlayContext.ruleset[PLAYER_SLOT_1P]->getClearHealth();
+        cleared = gPlayContext.ruleset[PLAYER_SLOT_1P]->isCleared();
         break;
     }
 

@@ -184,3 +184,5 @@ enum class eTimer : unsigned
 };
 
 inline buffered_global<eTimer, long long, (size_t)eTimer::TIMER_COUNT> gTimers{ -1 };
+constexpr decltype(gTimers.get(eTimer::_NEVER)) TIMER_INVALID = -1;
+constexpr decltype(gTimers.get(eTimer::_NEVER)) TIMER_NEVER = LLONG_MAX;

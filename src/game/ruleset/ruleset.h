@@ -49,6 +49,7 @@ public:
     constexpr BasicData getData() const { return _basic; }
     constexpr bool isFinished() const { return _basic.totaln == _chart->getNoteCount(); }
     double getClearHealth() const { return _clearHealth; }
+    virtual bool isCleared() const { return _basic.health > _minHealth && _basic.health >= _clearHealth; }
     virtual unsigned getCurrentMaxScore() const = 0;
     virtual unsigned getMaxScore() const = 0;
     void fail() { _basic.health = 0.0; }

@@ -43,6 +43,7 @@ private:
 private:
     bool _isHoldingStart = false;
     bool _isHoldingSelect = false;
+    bool _isExitingFromPlay = false;
     std::array<bool, 2> _isPlayerFinished{ false };
     std::array<int, 2> _ttAngleDelta{ 0 };
 
@@ -113,6 +114,7 @@ protected:
 protected:
     // Register to InputWrapper: judge / keysound
     void inputGamePress(InputMask&, Time);
+    void inputGamePressJudge(InputMask&, Time);
     void inputGameHold(InputMask&, Time);
     void inputGameRelease(InputMask&, Time);
 };

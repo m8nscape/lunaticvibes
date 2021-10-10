@@ -1,5 +1,5 @@
 #pragma once
-#include <mutex>
+#include <shared_mutex>
 #include <array>
 #include <queue>
 #include "input_mgr.h"
@@ -38,7 +38,7 @@ class InputWrapper: public AsyncLooper
 public:
     inline static unsigned release_delay_ms = 5;
 private:
-	std::mutex _inputMutex;
+	std::shared_mutex _inputMutex;
     bool _busy = false;
 
 protected:

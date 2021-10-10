@@ -783,73 +783,76 @@ void ScenePlay::updatePlaying()
     }
 
     // health check (-> to failed)
-    switch (_mode)
+    if (!_isExitingFromPlay)
     {
-    case ePlayMode::SINGLE:
-    {
-		//if (context_play.health[context_play.playerSlot] <= 0)
-        if (gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().health <= 0)
+        switch (_mode)
         {
-            pushGraphPoints();
-            _state = ePlayState::FAILED;
-            gTimers.set(eTimer::FAIL_BEGIN, t.norm());
-            gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FAILED);
-			SoundMgr::playSample(SOUND_FAILED_IDX);
-            for (size_t i = 0; i < gPlayContext.ruleset.size(); ++i)
+        case ePlayMode::SINGLE:
+        {
+            //if (context_play.health[context_play.playerSlot] <= 0)
+            if (gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().health <= 0)
             {
-                _input.unregister_p("SCENE_PRESS");
+                pushGraphPoints();
+                _state = ePlayState::FAILED;
+                gTimers.set(eTimer::FAIL_BEGIN, t.norm());
+                gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FAILED);
+                _isExitingFromPlay = true;
+                SoundMgr::playSample(SOUND_FAILED_IDX);
+                for (size_t i = 0; i < gPlayContext.ruleset.size(); ++i)
+                {
+                    _input.unregister_p("SCENE_PRESS");
+                }
+                LOG_DEBUG << "[Play] State changed to PLAY_FAILED";
             }
-            removeInputJudgeCallback();
-            LOG_DEBUG << "[Play] State changed to PLAY_FAILED";
-        }
 
-        if (_isPlayerFinished[PLAYER_SLOT_1P] ^ gPlayContext.ruleset[PLAYER_SLOT_1P]->isFinished())
-        {
-            _isPlayerFinished[PLAYER_SLOT_1P] = true;
-            gTimers.set(PLAYER_SLOT_1P == 0 ? eTimer::PLAY_P1_FINISHED : eTimer::PLAY_P2_FINISHED, t.norm());
-            if (gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().combo == gPlayContext.chartObj[PLAYER_SLOT_1P]->getNoteCount())
-                gTimers.set(PLAYER_SLOT_1P == 0 ? eTimer::PLAY_FULLCOMBO_1P : eTimer::PLAY_FULLCOMBO_2P, t.norm());
-        }
-    }
-    break;
-
-    case ePlayMode::LOCAL_BATTLE:
-    {
-        if (gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().health <= 0 && 
-            gPlayContext.ruleset[PLAYER_SLOT_2P]->getData().health <= 0)
-        {
-            pushGraphPoints();
-            _state = ePlayState::FAILED;
-            gTimers.set(eTimer::FAIL_BEGIN, t.norm());
-            gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FAILED);
-			SoundMgr::playSample(SOUND_FAILED_IDX);
-            for (size_t i = 0; i < gPlayContext.ruleset.size(); ++i)
+            if (_isPlayerFinished[PLAYER_SLOT_1P] ^ gPlayContext.ruleset[PLAYER_SLOT_1P]->isFinished())
             {
-                _input.unregister_p("SCENE_PRESS");
+                _isPlayerFinished[PLAYER_SLOT_1P] = true;
+                gTimers.set(PLAYER_SLOT_1P == 0 ? eTimer::PLAY_P1_FINISHED : eTimer::PLAY_P2_FINISHED, t.norm());
+                if (gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().combo == gPlayContext.chartObj[PLAYER_SLOT_1P]->getNoteCount())
+                    gTimers.set(PLAYER_SLOT_1P == 0 ? eTimer::PLAY_FULLCOMBO_1P : eTimer::PLAY_FULLCOMBO_2P, t.norm());
             }
-            removeInputJudgeCallback();
-            LOG_DEBUG << "[Play] State changed to PLAY_FAILED";
         }
-
-        if (_isPlayerFinished[PLAYER_SLOT_1P] ^ gPlayContext.ruleset[PLAYER_SLOT_1P]->isFinished())
-        {
-            _isPlayerFinished[PLAYER_SLOT_1P] = true;
-            gTimers.set(eTimer::PLAY_P1_FINISHED, t.norm());
-            if (gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().combo == gPlayContext.chartObj[PLAYER_SLOT_1P]->getNoteCount())
-                gTimers.set(eTimer::PLAY_FULLCOMBO_1P, t.norm());
-        }
-        if (_isPlayerFinished[PLAYER_SLOT_2P] ^ gPlayContext.ruleset[PLAYER_SLOT_2P]->isFinished())
-        {
-            _isPlayerFinished[PLAYER_SLOT_2P] = true;
-            gTimers.set(eTimer::PLAY_P2_FINISHED, t.norm());
-            if (gPlayContext.ruleset[PLAYER_SLOT_2P]->getData().combo == gPlayContext.chartObj[PLAYER_SLOT_2P]->getNoteCount())
-                gTimers.set(eTimer::PLAY_FULLCOMBO_2P, t.norm());
-        }
-    }
-    break;
-
-    default:
         break;
+
+        case ePlayMode::LOCAL_BATTLE:
+        {
+            if (gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().health <= 0 &&
+                gPlayContext.ruleset[PLAYER_SLOT_2P]->getData().health <= 0)
+            {
+                pushGraphPoints();
+                _state = ePlayState::FAILED;
+                gTimers.set(eTimer::FAIL_BEGIN, t.norm());
+                gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FAILED);
+                _isExitingFromPlay = true;
+                SoundMgr::playSample(SOUND_FAILED_IDX);
+                for (size_t i = 0; i < gPlayContext.ruleset.size(); ++i)
+                {
+                    _input.unregister_p("SCENE_PRESS");
+                }
+                LOG_DEBUG << "[Play] State changed to PLAY_FAILED";
+            }
+
+            if (_isPlayerFinished[PLAYER_SLOT_1P] ^ gPlayContext.ruleset[PLAYER_SLOT_1P]->isFinished())
+            {
+                _isPlayerFinished[PLAYER_SLOT_1P] = true;
+                gTimers.set(eTimer::PLAY_P1_FINISHED, t.norm());
+                if (gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().combo == gPlayContext.chartObj[PLAYER_SLOT_1P]->getNoteCount())
+                    gTimers.set(eTimer::PLAY_FULLCOMBO_1P, t.norm());
+            }
+            if (_isPlayerFinished[PLAYER_SLOT_2P] ^ gPlayContext.ruleset[PLAYER_SLOT_2P]->isFinished())
+            {
+                _isPlayerFinished[PLAYER_SLOT_2P] = true;
+                gTimers.set(eTimer::PLAY_P2_FINISHED, t.norm());
+                if (gPlayContext.ruleset[PLAYER_SLOT_2P]->getData().combo == gPlayContext.chartObj[PLAYER_SLOT_2P]->getNoteCount())
+                    gTimers.set(eTimer::PLAY_FULLCOMBO_2P, t.norm());
+            }
+        }
+        break;
+
+        default:
+            break;
+        }
     }
 
     spinTurntable(true);
@@ -860,7 +863,7 @@ void ScenePlay::updatePlaying()
         _state = ePlayState::FADEOUT;
         gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
         gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FADEOUT);
-        removeInputJudgeCallback();
+        _isExitingFromPlay = true;
     }
      
 }
@@ -875,9 +878,14 @@ void ScenePlay::updateFadeout()
     spinTurntable(gChartContext.started);
 	gPlayContext.bgaTexture->update(rt, false);
 
-    if (ft >= _skin->info.timeOutro)
+    if (_isExitingFromPlay)
     {
         removeInputJudgeCallback();
+        _isExitingFromPlay = false;
+    }
+
+    if (ft >= _skin->info.timeOutro)
+    {
         loopEnd();
         _input.loopEnd();
         if (gChartContext.started)
@@ -899,10 +907,11 @@ void ScenePlay::updateFailed()
     //failed play finished, move to next scene. No fadeout
     if (ft.norm() >= _skin->info.timeFailed)
     {
-        removeInputJudgeCallback();
-        loopEnd();
-        _input.loopEnd();
-        gNextScene = eScene::RESULT;
+        // TODO check quick retry (start+select / white+black)
+
+        gTimers.set(eTimer::FAIL_BEGIN, t.norm());
+        _state = ePlayState::FADEOUT;
+        gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FADEOUT);
     }
 }
 
@@ -1065,14 +1074,14 @@ void ScenePlay::inputGamePress(InputMask& m, Time t)
             if (_currentKeySample[i])
                 _keySampleIdxBuf[sampleCount++] = _currentKeySample[i];
             gTimers.set(InputGamePressMap[i].tm, t.norm());
-            gTimers.set(InputGameReleaseMap[i].tm, LLONG_MAX);
+            gTimers.set(InputGameReleaseMap[i].tm, TIMER_NEVER);
             gSwitches.set(InputGamePressMap[i].sw, true);
         }
 
     if (input[S1L] || input[S1R])
     {
         gTimers.set(eTimer::S1_DOWN, t.norm());
-        gTimers.set(eTimer::S1_UP, LLONG_MAX);
+        gTimers.set(eTimer::S1_UP, TIMER_NEVER);
         gSwitches.set(eSwitch::S1_DOWN, true);
     }
     if (input[K1SPDUP])
@@ -1096,7 +1105,7 @@ void ScenePlay::inputGamePress(InputMask& m, Time t)
         if (input[S2L] || input[S2R])
         {
             gTimers.set(eTimer::S2_DOWN, t.norm());
-            gTimers.set(eTimer::S2_UP, LLONG_MAX);
+            gTimers.set(eTimer::S2_UP, TIMER_NEVER);
             gSwitches.set(eSwitch::S2_DOWN, true);
         }
 
@@ -1118,7 +1127,7 @@ void ScenePlay::inputGamePress(InputMask& m, Time t)
         if (input[S2L] || input[S2R])
         {
             gTimers.set(eTimer::S1_DOWN, t.norm());
-            gTimers.set(eTimer::S1_UP, LLONG_MAX);
+            gTimers.set(eTimer::S1_UP, TIMER_NEVER);
             gSwitches.set(eSwitch::S1_DOWN, true);
         }
 
@@ -1144,6 +1153,8 @@ void ScenePlay::inputGamePress(InputMask& m, Time t)
 
         if (gChartContext.started)
         {
+            _isExitingFromPlay = true;
+
             switch (_mode)
             {
             case ePlayMode::SINGLE:
@@ -1207,7 +1218,7 @@ void ScenePlay::inputGameRelease(InputMask& m, Time t)
     for (size_t i = 0; i < Input::ESC; ++i)
         if (input[i])
         {
-            gTimers.set(InputGamePressMap[i].tm, LLONG_MAX);
+            gTimers.set(InputGamePressMap[i].tm, TIMER_NEVER);
             gTimers.set(InputGameReleaseMap[i].tm, t.norm());
             gSwitches.set(InputGameReleaseMap[i].sw, false);
 
@@ -1217,7 +1228,7 @@ void ScenePlay::inputGameRelease(InputMask& m, Time t)
 
     if (input[S1L] || input[S1R])
     {
-        gTimers.set(eTimer::S1_DOWN, LLONG_MAX);
+        gTimers.set(eTimer::S1_DOWN, TIMER_NEVER);
         gTimers.set(eTimer::S1_UP, t.norm());
         gSwitches.set(eSwitch::S1_DOWN, false);
     }
@@ -1227,7 +1238,7 @@ void ScenePlay::inputGameRelease(InputMask& m, Time t)
         if (input[S2L] || input[S2R])
         {
             gTimers.set(eTimer::S2_DOWN, t.norm());
-            gTimers.set(eTimer::S2_UP, LLONG_MAX);
+            gTimers.set(eTimer::S2_UP, TIMER_NEVER);
             gSwitches.set(eSwitch::S2_DOWN, true);
         }
     }
@@ -1236,7 +1247,7 @@ void ScenePlay::inputGameRelease(InputMask& m, Time t)
         if (input[S2L] || input[S2R])
         {
             gTimers.set(eTimer::S1_DOWN, t.norm());
-            gTimers.set(eTimer::S1_UP, LLONG_MAX);
+            gTimers.set(eTimer::S1_UP, TIMER_NEVER);
             gSwitches.set(eSwitch::S1_DOWN, true);
         }
     }

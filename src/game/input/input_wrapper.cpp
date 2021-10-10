@@ -13,7 +13,7 @@ InputWrapper::~InputWrapper()
     loopEnd();
 
     {
-        std::lock_guard _lock(_inputMutex);
+        std::unique_lock _lock(_inputMutex);
         _pCallbackMap.clear();
         _hCallbackMap.clear();
         _rCallbackMap.clear();
@@ -63,17 +63,19 @@ void InputWrapper::_loop()
     InputMgr::getMousePos(_cursor_x, _cursor_y);
 
     {
-        std::lock_guard l(_inputMutex);
-
-        if (p != 0)
-            for (auto& [cbname, callback] : _pCallbackMap)
-                callback(p, t);
-        if (h != 0)
-            for (auto& [cbname, callback] : _hCallbackMap)
-                callback(h, t);
-        if (r != 0)
-            for (auto& [cbname, callback] : _rCallbackMap)
-                callback(r, t);
+        std::shared_lock l(_inputMutex, std::defer_lock);
+        if (l.try_lock())
+        {
+            if (p != 0)
+                for (auto& [cbname, callback] : _pCallbackMap)
+                    callback(p, t);
+            if (h != 0)
+                for (auto& [cbname, callback] : _hCallbackMap)
+                    callback(h, t);
+            if (r != 0)
+                for (auto& [cbname, callback] : _rCallbackMap)
+                    callback(r, t);
+        }
     }
 }
 
@@ -82,7 +84,7 @@ bool InputWrapper::_register(unsigned type, const std::string& key, INPUTCALLBAC
     if (_pCallbackMap.find(key) != _pCallbackMap.end())
         return false;
 
-	std::lock_guard _lock(_inputMutex);
+	std::unique_lock _lock(_inputMutex);
 
     switch (type)
     {
@@ -98,7 +100,7 @@ bool InputWrapper::_unregister(unsigned type, const std::string& key)
     if (_pCallbackMap.find(key) == _pCallbackMap.end())
         return false;
 
-	std::lock_guard _lock(_inputMutex);
+	std::unique_lock _lock(_inputMutex);
 
     switch (type)
     {
