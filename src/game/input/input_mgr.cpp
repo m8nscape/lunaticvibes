@@ -26,13 +26,15 @@ void InputMgr::updateBindings(unsigned keys, Pad K)
     for (auto& k : _inst.bindings)
         k = {};
 
+
+
     switch (keys)
     {
     case 5:
         for (Input::Pad key = Input::S1L; key < Input::ESC; ++(*(int*)&key))
         {
             auto bindings = ConfigMgr::getKeyBindings(5, key);
-            for (unsigned slot = 0; slot < bindings.size(); ++slot)
+            for (unsigned slot = 0; slot < std::min(MAX_BINDINGS_PER_KEY, bindings.size()); ++slot)
                 bindKey(key, slot, bindings[slot]);
         }
         break;
@@ -41,7 +43,7 @@ void InputMgr::updateBindings(unsigned keys, Pad K)
         for (Input::Pad key = Input::S1L; key < Input::ESC; ++(*(int*)&key))
         {
             auto bindings = ConfigMgr::getKeyBindings(7, key);
-            for (unsigned slot = 0; slot < bindings.size(); ++slot)
+            for (unsigned slot = 0; slot < std::min(MAX_BINDINGS_PER_KEY, bindings.size()); ++slot)
                 bindKey(key, slot, bindings[slot]);
         }
         break;
@@ -50,7 +52,7 @@ void InputMgr::updateBindings(unsigned keys, Pad K)
         for (Input::Pad key = Input::S1L; key < Input::ESC; ++(*(int*)&key))
         {
             auto bindings = ConfigMgr::getKeyBindings(9, key);
-            for (unsigned slot = 0; slot < bindings.size(); ++slot)
+            for (unsigned slot = 0; slot < std::min(MAX_BINDINGS_PER_KEY, bindings.size()); ++slot)
                 bindKey(key, slot, bindings[slot]);
         }
         break;

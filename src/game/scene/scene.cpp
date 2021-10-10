@@ -12,8 +12,8 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
 	Time t;
 
     //gNumbers.reset();
-    gSliders.reset();
-    gSwitches.reset();
+    //gSliders.reset();
+    //gSwitches.reset();
     gTimers.reset();
     gTimers.set(eTimer::SCENE_START, t.norm());
     gTimers.set(eTimer::START_INPUT, t.norm() + _skin->info.timeIntro);

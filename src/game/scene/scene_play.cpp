@@ -789,13 +789,15 @@ void ScenePlay::updatePlaying()
         case ePlayMode::SINGLE:
         {
             //if (context_play.health[context_play.playerSlot] <= 0)
-            if (gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().health <= 0)
+            if (gPlayContext.ruleset[PLAYER_SLOT_1P]->isFailed())
             {
                 pushGraphPoints();
                 gTimers.set(eTimer::FAIL_BEGIN, t.norm());
                 gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FAILED);
                 _isExitingFromPlay = true;
                 _state = ePlayState::FAILED;
+                SoundMgr::stopSamples();
+                SoundMgr::stopKeySamples();
                 SoundMgr::playSample(SOUND_FAILED_IDX);
                 for (size_t i = 0; i < gPlayContext.ruleset.size(); ++i)
                 {
@@ -816,14 +818,16 @@ void ScenePlay::updatePlaying()
 
         case ePlayMode::LOCAL_BATTLE:
         {
-            if (gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().health <= 0 &&
-                gPlayContext.ruleset[PLAYER_SLOT_2P]->getData().health <= 0)
+            if (gPlayContext.ruleset[PLAYER_SLOT_1P]->isFailed() &&
+                gPlayContext.ruleset[PLAYER_SLOT_2P]->isFailed())
             {
                 pushGraphPoints();
                 gTimers.set(eTimer::FAIL_BEGIN, t.norm());
                 gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FAILED);
                 _isExitingFromPlay = true;
                 _state = ePlayState::FAILED;
+                SoundMgr::stopSamples();
+                SoundMgr::stopKeySamples();
                 SoundMgr::playSample(SOUND_FAILED_IDX);
                 for (size_t i = 0; i < gPlayContext.ruleset.size(); ++i)
                 {
@@ -879,8 +883,25 @@ void ScenePlay::updateFadeout()
 
     if (_isExitingFromPlay)
     {
-        removeInputJudgeCallback();
         _isExitingFromPlay = false;
+        removeInputJudgeCallback();
+
+        bool cleared = false;
+        switch (_mode)
+        {
+        case ePlayMode::SINGLE:
+            if (gPlayContext.ruleset[PLAYER_SLOT_1P]->isCleared())
+                cleared = true;
+            break;
+        case ePlayMode::LOCAL_BATTLE:
+            if (gPlayContext.ruleset[PLAYER_SLOT_1P]->isCleared() &&
+                gPlayContext.ruleset[PLAYER_SLOT_2P]->isCleared())
+                cleared = true;
+            break;
+        default:
+            break;
+        }
+        gSwitches.set(eSwitch::RESULT_CLEAR, cleared);
     }
 
     if (ft >= _skin->info.timeOutro)
@@ -908,7 +929,7 @@ void ScenePlay::updateFailed()
     {
         // TODO check quick retry (start+select / white+black)
 
-        gTimers.set(eTimer::FAIL_BEGIN, t.norm());
+        gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
         gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FADEOUT);
         _state = ePlayState::FADEOUT;
     }

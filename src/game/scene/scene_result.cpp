@@ -53,7 +53,7 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
     // TODO compare to db record
     auto dp = gPlayContext.ruleset[PLAYER_SLOT_1P]->getData();
 
-    bool cleared = false;
+    bool cleared = gSwitches.get(eSwitch::RESULT_CLEAR);
 
     switch (gPlayContext.mode)
     {
@@ -80,16 +80,17 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
         */
 
         // clear or failed?
-        cleared = gPlayContext.ruleset[PLAYER_SLOT_1P]->isCleared() || gPlayContext.ruleset[PLAYER_SLOT_2P]->isCleared();
+        //cleared = gPlayContext.ruleset[PLAYER_SLOT_1P]->isCleared() || gPlayContext.ruleset[PLAYER_SLOT_2P]->isCleared();
         break;
     }
 
     default:
-        cleared = gPlayContext.ruleset[PLAYER_SLOT_1P]->isCleared();
+        //cleared = gPlayContext.ruleset[PLAYER_SLOT_1P]->isCleared();
         break;
     }
 
-    gSwitches.set(eSwitch::RESULT_CLEAR, cleared);
+    // Moved to play
+    //gSwitches.set(eSwitch::RESULT_CLEAR, cleared);
 
     using namespace std::placeholders;
     _input.register_p("SCENE_PRESS", std::bind(&SceneResult::inputGamePress, this, _1, _2));

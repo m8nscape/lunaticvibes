@@ -325,6 +325,8 @@ public:
     constexpr auto getJudge() const { return _count; }
     void updateHit(Time& t, NoteLaneIndex ch, size_t judge, unsigned slot);
     void updateMiss(Time& t, NoteLaneIndex ch, size_t judge, unsigned slot);
+    virtual bool isCleared() const { return !_isFailed && isFinished() && _basic.health >= _clearHealth; }
+    virtual bool isFailed() const { return _isFailed; }
     virtual unsigned getCurrentMaxScore() const { return _basic.totalnr * 2; }
     virtual unsigned getMaxScore() const { return _chart->getNoteRegularCount() * 2 + _chart->getNoteLnCount() * 2; }
 };

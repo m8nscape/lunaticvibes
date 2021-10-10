@@ -287,6 +287,9 @@ void RulesetClassic::_updateHp(const double delta)
         break;
     }
     _basic.health = std::max(_minHealth, std::min(1.0, tmp));
+
+    if (_minHealth == 0.0 && _basic.health <= _minHealth)
+        _isFailed = true;
 }
 
 void RulesetClassic::updateHit(Time& t, NoteLaneIndex ch, size_t judge, unsigned slot)

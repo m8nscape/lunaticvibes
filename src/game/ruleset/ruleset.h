@@ -35,6 +35,8 @@ protected:
     double _minHealth;
     double _clearHealth;
     std::vector<unsigned> _judgeCount;
+    bool _isCleared = false;
+    bool _isFailed = false;
 public:
     vRuleset() = delete;
     vRuleset(std::shared_ptr<vChartFormat> format, std::shared_ptr<vChart> chart, size_t judgeCount) :
@@ -49,7 +51,8 @@ public:
     constexpr BasicData getData() const { return _basic; }
     constexpr bool isFinished() const { return _basic.totaln == _chart->getNoteCount(); }
     double getClearHealth() const { return _clearHealth; }
-    virtual bool isCleared() const { return _basic.health > _minHealth && _basic.health >= _clearHealth; }
+    virtual bool isCleared() const { return _isCleared; }
+    virtual bool isFailed() const { return _isFailed; }
     virtual unsigned getCurrentMaxScore() const = 0;
     virtual unsigned getMaxScore() const = 0;
     void fail() { _basic.health = 0.0; }
