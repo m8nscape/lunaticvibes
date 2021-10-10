@@ -11,25 +11,25 @@ inline void set(std::initializer_list<int> idx, bool val = true)
 }
 inline bool get(int idx) { return _op[idx]; }
 
-constexpr bool dst(eOption option_entry, std::initializer_list<unsigned> entries)
+inline bool dst(eOption option_entry, std::initializer_list<unsigned> entries)
 {
     auto op = gOptions.get(option_entry);
     for (auto e : entries)
         if (op == e) return true;
     return false;
 }
-constexpr bool dst(eOption option_entry, unsigned entry)
+inline bool dst(eOption option_entry, unsigned entry)
 {
 	return gOptions.get(option_entry) == entry;
 }
 
-constexpr bool sw(std::initializer_list<eSwitch> entries)
+inline bool sw(std::initializer_list<eSwitch> entries)
 {
     for (auto e : entries)
         if (gSwitches.get(e)) return true;
     return false;
 }
-constexpr bool sw(eSwitch entry)
+inline bool sw(eSwitch entry)
 {
 	return gSwitches.get(entry);
 }

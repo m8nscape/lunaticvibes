@@ -1,31 +1,60 @@
 #pragma once
 #include <array>
+#include <shared_mutex>
 
-template <class _Key, class _Value, size_t _size>
+template <class Key, class Value, size_t _size>
 class buffered_global
 {
 public:
-	constexpr buffered_global() : _data{_Value()}, _dataBuffer{_Value()} { static_assert(_size > 0); }
+	buffered_global() : _data{Value()}, _dataBuffer{Value()} { static_assert(_size > 0); }
 private:
-    std::array<_Value, _size> _data;
-    std::array<_Value, _size> _dataBuffer;
+	mutable std::shared_mutex _mutex;
+    std::array<Value, _size> _data;
+    std::array<Value, _size> _dataBuffer;
+
 public:
-    constexpr _Value get(_Key n) { return ((size_t)n < _size) ? _data[(size_t)n] : _Value{0}; }
-    inline void queue(_Key n, _Value value) { if ((size_t)n < _size) _dataBuffer[(size_t)n] = value; }
-    inline void flush() { _data = _dataBuffer; }
-    inline void reset() { for (size_t i = 1; i < _size; ++i) _reset_nolog((_Key)i, _data[0]); }
-//protected:
-    constexpr void set(_Key n, _Value value)
+    Value get(Key n) const
     {
-        //LOG_DEBUG << "[Data] Set " << (int)n << " To " << value;
-        if ((size_t)n < _size)
-            _data[(size_t)n] = _dataBuffer[(size_t)n] = value;
-    }
-private:
-    constexpr void _reset_nolog(_Key n, _Value value)
-    {
-        if ((size_t)n < _size)
-            _data[(size_t)n] = _dataBuffer[(size_t)n] = value;
-    }
+        size_t idx = (size_t)n;
+		if (idx < _size)
+		{
+			std::shared_lock lock(_mutex);
+			return _data.data()[idx];
+		}
+		else
+		{
+			return Value();
+		}
+	}
+
+	[[deprecated]] void set(Key n, Value value)
+	{
+		size_t idx = (size_t)n;
+		if (idx < _size)
+		{
+			std::unique_lock lock(_mutex);
+			_data[idx] = _dataBuffer[idx] = value;
+		}
+	}
+
+	void queue(Key n, Value value)
+	{
+		size_t idx = (size_t)n;
+		if (idx < _size) 
+			_dataBuffer[idx] = value;
+	}
+
+	void flush()
+	{
+		std::unique_lock lock(_mutex);
+		_data = _dataBuffer; 
+	}
+
+	void reset() 
+	{
+		_dataBuffer = { 0 };
+		flush();
+	}
+
 };
 

@@ -74,8 +74,8 @@ void SpriteLaneVertical::updateNoteRect(Time t, vChart* s, double beat, unsigned
 	// 150BPM with 1.0x HS is 1600ms
     int y = (c.y + c.h);
     _outRect.clear();
-    auto it = s->incomingNoteOfLane(_category, _index);
-    while (!s->isLastNoteOfLane(_category, _index, it) && y >= -c.h)
+    auto it = s->incomingNote(_category, _index);
+    while (!s->isLastNote(_category, _index, it) && y >= -c.h)
     {
 		auto noteBeatOffset = currTotalBeat - it->totalbeat;
         if (noteBeatOffset >= 0)
@@ -122,8 +122,8 @@ void SpriteLaneVerticalLN::updateNoteRect(Time t, vChart* s, double beat, unsign
 	_outRectTail.clear();
 
 	int head_y_actual = c.y + c.h;
-	auto it = s->incomingNoteOfLane(_category, _index);
-	while (!s->isLastNoteOfLane(_category, _index, it) && head_y_actual >= -c.h)
+	auto it = s->incomingNote(_category, _index);
+	while (!s->isLastNote(_category, _index, it) && head_y_actual >= -c.h)
 	{
 		int head_y = c.y + c.h;
 		int tail_y = 0;
@@ -142,7 +142,7 @@ void SpriteLaneVerticalLN::updateNoteRect(Time t, vChart* s, double beat, unsign
 		{
 			const auto& head = *it;
 			++it;
-			if (s->isLastNoteOfLane(_category, _index, it)) break;
+			if (s->isLastNote(_category, _index, it)) break;
 
 			const auto& tail = *it;
 

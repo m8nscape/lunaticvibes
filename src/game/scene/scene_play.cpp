@@ -950,7 +950,7 @@ void ScenePlay::changeKeySampleMapping(Time t)
                 assert(gPlayContext.chartObj[PLAYER_SLOT_1P] != nullptr);
                 auto chan = gPlayContext.chartObj[PLAYER_SLOT_1P]->getLaneFromKey((Input::Pad)i);
                 if (chan.first == NoteLaneCategory::_) continue;
-                auto note = gPlayContext.chartObj[PLAYER_SLOT_1P]->incomingNoteOfLane(chan.first, chan.second);
+                auto note = gPlayContext.chartObj[PLAYER_SLOT_1P]->incomingNote(chan.first, chan.second);
                 if (note->time - t > MIN_REMAP_INTERVAL) continue;
                 _currentKeySample[i] = (size_t)std::get<long long>(note->value);
             }
@@ -960,7 +960,7 @@ void ScenePlay::changeKeySampleMapping(Time t)
                 assert(gPlayContext.chartObj[PLAYER_SLOT_2P] != nullptr);
                 auto chan = gPlayContext.chartObj[PLAYER_SLOT_2P]->getLaneFromKey((Input::Pad)i);
                 if (chan.first == NoteLaneCategory::_) continue;
-                auto note = gPlayContext.chartObj[PLAYER_SLOT_2P]->incomingNoteOfLane(chan.first, chan.second);
+                auto note = gPlayContext.chartObj[PLAYER_SLOT_2P]->incomingNote(chan.first, chan.second);
                 if (note->time - t > MIN_REMAP_INTERVAL) continue;
                 _currentKeySample[i] = (size_t)std::get<long long>(note->value);
             }
@@ -973,7 +973,7 @@ void ScenePlay::changeKeySampleMapping(Time t)
                 assert(gPlayContext.chartObj[PLAYER_SLOT_1P] != nullptr);
                 auto chan = gPlayContext.chartObj[PLAYER_SLOT_1P]->getLaneFromKey((Input::Pad)i);
                 if (chan.first == NoteLaneCategory::_) continue;
-                auto note = gPlayContext.chartObj[PLAYER_SLOT_1P]->incomingNoteOfLane(chan.first, chan.second);
+                auto note = gPlayContext.chartObj[PLAYER_SLOT_1P]->incomingNote(chan.first, chan.second);
                 if (note->time - t > MIN_REMAP_INTERVAL) continue;
                 _currentKeySample[i] = (size_t)std::get<long long>(note->value);
             }

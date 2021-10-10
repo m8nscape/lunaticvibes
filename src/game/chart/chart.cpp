@@ -58,80 +58,80 @@ void vChart::resetNoteListsIterators()
     _bpmNoteListIter = _bpmNoteList.begin();
 }
 
-auto vChart::firstNoteOfLane(NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteLists.front().begin())
+auto vChart::firstNote(NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteLists.front().begin())
 {
     size_t channel = channelToIdx(cat, idx);
     return _noteLists[channel].begin();
 }
 
-auto vChart::incomingNoteOfLane(NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteListIterators.front())
+auto vChart::incomingNote(NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteListIterators.front())
 {
     size_t channel = channelToIdx(cat, idx);
     return _noteListIterators[channel];
 }
 
-auto vChart::incomingNoteOfBgmLane(size_t channel) -> decltype(_bgmNoteListIters.front())
+auto vChart::incomingNoteBgm(size_t channel) -> decltype(_bgmNoteListIters.front())
 {
     return _bgmNoteListIters[channel];
 }
-auto vChart::incomingNoteOfSpecialLane(size_t channel) -> decltype(_specialNoteListIters.front())
+auto vChart::incomingNoteSpecial(size_t channel) -> decltype(_specialNoteListIters.front())
 {
     return _specialNoteListIters[channel];
 }
-auto vChart::incomingNoteOfBpmLane() -> decltype(_bpmNoteListIter)
+auto vChart::incomingNoteBpm() -> decltype(_bpmNoteListIter)
 {
     return _bpmNoteListIter;
 }
-bool vChart::isLastNoteOfLane(NoteLaneCategory cat, NoteLaneIndex idx, decltype(_noteListIterators.front()) it)
+bool vChart::isLastNote(NoteLaneCategory cat, NoteLaneIndex idx, decltype(_noteListIterators.front()) it)
 {
     size_t channel = channelToIdx(cat, idx);
     return _noteLists[channel].empty() || it == _noteLists[channel].end();
 }
-bool vChart::isLastNoteOfBgmLane(size_t idx, decltype(_bgmNoteListIters.front()) it)
+bool vChart::isLastNoteBgm(size_t idx, decltype(_bgmNoteListIters.front()) it)
 {
     return _bgmNoteLists[idx].empty() || it == _bgmNoteLists[idx].end();
 }
-bool vChart::isLastNoteOfSpecialLane(size_t idx, decltype(_specialNoteListIters.front()) it)
+bool vChart::isLastNoteSpecial(size_t idx, decltype(_specialNoteListIters.front()) it)
 {
     return _specialNoteLists[idx].empty() || it == _specialNoteLists[idx].end(); 
 }
-bool vChart::isLastNoteOfBpmLane(decltype(_bpmNoteListIter) it)
+bool vChart::isLastNoteBpm(decltype(_bpmNoteListIter) it)
 {
 	return _bpmNoteList.empty() || it == _bpmNoteList.end(); 
 }
 
-bool vChart::isLastNoteOfLane(NoteLaneCategory cat, NoteLaneIndex idx)
+bool vChart::isLastNote(NoteLaneCategory cat, NoteLaneIndex idx)
 {
-	return isLastNoteOfLane(cat, idx, incomingNoteOfLane(cat, idx));
+	return isLastNote(cat, idx, incomingNote(cat, idx));
 }
-bool vChart::isLastNoteOfBgmLane(size_t channel)
+bool vChart::isLastNoteBgm(size_t channel)
 {
-	return isLastNoteOfBgmLane(channel, incomingNoteOfBgmLane(channel));
+	return isLastNoteBgm(channel, incomingNoteBgm(channel));
 }
-bool vChart::isLastNoteOfSpecialLane(size_t channel)
+bool vChart::isLastNoteSpecial(size_t channel)
 {
-	return isLastNoteOfSpecialLane(channel, incomingNoteOfSpecialLane(channel));
+	return isLastNoteSpecial(channel, incomingNoteSpecial(channel));
 }
-bool vChart::isLastNoteOfBpmLane()
+bool vChart::isLastNoteBpm()
 {
-	return isLastNoteOfBpmLane(incomingNoteOfBpmLane());
+	return isLastNoteBpm(incomingNoteBpm());
 }
 
-auto vChart::nextNoteOfLane(NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteListIterators.front())
+auto vChart::nextNote(NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteListIterators.front())
 {
     size_t channel = channelToIdx(cat, idx);
     return ++_noteListIterators[channel];
 }
 
-auto vChart::nextNoteOfBgmLane(size_t channel) -> decltype(_bgmNoteListIters.front())
+auto vChart::nextNoteBgm(size_t channel) -> decltype(_bgmNoteListIters.front())
 {
     return ++_bgmNoteListIters[channel];
 }
-auto vChart::nextNoteOfSpecialLane(size_t channel) -> decltype(_specialNoteListIters.front())
+auto vChart::nextNoteSpecial(size_t channel) -> decltype(_specialNoteListIters.front())
 {
     return ++_specialNoteListIters[channel];
 }
-auto vChart::nextNoteOfBpmLane() -> decltype(_bpmNoteListIter)
+auto vChart::nextNoteBpm() -> decltype(_bpmNoteListIter)
 {
     return ++_bpmNoteListIter;
 }
@@ -197,26 +197,26 @@ void vChart::update(Time t)
     }
 
     // check inbounds BPM change
-    auto b = incomingNoteOfBpmLane();
-    while (!isLastNoteOfBpmLane(b) && t >= b->time)
+    auto b = incomingNoteBpm();
+    while (!isLastNoteBpm(b) && t >= b->time)
     {
         //_currentBeat = b->totalbeat - getCurrentMeasureBeat();
         _currentBPM = std::get<BPM>(b->value);
 		beatLength = Time::singleBeatLengthFromBPM(_currentBPM);
         _lastChangedBPMTime = b->time - _barTimestamp[_currentBar];
         _lastChangedBeat = b->totalbeat - _barBeatstamp[_currentBar];
-        b = nextNoteOfBpmLane();
+        b = nextNoteBpm();
     }
 
     // Skip expired notes
     for (NoteLaneCategory cat = NoteLaneCategory::Note; (size_t)cat < (size_t)NoteLaneCategory::NOTECATEGORY_COUNT; ++*((size_t*)&cat))
         for (NoteLaneIndex idx = Sc1; idx < NOTELANEINDEX_COUNT; ++*((size_t*)&idx))
         {
-            auto it = incomingNoteOfLane(cat, idx);
-            while (!isLastNoteOfLane(cat, idx, it) && t >= it->time && it->hit)
+            auto it = incomingNote(cat, idx);
+            while (!isLastNote(cat, idx, it) && t >= it->time && it->hit)
             {
                 noteExpired.push_back(*it);
-                it = nextNoteOfLane(cat, idx);
+                it = nextNote(cat, idx);
             }
         } 
 
@@ -224,32 +224,32 @@ void vChart::update(Time t)
     {
         NoteLaneCategory cat = NoteLaneCategory::EXTRA;
         NoteLaneIndex idx = (NoteLaneIndex)EXTRA_BARLINE;
-        auto it = incomingNoteOfLane(cat, idx);
-        while (!isLastNoteOfLane(cat, idx, it) && t >= it->time)
+        auto it = incomingNote(cat, idx);
+        while (!isLastNote(cat, idx, it) && t >= it->time)
         {
             it->hit = true;
-            it = nextNoteOfLane(cat, idx);
+            it = nextNote(cat, idx);
         }
     }
 
     // Skip expired plain note
     for (size_t idx = 0; idx < _bgmNoteLists.size(); ++idx)
     {
-        auto it = incomingNoteOfBgmLane(idx);
-        while (!isLastNoteOfBgmLane(idx) && t >= it->time)
+        auto it = incomingNoteBgm(idx);
+        while (!isLastNoteBgm(idx) && t >= it->time)
         {
             noteBgmExpired.push_back(*it);
-            it = nextNoteOfBgmLane(idx);
+            it = nextNoteBgm(idx);
         }
     } 
     // Skip expired extended note
     for (size_t idx = 0; idx < _specialNoteLists.size(); ++idx)
     {
-        auto it = incomingNoteOfSpecialLane(idx);
-        while (!isLastNoteOfSpecialLane(idx) && t >= it->time)
+        auto it = incomingNoteSpecial(idx);
+        while (!isLastNoteSpecial(idx) && t >= it->time)
         {
             noteSpecialExpired.push_back(*it);
-            it = nextNoteOfSpecialLane(idx);
+            it = nextNoteSpecial(idx);
         }
     }
 
