@@ -595,6 +595,11 @@ void SceneSelect::updateSelect()
 {
     auto t = Time();
     auto rt = t - gTimers.get(eTimer::SCENE_START);
+    if (t.norm() - scrollTimestamp >= gSelectContext.scrollTime)
+    {
+        if (!isHoldingUp && !isHoldingDown)
+            scrollTimestamp = -1;
+    }
 }
 
 void SceneSelect::updateSearch()
@@ -754,17 +759,23 @@ void SceneSelect::inputGamePress(InputMask& m, Time t)
                 if ((input & INPUT_MASK_CANCEL).any())
                     _navigateBack(t);
             }
-            if ((input & INPUT_MASK_NAV_UP).any() && t.norm() - scrollTimestamp >= gSelectContext.scrollTime)
+            if ((input & INPUT_MASK_NAV_UP).any())
             {
-                scrollTimestamp = t.norm();
                 isHoldingUp = true;
-                _navigateUpBy1(t);
+                if (scrollTimestamp == -1)
+                {
+                    scrollTimestamp = t.norm();
+                    _navigateUpBy1(t);
+                }
             }
-            if ((input & INPUT_MASK_NAV_DN).any() && t.norm() - scrollTimestamp >= gSelectContext.scrollTime)
+            if ((input & INPUT_MASK_NAV_DN).any())
             {
-                scrollTimestamp = t.norm();
                 isHoldingDown = true;
-                _navigateDownBy1(t);
+                if (scrollTimestamp == -1)
+                {
+                    scrollTimestamp = t.norm();
+                    _navigateDownBy1(t);
+                }
             }
 
             break;

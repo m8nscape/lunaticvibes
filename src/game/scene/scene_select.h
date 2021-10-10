@@ -33,7 +33,7 @@ private:
     InputMask _inputAvailable;
     
     // navigate input
-    long long scrollTimestamp;
+    long long scrollTimestamp = -1;
     bool isHoldingUp = false;
     bool isHoldingDown = false;
 
