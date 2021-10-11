@@ -6,7 +6,6 @@
 #include "scene_context.h"
 #include "common/chartformat/chartformat.h"
 #include "game/chart/chart.h"
-#include "game/ruleset/ruleset_classic.h"
 
 enum class ePlayMode
 {
@@ -36,7 +35,6 @@ private:
 private:
     ePlayMode _mode;
     std::vector<size_t> _currentKeySample;
-    std::array <rc::gauge_ty, MAX_PLAYERS> _gaugetype{ rc::gauge_ty::GROOVE };
 
 private:
     bool _isHoldingStart = false;
@@ -54,6 +52,9 @@ public:
 			_loadChartFuture.wait();
 		loopEnd(); 
 	}
+
+protected:
+    void setTempInitialHealthBMS();
 
 private:
     std::array<size_t, 128> _bgmSampleIdxBuf{};

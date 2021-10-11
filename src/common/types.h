@@ -67,7 +67,12 @@ enum class eModGauge : uint8_t
     PATTACK,
     GATTACK,
     ASSISTEASY,
+
+    GRADE_NORMAL,
+    GRADE_DEATH, // ?
+
     EXHARD,
+    GRADE_EX,
 };
 
 inline const uint8_t PLAY_MOD_ASSIST_AUTO67     = 1 << 0; // 5keys

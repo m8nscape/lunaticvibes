@@ -82,7 +82,7 @@ struct PlayContextParams
 
     // TODO FLIP
 
-    eRuleset rulesetType = eRuleset::CLASSIC;
+    eRuleset rulesetType = eRuleset::BMS;
     std::array<std::shared_ptr<vRuleset>, MAX_PLAYERS> ruleset;
 
     Time remainTime;

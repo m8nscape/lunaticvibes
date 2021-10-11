@@ -5,24 +5,24 @@
 const char* CREATE_CHART_CLASSIC_TABLE_STR =
 "CREATE TABLE IF NOT EXISTS chart_classic(  \
 md5     TEXT     PRIMARY KEY UNIQUE NOT NULL,   \
-notes   INTEGER                 NOT NULL,   \
-score   INTEGER                 NOT NULL,   \
-rate    REAL                    NOT NULL,   \
-r1      INTEGER                 NOT NULL DEFAULT 0,   \
-r2      INTEGER                 NOT NULL DEFAULT 0,   \
-r3      INTEGER                 NOT NULL DEFAULT 0,   \
-r4      INTEGER                 NOT NULL DEFAULT 0,   \
-r5      REAL                    NOT NULL DEFAULT 0,   \
-r6      REAL                    NOT NULL DEFAULT 0,   \
-exscore INTEGER                 NOT NULL,   \
-lamp    INTEGER                 NOT NULL,   \
-pgreat  INTEGER                 NOT NULL,   \
-great   INTEGER                 NOT NULL,   \
-good    INTEGER                 NOT NULL,   \
-bad     INTEGER                 NOT NULL,   \
-bpoor   INTEGER                 NOT NULL,   \
-miss    INTEGER                 NOT NULL,   \
-bp      INTEGER                 NOT NULL    \
+notes   INTEGER  NOT NULL,   \
+score   INTEGER  NOT NULL,   \
+rate    REAL     NOT NULL,   \
+r1      INTEGER  NOT NULL DEFAULT 0,   \
+r2      INTEGER  NOT NULL DEFAULT 0,   \
+r3      INTEGER  NOT NULL DEFAULT 0,   \
+r4      INTEGER  NOT NULL DEFAULT 0,   \
+r5      REAL     NOT NULL DEFAULT 0,   \
+r6      REAL     NOT NULL DEFAULT 0,   \
+exscore INTEGER  NOT NULL,   \
+lamp    INTEGER  NOT NULL,   \
+pgreat  INTEGER  NOT NULL,   \
+great   INTEGER  NOT NULL,   \
+good    INTEGER  NOT NULL,   \
+bad     INTEGER  NOT NULL,   \
+bpoor   INTEGER  NOT NULL,   \
+miss    INTEGER  NOT NULL,   \
+bp      INTEGER  NOT NULL    \
 )";
 
 
