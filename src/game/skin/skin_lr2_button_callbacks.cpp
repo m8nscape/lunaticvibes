@@ -114,7 +114,7 @@ void number_change(eNumber type, int plus)
 {
     gNumbers.set(type, gNumbers.get(type) + plus);
 
-    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
 }
 
 void number_change_clamp(eNumber type, int min, int max, int plus)
@@ -122,7 +122,7 @@ void number_change_clamp(eNumber type, int min, int max, int plus)
     int val = std::clamp(gNumbers.get(type) + plus, min, max);
     gNumbers.set(type, val);
 
-    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
 }
 
 #pragma region end
@@ -146,7 +146,7 @@ void panel_switch(int idx, int plus)
             gSwitches.set(p, false);
             gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_START) - 1 + i), TIMER_NEVER);
             gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_END) - 1 + i), t.norm());
-            SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CLOSE));
+            SoundMgr::playSample(eSoundSample::SOUND_O_CLOSE);
         }
     }
 
@@ -156,7 +156,7 @@ void panel_switch(int idx, int plus)
         gSwitches.set(panel, false);
         gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_START) - 1 + idx), TIMER_NEVER);
         gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_END) - 1 + idx), t.norm());
-        SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CLOSE));
+        SoundMgr::playSample(eSoundSample::SOUND_O_CLOSE);
     }
     else
     {
@@ -164,7 +164,7 @@ void panel_switch(int idx, int plus)
         gSwitches.set(panel, true);
         gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_START) - 1 + idx), t.norm());
         gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_END) - 1 + idx), TIMER_NEVER);
-        SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_OPEN));
+        SoundMgr::playSample(eSoundSample::SOUND_O_OPEN);
     }
 }
 
@@ -352,7 +352,7 @@ void gauge_type(int player, int plus)
     default: break;
     }
 
-    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
 }
 
 // 42, 43
@@ -382,7 +382,7 @@ void random_type(int player, int plus)
     default: break;
     }
 
-    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
 }
 
 // 44, 45
@@ -403,21 +403,21 @@ void autoscr(int player, int plus)
     gSwitches.set(sw, !val);
     gTexts.set(tx, (!val) ? "AUTO-SCR" : "NONE");
 
-    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
 }
 
 // 46
 void shutter(int plus)
 {
 
-    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
 }
 
 // 54
 void flip(int plus)
 {
 
-    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
 }
 
 // 55
@@ -451,14 +451,14 @@ void hs_fix(int plus)
         break;
     }
 
-    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
 }
 
 // 56
 void battle(int plus)
 {
 
-    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
 }
 
 // 57, 58
@@ -488,7 +488,7 @@ void score_graph(int plus)
         gSwitches.set(eSwitch::SYSTEM_SCOREGRAPH, true);
     }
 
-    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
 }
 
 // 71
@@ -517,7 +517,7 @@ void ghost_type(int plus)
         break;
     }
 
-    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
 }
 
 // 72
@@ -542,21 +542,21 @@ void bga(int plus)
         break;
     }
 
-    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
 }
 
 // 73
 void bga_size(int plus)
 {
 
-    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
 }
 
 // 75
 void judge_auto_adjust(int plus)
 {
 
-    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
 
 }
 
@@ -564,7 +564,7 @@ void judge_auto_adjust(int plus)
 void target_type(int plus)
 {
 
-    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
 }
 
 // 80
@@ -590,25 +590,25 @@ void window_mode(int plus)
         break;
     }
 
-    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
 }
 
 // 82
 void vsync(int plus)
 {
-    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
 }
 
 // 83
 void save_replay_type(int plus)
 {
-    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
 }
 
 // 90
 void favorite_ignore(int plus)
 {
-    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CHANGE));
+    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
 }
 
 // 91 - 96
@@ -616,7 +616,7 @@ void difficulty(int diff, int plus)
 {
     gOptions.set(eOption::SELECT_FILTER_DIFF, diff);
     // TODO refresh song list
-    SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_DIFFICULTY));
+    SoundMgr::playSample(eSoundSample::SOUND_DIFFICULTY);
 }
 
 #pragma region end

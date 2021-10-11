@@ -25,7 +25,7 @@ add_library(game STATIC
     input/input_mgr.cpp
     input/input_windows.cpp
     input/input_wrapper.cpp
-    ruleset/ruleset_classic.cpp
+    ruleset/ruleset_bms.cpp
     scene/scene.cpp
     scene/scene_context.cpp
     scene/scene_decide.cpp

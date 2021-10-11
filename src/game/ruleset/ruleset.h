@@ -8,7 +8,7 @@
 enum class eRuleset
 {
     SOUND_ONLY,
-    CLASSIC,
+    BMS,
 };
 
 class vRuleset

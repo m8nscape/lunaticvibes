@@ -4,7 +4,7 @@
 #include "scene_play.h"
 #include "scene_context.h"
 #include "game/sound/sound_mgr.h"
-#include "game/ruleset/ruleset_classic.h"
+#include "game/ruleset/ruleset_bms.h"
 #include "common/chartformat/chartformat_bms.h"
 #include "game/chart/chart_bms.h"
 #include "game/graphics/sprite_video.h"
@@ -18,7 +18,7 @@ struct InputTimerSwitchMap{
     eSwitch sw;
 };
 
-static const InputTimerSwitchMap InputGamePressMap[] =
+static const InputTimerSwitchMap InputGamePressMapSingle[] =
 {
     { eTimer::S1L_DOWN, eSwitch::S1L_DOWN },
     { eTimer::S1R_DOWN, eSwitch::S1R_DOWN },
@@ -35,8 +35,8 @@ static const InputTimerSwitchMap InputGamePressMap[] =
     { eTimer::K1SELECT_DOWN, eSwitch::K1SELECT_DOWN },
     { eTimer::K1SPDUP_DOWN, eSwitch::K1SPDUP_DOWN },
     { eTimer::K1SPDDN_DOWN, eSwitch::K1SPDDN_DOWN },
-    { eTimer::S2L_DOWN, eSwitch::S2L_DOWN },
-    { eTimer::S2R_DOWN, eSwitch::S2R_DOWN },
+    { eTimer::S2L_DOWN, eSwitch::S1L_DOWN },
+    { eTimer::S2R_DOWN, eSwitch::S1R_DOWN },
     { eTimer::K21_DOWN, eSwitch::K11_DOWN },
     { eTimer::K22_DOWN, eSwitch::K12_DOWN },
     { eTimer::K23_DOWN, eSwitch::K13_DOWN },
@@ -52,7 +52,7 @@ static const InputTimerSwitchMap InputGamePressMap[] =
     { eTimer::K2SPDDN_DOWN, eSwitch::K1SPDDN_DOWN },
 };
 
-static const InputTimerSwitchMap InputGameReleaseMap[] =
+static const InputTimerSwitchMap InputGameReleaseMapSingle[] =
 {
     { eTimer::S1L_UP, eSwitch::S1L_DOWN },
     { eTimer::S1R_UP, eSwitch::S1R_DOWN },
@@ -69,8 +69,8 @@ static const InputTimerSwitchMap InputGameReleaseMap[] =
     { eTimer::K1SELECT_UP, eSwitch::K1SELECT_DOWN },
     { eTimer::K1SPDUP_UP, eSwitch::K1SPDUP_DOWN },
     { eTimer::K1SPDDN_UP, eSwitch::K1SPDDN_DOWN },
-    { eTimer::S2L_UP, eSwitch::S2L_DOWN },
-    { eTimer::S2R_UP, eSwitch::S2R_DOWN },
+    { eTimer::S2L_UP, eSwitch::S1L_DOWN },
+    { eTimer::S2R_UP, eSwitch::S1R_DOWN },
     { eTimer::K21_UP, eSwitch::K11_DOWN },
     { eTimer::K22_UP, eSwitch::K12_DOWN },
     { eTimer::K23_UP, eSwitch::K13_DOWN },
@@ -86,7 +86,7 @@ static const InputTimerSwitchMap InputGameReleaseMap[] =
     { eTimer::K2SPDDN_UP, eSwitch::K1SPDDN_DOWN },
 };
 
-static const InputTimerSwitchMap InputGamePressMap2[] =
+static const InputTimerSwitchMap InputGamePressMapBattle[] =
 {
     { eTimer::S1L_DOWN, eSwitch::S1L_DOWN },
     { eTimer::S1R_DOWN, eSwitch::S1R_DOWN },
@@ -120,7 +120,7 @@ static const InputTimerSwitchMap InputGamePressMap2[] =
     { eTimer::K2SPDDN_DOWN, eSwitch::K2SPDDN_DOWN },
 };
 
-static const InputTimerSwitchMap InputGameReleaseMap2[] =
+static const InputTimerSwitchMap InputGameReleaseMapBattle[] =
 {
     { eTimer::S1L_UP, eSwitch::S1L_DOWN },
     { eTimer::S1R_UP, eSwitch::S1R_DOWN },
@@ -192,21 +192,7 @@ ScenePlay::ScenePlay(ePlayMode gamemode): vScene(gPlayContext.mode, 1000, true),
         {
         case eChartFormat::BMS:
         case eChartFormat::BMSON:
-            for (size_t i = 0; i < MAX_PLAYERS; ++i)
-            {
-                switch (gPlayContext.mods[i].gauge)
-                {
-                case eModGauge::NORMAL:     _gaugetype[i] = rc::gauge_ty::GROOVE; break;
-                case eModGauge::HARD:       _gaugetype[i] = rc::gauge_ty::HARD; break;
-                case eModGauge::EASY:       _gaugetype[i] = rc::gauge_ty::EASY; break;
-                case eModGauge::DEATH:      _gaugetype[i] = rc::gauge_ty::DEATH; break;
-                case eModGauge::PATTACK:    _gaugetype[i] = rc::gauge_ty::P_ATK; break;
-                case eModGauge::GATTACK:    _gaugetype[i] = rc::gauge_ty::G_ATK; break;
-                case eModGauge::ASSISTEASY: _gaugetype[i] = rc::gauge_ty::ASSIST; break;
-                case eModGauge::EXHARD:     _gaugetype[i] = rc::gauge_ty::EXHARD; break;
-                default: break;
-                }
-            }
+            setTempInitialHealthBMS();
             break;
         default:
             break;
@@ -247,88 +233,6 @@ ScenePlay::ScenePlay(ePlayMode gamemode): vScene(gPlayContext.mode, 1000, true),
         }
     }
 
-    if (!gPlayContext.isCourse || gPlayContext.isCourseFirstStage)
-    {
-        if (_mode == ePlayMode::LOCAL_BATTLE)
-        {
-            switch (_gaugetype[PLAYER_SLOT_1P])
-            {
-            case rc::gauge_ty::GROOVE: 
-            case rc::gauge_ty::EASY:
-            case rc::gauge_ty::ASSIST:
-                gPlayContext.initialHealth[PLAYER_SLOT_1P] = 0.2;
-                gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, 20);
-                break;
-
-            case rc::gauge_ty::HARD: 
-            case rc::gauge_ty::DEATH:
-            case rc::gauge_ty::P_ATK:
-            case rc::gauge_ty::G_ATK:
-            case rc::gauge_ty::EXHARD:
-                gPlayContext.initialHealth[PLAYER_SLOT_1P] = 1.0;
-                gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, 100);
-                break;
-
-            default: break;
-            }
-
-            switch (_gaugetype[PLAYER_SLOT_2P])
-            {
-            case rc::gauge_ty::GROOVE: 
-            case rc::gauge_ty::EASY:
-            case rc::gauge_ty::ASSIST:
-                gPlayContext.initialHealth[PLAYER_SLOT_2P] = 0.2;
-                gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, 20);
-                break;
-
-            case rc::gauge_ty::HARD: 
-            case rc::gauge_ty::DEATH:
-            case rc::gauge_ty::P_ATK:
-            case rc::gauge_ty::G_ATK:
-            case rc::gauge_ty::EXHARD:
-                gPlayContext.initialHealth[PLAYER_SLOT_2P] = 1.0;
-                gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, 100);
-                break;
-
-            default: break;
-            }
-        }
-        else
-        {
-            switch (_gaugetype[PLAYER_SLOT_1P])
-            {
-            case rc::gauge_ty::GROOVE:
-            case rc::gauge_ty::EASY:
-            case rc::gauge_ty::ASSIST:
-                gPlayContext.initialHealth[PLAYER_SLOT_1P] = 0.2; 
-                gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, 20);
-                break;
-
-            case rc::gauge_ty::HARD:
-            case rc::gauge_ty::DEATH:
-            case rc::gauge_ty::P_ATK:
-            case rc::gauge_ty::G_ATK:
-            case rc::gauge_ty::EXHARD:
-                gPlayContext.initialHealth[PLAYER_SLOT_1P] = 1.0; 
-                gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, 100);
-
-            default: break;
-            }
-        }
-    }
-    else
-    {
-        if (_mode == ePlayMode::LOCAL_BATTLE)
-        {
-            gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, (int)gPlayContext.initialHealth[0]);
-            gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, (int)gPlayContext.initialHealth[1]);
-        }
-        else
-        {
-            gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, (int)gPlayContext.initialHealth[0]);
-        }
-    }
-
     using namespace std::placeholders;
     _input.register_p("SCENE_PRESS", std::bind(&ScenePlay::inputGamePress, this, _1, _2));
     _input.register_h("SCENE_HOLD", std::bind(&ScenePlay::inputGameHold, this, _1, _2));
@@ -337,6 +241,68 @@ ScenePlay::ScenePlay(ePlayMode gamemode): vScene(gPlayContext.mode, 1000, true),
     loopStart();
     _input.loopStart();
 }
+
+void ScenePlay::setTempInitialHealthBMS()
+{
+    if (!gPlayContext.isCourse || gPlayContext.isCourseFirstStage)
+    {
+        switch (gPlayContext.mods[PLAYER_SLOT_1P].gauge)
+        {
+        case eModGauge::NORMAL:
+        case eModGauge::EASY:
+        case eModGauge::ASSISTEASY:
+            gPlayContext.initialHealth[PLAYER_SLOT_1P] = 0.2;
+            gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, 20);
+            break;
+
+        case eModGauge::HARD:
+        case eModGauge::DEATH:
+        case eModGauge::PATTACK:
+        case eModGauge::GATTACK:
+        case eModGauge::EXHARD:
+            gPlayContext.initialHealth[PLAYER_SLOT_1P] = 1.0;
+            gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, 100);
+            break;
+
+        default: break;
+        }
+
+        if (_mode == ePlayMode::LOCAL_BATTLE)
+        {
+            switch (gPlayContext.mods[PLAYER_SLOT_2P].gauge)
+            {
+            case eModGauge::NORMAL:
+            case eModGauge::EASY:
+            case eModGauge::ASSISTEASY:
+                gPlayContext.initialHealth[PLAYER_SLOT_2P] = 0.2;
+                gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, 20);
+                break;
+
+            case eModGauge::HARD:
+            case eModGauge::DEATH:
+            case eModGauge::PATTACK:
+            case eModGauge::GATTACK:
+            case eModGauge::EXHARD:
+                gPlayContext.initialHealth[PLAYER_SLOT_2P] = 1.0;
+                gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, 100);
+                break;
+
+            default: break;
+            }
+        }
+    }
+    else
+    {
+        gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, (int)gPlayContext.initialHealth[0]);
+
+        if (_mode == ePlayMode::LOCAL_BATTLE)
+        {
+            gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, (int)gPlayContext.initialHealth[1]);
+        }
+    }
+
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void ScenePlay::loadChart()
@@ -358,19 +324,6 @@ void ScenePlay::loadChart()
         return;
     }
 
-    switch (gChartContext.chartObj->type())
-    {
-    case eChartFormat::BMS:
-    {
-        auto bms = std::reinterpret_pointer_cast<BMS>(gChartContext.chartObj);
-        // TODO mods
-        break;
-    }
-
-    default:
-        break;
-    }
-
     gChartContext.title = gChartContext.chartObj->title;
     gChartContext.title2 = gChartContext.chartObj->title2;
     gChartContext.artist = gChartContext.chartObj->artist;
@@ -384,19 +337,24 @@ void ScenePlay::loadChart()
     switch (gChartContext.chartObj->type())
     {
     case eChartFormat::BMS:
+    {
+        auto bms = std::reinterpret_pointer_cast<BMS>(gChartContext.chartObj);
+        // TODO mods
+
         if (_mode == ePlayMode::LOCAL_BATTLE)
         {
-            gPlayContext.chartObj[0] = std::make_shared<chartBMS>(std::reinterpret_pointer_cast<BMS>(gChartContext.chartObj));
-            gPlayContext.chartObj[1] = std::make_shared<chartBMS>(std::reinterpret_pointer_cast<BMS>(gChartContext.chartObj));
+            gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<chartBMS>(bms);
+            gPlayContext.chartObj[PLAYER_SLOT_2P] = std::make_shared<chartBMS>(bms);
         }
         else
         {
-            gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<chartBMS>(std::reinterpret_pointer_cast<BMS>(gChartContext.chartObj));
+            gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<chartBMS>(bms);
         }
         _chartLoaded = true;
         gNumbers.set(eNumber::PLAY_REMAIN_MIN, int(gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() / 1000 / 60));
         gNumbers.set(eNumber::PLAY_REMAIN_SEC, int(gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() / 1000 % 60));
         break;
+    }
 
     case eChartFormat::BMSON:
     default:
@@ -409,23 +367,23 @@ void ScenePlay::loadChart()
     // build Ruleset object
     switch (gPlayContext.rulesetType)
     {
-    case eRuleset::CLASSIC:
+    case eRuleset::BMS:
     {
         // set judge diff
-        rc::judgeDiff judgediff = rc::judgeDiff::NORMAL;
+        RulesetBMS::JudgeDifficulty judgeDiff;
         switch (gChartContext.chartObj->type())
         {
         case eChartFormat::BMS:
             switch (std::reinterpret_pointer_cast<BMS>(gChartContext.chartObj)->rank)
             {
-            case 0: judgediff = rc::judgeDiff::VERYHARD; break;
-            case 1: judgediff = rc::judgeDiff::HARD; break;
-            case 2: judgediff = rc::judgeDiff::NORMAL; break;
-            case 3: judgediff = rc::judgeDiff::EASY; break;
-            case 4: judgediff = rc::judgeDiff::VERYEASY; break;
-            case 5: break;
-            case 6: judgediff = rc::judgeDiff::WHAT; break;
-            default: break;
+            case 1: judgeDiff = RulesetBMS::JudgeDifficulty::HARD; break;
+            case 2: judgeDiff = RulesetBMS::JudgeDifficulty::NORMAL; break;
+            case 3: judgeDiff = RulesetBMS::JudgeDifficulty::EASY; break;
+            case 4: judgeDiff = RulesetBMS::JudgeDifficulty::VERYEASY; break;
+            case 6: judgeDiff = RulesetBMS::JudgeDifficulty::WHAT; break;
+            case 0: 
+            default:
+                judgeDiff = RulesetBMS::JudgeDifficulty::VERYHARD; break;
             }
         case eChartFormat::BMSON:
         default: 
@@ -433,30 +391,45 @@ void ScenePlay::loadChart()
 			break;
         }
 
-        if (gPlayContext.mode == eMode::PLAY14)
+        unsigned keys = 7;
+        switch (gPlayContext.mode)
         {
-            gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetClassic>(
-                gChartContext.chartObj,
-                gPlayContext.chartObj[PLAYER_SLOT_1P], judgediff, 
-                _gaugetype[PLAYER_SLOT_1P], gPlayContext.initialHealth[PLAYER_SLOT_1P], rc::mode::DP);
+        case eMode::PLAY5: 
+        case eMode::PLAY5_2: keys = 5; break;
+        case eMode::PLAY7:
+        case eMode::PLAY7_2: keys = 7; break;
+        case eMode::PLAY9:
+        case eMode::PLAY9_2: keys = 9; break;
+        case eMode::PLAY10: keys = 10; break;
+        case eMode::PLAY14: keys = 14; break;
+        defualt: break;
+        }
+
+        if (keys == 10 || keys == 14)
+        {
+            gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetBMS>(
+                gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_1P],
+                gPlayContext.mods[PLAYER_SLOT_1P].gauge, keys, judgeDiff, 
+                gPlayContext.initialHealth[PLAYER_SLOT_1P], RulesetBMS::PlaySide::DP);
         }
         else if (_mode == ePlayMode::LOCAL_BATTLE)
         {
-            gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetClassic>(
-                gChartContext.chartObj,
-                gPlayContext.chartObj[PLAYER_SLOT_1P], judgediff,
-                _gaugetype[PLAYER_SLOT_1P], gPlayContext.initialHealth[PLAYER_SLOT_1P], rc::mode::BATTLE_1P);
-            gPlayContext.ruleset[PLAYER_SLOT_2P] = std::make_shared<RulesetClassic>(
-                gChartContext.chartObj,
-                gPlayContext.chartObj[PLAYER_SLOT_2P], judgediff,
-                _gaugetype[PLAYER_SLOT_2P], gPlayContext.initialHealth[PLAYER_SLOT_2P], rc::mode::BATTLE_2P);
+            gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetBMS>(
+                gChartContext.chartObj,  gPlayContext.chartObj[PLAYER_SLOT_1P],
+                gPlayContext.mods[PLAYER_SLOT_1P].gauge, keys, judgeDiff,
+                gPlayContext.initialHealth[PLAYER_SLOT_1P], RulesetBMS::PlaySide::BATTLE_1P);
+
+            gPlayContext.ruleset[PLAYER_SLOT_2P] = std::make_shared<RulesetBMS>(
+                gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_2P],
+                gPlayContext.mods[PLAYER_SLOT_2P].gauge, keys, judgeDiff,
+                gPlayContext.initialHealth[PLAYER_SLOT_2P], RulesetBMS::PlaySide::BATTLE_2P);
         }
         else
         {
-            gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetClassic>(
-                gChartContext.chartObj,
-                gPlayContext.chartObj[PLAYER_SLOT_1P], judgediff, 
-                _gaugetype[PLAYER_SLOT_1P], gPlayContext.initialHealth[PLAYER_SLOT_1P], rc::mode::SP);
+            gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetBMS>(
+                gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_1P],
+                gPlayContext.mods[PLAYER_SLOT_1P].gauge, keys, judgeDiff,
+                gPlayContext.initialHealth[PLAYER_SLOT_1P], RulesetBMS::PlaySide::SP);
         }
         _rulesetLoaded = true;
     }
@@ -1094,9 +1067,9 @@ void ScenePlay::inputGamePress(InputMask& m, Time t)
         {
             if (_currentKeySample[i])
                 _keySampleIdxBuf[sampleCount++] = _currentKeySample[i];
-            gTimers.set(InputGamePressMap[i].tm, t.norm());
-            gTimers.set(InputGameReleaseMap[i].tm, TIMER_NEVER);
-            gSwitches.set(InputGamePressMap[i].sw, true);
+            gTimers.set(InputGamePressMapSingle[i].tm, t.norm());
+            gTimers.set(InputGameReleaseMapSingle[i].tm, TIMER_NEVER);
+            gSwitches.set(InputGamePressMapSingle[i].sw, true);
         }
 
     if (input[S1L] || input[S1R])
@@ -1238,9 +1211,9 @@ void ScenePlay::inputGameRelease(InputMask& m, Time t)
     for (size_t i = 0; i < Input::ESC; ++i)
         if (input[i])
         {
-            gTimers.set(InputGamePressMap[i].tm, TIMER_NEVER);
-            gTimers.set(InputGameReleaseMap[i].tm, t.norm());
-            gSwitches.set(InputGameReleaseMap[i].sw, false);
+            gTimers.set(InputGamePressMapSingle[i].tm, TIMER_NEVER);
+            gTimers.set(InputGameReleaseMapSingle[i].tm, t.norm());
+            gSwitches.set(InputGameReleaseMapSingle[i].sw, false);
 
             // TODO stop sample playing while release in LN notes
         }
