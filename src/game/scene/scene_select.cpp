@@ -525,7 +525,7 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
     loopStart();
 
     SoundMgr::stopSamples();
-    SoundMgr::playSample(static_cast<size_t>(eSoundSample::BGM_SELECT));
+    SoundMgr::playSample(eSoundSample::BGM_SELECT);
 }
 
 SceneSelect::~SceneSelect()
@@ -657,7 +657,7 @@ void SceneSelect::inputGamePress(InputMask& m, Time t)
                     gSwitches.set(p, false);
                     gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_START) - 1 + i), TIMER_NEVER);
                     gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_END) - 1 + i), t.norm());
-                    //SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CLOSE));
+                    //SoundMgr::playSample(eSoundSample::SOUND_O_CLOSE);
                 }
             }
 
@@ -665,7 +665,7 @@ void SceneSelect::inputGamePress(InputMask& m, Time t)
             gSwitches.set(eSwitch::SELECT_PANEL1, true);
             gTimers.set(eTimer::PANEL1_START, t.norm());
             gTimers.set(eTimer::PANEL1_END, TIMER_NEVER);
-            SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_OPEN));
+            SoundMgr::playSample(eSoundSample::SOUND_O_OPEN);
         }
 
         // lights
@@ -842,7 +842,7 @@ void SceneSelect::inputGameRelease(InputMask& m, Time t)
             gSwitches.set(eSwitch::SELECT_PANEL1, false);
             gTimers.set(eTimer::PANEL1_START, TIMER_NEVER);
             gTimers.set(eTimer::PANEL1_END, t.norm());
-            SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CLOSE));
+            SoundMgr::playSample(eSoundSample::SOUND_O_CLOSE);
         }
 
         // lights
@@ -1157,7 +1157,7 @@ void SceneSelect::_navigateUpBy1(Time t)
         setEntryInfo();
 
         gTimers.set(eTimer::LIST_MOVE, t.norm());
-        SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_SCRATCH));
+        SoundMgr::playSample(eSoundSample::SOUND_SCRATCH);
     }
     setDynamicTextures();
 }
@@ -1174,7 +1174,7 @@ void SceneSelect::_navigateDownBy1(Time t)
         setEntryInfo();
 
         gTimers.set(eTimer::LIST_MOVE, t.norm());
-        SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_SCRATCH));
+        SoundMgr::playSample(eSoundSample::SOUND_SCRATCH);
     }
     setDynamicTextures();
 }
@@ -1209,7 +1209,7 @@ void SceneSelect::_navigateEnter(Time t)
             setBarInfo();
             setEntryInfo();
 
-            SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_F_OPEN));
+            SoundMgr::playSample(eSoundSample::SOUND_F_OPEN);
             break;
         }
         default:
@@ -1237,7 +1237,7 @@ void SceneSelect::_navigateBack(Time t)
             setBarInfo();
             setEntryInfo();
 
-            SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_F_CLOSE));
+            SoundMgr::playSample(eSoundSample::SOUND_F_CLOSE);
         }
     }
     setDynamicTextures();

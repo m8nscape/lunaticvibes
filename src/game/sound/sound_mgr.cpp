@@ -21,15 +21,15 @@ int SoundMgr::initFMOD()
     return 1;
 }
 
-int SoundMgr::loadKeySample(const Path& path, size_t index)
+int SoundMgr::loadKeySample(const Path& path, size_t sample)
 {
     if (!_inst._initialized) return 1;
-    return _inst.driver->loadKeySample(path, index);
+    return _inst.driver->loadKeySample(path, sample);
 }
-void SoundMgr::playKeySample(size_t count, size_t index[])
+void SoundMgr::playKeySample(size_t count, size_t* samples)
 {
     if (!_inst._initialized) return;
-    return _inst.driver->playKeySample(count, index);
+    return _inst.driver->playKeySample(count, samples);
 }
 void SoundMgr::stopKeySamples()
 {
@@ -41,15 +41,15 @@ void SoundMgr::freeKeySamples()
     if (!_inst._initialized) return;
     return _inst.driver->freeKeySamples();
 }
-int SoundMgr::loadSample(const Path& path, size_t index, bool isStream, bool loop)
+int SoundMgr::loadSample(const Path& path, eSoundSample sample, bool isStream, bool loop)
 {
     if (!_inst._initialized) return 1;
-    return _inst.driver->loadSample(path, index, isStream, loop); 
+    return _inst.driver->loadSample(path, static_cast<size_t>(sample), isStream, loop);
 }
-void SoundMgr::playSample(size_t index)
+void SoundMgr::playSample(eSoundSample sample)
 {
     if (!_inst._initialized) return;
-    return _inst.driver->playSample(index);
+    return _inst.driver->playSample(static_cast<size_t>(sample));
 }
 void SoundMgr::stopSamples()
 {

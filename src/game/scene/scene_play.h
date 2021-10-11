@@ -24,8 +24,6 @@ enum class ePlayState
     FADEOUT,
 };
 
-const size_t SOUND_FAILED_IDX = 63;
-
 class ScenePlay : public vScene
 {
 private:

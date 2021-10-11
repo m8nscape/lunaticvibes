@@ -30,7 +30,7 @@ SceneDecide::SceneDecide() : vScene(eMode::DECIDE, 1000)
     _input.loopStart();
 
     SoundMgr::stopSamples();
-    SoundMgr::playSample(static_cast<size_t>(eSoundSample::BGM_DECIDE));
+    SoundMgr::playSample(eSoundSample::BGM_DECIDE);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

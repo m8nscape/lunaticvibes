@@ -11,6 +11,7 @@
 #include "config/config_mgr.h"
 #include "common/log.h"
 #include "common/sysutil.h"
+#include "game/sound/sound_sample.h"
 
 struct InputTimerSwitchMap{
     eTimer tm;
@@ -798,7 +799,7 @@ void ScenePlay::updatePlaying()
                 _state = ePlayState::FAILED;
                 SoundMgr::stopSamples();
                 SoundMgr::stopKeySamples();
-                SoundMgr::playSample(SOUND_FAILED_IDX);
+                SoundMgr::playSample(eSoundSample::SOUND_PLAYSTOP);
                 for (size_t i = 0; i < gPlayContext.ruleset.size(); ++i)
                 {
                     _input.unregister_p("SCENE_PRESS");
@@ -828,7 +829,7 @@ void ScenePlay::updatePlaying()
                 _state = ePlayState::FAILED;
                 SoundMgr::stopSamples();
                 SoundMgr::stopKeySamples();
-                SoundMgr::playSample(SOUND_FAILED_IDX);
+                SoundMgr::playSample(eSoundSample::SOUND_PLAYSTOP);
                 for (size_t i = 0; i < gPlayContext.ruleset.size(); ++i)
                 {
                     _input.unregister_p("SCENE_PRESS");

@@ -105,9 +105,9 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
 
     SoundMgr::stopSamples();
     if (cleared) 
-        SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_CLEAR));
+        SoundMgr::playSample(eSoundSample::SOUND_CLEAR);
     else
-        SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_FAIL));
+        SoundMgr::playSample(eSoundSample::SOUND_FAIL);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
