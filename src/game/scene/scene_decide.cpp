@@ -7,16 +7,7 @@
 SceneDecide::SceneDecide() : vScene(eMode::DECIDE, 1000)
 {
     _inputAvailable = INPUT_MASK_FUNC;
-
-    if (gPlayContext.chartObj[PLAYER_SLOT_1P] != nullptr)
-    {
-        _inputAvailable |= INPUT_MASK_1P;
-    }
-        
-    if (gPlayContext.chartObj[PLAYER_SLOT_2P] != nullptr)
-    {
-        _inputAvailable |= INPUT_MASK_2P;
-    }
+    _inputAvailable |= INPUT_MASK_1P | INPUT_MASK_2P;
 
     using namespace std::placeholders;
     _input.register_p("SCENE_PRESS", std::bind(&SceneDecide::inputGamePress, this, _1, _2));
@@ -90,7 +81,8 @@ void SceneDecide::inputGamePress(InputMask& m, Time t)
     unsigned rt = (t - gTimers.get(eTimer::SCENE_START)).norm();
     if (rt < _skin->info.timeIntro) return;
 
-    if ((_inputAvailable & m & INPUT_MASK_DECIDE).any() && rt >= _skin->info.timeDecideSkip)
+    auto k = _inputAvailable & m;
+    if ((k & INPUT_MASK_DECIDE).any() && rt >= _skin->info.timeDecideSkip)
     {
         switch (_state)
         {
@@ -106,7 +98,7 @@ void SceneDecide::inputGamePress(InputMask& m, Time t)
         }
     }
 
-    if ((_inputAvailable & m)[Input::ESC])
+    if (k[Input::ESC])
     {
         switch (_state)
         {
@@ -121,18 +113,24 @@ void SceneDecide::inputGamePress(InputMask& m, Time t)
             break;
         }
     }
+
+    if ((k[Input::K1START] && k[Input::K1SELECT]) || (k[Input::K2START] && k[Input::K2SELECT]))
+    {
+        // start hold timer
+    }
 }
 
 // CALLBACK
 void SceneDecide::inputGameHold(InputMask& m, Time t)
 {
-    if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
-
-    if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
+    unsigned rt = (t - gTimers.get(eTimer::SCENE_START)).norm();
+    if (rt < _skin->info.timeIntro) return;
 
     auto k = _inputAvailable & m;
     if ((k[Input::K1START] && k[Input::K1SELECT]) || (k[Input::K2START] && k[Input::K2SELECT]))
     {
+        // check hold timer
+
         switch (_state)
         {
         case eDecideState::START:
@@ -151,5 +149,6 @@ void SceneDecide::inputGameHold(InputMask& m, Time t)
 // CALLBACK
 void SceneDecide::inputGameRelease(InputMask& m, Time t)
 {
-    if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
+    unsigned rt = (t - gTimers.get(eTimer::SCENE_START)).norm();
+    if (rt < _skin->info.timeIntro) return;
 }
