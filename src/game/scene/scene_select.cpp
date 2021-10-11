@@ -655,7 +655,7 @@ void SceneSelect::inputGamePress(InputMask& m, Time t)
                 if (gSwitches.get(p))
                 {
                     gSwitches.set(p, false);
-                    gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_START) - 1 + i), -1);
+                    gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_START) - 1 + i), TIMER_NEVER);
                     gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_END) - 1 + i), t.norm());
                     //SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CLOSE));
                 }
@@ -664,7 +664,7 @@ void SceneSelect::inputGamePress(InputMask& m, Time t)
             // open panel 1
             gSwitches.set(eSwitch::SELECT_PANEL1, true);
             gTimers.set(eTimer::PANEL1_START, t.norm());
-            gTimers.set(eTimer::PANEL1_END, -1);
+            gTimers.set(eTimer::PANEL1_END, TIMER_NEVER);
             SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_OPEN));
         }
 
@@ -674,7 +674,7 @@ void SceneSelect::inputGamePress(InputMask& m, Time t)
             if (input[k])
             {
                 gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_DOWN) + k - Pad::K11), t.norm());
-                gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_UP) + k - Pad::K11), -1);
+                gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_UP) + k - Pad::K11), TIMER_NEVER);
             }
         }
         if (gOptions.get(eOption::PLAY_BATTLE_TYPE) == 1)
@@ -684,7 +684,7 @@ void SceneSelect::inputGamePress(InputMask& m, Time t)
                 if (input[k])
                 {
                     gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K21_DOWN) + k - Pad::K21), t.norm());
-                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K21_UP) + k - Pad::K21), -1);
+                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K21_UP) + k - Pad::K21), TIMER_NEVER);
                 }
             }
         }
@@ -695,7 +695,7 @@ void SceneSelect::inputGamePress(InputMask& m, Time t)
                 if (input[k])
                 {
                     gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_DOWN) + k - Pad::K21), t.norm());
-                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_UP) + k - Pad::K21), -1);
+                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_UP) + k - Pad::K21), TIMER_NEVER);
                 }
             }
         }
@@ -840,7 +840,7 @@ void SceneSelect::inputGameRelease(InputMask& m, Time t)
         {
             // close panel 1
             gSwitches.set(eSwitch::SELECT_PANEL1, false);
-            gTimers.set(eTimer::PANEL1_START, -1);
+            gTimers.set(eTimer::PANEL1_START, TIMER_NEVER);
             gTimers.set(eTimer::PANEL1_END, t.norm());
             SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CLOSE));
         }
@@ -851,7 +851,7 @@ void SceneSelect::inputGameRelease(InputMask& m, Time t)
             if (input[k])
             {
                 gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_UP) + k - Pad::K11), t.norm());
-                gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_DOWN) + k - Pad::K11), -1);
+                gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_DOWN) + k - Pad::K11), TIMER_NEVER);
             }
         }
         if (gOptions.get(eOption::PLAY_BATTLE_TYPE) == 1)
@@ -861,7 +861,7 @@ void SceneSelect::inputGameRelease(InputMask& m, Time t)
                 if (input[k])
                 {
                     gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K21_UP) + k - Pad::K21), t.norm());
-                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K21_DOWN) + k - Pad::K21), -1);
+                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K21_DOWN) + k - Pad::K21), TIMER_NEVER);
                 }
             }
         }
@@ -872,7 +872,7 @@ void SceneSelect::inputGameRelease(InputMask& m, Time t)
                 if (input[k])
                 {
                     gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_UP) + k - Pad::K21), t.norm());
-                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_DOWN) + k - Pad::K21), -1);
+                    gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_DOWN) + k - Pad::K21), TIMER_NEVER);
                 }
             }
         }

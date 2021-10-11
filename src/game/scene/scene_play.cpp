@@ -809,9 +809,9 @@ void ScenePlay::updatePlaying()
             if (_isPlayerFinished[PLAYER_SLOT_1P] ^ gPlayContext.ruleset[PLAYER_SLOT_1P]->isFinished())
             {
                 _isPlayerFinished[PLAYER_SLOT_1P] = true;
-                gTimers.set(PLAYER_SLOT_1P == 0 ? eTimer::PLAY_P1_FINISHED : eTimer::PLAY_P2_FINISHED, t.norm());
+                gTimers.set(eTimer::PLAY_P1_FINISHED, t.norm());
                 if (gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().combo == gPlayContext.chartObj[PLAYER_SLOT_1P]->getNoteCount())
-                    gTimers.set(PLAYER_SLOT_1P == 0 ? eTimer::PLAY_FULLCOMBO_1P : eTimer::PLAY_FULLCOMBO_2P, t.norm());
+                    gTimers.set(eTimer::PLAY_FULLCOMBO_1P, t.norm());
             }
         }
         break;

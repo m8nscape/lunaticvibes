@@ -144,7 +144,7 @@ void panel_switch(int idx, int plus)
         if (gSwitches.get(p))
         {
             gSwitches.set(p, false);
-            gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_START) - 1 + i), -1);
+            gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_START) - 1 + i), TIMER_NEVER);
             gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_END) - 1 + i), t.norm());
             SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CLOSE));
         }
@@ -154,7 +154,7 @@ void panel_switch(int idx, int plus)
     {
         // close panel
         gSwitches.set(panel, false);
-        gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_START) - 1 + idx), -1);
+        gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_START) - 1 + idx), TIMER_NEVER);
         gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_END) - 1 + idx), t.norm());
         SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_CLOSE));
     }
@@ -163,7 +163,7 @@ void panel_switch(int idx, int plus)
         // open panel
         gSwitches.set(panel, true);
         gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_START) - 1 + idx), t.norm());
-        gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_END) - 1 + idx), -1);
+        gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_END) - 1 + idx), TIMER_NEVER);
         SoundMgr::playSample(static_cast<size_t>(eSoundSample::SOUND_O_OPEN));
     }
 }

@@ -7,12 +7,12 @@ using namespace rc;
 
 void setJudgeTimer1PInner(int judge, long long t)
 {
-	gTimers.set(eTimer::_JUDGE_1P_0, -1);
-	gTimers.set(eTimer::_JUDGE_1P_1, -1);
-	gTimers.set(eTimer::_JUDGE_1P_2, -1);
-	gTimers.set(eTimer::_JUDGE_1P_3, -1);
-	gTimers.set(eTimer::_JUDGE_1P_4, -1);
-	gTimers.set(eTimer::_JUDGE_1P_5, -1);
+	gTimers.set(eTimer::_JUDGE_1P_0, TIMER_NEVER);
+	gTimers.set(eTimer::_JUDGE_1P_1, TIMER_NEVER);
+	gTimers.set(eTimer::_JUDGE_1P_2, TIMER_NEVER);
+	gTimers.set(eTimer::_JUDGE_1P_3, TIMER_NEVER);
+	gTimers.set(eTimer::_JUDGE_1P_4, TIMER_NEVER);
+	gTimers.set(eTimer::_JUDGE_1P_5, TIMER_NEVER);
 	switch (judge)
 	{
 	case 0: gTimers.set(eTimer::_JUDGE_1P_0, t); break;
@@ -27,12 +27,12 @@ void setJudgeTimer1PInner(int judge, long long t)
 
 void setJudgeTimer2PInner(int judge, long long t)
 {
-	gTimers.set(eTimer::_JUDGE_2P_0, -1);
-	gTimers.set(eTimer::_JUDGE_2P_1, -1);
-	gTimers.set(eTimer::_JUDGE_2P_2, -1);
-	gTimers.set(eTimer::_JUDGE_2P_3, -1);
-	gTimers.set(eTimer::_JUDGE_2P_4, -1);
-	gTimers.set(eTimer::_JUDGE_2P_5, -1);
+	gTimers.set(eTimer::_JUDGE_2P_0, TIMER_NEVER);
+	gTimers.set(eTimer::_JUDGE_2P_1, TIMER_NEVER);
+	gTimers.set(eTimer::_JUDGE_2P_2, TIMER_NEVER);
+	gTimers.set(eTimer::_JUDGE_2P_3, TIMER_NEVER);
+	gTimers.set(eTimer::_JUDGE_2P_4, TIMER_NEVER);
+	gTimers.set(eTimer::_JUDGE_2P_5, TIMER_NEVER);
 	switch (judge)
 	{
 	case 0: gTimers.set(eTimer::_JUDGE_2P_0, t); break;
@@ -483,7 +483,7 @@ void RulesetClassic::updateHold(InputMask& hg, Time t)
                         j.area == judgeArea::LATE_PERFECT && j.time < 2)
                     {
                         n->hit = true;
-                        gTimers.set(bombTimer7kLN[idx], LLONG_MAX);
+                        gTimers.set(bombTimer7kLN[idx], TIMER_NEVER);
                         updateHit(t, idx, _lnJudge[idx], slot);
                     }
                 }
@@ -510,7 +510,7 @@ void RulesetClassic::updateRelease(InputMask& rg, Time t)
             auto [cat, idx] = _chart->getLaneFromKey((Input::Pad)k);
             if (cat == NoteLaneCategory::_) continue;
             auto n = _chart->incomingNote(cat, idx);
-            gTimers.set(bombTimer7kLN[idx], LLONG_MAX);
+            gTimers.set(bombTimer7kLN[idx], TIMER_NEVER);
             //auto j = _judge(*n, rt);
             switch (cat)
             {
