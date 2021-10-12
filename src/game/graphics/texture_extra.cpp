@@ -115,6 +115,9 @@ bool TextureBmsBga::addBmp(size_t idx, const Path& pBmp)
 		".webm",
 	};
 
+	// FIXME Texture creation must be run at main thread.
+	// check TextureDynamic::setPath(const Path& path)
+
 	if (fs::exists(pBmp) && fs::is_regular_file(pBmp) && pBmp.has_extension())
 	{
 		if (video_file_extensions.find(toLower(pBmp.extension().string())) != video_file_extensions.end())

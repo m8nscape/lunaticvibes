@@ -108,7 +108,7 @@ void SpriteLine::updateRects()
     {
     case LineType::GAUGE_F:
     {
-        auto& p = gPlayContext.graphGauge[_player];
+        auto p = gPlayContext.graphGauge[_player];
         size_t s = p.size();
         pushRects(s, p, 100.0, [h](int val1, int val2) {return (val1 <= h && val2 <= h); });
         break;
@@ -116,7 +116,7 @@ void SpriteLine::updateRects()
 
     case LineType::GAUGE_C:
     {
-        auto& p = gPlayContext.graphGauge[_player];
+        auto p = gPlayContext.graphGauge[_player];
         size_t s = p.size();
         pushRects(s, p, 100.0, [h](int val1, int val2) {return (val1 >= h && val2 >= h); });
         break;
@@ -124,7 +124,7 @@ void SpriteLine::updateRects()
 
     case LineType::SCORE:
     {
-        auto& p = gPlayContext.graphScore[_player];
+        auto p = gPlayContext.graphGauge[_player];
         size_t s = p.size();
         pushRects(s, p, gPlayContext.ruleset[_player]->getMaxScore());
         break;
@@ -132,9 +132,9 @@ void SpriteLine::updateRects()
 
     case LineType::SCORE_TARGET:
     {
-        auto& p = gPlayContext.graphScoreTarget;
-        size_t s = p.size();
-        pushRects(s, p, gPlayContext.ruleset[PLAYER_SLOT_1P]->getMaxScore());
+        auto pt = gPlayContext.graphScoreTarget;
+        size_t s = pt.size();
+        pushRects(s, pt, gPlayContext.ruleset[PLAYER_SLOT_1P]->getMaxScore());
         break;
     }
 

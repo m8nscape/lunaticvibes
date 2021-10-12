@@ -1410,7 +1410,7 @@ protected:
 private:
     unsigned csvLineNumber = 0;          // line parsing index
 
-	// #XXX_XXXXX without #
+	// #XXX_XXXXX with #
     Token parseKeyBuf;
 
     // SRC 0:index? 1:gr 2-5:xywh 6:divx 7:divy 8:cycle 9:timer

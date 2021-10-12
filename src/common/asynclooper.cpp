@@ -23,7 +23,7 @@ AsyncLooper::~AsyncLooper()
 void AsyncLooper::run()
 {
     std::unique_lock<decltype(_loopMutex)> _lock(_loopMutex, std::defer_lock);
-    if (_lock.try_lock_for(std::chrono::milliseconds(_rateTime)))
+    if (_lock.try_lock())
         if (_running)
             _loopFuncBody();
 }

@@ -205,7 +205,6 @@ namespace lr2skin
 
 size_t convertLine(const Tokens& tokens, int* pData, size_t start, size_t count)
 {
-    memset(&pData[start], 0, count * sizeof(int));
     size_t end = start + count;
 
     size_t i;
@@ -218,130 +217,134 @@ size_t convertLine(const Tokens& tokens, int* pData, size_t start, size_t count)
 
 size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t size)
 {
-    for (int i = 0; i < size; ++i) pData[i] = DST_TRUE;
-    if (tokens.size() < offset || offset > 0 && tokens[offset - 1].empty())
-    {
-        return 0;
-    }
+    if (tokens.size() < offset) return 0;
 
     size_t i;
     for (i = 0; i < size && offset + i < tokens.size(); ++i)
     {
         auto ops = tokens[offset + i];
+        if (ops.empty()) continue;
+
         if (ops[0] == '!' || ops[0] == '-')
-            pData[i] = -toInt(ops.substr(1));
+            pData[offset + i] = -toInt(ops.substr(1));
         else
-            pData[i] = toInt(ops);
+            pData[offset + i] = toInt(ops);
     }
     return i;
 }
 
     struct s_basic
     {
-        int _null;
-        int gr;
-        int x, y, w, h;
-        int div_x, div_y;
-        int cycle;
-        int timer;
+        int _null = 0;
+        int gr = 0;
+        int x = 0;
+        int y = 0;
+        int w = 0;
+        int h = 0;
+        int div_x = 0;
+        int div_y = 0;
+        int cycle = 0;
+        int timer = 0;
         s_basic(const Tokens& tokens)
         {
             int count = sizeof(s_basic) / sizeof(int);
-            memset(this, 0, count);
             convertLine(tokens, (int*)this, 0, count);
         }
     };
 
     struct s_image : s_basic
     {
-        int op1, op2, op3;
+        int op1 = 0;
+        int op2 = 0;
+        int op3 = 0;
         s_image(const Tokens& tokens) : s_basic(tokens)
         {
-            convertOpsToInt(tokens, (int*)this, (&op1 - &_null) / sizeof(int), 3);
+            convertOpsToInt(tokens, (int*)this, &op1 - &_null, 3);
         }
     };
 
     struct s_number : s_basic
     {
-        int num;
-        int align;
-        int keta;
+        int num = 0;
+        int align = 0;
+        int keta = 0;
         s_number(const Tokens& tokens) : s_basic(tokens)
         {
-            convertLine(tokens, (int*)this, (&num - &_null) / sizeof(int), 3);
+            convertLine(tokens, (int*)this, &num - &_null, 3);
         }
     };
 
     struct s_slider : s_basic
     {
-        int muki;
-		int range;
-        int type;
-		int disable;
+        int muki = 0;
+		int range = 0;
+        int type = 0;
+		int disable = 0;
         s_slider(const Tokens& tokens) : s_basic(tokens)
         {
-            convertLine(tokens, (int*)this, (&muki - &_null) / sizeof(int), 4);
+            convertLine(tokens, (int*)this, &muki - &_null, 4);
         }
     };
 
     struct s_bargraph : s_basic
     {
-        int type;
-        int muki;
+        int type = 0;
+        int muki = 0;
         s_bargraph(const Tokens& tokens) : s_basic(tokens)
         {
-            convertLine(tokens, (int*)this, (&type - &_null) / sizeof(int), 2);
+            convertLine(tokens, (int*)this, &type - &_null, 2);
         }
     };
 
     struct s_button : s_basic
     {
-		int type;
-		int click;
-		int panel;
-        int plusonly;
+		int type = 0;
+		int click = 0;
+		int panel = 0;
+        int plusonly = 0;
         s_button(const Tokens& tokens) : s_basic(tokens)
         {
-            convertLine(tokens, (int*)this, (&type - &_null) / sizeof(int), 4);
+            convertLine(tokens, (int*)this, &type - &_null, 4);
         }
     };
 
     struct s_onmouse : s_basic
     {
-        int panel;
-        int x2, y2, w2, h2;
+        int panel = 0;
+        int x2 = 0;
+        int y2 = 0;
+        int w2 = 0;
+        int h2 = 0;
         s_onmouse(const Tokens& tokens) : s_basic(tokens)
         {
-            convertLine(tokens, (int*)this, (&panel - &_null) / sizeof(int), 5);
+            convertLine(tokens, (int*)this, &panel - &_null, 5);
         }
     };
 
     struct s_text
     {
-        int _null;
-        int font;
-        int st;
-        int align;
-        int edit;
-        int panel;
+        int _null = 0;
+        int font = 0;
+        int st = 0;
+        int align = 0;
+        int edit = 0;
+        int panel = 0;
         s_text(const Tokens& tokens)
         {
             int count = sizeof(s_text) / sizeof(int);
-            memset(this, 0, count);
             convertLine(tokens, (int*)this, 0, count);
         }
     };
 
     struct s_bga
     {
-        int _null[10];
-        int nobase;
-        int nolayer;
-        int nopoor;
+        int _null[10] = { 0 };
+        int nobase = 0;
+        int nolayer = 0;
+        int nopoor = 0;
         s_bga(const Tokens& tokens)
         {
-            int count = sizeof(s_text) / sizeof(int);
-            memset(this, 0, count);
+            int count = sizeof(s_bga) / sizeof(int);
             convertLine(tokens, (int*)this, 0, count);
         }
     };
@@ -352,31 +355,37 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
 
     struct s_nowjudge : s_basic
     {
-        int noshift;
+        int noshift = 0;
         s_nowjudge(const Tokens& tokens): s_basic(tokens)
         {
-            convertLine(tokens, (int*)this, (&noshift - &_null) / sizeof(int), 1);
+            size_t offset = sizeof(s_basic) / sizeof(int);
+            size_t count = (sizeof(*this) - sizeof(s_basic)) / sizeof(int);
+            convertLine(tokens, (int*)this, offset, count);
         }
     };
 
     struct s_nowcombo : s_basic
     {
-        int _null2;
-        int align;
-        int keta;
+        int _null2 = 0;
+        int align = 0;
+        int keta = 0;
         s_nowcombo(const Tokens& tokens) : s_basic(tokens)
         {
-            convertLine(tokens, (int*)this, (&_null2 - &_null) / sizeof(int), 1);
+            size_t offset = sizeof(s_basic) / sizeof(int);
+            size_t count = (sizeof(*this) - sizeof(s_basic)) / sizeof(int);
+            convertLine(tokens, (int*)this, offset, count);
         }
     };
 
     struct s_groovegauge : s_basic
     {
-        int add_x;
-        int add_y;
+        int add_x = 0;
+        int add_y = 0;
         s_groovegauge(const Tokens& tokens) : s_basic(tokens)
         {
-            convertLine(tokens, (int*)this, (&add_x - &_null) / sizeof(int), 2);
+            size_t offset = sizeof(s_basic) / sizeof(int);
+            size_t count = (sizeof(*this) - sizeof(s_basic)) / sizeof(int);
+            convertLine(tokens, (int*)this, offset, count);
         }
     };
 
@@ -386,14 +395,13 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
     typedef s_basic s_barlamp;
     struct s_bartitle
     {
-        int _null;
-        int font;
-        int st;
-        int align;
+        int _null = 0;
+        int font = 0;
+        int st = 0;
+        int align = 0;
         s_bartitle(const Tokens& tokens)
         {
             int count = sizeof(s_bartitle) / sizeof(int);
-            memset(this, 0, count);
             convertLine(tokens, (int*)this, 0, count);
         }
     };
@@ -401,14 +409,13 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
     typedef s_basic s_barrival;
     struct s_readme
     {
-        int _null;
-        int font;
-        int _null2[2];
-        int kankaku;
+        int _null = 0;
+        int font = 0;
+        int _null2[2] = { 0 };
+        int kankaku = 0;
         s_readme(const Tokens& tokens)
         {
-            int count = sizeof(s_bartitle) / sizeof(int);
-            memset(this, 0, count);
+            int count = sizeof(s_readme) / sizeof(int);
             convertLine(tokens, (int*)this, 0, count);
         }
     };
@@ -416,36 +423,44 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
 
     struct s_gaugechart : s_basic
     {
-        int field_w, field_h;
-        int start;
-        int end;
+        int field_w = 0;
+        int field_h = 0;
+        int start = 0;
+        int end = 0;
         s_gaugechart(const Tokens& tokens) : s_basic(tokens)
         {
-            convertLine(tokens, (int*)this, (&field_w - &_null) / sizeof(int), 4);
+            size_t offset = sizeof(s_basic) / sizeof(int);
+            size_t count = (sizeof(*this) - sizeof(s_basic)) / sizeof(int);
+            convertLine(tokens, (int*)this, offset, count);
         }
     };
     typedef s_gaugechart s_scorechart;
 
     struct dst
     {
-        int _null;      //0
-        int time;       //1
-        int x, y, w, h; //2, 3, 4, 5
-        int acc;        //6
-        int a, r, g, b; //7, 8, 9, 10
-        int blend;      //11
-        int filter;     //12
-        int angle;      //13
-        int center;     //14
-        int loop = -1;  //15
-        int timer = 1;  //16    
+        int _null = 0;      //0
+        int time = 0;       //1
+        int x = 0;
+        int y = 0;
+        int w = 0;
+        int h = 0;
+        int acc = 0;        //6
+        int a = 0;
+        int r = 0;
+        int g = 0;
+        int b = 0;
+        int blend = 0;      //11
+        int filter = 0;     //12
+        int angle = 0;      //13
+        int center = 0;     //14
+        int loop = -1;       //15
+        int timer = -1;      //16    
         int op[4]{DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE};
         dst(const Tokens& tokens)
         {
             int count = sizeof(dst) / sizeof(int);
-            memset(this, 0, count);
             convertLine(tokens, (int*)this, 0, count);
-            convertOpsToInt(tokens, (int*)this, (&op[0] - &_null) / sizeof(int), sizeof(op) / sizeof(int));
+            convertOpsToInt(tokens, (int*)this, &op[0] - &_null, sizeof(op) / sizeof(op[0]));
         }
     };
 
@@ -553,27 +568,24 @@ Tokens csvLineTokenize(const std::string& raw)
         linecsv = linecsv.substr(linecsv.find_first_not_of(' '));
         linecsv = linecsv.substr(linecsv.find_first_not_of('\t'));
     }
-    if (linecsv.empty()) return {};
-
     // skip comments
     if (linecsv.substr(0, 2) == "//") return {};
-
+    // skip empty line
+    if (linecsv.empty() || linecsv[0] == '\r') return {};
     // remove trailing \r
-    while (linecsv.length() > 0 && linecsv[linecsv.length() - 1] == '\r')
-        linecsv.remove_suffix(1);
+    if (size_t pos = linecsv.find_last_not_of('\r'); pos != linecsv.npos) 
+        linecsv = linecsv.substr(0, pos + 1);
     if (linecsv.empty()) return {};
 
-    static const std::regex re{ R"((([^\\,]|\\.)*?)(,|$))", 
+    static const std::regex re{ R"(((?:(?:\\,)|[^,])*?)(?:,|$))", 
         std::regex_constants::ECMAScript | std::regex_constants::optimize };
     std::match_results<decltype(linecsv.begin())> matchResults;
+    typedef std::regex_token_iterator<decltype(linecsv.begin())> scv_regex_token_iterator;
     Tokens res;
-    if (std::regex_search(linecsv.begin(), linecsv.end(), matchResults, re))
+    for (auto it = scv_regex_token_iterator(linecsv.begin(), linecsv.end(), re, 1); 
+        it != scv_regex_token_iterator() && it->first != linecsv.end(); ++it)
     {
-        for (size_t i = 1; i < matchResults.size(); ++i)
-        {
-            res.push_back(StringContentView(&*matchResults[i].first, 
-                matchResults[i].second - matchResults[i].first));
-        }
+        res.push_back(StringContentView(&*it->first, it->second - it->first));
     }
     return res;
 }
@@ -752,17 +764,17 @@ int SkinLR2::LR2FONT()
             ++csvLineNumber;
             auto tokens = csvLineTokenize(raw);
             if (tokens.empty()) continue;
-            auto parseKeyBuf = tokens[0];
+            auto key = tokens[0];
 
-            if (strEqual(parseKeyBuf, "#S", true))
+            if (strEqual(key, "#S", true))
             {
                 pf->S = toInt(tokens[1]);
             }
-            else if (strEqual(parseKeyBuf, "#M", true))
+            else if (strEqual(key, "#M", true))
             {
                 pf->M = toInt(tokens[1]);
             }
-            else if (strEqual(parseKeyBuf, "#T", true))
+            else if (strEqual(key, "#T", true))
             {
                 size_t idx = pf->T_id.size();
                 pf->T_id[toInt(tokens[1])] = idx;
@@ -771,7 +783,7 @@ int SkinLR2::LR2FONT()
                 Path p = path.parent_path() / Path(tokens[2]);
                 pf->T_texture.push_back(std::make_shared<Texture>(Image(p.u8string().c_str())));
             }
-            else if (strEqual(parseKeyBuf, "#R", true))
+            else if (strEqual(key, "#R", true))
             {
                 int imgId = toInt(tokens[2]);
                 if (pf->T_id.find(imgId) == pf->T_id.end()) continue;
@@ -1499,10 +1511,11 @@ ParseRet SkinLR2::SRC_NOWJUDGE2()
 ParseRet SkinLR2::SRC_NOWCOMBO1()
 {
     lr2skin::s_nowcombo d(parseParamBuf);
-    if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
 
     bufJudge1PSlot = d._null;
-	parseParamBuf[10] = std::to_string((int)eNumber::_DISP_NOWCOMBO_1P);
+    // modify necessary info for SRC_NOWCOMBO(idx)
+    static StringContent eNumBuf = std::to_string((int)eNumber::_DISP_NOWCOMBO_1P);
+    parseParamBuf[10] = StringContentView(eNumBuf);
     switch (toInt(parseParamBuf[11]))
     {
     case 0: parseParamBuf[11] = "1"; break;
@@ -1510,6 +1523,7 @@ ParseRet SkinLR2::SRC_NOWCOMBO1()
     case 2:
     default:parseParamBuf[11] = "0"; break;
     }
+
     if (bufJudge1PSlot >= 0 && bufJudge1PSlot < 6)
     {
         size_t idx = GLOBAL_SPRITE_IDX_1PJUDGENUM + bufJudge1PSlot;
@@ -1532,10 +1546,11 @@ ParseRet SkinLR2::SRC_NOWCOMBO1()
 ParseRet SkinLR2::SRC_NOWCOMBO2()
 {
     lr2skin::s_nowcombo d(parseParamBuf);
-    if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
 
     bufJudge2PSlot = d._null;
-	parseParamBuf[10] = std::to_string((int)eNumber::_DISP_NOWCOMBO_2P);
+    // modify necessary info for SRC_NOWCOMBO(idx)
+    static StringContent eNumBuf = std::to_string((int)eNumber::_DISP_NOWCOMBO_2P);
+    parseParamBuf[10] = StringContentView(eNumBuf);
     switch (toInt(parseParamBuf[11]))
     {
     case 0: parseParamBuf[11] = "1"; break;
@@ -1543,6 +1558,7 @@ ParseRet SkinLR2::SRC_NOWCOMBO2()
     case 2: 
     default:parseParamBuf[11] = "0"; break;
     }
+
     if (bufJudge2PSlot >= 0 && bufJudge2PSlot < 6)
 	{
         size_t idx = GLOBAL_SPRITE_IDX_2PJUDGENUM + bufJudge2PSlot;
@@ -1592,7 +1608,7 @@ ParseRet SkinLR2::SRC_NOTE()
     // skip unsupported
     static const std::regex re("#SRC_(AUTO_)?(NOTE|MINE|LN_END|LN_BODY|LN_START)", 
         std::regex_constants::ECMAScript | std::regex_constants::icase | std::regex_constants::optimize);
-    if (parseKeyBuf != "#SRC_LINE" && !std::regex_match(parseKeyBuf.begin(), parseKeyBuf.end(), re))
+    if (!strEqual(parseKeyBuf, "#SRC_LINE", true) && !std::regex_match(parseKeyBuf.begin(), parseKeyBuf.end(), re))
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
     // load raw into data struct
@@ -1896,8 +1912,6 @@ ParseRet SkinLR2::SRC_BAR_RIVAL_RIVALLAMP()
 
 int SkinLR2::DST()
 {
-    auto opt = parseKeyBuf;
-
     static const std::map<Token, int> __general_dst_supported
     {
         {"#DST_IMAGE",1},
@@ -1920,7 +1934,7 @@ int SkinLR2::DST()
         {"#DST_SCORECHART",18},
     };
 
-    if (__general_dst_supported.find(opt) == __general_dst_supported.end() || _sprites.empty())
+    if (__general_dst_supported.find(parseKeyBuf) == __general_dst_supported.end() || _sprites.empty())
         return 0;
 
     // load raw into data struct
@@ -1956,7 +1970,7 @@ int SkinLR2::DST()
         } while (enext->type() == SpriteTypes::GLOBAL);
     }
 
-	ret = __general_dst_supported.at(opt);
+	ret = __general_dst_supported.at(parseKeyBuf);
 
     if (e->isKeyFrameEmpty())
     {
@@ -1965,7 +1979,7 @@ int SkinLR2::DST()
         static const std::regex re2 = std::regex("#DST_NOW(JUDGE|COMBO)_2P",
             std::regex_constants::ECMAScript | std::regex_constants::icase | std::regex_constants::optimize);
 
-        if (std::regex_match(opt.begin(), opt.end(), re1))
+        if (std::regex_match(parseKeyBuf.begin(), parseKeyBuf.end(), re1))
 		{
 			switch (bufJudge1PSlot)
 			{
@@ -1978,7 +1992,7 @@ int SkinLR2::DST()
 			default: break;
 			}
 		}
-        else if (std::regex_match(opt.begin(), opt.end(), re2))
+        else if (std::regex_match(parseKeyBuf.begin(), parseKeyBuf.end(), re2))
 		{
 			switch (bufJudge2PSlot)
 			{
@@ -2013,7 +2027,7 @@ int SkinLR2::DST()
 
 ParseRet SkinLR2::DST_NOTE()
 {
-    if (parseKeyBuf != "#DST_NOTE")
+    if (!strEqual(parseKeyBuf, "#DST_NOTE", true))
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
     // load raw into data struct
@@ -2054,7 +2068,7 @@ ParseRet SkinLR2::DST_NOTE()
 
 ParseRet SkinLR2::DST_LINE()
 {
-    if (parseKeyBuf != "#DST_LINE")
+    if (!strEqual(parseKeyBuf, "#DST_LINE", true))
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
     // load raw into data struct
@@ -2114,7 +2128,7 @@ ParseRet SkinLR2::DST_LINE()
 
 ParseRet SkinLR2::DST_BAR_BODY()
 {
-    if (parseKeyBuf != "#DST_BAR_BODY_OFF" && parseKeyBuf != "#DST_BAR_BODY_ON")
+    if (!strEqual(parseKeyBuf, "#DST_BAR_BODY_OFF", true) && !strEqual(parseKeyBuf, "#DST_BAR_BODY_ON", true))
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
     bool bodyOn = parseKeyBuf == "#DST_BAR_BODY_ON";
@@ -2163,7 +2177,7 @@ ParseRet SkinLR2::DST_BAR_BODY()
 
 ParseRet SkinLR2::DST_BAR_FLASH()
 {
-    if (parseKeyBuf != "#DST_BAR_FLASH")
+    if (!strEqual(parseKeyBuf, "#DST_BAR_FLASH", true))
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
     // load raw into data struct
@@ -2201,7 +2215,7 @@ ParseRet SkinLR2::DST_BAR_FLASH()
 
 ParseRet SkinLR2::DST_BAR_LEVEL()
 {
-    if (parseKeyBuf != "#DST_BAR_LEVEL")
+    if (!strEqual(parseKeyBuf, "#DST_BAR_LEVEL", true))
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
     // load raw into data struct
@@ -2242,7 +2256,7 @@ ParseRet SkinLR2::DST_BAR_LEVEL()
 
 ParseRet SkinLR2::DST_BAR_RIVAL_MYLAMP()
 {
-    if (parseKeyBuf != "#DST_BAR_MY_LAMP")
+    if (!strEqual(parseKeyBuf, "#DST_BAR_MY_LAMP", true))
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
     // load raw into data struct
@@ -2281,7 +2295,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL_MYLAMP()
 }
 ParseRet SkinLR2::DST_BAR_RIVAL_RIVALLAMP()
 {
-    if (parseKeyBuf != "#DST_BAR_RIVAL_LAMP")
+    if (!strEqual(parseKeyBuf, "#DST_BAR_RIVAL_LAMP", true))
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
     // load raw into data struct
@@ -2321,7 +2335,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL_RIVALLAMP()
 
 ParseRet SkinLR2::DST_BAR_LAMP()
 {
-    if (parseKeyBuf != "#DST_BAR_LAMP")
+    if (!strEqual(parseKeyBuf, "#DST_BAR_LAMP", true))
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
     // load raw into data struct
@@ -2361,7 +2375,7 @@ ParseRet SkinLR2::DST_BAR_LAMP()
 
 ParseRet SkinLR2::DST_BAR_TITLE()
 {
-    if (parseKeyBuf != "#DST_BAR_TITLE")
+    if (!strEqual(parseKeyBuf, "#DST_BAR_TITLE", true))
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
     // load raw into data struct
@@ -2401,7 +2415,7 @@ ParseRet SkinLR2::DST_BAR_TITLE()
 
 ParseRet SkinLR2::DST_BAR_RANK()
 {
-    if (parseKeyBuf != "#DST_BAR_RANK")
+    if (!strEqual(parseKeyBuf, "#DST_BAR_RANK", true))
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
     // load raw into data struct
@@ -2441,7 +2455,7 @@ ParseRet SkinLR2::DST_BAR_RANK()
 
 ParseRet SkinLR2::DST_BAR_RIVAL()
 {
-    if (parseKeyBuf != "#DST_BAR_RIVAL")
+    if (!strEqual(parseKeyBuf, "#DST_BAR_RIVAL", true))
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
     // load raw into data struct
@@ -2593,6 +2607,7 @@ int SkinLR2::parseBody(const Tokens &raw)
     if (raw.empty()) return 0;
     parseParamBuf.resize(raw.size() - 1);
     parseKeyBuf = raw[0];
+    if (parseKeyBuf.empty()) return 0;
     for (size_t idx = 0; idx < parseParamBuf.size(); ++idx)
         parseParamBuf[idx] = raw[idx + 1];
 
@@ -2662,6 +2677,8 @@ void SkinLR2::IF(const Tokens &t, std::ifstream& lr2skin)
     // get dst indexes
     for (auto it = ++t.begin(); it != t.end() && ifCheckPassed; ++it)
     {
+        if (it->empty()) continue;
+
         auto [idx, val] = toPairUIntBool(*it);
         if (idx == -1)
         {
