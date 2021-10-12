@@ -1408,10 +1408,10 @@ protected:
 	typedef std::shared_ptr<SpriteLine> psLine;
 
 private:
-    unsigned srcLine = 0;          // line parsing index
-    Tokens csvNextLineTokenize(std::istream& file);
+    unsigned csvLineNumber = 0;          // line parsing index
 
-    Token optBuf;       // #XXX_XXXXX
+	// #XXX_XXXXX without #
+    Token parseKeyBuf;
 
     // SRC 0:index? 1:gr 2-5:xywh 6:divx 7:divy 8:cycle 9:timer
     // SRC_IMAGE 10:op1 11:op2 12:op3
@@ -1423,7 +1423,7 @@ private:
     // SRC_NUMBER(NOWCOMBO) 10:num 11:align 12:keta
     // DST 0:index? 1:time 2-5:xywh 6:acc 7-10:argb 11:blend 12:filter 13:angle 14:center
     // DST 15:loop 16:timer 17:op1 18:op2 19:op3
-    Tokens tokensBuf;
+    Tokens parseParamBuf;
 
     pTexture textureBuf;
 	pVideo   videoBuf;
@@ -1432,12 +1432,12 @@ private:
 	int parseHeader(const Tokens& raw);
 	int parseBody(const Tokens& raw);
 
-    int IMAGE        ();
-    int INCLUDE      ();
-    int LR2FONT         ();
-    int SYSTEMFONT   ();
-    int TIMEOPTION   ();
-    int others       ();
+	int IMAGE();
+	int INCLUDE();
+	int LR2FONT();
+	int SYSTEMFONT();
+	int TIMEOPTION();
+	int others();
 
     int SRC();
     ParseRet SRC_IMAGE();

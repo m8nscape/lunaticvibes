@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <iostream>
 #include <fstream>
+#include <charconv>
 
 #ifdef WIN32
 #include <Windows.h>
@@ -62,55 +63,35 @@ bool isParentPath(Path parent, Path dir)
     return pair.second == parent.end();
 }
 
-int stoine(const std::string& str) noexcept
+// string to int
+int toInt(std::string_view str, int defVal) noexcept
 {
-    try
-    {
-        // Not using atoi, since overflow behavior is undefined
-        return std::stoi(str);
-    }
-    catch (std::invalid_argument&)
-    {
-        return 0;
-    }
-}
-
-double stodne(const std::string& str) noexcept
-{
-    try
-    {
-        // Not using atoi, since overflow behavior is undefined
-        return std::stod(str);
-    }
-    catch (std::invalid_argument&)
-    {
-        return 0;
-    }
-}
-
-std::pair<unsigned, bool> stoub(const std::string& str)
-{
-    if (str.empty())
-        return { -1, false };
-
-    int val;
-    bool notPref;
-    if (str[0] == '!')
-    {
-        val = std::stoi(str.substr(1));
-        notPref = true;
-    }
+    int val = 0;
+    if (auto [p, ec] = std::from_chars(str.data(), str.data() + str.size(), val); ec == std::errc())
+        return val;
     else
-    {
-        val = std::stoi(str);
-        notPref = false;
-    }
-
-    if (val >= 0)
-        return { val, notPref };
-    else
-        return { -1, false };
+        return defVal;
 }
+int toInt(const std::string& str, int defVal) noexcept { return toInt(std::string_view(str)); }
+
+// string to double
+double toDouble(std::string_view str, double defVal) noexcept
+{
+    double val = 0;
+    if (auto [p, ec] = std::from_chars(str.data(), str.data() + str.size(), val); ec == std::errc())
+        return val;
+    else
+        return defVal;
+}
+double toDouble(const std::string& str, double defVal) noexcept { return toDouble(std::string_view(str), defVal); }
+
+// strcasecmp
+bool strEqual(std::string_view str1, std::string_view str2, bool icase) noexcept
+{
+    return std::equal(str1.begin(), str1.end(), str2.begin(), str2.end(),
+        [](char c1, char c2) { return std::tolower(c1) == std::tolower(c2); });
+}
+bool strEqual(const std::string& str1, std::string_view str2, bool icase) noexcept { return strEqual(std::string_view(str1), str2, icase); }
 
 std::string bin2hex(const void* bin, size_t size)
 {

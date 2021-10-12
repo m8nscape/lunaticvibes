@@ -142,20 +142,20 @@ int BMS::initWithFile(const Path& file)
 
                     // digits
                     if (key == "PLAYER")
-                        player = stoine(value);
+                        player = toInt(value);
                     else if (key == "RANK")
-                        rank = stoine(value);
+                        rank = toInt(value);
                     else if (key == "TOTAL")
-                        total = stoine(value);
+                        total = toInt(value);
                     else if (key == "PLAYLEVEL")
                     {
-                        playLevel = stoine(value);
+                        playLevel = toInt(value);
                         levelEstimated = double(playLevel);
                     }
                     else if (key == "DIFFICULTY")
-                        difficulty = stoine(value);
+                        difficulty = toInt(value);
                     else if (key == "BPM")
-                        bpm = stodne(value);
+                        bpm = toDouble(value);
 
                     // strings
                     else if (key == "TITLE")
@@ -191,12 +191,12 @@ int BMS::initWithFile(const Path& file)
                     else if (std::regex_match(key, std::regex(R"(BPM[0-9A-Za-z]{1,2})", std::regex_constants::icase)))
                     {
                         int idx = base36(key[3], key[4]);
-                        exBPM[idx] = std::stod(value);
+                        exBPM[idx] = toDouble(value);
                     }
                     else if (std::regex_match(key, std::regex(R"(STOP[0-9A-Za-z]{1,2})", std::regex_constants::icase)))
                     {
                         int idx = base36(key[4], key[5]);
-                        stop[idx] = std::stod(value);
+                        stop[idx] = toDouble(value);
                     }
 
                     // unknown
@@ -219,7 +219,7 @@ int BMS::initWithFile(const Path& file)
                     // lastBarIdx & channels
                     if (std::regex_match(key, std::regex(R"(\d{3}[0-9A-Za-z]{2})")))
                     {
-                        unsigned measure = std::stoi(key.substr(0, 3));
+                        unsigned measure = toInt(key.substr(0, 3));
                         if (lastBarIdx < measure)
                             lastBarIdx = measure;
                         std::pair channel = { base36(key[3]), base36(key[4]) };
@@ -242,7 +242,7 @@ int BMS::initWithFile(const Path& file)
                                 break;
 
                             case 2:            // 02: Measure Length
-                                barLength[measure] = std::stod(value);
+                                barLength[measure] = toDouble(value);
                                 haveMetricMod = true;
                                 break;
 

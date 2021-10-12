@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <string_view>
 #include <filesystem>
 #include <vector>
 #include <utility>
@@ -15,11 +16,15 @@ std::vector<Path> findFiles(Path path);
 
 bool isParentPath(Path parent, Path dir);
 
-// For LR2 skin .csv parsing:
-// op1~4 may include a '!' before the number, split it out
-std::pair<unsigned, bool> stoub(const std::string&);
-int stoine(const std::string& str) noexcept;
-double stodne(const std::string& str) noexcept;
+// string to int
+int toInt(const std::string& str, int defVal = 0) noexcept;
+int toInt(std::string_view str, int defVal = 0) noexcept;
+// string to double
+double toDouble(const std::string& str, double defVal = 0.0) noexcept;
+double toDouble(std::string_view str, double defVal = 0.0) noexcept;
+// strcasecmp
+bool strEqual(const std::string& str1, std::string_view str2, bool icase = false) noexcept;
+bool strEqual(std::string_view str1, std::string_view str2, bool icase = false) noexcept;
 
 constexpr unsigned base36(char c)
 {

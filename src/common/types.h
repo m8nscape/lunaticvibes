@@ -2,12 +2,14 @@
 #include <filesystem>
 #include <utility>
 #include <string>
+#include <string_view>
 
 typedef std::string                             HashMD5;
 typedef std::string                             HashSHA1;
 typedef std::filesystem::path                   Path;
 typedef Path::string_type                       StringPath;
 typedef std::string                             StringContent; // std::ifstream, std::getline
+typedef std::string_view                        StringContentView; // std::ifstream, std::getline
 using namespace std::string_literals;
 
 const size_t INDEX_INVALID	= ~0;
