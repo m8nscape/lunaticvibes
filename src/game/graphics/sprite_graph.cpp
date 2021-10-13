@@ -124,7 +124,7 @@ void SpriteLine::updateRects()
 
     case LineType::SCORE:
     {
-        auto p = gPlayContext.graphGauge[_player];
+        auto p = gPlayContext.graphScore[_player];
         size_t s = p.size();
         pushRects(s, p, gPlayContext.ruleset[_player]->getMaxScore());
         break;
