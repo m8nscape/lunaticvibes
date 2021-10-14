@@ -42,12 +42,12 @@ void mainLoop()
         {
             switch (gNextScene)
             {
-                using e = eScene;
-            case e::SELECT: LOG_INFO << "Scene changed to SELECT"; break;
-            case e::DECIDE: LOG_INFO << "Scene changed to DECIDE"; break;
-            case e::PLAY: LOG_INFO << "Scene changed to PLAY"; break;
-            case e::RESULT: LOG_INFO << "Scene changed to RESULT"; break;
-            case e::EXIT: LOG_INFO << "Scene changed to EXIT"; break;
+            case eScene::SELECT: LOG_INFO << "Scene changed to SELECT"; break;
+            case eScene::DECIDE: LOG_INFO << "Scene changed to DECIDE"; break;
+            case eScene::PLAY:   LOG_INFO << "Scene changed to PLAY"; break;
+            case eScene::RETRY:  LOG_INFO << "Scene changed to RETRY"; break;
+            case eScene::RESULT: LOG_INFO << "Scene changed to RESULT"; break;
+            case eScene::EXIT:   LOG_INFO << "Scene changed to EXIT"; break;
             default: break;
             }
 

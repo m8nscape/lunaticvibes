@@ -857,7 +857,6 @@ void ScenePlay::updateFadeout()
 
     if (_isExitingFromPlay)
     {
-        _isExitingFromPlay = false;
         removeInputJudgeCallback();
 
         bool cleared = false;
@@ -880,14 +879,35 @@ void ScenePlay::updateFadeout()
 
     if (ft >= _skin->info.timeOutro)
     {
+        // check quick retry (start+select / white+black)
+        bool wantRetry = false;
+        auto h = _input.Holding();
+        using namespace Input;
+        if (gPlayContext.chartObj[PLAYER_SLOT_1P] != nullptr)
+        {
+            if ((h.test(K1START) && h.test(K1SELECT)) ||
+                (h.test(K11) || h.test(K13) || h.test(K15) || h.test(K17) || h.test(K19)) && (h.test(K12) || h.test(K14) || h.test(K16) || h.test(K18)))
+                wantRetry = true;
+        }
+        if (gPlayContext.chartObj[PLAYER_SLOT_2P] != nullptr)
+        {
+            if ((h.test(K2START) && h.test(K2SELECT)) ||
+                (h.test(K21) || h.test(K23) || h.test(K25) || h.test(K27) || h.test(K29)) && (h.test(K22) || h.test(K24) || h.test(K26) || h.test(K28)))
+                wantRetry = true;
+        }
+
         loopEnd();
         _input.loopEnd();
-        if (gChartContext.started)
-            gNextScene = eScene::RESULT;
-        else
-            gNextScene = eScene::SELECT;
-    }
 
+        if (wantRetry && gPlayContext.canRetry)
+        {
+            gNextScene = eScene::RETRY;
+        }
+        else
+        {
+            gNextScene = gChartContext.started ? eScene::RESULT : eScene::SELECT;
+        }
+    }
 }
 
 void ScenePlay::updateFailed()
@@ -901,8 +921,6 @@ void ScenePlay::updateFailed()
     //failed play finished, move to next scene. No fadeout
     if (ft.norm() >= _skin->info.timeFailed)
     {
-        // TODO check quick retry (start+select / white+black)
-
         gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
         gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FADEOUT);
         _state = ePlayState::FADEOUT;
@@ -952,7 +970,7 @@ void ScenePlay::changeKeySampleMapping(Time t)
             {
                 assert(gPlayContext.chartObj[PLAYER_SLOT_1P] != nullptr);
                 auto chan = gPlayContext.chartObj[PLAYER_SLOT_1P]->getLaneFromKey((Input::Pad)i);
-                if (chan.first == NoteLaneCategory::_) continue;
+                if (chan.first == chart::NoteLaneCategory::_) continue;
                 auto note = gPlayContext.chartObj[PLAYER_SLOT_1P]->incomingNote(chan.first, chan.second);
                 if (note->time - t > MIN_REMAP_INTERVAL) continue;
                 _currentKeySample[i] = (size_t)std::get<long long>(note->value);
@@ -962,7 +980,7 @@ void ScenePlay::changeKeySampleMapping(Time t)
             {
                 assert(gPlayContext.chartObj[PLAYER_SLOT_2P] != nullptr);
                 auto chan = gPlayContext.chartObj[PLAYER_SLOT_2P]->getLaneFromKey((Input::Pad)i);
-                if (chan.first == NoteLaneCategory::_) continue;
+                if (chan.first == chart::NoteLaneCategory::_) continue;
                 auto note = gPlayContext.chartObj[PLAYER_SLOT_2P]->incomingNote(chan.first, chan.second);
                 if (note->time - t > MIN_REMAP_INTERVAL) continue;
                 _currentKeySample[i] = (size_t)std::get<long long>(note->value);
@@ -975,7 +993,7 @@ void ScenePlay::changeKeySampleMapping(Time t)
             {
                 assert(gPlayContext.chartObj[PLAYER_SLOT_1P] != nullptr);
                 auto chan = gPlayContext.chartObj[PLAYER_SLOT_1P]->getLaneFromKey((Input::Pad)i);
-                if (chan.first == NoteLaneCategory::_) continue;
+                if (chan.first == chart::NoteLaneCategory::_) continue;
                 auto note = gPlayContext.chartObj[PLAYER_SLOT_1P]->incomingNote(chan.first, chan.second);
                 if (note->time - t > MIN_REMAP_INTERVAL) continue;
                 _currentKeySample[i] = (size_t)std::get<long long>(note->value);

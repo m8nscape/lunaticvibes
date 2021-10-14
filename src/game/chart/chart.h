@@ -13,7 +13,10 @@ struct HitableNote: Note
     bool hit = false;
 };
 
-enum class NoteLaneCategory: size_t
+namespace chart
+{
+
+enum class NoteLaneCategory : size_t
 {
     Note,
     Mine,
@@ -25,7 +28,7 @@ enum class NoteLaneCategory: size_t
     _ // INVALID
 };
 
-enum NoteLaneIndex: size_t
+enum NoteLaneIndex : size_t
 {
     Sc1 = 0,
     K1,
@@ -80,13 +83,13 @@ constexpr size_t channelToIdx(NoteLaneCategory cat, size_t idx)
 constexpr NoteLane idxToChannel(size_t idx)
 {
     if (idx >= size_t(NoteLaneCategory::EXTRA) * NoteLaneIndex::NOTELANEINDEX_COUNT + NoteLaneExtra::NOTELANEEXTRA_COUNT)
-        return { NoteLaneCategory::_, NoteLaneIndex::_};
+        return { NoteLaneCategory::_, NoteLaneIndex::_ };
 
     size_t ch = idx / NOTELANEINDEX_COUNT;
     return { NoteLaneCategory(ch), NoteLaneIndex(idx % ch) };
 }
 
-class vChartFormat;
+class ::vChartFormat;
 
 // Chart in-game data representation. Contains following:
 //  - Converts plain-beat to real-beat (adds up Stop beat) 
@@ -200,3 +203,5 @@ public:
 
     inline auto getTotalLength() const { return _totalLength; }
 };
+
+}

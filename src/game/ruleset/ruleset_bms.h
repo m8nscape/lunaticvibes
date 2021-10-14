@@ -55,90 +55,90 @@ public:
         {5, 5, 10, 200, 600}          // XD
     };
 
-    typedef std::map<NoteLaneIndex, eTimer> NoteLaneTimerMap;
+    typedef std::map<chart::NoteLaneIndex, eTimer> NoteLaneTimerMap;
 
     inline static const NoteLaneTimerMap bombTimer7k = {
-        {NoteLaneIndex::Sc1, eTimer::S1_BOMB},
-        {NoteLaneIndex::K1,  eTimer::K11_BOMB},
-        {NoteLaneIndex::K2,  eTimer::K12_BOMB},
-        {NoteLaneIndex::K3,  eTimer::K13_BOMB},
-        {NoteLaneIndex::K4,  eTimer::K14_BOMB},
-        {NoteLaneIndex::K5,  eTimer::K15_BOMB},
-        {NoteLaneIndex::K6,  eTimer::K16_BOMB},
-        {NoteLaneIndex::K7,  eTimer::K17_BOMB},
+        {chart::Sc1, eTimer::S1_BOMB},
+        {chart::K1,  eTimer::K11_BOMB},
+        {chart::K2,  eTimer::K12_BOMB},
+        {chart::K3,  eTimer::K13_BOMB},
+        {chart::K4,  eTimer::K14_BOMB},
+        {chart::K5,  eTimer::K15_BOMB},
+        {chart::K6,  eTimer::K16_BOMB},
+        {chart::K7,  eTimer::K17_BOMB},
     };
 
     inline static const NoteLaneTimerMap bombTimer7kLN = { {
-        {NoteLaneIndex::Sc1, eTimer::S1_LN_BOMB },
-        {NoteLaneIndex::K1,  eTimer::K11_LN_BOMB},
-        {NoteLaneIndex::K2,  eTimer::K12_LN_BOMB},
-        {NoteLaneIndex::K3,  eTimer::K13_LN_BOMB},
-        {NoteLaneIndex::K4,  eTimer::K14_LN_BOMB},
-        {NoteLaneIndex::K5,  eTimer::K15_LN_BOMB},
-        {NoteLaneIndex::K6,  eTimer::K16_LN_BOMB},
-        {NoteLaneIndex::K7,  eTimer::K17_LN_BOMB},
+        {chart::Sc1, eTimer::S1_LN_BOMB },
+        {chart::K1,  eTimer::K11_LN_BOMB},
+        {chart::K2,  eTimer::K12_LN_BOMB},
+        {chart::K3,  eTimer::K13_LN_BOMB},
+        {chart::K4,  eTimer::K14_LN_BOMB},
+        {chart::K5,  eTimer::K15_LN_BOMB},
+        {chart::K6,  eTimer::K16_LN_BOMB},
+        {chart::K7,  eTimer::K17_LN_BOMB},
     } };
 
     inline static const NoteLaneTimerMap bombTimer14k = { {
-        {NoteLaneIndex::Sc1, eTimer::S1_BOMB},
-        {NoteLaneIndex::K1,  eTimer::K11_BOMB},
-        {NoteLaneIndex::K2,  eTimer::K12_BOMB},
-        {NoteLaneIndex::K3,  eTimer::K13_BOMB},
-        {NoteLaneIndex::K4,  eTimer::K14_BOMB},
-        {NoteLaneIndex::K5,  eTimer::K15_BOMB},
-        {NoteLaneIndex::K6,  eTimer::K16_BOMB},
-        {NoteLaneIndex::K7,  eTimer::K17_BOMB},
-        {NoteLaneIndex::K8,  eTimer::K21_BOMB},
-        {NoteLaneIndex::K9,  eTimer::K22_BOMB},
-        {NoteLaneIndex::K10, eTimer::K23_BOMB},
-        {NoteLaneIndex::K11, eTimer::K24_BOMB},
-        {NoteLaneIndex::K12, eTimer::K25_BOMB},
-        {NoteLaneIndex::K13, eTimer::K26_BOMB},
-        {NoteLaneIndex::K14, eTimer::K27_BOMB},
-        {NoteLaneIndex::Sc2, eTimer::S2_BOMB},
+        {chart::Sc1, eTimer::S1_BOMB},
+        {chart::K1,  eTimer::K11_BOMB},
+        {chart::K2,  eTimer::K12_BOMB},
+        {chart::K3,  eTimer::K13_BOMB},
+        {chart::K4,  eTimer::K14_BOMB},
+        {chart::K5,  eTimer::K15_BOMB},
+        {chart::K6,  eTimer::K16_BOMB},
+        {chart::K7,  eTimer::K17_BOMB},
+        {chart::K8,  eTimer::K21_BOMB},
+        {chart::K9,  eTimer::K22_BOMB},
+        {chart::K10, eTimer::K23_BOMB},
+        {chart::K11, eTimer::K24_BOMB},
+        {chart::K12, eTimer::K25_BOMB},
+        {chart::K13, eTimer::K26_BOMB},
+        {chart::K14, eTimer::K27_BOMB},
+        {chart::Sc2, eTimer::S2_BOMB},
     } };
 
     inline static const NoteLaneTimerMap bombTimer14kLN = { {
-        {NoteLaneIndex::Sc1, eTimer::S1_LN_BOMB},
-        {NoteLaneIndex::K1,  eTimer::K11_LN_BOMB},
-        {NoteLaneIndex::K2,  eTimer::K12_LN_BOMB},
-        {NoteLaneIndex::K3,  eTimer::K13_LN_BOMB},
-        {NoteLaneIndex::K4,  eTimer::K14_LN_BOMB},
-        {NoteLaneIndex::K5,  eTimer::K15_LN_BOMB},
-        {NoteLaneIndex::K6,  eTimer::K16_LN_BOMB},
-        {NoteLaneIndex::K7,  eTimer::K17_LN_BOMB},
-        {NoteLaneIndex::K8,  eTimer::K21_LN_BOMB},
-        {NoteLaneIndex::K9,  eTimer::K22_LN_BOMB},
-        {NoteLaneIndex::K10, eTimer::K23_LN_BOMB},
-        {NoteLaneIndex::K11, eTimer::K24_LN_BOMB},
-        {NoteLaneIndex::K12, eTimer::K25_LN_BOMB},
-        {NoteLaneIndex::K13, eTimer::K26_LN_BOMB},
-        {NoteLaneIndex::K14, eTimer::K27_LN_BOMB},
-        {NoteLaneIndex::Sc2, eTimer::S2_LN_BOMB},
+        {chart::Sc1, eTimer::S1_LN_BOMB},
+        {chart::K1,  eTimer::K11_LN_BOMB},
+        {chart::K2,  eTimer::K12_LN_BOMB},
+        {chart::K3,  eTimer::K13_LN_BOMB},
+        {chart::K4,  eTimer::K14_LN_BOMB},
+        {chart::K5,  eTimer::K15_LN_BOMB},
+        {chart::K6,  eTimer::K16_LN_BOMB},
+        {chart::K7,  eTimer::K17_LN_BOMB},
+        {chart::K8,  eTimer::K21_LN_BOMB},
+        {chart::K9,  eTimer::K22_LN_BOMB},
+        {chart::K10, eTimer::K23_LN_BOMB},
+        {chart::K11, eTimer::K24_LN_BOMB},
+        {chart::K12, eTimer::K25_LN_BOMB},
+        {chart::K13, eTimer::K26_LN_BOMB},
+        {chart::K14, eTimer::K27_LN_BOMB},
+        {chart::Sc2, eTimer::S2_LN_BOMB},
     } };
 
     inline static const NoteLaneTimerMap bombTimer9k = { {
-        {NoteLaneIndex::K1,  eTimer::K11_BOMB},
-        {NoteLaneIndex::K2,  eTimer::K12_BOMB},
-        {NoteLaneIndex::K3,  eTimer::K13_BOMB},
-        {NoteLaneIndex::K4,  eTimer::K14_BOMB},
-        {NoteLaneIndex::K5,  eTimer::K15_BOMB},
-        {NoteLaneIndex::K6,  eTimer::K16_BOMB},
-        {NoteLaneIndex::K7,  eTimer::K17_BOMB},
-        {NoteLaneIndex::K8,  eTimer::K18_BOMB},
-        {NoteLaneIndex::K9,  eTimer::K19_BOMB},
+        {chart::K1,  eTimer::K11_BOMB},
+        {chart::K2,  eTimer::K12_BOMB},
+        {chart::K3,  eTimer::K13_BOMB},
+        {chart::K4,  eTimer::K14_BOMB},
+        {chart::K5,  eTimer::K15_BOMB},
+        {chart::K6,  eTimer::K16_BOMB},
+        {chart::K7,  eTimer::K17_BOMB},
+        {chart::K8,  eTimer::K18_BOMB},
+        {chart::K9,  eTimer::K19_BOMB},
     } };
 
     inline static const NoteLaneTimerMap bombTimer9kLN = { {
-        {NoteLaneIndex::K1,  eTimer::K11_LN_BOMB},
-        {NoteLaneIndex::K2,  eTimer::K12_LN_BOMB},
-        {NoteLaneIndex::K3,  eTimer::K13_LN_BOMB},
-        {NoteLaneIndex::K4,  eTimer::K14_LN_BOMB},
-        {NoteLaneIndex::K5,  eTimer::K15_LN_BOMB},
-        {NoteLaneIndex::K6,  eTimer::K16_LN_BOMB},
-        {NoteLaneIndex::K7,  eTimer::K17_LN_BOMB},
-        {NoteLaneIndex::K8,  eTimer::K18_LN_BOMB},
-        {NoteLaneIndex::K9,  eTimer::K19_LN_BOMB},
+        {chart::K1,  eTimer::K11_LN_BOMB},
+        {chart::K2,  eTimer::K12_LN_BOMB},
+        {chart::K3,  eTimer::K13_LN_BOMB},
+        {chart::K4,  eTimer::K14_LN_BOMB},
+        {chart::K5,  eTimer::K15_LN_BOMB},
+        {chart::K6,  eTimer::K16_LN_BOMB},
+        {chart::K7,  eTimer::K17_LN_BOMB},
+        {chart::K8,  eTimer::K18_LN_BOMB},
+        {chart::K9,  eTimer::K19_LN_BOMB},
     } };
 
     // Judge area definitions.
@@ -177,14 +177,14 @@ protected:
     const NoteLaneTimerMap* _bombLNTimerMap = nullptr;
 	bool _k1P, _k2P;
     double inner_score = 0.0;
-    std::array<JudgeType, NOTELANEINDEX_COUNT> _lnJudge{JudgeType::MISS};
+    std::array<JudgeType, chart::NOTELANEINDEX_COUNT> _lnJudge{JudgeType::MISS};
 
-    std::map<NoteLane, decltype(_chart->firstNote(NoteLaneCategory::_, NoteLaneIndex::_))> _noteListIterators;
+    std::map<chart::NoteLane, decltype(_chart->firstNote(chart::NoteLaneCategory::_, chart::NoteLaneIndex::_))> _noteListIterators;
 
 public:
     RulesetBMS(
         std::shared_ptr<vChartFormat> format,
-        std::shared_ptr<vChart> chart,
+        std::shared_ptr<chart::vChart> chart,
         eModGauge gauge,
         unsigned keys,
         JudgeDifficulty difficulty = JudgeDifficulty::NORMAL,
@@ -205,8 +205,8 @@ public:
     virtual void update(Time t);
 public:
     //constexpr auto getJudge() const { return _count; }
-    void updateHit(Time& t, NoteLaneIndex ch, JudgeType judge, int slot);
-    void updateMiss(Time& t, NoteLaneIndex ch, JudgeType judge, int slot);
+    void updateHit(Time& t, chart::NoteLaneIndex ch, JudgeType judge, int slot);
+    void updateMiss(Time& t, chart::NoteLaneIndex ch, JudgeType judge, int slot);
     virtual bool isCleared() const { return !_isFailed && isFinished() && _basic.health >= _clearHealth; }
     virtual bool isFailed() const { return _isFailed; }
     virtual unsigned getCurrentMaxScore() const { return _basic.totalnr * 2; }

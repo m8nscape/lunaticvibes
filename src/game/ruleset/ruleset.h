@@ -30,7 +30,7 @@ public:
     };
 protected:
     std::shared_ptr<vChartFormat> _format;
-    std::shared_ptr<vChart> _chart;
+    std::shared_ptr<chart::vChart> _chart;
     BasicData _basic;
     double _minHealth;
     double _clearHealth;
@@ -39,7 +39,7 @@ protected:
     bool _isFailed = false;
 public:
     vRuleset() = delete;
-    vRuleset(std::shared_ptr<vChartFormat> format, std::shared_ptr<vChart> chart, size_t judgeCount) :
+    vRuleset(std::shared_ptr<vChartFormat> format, std::shared_ptr<chart::vChart> chart, size_t judgeCount) :
         _format(format), _chart(chart), _basic{ 0 }, _judgeCount(judgeCount, 0) {}
     virtual ~vRuleset() = default;
 public:

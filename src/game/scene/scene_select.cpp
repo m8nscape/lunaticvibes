@@ -700,36 +700,38 @@ void SceneSelect::inputGamePress(InputMask& m, Time t)
             }
         }
 
-        // TODO check skin type
-        if (gSwitches.get(eSwitch::SELECT_PANEL1))
+        if (_skin->type() == eSkinType::LR2)
         {
-            // 1: KEYS
-            if (input[Pad::K12]) lr2skin::button::random_type(0, 1);
-            if (input[Pad::K13]) lr2skin::button::battle(1);
-            if (input[Pad::K14]) lr2skin::button::gauge_type(0, 1);
-            if (input[Pad::K15]) lr2skin::button::hs(0, -1);
-            if (input[Pad::K16]) lr2skin::button::autoscr(0, 1);
-            if (input[Pad::K17]) lr2skin::button::hs(0, 1);
+            if (gSwitches.get(eSwitch::SELECT_PANEL1))
+            {
+                // 1: KEYS
+                if (input[Pad::K12]) lr2skin::button::random_type(PLAYER_SLOT_1P, 1);
+                if (input[Pad::K13]) lr2skin::button::battle(1);
+                if (input[Pad::K14]) lr2skin::button::gauge_type(PLAYER_SLOT_1P, 1);
+                if (input[Pad::K15]) lr2skin::button::hs(PLAYER_SLOT_1P, -1);
+                if (input[Pad::K16]) lr2skin::button::autoscr(PLAYER_SLOT_1P, 1);
+                if (input[Pad::K17]) lr2skin::button::hs(PLAYER_SLOT_1P, 1);
 
-            if (gOptions.get(eOption::PLAY_BATTLE_TYPE) == 1)
-            {
-                // 1: KEYS
-                if (input[Pad::K22]) lr2skin::button::random_type(1, 1);
-                if (input[Pad::K23]) lr2skin::button::battle(1);
-                if (input[Pad::K24]) lr2skin::button::gauge_type(1, 1);
-                if (input[Pad::K25]) lr2skin::button::hs(1, -1);
-                if (input[Pad::K26]) lr2skin::button::autoscr(1, 1);
-                if (input[Pad::K27]) lr2skin::button::hs(1, 1);
-            }
-            else
-            {
-                // 1: KEYS
-                if (input[Pad::K22]) lr2skin::button::random_type(0, 1);
-                if (input[Pad::K23]) lr2skin::button::battle(1);
-                if (input[Pad::K24]) lr2skin::button::gauge_type(0, 1);
-                if (input[Pad::K25]) lr2skin::button::hs(0, -1);
-                if (input[Pad::K26]) lr2skin::button::autoscr(0, 1);
-                if (input[Pad::K27]) lr2skin::button::hs(0, 1);
+                if (gOptions.get(eOption::PLAY_BATTLE_TYPE) == 1)
+                {
+                    // 1: KEYS
+                    if (input[Pad::K22]) lr2skin::button::random_type(PLAYER_SLOT_2P, 1);
+                    if (input[Pad::K23]) lr2skin::button::battle(1);
+                    if (input[Pad::K24]) lr2skin::button::gauge_type(PLAYER_SLOT_2P, 1);
+                    if (input[Pad::K25]) lr2skin::button::hs(PLAYER_SLOT_2P, -1);
+                    if (input[Pad::K26]) lr2skin::button::autoscr(PLAYER_SLOT_2P, 1);
+                    if (input[Pad::K27]) lr2skin::button::hs(PLAYER_SLOT_2P, 1);
+                }
+                else
+                {
+                    // 1: KEYS
+                    if (input[Pad::K22]) lr2skin::button::random_type(PLAYER_SLOT_1P, 1);
+                    if (input[Pad::K23]) lr2skin::button::battle(1);
+                    if (input[Pad::K24]) lr2skin::button::gauge_type(PLAYER_SLOT_1P, 1);
+                    if (input[Pad::K25]) lr2skin::button::hs(PLAYER_SLOT_1P, -1);
+                    if (input[Pad::K26]) lr2skin::button::autoscr(PLAYER_SLOT_1P, 1);
+                    if (input[Pad::K27]) lr2skin::button::hs(PLAYER_SLOT_1P, 1);
+                }
             }
         }
 
@@ -1224,7 +1226,6 @@ void SceneSelect::_navigateBack(Time t)
     {
         std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
 
-        // TODO
         auto top = gSelectContext.backtrace.top();
         if (!top.parent.empty())
         {

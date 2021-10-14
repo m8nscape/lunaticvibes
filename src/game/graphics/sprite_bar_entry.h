@@ -10,6 +10,7 @@
 enum class BarType
 {
     SONG,
+    NEW_SONG,
     FOLDER,
     CUSTOM_FOLDER,
     NEW_SONG_FOLDER,

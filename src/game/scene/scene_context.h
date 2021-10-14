@@ -18,6 +18,7 @@ enum class eScene
     DECIDE,
     PLAY,
     RESULT,
+    RETRY,
     EXIT
 };
 
@@ -66,7 +67,7 @@ struct PlayContextParams
     bool isCourseFirstStage = false;
     unsigned judgeLevel = 0;
 
-    std::shared_ptr<vChart> chartObj[2]{ nullptr, nullptr };
+    std::shared_ptr<chart::vChart> chartObj[2]{ nullptr, nullptr };
     double initialHealth[2]{ 1.0, 1.0 };
 
 	std::shared_ptr<TextureBmsBga> bgaTexture = std::make_shared<TextureBmsBga>();

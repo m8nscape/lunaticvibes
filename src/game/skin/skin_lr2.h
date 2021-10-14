@@ -1370,7 +1370,6 @@ private:
 
 protected:
     size_t imageCount = 0;
-    struct { unsigned r, g, b; } transColor = { 0, 255, 0 };
     timeMS timeStartInputTimeRank = 0;	    	// Result / Course Result Only
     timeMS timeStartInputTimeUpdate = 0;	    // Result / Course Result Only
     timeMS timeFadeoutLength = 0;

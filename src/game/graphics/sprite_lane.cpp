@@ -3,6 +3,8 @@
 #include "game/scene/scene_context.h"
 #include <cassert>
 
+using namespace chart;
+
 SpriteLaneVertical::SpriteLaneVertical(unsigned player, double basespeed, double lanespeed):
 	SpriteStatic(nullptr, Rect(0)), playerSlot(player)
 {

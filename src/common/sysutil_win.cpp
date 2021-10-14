@@ -39,8 +39,7 @@ void SetThreadNameWin32(DWORD dwThreadID, const char* threadName) {
 
 [[noreturn]] inline void panicWin32(const char* title, const char* msg)
 {
-    // TODO: use native alert box to notify user
-    fprintf(stderr, "PANIC! [%s] %s\n", title, msg);
+    MessageBox(NULL, title, msg, MB_OK);
     abort();
 }
 

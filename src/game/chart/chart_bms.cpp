@@ -1,120 +1,117 @@
 #include "chart_bms.h"
 
-namespace bms
+using namespace chart;
+
+const size_t NOPE = -1;
+
+// Need this since current parser stores channel directly
+// TODO mapping is different between file formats
+const size_t BMSToLaneMap[] = 
 {
-    const size_t NOPE = -1;
+    // Normal notes
+    Sc1,
+    K1,
+    K2,
+    K3,
+    K4,
+    K5,
+    K6,
+    K7,
+    NOPE,
+    NOPE,
 
-    // Need this since current parser stores channel directly
-	// TODO mapping is different between file formats
-    const size_t BMSToLaneMap[] = 
-    {
-        // Normal notes
-        Sc1,
-        K1,
-        K2,
-        K3,
-        K4,
-        K5,
-        K6,
-        K7,
-        NOPE,
-        NOPE,
+    Sc2,
+    K8,
+    K9,
+    K10,
+    K11,
+    K12,
+    K13,
+    K14,
+    NOPE,
+    NOPE,
 
-        Sc2,
-        K8,
-        K9,
-        K10,
-        K11,
-        K12,
-        K13,
-        K14,
-        NOPE,
-        NOPE,
+    // LN Head
+    channelToIdx(NoteLaneCategory::LN, Sc1),
+    channelToIdx(NoteLaneCategory::LN, K1),
+    channelToIdx(NoteLaneCategory::LN, K2),
+    channelToIdx(NoteLaneCategory::LN, K3),
+    channelToIdx(NoteLaneCategory::LN, K4),
+    channelToIdx(NoteLaneCategory::LN, K5),
+    channelToIdx(NoteLaneCategory::LN, K6),
+    channelToIdx(NoteLaneCategory::LN, K7),
+    NOPE,
+    NOPE,
 
-        // LN Head
-        channelToIdx(NoteLaneCategory::LN, Sc1),
-        channelToIdx(NoteLaneCategory::LN, K1),
-        channelToIdx(NoteLaneCategory::LN, K2),
-        channelToIdx(NoteLaneCategory::LN, K3),
-        channelToIdx(NoteLaneCategory::LN, K4),
-        channelToIdx(NoteLaneCategory::LN, K5),
-        channelToIdx(NoteLaneCategory::LN, K6),
-        channelToIdx(NoteLaneCategory::LN, K7),
-        NOPE,
-        NOPE,
+    channelToIdx(NoteLaneCategory::LN, Sc2),
+    channelToIdx(NoteLaneCategory::LN, K8),
+    channelToIdx(NoteLaneCategory::LN, K9),
+    channelToIdx(NoteLaneCategory::LN, K10),
+    channelToIdx(NoteLaneCategory::LN, K11),
+    channelToIdx(NoteLaneCategory::LN, K12),
+    channelToIdx(NoteLaneCategory::LN, K13),
+    channelToIdx(NoteLaneCategory::LN, K14),
+    NOPE,
+    NOPE,
 
-        channelToIdx(NoteLaneCategory::LN, Sc2),
-        channelToIdx(NoteLaneCategory::LN, K8),
-        channelToIdx(NoteLaneCategory::LN, K9),
-        channelToIdx(NoteLaneCategory::LN, K10),
-        channelToIdx(NoteLaneCategory::LN, K11),
-        channelToIdx(NoteLaneCategory::LN, K12),
-        channelToIdx(NoteLaneCategory::LN, K13),
-        channelToIdx(NoteLaneCategory::LN, K14),
-        NOPE,
-        NOPE,
+    // LN Tail
+    channelToIdx(NoteLaneCategory::LN, Sc1),
+    channelToIdx(NoteLaneCategory::LN, K1),
+    channelToIdx(NoteLaneCategory::LN, K2),
+    channelToIdx(NoteLaneCategory::LN, K3),
+    channelToIdx(NoteLaneCategory::LN, K4),
+    channelToIdx(NoteLaneCategory::LN, K5),
+    channelToIdx(NoteLaneCategory::LN, K6),
+    channelToIdx(NoteLaneCategory::LN, K7),
+    NOPE,
+    NOPE,
 
-        // LN Tail
-        channelToIdx(NoteLaneCategory::LN, Sc1),
-        channelToIdx(NoteLaneCategory::LN, K1),
-        channelToIdx(NoteLaneCategory::LN, K2),
-        channelToIdx(NoteLaneCategory::LN, K3),
-        channelToIdx(NoteLaneCategory::LN, K4),
-        channelToIdx(NoteLaneCategory::LN, K5),
-        channelToIdx(NoteLaneCategory::LN, K6),
-        channelToIdx(NoteLaneCategory::LN, K7),
-        NOPE,
-        NOPE,
-
-        channelToIdx(NoteLaneCategory::LN, Sc2),
-        channelToIdx(NoteLaneCategory::LN, K8),
-        channelToIdx(NoteLaneCategory::LN, K9),
-        channelToIdx(NoteLaneCategory::LN, K10),
-        channelToIdx(NoteLaneCategory::LN, K11),
-        channelToIdx(NoteLaneCategory::LN, K12),
-        channelToIdx(NoteLaneCategory::LN, K13),
-        channelToIdx(NoteLaneCategory::LN, K14),
-        NOPE,
-        NOPE,
-    };
+    channelToIdx(NoteLaneCategory::LN, Sc2),
+    channelToIdx(NoteLaneCategory::LN, K8),
+    channelToIdx(NoteLaneCategory::LN, K9),
+    channelToIdx(NoteLaneCategory::LN, K10),
+    channelToIdx(NoteLaneCategory::LN, K11),
+    channelToIdx(NoteLaneCategory::LN, K12),
+    channelToIdx(NoteLaneCategory::LN, K13),
+    channelToIdx(NoteLaneCategory::LN, K14),
+    NOPE,
+    NOPE,
+};
     
-    // from NoteLaneIndex to Input::Pad
-    const std::vector<Input::Pad> LaneToKeyMap[] = 
-    {
-        // 0: Notes
-        {Input::Pad::S1L, Input::Pad::S1R}, // Sc1
-        {Input::Pad::K11},
-        {Input::Pad::K12},
-        {Input::Pad::K13},
-        {Input::Pad::K14},
-        {Input::Pad::K15},
-        {Input::Pad::K16},
-        {Input::Pad::K17},
-        {Input::Pad::K21}, //8
-        {Input::Pad::K22}, //9
-        {Input::Pad::K23}, //10
-        {Input::Pad::K24}, //11
-        {Input::Pad::K25}, //12
-        {Input::Pad::K26}, //13
-        {Input::Pad::K27}, //14
-        {},{},{},{},{},{},{},{},{},{}, //15~24
-        {Input::Pad::S2L, Input::Pad::S2R} // Sc2
-    };
+// from NoteLaneIndex to Input::Pad
+const std::vector<Input::Pad> LaneToKeyMap[] = 
+{
+    // 0: Notes
+    {Input::Pad::S1L, Input::Pad::S1R}, // Sc1
+    {Input::Pad::K11},
+    {Input::Pad::K12},
+    {Input::Pad::K13},
+    {Input::Pad::K14},
+    {Input::Pad::K15},
+    {Input::Pad::K16},
+    {Input::Pad::K17},
+    {Input::Pad::K21}, //8
+    {Input::Pad::K22}, //9
+    {Input::Pad::K23}, //10
+    {Input::Pad::K24}, //11
+    {Input::Pad::K25}, //12
+    {Input::Pad::K26}, //13
+    {Input::Pad::K27}, //14
+    {},{},{},{},{},{},{},{},{},{}, //15~24
+    {Input::Pad::S2L, Input::Pad::S2R} // Sc2
+};
 
-    // from Input::Pad to NoteLaneIndex
-    const NoteLaneIndex KeyToLaneMap[] = 
-    {
-        Sc1, Sc1,
-        K1, K2, K3, K4, K5, K6, K7,
-        _, _, _, _, _, _,
+// from Input::Pad to NoteLaneIndex
+const NoteLaneIndex KeyToLaneMap[] = 
+{
+    Sc1, Sc1,
+    K1, K2, K3, K4, K5, K6, K7,
+    _, _, _, _, _, _,
 
-        Sc2, Sc2,
-        K8, K9, K10, K11, K12, K13, K14,
-        _, _, _, _, _, _,
-    };
-}
-
-using namespace bms;
+    Sc2, Sc2,
+    K8, K9, K10, K11, K12, K13, K14,
+    _, _, _, _, _, _,
+};
 
 chartBMS::chartBMS() : vChart(BGM_LANE_COUNT, (size_t)eNoteExt::EXT_COUNT)
 {
@@ -338,7 +335,7 @@ void chartBMS::loadBMS(const BMS& objBms)
 }
 
 
-std::pair<NoteLaneCategory, NoteLaneIndex> chartBMS::getLaneFromKey(Input::Pad input)
+NoteLane chartBMS::getLaneFromKey(Input::Pad input)
 {
     if (input >= Input::S1L && input < Input::ESC && KeyToLaneMap[input] != _)
     {
@@ -360,10 +357,10 @@ std::pair<NoteLaneCategory, NoteLaneIndex> chartBMS::getLaneFromKey(Input::Pad i
 
 std::vector<Input::Pad> chartBMS::getInputFromLane(size_t channel)
 {
-    if (channel >= bms::LaneToKeyMap->size())
+    if (channel >= LaneToKeyMap->size())
         return {};
     else
-        return bms::LaneToKeyMap[channel];
+        return LaneToKeyMap[channel];
 }
 
 void chartBMS::preUpdate(const Time& t)

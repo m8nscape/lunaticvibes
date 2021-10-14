@@ -12,6 +12,7 @@
 #include "game/data/switch.h"
 #include "game/graphics/video.h"
 #include "game/scene/scene_context.h"
+#include "skin_lr2_converters.h"
 
 #ifdef _WIN32
 // For GetWindowsDirectory
@@ -56,148 +57,6 @@ enum sprite_type
     // Result
     LR2_GAUGECHART_1P,
     LR2_GAUGECHART_2P,
-};
-
-std::vector<std::variant<std::monostate, eSwitch, eOption>> buttonAdapter{
-    // 0
-    std::monostate(),
-
-    // 1~9
-    eSwitch::SELECT_PANEL1,
-    eSwitch::SELECT_PANEL2,
-    eSwitch::SELECT_PANEL3,
-    eSwitch::SELECT_PANEL4,
-    eSwitch::SELECT_PANEL5,
-    eSwitch::SELECT_PANEL6,
-    eSwitch::SELECT_PANEL7,
-    eSwitch::SELECT_PANEL8,
-    eSwitch::SELECT_PANEL9,
-    
-    // 10~12
-    eOption::SELECT_FILTER_DIFF,
-    eOption::SELECT_FILTER_KEYS,
-    eOption::SELECT_SORT,
-
-    // 13~19
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-
-    // 20~28
-    eOption::SOUND_FX0,
-    eOption::SOUND_FX1,
-    eOption::SOUND_FX2,
-    eSwitch::SOUND_FX0,
-    eSwitch::SOUND_FX1,
-    eSwitch::SOUND_FX2,
-    eOption::SOUND_TARGET_FX0,
-    eOption::SOUND_TARGET_FX1,
-    eOption::SOUND_TARGET_FX2,
-
-    //29~30
-    eSwitch::_FALSE,	// EQ off/on
-    eSwitch::_FALSE,	// EQ Preset
-
-    //31~33
-    eSwitch::SOUND_VOLUME,		// volume control
-    eSwitch::SOUND_PITCH,
-    eOption::SOUND_PITCH_TYPE,
-
-    //34~39
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-
-    //40~45
-    eOption::PLAY_GAUGE_TYPE_1P,
-    eOption::PLAY_GAUGE_TYPE_2P,
-    eOption::PLAY_RANDOM_TYPE_1P,
-    eOption::PLAY_RANDOM_TYPE_2P,
-    eSwitch::PLAY_OPTION_AUTOSCR_1P,
-    eSwitch::PLAY_OPTION_AUTOSCR_2P,
-    
-    //46~49
-    eSwitch::_FALSE,	// shutter?
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,	// reserved
-    eSwitch::_FALSE,	// reserved
-
-    //50~51
-    eOption::PLAY_LANE_EFFECT_TYPE_1P,
-    eOption::PLAY_LANE_EFFECT_TYPE_2P,
-
-    eSwitch::_FALSE,	// reserved
-    eSwitch::_FALSE,	// reserved
-
-    //54
-    eSwitch::PLAY_OPTION_DP_FLIP,
-    eOption::PLAY_HSFIX_TYPE_1P,
-    eOption::PLAY_BATTLE_TYPE,
-    eSwitch::_FALSE,	// HS-1P
-    eSwitch::_FALSE,	// HS-2P
-
-    // 59~69
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-
-    // 70
-    eSwitch::SYSTEM_SCOREGRAPH,
-    eOption::PLAY_GHOST_TYPE_1P,
-    eSwitch::_TRUE,	// bga off/on/autoplay only, special
-    eSwitch::_TRUE, // bga normal/extend, special
-    eSwitch::_FALSE,// JUDGE TIMING
-    eSwitch::_FALSE,// AUTO ADJUST, not supported
-    eSwitch::_FALSE, // default target rate
-    eSwitch::_FALSE, // target
-
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-
-        // 80
-    eSwitch::_TRUE, // screen mode full/window, special
-    eSwitch::_FALSE, // color mode, 32bit fixed
-    eSwitch::_TRUE, // vsync, special
-    eSwitch::_FALSE,//save replay, not supported
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-
-        //90
-    eSwitch::_FALSE,//off/favorite/ignore, not supported
-    eSwitch::_FALSE,	// select all
-    eSwitch::_FALSE,	// select beginner
-    eSwitch::_FALSE,	// select normal
-    eSwitch::_FALSE,	// select hyper
-    eSwitch::_FALSE,	// select another
-    eSwitch::_FALSE,	// select insane
-
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-
-        // 101
-
-
 };
 
 namespace lr2skin
@@ -717,7 +576,11 @@ int SkinLR2::IMAGE()
 #endif
                         }
                         else
-                            _textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(paths[cf.value].u8string().c_str()));
+                        {
+                            Image img = Image(paths[cf.value].u8string().c_str());
+                            if (info.hasTransparentColor) img.setTransparentColorRGB(info.transparentColor);
+                            _textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(img);
+                        }
                         LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added IMAGE[" << imageCount << "]: " << cf.filepath;
                     }
                     ++imageCount;
@@ -1009,12 +872,10 @@ int SkinLR2::others()
         if (r < 0) r = 0;
         if (g < 0) g = 0;
         if (b < 0) b = 0;
-        transColor = {
-            static_cast<unsigned>(r),
-            static_cast<unsigned>(g),
-            static_cast<unsigned>(b)
-        };
-        LOG_DEBUG << "[Skin] " << csvLineNumber << ": Set transparent color: " << std::hex << r << ' ' << g << ' ' << b << ", but not implemented" << std::dec;
+        info.hasTransparentColor = true;
+        info.transparentColor = Color(r, g, b, 255);
+        LOG_DEBUG << "[Skin] " << csvLineNumber << ": Set transparent color: " 
+            << std::hex << r << ' ' << g << ' ' << b << std::dec;
         return 2;
     }
     if (strEqual(parseKeyBuf, "#FLIPSIDE", true))
@@ -1172,8 +1033,7 @@ ParseRet SkinLR2::SRC_NUMBER()
     lr2skin::s_number d(parseParamBuf);
     if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
 
-    // TODO convert num
-    eNumber iNum = (eNumber)d.num;
+    eNumber iNum = lr2skin::num(d.num);
 
     // get NumType from div_x, div_y
     unsigned f = d.div_y * d.div_x;
@@ -1218,7 +1078,7 @@ ParseRet SkinLR2::SRC_BUTTON()
     lr2skin::s_button d(parseParamBuf);
     if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
     
-    if (d.type < (int)buttonAdapter.size())
+    if (d.type < 270)
     {
         std::shared_ptr<SpriteOption> s;
 
@@ -1232,10 +1092,11 @@ ParseRet SkinLR2::SRC_BUTTON()
             s = std::make_shared<SpriteOption>(
                 textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, eTimer::SCENE_START, d.div_y, d.div_x, false);
         }
-
-        if (auto sw = std::get_if<eSwitch>(&buttonAdapter[d.type]))
+        eSwitch sw;
+        eOption op;
+        if (lr2skin::buttonSw(d.type, sw))
         {
-            if (*sw == eSwitch::_TRUE)
+            if (sw == eSwitch::_TRUE)
             {
                 switch (d.type)
                 {
@@ -1247,26 +1108,12 @@ ParseRet SkinLR2::SRC_BUTTON()
                     break;
                 }
             }
-            s->setInd(SpriteOption::opType::SWITCH, (unsigned)*sw);
+            s->setInd(SpriteOption::opType::SWITCH, (unsigned)sw);
         }
-        else if (auto op = std::get_if<eOption>(&buttonAdapter[d.type]))
+        if (lr2skin::buttonOp(d.type, op))
         {
-            s->setInd(SpriteOption::opType::OPTION, (unsigned)*op);
+            s->setInd(SpriteOption::opType::OPTION, (unsigned)op);
         }
-
-        _sprites.push_back(s);
-        _sprites.back()->setSrcLine(csvLineNumber);
-    }
-    else if (d.type == 200)
-    {
-        // SRC type 200 (メインヘルプ起動)
-        // why
-
-        // FIXME don't know what to do on this case, deal as false
-
-        auto s = std::make_shared<SpriteOption>(
-            textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, eTimer::SCENE_START, d.div_y, d.div_x, false);
-        s->setInd(SpriteOption::opType::SWITCH, (unsigned)eSwitch::_FALSE);
         _sprites.push_back(s);
         _sprites.back()->setSrcLine(csvLineNumber);
     }
@@ -1426,8 +1273,7 @@ ParseRet SkinLR2::SRC_NOWCOMBO(size_t idx)
     lr2skin::s_number d(parseParamBuf);
     if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
 
-    // TODO convert num
-    eNumber iNum = (eNumber)d.num;
+    eNumber iNum = lr2skin::num(d.num);
 
     // get NumType from div_x, div_y
     unsigned f = d.div_y * d.div_x;
@@ -1591,31 +1437,33 @@ ParseRet SkinLR2::SRC_NOWCOMBO2()
 
 const size_t NoteIdxToLaneMap[] =
 {
-    Sc1,
-    K1,
-    K2,
-    K3,
-    K4,
-    K5,
-    K6,
-    K7,
-    _,
-    _,
+    chart::Sc1,
+    chart::K1,
+    chart::K2,
+    chart::K3,
+    chart::K4,
+    chart::K5,
+    chart::K6,
+    chart::K7,
+    chart::_,
+    chart::_,
 
-    Sc2,
-    K8,
-    K9,
-    K10,
-    K11,
-    K12,
-    K13,
-    K14,
-    _,
-    _,
+    chart::Sc2,
+    chart::K8,
+    chart::K9,
+    chart::K10,
+    chart::K11,
+    chart::K12,
+    chart::K13,
+    chart::K14,
+    chart::_,
+    chart::_,
 };
 
 ParseRet SkinLR2::SRC_NOTE()
 {
+    using namespace chart;
+
     // skip unsupported
     static const std::regex re("#SRC_(AUTO_)?(NOTE|MINE|LN_END|LN_BODY|LN_START)", 
         std::regex_constants::ECMAScript | std::regex_constants::icase | std::regex_constants::optimize);
@@ -1625,8 +1473,7 @@ ParseRet SkinLR2::SRC_NOTE()
     // load raw into data struct
     lr2skin::s_basic d(parseParamBuf);
 
-    // TODO convert timer
-    eTimer iTimer = (eTimer)d.timer;
+    eTimer iTimer = lr2skin::timer(d.timer);
 
     // Find texture from map by gr
     pTexture tex = nullptr;
@@ -1777,12 +1624,32 @@ ParseRet SkinLR2::SRC_BAR_BODY()
 {
     lr2skin::s_basic d(parseParamBuf);
     if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
-    size_t type = d._null & 0xFFFFFFFF;
+    BarType type;
+    switch (d._null & 0xFFFFFFFF)
+    {
+    case 0:  type = BarType::SONG; break;
+        //   type = BarType::NEW_SONG; break;
+    case 1:  type = BarType::FOLDER; break;
+    case 2:  type = BarType::CUSTOM_FOLDER; break;
+    case 3:  type = BarType::NEW_SONG_FOLDER; break;
+    case 4:  type = BarType::RIVAL; break;
+    case 5:  type = BarType::SONG_RIVAL; break;
+    case 6:  type = BarType::COURSE_FOLDER; break;
+    case 7:  type = BarType::NEW_COURSE; break;
+    case 8:  type = BarType::COURSE; break;
+    case 9:  type = BarType::RANDOM_COURSE; break;
+    case 10: type = BarType::TYPE_COUNT; break;
+    default: break;
+    }
 
     for (auto& bar : _barSprites)
     {
-        bar->setBody(BarType(type),
+        bar->setBody(type,
             textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer);
+
+        if (type == BarType::SONG)
+            bar->setBody(BarType::NEW_SONG,
+                textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer);
     }
 
     return ParseRet::OK;
@@ -2035,6 +1902,8 @@ int SkinLR2::DST()
 
 ParseRet SkinLR2::DST_NOTE()
 {
+    using namespace chart;
+
     if (!strEqual(parseKeyBuf, "#DST_NOTE", true))
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
@@ -2110,9 +1979,9 @@ ParseRet SkinLR2::DST_LINE()
 
     p->playerSlot = d._null / 10;  // player slot, 1P:0, 2P:1
 
-    NoteLaneCategory cat = p->getLaneCat();
-    NoteLaneIndex idx = p->getLaneIdx();
-    if (cat != NoteLaneCategory::EXTRA || idx != EXTRA_BARLINE)
+    chart::NoteLaneCategory cat = p->getLaneCat();
+    chart::NoteLaneIndex idx = p->getLaneIdx();
+    if (cat != chart::NoteLaneCategory::EXTRA || idx != chart::EXTRA_BARLINE)
     {
         LOG_WARNING << "[Skin] " << csvLineNumber << ": Previous SRC definition is not LINE " <<
             "(Line: " << csvLineNumber << ")";
@@ -2764,12 +2633,14 @@ void SkinLR2::IF(const Tokens &t, std::ifstream& lr2skin)
 
 SkinLR2::SkinLR2(Path p)
 {
+    _type = eSkinType::LR2;
+
     for (size_t i = 0; i < BAR_ENTRY_SPRITE_COUNT; ++i)
     {
         _barSprites[i] = std::make_shared<SpriteBarEntry>(i);
         _sprites.push_back(_barSprites[i]);
     }
-    _laneSprites.resize(LANE_COUNT);
+    _laneSprites.resize(chart::LANE_COUNT);
     updateDstOpt();
     loadCSV(p);
 
@@ -2825,7 +2696,7 @@ void SkinLR2::loadCSV(Path p)
         csvFile.open(p, std::ios::binary);
     }
 
-    // TODO load skin customize
+    // TODO load skin customize from profile
     for (auto c : customize)
     {
         //data().setDstOption(static_cast<dst_option>(c.dst_op + c.value), true);

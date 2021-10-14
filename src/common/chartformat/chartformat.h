@@ -42,6 +42,7 @@ public:
     Path absolutePath;
     HashMD5 fileHash;
     HashMD5 folderHash;
+    long long addTime;  // from epoch time
 
     StringContent title;
     StringContent title2;

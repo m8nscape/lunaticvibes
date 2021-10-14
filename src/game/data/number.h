@@ -190,6 +190,7 @@ enum class eNumber: unsigned
 
 	SCENE_UPDATE_FPS = 1000,
 	INPUT_DETECT_FPS,
+	NEW_ENTRY_SECONDS,
 
     NUMBER_COUNT
 };

@@ -4,6 +4,7 @@
 #include "scene_decide.h"
 #include "scene_play.h"
 #include "scene_result.h"
+#include "scene_play_retry_trans.h"
 #include "game/skin/skin_mgr.h"
 #include "game/ruleset/ruleset.h"
 
@@ -46,6 +47,10 @@ pScene SceneMgr::get(eScene e)
             return nullptr;
         }
 		break;
+
+    case eScene::RETRY:
+        ps = std::make_shared<ScenePlayRetryTrans>();
+        break;
 
     case eScene::RESULT:
         ps = std::make_shared<SceneResult>();

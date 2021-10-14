@@ -44,6 +44,8 @@ enum class eMode {
     BGM,
     SOUND,
 
+    RETRY,
+
     TMPL,
     TEST,
 

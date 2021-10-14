@@ -31,6 +31,7 @@ add_library(game STATIC
     scene/scene_decide.cpp
     scene/scene_mgr.cpp
     scene/scene_play.cpp
+    scene/scene_play_retry_trans.cpp
     scene/scene_result.cpp
     scene/scene_select.cpp
     skin/skin.cpp
@@ -41,8 +42,7 @@ add_library(game STATIC
     sound/sound_fmod.cpp
     sound/sound_fmod_callback.cpp
     sound/sound_mgr.cpp
-    sound/sound_sample.cpp
-)
+    sound/sound_sample.cpp "skin/skin_lr2_converters.cpp")
 
 target_include_directories(game PRIVATE 
     ${PROJECT_INCLUDE_DIR}

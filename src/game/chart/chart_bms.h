@@ -18,10 +18,10 @@ namespace bms
     };
 };
 
-class chartBMS : public vChart
+class chartBMS : public chart::vChart
 {
 public:
-    virtual std::pair<NoteLaneCategory, NoteLaneIndex> getLaneFromKey(Input::Pad input);
+    virtual chart::NoteLane getLaneFromKey(Input::Pad input);
     virtual std::vector<Input::Pad> getInputFromLane(size_t channel);
     decltype(_specialNoteLists[0])& getBgaBase()  { return _specialNoteLists[(size_t)eNoteExt::BGABASE]; }
     decltype(_specialNoteLists[0])& getBgaLayer() { return _specialNoteLists[(size_t)eNoteExt::BGALAYER]; }

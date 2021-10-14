@@ -205,8 +205,6 @@ Texture::Texture(const Image& srcImage)
         [](SDL_Texture* p) {if (p && gFrameRenderer) SDL_DestroyTexture(p); });
     if (_pTexture)
     {
-        // TODO set transparent color
-        SDL_SetColorKey(&*srcImage._pSurface, SDL_RLEACCEL, SDL_MapRGB(srcImage._pSurface->format, 0, 255, 0));
         _texRect = srcImage.getRect();
         _loaded = true;
     }

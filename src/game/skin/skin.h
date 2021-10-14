@@ -9,6 +9,7 @@
 
 enum class eSkinType
 {
+    UNDEF,
     LR2,
 
 };
@@ -30,9 +31,11 @@ class vSkin
 public:
 
 protected:
+    eSkinType _type;
     vSkin();
 public:
 	virtual ~vSkin() = default;
+    eSkinType type() const { return _type; }
 
 protected:
     bool _loaded = false;
@@ -94,6 +97,9 @@ public:
         eMode mode;
         std::string name;
         std::string maker;
+
+        bool hasTransparentColor;
+        Color transparentColor;
 
         // General 
         unsigned timeIntro; // #STARTINPUT | before this time the scene cannot receive input. Implemented by derived class

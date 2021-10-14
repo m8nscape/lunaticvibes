@@ -4,6 +4,8 @@
 #include "game/data/data.h"
 #include "game/scene/scene_context.h"
 
+using namespace chart;
+
 void setJudgeTimer1PInner(RulesetBMS::JudgeType judge, long long t)
 {
 	gTimers.set(eTimer::_JUDGE_1P_0, TIMER_NEVER);
@@ -795,7 +797,4 @@ void RulesetBMS::update(Time t)
 	}
     gNumbers.flush();
     gOptions.flush();
-
-    // TODO global num update
-        
 }

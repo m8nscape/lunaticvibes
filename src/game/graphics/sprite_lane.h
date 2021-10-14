@@ -10,8 +10,8 @@
 class SpriteLaneVertical: public SpriteStatic
 {
 protected:
-	NoteLaneCategory _category;
-    NoteLaneIndex _index;
+	chart::NoteLaneCategory _category;
+    chart::NoteLaneIndex _index;
     double _basespd;
     double _hispeed;
     std::list<Rect> _outRect;
@@ -30,7 +30,7 @@ public:
         );
 
 public:
-    void setLane(NoteLaneCategory cat, NoteLaneIndex idx);
+    void setLane(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx);
     decltype(_category) getLaneCat() const { return _category; }
     decltype(_index) getLaneIdx() const { return _index; }
     void getRectSize(int& w, int& h);

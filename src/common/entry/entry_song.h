@@ -7,6 +7,7 @@ class Song : public vEntry
 {
 public:
     std::shared_ptr<vChartFormat> _file;
+
     unsigned lamp = 0;
     unsigned rank = 0;
 
@@ -23,6 +24,8 @@ public:
         _type = eEntryType::SONG;
         _name = _file->title;
         _name2 = _file->title2;
+
+        _addTime = _file->addTime;
     }
     Song(vChartFormat& f) : Song(std::make_shared<vChartFormat>(f)) {}
 };

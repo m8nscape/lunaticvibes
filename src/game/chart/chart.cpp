@@ -6,6 +6,8 @@
 
 #include "chart_types.h"
 
+using namespace chart;
+
 vChart::vChart( size_t pn, size_t en) :
     _noteLists{}, _bgmNoteLists(pn), _specialNoteLists(en), _bgmNoteListIters(pn), _specialNoteListIters(en)
 {

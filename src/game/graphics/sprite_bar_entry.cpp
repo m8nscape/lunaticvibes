@@ -191,6 +191,9 @@ bool SpriteBarEntry::update(Time time)
         auto pinfo = list[listidx];
         drawBodyOn = (index == gSelectContext.cursor);
 
+        // check new song
+        bool isNewEntry = (pinfo->_addTime < std::time(nullptr) + gNumbers.get(eNumber::NEW_ENTRY_SECONDS));
+
         static const std::map<eEntryType, size_t> BAR_TYPE_MAP =
         {
             {eEntryType::UNKNOWN, (size_t)BarType::SONG},
@@ -203,29 +206,40 @@ bool SpriteBarEntry::update(Time time)
             {eEntryType::COURSE, (size_t)BarType::COURSE},
             {eEntryType::RANDOM_COURSE, (size_t)BarType::RANDOM_COURSE},
         };
-        size_t typeidx = (size_t)BarType::SONG;
+        size_t barTypeIdx = (size_t)BarType::SONG;
         if (BAR_TYPE_MAP.find(pinfo->type()) != BAR_TYPE_MAP.end())
-            typeidx = BAR_TYPE_MAP.at(pinfo->type());
+            barTypeIdx = BAR_TYPE_MAP.at(pinfo->type());
+        if (isNewEntry)
+        {
+            switch ((BarType)barTypeIdx)
+            {
+            case BarType::SONG:
+                barTypeIdx = (size_t)BarType::NEW_SONG;
+                break;
 
-        if (!drawBodyOn && sBodyOff[typeidx])
-        {
-            if (!sBodyOff[typeidx]->update(time))
-            {
-                _draw = false;
-                return false;
+            default:
+                break;
             }
-            drawBodyType = typeidx;
-            setParent(sBodyOff[typeidx]);
         }
-        if (drawBodyOn && sBodyOn[typeidx])
+        if (!drawBodyOn && sBodyOff[barTypeIdx])
         {
-            if (!sBodyOn[typeidx]->update(time))
+            if (!sBodyOff[barTypeIdx]->update(time))
             {
                 _draw = false;
                 return false;
             }
-            drawBodyType = typeidx;
-            setParent(sBodyOn[typeidx]);
+            drawBodyType = barTypeIdx;
+            setParent(sBodyOff[barTypeIdx]);
+        }
+        if (drawBodyOn && sBodyOn[barTypeIdx])
+        {
+            if (!sBodyOn[barTypeIdx]->update(time))
+            {
+                _draw = false;
+                return false;
+            }
+            drawBodyType = barTypeIdx;
+            setParent(sBodyOn[barTypeIdx]);
         }
         if (_parent.expired())
         {
@@ -235,21 +249,18 @@ bool SpriteBarEntry::update(Time time)
         else
         {
             auto parent = _parent.lock();
-            _current.rect.x = parent->getCurrentRenderParams().rect.x;
-            _current.rect.y = parent->getCurrentRenderParams().rect.y;
-            _current.color = parent->getCurrentRenderParams().color;
-            _current.angle = parent->getCurrentRenderParams().angle;
+            const auto&& parentRenderParam = parent->getCurrentRenderParams();
+            _current.rect = parentRenderParam.rect;
+            _current.color = parentRenderParam.color;
+            _current.angle = parentRenderParam.angle;
         }
 
         drawTitle = false;
-        if (/* TODO NEW SONG */true)
+        drawTitleType = size_t(isNewEntry ? BarTitleType::NEW_SONG : BarTitleType::NORMAL);
+        if (sTitle[drawTitleType])
         {
-            drawTitleType = size_t(BarTitleType::NORMAL);
-            if (sTitle[drawTitleType])
-            {
-                sTitle[drawTitleType]->update(time);
-                drawTitle = true;
-            }
+            sTitle[drawTitleType]->update(time);
+            drawTitle = true;
         }
 
         /*
