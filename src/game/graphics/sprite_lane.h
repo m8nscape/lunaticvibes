@@ -35,7 +35,7 @@ public:
     decltype(_index) getLaneIdx() const { return _index; }
     void getRectSize(int& w, int& h);
 	virtual bool update(const Time& t);
-    virtual void updateNoteRect(const Time& t, vChart* ps, double beat, unsigned measure);
+    virtual void updateNoteRect(const Time& t);
     virtual void draw() const;
 
 public:
@@ -55,6 +55,6 @@ public:
         SpriteLaneVertical(player, basespeed, lanespeed) {}
 
 public:
-    virtual void updateNoteRect(const Time& t, vChart* ps, double beat, unsigned measure) override;
+    virtual void updateNoteRect(const Time& t) override;
     virtual void draw() const;
 };

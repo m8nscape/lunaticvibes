@@ -1162,7 +1162,6 @@ ParseRet SkinLR2::SRC_IMAGE()
             textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x));
     }
 
-    _sprites_child.push_back(_sprites.back());
     _sprites.back()->setSrcLine(csvLineNumber);
     
     return ParseRet::OK;
@@ -1185,7 +1184,6 @@ ParseRet SkinLR2::SRC_NUMBER()
 
     _sprites.emplace_back(std::make_shared<SpriteNumber>(
         textureBuf, Rect(d.x, d.y, d.w, d.h), (NumberAlign)d.align, d.keta, d.div_y, d.div_x, d.cycle, iNum, (eTimer)d.timer, f));
-    _sprites_child.push_back(_sprites.back());
     _sprites.back()->setSrcLine(csvLineNumber);
 
     return ParseRet::OK;
@@ -1198,7 +1196,6 @@ ParseRet SkinLR2::SRC_SLIDER()
 
     _sprites.push_back(std::make_shared<SpriteSlider>(
         textureBuf, Rect(d.x, d.y, d.w, d.h), (SliderDirection)d.muki, d.range, d.div_y*d.div_x, d.cycle, (eSlider)d.type, (eTimer)d.timer, d.div_y, d.div_x));
-    _sprites_child.push_back(_sprites.back());
     _sprites.back()->setSrcLine(csvLineNumber);
     
     return ParseRet::OK;
@@ -1211,7 +1208,6 @@ ParseRet SkinLR2::SRC_BARGRAPH()
 
     _sprites.push_back(std::make_shared<SpriteBargraph>(
         textureBuf, Rect(d.x, d.y, d.w, d.h), (BargraphDirection)d.muki, d.div_y*d.div_x, d.cycle, (eBargraph)d.type, (eTimer)d.timer, d.div_y, d.div_x));
-    _sprites_child.push_back(_sprites.back());
     _sprites.back()->setSrcLine(csvLineNumber);
 
     return ParseRet::OK;
@@ -1259,7 +1255,6 @@ ParseRet SkinLR2::SRC_BUTTON()
         }
 
         _sprites.push_back(s);
-        _sprites_child.push_back(_sprites.back());
         _sprites.back()->setSrcLine(csvLineNumber);
     }
     else if (d.type == 200)
@@ -1273,7 +1268,6 @@ ParseRet SkinLR2::SRC_BUTTON()
             textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, eTimer::SCENE_START, d.div_y, d.div_x, false);
         s->setInd(SpriteOption::opType::SWITCH, (unsigned)eSwitch::_FALSE);
         _sprites.push_back(s);
-        _sprites_child.push_back(_sprites.back());
         _sprites.back()->setSrcLine(csvLineNumber);
     }
     else
@@ -1283,7 +1277,6 @@ ParseRet SkinLR2::SRC_BUTTON()
             textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, eTimer::SCENE_START, d.div_y, d.div_x, false);
         s->setInd(SpriteOption::opType::SWITCH, (unsigned)eSwitch::_FALSE);
         _sprites.push_back(s);
-        _sprites_child.push_back(_sprites.back());
         _sprites.back()->setSrcLine(csvLineNumber);
     }
 
@@ -1297,7 +1290,6 @@ ParseRet SkinLR2::SRC_ONMOUSE()
 
     _sprites.push_back(std::make_shared<SpriteOnMouse>(
         textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, d.panel, Rect(d.x2, d.y2, d.w2, d.h2), (eTimer)d.timer, d.div_y, d.div_x));
-    _sprites_child.push_back(_sprites.back());
     _sprites.back()->setSrcLine(csvLineNumber);
 
     return ParseRet::OK;
@@ -1311,7 +1303,6 @@ ParseRet SkinLR2::SRC_MOUSECURSOR()
 
     _sprites.push_back(std::make_shared<SpriteCursor>(
         textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x));
-    _sprites_child.push_back(_sprites.back());
     _sprites.back()->setSrcLine(csvLineNumber);
 
     return ParseRet::OK;
@@ -1334,7 +1325,6 @@ ParseRet SkinLR2::SRC_TEXT()
             _fontNameMap[std::to_string(d.font)], (eText)d.st, (TextAlign)d.align));
     }
 
-    _sprites_child.push_back(_sprites.back());
     _sprites.back()->setSrcLine(csvLineNumber);
 
     return ParseRet::OK;
@@ -1358,7 +1348,6 @@ ParseRet SkinLR2::SRC_GAUGECHART(int player)
         type,
         d.field_w, d.field_h, d.start, d.end, d.w));
 
-    _sprites_child.push_back(_sprites.back());
     _sprites.back()->setSrcLine(csvLineNumber);
 
     return ParseRet::OK;
@@ -1384,7 +1373,6 @@ ParseRet SkinLR2::SRC_SCORECHART()
         type,
         d.field_w, d.field_h, d.start, d.end, d.w, color));
 
-    _sprites_child.push_back(_sprites.back());
     _sprites.back()->setSrcLine(csvLineNumber);
 
     return ParseRet::OK;
@@ -1404,7 +1392,6 @@ ParseRet SkinLR2::SRC_JUDGELINE()
 
     auto p = std::make_shared<SpriteGlobal>(GLOBAL_SPRITE_IDX_JUDGELINE);
     _sprites.push_back(p);
-    _sprites_child.push_back(p);
     _sprites.back()->setSrcLine(csvLineNumber);
 
     return ParseRet::OK;
@@ -1478,7 +1465,6 @@ ParseRet SkinLR2::SRC_GROOVEGAUGE()
 
     auto p = std::make_shared<SpriteGlobal>(idx);
     _sprites.push_back(p);
-    _sprites_child.push_back(p);
     _sprites.back()->setSrcLine(csvLineNumber);
     
     return ParseRet::OK;
@@ -1500,7 +1486,6 @@ ParseRet SkinLR2::SRC_NOWJUDGE1()
             noshiftJudge1P[bufJudge1PSlot] = toInt(parseParamBuf[10]);
             auto p = std::make_shared<SpriteGlobal>(idx);
             _sprites.push_back(p);
-            _sprites_child.push_back(p);
             _sprites.back()->setSrcLine(csvLineNumber);
         }
         else
@@ -1526,7 +1511,6 @@ ParseRet SkinLR2::SRC_NOWJUDGE2()
             noshiftJudge2P[bufJudge2PSlot] = toInt(parseParamBuf[10]);
             auto p = std::make_shared<SpriteGlobal>(idx);
             _sprites.push_back(p);
-            _sprites_child.push_back(p);
             _sprites.back()->setSrcLine(csvLineNumber);
         }
         else
@@ -1561,7 +1545,6 @@ ParseRet SkinLR2::SRC_NOWCOMBO1()
         {
             auto p = std::make_shared<SpriteGlobal>(idx);
             _sprites.push_back(p);
-            _sprites_child.push_back(p);
             _sprites.back()->setSrcLine(csvLineNumber);
         }
         else
@@ -1596,7 +1579,6 @@ ParseRet SkinLR2::SRC_NOWCOMBO2()
         {
             auto p = std::make_shared<SpriteGlobal>(idx);
             _sprites.push_back(p);
-            _sprites_child.push_back(p);
             _sprites.back()->setSrcLine(csvLineNumber);
         }
         else
@@ -1722,7 +1704,6 @@ ParseRet SkinLR2::SRC_NOTE()
     case 2:
         _sprites.push_back(std::make_shared<SpriteLaneVertical>(
             _textureNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, iTimer, d.div_y, d.div_x, false, !!(d._null >= 20)));
-        _sprites_child.push_back(_sprites.back());
 
         _laneSprites[i] = std::static_pointer_cast<SpriteLaneVertical>(_sprites.back());
         _laneSprites[i]->setLane(cat, idx);
@@ -1738,7 +1719,6 @@ ParseRet SkinLR2::SRC_NOTE()
         if (_laneSprites[i] == nullptr)
         {
             _sprites.push_back(std::make_shared<SpriteLaneVerticalLN>(!!(d._null >= 20)));
-            _sprites_child.push_back(_sprites.back());
             _laneSprites[i] = std::static_pointer_cast<SpriteLaneVerticalLN>(_sprites.back());
             _laneSprites[i]->setLane(cat, idx);
         }
@@ -1783,7 +1763,6 @@ ParseRet SkinLR2::SRC_BGA()
 
     _sprites.push_back(std::make_shared<SpriteStatic>(gPlayContext.bgaTexture, Rect()));
 
-    _sprites_child.push_back(_sprites.back());
     _sprites.back()->setSrcLine(csvLineNumber);
 
     return ParseRet::OK;

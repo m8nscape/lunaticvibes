@@ -98,6 +98,8 @@ class SkinLR2;
 
 // Bar Entry sprite:
 // select screen song bar. Have many sub-parts
+// The parent-child chain is a bit odd, it looks like this:
+//      BODY -> [sprite] -> TITLE/LEVEL/LAMP/RANK/etc.
 class SpriteBarEntry : public vSprite
 {
     typedef std::shared_ptr<SpriteAnimated> psAnimated;

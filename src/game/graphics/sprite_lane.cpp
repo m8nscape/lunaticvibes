@@ -1,5 +1,6 @@
 #include "sprite_lane.h"
 #include "game/data/number.h"
+#include "game/scene/scene_context.h"
 #include <cassert>
 
 SpriteLaneVertical::SpriteLaneVertical(unsigned player, double basespeed, double lanespeed):
@@ -56,26 +57,35 @@ bool SpriteLaneVertical::update(const Time& t)
 		default:
 			break;
 		}
+		updateNoteRect(t);
 		return true;
 	}
 	return false;
 }
 
-void SpriteLaneVertical::updateNoteRect(const Time& t, vChart* s, double beat, unsigned measure)
+void SpriteLaneVertical::updateNoteRect(const Time& t)
 {
+	_outRect.clear();
+	auto pChart = gPlayContext.chartObj[playerSlot];
+	if (pChart != nullptr && gChartContext.started)
+	{
+		return;
+	}
+	auto beat = gUpdateContext.beat;
+	auto measure = gUpdateContext.measure;
+
     // refresh note sprites
 	pNote->update(t);
 
     // fetch note size, c.y + c.h = judge line pos (top-left corner), -c.h = height start drawing
     auto c = _current.rect;
-    auto currTotalBeat = s->getBarBeatstamp(measure) + beat;
+    auto currTotalBeat = pChart->getBarBeatstamp(beat) + measure;
 
     // generate note rects and store to buffer
 	// 150BPM with 1.0x HS is 1600ms
     int y = (c.y + c.h);
-    _outRect.clear();
-    auto it = s->incomingNote(_category, _index);
-    while (!s->isLastNote(_category, _index, it) && y >= -c.h)
+    auto it = pChart->incomingNote(_category, _index);
+    while (!pChart->isLastNote(_category, _index, it) && y >= -c.h)
     {
 		auto noteBeatOffset = currTotalBeat - it->totalbeat;
         if (noteBeatOffset >= 0)
@@ -106,24 +116,32 @@ void SpriteLaneVertical::draw() const
 }
 
 
-void SpriteLaneVerticalLN::updateNoteRect(const Time& t, vChart* s, double beat, unsigned measure)
+void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 {
+	_outRect.clear();
+	_outRectBody.clear();
+	_outRectTail.clear();
+
+	auto pChart = gPlayContext.chartObj[playerSlot];
+	if (pChart != nullptr && gChartContext.started)
+	{
+		return;
+	}
+	auto beat = gUpdateContext.beat;
+	auto measure = gUpdateContext.measure;
+
 	// refresh note sprites
 	pNote->update(t);
 
 	// fetch note size, c.y + c.h = judge line pos (top-left corner), -c.h = height start drawing
 	auto c = _current.rect;
-	auto currTotalBeat = s->getBarBeatstamp(measure) + beat;
+	auto currTotalBeat = pChart->getBarBeatstamp(measure) + beat;
 
 	// generate note rects and store to buffer
 	// 150BPM with 1.0x HS is 1600ms
-	_outRect.clear();
-	_outRectBody.clear();
-	_outRectTail.clear();
-
 	int head_y_actual = c.y + c.h;
-	auto it = s->incomingNote(_category, _index);
-	while (!s->isLastNote(_category, _index, it) && head_y_actual >= -c.h)
+	auto it = pChart->incomingNote(_category, _index);
+	while (!pChart->isLastNote(_category, _index, it) && head_y_actual >= -c.h)
 	{
 		int head_y = c.y + c.h;
 		int tail_y = 0;
@@ -142,7 +160,7 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t, vChart* s, double beat,
 		{
 			const auto& head = *it;
 			++it;
-			if (s->isLastNote(_category, _index, it)) break;
+			if (pChart->isLastNote(_category, _index, it)) break;
 
 			const auto& tail = *it;
 

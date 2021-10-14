@@ -19,51 +19,26 @@ vSkin::vSkin()
 
 void vSkin::update()
 {
-	Time t;
-    double beat;
-    unsigned measure;
-
     // current beat, measure
     if (gPlayContext.chartObj[PLAYER_SLOT_1P] != nullptr)
     {
-        beat = gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentBeat();
-        measure = gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentMeasure();
-        gNumbers.set(eNumber::_TEST3, (int)(beat * 1000));
+        gUpdateContext.beat = gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentBeat();
+        gUpdateContext.measure = gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentMeasure();
+        gNumbers.set(eNumber::_TEST3, (int)(gUpdateContext.beat * 1000));
     }
 
-    auto updateSpriteLambda = [&t, beat, measure](const pSprite& s)
+    auto updateSpriteLambda = [](const pSprite& s)
     {
-		switch (s->type())
-		{
-        case SpriteTypes::GLOBAL:
-        {
-            auto ps = std::dynamic_pointer_cast<SpriteGlobal>(s);
-            if (gSprites[ps->getIdx()]) ps->set(gSprites[ps->getIdx()]);
-            ps->update(t);
-            break;
-        }
-		case SpriteTypes::NOTE_VERT:
-		{
-            auto ps = std::dynamic_pointer_cast<SpriteLaneVertical>(s);
-            if (gPlayContext.chartObj[ps->playerSlot] != nullptr && gChartContext.started)
-			{
-				ps->update(t);
-				ps->updateNoteRect(t, &*gPlayContext.chartObj[ps->playerSlot], beat, measure);
-			}
-			break;
-		}
-		default:
-			s->update(t);
-			break;
-		}
+        // children are updated inside parent's update()
+        if (s->hasParent()) return;
+
+		s->update(gUpdateContext.updateTime);
     };
 
 #ifdef _DEBUG
-	std::for_each(std::execution::seq, _sprites_parent.begin(), _sprites_parent.end(), updateSpriteLambda);
-    std::for_each(std::execution::seq, _sprites_child.begin(), _sprites_child.end(), updateSpriteLambda);
+	std::for_each(std::execution::seq, _sprites.begin(), _sprites.end(), updateSpriteLambda);
 #else
-    std::for_each(std::execution::par, _sprites_parent.begin(), _sprites_parent.end(), updateSpriteLambda);
-    std::for_each(std::execution::par, _sprites_child.begin(), _sprites_child.end(), updateSpriteLambda);
+    std::for_each(std::execution::par, _sprites.begin(), _sprites.end(), updateSpriteLambda);
 #endif
 }
 
@@ -71,22 +46,10 @@ void vSkin::update_mouse(int x, int y)
 {
     auto clickSpriteLambda = [x, y](const pSprite& s)
     {
-        switch (s->type())
+        auto pS = std::dynamic_pointer_cast<iSpriteMouse>(s);
+        if (pS != nullptr)
         {
-        case SpriteTypes::ONMOUSE:
-        {
-            auto ps = std::dynamic_pointer_cast<SpriteOnMouse>(s);
-            ps->checkMouseArea(x, y);
-            break;
-        }
-        case SpriteTypes::MOUSE_CURSOR:
-        {
-            auto ps = std::dynamic_pointer_cast<SpriteCursor>(s);
-            ps->moveToPos(x, y);
-            break;
-        }
-        default:
-            break;
+            pS->OnMouseMove(x, y);
         }
     };
 
@@ -99,22 +62,14 @@ void vSkin::update_mouse(int x, int y)
 
 void vSkin::update_mouse_click(int x, int y)
 {
+    // sprite inserted last has priority
     bool invoked = false;
-    for (auto it = _sprites.rend(); it != _sprites.rbegin() && !invoked;)
+    for (auto it = _sprites.rbegin(); it != _sprites.rend() && !invoked; ++it)
     {
-        --it;
-        auto s = *it;
-        switch (s->type())
+        auto pS = std::dynamic_pointer_cast<iSpriteMouse>(*it);
+        if (pS != nullptr)
         {
-        case SpriteTypes::BUTTON:
-        {
-            auto ps = std::dynamic_pointer_cast<SpriteButton>(s);
-            if (ps->doIfInRange(x, y))
-                invoked = true;
-            break;
-        }
-        default:
-            break;
+            if (pS->OnClick(x, y)) invoked = true;
         }
     }
 

@@ -7,7 +7,7 @@
 #include "common/beat.h"
 
 typedef std::bitset<Input::KEY_COUNT> InputMask;
-typedef std::function<void(InputMask&, Time)> INPUTCALLBACK;
+typedef std::function<void(InputMask&, const Time&)> INPUTCALLBACK;
 //typedef void(*PressedHandleCallback)(void* owner, InputMask&);
 //typedef void(*HoldHandleCallback)(void* owner, InputMask&);
 //typedef void(*ReleasedHandleCallback)(void* owner, InputMask&);

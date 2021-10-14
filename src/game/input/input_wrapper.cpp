@@ -25,7 +25,7 @@ void InputWrapper::_loop()
 	gNumbers.set(eNumber::INPUT_DETECT_FPS, getRateRealtime());
     _prev = _curr;
     _curr = InputMgr::detect();
-    Time t;
+    Time now;
 
     InputMask p{ 0 }, h{ 0 }, r{ 0 };
 
@@ -36,7 +36,7 @@ void InputWrapper::_loop()
         auto& [ms, stat] = _inputBuffer[i];
         if (d[i] && !stat)
         {
-            ms = t.norm();
+            ms = now.norm();
             stat = true;
             p.set(i);
         }
@@ -44,11 +44,11 @@ void InputWrapper::_loop()
         {
             if (_releaseBuffer[i] == -1)
             {
-                _releaseBuffer[i] = t.norm();
+                _releaseBuffer[i] = now.norm();
             }
-            else if (t.norm() - _releaseBuffer[i] >= release_delay_ms)
+            else if (now.norm() - _releaseBuffer[i] >= release_delay_ms)
             {
-                ms = t.norm();
+                ms = now.norm();
                 stat = false;
                 _releaseBuffer[i] = -1;
                 r.set(i);
@@ -68,13 +68,13 @@ void InputWrapper::_loop()
         {
             if (p != 0)
                 for (auto& [cbname, callback] : _pCallbackMap)
-                    callback(p, t);
+                    callback(p, now);
             if (h != 0)
                 for (auto& [cbname, callback] : _hCallbackMap)
-                    callback(h, t);
+                    callback(h, now);
             if (r != 0)
                 for (auto& [cbname, callback] : _rCallbackMap)
-                    callback(r, t);
+                    callback(r, now);
         }
     }
 }

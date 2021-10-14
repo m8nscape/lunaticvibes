@@ -25,8 +25,6 @@ typedef std::shared_ptr<sVideo>  pVideo;
 typedef std::shared_ptr<Image>   pImage;
 typedef std::shared_ptr<TTFFont> pFont;
 
-inline std::array<pSprite, SPRITE_GLOBAL_MAX> gSprites{ nullptr };
-
 class vSkin
 {
 public:
@@ -75,8 +73,6 @@ public:
 // Sprite elements
 protected:
     std::list<pSprite> _sprites;                    // Push instance on parsing
-    std::list<pSprite> _sprites_parent;             // sublist of _sprites, managed by impl
-    std::list<pSprite> _sprites_child;              // sublist of _sprites, managed by impl
 
 // functional support
 protected:

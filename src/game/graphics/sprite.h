@@ -67,7 +67,7 @@ class vSprite: public std::enable_shared_from_this<vSprite>
 protected:
     SpriteTypes _type;
     std::weak_ptr<vSprite> _parent;
-    bool _haveParent = false;
+    std::list<std::weak_ptr<vSprite>> _children;
 public:
     constexpr SpriteTypes type() { return _type; }
 protected:
@@ -84,7 +84,9 @@ public:
 	virtual ~vSprite() = default;
 public:
     void setSrcLine(int i) { _srcLine = i; }
-    void setParent(std::weak_ptr<vSprite> p) { _parent = p; _haveParent = true; }
+    void setParent(std::weak_ptr<vSprite> p) { _parent = p;}
+    bool hasParent() const { return !_parent.expired(); }
+    size_t appendChild(std::weak_ptr<vSprite> p) { _children.push_back(p); return _children.size(); }
     RenderParams getCurrentRenderParams();
     RenderParams& getCurrentRenderParamsRef();
     bool updateByKeyframes(const Time& time);
@@ -98,10 +100,18 @@ public:
     void clearKeyFrames() { _keyFrames.clear(); }
 };
 
+class iSpriteMouse : public std::enable_shared_from_this<iSpriteMouse>
+{
+public:
+    virtual void OnMouseMove(int x, int y) = 0;
+    virtual bool OnClick(int x, int y) = 0;
+};
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Sprite placeholder
 inline const size_t SPRITE_GLOBAL_MAX = 32;
+inline std::array<std::shared_ptr<vSprite>, SPRITE_GLOBAL_MAX> gSprites{ nullptr };
 class SpriteGlobal: public vSprite
 {
 protected:
@@ -122,6 +132,7 @@ public:
 
     virtual bool update(const Time& time) {
         vSprite::update(time);
+        if (getIdx()) set(gSprites[getIdx()]);
         if (pS) return pS->update(time);
         return false;
     }
@@ -448,7 +459,7 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 // Button sprite (clickable):
 
-class SpriteButton : public SpriteOption
+class SpriteButton : public SpriteOption, public iSpriteMouse
 {
 protected:
     std::function<void(int)> _callback;
@@ -469,7 +480,8 @@ public:
     virtual ~SpriteButton() = default;
 
 public:
-    bool doIfInRange(int x, int y);
+    virtual void OnMouseMove(int x, int y) {}
+    virtual bool OnClick(int x, int y);
 };
 
 
@@ -548,7 +560,7 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 // OnMouse
-class SpriteOnMouse : public SpriteAnimated
+class SpriteOnMouse : public SpriteAnimated, public iSpriteMouse
 {
 protected:
     int panelIdx;
@@ -569,13 +581,15 @@ public:
 
 public:
     virtual bool update(const Time& t);
-    void checkMouseArea(int x, int y);
+
+    virtual void OnMouseMove(int x, int y);
+    virtual bool OnClick(int x, int y) { return false; }
 };
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Cursor
-class SpriteCursor : public SpriteAnimated
+class SpriteCursor : public SpriteAnimated, public iSpriteMouse
 {
 protected:
     int panelIdx;
@@ -596,5 +610,7 @@ public:
 
 public:
     virtual bool update(const Time& t);
-    void moveToPos(int x, int y);
+
+    virtual void OnMouseMove(int x, int y);
+    virtual bool OnClick(int x, int y) { return false; }
 };

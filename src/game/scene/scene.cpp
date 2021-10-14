@@ -3,6 +3,7 @@
 #include "common/beat.h"
 #include "game/data/data.h"
 #include "game/skin/skin_mgr.h"
+#include "scene_context.h"
 
 // prototype
 vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
@@ -30,12 +31,13 @@ vScene::~vScene()
 
 void vScene::update()
 {
+    gUpdateContext.updateTime = Time();
     _skin->update();
     auto [x, y] = _input.getCursorPos();
     _skin->update_mouse(x, y);
 }
 
-void vScene::update_mouse(InputMask& m, Time t)
+void vScene::update_mouse(InputMask& m, const Time& t)
 {
     if (m[Input::Pad::M1])
     {

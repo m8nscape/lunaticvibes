@@ -124,11 +124,26 @@ struct SelectContextParams
 
 void updateContextSelectTitles();
 
+////////////////////////////////////////////////////////////////////////////////
+
+struct UpdateContextParams
+{
+    // shared
+    Time updateTime;
+
+    // vSkin / Sprite
+    double beat;
+    unsigned measure;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
 extern bool gResetSelectCursor;
 extern bool gQuitOnFinish;
 extern ChartContextParams gChartContext;
 extern PlayContextParams gPlayContext;
 extern SelectContextParams gSelectContext;
+extern UpdateContextParams gUpdateContext;
 extern std::shared_ptr<SongDB> g_pSongDB;
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -59,7 +59,6 @@ bool vSprite::updateByKeyframes(const Time& rawTime)
 
 	Time time;
 
-
 	// Check if timer is 140
 	if (_triggerTimer == eTimer::MUSIC_BEAT)
 		time = gTimers.get(eTimer::MUSIC_BEAT);
@@ -69,11 +68,11 @@ bool vSprite::updateByKeyframes(const Time& rawTime)
         if (gTimers.get(_triggerTimer) < 0)
             return false;
 
-        time = rawTime - gTimers.get(_triggerTimer);
+        time = rawTime - Time(gTimers.get(_triggerTimer), false);
     }
     
     // Check if import time is valid
-	Time endTime = Time(_keyFrames[frameCount - 1].time);
+	Time endTime = Time(_keyFrames[frameCount - 1].time, false);
     if (time.norm() < 0 || _loopTo < 0 && time > endTime)
         return false;
 
@@ -88,7 +87,7 @@ bool vSprite::updateByKeyframes(const Time& rawTime)
     if (time > endTime)
     {
 		if (endTime != _loopTo)
-			time = Time((time - _loopTo).norm() % (endTime - _loopTo).norm() + _loopTo);
+			time = Time((time - _loopTo).norm() % (endTime - _loopTo).norm() + _loopTo, false);
         else
             time = _loopTo;
     }
@@ -163,7 +162,7 @@ bool vSprite::updateByKeyframes(const Time& rawTime)
         }
     }
 
-    if (_haveParent && !_parent.expired())
+    if (hasParent())
     {
         auto parent = _parent.lock();
         const auto& parentRect = parent->getCurrentRenderParams().rect;
@@ -182,7 +181,16 @@ bool vSprite::updateByKeyframes(const Time& rawTime)
 
 bool vSprite::update(const Time& t)
 {
-    return _draw = updateByKeyframes(t);
+    _draw = updateByKeyframes(t);
+
+    auto updateChildLambda = [&t](std::weak_ptr<vSprite> p) { if (!p.expired()) p.lock()->update(t); };
+#ifdef _DEBUG
+    std::for_each(std::execution::seq, _children.begin(), _children.end(), updateChildLambda);
+#else
+    std::for_each(std::execution::par, _children.begin(), _children.end(), updateChildLambda);
+#endif
+
+    return _draw;
 }
 
 RenderParams vSprite::getCurrentRenderParams()
@@ -942,7 +950,7 @@ SpriteButton::SpriteButton(pTexture texture, const Rect& rect,
 }
 
 
-bool SpriteButton::doIfInRange(int x, int y)
+bool SpriteButton::OnClick(int x, int y)
 {
     if (!_draw) return false;
 
@@ -1136,7 +1144,7 @@ bool SpriteOnMouse::update(const Time& t)
     return false;
 }
 
-void SpriteOnMouse::checkMouseArea(int x, int y)
+void SpriteOnMouse::OnMouseMove(int x, int y)
 {
     if (_draw)
     {
@@ -1172,7 +1180,7 @@ bool SpriteCursor::update(const Time& t)
     return false;
 }
 
-void SpriteCursor::moveToPos(int x, int y)
+void SpriteCursor::OnMouseMove(int x, int y)
 {
     if (_draw)
     {
