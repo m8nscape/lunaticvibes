@@ -105,7 +105,7 @@ class ::vChartFormat;
 class vChart
 {
 public:
-    static const size_t MAX_MEASURES = 1000;
+    static constexpr size_t MAX_MEASURES = 1000;
 
 protected:
 	unsigned _noteCount;

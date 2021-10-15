@@ -2,10 +2,9 @@
 #include <algorithm>
 
 
-static inline double grad(int dst, int src, double t)
+constexpr double grad(int dst, int src, double t)
 {
-    if (src == dst) return src;
-    return dst * t + src * (1.0 - t);
+    return (src == dst) ? src : (dst * t + src * (1.0 - t));
 }
 
 bool checkPanel(int panelIdx)

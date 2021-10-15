@@ -31,8 +31,8 @@ class SoundDriver
 public:
     SoundDriver() = default;
     virtual ~SoundDriver() = default;
-    static const size_t KEYSAMPLES = 36 * 36 + 1;
-    static const size_t ETCSAMPLES = 64; 
+    static constexpr size_t KEYSAMPLES = 36 * 36 + 1;
+    static constexpr size_t ETCSAMPLES = 64; 
 
 protected:
     std::array<FMOD::Sound*, KEYSAMPLES> keySamples{};  // Sound samples of key sound

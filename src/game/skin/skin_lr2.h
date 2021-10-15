@@ -1387,7 +1387,7 @@ public:
     void loadCSV(Path p);
 
 protected:
-    inline static const size_t BAR_ENTRY_SPRITE_COUNT = 32;
+    static constexpr size_t BAR_ENTRY_SPRITE_COUNT = 32;
     typedef std::shared_ptr<SpriteBarEntry> pSpriteBarEntry;
     std::array<pSpriteBarEntry, BAR_ENTRY_SPRITE_COUNT> _barSprites;
 	std::bitset< BAR_ENTRY_SPRITE_COUNT> _barSpriteAdded{ false };

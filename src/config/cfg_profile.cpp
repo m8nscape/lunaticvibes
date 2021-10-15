@@ -7,7 +7,7 @@ namespace fs = std::filesystem;
 
 std::string ConfigProfile::getName() const
 {
-    return _yaml[cfg::P_PLAYERNAME].as<std::string>("Unnamed"); 
+    return _yaml[std::string(cfg::P_PLAYERNAME)].as<std::string>("Unnamed"); 
 }
 
 void ConfigProfile::setDefaults() noexcept

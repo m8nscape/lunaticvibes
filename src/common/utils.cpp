@@ -97,7 +97,7 @@ std::string bin2hex(const void* bin, size_t size)
 {
     std::string res;
     res.reserve(size * 2 + 1);
-    static const char rgbDigits[] = "0123456789abcdef";
+    constexpr char rgbDigits[] = "0123456789abcdef";
     for (size_t i = 0; i < size; ++i)
     {
         unsigned char c = ((unsigned char*)bin)[i];
@@ -124,7 +124,7 @@ HashMD5 md5(const char* str, size_t len)
 
     CryptHashData(hHash, (const BYTE*)str, len, 0);
 
-    static const size_t MD5_LEN = 16;
+    constexpr size_t MD5_LEN = 16;
     BYTE rgbHash[MD5_LEN];
     DWORD cbHash = MD5_LEN;
     CryptGetHashParam(hHash, HP_HASHVAL, rgbHash, &cbHash, 0);
@@ -151,7 +151,7 @@ HashMD5 md5file(const Path& filePath)
     std::ifstream ifs(filePath, std::ios::in | std::ios::binary);
     while (!ifs.eof())
     {
-        static const size_t BUFSIZE = 1024;
+        constexpr size_t BUFSIZE = 1024;
         char rgbFile[BUFSIZE];
         DWORD cbRead = 0;
         ifs.read(rgbFile, BUFSIZE);
@@ -160,7 +160,7 @@ HashMD5 md5file(const Path& filePath)
         CryptHashData(hHash, (const BYTE*)rgbFile, cbRead, 0);
     }
 
-    static const size_t MD5_LEN = 16;
+    constexpr size_t MD5_LEN = 16;
     BYTE rgbHash[MD5_LEN];
     DWORD cbHash = MD5_LEN;
     CryptGetHashParam(hHash, HP_HASHVAL, rgbHash, &cbHash, 0);

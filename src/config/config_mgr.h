@@ -6,7 +6,7 @@
 #include <string>
 #include <memory>
 
-inline const char* PROFILE_DEFAULT = "default";
+constexpr char PROFILE_DEFAULT[] = "default";
 
 class ConfigMgr
 {
@@ -59,12 +59,6 @@ private:
         }
     }
     template<class Ty_v>
-    Ty_v _get(const std::string& type, const std::string& key, const Ty_v& fallback)
-    {
-        return _get(type[0], key, fallback);
-    }
-
-    template<class Ty_v>
     void _set(char type, const std::string& key, const Ty_v& value) noexcept
     {
         switch (type)
@@ -77,11 +71,6 @@ private:
         case 'S': return S->set<Ty_v>(key, value);     // Skin
         default:  return;
         }
-    }
-    template<class Ty_v>
-    void _set(const std::string& type, const std::string& key, const Ty_v& value)
-    {
-        return _set(type[0], key, value);
     }
 
     std::vector<Input::Keyboard> _getKeyBindings(int mode, Input::Pad key)
@@ -121,15 +110,19 @@ public:
 
     template<class Ty_v>
     static Ty_v get(char type, const std::string& key, const Ty_v& fallback) { return getInst()._get(type, key, fallback); }
-    static std::string get(char type, const std::string& key, const char* fallback) { return getInst()._get(type, key, std::string(fallback)); }
     template<class Ty_v>
     static Ty_v get(const std::string& type, const std::string& key, const Ty_v& fallback) { return getInst()._get(type[0], key, fallback); }
-    static std::string get(const std::string& type, const std::string& key, const char* fallback) { return getInst()._get(type[0], key, std::string(fallback)); }
+
+    static std::string get(char type, const std::string& key, const std::string& fallback) { return get<std::string>(type, key, fallback); }
+    static std::string get(const std::string& type, const std::string& key, const std::string& fallback) { return get<std::string>(type[0], key, fallback); }
 
     template<class Ty_v>
     static void set(char type, const std::string& key, const Ty_v& value) noexcept { return getInst()._set(type, key, value); }
     template<class Ty_v>
     static void set(const std::string& type, const std::string& key, const Ty_v& value) noexcept { return getInst()._set(type[0], key, value); }
+
+    static void set(char type, const std::string& key, const std::string& value) noexcept { return set<std::string>(type, key, value); }
+    static void set(const std::string& type, const std::string& key, const std::string& value) noexcept { return set<std::string>(type[0], key, value); }
 
     static std::vector<Input::Keyboard> getKeyBindings(int mode, Input::Pad key) { return getInst()._getKeyBindings(mode, key); }
     static std::string getDBPath() { return getInst()._getDBPath(); }

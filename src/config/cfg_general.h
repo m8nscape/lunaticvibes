@@ -1,24 +1,24 @@
 #pragma once
 #include "config.h"
 
-inline const char* CONFIG_FILE_GENERAL = "config.yml";
+constexpr char CONFIG_FILE_GENERAL[] = "config.yml";
 
 namespace cfg {
 
     //////////////////////////////////////////////////////////////////////////////// 
     // Audio
 
-	inline const char* A_MODE = "OutputMode";
-    inline const char* A_MODE_NULL = "Null";
-    inline const char* A_MODE_AUTO = "Auto";
-    inline const char* A_MODE_WINMM = "WinMM";
-    inline const char* A_MODE_DS = "DirectSound";
-    inline const char* A_MODE_WASAPI_SHARED = "WASAPI";
-    inline const char* A_MODE_ASIO = "ASIO";
-    inline const char* A_MODE_ATMOS = "Atmos";
-    inline const char* A_MODE_PULSE = "PulseAudio";
-    inline const char* A_MODE_ALSA = "ALSA";
-    inline const char* A_MODE_COREAUDIO = "CoreAudio";
+	constexpr char A_MODE[] = "OutputMode";
+    constexpr char A_MODE_NULL[] = "Null";
+    constexpr char A_MODE_AUTO[] = "Auto";
+    constexpr char A_MODE_WINMM[] = "WinMM";
+    constexpr char A_MODE_DS[] = "DirectSound";
+    constexpr char A_MODE_WASAPI_SHARED[] = "WASAPI";
+    constexpr char A_MODE_ASIO[] = "ASIO";
+    constexpr char A_MODE_ATMOS[] = "Atmos";
+    constexpr char A_MODE_PULSE[] = "PulseAudio";
+    constexpr char A_MODE_ALSA[] = "ALSA";
+    constexpr char A_MODE_COREAUDIO[] = "CoreAudio";
     enum class eAudioMode
     {
         NOSOUND,
@@ -39,22 +39,22 @@ namespace cfg {
         COREAUDIO
     };
 
-	inline const char* A_BUFLEN = "BufferLength";
+	constexpr char A_BUFLEN[] = "BufferLength";
 
-	inline const char* A_BUFCOUNT = "BufferCount";
+	constexpr char A_BUFCOUNT[] = "BufferCount";
 
     //////////////////////////////////////////////////////////////////////////////// 
     // Video
 
-	inline const char* V_RES_X = "ResolutionX";
-	inline const char* V_RES_Y = "ResolutionY";
-	inline const char* V_FULL_RES_X = "FullResolutionX";
-	inline const char* V_FULL_RES_Y = "FullResolutionY";
+	constexpr char V_RES_X[] = "ResolutionX";
+	constexpr char V_RES_Y[] = "ResolutionY";
+	constexpr char V_FULL_RES_X[] = "FullResolutionX";
+	constexpr char V_FULL_RES_Y[] = "FullResolutionY";
 
-	inline const char* V_WINMODE = "WindowMode";
-    inline const char* V_WINMODE_FULL = "FullScreen";
-    inline const char* V_WINMODE_BORDERLESS = "Borderless";
-    inline const char* V_WINMODE_WINDOWED = "Windowed";
+	constexpr char V_WINMODE[] = "WindowMode";
+    constexpr char V_WINMODE_FULL[] = "FullScreen";
+    constexpr char V_WINMODE_BORDERLESS[] = "Borderless";
+    constexpr char V_WINMODE_WINDOWED[] = "Windowed";
     enum class eWinMode
     {
         FULLSCREEN,
@@ -62,9 +62,9 @@ namespace cfg {
         WINDOWED
     };
 
-	inline const char* V_MAXFPS = "MaxFPS";
+	constexpr char V_MAXFPS[] = "MaxFPS";
 
-	inline const char* V_VSYNC = "VSync";
+	constexpr char V_VSYNC[] = "VSync";
 
 }
 

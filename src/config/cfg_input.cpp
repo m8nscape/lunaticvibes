@@ -4,7 +4,8 @@
 ConfigInput::ConfigInput(const std::string& profile, unsigned k) : keys(k),
     vConfig(profile, (k == 5 ? CONFIG_FILE_INPUT_5 : (k == 7 ? CONFIG_FILE_INPUT_7 : (k == 9 ? CONFIG_FILE_INPUT_9 : "")))) 
 {
-    for (int i = 0; i < Input::MAX_BINDINGS_PER_KEY; ++i) blank_binding.push_back(cfg::I_NOTBOUND);
+    for (int i = 0; i < Input::MAX_BINDINGS_PER_KEY; ++i) 
+        blank_binding.push_back(cfg::I_NOTBOUND);
 }
 
 ConfigInput::~ConfigInput() {}
@@ -33,37 +34,79 @@ void ConfigInput::clearAll()
 {
     using namespace cfg;
     
-    _yaml[I_BINDINGS_K1ScL] = blank_binding;
-    _yaml[I_BINDINGS_K1ScR] = blank_binding;
-    _yaml[I_BINDINGS_K11] = blank_binding;
-    _yaml[I_BINDINGS_K12] = blank_binding;
-    _yaml[I_BINDINGS_K13] = blank_binding;
-    _yaml[I_BINDINGS_K14] = blank_binding;
-    _yaml[I_BINDINGS_K15] = blank_binding;
-    _yaml[I_BINDINGS_K16] = blank_binding;
-    _yaml[I_BINDINGS_K17] = blank_binding;
-    _yaml[I_BINDINGS_K18] = blank_binding;
-    _yaml[I_BINDINGS_K19] = blank_binding;
-    _yaml[I_BINDINGS_K1Start] = blank_binding;
-    _yaml[I_BINDINGS_K1Select] = blank_binding;
-    _yaml[I_BINDINGS_K1SpdUp] = blank_binding;
-    _yaml[I_BINDINGS_K1SpdDn] = blank_binding;
+    set(I_BINDINGS_K1ScL, blank_binding);
+    set(I_BINDINGS_K1ScR, blank_binding);
+    set(I_BINDINGS_K11, blank_binding);
+    set(I_BINDINGS_K12, blank_binding);
+    set(I_BINDINGS_K13, blank_binding);
+    set(I_BINDINGS_K14, blank_binding);
+    set(I_BINDINGS_K15, blank_binding);
+    set(I_BINDINGS_K16, blank_binding);
+    set(I_BINDINGS_K17, blank_binding);
+    set(I_BINDINGS_K18, blank_binding);
+    set(I_BINDINGS_K19, blank_binding);
+    set(I_BINDINGS_K1Start, blank_binding);
+    set(I_BINDINGS_K1Select, blank_binding);
+    set(I_BINDINGS_K1SpdUp, blank_binding);
+    set(I_BINDINGS_K1SpdDn, blank_binding);
 
-    _yaml[I_BINDINGS_K2ScL] = blank_binding;
-    _yaml[I_BINDINGS_K2ScR] = blank_binding;
-    _yaml[I_BINDINGS_K21] = blank_binding;
-    _yaml[I_BINDINGS_K22] = blank_binding;
-    _yaml[I_BINDINGS_K23] = blank_binding;
-    _yaml[I_BINDINGS_K24] = blank_binding;
-    _yaml[I_BINDINGS_K25] = blank_binding;
-    _yaml[I_BINDINGS_K26] = blank_binding;
-    _yaml[I_BINDINGS_K27] = blank_binding;
-    _yaml[I_BINDINGS_K28] = blank_binding;
-    _yaml[I_BINDINGS_K29] = blank_binding;
-    _yaml[I_BINDINGS_K2Start] = blank_binding;
-    _yaml[I_BINDINGS_K2Select] = blank_binding;
-    _yaml[I_BINDINGS_K2SpdUp] = blank_binding;
-    _yaml[I_BINDINGS_K2SpdDn] = blank_binding;
+    set(I_BINDINGS_K2ScL, blank_binding);
+    set(I_BINDINGS_K2ScR, blank_binding);
+    set(I_BINDINGS_K21, blank_binding);
+    set(I_BINDINGS_K22, blank_binding);
+    set(I_BINDINGS_K23, blank_binding);
+    set(I_BINDINGS_K24, blank_binding);
+    set(I_BINDINGS_K25, blank_binding);
+    set(I_BINDINGS_K26, blank_binding);
+    set(I_BINDINGS_K27, blank_binding);
+    set(I_BINDINGS_K28, blank_binding);
+    set(I_BINDINGS_K29, blank_binding);
+    set(I_BINDINGS_K2Start, blank_binding);
+    set(I_BINDINGS_K2Select, blank_binding);
+    set(I_BINDINGS_K2SpdUp, blank_binding);
+    set(I_BINDINGS_K2SpdDn, blank_binding);
+}
+
+std::string getBindingKey(Input::Pad ingame)
+{
+    using namespace cfg;
+    using namespace Input;
+    switch (ingame)
+    {
+    case S1L:       return I_BINDINGS_K1ScL; 
+    case S1R:       return I_BINDINGS_K1ScR; 
+    case K11:       return I_BINDINGS_K11; 
+    case K12:       return I_BINDINGS_K12; 
+    case K13:       return I_BINDINGS_K13; 
+    case K14:       return I_BINDINGS_K14; 
+    case K15:       return I_BINDINGS_K15; 
+    case K16:       return I_BINDINGS_K16; 
+    case K17:       return I_BINDINGS_K17; 
+    case K18:       return I_BINDINGS_K18; 
+    case K19:       return I_BINDINGS_K19; 
+    case K1START:   return I_BINDINGS_K1Start; 
+    case K1SELECT:  return I_BINDINGS_K1Select; 
+    case K1SPDUP:   return I_BINDINGS_K1SpdUp; 
+    case K1SPDDN:   return I_BINDINGS_K1SpdDn; 
+    
+    case S2L:       return I_BINDINGS_K2ScL; 
+    case S2R:       return I_BINDINGS_K2ScR; 
+    case K21:       return I_BINDINGS_K21; 
+    case K22:       return I_BINDINGS_K22; 
+    case K23:       return I_BINDINGS_K23; 
+    case K24:       return I_BINDINGS_K24; 
+    case K25:       return I_BINDINGS_K25; 
+    case K26:       return I_BINDINGS_K26; 
+    case K27:       return I_BINDINGS_K27; 
+    case K28:       return I_BINDINGS_K28; 
+    case K29:       return I_BINDINGS_K29; 
+    case K2START:   return I_BINDINGS_K2Start; 
+    case K2SELECT:  return I_BINDINGS_K2Select; 
+    case K2SPDUP:   return I_BINDINGS_K2SpdUp; 
+    case K2SPDDN:   return I_BINDINGS_K2SpdDn; 
+
+    default:        return I_NOTBOUND;
+    }
 }
 
 void ConfigInput::clearKey(Input::Pad ingame)
@@ -71,42 +114,9 @@ void ConfigInput::clearKey(Input::Pad ingame)
     using namespace cfg;
     using namespace Input;
 
-    switch (ingame)
-    {
-    case S1L:       _yaml[I_BINDINGS_K1ScL] = blank_binding; break;
-    case S1R:       _yaml[I_BINDINGS_K1ScR] = blank_binding; break;
-    case K11:       _yaml[I_BINDINGS_K11] = blank_binding; break;
-    case K12:       _yaml[I_BINDINGS_K12] = blank_binding; break;
-    case K13:       _yaml[I_BINDINGS_K13] = blank_binding; break;
-    case K14:       _yaml[I_BINDINGS_K14] = blank_binding; break;
-    case K15:       _yaml[I_BINDINGS_K15] = blank_binding; break;
-    case K16:       _yaml[I_BINDINGS_K16] = blank_binding; break;
-    case K17:       _yaml[I_BINDINGS_K17] = blank_binding; break;
-    case K18:       _yaml[I_BINDINGS_K18] = blank_binding; break;
-    case K19:       _yaml[I_BINDINGS_K19] = blank_binding; break;
-    case K1START:   _yaml[I_BINDINGS_K1Start] = blank_binding; break;
-    case K1SELECT:  _yaml[I_BINDINGS_K1Select] = blank_binding; break;
-    case K1SPDUP:   _yaml[I_BINDINGS_K1SpdUp] = blank_binding; break;
-    case K1SPDDN:   _yaml[I_BINDINGS_K1SpdDn] = blank_binding; break;
-
-    case S2L:       _yaml[I_BINDINGS_K2ScL] = blank_binding; break;
-    case S2R:       _yaml[I_BINDINGS_K2ScR] = blank_binding; break;
-    case K21:       _yaml[I_BINDINGS_K21] = blank_binding; break;
-    case K22:       _yaml[I_BINDINGS_K22] = blank_binding; break;
-    case K23:       _yaml[I_BINDINGS_K23] = blank_binding; break;
-    case K24:       _yaml[I_BINDINGS_K24] = blank_binding; break;
-    case K25:       _yaml[I_BINDINGS_K25] = blank_binding; break;
-    case K26:       _yaml[I_BINDINGS_K26] = blank_binding; break;
-    case K27:       _yaml[I_BINDINGS_K27] = blank_binding; break;
-    case K28:       _yaml[I_BINDINGS_K28] = blank_binding; break;
-    case K29:       _yaml[I_BINDINGS_K29] = blank_binding; break;
-    case K2START:   _yaml[I_BINDINGS_K2Start] = blank_binding; break;
-    case K2SELECT:  _yaml[I_BINDINGS_K2Select] = blank_binding; break;
-    case K2SPDUP:   _yaml[I_BINDINGS_K2SpdUp] = blank_binding; break;
-    case K2SPDDN:   _yaml[I_BINDINGS_K2SpdDn] = blank_binding; break;
-        
-    default: break;
-    }
+    StringContent mapKey = getBindingKey(ingame);
+    if (mapKey != I_NOTBOUND)
+        set(mapKey, blank_binding);
 }
 
 void ConfigInput::bindKey(Input::Pad ingame, Input::Keyboard key, size_t slot)
@@ -116,86 +126,15 @@ void ConfigInput::bindKey(Input::Pad ingame, Input::Keyboard key, size_t slot)
     slot = std::min(slot, MAX_BINDINGS_PER_KEY - 1);
     std::string value = std::string("K_") + keyboardNameMap[key];
 
-    switch (ingame)
-    {
-    case S1L:       _yaml[I_BINDINGS_K1ScL][slot] = value; break;
-    case S1R:       _yaml[I_BINDINGS_K1ScR][slot] = value; break;
-    case K11:       _yaml[I_BINDINGS_K11][slot] = value; break;
-    case K12:       _yaml[I_BINDINGS_K12][slot] = value; break;
-    case K13:       _yaml[I_BINDINGS_K13][slot] = value; break;
-    case K14:       _yaml[I_BINDINGS_K14][slot] = value; break;
-    case K15:       _yaml[I_BINDINGS_K15][slot] = value; break;
-    case K16:       _yaml[I_BINDINGS_K16][slot] = value; break;
-    case K17:       _yaml[I_BINDINGS_K17][slot] = value; break;
-    case K18:       _yaml[I_BINDINGS_K18][slot] = value; break;
-    case K19:       _yaml[I_BINDINGS_K19][slot] = value; break;
-    case K1START:   _yaml[I_BINDINGS_K1Start][slot] = value; break;
-    case K1SELECT:  _yaml[I_BINDINGS_K1Select][slot] = value; break;
-    case K1SPDUP:   _yaml[I_BINDINGS_K1SpdUp][slot] = value; break;
-    case K1SPDDN:   _yaml[I_BINDINGS_K1SpdDn][slot] = value; break;
-
-    case S2L:       _yaml[I_BINDINGS_K2ScL][slot] = value; break;
-    case S2R:       _yaml[I_BINDINGS_K2ScR][slot] = value; break;
-    case K21:       _yaml[I_BINDINGS_K21][slot] = value; break;
-    case K22:       _yaml[I_BINDINGS_K22][slot] = value; break;
-    case K23:       _yaml[I_BINDINGS_K23][slot] = value; break;
-    case K24:       _yaml[I_BINDINGS_K24][slot] = value; break;
-    case K25:       _yaml[I_BINDINGS_K25][slot] = value; break;
-    case K26:       _yaml[I_BINDINGS_K26][slot] = value; break;
-    case K27:       _yaml[I_BINDINGS_K27][slot] = value; break;
-    case K28:       _yaml[I_BINDINGS_K28][slot] = value; break;
-    case K29:       _yaml[I_BINDINGS_K29][slot] = value; break;
-    case K2START:   _yaml[I_BINDINGS_K2Start][slot] = value; break;
-    case K2SELECT:  _yaml[I_BINDINGS_K2Select][slot] = value; break;
-    case K2SPDUP:   _yaml[I_BINDINGS_K2SpdUp][slot] = value; break;
-    case K2SPDDN:   _yaml[I_BINDINGS_K2SpdDn][slot] = value; break;
-        
-    default: break;
-    }
-
+    StringContent mapKey = getBindingKey(ingame);
+    if (mapKey != I_NOTBOUND) set(mapKey, slot, value);
 }
 
-std::vector<Input::Keyboard> ConfigInput::getBindings(Input::Pad key)
+std::vector<Input::Keyboard> ConfigInput::getBindings(Input::Pad ingame)
 {
     using namespace Input;
     using namespace cfg;
-    StringContent mapKey = I_NOTBOUND;
-    switch (key)
-    {
-    case S1L:       mapKey = I_BINDINGS_K1ScL; break;
-    case S1R:       mapKey = I_BINDINGS_K1ScR; break;
-    case K11:       mapKey = I_BINDINGS_K11; break;
-    case K12:       mapKey = I_BINDINGS_K12; break;
-    case K13:       mapKey = I_BINDINGS_K13; break;
-    case K14:       mapKey = I_BINDINGS_K14; break;
-    case K15:       mapKey = I_BINDINGS_K15; break;
-    case K16:       mapKey = I_BINDINGS_K16; break;
-    case K17:       mapKey = I_BINDINGS_K17; break;
-    case K18:       mapKey = I_BINDINGS_K18; break;
-    case K19:       mapKey = I_BINDINGS_K19; break;
-    case K1START:   mapKey = I_BINDINGS_K1Start; break;
-    case K1SELECT:  mapKey = I_BINDINGS_K1Select; break;
-    case K1SPDUP:   mapKey = I_BINDINGS_K1SpdUp; break;
-    case K1SPDDN:   mapKey = I_BINDINGS_K1SpdDn; break;
-
-    case S2L:       mapKey = I_BINDINGS_K2ScL; break;
-    case S2R:       mapKey = I_BINDINGS_K2ScR; break;
-    case K21:       mapKey = I_BINDINGS_K21; break;
-    case K22:       mapKey = I_BINDINGS_K22; break;
-    case K23:       mapKey = I_BINDINGS_K23; break;
-    case K24:       mapKey = I_BINDINGS_K24; break;
-    case K25:       mapKey = I_BINDINGS_K25; break;
-    case K26:       mapKey = I_BINDINGS_K26; break;
-    case K27:       mapKey = I_BINDINGS_K27; break;
-    case K28:       mapKey = I_BINDINGS_K28; break;
-    case K29:       mapKey = I_BINDINGS_K29; break;
-    case K2START:   mapKey = I_BINDINGS_K2Start; break;
-    case K2SELECT:  mapKey = I_BINDINGS_K2Select; break;
-    case K2SPDUP:   mapKey = I_BINDINGS_K2SpdUp; break;
-    case K2SPDDN:   mapKey = I_BINDINGS_K2SpdDn; break;
-
-    default:        break;
-    }
+    StringContent mapKey = getBindingKey(ingame);
 
     auto keys = _yaml[mapKey];
     std::vector<Input::Keyboard> ret;

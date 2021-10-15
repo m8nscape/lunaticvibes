@@ -36,7 +36,7 @@ inline const InputMask INPUT_MASK_NAV_DN{ "0000000010100000000000000000000000000
 class InputWrapper: public AsyncLooper
 {
 public:
-    inline static unsigned release_delay_ms = 5;
+    static constexpr unsigned release_delay_ms = 5;
 private:
 	std::shared_mutex _inputMutex;
     bool _busy = false;
