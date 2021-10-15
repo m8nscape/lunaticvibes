@@ -8,6 +8,7 @@ PlayContextParams gPlayContext;
 SelectContextParams gSelectContext;
 UpdateContextParams gUpdateContext;
 std::shared_ptr<SongDB> g_pSongDB;
+std::shared_ptr<ScoreDB> g_pScoreDB;
 
 
 void clearContextPlayForRetry()

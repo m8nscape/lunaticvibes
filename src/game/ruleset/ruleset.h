@@ -27,6 +27,9 @@ public:
         unsigned miss;      // total misses
         unsigned totaln;    // total notes expired
         unsigned totalnr;    // total notes reached
+
+        unsigned fast;
+        unsigned slow;
     };
 protected:
     std::shared_ptr<vChartFormat> _format;

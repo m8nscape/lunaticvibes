@@ -2,6 +2,7 @@
 #include <mutex>
 #include "scene.h"
 
+class vScore;
 enum class eResultState
 {
     DRAW,
@@ -18,11 +19,13 @@ private:
     InputMask _inputAvailable;
 
 protected:
+    ePlayMode _mode;
     bool _scoreSyncFinished = false;
     bool _retryRequested = false;
+    std::shared_ptr<vScore> _pScoreOld;
 
 public:
-    SceneResult();
+    SceneResult(ePlayMode);
     virtual ~SceneResult() = default;
 
 protected:

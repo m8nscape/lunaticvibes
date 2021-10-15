@@ -1,10 +1,12 @@
 #include "scene_result.h"
 #include "scene_context.h"
+#include "game/ruleset/ruleset.h"
+#include "game/ruleset/ruleset_bms.h"
 
 #include "game/sound/sound_mgr.h"
 #include "game/sound/sound_sample.h"
 
-SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
+SceneResult::SceneResult(ePlayMode gamemode) : vScene(eMode::RESULT, 1000), _mode(gamemode)
 {
     _inputAvailable = INPUT_MASK_FUNC;
 
@@ -92,6 +94,11 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
     // Moved to play
     //gSwitches.set(eSwitch::RESULT_CLEAR, cleared);
 
+    if (_mode != ePlayMode::LOCAL_BATTLE && !gChartContext.hash.empty())
+    {
+        _pScoreOld = g_pScoreDB->getChartScoreBMS(gChartContext.hash);
+    }
+
     using namespace std::placeholders;
     _input.register_p("SCENE_PRESS", std::bind(&SceneResult::inputGamePress, this, _1, _2));
     _input.register_h("SCENE_HOLD", std::bind(&SceneResult::inputGameHold, this, _1, _2));
@@ -171,6 +178,46 @@ void SceneResult::updateFadeout()
         loopEnd();
         _input.loopEnd();
         SoundMgr::stopKeySamples();
+
+        // save score
+        if (_mode != ePlayMode::LOCAL_BATTLE && !gChartContext.hash.empty())
+        {
+            assert(gPlayContext.ruleset[PLAYER_SLOT_1P] != nullptr);
+            ScoreBMS score;
+            auto chart = gChartContext.chartObj;
+            auto ruleset = gPlayContext.ruleset[PLAYER_SLOT_1P];
+            auto& data = ruleset->getData();
+            score.notes = chart->totalNotes;
+            score.score = data.score;
+            score.rate = data.total_acc;
+            score.fast = data.fast;
+            score.slow = data.slow;
+            score.maxcombo = data.maxCombo;
+            score.playcount = _pScoreOld->playcount + 1;
+            switch (chart->type())
+            {
+            case eChartFormat::BMS:
+            case eChartFormat::BMSON:
+            {
+                auto rBMS = std::reinterpret_pointer_cast<RulesetBMS>(ruleset);
+                score.exscore = data.score2;
+                score.pgreat = rBMS->getJudgeCount(RulesetBMS::JudgeType::PERFECT);
+                score.great = rBMS->getJudgeCount(RulesetBMS::JudgeType::GREAT);
+                score.good = rBMS->getJudgeCount(RulesetBMS::JudgeType::GOOD);
+                score.bad = rBMS->getJudgeCount(RulesetBMS::JudgeType::BAD);
+                score.bpoor = rBMS->getJudgeCount(RulesetBMS::JudgeType::BPOOR);
+                score.miss = rBMS->getJudgeCount(RulesetBMS::JudgeType::MISS);
+                score.bp = score.bad + score.bpoor + score.miss;
+                score.combobreak = rBMS->getJudgeCount(RulesetBMS::JudgeType::COMBOBREAK);
+                g_pScoreDB->updateChartScoreBMS(gChartContext.hash, score);
+                break;
+            }
+            default:
+                break;
+            }
+        }
+
+        // check retry
         if (_retryRequested && gPlayContext.canRetry)
         {
             clearContextPlayForRetry();

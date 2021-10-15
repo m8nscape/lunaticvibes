@@ -7,48 +7,165 @@
 #include "game/chart/chart_types.h"
 
 const char* CREATE_FOLDER_TABLE_STR =
-"CREATE TABLE IF NOT EXISTS folder(         \
-pathmd5 TEXT     PRIMARY KEY UNIQUE NOT NULL,   \
-parent  TEXT                                ,   \
-name    TEXT                                ,   \
-type    INTEGER                     NOT NULL DEFAULT 0, \
-path    TEXT                        NOT NULL    \
-);";
+"CREATE TABLE IF NOT EXISTS folder( "
+"pathmd5 TEXT     PRIMARY KEY UNIQUE NOT NULL, "
+"parent  TEXT , "
+"name    TEXT , "
+"type    INTEGER NOT NULL DEFAULT 0, "
+"path    TEXT    NOT NULL "
+");";
 
 const char* CREATE_SONG_TABLE_STR =
-"CREATE TABLE IF NOT EXISTS song(           \
-md5     TEXT                    NOT NULL,   \
-parent  TEXT                    NOT NULL,   \
-file    TEXT                    NOT NULL,   \
-type    INTEGER                 NOT NULL,   \
-title   TEXT                    NOT NULL,   \
-title2  TEXT                    NOT NULL,   \
-artist  TEXT                    NOT NULL,   \
-artist2 TEXT                    NOT NULL,   \
-genre   TEXT                    NOT NULL,   \
-version TEXT                    NOT NULL,   \
-level   REAL                    NOT NULL,   \
-bpm     REAL                    NOT NULL,   \
-minbpm  REAL                    NOT NULL,   \
-maxbpm  REAL                    NOT NULL,   \
-length  INTEGER                 NOT NULL,   \
-totalnotes  INTEGER             NOT NULL,   \
-stagefile   TEXT                        ,   \
-bannerfile  TEXT                        ,   \
-gamemode    INTEGER                     ,   \
-judgerank   INTEGER                     ,   \
-total       INTEGER                     ,   \
-playlevel   INTEGER                     ,   \
-difficulty  INTEGER                     ,   \
-longnote    INTEGER                     ,   \
-landmine    INTEGER                     ,   \
-metricmod   INTEGER                     ,   \
-stop        INTEGER                     ,   \
-bga         INTEGER                     ,   \
-random      INTEGER                     ,   \
-addtime     INTEGER                     ,   \
-CONSTRAINT pk_pf PRIMARY KEY (parent,file)  \
-);";
+"CREATE TABLE IF NOT EXISTS song("
+"md5        TEXT    NOT NULL, "   // 0
+"parent     TEXT    NOT NULL, "   // 1
+"file       TEXT    NOT NULL, "   // 2
+"type       INTEGER NOT NULL, "   // 3
+"title      TEXT    NOT NULL, "   // 4
+"title2     TEXT    NOT NULL, "   // 5
+"artist     TEXT    NOT NULL, "   // 6
+"artist2    TEXT    NOT NULL, "   // 7
+"genre      TEXT    NOT NULL, "   // 8
+"version    TEXT    NOT NULL, "   // 9
+"level      REAL    NOT NULL, "   // 10
+"bpm        REAL    NOT NULL, "   // 11
+"minbpm     REAL    NOT NULL, "   // 12
+"maxbpm     REAL    NOT NULL, "   // 13
+"length     INTEGER NOT NULL, "   // 14
+"totalnotes INTEGER NOT NULL, "   // 15
+"stagefile  TEXT    , "           // 16
+"bannerfile TEXT    , "           // 17
+"gamemode   INTEGER , "           // 18
+"judgerank  INTEGER , "           // 19
+"total      INTEGER , "           // 20
+"playlevel  INTEGER , "           // 21
+"difficulty INTEGER , "           // 22
+"longnote   INTEGER , "           // 23
+"landmine   INTEGER , "           // 24
+"metricmod  INTEGER , "           // 25
+"stop       INTEGER , "           // 26
+"bga        INTEGER , "           // 27
+"random     INTEGER , "           // 28
+"addtime    INTEGER , "           // 29
+"CONSTRAINT pk_pf PRIMARY KEY (parent,file) "
+");";
+struct song_all_params
+{
+    std::string md5;
+    std::string parent;
+    std::string file;
+    long long type = 0;
+    std::string title;
+    std::string title2;
+    std::string artist;
+    std::string artist2;
+    std::string genre;
+    std::string version;
+    double level = 0;
+    double bpm = 0;
+    double minbpm = 0;
+    double maxbpm = 0;
+    long long length = 0;
+    long long totalnotes = 0;
+    std::string stagefile;
+    std::string bannerfile;
+    long long gamemode = 0;
+    long long judgerank = 0;
+    long long total = 0;
+    long long playlevel = 0;
+    long long difficulty = 0;
+    long long longnote = 0;
+    long long landmine = 0;
+    long long metricmod = 0;
+    long long stop = 0;
+    long long bga = 0;
+    long long random = 0;
+    long long addtime = 0;
+
+    song_all_params(const std::vector<std::any>& queryResult)
+    {
+        try 
+        {
+            md5         = ANY_STR(queryResult.at(0));
+            parent      = ANY_STR(queryResult.at(1));
+            file        = ANY_STR(queryResult.at(2));
+            type        = ANY_INT(queryResult.at(3));
+            title       = ANY_STR(queryResult.at(4));
+            title2      = ANY_STR(queryResult.at(5));
+            artist      = ANY_STR(queryResult.at(6));
+            artist2     = ANY_STR(queryResult.at(7));
+            genre       = ANY_STR(queryResult.at(8));
+            version     = ANY_STR(queryResult.at(9));
+            level       = ANY_REAL(queryResult.at(10));
+            bpm         = ANY_REAL(queryResult.at(11));
+            minbpm      = ANY_REAL(queryResult.at(12));
+            maxbpm      = ANY_REAL(queryResult.at(13));
+            length      = ANY_INT(queryResult.at(14));
+            totalnotes  = ANY_INT(queryResult.at(15));
+            stagefile   = ANY_STR(queryResult.at(16));
+            bannerfile  = ANY_STR(queryResult.at(17));
+            gamemode    = ANY_INT(queryResult.at(18));
+            judgerank   = ANY_INT(queryResult.at(19));
+            total       = ANY_INT(queryResult.at(20));
+            playlevel   = ANY_INT(queryResult.at(21));
+            difficulty  = ANY_INT(queryResult.at(22));
+            longnote    = ANY_INT(queryResult.at(23));
+            landmine    = ANY_INT(queryResult.at(24));
+            metricmod   = ANY_INT(queryResult.at(25));
+            stop        = ANY_INT(queryResult.at(26));
+            bga         = ANY_INT(queryResult.at(27));
+            random      = ANY_INT(queryResult.at(28));
+            addtime     = ANY_INT(queryResult.at(29));
+        }
+        catch (std::out_of_range&)
+        {
+        }
+    }   
+};
+bool convert_bms(std::shared_ptr<BMS_prop> chart, const std::vector<std::any>& in)
+{
+    if (in.size() < 30) return false;
+
+    song_all_params params(in);
+    chart->fileHash       = params.md5        ;
+    chart->folderHash     = params.parent     ;
+    chart->filePath       = params.file       ;
+    //                        params.type       ;
+    chart->title          = params.title      ;
+    chart->title2         = params.title2     ;
+    chart->artist         = params.artist     ;
+    chart->artist2        = params.artist2    ;
+    chart->genre          = params.genre      ;
+    chart->version        = params.version    ;
+    chart->levelEstimated = params.level      ;
+    chart->startBPM       = params.bpm        ;
+    chart->minBPM         = params.minbpm     ;
+    chart->maxBPM         = params.maxbpm     ;
+    chart->totalLength    = params.length     ;
+    chart->totalNotes     = params.totalnotes ;
+    chart->stagefile      = params.stagefile  ;
+    chart->banner         = params.bannerfile ;
+    chart->gamemode       = params.gamemode   ;
+    chart->rank           = params.judgerank  ;
+    chart->total          = params.total      ;
+    chart->playLevel      = params.playlevel  ;
+    chart->difficulty     = params.difficulty ;
+    chart->haveLN         = params.longnote   ;
+    chart->haveMine       = params.landmine   ;
+    chart->haveMetricMod  = params.metricmod  ;
+    chart->haveStop       = params.stop       ;
+    chart->haveBGA        = params.bga        ;
+    chart->haveRandom     = params.random     ;
+    chart->addTime        = params.addtime    ;
+
+    if (chart->totalNotes > 0)
+    {
+        chart->haveNote = true;
+        chart->notes = chart->totalNotes;
+    }
+
+    return true;
+}
 
 
 SongDB::SongDB(const char* path) : SQLite(path, "SONG")
@@ -60,7 +177,8 @@ SongDB::SongDB(const char* path) : SQLite(path, "SONG")
     }
     if (query("SELECT parent FROM folder WHERE pathmd5=?", 1, { ROOT_FOLDER_HASH }).empty())
     {
-        if (exec("INSERT INTO folder(pathmd5,parent,path,name,type) VALUES(?,?,?,?,?)", { ROOT_FOLDER_HASH, nullptr, "", "ROOT", 0 }))
+        if (exec("INSERT INTO folder(pathmd5,parent,path,name,type) VALUES(?,?,?,?,?)", 
+            { ROOT_FOLDER_HASH, nullptr, "", "ROOT", 0 }))
         {
             LOG_ERROR << "[SongDB] Insert root folder to table ERROR! " << errmsg();
             abort();
@@ -107,7 +225,8 @@ int SongDB::addChart(const HashMD5& folder, const Path& path)
         return 1;
     }
 
-    if (auto result = query("SELECT md5 FROM song WHERE parent=? AND file=?", 1, { folder, filename }); !result.empty() && !result[0].empty())
+    if (auto result = query("SELECT md5 FROM song WHERE parent=? AND file=?", 1, 
+        { folder, filename }); !result.empty() && !result[0].empty())
     {
         // file exists in db
         auto dbmd5 = ANY_STR(result[0][0]);
@@ -147,9 +266,10 @@ int SongDB::addChart(const HashMD5& folder, const Path& path)
     {
         auto bmsc = std::reinterpret_pointer_cast<BMS>(c);
         if (SQLITE_OK != exec("INSERT INTO song("
-            "md5,parent,type,file,title,title2,artist,artist2,genre,version,level,bpm,minbpm,maxbpm,length,totalnotes,stagefile,bannerfile,"
-            "gamemode,judgerank,total,playlevel,difficulty,longnote,landmine,metricmod,stop,bga,random) "
-            "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);",
+            "md5,parent,type,file,title,title2,artist,artist2,genre,version,"
+            "level,bpm,minbpm,maxbpm,length,totalnotes,stagefile,bannerfile,gamemode,judgerank,"
+            "total,playlevel,difficulty,longnote,landmine,metricmod,stop,bga,random,addtime) "
+            "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);",
             {
                 c->fileHash,
                 folder,
@@ -161,6 +281,7 @@ int SongDB::addChart(const HashMD5& folder, const Path& path)
                 c->artist2,
                 c->genre,
                 c->version,
+
                 c->levelEstimated,
                 c->startBPM,
                 c->minBPM,
@@ -171,6 +292,7 @@ int SongDB::addChart(const HashMD5& folder, const Path& path)
                 c->banner,
                 bmsc->gamemode,
                 bmsc->rank,
+
                 bmsc->total,
                 bmsc->playLevel,
                 bmsc->difficulty,
@@ -179,7 +301,8 @@ int SongDB::addChart(const HashMD5& folder, const Path& path)
                 bmsc->haveMetricMod,
                 bmsc->haveStop,
                 bmsc->haveBGA,
-                bmsc->haveRandom
+                bmsc->haveRandom,
+                static_cast<long long>(std::time(nullptr))
             }))
         {
             LOG_WARNING << "[SongDB] Insert into db error: " << path.string() << ": " << errmsg();
@@ -204,54 +327,6 @@ int SongDB::removeChart(const HashMD5& md5)
     return 0;
 }
 
-bool convert_basic(pChart chart, const std::vector<std::any>& in)
-{
-    if (in.size() < 18) return false;
-    chart->fileHash = ANY_STR(in[0]);
-    chart->folderHash = ANY_STR(in[1]);
-    chart->filePath = ANY_STR(in[2]);
-    // 3: type
-    chart->title = ANY_STR(in[4]);
-    chart->title2 = ANY_STR(in[5]);
-    chart->artist = ANY_STR(in[6]);
-    chart->artist2 = ANY_STR(in[7]);
-    chart->genre = ANY_STR(in[8]);
-    chart->version = ANY_STR(in[9]);
-    chart->levelEstimated = ANY_REAL(in[10]);
-    chart->startBPM = ANY_REAL(in[11]);
-    chart->minBPM = ANY_REAL(in[12]);
-    chart->maxBPM = ANY_REAL(in[13]);
-    chart->totalLength = (int)ANY_INT(in[14]);
-    chart->totalNotes = (int)ANY_INT(in[15]);
-    chart->stagefile = ANY_STR(in[16]);
-    chart->banner = ANY_STR(in[17]);
-    return true;
-}
-
-bool convert_bms(std::shared_ptr<BMS_prop> chart, const std::vector<std::any>& in)
-{
-    if (in.size() < 29) return false;
-    if (!convert_basic(chart, in)) return false;
-    chart->gamemode = (int)ANY_INT(in[18]);
-    chart->rank = (int)ANY_INT(in[19]);
-    chart->total = (int)ANY_INT(in[20]);
-    chart->playLevel = (int)ANY_INT(in[21]);
-    chart->difficulty = (int)ANY_INT(in[22]);
-    chart->haveLN = (bool)ANY_INT(in[23]);
-    chart->haveMine = (bool)ANY_INT(in[24]);
-    chart->haveMetricMod = (bool)ANY_INT(in[25]);
-    chart->haveStop = (bool)ANY_INT(in[26]);
-    chart->haveBGA = (bool)ANY_INT(in[27]);
-    chart->haveRandom = (bool)ANY_INT(in[28]);
-    if (chart->totalNotes > 0)
-    {
-        chart->haveNote = true;
-        chart->notes = chart->totalNotes;
-    }
-
-    return true;
-}
-
 int pushResult(std::vector<pChart>& list, const std::vector<std::vector<std::any>>& result)
 {
     int count = 0;
@@ -262,17 +337,7 @@ int pushResult(std::vector<pChart>& list, const std::vector<std::vector<std::any
         case eChartFormat::BMS:
         {
             auto bms = std::make_shared<BMS>();
-            bms->gamemode = (int)ANY_INT(r[18]);
-            bms->rank = (int)ANY_INT(r[19]);
-            bms->total = (int)ANY_INT(r[20]);
-            bms->playLevel = (int)ANY_INT(r[21]);
-            bms->difficulty = (int)ANY_INT(r[22]);
-            bms->haveLN = (bool)ANY_INT(r[23]);
-            bms->haveMine = (bool)ANY_INT(r[24]);
-            bms->haveMetricMod = (bool)ANY_INT(r[25]);
-            bms->haveStop = (bool)ANY_INT(r[26]);
-            bms->haveBGA = (bool)ANY_INT(r[27]);
-            bms->haveRandom = (bool)ANY_INT(r[28]);
+            convert_bms(bms, r);
             list.push_back(bms);
             ++count;
             break;
@@ -294,13 +359,13 @@ std::vector<pChart> SongDB::findChartByName(const HashMD5& folder, const std::st
     {
         result = query(
 "SELECT * FROM song WHERE \
-parent=? AND \
+parent=? AND (\
 INSTR(title, ?) OR \
 INSTR(title2, ?) OR \
 INSTR(artist, ?) OR \
 INSTR(artist2, ?) OR \
 INSTR(genre, ?) OR \
-INSTR(version, ?) \
+INSTR(version, ?))\
 LIMIT ?",
 29, { folder, tag, tag, tag, tag, tag, tag, limit });
     }
@@ -308,13 +373,13 @@ LIMIT ?",
     {
         result = query(
 "SELECT * FROM song WHERE \
-parent=? AND \
+parent=? AND (\
 INSTR(title, ?) OR \
 INSTR(title2, ?) OR \
 INSTR(artist, ?) OR \
 INSTR(artist2, ?) OR \
 INSTR(genre, ?) OR \
-INSTR(version, ?)", 
+INSTR(version, ?))", 
 29, { folder, tag, tag, tag, tag, tag, tag});
     }
 

@@ -129,8 +129,13 @@ int main(int argc, char* argv[])
     gTimers.reset();
     ConfigMgr::setGlobals();
 
+    // score db
+    g_pScoreDB = std::make_shared<ScoreDB>((ConfigMgr::getDBPath() + "/score.db").c_str());
+
     // initialize song list
+    if (!fs::exists("database")) fs::create_directories("database");
     g_pSongDB = std::make_shared<SongDB>("database/song.db");
+    // FIXME get folders from config
     g_pSongDB->addFolder("song");
     SongListProperties rootFolderProp{
         "",
@@ -141,8 +146,7 @@ int main(int argc, char* argv[])
     };
     auto top = g_pSongDB->browse(ROOT_FOLDER_HASH, false);
     for (size_t i = 0; i < top.getContentsCount(); ++i)
-        rootFolderProp.list.push_back(top.getEntry(i));
-
+        rootFolderProp.list.push_back({ top.getEntry(i), nullptr });
     gSelectContext.backtrace.push(rootFolderProp);
 
     if (argc >= 2)

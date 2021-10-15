@@ -6,7 +6,7 @@
 #include "db_conn.h"
 
 class vScore;
-class ScoreClassic;
+class ScoreBMS;
 
 /* TABLE classic_chart:
     md5(TEXT), totalnotes(INTEGER), score(INTEGER), rate(REAL), reserved[1-4](INTEGER), reserved[5-6](REAL)
@@ -25,7 +25,7 @@ public:
     ScoreDB& operator= (ScoreDB&) = delete;
 
 public:
-    std::shared_ptr<ScoreClassic> getChartScoreClassic(const HashMD5& hash) const;
-    void updateChartScoreClassic(const HashMD5& hash, const ScoreClassic& score);
+    std::shared_ptr<ScoreBMS> getChartScoreBMS(const HashMD5& hash) const;
+    void updateChartScoreBMS(const HashMD5& hash, const ScoreBMS& score);
 
 };

@@ -8,9 +8,11 @@ enum eEntryType
     UNKNOWN,
     FOLDER,
     CUSTOM_FOLDER,
-    SONG,
+    SONG,   // all charts in folder
+    CHART,  // one chart in folder
     RIVAL,
     RIVAL_SONG,
+    RIVAL_CHART,
     NEW_COURSE,
     COURSE,
     RANDOM_COURSE,

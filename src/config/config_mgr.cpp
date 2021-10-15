@@ -14,6 +14,7 @@ std::shared_ptr<ConfigInput>       ConfigMgr::I5;
 std::shared_ptr<ConfigInput>       ConfigMgr::I7;
 std::shared_ptr<ConfigInput>       ConfigMgr::I9;
 std::shared_ptr<ConfigSkin>        ConfigMgr::S;
+std::string ConfigMgr::profileName;
 
 void setNumbers()
 {
@@ -625,6 +626,7 @@ int ConfigMgr::selectProfile(const std::string& name)
 
     load();
 
+    profileName = name;
     return 0;
 }
 

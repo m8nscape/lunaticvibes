@@ -7,12 +7,6 @@
 #include "common/chartformat/chartformat.h"
 #include "game/chart/chart.h"
 
-enum class ePlayMode
-{
-    SINGLE,
-    LOCAL_BATTLE,
-};
-
 enum class ePlayState
 {
     PREPARE,

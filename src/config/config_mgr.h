@@ -17,10 +17,12 @@ public:
     static std::shared_ptr<ConfigInput>       I7;
     static std::shared_ptr<ConfigInput>       I9;
     static std::shared_ptr<ConfigSkin>        S;
+    static std::string profileName;
 
 public:
     static inline void init()
     {
+        profileName = PROFILE_DEFAULT;
         G = std::make_shared<ConfigGeneral>(PROFILE_DEFAULT);
         P = std::make_shared<ConfigProfile>(PROFILE_DEFAULT);
         I5 = std::make_shared<ConfigInput>(PROFILE_DEFAULT, 5);
@@ -90,5 +92,12 @@ public:
         case 9: return I9->getBindings(key); break;
         default: return {};
         }
+    }
+    static std::string getDBPath()
+    {
+        auto path = "profile/"s + profileName + "/database";
+        if (!fs::exists(path))
+            fs::create_directories(path);
+        return path;
     }
 };

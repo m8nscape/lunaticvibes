@@ -10,6 +10,7 @@
 #include "game/graphics/texture_extra.h"
 #include "common/entry/entry_folder.h"
 #include "db/db_song.h"
+#include "db/db_score.h"
 
 enum class eScene
 {
@@ -95,12 +96,15 @@ void clearContextPlay();
 
 ////////////////////////////////////////////////////////////////////////////////
 
+typedef std::pair<std::shared_ptr<vEntry>, std::shared_ptr<vScore>> Entry;
+typedef std::vector<Entry> EntryList;
+
 struct SongListProperties
 {
     HashMD5 parent;
     HashMD5 folder;
     std::string name;       // folder path, search query+result, etc.
-    std::vector<std::shared_ptr<vEntry>> list;
+    EntryList list;
     size_t index;
 };
 
@@ -114,7 +118,7 @@ struct SelectContextParams
 {
     std::shared_mutex _mutex;
     std::stack<SongListProperties> backtrace;
-    std::vector<std::shared_ptr<vEntry>> entries;
+    EntryList entries;
     size_t idx = 0;
     size_t cursor = 0;
     SongListSort sort = SongListSort::DEFAULT;
@@ -146,6 +150,7 @@ extern PlayContextParams gPlayContext;
 extern SelectContextParams gSelectContext;
 extern UpdateContextParams gUpdateContext;
 extern std::shared_ptr<SongDB> g_pSongDB;
+extern std::shared_ptr<ScoreDB> g_pScoreDB;
 
 ////////////////////////////////////////////////////////////////////////////////
 

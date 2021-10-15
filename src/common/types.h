@@ -52,6 +52,12 @@ enum class eMode {
     MODE_COUNT
 };
 
+enum class ePlayMode
+{
+    SINGLE,
+    LOCAL_BATTLE,
+};
+
 enum class eModChart: uint8_t
 {
     NONE = 0,
@@ -139,7 +145,7 @@ public:
     enum class Type
     {
         UNKNOWN,
-        CLASSIC,
+        BMS,
     };
     Type type = Type::UNKNOWN;
 
@@ -148,17 +154,20 @@ public:
     double rate = 0.0;
     int fast = 0;
     int slow = 0;
-    int reserved[4]{ 0 };
+    long long maxcombo = 0;
+    long long addtime = 0;
+    long long playcount = 0;
+    long long reserved[1]{ 0 };
     double reservedlf[2]{ 0.0 };
 
 public:
     vScore(Type t) : type(t) {}
 };
 
-class ScoreClassic : public vScore
+class ScoreBMS : public vScore
 {
 public:
-    ScoreClassic() : vScore(Type::CLASSIC) {}
+    ScoreBMS() : vScore(Type::BMS) {}
 
 public:
     int exscore;
@@ -185,4 +194,10 @@ public:
     int bpoor;
     int miss;
     int bp;
+    int combobreak;
+
+    // extended info
+    unsigned rival = 3; // win / lose / draw / noplay
+    double rival_rate = 0;
+    Lamp rival_lamp;
 };

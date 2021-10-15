@@ -376,6 +376,7 @@ void RulesetBMS::updateMiss(Time& t, NoteLaneIndex ch, RulesetBMS::JudgeType jud
     if (judge != JudgeType::BPOOR)
     {
         ++_basic.totaln;
+        if (_basic.combo == 0) ++_count[JudgeType::COMBOBREAK];
         _basic.combo = 0;
     }
 
@@ -424,21 +425,34 @@ void RulesetBMS::updatePress(InputMask& pg, Time t)
                     break;
 
                 case judgeArea::EARLY_GREAT:
+                    _basic.fast++;
+                    updateHit(t, idx, RulesetBMS::JudgeType::GREAT, slot);
+                    break;
                 case judgeArea::LATE_GREAT:
+                    _basic.slow++;
                     updateHit(t, idx, RulesetBMS::JudgeType::GREAT, slot);
                     break;
 
                 case judgeArea::EARLY_GOOD:
+                    _basic.fast++;
+                    updateHit(t, idx, RulesetBMS::JudgeType::GOOD, slot);
+                    break;
                 case judgeArea::LATE_GOOD:
+                    _basic.slow++;
                     updateHit(t, idx, RulesetBMS::JudgeType::GOOD, slot);
                     break;
 
                 case judgeArea::EARLY_BAD:
+                    _basic.fast++;
+                    updateMiss(t, idx, RulesetBMS::JudgeType::BAD, slot);
+                    break;
                 case judgeArea::LATE_BAD:
+                    _basic.slow++;
                     updateMiss(t, idx, RulesetBMS::JudgeType::BAD, slot);
                     break;
 
                 case judgeArea::EARLY_BPOOR:
+                    _basic.fast++;
                     updateMiss(t, idx, RulesetBMS::JudgeType::BPOOR, slot);
                     break;
                 }
@@ -586,17 +600,20 @@ void RulesetBMS::updateRelease(InputMask& rg, Time t)
                         break;
 
                     case judgeArea::EARLY_GREAT:
+                        _basic.fast++;
                         updateHit(t, idx, std::max(JudgeType::GREAT, _lnJudge[idx]), slot);
                         _lnJudge[idx] = RulesetBMS::JudgeType::MISS;
                         break;
 
                     case judgeArea::EARLY_GOOD:
+                        _basic.fast++;
                         updateHit(t, idx, JudgeType::GOOD, slot);
                         _lnJudge[idx] = RulesetBMS::JudgeType::MISS;
                         break;
 
                     case judgeArea::EARLY_BAD:
                     default:
+                        _basic.fast++;
                         updateMiss(t, idx, JudgeType::BAD, slot);
                         _lnJudge[idx] = RulesetBMS::JudgeType::MISS;
                         break;
@@ -658,6 +675,7 @@ void RulesetBMS::update(Time t)
                         {
                         case NoteLaneCategory::Note:
                         case NoteLaneCategory::LN:
+                            _basic.slow++;
                             n->hit = true;
                             updateMiss(t, idx, RulesetBMS::JudgeType::MISS, slot);
                             //LOG_DEBUG << "LATE   POOR    "; break;
@@ -673,6 +691,7 @@ void RulesetBMS::update(Time t)
                         {
                         case NoteLaneCategory::Note:
                         case NoteLaneCategory::LN:
+                            _basic.slow++;
                             n->hit = true;
                             //LOG_DEBUG << "LATE   POOR    "; break;
                             break;

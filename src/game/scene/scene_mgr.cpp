@@ -53,8 +53,27 @@ pScene SceneMgr::get(eScene e)
         break;
 
     case eScene::RESULT:
-        ps = std::make_shared<SceneResult>();
-		break;
+        switch (gPlayContext.mode)
+        {
+        case eMode::PLAY5:
+        case eMode::PLAY7:
+        case eMode::PLAY9:
+        case eMode::PLAY10:
+        case eMode::PLAY14:
+            ps = std::make_shared<SceneResult>(ePlayMode::SINGLE);
+            break;
+
+        case eMode::PLAY5_2:
+        case eMode::PLAY7_2:
+        case eMode::PLAY9_2:
+            ps = std::make_shared<SceneResult>(ePlayMode::LOCAL_BATTLE);
+            break;
+
+        default:
+            LOG_ERROR << "[Scene] Invalid mode: " << int(gPlayContext.mode);
+            return nullptr;
+        }
+        break;
 
 	default:
 		return nullptr;
