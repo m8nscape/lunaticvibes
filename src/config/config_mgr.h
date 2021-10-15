@@ -10,17 +10,16 @@ inline const char* PROFILE_DEFAULT = "default";
 
 class ConfigMgr
 {
-public:
-    static std::shared_ptr<ConfigGeneral>     G;
-    static std::shared_ptr<ConfigProfile>     P;
-    static std::shared_ptr<ConfigInput>       I5;
-    static std::shared_ptr<ConfigInput>       I7;
-    static std::shared_ptr<ConfigInput>       I9;
-    static std::shared_ptr<ConfigSkin>        S;
-    static std::string profileName;
+private:
+    ConfigMgr() = default;
+    ~ConfigMgr() = default;
+    static ConfigMgr& getInst()
+    {
+        static ConfigMgr inst;
+        return inst;
+    }
 
-public:
-    static inline void init()
+    void _init()
     {
         profileName = PROFILE_DEFAULT;
         G = std::make_shared<ConfigGeneral>(PROFILE_DEFAULT);
@@ -31,23 +30,23 @@ public:
         S = std::make_shared<ConfigSkin>(PROFILE_DEFAULT);
 
         G->setDefaults();
-        P->setDefaults(); 
-        I5->setDefaults(); 
-        I7->setDefaults(); 
-        I9->setDefaults(); 
+        P->setDefaults();
+        I5->setDefaults();
+        I7->setDefaults();
+        I9->setDefaults();
         S->setDefaults();
     }
 
-    static inline void load() { G->load(); P->load(); I5->load(); I7->load(); I9->load(); S->load(); }
-    static inline void save() { G->save(); P->save(); I5->save(); I7->save(); I9->save(); S->save(); }
-    static int selectProfile(const std::string& name);
-    static void setGlobals();
+    void _load() { G->load(); P->load(); I5->load(); I7->load(); I9->load(); S->load(); }
+    void _save() { G->save(); P->save(); I5->save(); I7->save(); I9->save(); S->save(); }
+    int _selectProfile(const std::string& name);
+    std::string _getProfileName() { return P->getName(); }
+    void _setGlobals();
 
-public:
     template<class Ty_v>
-    static Ty_v get(const std::string& type, const std::string& key, const Ty_v& fallback)
+    Ty_v _get(char type, const std::string& key, const Ty_v& fallback)
     {
-        switch (type[0])
+        switch (type)
         {
         case 'A':                               // Audio
         case 'V': return G->get<Ty_v>(key, fallback);  // Video
@@ -59,15 +58,16 @@ public:
         default:  return Ty_v(); break;
         }
     }
-    static std::string get(const std::string& type, const std::string& key, const char* fallback)
+    template<class Ty_v>
+    Ty_v _get(const std::string& type, const std::string& key, const Ty_v& fallback)
     {
-        return get<std::string>(type, key, fallback);
+        return _get(type[0], key, fallback);
     }
 
     template<class Ty_v>
-    static void set(const std::string& type, const std::string& key, const Ty_v& value) noexcept
+    void _set(char type, const std::string& key, const Ty_v& value) noexcept
     {
-        switch (type[0])
+        switch (type)
         {
         case 'A':                               // Audio
         case 'V': return G->set<Ty_v>(key, value);     // Play
@@ -78,12 +78,13 @@ public:
         default:  return;
         }
     }
-    static void set(const std::string& type, const std::string& key, const char* value) noexcept
+    template<class Ty_v>
+    void _set(const std::string& type, const std::string& key, const Ty_v& value)
     {
-        set<std::string>(type, key, value);
+        return _set(type[0], key, value);
     }
 
-    static std::vector<Input::Keyboard> getKeyBindings(int mode, Input::Pad key)
+    std::vector<Input::Keyboard> _getKeyBindings(int mode, Input::Pad key)
     {
         switch (mode)
         {
@@ -93,11 +94,46 @@ public:
         default: return {};
         }
     }
-    static std::string getDBPath()
+    std::string _getDBPath()
     {
         auto path = "profile/"s + profileName + "/database";
         if (!fs::exists(path))
             fs::create_directories(path);
         return path;
     }
+
+public:
+    std::shared_ptr<ConfigGeneral>     G;
+    std::shared_ptr<ConfigProfile>     P;
+    std::shared_ptr<ConfigInput>       I5;
+    std::shared_ptr<ConfigInput>       I7;
+    std::shared_ptr<ConfigInput>       I9;
+    std::shared_ptr<ConfigSkin>        S;
+    std::string profileName;
+
+public:
+    static void init() { getInst()._init(); }
+    static void load() { getInst()._load(); }
+    static void save() { getInst()._save(); }
+    static int selectProfile(const std::string& name) { return getInst()._selectProfile(name); }
+    static std::string getProfileName() { return getInst()._getProfileName(); }
+    static void setGlobals() { getInst()._setGlobals(); }
+
+    template<class Ty_v>
+    static Ty_v get(char type, const std::string& key, const Ty_v& fallback) { return getInst()._get(type, key, fallback); }
+    static std::string get(char type, const std::string& key, const char* fallback) { return getInst()._get(type, key, std::string(fallback)); }
+    template<class Ty_v>
+    static Ty_v get(const std::string& type, const std::string& key, const Ty_v& fallback) { return getInst()._get(type[0], key, fallback); }
+    static std::string get(const std::string& type, const std::string& key, const char* fallback) { return getInst()._get(type[0], key, std::string(fallback)); }
+
+    template<class Ty_v>
+    static void set(char type, const std::string& key, const Ty_v& value) noexcept { return getInst()._set(type, key, value); }
+    template<class Ty_v>
+    static void set(const std::string& type, const std::string& key, const Ty_v& value) noexcept { return getInst()._set(type[0], key, value); }
+
+    static std::vector<Input::Keyboard> getKeyBindings(int mode, Input::Pad key) { return getInst()._getKeyBindings(mode, key); }
+    static std::string getDBPath() { return getInst()._getDBPath(); }
+
+
+public:
 };

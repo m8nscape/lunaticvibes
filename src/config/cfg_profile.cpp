@@ -9,11 +9,6 @@ std::string ConfigProfile::getName() const
 {
     return _yaml[cfg::P_PLAYERNAME].as<std::string>("Unnamed"); 
 }
-void ConfigProfile::rename(const std::string& name)
-{
-    using namespace cfg;
-    set(P_PLAYERNAME, name);
-}
 
 void ConfigProfile::setDefaults() noexcept
 {

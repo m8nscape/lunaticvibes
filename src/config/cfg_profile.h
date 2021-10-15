@@ -239,6 +239,5 @@ public:
     virtual ~ConfigProfile() = default;
 
     std::string getName() const;
-    void rename(const std::string& name);
     virtual void setDefaults() noexcept override;
 };

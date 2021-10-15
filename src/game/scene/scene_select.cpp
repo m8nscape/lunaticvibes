@@ -341,16 +341,14 @@ void setDynamicTextures()
 
 void config_sys()
 {
-    auto& p = ConfigMgr::P;
-    auto& c = ConfigMgr::G;
     using namespace cfg;
 
     switch (gOptions.get(eOption::SYS_WINDOWED))
     {
-    case Option::WIN_FULLSCREEN: c->set(V_WINMODE, V_WINMODE_FULL); break;
-    case Option::WIN_BORDERLESS: c->set(V_WINMODE, V_WINMODE_BORDERLESS); break;
+    case Option::WIN_FULLSCREEN: ConfigMgr::set('C',V_WINMODE, V_WINMODE_FULL); break;
+    case Option::WIN_BORDERLESS: ConfigMgr::set('C',V_WINMODE, V_WINMODE_BORDERLESS); break;
     case Option::WIN_WINDOWED: 
-    default: c->set(V_WINMODE, V_WINMODE_WINDOWED); break;
+    default:                     ConfigMgr::set('C',V_WINMODE, V_WINMODE_WINDOWED); break;
     }
 
     
@@ -358,202 +356,197 @@ void config_sys()
 
 void config_player()
 {
-    auto& p = ConfigMgr::P;
     using namespace cfg;
 
-    p->set(P_HISPEED, gNumbers.get(eNumber::HS_1P) / 100.0);
+    ConfigMgr::set('P',P_HISPEED, gNumbers.get(eNumber::HS_1P) / 100.0);
     switch (gOptions.get(eOption::PLAY_HSFIX_TYPE_1P))
     {
-    case Option::SPEED_FIX_MAX: p->set(P_SPEED_TYPE, P_SPEED_TYPE_MAX); break;
-    case Option::SPEED_FIX_MIN: p->set(P_SPEED_TYPE, P_SPEED_TYPE_MIN); break;
-    case Option::SPEED_FIX_AVG: p->set(P_SPEED_TYPE, P_SPEED_TYPE_AVG); break;
-    case Option::SPEED_FIX_CONSTANT: p->set(P_SPEED_TYPE, P_SPEED_TYPE_CONSTANT); break;
-    default: p->set(P_SPEED_TYPE, P_SPEED_TYPE_NORMAL); break;
+    case Option::SPEED_FIX_MAX:      ConfigMgr::set('P',P_SPEED_TYPE, P_SPEED_TYPE_MAX); break;
+    case Option::SPEED_FIX_MIN:      ConfigMgr::set('P',P_SPEED_TYPE, P_SPEED_TYPE_MIN); break;
+    case Option::SPEED_FIX_AVG:      ConfigMgr::set('P',P_SPEED_TYPE, P_SPEED_TYPE_AVG); break;
+    case Option::SPEED_FIX_CONSTANT: ConfigMgr::set('P',P_SPEED_TYPE, P_SPEED_TYPE_CONSTANT); break;
+    default:                         ConfigMgr::set('P',P_SPEED_TYPE, P_SPEED_TYPE_NORMAL); break;
     }
 
-    p->set(P_LOAD_BGA, gOptions.get(eOption::PLAY_BGA_TYPE) != Option::BGA_OFF ? ON : OFF);
-    p->set(P_LANECOVER, gNumbers.get(eNumber::LANECOVER_1P));
+    ConfigMgr::set('P',P_LOAD_BGA, gOptions.get(eOption::PLAY_BGA_TYPE) != Option::BGA_OFF ? ON : OFF);
+    ConfigMgr::set('P',P_LANECOVER, gNumbers.get(eNumber::LANECOVER_1P));
 
 
     switch (gOptions.get(eOption::PLAY_RANDOM_TYPE_1P))
     {
-    case Option::RAN_MIRROR: p->set(P_CHART_OP, P_CHART_OP_MIRROR); break;
-    case Option::RAN_RANDOM: p->set(P_CHART_OP, P_CHART_OP_RANDOM); break;
-    case Option::RAN_SRAN: p->set(P_CHART_OP, P_CHART_OP_SRAN); break;
-    case Option::RAN_HRAN: p->set(P_CHART_OP, P_CHART_OP_HRAN); break;
-    case Option::RAN_ALLSCR: p->set(P_CHART_OP, P_CHART_OP_ALLSCR); break;
-    default: p->set(P_CHART_OP, P_CHART_OP_NORMAL); break;
+    case Option::RAN_MIRROR: ConfigMgr::set('P',P_CHART_OP, P_CHART_OP_MIRROR); break;
+    case Option::RAN_RANDOM: ConfigMgr::set('P',P_CHART_OP, P_CHART_OP_RANDOM); break;
+    case Option::RAN_SRAN:   ConfigMgr::set('P',P_CHART_OP, P_CHART_OP_SRAN); break;
+    case Option::RAN_HRAN:   ConfigMgr::set('P',P_CHART_OP, P_CHART_OP_HRAN); break;
+    case Option::RAN_ALLSCR: ConfigMgr::set('P',P_CHART_OP, P_CHART_OP_ALLSCR); break;
+    default:                 ConfigMgr::set('P',P_CHART_OP, P_CHART_OP_NORMAL); break;
     }
 
     switch (gOptions.get(eOption::PLAY_GAUGE_TYPE_1P))
     {
-    case Option::GAUGE_HARD: p->set(P_GAUGE_OP, P_GAUGE_OP_HARD); break;
-    case Option::GAUGE_EASY: p->set(P_GAUGE_OP, P_GAUGE_OP_EASY); break;
-    case Option::GAUGE_DEATH: p->set(P_GAUGE_OP, P_GAUGE_OP_DEATH); break;
-    case Option::GAUGE_EXHARD: p->set(P_GAUGE_OP, P_GAUGE_OP_EXHARD); break;
-    case Option::GAUGE_ASSIST: p->set(P_GAUGE_OP, P_GAUGE_OP_ASSIST); break;
-    default: p->set(P_GAUGE_OP, P_GAUGE_OP_NORMAL); break;
+    case Option::GAUGE_HARD:   ConfigMgr::set('P',P_GAUGE_OP, P_GAUGE_OP_HARD); break;
+    case Option::GAUGE_EASY:   ConfigMgr::set('P',P_GAUGE_OP, P_GAUGE_OP_EASY); break;
+    case Option::GAUGE_DEATH:  ConfigMgr::set('P',P_GAUGE_OP, P_GAUGE_OP_DEATH); break;
+    case Option::GAUGE_EXHARD: ConfigMgr::set('P',P_GAUGE_OP, P_GAUGE_OP_EXHARD); break;
+    case Option::GAUGE_ASSIST: ConfigMgr::set('P',P_GAUGE_OP, P_GAUGE_OP_ASSIST); break;
+    default:                   ConfigMgr::set('P',P_GAUGE_OP, P_GAUGE_OP_NORMAL); break;
     }
 
     switch (gOptions.get(eOption::PLAY_GHOST_TYPE_1P))
     {
-    case Option::GHOST_TOP: p->set(P_GHOST_TYPE, P_GHOST_TYPE_A); break;
-    case Option::GHOST_SIDE: p->set(P_GHOST_TYPE, P_GHOST_TYPE_B); break;
-    case Option::GHOST_SIDE_BOTTOM: p->set(P_GHOST_TYPE, P_GHOST_TYPE_C); break;
-    default: p->set(P_GHOST_TYPE, OFF); break;
+    case Option::GHOST_TOP:         ConfigMgr::set('P',P_GHOST_TYPE, P_GHOST_TYPE_A); break;
+    case Option::GHOST_SIDE:        ConfigMgr::set('P',P_GHOST_TYPE, P_GHOST_TYPE_B); break;
+    case Option::GHOST_SIDE_BOTTOM: ConfigMgr::set('P',P_GHOST_TYPE, P_GHOST_TYPE_C); break;
+    default:                        ConfigMgr::set('P',P_GHOST_TYPE, OFF); break;
     }
 
-    p->set(P_JUDGE_OFFSET, gNumbers.get(eNumber::TIMING_ADJUST_VISUAL));
-    p->set(P_GHOST_TARGET, gNumbers.get(eNumber::DEFAULT_TARGET_RATE));
+    ConfigMgr::set('P',P_JUDGE_OFFSET, gNumbers.get(eNumber::TIMING_ADJUST_VISUAL));
+    ConfigMgr::set('P',P_GHOST_TARGET, gNumbers.get(eNumber::DEFAULT_TARGET_RATE));
 
     switch (gOptions.get(eOption::SELECT_FILTER_KEYS))
     {
-    case Option::KEYS_7: p->set(P_PLAY_MODE, P_PLAY_MODE_7K); break;
-    case Option::KEYS_5: p->set(P_PLAY_MODE, P_PLAY_MODE_5K); break;
-    case Option::KEYS_14: p->set(P_PLAY_MODE, P_PLAY_MODE_14K); break;
-    case Option::KEYS_10: p->set(P_PLAY_MODE, P_PLAY_MODE_10K); break;
-    case Option::KEYS_9: p->set(P_PLAY_MODE, P_PLAY_MODE_9K); break;
-    default: p->set(P_PLAY_MODE, P_PLAY_MODE_ALL); break;
+    case Option::KEYS_7:  ConfigMgr::set('P',P_PLAY_MODE, P_PLAY_MODE_7K); break;
+    case Option::KEYS_5:  ConfigMgr::set('P',P_PLAY_MODE, P_PLAY_MODE_5K); break;
+    case Option::KEYS_14: ConfigMgr::set('P',P_PLAY_MODE, P_PLAY_MODE_14K); break;
+    case Option::KEYS_10: ConfigMgr::set('P',P_PLAY_MODE, P_PLAY_MODE_10K); break;
+    case Option::KEYS_9:  ConfigMgr::set('P',P_PLAY_MODE, P_PLAY_MODE_9K); break;
+    default:              ConfigMgr::set('P',P_PLAY_MODE, P_PLAY_MODE_ALL); break;
     }
 
     switch (gOptions.get(eOption::SELECT_SORT))
     {
-    case Option::SORT_TITLE: p->set(P_SORT_MODE, P_SORT_MODE_TITLE); break;
-    case Option::SORT_LEVEL: p->set(P_SORT_MODE, P_SORT_MODE_LEVEL); break;
-    case Option::SORT_CLEAR: p->set(P_SORT_MODE, P_SORT_MODE_CLEAR); break;
-    case Option::SORT_RATE: p->set(P_SORT_MODE, P_SORT_MODE_RATE); break;
-    default: p->set(P_SORT_MODE, P_SORT_MODE_FOLDER); break;
+    case Option::SORT_TITLE: ConfigMgr::set('P',P_SORT_MODE, P_SORT_MODE_TITLE); break;
+    case Option::SORT_LEVEL: ConfigMgr::set('P',P_SORT_MODE, P_SORT_MODE_LEVEL); break;
+    case Option::SORT_CLEAR: ConfigMgr::set('P',P_SORT_MODE, P_SORT_MODE_CLEAR); break;
+    case Option::SORT_RATE:  ConfigMgr::set('P',P_SORT_MODE, P_SORT_MODE_RATE); break;
+    default:                 ConfigMgr::set('P',P_SORT_MODE, P_SORT_MODE_FOLDER); break;
     }
 
     switch (gOptions.get(eOption::SELECT_FILTER_DIFF))
     {
-    case Option::DIFF_BEGINNER: p->set(P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_BEGINNER); break;
-    case Option::DIFF_NORMAL: p->set(P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_NORMAL); break;
-    case Option::DIFF_HYPER: p->set(P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_HYPER); break;
-    case Option::DIFF_ANOTHER: p->set(P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_ANOTHER); break;
-    case Option::DIFF_INSANE: p->set(P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_INSANE); break;
-    default: p->set(P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_ALL); break;
+    case Option::DIFF_BEGINNER: ConfigMgr::set('P',P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_BEGINNER); break;
+    case Option::DIFF_NORMAL:   ConfigMgr::set('P',P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_NORMAL); break;
+    case Option::DIFF_HYPER:    ConfigMgr::set('P',P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_HYPER); break;
+    case Option::DIFF_ANOTHER:  ConfigMgr::set('P',P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_ANOTHER); break;
+    case Option::DIFF_INSANE:   ConfigMgr::set('P',P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_INSANE); break;
+    default:                    ConfigMgr::set('P',P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_ALL); break;
     }
 
-    p->set(P_BATTLE, gOptions.get(eOption::PLAY_BATTLE_TYPE) != 0 ? ON : OFF);
-    p->set(P_FLIP, gSwitches.get(eSwitch::PLAY_OPTION_DP_FLIP) ? ON : OFF);
-    p->set(P_SCORE_GRAPH, gSwitches.get(eSwitch::SYSTEM_SCOREGRAPH) ? ON : OFF);
+    ConfigMgr::set('P',P_BATTLE, gOptions.get(eOption::PLAY_BATTLE_TYPE) != 0 ? ON : OFF);
+    ConfigMgr::set('P',P_FLIP, gSwitches.get(eSwitch::PLAY_OPTION_DP_FLIP) ? ON : OFF);
+    ConfigMgr::set('P',P_SCORE_GRAPH, gSwitches.get(eSwitch::SYSTEM_SCOREGRAPH) ? ON : OFF);
 }
 
 void config_vol()
 {
-    auto& p = ConfigMgr::P;
     using namespace cfg;
 
-    p->set(P_VOL_MASTER, gSliders.get(eSlider::VOLUME_MASTER));
-    p->set(P_VOL_KEY, gSliders.get(eSlider::VOLUME_KEY));
-    p->set(P_VOL_BGM, gSliders.get(eSlider::VOLUME_BGM));
+    ConfigMgr::set('P',P_VOL_MASTER, gSliders.get(eSlider::VOLUME_MASTER));
+    ConfigMgr::set('P',P_VOL_KEY, gSliders.get(eSlider::VOLUME_KEY));
+    ConfigMgr::set('P',P_VOL_BGM, gSliders.get(eSlider::VOLUME_BGM));
 }
 
 void config_eq()
 {
-    auto& p = ConfigMgr::P;
     using namespace cfg;
 
-    p->set(P_EQ, gSwitches.get(eSwitch::SOUND_EQ) ? ON : OFF);
-    p->set(P_EQ0, (gSliders.get(eSlider::EQ0) + 0.5) / 2);
-    p->set(P_EQ1, (gSliders.get(eSlider::EQ1) + 0.5) / 2);
-    p->set(P_EQ2, (gSliders.get(eSlider::EQ2) + 0.5) / 2);
-    p->set(P_EQ3, (gSliders.get(eSlider::EQ3) + 0.5) / 2);
-    p->set(P_EQ4, (gSliders.get(eSlider::EQ4) + 0.5) / 2);
-    p->set(P_EQ5, (gSliders.get(eSlider::EQ5) + 0.5) / 2);
-    p->set(P_EQ6, (gSliders.get(eSlider::EQ6) + 0.5) / 2);
+    ConfigMgr::set('P',P_EQ, gSwitches.get(eSwitch::SOUND_EQ) ? ON : OFF);
+    ConfigMgr::set('P',P_EQ0, (gSliders.get(eSlider::EQ0) + 0.5) / 2);
+    ConfigMgr::set('P',P_EQ1, (gSliders.get(eSlider::EQ1) + 0.5) / 2);
+    ConfigMgr::set('P',P_EQ2, (gSliders.get(eSlider::EQ2) + 0.5) / 2);
+    ConfigMgr::set('P',P_EQ3, (gSliders.get(eSlider::EQ3) + 0.5) / 2);
+    ConfigMgr::set('P',P_EQ4, (gSliders.get(eSlider::EQ4) + 0.5) / 2);
+    ConfigMgr::set('P',P_EQ5, (gSliders.get(eSlider::EQ5) + 0.5) / 2);
+    ConfigMgr::set('P',P_EQ6, (gSliders.get(eSlider::EQ6) + 0.5) / 2);
 }
 
 void config_freq()
 {
-    auto& p = ConfigMgr::P;
     using namespace cfg;
 
-    p->set(P_FREQ, gSwitches.get(eSwitch::SOUND_PITCH) ? ON : OFF);
+    ConfigMgr::set('P',P_FREQ, gSwitches.get(eSwitch::SOUND_PITCH) ? ON : OFF);
     switch (gOptions.get(eOption::SOUND_PITCH_TYPE))
     {
-    case Option::FREQ_FREQ: p->set(P_FREQ_TYPE, P_FREQ_TYPE_FREQ); break;
-    case Option::FREQ_PITCH: p->set(P_FREQ_TYPE, P_FREQ_TYPE_PITCH); break;
-    case Option::FREQ_SPEED: p->set(P_FREQ_TYPE, P_FREQ_TYPE_SPEED); break;
+    case Option::FREQ_FREQ: ConfigMgr::set('P',P_FREQ_TYPE, P_FREQ_TYPE_FREQ); break;
+    case Option::FREQ_PITCH: ConfigMgr::set('P',P_FREQ_TYPE, P_FREQ_TYPE_PITCH); break;
+    case Option::FREQ_SPEED: ConfigMgr::set('P',P_FREQ_TYPE, P_FREQ_TYPE_SPEED); break;
     default: break;
     }
-    p->set(P_FREQ_VAL, gNumbers.get(eNumber::PITCH));
+    ConfigMgr::set('P',P_FREQ_VAL, gNumbers.get(eNumber::PITCH));
 }
 
 void config_fx()
 {
-    auto& p = ConfigMgr::P;
     using namespace cfg;
 
-    p->set(P_FX0, gSwitches.get(eSwitch::SOUND_FX0) ? ON : OFF);
+    ConfigMgr::set('P',P_FX0, gSwitches.get(eSwitch::SOUND_FX0) ? ON : OFF);
     switch (gOptions.get(eOption::SOUND_TARGET_FX0))
     {
-    case Option::FX_MASTER: p->set(P_FX0_TARGET, P_FX_TARGET_MASTER); break;
-    case Option::FX_KEY: p->set(P_FX0_TARGET, P_FX_TARGET_KEY); break;
-    case Option::FX_BGM: p->set(P_FX0_TARGET, P_FX_TARGET_BGM); break;
+    case Option::FX_MASTER: ConfigMgr::set('P',P_FX0_TARGET, P_FX_TARGET_MASTER); break;
+    case Option::FX_KEY:    ConfigMgr::set('P',P_FX0_TARGET, P_FX_TARGET_KEY); break;
+    case Option::FX_BGM:    ConfigMgr::set('P',P_FX0_TARGET, P_FX_TARGET_BGM); break;
     default: break;
     }
     switch (gOptions.get(eOption::SOUND_FX0))
     {
-    case Option::FX_OFF: p->set(P_FX0_TYPE, OFF); break;
-    case Option::FX_REVERB: p->set(P_FX0_TYPE, P_FX_TYPE_REVERB); break;
-    case Option::FX_DELAY: p->set(P_FX0_TYPE, P_FX_TYPE_DELAY); break;
-    case Option::FX_LOWPASS: p->set(P_FX0_TYPE, P_FX_TYPE_LOWPASS); break;
-    case Option::FX_HIGHPASS: p->set(P_FX0_TYPE, P_FX_TYPE_HIGHPASS); break;
-    case Option::FX_FLANGER: p->set(P_FX0_TYPE, P_FX_TYPE_FLANGER); break;
-    case Option::FX_CHORUS: p->set(P_FX0_TYPE, P_FX_TYPE_CHORUS); break;
-    case Option::FX_DISTORTION: p->set(P_FX0_TYPE, P_FX_TYPE_DIST); break;
+    case Option::FX_OFF:        ConfigMgr::set('P',P_FX0_TYPE, OFF); break;
+    case Option::FX_REVERB:     ConfigMgr::set('P',P_FX0_TYPE, P_FX_TYPE_REVERB); break;
+    case Option::FX_DELAY:      ConfigMgr::set('P',P_FX0_TYPE, P_FX_TYPE_DELAY); break;
+    case Option::FX_LOWPASS:    ConfigMgr::set('P',P_FX0_TYPE, P_FX_TYPE_LOWPASS); break;
+    case Option::FX_HIGHPASS:   ConfigMgr::set('P',P_FX0_TYPE, P_FX_TYPE_HIGHPASS); break;
+    case Option::FX_FLANGER:    ConfigMgr::set('P',P_FX0_TYPE, P_FX_TYPE_FLANGER); break;
+    case Option::FX_CHORUS:     ConfigMgr::set('P',P_FX0_TYPE, P_FX_TYPE_CHORUS); break;
+    case Option::FX_DISTORTION: ConfigMgr::set('P',P_FX0_TYPE, P_FX_TYPE_DIST); break;
     default: break;
     }
-    p->set(P_FX0_P1, gNumbers.get(eNumber::FX0_P1));
-    p->set(P_FX0_P2, gNumbers.get(eNumber::FX0_P2));
+    ConfigMgr::set('P',P_FX0_P1, gNumbers.get(eNumber::FX0_P1));
+    ConfigMgr::set('P',P_FX0_P2, gNumbers.get(eNumber::FX0_P2));
 
-    p->set(P_FX1, gSwitches.get(eSwitch::SOUND_FX1) ? ON : OFF);
+    ConfigMgr::set('P',P_FX1, gSwitches.get(eSwitch::SOUND_FX1) ? ON : OFF);
     switch (gOptions.get(eOption::SOUND_TARGET_FX1))
     {
-    case Option::FX_MASTER: p->set(P_FX1_TARGET, P_FX_TARGET_MASTER); break;
-    case Option::FX_KEY: p->set(P_FX1_TARGET, P_FX_TARGET_KEY); break;
-    case Option::FX_BGM: p->set(P_FX1_TARGET, P_FX_TARGET_BGM); break;
+    case Option::FX_MASTER: ConfigMgr::set('P',P_FX1_TARGET, P_FX_TARGET_MASTER); break;
+    case Option::FX_KEY:    ConfigMgr::set('P',P_FX1_TARGET, P_FX_TARGET_KEY); break;
+    case Option::FX_BGM:    ConfigMgr::set('P',P_FX1_TARGET, P_FX_TARGET_BGM); break;
     default: break;
     }
     switch (gOptions.get(eOption::SOUND_FX1))
     {
-    case Option::FX_OFF: p->set(P_FX1_TYPE, OFF); break;
-    case Option::FX_REVERB: p->set(P_FX1_TYPE, P_FX_TYPE_REVERB); break;
-    case Option::FX_DELAY: p->set(P_FX1_TYPE, P_FX_TYPE_DELAY); break;
-    case Option::FX_LOWPASS: p->set(P_FX1_TYPE, P_FX_TYPE_LOWPASS); break;
-    case Option::FX_HIGHPASS: p->set(P_FX1_TYPE, P_FX_TYPE_HIGHPASS); break;
-    case Option::FX_FLANGER: p->set(P_FX1_TYPE, P_FX_TYPE_FLANGER); break;
-    case Option::FX_CHORUS: p->set(P_FX1_TYPE, P_FX_TYPE_CHORUS); break;
-    case Option::FX_DISTORTION: p->set(P_FX1_TYPE, P_FX_TYPE_DIST); break;
+    case Option::FX_OFF:        ConfigMgr::set('P',P_FX1_TYPE, OFF); break;
+    case Option::FX_REVERB:     ConfigMgr::set('P',P_FX1_TYPE, P_FX_TYPE_REVERB); break;
+    case Option::FX_DELAY:      ConfigMgr::set('P',P_FX1_TYPE, P_FX_TYPE_DELAY); break;
+    case Option::FX_LOWPASS:    ConfigMgr::set('P',P_FX1_TYPE, P_FX_TYPE_LOWPASS); break;
+    case Option::FX_HIGHPASS:   ConfigMgr::set('P',P_FX1_TYPE, P_FX_TYPE_HIGHPASS); break;
+    case Option::FX_FLANGER:    ConfigMgr::set('P',P_FX1_TYPE, P_FX_TYPE_FLANGER); break;
+    case Option::FX_CHORUS:     ConfigMgr::set('P',P_FX1_TYPE, P_FX_TYPE_CHORUS); break;
+    case Option::FX_DISTORTION: ConfigMgr::set('P',P_FX1_TYPE, P_FX_TYPE_DIST); break;
     default: break;
     }
-    p->set(P_FX1_P1, gNumbers.get(eNumber::FX1_P1));
-    p->set(P_FX1_P2, gNumbers.get(eNumber::FX1_P2));
+    ConfigMgr::set('P',P_FX1_P1, gNumbers.get(eNumber::FX1_P1));
+    ConfigMgr::set('P',P_FX1_P2, gNumbers.get(eNumber::FX1_P2));
 
-    p->set(P_FX2, gSwitches.get(eSwitch::SOUND_FX2) ? ON : OFF);
+    ConfigMgr::set('P',P_FX2, gSwitches.get(eSwitch::SOUND_FX2) ? ON : OFF);
     switch (gOptions.get(eOption::SOUND_TARGET_FX2))
     {
-    case Option::FX_MASTER: p->set(P_FX2_TARGET, P_FX_TARGET_MASTER); break;
-    case Option::FX_KEY: p->set(P_FX2_TARGET, P_FX_TARGET_KEY); break;
-    case Option::FX_BGM: p->set(P_FX2_TARGET, P_FX_TARGET_BGM); break;
+    case Option::FX_MASTER: ConfigMgr::set('P',P_FX2_TARGET, P_FX_TARGET_MASTER); break;
+    case Option::FX_KEY:    ConfigMgr::set('P',P_FX2_TARGET, P_FX_TARGET_KEY); break;
+    case Option::FX_BGM:    ConfigMgr::set('P',P_FX2_TARGET, P_FX_TARGET_BGM); break;
     default: break;
     }
     switch (gOptions.get(eOption::SOUND_FX2))
     {
-    case Option::FX_OFF: p->set(P_FX2_TYPE, OFF); break;
-    case Option::FX_REVERB: p->set(P_FX2_TYPE, P_FX_TYPE_REVERB); break;
-    case Option::FX_DELAY: p->set(P_FX2_TYPE, P_FX_TYPE_DELAY); break;
-    case Option::FX_LOWPASS: p->set(P_FX2_TYPE, P_FX_TYPE_LOWPASS); break;
-    case Option::FX_HIGHPASS: p->set(P_FX2_TYPE, P_FX_TYPE_HIGHPASS); break;
-    case Option::FX_FLANGER: p->set(P_FX2_TYPE, P_FX_TYPE_FLANGER); break;
-    case Option::FX_CHORUS: p->set(P_FX2_TYPE, P_FX_TYPE_CHORUS); break;
-    case Option::FX_DISTORTION: p->set(P_FX2_TYPE, P_FX_TYPE_DIST); break;
+    case Option::FX_OFF:        ConfigMgr::set('P',P_FX2_TYPE, OFF); break;
+    case Option::FX_REVERB:     ConfigMgr::set('P',P_FX2_TYPE, P_FX_TYPE_REVERB); break;
+    case Option::FX_DELAY:      ConfigMgr::set('P',P_FX2_TYPE, P_FX_TYPE_DELAY); break;
+    case Option::FX_LOWPASS:    ConfigMgr::set('P',P_FX2_TYPE, P_FX_TYPE_LOWPASS); break;
+    case Option::FX_HIGHPASS:   ConfigMgr::set('P',P_FX2_TYPE, P_FX_TYPE_HIGHPASS); break;
+    case Option::FX_FLANGER:    ConfigMgr::set('P',P_FX2_TYPE, P_FX_TYPE_FLANGER); break;
+    case Option::FX_CHORUS:     ConfigMgr::set('P',P_FX2_TYPE, P_FX_TYPE_CHORUS); break;
+    case Option::FX_DISTORTION: ConfigMgr::set('P',P_FX2_TYPE, P_FX_TYPE_DIST); break;
     default: break;
     }
-    p->set(P_FX2_P1, gNumbers.get(eNumber::FX2_P1));
-    p->set(P_FX2_P2, gNumbers.get(eNumber::FX2_P2));
+    ConfigMgr::set('P',P_FX2_P1, gNumbers.get(eNumber::FX2_P1));
+    ConfigMgr::set('P',P_FX2_P2, gNumbers.get(eNumber::FX2_P2));
 }
 
 
