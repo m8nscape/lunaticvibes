@@ -1,5 +1,5 @@
 #include "scene_context.h"
-#include "game/data/text.h"
+#include "game/data/data.h"
 
 bool gResetSelectCursor = true;
 bool gQuitOnFinish = false;
@@ -13,15 +13,18 @@ std::shared_ptr<ScoreDB> g_pScoreDB;
 
 void clearContextPlayForRetry()
 {
-    if (gPlayContext.chartObj[0] != nullptr) { gPlayContext.chartObj[0] = nullptr; }
-    if (gPlayContext.chartObj[1] != nullptr) { gPlayContext.chartObj[1] = nullptr; }
+    if (gPlayContext.chartObj[0] != nullptr) { gPlayContext.chartObj[0]->reset(); gPlayContext.chartObj[0].reset(); }
+    if (gPlayContext.chartObj[1] != nullptr) { gPlayContext.chartObj[1]->reset(); gPlayContext.chartObj[1].reset(); }
     for (size_t i = 0; i < MAX_PLAYERS; ++i)
     {
         gPlayContext.graphGauge[i].clear();
         gPlayContext.graphScore[i].clear();
+        gPlayContext.ruleset[i]->reset();
         gPlayContext.ruleset[i].reset();
     }
     gPlayContext.graphScoreTarget.clear();
+
+
 }
 
 void clearContextPlay()

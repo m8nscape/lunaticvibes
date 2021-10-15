@@ -213,4 +213,5 @@ public:
     virtual unsigned getCurrentMaxScore() const { return _basic.totalnr * 2; }
     virtual unsigned getMaxScore() const { return _chart->getNoteRegularCount() * 2 + _chart->getNoteLnCount() * 2; }
     unsigned getJudgeCount(JudgeType idx) const { return _count.find(idx) != _count.end() ? _count.at(idx) : 0; }
+    void reset();
 };

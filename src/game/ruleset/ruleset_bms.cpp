@@ -48,7 +48,7 @@ void setJudgeTimer2PInner(RulesetBMS::JudgeType judge, long long t)
 
 RulesetBMS::RulesetBMS(std::shared_ptr<vChartFormat> format, std::shared_ptr<vChart> chart,
     eModGauge gauge, unsigned keys, RulesetBMS::JudgeDifficulty difficulty, double health, RulesetBMS::PlaySide side) :
-    vRuleset(format, chart, 6), _diff(difficulty)
+    vRuleset(format, chart), _diff(difficulty)
 {
     switch (gauge)
     {
@@ -708,6 +708,7 @@ void RulesetBMS::update(Time t)
 	_basic.total_acc = 100.0 * _basic.score2 / max;
     _basic.acc = _basic.totaln ? (100.0 * _basic.score2 / _basic.totaln / 2) : 0;
     _basic.score = int(std::round(inner_score));
+
 	gBargraphs.queue(eBargraph::PLAY_EXSCORE, _basic.total_acc);
 	if (_k1P) // includes DP
 	{
@@ -814,6 +815,59 @@ void RulesetBMS::update(Time t)
 
         }
 	}
+    gNumbers.flush();
+    gOptions.flush();
+}
+
+void RulesetBMS::reset()
+{
+    vRuleset::reset();
+
+    _count.clear();
+
+    gBargraphs.queue(eBargraph::PLAY_EXSCORE, _basic.total_acc);
+    if (_k1P) // includes DP
+    {
+        gNumbers.queue(eNumber::PLAY_1P_EXSCORE, _basic.score2);
+        gNumbers.queue(eNumber::PLAY_1P_SCORE, _basic.score);
+        gNumbers.queue(eNumber::PLAY_1P_NOWCOMBO, _basic.combo);
+        gNumbers.queue(eNumber::PLAY_1P_MAXCOMBO, _basic.maxCombo);
+        gNumbers.queue(eNumber::PLAY_1P_RATE, int(std::floor(_basic.acc)));
+        gNumbers.queue(eNumber::PLAY_1P_RATEDECIMAL, int(std::floor((_basic.acc - int(_basic.acc)) * 100)));
+        gNumbers.queue(eNumber::PLAY_1P_TOTAL_RATE, int(std::floor(_basic.total_acc)));
+        gNumbers.queue(eNumber::PLAY_1P_TOTAL_RATE_DECIMAL2, int(std::floor((_basic.total_acc - int(_basic.total_acc)) * 100)));
+        gNumbers.queue(eNumber::PLAY_1P_PERFECT, _count[JudgeType::PERFECT]);
+        gNumbers.queue(eNumber::PLAY_1P_GREAT, _count[JudgeType::GREAT]);
+        gNumbers.queue(eNumber::PLAY_1P_GOOD, _count[JudgeType::GOOD]);
+        gNumbers.queue(eNumber::PLAY_1P_BAD, _count[JudgeType::BAD]);
+        gNumbers.queue(eNumber::PLAY_1P_POOR, _count[JudgeType::BPOOR] + _count[JudgeType::MISS]);
+        gNumbers.queue(eNumber::PLAY_1P_GROOVEGAUGE, int(_basic.health * 100));
+
+        gOptions.queue(eOption::PLAY_RANK_ESTIMATED_1P, Option::RANK_NONE);
+        gOptions.queue(eOption::PLAY_RANK_BORDER_1P, Option::RANK_NONE);
+        gOptions.queue(eOption::PLAY_ACCURACY_1P, Option::ACC_0);
+    }
+    else if (_k2P) // excludes DP
+    {
+        gNumbers.queue(eNumber::PLAY_2P_EXSCORE, _basic.score2);
+        gNumbers.queue(eNumber::PLAY_2P_SCORE, _basic.score);
+        gNumbers.queue(eNumber::PLAY_2P_NOWCOMBO, _basic.combo);
+        gNumbers.queue(eNumber::PLAY_2P_MAXCOMBO, _basic.maxCombo);
+        gNumbers.queue(eNumber::PLAY_2P_RATE, int(std::floor(_basic.acc)));
+        gNumbers.queue(eNumber::PLAY_2P_RATEDECIMAL, int(std::floor((_basic.acc - int(_basic.acc)) * 100)));
+        gNumbers.queue(eNumber::PLAY_2P_TOTAL_RATE, int(std::floor(_basic.total_acc)));
+        gNumbers.queue(eNumber::PLAY_2P_TOTAL_RATE_DECIMAL2, int(std::floor((_basic.total_acc - int(_basic.total_acc)) * 100)));
+        gNumbers.queue(eNumber::PLAY_2P_PERFECT, _count[JudgeType::PERFECT]);
+        gNumbers.queue(eNumber::PLAY_2P_GREAT, _count[JudgeType::GREAT]);
+        gNumbers.queue(eNumber::PLAY_2P_GOOD, _count[JudgeType::GOOD]);
+        gNumbers.queue(eNumber::PLAY_2P_BAD, _count[JudgeType::BAD]);
+        gNumbers.queue(eNumber::PLAY_2P_POOR, _count[JudgeType::BPOOR] + _count[JudgeType::MISS]);
+        gNumbers.queue(eNumber::PLAY_2P_GROOVEGAUGE, int(_basic.health * 100));
+
+        gOptions.queue(eOption::PLAY_RANK_ESTIMATED_2P, Option::RANK_NONE);
+        gOptions.queue(eOption::PLAY_RANK_BORDER_2P, Option::RANK_NONE);
+        gOptions.queue(eOption::PLAY_ACCURACY_2P, Option::ACC_0);
+    }
     gNumbers.flush();
     gOptions.flush();
 }

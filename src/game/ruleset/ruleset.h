@@ -37,13 +37,12 @@ protected:
     BasicData _basic;
     double _minHealth;
     double _clearHealth;
-    std::vector<unsigned> _judgeCount;
     bool _isCleared = false;
     bool _isFailed = false;
 public:
     vRuleset() = delete;
-    vRuleset(std::shared_ptr<vChartFormat> format, std::shared_ptr<chart::vChart> chart, size_t judgeCount) :
-        _format(format), _chart(chart), _basic{ 0 }, _judgeCount(judgeCount, 0) {}
+    vRuleset(std::shared_ptr<vChartFormat> format, std::shared_ptr<chart::vChart> chart) :
+        _format(format), _chart(chart), _basic{ 0 }{}
     virtual ~vRuleset() = default;
 public:
     virtual void updatePress(InputMask& pg, Time t) = 0;
@@ -59,4 +58,5 @@ public:
     virtual unsigned getCurrentMaxScore() const = 0;
     virtual unsigned getMaxScore() const = 0;
     void fail() { _basic.health = 0.0; }
+    virtual void reset() { _basic = { 0 }; };
 };
