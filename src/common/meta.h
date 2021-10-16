@@ -1,6 +1,6 @@
 #pragma once
 
-constexpr char MAIN_NAME[] = "modelLR";
+constexpr char MAIN_NAME[] = "nullptr";
 constexpr char SUB_NAME[] = "alpha";
 constexpr unsigned VER_MAJOR = 0;
 constexpr unsigned VER_MINOR = 1;
