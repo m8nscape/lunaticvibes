@@ -85,7 +85,7 @@ private:
     }
     std::string _getDBPath()
     {
-        auto path = "profile/"s + profileName + "/database";
+        auto path = "profile/"s + profileName;
         if (!fs::exists(path))
             fs::create_directories(path);
         return path;
