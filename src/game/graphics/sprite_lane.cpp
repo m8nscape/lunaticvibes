@@ -69,7 +69,7 @@ void SpriteLaneVertical::updateNoteRect(const Time& t)
 {
 	_outRect.clear();
 	auto pChart = gPlayContext.chartObj[playerSlot];
-	if (pChart != nullptr && gChartContext.started)
+	if (pChart == nullptr || !gChartContext.started)
 	{
 		return;
 	}
@@ -81,7 +81,7 @@ void SpriteLaneVertical::updateNoteRect(const Time& t)
 
     // fetch note size, c.y + c.h = judge line pos (top-left corner), -c.h = height start drawing
     auto c = _current.rect;
-    auto currTotalBeat = pChart->getBarBeatstamp(beat) + measure;
+    auto currTotalBeat = pChart->getBarBeatstamp(measure) + beat;
 
     // generate note rects and store to buffer
 	// 150BPM with 1.0x HS is 1600ms
@@ -125,7 +125,7 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 	_outRectTail.clear();
 
 	auto pChart = gPlayContext.chartObj[playerSlot];
-	if (pChart != nullptr && gChartContext.started)
+	if (pChart == nullptr || !gChartContext.started)
 	{
 		return;
 	}

@@ -27,30 +27,32 @@ SceneResult::SceneResult(ePlayMode gamemode) : vScene(eMode::RESULT, 1000), _mod
     {
         auto d1p = gPlayContext.ruleset[PLAYER_SLOT_1P]->getData();
 
-        if (d1p.total_acc >= 100.0)      gOptions.set(eOption::RESULT_RANK_1P, Option::RANK_0);
-        else if (d1p.total_acc >= 88.88) gOptions.set(eOption::RESULT_RANK_1P, Option::RANK_1);
-        else if (d1p.total_acc >= 77.77) gOptions.set(eOption::RESULT_RANK_1P, Option::RANK_2);
-        else if (d1p.total_acc >= 66.66) gOptions.set(eOption::RESULT_RANK_1P, Option::RANK_3);
-        else if (d1p.total_acc >= 55.55) gOptions.set(eOption::RESULT_RANK_1P, Option::RANK_4);
-        else if (d1p.total_acc >= 44.44) gOptions.set(eOption::RESULT_RANK_1P, Option::RANK_5);
-        else if (d1p.total_acc >= 33.33) gOptions.set(eOption::RESULT_RANK_1P, Option::RANK_6);
-        else if (d1p.total_acc >= 22.22) gOptions.set(eOption::RESULT_RANK_1P, Option::RANK_7);
-        else                             gOptions.set(eOption::RESULT_RANK_1P, Option::RANK_8);
+        if (d1p.total_acc >= 100.0)      gOptions.queue(eOption::RESULT_RANK_1P, Option::RANK_0);
+        else if (d1p.total_acc >= 88.88) gOptions.queue(eOption::RESULT_RANK_1P, Option::RANK_1);
+        else if (d1p.total_acc >= 77.77) gOptions.queue(eOption::RESULT_RANK_1P, Option::RANK_2);
+        else if (d1p.total_acc >= 66.66) gOptions.queue(eOption::RESULT_RANK_1P, Option::RANK_3);
+        else if (d1p.total_acc >= 55.55) gOptions.queue(eOption::RESULT_RANK_1P, Option::RANK_4);
+        else if (d1p.total_acc >= 44.44) gOptions.queue(eOption::RESULT_RANK_1P, Option::RANK_5);
+        else if (d1p.total_acc >= 33.33) gOptions.queue(eOption::RESULT_RANK_1P, Option::RANK_6);
+        else if (d1p.total_acc >= 22.22) gOptions.queue(eOption::RESULT_RANK_1P, Option::RANK_7);
+        else                             gOptions.queue(eOption::RESULT_RANK_1P, Option::RANK_8);
     }
 
     if (gPlayContext.ruleset[PLAYER_SLOT_2P])
     {
         auto d2p = gPlayContext.ruleset[PLAYER_SLOT_2P]->getData();
-        if (d2p.total_acc >= 100.0)      gOptions.set(eOption::RESULT_RANK_2P, Option::RANK_0);
-        else if (d2p.total_acc >= 88.88) gOptions.set(eOption::RESULT_RANK_2P, Option::RANK_1);
-        else if (d2p.total_acc >= 77.77) gOptions.set(eOption::RESULT_RANK_2P, Option::RANK_2);
-        else if (d2p.total_acc >= 66.66) gOptions.set(eOption::RESULT_RANK_2P, Option::RANK_3);
-        else if (d2p.total_acc >= 55.55) gOptions.set(eOption::RESULT_RANK_2P, Option::RANK_4);
-        else if (d2p.total_acc >= 44.44) gOptions.set(eOption::RESULT_RANK_2P, Option::RANK_5);
-        else if (d2p.total_acc >= 33.33) gOptions.set(eOption::RESULT_RANK_2P, Option::RANK_6);
-        else if (d2p.total_acc >= 22.22) gOptions.set(eOption::RESULT_RANK_2P, Option::RANK_7);
-        else                             gOptions.set(eOption::RESULT_RANK_2P, Option::RANK_8);
+        if (d2p.total_acc >= 100.0)      gOptions.queue(eOption::RESULT_RANK_2P, Option::RANK_0);
+        else if (d2p.total_acc >= 88.88) gOptions.queue(eOption::RESULT_RANK_2P, Option::RANK_1);
+        else if (d2p.total_acc >= 77.77) gOptions.queue(eOption::RESULT_RANK_2P, Option::RANK_2);
+        else if (d2p.total_acc >= 66.66) gOptions.queue(eOption::RESULT_RANK_2P, Option::RANK_3);
+        else if (d2p.total_acc >= 55.55) gOptions.queue(eOption::RESULT_RANK_2P, Option::RANK_4);
+        else if (d2p.total_acc >= 44.44) gOptions.queue(eOption::RESULT_RANK_2P, Option::RANK_5);
+        else if (d2p.total_acc >= 33.33) gOptions.queue(eOption::RESULT_RANK_2P, Option::RANK_6);
+        else if (d2p.total_acc >= 22.22) gOptions.queue(eOption::RESULT_RANK_2P, Option::RANK_7);
+        else                             gOptions.queue(eOption::RESULT_RANK_2P, Option::RANK_8);
     }
+
+    gOptions.flush();
 
     // TODO compare to db record
     auto dp = gPlayContext.ruleset[PLAYER_SLOT_1P]->getData();
@@ -184,23 +186,56 @@ void SceneResult::updateFadeout()
         {
             assert(gPlayContext.ruleset[PLAYER_SLOT_1P] != nullptr);
             ScoreBMS score;
-            auto chart = gChartContext.chartObj;
-            auto ruleset = gPlayContext.ruleset[PLAYER_SLOT_1P];
+            auto& format = gChartContext.chartObj;
+            auto& chart = gPlayContext.chartObj[PLAYER_SLOT_1P];
+            auto& ruleset = gPlayContext.ruleset[PLAYER_SLOT_1P];
             auto& data = ruleset->getData();
-            score.notes = chart->totalNotes;
+            score.notes = chart->getNoteCount();
             score.score = data.score;
             score.rate = data.total_acc;
             score.fast = data.fast;
             score.slow = data.slow;
             score.maxcombo = data.maxCombo;
-            score.playcount = _pScoreOld->playcount + 1;
-            switch (chart->type())
+            score.playcount = _pScoreOld ? _pScoreOld->playcount + 1 : 1;
+            switch (format->type())
             {
             case eChartFormat::BMS:
             case eChartFormat::BMSON:
             {
                 auto rBMS = std::reinterpret_pointer_cast<RulesetBMS>(ruleset);
                 score.exscore = data.score2;
+
+                score.lamp = ScoreBMS::Lamp::NOPLAY;
+                if (rBMS->isCleared())
+                {
+                    if (gPlayContext.isCourse)
+                    {
+                        if (rBMS->getMaxCombo() == rBMS->getData().maxCombo)
+                            score.lamp = ScoreBMS::Lamp::FULLCOMBO;
+                    }
+                    else
+                    {
+                        switch (rBMS->getGaugeType())
+                        {
+                        case RulesetBMS::GaugeType::GROOVE:  score.lamp = ScoreBMS::Lamp::NORMAL; break;
+                        case RulesetBMS::GaugeType::EASY:    score.lamp = ScoreBMS::Lamp::EASY; break;
+                        case RulesetBMS::GaugeType::ASSIST:  score.lamp = ScoreBMS::Lamp::ASSIST; break;
+                        case RulesetBMS::GaugeType::HARD:    score.lamp = ScoreBMS::Lamp::HARD; break;
+                        case RulesetBMS::GaugeType::EXHARD:  score.lamp = ScoreBMS::Lamp::EXHARD; break;
+                        case RulesetBMS::GaugeType::DEATH:   score.lamp = ScoreBMS::Lamp::FULLCOMBO; break;
+                        case RulesetBMS::GaugeType::P_ATK:   score.lamp = ScoreBMS::Lamp::EASY; break;
+                        case RulesetBMS::GaugeType::G_ATK:   score.lamp = ScoreBMS::Lamp::EASY; break;
+                        case RulesetBMS::GaugeType::GRADE:   score.lamp = ScoreBMS::Lamp::NOPLAY; break;
+                        case RulesetBMS::GaugeType::EXGRADE: score.lamp = ScoreBMS::Lamp::NOPLAY; break;
+                        default: break;
+                        }
+                    }
+                }
+                else
+                {
+                    score.lamp = ScoreBMS::Lamp::FAILED;
+                }
+
                 score.pgreat = rBMS->getJudgeCount(RulesetBMS::JudgeType::PERFECT);
                 score.great = rBMS->getJudgeCount(RulesetBMS::JudgeType::GREAT);
                 score.good = rBMS->getJudgeCount(RulesetBMS::JudgeType::GOOD);

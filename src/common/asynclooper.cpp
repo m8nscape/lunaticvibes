@@ -14,18 +14,31 @@ AsyncLooper::AsyncLooper(std::function<void()> func, unsigned rate_per_sec, bool
 
 AsyncLooper::~AsyncLooper()
 {
-    std::lock_guard<decltype(_loopMutex)> _lock(_loopMutex);
     loopEnd();
-    //if (_single_inst)
-    //    std::unique_lock<decltype(_loopMutex)> _lock(_loopMutex);
+
+    // wait for callback end
+    std::unique_lock<decltype(_loopMutex)> _lock(_loopMutex);
 }
 
 void AsyncLooper::run()
 {
     std::unique_lock<decltype(_loopMutex)> _lock(_loopMutex, std::defer_lock);
     if (_lock.try_lock())
+    {
         if (_running)
             _loopFuncBody();
+
+        if (!_running)
+        {
+            _loopFuncBody = [] {};
+            if (DeleteTimerQueueTimer(NULL, handler, NULL))
+            {
+                // ..?
+            }
+
+            LOG_DEBUG << "[Looper] Ended of rate " << _rateTime;
+        }
+    }
 }
 
 unsigned AsyncLooper::getRate()
@@ -73,34 +86,29 @@ VOID CALLBACK WaitOrTimerCallback(_In_ PVOID lpParameter, _In_ BOOLEAN TimerOrWa
 
 void AsyncLooper::loopStart()
 {
-    _loopFuncBody = _loopFunc;
-    _running = CreateTimerQueueTimer(
-        &handler,
-        NULL, WaitOrTimerCallback,
-        this,
-        0,
-        _rateTime,
-        WT_EXECUTEDEFAULT
-    );
-
     if (!_running)
     {
-        LOG_DEBUG << "[Looper] Started with rate " << _rateTime;
+        std::unique_lock<decltype(_loopMutex)> _lock(_loopMutex);
+        _loopFuncBody = _loopFunc;
+        _running = CreateTimerQueueTimer(
+            &handler,
+            NULL, WaitOrTimerCallback,
+            this,
+            0,
+            _rateTime,
+            WT_EXECUTEDEFAULT
+        );
+
+        if (_running)
+        {
+            LOG_DEBUG << "[Looper] Started with rate " << _rateTime;
+        }
     }
 }
 
 void AsyncLooper::loopEnd()
 {
-    if (!_running) return;
     _running = false;
-    _loopFuncBody = [] {};
-
-    if (DeleteTimerQueueTimer(NULL, handler, NULL))
-    {
-        // ..?
-    }
-
-    LOG_DEBUG << "[Looper] Ended of rate " << _rateTime;
 }
 
 #else // FALLBACK

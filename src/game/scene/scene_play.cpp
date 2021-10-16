@@ -385,6 +385,7 @@ void ScenePlay::loadChart()
             default:
                 judgeDiff = RulesetBMS::JudgeDifficulty::VERYHARD; break;
             }
+            break;
         case eChartFormat::BMSON:
         default: 
 			LOG_WARNING << "[Play] chart format not supported.";

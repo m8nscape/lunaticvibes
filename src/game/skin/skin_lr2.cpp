@@ -447,11 +447,13 @@ Tokens csvLineTokenizeSimple(const std::string& raw)
     Tokens res;
     size_t idx = 0;
     size_t pos = 0;
-    while (pos = linecsv.find(',', idx), pos != linecsv.npos)
+    do 
     {
-        res.push_back(linecsv.substr(pos, linecsv.length() - pos + 1));
+        pos = linecsv.find(',', idx);
+        auto token = linecsv.substr(idx, pos - idx);
+        res.push_back(token);
         idx = pos + 1;
-    }
+    } while (pos != linecsv.npos);
     return res;
 }
 
@@ -614,6 +616,8 @@ int SkinLR2::IMAGE()
             }
             ++imageCount;
             return 3;
+
+            // TODO #IMAGE CONTINUE (derive from previous skin)
         }
         else
         {
@@ -1645,11 +1649,11 @@ ParseRet SkinLR2::SRC_BAR_BODY()
     for (auto& bar : _barSprites)
     {
         bar->setBody(type,
-            textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer);
+            textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x);
 
         if (type == BarType::SONG)
             bar->setBody(BarType::NEW_SONG,
-                textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer);
+                textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x);
     }
 
     return ParseRet::OK;
@@ -1662,7 +1666,7 @@ ParseRet SkinLR2::SRC_BAR_FLASH()
 
     for (auto& bar : _barSprites)
     {
-        bar->setFlash(textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer);
+        bar->setFlash(textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x);
     }
 
     return ParseRet::OK;
@@ -1698,7 +1702,7 @@ ParseRet SkinLR2::SRC_BAR_LAMP()
 
     for (auto& bar : _barSprites)
     {
-        bar->setLamp(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer);
+        bar->setLamp(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x);
     }
 
     return ParseRet::OK;
@@ -1734,7 +1738,7 @@ ParseRet SkinLR2::SRC_BAR_RANK()
 
     for (auto& bar : _barSprites)
     {
-        bar->setRank(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer);
+        bar->setRank(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x);
     }
 
     return ParseRet::OK;
@@ -1748,7 +1752,7 @@ ParseRet SkinLR2::SRC_BAR_RIVAL()
 
     for (auto& bar : _barSprites)
     {
-        bar->setRivalWinLose(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer);
+        bar->setRivalWinLose(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x);
     }
 
     return ParseRet::OK;
@@ -1762,7 +1766,7 @@ ParseRet SkinLR2::SRC_BAR_RIVAL_MYLAMP()
 
     for (auto& bar : _barSprites)
     {
-        bar->setRivalLampSelf(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer);
+        bar->setRivalLampSelf(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x);
     }
 
     return ParseRet::OK;
@@ -1776,7 +1780,7 @@ ParseRet SkinLR2::SRC_BAR_RIVAL_RIVALLAMP()
 
     for (auto& bar : _barSprites)
     {
-        bar->setRivalLampRival(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer);
+        bar->setRivalLampRival(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x);
     }
 
     return ParseRet::OK;
@@ -2425,7 +2429,7 @@ int SkinLR2::parseHeader(const Tokens& raw)
 
         _textureNameMap["THUMBNAIL"] = std::make_shared<Texture>(Image(thumbnail.u8string().c_str()));
         if (_textureNameMap["THUMBNAIL"] == nullptr)
-            LOG_WARNING << "[Skin] " << csvLineNumber << ": thumbnail loading failed: " << thumbnail.string() << " (Line " << csvLineNumber << ")";
+            LOG_WARNING << "[Skin] " << csvLineNumber << ": thumbnail loading failed: " << thumbnail.string();
 
         LOG_DEBUG << "[Skin] " << csvLineNumber << ": Loaded metadata: " << title << " | " << maker;
 
@@ -2438,7 +2442,7 @@ int SkinLR2::parseHeader(const Tokens& raw)
         int dst_op = toInt(parseParamBuf[1]);
         if (dst_op < 900 || dst_op > 999)
         {
-            LOG_WARNING << "[Skin] " << csvLineNumber << ": Invalid option value: " << dst_op << " (Line " << csvLineNumber << ")";
+            LOG_WARNING << "[Skin] " << csvLineNumber << ": Invalid option value: " << dst_op;
             return -2;
         }
         std::vector<StringContent> op_label;

@@ -51,7 +51,6 @@ void mainLoop()
             default: break;
             }
 
-			scene->loopEnd();
             clearCustomDstOpt();
 			currentScene = gNextScene;
 			scene = SceneMgr::get(currentScene);

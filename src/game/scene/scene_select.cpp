@@ -67,25 +67,26 @@ void setEntryInfo()
         auto ps = std::reinterpret_pointer_cast<Song>(e[idx].first);
         auto pf = std::reinterpret_pointer_cast<vChartFormat>(ps->_file);
 
-        gSwitches.set(eSwitch::CHART_HAVE_README, 
+        gSwitches.queue(eSwitch::CHART_HAVE_README, 
             !(pf->text1.empty() && pf->text2.empty() && pf->text3.empty()));
-        gSwitches.set(eSwitch::CHART_HAVE_BANNER, !pf->banner.empty());
-        gSwitches.set(eSwitch::CHART_HAVE_STAGEFILE, !pf->stagefile.empty());
+        gSwitches.queue(eSwitch::CHART_HAVE_BANNER, !pf->banner.empty());
+        gSwitches.queue(eSwitch::CHART_HAVE_STAGEFILE, !pf->stagefile.empty());
 
-        gTexts.set(eText::PLAY_TITLE, pf->title);
-        gTexts.set(eText::PLAY_SUBTITLE, pf->title2);
-        gTexts.set(eText::PLAY_ARTIST, pf->artist);
-        gTexts.set(eText::PLAY_SUBARTIST, pf->artist2);
-        gTexts.set(eText::PLAY_GENRE, pf->genre);
-        gTexts.set(eText::PLAY_DIFFICULTY, pf->version);
+        gTexts.queue(eText::PLAY_TITLE, pf->title);
+        gTexts.queue(eText::PLAY_SUBTITLE, pf->title2);
+        gTexts.queue(eText::PLAY_ARTIST, pf->artist);
+        gTexts.queue(eText::PLAY_SUBARTIST, pf->artist2);
+        gTexts.queue(eText::PLAY_GENRE, pf->genre);
+        gTexts.queue(eText::PLAY_DIFFICULTY, pf->version);
         // _level
 
         // _totalLength_sec
-        gNumbers.set(eNumber::INFO_TOTALNOTE, pf->totalNotes);
+        gNumbers.queue(eNumber::INFO_EXSCORE_MAX, pf->totalNotes * 2);
+        gNumbers.queue(eNumber::INFO_TOTALNOTE, pf->totalNotes);
 
-        gNumbers.set(eNumber::PLAY_BPM, static_cast<int>(std::round(pf->startBPM)));
-        gNumbers.set(eNumber::INFO_BPM_MIN, static_cast<int>(std::round(pf->minBPM)));
-        gNumbers.set(eNumber::INFO_BPM_MAX, static_cast<int>(std::round(pf->maxBPM)));
+        gNumbers.queue(eNumber::PLAY_BPM, static_cast<int>(std::round(pf->startBPM)));
+        gNumbers.queue(eNumber::INFO_BPM_MIN, static_cast<int>(std::round(pf->minBPM)));
+        gNumbers.queue(eNumber::INFO_BPM_MAX, static_cast<int>(std::round(pf->maxBPM)));
 
         switch (ps->_file->type())
         {
@@ -100,20 +101,20 @@ void setEntryInfo()
             case 7:
             case 9:
             case 24:
-                gOptions.set(eOption::CHART_PLAY_MODE, Option::PLAY_SINGLE);
+                gOptions.queue(eOption::CHART_PLAY_MODE, Option::PLAY_SINGLE);
                 break;
 
             case 10:
             case 14:
             case 48:
-                gOptions.set(eOption::CHART_PLAY_MODE, Option::PLAY_DOUBLE);
+                gOptions.queue(eOption::CHART_PLAY_MODE, Option::PLAY_DOUBLE);
                 break;
 
             default:
                 break;
             }
 
-            gNumbers.set(eNumber::PLAY_BPM, static_cast<int>(std::round(bms->bpm)));
+            gNumbers.queue(eNumber::PLAY_BPM, static_cast<int>(std::round(bms->bpm)));
 
             // gamemode
             unsigned op_keys = Option::KEYS_NOT_PLAYABLE;
@@ -128,7 +129,7 @@ void setEntryInfo()
             case 48: op_keys = Option::KEYS_48; break;
             default: break;
             }
-            gOptions.set(eOption::CHART_PLAY_KEYS, op_keys);
+            gOptions.queue(eOption::CHART_PLAY_KEYS, op_keys);
 
             // judge
             unsigned op_judgerank = Option::JUDGE_NORMAL;
@@ -140,20 +141,20 @@ void setEntryInfo()
             case 3: op_judgerank = Option::JUDGE_EASY; break;
             default: break;
             }
-            gOptions.set(eOption::CHART_JUDGE_TYPE, op_judgerank);
+            gOptions.queue(eOption::CHART_JUDGE_TYPE, op_judgerank);
 
             // difficulty
             unsigned op_difficulty = Option::DIFF_0;
-            gNumbers.set(eNumber::MUSIC_BEGINNER_LEVEL, 0);
-            gNumbers.set(eNumber::MUSIC_NORMAL_LEVEL, 0);
-            gNumbers.set(eNumber::MUSIC_HYPER_LEVEL, 0);
-            gNumbers.set(eNumber::MUSIC_ANOTHER_LEVEL, 0);
-            gNumbers.set(eNumber::MUSIC_INSANE_LEVEL, 0);
-            gBargraphs.set(eBargraph::LEVEL_BAR_BEGINNER, 0);
-            gBargraphs.set(eBargraph::LEVEL_BAR_NORMAL, 0);
-            gBargraphs.set(eBargraph::LEVEL_BAR_HYPER, 0);
-            gBargraphs.set(eBargraph::LEVEL_BAR_ANOTHER, 0);
-            gBargraphs.set(eBargraph::LEVEL_BAR_INSANE, 0);
+            gNumbers.queue(eNumber::MUSIC_BEGINNER_LEVEL, 0);
+            gNumbers.queue(eNumber::MUSIC_NORMAL_LEVEL, 0);
+            gNumbers.queue(eNumber::MUSIC_HYPER_LEVEL, 0);
+            gNumbers.queue(eNumber::MUSIC_ANOTHER_LEVEL, 0);
+            gNumbers.queue(eNumber::MUSIC_INSANE_LEVEL, 0);
+            gBargraphs.queue(eBargraph::LEVEL_BAR_BEGINNER, 0);
+            gBargraphs.queue(eBargraph::LEVEL_BAR_NORMAL, 0);
+            gBargraphs.queue(eBargraph::LEVEL_BAR_HYPER, 0);
+            gBargraphs.queue(eBargraph::LEVEL_BAR_ANOTHER, 0);
+            gBargraphs.queue(eBargraph::LEVEL_BAR_INSANE, 0);
             switch (bms->difficulty)
             {
             case 0:
@@ -161,42 +162,42 @@ void setEntryInfo()
                 break;
             case 1: 
                 op_difficulty = Option::DIFF_1; 
-                gNumbers.set(eNumber::MUSIC_BEGINNER_LEVEL, bms->playLevel); 
-                gBargraphs.set(eBargraph::LEVEL_BAR_BEGINNER, bms->playLevel / 12.0); 
+                gNumbers.queue(eNumber::MUSIC_BEGINNER_LEVEL, bms->playLevel); 
+                gBargraphs.queue(eBargraph::LEVEL_BAR_BEGINNER, bms->playLevel / 12.0); 
                 break;
             case 2: 
                 op_difficulty = Option::DIFF_2; 
-                gNumbers.set(eNumber::MUSIC_NORMAL_LEVEL, bms->playLevel); 
-                gBargraphs.set(eBargraph::LEVEL_BAR_NORMAL, bms->playLevel / 12.0);
+                gNumbers.queue(eNumber::MUSIC_NORMAL_LEVEL, bms->playLevel); 
+                gBargraphs.queue(eBargraph::LEVEL_BAR_NORMAL, bms->playLevel / 12.0);
                 break;
             case 3: 
                 op_difficulty = Option::DIFF_3; 
-                gNumbers.set(eNumber::MUSIC_HYPER_LEVEL, bms->playLevel); 
-                gBargraphs.set(eBargraph::LEVEL_BAR_HYPER, bms->playLevel / 12.0); 
+                gNumbers.queue(eNumber::MUSIC_HYPER_LEVEL, bms->playLevel); 
+                gBargraphs.queue(eBargraph::LEVEL_BAR_HYPER, bms->playLevel / 12.0); 
                 break;
             case 4: 
                 op_difficulty = Option::DIFF_4; 
-                gNumbers.set(eNumber::MUSIC_ANOTHER_LEVEL, bms->playLevel); 
-                gBargraphs.set(eBargraph::LEVEL_BAR_ANOTHER, bms->playLevel / 12.0); 
+                gNumbers.queue(eNumber::MUSIC_ANOTHER_LEVEL, bms->playLevel); 
+                gBargraphs.queue(eBargraph::LEVEL_BAR_ANOTHER, bms->playLevel / 12.0); 
                 break;
             case 5: 
                 op_difficulty = Option::DIFF_5; 
-                gNumbers.set(eNumber::MUSIC_INSANE_LEVEL, bms->playLevel); 
-                gBargraphs.set(eBargraph::LEVEL_BAR_INSANE, bms->playLevel / 12.0); 
+                gNumbers.queue(eNumber::MUSIC_INSANE_LEVEL, bms->playLevel); 
+                gBargraphs.queue(eBargraph::LEVEL_BAR_INSANE, bms->playLevel / 12.0); 
                 break;
             }
-            gOptions.set(eOption::CHART_DIFFICULTY, op_difficulty);
+            gOptions.queue(eOption::CHART_DIFFICULTY, op_difficulty);
 
             // TODO TOTAL
 
-            gSwitches.set(eSwitch::CHART_HAVE_BGA, bms->haveBGA);
-            gSwitches.set(eSwitch::CHART_HAVE_BPMCHANGE, bms->haveBPMChange);
-            gSwitches.set(eSwitch::CHART_HAVE_LN, bms->haveLN);
-            gSwitches.set(eSwitch::CHART_HAVE_RANDOM, bms->haveRandom);
+            gSwitches.queue(eSwitch::CHART_HAVE_BGA, bms->haveBGA);
+            gSwitches.queue(eSwitch::CHART_HAVE_BPMCHANGE, bms->haveBPMChange);
+            gSwitches.queue(eSwitch::CHART_HAVE_LN, bms->haveLN);
+            gSwitches.queue(eSwitch::CHART_HAVE_RANDOM, bms->haveRandom);
 
-            //gSwitches.set(eSwitch::CHART_HAVE_BACKBMP, ?);
+            //gSwitches.queue(eSwitch::CHART_HAVE_BACKBMP, ?);
 
-            //gSwitches.set(eSwitch::CHART_HAVE_SPEEDCHANGE, ?);
+            //gSwitches.queue(eSwitch::CHART_HAVE_SPEEDCHANGE, ?);
 
             break;
         }
@@ -207,21 +208,21 @@ void setEntryInfo()
     }
     else
     {
-        gTexts.set(eText::PLAY_TITLE, e[idx].first->_name);
-        gTexts.set(eText::PLAY_SUBTITLE, e[idx].first->_name2);
-        gTexts.set(eText::PLAY_ARTIST, "");
-        gTexts.set(eText::PLAY_SUBARTIST, "");
-        gTexts.set(eText::PLAY_GENRE, "");
-        gTexts.set(eText::PLAY_DIFFICULTY, "");
+        gTexts.queue(eText::PLAY_TITLE, e[idx].first->_name);
+        gTexts.queue(eText::PLAY_SUBTITLE, e[idx].first->_name2);
+        gTexts.queue(eText::PLAY_ARTIST, "");
+        gTexts.queue(eText::PLAY_SUBARTIST, "");
+        gTexts.queue(eText::PLAY_GENRE, "");
+        gTexts.queue(eText::PLAY_DIFFICULTY, "");
      }
 
     switch (e[idx].first->type())
     {
     case eEntryType::SONG:
     case eEntryType::RIVAL_SONG:
-        gOptions.set(eOption::SELECT_ENTRY_TYPE, Option::ENTRY_SONG);
-        gOptions.set(eOption::SELECT_ENTRY_LAMP, Option::LAMP_NOPLAY);
-        gOptions.set(eOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
+        gOptions.queue(eOption::SELECT_ENTRY_TYPE, Option::ENTRY_SONG);
+        gOptions.queue(eOption::SELECT_ENTRY_LAMP, Option::LAMP_NOPLAY);
+        gOptions.queue(eOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
         break;
 
     case eEntryType::RIVAL_CHART:
@@ -231,39 +232,39 @@ void setEntryInfo()
     }
     case eEntryType::CHART:
     {
-        gOptions.set(eOption::SELECT_ENTRY_TYPE, Option::ENTRY_SONG);
-        gOptions.set(eOption::SELECT_ENTRY_LAMP, Option::LAMP_NOPLAY);
-        gOptions.set(eOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
+        gOptions.queue(eOption::SELECT_ENTRY_TYPE, Option::ENTRY_SONG);
+        gOptions.queue(eOption::SELECT_ENTRY_LAMP, Option::LAMP_NOPLAY);
+        gOptions.queue(eOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
 
         auto ps = std::reinterpret_pointer_cast<Song>(e[idx].first);
         auto psc = std::reinterpret_pointer_cast<vScore>(e[idx].second);
         auto pf = std::reinterpret_pointer_cast<vChartFormat>(ps->_file);
-        switch (pf->type())
+        if (psc)
         {
-        case eChartFormat::BMS:
-        {
-            auto pScore = std::reinterpret_pointer_cast<ScoreBMS>(e[idx].second);
-
-            Option::e_lamp_type lamp;
-            switch (pScore->lamp)
+            switch (pf->type())
             {
-            case ScoreBMS::Lamp::NOPLAY:    lamp = Option::LAMP_NOPLAY; break;
-            case ScoreBMS::Lamp::FAILED:    lamp = Option::LAMP_FAILED ; break;
-            case ScoreBMS::Lamp::ASSIST:    lamp = Option::LAMP_ASSIST ; break;
-            case ScoreBMS::Lamp::EASY:      lamp = Option::LAMP_EASY ; break;
-            case ScoreBMS::Lamp::NORMAL:    lamp = Option::LAMP_NORMAL ; break;
-            case ScoreBMS::Lamp::HARD:      lamp = Option::LAMP_HARD ; break;
-            case ScoreBMS::Lamp::EXHARD:    lamp = Option::LAMP_EXHARD ; break;
-            case ScoreBMS::Lamp::FULLCOMBO: lamp = Option::LAMP_FULLCOMBO ; break;
-            case ScoreBMS::Lamp::PERFECT:   lamp = Option::LAMP_PERFECT ; break;
-            case ScoreBMS::Lamp::MAX:       lamp = Option::LAMP_MAX; break;
-            }
-            gOptions.set(eOption::SELECT_ENTRY_LAMP, lamp);
-
-            Option::e_rank_type rank;
-            if (lamp != Option::LAMP_NOPLAY)
+            case eChartFormat::BMS:
             {
-                if      (pScore->rate >= 100.0) rank = Option::RANK_0;
+                auto pScore = std::reinterpret_pointer_cast<ScoreBMS>(psc);
+
+                Option::e_lamp_type lamp = Option::LAMP_NOPLAY;
+                switch (pScore->lamp)
+                {
+                case ScoreBMS::Lamp::NOPLAY:    lamp = Option::LAMP_NOPLAY; break;
+                case ScoreBMS::Lamp::FAILED:    lamp = Option::LAMP_FAILED; break;
+                case ScoreBMS::Lamp::ASSIST:    lamp = Option::LAMP_ASSIST; break;
+                case ScoreBMS::Lamp::EASY:      lamp = Option::LAMP_EASY; break;
+                case ScoreBMS::Lamp::NORMAL:    lamp = Option::LAMP_NORMAL; break;
+                case ScoreBMS::Lamp::HARD:      lamp = Option::LAMP_HARD; break;
+                case ScoreBMS::Lamp::EXHARD:    lamp = Option::LAMP_EXHARD; break;
+                case ScoreBMS::Lamp::FULLCOMBO: lamp = Option::LAMP_FULLCOMBO; break;
+                case ScoreBMS::Lamp::PERFECT:   lamp = Option::LAMP_PERFECT; break;
+                case ScoreBMS::Lamp::MAX:       lamp = Option::LAMP_MAX; break;
+                }
+                gOptions.queue(eOption::SELECT_ENTRY_LAMP, lamp);
+
+                Option::e_rank_type rank = Option::RANK_NONE;
+                if (pScore->rate >= 100.0) rank = Option::RANK_0;
                 else if (pScore->rate >= 88.88) rank = Option::RANK_1;
                 else if (pScore->rate >= 77.77) rank = Option::RANK_2;
                 else if (pScore->rate >= 66.66) rank = Option::RANK_3;
@@ -271,41 +272,67 @@ void setEntryInfo()
                 else if (pScore->rate >= 44.44) rank = Option::RANK_5;
                 else if (pScore->rate >= 33.33) rank = Option::RANK_6;
                 else if (pScore->rate >= 22.22) rank = Option::RANK_7;
-                else                            rank = Option::RANK_8;
-                gOptions.set(eOption::SELECT_ENTRY_RANK, rank);
+                else if (pScore->rate != 0)     rank = Option::RANK_8;
+                gOptions.queue(eOption::SELECT_ENTRY_RANK, rank);
+
+                gNumbers.queue(eNumber::INFO_SCORE, pScore->score);
+                gNumbers.queue(eNumber::INFO_EXSCORE, pScore->exscore);
+                gNumbers.queue(eNumber::INFO_EXSCORE_MAX, pScore->notes * 2);
+                gNumbers.queue(eNumber::INFO_RATE, static_cast<int>(std::floor(pScore->rate)));
+                gNumbers.queue(eNumber::INFO_TOTALNOTE, pScore->notes);
+                gNumbers.queue(eNumber::INFO_MAXCOMBO, pScore->maxcombo);
+                gNumbers.queue(eNumber::INFO_PERFECT_COUNT, pScore->pgreat);
+                gNumbers.queue(eNumber::INFO_GREAT_COUNT, pScore->great);
+                gNumbers.queue(eNumber::INFO_GOOD_COUNT, pScore->good);
+                gNumbers.queue(eNumber::INFO_BAD_COUNT, pScore->bad);
+                gNumbers.queue(eNumber::INFO_POOR_COUNT, pScore->bpoor + pScore->miss);
+
+                break;
             }
-            break;
+            default:
+                break;
+            }
         }
-        default:
-            break;
+        else
+        {
+            gOptions.queue(eOption::SELECT_ENTRY_LAMP, Option::LAMP_NOPLAY);
+            gOptions.queue(eOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
+
+            gNumbers.queue(eNumber::INFO_SCORE, 0);            gNumbers.queue(eNumber::INFO_EXSCORE, 0);            //gNumbers.queue(eNumber::INFO_EXSCORE_MAX, 0);            gNumbers.queue(eNumber::INFO_RATE, 0);            //gNumbers.queue(eNumber::INFO_TOTALNOTE, 0);            gNumbers.queue(eNumber::INFO_MAXCOMBO, 0);            gNumbers.queue(eNumber::INFO_PERFECT_COUNT, 0);            gNumbers.queue(eNumber::INFO_GREAT_COUNT, 0);            gNumbers.queue(eNumber::INFO_GOOD_COUNT, 0);            gNumbers.queue(eNumber::INFO_BAD_COUNT, 0);            gNumbers.queue(eNumber::INFO_POOR_COUNT, 0);
         }
         break;
     }
 
     case eEntryType::COURSE:
-        gOptions.set(eOption::SELECT_ENTRY_TYPE, Option::ENTRY_COURSE);
-        gOptions.set(eOption::SELECT_ENTRY_LAMP, Option::LAMP_NOPLAY);
-        gOptions.set(eOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
+        gOptions.queue(eOption::SELECT_ENTRY_TYPE, Option::ENTRY_COURSE);
+        gOptions.queue(eOption::SELECT_ENTRY_LAMP, Option::LAMP_NOPLAY);
+        gOptions.queue(eOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
         // TODO course score
         break;
 
     case eEntryType::NEW_COURSE:
-        gOptions.set(eOption::SELECT_ENTRY_TYPE, Option::ENTRY_NEW_COURSE);
-        gOptions.set(eOption::SELECT_ENTRY_LAMP, Option::LAMP_NOT_APPLICIABLE);
-        gOptions.set(eOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
-        gOptions.set(eOption::CHART_PLAY_KEYS, Option::KEYS_NOT_PLAYABLE);
+        gOptions.queue(eOption::SELECT_ENTRY_TYPE, Option::ENTRY_NEW_COURSE);
+        gOptions.queue(eOption::SELECT_ENTRY_LAMP, Option::LAMP_NOT_APPLICIABLE);
+        gOptions.queue(eOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
+        gOptions.queue(eOption::CHART_PLAY_KEYS, Option::KEYS_NOT_PLAYABLE);
         break;
 
     case eEntryType::FOLDER:
     case eEntryType::CUSTOM_FOLDER:
     case eEntryType::RIVAL:
     default:
-        gOptions.set(eOption::SELECT_ENTRY_TYPE, Option::ENTRY_FOLDER);
-        gOptions.set(eOption::SELECT_ENTRY_LAMP, Option::LAMP_NOT_APPLICIABLE);
-        gOptions.set(eOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
-        gOptions.set(eOption::CHART_PLAY_KEYS, Option::KEYS_NOT_PLAYABLE);
+        gOptions.queue(eOption::SELECT_ENTRY_TYPE, Option::ENTRY_FOLDER);
+        gOptions.queue(eOption::SELECT_ENTRY_LAMP, Option::LAMP_NOT_APPLICIABLE);
+        gOptions.queue(eOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
+        gOptions.queue(eOption::CHART_PLAY_KEYS, Option::KEYS_NOT_PLAYABLE);
         break;
     }
+
+    gTexts.flush();
+    gNumbers.flush();
+    gSwitches.flush();
+    gOptions.flush();
+    gBargraphs.flush();
 }
 
 void setDynamicTextures()
@@ -804,6 +831,9 @@ void SceneSelect::inputGamePress(InputMask& m, Time t)
                     break;
 
                 case eEntryType::SONG:
+                case eEntryType::CHART:
+                case eEntryType::RIVAL_SONG:
+                case eEntryType::RIVAL_CHART:
                 case eEntryType::COURSE:
                     if ((input & INPUT_MASK_DECIDE).any())
                         _decide();
@@ -1044,7 +1074,8 @@ void SceneSelect::_decide()
     // chart
     switch (entry->type())
     {
-    case eEntryType::SONG:
+    case eEntryType::CHART:
+    case eEntryType::RIVAL_CHART:
     {
         c.chartObj = std::reinterpret_pointer_cast<Song>(entry)->_file;
 
@@ -1162,65 +1193,68 @@ void SceneSelect::loadSongList()
         }
     }
 
-    auto compareEntry = [](const Entry& entry1, const Entry& entry2, 
-        std::function<bool(const Entry&, const Entry&)> gtExCb = [](const Entry&, const Entry&){ return false; })
-    {
-        auto& lhs = entry1.first;
-        auto& rhs = entry2.first;
-        if (lhs->type() != rhs->type())
-            return lhs->type() < rhs->type();
-        else
-        {
-            if (lhs->type() == eEntryType::CHART || lhs->type() == eEntryType::RIVAL_CHART)
-            {
-                const auto& l = std::reinterpret_pointer_cast<const Song>(lhs)->_file;
-                const auto& r = std::reinterpret_pointer_cast<const Song>(rhs)->_file;
-
-                if (gtExCb(entry1, entry2)) return true;
-                else if (l->title != r->title) return l->title < r->title;
-                else if (l->title2 != r->title2) return l->title2 < r->title2;
-                else if (l->version != r->version) return l->version < r->version;
-                else return l->fileHash < r->fileHash;
-            }
-            else
-            {
-                if (lhs->_name != rhs->_name) return lhs->_name < rhs->_name;
-                if (lhs->_name2 != rhs->_name2) return lhs->_name2 < rhs->_name2;
-                return false;
-            }
-        }
-    };
-
-    using namespace std::placeholders;
+    // TODO sort song list
     switch (gSelectContext.sort)
     {
     case SongListSort::DEFAULT:
     {
         auto& l = gSelectContext.entries;
-        std::sort(l.begin(), l.end(), std::bind(compareEntry, _1, _2, [](const Entry& entry1, const Entry& entry2)
+        std::sort(l.begin(), l.end(), [](const Entry& entry1, const Entry& entry2)
             {
-                auto& lhs = entry1.first;
-                auto& rhs = entry2.first;
-                if (lhs->type() != rhs->type()) return lhs->type() > rhs->type();
+                auto&& lhs = entry1.first;
+                auto&& rhs = entry2.first;
+                if (lhs->type() != rhs->type())
+                    return lhs->type() > rhs->type();
                 else
                 {
-                    if (lhs->type() == eEntryType::CHART || lhs->type() == eEntryType::RIVAL_CHART)
+                    if (lhs->type() == eEntryType::SONG)
                     {
                         const auto& l = std::reinterpret_pointer_cast<const Song>(lhs)->_file;
                         const auto& r = std::reinterpret_pointer_cast<const Song>(rhs)->_file;
-                        // compare level
-                        if (l->levelEstimated != r->levelEstimated)
-                            return l->levelEstimated > r->levelEstimated;
+                        if (l->levelEstimated != r->levelEstimated) return l->levelEstimated > r->levelEstimated;
+                        if (l->title != r->title) return l->title > r->title;
+                        if (l->title2 != r->title2) return l->title2 > r->title2;
+                        if (l->version != r->version) return l->version > r->version;
+                        return l->fileHash > r->fileHash;
+                    }
+                    else
+                    {
+                        if (lhs->_name != rhs->_name) return lhs->_name > rhs->_name;
+                        if (lhs->_name2 != rhs->_name2) return lhs->_name2 > rhs->_name2;
+                        return false;
                     }
                 }
-                return false;
-            }));
+            });
         break;
     }
     case SongListSort::TITLE:
     {
         auto& l = gSelectContext.entries;
-        std::sort(l.begin(), l.end(), std::bind(compareEntry, _1, _2));
+        std::sort(l.begin(), l.end(), [](const Entry& entry1, const Entry& entry2)
+            {
+                auto&& lhs = entry1.first;
+                auto&& rhs = entry2.first;
+                if (lhs->type() != rhs->type())
+                    return lhs->type() > rhs->type();
+                else
+                {
+                    if (lhs->type() == eEntryType::SONG)
+                    {
+                        const auto& l = std::reinterpret_pointer_cast<const Song>(lhs)->_file;
+                        const auto& r = std::reinterpret_pointer_cast<const Song>(rhs)->_file;
+                        if (l->title != r->title) return l->title > r->title;
+                        if (l->title2 != r->title2) return l->title2 > r->title2;
+                        if (l->version != r->version) return l->version > r->version;
+                        return l->fileHash > r->fileHash;
+                    }
+                    else
+                    {
+                        if (lhs->_name != rhs->_name) return lhs->_name > rhs->_name;
+                        if (lhs->_name2 != rhs->_name2) return lhs->_name2 > rhs->_name2;
+                        return false;
+                    }
+                }
+            });
         break;
     }
     // TODO sort by difficulty
@@ -1229,7 +1263,6 @@ void SceneSelect::loadSongList()
     default:
         break;
     }
-
 }
 
 void SceneSelect::_navigateUpBy1(Time t)

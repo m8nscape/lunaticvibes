@@ -1,6 +1,6 @@
 #pragma once
 #include <functional>
-#include <mutex>
+#include <shared_mutex>
 
 #if WIN32
 #include <Windows.h>
@@ -34,7 +34,7 @@ protected:
     unsigned _rateTime;
     bool _running = false;
     LooperHandler handler;
-    std::timed_mutex _loopMutex;
+    std::shared_mutex _loopMutex;
 
 public:
     AsyncLooper(std::function<void()>, unsigned rate_per_sec, bool single_inst = false);

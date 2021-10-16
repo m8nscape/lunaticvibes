@@ -57,6 +57,7 @@ public:
     virtual bool isFailed() const { return _isFailed; }
     virtual unsigned getCurrentMaxScore() const = 0;
     virtual unsigned getMaxScore() const = 0;
+    virtual unsigned getMaxCombo() const = 0;
     void fail() { _basic.health = 0.0; }
     virtual void reset() { _basic = { 0 }; };
 };

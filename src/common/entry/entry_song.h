@@ -16,6 +16,7 @@ public:
     Song(std::shared_ptr<vChartFormat> p): _file(p)
     {
         _type = eEntryType::CHART;
+        md5 = _file->fileHash;
         _name = _file->title;
         _name2 = _file->title2;
 
