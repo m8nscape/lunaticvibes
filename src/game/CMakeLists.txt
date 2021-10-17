@@ -8,7 +8,7 @@ if (${GRAPHICS_BACKEND} STREQUAL SDL2)
     )
 endif()
 
-add_library(game STATIC
+add_executable(game game.cpp
     chart/chart.cpp
     chart/chart_bms.cpp
     ${GRAPHICS_BACKEND_SRC}
@@ -37,12 +37,18 @@ add_library(game STATIC
     skin/skin.cpp
     skin/skin_lr2.cpp
     skin/skin_lr2_button_callbacks.cpp
+    skin/skin_lr2_converters.cpp
     skin/skin_lr2_dst.cpp
     skin/skin_mgr.cpp
     sound/sound_fmod.cpp
     sound/sound_fmod_callback.cpp
     sound/sound_mgr.cpp
-    sound/sound_sample.cpp "skin/skin_lr2_converters.cpp")
+    sound/sound_sample.cpp )
+
+if (UNIX OR MINGW)
+    target_link_libraries(game PRIVATE -lpthread)
+    target_link_libraries(game PRIVATE -lstdc++fs)
+endif()
 
 target_include_directories(game PRIVATE 
     ${PROJECT_INCLUDE_DIR}
@@ -83,3 +89,11 @@ else()
 endif()
 
 target_precompile_headers(game REUSE_FROM common)
+
+if (${EXT_DEPEND_LIBFILES_SET})
+    add_custom_command(TARGET game POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${EXT_DEPEND_LIBFILES}
+        $<TARGET_FILE_DIR:game>
+    )
+endif()
