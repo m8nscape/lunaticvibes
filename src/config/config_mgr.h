@@ -21,13 +21,13 @@ private:
 
     void _init()
     {
-        profileName = PROFILE_DEFAULT;
-        G = std::make_shared<ConfigGeneral>(PROFILE_DEFAULT);
-        P = std::make_shared<ConfigProfile>(PROFILE_DEFAULT);
-        I5 = std::make_shared<ConfigInput>(PROFILE_DEFAULT, 5);
-        I7 = std::make_shared<ConfigInput>(PROFILE_DEFAULT, 7);
-        I9 = std::make_shared<ConfigInput>(PROFILE_DEFAULT, 9);
-        S = std::make_shared<ConfigSkin>(PROFILE_DEFAULT);
+        G = std::make_shared<ConfigGeneral>("./config.yml");
+        profileName = G->get(cfg::E_PROFILE, PROFILE_DEFAULT);
+        P = std::make_shared<ConfigProfile>(profileName);
+        I5 = std::make_shared<ConfigInput>(profileName, 5);
+        I7 = std::make_shared<ConfigInput>(profileName, 7);
+        I9 = std::make_shared<ConfigInput>(profileName, 9);
+        S = std::make_shared<ConfigSkin>(profileName);
 
         G->setDefaults();
         P->setDefaults();
@@ -91,7 +91,7 @@ private:
         return path;
     }
 
-public:
+protected:
     std::shared_ptr<ConfigGeneral>     G;
     std::shared_ptr<ConfigProfile>     P;
     std::shared_ptr<ConfigInput>       I5;
@@ -101,12 +101,30 @@ public:
     std::string profileName;
 
 public:
+    std::shared_ptr<ConfigGeneral> _General() { return G; }
+    std::shared_ptr<ConfigProfile> _Profile() { return P; }
+    std::shared_ptr<ConfigSkin>    _Skin() { return S; };
+    std::shared_ptr<ConfigInput>   _Input(int mode)
+    {
+        switch (mode)
+        {
+        case 5: return I5;
+        case 7: return I7;
+        case 9: return I9;
+        default: return nullptr;
+        }
+    }
+
+public:
     static void init() { getInst()._init(); }
     static void load() { getInst()._load(); }
     static void save() { getInst()._save(); }
     static int selectProfile(const std::string& name) { return getInst()._selectProfile(name); }
-    static std::string getProfileName() { return getInst()._getProfileName(); }
     static void setGlobals() { getInst()._setGlobals(); }
+    static std::shared_ptr<ConfigGeneral> General() { return getInst()._General(); }
+    static std::shared_ptr<ConfigProfile> Profile() { return getInst()._Profile(); }
+    static std::shared_ptr<ConfigInput>   Input(int mode)  { return getInst()._Input(mode) ; }
+    static std::shared_ptr<ConfigSkin>    Skin()    { return getInst()._Skin()   ; }
 
     template<class Ty_v>
     static Ty_v get(char type, const std::string& key, const Ty_v& fallback) { return getInst()._get(type, key, fallback); }
@@ -124,7 +142,6 @@ public:
     static void set(char type, const std::string& key, const std::string& value) noexcept { return set<std::string>(type, key, value); }
     static void set(const std::string& type, const std::string& key, const std::string& value) noexcept { return set<std::string>(type[0], key, value); }
 
-    static std::vector<Input::Keyboard> getKeyBindings(int mode, Input::Pad key) { return getInst()._getKeyBindings(mode, key); }
     static std::string getDBPath() { return getInst()._getDBPath(); }
 
 

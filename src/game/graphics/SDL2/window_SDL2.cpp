@@ -23,7 +23,7 @@ int graphics_init()
             return -99;
         }
         LOG_INFO << "[SDL2] Library version " << SDL_MAJOR_VERSION << '.' << SDL_MINOR_VERSION << "." << SDL_PATCHLEVEL;
-        
+
         std::string title;
         title += MAIN_NAME;
         title += ' ';
@@ -48,31 +48,27 @@ int graphics_init()
         */
         SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
 
+        Uint32 flags = SDL_WINDOW_OPENGL;
+#ifdef _DEBUG
+        flags |= SDL_WINDOW_RESIZABLE;
+#endif
         auto mode = ConfigMgr::get("V", cfg::V_WINMODE, cfg::V_WINMODE_WINDOWED);
-        if (mode == cfg::V_WINMODE_BORDERLESS)
+        if (strEqual(mode, cfg::V_WINMODE_BORDERLESS, true))
         {
-            gFrameWindow = SDL_CreateWindow(
-                title.c_str(),
-                SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                ConfigMgr::get("V", cfg::V_RES_X, CANVAS_WIDTH), ConfigMgr::get("V", cfg::V_RES_Y, CANVAS_HEIGHT),
-                SDL_WINDOW_BORDERLESS | SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
+            flags |= SDL_WINDOW_BORDERLESS;
         }
-        else if (mode == cfg::V_WINMODE_FULL)
+        else if (strEqual(mode, cfg::V_WINMODE_FULL, true))
         {
-            gFrameWindow = SDL_CreateWindow(
-                title.c_str(),
-                SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                ConfigMgr::get("V", cfg::V_FULL_RES_X, CANVAS_WIDTH), ConfigMgr::get("V", cfg::V_FULL_RES_Y, CANVAS_HEIGHT),
-                SDL_WINDOW_FULLSCREEN | SDL_WINDOW_OPENGL);
+            flags |= SDL_WINDOW_FULLSCREEN;
         }
-        else // fallback to windowed
+        else 
         {
-            gFrameWindow = SDL_CreateWindow(
-                title.c_str(),
-                SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                ConfigMgr::get("V", cfg::V_RES_X, CANVAS_WIDTH), ConfigMgr::get("V", cfg::V_RES_Y, CANVAS_HEIGHT),
-                SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
+            // fallback to windowed
         }
+        unsigned w = ConfigMgr::get("V", cfg::V_RES_X, CANVAS_WIDTH);
+        unsigned h = ConfigMgr::get("V", cfg::V_RES_Y, CANVAS_HEIGHT);
+        gFrameWindow = SDL_CreateWindow(title.c_str(),
+            SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, flags);
         if (!gFrameWindow)
         {
             LOG_ERROR << "[SDL2] Init window ERROR! " << SDL_GetError();

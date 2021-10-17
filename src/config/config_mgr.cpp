@@ -355,7 +355,7 @@ void setText()
     using std::string;
 
     // player name
-    g.queue(e::PLAYER_NAME, ConfigMgr::getProfileName());
+    g.queue(e::PLAYER_NAME, ConfigMgr::Profile()->getName());
 
     // bga
     g.queue(e::BGA, ConfigMgr::get<string>('P', P_LOAD_BGA, ON) == ON ? "ON" : "OFF");
@@ -582,8 +582,7 @@ int ConfigMgr::_selectProfile(const std::string& name)
         return false;
     };
 
-    if (createFile(folder / CONFIG_FILE_GENERAL) ||
-        createFile(folder / CONFIG_FILE_INPUT_5) ||
+    if (createFile(folder / CONFIG_FILE_INPUT_5) ||
         createFile(folder / CONFIG_FILE_INPUT_7) ||
         createFile(folder / CONFIG_FILE_INPUT_9) ||
         createFile(folder / CONFIG_FILE_SKIN) ||
@@ -595,7 +594,6 @@ int ConfigMgr::_selectProfile(const std::string& name)
 
     try
     {
-        G = std::make_shared<ConfigGeneral>(name);
         P = std::make_shared<ConfigProfile>(name);
         I5 = std::make_shared<ConfigInput>(name, 5);
         I7 = std::make_shared<ConfigInput>(name, 7);
@@ -611,6 +609,8 @@ int ConfigMgr::_selectProfile(const std::string& name)
     load();
 
     profileName = name;
+    G->set(cfg::E_PROFILE, profileName);
+
     return 0;
 }
 

@@ -2,11 +2,12 @@
 #include "config.h"
 
 // Stores in player folder
-constexpr char CONFIG_FILE_PROFILE[] = "profile.yml";
+constexpr char CONFIG_FILE_PROFILE[] = "settings.yml";
 
 namespace cfg
 {
     constexpr char P_PLAYERNAME[] = "PlayerName";
+    constexpr char P_LR2PATH[] = "LR2Path";
 
     constexpr char P_BASESPEED[] = "Basespeed";
 
@@ -234,10 +235,19 @@ namespace cfg
 
 class ConfigProfile : public vConfig
 {
+protected:
+    Path _dirPath;
 public:
-    ConfigProfile(const std::string& profile) : vConfig(profile, CONFIG_FILE_PROFILE) {}
+    ConfigProfile(const std::string& profile) : vConfig(profile, CONFIG_FILE_PROFILE)
+    {
+        _dirPath = ".";
+        _dirPath /= "profile";
+        _dirPath /= profile;
+    }
     virtual ~ConfigProfile() = default;
 
     std::string getName() const;
+    void setName(const std::string& name);
+    Path getPath() const { return _dirPath; }
     virtual void setDefaults() noexcept override;
 };

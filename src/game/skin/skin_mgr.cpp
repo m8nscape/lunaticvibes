@@ -39,6 +39,11 @@ void SkinMgr::load(eMode e)
         break;
     }
 
+    if (!fs::is_regular_file(skinFile) && strEqual(skinFile.string().substr(0, 8), "LR2Files", false))
+    {
+        skinFile = ConfigMgr::get('P', cfg::P_LR2PATH, ".") + skinFile.string();
+    }
+
     switch (type)
     {
     case eSkinType::LR2:

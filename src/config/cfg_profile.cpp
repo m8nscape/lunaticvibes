@@ -9,11 +9,15 @@ std::string ConfigProfile::getName() const
 {
     return _yaml[std::string(cfg::P_PLAYERNAME)].as<std::string>("Unnamed"); 
 }
-
+void ConfigProfile::setName(const std::string& name)
+{
+    _yaml[cfg::P_PLAYERNAME] = name;
+}
 void ConfigProfile::setDefaults() noexcept
 {
 	using namespace cfg;
-	//set(P_PLAYERNAME, "Unnamed");
+	set(P_PLAYERNAME, "Unnamed");
+    set(P_LR2PATH, ".");
 	set(P_BASESPEED, 1.0);
 	set(P_HISPEED, 1.0);
 	set(P_REGULAR_SPEED, 1200);

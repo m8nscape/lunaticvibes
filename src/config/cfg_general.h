@@ -48,8 +48,6 @@ namespace cfg {
 
 	constexpr char V_RES_X[] = "ResolutionX";
 	constexpr char V_RES_Y[] = "ResolutionY";
-	constexpr char V_FULL_RES_X[] = "FullResolutionX";
-	constexpr char V_FULL_RES_Y[] = "FullResolutionY";
 
 	constexpr char V_WINMODE[] = "WindowMode";
     constexpr char V_WINMODE_FULL[] = "FullScreen";
@@ -66,6 +64,9 @@ namespace cfg {
 
 	constexpr char V_VSYNC[] = "VSync";
 
+    //////////////////////////////////////////////////////////////////////////////// 
+    // etc
+    constexpr char E_PROFILE[] = "Profile";
 }
 
 class ConfigGeneral: public vConfig

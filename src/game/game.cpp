@@ -87,7 +87,8 @@ int main(int argc, char* argv[])
     // init logger
     InitLogger();
 
-    ConfigMgr::selectProfile(PROFILE_DEFAULT);
+    ConfigMgr::init();
+    ConfigMgr::load();
 
     if (auto ginit = graphics_init())
         return ginit;
@@ -95,7 +96,8 @@ int main(int argc, char* argv[])
         return sinit;
 
     // extract dxa
-    for (auto& it : std::filesystem::recursive_directory_iterator("./LR2Files/Theme"))
+    for (auto& it : std::filesystem::recursive_directory_iterator(
+        ConfigMgr::get('P', cfg::P_LR2PATH, ".") + "/LR2Files/Theme"))
     {
         if (std::filesystem::is_regular_file(it))
         {
@@ -129,7 +131,7 @@ int main(int argc, char* argv[])
     ConfigMgr::setGlobals();
 
     // score db
-    g_pScoreDB = std::make_shared<ScoreDB>((ConfigMgr::getDBPath() + "/score.db").c_str());
+    g_pScoreDB = std::make_shared<ScoreDB>((ConfigMgr::Profile()->getPath() / "score.db").string().c_str());
 
     // initialize song list
     if (!fs::exists("database")) fs::create_directories("database");

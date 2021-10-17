@@ -31,27 +31,11 @@ void InputMgr::updateBindings(unsigned keys, Pad K)
     switch (keys)
     {
     case 5:
-        for (Input::Pad key = Input::S1L; key < Input::ESC; ++(*(int*)&key))
-        {
-            auto bindings = ConfigMgr::getKeyBindings(5, key);
-            for (unsigned slot = 0; slot < std::min(MAX_BINDINGS_PER_KEY, bindings.size()); ++slot)
-                bindKey(key, slot, bindings[slot]);
-        }
-        break;
-
     case 7:
-        for (Input::Pad key = Input::S1L; key < Input::ESC; ++(*(int*)&key))
-        {
-            auto bindings = ConfigMgr::getKeyBindings(7, key);
-            for (unsigned slot = 0; slot < std::min(MAX_BINDINGS_PER_KEY, bindings.size()); ++slot)
-                bindKey(key, slot, bindings[slot]);
-        }
-        break;
-
     case 9:
         for (Input::Pad key = Input::S1L; key < Input::ESC; ++(*(int*)&key))
         {
-            auto bindings = ConfigMgr::getKeyBindings(9, key);
+            auto bindings = ConfigMgr::Input(keys)->getBindings(key);
             for (unsigned slot = 0; slot < std::min(MAX_BINDINGS_PER_KEY, bindings.size()); ++slot)
                 bindKey(key, slot, bindings[slot]);
         }
