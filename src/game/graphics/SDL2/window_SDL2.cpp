@@ -25,18 +25,13 @@ int graphics_init()
         LOG_INFO << "[SDL2] Library version " << SDL_MAJOR_VERSION << '.' << SDL_MINOR_VERSION << "." << SDL_PATCHLEVEL;
 
         std::string title;
-        title += MAIN_NAME;
+        title += PROJECT_NAME;
+#ifdef _DEBUG
         title += ' ';
-        title += SUB_NAME;
+        title += "Debug";
+#endif
         title += ' ';
-        title += std::to_string(VER_MAJOR);
-        title += '.';
-        title += std::to_string(VER_MINOR);
-        if (VER_PATCH)
-        {
-            title += '.';
-            title += std::to_string(VER_PATCH);
-        }
+        title += PROJECT_VERSION;
 
         /*
         for (int i = 0; i < SDL_GetNumRenderDrivers(); ++i)

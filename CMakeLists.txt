@@ -1,13 +1,18 @@
 cmake_minimum_required(VERSION 3.16)
 
-set(PROJECT_NAME nullptr CACHE STRING "The project name")
-
 #########################################################################
 # PROJECT CONFIG
 
-project(${PROJECT_NAME}
-    VERSION 1.0
-    LANGUAGES CXX)
+project(nullptr
+    VERSION 0.0
+    LANGUAGES CXX
+)
+
+configure_file(
+    "${CMAKE_SOURCE_DIR}/src/cmake_config.h.in"
+    "${${PROJECT_NAME}_BINARY_DIR}/cmake_config.h"
+)
+include_directories("${${PROJECT_NAME}_BINARY_DIR}")
     
 if (MSVC)
     add_compile_options("/utf-8")
