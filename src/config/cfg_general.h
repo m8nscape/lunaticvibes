@@ -80,4 +80,7 @@ public:
     virtual ~ConfigGeneral() = default;
 
 	virtual void setDefaults() noexcept override;
+
+    void setFolders(const std::vector<StringPath>& path);
+    std::vector<StringPath> getFolders();
 };

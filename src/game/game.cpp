@@ -136,8 +136,13 @@ int main(int argc, char* argv[])
     // initialize song list
     if (!fs::exists("database")) fs::create_directories("database");
     g_pSongDB = std::make_shared<SongDB>("database/song.db");
-    // FIXME get folders from config
-    g_pSongDB->addFolder("song");
+
+    // get folders from config
+    for (auto& f : ConfigMgr::General()->getFolders())
+    {
+        g_pSongDB->addFolder(Path(f));
+    }
+
     SongListProperties rootFolderProp{
         "",
         ROOT_FOLDER_HASH,
@@ -150,6 +155,7 @@ int main(int argc, char* argv[])
         rootFolderProp.list.push_back({ top.getEntry(i), nullptr });
     gSelectContext.backtrace.push(rootFolderProp);
 
+    // arg parsing
     if (argc >= 2)
     {
         gNextScene = eScene::PLAY;

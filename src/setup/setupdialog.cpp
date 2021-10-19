@@ -35,6 +35,9 @@ SetupDialog::SetupDialog(QWidget *parent) :
 
     // set lr2 path
     lr2path = ConfigMgr::get('E', cfg::E_LR2PATH, ".");
+
+    // folders
+    auto folders = ConfigMgr::General()->getFolders();
 }
 
 SetupDialog::~SetupDialog()
