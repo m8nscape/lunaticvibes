@@ -37,6 +37,11 @@ void SkinMgr::load(eMode e)
         skinFileDefault = cfg::S_DEFAULT_PATH_RESULT;
         skinFile = ConfigMgr::get("S", cfg::S_PATH_RESULT, cfg::S_DEFAULT_PATH_RESULT);
         break;
+
+    case eMode::KEY_CONFIG:
+        skinFileDefault = cfg::S_DEFAULT_PATH_KEYCONFIG;
+        skinFile = ConfigMgr::get("S", cfg::S_PATH_KEYCONFIG, cfg::S_DEFAULT_PATH_KEYCONFIG);
+        break;
     }
 
     if (!fs::is_regular_file(skinFile) && strEqual(skinFile.string().substr(0, 8), "LR2Files", false))

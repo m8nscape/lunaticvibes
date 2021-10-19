@@ -611,6 +611,9 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
         _skin->reset_bar_animation();
     }
 
+    gSelectContext.isGoingToKeyConfig = false;
+    gSelectContext.isGoingToSkinSelect = false;
+
     _state = eSelectState::PREPARE;
 
     loopStart();
@@ -691,6 +694,10 @@ void SceneSelect::updateSelect()
         if (!isHoldingUp && !isHoldingDown)
             scrollTimestamp = -1;
     }
+    if (gSelectContext.isGoingToKeyConfig)
+    {
+        _state = eSelectState::FADEOUT;
+    }
 }
 
 void SceneSelect::updateSearch()
@@ -715,7 +722,19 @@ void SceneSelect::updateFadeout()
     {
         loopEnd();
         _input.loopEnd();
-        gNextScene = eScene::EXIT;
+        if (gSelectContext.isGoingToKeyConfig)
+        {
+            SoundMgr::stopSamples();
+            gNextScene = eScene::KEYCONFIG;
+        }
+        else if (gSelectContext.isGoingToSkinSelect)
+        {
+            gNextScene = eScene::EXIT;
+        }
+        else
+        {
+            gNextScene = eScene::EXIT;
+        }
     }
 }
 

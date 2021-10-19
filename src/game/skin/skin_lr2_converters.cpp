@@ -153,15 +153,79 @@ eSwitch::_FALSE,	// select insane
 eSwitch::_FALSE,
 eSwitch::_FALSE,
 eSwitch::_FALSE,
+
+// 100
+eSwitch::_FALSE,
+eSwitch::K11_CONFIG,
+eSwitch::K12_CONFIG,
+eSwitch::K13_CONFIG,
+eSwitch::K14_CONFIG,
+eSwitch::K15_CONFIG,
+eSwitch::K16_CONFIG,
+eSwitch::K17_CONFIG,
+eSwitch::K18_CONFIG,
+eSwitch::K19_CONFIG,
+eSwitch::S1L_CONFIG,
+eSwitch::S1R_CONFIG,
+eSwitch::K1START_CONFIG,
+eSwitch::K1SELECT_CONFIG,
+eSwitch::K1SPDUP_CONFIG,
+eSwitch::K1SPDDN_CONFIG,
+eSwitch::_FALSE,
+eSwitch::_FALSE,
+eSwitch::_FALSE,
 eSwitch::_FALSE,
 
-// 101
+// 120
+eSwitch::_FALSE,
+eSwitch::K21_CONFIG,
+eSwitch::K22_CONFIG,
+eSwitch::K23_CONFIG,
+eSwitch::K24_CONFIG,
+eSwitch::K25_CONFIG,
+eSwitch::K26_CONFIG,
+eSwitch::K27_CONFIG,
+eSwitch::K28_CONFIG,
+eSwitch::K29_CONFIG,
+eSwitch::S2L_CONFIG,
+eSwitch::S2R_CONFIG,
+eSwitch::K2START_CONFIG,
+eSwitch::K2SELECT_CONFIG,
+eSwitch::K2SPDUP_CONFIG,
+eSwitch::K2SPDDN_CONFIG,
+eSwitch::_FALSE,
+eSwitch::_FALSE,
+eSwitch::_FALSE,
+eSwitch::_FALSE,
 
+// 140
+eSwitch::_FALSE,
+eSwitch::_FALSE,
+eSwitch::_FALSE,
+eSwitch::_FALSE,
+eSwitch::_FALSE,
+eSwitch::_FALSE,
+eSwitch::_FALSE,
+eSwitch::_FALSE,
+eSwitch::_FALSE,
+eSwitch::_FALSE,
+
+// 150
+eSwitch::KEY_CONFIG_SLOT0,
+eSwitch::KEY_CONFIG_SLOT1,
+eSwitch::KEY_CONFIG_SLOT2,
+eSwitch::KEY_CONFIG_SLOT3,
+eSwitch::KEY_CONFIG_SLOT4,
+eSwitch::KEY_CONFIG_SLOT5,
+eSwitch::KEY_CONFIG_SLOT6,
+eSwitch::KEY_CONFIG_SLOT7,
+eSwitch::KEY_CONFIG_SLOT8,
+eSwitch::KEY_CONFIG_SLOT9,
 
 };
 bool buttonSw(int n, eSwitch& out)
 {
-    if (n < 0 || n > buttonAdapter.size()) 
+    if (n < 0 || n >= buttonAdapter.size()) 
         return false;
     if (auto sw = std::get_if<eSwitch>(&buttonAdapter[n]))
     {
@@ -173,7 +237,7 @@ bool buttonSw(int n, eSwitch& out)
 }
 bool buttonOp(int n, eOption& out)
 {
-    if (n < 0 || n > buttonAdapter.size())
+    if (n < 0 || n >= buttonAdapter.size())
         return false;
     if (auto op = std::get_if<eOption>(&buttonAdapter[n]))
     {

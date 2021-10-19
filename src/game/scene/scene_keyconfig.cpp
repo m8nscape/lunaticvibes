@@ -31,6 +31,7 @@ void SceneKeyConfig::updateStart()
         _updateCallback = std::bind(&SceneKeyConfig::updateMain, this);
         using namespace std::placeholders;
         _input.register_p("SCENE_PRESS", std::bind(&SceneKeyConfig::inputGamePress, this, _1, _2));
+        _input.register_kb("SCENE_KEYPRESS", std::bind(&SceneKeyConfig::inputGamePressKeyboard, this, _1, _2));
         LOG_DEBUG << "[KeyConfig] State changed to Main";
     }
 }
@@ -44,6 +45,7 @@ void SceneKeyConfig::updateMain()
         _updateCallback = std::bind(&SceneKeyConfig::updateFadeout, this);
         using namespace std::placeholders;
         _input.unregister_p("SCENE_PRESS");
+        _input.unregister_kb("SCENE_KEYPRESS");
         LOG_DEBUG << "[KeyConfig] State changed to Fadeout";
     }
 }

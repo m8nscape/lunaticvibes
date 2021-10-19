@@ -127,6 +127,8 @@ struct SelectContextParams
     unsigned gamemode = 0; // all / 5, 7, 9, 10, 14, etc
     unsigned scrollTime = 300; // 
 
+    int panel = 0;
+
     bool isGoingToSkinSelect = false;
     bool isGoingToKeyConfig = false;
 };

@@ -16,6 +16,8 @@ void flip(int plus);
 void hs_fix(int plus);
 void battle(int plus);
 void hs(int player, int plus);
+void enter_key_config();
+void enter_skin_config();
 void key_config_pad(Input::Pad pad);
 void key_config_slot(int slot);
 void key_config_mode_rotate();

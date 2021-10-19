@@ -8,7 +8,7 @@ constexpr char CONFIG_FILE_SKIN[] = "skin.yml";
 namespace cfg
 {
     constexpr char S_PATH_MUSIC_SELECT[] = "Select";
-    constexpr char S_DEFAULT_PATH_MUSIC_SELECT[] = "LR2files/Theme/LR2/Decide/decide.lr2skin";
+    constexpr char S_DEFAULT_PATH_MUSIC_SELECT[] = "LR2files/Theme/LR2/Select/select.lr2skin";
 
     constexpr char S_PATH_DECIDE[] = "Decide";
     constexpr char S_DEFAULT_PATH_DECIDE[] = "LR2files/Theme/LR2/Decide/decide.lr2skin";
@@ -19,6 +19,9 @@ namespace cfg
 
     constexpr char S_PATH_RESULT[] = "Result";
     constexpr char S_DEFAULT_PATH_RESULT[] = "LR2files/Theme/LR2/Result/result.lr2skin";
+
+    constexpr char S_PATH_KEYCONFIG[] = "Key Config";
+    constexpr char S_DEFAULT_PATH_KEYCONFIG[] = "LR2files/Theme/LR2/KeyConfig/keyconfig.lr2skin";
 
     constexpr char S_PATH_BGM[] = "BGM folder (LR2)";
     constexpr char S_DEFAULT_PATH_BGM[] = "LR2files/Bgm/LR2 ver sta";

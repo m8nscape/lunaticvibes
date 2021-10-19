@@ -168,6 +168,20 @@ void panel_switch(int idx, int plus)
     }
 }
 
+// 13
+void enter_key_config()
+{
+    gSelectContext.isGoingToKeyConfig = true;
+    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+}
+
+// 14
+void enter_skin_config()
+{
+    gSelectContext.isGoingToSkinSelect = true;
+    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+}
+
 // 20, 21, 22
 void fx_type(int idx, int plus)
 {
@@ -623,7 +637,57 @@ void difficulty(int diff, int plus)
 void key_config_pad(Input::Pad pad)
 {
     auto& sel = gKeyconfigContext.selecting;
-    sel.first = pad;
+    auto old = sel.first;
+    if (old != pad)
+    {
+        auto setSwitch = [](Input::Pad pad, bool sw)
+        {
+            switch (pad)
+            {
+            case Input::Pad::K11:      gSwitches.set(eSwitch::K11_CONFIG, sw); break;
+            case Input::Pad::K12:      gSwitches.set(eSwitch::K12_CONFIG, sw); break;
+            case Input::Pad::K13:      gSwitches.set(eSwitch::K13_CONFIG, sw); break;
+            case Input::Pad::K14:      gSwitches.set(eSwitch::K14_CONFIG, sw); break;
+            case Input::Pad::K15:      gSwitches.set(eSwitch::K15_CONFIG, sw); break;
+            case Input::Pad::K16:      gSwitches.set(eSwitch::K16_CONFIG, sw); break;
+            case Input::Pad::K17:      gSwitches.set(eSwitch::K17_CONFIG, sw); break;
+            case Input::Pad::K18:      gSwitches.set(eSwitch::K18_CONFIG, sw); break;
+            case Input::Pad::K19:      gSwitches.set(eSwitch::K19_CONFIG, sw); break;
+            case Input::Pad::S1L:      gSwitches.set(eSwitch::S1L_CONFIG, sw); break;
+            case Input::Pad::S1R:      gSwitches.set(eSwitch::S1R_CONFIG, sw); break;
+            case Input::Pad::K1START:  gSwitches.set(eSwitch::K1START_CONFIG, sw); break;
+            case Input::Pad::K1SELECT: gSwitches.set(eSwitch::K1SELECT_CONFIG, sw); break;
+            case Input::Pad::K1SPDUP:  gSwitches.set(eSwitch::K1SPDUP_CONFIG, sw); break;
+            case Input::Pad::K1SPDDN:  gSwitches.set(eSwitch::K1SPDDN_CONFIG, sw); break;
+            case Input::Pad::K21:      gSwitches.set(eSwitch::K21_CONFIG, sw); break;
+            case Input::Pad::K22:      gSwitches.set(eSwitch::K22_CONFIG, sw); break;
+            case Input::Pad::K23:      gSwitches.set(eSwitch::K23_CONFIG, sw); break;
+            case Input::Pad::K24:      gSwitches.set(eSwitch::K24_CONFIG, sw); break;
+            case Input::Pad::K25:      gSwitches.set(eSwitch::K25_CONFIG, sw); break;
+            case Input::Pad::K26:      gSwitches.set(eSwitch::K26_CONFIG, sw); break;
+            case Input::Pad::K27:      gSwitches.set(eSwitch::K27_CONFIG, sw); break;
+            case Input::Pad::K28:      gSwitches.set(eSwitch::K28_CONFIG, sw); break;
+            case Input::Pad::K29:      gSwitches.set(eSwitch::K29_CONFIG, sw); break;
+            case Input::Pad::S2L:      gSwitches.set(eSwitch::S2L_CONFIG, sw); break;
+            case Input::Pad::S2R:      gSwitches.set(eSwitch::S2R_CONFIG, sw); break;
+            case Input::Pad::K2START:  gSwitches.set(eSwitch::K2START_CONFIG, sw); break;
+            case Input::Pad::K2SELECT: gSwitches.set(eSwitch::K2SELECT_CONFIG, sw); break;
+            case Input::Pad::K2SPDUP:  gSwitches.set(eSwitch::K2SPDUP_CONFIG, sw); break;
+            case Input::Pad::K2SPDDN:  gSwitches.set(eSwitch::K2SPDDN_CONFIG, sw); break;
+            default: break;
+            }
+        };
+        setSwitch(old, false);
+        setSwitch(pad, true);
+
+        sel.first = pad;
+
+        auto bindings = ConfigMgr::Input(gKeyconfigContext.keys)->getBindings(pad);
+        for (size_t i = 0; i < std::min(bindings.size(), Input::MAX_BINDINGS_PER_KEY); ++i)
+        {
+            gTexts.set(eText(unsigned(eText::KEYCONFIG_SLOT1) + i), ConfigInput::getKeyString(bindings[i]));
+        }
+    }
     SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
 }
 
@@ -651,7 +715,30 @@ void key_config_mode_rotate()
 void key_config_slot(int slot)
 {
     auto& sel = gKeyconfigContext.selecting;
-    sel.second = slot;
+    auto old = sel.second;
+    if (old != slot)
+    {
+        auto setSwitch = [](int slot, bool sw)
+        {
+            switch (slot)
+            {
+            case 0:      gSwitches.set(eSwitch::KEY_CONFIG_SLOT0, sw); break;
+            case 1:      gSwitches.set(eSwitch::KEY_CONFIG_SLOT1, sw); break;
+            case 2:      gSwitches.set(eSwitch::KEY_CONFIG_SLOT2, sw); break;
+            case 3:      gSwitches.set(eSwitch::KEY_CONFIG_SLOT3, sw); break;
+            case 4:      gSwitches.set(eSwitch::KEY_CONFIG_SLOT4, sw); break;
+            case 5:      gSwitches.set(eSwitch::KEY_CONFIG_SLOT5, sw); break;
+            case 6:      gSwitches.set(eSwitch::KEY_CONFIG_SLOT6, sw); break;
+            case 7:      gSwitches.set(eSwitch::KEY_CONFIG_SLOT7, sw); break;
+            case 8:      gSwitches.set(eSwitch::KEY_CONFIG_SLOT8, sw); break;
+            case 9:      gSwitches.set(eSwitch::KEY_CONFIG_SLOT9, sw); break;
+            default: break;
+            }
+        };
+        setSwitch(old, false);
+        setSwitch(slot, true);
+        sel.second = slot;
+    }
     SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
 }
 
@@ -673,6 +760,12 @@ std::function<void(int)> getButtonCallback(int type)
     case 8:
     case 9:
         return std::bind(panel_switch, type, _1);
+
+    case 13:
+        return std::bind(enter_key_config);
+
+    case 14:
+        return std::bind(enter_skin_config);
 
     case 20:
     case 21:

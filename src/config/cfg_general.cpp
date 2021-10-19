@@ -26,7 +26,7 @@ void ConfigGeneral::setFolders(const std::vector<StringPath>& path)
 
 std::vector<StringPath> ConfigGeneral::getFolders()
 {
-	auto folderList = _yaml[cfg::E_FOLDERS].as<std::vector<std::string>>();
+	auto folderList = _yaml[cfg::E_FOLDERS].as<std::vector<std::string>>(std::vector<std::string>());
 	std::vector<StringPath> ret;
 	for (const auto& p : folderList)
 	{

@@ -5,6 +5,7 @@
 #include "scene_play.h"
 #include "scene_result.h"
 #include "scene_play_retry_trans.h"
+#include "scene_keyconfig.h"
 #include "game/skin/skin_mgr.h"
 #include "game/ruleset/ruleset.h"
 
@@ -73,6 +74,10 @@ pScene SceneMgr::get(eScene e)
             LOG_ERROR << "[Scene] Invalid mode: " << int(gPlayContext.mode);
             return nullptr;
         }
+        break;
+
+    case eScene::KEYCONFIG:
+        ps = std::make_shared<SceneKeyConfig>();
         break;
 
 	default:
