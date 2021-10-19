@@ -6,6 +6,7 @@ bool gQuitOnFinish = false;
 ChartContextParams gChartContext;
 PlayContextParams gPlayContext;
 SelectContextParams gSelectContext;
+KeyConfigContextParams gKeyconfigContext;
 UpdateContextParams gUpdateContext;
 std::shared_ptr<SongDB> g_pSongDB;
 std::shared_ptr<ScoreDB> g_pScoreDB;

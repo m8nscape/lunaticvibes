@@ -298,7 +298,17 @@ void setEntryInfo()
             gOptions.queue(eOption::SELECT_ENTRY_LAMP, Option::LAMP_NOPLAY);
             gOptions.queue(eOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
 
-            gNumbers.queue(eNumber::INFO_SCORE, 0);            gNumbers.queue(eNumber::INFO_EXSCORE, 0);            //gNumbers.queue(eNumber::INFO_EXSCORE_MAX, 0);            gNumbers.queue(eNumber::INFO_RATE, 0);            //gNumbers.queue(eNumber::INFO_TOTALNOTE, 0);            gNumbers.queue(eNumber::INFO_MAXCOMBO, 0);            gNumbers.queue(eNumber::INFO_PERFECT_COUNT, 0);            gNumbers.queue(eNumber::INFO_GREAT_COUNT, 0);            gNumbers.queue(eNumber::INFO_GOOD_COUNT, 0);            gNumbers.queue(eNumber::INFO_BAD_COUNT, 0);            gNumbers.queue(eNumber::INFO_POOR_COUNT, 0);
+            gNumbers.queue(eNumber::INFO_SCORE, 0);
+            gNumbers.queue(eNumber::INFO_EXSCORE, 0);
+            //gNumbers.queue(eNumber::INFO_EXSCORE_MAX, 0);
+            gNumbers.queue(eNumber::INFO_RATE, 0);
+            //gNumbers.queue(eNumber::INFO_TOTALNOTE, 0);
+            gNumbers.queue(eNumber::INFO_MAXCOMBO, 0);
+            gNumbers.queue(eNumber::INFO_PERFECT_COUNT, 0);
+            gNumbers.queue(eNumber::INFO_GREAT_COUNT, 0);
+            gNumbers.queue(eNumber::INFO_GOOD_COUNT, 0);
+            gNumbers.queue(eNumber::INFO_BAD_COUNT, 0);
+            gNumbers.queue(eNumber::INFO_POOR_COUNT, 0);
         }
         break;
     }

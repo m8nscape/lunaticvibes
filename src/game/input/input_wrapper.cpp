@@ -31,6 +31,7 @@ void InputWrapper::_loop()
 
     auto d = InputMgr::detect();
     if (!_background && !IsWindowForeground()) d.reset();
+
     for (Input::Pad i = Input::S1L; i < Input::KEY_COUNT; ++(int&)i)
     {
         auto& [ms, stat] = _inputBuffer[i];
@@ -57,6 +58,30 @@ void InputWrapper::_loop()
         else if (stat)
         {
             h.set(i);
+        }
+    }
+
+    if (!_keyboardCallbackMap.empty())
+    {
+        KeyboardMask mask;
+        _kbprev = _kbcurr;
+        for (Input::Keyboard k = Input::Keyboard::K_ESC; k < Input::Keyboard::K_COUNT; ++*(unsigned*)&k)
+        {
+            if (isKeyPressed(k)) mask.set(k);
+        }
+        _kbcurr = mask;
+
+        KeyboardMask p;
+        for (Input::Keyboard k = Input::Keyboard::K_ESC; k < Input::Keyboard::K_COUNT; ++ * (unsigned*)&k)
+        {
+            if (_kbcurr[k] && !_kbprev[k]) p.set(k);
+        }
+        if (p.any())
+        {
+            std::shared_lock l(_inputMutex, std::defer_lock);
+
+            for (auto& [cbname, callback] : _keyboardCallbackMap)
+                callback(mask, now);
         }
     }
 
@@ -109,5 +134,24 @@ bool InputWrapper::_unregister(unsigned type, const std::string& key)
     case 2: _rCallbackMap.erase(key); break;
     }
 
+    return true;
+}
+
+bool InputWrapper::register_kb(const std::string& key, KEYBOARDCALLBACK f)
+{
+    if (_keyboardCallbackMap.find(key) != _keyboardCallbackMap.end())
+        return false;
+
+    std::unique_lock _lock(_inputMutex);
+    _keyboardCallbackMap[key] = f;
+    return true;
+}
+bool InputWrapper::unregister_kb(const std::string& key)
+{
+    if (_keyboardCallbackMap.find(key) == _keyboardCallbackMap.end())
+        return false;
+
+    std::unique_lock _lock(_inputMutex);
+    _keyboardCallbackMap.erase(key);
     return true;
 }

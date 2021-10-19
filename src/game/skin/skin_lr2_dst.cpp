@@ -759,6 +759,16 @@ void updateDstOpt()
 	// 400 7/14KEYS
 	// 401 9KEYS
 	// 402 5/10KEYS
+	{
+		using namespace Option;
+		switch (gOptions.get(eOption::KEY_CONFIG_MODE))
+		{
+		case KEYCFG_7: set(400); break;
+		case KEYCFG_9: set(401); break;
+		case KEYCFG_5: set(402); break;
+		default: break;
+		}
+	}
 
 
 	// ///////////////////////////////////

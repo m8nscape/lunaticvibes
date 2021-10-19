@@ -2,6 +2,7 @@
 #include <shared_mutex>
 #include <array>
 #include <queue>
+#include <set>
 #include "input_mgr.h"
 #include "common/asynclooper.h"
 #include "common/beat.h"
@@ -11,6 +12,8 @@ typedef std::function<void(InputMask&, const Time&)> INPUTCALLBACK;
 //typedef void(*PressedHandleCallback)(void* owner, InputMask&);
 //typedef void(*HoldHandleCallback)(void* owner, InputMask&);
 //typedef void(*ReleasedHandleCallback)(void* owner, InputMask&);
+typedef std::bitset<Input::Keyboard::K_COUNT> KeyboardMask;
+typedef std::function<void(KeyboardMask, const Time&)> KEYBOARDCALLBACK;
 
 // FUNC:                                   BRDUEHDI><v^543210987654321_
 inline const InputMask INPUT_MASK_FUNC  { "1111111111111111111111111111000000000000000000000000000000" };
@@ -36,7 +39,7 @@ inline const InputMask INPUT_MASK_NAV_DN{ "0000000010100000000000000000000000000
 class InputWrapper: public AsyncLooper
 {
 public:
-    static constexpr unsigned release_delay_ms = 5;
+    unsigned release_delay_ms = 5;
 private:
 	std::shared_mutex _inputMutex;
     bool _busy = false;
@@ -48,6 +51,9 @@ protected:
     std::array<long long, Input::KEY_COUNT> _releaseBuffer{ -1 };
     int _cursor_x = 0, _cursor_y = 0;
     bool _background = false;
+
+    KeyboardMask _kbprev = 0;
+    KeyboardMask _kbcurr = 0;
 
 public:
     InputWrapper(unsigned rate = 1000, bool background = false);
@@ -83,6 +89,7 @@ private:
     std::map<const std::string, INPUTCALLBACK> _pCallbackMap;
     std::map<const std::string, INPUTCALLBACK> _hCallbackMap;
     std::map<const std::string, INPUTCALLBACK> _rCallbackMap;
+    std::map<const std::string, KEYBOARDCALLBACK> _keyboardCallbackMap;
 private:
     // Callback registering
     bool _register(unsigned type, const std::string& key, INPUTCALLBACK);
@@ -94,5 +101,9 @@ public:
     bool unregister_p(const std::string& key) { return _unregister(0, key); }
     bool unregister_h(const std::string& key) { return _unregister(1, key); }
     bool unregister_r(const std::string& key) { return _unregister(2, key); }
+
+    // Use with care. May affect performance.
+    bool register_kb(const std::string& key, KEYBOARDCALLBACK f);
+    bool unregister_kb(const std::string& key);
 };
 

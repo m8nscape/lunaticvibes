@@ -619,6 +619,42 @@ void difficulty(int diff, int plus)
     SoundMgr::playSample(eSoundSample::SOUND_DIFFICULTY);
 }
 
+// 100 - 139
+void key_config_pad(Input::Pad pad)
+{
+    auto& sel = gKeyconfigContext.selecting;
+    sel.first = pad;
+    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+}
+
+// 143
+void key_config_mode_rotate()
+{
+    auto& keys = gKeyconfigContext.keys;
+    switch (keys)
+    {
+    case 7: keys = 9; break;
+    case 9: keys = 5; break;
+    case 5: keys = 7; break;
+    default: keys = 7; break;
+    }
+    switch (gOptions.get(eOption::KEY_CONFIG_MODE))
+    {
+    case 7: gOptions.set(eOption::KEY_CONFIG_MODE, Option::KEYCFG_7); break;
+    case 9: gOptions.set(eOption::KEY_CONFIG_MODE, Option::KEYCFG_9); break;
+    case 5: gOptions.set(eOption::KEY_CONFIG_MODE, Option::KEYCFG_5); break;
+    default: return;
+    }
+}
+
+// 150 - 159
+void key_config_slot(int slot)
+{
+    auto& sel = gKeyconfigContext.selecting;
+    sel.second = slot;
+    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+}
+
 #pragma region end
 
 std::function<void(int)> getButtonCallback(int type)
@@ -740,6 +776,61 @@ std::function<void(int)> getButtonCallback(int type)
     case 95:
     case 96:
         return std::bind(difficulty, type - 91, _1);
+
+    case 101:
+    case 102:
+    case 103:
+    case 104:
+    case 105:
+    case 106:
+    case 107:
+    case 108:
+    case 109:
+        return std::bind(key_config_pad, Input::Pad(unsigned(Input::Pad::K11) + type - 101));
+
+    case 110:
+        return std::bind(key_config_pad, Input::Pad::S1L);
+    case 111:
+        return std::bind(key_config_pad, Input::Pad::S1R);
+    case 112:
+        return std::bind(key_config_pad, Input::Pad::K1START);
+    case 113:
+        return std::bind(key_config_pad, Input::Pad::K1SELECT);
+
+    case 121:
+    case 122:
+    case 123:
+    case 124:
+    case 125:
+    case 126:
+    case 127:
+    case 128:
+    case 129:
+        return std::bind(key_config_pad, Input::Pad(unsigned(Input::Pad::K21) + type - 121));
+
+    case 130:
+        return std::bind(key_config_pad, Input::Pad::S2L);
+    case 131:
+        return std::bind(key_config_pad, Input::Pad::S2R);
+    case 132:
+        return std::bind(key_config_pad, Input::Pad::K2START);
+    case 133:
+        return std::bind(key_config_pad, Input::Pad::K2SELECT);
+
+    case 143:
+        return std::bind(key_config_mode_rotate);
+
+    case 150:
+    case 151:
+    case 152:
+    case 153:
+    case 154:
+    case 155:
+    case 156:
+    case 157:
+    case 158:
+    case 159:
+        return std::bind(key_config_slot, type - 150);
 
     default:
         return [](bool) {};

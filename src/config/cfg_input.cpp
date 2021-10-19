@@ -124,7 +124,7 @@ void ConfigInput::bindKey(Input::Pad ingame, Input::Keyboard key, size_t slot)
     using namespace cfg;
     using namespace Input;
     slot = std::min(slot, MAX_BINDINGS_PER_KEY - 1);
-    std::string value = std::string("K_") + keyboardNameMap[key];
+    std::string value = getKeyString(key);
 
     StringContent mapKey = getBindingKey(ingame);
     if (mapKey != I_NOTBOUND) set(mapKey, slot, value);
@@ -163,4 +163,9 @@ std::vector<Input::Keyboard> ConfigInput::getBindings(Input::Pad ingame)
     }
     
     return ret;
+}
+
+std::string ConfigInput::getKeyString(Input::Keyboard k)
+{
+    return "K_"s + Input::keyboardNameMap[k];
 }

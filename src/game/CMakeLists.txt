@@ -43,7 +43,7 @@ add_executable(game game.cpp
     sound/sound_fmod.cpp
     sound/sound_fmod_callback.cpp
     sound/sound_mgr.cpp
-    sound/sound_sample.cpp )
+    sound/sound_sample.cpp  "scene/scene_keyconfig.cpp")
 
 if (UNIX OR MINGW)
     target_link_libraries(game PRIVATE -lpthread)

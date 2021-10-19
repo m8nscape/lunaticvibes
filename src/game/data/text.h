@@ -39,6 +39,7 @@ enum class eText: unsigned
     KEYCONFIG_SLOT7,
     KEYCONFIG_SLOT8,        // not defined
     KEYCONFIG_SLOT9,        // not defined
+    KEYCONFIG_SLOT10,
 
     SKIN_NAME = 50,
     SKIN_MAKER_NAME,

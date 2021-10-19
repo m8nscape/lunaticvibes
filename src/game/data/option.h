@@ -24,6 +24,8 @@ enum class eOption : unsigned
     SELECT_FILTER_KEYS,
     SELECT_SORT,
 
+    KEY_CONFIG_MODE,        // OFF/7/9/5
+
     CHART_DIFFICULTY,
     CHART_PLAY_MODE,
     CHART_PLAY_KEYS,
@@ -103,6 +105,13 @@ namespace Option
         SORT_LEVEL,
         SORT_CLEAR,
         SORT_RATE,
+    };
+
+    enum e_key_config_mode {
+        KEYCFG_OFF,
+        KEYCFG_7,
+        KEYCFG_9,
+        KEYCFG_5
     };
 
 	enum e_play_scene_stat {

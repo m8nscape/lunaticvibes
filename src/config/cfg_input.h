@@ -69,4 +69,6 @@ public:
     void bindKey(Input::Pad ingame, Input::Keyboard key, size_t slot);
     //void bindButton(unsigned id, Input::Pad ingame, unsigned input);
     std::vector<Input::Keyboard> getBindings(Input::Pad key);
+
+    static std::string getKeyString(Input::Keyboard k);
 };

@@ -20,6 +20,7 @@ enum class eScene
     PLAY,
     RESULT,
     RETRY,
+    KEYCONFIG,
     EXIT
 };
 
@@ -125,9 +126,20 @@ struct SelectContextParams
     unsigned difficulty = 0; // all / B / N / H / A / I (type 0 is not included)
     unsigned gamemode = 0; // all / 5, 7, 9, 10, 14, etc
     unsigned scrollTime = 300; // 
+
+    bool isGoingToSkinSelect = false;
+    bool isGoingToKeyConfig = false;
 };
 
 void updateContextSelectTitles();
+
+////////////////////////////////////////////////////////////////////////////////
+
+struct KeyConfigContextParams
+{
+    int keys;
+    std::pair<Input::Pad, int> selecting = { Input::Pad::K11, 0 };
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -148,6 +160,7 @@ extern bool gQuitOnFinish;
 extern ChartContextParams gChartContext;
 extern PlayContextParams gPlayContext;
 extern SelectContextParams gSelectContext;
+extern KeyConfigContextParams gKeyconfigContext;
 extern UpdateContextParams gUpdateContext;
 extern std::shared_ptr<SongDB> g_pSongDB;
 extern std::shared_ptr<ScoreDB> g_pScoreDB;
