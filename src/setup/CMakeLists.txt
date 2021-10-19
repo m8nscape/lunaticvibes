@@ -13,6 +13,7 @@ set_target_properties(setup PROPERTIES
 
 target_include_directories(setup PRIVATE
     ${PROJECT_INCLUDE_DIR}
+    ${PROJECT_BINARY_DIR}/src/setup/setup_autogen/include
 )
 
 target_link_libraries(setup

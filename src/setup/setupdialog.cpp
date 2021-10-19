@@ -1,5 +1,6 @@
 #include "setupdialog.h"
 #include "ui_setupdialog.h"
+#include <QTextStream>
 
 #include "common/meta.h"
 #include "config/config_mgr.h"
@@ -16,10 +17,13 @@ SetupDialog::SetupDialog(QWidget *parent) :
     ui->setupUi(this);
 
     // set title
-    QString title;
+    QTextStream title;
+    title << PROJECT_NAME << ' ' << "Setup";
+    title.flush();
+    setWindowTitle(*title.string());
 
     // set version
-    QString version;
+    ui->label_version->setText(QString::fromUtf8(PROJECT_VERSION));
 
     // get profile list
     refreshProfileList();
@@ -50,21 +54,6 @@ SetupDialog::~SetupDialog()
 }
 
 
-void SetupDialog::setWindowMode(SetupDialog::WindowMode wm)
-{
-}
-SetupDialog::WindowMode SetupDialog::getWindowMode()
-{
-}
-
-void SetupDialog::setResolution(SetupDialog::Resolution res)
-{
-}
-SetupDialog::Resolution SetupDialog::getResolution()
-{
-}
-
-
 void SetupDialog::refreshProfileList()
 {
 
@@ -72,7 +61,7 @@ void SetupDialog::refreshProfileList()
 
 bool SetupDialog::loadProfile(size_t idx)
 {
-    if (!std::filesystem::is_folder("profile/"s + profileList[idx])) return false;
+    if (!std::filesystem::is_directory("profile/"s + profileList[idx])) return false;
 
     ConfigMgr::selectProfile(profileList[idx]);
 
@@ -81,24 +70,22 @@ bool SetupDialog::loadProfile(size_t idx)
     {
         // get resolution
         int y = ConfigMgr::get('V', cfg::V_RES_X, 720);
-        Resolution res = Resolution::HD_720p;
         switch (y)
         {
-        case 640:  res = Resolution::SD_480p; break;
-        case 720:  res = Resolution::HD_720p; break;
-        case 1080: res = Resolution::FHD_1080p; break;
+        case 640:  ui->resolution_list->setCurrentIndex((int)Resolution::SD_480p); break;
+        case 720:  ui->resolution_list->setCurrentIndex((int)Resolution::HD_720p); break;
+        case 1080: ui->resolution_list->setCurrentIndex((int)Resolution::FHD_1080p); break;
         default: break;
         }
 
         // get window mode
         auto wms = ConfigMgr::get('V', cfg::V_WINMODE, cfg::V_WINMODE_WINDOWED);
-        WindowMode wm = WindowMode::WINDOWED;
-        if      (wms == cfg::V_V_WINMODE_WINDOWED) wm = WindowMode::WINDOWED;
-        else if (wms == cfg::V_V_WINMODE_FULL)     wm = WindowMode::FULL;
-        else if (wms == cfg::BORDERLESS)           wm = WindowMode::BORDERLESS;
+        if      (wms == cfg::V_WINMODE_WINDOWED)   ui->windowed->setChecked(true);
+        else if (wms == cfg::V_WINMODE_FULL)       ui->fullscreen->setChecked(true);
+        else if (wms == cfg::V_WINMODE_BORDERLESS) ui->borderless->setChecked(true);
 
         // get vsync
-        int vsync = ConfigMgr::get('V', cfg::V_VSYNC, 0);
+        ui->vsync->setChecked(!!ConfigMgr::get('V', cfg::V_VSYNC, 0));
     }
 
 
@@ -109,14 +96,17 @@ bool SetupDialog::loadProfile(size_t idx)
         refreshAudioDeviceList();
         auto adev = ConfigMgr::get('A', cfg::A_DEVNAME, "");
         auto amod = ConfigMgr::get('A', cfg::A_MODE, "");
-        if (auto it = std::find(audioDeviceList.begin(), audioDeviceList.end(), { adev, amod }}); it != audioDeviceList.end())
+        for (auto& device: audioDeviceList)
         {
-            //currentAudioDevice = std::distance(audioDeviceList.begin(), it);
+            if (adev == device.name && amod == device.mode)
+            {
+                //currentAudioDevice = std::distance(audioDeviceList.begin(), it);
+            }
         }
 
         // set buffer count / size
-        int audioBufferCount = ConfigMgr::get('A', cfg::A_BUFCOUNT, 4);
-        int audioBufferSize = ConfigMgr::get('A', cfg::A_BUFSIZE, 128);
+        ui->audio_buffer_count->setText(QString::number(ConfigMgr::get('A', cfg::A_BUFCOUNT, 4)));
+        ui->audio_buffer_size->setText(QString::number(ConfigMgr::get('A', cfg::A_BUFLEN, 128)));
     }
 
 
