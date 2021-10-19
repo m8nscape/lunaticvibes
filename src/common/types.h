@@ -8,16 +8,16 @@ typedef std::string                             HashMD5;
 typedef std::string                             HashSHA1;
 typedef std::filesystem::path                   Path;
 typedef Path::string_type                       StringPath;
+typedef std::basic_string_view<Path::value_type> StringPathView;
 typedef std::string                             StringContent; // std::ifstream, std::getline
 typedef std::string_view                        StringContentView; // std::ifstream, std::getline
 using namespace std::string_literals;
 
 const size_t INDEX_INVALID	= ~0;
 
-[[nodiscard]] inline StringPath operator ""_p(const char *_Str, size_t _Len)
+[[nodiscard]] inline StringPath operator ""_p(const char* _Str, size_t _Len)
 {
-    std::string tmp(_Str, _Len);
-    return StringPath(tmp.begin(), tmp.end());
+    return Path(std::string_view(_Str, _Len));
 }
 
 enum class eMode {

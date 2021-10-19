@@ -238,6 +238,7 @@ std::string utf32_to_utf8(const std::u32string& str)
     return u8Text;
 }
 
+
 #else
 #include <iconv.h>
 #error Encoding conversions are not implemented

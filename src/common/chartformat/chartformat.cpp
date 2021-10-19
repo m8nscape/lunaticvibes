@@ -5,8 +5,8 @@
 
 eChartFormat matchChartType(const Path& p)
 {
-    static const std::regex regexFileExtBMS{ R"(\.(bms|bme|bml|pms)$)", std::regex::icase };
-    static const std::regex regexFileExtBMSON{ R"(\.(bmson)$)", std::regex::icase };
+    static const std::regex regexFileExtBMS{ R"(\.(bms|bme|bml|pms)$)", std::regex::icase, std::regex::optimize };
+    static const std::regex regexFileExtBMSON{ R"(\.(bmson)$)", std::regex::icase, std::regex::optimize };
 
     if (!fs::is_regular_file(p) || !p.has_extension())
         return eChartFormat::UNKNOWN;
@@ -26,7 +26,7 @@ std::shared_ptr<vChartFormat> vChartFormat::getFromFile(const Path& path)
     std::ifstream fs(filePath);
     if (fs.fail())
     {
-        LOG_WARNING << "[Chart] File invalid: " << filePath.generic_string();
+        LOG_WARNING << "[Chart] File invalid: " << filePath.string();
         return nullptr;
     }
 
@@ -37,11 +37,11 @@ std::shared_ptr<vChartFormat> vChartFormat::getFromFile(const Path& path)
         return std::make_shared<BMS>(filePath);
 
     case eChartFormat::UNKNOWN:
-        LOG_WARNING << "[Chart] File type unknown: " << filePath.generic_string();
+        LOG_WARNING << "[Chart] File type unknown: " << filePath.string();
         return nullptr;
 
     default:
-        LOG_WARNING << "[Chart] File type unsupported: " << filePath.generic_string();
+        LOG_WARNING << "[Chart] File type unsupported: " << filePath.string();
         return nullptr;
     }
 

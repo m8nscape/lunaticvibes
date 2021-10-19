@@ -571,7 +571,7 @@ int ConfigMgr::_selectProfile(const std::string& name)
         {
             if (!fs::is_regular_file(p))
             {
-                LOG_WARNING << "[Config] File is not regular file: " << p.generic_string();
+                LOG_WARNING << "[Config] File is not regular file: " << p.string();
                 return true;
             }
         }

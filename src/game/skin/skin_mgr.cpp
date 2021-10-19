@@ -20,22 +20,22 @@ void SkinMgr::load(eMode e)
     {
     case eMode::MUSIC_SELECT:
         skinFileDefault = cfg::S_DEFAULT_PATH_MUSIC_SELECT;
-        skinFile = ConfigMgr::get("S", cfg::S_PATH_MUSIC_SELECT, Path(cfg::S_DEFAULT_PATH_MUSIC_SELECT).generic_string());
+        skinFile = ConfigMgr::get("S", cfg::S_PATH_MUSIC_SELECT, cfg::S_DEFAULT_PATH_MUSIC_SELECT);
         break;
 
     case eMode::DECIDE:
         skinFileDefault = cfg::S_DEFAULT_PATH_DECIDE;
-        skinFile = ConfigMgr::get("S", cfg::S_PATH_DECIDE, Path(cfg::S_DEFAULT_PATH_DECIDE).generic_string());
+        skinFile = ConfigMgr::get("S", cfg::S_PATH_DECIDE, cfg::S_DEFAULT_PATH_DECIDE);
         break;
 
     case eMode::PLAY7:
         skinFileDefault = cfg::S_DEFAULT_PATH_PLAY_7;
-        skinFile = ConfigMgr::get("S", cfg::S_PATH_PLAY_7, Path(cfg::S_DEFAULT_PATH_PLAY_7).generic_string());
+        skinFile = ConfigMgr::get("S", cfg::S_PATH_PLAY_7, cfg::S_DEFAULT_PATH_PLAY_7);
         break;
 
     case eMode::RESULT:
         skinFileDefault = cfg::S_DEFAULT_PATH_RESULT;
-        skinFile = ConfigMgr::get("S", cfg::S_PATH_RESULT, Path(cfg::S_DEFAULT_PATH_RESULT).generic_string());
+        skinFile = ConfigMgr::get("S", cfg::S_PATH_RESULT, cfg::S_DEFAULT_PATH_RESULT);
         break;
     }
 
