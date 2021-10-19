@@ -5,6 +5,7 @@
 #include <cstdlib>
 
 #include "common/utils.h"
+#include "config/config_mgr.h"
 
 SoundDriverFMOD::SoundDriverFMOD()
 {
@@ -16,9 +17,8 @@ SoundDriverFMOD::SoundDriverFMOD()
     }
 
     fmodSystem->setDSPBufferSize(
-        128, 2
-        // conf().audio.get<unsigned>(aud_bufLen),
-        // conf().audio.get<int>(aud_bufCount)
+        ConfigMgr::get('A', cfg::A_BUFLEN, 128),
+        ConfigMgr::get('A', cfg::A_BUFCOUNT, 2)
     );
 
     initRet = fmodSystem->init(512, FMOD_INIT_NORMAL, 0);    // Initialize FMOD.

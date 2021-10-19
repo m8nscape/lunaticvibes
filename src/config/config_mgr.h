@@ -5,6 +5,7 @@
 #include "cfg_skin.h"
 #include <string>
 #include <memory>
+#include <filesystem>
 
 constexpr char PROFILE_DEFAULT[] = "default";
 
@@ -49,6 +50,7 @@ private:
         switch (type)
         {
         case 'A':                               // Audio
+        case 'E':                               // Audio
         case 'V': return G->get<Ty_v>(key, fallback);  // Video
         case 'P': return P->get<Ty_v>(key, fallback);  // Play
         case '5': return I5->get<Ty_v>(key, fallback);  // Input
@@ -64,6 +66,7 @@ private:
         switch (type)
         {
         case 'A':                               // Audio
+        case 'E':                               // Audio
         case 'V': return G->set<Ty_v>(key, value);     // Play
         case '5': return I5->set<Ty_v>(key, value);     // Input
         case '7': return I7->set<Ty_v>(key, value);     // Input
@@ -86,8 +89,8 @@ private:
     std::string _getDBPath()
     {
         auto path = "profile/"s + profileName;
-        if (!fs::exists(path))
-            fs::create_directories(path);
+        if (!std::filesystem::exists(path))
+            std::filesystem::create_directories(path);
         return path;
     }
 

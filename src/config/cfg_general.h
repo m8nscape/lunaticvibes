@@ -8,7 +8,7 @@ namespace cfg {
     //////////////////////////////////////////////////////////////////////////////// 
     // Audio
 
-	constexpr char A_MODE[] = "OutputMode";
+	constexpr char A_MODE[] = "AudioOutputMode";
     constexpr char A_MODE_NULL[] = "Null";
     constexpr char A_MODE_AUTO[] = "Auto";
     constexpr char A_MODE_WINMM[] = "WinMM";
@@ -39,6 +39,8 @@ namespace cfg {
         COREAUDIO
     };
 
+    constexpr char A_DEVNAME[] = "AudioDeviceName";
+
 	constexpr char A_BUFLEN[] = "BufferLength";
 
 	constexpr char A_BUFCOUNT[] = "BufferCount";
@@ -67,6 +69,8 @@ namespace cfg {
     //////////////////////////////////////////////////////////////////////////////// 
     // etc
     constexpr char E_PROFILE[] = "Profile";
+    constexpr char E_LR2PATH[] = "LR2Path";
+    constexpr char E_FOLDERS[] = "Folders";
 }
 
 class ConfigGeneral: public vConfig
