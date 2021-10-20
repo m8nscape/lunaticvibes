@@ -8,7 +8,7 @@ const size_t NOPE = -1;
 // TODO mapping is different between file formats
 const size_t BMSToLaneMap[] = 
 {
-    // Normal notes
+    // Normal notes #xxx0x
     Sc1,
     K1,
     K2,
@@ -20,6 +20,7 @@ const size_t BMSToLaneMap[] =
     NOPE,
     NOPE,
 
+    // #xxx1x
     Sc2,
     K8,
     K9,
@@ -31,7 +32,7 @@ const size_t BMSToLaneMap[] =
     NOPE,
     NOPE,
 
-    // LN Head
+    // LN Head #xxx2x
     channelToIdx(NoteLaneCategory::LN, Sc1),
     channelToIdx(NoteLaneCategory::LN, K1),
     channelToIdx(NoteLaneCategory::LN, K2),
@@ -43,6 +44,7 @@ const size_t BMSToLaneMap[] =
     NOPE,
     NOPE,
 
+    // #xxx3x
     channelToIdx(NoteLaneCategory::LN, Sc2),
     channelToIdx(NoteLaneCategory::LN, K8),
     channelToIdx(NoteLaneCategory::LN, K9),
@@ -54,7 +56,7 @@ const size_t BMSToLaneMap[] =
     NOPE,
     NOPE,
 
-    // LN Tail
+    // LN Tail #xxx4x
     channelToIdx(NoteLaneCategory::LN, Sc1),
     channelToIdx(NoteLaneCategory::LN, K1),
     channelToIdx(NoteLaneCategory::LN, K2),
@@ -66,6 +68,7 @@ const size_t BMSToLaneMap[] =
     NOPE,
     NOPE,
 
+    // #xxx5x
     channelToIdx(NoteLaneCategory::LN, Sc2),
     channelToIdx(NoteLaneCategory::LN, K8),
     channelToIdx(NoteLaneCategory::LN, K9),

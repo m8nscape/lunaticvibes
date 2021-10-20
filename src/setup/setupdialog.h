@@ -21,8 +21,7 @@ public:
     ~SetupDialog();
 
 protected:
-    std::vector<std::string> profileList;
-
+    std::map<std::string, size_t> mapProfile;
     std::string lr2path;
 
     enum class WindowMode
@@ -42,12 +41,6 @@ protected:
     };
 
     FMOD::System* fmodsystem;
-    struct audioBackend
-    {
-        std::string name;
-        std::string mode;
-    };
-    std::vector<audioBackend> audioDeviceList;
 
     std::vector<std::string> folders;
 
@@ -55,10 +48,19 @@ private:
     Ui::SetupDialog *ui;
 
     void refreshProfileList();
-    bool loadProfile(size_t idx);
-    bool saveProfile();
+    bool loadConfig(const std::string& dirname);
+
+public slots:
+    void foldersCurrentRowChanged(int row);
+    void addFolder();
+    void delFolder();
+    void openFolder();
+
+    void saveConfig();
 
     void refreshAudioDeviceList();
+
+    void runGame();
 };
 
 #endif // SETUPDIALOG_H

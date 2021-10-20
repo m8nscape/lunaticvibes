@@ -13,9 +13,11 @@ if (${VIDEO_ENABLED})
 endif()
 
 # Add plog
+set(PLOG_BUILD_SAMPLES OFF CACHE INTERNAL "Build plog's samples.")
 add_subdirectory(plog)
 
 # Add yaml-cpp
+set(YAML_CPP_BUILD_TOOLS OFF CACHE INTERNAL "Enable parse tools")
 add_subdirectory(yaml-cpp)
 
 # Add sqlite3 if needed

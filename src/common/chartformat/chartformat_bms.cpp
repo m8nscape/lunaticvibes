@@ -542,29 +542,31 @@ int BMS::getMode() const
         return (have89) ? MODE_9KEYS : (have67) ? MODE_7KEYS : MODE_5KEYS;
 }
 
-#pragma warning(suppress: 4715)
 auto BMS::getLane(LaneCode code, unsigned chIdx, unsigned measureIdx) const -> const decltype(chBGM[0][0])&
 {
     using eC = LaneCode;
     switch (code)
     {
-    case eC::BGM:        return chBGM[chIdx][measureIdx]; break;
-    case eC::BPM:        return chBPMChange[measureIdx]; break;
+    case eC::BGM:          return chBGM[chIdx][measureIdx]; break;
+    case eC::BPM:          return chBPMChange[measureIdx]; break;
     case eC::EXBPM:        return chExBPMChange[measureIdx]; break;
-    case eC::STOP:        return chStop[measureIdx]; break;
-    case eC::BGABASE:    return chBGABase[measureIdx]; break;
-    case eC::BGALAYER:    return chBGALayer[measureIdx]; break;
-    case eC::BGAPOOR:    return chBGAPoor[measureIdx]; break;;
+    case eC::STOP:         return chStop[measureIdx]; break;
+    case eC::BGABASE:      return chBGABase[measureIdx]; break;
+    case eC::BGALAYER:     return chBGALayer[measureIdx]; break;
+    case eC::BGAPOOR:      return chBGAPoor[measureIdx]; break;;
     case eC::NOTE1:        return chNotesVisible[chIdx][measureIdx]; break;
     case eC::NOTE2:        return chNotesVisible[10 + chIdx][measureIdx]; break;
-    case eC::NOTEINV1:    return chNotesInvisible[chIdx][measureIdx]; break;
-    case eC::NOTEINV2:    return chNotesInvisible[10 + chIdx][measureIdx]; break;
-    case eC::NOTELN1:    return chNotesLN[chIdx][measureIdx]; break;
-    case eC::NOTELN2:    return chNotesLN[10 + chIdx][measureIdx]; break;
+    case eC::NOTEINV1:     return chNotesInvisible[chIdx][measureIdx]; break;
+    case eC::NOTEINV2:     return chNotesInvisible[10 + chIdx][measureIdx]; break;
+    case eC::NOTELN1:      return chNotesLN[chIdx][measureIdx]; break;
+    case eC::NOTELN2:      return chNotesLN[10 + chIdx][measureIdx]; break;
     case eC::NOTEMINE1:    return chMines[chIdx][measureIdx]; break;
     case eC::NOTEMINE2:    return chMines[10 + chIdx][measureIdx]; break;
+    default: break;
     }
-    // FIXME warning C4715 : “game::BMS::getLane” : 不是所有的控件路径都返回值
+
+    assert(false);
+    return chBGM[0][0];
 }
 
 unsigned BMS::channel::relax(unsigned target_resolution)

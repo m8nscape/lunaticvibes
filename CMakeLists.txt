@@ -4,15 +4,17 @@ cmake_minimum_required(VERSION 3.16)
 # PROJECT CONFIG
 
 project(nullptr
-    VERSION 0.0
+    VERSION 0.4
     LANGUAGES CXX
 )
 
 configure_file(
     "${CMAKE_SOURCE_DIR}/src/cmake_config.h.in"
-    "${${PROJECT_NAME}_BINARY_DIR}/cmake_config.h"
+    "${PROJECT_BINARY_DIR}/cmake_config.h"
 )
-include_directories("${${PROJECT_NAME}_BINARY_DIR}")
+include_directories("${PROJECT_BINARY_DIR}")
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
     
 if (MSVC)
     add_compile_options("/utf-8")

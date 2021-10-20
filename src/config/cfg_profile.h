@@ -7,7 +7,11 @@ constexpr char CONFIG_FILE_PROFILE[] = "settings.yml";
 namespace cfg
 {
     constexpr char P_PLAYERNAME[] = "PlayerName";
-    constexpr char P_LR2PATH[] = "LR2Path";
+
+    constexpr char P_MISSBGA_LENGTH[] = "MissBGATime";
+    constexpr char P_MIN_INPUT_INTERVAL[] = "MinInputInterval";
+    constexpr char P_NEW_SONG_DURATION[] = "NewSongDuration";
+    constexpr char P_MOUSE_ANALOG[] = "MouseAnalog";
 
     constexpr char P_BASESPEED[] = "Basespeed";
 

@@ -7,8 +7,6 @@
 #include <memory>
 #include <filesystem>
 
-constexpr char PROFILE_DEFAULT[] = "default";
-
 class ConfigMgr
 {
 private:
@@ -23,7 +21,7 @@ private:
     void _init()
     {
         G = std::make_shared<ConfigGeneral>("./config.yml");
-        profileName = G->get(cfg::E_PROFILE, PROFILE_DEFAULT);
+        profileName = G->get(cfg::E_PROFILE, cfg::PROFILE_DEFAULT);
         P = std::make_shared<ConfigProfile>(profileName);
         I5 = std::make_shared<ConfigInput>(profileName, 5);
         I7 = std::make_shared<ConfigInput>(profileName, 7);

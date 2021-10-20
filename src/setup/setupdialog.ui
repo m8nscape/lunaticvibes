@@ -35,7 +35,7 @@
     <enum>Qt::Horizontal</enum>
    </property>
    <property name="standardButtons">
-    <set>QDialogButtonBox::Save</set>
+    <set>QDialogButtonBox::Close</set>
    </property>
    <property name="centerButtons">
     <bool>false</bool>
@@ -102,6 +102,9 @@
      </property>
     </widget>
     <widget class="QPushButton" name="add_profile">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>280</x>
@@ -148,6 +151,81 @@
      </property>
      <property name="text">
       <string>...</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tab_folder">
+    <attribute name="title">
+     <string>Folder</string>
+    </attribute>
+    <widget class="QPushButton" name="add_folder">
+     <property name="geometry">
+      <rect>
+       <x>290</x>
+       <y>10</y>
+       <width>75</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Add</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="delete_folder">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>290</x>
+       <y>40</y>
+       <width>75</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Delete</string>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="open_folder">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>290</x>
+       <y>70</y>
+       <width>75</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Open</string>
+     </property>
+    </widget>
+    <widget class="QListWidget" name="folder_list">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>271</width>
+       <height>192</height>
+      </rect>
+     </property>
+     <property name="acceptDrops">
+      <bool>true</bool>
+     </property>
+     <property name="editTriggers">
+      <set>QAbstractItemView::NoEditTriggers</set>
+     </property>
+     <property name="dragEnabled">
+      <bool>true</bool>
+     </property>
+     <property name="dragDropMode">
+      <enum>QAbstractItemView::DropOnly</enum>
      </property>
     </widget>
    </widget>
@@ -390,98 +468,6 @@
       <string>Refresh</string>
      </property>
     </widget>
-   </widget>
-   <widget class="QWidget" name="tab_folder">
-    <attribute name="title">
-     <string>Folder</string>
-    </attribute>
-    <widget class="QPushButton" name="add_folder">
-     <property name="geometry">
-      <rect>
-       <x>290</x>
-       <y>10</y>
-       <width>75</width>
-       <height>23</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Add</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="delete_folder">
-     <property name="geometry">
-      <rect>
-       <x>290</x>
-       <y>40</y>
-       <width>75</width>
-       <height>23</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Delete</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="open_folder">
-     <property name="geometry">
-      <rect>
-       <x>290</x>
-       <y>70</y>
-       <width>75</width>
-       <height>23</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Open</string>
-     </property>
-    </widget>
-    <widget class="QListView" name="folder_list">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>10</y>
-       <width>271</width>
-       <height>192</height>
-      </rect>
-     </property>
-     <property name="acceptDrops">
-      <bool>true</bool>
-     </property>
-     <property name="dragDropMode">
-      <enum>QAbstractItemView::DropOnly</enum>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="move_up">
-     <property name="geometry">
-      <rect>
-       <x>290</x>
-       <y>110</y>
-       <width>75</width>
-       <height>23</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Move Up</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="move_down">
-     <property name="geometry">
-      <rect>
-       <x>290</x>
-       <y>140</y>
-       <width>75</width>
-       <height>23</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Move Down</string>
-     </property>
-    </widget>
-    <zorder>add_folder</zorder>
-    <zorder>delete_folder</zorder>
-    <zorder>open_folder</zorder>
-    <zorder>folder_list</zorder>
-    <zorder>move_down</zorder>
-    <zorder>move_up</zorder>
    </widget>
    <widget class="QWidget" name="tab_advanced">
     <attribute name="title">

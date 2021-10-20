@@ -1,4 +1,5 @@
 #include "cfg_general.h"
+#include "config_mgr.h"
 
 void ConfigGeneral::setDefaults() noexcept
 {
@@ -11,6 +12,9 @@ void ConfigGeneral::setDefaults() noexcept
 	set(V_WINMODE, V_WINMODE_WINDOWED);
 	set(V_MAXFPS, 480);
 	set(V_VSYNC, ON);
+	set(E_PROFILE, PROFILE_DEFAULT);
+	set(E_LR2PATH, ".");
+	set(E_FOLDERS, std::vector<std::string>());
 }
 
 
@@ -24,7 +28,12 @@ void ConfigGeneral::setFolders(const std::vector<StringPath>& path)
 	_yaml[cfg::E_FOLDERS] = folderList;
 }
 
-std::vector<StringPath> ConfigGeneral::getFolders()
+void ConfigGeneral::setFolders(const std::vector<std::string>& path)
+{
+	_yaml[cfg::E_FOLDERS] = path;
+}
+
+std::vector<StringPath> ConfigGeneral::getFoldersPath()
 {
 	auto folderList = _yaml[cfg::E_FOLDERS].as<std::vector<std::string>>(std::vector<std::string>());
 	std::vector<StringPath> ret;
@@ -33,4 +42,9 @@ std::vector<StringPath> ConfigGeneral::getFolders()
 		ret.push_back(Path(p).native());
 	}
 	return ret;
+}
+
+std::vector<std::string> ConfigGeneral::getFoldersStr()
+{
+	return _yaml[cfg::E_FOLDERS].as<std::vector<std::string>>(std::vector<std::string>());
 }

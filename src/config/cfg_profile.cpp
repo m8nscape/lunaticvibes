@@ -17,7 +17,10 @@ void ConfigProfile::setDefaults() noexcept
 {
 	using namespace cfg;
 	set(P_PLAYERNAME, "Unnamed");
-    set(P_LR2PATH, ".");
+    set(P_MISSBGA_LENGTH, 500);
+    set(P_MIN_INPUT_INTERVAL, 5);
+    set(P_NEW_SONG_DURATION, 6);
+    set(P_MOUSE_ANALOG, false);
 	set(P_BASESPEED, 1.0);
 	set(P_HISPEED, 1.0);
 	set(P_REGULAR_SPEED, 1200);

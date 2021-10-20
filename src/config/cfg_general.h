@@ -71,16 +71,20 @@ namespace cfg {
     constexpr char E_PROFILE[] = "Profile";
     constexpr char E_LR2PATH[] = "LR2Path";
     constexpr char E_FOLDERS[] = "Folders";
+
+    constexpr char PROFILE_DEFAULT[] = "default";
 }
 
 class ConfigGeneral: public vConfig
 {
 public:
-    ConfigGeneral(const std::string& profile) : vConfig(profile, CONFIG_FILE_GENERAL) {}
+    ConfigGeneral(const char* file) : vConfig(file) {}
     virtual ~ConfigGeneral() = default;
 
 	virtual void setDefaults() noexcept override;
 
     void setFolders(const std::vector<StringPath>& path);
-    std::vector<StringPath> getFolders();
+    void setFolders(const std::vector<std::string>& path);
+    std::vector<StringPath> getFoldersPath();
+    std::vector<std::string> getFoldersStr();
 };

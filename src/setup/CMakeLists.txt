@@ -22,3 +22,17 @@ target_link_libraries(setup
     config
     fmod
 )
+
+if (${EXT_DEPEND_LIBFILES_SET})
+    add_custom_command(TARGET setup POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${EXT_DEPEND_LIBFILES}
+        $<TARGET_FILE_DIR:setup>
+    )
+endif()
+
+add_custom_command(TARGET setup POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::Core> $<TARGET_FILE_DIR:setup>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::Gui> $<TARGET_FILE_DIR:setup>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::Widgets> $<TARGET_FILE_DIR:setup>
+)
