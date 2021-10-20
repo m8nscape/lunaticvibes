@@ -75,6 +75,7 @@ void mainLoop()
 	gGenericInfo.loopEnd();
 }
 
+// SDL_main
 int main(int argc, char* argv[])
 {
     SetThreadName("MainThread");
@@ -132,11 +133,13 @@ int main(int argc, char* argv[])
     ConfigMgr::setGlobals();
 
     // score db
-    g_pScoreDB = std::make_shared<ScoreDB>((ConfigMgr::Profile()->getPath() / "score.db").string().c_str());
+    std::string scoreDBPath = (ConfigMgr::Profile()->getPath() / "score.db").string();
+    g_pScoreDB = std::make_shared<ScoreDB>(scoreDBPath.c_str());
 
     // initialize song list
-    if (!fs::exists("database")) fs::create_directories("database");
-    g_pSongDB = std::make_shared<SongDB>("database/song.db");
+    Path dbPath = Path(GAMEDATA_PATH) / "database";
+    if (!fs::exists(dbPath)) fs::create_directories(dbPath);
+    g_pSongDB = std::make_shared<SongDB>(dbPath / "song.db");
 
     // get folders from config
     for (auto& f : ConfigMgr::General()->getFoldersPath())

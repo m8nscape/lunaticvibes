@@ -244,7 +244,7 @@ protected:
 public:
     ConfigProfile(const std::string& profile) : vConfig(profile, CONFIG_FILE_PROFILE)
     {
-        _dirPath = ".";
+        _dirPath = GAMEDATA_PATH;
         _dirPath /= "profile";
         _dirPath /= profile;
     }

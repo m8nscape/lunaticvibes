@@ -20,7 +20,7 @@ private:
 
     void _init()
     {
-        G = std::make_shared<ConfigGeneral>("./config.yml");
+        G = std::make_shared<ConfigGeneral>(GAMEDATA_PATH "/config.yml");
         profileName = G->get(cfg::E_PROFILE, cfg::PROFILE_DEFAULT);
         P = std::make_shared<ConfigProfile>(profileName);
         I5 = std::make_shared<ConfigInput>(profileName, 5);
@@ -86,10 +86,10 @@ private:
     }
     std::string _getDBPath()
     {
-        auto path = "profile/"s + profileName;
+        Path path = Path(GAMEDATA_PATH) / "profile" / profileName;
         if (!std::filesystem::exists(path))
             std::filesystem::create_directories(path);
-        return path;
+        return path.string();
     }
 
 protected:

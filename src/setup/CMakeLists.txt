@@ -4,7 +4,13 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-add_executable(setup
+if (WIN32)
+add_executable(setup WIN32)
+else()
+add_executable(setup)
+endif()
+
+target_sources(setup PUBLIC
     setup.cpp setupdialog.h setupdialog.cpp setupdialog.ui
 )
 
@@ -32,7 +38,5 @@ if (${EXT_DEPEND_LIBFILES_SET})
 endif()
 
 add_custom_command(TARGET setup POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::Core> $<TARGET_FILE_DIR:setup>
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::Gui> $<TARGET_FILE_DIR:setup>
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::Widgets> $<TARGET_FILE_DIR:setup>
+    COMMAND windeployqt $<TARGET_FILE_DIR:setup> $<TARGET_FILE:setup> --no-opengl --no-opengl-sw --translations en,zh_CN,zh_TW,ja,ko
 )

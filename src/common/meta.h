@@ -6,5 +6,7 @@
 
 constexpr char BUILD_TIME[] = __TIMESTAMP__;
 
+#define GAMEDATA_PATH "gamedata"
+
 constexpr unsigned CANVAS_WIDTH = 1280;
 constexpr unsigned CANVAS_HEIGHT = 720;

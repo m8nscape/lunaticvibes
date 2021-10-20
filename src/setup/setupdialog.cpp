@@ -71,7 +71,7 @@ void SetupDialog::refreshProfileList()
     ui->profile_list->clear();
     mapProfile.clear();
 
-    static const Path profilePath = "profile";
+    static const Path profilePath = Path(GAMEDATA_PATH) / "profile";
     if (!std::filesystem::exists(profilePath))
     {
         std::filesystem::create_directory(profilePath);
@@ -173,7 +173,7 @@ void SetupDialog::saveConfig()
 {
     // check if selecting a valid profile
     std::string profile = ui->profile_list->currentData().toString().toStdString();
-    Path profilePath = "profile/"s + profile;
+    static const Path profilePath = Path(GAMEDATA_PATH) / "profile" / profile;
     if (!std::filesystem::exists(profilePath)) std::filesystem::create_directories(profilePath);
     if (!std::filesystem::is_directory(profilePath)) return;
 
