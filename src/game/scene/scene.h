@@ -27,7 +27,7 @@ public:
 public:
     vScene() = delete;
     virtual void update();      // skin update
-    void update_mouse(InputMask& m, const Time& t);
+    void MouseClick(InputMask& m, const Time& t);
     virtual void draw() const;
 
 protected:

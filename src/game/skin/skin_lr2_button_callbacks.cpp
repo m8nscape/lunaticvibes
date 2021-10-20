@@ -677,8 +677,90 @@ void key_config_pad(Input::Pad pad)
             default: break;
             }
         };
+        auto setOption = [](Input::Pad pad)
+        {
+            int idx = 0;
+            switch (gKeyconfigContext.keys)
+            {
+            case 5:
+                switch (pad)
+                {
+                case Input::Pad::K11:      idx = 1; break;
+                case Input::Pad::K12:      idx = 2; break;
+                case Input::Pad::K13:      idx = 3; break;
+                case Input::Pad::K14:      idx = 4; break;
+                case Input::Pad::K15:      idx = 5; break;
+                case Input::Pad::S1L:      idx = 6; break;
+                case Input::Pad::S1R:      idx = 7; break;
+                case Input::Pad::K1START:  idx = 8; break;
+                case Input::Pad::K1SELECT: idx = 9; break;
+                case Input::Pad::K21:      idx = 10; break;
+                case Input::Pad::K22:      idx = 11; break;
+                case Input::Pad::K23:      idx = 12; break;
+                case Input::Pad::K24:      idx = 13; break;
+                case Input::Pad::K25:      idx = 14; break;
+                case Input::Pad::S2L:      idx = 15; break;
+                case Input::Pad::S2R:      idx = 16; break;
+                case Input::Pad::K2START:  idx = 17; break;
+                case Input::Pad::K2SELECT: idx = 18; break;
+                default: break;
+                }
+                gOptions.set(eOption::KEY_CONFIG_KEY5, idx);
+                break;
+            case 7:
+                switch (pad)
+                {
+                case Input::Pad::K11:      idx = 1; break;
+                case Input::Pad::K12:      idx = 2; break;
+                case Input::Pad::K13:      idx = 3; break;
+                case Input::Pad::K14:      idx = 4; break;
+                case Input::Pad::K15:      idx = 5; break;
+                case Input::Pad::K16:      idx = 6; break;
+                case Input::Pad::K17:      idx = 7; break;
+                case Input::Pad::S1L:      idx = 8; break;
+                case Input::Pad::S1R:      idx = 9; break;
+                case Input::Pad::K1START:  idx = 10; break;
+                case Input::Pad::K1SELECT: idx = 11; break;
+                case Input::Pad::K21:      idx = 12; break;
+                case Input::Pad::K22:      idx = 13; break;
+                case Input::Pad::K23:      idx = 14; break;
+                case Input::Pad::K24:      idx = 15; break;
+                case Input::Pad::K25:      idx = 16; break;
+                case Input::Pad::K26:      idx = 17; break;
+                case Input::Pad::K27:      idx = 18; break;
+                case Input::Pad::S2L:      idx = 19; break;
+                case Input::Pad::S2R:      idx = 20; break;
+                case Input::Pad::K2START:  idx = 21; break;
+                case Input::Pad::K2SELECT: idx = 22; break;
+                default: break;
+                }
+                gOptions.set(eOption::KEY_CONFIG_KEY7, idx);
+                break;
+            case 9:
+                switch (pad)
+                {
+                case Input::Pad::K11:      idx = 1; break;
+                case Input::Pad::K12:      idx = 2; break;
+                case Input::Pad::K13:      idx = 3; break;
+                case Input::Pad::K14:      idx = 4; break;
+                case Input::Pad::K15:      idx = 5; break;
+                case Input::Pad::K16:      idx = 6; break;
+                case Input::Pad::K17:      idx = 7; break;
+                case Input::Pad::K18:      idx = 8; break;
+                case Input::Pad::K19:      idx = 9; break;
+                case Input::Pad::K1START:  idx = 10; break;
+                case Input::Pad::K1SELECT: idx = 11; break;
+                default: break;
+                }
+                gOptions.set(eOption::KEY_CONFIG_KEY9, idx);
+                break;
+            default:
+                break;
+            }
+        };
         setSwitch(old, false);
         setSwitch(pad, true);
+        setOption(pad);
 
         sel.first = pad;
 
@@ -709,6 +791,8 @@ void key_config_mode_rotate()
     case 5: gOptions.set(eOption::KEY_CONFIG_MODE, Option::KEYCFG_5); break;
     default: return;
     }
+
+    key_config_pad(Input::Pad::K11);
 }
 
 // 150 - 159

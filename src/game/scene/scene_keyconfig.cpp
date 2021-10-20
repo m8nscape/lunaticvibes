@@ -9,6 +9,8 @@ SceneKeyConfig::SceneKeyConfig() : vScene(eMode::KEY_CONFIG, 240)
 
     gKeyconfigContext.selecting = { Input::Pad::K11, 0 };
     gKeyconfigContext.keys = 7;
+    gSwitches.set(eSwitch::K11_CONFIG, true);
+    gSwitches.set(eSwitch::KEY_CONFIG_SLOT0, true);
     gOptions.set(eOption::KEY_CONFIG_MODE, Option::KEYCFG_7);
     setText(gKeyconfigContext.keys, gKeyconfigContext.selecting.first);
 

@@ -96,6 +96,7 @@ public:
     virtual void appendKeyFrame(RenderKeyFrame f);
     void appendInvisibleLeadingFrame(int x, int y);
     virtual void draw() const = 0;
+    bool visible() const { return _draw; }
     bool isKeyFrameEmpty() { return _keyFrames.empty(); }
     void clearKeyFrames() { _keyFrames.clear(); }
 };

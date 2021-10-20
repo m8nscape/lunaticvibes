@@ -46,10 +46,13 @@ void vSkin::update_mouse(int x, int y)
 {
     auto clickSpriteLambda = [x, y](const pSprite& s)
     {
-        auto pS = std::dynamic_pointer_cast<iSpriteMouse>(s);
-        if (pS != nullptr)
+        if (s->visible())
         {
-            pS->OnMouseMove(x, y);
+            auto pS = std::dynamic_pointer_cast<iSpriteMouse>(s);
+            if (pS != nullptr)
+            {
+                pS->OnMouseMove(x, y);
+            }
         }
     };
 
@@ -66,10 +69,13 @@ void vSkin::update_mouse_click(int x, int y)
     bool invoked = false;
     for (auto it = _sprites.rbegin(); it != _sprites.rend() && !invoked; ++it)
     {
-        auto pS = std::dynamic_pointer_cast<iSpriteMouse>(*it);
-        if (pS != nullptr)
+        if ((*it)->visible())
         {
-            if (pS->OnClick(x, y)) invoked = true;
+            auto pS = std::dynamic_pointer_cast<iSpriteMouse>(*it);
+            if (pS != nullptr)
+            {
+                if (pS->OnClick(x, y)) invoked = true;
+            }
         }
     }
 

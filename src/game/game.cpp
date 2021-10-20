@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
 
     // extract dxa
     for (auto& it : std::filesystem::recursive_directory_iterator(
-        ConfigMgr::get('P', cfg::P_LR2PATH, ".") + "/LR2Files/Theme"))
+        ConfigMgr::get('G', cfg::E_LR2PATH, ".") + "/LR2Files/Theme"))
     {
         if (std::filesystem::is_regular_file(it))
         {
@@ -139,9 +139,9 @@ int main(int argc, char* argv[])
     g_pSongDB = std::make_shared<SongDB>("database/song.db");
 
     // get folders from config
-    for (auto& f : ConfigMgr::General()->getFolders())
+    for (auto& f : ConfigMgr::General()->getFoldersPath())
     {
-        g_pSongDB->addFolder(Path(f));
+        g_pSongDB->addFolder(f);
     }
 
     SongListProperties rootFolderProp{

@@ -19,7 +19,7 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
     gTimers.set(eTimer::SCENE_START, t.norm());
     gTimers.set(eTimer::START_INPUT, t.norm() + _skin->info.timeIntro);
 
-    _input.register_p("SKIN_MOUSE_CLICK", std::bind(&vScene::update_mouse, this, std::placeholders::_1, std::placeholders::_2));
+    _input.register_p("SKIN_MOUSE_CLICK", std::bind(&vScene::MouseClick, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 vScene::~vScene() 
@@ -37,7 +37,7 @@ void vScene::update()
     _skin->update_mouse(x, y);
 }
 
-void vScene::update_mouse(InputMask& m, const Time& t)
+void vScene::MouseClick(InputMask& m, const Time& t)
 {
     if (m[Input::Pad::M1])
     {
