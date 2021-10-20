@@ -765,9 +765,13 @@ void key_config_pad(Input::Pad pad)
         sel.first = pad;
 
         auto bindings = ConfigMgr::Input(gKeyconfigContext.keys)->getBindings(pad);
-        for (size_t i = 0; i < std::min(bindings.size(), Input::MAX_BINDINGS_PER_KEY); ++i)
+        for (size_t i = 0; i < bindings.size(); ++i)
         {
             gTexts.set(eText(unsigned(eText::KEYCONFIG_SLOT1) + i), ConfigInput::getKeyString(bindings[i]));
+        }
+        for (size_t i = bindings.size(); i < Input::MAX_BINDINGS_PER_KEY; ++i)
+        {
+            gTexts.set(eText(unsigned(eText::KEYCONFIG_SLOT1) + i), "");
         }
     }
     SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);

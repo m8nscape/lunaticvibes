@@ -556,7 +556,7 @@ void setText()
 
 int ConfigMgr::_selectProfile(const std::string& name)
 {
-    Path folder = Path(".") / "profile" / name;
+    Path folder = Path(GAMEDATA_PATH) / "profile" / name;
     if (!fs::exists(folder))
         fs::create_directories(folder);
 

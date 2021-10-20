@@ -11,50 +11,47 @@ void SkinMgr::load(eMode e)
     if (skinObj != nullptr)
         unload(e);
 
-    Path skinFile;
-    Path skinFileDefault;
+    Path skinFilePath;
+    Path skinFilePathDefault;
     eSkinType type = eSkinType::LR2;
 
     // Get skin path from config
     switch (e)
     {
     case eMode::MUSIC_SELECT:
-        skinFileDefault = cfg::S_DEFAULT_PATH_MUSIC_SELECT;
-        skinFile = ConfigMgr::get("S", cfg::S_PATH_MUSIC_SELECT, cfg::S_DEFAULT_PATH_MUSIC_SELECT);
+        skinFilePathDefault = cfg::S_DEFAULT_PATH_MUSIC_SELECT;
+        skinFilePath = ConfigMgr::get("S", cfg::S_PATH_MUSIC_SELECT, cfg::S_DEFAULT_PATH_MUSIC_SELECT);
         break;
 
     case eMode::DECIDE:
-        skinFileDefault = cfg::S_DEFAULT_PATH_DECIDE;
-        skinFile = ConfigMgr::get("S", cfg::S_PATH_DECIDE, cfg::S_DEFAULT_PATH_DECIDE);
+        skinFilePathDefault = cfg::S_DEFAULT_PATH_DECIDE;
+        skinFilePath = ConfigMgr::get("S", cfg::S_PATH_DECIDE, cfg::S_DEFAULT_PATH_DECIDE);
         break;
 
     case eMode::PLAY7:
-        skinFileDefault = cfg::S_DEFAULT_PATH_PLAY_7;
-        skinFile = ConfigMgr::get("S", cfg::S_PATH_PLAY_7, cfg::S_DEFAULT_PATH_PLAY_7);
+        skinFilePathDefault = cfg::S_DEFAULT_PATH_PLAY_7;
+        skinFilePath = ConfigMgr::get("S", cfg::S_PATH_PLAY_7, cfg::S_DEFAULT_PATH_PLAY_7);
         break;
 
     case eMode::RESULT:
-        skinFileDefault = cfg::S_DEFAULT_PATH_RESULT;
-        skinFile = ConfigMgr::get("S", cfg::S_PATH_RESULT, cfg::S_DEFAULT_PATH_RESULT);
+        skinFilePathDefault = cfg::S_DEFAULT_PATH_RESULT;
+        skinFilePath = ConfigMgr::get("S", cfg::S_PATH_RESULT, cfg::S_DEFAULT_PATH_RESULT);
         break;
 
     case eMode::KEY_CONFIG:
-        skinFileDefault = cfg::S_DEFAULT_PATH_KEYCONFIG;
-        skinFile = ConfigMgr::get("S", cfg::S_PATH_KEYCONFIG, cfg::S_DEFAULT_PATH_KEYCONFIG);
+        skinFilePathDefault = cfg::S_DEFAULT_PATH_KEYCONFIG;
+        skinFilePath = ConfigMgr::get("S", cfg::S_PATH_KEYCONFIG, cfg::S_DEFAULT_PATH_KEYCONFIG);
         break;
     }
 
-    if (!fs::is_regular_file(skinFile) && strEqual(skinFile.string().substr(0, 8), "LR2Files", false))
-    {
-        skinFile = ConfigMgr::get('G', cfg::E_LR2PATH, ".") + skinFile.string();
-    }
+    skinFilePath = convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), skinFilePath);
 
     switch (type)
     {
     case eSkinType::LR2:
-        skinObj = std::make_shared<SkinLR2>(skinFile);
+        skinObj = std::make_shared<SkinLR2>(skinFilePath);
         if (!skinObj->isLoaded())
-            skinObj = std::make_shared<SkinLR2>(skinFileDefault);
+            skinObj = std::make_shared<SkinLR2>(skinFilePathDefault);
         break;
 
     default:

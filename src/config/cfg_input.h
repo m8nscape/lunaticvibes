@@ -53,7 +53,6 @@ class ConfigInput : public vConfig
 {
 private:
     int keys;
-    YAML::Node blank_binding;
 public:
     ConfigInput() = delete;
     ConfigInput(const std::string& profile, unsigned k);

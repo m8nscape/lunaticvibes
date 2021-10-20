@@ -1503,7 +1503,6 @@ private:
     struct element
     {
         std::shared_ptr<vSprite> ps;
-        bool draw;
         dst_option op1;
         dst_option op2;
         dst_option op3;

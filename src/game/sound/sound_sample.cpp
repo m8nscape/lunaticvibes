@@ -4,8 +4,8 @@
 
 void loadLR2Bgm()
 {
-    auto pathstr = ConfigMgr::get("S", cfg::S_PATH_BGM, cfg::S_DEFAULT_PATH_BGM);
-    Path path(pathstr);
+    Path path = convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), 
+        ConfigMgr::get("S", cfg::S_PATH_BGM, cfg::S_DEFAULT_PATH_BGM));
 
     //SoundMgr::loadSample((path / ""), eSoundSample::BGM_TITLE, true);
     //SoundMgr::loadSample((path / ""), eSoundSample::BGM_MODE, true);
@@ -15,8 +15,8 @@ void loadLR2Bgm()
 
 void loadLR2Sound()
 {
-    auto pathstr = ConfigMgr::get("S", cfg::S_PATH_SOUND, cfg::S_DEFAULT_PATH_SOUND);
-    Path path(pathstr);
+    Path path = convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), 
+        ConfigMgr::get("S", cfg::S_PATH_SOUND, cfg::S_DEFAULT_PATH_SOUND));
 
     SoundMgr::loadSample((path / "scratch.wav"), eSoundSample::SOUND_SCRATCH, false);
     SoundMgr::loadSample((path / "o-open.wav"), eSoundSample::SOUND_O_OPEN, false);

@@ -15,7 +15,7 @@ vConfig::vConfig(const char* file)
 
 vConfig::vConfig(const std::string& profile, const char* file)
 {
-    _path = ".";
+    _path = GAMEDATA_PATH;
     _path /= "profile";
     _path /= profile;
     _path /= file;

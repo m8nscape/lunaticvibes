@@ -1,6 +1,7 @@
 #include "setupdialog.h"
 #include "ui_setupdialog.h"
 #include <QFileDialog>
+#include <QListWidget>
 
 #include "common/meta.h"
 #include "config/config_mgr.h"
@@ -48,6 +49,7 @@ SetupDialog::SetupDialog(QWidget *parent) :
         ui->profile_list->setCurrentIndex(ui->profile_list->count() - 1);
     }
 
+    QObject::connect(ui->browse_lr2path, &QPushButton::clicked, this, &SetupDialog::browseLR2Path);
     QObject::connect(ui->folder_list, &QListWidget::currentRowChanged, this, &SetupDialog::foldersCurrentRowChanged);
     QObject::connect(ui->add_folder, &QPushButton::clicked, this, &SetupDialog::addFolder);
     QObject::connect(ui->delete_folder, &QPushButton::clicked, this, &SetupDialog::delFolder);
@@ -74,7 +76,7 @@ void SetupDialog::refreshProfileList()
     static const Path profilePath = Path(GAMEDATA_PATH) / "profile";
     if (!std::filesystem::exists(profilePath))
     {
-        std::filesystem::create_directory(profilePath);
+        std::filesystem::create_directories(profilePath);
     }
     for (auto& p : std::filesystem::directory_iterator(profilePath))
     {
@@ -96,7 +98,8 @@ bool SetupDialog::loadConfig(const std::string& dirname)
     // Generic
     {
         // set lr2 path
-        lr2path = ConfigMgr::get('E', cfg::E_LR2PATH, ".");
+        ui->lr2path->setText(QString::fromStdString(ConfigMgr::get('E', cfg::E_LR2PATH, ".")));
+
 
         // folders
         for (auto& f : ConfigMgr::General()->getFoldersStr())
@@ -274,6 +277,20 @@ void SetupDialog::saveConfig()
 /////////////////////////////////////////////////////////////
 // Slots
 
+void SetupDialog::browseLR2Path()
+{
+    QFileDialog fileDialog(this);
+    fileDialog.setOption(QFileDialog::Option::ShowDirsOnly, true);
+    fileDialog.setFileMode(QFileDialog::FileMode::Directory);
+    fileDialog.setViewMode(QFileDialog::ViewMode::Detail);
+    if (fileDialog.exec())
+    {
+        auto f = fileDialog.selectedFiles()[0];
+        ui->lr2path->setText(f);
+    }
+}
+
+
 void SetupDialog::foldersCurrentRowChanged(int row)
 {
     if (row < 0)
@@ -385,8 +402,7 @@ void SetupDialog::runGame()
     memset(&pi, 0, sizeof(pi));
     GetStartupInfo(&si);
     si.cb = sizeof(si);
-    si.dwFlags = STARTF_USESHOWWINDOW;
-    CreateProcess(PROJECT_FULL_NAME, "game.exe", NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
+    CreateProcess(NULL, "game.exe", NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
 #elif defined __linux__
     execl("game", NULL);
 #endif

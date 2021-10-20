@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
 
     // extract dxa
     for (auto& it : std::filesystem::recursive_directory_iterator(
-        ConfigMgr::get('G', cfg::E_LR2PATH, ".") + "/LR2Files/Theme"))
+        convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), "/LR2Files/Theme")))
     {
         if (std::filesystem::is_regular_file(it))
         {

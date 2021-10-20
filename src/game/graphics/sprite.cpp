@@ -186,7 +186,7 @@ bool vSprite::update(const Time& t)
 #ifdef _DEBUG
     std::for_each(std::execution::seq, _children.begin(), _children.end(), updateChildLambda);
 #else
-    std::for_each(std::execution::par, _children.begin(), _children.end(), updateChildLambda);
+    std::for_each(std::execution::seq, _children.begin(), _children.end(), updateChildLambda);
 #endif
 
     return _draw;
@@ -231,7 +231,7 @@ SpriteStatic::SpriteStatic(pTexture texture, const Rect& rect):
 
 void SpriteStatic::draw() const
 {
-    if (_draw && _pTexture->_loaded)
+    if (!_hide && _draw && _pTexture->_loaded)
         _pTexture->draw(_texRect, _current.rect, _current.color, _current.blend, _current.filter, _current.angle, _current.center);
 }
 
@@ -291,7 +291,7 @@ SpriteSelection::SpriteSelection(pTexture texture, const Rect& r, unsigned rows,
 
 void SpriteSelection::draw() const
 {
-    if (_draw && _pTexture->_loaded)
+    if (!_hide && _draw && _pTexture->_loaded)
         _pTexture->draw(_texRect[_selectionIdx], _current.rect, _current.color, _current.blend, _current.filter, _current.angle, _current.center);
 }
 
@@ -405,7 +405,7 @@ void SpriteAnimated::updateSplitByTimer(rTime time)
 */
 void SpriteAnimated::draw() const
 {
-    if (_draw && _pTexture != nullptr && _pTexture->_loaded)
+    if (!_hide && _draw && _pTexture != nullptr && _pTexture->_loaded)
     {
         _pTexture->draw(_texRect[_selectionIdx * _animFrames + _currAnimFrame], _current.rect, _current.color, _current.blend, _current.filter, _current.angle, _current.center);
     }
@@ -514,7 +514,7 @@ void SpriteText::setText(std::string&& text, const Color& c)
 
 void SpriteText::draw() const
 {
-	if (_draw && _pTexture)
+	if (!_hide && _draw && _pTexture)
 		SpriteStatic::draw();
 }
 
@@ -714,7 +714,7 @@ void SpriteNumber::appendKeyFrame(RenderKeyFrame f)
 
 void SpriteNumber::draw() const
 {
-    if (_pTexture->_loaded && _draw)
+    if (!_hide && _pTexture->_loaded && _draw)
     {
         //for (size_t i = 0; i < _outRectDigit.size(); ++i)
         //    _pTexture->draw(_drawRectDigit[i], _outRectDigit[i], _current.angle);
@@ -1094,7 +1094,7 @@ bool SpriteGaugeGrid::update(const Time& t)
 
 void SpriteGaugeGrid::draw() const
 {
-    if (_draw && _pTexture != nullptr && _pTexture->isLoaded())
+    if (!_hide && _draw && _pTexture != nullptr && _pTexture->isLoaded())
     {
 		Rect r = _current.rect;
         unsigned grid_val = unsigned(_req - 1);
