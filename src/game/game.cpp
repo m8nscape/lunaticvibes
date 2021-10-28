@@ -79,6 +79,7 @@ void mainLoop()
 int main(int argc, char* argv[])
 {
     SetThreadName("MainThread");
+    SetThreadAsMainThread();
 
     char exePath[256];
     size_t exePathLen;

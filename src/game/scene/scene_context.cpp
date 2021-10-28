@@ -52,22 +52,3 @@ void updateContextSelectTitles()
     }
     */
 }
-
-std::shared_mutex mainThreadTaskQueueMutex;
-std::queue<std::function<void()>> mainThreadTaskQueue;
-
-void pushMainThreadTask(std::function<void()> f)
-{
-    std::unique_lock l(mainThreadTaskQueueMutex);
-    mainThreadTaskQueue.push(f);
-}
-
-void doMainThreadTask()
-{
-    std::shared_lock l(mainThreadTaskQueueMutex);
-    while (!mainThreadTaskQueue.empty())
-    {
-        mainThreadTaskQueue.front()();
-        mainThreadTaskQueue.pop();
-    }
-}
