@@ -200,12 +200,12 @@ void ScenePlay::loadChart()
 
         if (_mode == ePlayMode::LOCAL_BATTLE)
         {
-            gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<chartBMS>(bms);
-            gPlayContext.chartObj[PLAYER_SLOT_2P] = std::make_shared<chartBMS>(bms);
+            gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<chartBMS>(PLAYER_SLOT_1P, bms);
+            gPlayContext.chartObj[PLAYER_SLOT_2P] = std::make_shared<chartBMS>(PLAYER_SLOT_2P, bms);
         }
         else
         {
-            gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<chartBMS>(bms);
+            gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<chartBMS>(PLAYER_SLOT_1P, bms);
         }
         _chartLoaded = true;
         gNumbers.set(eNumber::PLAY_REMAIN_MIN, int(gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() / 1000 / 60));

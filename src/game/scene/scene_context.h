@@ -90,6 +90,8 @@ struct PlayContextParams
 
     Time remainTime;
 
+    unsigned int randomSeedChart;
+    unsigned int randomSeedMod;
 };
 
 void clearContextPlayForRetry();

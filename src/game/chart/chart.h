@@ -106,6 +106,8 @@ class vChart
 {
 public:
     static constexpr size_t MAX_MEASURES = 1000;
+protected:
+    int _playerSlot = -1;
 
 protected:
 	unsigned _noteCount;
@@ -133,8 +135,8 @@ protected:
 
 public:
     vChart() = delete;
-    vChart(size_t plain_n, size_t ext_n);
-    static std::shared_ptr<vChart> createFromChartFormat(std::shared_ptr<vChartFormat> p);
+    vChart(int slot, size_t plain_n, size_t ext_n);
+    static std::shared_ptr<vChart> createFromChartFormat(int slot, std::shared_ptr<vChartFormat> p);
 
 private:
     std::array<decltype(_noteLists.front().begin()), LANE_COUNT>    _noteListIterators;

@@ -39,6 +39,8 @@ void clearContextPlay()
         gPlayContext.mods[i].clear();
     }
     gPlayContext.remainTime = 0;
+    gPlayContext.randomSeedChart = 0;
+    gPlayContext.randomSeedMod = 0;
 }
 
 void updateContextSelectTitles()

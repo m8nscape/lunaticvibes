@@ -66,6 +66,7 @@ enum class eModChart: uint8_t
     SRAN,
     HRAN,			// Scatter
     ALLSCR,			// Converge
+    // FIXME DP separated mod
 };
 
 enum class eModGauge : uint8_t
