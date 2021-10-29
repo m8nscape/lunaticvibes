@@ -1,5 +1,6 @@
 #include "scene_context.h"
 #include "game/data/data.h"
+#include <random>
 
 bool gResetSelectCursor = true;
 bool gQuitOnFinish = false;
@@ -39,8 +40,10 @@ void clearContextPlay()
         gPlayContext.mods[i].clear();
     }
     gPlayContext.remainTime = 0;
-    gPlayContext.randomSeedChart = 0;
-    gPlayContext.randomSeedMod = 0;
+
+    static std::random_device rd;
+    gPlayContext.randomSeedChart = rd();
+    gPlayContext.randomSeedMod = rd();
 }
 
 void updateContextSelectTitles()
