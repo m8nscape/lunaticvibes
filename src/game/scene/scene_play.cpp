@@ -13,8 +13,28 @@
 #include "common/sysutil.h"
 #include "game/sound/sound_sample.h"
 
-ScenePlay::ScenePlay(ePlayMode gamemode): vScene(gPlayContext.mode, 1000, true), _mode(gamemode)
+ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
 {
+    switch (gPlayContext.mode)
+    {
+    case eMode::PLAY5:
+    case eMode::PLAY7:
+    case eMode::PLAY9:
+    case eMode::PLAY10:
+    case eMode::PLAY14:
+        _mode = ePlayMode::SINGLE;
+        break;
+
+    case eMode::PLAY5_2:
+    case eMode::PLAY7_2:
+    case eMode::PLAY9_2:
+        _mode = ePlayMode::LOCAL_BATTLE;
+        break;
+
+    default:
+        break;
+    }
+
     _currentKeySample.assign(Input::ESC, 0);
 
     _inputAvailable = INPUT_MASK_FUNC;
@@ -72,7 +92,7 @@ ScenePlay::ScenePlay(ePlayMode gamemode): vScene(gPlayContext.mode, 1000, true),
         }
         _skin->setExtendedProperty("GAUGETYPE_1P"s, (void*)&tmp);
 
-        if (_mode == ePlayMode::LOCAL_BATTLE)
+        if (_mode == ePlayMode::LOCAL_BATTLE || _mode == ePlayMode::AUTO_BATTLE)
         {
             switch (gPlayContext.mods[PLAYER_SLOT_2P].gauge)
             {
@@ -124,7 +144,7 @@ void ScenePlay::setTempInitialHealthBMS()
         default: break;
         }
 
-        if (_mode == ePlayMode::LOCAL_BATTLE)
+        if (_mode == ePlayMode::LOCAL_BATTLE || _mode == ePlayMode::AUTO_BATTLE)
         {
             switch (gPlayContext.mods[PLAYER_SLOT_2P].gauge)
             {
@@ -152,7 +172,7 @@ void ScenePlay::setTempInitialHealthBMS()
     {
         gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, (int)gPlayContext.initialHealth[0]);
 
-        if (_mode == ePlayMode::LOCAL_BATTLE)
+        if (_mode == ePlayMode::LOCAL_BATTLE || _mode == ePlayMode::AUTO_BATTLE)
         {
             gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, (int)gPlayContext.initialHealth[1]);
         }
@@ -198,7 +218,7 @@ void ScenePlay::loadChart()
         auto bms = std::reinterpret_pointer_cast<BMS>(gChartContext.chartObj);
         // TODO mods
 
-        if (_mode == ePlayMode::LOCAL_BATTLE)
+        if (_mode == ePlayMode::LOCAL_BATTLE || _mode == ePlayMode::AUTO_BATTLE)
         {
             gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<chartBMS>(PLAYER_SLOT_1P, bms);
             gPlayContext.chartObj[PLAYER_SLOT_2P] = std::make_shared<chartBMS>(PLAYER_SLOT_2P, bms);
@@ -270,7 +290,7 @@ void ScenePlay::loadChart()
                 gPlayContext.mods[PLAYER_SLOT_1P].gauge, keys, judgeDiff, 
                 gPlayContext.initialHealth[PLAYER_SLOT_1P], RulesetBMS::PlaySide::DP);
         }
-        else if (_mode == ePlayMode::LOCAL_BATTLE)
+        else if (_mode == ePlayMode::LOCAL_BATTLE || _mode == ePlayMode::AUTO_BATTLE)
         {
             gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetBMS>(
                 gChartContext.chartObj,  gPlayContext.chartObj[PLAYER_SLOT_1P],
@@ -288,6 +308,13 @@ void ScenePlay::loadChart()
                 gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_1P],
                 gPlayContext.mods[PLAYER_SLOT_1P].gauge, keys, judgeDiff,
                 gPlayContext.initialHealth[PLAYER_SLOT_1P], RulesetBMS::PlaySide::SP);
+        }
+        if (_mode == ePlayMode::AUTO || _mode == ePlayMode::AUTO_BATTLE)
+        {
+            gPlayContext.ruleset[PLAYER_SLOT_1P]->setAutoplay(true);
+            if (_mode == ePlayMode::AUTO_BATTLE)
+                gPlayContext.ruleset[PLAYER_SLOT_2P]->setAutoplay(true);
+
         }
         _rulesetLoaded = true;
     }
@@ -404,7 +431,7 @@ void ScenePlay::loadChart()
 void ScenePlay::setInputJudgeCallback()
 {
     using namespace std::placeholders;
-    if (_mode == ePlayMode::LOCAL_BATTLE)
+    if (_mode == ePlayMode::LOCAL_BATTLE || _mode == ePlayMode::AUTO_BATTLE)
     {
         if (gPlayContext.ruleset[PLAYER_SLOT_1P] != nullptr)
         {
@@ -567,7 +594,7 @@ void ScenePlay::updatePlaying()
     gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentBeat() * 4.0)) % 1000);
     gPlayContext.bgaTexture->update(rt, false);
 
-    if (_mode == ePlayMode::LOCAL_BATTLE)
+    if (_mode == ePlayMode::LOCAL_BATTLE || _mode == ePlayMode::AUTO_BATTLE)
     {
         gPlayContext.chartObj[PLAYER_SLOT_1P]->update(rt);
         gPlayContext.chartObj[PLAYER_SLOT_2P]->update(rt);
@@ -759,13 +786,17 @@ void ScenePlay::updateFadeout()
         loopEnd();
         _input.loopEnd();
 
-        if (wantRetry && gPlayContext.canRetry)
+        if (_mode == ePlayMode::AUTO || _mode == ePlayMode::AUTO_BATTLE)
         {
-            gNextScene = eScene::RETRY;
+            gNextScene = (gPlayContext.isCourse && gChartContext.started) ? eScene::COURSE_TRANS : eScene::SELECT;
+        }
+        else if (wantRetry && gPlayContext.canRetry)
+        {
+            gNextScene = eScene::RETRY_TRANS;
         }
         else
         {
-            gNextScene = gChartContext.started ? eScene::RESULT : eScene::SELECT;
+            gNextScene = (gPlayContext.isCourse || gChartContext.started) ? eScene::RESULT : eScene::SELECT;
         }
     }
 }
@@ -823,7 +854,7 @@ void ScenePlay::procCommonNotes()
 void ScenePlay::changeKeySampleMapping(Time t)
 {
     static const Time MIN_REMAP_INTERVAL{ 1000 };
-    if (_mode == ePlayMode::LOCAL_BATTLE)
+    if (_mode == ePlayMode::LOCAL_BATTLE || _mode == ePlayMode::AUTO_BATTLE)
     {
         for (size_t i = 0; i < Input::S2L; ++i)
             if (_inputAvailable[i])
@@ -972,7 +1003,7 @@ void ScenePlay::inputGamePress(InputMask& m, Time t)
 
     SoundMgr::playKeySample(sampleCount, (size_t*)&_keySampleIdxBuf[0]);
 
-    if (_mode == ePlayMode::LOCAL_BATTLE)
+    if (_mode == ePlayMode::LOCAL_BATTLE || _mode == ePlayMode::AUTO_BATTLE)
     {
         if (input[S2L] || input[S2R])
         {
@@ -1104,7 +1135,7 @@ void ScenePlay::inputGameRelease(InputMask& m, Time t)
         gSwitches.set(eSwitch::S1_DOWN, false);
     }
 
-    if (_mode == ePlayMode::LOCAL_BATTLE)
+    if (_mode == ePlayMode::LOCAL_BATTLE || _mode == ePlayMode::AUTO_BATTLE)
     {
         if (input[S2L] || input[S2R])
         {

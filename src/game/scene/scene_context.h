@@ -19,7 +19,8 @@ enum class eScene
     DECIDE,
     PLAY,
     RESULT,
-    RETRY,
+    COURSE_TRANS,
+    RETRY_TRANS,
     KEYCONFIG,
     EXIT
 };

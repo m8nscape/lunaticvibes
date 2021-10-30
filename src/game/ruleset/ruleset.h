@@ -39,6 +39,7 @@ protected:
     double _clearHealth;
     bool _isCleared = false;
     bool _isFailed = false;
+    bool _isAutoplay = false;
 public:
     vRuleset() = delete;
     vRuleset(std::shared_ptr<vChartFormat> format, std::shared_ptr<chart::vChart> chart) :
@@ -55,6 +56,10 @@ public:
     double getClearHealth() const { return _clearHealth; }
     virtual bool isCleared() const { return _isCleared; }
     virtual bool isFailed() const { return _isFailed; }
+
+    bool isAutoplay() const { return _isAutoplay; }
+    void setAutoplay(bool enabled) { _isAutoplay = enabled; }
+
     virtual unsigned getCurrentMaxScore() const = 0;
     virtual unsigned getMaxScore() const = 0;
     virtual unsigned getMaxCombo() const = 0;

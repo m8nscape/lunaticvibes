@@ -295,6 +295,193 @@ RulesetBMS::judgeRes RulesetBMS::_judge(const Note& note, Time time)
     return { a, error };
 }
 
+void RulesetBMS::_judgePress(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot)
+{
+    switch (cat)
+    {
+    case NoteLaneCategory::Note:
+        switch (judge.area)
+        {
+        case judgeArea::NOTHING:
+            break;
+        default:
+            gTimers.set(eTimer::PLAY_JUDGE_1P, t.norm());
+            break;
+        }
+        switch (judge.area)
+        {
+        case judgeArea::EARLY_PERFECT:
+        case judgeArea::EXACT_PERFECT:
+        case judgeArea::LATE_PERFECT:
+            updateHit(t, idx, RulesetBMS::JudgeType::PERFECT, slot);
+            break;
+
+        case judgeArea::EARLY_GREAT:
+            _basic.fast++;
+            updateHit(t, idx, RulesetBMS::JudgeType::GREAT, slot);
+            break;
+        case judgeArea::LATE_GREAT:
+            _basic.slow++;
+            updateHit(t, idx, RulesetBMS::JudgeType::GREAT, slot);
+            break;
+
+        case judgeArea::EARLY_GOOD:
+            _basic.fast++;
+            updateHit(t, idx, RulesetBMS::JudgeType::GOOD, slot);
+            break;
+        case judgeArea::LATE_GOOD:
+            _basic.slow++;
+            updateHit(t, idx, RulesetBMS::JudgeType::GOOD, slot);
+            break;
+
+        case judgeArea::EARLY_BAD:
+            _basic.fast++;
+            updateMiss(t, idx, RulesetBMS::JudgeType::BAD, slot);
+            break;
+        case judgeArea::LATE_BAD:
+            _basic.slow++;
+            updateMiss(t, idx, RulesetBMS::JudgeType::BAD, slot);
+            break;
+
+        case judgeArea::EARLY_BPOOR:
+            _basic.fast++;
+            updateMiss(t, idx, RulesetBMS::JudgeType::BPOOR, slot);
+            break;
+        }
+        if (judge.area > judgeArea::EARLY_BPOOR) note.hit = true;
+        break;
+
+    case NoteLaneCategory::Invs:
+        break;
+
+    case NoteLaneCategory::LN:
+        if (!(note.flags & Note::LN_TAIL))
+        {
+            switch (judge.area)
+            {
+            case judgeArea::NOTHING:
+                _lnJudge[idx] = RulesetBMS::JudgeType::MISS;
+                break;
+            default:
+                if (_bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
+                    gTimers.set(_bombLNTimerMap->at(idx), t.norm());
+                break;
+            }
+            switch (judge.area)
+            {
+            case judgeArea::EARLY_PERFECT:
+            case judgeArea::EXACT_PERFECT:
+            case judgeArea::LATE_PERFECT:
+                _lnJudge[idx] = RulesetBMS::JudgeType::PERFECT;
+                break;
+
+            case judgeArea::EARLY_GREAT:
+            case judgeArea::LATE_GREAT:
+                _lnJudge[idx] = RulesetBMS::JudgeType::GREAT;
+                break;
+
+            case judgeArea::EARLY_GOOD:
+            case judgeArea::LATE_GOOD:
+                _lnJudge[idx] = RulesetBMS::JudgeType::GOOD;
+                break;
+
+            case judgeArea::EARLY_BAD:
+            case judgeArea::LATE_BAD:
+                _lnJudge[idx] = RulesetBMS::JudgeType::BAD;
+                break;
+
+            case judgeArea::EARLY_BPOOR:
+                _lnJudge[idx] = RulesetBMS::JudgeType::BPOOR;
+                break;
+            }
+            if (judge.area > judgeArea::EARLY_BPOOR) note.hit = true;
+            break;
+        }
+
+        // TODO scratch LN miss
+        break;
+    }
+}
+void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot)
+{
+    switch (cat)
+    {
+    case NoteLaneCategory::Mine:
+    {
+        if (judge.area == judgeArea::EXACT_PERFECT ||
+            judge.area == judgeArea::EARLY_PERFECT && judge.time < -2 ||
+            judge.area == judgeArea::LATE_PERFECT && judge.time < 2)
+        {
+            note.hit = true;
+            _updateHp(-0.01 * std::get<long long>(note.value) / 2);
+            // TODO play mine sound + volume
+        }
+        break;
+    }
+    case NoteLaneCategory::LN:
+        if (note.flags & Note::LN_TAIL)
+        {
+            if (judge.area == judgeArea::EXACT_PERFECT ||
+                judge.area == judgeArea::EARLY_PERFECT && judge.time < -2 ||
+                judge.area == judgeArea::LATE_PERFECT && judge.time < 2)
+            {
+                note.hit = true;
+                updateHit(t, idx, _lnJudge[idx], slot);
+                if (_bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
+                    gTimers.set(_bombLNTimerMap->at(idx), TIMER_NEVER);
+            }
+        }
+        break;
+
+    default:
+        break;
+    }
+}
+void RulesetBMS::_judgeRelease(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot)
+{
+    switch (cat)
+    {
+    case NoteLaneCategory::LN:
+        // TODO LN miss
+        if (_lnJudge[idx] != RulesetBMS::JudgeType::MISS && (note.flags & Note::LN_TAIL))
+        {
+            switch (judge.area)
+            {
+            case judgeArea::EARLY_PERFECT:
+            case judgeArea::EXACT_PERFECT:
+                updateHit(t, idx, _lnJudge[idx], slot);
+                _lnJudge[idx] = RulesetBMS::JudgeType::MISS;
+                break;
+
+            case judgeArea::EARLY_GREAT:
+                _basic.fast++;
+                updateHit(t, idx, std::max(JudgeType::GREAT, _lnJudge[idx]), slot);
+                _lnJudge[idx] = RulesetBMS::JudgeType::MISS;
+                break;
+
+            case judgeArea::EARLY_GOOD:
+                _basic.fast++;
+                updateHit(t, idx, JudgeType::GOOD, slot);
+                _lnJudge[idx] = RulesetBMS::JudgeType::MISS;
+                break;
+
+            case judgeArea::EARLY_BAD:
+            default:
+                _basic.fast++;
+                updateMiss(t, idx, JudgeType::BAD, slot);
+                _lnJudge[idx] = RulesetBMS::JudgeType::MISS;
+                break;
+            }
+            note.hit = true;
+            break;
+        }
+        break;
+
+    default:
+        break;
+    }
+}
+
 void RulesetBMS::_updateHp(const double delta)
 {
     double tmp = _basic.health;
@@ -321,7 +508,7 @@ void RulesetBMS::_updateHp(JudgeType judge)
     _updateHp(_health.at(judge));
 }
 
-void RulesetBMS::updateHit(Time& t, NoteLaneIndex ch, RulesetBMS::JudgeType judge, int slot)
+void RulesetBMS::updateHit(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeType judge, int slot)
 {
     ++_count[judge];
     ++_basic.hit;
@@ -368,7 +555,7 @@ void RulesetBMS::updateHit(Time& t, NoteLaneIndex ch, RulesetBMS::JudgeType judg
     }
 }
 
-void RulesetBMS::updateMiss(Time& t, NoteLaneIndex ch, RulesetBMS::JudgeType judge, int slot)
+void RulesetBMS::updateMiss(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeType judge, int slot)
 {
     ++_count[judge];
     ++_basic.miss;
@@ -392,7 +579,7 @@ void RulesetBMS::updateMiss(Time& t, NoteLaneIndex ch, RulesetBMS::JudgeType jud
     }
 }
 
-void RulesetBMS::updatePress(InputMask& pg, Time t)
+void RulesetBMS::updatePress(InputMask& pg, const Time& t)
 {
 	Time rt = t - gTimers.get(eTimer::PLAY_START);
     if (rt.norm() < 0) return;
@@ -404,117 +591,13 @@ void RulesetBMS::updatePress(InputMask& pg, Time t)
             auto [cat, idx] = _chart->getLaneFromKey((Input::Pad)k);
             if (cat == NoteLaneCategory::_) return;
             auto n = _chart->incomingNote(cat, idx);
-            auto j = _judge(*n, rt);
-            switch (cat)
-            {
-            case NoteLaneCategory::Note:
-                switch (j.area)
-                {
-                case judgeArea::NOTHING:
-                    break;
-                default:
-                    gTimers.set(eTimer::PLAY_JUDGE_1P, t.norm());
-                    break;
-                }
-                switch (j.area)
-                {
-                case judgeArea::EARLY_PERFECT:
-                case judgeArea::EXACT_PERFECT:
-                case judgeArea::LATE_PERFECT:
-                    updateHit(t, idx, RulesetBMS::JudgeType::PERFECT, slot);
-                    break;
-
-                case judgeArea::EARLY_GREAT:
-                    _basic.fast++;
-                    updateHit(t, idx, RulesetBMS::JudgeType::GREAT, slot);
-                    break;
-                case judgeArea::LATE_GREAT:
-                    _basic.slow++;
-                    updateHit(t, idx, RulesetBMS::JudgeType::GREAT, slot);
-                    break;
-
-                case judgeArea::EARLY_GOOD:
-                    _basic.fast++;
-                    updateHit(t, idx, RulesetBMS::JudgeType::GOOD, slot);
-                    break;
-                case judgeArea::LATE_GOOD:
-                    _basic.slow++;
-                    updateHit(t, idx, RulesetBMS::JudgeType::GOOD, slot);
-                    break;
-
-                case judgeArea::EARLY_BAD:
-                    _basic.fast++;
-                    updateMiss(t, idx, RulesetBMS::JudgeType::BAD, slot);
-                    break;
-                case judgeArea::LATE_BAD:
-                    _basic.slow++;
-                    updateMiss(t, idx, RulesetBMS::JudgeType::BAD, slot);
-                    break;
-
-                case judgeArea::EARLY_BPOOR:
-                    _basic.fast++;
-                    updateMiss(t, idx, RulesetBMS::JudgeType::BPOOR, slot);
-                    break;
-                }
-                if (j.area > judgeArea::EARLY_BPOOR) n->hit = true;
-                break;
-
-            case NoteLaneCategory::Invs:
-                break;
-
-            case NoteLaneCategory::LN:
-                if (!(n->flags & Note::LN_TAIL))
-                {
-                    switch (j.area)
-                    {
-                    case judgeArea::NOTHING:
-                        _lnJudge[idx] = RulesetBMS::JudgeType::MISS;
-                        break;
-                    default:
-                        if (_bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
-                            gTimers.set(_bombLNTimerMap->at(idx), t.norm());
-                        break;
-                    }
-                    switch (j.area)
-                    {
-                    case judgeArea::EARLY_PERFECT:
-                    case judgeArea::EXACT_PERFECT:
-                    case judgeArea::LATE_PERFECT:
-                        _lnJudge[idx] = RulesetBMS::JudgeType::PERFECT;
-                        break;
-
-                    case judgeArea::EARLY_GREAT:
-                    case judgeArea::LATE_GREAT:
-                        _lnJudge[idx] = RulesetBMS::JudgeType::GREAT;
-                        break;
-
-                    case judgeArea::EARLY_GOOD:
-                    case judgeArea::LATE_GOOD:
-                        _lnJudge[idx] = RulesetBMS::JudgeType::GOOD;
-                        break;
-
-                    case judgeArea::EARLY_BAD:
-                    case judgeArea::LATE_BAD:
-                        _lnJudge[idx] = RulesetBMS::JudgeType::BAD;
-                        break;
-
-                    case judgeArea::EARLY_BPOOR:
-                        _lnJudge[idx] = RulesetBMS::JudgeType::BPOOR;
-                        break;
-                    }
-                    if (j.area > judgeArea::EARLY_BPOOR) n->hit = true;
-                    break;
-                }
-
-                // TODO scratch LN miss
-                break;
-            }
+            _judgePress(cat, idx, *n, _judge(*n, rt), t, slot);
         }
     };
     if (_k1P) updatePressRange(Input::S1L, Input::K1SPDDN, PLAYER_SLOT_1P);
     if (_k2P) updatePressRange(Input::S2L, Input::K2SPDDN, PLAYER_SLOT_2P);
 }
-void RulesetBMS::updateHold(InputMask& hg, Time t)
+void RulesetBMS::updateHold(InputMask& hg, const Time& t)
 {
 	Time rt = t - gTimers.get(eTimer::PLAY_START);
     if (rt < 0) return;
@@ -527,46 +610,13 @@ void RulesetBMS::updateHold(InputMask& hg, Time t)
             auto [cat, idx] = _chart->getLaneFromKey((Input::Pad)k);
             if (cat == NoteLaneCategory::_) return;
             auto n = _chart->incomingNote(cat, idx);
-            switch (cat)
-            {
-            case NoteLaneCategory::Mine:
-            {
-                auto j = _judge(*n, rt);
-                if (j.area == judgeArea::EXACT_PERFECT ||
-                    j.area == judgeArea::EARLY_PERFECT && j.time < -2 ||
-                    j.area == judgeArea::LATE_PERFECT && j.time < 2)
-                {
-                    n->hit = true;
-                    _updateHp(-0.01 * std::get<long long>(n->value) / 2);
-                    // TODO play mine sound + volume
-                }
-                break;
-            }
-            case NoteLaneCategory::LN:
-                if (n->flags & Note::LN_TAIL)
-                {
-                    auto j = _judge(*n, rt);
-                    if (j.area == judgeArea::EXACT_PERFECT ||
-                        j.area == judgeArea::EARLY_PERFECT && j.time < -2 ||
-                        j.area == judgeArea::LATE_PERFECT && j.time < 2)
-                    {
-                        n->hit = true;
-                        updateHit(t, idx, _lnJudge[idx], slot);
-                        if (_bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
-                            gTimers.set(_bombLNTimerMap->at(idx), TIMER_NEVER);
-                    }
-                }
-                break;
-
-            default:
-                break;
-            }
+            _judgeHold(cat, idx, *n, _judge(*n, rt), t, slot);
         }
     };
     if (_k1P) updateHoldRange(Input::S1L, Input::K1SPDDN, PLAYER_SLOT_1P);
     if (_k2P) updateHoldRange(Input::S2L, Input::K2SPDDN, PLAYER_SLOT_2P);
 }
-void RulesetBMS::updateRelease(InputMask& rg, Time t)
+void RulesetBMS::updateRelease(InputMask& rg, const Time& t)
 {
 	Time rt = t - gTimers.get(eTimer::PLAY_START);
     if (rt < 0) return;
@@ -583,49 +633,8 @@ void RulesetBMS::updateRelease(InputMask& rg, Time t)
             if (_bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
                 gTimers.set(_bombLNTimerMap->at(idx), TIMER_NEVER);
 
-            //auto j = _judge(*n, rt);
-            switch (cat)
-            {
-            case NoteLaneCategory::LN:
-                // TODO LN miss
-                if (_lnJudge[idx] != RulesetBMS::JudgeType::MISS && (n->flags & Note::LN_TAIL))
-                {
-                    auto j = _judge(*n, rt);
-                    switch (j.area)
-                    {
-                    case judgeArea::EARLY_PERFECT:
-                    case judgeArea::EXACT_PERFECT:
-                        updateHit(t, idx, _lnJudge[idx], slot);
-                        _lnJudge[idx] = RulesetBMS::JudgeType::MISS;
-                        break;
+            _judgeRelease(cat, idx, *n, _judge(*n, rt), t, slot);
 
-                    case judgeArea::EARLY_GREAT:
-                        _basic.fast++;
-                        updateHit(t, idx, std::max(JudgeType::GREAT, _lnJudge[idx]), slot);
-                        _lnJudge[idx] = RulesetBMS::JudgeType::MISS;
-                        break;
-
-                    case judgeArea::EARLY_GOOD:
-                        _basic.fast++;
-                        updateHit(t, idx, JudgeType::GOOD, slot);
-                        _lnJudge[idx] = RulesetBMS::JudgeType::MISS;
-                        break;
-
-                    case judgeArea::EARLY_BAD:
-                    default:
-                        _basic.fast++;
-                        updateMiss(t, idx, JudgeType::BAD, slot);
-                        _lnJudge[idx] = RulesetBMS::JudgeType::MISS;
-                        break;
-                    }
-                    n->hit = true;
-                    break;
-                }
-                break;
-
-            default:
-                break;
-            }
         }
     };
     if (_k1P) updateReleaseRange(Input::S1L, Input::K1SPDDN, PLAYER_SLOT_1P);
@@ -655,6 +664,18 @@ void RulesetBMS::update(Time t)
 
             n++;
         }
+
+        if (_k1P) for (size_t k = Input::S1L; k <= Input::K1SPDDN; ++k)
+        {
+            auto [cat, idx] = _chart->getLaneFromKey((Input::Pad)k);
+            if (cat == NoteLaneCategory::_) return;
+            auto n = _chart->incomingNote(cat, idx);
+            if (_judge(*n, t).area >= judgeArea::EXACT_PERFECT)
+            {
+                updateHit(t, idx, RulesetBMS::JudgeType::PERFECT, PLAYER_SLOT_1P);
+            }
+        }
+        if (_k2P) updateRange(Input::S2L, Input::K2SPDDN, PLAYER_SLOT_2P);
     }
 
     auto updateRange = [&](Input::Pad begin, Input::Pad end, int slot)
