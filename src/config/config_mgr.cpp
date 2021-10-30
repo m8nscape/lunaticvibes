@@ -107,7 +107,7 @@ void setOptions()
             {P_GAUGE_OP_DEATH, GAUGE_DEATH},
         };
 
-        auto&& s = ConfigMgr::get<string>('P', P_GAUGE_OP, P_GAUGE_OP);
+        auto&& s = ConfigMgr::get<string>('P', P_GAUGE_OP, P_GAUGE_OP_NORMAL);
         if (smap.find(s) != smap.end())
         {
             g.queue(e::PLAY_GAUGE_TYPE_1P, smap.at(s));
@@ -344,6 +344,9 @@ void setSwitches()
     g.queue(e::SOUND_FX1, ConfigMgr::get<string>('P', P_FX1, ON) == ON);
     g.queue(e::SOUND_FX2, ConfigMgr::get<string>('P', P_FX2, ON) == ON);
 
+    g.queue(e::PLAY_OPTION_AUTOSCR_1P, ConfigMgr::get<string>('P', P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_NONE) == P_CHART_ASSIST_OP_AUTOSCR);
+    g.queue(e::PLAY_OPTION_AUTOSCR_2P, false);
+
     g.flush();
 }
 
@@ -413,7 +416,7 @@ void setText()
             {P_GAUGE_OP_DEATH, "DEATH"},
         };
 
-        auto&& s = ConfigMgr::get<string>('P', P_GAUGE_OP, P_GAUGE_OP);
+        auto&& s = ConfigMgr::get<string>('P', P_GAUGE_OP, P_GAUGE_OP_NORMAL);
         if (smap.find(s) != smap.end())
         {
             g.queue(e::GAUGE_1P, smap.at(s));
@@ -423,6 +426,26 @@ void setText()
         {
             g.queue(e::GAUGE_1P, "NORMAL");
             g.queue(e::GAUGE_2P, "NORMAL");
+        }
+    }
+
+    // assist
+    {
+        static const std::map<string, string> smap =
+        {
+            {P_CHART_ASSIST_OP_AUTOSCR, "AUTO-SCR"},
+        };
+
+        auto&& s = ConfigMgr::get<string>('P', P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_NONE);
+        if (smap.find(s) != smap.end())
+        {
+            g.queue(e::ASSIST_1P, smap.at(s));
+            g.queue(e::ASSIST_2P, smap.at(s));
+        }
+        else
+        {
+            g.queue(e::ASSIST_1P, "NONE");
+            g.queue(e::ASSIST_2P, "NONE");
         }
     }
 
@@ -519,7 +542,7 @@ void setText()
     g.queue(e::BATTLE, ConfigMgr::get<string>('P', P_BATTLE, ON) == ON ? "ON" : "OFF");
 
     // flip
-    g.queue(e::FLIP, ConfigMgr::get<string>('P', P_FLIP, ON) == ON ? "ON" : "OFF");
+    g.queue(e::FLIP, ConfigMgr::get<string>('P', P_FLIP, ON) == ON ? "FLIP" : "OFF");
 
     // graph
     g.queue(e::SCORE_GRAPH, ConfigMgr::get<string>('P', P_SCORE_GRAPH, ON) == ON ? "ON" : "OFF");

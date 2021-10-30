@@ -30,6 +30,7 @@ void ConfigProfile::setDefaults() noexcept
     set(P_LIFT, 0);
     set(P_CHART_OP, P_CHART_OP_NORMAL);
     set(P_GAUGE_OP, P_GAUGE_OP_NORMAL);
+    set(P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_NONE);
     set(P_COMBO_POS_X, 0);
     set(P_COMBO_POS_Y, 0);
     set(P_JUDGE_POS_X, 0);

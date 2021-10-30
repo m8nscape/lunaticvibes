@@ -302,6 +302,7 @@ void ScenePlay::loadChart()
     {
         auto dtor = std::async(std::launch::async, [&]() {
             SetThreadName("Chart sound sample loading thread");
+            SoundMgr::freeKeySamples();
 
             auto _pChart = gChartContext.chartObj;
             auto chartDir = gChartContext.chartObj->getDirectory();
@@ -343,6 +344,7 @@ void ScenePlay::loadChart()
     {
         auto dtor = std::async(std::launch::async, [&]() {
             SetThreadName("Chart BGA loading thread");
+            gPlayContext.bgaTexture = std::make_shared<TextureBmsBga>();
 
             auto _pChart = gChartContext.chartObj;
 			auto chartDir = gChartContext.chartObj->getDirectory();

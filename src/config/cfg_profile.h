@@ -59,6 +59,15 @@ namespace cfg
         ASCR
     };
 
+    constexpr char P_CHART_ASSIST_OP[] = "ChartAssistOption";
+    constexpr char P_CHART_ASSIST_OP_NONE[] = "None";
+    constexpr char P_CHART_ASSIST_OP_AUTOSCR[] = "AutoScratch";
+    enum class eChartAssistOp
+    {
+        NORMAL,
+        AUTOSCR,
+    };
+
     constexpr char P_GAUGE_OP[] = "GaugeOption";
     constexpr char P_GAUGE_OP_NORMAL[] = "Groove";
     constexpr char P_GAUGE_OP_EASY[] = "Easy";
