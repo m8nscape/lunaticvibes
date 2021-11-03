@@ -36,5 +36,5 @@ public:
     virtual void draw() const;
 
 private:
-    void setText(std::string&& text);
+    void setInputBindingText(std::string&& text);
 };

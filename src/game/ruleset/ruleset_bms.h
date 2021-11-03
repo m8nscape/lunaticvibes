@@ -187,7 +187,7 @@ public:
         std::shared_ptr<vChartFormat> format,
         std::shared_ptr<chart::vChart> chart,
         eModGauge gauge,
-        unsigned keys,
+        GameModeKeys keys,
         JudgeDifficulty difficulty = JudgeDifficulty::NORMAL,
         double health = 1.0,
         PlaySide side = PlaySide::SP);

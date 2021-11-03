@@ -437,7 +437,7 @@ bool SpriteText::update(const Time& t)
 
 	if (_draw = updateByKeyframes(t))
 	{
-		setText(gTexts.get(_textInd), _current.color);
+		setInputBindingText(gTexts.get(_textInd), _current.color);
 		if (_draw) updateTextRect();
 	}
 	return _draw;
@@ -482,7 +482,7 @@ void SpriteText::updateTextRect()
 
 }
 
-void SpriteText::setText(std::string&& text, const Color& c)
+void SpriteText::setInputBindingText(std::string&& text, const Color& c)
 {
     if (!_pFont || !_pFont->_loaded)
         return;

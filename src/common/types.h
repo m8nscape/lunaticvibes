@@ -62,6 +62,8 @@ enum class ePlayMode
     REPLAY,         // do not save score
 };
 
+typedef unsigned GameModeKeys; // 5 7 9 10 14
+
 enum class eModChart: uint8_t
 {
     NONE = 0,

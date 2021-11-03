@@ -273,7 +273,7 @@ public:
     virtual void draw() const;
     TextAlign getAlignType() const { return _align; }
 private:
-    void setText(std::string&& text, const Color& c);
+    void setInputBindingText(std::string&& text, const Color& c);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

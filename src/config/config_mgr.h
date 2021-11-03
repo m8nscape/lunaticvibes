@@ -74,7 +74,7 @@ private:
         }
     }
 
-    std::vector<Input::Keyboard> _getKeyBindings(int mode, Input::Pad key)
+    std::vector<Input::Keyboard> _getKeyBindings(GameModeKeys mode, Input::Pad key)
     {
         switch (mode)
         {
@@ -105,7 +105,7 @@ public:
     std::shared_ptr<ConfigGeneral> _General() { return G; }
     std::shared_ptr<ConfigProfile> _Profile() { return P; }
     std::shared_ptr<ConfigSkin>    _Skin() { return S; };
-    std::shared_ptr<ConfigInput>   _Input(int mode)
+    std::shared_ptr<ConfigInput>   _Input(GameModeKeys mode)
     {
         switch (mode)
         {
@@ -124,7 +124,7 @@ public:
     static void setGlobals() { getInst()._setGlobals(); }
     static std::shared_ptr<ConfigGeneral> General() { return getInst()._General(); }
     static std::shared_ptr<ConfigProfile> Profile() { return getInst()._Profile(); }
-    static std::shared_ptr<ConfigInput>   Input(int mode)  { return getInst()._Input(mode) ; }
+    static std::shared_ptr<ConfigInput>   Input(GameModeKeys mode)  { return getInst()._Input(mode) ; }
     static std::shared_ptr<ConfigSkin>    Skin()    { return getInst()._Skin()   ; }
 
     template<class Ty_v>

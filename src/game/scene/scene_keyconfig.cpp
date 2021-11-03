@@ -53,7 +53,7 @@ SceneKeyConfig::SceneKeyConfig() : vScene(eMode::KEY_CONFIG, 240)
     gSwitches.set(eSwitch::K11_CONFIG, true);
     gSwitches.set(eSwitch::KEY_CONFIG_SLOT0, true);
     gOptions.set(eOption::KEY_CONFIG_MODE, Option::KEYCFG_7);
-    setText(gKeyconfigContext.keys, gKeyconfigContext.selecting.first);
+    setInputBindingText(gKeyconfigContext.keys, gKeyconfigContext.selecting.first);
 
     loopStart();
     _input.loopStart();
@@ -136,7 +136,7 @@ void SceneKeyConfig::inputGamePressKeyboard(KeyboardMask& mask, const Time& t)
         {
             if (k < Input::Keyboard::K_COUNT && slot < Input::MAX_BINDINGS_PER_KEY)
             {
-                int keys = gKeyconfigContext.keys;
+                GameModeKeys keys = gKeyconfigContext.keys;
 
                 // modify slot
                 ConfigMgr::Input(keys)->bindKey(pad, k, slot);
@@ -165,14 +165,14 @@ void SceneKeyConfig::inputGamePressKeyboard(KeyboardMask& mask, const Time& t)
     }
 }
 
-void SceneKeyConfig::setText(int keys, Input::Pad pad)
+void SceneKeyConfig::setInputBindingText(GameModeKeys keys, Input::Pad pad)
 {
-    auto bindings = ConfigMgr::Input(keys)->getBindings(pad);
-    for (size_t i = 0; i < bindings.size(); ++i)
+    auto padBindings = ConfigMgr::Input(keys)->getBindings(pad);
+    for (size_t i = 0; i < padBindings.size(); ++i)
     {
-        gTexts.set(eText(unsigned(eText::KEYCONFIG_SLOT1) + i), ConfigInput::getKeyString(bindings[i]));
+        gTexts.set(eText(unsigned(eText::KEYCONFIG_SLOT1) + i), ConfigInput::getKeyString(padBindings[i]));
     }
-    for (size_t i = bindings.size(); i < Input::MAX_BINDINGS_PER_KEY; ++i)
+    for (size_t i = padBindings.size(); i < Input::MAX_BINDINGS_PER_KEY; ++i)
     {
         gTexts.set(eText(unsigned(eText::KEYCONFIG_SLOT1) + i), "");
     }

@@ -47,7 +47,7 @@ void setJudgeTimer2PInner(RulesetBMS::JudgeType judge, long long t)
 }
 
 RulesetBMS::RulesetBMS(std::shared_ptr<vChartFormat> format, std::shared_ptr<vChart> chart,
-    eModGauge gauge, unsigned keys, RulesetBMS::JudgeDifficulty difficulty, double health, RulesetBMS::PlaySide side) :
+    eModGauge gauge, GameModeKeys keys, RulesetBMS::JudgeDifficulty difficulty, double health, RulesetBMS::PlaySide side) :
     vRuleset(format, chart), _diff(difficulty)
 {
     switch (gauge)

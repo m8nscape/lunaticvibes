@@ -19,11 +19,11 @@ void InputMgr::updateDevices()
     //    }
 }
 
-#define bindKey(kk, idx, igk) _inst.bindings[kk][idx] = { KEYBOARD, 0, igk }
-void InputMgr::updateBindings(unsigned keys, Pad K)
+#define bindKey(kk, idx, igk) _inst.padBindings[kk][idx] = { KEYBOARD, 0, igk }
+void InputMgr::updateBindings(GameModeKeys keys, Pad K)
 {
     // Clear current bindings
-    for (auto& k : _inst.bindings)
+    for (auto& k : _inst.padBindings)
         k = {};
 
 
@@ -35,9 +35,9 @@ void InputMgr::updateBindings(unsigned keys, Pad K)
     case 9:
         for (Input::Pad key = Input::S1L; key < Input::ESC; ++(*(int*)&key))
         {
-            auto bindings = ConfigMgr::Input(keys)->getBindings(key);
-            for (unsigned slot = 0; slot < std::min(MAX_BINDINGS_PER_KEY, bindings.size()); ++slot)
-                bindKey(key, slot, bindings[slot]);
+            auto padBindings = ConfigMgr::Input(keys)->getBindings(key);
+            for (unsigned slot = 0; slot < std::min(MAX_BINDINGS_PER_KEY, padBindings.size()); ++slot)
+                bindKey(key, slot, padBindings[slot]);
         }
         break;
 
@@ -58,7 +58,7 @@ std::bitset<KEY_COUNT> InputMgr::detect()
     // game input
     for (int k = S1L; k < ESC; k++)
     {
-        for (const auto& b : _inst.bindings[k])
+        for (const auto& b : _inst.padBindings[k])
         {
 			switch (b.type)
 			{

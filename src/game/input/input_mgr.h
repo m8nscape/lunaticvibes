@@ -21,10 +21,10 @@ namespace Input
     {
         DeviceType  type;
         DeviceID    device;
-        Keyboard		    key;
+        Keyboard    key;
     };
 
-    typedef std::array<KeyMap, MAX_BINDINGS_PER_KEY> Binding;
+    typedef std::array<KeyMap, MAX_BINDINGS_PER_KEY> Bindings;
 
 };
 
@@ -44,15 +44,15 @@ public:
     // Game keys param / functions
 private:
     std::bitset<Input::MAX_JOYSTICK_COUNT> joysticksConnected{};
-    std::array<Input::Binding, Input::ESC> bindings{};
-	bool haveJoystick = false;
+    bool haveJoystick = false;
+    std::array<Input::Bindings, Input::ESC> padBindings{};
 	int mouse_x = 0, mouse_y = 0;
 	int analogDeadZone = 25;
 
 public:
     // Game keys param / functions
     static void updateDevices();
-    static void updateBindings(unsigned keys, Input::Pad K);
+    static void updateBindings(GameModeKeys keys, Input::Pad K);
     static std::bitset<Input::KEY_COUNT> detect();
 	static bool getMousePos(int& x, int& y);
 };

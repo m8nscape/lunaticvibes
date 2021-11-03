@@ -25,5 +25,5 @@ protected:
     void inputGamePressKeyboard(KeyboardMask&, const Time&);
 
 public:
-    static void setText(int keys, Input::Pad pad);
+    static void setInputBindingText(GameModeKeys keys, Input::Pad pad);
 };

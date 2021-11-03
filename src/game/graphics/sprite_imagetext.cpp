@@ -8,7 +8,7 @@ SpriteImageText::SpriteImageText(std::vector<pTexture>& textures, CharMappingLis
     _type = SpriteTypes::IMAGE_TEXT;
 }
 
-void SpriteImageText::setText(std::string&& text)
+void SpriteImageText::setInputBindingText(std::string&& text)
 {
     if (text.empty())
     {
@@ -129,7 +129,7 @@ bool SpriteImageText::update(const Time& t)
 {
     if (_draw = updateByKeyframes(t))
     {
-        setText(gTexts.get(_textInd));
+        setInputBindingText(gTexts.get(_textInd));
         if (_draw) updateTextRect();
     }
     return _draw;

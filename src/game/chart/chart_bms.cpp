@@ -146,17 +146,17 @@ void chartBMS::loadBMS(const BMS& objBms)
     bool bpmfucked = false; // set to true when BPM is changed to zero or negative value
     std::bitset<10> isLnTail[2]{ 0 };
 
-    int keys = 7;
+    int laneCountRandom = 7;
     switch (gPlayContext.mode)
     {
     case eMode::PLAY5:
     case eMode::PLAY5_2:
-    case eMode::PLAY10: keys = 5; break;
+    case eMode::PLAY10: laneCountRandom = 5; break;
     case eMode::PLAY7:
     case eMode::PLAY7_2:
-    case eMode::PLAY14: keys = 7; break;
+    case eMode::PLAY14: laneCountRandom = 7; break;
     case eMode::PLAY9:
-    case eMode::PLAY9_2: keys = 9; break;
+    case eMode::PLAY9_2: laneCountRandom = 9; break;
     default: break;
     }
 
@@ -168,11 +168,11 @@ void chartBMS::loadBMS(const BMS& objBms)
     switch (gPlayContext.mods[_playerSlot].chart)
     {
     case eModChart::RANDOM:
-        std::shuffle(gameLaneMap.begin() + 1, gameLaneMap.begin() + 1 + keys, rng);
+        std::shuffle(gameLaneMap.begin() + 1, gameLaneMap.begin() + 1 + laneCountRandom, rng);
         break;
 
     case eModChart::MIRROR:
-        std::reverse(gameLaneMap.begin() + 1, gameLaneMap.begin() + 1 + keys);
+        std::reverse(gameLaneMap.begin() + 1, gameLaneMap.begin() + 1 + laneCountRandom);
         break;
 
     case eModChart::SRAN:
@@ -335,16 +335,16 @@ void chartBMS::loadBMS(const BMS& objBms)
                     size_t gameLaneIdxMod = gameLaneIdx;
                     size_t laneMin, laneMax;
                     int laneSlot;
-                    if (gameLaneIdx >= Sc1 && gameLaneIdx <= Sc1 + keys)
+                    if (gameLaneIdx >= Sc1 && gameLaneIdx <= Sc1 + laneCountRandom)
                     {
                         laneMin = K1;                   // K1
-                        laneMax = laneMin + (keys - 1); // K7
+                        laneMax = laneMin + (laneCountRandom - 1); // K7
                         laneSlot = PLAYER_SLOT_1P;
                     }
-                    else if (gameLaneIdx >= Sc1 + keys + 1 && gameLaneIdx <= Sc1 + keys + 1 + keys - 1)
+                    else if (gameLaneIdx >= Sc1 + laneCountRandom + 1 && gameLaneIdx <= Sc1 + laneCountRandom + 1 + laneCountRandom - 1)
                     {
-                        laneMin = K1 + keys;            // K8
-                        laneMax = laneMin + (keys - 1); // K14
+                        laneMin = K1 + laneCountRandom;            // K8
+                        laneMax = laneMin + (laneCountRandom - 1); // K14
                         laneSlot = PLAYER_SLOT_2P;
                     }
                     else
@@ -374,7 +374,7 @@ void chartBMS::loadBMS(const BMS& objBms)
                                         placable.push_back(i);
                                 }
                             }
-                            gameLaneIdxMod = placable.empty() ? (K1 + rng() % keys) : placable[rng() % placable.size()];
+                            gameLaneIdxMod = placable.empty() ? (K1 + rng() % laneCountRandom) : placable[rng() % placable.size()];
                         }
                         break;
 

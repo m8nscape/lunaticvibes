@@ -52,10 +52,10 @@ namespace cfg
 class ConfigInput : public vConfig
 {
 private:
-    int keys;
+    GameModeKeys keys;
 public:
     ConfigInput() = delete;
-    ConfigInput(const std::string& profile, unsigned k);
+    ConfigInput(const std::string& profile, GameModeKeys k);
     virtual ~ConfigInput();
 
     virtual void setDefaults() noexcept override;

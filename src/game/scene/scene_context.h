@@ -143,7 +143,7 @@ void updateContextSelectTitles();
 
 struct KeyConfigContextParams
 {
-    int keys;
+    GameModeKeys keys;
     std::pair<Input::Pad, int> selecting = { Input::Pad::K11, 0 };
 };
 
