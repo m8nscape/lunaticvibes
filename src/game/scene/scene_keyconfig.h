@@ -1,6 +1,6 @@
 #pragma once
 #include "scene.h"
-#include "game/input/input_keys.h"
+#include "common/keymap.h"
 
 class SceneKeyConfig : public vScene
 {

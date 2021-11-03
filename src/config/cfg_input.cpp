@@ -117,53 +117,30 @@ void ConfigInput::clearKey(Input::Pad ingame)
         set(mapKey, std::vector<std::string>());
 }
 
-void ConfigInput::bindKey(Input::Pad ingame, Input::Keyboard key, size_t slot)
+void ConfigInput::bind(Input::Pad ingame, const KeyMap& km, size_t slot)
 {
-    using namespace cfg;
-    using namespace Input;
-    slot = std::min(slot, MAX_BINDINGS_PER_KEY - 1);
-    std::string value = getKeyString(key);
-
     StringContent mapKey = getBindingKey(ingame);
-    if (mapKey != I_NOTBOUND) set(mapKey, slot, value);
+    if (mapKey != cfg::I_NOTBOUND) 
+        set(mapKey, slot, km.toString());
 }
 
-std::vector<Input::Keyboard> ConfigInput::getBindings(Input::Pad ingame)
+std::vector<KeyMap> ConfigInput::getBindings(Input::Pad ingame)
 {
     using namespace Input;
     using namespace cfg;
     StringContent mapKey = getBindingKey(ingame);
 
     auto keys = _yaml[mapKey];
-    std::vector<Input::Keyboard> ret;
+    std::vector<KeyMap> ret;
     for (const auto& k : keys)
     {
         std::string name = k.as<std::string>("INVALID");
-        if (name.length() < 2) continue;
-
-        switch (name[0])
+        KeyMap binding(name);
+        if (binding.getType() != KeyMap::DeviceType::UNDEF)
         {
-        case 'K':   // keyboard eg. K_A K_SLASH
-            ret.push_back(Input::getByName(name.substr(2)));
-            break;
-
-        case 'J':   // joystick eg. J1_1 J2_4
-            if (name[1] >= '0' && name[1] <= '9')
-            {
-                unsigned joyIdx = name[1] - '0';
-                // push back 
-            }
-            break;
-
-        default: break;
+            ret.push_back(binding);
         }
-        //ret.push_back(Input::getByName(k.as<std::string>(Input::keyboardNameMap[Input::K_ERROR])));
     }
     
     return ret;
-}
-
-std::string ConfigInput::getKeyString(Input::Keyboard k)
-{
-    return "K_"s + Input::keyboardNameMap[k];
 }

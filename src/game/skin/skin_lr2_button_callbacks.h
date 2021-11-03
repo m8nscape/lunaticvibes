@@ -1,7 +1,7 @@
 #pragma once
 
 #include <functional>
-#include "game/input/input_keys.h"
+#include "common/keymap.h"
 
 namespace lr2skin::button
 {

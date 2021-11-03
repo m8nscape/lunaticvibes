@@ -4,6 +4,7 @@ add_library(common STATIC
     fraction.cpp
     log.cpp
     utils.cpp
+    keymap.cpp
     sysutil.cpp
     sysutil_win.cpp
     sysutil_linux.cpp

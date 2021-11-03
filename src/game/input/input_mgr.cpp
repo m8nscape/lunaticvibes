@@ -7,6 +7,7 @@ InputMgr InputMgr::_inst;
 
 using namespace Input;
 
+
 void InputMgr::updateDevices()
 {
     // Check jostick connection status
@@ -19,14 +20,11 @@ void InputMgr::updateDevices()
     //    }
 }
 
-#define bindKey(kk, idx, igk) _inst.padBindings[kk][idx] = { KEYBOARD, 0, igk }
 void InputMgr::updateBindings(GameModeKeys keys, Pad K)
 {
     // Clear current bindings
     for (auto& k : _inst.padBindings)
-        k = {};
-
-
+        std::for_each(k.begin(), k.end(), [&](KeyMap& m) { m.reset(); });
 
     switch (keys)
     {
@@ -36,8 +34,7 @@ void InputMgr::updateBindings(GameModeKeys keys, Pad K)
         for (Input::Pad key = Input::S1L; key < Input::ESC; ++(*(int*)&key))
         {
             auto padBindings = ConfigMgr::Input(keys)->getBindings(key);
-            for (unsigned slot = 0; slot < std::min(MAX_BINDINGS_PER_KEY, padBindings.size()); ++slot)
-                bindKey(key, slot, padBindings[slot]);
+            std::copy_n(padBindings.begin(), std::min(MAX_BINDINGS_PER_KEY, padBindings.size()), _inst.padBindings[key].begin());
         }
         break;
 
@@ -60,16 +57,16 @@ std::bitset<KEY_COUNT> InputMgr::detect()
     {
         for (const auto& b : _inst.padBindings[k])
         {
-			switch (b.type)
+			switch (b.getType())
 			{
-			case KEYBOARD:
-                res[k] = isKeyPressed(b.key);
+            case KeyMap::DeviceType::KEYBOARD:
+                res[k] = isKeyPressed(b.getKeyboard());
 				break;
-			case JOYSTICK:
+			case KeyMap::DeviceType::JOYSTICK:
                 // TODO joystick
 				break;
-			case CONTROLLER:
-			case MOUSE:
+			case KeyMap::DeviceType::CONTROLLER:
+			case KeyMap::DeviceType::MOUSE:
 				break;
 			}
 			if (res[k]) break;
@@ -77,34 +74,34 @@ std::bitset<KEY_COUNT> InputMgr::detect()
     }
 
     // FN input
-    res[ESC] = isKeyPressed(K_ESC);
-    res[F1] = isKeyPressed(K_F1);
-    res[F2] = isKeyPressed(K_F2);
-    res[F3] = isKeyPressed(K_F3);
-    res[F4] = isKeyPressed(K_F4);
-    res[F5] = isKeyPressed(K_F5);
-    res[F6] = isKeyPressed(K_F6);
-    res[F7] = isKeyPressed(K_F7);
-    res[F8] = isKeyPressed(K_F8);
-    res[F9] = isKeyPressed(K_F9);
-    res[F10] = isKeyPressed(K_F10);
-    res[F11] = isKeyPressed(K_F11);
-    res[F12] = isKeyPressed(K_F12);
-    res[F13] = isKeyPressed(K_F13);
-    res[F14] = isKeyPressed(K_F14);
-    res[F15] = isKeyPressed(K_F15);
-    res[UP] = isKeyPressed(K_UP);
-    res[DOWN] = isKeyPressed(K_DOWN);
-    res[LEFT] = isKeyPressed(K_LEFT);
-    res[RIGHT] = isKeyPressed(K_RIGHT);
-    res[INSERT] = isKeyPressed(K_INS);
-    res[DEL] = isKeyPressed(K_DEL);
-    res[HOME] = isKeyPressed(K_HOME);
-    res[END] = isKeyPressed(K_END);
-    res[PGUP] = isKeyPressed(K_PGUP);
-    res[PGDN] = isKeyPressed(K_PGDN);
-    res[RETURN] = isKeyPressed(K_ENTER);
-    res[BACKSPACE] = isKeyPressed(K_BKSP);
+    res[ESC] = isKeyPressed(Keyboard::K_ESC);
+    res[F1] = isKeyPressed(Keyboard::K_F1);
+    res[F2] = isKeyPressed(Keyboard::K_F2);
+    res[F3] = isKeyPressed(Keyboard::K_F3);
+    res[F4] = isKeyPressed(Keyboard::K_F4);
+    res[F5] = isKeyPressed(Keyboard::K_F5);
+    res[F6] = isKeyPressed(Keyboard::K_F6);
+    res[F7] = isKeyPressed(Keyboard::K_F7);
+    res[F8] = isKeyPressed(Keyboard::K_F8);
+    res[F9] = isKeyPressed(Keyboard::K_F9);
+    res[F10] = isKeyPressed(Keyboard::K_F10);
+    res[F11] = isKeyPressed(Keyboard::K_F11);
+    res[F12] = isKeyPressed(Keyboard::K_F12);
+    res[F13] = isKeyPressed(Keyboard::K_F13);
+    res[F14] = isKeyPressed(Keyboard::K_F14);
+    res[F15] = isKeyPressed(Keyboard::K_F15);
+    res[UP] = isKeyPressed(Keyboard::K_UP);
+    res[DOWN] = isKeyPressed(Keyboard::K_DOWN);
+    res[LEFT] = isKeyPressed(Keyboard::K_LEFT);
+    res[RIGHT] = isKeyPressed(Keyboard::K_RIGHT);
+    res[INSERT] = isKeyPressed(Keyboard::K_INS);
+    res[DEL] = isKeyPressed(Keyboard::K_DEL);
+    res[HOME] = isKeyPressed(Keyboard::K_HOME);
+    res[END] = isKeyPressed(Keyboard::K_END);
+    res[PGUP] = isKeyPressed(Keyboard::K_PGUP);
+    res[PGDN] = isKeyPressed(Keyboard::K_PGDN);
+    res[RETURN] = isKeyPressed(Keyboard::K_ENTER);
+    res[BACKSPACE] = isKeyPressed(Keyboard::K_BKSP);
 
     res[M1] = isMouseButtonPressed(1);
     res[M2] = isMouseButtonPressed(2);

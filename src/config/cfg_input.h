@@ -1,6 +1,6 @@
 #pragma once
 #include "config.h"
-#include "game/input/input_keys.h"
+#include "common/keymap.h"
 
 constexpr char CONFIG_FILE_INPUT_5[] = "input5.yml";
 constexpr char CONFIG_FILE_INPUT_7[] = "input7.yml";
@@ -49,6 +49,8 @@ namespace cfg
 
 }
 
+
+
 class ConfigInput : public vConfig
 {
 private:
@@ -65,9 +67,7 @@ public:
     void clearAll();
 
     void clearKey(Input::Pad ingame);
-    void bindKey(Input::Pad ingame, Input::Keyboard key, size_t slot);
+    void bind(Input::Pad ingame, const KeyMap& km, size_t slot);
     //void bindButton(unsigned id, Input::Pad ingame, unsigned input);
-    std::vector<Input::Keyboard> getBindings(Input::Pad key);
-
-    static std::string getKeyString(Input::Keyboard k);
+    std::vector<KeyMap> getBindings(Input::Pad key);
 };

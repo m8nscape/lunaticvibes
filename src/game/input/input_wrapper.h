@@ -7,12 +7,12 @@
 #include "common/asynclooper.h"
 #include "common/beat.h"
 
-typedef std::bitset<Input::KEY_COUNT> InputMask;
+typedef std::bitset<Input::Pad::KEY_COUNT> InputMask;
 typedef std::function<void(InputMask&, const Time&)> INPUTCALLBACK;
 //typedef void(*PressedHandleCallback)(void* owner, InputMask&);
 //typedef void(*HoldHandleCallback)(void* owner, InputMask&);
 //typedef void(*ReleasedHandleCallback)(void* owner, InputMask&);
-typedef std::bitset<Input::Keyboard::K_COUNT> KeyboardMask;
+typedef std::bitset<Input::keyboardKeyCount> KeyboardMask;
 typedef std::function<void(KeyboardMask, const Time&)> KEYBOARDCALLBACK;
 
 // FUNC:                                   BRDUEHDI><v^543210987654321_

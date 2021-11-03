@@ -130,31 +130,32 @@ void SceneKeyConfig::inputGamePressKeyboard(KeyboardMask& mask, const Time& t)
 {
     // update bindings
     auto [pad, slot] = gKeyconfigContext.selecting;
-    for (Input::Keyboard k = Input::Keyboard::K_1; k < Input::Keyboard::K_COUNT; ++ * (unsigned*)&k)
+    for (Input::Keyboard k = Input::Keyboard::K_1; k != Input::Keyboard::K_COUNT; ++ * (unsigned*)&k)
     {
-        if (mask[k])
+        if (mask[static_cast<size_t>(k)])
         {
-            if (k < Input::Keyboard::K_COUNT && slot < Input::MAX_BINDINGS_PER_KEY)
+            if (slot < InputMgr::MAX_BINDINGS_PER_KEY)
             {
                 GameModeKeys keys = gKeyconfigContext.keys;
 
                 // modify slot
-                ConfigMgr::Input(keys)->bindKey(pad, k, slot);
+                KeyMap km(k);
+                ConfigMgr::Input(keys)->bind(pad, km, slot);
                 InputMgr::updateBindings(keys, pad);
 
                 // update text
                 switch (slot)
                 {
-                    case 0: gTexts.set(eText::KEYCONFIG_SLOT1, ConfigInput::getKeyString(k)); break;
-                    case 1: gTexts.set(eText::KEYCONFIG_SLOT2, ConfigInput::getKeyString(k)); break;
-                    case 2: gTexts.set(eText::KEYCONFIG_SLOT3, ConfigInput::getKeyString(k)); break;
-                    case 3: gTexts.set(eText::KEYCONFIG_SLOT4, ConfigInput::getKeyString(k)); break;
-                    case 4: gTexts.set(eText::KEYCONFIG_SLOT5, ConfigInput::getKeyString(k)); break;
-                    case 5: gTexts.set(eText::KEYCONFIG_SLOT6, ConfigInput::getKeyString(k)); break;
-                    case 6: gTexts.set(eText::KEYCONFIG_SLOT7, ConfigInput::getKeyString(k)); break;
-                    case 7: gTexts.set(eText::KEYCONFIG_SLOT8, ConfigInput::getKeyString(k)); break;
-                    case 8: gTexts.set(eText::KEYCONFIG_SLOT9, ConfigInput::getKeyString(k)); break;
-                    case 9: gTexts.set(eText::KEYCONFIG_SLOT10, ConfigInput::getKeyString(k)); break;
+                    case 0: gTexts.set(eText::KEYCONFIG_SLOT1,  km.toString()); break;
+                    case 1: gTexts.set(eText::KEYCONFIG_SLOT2,  km.toString()); break;
+                    case 2: gTexts.set(eText::KEYCONFIG_SLOT3,  km.toString()); break;
+                    case 3: gTexts.set(eText::KEYCONFIG_SLOT4,  km.toString()); break;
+                    case 4: gTexts.set(eText::KEYCONFIG_SLOT5,  km.toString()); break;
+                    case 5: gTexts.set(eText::KEYCONFIG_SLOT6,  km.toString()); break;
+                    case 6: gTexts.set(eText::KEYCONFIG_SLOT7,  km.toString()); break;
+                    case 7: gTexts.set(eText::KEYCONFIG_SLOT8,  km.toString()); break;
+                    case 8: gTexts.set(eText::KEYCONFIG_SLOT9,  km.toString()); break;
+                    case 9: gTexts.set(eText::KEYCONFIG_SLOT10, km.toString()); break;
                     default: break;
                 }
 
@@ -167,13 +168,13 @@ void SceneKeyConfig::inputGamePressKeyboard(KeyboardMask& mask, const Time& t)
 
 void SceneKeyConfig::setInputBindingText(GameModeKeys keys, Input::Pad pad)
 {
-    auto padBindings = ConfigMgr::Input(keys)->getBindings(pad);
-    for (size_t i = 0; i < padBindings.size(); ++i)
+    auto bindings = ConfigMgr::Input(keys)->getBindings(pad);
+    for (size_t i = 0; i < bindings.size(); ++i)
     {
-        gTexts.set(eText(unsigned(eText::KEYCONFIG_SLOT1) + i), ConfigInput::getKeyString(padBindings[i]));
+        gTexts.set(eText(unsigned(eText::KEYCONFIG_SLOT1) + i), bindings[i].toString());
     }
-    for (size_t i = padBindings.size(); i < Input::MAX_BINDINGS_PER_KEY; ++i)
+    for (size_t i = bindings.size(); i < InputMgr::MAX_BINDINGS_PER_KEY; ++i)
     {
-        gTexts.set(eText(unsigned(eText::KEYCONFIG_SLOT1) + i), "");
+        gTexts.set(eText(unsigned(eText::KEYCONFIG_SLOT1) + i), "-");
     }
 }

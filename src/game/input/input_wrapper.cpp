@@ -65,16 +65,17 @@ void InputWrapper::_loop()
     {
         KeyboardMask mask;
         _kbprev = _kbcurr;
-        for (Input::Keyboard k = Input::Keyboard::K_ESC; k < Input::Keyboard::K_COUNT; ++*(unsigned*)&k)
+        for (Input::Keyboard k = Input::Keyboard::K_ESC; k != Input::Keyboard::K_COUNT; ++*(unsigned*)&k)
         {
-            if (isKeyPressed(k)) mask.set(k);
+            if (isKeyPressed(k)) mask.set(static_cast<size_t>(k));
         }
         _kbcurr = mask;
 
         KeyboardMask p;
-        for (Input::Keyboard k = Input::Keyboard::K_ESC; k < Input::Keyboard::K_COUNT; ++ * (unsigned*)&k)
+        for (Input::Keyboard k = Input::Keyboard::K_ESC; k != Input::Keyboard::K_COUNT; ++ * (unsigned*)&k)
         {
-            if (_kbcurr[k] && !_kbprev[k]) p.set(k);
+            size_t ki = static_cast<size_t>(k);
+            if (_kbcurr[ki] && !_kbprev[ki]) p.set(ki);
         }
         if (p.any())
         {

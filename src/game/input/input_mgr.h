@@ -4,29 +4,7 @@
 #include <bitset>
 #include <map>
 #include <functional>
-#include "input_keys.h"
-
-namespace Input
-{
-    enum DeviceType
-    {
-        KEYBOARD = 0,
-        JOYSTICK,
-        CONTROLLER,
-        MOUSE,          // ???
-    };
-
-    typedef size_t DeviceID;
-    struct KeyMap
-    {
-        DeviceType  type;
-        DeviceID    device;
-        Keyboard    key;
-    };
-
-    typedef std::array<KeyMap, MAX_BINDINGS_PER_KEY> Bindings;
-
-};
+#include "common/keymap.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Input manager
@@ -40,12 +18,14 @@ private:
     ~InputMgr() = default;
 
 public:
+    static constexpr std::size_t MAX_JOYSTICK_COUNT = 8;
+    static constexpr std::size_t MAX_BINDINGS_PER_KEY = 10;
 
     // Game keys param / functions
 private:
-    std::bitset<Input::MAX_JOYSTICK_COUNT> joysticksConnected{};
+    std::bitset<MAX_JOYSTICK_COUNT> joysticksConnected{};
     bool haveJoystick = false;
-    std::array<Input::Bindings, Input::ESC> padBindings{};
+    std::array<std::array<KeyMap, MAX_BINDINGS_PER_KEY>, Input::ESC> padBindings{};
 	int mouse_x = 0, mouse_y = 0;
 	int analogDeadZone = 25;
 
