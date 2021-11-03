@@ -346,6 +346,13 @@ inline const char* keyboardNameMap[0xFF]
     "JP_HIRAGANA",
 };
 
+struct Rawinput
+{
+    int deviceID;
+    int keycode;
+};
+
+
 }
 
 class KeyMap
@@ -363,16 +370,19 @@ public:
         JOYSTICK,
         CONTROLLER,
         MOUSE,          // ???
+
+        RAWINPUT,       // Windows 
     };
 
-    typedef size_t DeviceID;
+    typedef int DeviceID;
 
 protected:
     DeviceType type = DeviceType::UNDEF;
-    DeviceID device = 0;
+    DeviceID device = -1;
     union
     {
         Input::Keyboard keyboard;
+        int code;
     };
 
 public:
@@ -381,8 +391,11 @@ public:
     std::string toString() const;
 
     Input::Keyboard getKeyboard() const { assert(type == DeviceType::KEYBOARD); return keyboard; }
+    int getDeviceID() const { return device; }
+    int getCode() const { return code; }
 
     void setKeyboard(Input::Keyboard kb);
+    void setRawInput(int deviceID, int code);
 
 private:
     void fromString(const std::string_view& name);
@@ -390,8 +403,10 @@ private:
     void fromStringJoystick(const std::string_view& name);
     void fromStringController(const std::string_view& name);
     void fromStringMouse(const std::string_view& name);
+    void fromStringRawInput(const std::string_view& name);
     std::string toStringKeyboard() const;
     std::string toStringJoystick() const;
     std::string toStringController() const;
     std::string toStringMouse() const;
+    std::string toStringRawInput() const;
 };

@@ -96,6 +96,9 @@ int graphics_init()
             LOG_ERROR << "[SDL2] Init renderer ERROR! " << SDL_GetError();
             return -2;
         }
+
+        SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+
         LOG_DEBUG << "[SDL2] Initializing window and render complete.";
     }
 
@@ -178,6 +181,17 @@ void event_handle()
             }
             break;
 
+        case SDL_SYSWMEVENT:
+#ifdef WIN32
+            callWMEventHandler(
+                &e.syswm.msg->msg.win.hwnd, 
+                &e.syswm.msg->msg.win.msg,
+                &e.syswm.msg->msg.win.wParam,
+                &e.syswm.msg->msg.win.lParam);
+#elif defined __linux__
+
+#endif
+            break;
         default:
             break;
         }

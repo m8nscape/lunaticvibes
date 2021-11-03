@@ -116,4 +116,29 @@ void SetWindowForeground(bool f)
     foreground = f;
 }
 
+
+std::vector<std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)>> WMEventHandler;
+void addWMEventHandler(std::function<void(void*, void*, void*, void*)> f)
+{
+    using namespace std::placeholders;
+    WMEventHandler.push_back(std::bind([&](HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) -> LRESULT
+        {
+            f(&hwnd, &msg, &wp, &lp);
+            return 0;
+        }, _1, _2, _3, _4));
+}
+
+void callWMEventHandler(void* arg1, void* arg2, void* arg3, void* arg4)
+{
+    HWND hwnd = *(HWND*)arg1;
+    UINT msg = *(UINT*)arg2;
+    WPARAM wParam = *(WPARAM*)arg3;
+    LPARAM lParam = *(LPARAM*)arg4;
+
+    for (auto& f : WMEventHandler)
+    {
+        f(hwnd, msg, wParam, lParam);
+    }
+}
+
 #endif

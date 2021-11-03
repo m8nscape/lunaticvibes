@@ -20,6 +20,13 @@ void KeyMap::setKeyboard(Input::Keyboard kb)
     keyboard = kb;
 }
 
+void KeyMap::setRawInput(int deviceID, int code)
+{
+    type = DeviceType::RAWINPUT;
+    device = deviceID;
+    this->code = code;
+}
+
 void KeyMap::fromString(const std::string_view& name)
 {
     type = DeviceType::UNDEF;
@@ -70,6 +77,13 @@ void KeyMap::fromStringMouse(const std::string_view& name)
     assert(false);
 }
 
+void KeyMap::fromStringRawInput(const std::string_view& name)
+{
+    if (name.substr(0, 2) != "R_") return;
+    type = DeviceType::RAWINPUT;
+    assert(false);
+}
+
 std::string KeyMap::toStringKeyboard() const
 {
     return "K_"s + Input::keyboardNameMap[static_cast<size_t>(keyboard)];
@@ -91,4 +105,10 @@ std::string KeyMap::toStringMouse() const
 {
     assert(false);
     return "M_"s + "NULL";
+}
+
+std::string KeyMap::toStringRawInput() const
+{
+    assert(false);
+    return "R_"s + "NULL";
 }

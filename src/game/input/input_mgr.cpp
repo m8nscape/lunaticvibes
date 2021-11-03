@@ -1,5 +1,6 @@
 #include "common/log.h"
 #include "input_mgr.h"
+#include "input_rawinput.h"
 #include "common/sysutil.h"
 #include "config/config_mgr.h"
 
@@ -50,12 +51,16 @@ void InputMgr::updateBindings(GameModeKeys keys, Pad K)
 
 std::bitset<KEY_COUNT> InputMgr::detect()
 {
+#ifdef RAWINPUT_AVAILABLE
+    rawinput::RIMgr::inst().update();
+#endif
+
     std::bitset<KEY_COUNT> res{};
 
     // game input
     for (int k = S1L; k < ESC; k++)
     {
-        for (const auto& b : _inst.padBindings[k])
+        for (const KeyMap& b : _inst.padBindings[k])
         {
 			switch (b.getType())
 			{
@@ -68,6 +73,11 @@ std::bitset<KEY_COUNT> InputMgr::detect()
 			case KeyMap::DeviceType::CONTROLLER:
 			case KeyMap::DeviceType::MOUSE:
 				break;
+#ifdef RAWINPUT_AVAILABLE
+            case KeyMap::DeviceType::RAWINPUT:
+                res[k] = rawinput::RIMgr::inst().isPressed(b.getDeviceID(), b.getCode());
+                break;
+#endif
 			}
 			if (res[k]) break;
         }
