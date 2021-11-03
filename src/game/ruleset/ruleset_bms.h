@@ -193,9 +193,9 @@ public:
         PlaySide side = PlaySide::SP);
 private:
     judgeRes _judge(const Note& note, Time time);
-    void _judgePress(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot);
-    void _judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot);
-    void _judgeRelease(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot);
+    void _judgePress(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot);
+    void _judgeHold(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot);
+    void _judgeRelease(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot);
     void _updateHp(const double delta);
     void _updateHp(JudgeType judge);
 public:
@@ -206,7 +206,7 @@ public:
     // Register to InputWrapper
     virtual void updateRelease(InputMask& rg, const Time& t);
     // Called by ScenePlay
-    virtual void update(Time t);
+    virtual void update(const Time& t);
 public:
     //constexpr auto getJudge() const { return _count; }
     void updateHit(const Time& t, chart::NoteLaneIndex ch, JudgeType judge, int slot);

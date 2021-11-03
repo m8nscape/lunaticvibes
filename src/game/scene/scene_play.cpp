@@ -22,13 +22,13 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     case eMode::PLAY9:
     case eMode::PLAY10:
     case eMode::PLAY14:
-        _mode = ePlayMode::SINGLE;
+        _mode = gPlayContext.isAuto ? ePlayMode::AUTO : ePlayMode::SINGLE;
         break;
 
     case eMode::PLAY5_2:
     case eMode::PLAY7_2:
     case eMode::PLAY9_2:
-        _mode = ePlayMode::LOCAL_BATTLE;
+        _mode = gPlayContext.isAuto ? ePlayMode::AUTO_BATTLE : ePlayMode::LOCAL_BATTLE;
         break;
 
     default:
@@ -785,6 +785,7 @@ void ScenePlay::updateFadeout()
 
         loopEnd();
         _input.loopEnd();
+        SoundMgr::stopKeySamples();
 
         if (_mode == ePlayMode::AUTO || _mode == ePlayMode::AUTO_BATTLE)
         {
@@ -823,9 +824,9 @@ void ScenePlay::procCommonNotes()
 {
     assert(gPlayContext.chartObj[PLAYER_SLOT_1P] != nullptr);
     auto it = gPlayContext.chartObj[PLAYER_SLOT_1P]->noteBgmExpired.begin();
-    size_t i;
     size_t max = std::min(_bgmSampleIdxBuf.size(), gPlayContext.chartObj[PLAYER_SLOT_1P]->noteBgmExpired.size());
-    for (i = 0; i < max && it != gPlayContext.chartObj[PLAYER_SLOT_1P]->noteBgmExpired.end(); ++i, ++it)
+    size_t i = 0;
+    for (; i < max && it != gPlayContext.chartObj[PLAYER_SLOT_1P]->noteBgmExpired.end(); ++i, ++it)
     {
         //if ((it->index & 0xF0) == 0xE0)
         {
@@ -846,7 +847,22 @@ void ScenePlay::procCommonNotes()
             _bgmSampleIdxBuf[i] = (unsigned)std::get<long long>(it->value);
         }
     }
-    // TODO also play keysound in auto
+
+    // also play keysound in auto
+    if (gPlayContext.isAuto)
+    {
+        auto it = gPlayContext.chartObj[PLAYER_SLOT_1P]->noteExpired.begin();
+        size_t max2 = std::min(_bgmSampleIdxBuf.size(), max + gPlayContext.chartObj[PLAYER_SLOT_1P]->noteExpired.size());
+        while (i < max && it != gPlayContext.chartObj[PLAYER_SLOT_1P]->noteExpired.end())
+        {
+            if (it->flags & Note::LN_TAIL == 0)
+            {
+                _bgmSampleIdxBuf[i] = (unsigned)std::get<long long>(it->value);
+                ++i;
+            }
+            ++it;
+        }
+    }
 
     SoundMgr::playKeySample(i, (size_t*)_bgmSampleIdxBuf.data());
 }

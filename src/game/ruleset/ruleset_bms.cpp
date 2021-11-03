@@ -583,6 +583,7 @@ void RulesetBMS::updatePress(InputMask& pg, const Time& t)
 {
 	Time rt = t - gTimers.get(eTimer::PLAY_START);
     if (rt.norm() < 0) return;
+    if (gPlayContext.isAuto) return;
     auto updatePressRange = [&](Input::Pad begin, Input::Pad end, int slot)
     {
         for (size_t k = begin; k <= end; ++k)
@@ -601,6 +602,7 @@ void RulesetBMS::updateHold(InputMask& hg, const Time& t)
 {
 	Time rt = t - gTimers.get(eTimer::PLAY_START);
     if (rt < 0) return;
+    if (gPlayContext.isAuto) return;
 
     auto updateHoldRange = [&](Input::Pad begin, Input::Pad end, int slot)
     {
@@ -620,6 +622,7 @@ void RulesetBMS::updateRelease(InputMask& rg, const Time& t)
 {
 	Time rt = t - gTimers.get(eTimer::PLAY_START);
     if (rt < 0) return;
+    if (gPlayContext.isAuto) return;
 
     auto updateReleaseRange = [&](Input::Pad begin, Input::Pad end, int slot)
     {
@@ -641,7 +644,7 @@ void RulesetBMS::updateRelease(InputMask& rg, const Time& t)
     if (_k2P) updateReleaseRange(Input::S2L, Input::K2SPDDN, PLAYER_SLOT_2P);
 }
 
-void RulesetBMS::update(Time t)
+void RulesetBMS::update(const Time& t)
 {
 	auto rt = t - gTimers.get(eTimer::PLAY_START);
 
@@ -664,18 +667,6 @@ void RulesetBMS::update(Time t)
 
             n++;
         }
-
-        if (_k1P) for (size_t k = Input::S1L; k <= Input::K1SPDDN; ++k)
-        {
-            auto [cat, idx] = _chart->getLaneFromKey((Input::Pad)k);
-            if (cat == NoteLaneCategory::_) return;
-            auto n = _chart->incomingNote(cat, idx);
-            if (_judge(*n, t).area >= judgeArea::EXACT_PERFECT)
-            {
-                updateHit(t, idx, RulesetBMS::JudgeType::PERFECT, PLAYER_SLOT_1P);
-            }
-        }
-        if (_k2P) updateRange(Input::S2L, Input::K2SPDDN, PLAYER_SLOT_2P);
     }
 
     auto updateRange = [&](Input::Pad begin, Input::Pad end, int slot)
@@ -722,8 +713,30 @@ void RulesetBMS::update(Time t)
             }
         }
     };
-    if (_k1P) updateRange(Input::S1L, Input::K1SPDDN, PLAYER_SLOT_1P);
-    if (_k2P) updateRange(Input::S2L, Input::K2SPDDN, PLAYER_SLOT_2P);
+    auto updateAuto = [&](Input::Pad begin, Input::Pad end, int slot)
+    {
+        for (size_t k = begin; k <= end; ++k)
+        {
+            auto [cat, idx] = _chart->getLaneFromKey((Input::Pad)k);
+            if (cat == NoteLaneCategory::_) return;
+
+            auto n = _chart->incomingNote(cat, idx);
+            if (_judge(*n, t).area >= judgeArea::EXACT_PERFECT)
+            {
+                updateHit(t, idx, RulesetBMS::JudgeType::PERFECT, slot);
+            }
+        }
+    };
+    if (gPlayContext.isAuto)
+    {
+        if (_k1P) updateAuto(Input::S1L, Input::K1SPDDN, PLAYER_SLOT_1P);
+        if (_k2P) updateAuto(Input::S2L, Input::K2SPDDN, PLAYER_SLOT_2P);
+    }
+    else
+    {
+        if (_k1P) updateRange(Input::S1L, Input::K1SPDDN, PLAYER_SLOT_1P);
+        if (_k2P) updateRange(Input::S2L, Input::K2SPDDN, PLAYER_SLOT_2P);
+    }
 
 	unsigned max = _chart->getNoteCount() * 2;
 	_basic.total_acc = 100.0 * _basic.score2 / max;

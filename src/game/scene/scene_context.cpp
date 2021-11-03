@@ -44,6 +44,10 @@ void clearContextPlay()
     static std::random_device rd;
     gPlayContext.randomSeedChart = rd();
     gPlayContext.randomSeedMod = rd();
+
+    gPlayContext.isAuto = false;
+    gPlayContext.isCourse = false;
+    gPlayContext.isCourseFirstStage = false;
 }
 
 void updateContextSelectTitles()

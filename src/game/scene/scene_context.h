@@ -93,6 +93,7 @@ struct PlayContextParams
 
     unsigned int randomSeedChart;
     unsigned int randomSeedMod;
+    bool isAuto = false;
 };
 
 void clearContextPlayForRetry();

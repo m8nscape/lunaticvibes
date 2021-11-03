@@ -46,10 +46,10 @@ public:
         _format(format), _chart(chart), _basic{ 0 }{}
     virtual ~vRuleset() = default;
 public:
-    virtual void updatePress(InputMask& pg, Time t) = 0;
-    virtual void updateHold(InputMask& hg, Time t) = 0;
-    virtual void updateRelease(InputMask& rg, Time t) = 0;
-    virtual void update(Time t) = 0;
+    virtual void updatePress(InputMask& pg, const Time& t) = 0;
+    virtual void updateHold(InputMask& hg, const Time& t) = 0;
+    virtual void updateRelease(InputMask& rg, const Time& t) = 0;
+    virtual void update(const Time& t) = 0;
 public:
     constexpr BasicData getData() const { return _basic; }
     constexpr bool isFinished() const { return _basic.totaln == _chart->getNoteCount(); }

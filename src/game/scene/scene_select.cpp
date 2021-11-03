@@ -1028,6 +1028,19 @@ void SceneSelect::_decide()
 
     clearContextPlay();
 
+    if (gSwitches.get(eSwitch::SYSTEM_AUTOPLAY))
+    {
+        gPlayContext.canRetry = false;
+        gPlayContext.isAuto = true;
+    }
+
+    if (entry->type() == eEntryType::COURSE)
+    {
+        gPlayContext.canRetry = false;
+        gPlayContext.isCourse = true;
+        gPlayContext.isCourseFirstStage = true;
+    }
+
     // gauge
     switch (gOptions.get(eOption::PLAY_GAUGE_TYPE_1P))
     {
@@ -1106,6 +1119,7 @@ void SceneSelect::_decide()
     case eEntryType::CHART:
     case eEntryType::RIVAL_CHART:
     {
+        // set metadata
         c.chartObj = std::reinterpret_pointer_cast<Song>(entry)->_file;
 
         auto& chart = *c.chartObj;
@@ -1133,6 +1147,40 @@ void SceneSelect::_decide()
 
         // FIXME get play mode
         gPlayContext.mode = eMode::PLAY7;
+
+        break;
+    }
+    case eEntryType::COURSE:
+    {
+        // reset mods
+        static const std::set<eModGauge> courseGaugeModsAllowed = { eModGauge::NORMAL , eModGauge::HARD };
+        if (courseGaugeModsAllowed.find(gPlayContext.mods[PLAYER_SLOT_1P].gauge) == courseGaugeModsAllowed.end())
+        {
+            gOptions.set(eOption::PLAY_GAUGE_TYPE_1P, 0);
+            gPlayContext.mods[PLAYER_SLOT_1P].gauge = eModGauge::NORMAL;
+        }
+        if (courseGaugeModsAllowed.find(gPlayContext.mods[PLAYER_SLOT_2P].gauge) == courseGaugeModsAllowed.end())
+        {
+            gOptions.set(eOption::PLAY_GAUGE_TYPE_2P, 0);
+            gPlayContext.mods[PLAYER_SLOT_2P].gauge = eModGauge::NORMAL;
+        }
+        static const std::set<eModChart> courseChartModsAllowed = { eModChart::NONE , eModChart::MIRROR };
+        if (courseChartModsAllowed.find(gPlayContext.mods[PLAYER_SLOT_1P].chart) == courseChartModsAllowed.end())
+        {
+            gOptions.set(eOption::PLAY_RANDOM_TYPE_1P, 0);
+            gPlayContext.mods[PLAYER_SLOT_1P].chart = eModChart::NONE;
+        }
+        if (courseChartModsAllowed.find(gPlayContext.mods[PLAYER_SLOT_2P].chart) == courseChartModsAllowed.end())
+        {
+            gOptions.set(eOption::PLAY_RANDOM_TYPE_2P, 0);
+            gPlayContext.mods[PLAYER_SLOT_2P].chart = eModChart::NONE;
+        }
+        gSwitches.set(eSwitch::PLAY_OPTION_AUTOSCR_1P, false);
+        gPlayContext.mods[PLAYER_SLOT_1P].assist_mask = 0; 
+        gSwitches.set(eSwitch::PLAY_OPTION_AUTOSCR_2P, false);
+        gPlayContext.mods[PLAYER_SLOT_2P].assist_mask = 0; 
+
+        // set metadata
 
         break;
     }
