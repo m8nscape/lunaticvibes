@@ -43,6 +43,18 @@ void SetThreadNameWin32(DWORD dwThreadID, const char* threadName) {
     abort();
 }
 
+static DWORD dwMainThreadId = 0;
+
+void SetThreadAsMainThread()
+{
+    dwMainThreadId = GetCurrentThreadId();
+}
+
+bool IsMainThread()
+{
+    return GetCurrentThreadId() == dwMainThreadId;
+}
+
 void SetThreadName(const char* name) 
 {
     SetThreadNameWin32(GetCurrentThreadId(), name); 

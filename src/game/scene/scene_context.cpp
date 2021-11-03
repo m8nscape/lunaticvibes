@@ -1,5 +1,6 @@
 #include "scene_context.h"
 #include "game/data/data.h"
+#include <random>
 
 bool gResetSelectCursor = true;
 bool gQuitOnFinish = false;
@@ -39,6 +40,10 @@ void clearContextPlay()
         gPlayContext.mods[i].clear();
     }
     gPlayContext.remainTime = 0;
+
+    static std::random_device rd;
+    gPlayContext.randomSeedChart = rd();
+    gPlayContext.randomSeedMod = rd();
 }
 
 void updateContextSelectTitles()
@@ -51,23 +56,4 @@ void updateContextSelectTitles()
         gTexts.set(eText(unsigned(eText::_SELECT_BAR_TITLE_FULL_0) + idx), context_select.info[idx].title);
     }
     */
-}
-
-std::shared_mutex mainThreadTaskQueueMutex;
-std::queue<std::function<void()>> mainThreadTaskQueue;
-
-void pushMainThreadTask(std::function<void()> f)
-{
-    std::unique_lock l(mainThreadTaskQueueMutex);
-    mainThreadTaskQueue.push(f);
-}
-
-void doMainThreadTask()
-{
-    std::shared_lock l(mainThreadTaskQueueMutex);
-    while (!mainThreadTaskQueue.empty())
-    {
-        mainThreadTaskQueue.front()();
-        mainThreadTaskQueue.pop();
-    }
 }

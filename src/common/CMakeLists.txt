@@ -4,12 +4,13 @@ add_library(common STATIC
     fraction.cpp
     log.cpp
     utils.cpp
+    sysutil.cpp
     sysutil_win.cpp
     sysutil_linux.cpp
     chartformat/chartformat.cpp
     chartformat/chartformat_bms.cpp
     entry/entry_folder.cpp
-)
+    )
 
 target_include_directories(common PRIVATE
     ${PROJECT_INCLUDE_DIR}

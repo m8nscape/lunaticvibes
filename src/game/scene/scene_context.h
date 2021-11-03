@@ -19,7 +19,8 @@ enum class eScene
     DECIDE,
     PLAY,
     RESULT,
-    RETRY,
+    COURSE_TRANS,
+    RETRY_TRANS,
     KEYCONFIG,
     EXIT
 };
@@ -90,6 +91,8 @@ struct PlayContextParams
 
     Time remainTime;
 
+    unsigned int randomSeedChart;
+    unsigned int randomSeedMod;
 };
 
 void clearContextPlayForRetry();
@@ -168,6 +171,3 @@ extern std::shared_ptr<SongDB> g_pSongDB;
 extern std::shared_ptr<ScoreDB> g_pScoreDB;
 
 ////////////////////////////////////////////////////////////////////////////////
-
-void pushMainThreadTask(std::function<void()> f);
-void doMainThreadTask();

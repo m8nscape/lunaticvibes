@@ -115,9 +115,6 @@ bool TextureBmsBga::addBmp(size_t idx, const Path& pBmp)
 		".webm",
 	};
 
-	// FIXME Texture creation must be run at main thread.
-	// check TextureDynamic::setPath(const Path& path)
-
 	if (fs::exists(pBmp) && fs::is_regular_file(pBmp) && pBmp.has_extension())
 	{
 		if (video_file_extensions.find(toLower(pBmp.extension().string())) != video_file_extensions.end())
@@ -313,27 +310,25 @@ void TextureDynamic::setPath(const Path& path)
 		return;
 	}
 
-	pushMainThreadTask(std::bind([this](Path path) {
-		static std::map<Path, Texture> dynTexCache;
-		if (dynTexCache.find(path) == dynTexCache.end())
+	static std::map<Path, Texture> dynTexCache;
+	if (dynTexCache.find(path) == dynTexCache.end())
+	{
+		Image tmp(path);
+		if (!tmp._loaded)
 		{
-			Image tmp(path);
-			if (!tmp._loaded)
-			{
-				dynTexCache.emplace(std::piecewise_construct, std::forward_as_tuple(path), std::forward_as_tuple(nullptr, 0, 0));
-				_loaded = false;
-				return;
-			}
-			dynTexCache.emplace(path, tmp);
+			dynTexCache.emplace(std::piecewise_construct, std::forward_as_tuple(path), std::forward_as_tuple(nullptr, 0, 0));
+			_loaded = false;
+			return;
 		}
+		dynTexCache.emplace(path, tmp);
+	}
 
-		_dynTexture = &dynTexCache.at(path);
-		if (_dynTexture->isLoaded())
-		{
-			_loaded = true;
-			_texRect = _dynTexture->getRect();
-		}
-	}, path));
+	_dynTexture = &dynTexCache.at(path);
+	if (_dynTexture->isLoaded())
+	{
+		_loaded = true;
+		_texRect = _dynTexture->getRect();
+	}
 }
 
 void TextureDynamic::draw(Rect dstRect,

@@ -430,7 +430,6 @@ void shutter(int plus)
 // 54
 void flip(int plus)
 {
-
     SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
 }
 

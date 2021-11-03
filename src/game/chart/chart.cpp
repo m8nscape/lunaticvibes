@@ -8,8 +8,8 @@
 
 using namespace chart;
 
-vChart::vChart( size_t pn, size_t en) :
-    _noteLists{}, _bgmNoteLists(pn), _specialNoteLists(en), _bgmNoteListIters(pn), _specialNoteListIters(en)
+vChart::vChart(int slot, size_t pn, size_t en) :
+    _playerSlot(slot), _noteLists{}, _bgmNoteLists(pn), _specialNoteLists(en), _bgmNoteListIters(pn), _specialNoteListIters(en)
 {
     reset();
 	_barTimestamp.fill({LLONG_MAX, false});
@@ -20,12 +20,12 @@ vChart::vChart( size_t pn, size_t en) :
 }
 
 
-std::shared_ptr<vChart> vChart::createFromChartFormat(std::shared_ptr<vChartFormat> p)
+std::shared_ptr<vChart> vChart::createFromChartFormat(int slot, std::shared_ptr<vChartFormat> p)
 {
     switch (p->type())
     {
     case eChartFormat::BMS:
-        return std::make_shared<chartBMS>(std::reinterpret_pointer_cast<BMS>(p));
+        return std::make_shared<chartBMS>(slot, std::reinterpret_pointer_cast<BMS>(p));
     default:
         LOG_WARNING << "[chart] Chart type unknown (" << int(p->type()) << "): " << p->filePath.string();
         return nullptr;

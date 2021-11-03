@@ -2,9 +2,11 @@
 #include "window_SDL2.h"
 #include "SDL2_gfxPrimitives.h"
 #include "common/log.h"
+#include "common/sysutil.h"
 
 #include <memory>
 #include <map>
+#include <future>
 
 #define SDL_LOAD_NOAUTOFREE 0
 #define SDL_LOAD_AUTOFREE 1
@@ -12,6 +14,8 @@
 #ifdef _MSC_VER
 #define strcpy strcpy_s
 #endif
+
+using namespace std::placeholders;
 
 Color::Color(uint32_t rgba)
 {
@@ -144,21 +148,29 @@ Image::Image(const char* path, std::shared_ptr<SDL_RWops>&& rw): _path(path), _p
     }
     if (isTGA(path))
     {
-        _pSurface = std::shared_ptr<SDL_Surface>(IMG_LoadTGA_RW(&*_pRWop), SDL_FreeSurface);
+        _pSurface = std::shared_ptr<SDL_Surface>(
+            pushAndWaitMainThreadTask<SDL_Surface*>(std::bind(IMG_LoadTGA_RW, &*_pRWop)),
+            std::bind(pushAndWaitMainThreadTask<void, SDL_Surface*>, SDL_FreeSurface, _1));
         setTransparentColorRGB(Color(0, 255, 0, -1));
     }
     else if (isPNG(path))
     {
-        _pSurface = std::shared_ptr<SDL_Surface>(IMG_LoadPNG_RW(&*_pRWop), SDL_FreeSurface);
+        _pSurface = std::shared_ptr<SDL_Surface>(
+            pushAndWaitMainThreadTask<SDL_Surface*>(std::bind(IMG_LoadTGA_RW, &*_pRWop)),
+            std::bind(pushAndWaitMainThreadTask<void, SDL_Surface*>, SDL_FreeSurface, _1));
     }
     else if (isGIF(path))
     {
-        _pSurface = std::shared_ptr<SDL_Surface>(IMG_LoadGIF_RW(&*_pRWop), SDL_FreeSurface);
+        _pSurface = std::shared_ptr<SDL_Surface>(
+            pushAndWaitMainThreadTask<SDL_Surface*>(std::bind(IMG_LoadTGA_RW, &*_pRWop)),
+            std::bind(pushAndWaitMainThreadTask<void, SDL_Surface*>, SDL_FreeSurface, _1));
         setTransparentColorRGB(Color(0, 255, 0, -1));
     }
     else
     {
-        _pSurface = std::shared_ptr<SDL_Surface>(IMG_Load_RW(&*_pRWop, SDL_LOAD_NOAUTOFREE), SDL_FreeSurface);
+        _pSurface = std::shared_ptr<SDL_Surface>(
+            pushAndWaitMainThreadTask<SDL_Surface*>(std::bind(IMG_Load_RW, &*_pRWop, SDL_LOAD_NOAUTOFREE)),
+            std::bind(pushAndWaitMainThreadTask<void, SDL_Surface*>, SDL_FreeSurface, _1));
     }
 
     if (!_pSurface)
@@ -179,7 +191,8 @@ void Image::setTransparentColorRGB(Color c)
 {
     if (_pSurface)
     {
-        SDL_SetColorKey(&*_pSurface, SDL_TRUE, SDL_MapRGB(_pSurface->format, c.r, c.g, c.b));
+        pushAndWaitMainThreadTask<void>(std::bind(
+            SDL_SetColorKey, &*_pSurface, SDL_TRUE, SDL_MapRGB(_pSurface->format, c.r, c.g, c.b)));
     }
 }
 
@@ -201,8 +214,8 @@ Texture::Texture(const Image& srcImage)
     if (!srcImage._loaded) return;
 
     _pTexture = std::shared_ptr<SDL_Texture>(
-        SDL_CreateTextureFromSurface(gFrameRenderer, &*srcImage._pSurface),
-        [](SDL_Texture* p) {if (p && gFrameRenderer) SDL_DestroyTexture(p); });
+        pushAndWaitMainThreadTask<SDL_Texture*>(std::bind(SDL_CreateTextureFromSurface, gFrameRenderer, &*srcImage._pSurface)),
+        std::bind(pushAndWaitMainThreadTask<void, SDL_Texture*>, SDL_DestroyTexture, _1));
     if (_pTexture)
     {
         _texRect = srcImage.getRect();
@@ -221,8 +234,8 @@ Texture::Texture(const Image& srcImage)
 Texture::Texture(const SDL_Surface* pSurface)
 {
     _pTexture = std::shared_ptr<SDL_Texture>(
-        SDL_CreateTextureFromSurface(gFrameRenderer, const_cast<SDL_Surface*>(pSurface)),
-        [](SDL_Texture* p) { if (p && gFrameRenderer) SDL_DestroyTexture(p); });
+        pushAndWaitMainThreadTask<SDL_Texture*>(std::bind(SDL_CreateTextureFromSurface, gFrameRenderer, const_cast<SDL_Surface*>(pSurface))),
+        std::bind(pushAndWaitMainThreadTask<void, SDL_Texture*>, SDL_DestroyTexture, _1));
     if (!_pTexture) return;
     _texRect = pSurface->clip_rect;
     _loaded = true;
@@ -232,7 +245,7 @@ Texture::Texture(const SDL_Texture* pTexture, int w, int h)
 {
     _pTexture = std::shared_ptr<SDL_Texture>(
         const_cast<SDL_Texture*>(pTexture), 
-        [](SDL_Texture* p) { if (p && gFrameRenderer) SDL_DestroyTexture(p); });
+        std::bind(pushAndWaitMainThreadTask<void, SDL_Texture*>, SDL_DestroyTexture, _1));
     if (!pTexture) return;
     _texRect = {0, 0, w, h};
     _loaded = true;
@@ -260,8 +273,8 @@ Texture::Texture(int w, int h, PixelFormat fmt)
 	if (sdlfmt != SDL_PIXELFORMAT_UNKNOWN)
 	{
         _pTexture = std::shared_ptr<SDL_Texture>(
-            SDL_CreateTexture(gFrameRenderer, sdlfmt, SDL_TEXTUREACCESS_STREAMING, w, h), 
-            [](SDL_Texture* p) { if (p && gFrameRenderer) SDL_DestroyTexture(p); });
+            pushAndWaitMainThreadTask<SDL_Texture*>(std::bind(SDL_CreateTexture, gFrameRenderer, sdlfmt, SDL_TEXTUREACCESS_STREAMING, w, h)),
+            std::bind(pushAndWaitMainThreadTask<void, SDL_Texture*>, SDL_DestroyTexture, _1));
 		if (_pTexture) _loaded = true;
 	}
 }
@@ -274,10 +287,11 @@ int Texture::updateYUV(uint8_t* Y, int Ypitch, uint8_t* U, int Upitch, uint8_t* 
 {
     if (!_loaded) return -1;
     if (!Ypitch || !Upitch || !Vpitch) return -2;
-    return SDL_UpdateYUVTexture(&*_pTexture, NULL,
+    return pushAndWaitMainThreadTask<int>(std::bind(SDL_UpdateYUVTexture, 
+        &*_pTexture, nullptr,
         Y, Ypitch,
         U, Upitch,
-        V, Vpitch);
+        V, Vpitch));
 }
 
 void Texture::_draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, Rect dstRect,
@@ -344,13 +358,16 @@ void Texture::draw(const Rect& srcRect, Rect dstRect,
 
 TextureFull::TextureFull(const Color& c): Texture(nullptr)
 {
-    auto surface = SDL_CreateRGBSurface(0, 1, 1, 24, 0xff, 0xff, 0xff, 0xff);   // needs to be 24bit
-    _texRect = { 0,0,1,1 };
-    SDL_FillRect(&*surface, &_texRect, SDL_MapRGBA(surface->format, c.r, c.g, c.b, c.a));
-    _pTexture = std::shared_ptr<SDL_Texture>(
-        SDL_CreateTextureFromSurface(gFrameRenderer, surface),
-        [](SDL_Texture* p) {if (p && gFrameRenderer) SDL_DestroyTexture(p); });
-    SDL_FreeSurface(surface);
+    pushAndWaitMainThreadTask<void>([this, &c]()
+        {
+            auto surface = SDL_CreateRGBSurface(0, 1, 1, 24, 0xff, 0xff, 0xff, 0xff);   // needs to be 24bit
+            _texRect = { 0,0,1,1 };
+            SDL_FillRect(&*surface, &_texRect, SDL_MapRGBA(surface->format, c.r, c.g, c.b, c.a));
+            _pTexture = std::shared_ptr<SDL_Texture>(
+                SDL_CreateTextureFromSurface(gFrameRenderer, surface),
+                [](SDL_Texture* p) {if (p && gFrameRenderer) SDL_DestroyTexture(p); });
+            SDL_FreeSurface(surface);
+        });
     _loaded = true;
 }
 

@@ -44,7 +44,8 @@ enum class eMode {
     BGM,
     SOUND,
 
-    RETRY,
+    RETRY_TRANS,
+    COURSE_TRANS,
 
     TMPL,
     TEST,
@@ -54,8 +55,11 @@ enum class eMode {
 
 enum class ePlayMode
 {
-    SINGLE,
-    LOCAL_BATTLE,
+    SINGLE,         // also includes DP
+    LOCAL_BATTLE,   // separate chart objects are required
+    AUTO,           // do not save score and result
+    AUTO_BATTLE,    // AUTO + LOCAL_BATTLE
+    REPLAY,         // do not save score
 };
 
 enum class eModChart: uint8_t
@@ -66,6 +70,7 @@ enum class eModChart: uint8_t
     SRAN,
     HRAN,			// Scatter
     ALLSCR,			// Converge
+    // FIXME DP separated mod
 };
 
 enum class eModGauge : uint8_t

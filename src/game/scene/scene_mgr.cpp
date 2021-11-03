@@ -5,6 +5,7 @@
 #include "scene_play.h"
 #include "scene_result.h"
 #include "scene_play_retry_trans.h"
+#include "scene_play_course_trans.h"
 #include "scene_keyconfig.h"
 #include "game/skin/skin_mgr.h"
 #include "game/ruleset/ruleset.h"
@@ -27,29 +28,10 @@ pScene SceneMgr::get(eScene e)
         return std::make_shared<SceneDecide>();
 
     case eScene::PLAY:
-        switch (gPlayContext.mode)
-        {
-        case eMode::PLAY5:
-        case eMode::PLAY7:
-        case eMode::PLAY9:
-        case eMode::PLAY10:
-        case eMode::PLAY14:
-            ps = std::make_shared<ScenePlay>(ePlayMode::SINGLE);
-			break;
-
-        case eMode::PLAY5_2:
-        case eMode::PLAY7_2:
-        case eMode::PLAY9_2:
-            ps = std::make_shared<ScenePlay>(ePlayMode::LOCAL_BATTLE);
-			break;
-
-        default:
-            LOG_ERROR << "[Scene] Invalid mode: " << int(gPlayContext.mode);
-            return nullptr;
-        }
+        return std::make_shared<ScenePlay>();
 		break;
 
-    case eScene::RETRY:
+    case eScene::RETRY_TRANS:
         ps = std::make_shared<ScenePlayRetryTrans>();
         break;
 

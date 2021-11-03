@@ -1,4 +1,6 @@
 #include "chart_bms.h"
+#include "game/scene/scene_context.h"
+#include <random>
 
 using namespace chart;
 
@@ -33,50 +35,50 @@ const size_t BMSToLaneMap[] =
     NOPE,
 
     // LN Head #xxx2x
-    channelToIdx(NoteLaneCategory::LN, Sc1),
-    channelToIdx(NoteLaneCategory::LN, K1),
-    channelToIdx(NoteLaneCategory::LN, K2),
-    channelToIdx(NoteLaneCategory::LN, K3),
-    channelToIdx(NoteLaneCategory::LN, K4),
-    channelToIdx(NoteLaneCategory::LN, K5),
-    channelToIdx(NoteLaneCategory::LN, K6),
-    channelToIdx(NoteLaneCategory::LN, K7),
+    chart::channelToIdx(NoteLaneCategory::LN, Sc1),
+    chart::channelToIdx(NoteLaneCategory::LN, K1),
+    chart::channelToIdx(NoteLaneCategory::LN, K2),
+    chart::channelToIdx(NoteLaneCategory::LN, K3),
+    chart::channelToIdx(NoteLaneCategory::LN, K4),
+    chart::channelToIdx(NoteLaneCategory::LN, K5),
+    chart::channelToIdx(NoteLaneCategory::LN, K6),
+    chart::channelToIdx(NoteLaneCategory::LN, K7),
     NOPE,
     NOPE,
 
     // #xxx3x
-    channelToIdx(NoteLaneCategory::LN, Sc2),
-    channelToIdx(NoteLaneCategory::LN, K8),
-    channelToIdx(NoteLaneCategory::LN, K9),
-    channelToIdx(NoteLaneCategory::LN, K10),
-    channelToIdx(NoteLaneCategory::LN, K11),
-    channelToIdx(NoteLaneCategory::LN, K12),
-    channelToIdx(NoteLaneCategory::LN, K13),
-    channelToIdx(NoteLaneCategory::LN, K14),
+    chart::channelToIdx(NoteLaneCategory::LN, Sc2),
+    chart::channelToIdx(NoteLaneCategory::LN, K8),
+    chart::channelToIdx(NoteLaneCategory::LN, K9),
+    chart::channelToIdx(NoteLaneCategory::LN, K10),
+    chart::channelToIdx(NoteLaneCategory::LN, K11),
+    chart::channelToIdx(NoteLaneCategory::LN, K12),
+    chart::channelToIdx(NoteLaneCategory::LN, K13),
+    chart::channelToIdx(NoteLaneCategory::LN, K14),
     NOPE,
     NOPE,
 
     // LN Tail #xxx4x
-    channelToIdx(NoteLaneCategory::LN, Sc1),
-    channelToIdx(NoteLaneCategory::LN, K1),
-    channelToIdx(NoteLaneCategory::LN, K2),
-    channelToIdx(NoteLaneCategory::LN, K3),
-    channelToIdx(NoteLaneCategory::LN, K4),
-    channelToIdx(NoteLaneCategory::LN, K5),
-    channelToIdx(NoteLaneCategory::LN, K6),
-    channelToIdx(NoteLaneCategory::LN, K7),
+    chart::channelToIdx(NoteLaneCategory::LN, Sc1),
+    chart::channelToIdx(NoteLaneCategory::LN, K1),
+    chart::channelToIdx(NoteLaneCategory::LN, K2),
+    chart::channelToIdx(NoteLaneCategory::LN, K3),
+    chart::channelToIdx(NoteLaneCategory::LN, K4),
+    chart::channelToIdx(NoteLaneCategory::LN, K5),
+    chart::channelToIdx(NoteLaneCategory::LN, K6),
+    chart::channelToIdx(NoteLaneCategory::LN, K7),
     NOPE,
     NOPE,
 
     // #xxx5x
-    channelToIdx(NoteLaneCategory::LN, Sc2),
-    channelToIdx(NoteLaneCategory::LN, K8),
-    channelToIdx(NoteLaneCategory::LN, K9),
-    channelToIdx(NoteLaneCategory::LN, K10),
-    channelToIdx(NoteLaneCategory::LN, K11),
-    channelToIdx(NoteLaneCategory::LN, K12),
-    channelToIdx(NoteLaneCategory::LN, K13),
-    channelToIdx(NoteLaneCategory::LN, K14),
+    chart::channelToIdx(NoteLaneCategory::LN, Sc2),
+    chart::channelToIdx(NoteLaneCategory::LN, K8),
+    chart::channelToIdx(NoteLaneCategory::LN, K9),
+    chart::channelToIdx(NoteLaneCategory::LN, K10),
+    chart::channelToIdx(NoteLaneCategory::LN, K11),
+    chart::channelToIdx(NoteLaneCategory::LN, K12),
+    chart::channelToIdx(NoteLaneCategory::LN, K13),
+    chart::channelToIdx(NoteLaneCategory::LN, K14),
     NOPE,
     NOPE,
 };
@@ -116,15 +118,15 @@ const NoteLaneIndex KeyToLaneMap[] =
     _, _, _, _, _, _,
 };
 
-chartBMS::chartBMS() : vChart(BGM_LANE_COUNT, (size_t)eNoteExt::EXT_COUNT)
+chartBMS::chartBMS(int slot) : vChart(slot, BGM_LANE_COUNT, (size_t)eNoteExt::EXT_COUNT)
 {
 }
 
-chartBMS::chartBMS(std::shared_ptr<BMS> b) : chartBMS()
+chartBMS::chartBMS(int slot, std::shared_ptr<BMS> b) : chartBMS(slot)
 {
     loadBMS(*b);
 }
-chartBMS::chartBMS(const BMS& b) : chartBMS()
+chartBMS::chartBMS(int slot, const BMS& b) : chartBMS(slot)
 {
     loadBMS(b);
 }
@@ -143,6 +145,48 @@ void chartBMS::loadBMS(const BMS& objBms)
 	barLength.fill({ 1, 1 });
     bool bpmfucked = false; // set to true when BPM is changed to zero or negative value
     std::bitset<10> isLnTail[2]{ 0 };
+
+    int keys = 7;
+    switch (gPlayContext.mode)
+    {
+    case eMode::PLAY5:
+    case eMode::PLAY5_2:
+    case eMode::PLAY10: keys = 5; break;
+    case eMode::PLAY7:
+    case eMode::PLAY7_2:
+    case eMode::PLAY14: keys = 7; break;
+    case eMode::PLAY9:
+    case eMode::PLAY9_2: keys = 9; break;
+    default: break;
+    }
+
+    std::array<NoteLaneIndex, NOTELANEINDEX_COUNT> gameLaneMap;
+    for (size_t i = Sc1; i < NOTELANEINDEX_COUNT; ++i) 
+        gameLaneMap[i] = (NoteLaneIndex)i;
+
+    std::mt19937 rng(gPlayContext.randomSeedMod);
+    switch (gPlayContext.mods[_playerSlot].chart)
+    {
+    case eModChart::RANDOM:
+        std::shuffle(gameLaneMap.begin() + 1, gameLaneMap.begin() + 1 + keys, rng);
+        break;
+
+    case eModChart::MIRROR:
+        std::reverse(gameLaneMap.begin() + 1, gameLaneMap.begin() + 1 + keys);
+        break;
+
+    case eModChart::SRAN:
+    case eModChart::HRAN:
+    case eModChart::ALLSCR:
+        // handled below
+        break;
+
+    case eModChart::NONE:
+    default: 
+        break;
+    }
+
+    std::bitset<NOTELANEINDEX_COUNT> laneOccupiedByLN{ 0 };
 
     for (unsigned m = 0; m <= objBms.lastBarIdx; m++)
     {
@@ -258,6 +302,9 @@ void chartBMS::loadBMS(const BMS& objBms)
         Beat measureLength = objBms.barLength[m];      // visual beat
 		Time beatLength = Time::singleBeatLengthFromBPM(bpm);
 
+        std::array<NoteLaneIndex, NOTELANEINDEX_COUNT> gameLaneLNIndex;
+        gameLaneLNIndex.fill(_);
+
         for (const auto& note : notes)
         {
             auto[noteSegment, noteinfo] = note;
@@ -270,10 +317,160 @@ void chartBMS::loadBMS(const BMS& objBms)
             {
 				// TODO mapping is different between file formats (bms, bme, etc)
                 if (BMSToLaneMap[lane] == NOPE) continue;
+                size_t chartLaneIdx = BMSToLaneMap[lane];
+                size_t gameLaneIdx = gameLaneMap[chartLaneIdx];
+
                 if (lane >= 40 && lane < 60)
-                    _noteLists[BMSToLaneMap[lane]].push_back({ m, beat, notetime, (long long)val, Note::LN_TAIL, false });// LN tail
+                {
+                    // LN tail
+                    size_t lnLaneIdx = gameLaneLNIndex[gameLaneIdx];
+                    assert(lnLaneIdx != _);
+                    assert(laneOccupiedByLN[lnLaneIdx] == true);
+                    _noteLists[lnLaneIdx].push_back({ m, beat, notetime, (long long)val, Note::LN_TAIL, false });
+                    laneOccupiedByLN[lnLaneIdx] = false;
+                }
                 else
-                    _noteLists[BMSToLaneMap[lane]].push_back({ m, beat, notetime, (long long)val });// normal, LN head
+                {
+                    // normal, LN head
+                    size_t gameLaneIdxMod = gameLaneIdx;
+                    size_t laneMin, laneMax;
+                    int laneSlot;
+                    if (gameLaneIdx >= Sc1 && gameLaneIdx <= Sc1 + keys)
+                    {
+                        laneMin = K1;                   // K1
+                        laneMax = laneMin + (keys - 1); // K7
+                        laneSlot = PLAYER_SLOT_1P;
+                    }
+                    else if (gameLaneIdx >= Sc1 + keys + 1 && gameLaneIdx <= Sc1 + keys + 1 + keys - 1)
+                    {
+                        laneMin = K1 + keys;            // K8
+                        laneMax = laneMin + (keys - 1); // K14
+                        laneSlot = PLAYER_SLOT_2P;
+                    }
+                    else
+                    {
+                        assert(false);
+                        break;
+                    }
+
+                    switch (gPlayContext.mods[_playerSlot].chart)
+                    {
+                    case eModChart::SRAN:
+                        if (gameLaneIdx != Sc1 && gameLaneIdx == Sc2)
+                        {
+                            constexpr int threshold_ms = 50;
+                            std::vector<NoteLaneIndex> placable;
+                            for (NoteLaneIndex i = NoteLaneIndex(laneMin); i != NoteLaneIndex(laneMax + 1); ++*(size_t*)i)
+                            {
+                                if (_noteLists[i].empty())
+                                {
+                                    placable.push_back(i);
+                                    continue;
+                                }
+                                else
+                                {
+                                    auto& lastNote = --_noteLists[i].end();
+                                    if (notetime - lastNote->time < threshold_ms && gameLaneLNIndex[i] == _)
+                                        placable.push_back(i);
+                                }
+                            }
+                            gameLaneIdxMod = placable.empty() ? (K1 + rng() % keys) : placable[rng() % placable.size()];
+                        }
+                        break;
+
+                    case eModChart::HRAN:
+                        if (gameLaneIdx != Sc1 && gameLaneIdx == Sc2)
+                        {
+                            constexpr int threshold_ms = 250;
+                            std::vector<NoteLaneIndex> placable;
+                            for (NoteLaneIndex i = NoteLaneIndex(laneMin); i != NoteLaneIndex(laneMax + 1); ++ * (size_t*)i)
+                            {
+                                if (_noteLists[i].empty())
+                                {
+                                    placable.push_back(i);
+                                    continue;
+                                }
+                                else
+                                {
+                                    auto& lastNote = --_noteLists[i].end();
+                                    if (notetime - lastNote->time < threshold_ms && gameLaneLNIndex[i] == _)
+                                        placable.push_back(i);
+                                }
+                            }
+                            if (!placable.empty())
+                                gameLaneIdxMod = placable[rng() % placable.size()];
+                            else
+                            {
+                                using noteTimePair = std::pair<long long, NoteLaneIndex>;
+                                std::vector<noteTimePair> placableMin;
+                                for (NoteLaneIndex i = NoteLaneIndex(laneMin); i != NoteLaneIndex(laneMax + 1); ++ * (size_t*)i)
+                                {
+                                    // no need to check if noteLists[i] is empty
+                                    auto& lastNote = --_noteLists[i].end();
+                                    placableMin.push_back({lastNote->time.hres(), i});
+                                }
+                                assert(!placableMin.empty());
+                                std::sort(placableMin.begin(), placableMin.end());
+                                gameLaneIdxMod = placableMin.begin()->second;
+                            }
+                        }
+                        break;
+
+                    case eModChart::ALLSCR:
+                    {
+                        constexpr int threshold_ms = 250;
+                        size_t laneMin, laneMax, laneScratch;
+                        int laneStep;
+                        if (laneSlot == PLAYER_SLOT_1P)
+                        {
+                            laneStep = 1;
+                            laneScratch = Sc1;
+                        }
+                        else
+                        {
+                            laneStep = -1;
+                            std::swap(laneMin, laneMax);
+                            laneScratch = Sc2;
+                        }
+
+                        // FIXME 2p side SP all-scr should reverse the lanes
+
+                        if (_noteLists[laneScratch].empty())
+                            gameLaneIdxMod = laneScratch;
+                        else
+                        {
+                            auto& lastScratch = --_noteLists[laneScratch].end();
+                            if (notetime - lastScratch->time < threshold_ms && !laneOccupiedByLN[laneScratch])
+                                gameLaneIdxMod = laneScratch;
+                            else
+                            {
+                                bool availableLaneFound = false;
+                                for (NoteLaneIndex i = (NoteLaneIndex)laneMin; i != (NoteLaneIndex)laneMax + laneStep; *(size_t*)&i += laneStep)
+                                {
+                                    auto& lastNote = --_noteLists[laneScratch].end();
+                                    if (notetime - lastNote->time < threshold_ms && !laneOccupiedByLN[i])
+                                    {
+                                        gameLaneIdxMod = i;
+                                        availableLaneFound = true;
+                                        break;
+                                    }
+                                }
+                                if (!availableLaneFound)
+                                    gameLaneIdxMod = laneMin + rng() % (std::abs(int(laneMax - laneMin)) + 1);
+                            }
+                        }
+                        break;
+                    }
+
+                    default:
+                        break;
+                    }
+
+                    _noteLists[gameLaneIdxMod].push_back({ m, beat, notetime, (long long)val });
+
+                    if (lane >= 20 && lane < 40)
+                        gameLaneLNIndex[gameLaneIdx] = (NoteLaneIndex)gameLaneIdxMod;
+                }
             }
             else if (lane >= 100 && lane <= 131)
             {
@@ -327,7 +524,7 @@ void chartBMS::loadBMS(const BMS& objBms)
 		basebeat += measureLength;
 
         // add barline for next measure
-        _noteLists[channelToIdx(NoteLaneCategory::EXTRA, EXTRA_BARLINE)].push_back(
+        _noteLists[chart::channelToIdx(NoteLaneCategory::EXTRA, EXTRA_BARLINE)].push_back(
 			{ m + 1, basebeat, basetime, long long(0), false });
 
     }

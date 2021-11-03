@@ -193,21 +193,24 @@ public:
         PlaySide side = PlaySide::SP);
 private:
     judgeRes _judge(const Note& note, Time time);
+    void _judgePress(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot);
+    void _judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot);
+    void _judgeRelease(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot);
     void _updateHp(const double delta);
     void _updateHp(JudgeType judge);
 public:
     // Register to InputWrapper
-    virtual void updatePress(InputMask& pg, Time t);
+    virtual void updatePress(InputMask& pg, const Time& t);
     // Register to InputWrapper
-    virtual void updateHold(InputMask& hg, Time t);
+    virtual void updateHold(InputMask& hg, const Time& t);
     // Register to InputWrapper
-    virtual void updateRelease(InputMask& rg, Time t);
+    virtual void updateRelease(InputMask& rg, const Time& t);
     // Called by ScenePlay
     virtual void update(Time t);
 public:
     //constexpr auto getJudge() const { return _count; }
-    void updateHit(Time& t, chart::NoteLaneIndex ch, JudgeType judge, int slot);
-    void updateMiss(Time& t, chart::NoteLaneIndex ch, JudgeType judge, int slot);
+    void updateHit(const Time& t, chart::NoteLaneIndex ch, JudgeType judge, int slot);
+    void updateMiss(const Time& t, chart::NoteLaneIndex ch, JudgeType judge, int slot);
     virtual bool isCleared() const { return !_isFailed && isFinished() && _basic.health >= _clearHealth; }
     virtual bool isFailed() const { return _isFailed; }
     virtual unsigned getCurrentMaxScore() const { return _basic.totalnr * 2; }

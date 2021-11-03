@@ -38,7 +38,7 @@ private:
     std::array<int, 2> _ttAngleDelta{ 0 };
 
 public:
-    ScenePlay(ePlayMode);
+    ScenePlay();
 	virtual ~ScenePlay()
 	{
 		sceneEnding = true; 

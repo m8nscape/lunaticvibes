@@ -27,9 +27,10 @@ public:
     decltype(_specialNoteLists[0])& getBgaLayer() { return _specialNoteLists[(size_t)eNoteExt::BGALAYER]; }
     decltype(_specialNoteLists[0])& getBgaPoor()  { return _specialNoteLists[(size_t)eNoteExt::BGAPOOR]; }
 public:
-    chartBMS();
-    chartBMS(std::shared_ptr<BMS> bms);
-    chartBMS(const BMS& bms);
+    chartBMS() = delete;
+    chartBMS(int slot);
+    chartBMS(int slot, std::shared_ptr<BMS> bms);
+    chartBMS(int slot, const BMS& bms);
 protected:
     void loadBMS(const BMS& bms);
 
