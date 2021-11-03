@@ -38,7 +38,7 @@ void vSkin::update()
 #ifdef _DEBUG
 	std::for_each(std::execution::seq, _sprites.begin(), _sprites.end(), updateSpriteLambda);
 #else
-    std::for_each(std::execution::par, _sprites.begin(), _sprites.end(), updateSpriteLambda);
+    std::for_each(std::execution::seq, _sprites.begin(), _sprites.end(), updateSpriteLambda);
 #endif
 }
 
@@ -46,7 +46,7 @@ void vSkin::update_mouse(int x, int y)
 {
     auto clickSpriteLambda = [x, y](const pSprite& s)
     {
-        if (s->visible())
+        if (!s->isHidden())
         {
             auto pS = std::dynamic_pointer_cast<iSpriteMouse>(s);
             if (pS != nullptr)
@@ -59,7 +59,7 @@ void vSkin::update_mouse(int x, int y)
 #ifdef _DEBUG
         std::for_each(std::execution::seq, _sprites.begin(), _sprites.end(), clickSpriteLambda);
 #else
-        std::for_each(std::execution::par, _sprites.begin(), _sprites.end(), clickSpriteLambda);
+        std::for_each(std::execution::seq, _sprites.begin(), _sprites.end(), clickSpriteLambda);
 #endif
 }
 
@@ -69,7 +69,7 @@ void vSkin::update_mouse_click(int x, int y)
     bool invoked = false;
     for (auto it = _sprites.rbegin(); it != _sprites.rend() && !invoked; ++it)
     {
-        if ((*it)->visible())
+        if (!(*it)->isHidden())
         {
             auto pS = std::dynamic_pointer_cast<iSpriteMouse>(*it);
             if (pS != nullptr)

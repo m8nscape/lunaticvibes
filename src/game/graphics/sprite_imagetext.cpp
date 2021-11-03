@@ -137,7 +137,7 @@ bool SpriteImageText::update(const Time& t)
 
 void SpriteImageText::draw() const
 {
-    if (_draw)
+    if (!_hide && _draw)
     {
         for (auto [c, r] : _drawList)
         {

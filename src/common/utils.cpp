@@ -21,6 +21,7 @@ std::vector<Path> findFiles(Path p)
 #ifdef WIN32
 	auto pstr = p.u16string();
 	size_t offset = pstr.find(u"\\*");
+    if (offset == pstr.npos) offset = pstr.find(u"/*");
 #else
 	auto pstr = p.string();
 	size_t offset = pstr.find(u"/*");
@@ -244,4 +245,49 @@ std::string toUpper(const std::string& s)
 		if (c >= 'a' && c <= 'z')
 			c = c - 'a' + 'A';
 	return ret;
+}
+
+
+Path convertLR2Path(const std::string& lr2path, const Path& relative_path)
+{
+    if (relative_path.is_absolute())
+        return relative_path;
+
+    return convertLR2Path(lr2path, relative_path.string());
+}
+
+std::string convertLR2Path(const std::string& lr2path, const std::string& relative_path)
+{
+    return convertLR2Path(lr2path, relative_path.c_str());
+}
+
+std::string convertLR2Path(const std::string& lr2path, const char* relative_path)
+{
+    if (auto p = Path(relative_path); p.is_absolute())
+        return relative_path;
+
+    std::string_view raw(relative_path);
+    std::string_view prefix(relative_path, 2);
+    if (!prefix.empty())
+    {
+        if (prefix == "./" || prefix == ".\\")
+        {
+            raw = raw.substr(2);
+        }
+        else if (prefix[0] == '/' || prefix[0] == '\\')
+        {
+            raw = raw.substr(1);
+        }
+    }
+    prefix = raw.substr(0, 8);
+    if (strEqual(prefix, "LR2files", true))
+    {
+        Path path(lr2path);
+        path /= raw;
+        return path.generic_string();
+    }
+    else
+    {
+        return relative_path;
+    }
 }

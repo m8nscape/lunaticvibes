@@ -4,8 +4,6 @@
 ConfigInput::ConfigInput(const std::string& profile, unsigned k) : keys(k),
     vConfig(profile, (k == 5 ? CONFIG_FILE_INPUT_5 : (k == 7 ? CONFIG_FILE_INPUT_7 : (k == 9 ? CONFIG_FILE_INPUT_9 : "")))) 
 {
-    for (int i = 0; i < Input::MAX_BINDINGS_PER_KEY; ++i) 
-        blank_binding.push_back(cfg::I_NOTBOUND);
 }
 
 ConfigInput::~ConfigInput() {}
@@ -34,37 +32,37 @@ void ConfigInput::clearAll()
 {
     using namespace cfg;
     
-    set(I_BINDINGS_K1ScL, blank_binding);
-    set(I_BINDINGS_K1ScR, blank_binding);
-    set(I_BINDINGS_K11, blank_binding);
-    set(I_BINDINGS_K12, blank_binding);
-    set(I_BINDINGS_K13, blank_binding);
-    set(I_BINDINGS_K14, blank_binding);
-    set(I_BINDINGS_K15, blank_binding);
-    set(I_BINDINGS_K16, blank_binding);
-    set(I_BINDINGS_K17, blank_binding);
-    set(I_BINDINGS_K18, blank_binding);
-    set(I_BINDINGS_K19, blank_binding);
-    set(I_BINDINGS_K1Start, blank_binding);
-    set(I_BINDINGS_K1Select, blank_binding);
-    set(I_BINDINGS_K1SpdUp, blank_binding);
-    set(I_BINDINGS_K1SpdDn, blank_binding);
+    set(I_BINDINGS_K1ScL, std::vector<std::string>());
+    set(I_BINDINGS_K1ScR, std::vector<std::string>());
+    set(I_BINDINGS_K11, std::vector<std::string>());
+    set(I_BINDINGS_K12, std::vector<std::string>());
+    set(I_BINDINGS_K13, std::vector<std::string>());
+    set(I_BINDINGS_K14, std::vector<std::string>());
+    set(I_BINDINGS_K15, std::vector<std::string>());
+    set(I_BINDINGS_K16, std::vector<std::string>());
+    set(I_BINDINGS_K17, std::vector<std::string>());
+    set(I_BINDINGS_K18, std::vector<std::string>());
+    set(I_BINDINGS_K19, std::vector<std::string>());
+    set(I_BINDINGS_K1Start, std::vector<std::string>());
+    set(I_BINDINGS_K1Select, std::vector<std::string>());
+    set(I_BINDINGS_K1SpdUp, std::vector<std::string>());
+    set(I_BINDINGS_K1SpdDn, std::vector<std::string>());
 
-    set(I_BINDINGS_K2ScL, blank_binding);
-    set(I_BINDINGS_K2ScR, blank_binding);
-    set(I_BINDINGS_K21, blank_binding);
-    set(I_BINDINGS_K22, blank_binding);
-    set(I_BINDINGS_K23, blank_binding);
-    set(I_BINDINGS_K24, blank_binding);
-    set(I_BINDINGS_K25, blank_binding);
-    set(I_BINDINGS_K26, blank_binding);
-    set(I_BINDINGS_K27, blank_binding);
-    set(I_BINDINGS_K28, blank_binding);
-    set(I_BINDINGS_K29, blank_binding);
-    set(I_BINDINGS_K2Start, blank_binding);
-    set(I_BINDINGS_K2Select, blank_binding);
-    set(I_BINDINGS_K2SpdUp, blank_binding);
-    set(I_BINDINGS_K2SpdDn, blank_binding);
+    set(I_BINDINGS_K2ScL, std::vector<std::string>());
+    set(I_BINDINGS_K2ScR, std::vector<std::string>());
+    set(I_BINDINGS_K21, std::vector<std::string>());
+    set(I_BINDINGS_K22, std::vector<std::string>());
+    set(I_BINDINGS_K23, std::vector<std::string>());
+    set(I_BINDINGS_K24, std::vector<std::string>());
+    set(I_BINDINGS_K25, std::vector<std::string>());
+    set(I_BINDINGS_K26, std::vector<std::string>());
+    set(I_BINDINGS_K27, std::vector<std::string>());
+    set(I_BINDINGS_K28, std::vector<std::string>());
+    set(I_BINDINGS_K29, std::vector<std::string>());
+    set(I_BINDINGS_K2Start, std::vector<std::string>());
+    set(I_BINDINGS_K2Select, std::vector<std::string>());
+    set(I_BINDINGS_K2SpdUp, std::vector<std::string>());
+    set(I_BINDINGS_K2SpdDn, std::vector<std::string>());
 }
 
 std::string getBindingKey(Input::Pad ingame)
@@ -116,7 +114,7 @@ void ConfigInput::clearKey(Input::Pad ingame)
 
     StringContent mapKey = getBindingKey(ingame);
     if (mapKey != I_NOTBOUND)
-        set(mapKey, blank_binding);
+        set(mapKey, std::vector<std::string>());
 }
 
 void ConfigInput::bindKey(Input::Pad ingame, Input::Keyboard key, size_t slot)
@@ -159,7 +157,7 @@ std::vector<Input::Keyboard> ConfigInput::getBindings(Input::Pad ingame)
 
         default: break;
         }
-        ret.push_back(Input::getByName(k.as<std::string>(Input::keyboardNameMap[Input::K_ERROR])));
+        //ret.push_back(Input::getByName(k.as<std::string>(Input::keyboardNameMap[Input::K_ERROR])));
     }
     
     return ret;

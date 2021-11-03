@@ -13,6 +13,7 @@
 #include "game/graphics/video.h"
 #include "game/scene/scene_context.h"
 #include "skin_lr2_converters.h"
+#include "config/config_mgr.h"
 
 #ifdef _WIN32
 // For GetWindowsDirectory
@@ -536,7 +537,7 @@ int SkinLR2::IMAGE()
     if (strEqual(parseKeyBuf, "#IMAGE", true))
     {
         const auto& pathString = parseParamBuf[0];
-        Path path(pathString);
+        Path path = convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), parseParamBuf[0]);
         if (path.stem() == "*")
         {
             static const std::set<std::string> video_file_extensions =
@@ -635,7 +636,8 @@ int SkinLR2::LR2FONT()
 {
     if (strEqual(parseKeyBuf, "#LR2FONT", true))
     {
-        Path path = std::filesystem::absolute(Path(parseParamBuf[0]));
+        Path path = convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), parseParamBuf[0]);
+        path = std::filesystem::absolute(path);
         size_t idx = LR2FontNameMap.size();
 
         if (!std::filesystem::is_regular_file(path))
@@ -1885,7 +1887,7 @@ int SkinLR2::DST()
             }
         }
 
-        drawQueue.push_back({ e, false, dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]) });
+        drawQueue.push_back({ e, dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]) });
         e->setLoopTime(d.loop);
         e->setTrigTimer((eTimer)d.timer);
         if (d.time > 0)
@@ -1927,7 +1929,7 @@ ParseRet SkinLR2::DST_NOTE()
             (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center)  } });
             */
 
-        drawQueue.push_back({ e, false, dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]) });
+        drawQueue.push_back({ e, dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]) });
         e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
         e->setLoopTime(0);
@@ -1996,7 +1998,7 @@ ParseRet SkinLR2::DST_LINE()
     p->pNote->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
         (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
 
-    drawQueue.push_back({ e, false, dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]) });
+    drawQueue.push_back({ e, dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]) });
     e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
         (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
     e->setLoopTime(0);
@@ -2043,7 +2045,7 @@ ParseRet SkinLR2::DST_BAR_BODY()
             {
                 _barSprites[idx]->setSrcLine(csvLineNumber);
                 _barSpriteAdded[idx] = true;
-                drawQueue.push_back({ _barSprites[idx], false, dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]) });
+                drawQueue.push_back({ _barSprites[idx], dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]) });
             }
         }
 
@@ -2427,7 +2429,8 @@ int SkinLR2::parseHeader(const Tokens& raw)
         info.name = title;
         info.maker = maker;
 
-        _textureNameMap["THUMBNAIL"] = std::make_shared<Texture>(Image(thumbnail.u8string().c_str()));
+        _textureNameMap["THUMBNAIL"] = std::make_shared<Texture>(Image(
+            convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), thumbnail.u8string().c_str())));
         if (_textureNameMap["THUMBNAIL"] == nullptr)
             LOG_WARNING << "[Skin] " << csvLineNumber << ": thumbnail loading failed: " << thumbnail.string();
 
@@ -2458,7 +2461,7 @@ int SkinLR2::parseHeader(const Tokens& raw)
     {
         StringContent title(parseParamBuf[0]);
         StringContent path(parseParamBuf[1]);
-        Path pathf(path);
+        Path pathf = convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), path);
         Path def(parseParamBuf[2]);
 
         auto ls = findFiles(pathf);
@@ -2665,7 +2668,9 @@ void SkinLR2::loadCSV(Path p)
     auto srcLineNumberParent = csvLineNumber;
     csvLineNumber = 0;
 
-    LOG_DEBUG << "[Skin] File: " << p.string();
+    p = convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), p);
+
+    LOG_INFO << "[Skin] File: " << p.string();
     std::ifstream csvFile(p, std::ios::binary);
     if (!csvFile.is_open())
     {
@@ -2778,7 +2783,7 @@ void SkinLR2::update()
         for (auto& e : drawQueue)
 #endif
         {
-            e.draw = getDstOpt(e.op1) && getDstOpt(e.op2) && getDstOpt(e.op3);
+            e.ps->setHide(!(getDstOpt(e.op1) && getDstOpt(e.op2) && getDstOpt(e.op3)));
             switch (e.op4)
             {
             case 1: e.ps->_current.angle += ttAngle1P; break;
@@ -2903,7 +2908,7 @@ void SkinLR2::draw() const
 {
     for (auto& e : drawQueue)
     {
-        if (e.draw) e.ps->draw();
+        e.ps->draw();
     }
     //for (auto& c : _csvIncluded)
     //{

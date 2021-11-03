@@ -7,6 +7,47 @@ SceneKeyConfig::SceneKeyConfig() : vScene(eMode::KEY_CONFIG, 240)
 {
     _updateCallback = std::bind(&SceneKeyConfig::updateStart, this);
 
+    gSwitches.set(eSwitch::K11_CONFIG, false);
+    gSwitches.set(eSwitch::K12_CONFIG, false);
+    gSwitches.set(eSwitch::K13_CONFIG, false);
+    gSwitches.set(eSwitch::K14_CONFIG, false);
+    gSwitches.set(eSwitch::K15_CONFIG, false);
+    gSwitches.set(eSwitch::K16_CONFIG, false);
+    gSwitches.set(eSwitch::K17_CONFIG, false);
+    gSwitches.set(eSwitch::K18_CONFIG, false);
+    gSwitches.set(eSwitch::K19_CONFIG, false);
+    gSwitches.set(eSwitch::S1L_CONFIG, false);
+    gSwitches.set(eSwitch::S1R_CONFIG, false);
+    gSwitches.set(eSwitch::K1START_CONFIG, false);
+    gSwitches.set(eSwitch::K1SELECT_CONFIG, false);
+    gSwitches.set(eSwitch::K1SPDUP_CONFIG, false);
+    gSwitches.set(eSwitch::K1SPDDN_CONFIG, false);
+    gSwitches.set(eSwitch::K21_CONFIG, false);
+    gSwitches.set(eSwitch::K22_CONFIG, false);
+    gSwitches.set(eSwitch::K23_CONFIG, false);
+    gSwitches.set(eSwitch::K24_CONFIG, false);
+    gSwitches.set(eSwitch::K25_CONFIG, false);
+    gSwitches.set(eSwitch::K26_CONFIG, false);
+    gSwitches.set(eSwitch::K27_CONFIG, false);
+    gSwitches.set(eSwitch::K28_CONFIG, false);
+    gSwitches.set(eSwitch::K29_CONFIG, false);
+    gSwitches.set(eSwitch::S2L_CONFIG, false);
+    gSwitches.set(eSwitch::S2R_CONFIG, false);
+    gSwitches.set(eSwitch::K2START_CONFIG, false);
+    gSwitches.set(eSwitch::K2SELECT_CONFIG, false);
+    gSwitches.set(eSwitch::K2SPDUP_CONFIG, false);
+    gSwitches.set(eSwitch::K2SPDDN_CONFIG, false);
+    gSwitches.set(eSwitch::KEY_CONFIG_SLOT0, false);
+    gSwitches.set(eSwitch::KEY_CONFIG_SLOT1, false);
+    gSwitches.set(eSwitch::KEY_CONFIG_SLOT2, false);
+    gSwitches.set(eSwitch::KEY_CONFIG_SLOT3, false);
+    gSwitches.set(eSwitch::KEY_CONFIG_SLOT4, false);
+    gSwitches.set(eSwitch::KEY_CONFIG_SLOT5, false);
+    gSwitches.set(eSwitch::KEY_CONFIG_SLOT6, false);
+    gSwitches.set(eSwitch::KEY_CONFIG_SLOT7, false);
+    gSwitches.set(eSwitch::KEY_CONFIG_SLOT8, false);
+    gSwitches.set(eSwitch::KEY_CONFIG_SLOT9, false);
+
     gKeyconfigContext.selecting = { Input::Pad::K11, 0 };
     gKeyconfigContext.keys = 7;
     gSwitches.set(eSwitch::K11_CONFIG, true);
@@ -89,7 +130,7 @@ void SceneKeyConfig::inputGamePressKeyboard(KeyboardMask& mask, const Time& t)
 {
     // update bindings
     auto [pad, slot] = gKeyconfigContext.selecting;
-    for (Input::Keyboard k = Input::Keyboard::K_ESC; k < Input::Keyboard::K_COUNT; ++ * (unsigned*)&k)
+    for (Input::Keyboard k = Input::Keyboard::K_1; k < Input::Keyboard::K_COUNT; ++ * (unsigned*)&k)
     {
         if (mask[k])
         {
@@ -127,8 +168,12 @@ void SceneKeyConfig::inputGamePressKeyboard(KeyboardMask& mask, const Time& t)
 void SceneKeyConfig::setText(int keys, Input::Pad pad)
 {
     auto bindings = ConfigMgr::Input(keys)->getBindings(pad);
-    for (size_t i = 0; i < std::min(bindings.size(), Input::MAX_BINDINGS_PER_KEY); ++i)
+    for (size_t i = 0; i < bindings.size(); ++i)
     {
         gTexts.set(eText(unsigned(eText::KEYCONFIG_SLOT1) + i), ConfigInput::getKeyString(bindings[i]));
+    }
+    for (size_t i = bindings.size(); i < Input::MAX_BINDINGS_PER_KEY; ++i)
+    {
+        gTexts.set(eText(unsigned(eText::KEYCONFIG_SLOT1) + i), "");
     }
 }

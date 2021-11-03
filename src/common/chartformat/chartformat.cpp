@@ -5,8 +5,8 @@
 
 eChartFormat matchChartType(const Path& p)
 {
-    static const std::regex regexFileExtBMS{ R"(\.(bms|bme|bml|pms)$)", std::regex::icase, std::regex::optimize };
-    static const std::regex regexFileExtBMSON{ R"(\.(bmson)$)", std::regex::icase, std::regex::optimize };
+    static const std::regex regexFileExtBMS{ R"(\.(bms|bme|bml|pms)$)", std::regex::icase | std::regex::optimize };
+    static const std::regex regexFileExtBMSON{ R"(\.(bmson)$)", std::regex::icase | std::regex::optimize };
 
     if (!fs::is_regular_file(p) || !p.has_extension())
         return eChartFormat::UNKNOWN;

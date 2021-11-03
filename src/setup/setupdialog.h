@@ -51,6 +51,8 @@ private:
     bool loadConfig(const std::string& dirname);
 
 public slots:
+    void browseLR2Path();
+
     void foldersCurrentRowChanged(int row);
     void addFolder();
     void delFolder();
