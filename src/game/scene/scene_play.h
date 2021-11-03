@@ -101,12 +101,12 @@ protected:
     // Inner-state updates
     void procCommonNotes();
     void playBGMSamples();
-    void changeKeySampleMapping(Time t);
+    void changeKeySampleMapping(const Time& t);
     void spinTurntable(bool startedPlaying);
 
 protected:
     // Register to InputWrapper: judge / keysound
-    void inputGamePress(InputMask&, Time);
-    void inputGameHold(InputMask&, Time);
-    void inputGameRelease(InputMask&, Time);
+    void inputGamePress(InputMask&, const Time&);
+    void inputGameHold(InputMask&, const Time&);
+    void inputGameRelease(InputMask&, const Time&);
 };

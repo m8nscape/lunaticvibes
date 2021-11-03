@@ -44,6 +44,7 @@ public:
 protected:
     // Looper callbacks
     virtual void _updateAsync() override;
+    std::function<void()> _updateCallback;
     void updatePrepare();
     void updateSelect();
     void updateSearch();
@@ -55,15 +56,24 @@ protected:
 
 protected:
     // Register to InputWrapper: judge / keysound
-    void inputGamePress(InputMask&, Time);
-    void inputGameHold(InputMask&, Time);
-    void inputGameRelease(InputMask&, Time);
+    void inputGamePress(InputMask&, const Time&);
+    void inputGameHold(InputMask&, const Time&);
+    void inputGameRelease(InputMask&, const Time&);
+
+private:
+    void inputGamePressSelect(InputMask&, const Time&);
+    void inputGameHoldSelect(InputMask&, const Time&);
+    void inputGameReleaseSelect(InputMask&, const Time&);
+
+    void inputGamePressPanel(InputMask&, const Time&);
+    void inputGameHoldPanel(InputMask&, const Time&);
+    void inputGameReleasePanel(InputMask&, const Time&);
 
 private:
     void loadSongList();
-    void _navigateUpBy1(Time t);
-    void _navigateDownBy1(Time t);
-    void _navigateEnter(Time t);
-    void _navigateBack(Time t);
+    void _navigateUpBy1(const Time& t);
+    void _navigateDownBy1(const Time& t);
+    void _navigateEnter(const Time& t);
+    void _navigateBack(const Time& t);
     void _decide();
 };

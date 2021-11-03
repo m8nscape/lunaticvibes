@@ -867,7 +867,7 @@ void ScenePlay::procCommonNotes()
     SoundMgr::playKeySample(i, (size_t*)_bgmSampleIdxBuf.data());
 }
 
-void ScenePlay::changeKeySampleMapping(Time t)
+void ScenePlay::changeKeySampleMapping(const Time& t)
 {
     static const Time MIN_REMAP_INTERVAL{ 1000 };
     if (_mode == ePlayMode::LOCAL_BATTLE || _mode == ePlayMode::AUTO_BATTLE)
@@ -979,7 +979,7 @@ void ScenePlay::spinTurntable(bool startedPlaying)
 
 ////////////////////////////////////////////////////////////////////////////////
 // CALLBACK
-void ScenePlay::inputGamePress(InputMask& m, Time t)
+void ScenePlay::inputGamePress(InputMask& m, const Time& t)
 {
     using namespace Input;
 
@@ -1109,7 +1109,7 @@ void ScenePlay::inputGamePress(InputMask& m, Time t)
 }
 
 // CALLBACK
-void ScenePlay::inputGameHold(InputMask& m, Time t)
+void ScenePlay::inputGameHold(InputMask& m, const Time& t)
 {
 	using namespace Input;
 	for (size_t i = 0; i < ESC; ++i)
@@ -1127,7 +1127,7 @@ void ScenePlay::inputGameHold(InputMask& m, Time t)
 }
 
 // CALLBACK
-void ScenePlay::inputGameRelease(InputMask& m, Time t)
+void ScenePlay::inputGameRelease(InputMask& m, const Time& t)
 {
     using namespace Input;
     auto input = _inputAvailable & m;

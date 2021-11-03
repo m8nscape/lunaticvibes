@@ -269,7 +269,7 @@ void SceneResult::updateFadeout()
 ////////////////////////////////////////////////////////////////////////////////
 
 // CALLBACK
-void SceneResult::inputGamePress(InputMask& m, Time t)
+void SceneResult::inputGamePress(InputMask& m, const Time& t)
 {
     if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
 
@@ -311,7 +311,7 @@ void SceneResult::inputGamePress(InputMask& m, Time t)
 }
 
 // CALLBACK
-void SceneResult::inputGameHold(InputMask& m, Time t)
+void SceneResult::inputGameHold(InputMask& m, const Time& t)
 {
     if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
 
@@ -324,7 +324,7 @@ void SceneResult::inputGameHold(InputMask& m, Time t)
 }
 
 // CALLBACK
-void SceneResult::inputGameRelease(InputMask& m, Time t)
+void SceneResult::inputGameRelease(InputMask& m, const Time& t)
 {
     if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
 }

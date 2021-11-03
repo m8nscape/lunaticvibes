@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <memory>
 
 #include "scene_select.h"
 #include "scene_context.h"
@@ -592,16 +593,8 @@ void config_fx()
 SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
 {
     _inputAvailable = INPUT_MASK_FUNC;
-
-    //if (context_play.chartObj[PLAYER_SLOT_1P] != nullptr)
-    {
-        _inputAvailable |= INPUT_MASK_1P;
-    }
-
-    //if (context_play.chartObj[PLAYER_SLOT_2P] != nullptr)
-    {
-        _inputAvailable |= INPUT_MASK_2P;
-    }
+    _inputAvailable |= INPUT_MASK_1P;
+    _inputAvailable |= INPUT_MASK_2P;
 
     {
         std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
@@ -615,6 +608,7 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
     gSelectContext.isGoingToSkinSelect = false;
 
     _state = eSelectState::PREPARE;
+    _updateCallback = std::bind(&SceneSelect::updatePrepare, this);
 
     loopStart();
 
@@ -635,32 +629,7 @@ SceneSelect::~SceneSelect()
 
 void SceneSelect::_updateAsync()
 {
-    switch (_state)
-    {
-    case eSelectState::PREPARE:
-        updatePrepare();
-        break;
-    case eSelectState::SELECT:
-        updateSelect();
-        break;
-    case eSelectState::SEARCH:
-        updateSearch();
-        break;
-    case eSelectState::PANEL1:
-    case eSelectState::PANEL2:
-    case eSelectState::PANEL3:
-    case eSelectState::PANEL4:
-    case eSelectState::PANEL5:
-    case eSelectState::PANEL6:
-    case eSelectState::PANEL7:
-    case eSelectState::PANEL8:
-    case eSelectState::PANEL9:
-        updatePanel(unsigned(_state) - unsigned(eSelectState::PANEL1) + 1);
-        break;
-    case eSelectState::FADEOUT:
-        updateFadeout();
-        break;
-    }
+    _updateCallback();
 }
 
 void SceneSelect::updatePrepare()
@@ -671,6 +640,7 @@ void SceneSelect::updatePrepare()
     if (rt.norm() >= _skin->info.timeIntro)
     {
         _state = eSelectState::SELECT;
+        _updateCallback = std::bind(&SceneSelect::updateSelect, this);
 
         using namespace std::placeholders;
         _input.register_p("SCENE_PRESS", std::bind(&SceneSelect::inputGamePress, this, _1, _2));
@@ -696,7 +666,9 @@ void SceneSelect::updateSelect()
     }
     if (gSelectContext.isGoingToKeyConfig)
     {
+        gTimers.set(eTimer::FADEOUT_BEGIN, rt.norm());
         _state = eSelectState::FADEOUT;
+        _updateCallback = std::bind(&SceneSelect::updateFadeout, this);
     }
 }
 
@@ -741,7 +713,7 @@ void SceneSelect::updateFadeout()
 ////////////////////////////////////////////////////////////////////////////////
 
 // CALLBACK
-void SceneSelect::inputGamePress(InputMask& m, Time t)
+void SceneSelect::inputGamePress(InputMask& m, const Time& t)
 {
     if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
 
@@ -750,32 +722,25 @@ void SceneSelect::inputGamePress(InputMask& m, Time t)
     auto input = _inputAvailable & m;
     if (input.any())
     {
-        if (input[ESC])
+        // sub callbacks
+        if (gSwitches.get(eSwitch::SELECT_PANEL1))
         {
-            LOG_DEBUG << "[Select] ESC";
-            gNextScene = eScene::EXIT;
-            return;
+            inputGamePressPanel(input, t);
         }
-        if (!gSwitches.get(eSwitch::SELECT_PANEL1) && (input[K1START] || input[K2START]))
+        else
         {
-            // close other panels
-            for (int i = 2; i <= 9; ++i)
+            switch (_state)
             {
-                eSwitch p = static_cast<eSwitch>(int(eSwitch::SELECT_PANEL1) - 1 + i);
-                if (gSwitches.get(p))
-                {
-                    gSwitches.set(p, false);
-                    gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_START) - 1 + i), TIMER_NEVER);
-                    gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_END) - 1 + i), t.norm());
-                    //SoundMgr::playSample(eSoundSample::SOUND_O_CLOSE);
-                }
-            }
+            case eSelectState::SELECT:
+                inputGamePressSelect(input, t);
+                break;
 
-            // open panel 1
-            gSwitches.set(eSwitch::SELECT_PANEL1, true);
-            gTimers.set(eTimer::PANEL1_START, t.norm());
-            gTimers.set(eTimer::PANEL1_END, TIMER_NEVER);
-            SoundMgr::playSample(eSoundSample::SOUND_O_OPEN);
+            case eSelectState::FADEOUT:
+                break;
+
+            default:
+                break;
+            }
         }
 
         // lights
@@ -787,125 +752,27 @@ void SceneSelect::inputGamePress(InputMask& m, Time t)
                 gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_UP) + k - Pad::K11), TIMER_NEVER);
             }
         }
-        if (gOptions.get(eOption::PLAY_BATTLE_TYPE) == 1)
+        for (size_t k = Pad::K21; k <= Pad::K29; ++k)
         {
-            for (size_t k = Pad::K21; k <= Pad::K29; ++k)
+            if (input[k])
             {
-                if (input[k])
+                if (gOptions.get(eOption::PLAY_BATTLE_TYPE) == 1)
                 {
                     gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K21_DOWN) + k - Pad::K21), t.norm());
                     gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K21_UP) + k - Pad::K21), TIMER_NEVER);
                 }
-            }
-        }
-        else
-        {
-            for (size_t k = Pad::K21; k <= Pad::K29; ++k)
-            {
-                if (input[k])
+                else
                 {
                     gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_DOWN) + k - Pad::K21), t.norm());
                     gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_UP) + k - Pad::K21), TIMER_NEVER);
                 }
             }
         }
-
-        if (_skin->type() == eSkinType::LR2)
-        {
-            if (gSwitches.get(eSwitch::SELECT_PANEL1))
-            {
-                // 1: KEYS
-                if (input[Pad::K12]) lr2skin::button::random_type(PLAYER_SLOT_1P, 1);
-                if (input[Pad::K13]) lr2skin::button::battle(1);
-                if (input[Pad::K14]) lr2skin::button::gauge_type(PLAYER_SLOT_1P, 1);
-                if (input[Pad::K15]) lr2skin::button::hs(PLAYER_SLOT_1P, -1);
-                if (input[Pad::K16]) lr2skin::button::autoscr(PLAYER_SLOT_1P, 1);
-                if (input[Pad::K17]) lr2skin::button::hs(PLAYER_SLOT_1P, 1);
-
-                if (gOptions.get(eOption::PLAY_BATTLE_TYPE) == 1)
-                {
-                    // 1: KEYS
-                    if (input[Pad::K22]) lr2skin::button::random_type(PLAYER_SLOT_2P, 1);
-                    if (input[Pad::K23]) lr2skin::button::battle(1);
-                    if (input[Pad::K24]) lr2skin::button::gauge_type(PLAYER_SLOT_2P, 1);
-                    if (input[Pad::K25]) lr2skin::button::hs(PLAYER_SLOT_2P, -1);
-                    if (input[Pad::K26]) lr2skin::button::autoscr(PLAYER_SLOT_2P, 1);
-                    if (input[Pad::K27]) lr2skin::button::hs(PLAYER_SLOT_2P, 1);
-                }
-                else
-                {
-                    // 1: KEYS
-                    if (input[Pad::K22]) lr2skin::button::random_type(PLAYER_SLOT_1P, 1);
-                    if (input[Pad::K23]) lr2skin::button::battle(1);
-                    if (input[Pad::K24]) lr2skin::button::gauge_type(PLAYER_SLOT_1P, 1);
-                    if (input[Pad::K25]) lr2skin::button::hs(PLAYER_SLOT_1P, -1);
-                    if (input[Pad::K26]) lr2skin::button::autoscr(PLAYER_SLOT_1P, 1);
-                    if (input[Pad::K27]) lr2skin::button::hs(PLAYER_SLOT_1P, 1);
-                }
-            }
-        }
-
-        // navigate
-        switch (_state)
-        {
-        case eSelectState::SELECT:
-            if (!gSwitches.get(eSwitch::SELECT_PANEL1))
-            {
-                switch (gSelectContext.entries[gSelectContext.idx].first->type())
-                {
-                case eEntryType::FOLDER:
-                case eEntryType::CUSTOM_FOLDER:
-                    if ((input & INPUT_MASK_DECIDE).any())
-                        _navigateEnter(t);
-                    break;
-
-                case eEntryType::SONG:
-                case eEntryType::CHART:
-                case eEntryType::RIVAL_SONG:
-                case eEntryType::RIVAL_CHART:
-                case eEntryType::COURSE:
-                    if ((input & INPUT_MASK_DECIDE).any())
-                        _decide();
-                    break;
-
-                default:
-                    break;
-                }
-                if ((input & INPUT_MASK_CANCEL).any())
-                    _navigateBack(t);
-            }
-            if ((input & INPUT_MASK_NAV_UP).any())
-            {
-                isHoldingUp = true;
-                if (scrollTimestamp == -1)
-                {
-                    scrollTimestamp = t.norm();
-                    _navigateUpBy1(t);
-                }
-            }
-            if ((input & INPUT_MASK_NAV_DN).any())
-            {
-                isHoldingDown = true;
-                if (scrollTimestamp == -1)
-                {
-                    scrollTimestamp = t.norm();
-                    _navigateDownBy1(t);
-                }
-            }
-
-            break;
-
-        case eSelectState::FADEOUT:
-            break;
-
-        default:
-            break;
-        }
     }
 }
 
 // CALLBACK
-void SceneSelect::inputGameHold(InputMask& m, Time t)
+void SceneSelect::inputGameHold(InputMask& m, const Time& t)
 {
     if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
 
@@ -914,35 +781,28 @@ void SceneSelect::inputGameHold(InputMask& m, Time t)
     auto input = _inputAvailable & m;
     if (input.any())
     {
-        // navigate
-        switch (_state)
+        // sub callbacks
+        if (gSwitches.get(eSwitch::SELECT_PANEL1))
         {
-        case eSelectState::SELECT:
-            if (!gSwitches.get(eSwitch::SELECT_PANEL1))
+            inputGameHoldPanel(input, t);
+        }
+        else
+        {
+            switch (_state)
             {
-                if (isHoldingUp && t.norm() - scrollTimestamp >= gSelectContext.scrollTime)
-                {
-                    gSelectContext.scrollTime = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);
-                    scrollTimestamp = t.norm();
-                    _navigateUpBy1(t);
-                }
-                if (isHoldingDown && t.norm() - scrollTimestamp >= gSelectContext.scrollTime)
-                {
-                    gSelectContext.scrollTime = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);;
-                    scrollTimestamp = t.norm();
-                    _navigateDownBy1(t);
-                }
-            }
-            break;
+            case eSelectState::SELECT:
+                inputGameHoldSelect(input, t);
+                break;
 
-        default:
-            break;
+            default:
+                break;
+            }
         }
     }
 }
 
 // CALLBACK
-void SceneSelect::inputGameRelease(InputMask& m, Time t)
+void SceneSelect::inputGameRelease(InputMask& m, const Time& t)
 {
     if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
 
@@ -951,13 +811,22 @@ void SceneSelect::inputGameRelease(InputMask& m, Time t)
     auto input = _inputAvailable & m;
     if (input.any())
     {
-        if (gSwitches.get(eSwitch::SELECT_PANEL1) && (input[K1START] || input[K2START]))
+        // sub callbacks
+        if (gSwitches.get(eSwitch::SELECT_PANEL1))
         {
-            // close panel 1
-            gSwitches.set(eSwitch::SELECT_PANEL1, false);
-            gTimers.set(eTimer::PANEL1_START, TIMER_NEVER);
-            gTimers.set(eTimer::PANEL1_END, t.norm());
-            SoundMgr::playSample(eSoundSample::SOUND_O_CLOSE);
+            inputGameReleasePanel(input, t);
+        }
+        else
+        {
+            switch (_state)
+            {
+            case eSelectState::SELECT:
+                inputGameReleaseSelect(input, t);
+                break;
+
+            default:
+                break;
+            }
         }
 
         // lights
@@ -969,51 +838,187 @@ void SceneSelect::inputGameRelease(InputMask& m, Time t)
                 gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_DOWN) + k - Pad::K11), TIMER_NEVER);
             }
         }
-        if (gOptions.get(eOption::PLAY_BATTLE_TYPE) == 1)
+        for (size_t k = Pad::K21; k <= Pad::K29; ++k)
         {
-            for (size_t k = Pad::K21; k <= Pad::K29; ++k)
+            if (input[k])
             {
-                if (input[k])
+                if (gOptions.get(eOption::PLAY_BATTLE_TYPE) == 1)
                 {
                     gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K21_UP) + k - Pad::K21), t.norm());
                     gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K21_DOWN) + k - Pad::K21), TIMER_NEVER);
                 }
-            }
-        }
-        else
-        {
-            for (size_t k = Pad::K21; k <= Pad::K29; ++k)
-            {
-                if (input[k])
+                else
                 {
                     gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_UP) + k - Pad::K21), t.norm());
                     gTimers.set(static_cast<eTimer>(static_cast<size_t>(eTimer::K11_DOWN) + k - Pad::K21), TIMER_NEVER);
                 }
             }
         }
+    }
+}
 
-        // navigate
-        switch (_state)
+
+void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
+{
+    if (input[Input::Pad::ESC])
+    {
+        LOG_DEBUG << "[Select] ESC";
+        gNextScene = eScene::EXIT;
+        return;
+    }
+
+    if (_skin->type() == eSkinType::LR2 && (input[Input::Pad::K1START] || input[Input::Pad::K2START]))
+    {
+        // close other panels
+        for (int i = 2; i <= 9; ++i)
         {
-        case eSelectState::SELECT:
-            if (!gSwitches.get(eSwitch::SELECT_PANEL1))
+            eSwitch p = static_cast<eSwitch>(int(eSwitch::SELECT_PANEL1) - 1 + i);
+            if (gSwitches.get(p))
             {
-                if ((input & INPUT_MASK_NAV_UP).any())
-                {
-                    isHoldingUp = false;
-                    gSelectContext.scrollTime = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_INITIAL, 300);
-                }
-                if ((input & INPUT_MASK_NAV_DN).any())
-                {
-                    isHoldingDown = false;
-                    gSelectContext.scrollTime = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_INITIAL, 300);
-                }
+                gSwitches.set(p, false);
+                gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_START) - 1 + i), TIMER_NEVER);
+                gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_END) - 1 + i), t.norm());
+                //SoundMgr::playSample(eSoundSample::SOUND_O_CLOSE);
             }
-            break;
-
-        default:
-            break;
         }
+
+        // open panel 1
+        gSwitches.set(eSwitch::SELECT_PANEL1, true);
+        gTimers.set(eTimer::PANEL1_START, t.norm());
+        gTimers.set(eTimer::PANEL1_END, TIMER_NEVER);
+        SoundMgr::playSample(eSoundSample::SOUND_O_OPEN);
+        return;
+    }
+
+    // navigate
+    switch (gSelectContext.entries[gSelectContext.idx].first->type())
+    {
+    case eEntryType::FOLDER:
+    case eEntryType::CUSTOM_FOLDER:
+        if ((input & INPUT_MASK_DECIDE).any())
+            return _navigateEnter(t);
+        break;
+
+    case eEntryType::SONG:
+    case eEntryType::CHART:
+    case eEntryType::RIVAL_SONG:
+    case eEntryType::RIVAL_CHART:
+    case eEntryType::COURSE:
+        if ((input & INPUT_MASK_DECIDE).any())
+            return _decide();
+        break;
+
+    default:
+        break;
+    }
+    if ((input & INPUT_MASK_CANCEL).any())
+        return _navigateBack(t);
+
+    if ((input & INPUT_MASK_NAV_UP).any())
+    {
+        isHoldingUp = true;
+        if (scrollTimestamp == -1)
+        {
+            scrollTimestamp = t.norm();
+            _navigateUpBy1(t);
+        }
+    }
+    if ((input & INPUT_MASK_NAV_DN).any())
+    {
+        isHoldingDown = true;
+        if (scrollTimestamp == -1)
+        {
+            scrollTimestamp = t.norm();
+            _navigateDownBy1(t);
+        }
+    }
+}
+
+void SceneSelect::inputGameHoldSelect(InputMask& input, const Time& t)
+{
+    // navigate
+    if (isHoldingUp && t.norm() - scrollTimestamp >= gSelectContext.scrollTime)
+    {
+        gSelectContext.scrollTime = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);
+        scrollTimestamp = t.norm();
+        _navigateUpBy1(t);
+    }
+    if (isHoldingDown && t.norm() - scrollTimestamp >= gSelectContext.scrollTime)
+    {
+        gSelectContext.scrollTime = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);;
+        scrollTimestamp = t.norm();
+        _navigateDownBy1(t);
+    }
+}
+
+void SceneSelect::inputGameReleaseSelect(InputMask& input, const Time& t)
+{
+    // navigate
+    if ((input & INPUT_MASK_NAV_UP).any())
+    {
+        isHoldingUp = false;
+        gSelectContext.scrollTime = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_INITIAL, 300);
+    }
+    if ((input & INPUT_MASK_NAV_DN).any())
+    {
+        isHoldingDown = false;
+        gSelectContext.scrollTime = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_INITIAL, 300);
+    }
+}
+
+void SceneSelect::inputGamePressPanel(InputMask& input, const Time& t)
+{
+    using namespace Input;
+    if (_skin->type() == eSkinType::LR2)
+    {
+        if (gSwitches.get(eSwitch::SELECT_PANEL1))
+        {
+            // 1: KEYS
+            if (input[Pad::K12]) lr2skin::button::random_type(PLAYER_SLOT_1P, 1);
+            if (input[Pad::K13]) lr2skin::button::battle(1);
+            if (input[Pad::K14]) lr2skin::button::gauge_type(PLAYER_SLOT_1P, 1);
+            if (input[Pad::K15]) lr2skin::button::hs(PLAYER_SLOT_1P, -1);
+            if (input[Pad::K16]) lr2skin::button::autoscr(PLAYER_SLOT_1P, 1);
+            if (input[Pad::K17]) lr2skin::button::hs(PLAYER_SLOT_1P, 1);
+
+            if (gOptions.get(eOption::PLAY_BATTLE_TYPE) == 1)
+            {
+                // 1: KEYS
+                if (input[Pad::K22]) lr2skin::button::random_type(PLAYER_SLOT_2P, 1);
+                if (input[Pad::K23]) lr2skin::button::battle(1);
+                if (input[Pad::K24]) lr2skin::button::gauge_type(PLAYER_SLOT_2P, 1);
+                if (input[Pad::K25]) lr2skin::button::hs(PLAYER_SLOT_2P, -1);
+                if (input[Pad::K26]) lr2skin::button::autoscr(PLAYER_SLOT_2P, 1);
+                if (input[Pad::K27]) lr2skin::button::hs(PLAYER_SLOT_2P, 1);
+            }
+            else
+            {
+                // 1: KEYS
+                if (input[Pad::K22]) lr2skin::button::random_type(PLAYER_SLOT_1P, 1);
+                if (input[Pad::K23]) lr2skin::button::battle(1);
+                if (input[Pad::K24]) lr2skin::button::gauge_type(PLAYER_SLOT_1P, 1);
+                if (input[Pad::K25]) lr2skin::button::hs(PLAYER_SLOT_1P, -1);
+                if (input[Pad::K26]) lr2skin::button::autoscr(PLAYER_SLOT_1P, 1);
+                if (input[Pad::K27]) lr2skin::button::hs(PLAYER_SLOT_1P, 1);
+            }
+        }
+    }
+}
+
+void SceneSelect::inputGameHoldPanel(InputMask& input, const Time& t)
+{
+}
+
+void SceneSelect::inputGameReleasePanel(InputMask& input, const Time& t)
+{
+    if (gSwitches.get(eSwitch::SELECT_PANEL1) && (input[Input::Pad::K1START] || input[Input::Pad::K2START]))
+    {
+        // close panel 1
+        gSwitches.set(eSwitch::SELECT_PANEL1, false);
+        gTimers.set(eTimer::PANEL1_START, TIMER_NEVER);
+        gTimers.set(eTimer::PANEL1_END, t.norm());
+        SoundMgr::playSample(eSoundSample::SOUND_O_CLOSE);
+        return;
     }
 }
 
@@ -1042,76 +1047,60 @@ void SceneSelect::_decide()
     }
 
     // gauge
-    switch (gOptions.get(eOption::PLAY_GAUGE_TYPE_1P))
+    auto convertGaugeType = [](int nType) -> eModGauge
     {
-    case 0: gPlayContext.mods[PLAYER_SLOT_1P].gauge = eModGauge::NORMAL; break;
-    case 1: gPlayContext.mods[PLAYER_SLOT_1P].gauge = eModGauge::HARD; break;
-    case 2: gPlayContext.mods[PLAYER_SLOT_1P].gauge = eModGauge::DEATH; break;
-    case 3: gPlayContext.mods[PLAYER_SLOT_1P].gauge = eModGauge::EASY; break;
-    case 4: gPlayContext.mods[PLAYER_SLOT_1P].gauge = eModGauge::PATTACK; break;
-    case 5: gPlayContext.mods[PLAYER_SLOT_1P].gauge = eModGauge::GATTACK; break;
-    case 6: gPlayContext.mods[PLAYER_SLOT_1P].gauge = eModGauge::ASSISTEASY;break;
-    case 7: gPlayContext.mods[PLAYER_SLOT_1P].gauge = eModGauge::EXHARD; break;
-    default: break;
-    }
-    switch (gOptions.get(eOption::PLAY_GAUGE_TYPE_2P))
-    {
-    case 0: gPlayContext.mods[PLAYER_SLOT_2P].gauge = eModGauge::NORMAL; break;
-    case 1: gPlayContext.mods[PLAYER_SLOT_2P].gauge = eModGauge::HARD; break;
-    case 2: gPlayContext.mods[PLAYER_SLOT_2P].gauge = eModGauge::DEATH; break;
-    case 3: gPlayContext.mods[PLAYER_SLOT_2P].gauge = eModGauge::EASY; break;
-    case 4: gPlayContext.mods[PLAYER_SLOT_2P].gauge = eModGauge::PATTACK; break;
-    case 5: gPlayContext.mods[PLAYER_SLOT_2P].gauge = eModGauge::GATTACK; break;
-    case 6: gPlayContext.mods[PLAYER_SLOT_2P].gauge = eModGauge::ASSISTEASY;break;
-    case 7: gPlayContext.mods[PLAYER_SLOT_2P].gauge = eModGauge::EXHARD; break;
-    default: break;
-    }
+        switch (nType)
+        {
+        case 1: return eModGauge::HARD;
+        case 2: return eModGauge::DEATH;
+        case 3: return eModGauge::EASY;
+        case 4: return eModGauge::PATTACK;
+        case 5: return eModGauge::GATTACK;
+        case 6: return eModGauge::ASSISTEASY;
+        case 7: return eModGauge::EXHARD;
+        case 0:
+        default: return eModGauge::NORMAL;
+        };
+    };
+    gPlayContext.mods[PLAYER_SLOT_1P].gauge = convertGaugeType(gOptions.get(eOption::PLAY_GAUGE_TYPE_1P));
+    gPlayContext.mods[PLAYER_SLOT_2P].gauge = convertGaugeType(gOptions.get(eOption::PLAY_GAUGE_TYPE_2P));
 
     // random
-    switch (gOptions.get(eOption::PLAY_RANDOM_TYPE_1P))
+    auto convertRandomType = [](int nType) -> eModChart
     {
-    case 0: gPlayContext.mods[PLAYER_SLOT_1P].chart = eModChart::NONE; break;
-    case 1: gPlayContext.mods[PLAYER_SLOT_1P].chart = eModChart::MIRROR; break;
-    case 2: gPlayContext.mods[PLAYER_SLOT_1P].chart = eModChart::RANDOM; break;
-    case 3: gPlayContext.mods[PLAYER_SLOT_1P].chart = eModChart::SRAN; break;
-    case 4: gPlayContext.mods[PLAYER_SLOT_1P].chart = eModChart::HRAN; break;
-    case 5: gPlayContext.mods[PLAYER_SLOT_1P].chart = eModChart::ALLSCR; break;
-    default: break;
-    }
-    switch (gOptions.get(eOption::PLAY_RANDOM_TYPE_2P))
-    {
-    case 0: gPlayContext.mods[PLAYER_SLOT_2P].chart = eModChart::NONE; break;
-    case 1: gPlayContext.mods[PLAYER_SLOT_2P].chart = eModChart::MIRROR; break;
-    case 2: gPlayContext.mods[PLAYER_SLOT_2P].chart = eModChart::RANDOM; break;
-    case 3: gPlayContext.mods[PLAYER_SLOT_2P].chart = eModChart::SRAN; break;
-    case 4: gPlayContext.mods[PLAYER_SLOT_2P].chart = eModChart::HRAN; break;
-    case 5: gPlayContext.mods[PLAYER_SLOT_2P].chart = eModChart::ALLSCR; break;
-    default: break;
-    }
+        switch (nType)
+        {
+        case 1: return eModChart::MIRROR;
+        case 2: return eModChart::RANDOM;
+        case 3: return eModChart::SRAN;
+        case 4: return eModChart::HRAN;
+        case 5: return eModChart::ALLSCR;
+        case 0:
+        default: return eModChart::NONE;
+        };
+    };
+    gPlayContext.mods[PLAYER_SLOT_1P].chart = convertRandomType(gOptions.get(eOption::PLAY_RANDOM_TYPE_1P));
+    gPlayContext.mods[PLAYER_SLOT_2P].chart = convertRandomType(gOptions.get(eOption::PLAY_RANDOM_TYPE_2P));
 
     // assist
     gPlayContext.mods[PLAYER_SLOT_1P].assist_mask |= gSwitches.get(eSwitch::PLAY_OPTION_AUTOSCR_1P) ? PLAY_MOD_ASSIST_AUTOSCR : 0;
     gPlayContext.mods[PLAYER_SLOT_2P].assist_mask |= gSwitches.get(eSwitch::PLAY_OPTION_AUTOSCR_2P) ? PLAY_MOD_ASSIST_AUTOSCR : 0;
 
     // HS fix
-    switch (gOptions.get(eOption::PLAY_HSFIX_TYPE_1P))
+    auto convertHSType = [](int nType) -> eModHs
     {
-    case 0: gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::NONE; break;
-    case 1: gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::MAXBPM; break;
-    case 2: gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::MINBPM; break;
-    case 3: gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::AVERAGE; break;
-    case 4: gPlayContext.mods[PLAYER_SLOT_1P].hs = eModHs::CONSTANT; break;
-    default: break;
-    }
-    switch (gOptions.get(eOption::PLAY_HSFIX_TYPE_2P))
-    {
-    case 0: gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::NONE; break;
-    case 1: gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::MAXBPM; break;
-    case 2: gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::MINBPM; break;
-    case 3: gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::AVERAGE; break;
-    case 4: gPlayContext.mods[PLAYER_SLOT_2P].hs = eModHs::CONSTANT; break;
-    default: break;
-    }
+        switch (nType)
+        {
+        case 1: return eModHs::MAXBPM;
+        case 2: return eModHs::MINBPM;
+        case 3: return eModHs::AVERAGE;
+        case 4: return eModHs::CONSTANT;
+        case 0:
+        default: return eModHs::NONE;
+        };
+    };
+    gPlayContext.mods[PLAYER_SLOT_1P].hs = convertHSType(gOptions.get(eOption::PLAY_HSFIX_TYPE_1P));
+    gPlayContext.mods[PLAYER_SLOT_2P].hs = convertHSType(gOptions.get(eOption::PLAY_HSFIX_TYPE_2P));
 
     // chart
     switch (entry->type())
@@ -1342,7 +1331,7 @@ void SceneSelect::loadSongList()
     }
 }
 
-void SceneSelect::_navigateUpBy1(Time t)
+void SceneSelect::_navigateUpBy1(const Time& t)
 {
     {
         std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
@@ -1359,7 +1348,7 @@ void SceneSelect::_navigateUpBy1(Time t)
     setDynamicTextures();
 }
 
-void SceneSelect::_navigateDownBy1(Time t)
+void SceneSelect::_navigateDownBy1(const Time& t)
 {
     {
         std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
@@ -1376,7 +1365,7 @@ void SceneSelect::_navigateDownBy1(Time t)
     setDynamicTextures();
 }
 
-void SceneSelect::_navigateEnter(Time t)
+void SceneSelect::_navigateEnter(const Time& t)
 {
     {
         std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
@@ -1413,10 +1402,9 @@ void SceneSelect::_navigateEnter(Time t)
             break;
         }
     }
-
     setDynamicTextures();
 }
-void SceneSelect::_navigateBack(Time t)
+void SceneSelect::_navigateBack(const Time& t)
 {
     {
         std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
