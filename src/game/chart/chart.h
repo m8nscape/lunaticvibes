@@ -85,8 +85,7 @@ constexpr NoteLane idxToChannel(size_t idx)
     if (idx >= size_t(NoteLaneCategory::EXTRA) * NoteLaneIndex::NOTELANEINDEX_COUNT + NoteLaneExtra::NOTELANEEXTRA_COUNT)
         return { NoteLaneCategory::_, NoteLaneIndex::_ };
 
-    size_t ch = idx / NOTELANEINDEX_COUNT;
-    return { NoteLaneCategory(ch), NoteLaneIndex(idx % ch) };
+    return { NoteLaneCategory(idx / NOTELANEINDEX_COUNT), NoteLaneIndex(idx % NOTELANEINDEX_COUNT) };
 }
 
 class ::vChartFormat;

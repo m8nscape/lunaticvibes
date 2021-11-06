@@ -188,6 +188,9 @@ void chartBMS::loadBMS(const BMS& objBms)
 
     std::bitset<NOTELANEINDEX_COUNT> laneOccupiedByLN{ 0 };
 
+    std::array<NoteLaneIndex, NOTELANEINDEX_COUNT> gameLaneLNIndex;
+    gameLaneLNIndex.fill(_);
+
     for (unsigned m = 0; m <= objBms.lastBarIdx; m++)
     {
 		barLength[m] = objBms.barLength[m];
@@ -302,9 +305,6 @@ void chartBMS::loadBMS(const BMS& objBms)
         Beat measureLength = objBms.barLength[m];      // visual beat
 		Time beatLength = Time::singleBeatLengthFromBPM(bpm);
 
-        std::array<NoteLaneIndex, NOTELANEINDEX_COUNT> gameLaneLNIndex;
-        gameLaneLNIndex.fill(_);
-
         for (const auto& note : notes)
         {
             auto[noteSegment, noteinfo] = note;
@@ -317,17 +317,18 @@ void chartBMS::loadBMS(const BMS& objBms)
             {
 				// TODO mapping is different between file formats (bms, bme, etc)
                 if (BMSToLaneMap[lane] == NOPE) continue;
-                size_t chartLaneIdx = BMSToLaneMap[lane];
-                size_t gameLaneIdx = gameLaneMap[chartLaneIdx];
+                NoteLane chartLane = idxToChannel(BMSToLaneMap[lane]);
+                size_t gameLaneIdx = gameLaneMap[chartLane.second];
 
                 if (lane >= 40 && lane < 60)
                 {
                     // LN tail
-                    size_t lnLaneIdx = gameLaneLNIndex[gameLaneIdx];
-                    assert(lnLaneIdx != _);
-                    assert(laneOccupiedByLN[lnLaneIdx] == true);
-                    _noteLists[lnLaneIdx].push_back({ m, beat, notetime, (long long)val, Note::LN_TAIL, false });
-                    laneOccupiedByLN[lnLaneIdx] = false;
+                    size_t gameLaneIdxLN = gameLaneLNIndex[gameLaneIdx];
+                    assert(gameLaneIdxLN != _);
+                    assert(laneOccupiedByLN[gameLaneIdxLN] == true);
+                    laneOccupiedByLN[gameLaneIdxLN] = false;
+                    gameLaneLNIndex[gameLaneIdx] = _;
+                    _noteLists[channelToIdx(chartLane.first, gameLaneIdxLN)].push_back({ m, beat, notetime, (long long)val, Note::LN_TAIL, false });
                 }
                 else
                 {
@@ -341,7 +342,7 @@ void chartBMS::loadBMS(const BMS& objBms)
                         laneMax = laneMin + (laneCountRandom - 1); // K7
                         laneSlot = PLAYER_SLOT_1P;
                     }
-                    else if (gameLaneIdx >= Sc1 + laneCountRandom + 1 && gameLaneIdx <= Sc1 + laneCountRandom + 1 + laneCountRandom - 1)
+                    else if (gameLaneIdx >= Sc1 + laneCountRandom + 1 && gameLaneIdx <= Sc1 + laneCountRandom + 1 + laneCountRandom - 1 || gameLaneIdx == Sc2)
                     {
                         laneMin = K1 + laneCountRandom;            // K8
                         laneMax = laneMin + (laneCountRandom - 1); // K14
@@ -356,21 +357,25 @@ void chartBMS::loadBMS(const BMS& objBms)
                     switch (gPlayContext.mods[_playerSlot].chart)
                     {
                     case eModChart::SRAN:
-                        if (gameLaneIdx != Sc1 && gameLaneIdx == Sc2)
+                        if (gameLaneIdx != Sc1 && gameLaneIdx != Sc2)
                         {
                             constexpr int threshold_ms = 50;
                             std::vector<NoteLaneIndex> placable;
-                            for (NoteLaneIndex i = NoteLaneIndex(laneMin); i != NoteLaneIndex(laneMax + 1); ++*(size_t*)i)
+                            for (NoteLaneIndex i = NoteLaneIndex(laneMin); i != NoteLaneIndex(laneMax + 1); ++*(size_t*)&i)
                             {
-                                if (_noteLists[i].empty())
+                                if (laneOccupiedByLN[i])
+                                {
+                                    continue;
+                                }
+                                else if (_noteLists[channelToIdx(NoteLaneCategory::Note, i)].empty())
                                 {
                                     placable.push_back(i);
                                     continue;
                                 }
                                 else
                                 {
-                                    auto& lastNote = --_noteLists[i].end();
-                                    if (notetime - lastNote->time < threshold_ms && gameLaneLNIndex[i] == _)
+                                    auto lastNote = --_noteLists[channelToIdx(NoteLaneCategory::Note, i)].end();
+                                    if (notetime - lastNote->time >= threshold_ms && gameLaneLNIndex[i] == _)
                                         placable.push_back(i);
                                 }
                             }
@@ -379,21 +384,25 @@ void chartBMS::loadBMS(const BMS& objBms)
                         break;
 
                     case eModChart::HRAN:
-                        if (gameLaneIdx != Sc1 && gameLaneIdx == Sc2)
+                        if (gameLaneIdx != Sc1 && gameLaneIdx != Sc2)
                         {
                             constexpr int threshold_ms = 250;
                             std::vector<NoteLaneIndex> placable;
-                            for (NoteLaneIndex i = NoteLaneIndex(laneMin); i != NoteLaneIndex(laneMax + 1); ++ * (size_t*)i)
+                            for (NoteLaneIndex i = NoteLaneIndex(laneMin); i != NoteLaneIndex(laneMax + 1); ++ * (size_t*)&i)
                             {
-                                if (_noteLists[i].empty())
+                                if (laneOccupiedByLN[i])
+                                {
+                                    continue;
+                                }
+                                else if (_noteLists[channelToIdx(NoteLaneCategory::Note, i)].empty())
                                 {
                                     placable.push_back(i);
                                     continue;
                                 }
                                 else
                                 {
-                                    auto& lastNote = --_noteLists[i].end();
-                                    if (notetime - lastNote->time < threshold_ms && gameLaneLNIndex[i] == _)
+                                    auto lastNote = --_noteLists[channelToIdx(NoteLaneCategory::Note, i)].end();
+                                    if (notetime - lastNote->time >= threshold_ms && gameLaneLNIndex[i] == _)
                                         placable.push_back(i);
                                 }
                             }
@@ -403,7 +412,7 @@ void chartBMS::loadBMS(const BMS& objBms)
                             {
                                 using noteTimePair = std::pair<long long, NoteLaneIndex>;
                                 std::vector<noteTimePair> placableMin;
-                                for (NoteLaneIndex i = NoteLaneIndex(laneMin); i != NoteLaneIndex(laneMax + 1); ++ * (size_t*)i)
+                                for (NoteLaneIndex i = NoteLaneIndex(laneMin); i != NoteLaneIndex(laneMax + 1); ++ * (size_t*)&i)
                                 {
                                     // no need to check if noteLists[i] is empty
                                     auto& lastNote = --_noteLists[i].end();
@@ -418,6 +427,7 @@ void chartBMS::loadBMS(const BMS& objBms)
 
                     case eModChart::ALLSCR:
                     {
+                        constexpr int threshold_scr_ms = 33;
                         constexpr int threshold_ms = 250;
                         size_t laneMin, laneMax, laneScratch;
                         int laneStep;
@@ -439,16 +449,16 @@ void chartBMS::loadBMS(const BMS& objBms)
                             gameLaneIdxMod = laneScratch;
                         else
                         {
-                            auto& lastScratch = --_noteLists[laneScratch].end();
-                            if (notetime - lastScratch->time < threshold_ms && !laneOccupiedByLN[laneScratch])
+                            auto& lastScratch = --_noteLists[channelToIdx(NoteLaneCategory::Note, laneScratch)].end();
+                            if (notetime - lastScratch->time >= threshold_scr_ms && !laneOccupiedByLN[laneScratch])
                                 gameLaneIdxMod = laneScratch;
                             else
                             {
                                 bool availableLaneFound = false;
                                 for (NoteLaneIndex i = (NoteLaneIndex)laneMin; i != (NoteLaneIndex)laneMax + laneStep; *(size_t*)&i += laneStep)
                                 {
-                                    auto& lastNote = --_noteLists[laneScratch].end();
-                                    if (notetime - lastNote->time < threshold_ms && !laneOccupiedByLN[i])
+                                    auto lastNote = --_noteLists[channelToIdx(NoteLaneCategory::Note, laneScratch)].end();
+                                    if (notetime - lastNote->time >= threshold_ms && !laneOccupiedByLN[i])
                                     {
                                         gameLaneIdxMod = i;
                                         availableLaneFound = true;
@@ -466,10 +476,13 @@ void chartBMS::loadBMS(const BMS& objBms)
                         break;
                     }
 
-                    _noteLists[gameLaneIdxMod].push_back({ m, beat, notetime, (long long)val });
+                    _noteLists[channelToIdx(chartLane.first, gameLaneIdxMod)].push_back({ m, beat, notetime, (long long)val });
 
                     if (lane >= 20 && lane < 40)
+                    {
                         gameLaneLNIndex[gameLaneIdx] = (NoteLaneIndex)gameLaneIdxMod;
+                        laneOccupiedByLN[gameLaneIdxMod] = true;
+                    }
                 }
             }
             else if (lane >= 100 && lane <= 131)

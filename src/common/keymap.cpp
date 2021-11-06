@@ -45,9 +45,10 @@ void KeyMap::fromString(const std::string_view& name)
 void KeyMap::fromStringKeyboard(const std::string_view& name)
 {
     if (name.substr(0, 2) != "K_") return;
+    auto keystr = name.substr(2);
     for (size_t i = 0; i < 0xFF; ++i)
     {
-        if (Input::keyboardNameMap[i] != NULL && name == Input::keyboardNameMap[i])
+        if (Input::keyboardNameMap[i] != NULL && keystr == Input::keyboardNameMap[i])
         {
             setKeyboard(static_cast<Input::Keyboard>(i));
             return;
