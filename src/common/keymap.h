@@ -359,9 +359,9 @@ class KeyMap
 {
 public:
     KeyMap() = default;
+    KeyMap(const std::string_view & name) { fromString(name); }
+    KeyMap(const Input::Keyboard & kb) { setKeyboard(kb); }
     ~KeyMap() = default;
-    KeyMap(const std::string_view& name) { fromString(name); }
-    KeyMap(const Input::Keyboard& kb) { setKeyboard(kb); }
 
     enum class DeviceType
     {
@@ -375,6 +375,7 @@ public:
     };
 
     typedef int DeviceID;
+    typedef int AxisDir;    // -1: negative / 1: positive
 
 protected:
     DeviceType type = DeviceType::UNDEF;
@@ -382,7 +383,7 @@ protected:
     union
     {
         Input::Keyboard keyboard;
-        int code;
+        unsigned code;
     };
 
 public:
@@ -392,10 +393,15 @@ public:
 
     Input::Keyboard getKeyboard() const { assert(type == DeviceType::KEYBOARD); return keyboard; }
     int getDeviceID() const { return device; }
-    int getCode() const { return code; }
+
+    unsigned getCode() const { return code; }
+    bool isAxis() const;
+    unsigned getAxis() const;
+    AxisDir getAxisDir() const;
 
     void setKeyboard(Input::Keyboard kb);
-    void setRawInput(int deviceID, int code);
+    void setRawInputKey(int deviceID, int code);
+    void setRawInputAxis(int deviceID, int idx, AxisDir direction);
 
 private:
     void fromString(const std::string_view& name);

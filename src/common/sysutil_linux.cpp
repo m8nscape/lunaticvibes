@@ -34,7 +34,7 @@ void GetExecutablePath(char* output, size_t bufsize, size_t& len)
     len = strlen(output);
 }
 
-void addWMEventHandler(std::function<void(void*, void*, void*, void*)> f)
+void addWMEventHandler(void* f)
 {
 
 }

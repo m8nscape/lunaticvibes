@@ -29,7 +29,7 @@ void InputWrapper::_loop()
 
     InputMask p{ 0 }, h{ 0 }, r{ 0 };
 
-    auto d = InputMgr::detect();
+    auto d = _curr;
     if (!_background && !IsWindowForeground()) d.reset();
 
     for (Input::Pad i = Input::S1L; i < Input::KEY_COUNT; ++(int&)i)
@@ -61,29 +61,55 @@ void InputWrapper::_loop()
         }
     }
 
-    if (!_keyboardCallbackMap.empty())
+    if (_background || IsWindowForeground())
     {
-        KeyboardMask mask;
-        _kbprev = _kbcurr;
-        for (Input::Keyboard k = Input::Keyboard::K_ESC; k != Input::Keyboard::K_COUNT; ++*(unsigned*)&k)
+        if (!_keyboardCallbackMap.empty())
         {
-            if (isKeyPressed(k)) mask.set(static_cast<size_t>(k));
-        }
-        _kbcurr = mask;
+            KeyboardMask mask;
+            _kbprev = _kbcurr;
+            for (Input::Keyboard k = Input::Keyboard::K_ESC; k != Input::Keyboard::K_COUNT; ++ * (unsigned*)&k)
+            {
+                if (isKeyPressed(k)) mask.set(static_cast<size_t>(k));
+            }
+            _kbcurr = mask;
 
-        KeyboardMask p;
-        for (Input::Keyboard k = Input::Keyboard::K_ESC; k != Input::Keyboard::K_COUNT; ++ * (unsigned*)&k)
-        {
-            size_t ki = static_cast<size_t>(k);
-            if (_kbcurr[ki] && !_kbprev[ki]) p.set(ki);
-        }
-        if (p.any())
-        {
-            std::shared_lock l(_inputMutex, std::defer_lock);
+            KeyboardMask p;
+            for (Input::Keyboard k = Input::Keyboard::K_ESC; k != Input::Keyboard::K_COUNT; ++ * (unsigned*)&k)
+            {
+                size_t ki = static_cast<size_t>(k);
+                if (_kbcurr[ki] && !_kbprev[ki]) p.set(ki);
+            }
+            if (p.any())
+            {
+                std::shared_lock l(_inputMutex, std::defer_lock);
 
-            for (auto& [cbname, callback] : _keyboardCallbackMap)
-                callback(mask, now);
+                for (auto& [cbname, callback] : _keyboardCallbackMap)
+                    callback(mask, now);
+            }
         }
+
+#ifdef RAWINPUT_AVAILABLE
+        if (!_rawinputCallbackMap.empty())
+        {
+            for (int deviceID = 0; deviceID < (int)Input::rawinput::RIMgr::inst().getDeviceCount(); ++deviceID)
+            {
+                RawinputKeyMap pressedNew;
+                auto axisdelta = Input::rawinput::RIMgr::inst().getAxisDelta(deviceID);
+
+                RawinputKeyMap pressedTmp = Input::rawinput::RIMgr::inst().getPressed(deviceID);
+                for (auto& [key, stat] : pressedTmp)
+                    if (stat && !_riprev[deviceID][key])
+                        pressedNew[key] = true;
+
+                if (!pressedNew.empty())
+                {
+                    for (auto& [cbname, callback] : _rawinputCallbackMap)
+                        callback(deviceID, pressedNew, axisdelta, now);
+                }
+                _riprev[deviceID] = pressedTmp;
+            }
+        }
+#endif
     }
 
     InputMgr::getMousePos(_cursor_x, _cursor_y);
@@ -156,3 +182,24 @@ bool InputWrapper::unregister_kb(const std::string& key)
     _keyboardCallbackMap.erase(key);
     return true;
 }
+
+#ifdef RAWINPUT_AVAILABLE
+bool InputWrapper::register_ri(const std::string& key, RAWINPUTCALLBACK f)
+{
+    if (_rawinputCallbackMap.find(key) != _rawinputCallbackMap.end())
+        return false;
+
+    std::unique_lock _lock(_inputMutex);
+    _rawinputCallbackMap[key] = f;
+    return true;
+}
+bool InputWrapper::unregister_ri(const std::string& key)
+{
+    if (_rawinputCallbackMap.find(key) == _rawinputCallbackMap.end())
+        return false;
+
+    std::unique_lock _lock(_inputMutex);
+    _rawinputCallbackMap.erase(key);
+    return true;
+}
+#endif

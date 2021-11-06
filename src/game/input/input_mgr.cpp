@@ -8,6 +8,11 @@ InputMgr InputMgr::_inst;
 
 using namespace Input;
 
+void InputMgr::init()
+{
+    using namespace std::placeholders;
+    addWMEventHandler(&Input::rawinput::RIMgr::WMMsgHandler);
+}
 
 void InputMgr::updateDevices()
 {
@@ -19,6 +24,8 @@ void InputMgr::updateDevices()
     //        _inst.joysticksConnected[i] = true;
     //        _inst.haveJoystick = true;
     //    }
+
+    Input::rawinput::RIMgr::inst().refreshDevices();
 }
 
 void InputMgr::updateBindings(GameModeKeys keys, Pad K)
@@ -51,11 +58,38 @@ void InputMgr::updateBindings(GameModeKeys keys, Pad K)
 
 std::bitset<KEY_COUNT> InputMgr::detect()
 {
+    std::bitset<KEY_COUNT> res{};
+
 #ifdef RAWINPUT_AVAILABLE
     rawinput::RIMgr::inst().update();
+    {
+        std::shared_lock lock(rawinput::RIMgr::inst().mutexInput);
+        for (int k = S1L; k < ESC; k++)
+        {
+            for (const KeyMap& b : _inst.padBindings[k])
+            {
+                if (b.getType() == KeyMap::DeviceType::RAWINPUT)
+                {
+                    if (b.isAxis())
+                    {
+                        auto delta = rawinput::RIMgr::inst().getAxisDelta(b.getDeviceID(), b.getAxis());
+                        if (b.getAxisDir() > 0 && res[k] > 0 || b.getAxisDir() < 0 && res[k] < 0)
+                        {
+                            int absdelta = (int)std::abs(delta);
+                            if (absdelta > _inst.analogDeadZone)
+                                res[k] = true;
+                        }
+                    }
+                    else
+                    {
+                        if (rawinput::RIMgr::inst().isPressed(b.getDeviceID(), b.getCode()))
+                            res[k] = true;
+                    }
+                }
+            }
+        }
+    }
 #endif
-
-    std::bitset<KEY_COUNT> res{};
 
     // game input
     for (int k = S1L; k < ESC; k++)
@@ -65,7 +99,8 @@ std::bitset<KEY_COUNT> InputMgr::detect()
 			switch (b.getType())
 			{
             case KeyMap::DeviceType::KEYBOARD:
-                res[k] = isKeyPressed(b.getKeyboard());
+                if (isKeyPressed(b.getKeyboard()))
+                    res[k] = true;
 				break;
 			case KeyMap::DeviceType::JOYSTICK:
                 // TODO joystick
@@ -73,11 +108,6 @@ std::bitset<KEY_COUNT> InputMgr::detect()
 			case KeyMap::DeviceType::CONTROLLER:
 			case KeyMap::DeviceType::MOUSE:
 				break;
-#ifdef RAWINPUT_AVAILABLE
-            case KeyMap::DeviceType::RAWINPUT:
-                res[k] = rawinput::RIMgr::inst().isPressed(b.getDeviceID(), b.getCode());
-                break;
-#endif
 			}
 			if (res[k]) break;
         }

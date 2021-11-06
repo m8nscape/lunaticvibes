@@ -83,10 +83,14 @@ void GetExecutablePath(char* output, size_t bufsize, size_t& len)
     len = strlen(output);
 }
 
-static HWND hwnd = (HWND)INVALID_HANDLE_VALUE;
+static HWND hwnd = NULL;
 void setWindowHandle(void* handle)
 {
     hwnd = *(HWND*)handle;
+}
+void getWindowHandle(void* handle)
+{
+    *(HWND*)handle = hwnd;
 }
 
 bool getMouseCursorPos(int& x, int& y)
@@ -116,16 +120,12 @@ void SetWindowForeground(bool f)
     foreground = f;
 }
 
-
-std::vector<std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)>> WMEventHandler;
-void addWMEventHandler(std::function<void(void*, void*, void*, void*)> f)
+typedef LRESULT(*WMCALLBACK)(HWND, UINT, WPARAM, LPARAM);
+std::vector<WMCALLBACK> WMEventHandler;
+void addWMEventHandler(void* f)
 {
     using namespace std::placeholders;
-    WMEventHandler.push_back(std::bind([&](HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) -> LRESULT
-        {
-            f(&hwnd, &msg, &wp, &lp);
-            return 0;
-        }, _1, _2, _3, _4));
+    WMEventHandler.push_back((WMCALLBACK)f);
 }
 
 void callWMEventHandler(void* arg1, void* arg2, void* arg3, void* arg4)
@@ -137,7 +137,8 @@ void callWMEventHandler(void* arg1, void* arg2, void* arg3, void* arg4)
 
     for (auto& f : WMEventHandler)
     {
-        f(hwnd, msg, wParam, lParam);
+        //f(hwnd, msg, wParam, lParam);
+        ((WMCALLBACK)f)(hwnd, msg, wParam, lParam);
     }
 }
 

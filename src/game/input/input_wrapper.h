@@ -6,14 +6,20 @@
 #include "input_mgr.h"
 #include "common/asynclooper.h"
 #include "common/beat.h"
+#include "input_rawinput.h"
 
 typedef std::bitset<Input::Pad::KEY_COUNT> InputMask;
 typedef std::function<void(InputMask&, const Time&)> INPUTCALLBACK;
 //typedef void(*PressedHandleCallback)(void* owner, InputMask&);
 //typedef void(*HoldHandleCallback)(void* owner, InputMask&);
 //typedef void(*ReleasedHandleCallback)(void* owner, InputMask&);
+
 typedef std::bitset<Input::keyboardKeyCount> KeyboardMask;
 typedef std::function<void(KeyboardMask, const Time&)> KEYBOARDCALLBACK;
+
+typedef std::map<int, bool> RawinputKeyMap;
+typedef std::map<int, int> RawinputAxisDeltaMap;
+typedef std::function<void(int, RawinputKeyMap&, RawinputAxisDeltaMap&, const Time&)> RAWINPUTCALLBACK;
 
 // FUNC:                                   BRDUEHDI><v^543210987654321_
 inline const InputMask INPUT_MASK_FUNC  { "1111111111111111111111111111000000000000000000000000000000" };
@@ -45,15 +51,13 @@ private:
     bool _busy = false;
 
 protected:
-    InputMask _prev = 0;
-    InputMask _curr = 0;
     std::array<std::pair<long long, bool>, Input::KEY_COUNT> _inputBuffer{ {{0, false}} };
     std::array<long long, Input::KEY_COUNT> _releaseBuffer{ -1 };
     int _cursor_x = 0, _cursor_y = 0;
     bool _background = false;
 
-    KeyboardMask _kbprev = 0;
-    KeyboardMask _kbcurr = 0;
+    InputMask _prev = 0;
+    InputMask _curr = 0;
 
 public:
     InputWrapper(unsigned rate = 1000, bool background = false);
@@ -89,7 +93,6 @@ private:
     std::map<const std::string, INPUTCALLBACK> _pCallbackMap;
     std::map<const std::string, INPUTCALLBACK> _hCallbackMap;
     std::map<const std::string, INPUTCALLBACK> _rCallbackMap;
-    std::map<const std::string, KEYBOARDCALLBACK> _keyboardCallbackMap;
 private:
     // Callback registering
     bool _register(unsigned type, const std::string& key, INPUTCALLBACK);
@@ -102,8 +105,26 @@ public:
     bool unregister_h(const std::string& key) { return _unregister(1, key); }
     bool unregister_r(const std::string& key) { return _unregister(2, key); }
 
-    // Use with care. May affect performance.
+    // Should only used for keyconfig
+protected:
+    KeyboardMask _kbprev = 0;
+    KeyboardMask _kbcurr = 0;
+private:
+    std::map<const std::string, KEYBOARDCALLBACK> _keyboardCallbackMap;
+public:
     bool register_kb(const std::string& key, KEYBOARDCALLBACK f);
     bool unregister_kb(const std::string& key);
+
+    // Should only used for keyconfig
+#ifdef RAWINPUT_AVAILABLE
+protected:
+    std::map<int, RawinputKeyMap> _riprev;
+    std::map<int, RawinputKeyMap> _ricurr;
+private:
+    std::map<const std::string, RAWINPUTCALLBACK> _rawinputCallbackMap;
+public:
+    bool register_ri(const std::string& key, RAWINPUTCALLBACK f);
+    bool unregister_ri(const std::string& key);
+#endif
 };
 

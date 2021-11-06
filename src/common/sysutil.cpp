@@ -10,7 +10,7 @@ void pushMainThreadTask(std::function<void()> f)
 {
     if (IsMainThread())
     {
-        LOG_DEBUG << "Warning: Calling pushMainThreadTask at main thread";
+        //LOG_DEBUG << "Warning: Calling pushMainThreadTask at main thread";
         f();
     }
     else

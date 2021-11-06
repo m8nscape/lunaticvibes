@@ -115,6 +115,7 @@ int main(int argc, char* argv[])
     }
 
 	// load input bindings
+    InputMgr::init();
 	InputMgr::updateDevices();
 	InputMgr::updateBindings(7, Input::Pad::S1L);
 

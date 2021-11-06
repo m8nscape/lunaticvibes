@@ -7,6 +7,7 @@ void panic(const char* title, const char* msg);
 void GetExecutablePath(char* output, size_t bufsize, size_t& len);
 
 void setWindowHandle(void* handle);
+void getWindowHandle(void* handle);
 bool getMouseCursorPos(int& x, int& y);
 
 bool IsWindowForeground();
@@ -55,5 +56,5 @@ inline T pushAndWaitMainThreadTask(std::function<T(Arg...)> f, Arg... arg)
 	return pushAndWaitMainThreadTask<T>(std::bind(f, arg...));
 }
 
-void addWMEventHandler(std::function<void(void*, void*, void*, void*)> f);
-void callWMEventHandler(void* arg1, void* arg2 = 0, void* arg3 = 0, void* arg4 = 0);
+void addWMEventHandler(void* f);
+void callWMEventHandler(void* arg1 = 0, void* arg2 = 0, void* arg3 = 0, void* arg4 = 0);

@@ -31,10 +31,12 @@ private:
 
 public:
     // Game keys param / functions
+    static void init();
     static void updateDevices();
     static void updateBindings(GameModeKeys keys, Input::Pad K);
     static std::bitset<Input::KEY_COUNT> detect();
 	static bool getMousePos(int& x, int& y);
+    static int getDeadzone() { return _inst.analogDeadZone; }
 };
 
 ////////////////////////////////////////////////////////////////////////////////

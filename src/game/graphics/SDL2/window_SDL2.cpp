@@ -167,6 +167,18 @@ void event_handle()
             gEventQuit = true;
             break;
 
+        case SDL_SYSWMEVENT:
+#ifdef WIN32
+            callWMEventHandler(
+                &e.syswm.msg->msg.win.hwnd,
+                &e.syswm.msg->msg.win.msg,
+                &e.syswm.msg->msg.win.wParam,
+                &e.syswm.msg->msg.win.lParam);
+#elif defined __linux__
+
+#endif
+            break;
+
         case SDL_WINDOWEVENT:
             switch (e.window.event)
             {
@@ -179,18 +191,6 @@ void event_handle()
             default:
                 break;
             }
-            break;
-
-        case SDL_SYSWMEVENT:
-#ifdef WIN32
-            callWMEventHandler(
-                &e.syswm.msg->msg.win.hwnd, 
-                &e.syswm.msg->msg.win.msg,
-                &e.syswm.msg->msg.win.wParam,
-                &e.syswm.msg->msg.win.lParam);
-#elif defined __linux__
-
-#endif
             break;
         default:
             break;

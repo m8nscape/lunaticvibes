@@ -27,17 +27,6 @@ void AsyncLooper::run()
     {
         if (_running)
             _loopFuncBody();
-
-        if (!_running)
-        {
-            _loopFuncBody = [] {};
-            if (DeleteTimerQueueTimer(NULL, handler, NULL))
-            {
-                // ..?
-            }
-
-            LOG_DEBUG << "[Looper] Ended of rate " << _rateTime;
-        }
     }
 }
 
@@ -108,7 +97,16 @@ void AsyncLooper::loopStart()
 
 void AsyncLooper::loopEnd()
 {
-    _running = false;
+    if (_running)
+    {
+        _running = false;
+        if (DeleteTimerQueueTimer(NULL, handler, NULL))
+        {
+            // ..?
+        }
+        _loopFuncBody = [] {};
+        LOG_DEBUG << "[Looper] Ended of rate " << _rateTime;
+    }
 }
 
 #else // FALLBACK
