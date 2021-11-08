@@ -406,7 +406,7 @@ void config_player()
     default:                         ConfigMgr::set('P',P_SPEED_TYPE, P_SPEED_TYPE_NORMAL); break;
     }
 
-    ConfigMgr::set('P',P_LOAD_BGA, gOptions.get(eOption::PLAY_BGA_TYPE) != Option::BGA_OFF ? ON : OFF);
+    ConfigMgr::set('P',P_LOAD_BGA, gOptions.get(eOption::PLAY_BGA_TYPE) != Option::BGA_OFF);
     ConfigMgr::set('P',P_LANECOVER, gNumbers.get(eNumber::LANECOVER_1P));
 
 
@@ -435,7 +435,7 @@ void config_player()
     case Option::GHOST_TOP:         ConfigMgr::set('P',P_GHOST_TYPE, P_GHOST_TYPE_A); break;
     case Option::GHOST_SIDE:        ConfigMgr::set('P',P_GHOST_TYPE, P_GHOST_TYPE_B); break;
     case Option::GHOST_SIDE_BOTTOM: ConfigMgr::set('P',P_GHOST_TYPE, P_GHOST_TYPE_C); break;
-    default:                        ConfigMgr::set('P',P_GHOST_TYPE, OFF); break;
+    default:                        ConfigMgr::set('P',P_GHOST_TYPE, "OFF"); break;
     }
 
     ConfigMgr::set('P',P_JUDGE_OFFSET, gNumbers.get(eNumber::TIMING_ADJUST_VISUAL));
@@ -470,9 +470,9 @@ void config_player()
     default:                    ConfigMgr::set('P',P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_ALL); break;
     }
 
-    ConfigMgr::set('P',P_BATTLE, gOptions.get(eOption::PLAY_BATTLE_TYPE) != 0 ? ON : OFF);
-    ConfigMgr::set('P',P_FLIP, gSwitches.get(eSwitch::PLAY_OPTION_DP_FLIP) ? ON : OFF);
-    ConfigMgr::set('P',P_SCORE_GRAPH, gSwitches.get(eSwitch::SYSTEM_SCOREGRAPH) ? ON : OFF);
+    ConfigMgr::set('P',P_BATTLE, gOptions.get(eOption::PLAY_BATTLE_TYPE) != 0);
+    ConfigMgr::set('P',P_FLIP, gSwitches.get(eSwitch::PLAY_OPTION_DP_FLIP));
+    ConfigMgr::set('P',P_SCORE_GRAPH, gSwitches.get(eSwitch::SYSTEM_SCOREGRAPH));
 }
 
 void config_vol()
@@ -488,7 +488,7 @@ void config_eq()
 {
     using namespace cfg;
 
-    ConfigMgr::set('P',P_EQ, gSwitches.get(eSwitch::SOUND_EQ) ? ON : OFF);
+    ConfigMgr::set('P',P_EQ, gSwitches.get(eSwitch::SOUND_EQ));
     ConfigMgr::set('P',P_EQ0, (gSliders.get(eSlider::EQ0) + 0.5) / 2);
     ConfigMgr::set('P',P_EQ1, (gSliders.get(eSlider::EQ1) + 0.5) / 2);
     ConfigMgr::set('P',P_EQ2, (gSliders.get(eSlider::EQ2) + 0.5) / 2);
@@ -502,7 +502,7 @@ void config_freq()
 {
     using namespace cfg;
 
-    ConfigMgr::set('P',P_FREQ, gSwitches.get(eSwitch::SOUND_PITCH) ? ON : OFF);
+    ConfigMgr::set('P',P_FREQ, gSwitches.get(eSwitch::SOUND_PITCH));
     switch (gOptions.get(eOption::SOUND_PITCH_TYPE))
     {
     case Option::FREQ_FREQ: ConfigMgr::set('P',P_FREQ_TYPE, P_FREQ_TYPE_FREQ); break;
@@ -517,7 +517,7 @@ void config_fx()
 {
     using namespace cfg;
 
-    ConfigMgr::set('P',P_FX0, gSwitches.get(eSwitch::SOUND_FX0) ? ON : OFF);
+    ConfigMgr::set('P',P_FX0, gSwitches.get(eSwitch::SOUND_FX0));
     switch (gOptions.get(eOption::SOUND_TARGET_FX0))
     {
     case Option::FX_MASTER: ConfigMgr::set('P',P_FX0_TARGET, P_FX_TARGET_MASTER); break;
@@ -527,7 +527,7 @@ void config_fx()
     }
     switch (gOptions.get(eOption::SOUND_FX0))
     {
-    case Option::FX_OFF:        ConfigMgr::set('P',P_FX0_TYPE, OFF); break;
+    case Option::FX_OFF:        ConfigMgr::set('P',P_FX0_TYPE, "OFF"); break;
     case Option::FX_REVERB:     ConfigMgr::set('P',P_FX0_TYPE, P_FX_TYPE_REVERB); break;
     case Option::FX_DELAY:      ConfigMgr::set('P',P_FX0_TYPE, P_FX_TYPE_DELAY); break;
     case Option::FX_LOWPASS:    ConfigMgr::set('P',P_FX0_TYPE, P_FX_TYPE_LOWPASS); break;
@@ -540,7 +540,7 @@ void config_fx()
     ConfigMgr::set('P',P_FX0_P1, gNumbers.get(eNumber::FX0_P1));
     ConfigMgr::set('P',P_FX0_P2, gNumbers.get(eNumber::FX0_P2));
 
-    ConfigMgr::set('P',P_FX1, gSwitches.get(eSwitch::SOUND_FX1) ? ON : OFF);
+    ConfigMgr::set('P',P_FX1, gSwitches.get(eSwitch::SOUND_FX1));
     switch (gOptions.get(eOption::SOUND_TARGET_FX1))
     {
     case Option::FX_MASTER: ConfigMgr::set('P',P_FX1_TARGET, P_FX_TARGET_MASTER); break;
@@ -550,7 +550,7 @@ void config_fx()
     }
     switch (gOptions.get(eOption::SOUND_FX1))
     {
-    case Option::FX_OFF:        ConfigMgr::set('P',P_FX1_TYPE, OFF); break;
+    case Option::FX_OFF:        ConfigMgr::set('P',P_FX1_TYPE, "OFF"); break;
     case Option::FX_REVERB:     ConfigMgr::set('P',P_FX1_TYPE, P_FX_TYPE_REVERB); break;
     case Option::FX_DELAY:      ConfigMgr::set('P',P_FX1_TYPE, P_FX_TYPE_DELAY); break;
     case Option::FX_LOWPASS:    ConfigMgr::set('P',P_FX1_TYPE, P_FX_TYPE_LOWPASS); break;
@@ -563,7 +563,7 @@ void config_fx()
     ConfigMgr::set('P',P_FX1_P1, gNumbers.get(eNumber::FX1_P1));
     ConfigMgr::set('P',P_FX1_P2, gNumbers.get(eNumber::FX1_P2));
 
-    ConfigMgr::set('P',P_FX2, gSwitches.get(eSwitch::SOUND_FX2) ? ON : OFF);
+    ConfigMgr::set('P',P_FX2, gSwitches.get(eSwitch::SOUND_FX2));
     switch (gOptions.get(eOption::SOUND_TARGET_FX2))
     {
     case Option::FX_MASTER: ConfigMgr::set('P',P_FX2_TARGET, P_FX_TARGET_MASTER); break;
@@ -573,7 +573,7 @@ void config_fx()
     }
     switch (gOptions.get(eOption::SOUND_FX2))
     {
-    case Option::FX_OFF:        ConfigMgr::set('P',P_FX2_TYPE, OFF); break;
+    case Option::FX_OFF:        ConfigMgr::set('P',P_FX2_TYPE, "OFF"); break;
     case Option::FX_REVERB:     ConfigMgr::set('P',P_FX2_TYPE, P_FX_TYPE_REVERB); break;
     case Option::FX_DELAY:      ConfigMgr::set('P',P_FX2_TYPE, P_FX_TYPE_DELAY); break;
     case Option::FX_LOWPASS:    ConfigMgr::set('P',P_FX2_TYPE, P_FX_TYPE_LOWPASS); break;
@@ -982,12 +982,15 @@ void SceneSelect::inputGameAxisSelect(InputAxisPlus& input, const Time& t)
     }
     int navVal = -navUp + navDn;
     int navValAbs = std::abs(navVal);
+    if (!isHoldingUp && !isHoldingDown)
+    {
+        gSelectContext.scrollTime = 200 / navValAbs;
+    }
     if (navValAbs >= 2)
     {
         if (t.norm() - scrollTimestamp >= gSelectContext.scrollTime)
         {
             scrollTimestamp = t.norm();
-            gSelectContext.scrollTime = 200 / navValAbs;
             if (navVal > 0)
                 _navigateDownBy1(t);
             else

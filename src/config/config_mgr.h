@@ -66,6 +66,7 @@ private:
         case 'A':                               // Audio
         case 'E':                               // Audio
         case 'V': return G->set<Ty_v>(key, value);     // Play
+        case 'P': return P->set<Ty_v>(key, value);  // Play
         case '5': return I5->set<Ty_v>(key, value);     // Input
         case '7': return I7->set<Ty_v>(key, value);     // Input
         case '9': return I9->set<Ty_v>(key, value);     // Input

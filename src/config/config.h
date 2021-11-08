@@ -4,12 +4,6 @@
 #include "common/types.h"
 //#include <unordered_map>
 
-namespace cfg
-{
-    constexpr char OFF[] = "OFF";
-    constexpr char ON[] = "ON";
-}
-
 class vConfig
 {
 protected:

@@ -1247,51 +1247,71 @@ void ScenePlay::inputGameAxis(InputAxisPlus& m, const Time& t)
         S2 = 0;
     }
 
+    if (S1 != 0)
+    {
+        _ttAxisLastUpdate[PLAYER_SLOT_1P] = t;
+    }
+    if (S2 != 0)
+    {
+        _ttAxisLastUpdate[PLAYER_SLOT_2P] = t;
+    }
 
-    if (S1 > 2)
+    if (S1 > 2 && _ttAxisDir[PLAYER_SLOT_1P] != 1)
     {
         gTimers.set(eTimer::S1_DOWN, t.norm());
         gTimers.set(eTimer::S1_UP, TIMER_NEVER);
         gSwitches.set(eSwitch::S1_DOWN, true);
+        _ttAxisDir[PLAYER_SLOT_1P] = 1;
 
         if (_currentKeySample[S1R])
             keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S1R];
     }
-    else if (S1 < -2)
+    else if (S1 < -2 && _ttAxisDir[PLAYER_SLOT_1P] != -1)
     {
-        gTimers.set(eTimer::S1_UP, t.norm());
-        gTimers.set(eTimer::S1_DOWN, TIMER_NEVER);
+        gTimers.set(eTimer::S1_DOWN, t.norm());
+        gTimers.set(eTimer::S1_UP, TIMER_NEVER);
         gSwitches.set(eSwitch::S1_DOWN, true);
+        _ttAxisDir[PLAYER_SLOT_1P] = -1;
 
         if (_currentKeySample[S1L])
             keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S1L];
     }
-    else
+    else if ((t - _ttAxisLastUpdate[PLAYER_SLOT_1P]).norm() > 133)
     {
+        gTimers.set(eTimer::S1_UP, t.norm());
+        gTimers.set(eTimer::S1_DOWN, TIMER_NEVER);
         gSwitches.set(eSwitch::S1_DOWN, false);
+        _ttAxisDir[PLAYER_SLOT_1P] = 0;
+        _ttAxisLastUpdate[PLAYER_SLOT_1P] = 0;
     }
 
-    if (S2 > 2)
+    if (S2 > 2 && _ttAxisDir[PLAYER_SLOT_2P] != 1)
     {
         gTimers.set(eTimer::S2_DOWN, t.norm());
         gTimers.set(eTimer::S2_UP, TIMER_NEVER);
         gSwitches.set(eSwitch::S2_DOWN, true);
+        _ttAxisDir[PLAYER_SLOT_2P] = 1;
 
         if (_currentKeySample[S2R])
             keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S2R];
     }
-    else if (S2 < -2)
+    else if (S2 < -2 && _ttAxisDir[PLAYER_SLOT_2P] != -1)
     {
-        gTimers.set(eTimer::S2_UP, t.norm());
-        gTimers.set(eTimer::S2_DOWN, TIMER_NEVER);
+        gTimers.set(eTimer::S2_DOWN, t.norm());
+        gTimers.set(eTimer::S2_UP, TIMER_NEVER);
         gSwitches.set(eSwitch::S2_DOWN, true);
+        _ttAxisDir[PLAYER_SLOT_2P] = 1;
 
         if (_currentKeySample[S2L])
             keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S2L];
     }
-    else
+    else if ((t - _ttAxisLastUpdate[PLAYER_SLOT_2P]).norm() > 133)
     {
+        gTimers.set(eTimer::S2_UP, t.norm());
+        gTimers.set(eTimer::S2_DOWN, TIMER_NEVER);
         gSwitches.set(eSwitch::S2_DOWN, false);
+        _ttAxisDir[PLAYER_SLOT_2P] = 0;
+        _ttAxisLastUpdate[PLAYER_SLOT_2P] = 0;
     }
 
     SoundMgr::playKeySample(sampleCount, keySampleIdxBufScratch.data());

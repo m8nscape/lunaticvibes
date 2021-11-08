@@ -104,7 +104,9 @@ void InputWrapper::_loop()
                     if (stat && !_riprev[deviceID][key])
                         pressedNew[key] = true;
 
-                if (!pressedNew.empty())
+                RawinputAxisDiffMap axisDiff = Input::rawinput::RIMgr::inst().getAxisDiff(deviceID);
+
+                if (!pressedNew.empty() || !axisDiff.empty())
                 {
                     for (auto& [cbname, callback] : _rawinputCallbackMap)
                         callback(deviceID, pressedNew, diff, now);

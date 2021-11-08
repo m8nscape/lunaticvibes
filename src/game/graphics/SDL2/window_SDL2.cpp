@@ -78,8 +78,7 @@ int graphics_init()
         setWindowHandle((void*)&wmInfo.info.win.window);
 #endif
 
-        auto vsync = ConfigMgr::get("V", cfg::V_VSYNC, cfg::OFF);
-        if (vsync == cfg::ON)
+        if (ConfigMgr::get("V", cfg::V_VSYNC, false))
         {
             gFrameRenderer = SDL_CreateRenderer(
                 gFrameWindow, -1,

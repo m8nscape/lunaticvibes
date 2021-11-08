@@ -117,6 +117,7 @@ bool RIMgr::getJoystickDeviceInfo(HANDLE hDevice, DeviceInfo& devInfo)
 	// axis
 	devInfo.valueCaps.resize(sizeof(HIDP_VALUE_CAPS) * caps.NumberInputValueCaps);
 	PHIDP_VALUE_CAPS valCaps = (PHIDP_VALUE_CAPS)devInfo.valueCaps.data();
+	capsLength = caps.NumberInputValueCaps;
 	if (HidP_GetValueCaps(HidP_Input, valCaps, &capsLength, preparsedData) == HIDP_STATUS_SUCCESS)
 		devInfo.axisCount = caps.NumberInputValueCaps;
 
@@ -229,7 +230,8 @@ bool RIMgr::updateJoystick(RAWINPUT* ri)
 	USAGE* btnUsage = (USAGE*)Allocate(sizeof(USAGE) * devInfo.buttonCount);
 	if (devInfo.buttonCount > 0)
 	{
-		if (HidP_GetUsages(HidP_Input, btnCaps->UsagePage, 0, btnUsage, &btnCount, preparsedData, (PCHAR)ri->data.hid.bRawData, ri->data.hid.dwSizeHid) != HIDP_STATUS_SUCCESS) btnCount = 0;
+		if (HidP_GetUsages(HidP_Input, btnCaps->UsagePage, 0, btnUsage, &btnCount, preparsedData, (PCHAR)ri->data.hid.bRawData, ri->data.hid.dwSizeHid) != HIDP_STATUS_SUCCESS) 
+			btnCount = 0;
 	}
 
 	// axis
@@ -239,9 +241,10 @@ bool RIMgr::updateJoystick(RAWINPUT* ri)
 	for (int i = 0; i < devInfo.axisCount; i++)
 	{
 		ULONG value;
-		USAGE axisIdx = valCaps->Range.UsageMin;
+		USAGE axisIdx = valCaps[i].Range.UsageMin;
 		axisVals[i].first = axisIdx;
-		if (HidP_GetUsageValue(HidP_Input, valCaps[i].UsagePage, 0, axisIdx, &axisVals[i].second,preparsedData, (PCHAR)ri->data.hid.bRawData, ri->data.hid.dwSizeHid) != HIDP_STATUS_SUCCESS) hasAxis = false;
+		if (HidP_GetUsageValue(HidP_Input, valCaps[i].UsagePage, 0, axisIdx, &axisVals[i].second, preparsedData, (PCHAR)ri->data.hid.bRawData, ri->data.hid.dwSizeHid) != HIDP_STATUS_SUCCESS) 
+			hasAxis = false;
 	}
 
 	{
@@ -262,7 +265,7 @@ bool RIMgr::updateJoystick(RAWINPUT* ri)
 			for (int i = 0; i < devInfo.axisCount; i++)
 			{
 				auto& [axisIdx, axisVal] = axisVals[i];
-				deviceAxisDiff[deviceID][axisIdx] = axisVal - deviceAxis[deviceID][axisIdx];
+				deviceAxisDiff[deviceID][axisIdx] = (int)axisVal - deviceAxis[deviceID][axisIdx];
 				deviceAxis[deviceID][axisIdx] = axisVal;
 			}
 		}

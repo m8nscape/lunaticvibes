@@ -213,13 +213,18 @@ void SceneKeyConfig::inputGamePressRawinput(int deviceID, RawinputKeyMap& button
     {
         for (auto& [axis, diff] : axisDiff)
         {
-            if (diff == 0) continue;
+            if (diff == 0)
+            {
+                _riAxisPrev[deviceID][axis] = 0;
+                continue;
+            }
 
             KeyMap::AxisDir dir = diff > 0 ? 1 : -1;
             int val = std::abs(diff);
 
-            if (val > 2)
+            if (val > 2 && _riAxisPrev[deviceID][axis] != dir)
             {
+                _riAxisPrev[deviceID][axis] = dir;
                 GameModeKeys keys = gKeyconfigContext.keys;
 
                 // modify slot

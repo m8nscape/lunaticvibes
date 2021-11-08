@@ -171,9 +171,15 @@ std::map<Input::Pad, int> InputMgr::detectRelativeAxis()
 #ifdef RAWINPUT_AVAILABLE
             if (b.getType() == KeyMap::DeviceType::RAWINPUT && b.isAxis())
             {
-                auto diff = rawinput::RIMgr::inst().getAxisDiff(b.getDeviceID(), b.getAxis());
-                if (diff > 0)
+                int diff = rawinput::RIMgr::inst().getAxisDiff(b.getDeviceID(), b.getAxis());
+                if (diff > 0 && b.getAxisDir() > 0)
+                {
                     result[static_cast<Input::Pad>(k)] += diff;
+                }
+                if (diff < 0 && b.getAxisDir() < 0)
+                {
+                    result[static_cast<Input::Pad>(k)] += -diff;
+                }
             }
 #endif
         }
