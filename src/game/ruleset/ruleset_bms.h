@@ -182,6 +182,8 @@ protected:
 
     std::map<chart::NoteLane, decltype(_chart->firstNote(chart::NoteLaneCategory::_, chart::NoteLaneIndex::_))> _noteListIterators;
 
+    int _scratchDir[2] = { 0, 0 };
+
 public:
     RulesetBMS(
         std::shared_ptr<vChartFormat> format,
@@ -205,6 +207,8 @@ public:
     virtual void updateHold(InputMask& hg, const Time& t);
     // Register to InputWrapper
     virtual void updateRelease(InputMask& rg, const Time& t);
+    // Register to InputWrapper
+    virtual void updateAxis(InputAxisPlus& ag, const Time& t);
     // Called by ScenePlay
     virtual void update(const Time& t);
 public:

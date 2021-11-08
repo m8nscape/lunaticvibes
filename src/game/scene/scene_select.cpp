@@ -646,6 +646,7 @@ void SceneSelect::updatePrepare()
         _input.register_p("SCENE_PRESS", std::bind(&SceneSelect::inputGamePress, this, _1, _2));
         _input.register_h("SCENE_HOLD", std::bind(&SceneSelect::inputGameHold, this, _1, _2));
         _input.register_r("SCENE_RELEASE", std::bind(&SceneSelect::inputGameRelease, this, _1, _2));
+        _input.register_a("SCENE_AXIS", std::bind(&SceneSelect::inputGameAxisSelect, this, _1, _2));
         _input.loopStart();
 
         gTimers.set(eTimer::LIST_MOVE, t.norm());
@@ -945,7 +946,7 @@ void SceneSelect::inputGameHoldSelect(InputMask& input, const Time& t)
     }
     if (isHoldingDown && t.norm() - scrollTimestamp >= gSelectContext.scrollTime)
     {
-        gSelectContext.scrollTime = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);;
+        gSelectContext.scrollTime = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);
         scrollTimestamp = t.norm();
         _navigateDownBy1(t);
     }
@@ -962,6 +963,39 @@ void SceneSelect::inputGameReleaseSelect(InputMask& input, const Time& t)
     if ((input & INPUT_MASK_NAV_DN).any())
     {
         isHoldingDown = false;
+        gSelectContext.scrollTime = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_INITIAL, 300);
+    }
+}
+
+void SceneSelect::inputGameAxisSelect(InputAxisPlus& input, const Time& t)
+{
+    int navUp = 0;
+    int navDn = 0;
+    for (int i = Input::Pad::S1L; i < Input::Pad::ESC; ++i)
+    {
+        auto k = static_cast<Input::Pad>(i);
+        if (input[k] > 0)
+        {
+            if (INPUT_MASK_NAV_UP[i]) navUp += input[k];
+            if (INPUT_MASK_NAV_DN[i]) navDn += input[k];
+        }
+    }
+    int navVal = -navUp + navDn;
+    int navValAbs = std::abs(navVal);
+    if (navValAbs >= 2)
+    {
+        if (t.norm() - scrollTimestamp >= gSelectContext.scrollTime)
+        {
+            scrollTimestamp = t.norm();
+            gSelectContext.scrollTime = 200 / navValAbs;
+            if (navVal > 0)
+                _navigateDownBy1(t);
+            else
+                _navigateUpBy1(t);
+        }
+    }
+    else
+    {
         gSelectContext.scrollTime = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_INITIAL, 300);
     }
 }

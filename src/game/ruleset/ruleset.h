@@ -49,6 +49,7 @@ public:
     virtual void updatePress(InputMask& pg, const Time& t) = 0;
     virtual void updateHold(InputMask& hg, const Time& t) = 0;
     virtual void updateRelease(InputMask& rg, const Time& t) = 0;
+    virtual void updateAxis(InputAxisPlus& m, const Time& t) = 0;
     virtual void update(const Time& t) = 0;
 public:
     constexpr BasicData getData() const { return _basic; }

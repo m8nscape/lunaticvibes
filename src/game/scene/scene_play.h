@@ -109,4 +109,5 @@ protected:
     void inputGamePress(InputMask&, const Time&);
     void inputGameHold(InputMask&, const Time&);
     void inputGameRelease(InputMask&, const Time&);
+    void inputGameAxis(InputAxisPlus&, const Time&);
 };

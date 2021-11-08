@@ -12,6 +12,7 @@ namespace cfg
     constexpr char P_MIN_INPUT_INTERVAL[] = "MinInputInterval";
     constexpr char P_NEW_SONG_DURATION[] = "NewSongDuration";
     constexpr char P_MOUSE_ANALOG[] = "MouseAnalog";
+    constexpr char P_RELATIVE_AXIS[] = "RelativeAxis";
 
     constexpr char P_BASESPEED[] = "Basespeed";
 

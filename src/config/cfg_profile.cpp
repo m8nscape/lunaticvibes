@@ -21,6 +21,7 @@ void ConfigProfile::setDefaults() noexcept
     set(P_MIN_INPUT_INTERVAL, 5);
     set(P_NEW_SONG_DURATION, 6);
     set(P_MOUSE_ANALOG, false);
+    set(P_RELATIVE_AXIS, false);
 	set(P_BASESPEED, 1.0);
 	set(P_HISPEED, 1.0);
 	set(P_REGULAR_SPEED, 1200);

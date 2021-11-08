@@ -10,6 +10,8 @@
 
 typedef std::bitset<Input::Pad::KEY_COUNT> InputMask;
 typedef std::function<void(InputMask&, const Time&)> INPUTCALLBACK;
+typedef std::map<Input::Pad, int> InputAxisPlus;
+typedef std::function<void(InputAxisPlus&, const Time&)> AXISPLUSCALLBACK;
 //typedef void(*PressedHandleCallback)(void* owner, InputMask&);
 //typedef void(*HoldHandleCallback)(void* owner, InputMask&);
 //typedef void(*ReleasedHandleCallback)(void* owner, InputMask&);
@@ -18,8 +20,8 @@ typedef std::bitset<Input::keyboardKeyCount> KeyboardMask;
 typedef std::function<void(KeyboardMask, const Time&)> KEYBOARDCALLBACK;
 
 typedef std::map<int, bool> RawinputKeyMap;
-typedef std::map<int, int> RawinputAxisDeltaMap;
-typedef std::function<void(int, RawinputKeyMap&, RawinputAxisDeltaMap&, const Time&)> RAWINPUTCALLBACK;
+typedef std::map<int, int> RawinputAxisDiffMap;
+typedef std::function<void(int, RawinputKeyMap&, RawinputAxisDiffMap&, const Time&)> RAWINPUTCALLBACK;
 
 // FUNC:                                   BRDUEHDI><v^543210987654321_
 inline const InputMask INPUT_MASK_FUNC  { "1111111111111111111111111111000000000000000000000000000000" };
@@ -93,6 +95,7 @@ private:
     std::map<const std::string, INPUTCALLBACK> _pCallbackMap;
     std::map<const std::string, INPUTCALLBACK> _hCallbackMap;
     std::map<const std::string, INPUTCALLBACK> _rCallbackMap;
+    std::map<const std::string, AXISPLUSCALLBACK> _aCallbackMap;
 private:
     // Callback registering
     bool _register(unsigned type, const std::string& key, INPUTCALLBACK);
@@ -104,6 +107,8 @@ public:
     bool unregister_p(const std::string& key) { return _unregister(0, key); }
     bool unregister_h(const std::string& key) { return _unregister(1, key); }
     bool unregister_r(const std::string& key) { return _unregister(2, key); }
+    bool register_a(const std::string& key, AXISPLUSCALLBACK f);
+    bool unregister_a(const std::string& key);
 
     // Should only used for keyconfig
 protected:

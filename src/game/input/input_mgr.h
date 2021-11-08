@@ -20,6 +20,7 @@ private:
 public:
     static constexpr std::size_t MAX_JOYSTICK_COUNT = 8;
     static constexpr std::size_t MAX_BINDINGS_PER_KEY = 10;
+    enum class eAxisMode { AXIS_NORMAL, AXIS_RELATIVE };
 
     // Game keys param / functions
 private:
@@ -29,14 +30,18 @@ private:
 	int mouse_x = 0, mouse_y = 0;
 	int analogDeadZone = 25;
 
+    eAxisMode axisMode = eAxisMode::AXIS_NORMAL;
+
 public:
     // Game keys param / functions
     static void init();
     static void updateDevices();
     static void updateBindings(GameModeKeys keys, Input::Pad K);
     static std::bitset<Input::KEY_COUNT> detect();
+    static std::map<Input::Pad, int> detectRelativeAxis();
 	static bool getMousePos(int& x, int& y);
     static int getDeadzone() { return _inst.analogDeadZone; }
+    static void setAxisMode(eAxisMode mode) { _inst.axisMode = mode; }
 };
 
 ////////////////////////////////////////////////////////////////////////////////

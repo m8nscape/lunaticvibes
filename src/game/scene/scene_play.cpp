@@ -114,6 +114,7 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     _input.register_p("SCENE_PRESS", std::bind(&ScenePlay::inputGamePress, this, _1, _2));
     _input.register_h("SCENE_HOLD", std::bind(&ScenePlay::inputGameHold, this, _1, _2));
     _input.register_r("SCENE_RELEASE", std::bind(&ScenePlay::inputGameRelease, this, _1, _2));
+    _input.register_a("SCENE_AXIS", std::bind(&ScenePlay::inputGameAxis, this, _1, _2));
 
     loopStart();
     _input.loopStart();
@@ -441,6 +442,8 @@ void ScenePlay::setInputJudgeCallback()
             _input.register_h("JUDGE_HOLD", fh);
             auto fr = std::bind(&vRuleset::updateRelease, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2);
             _input.register_r("JUDGE_RELEASE", fr);
+            auto fa = std::bind(&vRuleset::updateAxis, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2);
+            _input.register_a("JUDGE_AXIS", fa);
         }
         else
             LOG_ERROR << "[Play] Ruleset of 1P not initialized!";
@@ -453,6 +456,8 @@ void ScenePlay::setInputJudgeCallback()
             _input.register_h("JUDGE_HOLD", fh);
             auto fr = std::bind(&vRuleset::updateRelease, gPlayContext.ruleset[PLAYER_SLOT_2P], _1, _2);
             _input.register_r("JUDGE_RELEASE", fr);
+            auto fa = std::bind(&vRuleset::updateAxis, gPlayContext.ruleset[PLAYER_SLOT_2P], _1, _2);
+            _input.register_a("JUDGE_AXIS", fa);
         }
         else
             LOG_ERROR << "[Play] Ruleset of 2P not initialized!";
@@ -467,6 +472,8 @@ void ScenePlay::setInputJudgeCallback()
             _input.register_h("JUDGE_HOLD", fh);
             auto fr = std::bind(&vRuleset::updateRelease, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2);
             _input.register_r("JUDGE_RELEASE", fr);
+            auto fa = std::bind(&vRuleset::updateAxis, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2);
+            _input.register_a("JUDGE_AXIS", fa);
         }
         else
             LOG_ERROR << "[Play] Ruleset not initialized!";
@@ -480,6 +487,7 @@ void ScenePlay::removeInputJudgeCallback()
         _input.unregister_p("JUDGE_PRESS");
         _input.unregister_h("JUDGE_HOLD");
         _input.unregister_r("JUDGE_RELEASE");
+        _input.unregister_a("JUDGE_AXIS");
     }
 }
 
@@ -963,18 +971,17 @@ void ScenePlay::updateBga()
 
 void ScenePlay::spinTurntable(bool startedPlaying)
 {
-    auto a = _ttAngleDelta;
     if (startedPlaying)
     {
         auto t = Time();
         auto rt = t - gTimers.get(eTimer::PLAY_START);
-        for (auto& aa : a)
+        for (auto& aa : _ttAngleDelta)
             aa += int(rt.norm() * 180 / 1000);
     }
-    for (auto& aa : a)
+    for (auto& aa : _ttAngleDelta)
         aa %= 360;
-    gNumbers.set(eNumber::_ANGLE_TT_1P, a[0]);
-    gNumbers.set(eNumber::_ANGLE_TT_2P, a[1]);
+    gNumbers.set(eNumber::_ANGLE_TT_1P, _ttAngleDelta[0]);
+    gNumbers.set(eNumber::_ANGLE_TT_2P, _ttAngleDelta[1]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1169,4 +1176,75 @@ void ScenePlay::inputGameRelease(InputMask& m, const Time& t)
             gSwitches.set(eSwitch::S1_DOWN, true);
         }
     }
+}
+
+// CALLBACK
+void ScenePlay::inputGameAxis(InputAxisPlus& m, const Time& t)
+{
+    using namespace Input;
+    std::array<size_t, 4> keySampleIdxBufScratch;
+    size_t sampleCount = 0;
+
+    int S1 = m[S1L] + m[S1R];
+    _ttAngleDelta[PLAYER_SLOT_1P] += S1;
+    int S2 = m[S2L] + m[S2R];
+    if (_mode == ePlayMode::LOCAL_BATTLE || _mode == ePlayMode::AUTO_BATTLE)
+    {
+        _ttAngleDelta[PLAYER_SLOT_2P] += S2;
+    }
+    else
+    {
+        _ttAngleDelta[PLAYER_SLOT_1P] += S2;
+        S1 += S2;
+        S2 = 0;
+    }
+
+
+    if (S1 > 2)
+    {
+        gTimers.set(eTimer::S1_DOWN, t.norm());
+        gTimers.set(eTimer::S1_UP, TIMER_NEVER);
+        gSwitches.set(eSwitch::S1_DOWN, true);
+
+        if (_currentKeySample[S1R])
+            keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S1R];
+    }
+    else if (S1 < -2)
+    {
+        gTimers.set(eTimer::S1_UP, t.norm());
+        gTimers.set(eTimer::S1_DOWN, TIMER_NEVER);
+        gSwitches.set(eSwitch::S1_DOWN, true);
+
+        if (_currentKeySample[S1L])
+            keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S1L];
+    }
+    else
+    {
+        gSwitches.set(eSwitch::S1_DOWN, false);
+    }
+
+    if (S2 > 2)
+    {
+        gTimers.set(eTimer::S2_DOWN, t.norm());
+        gTimers.set(eTimer::S2_UP, TIMER_NEVER);
+        gSwitches.set(eSwitch::S2_DOWN, true);
+
+        if (_currentKeySample[S2R])
+            keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S2R];
+    }
+    else if (S2 < -2)
+    {
+        gTimers.set(eTimer::S2_UP, t.norm());
+        gTimers.set(eTimer::S2_DOWN, TIMER_NEVER);
+        gSwitches.set(eSwitch::S2_DOWN, true);
+
+        if (_currentKeySample[S2L])
+            keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S2L];
+    }
+    else
+    {
+        gSwitches.set(eSwitch::S2_DOWN, false);
+    }
+
+    SoundMgr::playKeySample(sampleCount, keySampleIdxBufScratch.data());
 }

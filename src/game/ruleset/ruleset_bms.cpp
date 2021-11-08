@@ -643,6 +643,97 @@ void RulesetBMS::updateRelease(InputMask& rg, const Time& t)
     if (_k1P) updateReleaseRange(Input::S1L, Input::K1SPDDN, PLAYER_SLOT_1P);
     if (_k2P) updateReleaseRange(Input::S2L, Input::K2SPDDN, PLAYER_SLOT_2P);
 }
+void RulesetBMS::updateAxis(InputAxisPlus& m, const Time& t)
+{
+    Time rt = t - gTimers.get(eTimer::PLAY_START);
+    if (rt.norm() < 0) return;
+    if (gPlayContext.isAuto) return;
+
+    using namespace Input;
+    std::array<size_t, 4> keySampleIdxBufScratch;
+    size_t sampleCount = 0;
+
+    int S1 = 0;
+    int S2 = 0;
+    if (_k1P) S1 += m[S1L] + m[S1R];
+    if (_k2P) S2 += m[S2L] + m[S2R];
+
+    auto Judge = [&](int val, Input::Pad up, Input::Pad dn, int slot)
+    {
+        auto Press = [&](Input::Pad k)
+        {
+            auto [cat, idx] = _chart->getLaneFromKey(k);
+            if (cat != NoteLaneCategory::_)
+            {
+                auto n = _chart->incomingNote(cat, idx);
+                _judgePress(cat, idx, *n, _judge(*n, rt), t, PLAYER_SLOT_1P);
+            }
+        };
+        auto Hold = [&](Input::Pad k)
+        {
+            auto [cat, idx] = _chart->getLaneFromKey(k);
+            if (cat != NoteLaneCategory::_)
+            {
+                auto n = _chart->incomingNote(cat, idx);
+                _judgeHold(cat, idx, *n, _judge(*n, rt), t, slot);
+            }
+        };
+        auto Release = [&](Input::Pad k)
+        {
+            auto [cat, idx] = _chart->getLaneFromKey(k);
+            if (cat != NoteLaneCategory::_)
+            {
+                auto n = _chart->incomingNote(cat, idx);
+
+                if (_bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
+                    gTimers.set(_bombLNTimerMap->at(idx), TIMER_NEVER);
+
+                _judgeRelease(cat, idx, *n, _judge(*n, rt), t, PLAYER_SLOT_1P);
+            }
+        };
+
+        if (val > 2)
+        {
+            // down
+            if (_scratchDir[slot] != 1)
+            {
+                if (_scratchDir[slot] == -1) Release(up);
+                Press(dn);
+            }
+            else
+            {
+                Hold(dn);
+            }
+            _scratchDir[slot] = 1;
+        }
+        else if (val < -2)
+        {
+            // up
+            if (_scratchDir[slot] != -1)
+            {
+                if (_scratchDir[slot] == 1) Release(dn);
+                Press(up);
+            }
+            else
+            {
+                Hold(up);
+            }
+            _scratchDir[slot] = -1;
+        }
+        else
+        {
+            // release
+            if (_scratchDir[slot] != 0)
+            {
+                if (_scratchDir[slot] == -1) Release(up);
+                if (_scratchDir[slot] == 1) Release(dn);
+            }
+            _scratchDir[slot] = 0;
+        }
+    };
+    Judge(S1, S1L, S1R, PLAYER_SLOT_1P);
+    Judge(S2, S2L, S2R, PLAYER_SLOT_2P);
+}
 
 void RulesetBMS::update(const Time& t)
 {

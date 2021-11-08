@@ -136,92 +136,89 @@ void SceneKeyConfig::inputGamePressKeyboard(KeyboardMask& mask, const Time& t)
 {
     // update bindings
     auto [pad, slot] = gKeyconfigContext.selecting;
+    if (slot >= InputMgr::MAX_BINDINGS_PER_KEY) return;
     for (Input::Keyboard k = Input::Keyboard::K_1; k != Input::Keyboard::K_COUNT; ++ * (unsigned*)&k)
     {
         if (mask[static_cast<size_t>(k)])
         {
-            if (slot < InputMgr::MAX_BINDINGS_PER_KEY)
+            GameModeKeys keys = gKeyconfigContext.keys;
+
+            // modify slot
+            KeyMap km(k);
+            ConfigMgr::Input(keys)->bind(pad, km, slot);
+            InputMgr::updateBindings(keys, pad);
+
+            // update text
+            switch (slot)
             {
-                GameModeKeys keys = gKeyconfigContext.keys;
-
-                // modify slot
-                KeyMap km(k);
-                ConfigMgr::Input(keys)->bind(pad, km, slot);
-                InputMgr::updateBindings(keys, pad);
-
-                // update text
-                switch (slot)
-                {
-                    case 0: gTexts.set(eText::KEYCONFIG_SLOT1,  km.toString()); break;
-                    case 1: gTexts.set(eText::KEYCONFIG_SLOT2,  km.toString()); break;
-                    case 2: gTexts.set(eText::KEYCONFIG_SLOT3,  km.toString()); break;
-                    case 3: gTexts.set(eText::KEYCONFIG_SLOT4,  km.toString()); break;
-                    case 4: gTexts.set(eText::KEYCONFIG_SLOT5,  km.toString()); break;
-                    case 5: gTexts.set(eText::KEYCONFIG_SLOT6,  km.toString()); break;
-                    case 6: gTexts.set(eText::KEYCONFIG_SLOT7,  km.toString()); break;
-                    case 7: gTexts.set(eText::KEYCONFIG_SLOT8,  km.toString()); break;
-                    case 8: gTexts.set(eText::KEYCONFIG_SLOT9,  km.toString()); break;
-                    case 9: gTexts.set(eText::KEYCONFIG_SLOT10, km.toString()); break;
-                    default: break;
-                }
-
-                // play sound
-                SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+                case 0: gTexts.set(eText::KEYCONFIG_SLOT1,  km.toString()); break;
+                case 1: gTexts.set(eText::KEYCONFIG_SLOT2,  km.toString()); break;
+                case 2: gTexts.set(eText::KEYCONFIG_SLOT3,  km.toString()); break;
+                case 3: gTexts.set(eText::KEYCONFIG_SLOT4,  km.toString()); break;
+                case 4: gTexts.set(eText::KEYCONFIG_SLOT5,  km.toString()); break;
+                case 5: gTexts.set(eText::KEYCONFIG_SLOT6,  km.toString()); break;
+                case 6: gTexts.set(eText::KEYCONFIG_SLOT7,  km.toString()); break;
+                case 7: gTexts.set(eText::KEYCONFIG_SLOT8,  km.toString()); break;
+                case 8: gTexts.set(eText::KEYCONFIG_SLOT9,  km.toString()); break;
+                case 9: gTexts.set(eText::KEYCONFIG_SLOT10, km.toString()); break;
+                default: break;
             }
+
+            // play sound
+            SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
         }
     }
 }
 
 
 #ifdef RAWINPUT_AVAILABLE
-void SceneKeyConfig::inputGamePressRawinput(int deviceID, std::map<int, bool>& button, std::map<int, int>& axisDelta, const Time&)
+void SceneKeyConfig::inputGamePressRawinput(int deviceID, RawinputKeyMap& button, RawinputAxisDiffMap& axisDelta, const Time&)
 {
     auto [pad, slot] = gKeyconfigContext.selecting;
+    if (slot >= InputMgr::MAX_BINDINGS_PER_KEY) return;
     for (auto& [key, stat] : button)
     {
         if (stat)
         {
-            if (slot < InputMgr::MAX_BINDINGS_PER_KEY)
+            GameModeKeys keys = gKeyconfigContext.keys;
+
+            // modify slot
+            KeyMap km;
+            km.setRawInputKey(deviceID, key);
+            ConfigMgr::Input(keys)->bind(pad, km, slot);
+            InputMgr::updateBindings(keys, pad);
+
+            // update text
+            switch (slot)
             {
-                GameModeKeys keys = gKeyconfigContext.keys;
-
-                // modify slot
-                KeyMap km;
-                km.setRawInputKey(deviceID, key);
-                ConfigMgr::Input(keys)->bind(pad, km, slot);
-                InputMgr::updateBindings(keys, pad);
-
-                // update text
-                switch (slot)
-                {
-                case 0: gTexts.set(eText::KEYCONFIG_SLOT1, km.toString()); break;
-                case 1: gTexts.set(eText::KEYCONFIG_SLOT2, km.toString()); break;
-                case 2: gTexts.set(eText::KEYCONFIG_SLOT3, km.toString()); break;
-                case 3: gTexts.set(eText::KEYCONFIG_SLOT4, km.toString()); break;
-                case 4: gTexts.set(eText::KEYCONFIG_SLOT5, km.toString()); break;
-                case 5: gTexts.set(eText::KEYCONFIG_SLOT6, km.toString()); break;
-                case 6: gTexts.set(eText::KEYCONFIG_SLOT7, km.toString()); break;
-                case 7: gTexts.set(eText::KEYCONFIG_SLOT8, km.toString()); break;
-                case 8: gTexts.set(eText::KEYCONFIG_SLOT9, km.toString()); break;
-                case 9: gTexts.set(eText::KEYCONFIG_SLOT10, km.toString()); break;
-                default: break;
-                }
-
-                // play sound
-                SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+            case 0: gTexts.set(eText::KEYCONFIG_SLOT1, km.toString()); break;
+            case 1: gTexts.set(eText::KEYCONFIG_SLOT2, km.toString()); break;
+            case 2: gTexts.set(eText::KEYCONFIG_SLOT3, km.toString()); break;
+            case 3: gTexts.set(eText::KEYCONFIG_SLOT4, km.toString()); break;
+            case 4: gTexts.set(eText::KEYCONFIG_SLOT5, km.toString()); break;
+            case 5: gTexts.set(eText::KEYCONFIG_SLOT6, km.toString()); break;
+            case 6: gTexts.set(eText::KEYCONFIG_SLOT7, km.toString()); break;
+            case 7: gTexts.set(eText::KEYCONFIG_SLOT8, km.toString()); break;
+            case 8: gTexts.set(eText::KEYCONFIG_SLOT9, km.toString()); break;
+            case 9: gTexts.set(eText::KEYCONFIG_SLOT10, km.toString()); break;
+            default: break;
             }
+
+            // play sound
+            SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
         }
     }
 
-    for (auto& [axis, delta] : axisDelta)
+    if (ConfigMgr::get('P', cfg::P_RELATIVE_AXIS, false))
     {
-        if (delta == 0) continue;
-
-        KeyMap::AxisDir dir = delta > 0 ? 1 : -1;
-        int val = int(std::abs(delta));
-        if (val > InputMgr::getDeadzone())
+        for (auto& [axis, delta] : axisDelta)
         {
-            if (slot < InputMgr::MAX_BINDINGS_PER_KEY)
+            if (delta == 0) continue;
+
+            KeyMap::AxisDir dir = delta > 0 ? 1 : -1;
+            int val = std::abs(delta);
+
+            if (val > 2)
             {
                 GameModeKeys keys = gKeyconfigContext.keys;
 

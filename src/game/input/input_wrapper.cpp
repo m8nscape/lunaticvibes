@@ -17,6 +17,9 @@ InputWrapper::~InputWrapper()
         _pCallbackMap.clear();
         _hCallbackMap.clear();
         _rCallbackMap.clear();
+        _aCallbackMap.clear();
+        _keyboardCallbackMap.clear();
+        _rawinputCallbackMap.clear();
     }
 }
 
@@ -94,7 +97,7 @@ void InputWrapper::_loop()
             for (int deviceID = 0; deviceID < (int)Input::rawinput::RIMgr::inst().getDeviceCount(); ++deviceID)
             {
                 RawinputKeyMap pressedNew;
-                auto axisdelta = Input::rawinput::RIMgr::inst().getAxisDelta(deviceID);
+                auto axisdelta = Input::rawinput::RIMgr::inst().getAxisDiff(deviceID);
 
                 RawinputKeyMap pressedTmp = Input::rawinput::RIMgr::inst().getPressed(deviceID);
                 for (auto& [key, stat] : pressedTmp)
@@ -127,6 +130,11 @@ void InputWrapper::_loop()
             if (r != 0)
                 for (auto& [cbname, callback] : _rCallbackMap)
                     callback(r, now);
+            
+            auto a = InputMgr::detectRelativeAxis();
+            if (!a.empty())
+                for (auto& [cbname, callback] : _aCallbackMap)
+                    callback(a, now);
         }
     }
 }
@@ -161,6 +169,27 @@ bool InputWrapper::_unregister(unsigned type, const std::string& key)
     case 2: _rCallbackMap.erase(key); break;
     }
 
+    return true;
+}
+
+
+bool InputWrapper::register_a(const std::string& key, AXISPLUSCALLBACK f)
+{
+    if (_aCallbackMap.find(key) != _aCallbackMap.end())
+        return false;
+
+    std::unique_lock _lock(_inputMutex);
+    _aCallbackMap[key] = f;
+    return true;
+}
+
+bool InputWrapper::unregister_a(const std::string& key)
+{
+    if (_aCallbackMap.find(key) == _aCallbackMap.end())
+        return false;
+
+    std::unique_lock _lock(_inputMutex);
+    _aCallbackMap.erase(key);
     return true;
 }
 

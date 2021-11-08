@@ -58,8 +58,9 @@ protected:
 
 	std::map<int, std::map<int, bool>>  deviceKeyPressed;
 	std::map<int, std::map<int, ULONG>> deviceAxis;
-	std::map<int, std::map<int, int>> deviceAxisDelta;
+	std::map<int, std::map<int, int>> deviceAxisDiff;
 
+	bool getBasicDeviceinfo(HANDLE hDevice, DeviceInfo& devInfo);
 	bool getJoystickDeviceInfo(HANDLE hDevice, DeviceInfo& devInfo);
 	LRESULT _WMMsgHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 public:
@@ -77,9 +78,9 @@ public:
 	bool updateJoystick(RAWINPUT* ri);
 
 	auto getPressed(int deviceID) const { return deviceKeyPressed.at(deviceID); }
-	auto getAxisDelta(int deviceID) const { return deviceAxisDelta.at(deviceID); }
+	auto getAxisDiff(int deviceID) const { return deviceAxisDiff.at(deviceID); }
 	bool isPressed(int deviceID, int code) const;
-	int getAxisDelta(int deviceID, int idx) const;
+	int getAxisDiff(int deviceID, int idx) const;
 };
 
 }

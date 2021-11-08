@@ -18,53 +18,30 @@ int RIMgr::refreshDevices()
 	deviceInfo.clear();
 	deviceKeyPressed.clear();
 	deviceAxis.clear();
-	deviceAxisDelta.clear();
+	deviceAxisDiff.clear();
 	deviceHandleMap.clear();
 
 	RAWINPUTDEVICELIST devs[MAX_DEVICE_COUNT] = { 0 };
 	UINT count = MAX_DEVICE_COUNT;
 	GetRawInputDeviceList(devs, &count, sizeof(RAWINPUTDEVICELIST));
-
 	for (int i = 0; i < count; ++i)
 	{
 		if (devs[i].hDevice == NULL) continue;
 
-		char devName[256] = { 0 };
-		UINT devNameLen = 256;
-		UINT ret = GetRawInputDeviceInfoA(devs[i].hDevice, RIDI_DEVICENAME, devName, &devNameLen);
-
-		RID_DEVICE_INFO ridDevInfo = { 0 };
-		UINT devInfoLen = sizeof(RID_DEVICE_INFO);
-		UINT ret1 = GetRawInputDeviceInfoA(devs[i].hDevice, RIDI_DEVICEINFO, &ridDevInfo, &devInfoLen);
-
 		DeviceInfo devInfo;
-		devInfo.hidname = devName;
-		devInfo.w32RidDevInfo = ridDevInfo;
-		if (devName[0] != '\0')
-		{
-			HANDLE HIDHandle = CreateFile(devName, NULL, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL);
-			if (HIDHandle)
-			{
-				WCHAR prodStr[128] = { 0 };
-				UINT prodStrLen = 128;
-				HidD_GetProductString(HIDHandle, prodStr, prodStrLen);
-				CloseHandle(HIDHandle);
+		if (!getBasicDeviceinfo(devs[i].hDevice, devInfo))
+			continue;
 
-				char ustr[512] = { 0 };
-				WideCharToMultiByte(CP_UTF8, NULL, prodStr, prodStrLen, ustr, sizeof(ustr), NULL, FALSE);
-				devInfo.productString = ustr;
-			}
-		}
-		if (getJoystickDeviceInfo(devs[i].hDevice, devInfo))
-		{
-			int deviceID = (int)deviceInfo.size();
-			deviceInfo.push_back(devInfo);
-			deviceHandleMap[devs[i].hDevice] = deviceID;
-			// insert map
-			deviceKeyPressed[deviceID];
-			deviceAxis[deviceID];
-			deviceAxisDelta[deviceID];
-		}
+		if (!getJoystickDeviceInfo(devs[i].hDevice, devInfo))
+			continue;
+
+		int deviceID = (int)deviceInfo.size();
+		deviceInfo.push_back(devInfo);
+		deviceHandleMap[devs[i].hDevice] = deviceID;
+		// insert map
+		deviceKeyPressed[deviceID];
+		deviceAxis[deviceID];
+		deviceAxisDiff[deviceID];
 	}
 	LOG_INFO << "Rawinput: " << deviceInfo.size() << " devices detected";
 
@@ -82,6 +59,40 @@ int RIMgr::refreshDevices()
 
 	return (int)deviceInfo.size();
 }
+
+bool RIMgr::getBasicDeviceinfo(HANDLE hDevice, DeviceInfo& devInfo)
+{
+	char devName[256] = { 0 };
+	UINT devNameLen = 256;
+	if ((int)GetRawInputDeviceInfoA(hDevice, RIDI_DEVICENAME, devName, &devNameLen) <= 0)
+		return false;
+
+	RID_DEVICE_INFO ridDevInfo = { 0 };
+	UINT devInfoLen = sizeof(RID_DEVICE_INFO);
+	if ((int)GetRawInputDeviceInfoA(hDevice, RIDI_DEVICEINFO, &ridDevInfo, &devInfoLen) <= 0)
+		return false;
+
+	devInfo.hidname = devName;
+	devInfo.w32RidDevInfo = ridDevInfo;
+	if (devName[0] != '\0')
+	{
+		HANDLE HIDHandle = CreateFile(devName, NULL, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL);
+		if (HIDHandle)
+		{
+			WCHAR prodStr[128] = { 0 };
+			UINT prodStrLen = 128;
+			HidD_GetProductString(HIDHandle, prodStr, prodStrLen);
+			CloseHandle(HIDHandle);
+
+			char ustr[512] = { 0 };
+			WideCharToMultiByte(CP_UTF8, NULL, prodStr, prodStrLen, ustr, sizeof(ustr), NULL, FALSE);
+			devInfo.productString = ustr;
+		}
+	}
+
+	return true;
+}
+
 
 bool RIMgr::getJoystickDeviceInfo(HANDLE hDevice, DeviceInfo& devInfo)
 {
@@ -146,6 +157,7 @@ typedef uint64_t QWORD;
 
 LRESULT RIMgr::WMMsgHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	if (msg != WM_INPUT) return 0;
 	return inst()._WMMsgHandler(hwnd, msg, wParam, lParam);
 }
 
@@ -250,7 +262,7 @@ bool RIMgr::updateJoystick(RAWINPUT* ri)
 			for (int i = 0; i < devInfo.axisCount; i++)
 			{
 				auto& [axisIdx, axisVal] = axisVals[i];
-				deviceAxisDelta[deviceID][axisIdx] = axisVal - deviceAxis[deviceID][axisIdx];
+				deviceAxisDiff[deviceID][axisIdx] = axisVal - deviceAxis[deviceID][axisIdx];
 				deviceAxis[deviceID][axisIdx] = axisVal;
 			}
 		}
@@ -265,9 +277,9 @@ bool RIMgr::isPressed(int deviceID, int code) const
 	return m.find(code) != m.end() ? m.at(code) : false; 
 }
 
-int RIMgr::getAxisDelta(int deviceID, int idx) const 
+int RIMgr::getAxisDiff(int deviceID, int idx) const 
 { 
-	const auto& m = deviceAxisDelta.at(deviceID); 
+	const auto& m = deviceAxisDiff.at(deviceID); 
 	return m.find(idx) != m.end() ? m.at(idx) : 0; 
 }
 

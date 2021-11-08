@@ -93,6 +93,9 @@ int main(int argc, char* argv[])
     ConfigMgr::init();
     ConfigMgr::load();
 
+    if (ConfigMgr::get('P', cfg::P_RELATIVE_AXIS, false))
+        InputMgr::setAxisMode(InputMgr::eAxisMode::AXIS_RELATIVE);
+
     if (auto ginit = graphics_init())
         return ginit;
     if (auto sinit = SoundMgr::initFMOD())
