@@ -35,7 +35,7 @@ private:
     bool _isHoldingSelect = false;
     bool _isExitingFromPlay = false;
     std::array<bool, 2> _isPlayerFinished{ false };
-    std::array<int, 2> _ttAngleDelta{ 0 };
+    std::array<int, 2> _ttAngleDiff{ 0 };
 
 public:
     ScenePlay();

@@ -520,7 +520,7 @@ public:
 	};
 
 private:
-	int _delta_x, _delta_y;
+	int _diff_x, _diff_y;
 	unsigned _min, _max;
 	eNumber _numInd;
     unsigned short _grids = 50;

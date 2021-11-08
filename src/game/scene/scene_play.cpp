@@ -975,13 +975,13 @@ void ScenePlay::spinTurntable(bool startedPlaying)
     {
         auto t = Time();
         auto rt = t - gTimers.get(eTimer::PLAY_START);
-        for (auto& aa : _ttAngleDelta)
+        for (auto& aa : _ttAngleDiff)
             aa += int(rt.norm() * 180 / 1000);
     }
-    for (auto& aa : _ttAngleDelta)
+    for (auto& aa : _ttAngleDiff)
         aa %= 360;
-    gNumbers.set(eNumber::_ANGLE_TT_1P, _ttAngleDelta[0]);
-    gNumbers.set(eNumber::_ANGLE_TT_2P, _ttAngleDelta[1]);
+    gNumbers.set(eNumber::_ANGLE_TT_1P, _ttAngleDiff[0]);
+    gNumbers.set(eNumber::_ANGLE_TT_2P, _ttAngleDiff[1]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1124,10 +1124,10 @@ void ScenePlay::inputGameHold(InputMask& m, const Time& t)
 		// TODO analog spin speed
 		switch (i)
 		{
-		case S1L: _ttAngleDelta[PLAYER_SLOT_1P] -= 5; break;
-		case S1R: _ttAngleDelta[PLAYER_SLOT_1P] += 5; break;
-		case S2L: _ttAngleDelta[PLAYER_SLOT_2P] -= 5; break;
-		case S2R: _ttAngleDelta[PLAYER_SLOT_2P] += 5; break;
+		case S1L: _ttAngleDiff[PLAYER_SLOT_1P] -= 5; break;
+		case S1R: _ttAngleDiff[PLAYER_SLOT_1P] += 5; break;
+		case S2L: _ttAngleDiff[PLAYER_SLOT_2P] -= 5; break;
+		case S2R: _ttAngleDiff[PLAYER_SLOT_2P] += 5; break;
 		default: break;
 		}
 	}
@@ -1186,15 +1186,15 @@ void ScenePlay::inputGameAxis(InputAxisPlus& m, const Time& t)
     size_t sampleCount = 0;
 
     int S1 = m[S1L] + m[S1R];
-    _ttAngleDelta[PLAYER_SLOT_1P] += S1;
+    _ttAngleDiff[PLAYER_SLOT_1P] += S1;
     int S2 = m[S2L] + m[S2R];
     if (_mode == ePlayMode::LOCAL_BATTLE || _mode == ePlayMode::AUTO_BATTLE)
     {
-        _ttAngleDelta[PLAYER_SLOT_2P] += S2;
+        _ttAngleDiff[PLAYER_SLOT_2P] += S2;
     }
     else
     {
-        _ttAngleDelta[PLAYER_SLOT_1P] += S2;
+        _ttAngleDiff[PLAYER_SLOT_1P] += S2;
         S1 += S2;
         S2 = 0;
     }

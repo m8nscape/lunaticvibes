@@ -482,20 +482,20 @@ void RulesetBMS::_judgeRelease(NoteLaneCategory cat, NoteLaneIndex idx, HitableN
     }
 }
 
-void RulesetBMS::_updateHp(const double delta)
+void RulesetBMS::_updateHp(const double diff)
 {
     double tmp = _basic.health;
     switch (_gauge)
     {
     case RulesetBMS::GaugeType::HARD:
     case RulesetBMS::GaugeType::GRADE:
-        if (tmp < 0.30 && delta < 0.0)
-            tmp += delta * 0.6;
+        if (tmp < 0.30 && diff < 0.0)
+            tmp += diff * 0.6;
         else
-            tmp += delta;
+            tmp += diff;
         break;
     default:
-        tmp += delta;
+        tmp += diff;
         break;
     }
     _basic.health = std::max(_minHealth, std::min(1.0, tmp));

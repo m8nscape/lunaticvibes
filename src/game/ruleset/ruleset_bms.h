@@ -198,7 +198,7 @@ private:
     void _judgePress(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot);
     void _judgeHold(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot);
     void _judgeRelease(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot);
-    void _updateHp(const double delta);
+    void _updateHp(const double diff);
     void _updateHp(JudgeType judge);
 public:
     // Register to InputWrapper

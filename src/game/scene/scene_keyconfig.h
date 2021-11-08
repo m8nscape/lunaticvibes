@@ -24,7 +24,7 @@ protected:
     void inputGamePress(InputMask&, const Time&);
     void inputGamePressKeyboard(KeyboardMask&, const Time&);
 #ifdef RAWINPUT_AVAILABLE
-    void inputGamePressRawinput(int deviceID, RawinputKeyMap& button, RawinputAxisDiffMap& axisDelta, const Time&);
+    void inputGamePressRawinput(int deviceID, RawinputKeyMap& button, RawinputAxisDiffMap& axisDiff, const Time&);
 #endif
 
 public:

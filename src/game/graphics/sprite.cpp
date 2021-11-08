@@ -769,20 +769,20 @@ void SpriteSlider::updateValByInd()
 
 void SpriteSlider::updatePos()
 {
-	int pos_delta = static_cast<int>(std::floor((_range-1) * _value));
+	int pos_diff = static_cast<int>(std::floor((_range-1) * _value));
 	switch (_dir)
 	{
 	case SliderDirection::DOWN:
-		_current.rect.y += pos_delta;
+		_current.rect.y += pos_diff;
 		break;
 	case SliderDirection::UP:
-		_current.rect.y -= pos_delta;
+		_current.rect.y -= pos_diff;
 		break;
 	case SliderDirection::RIGHT:
-		_current.rect.x += pos_delta;
+		_current.rect.x += pos_diff;
 		break;
 	case SliderDirection::LEFT:
-		_current.rect.x -= pos_delta;
+		_current.rect.x -= pos_diff;
 		break;
 	}
 }
@@ -1000,7 +1000,7 @@ SpriteGaugeGrid::SpriteGaugeGrid(pTexture texture, const Rect& rect,
 	unsigned animFrames, unsigned frameTime,  int dx, int dy, unsigned min, unsigned max, unsigned grids,
 	eTimer timer, eNumber num, unsigned selRows, unsigned selCols, bool selVerticalIndexing): 
 	SpriteAnimated(texture, rect, animFrames, frameTime, timer, selRows, selCols, selVerticalIndexing),
-	_delta_x(dx), _delta_y(dy), _grids(grids), _min(min), _max(max), _numInd(num)
+	_diff_x(dx), _diff_y(dy), _grids(grids), _min(min), _max(max), _numInd(num)
 {
     _lighting.resize(_grids, false);
     setGaugeType(GaugeType::GROOVE);
@@ -1103,16 +1103,16 @@ void SpriteGaugeGrid::draw() const
             _lighting[i] ?
                 _pTexture->draw(_texRect[_lightRectFailIdxOffset + _currAnimFrame], r, _current.color, _current.blend, _current.filter, _current.angle) :
                 _pTexture->draw(_texRect[_darkRectFailIdxOffset + _currAnimFrame], r, _current.color, _current.blend, _current.filter, _current.angle);
-            r.x += _delta_x;
-            r.y += _delta_y;
+            r.x += _diff_x;
+            r.y += _diff_y;
         }
         for (unsigned i = grid_val; i < _grids; ++i)
         {
             _lighting[i] ?
                 _pTexture->draw(_texRect[_lightRectClearIdxOffset + _currAnimFrame], r, _current.color, _current.blend, _current.filter, _current.angle) :
                 _pTexture->draw(_texRect[_darkRectClearIdxOffset + _currAnimFrame], r, _current.color, _current.blend, _current.filter, _current.angle);
-            r.x += _delta_x;
-            r.y += _delta_y;
+            r.x += _diff_x;
+            r.y += _diff_y;
         }
     }
 }

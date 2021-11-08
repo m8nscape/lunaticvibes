@@ -74,10 +74,10 @@ std::bitset<KEY_COUNT> InputMgr::detect()
                     {
                         if (_inst.axisMode == eAxisMode::AXIS_NORMAL)
                         {
-                            auto delta = rawinput::RIMgr::inst().getAxisDiff(b.getDeviceID(), b.getAxis());
-                            if (b.getAxisDir() > 0 && delta > 0 || b.getAxisDir() < 0 && delta < 0)
+                            auto diff = rawinput::RIMgr::inst().getAxisDiff(b.getDeviceID(), b.getAxis());
+                            if (b.getAxisDir() > 0 && diff > 0 || b.getAxisDir() < 0 && diff < 0)
                             {
-                                int absdelta = (int)std::abs(delta);
+                                int absdelta = (int)std::abs(diff);
                                 if (absdelta > _inst.analogDeadZone)
                                     res[k] = true;
                             }
@@ -171,9 +171,9 @@ std::map<Input::Pad, int> InputMgr::detectRelativeAxis()
 #ifdef RAWINPUT_AVAILABLE
             if (b.getType() == KeyMap::DeviceType::RAWINPUT && b.isAxis())
             {
-                auto delta = rawinput::RIMgr::inst().getAxisDiff(b.getDeviceID(), b.getAxis());
-                if (delta > 0)
-                    result[static_cast<Input::Pad>(k)] += delta;
+                auto diff = rawinput::RIMgr::inst().getAxisDiff(b.getDeviceID(), b.getAxis());
+                if (diff > 0)
+                    result[static_cast<Input::Pad>(k)] += diff;
             }
 #endif
         }

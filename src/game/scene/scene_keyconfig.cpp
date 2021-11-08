@@ -172,7 +172,7 @@ void SceneKeyConfig::inputGamePressKeyboard(KeyboardMask& mask, const Time& t)
 
 
 #ifdef RAWINPUT_AVAILABLE
-void SceneKeyConfig::inputGamePressRawinput(int deviceID, RawinputKeyMap& button, RawinputAxisDiffMap& axisDelta, const Time&)
+void SceneKeyConfig::inputGamePressRawinput(int deviceID, RawinputKeyMap& button, RawinputAxisDiffMap& axisDiff, const Time&)
 {
     auto [pad, slot] = gKeyconfigContext.selecting;
     if (slot >= InputMgr::MAX_BINDINGS_PER_KEY) return;
@@ -211,12 +211,12 @@ void SceneKeyConfig::inputGamePressRawinput(int deviceID, RawinputKeyMap& button
 
     if (ConfigMgr::get('P', cfg::P_RELATIVE_AXIS, false))
     {
-        for (auto& [axis, delta] : axisDelta)
+        for (auto& [axis, diff] : axisDiff)
         {
-            if (delta == 0) continue;
+            if (diff == 0) continue;
 
-            KeyMap::AxisDir dir = delta > 0 ? 1 : -1;
-            int val = std::abs(delta);
+            KeyMap::AxisDir dir = diff > 0 ? 1 : -1;
+            int val = std::abs(diff);
 
             if (val > 2)
             {
