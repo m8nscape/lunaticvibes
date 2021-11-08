@@ -166,6 +166,7 @@ bool SetupDialog::loadConfig(const std::string& dirname)
         ui->min_input_interval->setText(QString::number(ConfigMgr::get('P', cfg::P_MIN_INPUT_INTERVAL, 16)));
         ui->new_song_duration->setText(QString::number(ConfigMgr::get('P', cfg::P_NEW_SONG_DURATION, 6)));
         ui->mouse_analog->setChecked(ConfigMgr::get('P', cfg::P_MOUSE_ANALOG, false));
+        ui->relative_axis->setChecked(ConfigMgr::get('P', cfg::P_RELATIVE_AXIS, false));
     }
 
 
@@ -269,6 +270,7 @@ void SetupDialog::saveConfig()
         ConfigMgr::set('P', cfg::P_MIN_INPUT_INTERVAL, ui->min_input_interval->text().toInt());
         ConfigMgr::set('P', cfg::P_NEW_SONG_DURATION, ui->new_song_duration->text().toInt());
         ConfigMgr::set('P', cfg::P_MOUSE_ANALOG, ui->mouse_analog->isChecked());
+        ConfigMgr::set('P', cfg::P_RELATIVE_AXIS, ui->relative_axis->isChecked());
     }
 
     ConfigMgr::save();

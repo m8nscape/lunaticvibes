@@ -889,6 +889,8 @@ void ScenePlay::changeKeySampleMapping(const Time& t)
                 auto note = gPlayContext.chartObj[PLAYER_SLOT_1P]->incomingNote(chan.first, chan.second);
                 if (note->time - t > MIN_REMAP_INTERVAL) continue;
                 _currentKeySample[i] = (size_t)std::get<long long>(note->value);
+                if (i == Input::S1L)
+                    _currentKeySample[Input::S1R] = (size_t)std::get<long long>(note->value);
             }
         for (size_t i = Input::S2L; i < Input::ESC; ++i)
             if (_inputAvailable[i])
@@ -899,6 +901,8 @@ void ScenePlay::changeKeySampleMapping(const Time& t)
                 auto note = gPlayContext.chartObj[PLAYER_SLOT_2P]->incomingNote(chan.first, chan.second);
                 if (note->time - t > MIN_REMAP_INTERVAL) continue;
                 _currentKeySample[i] = (size_t)std::get<long long>(note->value);
+                if (i == Input::S2L)
+                    _currentKeySample[Input::S2R] = (size_t)std::get<long long>(note->value);
             }
     }
     else
@@ -912,6 +916,8 @@ void ScenePlay::changeKeySampleMapping(const Time& t)
                 auto note = gPlayContext.chartObj[PLAYER_SLOT_1P]->incomingNote(chan.first, chan.second);
                 if (note->time - t > MIN_REMAP_INTERVAL) continue;
                 _currentKeySample[i] = (size_t)std::get<long long>(note->value);
+                if (i == Input::S1L)
+                    _currentKeySample[Input::S1R] = (size_t)std::get<long long>(note->value);
             }
     }
 }
@@ -1024,6 +1030,9 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
             gNumbers.set(eNumber::HS_1P, hs - 25);
     }
 
+    if (input[K1START]) _isHoldingStart[PLAYER_SLOT_1P] = true;
+    if (input[K1SELECT]) _isHoldingSelect[PLAYER_SLOT_1P] = true;
+
     SoundMgr::playKeySample(sampleCount, (size_t*)&_keySampleIdxBuf[0]);
 
     if (_mode == ePlayMode::LOCAL_BATTLE || _mode == ePlayMode::AUTO_BATTLE)
@@ -1047,6 +1056,9 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
             if (hs > 25)
                 gNumbers.set(eNumber::HS_2P, hs - 25);
         }
+
+        if (input[K2START]) _isHoldingStart[PLAYER_SLOT_2P] = true;
+        if (input[K2SELECT]) _isHoldingSelect[PLAYER_SLOT_2P] = true;
     }
     else
     {
@@ -1069,6 +1081,9 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
             if (hs > 25)
                 gNumbers.set(eNumber::HS_1P, hs - 25);
         }
+
+        if (input[K2START]) _isHoldingStart[PLAYER_SLOT_1P] = true;
+        if (input[K2SELECT]) _isHoldingSelect[PLAYER_SLOT_1P] = true;
     }
 
     if (input[Input::ESC] || (input[Input::K1START] && input[Input::K1SELECT]) || (input[Input::K2START] && input[Input::K2SELECT]))
@@ -1157,6 +1172,8 @@ void ScenePlay::inputGameRelease(InputMask& m, const Time& t)
         gTimers.set(eTimer::S1_UP, t.norm());
         gSwitches.set(eSwitch::S1_DOWN, false);
     }
+    if (input[K1START]) _isHoldingStart[PLAYER_SLOT_1P] = false;
+    if (input[K1SELECT]) _isHoldingSelect[PLAYER_SLOT_1P] = false;
 
     if (_mode == ePlayMode::LOCAL_BATTLE || _mode == ePlayMode::AUTO_BATTLE)
     {
@@ -1166,6 +1183,8 @@ void ScenePlay::inputGameRelease(InputMask& m, const Time& t)
             gTimers.set(eTimer::S2_UP, TIMER_NEVER);
             gSwitches.set(eSwitch::S2_DOWN, true);
         }
+        if (input[K2START]) _isHoldingStart[PLAYER_SLOT_2P] = false;
+        if (input[K2SELECT]) _isHoldingSelect[PLAYER_SLOT_2P] = false;
     }
     else
     {
@@ -1174,6 +1193,8 @@ void ScenePlay::inputGameRelease(InputMask& m, const Time& t)
             gTimers.set(eTimer::S1_DOWN, t.norm());
             gTimers.set(eTimer::S1_UP, TIMER_NEVER);
             gSwitches.set(eSwitch::S1_DOWN, true);
+            if (input[K2START]) _isHoldingStart[PLAYER_SLOT_1P] = false;
+            if (input[K2SELECT]) _isHoldingSelect[PLAYER_SLOT_1P] = false;
         }
     }
 }
@@ -1187,14 +1208,41 @@ void ScenePlay::inputGameAxis(InputAxisPlus& m, const Time& t)
 
     int S1 = m[S1L] + m[S1R];
     _ttAngleDiff[PLAYER_SLOT_1P] += S1;
+    if (_isHoldingStart[PLAYER_SLOT_1P] && _isHoldingSelect[PLAYER_SLOT_1P])
+    {
+        // lanecover 1P
+        int lanecoverPrev = gNumbers.get(eNumber::LANECOVER_1P);
+        gNumbers.set(eNumber::LANECOVER_1P, lanecoverPrev + S1);
+
+        // ars 1P
+    }
+
     int S2 = m[S2L] + m[S2R];
     if (_mode == ePlayMode::LOCAL_BATTLE || _mode == ePlayMode::AUTO_BATTLE)
     {
         _ttAngleDiff[PLAYER_SLOT_2P] += S2;
+
+        if (_isHoldingStart[PLAYER_SLOT_2P] && _isHoldingSelect[PLAYER_SLOT_2P])
+        {
+            // lanecover 2P
+            int lanecoverPrev = gNumbers.get(eNumber::LANECOVER_2P);
+            gNumbers.set(eNumber::LANECOVER_2P, lanecoverPrev + S2);
+
+            // ars 2P
+        }
     }
     else
     {
         _ttAngleDiff[PLAYER_SLOT_1P] += S2;
+        if (_isHoldingStart[PLAYER_SLOT_1P] && _isHoldingSelect[PLAYER_SLOT_1P])
+        {
+            // lanecover 1P
+            int lanecoverPrev = gNumbers.get(eNumber::LANECOVER_1P);
+            gNumbers.set(eNumber::LANECOVER_1P, lanecoverPrev + S2);
+
+            // ars 1P
+        }
+
         S1 += S2;
         S2 = 0;
     }

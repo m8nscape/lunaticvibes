@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.16)
 # PROJECT CONFIG
 
 project(nullptr
-    VERSION 0.4
+    VERSION 0.5
     LANGUAGES CXX
 )
 

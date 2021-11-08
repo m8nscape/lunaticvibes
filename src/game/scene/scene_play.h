@@ -31,8 +31,8 @@ private:
     std::vector<size_t> _currentKeySample;
 
 private:
-    bool _isHoldingStart = false;
-    bool _isHoldingSelect = false;
+    bool _isHoldingStart[2] = { false };
+    bool _isHoldingSelect[2] = { false };
     bool _isExitingFromPlay = false;
     std::array<bool, 2> _isPlayerFinished{ false };
     std::array<int, 2> _ttAngleDiff{ 0 };
