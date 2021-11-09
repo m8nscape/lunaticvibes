@@ -10,8 +10,6 @@
 
 typedef std::bitset<Input::Pad::KEY_COUNT> InputMask;
 typedef std::function<void(InputMask&, const Time&)> INPUTCALLBACK;
-typedef std::map<Input::Pad, int> InputAxisPlus;
-typedef std::function<void(InputAxisPlus&, const Time&)> AXISPLUSCALLBACK;
 //typedef void(*PressedHandleCallback)(void* owner, InputMask&);
 //typedef void(*HoldHandleCallback)(void* owner, InputMask&);
 //typedef void(*ReleasedHandleCallback)(void* owner, InputMask&);
@@ -19,9 +17,12 @@ typedef std::function<void(InputAxisPlus&, const Time&)> AXISPLUSCALLBACK;
 typedef std::bitset<Input::keyboardKeyCount> KeyboardMask;
 typedef std::function<void(KeyboardMask, const Time&)> KEYBOARDCALLBACK;
 
+typedef std::map<Input::Pad, std::pair<double, int>> InputAxisPlus;
+typedef std::function<void(InputAxisPlus&, const Time&)> AXISPLUSCALLBACK;
+
 typedef std::map<int, bool> RawinputKeyMap;
-typedef std::map<int, int> RawinputAxisDiffMap;
-typedef std::function<void(int, RawinputKeyMap&, RawinputAxisDiffMap&, const Time&)> RAWINPUTCALLBACK;
+typedef std::map<int, std::pair<double, int>> RawinputAxisSpeedMap;
+typedef std::function<void(int, RawinputKeyMap&, RawinputAxisSpeedMap&, const Time&)> RAWINPUTCALLBACK;
 
 // FUNC:                                   BRDUEHDI><v^543210987654321_
 inline const InputMask INPUT_MASK_FUNC  { "1111111111111111111111111111000000000000000000000000000000" };

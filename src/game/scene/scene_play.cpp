@@ -1206,8 +1206,8 @@ void ScenePlay::inputGameAxis(InputAxisPlus& m, const Time& t)
     std::array<size_t, 4> keySampleIdxBufScratch;
     size_t sampleCount = 0;
 
-    int S1 = m[S1L] + m[S1R];
-    _ttAngleDiff[PLAYER_SLOT_1P] += S1;
+    double S1 = -m[S1L].first + m[S1R].first;
+    _ttAngleDiff[PLAYER_SLOT_1P] += S1 * 360;
     if (_isHoldingStart[PLAYER_SLOT_1P] && _isHoldingSelect[PLAYER_SLOT_1P])
     {
         // lanecover 1P
@@ -1217,10 +1217,10 @@ void ScenePlay::inputGameAxis(InputAxisPlus& m, const Time& t)
         // ars 1P
     }
 
-    int S2 = m[S2L] + m[S2R];
+    double S2 = -m[S2L].first + m[S2R].first;
     if (_mode == ePlayMode::LOCAL_BATTLE || _mode == ePlayMode::AUTO_BATTLE)
     {
-        _ttAngleDiff[PLAYER_SLOT_2P] += S2;
+        _ttAngleDiff[PLAYER_SLOT_2P] += S2 * 360;
 
         if (_isHoldingStart[PLAYER_SLOT_2P] && _isHoldingSelect[PLAYER_SLOT_2P])
         {
@@ -1233,7 +1233,7 @@ void ScenePlay::inputGameAxis(InputAxisPlus& m, const Time& t)
     }
     else
     {
-        _ttAngleDiff[PLAYER_SLOT_1P] += S2;
+        _ttAngleDiff[PLAYER_SLOT_1P] += S2 * 360;
         if (_isHoldingStart[PLAYER_SLOT_1P] && _isHoldingSelect[PLAYER_SLOT_1P])
         {
             // lanecover 1P
@@ -1256,7 +1256,7 @@ void ScenePlay::inputGameAxis(InputAxisPlus& m, const Time& t)
         _ttAxisLastUpdate[PLAYER_SLOT_2P] = t;
     }
 
-    if (S1 > 2 && _ttAxisDir[PLAYER_SLOT_1P] != 1)
+    if (S1 > InputMgr::getAxisMinSpeed() && _ttAxisDir[PLAYER_SLOT_1P] != 1)
     {
         gTimers.set(eTimer::S1_DOWN, t.norm());
         gTimers.set(eTimer::S1_UP, TIMER_NEVER);
@@ -1266,7 +1266,7 @@ void ScenePlay::inputGameAxis(InputAxisPlus& m, const Time& t)
         if (_currentKeySample[S1R])
             keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S1R];
     }
-    else if (S1 < -2 && _ttAxisDir[PLAYER_SLOT_1P] != -1)
+    else if (S1 < -InputMgr::getAxisMinSpeed() && _ttAxisDir[PLAYER_SLOT_1P] != -1)
     {
         gTimers.set(eTimer::S1_DOWN, t.norm());
         gTimers.set(eTimer::S1_UP, TIMER_NEVER);
@@ -1282,10 +1282,10 @@ void ScenePlay::inputGameAxis(InputAxisPlus& m, const Time& t)
         gTimers.set(eTimer::S1_DOWN, TIMER_NEVER);
         gSwitches.set(eSwitch::S1_DOWN, false);
         _ttAxisDir[PLAYER_SLOT_1P] = 0;
-        _ttAxisLastUpdate[PLAYER_SLOT_1P] = 0;
+        _ttAxisLastUpdate[PLAYER_SLOT_1P] = TIMER_NEVER;
     }
 
-    if (S2 > 2 && _ttAxisDir[PLAYER_SLOT_2P] != 1)
+    if (S2 > InputMgr::getAxisMinSpeed() && _ttAxisDir[PLAYER_SLOT_2P] != 1)
     {
         gTimers.set(eTimer::S2_DOWN, t.norm());
         gTimers.set(eTimer::S2_UP, TIMER_NEVER);
@@ -1295,7 +1295,7 @@ void ScenePlay::inputGameAxis(InputAxisPlus& m, const Time& t)
         if (_currentKeySample[S2R])
             keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S2R];
     }
-    else if (S2 < -2 && _ttAxisDir[PLAYER_SLOT_2P] != -1)
+    else if (S2 < -InputMgr::getAxisMinSpeed() && _ttAxisDir[PLAYER_SLOT_2P] != -1)
     {
         gTimers.set(eTimer::S2_DOWN, t.norm());
         gTimers.set(eTimer::S2_UP, TIMER_NEVER);
@@ -1311,7 +1311,7 @@ void ScenePlay::inputGameAxis(InputAxisPlus& m, const Time& t)
         gTimers.set(eTimer::S2_DOWN, TIMER_NEVER);
         gSwitches.set(eSwitch::S2_DOWN, false);
         _ttAxisDir[PLAYER_SLOT_2P] = 0;
-        _ttAxisLastUpdate[PLAYER_SLOT_2P] = 0;
+        _ttAxisLastUpdate[PLAYER_SLOT_2P] = TIMER_NEVER;
     }
 
     SoundMgr::playKeySample(sampleCount, keySampleIdxBufScratch.data());

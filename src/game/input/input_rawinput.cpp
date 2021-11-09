@@ -18,7 +18,7 @@ int RIMgr::refreshDevices()
 	deviceInfo.clear();
 	deviceKeyPressed.clear();
 	deviceAxis.clear();
-	deviceAxisDiff.clear();
+	deviceAxisSpeed.clear();
 	deviceHandleMap.clear();
 
 	RAWINPUTDEVICELIST devs[MAX_DEVICE_COUNT] = { 0 };
@@ -41,7 +41,7 @@ int RIMgr::refreshDevices()
 		// insert map
 		deviceKeyPressed[deviceID];
 		deviceAxis[deviceID];
-		deviceAxisDiff[deviceID];
+		deviceAxisSpeed[deviceID];
 	}
 	LOG_INFO << "Rawinput: " << deviceInfo.size() << " devices detected";
 
@@ -243,8 +243,11 @@ bool RIMgr::updateJoystick(RAWINPUT* ri)
 		ULONG value;
 		USAGE axisIdx = valCaps[i].Range.UsageMin;
 		axisVals[i].first = axisIdx;
-		if (HidP_GetUsageValue(HidP_Input, valCaps[i].UsagePage, 0, axisIdx, &axisVals[i].second, preparsedData, (PCHAR)ri->data.hid.bRawData, ri->data.hid.dwSizeHid) != HIDP_STATUS_SUCCESS) 
+		if (HidP_GetUsageValue(HidP_Input, valCaps[i].UsagePage, 0, axisIdx, &axisVals[i].second, preparsedData, (PCHAR)ri->data.hid.bRawData, ri->data.hid.dwSizeHid) != HIDP_STATUS_SUCCESS)
+		{
 			hasAxis = false;
+			break;
+		}
 	}
 
 	{
@@ -262,11 +265,31 @@ bool RIMgr::updateJoystick(RAWINPUT* ri)
 
 		if (hasAxis)
 		{
+			Time nowTime;
 			for (int i = 0; i < devInfo.axisCount; i++)
 			{
 				auto& [axisIdx, axisVal] = axisVals[i];
-				deviceAxisDiff[deviceID][axisIdx] = (int)axisVal - deviceAxis[deviceID][axisIdx];
-				deviceAxis[deviceID][axisIdx] = axisVal;
+				double newVal = (axisVal - valCaps[i].LogicalMin) / (valCaps[i].LogicalMax - valCaps[i].LogicalMin);
+				if (deviceAxis[deviceID].find(axisIdx) != deviceAxis[deviceID].end())
+				{
+					auto& [oldTime, oldVal] = deviceAxis[deviceID][axisIdx];
+					if (nowTime.norm() != oldTime.norm())
+					{
+						// handle axis loop
+						double valDiff;
+						if (oldVal > 0.8 && newVal < 0.2)
+							valDiff = newVal + 1.0 - oldVal;
+						else if (oldVal < 0.2 && newVal > 0.8)
+							valDiff = newVal - 1.0 - oldVal;
+						else
+							valDiff = newVal - oldVal;
+
+						// speed = diff / time (logical unit / ms)
+						int length = (nowTime - oldTime).norm();
+						deviceAxisSpeed[deviceID][axisIdx] = { valDiff / length, length };
+					}
+				}
+				deviceAxis[deviceID][axisIdx] = { nowTime, newVal };
 			}
 		}
 	}
@@ -280,10 +303,16 @@ bool RIMgr::isPressed(int deviceID, int code) const
 	return m.find(code) != m.end() ? m.at(code) : false; 
 }
 
-int RIMgr::getAxisDiff(int deviceID, int idx) const 
+double RIMgr::getAxis(int deviceID, int idx) const
+{
+	const auto& m = deviceAxis.at(deviceID);
+	return m.find(idx) != m.end() ? m.at(idx).second : 0.0;
+}
+
+std::pair<double, int> RIMgr::getAxisSpeed(int deviceID, int idx) const
 { 
-	const auto& m = deviceAxisDiff.at(deviceID); 
-	return m.find(idx) != m.end() ? m.at(idx) : 0; 
+	const auto& m = deviceAxisSpeed.at(deviceID); 
+	return m.find(idx) != m.end() ? m.at(idx) : std::make_pair<double, int>(0.0, 0);
 }
 
 }

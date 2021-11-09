@@ -57,8 +57,8 @@ protected:
 	std::list<RAWINPUT_MSG> msgList;
 
 	std::map<int, std::map<int, bool>>  deviceKeyPressed;
-	std::map<int, std::map<int, ULONG>> deviceAxis;
-	std::map<int, std::map<int, int>> deviceAxisDiff;
+	std::map<int, std::map<int, std::pair<Time, double>>> deviceAxis;
+	std::map<int, std::map<int, std::pair<double, int>>> deviceAxisSpeed;
 
 	bool getBasicDeviceinfo(HANDLE hDevice, DeviceInfo& devInfo);
 	bool getJoystickDeviceInfo(HANDLE hDevice, DeviceInfo& devInfo);
@@ -78,9 +78,11 @@ public:
 	bool updateJoystick(RAWINPUT* ri);
 
 	auto getPressed(int deviceID) const { return deviceKeyPressed.at(deviceID); }
-	auto getAxisDiff(int deviceID) const { return deviceAxisDiff.at(deviceID); }
+	auto getAxis(int deviceID) const { return deviceAxis.at(deviceID); }
+	auto getAxisSpeed(int deviceID) const { return deviceAxisSpeed.at(deviceID); }
 	bool isPressed(int deviceID, int code) const;
-	int getAxisDiff(int deviceID, int idx) const;
+	double getAxis(int deviceID, int idx) const;
+	std::pair<double, int> getAxisSpeed(int deviceID, int idx) const;
 };
 
 }

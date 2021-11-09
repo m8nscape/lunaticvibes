@@ -29,7 +29,7 @@ private:
     std::array<std::array<KeyMap, MAX_BINDINGS_PER_KEY>, Input::ESC> padBindings{};
 	int mouse_x = 0, mouse_y = 0;
 	int analogDeadZone = 25;
-
+    double axisMinSpeed = 0.02;
     eAxisMode axisMode = eAxisMode::AXIS_NORMAL;
 
 public:
@@ -38,10 +38,18 @@ public:
     static void updateDevices();
     static void updateBindings(GameModeKeys keys, Input::Pad K);
     static std::bitset<Input::KEY_COUNT> detect();
-    static std::map<Input::Pad, int> detectRelativeAxis();
+    static std::map<Input::Pad, std::pair<double, int>> detectRelativeAxis();
 	static bool getMousePos(int& x, int& y);
+
+    static void setDeadzone(int val) { _inst.analogDeadZone = val; }
     static int getDeadzone() { return _inst.analogDeadZone; }
+
     static void setAxisMode(eAxisMode mode) { _inst.axisMode = mode; }
+    static eAxisMode getAxisMode() { return _inst.axisMode; }
+
+    static void setAxisMinSpeed(double val) { _inst.axisMinSpeed = val; }
+    static double getAxisMinSpeed() { return _inst.axisMinSpeed; }
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

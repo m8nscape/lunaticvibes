@@ -97,19 +97,18 @@ void InputWrapper::_loop()
             for (int deviceID = 0; deviceID < (int)Input::rawinput::RIMgr::inst().getDeviceCount(); ++deviceID)
             {
                 RawinputKeyMap pressedNew;
-                auto diff = Input::rawinput::RIMgr::inst().getAxisDiff(deviceID);
 
                 RawinputKeyMap pressedTmp = Input::rawinput::RIMgr::inst().getPressed(deviceID);
                 for (auto& [key, stat] : pressedTmp)
                     if (stat && !_riprev[deviceID][key])
                         pressedNew[key] = true;
 
-                RawinputAxisDiffMap axisDiff = Input::rawinput::RIMgr::inst().getAxisDiff(deviceID);
+                RawinputAxisSpeedMap axisSpeed = Input::rawinput::RIMgr::inst().getAxisSpeed(deviceID);
 
-                if (!pressedNew.empty() || !axisDiff.empty())
+                if (!pressedNew.empty() || !axisSpeed.empty())
                 {
                     for (auto& [cbname, callback] : _rawinputCallbackMap)
-                        callback(deviceID, pressedNew, diff, now);
+                        callback(deviceID, pressedNew, axisSpeed, now);
                 }
                 _riprev[deviceID] = pressedTmp;
             }

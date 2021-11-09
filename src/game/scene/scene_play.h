@@ -37,7 +37,7 @@ private:
     std::array<bool, 2> _isPlayerFinished{ false };
     std::array<int, 2> _ttAngleDiff{ 0 };
     std::array<KeyMap::AxisDir, 2> _ttAxisDir{ 0 };
-    std::array<Time, 2> _ttAxisLastUpdate{ 0 };
+    std::array<Time, 2> _ttAxisLastUpdate{ TIMER_NEVER, TIMER_NEVER };
 
 public:
     ScenePlay();

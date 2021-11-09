@@ -653,12 +653,12 @@ void RulesetBMS::updateAxis(InputAxisPlus& m, const Time& t)
     std::array<size_t, 4> keySampleIdxBufScratch;
     size_t sampleCount = 0;
 
-    int S1 = 0;
-    int S2 = 0;
-    if (_k1P) S1 += m[S1L] + m[S1R];
-    if (_k2P) S2 += m[S2L] + m[S2R];
+    double S1 = 0;
+    double S2 = 0;
+    if (_k1P) S1 = -m[S1L].first + m[S1R].first;
+    if (_k2P) S2 = -m[S2L].first + m[S2R].first;
 
-    auto Judge = [&](int val, Input::Pad up, Input::Pad dn, int slot)
+    auto Judge = [&](const Time& t, int val, Input::Pad up, Input::Pad dn, int slot)
     {
         auto Press = [&](Input::Pad k)
         {
@@ -692,7 +692,9 @@ void RulesetBMS::updateAxis(InputAxisPlus& m, const Time& t)
             }
         };
 
-        if (val > 2)
+        if (val != 0) _ttAxisLastUpdate[slot] = t;
+
+        if (val > InputMgr::getAxisMinSpeed())
         {
             // down
             if (_scratchDir[slot] != 1)
@@ -706,7 +708,7 @@ void RulesetBMS::updateAxis(InputAxisPlus& m, const Time& t)
             }
             _scratchDir[slot] = 1;
         }
-        else if (val < -2)
+        else if (val < -InputMgr::getAxisMinSpeed())
         {
             // up
             if (_scratchDir[slot] != -1)
@@ -720,7 +722,7 @@ void RulesetBMS::updateAxis(InputAxisPlus& m, const Time& t)
             }
             _scratchDir[slot] = -1;
         }
-        else
+        else if ((t - _ttAxisLastUpdate[slot]).norm() > 133)
         {
             // release
             if (_scratchDir[slot] != 0)
@@ -729,10 +731,11 @@ void RulesetBMS::updateAxis(InputAxisPlus& m, const Time& t)
                 if (_scratchDir[slot] == 1) Release(dn);
             }
             _scratchDir[slot] = 0;
+            _ttAxisLastUpdate[slot] = TIMER_NEVER;
         }
     };
-    Judge(S1, S1L, S1R, PLAYER_SLOT_1P);
-    Judge(S2, S2L, S2R, PLAYER_SLOT_2P);
+    Judge(t, S1, S1L, S1R, PLAYER_SLOT_1P);
+    Judge(t, S2, S2L, S2R, PLAYER_SLOT_2P);
 }
 
 void RulesetBMS::update(const Time& t)

@@ -61,6 +61,7 @@ std::bitset<KEY_COUNT> InputMgr::detect()
     std::bitset<KEY_COUNT> res{};
 
 #ifdef RAWINPUT_AVAILABLE
+    // rawinput
     rawinput::RIMgr::inst().update();
     {
         std::shared_lock lock(rawinput::RIMgr::inst().mutexInput);
@@ -74,11 +75,11 @@ std::bitset<KEY_COUNT> InputMgr::detect()
                     {
                         if (_inst.axisMode == eAxisMode::AXIS_NORMAL)
                         {
-                            auto diff = rawinput::RIMgr::inst().getAxisDiff(b.getDeviceID(), b.getAxis());
-                            if (b.getAxisDir() > 0 && diff > 0 || b.getAxisDir() < 0 && diff < 0)
+                            double val = rawinput::RIMgr::inst().getAxis(b.getDeviceID(), b.getAxis());
+                            if (b.getAxisDir() > 0 && val > 0 || b.getAxisDir() < 0 && val < 0)
                             {
-                                int absdelta = (int)std::abs(diff);
-                                if (absdelta > _inst.analogDeadZone)
+                                int absVal = (int)std::abs(val);
+                                if (absVal > _inst.analogDeadZone)
                                     res[k] = true;
                             }
                         }
@@ -159,26 +160,30 @@ std::bitset<KEY_COUNT> InputMgr::detect()
     return res;
 }
 
-std::map<Input::Pad, int> InputMgr::detectRelativeAxis()
+std::map<Input::Pad, std::pair<double, int>> InputMgr::detectRelativeAxis()
 {
-    std::map<Input::Pad, int> result;
+    std::map<Input::Pad, std::pair<double, int>> result;
     if (_inst.axisMode != eAxisMode::AXIS_RELATIVE) return result;
 
-    for (int k = S1L; k < ESC; k++)
+    for (int i = S1L; i < ESC; i++)
     {
+        auto k = static_cast<Input::Pad>(i);
         for (const KeyMap& b : _inst.padBindings[k])
         {
 #ifdef RAWINPUT_AVAILABLE
             if (b.getType() == KeyMap::DeviceType::RAWINPUT && b.isAxis())
             {
-                int diff = rawinput::RIMgr::inst().getAxisDiff(b.getDeviceID(), b.getAxis());
-                if (diff > 0 && b.getAxisDir() > 0)
+                auto [speed, time] = rawinput::RIMgr::inst().getAxisSpeed(b.getDeviceID(), b.getAxis());
+                //double diff = speed * time;
+                if (speed > 0 && b.getAxisDir() > 0)
                 {
-                    result[static_cast<Input::Pad>(k)] += diff;
+                    result[k].first += speed;
+                    result[k].second = std::max(result[static_cast<Input::Pad>(k)].second, time);
                 }
-                if (diff < 0 && b.getAxisDir() < 0)
+                if (speed < 0 && b.getAxisDir() < 0)
                 {
-                    result[static_cast<Input::Pad>(k)] += -diff;
+                    result[k].first += -speed;
+                    result[k].second = std::max(result[static_cast<Input::Pad>(k)].second, time);
                 }
             }
 #endif

@@ -172,7 +172,7 @@ void SceneKeyConfig::inputGamePressKeyboard(KeyboardMask& mask, const Time& t)
 
 
 #ifdef RAWINPUT_AVAILABLE
-void SceneKeyConfig::inputGamePressRawinput(int deviceID, RawinputKeyMap& button, RawinputAxisDiffMap& axisDiff, const Time&)
+void SceneKeyConfig::inputGamePressRawinput(int deviceID, RawinputKeyMap& button, RawinputAxisSpeedMap& axisSpeed, const Time&)
 {
     auto [pad, slot] = gKeyconfigContext.selecting;
     if (slot >= InputMgr::MAX_BINDINGS_PER_KEY) return;
@@ -209,22 +209,23 @@ void SceneKeyConfig::inputGamePressRawinput(int deviceID, RawinputKeyMap& button
         }
     }
 
-    if (ConfigMgr::get('P', cfg::P_RELATIVE_AXIS, false))
+    if (InputMgr::getAxisMode() == InputMgr::eAxisMode::AXIS_RELATIVE)
     {
-        for (auto& [axis, diff] : axisDiff)
+        for (auto& [axis, speedtime] : axisSpeed)
         {
-            if (diff == 0)
+            auto& [speed, time] = speedtime;
+            if (speed == 0)
             {
-                _riAxisPrev[deviceID][axis] = 0;
+                _riAxisDirPrev[deviceID][axis] = 0;
                 continue;
             }
 
-            KeyMap::AxisDir dir = diff > 0 ? 1 : -1;
-            int val = std::abs(diff);
+            KeyMap::AxisDir dir = speed > 0 ? 1 : -1;
+            double val = std::abs(speed);
 
-            if (val > 2 && _riAxisPrev[deviceID][axis] != dir)
+            if (val > InputMgr::getAxisMinSpeed() && _riAxisDirPrev[deviceID][axis] != dir)
             {
-                _riAxisPrev[deviceID][axis] = dir;
+                _riAxisDirPrev[deviceID][axis] = dir;
                 GameModeKeys keys = gKeyconfigContext.keys;
 
                 // modify slot

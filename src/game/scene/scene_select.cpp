@@ -969,24 +969,24 @@ void SceneSelect::inputGameReleaseSelect(InputMask& input, const Time& t)
 
 void SceneSelect::inputGameAxisSelect(InputAxisPlus& input, const Time& t)
 {
-    int navUp = 0;
-    int navDn = 0;
+    double navUp = 0;
+    double navDn = 0;
     for (int i = Input::Pad::S1L; i < Input::Pad::ESC; ++i)
     {
         auto k = static_cast<Input::Pad>(i);
-        if (input[k] > 0)
+        if (input[k].first > 0)
         {
-            if (INPUT_MASK_NAV_UP[i]) navUp += input[k];
-            if (INPUT_MASK_NAV_DN[i]) navDn += input[k];
+            if (INPUT_MASK_NAV_UP[i]) navUp += input[k].first * input[k].second;
+            if (INPUT_MASK_NAV_DN[i]) navDn += input[k].first * input[k].second;
         }
     }
-    int navVal = -navUp + navDn;
-    int navValAbs = std::abs(navVal);
+    double navVal = -navUp + navDn;
+    double navValAbs = std::abs(navVal);
     if (!isHoldingUp && !isHoldingDown)
     {
         gSelectContext.scrollTime = 200 / navValAbs;
     }
-    if (navValAbs >= 2)
+    if (navValAbs >= InputMgr::getAxisMinSpeed())
     {
         if (t.norm() - scrollTimestamp >= gSelectContext.scrollTime)
         {
