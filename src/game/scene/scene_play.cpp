@@ -1247,68 +1247,49 @@ void ScenePlay::inputGameAxis(InputAxisPlus& m, const Time& t)
         S2 = 0;
     }
 
-    if (S1 != 0)
+    double minSpeed = InputMgr::getAxisMinSpeed();
+
+    AxisDir dir(S1, minSpeed);
+    if (dir != AxisDir::AXIS_NONE)
     {
+        gTimers.set(eTimer::S1_DOWN, t.norm());
+        gTimers.set(eTimer::S1_UP, TIMER_NEVER);
+        gSwitches.set(eSwitch::S1_DOWN, true);
+        _ttAxisDir[PLAYER_SLOT_1P] = dir;
         _ttAxisLastUpdate[PLAYER_SLOT_1P] = t;
-    }
-    if (S2 != 0)
-    {
-        _ttAxisLastUpdate[PLAYER_SLOT_2P] = t;
-    }
 
-    if (S1 > InputMgr::getAxisMinSpeed() && _ttAxisDir[PLAYER_SLOT_1P] != 1)
-    {
-        gTimers.set(eTimer::S1_DOWN, t.norm());
-        gTimers.set(eTimer::S1_UP, TIMER_NEVER);
-        gSwitches.set(eSwitch::S1_DOWN, true);
-        _ttAxisDir[PLAYER_SLOT_1P] = 1;
-
-        if (_currentKeySample[S1R])
-            keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S1R];
-    }
-    else if (S1 < -InputMgr::getAxisMinSpeed() && _ttAxisDir[PLAYER_SLOT_1P] != -1)
-    {
-        gTimers.set(eTimer::S1_DOWN, t.norm());
-        gTimers.set(eTimer::S1_UP, TIMER_NEVER);
-        gSwitches.set(eSwitch::S1_DOWN, true);
-        _ttAxisDir[PLAYER_SLOT_1P] = -1;
-
-        if (_currentKeySample[S1L])
+        if (dir == AxisDir::AXIS_UP && _currentKeySample[S1L])
             keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S1L];
+        if (dir == AxisDir::AXIS_DOWN && _currentKeySample[S1R])
+            keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S1R];
     }
     else if ((t - _ttAxisLastUpdate[PLAYER_SLOT_1P]).norm() > 133)
     {
-        gTimers.set(eTimer::S1_UP, t.norm());
         gTimers.set(eTimer::S1_DOWN, TIMER_NEVER);
+        gTimers.set(eTimer::S1_UP, t.norm());
         gSwitches.set(eSwitch::S1_DOWN, false);
         _ttAxisDir[PLAYER_SLOT_1P] = 0;
         _ttAxisLastUpdate[PLAYER_SLOT_1P] = TIMER_NEVER;
     }
 
-    if (S2 > InputMgr::getAxisMinSpeed() && _ttAxisDir[PLAYER_SLOT_2P] != 1)
+    dir = AxisDir(S2, minSpeed);
+    if (dir != AxisDir::AXIS_NONE)
     {
         gTimers.set(eTimer::S2_DOWN, t.norm());
         gTimers.set(eTimer::S2_UP, TIMER_NEVER);
         gSwitches.set(eSwitch::S2_DOWN, true);
-        _ttAxisDir[PLAYER_SLOT_2P] = 1;
+        _ttAxisDir[PLAYER_SLOT_2P] = dir;
+        _ttAxisLastUpdate[PLAYER_SLOT_2P] = t;
 
-        if (_currentKeySample[S2R])
-            keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S2R];
-    }
-    else if (S2 < -InputMgr::getAxisMinSpeed() && _ttAxisDir[PLAYER_SLOT_2P] != -1)
-    {
-        gTimers.set(eTimer::S2_DOWN, t.norm());
-        gTimers.set(eTimer::S2_UP, TIMER_NEVER);
-        gSwitches.set(eSwitch::S2_DOWN, true);
-        _ttAxisDir[PLAYER_SLOT_2P] = 1;
-
-        if (_currentKeySample[S2L])
+        if (dir == AxisDir::AXIS_UP && _currentKeySample[S2L])
             keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S2L];
+        if (dir == AxisDir::AXIS_DOWN && _currentKeySample[S2R])
+            keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S2R];
     }
     else if ((t - _ttAxisLastUpdate[PLAYER_SLOT_2P]).norm() > 133)
     {
-        gTimers.set(eTimer::S2_UP, t.norm());
         gTimers.set(eTimer::S2_DOWN, TIMER_NEVER);
+        gTimers.set(eTimer::S2_UP, t.norm());
         gSwitches.set(eSwitch::S2_DOWN, false);
         _ttAxisDir[PLAYER_SLOT_2P] = 0;
         _ttAxisLastUpdate[PLAYER_SLOT_2P] = TIMER_NEVER;

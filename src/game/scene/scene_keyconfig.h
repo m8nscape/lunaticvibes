@@ -24,7 +24,7 @@ protected:
     void inputGamePress(InputMask&, const Time&);
     void inputGamePressKeyboard(KeyboardMask&, const Time&);
 #ifdef RAWINPUT_AVAILABLE
-    std::map<int, std::map<int, KeyMap::AxisDir>> _riAxisDirPrev;
+    std::map<int, std::map<int, AxisDir>> _riAxisDirPrev;
     void inputGamePressRawinput(int deviceID, RawinputKeyMap& button, RawinputAxisSpeedMap& axisDiff, const Time&);
 #endif
 

@@ -650,14 +650,13 @@ void RulesetBMS::updateAxis(InputAxisPlus& m, const Time& t)
     if (gPlayContext.isAuto) return;
 
     using namespace Input;
-    std::array<size_t, 4> keySampleIdxBufScratch;
-    size_t sampleCount = 0;
 
     double S1 = 0;
     double S2 = 0;
     if (_k1P) S1 = -m[S1L].first + m[S1R].first;
     if (_k2P) S2 = -m[S2L].first + m[S2R].first;
 
+    double minSpeed = InputMgr::getAxisMinSpeed();
     auto Judge = [&](const Time& t, int val, Input::Pad up, Input::Pad dn, int slot)
     {
         auto Press = [&](Input::Pad k)
@@ -666,7 +665,7 @@ void RulesetBMS::updateAxis(InputAxisPlus& m, const Time& t)
             if (cat != NoteLaneCategory::_)
             {
                 auto n = _chart->incomingNote(cat, idx);
-                _judgePress(cat, idx, *n, _judge(*n, rt), t, PLAYER_SLOT_1P);
+                _judgePress(cat, idx, *n, _judge(*n, rt), t, slot);
             }
         };
         auto Hold = [&](Input::Pad k)
@@ -688,49 +687,59 @@ void RulesetBMS::updateAxis(InputAxisPlus& m, const Time& t)
                 if (_bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
                     gTimers.set(_bombLNTimerMap->at(idx), TIMER_NEVER);
 
-                _judgeRelease(cat, idx, *n, _judge(*n, rt), t, PLAYER_SLOT_1P);
+                _judgeRelease(cat, idx, *n, _judge(*n, rt), t, slot);
             }
         };
 
-        if (val != 0) _ttAxisLastUpdate[slot] = t;
-
-        if (val > InputMgr::getAxisMinSpeed())
+        if (val > minSpeed)
         {
             // down
-            if (_scratchDir[slot] != 1)
+            switch (_scratchDir[slot])
             {
-                if (_scratchDir[slot] == -1) Release(up);
+            case AxisDir::AXIS_DOWN: 
+                Hold(dn); 
+                break;
+            case AxisDir::AXIS_UP:
+                Release(up);
+                [[fallthrough]];
+            case AxisDir::AXIS_NONE:
                 Press(dn);
+                break;
             }
-            else
-            {
-                Hold(dn);
-            }
-            _scratchDir[slot] = 1;
+            _scratchDir[slot] = AxisDir::AXIS_DOWN;
+            _ttAxisLastUpdate[slot] = t;
         }
-        else if (val < -InputMgr::getAxisMinSpeed())
+        else if (val < -minSpeed)
         {
             // up
-            if (_scratchDir[slot] != -1)
+            switch (_scratchDir[slot])
             {
-                if (_scratchDir[slot] == 1) Release(dn);
-                Press(up);
-            }
-            else
-            {
+            case AxisDir::AXIS_UP:
                 Hold(up);
+                break;
+            case AxisDir::AXIS_DOWN:
+                Release(dn);
+                [[fallthrough]];
+            case AxisDir::AXIS_NONE:
+                Press(up);
+                break;
             }
-            _scratchDir[slot] = -1;
+            _scratchDir[slot] = AxisDir::AXIS_UP;
+            _ttAxisLastUpdate[slot] = t;
         }
         else if ((t - _ttAxisLastUpdate[slot]).norm() > 133)
         {
             // release
-            if (_scratchDir[slot] != 0)
+            switch (_scratchDir[slot])
             {
-                if (_scratchDir[slot] == -1) Release(up);
-                if (_scratchDir[slot] == 1) Release(dn);
+            case AxisDir::AXIS_UP:
+                Release(up);
+                break;
+            case AxisDir::AXIS_DOWN:
+                Release(dn);
+                break;
             }
-            _scratchDir[slot] = 0;
+            _scratchDir[slot] = AxisDir::AXIS_NONE;
             _ttAxisLastUpdate[slot] = TIMER_NEVER;
         }
     };
