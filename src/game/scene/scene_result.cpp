@@ -6,7 +6,7 @@
 #include "game/sound/sound_mgr.h"
 #include "game/sound/sound_sample.h"
 
-SceneResult::SceneResult(ePlayMode gamemode) : vScene(eMode::RESULT, 1000), _mode(gamemode)
+SceneResult::SceneResult(ePlayMode gamemode) : vScene(eMode::RESULT, 1000), _playmode(gamemode)
 {
     _inputAvailable = INPUT_MASK_FUNC;
 
@@ -52,6 +52,8 @@ SceneResult::SceneResult(ePlayMode gamemode) : vScene(eMode::RESULT, 1000), _mod
         else                             gOptions.queue(eOption::RESULT_RANK_2P, Option::RANK_8);
     }
 
+    // TODO set chart info (total notes, etc.)
+
     gOptions.flush();
 
     // TODO compare to db record
@@ -96,7 +98,7 @@ SceneResult::SceneResult(ePlayMode gamemode) : vScene(eMode::RESULT, 1000), _mod
     // Moved to play
     //gSwitches.set(eSwitch::RESULT_CLEAR, cleared);
 
-    if (_mode != ePlayMode::LOCAL_BATTLE && !gChartContext.hash.empty())
+    if (_playmode != ePlayMode::LOCAL_BATTLE && !gChartContext.hash.empty())
     {
         _pScoreOld = g_pScoreDB->getChartScoreBMS(gChartContext.hash);
     }
@@ -182,7 +184,7 @@ void SceneResult::updateFadeout()
         SoundMgr::stopKeySamples();
 
         // save score
-        if (_mode != ePlayMode::LOCAL_BATTLE && !gChartContext.hash.empty())
+        if (_playmode != ePlayMode::LOCAL_BATTLE && !gChartContext.hash.empty())
         {
             assert(gPlayContext.ruleset[PLAYER_SLOT_1P] != nullptr);
             ScoreBMS score;

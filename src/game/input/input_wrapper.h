@@ -51,7 +51,6 @@ public:
     unsigned release_delay_ms = 5;
 private:
 	std::shared_mutex _inputMutex;
-    bool _busy = false;
 
 protected:
     std::array<std::pair<long long, bool>, Input::KEY_COUNT> _inputBuffer{ {{0, false}} };

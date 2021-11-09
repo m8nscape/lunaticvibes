@@ -25,10 +25,14 @@ private:
 private:
     ePlayState _state;
     InputMask _inputAvailable;
+    std::vector<size_t> _currentKeySample;
 
 private:
-    ePlayMode _mode;
-    std::vector<size_t> _currentKeySample;
+    ePlayMode _playmode;
+protected:
+    bool isPlaymodeSingle() const;
+    bool isPlaymodeBattle() const;
+    bool isPlaymodeAuto() const;
 
 private:
     bool _isHoldingStart[2] = { false };

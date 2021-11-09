@@ -19,7 +19,7 @@ private:
     InputMask _inputAvailable;
 
 protected:
-    ePlayMode _mode;
+    ePlayMode _playmode;
     bool _scoreSyncFinished = false;
     bool _retryRequested = false;
     std::shared_ptr<vScore> _pScoreOld;
