@@ -183,10 +183,12 @@ bool vSprite::update(const Time& t)
     _draw = updateByKeyframes(t);
 
     auto updateChildLambda = [&t](std::weak_ptr<vSprite> p) { if (!p.expired()) p.lock()->update(t); };
+
+    // children under the same level can be shuffled
 #ifdef _DEBUG
-    std::for_each(std::execution::seq, _children.begin(), _children.end(), updateChildLambda);
+    std::for_each(std::execution::par_unseq, _children.begin(), _children.end(), updateChildLambda);
 #else
-    std::for_each(std::execution::seq, _children.begin(), _children.end(), updateChildLambda);
+    std::for_each(std::execution::par_unseq, _children.begin(), _children.end(), updateChildLambda);
 #endif
 
     return _draw;
