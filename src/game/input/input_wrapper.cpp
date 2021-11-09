@@ -133,7 +133,7 @@ void InputWrapper::_loop()
                     callback(r, now);
             
             auto a = InputMgr::detectRelativeAxis();
-            if (!a.empty())
+            //if (!a.empty())
                 for (auto& [cbname, callback] : _aCallbackMap)
                     callback(a, now);
         }

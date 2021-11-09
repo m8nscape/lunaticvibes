@@ -96,7 +96,7 @@ void AsyncLooper::loopEnd()
     if (_running)
     {
         _running = false;
-        if (DeleteTimerQueueTimer(NULL, handler, INVALID_HANDLE_VALUE))
+        if (DeleteTimerQueueTimer(NULL, handler, NULL))
         {
             // ..?
         }

@@ -29,7 +29,7 @@ private:
     std::array<std::array<KeyMap, MAX_BINDINGS_PER_KEY>, Input::ESC> padBindings{};
 	int mouse_x = 0, mouse_y = 0;
 	int analogDeadZone = 25;
-    double axisMinSpeed = 0.002;
+    double axisMinSpeed = 0.001;
     eAxisMode axisMode = eAxisMode::AXIS_NORMAL;
 
 public:

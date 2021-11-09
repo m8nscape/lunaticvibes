@@ -1181,8 +1181,8 @@ void ScenePlay::inputGameAxis(InputAxisPlus& m, const Time& t)
     if (true)
     {
         _ttAngleDiff[PLAYER_SLOT_1P] += S1 * 360;
-        if (_isHoldingStart[PLAYER_SLOT_1P] && _isHoldingSelect[PLAYER_SLOT_1P] ||
-            isPlaymodeSingle() && _isHoldingStart[PLAYER_SLOT_2P] && _isHoldingSelect[PLAYER_SLOT_2P])
+        if (_isHoldingStart[PLAYER_SLOT_1P] && !_isHoldingSelect[PLAYER_SLOT_1P] ||
+            isPlaymodeSingle() && _isHoldingStart[PLAYER_SLOT_2P] && !_isHoldingSelect[PLAYER_SLOT_2P])
         {
             // lanecover 1P
             int lanecoverPrev = gNumbers.get(eNumber::LANECOVER_1P);
@@ -1196,7 +1196,7 @@ void ScenePlay::inputGameAxis(InputAxisPlus& m, const Time& t)
     if (!isPlaymodeSingle())
     {
         _ttAngleDiff[PLAYER_SLOT_2P] += S2 * 360;
-        if (_isHoldingStart[PLAYER_SLOT_2P] && _isHoldingSelect[PLAYER_SLOT_2P])
+        if (_isHoldingStart[PLAYER_SLOT_2P] && !_isHoldingSelect[PLAYER_SLOT_2P])
         {
             // lanecover 2P
             int lanecoverPrev = gNumbers.get(eNumber::LANECOVER_2P);
@@ -1211,11 +1211,14 @@ void ScenePlay::inputGameAxis(InputAxisPlus& m, const Time& t)
     AxisDir dir(S1, minSpeed);
     if (dir != AxisDir::AXIS_NONE)
     {
+        _ttAxisLastUpdate[PLAYER_SLOT_1P] = t;
+    }
+    if (dir != AxisDir::AXIS_NONE && dir != _ttAxisDir[PLAYER_SLOT_1P])
+    {
         gTimers.set(eTimer::S1_DOWN, t.norm());
         gTimers.set(eTimer::S1_UP, TIMER_NEVER);
         gSwitches.set(eSwitch::S1_DOWN, true);
         _ttAxisDir[PLAYER_SLOT_1P] = dir;
-        _ttAxisLastUpdate[PLAYER_SLOT_1P] = t;
 
         if (dir == AxisDir::AXIS_UP && _currentKeySample[S1L])
             keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S1L];
@@ -1234,11 +1237,14 @@ void ScenePlay::inputGameAxis(InputAxisPlus& m, const Time& t)
     dir = AxisDir(S2, minSpeed);
     if (dir != AxisDir::AXIS_NONE)
     {
+        _ttAxisLastUpdate[PLAYER_SLOT_2P] = t;
+    }
+    if (dir != AxisDir::AXIS_NONE && dir != _ttAxisDir[PLAYER_SLOT_2P])
+    {
         gTimers.set(eTimer::S2_DOWN, t.norm());
         gTimers.set(eTimer::S2_UP, TIMER_NEVER);
         gSwitches.set(eSwitch::S2_DOWN, true);
         _ttAxisDir[PLAYER_SLOT_2P] = dir;
-        _ttAxisLastUpdate[PLAYER_SLOT_2P] = t;
 
         if (dir == AxisDir::AXIS_UP && _currentKeySample[S2L])
             keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S2L];

@@ -221,11 +221,11 @@ private:
 
 public:
     AxisDir() : dir(AXIS_NONE) {}
-    AxisDir(int val, int minVal = 0)
+    AxisDir(double val, double minVal = 0)
     {
         if (val > minVal)
             dir = AXIS_DOWN;
-        else if (val < minVal)
+        else if (val < -minVal)
             dir = AXIS_UP;
         else
             dir = AXIS_NONE;

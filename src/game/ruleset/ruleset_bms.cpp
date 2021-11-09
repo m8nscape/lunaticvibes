@@ -657,7 +657,7 @@ void RulesetBMS::updateAxis(InputAxisPlus& m, const Time& t)
     if (_k2P) S2 = -m[S2L].first + m[S2R].first;
 
     double minSpeed = InputMgr::getAxisMinSpeed();
-    auto Judge = [&](const Time& t, int val, Input::Pad up, Input::Pad dn, int slot)
+    auto Judge = [&](const Time& t, double val, Input::Pad up, Input::Pad dn, int slot)
     {
         auto Press = [&](Input::Pad k)
         {
@@ -697,17 +697,20 @@ void RulesetBMS::updateAxis(InputAxisPlus& m, const Time& t)
             switch (_scratchDir[slot])
             {
             case AxisDir::AXIS_DOWN: 
-                Hold(dn); 
+                Hold(dn);
+                _ttAxisLastUpdate[slot] = t;
                 break;
             case AxisDir::AXIS_UP:
                 Release(up);
-                [[fallthrough]];
+                Press(dn);
+                _ttAxisLastUpdate[slot] = t;
+                break;
             case AxisDir::AXIS_NONE:
+                Release(up);
                 Press(dn);
                 break;
             }
             _scratchDir[slot] = AxisDir::AXIS_DOWN;
-            _ttAxisLastUpdate[slot] = t;
         }
         else if (val < -minSpeed)
         {
@@ -716,16 +719,19 @@ void RulesetBMS::updateAxis(InputAxisPlus& m, const Time& t)
             {
             case AxisDir::AXIS_UP:
                 Hold(up);
+                _ttAxisLastUpdate[slot] = t;
                 break;
             case AxisDir::AXIS_DOWN:
                 Release(dn);
-                [[fallthrough]];
+                Press(up);
+                _ttAxisLastUpdate[slot] = t;
+                break;
             case AxisDir::AXIS_NONE:
+                Release(dn);
                 Press(up);
                 break;
             }
             _scratchDir[slot] = AxisDir::AXIS_UP;
-            _ttAxisLastUpdate[slot] = t;
         }
         else if ((t - _ttAxisLastUpdate[slot]).norm() > 133)
         {
