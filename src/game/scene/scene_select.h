@@ -36,6 +36,7 @@ private:
     long long scrollTimestamp = -1;
     bool isHoldingUp = false;
     bool isHoldingDown = false;
+    bool isScrollingByAxis = false;
 
 public:
     SceneSelect();

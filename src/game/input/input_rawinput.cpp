@@ -235,15 +235,15 @@ bool RIMgr::updateJoystick(RAWINPUT* ri)
 	}
 
 	// axis
-	using AXIS = std::pair<USAGE, ULONG>;
+	using AXIS = std::pair<USAGE, LONG>;
 	bool hasAxis = devInfo.axisCount > 0;
 	AXIS* axisVals = (AXIS*)Allocate((sizeof(AXIS) * devInfo.axisCount));
 	for (int i = 0; i < devInfo.axisCount; i++)
 	{
-		ULONG value;
+		LONG value;
 		USAGE axisIdx = valCaps[i].Range.UsageMin;
 		axisVals[i].first = axisIdx;
-		if (HidP_GetUsageValue(HidP_Input, valCaps[i].UsagePage, 0, axisIdx, &axisVals[i].second, preparsedData, (PCHAR)ri->data.hid.bRawData, ri->data.hid.dwSizeHid) != HIDP_STATUS_SUCCESS)
+		if (HidP_GetScaledUsageValue(HidP_Input, valCaps[i].UsagePage, 0, axisIdx, &axisVals[i].second, preparsedData, (PCHAR)ri->data.hid.bRawData, ri->data.hid.dwSizeHid) != HIDP_STATUS_SUCCESS)
 		{
 			hasAxis = false;
 			break;
@@ -269,7 +269,11 @@ bool RIMgr::updateJoystick(RAWINPUT* ri)
 			for (int i = 0; i < devInfo.axisCount; i++)
 			{
 				auto& [axisIdx, axisVal] = axisVals[i];
-				double newVal = (axisVal - valCaps[i].LogicalMin) / (valCaps[i].LogicalMax - valCaps[i].LogicalMin);
+				double newVal = 0;
+				if ((valCaps[i].PhysicalMax - valCaps[i].PhysicalMin) > 0)
+					newVal = double(axisVal - valCaps[i].PhysicalMin) / (valCaps[i].PhysicalMax - valCaps[i].PhysicalMin);
+				else if ((valCaps[i].LogicalMax - valCaps[i].LogicalMin) > 0)
+					newVal = double(axisVal - valCaps[i].LogicalMin) / (valCaps[i].LogicalMax - valCaps[i].LogicalMin);
 				if (deviceAxis[deviceID].find(axisIdx) != deviceAxis[deviceID].end())
 				{
 					auto& [oldTime, oldVal] = deviceAxis[deviceID][axisIdx];

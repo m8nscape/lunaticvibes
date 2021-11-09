@@ -982,14 +982,16 @@ void SceneSelect::inputGameAxisSelect(InputAxisPlus& input, const Time& t)
     }
     double navVal = -navUp + navDn;
     double navValAbs = std::abs(navVal);
-    if (!isHoldingUp && !isHoldingDown)
-    {
-        gSelectContext.scrollTime = 200 / navValAbs;
-    }
     if (navValAbs >= InputMgr::getAxisMinSpeed())
     {
+        if (!isHoldingUp && !isHoldingDown && !isScrollingByAxis)
+        {
+            gSelectContext.scrollTime = 800 / (navValAbs * 1000);
+            isScrollingByAxis = true;
+        }
         if (t.norm() - scrollTimestamp >= gSelectContext.scrollTime)
         {
+            isScrollingByAxis = false;
             scrollTimestamp = t.norm();
             if (navVal > 0)
                 _navigateDownBy1(t);
