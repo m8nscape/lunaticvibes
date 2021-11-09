@@ -375,7 +375,6 @@ public:
     };
 
     typedef int DeviceID;
-    typedef int AxisDir;    // -1: negative / 1: positive
 
 protected:
     DeviceType type = DeviceType::UNDEF;

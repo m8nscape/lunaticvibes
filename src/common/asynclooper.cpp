@@ -15,18 +15,15 @@ AsyncLooper::AsyncLooper(std::function<void()> func, unsigned rate_per_sec, bool
 AsyncLooper::~AsyncLooper()
 {
     loopEnd();
-
-    // wait for callback end
-    std::unique_lock<decltype(_loopMutex)> _lock(_loopMutex);
 }
 
 void AsyncLooper::run()
 {
-    std::unique_lock<decltype(_loopMutex)> _lock(_loopMutex, std::defer_lock);
-    if (_lock.try_lock())
+    if (_running && !_inLoopBody)
     {
-        if (_running)
-            _loopFuncBody();
+        _inLoopBody = true;
+        _loopFuncBody();
+        _inLoopBody = false;
     }
 }
 
@@ -77,7 +74,6 @@ void AsyncLooper::loopStart()
 {
     if (!_running)
     {
-        std::unique_lock<decltype(_loopMutex)> _lock(_loopMutex);
         _loopFuncBody = _loopFunc;
         _running = CreateTimerQueueTimer(
             &handler,
@@ -100,7 +96,7 @@ void AsyncLooper::loopEnd()
     if (_running)
     {
         _running = false;
-        if (DeleteTimerQueueTimer(NULL, handler, NULL))
+        if (DeleteTimerQueueTimer(NULL, handler, INVALID_HANDLE_VALUE))
         {
             // ..?
         }

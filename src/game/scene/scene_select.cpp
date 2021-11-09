@@ -652,6 +652,18 @@ void SceneSelect::updatePrepare()
         gTimers.set(eTimer::LIST_MOVE, t.norm());
         gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());
 
+        // restore panel stat
+        for (int i = 1; i <= 9; ++i)
+        {
+            eSwitch p = static_cast<eSwitch>(int(eSwitch::SELECT_PANEL1) - 1 + i);
+            if (gSwitches.get(p))
+            {
+                eTimer tm = static_cast<eTimer>(int(eTimer::PANEL1_START) - 1 + i);
+                gTimers.set(tm, t.norm());
+                SoundMgr::playSample(eSoundSample::SOUND_O_OPEN);
+            }
+        }
+
         LOG_DEBUG << "[Select] State changed to SELECT";
     }
 }

@@ -17,7 +17,7 @@ std::string KeyMap::toString() const
 
 bool KeyMap::isAxis() const { assert(type == DeviceType::JOYSTICK || type == DeviceType::RAWINPUT); return !!(code & 0x40000000); }
 unsigned KeyMap::getAxis() const { return isAxis() ? (code & ~0x70000000) : 0; }
-KeyMap::AxisDir KeyMap::getAxisDir() const { return isAxis() ? ((code & 0x20000000) ? 1 : -1) : 0; }
+AxisDir KeyMap::getAxisDir() const { return isAxis() ? ((code & 0x20000000) ? 1 : -1) : 0; }
 
 void KeyMap::setKeyboard(Input::Keyboard kb)
 {
@@ -34,13 +34,13 @@ void KeyMap::setRawInputKey(int deviceID, int code)
 }
 
 
-void KeyMap::setRawInputAxis(int deviceID, int idx, KeyMap::AxisDir direction)
+void KeyMap::setRawInputAxis(int deviceID, int idx, AxisDir direction)
 {
     type = DeviceType::RAWINPUT;
     device = deviceID;
     this->code = idx & 0x7fffffff;
     this->code |= 0x40000000;
-    if (direction > 0) this->code |= 0x20000000;
+    if (direction == AxisDir::AXIS_DOWN) this->code |= 0x20000000;
 }
 
 void KeyMap::fromString(const std::string_view& name)

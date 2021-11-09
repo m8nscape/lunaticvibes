@@ -220,10 +220,8 @@ void SceneKeyConfig::inputGamePressRawinput(int deviceID, RawinputKeyMap& button
                 continue;
             }
 
-            KeyMap::AxisDir dir = speed > 0 ? 1 : -1;
-            double val = std::abs(speed);
-
-            if (val > InputMgr::getAxisMinSpeed() && _riAxisDirPrev[deviceID][axis] != dir)
+            AxisDir dir(speed);
+            if (std::abs(speed) > InputMgr::getAxisMinSpeed() && _riAxisDirPrev[deviceID][axis] != dir)
             {
                 _riAxisDirPrev[deviceID][axis] = dir;
                 GameModeKeys keys = gKeyconfigContext.keys;

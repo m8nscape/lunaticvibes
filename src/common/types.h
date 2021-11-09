@@ -55,9 +55,9 @@ enum class eMode {
 
 enum class ePlayMode
 {
-    SINGLE,         // also includes DP
+    SINGLE,         // means "Single Player Mode", so DP is also included
     LOCAL_BATTLE,   // separate chart objects are required
-    AUTO,           // do not save score and result
+    AUTO,           // do not save score, replay and result
     AUTO_BATTLE,    // AUTO + LOCAL_BATTLE
     REPLAY,         // do not save score
 };
@@ -207,4 +207,28 @@ public:
     unsigned rival = 3; // win / lose / draw / noplay
     double rival_rate = 0;
     Lamp rival_lamp;
+};
+
+class AxisDir
+{
+public:
+    static constexpr int AXIS_UP = -1;
+    static constexpr int AXIS_NONE = 0;
+    static constexpr int AXIS_DOWN = 1;
+
+private:
+    int dir;
+
+public:
+    AxisDir() : dir(AXIS_NONE) {}
+    AxisDir(int val, int minVal = 0)
+    {
+        if (val > minVal)
+            dir = AXIS_DOWN;
+        else if (val < minVal)
+            dir = AXIS_UP;
+        else
+            dir = AXIS_NONE;
+    }
+    operator int() const { return dir; }
 };

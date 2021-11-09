@@ -36,9 +36,9 @@ void vSkin::update()
     };
 
 #ifdef _DEBUG
-	std::for_each(std::execution::seq, _sprites.begin(), _sprites.end(), updateSpriteLambda);
+	std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), updateSpriteLambda);
 #else
-    std::for_each(std::execution::seq, _sprites.begin(), _sprites.end(), updateSpriteLambda);
+    std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), updateSpriteLambda);
 #endif
 }
 
@@ -57,9 +57,9 @@ void vSkin::update_mouse(int x, int y)
     };
 
 #ifdef _DEBUG
-        std::for_each(std::execution::seq, _sprites.begin(), _sprites.end(), clickSpriteLambda);
+        std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), clickSpriteLambda);
 #else
-        std::for_each(std::execution::seq, _sprites.begin(), _sprites.end(), clickSpriteLambda);
+        std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), clickSpriteLambda);
 #endif
 }
 
