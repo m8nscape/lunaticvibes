@@ -35,6 +35,15 @@ void SetThreadNameWin32(DWORD dwThreadID, const char* threadName) {
     __except (EXCEPTION_EXECUTE_HANDLER) {
     }
 #pragma warning(pop)  
+
+    int num_chars;
+    num_chars = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, threadName, -1, NULL, 0);
+    if (num_chars > 0)
+    {
+        WCHAR threadNameW[256] = { 0 };
+        MultiByteToWideChar(CP_UTF8, 0, threadName, -1, threadNameW, std::min(256, num_chars));
+        SetThreadDescription(GetCurrentThread(), threadNameW);
+    }
 }
 
 [[noreturn]] inline void panicWin32(const char* title, const char* msg)
