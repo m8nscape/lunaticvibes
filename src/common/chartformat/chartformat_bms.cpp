@@ -220,13 +220,14 @@ int BMS::initWithFile(const Path& file)
                     if (std::regex_match(key, std::regex(R"(\d{3}[0-9A-Za-z]{2})")))
                     {
                         unsigned measure = toInt(key.substr(0, 3));
-                        if (lastBarIdx < measure)
-                            lastBarIdx = measure;
-                        std::pair channel = { base36(key[3]), base36(key[4]) };
-                        switch (channel.first)
+                        if (lastBarIdx < measure) lastBarIdx = measure;
+
+                        int layer = base36(key[3]);
+                        int ch = base36(key[4]);
+
+                        if (layer == 0) // 0x: basic info
                         {
-                        case 0:            // 0x: basic info
-                            switch (channel.second)
+                            switch (ch)
                             {
                             case 1:            // 01: BGM
                                 if (bgmLayersCount[measure] >= chBGM.size())
@@ -278,26 +279,33 @@ int BMS::initWithFile(const Path& file)
                             }
                             break;
 
-                        case 1:            // 1x: 1P visible
-                        case 2:            // 2x: 2P visible
-                            strToNoteLaneDispatcher(chNotesVisible, measure, channel.first, channel.second, value);
-                            haveNote = true;
-                            break;
-                        case 3:            // 3x: 1P invisible
-                        case 4:            // 4x: 2P invisible
-                            strToNoteLaneDispatcher(chNotesInvisible, measure, channel.first, channel.second, value);
-                            haveInvisible = true;
-                            break;
-                        case 5:            // 5x: 1P LN
-                        case 6:            // 6x: 2P LN
-                            strToNoteLaneDispatcher(chNotesLN, measure, channel.first, channel.second, value);
-                            haveLN = true;
-                            break;
-                        case 0xD:        // Dx: 1P mine
-                        case 0xE:        // Ex: 2P mine
-                            strToNoteLaneDispatcher(chMines, measure, channel.first, channel.second, value);
-                            haveMine = true;
-                            break;
+                        }
+                        else
+                        {
+                            auto [area, idx] = normalizeIndexesBME(layer, ch);
+                            switch (layer)
+                            {
+                            case 1:            // 1x: 1P visible
+                            case 2:            // 2x: 2P visible
+                                strToLane36(chNotesRegular.lanes[area][idx][measure], value);
+                                haveNote = true;
+                                break;
+                            case 3:            // 3x: 1P invisible
+                            case 4:            // 4x: 2P invisible
+                                strToLane36(chNotesInvisible.lanes[area][idx][measure], value);
+                                haveInvisible = true;
+                                break;
+                            case 5:            // 5x: 1P LN
+                            case 6:            // 6x: 2P LN
+                                strToLane36(chNotesLN.lanes[area][idx][measure], value);
+                                haveLN = true;
+                                break;
+                            case 0xD:        // Dx: 1P mine
+                            case 0xE:        // Ex: 2P mine
+                                strToLane36(chMines.lanes[area][idx][measure], value);
+                                haveMine = true;
+                                break;
+                            }
                         }
                     }
                 }
@@ -332,72 +340,77 @@ int BMS::initWithFile(const Path& file)
         if (barLength[i] == 0.0)
             barLength[i] = 1.0;
 
-    for (size_t ch = 0; ch < 20; ++ch)
+    // pick LNs out of notes for each lane
+    for (int area = 0; area < 2; ++area)
     {
-        decltype(chNotesVisible[ch][0].notes.begin()) it_head;
-        decltype(&chNotesVisible[ch][0].notes) notes_head = nullptr;
-        unsigned res_head = 1;
-        unsigned m_head = 0;
-        unsigned m = 0;
-        for (; m <= lastBarIdx; m++)
+        for (size_t ch = 0; ch < PlayAreaLanes::LANE_COUNT; ++ch)
         {
-            if (!chNotesVisible[ch][m].notes.empty())
-            {
-                notes_head = &chNotesVisible[ch][m].notes;
-                it_head = notes_head->begin();
-                res_head = chNotesVisible[ch][m].resolution;
-                m_head = m;
-                break;
-            }
-        }
-        if (!notes_head) continue;
+            decltype(chNotesRegular.lanes[0][ch][0].notes.begin()) it_head;
+            decltype(&chNotesRegular.lanes[0][ch][0].notes) notes_head = nullptr;
+            unsigned resolution_head = 1;
+            unsigned bar_head = 0;
+            unsigned bar_curr = 0;
 
-        for (; m <= lastBarIdx; m++)
-        {
-            auto& notes_tail = chNotesVisible[ch][m].notes;
-            unsigned res_tail = chNotesVisible[ch][m].resolution;
-            if (notes_tail.empty()) continue;
-
-            auto it_tail = notes_tail.begin();
-            while (it_tail != notes_tail.end())
+            // find next LN head
+            for (; bar_curr <= lastBarIdx; bar_curr++)
             {
-                if (notes_head && it_head == notes_head->end())
+                if (!chNotesRegular.lanes[area][ch][bar_curr].notes.empty())
                 {
-                    notes_head = &notes_tail;
+                    notes_head = &chNotesRegular.lanes[area][ch][bar_curr].notes;
                     it_head = notes_head->begin();
-                    res_head = res_tail;
-                    m_head = m;
+                    resolution_head = chNotesRegular.lanes[area][ch][bar_curr].resolution;
+                    bar_head = bar_curr;
+                    break;
                 }
+            }
+            if (!notes_head) continue;
 
-                if (notes_head == &notes_tail && it_head == it_tail)
-                {
-                    ++it_tail;
-                    continue;
-                }
+            // find next LN note as LN tail
+            for (; bar_curr <= lastBarIdx; bar_curr++)
+            {
+                auto& notes_tail = chNotesRegular.lanes[area][ch][bar_curr].notes;
+                unsigned res_tail = chNotesRegular.lanes[area][ch][bar_curr].resolution;
+                if (notes_tail.empty()) continue;
 
-                if (lnobjSet.count(it_tail->value))
+                auto it_tail = notes_tail.begin();
+                while (it_tail != notes_tail.end())
                 {
-                    unsigned pow1 = chNotesLN[ch][m_head].relax(res_head) / res_head;
-                    it_head->segment *= pow1;
-                    chNotesLN[ch][m_head].notes.push_back(*it_head);
-                    auto tmp1 = it_head++;
-                    notes_head->erase(tmp1);
+                    if (notes_head && it_head == notes_head->end())
+                    {
+                        notes_head = &notes_tail;
+                        it_head = notes_head->begin();
+                        resolution_head = res_tail;
+                        bar_head = bar_curr;
+                    }
 
                     if (notes_head == &notes_tail && it_head == it_tail)
+                    {
+                        ++it_tail;
+                        continue;
+                    }
+
+                    if (lnobjSet.count(it_tail->value) > 0)
+                    {
+                        it_head->segment *= chNotesLN.lanes[area][ch][bar_head].relax(resolution_head) / resolution_head;
+                        chNotesLN.lanes[area][ch][bar_head].notes.push_back(*it_head);
+                        auto tmp1 = it_head++;
+                        notes_head->erase(tmp1);
+
+                        if (notes_head == &notes_tail && it_head == it_tail)
+                            ++it_head;
+
+                        it_tail->segment *= chNotesLN.lanes[area][ch][bar_curr].relax(res_tail) / res_tail;
+                        chNotesLN.lanes[area][ch][bar_curr].notes.push_back(*it_tail);
+                        auto tmp2 = it_tail++;
+                        notes_tail.erase(tmp2);
+
+                        haveLN = true;
+                    }
+                    else
+                    {
                         ++it_head;
-
-                    unsigned pow2 = chNotesLN[ch][m].relax(res_tail) / res_tail;
-                    it_tail->segment *= pow2;
-                    chNotesLN[ch][m].notes.push_back(*it_tail);
-                    auto tmp2 = it_tail++;
-                    notes_tail.erase(tmp2);
-
-                    haveLN = true;
-                }
-                else
-                {
-                    ++it_head;
-                    ++it_tail;
+                        ++it_tail;
+                    }
                 }
             }
         }
@@ -405,17 +418,19 @@ int BMS::initWithFile(const Path& file)
 
     // Get statistics
     if (haveNote)
-    for (const auto& chs : chNotesVisible)
-        for (unsigned m = 0; m <= lastBarIdx; m++)
-            for (const auto& ns : chs[m].notes)
-                notes++;
+    {
+        for (int area = 0; area < 2; ++area)
+            for (const auto& ch : chNotesRegular.lanes[area])
+                for (unsigned bar = 0; bar <= lastBarIdx; bar++)
+                    notes += ch[bar].notes.size();
+    }
 
     if (haveLN)
     {
-        for (const auto& chs : chNotesLN)
-            for (unsigned m = 0; m <= lastBarIdx; m++)
-                for (const auto& ns : chs[m].notes)
-                    notes_ln++;
+        for (int area = 0; area < 2; ++area)
+            for (const auto& ch : chNotesLN.lanes[area])
+                for (unsigned bar = 0; bar <= lastBarIdx; bar++)
+                    notes_ln += ch[bar].notes.size();
         notes += notes_ln / 2;
     }
 
@@ -480,23 +495,24 @@ int BMS::strToLane16(channel& ch, const StringContent& str)
     return 0;
 }
 
-int BMS::strToNoteLaneDispatcher(decltype(chNotesVisible)& arrCh, int measure, int layer, int ch, const StringContent& str)
+std::pair<int, int> BMS::normalizeIndexesBME(int layer, int ch)
 {
+    int area = 0;
     int idx = 0;
     switch (layer)
     {
-        case 1:            // 1x: 1P visible
-        case 3:            // 3x: 1P invisible
-        case 5:            // 5x: 1P LN
-        case 0xD:        // Dx: 1P mine
-            idx = 0;
-            break;
-        case 2:            // 2x: 2P visible
-        case 4:            // 4x: 2P invisible
-        case 6:            // 6x: 2P LN
-        case 0xE:        // Ex: 2P mine
-            idx = 10;
-            break;
+    case 1:            // 1x: 1P visible
+    case 3:            // 3x: 1P invisible
+    case 5:            // 5x: 1P LN
+    case 0xD:        // Dx: 1P mine
+        area = 0;
+        break;
+    case 2:            // 2x: 2P visible
+    case 4:            // 4x: 2P invisible
+    case 6:            // 6x: 2P LN
+    case 0xE:        // Ex: 2P mine
+        area = 1;
+        break;
     }
     switch (ch)
     {
@@ -505,21 +521,22 @@ int BMS::strToNoteLaneDispatcher(decltype(chNotesVisible)& arrCh, int measure, i
     case 3:
     case 4:
     case 5:
-        idx += ch;
+        idx = ch;
         break;
     case 6:        //SCR
+        idx = 0;
         break;
     case 8:        //6
     case 9:        //7
         have67 = true;
-        idx += 6 + ch - 8;
+        idx = 6 + (ch - 8);
         break;
     case 7:        //9 of PMS BME
         have89 = true;
         idx = 9;
         break;
     }
-    return strToLane36(arrCh[idx][measure], str);
+    return { area, idx };
 }
 
 std::string BMS::getError()
@@ -554,14 +571,14 @@ auto BMS::getLane(LaneCode code, unsigned chIdx, unsigned measureIdx) const -> c
     case eC::BGABASE:      return chBGABase[measureIdx]; break;
     case eC::BGALAYER:     return chBGALayer[measureIdx]; break;
     case eC::BGAPOOR:      return chBGAPoor[measureIdx]; break;;
-    case eC::NOTE1:        return chNotesVisible[chIdx][measureIdx]; break;
-    case eC::NOTE2:        return chNotesVisible[10 + chIdx][measureIdx]; break;
-    case eC::NOTEINV1:     return chNotesInvisible[chIdx][measureIdx]; break;
-    case eC::NOTEINV2:     return chNotesInvisible[10 + chIdx][measureIdx]; break;
-    case eC::NOTELN1:      return chNotesLN[chIdx][measureIdx]; break;
-    case eC::NOTELN2:      return chNotesLN[10 + chIdx][measureIdx]; break;
-    case eC::NOTEMINE1:    return chMines[chIdx][measureIdx]; break;
-    case eC::NOTEMINE2:    return chMines[10 + chIdx][measureIdx]; break;
+    case eC::NOTE1:        return chNotesRegular.lanes[0][chIdx][measureIdx]; break;
+    case eC::NOTE2:        return chNotesRegular.lanes[1][chIdx][measureIdx]; break;
+    case eC::NOTEINV1:     return chNotesInvisible.lanes[0][chIdx][measureIdx]; break;
+    case eC::NOTEINV2:     return chNotesInvisible.lanes[1][chIdx][measureIdx]; break;
+    case eC::NOTELN1:      return chNotesLN.lanes[0][chIdx][measureIdx]; break;
+    case eC::NOTELN2:      return chNotesLN.lanes[1][chIdx][measureIdx]; break;
+    case eC::NOTEMINE1:    return chMines.lanes[0][chIdx][measureIdx]; break;
+    case eC::NOTEMINE2:    return chMines.lanes[1][chIdx][measureIdx]; break;
     default: break;
     }
 

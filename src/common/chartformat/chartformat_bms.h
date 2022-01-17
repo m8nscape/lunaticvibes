@@ -131,6 +131,7 @@ protected:
     // Lanes.
     int strToLane36(channel&, const StringContent& str);
     int strToLane16(channel&, const StringContent& str);
+
     std::vector<LaneArray> chBGM{};
     LaneArray chStop{};
     LaneArray chBPMChange{};
@@ -138,11 +139,18 @@ protected:
     LaneArray chBGABase{};
     LaneArray chBGALayer{};
     LaneArray chBGAPoor{};
-    std::array<LaneArray, 20> chNotesVisible{};
-    std::array<LaneArray, 20> chNotesInvisible{};
-    std::array<LaneArray, 20> chNotesLN{};
-    std::array<LaneArray, 20> chMines{};
-    int strToNoteLaneDispatcher(decltype(chNotesVisible)&, int measure, int layer, int ch, const StringContent& str);
+    
+    struct PlayAreaLanes
+    {
+        static constexpr size_t LANE_COUNT = 10;
+        std::array<LaneArray, LANE_COUNT> lanes[2];
+    };
+    PlayAreaLanes chNotesRegular{};
+    PlayAreaLanes chNotesInvisible{};
+    PlayAreaLanes chNotesLN{};
+    PlayAreaLanes chMines{};
+
+    std::pair<int, int> normalizeIndexesBME(int layer, int ch);
 
 public:
     std::set<unsigned> lnobjSet;
