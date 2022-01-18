@@ -172,7 +172,8 @@ public:
 protected:
     JudgeDifficulty _diff;
     GaugeType _gauge;
-    std::map<JudgeType, double> _health;
+    std::map<JudgeType, double> _healthIncrement;
+
     std::map<JudgeType, unsigned> _count;
     const NoteLaneTimerMap* _bombTimerMap = nullptr;
     const NoteLaneTimerMap* _bombLNTimerMap = nullptr;

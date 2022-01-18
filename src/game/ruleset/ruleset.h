@@ -37,6 +37,8 @@ protected:
     BasicData _basic;
     double _minHealth;
     double _clearHealth;
+    bool _failWhenNoHealth = false;
+
     bool _isCleared = false;
     bool _isFailed = false;
     bool _isAutoplay = false;
@@ -55,6 +57,7 @@ public:
     constexpr BasicData getData() const { return _basic; }
     constexpr bool isFinished() const { return _basic.totaln == _chart->getNoteCount(); }
     double getClearHealth() const { return _clearHealth; }
+    bool failWhenNoHealth() const { return _failWhenNoHealth; }
     virtual bool isCleared() const { return _isCleared; }
     virtual bool isFailed() const { return _isFailed; }
 

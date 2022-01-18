@@ -287,7 +287,7 @@ int BMS::initWithFile(const Path& file)
                             break;
 
                         }
-                        else
+                        else // layer != 0
                         {
                             auto [area, idx] = normalizeIndexesBME(layer, ch);
                             switch (layer)

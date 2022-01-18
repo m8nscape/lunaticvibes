@@ -98,123 +98,130 @@ RulesetBMS::RulesetBMS(std::shared_ptr<vChartFormat> format, std::shared_ptr<vCh
     switch (_gauge)
     {
     case GaugeType::HARD:
-        //_basic.health             = 1.0;
+        _basic.health             = 1.0;
         _minHealth                  = 0;
         _clearHealth                = 0;
-        _health[JudgeType::PERFECT] = 1.0 / 1001.0;
-        _health[JudgeType::GREAT]   = 1.0 / 1001.0;
-        _health[JudgeType::GOOD]    = 1.0 / 1001.0 / 2;
-        _health[JudgeType::BAD]     = -0.06;
-        _health[JudgeType::MISS]    = -0.1;
-        _health[JudgeType::BPOOR]   = -0.02;
+        _failWhenNoHealth = true;
+        _healthIncrement[JudgeType::PERFECT] = 1.0 / 1001.0;
+        _healthIncrement[JudgeType::GREAT]   = 1.0 / 1001.0;
+        _healthIncrement[JudgeType::GOOD]    = 1.0 / 1001.0 / 2;
+        _healthIncrement[JudgeType::BAD]     = -0.06;
+        _healthIncrement[JudgeType::MISS]    = -0.1;
+        _healthIncrement[JudgeType::BPOOR]   = -0.02;
         break;
 
     case GaugeType::EXHARD:
-        //_basic.health             = 1.0;
+        _basic.health             = 1.0;
         _minHealth                  = 0;
         _clearHealth                = 0;
-        _health[JudgeType::PERFECT] = 1.0 / 1001.0;
-        _health[JudgeType::GREAT]   = 1.0 / 1001.0;
-        _health[JudgeType::GOOD]    = 1.0 / 1001.0 / 2;
-        _health[JudgeType::BAD]     = -0.12;
-        _health[JudgeType::MISS]    = -0.2;
-        _health[JudgeType::BPOOR]   = -0.1;
+        _failWhenNoHealth = true;
+        _healthIncrement[JudgeType::PERFECT] = 1.0 / 1001.0;
+        _healthIncrement[JudgeType::GREAT]   = 1.0 / 1001.0;
+        _healthIncrement[JudgeType::GOOD]    = 1.0 / 1001.0 / 2;
+        _healthIncrement[JudgeType::BAD]     = -0.12;
+        _healthIncrement[JudgeType::MISS]    = -0.2;
+        _healthIncrement[JudgeType::BPOOR]   = -0.1;
         break;
 
     case GaugeType::DEATH:
         _basic.health               = 1.0;
         _minHealth                  = 0;
         _clearHealth                = 0;
-        _health[JudgeType::PERFECT] = 1.0 / 1001.0;
-        _health[JudgeType::GREAT]   = 1.0 / 1001.0 / 2;
-        _health[JudgeType::GOOD]    = 0.0;
-        _health[JudgeType::BAD]     = -1.0;
-        _health[JudgeType::MISS]    = -1.0;
-        _health[JudgeType::BPOOR]   = -0.02;
+        _failWhenNoHealth = true;
+        _healthIncrement[JudgeType::PERFECT] = 1.0 / 1001.0;
+        _healthIncrement[JudgeType::GREAT]   = 1.0 / 1001.0 / 2;
+        _healthIncrement[JudgeType::GOOD]    = 0.0;
+        _healthIncrement[JudgeType::BAD]     = -1.0;
+        _healthIncrement[JudgeType::MISS]    = -1.0;
+        _healthIncrement[JudgeType::BPOOR]   = -0.02;
         break;
 
     case GaugeType::P_ATK:
-        //_basic.health             = 1.0;
+        _basic.health             = 1.0;
         _minHealth                  = 0;
         _clearHealth                = 0;
-        _health[JudgeType::PERFECT] = 1.0 / 1001.0;
-        _health[JudgeType::GREAT]   = -0.02;
-        _health[JudgeType::GOOD]    = -1.0;
-        _health[JudgeType::BAD]     = -1.0;
-        _health[JudgeType::MISS]    = -1.0;
-        _health[JudgeType::BPOOR]   = -0.02;
+        _failWhenNoHealth = true;
+        _healthIncrement[JudgeType::PERFECT] = 1.0 / 1001.0;
+        _healthIncrement[JudgeType::GREAT]   = -0.02;
+        _healthIncrement[JudgeType::GOOD]    = -1.0;
+        _healthIncrement[JudgeType::BAD]     = -1.0;
+        _healthIncrement[JudgeType::MISS]    = -1.0;
+        _healthIncrement[JudgeType::BPOOR]   = -0.02;
         break;
 
     case GaugeType::G_ATK:
-        //_basic.health             = 1.0;
+        _basic.health             = 1.0;
         _minHealth                  = 0;
         _clearHealth                = 0;
-        _health[JudgeType::PERFECT] = -0.02;
-        _health[JudgeType::GREAT]   = -0.02;
-        _health[JudgeType::GOOD]    = 0.0;
-        _health[JudgeType::BAD]     = -1.0;
-        _health[JudgeType::MISS]    = -1.0;
-        _health[JudgeType::BPOOR]   = -0.02;
+        _failWhenNoHealth = true;
+        _healthIncrement[JudgeType::PERFECT] = -0.02;
+        _healthIncrement[JudgeType::GREAT]   = -0.02;
+        _healthIncrement[JudgeType::GOOD]    = 0.0;
+        _healthIncrement[JudgeType::BAD]     = -1.0;
+        _healthIncrement[JudgeType::MISS]    = -1.0;
+        _healthIncrement[JudgeType::BPOOR]   = -0.02;
         break;
 
     case GaugeType::GROOVE:
-        //_basic.health             = 0.2;
+        _basic.health             = 0.2;
         _minHealth                  = 0.02;
         _clearHealth                = 0.8;
-        _health[JudgeType::PERFECT] = 0.01 * total / chart->getNoteCount();
-        _health[JudgeType::GREAT]   = 0.01 * total / chart->getNoteCount();
-        _health[JudgeType::GOOD]    = 0.01 * total / chart->getNoteCount() / 2;
-        _health[JudgeType::BAD]     = -0.04;
-        _health[JudgeType::MISS]    = -0.06;
-        _health[JudgeType::BPOOR]   = -0.02;
+        _healthIncrement[JudgeType::PERFECT] = 0.01 * total / chart->getNoteCount();
+        _healthIncrement[JudgeType::GREAT]   = 0.01 * total / chart->getNoteCount();
+        _healthIncrement[JudgeType::GOOD]    = 0.01 * total / chart->getNoteCount() / 2;
+        _healthIncrement[JudgeType::BAD]     = -0.04;
+        _healthIncrement[JudgeType::MISS]    = -0.06;
+        _healthIncrement[JudgeType::BPOOR]   = -0.02;
         break;
 
     case GaugeType::EASY:
-        //_basic.health             = 0.2;
+        _basic.health             = 0.2;
         _minHealth                  = 0.02;
         _clearHealth                = 0.8;
-        _health[JudgeType::PERFECT] = 0.01 * total / chart->getNoteCount() * 1.2;
-        _health[JudgeType::GREAT]   = 0.01 * total / chart->getNoteCount() * 1.2;
-        _health[JudgeType::GOOD]    = 0.01 * total / chart->getNoteCount() / 2 * 1.2;
-        _health[JudgeType::BAD]     = -0.032;
-        _health[JudgeType::MISS]    = -0.048;
-        _health[JudgeType::BPOOR]   = -0.016;
+        _healthIncrement[JudgeType::PERFECT] = 0.01 * total / chart->getNoteCount() * 1.2;
+        _healthIncrement[JudgeType::GREAT]   = 0.01 * total / chart->getNoteCount() * 1.2;
+        _healthIncrement[JudgeType::GOOD]    = 0.01 * total / chart->getNoteCount() / 2 * 1.2;
+        _healthIncrement[JudgeType::BAD]     = -0.032;
+        _healthIncrement[JudgeType::MISS]    = -0.048;
+        _healthIncrement[JudgeType::BPOOR]   = -0.016;
         break;
 
     case GaugeType::ASSIST:
-        //_basic.health             = 0.2;
+        _basic.health             = 0.2;
         _minHealth                  = 0.02;
         _clearHealth                = 0.6;
-        _health[JudgeType::PERFECT] = 0.01 * total / chart->getNoteCount() * 1.2;
-        _health[JudgeType::GREAT]   = 0.01 * total / chart->getNoteCount() * 1.2;
-        _health[JudgeType::GOOD]    = 0.01 * total / chart->getNoteCount() / 2 * 1.2;
-        _health[JudgeType::BAD]     = -0.032;
-        _health[JudgeType::MISS]    = -0.048;
-        _health[JudgeType::BPOOR]   = -0.016;
+        _healthIncrement[JudgeType::PERFECT] = 0.01 * total / chart->getNoteCount() * 1.2;
+        _healthIncrement[JudgeType::GREAT]   = 0.01 * total / chart->getNoteCount() * 1.2;
+        _healthIncrement[JudgeType::GOOD]    = 0.01 * total / chart->getNoteCount() / 2 * 1.2;
+        _healthIncrement[JudgeType::BAD]     = -0.032;
+        _healthIncrement[JudgeType::MISS]    = -0.048;
+        _healthIncrement[JudgeType::BPOOR]   = -0.016;
         break;
 
     case GaugeType::GRADE:
-        //_basic.health             = 1.0;
+        _basic.health             = 1.0;
         _minHealth                  = 0;
         _clearHealth                = 0;
-        _health[JudgeType::PERFECT] = 1.0 / 1001.0;
-        _health[JudgeType::GREAT]   = 1.0 / 1001.0;
-        _health[JudgeType::GOOD]    = 1.0 / 1001.0 / 2;
-        _health[JudgeType::BAD]     = -0.02;
-        _health[JudgeType::MISS]    = -0.03;
-        _health[JudgeType::BPOOR]   = -0.02;
+        _failWhenNoHealth = true;
+        _healthIncrement[JudgeType::PERFECT] = 1.0 / 1001.0;
+        _healthIncrement[JudgeType::GREAT]   = 1.0 / 1001.0;
+        _healthIncrement[JudgeType::GOOD]    = 1.0 / 1001.0 / 2;
+        _healthIncrement[JudgeType::BAD]     = -0.02;
+        _healthIncrement[JudgeType::MISS]    = -0.03;
+        _healthIncrement[JudgeType::BPOOR]   = -0.02;
         break;
 
     case GaugeType::EXGRADE:
-        //_basic.health             = 1.0;
+        _basic.health             = 1.0;
         _minHealth                  = 0;
         _clearHealth                = 0;
-        _health[JudgeType::PERFECT] = 1.0 / 1001.0;
-        _health[JudgeType::GREAT]   = 1.0 / 1001.0;
-        _health[JudgeType::GOOD]    = 1.0 / 1001.0 / 2;
-        _health[JudgeType::BAD]     = -0.12;
-        _health[JudgeType::MISS]    = -0.2;     // FIXME not as hard as exhard
-        _health[JudgeType::BPOOR]   = -0.1;
+        _failWhenNoHealth = true;
+        _healthIncrement[JudgeType::PERFECT] = 1.0 / 1001.0;
+        _healthIncrement[JudgeType::GREAT]   = 1.0 / 1001.0;
+        _healthIncrement[JudgeType::GOOD]    = 1.0 / 1001.0 / 2;
+        _healthIncrement[JudgeType::BAD]     = -0.12;
+        _healthIncrement[JudgeType::MISS]    = -0.2;     // FIXME not as hard as exhard
+        _healthIncrement[JudgeType::BPOOR]   = -0.1;
         break;
 
     default:
@@ -500,12 +507,12 @@ void RulesetBMS::_updateHp(const double diff)
     }
     _basic.health = std::max(_minHealth, std::min(1.0, tmp));
 
-    if (_minHealth == 0.0 && _basic.health <= _minHealth)
+    if (failWhenNoHealth() && _basic.health <= _minHealth)
         _isFailed = true;
 }
 void RulesetBMS::_updateHp(JudgeType judge)
 {
-    _updateHp(_health.at(judge));
+    _updateHp(_healthIncrement.at(judge));
 }
 
 void RulesetBMS::updateHit(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeType judge, int slot)
