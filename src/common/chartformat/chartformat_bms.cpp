@@ -14,23 +14,23 @@ class noteLineException : public std::exception {};
 
 int BMS::getExtendedProperty(const std::string& key, void* ret)
 {
-    if (key == "PLAYER")
+    if (strEqual(key, "PLAYER", true))
     {
         *(int*)ret = player;
     }
-    if (key == "RANK")
+    if (strEqual(key, "RANK", true))
     {
         *(int*)ret = rank;
     }
-    if (key == "PLAYLEVEL")
+    if (strEqual(key, "PLAYLEVEL", true))
     {
         *(int*)ret = playLevel;
     }
-    if (key == "TOTAL")
+    if (strEqual(key, "TOTAL", true))
     {
         *(double*)ret = total;
     }
-    if (key == "DIFFICULTY")
+    if (strEqual(key, "DIFFICULTY", true))
     {
         *(int*)ret = difficulty;
     }
@@ -90,14 +90,14 @@ int BMS::initWithFile(const Path& file)
 
     // TODO 天国的PARSER！！！
     // SUPER LAZY PARSER FOR TESTING
-    const std::vector<std::regex> skipRegex
+    static const std::vector<std::regex> skipRegex
     {
-        std::regex(R"(\*-.*)"),     // *-
-        std::regex(R"(\/\/.*)"),    // //
-        std::regex(R"(;.*)"),       // ;
-        std::regex(R"(#BPM00 .*)"),
-        std::regex(R"(#STOP00 .*)"),
-        std::regex(R"(#BMP00 .*)"),
+        std::regex(R"(\*-.*)", prebuiltRegexFlags),     // *-
+        std::regex(R"(\/\/.*)", prebuiltRegexFlags),    // //
+        std::regex(R"(;.*)", prebuiltRegexFlags),       // ;
+        std::regex(R"(#BPM00 .*)", prebuiltRegexFlags),
+        std::regex(R"(#STOP00 .*)", prebuiltRegexFlags),
+        std::regex(R"(#BMP00 .*)", prebuiltRegexFlags),
     };
 
     StringContent buf;
@@ -140,60 +140,65 @@ int BMS::initWithFile(const Path& file)
                     StringContent value = buf.substr(space_idx + 1);
                     if (value.empty()) continue;
 
+                    static const std::regex regexWav = std::regex(R"(WAV[0-9A-Za-z]{1,2})", prebuiltRegexFlags);
+                    static const std::regex regexBga = std::regex(R"(BMP[0-9A-Za-z]{1,2})", prebuiltRegexFlags);
+                    static const std::regex regexBpm = std::regex(R"(BPM[0-9A-Za-z]{1,2})", prebuiltRegexFlags);
+                    static const std::regex regexStop = std::regex(R"(STOP[0-9A-Za-z]{1,2})", prebuiltRegexFlags);
+
                     // digits
-                    if (key == "PLAYER")
+                    if (strEqual(key, "PLAYER", true))
                         player = toInt(value);
-                    else if (key == "RANK")
+                    else if (strEqual(key, "RANK", true))
                         rank = toInt(value);
-                    else if (key == "TOTAL")
+                    else if (strEqual(key, "TOTAL", true))
                         total = toInt(value);
-                    else if (key == "PLAYLEVEL")
+                    else if (strEqual(key, "PLAYLEVEL", true))
                     {
                         playLevel = toInt(value);
                         levelEstimated = double(playLevel);
                     }
-                    else if (key == "DIFFICULTY")
+                    else if (strEqual(key, "DIFFICULTY", true))
                         difficulty = toInt(value);
-                    else if (key == "BPM")
+                    else if (strEqual(key, "BPM", true))
                         bpm = toDouble(value);
 
                     // strings
-                    else if (key == "TITLE")
+                    else if (strEqual(key, "TITLE", true))
                         title.assign(value.begin(), value.end());
-                    else if (key == "SUBTITLE")
+                    else if (strEqual(key, "SUBTITLE", true))
                         title2.assign(value.begin(), value.end());
-                    else if (key == "ARTIST")
+                    else if (strEqual(key, "ARTIST", true))
                         artist.assign(value.begin(), value.end());
-                    else if (key == "SUBARTIST")
+                    else if (strEqual(key, "SUBARTIST", true))
                         artist2.assign(value.begin(), value.end());
-                    else if (key == "GENRE")
+                    else if (strEqual(key, "GENRE", true))
                         genre.assign(value.begin(), value.end());
-                    else if (key == "STAGEFILE")
+                    else if (strEqual(key, "STAGEFILE", true))
                         stagefile.assign(value.begin(), value.end());
-                    else if (key == "BANNER")
+                    else if (strEqual(key, "BANNER", true))
                         banner.assign(value.begin(), value.end());
-                    else if (key == "RANDOM" || key == "RONDAM")
+                    else if (strEqual(key, "RANDOM", true) || strEqual(key, "RONDAM", true))
                         ; // TODO #RANDOM
-                    else if (key == "LNOBJ" && value.length() >= 2)
+                    else if (strEqual(key, "LNOBJ", true) && value.length() >= 2)
                         lnobjSet.insert(base36(value[0], value[1]));
 
                     // #xxx00
-                    else if (std::regex_match(key, std::regex(R"(WAV[0-9A-Za-z]{1,2})", std::regex_constants::icase)))
+                    else if (std::regex_match(key, regexWav))
                     {
                         int idx = base36(key[3], key[4]);
                         wavFiles[idx].assign(value.begin(), value.end());
                     }
-                    else if (std::regex_match(key, std::regex(R"(BMP[0-9A-Za-z]{1,2})", std::regex_constants::icase)))
+                    else if (std::regex_match(key, regexBga))
                     {
                         int idx = base36(key[3], key[4]);
                         bgaFiles[idx].assign(value.begin(), value.end());
                     }
-                    else if (std::regex_match(key, std::regex(R"(BPM[0-9A-Za-z]{1,2})", std::regex_constants::icase)))
+                    else if (std::regex_match(key, regexBpm))
                     {
                         int idx = base36(key[3], key[4]);
                         exBPM[idx] = toDouble(value);
                     }
-                    else if (std::regex_match(key, std::regex(R"(STOP[0-9A-Za-z]{1,2})", std::regex_constants::icase)))
+                    else if (std::regex_match(key, regexStop))
                     {
                         int idx = base36(key[4], key[5]);
                         stop[idx] = toDouble(value);
@@ -216,8 +221,10 @@ int BMS::initWithFile(const Path& file)
                         return 1;
                     }
 
+                    static const std::regex regexNotes = std::regex(R"(\d{3}[0-9A-Za-z]{2})", prebuiltRegexFlags);
+
                     // lastBarIdx & channels
-                    if (std::regex_match(key, std::regex(R"(\d{3}[0-9A-Za-z]{2})")))
+                    if (std::regex_match(key, regexNotes))
                     {
                         unsigned measure = toInt(key.substr(0, 3));
                         if (lastBarIdx < measure) lastBarIdx = measure;

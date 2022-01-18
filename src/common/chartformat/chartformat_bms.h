@@ -4,10 +4,14 @@
 #include <list>
 #include <map>
 #include <set>
+#include <regex>
 
 #include "chartformat.h"
 #include "common/utils.h"
 #include "common/types.h"
+
+constexpr std::regex_constants::syntax_option_type prebuiltRegexFlags =
+    std::regex_constants::ECMAScript | std::regex_constants::icase | std::regex_constants::optimize;
 
 namespace bms
 {
