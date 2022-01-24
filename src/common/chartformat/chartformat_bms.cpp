@@ -8,6 +8,7 @@
 #include <exception>
 #include <filesystem>
 #include <numeric>
+#include <random>
 #include "db/db_song.h"
 
 class noteLineException : public std::exception {};
@@ -90,18 +91,11 @@ int BMS::initWithFile(const Path& file)
 
     // TODO 天国的PARSER！！！
     // SUPER LAZY PARSER FOR TESTING
-    static const std::vector<std::regex> skipRegex
-    {
-        std::regex(R"(\*-.*)", prebuiltRegexFlags),     // *-
-        std::regex(R"(\/\/.*)", prebuiltRegexFlags),    // //
-        std::regex(R"(;.*)", prebuiltRegexFlags),       // ;
-        std::regex(R"(#BPM00 .*)", prebuiltRegexFlags),
-        std::regex(R"(#STOP00 .*)", prebuiltRegexFlags),
-        std::regex(R"(#BMP00 .*)", prebuiltRegexFlags),
-    };
 
     StringContent buf;
     unsigned srcLine = 0;
+    int randomValue = 0;
+    std::stack<int> ifValue;
     while (!fs.eof())
     {
         std::getline(fs, buf, '\n');
@@ -114,8 +108,19 @@ int BMS::initWithFile(const Path& file)
         // convert codepage
         buf = to_utf8(buf, encoding);
 
+        if (buf[0] != '#') continue;
+
         // skip comments
         bool skip = false;
+        static const std::vector<std::regex> skipRegex
+        {
+            std::regex(R"(\*-.*)", prebuiltRegexFlags),     // *-
+            std::regex(R"(\/\/.*)", prebuiltRegexFlags),    // //
+            std::regex(R"(;.*)", prebuiltRegexFlags),       // ;
+            std::regex(R"(#BPM00 .*)", prebuiltRegexFlags),
+            std::regex(R"(#STOP00 .*)", prebuiltRegexFlags),
+            std::regex(R"(#BMP00 .*)", prebuiltRegexFlags),
+        };
         for (auto& reg: skipRegex)
             if (std::regex_match(buf, reg))
             {
@@ -125,219 +130,270 @@ int BMS::initWithFile(const Path& file)
         if (skip) continue;
 
         // parsing
-        if (buf[0] == '#')
+        auto space_idx = buf.find_first_of(' ');
+        auto colon_idx = buf.find_first_of(':');
+        if (space_idx == 1 || colon_idx == 1) continue;
+        if (space_idx == buf.npos && colon_idx == buf.npos) continue;
+
+        try
         {
-            auto space_idx = buf.find_first_of(' ');
-            auto colon_idx = buf.find_first_of(':');
-            if (space_idx == 1 || colon_idx == 1) continue;
-            if (space_idx == buf.npos && colon_idx == buf.npos) continue;
+            if (space_idx != buf.npos)
+            {
+                StringContent key = buf.substr(1, space_idx - 1);
+                StringContent value = buf.substr(space_idx + 1);
+                if (value.empty()) continue;
 
-            try {
+                static const std::regex regexWav = std::regex(R"(WAV[0-9A-Za-z]{1,2})", prebuiltRegexFlags);
+                static const std::regex regexBga = std::regex(R"(BMP[0-9A-Za-z]{1,2})", prebuiltRegexFlags);
+                static const std::regex regexBpm = std::regex(R"(BPM[0-9A-Za-z]{1,2})", prebuiltRegexFlags);
+                static const std::regex regexStop = std::regex(R"(STOP[0-9A-Za-z]{1,2})", prebuiltRegexFlags);
 
-                if (space_idx != buf.npos)
+                // RANDOM
+                if (strEqual(key, "RANDOM", true))
                 {
-                    StringContent key = buf.substr(1, space_idx - 1);
-                    StringContent value = buf.substr(space_idx + 1);
-                    if (value.empty()) continue;
-
-                    static const std::regex regexWav = std::regex(R"(WAV[0-9A-Za-z]{1,2})", prebuiltRegexFlags);
-                    static const std::regex regexBga = std::regex(R"(BMP[0-9A-Za-z]{1,2})", prebuiltRegexFlags);
-                    static const std::regex regexBpm = std::regex(R"(BPM[0-9A-Za-z]{1,2})", prebuiltRegexFlags);
-                    static const std::regex regexStop = std::regex(R"(STOP[0-9A-Za-z]{1,2})", prebuiltRegexFlags);
-
-                    // digits
-                    if (strEqual(key, "PLAYER", true))
-                        player = toInt(value);
-                    else if (strEqual(key, "RANK", true))
-                        rank = toInt(value);
-                    else if (strEqual(key, "TOTAL", true))
-                        total = toInt(value);
-                    else if (strEqual(key, "PLAYLEVEL", true))
+                    haveRandom = true;
+                    static std::mt19937_64 rng(std::time(nullptr));
+                    randomValue = (rng() % toInt(value)) + 1;
+                }
+                else if (strEqual(key, "IF", true))
+                {
+                    if (randomValue != 0)
                     {
-                        playLevel = toInt(value);
-                        levelEstimated = double(playLevel);
+                        if (int i = toInt(value); randomValue == i)
+                        {
+                            ifValue.push(i);
+                        }
                     }
-                    else if (strEqual(key, "DIFFICULTY", true))
-                        difficulty = toInt(value);
-                    else if (strEqual(key, "BPM", true))
-                        bpm = toDouble(value);
-
-                    // strings
-                    else if (strEqual(key, "TITLE", true))
-                        title.assign(value.begin(), value.end());
-                    else if (strEqual(key, "SUBTITLE", true))
-                        title2.assign(value.begin(), value.end());
-                    else if (strEqual(key, "ARTIST", true))
-                        artist.assign(value.begin(), value.end());
-                    else if (strEqual(key, "SUBARTIST", true))
-                        artist2.assign(value.begin(), value.end());
-                    else if (strEqual(key, "GENRE", true))
-                        genre.assign(value.begin(), value.end());
-                    else if (strEqual(key, "STAGEFILE", true))
-                        stagefile.assign(value.begin(), value.end());
-                    else if (strEqual(key, "BANNER", true))
-                        banner.assign(value.begin(), value.end());
-                    else if (strEqual(key, "RANDOM", true) || strEqual(key, "RONDAM", true))
-                        ; // TODO #RANDOM
-                    else if (strEqual(key, "LNOBJ", true) && value.length() >= 2)
-                        lnobjSet.insert(base36(value[0], value[1]));
-
-                    // #xxx00
-                    else if (std::regex_match(key, regexWav))
-                    {
-                        int idx = base36(key[3], key[4]);
-                        wavFiles[idx].assign(value.begin(), value.end());
-                    }
-                    else if (std::regex_match(key, regexBga))
-                    {
-                        int idx = base36(key[3], key[4]);
-                        bgaFiles[idx].assign(value.begin(), value.end());
-                    }
-                    else if (std::regex_match(key, regexBpm))
-                    {
-                        int idx = base36(key[3], key[4]);
-                        exBPM[idx] = toDouble(value);
-                    }
-                    else if (std::regex_match(key, regexStop))
-                    {
-                        int idx = base36(key[4], key[5]);
-                        stop[idx] = toDouble(value);
-                    }
-
-                    // unknown
                     else
-                        extraCommands[key] = StringContent(value.begin(), value.end());
+                    {
+                        LOG_WARNING << "[BMS] orphan #IF found in line " << srcLine;
+                    }
+                }
+                else if (strEqual(key, "ENDIF", true))
+                {
+                    if (!ifValue.empty())
+                    {
+                        ifValue.pop();
+                    }
+                    else
+                    {
+                        LOG_WARNING << "[BMS] unexpected #ENDIF fond at line " << srcLine;
+                    }
+                }
+                else if (strEqual(key, "ENDRANDOM", true))
+                {
+                    if (!ifValue.empty())
+                    {
+                        LOG_WARNING << "[BMS] #ENDRANDOM found before #ENDIF at line " << srcLine;
+                        randomValue = 0;
+                        ifValue = {};
+                    }
+                    else
+                    {
+                        randomValue = 0;
+                    }
+                }
+                else if (randomValue != 0)
+                {
+                    // skip orphan blocks
+                    if (ifValue.empty()) 
+                        continue;
+
+                    // skip mismatch IF value blocks
+                    if (ifValue.top() != randomValue) continue;
                 }
 
-                else if (colon_idx != buf.npos)
+
+                // digits
+                if (strEqual(key, "PLAYER", true))
+                    player = toInt(value);
+                else if (strEqual(key, "RANK", true))
+                    rank = toInt(value);
+                else if (strEqual(key, "TOTAL", true))
+                    total = toInt(value);
+                else if (strEqual(key, "PLAYLEVEL", true))
                 {
-                    StringContent key = buf.substr(1, colon_idx - 1);
-                    StringContent value = buf.substr(colon_idx + 1);
-                    if (value.empty())
+                    playLevel = toInt(value);
+                    levelEstimated = double(playLevel);
+                }
+                else if (strEqual(key, "DIFFICULTY", true))
+                    difficulty = toInt(value);
+                else if (strEqual(key, "BPM", true))
+                    bpm = toDouble(value);
+
+                // strings
+                else if (strEqual(key, "TITLE", true))
+                    title.assign(value.begin(), value.end());
+                else if (strEqual(key, "SUBTITLE", true))
+                    title2.assign(value.begin(), value.end());
+                else if (strEqual(key, "ARTIST", true))
+                    artist.assign(value.begin(), value.end());
+                else if (strEqual(key, "SUBARTIST", true))
+                    artist2.assign(value.begin(), value.end());
+                else if (strEqual(key, "GENRE", true))
+                    genre.assign(value.begin(), value.end());
+                else if (strEqual(key, "STAGEFILE", true))
+                    stagefile.assign(value.begin(), value.end());
+                else if (strEqual(key, "BANNER", true))
+                    banner.assign(value.begin(), value.end());
+                else if (strEqual(key, "LNOBJ", true) && value.length() >= 2)
+                    lnobjSet.insert(base36(value[0], value[1]));
+
+                // #xxx00
+                else if (std::regex_match(key, regexWav))
+                {
+                    int idx = base36(key[3], key[4]);
+                    wavFiles[idx].assign(value.begin(), value.end());
+                }
+                else if (std::regex_match(key, regexBga))
+                {
+                    int idx = base36(key[3], key[4]);
+                    bgaFiles[idx].assign(value.begin(), value.end());
+                }
+                else if (std::regex_match(key, regexBpm))
+                {
+                    int idx = base36(key[3], key[4]);
+                    exBPM[idx] = toDouble(value);
+                }
+                else if (std::regex_match(key, regexStop))
+                {
+                    int idx = base36(key[4], key[5]);
+                    stop[idx] = toDouble(value);
+                }
+
+                // unknown
+                else
+                    extraCommands[key] = StringContent(value.begin(), value.end());
+            }
+
+            else if (colon_idx != buf.npos)
+            {
+                StringContent key = buf.substr(1, colon_idx - 1);
+                StringContent value = buf.substr(colon_idx + 1);
+                if (value.empty())
+                {
+                    LOG_WARNING << "[BMS] Empty note line detected: line " << srcLine;
+                    errorLine = srcLine;
+                    errorCode = err::NOTE_LINE_ERROR;
+                    return 1;
+                }
+
+                static const std::regex regexNotes = std::regex(R"(\d{3}[0-9A-Za-z]{2})", prebuiltRegexFlags);
+
+                // lastBarIdx & channels
+                if (std::regex_match(key, regexNotes))
+                {
+                    unsigned measure = toInt(key.substr(0, 3));
+                    if (lastBarIdx < measure) lastBarIdx = measure;
+
+                    int layer = base36(key[3]);
+                    int ch = base36(key[4]);
+
+                    if (layer == 0) // 0x: basic info
                     {
-                        LOG_WARNING << "[BMS] Empty note line detected: line " << srcLine;
-                        errorLine = srcLine;
-                        errorCode = err::NOTE_LINE_ERROR;
-                        return 1;
-                    }
-
-                    static const std::regex regexNotes = std::regex(R"(\d{3}[0-9A-Za-z]{2})", prebuiltRegexFlags);
-
-                    // lastBarIdx & channels
-                    if (std::regex_match(key, regexNotes))
-                    {
-                        unsigned measure = toInt(key.substr(0, 3));
-                        if (lastBarIdx < measure) lastBarIdx = measure;
-
-                        int layer = base36(key[3]);
-                        int ch = base36(key[4]);
-
-                        if (layer == 0) // 0x: basic info
+                        switch (ch)
                         {
-                            switch (ch)
+                        case 1:            // 01: BGM
+                            if (bgmLayersCount[measure] >= chBGM.size())
                             {
-                            case 1:            // 01: BGM
-                                if (bgmLayersCount[measure] >= chBGM.size())
-                                {
-                                    chBGM.emplace_back();
-                                    strToLane36(chBGM.back()[measure], value);
-                                }
-                                else
-                                {
-                                    strToLane36(chBGM[bgmLayersCount[measure]][measure], value);
-                                }
-                                ++bgmLayersCount[measure];
-                                break;
-
-                            case 2:            // 02: Measure Length
-                                barLength[measure] = toDouble(value);
-                                haveMetricMod = true;
-                                break;
-
-                            case 3:            // 03: BPM change
-                                strToLane16(chBPMChange[measure], value);
-                                haveBPMChange = true;
-                                break;
-
-                            case 4:            // 04: BGA Base
-                                strToLane36(chBGABase[measure], value);
-                                haveBGA = true;
-                                break;
-
-                            case 6:            // 06: BGA Poor
-                                strToLane36(chBGAPoor[measure], value);
-                                haveBGA = true;
-                                break;
-
-                            case 7:            // 07: BGA Layer
-                                strToLane36(chBGALayer[measure], value);
-                                haveBGA = true;
-                                break;
-
-                            case 8:            // 08: ExBPM
-                                strToLane36(chExBPMChange[measure], value);
-                                haveStop = true;
-                                break;
-
-                            case 9:            // 09: Stop
-                                strToLane36(chStop[measure], value);
-                                haveStop = true;
-                                break;
+                                chBGM.emplace_back();
+                                strToLane36(chBGM.back()[measure], value);
                             }
+                            else
+                            {
+                                strToLane36(chBGM[bgmLayersCount[measure]][measure], value);
+                            }
+                            ++bgmLayersCount[measure];
                             break;
 
+                        case 2:            // 02: Measure Length
+                            barLength[measure] = toDouble(value);
+                            haveMetricMod = true;
+                            break;
+
+                        case 3:            // 03: BPM change
+                            strToLane16(chBPMChange[measure], value);
+                            haveBPMChange = true;
+                            break;
+
+                        case 4:            // 04: BGA Base
+                            strToLane36(chBGABase[measure], value);
+                            haveBGA = true;
+                            break;
+
+                        case 6:            // 06: BGA Poor
+                            strToLane36(chBGAPoor[measure], value);
+                            haveBGA = true;
+                            break;
+
+                        case 7:            // 07: BGA Layer
+                            strToLane36(chBGALayer[measure], value);
+                            haveBGA = true;
+                            break;
+
+                        case 8:            // 08: ExBPM
+                            strToLane36(chExBPMChange[measure], value);
+                            haveStop = true;
+                            break;
+
+                        case 9:            // 09: Stop
+                            strToLane36(chStop[measure], value);
+                            haveStop = true;
+                            break;
                         }
-                        else // layer != 0
+                        break;
+
+                    }
+                    else // layer != 0
+                    {
+                        auto [area, idx] = normalizeIndexesBME(layer, ch);
+                        switch (layer)
                         {
-                            auto [area, idx] = normalizeIndexesBME(layer, ch);
-                            switch (layer)
-                            {
-                            case 1:            // 1x: 1P visible
-                            case 2:            // 2x: 2P visible
-                                strToLane36(chNotesRegular.lanes[area][idx][measure], value);
-                                haveNote = true;
-                                break;
-                            case 3:            // 3x: 1P invisible
-                            case 4:            // 4x: 2P invisible
-                                strToLane36(chNotesInvisible.lanes[area][idx][measure], value);
-                                haveInvisible = true;
-                                break;
-                            case 5:            // 5x: 1P LN
-                            case 6:            // 6x: 2P LN
-                                strToLane36(chNotesLN.lanes[area][idx][measure], value);
-                                haveLN = true;
-                                break;
-                            case 0xD:        // Dx: 1P mine
-                            case 0xE:        // Ex: 2P mine
-                                strToLane36(chMines.lanes[area][idx][measure], value);
-                                haveMine = true;
-                                break;
-                            }
+                        case 1:            // 1x: 1P visible
+                        case 2:            // 2x: 2P visible
+                            strToLane36(chNotesRegular.lanes[area][idx][measure], value);
+                            haveNote = true;
+                            break;
+                        case 3:            // 3x: 1P invisible
+                        case 4:            // 4x: 2P invisible
+                            strToLane36(chNotesInvisible.lanes[area][idx][measure], value);
+                            haveInvisible = true;
+                            break;
+                        case 5:            // 5x: 1P LN
+                        case 6:            // 6x: 2P LN
+                            strToLane36(chNotesLN.lanes[area][idx][measure], value);
+                            haveLN = true;
+                            break;
+                        case 0xD:        // Dx: 1P mine
+                        case 0xE:        // Ex: 2P mine
+                            strToLane36(chMines.lanes[area][idx][measure], value);
+                            haveMine = true;
+                            break;
                         }
                     }
                 }
             }
-            catch (noteLineException)
-            {
-                errorCode = err::NOTE_LINE_ERROR;
-                throw;
-            }
-            catch (std::invalid_argument)
-            {
-                errorCode = err::TYPE_MISMATCH;
-                throw;
-            }
-            catch (std::out_of_range)
-            {
-                errorCode = err::VALUE_ERROR;
-                throw;
-            }
-            catch (std::exception)
-            {
-                fs.close();
-                errorLine = srcLine;
-                return 1;
-            }
+        }
+        catch (noteLineException)
+        {
+            errorCode = err::NOTE_LINE_ERROR;
+            throw;
+        }
+        catch (std::invalid_argument)
+        {
+            errorCode = err::TYPE_MISMATCH;
+            throw;
+        }
+        catch (std::out_of_range)
+        {
+            errorCode = err::VALUE_ERROR;
+            throw;
+        }
+        catch (std::exception)
+        {
+            fs.close();
+            errorLine = srcLine;
+            return 1;
         }
     }
 
