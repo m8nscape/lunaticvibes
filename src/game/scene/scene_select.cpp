@@ -990,9 +990,9 @@ void SceneSelect::inputGameReleaseSelect(InputMask& input, const Time& t)
     {
         if (input[Input::Pad::K1SELECT] || input[Input::Pad::K2SELECT])
         {
-            if (gSelectContext.entries[gSelectContext.cursor].first->type() == eEntryType::SONG)
+            if (gSelectContext.entries[gSelectContext.idx].first->type() == eEntryType::SONG)
             {
-                auto pSong = std::dynamic_pointer_cast<FolderSong>(gSelectContext.entries[gSelectContext.cursor].first);
+                auto pSong = std::dynamic_pointer_cast<FolderSong>(gSelectContext.entries[gSelectContext.idx].first);
                 pSong->incCurrentChart();
                 // TODO play sound
             }
@@ -1188,6 +1188,7 @@ void SceneSelect::_decide()
     gPlayContext.mods[PLAYER_SLOT_2P].hs = convertHSType(gOptions.get(eOption::PLAY_HSFIX_TYPE_2P));
 
     // chart
+    c.started = false;
     switch (entry->type())
     {
     case eEntryType::SONG:

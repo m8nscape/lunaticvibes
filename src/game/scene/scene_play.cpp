@@ -587,6 +587,7 @@ void ScenePlay::updateLoadEnd()
     spinTurntable(false);
     if (rt > _skin->info.timeGetReady)
     {
+        changeKeySampleMapping(0);
 		gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_PLAYING);
         gTimers.set(eTimer::PLAY_START, t.norm());
         setInputJudgeCallback();

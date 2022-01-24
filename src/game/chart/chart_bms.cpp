@@ -228,7 +228,7 @@ void chartBMS::loadBMS(const BMS& objBms)
             eLanePriority type;
             int area;
             unsigned index;
-            bool operator< (const Lane& rhs) const { return type < rhs.type || area < rhs.area || index < rhs.index; }
+            bool operator< (const Lane& rhs) const { return std::tuple(type, area, index) < std::tuple(rhs.type, rhs.area, rhs.index); }
         };
 
         // notes [] {beat, {lane, sample/val}}
@@ -280,7 +280,13 @@ void chartBMS::loadBMS(const BMS& objBms)
             push_notes(notes, eLanePriority::MINE, LaneCode::NOTEMINE2, 1);
 
             // BGM
-            push_notes(notes, eLanePriority::BGM, LaneCode::BGM, 0);
+            for (unsigned i = 0; i < objBms.bgmLayersCount[m]; i++)
+            {
+                auto ch = objBms.getLane(LaneCode::BGM, i, m);
+                for (const auto& n : ch.notes)
+                    //              { beat,                               { { lane,                       val     } }
+                    notes.push_back({ fraction(n.segment, ch.resolution), { { eLanePriority::BGM, 0, i }, n.value } });
+            }
 
             // BGA
             if (/*gSwitches.get(eSwitch::SYSTEM_BGA)*/ true)
@@ -324,7 +330,7 @@ void chartBMS::loadBMS(const BMS& objBms)
             {
                 if (lane.type == eLanePriority::LNTAIL)
                 {
-                    NoteLane chartLane = idxToChannel(chart::channelToIdx(NoteLaneCategory::LN, (K1 + lane.index)));
+                    NoteLane chartLane = idxToChannel(chart::channelToIdx(NoteLaneCategory::LN, lane.index));
                     size_t gameLaneIdx = gameLaneMap[chartLane.second];
                     size_t gameLaneIdxLN = gameLaneLNIndex[gameLaneIdx];
                     assert(gameLaneIdxLN != _);
@@ -339,16 +345,16 @@ void chartBMS::loadBMS(const BMS& objBms)
                     switch (lane.type)
                     {
                     case eLanePriority::NOTE:
-                        chartLane = idxToChannel(K1 + lane.index);
+                        chartLane = idxToChannel(lane.index);
                         break;
                     case eLanePriority::LNHEAD:
-                        chartLane = idxToChannel(chart::channelToIdx(NoteLaneCategory::LN, (K1 + lane.index)));
+                        chartLane = idxToChannel(chart::channelToIdx(NoteLaneCategory::LN, lane.index));
                         break;
                     case eLanePriority::INV:
-                        chartLane = idxToChannel(chart::channelToIdx(NoteLaneCategory::Invs, (K1 + lane.index)));
+                        chartLane = idxToChannel(chart::channelToIdx(NoteLaneCategory::Invs, lane.index));
                         break;
                     case eLanePriority::MINE:
-                        chartLane = idxToChannel(chart::channelToIdx(NoteLaneCategory::Mine, (K1 + lane.index)));
+                        chartLane = idxToChannel(chart::channelToIdx(NoteLaneCategory::Mine, lane.index));
                         break;
                     default:
                         assert(false);

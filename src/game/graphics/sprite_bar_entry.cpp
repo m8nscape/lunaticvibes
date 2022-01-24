@@ -280,97 +280,106 @@ bool SpriteBarEntry::update(Time time)
             (BarType)barTypeIdx == BarType::NEW_SONG || 
             (BarType)barTypeIdx == BarType::SONG_RIVAL)
         {
-            auto e = std::reinterpret_pointer_cast<EntryChart>(pEntry);
-
-            switch (e->_file->type())
+            std::shared_ptr<vChartFormat> pf;
+            if (pEntry->type() == eEntryType::SONG || pEntry->type() == eEntryType::RIVAL_SONG)
             {
-            case eChartFormat::BMS:
+                pf = std::reinterpret_pointer_cast<FolderSong>(pEntry)->getCurrentChart();
+            }
+            else if (pEntry->type() == eEntryType::CHART || pEntry->type() == eEntryType::RIVAL_CHART)
             {
-                const auto bms = std::reinterpret_pointer_cast<const BMS_prop>(e->_file);
-
-                // level
-                if ((size_t)bms->difficulty < sLevel.size() && sLevel[bms->difficulty])
+                pf = std::reinterpret_pointer_cast<EntryChart>(pEntry)->_file;
+            }
+            if (pf)
+            {
+                switch (pf->type())
                 {
-                    sLevel[bms->difficulty]->update(time);
-                    drawLevelType = bms->difficulty;
-                    drawLevel = true;
-                }
-
-                auto score = std::reinterpret_pointer_cast<ScoreBMS>(pScore);
-                if (score)
+                case eChartFormat::BMS:
                 {
-                    // lamp
-                    // TODO rival entry has two lamps
-                    static const std::map<ScoreBMS::Lamp, BarLampType> BMS_LAMP_TYPE_MAP =
+                    const auto bms = std::reinterpret_pointer_cast<const BMS_prop>(pf);
+
+                    // level
+                    if ((size_t)bms->difficulty < sLevel.size() && sLevel[bms->difficulty])
                     {
-                        {ScoreBMS::Lamp::NOPLAY,        BarLampType::NOPLAY      },
-                        {ScoreBMS::Lamp::FAILED,        BarLampType::FAILED      },
-                        {ScoreBMS::Lamp::ASSIST,        BarLampType::ASSIST_EASY },
-                        {ScoreBMS::Lamp::EASY,          BarLampType::EASY        },
-                        {ScoreBMS::Lamp::NORMAL,        BarLampType::NORMAL      },
-                        {ScoreBMS::Lamp::HARD,          BarLampType::HARD        },
-                        {ScoreBMS::Lamp::EXHARD,        BarLampType::HARD        }, // FIXME EXHARD
-                        {ScoreBMS::Lamp::FULLCOMBO,     BarLampType::FULLCOMBO   },
-                        {ScoreBMS::Lamp::PERFECT,       BarLampType::FULLCOMBO   }, // FIXME PERFECT
-                        {ScoreBMS::Lamp::MAX,           BarLampType::FULLCOMBO   }  // FIXME MAX
-                    };
-                    size_t lampTypeIdx = (BMS_LAMP_TYPE_MAP.find(score->lamp) != BMS_LAMP_TYPE_MAP.end()) ?
-                        (size_t)BMS_LAMP_TYPE_MAP.at(score->lamp) : (size_t)BarLampType::NOPLAY;
-                    if (sLamp[lampTypeIdx])
-                    {
-                        sLamp[lampTypeIdx]->update(time);
-                        drawLampType = lampTypeIdx;
-                        drawLamp = true;
+                        sLevel[bms->difficulty]->update(time);
+                        drawLevelType = bms->difficulty;
+                        drawLevel = true;
                     }
 
-                    if ((BarType)barTypeIdx == BarType::SONG_RIVAL)
+                    auto score = std::reinterpret_pointer_cast<ScoreBMS>(pScore);
+                    if (score)
                     {
-                        // rank
-                        if (score->rival_rate >= 100.0) drawRankType = (size_t)BarRankType::MAX;
-                        else if (score->rival_rate >= 88.88) drawRankType = (size_t)BarRankType::AAA;
-                        else if (score->rival_rate >= 77.77) drawRankType = (size_t)BarRankType::AA;
-                        else if (score->rival_rate >= 66.66) drawRankType = (size_t)BarRankType::A;
-                        else if (score->rival_rate >= 55.55) drawRankType = (size_t)BarRankType::B;
-                        else if (score->rival_rate >= 44.44) drawRankType = (size_t)BarRankType::C;
-                        else if (score->rival_rate >= 33.33) drawRankType = (size_t)BarRankType::D;
-                        else if (score->rival_rate >= 22.22) drawRankType = (size_t)BarRankType::E;
-                        else                                 drawRankType = (size_t)BarRankType::F;
-                        if (sRank[drawRankType])
+                        // lamp
+                        // TODO rival entry has two lamps
+                        static const std::map<ScoreBMS::Lamp, BarLampType> BMS_LAMP_TYPE_MAP =
                         {
-                            sRank[drawRankType]->update(time);
-                            drawRank = true;
+                            {ScoreBMS::Lamp::NOPLAY,        BarLampType::NOPLAY      },
+                            {ScoreBMS::Lamp::FAILED,        BarLampType::FAILED      },
+                            {ScoreBMS::Lamp::ASSIST,        BarLampType::ASSIST_EASY },
+                            {ScoreBMS::Lamp::EASY,          BarLampType::EASY        },
+                            {ScoreBMS::Lamp::NORMAL,        BarLampType::NORMAL      },
+                            {ScoreBMS::Lamp::HARD,          BarLampType::HARD        },
+                            {ScoreBMS::Lamp::EXHARD,        BarLampType::HARD        }, // FIXME EXHARD
+                            {ScoreBMS::Lamp::FULLCOMBO,     BarLampType::FULLCOMBO   },
+                            {ScoreBMS::Lamp::PERFECT,       BarLampType::FULLCOMBO   }, // FIXME PERFECT
+                            {ScoreBMS::Lamp::MAX,           BarLampType::FULLCOMBO   }  // FIXME MAX
+                        };
+                        size_t lampTypeIdx = (BMS_LAMP_TYPE_MAP.find(score->lamp) != BMS_LAMP_TYPE_MAP.end()) ?
+                            (size_t)BMS_LAMP_TYPE_MAP.at(score->lamp) : (size_t)BarLampType::NOPLAY;
+                        if (sLamp[lampTypeIdx])
+                        {
+                            sLamp[lampTypeIdx]->update(time);
+                            drawLampType = lampTypeIdx;
+                            drawLamp = true;
                         }
-                        // win/lose/draw
-                        if ((size_t)score->rival < sRivalWinLose.size() && sRivalWinLose[score->rival])
+
+                        if ((BarType)barTypeIdx == BarType::SONG_RIVAL)
                         {
-                            sRivalWinLose[score->rival]->update(time);
-                            drawRivalType = score->rival;
-                            drawRival = true;
-                        }
-                        // rival lamp
-                        if (drawLamp && sRivalLampSelf[drawRivalLampSelfType])
-                        {
-                            drawRivalLampSelfType = drawLampType;
-                            drawRivalLampSelf = true;
-                            sRivalLampSelf[drawRivalLampSelfType]->update(time);
-                        }
-                        // rival lamp
-                        size_t rivalLampTypeIdx = (BMS_LAMP_TYPE_MAP.find(score->rival_lamp) != BMS_LAMP_TYPE_MAP.end()) ?
-                            (size_t)BMS_LAMP_TYPE_MAP.at(score->rival_lamp) : (size_t)BarLampType::NOPLAY;
-                        if (sRivalLampRival[rivalLampTypeIdx])
-                        {
-                            sRivalLampRival[rivalLampTypeIdx]->update(time);
-                            drawRivalLampRivalType = rivalLampTypeIdx;
-                            drawRivalLampRival = true;
+                            // rank
+                            if (score->rival_rate >= 100.0) drawRankType = (size_t)BarRankType::MAX;
+                            else if (score->rival_rate >= 88.88) drawRankType = (size_t)BarRankType::AAA;
+                            else if (score->rival_rate >= 77.77) drawRankType = (size_t)BarRankType::AA;
+                            else if (score->rival_rate >= 66.66) drawRankType = (size_t)BarRankType::A;
+                            else if (score->rival_rate >= 55.55) drawRankType = (size_t)BarRankType::B;
+                            else if (score->rival_rate >= 44.44) drawRankType = (size_t)BarRankType::C;
+                            else if (score->rival_rate >= 33.33) drawRankType = (size_t)BarRankType::D;
+                            else if (score->rival_rate >= 22.22) drawRankType = (size_t)BarRankType::E;
+                            else                                 drawRankType = (size_t)BarRankType::F;
+                            if (sRank[drawRankType])
+                            {
+                                sRank[drawRankType]->update(time);
+                                drawRank = true;
+                            }
+                            // win/lose/draw
+                            if ((size_t)score->rival < sRivalWinLose.size() && sRivalWinLose[score->rival])
+                            {
+                                sRivalWinLose[score->rival]->update(time);
+                                drawRivalType = score->rival;
+                                drawRival = true;
+                            }
+                            // rival lamp
+                            if (drawLamp && sRivalLampSelf[drawRivalLampSelfType])
+                            {
+                                drawRivalLampSelfType = drawLampType;
+                                drawRivalLampSelf = true;
+                                sRivalLampSelf[drawRivalLampSelfType]->update(time);
+                            }
+                            // rival lamp
+                            size_t rivalLampTypeIdx = (BMS_LAMP_TYPE_MAP.find(score->rival_lamp) != BMS_LAMP_TYPE_MAP.end()) ?
+                                (size_t)BMS_LAMP_TYPE_MAP.at(score->rival_lamp) : (size_t)BarLampType::NOPLAY;
+                            if (sRivalLampRival[rivalLampTypeIdx])
+                            {
+                                sRivalLampRival[rivalLampTypeIdx]->update(time);
+                                drawRivalLampRivalType = rivalLampTypeIdx;
+                                drawRivalLampRival = true;
+                            }
                         }
                     }
+                    break;
                 }
-                break;
+                default:
+                    break;
+                }
             }
-            default:
-                break;
-            }
-
         }
         // TODO folder lamp
 

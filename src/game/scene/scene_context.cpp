@@ -26,7 +26,6 @@ void clearContextPlayForRetry()
     }
     gPlayContext.graphScoreTarget.clear();
 
-
 }
 
 void clearContextPlay()

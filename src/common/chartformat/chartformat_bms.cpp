@@ -341,8 +341,6 @@ int BMS::initWithFile(const Path& file)
                             haveStop = true;
                             break;
                         }
-                        break;
-
                     }
                     else // layer != 0
                     {

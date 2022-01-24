@@ -793,37 +793,44 @@ void RulesetBMS::update(const Time& t)
             if (cat == NoteLaneCategory::_) continue;
 
             auto n = _chart->incomingNote(cat, idx);
-            if (!_chart->isLastNote(cat, idx, n) && !n->hit)
+            if (!n->hit)
             {
                 if (!(n->flags & Note::LN_TAIL))
                 {
-                    if (rt - n->time >= judgeTime[(size_t)_diff].BAD)
+                    Time hitTime;
+                    bool noteNeedsJudge = false;
+                    switch (cat)
                     {
-                        switch (cat)
+                    case NoteLaneCategory::Note:
+                    case NoteLaneCategory::LN:
+                        hitTime = judgeTime[(size_t)_diff].BAD;
+                        noteNeedsJudge = true;
+                        break;
+                    case NoteLaneCategory::Invs:
+                        hitTime = -judgeTime[(size_t)_diff].BAD;
+                        break;
+                    case NoteLaneCategory::Mine:
+                        hitTime = 0;
+                        break;
+                    }
+                    if (rt - n->time >= hitTime)
+                    {
+                        n->hit = true;
+                        if (noteNeedsJudge)
                         {
-                        case NoteLaneCategory::Note:
-                        case NoteLaneCategory::LN:
                             _basic.slow++;
-                            n->hit = true;
                             updateMiss(t, idx, RulesetBMS::JudgeType::MISS, slot);
                             //LOG_DEBUG << "LATE   POOR    "; break;
-                            break;
                         }
                     }
                 }
                 else
                 {
+                    assert(cat == NoteLaneCategory::LN);
                     if (rt >= n->time)
                     {
-                        switch (cat)
-                        {
-                        case NoteLaneCategory::Note:
-                        case NoteLaneCategory::LN:
-                            _basic.slow++;
-                            n->hit = true;
-                            //LOG_DEBUG << "LATE   POOR    "; break;
-                            break;
-                        }
+                        //_basic.slow++;
+                        n->hit = true;
                     }
                 }
             }

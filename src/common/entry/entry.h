@@ -31,7 +31,7 @@ public:
     HashMD5 md5;
     StringContent _name;
     StringContent _name2;
-    long long _addTime;  // from epoch time
+    unsigned long long _addTime;  // from epoch time
 
 public:
     constexpr eEntryType type() const { return _type; }
