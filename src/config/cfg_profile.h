@@ -13,6 +13,7 @@ namespace cfg
     constexpr char P_NEW_SONG_DURATION[] = "NewSongDuration";
     constexpr char P_MOUSE_ANALOG[] = "MouseAnalog";
     constexpr char P_RELATIVE_AXIS[] = "RelativeAxis";
+    constexpr char P_NO_COMBINE_CHARTS[] = "NoCombineCharts";
 
     constexpr char P_BASESPEED[] = "Basespeed";
 

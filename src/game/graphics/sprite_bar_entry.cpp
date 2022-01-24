@@ -280,7 +280,7 @@ bool SpriteBarEntry::update(Time time)
             (BarType)barTypeIdx == BarType::NEW_SONG || 
             (BarType)barTypeIdx == BarType::SONG_RIVAL)
         {
-            auto e = std::reinterpret_pointer_cast<Song>(pEntry);
+            auto e = std::reinterpret_pointer_cast<EntryChart>(pEntry);
 
             switch (e->_file->type())
             {

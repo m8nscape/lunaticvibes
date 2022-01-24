@@ -55,26 +55,3 @@ public:
     virtual size_t getContentsCount() { return entries.size(); }
     virtual bool empty() { return entries.empty(); }
 };
-
-class FolderSong : public vFolder
-{
-public:
-    FolderSong() = delete;
-    FolderSong(HashMD5 md5, const Path& path, const StringContent& name = "", const StringContent& name2 = "") :
-        vFolder(eFolderType::SONG, md5, path)
-    {
-        _name = name;
-        _name2 = name2;
-    }
-
-protected:
-    std::vector<std::shared_ptr<vChartFormat>> charts;
-
-public:
-    std::shared_ptr<vChartFormat> getChart(size_t idx);
-    void pushChart(std::shared_ptr<vChartFormat> c);
-    virtual size_t getContentsCount() { return charts.size(); }
-    virtual bool empty() { return charts.empty(); }
-};
-
-

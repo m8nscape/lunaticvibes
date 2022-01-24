@@ -12,6 +12,7 @@
 #include "config/config_mgr.h"
 
 #include "game/skin/skin_lr2_button_callbacks.h"
+#include "game/scene/scene_context.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -31,7 +32,7 @@ void setBarInfo()
         // set level
         if (e[list_idx].first->type() == eEntryType::CHART)
         {
-            auto ps = std::reinterpret_pointer_cast<Song>(e[list_idx].first);
+            auto ps = std::reinterpret_pointer_cast<EntryChart>(e[list_idx].first);
 
             switch (ps->_file->type())
             {
@@ -65,7 +66,7 @@ void setEntryInfo()
     // chart parameters
     if (e[idx].first->type() == eEntryType::CHART || e[idx].first->type() == eEntryType::RIVAL_CHART)
     {
-        auto ps = std::reinterpret_pointer_cast<Song>(e[idx].first);
+        auto ps = std::reinterpret_pointer_cast<EntryChart>(e[idx].first);
         auto pf = std::reinterpret_pointer_cast<vChartFormat>(ps->_file);
 
         gSwitches.queue(eSwitch::CHART_HAVE_README, 
@@ -237,7 +238,7 @@ void setEntryInfo()
         gOptions.queue(eOption::SELECT_ENTRY_LAMP, Option::LAMP_NOPLAY);
         gOptions.queue(eOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
 
-        auto ps = std::reinterpret_pointer_cast<Song>(e[idx].first);
+        auto ps = std::reinterpret_pointer_cast<EntryChart>(e[idx].first);
         auto psc = std::reinterpret_pointer_cast<vScore>(e[idx].second);
         auto pf = std::reinterpret_pointer_cast<vChartFormat>(ps->_file);
         if (psc)
@@ -357,10 +358,25 @@ void setDynamicTextures()
     const size_t cursor = gSelectContext.cursor;
 
     // chart parameters
-    if (e[idx].first->type() == eEntryType::SONG || e[idx].first->type() == eEntryType::RIVAL_SONG)
+    auto entry = e[idx].first;
+    switch (entry->type())
     {
-        auto ps = std::reinterpret_pointer_cast<Song>(e[idx].first);
-        auto pf = std::reinterpret_pointer_cast<vChartFormat>(ps->_file);
+    case eEntryType::SONG:
+    case eEntryType::RIVAL_SONG:
+    case eEntryType::CHART:
+    case eEntryType::RIVAL_CHART:
+    {
+        std::shared_ptr<vChartFormat> pf;
+        if (entry->type() == eEntryType::SONG || entry->type() == eEntryType::RIVAL_SONG)
+        {
+            auto ps = std::reinterpret_pointer_cast<FolderSong>(entry);
+            pf = std::reinterpret_pointer_cast<vChartFormat>(ps->getCurrentChart());
+        }
+        else
+        {
+            auto ps = std::reinterpret_pointer_cast<EntryChart>(entry);
+            pf = std::reinterpret_pointer_cast<vChartFormat>(ps->_file);
+        }
 
         // _BG
         if (!pf->stagefile.empty())
@@ -374,7 +390,8 @@ void setDynamicTextures()
         if (!pf->banner.empty())
             gChartContext.texBanner.setPath(pf->getDirectory() / pf->banner);
     }
-
+    break;
+    }
 }
 
 void config_sys()
@@ -880,27 +897,30 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
         return;
     }
 
-    if (_skin->type() == eSkinType::LR2 && (input[Input::Pad::K1START] || input[Input::Pad::K2START]))
+    if (_skin->type() == eSkinType::LR2)
     {
-        // close other panels
-        for (int i = 2; i <= 9; ++i)
+        if (input[Input::Pad::K1START] || input[Input::Pad::K2START])
         {
-            eSwitch p = static_cast<eSwitch>(int(eSwitch::SELECT_PANEL1) - 1 + i);
-            if (gSwitches.get(p))
+            // close other panels
+            for (int i = 2; i <= 9; ++i)
             {
-                gSwitches.set(p, false);
-                gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_START) - 1 + i), TIMER_NEVER);
-                gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_END) - 1 + i), t.norm());
-                //SoundMgr::playSample(eSoundSample::SOUND_O_CLOSE);
+                eSwitch p = static_cast<eSwitch>(int(eSwitch::SELECT_PANEL1) - 1 + i);
+                if (gSwitches.get(p))
+                {
+                    gSwitches.set(p, false);
+                    gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_START) - 1 + i), TIMER_NEVER);
+                    gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_END) - 1 + i), t.norm());
+                    //SoundMgr::playSample(eSoundSample::SOUND_O_CLOSE);
+                }
             }
-        }
 
-        // open panel 1
-        gSwitches.set(eSwitch::SELECT_PANEL1, true);
-        gTimers.set(eTimer::PANEL1_START, t.norm());
-        gTimers.set(eTimer::PANEL1_END, TIMER_NEVER);
-        SoundMgr::playSample(eSoundSample::SOUND_O_OPEN);
-        return;
+            // open panel 1
+            gSwitches.set(eSwitch::SELECT_PANEL1, true);
+            gTimers.set(eTimer::PANEL1_START, t.norm());
+            gTimers.set(eTimer::PANEL1_END, TIMER_NEVER);
+            SoundMgr::playSample(eSoundSample::SOUND_O_OPEN);
+            return;
+        }
     }
 
     // navigate
@@ -966,6 +986,20 @@ void SceneSelect::inputGameHoldSelect(InputMask& input, const Time& t)
 
 void SceneSelect::inputGameReleaseSelect(InputMask& input, const Time& t)
 {
+    if (_skin->type() == eSkinType::LR2)
+    {
+        if (input[Input::Pad::K1SELECT] || input[Input::Pad::K2SELECT])
+        {
+            if (gSelectContext.entries[gSelectContext.cursor].first->type() == eEntryType::SONG)
+            {
+                auto pSong = std::dynamic_pointer_cast<FolderSong>(gSelectContext.entries[gSelectContext.cursor].first);
+                pSong->incCurrentChart();
+                // TODO play sound
+            }
+            return;
+        }
+    }
+
     // navigate
     if ((input & INPUT_MASK_NAV_UP).any())
     {
@@ -1058,11 +1092,7 @@ void SceneSelect::inputGamePressPanel(InputMask& input, const Time& t)
 
 void SceneSelect::inputGameHoldPanel(InputMask& input, const Time& t)
 {
-}
-
-void SceneSelect::inputGameReleasePanel(InputMask& input, const Time& t)
-{
-    if (gSwitches.get(eSwitch::SELECT_PANEL1) && (input[Input::Pad::K1START] || input[Input::Pad::K2START]))
+    if (gSwitches.get(eSwitch::SELECT_PANEL1) && !(input[Input::Pad::K1START] || input[Input::Pad::K2START]))
     {
         // close panel 1
         gSwitches.set(eSwitch::SELECT_PANEL1, false);
@@ -1071,6 +1101,10 @@ void SceneSelect::inputGameReleasePanel(InputMask& input, const Time& t)
         SoundMgr::playSample(eSoundSample::SOUND_O_CLOSE);
         return;
     }
+}
+
+void SceneSelect::inputGameReleasePanel(InputMask& input, const Time& t)
+{
 }
 
 void SceneSelect::_decide()
@@ -1156,11 +1190,20 @@ void SceneSelect::_decide()
     // chart
     switch (entry->type())
     {
+    case eEntryType::SONG:
+    case eEntryType::RIVAL_SONG:
     case eEntryType::CHART:
     case eEntryType::RIVAL_CHART:
     {
         // set metadata
-        c.chartObj = std::reinterpret_pointer_cast<Song>(entry)->_file;
+        if (entry->type() == eEntryType::SONG || entry->type() == eEntryType::RIVAL_SONG)
+        {
+            c.chartObj = std::reinterpret_pointer_cast<FolderSong>(entry)->getCurrentChart();
+        }
+        else
+        {
+            c.chartObj = std::reinterpret_pointer_cast<EntryChart>(entry)->_file;
+        }
 
         auto& chart = *c.chartObj;
         //c.path = chart._filePath;
@@ -1246,40 +1289,94 @@ void SceneSelect::loadSongList()
         switch (e->type())
         {
         case eEntryType::SONG:
+        case eEntryType::RIVAL_SONG:
         {
             auto f = std::reinterpret_pointer_cast<FolderSong>(e);
-            for (size_t idx = 0; idx < f->getContentsCount() && !skip; ++idx)
+            if (!ConfigMgr::get('P', cfg::P_NO_COMBINE_CHARTS, false))
             {
-                switch (f->getChart(idx)->type())
+                int nChartIdx = -1;
+                for (size_t idx = 0; idx < f->getContentsCount() && !skip; ++idx)
                 {
-                case eChartFormat::BMS:
-                {
-                    auto p = std::reinterpret_pointer_cast<BMS_prop>(f->getChart(idx));
+                    if (f->getChart(idx)->type() == eChartFormat::BMS)
+                    {
+                        auto p = std::reinterpret_pointer_cast<BMS_prop>(f->getChart(idx));
 
-                    // difficulty filter
-                    if (gSelectContext.difficulty != 0 &&
-                        std::reinterpret_pointer_cast<BMS_prop>(p)->difficulty != gSelectContext.difficulty)
-                    {
-                        continue;
+                        // gamemode filter
+                        if (gSelectContext.gamemode != 0 &&
+                            p->gamemode != gSelectContext.gamemode)
+                        {
+                            continue;
+                        }
+                        // difficulty filter
+                        if (gSelectContext.difficulty != 0 &&
+                            p->difficulty != gSelectContext.difficulty)
+                        {
+                            nChartIdx = idx;
+                            continue;
+                        }
+                        // filters are matched
+                        nChartIdx = idx;
+                        break;
                     }
-                    // gamemode filter
-                    if (gSelectContext.gamemode != 0 &&
-                        std::reinterpret_pointer_cast<BMS_prop>(p)->gamemode != gSelectContext.gamemode)
-                    {
-                        continue;
-                    }
-                    // currently add all charts as individual entries into list
-                    gSelectContext.entries.push_back({ std::make_shared<Song>(p), nullptr });
                 }
+                // add entry into list
+                gSelectContext.entries.push_back({ f, nullptr });
+            }
+            else
+            {
+                for (size_t idx = 0; idx < f->getContentsCount() && !skip; ++idx)
+                {
+                    switch (f->getChart(idx)->type())
+                    {
+                    case eChartFormat::BMS:
+                    {
+                        auto p = std::reinterpret_pointer_cast<BMS_prop>(f->getChart(idx));
+
+                        // difficulty filter
+                        if (gSelectContext.difficulty != 0 &&
+                            p->difficulty != gSelectContext.difficulty)
+                        {
+                            continue;
+                        }
+                        // gamemode filter
+                        if (gSelectContext.gamemode != 0 &&
+                            p->gamemode != gSelectContext.gamemode)
+                        {
+                            continue;
+                        }
+                        // add all charts as individual entries into list
+                        gSelectContext.entries.push_back({ std::make_shared<EntryChart>(p), nullptr });
+                    }
                     break;
 
-                default:
-                    break;
+                    default:
+                        break;
+                    }
                 }
-
             }
             break;
         }
+        case eEntryType::CHART:
+        case eEntryType::RIVAL_CHART:
+        {
+            auto f = std::reinterpret_pointer_cast<EntryChart>(e)->_file;
+            if (f->type() == eChartFormat::BMS)
+            {
+                auto p = std::reinterpret_pointer_cast<BMS_prop>(f);
+
+                // gamemode filter
+                if (gSelectContext.gamemode != 0 &&
+                    p->gamemode != gSelectContext.gamemode)
+                {
+                    break;
+                }
+                // filters are matched
+                gSelectContext.entries.push_back({ e, nullptr });
+                break;
+            }
+            break;
+        }
+
         default:
             gSelectContext.entries.push_back({ e, nullptr });
             break;
@@ -1289,24 +1386,32 @@ void SceneSelect::loadSongList()
     // load score
     for (auto& [entry, score] : gSelectContext.entries)
     {
+        std::shared_ptr<vChartFormat> pf;
         switch (entry->type())
         {
+        case eEntryType::SONG:
+        case eEntryType::RIVAL_SONG:
+            pf = std::reinterpret_pointer_cast<FolderSong>(entry)->getCurrentChart();
+            break;
         case eEntryType::CHART:
+        case eEntryType::RIVAL_CHART:
+            pf = std::reinterpret_pointer_cast<EntryChart>(entry)->_file;
+            break;
+        default: break;
+        }
+
+        if (pf)
         {
-            auto chart = std::reinterpret_pointer_cast<Song>(entry);
-            switch (chart->_file->type())
+            switch (pf->type())
             {
             case eChartFormat::BMS:
             {
-                auto pScore = g_pScoreDB->getChartScoreBMS(chart->md5);
+                auto pScore = g_pScoreDB->getChartScoreBMS(pf->fileHash);
                 score = pScore;
             }
             break;
             default: break;
             }
-        }
-        break;
-        default: break;
         }
     }
 
@@ -1316,32 +1421,43 @@ void SceneSelect::loadSongList()
     case SongListSort::DEFAULT:
     {
         auto& l = gSelectContext.entries;
-        std::sort(l.begin(), l.end(), [](const Entry& entry1, const Entry& entry2)
+        auto compareEntry = [](const Entry& entry1, const Entry& entry2)
+        {
+            auto& lhs = entry1.first;
+            auto& rhs = entry2.first;
+            if (lhs->type() != rhs->type())
+                return lhs->type() > rhs->type();
+            else
             {
-                auto&& lhs = entry1.first;
-                auto&& rhs = entry2.first;
-                if (lhs->type() != rhs->type())
-                    return lhs->type() > rhs->type();
+                if (lhs->type() == eEntryType::SONG || lhs->type() == eEntryType::RIVAL_SONG)
+                {
+                    auto l = std::reinterpret_pointer_cast<FolderSong>(lhs)->getChart(0);
+                    auto r = std::reinterpret_pointer_cast<FolderSong>(rhs)->getChart(0);
+                    if (l->levelEstimated != r->levelEstimated) return l->levelEstimated > r->levelEstimated;
+                    if (l->title != r->title) return l->title > r->title;
+                    if (l->title2 != r->title2) return l->title2 > r->title2;
+                    if (l->version != r->version) return l->version > r->version;
+                    return l->fileHash > r->fileHash;
+                }
+                else if (lhs->type() == eEntryType::CHART || lhs->type() == eEntryType::RIVAL_CHART)
+                {
+                    const auto& l = std::reinterpret_pointer_cast<const EntryChart>(lhs)->_file;
+                    const auto& r = std::reinterpret_pointer_cast<const EntryChart>(rhs)->_file;
+                    if (l->levelEstimated != r->levelEstimated) return l->levelEstimated > r->levelEstimated;
+                    if (l->title != r->title) return l->title > r->title;
+                    if (l->title2 != r->title2) return l->title2 > r->title2;
+                    if (l->version != r->version) return l->version > r->version;
+                    return l->fileHash > r->fileHash;
+                }
                 else
                 {
-                    if (lhs->type() == eEntryType::SONG)
-                    {
-                        const auto& l = std::reinterpret_pointer_cast<const Song>(lhs)->_file;
-                        const auto& r = std::reinterpret_pointer_cast<const Song>(rhs)->_file;
-                        if (l->levelEstimated != r->levelEstimated) return l->levelEstimated > r->levelEstimated;
-                        if (l->title != r->title) return l->title > r->title;
-                        if (l->title2 != r->title2) return l->title2 > r->title2;
-                        if (l->version != r->version) return l->version > r->version;
-                        return l->fileHash > r->fileHash;
-                    }
-                    else
-                    {
-                        if (lhs->_name != rhs->_name) return lhs->_name > rhs->_name;
-                        if (lhs->_name2 != rhs->_name2) return lhs->_name2 > rhs->_name2;
-                        return false;
-                    }
+                    if (lhs->_name != rhs->_name) return lhs->_name > rhs->_name;
+                    if (lhs->_name2 != rhs->_name2) return lhs->_name2 > rhs->_name2;
+                    return lhs->md5 > rhs->md5;
                 }
-            });
+            }
+        };
+        std::sort(l.begin(), l.end(), compareEntry);
         break;
     }
     case SongListSort::TITLE:
@@ -1355,10 +1471,19 @@ void SceneSelect::loadSongList()
                     return lhs->type() > rhs->type();
                 else
                 {
-                    if (lhs->type() == eEntryType::SONG)
+                    if (lhs->type() == eEntryType::SONG || lhs->type() == eEntryType::RIVAL_SONG)
                     {
-                        const auto& l = std::reinterpret_pointer_cast<const Song>(lhs)->_file;
-                        const auto& r = std::reinterpret_pointer_cast<const Song>(rhs)->_file;
+                        auto l = std::reinterpret_pointer_cast<FolderSong>(lhs)->getChart(0);
+                        auto r = std::reinterpret_pointer_cast<FolderSong>(rhs)->getChart(0);
+                        if (l->title != r->title) return l->title > r->title;
+                        if (l->title2 != r->title2) return l->title2 > r->title2;
+                        if (l->version != r->version) return l->version > r->version;
+                        return l->fileHash > r->fileHash;
+                    }
+                    else if (lhs->type() == eEntryType::CHART || lhs->type() == eEntryType::RIVAL_CHART)
+                    {
+                        const auto& l = std::reinterpret_pointer_cast<const EntryChart>(lhs)->_file;
+                        const auto& r = std::reinterpret_pointer_cast<const EntryChart>(rhs)->_file;
                         if (l->title != r->title) return l->title > r->title;
                         if (l->title2 != r->title2) return l->title2 > r->title2;
                         if (l->version != r->version) return l->version > r->version;
@@ -1368,7 +1493,7 @@ void SceneSelect::loadSongList()
                     {
                         if (lhs->_name != rhs->_name) return lhs->_name > rhs->_name;
                         if (lhs->_name2 != rhs->_name2) return lhs->_name2 > rhs->_name2;
-                        return false;
+                        return lhs->md5 > rhs->md5;
                     }
                 }
             });

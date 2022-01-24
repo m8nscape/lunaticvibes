@@ -11,7 +11,7 @@ add_library(common STATIC
     chartformat/chartformat.cpp
     chartformat/chartformat_bms.cpp
     entry/entry_folder.cpp
-    )
+     "entry/entry_song.cpp")
 
 target_include_directories(common PRIVATE
     ${PROJECT_INCLUDE_DIR}

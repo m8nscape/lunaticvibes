@@ -14,14 +14,6 @@ enum class eSelectState
     SELECT,
     SEARCH,
     PANEL1,     // play option
-    PANEL2,     // system option
-    PANEL3,
-    PANEL4,
-    PANEL5,
-    PANEL6,
-    PANEL7,
-    PANEL8,
-    PANEL9,
     FADEOUT,
 };
 

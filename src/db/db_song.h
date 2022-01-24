@@ -6,6 +6,7 @@
 #include "common/types.h"
 #include "common/utils.h"
 #include "common/entry/entry_folder.h"
+#include "common/entry/entry_song.h"
 
 class vChartFormat;
 typedef std::shared_ptr<vChartFormat> pChart;

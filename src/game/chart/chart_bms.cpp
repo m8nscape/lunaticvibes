@@ -228,6 +228,7 @@ void chartBMS::loadBMS(const BMS& objBms)
             eLanePriority type;
             int area;
             unsigned index;
+            bool operator< (const Lane& rhs) const { return type < rhs.type || area < rhs.area || index < rhs.index; }
         };
 
         // notes [] {beat, {lane, sample/val}}
