@@ -200,7 +200,8 @@ int BMS::initWithFile(const Path& file)
                         continue;
 
                     // skip mismatch IF value blocks
-                    if (ifValue.top() != randomValue) continue;
+                    if (ifValue.top() != randomValue) 
+                        continue;
                 }
 
 
