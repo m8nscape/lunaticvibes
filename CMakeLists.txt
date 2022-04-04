@@ -58,3 +58,10 @@ add_subdirectory(src)
 
 #########################################################################
 # LIBRARY
+
+#########################################################################
+# GTEST
+option(BUILD_TEST "Enable building gtest targets" YES)
+if (${BUILD_TEST})
+    add_subdirectory(test)
+endif()

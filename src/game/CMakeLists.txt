@@ -8,7 +8,7 @@ if (${GRAPHICS_BACKEND} STREQUAL SDL2)
     )
 endif()
 
-add_executable(game game.cpp
+add_library(gamelib
     chart/chart.cpp
     chart/chart_bms.cpp
     ${GRAPHICS_BACKEND_SRC}
@@ -43,21 +43,24 @@ add_executable(game game.cpp
     sound/sound_fmod.cpp
     sound/sound_fmod_callback.cpp
     sound/sound_mgr.cpp
-    sound/sound_sample.cpp  "scene/scene_keyconfig.cpp" "scene/scene_play_course_trans.cpp" "input/input_rawinput.cpp")
+    sound/sound_sample.cpp  "scene/scene_keyconfig.cpp" "scene/scene_play_course_trans.cpp" "input/input_rawinput.cpp" 
+)
 
 if (UNIX OR MINGW)
-    target_link_libraries(game PRIVATE -lpthread)
-    target_link_libraries(game PRIVATE -lstdc++fs)
+    target_link_libraries(gamelib PRIVATE -lpthread)
+    target_link_libraries(gamelib PRIVATE -lstdc++fs)
 endif()
 
-target_include_directories(game PRIVATE 
+target_include_directories(gamelib PUBLIC 
     ${PROJECT_INCLUDE_DIR}
 )
 
-set_target_properties(game PROPERTIES
-    CXX_STANDARD 17)
+set_target_properties(gamelib PROPERTIES
+    CXX_STANDARD 17
+)
 
-target_link_libraries(game 
+
+target_link_libraries(gamelib 
     PUBLIC common
     PUBLIC config
     PUBLIC db
@@ -65,7 +68,7 @@ target_link_libraries(game
 )
 
 if (${GRAPHICS_BACKEND} STREQUAL SDL2)
-    target_link_libraries(game
+    target_link_libraries(gamelib
         PUBLIC SDL2
         PUBLIC SDL2_main
         PUBLIC SDL2_gfx
@@ -75,7 +78,7 @@ if (${GRAPHICS_BACKEND} STREQUAL SDL2)
 endif()
 
 if (${VIDEO_ENABLED})
-    target_link_libraries(game
+    target_link_libraries(gamelib
         PUBLIC libavcodec    
         PUBLIC libavdevice   
         PUBLIC libavfilter   
@@ -85,11 +88,18 @@ if (${VIDEO_ENABLED})
         PUBLIC libswscale   
     )
 else()
-    add_definitions(-DVIDEO_DISABLED)
+    target_compile_definitions(gamelib PUBLIC -DVIDEO_DISABLED)
 endif()
 
-target_precompile_headers(game REUSE_FROM common)
+target_precompile_headers(gamelib REUSE_FROM common)
 
+#############################################################
+
+add_executable(game game.cpp)
+target_link_libraries(game PRIVATE gamelib)
+set_target_properties(game PROPERTIES
+    CXX_STANDARD 17
+)
 if (${EXT_DEPEND_LIBFILES_SET})
     add_custom_command(TARGET game POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different

@@ -107,6 +107,21 @@ std::string bin2hex(const void* bin, size_t size)
     }
     return res;
 }
+std::string hex2bin(const std::string& hex)
+{
+    std::string res;
+    res.resize(hex.length() / 2 + 1);
+    for (size_t i = 0, j = 0; j < res.length(); i += 2, j++)
+    {
+        unsigned char &c = ((unsigned char&)res[j]);
+        char c1 = tolower(hex[i]);
+        char c2 = tolower(hex[i + 1]);
+        c += (c1 - ((c1 >= 'a') ? 'a' : '0')) << 4;
+        c += (c2 - ((c2 >= 'a') ? 'a' : '0'));
+    }
+    return res;
+}
+
 
 HashMD5 md5(const std::string& str)
 {

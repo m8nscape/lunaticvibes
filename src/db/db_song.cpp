@@ -229,8 +229,8 @@ int SongDB::addChart(const HashMD5& folder, const Path& path)
         { folder, filename }); !result.empty() && !result[0].empty())
     {
         // file exists in db
-        auto dbmd5 = ANY_STR(result[0][0]);
-        auto filemd5 = md5file(path);
+        HashMD5 dbmd5 = ANY_STR(result[0][0]);
+        HashMD5 filemd5 = md5file(path);
         if (dbmd5 == filemd5)
         {
             return 0;
@@ -654,7 +654,7 @@ FolderRegular SongDB::browse(HashMD5 root, bool recursive)
 {
     Path path;
     if (getFolderPath(root, path) < 0)
-        return FolderRegular("", path);
+        return FolderRegular(HashMD5(), path);
 
     FolderRegular list(root, path);
 
@@ -694,7 +694,7 @@ FolderSong SongDB::browseSong(HashMD5 root)
 {
     Path path;
     if (getFolderPath(root, path) < 0)
-        return FolderSong("", path);
+        return FolderSong(HashMD5(), path);
 
     FolderSong list(root, path);
     bool isNameSet = false;
@@ -741,9 +741,9 @@ FolderRegular SongDB::search(HashMD5 root, std::string key)
 {
     Path path;
     if (getFolderPath(root, path) < 0)
-        return FolderRegular("", "");
+        return FolderRegular(HashMD5(), "");
 
-    FolderRegular list("", "");
+    FolderRegular list(md5(key), "");
     for (auto& c : findChartByName(root, key))
     {
         //list.pushChart(c);

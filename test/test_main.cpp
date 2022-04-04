@@ -1,11 +1,29 @@
 #include "gmock/gmock.h"
-#include "plog/Log.h"
-#include <filesystem>
-#include <plog/Appenders/ColorConsoleAppender.h>        // for command prompt log purpose
+#include <plog/Log.h>
+#include <plog/Init.h>
+#include <plog/Appenders/ColorConsoleAppender.h>
+#include <plog/Formatters/TxtFormatter.h>
+
 int main(int argc, char** argv)
 {
+    std::filesystem::create_directories("test");
+    std::filesystem::current_path("test");
+
     auto appender = plog::ColorConsoleAppender<plog::TxtFormatterImpl<false>>();
     plog::init(plog::debug, &appender);
+
     ::testing::InitGoogleMock(&argc, argv);
-    return RUN_ALL_TESTS();
+    
+    bool bExit = false;
+    std::thread t([&bExit]()
+        {
+            while (!bExit)
+                doMainThreadTask();
+        });
+
+    int n = RUN_ALL_TESTS();
+
+    bExit = true;
+    t.join();
+    return n;
 }

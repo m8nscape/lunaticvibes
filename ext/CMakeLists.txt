@@ -59,3 +59,7 @@ if (${GRAPHICS_BACKEND} STREQUAL SDL2)
     # Add SDL2_gfx
     add_subdirectory(SDL2_gfx)
 endif()
+
+# Add gtest
+option(INSTALL_GTEST OFF)
+add_subdirectory(googletest)

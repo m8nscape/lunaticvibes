@@ -15,6 +15,8 @@ public:
     mock_Texture() :Texture(mock_Image()) { _texRect = TEST_RECT; _loaded = true; }
     MOCK_CONST_METHOD6(draw, void(const Rect& srcRect, Rect dstRect,
         const Color c, const BlendMode blend, const bool filter, const double angleInDegrees));
+    MOCK_CONST_METHOD7(draw, void(const Rect& srcRect, Rect dstRect,
+        const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point& pt));
 };
 
 
@@ -344,53 +346,53 @@ TEST_F(sAnimated, animUpdate)
     //InSequence dummy;
 
     s.update(t0);
-    EXPECT_CALL(*pt, draw(Rect(0 * w, 0 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(0 * w, 0 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
     s.update(t1);
-    EXPECT_CALL(*pt, draw(Rect(1 * w, 0 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(1 * w, 0 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
     s.update(t2);
-    EXPECT_CALL(*pt, draw(Rect(0 * w, 1 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(0 * w, 1 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
     s.update(t3);
-    EXPECT_CALL(*pt, draw(Rect(1 * w, 1 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(1 * w, 1 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
     s.update(t4);
-    EXPECT_CALL(*pt, draw(Rect(0 * w, 2 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(0 * w, 2 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
     s.update(t5);
-    EXPECT_CALL(*pt, draw(Rect(1 * w, 2 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(1 * w, 2 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
     s.update(t6);
-    EXPECT_CALL(*pt, draw(Rect(0 * w, 3 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(0 * w, 3 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
     s.update(t7);
-    EXPECT_CALL(*pt, draw(Rect(1 * w, 3 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(1 * w, 3 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     ss.update(t0);
-    EXPECT_CALL(*pt, draw(Rect(0 * ww, 0 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(0 * ww, 0 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     ss.draw();
     ss.update(t1);
-    EXPECT_CALL(*pt, draw(Rect(1 * ww, 0 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(1 * ww, 0 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     ss.draw();
     ss.update(t2);
-    EXPECT_CALL(*pt, draw(Rect(2 * ww, 0 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(2 * ww, 0 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     ss.draw();
     ss.update(t3);
-    EXPECT_CALL(*pt, draw(Rect(3 * ww, 0 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(3 * ww, 0 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     ss.draw();
     ss.update(t4);
-    EXPECT_CALL(*pt, draw(Rect(0 * ww, 1 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(0 * ww, 1 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     ss.draw();
     ss.update(t5);
-    EXPECT_CALL(*pt, draw(Rect(1 * ww, 1 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(1 * ww, 1 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     ss.draw();
     ss.update(t6);
-    EXPECT_CALL(*pt, draw(Rect(2 * ww, 1 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(2 * ww, 1 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     ss.draw();
     ss.update(t7);
-    EXPECT_CALL(*pt, draw(Rect(3 * ww, 1 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(3 * ww, 1 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     ss.draw();
 
 }
@@ -970,26 +972,26 @@ TEST_F(sSlider, updateLeft)
     //InSequence dummy;
     gSliders.set(eSlider::_TEST1, 0);
     s.update(t0);
-    //EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
-    //s.draw();
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    s.draw();
     EXPECT_EQ(s.getCurrentRenderParams().rect, Rect(0, 0, 0, 0));
 
     gSliders.set(eSlider::_TEST1, 0.33);
     s.update(t0);
-    //EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 - 33, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
-    //s.draw();
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 - 33, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    s.draw();
     EXPECT_EQ(s.getCurrentRenderParams().rect, Rect(-33, 0, 0, 0));
 
     gSliders.set(eSlider::_TEST1, 0.50);
     s.update(t0);
-    //EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 - 50, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
-    //s.draw();
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 - 50, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    s.draw();
     EXPECT_EQ(s.getCurrentRenderParams().rect, Rect(-50, 0, 0, 0));
 
     gSliders.set(eSlider::_TEST1, 1.00);
     s.update(t0);
-    //EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 - 100, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
-    //s.draw();
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 - 100, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    s.draw();
     EXPECT_EQ(s.getCurrentRenderParams().rect, Rect(-100, 0, 0, 0));
 }
 
@@ -1002,22 +1004,22 @@ TEST_F(sSlider, updateRight)
     //InSequence dummy;
     gSliders.set(eSlider::_TEST1, 0);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     gSliders.set(eSlider::_TEST1, 0.33);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 + 33, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 + 33, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     gSliders.set(eSlider::_TEST1, 0.5);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 + 50, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 + 50, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     gSliders.set(eSlider::_TEST1, 1);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 + 100, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 + 100, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 }
 
@@ -1030,22 +1032,22 @@ TEST_F(sSlider, updateUp)
     //InSequence dummy;
     gSliders.set(eSlider::_TEST1, 0);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     gSliders.set(eSlider::_TEST1, 0.33);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0 - 66, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0 - 66, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     gSliders.set(eSlider::_TEST1, 0.50);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0 - 100, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0 - 100, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     gSliders.set(eSlider::_TEST1, 1.00);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0 - 200, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0 - 200, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 }
 
@@ -1058,22 +1060,22 @@ TEST_F(sSlider, updateDown)
     //InSequence dummy;
     gSliders.set(eSlider::_TEST1, 0);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     gSliders.set(eSlider::_TEST1, 0.33);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0 + 66, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0 + 66, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     gSliders.set(eSlider::_TEST1, 0.505);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0 + 101, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0 + 101, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     gSliders.set(eSlider::_TEST1, 1.00);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0 + 200, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0 + 200, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 }
 #pragma endregion
@@ -1126,26 +1128,26 @@ TEST_F(sBargraph, updateLeft)
     //InSequence dummy;
     gBargraphs.set(eBargraph::_TEST1, 0);
     s.update(t0);
-    //EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
-    //s.draw();
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    s.draw();
     EXPECT_EQ(s.getCurrentRenderParams().rect, Rect(200, 0, 0, 200));
 
     gBargraphs.set(eBargraph::_TEST1, 0.33);
     s.update(t0);
-    //EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 - 33, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
-    //s.draw();
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 - 33, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    s.draw();
     EXPECT_EQ(s.getCurrentRenderParams().rect, Rect(134, 0, 66, 200));
 
     gBargraphs.set(eBargraph::_TEST1, 0.50);
     s.update(t0);
-    //EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 - 50, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
-    //s.draw();
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 - 50, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    s.draw();
     EXPECT_EQ(s.getCurrentRenderParams().rect, Rect(100, 0, 100, 200));
 
     gBargraphs.set(eBargraph::_TEST1, 1.00);
     s.update(t0);
-    //EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 - 100, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
-    //s.draw();
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 - 100, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    s.draw();
     EXPECT_EQ(s.getCurrentRenderParams().rect, Rect(0, 0, 200, 200));
 }
 
@@ -1158,22 +1160,22 @@ TEST_F(sBargraph, updateRight)
     //InSequence dummy;
     gBargraphs.set(eBargraph::_TEST1, 0);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     gBargraphs.set(eBargraph::_TEST1, 0.33);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 66, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 66, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     gBargraphs.set(eBargraph::_TEST1, 0.5);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 100, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 100, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     gBargraphs.set(eBargraph::_TEST1, 1);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 200, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 200, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 }
 
@@ -1186,22 +1188,22 @@ TEST_F(sBargraph, updateUp)
     //InSequence dummy;
     gBargraphs.set(eBargraph::_TEST1, 0);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 200, 200, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 200, 200, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     gBargraphs.set(eBargraph::_TEST1, 0.33);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 134, 200, 66), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 134, 200, 66), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     gBargraphs.set(eBargraph::_TEST1, 0.50);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 100, 200, 100), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 100, 200, 100), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     gBargraphs.set(eBargraph::_TEST1, 1.00);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 200, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 200, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 }
 
@@ -1214,22 +1216,22 @@ TEST_F(sBargraph, updateDown)
     //InSequence dummy;
     gBargraphs.set(eBargraph::_TEST1, 0);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 200, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 200, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     gBargraphs.set(eBargraph::_TEST1, 0.33);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 200, 66), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 200, 66), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     gBargraphs.set(eBargraph::_TEST1, 0.505);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 200, 101), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 200, 101), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     gBargraphs.set(eBargraph::_TEST1, 1.00);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 200, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 200, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 }
 #pragma endregion

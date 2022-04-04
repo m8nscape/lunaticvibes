@@ -58,6 +58,7 @@ constexpr unsigned base16(const char* c)
 }
 
 std::string bin2hex(const void* bin, size_t size);
+std::string hex2bin(const std::string& hex);
 
 HashMD5 md5(const std::string& str);
 HashMD5 md5(const char* str, size_t len);

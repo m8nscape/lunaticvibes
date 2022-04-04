@@ -4,8 +4,6 @@
 #include <string>
 #include <string_view>
 
-typedef std::string                             HashMD5;
-typedef std::string                             HashSHA1;
 typedef std::filesystem::path                   Path;
 typedef Path::string_type                       StringPath;
 typedef std::basic_string_view<Path::value_type> StringPathView;
@@ -19,6 +17,54 @@ const size_t INDEX_INVALID	= ~0;
 {
     return Path(std::string_view(_Str, _Len));
 }
+
+template <size_t _Len>
+class Hash
+{
+private:
+    unsigned char data[_Len] = { 0 };
+    bool set = false;
+public:
+    Hash() = default;
+    Hash(const std::string& hex)
+    {
+        if (!hex.empty())
+        {
+            set = true;
+            std::string bin = hex2bin(hex);
+            for (int i = 0; i < bin.size() && i < _Len; ++i) data[i] = bin[i];
+        }
+    }
+    Hash(const Hash<_Len>& rhs)
+    {
+        set = true;
+        for (int i = 0; i < _Len; ++i) data[i] = rhs.data[i];
+    }
+
+    constexpr size_t length() const { return _Len; }
+    bool empty() const { return !set; }
+    std::string hexdigest() const { return bin2hex(data, _Len); }
+
+    template <size_t _Len2>
+    bool operator<(const Hash<_Len2>& rhs) { return hexdigest() < rhs.hexdigest(); }
+    template <size_t _Len2>
+    bool operator>(const Hash<_Len2>& rhs) { return hexdigest() > rhs.hexdigest(); }
+    template <size_t _Len2>
+    bool operator==(const Hash<_Len2>& rhs) { return _Len == _Len2 && hexdigest() == rhs.hexdigest(); }
+    template <size_t _Len2>
+    bool operator!=(const Hash<_Len2>& rhs) { return _Len != _Len2 || hexdigest() != rhs.hexdigest(); }
+
+
+    friend std::ostream& operator<<(std::ostream& s, const Hash<_Len>& h);
+};
+template <size_t _Len>
+std::ostream& operator<<(std::ostream& s, const Hash<_Len>& h)
+{
+    return s << h.hexdigest();
+}
+
+typedef Hash<16> HashMD5;
+typedef Hash<32> HashSHA1;
 
 enum class eMode {
     EXIT = 0,

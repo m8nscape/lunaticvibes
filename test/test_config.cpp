@@ -7,7 +7,7 @@ namespace fs = std::filesystem;
 class tConfig : public vConfig
 {
 public:
-    tConfig() : vConfig("dummy.cfg"_p) {}
+    tConfig() : vConfig() {}
     tConfig(StringPath path) : vConfig(path) {}
 
     virtual void setDefaults() noexcept

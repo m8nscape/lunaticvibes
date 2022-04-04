@@ -611,33 +611,42 @@ void SpriteNumber::updateNumber(int n)
     // symbol
     switch (_numType)
     {
-		/*
-        case NUM_SYMBOL:
+    /*
+    case NUM_TYPE_NORMAL:
+        for (unsigned i = _numDigits; i < maxDigits; ++i)
         {
-            _digit[_sDigit.size() - 1] = positive ? NUM_SYMBOL_PLUS : NUM_SYMBOL_MINUS;
+            _digit[i] = 0;
+        }
+        _numDigits = maxDigits;
+        break;
+    */
+	/*
+    case NUM_SYMBOL:
+    {
+        _digit[_sDigit.size() - 1] = positive ? NUM_SYMBOL_PLUS : NUM_SYMBOL_MINUS;
+        break;
+    }
+	*/
+    case NUM_TYPE_FULL:
+    {
+        switch (_alignType)
+        {
+
+        case NUM_ALIGN_RIGHT:
+            if (!_inhibitZero || _numDigits == _maxDigits)
+                _numDigits = _maxDigits - 1;
+            _digit[_numDigits++] = positive ? NUM_FULL_PLUS : NUM_FULL_MINUS;
+            break;
+
+        case NUM_ALIGN_LEFT:
+        case NUM_ALIGN_CENTER: 
+            if (_numDigits == _maxDigits)
+                --_numDigits;
+            _digit[_numDigits++] = positive ? NUM_FULL_PLUS : NUM_FULL_MINUS;
             break;
         }
-		*/
-        case NUM_TYPE_FULL:
-        {
-            switch (_alignType)
-            {
-
-            case NUM_ALIGN_RIGHT:
-                if (!_inhibitZero || _numDigits == _maxDigits)
-                    _numDigits = _maxDigits - 1;
-                _digit[_numDigits++] = positive ? NUM_FULL_PLUS : NUM_FULL_MINUS;
-                break;
-
-            case NUM_ALIGN_LEFT:
-            case NUM_ALIGN_CENTER: 
-                if (_numDigits == _maxDigits)
-                    --_numDigits;
-                _digit[_numDigits++] = positive ? NUM_FULL_PLUS : NUM_FULL_MINUS;
-                break;
-            }
-            break;
-        }
+        break;
+    }
     }
 }
 

@@ -13,7 +13,9 @@ protected:
 public:
     vConfig();
 	vConfig(const char* file);
+    vConfig(const StringPath& file);
 	vConfig(const std::string& profile, const char* file);
+    vConfig(const std::string& profile, const StringPath& file);
     virtual ~vConfig() = default;
 
     virtual void setDefaults() noexcept = 0;
