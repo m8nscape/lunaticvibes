@@ -25,10 +25,12 @@ private:
     InputMask _inputAvailable;
     
     // navigate input
-    long long scrollTimestamp = -1;
     bool isHoldingUp = false;
     bool isHoldingDown = false;
     bool isScrollingByAxis = false;
+    bool isInVersionList = false;
+    Time scrollTimestamp = -1;
+    Time selectDownTimestamp = -1;
 
 public:
     SceneSelect();
@@ -70,4 +72,6 @@ private:
     void _navigateEnter(const Time& t);
     void _navigateBack(const Time& t);
     void _decide();
+    void _navigateVersionEnter(const Time& t);
+    void _navigateVersionBack(const Time& t);
 };

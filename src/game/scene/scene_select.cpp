@@ -18,7 +18,7 @@
 
 void setBarInfo()
 {
-    const auto& e = gSelectContext.entries;
+    const EntryList& e = gSelectContext.entries;
     if (e.empty()) return;
 
     const size_t idx = gSelectContext.idx;
@@ -26,19 +26,36 @@ void setBarInfo()
     const size_t count = int(eText::_SELECT_BAR_TITLE_FULL_MAX) - int(eText::_SELECT_BAR_TITLE_FULL_0) + 1;
     for (size_t list_idx = (e.size() + idx - cursor) % e.size(), i = 0; i < count; list_idx = (list_idx + 1) % e.size(), ++i)
     {
-        // set title
-        gTexts.set(eText(int(eText::_SELECT_BAR_TITLE_FULL_0) + i), e[list_idx].first->_name);
-
-        // set level
-        if (e[list_idx].first->type() == eEntryType::CHART)
+        auto entry = e[list_idx].first;
+        std::shared_ptr<vChartFormat> pf = nullptr;
+        switch (entry->type())
         {
-            auto ps = std::reinterpret_pointer_cast<EntryChart>(e[list_idx].first);
+        case eEntryType::SONG:
+        case eEntryType::RIVAL_SONG:
+        {
+            auto ps = std::reinterpret_pointer_cast<FolderSong>(entry);
+            pf = ps->getCurrentChart();
+            break;
+        }
+        case eEntryType::CHART:
+        case eEntryType::RIVAL_CHART:
+        {
+            pf = std::reinterpret_pointer_cast<EntryChart>(entry)->_file;
+            break;
+        }
 
-            switch (ps->_file->type())
+        default:
+            break;
+        }
+
+        if (pf != nullptr)
+        {
+            switch (pf->type())
             {
             case eChartFormat::BMS:
             {
-                const auto bms = std::reinterpret_pointer_cast<const BMS_prop>(ps->_file);
+                const auto bms = std::reinterpret_pointer_cast<const BMS_prop>(pf);
+                gTexts.set(eText(int(eText::_SELECT_BAR_TITLE_FULL_0) + i), entry->_name);
                 gNumbers.set(eNumber(int(eNumber::_SELECT_BAR_LEVEL_0) + i), bms->playLevel);
 
                 // TODO set bar lamp
@@ -47,6 +64,7 @@ void setBarInfo()
             }
 
             default:
+                gTexts.set(eText(int(eText::_SELECT_BAR_TITLE_FULL_0) + i), entry->_name);
                 gNumbers.set(eNumber(int(eNumber::_SELECT_BAR_LEVEL_0) + i), 0);
                 break;
             }
@@ -57,7 +75,7 @@ void setBarInfo()
 
 void setEntryInfo()
 {
-    const auto& e = gSelectContext.entries;
+    const EntryList& e = gSelectContext.entries;
     if (e.empty()) return;
 
     const size_t idx = gSelectContext.idx;
@@ -351,7 +369,7 @@ void setDynamicTextures()
 {
     std::shared_lock<std::shared_mutex> u(gSelectContext._mutex);
 
-    const auto& e = gSelectContext.entries;
+    const EntryList& e = gSelectContext.entries;
     if (e.empty()) return;
 
     const size_t idx = gSelectContext.idx;
@@ -689,7 +707,7 @@ void SceneSelect::updateSelect()
 {
     auto t = Time();
     auto rt = t - gTimers.get(eTimer::SCENE_START);
-    if (t.norm() - scrollTimestamp >= gSelectContext.scrollTime)
+    if ((t - scrollTimestamp).norm() >= gSelectContext.scrollTime)
     {
         if (!isHoldingUp && !isHoldingDown)
             scrollTimestamp = -1;
@@ -921,6 +939,18 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
             SoundMgr::playSample(eSoundSample::SOUND_O_OPEN);
             return;
         }
+        if (selectDownTimestamp == -1 && (input[Input::Pad::K1SELECT || input[Input::Pad::K2SELECT]]))
+        {
+            switch (gSelectContext.entries[gSelectContext.idx].first->type())
+            {
+            case eEntryType::SONG:
+            case eEntryType::RIVAL_SONG:
+            {
+                selectDownTimestamp = t;
+                break;
+            }
+            }
+        }
     }
 
     // navigate
@@ -970,17 +1000,21 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
 void SceneSelect::inputGameHoldSelect(InputMask& input, const Time& t)
 {
     // navigate
-    if (isHoldingUp && t.norm() - scrollTimestamp >= gSelectContext.scrollTime)
+    if (isHoldingUp && (t - scrollTimestamp).norm() >= gSelectContext.scrollTime)
     {
         gSelectContext.scrollTime = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);
-        scrollTimestamp = t.norm();
+        scrollTimestamp = t;
         _navigateUpBy1(t);
     }
-    if (isHoldingDown && t.norm() - scrollTimestamp >= gSelectContext.scrollTime)
+    if (isHoldingDown && (t - scrollTimestamp).norm() >= gSelectContext.scrollTime)
     {
         gSelectContext.scrollTime = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);
-        scrollTimestamp = t.norm();
+        scrollTimestamp = t;
         _navigateDownBy1(t);
+    }
+    if ((t - selectDownTimestamp).norm() >= 233 && !isInVersionList && (input[Input::Pad::K1SELECT] || input[Input::Pad::K2SELECT]))
+    {
+        _navigateVersionEnter(t);
     }
 }
 
@@ -988,14 +1022,22 @@ void SceneSelect::inputGameReleaseSelect(InputMask& input, const Time& t)
 {
     if (_skin->type() == eSkinType::LR2)
     {
-        if (input[Input::Pad::K1SELECT] || input[Input::Pad::K2SELECT])
+        if (selectDownTimestamp != -1 && (input[Input::Pad::K1SELECT] || input[Input::Pad::K2SELECT]))
         {
-            if (gSelectContext.entries[gSelectContext.idx].first->type() == eEntryType::SONG)
+            if (isInVersionList)
             {
+                _navigateVersionBack(t);
+            }
+            else
+            {
+                // short press on song, inc version by 1
+                // TODO play some animation
                 auto pSong = std::dynamic_pointer_cast<FolderSong>(gSelectContext.entries[gSelectContext.idx].first);
                 pSong->incCurrentChart();
-                // TODO play sound
+                setBarInfo();
+                SoundMgr::playSample(eSoundSample::SOUND_DIFFICULTY);
             }
+            selectDownTimestamp = -1;
             return;
         }
     }
@@ -1035,10 +1077,10 @@ void SceneSelect::inputGameAxisSelect(InputAxisPlus& input, const Time& t)
             gSelectContext.scrollTime = 1000 / (navValAbs * 1000);
             isScrollingByAxis = true;
         }
-        if (t.norm() - scrollTimestamp >= gSelectContext.scrollTime)
+        if ((t - scrollTimestamp).norm() >= gSelectContext.scrollTime)
         {
             isScrollingByAxis = false;
-            scrollTimestamp = t.norm();
+            scrollTimestamp = t;
             if (navVal > 0)
                 _navigateDownBy1(t);
             else
@@ -1510,6 +1552,9 @@ void SceneSelect::loadSongList()
 
 void SceneSelect::_navigateUpBy1(const Time& t)
 {
+    if (!isInVersionList)
+        selectDownTimestamp = -1;
+
     {
         std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
 
@@ -1527,6 +1572,9 @@ void SceneSelect::_navigateUpBy1(const Time& t)
 
 void SceneSelect::_navigateDownBy1(const Time& t)
 {
+    if (!isInVersionList)
+        selectDownTimestamp = -1;
+
     {
         std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
 
@@ -1583,6 +1631,9 @@ void SceneSelect::_navigateEnter(const Time& t)
 }
 void SceneSelect::_navigateBack(const Time& t)
 {
+    if (!isInVersionList)
+        selectDownTimestamp = -1;
+
     {
         std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
 
@@ -1602,4 +1653,26 @@ void SceneSelect::_navigateBack(const Time& t)
         }
     }
     setDynamicTextures();
+}
+
+void SceneSelect::_navigateVersionEnter(const Time& t)
+{
+    isInVersionList = true;
+
+    // TODO
+    // play some sound
+    // play some animation
+    // push current list into buffer
+    // create version list
+    // show list
+}
+
+void SceneSelect::_navigateVersionBack(const Time& t)
+{
+    // TODO
+    // play some sound
+    // play some animation
+    // behavior like _navigateBack
+
+    isInVersionList = false;
 }
