@@ -54,14 +54,7 @@ public:
     template <size_t _Len2>
     bool operator!=(const Hash<_Len2>& rhs) { return _Len != _Len2 || hexdigest() != rhs.hexdigest(); }
 
-
-    friend std::ostream& operator<<(std::ostream& s, const Hash<_Len>& h);
 };
-template <size_t _Len>
-std::ostream& operator<<(std::ostream& s, const Hash<_Len>& h)
-{
-    return s << h.hexdigest();
-}
 
 typedef Hash<16> HashMD5;
 typedef Hash<32> HashSHA1;

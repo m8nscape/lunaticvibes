@@ -21,7 +21,7 @@ TEST(tBMS, meta_basic)
 	std::shared_ptr<BMS> bms = nullptr;
 	ASSERT_NO_THROW(bms = std::make_shared<BMS>("bms/bgm32.bms"));
 	ASSERT_EQ(bms->isLoaded(), true);
-	EXPECT_EQ(bms->fileHash, HashMD5("2803C539385E76F13919A99615DC4480"));
+	EXPECT_STRCASEEQ(bms->fileHash.hexdigest().c_str(), "2803C539385E76F13919A99615DC4480");
 	EXPECT_EQ(bms->haveNote, false);
 	EXPECT_EQ(bms->notes, 0);
 	EXPECT_EQ(bms->notes_ln, 0);
@@ -38,13 +38,6 @@ TEST(tBMS, bpm_change)
 {
 	std::shared_ptr<BMS> bms = nullptr;
 	ASSERT_NO_THROW(bms = std::make_shared<BMS>("bms/bpm.bms"));
-	ASSERT_EQ(bms->isLoaded(), true);
-}
-
-TEST(tBMS, stop)
-{
-	std::shared_ptr<BMS> bms = nullptr;
-	ASSERT_NO_THROW(bms = std::make_shared<BMS>("bms/stop.bms"));
 	ASSERT_EQ(bms->isLoaded(), true);
 }
 

@@ -321,7 +321,7 @@ int SongDB::removeChart(const HashMD5& md5)
 {
     if (SQLITE_OK != exec("DELETE FROM song WHERE md5=?", { md5 }))
     {
-        LOG_WARNING << "[SongDB] Delete from db error: " << md5 << ": " << errmsg();
+        LOG_WARNING << "[SongDB] Delete from db error: " << md5.hexdigest() << ": " << errmsg();
         return 1;
     }
     return 0;
@@ -393,7 +393,7 @@ INSTR(version, ?))",
 // chart may duplicate, return all found
 std::vector<pChart> SongDB::findChartByHash(const HashMD5& target) const
 {
-    LOG_INFO << "[SongDB] Search for song " << target;
+    LOG_INFO << "[SongDB] Search for song " << target.hexdigest();
 
     auto result = query("SELECT * FROM song WHERE md5=?", 29, { target });
 
@@ -596,12 +596,12 @@ HashMD5 SongDB::getFolderParent(const HashMD5& folder) const
         if (ANY_INT(leaf[0]) != FOLDER)
         {
             LOG_WARNING << "[SongDB] Get folder parent type error: excepted " << FOLDER << ", get " << ANY_INT(leaf[0]) <<
-                " (" << folder << ")";
+                " (" << folder.hexdigest() << ")";
             return "";
         }
         return ANY_STR(leaf[1]);
     }
-    LOG_INFO << "[SongDB] Get folder parent fail: target " << folder << " not found";
+    LOG_INFO << "[SongDB] Get folder parent fail: target " << folder.hexdigest() << " not found";
     return "";
 }
 
@@ -621,7 +621,7 @@ int SongDB::getFolderPath(const HashMD5& folder, Path& output) const
         output = ANY_STR(leaf[1]);
         return 0;
     }
-    LOG_INFO << "[SongDB] Get folder path fail: target " << folder << " not found";
+    LOG_INFO << "[SongDB] Get folder path fail: target " << folder.hexdigest() << " not found";
     return -1;
 }
 

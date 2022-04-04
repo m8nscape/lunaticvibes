@@ -517,7 +517,7 @@ int BMS::initWithFile(const Path& file)
     }
 
     fileHash = md5file(absolutePath);
-    LOG_INFO << "[BMS] MD5: " << fileHash;
+    LOG_INFO << "[BMS] MD5: " << fileHash.hexdigest();
 
     _loaded = true;
     LOG_INFO << "[BMS] Parsing BMS complete.";
