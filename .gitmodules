@@ -4,3 +4,6 @@
 [submodule "ext/plog"]
 	path = ext/plog
 	url = https://github.com/SergiusTheBest/plog
+[submodule "ext/googletest"]
+	path = ext/googletest
+	url = https://github.com/google/googletest
