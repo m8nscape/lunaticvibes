@@ -975,25 +975,21 @@ TEST_F(sSlider, updateLeft)
     s.update(t0);
     EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
-    EXPECT_EQ(s.getCurrentRenderParams().rect, Rect(0, 0, 0, 0));
 
     gSliders.set(eSlider::_TEST1, 0.33);
     s.update(t0);
     EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 - 33, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
-    EXPECT_EQ(s.getCurrentRenderParams().rect, Rect(-33, 0, 0, 0));
 
     gSliders.set(eSlider::_TEST1, 0.50);
     s.update(t0);
     EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 - 50, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
-    EXPECT_EQ(s.getCurrentRenderParams().rect, Rect(-50, 0, 0, 0));
 
     gSliders.set(eSlider::_TEST1, 1.00);
     s.update(t0);
     EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 - 100, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
-    EXPECT_EQ(s.getCurrentRenderParams().rect, Rect(-100, 0, 0, 0));
 }
 
 TEST_F(sSlider, updateRight)
@@ -1129,27 +1125,23 @@ TEST_F(sBargraph, updateLeft)
     //InSequence dummy;
     gBargraphs.set(eBargraph::_TEST1, 0);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(200, 0, 0, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
-    EXPECT_EQ(s.getCurrentRenderParams().rect, Rect(200, 0, 0, 200));
 
     gBargraphs.set(eBargraph::_TEST1, 0.33);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 - 33, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(200 - 66, 0, 66, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
-    EXPECT_EQ(s.getCurrentRenderParams().rect, Rect(134, 0, 66, 200));
 
     gBargraphs.set(eBargraph::_TEST1, 0.50);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 - 50, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(200 - 100, 0, 100, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
-    EXPECT_EQ(s.getCurrentRenderParams().rect, Rect(100, 0, 100, 200));
 
     gBargraphs.set(eBargraph::_TEST1, 1.00);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 - 100, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(200 - 200, 0, 200, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
-    EXPECT_EQ(s.getCurrentRenderParams().rect, Rect(0, 0, 200, 200));
 }
 
 TEST_F(sBargraph, updateRight)
@@ -1285,6 +1277,7 @@ TEST_F(sOption, switchTest)
     ASSERT_EQ(ss0._opType, SpriteOption::opType::SWITCH);
 
     gTimers.set(eTimer::K11_BOMB, t0.norm());
+
     gSwitches.set(eSwitch::_TEST1, false);
     ss.update(t0);
     EXPECT_EQ(ss._selectionIdx, 0);
@@ -1299,6 +1292,9 @@ TEST_F(sOption, switchTest)
 TEST_F(sOption, optionTest)
 {
     ASSERT_EQ(so._opType, SpriteOption::opType::OPTION);
+
+    gTimers.set(eTimer::K11_BOMB, t0.norm());
+
     gOptions.set(eOption::_TEST1, 0);
     so.update(t0);
     EXPECT_EQ(so._selectionIdx, 0);
@@ -1345,6 +1341,7 @@ public:
         s1.setLoopTime(0);
         s1.setFlashType(SpriteGaugeGrid::FlashType::NONE);
         s1.setGaugeType(SpriteGaugeGrid::GaugeType::GROOVE);
+
         s2.setTrigTimer(eTimer::K11_BOMB);
         s2.appendKeyFrame({ 0, {Rect(490, 100, 10, 40), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
         s2.setLoopTime(0);
@@ -1355,6 +1352,7 @@ public:
 
 TEST_F(sGaugeGrid, valUpdate)
 {
+    gTimers.set(eTimer::K11_BOMB, 0);
     using::testing::_;
     {
         gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, 74);
