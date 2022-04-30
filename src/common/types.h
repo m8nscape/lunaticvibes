@@ -32,7 +32,9 @@ public:
         {
             set = true;
             std::string bin = hex2bin(hex);
-            for (int i = 0; i < bin.size() && i < _Len; ++i) data[i] = bin[i];
+            unsigned char* ubin = (unsigned char*)bin.data();
+            for (int i = 0; i < bin.size() && i < _Len; ++i) 
+                data[i] = ubin[i];
         }
     }
     Hash(const Hash<_Len>& rhs)

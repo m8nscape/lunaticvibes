@@ -23,7 +23,11 @@ int main(int argc, char** argv)
 
     int n = RUN_ALL_TESTS();
 
+    StopHandleMainThreadTask();
+
+    //std::this_thread::sleep_for(std::chrono::seconds(1));
     bExit = true;
     t.join();
+    exit(n);
     return n;
 }

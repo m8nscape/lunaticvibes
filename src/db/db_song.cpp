@@ -175,10 +175,10 @@ SongDB::SongDB(const char* path) : SQLite(path, "SONG")
         LOG_ERROR << "[SongDB] Create table folder ERROR! " << errmsg();
         abort();
     }
-    if (query("SELECT parent FROM folder WHERE pathmd5=?", 1, { ROOT_FOLDER_HASH }).empty())
+    if (query("SELECT parent FROM folder WHERE pathmd5=?", 1, { ROOT_FOLDER_HASH.hexdigest()}).empty())
     {
         if (exec("INSERT INTO folder(pathmd5,parent,path,name,type) VALUES(?,?,?,?,?)", 
-            { ROOT_FOLDER_HASH, nullptr, "", "ROOT", 0 }))
+            { ROOT_FOLDER_HASH.hexdigest(), nullptr, "", "ROOT", 0}))
         {
             LOG_ERROR << "[SongDB] Insert root folder to table ERROR! " << errmsg();
             abort();

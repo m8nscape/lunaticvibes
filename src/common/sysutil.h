@@ -30,30 +30,49 @@ void SetWindowForeground(bool foreground);
 #include <functional>
 void pushMainThreadTask(std::function<void()> f);
 void doMainThreadTask();
+void StopHandleMainThreadTask();
+bool CanHandleMainThreadTask();
 
 #include <future>
 template<typename T>
 inline T pushAndWaitMainThreadTask(std::function<T()> f)
 {
-	std::promise<T> taskPromise;
-	pushMainThreadTask(std::bind([&]() { taskPromise.set_value(f()); }));
-	std::future<T> taskFuture = taskPromise.get_future();
-	taskFuture.wait();
-	return taskFuture.get();
+	if (CanHandleMainThreadTask())
+	{
+		std::promise<T> taskPromise;
+		pushMainThreadTask(std::bind([&]() { taskPromise.set_value(f()); }));
+		std::future<T> taskFuture = taskPromise.get_future();
+		taskFuture.wait();
+		return taskFuture.get();
+	}
+	else
+	{
+		return T();
+	}
 }
 template<>
 inline void pushAndWaitMainThreadTask(std::function<void()> f)
 {
-	std::promise<void> taskPromise;
-	pushMainThreadTask(std::bind([&]() { f(); taskPromise.set_value(); }));
-	std::future<void> taskFuture = taskPromise.get_future();
-	taskFuture.wait();
-	return taskFuture.get();
+	if (CanHandleMainThreadTask())
+	{
+		std::promise<void> taskPromise;
+		pushMainThreadTask(std::bind([&]() { f(); taskPromise.set_value(); }));
+		std::future<void> taskFuture = taskPromise.get_future();
+		taskFuture.wait();
+		return taskFuture.get();
+	}
 }
 template<typename T, typename... Arg>
 inline T pushAndWaitMainThreadTask(std::function<T(Arg...)> f, Arg... arg)
 {
-	return pushAndWaitMainThreadTask<T>(std::bind(f, arg...));
+	if (CanHandleMainThreadTask())
+	{
+		return pushAndWaitMainThreadTask<T>(std::bind(f, arg...));
+	}
+	else
+	{
+		return T();
+	}
 }
 
 void addWMEventHandler(void* f);

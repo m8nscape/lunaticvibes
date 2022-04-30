@@ -1,6 +1,7 @@
 #include "gmock/gmock.h"
 #include "game/graphics/sprite.h"
 
+
 class mock_Image : public Image
 {
 public:
@@ -493,7 +494,7 @@ TEST_F(sNumber, num_1)
 
     gNumbers.set(eNumber::_TEST1, 1);
     s.update(t0);
-    EXPECT_THAT(s._digit, ElementsAre(1, 0, 0, 0));
+    EXPECT_THAT(s._digit, ElementsAre(1, -1, -1, -1));
     sa11.update(t0);
     EXPECT_EQ(sa11._digit[0], 1);
     sa24.update(t0);
@@ -507,7 +508,7 @@ TEST_F(sNumber, num_23)
 
     gNumbers.set(eNumber::_TEST1, 23);
     s.update(t0);
-    EXPECT_THAT(s._digit, ElementsAre(3, 2, 0, 0));
+    EXPECT_THAT(s._digit, ElementsAre(3, 2, -1, -1));
     sa11.update(t0);
     EXPECT_EQ(sa11._digit[0], 3);
     EXPECT_EQ(sa11._digit[1], 2);
@@ -524,7 +525,7 @@ TEST_F(sNumber, num_456)
 
     gNumbers.set(eNumber::_TEST1, 456);
     s.update(t0);
-    EXPECT_THAT(s._digit, ElementsAre(6, 5, 4, 0));
+    EXPECT_THAT(s._digit, ElementsAre(6, 5, 4, -1));
     sa11.update(t0);
     EXPECT_EQ(sa11._digit[0], 6);
     EXPECT_EQ(sa11._digit[1], 5);
@@ -554,7 +555,7 @@ TEST_F(sNumber, num_0)
 
     gNumbers.set(eNumber::_TEST1, 0);
     s.update(t0);
-    EXPECT_THAT(s._digit, ElementsAre(0, 0, 0, 0));
+    EXPECT_THAT(s._digit, ElementsAre(0, -1, -1, -1));
     sa11.update(t0);
     EXPECT_EQ(sa11._digit[0], 0);
     sa24.update(t0);
@@ -607,7 +608,7 @@ TEST_F(sNumber, num_full_0)
 
     gNumbers.set(eNumber::_TEST1, 0);
     s.update(t0);
-    EXPECT_THAT(s._digit, ElementsAre(0, 0, 0, 0));
+    EXPECT_THAT(s._digit, ElementsAre(0, -1, -1, -1));
     sa11.update(t0);
     EXPECT_EQ(sa11._digit[0], 0);
     sa24.update(t0);

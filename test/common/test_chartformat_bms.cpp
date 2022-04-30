@@ -21,7 +21,7 @@ TEST(tBMS, meta_basic)
 	std::shared_ptr<BMS> bms = nullptr;
 	ASSERT_NO_THROW(bms = std::make_shared<BMS>("bms/bgm32.bms"));
 	ASSERT_EQ(bms->isLoaded(), true);
-	EXPECT_STRCASEEQ(bms->fileHash.hexdigest().c_str(), "2803C539385E76F13919A99615DC4480");
+	EXPECT_STRCASEEQ(bms->fileHash.hexdigest().c_str(), "C396F76B2DE46425ED22B196230173F0");
 	EXPECT_EQ(bms->haveNote, false);
 	EXPECT_EQ(bms->notes, 0);
 	EXPECT_EQ(bms->notes_ln, 0);
@@ -32,6 +32,11 @@ TEST(tBMS, bar_length_change)
 	std::shared_ptr<BMS> bms = nullptr;
 	ASSERT_NO_THROW(bms = std::make_shared<BMS>("bms/bar.bms"));
 	ASSERT_EQ(bms->isLoaded(), true);
+	ASSERT_EQ(bms->lastBarIdx, 4);
+	EXPECT_EQ(bms->barLength[0], Beat(4, 4));
+	EXPECT_EQ(bms->barLength[1], Beat(8, 4));
+	EXPECT_EQ(bms->barLength[2], Beat(3, 4));
+	EXPECT_EQ(bms->barLength[3], Beat(4, 4));
 }
 
 TEST(tBMS, bpm_change)

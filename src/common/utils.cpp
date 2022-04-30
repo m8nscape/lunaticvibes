@@ -116,8 +116,8 @@ std::string hex2bin(const std::string& hex)
         unsigned char &c = ((unsigned char&)res[j]);
         char c1 = tolower(hex[i]);
         char c2 = tolower(hex[i + 1]);
-        c += (c1 - ((c1 >= 'a') ? 'a' : '0')) << 4;
-        c += (c2 - ((c2 >= 'a') ? 'a' : '0'));
+        c += (c1 + ((c1 >= 'a') ? (10 - 'a') : (-'0'))) << 4;
+        c += (c2 + ((c2 >= 'a') ? (10 - 'a') : (-'0')));
     }
     res[res.length() - 1] = '\0';
     return res;

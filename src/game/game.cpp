@@ -199,14 +199,15 @@ int main(int argc, char* argv[])
 
     mainLoop();
 
-    SceneMgr::clean ();	// clean resources before releasing framework
-    graphics_free();
-
 #ifdef WIN32
     timeEndPeriod(1);
 #endif
 
+    SceneMgr::clean ();	// clean resources before releasing framework
+    graphics_free();
+
     ConfigMgr::save();
 
+    StopHandleMainThreadTask();
     return 0;
 }

@@ -12,9 +12,7 @@ add_executable(apptest
 target_link_libraries(apptest PUBLIC
     GTest::gtest GTest::gmock)
 
-#Disable CTest for now. Sprite tests require loading texture at main thread, which CTest appears not to provide.
-#Run test app directly Until I found a solution...
-#gtest_discover_tests(apptest)
+gtest_discover_tests(apptest)
 
 set_target_properties(apptest PROPERTIES
     CXX_STANDARD 17

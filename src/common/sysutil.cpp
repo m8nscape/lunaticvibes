@@ -5,6 +5,7 @@
 
 std::shared_mutex mainThreadTaskQueueMutex;
 std::queue<std::function<void()>> mainThreadTaskQueue;
+bool handleMainThreadTask = true;
 
 void pushMainThreadTask(std::function<void()> f)
 {
@@ -15,8 +16,11 @@ void pushMainThreadTask(std::function<void()> f)
     }
     else
     {
-        std::unique_lock l(mainThreadTaskQueueMutex);
-        mainThreadTaskQueue.push(f);
+        if (handleMainThreadTask)
+        {
+            std::unique_lock l(mainThreadTaskQueueMutex);
+            mainThreadTaskQueue.push(f);
+        }
     }
 }
 
@@ -28,4 +32,14 @@ void doMainThreadTask()
         mainThreadTaskQueue.front()();
         mainThreadTaskQueue.pop();
     }
+}
+
+void StopHandleMainThreadTask()
+{
+    handleMainThreadTask = false;
+}
+
+bool CanHandleMainThreadTask()
+{
+    return handleMainThreadTask;
 }
