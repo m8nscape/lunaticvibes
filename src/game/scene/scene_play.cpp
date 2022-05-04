@@ -1079,7 +1079,8 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
 
     }
 
-    if (input[Input::ESC] || (input[Input::K1START] && input[Input::K1SELECT]) || (input[Input::K2START] && input[Input::K2SELECT]))
+    if (_state != ePlayState::FADEOUT &&
+        (input[Input::ESC] || (input[Input::K1START] && input[Input::K1SELECT]) || (input[Input::K2START] && input[Input::K2SELECT])))
     {
         if (gChartContext.started)
         {

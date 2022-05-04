@@ -74,4 +74,5 @@ private:
     void _decide();
     void _navigateVersionEnter(const Time& t);
     void _navigateVersionBack(const Time& t);
+    bool _closeAllPanels(const Time& t);
 };

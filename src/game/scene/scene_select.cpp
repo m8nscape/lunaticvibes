@@ -675,8 +675,8 @@ void SceneSelect::_updateAsync()
 
 void SceneSelect::updatePrepare()
 {
-    auto t = Time();
-    auto rt = t - gTimers.get(eTimer::SCENE_START);
+    Time t;
+    Time rt = t - gTimers.get(eTimer::SCENE_START);
 
     if (rt.norm() >= _skin->info.timeIntro)
     {
@@ -711,8 +711,9 @@ void SceneSelect::updatePrepare()
 
 void SceneSelect::updateSelect()
 {
-    auto t = Time();
-    auto rt = t - gTimers.get(eTimer::SCENE_START);
+    Time t;
+    Time rt = t - gTimers.get(eTimer::SCENE_START);
+
     if ((t - scrollTimestamp).norm() >= gSelectContext.scrollTime)
     {
         if (!isHoldingUp && !isHoldingDown)
@@ -720,7 +721,7 @@ void SceneSelect::updateSelect()
     }
     if (gSelectContext.isGoingToKeyConfig)
     {
-        gTimers.set(eTimer::FADEOUT_BEGIN, rt.norm());
+        gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
         _state = eSelectState::FADEOUT;
         _updateCallback = std::bind(&SceneSelect::updateFadeout, this);
     }
@@ -728,21 +729,21 @@ void SceneSelect::updateSelect()
 
 void SceneSelect::updateSearch()
 {
-    auto t = Time();
-    auto rt = t - gTimers.get(eTimer::SCENE_START);
+    Time t;
+    Time rt = t - gTimers.get(eTimer::SCENE_START);
 }
 
 void SceneSelect::updatePanel(unsigned idx)
 {
-    auto t = Time();
-    auto rt = t - gTimers.get(eTimer::SCENE_START);
+    Time t;
+    Time rt = t - gTimers.get(eTimer::SCENE_START);
 }
 
 void SceneSelect::updateFadeout()
 {
-    auto t = Time();
-    auto rt = t - gTimers.get(eTimer::SCENE_START);
-    auto ft = t - gTimers.get(eTimer::FADEOUT_BEGIN);
+    Time t;
+    Time rt = t - gTimers.get(eTimer::SCENE_START);
+    Time ft = t - gTimers.get(eTimer::FADEOUT_BEGIN);
 
     if (ft >= _skin->info.timeOutro)
     {
@@ -769,9 +770,29 @@ void SceneSelect::updateFadeout()
 // CALLBACK
 void SceneSelect::inputGamePress(InputMask& m, const Time& t)
 {
-    if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
+    Time rt = t - gTimers.get(eTimer::SCENE_START);
+
+    if (rt.norm() < _skin->info.timeIntro) return;
 
     using namespace Input;
+
+    if (m[Input::Pad::ESC])
+    {
+        // close panels if opened. exit if no panel is opened
+        bool hasPanelOpened = _closeAllPanels(t);
+        if (!hasPanelOpened)
+        {
+            LOG_DEBUG << "[Select] ESC";
+            gNextScene = eScene::EXIT;
+            return;
+        }
+    }
+
+    if (m[Pad::M2])
+    {
+        // close panels if opened
+        _closeAllPanels(t);
+    }
 
     auto input = _inputAvailable & m;
     if (input.any())
@@ -828,7 +849,9 @@ void SceneSelect::inputGamePress(InputMask& m, const Time& t)
 // CALLBACK
 void SceneSelect::inputGameHold(InputMask& m, const Time& t)
 {
-    if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
+    Time rt = t - gTimers.get(eTimer::SCENE_START);
+
+    if (rt.norm() < _skin->info.timeIntro) return;
 
     using namespace Input;
 
@@ -858,7 +881,9 @@ void SceneSelect::inputGameHold(InputMask& m, const Time& t)
 // CALLBACK
 void SceneSelect::inputGameRelease(InputMask& m, const Time& t)
 {
-    if (t - gTimers.get(eTimer::SCENE_START) < _skin->info.timeIntro) return;
+    Time rt = t - gTimers.get(eTimer::SCENE_START);
+
+    if (rt.norm() < _skin->info.timeIntro) return;
 
     using namespace Input;
 
@@ -915,29 +940,12 @@ void SceneSelect::inputGameRelease(InputMask& m, const Time& t)
 
 void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
 {
-    if (input[Input::Pad::ESC])
-    {
-        LOG_DEBUG << "[Select] ESC";
-        gNextScene = eScene::EXIT;
-        return;
-    }
-
     if (_skin->type() == eSkinType::LR2)
     {
         if (input[Input::Pad::K1START] || input[Input::Pad::K2START])
         {
             // close other panels
-            for (int i = 2; i <= 9; ++i)
-            {
-                eSwitch p = static_cast<eSwitch>(int(eSwitch::SELECT_PANEL1) - 1 + i);
-                if (gSwitches.get(p))
-                {
-                    gSwitches.set(p, false);
-                    gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_START) - 1 + i), TIMER_NEVER);
-                    gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_END) - 1 + i), t.norm());
-                    //SoundMgr::playSample(eSoundSample::SOUND_O_CLOSE);
-                }
-            }
+            _closeAllPanels(t);
 
             // open panel 1
             gSwitches.set(eSwitch::SELECT_PANEL1, true);
@@ -1106,6 +1114,7 @@ void SceneSelect::inputGameAxisSelect(InputAxisPlus& input, const Time& t)
 void SceneSelect::inputGamePressPanel(InputMask& input, const Time& t)
 {
     using namespace Input;
+
     if (_skin->type() == eSkinType::LR2)
     {
         if (gSwitches.get(eSwitch::SELECT_PANEL1))
@@ -1706,4 +1715,25 @@ void SceneSelect::_navigateVersionBack(const Time& t)
     // behavior like _navigateBack
 
     isInVersionList = false;
+}
+
+bool SceneSelect::_closeAllPanels(const Time& t)
+{
+    bool hasPanelOpened = false;
+    for (int i = 1; i <= 9; ++i)
+    {
+        eSwitch p = static_cast<eSwitch>(int(eSwitch::SELECT_PANEL1) - 1 + i);
+        if (gSwitches.get(p))
+        {
+            hasPanelOpened = true;
+            gSwitches.set(p, false);
+            gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_START) - 1 + i), TIMER_NEVER);
+            gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_END) - 1 + i), t.norm());
+        }
+    }
+    if (hasPanelOpened)
+    {
+        SoundMgr::playSample(eSoundSample::SOUND_O_CLOSE);
+    }
+    return hasPanelOpened;
 }

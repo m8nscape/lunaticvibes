@@ -787,7 +787,7 @@ void key_config_mode_rotate()
     case 5: keys = 7; break;
     default: keys = 7; break;
     }
-    switch (gOptions.get(eOption::KEY_CONFIG_MODE))
+    switch (keys)
     {
     case 7: gOptions.set(eOption::KEY_CONFIG_MODE, Option::KEYCFG_7); break;
     case 9: gOptions.set(eOption::KEY_CONFIG_MODE, Option::KEYCFG_9); break;

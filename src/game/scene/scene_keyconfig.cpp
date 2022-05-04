@@ -53,6 +53,9 @@ SceneKeyConfig::SceneKeyConfig() : vScene(eMode::KEY_CONFIG, 240)
     gSwitches.set(eSwitch::K11_CONFIG, true);
     gSwitches.set(eSwitch::KEY_CONFIG_SLOT0, true);
     gOptions.set(eOption::KEY_CONFIG_MODE, Option::KEYCFG_7);
+    gOptions.set(eOption::KEY_CONFIG_KEY5, 1);
+    gOptions.set(eOption::KEY_CONFIG_KEY7, 1);
+    gOptions.set(eOption::KEY_CONFIG_KEY9, 1);
     setInputBindingText(gKeyconfigContext.keys, gKeyconfigContext.selecting.first);
 
     loopStart();
@@ -69,7 +72,8 @@ void SceneKeyConfig::_updateAsync()
 void SceneKeyConfig::updateStart()
 {
     Time t;
-    if (t.norm() > _skin->info.timeIntro)
+    Time rt = t - gTimers.get(eTimer::SCENE_START);
+    if (rt.norm() > _skin->info.timeIntro)
     {
         _updateCallback = std::bind(&SceneKeyConfig::updateMain, this);
         using namespace std::placeholders;
@@ -102,7 +106,9 @@ void SceneKeyConfig::updateMain()
 void SceneKeyConfig::updateFadeout()
 {
     Time t;
-    if (t.norm() > _skin->info.timeOutro)
+    Time rt = t - gTimers.get(eTimer::FADEOUT_BEGIN);
+
+    if (rt.norm() > _skin->info.timeOutro)
     {
         loopEnd();
         _input.loopEnd();
@@ -117,6 +123,7 @@ void SceneKeyConfig::updateFadeout()
 void SceneKeyConfig::inputGamePress(InputMask& m, const Time& t)
 {
     if (m[Input::Pad::ESC]) _exiting = true;
+    if (m[Input::Pad::M2]) _exiting = true;
 
     // individual keys
     size_t sampleCount = 0;
