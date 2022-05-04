@@ -30,7 +30,7 @@ private:
 private:
     ePlayMode _playmode;
 protected:
-    bool isPlaymodeSingle() const;
+    bool isPlaymodeSinglePlay() const;
     bool isPlaymodeBattle() const;
     bool isPlaymodeAuto() const;
 

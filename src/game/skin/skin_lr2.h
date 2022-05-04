@@ -1306,7 +1306,10 @@ namespace LR2SkinDef
     const size_t GLOBAL_SPRITE_IDX_2PJUDGENUM = 18;
     const size_t GLOBAL_SPRITE_IDX_1PGAUGE = 24;
     const size_t GLOBAL_SPRITE_IDX_2PGAUGE = 25;
-    const size_t GLOBAL_SPRITE_IDX_JUDGELINE = 26;
+	const size_t GLOBAL_SPRITE_IDX_1PJUDGELINE = 26;
+	const size_t GLOBAL_SPRITE_IDX_2PJUDGELINE = 27;
+
+	// SPRITE_GLOBAL_MAX = 32
 
     enum class ParseRet
     {

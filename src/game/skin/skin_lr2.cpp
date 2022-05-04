@@ -1239,11 +1239,24 @@ ParseRet SkinLR2::SRC_JUDGELINE()
     lr2skin::s_basic d(parseParamBuf);
     if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
 
-    gSprites[GLOBAL_SPRITE_IDX_JUDGELINE] = std::make_shared<SpriteAnimated>(
-        textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x);
-    gSprites[GLOBAL_SPRITE_IDX_JUDGELINE]->setSrcLine(csvLineNumber);
+    int spriteIdx = -1;
+    switch (d._null)
+    {
+    case 0: spriteIdx = GLOBAL_SPRITE_IDX_1PJUDGELINE; break;
+    case 1: spriteIdx = GLOBAL_SPRITE_IDX_2PJUDGELINE; break;
+    default: break;
+    }
+    if (spriteIdx == -1)
+    {
+        LOG_WARNING << "[Skin] " << csvLineNumber << ": Judgeline index invalid (Line " << csvLineNumber << ")";
+        return ParseRet::PARAM_INVALID;
+    }
 
-    auto p = std::make_shared<SpriteGlobal>(GLOBAL_SPRITE_IDX_JUDGELINE);
+    gSprites[spriteIdx] = std::make_shared<SpriteAnimated>(
+        textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x);
+    gSprites[spriteIdx]->setSrcLine(csvLineNumber);
+
+    auto p = std::make_shared<SpriteGlobal>(spriteIdx);
     _sprites.push_back(p);
     _sprites.back()->setSrcLine(csvLineNumber);
 
