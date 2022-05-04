@@ -50,6 +50,7 @@ void setBarInfo()
 
         if (pf != nullptr)
         {
+            // chart types. eg. chart, rival_chart
             switch (pf->type())
             {
             case eChartFormat::BMS:
@@ -68,6 +69,11 @@ void setBarInfo()
                 gNumbers.set(eNumber(int(eNumber::_SELECT_BAR_LEVEL_0) + i), 0);
                 break;
             }
+        }
+        else
+        {
+            // other types. eg. folder, course, etc
+            gTexts.set(eText(int(eText::_SELECT_BAR_TITLE_FULL_0) + i), entry->_name);
         }
     }
 
