@@ -154,7 +154,7 @@ Time vChart::getCurrentBarLength()
     return getBarLength(_currentBar);
 }
 
-Beat vChart::getBarLengthInBeats(size_t measure)
+Metre vChart::getBarMetre(size_t measure)
 {
     if (measure >= barLength.size())
     {
@@ -164,19 +164,19 @@ Beat vChart::getBarLengthInBeats(size_t measure)
 	return barLength[measure];
 }
 
-Beat vChart::getCurrentBarLengthInBeats()
+Metre vChart::getCurrentBarMetre()
 {
-	return getBarLengthInBeats(_currentBar);
+	return getBarMetre(_currentBar);
 }
 
-Beat vChart::getBarBeatstamp(size_t measure)
+Metre vChart::getBarMetrePosition(size_t measure)
 {
-    if (measure >= _barBeatstamp.size())
+    if (measure >= _barMetrePos.size())
     {
-		return Beat(LLONG_MAX, 1);
+		return Metre(LLONG_MAX, 1);
     }
 
-	return _barBeatstamp[measure];
+	return _barMetrePos[measure];
 }
 
 void vChart::update(Time t)
@@ -206,7 +206,7 @@ void vChart::update(Time t)
         _currentBPM = std::get<BPM>(b->value);
 		beatLength = Time::singleBeatLengthFromBPM(_currentBPM);
         _lastChangedBPMTime = b->time - _barTimestamp[_currentBar];
-        _lastChangedBeat = b->totalbeat - _barBeatstamp[_currentBar];
+        _lastChangedBeat = b->totalbeat - _barMetrePos[_currentBar];
         b = nextNoteBpm();
     }
 

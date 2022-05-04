@@ -6,10 +6,27 @@
 #include <variant>
 #include <iostream>
 
-typedef unsigned Measure;
+typedef unsigned Bar;
 typedef double BPM;
 
-typedef fraction Beat;      // rhythm indicator, can be above 1
+class Metre : public fraction
+{
+protected:
+	operator double() const { return fraction::operator double(); }
+
+public:
+	Metre() : fraction() {}
+	Metre(long long division_level, long long multiple_level) : fraction(division_level, multiple_level, false) {}
+	Metre(double value) : fraction(long long(value * 1e12), 1e12, true) {}
+	virtual ~Metre() {}
+
+	double toDouble() const { return operator double(); }
+	bool operator==(const Metre& rhs) const { return fraction(division_level(), multiple_level(), true) == fraction(rhs.division_level(), rhs.multiple_level(), true); }
+
+	long long division_level() const { return _numerator; }
+	long long multiple_level() const { return _denominator; }
+};
+
 typedef fraction Segment;  // Normal rhythm indicator, must be normalized (value: [0, 1)).
 
 typedef std::chrono::milliseconds timeNormRes; // Regular time, expect millisecond (1/1e3 second). Used for general timing demand
@@ -72,8 +89,8 @@ public:
 
 struct Note
 {
-    Measure measure;        // Which measure the note is placed
-    Beat totalbeat;        // Which beat the note is placed in visual (ignoring SV & STOP), can be above 1
+    Bar measure;        // Which measure the note is placed
+    Metre totalbeat;        // Which beat the note is placed in visual (ignoring SV & STOP), can be above 1
     Time time;             // Timestamp
     std::variant<long long, double> value;              // varies from note type to type, e.g. #BGM, #BPM, etc
 

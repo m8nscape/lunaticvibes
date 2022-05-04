@@ -81,7 +81,7 @@ void SpriteLaneVertical::updateNoteRect(const Time& t)
 
     // fetch note size, c.y + c.h = judge line pos (top-left corner), -c.h = height start drawing
     auto c = _current.rect;
-    auto currTotalBeat = pChart->getBarBeatstamp(measure) + beat;
+    auto currTotalBeat = pChart->getBarMetrePosition(measure).toDouble() + beat;
 
     // generate note rects and store to buffer
 	// 150BPM with 1.0x HS is 1600ms
@@ -89,7 +89,7 @@ void SpriteLaneVertical::updateNoteRect(const Time& t)
     auto it = pChart->incomingNote(_category, _index);
     while (!pChart->isLastNote(_category, _index, it) && y >= -c.h)
     {
-		auto noteBeatOffset = currTotalBeat - it->totalbeat;
+		auto noteBeatOffset = currTotalBeat - it->totalbeat.toDouble();
         if (noteBeatOffset >= 0)
 			y = (c.y + c.h); // expired notes stay on judge line, LR2 / pre RA behavior
         else
@@ -137,7 +137,7 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 
 	// fetch note size, c.y + c.h = judge line pos (top-left corner), -c.h = height start drawing
 	auto c = _current.rect;
-	auto currTotalBeat = pChart->getBarBeatstamp(measure) + beat;
+	auto currTotalBeat = pChart->getBarMetrePosition(measure).toDouble() + beat;
 
 	// generate note rects and store to buffer
 	// 150BPM with 1.0x HS is 1600ms
@@ -153,7 +153,7 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 			head_y_actual = c.y + c.h;
 
 			const auto& tail = *it;
-			auto tailBeatOffset = currTotalBeat - tail.totalbeat;
+			auto tailBeatOffset = currTotalBeat - tail.totalbeat.toDouble();
 			tail_y = (c.y + c.h) - static_cast<int>(std::floor((-tailBeatOffset * 4 / 4) * (c.y + c.h) * _basespd * _hispeed));
 
 			++it;
@@ -166,11 +166,11 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 
 			const auto& tail = *it;
 
-			auto headBeatOffset = currTotalBeat - head.totalbeat;
+			auto headBeatOffset = currTotalBeat - head.totalbeat.toDouble();
 			head_y_actual = (c.y + c.h) - static_cast<int>(std::floor((-headBeatOffset * 4 / 4) * (c.y + c.h) * _basespd * _hispeed));
 			if (head_y_actual < head_y) head_y = head_y_actual;
 
-			auto tailBeatOffset = currTotalBeat - tail.totalbeat;
+			auto tailBeatOffset = currTotalBeat - tail.totalbeat.toDouble();
 			tail_y = (c.y + c.h) - static_cast<int>(std::floor((-tailBeatOffset * 4 / 4) * (c.y + c.h) * _basespd * _hispeed));
 
 			++it;

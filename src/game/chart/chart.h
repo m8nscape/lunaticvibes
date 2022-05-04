@@ -18,18 +18,19 @@ namespace chart
 
 enum class NoteLaneCategory : size_t
 {
-    Note,
+    _ = -1ull, // INVALID
+
+    Note = 0,
     Mine,
     Invs,
     LN,
     EXTRA,
     NOTECATEGORY_COUNT,
-
-    _ // INVALID
 };
 
 enum NoteLaneIndex : size_t
 {
+    _ = -1ull, // INVALID
     Sc1 = 0,
     K1,
     K2,
@@ -57,7 +58,6 @@ enum NoteLaneIndex : size_t
     K24,
     Sc2,
     NOTELANEINDEX_COUNT,
-    _ // INVALID
 };
 
 typedef std::pair<NoteLaneCategory, NoteLaneIndex> NoteLane;
@@ -94,11 +94,11 @@ class ::vChartFormat;
 //  - Converts plain-beat to real-beat (adds up Stop beat) 
 //  - Converts time to beat (if necessary)
 //  - Converts (or reads directly) beat to time
-//  - Measure Time Indicator
+//  - Bar Time Indicator
 //  - Segmented charting speed (power, 0 at stop)
 // [Input]  Current Time(hTime)
-// [Output] Current Measure(unsigned) 
-//          Beat(double)
+// [Output] Current Bar(unsigned) 
+//          Metre(double)
 //          BPM(BPM)
 //          Expired Notes List (including normal, plain, ext, speed)
 class vChart
@@ -125,8 +125,8 @@ protected:
     std::list<Note>              _bpmNoteList;          // BPM change is so common that they are not special
 
 protected:
-    std::array<Beat,  MAX_MEASURES>   barLength;
-    std::array<Beat,  MAX_MEASURES>   _barBeatstamp;
+    std::array<Metre,  MAX_MEASURES>   barLength;
+    std::array<Metre,  MAX_MEASURES>   _barMetrePos;
     std::array<Time, MAX_MEASURES>   _barTimestamp;
 
     Time _totalLength;
@@ -169,9 +169,9 @@ public:
 public:
     Time getBarLength(size_t measure);
     Time getCurrentBarLength();
-    Beat getBarLengthInBeats(size_t measure);
-	Beat getCurrentBarLengthInBeats();
-    Beat getBarBeatstamp(size_t measure);
+    Metre getBarMetre(size_t measure);
+	Metre getCurrentBarMetre();
+    Metre getBarMetrePosition(size_t measure);
 	Time getBarTimestamp(size_t m) { return m < MAX_MEASURES ? _barTimestamp[m] : LLONG_MAX; }
 	Time getCurrentBarTimestamp() { return getBarTimestamp(_currentBar); }
 
@@ -190,7 +190,7 @@ public:
     virtual void postUpdate(const Time& t) = 0;
     constexpr auto getCurrentMeasure() -> decltype(_currentBar) { return _currentBar; }
     constexpr auto getCurrentBeat() -> decltype(_currentBeat) { return _currentBeat; }
-    inline auto getCurrentTotalBeats() -> decltype(_currentBeat) { return _currentBeat + _barBeatstamp[_currentBar]; }
+    inline auto getCurrentTotalBeats() -> decltype(_currentBeat) { return _currentBeat + _barMetrePos[_currentBar].toDouble(); }
     constexpr auto getCurrentBPM() -> decltype(_currentBPM) { return _currentBPM; }
 
 public:

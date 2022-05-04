@@ -73,7 +73,7 @@ public:
     std::vector<StringContent> bgaFiles;
 
     std::vector<Note> BPMNotes;
-    std::vector<Beat> barLength;
+    std::vector<Metre> metres;
     std::vector<Note> notes;
     //std::vector<_Inherit_SpriteStatic_with_playbegin_timer_> _BGAsprites;
 

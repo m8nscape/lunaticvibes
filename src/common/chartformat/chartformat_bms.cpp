@@ -41,13 +41,13 @@ int BMS::getExtendedProperty(const std::string& key, void* ret)
 BMS::BMS() {
     wavFiles.resize(MAXSAMPLEIDX + 1);
     bgaFiles.resize(MAXSAMPLEIDX + 1);
-    barLength.resize(MAXBARIDX + 1);
+    metres.resize(MAXBARIDX + 1);
 }
 
 BMS::BMS(const Path& file): BMS_prop() {
     wavFiles.resize(MAXSAMPLEIDX + 1);
     bgaFiles.resize(MAXSAMPLEIDX + 1);
-    barLength.resize(MAXBARIDX + 1);
+    metres.resize(MAXBARIDX + 1);
     initWithFile(file);
 }
 
@@ -307,8 +307,8 @@ int BMS::initWithFile(const Path& file)
                             ++bgmLayersCount[measure];
                             break;
 
-                        case 2:            // 02: Measure Length
-                            barLength[measure] = toDouble(value);
+                        case 2:            // 02: Bar Length
+                            metres[measure] = toDouble(value);
                             haveMetricMod = true;
                             break;
 
@@ -399,8 +399,8 @@ int BMS::initWithFile(const Path& file)
     fs.close();
 
     for (size_t i = 0; i <= lastBarIdx; i++)
-        if (barLength[i] == 0.0)
-            barLength[i] = 1.0;
+        if (metres[i].toDouble() == 0.0)
+            metres[i] = Metre(4, 4);
 
     // pick LNs out of notes for each lane
     for (int area = 0; area < 2; ++area)

@@ -138,7 +138,7 @@ void chartBMS::loadBMS(const BMS& objBms)
 	_noteCount_regular = objBms.notes - objBms.notes_ln;
 	_noteCount_ln = objBms.notes_ln;
 	Time basetime{ 0 };
-	Beat basebeat{ 0, 1 };
+	Metre basebeat{ 0, 1 };
 
     BPM bpm = objBms.startBPM;
     _currentBPM = bpm;
@@ -194,8 +194,8 @@ void chartBMS::loadBMS(const BMS& objBms)
 
     for (unsigned m = 0; m <= objBms.lastBarIdx; m++)
     {
-		barLength[m] = objBms.barLength[m];
-		_barBeatstamp[m] = basebeat;
+		barLength[m] = objBms.metres[m];
+		_barMetrePos[m] = basebeat;
         _barTimestamp[m] = basetime;
 
 
@@ -315,15 +315,15 @@ void chartBMS::loadBMS(const BMS& objBms)
         Segment lastBPMChangedSegment(0, 1);
         double stopBeat = 0;
         double currentSpd = 1.0;
-        Beat barLength = objBms.barLength[m];      // visual beat
+        Metre metre = objBms.metres[m];      // visual beat
 		Time beatLength = Time::singleBeatLengthFromBPM(bpm);
 
         for (const auto& note : notes)
         {
             auto[noteSegment, noteinfo] = note;
             auto[lane, val] = noteinfo;
-            double beatFromBPMChange = (noteSegment - lastBPMChangedSegment) * barLength;
-            Beat beat = basebeat + noteSegment * barLength;
+            double beatFromBPMChange = (noteSegment - lastBPMChangedSegment) * metre;
+            Metre beat = basebeat + noteSegment * metre;
 			Time notetime = bpmfucked ? LLONG_MAX : basetime + beatLength * beatFromBPMChange;
 
             if (lane.type >= eLanePriority::NOTE && lane.type <= eLanePriority::MINE)
@@ -561,8 +561,8 @@ void chartBMS::loadBMS(const BMS& objBms)
                 break;
             }
         }
-		basetime += beatLength * (1.0 - lastBPMChangedSegment) * barLength;
-		basebeat += barLength;
+		basetime += beatLength * (1.0 - lastBPMChangedSegment) * metre.toDouble();
+		basebeat += metre;
 
         // add barline for next measure
         _noteLists[chart::channelToIdx(NoteLaneCategory::EXTRA, EXTRA_BARLINE)].push_back(
@@ -619,7 +619,7 @@ void chartBMS::postUpdate(const Time& t)
 
     // check stop
     bool inStop = false;
-    Beat inStopBeat;
+    Metre inStopBeat;
     size_t idx = (size_t)eNoteExt::STOP;
     auto st = incomingNoteSpecial(idx);
     while (!isLastNoteSpecial(idx, st) && t >= st->time &&
@@ -645,7 +645,7 @@ void chartBMS::postUpdate(const Time& t)
     else
     {
         _currentStopBeatGuard = true;
-        _currentBeat = inStopBeat - _barBeatstamp[_currentBar];
+        _currentBeat = inStopBeat - _barMetrePos[_currentBar];
     }
 
 }

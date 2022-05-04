@@ -8,7 +8,7 @@ public:
 public:
     fraction();
     fraction(long long numerator, long long denominator, bool trim = true);
-    ~fraction();
+    virtual ~fraction();
 
 public:
     fraction  operator+  (const fraction& rhs) const;
