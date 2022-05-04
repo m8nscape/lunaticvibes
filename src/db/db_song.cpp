@@ -271,8 +271,8 @@ int SongDB::addChart(const HashMD5& folder, const Path& path)
             "total,playlevel,difficulty,longnote,landmine,metricmod,stop,bga,random,addtime) "
             "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);",
             {
-                c->fileHash,
-                folder,
+                c->fileHash.hexdigest(),
+                folder.hexdigest(),
                 int(c->type()),
                 c->filePath.filename().string(),
                 c->title,
@@ -465,14 +465,14 @@ int SongDB::addFolder(Path path, HashMD5 parentHash)
         auto filename = fs::weakly_canonical(path).filename();
         if (!parentHash.empty())
             ret = exec("INSERT INTO folder VALUES(?,?,?,?,?)", {
-            folderHash,
-            parentHash,
+            folderHash.hexdigest(),
+            parentHash.hexdigest(),
             filename.string(),
             (int)type,
             path.string() });
         else
             ret = exec("INSERT INTO folder VALUES(?,?,?,?,?)", {
-            folderHash,
+            folderHash.hexdigest(),
             nullptr,
             filename.string(),
             (int)type,

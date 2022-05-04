@@ -151,6 +151,17 @@ bool SetupDialog::loadConfig(const std::string& dirname)
             }
         }
 
+        // asio
+#ifdef WIN32
+        if (amod == cfg::A_MODE_ASIO)
+        {
+            ui->asio->setChecked(true);
+        }
+#else
+        ui->asio->setChecked(false);
+        ui->asio->setVisible(false);
+#endif
+
         // set buffer count / size
         ui->audio_buffer_count->setText(QString::number(ConfigMgr::get('A', cfg::A_BUFCOUNT, 4)));
         ui->audio_buffer_size->setText(QString::number(ConfigMgr::get('A', cfg::A_BUFLEN, 128)));
@@ -374,20 +385,23 @@ void SetupDialog::refreshAudioDeviceList()
         }
     }
 
-#ifdef WIN32
-    // ASIO
-    fmodsystem->setOutput(FMOD_OUTPUTTYPE_ASIO);
-    fmodsystem->getNumDrivers(&numDrivers);
-    for (int i = 0; i < numDrivers; ++i)
+    if (ui->asio->isChecked())
     {
-        if (FMOD_OK == fmodsystem->getDriverInfo(i, name, sizeof(name), &guid, &systemrate, &speakermode, &speakermodechannels))
+#ifdef WIN32
+        // ASIO
+        fmodsystem->setOutput(FMOD_OUTPUTTYPE_ASIO);
+        fmodsystem->getNumDrivers(&numDrivers); // this call may throw 0xc0000008 when asio device is in use. Also affected by /EHsc flag automatically added by Ninja
+        for (int i = 0; i < numDrivers; ++i)
         {
-            std::string namefmt = "[ASIO] "s + name;
-            ui->audio_backend_list->addItem(
-                QString::fromStdString(namefmt), QStringList({ QString::fromStdString(name), QString::fromUtf8(cfg::A_MODE_ASIO) }));
+            if (FMOD_OK == fmodsystem->getDriverInfo(i, name, sizeof(name), &guid, &systemrate, &speakermode, &speakermodechannels))
+            {
+                std::string namefmt = "[ASIO] "s + name;
+                ui->audio_backend_list->addItem(
+                    QString::fromStdString(namefmt), QStringList({ QString::fromStdString(name), QString::fromUtf8(cfg::A_MODE_ASIO) }));
+            }
         }
-    }
 #endif
+    }
 
 }
 

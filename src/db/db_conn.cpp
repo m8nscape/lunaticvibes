@@ -101,7 +101,7 @@ int SQLite::exec(const char* zsql, std::initializer_list<std::any> args)
         else if (a.type() == typeid(nullptr)) sqlite3_bind_null(stmt, i);
         else
         {
-            LOG_ERROR << "[sqlite3] " << tag << ": " << " arg " << i << "type invalid " << errmsg();
+            LOG_ERROR << "[sqlite3] " << tag << ": " << " arg " << i << " type invalid " << errmsg();
             sqlite3_finalize(stmt);
             return -1;
         }

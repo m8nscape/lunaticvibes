@@ -51,7 +51,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>4</number>
+    <number>3</number>
    </property>
    <widget class="QWidget" name="tab_general">
     <attribute name="title">
@@ -398,7 +398,7 @@
       <rect>
        <x>90</x>
        <y>10</y>
-       <width>191</width>
+       <width>271</width>
        <height>22</height>
       </rect>
      </property>
@@ -407,7 +407,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>50</y>
+       <y>90</y>
        <width>91</width>
        <height>21</height>
       </rect>
@@ -420,7 +420,7 @@
      <property name="geometry">
       <rect>
        <x>110</x>
-       <y>50</y>
+       <y>90</y>
        <width>113</width>
        <height>20</height>
       </rect>
@@ -433,7 +433,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>80</y>
+       <y>120</y>
        <width>91</width>
        <height>21</height>
       </rect>
@@ -446,7 +446,7 @@
      <property name="geometry">
       <rect>
        <x>110</x>
-       <y>80</y>
+       <y>120</y>
        <width>113</width>
        <height>20</height>
       </rect>
@@ -459,13 +459,26 @@
      <property name="geometry">
       <rect>
        <x>290</x>
-       <y>10</y>
+       <y>40</y>
        <width>71</width>
        <height>23</height>
       </rect>
      </property>
      <property name="text">
       <string>Refresh</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="asio">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>271</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Check ASIO Devices</string>
      </property>
     </widget>
    </widget>
