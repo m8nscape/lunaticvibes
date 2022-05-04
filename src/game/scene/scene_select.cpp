@@ -866,6 +866,7 @@ void SceneSelect::inputGameRelease(InputMask& m, const Time& t)
         }
         else
         {
+
             switch (_state)
             {
             case eSelectState::SELECT:
@@ -1137,7 +1138,11 @@ void SceneSelect::inputGamePressPanel(InputMask& input, const Time& t)
 
 void SceneSelect::inputGameHoldPanel(InputMask& input, const Time& t)
 {
-    if (gSwitches.get(eSwitch::SELECT_PANEL1) && !(input[Input::Pad::K1START] || input[Input::Pad::K2START]))
+}
+
+void SceneSelect::inputGameReleasePanel(InputMask& input, const Time& t)
+{
+    if (gSwitches.get(eSwitch::SELECT_PANEL1) && (input[Input::Pad::K1START] || input[Input::Pad::K2START]))
     {
         // close panel 1
         gSwitches.set(eSwitch::SELECT_PANEL1, false);
@@ -1146,10 +1151,7 @@ void SceneSelect::inputGameHoldPanel(InputMask& input, const Time& t)
         SoundMgr::playSample(eSoundSample::SOUND_O_CLOSE);
         return;
     }
-}
 
-void SceneSelect::inputGameReleasePanel(InputMask& input, const Time& t)
-{
 }
 
 void SceneSelect::_decide()
@@ -1244,11 +1246,13 @@ void SceneSelect::_decide()
         // set metadata
         if (entry->type() == eEntryType::SONG || entry->type() == eEntryType::RIVAL_SONG)
         {
-            c.chartObj = std::reinterpret_pointer_cast<FolderSong>(entry)->getCurrentChart();
+            auto pFile = std::reinterpret_pointer_cast<FolderSong>(entry)->getCurrentChart();
+            c.chartObj = pFile;
         }
         else
         {
-            c.chartObj = std::reinterpret_pointer_cast<EntryChart>(entry)->_file;
+            auto pFile = std::reinterpret_pointer_cast<EntryChart>(entry)->_file;
+            c.chartObj = pFile;
         }
 
         auto& chart = *c.chartObj;
@@ -1274,8 +1278,22 @@ void SceneSelect::_decide()
         c.maxBPM = chart.maxBPM;
         c.startBPM = chart.startBPM;
 
-        // FIXME get play mode
-        gPlayContext.mode = eMode::PLAY7;
+        // set gamemode
+        // FIXME 2P battle
+        // FIXME DP battle
+        if (c.chartObj->type() == eChartFormat::BMS)
+        {
+            auto pBMS = std::reinterpret_pointer_cast<BMS_prop>(c.chartObj);
+            switch (pBMS->gamemode)
+            {
+            case 5: gPlayContext.mode = eMode::PLAY5; break;
+            case 7: gPlayContext.mode = eMode::PLAY7; break;
+            case 9: gPlayContext.mode = eMode::PLAY9; break;
+            case 10: gPlayContext.mode = eMode::PLAY10; break;
+            case 14: gPlayContext.mode = eMode::PLAY14; break;
+            default: gPlayContext.mode = eMode::PLAY7; break;
+            }
+        }
 
         break;
     }
@@ -1338,7 +1356,7 @@ void SceneSelect::loadSongList()
         case eEntryType::RIVAL_SONG:
         {
             auto f = std::reinterpret_pointer_cast<FolderSong>(e);
-            if (!ConfigMgr::get('P', cfg::P_NO_COMBINE_CHARTS, false))
+            if (ConfigMgr::get('P', cfg::P_NO_COMBINE_CHARTS, false))
             {
                 int nChartIdx = -1;
                 for (size_t idx = 0; idx < f->getContentsCount() && !skip; ++idx)

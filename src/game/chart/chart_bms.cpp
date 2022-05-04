@@ -241,7 +241,7 @@ void chartBMS::loadBMS(const BMS& objBms)
                 {
                     auto ch = objBms.getLane(code, i, m);
                     unsigned index = i;
-                    if (area != 0)
+                    if (area != 0 && objBms.player != 1)
                     {
                         if (index == Sc1)
                         {
@@ -250,7 +250,20 @@ void chartBMS::loadBMS(const BMS& objBms)
                         }
                         else
                         {
-                            index += objBms.gamemode * area;
+                            switch (objBms.gamemode)
+                            {
+                            case 10:
+                                index += 5 * area;
+                                break;
+
+                            case 14:
+                                index += 7 * area;
+                                break;
+
+                            default:
+                                assert(false);  // other gamemodes does not support notes on 2P side
+                                break;
+                            }
                         }
                     }
                     for (const auto& n : ch.notes)
@@ -266,7 +279,7 @@ void chartBMS::loadBMS(const BMS& objBms)
                 {
                     auto ch = objBms.getLane(code, i, m);
                     unsigned index = i;
-                    if (area != 0)
+                    if (area != 0 && objBms.player != 1)
                     {
                         if (index == Sc1)
                         {
@@ -275,7 +288,20 @@ void chartBMS::loadBMS(const BMS& objBms)
                         }
                         else
                         {
-                            index += objBms.gamemode * area;
+                            switch (objBms.gamemode)
+                            {
+                            case 10:
+                                index += 5 * area;
+                                break;
+
+                            case 14:
+                                index += 7 * area;
+                                break;
+
+                            default:
+                                assert(false);  // other gamemodes does not support notes on 2P side
+                                break;
+                            }
                         }
                     }
                     for (const auto& n : ch.notes)

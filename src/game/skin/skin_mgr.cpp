@@ -28,11 +28,6 @@ void SkinMgr::load(eMode e)
         skinFilePath = ConfigMgr::get("S", cfg::S_PATH_DECIDE, cfg::S_DEFAULT_PATH_DECIDE);
         break;
 
-    case eMode::PLAY7:
-        skinFilePathDefault = cfg::S_DEFAULT_PATH_PLAY_7;
-        skinFilePath = ConfigMgr::get("S", cfg::S_PATH_PLAY_7, cfg::S_DEFAULT_PATH_PLAY_7);
-        break;
-
     case eMode::RESULT:
         skinFilePathDefault = cfg::S_DEFAULT_PATH_RESULT;
         skinFilePath = ConfigMgr::get("S", cfg::S_PATH_RESULT, cfg::S_DEFAULT_PATH_RESULT);
@@ -41,6 +36,41 @@ void SkinMgr::load(eMode e)
     case eMode::KEY_CONFIG:
         skinFilePathDefault = cfg::S_DEFAULT_PATH_KEYCONFIG;
         skinFilePath = ConfigMgr::get("S", cfg::S_PATH_KEYCONFIG, cfg::S_DEFAULT_PATH_KEYCONFIG);
+        break;
+
+    case eMode::PLAY5:
+        skinFilePathDefault = cfg::S_DEFAULT_PATH_PLAY_5;
+        skinFilePath = ConfigMgr::get("S", cfg::S_PATH_PLAY_5, cfg::S_DEFAULT_PATH_PLAY_5);
+        break;
+
+    case eMode::PLAY5_2:
+        skinFilePathDefault = cfg::S_DEFAULT_PATH_PLAY_5_BATTLE;
+        skinFilePath = ConfigMgr::get("S", cfg::S_PATH_PLAY_5_BATTLE, cfg::S_DEFAULT_PATH_PLAY_5_BATTLE);
+        break;
+
+    case eMode::PLAY7:
+        skinFilePathDefault = cfg::S_DEFAULT_PATH_PLAY_7;
+        skinFilePath = ConfigMgr::get("S", cfg::S_PATH_PLAY_7, cfg::S_DEFAULT_PATH_PLAY_7);
+        break;
+
+    case eMode::PLAY7_2:
+        skinFilePathDefault = cfg::S_DEFAULT_PATH_PLAY_7_BATTLE;
+        skinFilePath = ConfigMgr::get("S", cfg::S_PATH_PLAY_7_BATTLE, cfg::S_DEFAULT_PATH_PLAY_7_BATTLE);
+        break;
+
+    case eMode::PLAY9:
+        skinFilePathDefault = cfg::S_DEFAULT_PATH_PLAY_9;
+        skinFilePath = ConfigMgr::get("S", cfg::S_PATH_PLAY_9, cfg::S_DEFAULT_PATH_PLAY_9);
+        break;
+
+    case eMode::PLAY10:
+        skinFilePathDefault = cfg::S_DEFAULT_PATH_PLAY_10;
+        skinFilePath = ConfigMgr::get("S", cfg::S_PATH_PLAY_10, cfg::S_DEFAULT_PATH_PLAY_10);
+        break;
+
+    case eMode::PLAY14:
+        skinFilePathDefault = cfg::S_DEFAULT_PATH_PLAY_14;
+        skinFilePath = ConfigMgr::get("S", cfg::S_PATH_PLAY_14, cfg::S_DEFAULT_PATH_PLAY_14);
         break;
     }
 

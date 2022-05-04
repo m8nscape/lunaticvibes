@@ -13,9 +13,27 @@ namespace cfg
     constexpr char S_PATH_DECIDE[] = "Decide";
     constexpr char S_DEFAULT_PATH_DECIDE[] = "LR2files/Theme/LR2/Decide/decide.lr2skin";
 
+    constexpr char S_PATH_PLAY_5[] = "Play5";
+    constexpr char S_DEFAULT_PATH_PLAY_5[] = "LR2files/Theme/LR2/Play/play_5.lr2skin";
+
+    constexpr char S_PATH_PLAY_5_BATTLE[] = "Play5 Battle";
+    constexpr char S_DEFAULT_PATH_PLAY_5_BATTLE[] = "LR2files/Theme/LR2/Play/play_5_battle.lr2skin";
+
     constexpr char S_PATH_PLAY_7[] = "Play7";
     constexpr char S_DEFAULT_PATH_PLAY_7[] = "LR2files/Theme/LR2/Play/play_7.lr2skin";
     //constexpr char S_DEFAULT_PATH_PLAY_7[] = "LR2files/test.lr2skin"_p;
+
+    constexpr char S_PATH_PLAY_7_BATTLE[] = "Play7 Battle";
+    constexpr char S_DEFAULT_PATH_PLAY_7_BATTLE[] = "LR2files/Theme/LR2/Play/play_7_battle.lr2skin";
+
+    constexpr char S_PATH_PLAY_9[] = "Play9";
+    constexpr char S_DEFAULT_PATH_PLAY_9[] = "LR2files/Theme/LR2/Play/play_9.lr2skin";
+
+    constexpr char S_PATH_PLAY_10[] = "Play10";
+    constexpr char S_DEFAULT_PATH_PLAY_10[] = "LR2files/Theme/LR2/Play/play_10.lr2skin";
+
+    constexpr char S_PATH_PLAY_14[] = "Play14";
+    constexpr char S_DEFAULT_PATH_PLAY_14[] = "LR2files/Theme/LR2/Play/play_14.lr2skin";
 
     constexpr char S_PATH_RESULT[] = "Result";
     constexpr char S_DEFAULT_PATH_RESULT[] = "LR2files/Theme/LR2/Result/result.lr2skin";

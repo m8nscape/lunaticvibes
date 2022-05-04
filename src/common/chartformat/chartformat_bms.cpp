@@ -519,6 +519,19 @@ int BMS::initWithFile(const Path& file)
         }
     }
 
+    if (have89)
+    {
+        gamemode = 9;   // 18?
+    }
+    else if (have67)
+    {
+        gamemode = (player == 1 ? 7 : 14);
+    }
+    else
+    {
+        gamemode = (player == 1 ? 5 : 10);
+    }
+
     fileHash = md5file(absolutePath);
     LOG_INFO << "[BMS] MD5: " << fileHash.hexdigest();
 
@@ -569,13 +582,13 @@ std::pair<int, int> BMS::normalizeIndexesBME(int layer, int ch)
     case 1:            // 1x: 1P visible
     case 3:            // 3x: 1P invisible
     case 5:            // 5x: 1P LN
-    case 0xD:        // Dx: 1P mine
+    case 0xD:          // Dx: 1P mine
         area = 0;
         break;
     case 2:            // 2x: 2P visible
     case 4:            // 4x: 2P invisible
     case 6:            // 6x: 2P LN
-    case 0xE:        // Ex: 2P mine
+    case 0xE:          // Ex: 2P mine
         area = 1;
         break;
     }
@@ -618,7 +631,7 @@ std::string BMS::getError()
 
 int BMS::getMode() const
 {
-    if (player == 3)
+    if (player != 1)
         return (have67) ? MODE_14KEYS : MODE_10KEYS;
     else
         return (have89) ? MODE_9KEYS : (have67) ? MODE_7KEYS : MODE_5KEYS;

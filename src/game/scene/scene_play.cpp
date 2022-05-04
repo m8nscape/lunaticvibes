@@ -399,8 +399,10 @@ void ScenePlay::loadChart()
             if (_bmpToLoad == 0)
             {
                 _bmpLoaded = 1;
+                gChartContext.isBgaLoaded = true;
                 return;
             }
+
             for (size_t i = 0; i < _pChart->bgaFiles.size(); ++i)
             {
 				if (sceneEnding) return;
