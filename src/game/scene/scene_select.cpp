@@ -954,45 +954,48 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
     }
 
     // navigate
-    switch (gSelectContext.entries[gSelectContext.idx].first->type())
+    if (!gSelectContext.entries.empty())
     {
-    case eEntryType::FOLDER:
-    case eEntryType::CUSTOM_FOLDER:
-        if ((input & INPUT_MASK_DECIDE).any())
-            return _navigateEnter(t);
-        break;
-
-    case eEntryType::SONG:
-    case eEntryType::CHART:
-    case eEntryType::RIVAL_SONG:
-    case eEntryType::RIVAL_CHART:
-    case eEntryType::COURSE:
-        if ((input & INPUT_MASK_DECIDE).any())
-            return _decide();
-        break;
-
-    default:
-        break;
-    }
-    if ((input & INPUT_MASK_CANCEL).any())
-        return _navigateBack(t);
-
-    if ((input & INPUT_MASK_NAV_UP).any())
-    {
-        isHoldingUp = true;
-        if (scrollTimestamp == -1)
+        switch (gSelectContext.entries[gSelectContext.idx].first->type())
         {
-            scrollTimestamp = t.norm();
-            _navigateUpBy1(t);
+        case eEntryType::FOLDER:
+        case eEntryType::CUSTOM_FOLDER:
+            if ((input & INPUT_MASK_DECIDE).any())
+                return _navigateEnter(t);
+            break;
+
+        case eEntryType::SONG:
+        case eEntryType::CHART:
+        case eEntryType::RIVAL_SONG:
+        case eEntryType::RIVAL_CHART:
+        case eEntryType::COURSE:
+            if ((input & INPUT_MASK_DECIDE).any())
+                return _decide();
+            break;
+
+        default:
+            break;
         }
-    }
-    if ((input & INPUT_MASK_NAV_DN).any())
-    {
-        isHoldingDown = true;
-        if (scrollTimestamp == -1)
+        if ((input & INPUT_MASK_CANCEL).any())
+            return _navigateBack(t);
+
+        if ((input & INPUT_MASK_NAV_UP).any())
         {
-            scrollTimestamp = t.norm();
-            _navigateDownBy1(t);
+            isHoldingUp = true;
+            if (scrollTimestamp == -1)
+            {
+                scrollTimestamp = t.norm();
+                _navigateUpBy1(t);
+            }
+        }
+        if ((input & INPUT_MASK_NAV_DN).any())
+        {
+            isHoldingDown = true;
+            if (scrollTimestamp == -1)
+            {
+                scrollTimestamp = t.norm();
+                _navigateDownBy1(t);
+            }
         }
     }
 }
@@ -1555,6 +1558,7 @@ void SceneSelect::_navigateUpBy1(const Time& t)
     if (!isInVersionList)
         selectDownTimestamp = -1;
 
+    if (!gSelectContext.entries.empty())
     {
         std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
 
@@ -1575,6 +1579,7 @@ void SceneSelect::_navigateDownBy1(const Time& t)
     if (!isInVersionList)
         selectDownTimestamp = -1;
 
+    if (!gSelectContext.entries.empty())
     {
         std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
 
@@ -1592,6 +1597,7 @@ void SceneSelect::_navigateDownBy1(const Time& t)
 
 void SceneSelect::_navigateEnter(const Time& t)
 {
+    if (!gSelectContext.entries.empty())
     {
         std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
 
@@ -1634,6 +1640,7 @@ void SceneSelect::_navigateBack(const Time& t)
     if (!isInVersionList)
         selectDownTimestamp = -1;
 
+    if (!gSelectContext.entries.empty())
     {
         std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
 

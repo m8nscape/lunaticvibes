@@ -346,6 +346,9 @@ int BMS::initWithFile(const Path& file)
                     else // layer != 0
                     {
                         auto [area, idx] = normalizeIndexesBME(layer, ch);
+                        assert(area < sizeof(chNotesRegular.lanes) / sizeof(chNotesRegular.lanes[0]));
+                        assert(idx < sizeof(chNotesRegular.lanes[0]) / sizeof(chNotesRegular.lanes[0][0]));
+                        assert(measure < sizeof(chNotesRegular.lanes[0][0]) / sizeof(chNotesRegular.lanes[0][0][0]));
                         switch (layer)
                         {
                         case 1:            // 1x: 1P visible
@@ -407,8 +410,8 @@ int BMS::initWithFile(const Path& file)
     {
         for (size_t ch = 0; ch < PlayAreaLanes::LANE_COUNT; ++ch)
         {
-            decltype(chNotesRegular.lanes[0][ch][0].notes.begin()) it_head;
-            decltype(&chNotesRegular.lanes[0][ch][0].notes) notes_head = nullptr;
+            decltype(chNotesLN.lanes[0][ch][0].notes.begin()) it_head;
+            decltype(&chNotesLN.lanes[0][ch][0].notes) notes_head = nullptr;
             unsigned resolution_head = 1;
             unsigned bar_head = 0;
             unsigned bar_curr = 0;
@@ -416,9 +419,9 @@ int BMS::initWithFile(const Path& file)
             // find next LN head
             for (; bar_curr <= lastBarIdx; bar_curr++)
             {
-                if (!chNotesRegular.lanes[area][ch][bar_curr].notes.empty())
+                if (!chNotesLN.lanes[area][ch][bar_curr].notes.empty())
                 {
-                    notes_head = &chNotesRegular.lanes[area][ch][bar_curr].notes;
+                    notes_head = &chNotesLN.lanes[area][ch][bar_curr].notes;
                     it_head = notes_head->begin();
                     resolution_head = chNotesRegular.lanes[area][ch][bar_curr].resolution;
                     bar_head = bar_curr;
@@ -430,8 +433,8 @@ int BMS::initWithFile(const Path& file)
             // find next LN note as LN tail
             for (; bar_curr <= lastBarIdx; bar_curr++)
             {
-                auto& notes_tail = chNotesRegular.lanes[area][ch][bar_curr].notes;
-                unsigned res_tail = chNotesRegular.lanes[area][ch][bar_curr].resolution;
+                auto& notes_tail = chNotesLN.lanes[area][ch][bar_curr].notes;
+                unsigned res_tail = chNotesLN.lanes[area][ch][bar_curr].resolution;
                 if (notes_tail.empty()) continue;
 
                 auto it_tail = notes_tail.begin();

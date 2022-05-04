@@ -145,7 +145,7 @@ void chartBMS::loadBMS(const BMS& objBms)
     _bpmNoteList.push_back({ 0, {0, 1}, 0, bpm });
 	barLength.fill({ 1, 1 });
     bool bpmfucked = false; // set to true when BPM is changed to zero or negative value
-    std::bitset<10> isLnTail[2]{ 0 };
+    std::bitset<NOTELANEINDEX_COUNT> isLnTail{ 0 };
 
     int laneCountRandom = 7;
     switch (gPlayContext.mode)
@@ -226,9 +226,8 @@ void chartBMS::loadBMS(const BMS& objBms)
         struct Lane
         {
             eLanePriority type;
-            int area;
             unsigned index;
-            bool operator< (const Lane& rhs) const { return std::tuple(type, area, index) < std::tuple(rhs.type, rhs.area, rhs.index); }
+            bool operator< (const Lane& rhs) const { return std::make_pair(type, index) < std::make_pair(rhs.type, rhs.index); }
         };
 
         // notes [] {beat, {lane, sample/val}}
@@ -241,10 +240,23 @@ void chartBMS::loadBMS(const BMS& objBms)
                 for (unsigned i = 0; i < 10; i++)
                 {
                     auto ch = objBms.getLane(code, i, m);
+                    unsigned index = i;
+                    if (area != 0)
+                    {
+                        if (index == Sc1)
+                        {
+                            assert(area == 1);
+                            index = Sc2;
+                        }
+                        else
+                        {
+                            index += objBms.gamemode * area;
+                        }
+                    }
                     for (const auto& n : ch.notes)
                     {
-                        //              { beat,                               { { lane,                val     } }
-                        notes.push_back({ fraction(n.segment, ch.resolution), { { priority, area, i }, n.value } });
+                        //              { beat,                               { { lane,              val     } }
+                        notes.push_back({ fraction(n.segment, ch.resolution), { { priority, index }, n.value } });
                     }
                 }
             };
@@ -253,11 +265,24 @@ void chartBMS::loadBMS(const BMS& objBms)
                 for (unsigned i = 0; i < 10; i++)
                 {
                     auto ch = objBms.getLane(code, i, m);
+                    unsigned index = i;
+                    if (area != 0)
+                    {
+                        if (index == Sc1)
+                        {
+                            assert(area == 1);
+                            index = Sc2;
+                        }
+                        else
+                        {
+                            index += objBms.gamemode * area;
+                        }
+                    }
                     for (const auto& n : ch.notes)
                     {
-                        eLanePriority priority = isLnTail[area][i] ? eLanePriority::LNTAIL : eLanePriority::LNHEAD;
-                        notes.push_back({ fraction(n.segment, ch.resolution),{ { priority, area, i }, n.value } });
-                        isLnTail[area][i].flip();
+                        eLanePriority priority = isLnTail[index] ? eLanePriority::LNTAIL : eLanePriority::LNHEAD;
+                        notes.push_back({ fraction(n.segment, ch.resolution),{ { priority, index }, n.value } });
+                        isLnTail[index].flip();
                     }
                 }
             };
@@ -285,7 +310,7 @@ void chartBMS::loadBMS(const BMS& objBms)
                 auto ch = objBms.getLane(LaneCode::BGM, i, m);
                 for (const auto& n : ch.notes)
                     //              { beat,                               { { lane,                       val     } }
-                    notes.push_back({ fraction(n.segment, ch.resolution), { { eLanePriority::BGM, 0, i }, n.value } });
+                    notes.push_back({ fraction(n.segment, ch.resolution), { { eLanePriority::BGM, i }, n.value } });
             }
 
             // BGA

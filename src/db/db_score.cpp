@@ -4,25 +4,25 @@
 
 const char* CREATE_SCORE_BMS_TABLE_STR =
 "CREATE TABLE IF NOT EXISTS score_bms( "
-"md5     TEXT     PRIMARY KEY UNIQUE NOT NULL, " // 0
-"notes   INTEGER  NOT NULL, "                    // 1
-"score   INTEGER  NOT NULL, "                    // 2
-"rate    REAL     NOT NULL, "                    // 3
-"fast    INTEGER  NOT NULL, "                    // 4
-"slow    INTEGER  NOT NULL, "                    // 5
-"maxcombo INTEGER NOT NULL DEFAULT 0, "          // 6
-"addtime INTEGER  NOT NULL DEFAULT 0, "          // 7
-"pc      INTEGER  NOT NULL DEFAULT 0, "          // 8
-"exscore INTEGER  NOT NULL, "                    // 9
-"lamp    INTEGER  NOT NULL, "                    // 10
-"pgreat  INTEGER  NOT NULL, "                    // 11
-"great   INTEGER  NOT NULL, "                    // 12
-"good    INTEGER  NOT NULL, "                    // 13
-"bad     INTEGER  NOT NULL, "                    // 14
-"bpoor   INTEGER  NOT NULL, "                    // 15
-"miss    INTEGER  NOT NULL, "                    // 16
-"bp      INTEGER  NOT NULL, "                    // 17
-"cb      INTEGER  NOT NULL "                     // 18
+"md5 TEXT PRIMARY KEY UNIQUE NOT NULL, " // 0
+"notes INTEGER NOT NULL, "               // 1
+"score INTEGER NOT NULL, "               // 2
+"rate REAL NOT NULL, "                   // 3
+"fast INTEGER NOT NULL, "                // 4
+"slow INTEGER NOT NULL, "                // 5
+"maxcombo INTEGER NOT NULL DEFAULT 0, "  // 6
+"addtime INTEGER NOT NULL DEFAULT 0, "   // 7
+"pc INTEGER NOT NULL DEFAULT 0, "        // 8
+"exscore INTEGER NOT NULL, "             // 9
+"lamp INTEGER NOT NULL, "                // 10
+"pgreat INTEGER NOT NULL, "              // 11
+"great INTEGER NOT NULL, "               // 12
+"good INTEGER NOT NULL, "                // 13
+"bad INTEGER NOT NULL, "                 // 14
+"bpoor INTEGER NOT NULL, "               // 15
+"miss INTEGER NOT NULL, "                // 16
+"bp INTEGER NOT NULL, "                  // 17
+"cb INTEGER NOT NULL "                   // 18
 ")";
 struct score_bms_all_params
 {
@@ -114,7 +114,7 @@ ScoreDB::ScoreDB(const char* path): SQLite(path, "SCORE")
 
 std::shared_ptr<ScoreBMS> ScoreDB::getChartScoreBMS(const HashMD5& hash) const
 {
-    auto result = query("SELECT * FROM score_bms WHERE md5=?", 19, { hash });
+    auto result = query("SELECT * FROM score_bms WHERE md5=?", 19, { hash.hexdigest() });
 
     if (!result.empty())
     {

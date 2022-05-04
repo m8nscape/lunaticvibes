@@ -48,6 +48,7 @@ std::vector<std::vector<std::any>> SQLite::query(const char* zsql, size_t retSiz
         else if (a.type() == typeid(std::string)) sqlite3_bind_text(stmt, i, std::any_cast<std::string>(a).c_str(), (int)std::any_cast<std::string>(a).length(), SQLITE_TRANSIENT);
         else if (a.type() == typeid(const char*)) sqlite3_bind_text(stmt, i, std::any_cast<const char*>(a), (int)strlen(std::any_cast<const char*>(a)), SQLITE_TRANSIENT);
         else if (a.type() == typeid(nullptr)) sqlite3_bind_null(stmt, i);
+        else assert(false); // type error
         ++i;
     }
 

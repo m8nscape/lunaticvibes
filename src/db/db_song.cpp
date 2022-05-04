@@ -8,45 +8,45 @@
 
 const char* CREATE_FOLDER_TABLE_STR =
 "CREATE TABLE IF NOT EXISTS folder( "
-"pathmd5 TEXT     PRIMARY KEY UNIQUE NOT NULL, "
-"parent  TEXT , "
-"name    TEXT , "
-"type    INTEGER NOT NULL DEFAULT 0, "
-"path    TEXT    NOT NULL "
+"pathmd5 TEXT PRIMARY KEY UNIQUE NOT NULL, "
+"parent TEXT, "
+"name TEXT, "
+"type INTEGER NOT NULL DEFAULT 0, "
+"path TEXT NOT NULL "
 ");";
 
 const char* CREATE_SONG_TABLE_STR =
 "CREATE TABLE IF NOT EXISTS song("
-"md5        TEXT    NOT NULL, "   // 0
-"parent     TEXT    NOT NULL, "   // 1
-"file       TEXT    NOT NULL, "   // 2
-"type       INTEGER NOT NULL, "   // 3
-"title      TEXT    NOT NULL, "   // 4
-"title2     TEXT    NOT NULL, "   // 5
-"artist     TEXT    NOT NULL, "   // 6
-"artist2    TEXT    NOT NULL, "   // 7
-"genre      TEXT    NOT NULL, "   // 8
-"version    TEXT    NOT NULL, "   // 9
-"level      REAL    NOT NULL, "   // 10
-"bpm        REAL    NOT NULL, "   // 11
-"minbpm     REAL    NOT NULL, "   // 12
-"maxbpm     REAL    NOT NULL, "   // 13
-"length     INTEGER NOT NULL, "   // 14
-"totalnotes INTEGER NOT NULL, "   // 15
-"stagefile  TEXT    , "           // 16
-"bannerfile TEXT    , "           // 17
-"gamemode   INTEGER , "           // 18
-"judgerank  INTEGER , "           // 19
-"total      INTEGER , "           // 20
-"playlevel  INTEGER , "           // 21
-"difficulty INTEGER , "           // 22
-"longnote   INTEGER , "           // 23
-"landmine   INTEGER , "           // 24
-"metricmod  INTEGER , "           // 25
-"stop       INTEGER , "           // 26
-"bga        INTEGER , "           // 27
-"random     INTEGER , "           // 28
-"addtime    INTEGER , "           // 29
+"md5 TEXT NOT NULL, "           // 0
+"parent TEXT NOT NULL, "        // 1
+"file TEXT NOT NULL, "          // 2
+"type INTEGER NOT NULL, "       // 3
+"title TEXT NOT NULL, "         // 4
+"title2 TEXT NOT NULL, "        // 5
+"artist TEXT NOT NULL, "        // 6
+"artist2 TEXT NOT NULL, "       // 7
+"genre TEXT NOT NULL, "         // 8
+"version TEXT NOT NULL, "       // 9
+"level REAL NOT NULL, "         // 10
+"bpm REAL NOT NULL, "           // 11
+"minbpm REAL NOT NULL, "        // 12
+"maxbpm REAL NOT NULL, "        // 13
+"length INTEGER NOT NULL, "     // 14
+"totalnotes INTEGER NOT NULL, " // 15
+"stagefile TEXT, "             // 16
+"bannerfile TEXT, "            // 17
+"gamemode INTEGER, "           // 18
+"judgerank INTEGER, "          // 19
+"total INTEGER, "              // 20
+"playlevel INTEGER, "          // 21
+"difficulty INTEGER, "         // 22
+"longnote INTEGER, "           // 23
+"landmine INTEGER, "           // 24
+"metricmod INTEGER, "          // 25
+"stop INTEGER, "               // 26
+"bga INTEGER, "                // 27
+"random INTEGER, "             // 28
+"addtime INTEGER, "            // 29
 "CONSTRAINT pk_pf PRIMARY KEY (parent,file) "
 ");";
 struct song_all_params
@@ -226,7 +226,7 @@ int SongDB::addChart(const HashMD5& folder, const Path& path)
     }
 
     if (auto result = query("SELECT md5 FROM song WHERE parent=? AND file=?", 1, 
-        { folder, filename }); !result.empty() && !result[0].empty())
+        { folder.hexdigest(), filename }); !result.empty() && !result[0].empty())
     {
         // file exists in db
         HashMD5 dbmd5 = ANY_STR(result[0][0]);
@@ -238,7 +238,7 @@ int SongDB::addChart(const HashMD5& folder, const Path& path)
         else
         {
             LOG_INFO << "[SongDB] File " << path.string() << " exists, but hash not match. Removing old entry from db";
-            if (SQLITE_OK != exec("DELETE FROM song WHERE parent=? AND file=?", { folder, filename }))
+            if (SQLITE_OK != exec("DELETE FROM song WHERE parent=? AND file=?", { folder.hexdigest(), filename }))
             {
                 LOG_WARNING << "[SongDB] Remove existing chart from db failed: " << path.string();
                 return 1;
@@ -319,7 +319,7 @@ int SongDB::addChart(const HashMD5& folder, const Path& path)
 
 int SongDB::removeChart(const HashMD5& md5)
 {
-    if (SQLITE_OK != exec("DELETE FROM song WHERE md5=?", { md5 }))
+    if (SQLITE_OK != exec("DELETE FROM song WHERE md5=?", { md5.hexdigest() }))
     {
         LOG_WARNING << "[SongDB] Delete from db error: " << md5.hexdigest() << ": " << errmsg();
         return 1;
@@ -395,7 +395,7 @@ std::vector<pChart> SongDB::findChartByHash(const HashMD5& target) const
 {
     LOG_INFO << "[SongDB] Search for song " << target.hexdigest();
 
-    auto result = query("SELECT * FROM song WHERE md5=?", 29, { target });
+    auto result = query("SELECT * FROM song WHERE md5=?", 29, { target.hexdigest() });
 
     std::vector<pChart> ret;
     pushResult(ret, result);
@@ -563,7 +563,7 @@ HashMD5 SongDB::getFolderParent(const Path& path) const
 
     auto parent = (path / "..").lexically_normal();
     HashMD5 parentHash = md5(parent.string());
-    auto result = query("SELECT name,type FROM folder WHERE parent=?", 3, { parentHash });
+    auto result = query("SELECT name,type FROM folder WHERE parent=?", 3, { parentHash.hexdigest() });
     if (!result.empty())
     {
         for (const auto& leaf : result)
@@ -580,7 +580,7 @@ int SongDB::removeFolder(const HashMD5& hash, bool removeSong)
 {
     if (removeSong)
     {
-        if (SQLITE_OK != exec("DELETE FROM song WHERE parent=?", { hash }))
+        if (SQLITE_OK != exec("DELETE FROM song WHERE parent=?", { hash.hexdigest() }))
             LOG_WARNING << "[SongDB] remove song from db error: " << errmsg();
     }
 
@@ -589,7 +589,7 @@ int SongDB::removeFolder(const HashMD5& hash, bool removeSong)
 
 HashMD5 SongDB::getFolderParent(const HashMD5& folder) const
 {
-    auto result = query("SELECT type,parent FROM folder WHERE path=?", 2, { folder });
+    auto result = query("SELECT type,parent FROM folder WHERE path=?", 2, { folder.hexdigest() });
     if (!result.empty())
     {
         auto leaf = result[0];
@@ -608,7 +608,7 @@ HashMD5 SongDB::getFolderParent(const HashMD5& folder) const
 
 int SongDB::getFolderPath(const HashMD5& folder, Path& output) const
 {
-    auto result = query("SELECT type,path FROM folder WHERE pathmd5=?", 2, { folder });
+    auto result = query("SELECT type,path FROM folder WHERE pathmd5=?", 2, { folder.hexdigest()});
     if (!result.empty())
     {
         auto leaf = result[0];
@@ -658,7 +658,7 @@ FolderRegular SongDB::browse(HashMD5 root, bool recursive)
 
     FolderRegular list(root, path);
 
-    auto result = query("SELECT pathmd5,parent,name,type FROM folder WHERE parent=?", 5, { root });
+    auto result = query("SELECT pathmd5,parent,name,type FROM folder WHERE parent=?", 5, { root.hexdigest() });
     if (!result.empty())
     {
         for (auto& c : result)
@@ -699,7 +699,7 @@ FolderSong SongDB::browseSong(HashMD5 root)
     FolderSong list(root, path);
     bool isNameSet = false;
 
-    auto result = query("SELECT * from song WHERE parent=?", 30, { root });
+    auto result = query("SELECT * from song WHERE parent=?", 30, { root.hexdigest() });
     if (!result.empty())
     {
         for (auto& c : result)
