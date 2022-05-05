@@ -377,11 +377,11 @@ void ScenePlay::loadChart()
 				if (sceneEnding) break;
                 const auto& wav = _pChart->wavFiles[i];
                 if (wav.empty()) continue;
-				Path pWav(wav);
+				Path pWav = fs::u8path(wav);
 				if (pWav.is_absolute())
 					SoundMgr::loadKeySample(pWav, i);
 				else
-					SoundMgr::loadKeySample((chartDir / wav), i);
+					SoundMgr::loadKeySample((chartDir / pWav), i);
                 ++_wavLoaded;
             }
             gChartContext.isSampleLoaded = true;
@@ -421,7 +421,7 @@ void ScenePlay::loadChart()
                 if (bmp.empty()) continue;
 
 
-				Path pBmp(bmp);
+				Path pBmp = fs::u8path(bmp);
 				if (pBmp.is_absolute())
 					gPlayContext.bgaTexture->addBmp(i, pBmp);
 				else
