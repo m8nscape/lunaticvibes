@@ -288,7 +288,7 @@ void updateDstOpt()
 		case LAMP_EXHARD: set(104); break;
 		case LAMP_FULLCOMBO:
 		case LAMP_PERFECT:
-		case LAMP_MAX: set(106); break;
+		case LAMP_MAX: set(105); break;
 		}
 	}
 

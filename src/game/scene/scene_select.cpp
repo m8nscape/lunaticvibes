@@ -1114,7 +1114,7 @@ void SceneSelect::inputGameAxisSelect(InputAxisPlus& input, const Time& t)
                 _navigateUpBy1(t);
         }
     }
-    else
+    else if (!isHoldingUp && !isHoldingDown)
     {
         gSelectContext.scrollTime = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_INITIAL, 300);
     }

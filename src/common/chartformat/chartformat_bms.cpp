@@ -94,8 +94,14 @@ int BMS::initWithFile(const Path& file)
 
     StringContent buf;
     unsigned srcLine = 0;
+
+    // #RANDOM related parameters
     int randomValue = 0;
     std::stack<int> ifValue;
+
+    // implicit parameters
+    bool hasDifficulty = false;
+
     while (!fs.eof())
     {
         std::getline(fs, buf, '\n');
@@ -121,12 +127,14 @@ int BMS::initWithFile(const Path& file)
             std::regex(R"(#STOP00 .*)", prebuiltRegexFlags),
             std::regex(R"(#BMP00 .*)", prebuiltRegexFlags),
         };
-        for (auto& reg: skipRegex)
+        for (auto& reg : skipRegex)
+        {
             if (std::regex_match(buf, reg))
             {
                 skip = true;
                 break;
             }
+        }
         if (skip) continue;
 
         // parsing
@@ -218,7 +226,10 @@ int BMS::initWithFile(const Path& file)
                     levelEstimated = double(playLevel);
                 }
                 else if (strEqual(key, "DIFFICULTY", true))
+                {
                     difficulty = toInt(value);
+                    hasDifficulty = true;
+                }
                 else if (strEqual(key, "BPM", true))
                     bpm = toDouble(value);
 
@@ -400,6 +411,50 @@ int BMS::initWithFile(const Path& file)
     }
 
     fs.close();
+
+    // implicit subtitle
+    if (title2.empty())
+    {
+        static const std::vector<std::regex> subTitleRegex
+        {
+            std::regex(R"((.+) *(-.*?-))", prebuiltRegexFlags),
+            std::regex(R"((.+) *(〜.*?〜))", prebuiltRegexFlags),
+            std::regex(R"((.+) *(\(.*?\)))", prebuiltRegexFlags),
+            std::regex(R"((.+) *(\[.*?\]))", prebuiltRegexFlags),
+            std::regex(R"((.+) *(<.*?>))", prebuiltRegexFlags),
+        };
+        for (auto& reg : subTitleRegex)
+        {
+            std::smatch sm;
+            if (std::regex_match(title, sm, reg))
+            {
+                title2 = sm[2].str();
+                title = sm[1].str();
+                break;
+            }
+        }
+    }
+
+    // implicit difficulty
+    if (!hasDifficulty)
+    {
+        static const std::vector<std::regex> difficultyRegex
+        {
+            std::regex(""),
+            std::regex(R"((easy|beginner|light))", prebuiltRegexFlags),
+            std::regex(R"((normal|standard))", prebuiltRegexFlags),
+            std::regex(R"((hard|hyper))", prebuiltRegexFlags),
+            std::regex(R"((ex|another|insane))", prebuiltRegexFlags),
+        };
+        difficulty = -1;
+        for (int i = 1; i <= 4; ++i)
+        {
+            if (std::regex_search(title2, difficultyRegex[i]))
+                difficulty = i;
+        }
+        if (difficulty == -1)
+            difficulty = 2; // defaults to normal
+    }
 
     for (size_t i = 0; i <= lastBarIdx; i++)
         if (metres[i].toDouble() == 0.0)
