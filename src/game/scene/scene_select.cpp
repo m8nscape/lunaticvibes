@@ -23,8 +23,9 @@ void setBarInfo()
 
     const size_t idx = gSelectContext.idx;
     const size_t cursor = gSelectContext.cursor;
-    const size_t count = int(eText::_SELECT_BAR_TITLE_FULL_MAX) - int(eText::_SELECT_BAR_TITLE_FULL_0) + 1;
-    for (size_t list_idx = (e.size() + idx - cursor) % e.size(), i = 0; i < count; list_idx = (list_idx + 1) % e.size(), ++i)
+    const size_t count = size_t(eText::_SELECT_BAR_TITLE_FULL_MAX) - size_t(eText::_SELECT_BAR_TITLE_FULL_0) + 1;
+
+    auto setSingleBarInfo = [&](size_t list_idx, size_t bar_index)
     {
         auto entry = e[list_idx].first;
         std::shared_ptr<vChartFormat> pf = nullptr;
@@ -56,8 +57,8 @@ void setBarInfo()
             case eChartFormat::BMS:
             {
                 const auto bms = std::reinterpret_pointer_cast<const BMS_prop>(pf);
-                gTexts.set(eText(int(eText::_SELECT_BAR_TITLE_FULL_0) + i), entry->_name);
-                gNumbers.set(eNumber(int(eNumber::_SELECT_BAR_LEVEL_0) + i), bms->playLevel);
+                gTexts.set(eText(int(eText::_SELECT_BAR_TITLE_FULL_0) + bar_index), entry->_name);
+                gNumbers.set(eNumber(int(eNumber::_SELECT_BAR_LEVEL_0) + bar_index), bms->playLevel);
 
                 // TODO set bar lamp
 
@@ -65,18 +66,26 @@ void setBarInfo()
             }
 
             default:
-                gTexts.set(eText(int(eText::_SELECT_BAR_TITLE_FULL_0) + i), entry->_name);
-                gNumbers.set(eNumber(int(eNumber::_SELECT_BAR_LEVEL_0) + i), 0);
+                gTexts.set(eText(int(eText::_SELECT_BAR_TITLE_FULL_0) + bar_index), entry->_name);
+                gNumbers.set(eNumber(int(eNumber::_SELECT_BAR_LEVEL_0) + bar_index), 0);
                 break;
             }
         }
         else
         {
             // other types. eg. folder, course, etc
-            gTexts.set(eText(int(eText::_SELECT_BAR_TITLE_FULL_0) + i), entry->_name);
+            gTexts.set(eText(int(eText::_SELECT_BAR_TITLE_FULL_0) + bar_index), entry->_name);
         }
+    };
+    int list_idx, bar_index;
+    for (list_idx = idx, bar_index = cursor; bar_index > 0; list_idx = (--list_idx + e.size()) % e.size(), --bar_index)
+    {
+        setSingleBarInfo(list_idx, bar_index);
     }
-
+    for (list_idx = (idx + 1) % e.size(), bar_index = cursor + 1; bar_index < count; list_idx = (++list_idx) % e.size(), ++bar_index)
+    {
+        setSingleBarInfo(list_idx, bar_index);
+    }
 }
 
 void setEntryInfo()

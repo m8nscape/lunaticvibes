@@ -125,8 +125,8 @@ struct SelectContextParams
     std::shared_mutex _mutex;
     std::stack<SongListProperties> backtrace;
     EntryList entries;
-    size_t idx = 0;
-    size_t cursor = 0;
+    size_t idx = 0;     // current selected entry index
+    size_t cursor = 0;  // highlighted bar index
     SongListSort sort = SongListSort::DEFAULT;
     unsigned difficulty = 0; // all / B / N / H / A / I (type 0 is not included)
     unsigned gamemode = 0; // all / 5, 7, 9, 10, 14, etc
