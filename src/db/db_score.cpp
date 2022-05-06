@@ -186,15 +186,15 @@ void ScoreDB::updateChartScoreBMS(const HashMD5& hash, const ScoreBMS& score)
         exec("UPDATE score_bms SET notes=?,score=?,rate=?,fast=?,slow=?,maxcombo=?,addtime=?,pc=?,exscore=?,lamp=?,"
             "pgreat=?,great=?,good=?,bad=?,bpoor=?,miss=?,bp=?,cb=? WHERE md5=?",
             { record.notes, record.score, record.rate, record.fast, record.slow, 
-            record.maxcombo, (long long)std::time(nullptr), record.playcount, record.exscore, record.exscore, (int)record.lamp, 
+            record.maxcombo, (long long)std::time(nullptr), record.playcount, record.exscore, (int)record.lamp, 
             record.pgreat, record.great, record.good, record.bad, record.bpoor, record.miss, record.bp, record.combobreak,
-            hash });
+            hash.hexdigest()});
     }
     else
     {
         exec("INSERT INTO score_bms(md5,notes,score,rate,fast,slow,maxcombo,addtime,pc,exscore,lamp,"
             "pgreat,great,good,bad,bpoor,miss,bp,cb) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-            { hash, 
+            { hash.hexdigest(),
             score.notes, score.score, score.rate, score.fast, score.slow,
             score.maxcombo, (long long)std::time(nullptr), score.playcount, score.exscore, (int)score.lamp, 
             score.pgreat, score.great, score.good, score.bad, score.bpoor, score.miss, score.bp, score.combobreak });
