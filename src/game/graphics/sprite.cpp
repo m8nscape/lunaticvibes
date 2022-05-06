@@ -407,7 +407,7 @@ void SpriteAnimated::updateSplitByTimer(rTime time)
 */
 void SpriteAnimated::draw() const
 {
-    if (!_hide && _draw && _pTexture != nullptr && _pTexture->_loaded)
+    if (!_hide && _draw && _currAnimFrame < _texRect.size() && _pTexture != nullptr && _pTexture->_loaded)
     {
         _pTexture->draw(_texRect[_selectionIdx * _animFrames + _currAnimFrame], _current.rect, _current.color, _current.blend, _current.filter, _current.angle, _current.center);
     }
@@ -433,7 +433,7 @@ SpriteText::SpriteText(pFont f, Rect rect, eText e, TextAlign a, unsigned ptsize
 */
 
 bool SpriteText::update(const Time& t)
-{
+{   
     // it takes me 2 hours to figure out that font LIBRARY can not be accessed by parallel
     std::lock_guard<std::mutex> u{_updateMutex};
 

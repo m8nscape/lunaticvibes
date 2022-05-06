@@ -219,7 +219,7 @@ void TextureBmsBga::update(const Time& t, bool poor)
 	{
 		auto it = slotIt;
 		if (it == slot.end()) return;
-		it++;
+		if (it != slot.begin()) ++it;
 		for (; it != slot.end(); ++it)	// start from cached iterator's next iterator, or the bga will stuck at one frame
 		{
 			auto[time, idx] = *it;
@@ -227,19 +227,19 @@ void TextureBmsBga::update(const Time& t, bool poor)
 			{
 				slotIdx = idx;
 				slotIt = it;
-				if (objs[idx].type == obj::Ty::VIDEO)
-				{
-#ifndef VIDEO_DISABLED
-					auto pt = std::reinterpret_pointer_cast<TextureVideo>(objs[idx].pt);
-					pt->start();
-					//pt->seek((t - time).norm() / 1000);
-					pt->update();
-#endif
-				}
-				return;
+				break;
 			}
 		}
-		//slotIt = slot.end();	// no bga
+
+#ifndef VIDEO_DISABLED
+		if (slotIdx != INDEX_INVALID && objs[slotIdx].type == obj::Ty::VIDEO)
+		{
+			auto pt = std::reinterpret_pointer_cast<TextureVideo>(objs[it->second].pt);
+			pt->start();
+			pt->update();
+		}
+#endif
+
 	};
 
 	seekSub(baseSlot, baseIdx, baseIt);
