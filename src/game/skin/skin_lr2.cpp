@@ -105,10 +105,24 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
         int div_y = 0;
         int cycle = 0;
         int timer = 0;
-        s_basic(const Tokens& tokens)
+        s_basic(const Tokens& tokens, size_t csvLineNumber = 0)
         {
             int count = sizeof(s_basic) / sizeof(int);
             convertLine(tokens, (int*)this, 0, count);
+
+            if (w == -1) w = RECT_FULL.w;
+            if (h == -1) h = RECT_FULL.h;
+
+            if (div_x == 0)
+            {
+                LOG_WARNING << "[Skin] " << csvLineNumber << ": div_x is 0";
+                div_x = 1;
+            }
+            if (div_y == 0)
+            {
+                LOG_WARNING << "[Skin] " << csvLineNumber << ": div_y is 0";
+                div_y = 1;
+            }
         }
     };
 
@@ -117,7 +131,7 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
         int op1 = 0;
         int op2 = 0;
         int op3 = 0;
-        s_image(const Tokens& tokens) : s_basic(tokens)
+        s_image(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
         {
             convertOpsToInt(tokens, (int*)this, &op1 - &_null, 3);
         }
@@ -128,7 +142,7 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
         int num = 0;
         int align = 0;
         int keta = 0;
-        s_number(const Tokens& tokens) : s_basic(tokens)
+        s_number(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
         {
             convertLine(tokens, (int*)this, &num - &_null, 3);
         }
@@ -140,7 +154,7 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
         int range = 0;
         int type = 0;
         int disable = 0;
-        s_slider(const Tokens& tokens) : s_basic(tokens)
+        s_slider(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
         {
             convertLine(tokens, (int*)this, &muki - &_null, 4);
         }
@@ -150,7 +164,7 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
     {
         int type = 0;
         int muki = 0;
-        s_bargraph(const Tokens& tokens) : s_basic(tokens)
+        s_bargraph(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
         {
             convertLine(tokens, (int*)this, &type - &_null, 2);
         }
@@ -162,7 +176,7 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
         int click = 0;
         int panel = 0;
         int plusonly = 0;
-        s_button(const Tokens& tokens) : s_basic(tokens)
+        s_button(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
         {
             convertLine(tokens, (int*)this, &type - &_null, 4);
         }
@@ -175,7 +189,7 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
         int y2 = 0;
         int w2 = 0;
         int h2 = 0;
-        s_onmouse(const Tokens& tokens) : s_basic(tokens)
+        s_onmouse(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
         {
             convertLine(tokens, (int*)this, &panel - &_null, 5);
         }
@@ -216,7 +230,7 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
     struct s_nowjudge : s_basic
     {
         int noshift = 0;
-        s_nowjudge(const Tokens& tokens): s_basic(tokens)
+        s_nowjudge(const Tokens& tokens, size_t csvLineNumber = 0): s_basic(tokens, csvLineNumber)
         {
             size_t offset = sizeof(s_basic) / sizeof(int);
             size_t count = (sizeof(*this) - sizeof(s_basic)) / sizeof(int);
@@ -229,7 +243,7 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
         int _null2 = 0;
         int align = 0;
         int keta = 0;
-        s_nowcombo(const Tokens& tokens) : s_basic(tokens)
+        s_nowcombo(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
         {
             size_t offset = sizeof(s_basic) / sizeof(int);
             size_t count = (sizeof(*this) - sizeof(s_basic)) / sizeof(int);
@@ -241,7 +255,7 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
     {
         int add_x = 0;
         int add_y = 0;
-        s_groovegauge(const Tokens& tokens) : s_basic(tokens)
+        s_groovegauge(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
         {
             size_t offset = sizeof(s_basic) / sizeof(int);
             size_t count = (sizeof(*this) - sizeof(s_basic)) / sizeof(int);
@@ -287,7 +301,7 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
         int field_h = 0;
         int start = 0;
         int end = 0;
-        s_gaugechart(const Tokens& tokens) : s_basic(tokens)
+        s_gaugechart(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
         {
             size_t offset = sizeof(s_basic) / sizeof(int);
             size_t count = (sizeof(*this) - sizeof(s_basic)) / sizeof(int);
@@ -479,32 +493,6 @@ Tokens csvLineTokenize(const std::string& raw)
         res.push_back(StringContentView(&*it->first, it->second - it->first));
     }
     return res;
-}
-
-
-void refineRect(lr2skin::s_basic& d, const Rect rect, unsigned csvLineNumber)
-{
-    if (d.w == -1)
-        d.w = rect.w;
-    if (d.h == -1)
-        d.h = rect.h;
-
-    if (d.div_x == 0)
-    {
-        LOG_WARNING << "[Skin] " << csvLineNumber << ": div_x is 0";
-        d.div_x = 1;
-    }
-    if (d.div_y == 0)
-    {
-        LOG_WARNING << "[Skin] " << csvLineNumber << ": div_y is 0";
-        d.div_y = 1;
-    }
-
-    if (d.x == -1 && d.y == -1)
-    {
-        d.x = d.y = 0;
-    }
-
 }
 
 Point getCenterPoint(const int& wi, const int& hi, int numpadCenter)
@@ -1012,19 +1000,17 @@ int SkinLR2::SRC()
 
 ParseRet SkinLR2::SRC_IMAGE()
 {
-    lr2skin::s_basic d(parseParamBuf);
+    lr2skin::s_basic d(parseParamBuf, csvLineNumber);
 
 #ifndef VIDEO_DISABLED
     if (useVideo && videoBuf && videoBuf->haveVideo)
     {
-        refineRect(d, { 0, 0, videoBuf->getW(), videoBuf->getH() }, csvLineNumber);
         auto psv = std::make_shared<SpriteVideo>(d.w, d.h, videoBuf);
         _sprites.push_back(psv);
     }
     else
 #endif
     {
-        if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
         _sprites.push_back(std::make_shared<SpriteAnimated>(
             textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x));
     }
@@ -1036,8 +1022,7 @@ ParseRet SkinLR2::SRC_IMAGE()
 
 ParseRet SkinLR2::SRC_NUMBER()
 {
-    lr2skin::s_number d(parseParamBuf);
-    if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
+    lr2skin::s_number d(parseParamBuf, csvLineNumber);
 
     eNumber iNum = lr2skin::num(d.num);
 
@@ -1057,8 +1042,7 @@ ParseRet SkinLR2::SRC_NUMBER()
 
 ParseRet SkinLR2::SRC_SLIDER()
 {
-    lr2skin::s_slider d(parseParamBuf);
-    if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
+    lr2skin::s_slider d(parseParamBuf, csvLineNumber);
 
     _sprites.push_back(std::make_shared<SpriteSlider>(
         textureBuf, Rect(d.x, d.y, d.w, d.h), (SliderDirection)d.muki, d.range, d.div_y*d.div_x, d.cycle, (eSlider)d.type, (eTimer)d.timer, d.div_y, d.div_x));
@@ -1069,8 +1053,7 @@ ParseRet SkinLR2::SRC_SLIDER()
 
 ParseRet SkinLR2::SRC_BARGRAPH()
 {
-    lr2skin::s_bargraph d(parseParamBuf);
-    if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
+    lr2skin::s_bargraph d(parseParamBuf, csvLineNumber);
 
     _sprites.push_back(std::make_shared<SpriteBargraph>(
         textureBuf, Rect(d.x, d.y, d.w, d.h), (BargraphDirection)d.muki, d.div_y*d.div_x, d.cycle, (eBargraph)d.type, (eTimer)d.timer, d.div_y, d.div_x));
@@ -1081,8 +1064,7 @@ ParseRet SkinLR2::SRC_BARGRAPH()
 
 ParseRet SkinLR2::SRC_BUTTON()
 {
-    lr2skin::s_button d(parseParamBuf);
-    if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
+    lr2skin::s_button d(parseParamBuf, csvLineNumber);
     
     if (d.type < 270)
     {
@@ -1138,8 +1120,7 @@ ParseRet SkinLR2::SRC_BUTTON()
 
 ParseRet SkinLR2::SRC_ONMOUSE()
 {
-    lr2skin::s_onmouse d(parseParamBuf);
-    if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
+    lr2skin::s_onmouse d(parseParamBuf, csvLineNumber);
 
     _sprites.push_back(std::make_shared<SpriteOnMouse>(
         textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, d.panel, Rect(d.x2, d.y2, d.w2, d.h2), (eTimer)d.timer, d.div_y, d.div_x));
@@ -1150,9 +1131,7 @@ ParseRet SkinLR2::SRC_ONMOUSE()
 
 ParseRet SkinLR2::SRC_MOUSECURSOR()
 {
-    lr2skin::s_mousecursor d(parseParamBuf);
-
-    if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
+    lr2skin::s_mousecursor d(parseParamBuf, csvLineNumber);
 
     _sprites.push_back(std::make_shared<SpriteCursor>(
         textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x));
@@ -1185,8 +1164,7 @@ ParseRet SkinLR2::SRC_TEXT()
 
 ParseRet SkinLR2::SRC_GAUGECHART(int player)
 {
-    lr2skin::s_gaugechart d(parseParamBuf);
-    //if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
+    lr2skin::s_gaugechart d(parseParamBuf, csvLineNumber);
 
     LineType type = LineType::GAUGE_F;
     switch (d._null)
@@ -1208,8 +1186,7 @@ ParseRet SkinLR2::SRC_GAUGECHART(int player)
 
 ParseRet SkinLR2::SRC_SCORECHART()
 {
-    lr2skin::s_gaugechart d(parseParamBuf);
-    //if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
+    lr2skin::s_gaugechart d(parseParamBuf, csvLineNumber);
 
     LineType type = LineType::SCORE;
     Color color;
@@ -1236,8 +1213,7 @@ ParseRet SkinLR2::SRC_SCORECHART()
 
 ParseRet SkinLR2::SRC_JUDGELINE()
 {
-    lr2skin::s_basic d(parseParamBuf);
-    if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
+    lr2skin::s_basic d(parseParamBuf, csvLineNumber);
 
     int spriteIdx = -1;
     switch (d._null)
@@ -1271,8 +1247,7 @@ ParseRet SkinLR2::SRC_NOWJUDGE(size_t idx)
         return ParseRet::PARAM_INVALID;
     }
 
-    lr2skin::s_basic d(parseParamBuf);
-    if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
+    lr2skin::s_basic d(parseParamBuf, csvLineNumber);
 
     gSprites[idx] = std::make_shared<SpriteAnimated>(
         textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x);
@@ -1289,8 +1264,7 @@ ParseRet SkinLR2::SRC_NOWCOMBO(size_t idx)
         return ParseRet::PARAM_INVALID;
     }
 
-    lr2skin::s_number d(parseParamBuf);
-    if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
+    lr2skin::s_number d(parseParamBuf, csvLineNumber);
 
     eNumber iNum = lr2skin::num(d.num);
 
@@ -1311,8 +1285,7 @@ ParseRet SkinLR2::SRC_NOWCOMBO(size_t idx)
 
 ParseRet SkinLR2::SRC_GROOVEGAUGE()
 {
-    lr2skin::s_groovegauge d(parseParamBuf);
-    if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
+    lr2skin::s_groovegauge d(parseParamBuf, csvLineNumber);
 
     if (d.div_y * d.div_x < 4)
     {
@@ -1338,8 +1311,7 @@ ParseRet SkinLR2::SRC_GROOVEGAUGE()
 
 ParseRet SkinLR2::SRC_NOWJUDGE1()
 {
-    lr2skin::s_nowjudge d(parseParamBuf);
-    if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
+    lr2skin::s_nowjudge d(parseParamBuf, csvLineNumber);
 
     bufJudge1PSlot = d._null;
     if (bufJudge1PSlot >= 0 && bufJudge1PSlot < 6)
@@ -1363,8 +1335,7 @@ ParseRet SkinLR2::SRC_NOWJUDGE1()
 
 ParseRet SkinLR2::SRC_NOWJUDGE2()
 {
-    lr2skin::s_nowjudge d(parseParamBuf);
-    if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
+    lr2skin::s_nowjudge d(parseParamBuf, csvLineNumber);
 
     bufJudge2PSlot = d._null;
     if (bufJudge2PSlot >= 0 && bufJudge2PSlot < 6)
@@ -1388,7 +1359,7 @@ ParseRet SkinLR2::SRC_NOWJUDGE2()
 
 ParseRet SkinLR2::SRC_NOWCOMBO1()
 {
-    lr2skin::s_nowcombo d(parseParamBuf);
+    lr2skin::s_nowcombo d(parseParamBuf, csvLineNumber);
 
     bufJudge1PSlot = d._null;
     // modify necessary info for SRC_NOWCOMBO(idx)
@@ -1422,7 +1393,7 @@ ParseRet SkinLR2::SRC_NOWCOMBO1()
 
 ParseRet SkinLR2::SRC_NOWCOMBO2()
 {
-    lr2skin::s_nowcombo d(parseParamBuf);
+    lr2skin::s_nowcombo d(parseParamBuf, csvLineNumber);
 
     bufJudge2PSlot = d._null;
     // modify necessary info for SRC_NOWCOMBO(idx)
@@ -1490,7 +1461,7 @@ ParseRet SkinLR2::SRC_NOTE()
         return ParseRet::SRC_DEF_WRONG_TYPE;
 
     // load raw into data struct
-    lr2skin::s_basic d(parseParamBuf);
+    lr2skin::s_basic d(parseParamBuf, csvLineNumber);
 
     eTimer iTimer = lr2skin::timer(d.timer);
 
@@ -1505,8 +1476,6 @@ ParseRet SkinLR2::SRC_NOTE()
     {
         tex = _textureNameMap["Error"];
     }
-
-    if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
 
     // SRC
     if (d._null >= 20)
@@ -1641,8 +1610,8 @@ ParseRet SkinLR2::SRC_BGA()
 
 ParseRet SkinLR2::SRC_BAR_BODY()
 {
-    lr2skin::s_basic d(parseParamBuf);
-    if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
+    lr2skin::s_basic d(parseParamBuf, csvLineNumber);
+
     BarType type;
     switch (d._null & 0xFFFFFFFF)
     {
@@ -1676,8 +1645,7 @@ ParseRet SkinLR2::SRC_BAR_BODY()
 
 ParseRet SkinLR2::SRC_BAR_FLASH()
 {
-    lr2skin::s_basic d(parseParamBuf);
-    if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
+    lr2skin::s_basic d(parseParamBuf, csvLineNumber);
 
     for (auto& bar : _barSprites)
     {
@@ -1689,8 +1657,8 @@ ParseRet SkinLR2::SRC_BAR_FLASH()
 
 ParseRet SkinLR2::SRC_BAR_LEVEL()
 {
-    lr2skin::s_number d(parseParamBuf);
-    if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
+    lr2skin::s_number d(parseParamBuf, csvLineNumber);
+
     BarLevelType type = BarLevelType(d._null & 0xFFFFFFFF);
 
     // get NumType from div_x, div_y
@@ -1711,8 +1679,8 @@ ParseRet SkinLR2::SRC_BAR_LEVEL()
 
 ParseRet SkinLR2::SRC_BAR_LAMP()
 {
-    lr2skin::s_basic d(parseParamBuf);
-    if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
+    lr2skin::s_basic d(parseParamBuf, csvLineNumber);
+
     BarLampType type = BarLampType(d._null & 0xFFFFFFFF);
 
     for (auto& bar : _barSprites)
@@ -1747,8 +1715,8 @@ ParseRet SkinLR2::SRC_BAR_TITLE()
 
 ParseRet SkinLR2::SRC_BAR_RANK()
 {
-    lr2skin::s_basic d(parseParamBuf);
-    if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
+    lr2skin::s_basic d(parseParamBuf, csvLineNumber);
+
     BarRankType type = BarRankType(d._null & 0xFFFFFFFF);
 
     for (auto& bar : _barSprites)
@@ -1761,8 +1729,8 @@ ParseRet SkinLR2::SRC_BAR_RANK()
 
 ParseRet SkinLR2::SRC_BAR_RIVAL()
 {
-    lr2skin::s_basic d(parseParamBuf);
-    if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
+    lr2skin::s_basic d(parseParamBuf, csvLineNumber);
+
     BarRivalType type = BarRivalType(d._null & 0xFFFFFFFF);
 
     for (auto& bar : _barSprites)
@@ -1775,8 +1743,8 @@ ParseRet SkinLR2::SRC_BAR_RIVAL()
 
 ParseRet SkinLR2::SRC_BAR_RIVAL_MYLAMP()
 {
-    lr2skin::s_basic d(parseParamBuf);
-    if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
+    lr2skin::s_basic d(parseParamBuf, csvLineNumber);
+
     BarLampType type = BarLampType(d._null & 0xFFFFFFFF);
 
     for (auto& bar : _barSprites)
@@ -1789,8 +1757,8 @@ ParseRet SkinLR2::SRC_BAR_RIVAL_MYLAMP()
 
 ParseRet SkinLR2::SRC_BAR_RIVAL_RIVALLAMP()
 {
-    lr2skin::s_basic d(parseParamBuf);
-    if (textureBuf) refineRect(d, textureBuf->getRect(), csvLineNumber);
+    lr2skin::s_basic d(parseParamBuf, csvLineNumber);
+
     BarLampType type = BarLampType(d._null & 0xFFFFFFFF);
 
     for (auto& bar : _barSprites)

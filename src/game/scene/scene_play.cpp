@@ -397,7 +397,7 @@ void ScenePlay::loadChart()
     {
         auto dtor = std::async(std::launch::async, [&]() {
             SetThreadName("Chart BGA loading thread");
-            gPlayContext.bgaTexture = std::make_shared<TextureBmsBga>();
+            gPlayContext.bgaTexture->clear();
 
             auto _pChart = gChartContext.chartObj;
 			auto chartDir = gChartContext.chartObj->getDirectory();
@@ -450,6 +450,7 @@ void ScenePlay::loadChart()
 
                 ++_bmpLoaded;
             }
+            if (_bmpLoaded > 0) gPlayContext.bgaTexture->setLoaded();
 			gPlayContext.bgaTexture->setSlotFromBMS(*std::reinterpret_pointer_cast<chartBMS>(gPlayContext.chartObj[PLAYER_SLOT_1P]));
             gChartContext.isBgaLoaded = true;
         });
@@ -807,6 +808,8 @@ void ScenePlay::updateFadeout()
                 (h.test(K21) || h.test(K23) || h.test(K25) || h.test(K27) || h.test(K29)) && (h.test(K22) || h.test(K24) || h.test(K26) || h.test(K28)))
                 wantRetry = true;
         }
+
+        gPlayContext.bgaTexture->reset();
 
         loopEnd();
         _input.loopEnd();

@@ -82,42 +82,6 @@ TEST(Rect, construct)
     EXPECT_EQ(r, r1);
 }
 
-TEST(Rect, wrapping)
-{
-    Rect r0{ 0, 0, 1024, 1024 };
-
-    Rect full1{};
-    EXPECT_EQ(r0, full1.standardize(r0));
-
-    Rect full2{ -1, -1 };
-    EXPECT_EQ(r0, full2.standardize(r0));
-
-    Rect full3{ 0, 0, -1, -1 };
-    EXPECT_EQ(r0, full3.standardize(r0));
-
-    Rect r_oobx{ -300, 0, 1024, 1024 };
-    EXPECT_NE(r0, r_oobx.standardize(r0));
-    Rect r_ooby{ 0, -40, 1024, 1024 };
-    EXPECT_NE(r0, r_ooby.standardize(r0));
-    Rect r_oobw{ 0, 0, 2048, 1024 };
-    EXPECT_NE(r0, r_oobw.standardize(r0));
-    Rect r_oobh{ 0, 0, 1024, 2048 };
-    EXPECT_NE(r0, r_oobh.standardize(r0));
-
-    Rect r_oobx2{ 1025, 0, 1024, 1024 };
-    EXPECT_NE(r0, r_oobx2.standardize(r0));
-    Rect r_ooby2{ 0, 1025, 1024, 1024 };
-    EXPECT_NE(r0, r_ooby2.standardize(r0));
-    Rect r_oobw2{ 0, 0, 1025, 1024 };
-    EXPECT_NE(r0, r_oobw2.standardize(r0));
-    Rect r_oobh2{ 0, 0, 1024, 1025 };
-    EXPECT_NE(r0, r_oobh2.standardize(r0));
-
-    Rect large{ -1024, -1024, 4096, 4096 };
-    EXPECT_NE(r0, large);
-
-}
-
 TEST(Rect, add_normal)
 {
     Rect r1{ 0, 0, 40, 60 };

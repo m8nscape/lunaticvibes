@@ -217,7 +217,10 @@ void TextureBmsBga::update(const Time& t, bool poor)
 {
 	auto seekSub = [&t, this](decltype(baseSlot)& slot, size_t& slotIdx, decltype(baseSlot.begin())& slotIt)
 	{
-		for (auto it = slotIt; it != slot.end(); ++it)	// start from cached iterator
+		auto it = slotIt;
+		if (it == slot.end()) return;
+		it++;
+		for (; it != slot.end(); ++it)	// start from cached iterator's next iterator, or the bga will stuck at one frame
 		{
 			auto[time, idx] = *it;
 			if (time <= t)
@@ -295,6 +298,23 @@ void TextureBmsBga::reset()
 	resetSub(baseSlot);
 	resetSub(layerSlot);
 	resetSub(poorSlot);
+}
+
+void TextureBmsBga::clear()
+{
+	_loaded = false;
+	_texRect = Rect();
+	baseSlot.clear();
+	layerSlot.clear();
+	poorSlot.clear();
+	objs.clear();
+	inPoor = false;
+	reset();
+}
+
+void TextureBmsBga::setLoaded()
+{
+	_loaded = true;	
 }
 
 TextureDynamic::TextureDynamic() : Texture(nullptr, 0, 0)

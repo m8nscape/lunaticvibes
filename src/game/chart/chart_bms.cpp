@@ -340,21 +340,51 @@ void chartBMS::loadBMS(const BMS& objBms)
             }
 
             // BGA
-            if (/*gSwitches.get(eSwitch::SYSTEM_BGA)*/ true)
+            if (gSwitches.get(eSwitch::SYSTEM_BGA))
             {
-                push_notes(notes, eLanePriority::BGABASE, LaneCode::BGABASE, 0);
-                push_notes(notes, eLanePriority::BGALAYER, LaneCode::BGALAYER, 0);
-                push_notes(notes, eLanePriority::BGAPOOR, LaneCode::BGAPOOR, 0);
+                {
+                    auto ch = objBms.getLane(LaneCode::BGABASE, 0, m);
+                    for (const auto& n : ch.notes)
+                        //              { beat,                               { { lane,                        val     } }
+                        notes.push_back({ fraction(n.segment, ch.resolution), { { eLanePriority::BGABASE, 0 }, n.value } });
+                }
+                {
+                    auto ch = objBms.getLane(LaneCode::BGALAYER, 0, m);
+                    for (const auto& n : ch.notes)
+                        //              { beat,                               { { lane,                        val     } }
+                        notes.push_back({ fraction(n.segment, ch.resolution), { { eLanePriority::BGALAYER, 0 }, n.value } });
+                }
+                {
+                    auto ch = objBms.getLane(LaneCode::BGAPOOR, 0, m);
+                    for (const auto& n : ch.notes)
+                        //              { beat,                               { { lane,                        val     } }
+                        notes.push_back({ fraction(n.segment, ch.resolution), { { eLanePriority::BGAPOOR, 0 }, n.value } });
+                }
             }
 
             // BPM Change
-            push_notes(notes, eLanePriority::BPM, LaneCode::BPM, 0);
+            {
+                auto ch = objBms.getLane(LaneCode::BPM, 0, m);
+                for (const auto& n : ch.notes)
+                    //              { beat,                               { { lane,                        val     } }
+                    notes.push_back({ fraction(n.segment, ch.resolution), { { eLanePriority::BPM, 0 }, n.value } });
+            }
 
             // EX BPM
-            push_notes(notes, eLanePriority::EXBPM, LaneCode::EXBPM, 0);
+            {
+                auto ch = objBms.getLane(LaneCode::EXBPM, 0, m);
+                for (const auto& n : ch.notes)
+                    //              { beat,                               { { lane,                        val     } }
+                    notes.push_back({ fraction(n.segment, ch.resolution), { { eLanePriority::EXBPM, 0 }, n.value } });
+            }
 
             // Stop
-            push_notes(notes, eLanePriority::STOP, LaneCode::STOP, 0);
+            {
+                auto ch = objBms.getLane(LaneCode::STOP, 0, m);
+                for (const auto& n : ch.notes)
+                    //              { beat,                               { { lane,                        val     } }
+                    notes.push_back({ fraction(n.segment, ch.resolution), { { eLanePriority::STOP, 0 }, n.value } });
+            }
         }
 
         // Sort by time / lane value

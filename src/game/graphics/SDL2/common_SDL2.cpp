@@ -344,13 +344,19 @@ void Texture::draw(Rect dstRect,
 void Texture::draw(const Rect& srcRect, Rect dstRect,
 	const Color c, const BlendMode b, const bool filter, const double angle) const
 {
-	_draw(_pTexture, &srcRect, dstRect, c, b, filter, angle, NULL);
+    Rect srcRectTmp(srcRect);
+    if (srcRectTmp.w == RECT_FULL.w) srcRectTmp.w = _texRect.w;
+    if (srcRectTmp.h == RECT_FULL.h) srcRectTmp.h = _texRect.h;
+	_draw(_pTexture, &srcRectTmp, dstRect, c, b, filter, angle, NULL);
 }
 
 void Texture::draw(const Rect& srcRect, Rect dstRect,
 	const Color c, const BlendMode b, const bool filter, const double angle, const Point& center) const
 {
-	_draw(_pTexture, &srcRect, dstRect, c, b, filter, angle, &center);
+    Rect srcRectTmp(srcRect);
+    if (srcRectTmp.w == RECT_FULL.w) srcRectTmp.w = _texRect.w;
+    if (srcRectTmp.h == RECT_FULL.h) srcRectTmp.h = _texRect.h;
+	_draw(_pTexture, &srcRectTmp, dstRect, c, b, filter, angle, &center);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

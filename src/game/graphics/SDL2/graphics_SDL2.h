@@ -97,10 +97,8 @@ public:
     Rect operator* (const double& rhs) const;
     bool operator== (const Rect& rhs) const;
     bool operator!= (const Rect& rhs) const;
-    Rect standardize(const Image& image) const;
-    Rect standardize(const Rect& rect) const;
 };
-
+inline static Rect RECT_FULL = Rect(0, 0, 0xDEADBEEF, 0xDEADBEEF);
 
 ////////////////////////////////////////////////////////////////////////////////
 // SDL_Image loads pictures into SDL_Surface instances

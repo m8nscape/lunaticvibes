@@ -92,6 +92,9 @@ public:
 		const Point& center) const override;
 
 	void reset();
+	void clear();
+
+	void setLoaded();
 
 };
 
