@@ -10,7 +10,7 @@ if (WIN32)
         ${LIBAV_LIB_PATH}/avdevice-56.dll
         ${LIBAV_LIB_PATH}/avfilter-6.dll
         ${LIBAV_LIB_PATH}/avformat-57.dll
-        ${LIBAV_LIB_PATH}/avresample3.dll
+        ${LIBAV_LIB_PATH}/avresample-3.dll
         ${LIBAV_LIB_PATH}/avutil-55.dll
         ${LIBAV_LIB_PATH}/swscale-4.dll
         ${LIBAV_LIB_PATH}/libwinpthread-1.dll
@@ -62,7 +62,7 @@ if (WIN32)
         IMPORTED_IMPLIB     ${LIBAV_LIB_PATH}/avformat.lib
     )
     set_target_properties(libavresample PROPERTIES
-        IMPORTED_LOCATION   ${LIBAV_LIB_PATH}/avresample3.dll
+        IMPORTED_LOCATION   ${LIBAV_LIB_PATH}/avresample-3.dll
         IMPORTED_IMPLIB     ${LIBAV_LIB_PATH}/avresample.lib
     )
     set_target_properties(libavutil PROPERTIES
