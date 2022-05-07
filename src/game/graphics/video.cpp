@@ -15,7 +15,10 @@ extern "C"
 #include "common/utils.h"
 #include "common/log.h"
 
-void video_init() { av_register_all(); }
+void video_init()
+{
+	av_register_all();
+}
 
 sVideo::~sVideo()
 {
@@ -129,6 +132,7 @@ void sVideo::startPlaying()
 {
 	if (playing) return;
 	playing = true;
+	setVideo(file, loop_playback);	// start video from the beginning
 	startTime = std::chrono::system_clock::now();
 	decodeEnd = std::async(std::launch::async, std::bind(&sVideo::decodeLoop, this));
 }
@@ -205,6 +209,7 @@ void sVideo::decodeLoop()
 
 			if (pFrame1->pts >= 0)
 			{
+				if (!(pFrame1->flags & AV_FRAME_FLAG_CORRUPT))
 				{
 					std::lock_guard l(video_frame_mutex);
 
@@ -225,7 +230,7 @@ void sVideo::decodeLoop()
 		if (loop_playback)
 		{
 			using namespace std::chrono_literals;
-			std::this_thread::sleep_for(40ms);
+			std::this_thread::sleep_for(33ms);
 			decoded_frames = 0;
 			seek(0, true);
 			startTime = std::chrono::system_clock::now();

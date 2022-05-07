@@ -33,7 +33,7 @@ TextureVideo::~TextureVideo()
 void TextureVideo::start()
 {
 	if (_running) return;
-	pVideo->seek(0);
+	//pVideo->seek(0);
 	pVideo->startPlaying();
 	loopStart();
 }
@@ -288,7 +288,7 @@ void TextureBmsBga::reset()
 			{
 #ifndef VIDEO_DISABLED
 				auto pt = std::reinterpret_pointer_cast<TextureVideo>(objs[idx].pt);
-				pt->reset();
+				pt->stop();
 #endif
 			}
 		}

@@ -86,7 +86,7 @@ void AsyncLooper::loopStart()
 
         if (_running)
         {
-            LOG_DEBUG << "[Looper] Started with rate " << _rateTime;
+            LOG_DEBUG << "[Looper] Started with rate " << _rate << "/s";
         }
     }
 }
@@ -101,7 +101,7 @@ void AsyncLooper::loopEnd()
             // ..?
         }
         _loopFuncBody = [] {};
-        LOG_DEBUG << "[Looper] Ended of rate " << _rateTime;
+        LOG_DEBUG << "[Looper] Ended of rate " << _rate << "/s";
     }
 }
 
