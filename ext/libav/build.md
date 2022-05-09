@@ -16,8 +16,8 @@ Command:
   --disable-everything \
   --enable-decoder=amv,flv,h264,h264_qsv,hevc,mpeg_vdpau,mpegvideo,mpeg1video,mpeg2video,mpeg4,mpeg4_vdpau,msmpeg4v1,msmpeg4v2,msmpeg4v3,vp8,vp9,webp,wmv1,wmv2,wmv3 \
   --enable-vdpau \
-  --enable-demuxer=avi,dirac,flv,h264,hevc,m4v,matroska,mov,mpegvideo,mv,vc1,vc1t \
-  --enable-parser=dirac,h264,hevc,mpeg4video,mpegvideo,vc1,vp8 \
+  --enable-demuxers \
+  --enable-parsers \
   --enable-protocol=file \
   --enable-filter=fps,setpts
 
