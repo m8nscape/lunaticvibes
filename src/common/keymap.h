@@ -71,6 +71,8 @@ enum Pad
     M3,
     M4,
     M5,
+    MWHEELUP,
+    MWHEELDOWN,
 
     KEY_COUNT
 };

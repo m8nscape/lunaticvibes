@@ -12,6 +12,7 @@ void InputMgr::init()
 {
     using namespace std::placeholders;
     addWMEventHandler(&Input::rawinput::RIMgr::WMMsgHandler);
+    addWMEventHandler(&WMMouseWheelMsgHandler);
 }
 
 void InputMgr::updateDevices()
@@ -156,6 +157,10 @@ std::bitset<KEY_COUNT> InputMgr::detect()
     res[M3] = isMouseButtonPressed(3);
     res[M4] = isMouseButtonPressed(4);
     res[M5] = isMouseButtonPressed(5);
+
+    auto mouseWheelState = getLastMouseWheelState();
+    res[MWHEELUP] = mouseWheelState > 0;
+    res[MWHEELDOWN] = mouseWheelState < 0;
 
     return res;
 }

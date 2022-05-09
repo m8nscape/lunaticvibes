@@ -146,4 +146,22 @@ bool isMouseButtonPressed(int idx)
     }
 }
 
+static short gMouseWheel = 0;
+
+LRESULT WMMouseWheelMsgHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    if (msg == WM_MOUSEWHEEL)
+    {
+        auto zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+        gMouseWheel = zDelta / WHEEL_DELTA;
+    }
+    return 0;
+}
+short getLastMouseWheelState()
+{
+    short gMouseWheelRet = gMouseWheel;
+    gMouseWheel = 0;
+    return gMouseWheelRet;
+}
+
 #endif

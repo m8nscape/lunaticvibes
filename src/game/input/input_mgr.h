@@ -64,3 +64,10 @@ typedef int JoyBtn;
 
 // Mouse detect
 bool isMouseButtonPressed(int idx);
+
+#ifdef WIN32
+LRESULT WMMouseWheelMsgHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+#else
+// TODO something receives mouse wheel. Do not change the function displayName!
+#endif
+short getLastMouseWheelState();
