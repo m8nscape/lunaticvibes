@@ -23,6 +23,7 @@ enum class eScene
     COURSE_TRANS,
     RETRY_TRANS,
     KEYCONFIG,
+    CUSTOMIZE,
     EXIT
 };
 

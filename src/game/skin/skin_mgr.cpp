@@ -38,6 +38,11 @@ void SkinMgr::load(eMode e)
         skinFilePath = ConfigMgr::get("S", cfg::S_PATH_KEYCONFIG, cfg::S_DEFAULT_PATH_KEYCONFIG);
         break;
 
+    case eMode::THEME_SELECT:
+        skinFilePathDefault = cfg::S_DEFAULT_PATH_CUSTOMIZE;
+        skinFilePath = ConfigMgr::get("S", cfg::S_PATH_CUSTOMIZE, cfg::S_DEFAULT_PATH_CUSTOMIZE);
+        break;
+
     case eMode::PLAY5:
         skinFilePathDefault = cfg::S_DEFAULT_PATH_PLAY_5;
         skinFilePath = ConfigMgr::get("S", cfg::S_PATH_PLAY_5, cfg::S_DEFAULT_PATH_PLAY_5);

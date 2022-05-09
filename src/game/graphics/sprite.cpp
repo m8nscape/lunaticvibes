@@ -768,7 +768,7 @@ SpriteSlider::SpriteSlider(pTexture texture, const Rect& rect, SliderDirection d
 	_type = SpriteTypes::SLIDER;
 }
 
-void SpriteSlider::updateVal(percent v)
+void SpriteSlider::updateVal(double v)
 {
 	_value = v;
 }

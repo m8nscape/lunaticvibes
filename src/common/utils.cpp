@@ -38,6 +38,7 @@ std::vector<Path> findFiles(Path p)
 	auto dir = pstr.substr(0, offset);
 	auto tail = pstr.substr(offset + 2);
     if (fs::exists(dir))
+    {
         for (auto f : fs::directory_iterator(dir))
         {
 #ifdef WIN32
@@ -49,6 +50,7 @@ std::vector<Path> findFiles(Path p)
                 continue;
             res.push_back(fs::canonical(f));
         }
+    }
 	return res;
 }
 

@@ -728,7 +728,7 @@ void SceneSelect::updateSelect()
         if (!isHoldingUp && !isHoldingDown)
             scrollTimestamp = -1;
     }
-    if (gSelectContext.isGoingToKeyConfig)
+    if (gSelectContext.isGoingToKeyConfig || gSelectContext.isGoingToSkinSelect)
     {
         gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
         _state = eSelectState::FADEOUT;
@@ -765,7 +765,8 @@ void SceneSelect::updateFadeout()
         }
         else if (gSelectContext.isGoingToSkinSelect)
         {
-            gNextScene = eScene::EXIT;
+            SoundMgr::stopSamples();
+            gNextScene = eScene::CUSTOMIZE;
         }
         else
         {

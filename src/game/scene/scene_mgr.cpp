@@ -7,6 +7,7 @@
 #include "scene_play_retry_trans.h"
 #include "scene_play_course_trans.h"
 #include "scene_keyconfig.h"
+#include "scene_customize.h"
 #include "game/skin/skin_mgr.h"
 #include "game/ruleset/ruleset.h"
 
@@ -60,6 +61,10 @@ pScene SceneMgr::get(eScene e)
 
     case eScene::KEYCONFIG:
         ps = std::make_shared<SceneKeyConfig>();
+        break;
+
+    case eScene::CUSTOMIZE:
+        ps = std::make_shared<SceneCustomize>();
         break;
 
 	default:

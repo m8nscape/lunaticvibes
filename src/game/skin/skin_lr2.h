@@ -1341,24 +1341,24 @@ protected:
     static bool customizeDst[100];  // temporary workaround
 
 private:
-    struct Customize
-    {
-        unsigned dst_op;
-        StringContent title;
-        std::vector<StringContent> label;
-        size_t value;
-    };
-    std::vector<Customize> customize;
+	struct Customize
+	{
+		enum class _Type { OPT, FILE } type;
 
-    struct CustomFile
-    {
-        StringContent title;
-        StringContent filepath;
-        std::vector<Path> pathList;
-        size_t defIdx;
-        size_t value;
-    };
-    std::vector<CustomFile> customFile;
+		// shared
+		StringContent title;
+		size_t value;
+
+		// opt
+		unsigned dst_op;
+		std::vector<StringContent> label;
+
+		// file
+		StringContent filepath;
+		std::vector<Path> pathList;
+		size_t defIdx;
+	};
+    std::vector<Customize> customize;
 
 	struct LR2Font
 	{
@@ -1370,6 +1370,8 @@ private:
 	};
 	static std::map<Path, std::shared_ptr<LR2Font>> LR2FontCache;
 	std::map<std::string, std::shared_ptr<LR2Font>> LR2FontNameMap;
+
+	Path filePath;
 
 protected:
     size_t imageCount = 0;
@@ -1518,6 +1520,12 @@ public:
 	virtual void start_bar_animation(int direction) override;
     virtual void draw() const;
 
+	virtual size_t getCustomizeOptionCount() const;
+	virtual CustomizeOption getCustomizeOptionInfo(size_t idx) const;
+
+	virtual StringContent getName() const;
+	virtual StringContent getMaker() const;
+	virtual StringPath getFilePath() const;
 };
 
 

@@ -48,6 +48,7 @@ void mainLoop()
             case eScene::RETRY_TRANS:  LOG_INFO << "Scene changed to RETRY_TRANS"; break;
             case eScene::RESULT: LOG_INFO << "Scene changed to RESULT"; break;
             case eScene::KEYCONFIG: LOG_INFO << "Scene changed to KEYCONFIG"; break;
+            case eScene::CUSTOMIZE: LOG_INFO << "Scene changed to CUSTOMIZE"; break;
             case eScene::EXIT:   LOG_INFO << "Scene changed to EXIT"; break;
             default: break;
             }

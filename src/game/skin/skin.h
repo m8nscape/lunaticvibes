@@ -121,4 +121,22 @@ public:
     } info{};
 
     ///////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+// customize
+public:
+    struct CustomizeOption
+    {
+        int id;
+        StringContent displayName;
+        StringContent internalName;
+        std::vector<StringContent> entries;
+        size_t defaultEntry;
+    };
+    virtual size_t getCustomizeOptionCount() const = 0;
+    virtual CustomizeOption getCustomizeOptionInfo(size_t idx) const = 0;
+
+    virtual StringContent getName() const = 0;
+    virtual StringContent getMaker() const = 0;
+    virtual StringPath getFilePath() const = 0;
 };

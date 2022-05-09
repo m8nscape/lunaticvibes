@@ -14,6 +14,7 @@
 #include "game/scene/scene_context.h"
 #include "skin_lr2_converters.h"
 #include "config/config_mgr.h"
+#include "game/scene/scene_customize.h"
 
 #ifdef _WIN32
 // For GetWindowsDirectory
@@ -401,6 +402,7 @@ int SkinLR2::setExtendedProperty(std::string&& key, void* value)
     return -1;
 }
 
+
 #pragma region Parsing helpers
 
 // For LR2 skin .csv parsing:
@@ -545,9 +547,9 @@ int SkinLR2::IMAGE()
             };
 
             // Check if the wildcard path is specified by custom settings
-            for (const auto& cf : customFile)
+            for (const auto& cf : customize)
             {
-                if (cf.filepath == pathString)
+                if (cf.type == Customize::_Type::FILE && cf.filepath == pathString)
                 {
                     const auto& paths = cf.pathList;
                     if (paths.empty())
@@ -2434,7 +2436,15 @@ int SkinLR2::parseHeader(const Tokens& raw)
             op_label.push_back(StringContent(parseParamBuf[idx]));
 
         LOG_DEBUG << "[Skin] " << csvLineNumber << ": Loaded Custom option " << title << ": " << dst_op;
-        customize.push_back({ (unsigned)dst_op, title, std::move(op_label), 0 });
+
+        Customize c;
+        c.type = Customize::_Type::OPT;
+        c.title = title;
+        c.dst_op = dst_op;
+        c.label = std::move(op_label);
+        c.value = 0;
+        customize.push_back(c);
+
         return 2;
     }
 
@@ -2448,14 +2458,25 @@ int SkinLR2::parseHeader(const Tokens& raw)
         auto ls = findFiles(pathf);
         size_t defVal = 0;
         for (size_t param = 0; param < ls.size(); ++param)
+        {
             if (ls[param].filename().stem() == def)
             {
                 defVal = param;
                 break;
             }
+        }
 
         LOG_DEBUG << "[Skin] " << csvLineNumber << ": Loaded Custom file " << title << ": " << pathf.string();
-        customFile.push_back({ StringContent(title), StringContent(path), std::move(ls), defVal, defVal });
+
+        Customize c;
+        c.type = Customize::_Type::FILE;
+        c.title = title;
+        c.filepath = path;
+        c.pathList = std::move(ls);
+        c.defIdx = defVal;
+        c.value = defVal;
+        customize.push_back(c);
+
         return 3;
     }
 
@@ -2646,6 +2667,9 @@ SkinLR2::SkinLR2(Path p)
 
 void SkinLR2::loadCSV(Path p)
 {
+    if (filePath.empty())
+        filePath = p;
+
     auto srcLineNumberParent = csvLineNumber;
     csvLineNumber = 0;
 
@@ -2686,11 +2710,60 @@ void SkinLR2::loadCSV(Path p)
         csvFile.open(p, std::ios::binary);
     }
 
-    // TODO load skin customize from profile
+    // load skin customization from profile
+    Path pCustomize = ConfigMgr::Profile()->getPath() / "customize" / SceneCustomize::getConfigFileName(getFilePath());
+    try
+    {
+        std::map<size_t, StringContent> opDstMap;
+        std::map<StringContent, StringContent> opFileMap;
+        for (const auto& node : YAML::LoadFile(pCustomize.string()))
+        {
+            auto key = node.first.as<std::string>();
+            if (key.substr(0, 4) == "OPT_")
+            {
+                size_t dst_op = std::strtoul(key.substr(4).c_str(), nullptr, 10);
+                opDstMap[dst_op] = node.second.as<std::string>();
+            }
+            else if (key.substr(0, 5) == "FILE_")
+            {
+                opFileMap[key.substr(5)] = node.second.as<std::string>();
+            }
+        }
+        for (auto& itOp : customize)
+        {
+            for (auto& itDst : opDstMap)
+            {
+                if (itDst.first == itOp.dst_op)
+                {
+                    if (const auto itEntry = std::find(itOp.label.begin(), itOp.label.end(), itDst.second); itEntry != itOp.label.end())
+                    {
+                        itOp.value = std::distance(itOp.label.begin(), itEntry);
+                    }
+                }
+            }
+            for (auto& itFile : opFileMap)
+            {
+                if (itOp.title == itFile.first && itOp.dst_op == 0)
+                {
+                    if (const auto itEntry = std::find(itOp.pathList.begin(), itOp.pathList.end(), itFile.second); itEntry != itOp.pathList.end())
+                    {
+                        itOp.value = std::distance(itOp.pathList.begin(), itEntry);
+                    }
+                }
+            }
+        }
+    }
+    catch (YAML::BadFile&)
+    {
+        LOG_WARNING << "[Skin] Bad customize config file: " << pCustomize.string();
+    }
     for (auto c : customize)
     {
-        //data().setDstOption(static_cast<dst_option>(c.dst_op + c.value), true);
-        setCustomDstOpt(c.dst_op, c.value, true);
+        if (c.dst_op != 0)
+        {
+            //data().setDstOption(static_cast<dst_option>(c.dst_op + c.value), true);
+            setCustomDstOpt(c.dst_op, c.value, true);
+        }
     }
 
     // Add extra textures
@@ -2895,4 +2968,53 @@ void SkinLR2::draw() const
     //{
     //    c.draw();
     //}
+}
+
+size_t SkinLR2::getCustomizeOptionCount() const
+{
+    return customize.size();
+}
+
+vSkin::CustomizeOption SkinLR2::getCustomizeOptionInfo(size_t idx) const
+{
+    CustomizeOption ret;
+    const auto& op = customize[idx];
+
+    ret.id = op.dst_op;
+    switch (op.type)
+    {
+    case Customize::_Type::OPT:
+        ret.internalName = "OPT_";
+        ret.internalName += std::to_string(op.dst_op);
+        ret.displayName = op.title;
+        ret.entries = op.label;
+        ret.defaultEntry = 0;
+        break;
+
+    case Customize::_Type::FILE:
+        ret.internalName = "FILE_";
+        ret.internalName += op.title;
+        ret.displayName = op.title;
+        for (size_t i = 0; i < op.pathList.size(); ++i)
+            ret.entries.push_back(op.pathList[i].filename().stem().string());
+        ret.defaultEntry = op.defIdx;
+        break;
+    }
+    return ret;
+}
+
+
+StringContent SkinLR2::getName() const
+{
+    return info.name;
+}
+
+StringContent SkinLR2::getMaker() const
+{
+    return info.maker;
+}
+
+StringPath SkinLR2::getFilePath() const
+{
+    return filePath.relative_path();
 }

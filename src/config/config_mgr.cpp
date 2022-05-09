@@ -357,7 +357,7 @@ void setText()
     using namespace cfg;
     using std::string;
 
-    // player name
+    // player displayName
     g.queue(e::PLAYER_NAME, ConfigMgr::Profile()->getName());
 
     // bga

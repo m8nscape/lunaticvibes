@@ -1,6 +1,5 @@
 #pragma once
 #include "buffered_global.h"
-typedef double percent;
 
 enum class eSlider : unsigned
 {
@@ -15,6 +14,8 @@ enum class eSlider : unsigned
     SUD_2P,
 
     SONG_PROGRESS = 6,
+
+    SKIN_CONFIG_OPTIONS = 7,
 
     EQ0 = 10,
     EQ1,
@@ -41,7 +42,7 @@ enum class eSlider : unsigned
     SLIDER_COUNT
 };
 
-inline buffered_global<eSlider, percent, (size_t)eSlider::SLIDER_COUNT> gSliders;
+inline buffered_global<eSlider, double, (size_t)eSlider::SLIDER_COUNT> gSliders;
 
 /*
 class gSliders

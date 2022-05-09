@@ -359,7 +359,7 @@ class SpriteSlider : public SpriteAnimated
 {
 private:
     eSlider _ind;
-    percent _value = 100;
+    double _value = 1.00;
     SliderDirection _dir;
 	int _range;
 
@@ -377,7 +377,7 @@ public:
     virtual ~SpriteSlider() = default;
 
 public:
-    void updateVal(percent v);
+    void updateVal(double v);
     void updateValByInd();
     void updatePos();
 	virtual bool update(const Time& t);
