@@ -151,6 +151,19 @@ struct KeyConfigContextParams
 
 ////////////////////////////////////////////////////////////////////////////////
 
+struct CustomizeContextParams
+{
+    eMode mode;
+
+    int skinDir;
+
+    bool optionUpdate;
+    size_t optionIdx;
+    int optionDir;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
 struct UpdateContextParams
 {
     // shared
@@ -169,6 +182,7 @@ extern ChartContextParams gChartContext;
 extern PlayContextParams gPlayContext;
 extern SelectContextParams gSelectContext;
 extern KeyConfigContextParams gKeyconfigContext;
+extern CustomizeContextParams gCustomizeContext;
 extern UpdateContextParams gUpdateContext;
 extern std::shared_ptr<SongDB> g_pSongDB;
 extern std::shared_ptr<ScoreDB> g_pScoreDB;

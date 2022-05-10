@@ -5,7 +5,8 @@ TTFFont::TTFFont(const char* filePath, int ptsize)
 {
 	// FIXME Maybe we need a global buffer for fonts opened...
 	// Current implement may load the file EVERYTIME we declare a text instance.
-    pushMainThreadTask([&]() { _pFont = TTF_OpenFont(filePath, ptsize); });
+    _filePath = filePath;    // copy an instance here
+    pushMainThreadTask([&]() { _pFont = TTF_OpenFont(_filePath.c_str(), ptsize); });
     if (!_pFont)
         LOG_WARNING << "[TTF] " << filePath << ": " << TTF_GetError();
     else _loaded = true;

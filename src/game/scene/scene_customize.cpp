@@ -9,7 +9,12 @@ SceneCustomize::SceneCustomize() : vScene(eMode::THEME_SELECT, 240)
 {
     _updateCallback = std::bind(&SceneCustomize::updateStart, this);
 
+    gCustomizeContext.skinDir = 0;
+    gCustomizeContext.optionUpdate = 0;
+
     // topest entry is PLAY7
+    selectedMode = eMode::PLAY7;
+    gCustomizeContext.mode = selectedMode;
     load(selectedMode);
 
     loopStart();
@@ -39,6 +44,43 @@ void SceneCustomize::updateStart()
 void SceneCustomize::updateMain()
 {
     Time t;
+    if (gCustomizeContext.mode != selectedMode)
+    {
+        eMode modeOld = selectedMode;
+        selectedMode = gCustomizeContext.mode;
+        save(modeOld);
+        SkinMgr::unload(modeOld);
+        load(selectedMode);
+    }
+    if (gCustomizeContext.optionUpdate)
+    {
+        gCustomizeContext.optionUpdate = false;
+
+        size_t idxOption = topOptionIndex + gCustomizeContext.optionIdx;
+        if (idxOption < optionsKeyList.size())
+        {
+            Option& op = optionsMap[optionsKeyList[idxOption]];
+            size_t idxEntry = op.selectedEntry;
+            if (gCustomizeContext.optionDir > 0)
+            {
+                if (idxEntry + 1 >= op.entries.size())
+                    idxEntry = 0;
+                else
+                    idxEntry++;
+            }
+            else
+            {
+                if (idxEntry == 0 && gCustomizeContext.optionDir < 0)
+                    idxEntry = !op.entries.empty() ? (op.entries.size() - 1) : 0;
+                else
+                    idxEntry--;
+            }
+            if (idxEntry != op.selectedEntry)
+            {
+                setOption(idxOption, idxEntry);
+            }
+        }
+    }
     if (_exiting)
     {
         save(selectedMode);
@@ -60,6 +102,7 @@ void SceneCustomize::updateFadeout()
     {
         loopEnd();
         _input.loopEnd();
+        SkinMgr::unload(selectedMode);
         gNextScene = eScene::SELECT;
     }
 }
@@ -93,8 +136,10 @@ void SceneCustomize::setOption(size_t idxOption, size_t idxEntry)
         }
         else
         {
-            // TODO implement setCustomFile..?
+            // save to file when exit
         }
+        op.selectedEntry = idxEntry;
+        updateTexts();
         break;
     }
 
@@ -110,6 +155,7 @@ void SceneCustomize::load(eMode mode)
     pSkin ps = SkinMgr::get(mode);
     Path pCustomize = ConfigMgr::Profile()->getPath() / "customize" / getConfigFileName(ps->getFilePath());
     optionsMap.clear();
+    optionsKeyList.clear();
 
     gTexts.set(eText::SKIN_NAME, ps->getName());
     gTexts.set(eText::SKIN_MAKER_NAME, ps->getMaker());

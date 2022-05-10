@@ -829,6 +829,49 @@ void key_config_slot(int slot)
     SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
 }
 
+
+void skinselect_mode(int mode)
+{
+    eMode modeOld = gCustomizeContext.mode;
+    switch (mode)
+    {
+    case 0: gCustomizeContext.mode = eMode::PLAY7; break;
+    case 1: gCustomizeContext.mode = eMode::PLAY5; break;
+    case 2: gCustomizeContext.mode = eMode::PLAY14; break;
+    case 3: gCustomizeContext.mode = eMode::PLAY10; break;
+    case 4: gCustomizeContext.mode = eMode::PLAY9; break;
+    case 5: gCustomizeContext.mode = eMode::MUSIC_SELECT; break;
+    case 6: gCustomizeContext.mode = eMode::DECIDE; break;
+    case 7: gCustomizeContext.mode = eMode::RESULT; break;
+    case 8: gCustomizeContext.mode = eMode::KEY_CONFIG; break;
+    case 9: gCustomizeContext.mode = eMode::THEME_SELECT; break;
+    case 10: gCustomizeContext.mode = eMode::SOUNDSET; break;
+    case 11: break;
+    case 12: gCustomizeContext.mode = eMode::PLAY7_2; break;
+    case 13: gCustomizeContext.mode = eMode::PLAY5_2; break;
+    case 14: gCustomizeContext.mode = eMode::PLAY9_2; break;
+    case 15: gCustomizeContext.mode = eMode::COURSE_RESULT; break;
+    default: break;
+    }
+
+    if (modeOld != gCustomizeContext.mode)
+        SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+}
+
+void skinselect_skin(int plus)
+{
+    gCustomizeContext.skinDir = plus;
+    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+}
+
+void skinselect_option(int index, int plus)
+{
+    gCustomizeContext.optionIdx = index;
+    gCustomizeContext.optionDir = plus;
+    gCustomizeContext.optionUpdate = true;
+    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+}
+
 #pragma region end
 
 std::function<void(int)> getButtonCallback(int type)
@@ -1011,6 +1054,39 @@ std::function<void(int)> getButtonCallback(int type)
     case 158:
     case 159:
         return std::bind(key_config_slot, type - 150);
+
+    case 170:
+    case 171:
+    case 172:
+    case 173:
+    case 174:
+    case 175:
+    case 176:
+    case 177:
+    case 178:
+    case 179:
+    case 180:
+    case 181:
+    case 182:
+    case 183:
+    case 184:
+    case 185:
+        return std::bind(skinselect_mode, type - 170);
+
+    case 190:
+        return std::bind(skinselect_skin, _1);
+
+    case 220:
+    case 221:
+    case 222:
+    case 223:
+    case 224:
+    case 225:
+    case 226:
+    case 227:
+    case 228:
+    case 229:
+        return std::bind(skinselect_option, type - 220, _1);
 
     default:
         return [](bool) {};

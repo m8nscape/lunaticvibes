@@ -219,6 +219,7 @@ class TTFFont
 
 protected:
     TTF_Font* _pFont = NULL;
+    std::string _filePath;
     bool _loaded = false;
 
 public:

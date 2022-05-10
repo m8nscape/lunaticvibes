@@ -21,4 +21,7 @@ void enter_skin_config();
 void key_config_pad(Input::Pad pad);
 void key_config_slot(int slot);
 void key_config_mode_rotate();
+void skinselect_mode(int mode);
+void skinselect_skin(int plus);
+void skinselect_option(int index, int plus);
 }

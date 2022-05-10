@@ -2432,7 +2432,7 @@ int SkinLR2::parseHeader(const Tokens& raw)
             return -2;
         }
         std::vector<StringContent> op_label;
-        for (size_t idx = 3; idx < parseParamBuf.size() && !parseParamBuf[idx].empty(); ++idx)
+        for (size_t idx = 2; idx < parseParamBuf.size() && !parseParamBuf[idx].empty(); ++idx)
             op_label.push_back(StringContent(parseParamBuf[idx]));
 
         LOG_DEBUG << "[Skin] " << csvLineNumber << ": Loaded Custom option " << title << ": " << dst_op;
@@ -2762,6 +2762,10 @@ void SkinLR2::loadCSV(Path p)
         if (c.dst_op != 0)
         {
             //data().setDstOption(static_cast<dst_option>(c.dst_op + c.value), true);
+            for (size_t i = 0; i < c.label.size(); ++i)
+            {
+                setCustomDstOpt(c.dst_op, i, false);
+            }
             setCustomDstOpt(c.dst_op, c.value, true);
         }
     }

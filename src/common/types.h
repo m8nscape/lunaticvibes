@@ -39,8 +39,11 @@ public:
     }
     Hash(const Hash<_Len>& rhs)
     {
-        set = true;
-        for (int i = 0; i < _Len; ++i) data[i] = rhs.data[i];
+        if (!rhs.empty())
+        {
+            set = true;
+            for (int i = 0; i < _Len; ++i) data[i] = rhs.data[i];
+        }
     }
 
     constexpr size_t length() const { return _Len; }

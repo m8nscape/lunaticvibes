@@ -22,7 +22,7 @@ protected:
     std::map<StringContent, Option> optionsMap;
     std::vector<StringContent> optionsKeyList;
 
-    eMode selectedMode = eMode::PLAY7;
+    eMode selectedMode;
 
 protected:
     // Looper callbacks
