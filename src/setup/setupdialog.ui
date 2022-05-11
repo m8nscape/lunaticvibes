@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>nullptr Setup</string>
+   <string>BlastPit Setup</string>
   </property>
   <property name="locale">
    <locale language="English" country="UnitedStates"/>

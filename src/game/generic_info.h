@@ -46,6 +46,8 @@ private:
 
             gTexts.set(eText::_TEST1, ctime_(&t));
         }
+
+		//createNotification(std::to_string(t));
 	}
 };
 //InputWrapper::InputWrapper(unsigned rate) : AsyncLooper(std::bind(&InputWrapper::_loop, this), rate)

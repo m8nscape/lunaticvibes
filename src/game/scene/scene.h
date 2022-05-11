@@ -16,6 +16,11 @@ protected:
     std::shared_ptr<vSkin> _skin;
     InputWrapper _input;
 
+    std::shared_ptr<TTFFont> _fNotifications;
+    std::shared_ptr<Texture> _texNotificationsBG;
+    std::shared_ptr<SpriteText> _sTopLeft;
+    std::array<std::shared_ptr<SpriteText>, size_t(eText::_OVERLAY_NOTIFICATION_MAX) - size_t(eText::_OVERLAY_NOTIFICATION_0) + 1> _sNotifications;
+    std::array<std::shared_ptr<SpriteStatic>, size_t(eText::_OVERLAY_NOTIFICATION_MAX) - size_t(eText::_OVERLAY_NOTIFICATION_0) + 1> _sNotificationsBG;
 
 public:
 	bool sceneEnding = false;

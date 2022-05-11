@@ -1,6 +1,7 @@
 #include "scene_context.h"
 #include "game/data/data.h"
 #include <random>
+#include <mutex>
 
 bool gResetSelectCursor = true;
 bool gQuitOnFinish = false;
@@ -10,6 +11,7 @@ SelectContextParams gSelectContext;
 KeyConfigContextParams gKeyconfigContext;
 CustomizeContextParams gCustomizeContext;
 UpdateContextParams gUpdateContext;
+OverlayContextParams gOverlayContext;
 std::shared_ptr<SongDB> g_pSongDB;
 std::shared_ptr<ScoreDB> g_pScoreDB;
 
@@ -50,14 +52,8 @@ void clearContextPlay()
     gPlayContext.isCourseFirstStage = false;
 }
 
-void updateContextSelectTitles()
+void createNotification(StringContentView text)
 {
-    unsigned count = 0;
-    /*
-    for (unsigned idx = context_select.barIndex; count < 32; ++idx, ++count)
-    {
-        if (idx == context_select.info.size()) idx = 0;
-        gTexts.set(eText(unsigned(eText::_SELECT_BAR_TITLE_FULL_0) + idx), context_select.info[idx].title);
-    }
-    */
+    std::unique_lock lock(gOverlayContext._mutex);
+    gOverlayContext.notifications.push_back(std::make_pair(Time(), StringContent(text)));
 }

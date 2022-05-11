@@ -139,8 +139,6 @@ struct SelectContextParams
     bool isGoingToKeyConfig = false;
 };
 
-void updateContextSelectTitles();
-
 ////////////////////////////////////////////////////////////////////////////////
 
 struct KeyConfigContextParams
@@ -176,6 +174,20 @@ struct UpdateContextParams
 
 ////////////////////////////////////////////////////////////////////////////////
 
+struct OverlayContextParams
+{
+    std::shared_mutex _mutex;
+    std::list<std::pair<Time, StringContent>> notifications;
+
+    std::vector<StringContent> popupList;
+    size_t popupListSel = 0;
+    bool popupListShow = false;
+};
+
+void createNotification(StringContentView text);
+
+////////////////////////////////////////////////////////////////////////////////
+
 extern bool gResetSelectCursor;
 extern bool gQuitOnFinish;
 extern ChartContextParams gChartContext;
@@ -184,6 +196,7 @@ extern SelectContextParams gSelectContext;
 extern KeyConfigContextParams gKeyconfigContext;
 extern CustomizeContextParams gCustomizeContext;
 extern UpdateContextParams gUpdateContext;
+extern OverlayContextParams gOverlayContext;
 extern std::shared_ptr<SongDB> g_pSongDB;
 extern std::shared_ptr<ScoreDB> g_pScoreDB;
 
