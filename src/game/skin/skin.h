@@ -79,6 +79,7 @@ protected:
 
 // functional support
 protected:
+    bool _handleMouseEvents = true;
     std::list<std::map<Rect, pSprite>> _mouseCursorAreaMap;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -89,6 +90,7 @@ public:
     virtual void reset_bar_animation() = 0;
     virtual void start_bar_animation(int direction) = 0;
     virtual void draw() const;
+    void setHandleMouseEvents(bool b) { _handleMouseEvents = b; }
 
     ///////////////////////////////////////////////////////////
     // Info defined by header

@@ -63,3 +63,21 @@ endif()
 # Add gtest
 option(INSTALL_GTEST OFF)
 add_subdirectory(googletest)
+
+# Add Dear ImGui
+add_library(imgui STATIC
+    imgui/imgui.cpp
+    imgui/imgui_demo.cpp
+    imgui/imgui_draw.cpp
+    imgui/imgui_tables.cpp
+    imgui/imgui_widgets.cpp
+)
+if (${GRAPHICS_BACKEND} STREQUAL SDL2)
+    target_link_libraries(imgui PRIVATE SDL2)
+    target_sources(imgui PRIVATE
+        imgui/backends/imgui_impl_sdl.cpp
+        imgui/backends/imgui_impl_sdlrenderer.cpp
+    )
+endif()
+target_include_directories(imgui PUBLIC 
+    ${CMAKE_CURRENT_LIST_DIR}/imgui)

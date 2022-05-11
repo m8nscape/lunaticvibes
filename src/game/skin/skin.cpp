@@ -44,6 +44,12 @@ void vSkin::update()
 
 void vSkin::update_mouse(int x, int y)
 {
+    if (!_handleMouseEvents)
+    {
+        x = -99999999;
+        y = -99999999;  // LUL
+    }
+
     auto clickSpriteLambda = [x, y](const pSprite& s)
     {
         if (!s->isHidden())
@@ -65,6 +71,8 @@ void vSkin::update_mouse(int x, int y)
 
 void vSkin::update_mouse_click(int x, int y)
 {
+    if (!_handleMouseEvents) return;
+
     // sprite inserted last has priority
     bool invoked = false;
     for (auto it = _sprites.rbegin(); it != _sprites.rend() && !invoked; ++it)

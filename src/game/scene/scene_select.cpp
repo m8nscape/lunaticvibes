@@ -14,6 +14,8 @@
 #include "game/skin/skin_lr2_button_callbacks.h"
 #include "game/scene/scene_context.h"
 
+#include "imgui.h"
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void setBarInfo()
@@ -723,6 +725,8 @@ void SceneSelect::updateSelect()
     Time t;
     Time rt = t - gTimers.get(eTimer::SCENE_START);
 
+    pushMainThreadTask(std::bind(&SceneSelect::_imguiSampleDialog, this));
+
     if ((t - scrollTimestamp).norm() >= gSelectContext.scrollTime)
     {
         if (!isHoldingUp && !isHoldingDown)
@@ -785,6 +789,21 @@ void SceneSelect::inputGamePress(InputMask& m, const Time& t)
     if (rt.norm() < _skin->info.timeIntro) return;
 
     using namespace Input;
+
+    if (m[Input::Pad::F9])
+    {
+        imguiShow = !imguiShow;
+        _skin->setHandleMouseEvents(!imguiShow);
+    }
+    if (imguiShow)
+    {
+        if (m[Input::Pad::ESC])
+        {
+            imguiShow = false;
+            _skin->setHandleMouseEvents(true);
+        }
+        return;
+    }
 
     if (m[Input::Pad::ESC])
     {
@@ -1746,4 +1765,27 @@ bool SceneSelect::_closeAllPanels(const Time& t)
         SoundMgr::playSample(eSoundSample::SOUND_O_CLOSE);
     }
     return hasPanelOpened;
+}
+
+void SceneSelect::_imguiSampleDialog()
+{
+    ImGuiNewFrame();
+    if (imguiShow)
+    {
+        ImGui::ShowDemoWindow(NULL);
+    }
+    ImGui::Render();
+}
+
+void SceneSelect::_imguiSettings()
+{
+
+    ImGuiNewFrame();
+    if (imguiShow)
+    {
+        ImGui::Begin("Settings");
+
+        ImGui::End();
+    }
+    ImGui::Render();
 }

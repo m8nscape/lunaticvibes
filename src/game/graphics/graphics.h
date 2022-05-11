@@ -21,3 +21,5 @@ void graphics_flush();
 int graphics_free();
 
 void event_handle();
+
+void ImGuiNewFrame();

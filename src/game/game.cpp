@@ -15,6 +15,8 @@
 
 #include "common/log.h"
 
+#include "imgui.h"
+
 #ifdef WIN32
 #include <Windows.h>
 #pragma comment(lib, "winmm.lib")
@@ -91,14 +93,24 @@ int main(int argc, char* argv[])
     // init logger
     InitLogger();
 
+    // load configs
     ConfigMgr::init();
     ConfigMgr::load();
-
     if (ConfigMgr::get('P', cfg::P_RELATIVE_AXIS, false))
         InputMgr::setAxisMode(InputMgr::eAxisMode::AXIS_RELATIVE);
 
+    // init imgui
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGui::StyleColorsDark();
+    // further operations present in graphics_init()
+
+    // init graphics
     if (auto ginit = graphics_init())
         return ginit;
+
+    // init sound
     if (auto sinit = SoundMgr::initFMOD())
         return sinit;
 
@@ -204,8 +216,10 @@ int main(int argc, char* argv[])
     timeEndPeriod(1);
 #endif
 
-    SceneMgr::clean ();	// clean resources before releasing framework
+    SceneMgr::clean();	// clean resources before releasing framework
     graphics_free();
+
+    ImGui::DestroyContext();
 
     ConfigMgr::save();
 

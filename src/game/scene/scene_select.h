@@ -32,6 +32,9 @@ private:
     Time scrollTimestamp = -1;
     Time selectDownTimestamp = -1;
 
+    // imgui
+    bool imguiShow = false;
+
 public:
     SceneSelect();
     virtual ~SceneSelect();
@@ -75,4 +78,9 @@ private:
     void _navigateVersionEnter(const Time& t);
     void _navigateVersionBack(const Time& t);
     bool _closeAllPanels(const Time& t);
+
+private:
+    // imgui Dialogs
+    void _imguiSampleDialog();
+    void _imguiSettings();
 };

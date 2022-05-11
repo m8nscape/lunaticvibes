@@ -5,6 +5,7 @@
 #include "game/skin/skin_mgr.h"
 #include "scene_context.h"
 #include "config/config_mgr.h"
+#include "imgui.h"
 
 // prototype
 vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
@@ -75,6 +76,9 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
     gTexts.set(eText::_OVERLAY_TOPLEFT, "");
 
     _input.register_p("SKIN_MOUSE_CLICK", std::bind(&vScene::MouseClick, this, std::placeholders::_1, std::placeholders::_2));
+
+    // Skin may be cached. Reset mouse status
+    _skin->setHandleMouseEvents(true);
 }
 
 vScene::~vScene() 
@@ -135,20 +139,22 @@ void vScene::draw() const
     _skin->draw();
     _sTopLeft->draw();
 
-    std::shared_lock lock(gOverlayContext._mutex);
-    if (!gOverlayContext.notifications.empty())
     {
-        // draw notifications at the bottom. One string per line
-        auto itNotification = gOverlayContext.notifications.rbegin();
-        for (size_t i = 0; i < gOverlayContext.notifications.size(); ++i)
+        std::shared_lock lock(gOverlayContext._mutex);
+        if (!gOverlayContext.notifications.empty())
         {
-            const auto& [timestamp, text] = *itNotification;
-            _sNotificationsBG[i]->draw();
-            _sNotifications[i]->draw();
+            // draw notifications at the bottom. One string per line
+            auto itNotification = gOverlayContext.notifications.rbegin();
+            for (size_t i = 0; i < gOverlayContext.notifications.size(); ++i)
+            {
+                const auto& [timestamp, text] = *itNotification;
+                _sNotificationsBG[i]->draw();
+                _sNotifications[i]->draw();
+            }
         }
-    }
-    if (gOverlayContext.popupListShow && !gOverlayContext.popupList.empty())
-    {
-        // TODO draw list
+        if (gOverlayContext.popupListShow && !gOverlayContext.popupList.empty())
+        {
+            // TODO draw list
+        }
     }
 }

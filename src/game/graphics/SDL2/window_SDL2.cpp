@@ -12,6 +12,9 @@
 #include <string>
 #include "config/config_mgr.h"
 #include "common/sysutil.h"
+#include "imgui.h"
+#include "backends/imgui_impl_sdl.h"
+#include "backends/imgui_impl_sdlrenderer.h"
 
 int graphics_init()
 {
@@ -128,6 +131,10 @@ int graphics_init()
 	video_init();
 #endif
 
+    // imgui
+    ImGui_ImplSDL2_InitForSDLRenderer(gFrameWindow, gFrameRenderer);
+    ImGui_ImplSDLRenderer_Init(gFrameRenderer);
+
     return 0;
 }
 
@@ -138,11 +145,17 @@ void graphics_clear()
 
 void graphics_flush()
 {
+    auto pData = ImGui::GetDrawData();
+    if (pData != NULL) ImGui_ImplSDLRenderer_RenderDrawData(pData);
+
     SDL_RenderPresent(gFrameRenderer);
 }
 
 int graphics_free()
 {
+    ImGui_ImplSDLRenderer_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
+
     SDL_DestroyRenderer(gFrameRenderer);
     gFrameRenderer = nullptr;
     SDL_DestroyWindow(gFrameWindow);
@@ -160,6 +173,8 @@ void event_handle()
     SDL_Event e;
     while (SDL_PollEvent(&e))
     {
+        ImGui_ImplSDL2_ProcessEvent(&e);
+
         switch (e.type)
         {
         case SDL_QUIT:
@@ -195,6 +210,13 @@ void event_handle()
             break;
         }
     }
+}
+
+void ImGuiNewFrame()
+{
+    ImGui_ImplSDLRenderer_NewFrame();
+    ImGui_ImplSDL2_NewFrame();
+    ImGui::NewFrame();
 }
 
 #endif
