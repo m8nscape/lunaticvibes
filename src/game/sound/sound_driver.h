@@ -31,6 +31,11 @@ class SoundDriver
 public:
     SoundDriver() = default;
     virtual ~SoundDriver() = default;
+
+public:
+    virtual std::vector<std::pair<int, std::string>> getDeviceList(bool asio = false) = 0;
+
+public:
     static constexpr size_t KEYSAMPLES = 36 * 36 + 1;
     static constexpr size_t ETCSAMPLES = 64; 
 

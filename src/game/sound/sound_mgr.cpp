@@ -21,6 +21,12 @@ int SoundMgr::initFMOD()
     return 1;
 }
 
+std::vector<std::pair<int, std::string>> SoundMgr::getDeviceList(bool asio)
+{
+    if (!_inst._initialized) return {};
+    return _inst.driver->getDeviceList(asio);
+}
+
 int SoundMgr::loadKeySample(const Path& path, size_t sample)
 {
     if (!_inst._initialized) return 1;

@@ -16,6 +16,7 @@ private:
 
 public:
     static int initFMOD();
+    static std::vector<std::pair<int, std::string>> getDeviceList(bool asio = false);
 
 public:
     static int loadKeySample(const Path& path, size_t sample);

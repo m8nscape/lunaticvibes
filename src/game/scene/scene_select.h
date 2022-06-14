@@ -83,4 +83,47 @@ private:
     // imgui Dialogs
     void _imguiSampleDialog();
     void _imguiSettings();
+
+    // misc
+    void _imguiRefreshProfileList();
+    void _imguiRefreshFolderList();
+    void _imguiRefreshVideoResolutionList();
+    void _imguiCheckSettings();
+
+    // buttons
+    bool _imguiAddFolder();
+    bool _imguiDelFolder();
+    bool _imguiBrowseFolder();
+    bool _imguiApplyResolution();
+    bool _imguiRefreshAudioDevices();
+
+    // imgui variables
+    std::list<std::string> imgui_profiles;
+    std::vector<const char*> imgui_profiles_display;
+    int old_profile_index, imgui_profile_index;
+
+    std::list<std::string> imgui_folders;
+    std::vector<const char*> imgui_folders_display;
+    int imgui_folder_index;
+
+    std::list<std::string> imgui_video_resolution;
+    std::vector<const char*> imgui_video_resolution_display;
+    int old_video_resolution_index, imgui_video_resolution_index;   // 0:480p 1:720p 2:1080p
+    int old_video_mode, imgui_video_mode;   // 0:windowed 1:fullscreen 2:borderless
+    bool imgui_video_vsync;
+    int imgui_video_maxFPS;
+
+    std::list<std::pair<int, std::string>> imgui_audio_devices;
+    std::vector<const char*> imgui_audio_devices_display;
+    int old_audio_device_index, imgui_audio_device_index;
+    bool imgui_audio_checkASIODevices;
+    int imgui_audio_bufferCount;
+    int imgui_audio_bufferSize;
+
+    int imgui_adv_scrollSpeed[2];
+    int imgui_adv_missBGATime;
+    int imgui_adv_minInputInterval;
+    int imgui_adv_newSongDuration;
+    bool imgui_adv_mouseAnalog;
+    bool imgui_adv_relativeAxis;
 };

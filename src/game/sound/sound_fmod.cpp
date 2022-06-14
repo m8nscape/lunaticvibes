@@ -117,6 +117,56 @@ SoundDriverFMOD::~SoundDriverFMOD()
     LOG_DEBUG << "FMOD System released.";
 }
 
+std::vector<std::pair<int, std::string>> SoundDriverFMOD::getDeviceList(bool asio)
+{
+    FMOD::System* f = nullptr;
+    int numDrivers = 0;
+    if (FMOD_OK == FMOD::System_Create(&f))
+    {
+        std::vector<std::pair<int, std::string>> res;
+
+        char name[512];
+        FMOD_GUID guid;
+        int systemrate;
+        FMOD_SPEAKERMODE speakermode;
+        int speakermodechannels;
+
+        // Auto
+        f->setOutput(FMOD_OUTPUTTYPE_AUTODETECT);
+        f->getNumDrivers(&numDrivers);
+        for (int i = 0; i < numDrivers; ++i)
+        {
+            if (FMOD_OK == f->getDriverInfo(i, name, sizeof(name), &guid, &systemrate, &speakermode, &speakermodechannels))
+            {
+                res.push_back(std::make_pair(i, std::string(name)));
+            }
+        }
+
+        if (asio)
+        {
+#ifdef WIN32
+            // ASIO
+            f->setOutput(FMOD_OUTPUTTYPE_ASIO);
+            f->getNumDrivers(&numDrivers); // this call may throw 0xc0000008 when asio device is in use. Also affected by /EHsc flag automatically added by Ninja
+            for (int i = 0; i < numDrivers; ++i)
+            {
+                if (FMOD_OK == f->getDriverInfo(i, name, sizeof(name), &guid, &systemrate, &speakermode, &speakermodechannels))
+                {
+                    std::string namefmt = "[ASIO] "s + name;
+                    res.push_back(std::make_pair(i, namefmt));
+                }
+            }
+#endif
+        }
+
+        f->release();
+        return res;
+    }
+
+    return {};
+}
+
+
 int SoundDriverFMOD::setAsyncIO(bool async)
 {
     if (async)

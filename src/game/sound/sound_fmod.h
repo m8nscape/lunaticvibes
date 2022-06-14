@@ -25,6 +25,9 @@ public:
 	SoundDriverFMOD();
 	virtual ~SoundDriverFMOD();
 
+public:
+	virtual std::vector<std::pair<int, std::string>> getDeviceList(bool asio = false);
+
 private:
     bool bLoading = false;
     std::thread tLoadSampleThread;

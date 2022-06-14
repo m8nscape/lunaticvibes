@@ -1,6 +1,6 @@
 #pragma once
 
-#define PROJECT_NAME          "nullptr"
+#define PROJECT_NAME          "BlastPit"
 #define PROJECT_VERSION       "custom"
 #define PROJECT_VERSION_MAJOR "custom"
 #define PROJECT_VERSION_MINOR "0"

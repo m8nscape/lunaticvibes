@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
 
     // extract dxa
     for (auto& it : std::filesystem::recursive_directory_iterator(
-        convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), "/LR2Files/Theme")))
+        convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), "LR2Files/Theme")))
     {
         if (std::filesystem::is_regular_file(it))
         {
@@ -208,11 +208,13 @@ int main(int argc, char* argv[])
 
 #ifdef WIN32
     timeBeginPeriod(1);
+    OleInitialize(NULL);
 #endif
 
     mainLoop();
 
 #ifdef WIN32
+    OleUninitialize();
     timeEndPeriod(1);
 #endif
 

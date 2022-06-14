@@ -258,6 +258,9 @@ public:
         _dirPath = GAMEDATA_PATH;
         _dirPath /= "profile";
         _dirPath /= profile;
+        
+        Path p(_dirPath);
+        if (!fs::exists(p)) fs::create_directories(p);
     }
     virtual ~ConfigProfile() = default;
 
