@@ -52,6 +52,10 @@ void SceneCustomize::updateMain()
         SkinMgr::unload(modeOld);
         load(selectedMode);
     }
+    if (gCustomizeContext.skinDir != 0)
+    {
+        // TODO change skin
+    }
     if (gCustomizeContext.optionUpdate)
     {
         gCustomizeContext.optionUpdate = false;
