@@ -15,6 +15,9 @@ inline Path executablePath;
 // Searching is not recursive.
 std::vector<Path> findFiles(Path path);
 
+// Recursive version of function above
+std::vector<Path> findFilesRecursive(Path path);
+
 bool isParentPath(Path parent, Path dir);
 
 // string to int

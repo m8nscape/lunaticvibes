@@ -22,6 +22,8 @@ protected:
     std::map<StringContent, Option> optionsMap;
     std::vector<StringContent> optionsKeyList;
 
+    std::map<eMode, std::vector<Path>> skinList;
+
     eMode selectedMode;
 
 protected:

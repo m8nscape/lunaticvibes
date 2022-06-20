@@ -17,6 +17,13 @@ SceneCustomize::SceneCustomize() : vScene(eMode::THEME_SELECT, 240)
     gCustomizeContext.mode = selectedMode;
     load(selectedMode);
 
+    auto skinFileList = findFilesRecursive(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), "LR2Files/Theme/*.lr2skin"));
+    for (auto& p : skinFileList)
+    {
+        SkinLR2 s(p, true);
+        skinList[s.info.mode].push_back(fs::absolute(p));
+    }
+
     loopStart();
     _input.loopStart();
     LOG_DEBUG << "[Customize] Start";
@@ -54,7 +61,82 @@ void SceneCustomize::updateMain()
     }
     if (gCustomizeContext.skinDir != 0)
     {
-        // TODO change skin
+        if (skinList[selectedMode].size() > 1)
+        {
+            auto& l = skinList[selectedMode];
+            int selectedIdx;
+            for (selectedIdx = 0; selectedIdx < (int)l.size(); selectedIdx++)
+            {
+                if (fs::equivalent(l[selectedIdx], Path(SkinMgr::get(selectedMode)->getFilePath())))
+                    break;
+            }
+            selectedIdx += gCustomizeContext.skinDir;
+            if (selectedIdx >= (int)l.size())
+            {
+                selectedIdx = 0;
+            }
+            if (selectedIdx < 0)
+            {
+                selectedIdx = (int)l.size() - 1;
+            }
+            if (selectedIdx >= 0 && selectedIdx < (int)l.size())
+            {
+                auto& p = fs::relative(skinList[selectedMode][selectedIdx], ConfigMgr::get("E", cfg::E_LR2PATH, ".")).string();
+                switch (selectedMode)
+                {
+                case eMode::MUSIC_SELECT:
+                    ConfigMgr::set("S", cfg::S_PATH_MUSIC_SELECT, p);
+                    break;
+
+                case eMode::DECIDE:
+                    ConfigMgr::set("S", cfg::S_PATH_DECIDE, p);
+                    break;
+
+                case eMode::RESULT:
+                    ConfigMgr::set("S", cfg::S_PATH_RESULT, p);
+                    break;
+
+                case eMode::KEY_CONFIG:
+                    ConfigMgr::set("S", cfg::S_PATH_KEYCONFIG, p);
+                    break;
+
+                case eMode::THEME_SELECT:
+                    ConfigMgr::set("S", cfg::S_PATH_CUSTOMIZE, p);
+                    break;
+
+                case eMode::PLAY5:
+                    ConfigMgr::set("S", cfg::S_PATH_PLAY_5, p);
+                    break;
+
+                case eMode::PLAY5_2:
+                    ConfigMgr::set("S", cfg::S_PATH_PLAY_5_BATTLE, p);
+                    break;
+
+                case eMode::PLAY7:
+                    ConfigMgr::set("S", cfg::S_PATH_PLAY_7, p);
+                    break;
+
+                case eMode::PLAY7_2:
+                    ConfigMgr::set("S", cfg::S_PATH_PLAY_7_BATTLE, p);
+                    break;
+
+                case eMode::PLAY9:
+                    ConfigMgr::set("S", cfg::S_PATH_PLAY_9, p);
+                    break;
+
+                case eMode::PLAY10:
+                    ConfigMgr::set("S", cfg::S_PATH_PLAY_10, p);
+                    break;
+
+                case eMode::PLAY14:
+                    ConfigMgr::set("S", cfg::S_PATH_PLAY_14, p);
+                    break;
+                }
+                SkinMgr::unload(selectedMode);
+                load(selectedMode);
+            }
+        }
+        gCustomizeContext.skinDir = 0;
     }
     if (gCustomizeContext.optionUpdate)
     {
@@ -212,7 +294,8 @@ void SceneCustomize::save(eMode mode) const
     for (const auto& itOp: optionsMap)
     {
         auto& [tag, op] = itOp;
-        yaml[tag] = op.entries[op.selectedEntry];
+        if (!op.entries.empty())
+            yaml[tag] = op.entries[op.selectedEntry];
     }
 
     std::ofstream fout(pCustomize, std::ios_base::trunc);
@@ -231,7 +314,7 @@ void SceneCustomize::updateTexts() const
         {
             const Option& op = optionsMap.at(optionsKeyList[idx]);
             gTexts.queue(optionNameId, op.displayName);
-            gTexts.queue(entryNameId, op.entries[op.selectedEntry]);
+            gTexts.queue(entryNameId, !op.entries.empty() ? op.entries[op.selectedEntry] : "");
         }
         else
         {

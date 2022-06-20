@@ -54,6 +54,44 @@ std::vector<Path> findFiles(Path p)
 	return res;
 }
 
+std::vector<Path> findFilesRecursive(Path p)
+{
+#ifdef WIN32
+    auto pstr = p.u16string();
+    size_t offset = pstr.find(u"\\*");
+    if (offset == pstr.npos) offset = pstr.find(u"/*");
+#else
+    auto pstr = p.string();
+    size_t offset = pstr.find(u"/*");
+#endif
+
+    std::vector<Path> res;
+    if (offset == pstr.npos)
+    {
+        if (!pstr.empty() && pstr.find(u'*') == pstr.npos)
+            res.push_back(p);
+        return res;
+    }
+
+    auto dir = pstr.substr(0, offset);
+    auto tail = pstr.substr(offset + 2);
+    if (fs::exists(dir))
+    {
+        for (auto f : fs::recursive_directory_iterator(dir))
+        {
+#ifdef WIN32
+            auto file = f.path().u16string();
+#else
+            auto file = f.path().string();
+#endif
+            if (file.substr(file.length() - tail.length()) != tail)
+                continue;
+            res.push_back(fs::canonical(f));
+        }
+    }
+    return res;
+}
+
 bool isParentPath(Path parent, Path dir)
 {
     parent = fs::absolute(parent);

@@ -1387,9 +1387,9 @@ protected:
 
 public:
     SkinLR2() = delete;
-    SkinLR2(Path p);
+    SkinLR2(Path p, bool headerOnly = false);
 	virtual ~SkinLR2() = default;
-    void loadCSV(Path p);
+    void loadCSV(Path p, bool headerOnly = false);
 
 protected:
     static constexpr size_t BAR_ENTRY_SPRITE_COUNT = 32;

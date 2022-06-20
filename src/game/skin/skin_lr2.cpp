@@ -2652,7 +2652,7 @@ void SkinLR2::IF(const Tokens &t, std::ifstream& lr2skin)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkinLR2::SkinLR2(Path p)
+SkinLR2::SkinLR2(Path p, bool headerOnly)
 {
     _type = eSkinType::LR2;
 
@@ -2663,7 +2663,7 @@ SkinLR2::SkinLR2(Path p)
     }
     _laneSprites.resize(chart::LANE_COUNT);
     updateDstOpt();
-    loadCSV(p);
+    loadCSV(p, headerOnly);
 
     for (auto& p : _sprites)
     {
@@ -2677,7 +2677,7 @@ SkinLR2::SkinLR2(Path p)
     }
 }
 
-void SkinLR2::loadCSV(Path p)
+void SkinLR2::loadCSV(Path p, bool headerOnly)
 {
     if (filePath.empty())
         filePath = p;
@@ -2714,109 +2714,112 @@ void SkinLR2::loadCSV(Path p)
     }
     LOG_DEBUG << "[Skin] File: " << p.string() << "(Line " << csvLineNumber << "): Header loading finished";
 
-    if (!haveEndOfHeader && csvFile.eof())
+    if (!headerOnly)
     {
-        // reset position to head
-        csvFile.close();
-        csvLineNumber = 0;
-        csvFile.open(p, std::ios::binary);
-    }
-
-    // load skin customization from profile
-    Path pCustomize = ConfigMgr::Profile()->getPath() / "customize" / SceneCustomize::getConfigFileName(getFilePath());
-    try
-    {
-        std::map<size_t, StringContent> opDstMap;
-        std::map<StringContent, StringContent> opFileMap;
-        for (const auto& node : YAML::LoadFile(pCustomize.string()))
+        if (!haveEndOfHeader && csvFile.eof())
         {
-            auto key = node.first.as<std::string>();
-            if (key.substr(0, 4) == "OPT_")
-            {
-                size_t dst_op = std::strtoul(key.substr(4).c_str(), nullptr, 10);
-                opDstMap[dst_op] = node.second.as<std::string>();
-            }
-            else if (key.substr(0, 5) == "FILE_")
-            {
-                opFileMap[key.substr(5)] = node.second.as<std::string>();
-            }
+            // reset position to head
+            csvFile.close();
+            csvLineNumber = 0;
+            csvFile.open(p, std::ios::binary);
         }
-        for (auto& itOp : customize)
+
+        // load skin customization from profile
+        Path pCustomize = ConfigMgr::Profile()->getPath() / "customize" / SceneCustomize::getConfigFileName(getFilePath());
+        try
         {
-            for (auto& itDst : opDstMap)
+            std::map<size_t, StringContent> opDstMap;
+            std::map<StringContent, StringContent> opFileMap;
+            for (const auto& node : YAML::LoadFile(pCustomize.string()))
             {
-                if (itDst.first == itOp.dst_op)
+                auto key = node.first.as<std::string>();
+                if (key.substr(0, 4) == "OPT_")
                 {
-                    if (const auto itEntry = std::find(itOp.label.begin(), itOp.label.end(), itDst.second); itEntry != itOp.label.end())
+                    size_t dst_op = std::strtoul(key.substr(4).c_str(), nullptr, 10);
+                    opDstMap[dst_op] = node.second.as<std::string>();
+                }
+                else if (key.substr(0, 5) == "FILE_")
+                {
+                    opFileMap[key.substr(5)] = node.second.as<std::string>();
+                }
+            }
+            for (auto& itOp : customize)
+            {
+                for (auto& itDst : opDstMap)
+                {
+                    if (itDst.first == itOp.dst_op)
                     {
-                        itOp.value = std::distance(itOp.label.begin(), itEntry);
+                        if (const auto itEntry = std::find(itOp.label.begin(), itOp.label.end(), itDst.second); itEntry != itOp.label.end())
+                        {
+                            itOp.value = std::distance(itOp.label.begin(), itEntry);
+                        }
+                    }
+                }
+                for (auto& itFile : opFileMap)
+                {
+                    if (itOp.title == itFile.first && itOp.dst_op == 0)
+                    {
+                        if (const auto itEntry = std::find(itOp.pathList.begin(), itOp.pathList.end(), itFile.second); itEntry != itOp.pathList.end())
+                        {
+                            itOp.value = std::distance(itOp.pathList.begin(), itEntry);
+                        }
                     }
                 }
             }
-            for (auto& itFile : opFileMap)
+        }
+        catch (YAML::BadFile&)
+        {
+            LOG_WARNING << "[Skin] Bad customize config file: " << pCustomize.string();
+        }
+        for (auto c : customize)
+        {
+            if (c.dst_op != 0)
             {
-                if (itOp.title == itFile.first && itOp.dst_op == 0)
+                //data().setDstOption(static_cast<dst_option>(c.dst_op + c.value), true);
+                for (size_t i = 0; i < c.label.size(); ++i)
                 {
-                    if (const auto itEntry = std::find(itOp.pathList.begin(), itOp.pathList.end(), itFile.second); itEntry != itOp.pathList.end())
-                    {
-                        itOp.value = std::distance(itOp.pathList.begin(), itEntry);
-                    }
+                    setCustomDstOpt(c.dst_op, i, false);
                 }
+                setCustomDstOpt(c.dst_op, c.value, true);
             }
         }
-    }
-    catch (YAML::BadFile&)
-    {
-        LOG_WARNING << "[Skin] Bad customize config file: " << pCustomize.string();
-    }
-    for (auto c : customize)
-    {
-        if (c.dst_op != 0)
+
+        // Add extra textures
+
+        while (!csvFile.eof())
         {
-            //data().setDstOption(static_cast<dst_option>(c.dst_op + c.value), true);
-            for (size_t i = 0; i < c.label.size(); ++i)
+            std::string raw;
+            std::getline(csvFile, raw);
+            ++csvLineNumber;
+            auto tokens = csvLineTokenize(raw);
+            if (tokens.empty()) continue;
+
+            if (strEqual(*tokens.begin(), "#IF", true))
+                IF(tokens, csvFile);
+            else
+                parseBody(tokens);
+        }
+
+        // set barcenter
+        if (barCenter < _barSprites.size())
+        {
+            _barSprites[barCenter]->drawFlash = true;
+
+            if (gResetSelectCursor)
             {
-                setCustomDstOpt(c.dst_op, i, false);
+                gResetSelectCursor = false;
+                gSelectContext.cursor = barCenter;
             }
-            setCustomDstOpt(c.dst_op, c.value, true);
         }
-    }
 
-    // Add extra textures
-
-    while (!csvFile.eof())
-    {
-        std::string raw;
-        std::getline(csvFile, raw);
-        ++csvLineNumber;
-        auto tokens = csvLineTokenize(raw);
-        if (tokens.empty()) continue;
-
-        if (strEqual(*tokens.begin(), "#IF", true))
-            IF(tokens, csvFile);
-        else
-            parseBody(tokens);
-    }
-
-    // set barcenter
-    if (barCenter < _barSprites.size())
-    {
-        _barSprites[barCenter]->drawFlash = true;
-
-        if (gResetSelectCursor)
+        // set note area height
+        for (auto& s : _sprites)
         {
-            gResetSelectCursor = false;
-            gSelectContext.cursor = barCenter;
-        }
-    }
-
-    // set note area height
-    for (auto& s : _sprites)
-    {
-        auto pS = std::dynamic_pointer_cast<SpriteLaneVertical>(s);
-        if (pS != nullptr)
-        {
-            pS->setHeight(_noteAreaHeight);
+            auto pS = std::dynamic_pointer_cast<SpriteLaneVertical>(s);
+            if (pS != nullptr)
+            {
+                pS->setHeight(_noteAreaHeight);
+            }
         }
     }
 
