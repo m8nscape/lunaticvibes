@@ -524,7 +524,7 @@ void chartBMS::loadBMS(const BMS& objBms)
                                 for (NoteLaneIndex i = NoteLaneIndex(laneMin); i != NoteLaneIndex(laneMax + 1); ++ * (size_t*)&i)
                                 {
                                     // no need to check if noteLists[i] is empty
-                                    auto& lastNote = --_noteLists[i].end();
+                                    auto lastNote = --_noteLists[i].end();
                                     placableMin.push_back({lastNote->time.hres(), i});
                                 }
                                 assert(!placableMin.empty());
@@ -538,8 +538,9 @@ void chartBMS::loadBMS(const BMS& objBms)
                     {
                         constexpr int threshold_scr_ms = 33;    // threshold of moving notes to keyboard lanes
                         constexpr int threshold_ms = 250;       // try to not make keyboard jacks
-                        size_t laneMin, laneMax, laneScratch;
+                        size_t laneScratch;
                         int laneStep;
+
                         if (laneArea == 0)
                         {
                             laneStep = 1;
@@ -558,7 +559,7 @@ void chartBMS::loadBMS(const BMS& objBms)
                             gameLaneIdxMod = laneScratch;
                         else
                         {
-                            auto& lastScratch = --_noteLists[channelToIdx(NoteLaneCategory::Note, laneScratch)].end();
+                            auto lastScratch = --_noteLists[channelToIdx(NoteLaneCategory::Note, laneScratch)].end();
                             if (notetime - lastScratch->time >= threshold_scr_ms && !laneOccupiedByLN[laneScratch])
                                 gameLaneIdxMod = laneScratch;
                             else
@@ -566,12 +567,21 @@ void chartBMS::loadBMS(const BMS& objBms)
                                 bool availableLaneFound = false;
                                 for (NoteLaneIndex i = (NoteLaneIndex)laneMin; i != (NoteLaneIndex)laneMax + laneStep; *(size_t*)&i += laneStep)
                                 {
-                                    auto lastNote = --_noteLists[channelToIdx(NoteLaneCategory::Note, laneScratch)].end();
-                                    if (notetime - lastNote->time >= threshold_ms && !laneOccupiedByLN[i])
+                                    if (_noteLists[channelToIdx(NoteLaneCategory::Note, i)].empty())
                                     {
                                         gameLaneIdxMod = i;
                                         availableLaneFound = true;
-                                        break;
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        auto lastNote = --_noteLists[channelToIdx(NoteLaneCategory::Note, i)].end();
+                                        if (notetime - lastNote->time >= threshold_ms && !laneOccupiedByLN[i])
+                                        {
+                                            gameLaneIdxMod = i;
+                                            availableLaneFound = true;
+                                            break;
+                                        }
                                     }
                                 }
                                 if (!availableLaneFound)
