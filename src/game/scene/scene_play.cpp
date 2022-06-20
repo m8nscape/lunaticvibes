@@ -134,6 +134,8 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         }
     }
 
+    _missBgaLength = ConfigMgr::get("P", cfg::P_MISSBGA_LENGTH, 500);
+
     using namespace std::placeholders;
     _input.register_p("SCENE_PRESS", std::bind(&ScenePlay::inputGamePress, this, _1, _2));
     _input.register_h("SCENE_HOLD", std::bind(&ScenePlay::inputGameHold, this, _1, _2));
@@ -427,27 +429,6 @@ void ScenePlay::loadChart()
 				else
 					gPlayContext.bgaTexture->addBmp(i, chartDir / pBmp);
 
-				/*
-				if (fs::exists(bmp) && fs::is_regular_file(bmp) && pBmp.has_extension())
-				{
-					if (video_file_extensions.find(toLower(pBmp.extension().string())) != video_file_extensions.end())
-					{
-						if (int vi; (vi = getVideoSlot()) >= 0)
-						{
-							_video[vi].setVideo(pBmp);
-							auto pv = std::make_shared<sVideo>(_video[vi]);
-							_bgaIdxBuf[i] = pv;
-							for (auto& bv : _bgaVideoSprites[i])
-								bv->bindVideo(pv);
-						}
-					}
-					else
-					{
-						_bgaIdxBuf[i] = std::make_shared<Texture>(Image(bmp.c_str()));
-					}
-				}
-				*/
-
                 ++_bmpLoaded;
             }
             if (_bmpLoaded > 0) gPlayContext.bgaTexture->setLoaded();
@@ -629,7 +610,6 @@ void ScenePlay::updatePlaying()
 	auto t = Time();
 	auto rt = t - gTimers.get(eTimer::PLAY_START);
     gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentBeat() * 4.0)) % 1000);
-    gPlayContext.bgaTexture->update(rt, false);
 
     if (isPlaymodeBattle())
     {
@@ -637,12 +617,33 @@ void ScenePlay::updatePlaying()
         gPlayContext.chartObj[PLAYER_SLOT_2P]->update(rt);
         gPlayContext.ruleset[PLAYER_SLOT_1P]->update(t);
         gPlayContext.ruleset[PLAYER_SLOT_2P]->update(t);
+
+        int miss1 = gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().miss;
+        if (_missPlayer[PLAYER_SLOT_1P] != miss1)
+        {
+            _missPlayer[PLAYER_SLOT_1P] = miss1;
+            _missLastTime = t;
+        }
+        int miss2 = gPlayContext.ruleset[PLAYER_SLOT_2P]->getData().miss;
+        if (_missPlayer[PLAYER_SLOT_2P] != miss2)
+        {
+            _missPlayer[PLAYER_SLOT_2P] = miss2;
+            _missLastTime = t;
+        }
     }
     else
     {
         gPlayContext.chartObj[PLAYER_SLOT_1P]->update(rt);
         gPlayContext.ruleset[PLAYER_SLOT_1P]->update(t);
+
+        int miss1 = gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().miss;
+        if (_missPlayer[PLAYER_SLOT_1P] != miss1)
+        {
+            _missPlayer[PLAYER_SLOT_1P] = miss1;
+            _missLastTime = t;
+        }
     }
+    gPlayContext.bgaTexture->update(rt, t.norm() - _missLastTime.norm() < _missBgaLength);
 
     gNumbers.set(eNumber::PLAY_BPM, int(std::round(gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentBPM())));
     // play time / remain time

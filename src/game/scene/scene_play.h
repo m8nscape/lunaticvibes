@@ -44,6 +44,10 @@ private:
     std::array<AxisDir, 2> _ttAxisDir{ 0 };
     std::array<Time, 2> _ttAxisLastUpdate{ TIMER_NEVER, TIMER_NEVER };
 
+    int _missPlayer[2] = { 0 };
+    Time _missLastTime;
+    int _missBgaLength;
+
 public:
     ScenePlay();
 	virtual ~ScenePlay()

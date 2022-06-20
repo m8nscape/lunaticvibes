@@ -5,6 +5,7 @@
 #include "game/scene/scene_mgr.h"
 #include "game/input/input_mgr.h"
 #include "game/skin/skin_lr2.h"
+#include "game/skin/skin_mgr.h"
 #include "common/utils.h"
 #include "common/sysutil.h"
 #include "game/scene/scene_context.h"
@@ -54,6 +55,9 @@ void mainLoop()
             case eScene::EXIT:   LOG_INFO << "Scene changed to EXIT"; break;
             default: break;
             }
+
+            // Disable skin caching for now. dst options are changing all the time
+            SkinMgr::clean();
 
             clearCustomDstOpt();
 			currentScene = gNextScene;

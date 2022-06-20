@@ -133,6 +133,12 @@ bool TextureBmsBga::addBmp(size_t idx, const Path& pBmp)
 		{
 			objs[idx].type = obj::Ty::PIC;
 			objs[idx].pt = std::make_shared<Texture>(Image(pBmp));
+
+			objs_layer[idx].type = obj::Ty::PIC;
+			Image layerImg(pBmp);
+			layerImg.setTransparentColorRGB(Color(0, 0, 0, 255));
+			objs_layer[idx].pt = std::make_shared<Texture>(layerImg);
+
 			LOG_DEBUG << "[TextureBmsBga] added pic: " << pBmp.string();
 			return true;
 		}
@@ -218,27 +224,24 @@ void TextureBmsBga::update(const Time& t, bool poor)
 	auto seekSub = [&t, this](decltype(baseSlot)& slot, size_t& slotIdx, decltype(baseSlot.begin())& slotIt)
 	{
 		auto it = slotIt;
-		if (it == slot.end()) return;
-		if (it != slot.begin()) ++it;
-		for (; it != slot.end(); ++it)	// start from cached iterator's next iterator, or the bga will stuck at one frame
+		for (; it != slot.end(); ++it)
 		{
-			auto[time, idx] = *it;
+			auto [time, idx] = *it;
 			if (time <= t)
 			{
 				slotIdx = idx;
 				slotIt = it;
-				break;
-			}
-		}
 
 #ifndef VIDEO_DISABLED
-		if (slotIdx != INDEX_INVALID && objs[slotIdx].type == obj::Ty::VIDEO)
-		{
-			auto pt = std::reinterpret_pointer_cast<TextureVideo>(objs[it->second].pt);
-			pt->start();
-			pt->update();
-		}
+				if (it != slot.end() && slotIdx != INDEX_INVALID && objs[slotIdx].type == obj::Ty::VIDEO)
+				{
+					auto pt = std::reinterpret_pointer_cast<TextureVideo>(objs[it->second].pt);
+					pt->start();
+					pt->update();
+				}
 #endif
+			}
+		}
 
 	};
 
@@ -251,22 +254,44 @@ void TextureBmsBga::update(const Time& t, bool poor)
 void TextureBmsBga::draw(const Rect& sr, Rect dr,
 	const Color c, const BlendMode b, const bool f, const double a) const
 {
-	if (inPoor && poorIdx != INDEX_INVALID && objs.at(poorIdx).type != obj::Ty::EMPTY) objs.at(poorIdx).pt->draw(dr, c, b, f, a);
+	if (inPoor && poorIdx != INDEX_INVALID && objs.at(poorIdx).type != obj::Ty::EMPTY)
+	{
+		objs.at(poorIdx).pt->draw(dr, c, b, f, a);
+	}
 	else
 	{
-		if (baseIdx != INDEX_INVALID && objs.at(baseIdx).type != obj::Ty::EMPTY) objs.at(baseIdx).pt->draw(dr, c, b, f, a);
-		if (layerIdx != INDEX_INVALID && objs.at(layerIdx).type != obj::Ty::EMPTY) objs.at(layerIdx).pt->draw(dr, c, b, f, a);
+		if (baseIdx != INDEX_INVALID && objs.at(baseIdx).type != obj::Ty::EMPTY)
+			objs.at(baseIdx).pt->draw(dr, c, b, f, a);
+
+		if (layerIdx != INDEX_INVALID && objs.at(layerIdx).type != obj::Ty::EMPTY)
+		{
+			if (objs.at(layerIdx).type == obj::Ty::PIC && objs_layer.at(layerIdx).pt != nullptr)
+				objs_layer.at(layerIdx).pt->draw(dr, c, b, f, a);
+			else
+				objs.at(layerIdx).pt->draw(dr, c, b, f, a);
+		}
 	}
 }
 
 void TextureBmsBga::draw(const Rect& sr, Rect dr,
 	const Color c, const BlendMode b, const bool f, const double a, const Point& ct) const
 {
-	if (inPoor && poorIdx != INDEX_INVALID && objs.at(poorIdx).type != obj::Ty::EMPTY) objs.at(poorIdx).pt->draw(dr, c, b, f, a, ct);
+	if (inPoor && poorIdx != INDEX_INVALID && objs.at(poorIdx).type != obj::Ty::EMPTY)
+	{
+		objs.at(poorIdx).pt->draw(dr, c, b, f, a, ct);
+	}
 	else
 	{
-		if (baseIdx != INDEX_INVALID && objs.at(baseIdx).type != obj::Ty::EMPTY) objs.at(baseIdx).pt->draw(dr, c, b, f, a, ct);
-		if (layerIdx != INDEX_INVALID && objs.at(layerIdx).type != obj::Ty::EMPTY) objs.at(layerIdx).pt->draw(dr, c, b, f, a, ct);
+		if (baseIdx != INDEX_INVALID && objs.at(baseIdx).type != obj::Ty::EMPTY) 
+			objs.at(baseIdx).pt->draw(dr, c, b, f, a, ct);
+
+		if (layerIdx != INDEX_INVALID && objs.at(layerIdx).type != obj::Ty::EMPTY)
+		{
+			if (objs.at(layerIdx).type == obj::Ty::PIC && objs_layer.at(layerIdx).pt != nullptr)
+				objs_layer.at(layerIdx).pt->draw(dr, c, b, f, a, ct);
+			else
+				objs.at(layerIdx).pt->draw(dr, c, b, f, a, ct);
+		}
 	}
 }
 
@@ -307,6 +332,7 @@ void TextureBmsBga::clear()
 	baseSlot.clear();
 	layerSlot.clear();
 	poorSlot.clear();
+	objs_layer.clear();
 	objs.clear();
 	inPoor = false;
 	reset();

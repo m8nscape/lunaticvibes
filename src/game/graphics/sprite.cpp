@@ -363,7 +363,7 @@ void SpriteAnimated::updateAnimation(const Time& time)
 
     if (double timeEachFrame = double(_period) / _animFrames; timeEachFrame >= 1.0)
     {
-        auto animFrameTime = time.norm() % _period;
+        auto animFrameTime = (time.norm() >= 0) ? (time.norm() % _period) : 0;
         _currAnimFrame = static_cast<frameIdx>(std::floor(animFrameTime / timeEachFrame));
     }
 	/*

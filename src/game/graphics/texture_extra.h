@@ -62,6 +62,7 @@ protected:
 
 protected:
 	std::map<size_t, obj> objs;
+	std::map<size_t, obj> objs_layer;
 	std::vector<std::pair<Time, size_t>> baseSlot, layerSlot, poorSlot;
 	decltype(baseSlot.begin()) baseIt;
 	decltype(layerSlot.begin()) layerIt;

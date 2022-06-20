@@ -494,11 +494,13 @@ void score_graph(int plus)
     {
         // close
         gSwitches.set(eSwitch::SYSTEM_SCOREGRAPH, false);
+        gTexts.set(eText::SCORE_GRAPH, "OFF");
     }
     else
     {
         // open
         gSwitches.set(eSwitch::SYSTEM_SCOREGRAPH, true);
+        gTexts.set(eText::SCORE_GRAPH, "ON");
     }
 
     SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
