@@ -476,7 +476,7 @@ int BMS::initWithFile(const Path& file)
             {
                 if (!chNotesLN.lanes[area][ch][bar_curr].notes.empty())
                 {
-                    notes_head = &chNotesLN.lanes[area][ch][bar_curr].notes;
+                    notes_head = &chNotesRegular.lanes[area][ch][bar_curr].notes;
                     it_head = notes_head->begin();
                     resolution_head = chNotesRegular.lanes[area][ch][bar_curr].resolution;
                     bar_head = bar_curr;
@@ -488,8 +488,8 @@ int BMS::initWithFile(const Path& file)
             // find next LN note as LN tail
             for (; bar_curr <= lastBarIdx; bar_curr++)
             {
-                auto& notes_tail = chNotesLN.lanes[area][ch][bar_curr].notes;
-                unsigned res_tail = chNotesLN.lanes[area][ch][bar_curr].resolution;
+                auto& notes_tail = chNotesRegular.lanes[area][ch][bar_curr].notes;
+                unsigned res_tail = chNotesRegular.lanes[area][ch][bar_curr].resolution;
                 if (notes_tail.empty()) continue;
 
                 auto it_tail = notes_tail.begin();
