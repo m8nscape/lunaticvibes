@@ -1952,8 +1952,8 @@ void SceneSelect::_imguiSettings()
                 ImGui::InputInt("Miss BGA time (ms)", &imgui_adv_missBGATime, 0);
                 ImGui::InputInt("Min input interval (ms)", &imgui_adv_minInputInterval, 1, 10);
                 ImGui::InputInt("New song duration (hour)", &imgui_adv_newSongDuration, 1, 10);
-                ImGui::Checkbox("Mouse Analog", &imgui_adv_mouseAnalog);
-                ImGui::Checkbox("Relative Axis (useful for controllers with turntable)", &imgui_adv_relativeAxis);
+                //ImGui::Checkbox("Mouse Analog", &imgui_adv_mouseAnalog);
+                ImGui::Checkbox("Absolute Axis (useful for controllers with turntable)", &imgui_adv_relativeAxis);
 
                 ImGui::Separator();
                 ImGui::Spacing();
