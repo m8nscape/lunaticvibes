@@ -510,19 +510,30 @@ int SongDB::addFolderContent(const HashMD5& hash, const Path& folder)
         }
     }
 
+    std::vector<Path> folderList;
+    std::vector<Path> chartList;
+
     for (const auto& f : files)
     {
         if (!isSongFolder && fs::is_directory(f))
         {
-            if (0 == addFolder(f, hash))
-                ++count;
+            folderList.push_back(f);
         }
         else if (isSongFolder && fs::is_regular_file(f) && matchChartType(f) != eChartFormat::UNKNOWN)
         {
-            if (0 == addChart(hash, f))
-                ++count;
+            chartList.push_back(f);
         }
     }
+
+    std::for_each(std::execution::par, chartList.begin(), chartList.end(), 
+        [this, &count, hash](const Path& f) { if (0 == addChart(hash, f)) ++count; });
+
+    for (const auto& f : folderList)
+    {
+        if (0 == addFolder(f, hash))
+            ++count;
+    }
+
     return count;
 }
 
@@ -547,19 +558,30 @@ int SongDB::refreshFolderContent(const HashMD5& hash, const Path& path, FolderTy
         return addFolder(path, hash);
     }
 
+    std::vector<Path> folderList;
+    std::vector<Path> chartList;
+
     for (const auto& f : files)
     {
         if (!isSongFolder && fs::is_directory(f))
         {
-            if (0 == addFolder(f, hash))
-                ++count;
+            folderList.push_back(f);
         }
         else if (isSongFolder && fs::is_regular_file(f) && matchChartType(f) != eChartFormat::UNKNOWN)
         {
-            if (0 == addChart(hash, f))
-                ++count;
+            chartList.push_back(f);
         }
     }
+
+    std::for_each(std::execution::par, chartList.begin(), chartList.end(),
+        [this, &count, hash](const Path& f) { if (0 == addChart(hash, f)) ++count; });
+
+    for (const auto& f : folderList)
+    {
+        if (0 == addFolder(f, hash))
+            ++count;
+    }
+
     return count;
 }
 
@@ -590,7 +612,7 @@ int SongDB::removeFolder(const HashMD5& hash, bool removeSong)
             LOG_WARNING << "[SongDB] remove song from db error: " << errmsg();
     }
 
-    return exec("DELETE FROM folder WHERE pathmd5=?", { hash });
+    return exec("DELETE FROM folder WHERE pathmd5=?", { hash.hexdigest() });
 }
 
 HashMD5 SongDB::getFolderParent(const HashMD5& folder) const
