@@ -647,11 +647,12 @@ int SkinLR2::LR2FONT()
 
         auto pf = std::make_shared<LR2Font>();
 
+        int lr2fontLineNumber = 0;
         while (!lr2font.eof())
         {
             std::string raw;
             std::getline(lr2font, raw);
-            ++csvLineNumber;
+            ++lr2fontLineNumber;
             auto tokens = csvLineTokenize(raw);
             if (tokens.empty()) continue;
             auto key = tokens[0];
@@ -1988,6 +1989,8 @@ ParseRet SkinLR2::DST_LINE()
     //e->pushKeyFrame(time, x, y, w, h, acc, r, g, b, a, blend, filter, angle, center);
     //LOG_DEBUG << "[Skin] " << raw << ": Set Lane sprite (Barline) Keyframe (time: " << d.time << ")";
 
+    _noteAreaHeight = d.y;
+
     return ParseRet::OK;
 }
 
@@ -2554,31 +2557,40 @@ int SkinLR2::parseBody(const Tokens &raw)
 
 void SkinLR2::IF(const Tokens &t, std::ifstream& lr2skin)
 {
+    bool isElseStmt = false;
     bool ifStmtTrue = true;
-    if (t[0] != "#ELSE" && t.size() <= 1)
+    if (strEqual(t[0], "#ELSE", true))
     {
-        LOG_WARNING << "[Skin] " << csvLineNumber << ": No IF parameters " << " (Line " << csvLineNumber << ")";
+        isElseStmt = true;
     }
-
-    // get dst indexes
-    for (auto it = ++t.begin(); it != t.end() && ifStmtTrue; ++it)
+    else 
     {
-        if (it->empty()) continue;
-
-        auto [idx, val] = toPairUIntBool(*it);
-        if (idx == -1)
+        if (t.size() <= 1)
         {
-            LOG_WARNING << "[Skin] " << csvLineNumber << ": Invalid DST_OPTION Index, deal as false (Line " << csvLineNumber << ")";
-            ifStmtTrue = false;
-            break;
+            LOG_WARNING << "[Skin] " << csvLineNumber << ": No IF parameters " << " (Line " << csvLineNumber << ")";
         }
-        bool dst = getDstOpt((dst_option)idx);
-        if (val) dst = !dst;
-        ifStmtTrue = ifStmtTrue && dst;
+
+        // get dst indexes
+        for (auto it = ++t.begin(); it != t.end() && ifStmtTrue; ++it)
+        {
+            if (it->empty()) continue;
+
+            auto [idx, val] = toPairUIntBool(*it);
+            if (idx == -1)
+            {
+                LOG_WARNING << "[Skin] " << csvLineNumber << ": Invalid DST_OPTION Index, deal as false (Line " << csvLineNumber << ")";
+                ifStmtTrue = false;
+                break;
+            }
+            bool dst = getDstOpt((dst_option)idx);
+            if (val) dst = !dst;
+            ifStmtTrue = ifStmtTrue && dst;
+        }
     }
 
     if (ifStmtTrue)
     {
+        bool ifBlockEnded = false;
         while (!lr2skin.eof())
         {
             std::string raw;
@@ -2587,23 +2599,16 @@ void SkinLR2::IF(const Tokens &t, std::ifstream& lr2skin)
             auto tokens = csvLineTokenize(raw);
             if (tokens.empty()) continue;
 
-            if (strEqual(*tokens.begin(), "#ELSE", true) || strEqual(*tokens.begin(), "#ELSEIF", true))
-            {
-                // skip other branches
-                while (!lr2skin.eof() && !tokens.empty() && *tokens.begin() != "#ENDIF")
-                {
-                    std::getline(lr2skin, raw);
-                    ++csvLineNumber;
-                    auto tokens = csvLineTokenize(raw);
-                }
-                return;
-            }
-            else if (strEqual(*tokens.begin(), "#ENDIF", true))
+            if (strEqual(*tokens.begin(), "#ENDIF", true))
             {
                 // end #IF process
                 return;
             }
-            else
+            else if (isElseStmt || strEqual(*tokens.begin(), "#ELSEIF", true))
+            {
+                ifBlockEnded = true;
+            }
+            else if (!ifBlockEnded)
             {
                 // parse current branch
                 parseBody(tokens);
@@ -2795,6 +2800,16 @@ void SkinLR2::loadCSV(Path p)
         {
             gResetSelectCursor = false;
             gSelectContext.cursor = barCenter;
+        }
+    }
+
+    // set note area height
+    for (auto& s : _sprites)
+    {
+        auto pS = std::dynamic_pointer_cast<SpriteLaneVertical>(s);
+        if (pS != nullptr)
+        {
+            pS->setHeight(_noteAreaHeight);
         }
     }
 

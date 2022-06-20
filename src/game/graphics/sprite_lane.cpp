@@ -85,6 +85,7 @@ void SpriteLaneVertical::updateNoteRect(const Time& t)
 
     // generate note rects and store to buffer
 	// 150BPM with 1.0x HS is 1600ms
+	// !!! scroll height should not affected by note height
     int y = (c.y + c.h);
     auto it = pChart->incomingNote(_category, _index);
     while (!pChart->isLastNote(_category, _index, it) && y >= -c.h)
@@ -93,7 +94,7 @@ void SpriteLaneVertical::updateNoteRect(const Time& t)
         if (noteBeatOffset >= 0)
 			y = (c.y + c.h); // expired notes stay on judge line, LR2 / pre RA behavior
         else
-            y = (c.y + c.h) - static_cast<int>( std::floor((-noteBeatOffset * 4 / 4) * (c.y + c.h) * _basespd * _hispeed) );
+            y = (c.y + c.h) - static_cast<int>( std::floor((-noteBeatOffset * 4 / 4) * _noteAreaHeight * _basespd * _hispeed) );
         it++;
         _outRect.push_front({ c.x, y, c.w, -c.h });
     }
@@ -154,7 +155,7 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 
 			const auto& tail = *it;
 			auto tailBeatOffset = currTotalBeat - tail.totalbeat.toDouble();
-			tail_y = (c.y + c.h) - static_cast<int>(std::floor((-tailBeatOffset * 4 / 4) * (c.y + c.h) * _basespd * _hispeed));
+			tail_y = (c.y + c.h) - static_cast<int>(std::floor((-tailBeatOffset * 4 / 4) * _noteAreaHeight * _basespd * _hispeed));
 
 			++it;
 		}
@@ -167,11 +168,11 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 			const auto& tail = *it;
 
 			auto headBeatOffset = currTotalBeat - head.totalbeat.toDouble();
-			head_y_actual = (c.y + c.h) - static_cast<int>(std::floor((-headBeatOffset * 4 / 4) * (c.y + c.h) * _basespd * _hispeed));
+			head_y_actual = (c.y + c.h) - static_cast<int>(std::floor((-headBeatOffset * 4 / 4) * _noteAreaHeight * _basespd * _hispeed));
 			if (head_y_actual < head_y) head_y = head_y_actual;
 
 			auto tailBeatOffset = currTotalBeat - tail.totalbeat.toDouble();
-			tail_y = (c.y + c.h) - static_cast<int>(std::floor((-tailBeatOffset * 4 / 4) * (c.y + c.h) * _basespd * _hispeed));
+			tail_y = (c.y + c.h) - static_cast<int>(std::floor((-tailBeatOffset * 4 / 4) * _noteAreaHeight * _basespd * _hispeed));
 
 			++it;
 		}

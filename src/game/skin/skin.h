@@ -82,6 +82,8 @@ protected:
     bool _handleMouseEvents = true;
     std::list<std::map<Rect, pSprite>> _mouseCursorAreaMap;
 
+    int _noteAreaHeight = 500;  // used to calculate note speed for play skin
+
 ////////////////////////////////////////////////////////////////////////////////
 public:
     virtual void update();

@@ -12,6 +12,7 @@ class SpriteLaneVertical: public SpriteStatic
 protected:
 	chart::NoteLaneCategory _category;
     chart::NoteLaneIndex _index;
+    int _noteAreaHeight = 500;  // used to calculate note speed
     double _basespd;
     double _hispeed;
     std::list<Rect> _outRect;
@@ -31,6 +32,7 @@ public:
 
 public:
     void setLane(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx);
+    void setHeight(int h) { _noteAreaHeight = h; }
     decltype(_category) getLaneCat() const { return _category; }
     decltype(_index) getLaneIdx() const { return _index; }
     void getRectSize(int& w, int& h);
