@@ -44,8 +44,10 @@ void ir_ranking_scrollbar(double p)
 
 void eq(int idx, double p)
 {
+    int val = int(p * 24) - 12;
+    p = (val + 12) / 24.0;
     gSliders.set(eSlider(idx + (int)eSlider::EQ0), p);
-    gNumbers.set(eNumber(idx + (int)eNumber::EQ0), int(std::round(p * 100)));
+    gNumbers.set(eNumber(idx + (int)eNumber::EQ0), val);
 }
 
 void master_volume(double p)

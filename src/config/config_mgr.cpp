@@ -35,6 +35,14 @@ void setNumbers()
     g.queue(e::FX2_P1, ConfigMgr::get('P', P_FX2_P1, 0));
     g.queue(e::FX2_P2, ConfigMgr::get('P', P_FX2_P2, 0));
 
+    g.queue(e::EQ0, ConfigMgr::get('P', P_EQ0, 0));
+    g.queue(e::EQ1, ConfigMgr::get('P', P_EQ1, 0));
+    g.queue(e::EQ2, ConfigMgr::get('P', P_EQ2, 0));
+    g.queue(e::EQ3, ConfigMgr::get('P', P_EQ3, 0));
+    g.queue(e::EQ4, ConfigMgr::get('P', P_EQ4, 0));
+    g.queue(e::EQ5, ConfigMgr::get('P', P_EQ5, 0));
+    g.queue(e::EQ6, ConfigMgr::get('P', P_EQ6, 0));
+
     g.queue(e::PITCH, ConfigMgr::get('P', P_FREQ_VAL, 0));
 
     g.flush();
@@ -306,22 +314,22 @@ void setSliders()
     g.queue(e::VOLUME_KEY, ConfigMgr::get('P', P_VOL_KEY, 1.0));
     g.queue(e::VOLUME_BGM, ConfigMgr::get('P', P_VOL_BGM, 1.0));
 
-    g.queue(e::EQ0, (ConfigMgr::get('P', P_EQ0, 0.0) + 1.0) / 2);
-    g.queue(e::EQ1, (ConfigMgr::get('P', P_EQ1, 0.0) + 1.0) / 2);
-    g.queue(e::EQ2, (ConfigMgr::get('P', P_EQ2, 0.0) + 1.0) / 2);
-    g.queue(e::EQ3, (ConfigMgr::get('P', P_EQ3, 0.0) + 1.0) / 2);
-    g.queue(e::EQ4, (ConfigMgr::get('P', P_EQ4, 0.0) + 1.0) / 2);
-    g.queue(e::EQ5, (ConfigMgr::get('P', P_EQ5, 0.0) + 1.0) / 2);
-    g.queue(e::EQ6, (ConfigMgr::get('P', P_EQ6, 0.0) + 1.0) / 2);
+    g.queue(e::EQ0, ((ConfigMgr::get('P', P_EQ0, 0) + 12) / 24.0));
+    g.queue(e::EQ1, ((ConfigMgr::get('P', P_EQ1, 0) + 12) / 24.0));
+    g.queue(e::EQ2, ((ConfigMgr::get('P', P_EQ2, 0) + 12) / 24.0));
+    g.queue(e::EQ3, ((ConfigMgr::get('P', P_EQ3, 0) + 12) / 24.0));
+    g.queue(e::EQ4, ((ConfigMgr::get('P', P_EQ4, 0) + 12) / 24.0));
+    g.queue(e::EQ5, ((ConfigMgr::get('P', P_EQ5, 0) + 12) / 24.0));
+    g.queue(e::EQ6, ((ConfigMgr::get('P', P_EQ6, 0) + 12) / 24.0));
 
-    g.queue(e::PITCH, (ConfigMgr::get('P', P_FREQ_VAL, 0.0) + 1.0) / 2);
+    g.queue(e::PITCH, ((ConfigMgr::get('P', P_EQ6, 0) + 12) / 24.0));
 
-    g.queue(e::FX0_P1, ConfigMgr::get('P', P_FX0_P1, 0.0));
-    g.queue(e::FX0_P2, ConfigMgr::get('P', P_FX0_P2, 0.0));
-    g.queue(e::FX1_P1, ConfigMgr::get('P', P_FX1_P1, 0.0));
-    g.queue(e::FX1_P2, ConfigMgr::get('P', P_FX1_P2, 0.0));
-    g.queue(e::FX2_P1, ConfigMgr::get('P', P_FX2_P1, 0.0));
-    g.queue(e::FX2_P2, ConfigMgr::get('P', P_FX2_P2, 0.0));
+    g.queue(e::FX0_P1, ConfigMgr::get('P', P_FX0_P1, 0) / 100.0);
+    g.queue(e::FX0_P2, ConfigMgr::get('P', P_FX0_P2, 0) / 100.0);
+    g.queue(e::FX1_P1, ConfigMgr::get('P', P_FX1_P1, 0) / 100.0);
+    g.queue(e::FX1_P2, ConfigMgr::get('P', P_FX1_P2, 0) / 100.0);
+    g.queue(e::FX2_P1, ConfigMgr::get('P', P_FX2_P1, 0) / 100.0);
+    g.queue(e::FX2_P2, ConfigMgr::get('P', P_FX2_P2, 0) / 100.0);
 
     g.flush();
 

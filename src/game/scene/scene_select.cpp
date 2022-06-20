@@ -563,13 +563,13 @@ void config_eq()
     using namespace cfg;
 
     ConfigMgr::set('P',P_EQ, gSwitches.get(eSwitch::SOUND_EQ));
-    ConfigMgr::set('P',P_EQ0, (gSliders.get(eSlider::EQ0) + 0.5) / 2);
-    ConfigMgr::set('P',P_EQ1, (gSliders.get(eSlider::EQ1) + 0.5) / 2);
-    ConfigMgr::set('P',P_EQ2, (gSliders.get(eSlider::EQ2) + 0.5) / 2);
-    ConfigMgr::set('P',P_EQ3, (gSliders.get(eSlider::EQ3) + 0.5) / 2);
-    ConfigMgr::set('P',P_EQ4, (gSliders.get(eSlider::EQ4) + 0.5) / 2);
-    ConfigMgr::set('P',P_EQ5, (gSliders.get(eSlider::EQ5) + 0.5) / 2);
-    ConfigMgr::set('P',P_EQ6, (gSliders.get(eSlider::EQ6) + 0.5) / 2);
+    ConfigMgr::set('P',P_EQ0, gNumbers.get(eNumber::EQ0));
+    ConfigMgr::set('P',P_EQ1, gNumbers.get(eNumber::EQ1));
+    ConfigMgr::set('P',P_EQ2, gNumbers.get(eNumber::EQ2));
+    ConfigMgr::set('P',P_EQ3, gNumbers.get(eNumber::EQ3));
+    ConfigMgr::set('P',P_EQ4, gNumbers.get(eNumber::EQ4));
+    ConfigMgr::set('P',P_EQ5, gNumbers.get(eNumber::EQ5));
+    ConfigMgr::set('P',P_EQ6, gNumbers.get(eNumber::EQ6));
 }
 
 void config_freq()
@@ -612,7 +612,7 @@ void config_fx()
     default: break;
     }
     ConfigMgr::set('P',P_FX0_P1, gNumbers.get(eNumber::FX0_P1));
-    ConfigMgr::set('P',P_FX0_P2, gNumbers.get(eNumber::FX0_P2));
+    ConfigMgr::set('P', P_FX0_P2, gNumbers.get(eNumber::FX0_P2));
 
     ConfigMgr::set('P',P_FX1, gSwitches.get(eSwitch::SOUND_FX1));
     switch (gOptions.get(eOption::SOUND_TARGET_FX1))

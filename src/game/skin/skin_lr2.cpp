@@ -1034,7 +1034,11 @@ ParseRet SkinLR2::SRC_NUMBER()
     unsigned f = d.div_y * d.div_x;
     if (f % NumberType::NUM_TYPE_NORMAL == 0) f = f / NumberType::NUM_TYPE_NORMAL;
     else if (f % NumberType::NUM_TYPE_BLANKZERO == 0) f = f / NumberType::NUM_TYPE_BLANKZERO;
-    else if (f % NumberType::NUM_TYPE_FULL == 0) f = f / NumberType::NUM_TYPE_FULL;
+    else if (f % NumberType::NUM_TYPE_FULL == 0)
+    {
+        f = f / NumberType::NUM_TYPE_FULL;
+        d.keta++;   //LR2SkinHelp: スキン関連ドキュメントには「ketaは+-文字を含めた桁数です」と記述されていますが、正しくは「 + -符号を含まない桁数」指定です。
+    }
     else f = 0;
 
     _sprites.emplace_back(std::make_shared<SpriteNumber>(
