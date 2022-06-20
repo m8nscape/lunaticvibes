@@ -319,11 +319,22 @@ void setEntryInfo()
                 gNumbers.queue(eNumber::INFO_RATE, static_cast<int>(std::floor(pScore->rate)));
                 gNumbers.queue(eNumber::INFO_TOTALNOTE, pScore->notes);
                 gNumbers.queue(eNumber::INFO_MAXCOMBO, pScore->maxcombo);
+                gNumbers.queue(eNumber::INFO_BP, pScore->bad + pScore->bpoor + pScore->miss);
+                gNumbers.queue(eNumber::INFO_PLAYCOUNT, pScore->playcount);
+                gNumbers.queue(eNumber::INFO_CLEARCOUNT, 0);    // TODO INFO_CLEARCOUNT
+                gNumbers.queue(eNumber::INFO_FAILCOUNT, 0);     // TODO INFO_FAILCOUNT
+
                 gNumbers.queue(eNumber::INFO_PERFECT_COUNT, pScore->pgreat);
                 gNumbers.queue(eNumber::INFO_GREAT_COUNT, pScore->great);
                 gNumbers.queue(eNumber::INFO_GOOD_COUNT, pScore->good);
                 gNumbers.queue(eNumber::INFO_BAD_COUNT, pScore->bad);
                 gNumbers.queue(eNumber::INFO_POOR_COUNT, pScore->bpoor + pScore->miss);
+                gNumbers.queue(eNumber::INFO_PERFECT_RATE, int(100 * pScore->pgreat / pScore->notes));
+                gNumbers.queue(eNumber::INFO_GREAT_RATE, int(100 * pScore->great / pScore->notes));
+                gNumbers.queue(eNumber::INFO_GOOD_RATE, int(100 * pScore->good / pScore->notes));
+                gNumbers.queue(eNumber::INFO_BAD_RATE, int(100 * pScore->bad / pScore->notes));
+                gNumbers.queue(eNumber::INFO_POOR_RATE, int(100 * (pScore->bpoor + pScore->miss) / pScore->notes));
+
 
                 break;
             }
@@ -338,15 +349,25 @@ void setEntryInfo()
 
             gNumbers.queue(eNumber::INFO_SCORE, 0);
             gNumbers.queue(eNumber::INFO_EXSCORE, 0);
-            //gNumbers.queue(eNumber::INFO_EXSCORE_MAX, 0);
+            gNumbers.queue(eNumber::INFO_EXSCORE_MAX, 0);
             gNumbers.queue(eNumber::INFO_RATE, 0);
-            //gNumbers.queue(eNumber::INFO_TOTALNOTE, 0);
+            gNumbers.queue(eNumber::INFO_TOTALNOTE, 0);
             gNumbers.queue(eNumber::INFO_MAXCOMBO, 0);
+            gNumbers.queue(eNumber::INFO_BP, 0);
+            gNumbers.queue(eNumber::INFO_PLAYCOUNT, 0);
+            gNumbers.queue(eNumber::INFO_CLEARCOUNT, 0);
+            gNumbers.queue(eNumber::INFO_FAILCOUNT, 0);
+
             gNumbers.queue(eNumber::INFO_PERFECT_COUNT, 0);
             gNumbers.queue(eNumber::INFO_GREAT_COUNT, 0);
             gNumbers.queue(eNumber::INFO_GOOD_COUNT, 0);
             gNumbers.queue(eNumber::INFO_BAD_COUNT, 0);
             gNumbers.queue(eNumber::INFO_POOR_COUNT, 0);
+            gNumbers.queue(eNumber::INFO_PERFECT_RATE, 0);
+            gNumbers.queue(eNumber::INFO_GREAT_RATE, 0);
+            gNumbers.queue(eNumber::INFO_GOOD_RATE, 0);
+            gNumbers.queue(eNumber::INFO_BAD_RATE, 0);
+            gNumbers.queue(eNumber::INFO_POOR_RATE, 0);
         }
         break;
     }
