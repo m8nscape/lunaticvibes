@@ -181,16 +181,19 @@ Metre vChart::getBarMetrePosition(size_t measure)
 
 void vChart::update(Time t)
 {
+    Time vt = t + Time(gNumbers.get(eNumber::TIMING_ADJUST_VISUAL), false);
+    Time at = t;
+
     noteExpired.clear();
     noteBgmExpired.clear();
     noteSpecialExpired.clear();
 
-    preUpdate(t);
+    preUpdate(vt);
 
 	Time beatLength = Time::singleBeatLengthFromBPM(_currentBPM);
 
     // Go through expired measures
-    while (_currentBar + 1 < MAX_MEASURES && t >= _barTimestamp[_currentBar + 1])
+    while (_currentBar + 1 < MAX_MEASURES && vt >= _barTimestamp[_currentBar + 1])
     {
         ++_currentBar;
         _currentBeat = 0;
@@ -200,7 +203,7 @@ void vChart::update(Time t)
 
     // check inbounds BPM change
     auto b = incomingNoteBpm();
-    while (!isLastNoteBpm(b) && t >= b->time)
+    while (!isLastNoteBpm(b) && vt >= b->time)
     {
         //_currentBeat = b->totalbeat - getCurrentMeasureBeat();
         _currentBPM = std::get<BPM>(b->value);
@@ -215,7 +218,7 @@ void vChart::update(Time t)
         for (NoteLaneIndex idx = Sc1; idx < NOTELANEINDEX_COUNT; ++*((size_t*)&idx))
         {
             auto it = incomingNote(cat, idx);
-            while (!isLastNote(cat, idx, it) && t >= it->time && it->hit)
+            while (!isLastNote(cat, idx, it) && vt >= it->time && it->hit)
             {
                 noteExpired.push_back(*it);
                 it = nextNote(cat, idx);
@@ -227,7 +230,7 @@ void vChart::update(Time t)
         NoteLaneCategory cat = NoteLaneCategory::EXTRA;
         NoteLaneIndex idx = (NoteLaneIndex)EXTRA_BARLINE;
         auto it = incomingNote(cat, idx);
-        while (!isLastNote(cat, idx, it) && t >= it->time)
+        while (!isLastNote(cat, idx, it) && vt >= it->time)
         {
             it->hit = true;
             it = nextNote(cat, idx);
@@ -238,7 +241,7 @@ void vChart::update(Time t)
     for (size_t idx = 0; idx < _bgmNoteLists.size(); ++idx)
     {
         auto it = incomingNoteBgm(idx);
-        while (!isLastNoteBgm(idx) && t >= it->time)
+        while (!isLastNoteBgm(idx) && at >= it->time)
         {
             noteBgmExpired.push_back(*it);
             it = nextNoteBgm(idx);
@@ -248,7 +251,7 @@ void vChart::update(Time t)
     for (size_t idx = 0; idx < _specialNoteLists.size(); ++idx)
     {
         auto it = incomingNoteSpecial(idx);
-        while (!isLastNoteSpecial(idx) && t >= it->time)
+        while (!isLastNoteSpecial(idx) && vt >= it->time)
         {
             noteSpecialExpired.push_back(*it);
             it = nextNoteSpecial(idx);
@@ -256,7 +259,7 @@ void vChart::update(Time t)
     }
 
     // update beat
-    Time currentMeasureTimePassed = t - _barTimestamp[_currentBar];
+    Time currentMeasureTimePassed = vt - _barTimestamp[_currentBar];
     Time timeFromBPMChange = currentMeasureTimePassed - _lastChangedBPMTime;
     gNumbers.set(eNumber::_TEST4, (int)currentMeasureTimePassed.norm());
     _currentBeat = _lastChangedBeat + (double)timeFromBPMChange.hres() / beatLength.hres();
