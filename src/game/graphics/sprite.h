@@ -108,6 +108,7 @@ class iSpriteMouse : public std::enable_shared_from_this<iSpriteMouse>
 public:
     virtual void OnMouseMove(int x, int y) = 0;
     virtual bool OnClick(int x, int y) = 0;
+    virtual bool OnDrag(int x, int y) = 0;
 };
 
 
@@ -355,22 +356,25 @@ enum class SliderDirection
     DOWN,
     LEFT,
 };
-class SpriteSlider : public SpriteAnimated
+class SpriteSlider : public SpriteAnimated, public iSpriteMouse
 {
 private:
     eSlider _ind;
     double _value = 1.00;
     SliderDirection _dir;
-	int _range;
+	int _range = 0;
+    int _posMin = 0;
+
+    std::function<void(double)> _callback;
 
 public:
     SpriteSlider() = delete;
 
-    SpriteSlider(pTexture texture, SliderDirection dir, int range,
+    SpriteSlider(pTexture texture, SliderDirection dir, int range, std::function<void(double)> cb,
         unsigned animFrames, unsigned frameTime, eSlider s = eSlider::ZERO, eTimer timer = eTimer::SCENE_START,
         unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
 
-    SpriteSlider(pTexture texture, const Rect& rect, SliderDirection dir, int range,
+    SpriteSlider(pTexture texture, const Rect& rect, SliderDirection dir, int range, std::function<void(double)> cb,
         unsigned animFrames, unsigned frameTime, eSlider s = eSlider::ZERO, eTimer timer = eTimer::SCENE_START,
         unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
 
@@ -381,6 +385,10 @@ public:
     void updateValByInd();
     void updatePos();
 	virtual bool update(const Time& t);
+
+    virtual void OnMouseMove(int x, int y) {}
+    virtual bool OnClick(int x, int y);
+    virtual bool OnDrag(int x, int y);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -485,6 +493,7 @@ public:
 public:
     virtual void OnMouseMove(int x, int y) {}
     virtual bool OnClick(int x, int y);
+    virtual bool OnDrag(int x, int y) { return false; }
 };
 
 
@@ -587,6 +596,7 @@ public:
 
     virtual void OnMouseMove(int x, int y);
     virtual bool OnClick(int x, int y) { return false; }
+    virtual bool OnDrag(int x, int y) { return false; }
 };
 
 
@@ -616,4 +626,5 @@ public:
 
     virtual void OnMouseMove(int x, int y);
     virtual bool OnClick(int x, int y) { return false; }
+    virtual bool OnDrag(int x, int y) { return false; }
 };

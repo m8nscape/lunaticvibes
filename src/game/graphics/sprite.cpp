@@ -752,18 +752,18 @@ void SpriteNumber::draw() const
     }
 }
 
-SpriteSlider::SpriteSlider(pTexture texture, SliderDirection d, int range,
+SpriteSlider::SpriteSlider(pTexture texture, SliderDirection d, int range, std::function<void(double)> cb,
 	unsigned animFrames, unsigned frameTime, eSlider ind, eTimer timer,
 	unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
-	SpriteSlider(texture, texture ? texture->getRect() : Rect(), d, range,
+	SpriteSlider(texture, texture ? texture->getRect() : Rect(), d, range, cb,
 		animFrames, frameTime, ind, timer,
 		selRows, selCols, selVerticalIndexing) {}
 
-SpriteSlider::SpriteSlider(pTexture texture, const Rect& rect, SliderDirection d, int range,
+SpriteSlider::SpriteSlider(pTexture texture, const Rect& rect, SliderDirection d, int range, std::function<void(double)> cb,
 	unsigned animFrames, unsigned frameTime, eSlider ind, eTimer timer,
 	unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
 	SpriteAnimated(texture, rect, animFrames, frameTime, timer,
-		selRows, selCols, selVerticalIndexing), _ind(ind), _dir(d), _range(range)
+		selRows, selCols, selVerticalIndexing), _callback(cb), _ind(ind), _dir(d), _range(range)
 {
 	_type = SpriteTypes::SLIDER;
 }
@@ -784,15 +784,19 @@ void SpriteSlider::updatePos()
 	switch (_dir)
 	{
 	case SliderDirection::DOWN:
+        _posMin = _current.rect.y + _current.rect.h / 2;
 		_current.rect.y += pos_diff;
 		break;
 	case SliderDirection::UP:
+        _posMin = _current.rect.y + _current.rect.h / 2;
 		_current.rect.y -= pos_diff;
 		break;
 	case SliderDirection::RIGHT:
+        _posMin = _current.rect.x + _current.rect.w / 2;
 		_current.rect.x += pos_diff;
 		break;
 	case SliderDirection::LEFT:
+        _posMin = _current.rect.x + _current.rect.w / 2;
 		_current.rect.x -= pos_diff;
 		break;
 	}
@@ -807,6 +811,83 @@ bool SpriteSlider::update(const Time& t)
 		return true;
 	}
 	return false;
+}
+
+bool SpriteSlider::OnClick(int x, int y)
+{
+    if (!_draw) return false;
+    if (_range == 0) return false;
+
+    bool inRange = false;
+    double val = 0.0;
+    switch (_dir)
+    {
+    case SliderDirection::UP:
+        if (_current.rect.x <= x && x < _current.rect.x + _current.rect.w &&
+            _posMin - _range <= y && y <= _posMin)
+        {
+            inRange = true;
+        }
+        break;
+    case SliderDirection::DOWN:
+        if (_current.rect.x <= x && x < _current.rect.x + _current.rect.w &&
+            _posMin <= y && y <= _posMin + _range)
+        {
+            inRange = true;
+        }
+        break;
+    case SliderDirection::LEFT:
+        if (_current.rect.y <= y && y < _current.rect.y + _current.rect.h &&
+            _posMin - _range <= x && x <= _posMin)
+        {
+            inRange = true;
+        }
+        break;
+    case SliderDirection::RIGHT:
+        if (_current.rect.y <= y && y < _current.rect.y + _current.rect.h &&
+            _posMin <= x && x <= _posMin + _range)
+        {
+            inRange = true;
+        }
+        break;
+    }
+    if (inRange)
+    {
+        OnDrag(x, y);
+        return true;
+    }
+    return false;
+}
+
+bool SpriteSlider::OnDrag(int x, int y)
+{
+    if (!_draw) return false;
+    if (_range == 0) return false;
+
+    double val = 0.0;
+    switch (_dir)
+    {
+    case SliderDirection::UP:
+        val = double(_posMin - y) / _range;
+        break;
+    case SliderDirection::DOWN:
+        val = double(y - _posMin) / _range;
+        break;
+    case SliderDirection::LEFT:
+        val = double(_posMin - x) / _range;
+        break;
+    case SliderDirection::RIGHT:
+        val = double(x - _posMin) / _range;
+        break;
+    }
+    val = std::clamp(val, 0.0, 1.0);
+    if (std::abs(_value - val) > 0.000001)  // this should be enough
+    {
+        _value = val;
+        _callback(_value);
+        return true;
+    }
+    return false;
 }
 
 SpriteBargraph::SpriteBargraph(pTexture texture, BargraphDirection d,

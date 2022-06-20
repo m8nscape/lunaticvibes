@@ -82,11 +82,30 @@ void vSkin::update_mouse_click(int x, int y)
             auto pS = std::dynamic_pointer_cast<iSpriteMouse>(*it);
             if (pS != nullptr)
             {
-                if (pS->OnClick(x, y)) invoked = true;
+                if (pS->OnClick(x, y))
+                {
+                    invoked = true;
+                    _pDragging = pS;
+                }
             }
         }
     }
 
+}
+
+void vSkin::update_mouse_drag(int x, int y)
+{
+    if (!_handleMouseEvents) return;
+
+    if (_pDragging != nullptr)
+    {
+        _pDragging->OnDrag(x, y);
+    }
+}
+
+void vSkin::update_mouse_release()
+{
+    _pDragging = nullptr;
 }
 
 void vSkin::draw() const

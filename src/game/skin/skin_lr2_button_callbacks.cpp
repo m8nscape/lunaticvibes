@@ -125,7 +125,7 @@ void number_change_clamp(eNumber type, int min, int max, int plus)
     SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
 }
 
-#pragma region end
+#pragma endregion
 
 #pragma region button type callbacks
 
@@ -872,7 +872,7 @@ void skinselect_option(int index, int plus)
     SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
 }
 
-#pragma region end
+#pragma endregion
 
 std::function<void(int)> getButtonCallback(int type)
 {

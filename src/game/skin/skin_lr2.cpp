@@ -8,6 +8,7 @@
 #include <variant>
 #include <execution>
 #include "skin_lr2_button_callbacks.h"
+#include "skin_lr2_slider_callbacks.h"  
 #include "game/data/option.h"
 #include "game/data/switch.h"
 #include "game/graphics/video.h"
@@ -1048,7 +1049,9 @@ ParseRet SkinLR2::SRC_SLIDER()
     lr2skin::s_slider d(parseParamBuf, csvLineNumber);
 
     _sprites.push_back(std::make_shared<SpriteSlider>(
-        textureBuf, Rect(d.x, d.y, d.w, d.h), (SliderDirection)d.muki, d.range, d.div_y*d.div_x, d.cycle, (eSlider)d.type, (eTimer)d.timer, d.div_y, d.div_x));
+        textureBuf, Rect(d.x, d.y, d.w, d.h), (SliderDirection)d.muki, d.range, 
+        d.disable ? lr2skin::slider::getSliderCallback(-1) : lr2skin::slider::getSliderCallback(d.type),
+        d.div_y*d.div_x, d.cycle, (eSlider)d.type, (eTimer)d.timer, d.div_y, d.div_x));
     _sprites.back()->setSrcLine(csvLineNumber);
     
     return ParseRet::OK;

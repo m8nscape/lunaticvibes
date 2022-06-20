@@ -84,11 +84,15 @@ protected:
 
     int _noteAreaHeight = 500;  // used to calculate note speed for play skin
 
+    std::shared_ptr<iSpriteMouse> _pDragging = nullptr;  // currently (mouse) dragging element
+
 ////////////////////////////////////////////////////////////////////////////////
 public:
     virtual void update();
     virtual void update_mouse(int x, int y);
     virtual void update_mouse_click(int x, int y);
+    virtual void update_mouse_drag(int x, int y);
+    virtual void update_mouse_release();
     virtual void reset_bar_animation() = 0;
     virtual void start_bar_animation(int direction) = 0;
     virtual void draw() const;

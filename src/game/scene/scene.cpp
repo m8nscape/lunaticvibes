@@ -76,6 +76,8 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
     gTexts.set(eText::_OVERLAY_TOPLEFT, "");
 
     _input.register_p("SKIN_MOUSE_CLICK", std::bind(&vScene::MouseClick, this, std::placeholders::_1, std::placeholders::_2));
+    _input.register_h("SKIN_MOUSE_DRAG", std::bind(&vScene::MouseDrag, this, std::placeholders::_1, std::placeholders::_2));
+    _input.register_r("SKIN_MOUSE_RELEASE", std::bind(&vScene::MouseRelease, this, std::placeholders::_1, std::placeholders::_2));
 
     // Skin may be cached. Reset mouse status
     _skin->setHandleMouseEvents(true);
@@ -83,6 +85,8 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
 
 vScene::~vScene() 
 {
+    _input.unregister_r("SKIN_MOUSE_RELEASE");
+    _input.unregister_h("SKIN_MOUSE_DRAG");
     _input.unregister_p("SKIN_MOUSE_CLICK");
     sceneEnding = true; 
     loopEnd(); 
@@ -131,6 +135,23 @@ void vScene::MouseClick(InputMask& m, const Time& t)
     {
         auto [x, y] = _input.getCursorPos();
         _skin->update_mouse_click(x, y);
+    }
+}
+
+void vScene::MouseDrag(InputMask& m, const Time& t)
+{
+    if (m[Input::Pad::M1])
+    {
+        auto [x, y] = _input.getCursorPos();
+        _skin->update_mouse_drag(x, y);
+    }
+}
+
+void vScene::MouseRelease(InputMask& m, const Time& t)
+{
+    if (m[Input::Pad::M1])
+    {
+        _skin->update_mouse_release();
     }
 }
 
