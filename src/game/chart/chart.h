@@ -137,7 +137,7 @@ public:
     vChart(int slot, size_t plain_n, size_t ext_n);
     static std::shared_ptr<vChart> createFromChartFormat(int slot, std::shared_ptr<vChartFormat> p);
 
-private:
+protected:
     std::array<decltype(_noteLists.front().begin()), LANE_COUNT>    _noteListIterators;
     std::vector<decltype(_bgmNoteLists.front().begin())>            _bgmNoteListIters;
     std::vector<decltype(_specialNoteLists.front().begin())>        _specialNoteListIters;

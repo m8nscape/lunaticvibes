@@ -45,7 +45,7 @@ public:
 public:
     SongDB() = delete;
     SongDB(const char* path);
-    SongDB(Path& path) : SongDB(path.string().c_str()) {}
+    SongDB(Path& path) : SongDB(path.u8string().c_str()) {}
     ~SongDB() = default;
     SongDB(SongDB&) = delete;
     SongDB& operator= (SongDB&) = delete;

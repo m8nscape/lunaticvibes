@@ -23,7 +23,7 @@ void ConfigGeneral::setFolders(const std::vector<StringPath>& path)
 	std::vector<std::string> folderList;
 	for (const auto& p : path)
 	{
-		folderList.push_back(Path(p).string());
+		folderList.push_back(Path(p).u8string());
 	}
 	_yaml[cfg::E_FOLDERS] = folderList;
 }

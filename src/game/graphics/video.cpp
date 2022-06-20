@@ -38,11 +38,11 @@ int sVideo::setVideo(const Path& file, bool loop)
 	this->file = file;
 	loop_playback = loop;
 
-	if (int ret = avformat_open_input(&pFormatCtx, file.string().c_str(), NULL, NULL); ret != 0)
+	if (int ret = avformat_open_input(&pFormatCtx, file.u8string().c_str(), NULL, NULL); ret != 0)
 	{
 		char buf[256];
 		av_strerror(ret, buf, 256);
-		LOG_WARNING << "[Video] Could not open input stream: " << fs::absolute(file).string() << " (" << buf << ")";
+		LOG_WARNING << "[Video] Could not open input stream: " << fs::absolute(file).u8string() << " (" << buf << ")";
 		return -1;
 	}
 
@@ -50,7 +50,7 @@ int sVideo::setVideo(const Path& file, bool loop)
 	{
 		char buf[256];
 		av_strerror(ret, buf, 256);
-		LOG_WARNING << "[Video] Could not find stream info of " << fs::absolute(file).string() << " (" << buf << ")";
+		LOG_WARNING << "[Video] Could not find stream info of " << fs::absolute(file).u8string() << " (" << buf << ")";
 		return -2;
 	}
 
@@ -65,7 +65,7 @@ int sVideo::setVideo(const Path& file, bool loop)
 	}
 	if (videoIndex < 0)
 	{
-		LOG_WARNING << "[Video] Could not find video stream of " << fs::absolute(file).string();
+		LOG_WARNING << "[Video] Could not find video stream of " << fs::absolute(file).u8string();
 		return -3;
 	}
 
@@ -83,7 +83,7 @@ int sVideo::setVideo(const Path& file, bool loop)
 
 	if ((pCodecCtx = avcodec_alloc_context3(pCodec)) == nullptr)
 	{
-		LOG_WARNING << "[Video] Could not alloc codec context of " << fs::absolute(file).string();
+		LOG_WARNING << "[Video] Could not alloc codec context of " << fs::absolute(file).u8string();
 		return -4;
 	}
 
@@ -91,7 +91,7 @@ int sVideo::setVideo(const Path& file, bool loop)
 	{
 		char buf[256];
 		av_strerror(ret, buf, 256);
-		LOG_WARNING << "[Video] Could not convert codec parameters of " << fs::absolute(file).string() << " (" << buf << ")";
+		LOG_WARNING << "[Video] Could not convert codec parameters of " << fs::absolute(file).u8string() << " (" << buf << ")";
 		return -5;
 	}
 
@@ -155,13 +155,13 @@ void sVideo::decodeLoop()
 
 	if ((pFrame = av_frame_alloc()) == nullptr)
 	{
-		LOG_WARNING << "[Video] Could not alloc frame object of " << fs::absolute(file).string();
+		LOG_WARNING << "[Video] Could not alloc frame object of " << fs::absolute(file).u8string();
 		return;
 	}
 
 	if ((pPacket = av_packet_alloc()) == nullptr)
 	{
-		LOG_WARNING << "[Video] Could not alloc packet object of " << fs::absolute(file).string();
+		LOG_WARNING << "[Video] Could not alloc packet object of " << fs::absolute(file).u8string();
 		return;
 	}
 
@@ -169,7 +169,7 @@ void sVideo::decodeLoop()
 	{
 		char buf[256];
 		av_strerror(ret, buf, 256);
-		LOG_WARNING << "[Video] Could not open codec of " << fs::absolute(file).string() << " (" << buf << ")";
+		LOG_WARNING << "[Video] Could not open codec of " << fs::absolute(file).u8string() << " (" << buf << ")";
 		return;
 	}
 
@@ -276,7 +276,7 @@ void sVideo::seek(int64_t second, bool backwards)
 
 	if (int ret = av_seek_frame(pFormatCtx, videoIndex, int64_t(std::round(second / tsps)), backwards ? AVSEEK_FLAG_BACKWARD : 0); ret < 0)
 	{
-		LOG_ERROR << "[Video] seek " << second << "s error (" << file.string() << ")";
+		LOG_ERROR << "[Video] seek " << second << "s error (" << file.u8string() << ")";
 	}
 }
 

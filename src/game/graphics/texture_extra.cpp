@@ -117,15 +117,15 @@ bool TextureBmsBga::addBmp(size_t idx, const Path& pBmp)
 
 	if (fs::exists(pBmp) && fs::is_regular_file(pBmp) && pBmp.has_extension())
 	{
-		if (video_file_extensions.find(toLower(pBmp.extension().string())) != video_file_extensions.end())
+		if (video_file_extensions.find(toLower(pBmp.extension().u8string())) != video_file_extensions.end())
 		{
 #ifndef VIDEO_DISABLED
 			objs[idx].type = obj::Ty::VIDEO;
 			objs[idx].pt = std::make_shared<TextureVideo>(std::make_shared<sVideo>(pBmp));
-			LOG_DEBUG << "[TextureBmsBga] added video: " << pBmp.string();
+			LOG_DEBUG << "[TextureBmsBga] added video: " << pBmp.u8string();
 			return true;
 #else
-			LOG_DEBUG << "[TextureBmsBga] video support is disabled: " << pBmp.string();
+			LOG_DEBUG << "[TextureBmsBga] video support is disabled: " << pBmp.u8string();
 			return false;
 #endif
 		}
@@ -139,11 +139,11 @@ bool TextureBmsBga::addBmp(size_t idx, const Path& pBmp)
 			layerImg.setTransparentColorRGB(Color(0, 0, 0, 255));
 			objs_layer[idx].pt = std::make_shared<Texture>(layerImg);
 
-			LOG_DEBUG << "[TextureBmsBga] added pic: " << pBmp.string();
+			LOG_DEBUG << "[TextureBmsBga] added pic: " << pBmp.u8string();
 			return true;
 		}
 	}
-	LOG_DEBUG << "[TextureBmsBga] file not found: " << pBmp.string();
+	LOG_DEBUG << "[TextureBmsBga] file not found: " << pBmp.u8string();
 	return false;
 }
 

@@ -340,7 +340,7 @@ int DirectoryDecode(u8* NameP, u8* DirP, u8* FileP, DARC_HEAD_VER5* Head, DARC_D
 			else
 			{
 				DXArchiveSegment DestP;
-				//DestP.path = (DirPath / GetOriginalFileName(NameP + File->NameAddress)).string();
+				//DestP.path = (DirPath / GetOriginalFileName(NameP + File->NameAddress)).u8string();
 				//DestP.size = DXA_BUFFERSIZE_VER5;
 				//DestP.data.assign(DestP.size, 0);
 
@@ -410,7 +410,7 @@ int DirectoryDecode(u8* NameP, u8* DirP, u8* FileP, DARC_HEAD_VER5* Head, DARC_D
 					}
 				}
 
-				output[(DirPath / GetOriginalFileName(NameP + File->NameAddress)).string()] = DestP;
+				output[(DirPath / GetOriginalFileName(NameP + File->NameAddress)).u8string()] = DestP;
 			}
 		}
 	}
@@ -549,7 +549,7 @@ int DecodeArchive(Path& path, DXArchive* output = NULL)
 	KeyCreate(NULL, Key);
 
 	// アーカイブファイルを開く
-	std::string ps(path.string());
+	std::string ps(path.u8string());
 	const char* ArchiveName = ps.c_str();
 	std::ifstream ArcP(ArchiveName, std::ios_base::binary);
 	if (!ArcP.is_open()) return {};
@@ -600,7 +600,7 @@ int DecodeArchive(Path& path, DXArchive* output = NULL)
 		if (output != NULL)
 			DirectoryDecode(NameP, DirP, FileP, &Head, (DARC_DIRECTORY_VER5*)DirP, ArcP, Key, ".", *output);
 		else
-			DirectoryDecode(NameP, DirP, FileP, &Head, (DARC_DIRECTORY_VER5*)DirP, ArcP, Key, (path.parent_path() / path.stem()).string());
+			DirectoryDecode(NameP, DirP, FileP, &Head, (DARC_DIRECTORY_VER5*)DirP, ArcP, Key, (path.parent_path() / path.stem()).u8string());
 	}
 
 	// 終了

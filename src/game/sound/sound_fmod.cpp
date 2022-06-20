@@ -231,7 +231,7 @@ int SoundDriverFMOD::loadKeySample(const Path& spath, size_t index)
 {
     if (spath.empty()) return 0;
     
-    std::string path = spath.string();
+    std::string path = spath.u8string();
 
 	FMOD_RESULT r = FMOD_ERR_FILE_NOTFOUND;
 	if (fs::exists(spath) && fs::is_regular_file(spath))
@@ -281,7 +281,7 @@ int SoundDriverFMOD::loadSample(const Path& spath, size_t index, bool isStream, 
     if (etcSamples[index] != nullptr)
         etcSamples[index]->release();
 
-    std::string path = spath.string();
+    std::string path = spath.u8string();
 
     int flag = FMOD_DEFAULT;
     flag |= isStream ? FMOD_CREATESTREAM : FMOD_CREATESAMPLE;

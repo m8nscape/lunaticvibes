@@ -560,7 +560,7 @@ int SkinLR2::IMAGE()
                     }
                     else
                     {
-                        if (video_file_extensions.find(toLower(paths[cf.value].extension().string())) != video_file_extensions.end())
+                        if (video_file_extensions.find(toLower(paths[cf.value].extension().u8string())) != video_file_extensions.end())
                         {
 #ifndef VIDEO_DISABLED
                             _vidNameMap[std::to_string(imageCount)] = std::make_shared<sVideo>(paths[cf.value], true);
@@ -593,7 +593,7 @@ int SkinLR2::IMAGE()
             else
             {
                 size_t ranidx = std::rand() % ls.size();
-                if (video_file_extensions.find(toLower(ls[ranidx].extension().string())) != video_file_extensions.end())
+                if (video_file_extensions.find(toLower(ls[ranidx].extension().u8string())) != video_file_extensions.end())
                 {
 #ifndef VIDEO_DISABLED
                     _vidNameMap[std::to_string(imageCount)] = std::make_shared<sVideo>(ls[ranidx], true);
@@ -604,7 +604,7 @@ int SkinLR2::IMAGE()
                 }
                 else
                     _textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(ls[ranidx].u8string().c_str()));
-                LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added random IMAGE[" << imageCount << "]: " << ls[ranidx].string();
+                LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added random IMAGE[" << imageCount << "]: " << ls[ranidx].u8string();
             }
             ++imageCount;
             return 3;
@@ -615,7 +615,7 @@ int SkinLR2::IMAGE()
         {
             // Normal path
             _textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(path.u8string().c_str()));
-            LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added IMAGE[" << imageCount << "]: " << path.string();
+            LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added IMAGE[" << imageCount << "]: " << path.u8string();
         }
         ++imageCount;
         return 1;
@@ -634,7 +634,7 @@ int SkinLR2::LR2FONT()
         if (!std::filesystem::is_regular_file(path))
         {
             LR2FontNameMap[std::to_string(idx)] = nullptr;
-            LOG_WARNING << "[Skin] " << csvLineNumber << ": LR2FONT file not found: " << path.string();
+            LOG_WARNING << "[Skin] " << csvLineNumber << ": LR2FONT file not found: " << path.u8string();
             return 0;
         }
 
@@ -707,7 +707,11 @@ int SkinLR2::LR2FONT()
 
                 // convert Shift-JIS to UTF-32
                 {
+#ifdef _WIN32
                     const static auto locale932 = std::locale(".932");
+#else
+                    const static auto locale932 = std::locale("ja_JP.SJIS");
+#endif
                     Path tmp{ s_sjis, locale932 };
                     c_utf32 = tmp.u32string()[0];
                 }
@@ -724,7 +728,7 @@ int SkinLR2::LR2FONT()
 
         LR2FontCache[path] = pf;
         LR2FontNameMap[std::to_string(idx)] = pf;
-        LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added LR2FONT: " << path.string();
+        LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added LR2FONT: " << path.u8string();
         return 1;
     }
     return 0;
@@ -760,12 +764,12 @@ int SkinLR2::INCLUDE()
     if (strEqual(parseKeyBuf, "#INCLUDE", true))
     {
         Path path(parseParamBuf[0]);
-        LOG_DEBUG << "[Skin] " << csvLineNumber << ": INCLUDE: " << path.string();
+        LOG_DEBUG << "[Skin] " << csvLineNumber << ": INCLUDE: " << path.u8string();
         //auto subCsv = SkinLR2(path);
         //if (subCsv._loaded)
         //    _csvIncluded.push_back(std::move(subCsv));
         loadCSV(path);
-        LOG_DEBUG << "[Skin] " << csvLineNumber << ": INCLUDE END //" << path.string();
+        LOG_DEBUG << "[Skin] " << csvLineNumber << ": INCLUDE END //" << path.u8string();
         return 1;
     }
     return 0;
@@ -2425,7 +2429,7 @@ int SkinLR2::parseHeader(const Tokens& raw)
         _textureNameMap["THUMBNAIL"] = std::make_shared<Texture>(Image(
             convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), thumbnail.u8string().c_str())));
         if (_textureNameMap["THUMBNAIL"] == nullptr)
-            LOG_WARNING << "[Skin] " << csvLineNumber << ": thumbnail loading failed: " << thumbnail.string();
+            LOG_WARNING << "[Skin] " << csvLineNumber << ": thumbnail loading failed: " << thumbnail.u8string();
 
         LOG_DEBUG << "[Skin] " << csvLineNumber << ": Loaded metadata: " << title << " | " << maker;
 
@@ -2476,7 +2480,7 @@ int SkinLR2::parseHeader(const Tokens& raw)
             }
         }
 
-        LOG_DEBUG << "[Skin] " << csvLineNumber << ": Loaded Custom file " << title << ": " << pathf.string();
+        LOG_DEBUG << "[Skin] " << csvLineNumber << ": Loaded Custom file " << title << ": " << pathf.u8string();
 
         Customize c;
         c.type = Customize::_Type::FILE;
@@ -2687,11 +2691,11 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
 
     p = convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), p);
 
-    LOG_INFO << "[Skin] File: " << p.string();
+    LOG_INFO << "[Skin] File: " << p.u8string();
     std::ifstream csvFile(p, std::ios::binary);
     if (!csvFile.is_open())
     {
-        LOG_ERROR << "[Skin] File Not Found: " << std::filesystem::absolute(p).string();
+        LOG_ERROR << "[Skin] File Not Found: " << std::filesystem::absolute(p).u8string();
         csvLineNumber = srcLineNumberParent;
         return;
     }
@@ -2712,7 +2716,7 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
             break;
         }
     }
-    LOG_DEBUG << "[Skin] File: " << p.string() << "(Line " << csvLineNumber << "): Header loading finished";
+    LOG_DEBUG << "[Skin] File: " << p.u8string() << "(Line " << csvLineNumber << "): Header loading finished";
 
     if (!headerOnly)
     {
@@ -2730,7 +2734,7 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
         {
             std::map<size_t, StringContent> opDstMap;
             std::map<StringContent, StringContent> opFileMap;
-            for (const auto& node : YAML::LoadFile(pCustomize.string()))
+            for (const auto& node : YAML::LoadFile(pCustomize.u8string()))
             {
                 auto key = node.first.as<std::string>();
                 if (key.substr(0, 4) == "OPT_")
@@ -2769,7 +2773,7 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
         }
         catch (YAML::BadFile&)
         {
-            LOG_WARNING << "[Skin] Bad customize config file: " << pCustomize.string();
+            LOG_WARNING << "[Skin] Bad customize config file: " << pCustomize.u8string();
         }
         for (auto c : customize)
         {
@@ -2824,7 +2828,7 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
     }
 
 
-    LOG_DEBUG << "[Skin] File: " << p.string() << "(Line " << csvLineNumber << "): Body loading finished";
+    LOG_DEBUG << "[Skin] File: " << p.u8string() << "(Line " << csvLineNumber << "): Body loading finished";
     _loaded = true;
 
     /*
@@ -3025,7 +3029,7 @@ vSkin::CustomizeOption SkinLR2::getCustomizeOptionInfo(size_t idx) const
         ret.internalName += op.title;
         ret.displayName = op.title;
         for (size_t i = 0; i < op.pathList.size(); ++i)
-            ret.entries.push_back(op.pathList[i].filename().stem().string());
+            ret.entries.push_back(op.pathList[i].filename().stem().u8string());
         ret.defaultEntry = op.defIdx;
         break;
     }

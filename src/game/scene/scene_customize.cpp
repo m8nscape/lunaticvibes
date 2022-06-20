@@ -81,7 +81,7 @@ void SceneCustomize::updateMain()
             }
             if (selectedIdx >= 0 && selectedIdx < (int)l.size())
             {
-                auto& p = fs::relative(skinList[selectedMode][selectedIdx], ConfigMgr::get("E", cfg::E_LR2PATH, ".")).string();
+                auto& p = fs::relative(skinList[selectedMode][selectedIdx], ConfigMgr::get("E", cfg::E_LR2PATH, ".")).u8string();
                 switch (selectedMode)
                 {
                 case eMode::MUSIC_SELECT:
@@ -198,7 +198,7 @@ void SceneCustomize::updateFadeout()
 StringPath SceneCustomize::getConfigFileName(StringPathView skinPath) 
 {
     Path p(skinPath);
-    std::string md5 = HashMD5(p.string()).hexdigest();
+    std::string md5 = HashMD5(p.u8string()).hexdigest();
     md5 += ".yaml";
     return Path(md5).native();
 }
@@ -263,7 +263,7 @@ void SceneCustomize::load(eMode mode)
     // load config from file
     try
     {
-        for (const auto& node : YAML::LoadFile(pCustomize.string()))
+        for (const auto& node : YAML::LoadFile(pCustomize.u8string()))
         {
             if (auto itOp = optionsMap.find(node.first.as<std::string>()); itOp != optionsMap.end())
             {
@@ -278,7 +278,7 @@ void SceneCustomize::load(eMode mode)
     }
     catch (YAML::BadFile&)
     {
-        LOG_WARNING << "[Customize] Bad file: " << pCustomize.string();
+        LOG_WARNING << "[Customize] Bad file: " << pCustomize.u8string();
     }
     updateTexts();
 }

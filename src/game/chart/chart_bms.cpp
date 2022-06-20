@@ -606,6 +606,11 @@ void chartBMS::loadBMS(const BMS& objBms)
             }
             else if (lane.type == eLanePriority::BGM)
             {
+                if (_bgmNoteLists.size() <= lane.index)
+                {
+                    _bgmNoteLists.resize(lane.index + 1);
+                    _bgmNoteListIters.resize(lane.index + 1);
+                }
                 _bgmNoteLists[lane.index].push_back({ m, beat, notetime, (long long)val, 0 });
             }
             else if (!bpmfucked) switch (lane.type)

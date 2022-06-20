@@ -39,14 +39,14 @@ void vConfig::load()
 	setDefaults();
     try
     {
-        for (const auto& node : YAML::LoadFile(_path.string()))
+        for (const auto& node : YAML::LoadFile(_path.u8string()))
         {
             _yaml[node.first.as<std::string>()] = node.second;
         }
     }
     catch (YAML::BadFile&)
     {
-        LOG_WARNING << "[Config] Bad file: " << _path.string();
+        LOG_WARNING << "[Config] Bad file: " << _path.u8string();
     }
 }
 

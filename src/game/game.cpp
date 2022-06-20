@@ -124,11 +124,11 @@ int main(int argc, char* argv[])
     {
         if (std::filesystem::is_regular_file(it))
         {
-            auto ext = it.path().extension().string();
+            auto ext = it.path().extension().u8string();
             for (char& c: ext) c = std::tolower(c);
             if (ext == ".dxa")
             {
-                LOG_INFO << "Extracting DXArchive file " << it.path().string() << "...";
+                LOG_INFO << "Extracting DXArchive file " << it.path().u8string() << "...";
                 extractDxaToFile(it.path());
             }
         }
@@ -155,7 +155,7 @@ int main(int argc, char* argv[])
     ConfigMgr::setGlobals();
 
     // score db
-    std::string scoreDBPath = (ConfigMgr::Profile()->getPath() / "score.db").string();
+    std::string scoreDBPath = (ConfigMgr::Profile()->getPath() / "score.db").u8string();
     g_pScoreDB = std::make_shared<ScoreDB>(scoreDBPath.c_str());
 
     // initialize song list

@@ -47,7 +47,7 @@ TEST(SongDB, remove_table)
     //ASSERT_FALSE(hash.empty());
     //ASSERT_EQ(0, db.removeFolder(hash, true));
 
-    //auto hash1 = db.getFolderHash(std::filesystem::absolute("res/test").string());
+    //auto hash1 = db.getFolderHash(std::filesystem::absolute("res/test").u8string());
     //ASSERT_FALSE(hash1.empty());
     //ASSERT_EQ(0, db.removeFolder(hash1, true));
 }

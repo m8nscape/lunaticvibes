@@ -27,7 +27,7 @@ std::shared_ptr<vChart> vChart::createFromChartFormat(int slot, std::shared_ptr<
     case eChartFormat::BMS:
         return std::make_shared<chartBMS>(slot, std::reinterpret_pointer_cast<BMS>(p));
     default:
-        LOG_WARNING << "[chart] Chart type unknown (" << int(p->type()) << "): " << p->filePath.string();
+        LOG_WARNING << "[chart] Chart type unknown (" << int(p->type()) << "): " << p->filePath.u8string();
         return nullptr;
     }
 }

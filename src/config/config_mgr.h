@@ -90,7 +90,7 @@ private:
         Path path = Path(GAMEDATA_PATH) / "profile" / profileName;
         if (!std::filesystem::exists(path))
             std::filesystem::create_directories(path);
-        return path.string();
+        return path.u8string();
     }
 
 protected:

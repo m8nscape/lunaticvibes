@@ -224,7 +224,7 @@ void ScenePlay::loadChart()
 
     if (gChartContext.chartObj == nullptr || !gChartContext.chartObj->isLoaded())
     {
-        LOG_ERROR << "[Play] Invalid chart: " << gChartContext.path.string();
+        LOG_ERROR << "[Play] Invalid chart: " << gChartContext.path.u8string();
         return;
     }
 

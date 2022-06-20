@@ -1982,7 +1982,7 @@ void SceneSelect::_imguiRefreshProfileList()
     {
         if (p.is_directory())
         {
-            auto name = p.path().filename().string();
+            auto name = p.path().filename().u8string();
             imgui_profiles.push_back(name);
             imgui_profiles_display.push_back(imgui_profiles.back().c_str());
         }
@@ -2186,7 +2186,7 @@ bool SceneSelect::_imguiBrowseFolder()
 {
     if (imgui_folder_index < 0 || imgui_folder_index >= imgui_folders_display.size()) return false;
 
-	std::string pathstr = Path(imgui_folders_display[imgui_folder_index]).string();
+	std::string pathstr = Path(imgui_folders_display[imgui_folder_index]).u8string();
 
 #ifdef WIN32
 	ShellExecute(NULL, "open", pathstr.c_str(), NULL, NULL, SW_SHOWDEFAULT);

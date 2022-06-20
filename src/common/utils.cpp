@@ -23,7 +23,7 @@ std::vector<Path> findFiles(Path p)
 	size_t offset = pstr.find(u"\\*");
     if (offset == pstr.npos) offset = pstr.find(u"/*");
 #else
-	auto pstr = p.string();
+	auto pstr = p.u8string();
 	size_t offset = pstr.find(u"/*");
 #endif
 
@@ -44,7 +44,7 @@ std::vector<Path> findFiles(Path p)
 #ifdef WIN32
             auto file = f.path().u16string();
 #else
-            auto file = f.path().string();
+            auto file = f.path().u8string();
 #endif
             if (file.substr(file.length() - tail.length()) != tail)
                 continue;
@@ -61,7 +61,7 @@ std::vector<Path> findFilesRecursive(Path p)
     size_t offset = pstr.find(u"\\*");
     if (offset == pstr.npos) offset = pstr.find(u"/*");
 #else
-    auto pstr = p.string();
+    auto pstr = p.u8string();
     size_t offset = pstr.find(u"/*");
 #endif
 
@@ -82,7 +82,7 @@ std::vector<Path> findFilesRecursive(Path p)
 #ifdef WIN32
             auto file = f.path().u16string();
 #else
-            auto file = f.path().string();
+            auto file = f.path().u8string();
 #endif
             if (file.substr(file.length() - tail.length()) != tail)
                 continue;
@@ -260,9 +260,9 @@ HashMD5 md5file(const Path& filePath)
 
 #ifdef _MSC_VER
     FILE* pf = NULL;
-    fopen_s(&pf, filePath.string().c_str(), "rb");
+    fopen_s(&pf, filePath.u8string().c_str(), "rb");
 #else
-    FILE* pf = fopen(filePath.string().c_str(), "rb");
+    FILE* pf = fopen(filePath.u8string().c_str(), "rb");
 #endif
     if (pf == NULL) return "";
 
@@ -309,7 +309,7 @@ Path convertLR2Path(const std::string& lr2path, const Path& relative_path)
     if (relative_path.is_absolute())
         return relative_path;
 
-    return convertLR2Path(lr2path, relative_path.string());
+    return convertLR2Path(lr2path, relative_path.u8string());
 }
 
 std::string convertLR2Path(const std::string& lr2path, const std::string& relative_path)

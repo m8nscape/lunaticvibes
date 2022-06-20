@@ -77,8 +77,8 @@ int BMS::initWithFile(const Path& file)
 
     filePath = file.filename();
     absolutePath = std::filesystem::absolute(file);
-    LOG_INFO << "[BMS] File: " << absolutePath.string();
-    std::ifstream fs(absolutePath.string());
+    LOG_INFO << "[BMS] File: " << absolutePath.u8string();
+    std::ifstream fs(absolutePath.c_str());
     if (fs.fail())
     {
         errorCode = err::FILE_ERROR;
