@@ -167,6 +167,29 @@ int graphics_free()
     return 0;
 }
 
+void graphics_change_window_mode(int mode)
+{
+    switch (mode)
+    {
+    case 0:
+        SDL_SetWindowFullscreen(gFrameWindow, 0);
+        SDL_SetWindowPosition(gFrameWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+        break;
+    case 1:
+        SDL_SetWindowFullscreen(gFrameWindow, SDL_WINDOW_FULLSCREEN);
+        break;
+    case 2:
+        SDL_SetWindowFullscreen(gFrameWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+        break;
+    }
+}
+
+void graphics_change_vsync(bool enable)
+{
+    // codes below should work since we are explicitly indicated to use OpenGL backend
+    SDL_GL_SetSwapInterval(enable ? 1 : 0);
+}
+
 extern bool gEventQuit;
 void event_handle()
 {

@@ -20,6 +20,11 @@ void graphics_clear();
 void graphics_flush();
 int graphics_free();
 
+// 0: windowed / 1: fullscreen / 2: borderless
+void graphics_change_window_mode(int mode);
+
+void graphics_change_vsync(bool enable);
+
 void event_handle();
 
 void ImGuiNewFrame();

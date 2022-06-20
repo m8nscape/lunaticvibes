@@ -734,6 +734,12 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
     imgui_adv_newSongDuration = ConfigMgr::get("P", cfg::P_NEW_SONG_DURATION, 24);
     imgui_adv_mouseAnalog = ConfigMgr::get("P", cfg::P_MOUSE_ANALOG, false);
     imgui_adv_relativeAxis = ConfigMgr::get("P", cfg::P_RELATIVE_AXIS, false);
+
+    // auto popup settings for first runs
+    if (imgui_folders.empty())
+    {
+        imguiShow = true;
+    }
 }
 
 SceneSelect::~SceneSelect()
@@ -1856,7 +1862,7 @@ void SceneSelect::_imguiSettings()
     ImGuiNewFrame();
     if (imguiShow)
     {
-        if (ImGui::Begin("Settings", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse))
+        if (ImGui::Begin("Settings (F9)", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse))
         {
             ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Once);
             ImGui::SetNextWindowSize(ImVec2(500, 450), ImGuiCond_Once);
@@ -1924,7 +1930,7 @@ void SceneSelect::_imguiSettings()
             {
                 ImGui::Combo("Device", &imgui_audio_device_index, imgui_audio_devices_display.data(), (int)imgui_audio_devices_display.size());
 
-                ImGui::Checkbox("Check ASIO Drivers", &imgui_audio_checkASIODevices);
+                ImGui::Checkbox("Check ASIO Drivers (May crash if ASIO device is in use)", &imgui_audio_checkASIODevices);
                 ImGui::SameLine();
                 if (ImGui::Button("Refresh"))
                 {
@@ -2193,6 +2199,8 @@ bool SceneSelect::_imguiBrowseFolder()
 
 bool SceneSelect::_imguiApplyResolution()
 {
+    graphics_change_window_mode(imgui_video_mode);
+    graphics_change_vsync(imgui_video_vsync);
     return false;
 }
 
