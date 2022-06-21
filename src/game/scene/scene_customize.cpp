@@ -56,9 +56,13 @@ void SceneCustomize::updateMain()
         eMode modeOld = selectedMode;
         selectedMode = gCustomizeContext.mode;
         save(modeOld);
-        SkinMgr::unload(modeOld);
+
+        _skin->setHandleMouseEvents(false);
+        SkinMgr::unload(selectedMode);
         load(selectedMode);
+        _skin->setHandleMouseEvents(true);
     }
+
     if (gCustomizeContext.skinDir != 0)
     {
         if (skinList[selectedMode].size() > 1)
@@ -132,8 +136,11 @@ void SceneCustomize::updateMain()
                     ConfigMgr::set("S", cfg::S_PATH_PLAY_14, p);
                     break;
                 }
+
+                _skin->setHandleMouseEvents(false);
                 SkinMgr::unload(selectedMode);
                 load(selectedMode);
+                _skin->setHandleMouseEvents(true);
             }
         }
         gCustomizeContext.skinDir = 0;
@@ -188,6 +195,7 @@ void SceneCustomize::updateFadeout()
     {
         loopEnd();
         _input.loopEnd();
+        _skin->setHandleMouseEvents(false);
         SkinMgr::unload(selectedMode);
         gNextScene = eScene::SELECT;
     }

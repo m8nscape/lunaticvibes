@@ -54,24 +54,6 @@ protected:
     std::map<std::string, pTexture> _textureNameMap;    // Use this to get texture instance from name
 	std::map<std::string, pVideo>   _vidNameMap;	// Use this to get video instance from name
 
-    //TextureFull _texBlack;   // _textureNameMap["BlackDot"]
-    //TextureFull _texWhite;   // _textureNameMap["WhiteDot"]
-    //TextureFull _texError;   // _textureNameMap["Error"]
-
-////////////////////////////////////////////////////////////////////////////////\
-// Videos
-public:
-	static constexpr size_t SKIN_VIDEO_SLOT_MAX = 32;
-	std::array<sVideo, SKIN_VIDEO_SLOT_MAX> _video;
-
-////////////////////////////////////////////////////////////////////////////////
-// Texture Cache for resources require dynamic loading, such as BG, banner
-protected:
-    bool _enableTextureCache = false;
-    std::map<Path, pTexture> _texDynPathMap;
-public:
-    void setDynamicLoadTexture(bool enabled);
-
 ////////////////////////////////////////////////////////////////////////////////
 // Sprite elements
 protected:

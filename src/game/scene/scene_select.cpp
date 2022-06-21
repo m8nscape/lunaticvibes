@@ -60,7 +60,10 @@ void setBarInfo()
             case eChartFormat::BMS:
             {
                 const auto bms = std::reinterpret_pointer_cast<const BMS_prop>(pf);
-                gTexts.set(eText(int(eText::_SELECT_BAR_TITLE_FULL_0) + bar_index), entry->_name);
+                std::string name = entry->_name;
+                if (!name.empty()) name += " ";
+                if (!entry->_name2.empty()) name += entry->_name2;
+                gTexts.set(eText(int(eText::_SELECT_BAR_TITLE_FULL_0) + bar_index), name);
                 gNumbers.set(eNumber(int(eNumber::_SELECT_BAR_LEVEL_0) + bar_index), bms->playLevel);
 
                 // TODO set bar lamp
@@ -449,14 +452,20 @@ void setDynamicTextures()
         // _BG
         if (!pf->stagefile.empty())
             gChartContext.texStagefile.setPath(pf->getDirectory() / pf->stagefile);
+        else
+            gChartContext.texStagefile.setPath("");
 
         // backbmp
         if (!pf->backbmp.empty())
             gChartContext.texBackbmp.setPath(pf->getDirectory() / pf->backbmp);
+        else
+            gChartContext.texBackbmp.setPath("");
 
         // _banner
         if (!pf->banner.empty())
             gChartContext.texBanner.setPath(pf->getDirectory() / pf->banner);
+        else
+            gChartContext.texBanner.setPath("");
     }
     break;
     }

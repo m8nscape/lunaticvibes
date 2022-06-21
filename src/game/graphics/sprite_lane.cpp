@@ -88,7 +88,7 @@ void SpriteLaneVertical::updateNoteRect(const Time& t)
 	// !!! scroll height should not affected by note height
     int y = (c.y + c.h);
     auto it = pChart->incomingNote(_category, _index);
-    while (!pChart->isLastNote(_category, _index, it) && y >= -c.h)
+    while (!pChart->isLastNote(_category, _index, it) && y >= 0)
     {
 		auto noteBeatOffset = currTotalBeat - it->totalbeat.toDouble();
         if (noteBeatOffset >= 0)
@@ -144,7 +144,7 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 	// 150BPM with 1.0x HS is 1600ms
 	int head_y_actual = c.y + c.h;
 	auto it = pChart->incomingNote(_category, _index);
-	while (!pChart->isLastNote(_category, _index, it) && head_y_actual >= -c.h)
+	while (!pChart->isLastNote(_category, _index, it) && head_y_actual >= 0)
 	{
 		int head_y = c.y + c.h;
 		int tail_y = 0;

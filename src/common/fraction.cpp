@@ -44,13 +44,13 @@ fraction::~fraction() {}
 
 fraction fraction::operator+ (const fraction& rhs) const
 {
-    int g = std::lcm(_denominator, rhs._denominator);
+    long long g = std::lcm(_denominator, rhs._denominator);
     return fraction(_numerator * (g / _denominator) + rhs._numerator * (g / rhs._denominator), g);
 }
 
 fraction& fraction::operator+= (const fraction& rhs)
 {
-    int g = std::lcm(_denominator, rhs._denominator);
+    long long g = std::lcm(_denominator, rhs._denominator);
     _numerator = _numerator * (g / _denominator) + rhs._numerator * (g / rhs._denominator);
     _denominator = g;
     return *this;
@@ -58,13 +58,13 @@ fraction& fraction::operator+= (const fraction& rhs)
 
 fraction fraction::operator- (const fraction& rhs) const
 {
-    int g = std::lcm(_denominator, rhs._denominator);
+    long long g = std::lcm(_denominator, rhs._denominator);
     return fraction(_numerator * (g / _denominator) - rhs._numerator * (g / rhs._denominator), g);
 }
 
 fraction& fraction::operator-= (const fraction& rhs)
 {
-    int g = std::lcm(_denominator, rhs._denominator);
+    long long g = std::lcm(_denominator, rhs._denominator);
     _numerator = _numerator * (g / _denominator) - rhs._numerator * (g / rhs._denominator);
     _denominator = g;
     return *this;
