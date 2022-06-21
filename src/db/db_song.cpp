@@ -498,10 +498,9 @@ int SongDB::addFolder(Path path, HashMD5 parentHash)
 int SongDB::addFolderContent(const HashMD5& hash, const Path& folder)
 {
     int count = 0;
-    auto files = findFiles(folder / "*");
 
     bool isSongFolder = false;
-    for (auto& f : files)
+    for (auto& f : fs::directory_iterator(folder))
     {
         if (fs::is_regular_file(f) && matchChartType(f) != eChartFormat::UNKNOWN)
         {
@@ -513,7 +512,7 @@ int SongDB::addFolderContent(const HashMD5& hash, const Path& folder)
     std::vector<Path> folderList;
     std::vector<Path> chartList;
 
-    for (const auto& f : files)
+    for (const auto& f : fs::directory_iterator(folder))
     {
         if (!isSongFolder && fs::is_directory(f))
         {
@@ -539,11 +538,10 @@ int SongDB::addFolderContent(const HashMD5& hash, const Path& folder)
 
 int SongDB::refreshFolderContent(const HashMD5& hash, const Path& path, FolderType type)
 {
-    int count = 0;
-    auto files = findFiles(path / "*");
+    LOG_DEBUG << "[SongDB] Refreshing contents of " << path.u8string();
 
     bool isSongFolder = false;
-    for (auto& f : files)
+    for (auto& f: fs::directory_iterator(path))
     {
         if (fs::is_regular_file(f) && matchChartType(f) != eChartFormat::UNKNOWN)
         {
@@ -551,38 +549,63 @@ int SongDB::refreshFolderContent(const HashMD5& hash, const Path& path, FolderTy
             break;
         }
     }
-
-    if ((type == FolderType::SONG_BMS) != isSongFolder)
+    if (!isSongFolder && (type == FolderType::SONG_BMS))
     {
+        LOG_DEBUG << "[SongDB] Re-analyzing";
+
+        // analyze the folder again
         removeFolder(hash, true);
         return addFolder(path, hash);
     }
-
-    std::vector<Path> folderList;
-    std::vector<Path> chartList;
-
-    for (const auto& f : files)
+    else if (type == FolderType::SONG_BMS)
     {
-        if (!isSongFolder && fs::is_directory(f))
+        LOG_DEBUG << "[SongDB] Checking for new entries";
+
+        // just add new entries
+        int count = 0;
+
+        std::vector<Path> bmsFiles;
+        for (auto& f : fs::directory_iterator(path))
         {
-            folderList.push_back(f);
+            if (fs::is_regular_file(f) && matchChartType(f) != eChartFormat::UNKNOWN)
+                bmsFiles.push_back(fs::absolute(f));
         }
-        else if (isSongFolder && fs::is_regular_file(f) && matchChartType(f) != eChartFormat::UNKNOWN)
+        std::sort(bmsFiles.begin(), bmsFiles.end());
+
+        std::vector<Path> existedFiles;
+        auto existedList = std::make_shared<FolderSong>(browseSong(hash));
+        for (size_t i = 0; i < existedList->getContentsCount(); ++i)
         {
-            chartList.push_back(f);
+            existedFiles.push_back(existedList->getChart(i)->absolutePath);
         }
+        std::sort(existedFiles.begin(), existedFiles.end());
+
+        std::vector<Path> newFiles;
+        std::set_difference(bmsFiles.begin(), bmsFiles.end(), existedFiles.begin(), existedFiles.end(), std::back_inserter(newFiles));
+        std::for_each(std::execution::par, newFiles.begin(), newFiles.end(),
+            [this, &count, hash, path](const Path& f) { if (0 == addChart(hash, f)) ++count; });
+
+        LOG_DEBUG << "[SongDB] Folder originally has " << existedFiles.size() << " entries, added " << count;
+        return count;
     }
-
-    std::for_each(std::execution::par, chartList.begin(), chartList.end(),
-        [this, &count, hash](const Path& f) { if (0 == addChart(hash, f)) ++count; });
-
-    for (const auto& f : folderList)
+    else
     {
-        if (0 == addFolder(f, hash))
-            ++count;
-    }
+        LOG_DEBUG << "[SongDB] Checking for new subfolders";
 
-    return count;
+        // just add new entries
+        int count = 0;
+
+        std::vector<Path> subFolders;
+        for (auto& f : fs::directory_iterator(path))
+        {
+            if (fs::is_directory(f))
+                if (0 == addFolder(f, hash))
+                    ++count;
+        }
+
+        LOG_DEBUG << "[SongDB] Checked " << count;
+        return count;
+    }
 }
 
 HashMD5 SongDB::getFolderParent(const Path& path) const

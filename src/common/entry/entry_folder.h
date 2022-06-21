@@ -27,6 +27,7 @@ public:
 
 // following fields are generic info, which are stored in db
 public:
+    Path getPath() { return _path; }
 
 // following fields are filled during loading
 public:

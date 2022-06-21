@@ -129,7 +129,7 @@ double toDouble(const std::string& str, double defVal) noexcept { return toDoubl
 // strcasecmp
 bool strEqual(std::string_view str1, std::string_view str2, bool icase) noexcept
 {
-    return std::equal(std::execution::par_unseq, str1.begin(), str1.end(), str2.begin(), str2.end(),
+    return std::equal(std::execution::seq, str1.begin(), str1.end(), str2.begin(), str2.end(),
         [](char c1, char c2) { return std::tolower(c1) == std::tolower(c2); });
 }
 bool strEqual(const std::string& str1, std::string_view str2, bool icase) noexcept { return strEqual(std::string_view(str1), str2, icase); }

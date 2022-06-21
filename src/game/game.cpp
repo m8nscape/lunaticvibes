@@ -164,7 +164,8 @@ int main(int argc, char* argv[])
     g_pSongDB = std::make_shared<SongDB>(dbPath / "song.db");
 
     // get folders from config
-    for (auto& f : ConfigMgr::General()->getFoldersPath())
+    auto folderList = ConfigMgr::General()->getFoldersPath();
+    for (auto& f : folderList)
     {
         g_pSongDB->addFolder(f);
     }
@@ -178,7 +179,23 @@ int main(int argc, char* argv[])
     };
     auto top = g_pSongDB->browse(ROOT_FOLDER_HASH, false);
     for (size_t i = 0; i < top.getContentsCount(); ++i)
-        rootFolderProp.list.push_back({ top.getEntry(i), nullptr });
+    {
+        auto entry = top.getEntry(i);
+
+        bool deleted = true;
+        for (auto& f : folderList)
+        {
+            if (fs::equivalent(f, entry->getPath()))
+            {
+                deleted = false;
+                break;
+            }
+        }
+        if (!deleted)
+        {
+            rootFolderProp.list.push_back({ entry, nullptr });
+        }
+    }
     gSelectContext.backtrace.push(rootFolderProp);
 
     // arg parsing
