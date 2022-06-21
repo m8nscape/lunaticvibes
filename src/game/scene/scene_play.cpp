@@ -650,7 +650,7 @@ void ScenePlay::updatePlaying()
     {
         auto startTime = rt - gTimers.get(eTimer::PLAY_START);
         auto playtime = rt.norm() / 1000;
-        auto remaintime = gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() - playtime;
+        auto remaintime = gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() / 1000 - playtime;
         gNumbers.set(eNumber::PLAY_MIN, int(playtime / 60));
         gNumbers.set(eNumber::PLAY_SEC, int(playtime % 60));
         gNumbers.set(eNumber::PLAY_REMAIN_MIN, int(remaintime / 60));
