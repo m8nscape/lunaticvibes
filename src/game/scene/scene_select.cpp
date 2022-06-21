@@ -329,11 +329,22 @@ void setEntryInfo()
                 gNumbers.queue(eNumber::INFO_GOOD_COUNT, pScore->good);
                 gNumbers.queue(eNumber::INFO_BAD_COUNT, pScore->bad);
                 gNumbers.queue(eNumber::INFO_POOR_COUNT, pScore->bpoor + pScore->miss);
-                gNumbers.queue(eNumber::INFO_PERFECT_RATE, int(100 * pScore->pgreat / pScore->notes));
-                gNumbers.queue(eNumber::INFO_GREAT_RATE, int(100 * pScore->great / pScore->notes));
-                gNumbers.queue(eNumber::INFO_GOOD_RATE, int(100 * pScore->good / pScore->notes));
-                gNumbers.queue(eNumber::INFO_BAD_RATE, int(100 * pScore->bad / pScore->notes));
-                gNumbers.queue(eNumber::INFO_POOR_RATE, int(100 * (pScore->bpoor + pScore->miss) / pScore->notes));
+                if (pScore->notes != 0)
+                {
+                    gNumbers.queue(eNumber::INFO_PERFECT_RATE, int(100 * pScore->pgreat / pScore->notes));
+                    gNumbers.queue(eNumber::INFO_GREAT_RATE, int(100 * pScore->great / pScore->notes));
+                    gNumbers.queue(eNumber::INFO_GOOD_RATE, int(100 * pScore->good / pScore->notes));
+                    gNumbers.queue(eNumber::INFO_BAD_RATE, int(100 * pScore->bad / pScore->notes));
+                    gNumbers.queue(eNumber::INFO_POOR_RATE, int(100 * (pScore->bpoor + pScore->miss) / pScore->notes));
+                }
+                else
+                {
+                    gNumbers.queue(eNumber::INFO_PERFECT_RATE,0);
+                    gNumbers.queue(eNumber::INFO_GREAT_RATE, 0);
+                    gNumbers.queue(eNumber::INFO_GOOD_RATE, 0);
+                    gNumbers.queue(eNumber::INFO_BAD_RATE, 0);
+                    gNumbers.queue(eNumber::INFO_POOR_RATE, 0);
+                }
 
 
                 break;

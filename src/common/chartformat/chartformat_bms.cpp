@@ -97,6 +97,7 @@ int BMS::initWithFile(const Path& file)
 
     // #RANDOM related parameters
     int randomValue = 0;
+    int ifBlock = 0;
     std::stack<int> ifValue;
 
     // implicit parameters
@@ -138,147 +139,22 @@ int BMS::initWithFile(const Path& file)
         if (skip) continue;
 
         // parsing
-        auto space_idx = buf.find_first_of(' ');
-        auto colon_idx = buf.find_first_of(':');
-        if (space_idx == 1 || colon_idx == 1) continue;
-        if (space_idx == buf.npos && colon_idx == buf.npos) continue;
-
         try
         {
-            if (space_idx != buf.npos)
+            if (randomValue != 0)
             {
-                StringContent key = buf.substr(1, space_idx - 1);
-                StringContent value = buf.substr(space_idx + 1);
-                if (value.empty()) continue;
+                // skip orphan blocks
+                if (ifValue.empty())
+                    continue;
 
-                static const std::regex regexWav = std::regex(R"(WAV[0-9A-Za-z]{1,2})", prebuiltRegexFlags);
-                static const std::regex regexBga = std::regex(R"(BMP[0-9A-Za-z]{1,2})", prebuiltRegexFlags);
-                static const std::regex regexBpm = std::regex(R"(BPM[0-9A-Za-z]{1,2})", prebuiltRegexFlags);
-                static const std::regex regexStop = std::regex(R"(STOP[0-9A-Za-z]{1,2})", prebuiltRegexFlags);
-
-                // RANDOM
-                if (strEqual(key, "RANDOM", true))
-                {
-                    haveRandom = true;
-                    static std::mt19937_64 rng(std::time(nullptr));
-                    randomValue = (rng() % toInt(value)) + 1;
-                }
-                else if (strEqual(key, "IF", true))
-                {
-                    if (randomValue != 0)
-                    {
-                        if (int i = toInt(value); randomValue == i)
-                        {
-                            ifValue.push(i);
-                        }
-                    }
-                    else
-                    {
-                        LOG_WARNING << "[BMS] orphan #IF found in line " << srcLine;
-                    }
-                }
-                else if (strEqual(key, "ENDIF", true))
-                {
-                    if (!ifValue.empty())
-                    {
-                        ifValue.pop();
-                    }
-                    else
-                    {
-                        LOG_WARNING << "[BMS] unexpected #ENDIF fond at line " << srcLine;
-                    }
-                }
-                else if (strEqual(key, "ENDRANDOM", true))
-                {
-                    if (!ifValue.empty())
-                    {
-                        LOG_WARNING << "[BMS] #ENDRANDOM found before #ENDIF at line " << srcLine;
-                        randomValue = 0;
-                        ifValue = {};
-                    }
-                    else
-                    {
-                        randomValue = 0;
-                    }
-                }
-                else if (randomValue != 0)
-                {
-                    // skip orphan blocks
-                    if (ifValue.empty()) 
-                        continue;
-
-                    // skip mismatch IF value blocks
-                    if (ifValue.top() != randomValue) 
-                        continue;
-                }
-
-
-                // digits
-                if (strEqual(key, "PLAYER", true))
-                    player = toInt(value);
-                else if (strEqual(key, "RANK", true))
-                    rank = toInt(value);
-                else if (strEqual(key, "TOTAL", true))
-                    total = toInt(value);
-                else if (strEqual(key, "PLAYLEVEL", true))
-                {
-                    playLevel = toInt(value);
-                    levelEstimated = double(playLevel);
-                }
-                else if (strEqual(key, "DIFFICULTY", true))
-                {
-                    difficulty = toInt(value);
-                    hasDifficulty = true;
-                }
-                else if (strEqual(key, "BPM", true))
-                    bpm = toDouble(value);
-
-                // strings
-                else if (strEqual(key, "TITLE", true))
-                    title.assign(value.begin(), value.end());
-                else if (strEqual(key, "SUBTITLE", true))
-                    title2.assign(value.begin(), value.end());
-                else if (strEqual(key, "ARTIST", true))
-                    artist.assign(value.begin(), value.end());
-                else if (strEqual(key, "SUBARTIST", true))
-                    artist2.assign(value.begin(), value.end());
-                else if (strEqual(key, "GENRE", true))
-                    genre.assign(value.begin(), value.end());
-                else if (strEqual(key, "STAGEFILE", true))
-                    stagefile.assign(value.begin(), value.end());
-                else if (strEqual(key, "BANNER", true))
-                    banner.assign(value.begin(), value.end());
-                else if (strEqual(key, "LNOBJ", true) && value.length() >= 2)
-                    lnobjSet.insert(base36(value[0], value[1]));
-
-                // #xxx00
-                else if (std::regex_match(key, regexWav))
-                {
-                    int idx = base36(key[3], key[4]);
-                    wavFiles[idx].assign(value.begin(), value.end());
-                }
-                else if (std::regex_match(key, regexBga))
-                {
-                    int idx = base36(key[3], key[4]);
-                    bgaFiles[idx].assign(value.begin(), value.end());
-                }
-                else if (std::regex_match(key, regexBpm))
-                {
-                    int idx = base36(key[3], key[4]);
-                    exBPM[idx] = toDouble(value);
-                }
-                else if (std::regex_match(key, regexStop))
-                {
-                    int idx = base36(key[4], key[5]);
-                    stop[idx] = toDouble(value);
-                }
-
-                // unknown
-                else
-                    extraCommands[key] = StringContent(value.begin(), value.end());
+                // skip mismatch IF value blocks
+                if (ifValue.top() != randomValue)
+                    continue;
             }
 
-            else if (colon_idx != buf.npos)
+            auto colon_idx = buf.find_first_of(':');
+
+            if (colon_idx != buf.npos)
             {
                 StringContent key = buf.substr(1, colon_idx - 1);
                 StringContent value = buf.substr(colon_idx + 1);
@@ -384,6 +260,135 @@ int BMS::initWithFile(const Path& file)
                             break;
                         }
                     }
+                }
+            }
+            else
+            {
+                auto space_idx = std::min(buf.length(), buf.find_first_of(' '));
+                if (space_idx <= 1) continue;
+
+                StringContent key = buf.substr(1, space_idx - 1);
+                StringContent value = space_idx < buf.length() ? buf.substr(space_idx + 1) : "";
+
+                static const std::regex regexWav = std::regex(R"(WAV[0-9A-Za-z]{1,2})", prebuiltRegexFlags);
+                static const std::regex regexBga = std::regex(R"(BMP[0-9A-Za-z]{1,2})", prebuiltRegexFlags);
+                static const std::regex regexBpm = std::regex(R"(BPM[0-9A-Za-z]{1,2})", prebuiltRegexFlags);
+                static const std::regex regexStop = std::regex(R"(STOP[0-9A-Za-z]{1,2})", prebuiltRegexFlags);
+
+                // RANDOM
+                if (strEqual(key, "RANDOM", true))
+                {
+                    haveRandom = true;
+                    static std::mt19937_64 rng(std::time(nullptr));
+                    randomValue = (rng() % toInt(value)) + 1;
+                }
+                else if (strEqual(key, "IF", true))
+                {
+                    ifBlock = toInt(value);
+                    if (randomValue != 0)
+                    {
+                        if (randomValue == ifBlock)
+                        {
+                            ifValue.push(ifBlock);
+                        }
+                    }
+                    else
+                    {
+                        LOG_WARNING << "[BMS] orphan #IF found in line " << srcLine;
+                    }
+                }
+                else if (strEqual(key, "ENDIF", true))
+                {
+                    if (!ifValue.empty())
+                    {
+                        ifValue.pop();
+                    }
+                    else if (ifBlock == 0)
+                    {
+                        LOG_WARNING << "[BMS] unexpected #ENDIF fond at line " << srcLine;
+                    }
+                }
+                else if (strEqual(key, "ENDRANDOM", true))
+                {
+                    if (!ifValue.empty())
+                    {
+                        LOG_WARNING << "[BMS] #ENDRANDOM found before #ENDIF at line " << srcLine;
+                        randomValue = 0;
+                        ifBlock = 0;
+                        ifValue = {};
+                    }
+                    else
+                    {
+                        randomValue = 0;
+                    }
+                }
+                else
+                {
+                    if (value.empty()) continue;
+
+                    // digits
+                    if (strEqual(key, "PLAYER", true))
+                        player = toInt(value);
+                    else if (strEqual(key, "RANK", true))
+                        rank = toInt(value);
+                    else if (strEqual(key, "TOTAL", true))
+                        total = toInt(value);
+                    else if (strEqual(key, "PLAYLEVEL", true))
+                    {
+                        playLevel = toInt(value);
+                        levelEstimated = double(playLevel);
+                    }
+                    else if (strEqual(key, "DIFFICULTY", true))
+                    {
+                        difficulty = toInt(value);
+                        hasDifficulty = true;
+                    }
+                    else if (strEqual(key, "BPM", true))
+                        bpm = toDouble(value);
+
+                    // strings
+                    else if (strEqual(key, "TITLE", true))
+                        title.assign(value.begin(), value.end());
+                    else if (strEqual(key, "SUBTITLE", true))
+                        title2.assign(value.begin(), value.end());
+                    else if (strEqual(key, "ARTIST", true))
+                        artist.assign(value.begin(), value.end());
+                    else if (strEqual(key, "SUBARTIST", true))
+                        artist2.assign(value.begin(), value.end());
+                    else if (strEqual(key, "GENRE", true))
+                        genre.assign(value.begin(), value.end());
+                    else if (strEqual(key, "STAGEFILE", true))
+                        stagefile.assign(value.begin(), value.end());
+                    else if (strEqual(key, "BANNER", true))
+                        banner.assign(value.begin(), value.end());
+                    else if (strEqual(key, "LNOBJ", true) && value.length() >= 2)
+                        lnobjSet.insert(base36(value[0], value[1]));
+
+                    // #xxx00
+                    else if (std::regex_match(key, regexWav))
+                    {
+                        int idx = base36(key[3], key[4]);
+                        wavFiles[idx].assign(value.begin(), value.end());
+                    }
+                    else if (std::regex_match(key, regexBga))
+                    {
+                        int idx = base36(key[3], key[4]);
+                        bgaFiles[idx].assign(value.begin(), value.end());
+                    }
+                    else if (std::regex_match(key, regexBpm))
+                    {
+                        int idx = base36(key[3], key[4]);
+                        exBPM[idx] = toDouble(value);
+                    }
+                    else if (std::regex_match(key, regexStop))
+                    {
+                        int idx = base36(key[4], key[5]);
+                        stop[idx] = toDouble(value);
+                    }
+
+                    // unknown
+                    else
+                        extraCommands[key] = StringContent(value.begin(), value.end());
                 }
             }
         }
