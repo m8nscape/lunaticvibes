@@ -128,6 +128,10 @@ void setEntryInfo()
         gNumbers.queue(eNumber::PLAY_BPM, static_cast<int>(std::round(pf->startBPM)));
         gNumbers.queue(eNumber::INFO_BPM_MIN, static_cast<int>(std::round(pf->minBPM)));
         gNumbers.queue(eNumber::INFO_BPM_MAX, static_cast<int>(std::round(pf->maxBPM)));
+        if (pf->minBPM != pf->maxBPM)
+        {
+            gSwitches.queue(eSwitch::CHART_HAVE_BPMCHANGE, true);
+        }
 
         switch (ps->_file->type())
         {
@@ -154,8 +158,6 @@ void setEntryInfo()
             default:
                 break;
             }
-
-            gNumbers.queue(eNumber::PLAY_BPM, static_cast<int>(std::round(bms->bpm)));
 
             // gamemode
             unsigned op_keys = Option::KEYS_NOT_PLAYABLE;

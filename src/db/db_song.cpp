@@ -160,6 +160,7 @@ bool convert_bms(std::shared_ptr<BMS_prop> chart, const std::vector<std::any>& i
     chart->haveMine       = params.landmine   ;
     chart->haveMetricMod  = params.metricmod  ;
     chart->haveStop       = params.stop       ;
+    chart->haveBPMChange  = params.maxbpm != params.minbpm;
     chart->haveBGA        = params.bga        ;
     chart->haveRandom     = params.random     ;
     chart->addTime        = params.addtime    ;

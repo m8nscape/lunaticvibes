@@ -221,7 +221,7 @@ int BMS::initWithFile(const Path& file)
 
                         case 8:            // 08: ExBPM
                             strToLane36(chExBPMChange[measure], value);
-                            haveStop = true;
+                            haveBPMChange = true;
                             break;
 
                         case 9:            // 09: Stop
