@@ -54,10 +54,80 @@ SceneResult::SceneResult(ePlayMode gamemode) : vScene(eMode::RESULT, 1000), _pla
 
     // TODO set chart info (total notes, etc.)
 
-    gOptions.flush();
-
-    // TODO compare to db record
+    // compare to db record
     auto dp = gPlayContext.ruleset[PLAYER_SLOT_1P]->getData();
+    auto pScore = g_pScoreDB->getChartScoreBMS(gChartContext.hash);
+    if (pScore)
+    {
+        gNumbers.queue(eNumber::RESULT_MYBEST_EX, pScore->exscore);
+        gNumbers.queue(eNumber::RESULT_MYBEST_DIFF, dp.score2 - pScore->exscore);
+        gNumbers.queue(eNumber::RESULT_MYBEST_RATE, (int)std::floor(pScore->rate));
+        gNumbers.queue(eNumber::RESULT_MYBEST_RATE_DECIMAL2, (int)std::floor(pScore->rate * 100.0) % 100);
+
+        gNumbers.queue(eNumber::RESULT_RECORD_EX_BEFORE, pScore->exscore);
+        gNumbers.queue(eNumber::RESULT_RECORD_EX_NOW, (int)dp.score2);
+        gNumbers.queue(eNumber::RESULT_RECORD_EX_DIFF, (int)dp.score2 - pScore->exscore);
+        gNumbers.queue(eNumber::RESULT_RECORD_MAXCOMBO_BEFORE, pScore->maxcombo);
+        gNumbers.queue(eNumber::RESULT_RECORD_MAXCOMBO_NOW, (int)dp.maxCombo);
+        gNumbers.queue(eNumber::RESULT_RECORD_MAXCOMBO_DIFF, (int)dp.maxCombo - pScore->exscore);
+        gNumbers.queue(eNumber::RESULT_RECORD_BP_BEFORE, pScore->bp);
+        gNumbers.queue(eNumber::RESULT_RECORD_BP_NOW, (int)dp.miss);
+        gNumbers.queue(eNumber::RESULT_RECORD_BP_DIFF, (int)dp.miss - pScore->bp);
+        gNumbers.queue(eNumber::RESULT_RECORD_MYBEST_RATE, (int)std::floor(pScore->rate));
+        gNumbers.queue(eNumber::RESULT_RECORD_MYBEST_RATE_DECIMAL2, (int)std::floor(pScore->rate * 100.0) % 100);
+
+        if      (dp.total_acc >= 100.0) gOptions.queue(eOption::RESULT_UPDATED_RANK, Option::RANK_0);
+        else if (dp.total_acc >= 88.88) gOptions.queue(eOption::RESULT_UPDATED_RANK, Option::RANK_1);
+        else if (dp.total_acc >= 77.77) gOptions.queue(eOption::RESULT_UPDATED_RANK, Option::RANK_2);
+        else if (dp.total_acc >= 66.66) gOptions.queue(eOption::RESULT_UPDATED_RANK, Option::RANK_3);
+        else if (dp.total_acc >= 55.55) gOptions.queue(eOption::RESULT_UPDATED_RANK, Option::RANK_4);
+        else if (dp.total_acc >= 44.44) gOptions.queue(eOption::RESULT_UPDATED_RANK, Option::RANK_5);
+        else if (dp.total_acc >= 33.33) gOptions.queue(eOption::RESULT_UPDATED_RANK, Option::RANK_6);
+        else if (dp.total_acc >= 22.22) gOptions.queue(eOption::RESULT_UPDATED_RANK, Option::RANK_7);
+        else                            gOptions.queue(eOption::RESULT_UPDATED_RANK, Option::RANK_8);
+
+        if      (pScore->rate >= 100.0) gOptions.queue(eOption::RESULT_MYBEST_RANK, Option::RANK_0);
+        else if (pScore->rate >= 88.88) gOptions.queue(eOption::RESULT_MYBEST_RANK, Option::RANK_1);
+        else if (pScore->rate >= 77.77) gOptions.queue(eOption::RESULT_MYBEST_RANK, Option::RANK_2);
+        else if (pScore->rate >= 66.66) gOptions.queue(eOption::RESULT_MYBEST_RANK, Option::RANK_3);
+        else if (pScore->rate >= 55.55) gOptions.queue(eOption::RESULT_MYBEST_RANK, Option::RANK_4);
+        else if (pScore->rate >= 44.44) gOptions.queue(eOption::RESULT_MYBEST_RANK, Option::RANK_5);
+        else if (pScore->rate >= 33.33) gOptions.queue(eOption::RESULT_MYBEST_RANK, Option::RANK_6);
+        else if (pScore->rate >= 22.22) gOptions.queue(eOption::RESULT_MYBEST_RANK, Option::RANK_7);
+        else                            gOptions.queue(eOption::RESULT_MYBEST_RANK, Option::RANK_8);
+
+        gOptions.queue(eOption::RESULT_UPDATED_RANK, gOptions.get((pScore->exscore > (int)dp.score2) ? eOption::RESULT_MYBEST_RANK : eOption::RESULT_RANK_1P));
+
+        if (pScore->exscore < dp.score2)    gSwitches.queue(eSwitch::RESULT_UPDATED_SCORE, true);
+        if (pScore->maxcombo < dp.maxCombo) gSwitches.queue(eSwitch::RESULT_UPDATED_MAXCOMBO, true);
+        if (pScore->bp > dp.miss)           gSwitches.queue(eSwitch::RESULT_UPDATED_BP, true);
+    }
+
+    int maxScore = gPlayContext.ruleset[PLAYER_SLOT_1P]->getMaxScore();
+    if      (dp.total_acc >= 94.44) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(maxScore * 1.000 - dp.score2));    // MAX-
+    else if (dp.total_acc >= 88.88) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(dp.score2 - maxScore * .8888));    // AAA+
+    else if (dp.total_acc >= 83.33) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(maxScore * .8888 - dp.score2));    // AAA-
+    else if (dp.total_acc >= 77.77) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(dp.score2 - maxScore * .7777));    // AA+
+    else if (dp.total_acc >= 72.22) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(maxScore * .7777 - dp.score2));    // AA-
+    else if (dp.total_acc >= 66.66) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(dp.score2 - maxScore * .6666));    // A+
+    else if (dp.total_acc >= 61.11) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(maxScore * .6666 - dp.score2));    // A-
+    else if (dp.total_acc >= 55.55) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(dp.score2 - maxScore * .5555));    // B+
+    else if (dp.total_acc >= 50.00) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(maxScore * .5555 - dp.score2));    // B-
+    else if (dp.total_acc >= 44.44) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(dp.score2 - maxScore * .4444));    // C+
+    else if (dp.total_acc >= 38.88) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(maxScore * .4444 - dp.score2));    // C-
+    else if (dp.total_acc >= 33.33) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(dp.score2 - maxScore * .3333));    // D+
+    else if (dp.total_acc >= 27.77) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(maxScore * .3333 - dp.score2));    // D-
+    else if (dp.total_acc >= 22.22) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(dp.score2 - maxScore * .2222));    // E+
+    else if (dp.total_acc >= 11.11) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(maxScore * .2222 - dp.score2));    // E-
+    else                            gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, dp.score2);    // F+
+
+
+    // TODO compare to target
+
+    gNumbers.flush();
+    gOptions.flush();
+    gSwitches.flush();
+
 
     bool cleared = gSwitches.get(eSwitch::RESULT_CLEAR);
 
