@@ -5,8 +5,10 @@
 
 eChartFormat matchChartType(const Path& p)
 {
-    if (!fs::is_regular_file(p) || !p.has_extension())
+    if (!p.has_extension())
         return eChartFormat::UNKNOWN;
+
+    eChartFormat fmt = eChartFormat::UNKNOWN;
 
     auto extension = p.extension().u8string();
     if (extension.length() == 4)
@@ -15,15 +17,18 @@ eChartFormat matchChartType(const Path& p)
             strEqual(extension, ".bme", true) ||
             strEqual(extension, ".bml", true) ||
             strEqual(extension, ".pms", true))
-            return eChartFormat::BMS;
+            fmt = eChartFormat::BMS;
     }
     else if (extension.length() == 6)
     {
         if (strEqual(extension, ".bmson", true))
-            return eChartFormat::BMSON;
+            fmt = eChartFormat::BMSON;
     }
 
-    return eChartFormat::UNKNOWN;
+    if (!fs::is_regular_file(p))
+        return eChartFormat::UNKNOWN;
+    else
+        return fmt;
 }
 
 std::shared_ptr<vChartFormat> vChartFormat::getFromFile(const Path& path)

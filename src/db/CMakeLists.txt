@@ -14,6 +14,7 @@ set_target_properties(db PROPERTIES
 target_link_libraries(db
     PUBLIC ${sqlite3_LIBRARY}
     PUBLIC common
+    PUBLIC BS_thread_pool
 )
 
 target_precompile_headers(db REUSE_FROM common)

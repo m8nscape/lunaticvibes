@@ -60,6 +60,9 @@ public:
 
     int addFolder(Path path, HashMD5 parent = ROOT_FOLDER_HASH);
     int addFolderContent(const HashMD5& hash, const Path& folder);
+    std::list<std::pair<HashMD5, Path>> addContentBuffer;
+    int handleAddContentBuffer();
+
     int refreshFolderContent(const HashMD5& hash, const Path& path, FolderType type);
     int removeFolder(const HashMD5& hash, bool removeSong = false);
 

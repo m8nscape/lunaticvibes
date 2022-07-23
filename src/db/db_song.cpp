@@ -5,6 +5,7 @@
 #include "common/log.h"
 #include "common/chartformat/chartformat_types.h"
 #include "game/chart/chart_types.h"
+#include "BS_thread_pool.hpp"
 
 const char* CREATE_FOLDER_TABLE_STR =
 "CREATE TABLE IF NOT EXISTS folder( "
@@ -444,28 +445,32 @@ int SongDB::addFolder(Path path, HashMD5 parentHash)
         path = fs::absolute(path);
     }
 
+    // check if the folder is already added
     HashMD5 folderHash = md5(path.u8string());
     if (auto q = query("select pathmd5,type from folder where path=?", 2, { path.u8string() }); !q.empty())
     {
         LOG_INFO << "[SongDB] Folder already exists (" << path.u8string() << ")";
-        refreshFolderContent(ANY_STR(q[0][0]), path, (FolderType)ANY_INT(q[0][1]));
+
+        // TODO check if refresh all folder on run
+        //if (0)
+        {
+            refreshFolderContent(ANY_STR(q[0][0]), path, (FolderType)ANY_INT(q[0][1]));
+        }
+
         return 0;
     }
     else
     {
-        auto files = findFiles(path / "*");
+        auto files = std::filesystem::directory_iterator(path);
         FolderType type = FolderType::FOLDER;
         for (auto& f : files)
         {
-            if (fs::is_regular_file(f))
+            if (matchChartType(f) == eChartFormat::BMS)
             {
-                if (matchChartType(f) == eChartFormat::BMS)
-                {
-                    type = FolderType::SONG_BMS;
-                    break;  // break for
-                }
-                // else ...
+                type = FolderType::SONG_BMS;
+                break;  // break for
             }
+            // else ...
         }
 
         int ret;
@@ -492,7 +497,7 @@ int SongDB::addFolder(Path path, HashMD5 parentHash)
     }
 
     int count = addFolderContent(folderHash, path);
-    LOG_INFO << "[SongDB] " << path.u8string() << ": added " << count << " entries";
+    LOG_INFO << "[SongDB] " << path.u8string() << ": queued " << count << " entries";
     return 0;
 }
 
@@ -503,7 +508,7 @@ int SongDB::addFolderContent(const HashMD5& hash, const Path& folder)
     bool isSongFolder = false;
     for (auto& f : fs::directory_iterator(folder))
     {
-        if (fs::is_regular_file(f) && matchChartType(f) != eChartFormat::UNKNOWN)
+        if (matchChartType(f) != eChartFormat::UNKNOWN)
         {
             isSongFolder = true;
             break;
@@ -511,7 +516,6 @@ int SongDB::addFolderContent(const HashMD5& hash, const Path& folder)
     }
 
     std::vector<Path> folderList;
-    std::vector<Path> chartList;
 
     for (const auto& f : fs::directory_iterator(folder))
     {
@@ -519,14 +523,12 @@ int SongDB::addFolderContent(const HashMD5& hash, const Path& folder)
         {
             folderList.push_back(f);
         }
-        else if (isSongFolder && fs::is_regular_file(f) && matchChartType(f) != eChartFormat::UNKNOWN)
+        else if (isSongFolder && matchChartType(f) != eChartFormat::UNKNOWN)
         {
-            chartList.push_back(f);
+            addContentBuffer.push_back(std::make_pair(hash, f));
+            ++count;
         }
     }
-
-    std::for_each(std::execution::par, chartList.begin(), chartList.end(), 
-        [this, &count, hash](const Path& f) { if (0 == addChart(hash, f)) ++count; });
 
     for (const auto& f : folderList)
     {
@@ -537,6 +539,48 @@ int SongDB::addFolderContent(const HashMD5& hash, const Path& folder)
     return count;
 }
 
+int SongDB::handleAddContentBuffer()
+{
+    int count = 0;
+    BS::thread_pool pool(std::thread::hardware_concurrency() - 1);
+    std::list<std::future<int>> futureList;
+
+    for (auto& [hash, f] : addContentBuffer)
+    {
+        using namespace std::placeholders;
+
+        futureList.push_back(pool.submit(std::bind(&SongDB::addChart, this, _1, _2), hash, f));
+    }
+    while (true)
+    {
+        using namespace std::chrono_literals;
+
+        bool unfinished = false;
+        for (auto& f : futureList)
+        {
+            if (f.valid())
+            {
+                if (f.get() == 0) count++;
+            }
+            else
+            {
+                unfinished = true;
+            }
+        }
+        if (unfinished)
+        {
+            std::this_thread::sleep_for(1s);
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    addContentBuffer.clear();
+    return count;
+}
+
 int SongDB::refreshFolderContent(const HashMD5& hash, const Path& path, FolderType type)
 {
     LOG_DEBUG << "[SongDB] Refreshing contents of " << path.u8string();
@@ -544,7 +588,7 @@ int SongDB::refreshFolderContent(const HashMD5& hash, const Path& path, FolderTy
     bool isSongFolder = false;
     for (auto& f: fs::directory_iterator(path))
     {
-        if (fs::is_regular_file(f) && matchChartType(f) != eChartFormat::UNKNOWN)
+        if (matchChartType(f) != eChartFormat::UNKNOWN)
         {
             isSongFolder = true;
             break;
@@ -562,13 +606,13 @@ int SongDB::refreshFolderContent(const HashMD5& hash, const Path& path, FolderTy
     {
         LOG_DEBUG << "[SongDB] Checking for new entries";
 
-        // just add new entries
+        // only add new entries
         int count = 0;
 
         std::vector<Path> bmsFiles;
         for (auto& f : fs::directory_iterator(path))
         {
-            if (fs::is_regular_file(f) && matchChartType(f) != eChartFormat::UNKNOWN)
+            if (matchChartType(f) != eChartFormat::UNKNOWN)
                 bmsFiles.push_back(fs::absolute(f));
         }
         std::sort(bmsFiles.begin(), bmsFiles.end());
@@ -583,8 +627,13 @@ int SongDB::refreshFolderContent(const HashMD5& hash, const Path& path, FolderTy
 
         std::vector<Path> newFiles;
         std::set_difference(bmsFiles.begin(), bmsFiles.end(), existedFiles.begin(), existedFiles.end(), std::back_inserter(newFiles));
-        std::for_each(std::execution::par, newFiles.begin(), newFiles.end(),
-            [this, &count, hash, path](const Path& f) { if (0 == addChart(hash, f)) ++count; });
+        for (auto& p : newFiles)
+        {
+            addContentBuffer.push_back(std::make_pair(hash, p));
+            count++;
+        }
+
+        // TODO set delete flag on not-found entries
 
         LOG_DEBUG << "[SongDB] Folder originally has " << existedFiles.size() << " entries, added " << count;
         return count;

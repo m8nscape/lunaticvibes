@@ -168,6 +168,7 @@ int main(int argc, char* argv[])
     for (auto& f : folderList)
     {
         g_pSongDB->addFolder(f);
+        g_pSongDB->handleAddContentBuffer();
     }
 
     SongListProperties rootFolderProp{
@@ -229,13 +230,22 @@ int main(int argc, char* argv[])
 
 #ifdef WIN32
     timeBeginPeriod(1);
-    OleInitialize(NULL);
+
+    HRESULT oleInitializeResult = OleInitialize(NULL);
+    if (oleInitializeResult < 0)
+    {
+        LOG_WARNING << "OleInitialize Failed";
+    }
 #endif
 
     mainLoop();
 
 #ifdef WIN32
-    OleUninitialize();
+    if (oleInitializeResult >= 0)
+    {
+        OleUninitialize();
+    }
+
     timeEndPeriod(1);
 #endif
 

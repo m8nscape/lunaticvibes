@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.16)
 # PROJECT CONFIG
 
 project(BlastPit
-    VERSION 0.5
+    VERSION 0.6
     LANGUAGES CXX
 )
 

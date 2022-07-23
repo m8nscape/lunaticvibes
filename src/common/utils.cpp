@@ -48,7 +48,7 @@ std::vector<Path> findFiles(Path p)
 #endif
             if (file.substr(file.length() - tail.length()) != tail)
                 continue;
-            res.push_back(fs::canonical(f));
+            res.push_back(f.path());
         }
     }
 	return res;
@@ -86,7 +86,7 @@ std::vector<Path> findFilesRecursive(Path p)
 #endif
             if (file.substr(file.length() - tail.length()) != tail)
                 continue;
-            res.push_back(fs::canonical(f));
+            res.push_back(f.path());
         }
     }
     return res;

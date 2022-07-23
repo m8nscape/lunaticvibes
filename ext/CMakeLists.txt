@@ -81,3 +81,9 @@ if (${GRAPHICS_BACKEND} STREQUAL SDL2)
 endif()
 target_include_directories(imgui PUBLIC 
     ${CMAKE_CURRENT_LIST_DIR}/imgui)
+
+
+# Add thread-pool
+add_library(BS_thread_pool INTERFACE)
+target_include_directories(BS_thread_pool INTERFACE 
+    ${CMAKE_CURRENT_LIST_DIR}/thread-pool)
