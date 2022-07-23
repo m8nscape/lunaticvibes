@@ -143,6 +143,53 @@ int BMS::initWithFile(const Path& file)
         {
             if (randomValue != 0)
             {
+                // read IF headers outside of blocks
+                auto space_idx = std::min(buf.length(), buf.find_first_of(' '));
+                if (space_idx > 1)
+                {
+                    StringContent key = buf.substr(1, space_idx - 1);
+                    StringContent value = space_idx < buf.length() ? buf.substr(space_idx + 1) : "";
+                    if (strEqual(key, "RANDOM", true))
+                    {
+                        haveRandom = true;
+                        static std::mt19937_64 rng(std::time(nullptr));
+                        randomValue = (rng() % toInt(value)) + 1;
+                    }
+                    else if (strEqual(key, "IF", true))
+                    {
+                        ifBlock = toInt(value);
+                        if (randomValue == ifBlock)
+                        {
+                            ifValue.push(ifBlock);
+                        }
+                    }
+                    else if (strEqual(key, "ENDIF", true))
+                    {
+                        if (!ifValue.empty())
+                        {
+                            ifValue.pop();
+                        }
+                        else if (ifBlock == 0)
+                        {
+                            LOG_WARNING << "[BMS] unexpected #ENDIF found at line " << srcLine;
+                        }
+                    }
+                    else if (strEqual(key, "ENDRANDOM", true))
+                    {
+                        if (!ifValue.empty())
+                        {
+                            LOG_WARNING << "[BMS] #ENDRANDOM found before #ENDIF at line " << srcLine;
+                            randomValue = 0;
+                            ifBlock = 0;
+                            ifValue = {};
+                        }
+                        else
+                        {
+                            randomValue = 0;
+                        }
+                    }
+                }
+
                 // skip orphan blocks
                 if (ifValue.empty())
                     continue;
@@ -284,18 +331,7 @@ int BMS::initWithFile(const Path& file)
                 }
                 else if (strEqual(key, "IF", true))
                 {
-                    ifBlock = toInt(value);
-                    if (randomValue != 0)
-                    {
-                        if (randomValue == ifBlock)
-                        {
-                            ifValue.push(ifBlock);
-                        }
-                    }
-                    else
-                    {
-                        LOG_WARNING << "[BMS] orphan #IF found in line " << srcLine;
-                    }
+                    LOG_WARNING << "[BMS] unexpected #IF found in line " << srcLine;
                 }
                 else if (strEqual(key, "ENDIF", true))
                 {

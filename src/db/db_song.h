@@ -58,11 +58,13 @@ public:
     std::vector<pChart> findChartByName(const HashMD5& folder, const std::string&, unsigned limit = 1000) const;  // search from genre, version, artist, artist2, title, title2
     std::vector<pChart> findChartByHash(const HashMD5&) const;  // chart may duplicate
 
-    int addFolder(Path path, HashMD5 parent = ROOT_FOLDER_HASH);
-    int addFolderContent(const HashMD5& hash, const Path& folder);
+protected:
     std::list<std::pair<HashMD5, Path>> addContentBuffer;
+    int addFolderContent(const HashMD5& hash, const Path& folder);
     int handleAddContentBuffer();
 
+public:
+    int addFolder(Path path, HashMD5 parent = ROOT_FOLDER_HASH);
     int refreshFolderContent(const HashMD5& hash, const Path& path, FolderType type);
     int removeFolder(const HashMD5& hash, bool removeSong = false);
 

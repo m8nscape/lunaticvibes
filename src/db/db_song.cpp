@@ -7,6 +7,8 @@
 #include "game/chart/chart_types.h"
 #include "BS_thread_pool.hpp"
 
+static std::map<SongDB*, BS::thread_pool> DBThreadPool;
+
 const char* CREATE_FOLDER_TABLE_STR =
 "CREATE TABLE IF NOT EXISTS folder( "
 "pathmd5 TEXT PRIMARY KEY UNIQUE NOT NULL, "
@@ -178,6 +180,8 @@ bool convert_bms(std::shared_ptr<BMS_prop> chart, const std::vector<std::any>& i
 
 SongDB::SongDB(const char* path) : SQLite(path, "SONG")
 {
+    DBThreadPool.emplace(this, std::thread::hardware_concurrency() - 1);
+
     if (exec(CREATE_FOLDER_TABLE_STR) != SQLITE_OK)
     {
         LOG_ERROR << "[SongDB] Create table folder ERROR! " << errmsg();
@@ -517,6 +521,7 @@ int SongDB::addFolderContent(const HashMD5& hash, const Path& folder)
 
     std::vector<Path> folderList;
 
+    addContentBuffer.clear();
     for (const auto& f : fs::directory_iterator(folder))
     {
         if (!isSongFolder && fs::is_directory(f))
@@ -529,6 +534,7 @@ int SongDB::addFolderContent(const HashMD5& hash, const Path& folder)
             ++count;
         }
     }
+    handleAddContentBuffer();
 
     for (const auto& f : folderList)
     {
@@ -536,48 +542,6 @@ int SongDB::addFolderContent(const HashMD5& hash, const Path& folder)
             ++count;
     }
 
-    return count;
-}
-
-int SongDB::handleAddContentBuffer()
-{
-    int count = 0;
-    BS::thread_pool pool(std::thread::hardware_concurrency() - 1);
-    std::list<std::future<int>> futureList;
-
-    for (auto& [hash, f] : addContentBuffer)
-    {
-        using namespace std::placeholders;
-
-        futureList.push_back(pool.submit(std::bind(&SongDB::addChart, this, _1, _2), hash, f));
-    }
-    while (true)
-    {
-        using namespace std::chrono_literals;
-
-        bool unfinished = false;
-        for (auto& f : futureList)
-        {
-            if (f.valid())
-            {
-                if (f.get() == 0) count++;
-            }
-            else
-            {
-                unfinished = true;
-            }
-        }
-        if (unfinished)
-        {
-            std::this_thread::sleep_for(1s);
-        }
-        else
-        {
-            break;
-        }
-    }
-
-    addContentBuffer.clear();
     return count;
 }
 
@@ -627,11 +591,14 @@ int SongDB::refreshFolderContent(const HashMD5& hash, const Path& path, FolderTy
 
         std::vector<Path> newFiles;
         std::set_difference(bmsFiles.begin(), bmsFiles.end(), existedFiles.begin(), existedFiles.end(), std::back_inserter(newFiles));
+
+        addContentBuffer.clear();
         for (auto& p : newFiles)
         {
             addContentBuffer.push_back(std::make_pair(hash, p));
             count++;
         }
+        handleAddContentBuffer();
 
         // TODO set delete flag on not-found entries
 
@@ -656,6 +623,47 @@ int SongDB::refreshFolderContent(const HashMD5& hash, const Path& path, FolderTy
         LOG_DEBUG << "[SongDB] Checked " << count;
         return count;
     }
+}
+
+int SongDB::handleAddContentBuffer()
+{
+    int count = 0;
+    BS::thread_pool& pool = DBThreadPool[this];
+    std::list<std::future<int>> futureList;
+
+    for (auto& [hash, f] : addContentBuffer)
+    {
+        using namespace std::placeholders;
+
+        futureList.push_back(pool.submit(std::bind(&SongDB::addChart, this, _1, _2), hash, f));
+    }
+    while (true)
+    {
+        using namespace std::chrono_literals;
+
+        bool unfinished = false;
+        for (auto& f : futureList)
+        {
+            if (f.valid())
+            {
+                if (f.get() == 0) count++;
+            }
+            else
+            {
+                unfinished = true;
+            }
+        }
+        if (unfinished)
+        {
+            std::this_thread::sleep_for(1s);
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    return count;
 }
 
 HashMD5 SongDB::getFolderParent(const Path& path) const
