@@ -10,3 +10,6 @@
 [submodule "ext/imgui"]
 	path = ext/imgui
 	url = https://github.com/ocornut/imgui
+[submodule "ext/thread-pool"]
+	path = ext/thread-pool
+	url = https://github.com/bshoshany/thread-pool
