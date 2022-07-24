@@ -154,6 +154,17 @@ int main(int argc, char* argv[])
     gTimers.reset();
     ConfigMgr::setGlobals();
 
+    SoundMgr::setVolume(SampleChannel::MASTER, (float)gSliders.get(eSlider::VOLUME_MASTER));
+    SoundMgr::setVolume(SampleChannel::KEY, (float)gSliders.get(eSlider::VOLUME_KEY));
+    SoundMgr::setVolume(SampleChannel::BGM, (float)gSliders.get(eSlider::VOLUME_BGM));
+
+    if (gSwitches.get(eSwitch::SOUND_FX0))
+        SoundMgr::setDSP((DSPType)gOptions.get(eOption::SOUND_FX0), 0, (SampleChannel)gOptions.get(eOption::SOUND_TARGET_FX0), gSliders.get(eSlider::FX0_P1), gSliders.get(eSlider::FX0_P2));
+    if (gSwitches.get(eSwitch::SOUND_FX1))
+        SoundMgr::setDSP((DSPType)gOptions.get(eOption::SOUND_FX1), 1, (SampleChannel)gOptions.get(eOption::SOUND_TARGET_FX1), gSliders.get(eSlider::FX1_P1), gSliders.get(eSlider::FX1_P2));
+    if (gSwitches.get(eSwitch::SOUND_FX2))
+        SoundMgr::setDSP((DSPType)gOptions.get(eOption::SOUND_FX2), 2, (SampleChannel)gOptions.get(eOption::SOUND_TARGET_FX2), gSliders.get(eSlider::FX2_P1), gSliders.get(eSlider::FX2_P2));
+
     // score db
     std::string scoreDBPath = (ConfigMgr::Profile()->getPath() / "score.db").u8string();
     g_pScoreDB = std::make_shared<ScoreDB>(scoreDBPath.c_str());

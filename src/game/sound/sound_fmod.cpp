@@ -46,6 +46,23 @@ SoundDriverFMOD::SoundDriverFMOD()
     }
     etcSamplesChannelGroup = std::shared_ptr<FMOD::ChannelGroup>(pe, [](FMOD::ChannelGroup* p) { p->release(); });
 
+    volume[SampleChannel::MASTER] = 1.0f;
+    volume[SampleChannel::KEY] = 1.0f;
+    volume[SampleChannel::BGM] = 1.0f;
+
+    for (int c = 0; c < 3; ++c)
+    {
+        for (int i = 0; i < 4; ++i)
+        {
+            // create dummy dsp
+            fmodSystem->createDSPByType(FMOD_DSP_TYPE_MIXER, &DSP[c][i]);
+            DSP[c][i]->setBypass(true);
+        }
+        keySamplesChannelGroup->addDSP(c * 2 + 0, DSP[c][0]);
+        etcSamplesChannelGroup->addDSP(c * 2 + 0, DSP[c][1]);
+        keySamplesChannelGroup->addDSP(c * 2 + 1, DSP[c][2]);
+        etcSamplesChannelGroup->addDSP(c * 2 + 1, DSP[c][3]);
+    }
 
     if (initRet == FMOD_OK)
     {
@@ -339,7 +356,122 @@ int SoundDriverFMOD::getChannelsPlaying()
     return c;
 }
 
-void SoundDriverFMOD::setDSP(DSPType type, SampleChannel ch, int p1, int p2)
+void SoundDriverFMOD::setVolume(SampleChannel ch, float v)
 {
+    volume[ch] = v;
 
+    switch (ch)
+    {
+    case SampleChannel::MASTER:
+        keySamplesChannelGroup->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
+        etcSamplesChannelGroup->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::BGM]);
+        break;
+    case SampleChannel::KEY:
+        keySamplesChannelGroup->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
+        break;
+    case SampleChannel::BGM:
+        etcSamplesChannelGroup->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::BGM]);
+        break;
+    }
+}
+
+void SoundDriverFMOD::setDSP(DSPType type, int dspIndex, SampleChannel ch, float p1, float p2)
+{
+    FMOD_DSP_TYPE fmodType = FMOD_DSP_TYPE_UNKNOWN;
+    switch (type)
+	{
+	case DSPType::REVERB:     fmodType = FMOD_DSP_TYPE_SFXREVERB; break;
+	case DSPType::DELAY:      fmodType = FMOD_DSP_TYPE_ECHO; break;
+	case DSPType::LOWPASS:    fmodType = FMOD_DSP_TYPE_LOWPASS; break;
+	case DSPType::HIGHPASS:   fmodType = FMOD_DSP_TYPE_HIGHPASS; break;
+	case DSPType::FLANGER:    fmodType = FMOD_DSP_TYPE_FLANGE; break;
+	case DSPType::CHORUS:     fmodType = FMOD_DSP_TYPE_CHORUS; break;
+	case DSPType::DISTORTION: fmodType = FMOD_DSP_TYPE_DISTORTION; break;
+    }
+
+    if (fmodType == FMOD_DSP_TYPE_UNKNOWN)
+    {
+        for (int c = 0; c < 4; ++c)
+        {
+            DSP[dspIndex][c]->setBypass(true);
+        }
+    }
+    else
+    {
+        auto updateDSP = [&](std::shared_ptr<FMOD::ChannelGroup>& cg, FMOD::DSP*& dsp)
+        {
+            FMOD_DSP_TYPE typeOld = FMOD_DSP_TYPE_UNKNOWN;
+            int dspi = 4;
+            if (cg->getDSPIndex(dsp, &dspi) != FMOD_OK || dsp->getType(&typeOld) != FMOD_OK || typeOld != fmodType)
+            {
+                cg->removeDSP(dsp);
+                dsp->release();
+                fmodSystem->createDSPByType(fmodType, &dsp);
+                cg->addDSP(dspi, dsp);
+            }
+            if (dsp != nullptr)
+            {
+                // How DSP tweaked by LR2 is unknown. These parameters are just assumptions.
+                switch (fmodType)
+                {
+                case FMOD_DSP_TYPE_SFXREVERB:
+                    dsp->setParameterFloat(FMOD_DSP_SFXREVERB_EARLYLATEMIX, float(p1 * 100.0));
+                    dsp->setParameterFloat(FMOD_DSP_SFXREVERB_WETLEVEL, float(p2 * (20.0 - (-10.0)) + (-10.0)));
+                    break;
+
+                case FMOD_DSP_TYPE_ECHO:
+                    dsp->setParameterFloat(FMOD_DSP_ECHO_DELAY, float(p1 * (100.0 - 20.0) + 20.0));
+                    dsp->setParameterFloat(FMOD_DSP_ECHO_FEEDBACK, float(p2 * 50.0));
+                    break;
+
+                case FMOD_DSP_TYPE_LOWPASS:
+                    dsp->setParameterFloat(FMOD_DSP_LOWPASS_CUTOFF, float(p1 * (22000.0 - 500.0) + 500.0));
+                    dsp->setParameterFloat(FMOD_DSP_LOWPASS_RESONANCE, float(p2 * (10.0 - 1.0) + 1.0));
+                    break;
+
+                case FMOD_DSP_TYPE_HIGHPASS:
+                    dsp->setParameterFloat(FMOD_DSP_HIGHPASS_CUTOFF, float(p1 * (5050.0 - 500.0) + 500.0));
+                    dsp->setParameterFloat(FMOD_DSP_HIGHPASS_RESONANCE, float(p2 * (10.0 - 1.0) + 1.0));
+                    break;
+
+                case FMOD_DSP_TYPE_FLANGE:
+                    dsp->setParameterFloat(FMOD_DSP_FLANGE_DEPTH, float(p1 * (1.0 - 0.01) + 0.01));
+                    dsp->setParameterFloat(FMOD_DSP_FLANGE_RATE, float(p2 * 20.0));
+                    break;
+
+                case FMOD_DSP_TYPE_CHORUS:
+                    dsp->setParameterFloat(FMOD_DSP_CHORUS_RATE, float(p1 * 20.0));
+                    dsp->setParameterFloat(FMOD_DSP_CHORUS_DEPTH, float(p2 * 100.0));
+                    break;
+
+                case FMOD_DSP_TYPE_DISTORTION:
+                    dsp->setParameterFloat(FMOD_DSP_DISTORTION_LEVEL, float(p1 * 1.0));
+                    break;
+                }
+                dsp->setBypass(false);
+            }
+        };
+
+        switch (ch)
+        {
+        case SampleChannel::MASTER:
+            DSP[dspIndex][2]->setBypass(true);
+            DSP[dspIndex][3]->setBypass(true);
+            updateDSP(keySamplesChannelGroup, DSP[dspIndex][0]);
+            updateDSP(etcSamplesChannelGroup, DSP[dspIndex][1]);
+            break;
+        case SampleChannel::KEY:
+            DSP[dspIndex][0]->setBypass(true);
+            DSP[dspIndex][1]->setBypass(true);
+            DSP[dspIndex][3]->setBypass(true);
+            updateDSP(keySamplesChannelGroup, DSP[dspIndex][2]);
+            break;
+        case SampleChannel::BGM:
+            DSP[dspIndex][0]->setBypass(true);
+            DSP[dspIndex][1]->setBypass(true);
+            DSP[dspIndex][2]->setBypass(true);
+            updateDSP(etcSamplesChannelGroup, DSP[dspIndex][3]);
+            break;
+        }
+    }
 }

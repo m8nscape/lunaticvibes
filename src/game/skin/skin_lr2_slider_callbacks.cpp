@@ -54,44 +54,142 @@ void master_volume(double p)
 {
     gSliders.set(eSlider::VOLUME_MASTER, p);
     gNumbers.set(eNumber::VOLUME_MASTER, int(std::round(p * 100)));
+
+    SoundMgr::setVolume(SampleChannel::MASTER, (float)p);
 }
 
 void key_volume(double p)
 {
     gSliders.set(eSlider::VOLUME_KEY, p);
     gNumbers.set(eNumber::VOLUME_KEY, int(std::round(p * 100)));
+
+    SoundMgr::setVolume(SampleChannel::KEY, (float)p);
 }
 
 void bgm_volume(double p)
 {
     gSliders.set(eSlider::VOLUME_BGM, p);
     gNumbers.set(eNumber::VOLUME_BGM, int(std::round(p * 100)));
+
+    SoundMgr::setVolume(SampleChannel::BGM, (float)p);
 }
 
-void master_fx(int idx, double p)
+void fx0(int idx, double p)
 {
     gSliders.set(idx == 0 ? eSlider::FX0_P1 : eSlider::FX0_P2, p);
     gNumbers.set(idx == 0 ? eNumber::FX0_P1 : eNumber::FX0_P2, int(std::round(p * 100)));
+
+    float p1 = (idx == 0) ? (float)p : gSliders.get(eSlider::FX0_P1);
+    float p2 = (idx != 0) ? (float)p : gSliders.get(eSlider::FX0_P2);
+
+    if (gSwitches.get(eSwitch::SOUND_FX0))
+    {
+        SampleChannel ch;
+        switch (gOptions.get(eOption::SOUND_TARGET_FX0))
+        {
+        case 0: ch = SampleChannel::MASTER; break;
+        case 1: ch = SampleChannel::KEY; break;
+        case 2: ch = SampleChannel::BGM; break;
+        }
+        switch (gOptions.get(eOption::SOUND_FX0))
+        {
+        case 0: SoundMgr::setDSP(DSPType::OFF, 0, ch, 0.f, 0.f); break;
+        case 1: SoundMgr::setDSP(DSPType::REVERB, 0, ch, p1, p2); break;
+        case 2: SoundMgr::setDSP(DSPType::DELAY, 0, ch, p1, p2); break;
+        case 3: SoundMgr::setDSP(DSPType::LOWPASS, 0, ch, p1, p2); break;
+        case 4: SoundMgr::setDSP(DSPType::HIGHPASS, 0, ch, p1, p2); break;
+        case 5: SoundMgr::setDSP(DSPType::FLANGER, 0, ch, p1, p2); break;
+        case 6: SoundMgr::setDSP(DSPType::CHORUS, 0, ch, p1, p2); break;
+        case 7: SoundMgr::setDSP(DSPType::DISTORTION, 0, ch, p1, p2); break;
+        }
+    }
 }
 
-void key_fx(int idx, double p)
+void fx1(int idx, double p)
 {
     gSliders.set(idx == 0 ? eSlider::FX1_P1 : eSlider::FX1_P2, p);
     gNumbers.set(idx == 0 ? eNumber::FX1_P1 : eNumber::FX1_P2, int(std::round(p * 100)));
+
+    float p1 = (idx == 0) ? (float)p : gSliders.get(eSlider::FX1_P1);
+    float p2 = (idx != 0) ? (float)p : gSliders.get(eSlider::FX1_P2);
+
+    if (gSwitches.get(eSwitch::SOUND_FX1))
+    {
+        SampleChannel ch;
+        switch (gOptions.get(eOption::SOUND_TARGET_FX1))
+        {
+        case 0: ch = SampleChannel::MASTER; break;
+        case 1: ch = SampleChannel::KEY; break;
+        case 2: ch = SampleChannel::BGM; break;
+        }
+        switch (gOptions.get(eOption::SOUND_FX1))
+        {
+        case 0: SoundMgr::setDSP(DSPType::OFF, 1, ch, 0.f, 0.f); break;
+        case 1: SoundMgr::setDSP(DSPType::REVERB, 1, ch, p1, p2); break;
+        case 2: SoundMgr::setDSP(DSPType::DELAY, 1, ch, p1, p2); break;
+        case 3: SoundMgr::setDSP(DSPType::LOWPASS, 1, ch, p1, p2); break;
+        case 4: SoundMgr::setDSP(DSPType::HIGHPASS, 1, ch, p1, p2); break;
+        case 5: SoundMgr::setDSP(DSPType::FLANGER, 1, ch, p1, p2); break;
+        case 6: SoundMgr::setDSP(DSPType::CHORUS, 1, ch, p1, p2); break;
+        case 7: SoundMgr::setDSP(DSPType::DISTORTION, 1, ch, p1, p2); break;
+        }
+    }
 }
 
-void bgm_fx(int idx, double p)
+void fx2(int idx, double p)
 {
     gSliders.set(idx == 0 ? eSlider::FX2_P1 : eSlider::FX2_P2, p);
     gNumbers.set(idx == 0 ? eNumber::FX2_P1 : eNumber::FX2_P2, int(std::round(p * 100)));
+
+    float p1 = (idx == 0) ? (float)p : gSliders.get(eSlider::FX2_P1);
+    float p2 = (idx != 0) ? (float)p : gSliders.get(eSlider::FX2_P2);
+
+    if (gSwitches.get(eSwitch::SOUND_FX2))
+    {
+        SampleChannel ch;
+        switch (gOptions.get(eOption::SOUND_TARGET_FX2))
+        {
+        case 0: ch = SampleChannel::MASTER; break;
+        case 1: ch = SampleChannel::KEY; break;
+        case 2: ch = SampleChannel::BGM; break;
+        }
+        switch (gOptions.get(eOption::SOUND_FX2))
+        {
+        case 0: SoundMgr::setDSP(DSPType::OFF, 2, ch, 0.f, 0.f); break;
+        case 1: SoundMgr::setDSP(DSPType::REVERB, 2, ch, p1, p2); break;
+        case 2: SoundMgr::setDSP(DSPType::DELAY, 2, ch, p1, p2); break;
+        case 3: SoundMgr::setDSP(DSPType::LOWPASS, 2, ch, p1, p2); break;
+        case 4: SoundMgr::setDSP(DSPType::HIGHPASS, 2, ch, p1, p2); break;
+        case 5: SoundMgr::setDSP(DSPType::FLANGER, 2, ch, p1, p2); break;
+        case 6: SoundMgr::setDSP(DSPType::CHORUS, 2, ch, p1, p2); break;
+        case 7: SoundMgr::setDSP(DSPType::DISTORTION, 2, ch, p1, p2); break;
+        }
+    }
 }
 
 void pitch(double p)
 {
     int val = int(p * 24) - 12;
-    p = (val + 12) / 24.0;
-    gSliders.set(eSlider::PITCH, p);
+    double pp = (val + 12) / 24.0;
+    double speed = std::pow(2.0, val / 12.0);
+    gSliders.set(eSlider::PITCH, pp);
     gNumbers.set(eNumber::PITCH, val);
+
+    switch (gOptions.get(eOption::SOUND_PITCH_TYPE))
+    {
+    case 0: // Frequency
+        SoundMgr::setFrequencyFactor(speed);
+        SoundMgr::setPitch(1.0);
+        break;
+    case 1: // Pitch only, keep speed
+        SoundMgr::setFrequencyFactor(speed);
+        SoundMgr::setPitch(1.0 / speed);
+        break;
+    case 2: // Speed only, keep pitch
+        SoundMgr::setFrequencyFactor(1.0 / speed);
+        SoundMgr::setPitch(speed);
+        break;
+    }
 }
 
 
@@ -129,17 +227,17 @@ std::function<void(double)> getSliderCallback(int type)
         return std::bind(bgm_volume, _1);
 
     case 20:
-        return std::bind(master_fx, 0, _1);
+        return std::bind(fx0, 0, _1);
     case 21:
-        return std::bind(master_fx, 1, _1);
+        return std::bind(fx0, 1, _1);
     case 22:
-        return std::bind(key_fx, 0, _1);
+        return std::bind(fx1, 0, _1);
     case 23:
-        return std::bind(key_fx, 1, _1);
+        return std::bind(fx1, 1, _1);
     case 24:
-        return std::bind(bgm_fx, 0, _1);
+        return std::bind(fx2, 0, _1);
     case 25:
-        return std::bind(bgm_fx, 1, _1);
+        return std::bind(fx2, 1, _1);
     case 26:
         return std::bind(pitch, _1);
 

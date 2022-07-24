@@ -72,42 +72,37 @@ std::tuple<eOption, eSwitch, eNumber, eNumber, eSlider, eSlider, eOption, Sample
     return { op, sw, num_p1, num_p2, sli_p1, sli_p2, target, ch };
 }
 
-void update_fx(int type, SampleChannel ch, int p1, int p2)
+void update_fx(int type, int index, SampleChannel ch, float p1, float p2)
 {
     switch (type)
     {
     case 0: // OFF
-        SoundMgr::setDSP(DSPType::OFF, ch, 0, 0);
+        SoundMgr::setDSP(DSPType::OFF, index, ch, 0.f, 0.f);
         break;
     case 1: // REVERB
-        SoundMgr::setDSP(DSPType::REVERB, ch, p1, p2);
+        SoundMgr::setDSP(DSPType::REVERB, index, ch, p1, p2);
         break;
     case 2: // DELAY
-        SoundMgr::setDSP(DSPType::DELAY, ch, p1, p2);
+        SoundMgr::setDSP(DSPType::DELAY, index, ch, p1, p2);
         break;
     case 3: // LOWPASS
-        SoundMgr::setDSP(DSPType::LOWPASS, ch, p1, p2);
+        SoundMgr::setDSP(DSPType::LOWPASS, index, ch, p1, p2);
         break;
     case 4: // HIGHPASS
-        SoundMgr::setDSP(DSPType::HIGHPASS, ch, p1, p2);
+        SoundMgr::setDSP(DSPType::HIGHPASS, index, ch, p1, p2);
         break;
     case 5: // FLANGER
-        SoundMgr::setDSP(DSPType::FLANGER, ch, p1, p2);
+        SoundMgr::setDSP(DSPType::FLANGER, index, ch, p1, p2);
         break;
     case 6: // CHORUS
-        SoundMgr::setDSP(DSPType::CHORUS, ch, p1, p2);
+        SoundMgr::setDSP(DSPType::CHORUS, index, ch, p1, p2);
         break;
     case 7: // DISTORTION
-        SoundMgr::setDSP(DSPType::DISTORTION, ch, p1, p2);
+        SoundMgr::setDSP(DSPType::DISTORTION, index, ch, p1, p2);
         break;
     default:
         break;
     }
-}
-
-void update_fx_all()
-{
-    // SoundMgr::updateDSP();
 }
 
 void number_change(eNumber type, int plus)
@@ -195,18 +190,16 @@ void fx_type(int idx, int plus)
 
     if (gSwitches.get(sw))
     {
-        int p1 = static_cast<int>(gSliders.get(sli_p1) * 100);
-        int p2 = static_cast<int>(gSliders.get(sli_p2) * 100);
-        gNumbers.set(num_p1, p1);
-        gNumbers.set(num_p2, p2);
-        //update_fx(val, ch, p1, p2);
+        float p1 = float(gSliders.get(sli_p1));
+        float p2 = float(gSliders.get(sli_p2));
+        gNumbers.set(num_p1, static_cast<int>(p1 * 100));
+        gNumbers.set(num_p2, static_cast<int>(p2 * 100));
+        update_fx(val, idx, ch, p1, p2);
     }
     else
     {
-        //update_fx(0, ch, 0, 0);
+        update_fx(0, idx, ch, 0.f, 0.f);
     }
-
-    update_fx_all();
 }
 
 // 23, 24, 25
@@ -217,20 +210,20 @@ void fx_switch(int idx, int plus)
 
     if (gSwitches.get(sw))
     {
-        // close
+        // button clicked, close fx
         gSwitches.set(sw, false);
-        //update_fx(0, ch, 0, 0);
+        update_fx(0, idx, ch, 0.f, 0.f);
     }
     else
     {
-        // open
+        // button clicked, open fx
         gSwitches.set(sw, true);
-        int p1 = static_cast<int>(gSliders.get(sli_p1) * 100);
-        int p2 = static_cast<int>(gSliders.get(sli_p2) * 100);
-        //update_fx(gOptions.get(op), ch, p1, p2);
+        float p1 = float(gSliders.get(sli_p1));
+        float p2 = float(gSliders.get(sli_p2));
+        gNumbers.set(num_p1, static_cast<int>(p1 * 100));
+        gNumbers.set(num_p2, static_cast<int>(p2 * 100));
+        update_fx(gOptions.get(op), idx, ch, p1, p2);
     }
-
-    update_fx_all();
 }
 
 // 26, 27, 28
@@ -243,7 +236,23 @@ void fx_target(int idx, int plus)
     int val = (gOptions.get(target) + plus) % 3;
     gOptions.set(target, val);
 
-    update_fx_all();
+    if (gSwitches.get(sw))
+    {
+        // target is modified, thus we should get ch once again
+        switch (gOptions.get(target))
+        {
+        case 1: ch = SampleChannel::KEY; break;
+        case 2: ch = SampleChannel::BGM; break;
+        case 0: ch = SampleChannel::MASTER; break;
+        default: break;
+        }
+
+        float p1 = float(gSliders.get(sli_p1));
+        float p2 = float(gSliders.get(sli_p2));
+        gNumbers.set(num_p1, static_cast<int>(p1 * 100));
+        gNumbers.set(num_p2, static_cast<int>(p2 * 100));
+        update_fx(gOptions.get(op), idx, ch, p1, p2);
+    }
 }
 
 // 29
@@ -259,8 +268,6 @@ void eq_switch(int plus)
         // open
         gSwitches.set(eSwitch::SOUND_EQ, true);
     }
-    
-    update_fx_all();
 }
 
 // 31
@@ -293,8 +300,6 @@ void pitch_switch(int plus)
         // open
         gSwitches.set(eSwitch::SOUND_PITCH, true);
     }
-
-    update_fx_all();
 }
 
 // 33
@@ -333,8 +338,6 @@ void pitch_type(int plus)
     else
     {
     }
-
-    update_fx_all();
 }
 
 // 40, 41

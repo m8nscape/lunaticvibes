@@ -20,6 +20,8 @@ private:
 protected:
 	std::shared_ptr<FMOD::ChannelGroup> keySamplesChannelGroup;
 	std::shared_ptr<FMOD::ChannelGroup> etcSamplesChannelGroup;
+	std::map<SampleChannel, float> volume;
+	FMOD::DSP* DSP[3][4];
 
 public:
 	SoundDriverFMOD();
@@ -51,5 +53,6 @@ public:
 	int getChannelsPlaying();
 
 public:
-	virtual void setDSP(DSPType type, SampleChannel ch, int p1, int p2);
+	virtual void setVolume(SampleChannel ch, float v);
+	virtual void setDSP(DSPType type, int index, SampleChannel ch, float p1, float p2);
 };

@@ -29,7 +29,9 @@ public:
     static void freeSamples();
     static void update();
 
-    static void setDSP(DSPType type, SampleChannel ch, int p1, int p2);
+    static void setVolume(SampleChannel ch, float v);
+
+    static void setDSP(DSPType type, int index, SampleChannel ch, float p1, float p2);
     static void updateDSP();
 
     static void setFrequencyFactor(double freq);

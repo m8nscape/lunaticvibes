@@ -55,5 +55,6 @@ public:
     virtual void update() = 0;
 
 public:
-    virtual void setDSP(DSPType type, SampleChannel ch, int p1, int p2) = 0;
+    virtual void setVolume(SampleChannel ch, float v) = 0;
+    virtual void setDSP(DSPType type, int index, SampleChannel ch, float p1, float p2) = 0;
 };

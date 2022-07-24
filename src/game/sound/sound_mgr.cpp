@@ -74,10 +74,16 @@ void SoundMgr::update()
     return _inst.driver->update();
 }
 
-void SoundMgr::setDSP(DSPType type, SampleChannel ch, int p1, int p2)
+void SoundMgr::setVolume(SampleChannel ch, float v)
 {
     if (!_inst._initialized) return;
-    return _inst.driver->setDSP(type, ch, p1, p2);
+    return _inst.driver->setVolume(ch, v);
+}
+
+void SoundMgr::setDSP(DSPType type, int index, SampleChannel ch, float p1, float p2)
+{
+    if (!_inst._initialized) return;
+    return _inst.driver->setDSP(type, index, ch, p1, p2);
 }
 
 void SoundMgr::updateDSP()
