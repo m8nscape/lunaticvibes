@@ -57,4 +57,7 @@ public:
 public:
     virtual void setVolume(SampleChannel ch, float v) = 0;
     virtual void setDSP(DSPType type, int index, SampleChannel ch, float p1, float p2) = 0;
+    virtual void setFreqFactor(double f) = 0;
+    virtual void setSpeed(double speed) = 0;
+    virtual void setPitch(double pitch) = 0;
 };

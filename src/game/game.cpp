@@ -165,6 +165,28 @@ int main(int argc, char* argv[])
     if (gSwitches.get(eSwitch::SOUND_FX2))
         SoundMgr::setDSP((DSPType)gOptions.get(eOption::SOUND_FX2), 2, (SampleChannel)gOptions.get(eOption::SOUND_TARGET_FX2), gSliders.get(eSlider::FX2_P1), gSliders.get(eSlider::FX2_P2));
 
+    if (gSwitches.get(eSwitch::SOUND_PITCH))
+    {
+        static const double tick = std::pow(2, 1.0 / 12);
+        double f = std::pow(tick, gNumbers.get(eNumber::PITCH));
+        switch (gOptions.get(eOption::SOUND_PITCH_TYPE))
+        {
+        case 0: // FREQUENCY
+            SoundMgr::setFreqFactor(f);
+            break;
+        case 1: // PITCH
+            SoundMgr::setFreqFactor(1.0);
+            SoundMgr::setPitch(f);
+            break;
+        case 2: // SPEED (freq up, pitch down)
+            SoundMgr::setFreqFactor(1.0);
+            SoundMgr::setSpeed(f);
+            break;
+        default:
+            break;
+        }
+    }
+
     // score db
     std::string scoreDBPath = (ConfigMgr::Profile()->getPath() / "score.db").u8string();
     g_pScoreDB = std::make_shared<ScoreDB>(scoreDBPath.c_str());

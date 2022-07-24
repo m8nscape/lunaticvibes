@@ -64,6 +64,14 @@ SoundDriverFMOD::SoundDriverFMOD()
         etcSamplesChannelGroup->addDSP(c * 2 + 1, DSP[c][3]);
     }
 
+    // create PITCHSHIFT dsp
+    fmodSystem->createDSPByType(FMOD_DSP_TYPE_PITCHSHIFT, &PitchShiftFilter[0]);
+    fmodSystem->createDSPByType(FMOD_DSP_TYPE_PITCHSHIFT, &PitchShiftFilter[1]);
+    PitchShiftFilter[0]->setParameterFloat(FMOD_DSP_PITCHSHIFT_FFTSIZE, 512.f);
+    PitchShiftFilter[1]->setParameterFloat(FMOD_DSP_PITCHSHIFT_FFTSIZE, 512.f);
+    keySamplesChannelGroup->addDSP(6, PitchShiftFilter[0]);
+    etcSamplesChannelGroup->addDSP(6, PitchShiftFilter[1]);
+
     if (initRet == FMOD_OK)
     {
         LOG_DEBUG << "FMOD System Initialize Finished.";
@@ -474,4 +482,35 @@ void SoundDriverFMOD::setDSP(DSPType type, int dspIndex, SampleChannel ch, float
             break;
         }
     }
+}
+
+void SoundDriverFMOD::setFreqFactor(double f)
+{
+    keySamplesChannelGroup->setPitch(f);
+    etcSamplesChannelGroup->setPitch(f);
+    PitchShiftFilter[0]->setParameterFloat(FMOD_DSP_PITCHSHIFT_PITCH, 1.0f);
+    PitchShiftFilter[1]->setParameterFloat(FMOD_DSP_PITCHSHIFT_PITCH, 1.0f);
+    PitchShiftFilter[0]->setBypass(true);
+    PitchShiftFilter[1]->setBypass(true);
+}
+
+void SoundDriverFMOD::setSpeed(double speed)
+{
+    double pitch = 1.0 / speed;
+    keySamplesChannelGroup->setPitch(speed);
+    etcSamplesChannelGroup->setPitch(speed);
+    PitchShiftFilter[0]->setParameterFloat(FMOD_DSP_PITCHSHIFT_PITCH, pitch);
+    PitchShiftFilter[1]->setParameterFloat(FMOD_DSP_PITCHSHIFT_PITCH, pitch);
+    PitchShiftFilter[0]->setBypass(false);
+    PitchShiftFilter[1]->setBypass(false);
+}
+
+void SoundDriverFMOD::setPitch(double pitch)
+{
+    keySamplesChannelGroup->setPitch(1.0);
+    etcSamplesChannelGroup->setPitch(1.0);
+    PitchShiftFilter[0]->setParameterFloat(FMOD_DSP_PITCHSHIFT_PITCH, pitch);
+    PitchShiftFilter[1]->setParameterFloat(FMOD_DSP_PITCHSHIFT_PITCH, pitch);
+    PitchShiftFilter[0]->setBypass(false);
+    PitchShiftFilter[1]->setBypass(false);
 }

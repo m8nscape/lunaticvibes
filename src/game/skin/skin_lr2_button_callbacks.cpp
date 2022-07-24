@@ -105,6 +105,29 @@ void update_fx(int type, int index, SampleChannel ch, float p1, float p2)
     }
 }
 
+void update_pitch()
+{
+    int p = static_cast<int>(std::round((gSliders.get(eSlider::PITCH) - 0.5) * 2 * 12));
+    static const double tick = std::pow(2, 1.0 / 12);
+    double f = std::pow(tick, p);
+    switch (gOptions.get(eOption::SOUND_PITCH_TYPE))
+    {
+    case 0: // FREQUENCY
+        SoundMgr::setFreqFactor(f);
+        break;
+    case 1: // PITCH
+        SoundMgr::setFreqFactor(1.0);
+        SoundMgr::setPitch(f);
+        break;
+    case 2: // SPEED (freq up, pitch down)
+        SoundMgr::setFreqFactor(1.0);
+        SoundMgr::setSpeed(f);
+        break;
+    default:
+        break;
+    }
+}
+
 void number_change(eNumber type, int plus)
 {
     gNumbers.set(type, gNumbers.get(type) + plus);
@@ -294,11 +317,13 @@ void pitch_switch(int plus)
     {
         // close
         gSwitches.set(eSwitch::SOUND_PITCH, false);
+        SoundMgr::setFreqFactor(1.0);
     }
     else
     {
         // open
         gSwitches.set(eSwitch::SOUND_PITCH, true);
+        update_pitch();
     }
 }
 
@@ -313,30 +338,7 @@ void pitch_type(int plus)
     {
         int p = static_cast<int>(std::round((gSliders.get(eSlider::PITCH) - 0.5) * 2 * 12));
         gNumbers.set(eNumber::PITCH, p);
-
-        static const double tick = std::log(2) / std::log(12);
-        double f = std::pow(tick, p);
-        double f2 = std::pow(tick, -p);
-        switch (val)
-        {
-        case 0: // FREQUENCY
-            SoundMgr::setFrequencyFactor(f);
-            SoundMgr::setPitch(1.0);
-            break;
-        case 1: // PITCH
-            SoundMgr::setFrequencyFactor(1.0);
-            SoundMgr::setPitch(f);
-            break;
-        case 2: // SPEED (freq up, pitch down)
-            SoundMgr::setFrequencyFactor(f);
-            SoundMgr::setPitch(f2);
-            break;
-        default:
-            break;
-        }
-    }
-    else
-    {
+        update_pitch();
     }
 }
 

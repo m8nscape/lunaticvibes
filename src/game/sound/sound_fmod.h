@@ -21,7 +21,8 @@ protected:
 	std::shared_ptr<FMOD::ChannelGroup> keySamplesChannelGroup;
 	std::shared_ptr<FMOD::ChannelGroup> etcSamplesChannelGroup;
 	std::map<SampleChannel, float> volume;
-	FMOD::DSP* DSP[3][4];
+	FMOD::DSP* DSP[3][4];	// FX0,FX1,FX2 -> MasterKey, MasterBgm, Key, Bgm
+	FMOD::DSP* PitchShiftFilter[2]; // Key, Bgm
 
 public:
 	SoundDriverFMOD();
@@ -55,4 +56,7 @@ public:
 public:
 	virtual void setVolume(SampleChannel ch, float v);
 	virtual void setDSP(DSPType type, int index, SampleChannel ch, float p1, float p2);
+	virtual void setFreqFactor(double f);
+	virtual void setSpeed(double speed);
+	virtual void setPitch(double pitch);
 };

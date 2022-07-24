@@ -34,6 +34,7 @@ public:
     static void setDSP(DSPType type, int index, SampleChannel ch, float p1, float p2);
     static void updateDSP();
 
-    static void setFrequencyFactor(double freq);
+    static void setFreqFactor(double f);
+    static void setSpeed(double speed);
     static void setPitch(double pitch);
 };

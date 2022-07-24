@@ -322,7 +322,7 @@ void setSliders()
     g.queue(e::EQ5, ((ConfigMgr::get('P', P_EQ5, 0) + 12) / 24.0));
     g.queue(e::EQ6, ((ConfigMgr::get('P', P_EQ6, 0) + 12) / 24.0));
 
-    g.queue(e::PITCH, ((ConfigMgr::get('P', P_EQ6, 0) + 12) / 24.0));
+    g.queue(e::PITCH, ((ConfigMgr::get('P', P_FREQ_VAL, 0) + 12) / 24.0));
 
     g.queue(e::FX0_P1, ConfigMgr::get('P', P_FX0_P1, 0) / 100.0);
     g.queue(e::FX0_P2, ConfigMgr::get('P', P_FX0_P2, 0) / 100.0);

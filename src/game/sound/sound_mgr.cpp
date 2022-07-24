@@ -91,12 +91,20 @@ void SoundMgr::updateDSP()
 
 }
 
-
-void SoundMgr::setFrequencyFactor(double freq)
+void SoundMgr::setFreqFactor(double f)
 {
-
+    if (!_inst._initialized) return;
+    return _inst.driver->setFreqFactor(f);
 }
+
+void SoundMgr::setSpeed(double speed)
+{
+    if (!_inst._initialized) return;
+    return _inst.driver->setSpeed(speed);
+}
+
 void SoundMgr::setPitch(double pitch)
 {
-
+    if (!_inst._initialized) return;
+    return _inst.driver->setPitch(pitch);
 }

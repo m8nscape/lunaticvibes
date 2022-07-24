@@ -170,25 +170,30 @@ void fx2(int idx, double p)
 void pitch(double p)
 {
     int val = int(p * 24) - 12;
-    double pp = (val + 12) / 24.0;
-    double speed = std::pow(2.0, val / 12.0);
-    gSliders.set(eSlider::PITCH, pp);
+    double ps = (val + 12) / 24.0;
+    gSliders.set(eSlider::PITCH, ps);
     gNumbers.set(eNumber::PITCH, val);
 
-    switch (gOptions.get(eOption::SOUND_PITCH_TYPE))
+    if (gSwitches.get(eSwitch::SOUND_PITCH))
     {
-    case 0: // Frequency
-        SoundMgr::setFrequencyFactor(speed);
-        SoundMgr::setPitch(1.0);
-        break;
-    case 1: // Pitch only, keep speed
-        SoundMgr::setFrequencyFactor(speed);
-        SoundMgr::setPitch(1.0 / speed);
-        break;
-    case 2: // Speed only, keep pitch
-        SoundMgr::setFrequencyFactor(1.0 / speed);
-        SoundMgr::setPitch(speed);
-        break;
+        static const double tick = std::pow(2, 1.0 / 12);
+        double f = std::pow(tick, val);
+        switch (gOptions.get(eOption::SOUND_PITCH_TYPE))
+        {
+        case 0: // FREQUENCY
+            SoundMgr::setFreqFactor(f);
+            break;
+        case 1: // PITCH
+            SoundMgr::setFreqFactor(1.0);
+            SoundMgr::setPitch(f);
+            break;
+        case 2: // SPEED (freq up, pitch down)
+            SoundMgr::setFreqFactor(1.0);
+            SoundMgr::setSpeed(f);
+            break;
+        default:
+            break;
+        }
     }
 }
 
