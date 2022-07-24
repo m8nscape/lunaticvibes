@@ -182,14 +182,17 @@ void pitch(double p)
         {
         case 0: // FREQUENCY
             SoundMgr::setFreqFactor(f);
+            gSelectContext.pitchSpeed = f;
             break;
         case 1: // PITCH
             SoundMgr::setFreqFactor(1.0);
             SoundMgr::setPitch(f);
+            gSelectContext.pitchSpeed = 1.0;
             break;
         case 2: // SPEED (freq up, pitch down)
             SoundMgr::setFreqFactor(1.0);
             SoundMgr::setSpeed(f);
+            gSelectContext.pitchSpeed = f;
             break;
         default:
             break;

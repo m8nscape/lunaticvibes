@@ -253,20 +253,8 @@ void SceneResult::updateFadeout()
         _input.loopEnd();
         SoundMgr::stopKeySamples();
 
-        bool saveScore = true;
-
-        if (_playmode == ePlayMode::LOCAL_BATTLE)
-            saveScore = false;
-
-        // do not save score if speed < 1.0
-        if (gSwitches.get(eSwitch::SOUND_PITCH) && gOptions.get(eOption::SOUND_PITCH_TYPE) != 1)
-        {
-            if (gNumbers.get(eNumber::PITCH) < 0)
-                saveScore = false;
-        }
-
         // save score
-        if (!gChartContext.hash.empty() && saveScore)
+        if (_playmode != ePlayMode::LOCAL_BATTLE && !gChartContext.hash.empty() && gSelectContext.pitchSpeed >= 1.0)
         {
             assert(gPlayContext.ruleset[PLAYER_SLOT_1P] != nullptr);
             ScoreBMS score;

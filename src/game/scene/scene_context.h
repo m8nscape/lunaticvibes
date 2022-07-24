@@ -132,6 +132,7 @@ struct SelectContextParams
     unsigned difficulty = 0; // all / B / N / H / A / I (type 0 is not included)
     unsigned gamemode = 0; // all / 5, 7, 9, 10, 14, etc
     unsigned scrollTime = 300; // 
+    double pitchSpeed = 1.0;
 
     int panel = 0;
 

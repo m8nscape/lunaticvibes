@@ -2,6 +2,8 @@
 #include "game/scene/scene_context.h"
 #include <random>
 #include "game/data/switch.h"
+#include "game/data/option.h"
+#include "game/data/number.h"
 
 using namespace chart;
 
@@ -140,7 +142,7 @@ void chartBMS::loadBMS(const BMS& objBms)
 	Time basetime{ 0 };
 	Metre basebeat{ 0, 1 };
 
-    BPM bpm = objBms.startBPM;
+    BPM bpm = objBms.startBPM * gSelectContext.pitchSpeed;
     _currentBPM = bpm;
     _bpmNoteList.push_back({ 0, {0, 1}, 0, bpm });
 	barLength.fill({ 1, 1 });
@@ -629,7 +631,7 @@ void chartBMS::loadBMS(const BMS& objBms)
                 if (bpm == static_cast<BPM>(val)) break;
                 basetime = notetime;
                 lastBPMChangedSegment = noteSegment;
-                bpm = static_cast<BPM>(val);
+                bpm = static_cast<BPM>(val) * gSelectContext.pitchSpeed;
 				beatLength = Time::singleBeatLengthFromBPM(bpm);
                 _bpmNoteList.push_back({ m, beat, notetime, bpm });
                 if (bpm <= 0) bpmfucked = true;
@@ -639,7 +641,7 @@ void chartBMS::loadBMS(const BMS& objBms)
                 if (bpm == objBms.exBPM[val]) break;
                 basetime = notetime;
                 lastBPMChangedSegment = noteSegment;
-                bpm = objBms.exBPM[val];
+                bpm = objBms.exBPM[val] * gSelectContext.pitchSpeed;
                 beatLength = Time::singleBeatLengthFromBPM(bpm);
                 _bpmNoteList.push_back({ m, beat, notetime, bpm });
                 if (bpm <= 0) bpmfucked = true;
