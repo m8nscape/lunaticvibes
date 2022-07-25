@@ -59,7 +59,7 @@ static const std::vector<std::variant<std::monostate, eSwitch, eOption>> buttonA
     eOption::SOUND_TARGET_FX2,
 
     //29~30
-    eSwitch::_FALSE,	// EQ off/on
+    eSwitch::SOUND_EQ,	// EQ off/on
     eSwitch::_FALSE,	// EQ Preset
 
     //31~33

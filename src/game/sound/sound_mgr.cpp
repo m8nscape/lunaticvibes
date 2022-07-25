@@ -108,3 +108,9 @@ void SoundMgr::setPitch(double pitch)
     if (!_inst._initialized) return;
     return _inst.driver->setPitch(pitch);
 }
+
+void SoundMgr::setEQ(EQFreq freq, int gain)
+{
+    if (!_inst._initialized) return;
+    return _inst.driver->setEQ(freq, gain);
+}

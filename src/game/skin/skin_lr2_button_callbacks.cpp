@@ -288,11 +288,22 @@ void eq_switch(int plus)
     {
         // close
         gSwitches.set(eSwitch::SOUND_EQ, false);
+
+        for (int idx = 0; idx < 7; ++idx)
+        {
+            SoundMgr::setEQ((EQFreq)idx, 0);
+        }
     }
     else
     {
         // open
         gSwitches.set(eSwitch::SOUND_EQ, true);
+
+        for (int idx = 0; idx < 7; ++idx)
+        {
+            int val = gNumbers.get(eNumber(idx + (int)eNumber::EQ0));
+            SoundMgr::setEQ((EQFreq)idx, val);
+        }
     }
 }
 

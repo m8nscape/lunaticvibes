@@ -190,6 +190,15 @@ int main(int argc, char* argv[])
         }
     }
 
+    if (gSwitches.get(eSwitch::SOUND_EQ))
+    {
+        for (int idx = 0; idx < 7; ++idx)
+        {
+            int val = gNumbers.get(eNumber(idx + (int)eNumber::EQ0));
+            SoundMgr::setEQ((EQFreq)idx, val);
+        }
+    }
+
     // score db
     std::string scoreDBPath = (ConfigMgr::Profile()->getPath() / "score.db").u8string();
     g_pScoreDB = std::make_shared<ScoreDB>(scoreDBPath.c_str());

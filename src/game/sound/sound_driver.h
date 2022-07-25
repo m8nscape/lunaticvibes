@@ -17,6 +17,17 @@ enum class DSPType
     DISTORTION,
 };
 
+enum class EQFreq
+{
+    _62_5,
+    _160,
+    _400,
+    _1000,
+    _2500,
+    _6250,
+    _16k
+};
+
 enum class SampleChannel
 {
     MASTER,
@@ -60,4 +71,5 @@ public:
     virtual void setFreqFactor(double f) = 0;
     virtual void setSpeed(double speed) = 0;
     virtual void setPitch(double pitch) = 0;
+    virtual void setEQ(EQFreq freq, int gain) = 0;
 };

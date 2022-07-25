@@ -23,6 +23,7 @@ protected:
 	std::map<SampleChannel, float> volume;
 	FMOD::DSP* DSP[3][4];	// FX0,FX1,FX2 -> MasterKey, MasterBgm, Key, Bgm
 	FMOD::DSP* PitchShiftFilter[2]; // Key, Bgm
+	FMOD::DSP* EQFilter[2][2]; // Key, Bgm
 
 public:
 	SoundDriverFMOD();
@@ -59,4 +60,6 @@ public:
 	virtual void setFreqFactor(double f);
 	virtual void setSpeed(double speed);
 	virtual void setPitch(double pitch);
+	virtual void setEQ(EQFreq freq, int gain);
+
 };

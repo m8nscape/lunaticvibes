@@ -72,6 +72,37 @@ SoundDriverFMOD::SoundDriverFMOD()
     keySamplesChannelGroup->addDSP(6, PitchShiftFilter[0]);
     etcSamplesChannelGroup->addDSP(6, PitchShiftFilter[1]);
 
+    // create MULTIBAND_EQ dsp
+    for (int i = 0; i < 2; ++i)
+    {
+        fmodSystem->createDSPByType(FMOD_DSP_TYPE_MULTIBAND_EQ, &EQFilter[i][0]);
+        fmodSystem->createDSPByType(FMOD_DSP_TYPE_MULTIBAND_EQ, &EQFilter[i][1]);
+
+        EQFilter[i][0]->setParameterInt(FMOD_DSP_MULTIBAND_EQ_A_FILTER, FMOD_DSP_MULTIBAND_EQ_FILTER_PEAKING);
+        EQFilter[i][0]->setParameterInt(FMOD_DSP_MULTIBAND_EQ_B_FILTER, FMOD_DSP_MULTIBAND_EQ_FILTER_PEAKING);
+        EQFilter[i][0]->setParameterInt(FMOD_DSP_MULTIBAND_EQ_C_FILTER, FMOD_DSP_MULTIBAND_EQ_FILTER_PEAKING);
+        EQFilter[i][0]->setParameterInt(FMOD_DSP_MULTIBAND_EQ_D_FILTER, FMOD_DSP_MULTIBAND_EQ_FILTER_PEAKING);
+        EQFilter[i][0]->setParameterInt(FMOD_DSP_MULTIBAND_EQ_E_FILTER, FMOD_DSP_MULTIBAND_EQ_FILTER_PEAKING);
+        EQFilter[i][0]->setParameterFloat(FMOD_DSP_MULTIBAND_EQ_A_FREQUENCY, 62.5f);
+        EQFilter[i][0]->setParameterFloat(FMOD_DSP_MULTIBAND_EQ_B_FREQUENCY, 160.f);
+        EQFilter[i][0]->setParameterFloat(FMOD_DSP_MULTIBAND_EQ_C_FREQUENCY, 400.f);
+        EQFilter[i][0]->setParameterFloat(FMOD_DSP_MULTIBAND_EQ_D_FREQUENCY, 1000.f);
+        EQFilter[i][0]->setParameterFloat(FMOD_DSP_MULTIBAND_EQ_E_FREQUENCY, 2500.f);
+
+        EQFilter[i][1]->setParameterInt(FMOD_DSP_MULTIBAND_EQ_A_FILTER, FMOD_DSP_MULTIBAND_EQ_FILTER_PEAKING);
+        EQFilter[i][1]->setParameterInt(FMOD_DSP_MULTIBAND_EQ_B_FILTER, FMOD_DSP_MULTIBAND_EQ_FILTER_PEAKING);
+        EQFilter[i][1]->setParameterInt(FMOD_DSP_MULTIBAND_EQ_C_FILTER, FMOD_DSP_MULTIBAND_EQ_FILTER_PEAKING);
+        EQFilter[i][1]->setParameterInt(FMOD_DSP_MULTIBAND_EQ_D_FILTER, FMOD_DSP_MULTIBAND_EQ_FILTER_PEAKING);
+        EQFilter[i][1]->setParameterFloat(FMOD_DSP_MULTIBAND_EQ_A_FREQUENCY, 1000.f);
+        EQFilter[i][1]->setParameterFloat(FMOD_DSP_MULTIBAND_EQ_B_FREQUENCY, 2500.f);
+        EQFilter[i][1]->setParameterFloat(FMOD_DSP_MULTIBAND_EQ_C_FREQUENCY, 6250.f);
+        EQFilter[i][1]->setParameterFloat(FMOD_DSP_MULTIBAND_EQ_D_FREQUENCY, 16000.f);
+    }
+    keySamplesChannelGroup->addDSP(7, EQFilter[0][0]);
+    keySamplesChannelGroup->addDSP(8, EQFilter[0][1]);
+    etcSamplesChannelGroup->addDSP(7, EQFilter[1][0]);
+    etcSamplesChannelGroup->addDSP(8, EQFilter[1][1]);
+
     if (initRet == FMOD_OK)
     {
         LOG_DEBUG << "FMOD System Initialize Finished.";
@@ -513,4 +544,21 @@ void SoundDriverFMOD::setPitch(double pitch)
     PitchShiftFilter[1]->setParameterFloat(FMOD_DSP_PITCHSHIFT_PITCH, pitch);
     PitchShiftFilter[0]->setBypass(false);
     PitchShiftFilter[1]->setBypass(false);
+}
+
+void SoundDriverFMOD::setEQ(EQFreq freq, int gain)
+{
+    int i = 0, ch = 0;
+    switch (freq)
+    {
+    case EQFreq::_62_5: i = 0; ch = FMOD_DSP_MULTIBAND_EQ_A_GAIN; break;
+    case EQFreq::_160:  i = 0; ch = FMOD_DSP_MULTIBAND_EQ_B_GAIN; break;
+    case EQFreq::_400:  i = 0; ch = FMOD_DSP_MULTIBAND_EQ_C_GAIN; break;
+    case EQFreq::_1000: i = 0; ch = FMOD_DSP_MULTIBAND_EQ_D_GAIN; break;
+    case EQFreq::_2500: i = 1; ch = FMOD_DSP_MULTIBAND_EQ_B_GAIN; break;
+    case EQFreq::_6250: i = 1; ch = FMOD_DSP_MULTIBAND_EQ_C_GAIN; break;
+    case EQFreq::_16k:  i = 1; ch = FMOD_DSP_MULTIBAND_EQ_D_GAIN; break;
+    }
+    EQFilter[0][i]->setParameterFloat(ch, (float)gain);
+    EQFilter[1][i]->setParameterFloat(ch, (float)gain);
 }

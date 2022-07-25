@@ -48,6 +48,8 @@ void eq(int idx, double p)
     p = (val + 12) / 24.0;
     gSliders.set(eSlider(idx + (int)eSlider::EQ0), p);
     gNumbers.set(eNumber(idx + (int)eNumber::EQ0), val);
+
+    SoundMgr::setEQ((EQFreq)idx, val);
 }
 
 void master_volume(double p)

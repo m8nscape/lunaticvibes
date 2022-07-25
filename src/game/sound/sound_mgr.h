@@ -37,4 +37,6 @@ public:
     static void setFreqFactor(double f);
     static void setSpeed(double speed);
     static void setPitch(double pitch);
+
+    static void setEQ(EQFreq freq, int gain);
 };
