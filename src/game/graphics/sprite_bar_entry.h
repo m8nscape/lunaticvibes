@@ -174,7 +174,7 @@ public:
     virtual bool update(Time time);
     virtual void setLoopTime(int t);
     virtual void setTrigTimer(eTimer t);
-    virtual void appendKeyFrame(RenderKeyFrame f);
+    virtual void appendKeyFrame(const RenderKeyFrame& f) override;
     virtual void draw() const;
 
 public:

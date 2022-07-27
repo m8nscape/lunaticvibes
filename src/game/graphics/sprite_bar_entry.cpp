@@ -453,7 +453,7 @@ void SpriteBarEntry::setTrigTimer(eTimer t)
     LOG_ERROR << "[Sprite] setTrigTimer(f) of SpriteBarEntry should not be used";
 }
 
-void SpriteBarEntry::appendKeyFrame(RenderKeyFrame f)
+void SpriteBarEntry::appendKeyFrame(const RenderKeyFrame& f)
 {
     LOG_ERROR << "[Sprite] appendKeyFrame(f) of SpriteBarEntry should not be used";
 }

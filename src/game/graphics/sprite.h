@@ -148,7 +148,7 @@ public:
         vSprite::setTrigTimer(t);
         if (pS) pS->setTrigTimer(t);
     }
-    virtual void appendKeyFrame(RenderKeyFrame f) {
+    virtual void appendKeyFrame(const RenderKeyFrame& f) override {
         vSprite::appendKeyFrame(f);
         if (pS) pS->appendKeyFrame(f);
     }
@@ -342,7 +342,7 @@ public:
     void setInhibitZero(bool b) { _inhibitZero = b; }
     void updateNumberRect();
 	virtual bool update(const Time& t);
-    virtual void appendKeyFrame(RenderKeyFrame f);
+    virtual void appendKeyFrame(const RenderKeyFrame& f) override;
     virtual void draw() const;
 };
 

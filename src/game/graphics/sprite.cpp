@@ -71,7 +71,7 @@ bool vSprite::updateByKeyframes(const Time& rawTime)
     }
 
     // Check if the sprite is not visible yet
-    if (!_drawn && _keyFrames[0].time > 0 && time < _keyFrames[0].time)
+    if (!_drawn && _keyFrames[0].time > 0 && time.norm() < _keyFrames[0].time)
         return false;
 
     // Check if import time is valid
@@ -96,7 +96,7 @@ bool vSprite::updateByKeyframes(const Time& rawTime)
     }
 
     // Check if specific time
-    if (frameCount == 1 || time <= _keyFrames[0].time)
+    if (frameCount == 1 || time.norm() <= _keyFrames[0].time)
     {
         // exactly first frame
         _current = _keyFrames[0].param;
@@ -718,7 +718,7 @@ void SpriteNumber::updateNumberRect()
     }
 }
 
-void SpriteNumber::appendKeyFrame(RenderKeyFrame f)
+void SpriteNumber::appendKeyFrame(const RenderKeyFrame& f)
 {
     _keyFrames.push_back(f);
 }
