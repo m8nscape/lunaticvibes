@@ -129,8 +129,15 @@ double toDouble(const std::string& str, double defVal) noexcept { return toDoubl
 // strcasecmp
 bool strEqual(std::string_view str1, std::string_view str2, bool icase) noexcept
 {
-    return std::equal(std::execution::seq, str1.begin(), str1.end(), str2.begin(), str2.end(),
-        [](char c1, char c2) { return std::tolower(c1) == std::tolower(c2); });
+    if (icase)
+    {
+        return std::equal(std::execution::seq, str1.begin(), str1.end(), str2.begin(), str2.end(),
+            [](char c1, char c2) { return std::tolower(c1) == std::tolower(c2); });
+    }
+    else
+    {
+        return str1 == str2;
+    }
 }
 bool strEqual(const std::string& str1, std::string_view str2, bool icase) noexcept { return strEqual(std::string_view(str1), str2, icase); }
 
@@ -285,23 +292,25 @@ HashMD5 md5file(const Path& filePath)
 
 #endif
 
-std::string toLower(const std::string& s)
+std::string toLower(std::string_view s)
 {
-	std::string ret = s;
+	std::string ret(s);
 	for (auto& c : ret)
 		if (c >= 'A' && c <= 'Z')
 			c = c - 'A' + 'a';
 	return ret;
 }
+std::string toLower(const std::string& s) { return toLower(std::string_view(s)); }
 
-std::string toUpper(const std::string& s)
+std::string toUpper(std::string_view s)
 {
-	std::string ret = s;
+	std::string ret(s);
 	for (auto& c : ret)
 		if (c >= 'a' && c <= 'z')
 			c = c - 'a' + 'A';
 	return ret;
 }
+std::string toUpper(const std::string& s) { return toUpper(std::string_view(s)); }
 
 
 Path convertLR2Path(const std::string& lr2path, const Path& relative_path)

@@ -924,86 +924,115 @@ int SkinLR2::others()
 // Sprite parsing
 #pragma region Sprite parsing
 
-int SkinLR2::SRC()
+bool SkinLR2::SRC()
 {
-    auto opt = parseKeyBuf;
+    if (!strEqual(parseKeyBuf.substr(0, 5), "#SRC_", true))
+        return false;
 
-    static const std::map<Token, LoadLR2SrcFunc> __src_supported
+    auto name = toUpper(parseKeyBuf.substr(5));
+    DefType type = (defTypeName.find(name) != defTypeName.end()) ?
+        defTypeName.at(name) : DefType::UNDEF;
+
+    switch (type)
     {
-        {"#SRC_IMAGE",      std::bind(&SkinLR2::SRC_IMAGE,      _1)},
-        {"#SRC_JUDGELINE",  std::bind(&SkinLR2::SRC_JUDGELINE,  _1)},
-        {"#SRC_NUMBER",     std::bind(&SkinLR2::SRC_NUMBER,     _1)},
-        {"#SRC_SLIDER",     std::bind(&SkinLR2::SRC_SLIDER,     _1)},
-        {"#SRC_BARGRAPH",   std::bind(&SkinLR2::SRC_BARGRAPH,   _1)},
-        {"#SRC_BUTTON",     std::bind(&SkinLR2::SRC_BUTTON,     _1)},
-        {"#SRC_ONMOUSE",    std::bind(&SkinLR2::SRC_ONMOUSE,    _1)},
-        {"#SRC_MOUSECURSOR",std::bind(&SkinLR2::SRC_MOUSECURSOR,_1)},
-        {"#SRC_GROOVEGAUGE",std::bind(&SkinLR2::SRC_GROOVEGAUGE,_1)},
-        {"#SRC_TEXT",       std::bind(&SkinLR2::SRC_TEXT,       _1)},
-        {"#SRC_NOWJUDGE_1P",std::bind(&SkinLR2::SRC_NOWJUDGE1,  _1)},
-        {"#SRC_NOWJUDGE_2P",std::bind(&SkinLR2::SRC_NOWJUDGE2,  _1)},
-        {"#SRC_NOWCOMBO_1P",std::bind(&SkinLR2::SRC_NOWCOMBO1,  _1)},
-        {"#SRC_NOWCOMBO_2P",std::bind(&SkinLR2::SRC_NOWCOMBO2,  _1)},
-        {"#SRC_BGA",        std::bind(&SkinLR2::SRC_BGA,        _1)},
-        {"#SRC_BAR_BODY",   std::bind(&SkinLR2::SRC_BAR_BODY,   _1)},
-        {"#SRC_BAR_FLASH",  std::bind(&SkinLR2::SRC_BAR_FLASH,  _1)},
-        {"#SRC_BAR_LEVEL",  std::bind(&SkinLR2::SRC_BAR_LEVEL,  _1)},
-        {"#SRC_BAR_LAMP",   std::bind(&SkinLR2::SRC_BAR_LAMP,   _1)},
-        {"#SRC_BAR_TITLE",  std::bind(&SkinLR2::SRC_BAR_TITLE,  _1)},
-        {"#SRC_BAR_RANK",   std::bind(&SkinLR2::SRC_BAR_RANK,   _1)},
-        {"#SRC_BAR_RIVAL",  std::bind(&SkinLR2::SRC_BAR_RIVAL,  _1)},
-        {"#SRC_BAR_MY_LAMP",  std::bind(&SkinLR2::SRC_BAR_RIVAL_MYLAMP,  _1)},
-        {"#SRC_BAR_RIVAL_LAMP",  std::bind(&SkinLR2::SRC_BAR_RIVAL_RIVALLAMP,  _1)},
-        {"#SRC_GAUGECHART_1P", std::bind(&SkinLR2::SRC_GAUGECHART, _1, 0)},
-        {"#SRC_GAUGECHART_2P", std::bind(&SkinLR2::SRC_GAUGECHART, _1, 1)},
-        {"#SRC_SCORECHART", std::bind(&SkinLR2::SRC_SCORECHART, _1)},
+    case DefType::UNDEF:
+    case DefType::BAR_BODY_OFF:
+    case DefType::BAR_BODY_ON:      return false;
+
+    case DefType::TEXT:
+    case DefType::BAR_TITLE:
+    case DefType::NOTE:
+    case DefType::MINE:
+    case DefType::LN_END:
+    case DefType::LN_BODY:
+    case DefType::LN_START:
+    case DefType::AUTO_NOTE:
+    case DefType::AUTO_MINE:
+    case DefType::AUTO_LN_END:
+    case DefType::AUTO_LN_BODY:
+    case DefType::AUTO_LN_START:    break;
+
+    default:
+    {
+        // Find texture from map by gr
+        int gr = toInt(parseParamBuf[1]);
+        std::string gr_key;
+        switch (gr)
+        {
+        case 100: gr_key = "STAGEFILE"; break;
+        case 101: gr_key = "BACKBMP"; break;
+        case 102: gr_key = "BANNER"; break;
+        case 105: gr_key = "THUMBNAIL"; break;
+        case 110: gr_key = "Black"; break;
+        case 111: gr_key = "White"; break;
+        default: gr_key = std::to_string(gr); break;
+        }
+        if (_vidNameMap.find(gr_key) != _vidNameMap.end())
+        {
+            textureBuf = _textureNameMap["White"];
+            videoBuf = _vidNameMap[gr_key];
+            useVideo = true;
+        }
+        else if (_textureNameMap.find(gr_key) != _textureNameMap.end())
+        {
+            textureBuf = _textureNameMap[gr_key];
+            videoBuf = nullptr;
+            useVideo = false;
+        }
+        else
+        {
+            textureBuf = _textureNameMap["Error"];
+            videoBuf = nullptr;
+            useVideo = false;
+        }
+    }
+    break;
+    }
+
+    switch (type)
+    {
+        case DefType::IMAGE:          SRC_IMAGE();               break;
+        case DefType::NUMBER:         SRC_NUMBER();              break;
+        case DefType::SLIDER:         SRC_SLIDER();              break;
+        case DefType::BARGRAPH:       SRC_BARGRAPH();            break;
+        case DefType::BUTTON:         SRC_BUTTON();              break;
+        case DefType::ONMOUSE:        SRC_ONMOUSE();             break;
+        case DefType::JUDGELINE:      SRC_JUDGELINE();           break;
+        case DefType::TEXT:           SRC_TEXT();                break;
+        case DefType::GROOVEGAUGE:    SRC_GROOVEGAUGE();         break;
+        case DefType::NOWJUDGE_1P:    SRC_NOWJUDGE1();           break;
+        case DefType::NOWJUDGE_2P:    SRC_NOWJUDGE2();           break;
+        case DefType::NOWCOMBO_1P:    SRC_NOWCOMBO1();           break;
+        case DefType::NOWCOMBO_2P:    SRC_NOWCOMBO2();           break;
+        case DefType::BGA:            SRC_BGA();                 break;
+        case DefType::MOUSECURSOR:    SRC_MOUSECURSOR();         break;
+        case DefType::GAUGECHART_1P:  SRC_GAUGECHART(0);         break;
+        case DefType::GAUGECHART_2P:  SRC_GAUGECHART(1);         break;
+        case DefType::SCORECHART:     SRC_SCORECHART();          break;
+        case DefType::BAR_BODY:       SRC_BAR_BODY();            break;
+        case DefType::BAR_FLASH:      SRC_BAR_FLASH();           break;
+        case DefType::BAR_LEVEL:      SRC_BAR_LEVEL();           break;
+        case DefType::BAR_LAMP:       SRC_BAR_LAMP();            break;
+        case DefType::BAR_TITLE:      SRC_BAR_TITLE();           break;
+        case DefType::BAR_RANK:       SRC_BAR_RANK();            break;
+        case DefType::BAR_RIVAL:      SRC_BAR_RIVAL();           break;
+        case DefType::BAR_MY_LAMP:    SRC_BAR_RIVAL_MYLAMP();    break;
+        case DefType::BAR_RIVAL_LAMP: SRC_BAR_RIVAL_RIVALLAMP(); break;
+
+        case DefType::LINE:
+        case DefType::NOTE:           
+        case DefType::MINE:           
+        case DefType::LN_END:         
+        case DefType::LN_BODY:        
+        case DefType::LN_START:       
+        case DefType::AUTO_NOTE:      
+        case DefType::AUTO_MINE:      
+        case DefType::AUTO_LN_END:    
+        case DefType::AUTO_LN_BODY:   
+        case DefType::AUTO_LN_START:  SRC_NOTE(); break;
     };
 
-    // skip unsupported
-    if (__src_supported.find(opt) == __src_supported.end())
-        return 0;
-
-    if (strEqual(opt, "#SRC_TEXT", true))
-    {
-        __src_supported.at(opt)(this);
-        return 7;
-    }
-
-    // Find texture from map by gr
-    int gr = toInt(parseParamBuf[1]);
-    std::string gr_key;
-    switch (gr)
-    {
-    case 100: gr_key = "STAGEFILE"; break;
-    case 101: gr_key = "BACKBMP"; break;
-    case 102: gr_key = "BANNER"; break;
-    case 105: gr_key = "THUMBNAIL"; break;
-    case 110: gr_key = "Black"; break;
-    case 111: gr_key = "White"; break;
-    default: gr_key = std::to_string(gr); break;
-    }
-    if (_vidNameMap.find(gr_key) != _vidNameMap.end())
-    {
-        textureBuf = _textureNameMap["White"];
-        videoBuf = _vidNameMap[gr_key];
-        useVideo = true;
-    }
-    else if (_textureNameMap.find(gr_key) != _textureNameMap.end())
-    {
-        textureBuf = _textureNameMap[gr_key];
-        videoBuf = nullptr;
-        useVideo = false;
-    }
-    else
-    {
-        textureBuf = _textureNameMap["Error"];
-        videoBuf = nullptr;
-        useVideo = false;
-    }
-
-    __src_supported.at(opt)(this);
-
-    return 1;
+    return true;
 }
 
 ParseRet SkinLR2::SRC_IMAGE()
@@ -1468,12 +1497,6 @@ ParseRet SkinLR2::SRC_NOTE()
 {
     using namespace chart;
 
-    // skip unsupported
-    static const std::regex re("#SRC_(AUTO_)?(NOTE|MINE|LN_END|LN_BODY|LN_START)", 
-        std::regex_constants::ECMAScript | std::regex_constants::icase | std::regex_constants::optimize);
-    if (!strEqual(parseKeyBuf, "#SRC_LINE", true) && !std::regex_match(parseKeyBuf.begin(), parseKeyBuf.end(), re))
-        return ParseRet::SRC_DEF_WRONG_TYPE;
-
     // load raw into data struct
     lr2skin::s_basic d(parseParamBuf, csvLineNumber);
 
@@ -1786,113 +1809,140 @@ ParseRet SkinLR2::SRC_BAR_RIVAL_RIVALLAMP()
 
 #pragma endregion
 
-int SkinLR2::DST()
+bool SkinLR2::DST()
 {
-    static const std::map<Token, int> __general_dst_supported
+    if (!strEqual(parseKeyBuf.substr(0, 5), "#DST_", true))
+        return false;
+
+    auto name = toUpper(parseKeyBuf.substr(5));
+    DefType type = (defTypeName.find(name) != defTypeName.end()) ?
+        defTypeName.at(name) : DefType::UNDEF;
+
+    switch (type)
     {
-        {"#DST_IMAGE",1},
-        {"#DST_NUMBER",2},
-        {"#DST_SLIDER",3},
-        {"#DST_BARGRAPH",4},
-        {"#DST_BUTTON",5},
-        {"#DST_ONMOUSE",6},
-        {"#DST_TEXT",7},
-        {"#DST_JUDGELINE",8},
-        {"#DST_GROOVEGAUGE",9},
-        {"#DST_NOWJUDGE_1P",10},
-        {"#DST_NOWCOMBO_1P",11},
-        {"#DST_NOWJUDGE_2P",12},
-        {"#DST_NOWCOMBO_2P",13},
-        {"#DST_BGA",14},
-        {"#DST_MOUSECURSOR",15},
-        {"#DST_GAUGECHART_1P",16},
-        {"#DST_GAUGECHART_2P",17},
-        {"#DST_SCORECHART",18},
-    };
+    case DefType::UNDEF:
+    case DefType::BAR_BODY:
+    case DefType::MINE:
+    case DefType::LN_END:
+    case DefType::LN_BODY:
+    case DefType::LN_START:
+    case DefType::AUTO_NOTE:
+    case DefType::AUTO_MINE:
+    case DefType::AUTO_LN_END:
+    case DefType::AUTO_LN_BODY:
+    case DefType::AUTO_LN_START:  return false;
 
-    if (__general_dst_supported.find(parseKeyBuf) == __general_dst_supported.end() || _sprites.empty())
-        return 0;
+    case DefType::BAR_BODY_OFF:   
+    case DefType::BAR_BODY_ON:    DST_BAR_BODY();            break;
+    case DefType::BAR_FLASH:      DST_BAR_FLASH();           break;
+    case DefType::BAR_LEVEL:      DST_BAR_LEVEL();           break;
+    case DefType::BAR_LAMP:       DST_BAR_LAMP();            break;
+    case DefType::BAR_TITLE:      DST_BAR_TITLE();           break;
+    case DefType::BAR_RANK:       DST_BAR_RANK();            break;
+    case DefType::BAR_RIVAL:      DST_BAR_RIVAL();           break;
+    case DefType::BAR_MY_LAMP:    DST_BAR_RIVAL_MYLAMP();    break;
+    case DefType::BAR_RIVAL_LAMP: DST_BAR_RIVAL_RIVALLAMP(); break;
 
-    // load raw into data struct
-    lr2skin::dst d(parseParamBuf);
-    
+    case DefType::LINE:           DST_LINE();                break;
+    case DefType::NOTE:           DST_NOTE();                break;
 
-    int ret = 0;
-    auto e = _sprites.back();
-    if (e == nullptr)
+    default:
     {
-        LOG_WARNING << "[Skin] " << csvLineNumber << ": Previous src definition invalid (Line: " << csvLineNumber << ")";
-        return 0;
-    }
+        // load raw into data struct
+        lr2skin::dst d(parseParamBuf);
 
-    // TODO check if type of previous src definition matches
-
-    if (e->type() == SpriteTypes::GLOBAL)
-    {
-        // unpack stacking references
-        auto p = std::reinterpret_pointer_cast<SpriteGlobal>(e);
-        auto enext = e;
-        do
+        int ret = 0;
+        auto e = _sprites.back();
+        if (e == nullptr)
         {
-            enext = gSprites[p->getIdx()];
-            p->set(enext);
-
-            if (enext == nullptr)
-            {
-                LOG_WARNING << "[Skin] " << csvLineNumber << ": Previous src definition invalid (Line: " << csvLineNumber << ")";
-                return 0;
-            }
-
-        } while (enext->type() == SpriteTypes::GLOBAL);
-    }
-
-    ret = __general_dst_supported.at(parseKeyBuf);
-
-    if (e->isKeyFrameEmpty())
-    {
-        static const std::regex re1 = std::regex("#DST_NOW(JUDGE|COMBO)_1P", 
-            std::regex_constants::ECMAScript | std::regex_constants::icase | std::regex_constants::optimize);
-        static const std::regex re2 = std::regex("#DST_NOW(JUDGE|COMBO)_2P",
-            std::regex_constants::ECMAScript | std::regex_constants::icase | std::regex_constants::optimize);
-
-        if (std::regex_match(parseKeyBuf.begin(), parseKeyBuf.end(), re1))
-        {
-            switch (bufJudge1PSlot)
-            {
-            case 0: d.timer = (int)eTimer::_JUDGE_1P_0; break;
-            case 1: d.timer = (int)eTimer::_JUDGE_1P_1; break;
-            case 2: d.timer = (int)eTimer::_JUDGE_1P_2; break;
-            case 3: d.timer = (int)eTimer::_JUDGE_1P_3; break;
-            case 4: d.timer = (int)eTimer::_JUDGE_1P_4; break;
-            case 5: d.timer = (int)eTimer::_JUDGE_1P_5; break;
-            default: break;
-            }
-        }
-        else if (std::regex_match(parseKeyBuf.begin(), parseKeyBuf.end(), re2))
-        {
-            switch (bufJudge2PSlot)
-            {
-            case 0: d.timer = (int)eTimer::_JUDGE_2P_0; break;
-            case 1: d.timer = (int)eTimer::_JUDGE_2P_1; break;
-            case 2: d.timer = (int)eTimer::_JUDGE_2P_2; break;
-            case 3: d.timer = (int)eTimer::_JUDGE_2P_3; break;
-            case 4: d.timer = (int)eTimer::_JUDGE_2P_4; break;
-            case 5: d.timer = (int)eTimer::_JUDGE_2P_5; break;
-            default: break;
-            }
+            LOG_WARNING << "[Skin] " << csvLineNumber << ": Previous src definition invalid (Line: " << csvLineNumber << ")";
+            return false;
         }
 
-        drawQueue.push_back({ e, dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]) });
-        e->setLoopTime(d.loop);
-        e->setTrigTimer((eTimer)d.timer);
+        // TODO check if type of previous src definition matches
+
+        if (e->type() == SpriteTypes::GLOBAL)
+        {
+            // unpack stacking references
+            auto p = std::reinterpret_pointer_cast<SpriteGlobal>(e);
+            auto enext = e;
+            do
+            {
+                enext = gSprites[p->getIdx()];
+                p->set(enext);
+
+                if (enext == nullptr)
+                {
+                    LOG_WARNING << "[Skin] " << csvLineNumber << ": Previous src definition invalid (Line: " << csvLineNumber << ")";
+                    return false;
+                }
+
+            } while (enext->type() == SpriteTypes::GLOBAL);
+        }
+
+        if (e->isKeyFrameEmpty())
+        {
+            switch (type)
+            {
+            case DefType::NOWCOMBO_1P:
+            case DefType::NOWJUDGE_1P:
+                switch (bufJudge1PSlot)
+                {
+                case 0: d.timer = (int)eTimer::_JUDGE_1P_0; break;
+                case 1: d.timer = (int)eTimer::_JUDGE_1P_1; break;
+                case 2: d.timer = (int)eTimer::_JUDGE_1P_2; break;
+                case 3: d.timer = (int)eTimer::_JUDGE_1P_3; break;
+                case 4: d.timer = (int)eTimer::_JUDGE_1P_4; break;
+                case 5: d.timer = (int)eTimer::_JUDGE_1P_5; break;
+                default: break;
+                }
+                break;
+
+            case DefType::NOWCOMBO_2P:
+            case DefType::NOWJUDGE_2P:
+                switch (bufJudge2PSlot)
+                {
+                case 0: d.timer = (int)eTimer::_JUDGE_2P_0; break;
+                case 1: d.timer = (int)eTimer::_JUDGE_2P_1; break;
+                case 2: d.timer = (int)eTimer::_JUDGE_2P_2; break;
+                case 3: d.timer = (int)eTimer::_JUDGE_2P_3; break;
+                case 4: d.timer = (int)eTimer::_JUDGE_2P_4; break;
+                case 5: d.timer = (int)eTimer::_JUDGE_2P_5; break;
+                default: break;
+                }
+                break;
+            }
+
+            std::vector<dst_option> opEx;
+            if (type == DefType::NUMBER)
+            {
+                auto p = std::reinterpret_pointer_cast<SpriteNumber>(e);
+                switch (p->_numInd)
+                {
+                case eNumber::MUSIC_BEGINNER_LEVEL:  opEx.push_back(dst_option::SELECT_HAVE_BEGINNER_IN_SAME_FOLDER); break;
+                case eNumber::MUSIC_NORMAL_LEVEL:    opEx.push_back(dst_option::SELECT_HAVE_NORMAL_IN_SAME_FOLDER);   break;
+                case eNumber::MUSIC_HYPER_LEVEL:     opEx.push_back(dst_option::SELECT_HAVE_HYPER_IN_SAME_FOLDER);    break;
+                case eNumber::MUSIC_ANOTHER_LEVEL:   opEx.push_back(dst_option::SELECT_HAVE_ANOTHER_IN_SAME_FOLDER);  break;
+                case eNumber::MUSIC_INSANE_LEVEL:    opEx.push_back(dst_option::SELECT_HAVE_INSANE_IN_SAME_FOLDER);   break;
+                }
+            }
+            drawQueue.push_back({ e, dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]), opEx });
+
+            e->setLoopTime(d.loop);
+            e->setTrigTimer((eTimer)d.timer);
+        }
+
+        e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
+            (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
+        //e->pushKeyFrame(time, x, y, w, h, acc, r, g, b, a, blend, filter, angle, center);
+        //LOG_DEBUG << "[Skin] " << raw << ": Set sprite Keyframe (time: " << d.time << ")";
+
+    }
+    break;
+
     }
 
-    e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
-        (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
-    //e->pushKeyFrame(time, x, y, w, h, acc, r, g, b, a, blend, filter, angle, center);
-    //LOG_DEBUG << "[Skin] " << raw << ": Set sprite Keyframe (time: " << d.time << ")";
-
-    return ret;
+    return true;
 }
 
 
@@ -1918,8 +1968,8 @@ ParseRet SkinLR2::DST_NOTE()
         e->pNote->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center)  } });
             */
-
-        drawQueue.push_back({ e, dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]) });
+        
+        drawQueue.push_back({ e, dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]), {} });
         e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
         e->setLoopTime(0);
@@ -1988,7 +2038,7 @@ ParseRet SkinLR2::DST_LINE()
     p->pNote->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
         (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
 
-    drawQueue.push_back({ e, dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]) });
+    drawQueue.push_back({ e, dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]), {} });
     e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
         (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
     e->setLoopTime(0);
@@ -2032,7 +2082,7 @@ ParseRet SkinLR2::DST_BAR_BODY()
             {
                 _barSprites[idx]->setSrcLine(csvLineNumber);
                 _barSpriteAdded[idx] = true;
-                drawQueue.push_back({ _barSprites[idx], dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]) });
+                drawQueue.push_back({ _barSprites[idx], dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]), {} });
             }
         }
 
@@ -2478,30 +2528,6 @@ int SkinLR2::parseBody(const Tokens &raw)
             return 7;
         if (DST())
             return 8;
-        if (SRC_NOTE() == ParseRet::OK)
-            return 9;
-        if (DST_NOTE() == ParseRet::OK)
-            return 10;
-        if (DST_LINE() == ParseRet::OK)
-            return 11;
-        if (DST_BAR_BODY() == ParseRet::OK)
-            return 12;
-        if (DST_BAR_FLASH() == ParseRet::OK)
-            return 13;
-        if (DST_BAR_LEVEL() == ParseRet::OK)
-            return 14;
-        if (DST_BAR_LAMP() == ParseRet::OK)
-            return 15;
-        if (DST_BAR_TITLE() == ParseRet::OK)
-            return 16;
-        if (DST_BAR_RANK() == ParseRet::OK)
-            return 17;
-        if (DST_BAR_RIVAL() == ParseRet::OK)
-            return 18;
-        if (DST_BAR_RIVAL_MYLAMP() == ParseRet::OK)
-            return 19;
-        if (DST_BAR_RIVAL_RIVALLAMP() == ParseRet::OK)
-            return 20;
 
         LOG_WARNING << "[Skin] " << csvLineNumber << ": Invalid def \"" << parseKeyBuf << "\" (Line " << csvLineNumber << ")";
     }
@@ -2821,6 +2847,11 @@ void SkinLR2::update()
 #endif
         {
             e.ps->setHide(!(getDstOpt(e.op1) && getDstOpt(e.op2) && getDstOpt(e.op3)));
+            for (auto op : e.opEx)
+            {
+                if (!getDstOpt(op))
+                    e.ps->setHide(true);
+            }
             switch (e.op4)
             {
             case 1: e.ps->_current.angle += ttAngle1P; break;

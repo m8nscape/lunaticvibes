@@ -453,7 +453,7 @@ int SongDB::addFolder(Path path, HashMD5 parentHash)
     HashMD5 folderHash = md5(path.u8string());
     if (auto q = query("select pathmd5,type from folder where path=?", 2, { path.u8string() }); !q.empty())
     {
-        LOG_INFO << "[SongDB] Folder already exists (" << path.u8string() << ")";
+        LOG_DEBUG << "[SongDB] Folder already exists (" << path.u8string() << ")";
 
         // TODO check if refresh all folder on run
         //if (0)

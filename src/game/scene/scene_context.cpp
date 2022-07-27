@@ -294,6 +294,32 @@ void setEntryInfo()
         gTexts.queue(eText::PLAY_DIFFICULTY, "");
     }
 
+    gOptions.queue(eOption::SELECT_ENTRY_TYPE, Option::ENTRY_FOLDER);
+    gOptions.queue(eOption::SELECT_ENTRY_LAMP, Option::LAMP_NOPLAY);
+    gOptions.queue(eOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
+
+    gNumbers.queue(eNumber::INFO_SCORE, 0);
+    gNumbers.queue(eNumber::INFO_EXSCORE, 0);
+    gNumbers.queue(eNumber::INFO_EXSCORE_MAX, 0);
+    gNumbers.queue(eNumber::INFO_RATE, 0);
+    gNumbers.queue(eNumber::INFO_TOTALNOTE, 0);
+    gNumbers.queue(eNumber::INFO_MAXCOMBO, 0);
+    gNumbers.queue(eNumber::INFO_BP, 0);
+    gNumbers.queue(eNumber::INFO_PLAYCOUNT, 0);
+    gNumbers.queue(eNumber::INFO_CLEARCOUNT, 0);
+    gNumbers.queue(eNumber::INFO_FAILCOUNT, 0);
+
+    gNumbers.queue(eNumber::INFO_PERFECT_COUNT, 0);
+    gNumbers.queue(eNumber::INFO_GREAT_COUNT, 0);
+    gNumbers.queue(eNumber::INFO_GOOD_COUNT, 0);
+    gNumbers.queue(eNumber::INFO_BAD_COUNT, 0);
+    gNumbers.queue(eNumber::INFO_POOR_COUNT, 0);
+    gNumbers.queue(eNumber::INFO_PERFECT_RATE, 0);
+    gNumbers.queue(eNumber::INFO_GREAT_RATE, 0);
+    gNumbers.queue(eNumber::INFO_GOOD_RATE, 0);
+    gNumbers.queue(eNumber::INFO_BAD_RATE, 0);
+    gNumbers.queue(eNumber::INFO_POOR_RATE, 0);
+
     switch (e[idx].first->type())
     {
     case eEntryType::SONG:
@@ -301,6 +327,7 @@ void setEntryInfo()
         gOptions.queue(eOption::SELECT_ENTRY_TYPE, Option::ENTRY_SONG);
         gOptions.queue(eOption::SELECT_ENTRY_LAMP, Option::LAMP_NOPLAY);
         gOptions.queue(eOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
+
         break;
 
     case eEntryType::RIVAL_CHART:
@@ -392,33 +419,6 @@ void setEntryInfo()
             default:
                 break;
             }
-        }
-        else
-        {
-            gOptions.queue(eOption::SELECT_ENTRY_LAMP, Option::LAMP_NOPLAY);
-            gOptions.queue(eOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
-
-            gNumbers.queue(eNumber::INFO_SCORE, 0);
-            gNumbers.queue(eNumber::INFO_EXSCORE, 0);
-            gNumbers.queue(eNumber::INFO_EXSCORE_MAX, 0);
-            gNumbers.queue(eNumber::INFO_RATE, 0);
-            gNumbers.queue(eNumber::INFO_TOTALNOTE, 0);
-            gNumbers.queue(eNumber::INFO_MAXCOMBO, 0);
-            gNumbers.queue(eNumber::INFO_BP, 0);
-            gNumbers.queue(eNumber::INFO_PLAYCOUNT, 0);
-            gNumbers.queue(eNumber::INFO_CLEARCOUNT, 0);
-            gNumbers.queue(eNumber::INFO_FAILCOUNT, 0);
-
-            gNumbers.queue(eNumber::INFO_PERFECT_COUNT, 0);
-            gNumbers.queue(eNumber::INFO_GREAT_COUNT, 0);
-            gNumbers.queue(eNumber::INFO_GOOD_COUNT, 0);
-            gNumbers.queue(eNumber::INFO_BAD_COUNT, 0);
-            gNumbers.queue(eNumber::INFO_POOR_COUNT, 0);
-            gNumbers.queue(eNumber::INFO_PERFECT_RATE, 0);
-            gNumbers.queue(eNumber::INFO_GREAT_RATE, 0);
-            gNumbers.queue(eNumber::INFO_GOOD_RATE, 0);
-            gNumbers.queue(eNumber::INFO_BAD_RATE, 0);
-            gNumbers.queue(eNumber::INFO_POOR_RATE, 0);
         }
         break;
     }

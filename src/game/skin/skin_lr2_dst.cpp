@@ -796,10 +796,11 @@ void updateDstOpt()
 	// 517 同じフォルダに複数のhyper譜面が存在する
 	// 518 同じフォルダに複数のanother譜面が存在する
 	// 519 同じフォルダに複数のnsane譜面が存在する
+
+	set({ 500, 501, 502, 503, 504 });
+
 	if (get(5))
 	{
-		set({ 500, 501, 502, 503, 504 });
-
 		switch (gOptions.get(eOption::CHART_DIFFICULTY))
 		{
 			using namespace Option;

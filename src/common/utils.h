@@ -67,7 +67,9 @@ HashMD5 md5(const std::string& str);
 HashMD5 md5(const char* str, size_t len);
 HashMD5 md5file(const Path& filePath);
 
+std::string toLower(std::string_view s);
 std::string toLower(const std::string& s);
+std::string toUpper(std::string_view s);
 std::string toUpper(const std::string& s);
 
 Path convertLR2Path(const std::string& lr2path, const Path& relative_path);

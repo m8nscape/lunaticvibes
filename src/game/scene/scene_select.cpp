@@ -232,7 +232,7 @@ void config_fx()
 
 SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
 {
-    _inputAvailable = INPUT_MASK_FUNC;
+    _inputAvailable = INPUT_MASK_FUNC | INPUT_MASK_MOUSE;
     _inputAvailable |= INPUT_MASK_1P;
     _inputAvailable |= INPUT_MASK_2P;
 
@@ -457,12 +457,6 @@ void SceneSelect::inputGamePress(InputMask& m, const Time& t)
         }
     }
 
-    if (m[Pad::M2])
-    {
-        // close panels if opened
-        _closeAllPanels(t);
-    }
-
     auto input = _inputAvailable & m;
     if (input.any())
     {
@@ -485,6 +479,12 @@ void SceneSelect::inputGamePress(InputMask& m, const Time& t)
             default:
                 break;
             }
+        }
+
+        if (input[Pad::M2])
+        {
+            // close panels if opened
+            _closeAllPanels(t);
         }
 
         // lights
@@ -623,6 +623,24 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
             SoundMgr::playSample(eSoundSample::SOUND_O_OPEN);
             return;
         }
+        if (input[Input::M2])
+        {
+            bool hasPanelOpened = false;
+            for (int i = 1; i <= 9; ++i)
+            {
+                eSwitch p = static_cast<eSwitch>(int(eSwitch::SELECT_PANEL1) - 1 + i);
+                if (gSwitches.get(p))
+                {
+                    hasPanelOpened = true;
+                    break;
+                }
+            }
+            if (!hasPanelOpened)
+            {
+                _navigateBack(t);
+                return;
+            }
+        }
         if (selectDownTimestamp == -1 && (input[Input::Pad::K1SELECT || input[Input::Pad::K2SELECT]]))
         {
             switch (gSelectContext.entries[gSelectContext.idx].first->type())
@@ -680,6 +698,17 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
                 scrollTimestamp = t.norm();
                 _navigateDownBy1(t);
             }
+        }
+
+        if (input[Input::MWHEELUP])
+        {
+            scrollTimestamp = t.norm();
+            _navigateUpBy1(t);
+        }
+        if (input[Input::MWHEELDOWN])
+        {
+            scrollTimestamp = t.norm();
+            _navigateDownBy1(t);
         }
     }
 }

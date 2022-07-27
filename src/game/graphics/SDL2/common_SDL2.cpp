@@ -180,7 +180,7 @@ Image::Image(const char* path, std::shared_ptr<SDL_RWops>&& rw): _path(path), _p
     }
 
     _loaded = true;
-    LOG_DEBUG << "[Image] Load image file finished. " << _path.c_str();
+    //LOG_DEBUG << "[Image] Load image file finished. " << _path.c_str();
 }
 
 Image::~Image() 
@@ -228,7 +228,9 @@ Texture::Texture(const Image& srcImage)
         LOG_WARNING << "[Texture] ^ " << SDL_GetError();
     }
     else
-        LOG_DEBUG << "[Texture] Build texture object finished. " << srcImage._path.c_str();
+    {
+        //LOG_DEBUG << "[Texture] Build texture object finished. " << srcImage._path.c_str();
+    }
 }
 
 Texture::Texture(const SDL_Surface* pSurface)
