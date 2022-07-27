@@ -23,9 +23,19 @@ namespace lr2skin::slider
 
 void select_pos(double p)
 {
-    gSliders.set(eSlider::SELECT_LIST, p);
-    // TODO set position
-    // TODO play sound
+    if (gSelectContext.entries.empty()) return;
+
+    size_t idx_new = (size_t)std::floor(p * gSelectContext.entries.size());
+    if (idx_new != gSelectContext.idx)
+    {
+        gSelectContext.idx = idx_new;
+        gSliders.set(eSlider::SELECT_LIST, (double)idx_new / gSelectContext.entries.size());
+
+        setBarInfo();
+        setEntryInfo();
+
+        SoundMgr::playSample(eSoundSample::SOUND_SCRATCH);
+    }
 }
 
 void customize_scrollbar(double p)

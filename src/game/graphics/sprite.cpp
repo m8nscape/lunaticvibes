@@ -51,7 +51,7 @@ bool vSprite::updateByKeyframes(const Time& rawTime)
     if (_pTexture != nullptr && !_pTexture->_loaded)
         return false;
 
-    // Check if frames is valid
+    // Check if frames are valid
     size_t frameCount = _keyFrames.size();
     if (frameCount < 1)
         return false;
@@ -69,7 +69,11 @@ bool vSprite::updateByKeyframes(const Time& rawTime)
 
         time = rawTime - Time(gTimers.get(_triggerTimer), false);
     }
-    
+
+    // Check if the sprite is not visible yet
+    if (!_drawn && _keyFrames[0].time > 0 && time < _keyFrames[0].time)
+        return false;
+
     // Check if import time is valid
 	Time endTime = Time(_keyFrames[frameCount - 1].time, false);
     if (time.norm() < 0 || _loopTo < 0 && time > endTime)
@@ -92,7 +96,7 @@ bool vSprite::updateByKeyframes(const Time& rawTime)
     }
 
     // Check if specific time
-    if (frameCount == 1 || time == _keyFrames[0].time)      
+    if (frameCount == 1 || time <= _keyFrames[0].time)
     {
         // exactly first frame
         _current = _keyFrames[0].param;
@@ -104,7 +108,6 @@ bool vSprite::updateByKeyframes(const Time& rawTime)
     }
     else
     {
-
         // get keyFrame section (iterators)
         decltype(_keyFrames.begin()) keyFrameCurr, keyFrameNext;
         for (auto it = _keyFrames.begin(); it != _keyFrames.end(); ++it)
@@ -191,6 +194,7 @@ bool vSprite::update(const Time& t)
     std::for_each(std::execution::par_unseq, _children.begin(), _children.end(), updateChildLambda);
 #endif
 
+    if (_draw) _drawn = true;
     return _draw;
 }
 
@@ -214,13 +218,9 @@ void vSprite::setTrigTimer(eTimer t)
 	_triggerTimer = t;
 }
 
-void vSprite::appendKeyFrame(RenderKeyFrame f)
+void vSprite::appendKeyFrame(const RenderKeyFrame& f)
 {
     _keyFrames.push_back(f);
-}
-void vSprite::appendInvisibleLeadingFrame(int x, int y)
-{
-	appendKeyFrame({ 0, {Rect(x, y, 0, 0), RenderParams::accTy::DISCONTINOUS, Color(0), BlendMode::NONE, false, 0.0, {0.0, 0.0}} });
 }
 
 ////////////////////////////////////////////////////////////////////////////////

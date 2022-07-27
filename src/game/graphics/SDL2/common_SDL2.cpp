@@ -302,11 +302,11 @@ void Texture::_draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, Rect
     if (dstRect.h < 0) { dstRect.h = -dstRect.h; dstRect.y -= dstRect.h; /*flipFlags |= SDL_FLIP_VERTICAL;*/ }
 
 	SDL_SetTextureColorMod(&*pTex, c.r, c.g, c.b);
-	SDL_SetTextureAlphaMod(&*pTex, c.a);
+	SDL_SetTextureAlphaMod(&*pTex, b == BlendMode::NONE ? 255 : c.a);
 
     static const std::map<BlendMode, SDL_BlendMode> BlendMap
     {
-        { BlendMode::NONE                       , SDL_BLENDMODE_BLEND      },  // ???
+        { BlendMode::NONE                       , SDL_BLENDMODE_BLEND      },  // Do not use SDL_BLENDMODE_NONE, set alpha=255 instead
         { BlendMode::ALPHA                      , SDL_BLENDMODE_BLEND      },
         { BlendMode::ADD                        , SDL_BLENDMODE_ADD        },
         { BlendMode::MULTIPLY                   , SDL_BLENDMODE_MOD        },

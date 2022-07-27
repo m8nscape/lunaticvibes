@@ -71,7 +71,8 @@ protected:
 public:
     constexpr SpriteTypes type() { return _type; }
 protected:
-	bool _draw = false;     // modified by self
+    bool _draw = false;     // modified by self
+    bool _drawn = false; // modified by self::update()
     bool _hide = false;     // modified by skin::update()
     pTexture _pTexture;
     eTimer _triggerTimer = eTimer::SCENE_START;
@@ -94,8 +95,7 @@ public:
 	virtual bool update(const Time& time);
     virtual void setLoopTime(int t);
 	virtual void setTrigTimer(eTimer t);
-    virtual void appendKeyFrame(RenderKeyFrame f);
-    void appendInvisibleLeadingFrame(int x, int y);
+    virtual void appendKeyFrame(const RenderKeyFrame& f);
     virtual void draw() const = 0;
     void setHide(bool hide) { _hide = hide; }
     bool isHidden() const { return _hide; }

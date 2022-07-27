@@ -75,8 +75,8 @@ private:
     void _navigateEnter(const Time& t);
     void _navigateBack(const Time& t);
     void _decide();
-    void _navigateVersionEnter(const Time& t);
-    void _navigateVersionBack(const Time& t);
+    void _navigateSongEnter(const Time& t);
+    void _navigateSongBack(const Time& t);
     bool _closeAllPanels(const Time& t);
 
 private:

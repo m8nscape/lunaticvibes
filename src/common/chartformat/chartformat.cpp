@@ -3,7 +3,7 @@
 #include <fstream>
 #include "common/log.h"
 
-eChartFormat matchChartType(const Path& p)
+eChartFormat analyzeChartType(const Path& p)
 {
     if (!p.has_extension())
         return eChartFormat::UNKNOWN;
@@ -31,7 +31,7 @@ eChartFormat matchChartType(const Path& p)
         return fmt;
 }
 
-std::shared_ptr<vChartFormat> vChartFormat::getFromFile(const Path& path)
+std::shared_ptr<vChartFormat> vChartFormat::createFromFile(const Path& path)
 {
     Path filePath = fs::absolute(path);
     std::ifstream fs(filePath.c_str());
@@ -42,7 +42,7 @@ std::shared_ptr<vChartFormat> vChartFormat::getFromFile(const Path& path)
     }
 
     // dispatch Chart object upon filename extension
-    switch (matchChartType(path))
+    switch (analyzeChartType(path))
     {
     case eChartFormat::BMS:
         return std::make_shared<BMS>(filePath);

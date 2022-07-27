@@ -140,6 +140,10 @@ struct SelectContextParams
     bool isGoingToKeyConfig = false;
 };
 
+void setBarInfo();
+void setEntryInfo();
+void setDynamicTextures();
+
 ////////////////////////////////////////////////////////////////////////////////
 
 struct KeyConfigContextParams

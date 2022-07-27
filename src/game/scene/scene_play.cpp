@@ -219,7 +219,7 @@ void ScenePlay::loadChart()
             return;
         }
 
-        gChartContext.chartObj = vChartFormat::getFromFile(gChartContext.path);
+        gChartContext.chartObj = vChartFormat::createFromFile(gChartContext.path);
     }
 
     if (gChartContext.chartObj == nullptr || !gChartContext.chartObj->isLoaded())

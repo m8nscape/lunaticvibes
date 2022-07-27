@@ -16,7 +16,7 @@ enum class eChartFormat
     BMS,
     BMSON,
 };
-eChartFormat matchChartType(const Path& p);
+eChartFormat analyzeChartType(const Path& p);
 
 class vChartFormat: public std::enable_shared_from_this<vChartFormat>
 {
@@ -28,7 +28,7 @@ public:
 public:
     vChartFormat() = default;
     virtual ~vChartFormat() = default;
-    static std::shared_ptr<vChartFormat> getFromFile(const Path& path);
+    static std::shared_ptr<vChartFormat> createFromFile(const Path& path);
 
 protected:
     Path _path;

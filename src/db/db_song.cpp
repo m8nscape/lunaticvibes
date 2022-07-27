@@ -258,7 +258,7 @@ int SongDB::addChart(const HashMD5& folder, const Path& path)
         }
     }
 
-    auto c = vChartFormat::getFromFile(path);
+    auto c = vChartFormat::createFromFile(path);
     if (c == nullptr)
     {
         LOG_WARNING << "[SongDB] File error: " << path.u8string();
@@ -458,7 +458,7 @@ int SongDB::addFolder(Path path, HashMD5 parentHash)
         // TODO check if refresh all folder on run
         //if (0)
         {
-            refreshFolderContent(ANY_STR(q[0][0]), path, (FolderType)ANY_INT(q[0][1]));
+            refreshFolder(ANY_STR(q[0][0]), path, (FolderType)ANY_INT(q[0][1]));
         }
 
         return 0;
@@ -469,7 +469,7 @@ int SongDB::addFolder(Path path, HashMD5 parentHash)
         FolderType type = FolderType::FOLDER;
         for (auto& f : files)
         {
-            if (matchChartType(f) == eChartFormat::BMS)
+            if (analyzeChartType(f) == eChartFormat::BMS)
             {
                 type = FolderType::SONG_BMS;
                 break;  // break for
@@ -500,59 +500,59 @@ int SongDB::addFolder(Path path, HashMD5 parentHash)
         }
     }
 
-    int count = addFolderContent(folderHash, path);
+    int count = addFolderCharts(folderHash, path);
     LOG_INFO << "[SongDB] " << path.u8string() << ": queued " << count << " entries";
     return 0;
 }
 
-int SongDB::addFolderContent(const HashMD5& hash, const Path& folder)
+int SongDB::addFolderCharts(const HashMD5& hash, const Path& folder)
 {
     int count = 0;
 
     bool isSongFolder = false;
     for (auto& f : fs::directory_iterator(folder))
     {
-        if (matchChartType(f) != eChartFormat::UNKNOWN)
+        if (analyzeChartType(f) != eChartFormat::UNKNOWN)
         {
             isSongFolder = true;
             break;
         }
     }
 
-    std::vector<Path> folderList;
+    std::vector<Path> subFolderList;
 
-    addContentBuffer.clear();
+    addChartBuffer.clear();
     for (const auto& f : fs::directory_iterator(folder))
     {
         if (!isSongFolder && fs::is_directory(f))
         {
-            folderList.push_back(f);
+            subFolderList.push_back(f);
         }
-        else if (isSongFolder && matchChartType(f) != eChartFormat::UNKNOWN)
+        else if (isSongFolder && analyzeChartType(f) != eChartFormat::UNKNOWN)
         {
-            addContentBuffer.push_back(std::make_pair(hash, f));
+            addChartBuffer.push_back(std::make_pair(hash, f));
             ++count;
         }
     }
-    handleAddContentBuffer();
+    handleAddChartBuffer();
 
-    for (const auto& f : folderList)
+    for (const auto& sub : subFolderList)
     {
-        if (0 == addFolder(f, hash))
+        if (0 == addFolder(sub, hash))
             ++count;
     }
 
     return count;
 }
 
-int SongDB::refreshFolderContent(const HashMD5& hash, const Path& path, FolderType type)
+int SongDB::refreshFolder(const HashMD5& hash, const Path& path, FolderType type)
 {
     LOG_DEBUG << "[SongDB] Refreshing contents of " << path.u8string();
 
     bool isSongFolder = false;
     for (auto& f: fs::directory_iterator(path))
     {
-        if (matchChartType(f) != eChartFormat::UNKNOWN)
+        if (analyzeChartType(f) != eChartFormat::UNKNOWN)
         {
             isSongFolder = true;
             break;
@@ -576,7 +576,7 @@ int SongDB::refreshFolderContent(const HashMD5& hash, const Path& path, FolderTy
         std::vector<Path> bmsFiles;
         for (auto& f : fs::directory_iterator(path))
         {
-            if (matchChartType(f) != eChartFormat::UNKNOWN)
+            if (analyzeChartType(f) != eChartFormat::UNKNOWN)
                 bmsFiles.push_back(fs::absolute(f));
         }
         std::sort(bmsFiles.begin(), bmsFiles.end());
@@ -592,13 +592,13 @@ int SongDB::refreshFolderContent(const HashMD5& hash, const Path& path, FolderTy
         std::vector<Path> newFiles;
         std::set_difference(bmsFiles.begin(), bmsFiles.end(), existedFiles.begin(), existedFiles.end(), std::back_inserter(newFiles));
 
-        addContentBuffer.clear();
+        addChartBuffer.clear();
         for (auto& p : newFiles)
         {
-            addContentBuffer.push_back(std::make_pair(hash, p));
+            addChartBuffer.push_back(std::make_pair(hash, p));
             count++;
         }
-        handleAddContentBuffer();
+        handleAddChartBuffer();
 
         // TODO set delete flag on not-found entries
 
@@ -625,13 +625,13 @@ int SongDB::refreshFolderContent(const HashMD5& hash, const Path& path, FolderTy
     }
 }
 
-int SongDB::handleAddContentBuffer()
+int SongDB::handleAddChartBuffer()
 {
     int count = 0;
     BS::thread_pool& pool = DBThreadPool[this];
     std::list<std::future<int>> futureList;
 
-    for (auto& [hash, f] : addContentBuffer)
+    for (auto& [hash, f] : addChartBuffer)
     {
         using namespace std::placeholders;
 

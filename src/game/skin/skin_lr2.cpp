@@ -1885,11 +1885,6 @@ int SkinLR2::DST()
         drawQueue.push_back({ e, dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]) });
         e->setLoopTime(d.loop);
         e->setTrigTimer((eTimer)d.timer);
-        if (d.time > 0)
-        {
-            //LOG_WARNING << "[Skin] " << raw << ": First keyframe time is not 0";
-            e->appendInvisibleLeadingFrame(d.x, d.y);
-        }
     }
 
     e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
@@ -2032,11 +2027,6 @@ ParseRet SkinLR2::DST_BAR_BODY()
             e->setSrcLine(csvLineNumber);
             e->setLoopTime(d.loop);
             e->setTrigTimer((eTimer)d.timer);
-            if (d.time > 0)
-            {
-                //LOG_WARNING << "[Skin] " << raw << ": First keyframe time is not 0";
-                e->appendInvisibleLeadingFrame(d.x, d.y);
-            }
 
             if (!_barSpriteAdded[idx])
             {
@@ -2077,11 +2067,6 @@ ParseRet SkinLR2::DST_BAR_FLASH()
             e->setSrcLine(csvLineNumber);
             e->setLoopTime(d.loop);
             e->setTrigTimer((eTimer)d.timer);
-            if (d.time > 0)
-            {
-                //LOG_WARNING << "[Skin] " << raw << ": First keyframe time is not 0";
-                e->appendInvisibleLeadingFrame(d.x, d.y);
-            }
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
@@ -2117,11 +2102,6 @@ ParseRet SkinLR2::DST_BAR_LEVEL()
             e->setSrcLine(csvLineNumber);
             e->setLoopTime(d.loop);
             e->setTrigTimer((eTimer)d.timer);
-            if (d.time > 0)
-            {
-                //LOG_WARNING << "[Skin] " << raw << ": First keyframe time is not 0";
-                e->appendInvisibleLeadingFrame(d.x, d.y);
-            }
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
@@ -2158,11 +2138,6 @@ ParseRet SkinLR2::DST_BAR_RIVAL_MYLAMP()
             e->setSrcLine(csvLineNumber);
             e->setLoopTime(d.loop);
             e->setTrigTimer((eTimer)d.timer);
-            if (d.time > 0)
-            {
-                //LOG_WARNING << "[Skin] " << raw << ": First keyframe time is not 0";
-                e->appendInvisibleLeadingFrame(d.x, d.y);
-            }
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
@@ -2197,11 +2172,6 @@ ParseRet SkinLR2::DST_BAR_RIVAL_RIVALLAMP()
             e->setSrcLine(csvLineNumber);
             e->setLoopTime(d.loop);
             e->setTrigTimer((eTimer)d.timer);
-            if (d.time > 0)
-            {
-                //LOG_WARNING << "[Skin] " << raw << ": First keyframe time is not 0";
-                e->appendInvisibleLeadingFrame(d.x, d.y);
-            }
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
@@ -2237,11 +2207,6 @@ ParseRet SkinLR2::DST_BAR_LAMP()
             e->setSrcLine(csvLineNumber);
             e->setLoopTime(d.loop);
             e->setTrigTimer((eTimer)d.timer);
-            if (d.time > 0)
-            {
-                //LOG_WARNING << "[Skin] " << raw << ": First keyframe time is not 0";
-                e->appendInvisibleLeadingFrame(d.x, d.y);
-            }
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
@@ -2277,11 +2242,6 @@ ParseRet SkinLR2::DST_BAR_TITLE()
             e->setSrcLine(csvLineNumber);
             e->setLoopTime(d.loop);
             e->setTrigTimer((eTimer)d.timer);
-            if (d.time > 0)
-            {
-                //LOG_WARNING << "[Skin] " << raw << ": First keyframe time is not 0";
-                e->appendInvisibleLeadingFrame(d.x, d.y);
-            }
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
@@ -2317,11 +2277,6 @@ ParseRet SkinLR2::DST_BAR_RANK()
             e->setSrcLine(csvLineNumber);
             e->setLoopTime(d.loop);
             e->setTrigTimer((eTimer)d.timer);
-            if (d.time > 0)
-            {
-                //LOG_WARNING << "[Skin] " << raw << ": First keyframe time is not 0";
-                e->appendInvisibleLeadingFrame(d.x, d.y);
-            }
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
@@ -2357,11 +2312,6 @@ ParseRet SkinLR2::DST_BAR_RIVAL()
             e->setSrcLine(csvLineNumber);
             e->setLoopTime(d.loop);
             e->setTrigTimer((eTimer)d.timer);
-            if (d.time > 0)
-            {
-                //LOG_WARNING << "[Skin] " << raw << ": First keyframe time is not 0";
-                e->appendInvisibleLeadingFrame(d.x, d.y);
-            }
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
