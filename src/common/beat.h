@@ -65,7 +65,7 @@ public:
 	static Time singleBeatLengthFromBPM(BPM bpm)
 	{
 		using namespace std::chrono;
-		return Time(6e4 * 4 / bpm * duration_cast<timeHighRes>(1ms).count(), true);
+		return Time(6e4 / bpm * duration_cast<timeHighRes>(1ms).count(), true);
 	}
 
 	Time operator-  () const { return Time(-_highres, true); }
@@ -90,17 +90,19 @@ public:
 struct Note
 {
     Bar measure;        // Which measure the note is placed
-    Metre totalbeat;        // Which beat the note is placed in visual (ignoring SV & STOP), can be above 1
+    Metre pos;        // Which metre the note is placed in visual (ignoring SV & STOP), can be above 1
     Time time;             // Timestamp
-    std::variant<long long, double> value;              // varies from note type to type, e.g. #BGM, #BPM, etc
 
 	enum Flags
 	{
-		LN_TAIL   = 1 << 0,
+		LN_TAIL = 1 << 0,
 
-		BGA_BASE  = 0b01 << 1,
+		BGA_BASE = 0b01 << 1,
 		BGA_LAYER = 0b10 << 1,
-		BGA_MISS  = 0b11 << 1,
+		BGA_MISS = 0b11 << 1,
 	};
 	size_t flags = 0;			// used for distinguishing plain notes
+
+	long long dvalue;		// regular integer values
+	double fvalue;			// used by #BPM, bar length, etc 
 };

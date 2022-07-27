@@ -609,7 +609,7 @@ void ScenePlay::updatePlaying()
 {
 	auto t = Time();
 	auto rt = t - gTimers.get(eTimer::PLAY_START);
-    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentBeat() * 4.0)) % 1000);
+    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentMetre() * 4.0)) % 1000);
 
     if (isPlaymodeBattle())
     {
@@ -767,7 +767,7 @@ void ScenePlay::updateFadeout()
     auto rt = t - gTimers.get(eTimer::SCENE_START);
     auto ft = t - gTimers.get(eTimer::FADEOUT_BEGIN);
     if (gChartContext.started)
-        gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentBeat() * 4.0)) % 1000);
+        gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentMetre() * 4.0)) % 1000);
     spinTurntable(gChartContext.started);
 	gPlayContext.bgaTexture->update(rt, false);
 
@@ -836,7 +836,7 @@ void ScenePlay::updateFailed()
     auto t = Time();
     auto ft = t - gTimers.get(eTimer::FAIL_BEGIN);
     if (gChartContext.started)
-        gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentBeat() * 4.0)) % 1000);
+        gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentMetre() * 4.0)) % 1000);
     spinTurntable(gChartContext.started);
 
     //failed play finished, move to next scene. No fadeout
@@ -873,7 +873,7 @@ void ScenePlay::procCommonNotes()
         //else
         {
             // BGM
-            _bgmSampleIdxBuf[i] = (unsigned)std::get<long long>(it->value);
+            _bgmSampleIdxBuf[i] = (unsigned)it->dvalue;
         }
     }
 
@@ -886,7 +886,7 @@ void ScenePlay::procCommonNotes()
         {
             if (it->flags & Note::LN_TAIL == 0)
             {
-                _bgmSampleIdxBuf[i] = (unsigned)std::get<long long>(it->value);
+                _bgmSampleIdxBuf[i] = (unsigned)it->dvalue;
                 ++i;
             }
             ++it;
@@ -909,9 +909,9 @@ void ScenePlay::changeKeySampleMapping(const Time& t)
                 if (chan.first == chart::NoteLaneCategory::_) continue;
                 auto note = gPlayContext.chartObj[PLAYER_SLOT_1P]->incomingNote(chan.first, chan.second);
                 if (note->time - t > MIN_REMAP_INTERVAL) continue;
-                _currentKeySample[i] = (size_t)std::get<long long>(note->value);
+                _currentKeySample[i] = (size_t)note->dvalue;
                 if (i == Input::S1L)
-                    _currentKeySample[Input::S1R] = (size_t)std::get<long long>(note->value);
+                    _currentKeySample[Input::S1R] = (size_t)note->dvalue;
             }
         for (size_t i = Input::S2L; i < Input::ESC; ++i)
             if (_inputAvailable[i])
@@ -921,9 +921,9 @@ void ScenePlay::changeKeySampleMapping(const Time& t)
                 if (chan.first == chart::NoteLaneCategory::_) continue;
                 auto note = gPlayContext.chartObj[PLAYER_SLOT_2P]->incomingNote(chan.first, chan.second);
                 if (note->time - t > MIN_REMAP_INTERVAL) continue;
-                _currentKeySample[i] = (size_t)std::get<long long>(note->value);
+                _currentKeySample[i] = (size_t)note->dvalue;
                 if (i == Input::S2L)
-                    _currentKeySample[Input::S2R] = (size_t)std::get<long long>(note->value);
+                    _currentKeySample[Input::S2R] = (size_t)note->dvalue;
             }
     }
     else
@@ -936,9 +936,9 @@ void ScenePlay::changeKeySampleMapping(const Time& t)
                 if (chan.first == chart::NoteLaneCategory::_) continue;
                 auto note = gPlayContext.chartObj[PLAYER_SLOT_1P]->incomingNote(chan.first, chan.second);
                 if (note->time - t > MIN_REMAP_INTERVAL) continue;
-                _currentKeySample[i] = (size_t)std::get<long long>(note->value);
+                _currentKeySample[i] = (size_t)note->dvalue;
                 if (i == Input::S1L)
-                    _currentKeySample[Input::S1R] = (size_t)std::get<long long>(note->value);
+                    _currentKeySample[Input::S1R] = (size_t)note->dvalue;
             }
     }
 }

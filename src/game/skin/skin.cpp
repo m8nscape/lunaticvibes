@@ -22,9 +22,9 @@ void vSkin::update()
     // current beat, measure
     if (gPlayContext.chartObj[PLAYER_SLOT_1P] != nullptr)
     {
-        gUpdateContext.beat = gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentBeat();
-        gUpdateContext.measure = gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentMeasure();
-        gNumbers.set(eNumber::_TEST3, (int)(gUpdateContext.beat * 1000));
+        gUpdateContext.metre = gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentMetre();
+        gUpdateContext.bar = gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentBar();
+        gNumbers.set(eNumber::_TEST3, (int)(gUpdateContext.metre * 1000));
     }
 
     auto updateSpriteLambda = [](const pSprite& s)

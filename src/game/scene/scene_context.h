@@ -173,8 +173,8 @@ struct UpdateContextParams
     Time updateTime;
 
     // vSkin / Sprite
-    double beat;
-    unsigned measure;
+    double metre;
+    unsigned bar;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

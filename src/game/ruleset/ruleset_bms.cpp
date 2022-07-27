@@ -420,7 +420,7 @@ void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote
             judge.area == judgeArea::LATE_PERFECT && judge.time < 2)
         {
             note.hit = true;
-            _updateHp(-0.01 * std::get<long long>(note.value) / 2);
+            _updateHp(-0.01 * note.dvalue / 2);
             // TODO play mine sound + volume
         }
         break;

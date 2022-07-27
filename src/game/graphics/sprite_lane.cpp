@@ -73,15 +73,15 @@ void SpriteLaneVertical::updateNoteRect(const Time& t)
 	{
 		return;
 	}
-	auto beat = gUpdateContext.beat;
-	auto measure = gUpdateContext.measure;
+	auto metre = gUpdateContext.metre;
+	auto bar = gUpdateContext.bar;
 
     // refresh note sprites
 	pNote->update(t);
 
     // fetch note size, c.y + c.h = judge line pos (top-left corner), -c.h = height start drawing
     auto c = _current.rect;
-    auto currTotalBeat = pChart->getBarMetrePosition(measure).toDouble() + beat;
+    auto currTotalMetre = pChart->getBarMetrePosition(bar).toDouble() + metre;
 
     // generate note rects and store to buffer
 	// 150BPM with 1.0x HS is 1600ms
@@ -90,11 +90,11 @@ void SpriteLaneVertical::updateNoteRect(const Time& t)
     auto it = pChart->incomingNote(_category, _index);
     while (!pChart->isLastNote(_category, _index, it) && y >= 0)
     {
-		auto noteBeatOffset = currTotalBeat - it->totalbeat.toDouble();
-        if (noteBeatOffset >= 0)
+		auto noteMetreOffset = currTotalMetre - it->pos.toDouble();
+        if (noteMetreOffset >= 0)
 			y = (c.y + c.h); // expired notes stay on judge line, LR2 / pre RA behavior
         else
-            y = (c.y + c.h) - static_cast<int>( std::floor((-noteBeatOffset * 4 / 4) * _noteAreaHeight * _basespd * _hispeed) );
+            y = (c.y + c.h) - static_cast<int>( std::floor(-noteMetreOffset * _noteAreaHeight * _basespd * _hispeed) );
         it++;
         _outRect.push_front({ c.x, y, c.w, -c.h });
     }
@@ -130,15 +130,15 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 	{
 		return;
 	}
-	auto beat = gUpdateContext.beat;
-	auto measure = gUpdateContext.measure;
+	auto metre = gUpdateContext.metre;
+	auto bar = gUpdateContext.bar;
 
 	// refresh note sprites
 	pNote->update(t);
 
 	// fetch note size, c.y + c.h = judge line pos (top-left corner), -c.h = height start drawing
 	auto c = _current.rect;
-	auto currTotalBeat = pChart->getBarMetrePosition(measure).toDouble() + beat;
+	auto currTotalMetre = pChart->getBarMetrePosition(bar).toDouble() + metre;
 
 	// generate note rects and store to buffer
 	// 150BPM with 1.0x HS is 1600ms
@@ -154,8 +154,8 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 			head_y_actual = c.y + c.h;
 
 			const auto& tail = *it;
-			auto tailBeatOffset = currTotalBeat - tail.totalbeat.toDouble();
-			tail_y = (c.y + c.h) - static_cast<int>(std::floor((-tailBeatOffset * 4 / 4) * _noteAreaHeight * _basespd * _hispeed));
+			auto tailBeatOffset = currTotalMetre - tail.pos.toDouble();
+			tail_y = (c.y + c.h) - static_cast<int>(std::floor(-tailBeatOffset * _noteAreaHeight * _basespd * _hispeed));
 
 			++it;
 		}
@@ -167,12 +167,12 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 
 			const auto& tail = *it;
 
-			auto headBeatOffset = currTotalBeat - head.totalbeat.toDouble();
-			head_y_actual = (c.y + c.h) - static_cast<int>(std::floor((-headBeatOffset * 4 / 4) * _noteAreaHeight * _basespd * _hispeed));
+			auto headMetreOffset = currTotalMetre - head.pos.toDouble();
+			head_y_actual = (c.y + c.h) - static_cast<int>(std::floor(-headMetreOffset * _noteAreaHeight * _basespd * _hispeed));
 			if (head_y_actual < head_y) head_y = head_y_actual;
 
-			auto tailBeatOffset = currTotalBeat - tail.totalbeat.toDouble();
-			tail_y = (c.y + c.h) - static_cast<int>(std::floor((-tailBeatOffset * 4 / 4) * _noteAreaHeight * _basespd * _hispeed));
+			auto tailMetreOffset = currTotalMetre - tail.pos.toDouble();
+			tail_y = (c.y + c.h) - static_cast<int>(std::floor(-tailMetreOffset * _noteAreaHeight * _basespd * _hispeed));
 
 			++it;
 		}

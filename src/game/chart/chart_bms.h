@@ -36,8 +36,8 @@ protected:
     void loadBMS(const BMS& bms);
 
 protected:
-    double   _currentStopBeat = 0;
-    bool     _currentStopBeatGuard = false;
+    decltype(_specialNoteLists.front().begin()) _currentStopNote;
+    bool _inStopNote = false;
 
 public:
     //virtual void update(hTime t);

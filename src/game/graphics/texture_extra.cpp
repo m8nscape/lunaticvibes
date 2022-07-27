@@ -180,9 +180,9 @@ bool TextureBmsBga::setSlotFromBMS(chartBMS& bms)
 	const auto lBase = bms.getBgaBase();
 	const auto lLayer = bms.getBgaLayer();
 	const auto lPoor = bms.getBgaPoor();
-	for (const auto& l : lBase) setSlot(std::get<long long>(l.value), l.time, true, false, false);
-	for (const auto& l : lLayer) setSlot(std::get<long long>(l.value), l.time, false, true, false);
-	for (const auto& l : lPoor) setSlot(std::get<long long>(l.value), l.time, false, false, true);
+	for (const auto& l : lBase) setSlot(l.dvalue, l.time, true, false, false);
+	for (const auto& l : lLayer) setSlot(l.dvalue, l.time, false, true, false);
+	for (const auto& l : lPoor) setSlot(l.dvalue, l.time, false, false, true);
 	sortSlot();
 	_loaded = true;
 	return true;

@@ -167,20 +167,21 @@ public:
     auto nextNoteBpm          () -> decltype(_bpmNoteListIter);
 
 public:
-    Time getBarLength(size_t measure);
+    Time getBarLength(size_t bar);
     Time getCurrentBarLength();
-    Metre getBarMetre(size_t measure);
+    Metre getBarMetre(size_t bar);
 	Metre getCurrentBarMetre();
-    Metre getBarMetrePosition(size_t measure);
+    Metre getBarMetrePosition(size_t bar);
 	Time getBarTimestamp(size_t m) { return m < MAX_MEASURES ? _barTimestamp[m] : LLONG_MAX; }
 	Time getCurrentBarTimestamp() { return getBarTimestamp(_currentBar); }
 
 protected:
     unsigned _currentBar           = 0;
-    double   _currentBeat          = 0;
+    double   _currentMetre          = 0;
     BPM      _currentBPM           = 150.0;
+    Time     _currentBeatLength    = Time::singleBeatLengthFromBPM(150.0);
     Time     _lastChangedBPMTime   = 0;
-    double   _lastChangedBeat      = 0;
+    double   _lastChangedBPMMetre  = 0;
 
 public:
     void reset();
@@ -188,9 +189,8 @@ public:
     /*virtual*/ void update(Time t);
     virtual void preUpdate(const Time& t) = 0;
     virtual void postUpdate(const Time& t) = 0;
-    constexpr auto getCurrentMeasure() -> decltype(_currentBar) { return _currentBar; }
-    constexpr auto getCurrentBeat() -> decltype(_currentBeat) { return _currentBeat; }
-    inline auto getCurrentTotalBeats() -> decltype(_currentBeat) { return _currentBeat + _barMetrePos[_currentBar].toDouble(); }
+    constexpr auto getCurrentBar() -> decltype(_currentBar) { return _currentBar; }
+    constexpr auto getCurrentMetre() -> decltype(_currentMetre) { return _currentMetre; }
     constexpr auto getCurrentBPM() -> decltype(_currentBPM) { return _currentBPM; }
 
 public:

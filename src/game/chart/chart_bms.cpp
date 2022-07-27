@@ -121,7 +121,8 @@ const NoteLaneIndex KeyToLaneMap[] =
     _, _, _, _, _, _,
 };
 
-chartBMS::chartBMS(int slot) : vChart(slot, BGM_LANE_COUNT, (size_t)eNoteExt::EXT_COUNT)
+chartBMS::chartBMS(int slot) : vChart(slot, BGM_LANE_COUNT, (size_t)eNoteExt::EXT_COUNT),
+    _currentStopNote(_specialNoteLists.front().begin())
 {
 }
 
@@ -140,11 +141,11 @@ void chartBMS::loadBMS(const BMS& objBms)
 	_noteCount_regular = objBms.notes - objBms.notes_ln;
 	_noteCount_ln = objBms.notes_ln;
 	Time basetime{ 0 };
-	Metre basebeat{ 0, 1 };
+	Metre basemetre{ 0, 1 };
 
     BPM bpm = objBms.startBPM * gSelectContext.pitchSpeed;
     _currentBPM = bpm;
-    _bpmNoteList.push_back({ 0, {0, 1}, 0, bpm });
+    _bpmNoteList.push_back({ 0, {0, 1}, 0, 0, 0, bpm });
 	barLength.fill({ 1, 1 });
     bool bpmfucked = false; // set to true when BPM is changed to zero or negative value
     std::bitset<NOTELANEINDEX_COUNT> isLnTail{ 0 };
@@ -197,7 +198,7 @@ void chartBMS::loadBMS(const BMS& objBms)
     for (unsigned m = 0; m <= objBms.lastBarIdx; m++)
     {
 		barLength[m] = objBms.metres[m];
-		_barMetrePos[m] = basebeat;
+		_barMetrePos[m] = basemetre;
         _barTimestamp[m] = basetime;
 
 
@@ -232,7 +233,7 @@ void chartBMS::loadBMS(const BMS& objBms)
             bool operator< (const Lane& rhs) const { return std::make_pair(type, index) < std::make_pair(rhs.type, rhs.index); }
         };
 
-        // notes [] {beat, {lane, sample/val}}
+        // notes [] {metre, {lane, sample/val}}
         std::vector<std::pair<Segment, std::pair<Lane, unsigned>>> notes;
 
         // add notes
@@ -270,8 +271,8 @@ void chartBMS::loadBMS(const BMS& objBms)
                     }
                     for (const auto& n : ch.notes)
                     {
-                        //              { beat,                               { { lane,              val     } }
-                        notes.push_back({ fraction(n.segment, ch.resolution), { { priority, index }, n.value } });
+                        //              { metre,                               { { lane,              val     } }
+                        notes.push_back({ Segment(n.segment, ch.resolution), { { priority, index }, n.value } });
                     }
                 }
             };
@@ -337,7 +338,7 @@ void chartBMS::loadBMS(const BMS& objBms)
             {
                 auto ch = objBms.getLane(LaneCode::BGM, i, m);
                 for (const auto& n : ch.notes)
-                    //              { beat,                               { { lane,                       val     } }
+                    //              { metre,                               { { lane,                       val     } }
                     notes.push_back({ fraction(n.segment, ch.resolution), { { eLanePriority::BGM, i }, n.value } });
             }
 
@@ -347,19 +348,19 @@ void chartBMS::loadBMS(const BMS& objBms)
                 {
                     auto ch = objBms.getLane(LaneCode::BGABASE, 0, m);
                     for (const auto& n : ch.notes)
-                        //              { beat,                               { { lane,                        val     } }
+                        //              { metre,                               { { lane,                        val     } }
                         notes.push_back({ fraction(n.segment, ch.resolution), { { eLanePriority::BGABASE, 0 }, n.value } });
                 }
                 {
                     auto ch = objBms.getLane(LaneCode::BGALAYER, 0, m);
                     for (const auto& n : ch.notes)
-                        //              { beat,                               { { lane,                        val     } }
+                        //              { metre,                               { { lane,                        val     } }
                         notes.push_back({ fraction(n.segment, ch.resolution), { { eLanePriority::BGALAYER, 0 }, n.value } });
                 }
                 {
                     auto ch = objBms.getLane(LaneCode::BGAPOOR, 0, m);
                     for (const auto& n : ch.notes)
-                        //              { beat,                               { { lane,                        val     } }
+                        //              { metre,                               { { lane,                        val     } }
                         notes.push_back({ fraction(n.segment, ch.resolution), { { eLanePriority::BGAPOOR, 0 }, n.value } });
                 }
             }
@@ -368,7 +369,7 @@ void chartBMS::loadBMS(const BMS& objBms)
             {
                 auto ch = objBms.getLane(LaneCode::BPM, 0, m);
                 for (const auto& n : ch.notes)
-                    //              { beat,                               { { lane,                        val     } }
+                    //              { metre,                               { { lane,                        val     } }
                     notes.push_back({ fraction(n.segment, ch.resolution), { { eLanePriority::BPM, 0 }, n.value } });
             }
 
@@ -376,7 +377,7 @@ void chartBMS::loadBMS(const BMS& objBms)
             {
                 auto ch = objBms.getLane(LaneCode::EXBPM, 0, m);
                 for (const auto& n : ch.notes)
-                    //              { beat,                               { { lane,                        val     } }
+                    //              { metre,                               { { lane,                        val     } }
                     notes.push_back({ fraction(n.segment, ch.resolution), { { eLanePriority::EXBPM, 0 }, n.value } });
             }
 
@@ -384,7 +385,7 @@ void chartBMS::loadBMS(const BMS& objBms)
             {
                 auto ch = objBms.getLane(LaneCode::STOP, 0, m);
                 for (const auto& n : ch.notes)
-                    //              { beat,                               { { lane,                        val     } }
+                    //              { metre,                               { { lane,                        val     } }
                     notes.push_back({ fraction(n.segment, ch.resolution), { { eLanePriority::STOP, 0 }, n.value } });
             }
         }
@@ -396,18 +397,17 @@ void chartBMS::loadBMS(const BMS& objBms)
 
         // Calculate note times and push to note list
         Segment lastBPMChangedSegment(0, 1);
-        double stopBeat = 0;
-        double currentSpd = 1.0;
-        Metre metre = objBms.metres[m];      // visual beat
+        double stopMetre = 0;
+        Metre barMetre = objBms.metres[m];      // visual metre
 		Time beatLength = Time::singleBeatLengthFromBPM(bpm);
 
         for (const auto& note : notes)
         {
             auto[noteSegment, noteinfo] = note;
             auto[lane, val] = noteinfo;
-            double beatFromBPMChange = (noteSegment - lastBPMChangedSegment) * metre;
-            Metre beat = basebeat + noteSegment * metre;
-			Time notetime = bpmfucked ? LLONG_MAX : basetime + beatLength * beatFromBPMChange;
+            double metreFromBPMChange = (noteSegment - lastBPMChangedSegment) * barMetre;
+            Metre notemetre = basemetre + noteSegment * barMetre;
+			Time notetime = bpmfucked ? LLONG_MAX : basetime + beatLength * (metreFromBPMChange * 4);
 
             if (lane.type >= eLanePriority::NOTE && lane.type <= eLanePriority::MINE)
             {
@@ -420,7 +420,7 @@ void chartBMS::loadBMS(const BMS& objBms)
                     assert(laneOccupiedByLN[gameLaneIdxLN] == true);
                     laneOccupiedByLN[gameLaneIdxLN] = false;
                     gameLaneLNIndex[gameLaneIdx] = _;
-                    _noteLists[channelToIdx(chartLane.first, gameLaneIdxLN)].push_back({ m, beat, notetime, (long long)val, Note::LN_TAIL, false });
+                    _noteLists[channelToIdx(chartLane.first, gameLaneIdxLN)].push_back({ m, notemetre, notetime, Note::LN_TAIL, (long long)val, 0., false });
                 }
                 else // normal, invisible, mine, LN head
                 {
@@ -597,7 +597,7 @@ void chartBMS::loadBMS(const BMS& objBms)
                         break;
                     }
 
-                    _noteLists[channelToIdx(chartLane.first, gameLaneIdxMod)].push_back({ m, beat, notetime, (long long)val });
+                    _noteLists[channelToIdx(chartLane.first, gameLaneIdxMod)].push_back({ m, notemetre, notetime, 0, (long long)val, 0. });
 
                     if (lane.type == eLanePriority::LNHEAD)
                     {
@@ -613,18 +613,18 @@ void chartBMS::loadBMS(const BMS& objBms)
                     _bgmNoteLists.resize(lane.index + 1);
                     _bgmNoteListIters.resize(lane.index + 1);
                 }
-                _bgmNoteLists[lane.index].push_back({ m, beat, notetime, (long long)val, 0 });
+                _bgmNoteLists[lane.index].push_back({ m, notemetre, notetime, 0, (long long)val, 0.});
             }
             else if (!bpmfucked) switch (lane.type)
             {
             case eLanePriority::BGABASE:
-				_specialNoteLists[(size_t)eNoteExt::BGABASE].push_back({ m, beat, notetime, (long long)val });
+				_specialNoteLists[(size_t)eNoteExt::BGABASE].push_back({ m, notemetre, notetime, 0, (long long)val, 0. });
 				break;
             case eLanePriority::BGALAYER:
-                _specialNoteLists[(size_t)eNoteExt::BGALAYER].push_back({ m, beat, notetime, (long long)val });
+                _specialNoteLists[(size_t)eNoteExt::BGALAYER].push_back({ m, notemetre, notetime, 0, (long long)val, 0. });
 				break;
             case eLanePriority::BGAPOOR:
-                _specialNoteLists[(size_t)eNoteExt::BGAPOOR].push_back({ m, beat, notetime, (long long)val });
+                _specialNoteLists[(size_t)eNoteExt::BGAPOOR].push_back({ m, notemetre, notetime, 0, (long long)val, 0. });
 				break;
 
             case eLanePriority::BPM:
@@ -633,7 +633,7 @@ void chartBMS::loadBMS(const BMS& objBms)
                 lastBPMChangedSegment = noteSegment;
                 bpm = static_cast<BPM>(val) * gSelectContext.pitchSpeed;
 				beatLength = Time::singleBeatLengthFromBPM(bpm);
-                _bpmNoteList.push_back({ m, beat, notetime, bpm });
+                _bpmNoteList.push_back({ m, notemetre, notetime, 0, 0, bpm});
                 if (bpm <= 0) bpmfucked = true;
                 break;
 
@@ -643,34 +643,35 @@ void chartBMS::loadBMS(const BMS& objBms)
                 lastBPMChangedSegment = noteSegment;
                 bpm = objBms.exBPM[val] * gSelectContext.pitchSpeed;
                 beatLength = Time::singleBeatLengthFromBPM(bpm);
-                _bpmNoteList.push_back({ m, beat, notetime, bpm });
+                _bpmNoteList.push_back({ m, notemetre, notetime, 0, 0, bpm });
                 if (bpm <= 0) bpmfucked = true;
                 break;
 
             case eLanePriority::STOP:
-                double curStopBeat = objBms.stop[val] / 192.0;
-				Time  curStopTime{ (long long)std::floor(Time::singleBeatLengthFromBPM(bpm).hres() * curStopBeat), true };
-                if (curStopBeat <= 0) break;
-				_specialNoteLists[(size_t)eNoteExt::STOP].push_back({ m, beat, notetime, curStopBeat });
-                //_chartingSpeedList.push_back({ m, beat, noteht, 0.0 });
-                //_chartingSpeedList.push_back({ m, beat + d2fr(curStopBeat), noteht + curStopTime, currentSpd });
-                stopBeat += curStopBeat;
-                basetime += curStopTime;
+                double noteStopMetre = objBms.stop[val] / 192.0;
+                if (noteStopMetre <= 0) break;
+				Time noteStopTime{ (long long)std::floor(beatLength.hres() * noteStopMetre * 4), true };
+				_specialNoteLists[(size_t)eNoteExt::STOP].push_back({ m, notemetre, notetime, 0, noteStopTime.hres(), noteStopMetre });
+                //_chartingSpeedList.push_back({ m, notemetre, noteht, 0.0 });
+                //_chartingSpeedList.push_back({ m, notemetre + d2fr(noteStopBeat), noteht + noteStopTime, currentSpd });
+                stopMetre += noteStopMetre;
+                basetime += noteStopTime;
                 break;
             }
         }
-		basetime += beatLength * (1.0 - lastBPMChangedSegment) * metre.toDouble();
-		basebeat += metre;
+		basetime += beatLength * (1.0 - lastBPMChangedSegment) * barMetre.toDouble() * 4;
+		basemetre += barMetre;
 
         // add barline for next measure
         _noteLists[chart::channelToIdx(NoteLaneCategory::EXTRA, EXTRA_BARLINE)].push_back(
-			{ m + 1, basebeat, basetime, long long(0), false });
+			{ m + 1, basemetre, basetime, long long(0), false });
 
     }
 
     _totalLength = basetime;    // last measure + 1
 
     resetNoteListsIterators();
+    _currentStopNote = incomingNoteSpecial(size_t(eNoteExt::STOP));
 }
 
 
@@ -704,46 +705,31 @@ std::vector<Input::Pad> chartBMS::getInputFromLane(size_t channel)
 
 void chartBMS::preUpdate(const Time& t)
 {
-    if (_currentBar + 1 < MAX_MEASURES && t >= _barTimestamp[_currentBar + 1])
+    // check stop
+    size_t idx = (size_t)eNoteExt::STOP;
+    _inStopNote = false;
+    while (!isLastNoteSpecial(idx, _currentStopNote))
     {
-        _currentStopBeat = 0;
-        _currentStopBeatGuard = false;
+        if (t.hres() > _currentStopNote->time.hres() + _currentStopNote->dvalue)
+        {
+            ++_currentStopNote;
+        }
+        else if (t >= _currentStopNote->time)
+        {
+            _inStopNote = true;
+            break;
+        }
+        else // t < _currentStopNote->time
+        {
+            break;
+        }
     }
 }
 
 void chartBMS::postUpdate(const Time& t)
 {
-    Time beatLength = Time::singleBeatLengthFromBPM(_currentBPM);
-
-    // check stop
-    bool inStop = false;
-    Metre inStopBeat;
-    size_t idx = (size_t)eNoteExt::STOP;
-    auto st = incomingNoteSpecial(idx);
-    while (!isLastNoteSpecial(idx, st) && t >= st->time &&
-        t.hres() < st->time.hres() + std::get<double>(st->value) * beatLength.hres())
+    if (_inStopNote)
     {
-        //_currentBeat = b->totalbeat - getCurrentMeasureBeat();
-        if (!_currentStopBeatGuard)
-        {
-            _currentStopBeat += std::get<double>(st->value);
-        }
-        inStop = true;
-        inStopBeat = st->totalbeat;
-        ++st;
+        _currentMetre = _currentStopNote->pos - _barMetrePos[_currentStopNote->measure];
     }
-
-
-    // update current info
-    if (!inStop)
-    {
-        _currentStopBeatGuard = false;
-        _currentBeat -= _currentStopBeat;
-    }
-    else
-    {
-        _currentStopBeatGuard = true;
-        _currentBeat = inStopBeat - _barMetrePos[_currentBar];
-    }
-
 }
