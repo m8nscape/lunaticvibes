@@ -592,19 +592,6 @@ void ScenePlay::updateLoadEnd()
     }
 }
 
-void pushGraphPoints()
-{
-    gPlayContext.graphGauge[PLAYER_SLOT_1P].push_back(gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().health * 100);
-
-    gPlayContext.graphScore[PLAYER_SLOT_1P].push_back(gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().score2);
-
-    if (gPlayContext.ruleset[PLAYER_SLOT_2P])
-        gPlayContext.graphScore[PLAYER_SLOT_2P].push_back(gPlayContext.ruleset[PLAYER_SLOT_2P]->getData().score2);
-
-    gPlayContext.graphScoreTarget.push_back(static_cast<int>(std::floor(
-        gPlayContext.ruleset[PLAYER_SLOT_1P]->getCurrentMaxScore() * (0.01 * gNumbers.get(eNumber::DEFAULT_TARGET_RATE)))));
-}
-
 void ScenePlay::updatePlaying()
 {
 	auto t = Time();
@@ -751,7 +738,7 @@ void ScenePlay::updatePlaying()
     spinTurntable(true);
 
     //last note check
-    if (rt.norm() - gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() >= 0)
+    if (rt.hres() - gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().hres() >= 0)
     {
         gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
         gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FADEOUT);

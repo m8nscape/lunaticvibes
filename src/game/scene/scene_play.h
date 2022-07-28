@@ -111,7 +111,6 @@ protected:
 protected:
     // Inner-state updates
     void procCommonNotes();
-    void playBGMSamples();
     void changeKeySampleMapping(const Time& t);
     void spinTurntable(bool startedPlaying);
 

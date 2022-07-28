@@ -100,6 +100,7 @@ struct PlayContextParams
 
 void clearContextPlayForRetry();
 void clearContextPlay();
+void pushGraphPoints();
 
 ////////////////////////////////////////////////////////////////////////////////
 

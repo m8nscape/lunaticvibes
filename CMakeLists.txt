@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 #########################################################################
 # PROJECT CONFIG
 
-project(BlastPit
+project(banshao
     VERSION 0.6
     LANGUAGES CXX
 )

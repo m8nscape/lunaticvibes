@@ -48,7 +48,7 @@ public:
 	}
 	Time(long long n, bool init_with_high_resolution_timestamp = false)
 	{
-		if (init_with_high_resolution_timestamp || n > LLONG_MAX / 100000)
+		if (init_with_high_resolution_timestamp || n > LLONG_MAX / 1000000)
 		{
 			_highres = n;
 			_regular = std::chrono::duration_cast<timeNormRes>(timeHighRes(n)).count();
@@ -69,11 +69,11 @@ public:
 	}
 
 	Time operator-  () const { return Time(-_highres, true); }
-	Time operator+  (const Time& rhs) const { Time tmp(*this); tmp._regular += rhs._regular; tmp._highres += rhs._highres; return tmp; }
-	Time operator-  (const Time& rhs) const { Time tmp(*this); tmp._regular -= rhs._regular; tmp._highres -= rhs._highres; return tmp; }
-	Time operator*  (const double rhs) const { Time tmp(*this); tmp._regular *= rhs;  tmp._highres *= rhs; return tmp; }
-	Time& operator+= (const Time& rhs) { _regular += rhs._regular; _highres += rhs._highres; return *this; }
-	Time& operator-= (const Time& rhs) { _regular -= rhs._regular; _highres -= rhs._highres; return *this; }
+	Time operator+  (const Time& rhs) const { Time tmp(*this); tmp._highres += rhs._highres; tmp._regular = tmp._highres / 1000000; return tmp; }
+	Time operator-  (const Time& rhs) const { Time tmp(*this); tmp._highres -= rhs._highres; tmp._regular = tmp._highres / 1000000; return tmp; }
+	Time operator*  (const double rhs) const { Time tmp(*this); tmp._highres *= rhs; tmp._regular = tmp._highres / 1000000; return tmp; }
+	Time& operator+= (const Time& rhs) { _highres += rhs._highres; _regular = _highres / 1000000; return *this; }
+	Time& operator-= (const Time& rhs) { _highres -= rhs._highres; _regular = _highres / 1000000; return *this; }
 	bool   operator<  (const Time& rhs) const { return _highres < rhs._highres; }
 	bool   operator>  (const Time& rhs) const { return _highres > rhs._highres; }
 	bool   operator<= (const Time& rhs) const { return _highres <= rhs._highres; }

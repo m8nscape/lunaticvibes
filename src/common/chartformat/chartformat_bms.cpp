@@ -218,8 +218,8 @@ int BMS::initWithFile(const Path& file)
                 // lastBarIdx & channels
                 if (std::regex_match(key, regexNotes))
                 {
-                    unsigned measure = toInt(key.substr(0, 3));
-                    if (lastBarIdx < measure) lastBarIdx = measure;
+                    unsigned bar = toInt(key.substr(0, 3));
+                    if (lastBarIdx < bar) lastBarIdx = bar;
 
                     int layer = base36(key[3]);
                     int ch = base36(key[4]);
@@ -229,50 +229,50 @@ int BMS::initWithFile(const Path& file)
                         switch (ch)
                         {
                         case 1:            // 01: BGM
-                            if (bgmLayersCount[measure] >= chBGM.size())
+                            if (bgmLayersCount[bar] >= chBGM.size())
                             {
                                 chBGM.emplace_back();
-                                strToLane36(chBGM.back()[measure], value);
+                                strToLane36(chBGM.back()[bar], value);
                             }
                             else
                             {
-                                strToLane36(chBGM[bgmLayersCount[measure]][measure], value);
+                                strToLane36(chBGM[bgmLayersCount[bar]][bar], value);
                             }
-                            ++bgmLayersCount[measure];
+                            ++bgmLayersCount[bar];
                             break;
 
                         case 2:            // 02: Bar Length
-                            metres[measure] = toDouble(value);
+                            metres[bar] = toDouble(value);
                             haveMetricMod = true;
                             break;
 
                         case 3:            // 03: BPM change
-                            strToLane16(chBPMChange[measure], value);
+                            strToLane16(chBPMChange[bar], value);
                             haveBPMChange = true;
                             break;
 
                         case 4:            // 04: BGA Base
-                            strToLane36(chBGABase[measure], value);
+                            strToLane36(chBGABase[bar], value);
                             haveBGA = true;
                             break;
 
                         case 6:            // 06: BGA Poor
-                            strToLane36(chBGAPoor[measure], value);
+                            strToLane36(chBGAPoor[bar], value);
                             haveBGA = true;
                             break;
 
                         case 7:            // 07: BGA Layer
-                            strToLane36(chBGALayer[measure], value);
+                            strToLane36(chBGALayer[bar], value);
                             haveBGA = true;
                             break;
 
                         case 8:            // 08: ExBPM
-                            strToLane36(chExBPMChange[measure], value);
+                            strToLane36(chExBPMChange[bar], value);
                             haveBPMChange = true;
                             break;
 
                         case 9:            // 09: Stop
-                            strToLane36(chStop[measure], value);
+                            strToLane36(chStop[bar], value);
                             haveStop = true;
                             break;
                         }
@@ -282,27 +282,27 @@ int BMS::initWithFile(const Path& file)
                         auto [area, idx] = normalizeIndexesBME(layer, ch);
                         assert(area < sizeof(chNotesRegular.lanes) / sizeof(chNotesRegular.lanes[0]));
                         assert(idx < sizeof(chNotesRegular.lanes[0]) / sizeof(chNotesRegular.lanes[0][0]));
-                        assert(measure < sizeof(chNotesRegular.lanes[0][0]) / sizeof(chNotesRegular.lanes[0][0][0]));
+                        assert(bar < sizeof(chNotesRegular.lanes[0][0]) / sizeof(chNotesRegular.lanes[0][0][0]));
                         switch (layer)
                         {
                         case 1:            // 1x: 1P visible
                         case 2:            // 2x: 2P visible
-                            strToLane36(chNotesRegular.lanes[area][idx][measure], value);
+                            strToLane36(chNotesRegular.lanes[area][idx][bar], value);
                             haveNote = true;
                             break;
                         case 3:            // 3x: 1P invisible
                         case 4:            // 4x: 2P invisible
-                            strToLane36(chNotesInvisible.lanes[area][idx][measure], value);
+                            strToLane36(chNotesInvisible.lanes[area][idx][bar], value);
                             haveInvisible = true;
                             break;
                         case 5:            // 5x: 1P LN
                         case 6:            // 6x: 2P LN
-                            strToLane36(chNotesLN.lanes[area][idx][measure], value);
+                            strToLane36(chNotesLN.lanes[area][idx][bar], value);
                             haveLN = true;
                             break;
                         case 0xD:        // Dx: 1P mine
                         case 0xE:        // Ex: 2P mine
-                            strToLane36(chMines.lanes[area][idx][measure], value);
+                            strToLane36(chMines.lanes[area][idx][bar], value);
                             haveMine = true;
                             break;
                         }

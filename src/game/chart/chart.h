@@ -125,7 +125,7 @@ protected:
     std::list<Note>              _bpmNoteList;          // BPM change is so common that they are not special
 
 protected:
-    std::array<Metre,  MAX_MEASURES>   barLength;
+    std::array<Metre,  MAX_MEASURES>   barMetreLength;
     std::array<Metre,  MAX_MEASURES>   _barMetrePos;
     std::array<Time, MAX_MEASURES>   _barTimestamp;
 

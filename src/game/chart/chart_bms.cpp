@@ -146,7 +146,7 @@ void chartBMS::loadBMS(const BMS& objBms)
     BPM bpm = objBms.startBPM * gSelectContext.pitchSpeed;
     _currentBPM = bpm;
     _bpmNoteList.push_back({ 0, {0, 1}, 0, 0, 0, bpm });
-	barLength.fill({ 1, 1 });
+	barMetreLength.fill({ 1, 1 });
     bool bpmfucked = false; // set to true when BPM is changed to zero or negative value
     std::bitset<NOTELANEINDEX_COUNT> isLnTail{ 0 };
 
@@ -197,7 +197,7 @@ void chartBMS::loadBMS(const BMS& objBms)
 
     for (unsigned m = 0; m <= objBms.lastBarIdx; m++)
     {
-		barLength[m] = objBms.metres[m];
+		barMetreLength[m] = objBms.metres[m];
 		_barMetrePos[m] = basemetre;
         _barTimestamp[m] = basetime;
 
@@ -668,7 +668,7 @@ void chartBMS::loadBMS(const BMS& objBms)
 
     }
 
-    _totalLength = basetime;    // last measure + 1
+    _totalLength = basetime + Time(std::max(500'000'000ll, Time::singleBeatLengthFromBPM(bpm).hres() * 4), true);    // last measure + 1
 
     resetNoteListsIterators();
     _currentStopNote = incomingNoteSpecial(size_t(eNoteExt::STOP));

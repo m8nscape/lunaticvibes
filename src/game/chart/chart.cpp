@@ -157,12 +157,12 @@ Time vChart::getCurrentBarLength()
 
 Metre vChart::getBarMetre(size_t bar)
 {
-    if (bar >= barLength.size())
+    if (bar >= barMetreLength.size())
     {
 		return { 1, 1 };
     }
 
-	return barLength[bar];
+	return barMetreLength[bar];
 }
 
 Metre vChart::getCurrentBarMetre()
