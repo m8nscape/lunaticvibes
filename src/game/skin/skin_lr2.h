@@ -1543,7 +1543,7 @@ private:
 
     ParseRet SRC_JUDGELINE();
     ParseRet SRC_GROOVEGAUGE();
-    ParseRet SRC_NOTE();
+    ParseRet SRC_NOTE(DefType type);
     ParseRet SRC_NOWJUDGE(size_t idx);
     ParseRet SRC_NOWCOMBO(size_t idx);
     ParseRet SRC_NOWJUDGE1();

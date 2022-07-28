@@ -686,6 +686,8 @@ NoteLane chartBMS::getLaneFromKey(Input::Pad input)
             note.push_back({ cat::Note, *incomingNote(cat::Note, idx) });
         if (!isLastNote(cat::Invs, idx))
             note.push_back({ cat::Invs, *incomingNote(cat::Invs, idx) });
+        if (!isLastNote(cat::Mine, idx))
+            note.push_back({ cat::Mine, *incomingNote(cat::Mine, idx) });
         if (!isLastNote(cat::LN, idx))
             note.push_back({ cat::LN,   *incomingNote(cat::LN, idx) });
         std::sort(note.begin(), note.end(), [](decltype(note.front())& a, decltype(note.front())& b) { return b.second.time > a.second.time; });

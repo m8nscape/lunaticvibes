@@ -1029,7 +1029,7 @@ bool SkinLR2::SRC()
         case DefType::AUTO_MINE:      
         case DefType::AUTO_LN_END:    
         case DefType::AUTO_LN_BODY:   
-        case DefType::AUTO_LN_START:  SRC_NOTE(); break;
+        case DefType::AUTO_LN_START:  SRC_NOTE(type); break;
     };
 
     return true;
@@ -1493,7 +1493,7 @@ const size_t NoteIdxToLaneMap[] =
     chart::_,
 };
 
-ParseRet SkinLR2::SRC_NOTE()
+ParseRet SkinLR2::SRC_NOTE(DefType type)
 {
     using namespace chart;
 
@@ -1522,44 +1522,35 @@ ParseRet SkinLR2::SRC_NOTE()
 
     NoteLaneCategory cat = NoteLaneCategory::_;
     NoteLaneIndex idx = NoteLaneIndex::_;
-    int ret = 0;
 
     // SRC_NOTE
-    if (strEqual(parseKeyBuf, "#SRC_NOTE", true))
+    switch (type)
     {
-        cat = NoteLaneCategory::Note;
-        idx = (NoteLaneIndex)NoteIdxToLaneMap[d._null];
-        ret = 1;
-    }
-    else if (strEqual(parseKeyBuf, "#SRC_LINE", true))
-    {
+    case DefType::LINE:
         cat = NoteLaneCategory::EXTRA;
         idx = (NoteLaneIndex)EXTRA_BARLINE;
-        ret = 2;
-    }
-    else if (strEqual(parseKeyBuf, "#SRC_LN_START", true))
-    {
+        break;
+    case DefType::NOTE:
+        cat = NoteLaneCategory::Note;
+        idx = (NoteLaneIndex)NoteIdxToLaneMap[d._null];
+        break;
+    case DefType::LN_END:
+    case DefType::LN_BODY:
+    case DefType::LN_START:
         cat = NoteLaneCategory::LN;
         idx = (NoteLaneIndex)NoteIdxToLaneMap[d._null];
-        ret = 3;
-    }
-    else if (strEqual(parseKeyBuf, "#SRC_LN_BODY", true))
-    {
-        cat = NoteLaneCategory::LN;
+        break;
+    case DefType::MINE:
+        cat = NoteLaneCategory::Mine;
         idx = (NoteLaneIndex)NoteIdxToLaneMap[d._null];
-        ret = 4;
-    }
-    else if (strEqual(parseKeyBuf, "#SRC_LN_END", true))
-    {
-        cat = NoteLaneCategory::LN;
-        idx = (NoteLaneIndex)NoteIdxToLaneMap[d._null];
-        ret = 5;
-    }
-    else
-    {
-        // other types not supported
+        break;
+    case DefType::AUTO_NOTE:
+    case DefType::AUTO_MINE:
+    case DefType::AUTO_LN_END:
+    case DefType::AUTO_LN_BODY:
+    case DefType::AUTO_LN_START:
+    default:
         LOG_WARNING << "[Skin] " << csvLineNumber << ": \"" << parseKeyBuf << "\" is not supported yet";
-        ret = 0;
         return ParseRet::OK;
     }
 
@@ -1570,10 +1561,14 @@ ParseRet SkinLR2::SRC_NOTE()
         return ParseRet::PARAM_INVALID;
     }
 
-    switch (ret)
+    switch (type)
     {
-    case 1:
-    case 2:
+    case DefType::LINE:
+    case DefType::NOTE:
+    case DefType::MINE:
+    case DefType::AUTO_NOTE:
+    case DefType::AUTO_MINE:
+    {
         _sprites.push_back(std::make_shared<SpriteLaneVertical>(
             _textureNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, iTimer, d.div_y, d.div_x, false, !!(d._null >= 20)));
 
@@ -1583,10 +1578,14 @@ ParseRet SkinLR2::SRC_NOTE()
             RenderParams::accTy::CONSTANT, Color(0xffffffff), BlendMode::ALPHA, 0, 0.0 } });
         _laneSprites[i]->pNote->setLoopTime(0);
         break;
+    }
 
-    case 3:
-    case 4:
-    case 5:
+    case DefType::LN_END:
+    case DefType::LN_BODY:
+    case DefType::LN_START:
+    case DefType::AUTO_LN_END:
+    case DefType::AUTO_LN_BODY:
+    case DefType::AUTO_LN_START:
     {
         if (_laneSprites[i] == nullptr)
         {
@@ -1597,19 +1596,14 @@ ParseRet SkinLR2::SRC_NOTE()
 
         auto p = std::static_pointer_cast<SpriteLaneVerticalLN>(_laneSprites[i]);
         std::shared_ptr<SpriteAnimated> *pn = nullptr;
-        switch (ret)
+        switch (type)
         {
-        case 3:
-            pn = &p->pNote;
-            break;
-        case 4:
-            pn = &p->pNoteBody;
-            break;
-        case 5:
-            pn = &p->pNoteTail;
-            break;
-        default:
-            break;
+        case DefType::LN_START:
+        case DefType::AUTO_LN_START:  pn = &p->pNote; break;
+        case DefType::LN_BODY:
+        case DefType::AUTO_LN_BODY:   pn = &p->pNoteBody; break;
+        case DefType::LN_END:
+        case DefType::AUTO_LN_END:    pn = &p->pNoteTail; break;
         }
         if (pn)
         {
@@ -1623,8 +1617,6 @@ ParseRet SkinLR2::SRC_NOTE()
     default:
         break;
     }
-
-
 
     return ParseRet::OK;
 }
@@ -1950,9 +1942,6 @@ ParseRet SkinLR2::DST_NOTE()
 {
     using namespace chart;
 
-    if (!strEqual(parseKeyBuf, "#DST_NOTE", true))
-        return ParseRet::SRC_DEF_WRONG_TYPE;
-
     // load raw into data struct
     lr2skin::dst d(parseParamBuf);
 
@@ -1961,7 +1950,7 @@ ParseRet SkinLR2::DST_NOTE()
 
     NoteLaneIndex idx = NoteLaneIndex(NoteIdxToLaneMap[d._null]);
 
-    auto setDstNoteLambda = [&](NoteLaneCategory i, std::shared_ptr<SpriteLaneVertical> e)
+    auto setDstNoteSprite = [&](NoteLaneCategory i, std::shared_ptr<SpriteLaneVertical> e)
     {
         /*
         e->pNote->clearKeyFrames();
@@ -1978,22 +1967,19 @@ ParseRet SkinLR2::DST_NOTE()
     };
 
     auto e1 = _laneSprites[channelToIdx(NoteLaneCategory::Note, idx)];
-    setDstNoteLambda(NoteLaneCategory::Note, e1);
+    setDstNoteSprite(NoteLaneCategory::Note, e1);
 
-    // TODO add mine sprite
-    //setDstNoteLambda(NoteLaneCategory::Mine);
+    auto e2 = _laneSprites[channelToIdx(NoteLaneCategory::Mine, idx)];
+    setDstNoteSprite(NoteLaneCategory::Mine, e2);
 
     auto e3 = _laneSprites[channelToIdx(NoteLaneCategory::LN, idx)];
-    setDstNoteLambda(NoteLaneCategory::LN, e3);
+    setDstNoteSprite(NoteLaneCategory::LN, e3);
 
     return ParseRet::OK;
 }
 
 ParseRet SkinLR2::DST_LINE()
 {
-    if (!strEqual(parseKeyBuf, "#DST_LINE", true))
-        return ParseRet::SRC_DEF_WRONG_TYPE;
-
     // load raw into data struct
     lr2skin::dst d(parseParamBuf);
     
@@ -2053,9 +2039,6 @@ ParseRet SkinLR2::DST_LINE()
 
 ParseRet SkinLR2::DST_BAR_BODY()
 {
-    if (!strEqual(parseKeyBuf, "#DST_BAR_BODY_OFF", true) && !strEqual(parseKeyBuf, "#DST_BAR_BODY_ON", true))
-        return ParseRet::SRC_DEF_WRONG_TYPE;
-
     bool bodyOn = parseKeyBuf == "#DST_BAR_BODY_ON";
 
     // load raw into data struct
@@ -2097,9 +2080,6 @@ ParseRet SkinLR2::DST_BAR_BODY()
 
 ParseRet SkinLR2::DST_BAR_FLASH()
 {
-    if (!strEqual(parseKeyBuf, "#DST_BAR_FLASH", true))
-        return ParseRet::SRC_DEF_WRONG_TYPE;
-
     // load raw into data struct
     lr2skin::dst d(parseParamBuf);
 
@@ -2130,9 +2110,6 @@ ParseRet SkinLR2::DST_BAR_FLASH()
 
 ParseRet SkinLR2::DST_BAR_LEVEL()
 {
-    if (!strEqual(parseKeyBuf, "#DST_BAR_LEVEL", true))
-        return ParseRet::SRC_DEF_WRONG_TYPE;
-
     // load raw into data struct
     lr2skin::dst d(parseParamBuf);
     
@@ -2166,9 +2143,6 @@ ParseRet SkinLR2::DST_BAR_LEVEL()
 
 ParseRet SkinLR2::DST_BAR_RIVAL_MYLAMP()
 {
-    if (!strEqual(parseKeyBuf, "#DST_BAR_MY_LAMP", true))
-        return ParseRet::SRC_DEF_WRONG_TYPE;
-
     // load raw into data struct
     lr2skin::dst d(parseParamBuf);
     
@@ -2200,9 +2174,6 @@ ParseRet SkinLR2::DST_BAR_RIVAL_MYLAMP()
 }
 ParseRet SkinLR2::DST_BAR_RIVAL_RIVALLAMP()
 {
-    if (!strEqual(parseKeyBuf, "#DST_BAR_RIVAL_LAMP", true))
-        return ParseRet::SRC_DEF_WRONG_TYPE;
-
     // load raw into data struct
     lr2skin::dst d(parseParamBuf);
     
@@ -2235,9 +2206,6 @@ ParseRet SkinLR2::DST_BAR_RIVAL_RIVALLAMP()
 
 ParseRet SkinLR2::DST_BAR_LAMP()
 {
-    if (!strEqual(parseKeyBuf, "#DST_BAR_LAMP", true))
-        return ParseRet::SRC_DEF_WRONG_TYPE;
-
     // load raw into data struct
     lr2skin::dst d(parseParamBuf);
     
@@ -2270,9 +2238,6 @@ ParseRet SkinLR2::DST_BAR_LAMP()
 
 ParseRet SkinLR2::DST_BAR_TITLE()
 {
-    if (!strEqual(parseKeyBuf, "#DST_BAR_TITLE", true))
-        return ParseRet::SRC_DEF_WRONG_TYPE;
-
     // load raw into data struct
     lr2skin::dst d(parseParamBuf);
 
@@ -2305,9 +2270,6 @@ ParseRet SkinLR2::DST_BAR_TITLE()
 
 ParseRet SkinLR2::DST_BAR_RANK()
 {
-    if (!strEqual(parseKeyBuf, "#DST_BAR_RANK", true))
-        return ParseRet::SRC_DEF_WRONG_TYPE;
-
     // load raw into data struct
     lr2skin::dst d(parseParamBuf);
 
@@ -2340,12 +2302,9 @@ ParseRet SkinLR2::DST_BAR_RANK()
 
 ParseRet SkinLR2::DST_BAR_RIVAL()
 {
-    if (!strEqual(parseKeyBuf, "#DST_BAR_RIVAL", true))
-        return ParseRet::SRC_DEF_WRONG_TYPE;
-
     // load raw into data struct
     lr2skin::dst d(parseParamBuf);
-
+    
     auto type = BarRivalType(d._null);
 
     for (auto& bar : _barSprites)
