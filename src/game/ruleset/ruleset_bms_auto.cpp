@@ -1,4 +1,5 @@
 #include "ruleset_bms_auto.h"
+#include "game/scene/scene.h"
 #include "game/scene/scene_context.h"
 
 RulesetBMSAuto::RulesetBMSAuto(
@@ -12,6 +13,14 @@ RulesetBMSAuto::RulesetBMSAuto(
 {
     assert(side == PlaySide::AUTO || side == PlaySide::AUTO_2P || side == PlaySide::RIVAL);
 
+    if (_side == PlaySide::AUTO) 
+        judgeSide = PLAYER_SLOT_1P;
+    else if (_side == PlaySide::AUTO_2P) 
+        judgeSide = PLAYER_SLOT_2P;
+
+    isPressingLN.fill(false);
+
+    setTargetRate(1.0);
 }
 
 void RulesetBMSAuto::setTargetRate(double rate)
@@ -92,15 +101,157 @@ void RulesetBMSAuto::update(const Time& t)
     {
         for (size_t k = begin; k <= end; ++k)
         {
-            auto [cat, idx] = _chart->getLaneFromKey((Input::Pad)k);
-            if (cat == NoteLaneCategory::_) return;
+            judgeRes j;
 
-            auto n = _chart->incomingNote(cat, idx);
-            if (_judge(*n, rt).area >= judgeArea::EXACT_PERFECT)
+            NoteLaneIndex idx;
+            HitableNote* pNote = nullptr;
+
+            idx = _chart->getLaneFromKey(NoteLaneCategory::Note, (Input::Pad)k);
+            if (idx != NoteLaneIndex::_)
             {
-                updateHit(t, idx, noteJudges[judgeIndex++], -1);
-                n->hit = true;
-                _basic.totalnr++;
+                pNote = &*_chart->incomingNote(NoteLaneCategory::Note, idx);
+                if (!pNote->hit && rt >= pNote->time)
+                {
+                    updateHit(t, idx, noteJudges[judgeIndex++], judgeSide);
+                    pNote->hit = true;
+                    _basic.totaln++;
+
+                    if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P)
+                    {
+                        gTimers.set(InputGamePressMapSingle[k].tm, t.norm());
+                        gTimers.set(InputGameReleaseMapSingle[k].tm, TIMER_NEVER);
+                        gSwitches.set(InputGamePressMapSingle[k].sw, true);
+
+                        if (k == Input::S1L || k == Input::S1R)
+                        {
+                            gTimers.set(eTimer::S1_DOWN, t.norm());
+                            gTimers.set(eTimer::S1_UP, TIMER_NEVER);
+                            gSwitches.set(eSwitch::S1_DOWN, true);
+                        }
+                        if (k == Input::S2L || k == Input::S2R)
+                        {
+                            gTimers.set(eTimer::S2_DOWN, t.norm());
+                            gTimers.set(eTimer::S2_UP, TIMER_NEVER);
+                            gSwitches.set(eSwitch::S2_DOWN, true);
+                        }
+                    }
+                }
+            }
+
+            idx = _chart->getLaneFromKey(NoteLaneCategory::LN, (Input::Pad)k);
+            if (idx != NoteLaneIndex::_)
+            {
+                pNote = &*_chart->incomingNote(NoteLaneCategory::LN, idx);
+                if (!pNote->hit)
+                {
+                    if (!(pNote->flags & Note::LN_TAIL))
+                    {
+                        const Time& hitTime = judgeTime[(size_t)_diff].BAD;
+                        if (!pNote->hit && rt >= pNote->time)
+                        {
+                            updateHit(t, idx, noteJudges[judgeIndex++], judgeSide);
+                            pNote->hit = true;
+                            _basic.totaln++;
+
+                            if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P)
+                            {
+                                gTimers.set(InputGamePressMapSingle[k].tm, t.norm());
+                                gTimers.set(InputGameReleaseMapSingle[k].tm, TIMER_NEVER);
+                                gSwitches.set(InputGamePressMapSingle[k].sw, true);
+
+                                if (k == Input::S1L || k == Input::S1R)
+                                {
+                                    gTimers.set(eTimer::S1_DOWN, t.norm());
+                                    gTimers.set(eTimer::S1_UP, TIMER_NEVER);
+                                    gSwitches.set(eSwitch::S1_DOWN, true);
+                                }
+                                if (k == Input::S2L || k == Input::S2R)
+                                {
+                                    gTimers.set(eTimer::S2_DOWN, t.norm());
+                                    gTimers.set(eTimer::S2_UP, TIMER_NEVER);
+                                    gSwitches.set(eSwitch::S2_DOWN, true);
+                                }
+
+                                if (_bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
+                                    gTimers.set(_bombLNTimerMap->at(idx), t.norm());
+
+                                isPressingLN[k] = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (rt >= pNote->time)
+                        {
+                            pNote->hit = true;
+
+                            if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P)
+                            {
+                                gTimers.set(InputGamePressMapSingle[k].tm, TIMER_NEVER);
+                                gTimers.set(InputGameReleaseMapSingle[k].tm, t.norm());
+                                gSwitches.set(InputGameReleaseMapSingle[k].sw, false);
+
+                                if (k == Input::S1L || k == Input::S1R)
+                                {
+                                    gTimers.set(eTimer::S1_DOWN, TIMER_NEVER);
+                                    gTimers.set(eTimer::S1_UP, t.norm());
+                                    gSwitches.set(eSwitch::S1_DOWN, false);
+                                }
+                                if (k == Input::S2L || k == Input::S2R)
+                                {
+                                    gTimers.set(eTimer::S2_DOWN, TIMER_NEVER);
+                                    gTimers.set(eTimer::S2_UP, t.norm());
+                                    gSwitches.set(eSwitch::S2_DOWN, false);
+                                }
+
+                                if (_bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
+                                    gTimers.set(_bombLNTimerMap->at(idx), TIMER_NEVER);
+
+                                isPressingLN[k] = false;
+                            }
+                        }
+                    }
+                }
+            }
+
+            idx = _chart->getLaneFromKey(NoteLaneCategory::Invs, (Input::Pad)k);
+            if (idx != NoteLaneIndex::_)
+            {
+                pNote = &*_chart->incomingNote(NoteLaneCategory::Invs, idx);
+                if (!pNote->hit && rt >= pNote->time)
+                {
+                    pNote->hit = true;
+                }
+            }
+
+            idx = _chart->getLaneFromKey(NoteLaneCategory::Mine, (Input::Pad)k);
+            if (idx != NoteLaneIndex::_)
+            {
+                pNote = &*_chart->incomingNote(NoteLaneCategory::Mine, idx);
+                if (!pNote->hit && rt >= pNote->time)
+                {
+                    pNote->hit = true;
+                }
+            }
+
+            if (t.norm() - gTimers.get(InputGamePressMapSingle[k].tm) > 100 && !isPressingLN[k])
+            {
+                gTimers.set(InputGamePressMapSingle[k].tm, TIMER_NEVER);
+                gTimers.set(InputGameReleaseMapSingle[k].tm, t.norm());
+                gSwitches.set(InputGameReleaseMapSingle[k].sw, false);
+
+                if (k == Input::S1L || k == Input::S1R)
+                {
+                    gTimers.set(eTimer::S1_DOWN, TIMER_NEVER);
+                    gTimers.set(eTimer::S1_UP, t.norm());
+                    gSwitches.set(eSwitch::S1_DOWN, false);
+                }
+                if (k == Input::S2L || k == Input::S2R)
+                {
+                    gTimers.set(eTimer::S2_DOWN, TIMER_NEVER);
+                    gTimers.set(eTimer::S2_UP, t.norm());
+                    gSwitches.set(eSwitch::S2_DOWN, false);
+                }
             }
         }
     };

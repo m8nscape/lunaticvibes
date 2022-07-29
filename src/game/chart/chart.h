@@ -146,9 +146,9 @@ protected:
 public:
     auto firstNote(NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteLists.front().begin());
 
-    auto incomingNote         (NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteListIterators.front());
-    auto incomingNoteBgm      (size_t idx) -> decltype(_bgmNoteListIters.front());
-    auto incomingNoteSpecial  (size_t idx) -> decltype(_specialNoteListIters.front());
+    auto incomingNote         (NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteLists.front().begin());
+    auto incomingNoteBgm      (size_t idx) -> decltype(_bgmNoteLists.front().begin());
+    auto incomingNoteSpecial  (size_t idx) -> decltype(_specialNoteLists.front().begin());
     auto incomingNoteBpm      () -> decltype(_bpmNoteListIter);
 
     bool isLastNote           (NoteLaneCategory cat, NoteLaneIndex idx);
@@ -161,6 +161,7 @@ public:
     bool isLastNoteSpecial    (size_t idx, decltype(_specialNoteListIters.front()) it);
     bool isLastNoteBpm        (decltype(_bpmNoteListIter) it);
 
+protected:
     auto nextNote             (NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteListIterators.front());
     auto nextNoteBgm          (size_t idx) -> decltype(_bgmNoteListIters.front());
     auto nextNoteSpecial      (size_t idx) -> decltype(_specialNoteListIters.front());
@@ -199,7 +200,7 @@ public:
     std::list<Note>   noteSpecialExpired;
 
 public:
-    virtual NoteLane getLaneFromKey(Input::Pad input) = 0;
+    virtual NoteLaneIndex getLaneFromKey(NoteLaneCategory cat, Input::Pad input) = 0;
     virtual std::vector<Input::Pad> getInputFromLane(size_t channel) = 0;
 
     inline auto getTotalLength() const { return _totalLength; }

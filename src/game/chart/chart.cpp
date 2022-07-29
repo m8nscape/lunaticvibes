@@ -67,17 +67,17 @@ auto vChart::firstNote(NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_not
     return _noteLists[channel].begin();
 }
 
-auto vChart::incomingNote(NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteListIterators.front())
+auto vChart::incomingNote(NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteLists.front().begin())
 {
     size_t channel = channelToIdx(cat, idx);
     return _noteListIterators[channel];
 }
 
-auto vChart::incomingNoteBgm(size_t channel) -> decltype(_bgmNoteListIters.front())
+auto vChart::incomingNoteBgm(size_t channel) -> decltype(_bgmNoteLists.front().begin())
 {
     return _bgmNoteListIters[channel];
 }
-auto vChart::incomingNoteSpecial(size_t channel) -> decltype(_specialNoteListIters.front())
+auto vChart::incomingNoteSpecial(size_t channel) -> decltype(_specialNoteLists.front().begin())
 {
     return _specialNoteListIters[channel];
 }

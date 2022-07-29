@@ -95,6 +95,7 @@ struct PlayContextParams
 
     unsigned int randomSeedChart;
     unsigned int randomSeedMod;
+
     bool isAuto = false;
 };
 
@@ -139,6 +140,8 @@ struct SelectContextParams
 
     bool isGoingToSkinSelect = false;
     bool isGoingToKeyConfig = false;
+    bool isGoingToAutoPlay = false;
+    bool isGoingToReplay = false;
 };
 
 void setBarInfo();

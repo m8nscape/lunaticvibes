@@ -425,6 +425,7 @@ void chartBMS::loadBMS(const BMS& objBms)
                 else // normal, invisible, mine, LN head
                 {
                     NoteLane chartLane;
+                    size_t flags = 0;
                     switch (lane.type)
                     {
                     case eLanePriority::NOTE:
@@ -435,9 +436,11 @@ void chartBMS::loadBMS(const BMS& objBms)
                         break;
                     case eLanePriority::INV:
                         chartLane = idxToChannel(chart::channelToIdx(NoteLaneCategory::Invs, lane.index));
+                        flags = Note::Flags::INVS;
                         break;
                     case eLanePriority::MINE:
                         chartLane = idxToChannel(chart::channelToIdx(NoteLaneCategory::Mine, lane.index));
+                        flags = Note::Flags::MINE;
                         break;
                     default:
                         assert(false);
@@ -597,7 +600,7 @@ void chartBMS::loadBMS(const BMS& objBms)
                         break;
                     }
 
-                    _noteLists[channelToIdx(chartLane.first, gameLaneIdxMod)].push_back({ m, notemetre, notetime, 0, (long long)val, 0. });
+                    _noteLists[channelToIdx(chartLane.first, gameLaneIdxMod)].push_back({ m, notemetre, notetime, flags, (long long)val, 0. });
 
                     if (lane.type == eLanePriority::LNHEAD)
                     {
@@ -675,26 +678,15 @@ void chartBMS::loadBMS(const BMS& objBms)
 }
 
 
-NoteLane chartBMS::getLaneFromKey(Input::Pad input)
+chart::NoteLaneIndex chartBMS::getLaneFromKey(chart::NoteLaneCategory cat, Input::Pad input)
 {
     if (input >= Input::S1L && input < Input::ESC && KeyToLaneMap[input] != _)
     {
-        using cat = NoteLaneCategory;
         NoteLaneIndex idx = KeyToLaneMap[input];
-        std::vector<std::pair<cat, HitableNote>> note;
-        if (!isLastNote(cat::Note, idx))
-            note.push_back({ cat::Note, *incomingNote(cat::Note, idx) });
-        if (!isLastNote(cat::Invs, idx))
-            note.push_back({ cat::Invs, *incomingNote(cat::Invs, idx) });
-        if (!isLastNote(cat::Mine, idx))
-            note.push_back({ cat::Mine, *incomingNote(cat::Mine, idx) });
-        if (!isLastNote(cat::LN, idx))
-            note.push_back({ cat::LN,   *incomingNote(cat::LN, idx) });
-        std::sort(note.begin(), note.end(), [](decltype(note.front())& a, decltype(note.front())& b) { return b.second.time > a.second.time; });
-        for (size_t i = 0; i < note.size(); ++i)
-            if (!note[i].second.hit) return { note[i].first, idx };
+        if (!isLastNote(cat, idx))
+            return idx;
     }
-    return { NoteLaneCategory::_, _ };
+    return _;
 }
 
 std::vector<Input::Pad> chartBMS::getInputFromLane(size_t channel)

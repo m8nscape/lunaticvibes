@@ -246,6 +246,9 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
 
     gSelectContext.isGoingToKeyConfig = false;
     gSelectContext.isGoingToSkinSelect = false;
+    gSelectContext.isGoingToAutoPlay = false;
+    gSelectContext.isGoingToReplay = false;
+    gSwitches.set(eSwitch::SYSTEM_AUTOPLAY, false);
 
     _state = eSelectState::PREPARE;
     _updateCallback = std::bind(&SceneSelect::updatePrepare, this);
@@ -377,6 +380,43 @@ void SceneSelect::updateSelect()
         gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
         _state = eSelectState::FADEOUT;
         _updateCallback = std::bind(&SceneSelect::updateFadeout, this);
+    }
+    if (gSelectContext.isGoingToAutoPlay)
+    {
+        gSelectContext.isGoingToAutoPlay = false;
+        if (!gSelectContext.entries.empty())
+        {
+            switch (gSelectContext.entries[gSelectContext.idx].first->type())
+            {
+            case eEntryType::SONG:
+            case eEntryType::CHART:
+            case eEntryType::RIVAL_SONG:
+            case eEntryType::RIVAL_CHART:
+            case eEntryType::COURSE:
+                gPlayContext.isAuto = true;
+                gSwitches.set(eSwitch::SYSTEM_AUTOPLAY, true);
+                _decide();
+                break;
+            }
+        }
+    }
+    if (gSelectContext.isGoingToReplay)
+    {
+        gSelectContext.isGoingToReplay = false;
+        if (!gSelectContext.entries.empty())
+        {
+            switch (gSelectContext.entries[gSelectContext.idx].first->type())
+            {
+            case eEntryType::SONG:
+            case eEntryType::CHART:
+            case eEntryType::RIVAL_SONG:
+            case eEntryType::RIVAL_CHART:
+            case eEntryType::COURSE:
+                if (false /* current chart has a replay */)
+                _decide();
+                break;
+            }
+        }
     }
 }
 

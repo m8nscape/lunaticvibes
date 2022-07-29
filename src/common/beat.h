@@ -100,6 +100,9 @@ struct Note
 		BGA_BASE = 0b01 << 1,
 		BGA_LAYER = 0b10 << 1,
 		BGA_MISS = 0b11 << 1,
+
+		MINE = 1 << 4,
+		INVS = 1 << 5,
 	};
 	size_t flags = 0;			// used for distinguishing plain notes
 

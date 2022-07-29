@@ -203,6 +203,18 @@ void enter_skin_config()
     SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
 }
 
+// 16
+void autoplay()
+{
+    gSelectContext.isGoingToAutoPlay = true;
+}
+
+// 19
+void replay()
+{
+    gSelectContext.isGoingToReplay = true;
+}
+
 // 20, 21, 22
 void fx_type(int idx, int plus)
 {
@@ -917,6 +929,12 @@ std::function<void(int)> getButtonCallback(int type)
 
     case 14:
         return std::bind(enter_skin_config);
+
+    case 16:
+        return std::bind(autoplay);
+
+    case 19:
+        return std::bind(replay);
 
     case 20:
     case 21:

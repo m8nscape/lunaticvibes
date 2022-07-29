@@ -248,10 +248,15 @@ RulesetBMS::RulesetBMS(std::shared_ptr<vChartFormat> format, std::shared_ptr<vCh
 
     for (size_t k = Input::S1L; k <= Input::K2SPDDN; ++k)
     {
-        auto [cat, idx] = _chart->getLaneFromKey((Input::Pad)k);
-        if (cat == NoteLaneCategory::_) continue;
-        if (idx == NoteLaneIndex::_) continue;
-        _noteListIterators[{cat, idx}] = _chart->firstNote(cat, idx);
+        NoteLaneIndex idx;
+        idx = _chart->getLaneFromKey(NoteLaneCategory::Note, (Input::Pad)k);
+        if (idx != NoteLaneIndex::_) _noteListIterators[{NoteLaneCategory::Note, idx}] = _chart->firstNote(NoteLaneCategory::Note, idx);
+        idx = _chart->getLaneFromKey(NoteLaneCategory::LN, (Input::Pad)k);
+        if (idx != NoteLaneIndex::_) _noteListIterators[{NoteLaneCategory::LN,   idx}] = _chart->firstNote(NoteLaneCategory::LN, idx);
+        idx = _chart->getLaneFromKey(NoteLaneCategory::Mine, (Input::Pad)k);
+        if (idx != NoteLaneIndex::_) _noteListIterators[{NoteLaneCategory::Mine, idx}] = _chart->firstNote(NoteLaneCategory::Mine, idx);
+        idx = _chart->getLaneFromKey(NoteLaneCategory::Invs, (Input::Pad)k);
+        if (idx != NoteLaneIndex::_) _noteListIterators[{NoteLaneCategory::Invs, idx}] = _chart->firstNote(NoteLaneCategory::Invs, idx);
     }
 }
 
@@ -592,6 +597,52 @@ void RulesetBMS::updateMiss(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeTy
     }
 }
 
+void RulesetBMS::judgeNotePress(Input::Pad k, const Time& t, const Time& rt, int slot)
+{
+    NoteLaneIndex idx1 = _chart->getLaneFromKey(NoteLaneCategory::Note, k);
+    HitableNote* pNote1 = nullptr;
+    if (!_chart->isLastNote(NoteLaneCategory::Note, idx1))
+    {
+        pNote1 = &*_chart->incomingNote(NoteLaneCategory::Note, idx1);
+    }
+    NoteLaneIndex idx2 = _chart->getLaneFromKey(NoteLaneCategory::LN, k);
+    HitableNote* pNote2 = nullptr;
+    if (!_chart->isLastNote(NoteLaneCategory::LN, idx1))
+    {
+        pNote2 = &*_chart->incomingNote(NoteLaneCategory::LN, idx2);
+    }
+
+    if (pNote1 && (pNote2 == nullptr || pNote1->time < pNote2->time))
+    {
+        _judgePress(NoteLaneCategory::Note, idx1, *pNote1, _judge(*pNote1, rt), t, slot);
+    }
+    else if (pNote2)
+    {
+        _judgePress(NoteLaneCategory::LN, idx2, *pNote2, _judge(*pNote2, rt), t, slot);
+    }
+}
+void RulesetBMS::judgeNoteHold(Input::Pad k, const Time& t, const Time& rt, int slot)
+{
+    NoteLaneIndex idx = _chart->getLaneFromKey(NoteLaneCategory::Mine, k);
+    if (!_chart->isLastNote(NoteLaneCategory::Mine, idx))
+    {
+        auto& note = *_chart->incomingNote(NoteLaneCategory::Mine, idx);
+        _judgeHold(NoteLaneCategory::Mine, idx, note, _judge(note, rt), t, slot);
+    }
+}
+void RulesetBMS::judgeNoteRelease(Input::Pad k, const Time& t, const Time& rt, int slot)
+{
+    NoteLaneIndex idx = _chart->getLaneFromKey(NoteLaneCategory::LN, k);
+    if (!_chart->isLastNote(NoteLaneCategory::LN, idx))
+    {
+        auto& note = *_chart->incomingNote(NoteLaneCategory::LN, idx);
+        _judgeRelease(NoteLaneCategory::LN, idx, note, _judge(note, rt), t, slot);
+    }
+
+    if (_bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
+        gTimers.set(_bombLNTimerMap->at(idx), TIMER_NEVER);
+}
+
 void RulesetBMS::updatePress(InputMask& pg, const Time& t)
 {
 	Time rt = t - gTimers.get(eTimer::PLAY_START);
@@ -602,10 +653,7 @@ void RulesetBMS::updatePress(InputMask& pg, const Time& t)
         for (size_t k = begin; k <= end; ++k)
         {
             if (!pg[k]) continue;
-            auto [cat, idx] = _chart->getLaneFromKey((Input::Pad)k);
-            if (cat == NoteLaneCategory::_) return;
-            auto n = _chart->incomingNote(cat, idx);
-            _judgePress(cat, idx, *n, _judge(*n, rt), t, slot);
+            judgeNotePress((Input::Pad)k, t, rt, slot);
         }
     };
     if (_k1P) updatePressRange(Input::S1L, Input::K1SPDDN, PLAYER_SLOT_1P);
@@ -622,10 +670,7 @@ void RulesetBMS::updateHold(InputMask& hg, const Time& t)
         for (size_t k = begin; k <= end; ++k)
         {
             if (!hg[k]) continue;
-            auto [cat, idx] = _chart->getLaneFromKey((Input::Pad)k);
-            if (cat == NoteLaneCategory::_) return;
-            auto n = _chart->incomingNote(cat, idx);
-            _judgeHold(cat, idx, *n, _judge(*n, rt), t, slot);
+            judgeNoteHold((Input::Pad)k, t, rt, slot);
         }
     };
     if (_k1P) updateHoldRange(Input::S1L, Input::K1SPDDN, PLAYER_SLOT_1P);
@@ -642,15 +687,7 @@ void RulesetBMS::updateRelease(InputMask& rg, const Time& t)
         for (size_t k = begin; k <= end; ++k)
         {
             if (!rg[k]) continue;
-            auto [cat, idx] = _chart->getLaneFromKey((Input::Pad)k);
-            if (cat == NoteLaneCategory::_) continue;
-            auto n = _chart->incomingNote(cat, idx);
-
-            if (_bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
-                gTimers.set(_bombLNTimerMap->at(idx), TIMER_NEVER);
-
-            _judgeRelease(cat, idx, *n, _judge(*n, rt), t, slot);
-
+            judgeNoteRelease((Input::Pad)k, t, rt, slot);
         }
     };
     if (_k1P) updateReleaseRange(Input::S1L, Input::K1SPDDN, PLAYER_SLOT_1P);
@@ -672,55 +709,23 @@ void RulesetBMS::updateAxis(InputAxisPlus& m, const Time& t)
     double minSpeed = InputMgr::getAxisMinSpeed();
     auto Judge = [&](const Time& t, double val, Input::Pad up, Input::Pad dn, int slot)
     {
-        auto Press = [&](Input::Pad k)
-        {
-            auto [cat, idx] = _chart->getLaneFromKey(k);
-            if (cat != NoteLaneCategory::_)
-            {
-                auto n = _chart->incomingNote(cat, idx);
-                _judgePress(cat, idx, *n, _judge(*n, rt), t, slot);
-            }
-        };
-        auto Hold = [&](Input::Pad k)
-        {
-            auto [cat, idx] = _chart->getLaneFromKey(k);
-            if (cat != NoteLaneCategory::_)
-            {
-                auto n = _chart->incomingNote(cat, idx);
-                _judgeHold(cat, idx, *n, _judge(*n, rt), t, slot);
-            }
-        };
-        auto Release = [&](Input::Pad k)
-        {
-            auto [cat, idx] = _chart->getLaneFromKey(k);
-            if (cat != NoteLaneCategory::_)
-            {
-                auto n = _chart->incomingNote(cat, idx);
-
-                if (_bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
-                    gTimers.set(_bombLNTimerMap->at(idx), TIMER_NEVER);
-
-                _judgeRelease(cat, idx, *n, _judge(*n, rt), t, slot);
-            }
-        };
-
         if (val > minSpeed)
         {
             // down
             switch (_scratchDir[slot])
             {
             case AxisDir::AXIS_DOWN: 
-                Hold(dn);
+                judgeNoteHold(dn, t, rt, slot);
                 _ttAxisLastUpdate[slot] = t;
                 break;
             case AxisDir::AXIS_UP:
-                Release(up);
-                Press(dn);
+                judgeNoteRelease(up, t, rt, slot);
+                judgeNotePress(dn, t, rt, slot);
                 _ttAxisLastUpdate[slot] = t;
                 break;
             case AxisDir::AXIS_NONE:
-                Release(up);
-                Press(dn);
+                judgeNoteRelease(up, t, rt, slot);
+                judgeNotePress(dn, t, rt, slot);
                 break;
             }
             _scratchDir[slot] = AxisDir::AXIS_DOWN;
@@ -730,18 +735,18 @@ void RulesetBMS::updateAxis(InputAxisPlus& m, const Time& t)
             // up
             switch (_scratchDir[slot])
             {
-            case AxisDir::AXIS_UP:
-                Hold(up);
+            case AxisDir::AXIS_UP: 
+                judgeNoteHold(up, t, rt, slot);
                 _ttAxisLastUpdate[slot] = t;
                 break;
             case AxisDir::AXIS_DOWN:
-                Release(dn);
-                Press(up);
+                judgeNoteRelease(dn, t, rt, slot);
+                judgeNotePress(up, t, rt, slot);
                 _ttAxisLastUpdate[slot] = t;
                 break;
             case AxisDir::AXIS_NONE:
-                Release(dn);
-                Press(up);
+                judgeNoteRelease(dn, t, rt, slot);
+                judgeNotePress(up, t, rt, slot);
                 break;
             }
             _scratchDir[slot] = AxisDir::AXIS_UP;
@@ -752,10 +757,10 @@ void RulesetBMS::updateAxis(InputAxisPlus& m, const Time& t)
             switch (_scratchDir[slot])
             {
             case AxisDir::AXIS_UP:
-                Release(up);
+                judgeNoteRelease(up, t, rt, slot);
                 break;
             case AxisDir::AXIS_DOWN:
-                Release(dn);
+                judgeNoteRelease(dn, t, rt, slot);
                 break;
             }
             _scratchDir[slot] = AxisDir::AXIS_NONE;
@@ -795,48 +800,77 @@ void RulesetBMS::update(const Time& t)
     {
         for (size_t k = begin; k <= end; ++k)
         {
-            auto [cat, idx] = _chart->getLaneFromKey((Input::Pad)k);
-            if (cat == NoteLaneCategory::_) continue;
+            NoteLaneIndex idx;
+            HitableNote* pNote = nullptr;
 
-            auto n = _chart->incomingNote(cat, idx);
-            if (!n->hit)
+            idx = _chart->getLaneFromKey(NoteLaneCategory::Note, (Input::Pad)k);
+            if (idx != NoteLaneIndex::_)
             {
-                if (!(n->flags & Note::LN_TAIL))
+                pNote = &*_chart->incomingNote(NoteLaneCategory::Note, idx);
+                if (!pNote->hit)
                 {
-                    Time hitTime;
-                    bool noteNeedsJudge = false;
-                    switch (cat)
+                    const Time& hitTime = judgeTime[(size_t)_diff].BAD;
+                    if (rt - pNote->time >= hitTime)
                     {
-                    case NoteLaneCategory::Note:
-                    case NoteLaneCategory::LN:
-                        hitTime = judgeTime[(size_t)_diff].BAD;
-                        noteNeedsJudge = true;
-                        break;
-                    case NoteLaneCategory::Invs:
-                        hitTime = -judgeTime[(size_t)_diff].BAD;
-                        break;
-                    case NoteLaneCategory::Mine:
-                        hitTime = 0;
-                        break;
+                        pNote->hit = true;
+                        _basic.slow++;
+                        updateMiss(t, idx, RulesetBMS::JudgeType::MISS, slot);
+                        //LOG_DEBUG << "LATE   POOR    "; break;
                     }
-                    if (rt - n->time >= hitTime)
+                }
+            }
+
+            idx = _chart->getLaneFromKey(NoteLaneCategory::LN, (Input::Pad)k);
+            if (idx != NoteLaneIndex::_)
+            {
+                pNote = &*_chart->incomingNote(NoteLaneCategory::LN, idx);
+                if (!pNote->hit)
+                {
+                    if (!(pNote->flags & Note::LN_TAIL))
                     {
-                        n->hit = true;
-                        if (noteNeedsJudge)
+                        const Time& hitTime = judgeTime[(size_t)_diff].BAD;
+                        if (rt - pNote->time >= hitTime)
                         {
+                            pNote->hit = true;
                             _basic.slow++;
                             updateMiss(t, idx, RulesetBMS::JudgeType::MISS, slot);
                             //LOG_DEBUG << "LATE   POOR    "; break;
                         }
                     }
-                }
-                else
-                {
-                    assert(cat == NoteLaneCategory::LN);
-                    if (rt >= n->time)
+                    else
                     {
-                        //_basic.slow++;
-                        n->hit = true;
+                        if (rt >= pNote->time)
+                        {
+                            //_basic.slow++;
+                            pNote->hit = true;
+                        }
+                    }
+                }
+            }
+
+            idx = _chart->getLaneFromKey(NoteLaneCategory::Invs, (Input::Pad)k);
+            if (idx != NoteLaneIndex::_)
+            {
+                pNote = &*_chart->incomingNote(NoteLaneCategory::Invs, idx);
+                if (!pNote->hit)
+                {
+                    const Time& hitTime = -judgeTime[(size_t)_diff].BAD;
+                    if (rt - pNote->time >= hitTime)
+                    {
+                        pNote->hit = true;
+                    }
+                }
+            }
+
+            idx = _chart->getLaneFromKey(NoteLaneCategory::Mine, (Input::Pad)k);
+            if (idx != NoteLaneIndex::_)
+            {
+                pNote = &*_chart->incomingNote(NoteLaneCategory::Mine, idx);
+                if (!pNote->hit)
+                {
+                    if (rt >= pNote->time)
+                    {
+                        pNote->hit = true;
                     }
                 }
             }

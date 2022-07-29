@@ -170,7 +170,7 @@ public:
         RIVAL,
     };
 
-    struct judgeRes { judgeArea area; Time time; };
+    struct judgeRes { judgeArea area = judgeArea::NOTHING; Time time; };
 
 protected:
     JudgeDifficulty _diff;
@@ -205,17 +205,20 @@ private:
     void _judgePress(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot);
     void _judgeHold(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot);
     void _judgeRelease(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot);
+    void judgeNotePress(Input::Pad k, const Time& t, const Time& rt, int slot);
+    void judgeNoteHold(Input::Pad k, const Time& t, const Time& rt, int slot);
+    void judgeNoteRelease(Input::Pad k, const Time& t, const Time& rt, int slot);
     void _updateHp(const double diff);
     void _updateHp(JudgeType judge);
 public:
     // Register to InputWrapper
-    virtual void updatePress(InputMask& pg, const Time& t);
+    virtual void updatePress(InputMask& pg, const Time& t) override;
     // Register to InputWrapper
-    virtual void updateHold(InputMask& hg, const Time& t);
+    virtual void updateHold(InputMask& hg, const Time& t) override;
     // Register to InputWrapper
-    virtual void updateRelease(InputMask& rg, const Time& t);
+    virtual void updateRelease(InputMask& rg, const Time& t) override;
     // Register to InputWrapper
-    virtual void updateAxis(InputAxisPlus& ag, const Time& t);
+    virtual void updateAxis(InputAxisPlus& ag, const Time& t) override;
     // Called by ScenePlay
     virtual void update(const Time& t);
 public:
