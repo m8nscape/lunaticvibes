@@ -2444,7 +2444,12 @@ int SkinLR2::parseHeader(const Tokens& raw)
         Customize c;
         c.type = Customize::_Type::FILE;
         c.title = title;
+        c.dst_op = 0;
         c.filepath = path;
+        for (auto& p : ls)
+        {
+            c.label.push_back(p.filename().stem().u8string());
+        }
         c.pathList = std::move(ls);
         c.defIdx = defVal;
         c.value = defVal;
@@ -2698,9 +2703,9 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
                 {
                     if (itOp.title == itFile.first && itOp.dst_op == 0)
                     {
-                        if (const auto itEntry = std::find(itOp.pathList.begin(), itOp.pathList.end(), itFile.second); itEntry != itOp.pathList.end())
+                        if (const auto itEntry = std::find(itOp.label.begin(), itOp.label.end(), itFile.second); itEntry != itOp.label.end())
                         {
-                            itOp.value = std::distance(itOp.pathList.begin(), itEntry);
+                            itOp.value = std::distance(itOp.label.begin(), itEntry);
                         }
                     }
                 }
