@@ -19,8 +19,8 @@ public:
         unsigned score;
         unsigned score2;
         double health = 1.0;
-        double acc;
-        double total_acc;
+        double acc;         // 0.0 - 100.0
+        double total_acc;   // 0.0 - 100.0
         unsigned combo;
         unsigned maxCombo;
         unsigned hit;       // total notes hit

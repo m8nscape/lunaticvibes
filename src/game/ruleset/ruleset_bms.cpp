@@ -879,9 +879,11 @@ void RulesetBMS::reset()
 
 void RulesetBMS::updateGlobals()
 {
-    gBargraphs.queue(eBargraph::PLAY_EXSCORE, _basic.total_acc);
     if (_side == PlaySide::SINGLE || _side == PlaySide::DOUBLE || _side == PlaySide::BATTLE_1P || _side == PlaySide::AUTO) // includes DP
     {
+        gBargraphs.queue(eBargraph::PLAY_EXSCORE, _basic.total_acc / 100.0);
+        gBargraphs.queue(eBargraph::PLAY_EXSCORE_PREDICT, _basic.acc / 100.0);
+
         gNumbers.queue(eNumber::PLAY_1P_EXSCORE, _basic.score2);
         gNumbers.queue(eNumber::PLAY_1P_SCORE, _basic.score);
         gNumbers.queue(eNumber::PLAY_1P_NOWCOMBO, _basic.combo);
@@ -929,6 +931,8 @@ void RulesetBMS::updateGlobals()
     }
     else if (_side == PlaySide::BATTLE_2P || _side == PlaySide::AUTO_2P || _side == PlaySide::RIVAL) // excludes DP
     {
+        gBargraphs.queue(eBargraph::PLAY_RIVAL_EXSCORE, _basic.total_acc / 100.0);
+
         gNumbers.queue(eNumber::PLAY_2P_EXSCORE, _basic.score2);
         gNumbers.queue(eNumber::PLAY_2P_SCORE, _basic.score);
         gNumbers.queue(eNumber::PLAY_2P_NOWCOMBO, _basic.combo);

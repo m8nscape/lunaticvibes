@@ -356,6 +356,7 @@ void ScenePlay::loadChart()
             default:  targetRateReal = targetRate / 100.0; break;
             }
             std::reinterpret_pointer_cast<RulesetBMSAuto>(gPlayContext.ruleset[PLAYER_SLOT_2P])->setTargetRate(targetRateReal);
+            gBargraphs.set(eBargraph::PLAY_RIVAL_EXSCORE_FINAL, targetRateReal);
         }
 
         _rulesetLoaded = true;

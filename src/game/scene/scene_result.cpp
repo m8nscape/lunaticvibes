@@ -38,6 +38,8 @@ SceneResult::SceneResult(ePlayMode gamemode) : vScene(eMode::RESULT, 1000), _pla
     auto chartLength = gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() / 1000;
     gNumbers.queue(eNumber::PLAY_MIN, int(chartLength / 60));
     gNumbers.queue(eNumber::PLAY_SEC, int(chartLength % 60));
+    gNumbers.queue(eNumber::PLAY_REMAIN_MIN, int(chartLength / 60));
+    gNumbers.queue(eNumber::PLAY_REMAIN_SEC, int(chartLength % 60));
 
     // compare to db record
     auto dp = gPlayContext.ruleset[PLAYER_SLOT_1P]->getData();
