@@ -915,6 +915,11 @@ int SkinLR2::others()
         barClickableTo = toInt(parseParamBuf[1]);
         return 8;
     }
+    if (strEqual(parseKeyBuf, "#SETOPTION", true))
+    {
+        setCustomDstOpt(toInt(parseParamBuf[0]), 0, toInt(parseParamBuf[1]));
+        return 9;
+    }
     return 0;
 }
 
