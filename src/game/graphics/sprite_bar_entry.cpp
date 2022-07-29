@@ -335,15 +335,20 @@ bool SpriteBarEntry::update(Time time)
                         if ((BarType)barTypeIdx == BarType::SONG_RIVAL)
                         {
                             // rank
-                            if (score->rival_rate >= 100.0) drawRankType = (size_t)BarRankType::MAX;
-                            else if (score->rival_rate >= 88.88) drawRankType = (size_t)BarRankType::AAA;
-                            else if (score->rival_rate >= 77.77) drawRankType = (size_t)BarRankType::AA;
-                            else if (score->rival_rate >= 66.66) drawRankType = (size_t)BarRankType::A;
-                            else if (score->rival_rate >= 55.55) drawRankType = (size_t)BarRankType::B;
-                            else if (score->rival_rate >= 44.44) drawRankType = (size_t)BarRankType::C;
-                            else if (score->rival_rate >= 33.33) drawRankType = (size_t)BarRankType::D;
-                            else if (score->rival_rate >= 22.22) drawRankType = (size_t)BarRankType::E;
-                            else                                 drawRankType = (size_t)BarRankType::F;
+                            auto t = Option::getRankType(score->rival_rate);
+                            switch (t)
+                            {
+                            case Option::RANK_0: drawRankType = (size_t)BarRankType::MAX;  break;
+                            case Option::RANK_1: drawRankType = (size_t)BarRankType::AAA;  break;
+                            case Option::RANK_2: drawRankType = (size_t)BarRankType::AA;   break;
+                            case Option::RANK_3: drawRankType = (size_t)BarRankType::A;    break;
+                            case Option::RANK_4: drawRankType = (size_t)BarRankType::B;    break;
+                            case Option::RANK_5: drawRankType = (size_t)BarRankType::C;    break;
+                            case Option::RANK_6: drawRankType = (size_t)BarRankType::D;    break;
+                            case Option::RANK_7: drawRankType = (size_t)BarRankType::E;    break;
+                            case Option::RANK_8: drawRankType = (size_t)BarRankType::F;    break;
+                            case Option::RANK_NONE: drawRankType = (size_t)BarRankType::NONE; break;
+                            }
                             if (sRank[drawRankType])
                             {
                                 sRank[drawRankType]->update(time);

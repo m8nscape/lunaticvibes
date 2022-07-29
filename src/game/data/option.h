@@ -220,6 +220,19 @@ namespace Option
         RANK_7, // E
         RANK_8, // F
     };
+    constexpr e_rank_type getRankType(double rate)
+    {
+        if (rate >= 100.0)              return e_rank_type::RANK_0;
+        else if (rate >= 100.0 * 8 / 9) return e_rank_type::RANK_1;
+        else if (rate >= 100.0 * 7 / 9) return e_rank_type::RANK_2;
+        else if (rate >= 100.0 * 6 / 9) return e_rank_type::RANK_3;
+        else if (rate >= 100.0 * 5 / 9) return e_rank_type::RANK_4;
+        else if (rate >= 100.0 * 4 / 9) return e_rank_type::RANK_5;
+        else if (rate >= 100.0 * 3 / 9) return e_rank_type::RANK_6;
+        else if (rate >= 100.0 * 2 / 9) return e_rank_type::RANK_7;
+        else if (rate > 0.0)            return e_rank_type::RANK_8;
+        else                            return e_rank_type::RANK_NONE;
+    }
 
     enum e_acc_type {
         ACC_0,  // 0~10
@@ -234,6 +247,20 @@ namespace Option
         ACC_90, //
 		ACC_100
     };
+    constexpr e_acc_type getAccType(double rate)
+    {
+        if (rate >= 100.0)     return e_acc_type::ACC_100;
+        else if (rate >= 90.0) return e_acc_type::ACC_90;
+        else if (rate >= 80.0) return e_acc_type::ACC_80;
+        else if (rate >= 70.0) return e_acc_type::ACC_70;
+        else if (rate >= 60.0) return e_acc_type::ACC_60;
+        else if (rate >= 50.0) return e_acc_type::ACC_50;
+        else if (rate >= 40.0) return e_acc_type::ACC_40;
+        else if (rate >= 30.0) return e_acc_type::ACC_30;
+        else if (rate >= 20.0) return e_acc_type::ACC_20;
+        else if (rate >= 10.0) return e_acc_type::ACC_10;
+        else                   return e_acc_type::ACC_0;
+    }
 
     enum e_judge_diff {
         JUDGE_GAMBOLA,

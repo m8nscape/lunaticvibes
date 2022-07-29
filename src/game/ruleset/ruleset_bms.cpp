@@ -508,7 +508,9 @@ void RulesetBMS::_updateHp(const double diff)
     _basic.health = std::max(_minHealth, std::min(1.0, tmp));
 
     if (failWhenNoHealth() && _basic.health <= _minHealth)
-        _isFailed = true;
+    {
+        fail();
+    }
 }
 void RulesetBMS::_updateHp(JudgeType judge)
 {
@@ -866,114 +868,22 @@ void RulesetBMS::update(const Time& t)
     _basic.acc = _basic.totaln ? (100.0 * _basic.score2 / _basic.totaln / 2) : 0;
     _basic.score = int(std::round(inner_score));
 
-	gBargraphs.queue(eBargraph::PLAY_EXSCORE, _basic.total_acc);
-	if (_k1P) // includes DP
-	{
-		gNumbers.queue(eNumber::PLAY_1P_EXSCORE, _basic.score2);
-		gNumbers.queue(eNumber::PLAY_1P_SCORE, _basic.score);
-		gNumbers.queue(eNumber::PLAY_1P_NOWCOMBO, _basic.combo);
-		gNumbers.queue(eNumber::PLAY_1P_MAXCOMBO, _basic.maxCombo);
-		gNumbers.queue(eNumber::PLAY_1P_RATE, int(std::floor(_basic.acc)));
-        gNumbers.queue(eNumber::PLAY_1P_RATEDECIMAL, int(std::floor((_basic.acc - int(_basic.acc)) * 100)));
-        gNumbers.queue(eNumber::PLAY_1P_TOTAL_RATE, int(std::floor(_basic.total_acc)));
-        gNumbers.queue(eNumber::PLAY_1P_TOTAL_RATE_DECIMAL2, int(std::floor((_basic.total_acc - int(_basic.total_acc)) * 100)));
-        gNumbers.queue(eNumber::PLAY_1P_PERFECT, _count[JudgeType::PERFECT]);
-        gNumbers.queue(eNumber::PLAY_1P_GREAT, _count[JudgeType::GREAT]);
-        gNumbers.queue(eNumber::PLAY_1P_GOOD, _count[JudgeType::GOOD]);
-        gNumbers.queue(eNumber::PLAY_1P_BAD, _count[JudgeType::BAD]);
-        gNumbers.queue(eNumber::PLAY_1P_POOR, _count[JudgeType::BPOOR] + _count[JudgeType::MISS]);
-        gNumbers.queue(eNumber::PLAY_1P_GROOVEGAUGE, int(_basic.health * 100));
+    updateGlobals();
+}
 
-        {
-            using namespace Option;
-            if (_basic.acc >= 100.0)      gOptions.queue(eOption::PLAY_RANK_ESTIMATED_1P, Option::RANK_0);
-            else if (_basic.acc >= 88.88) gOptions.queue(eOption::PLAY_RANK_ESTIMATED_1P, Option::RANK_1);
-            else if (_basic.acc >= 77.77) gOptions.queue(eOption::PLAY_RANK_ESTIMATED_1P, Option::RANK_2);
-            else if (_basic.acc >= 66.66) gOptions.queue(eOption::PLAY_RANK_ESTIMATED_1P, Option::RANK_3);
-            else if (_basic.acc >= 55.55) gOptions.queue(eOption::PLAY_RANK_ESTIMATED_1P, Option::RANK_4);
-            else if (_basic.acc >= 44.44) gOptions.queue(eOption::PLAY_RANK_ESTIMATED_1P, Option::RANK_5);
-            else if (_basic.acc >= 33.33) gOptions.queue(eOption::PLAY_RANK_ESTIMATED_1P, Option::RANK_6);
-            else if (_basic.acc >= 22.22) gOptions.queue(eOption::PLAY_RANK_ESTIMATED_1P, Option::RANK_7);
-            else                          gOptions.queue(eOption::PLAY_RANK_ESTIMATED_1P, Option::RANK_8);
+void RulesetBMS::fail()
+{
+    _isFailed = true;
 
-            if (_basic.total_acc >= 100.0)      gOptions.queue(eOption::PLAY_RANK_BORDER_1P, Option::RANK_0);
-            else if (_basic.total_acc >= 88.88) gOptions.queue(eOption::PLAY_RANK_BORDER_1P, Option::RANK_1);
-            else if (_basic.total_acc >= 77.77) gOptions.queue(eOption::PLAY_RANK_BORDER_1P, Option::RANK_2);
-            else if (_basic.total_acc >= 66.66) gOptions.queue(eOption::PLAY_RANK_BORDER_1P, Option::RANK_3);
-            else if (_basic.total_acc >= 55.55) gOptions.queue(eOption::PLAY_RANK_BORDER_1P, Option::RANK_4);
-            else if (_basic.total_acc >= 44.44) gOptions.queue(eOption::PLAY_RANK_BORDER_1P, Option::RANK_5);
-            else if (_basic.total_acc >= 33.33) gOptions.queue(eOption::PLAY_RANK_BORDER_1P, Option::RANK_6);
-            else if (_basic.total_acc >= 22.22) gOptions.queue(eOption::PLAY_RANK_BORDER_1P, Option::RANK_7);
-            else                                gOptions.queue(eOption::PLAY_RANK_BORDER_1P, Option::RANK_8);
+    _basic.health = _minHealth; 
+    _basic.combo = 0;
 
-            if (_basic.acc >= 100.0)     gOptions.queue(eOption::PLAY_ACCURACY_1P, Option::ACC_100);
-            else if (_basic.acc >= 90.0) gOptions.queue(eOption::PLAY_ACCURACY_1P, Option::ACC_90);
-            else if (_basic.acc >= 80.0) gOptions.queue(eOption::PLAY_ACCURACY_1P, Option::ACC_80);
-            else if (_basic.acc >= 70.0) gOptions.queue(eOption::PLAY_ACCURACY_1P, Option::ACC_70);
-            else if (_basic.acc >= 60.0) gOptions.queue(eOption::PLAY_ACCURACY_1P, Option::ACC_60);
-            else if (_basic.acc >= 50.0) gOptions.queue(eOption::PLAY_ACCURACY_1P, Option::ACC_50);
-            else if (_basic.acc >= 40.0) gOptions.queue(eOption::PLAY_ACCURACY_1P, Option::ACC_40);
-            else if (_basic.acc >= 30.0) gOptions.queue(eOption::PLAY_ACCURACY_1P, Option::ACC_30);
-            else if (_basic.acc >= 20.0) gOptions.queue(eOption::PLAY_ACCURACY_1P, Option::ACC_20);
-            else if (_basic.acc >= 10.0) gOptions.queue(eOption::PLAY_ACCURACY_1P, Option::ACC_10);
-            else                         gOptions.queue(eOption::PLAY_ACCURACY_1P, Option::ACC_0);
-        }
-	}
-	else if (_k2P) // excludes DP
-	{
-		gNumbers.queue(eNumber::PLAY_2P_EXSCORE, _basic.score2);
-		gNumbers.queue(eNumber::PLAY_2P_SCORE, _basic.score);
-		gNumbers.queue(eNumber::PLAY_2P_NOWCOMBO, _basic.combo);
-		gNumbers.queue(eNumber::PLAY_2P_MAXCOMBO, _basic.maxCombo);
-        gNumbers.queue(eNumber::PLAY_2P_RATE, int(std::floor(_basic.acc)));
-        gNumbers.queue(eNumber::PLAY_2P_RATEDECIMAL, int(std::floor((_basic.acc - int(_basic.acc)) * 100)));
-        gNumbers.queue(eNumber::PLAY_2P_TOTAL_RATE, int(std::floor(_basic.total_acc)));
-        gNumbers.queue(eNumber::PLAY_2P_TOTAL_RATE_DECIMAL2, int(std::floor((_basic.total_acc - int(_basic.total_acc)) * 100)));
-        gNumbers.queue(eNumber::PLAY_2P_PERFECT, _count[JudgeType::PERFECT]);
-        gNumbers.queue(eNumber::PLAY_2P_GREAT, _count[JudgeType::GREAT]);
-        gNumbers.queue(eNumber::PLAY_2P_GOOD, _count[JudgeType::GOOD]);
-        gNumbers.queue(eNumber::PLAY_2P_BAD, _count[JudgeType::BAD]);
-        gNumbers.queue(eNumber::PLAY_2P_POOR, _count[JudgeType::BPOOR] + _count[JudgeType::MISS]);
-        gNumbers.queue(eNumber::PLAY_2P_GROOVEGAUGE, int(_basic.health * 100));
+    int notesRemain = _chart->getNoteCount() - _basic.totaln;
+    _basic.miss += notesRemain;
+    _count[JudgeType::MISS] += notesRemain;
+    _basic.totaln = _basic.totalnr = _chart->getNoteCount();
 
-        {
-            using namespace Option;
-            if (_basic.acc >= 100.0)      gOptions.queue(eOption::PLAY_RANK_ESTIMATED_2P, Option::RANK_0);
-            else if (_basic.acc >= 88.88) gOptions.queue(eOption::PLAY_RANK_ESTIMATED_2P, Option::RANK_1);
-            else if (_basic.acc >= 77.77) gOptions.queue(eOption::PLAY_RANK_ESTIMATED_2P, Option::RANK_2);
-            else if (_basic.acc >= 66.66) gOptions.queue(eOption::PLAY_RANK_ESTIMATED_2P, Option::RANK_3);
-            else if (_basic.acc >= 55.55) gOptions.queue(eOption::PLAY_RANK_ESTIMATED_2P, Option::RANK_4);
-            else if (_basic.acc >= 44.44) gOptions.queue(eOption::PLAY_RANK_ESTIMATED_2P, Option::RANK_5);
-            else if (_basic.acc >= 33.33) gOptions.queue(eOption::PLAY_RANK_ESTIMATED_2P, Option::RANK_6);
-            else if (_basic.acc >= 22.22) gOptions.queue(eOption::PLAY_RANK_ESTIMATED_2P, Option::RANK_7);
-            else                          gOptions.queue(eOption::PLAY_RANK_ESTIMATED_2P, Option::RANK_8);
-
-            if (_basic.total_acc >= 100.0)      gOptions.queue(eOption::PLAY_RANK_BORDER_2P, Option::RANK_0);
-            else if (_basic.total_acc >= 88.88) gOptions.queue(eOption::PLAY_RANK_BORDER_2P, Option::RANK_1);
-            else if (_basic.total_acc >= 77.77) gOptions.queue(eOption::PLAY_RANK_BORDER_2P, Option::RANK_2);
-            else if (_basic.total_acc >= 66.66) gOptions.queue(eOption::PLAY_RANK_BORDER_2P, Option::RANK_3);
-            else if (_basic.total_acc >= 55.55) gOptions.queue(eOption::PLAY_RANK_BORDER_2P, Option::RANK_4);
-            else if (_basic.total_acc >= 44.44) gOptions.queue(eOption::PLAY_RANK_BORDER_2P, Option::RANK_5);
-            else if (_basic.total_acc >= 33.33) gOptions.queue(eOption::PLAY_RANK_BORDER_2P, Option::RANK_6);
-            else if (_basic.total_acc >= 22.22) gOptions.queue(eOption::PLAY_RANK_BORDER_2P, Option::RANK_7);
-            else                                gOptions.queue(eOption::PLAY_RANK_BORDER_2P, Option::RANK_8);
-
-            if (_basic.acc >= 100.0)     gOptions.queue(eOption::PLAY_ACCURACY_2P, Option::ACC_100);
-            else if (_basic.acc >= 90.0) gOptions.queue(eOption::PLAY_ACCURACY_2P, Option::ACC_90);
-            else if (_basic.acc >= 80.0) gOptions.queue(eOption::PLAY_ACCURACY_2P, Option::ACC_80);
-            else if (_basic.acc >= 70.0) gOptions.queue(eOption::PLAY_ACCURACY_2P, Option::ACC_70);
-            else if (_basic.acc >= 60.0) gOptions.queue(eOption::PLAY_ACCURACY_2P, Option::ACC_60);
-            else if (_basic.acc >= 50.0) gOptions.queue(eOption::PLAY_ACCURACY_2P, Option::ACC_50);
-            else if (_basic.acc >= 40.0) gOptions.queue(eOption::PLAY_ACCURACY_2P, Option::ACC_40);
-            else if (_basic.acc >= 30.0) gOptions.queue(eOption::PLAY_ACCURACY_2P, Option::ACC_30);
-            else if (_basic.acc >= 20.0) gOptions.queue(eOption::PLAY_ACCURACY_2P, Option::ACC_20);
-            else if (_basic.acc >= 10.0) gOptions.queue(eOption::PLAY_ACCURACY_2P, Option::ACC_10);
-            else                         gOptions.queue(eOption::PLAY_ACCURACY_2P, Option::ACC_0);
-
-        }
-	}
-    gNumbers.flush();
-    gOptions.flush();
+    _basic.acc = _basic.total_acc;
 }
 
 void RulesetBMS::reset()
@@ -982,6 +892,11 @@ void RulesetBMS::reset()
 
     _count.clear();
 
+    updateGlobals();
+}
+
+void RulesetBMS::updateGlobals()
+{
     gBargraphs.queue(eBargraph::PLAY_EXSCORE, _basic.total_acc);
     if (_k1P) // includes DP
     {
@@ -991,6 +906,7 @@ void RulesetBMS::reset()
         gNumbers.queue(eNumber::PLAY_1P_MAXCOMBO, _basic.maxCombo);
         gNumbers.queue(eNumber::PLAY_1P_RATE, int(std::floor(_basic.acc)));
         gNumbers.queue(eNumber::PLAY_1P_RATEDECIMAL, int(std::floor((_basic.acc - int(_basic.acc)) * 100)));
+        gNumbers.queue(eNumber::PLAY_1P_TOTALNOTES, _basic.totaln);
         gNumbers.queue(eNumber::PLAY_1P_TOTAL_RATE, int(std::floor(_basic.total_acc)));
         gNumbers.queue(eNumber::PLAY_1P_TOTAL_RATE_DECIMAL2, int(std::floor((_basic.total_acc - int(_basic.total_acc)) * 100)));
         gNumbers.queue(eNumber::PLAY_1P_PERFECT, _count[JudgeType::PERFECT]);
@@ -1000,9 +916,21 @@ void RulesetBMS::reset()
         gNumbers.queue(eNumber::PLAY_1P_POOR, _count[JudgeType::BPOOR] + _count[JudgeType::MISS]);
         gNumbers.queue(eNumber::PLAY_1P_GROOVEGAUGE, int(_basic.health * 100));
 
-        gOptions.queue(eOption::PLAY_RANK_ESTIMATED_1P, Option::RANK_NONE);
-        gOptions.queue(eOption::PLAY_RANK_BORDER_1P, Option::RANK_NONE);
-        gOptions.queue(eOption::PLAY_ACCURACY_1P, Option::ACC_0);
+        gBargraphs.queue(eBargraph::RESULT_PG, (double)_count[JudgeType::PERFECT] / _basic.totaln);
+        gBargraphs.queue(eBargraph::RESULT_GR, (double)_count[JudgeType::GREAT] / _basic.totaln);
+        gBargraphs.queue(eBargraph::RESULT_GD, (double)_count[JudgeType::GOOD] / _basic.totaln);
+        gBargraphs.queue(eBargraph::RESULT_BD, (double)_count[JudgeType::BAD] / _basic.totaln);
+        gBargraphs.queue(eBargraph::RESULT_PR, (double)(_count[JudgeType::BPOOR] + _count[JudgeType::MISS]) / _basic.totaln);
+        gBargraphs.queue(eBargraph::RESULT_MAXCOMBO, (double)_basic.maxCombo / getMaxCombo());
+        gBargraphs.queue(eBargraph::RESULT_SCORE, (double)_basic.score / 200000);
+        gBargraphs.queue(eBargraph::RESULT_EXSCORE, (double)_basic.score2 / getMaxScore());
+
+        {
+            using namespace Option;
+            gOptions.queue(eOption::PLAY_RANK_ESTIMATED_1P, Option::getRankType(_basic.acc));
+            gOptions.queue(eOption::PLAY_RANK_BORDER_1P, Option::getRankType(_basic.total_acc));
+            gOptions.queue(eOption::PLAY_ACCURACY_1P, Option::getAccType(_basic.acc));
+        }
     }
     else if (_k2P) // excludes DP
     {
@@ -1012,6 +940,7 @@ void RulesetBMS::reset()
         gNumbers.queue(eNumber::PLAY_2P_MAXCOMBO, _basic.maxCombo);
         gNumbers.queue(eNumber::PLAY_2P_RATE, int(std::floor(_basic.acc)));
         gNumbers.queue(eNumber::PLAY_2P_RATEDECIMAL, int(std::floor((_basic.acc - int(_basic.acc)) * 100)));
+        gNumbers.queue(eNumber::PLAY_2P_TOTALNOTES, _basic.totaln);
         gNumbers.queue(eNumber::PLAY_2P_TOTAL_RATE, int(std::floor(_basic.total_acc)));
         gNumbers.queue(eNumber::PLAY_2P_TOTAL_RATE_DECIMAL2, int(std::floor((_basic.total_acc - int(_basic.total_acc)) * 100)));
         gNumbers.queue(eNumber::PLAY_2P_PERFECT, _count[JudgeType::PERFECT]);
@@ -1021,10 +950,24 @@ void RulesetBMS::reset()
         gNumbers.queue(eNumber::PLAY_2P_POOR, _count[JudgeType::BPOOR] + _count[JudgeType::MISS]);
         gNumbers.queue(eNumber::PLAY_2P_GROOVEGAUGE, int(_basic.health * 100));
 
-        gOptions.queue(eOption::PLAY_RANK_ESTIMATED_2P, Option::RANK_NONE);
-        gOptions.queue(eOption::PLAY_RANK_BORDER_2P, Option::RANK_NONE);
-        gOptions.queue(eOption::PLAY_ACCURACY_2P, Option::ACC_0);
+        gBargraphs.queue(eBargraph::RESULT_RIVAL_PG, (double)_count[JudgeType::PERFECT] / _basic.totaln);
+        gBargraphs.queue(eBargraph::RESULT_RIVAL_GR, (double)_count[JudgeType::GREAT] / _basic.totaln);
+        gBargraphs.queue(eBargraph::RESULT_RIVAL_GD, (double)_count[JudgeType::GOOD] / _basic.totaln);
+        gBargraphs.queue(eBargraph::RESULT_RIVAL_BD, (double)_count[JudgeType::BAD] / _basic.totaln);
+        gBargraphs.queue(eBargraph::RESULT_RIVAL_PR, (double)(_count[JudgeType::BPOOR] + _count[JudgeType::MISS]) / _basic.totaln);
+        gBargraphs.queue(eBargraph::RESULT_RIVAL_MAXCOMBO, (double)_basic.maxCombo / getMaxCombo());
+        gBargraphs.queue(eBargraph::RESULT_RIVAL_SCORE, (double)_basic.score / 200000);
+        gBargraphs.queue(eBargraph::RESULT_RIVAL_EXSCORE, (double)_basic.score2 / getMaxScore());
+
+        {
+            using namespace Option;
+            gOptions.queue(eOption::PLAY_RANK_ESTIMATED_2P, Option::getRankType(_basic.acc));
+            gOptions.queue(eOption::PLAY_RANK_BORDER_2P, Option::getRankType(_basic.total_acc));
+            gOptions.queue(eOption::PLAY_ACCURACY_2P, Option::getAccType(_basic.acc));
+
+        }
     }
     gNumbers.flush();
     gOptions.flush();
+    gBargraphs.flush();
 }

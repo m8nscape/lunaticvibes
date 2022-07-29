@@ -224,5 +224,7 @@ public:
     unsigned getJudgeCount(JudgeType idx) const { return _count.find(idx) != _count.end() ? _count.at(idx) : 0; }
     GaugeType getGaugeType() const { return _gauge; }
     virtual unsigned getMaxCombo() const { return _chart->getNoteCount(); }
-    void reset();
+    virtual void fail();
+    virtual void reset();
+    virtual void updateGlobals();
 };

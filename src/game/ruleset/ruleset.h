@@ -67,6 +67,7 @@ public:
     virtual unsigned getCurrentMaxScore() const = 0;
     virtual unsigned getMaxScore() const = 0;
     virtual unsigned getMaxCombo() const = 0;
-    void fail() { _basic.health = 0.0; _basic.miss += _chart->getNoteCount() - _basic.totaln; }
+    virtual void fail() { _isFailed = true; }
     virtual void reset() { _basic = { 0 }; };
+    virtual void updateGlobals() = 0;
 };

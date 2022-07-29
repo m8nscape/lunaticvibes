@@ -163,6 +163,10 @@ void setEntryInfo()
 
         gTexts.queue(eText::PLAY_TITLE, pf->title);
         gTexts.queue(eText::PLAY_SUBTITLE, pf->title2);
+        if (pf->title2.empty())
+            gTexts.queue(eText::PLAY_FULLTITLE, pf->title);
+        else
+            gTexts.queue(eText::PLAY_FULLTITLE, pf->title + " " + pf->title2);
         gTexts.queue(eText::PLAY_ARTIST, pf->artist);
         gTexts.queue(eText::PLAY_SUBARTIST, pf->artist2);
         gTexts.queue(eText::PLAY_GENRE, pf->genre);
@@ -301,6 +305,10 @@ void setEntryInfo()
     {
         gTexts.queue(eText::PLAY_TITLE, e[idx].first->_name);
         gTexts.queue(eText::PLAY_SUBTITLE, e[idx].first->_name2);
+        if (e[idx].first->_name2.empty())
+            gTexts.queue(eText::PLAY_FULLTITLE, e[idx].first->_name);
+        else
+            gTexts.queue(eText::PLAY_FULLTITLE, e[idx].first->_name + " " + e[idx].first->_name2);
         gTexts.queue(eText::PLAY_ARTIST, "");
         gTexts.queue(eText::PLAY_SUBARTIST, "");
         gTexts.queue(eText::PLAY_GENRE, "");
@@ -313,10 +321,8 @@ void setEntryInfo()
 
     gNumbers.queue(eNumber::INFO_SCORE, 0);
     gNumbers.queue(eNumber::INFO_EXSCORE, 0);
-    gNumbers.queue(eNumber::INFO_EXSCORE_MAX, 0);
-    gNumbers.queue(eNumber::INFO_RATE, 0);
-    gNumbers.queue(eNumber::INFO_TOTALNOTE, 0);
     gNumbers.queue(eNumber::INFO_MAXCOMBO, 0);
+    gNumbers.queue(eNumber::INFO_RATE, 0);
     gNumbers.queue(eNumber::INFO_BP, 0);
     gNumbers.queue(eNumber::INFO_PLAYCOUNT, 0);
     gNumbers.queue(eNumber::INFO_CLEARCOUNT, 0);
@@ -332,6 +338,15 @@ void setEntryInfo()
     gNumbers.queue(eNumber::INFO_GOOD_RATE, 0);
     gNumbers.queue(eNumber::INFO_BAD_RATE, 0);
     gNumbers.queue(eNumber::INFO_POOR_RATE, 0);
+
+    gBargraphs.queue(eBargraph::SELECT_MYBEST_PG, 0.);
+    gBargraphs.queue(eBargraph::SELECT_MYBEST_GR, 0.);
+    gBargraphs.queue(eBargraph::SELECT_MYBEST_GD, 0.);
+    gBargraphs.queue(eBargraph::SELECT_MYBEST_BD, 0.);
+    gBargraphs.queue(eBargraph::SELECT_MYBEST_PR, 0.);
+    gBargraphs.queue(eBargraph::SELECT_MYBEST_MAXCOMBO, 0.);
+    gBargraphs.queue(eBargraph::SELECT_MYBEST_SCORE, 0.);
+    gBargraphs.queue(eBargraph::SELECT_MYBEST_EXSCORE, 0.);
 
     switch (e[idx].first->type())
     {
@@ -381,17 +396,7 @@ void setEntryInfo()
                 }
                 gOptions.queue(eOption::SELECT_ENTRY_LAMP, lamp);
 
-                Option::e_rank_type rank = Option::RANK_NONE;
-                if (pScore->rate >= 100.0) rank = Option::RANK_0;
-                else if (pScore->rate >= 88.88) rank = Option::RANK_1;
-                else if (pScore->rate >= 77.77) rank = Option::RANK_2;
-                else if (pScore->rate >= 66.66) rank = Option::RANK_3;
-                else if (pScore->rate >= 55.55) rank = Option::RANK_4;
-                else if (pScore->rate >= 44.44) rank = Option::RANK_5;
-                else if (pScore->rate >= 33.33) rank = Option::RANK_6;
-                else if (pScore->rate >= 22.22) rank = Option::RANK_7;
-                else if (pScore->rate != 0)     rank = Option::RANK_8;
-                gOptions.queue(eOption::SELECT_ENTRY_RANK, rank);
+                gOptions.queue(eOption::SELECT_ENTRY_RANK, Option::getRankType(pScore->rate));
 
                 gNumbers.queue(eNumber::INFO_SCORE, pScore->score);
                 gNumbers.queue(eNumber::INFO_EXSCORE, pScore->exscore);
@@ -416,14 +421,15 @@ void setEntryInfo()
                     gNumbers.queue(eNumber::INFO_GOOD_RATE, int(100 * pScore->good / pScore->notes));
                     gNumbers.queue(eNumber::INFO_BAD_RATE, int(100 * pScore->bad / pScore->notes));
                     gNumbers.queue(eNumber::INFO_POOR_RATE, int(100 * (pScore->bpoor + pScore->miss) / pScore->notes));
-                }
-                else
-                {
-                    gNumbers.queue(eNumber::INFO_PERFECT_RATE, 0);
-                    gNumbers.queue(eNumber::INFO_GREAT_RATE, 0);
-                    gNumbers.queue(eNumber::INFO_GOOD_RATE, 0);
-                    gNumbers.queue(eNumber::INFO_BAD_RATE, 0);
-                    gNumbers.queue(eNumber::INFO_POOR_RATE, 0);
+
+                    gBargraphs.queue(eBargraph::SELECT_MYBEST_PG, (double)pScore->pgreat / pScore->notes);
+                    gBargraphs.queue(eBargraph::SELECT_MYBEST_GR, (double)pScore->great / pScore->notes);
+                    gBargraphs.queue(eBargraph::SELECT_MYBEST_GD, (double)pScore->good / pScore->notes);
+                    gBargraphs.queue(eBargraph::SELECT_MYBEST_BD, (double)pScore->bad / pScore->notes);
+                    gBargraphs.queue(eBargraph::SELECT_MYBEST_PR, (double)(pScore->bpoor + pScore->miss) / pScore->notes);
+                    gBargraphs.queue(eBargraph::SELECT_MYBEST_MAXCOMBO, (double)pScore->maxcombo / pScore->notes);
+                    gBargraphs.queue(eBargraph::SELECT_MYBEST_SCORE, (double)pScore->score / 200000);
+                    gBargraphs.queue(eBargraph::SELECT_MYBEST_EXSCORE, (double)pScore->exscore / (pScore->notes * 2));
                 }
 
 

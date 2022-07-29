@@ -78,6 +78,10 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     // basic info
     gTexts.set(eText::PLAY_TITLE, gChartContext.title);
     gTexts.set(eText::PLAY_SUBTITLE, gChartContext.title2);
+    if (gChartContext.title2.empty())
+        gTexts.queue(eText::PLAY_FULLTITLE, gChartContext.title);
+    else
+        gTexts.queue(eText::PLAY_FULLTITLE, gChartContext.title + " " + gChartContext.title2);
     gTexts.set(eText::PLAY_ARTIST, gChartContext.artist);
     gTexts.set(eText::PLAY_SUBARTIST, gChartContext.artist2);
     gTexts.set(eText::PLAY_GENRE, gChartContext.genre);

@@ -26,6 +26,8 @@ void select_pos(double p)
     if (gSelectContext.entries.empty()) return;
 
     size_t idx_new = (size_t)std::floor(p * gSelectContext.entries.size());
+    if (idx_new == gSelectContext.entries.size())
+        idx_new = 0;
     if (idx_new != gSelectContext.idx)
     {
         gSelectContext.idx = idx_new;
