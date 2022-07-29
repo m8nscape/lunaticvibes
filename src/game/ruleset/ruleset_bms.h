@@ -161,10 +161,13 @@ public:
     };
 
     enum class PlaySide {
-        SP,
-        DP,
+        SINGLE,
+        DOUBLE,
         BATTLE_1P,
         BATTLE_2P,
+        AUTO,
+        AUTO_2P,
+        RIVAL,
     };
 
     struct judgeRes { judgeArea area; Time time; };
@@ -177,6 +180,7 @@ protected:
     std::map<JudgeType, unsigned> _count;
     const NoteLaneTimerMap* _bombTimerMap = nullptr;
     const NoteLaneTimerMap* _bombLNTimerMap = nullptr;
+    PlaySide _side;
 	bool _k1P, _k2P;
     double inner_score = 0.0;
     std::array<JudgeType, chart::NOTELANEINDEX_COUNT> _lnJudge{JudgeType::MISS};
@@ -194,9 +198,10 @@ public:
         GameModeKeys keys,
         JudgeDifficulty difficulty = JudgeDifficulty::NORMAL,
         double health = 1.0,
-        PlaySide side = PlaySide::SP);
-private:
+        PlaySide side = PlaySide::SINGLE);
+protected:
     judgeRes _judge(const Note& note, Time time);
+private:
     void _judgePress(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot);
     void _judgeHold(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot);
     void _judgeRelease(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot);

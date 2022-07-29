@@ -228,10 +228,11 @@ RulesetBMS::RulesetBMS(std::shared_ptr<vChartFormat> format, std::shared_ptr<vCh
         break;
     }
 
+    _side = side;
 	switch (side)
 	{
-	case RulesetBMS::PlaySide::SP:
-	case RulesetBMS::PlaySide::DP:
+	case RulesetBMS::PlaySide::SINGLE:
+	case RulesetBMS::PlaySide::DOUBLE:
 		_k1P = true;
 		_k2P = true;
 		break;
@@ -422,6 +423,7 @@ void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote
             note.hit = true;
             _updateHp(-0.01 * note.dvalue / 2);
             // TODO play mine sound + volume
+            // TODO bpoor + 1
         }
         break;
     }
@@ -545,8 +547,8 @@ void RulesetBMS::updateHit(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeTyp
     default:
         break;
     }
-    if (setTimer && _bombTimerMap != nullptr && _bombTimerMap->find(ch) != _bombTimerMap->end())
-        gTimers.set(_bombTimerMap->at(ch), t.norm());
+    if (_bombTimerMap == nullptr || _bombTimerMap->find(ch) == _bombTimerMap->end())
+        setTimer = false;
 
     _updateHp(judge);
     if (_basic.combo > _basic.maxCombo)
@@ -556,11 +558,13 @@ void RulesetBMS::updateHit(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeTyp
     {
         setJudgeTimer1PInner(judge, t.norm());
         gNumbers.set(eNumber::_DISP_NOWCOMBO_1P, _basic.combo);
+        if (setTimer) gTimers.set(_bombTimerMap->at(ch), t.norm());
     }
-    else
+    else if (slot == PLAYER_SLOT_2P)
     {
         setJudgeTimer2PInner(judge, t.norm());
         gNumbers.set(eNumber::_DISP_NOWCOMBO_2P, _basic.combo);
+        if (setTimer) gTimers.set(_bombTimerMap->at(ch), t.norm());
     }
 }
 
@@ -838,30 +842,8 @@ void RulesetBMS::update(const Time& t)
             }
         }
     };
-    auto updateAuto = [&](Input::Pad begin, Input::Pad end, int slot)
-    {
-        for (size_t k = begin; k <= end; ++k)
-        {
-            auto [cat, idx] = _chart->getLaneFromKey((Input::Pad)k);
-            if (cat == NoteLaneCategory::_) return;
-
-            auto n = _chart->incomingNote(cat, idx);
-            if (_judge(*n, t).area >= judgeArea::EXACT_PERFECT)
-            {
-                updateHit(t, idx, RulesetBMS::JudgeType::PERFECT, slot);
-            }
-        }
-    };
-    if (gPlayContext.isAuto)
-    {
-        if (_k1P) updateAuto(Input::S1L, Input::K1SPDDN, PLAYER_SLOT_1P);
-        if (_k2P) updateAuto(Input::S2L, Input::K2SPDDN, PLAYER_SLOT_2P);
-    }
-    else
-    {
-        if (_k1P) updateRange(Input::S1L, Input::K1SPDDN, PLAYER_SLOT_1P);
-        if (_k2P) updateRange(Input::S2L, Input::K2SPDDN, PLAYER_SLOT_2P);
-    }
+    if (_k1P) updateRange(Input::S1L, Input::K1SPDDN, PLAYER_SLOT_1P);
+    if (_k2P) updateRange(Input::S2L, Input::K2SPDDN, PLAYER_SLOT_2P);
 
 	unsigned max = _chart->getNoteCount() * 2;
 	_basic.total_acc = 100.0 * _basic.score2 / max;
@@ -898,7 +880,7 @@ void RulesetBMS::reset()
 void RulesetBMS::updateGlobals()
 {
     gBargraphs.queue(eBargraph::PLAY_EXSCORE, _basic.total_acc);
-    if (_k1P) // includes DP
+    if (_side == PlaySide::SINGLE || _side == PlaySide::DOUBLE || _side == PlaySide::BATTLE_1P || _side == PlaySide::AUTO) // includes DP
     {
         gNumbers.queue(eNumber::PLAY_1P_EXSCORE, _basic.score2);
         gNumbers.queue(eNumber::PLAY_1P_SCORE, _basic.score);
@@ -931,8 +913,21 @@ void RulesetBMS::updateGlobals()
             gOptions.queue(eOption::PLAY_RANK_BORDER_1P, Option::getRankType(_basic.total_acc));
             gOptions.queue(eOption::PLAY_ACCURACY_1P, Option::getAccType(_basic.acc));
         }
+
+        int maxScore = getMaxScore();
+        //if      (dp.total_acc >= 94.44) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(maxScore * 1.000 - dp.score2));    // MAX-
+        if (_basic.total_acc >= 100.0 * 8.0 / 9) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 8.0 / 9));    // AAA+
+        else if (_basic.total_acc >= 100.0 * 7.5 / 9) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 8.0 / 9));    // AAA-
+        else if (_basic.total_acc >= 100.0 * 6.5 / 9) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 7.0 / 9));    // AA-
+        else if (_basic.total_acc >= 100.0 * 5.5 / 9) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 6.0 / 9));    // A-
+        else if (_basic.total_acc >= 100.0 * 4.5 / 9) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 5.0 / 9));    // B-
+        else if (_basic.total_acc >= 100.0 * 3.5 / 9) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 4.0 / 9));    // C-
+        else if (_basic.total_acc >= 100.0 * 2.5 / 9) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 3.0 / 9));    // D-
+        else if (_basic.total_acc >= 100.0 * 1.5 / 9) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 2.0 / 9));    // E
+        else                                      gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, _basic.score2);    // F+
+
     }
-    else if (_k2P) // excludes DP
+    else if (_side == PlaySide::BATTLE_2P || _side == PlaySide::AUTO_2P || _side == PlaySide::RIVAL) // excludes DP
     {
         gNumbers.queue(eNumber::PLAY_2P_EXSCORE, _basic.score2);
         gNumbers.queue(eNumber::PLAY_2P_SCORE, _basic.score);

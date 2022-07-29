@@ -55,14 +55,11 @@ public:
     virtual void update(const Time& t) = 0;
 public:
     constexpr BasicData getData() const { return _basic; }
-    constexpr bool isFinished() const { return _basic.totaln == _chart->getNoteCount(); }
     double getClearHealth() const { return _clearHealth; }
     bool failWhenNoHealth() const { return _failWhenNoHealth; }
+    virtual bool isFinished() const { return _basic.totaln == _chart->getNoteCount(); }
     virtual bool isCleared() const { return _isCleared; }
     virtual bool isFailed() const { return _isFailed; }
-
-    bool isAutoplay() const { return _isAutoplay; }
-    void setAutoplay(bool enabled) { _isAutoplay = enabled; }
 
     virtual unsigned getCurrentMaxScore() const = 0;
     virtual unsigned getMaxScore() const = 0;

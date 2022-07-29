@@ -5,6 +5,7 @@
 #include "scene_context.h"
 #include "game/sound/sound_mgr.h"
 #include "game/ruleset/ruleset_bms.h"
+#include "game/ruleset/ruleset_bms_auto.h"
 #include "common/chartformat/chartformat_bms.h"
 #include "game/chart/chart_bms.h"
 #include "game/graphics/sprite_video.h"
@@ -257,6 +258,7 @@ void ScenePlay::loadChart()
         else
         {
             gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<chartBMS>(PLAYER_SLOT_1P, bms);
+            gPlayContext.chartObj[PLAYER_SLOT_2P] = std::make_shared<chartBMS>(PLAYER_SLOT_1P, bms);    // create for rival; loading with 1P options
         }
         _chartLoaded = true;
         gNumbers.set(eNumber::PLAY_REMAIN_MIN, int(gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() / 1000 / 60));
@@ -314,14 +316,7 @@ void ScenePlay::loadChart()
         defualt: break;
         }
 
-        if (keys == 10 || keys == 14)
-        {
-            gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetBMS>(
-                gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_1P],
-                gPlayContext.mods[PLAYER_SLOT_1P].gauge, keys, judgeDiff, 
-                gPlayContext.initialHealth[PLAYER_SLOT_1P], RulesetBMS::PlaySide::DP);
-        }
-        else if (isPlaymodeBattle())
+        if (isPlaymodeBattle())
         {
             gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetBMS>(
                 gChartContext.chartObj,  gPlayContext.chartObj[PLAYER_SLOT_1P],
@@ -338,16 +333,31 @@ void ScenePlay::loadChart()
             gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetBMS>(
                 gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_1P],
                 gPlayContext.mods[PLAYER_SLOT_1P].gauge, keys, judgeDiff,
-                gPlayContext.initialHealth[PLAYER_SLOT_1P], RulesetBMS::PlaySide::SP);
+                gPlayContext.initialHealth[PLAYER_SLOT_1P], (keys == 10 || keys == 14) ? RulesetBMS::PlaySide::DOUBLE : RulesetBMS::PlaySide::SINGLE);
+
+            gPlayContext.ruleset[PLAYER_SLOT_2P] = std::make_shared<RulesetBMSAuto>(
+                gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_2P],
+                gPlayContext.mods[PLAYER_SLOT_2P].gauge, keys, judgeDiff,
+                gPlayContext.initialHealth[PLAYER_SLOT_2P], RulesetBMS::PlaySide::RIVAL);
+
+            int targetRate = gNumbers.get(eNumber::DEFAULT_TARGET_RATE);
+            double targetRateReal = 0.0;
+            switch (targetRate)
+            {
+                // TODO set target name
+            case 22:  targetRateReal = 2.0 / 9; break;  // E
+            case 33:  targetRateReal = 3.0 / 9; break;  // D
+            case 44:  targetRateReal = 4.0 / 9; break;  // C
+            case 55:  targetRateReal = 5.0 / 9; break;  // B
+            case 66:  targetRateReal = 6.0 / 9; break;  // A
+            case 77:  targetRateReal = 7.0 / 9; break;  // AA
+            case 88:  targetRateReal = 8.0 / 9; break;  // AAA
+            case 100: targetRateReal = 1.0;     break;  // MAX
+            default:  targetRateReal = targetRate / 100.0; break;
+            }
+            std::reinterpret_pointer_cast<RulesetBMSAuto>(gPlayContext.ruleset[PLAYER_SLOT_2P])->setTargetRate(targetRateReal);
         }
 
-        if (isPlaymodeAuto())
-        {
-            gPlayContext.ruleset[PLAYER_SLOT_1P]->setAutoplay(true);
-            if (isPlaymodeBattle())
-                gPlayContext.ruleset[PLAYER_SLOT_2P]->setAutoplay(true);
-
-        }
         _rulesetLoaded = true;
     }
     break;
@@ -445,52 +455,33 @@ void ScenePlay::loadChart()
 void ScenePlay::setInputJudgeCallback()
 {
     using namespace std::placeholders;
-    if (isPlaymodeBattle())
+    if (gPlayContext.ruleset[PLAYER_SLOT_1P] != nullptr)
     {
-        if (gPlayContext.ruleset[PLAYER_SLOT_1P] != nullptr)
-        {
-            auto fp = std::bind(&vRuleset::updatePress, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2);
-            _input.register_p("JUDGE_PRESS", fp);
-            auto fh = std::bind(&vRuleset::updateHold, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2);
-            _input.register_h("JUDGE_HOLD", fh);
-            auto fr = std::bind(&vRuleset::updateRelease, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2);
-            _input.register_r("JUDGE_RELEASE", fr);
-            auto fa = std::bind(&vRuleset::updateAxis, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2);
-            _input.register_a("JUDGE_AXIS", fa);
-        }
-        else
-            LOG_ERROR << "[Play] Ruleset of 1P not initialized!";
+        auto fp = std::bind(&vRuleset::updatePress, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2);
+        _input.register_p("JUDGE_PRESS", fp);
+        auto fh = std::bind(&vRuleset::updateHold, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2);
+        _input.register_h("JUDGE_HOLD", fh);
+        auto fr = std::bind(&vRuleset::updateRelease, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2);
+        _input.register_r("JUDGE_RELEASE", fr);
+        auto fa = std::bind(&vRuleset::updateAxis, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2);
+        _input.register_a("JUDGE_AXIS", fa);
+    }
+    else
+        LOG_ERROR << "[Play] Ruleset of 1P not initialized!";
 
-        if (gPlayContext.ruleset[PLAYER_SLOT_2P] != nullptr)
-        {
-            auto fp = std::bind(&vRuleset::updatePress, gPlayContext.ruleset[PLAYER_SLOT_2P], _1, _2);
-            _input.register_p("JUDGE_PRESS", fp);
-            auto fh = std::bind(&vRuleset::updateHold, gPlayContext.ruleset[PLAYER_SLOT_2P], _1, _2);
-            _input.register_h("JUDGE_HOLD", fh);
-            auto fr = std::bind(&vRuleset::updateRelease, gPlayContext.ruleset[PLAYER_SLOT_2P], _1, _2);
-            _input.register_r("JUDGE_RELEASE", fr);
-            auto fa = std::bind(&vRuleset::updateAxis, gPlayContext.ruleset[PLAYER_SLOT_2P], _1, _2);
-            _input.register_a("JUDGE_AXIS", fa);
-        }
-        else
-            LOG_ERROR << "[Play] Ruleset of 2P not initialized!";
-    }
-    else // SINGLE or MULTI
+    if (gPlayContext.ruleset[PLAYER_SLOT_2P] != nullptr)
     {
-        if (gPlayContext.ruleset[PLAYER_SLOT_1P] != nullptr)
-        {
-            auto fp = std::bind(&vRuleset::updatePress, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2);
-            _input.register_p("JUDGE_PRESS", fp);
-            auto fh = std::bind(&vRuleset::updateHold, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2);
-            _input.register_h("JUDGE_HOLD", fh);
-            auto fr = std::bind(&vRuleset::updateRelease, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2);
-            _input.register_r("JUDGE_RELEASE", fr);
-            auto fa = std::bind(&vRuleset::updateAxis, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2);
-            _input.register_a("JUDGE_AXIS", fa);
-        }
-        else
-            LOG_ERROR << "[Play] Ruleset not initialized!";
+        auto fp = std::bind(&vRuleset::updatePress, gPlayContext.ruleset[PLAYER_SLOT_2P], _1, _2);
+        _input.register_p("JUDGE_PRESS", fp);
+        auto fh = std::bind(&vRuleset::updateHold, gPlayContext.ruleset[PLAYER_SLOT_2P], _1, _2);
+        _input.register_h("JUDGE_HOLD", fh);
+        auto fr = std::bind(&vRuleset::updateRelease, gPlayContext.ruleset[PLAYER_SLOT_2P], _1, _2);
+        _input.register_r("JUDGE_RELEASE", fr);
+        auto fa = std::bind(&vRuleset::updateAxis, gPlayContext.ruleset[PLAYER_SLOT_2P], _1, _2);
+        _input.register_a("JUDGE_AXIS", fa);
     }
+    else
+        LOG_ERROR << "[Play] Ruleset of 2P not initialized!";
 }
 
 void ScenePlay::removeInputJudgeCallback()
@@ -600,52 +591,48 @@ void ScenePlay::updatePlaying()
 {
 	auto t = Time();
 	auto rt = t - gTimers.get(eTimer::PLAY_START);
-    gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentMetre() * 4.0)) % 1000);
+    gTimers.queue(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentMetre() * 4.0)) % 1000);
 
-    if (isPlaymodeBattle())
+    gPlayContext.chartObj[PLAYER_SLOT_1P]->update(rt);
+    gPlayContext.chartObj[PLAYER_SLOT_2P]->update(rt);
+    gPlayContext.ruleset[PLAYER_SLOT_1P]->update(t);
+    gPlayContext.ruleset[PLAYER_SLOT_2P]->update(t);
+
+    auto dp1 = gPlayContext.ruleset[PLAYER_SLOT_1P]->getData();
+    auto dp2 = gPlayContext.ruleset[PLAYER_SLOT_2P]->getData();
+
+    gNumbers.queue(eNumber::PLAY_1P_EXSCORE_DIFF, dp1.score2 - dp2.score2);
+    gNumbers.queue(eNumber::PLAY_2P_EXSCORE_DIFF, dp2.score2 - dp1.score2);
+    gNumbers.queue(eNumber::RESULT_TARGET_EX, dp2.score2);
+    gNumbers.queue(eNumber::RESULT_TARGET_DIFF, dp2.score2 - dp1.score2);
+    gNumbers.queue(eNumber::RESULT_TARGET_RATE, (int)std::floor(dp2.acc * 100.0));
+    gNumbers.queue(eNumber::RESULT_TARGET_RATE_DECIMAL2, (int)std::floor(dp2.acc * 10000.0) % 100);
+
+    int miss1 = dp1.miss;
+    if (_missPlayer[PLAYER_SLOT_1P] != miss1)
     {
-        gPlayContext.chartObj[PLAYER_SLOT_1P]->update(rt);
-        gPlayContext.chartObj[PLAYER_SLOT_2P]->update(rt);
-        gPlayContext.ruleset[PLAYER_SLOT_1P]->update(t);
-        gPlayContext.ruleset[PLAYER_SLOT_2P]->update(t);
-
-        int miss1 = gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().miss;
-        if (_missPlayer[PLAYER_SLOT_1P] != miss1)
-        {
-            _missPlayer[PLAYER_SLOT_1P] = miss1;
-            _missLastTime = t;
-        }
-        int miss2 = gPlayContext.ruleset[PLAYER_SLOT_2P]->getData().miss;
-        if (_missPlayer[PLAYER_SLOT_2P] != miss2)
-        {
-            _missPlayer[PLAYER_SLOT_2P] = miss2;
-            _missLastTime = t;
-        }
+        _missPlayer[PLAYER_SLOT_1P] = miss1;
+        _missLastTime = t;
     }
-    else
+    int miss2 = dp2.miss;
+    if (_missPlayer[PLAYER_SLOT_2P] != miss2)
     {
-        gPlayContext.chartObj[PLAYER_SLOT_1P]->update(rt);
-        gPlayContext.ruleset[PLAYER_SLOT_1P]->update(t);
-
-        int miss1 = gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().miss;
-        if (_missPlayer[PLAYER_SLOT_1P] != miss1)
-        {
-            _missPlayer[PLAYER_SLOT_1P] = miss1;
-            _missLastTime = t;
-        }
+        _missPlayer[PLAYER_SLOT_2P] = miss2;
+        _missLastTime = t;
     }
+
     gPlayContext.bgaTexture->update(rt, t.norm() - _missLastTime.norm() < _missBgaLength);
 
-    gNumbers.set(eNumber::PLAY_BPM, int(std::round(gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentBPM())));
+    gNumbers.queue(eNumber::PLAY_BPM, int(std::round(gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentBPM())));
     // play time / remain time
     {
         auto startTime = rt - gTimers.get(eTimer::PLAY_START);
         auto playtime = rt.norm() / 1000;
         auto remaintime = gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() / 1000 - playtime;
-        gNumbers.set(eNumber::PLAY_MIN, int(playtime / 60));
-        gNumbers.set(eNumber::PLAY_SEC, int(playtime % 60));
-        gNumbers.set(eNumber::PLAY_REMAIN_MIN, int(remaintime / 60));
-        gNumbers.set(eNumber::PLAY_REMAIN_SEC, int(remaintime % 60));
+        gNumbers.queue(eNumber::PLAY_MIN, int(playtime / 60));
+        gNumbers.queue(eNumber::PLAY_SEC, int(playtime % 60));
+        gNumbers.queue(eNumber::PLAY_REMAIN_MIN, int(remaintime / 60));
+        gNumbers.queue(eNumber::PLAY_REMAIN_SEC, int(remaintime % 60));
     }
 
     procCommonNotes();
@@ -674,68 +661,37 @@ void ScenePlay::updatePlaying()
     // health check (-> to failed)
     if (!_isExitingFromPlay)
     {
-        if (isPlaymodeBattle())
+        if (gPlayContext.ruleset[PLAYER_SLOT_1P]->isFailed() &&
+            gPlayContext.ruleset[PLAYER_SLOT_2P]->isFailed())
         {
-            if (gPlayContext.ruleset[PLAYER_SLOT_1P]->isFailed() &&
-                gPlayContext.ruleset[PLAYER_SLOT_2P]->isFailed())
+            pushGraphPoints();
+            gTimers.queue(eTimer::FAIL_BEGIN, t.norm());
+            gOptions.queue(eOption::PLAY_SCENE_STAT, Option::SPLAY_FAILED);
+            _isExitingFromPlay = true;
+            _state = ePlayState::FAILED;
+            SoundMgr::stopSamples();
+            SoundMgr::stopKeySamples();
+            SoundMgr::playSample(eSoundSample::SOUND_PLAYSTOP);
+            for (size_t i = 0; i < gPlayContext.ruleset.size(); ++i)
             {
-                pushGraphPoints();
-                gTimers.set(eTimer::FAIL_BEGIN, t.norm());
-                gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FAILED);
-                _isExitingFromPlay = true;
-                _state = ePlayState::FAILED;
-                SoundMgr::stopSamples();
-                SoundMgr::stopKeySamples();
-                SoundMgr::playSample(eSoundSample::SOUND_PLAYSTOP);
-                for (size_t i = 0; i < gPlayContext.ruleset.size(); ++i)
-                {
-                    _input.unregister_p("SCENE_PRESS");
-                }
-                LOG_DEBUG << "[Play] State changed to PLAY_FAILED";
+                _input.unregister_p("SCENE_PRESS");
             }
-
-            if (_isPlayerFinished[PLAYER_SLOT_1P] ^ gPlayContext.ruleset[PLAYER_SLOT_1P]->isFinished())
-            {
-                _isPlayerFinished[PLAYER_SLOT_1P] = true;
-                gTimers.set(eTimer::PLAY_P1_FINISHED, t.norm());
-                if (gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().combo == gPlayContext.chartObj[PLAYER_SLOT_1P]->getNoteCount())
-                    gTimers.set(eTimer::PLAY_FULLCOMBO_1P, t.norm());
-            }
-            if (_isPlayerFinished[PLAYER_SLOT_2P] ^ gPlayContext.ruleset[PLAYER_SLOT_2P]->isFinished())
-            {
-                _isPlayerFinished[PLAYER_SLOT_2P] = true;
-                gTimers.set(eTimer::PLAY_P2_FINISHED, t.norm());
-                if (gPlayContext.ruleset[PLAYER_SLOT_2P]->getData().combo == gPlayContext.chartObj[PLAYER_SLOT_2P]->getNoteCount())
-                    gTimers.set(eTimer::PLAY_FULLCOMBO_2P, t.norm());
-            }
+            LOG_DEBUG << "[Play] State changed to PLAY_FAILED";
         }
-        else
-        {
-            //if (context_play.health[context_play.playerSlot] <= 0)
-            if (gPlayContext.ruleset[PLAYER_SLOT_1P]->isFailed())
-            {
-                pushGraphPoints();
-                gTimers.set(eTimer::FAIL_BEGIN, t.norm());
-                gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FAILED);
-                _isExitingFromPlay = true;
-                _state = ePlayState::FAILED;
-                SoundMgr::stopSamples();
-                SoundMgr::stopKeySamples();
-                SoundMgr::playSample(eSoundSample::SOUND_PLAYSTOP);
-                for (size_t i = 0; i < gPlayContext.ruleset.size(); ++i)
-                {
-                    _input.unregister_p("SCENE_PRESS");
-                }
-                LOG_DEBUG << "[Play] State changed to PLAY_FAILED";
-            }
 
-            if (_isPlayerFinished[PLAYER_SLOT_1P] ^ gPlayContext.ruleset[PLAYER_SLOT_1P]->isFinished())
-            {
-                _isPlayerFinished[PLAYER_SLOT_1P] = true;
-                gTimers.set(eTimer::PLAY_P1_FINISHED, t.norm());
-                if (gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().combo == gPlayContext.chartObj[PLAYER_SLOT_1P]->getNoteCount())
-                    gTimers.set(eTimer::PLAY_FULLCOMBO_1P, t.norm());
-            }
+        if (_isPlayerFinished[PLAYER_SLOT_1P] ^ gPlayContext.ruleset[PLAYER_SLOT_1P]->isFinished())
+        {
+            _isPlayerFinished[PLAYER_SLOT_1P] = true;
+            gTimers.queue(eTimer::PLAY_P1_FINISHED, t.norm());
+            if (gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().combo == gPlayContext.chartObj[PLAYER_SLOT_1P]->getNoteCount())
+                gTimers.queue(eTimer::PLAY_FULLCOMBO_1P, t.norm());
+        }
+        if (_isPlayerFinished[PLAYER_SLOT_2P] ^ gPlayContext.ruleset[PLAYER_SLOT_2P]->isFinished())
+        {
+            _isPlayerFinished[PLAYER_SLOT_2P] = true;
+            gTimers.queue(eTimer::PLAY_P2_FINISHED, t.norm());
+            if (gPlayContext.ruleset[PLAYER_SLOT_2P]->getData().combo == gPlayContext.chartObj[PLAYER_SLOT_2P]->getNoteCount())
+                gTimers.queue(eTimer::PLAY_FULLCOMBO_2P, t.norm());
         }
     }
 
@@ -744,12 +700,15 @@ void ScenePlay::updatePlaying()
     //last note check
     if (rt.hres() - gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().hres() >= 0)
     {
-        gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
-        gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FADEOUT);
+        gTimers.queue(eTimer::FADEOUT_BEGIN, t.norm());
+        gOptions.queue(eOption::PLAY_SCENE_STAT, Option::SPLAY_FADEOUT);
         _isExitingFromPlay = true;
         _state = ePlayState::FADEOUT;
     }
      
+    gTimers.flush();
+    gNumbers.flush();
+    gOptions.flush();
 }
 
 void ScenePlay::updateFadeout()
@@ -875,7 +834,7 @@ void ScenePlay::procCommonNotes()
         size_t max2 = std::min(_bgmSampleIdxBuf.size(), max + gPlayContext.chartObj[PLAYER_SLOT_1P]->noteExpired.size());
         while (i < max && it != gPlayContext.chartObj[PLAYER_SLOT_1P]->noteExpired.end())
         {
-            if (it->flags & Note::LN_TAIL == 0)
+            if ((it->flags & Note::LN_TAIL) == 0)
             {
                 _bgmSampleIdxBuf[i] = (unsigned)it->dvalue;
                 ++i;
@@ -933,59 +892,6 @@ void ScenePlay::changeKeySampleMapping(const Time& t)
             }
     }
 }
-
-/*
-void ScenePlay::updateBga()
-{
-	// base
-	if (std::holds_alternative<pVideo>(_bgaIdxBuf[bgaBaseIdx]))
-	{
-		auto pv = std::get<pVideo>(_bgaIdxBuf[bgaBaseIdx]);
-		bgaBaseTexture = nullptr;
-		pv->startPlaying();
-	}
-	else if (std::holds_alternative<pTexture>(_bgaIdxBuf[bgaBaseIdx]))
-	{
-		bgaBaseTexture = std::get<pTexture>(_bgaIdxBuf[bgaBaseIdx]);
-	}
-	else
-	{
-		bgaBaseTexture = nullptr;
-	}
-
-	// layer
-	if (std::holds_alternative<pVideo>(_bgaIdxBuf[bgaLayerIdx]))
-	{
-		auto pv = std::get<pVideo>(_bgaIdxBuf[bgaLayerIdx]);
-		bgaLayerTexture = nullptr;
-		pv->startPlaying();
-	}
-	else if (std::holds_alternative<pTexture>(_bgaIdxBuf[bgaLayerIdx]))
-	{
-		bgaLayerTexture = std::get<pTexture>(_bgaIdxBuf[bgaLayerIdx]);
-	}
-	else
-	{
-		bgaLayerTexture = nullptr;
-	}
-
-	// poor
-	if (std::holds_alternative<pVideo>(_bgaIdxBuf[bgaPoorIdx]))
-	{
-		auto pv = std::get<pVideo>(_bgaIdxBuf[bgaPoorIdx]);
-		bgaPoorTexture = nullptr;
-		pv->startPlaying();
-	}
-	else if (std::holds_alternative<pTexture>(_bgaIdxBuf[bgaPoorIdx]))
-	{
-		bgaPoorTexture = std::get<pTexture>(_bgaIdxBuf[bgaPoorIdx]);
-	}
-	else
-	{
-		bgaPoorTexture = nullptr;
-	}
-}
-*/
 
 void ScenePlay::spinTurntable(bool startedPlaying)
 {
@@ -1108,6 +1014,7 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
                 if (!_isPlayerFinished[PLAYER_SLOT_1P])
                 {
                     gPlayContext.ruleset[PLAYER_SLOT_1P]->fail();
+                    gPlayContext.ruleset[PLAYER_SLOT_2P]->fail();
                 }
             }
 

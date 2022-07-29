@@ -23,19 +23,16 @@ SceneResult::SceneResult(ePlayMode gamemode) : vScene(eMode::RESULT, 1000), _pla
     _state = eResultState::DRAW;
 
     // set options
-    if (gPlayContext.ruleset[PLAYER_SLOT_1P])
-    {
-        auto d1p = gPlayContext.ruleset[PLAYER_SLOT_1P]->getData();
-        gOptions.queue(eOption::RESULT_RANK_1P, Option::getRankType(d1p.total_acc));
-        gPlayContext.ruleset[PLAYER_SLOT_1P]->updateGlobals();
-    }
+    auto d1p = gPlayContext.ruleset[PLAYER_SLOT_1P]->getData();
+    gOptions.queue(eOption::RESULT_RANK_1P, Option::getRankType(d1p.total_acc));
+    gPlayContext.ruleset[PLAYER_SLOT_1P]->updateGlobals();
 
-    if (gPlayContext.ruleset[PLAYER_SLOT_2P])
-    {
-        auto d2p = gPlayContext.ruleset[PLAYER_SLOT_2P]->getData();
-        gOptions.queue(eOption::RESULT_RANK_2P, Option::getRankType(d2p.total_acc));
-        gPlayContext.ruleset[PLAYER_SLOT_2P]->updateGlobals();
-    }
+    auto d2p = gPlayContext.ruleset[PLAYER_SLOT_2P]->getData();
+    gOptions.queue(eOption::RESULT_RANK_2P, Option::getRankType(d2p.total_acc));
+    gPlayContext.ruleset[PLAYER_SLOT_2P]->updateGlobals();
+
+    gNumbers.queue(eNumber::PLAY_1P_EXSCORE_DIFF, d1p.score2 - d2p.score2);
+    gNumbers.queue(eNumber::PLAY_2P_EXSCORE_DIFF, d2p.score2 - d1p.score2);
 
     // TODO set chart info (total notes, etc.)
     auto chartLength = gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() / 1000;
@@ -91,19 +88,6 @@ SceneResult::SceneResult(ePlayMode gamemode) : vScene(eMode::RESULT, 1000), _pla
         gSwitches.queue(eSwitch::RESULT_UPDATED_MAXCOMBO, true);
         gSwitches.queue(eSwitch::RESULT_UPDATED_BP, true);
     }
-
-    int maxScore = gPlayContext.ruleset[PLAYER_SLOT_1P]->getMaxScore();
-    //if      (dp.total_acc >= 94.44) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(maxScore * 1.000 - dp.score2));    // MAX-
-    if      (dp.total_acc >= 100.0 * 8.0 / 9) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(dp.score2 - maxScore * 8.0 / 9));    // AAA+
-    else if (dp.total_acc >= 100.0 * 7.5 / 9) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(dp.score2 - maxScore * 8.0 / 9));    // AAA-
-    else if (dp.total_acc >= 100.0 * 6.5 / 9) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(dp.score2 - maxScore * 7.0 / 9));    // AA-
-    else if (dp.total_acc >= 100.0 * 5.5 / 9) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(dp.score2 - maxScore * 6.0 / 9));    // A-
-    else if (dp.total_acc >= 100.0 * 4.5 / 9) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(dp.score2 - maxScore * 5.0 / 9));    // B-
-    else if (dp.total_acc >= 100.0 * 3.5 / 9) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(dp.score2 - maxScore * 4.0 / 9));    // C-
-    else if (dp.total_acc >= 100.0 * 2.5 / 9) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(dp.score2 - maxScore * 3.0 / 9));    // D-
-    else if (dp.total_acc >= 100.0 * 1.5 / 9) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(dp.score2 - maxScore * 2.0 / 9));    // E
-    else                                      gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, dp.score2);    // F+
-
 
     // TODO compare to target
 
