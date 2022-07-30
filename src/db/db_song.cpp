@@ -456,7 +456,7 @@ int SongDB::addFolder(Path path, HashMD5 parentHash)
         LOG_DEBUG << "[SongDB] Folder already exists (" << path.u8string() << ")";
 
         // TODO check if refresh all folder on run. This is really slow
-        if (parentHash == ROOT_FOLDER_HASH)
+        if (1 || parentHash == ROOT_FOLDER_HASH)
         {
             refreshFolder(ANY_STR(q[0][0]), path, (FolderType)ANY_INT(q[0][1]));
         }

@@ -364,7 +364,21 @@ int BMS::initWithFile(const Path& file)
                 }
                 else if (strEqual(key, "IF", true))
                 {
-                    LOG_WARNING << "[BMS] unexpected #IF found in line " << srcLine;
+                    if (ifBlock == 0)
+                    {
+                        LOG_WARNING << "[BMS] unexpected orphan #IF found in line " << srcLine;
+                    }
+                    else
+                    {
+                        LOG_WARNING << "[BMS] unexpected #IF found without #ENDIF terminating block " << ifBlock << " in line " << srcLine;
+                        ifValue.pop();
+
+                        ifBlock = toInt(value);
+                        if (randomValue == ifBlock)
+                        {
+                            ifValue.push(ifBlock);
+                        }
+                    }
                 }
                 else if (strEqual(key, "ENDIF", true))
                 {
