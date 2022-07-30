@@ -145,6 +145,12 @@ int BMS::initWithFile(const Path& file)
             if (space_idx > 1 && strEqual(buf.substr(0, 7), "#RANDOM", true))
             {
                 StringContent value = space_idx < buf.length() ? buf.substr(space_idx + 1) : "";
+                int iValue = toInt(value);
+                if (iValue == 0)
+                {
+                    LOG_WARNING << "[BMS] Invalid #RANDOM value found at line" << srcLine;
+                    continue;
+                }
 
                 haveRandom = true;
                 // TODO use global rng
