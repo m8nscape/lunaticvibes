@@ -341,7 +341,7 @@ int BMS::initWithFile(const Path& file)
                     }
                     else if (ifBlock == 0)
                     {
-                        LOG_WARNING << "[BMS] unexpected #ENDIF fond at line " << srcLine;
+                        LOG_WARNING << "[BMS] unexpected #ENDIF found at line " << srcLine;
                     }
                 }
                 else if (strEqual(key, "ENDRANDOM", true))
@@ -398,7 +398,14 @@ int BMS::initWithFile(const Path& file)
                     else if (strEqual(key, "BANNER", true))
                         banner.assign(value.begin(), value.end());
                     else if (strEqual(key, "LNOBJ", true) && value.length() >= 2)
+                    {
+                        if (!lnobjSet.empty())
+                        {
+                            LOG_WARNING << "[BMS] Multiple #LNOBJ found at line" << srcLine;
+                            lnobjSet.clear();
+                        }
                         lnobjSet.insert(base36(value[0], value[1]));
+                    }
 
                     // #xxx00
                     else if (std::regex_match(key, regexWav))
