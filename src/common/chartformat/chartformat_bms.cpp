@@ -296,8 +296,38 @@ int BMS::initWithFile(const Path& file)
                             break;
                         case 5:            // 5x: 1P LN
                         case 6:            // 6x: 2P LN
-                            strToLane36(chNotesLN.lanes[area][idx][bar], value);
-                            haveLN = true;
+                            if (!lnobjSet.empty())
+                            {
+                                // Note: there is so many possibilities of conflicting LN definition. Add all LN channel notes as regular notes
+                                channel noteLane;
+                                strToLane36(noteLane, value);
+                                unsigned scale = chNotesRegular.lanes[area][idx][bar].relax(noteLane.resolution) / noteLane.resolution;
+                                for (auto& note: noteLane.notes)
+                                {
+                                    note.segment *= scale;
+                                    bool noteInserted = false;
+                                    channel& chTarget = chNotesRegular.lanes[area][idx][bar];
+                                    for (auto it = chTarget.notes.begin(); it != chTarget.notes.end(); ++it)
+                                    {
+                                        if (it->segment > note.segment || (it->segment == note.segment && it->value > note.value))
+                                        {
+                                            chTarget.notes.insert(it, note);
+                                            noteInserted = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!noteInserted)
+                                    {
+                                        chTarget.notes.push_back(note);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                // #LNTYPE 1
+                                strToLane36(chNotesLN.lanes[area][idx][bar], value);
+                                haveLN = true;
+                            }
                             break;
                         case 0xD:        // Dx: 1P mine
                         case 0xE:        // Ex: 2P mine
@@ -799,7 +829,6 @@ auto BMS::getLane(LaneCode code, unsigned chIdx, unsigned measureIdx) const -> c
 
 unsigned BMS::channel::relax(unsigned target_resolution)
 {
-    if (target_resolution < resolution) return 0;
     unsigned target = std::lcm(target_resolution, resolution);
     unsigned pow = target / resolution;
     if (pow == 1) return target;

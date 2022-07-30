@@ -13,7 +13,7 @@ const size_t NOPE = -1;
 // 0 is Scratch, 1-9 are keys, matching by order
 const std::vector<size_t> BMSToLaneMap = 
 {
-    // Normal notes #xxx0x
+    // Normal notes
     Sc1,
     K1,
     K2,
@@ -25,7 +25,6 @@ const std::vector<size_t> BMSToLaneMap =
     NOPE,
     NOPE,
 
-    // #xxx1x
     Sc2,
     K8,
     K9,
@@ -37,7 +36,7 @@ const std::vector<size_t> BMSToLaneMap =
     NOPE,
     NOPE,
 
-    // LN Head #xxx2x
+    // LN Head 
     chart::channelToIdx(NoteLaneCategory::LN, Sc1),
     chart::channelToIdx(NoteLaneCategory::LN, K1),
     chart::channelToIdx(NoteLaneCategory::LN, K2),
@@ -49,7 +48,6 @@ const std::vector<size_t> BMSToLaneMap =
     NOPE,
     NOPE,
 
-    // #xxx3x
     chart::channelToIdx(NoteLaneCategory::LN, Sc2),
     chart::channelToIdx(NoteLaneCategory::LN, K8),
     chart::channelToIdx(NoteLaneCategory::LN, K9),
@@ -61,7 +59,7 @@ const std::vector<size_t> BMSToLaneMap =
     NOPE,
     NOPE,
 
-    // LN Tail #xxx4x
+    // LN Tail
     chart::channelToIdx(NoteLaneCategory::LN, Sc1),
     chart::channelToIdx(NoteLaneCategory::LN, K1),
     chart::channelToIdx(NoteLaneCategory::LN, K2),
@@ -73,7 +71,6 @@ const std::vector<size_t> BMSToLaneMap =
     NOPE,
     NOPE,
 
-    // #xxx5x
     chart::channelToIdx(NoteLaneCategory::LN, Sc2),
     chart::channelToIdx(NoteLaneCategory::LN, K8),
     chart::channelToIdx(NoteLaneCategory::LN, K9),
