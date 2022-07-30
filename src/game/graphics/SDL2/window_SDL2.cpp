@@ -63,8 +63,8 @@ int graphics_init()
         {
             // fallback to windowed
         }
-        unsigned w = ConfigMgr::get("V", cfg::V_RES_X, CANVAS_WIDTH);
-        unsigned h = ConfigMgr::get("V", cfg::V_RES_Y, CANVAS_HEIGHT);
+        unsigned w = ConfigMgr::get("V", cfg::V_DISPLAY_RES_X, CANVAS_WIDTH);
+        unsigned h = ConfigMgr::get("V", cfg::V_DISPLAY_RES_Y, CANVAS_HEIGHT);
         gFrameWindow = SDL_CreateWindow(title.c_str(),
             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, flags);
         if (!gFrameWindow)
@@ -72,6 +72,10 @@ int graphics_init()
             LOG_ERROR << "[SDL2] Init window ERROR! " << SDL_GetError();
             return -1;
         }
+
+        graphics_set_canvas_scale(
+            (double)w / ConfigMgr::get("V", cfg::V_RES_X, CANVAS_WIDTH),
+            (double)h / ConfigMgr::get("V", cfg::V_RES_Y, CANVAS_HEIGHT));
 
         SDL_SysWMinfo wmInfo;
         SDL_VERSION(&wmInfo.version);
@@ -184,11 +188,26 @@ void graphics_change_window_mode(int mode)
     }
 }
 
+void graphics_resize_window(int x, int y)
+{
+    SDL_SetWindowSize(gFrameWindow, x, y);
+}
+
 void graphics_change_vsync(bool enable)
 {
     // codes below should work since we are explicitly indicated to use OpenGL backend
     SDL_GL_SetSwapInterval(enable ? 1 : 0);
 }
+
+static double canvasScaleX = 1.0;
+static double canvasScaleY = 1.0;
+void graphics_set_canvas_scale(double x, double y)
+{
+    canvasScaleX = x;
+    canvasScaleY = y;
+}
+double graphics_get_canvas_scale_x() { return canvasScaleX; }
+double graphics_get_canvas_scale_y() { return canvasScaleY; }
 
 extern bool gEventQuit;
 void event_handle()

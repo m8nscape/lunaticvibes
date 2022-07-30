@@ -14,6 +14,77 @@ void SceneSelect::_imguiSampleDialog()
     ImGui::Render();
 }
 
+void SceneSelect::_imguiInit()
+{
+    _imguiRefreshProfileList();
+    old_profile_index = imgui_profile_index;
+
+    _imguiRefreshFolderList();
+
+    _imguiRefreshVideoResolutionList();
+    auto resolutionY = ConfigMgr::get("V", cfg::V_RES_Y, CANVAS_HEIGHT);
+    if (resolutionY == 720)
+        imgui_video_resolution_index = 1;
+    else if (resolutionY == 1080)
+        imgui_video_resolution_index = 2;
+    else if (resolutionY == 1440)
+        imgui_video_resolution_index = 3;
+    else if (resolutionY == 2160)
+        imgui_video_resolution_index = 4;
+    else
+        imgui_video_resolution_index = 0;
+    old_video_resolution_index = imgui_video_resolution_index;
+
+    _imguiRefreshVideoDisplayResolutionList();
+    auto windowY = ConfigMgr::get("V", cfg::V_DISPLAY_RES_Y, CANVAS_HEIGHT);
+    imgui_video_display_resolution_index = -1;
+    for (int i = 0; i < (int)imgui_video_display_resolution_size.size(); ++i)
+    {
+        if (imgui_video_display_resolution_size[i].second == windowY)
+        {
+            imgui_video_display_resolution_index = i;
+            break;
+        }
+    }
+    if (imgui_video_display_resolution_index < 0)
+    {
+        imgui_video_display_resolution_index = 0;
+    }
+    old_video_display_resolution_index = imgui_video_display_resolution_index;
+
+    auto winMode = ConfigMgr::get("V", cfg::V_WINMODE, cfg::V_WINMODE_WINDOWED);
+    if (winMode == cfg::V_WINMODE_FULL)
+        imgui_video_mode = 1;
+    else if (winMode == cfg::V_WINMODE_BORDERLESS)
+        imgui_video_mode = 2;
+    else
+        imgui_video_mode = 0;
+    old_video_mode = imgui_video_mode;
+
+    imgui_video_vsync = ConfigMgr::get("V", cfg::V_VSYNC, false);
+    imgui_video_maxFPS = ConfigMgr::get("V", cfg::V_MAXFPS, 240);
+
+    imgui_audio_checkASIODevices = ConfigMgr::get("A", cfg::A_MODE, cfg::A_MODE_ASIO) == cfg::A_MODE_ASIO;
+    imgui_audio_bufferCount = ConfigMgr::get("A", cfg::A_BUFCOUNT, 2);
+    imgui_audio_bufferSize = ConfigMgr::get("A", cfg::A_BUFLEN, 256);
+    _imguiRefreshAudioDevices();
+    old_audio_device_index = imgui_audio_device_index;
+
+    imgui_adv_scrollSpeed[0] = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_INITIAL, 300);
+    imgui_adv_scrollSpeed[1] = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);
+    imgui_adv_missBGATime = ConfigMgr::get("P", cfg::P_MISSBGA_LENGTH, 500);
+    imgui_adv_minInputInterval = ConfigMgr::get("P", cfg::P_MIN_INPUT_INTERVAL, 16);
+    imgui_adv_newSongDuration = ConfigMgr::get("P", cfg::P_NEW_SONG_DURATION, 24);
+    imgui_adv_mouseAnalog = ConfigMgr::get("P", cfg::P_MOUSE_ANALOG, false);
+    imgui_adv_relativeAxis = ConfigMgr::get("P", cfg::P_RELATIVE_AXIS, false);
+
+    // auto popup settings for first runs
+    if (imgui_folders.empty())
+    {
+        imguiShow = true;
+    }
+}
+
 #ifdef WIN32
 #include <ShlObj.h>
 #include <ShlObj_core.h>
@@ -66,7 +137,8 @@ void SceneSelect::_imguiSettings()
 
             if (ImGui::CollapsingHeader("Video"))
             {
-                ImGui::Combo("Resolution", &imgui_video_resolution_index, imgui_video_resolution_display.data(), (int)imgui_video_resolution_display.size());
+                ImGui::Combo("Internal Resolution", &imgui_video_resolution_index, imgui_video_resolution_display.data(), (int)imgui_video_resolution_display.size());
+                ImGui::Combo("Display Resolution", &imgui_video_display_resolution_index, imgui_video_display_resolution_display.data(), (int)imgui_video_display_resolution_display.size());
 
                 ImGui::RadioButton("Windowed", &imgui_video_mode, 0);
                 ImGui::SameLine();
@@ -195,11 +267,41 @@ void SceneSelect::_imguiRefreshVideoResolutionList()
     imgui_video_resolution.push_back("480p SD (640x480)");
     imgui_video_resolution.push_back("720p HD (1280x720)");
     imgui_video_resolution.push_back("1080p FHD (1920x1080)");
-    imgui_video_resolution.push_back("2K WQHD (2560x1440)");
-    imgui_video_resolution.push_back("4K UHD (3840x2160)");
+    //imgui_video_resolution.push_back("2K WQHD (2560x1440)");
+    //imgui_video_resolution.push_back("4K UHD (3840x2160)");
     for (const auto& r : imgui_video_resolution)
     {
         imgui_video_resolution_display.push_back(r.c_str());
+    }
+}
+void SceneSelect::_imguiRefreshVideoDisplayResolutionList()
+{
+    imgui_video_display_resolution_size.clear();
+    imgui_video_display_resolution.clear();
+    imgui_video_display_resolution_display.clear();
+
+    // TODO get resolution list from system
+    imgui_video_display_resolution_size.push_back({ 640, 480 });
+    imgui_video_display_resolution_size.push_back({ 800, 600 });
+    imgui_video_display_resolution_size.push_back({ 1280, 720 });
+    imgui_video_display_resolution_size.push_back({ 1280, 960 });
+    imgui_video_display_resolution_size.push_back({ 1600, 900 });
+    imgui_video_display_resolution_size.push_back({ 1920, 1080 });
+    imgui_video_display_resolution_size.push_back({ 2560, 1440 });
+    imgui_video_display_resolution_size.push_back({ 3840, 2160 });
+
+    for (size_t i = 0; i < imgui_video_display_resolution_size.size(); ++i)
+    {
+        std::stringstream ss;
+        ss << imgui_video_display_resolution_size[i].first; 
+        ss << "x";
+        ss << imgui_video_display_resolution_size[i].second;
+        imgui_video_display_resolution.push_back(ss.str());
+    }
+
+    for (const auto& r : imgui_video_display_resolution)
+    {
+        imgui_video_display_resolution_display.push_back(r.c_str());
     }
 }
 
@@ -210,7 +312,6 @@ void SceneSelect::_imguiCheckSettings()
         // TODO reload profile
     }
 
-    bool recreateWindow = false;
     if (imgui_video_resolution_index != old_video_resolution_index)
     {
         old_video_resolution_index = imgui_video_resolution_index;
@@ -225,7 +326,20 @@ void SceneSelect::_imguiCheckSettings()
         }
         ConfigMgr::set("V", cfg::V_RES_X, x);
         ConfigMgr::set("V", cfg::V_RES_Y, y);
-        recreateWindow = true;
+    }
+    if (imgui_video_display_resolution_index != old_video_display_resolution_index)
+    {
+        old_video_display_resolution_index = imgui_video_display_resolution_index;
+        if (imgui_video_display_resolution_index > (int)imgui_video_display_resolution_size.size())
+        {
+            imgui_video_display_resolution_index = 0;
+        }
+        auto& res = imgui_video_display_resolution_size[imgui_video_display_resolution_index];
+        int x, y;
+        x = res.first;
+        y = res.second;
+        ConfigMgr::set("V", cfg::V_DISPLAY_RES_X, x);
+        ConfigMgr::set("V", cfg::V_DISPLAY_RES_Y, y);
     }
     if (imgui_video_mode != old_video_mode)
     {
@@ -233,21 +347,15 @@ void SceneSelect::_imguiCheckSettings()
         const char* windowMode = NULL;
         switch (imgui_video_mode)
         {
-        case 0: windowMode = cfg::V_WINMODE_WINDOWED; break;
-        case 1: windowMode = cfg::V_WINMODE_FULL; break;
+        case 0: windowMode = cfg::V_WINMODE_WINDOWED;   break;
+        case 1: windowMode = cfg::V_WINMODE_FULL;       break;
         case 2: windowMode = cfg::V_WINMODE_BORDERLESS; break;
         }
         ConfigMgr::set("V", cfg::V_WINMODE, windowMode);
-        recreateWindow = true;
     }
     if (imgui_video_vsync != ConfigMgr::get("V", cfg::V_VSYNC, false))
     {
         ConfigMgr::set("V", cfg::V_VSYNC, imgui_video_vsync);
-        recreateWindow = true;
-    }
-    if (recreateWindow)
-    {
-        // TODO recreate window
     }
 
     if (imgui_video_maxFPS != ConfigMgr::get("V", cfg::V_MAXFPS, 240))
@@ -362,9 +470,20 @@ bool SceneSelect::_imguiBrowseFolder()
 
 bool SceneSelect::_imguiApplyResolution()
 {
+    int renderW, renderH;
+    int windowW, windowH;
+    windowW = ConfigMgr::get("V", cfg::V_DISPLAY_RES_X, CANVAS_WIDTH);
+    windowH = ConfigMgr::get("V", cfg::V_DISPLAY_RES_Y, CANVAS_HEIGHT);
+    renderW = ConfigMgr::get("V", cfg::V_RES_X, CANVAS_WIDTH);
+    renderH = ConfigMgr::get("V", cfg::V_RES_Y, CANVAS_HEIGHT);
+
+    graphics_resize_window(windowW, windowH);
     graphics_change_window_mode(imgui_video_mode);
     graphics_change_vsync(imgui_video_vsync);
-    return false;
+
+    graphics_set_canvas_scale((double)windowW / renderW, (double)windowH / renderH);
+
+    return true;
 }
 
 bool SceneSelect::_imguiRefreshAudioDevices()

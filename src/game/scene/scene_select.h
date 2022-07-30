@@ -80,6 +80,8 @@ private:
     bool _closeAllPanels(const Time& t);
 
 private:
+    void _imguiInit();
+
     // imgui Dialogs
     void _imguiSampleDialog();
     void _imguiSettings();
@@ -88,6 +90,7 @@ private:
     void _imguiRefreshProfileList();
     void _imguiRefreshFolderList();
     void _imguiRefreshVideoResolutionList();
+    void _imguiRefreshVideoDisplayResolutionList();
     void _imguiCheckSettings();
 
     // buttons
@@ -109,6 +112,12 @@ private:
     std::list<std::string> imgui_video_resolution;
     std::vector<const char*> imgui_video_resolution_display;
     int old_video_resolution_index, imgui_video_resolution_index;   // 0:480p 1:720p 2:1080p
+
+    std::vector<std::pair<unsigned, unsigned>> imgui_video_display_resolution_size;
+    std::vector<std::string> imgui_video_display_resolution;
+    std::vector<const char*> imgui_video_display_resolution_display;
+    int old_video_display_resolution_index, imgui_video_display_resolution_index;
+
     int old_video_mode, imgui_video_mode;   // 0:windowed 1:fullscreen 2:borderless
     bool imgui_video_vsync;
     int imgui_video_maxFPS;

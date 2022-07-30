@@ -14,7 +14,7 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
     _skin = SkinMgr::get(mode);
 
     int notificationPosY = ConfigMgr::General()->get(cfg::V_RES_Y, CANVAS_HEIGHT);
-    int notificationWidth = ConfigMgr::General()->get(cfg::V_RES_X, CANVAS_HEIGHT);
+    int notificationWidth = ConfigMgr::General()->get(cfg::V_RES_X, CANVAS_WIDTH);
     const int notificationHeight = 24;
 #if defined _WIN32
     TCHAR windir[MAX_PATH];

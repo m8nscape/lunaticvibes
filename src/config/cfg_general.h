@@ -50,6 +50,8 @@ namespace cfg {
 
 	constexpr char V_RES_X[] = "ResolutionX";
 	constexpr char V_RES_Y[] = "ResolutionY";
+    constexpr char V_DISPLAY_RES_X[] = "DisplayResolutionX";
+    constexpr char V_DISPLAY_RES_Y[] = "DisplayResolutionY";
 
 	constexpr char V_WINMODE[] = "WindowMode";
     constexpr char V_WINMODE_FULL[] = "FullScreen";

@@ -258,57 +258,7 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
     SoundMgr::stopSamples();
     SoundMgr::playSample(eSoundSample::BGM_SELECT);
 
-    // init imgui
-    _imguiRefreshProfileList();
-    old_profile_index = imgui_profile_index;
-
-    _imguiRefreshFolderList();
-
-    _imguiRefreshVideoResolutionList();
-    auto resolutionY = ConfigMgr::get("V", cfg::V_RES_Y, CANVAS_HEIGHT);
-    if (resolutionY == 720)
-        imgui_video_resolution_index = 1;
-    else if (resolutionY == 1080)
-        imgui_video_resolution_index = 2;
-    else if (resolutionY == 1440)
-        imgui_video_resolution_index = 3;
-    else if (resolutionY == 2160)
-        imgui_video_resolution_index = 4;
-    else
-        imgui_video_resolution_index = 0;
-    old_video_resolution_index = imgui_video_resolution_index;
-
-    auto winMode = ConfigMgr::get("V", cfg::V_WINMODE, cfg::V_WINMODE_WINDOWED);
-    if (winMode == cfg::V_WINMODE_FULL)
-        imgui_video_mode = 1;
-    else if (winMode == cfg::V_WINMODE_BORDERLESS)
-        imgui_video_mode = 2;
-    else
-        imgui_video_mode = 0;
-    old_video_mode = imgui_video_mode;
-
-    imgui_video_vsync = ConfigMgr::get("V", cfg::V_VSYNC, false);
-    imgui_video_maxFPS = ConfigMgr::get("V", cfg::V_MAXFPS, 240);
-
-    imgui_audio_checkASIODevices = ConfigMgr::get("A", cfg::A_MODE, cfg::A_MODE_ASIO) == cfg::A_MODE_ASIO;
-    imgui_audio_bufferCount = ConfigMgr::get("A", cfg::A_BUFCOUNT, 2);
-    imgui_audio_bufferSize = ConfigMgr::get("A", cfg::A_BUFLEN, 256);
-    _imguiRefreshAudioDevices();
-    old_audio_device_index = imgui_audio_device_index;
-
-    imgui_adv_scrollSpeed[0] = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_INITIAL, 300);
-    imgui_adv_scrollSpeed[1] = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);
-    imgui_adv_missBGATime = ConfigMgr::get("P", cfg::P_MISSBGA_LENGTH, 500);
-    imgui_adv_minInputInterval = ConfigMgr::get("P", cfg::P_MIN_INPUT_INTERVAL, 16);
-    imgui_adv_newSongDuration = ConfigMgr::get("P", cfg::P_NEW_SONG_DURATION, 24);
-    imgui_adv_mouseAnalog = ConfigMgr::get("P", cfg::P_MOUSE_ANALOG, false);
-    imgui_adv_relativeAxis = ConfigMgr::get("P", cfg::P_RELATIVE_AXIS, false);
-
-    // auto popup settings for first runs
-    if (imgui_folders.empty())
-    {
-        imguiShow = true;
-    }
+    _imguiInit();
 }
 
 SceneSelect::~SceneSelect()

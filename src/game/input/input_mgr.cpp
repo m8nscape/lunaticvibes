@@ -3,6 +3,7 @@
 #include "input_rawinput.h"
 #include "common/sysutil.h"
 #include "config/config_mgr.h"
+#include "game/graphics/graphics.h"
 
 InputMgr InputMgr::_inst;
 
@@ -201,5 +202,13 @@ std::map<Input::Pad, std::pair<double, int>> InputMgr::detectRelativeAxis()
 
 bool InputMgr::getMousePos(int& x, int& y)
 {
-    return getMouseCursorPos(x, y);
+    bool ret = getMouseCursorPos(x, y);
+    if (ret)
+    {
+        double canvasScaleX = graphics_get_canvas_scale_x();
+        double canvasScaleY = graphics_get_canvas_scale_y();
+        if (canvasScaleX != 1.0) x = (int)std::floor(x / canvasScaleX);
+        if (canvasScaleY != 1.0) y = (int)std::floor(y / canvasScaleY);
+    }
+    return ret;
 }
