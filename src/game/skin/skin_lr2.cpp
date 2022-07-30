@@ -2560,7 +2560,7 @@ void SkinLR2::IF(const Tokens &t, std::ifstream& lr2skin)
                 // end #IF process
                 return;
             }
-            else if (isElseStmt || strEqual(*tokens.begin(), "#ELSEIF", true))
+            else if (isElseStmt || strEqual(*tokens.begin(), "#ELSEIF", true) || strEqual(*tokens.begin(), "#ELSE", true))
             {
                 ifBlockEnded = true;
             }

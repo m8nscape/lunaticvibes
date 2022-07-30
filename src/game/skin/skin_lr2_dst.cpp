@@ -138,8 +138,8 @@ void updateDstOpt()
 
 	// 32 autoplay off
 	// 33 autoplay on
-	set(32, true);
-	set(33, false);
+	set(32, !gSwitches.get(eSwitch::SYSTEM_AUTOPLAY));
+	set(33, gSwitches.get(eSwitch::SYSTEM_AUTOPLAY));
 
 	// 34 ghost off
 	// 35 ghost typeA
