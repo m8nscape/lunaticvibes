@@ -9,10 +9,12 @@
 
 int InitLogger()
 {
-//#if _DEBUG
     static auto appender = plog::ColorConsoleAppender<plog::TxtFormatterImpl<false>>();
+#if _DEBUG
     plog::init(plog::debug, &appender);
-//#else
+#else
+    plog::init(plog::info, &appender);
+#endif
     /*
     char buf[128] = { 0 };
     std::time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
@@ -22,7 +24,6 @@ int InitLogger()
     static auto txtAppender = plog::RollingFileAppender<plog::TxtFormatterImpl<false>>{ logfile.str().c_str(), 1000000, 5 };
     plog::init(plog::info, &txtAppender);
     */
-//#endif
     return 0;
 }
 

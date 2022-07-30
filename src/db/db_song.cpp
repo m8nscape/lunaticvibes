@@ -628,40 +628,44 @@ int SongDB::refreshFolder(const HashMD5& hash, const Path& path, FolderType type
 int SongDB::handleAddChartBuffer()
 {
     int count = 0;
-    BS::thread_pool& pool = DBThreadPool[this];
-    std::list<std::future<int>> futureList;
 
-    for (auto& [hash, f] : addChartBuffer)
+    BS::thread_pool& pool = DBThreadPool[this];
+
+    unsigned finishedTaskCount = 0;
+    for (auto& chart : addChartBuffer)
     {
+        HashMD5 hash = chart.first;
+        Path path = chart.second;
         using namespace std::placeholders;
 
-        futureList.push_back(pool.submit(std::bind(&SongDB::addChart, this, _1, _2), hash, f));
+        pool.submit([&, hash, path]()
+            {
+                try
+                {
+                    if (addChart(hash, path) == 0)
+                        count++;
+                }
+                catch (...)
+                {
+                }
+                finishedTaskCount++;
+            });
     }
     while (true)
     {
         using namespace std::chrono_literals;
 
-        bool unfinished = false;
-        for (auto& f : futureList)
+        if (finishedTaskCount != addChartBuffer.size())
         {
-            if (f.valid())
-            {
-                if (f.get() == 0) count++;
-            }
-            else
-            {
-                unfinished = true;
-            }
-        }
-        if (unfinished)
-        {
-            std::this_thread::sleep_for(1s);
+            std::this_thread::sleep_for(100ms);
         }
         else
         {
             break;
         }
     }
+
+    addChartBuffer.clear();
 
     return count;
 }
