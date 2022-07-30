@@ -89,7 +89,8 @@ int BMS::initWithFile(const Path& file)
 
     auto encoding = getFileEncoding(absolutePath);
 
-    // TODO 天国的PARSER！！！
+    // 拉面早就看出bms有多难读，直接鸽了我5年
+
     // SUPER LAZY PARSER FOR TESTING
 
     StringContent buf;
