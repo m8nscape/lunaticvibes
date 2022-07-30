@@ -259,7 +259,7 @@ void RulesetBMSAuto::update(const Time& t)
 
     unsigned max = _chart->getNoteCount() * 2;
     _basic.total_acc = 100.0 * _basic.score2 / max;
-    _basic.acc = _basic.totaln ? (100.0 * _basic.score2 / _basic.totaln / 2) : 0;
+    _basic.acc = _basic.totaln ? (100.0 * _basic.score2 / _basic.totaln) : 0;
     _basic.score = int(std::round(inner_score));
 
     updateGlobals();
