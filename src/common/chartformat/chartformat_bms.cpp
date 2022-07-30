@@ -682,10 +682,30 @@ int BMS::strToLane36(channel& ch, const StringContent& str)
         length++;
     }
 
-    ch.resolution = static_cast<unsigned>(length / 2);
-    for (unsigned i = 0; i < ch.resolution; i++)
-        if (unsigned sample = base36(str[i * 2], str[i * 2 + 1]))
-            ch.notes.push_back({ i, sample });
+    unsigned resolution = static_cast<unsigned>(length / 2);
+    unsigned scale = ch.relax(resolution) / resolution;
+    for (unsigned i = 0; i < resolution; i++)
+    {
+        unsigned segment = i * scale;
+        unsigned value = base36(str[i * 2], str[i * 2 + 1]);
+        if (value == 0) continue;
+
+        bool noteInserted = false;
+        for (auto it = ch.notes.begin(); it != ch.notes.end(); ++it)
+        {
+            if (it->segment > segment || (it->segment == segment && it->value > value))
+            {
+                ch.notes.insert(it, { segment, value });
+                noteInserted = true;
+                break;
+            }
+        }
+        if (!noteInserted)
+        {
+            ch.notes.push_back({ segment, value });
+        }
+    }
+
     return 0;
 }
 
@@ -706,10 +726,30 @@ int BMS::strToLane16(channel& ch, const StringContent& str)
         length++;
     }
 
-    ch.resolution = static_cast<unsigned>(length / 2);
-    for (unsigned i = 0; i < ch.resolution; i++)
-        if (unsigned sample = base16(str[i * 2], str[i * 2 + 1]))
-            ch.notes.push_back({ i, sample });
+    unsigned resolution = static_cast<unsigned>(length / 2);
+    unsigned scale = ch.relax(resolution) / resolution;
+    for (unsigned i = 0; i < resolution; i++)
+    {
+        unsigned segment = i * scale;
+        unsigned value = base36(str[i * 2], str[i * 2 + 1]);
+        if (value == 0) continue;
+
+        bool noteInserted = false;
+        for (auto it = ch.notes.begin(); it != ch.notes.end(); ++it)
+        {
+            if (it->segment > segment || (it->segment == segment && it->value > value))
+            {
+                ch.notes.insert(it, { segment, value });
+                noteInserted = true;
+                break;
+            }
+        }
+        if (!noteInserted)
+        {
+            ch.notes.push_back({ segment, value });
+        }
+    }
+
     return 0;
 }
 
