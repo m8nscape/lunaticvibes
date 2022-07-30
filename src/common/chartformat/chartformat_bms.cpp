@@ -199,12 +199,14 @@ int BMS::initWithFile(const Path& file)
                     continue;
             }
 
-            auto colon_idx = buf.find_first_of(':');
-
-            if (colon_idx != buf.npos)
+            static const std::regex regexNotes = std::regex(R"(\d{3}[0-9A-Za-z]{2}:)", prebuiltRegexFlags);
+            bool isNoteDef = false;
+            if (std::regex_match(buf.substr(1, 6), regexNotes))
             {
-                StringContent key = buf.substr(1, colon_idx - 1);
-                StringContent value = buf.substr(colon_idx + 1);
+                auto colon_idx = buf.find_first_of(':');
+                StringContent key = buf.substr(1, 5);
+                StringContent value = buf.substr(7);
+
                 if (value.empty())
                 {
                     LOG_WARNING << "[BMS] Empty note line detected: line " << srcLine;
@@ -213,99 +215,93 @@ int BMS::initWithFile(const Path& file)
                     return 1;
                 }
 
-                static const std::regex regexNotes = std::regex(R"(\d{3}[0-9A-Za-z]{2})", prebuiltRegexFlags);
+                unsigned bar = toInt(key.substr(0, 3));
+                if (lastBarIdx < bar) lastBarIdx = bar;
 
-                // lastBarIdx & channels
-                if (std::regex_match(key, regexNotes))
+                int layer = base36(key[3]);
+                int ch = base36(key[4]);
+
+                if (layer == 0) // 0x: basic info
                 {
-                    unsigned bar = toInt(key.substr(0, 3));
-                    if (lastBarIdx < bar) lastBarIdx = bar;
-
-                    int layer = base36(key[3]);
-                    int ch = base36(key[4]);
-
-                    if (layer == 0) // 0x: basic info
+                    switch (ch)
                     {
-                        switch (ch)
+                    case 1:            // 01: BGM
+                        if (bgmLayersCount[bar] >= chBGM.size())
                         {
-                        case 1:            // 01: BGM
-                            if (bgmLayersCount[bar] >= chBGM.size())
-                            {
-                                chBGM.emplace_back();
-                                strToLane36(chBGM.back()[bar], value);
-                            }
-                            else
-                            {
-                                strToLane36(chBGM[bgmLayersCount[bar]][bar], value);
-                            }
-                            ++bgmLayersCount[bar];
-                            break;
-
-                        case 2:            // 02: Bar Length
-                            metres[bar] = toDouble(value);
-                            haveMetricMod = true;
-                            break;
-
-                        case 3:            // 03: BPM change
-                            strToLane16(chBPMChange[bar], value);
-                            haveBPMChange = true;
-                            break;
-
-                        case 4:            // 04: BGA Base
-                            strToLane36(chBGABase[bar], value);
-                            haveBGA = true;
-                            break;
-
-                        case 6:            // 06: BGA Poor
-                            strToLane36(chBGAPoor[bar], value);
-                            haveBGA = true;
-                            break;
-
-                        case 7:            // 07: BGA Layer
-                            strToLane36(chBGALayer[bar], value);
-                            haveBGA = true;
-                            break;
-
-                        case 8:            // 08: ExBPM
-                            strToLane36(chExBPMChange[bar], value);
-                            haveBPMChange = true;
-                            break;
-
-                        case 9:            // 09: Stop
-                            strToLane36(chStop[bar], value);
-                            haveStop = true;
-                            break;
+                            chBGM.emplace_back();
+                            strToLane36(chBGM.back()[bar], value);
                         }
+                        else
+                        {
+                            strToLane36(chBGM[bgmLayersCount[bar]][bar], value);
+                        }
+                        ++bgmLayersCount[bar];
+                        break;
+
+                    case 2:            // 02: Bar Length
+                        metres[bar] = toDouble(value);
+                        haveMetricMod = true;
+                        break;
+
+                    case 3:            // 03: BPM change
+                        strToLane16(chBPMChange[bar], value);
+                        haveBPMChange = true;
+                        break;
+
+                    case 4:            // 04: BGA Base
+                        strToLane36(chBGABase[bar], value);
+                        haveBGA = true;
+                        break;
+
+                    case 6:            // 06: BGA Poor
+                        strToLane36(chBGAPoor[bar], value);
+                        haveBGA = true;
+                        break;
+
+                    case 7:            // 07: BGA Layer
+                        strToLane36(chBGALayer[bar], value);
+                        haveBGA = true;
+                        break;
+
+                    case 8:            // 08: ExBPM
+                        strToLane36(chExBPMChange[bar], value);
+                        haveBPMChange = true;
+                        break;
+
+                    case 9:            // 09: Stop
+                        strToLane36(chStop[bar], value);
+                        haveStop = true;
+                        break;
                     }
-                    else // layer != 0
+                }
+                else // layer != 0
+                {
+                    auto [area, idx] = normalizeIndexesBME(layer, ch);
+                    assert(area < sizeof(chNotesRegular.lanes) / sizeof(chNotesRegular.lanes[0]));
+                    assert(idx < sizeof(chNotesRegular.lanes[0]) / sizeof(chNotesRegular.lanes[0][0]));
+                    assert(bar < sizeof(chNotesRegular.lanes[0][0]) / sizeof(chNotesRegular.lanes[0][0][0]));
+                    switch (layer)
                     {
-                        auto [area, idx] = normalizeIndexesBME(layer, ch);
-                        assert(area < sizeof(chNotesRegular.lanes) / sizeof(chNotesRegular.lanes[0]));
-                        assert(idx < sizeof(chNotesRegular.lanes[0]) / sizeof(chNotesRegular.lanes[0][0]));
-                        assert(bar < sizeof(chNotesRegular.lanes[0][0]) / sizeof(chNotesRegular.lanes[0][0][0]));
-                        switch (layer)
-                        {
-                        case 1:            // 1x: 1P visible
-                        case 2:            // 2x: 2P visible
-                            strToLane36(chNotesRegular.lanes[area][idx][bar], value);
-                            haveNote = true;
-                            break;
-                        case 3:            // 3x: 1P invisible
-                        case 4:            // 4x: 2P invisible
-                            strToLane36(chNotesInvisible.lanes[area][idx][bar], value);
-                            haveInvisible = true;
-                            break;
-                        case 5:            // 5x: 1P LN
-                        case 6:            // 6x: 2P LN
-                            strToLane36(chNotesLN.lanes[area][idx][bar], value);
-                            haveLN = true;
-                            break;
-                        case 0xD:        // Dx: 1P mine
-                        case 0xE:        // Ex: 2P mine
-                            strToLane36(chMines.lanes[area][idx][bar], value);
-                            haveMine = true;
-                            break;
-                        }
+                    case 1:            // 1x: 1P visible
+                    case 2:            // 2x: 2P visible
+                        strToLane36(chNotesRegular.lanes[area][idx][bar], value);
+                        haveNote = true;
+                        break;
+                    case 3:            // 3x: 1P invisible
+                    case 4:            // 4x: 2P invisible
+                        strToLane36(chNotesInvisible.lanes[area][idx][bar], value);
+                        haveInvisible = true;
+                        break;
+                    case 5:            // 5x: 1P LN
+                    case 6:            // 6x: 2P LN
+                        strToLane36(chNotesLN.lanes[area][idx][bar], value);
+                        haveLN = true;
+                        break;
+                    case 0xD:        // Dx: 1P mine
+                    case 0xE:        // Ex: 2P mine
+                        strToLane36(chMines.lanes[area][idx][bar], value);
+                        haveMine = true;
+                        break;
                     }
                 }
             }

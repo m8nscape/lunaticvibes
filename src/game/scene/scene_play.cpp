@@ -65,35 +65,106 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     _inputAvailable = INPUT_MASK_FUNC;
     _inputAvailable |= INPUT_MASK_1P | INPUT_MASK_2P;
 
-    // file loading may delayed
-
     _state = ePlayState::PREPARE;
 
-	if (gChartContext.chartObj == nullptr)
-	{
+    if (gChartContext.chartObj == nullptr || !gChartContext.chartObj->isLoaded())
+    {
+        if (gChartContext.path.empty())
+        {
+            LOG_ERROR << "[Play] Chart not specified!";
+            return;
+        }
 
-	}
+        gChartContext.chartObj = vChartFormat::createFromFile(gChartContext.path);
+    }
+
+    if (gChartContext.chartObj == nullptr || !gChartContext.chartObj->isLoaded())
+    {
+        LOG_ERROR << "[Play] Invalid chart: " << gChartContext.path.u8string();
+        gNextScene = eScene::SELECT;
+
+        return;
+    }
+    gChartContext.title = gChartContext.chartObj->title;
+    gChartContext.title2 = gChartContext.chartObj->title2;
+    gChartContext.artist = gChartContext.chartObj->artist;
+    gChartContext.artist2 = gChartContext.chartObj->artist2;
+    gChartContext.genre = gChartContext.chartObj->genre;
+    gChartContext.minBPM = gChartContext.chartObj->minBPM;
+    gChartContext.startBPM = gChartContext.chartObj->startBPM;
+    gChartContext.maxBPM = gChartContext.chartObj->maxBPM;
+
+    //load chart object from Chart object
+    switch (gChartContext.chartObj->type())
+    {
+    case eChartFormat::BMS:
+    {
+        auto bms = std::reinterpret_pointer_cast<BMS>(gChartContext.chartObj);
+        // TODO mods
+
+        if (isPlaymodeAuto())
+        {
+            gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<chartBMS>(PLAYER_SLOT_1P, bms);
+        }
+        else
+        {
+            if (isPlaymodeBattle())
+            {
+                gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<chartBMS>(PLAYER_SLOT_1P, bms);
+                gPlayContext.chartObj[PLAYER_SLOT_2P] = std::make_shared<chartBMS>(PLAYER_SLOT_2P, bms);
+            }
+            else
+            {
+                gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<chartBMS>(PLAYER_SLOT_1P, bms);
+                gPlayContext.chartObj[PLAYER_SLOT_2P] = std::make_shared<chartBMS>(PLAYER_SLOT_1P, bms);    // create for rival; loading with 1P options
+            }
+        }
+        _chartLoaded = true;
+        gNumbers.set(eNumber::PLAY_REMAIN_MIN, int(gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() / 1000 / 60));
+        gNumbers.set(eNumber::PLAY_REMAIN_SEC, int(gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() / 1000 % 60));
+        break;
+    }
+
+    case eChartFormat::BMSON:
+    default:
+        LOG_WARNING << "[Play] chart format not supported.";
+        gNextScene = eScene::SELECT;
+        return;
+    }
+
+    gPlayContext.remainTime = gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength();
 
 	// global info
 
     // basic info
-    gTexts.set(eText::PLAY_TITLE, gChartContext.title);
-    gTexts.set(eText::PLAY_SUBTITLE, gChartContext.title2);
+    gTexts.queue(eText::PLAY_TITLE, gChartContext.title);
+    gTexts.queue(eText::PLAY_SUBTITLE, gChartContext.title2);
     if (gChartContext.title2.empty())
         gTexts.queue(eText::PLAY_FULLTITLE, gChartContext.title);
     else
         gTexts.queue(eText::PLAY_FULLTITLE, gChartContext.title + " " + gChartContext.title2);
-    gTexts.set(eText::PLAY_ARTIST, gChartContext.artist);
-    gTexts.set(eText::PLAY_SUBARTIST, gChartContext.artist2);
-    gTexts.set(eText::PLAY_GENRE, gChartContext.genre);
-    gNumbers.set(eNumber::PLAY_BPM, int(std::round(gChartContext.startBPM)));
-    gNumbers.set(eNumber::BPM_MIN, int(std::round(gChartContext.minBPM)));
-    gNumbers.set(eNumber::BPM_MAX, int(std::round(gChartContext.maxBPM)));
+    gTexts.queue(eText::PLAY_ARTIST, gChartContext.artist);
+    gTexts.queue(eText::PLAY_SUBARTIST, gChartContext.artist2);
+    gTexts.queue(eText::PLAY_GENRE, gChartContext.genre);
+    gNumbers.queue(eNumber::PLAY_BPM, int(std::round(gChartContext.startBPM)));
+    gNumbers.queue(eNumber::BPM_MIN, int(std::round(gChartContext.minBPM)));
+    gNumbers.queue(eNumber::BPM_MAX, int(std::round(gChartContext.maxBPM)));
 
     // player datas
+    gNumbers.queue(eNumber::RESULT_MYBEST_EX, 0);
+    gNumbers.queue(eNumber::RESULT_MYBEST_DIFF, 0);
+    gNumbers.queue(eNumber::RESULT_MYBEST_RATE, 0);
+    gNumbers.queue(eNumber::RESULT_MYBEST_RATE_DECIMAL2, 0);
+    gBargraphs.queue(eBargraph::PLAY_MYBEST, 0.0);
+    gBargraphs.queue(eBargraph::PLAY_MYBEST_NOW, 0.0);
+
+    gTexts.flush();
+    gNumbers.flush();
+    gBargraphs.flush();
 
     // set gauge type
     if (gChartContext.chartObj)
+    {
         switch (gChartContext.chartObj->type())
         {
         case eChartFormat::BMS:
@@ -103,6 +174,8 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         default:
             break;
         }
+    }
+
 
     {
         using namespace std::string_literals;
@@ -216,71 +289,6 @@ void ScenePlay::setTempInitialHealthBMS()
 
 void ScenePlay::loadChart()
 {
-    if (gChartContext.chartObj == nullptr || !gChartContext.chartObj->isLoaded())
-    {
-        if (gChartContext.path.empty())
-        {
-            LOG_ERROR << "[Play] Chart not specified!";
-            return;
-        }
-
-        gChartContext.chartObj = vChartFormat::createFromFile(gChartContext.path);
-    }
-
-    if (gChartContext.chartObj == nullptr || !gChartContext.chartObj->isLoaded())
-    {
-        LOG_ERROR << "[Play] Invalid chart: " << gChartContext.path.u8string();
-        return;
-    }
-
-    gChartContext.title = gChartContext.chartObj->title;
-    gChartContext.title2 = gChartContext.chartObj->title2;
-    gChartContext.artist = gChartContext.chartObj->artist;
-    gChartContext.artist2 = gChartContext.chartObj->artist2;
-    gChartContext.genre = gChartContext.chartObj->genre;
-    gChartContext.minBPM = gChartContext.chartObj->minBPM;
-    gChartContext.startBPM = gChartContext.chartObj->startBPM;
-    gChartContext.maxBPM = gChartContext.chartObj->maxBPM;
-
-    //load chart object from Chart object
-    switch (gChartContext.chartObj->type())
-    {
-    case eChartFormat::BMS:
-    {
-        auto bms = std::reinterpret_pointer_cast<BMS>(gChartContext.chartObj);
-        // TODO mods
-
-        if (isPlaymodeAuto())
-        {
-            gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<chartBMS>(PLAYER_SLOT_1P, bms);
-        }
-        else
-        {
-            if (isPlaymodeBattle())
-            {
-                gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<chartBMS>(PLAYER_SLOT_1P, bms);
-                gPlayContext.chartObj[PLAYER_SLOT_2P] = std::make_shared<chartBMS>(PLAYER_SLOT_2P, bms);
-            }
-            else
-            {
-                gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<chartBMS>(PLAYER_SLOT_1P, bms);
-                gPlayContext.chartObj[PLAYER_SLOT_2P] = std::make_shared<chartBMS>(PLAYER_SLOT_1P, bms);    // create for rival; loading with 1P options
-            }
-        }
-        _chartLoaded = true;
-        gNumbers.set(eNumber::PLAY_REMAIN_MIN, int(gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() / 1000 / 60));
-        gNumbers.set(eNumber::PLAY_REMAIN_SEC, int(gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() / 1000 % 60));
-        break;
-    }
-
-    case eChartFormat::BMSON:
-    default:
-		LOG_WARNING << "[Play] chart format not supported.";
-        return;
-    }
-
-    gPlayContext.remainTime = gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength();
-
     // build Ruleset object
     switch (gPlayContext.rulesetType)
     {
