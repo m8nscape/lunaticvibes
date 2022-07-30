@@ -571,7 +571,7 @@ int BMS::initWithFile(const Path& file)
                             bool resetItNote = (itNote == noteList.begin());
                             if (!resetItNote) itPrev--;
                             chNotesRegular.lanes[area][ch][bar_curr].notes.erase(itNote);
-                            itNote = resetItNote ? noteList.begin() : itPrev++;
+                            itNote = resetItNote ? noteList.begin() : ++itPrev;
 
                             bar_head = 0;
                             resolution_head = 1;
@@ -586,82 +586,6 @@ int BMS::initWithFile(const Path& file)
 
                             ++itNote;
                         }
-                    }
-                }
-            }
-        }
-    }
-    // pick LNs out of notes for each lane
-    for (int area = 0; area < 2; ++area)
-    {
-        // LN head defined with #0004x
-        for (size_t ch = 0; ch < PlayAreaLanes::LANE_COUNT; ++ch)
-        {
-            decltype(chNotesLN.lanes[0][ch][0].notes.begin()) it_head;
-            decltype(&chNotesLN.lanes[0][ch][0].notes) notes_head = nullptr;
-            unsigned resolution_head = 1;
-            unsigned bar_head = 0;
-            unsigned bar_curr = 0;
-
-            // find next LN head
-            for (; bar_curr <= lastBarIdx; bar_curr++)
-            {
-                if (!chNotesLN.lanes[area][ch][bar_curr].notes.empty())
-                {
-                    notes_head = &chNotesRegular.lanes[area][ch][bar_curr].notes;
-                    it_head = notes_head->begin();
-                    resolution_head = chNotesRegular.lanes[area][ch][bar_curr].resolution;
-                    bar_head = bar_curr;
-                    break;
-                }
-            }
-            if (!notes_head) continue;
-
-            // find next LN note as LN tail
-            for (; bar_curr <= lastBarIdx; bar_curr++)
-            {
-                auto& notes_tail = chNotesRegular.lanes[area][ch][bar_curr].notes;
-                unsigned res_tail = chNotesRegular.lanes[area][ch][bar_curr].resolution;
-                if (notes_tail.empty()) continue;
-
-                auto it_tail = notes_tail.begin();
-                while (it_tail != notes_tail.end())
-                {
-                    if (notes_head && it_head == notes_head->end())
-                    {
-                        notes_head = &notes_tail;
-                        it_head = notes_head->begin();
-                        resolution_head = res_tail;
-                        bar_head = bar_curr;
-                    }
-
-                    if (notes_head == &notes_tail && it_head == it_tail)
-                    {
-                        ++it_tail;
-                        continue;
-                    }
-
-                    if (lnobjSet.count(it_tail->value) > 0)
-                    {
-                        it_head->segment *= chNotesLN.lanes[area][ch][bar_head].relax(resolution_head) / resolution_head;
-                        chNotesLN.lanes[area][ch][bar_head].notes.push_back(*it_head);
-                        auto tmp1 = it_head++;
-                        notes_head->erase(tmp1);
-
-                        if (notes_head == &notes_tail && it_head == it_tail)
-                            ++it_head;
-
-                        it_tail->segment *= chNotesLN.lanes[area][ch][bar_curr].relax(res_tail) / res_tail;
-                        chNotesLN.lanes[area][ch][bar_curr].notes.push_back(*it_tail);
-                        auto tmp2 = it_tail++;
-                        notes_tail.erase(tmp2);
-
-                        haveLN = true;
-                    }
-                    else
-                    {
-                        ++it_head;
-                        ++it_tail;
                     }
                 }
             }
