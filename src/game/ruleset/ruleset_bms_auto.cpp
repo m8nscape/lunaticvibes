@@ -234,23 +234,26 @@ void RulesetBMSAuto::update(const Time& t)
                 }
             }
 
-            if (t.norm() - gTimers.get(InputGamePressMapSingle[k].tm) > 100 && !isPressingLN[k])
+            if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P)
             {
-                gTimers.set(InputGamePressMapSingle[k].tm, TIMER_NEVER);
-                gTimers.set(InputGameReleaseMapSingle[k].tm, t.norm());
-                gSwitches.set(InputGameReleaseMapSingle[k].sw, false);
+                if (t.norm() - gTimers.get(InputGamePressMapSingle[k].tm) > 100 && !isPressingLN[k])
+                {
+                    gTimers.set(InputGamePressMapSingle[k].tm, TIMER_NEVER);
+                    gTimers.set(InputGameReleaseMapSingle[k].tm, t.norm());
+                    gSwitches.set(InputGameReleaseMapSingle[k].sw, false);
 
-                if (k == Input::S1L || k == Input::S1R)
-                {
-                    gTimers.set(eTimer::S1_DOWN, TIMER_NEVER);
-                    gTimers.set(eTimer::S1_UP, t.norm());
-                    gSwitches.set(eSwitch::S1_DOWN, false);
-                }
-                if (k == Input::S2L || k == Input::S2R)
-                {
-                    gTimers.set(eTimer::S2_DOWN, TIMER_NEVER);
-                    gTimers.set(eTimer::S2_UP, t.norm());
-                    gSwitches.set(eSwitch::S2_DOWN, false);
+                    if (k == Input::S1L || k == Input::S1R)
+                    {
+                        gTimers.set(eTimer::S1_DOWN, TIMER_NEVER);
+                        gTimers.set(eTimer::S1_UP, t.norm());
+                        gSwitches.set(eSwitch::S1_DOWN, false);
+                    }
+                    if (k == Input::S2L || k == Input::S2R)
+                    {
+                        gTimers.set(eTimer::S2_DOWN, TIMER_NEVER);
+                        gTimers.set(eTimer::S2_UP, t.norm());
+                        gSwitches.set(eSwitch::S2_DOWN, false);
+                    }
                 }
             }
         }

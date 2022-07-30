@@ -504,6 +504,94 @@ int BMS::initWithFile(const Path& file)
     // pick LNs out of notes for each lane
     for (int area = 0; area < 2; ++area)
     {
+        // LN head defined with #0001x
+        if (!lnobjSet.empty())
+        {
+            for (size_t ch = 0; ch < PlayAreaLanes::LANE_COUNT; ++ch)
+            {
+                decltype(chNotesRegular.lanes[0][ch][0].notes.begin()) LNhead;
+                unsigned bar_head = 0;
+                unsigned resolution_head = 1;
+                unsigned bar_curr = 0;
+                bool hasHead = false;
+
+                // find next LN head
+                for (; bar_curr <= lastBarIdx; bar_curr++)
+                {
+                    if (chNotesRegular.lanes[area][ch][bar_curr].notes.empty()) continue;
+
+                    auto& noteList = chNotesRegular.lanes[area][ch][bar_curr].notes;
+                    auto itNote = noteList.begin();
+                    while (itNote != noteList.end())
+                    {
+                        if (lnobjSet.count(itNote->value) > 0 && hasHead)
+                        {
+                            unsigned segment = LNhead->segment * chNotesLN.lanes[area][ch][bar_head].relax(resolution_head) / resolution_head;
+                            unsigned value = LNhead->value;
+                            bool headInserted = false;
+                            for (auto it = chNotesLN.lanes[area][ch][bar_head].notes.begin(); it != chNotesLN.lanes[area][ch][bar_head].notes.end(); ++it)
+                            {
+                                if (it->segment > segment || (it->segment == segment && it->value > value))
+                                {
+                                    chNotesLN.lanes[area][ch][bar_head].notes.insert(it, { segment, value });
+                                    headInserted = true;
+                                    break;
+                                }
+                            }
+                            if (!headInserted)
+                            {
+                                chNotesLN.lanes[area][ch][bar_head].notes.push_back({ segment, value });
+                            }
+
+                            unsigned resolution_tail = chNotesRegular.lanes[area][ch][bar_curr].resolution;
+                            unsigned segment2 = itNote->segment * chNotesLN.lanes[area][ch][bar_curr].relax(resolution_tail) / resolution_tail;
+                            unsigned value2 = itNote->value;
+                            bool tailInserted = false;
+                            for (auto it = chNotesLN.lanes[area][ch][bar_curr].notes.begin(); it != chNotesLN.lanes[area][ch][bar_curr].notes.end(); ++it)
+                            {
+                                if (it->segment > segment || (it->segment == segment && it->value > value))
+                                {
+                                    chNotesLN.lanes[area][ch][bar_curr].notes.insert(it, { segment2, value2 });
+                                    tailInserted = true;
+                                    break;
+                                }
+                            }
+                            if (!tailInserted)
+                            {
+                                chNotesLN.lanes[area][ch][bar_curr].notes.push_back({ segment2, value2 });
+                            }
+
+                            haveLN = true;
+
+                            chNotesRegular.lanes[area][ch][bar_head].notes.erase(LNhead);
+                            auto itPrev = itNote;
+                            bool resetItNote = (itNote == noteList.begin());
+                            if (!resetItNote) itPrev--;
+                            chNotesRegular.lanes[area][ch][bar_curr].notes.erase(itNote);
+                            itNote = resetItNote ? noteList.begin() : itPrev++;
+
+                            bar_head = 0;
+                            resolution_head = 1;
+                            hasHead = false;
+                        }
+                        else
+                        {
+                            LNhead = itNote;
+                            bar_head = bar_curr;
+                            resolution_head = chNotesRegular.lanes[area][ch][bar_curr].resolution;
+                            hasHead = true;
+
+                            ++itNote;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    // pick LNs out of notes for each lane
+    for (int area = 0; area < 2; ++area)
+    {
+        // LN head defined with #0004x
         for (size_t ch = 0; ch < PlayAreaLanes::LANE_COUNT; ++ch)
         {
             decltype(chNotesLN.lanes[0][ch][0].notes.begin()) it_head;

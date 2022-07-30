@@ -188,6 +188,7 @@ protected:
     std::map<chart::NoteLane, decltype(_chart->firstNote(chart::NoteLaneCategory::_, chart::NoteLaneIndex::_))> _noteListIterators;
 
     AxisDir _scratchDir[2] = { 0, 0 };
+    bool _scratchKey[2][2] = { {false, false}, {false, false} };
     Time _ttAxisLastUpdate[2] = { TIMER_NEVER, TIMER_NEVER };
 
 public:

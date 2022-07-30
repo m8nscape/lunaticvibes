@@ -654,12 +654,14 @@ void ScenePlay::updatePlaying()
     // play time / remain time
     {
         auto startTime = rt - gTimers.get(eTimer::PLAY_START);
-        auto playtime = rt.norm() / 1000;
-        auto remaintime = gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() / 1000 - playtime;
-        gNumbers.queue(eNumber::PLAY_MIN, int(playtime / 60));
-        gNumbers.queue(eNumber::PLAY_SEC, int(playtime % 60));
-        gNumbers.queue(eNumber::PLAY_REMAIN_MIN, int(remaintime / 60));
-        gNumbers.queue(eNumber::PLAY_REMAIN_SEC, int(remaintime % 60));
+        auto totalTime = gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm();
+        auto playtime_s = rt.norm() / 1000;
+        auto remaintime_s = totalTime / 1000 - playtime_s;
+        gNumbers.queue(eNumber::PLAY_MIN, int(playtime_s / 60));
+        gNumbers.queue(eNumber::PLAY_SEC, int(playtime_s % 60));
+        gNumbers.queue(eNumber::PLAY_REMAIN_MIN, int(remaintime_s / 60));
+        gNumbers.queue(eNumber::PLAY_REMAIN_SEC, int(remaintime_s % 60));
+        gSliders.queue(eSlider::SONG_PROGRESS, (double)rt.norm() / totalTime);
     }
 
     procCommonNotes();
@@ -736,6 +738,7 @@ void ScenePlay::updatePlaying()
     gTimers.flush();
     gNumbers.flush();
     gOptions.flush();
+    gSliders.flush();
 }
 
 void ScenePlay::updateFadeout()
@@ -880,35 +883,63 @@ void ScenePlay::changeKeySampleMapping(const Time& t)
 
     auto changeKeySample = [&](Input::Pad k, int slot)
     {
-        auto idx1 = gPlayContext.chartObj[slot]->getLaneFromKey(chart::NoteLaneCategory::Note, k);
-        HitableNote* pNote1 = nullptr;
-        if (idx1 != chart::NoteLaneIndex::_)
+        chart::NoteLaneIndex idx[3] = { chart::NoteLaneIndex::_, chart::NoteLaneIndex::_, chart::NoteLaneIndex::_ };
+        HitableNote* pNote[3] = { nullptr, nullptr, nullptr };
+        long long time[3] = { TIMER_NEVER, TIMER_NEVER, TIMER_NEVER };
+
+        idx[0] = gPlayContext.chartObj[slot]->getLaneFromKey(chart::NoteLaneCategory::Note, k);
+        if (idx[0] != chart::NoteLaneIndex::_)
         {
-            pNote1 = &*gPlayContext.chartObj[slot]->incomingNote(chart::NoteLaneCategory::Note, idx1);
+            pNote[0] = &*gPlayContext.chartObj[slot]->incomingNote(chart::NoteLaneCategory::Note, idx[0]);
+            time[0] = pNote[0]->time.hres();
         }
 
-        auto idx2 = gPlayContext.chartObj[slot]->getLaneFromKey(chart::NoteLaneCategory::Invs, k);
-        HitableNote* pNote2 = nullptr;
-        if (idx2 != chart::NoteLaneIndex::_)
+        idx[1] = gPlayContext.chartObj[slot]->getLaneFromKey(chart::NoteLaneCategory::LN, k);
+        if (idx[1] != chart::NoteLaneIndex::_)
         {
-            pNote2 = &*gPlayContext.chartObj[slot]->incomingNote(chart::NoteLaneCategory::Invs, idx2);
+            auto itLNNote = gPlayContext.chartObj[slot]->incomingNote(chart::NoteLaneCategory::LN, idx[1]);
+            while (!gPlayContext.chartObj[slot]->isLastNote(chart::NoteLaneCategory::LN, idx[1], itLNNote))
+            {
+                if (!(itLNNote->flags & Note::Flags::LN_TAIL))
+                {
+                    pNote[1] = &*itLNNote;
+                    time[1] = pNote[1]->time.hres();
+                    break;
+                }
+                itLNNote++;
+            }
         }
 
-        HitableNote* pNote = nullptr;
-        if (pNote1 && (pNote2 == nullptr || pNote1->time < pNote2->time))
+        idx[2] = gPlayContext.chartObj[slot]->getLaneFromKey(chart::NoteLaneCategory::Invs, k);
+        if (idx[2] != chart::NoteLaneIndex::_)
         {
-            pNote = pNote1;
+            pNote[2] = &*gPlayContext.chartObj[slot]->incomingNote(chart::NoteLaneCategory::Invs, idx[2]);
+            time[2] = pNote[2]->time.hres();
         }
-        else if (pNote2)
-        {
-            pNote = pNote2;
-        }
-        if (pNote && pNote->time - t <= MIN_REMAP_INTERVAL)
-        {
-            _currentKeySample[(size_t)k] = (size_t)pNote->dvalue;
 
-            if (k == Input::S1L) _currentKeySample[Input::S1R] = (size_t)pNote->dvalue;
-            if (k == Input::S2L) _currentKeySample[Input::S2R] = (size_t)pNote->dvalue;
+        HitableNote* pNoteKey = nullptr;
+        std::vector<std::pair<long long, size_t>> sortTmp;
+        for (size_t i = 0; i < 3; ++i)
+        {
+            sortTmp.push_back(std::make_pair(time[i], i));
+        }
+        std::sort(sortTmp.begin(), sortTmp.end());
+        for (size_t i = 0; i < 3; ++i)
+        {
+            size_t idxNoteKey = sortTmp[i].second;
+            if (pNote[idxNoteKey])
+            {
+                pNoteKey = pNote[idxNoteKey];
+                break;
+            }
+        }
+
+        if (pNoteKey && pNoteKey->time - t <= MIN_REMAP_INTERVAL)
+        {
+            _currentKeySample[(size_t)k] = (size_t)pNoteKey->dvalue;
+
+            if (k == Input::S1L) _currentKeySample[Input::S1R] = (size_t)pNoteKey->dvalue;
+            if (k == Input::S2L) _currentKeySample[Input::S2R] = (size_t)pNoteKey->dvalue;
         }
     };
 
