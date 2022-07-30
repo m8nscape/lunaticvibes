@@ -27,7 +27,7 @@ void RulesetBMSAuto::setTargetRate(double rate)
 {
     targetRate = rate;
     unsigned count = _chart->getNoteCount();
-    unsigned score = (unsigned)std::round(count * rate);
+    unsigned score = (unsigned)std::round(2 * count * rate);
 
     if (rate == 1.0)
     {
@@ -39,14 +39,10 @@ void RulesetBMSAuto::setTargetRate(double rate)
         return;
     }
 
-    // x + y + z = s
-    // 2x + y = 2rs
-    //  =>
-    // x = (2r-1)s + z
     unsigned count0 = 0, count1 = 0, count2 = 0;
-    count0 = unsigned((rate >= 0.8) ? 0 : (0.8 - rate) / 0.8 * count);
-    count2 = count * (2 * rate - 1.0) + count0;
-    count1 = count - count0 - count2;
+    count1 = 2 * count - score;
+    count2 = score - count;
+    count0 = count - count1 - count2;
     totalJudgeCount[JudgeType::PERFECT] = count0;
     totalJudgeCount[JudgeType::GREAT] = count1;
     totalJudgeCount[JudgeType::GOOD] = count2;
@@ -149,9 +145,7 @@ void RulesetBMSAuto::update(const Time& t)
                         const Time& hitTime = judgeTime[(size_t)_diff].BAD;
                         if (!pNote->hit && rt >= pNote->time)
                         {
-                            updateHit(t, idx, noteJudges[judgeIndex++], judgeSide);
                             pNote->hit = true;
-                            _basic.totaln++;
 
                             if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P)
                             {
@@ -183,7 +177,9 @@ void RulesetBMSAuto::update(const Time& t)
                     {
                         if (rt >= pNote->time)
                         {
+                            updateHit(t, idx, noteJudges[judgeIndex++], judgeSide);
                             pNote->hit = true;
+                            _basic.totaln++;
 
                             if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P)
                             {
@@ -236,7 +232,7 @@ void RulesetBMSAuto::update(const Time& t)
 
             if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P)
             {
-                if (t.norm() - gTimers.get(InputGamePressMapSingle[k].tm) > 100 && !isPressingLN[k])
+                if (t.norm() - gTimers.get(InputGamePressMapSingle[k].tm) > 83 && !isPressingLN[k])
                 {
                     gTimers.set(InputGamePressMapSingle[k].tm, TIMER_NEVER);
                     gTimers.set(InputGameReleaseMapSingle[k].tm, t.norm());
