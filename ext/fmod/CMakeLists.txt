@@ -1,18 +1,21 @@
 add_library (fmod SHARED IMPORTED GLOBAL)
 
-if (${BUILD_X64})
-    set(FMOD_SUFFIX_64 64)
-endif()
-
 if (BUILD_DEBUG)
     set(FMOD_SUFFIX_L L)
 endif()
 
 if (WIN32)
-    set_target_properties(fmod PROPERTIES
-        IMPORTED_LOCATION   ${CMAKE_CURRENT_LIST_DIR}/lib/fmod${FMOD_SUFFIX_L}${FMOD_SUFFIX_64}.dll
-        IMPORTED_IMPLIB     ${CMAKE_CURRENT_LIST_DIR}/lib/fmod${FMOD_SUFFIX_L}${FMOD_SUFFIX_64}_vc.lib
-    )
+    if (${BUILD_X64})
+        set_target_properties(fmod PROPERTIES
+            IMPORTED_LOCATION   ${CMAKE_CURRENT_LIST_DIR}/lib/x64/fmod${FMOD_SUFFIX_L}.dll
+            IMPORTED_IMPLIB     ${CMAKE_CURRENT_LIST_DIR}/lib/x64/fmod${FMOD_SUFFIX_L}_vc.lib  
+        )
+    else()
+        set_target_properties(fmod PROPERTIES
+            IMPORTED_LOCATION   ${CMAKE_CURRENT_LIST_DIR}/lib/x86/fmod${FMOD_SUFFIX_L}.dll
+            IMPORTED_IMPLIB     ${CMAKE_CURRENT_LIST_DIR}/lib/x86/fmod${FMOD_SUFFIX_L}_vc.lib  
+        )
+    endif()
 elseif (LINUX)
 
 endif()
