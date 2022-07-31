@@ -131,6 +131,7 @@ public:
         std::list<NoteParseValue> notes{};
         unsigned resolution = 1;
         unsigned relax(unsigned target_resolution);
+        void sortNotes();
     };
     typedef std::array<std::string, MAXSAMPLEIDX + 1> FileIdxArray;
     typedef std::array<channel, MAXBARIDX + 1> LaneArray;

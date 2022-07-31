@@ -556,38 +556,20 @@ int BMS::initWithFile(const Path& file)
                         {
                             unsigned segment = LNhead->segment * chNotesLN.lanes[area][ch][bar_head].relax(resolution_head) / resolution_head;
                             unsigned value = LNhead->value;
-                            bool headInserted = false;
                             for (auto it = chNotesLN.lanes[area][ch][bar_head].notes.begin(); it != chNotesLN.lanes[area][ch][bar_head].notes.end(); ++it)
-                            {
-                                if (it->segment > segment || (it->segment == segment && it->value > value))
-                                {
-                                    chNotesLN.lanes[area][ch][bar_head].notes.insert(it, { segment, value });
-                                    headInserted = true;
-                                    break;
-                                }
-                            }
-                            if (!headInserted)
                             {
                                 chNotesLN.lanes[area][ch][bar_head].notes.push_back({ segment, value });
                             }
+                            chNotesLN.lanes[area][ch][bar_head].sortNotes();
 
                             unsigned resolution_tail = chNotesRegular.lanes[area][ch][bar_curr].resolution;
                             unsigned segment2 = itNote->segment * chNotesLN.lanes[area][ch][bar_curr].relax(resolution_tail) / resolution_tail;
                             unsigned value2 = itNote->value;
-                            bool tailInserted = false;
                             for (auto it = chNotesLN.lanes[area][ch][bar_curr].notes.begin(); it != chNotesLN.lanes[area][ch][bar_curr].notes.end(); ++it)
-                            {
-                                if (it->segment > segment || (it->segment == segment && it->value > value))
-                                {
-                                    chNotesLN.lanes[area][ch][bar_curr].notes.insert(it, { segment2, value2 });
-                                    tailInserted = true;
-                                    break;
-                                }
-                            }
-                            if (!tailInserted)
                             {
                                 chNotesLN.lanes[area][ch][bar_curr].notes.push_back({ segment2, value2 });
                             }
+                            chNotesLN.lanes[area][ch][bar_curr].sortNotes();
 
                             haveLN = true;
 
@@ -757,21 +739,9 @@ int BMS::strToLane36(channel& ch, const StringContent& str)
         unsigned value = base36(str[i * 2], str[i * 2 + 1]);
         if (value == 0) continue;
 
-        bool noteInserted = false;
-        for (auto it = ch.notes.begin(); it != ch.notes.end(); ++it)
-        {
-            if (it->segment > segment || (it->segment == segment && it->value > value))
-            {
-                ch.notes.insert(it, { segment, value });
-                noteInserted = true;
-                break;
-            }
-        }
-        if (!noteInserted)
-        {
-            ch.notes.push_back({ segment, value });
-        }
+        ch.notes.push_back({ segment, value });
     }
+    ch.sortNotes();
 
     return 0;
 }
@@ -802,21 +772,9 @@ int BMS::strToLane16(channel& ch, const StringContent& str)
         unsigned value = base36(str[i * 2], str[i * 2 + 1]);
         if (value == 0) continue;
 
-        bool noteInserted = false;
-        for (auto it = ch.notes.begin(); it != ch.notes.end(); ++it)
-        {
-            if (it->segment > segment || (it->segment == segment && it->value > value))
-            {
-                ch.notes.insert(it, { segment, value });
-                noteInserted = true;
-                break;
-            }
-        }
-        if (!noteInserted)
-        {
-            ch.notes.push_back({ segment, value });
-        }
+        ch.notes.push_back({ segment, value });
     }
+    ch.sortNotes();
 
     return 0;
 }
@@ -988,4 +946,14 @@ unsigned BMS::channel::relax(unsigned target_resolution)
         n.segment *= pow;
     }
     return target;
+}
+
+void BMS::channel::sortNotes()
+{
+    std::vector<NoteParseValue> vec(notes.begin(), notes.end());
+    std::stable_sort(vec.begin(), vec.end(), [](const NoteParseValue& lhs, const NoteParseValue& rhs)
+        {
+            return lhs.segment < rhs.segment&& lhs.value < rhs.value;
+        });
+    notes.assign(vec.begin(), vec.end());
 }
