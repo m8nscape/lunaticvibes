@@ -4,11 +4,11 @@ set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_LIST_DIR})
 # Add fmod
 add_subdirectory(fmod)
 
-# Add libav
+# Add ffmpeg
 if (${VIDEO_ENABLED})
     find_package(libavcodec QUIET)
     if (NOT libavcodec_FOUND)
-        add_subdirectory(libav)
+        add_subdirectory(FFmpeg)
     endif()
 endif()
 
