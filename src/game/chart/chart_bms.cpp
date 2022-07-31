@@ -148,16 +148,14 @@ void chartBMS::loadBMS(const BMS& objBms)
     std::bitset<NOTELANEINDEX_COUNT> isLnTail{ 0 };
 
     int laneCountRandom = 7;
-    switch (gPlayContext.mode)
+    switch (objBms.gamemode)
     {
-    case eMode::PLAY5:
-    case eMode::PLAY5_2:
-    case eMode::PLAY10: laneCountRandom = 5; break;
-    case eMode::PLAY7:
-    case eMode::PLAY7_2:
-    case eMode::PLAY14: laneCountRandom = 7; break;
-    case eMode::PLAY9:
-    case eMode::PLAY9_2: laneCountRandom = 9; break;
+    case 5:
+    case 10: laneCountRandom = 5; break;
+    case 7:
+    case 14: laneCountRandom = 7; break;
+    case 9:
+    case 18: laneCountRandom = 9; break;
     default: break;
     }
 

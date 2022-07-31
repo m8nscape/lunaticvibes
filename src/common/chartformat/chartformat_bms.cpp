@@ -386,61 +386,64 @@ int BMS::initWithFile(const Path& file)
                     else // layer != 0
                     {
                         auto [area, idx] = isPMS ? normalizeIndexesPMS(layer, ch) : normalizeIndexesBME(layer, ch);
-                        assert(area < sizeof(chNotesRegular.lanes) / sizeof(chNotesRegular.lanes[0]));
-                        assert(idx < sizeof(chNotesRegular.lanes[0]) / sizeof(chNotesRegular.lanes[0][0]));
-                        assert(bar < sizeof(chNotesRegular.lanes[0][0]) / sizeof(chNotesRegular.lanes[0][0][0]));
-                        switch (layer)
+                        if (area >= 0)
                         {
-                        case 1:            // 1x: 1P visible
-                        case 2:            // 2x: 2P visible
-                            strToLane36(chNotesRegular.lanes[area][idx][bar], value);
-                            haveNote = true;
-                            break;
-                        case 3:            // 3x: 1P invisible
-                        case 4:            // 4x: 2P invisible
-                            strToLane36(chNotesInvisible.lanes[area][idx][bar], value);
-                            haveInvisible = true;
-                            break;
-                        case 5:            // 5x: 1P LN
-                        case 6:            // 6x: 2P LN
-                            if (!lnobjSet.empty())
+                            assert(area < sizeof(chNotesRegular.lanes) / sizeof(chNotesRegular.lanes[0]));
+                            assert(idx < sizeof(chNotesRegular.lanes[0]) / sizeof(chNotesRegular.lanes[0][0]));
+                            assert(bar < sizeof(chNotesRegular.lanes[0][0]) / sizeof(chNotesRegular.lanes[0][0][0]));
+                            switch (layer)
                             {
-                                // Note: there is so many possibilities of conflicting LN definition. Add all LN channel notes as regular notes
-                                channel noteLane;
-                                strToLane36(noteLane, value);
-                                unsigned scale = chNotesRegular.lanes[area][idx][bar].relax(noteLane.resolution) / noteLane.resolution;
-                                for (auto& note: noteLane.notes)
+                            case 1:            // 1x: 1P visible
+                            case 2:            // 2x: 2P visible
+                                strToLane36(chNotesRegular.lanes[area][idx][bar], value);
+                                haveNote = true;
+                                break;
+                            case 3:            // 3x: 1P invisible
+                            case 4:            // 4x: 2P invisible
+                                strToLane36(chNotesInvisible.lanes[area][idx][bar], value);
+                                haveInvisible = true;
+                                break;
+                            case 5:            // 5x: 1P LN
+                            case 6:            // 6x: 2P LN
+                                if (!lnobjSet.empty())
                                 {
-                                    note.segment *= scale;
-                                    bool noteInserted = false;
-                                    channel& chTarget = chNotesRegular.lanes[area][idx][bar];
-                                    for (auto it = chTarget.notes.begin(); it != chTarget.notes.end(); ++it)
+                                    // Note: there is so many possibilities of conflicting LN definition. Add all LN channel notes as regular notes
+                                    channel noteLane;
+                                    strToLane36(noteLane, value);
+                                    unsigned scale = chNotesRegular.lanes[area][idx][bar].relax(noteLane.resolution) / noteLane.resolution;
+                                    for (auto& note : noteLane.notes)
                                     {
-                                        if (it->segment > note.segment || (it->segment == note.segment && it->value > note.value))
+                                        note.segment *= scale;
+                                        bool noteInserted = false;
+                                        channel& chTarget = chNotesRegular.lanes[area][idx][bar];
+                                        for (auto it = chTarget.notes.begin(); it != chTarget.notes.end(); ++it)
                                         {
-                                            chTarget.notes.insert(it, note);
-                                            noteInserted = true;
-                                            break;
+                                            if (it->segment > note.segment || (it->segment == note.segment && it->value > note.value))
+                                            {
+                                                chTarget.notes.insert(it, note);
+                                                noteInserted = true;
+                                                break;
+                                            }
+                                        }
+                                        if (!noteInserted)
+                                        {
+                                            chTarget.notes.push_back(note);
                                         }
                                     }
-                                    if (!noteInserted)
-                                    {
-                                        chTarget.notes.push_back(note);
-                                    }
                                 }
+                                else
+                                {
+                                    // #LNTYPE 1
+                                    strToLane36(chNotesLN.lanes[area][idx][bar], value);
+                                    haveLN = true;
+                                }
+                                break;
+                            case 0xD:        // Dx: 1P mine
+                            case 0xE:        // Ex: 2P mine
+                                strToLane36(chMines.lanes[area][idx][bar], value);
+                                haveMine = true;
+                                break;
                             }
-                            else
-                            {
-                                // #LNTYPE 1
-                                strToLane36(chNotesLN.lanes[area][idx][bar], value);
-                                haveLN = true;
-                            }
-                            break;
-                        case 0xD:        // Dx: 1P mine
-                        case 0xE:        // Ex: 2P mine
-                            strToLane36(chMines.lanes[area][idx][bar], value);
-                            haveMine = true;
-                            break;
                         }
                     }
                 }
@@ -826,28 +829,34 @@ std::pair<int, int> BMS::normalizeIndexesBME(int layer, int ch)
     case 0xE:          // Ex: 2P mine
         area = 1;
         break;
+    default:
+        area = -1;
+        break;
     }
-    switch (ch)
+    if (area >= 0)
     {
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-    case 5:
-        idx = ch;
-        break;
-    case 6:        //SCR
-        idx = 0;
-        break;
-    case 8:        //6
-    case 9:        //7
-        have67 = true;
-        idx = 6 + (ch - 8);
-        break;
-    case 7:        //Free zone
-        have89 = true;
-        idx = 9;
-        break;
+        switch (ch)
+        {
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+            idx = ch;
+            break;
+        case 6:        //SCR
+            idx = 0;
+            break;
+        case 8:        //6
+        case 9:        //7
+            have67 = true;
+            idx = 6 + (ch - 8);
+            break;
+        case 7:        //Free zone
+            have89 = true;
+            idx = 9;
+            break;
+        }
     }
     return { area, idx };
 }
@@ -870,21 +879,27 @@ std::pair<int, int> BMS::normalizeIndexesPMS(int layer, int ch)
     case 0xE:          // Ex: 2P mine
         area = 1;
         break;
+    default:
+        area = -1;
+        break;
     }
-    // return as-is and handle after parsing completed. PMS 6-9 lanes definition may vary
-    idx = ch;
-    if (area == 1)
+    if (area >= 0)
     {
-        switch (idx)
+        // return as-is and handle after parsing completed. PMS 6-9 lanes definition may vary
+        idx = ch;
+        if (area == 1)
         {
-        case 8:
-        case 9:
-            have89_2 = true;
-            [[ fallthrough ]];
-        case 6:
-        case 7:
-            have67 = true;
-            break;
+            switch (idx)
+            {
+            case 8:
+            case 9:
+                have89_2 = true;
+                [[ fallthrough ]];
+            case 6:
+            case 7:
+                have67 = true;
+                break;
+            }
         }
     }
     return { area, idx };
