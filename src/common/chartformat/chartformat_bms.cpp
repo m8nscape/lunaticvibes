@@ -657,37 +657,35 @@ int BMS::initWithFile(const Path& file)
 
     if (isPMS)
     {
-        if (have89_2)
+        if (have89)
         {
-            // 18KEYS is not supported. Parse as 9KEYS
-            gamemode = 9;
-            player = 1;
-            std::swap(chNotesRegular.lanes[0][6], chNotesRegular.lanes[0][8]);
-            std::swap(chNotesRegular.lanes[0][7], chNotesRegular.lanes[0][9]);
-            std::swap(chNotesRegular.lanes[1][6], chNotesRegular.lanes[1][8]);
-            std::swap(chNotesRegular.lanes[1][7], chNotesRegular.lanes[1][9]);
-            std::swap(chNotesInvisible.lanes[0][6], chNotesInvisible.lanes[0][8]);
-            std::swap(chNotesInvisible.lanes[0][7], chNotesInvisible.lanes[0][9]);
-            std::swap(chNotesInvisible.lanes[1][6], chNotesInvisible.lanes[1][8]);
-            std::swap(chNotesInvisible.lanes[1][7], chNotesInvisible.lanes[1][9]);
-            std::swap(chNotesLN.lanes[0][6], chNotesLN.lanes[0][8]);
-            std::swap(chNotesLN.lanes[0][7], chNotesLN.lanes[0][9]);
-            std::swap(chNotesLN.lanes[1][6], chNotesLN.lanes[1][8]);
-            std::swap(chNotesLN.lanes[1][7], chNotesLN.lanes[1][9]);
-        }
-        else if (have67)
-        {
-            gamemode = 9;
-            player = 1;
+            // 11	12	13	14	15	18	19	16	17	not known or well known
             std::swap(chNotesRegular.lanes[0][6], chNotesRegular.lanes[0][8]);
             std::swap(chNotesRegular.lanes[0][7], chNotesRegular.lanes[0][9]);
             std::swap(chNotesInvisible.lanes[0][6], chNotesInvisible.lanes[0][8]);
             std::swap(chNotesInvisible.lanes[0][7], chNotesInvisible.lanes[0][9]);
             std::swap(chNotesLN.lanes[0][6], chNotesLN.lanes[0][8]);
             std::swap(chNotesLN.lanes[0][7], chNotesLN.lanes[0][9]);
+            have67 = true;
+
+            if (have67_2)
+            {
+                // 21	22	23	24	25	28	29	26	27	2P-side (right)
+                // 18KEYS is not supported. Parse as 9KEYS
+                gamemode = 9;
+                player = 1;
+                std::swap(chNotesRegular.lanes[1][6], chNotesRegular.lanes[1][8]);
+                std::swap(chNotesRegular.lanes[1][7], chNotesRegular.lanes[1][9]);
+                std::swap(chNotesInvisible.lanes[1][6], chNotesInvisible.lanes[1][8]);
+                std::swap(chNotesInvisible.lanes[1][7], chNotesInvisible.lanes[1][9]);
+                std::swap(chNotesLN.lanes[1][6], chNotesLN.lanes[1][8]);
+                std::swap(chNotesLN.lanes[1][7], chNotesLN.lanes[1][9]);
+                have67_2 = true;
+            }
         }
         else
         {
+            // 11	12	13	14	15	22	23	24	25	standard PMS
             gamemode = 9;
             player = 1;
             std::swap(chNotesRegular.lanes[0][6], chNotesRegular.lanes[1][2]);
@@ -702,6 +700,11 @@ int BMS::initWithFile(const Path& file)
             std::swap(chNotesLN.lanes[0][7], chNotesLN.lanes[1][3]);
             std::swap(chNotesLN.lanes[0][8], chNotesLN.lanes[1][4]);
             std::swap(chNotesLN.lanes[0][9], chNotesLN.lanes[1][5]);
+            have67 = true;
+            have89 = true;
+            haveAny_2 = false;
+            have67_2 = false;
+            have89_2 = false;
         }
     }
     else
@@ -710,7 +713,7 @@ int BMS::initWithFile(const Path& file)
         {
             player = (have67_2 || haveAny_2) ? 3 : 1;
         }
-        if (have67)
+        if (have67 || have67_2)
         {
             gamemode = (player == 1 ? 7 : 14);
         }
@@ -905,16 +908,16 @@ std::pair<int, int> BMS::normalizeIndexesPMS(int layer, int ch)
         case 8:
         case 9:
             if (area == 1)
-                have89_2 = true;
+                have67_2 = true;
             else
-                have89 = true;
+                have67 = true;
             break;
         case 6:
         case 7:
             if (area == 1)
-                have67_2 = true;
+                have89_2 = true;
             else
-                have67 = true;
+                have89 = true;
             break;
         }
     }
