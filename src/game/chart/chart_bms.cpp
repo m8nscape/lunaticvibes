@@ -250,14 +250,17 @@ void chartBMS::loadBMS(const BMS& objBms)
                         {
                             switch (objBms.gamemode)
                             {
+                            case 5:
                             case 10:
                                 index += 5 * area;
                                 break;
 
+                            case 7:
                             case 14:
                                 index += 7 * area;
                                 break;
 
+                            case 9:
                             case 18:
                                 index += 9 * area;
 
@@ -291,14 +294,17 @@ void chartBMS::loadBMS(const BMS& objBms)
                         {
                             switch (objBms.gamemode)
                             {
+                            case 5:
                             case 10:
                                 index += 5 * area;
                                 break;
 
+                            case 7:
                             case 14:
                                 index += 7 * area;
                                 break;
 
+                            case 9:
                             case 18:
                                 index += 9 * area;
 
@@ -320,19 +326,19 @@ void chartBMS::loadBMS(const BMS& objBms)
             // Lookup BMSToLaneMap[]
             // Regular Notes
             push_notes(notes, eLanePriority::NOTE, LaneCode::NOTE1, 0);
-            push_notes(notes, eLanePriority::NOTE, LaneCode::NOTE2, 1);
+            if (objBms.player != 1) push_notes(notes, eLanePriority::NOTE, LaneCode::NOTE2, 1);
 
             // LN
             push_notes_ln(notes, LaneCode::NOTELN1, 0);
-            push_notes_ln(notes, LaneCode::NOTELN2, 1);
+            if (objBms.player != 1) push_notes_ln(notes, LaneCode::NOTELN2, 1);
 
             // invisible
             push_notes(notes, eLanePriority::INV, LaneCode::NOTEINV1, 0);
-            push_notes(notes, eLanePriority::INV, LaneCode::NOTEINV2, 1);
+            if (objBms.player != 1) push_notes(notes, eLanePriority::INV, LaneCode::NOTEINV2, 1);
 
             // mine, specify a damage by [01-ZZ] (decimalize/2) ZZ: instant gameover
             push_notes(notes, eLanePriority::MINE, LaneCode::NOTEMINE1, 0);
-            push_notes(notes, eLanePriority::MINE, LaneCode::NOTEMINE2, 1);
+            if (objBms.player != 1) push_notes(notes, eLanePriority::MINE, LaneCode::NOTEMINE2, 1);
 
             // BGM
             for (unsigned i = 0; i < objBms.bgmLayersCount[m]; i++)

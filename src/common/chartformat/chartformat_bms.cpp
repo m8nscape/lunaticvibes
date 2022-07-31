@@ -397,11 +397,13 @@ int BMS::initWithFile(const Path& file)
                             case 2:            // 2x: 2P visible
                                 strToLane36(chNotesRegular.lanes[area][idx][bar], value);
                                 haveNote = true;
+                                if (area == 1) haveAny_2 = true;
                                 break;
                             case 3:            // 3x: 1P invisible
                             case 4:            // 4x: 2P invisible
                                 strToLane36(chNotesInvisible.lanes[area][idx][bar], value);
                                 haveInvisible = true;
+                                if (area == 1) haveAny_2 = true;
                                 break;
                             case 5:            // 5x: 1P LN
                             case 6:            // 6x: 2P LN
@@ -436,6 +438,7 @@ int BMS::initWithFile(const Path& file)
                                     // #LNTYPE 1
                                     strToLane36(chNotesLN.lanes[area][idx][bar], value);
                                     haveLN = true;
+                                    if (area == 1) haveAny_2 = true;
                                 }
                                 break;
                             case 0xD:        // Dx: 1P mine
@@ -703,6 +706,10 @@ int BMS::initWithFile(const Path& file)
     }
     else
     {
+        if (player == 0)
+        {
+            player = (have67_2 || haveAny_2) ? 3 : 1;
+        }
         if (have67)
         {
             gamemode = (player == 1 ? 7 : 14);
@@ -849,11 +856,17 @@ std::pair<int, int> BMS::normalizeIndexesBME(int layer, int ch)
             break;
         case 8:        //6
         case 9:        //7
-            have67 = true;
+            if (area == 1)
+                have67_2 = true;
+            else
+                have67 = true;
             idx = 6 + (ch - 8);
             break;
         case 7:        //Free zone
-            have89 = true;
+            if (area == 1)
+                have89_2 = true;
+            else
+                have89 = true;
             idx = 9;
             break;
         }
@@ -887,19 +900,22 @@ std::pair<int, int> BMS::normalizeIndexesPMS(int layer, int ch)
     {
         // return as-is and handle after parsing completed. PMS 6-9 lanes definition may vary
         idx = ch;
-        if (area == 1)
+        switch (idx)
         {
-            switch (idx)
-            {
-            case 8:
-            case 9:
+        case 8:
+        case 9:
+            if (area == 1)
                 have89_2 = true;
-                [[ fallthrough ]];
-            case 6:
-            case 7:
+            else
+                have89 = true;
+            break;
+        case 6:
+        case 7:
+            if (area == 1)
+                have67_2 = true;
+            else
                 have67 = true;
-                break;
-            }
+            break;
         }
     }
     return { area, idx };

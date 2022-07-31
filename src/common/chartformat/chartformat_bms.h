@@ -64,7 +64,7 @@ class BMS_prop : public vChartFormat
 public:
     // File properties.
     // Header.
-    int player = 1;                // 1: single, 2: couple, 3: double, 4: battle
+    int player = 0;                // 1: single, 2: couple, 3: double, 4: battle
     int gamemode = 7;               // 5, 7, 9, 10, 14, 24?, 48?
     int rank = 2;                 // judge, VHARD/HARD/NORMAL/EASY
     int total = -1;
@@ -80,7 +80,9 @@ public:
     // Properties detected when parsing.
     bool isPMS = false;
     bool haveNote = false;
+    bool haveAny_2 = false;
     bool have67 = false;
+    bool have67_2 = false;
     bool have89 = false;
     bool have89_2 = false;
     bool haveLN = false;
