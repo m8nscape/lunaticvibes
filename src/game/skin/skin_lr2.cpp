@@ -1972,13 +1972,13 @@ ParseRet SkinLR2::DST_NOTE()
     };
 
     auto e1 = _laneSprites[channelToIdx(NoteLaneCategory::Note, idx)];
-    setDstNoteSprite(NoteLaneCategory::Note, e1);
+    if (e1) setDstNoteSprite(NoteLaneCategory::Note, e1);
 
     auto e2 = _laneSprites[channelToIdx(NoteLaneCategory::Mine, idx)];
-    setDstNoteSprite(NoteLaneCategory::Mine, e2);
+    if (e2) setDstNoteSprite(NoteLaneCategory::Mine, e2);
 
     auto e3 = _laneSprites[channelToIdx(NoteLaneCategory::LN, idx)];
-    setDstNoteSprite(NoteLaneCategory::LN, e3);
+    if (e3) setDstNoteSprite(NoteLaneCategory::LN, e3);
 
     return ParseRet::OK;
 }
