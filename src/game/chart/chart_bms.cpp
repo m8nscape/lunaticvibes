@@ -260,6 +260,9 @@ void chartBMS::loadBMS(const BMS& objBms)
                                 index += 7 * area;
                                 break;
 
+                            case 18:
+                                index += 9 * area;
+
                             default:
                                 assert(false);  // other gamemodes does not support notes on 2P side
                                 break;
@@ -297,6 +300,9 @@ void chartBMS::loadBMS(const BMS& objBms)
                             case 14:
                                 index += 7 * area;
                                 break;
+
+                            case 18:
+                                index += 9 * area;
 
                             default:
                                 assert(false);  // other gamemodes does not support notes on 2P side

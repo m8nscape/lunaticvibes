@@ -78,9 +78,11 @@ public:
 
 public:
     // Properties detected when parsing.
+    bool isPMS = false;
     bool haveNote = false;
     bool have67 = false;
     bool have89 = false;
+    bool have89_2 = false;
     bool haveLN = false;
     bool haveMine = false;
     bool haveInvisible = false;
@@ -155,6 +157,7 @@ protected:
     PlayAreaLanes chMines{};
 
     std::pair<int, int> normalizeIndexesBME(int layer, int ch);
+    std::pair<int, int> normalizeIndexesPMS(int layer, int ch);
 
 public:
     std::set<unsigned> lnobjSet;

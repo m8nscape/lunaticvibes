@@ -87,6 +87,11 @@ int BMS::initWithFile(const Path& file)
         return 1;
     }
 
+    if (toLower(file.extension().u8string()) == ".pms")
+    {
+        isPMS = true;
+    }
+
     auto encoding = getFileEncoding(absolutePath);
 
     // 拉面早就看出bms有多难读，直接鸽了我5年
@@ -380,7 +385,7 @@ int BMS::initWithFile(const Path& file)
                     }
                     else // layer != 0
                     {
-                        auto [area, idx] = normalizeIndexesBME(layer, ch);
+                        auto [area, idx] = isPMS ? normalizeIndexesPMS(layer, ch) : normalizeIndexesBME(layer, ch);
                         assert(area < sizeof(chNotesRegular.lanes) / sizeof(chNotesRegular.lanes[0]));
                         assert(idx < sizeof(chNotesRegular.lanes[0]) / sizeof(chNotesRegular.lanes[0][0]));
                         assert(bar < sizeof(chNotesRegular.lanes[0][0]) / sizeof(chNotesRegular.lanes[0][0][0]));
@@ -644,17 +649,65 @@ int BMS::initWithFile(const Path& file)
         }
     }
 
-    if (have89)
+    if (isPMS)
     {
-        gamemode = 9;   // 18?
-    }
-    else if (have67)
-    {
-        gamemode = (player == 1 ? 7 : 14);
+        if (have89_2)
+        {
+            // 18KEYS is not supported. Parse as 9KEYS
+            gamemode = 9;
+            player = 1;
+            std::swap(chNotesRegular.lanes[0][6], chNotesRegular.lanes[0][8]);
+            std::swap(chNotesRegular.lanes[0][7], chNotesRegular.lanes[0][9]);
+            std::swap(chNotesRegular.lanes[1][6], chNotesRegular.lanes[1][8]);
+            std::swap(chNotesRegular.lanes[1][7], chNotesRegular.lanes[1][9]);
+            std::swap(chNotesInvisible.lanes[0][6], chNotesInvisible.lanes[0][8]);
+            std::swap(chNotesInvisible.lanes[0][7], chNotesInvisible.lanes[0][9]);
+            std::swap(chNotesInvisible.lanes[1][6], chNotesInvisible.lanes[1][8]);
+            std::swap(chNotesInvisible.lanes[1][7], chNotesInvisible.lanes[1][9]);
+            std::swap(chNotesLN.lanes[0][6], chNotesLN.lanes[0][8]);
+            std::swap(chNotesLN.lanes[0][7], chNotesLN.lanes[0][9]);
+            std::swap(chNotesLN.lanes[1][6], chNotesLN.lanes[1][8]);
+            std::swap(chNotesLN.lanes[1][7], chNotesLN.lanes[1][9]);
+        }
+        else if (have67)
+        {
+            gamemode = 9;
+            player = 1;
+            std::swap(chNotesRegular.lanes[0][6], chNotesRegular.lanes[0][8]);
+            std::swap(chNotesRegular.lanes[0][7], chNotesRegular.lanes[0][9]);
+            std::swap(chNotesInvisible.lanes[0][6], chNotesInvisible.lanes[0][8]);
+            std::swap(chNotesInvisible.lanes[0][7], chNotesInvisible.lanes[0][9]);
+            std::swap(chNotesLN.lanes[0][6], chNotesLN.lanes[0][8]);
+            std::swap(chNotesLN.lanes[0][7], chNotesLN.lanes[0][9]);
+        }
+        else
+        {
+            gamemode = 9;
+            player = 1;
+            std::swap(chNotesRegular.lanes[0][6], chNotesRegular.lanes[1][2]);
+            std::swap(chNotesRegular.lanes[0][7], chNotesRegular.lanes[1][3]);
+            std::swap(chNotesRegular.lanes[0][8], chNotesRegular.lanes[1][4]);
+            std::swap(chNotesRegular.lanes[0][9], chNotesRegular.lanes[1][5]);
+            std::swap(chNotesInvisible.lanes[0][6], chNotesInvisible.lanes[1][2]);
+            std::swap(chNotesInvisible.lanes[0][7], chNotesInvisible.lanes[1][3]);
+            std::swap(chNotesInvisible.lanes[0][8], chNotesInvisible.lanes[1][4]);
+            std::swap(chNotesInvisible.lanes[0][9], chNotesInvisible.lanes[1][5]);
+            std::swap(chNotesLN.lanes[0][6], chNotesLN.lanes[1][2]);
+            std::swap(chNotesLN.lanes[0][7], chNotesLN.lanes[1][3]);
+            std::swap(chNotesLN.lanes[0][8], chNotesLN.lanes[1][4]);
+            std::swap(chNotesLN.lanes[0][9], chNotesLN.lanes[1][5]);
+        }
     }
     else
     {
-        gamemode = (player == 1 ? 5 : 10);
+        if (have67)
+        {
+            gamemode = (player == 1 ? 7 : 14);
+        }
+        else
+        {
+            gamemode = (player == 1 ? 5 : 10);
+        }
     }
 
     fileHash = md5file(absolutePath);
@@ -791,10 +844,48 @@ std::pair<int, int> BMS::normalizeIndexesBME(int layer, int ch)
         have67 = true;
         idx = 6 + (ch - 8);
         break;
-    case 7:        //9 of PMS BME
+    case 7:        //Free zone
         have89 = true;
         idx = 9;
         break;
+    }
+    return { area, idx };
+}
+
+std::pair<int, int> BMS::normalizeIndexesPMS(int layer, int ch)
+{
+    int area = 0;
+    int idx = 0;
+    switch (layer)
+    {
+    case 1:            // 1x: 1P visible
+    case 3:            // 3x: 1P invisible
+    case 5:            // 5x: 1P LN
+    case 0xD:          // Dx: 1P mine
+        area = 0;
+        break;
+    case 2:            // 2x: 2P visible
+    case 4:            // 4x: 2P invisible
+    case 6:            // 6x: 2P LN
+    case 0xE:          // Ex: 2P mine
+        area = 1;
+        break;
+    }
+    // return as-is and handle after parsing completed. PMS 6-9 lanes definition may vary
+    idx = ch;
+    if (area == 1)
+    {
+        switch (idx)
+        {
+        case 8:
+        case 9:
+            have89_2 = true;
+            [[ fallthrough ]];
+        case 6:
+        case 7:
+            have67 = true;
+            break;
+        }
     }
     return { area, idx };
 }
@@ -813,10 +904,15 @@ std::string BMS::getError()
 
 int BMS::getMode() const
 {
-    if (player != 1)
-        return (have67) ? MODE_14KEYS : MODE_10KEYS;
-    else
-        return (have89) ? MODE_9KEYS : (have67) ? MODE_7KEYS : MODE_5KEYS;
+    switch (gamemode)
+    {
+    case 5: return MODE_5KEYS;
+    case 7: return MODE_7KEYS;
+    case 9: return MODE_9KEYS;
+    case 10: return MODE_10KEYS;
+    case 14: return MODE_14KEYS;
+    default: return MODE_5KEYS;
+    }
 }
 
 auto BMS::getLane(LaneCode code, unsigned chIdx, unsigned measureIdx) const -> const decltype(chBGM[0][0])&
