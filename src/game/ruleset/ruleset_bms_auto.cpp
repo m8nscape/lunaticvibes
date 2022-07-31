@@ -98,18 +98,16 @@ void RulesetBMSAuto::update(const Time& t)
         for (size_t k = begin; k <= end; ++k)
         {
             judgeRes j;
-
             NoteLaneIndex idx;
-            HitableNote* pNote = nullptr;
 
             idx = _chart->getLaneFromKey(NoteLaneCategory::Note, (Input::Pad)k);
             if (idx != NoteLaneIndex::_)
             {
-                pNote = &*_chart->incomingNote(NoteLaneCategory::Note, idx);
-                if (!pNote->hit && rt >= pNote->time)
+                auto itNote = _chart->incomingNote(NoteLaneCategory::Note, idx);
+                while (!_chart->isLastNote(NoteLaneCategory::Note, idx, itNote) && !itNote->hit && rt >= itNote->time)
                 {
                     updateHit(t, idx, noteJudges[judgeIndex++], judgeSide);
-                    pNote->hit = true;
+                    itNote->hit = true;
                     _basic.totaln++;
 
                     if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P)
@@ -131,21 +129,22 @@ void RulesetBMSAuto::update(const Time& t)
                             gSwitches.set(eSwitch::S2_DOWN, true);
                         }
                     }
+                    itNote++;
                 }
             }
 
             idx = _chart->getLaneFromKey(NoteLaneCategory::LN, (Input::Pad)k);
             if (idx != NoteLaneIndex::_)
             {
-                pNote = &*_chart->incomingNote(NoteLaneCategory::LN, idx);
-                if (!pNote->hit)
+                auto itNote = _chart->incomingNote(NoteLaneCategory::LN, idx);
+                while (!_chart->isLastNote(NoteLaneCategory::LN, idx, itNote) && !itNote->hit)
                 {
-                    if (!(pNote->flags & Note::LN_TAIL))
+                    if (!(itNote->flags & Note::LN_TAIL))
                     {
                         const Time& hitTime = judgeTime[(size_t)_diff].BAD;
-                        if (!pNote->hit && rt >= pNote->time)
+                        if (!itNote->hit && rt >= itNote->time)
                         {
-                            pNote->hit = true;
+                            itNote->hit = true;
 
                             if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P)
                             {
@@ -175,10 +174,10 @@ void RulesetBMSAuto::update(const Time& t)
                     }
                     else
                     {
-                        if (rt >= pNote->time)
+                        if (rt >= itNote->time)
                         {
                             updateHit(t, idx, noteJudges[judgeIndex++], judgeSide);
-                            pNote->hit = true;
+                            itNote->hit = true;
                             _basic.totaln++;
 
                             if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P)
@@ -207,26 +206,29 @@ void RulesetBMSAuto::update(const Time& t)
                             }
                         }
                     }
+                    ++itNote;
                 }
             }
 
             idx = _chart->getLaneFromKey(NoteLaneCategory::Invs, (Input::Pad)k);
             if (idx != NoteLaneIndex::_)
             {
-                pNote = &*_chart->incomingNote(NoteLaneCategory::Invs, idx);
-                if (!pNote->hit && rt >= pNote->time)
+                auto itNote = _chart->incomingNote(NoteLaneCategory::Invs, idx);
+                while (!_chart->isLastNote(NoteLaneCategory::Invs, idx, itNote) && !itNote->hit && rt >= itNote->time)
                 {
-                    pNote->hit = true;
+                    itNote->hit = true;
+                    itNote++;
                 }
             }
 
             idx = _chart->getLaneFromKey(NoteLaneCategory::Mine, (Input::Pad)k);
             if (idx != NoteLaneIndex::_)
             {
-                pNote = &*_chart->incomingNote(NoteLaneCategory::Mine, idx);
-                if (!pNote->hit && rt >= pNote->time)
+                auto itNote = _chart->incomingNote(NoteLaneCategory::Mine, idx);
+                while (!_chart->isLastNote(NoteLaneCategory::Mine, idx, itNote) && !itNote->hit && rt >= itNote->time)
                 {
-                    pNote->hit = true;
+                    itNote->hit = true;
+                    itNote++;
                 }
             }
 

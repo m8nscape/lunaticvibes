@@ -88,16 +88,16 @@ void SpriteLaneVertical::updateNoteRect(const Time& t)
 	// !!! scroll height should not affected by note height
     int y = (c.y + c.h);
     auto it = pChart->incomingNote(_category, _index);
-    while (!pChart->isLastNote(_category, _index, it) && y >= 0)
-    {
+	while (!pChart->isLastNote(_category, _index, it) && y >= 0)
+	{
 		auto noteMetreOffset = currTotalMetre - it->pos.toDouble();
-        if (noteMetreOffset >= 0)
+		if (noteMetreOffset >= 0)
 			y = (c.y + c.h); // expired notes stay on judge line, LR2 / pre RA behavior
-        else
-            y = (c.y + c.h) - static_cast<int>( std::floor(-noteMetreOffset * _noteAreaHeight * _basespd * _hispeed) );
-        it++;
-        _outRect.push_front({ c.x, y, c.w, -c.h });
-    }
+		else
+			y = (c.y + c.h) - static_cast<int>(std::floor(-noteMetreOffset * _noteAreaHeight * _basespd * _hispeed));
+		it++;
+		_outRect.push_front({ c.x, y, c.w, -c.h });
+	}
 }
 
 void SpriteLaneVertical::draw() const 

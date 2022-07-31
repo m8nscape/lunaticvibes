@@ -841,37 +841,37 @@ void RulesetBMS::update(const Time& t)
         for (size_t k = begin; k <= end; ++k)
         {
             NoteLaneIndex idx;
-            HitableNote* pNote = nullptr;
 
             idx = _chart->getLaneFromKey(NoteLaneCategory::Note, (Input::Pad)k);
             if (idx != NoteLaneIndex::_)
             {
-                pNote = &*_chart->incomingNote(NoteLaneCategory::Note, idx);
-                if (!pNote->hit)
+                auto itNote = _chart->incomingNote(NoteLaneCategory::Note, idx);
+                while (!_chart->isLastNote(NoteLaneCategory::Note, idx, itNote) && !itNote->hit)
                 {
                     const Time& hitTime = judgeTime[(size_t)_diff].BAD;
-                    if (rt - pNote->time >= hitTime)
+                    if (rt - itNote->time >= hitTime)
                     {
-                        pNote->hit = true;
+                        itNote->hit = true;
                         _basic.slow++;
                         updateMiss(t, idx, RulesetBMS::JudgeType::MISS, slot);
                         //LOG_DEBUG << "LATE   POOR    "; break;
                     }
+                    itNote++;
                 }
             }
 
             idx = _chart->getLaneFromKey(NoteLaneCategory::LN, (Input::Pad)k);
             if (idx != NoteLaneIndex::_)
             {
-                pNote = &*_chart->incomingNote(NoteLaneCategory::LN, idx);
-                if (!pNote->hit)
+                auto itNote = _chart->incomingNote(NoteLaneCategory::LN, idx);
+                while (!_chart->isLastNote(NoteLaneCategory::LN, idx, itNote) && !itNote->hit)
                 {
-                    if (!(pNote->flags & Note::LN_TAIL))
+                    if (!(itNote->flags & Note::LN_TAIL))
                     {
                         const Time& hitTime = judgeTime[(size_t)_diff].BAD;
-                        if (rt - pNote->time >= hitTime)
+                        if (rt - itNote->time >= hitTime)
                         {
-                            pNote->hit = true;
+                            itNote->hit = true;
                             _basic.slow++;
                             updateMiss(t, idx, RulesetBMS::JudgeType::MISS, slot);
                             //LOG_DEBUG << "LATE   POOR    "; break;
@@ -879,39 +879,36 @@ void RulesetBMS::update(const Time& t)
                     }
                     else
                     {
-                        if (rt >= pNote->time)
+                        if (rt >= itNote->time)
                         {
                             //_basic.slow++;
-                            pNote->hit = true;
+                            itNote->hit = true;
                         }
                     }
+                    itNote++;
                 }
             }
 
             idx = _chart->getLaneFromKey(NoteLaneCategory::Invs, (Input::Pad)k);
             if (idx != NoteLaneIndex::_)
             {
-                pNote = &*_chart->incomingNote(NoteLaneCategory::Invs, idx);
-                if (!pNote->hit)
+                const Time& hitTime = -judgeTime[(size_t)_diff].BAD;
+                auto itNote = _chart->incomingNote(NoteLaneCategory::Invs, idx);
+                while (!_chart->isLastNote(NoteLaneCategory::Invs, idx, itNote) && !itNote->hit && rt - itNote->time >= hitTime)
                 {
-                    const Time& hitTime = -judgeTime[(size_t)_diff].BAD;
-                    if (rt - pNote->time >= hitTime)
-                    {
-                        pNote->hit = true;
-                    }
+                    itNote->hit = true;
+                    itNote++;
                 }
             }
 
             idx = _chart->getLaneFromKey(NoteLaneCategory::Mine, (Input::Pad)k);
             if (idx != NoteLaneIndex::_)
             {
-                pNote = &*_chart->incomingNote(NoteLaneCategory::Mine, idx);
-                if (!pNote->hit)
+                auto itNote = _chart->incomingNote(NoteLaneCategory::Mine, idx);
+                while (!_chart->isLastNote(NoteLaneCategory::Mine, idx, itNote) && !itNote->hit && rt >= itNote->time)
                 {
-                    if (rt >= pNote->time)
-                    {
-                        pNote->hit = true;
-                    }
+                    itNote->hit = true;
+                    itNote++;
                 }
             }
         }
