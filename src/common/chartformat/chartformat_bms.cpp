@@ -681,6 +681,7 @@ int BMS::strToLane36(channel& ch, const StringContent& str)
         }
         length++;
     }
+    if (length / 2 == 0) return 1;
 
     unsigned resolution = static_cast<unsigned>(length / 2);
     unsigned scale = ch.relax(resolution) / resolution;
@@ -725,6 +726,7 @@ int BMS::strToLane16(channel& ch, const StringContent& str)
         }
         length++;
     }
+    if (length / 2 == 0) return 1;
 
     unsigned resolution = static_cast<unsigned>(length / 2);
     unsigned scale = ch.relax(resolution) / resolution;
