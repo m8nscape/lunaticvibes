@@ -19,7 +19,7 @@ protected:
 	double targetRate = 100.0;
     std::vector<JudgeType> noteJudges;
     size_t judgeIndex = 0;
-    int judgeSide = -1;
+    bool showJudge = true;
 
     std::map<JudgeType, unsigned> totalJudgeCount;
 

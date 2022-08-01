@@ -13,10 +13,7 @@ RulesetBMSAuto::RulesetBMSAuto(
 {
     assert(side == PlaySide::AUTO || side == PlaySide::AUTO_2P || side == PlaySide::RIVAL);
 
-    if (_side == PlaySide::AUTO) 
-        judgeSide = PLAYER_SLOT_1P;
-    else if (_side == PlaySide::AUTO_2P) 
-        judgeSide = PLAYER_SLOT_2P;
+    showJudge = (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P);
 
     isPressingLN.fill(false);
 
@@ -93,7 +90,7 @@ void RulesetBMSAuto::update(const Time& t)
     auto rt = t - gTimers.get(eTimer::PLAY_START);
     using namespace chart;
 
-    auto updateSection = [&](Input::Pad begin, Input::Pad end)
+    auto updateSection = [&](Input::Pad begin, Input::Pad end, int side)
     {
         for (size_t k = begin; k <= end; ++k)
         {
@@ -106,7 +103,7 @@ void RulesetBMSAuto::update(const Time& t)
                 auto itNote = _chart->incomingNote(NoteLaneCategory::Note, idx);
                 while (!_chart->isLastNote(NoteLaneCategory::Note, idx, itNote) && !itNote->hit && rt >= itNote->time)
                 {
-                    updateHit(t, idx, noteJudges[judgeIndex++], judgeSide);
+                    updateHit(t, idx, noteJudges[judgeIndex++], side);
                     itNote->hit = true;
                     _basic.totaln++;
 
@@ -176,7 +173,7 @@ void RulesetBMSAuto::update(const Time& t)
                     {
                         if (rt >= itNote->time)
                         {
-                            updateHit(t, idx, noteJudges[judgeIndex++], judgeSide);
+                            updateHit(t, idx, noteJudges[judgeIndex++], side);
                             itNote->hit = true;
                             _basic.totaln++;
 
@@ -256,8 +253,8 @@ void RulesetBMSAuto::update(const Time& t)
             }
         }
     };
-    updateSection(Input::S1L, Input::K1SPDDN);
-    updateSection(Input::S2L, Input::K2SPDDN);
+    updateSection(Input::S1L, Input::K1SPDDN, showJudge ? PLAYER_SLOT_1P : -1);
+    updateSection(Input::S2L, Input::K2SPDDN, showJudge ? PLAYER_SLOT_2P : -1);
 
     unsigned max = _chart->getNoteCount() * 2;
     _basic.total_acc = 100.0 * _basic.score2 / max;
