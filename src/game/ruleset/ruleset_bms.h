@@ -183,7 +183,7 @@ protected:
     PlaySide _side;
 	bool _k1P, _k2P;
     double inner_score = 0.0;
-    std::array<JudgeType, chart::NOTELANEINDEX_COUNT> _lnJudge{JudgeType::MISS};
+    std::array<judgeArea, chart::NOTELANEINDEX_COUNT> _lnJudge{ judgeArea::NOTHING };
 
     std::map<chart::NoteLane, decltype(_chart->firstNote(chart::NoteLaneCategory::_, chart::NoteLaneIndex::_))> _noteListIterators;
 

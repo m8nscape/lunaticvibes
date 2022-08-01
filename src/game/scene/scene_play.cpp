@@ -501,7 +501,9 @@ void ScenePlay::setInputJudgeCallback()
         _input.register_a("JUDGE_AXIS_1", fa);
     }
     else
+    {
         LOG_ERROR << "[Play] Ruleset of 1P not initialized!";
+    }
 
     if (gPlayContext.ruleset[PLAYER_SLOT_2P] != nullptr)
     {
@@ -514,8 +516,10 @@ void ScenePlay::setInputJudgeCallback()
         auto fa = std::bind(&vRuleset::updateAxis, gPlayContext.ruleset[PLAYER_SLOT_2P], _1, _2);
         _input.register_a("JUDGE_AXIS_2", fa);
     }
-    else
+    else if (!gPlayContext.isAuto)
+    {
         LOG_ERROR << "[Play] Ruleset of 2P not initialized!";
+    }
 }
 
 void ScenePlay::removeInputJudgeCallback()

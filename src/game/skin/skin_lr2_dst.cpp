@@ -526,14 +526,14 @@ void updateDstOpt()
 		switch (gOptions.get(eOption::PLAY_RANK_BORDER_1P))
 		{
 		case RANK_0:
-		case RANK_1: set(220); break;
-		case RANK_2: set(221); break;
-		case RANK_3: set(222); break;
-		case RANK_4: set(223); break;
-		case RANK_5: set(224); break;
-		case RANK_6: set(225); break;
-		case RANK_7: set(226); break;
-		case RANK_8: set(227); break;
+		case RANK_1: set(220); [[ fallthrough ]];
+		case RANK_2: set(221); [[ fallthrough ]];
+		case RANK_3: set(222); [[ fallthrough ]];
+		case RANK_4: set(223); [[ fallthrough ]];
+		case RANK_5: set(224); [[ fallthrough ]];
+		case RANK_6: set(225); [[ fallthrough ]];
+		case RANK_7: set(226); [[ fallthrough ]];
+		case RANK_8: set(227); [[ fallthrough ]];
 		case RANK_NONE: break;
 		}
 	}
