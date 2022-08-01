@@ -769,7 +769,7 @@ int BMS::strToLane16(channel& ch, const StringContent& str)
     for (unsigned i = 0; i < resolution; i++)
     {
         unsigned segment = i * scale;
-        unsigned value = base36(str[i * 2], str[i * 2 + 1]);
+        unsigned value = base16(str[i * 2], str[i * 2 + 1]);
         if (value == 0) continue;
 
         ch.notes.push_back({ segment, value });
