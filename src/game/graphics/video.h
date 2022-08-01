@@ -32,7 +32,7 @@ private:
 
 	// decoder params
 	AVFormatContext *pFormatCtx = nullptr;
-	AVCodec *pCodec = nullptr;
+	const AVCodec *pCodec = nullptr;
 	AVCodecContext *pCodecCtx = nullptr;
 	AVFrame *pFrame = nullptr;
 	AVPacket *pPacket = nullptr;

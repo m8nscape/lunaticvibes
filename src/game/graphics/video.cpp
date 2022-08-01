@@ -17,7 +17,6 @@ extern "C"
 
 void video_init()
 {
-	av_register_all();
 }
 
 sVideo::~sVideo()

@@ -84,7 +84,7 @@ if (${VIDEO_ENABLED})
         PUBLIC libavdevice   
         PUBLIC libavfilter   
         PUBLIC libavformat   
-        PUBLIC libavresample 
+        PUBLIC libswresample 
         PUBLIC libavutil     
         PUBLIC libswscale   
     )
