@@ -24,9 +24,24 @@ void SpriteLine::draw() const
 
 void SpriteLine::updateProgress(const Time& t)
 {
-    //_progress = (double)(gTimers.get(_triggerTimer) - t.norm() - _timerStartOffset) / _duration;
-    //_progress = std::clamp(_progress, 0.0, 1.0);
-    _progress = 1.0;
+    int duration = _end - _start;
+    if (duration > 0)
+    {
+        long long rt = t.norm() - gTimers.get(_triggerTimer);
+        if (rt >= _start)
+        {
+            _progress = (double)(rt - _start) / duration;
+            _progress = std::clamp(_progress, 0.0, 1.0);
+        }
+        else
+        {
+            _progress = 0.0;
+        }
+    }
+    else
+    {
+        _progress = 1.0;
+    }
 }
 
 void SpriteLine::updateRects()
@@ -44,11 +59,11 @@ void SpriteLine::updateRects()
 
     auto pushRects = [this](int size, const std::vector<int>& points, unsigned maxh, std::function<bool(int val1, int val2)> cond = [](int, int) { return true; })
     {
-        if (size <= 0) return;
-
         std::vector<std::pair<Point, Point>> tmp;
         const auto& r = _current.rect;
-        size_t region = static_cast<size_t>(std::floor(size * _progress)) - 1;
+        size_t region = static_cast<size_t>(std::floor(size * _progress));
+        if (region == 0) return;
+        region--;
 
         if (size > RT_GRAPH_THRESHOLD)
         {
@@ -152,6 +167,11 @@ bool SpriteLine::update(const Time& t)
 {
     if (SpriteStatic::update(t))
     {
+        if (_current.blend == BlendMode::NONE)
+            _current.color.a = 255;
+
+        _line._width = _current.rect.w;
+
         updateProgress(t);
         updateRects();
         return true;

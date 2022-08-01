@@ -30,7 +30,6 @@ private:
     int _start, _end;
     std::vector<ColorPoint> _points;
     std::vector<std::pair<Point, Point>> _rects;
-    int _timerStartOffset = 0, _duration = 0;
     double _progress = 1.0;	// 0 ~ 1
 
 public:

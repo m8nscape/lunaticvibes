@@ -1225,7 +1225,7 @@ ParseRet SkinLR2::SRC_GAUGECHART(int player)
     _sprites.push_back(std::make_shared<SpriteLine>(
         player == 0 ? PLAYER_SLOT_1P : PLAYER_SLOT_2P,
         type,
-        d.field_w, d.field_h, d.start, d.end, d.w));
+        d.field_w, d.field_h, d.start, d.end, 1));
 
     _sprites.back()->setSrcLine(csvLineNumber);
 
@@ -1927,6 +1927,24 @@ bool SkinLR2::DST()
 
             e->setLoopTime(d.loop);
             e->setTrigTimer((eTimer)d.timer);
+        }
+
+        if (type == DefType::GAUGECHART_1P || type == DefType::GAUGECHART_2P)
+        {
+            switch (d._null)
+            {
+            case 0: d.r = d.b = 0; break;   // green
+            case 1: d.g = d.b = 0; break;   // red
+            }
+        }
+        else if (type == DefType::SCORECHART)
+        {
+            switch (d._null)
+            {
+            case 0: d.r = d.g = 0; break;   // blue
+            case 1: d.r = d.b = 0; break;   // green
+            case 2: d.g = d.b = 0; break;   // red
+            }
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
