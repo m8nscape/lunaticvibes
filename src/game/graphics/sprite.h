@@ -269,6 +269,7 @@ public:
     //SpriteText(pFont f, Rect rect, eText textInd = eText::INVALID, TextAlign align = TEXT_ALIGN_LEFT, unsigned ptsize = 72, Color c = 0xffffffff);
     virtual ~SpriteText() = default;
 public:
+    virtual void updateText();
     virtual void updateTextRect();
 	virtual bool update(const Time& t);
     virtual void draw() const;

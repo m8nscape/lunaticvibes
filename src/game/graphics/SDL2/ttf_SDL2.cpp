@@ -15,12 +15,14 @@ TTFFont::TTFFont(const char* filePath, int ptsize)
 TTFFont::~TTFFont()
 {
     if (!_loaded) return;
+
     pushMainThreadTask(std::bind(TTF_CloseFont, _pFont));
 }
 
 
 void TTFFont::setStyle(TTFStyle style)
 {
+    assert(IsMainThread());
     if (!_loaded) return;
 
     switch (style)
@@ -33,12 +35,14 @@ void TTFFont::setStyle(TTFStyle style)
 }
 void TTFFont::setOutline(bool enabled)
 {
+    assert(IsMainThread());
     if (!_loaded) return;
 
     pushMainThreadTask(std::bind(TTF_SetFontOutline, _pFont, enabled));
 }
 void TTFFont::setHinting(TTFHinting mode)
 {
+    assert(IsMainThread());
     if (!_loaded) return;
 
     switch (mode)
@@ -51,64 +55,61 @@ void TTFFont::setHinting(TTFHinting mode)
 }
 void TTFFont::setKerning(bool enabled)
 {
+    assert(IsMainThread());
     if (!_loaded) return;
+
     pushMainThreadTask(std::bind(TTF_SetFontKerning, _pFont, enabled));
 }
 
 std::shared_ptr<Texture> TTFFont::TextUTF8(const char* text, const Color& c)
 {
+    assert(IsMainThread());
     if (!_loaded) return nullptr;
-    std::shared_ptr<Texture> pTex = nullptr;
-    pushMainThreadTask([&]()
-        {
-            auto pSurf = TTF_RenderUTF8_Blended(_pFont, text, c);
-            if (pSurf != NULL)
-            {
-                auto p = std::shared_ptr<SDL_Surface>(pSurf, SDL_FreeSurface);
-                pTex = std::make_shared<Texture>(&*p);
-            }
-            //LOG_WARNING << "[TTF] " << text << ": " << TTF_GetError();
-        });
-    return pTex;
+
+    auto pSurf = TTF_RenderUTF8_Blended(_pFont, text, c);
+    if (pSurf != NULL)
+    {
+        auto p = std::shared_ptr<SDL_Surface>(pSurf, SDL_FreeSurface);
+        return std::make_shared<Texture>(&*p);
+    }
+    //LOG_WARNING << "[TTF] " << text << ": " << TTF_GetError();
+    return nullptr;
 }
 std::shared_ptr<Texture> TTFFont::TextUTF8Solid(const char* text, const Color& c)
 {
+    assert(IsMainThread());
     if (!_loaded) return nullptr;
-    std::shared_ptr<Texture> pTex = nullptr;
-    pushMainThreadTask([&]()
-        {
-            auto pSurf = TTF_RenderUTF8_Solid(_pFont, text, c);
-            if (pSurf != NULL)
-            {
-                auto p = std::shared_ptr<SDL_Surface>(pSurf, SDL_FreeSurface);
-                pTex = std::make_shared<Texture>(&*p);
-            }
-            //LOG_WARNING << "[TTF] " << text << ": " << TTF_GetError();
-        });
-    return pTex;
+
+    auto pSurf = TTF_RenderUTF8_Solid(_pFont, text, c);
+    if (pSurf != NULL)
+    {
+        auto p = std::shared_ptr<SDL_Surface>(pSurf, SDL_FreeSurface);
+        return std::make_shared<Texture>(&*p);
+    }
+    //LOG_WARNING << "[TTF] " << text << ": " << TTF_GetError();
+    return nullptr;
 }
 std::shared_ptr<Texture> TTFFont::TextUTF8Shaded(const char* text, const Color& c, const Color& bg)
 {
+    assert(IsMainThread());
     if (!_loaded) return nullptr;
-    std::shared_ptr<Texture> pTex = nullptr;
-    pushMainThreadTask([&]()
-        {
-            auto pSurf = TTF_RenderUTF8_Shaded(_pFont, text, c, bg);
-            if (pSurf != NULL)
-            {
-                auto p = std::shared_ptr<SDL_Surface>(pSurf, SDL_FreeSurface);
-                pTex = std::make_shared<Texture>(&*p);
-            }
-            //LOG_WARNING << "[TTF] " << text << ": " << TTF_GetError();
-        });
-    return pTex;
+
+    auto pSurf = TTF_RenderUTF8_Shaded(_pFont, text, c, bg);
+    if (pSurf != NULL)
+    {
+        auto p = std::shared_ptr<SDL_Surface>(pSurf, SDL_FreeSurface);
+        return std::make_shared<Texture>(&*p);
+    }
+    //LOG_WARNING << "[TTF] " << text << ": " << TTF_GetError();
+    return nullptr;
 }
 
 Rect TTFFont::getRectUTF8(const char* text)
 {
+    assert(IsMainThread());
     Rect r{ 0, 0, 0, 0 };
 
     if (!_loaded) return r;
-    pushMainThreadTask(std::bind(TTF_SizeUTF8, _pFont, text, &r.w, &r.h));
+    TTF_SizeUTF8(_pFont, text, &r.w, &r.h);
     return r;
 }

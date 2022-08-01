@@ -434,17 +434,17 @@ SpriteText::SpriteText(pFont f, Rect rect, eText e, TextAlign a, unsigned ptsize
 
 bool SpriteText::update(const Time& t)
 {   
-    // it takes me 2 hours to figure out that font LIBRARY can not be accessed by parallel
-    std::lock_guard<std::mutex> u{_updateMutex};
-
-	if (_draw = updateByKeyframes(t))
-	{
-		setInputBindingText(gTexts.get(_textInd), _current.color);
-		if (_draw) updateTextRect();
-	}
-	return _draw;
+    return _draw = updateByKeyframes(t);
 }
 
+void SpriteText::updateText()
+{
+    if (!_draw) return;
+
+    setInputBindingText(gTexts.get(_textInd), _current.color);
+    updateTextRect();
+
+}
 void SpriteText::updateTextRect()
 {
 	// fitting

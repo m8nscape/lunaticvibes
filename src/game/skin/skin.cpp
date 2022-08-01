@@ -40,6 +40,15 @@ void vSkin::update()
 #else
     std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), updateSpriteLambda);
 #endif
+
+    for (auto& s : _sprites)
+    {
+        if (auto pText = std::dynamic_pointer_cast<SpriteText>(s); pText != nullptr)
+        {
+            pText->updateText();
+        }
+    }
+
 }
 
 void vSkin::update_mouse(int x, int y)
