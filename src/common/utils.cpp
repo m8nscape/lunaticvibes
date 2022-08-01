@@ -6,6 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <charconv>
+#include <regex>
 
 #ifdef WIN32
 #include <Windows.h>
@@ -14,82 +15,57 @@
 #include <openssl/md5.h>
 #endif
 
-
+static const std::vector<std::pair<std::basic_regex<StringPath::value_type>, StringPath>> path_replace_pattern
+{
+    { std::basic_regex<StringPath::value_type>("\\\\"_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "\\\\"_p},
+    { std::basic_regex<StringPath::value_type>("\\^"_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "\\^"_p}, 
+    { std::basic_regex<StringPath::value_type>("\\."_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "\\."_p}, 
+    { std::basic_regex<StringPath::value_type>("\\$"_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "\\$"_p}, 
+    { std::basic_regex<StringPath::value_type>("\\|"_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "\\|"_p}, 
+    { std::basic_regex<StringPath::value_type>("\\("_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "\\("_p}, 
+    { std::basic_regex<StringPath::value_type>("\\)"_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "\\)"_p}, 
+    { std::basic_regex<StringPath::value_type>("\\{"_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "\\{"_p}, 
+    { std::basic_regex<StringPath::value_type>("\\{"_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "\\{"_p}, 
+    { std::basic_regex<StringPath::value_type>("\\["_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "\\["_p}, 
+    { std::basic_regex<StringPath::value_type>("\\]"_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "\\]"_p}, 
+    { std::basic_regex<StringPath::value_type>("\\+"_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "\\+"_p}, 
+    { std::basic_regex<StringPath::value_type>("\\/"_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "\\/"_p}, 
+    { std::basic_regex<StringPath::value_type>("\\?"_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "."_p}, 
+    { std::basic_regex<StringPath::value_type>("\\*"_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), ".*"_p}, 
+};
 
 std::vector<Path> findFiles(Path p)
 {
-#ifdef WIN32
-	auto pstr = p.u16string();
-	size_t offset = pstr.find(u"\\*");
-    if (offset == pstr.npos) offset = pstr.find(u"/*");
-#else
-	auto pstr = p.u8string();
-	size_t offset = pstr.find(u"/*");
-#endif
+	auto pstr = p.make_preferred().native();
+	size_t offset = pstr.find('*');
 
 	std::vector<Path> res;
 	if (offset == pstr.npos)
 	{
-		if (!pstr.empty() && pstr.find(u'*') == pstr.npos)
+		if (!pstr.empty())
 			res.push_back(p);
 		return res;
 	}
-	
-	auto dir = pstr.substr(0, offset);
-	auto tail = pstr.substr(offset + 2);
-    if (fs::exists(dir))
+
+    StringPath folder = pstr.substr(0, offset).substr(0, pstr.find_last_of(Path::preferred_separator));
+    if (fs::is_directory(folder))
     {
-        for (auto f : fs::directory_iterator(dir))
+        pstr = pstr.substr(pstr[folder.length() - 1] == Path::preferred_separator ? folder.length() : folder.length() + 1);
+
+        for (const auto& [in, out] : path_replace_pattern)
         {
-#ifdef WIN32
-            auto file = f.path().u16string();
-#else
-            auto file = f.path().u8string();
-#endif
-            if (file.substr(file.length() - tail.length()) != tail)
-                continue;
-            res.push_back(f.path());
+            pstr = std::regex_replace(pstr, in, out);
+        }
+
+        auto pathRegex = std::basic_regex<StringPath::value_type>(pstr, std::regex_constants::extended | std::regex_constants::optimize);
+        for (auto& f : fs::recursive_directory_iterator(folder))
+        {
+            if (std::regex_match(f.path().native(), pathRegex))
+                res.push_back(f.path());
         }
     }
+
 	return res;
-}
-
-std::vector<Path> findFilesRecursive(Path p)
-{
-#ifdef WIN32
-    auto pstr = p.u16string();
-    size_t offset = pstr.find(u"\\*");
-    if (offset == pstr.npos) offset = pstr.find(u"/*");
-#else
-    auto pstr = p.u8string();
-    size_t offset = pstr.find(u"/*");
-#endif
-
-    std::vector<Path> res;
-    if (offset == pstr.npos)
-    {
-        if (!pstr.empty() && pstr.find(u'*') == pstr.npos)
-            res.push_back(p);
-        return res;
-    }
-
-    auto dir = pstr.substr(0, offset);
-    auto tail = pstr.substr(offset + 2);
-    if (fs::exists(dir))
-    {
-        for (auto f : fs::recursive_directory_iterator(dir))
-        {
-#ifdef WIN32
-            auto file = f.path().u16string();
-#else
-            auto file = f.path().u8string();
-#endif
-            if (file.substr(file.length() - tail.length()) != tail)
-                continue;
-            res.push_back(f.path());
-        }
-    }
-    return res;
 }
 
 bool isParentPath(Path parent, Path dir)

@@ -10,13 +10,8 @@ namespace fs = std::filesystem;
 
 inline Path executablePath;
 
-// Following LR2skin path rules:
-// Only filename (not including folders) could have wildcards "*"
-// Searching is not recursive.
+// path may include wildcard (*, ?); Searching is recursive.
 std::vector<Path> findFiles(Path path);
-
-// Recursive version of function above
-std::vector<Path> findFilesRecursive(Path path);
 
 bool isParentPath(Path parent, Path dir);
 

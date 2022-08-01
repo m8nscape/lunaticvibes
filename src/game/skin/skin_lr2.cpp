@@ -527,9 +527,10 @@ int SkinLR2::IMAGE()
 {
     if (strEqual(parseKeyBuf, "#IMAGE", true))
     {
-        const auto& pathString = parseParamBuf[0];
         Path path = convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), parseParamBuf[0]);
-        if (path.stem() == "*")
+        StringPath pathStr = path.native();
+        std::string pathU8Str = path.u8string();
+        if (pathStr.find("*"_p) != pathStr.npos)
         {
             static const std::set<std::string> video_file_extensions =
             {
@@ -548,9 +549,9 @@ int SkinLR2::IMAGE()
             };
 
             // Check if the wildcard path is specified by custom settings
-            for (const auto& cf : customize)
+            for (auto& cf : customize)
             {
-                if (cf.type == Customize::_Type::FILE && cf.filepath == pathString)
+                if (cf.type == Customize::_Type::FILE && cf.filepath == pathU8Str.substr(0, cf.filepath.length()))
                 {
                     const auto& paths = cf.pathList;
                     if (paths.empty())
@@ -560,6 +561,37 @@ int SkinLR2::IMAGE()
                     }
                     else
                     {
+                        if (cf.filepath.length() < pathU8Str.length())
+                        {
+                            // #IMAGE offered a more specific path. Rebuild customfile list
+                            auto selection = paths[cf.value];
+                            auto defaultSel = paths[cf.defIdx];
+                            cf.value = 0;
+                            cf.defIdx = 0;
+
+                            auto ls = findFiles(path);
+                            for (size_t param = 0; param < ls.size(); ++param)
+                            {
+                                auto filename = ls[param].filename().stem();
+                                if (filename == selection)
+                                {
+                                    cf.value = param;
+                                }
+                                if (filename == defaultSel)
+                                {
+                                    cf.defIdx = param;
+                                }
+                            }
+
+                            cf.filepath = pathU8Str;
+                            cf.label.clear();
+                            for (auto& p : ls)
+                            {
+                                cf.label.push_back(p.filename().stem().u8string());
+                            }
+                            cf.pathList = std::move(ls);
+                        }
+
                         if (video_file_extensions.find(toLower(paths[cf.value].extension().u8string())) != video_file_extensions.end())
                         {
 #ifndef VIDEO_DISABLED
@@ -2468,7 +2500,7 @@ int SkinLR2::parseHeader(const Tokens& raw)
         c.type = Customize::_Type::FILE;
         c.title = title;
         c.dst_op = 0;
-        c.filepath = path;
+        c.filepath = pathf.u8string();
         for (auto& p : ls)
         {
             c.label.push_back(p.filename().stem().u8string());
