@@ -44,6 +44,8 @@ void SpriteLine::updateRects()
 
     auto pushRects = [this](int size, const std::vector<int>& points, unsigned maxh, std::function<bool(int val1, int val2)> cond = [](int, int) { return true; })
     {
+        if (size <= 0) return;
+
         std::vector<std::pair<Point, Point>> tmp;
         const auto& r = _current.rect;
         size_t region = static_cast<size_t>(std::floor(size * _progress)) - 1;
