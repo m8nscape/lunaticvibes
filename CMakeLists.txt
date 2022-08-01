@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.16)
 # PROJECT CONFIG
 
 project(LunaticVibes
-    VERSION 0.6
+    VERSION 0.6.2
     LANGUAGES CXX
 )
 
