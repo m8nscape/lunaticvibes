@@ -537,6 +537,7 @@ int BMS::initWithFile(const Path& file)
         {
             for (size_t ch = 0; ch < PlayAreaLanes::LANE_COUNT; ++ch)
             {
+                std::list<size_t> modifiedChannels;
                 decltype(chNotesRegular.lanes[0][ch][0].notes.begin()) LNhead;
                 unsigned bar_head = 0;
                 unsigned resolution_head = 1;
@@ -556,20 +557,11 @@ int BMS::initWithFile(const Path& file)
                         {
                             unsigned segment = LNhead->segment * chNotesLN.lanes[area][ch][bar_head].relax(resolution_head) / resolution_head;
                             unsigned value = LNhead->value;
-                            for (auto it = chNotesLN.lanes[area][ch][bar_head].notes.begin(); it != chNotesLN.lanes[area][ch][bar_head].notes.end(); ++it)
-                            {
-                                chNotesLN.lanes[area][ch][bar_head].notes.push_back({ segment, value });
-                            }
-                            chNotesLN.lanes[area][ch][bar_head].sortNotes();
-
                             unsigned resolution_tail = chNotesRegular.lanes[area][ch][bar_curr].resolution;
                             unsigned segment2 = itNote->segment * chNotesLN.lanes[area][ch][bar_curr].relax(resolution_tail) / resolution_tail;
                             unsigned value2 = itNote->value;
-                            for (auto it = chNotesLN.lanes[area][ch][bar_curr].notes.begin(); it != chNotesLN.lanes[area][ch][bar_curr].notes.end(); ++it)
-                            {
-                                chNotesLN.lanes[area][ch][bar_curr].notes.push_back({ segment2, value2 });
-                            }
-                            chNotesLN.lanes[area][ch][bar_curr].sortNotes();
+                            chNotesLN.lanes[area][ch][bar_head].notes.push_back({ segment, value });
+                            chNotesLN.lanes[area][ch][bar_curr].notes.push_back({ segment2, value2 });
 
                             haveLN = true;
 
@@ -579,6 +571,9 @@ int BMS::initWithFile(const Path& file)
                             if (!resetItNote) itPrev--;
                             chNotesRegular.lanes[area][ch][bar_curr].notes.erase(itNote);
                             itNote = resetItNote ? noteList.begin() : ++itPrev;
+
+                            modifiedChannels.push_back(bar_head);
+                            modifiedChannels.push_back(bar_curr);
 
                             bar_head = 0;
                             resolution_head = 1;
@@ -595,8 +590,12 @@ int BMS::initWithFile(const Path& file)
                         }
                     }
                 }
+
+                chNotesLN.lanes[area][ch][bar_head].sortNotes();
+                chNotesLN.lanes[area][ch][bar_curr].sortNotes();
             }
         }
+
     }
 
     // Get statistics
