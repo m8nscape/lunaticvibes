@@ -10,11 +10,12 @@
 
 // Parent class of scenes, defines how an object being stored and drawn.
 // Every classes of scenes should inherit this class.
-class vScene: public AsyncLooper
+class vScene
 {
 protected:
     std::shared_ptr<vSkin> _skin;
     InputWrapper _input;
+    AsyncLooper* _looper;
 
     std::shared_ptr<TTFFont> _fNotifications;
     std::shared_ptr<Texture> _texNotificationsBG;

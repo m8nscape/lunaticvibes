@@ -47,8 +47,10 @@ inline const InputMask INPUT_MASK_NAV_DN{ "0000000000000001010000000000000000000
 // Interface: 
 //  Pressed / Holding / Released FULL bitset
 //  Pressed / Holding / Released per key
-class InputWrapper: public AsyncLooper
+class InputWrapper
 {
+protected:
+    AsyncLooper* _looper;
 public:
     unsigned release_delay_ms = 5;
 private:
@@ -69,6 +71,9 @@ public:
 
 private:
     virtual void _loop();
+public:
+    void loopStart() { _looper->loopStart(); }
+    void loopEnd() { _looper->loopEnd(); }
     
 public:
     bool isPressed(Input::Pad k) 

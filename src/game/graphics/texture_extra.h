@@ -10,9 +10,10 @@
 
 #ifndef VIDEO_DISABLED
 
-class TextureVideo : public Texture, public AsyncLooper
+class TextureVideo : public Texture
 {
 protected:
+	AsyncLooper* looper;
 	std::shared_ptr<sVideo> pVideo;
 	unsigned decoded_frames = ~0;
 	PixelFormat format;

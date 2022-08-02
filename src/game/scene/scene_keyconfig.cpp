@@ -58,7 +58,7 @@ SceneKeyConfig::SceneKeyConfig() : vScene(eMode::KEY_CONFIG, 240)
     gOptions.set(eOption::KEY_CONFIG_KEY9, 1);
     setInputBindingText(gKeyconfigContext.keys, gKeyconfigContext.selecting.first);
 
-    loopStart();
+    _looper->loopStart();
     _input.loopStart();
     LOG_DEBUG << "[KeyConfig] Start";
 }

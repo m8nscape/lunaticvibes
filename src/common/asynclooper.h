@@ -1,6 +1,7 @@
 #pragma once
 #include <functional>
 #include <shared_mutex>
+#include <map>
 #include "types.h"
 
 #if WIN32
@@ -40,12 +41,13 @@ protected:
     unsigned _iterateEndCount = 0;
     LooperHandler handler;
 
-
 public:
+    AsyncLooper() = default;
     AsyncLooper(StringContentView tag, std::function<void()>, unsigned rate_per_sec, bool single_inst = false);
     virtual ~AsyncLooper();
     void loopStart();
     void loopEnd();
+    bool isRunning() { return _running; }
     unsigned getRate();
     unsigned getRateRealtime();
 
@@ -59,4 +61,10 @@ private:
 #else // FALLBACK
     void _loopWithSleep();
 #endif
+
+protected:
+    static std::map<uintptr_t, AsyncLooper> loopers;
+public:
+    static AsyncLooper* addLooper(uintptr_t key, StringContentView tag, std::function<void()>, unsigned rate_per_sec, bool single_inst = false);
+    static void removeLooper(uintptr_t key);
 };

@@ -21,10 +21,10 @@ extern "C"
 
 TextureVideo::TextureVideo(std::shared_ptr<sVideo> pv) :
 	Texture(pv->getW(), pv->getH(), pv->getFormat()),
-	AsyncLooper("Video update", std::bind(&TextureVideo::update, this), 60, true),
 	format(pv->getFormat()), 
 	pVideo(pv)
 {
+	looper = AsyncLooper::addLooper((uintptr_t)this, "Video update", std::bind(&TextureVideo::update, this), 60, true);
 	_texRect.x = 0;
 	_texRect.y = 0;
 	_texRect.w = pv->getW();
@@ -34,20 +34,18 @@ TextureVideo::TextureVideo(std::shared_ptr<sVideo> pv) :
 TextureVideo::~TextureVideo()
 {
 	stop();
-	loopEnd();
+	looper->loopEnd();
 }
 
 void TextureVideo::start()
 {
-	if (_running) return;
-	//pVideo->seek(0);
 	pVideo->startPlaying();
-	loopStart();
+	looper->loopStart();
 }
 
 void TextureVideo::stop()
 {
-	assert(!_running);	// call stopUpdate() first
+	assert(!looper->isRunning());	// call stopUpdate() first
 	pVideo->stopPlaying();
 }
 
@@ -69,13 +67,13 @@ void TextureVideo::update()
 	{
 		using namespace std::chrono_literals;
 		
+		std::shared_lock l(pVideo->video_frame_mutex);
+
+		auto pf = pVideo->getFrame();
+		if (!pf) return;
+
 		pushAndWaitMainThreadTask<void>([&]()
 			{
-				std::shared_lock l(pVideo->video_frame_mutex);
-
-				auto pf = pVideo->getFrame();
-				if (!pf) return;
-
 				switch (format)
 				{
 				case Texture::PixelFormat::IYUV:
@@ -96,7 +94,7 @@ void TextureVideo::update()
 void TextureVideo::stopUpdate()
 {
 	assert(!IsMainThread());
-	loopEnd();
+	looper->loopEnd();
 	// AsyncLooper thread will end here, releasing pVideo->video_frame_mutex occupation by update()
 }
 

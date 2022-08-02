@@ -150,7 +150,7 @@ SceneResult::SceneResult(ePlayMode gamemode) : vScene(eMode::RESULT, 1000), _pla
     Time t;
     gTimers.set(eTimer::RESULT_GRAPH_START, t.norm());
 
-    loopStart();
+    _looper->loopStart();
     _input.loopStart();
 
     SoundMgr::stopSamples();

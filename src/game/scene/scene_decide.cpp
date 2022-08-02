@@ -17,7 +17,7 @@ SceneDecide::SceneDecide() : vScene(eMode::DECIDE, 1000)
     _state = eDecideState::START;
     _updateCallback = std::bind(&SceneDecide::updateStart, this);
 
-    loopStart();
+    _looper->loopStart();
     _input.loopStart();
 
     SoundMgr::stopSamples();

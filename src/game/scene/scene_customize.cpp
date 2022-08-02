@@ -24,7 +24,7 @@ SceneCustomize::SceneCustomize() : vScene(eMode::THEME_SELECT, 240)
         skinList[s.info.mode].push_back(fs::absolute(p));
     }
 
-    loopStart();
+    _looper->loopStart();
     _input.loopStart();
     LOG_DEBUG << "[Customize] Start";
 }

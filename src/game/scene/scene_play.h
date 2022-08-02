@@ -55,7 +55,6 @@ public:
 		sceneEnding = true; 
 		if (_loadChartFuture.valid()) 
 			_loadChartFuture.wait();
-		loopEnd(); 
 	}
 
 protected:

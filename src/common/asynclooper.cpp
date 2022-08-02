@@ -15,7 +15,20 @@ AsyncLooper::AsyncLooper(StringContentView tag, std::function<void()> func, unsi
 
 AsyncLooper::~AsyncLooper()
 {
-    loopEnd();
+    if (_running)
+    {
+        _running = false;
+        if (DeleteTimerQueueTimer(NULL, handler, NULL))
+        {
+            // ..?
+        }
+        //while (_iterateCount != _iterateEndCount)
+        //{
+        //    using namespace std::chrono_literals;
+        //    std::this_thread::sleep_for(50ms);
+        //}
+        LOG_DEBUG << "[Looper] Ended of rate " << _rate << "/s";
+    }
 }
 
 void AsyncLooper::run()
@@ -109,7 +122,6 @@ void AsyncLooper::loopEnd()
             using namespace std::chrono_literals;
             std::this_thread::sleep_for(50ms);
         }
-        _loopFuncBody = [] {};
         LOG_DEBUG << "[Looper] Ended of rate " << _rate << "/s";
     }
 }
@@ -137,3 +149,24 @@ void AsyncLooper::loopEnd()
     handler.join();
 }
 #endif
+
+std::map<uintptr_t, AsyncLooper> AsyncLooper::loopers;
+
+AsyncLooper* AsyncLooper::addLooper(uintptr_t key, StringContentView tag, std::function<void()> func, unsigned rate_per_sec, bool single_inst)
+{
+    assert(loopers.find(key) == loopers.end());
+    loopers.emplace(key, AsyncLooper(tag, func, rate_per_sec, single_inst));
+    return &loopers[key];
+}
+void AsyncLooper::removeLooper(uintptr_t key)
+{
+    if (loopers.find(key) != loopers.end())
+    {
+        loopers[key]._loopFuncBody = [] {};
+        std::thread([&]()
+            {
+                loopers[key].loopEnd();
+                loopers.erase(key);
+            }).detach();
+    }
+}

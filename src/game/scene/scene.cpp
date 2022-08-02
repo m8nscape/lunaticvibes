@@ -9,8 +9,10 @@
 
 // prototype
 vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
-    AsyncLooper("Scene Update", std::bind(&vScene::_updateAsync, this), rate), _input(1000, backgroundInput)
+    _input(1000, backgroundInput)
 {
+    _looper = AsyncLooper::addLooper((uintptr_t)this, "Scene Update", std::bind(&vScene::_updateAsync, this), rate);
+
     if (SkinMgr::get(mode) == nullptr)
         SkinMgr::load(mode);
     _skin = SkinMgr::get(mode);
@@ -87,11 +89,11 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
 
 vScene::~vScene() 
 {
+    AsyncLooper::removeLooper((uintptr_t)this);
     _input.unregister_r("SKIN_MOUSE_RELEASE");
     _input.unregister_h("SKIN_MOUSE_DRAG");
     _input.unregister_p("SKIN_MOUSE_CLICK");
     sceneEnding = true; 
-    loopEnd(); 
 }
 
 void vScene::update()

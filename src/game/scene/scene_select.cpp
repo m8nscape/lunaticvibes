@@ -253,7 +253,7 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
     _state = eSelectState::PREPARE;
     _updateCallback = std::bind(&SceneSelect::updatePrepare, this);
 
-    loopStart();
+    _looper->loopStart();
 
     SoundMgr::stopSamples();
     SoundMgr::playSample(eSoundSample::BGM_SELECT);

@@ -232,7 +232,7 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     _input.register_r("SCENE_RELEASE", std::bind(&ScenePlay::inputGameRelease, this, _1, _2));
     _input.register_a("SCENE_AXIS", std::bind(&ScenePlay::inputGameAxis, this, _1, _2));
 
-    loopStart();
+    _looper->loopStart();
     _input.loopStart();
 }
 
@@ -554,7 +554,7 @@ void ScenePlay::_updateAsync()
         gNextScene = eScene::EXIT_TRANS;
     }
 
-	gNumbers.set(eNumber::SCENE_UPDATE_FPS, getRate());
+	gNumbers.set(eNumber::SCENE_UPDATE_FPS, _looper->getRate());
     switch (_state)
     {
     case ePlayState::PREPARE:
