@@ -58,6 +58,7 @@ public:
 	int unsetVideo();
 	int getW() { return w; }
 	int getH() { return h; }
+	bool isPlaying() const { return playing; }
 
 public:
 	// properties

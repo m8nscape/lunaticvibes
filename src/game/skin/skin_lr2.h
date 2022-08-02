@@ -1384,7 +1384,7 @@ protected:
 public:
     SkinLR2() = delete;
     SkinLR2(Path p, bool headerOnly = false);
-    virtual ~SkinLR2() = default;
+    virtual ~SkinLR2();
     void loadCSV(Path p, bool headerOnly = false);
 
 protected:

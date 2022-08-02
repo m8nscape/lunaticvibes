@@ -9,8 +9,10 @@
 
 // prototype
 vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
-    AsyncLooper(std::bind(&vScene::_updateAsync, this), rate), _input(1000, backgroundInput)
+    AsyncLooper("Scene Update", std::bind(&vScene::_updateAsync, this), rate), _input(1000, backgroundInput)
 {
+    if (SkinMgr::get(mode) == nullptr)
+        SkinMgr::load(mode);
     _skin = SkinMgr::get(mode);
 
     int notificationPosY = ConfigMgr::General()->get(cfg::V_RES_Y, CANVAS_HEIGHT);
@@ -71,7 +73,7 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
     //gSwitches.reset();
     gTimers.reset();
     gTimers.set(eTimer::SCENE_START, t.norm());
-    gTimers.set(eTimer::START_INPUT, t.norm() + _skin->info.timeIntro);
+    gTimers.set(eTimer::START_INPUT, t.norm() + (_skin ? _skin->info.timeIntro : 0));
 
     gTexts.set(eText::_OVERLAY_TOPLEFT, "");
 
@@ -80,7 +82,7 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
     _input.register_r("SKIN_MOUSE_RELEASE", std::bind(&vScene::MouseRelease, this, std::placeholders::_1, std::placeholders::_2));
 
     // Skin may be cached. Reset mouse status
-    _skin->setHandleMouseEvents(true);
+    _skin ? _skin->setHandleMouseEvents(true) : __noop;
 }
 
 vScene::~vScene() 
@@ -96,9 +98,13 @@ void vScene::update()
 {
     Time t;
     gUpdateContext.updateTime = t;
-    _skin->update();
-    auto [x, y] = _input.getCursorPos();
-    _skin->update_mouse(x, y);
+
+    if (_skin)
+    {
+        _skin->update();
+        auto [x, y] = _input.getCursorPos();
+        _skin->update_mouse(x, y);
+    }
 
     std::unique_lock lock(gOverlayContext._mutex);
     // notifications expire check
@@ -157,7 +163,7 @@ void vScene::MouseRelease(InputMask& m, const Time& t)
 
 void vScene::draw() const
 {
-    _skin->draw();
+    _skin ? _skin->draw() : __noop;
     _sTopLeft->draw();
 
     {

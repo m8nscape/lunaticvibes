@@ -3,7 +3,8 @@
 #include <chrono>
 #include "log.h"
 
-AsyncLooper::AsyncLooper(std::function<void()> func, unsigned rate_per_sec, bool single_inst) : _loopFunc(func)
+AsyncLooper::AsyncLooper(StringContentView tag, std::function<void()> func, unsigned rate_per_sec, bool single_inst) : 
+    _tag(tag), _loopFunc(func)
 {
     _loopTimeBuffer.assign(LOOP_TIME_BUFFER_SIZE, 0);
     _bufferIt = _loopTimeBuffer.begin();
@@ -67,7 +68,10 @@ unsigned AsyncLooper::getRateRealtime()
 typedef HANDLE LooperHandler;
 VOID CALLBACK WaitOrTimerCallback(_In_ PVOID lpParameter, _In_ BOOLEAN TimerOrWaitFired)
 {
-    ((AsyncLooper*)lpParameter)->run();
+    AsyncLooper* looper = (AsyncLooper*)lpParameter;
+    looper->_iterateCount++;
+    looper->run();
+    looper->_iterateEndCount++;
 }
 
 void AsyncLooper::loopStart()
@@ -99,6 +103,11 @@ void AsyncLooper::loopEnd()
         if (DeleteTimerQueueTimer(NULL, handler, NULL))
         {
             // ..?
+        }
+        while (_iterateCount != _iterateEndCount)
+        {
+            using namespace std::chrono_literals;
+            std::this_thread::sleep_for(50ms);
         }
         _loopFuncBody = [] {};
         LOG_DEBUG << "[Looper] Ended of rate " << _rate << "/s";

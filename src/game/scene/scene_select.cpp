@@ -274,6 +274,15 @@ SceneSelect::~SceneSelect()
 
 void SceneSelect::_updateAsync()
 {
+    if (gNextScene != eScene::SELECT) return;
+
+    if (gAppIsExiting)
+    {
+        _input.loopEnd();
+        _skin->stopSpriteVideoUpdate();
+        gNextScene = eScene::EXIT_TRANS;
+    }
+
     _updateCallback();
 }
 
@@ -390,8 +399,8 @@ void SceneSelect::updateFadeout()
 
     if (ft >= _skin->info.timeOutro)
     {
-        loopEnd();
         _input.loopEnd();
+        _skin->stopSpriteVideoUpdate();
         if (gSelectContext.isGoingToKeyConfig)
         {
             SoundMgr::stopSamples();
@@ -404,7 +413,8 @@ void SceneSelect::updateFadeout()
         }
         else
         {
-            gNextScene = eScene::EXIT;
+            SoundMgr::stopSamples();
+            gNextScene = eScene::EXIT_TRANS;
         }
     }
 }
@@ -442,7 +452,8 @@ void SceneSelect::inputGamePress(InputMask& m, const Time& t)
         if (!hasPanelOpened)
         {
             LOG_DEBUG << "[Select] ESC";
-            gNextScene = eScene::EXIT;
+            _skin->stopSpriteVideoUpdate();
+            gNextScene = eScene::EXIT_TRANS;
             return;
         }
     }
@@ -1038,8 +1049,7 @@ void SceneSelect::_decide()
         break;
     }
 
-    loopEnd();
-    _input.loopEnd();
+    _skin->stopSpriteVideoUpdate();
     gNextScene = eScene::DECIDE;
 }
 

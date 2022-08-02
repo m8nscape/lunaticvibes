@@ -6,6 +6,7 @@
 
 bool gResetSelectCursor = true;
 bool gQuitOnFinish = false;
+bool gAppIsExiting = false;
 ChartContextParams gChartContext;
 PlayContextParams gPlayContext;
 SelectContextParams gSelectContext;

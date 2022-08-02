@@ -21,6 +21,7 @@ public:
 	
 public:
 	void startPlaying();
+	void stopUpdating();
 	void stopPlaying();
 };
 

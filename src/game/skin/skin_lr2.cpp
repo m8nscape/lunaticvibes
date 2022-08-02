@@ -2664,16 +2664,12 @@ SkinLR2::SkinLR2(Path p, bool headerOnly)
     updateDstOpt();
     loadCSV(p, headerOnly);
 
-    for (auto& p : _sprites)
-    {
-        if (p->type() == SpriteTypes::VIDEO)
-        {
-#ifndef VIDEO_DISABLED
-            auto v = std::reinterpret_pointer_cast<SpriteVideo>(p);
-            v->startPlaying();
-#endif
-        }
-    }
+    startSpriteVideoPlayback();
+}
+
+SkinLR2::~SkinLR2()
+{
+    stopSpriteVideoPlayback();
 }
 
 void SkinLR2::loadCSV(Path p, bool headerOnly)

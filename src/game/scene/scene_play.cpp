@@ -85,6 +85,8 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     if (gChartContext.chartObj == nullptr || !gChartContext.chartObj->isLoaded())
     {
         LOG_ERROR << "[Play] Invalid chart: " << gChartContext.path.u8string();
+
+        _skin->stopSpriteVideoUpdate();
         gNextScene = eScene::SELECT;
 
         return;
@@ -132,6 +134,8 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     case eChartFormat::BMSON:
     default:
         LOG_WARNING << "[Play] chart format not supported.";
+
+        _skin->stopSpriteVideoUpdate();
         gNextScene = eScene::SELECT;
         return;
     }
@@ -541,6 +545,15 @@ void ScenePlay::removeInputJudgeCallback()
 
 void ScenePlay::_updateAsync()
 {
+    if (gNextScene != eScene::PLAY) return;
+
+    if (gAppIsExiting)
+    {
+        _input.loopEnd();
+        _skin->stopSpriteVideoUpdate();
+        gNextScene = eScene::EXIT_TRANS;
+    }
+
 	gNumbers.set(eNumber::SCENE_UPDATE_FPS, getRate());
     switch (_state)
     {
@@ -812,9 +825,9 @@ void ScenePlay::updateFadeout()
 
         gPlayContext.bgaTexture->reset();
 
-        loopEnd();
         _input.loopEnd();
         SoundMgr::stopKeySamples();
+        _skin->stopSpriteVideoUpdate();
 
         if (isPlaymodeAuto())
         {

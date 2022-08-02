@@ -79,6 +79,9 @@ public:
     virtual void start_bar_animation(int direction) = 0;
     virtual void draw() const;
     void setHandleMouseEvents(bool b) { _handleMouseEvents = b; }
+    void startSpriteVideoPlayback();
+    void stopSpriteVideoUpdate();
+    void stopSpriteVideoPlayback();
 
     ///////////////////////////////////////////////////////////
     // Info defined by header

@@ -122,3 +122,46 @@ void vSkin::draw() const
     for (auto& s : _sprites)
         s->draw();
 }
+
+void vSkin::startSpriteVideoPlayback()
+{
+#ifndef VIDEO_DISABLED
+    for (auto& p : _sprites)
+    {
+        if (p->type() == SpriteTypes::VIDEO)
+        {
+            auto v = std::reinterpret_pointer_cast<SpriteVideo>(p);
+            v->startPlaying();
+        }
+    }
+#endif
+}
+
+void vSkin::stopSpriteVideoUpdate()
+{
+    assert(!IsMainThread());
+
+#ifndef VIDEO_DISABLED
+    for (auto& p : _sprites)
+    {
+        if (p->type() == SpriteTypes::VIDEO)
+        {
+            auto v = std::reinterpret_pointer_cast<SpriteVideo>(p);
+            v->stopUpdating();
+        }
+    }
+#endif
+}
+void vSkin::stopSpriteVideoPlayback()
+{
+#ifndef VIDEO_DISABLED
+    for (auto& p : _sprites)
+    {
+        if (p->type() == SpriteTypes::VIDEO)
+        {
+            auto v = std::reinterpret_pointer_cast<SpriteVideo>(p);
+            v->stopPlaying();
+        }
+    }
+#endif
+}

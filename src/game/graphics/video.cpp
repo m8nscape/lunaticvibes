@@ -23,7 +23,11 @@ sVideo::~sVideo()
 {
 	if (haveVideo)
 	{
-		if (playing) stopPlaying();
+		if (playing)
+		{
+			stopPlaying();
+			decodeEnd.wait();
+		}
 		unsetVideo();
 	}
 }
@@ -210,7 +214,7 @@ void sVideo::decodeLoop()
 			{
 				if (!(pFrame1->flags & AV_FRAME_FLAG_CORRUPT))
 				{
-					std::lock_guard l(video_frame_mutex);
+					std::unique_lock l(video_frame_mutex);
 
 					av_frame_unref(pFrame);
 					av_frame_ref(pFrame, pFrame1);

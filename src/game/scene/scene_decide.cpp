@@ -28,6 +28,15 @@ SceneDecide::SceneDecide() : vScene(eMode::DECIDE, 1000)
 
 void SceneDecide::_updateAsync()
 {
+    if (gNextScene != eScene::DECIDE) return;
+
+    if (gAppIsExiting)
+    {
+        _input.loopEnd();
+        _skin->stopSpriteVideoUpdate();
+        gNextScene = eScene::EXIT_TRANS;
+    }
+
     _updateCallback();
 }
 
@@ -38,8 +47,8 @@ void SceneDecide::updateStart()
 
     if (rt.norm() >= _skin->info.timeDecideExpiry)
     {
-        loopEnd();
         _input.loopEnd();
+        _skin->stopSpriteVideoUpdate();
         gNextScene = eScene::PLAY;
     }
 }
@@ -52,8 +61,8 @@ void SceneDecide::updateSkip()
 
     if (ft.norm() >= _skin->info.timeOutro)
     {
-        loopEnd();
         _input.loopEnd();
+        _skin->stopSpriteVideoUpdate();
         gNextScene = eScene::PLAY;
     }
 }
@@ -66,8 +75,8 @@ void SceneDecide::updateCancel()
 
     if (ft.norm() >= _skin->info.timeOutro)
     {
-        loopEnd();
         _input.loopEnd();
+        _skin->stopSpriteVideoUpdate();
         clearContextPlay();
         gNextScene = eScene::SELECT;
     }

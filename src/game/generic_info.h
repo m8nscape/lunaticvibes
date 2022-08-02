@@ -20,7 +20,7 @@ inline unsigned gFrameCount[10]{ 0 };
 class GenericInfoUpdater : public AsyncLooper
 {
 public:
-	GenericInfoUpdater(unsigned rate = 1) : AsyncLooper(std::bind(&GenericInfoUpdater::_loop, this), rate) {}
+	GenericInfoUpdater(unsigned rate = 1) : AsyncLooper("GenericInfoUpdater", std::bind(&GenericInfoUpdater::_loop, this), rate) {}
 private:
 	void _loop()
 	{

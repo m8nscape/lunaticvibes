@@ -24,6 +24,7 @@ enum class eScene
     RETRY_TRANS,
     KEYCONFIG,
     CUSTOMIZE,
+    EXIT_TRANS,
     EXIT
 };
 
@@ -199,6 +200,7 @@ void createNotification(StringContentView text);
 
 extern bool gResetSelectCursor;
 extern bool gQuitOnFinish;
+extern bool gAppIsExiting;
 extern ChartContextParams gChartContext;
 extern PlayContextParams gPlayContext;
 extern SelectContextParams gSelectContext;

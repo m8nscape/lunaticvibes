@@ -4,7 +4,7 @@
 #include <cassert>
 
 InputWrapper::InputWrapper(unsigned rate, bool background) : 
-    AsyncLooper(std::bind(&InputWrapper::_loop, this), rate), _background(background)
+    AsyncLooper("Input loop", std::bind(&InputWrapper::_loop, this), rate), _background(background)
 {
 }
 

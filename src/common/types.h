@@ -90,6 +90,7 @@ enum class eMode {
 
     RETRY_TRANS,
     COURSE_TRANS,
+    EXIT_TRANS,
 
     TMPL,
     TEST,

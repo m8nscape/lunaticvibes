@@ -77,6 +77,10 @@ void SkinMgr::load(eMode e)
         skinFilePathDefault = cfg::S_DEFAULT_PATH_PLAY_14;
         skinFilePath = ConfigMgr::get("S", cfg::S_PATH_PLAY_14, cfg::S_DEFAULT_PATH_PLAY_14);
         break;
+
+    default:
+        type = eSkinType::UNDEF;
+        break;
     }
 
     skinFilePath = convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), skinFilePath);
@@ -97,7 +101,7 @@ void SkinMgr::load(eMode e)
 pSkin SkinMgr::get(eMode e)
 {
     auto& inst = _inst.c[static_cast<size_t>(e)];
-    if (inst == nullptr) load(e);
+    //if (inst == nullptr) load(e);
     return inst;
 }
 void SkinMgr::unload(eMode e)

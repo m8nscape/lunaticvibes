@@ -32,6 +32,21 @@ SceneCustomize::SceneCustomize() : vScene(eMode::THEME_SELECT, 240)
 
 void SceneCustomize::_updateAsync()
 {
+    if (gNextScene != eScene::CUSTOMIZE) return;
+
+    if (gAppIsExiting)
+    {
+        _input.loopEnd();
+        _skin->stopSpriteVideoUpdate();
+        _skin->setHandleMouseEvents(false);
+        if (SkinMgr::get(selectedMode))
+        {
+            SkinMgr::get(selectedMode)->stopSpriteVideoUpdate();
+            SkinMgr::unload(selectedMode);
+        }
+        gNextScene = eScene::EXIT_TRANS;
+    }
+
     _updateCallback();
 }
 
@@ -58,7 +73,11 @@ void SceneCustomize::updateMain()
         save(modeOld);
 
         _skin->setHandleMouseEvents(false);
-        SkinMgr::unload(selectedMode);
+        if (SkinMgr::get(selectedMode))
+        {
+            SkinMgr::get(selectedMode)->stopSpriteVideoUpdate();
+            SkinMgr::unload(selectedMode);
+        }
         load(selectedMode);
         _skin->setHandleMouseEvents(true);
     }
@@ -138,7 +157,11 @@ void SceneCustomize::updateMain()
                 }
 
                 _skin->setHandleMouseEvents(false);
-                SkinMgr::unload(selectedMode);
+                if (SkinMgr::get(selectedMode))
+                {
+                    SkinMgr::get(selectedMode)->stopSpriteVideoUpdate();
+                    SkinMgr::unload(selectedMode);
+                }
                 load(selectedMode);
                 _skin->setHandleMouseEvents(true);
             }
@@ -193,10 +216,14 @@ void SceneCustomize::updateFadeout()
 
     if (rt.norm() > _skin->info.timeOutro)
     {
-        loopEnd();
         _input.loopEnd();
+        _skin->stopSpriteVideoUpdate();
         _skin->setHandleMouseEvents(false);
-        SkinMgr::unload(selectedMode);
+        if (SkinMgr::get(selectedMode))
+        {
+            SkinMgr::get(selectedMode)->stopSpriteVideoUpdate();
+            SkinMgr::unload(selectedMode);
+        }
         gNextScene = eScene::SELECT;
     }
 }
@@ -246,6 +273,7 @@ void SceneCustomize::setOption(size_t idxOption, size_t idxEntry)
 void SceneCustomize::load(eMode mode)
 {
     SkinMgr::unload(mode);
+    SkinMgr::load(mode);
     pSkin ps = SkinMgr::get(mode);
     Path pCustomize = ConfigMgr::Profile()->getPath() / "customize" / getConfigFileName(ps->getFilePath());
     optionsMap.clear();

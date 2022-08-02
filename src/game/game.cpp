@@ -38,7 +38,9 @@ void mainLoop()
         // Evenet handling
         event_handle();
         if (gEventQuit)
-            gNextScene = eScene::EXIT;
+        {
+            gAppIsExiting = true;
+        }
 
         // Scene change
         if (currentScene != gNextScene)

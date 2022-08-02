@@ -288,13 +288,15 @@ Texture::~Texture()
 
 int Texture::updateYUV(uint8_t* Y, int Ypitch, uint8_t* U, int Upitch, uint8_t* V, int Vpitch)
 {
+    assert(IsMainThread());
+
     if (!_loaded) return -1;
     if (!Ypitch || !Upitch || !Vpitch) return -2;
-    return pushAndWaitMainThreadTask<int>(std::bind(SDL_UpdateYUVTexture, 
+    return SDL_UpdateYUVTexture(
         &*_pTexture, nullptr,
         Y, Ypitch,
         U, Upitch,
-        V, Vpitch));
+        V, Vpitch);
 }
 
 void Texture::_draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, Rect dstRect,
@@ -388,8 +390,8 @@ TextureFull::TextureFull(const Color& c): Texture(nullptr)
             _texRect = { 0,0,1,1 };
             SDL_FillRect(&*surface, &_texRect, SDL_MapRGBA(surface->format, c.r, c.g, c.b, c.a));
             _pTexture = std::shared_ptr<SDL_Texture>(
-                SDL_CreateTextureFromSurface(gFrameRenderer, surface),
-                [](SDL_Texture* p) {if (p && gFrameRenderer) SDL_DestroyTexture(p); });
+                pushAndWaitMainThreadTask<SDL_Texture*>(std::bind(SDL_CreateTextureFromSurface, gFrameRenderer, surface)),
+                std::bind(pushAndWaitMainThreadTask<void, SDL_Texture*>, SDL_DestroyTexture, _1));
             SDL_FreeSurface(surface);
         });
     _loaded = true;

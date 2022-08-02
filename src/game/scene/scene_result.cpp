@@ -164,6 +164,15 @@ SceneResult::SceneResult(ePlayMode gamemode) : vScene(eMode::RESULT, 1000), _pla
 
 void SceneResult::_updateAsync()
 {
+    if (gNextScene != eScene::RESULT) return;
+
+    if (gAppIsExiting)
+    {
+        _input.loopEnd();
+        _skin->stopSpriteVideoUpdate();
+        gNextScene = eScene::EXIT_TRANS;
+    }
+
     std::unique_lock<decltype(_mutex)> _lock(_mutex, std::try_to_lock);
     if (!_lock.owns_lock()) return;
 
@@ -218,7 +227,6 @@ void SceneResult::updateFadeout()
 
     if (ft >= _skin->info.timeOutro)
     {
-        loopEnd();
         _input.loopEnd();
         SoundMgr::stopKeySamples();
 
@@ -302,11 +310,13 @@ void SceneResult::updateFadeout()
         if (_retryRequested && gPlayContext.canRetry)
         {
             clearContextPlayForRetry();
+            _skin->stopSpriteVideoUpdate();
             gNextScene = eScene::PLAY;
         }
         else
         {
             clearContextPlay();
+            _skin->stopSpriteVideoUpdate();
             gNextScene = gQuitOnFinish ? eScene::EXIT : eScene::SELECT;
         }
     }

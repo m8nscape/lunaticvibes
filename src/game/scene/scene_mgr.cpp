@@ -8,6 +8,7 @@
 #include "scene_play_course_trans.h"
 #include "scene_keyconfig.h"
 #include "scene_customize.h"
+#include "scene_exit_trans.h"
 #include "game/skin/skin_mgr.h"
 #include "game/ruleset/ruleset.h"
 
@@ -65,6 +66,10 @@ pScene SceneMgr::get(eScene e)
 
     case eScene::CUSTOMIZE:
         ps = std::make_shared<SceneCustomize>();
+        break;
+
+    case eScene::EXIT_TRANS:
+        ps = std::make_shared<SceneExitTrans>();
         break;
 
 	default:

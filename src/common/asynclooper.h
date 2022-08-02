@@ -1,6 +1,7 @@
 #pragma once
 #include <functional>
 #include <shared_mutex>
+#include "types.h"
 
 #if WIN32
 #include <Windows.h>
@@ -30,15 +31,18 @@ private:
     void _recordLoopTime();
 
 protected:
+    StringContent _tag;
     unsigned _rate;
     unsigned _rateTime;
     bool _running = false;
     bool _inLoopBody = false;
+    unsigned _iterateCount = 0;
+    unsigned _iterateEndCount = 0;
     LooperHandler handler;
 
 
 public:
-    AsyncLooper(std::function<void()>, unsigned rate_per_sec, bool single_inst = false);
+    AsyncLooper(StringContentView tag, std::function<void()>, unsigned rate_per_sec, bool single_inst = false);
     virtual ~AsyncLooper();
     void loopStart();
     void loopEnd();

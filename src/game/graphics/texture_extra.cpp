@@ -21,12 +21,19 @@ extern "C"
 
 TextureVideo::TextureVideo(std::shared_ptr<sVideo> pv) :
 	Texture(pv->getW(), pv->getH(), pv->getFormat()),
-	AsyncLooper(std::bind(&TextureVideo::update, this), 60, true),
+	AsyncLooper("Video update", std::bind(&TextureVideo::update, this), 60, true),
 	format(pv->getFormat()), 
-	pVideo(pv) {}
+	pVideo(pv)
+{
+	_texRect.x = 0;
+	_texRect.y = 0;
+	_texRect.w = pv->getW();
+	_texRect.h = pv->getH();
+}
 
 TextureVideo::~TextureVideo()
 {
+	stop();
 	loopEnd();
 }
 
@@ -40,9 +47,8 @@ void TextureVideo::start()
 
 void TextureVideo::stop()
 {
-	if (!_running) return;
+	assert(!_running);	// call stopUpdate() first
 	pVideo->stopPlaying();
-	loopEnd();
 }
 
 void TextureVideo::seek(int64_t sec)
@@ -54,6 +60,7 @@ void TextureVideo::update()
 {
 	if (!pVideo) return;
 	if (!pVideo->haveVideo) return;
+	if (!pVideo->isPlaying()) return;
 
 	auto vrfc = pVideo->getDecodedFrames();
 	if (decoded_frames == vrfc) return;
@@ -61,29 +68,42 @@ void TextureVideo::update()
 
 	{
 		using namespace std::chrono_literals;
-		std::shared_lock l(pVideo->video_frame_mutex);
+		
+		pushAndWaitMainThreadTask<void>([&]()
+			{
+				std::shared_lock l(pVideo->video_frame_mutex);
 
-		auto pf = pVideo->getFrame();
-		if (!pf) return;
-
-		switch (format)
-		{
-		case Texture::PixelFormat::IYUV:
-			pushMainThreadTask([this]() {
 				auto pf = pVideo->getFrame();
 				if (!pf) return;
 
-				updateYUV(
-					pf->data[0], pf->linesize[0],
-					pf->data[1], pf->linesize[1],
-					pf->data[2], pf->linesize[2]);
-			});
-			break;
+				switch (format)
+				{
+				case Texture::PixelFormat::IYUV:
+					updateYUV(
+						pf->data[0], pf->linesize[0],
+						pf->data[1], pf->linesize[1],
+						pf->data[2], pf->linesize[2]);
+					break;
 
-		default:
-			break;
-		}
+				default:
+					break;
+				}
+			}
+		);
 	}
+}
+
+void TextureVideo::stopUpdate()
+{
+	assert(!IsMainThread());
+	loopEnd();
+	// AsyncLooper thread will end here, releasing pVideo->video_frame_mutex occupation by update()
+}
+
+void TextureVideo::draw(const Rect& srcRect, Rect dstRect,
+	const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point& center) const
+{
+	Texture::draw(srcRect, dstRect, c, blend, filter, angleInDegrees, center);
 }
 
 
@@ -317,6 +337,7 @@ void TextureBmsBga::reset()
 			{
 #ifndef VIDEO_DISABLED
 				auto pt = std::reinterpret_pointer_cast<TextureVideo>(objs[idx].pt);
+				pt->stopUpdate();
 				pt->stop();
 #endif
 			}
