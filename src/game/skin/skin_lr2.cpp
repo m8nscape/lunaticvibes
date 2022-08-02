@@ -3045,5 +3045,5 @@ StringContent SkinLR2::getMaker() const
 
 StringPath SkinLR2::getFilePath() const
 {
-    return filePath.relative_path();
+    return filePath.is_absolute() ? filePath : filePath.relative_path();
 }
