@@ -17,6 +17,7 @@ protected:
 	std::shared_ptr<sVideo> pVideo;
 	unsigned decoded_frames = ~0;
 	PixelFormat format;
+	bool updated = false;
 
 public:
 	TextureVideo(std::shared_ptr<sVideo> pv);
@@ -27,6 +28,12 @@ public:
 	void update();
 	void reset();
 
+	virtual void draw(Rect dstRect,
+		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const;
+	virtual void draw(Rect dstRect,
+		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point& center) const;
+	virtual void draw(const Rect& srcRect, Rect dstRect,
+		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const;
 	virtual void draw(const Rect& srcRect, Rect dstRect,
 		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point& center) const;
 

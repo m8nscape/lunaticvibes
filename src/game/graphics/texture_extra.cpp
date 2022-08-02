@@ -77,10 +77,11 @@ void TextureVideo::update()
 				switch (format)
 				{
 				case Texture::PixelFormat::IYUV:
-					updateYUV(
+					if (updateYUV(
 						pf->data[0], pf->linesize[0],
 						pf->data[1], pf->linesize[1],
-						pf->data[2], pf->linesize[2]);
+						pf->data[2], pf->linesize[2]) == 0)
+						updated = true;
 					break;
 
 				default:
@@ -98,10 +99,25 @@ void TextureVideo::stopUpdate()
 	// AsyncLooper thread will end here, releasing pVideo->video_frame_mutex occupation by update()
 }
 
+void TextureVideo::draw(Rect dstRect,
+	const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const
+{
+	Texture::draw(dstRect, updated ? c : Color(0, 0, 0, c.a), blend, filter, angleInDegrees);
+}
+void TextureVideo::draw(Rect dstRect,
+	const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point& center) const
+{
+	Texture::draw(dstRect, updated ? c : Color(0, 0, 0, c.a), blend, filter, angleInDegrees, center);
+}
+void TextureVideo::draw(const Rect& srcRect, Rect dstRect,
+	const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const
+{
+	Texture::draw(srcRect, dstRect, updated ? c : Color(0, 0, 0, c.a), blend, filter, angleInDegrees);
+}
 void TextureVideo::draw(const Rect& srcRect, Rect dstRect,
 	const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point& center) const
 {
-	Texture::draw(srcRect, dstRect, c, blend, filter, angleInDegrees, center);
+	Texture::draw(srcRect, dstRect, updated ? c : Color(0, 0, 0, c.a), blend, filter, angleInDegrees, center);
 }
 
 
