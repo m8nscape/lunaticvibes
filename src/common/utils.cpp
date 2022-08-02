@@ -307,8 +307,13 @@ std::string convertLR2Path(const std::string& lr2path, const char* relative_path
     if (auto p = Path(relative_path); p.is_absolute())
         return relative_path;
 
-    std::string_view raw(relative_path);
-    std::string_view prefix(relative_path, 2);
+    int head = 0;
+    int tail = strlen(relative_path) - 1;
+    while (head <= tail && relative_path[0] == '"') head++;
+    while (head <= tail && relative_path[tail] == '"') tail--;
+
+    std::string_view raw(relative_path + head, tail - head + 1);
+    std::string_view prefix(relative_path + head, 2);
     if (!prefix.empty())
     {
         if (prefix == "./" || prefix == ".\\")
