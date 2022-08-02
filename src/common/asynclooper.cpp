@@ -163,7 +163,7 @@ void AsyncLooper::removeLooper(uintptr_t key)
     if (loopers.find(key) != loopers.end())
     {
         loopers[key]._loopFuncBody = [] {};
-        std::thread([&]()
+        std::thread([&, key]()
             {
                 loopers[key].loopEnd();
                 loopers.erase(key);

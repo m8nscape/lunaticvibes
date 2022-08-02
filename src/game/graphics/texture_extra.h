@@ -109,7 +109,7 @@ public:
 	void clear();
 
 	void setLoaded();
-
+	void stopUpdate();
 };
 
 

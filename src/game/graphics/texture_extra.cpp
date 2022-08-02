@@ -35,6 +35,7 @@ TextureVideo::~TextureVideo()
 {
 	stop();
 	looper->loopEnd();
+	looper->removeLooper((uintptr_t)this);
 }
 
 void TextureVideo::start()
@@ -380,6 +381,29 @@ void TextureBmsBga::clear()
 void TextureBmsBga::setLoaded()
 {
 	_loaded = true;	
+}
+
+void TextureBmsBga::stopUpdate()
+{
+#ifndef VIDEO_DISABLED
+	auto resetSub = [this](decltype(baseSlot)& slot)
+	{
+		for (auto it = slot.begin(); it != slot.end(); ++it)	// search from beginning
+		{
+			auto [time, idx] = *it;
+			if (objs[idx].type == obj::Ty::VIDEO)
+			{
+				auto pt = std::reinterpret_pointer_cast<TextureVideo>(objs[idx].pt);
+				pt->stopUpdate();
+			}
+		}
+		//slotIt = slot.end();	// not found
+	};
+
+	resetSub(baseSlot);
+	resetSub(layerSlot);
+	resetSub(poorSlot);
+#endif
 }
 
 TextureDynamic::TextureDynamic() : Texture(nullptr, 0, 0)

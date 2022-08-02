@@ -87,6 +87,7 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         LOG_ERROR << "[Play] Invalid chart: " << gChartContext.path.u8string();
 
         _skin->stopSpriteVideoUpdate();
+        gPlayContext.bgaTexture->stopUpdate();
         gNextScene = eScene::SELECT;
 
         return;
@@ -136,6 +137,7 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         LOG_WARNING << "[Play] chart format not supported.";
 
         _skin->stopSpriteVideoUpdate();
+        gPlayContext.bgaTexture->stopUpdate();
         gNextScene = eScene::SELECT;
         return;
     }
@@ -551,6 +553,7 @@ void ScenePlay::_updateAsync()
     {
         _input.loopEnd();
         _skin->stopSpriteVideoUpdate();
+        gPlayContext.bgaTexture->stopUpdate();
         gNextScene = eScene::EXIT_TRANS;
     }
 
@@ -828,6 +831,7 @@ void ScenePlay::updateFadeout()
         _input.loopEnd();
         SoundMgr::stopKeySamples();
         _skin->stopSpriteVideoUpdate();
+        gPlayContext.bgaTexture->stopUpdate();
 
         if (isPlaymodeAuto())
         {
