@@ -14,13 +14,13 @@ void ConfigInput::setDefaults() noexcept
     _yaml.reset();
     clearAll();
 
-    std::string path = (
-        keys == 5 ? CONFIG_FILE_INPUT_DEFAULT_5 :
-        keys == 7 ? CONFIG_FILE_INPUT_DEFAULT_7 :
-        keys == 9 ? CONFIG_FILE_INPUT_DEFAULT_9 : "");
+    Path path = GAMEDATA_PATH;
+    path /= keys == 5 ? CONFIG_FILE_INPUT_DEFAULT_5 :
+            keys == 7 ? CONFIG_FILE_INPUT_DEFAULT_7 :
+            keys == 9 ? CONFIG_FILE_INPUT_DEFAULT_9 : "";
     try
     {
-        _yaml = YAML::LoadFile(path);
+        _yaml = YAML::LoadFile(path.string());
     }
     catch (YAML::BadFile&)
     {
