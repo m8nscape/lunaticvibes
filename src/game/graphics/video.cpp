@@ -233,7 +233,7 @@ void sVideo::decodeLoop()
 		if (loop_playback)
 		{
 			using namespace std::chrono_literals;
-			std::this_thread::sleep_for(33ms);
+			//std::this_thread::sleep_for(33ms);
 			decoded_frames = 0;
 			seek(0, true);
 			startTime = std::chrono::system_clock::now();
@@ -277,7 +277,11 @@ void sVideo::seek(int64_t second, bool backwards)
 	double tsps = pFormatCtx->streams[videoIndex]->time_base.num == 0 ? 
 		AV_TIME_BASE : av_q2d(av_inv_q(pFormatCtx->streams[videoIndex]->time_base));
 
-	if (int ret = av_seek_frame(pFormatCtx, videoIndex, int64_t(std::round(second / tsps)), backwards ? AVSEEK_FLAG_BACKWARD : 0); ret < 0)
+	if (int ret = av_seek_frame(pFormatCtx, videoIndex, int64_t(std::round(second / tsps)), backwards ? AVSEEK_FLAG_BACKWARD : 0); ret >= 0)
+	{
+		avcodec_flush_buffers(pCodecCtx);
+	}
+	else
 	{
 		LOG_ERROR << "[Video] seek " << second << "s error (" << file.u8string() << ")";
 	}
