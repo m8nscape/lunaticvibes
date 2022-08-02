@@ -88,7 +88,7 @@ void GetExecutablePath(char* output, size_t bufsize, size_t& len)
 
     using namespace std::filesystem;
     auto parent = path(fullpath).parent_path();
-    strcpy(output, bufsize, (const char*)parent.u8string().c_str());
+    strcpy(output, bufsize, (const char*)parent.string().c_str());
     len = strlen(output);
 }
 
