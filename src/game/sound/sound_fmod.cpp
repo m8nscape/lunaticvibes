@@ -285,11 +285,11 @@ int SoundDriverFMOD::loadKeySample(const Path& spath, size_t index)
 
 	FMOD_RESULT r = FMOD_ERR_FILE_NOTFOUND;
 	if (fs::exists(spath) && fs::is_regular_file(spath))
-		r = fmodSystem->createSound(path.c_str(), FMOD_UNIQUE, 0, &keySamples[index]);
+		r = fmodSystem->createSound(path.c_str(), FMOD_LOOP_OFF | FMOD_UNIQUE, 0, &keySamples[index]);
 
     // Also find ogg with the same filename
     if (r == FMOD_ERR_FILE_NOTFOUND && path.length() > 4 && path.substr(path.length() - 4) == ".wav")
-        r = fmodSystem->createSound(path.replace(path.length() - 4, 4, ".ogg").c_str(), FMOD_UNIQUE, 0, &keySamples[index]);
+        r = fmodSystem->createSound(path.replace(path.length() - 4, 4, ".ogg").c_str(), FMOD_LOOP_OFF | FMOD_UNIQUE, 0, &keySamples[index]);
 
     if (r != FMOD_OK)
         LOG_DEBUG << "[FMOD] Loading Sample (" + path + ") Error: " << r << ", " << FMOD_ErrorString(r);

@@ -28,11 +28,11 @@ void loadLR2Sound()
 
     SoundMgr::loadSample((path / "decide.wav"), eSoundSample::SOUND_DECIDE, false);
     SoundMgr::loadSample((path / "playstop.wav"), eSoundSample::SOUND_PLAYSTOP, false);
-    SoundMgr::loadSample((path / "clear.wav"), eSoundSample::SOUND_CLEAR, false, true);
-    SoundMgr::loadSample((path / "fail.wav"), eSoundSample::SOUND_FAIL, false, true);
+    SoundMgr::loadSample((path / "clear.wav"), eSoundSample::SOUND_CLEAR, false);
+    SoundMgr::loadSample((path / "fail.wav"), eSoundSample::SOUND_FAIL, false);
 
     SoundMgr::loadSample((path / "screenshot.wav"), eSoundSample::SOUND_SCREENSHOT, false);
 
-    SoundMgr::loadSample((path / "course_clear.wav"), eSoundSample::SOUND_COURSE_CLEAR, false, true);
-    SoundMgr::loadSample((path / "course_fail.wav"), eSoundSample::SOUND_COURSE_FAIL, false, true);
+    SoundMgr::loadSample((path / "course_clear.wav"), eSoundSample::SOUND_COURSE_CLEAR, false);
+    SoundMgr::loadSample((path / "course_fail.wav"), eSoundSample::SOUND_COURSE_FAIL, false);
 }
