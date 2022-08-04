@@ -5,8 +5,8 @@
 #include <vector>
 #include <filesystem>
 
-// Codes are from DXArchive, with some modification
-// Original author: 山田 巧
+// Codes are from DXArchive (DX Library -> Tool -> DXArchive -> Source) , with some modification
+// Original author: 山田 巧 (Takumi Yamada)
 // Homepage: https://dxlib.xsrv.jp/dxtec.html
 
 namespace dxa
