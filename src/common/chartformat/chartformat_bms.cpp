@@ -952,7 +952,7 @@ void BMS::channel::sortNotes()
     std::vector<NoteParseValue> vec(notes.begin(), notes.end());
     std::stable_sort(vec.begin(), vec.end(), [](const NoteParseValue& lhs, const NoteParseValue& rhs)
         {
-            return lhs.segment < rhs.segment&& lhs.value < rhs.value;
+            return lhs.segment < rhs.segment;
         });
     notes.assign(vec.begin(), vec.end());
 }

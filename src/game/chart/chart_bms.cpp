@@ -398,7 +398,11 @@ void chartBMS::loadBMS(const BMS& objBms)
         }
 
         // Sort by time / lane value
-        std::stable_sort(notes.begin(), notes.end());
+        std::stable_sort(notes.begin(), notes.end(), [](const std::pair<Segment, std::pair<Lane, unsigned>>& lhs, const std::pair<Segment, std::pair<Lane, unsigned>>& rhs)
+            {
+                // only compare Segment; Lane and sample must keep original order
+                return lhs.first < rhs.first;
+            });
 
         ///////////////////////////////////////////////////////////////////////
 
@@ -423,8 +427,13 @@ void chartBMS::loadBMS(const BMS& objBms)
                     NoteLane chartLane = idxToChannel(chart::channelToIdx(NoteLaneCategory::LN, lane.index));
                     size_t gameLaneIdx = gameLaneMap[chartLane.second];
                     size_t gameLaneIdxLN = gameLaneLNIndex[gameLaneIdx];
-                    assert(gameLaneIdxLN != _);
+                    assert(gameLaneIdxLN != _); // duplicate LN tail found. Check chartformat parsing
                     assert(laneOccupiedByLN[gameLaneIdxLN] == true);
+                    if (gameLaneIdxLN == _ || !laneOccupiedByLN[gameLaneIdxLN])
+                    {
+                        LOG_ERROR << "[BMS] Parsing LN error! File: " << objBms.absolutePath.u8string();
+                        return;
+                    }
                     laneOccupiedByLN[gameLaneIdxLN] = false;
                     gameLaneLNIndex[gameLaneIdx] = _;
                     _noteLists[channelToIdx(chartLane.first, gameLaneIdxLN)].push_back({ m, notemetre, notetime, Note::LN_TAIL, (long long)val, 0., false });
