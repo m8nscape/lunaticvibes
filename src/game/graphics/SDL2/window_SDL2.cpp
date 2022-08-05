@@ -16,6 +16,9 @@
 #include "backends/imgui_impl_sdl.h"
 #include "backends/imgui_impl_sdlrenderer.h"
 
+static SDL_Rect canvasRect;
+static SDL_Rect windowRect;
+
 int graphics_init()
 {
     // SDL2
@@ -63,19 +66,19 @@ int graphics_init()
         {
             // fallback to windowed
         }
-        unsigned w = ConfigMgr::get("V", cfg::V_DISPLAY_RES_X, CANVAS_WIDTH);
-        unsigned h = ConfigMgr::get("V", cfg::V_DISPLAY_RES_Y, CANVAS_HEIGHT);
+        windowRect.w = ConfigMgr::get("V", cfg::V_DISPLAY_RES_X, CANVAS_WIDTH);
+        windowRect.h = ConfigMgr::get("V", cfg::V_DISPLAY_RES_Y, CANVAS_HEIGHT);
         gFrameWindow = SDL_CreateWindow(title.c_str(),
-            SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, flags);
+            SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowRect.w, windowRect.h, flags);
         if (!gFrameWindow)
         {
             LOG_ERROR << "[SDL2] Init window ERROR! " << SDL_GetError();
             return -1;
         }
 
-        graphics_set_canvas_scale(
-            (double)w / ConfigMgr::get("V", cfg::V_RES_X, CANVAS_WIDTH),
-            (double)h / ConfigMgr::get("V", cfg::V_RES_Y, CANVAS_HEIGHT));
+        canvasRect.w = ConfigMgr::get("V", cfg::V_RES_X, CANVAS_WIDTH);
+        canvasRect.h = ConfigMgr::get("V", cfg::V_RES_Y, CANVAS_HEIGHT);
+        graphics_resize_canvas(canvasRect.w, canvasRect.h);
 
         int maxFPS = ConfigMgr::get("V", cfg::V_MAXFPS, 480);
         if (maxFPS < 30 && maxFPS != 0)
@@ -107,6 +110,16 @@ int graphics_init()
             LOG_ERROR << "[SDL2] Init renderer ERROR! " << SDL_GetError();
             return -2;
         }
+
+        gInternalRenderTarget = SDL_CreateTexture(gFrameRenderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_TARGET,
+            3840, 2160);
+        if (!gInternalRenderTarget)
+        {
+            LOG_ERROR << "[SDL2] Init Target Texture Error! " << SDL_GetError();
+            return -3;
+        }
+
+        SDL_SetRenderTarget(gFrameRenderer, gInternalRenderTarget);
 
         SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 
@@ -152,15 +165,28 @@ void graphics_clear()
     SDL_RenderClear(gFrameRenderer);
 }
 
-int maxFPS = 0;
-std::chrono::nanoseconds desiredFrameTimeBetweenFrames;
-std::chrono::high_resolution_clock::time_point frameTimestampPrev;
+static int maxFPS = 0;
+static std::chrono::nanoseconds desiredFrameTimeBetweenFrames;
+static std::chrono::high_resolution_clock::time_point frameTimestampPrev;
 void graphics_flush()
 {
-    auto pData = ImGui::GetDrawData();
-    if (pData != NULL) ImGui_ImplSDLRenderer_RenderDrawData(pData);
+    SDL_SetRenderTarget(gFrameRenderer, NULL);
+    {
+        // TODO scale internal canvas
 
-    SDL_RenderPresent(gFrameRenderer);
+        // render internal canvas texture
+        SDL_RenderCopyEx(
+            gFrameRenderer, gInternalRenderTarget,
+            &canvasRect, &windowRect,
+            0, NULL, SDL_FLIP_NONE);
+
+        // render imgui
+        auto pData = ImGui::GetDrawData();
+        if (pData != NULL) ImGui_ImplSDLRenderer_RenderDrawData(pData);
+
+        SDL_RenderPresent(gFrameRenderer);
+    }
+    SDL_SetRenderTarget(gFrameRenderer, gInternalRenderTarget);
 
     if (maxFPS != 0)
     {
@@ -176,6 +202,8 @@ int graphics_free()
     ImGui_ImplSDLRenderer_Shutdown();
     ImGui_ImplSDL2_Shutdown();
 
+    SDL_DestroyTexture(gInternalRenderTarget);
+    gInternalRenderTarget = nullptr;
     SDL_DestroyRenderer(gFrameRenderer);
     gFrameRenderer = nullptr;
     SDL_DestroyWindow(gFrameWindow);
@@ -207,6 +235,8 @@ void graphics_change_window_mode(int mode)
 
 void graphics_resize_window(int x, int y)
 {
+    windowRect.w = x;
+    windowRect.h = y;
     SDL_SetWindowSize(gFrameWindow, x, y);
     SDL_SetWindowPosition(gFrameWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 }
@@ -219,10 +249,12 @@ void graphics_change_vsync(bool enable)
 
 static double canvasScaleX = 1.0;
 static double canvasScaleY = 1.0;
-void graphics_set_canvas_scale(double x, double y)
+void graphics_resize_canvas(int x, int y)
 {
-    canvasScaleX = x;
-    canvasScaleY = y;
+    canvasRect.w = x;
+    canvasRect.h = y;
+    canvasScaleX = (double)windowRect.w / x;
+    canvasScaleY = (double)windowRect.h / y;
 }
 double graphics_get_canvas_scale_x() { return canvasScaleX; }
 double graphics_get_canvas_scale_y() { return canvasScaleY; }
@@ -283,9 +315,11 @@ void event_handle()
 
 void ImGuiNewFrame()
 {
+    SDL_SetRenderTarget(gFrameRenderer, NULL);
     ImGui_ImplSDLRenderer_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
+    SDL_SetRenderTarget(gFrameRenderer, gInternalRenderTarget);
 }
 
 #endif

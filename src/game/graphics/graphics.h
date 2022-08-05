@@ -23,11 +23,11 @@ int graphics_free();
 // 0: windowed / 1: fullscreen / 2: borderless
 void graphics_change_window_mode(int mode);
 
+void graphics_resize_canvas(int x, int y);
 void graphics_resize_window(int x, int y);
 
 void graphics_change_vsync(bool enable);
 
-void graphics_set_canvas_scale(double x, double y);
 double graphics_get_canvas_scale_x();
 double graphics_get_canvas_scale_y();
 

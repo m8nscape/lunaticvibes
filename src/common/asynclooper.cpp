@@ -119,7 +119,6 @@ void AsyncLooper::loopEnd()
     if (_running)
     {
         _running = false;
-        _loopFuncBody = [] {};
         if (DeleteTimerQueueTimer(NULL, handler, NULL))
         {
             // ..?

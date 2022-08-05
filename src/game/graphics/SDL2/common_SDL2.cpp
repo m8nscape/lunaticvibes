@@ -325,21 +325,6 @@ void Texture::_draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, Rect
     SDL_Point scenter;
     if (center) scenter = { (int)center->x, (int)center->y };
 
-    double canvasScaleX = graphics_get_canvas_scale_x();
-    double canvasScaleY = graphics_get_canvas_scale_y();
-    if (canvasScaleX != 1.0)
-    {
-        dstRect.x = (int)std::floor(dstRect.x * canvasScaleX);
-        dstRect.w = (int)std::floor(dstRect.w * canvasScaleX);
-        if (center) scenter.x = (int)std::round(scenter.x * canvasScaleX);
-    }
-    if (canvasScaleY != 1.0)
-    {
-        dstRect.y = (int)std::floor(dstRect.y * canvasScaleY);
-        dstRect.h = (int)std::floor(dstRect.h * canvasScaleY);
-        if (center) scenter.y = (int)std::round(scenter.y * canvasScaleY);
-    }
-
     int r = SDL_RenderCopyEx(
         gFrameRenderer,
         &*pTex,

@@ -95,7 +95,7 @@ void SceneSelect::_imguiSettings()
     ImGuiNewFrame();
     if (imguiShow)
     {
-        if (ImGui::Begin("Settings (F9)", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse))
+        if (ImGui::Begin("Settings (F9)", NULL, ImGuiWindowFlags_NoCollapse))
         {
             ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Once);
             ImGui::SetNextWindowSize(ImVec2(500, 450), ImGuiCond_Once);
@@ -484,10 +484,9 @@ bool SceneSelect::_imguiApplyResolution()
     renderH = ConfigMgr::get("V", cfg::V_RES_Y, CANVAS_HEIGHT);
 
     graphics_change_window_mode(imgui_video_mode);
+    graphics_resize_canvas(renderW, renderH);
     graphics_resize_window(windowW, windowH);
     graphics_change_vsync(imgui_video_vsync);
-
-    graphics_set_canvas_scale((double)windowW / renderW, (double)windowH / renderH);
 
     return true;
 }

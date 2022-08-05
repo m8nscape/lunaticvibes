@@ -16,6 +16,11 @@
 
 // global control pointer, do not modify
 inline SDL_Renderer* gFrameRenderer;
+inline SDL_Texture* gInternalRenderTarget;
+
+
+////////////////////////////////////////////////////////////////////////////////
+
 
 class Color : public SDL_Color
 {
