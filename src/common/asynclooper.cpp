@@ -15,6 +15,7 @@ AsyncLooper::AsyncLooper(StringContentView tag, std::function<void()> func, unsi
 
 AsyncLooper::~AsyncLooper()
 {
+    assert(!_running);
     if (_running)
     {
         _running = false;
@@ -33,6 +34,7 @@ AsyncLooper::~AsyncLooper()
 
 void AsyncLooper::run()
 {
+    _runThreadID = GetCurrentThreadID();
     if (_running && !_inLoopBody)
     {
         _inLoopBody = true;
@@ -110,9 +112,14 @@ void AsyncLooper::loopStart()
 
 void AsyncLooper::loopEnd()
 {
+    if (_inLoopBody)
+    {
+        assert(_runThreadID != GetCurrentThreadID());
+    }
     if (_running)
     {
         _running = false;
+        _loopFuncBody = [] {};
         if (DeleteTimerQueueTimer(NULL, handler, NULL))
         {
             // ..?

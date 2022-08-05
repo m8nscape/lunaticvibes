@@ -74,6 +74,7 @@ private:
 public:
     void loopStart() { _looper->loopStart(); }
     void loopEnd() { _looper->loopEnd(); }
+    bool isRunning() const { return _looper->isRunning(); }
     
 public:
     bool isPressed(Input::Pad k) 

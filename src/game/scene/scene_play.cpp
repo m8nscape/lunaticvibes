@@ -83,7 +83,6 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         LOG_ERROR << "[Play] Invalid chart: " << gChartContext.path.u8string();
 
         _skin->stopSpriteVideoUpdate();
-        gPlayContext.bgaTexture->stopUpdate();
         gNextScene = eScene::SELECT;
 
         return;
@@ -133,7 +132,6 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         LOG_WARNING << "[Play] chart format not supported.";
 
         _skin->stopSpriteVideoUpdate();
-        gPlayContext.bgaTexture->stopUpdate();
         gNextScene = eScene::SELECT;
         return;
     }
@@ -580,6 +578,7 @@ void ScenePlay::updatePrepare()
     auto rt = t - gTimers.get(eTimer::SCENE_START);
     if (rt.norm() > _skin->info.timeIntro)
     {
+        gTimers.set(eTimer::_LOAD_START, t.norm());
 		gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_LOADING);
 		_loadChartFuture = std::async(std::launch::async, std::bind(&ScenePlay::loadChart, this));
         _state = ePlayState::LOADING;
@@ -818,12 +817,10 @@ void ScenePlay::updateFadeout()
                 wantRetry = true;
         }
 
-        gPlayContext.bgaTexture->reset();
-
         _input.loopEnd();
         SoundMgr::stopKeySamples();
         _skin->stopSpriteVideoUpdate();
-        gPlayContext.bgaTexture->stopUpdate();
+        gPlayContext.bgaTexture->reset();
 
         if (isPlaymodeAuto())
         {

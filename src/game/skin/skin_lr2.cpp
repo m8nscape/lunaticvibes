@@ -463,6 +463,7 @@ Tokens csvLineTokenizeSimple(const std::string& raw)
     if (linecsv.empty()) return {};
 
     Tokens res;
+    res.reserve(32);
     size_t idx = 0;
     size_t pos = 0;
     do 
@@ -490,6 +491,7 @@ Tokens csvLineTokenize(const std::string& raw)
     std::match_results<decltype(linecsv.begin())> matchResults;
     typedef std::regex_token_iterator<decltype(linecsv.begin())> scv_regex_token_iterator;
     Tokens res;
+    res.reserve(32);
     for (auto it = scv_regex_token_iterator(linecsv.begin(), linecsv.end(), re, 1);
         it != scv_regex_token_iterator() && it->first != linecsv.end(); ++it)
     {

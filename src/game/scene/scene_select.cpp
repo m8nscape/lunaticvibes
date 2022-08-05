@@ -413,6 +413,7 @@ void SceneSelect::updateFadeout()
         }
         else
         {
+            _input.loopEnd();
             SoundMgr::stopSamples();
             gNextScene = eScene::EXIT_TRANS;
         }

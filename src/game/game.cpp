@@ -45,6 +45,8 @@ void mainLoop()
         // Scene change
         if (currentScene != gNextScene)
         {
+            scene->preRelease();
+
             switch (gNextScene)
             {
             case eScene::SELECT: LOG_INFO << "Scene changed to SELECT"; break;
@@ -81,6 +83,7 @@ void mainLoop()
         // sound update (temporary)
         SoundMgr::update();
     }
+    scene->preRelease();
 	gGenericInfo.loopEnd();
 }
 
@@ -153,7 +156,7 @@ int main(int argc, char* argv[])
     gSwitches.setDefault(eSwitch::_TRUE, true);
     //gSliders.setDefault(eSlider::ZERO, 0);
     //gTexts.setDefault(eText::INVALID, "");
-    gTimers.setDefault(eTimer::_NEVER, LLONG_MAX);
+    gTimers.setDefault(eTimer::_NEVER, TIMER_NEVER);
 
     gNumbers.reset();
     gSwitches.reset();

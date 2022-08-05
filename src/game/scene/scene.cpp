@@ -87,11 +87,19 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
 
 vScene::~vScene() 
 {
+    assert(!_input.isRunning());
+    assert(!_looper->isRunning());
     AsyncLooper::removeLooper((uintptr_t)this);
     _input.unregister_r("SKIN_MOUSE_RELEASE");
     _input.unregister_h("SKIN_MOUSE_DRAG");
     _input.unregister_p("SKIN_MOUSE_CLICK");
     sceneEnding = true; 
+}
+
+void vScene::preRelease()
+{
+    _input.loopEnd();
+    _looper->loopEnd();
 }
 
 void vScene::update()

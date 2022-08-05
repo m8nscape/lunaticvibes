@@ -39,6 +39,7 @@ protected:
     bool _inLoopBody = false;
     unsigned _iterateCount = 0;
     unsigned _iterateEndCount = 0;
+    int64_t _runThreadID = 0;
     LooperHandler handler;
 
 public:

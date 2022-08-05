@@ -16,6 +16,13 @@ SceneMgr SceneMgr::_inst;
 
 pScene SceneMgr::get(eScene e)
 {
+    gTimers.queue(eTimer::SCENE_START, TIMER_NEVER);
+    gTimers.queue(eTimer::START_INPUT, TIMER_NEVER);
+    gTimers.queue(eTimer::_LOAD_START, TIMER_NEVER);
+    gTimers.queue(eTimer::PLAY_READY, TIMER_NEVER);
+    gTimers.queue(eTimer::PLAY_START, TIMER_NEVER);
+    gTimers.flush();
+
 	pScene ps = nullptr;
     switch (e)
     {
@@ -81,9 +88,6 @@ pScene SceneMgr::get(eScene e)
     Time t;
     gTimers.queue(eTimer::SCENE_START, t.norm());
     gTimers.queue(eTimer::START_INPUT, t.norm() + (ps ? ps->getSkinInfo().timeIntro : 0));
-    gTimers.queue(eTimer::_LOAD_START, TIMER_NEVER);
-    gTimers.queue(eTimer::PLAY_READY, TIMER_NEVER);
-    gTimers.queue(eTimer::PLAY_START, TIMER_NEVER);
     gTimers.flush();
 
 	return ps;

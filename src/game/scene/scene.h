@@ -27,17 +27,19 @@ public:
 	bool sceneEnding = false;
 
 public:
+    vScene() = delete;
     vScene(eMode mode, unsigned rate = 240, bool backgroundInput = false);
     virtual ~vScene();
+    void preRelease();
 
 public:
-    vScene() = delete;
     virtual void update();      // skin update
     void MouseClick(InputMask& m, const Time& t);
     void MouseDrag(InputMask& m, const Time& t);
     void MouseRelease(InputMask& m, const Time& t);
-    vSkin::skinInfo getSkinInfo() const { return _skin ? _skin->info : vSkin::skinInfo(); }
     virtual void draw() const;
+
+    vSkin::skinInfo getSkinInfo() const { return _skin ? _skin->info : vSkin::skinInfo(); }
 
 protected:
     virtual void _updateAsync() = 0;

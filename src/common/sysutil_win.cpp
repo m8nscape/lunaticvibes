@@ -53,6 +53,11 @@ void SetThreadAsMainThread()
     dwMainThreadId = GetCurrentThreadId();
 }
 
+int64_t GetCurrentThreadID()
+{
+    return GetCurrentThreadId();
+}
+
 bool IsMainThread()
 {
     return GetCurrentThreadId() == dwMainThreadId;

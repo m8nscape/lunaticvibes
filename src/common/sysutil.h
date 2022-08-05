@@ -1,6 +1,7 @@
 #pragma once
 
 void SetThreadAsMainThread();
+int64_t GetCurrentThreadID();
 bool IsMainThread();
 void SetDebugThreadName(const char* name);
 void panic(const char* title, const char* msg);
