@@ -663,6 +663,12 @@ int SkinLR2::LR2FONT()
         path = std::filesystem::absolute(path);
         size_t idx = LR2FontNameMap.size();
 
+        if (LR2FontCache.find(path) != LR2FontCache.end())
+        {
+            LR2FontNameMap[std::to_string(idx)] = LR2FontCache[path];
+            return 1;
+        }
+
         if (!std::filesystem::is_regular_file(path))
         {
             LR2FontNameMap[std::to_string(idx)] = nullptr;
@@ -670,13 +676,18 @@ int SkinLR2::LR2FONT()
             return 0;
         }
 
-        if (LR2FontCache.find(path) != LR2FontCache.end())
+        std::ifstream ifsFile(path, std::ios::binary);
+        if (ifsFile.fail())
         {
-            LR2FontNameMap[std::to_string(idx)] = LR2FontCache[path];
-            return 1;
+            LOG_WARNING << "[Skin] " << csvLineNumber << ": LR2FONT file open failed: " << path.u8string();
+            return 0;
         }
 
-        std::ifstream lr2font(path, std::ios::binary); 
+        // copy the whole file into ram, once for all
+        std::stringstream lr2font;
+        lr2font << ifsFile.rdbuf();
+        lr2font.sync();
+        ifsFile.close();
 
         auto pf = std::make_shared<LR2Font>();
 
@@ -2561,7 +2572,7 @@ int SkinLR2::parseBody(const Tokens &raw)
     return 0;
 }
 
-void SkinLR2::IF(const Tokens &t, std::ifstream& lr2skin)
+void SkinLR2::IF(const Tokens &t, std::istream& lr2skin)
 {
     bool isElseStmt = false;
     bool ifStmtTrue = true;
@@ -2683,13 +2694,19 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
     p = convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), p);
 
     LOG_INFO << "[Skin] File: " << p.u8string();
-    std::ifstream csvFile(p, std::ios::binary);
-    if (!csvFile.is_open())
+    std::ifstream ifsFile(p, std::ios::binary);
+    if (!ifsFile.is_open())
     {
         LOG_ERROR << "[Skin] File Not Found: " << std::filesystem::absolute(p).u8string();
         csvLineNumber = srcLineNumberParent;
         return;
     }
+
+    // copy the whole file into ram, once for all
+    std::stringstream csvFile;
+    csvFile << ifsFile.rdbuf();
+    csvFile.sync();
+    ifsFile.close();
 
     bool haveEndOfHeader = false;
     while (!csvFile.eof())
@@ -2714,9 +2731,9 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
         if (!haveEndOfHeader && csvFile.eof())
         {
             // reset position to head
-            csvFile.close();
+            csvFile.clear();
+            csvFile.seekg(0);
             csvLineNumber = 0;
-            csvFile.open(p, std::ios::binary);
         }
 
         // load skin customization from profile

@@ -1585,7 +1585,7 @@ protected:
     std::array<bool, 6> noshiftJudge1P{ false };
     std::array<bool, 6> noshiftJudge2P{ false };
 
-    void IF(const Tokens &t, std::ifstream&);
+    void IF(const Tokens &t, std::istream&);
 
     //std::vector<SkinLR2> _csvIncluded;
 

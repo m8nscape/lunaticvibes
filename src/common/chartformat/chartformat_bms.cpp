@@ -78,14 +78,20 @@ int BMS::initWithFile(const Path& file)
     filePath = file.filename();
     absolutePath = std::filesystem::absolute(file);
     LOG_INFO << "[BMS] File: " << absolutePath.u8string();
-    std::ifstream fs(absolutePath.c_str());
-    if (fs.fail())
+    std::ifstream ifsFile(absolutePath.c_str());
+    if (ifsFile.fail())
     {
         errorCode = err::FILE_ERROR;
         errorLine = 0;
         LOG_INFO << "[BMS] File ERROR";
         return 1;
     }
+
+    // copy the whole file into ram, once for all
+    std::stringstream bmsFile;
+    bmsFile << ifsFile.rdbuf();
+    bmsFile.sync();
+    ifsFile.close();
 
     if (toLower(file.extension().u8string()) == ".pms")
     {
@@ -109,9 +115,9 @@ int BMS::initWithFile(const Path& file)
     // implicit parameters
     bool hasDifficulty = false;
 
-    while (!fs.eof())
+    while (!bmsFile.eof())
     {
-        std::getline(fs, buf, '\n');
+        std::getline(bmsFile, buf, '\n');
         srcLine++;
         if (buf.length() <= 1) continue;
 
@@ -473,13 +479,10 @@ int BMS::initWithFile(const Path& file)
         }
         catch (std::exception)
         {
-            fs.close();
             errorLine = srcLine;
             return 1;
         }
     }
-
-    fs.close();
 
     // implicit subtitle
     if (title2.empty())
