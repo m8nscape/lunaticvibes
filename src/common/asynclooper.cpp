@@ -16,20 +16,6 @@ AsyncLooper::AsyncLooper(StringContentView tag, std::function<void()> func, unsi
 AsyncLooper::~AsyncLooper()
 {
     assert(!_running);
-    if (_running)
-    {
-        _running = false;
-        if (DeleteTimerQueueTimer(NULL, handler, NULL))
-        {
-            // ..?
-        }
-        //while (_iterateCount != _iterateEndCount)
-        //{
-        //    using namespace std::chrono_literals;
-        //    std::this_thread::sleep_for(50ms);
-        //}
-        LOG_DEBUG << "[Looper] Ended of rate " << _rate << "/s";
-    }
 }
 
 void AsyncLooper::run()
@@ -119,9 +105,17 @@ void AsyncLooper::loopEnd()
     if (_running)
     {
         _running = false;
-        if (DeleteTimerQueueTimer(NULL, handler, NULL))
+        if (DeleteTimerQueueTimer(NULL, handler, INVALID_HANDLE_VALUE) != 0)
         {
-            // ..?
+            DWORD dwError = GetLastError();
+            if (dwError != ERROR_INVALID_HANDLE)
+            {
+                while (dwError == ERROR_IO_PENDING && DeleteTimerQueueTimer(NULL, handler, INVALID_HANDLE_VALUE) != 0)
+                {
+                    dwError = GetLastError();
+                }
+                assert(dwError == 0);
+            }
         }
         while (_iterateCount != _iterateEndCount)
         {
