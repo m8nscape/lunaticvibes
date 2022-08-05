@@ -5,7 +5,9 @@
 #include "game/skin/skin_mgr.h"
 #include "scene_context.h"
 #include "config/config_mgr.h"
+
 #include "imgui.h"
+#include "game/skin/skin_lr2_debug.h"
 
 // prototype
 vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
@@ -77,6 +79,8 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
 
     gTexts.set(eText::_OVERLAY_TOPLEFT, "");
 
+    _input.register_p("DEBUG_TOGGLE", std::bind(&vScene::DebugToggle, this, std::placeholders::_1, std::placeholders::_2));
+
     _input.register_p("SKIN_MOUSE_CLICK", std::bind(&vScene::MouseClick, this, std::placeholders::_1, std::placeholders::_2));
     _input.register_h("SKIN_MOUSE_DRAG", std::bind(&vScene::MouseDrag, this, std::placeholders::_1, std::placeholders::_2));
     _input.register_r("SKIN_MOUSE_RELEASE", std::bind(&vScene::MouseRelease, this, std::placeholders::_1, std::placeholders::_2));
@@ -93,6 +97,7 @@ vScene::~vScene()
     _input.unregister_r("SKIN_MOUSE_RELEASE");
     _input.unregister_h("SKIN_MOUSE_DRAG");
     _input.unregister_p("SKIN_MOUSE_CLICK");
+    _input.unregister_p("DEBUG_TOGGLE");
     sceneEnding = true; 
 }
 
@@ -141,6 +146,17 @@ void vScene::update()
         _sNotificationsBG[i]->update(t);
     }
     _sTopLeft->update(t);
+
+    auto ss = gTimers.get(eTimer::SCENE_START);
+    auto rt = t.norm() - ss;
+    if (ss != TIMER_NEVER && rt > 1000)
+    {
+        ImGuiNewFrame();
+
+        _updateImgui();
+
+        ImGui::Render();
+    }
 }
 
 void vScene::MouseClick(InputMask& m, const Time& t)
@@ -192,4 +208,79 @@ void vScene::draw() const
             // TODO draw list
         }
     }
+}
+
+void vScene::_updateImgui()
+{
+    if (imguiShowMonitorLR2DST)
+    {
+        imguiMonitorLR2DST();
+    }
+    if (imguiShowMonitorNumber)
+    {
+        imguiMonitorNumber();
+    }
+    if (imguiShowMonitorOption)
+    {
+        imguiMonitorOption();
+    }
+    if (imguiShowMonitorSlider)
+    {
+        imguiMonitorSlider();
+    }
+    if (imguiShowMonitorSwitch)
+    {
+        imguiMonitorSwitch();
+    }
+    if (imguiShowMonitorText)
+    {
+        imguiMonitorText();
+    }
+    if (imguiShowMonitorBargraph)
+    {
+        imguiMonitorBargraph();
+    }
+    if (imguiShowMonitorTimer)
+    {
+        imguiMonitorTimer();
+    }
+}
+
+void vScene::DebugToggle(InputMask& p, const Time& t)
+{
+#ifdef _DEBUG
+    if (p[Input::F1])
+    {
+        imguiShowMonitorLR2DST = !imguiShowMonitorLR2DST;
+    }
+    if (p[Input::F2])
+    {
+        imguiShowMonitorNumber = !imguiShowMonitorNumber;
+    }
+    if (p[Input::F3])
+    {
+        imguiShowMonitorOption = !imguiShowMonitorOption;
+    }
+    if (p[Input::F4])
+    {
+        imguiShowMonitorSlider = !imguiShowMonitorSlider;
+    }
+    if (p[Input::F5])
+    {
+        imguiShowMonitorSwitch = !imguiShowMonitorSwitch;
+    }
+    if (p[Input::F6])
+    {
+        imguiShowMonitorText = !imguiShowMonitorText;
+    }
+    if (p[Input::F7])
+    {
+        imguiShowMonitorBargraph = !imguiShowMonitorBargraph;
+    }
+    if (p[Input::F8])
+    {
+        imguiShowMonitorTimer = !imguiShowMonitorTimer;
+    }
+#endif
+
 }

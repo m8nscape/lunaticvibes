@@ -6,12 +6,10 @@
 
 void SceneSelect::_imguiSampleDialog()
 {
-    ImGuiNewFrame();
     if (imguiShow)
     {
         ImGui::ShowDemoWindow(NULL);
     }
-    ImGui::Render();
 }
 
 void SceneSelect::_imguiInit()
@@ -90,9 +88,9 @@ void SceneSelect::_imguiInit()
 #endif
 void SceneSelect::_imguiSettings()
 {
+    assert(IsMainThread());
     if (gNextScene != eScene::SELECT) return;
 
-    ImGuiNewFrame();
     if (imguiShow)
     {
         if (ImGui::Begin("Settings (F9)", NULL, ImGuiWindowFlags_NoCollapse))
@@ -212,7 +210,6 @@ void SceneSelect::_imguiSettings()
         }
         ImGui::End();
     }
-    ImGui::Render();
 
     _imguiCheckSettings();
 }

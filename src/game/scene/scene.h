@@ -43,6 +43,9 @@ public:
 
 protected:
     virtual void _updateAsync() = 0;
+
+    virtual void _updateImgui();
+    void DebugToggle(InputMask& m, const Time& t);
 };
 
 

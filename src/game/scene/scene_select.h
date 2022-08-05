@@ -49,6 +49,8 @@ protected:
     void updatePanel(unsigned idx);
     void updateFadeout();
 
+    virtual void _updateImgui() override;
+
 protected:
     // Inner-state updates
 

@@ -52,6 +52,7 @@ add_library(gamelib
     scene/scene_select_imgui.cpp
     ruleset/ruleset_bms_auto.cpp
     scene/scene_exit_trans.cpp
+    skin/skin_lr2_debug.cpp
 )
 
 if (UNIX OR MINGW)

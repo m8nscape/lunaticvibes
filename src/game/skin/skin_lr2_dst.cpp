@@ -1,22 +1,16 @@
 #include "skin_lr2.h"
 #include "game/data/number.h"
 
-std::bitset<900> _op;
-std::bitset<100> _customOp;
-inline void set(int idx, bool val = true) { _op.set(idx, val); }
-inline void set(std::initializer_list<int> idx, bool val = true)
-{
-	for (auto& i : idx)
-		_op.set(i, val);
-}
-inline bool get(int idx) { return _op[idx]; }
+static std::shared_mutex _mutex;
+static std::bitset<900> _op;
+static std::bitset<100> _customOp;
 
 inline bool dst(eOption option_entry, std::initializer_list<unsigned> entries)
 {
-    auto op = gOptions.get(option_entry);
-    for (auto e : entries)
-        if (op == e) return true;
-    return false;
+	auto op = gOptions.get(option_entry);
+	for (auto e : entries)
+		if (op == e) return true;
+	return false;
 }
 inline bool dst(eOption option_entry, unsigned entry)
 {
@@ -25,13 +19,27 @@ inline bool dst(eOption option_entry, unsigned entry)
 
 inline bool sw(std::initializer_list<eSwitch> entries)
 {
-    for (auto e : entries)
-        if (gSwitches.get(e)) return true;
-    return false;
+	for (auto e : entries)
+		if (gSwitches.get(e)) return true;
+	return false;
 }
 inline bool sw(eSwitch entry)
 {
 	return gSwitches.get(entry);
+}
+
+inline void set(int idx, bool val = true)
+{
+	_op.set(idx, val); 
+}
+inline void set(std::initializer_list<int> idx, bool val = true)
+{
+	for (auto& i : idx)
+		_op.set(i, val);
+}
+inline bool get(int idx)
+{
+	return _op[idx]; 
 }
 
 bool getDstOpt(int d)
@@ -39,6 +47,7 @@ bool getDstOpt(int d)
 	bool result = false;
 	dst_option op = (dst_option)std::abs(d);
 
+	std::shared_lock l(_mutex);
 	if (d == DST_TRUE)
 		result = true;
 	else if (d == DST_FALSE)
@@ -58,16 +67,19 @@ bool getDstOpt(int d)
 void setCustomDstOpt(unsigned base, size_t offset, bool val)
 {
     if (base + offset < 900 || base + offset > 999) return;
+	std::unique_lock l(_mutex);
     _customOp[base + offset - 900] = val;
 }
 
 void clearCustomDstOpt()
 {
+	std::unique_lock l(_mutex);
 	_customOp.reset();
 }
 
 void updateDstOpt()
 {
+	std::unique_lock l(_mutex);
 	_op.reset();
 
 	// 0 常にtrue

@@ -327,8 +327,6 @@ void SceneSelect::updateSelect()
     Time t;
     Time rt = t - gTimers.get(eTimer::SCENE_START);
 
-    pushMainThreadTask(std::bind(&SceneSelect::_imguiSettings, this));
-
     if ((t - scrollTimestamp).norm() >= gSelectContext.scrollTime)
     {
         if (!isHoldingUp && !isHoldingDown)
@@ -418,6 +416,13 @@ void SceneSelect::updateFadeout()
             gNextScene = eScene::EXIT_TRANS;
         }
     }
+}
+
+void SceneSelect::_updateImgui()
+{
+    vScene::_updateImgui();
+
+    _imguiSettings();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
