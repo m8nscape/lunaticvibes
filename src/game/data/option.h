@@ -111,7 +111,6 @@ namespace Option
     };
 
     enum e_key_config_mode {
-        KEYCFG_OFF,
         KEYCFG_7,
         KEYCFG_9,
         KEYCFG_5
