@@ -67,10 +67,6 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
 
     _state = ePlayState::PREPARE;
 
-    // delay scene start
-    gTimers.set(eTimer::SCENE_START, TIMER_NEVER);
-    gTimers.set(eTimer::START_INPUT, TIMER_NEVER);
-
     if (gChartContext.chartObj == nullptr || !gChartContext.chartObj->isLoaded())
     {
         if (gChartContext.path.empty())
@@ -141,10 +137,6 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         gNextScene = eScene::SELECT;
         return;
     }
-
-    Time t;
-    gTimers.set(eTimer::SCENE_START, t.norm());
-    gTimers.set(eTimer::START_INPUT, t.norm() + _skin->info.timeIntro);
 
     gPlayContext.remainTime = gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength();
 

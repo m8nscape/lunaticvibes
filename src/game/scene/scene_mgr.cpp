@@ -21,16 +21,18 @@ pScene SceneMgr::get(eScene e)
     {
     case eScene::EXIT:
     case eScene::NOTHINGNESS:
-		return nullptr;
+        break;
 
     case eScene::SELECT:
-        return std::make_shared<SceneSelect>();
+        ps = std::make_shared<SceneSelect>();
+        break;
 
     case eScene::DECIDE:
-        return std::make_shared<SceneDecide>();
+        ps = std::make_shared<SceneDecide>();
+        break;
 
     case eScene::PLAY:
-        return std::make_shared<ScenePlay>();
+        ps = std::make_shared<ScenePlay>();
 		break;
 
     case eScene::RETRY_TRANS:
@@ -75,6 +77,14 @@ pScene SceneMgr::get(eScene e)
 	default:
 		return nullptr;
     }
+
+    Time t;
+    gTimers.queue(eTimer::SCENE_START, t.norm());
+    gTimers.queue(eTimer::START_INPUT, t.norm() + (ps ? ps->getSkinInfo().timeIntro : 0));
+    gTimers.queue(eTimer::_LOAD_START, TIMER_NEVER);
+    gTimers.queue(eTimer::PLAY_READY, TIMER_NEVER);
+    gTimers.queue(eTimer::PLAY_START, TIMER_NEVER);
+    gTimers.flush();
 
 	return ps;
 }

@@ -74,8 +74,6 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
     //gSliders.reset();
     //gSwitches.reset();
     gTimers.reset();
-    gTimers.set(eTimer::SCENE_START, t.norm());
-    gTimers.set(eTimer::START_INPUT, t.norm() + (_skin ? _skin->info.timeIntro : 0));
 
     gTexts.set(eText::_OVERLAY_TOPLEFT, "");
 

@@ -36,6 +36,7 @@ public:
     void MouseClick(InputMask& m, const Time& t);
     void MouseDrag(InputMask& m, const Time& t);
     void MouseRelease(InputMask& m, const Time& t);
+    vSkin::skinInfo getSkinInfo() const { return _skin ? _skin->info : vSkin::skinInfo(); }
     virtual void draw() const;
 
 protected:
