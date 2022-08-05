@@ -134,5 +134,4 @@ private:
     int imgui_adv_minInputInterval;
     int imgui_adv_newSongDuration;
     bool imgui_adv_mouseAnalog;
-    bool imgui_adv_relativeAxis;
 };

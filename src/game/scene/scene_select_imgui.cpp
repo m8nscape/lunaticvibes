@@ -76,7 +76,6 @@ void SceneSelect::_imguiInit()
     imgui_adv_minInputInterval = ConfigMgr::get("P", cfg::P_MIN_INPUT_INTERVAL, 16);
     imgui_adv_newSongDuration = ConfigMgr::get("P", cfg::P_NEW_SONG_DURATION, 24);
     imgui_adv_mouseAnalog = ConfigMgr::get("P", cfg::P_MOUSE_ANALOG, false);
-    imgui_adv_relativeAxis = ConfigMgr::get("P", cfg::P_RELATIVE_AXIS, false);
 
     // auto popup settings for first runs
     if (imgui_folders.empty())
@@ -165,7 +164,7 @@ void SceneSelect::_imguiSettings()
             {
                 ImGui::Combo("Device", &imgui_audio_device_index, imgui_audio_devices_display.data(), (int)imgui_audio_devices_display.size());
 
-                ImGui::Checkbox("Check ASIO Drivers (May crash if ASIO device is in use)", &imgui_audio_checkASIODevices);
+                ImGui::Checkbox("Check ASIO Drivers", &imgui_audio_checkASIODevices);
                 ImGui::SameLine();
                 if (ImGui::Button("Refresh"))
                 {
@@ -181,14 +180,20 @@ void SceneSelect::_imguiSettings()
                 ImGui::Spacing();
             }
 
+            if (ImGui::CollapsingHeader("Play"))
+            {
+                ImGui::InputInt("Miss BGA time (ms)", &imgui_adv_missBGATime, 0);
+                ImGui::InputInt("Min input interval (ms)", &imgui_adv_minInputInterval, 1, 10);
+                //ImGui::Checkbox("Accept mouse movements as Analog input", &imgui_adv_mouseAnalog);
+
+                ImGui::Separator();
+                ImGui::Spacing();
+            }
+
             if (ImGui::CollapsingHeader("Advanced"))
             {
                 ImGui::InputInt2("Song select scroll speed (ms)", imgui_adv_scrollSpeed);
-                ImGui::InputInt("Miss BGA time (ms)", &imgui_adv_missBGATime, 0);
-                ImGui::InputInt("Min input interval (ms)", &imgui_adv_minInputInterval, 1, 10);
                 ImGui::InputInt("New song duration (hour)", &imgui_adv_newSongDuration, 1, 10);
-                //ImGui::Checkbox("Mouse Analog", &imgui_adv_mouseAnalog);
-                ImGui::Checkbox("Absolute Axis (useful for controllers with turntable)", &imgui_adv_relativeAxis);
 
                 ImGui::Separator();
                 ImGui::Spacing();
@@ -400,10 +405,6 @@ void SceneSelect::_imguiCheckSettings()
     {
         ConfigMgr::set("P", cfg::P_MOUSE_ANALOG, imgui_adv_mouseAnalog);
     }
-    if (imgui_adv_relativeAxis != ConfigMgr::get("P", cfg::P_RELATIVE_AXIS, false))
-    {
-        ConfigMgr::set("P", cfg::P_RELATIVE_AXIS, imgui_adv_relativeAxis);
-    }
 
 }
 
@@ -477,8 +478,8 @@ bool SceneSelect::_imguiApplyResolution()
     renderW = ConfigMgr::get("V", cfg::V_RES_X, CANVAS_WIDTH);
     renderH = ConfigMgr::get("V", cfg::V_RES_Y, CANVAS_HEIGHT);
 
-    graphics_resize_window(windowW, windowH);
     graphics_change_window_mode(imgui_video_mode);
+    graphics_resize_window(windowW, windowH);
     graphics_change_vsync(imgui_video_vsync);
 
     graphics_set_canvas_scale((double)windowW / renderW, (double)windowH / renderH);

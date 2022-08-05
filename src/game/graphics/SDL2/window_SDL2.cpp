@@ -177,13 +177,14 @@ void graphics_change_window_mode(int mode)
     {
     case 0:
         SDL_SetWindowFullscreen(gFrameWindow, 0);
-        SDL_SetWindowPosition(gFrameWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+        SDL_SetWindowBordered(gFrameWindow, SDL_TRUE);
         break;
     case 1:
         SDL_SetWindowFullscreen(gFrameWindow, SDL_WINDOW_FULLSCREEN);
         break;
     case 2:
-        SDL_SetWindowFullscreen(gFrameWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+        SDL_SetWindowFullscreen(gFrameWindow, 0);
+        SDL_SetWindowBordered(gFrameWindow, SDL_FALSE);
         break;
     }
 }
@@ -191,6 +192,7 @@ void graphics_change_window_mode(int mode)
 void graphics_resize_window(int x, int y)
 {
     SDL_SetWindowSize(gFrameWindow, x, y);
+    SDL_SetWindowPosition(gFrameWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 }
 
 void graphics_change_vsync(bool enable)
