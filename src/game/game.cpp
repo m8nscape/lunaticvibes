@@ -87,7 +87,7 @@ void mainLoop()
 // SDL_main
 int main(int argc, char* argv[])
 {
-    SetThreadName("MainThread");
+    SetDebugThreadName("MainThread");
     SetThreadAsMainThread();
 
     char exePath[256];

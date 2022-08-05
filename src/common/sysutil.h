@@ -2,7 +2,7 @@
 
 void SetThreadAsMainThread();
 bool IsMainThread();
-void SetThreadName(const char* name);
+void SetDebugThreadName(const char* name);
 void panic(const char* title, const char* msg);
 void GetExecutablePath(char* output, size_t bufsize, size_t& len);
 
@@ -14,10 +14,14 @@ bool IsWindowForeground();
 void SetWindowForeground(bool foreground);
 
 #ifdef _MSC_VER
-#ifdef SetThreadName
-#undef SetThreadName
+#ifdef SetDebugThreadName
+#undef SetDebugThreadName
 #endif
-#define SetThreadName SetThreadName
+#ifdef _DEBUG
+#define SetDebugThreadName(x) SetDebugThreadName(x)
+#else
+#define SetDebugThreadName(x) __noop
+#endif
 
 #ifdef panic
 #undef panic

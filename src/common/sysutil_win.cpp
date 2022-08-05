@@ -1,7 +1,8 @@
 #if _WIN32 || _WIN64
 #include "sysutil.h"
 #include <cstdio>
-#include <windows.h>  
+#include <windows.h>
+#include <VersionHelpers.h>
 
 #ifdef _MSC_VER
 #ifndef strcpy
@@ -21,7 +22,9 @@ typedef struct tagTHREADNAME_INFO
 } THREADNAME_INFO;
 #pragma pack(pop)  
 
-void SetThreadNameWin32(DWORD dwThreadID, const char* threadName) {
+void SetDebugThreadNameWin32(DWORD dwThreadID, const char* threadName) {
+
+    // change VS debugger thread name
     THREADNAME_INFO info;
     info.dwType = 0x1000;
     info.szName = threadName;
@@ -35,15 +38,6 @@ void SetThreadNameWin32(DWORD dwThreadID, const char* threadName) {
     __except (EXCEPTION_EXECUTE_HANDLER) {
     }
 #pragma warning(pop)  
-
-    int num_chars;
-    num_chars = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, threadName, -1, NULL, 0);
-    if (num_chars > 0)
-    {
-        WCHAR threadNameW[256] = { 0 };
-        MultiByteToWideChar(CP_UTF8, 0, threadName, -1, threadNameW, std::min(256, num_chars));
-        SetThreadDescription(GetCurrentThread(), threadNameW);
-    }
 }
 
 [[noreturn]] inline void panicWin32(const char* title, const char* msg)
@@ -64,9 +58,9 @@ bool IsMainThread()
     return GetCurrentThreadId() == dwMainThreadId;
 }
 
-void SetThreadName(const char* name) 
+void SetDebugThreadName(const char* name)
 {
-    SetThreadNameWin32(GetCurrentThreadId(), name); 
+    SetDebugThreadNameWin32(GetCurrentThreadId(), name); 
 }
 void panic(const char* title, const char* msg) 
 {
