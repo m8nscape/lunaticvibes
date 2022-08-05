@@ -223,7 +223,7 @@ void fx_type(int idx, int plus)
 
     // OFF/REVERB/DELAY/LOWPASS/HIGHPASS/FLANGER/CHORUS/DISTORTION/PITCH
     // pitch is unused, remaining 8 options
-    int val = (gOptions.get(op) + plus) % 8;
+    int val = (gOptions.get(op) + 8 + plus) % 8;
     gOptions.set(op, val);
 
     if (gSwitches.get(sw))
@@ -271,7 +271,7 @@ void fx_target(int idx, int plus)
     auto [op, sw, num_p1, num_p2, sli_p1, sli_p2, target, ch] = disp_fx(idx);
 
     // MASTER/KEY/BGM
-    int val = (gOptions.get(target) + plus) % 3;
+    int val = (gOptions.get(target) + 3 + plus) % 3;
     gOptions.set(target, val);
 
     if (gSwitches.get(sw))
@@ -357,7 +357,7 @@ void pitch_switch(int plus)
 void pitch_type(int plus)
 {
     // FREQENCY/PITCH/SPEED
-    int val = (gOptions.get(eOption::SOUND_PITCH_TYPE) + plus) % 3;
+    int val = (gOptions.get(eOption::SOUND_PITCH_TYPE) + 3 + plus) % 3;
     gOptions.set(eOption::SOUND_PITCH_TYPE, val);
 
     if (gSwitches.get(eSwitch::SOUND_PITCH))
@@ -414,7 +414,7 @@ void random_type(int player, int plus)
     }
 
     // eModChart
-    int val = (gOptions.get(op) + plus) % 6;
+    int val = (gOptions.get(op) + 6 + plus) % 6;
     gOptions.set(op, val);
     switch (val)
     {
@@ -469,7 +469,7 @@ void hs_fix(int plus)
 {
     // eModHs
     //OFF/MAXBPM/MINBPM/AVERAGE/CONSTANT
-    int val = (gOptions.get(eOption::PLAY_HSFIX_TYPE_1P) + plus) % 5;
+    int val = (gOptions.get(eOption::PLAY_HSFIX_TYPE_1P) + 5 + plus) % 5;
     
     gOptions.set(eOption::PLAY_HSFIX_TYPE_1P, val);
     gOptions.set(eOption::PLAY_HSFIX_TYPE_2P, val);
@@ -540,7 +540,7 @@ void score_graph(int plus)
 // 71
 void ghost_type(int plus)
 {
-    int val = (gOptions.get(eOption::PLAY_GHOST_TYPE_1P) + plus) % 4;
+    int val = (gOptions.get(eOption::PLAY_GHOST_TYPE_1P) + 4 + plus) % 4;
 
     gOptions.set(eOption::PLAY_GHOST_TYPE_1P, val);
     gOptions.set(eOption::PLAY_GHOST_TYPE_2P, val);
@@ -569,7 +569,7 @@ void ghost_type(int plus)
 // 72
 void bga(int plus)
 {
-    int val = (gOptions.get(eOption::PLAY_BGA_TYPE) + plus) % 2;
+    int val = (gOptions.get(eOption::PLAY_BGA_TYPE) + 2 + plus) % 2;
 
     gOptions.set(eOption::PLAY_BGA_TYPE, val);
 
@@ -616,7 +616,7 @@ void target_type(int plus)
 // 80
 void window_mode(int plus)
 {
-    int val = (gOptions.get(eOption::SYS_WINDOWED) + plus) % 3;
+    int val = (gOptions.get(eOption::SYS_WINDOWED) + 3 + plus) % 3;
 
     gOptions.set(eOption::SYS_WINDOWED, val);
 
