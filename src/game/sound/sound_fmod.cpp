@@ -288,7 +288,7 @@ int SoundDriverFMOD::loadKeySample(const Path& spath, size_t index)
 		r = fmodSystem->createSound(path.c_str(), FMOD_LOOP_OFF | FMOD_UNIQUE, 0, &keySamples[index]);
 
     // Also find ogg with the same filename
-    if (r == FMOD_ERR_FILE_NOTFOUND && path.length() > 4 && path.substr(path.length() - 4) == ".wav")
+    if (r == FMOD_ERR_FILE_NOTFOUND && strEqual(spath.extension().string(), ".wav", true))
         r = fmodSystem->createSound(path.replace(path.length() - 4, 4, ".ogg").c_str(), FMOD_LOOP_OFF | FMOD_UNIQUE, 0, &keySamples[index]);
 
     if (r != FMOD_OK)
@@ -342,7 +342,7 @@ int SoundDriverFMOD::loadSample(const Path& spath, size_t index, bool isStream, 
         r = fmodSystem->createSound(path.c_str(), flag, 0, &etcSamples[index]);
 
     // Also find ogg with the same filename
-    if (r == FMOD_ERR_FILE_NOTFOUND && path.length() > 4 && path.substr(path.length() - 4) == ".wav")
+    if (r == FMOD_ERR_FILE_NOTFOUND && strEqual(spath.extension().string(), ".wav", true))
         r = fmodSystem->createSound(path.replace(path.length() - 4, 4, ".ogg").c_str(), flag, 0, &etcSamples[index]);
     
     if (r != FMOD_OK)
