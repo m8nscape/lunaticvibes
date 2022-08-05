@@ -98,6 +98,8 @@ void TextureVideo::stopUpdate()
 	assert(!IsMainThread());
 	looper->loopEnd();
 	// AsyncLooper thread will end here, releasing pVideo->video_frame_mutex occupation by update()
+
+	updated = false;
 }
 
 void TextureVideo::draw(Rect dstRect,

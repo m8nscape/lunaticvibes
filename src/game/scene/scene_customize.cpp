@@ -104,11 +104,12 @@ void SceneCustomize::updateMain()
             }
             if (selectedIdx >= 0 && selectedIdx < (int)l.size())
             {
-                auto& p = fs::relative(skinList[selectedMode][selectedIdx], ConfigMgr::get("E", cfg::E_LR2PATH, ".")).u8string();
+                auto& p = fs::relative(skinList[selectedMode][selectedIdx], ConfigMgr::get("E", cfg::E_LR2PATH, ".")).string();
                 switch (selectedMode)
                 {
                 case eMode::MUSIC_SELECT:
                     ConfigMgr::set("S", cfg::S_PATH_MUSIC_SELECT, p);
+                    gResetSelectCursor = true;
                     break;
 
                 case eMode::DECIDE:
