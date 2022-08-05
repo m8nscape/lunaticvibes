@@ -77,6 +77,11 @@ int graphics_init()
             (double)w / ConfigMgr::get("V", cfg::V_RES_X, CANVAS_WIDTH),
             (double)h / ConfigMgr::get("V", cfg::V_RES_Y, CANVAS_HEIGHT));
 
+        int maxFPS = ConfigMgr::get("V", cfg::V_MAXFPS, 480);
+        if (maxFPS < 30 && maxFPS != 0)
+            maxFPS = 30;
+        graphics_set_maxfps(maxFPS);
+
         SDL_SysWMinfo wmInfo;
         SDL_VERSION(&wmInfo.version);
         SDL_GetWindowWMInfo(gFrameWindow, &wmInfo);
@@ -147,12 +152,23 @@ void graphics_clear()
     SDL_RenderClear(gFrameRenderer);
 }
 
+int maxFPS = 0;
+std::chrono::nanoseconds desiredFrameTimeBetweenFrames;
+std::chrono::high_resolution_clock::time_point frameTimestampPrev;
 void graphics_flush()
 {
     auto pData = ImGui::GetDrawData();
     if (pData != NULL) ImGui_ImplSDLRenderer_RenderDrawData(pData);
 
     SDL_RenderPresent(gFrameRenderer);
+
+    if (maxFPS != 0)
+    {
+        long long sleep_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+            frameTimestampPrev + desiredFrameTimeBetweenFrames - std::chrono::high_resolution_clock::now()).count();
+        preciseSleep(sleep_ns);
+    }
+    frameTimestampPrev = std::chrono::high_resolution_clock::now();
 }
 
 int graphics_free()
@@ -210,6 +226,15 @@ void graphics_set_canvas_scale(double x, double y)
 }
 double graphics_get_canvas_scale_x() { return canvasScaleX; }
 double graphics_get_canvas_scale_y() { return canvasScaleY; }
+
+void graphics_set_maxfps(int fps)
+{
+    maxFPS = fps;
+    if (maxFPS != 0)
+    {
+        desiredFrameTimeBetweenFrames = std::chrono::nanoseconds(long long(std::round(1e9 / maxFPS)));
+    }
+}
 
 extern bool gEventQuit;
 void event_handle()

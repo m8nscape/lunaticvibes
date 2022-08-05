@@ -7,6 +7,7 @@
 #include <fstream>
 #include <charconv>
 #include <regex>
+#include <chrono>
 
 #ifdef WIN32
 #include <Windows.h>
@@ -336,4 +337,39 @@ std::string convertLR2Path(const std::string& lr2path, const char* relative_path
     {
         return relative_path;
     }
+}
+
+void preciseSleep(long long sleep_ns)
+{
+    using namespace std::chrono;
+    using namespace std::chrono_literals;
+
+#if WIN32
+
+    static HANDLE timer = CreateWaitableTimer(NULL, FALSE, NULL);
+
+    while (sleep_ns > 1e6)
+    {
+        LARGE_INTEGER due;
+        due.QuadPart = -int64_t(sleep_ns / 100);
+
+        auto start = high_resolution_clock::now();
+        SetWaitableTimerEx(timer, &due, 0, NULL, NULL, NULL, 0);
+        WaitForSingleObject(timer, INFINITE);
+        auto end = high_resolution_clock::now();
+
+        double observed = duration_cast<nanoseconds>(end - start).count();
+        sleep_ns -= observed;
+    }
+
+    // spin lock
+    auto start = high_resolution_clock::now();
+    while (duration_cast<nanoseconds>(high_resolution_clock::now() - start).count() < sleep_ns);
+
+#else
+
+    // not optimized and not accurate
+    std::this_thread::sleep_for(sleep_ns);
+
+#endif
 }

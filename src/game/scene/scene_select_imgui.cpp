@@ -145,16 +145,26 @@ void SceneSelect::_imguiSettings()
                 ImGui::SameLine();
                 ImGui::RadioButton("Borderless", &imgui_video_mode, 2);
                 ImGui::SameLine();
+                ImGui::Checkbox("VSync", &imgui_video_vsync);
+                ImGui::SameLine();
+                ImGui::Spacing();
+
+                ImGui::InputInt("Max FPS", &imgui_video_maxFPS, 0);
+
                 if (ImGui::Button("Apply"))
                 {
                     _imguiApplyResolution();
+
+                    if (imgui_video_maxFPS < 30 && imgui_video_maxFPS != 0)
+                    {
+                        imgui_video_maxFPS = 30;
+                    }
+                    if (imgui_video_maxFPS != ConfigMgr::get("V", cfg::V_MAXFPS, 240))
+                    {
+                        ConfigMgr::set("V", cfg::V_MAXFPS, imgui_video_maxFPS);
+                        graphics_set_maxfps(imgui_video_maxFPS);
+                    }
                 }
-
-                ImGui::Spacing();
-
-                ImGui::Checkbox("VSync", &imgui_video_vsync);
-
-                ImGui::InputInt("Max FPS", &imgui_video_maxFPS, 0);
 
                 ImGui::Separator();
                 ImGui::Spacing();
@@ -361,11 +371,6 @@ void SceneSelect::_imguiCheckSettings()
     if (imgui_video_vsync != ConfigMgr::get("V", cfg::V_VSYNC, false))
     {
         ConfigMgr::set("V", cfg::V_VSYNC, imgui_video_vsync);
-    }
-
-    if (imgui_video_maxFPS != ConfigMgr::get("V", cfg::V_MAXFPS, 240))
-    {
-        ConfigMgr::set("V", cfg::V_MAXFPS, imgui_video_maxFPS);
     }
 
     if (imgui_audio_device_index != old_audio_device_index && imgui_audio_devices_display[imgui_audio_device_index] != ConfigMgr::get('A', cfg::A_DEVNAME, ""))

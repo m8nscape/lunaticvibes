@@ -31,6 +31,8 @@ void graphics_set_canvas_scale(double x, double y);
 double graphics_get_canvas_scale_x();
 double graphics_get_canvas_scale_y();
 
+void graphics_set_maxfps(int fps);
+
 void event_handle();
 
 void ImGuiNewFrame();
