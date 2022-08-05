@@ -712,6 +712,11 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
             _navigateDownBy1(t);
         }
     }
+    else
+    {
+        if ((input & INPUT_MASK_CANCEL).any())
+            return _navigateBack(t);
+    }
 }
 
 void SceneSelect::inputGameHoldSelect(InputMask& input, const Time& t)
@@ -1360,12 +1365,13 @@ void SceneSelect::_navigateEnter(const Time& t)
                 e->md5,
                 e->_name,
                 {},
-                gSelectContext.idx
+                0
             };
             auto top = g_pSongDB->browse(e->md5, false);
             for (size_t i = 0; i < top.getContentsCount(); ++i)
                 prop.list.push_back({ top.getEntry(i), nullptr });
 
+            gSelectContext.backtrace.top().index = gSelectContext.idx;
             gSelectContext.backtrace.push(prop);
             gSelectContext.entries.clear();
             gSelectContext.idx = 0;
@@ -1397,7 +1403,7 @@ void SceneSelect::_navigateBack(const Time& t)
     if (!isInVersionList)
         selectDownTimestamp = -1;
 
-    if (!gSelectContext.entries.empty())
+    if (gSelectContext.backtrace.size() >= 2)
     {
         std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
 
