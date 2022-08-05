@@ -276,46 +276,54 @@ void SceneCustomize::load(eMode mode)
     SkinMgr::unload(mode);
     SkinMgr::load(mode);
     pSkin ps = SkinMgr::get(mode);
-    Path pCustomize = ConfigMgr::Profile()->getPath() / "customize" / getConfigFileName(ps->getFilePath());
     optionsMap.clear();
     optionsKeyList.clear();
 
-    gTexts.set(eText::SKIN_NAME, ps->getName());
-    gTexts.set(eText::SKIN_MAKER_NAME, ps->getMaker());
-
-    // load names
-    size_t count = ps->getCustomizeOptionCount();
-    for (size_t i = 0; i < count; ++i)
+    if (ps != nullptr)
     {
-        vSkin::CustomizeOption opSkin = ps->getCustomizeOptionInfo(i);
-        Option op;
-        op.displayName = opSkin.displayName;
-        op.selectedEntry = opSkin.defaultEntry;
-        op.id = opSkin.id;
-        op.entries = opSkin.entries;
-        optionsMap[opSkin.internalName] = op;
-        optionsKeyList.push_back(opSkin.internalName);
-    }
+        gTexts.queue(eText::SKIN_NAME, ps->getName());
+        gTexts.queue(eText::SKIN_MAKER_NAME, ps->getMaker());
+
+        // load names
+        size_t count = ps->getCustomizeOptionCount();
+        for (size_t i = 0; i < count; ++i)
+        {
+            vSkin::CustomizeOption opSkin = ps->getCustomizeOptionInfo(i);
+            Option op;
+            op.displayName = opSkin.displayName;
+            op.selectedEntry = opSkin.defaultEntry;
+            op.id = opSkin.id;
+            op.entries = opSkin.entries;
+            optionsMap[opSkin.internalName] = op;
+            optionsKeyList.push_back(opSkin.internalName);
+        }
 
     // load config from file
-    try
-    {
-        for (const auto& node : YAML::LoadFile(pCustomize.u8string()))
+        Path pCustomize = ConfigMgr::Profile()->getPath() / "customize" / getConfigFileName(ps->getFilePath());
+        try
         {
-            if (auto itOp = optionsMap.find(node.first.as<std::string>()); itOp != optionsMap.end())
+            for (const auto& node : YAML::LoadFile(pCustomize.u8string()))
             {
-                Option& op = itOp->second;
-                auto selectedEntryName = node.second.as<std::string>();
-                if (const auto itEntry = std::find(op.entries.begin(), op.entries.end(), selectedEntryName); itEntry != op.entries.end())
+                if (auto itOp = optionsMap.find(node.first.as<std::string>()); itOp != optionsMap.end())
                 {
-                    op.selectedEntry = std::distance(op.entries.begin(), itEntry);
+                    Option& op = itOp->second;
+                    auto selectedEntryName = node.second.as<std::string>();
+                    if (const auto itEntry = std::find(op.entries.begin(), op.entries.end(), selectedEntryName); itEntry != op.entries.end())
+                    {
+                        op.selectedEntry = std::distance(op.entries.begin(), itEntry);
+                    }
                 }
             }
         }
+        catch (YAML::BadFile&)
+        {
+            LOG_WARNING << "[Customize] Bad file: " << pCustomize.u8string();
+        }
     }
-    catch (YAML::BadFile&)
+    else
     {
-        LOG_WARNING << "[Customize] Bad file: " << pCustomize.u8string();
+        gTexts.queue(eText::SKIN_NAME, "");
+        gTexts.queue(eText::SKIN_MAKER_NAME, "");
     }
     updateTexts();
 }
@@ -323,21 +331,24 @@ void SceneCustomize::load(eMode mode)
 void SceneCustomize::save(eMode mode) const
 {
     pSkin ps = SkinMgr::get(mode);
-    Path pCustomize = ConfigMgr::Profile()->getPath() / "customize";
-    fs::create_directories(pCustomize);
-    pCustomize /= getConfigFileName(ps->getFilePath());
-
-    YAML::Node yaml;
-    for (const auto& itOp: optionsMap)
+    if (ps != nullptr)
     {
-        auto& [tag, op] = itOp;
-        if (!op.entries.empty())
-            yaml[tag] = op.entries[op.selectedEntry];
-    }
+        Path pCustomize = ConfigMgr::Profile()->getPath() / "customize";
+        fs::create_directories(pCustomize);
+        pCustomize /= getConfigFileName(ps->getFilePath());
 
-    std::ofstream fout(pCustomize, std::ios_base::trunc);
-    fout << yaml;
-    fout.close();
+        YAML::Node yaml;
+        for (const auto& itOp : optionsMap)
+        {
+            auto& [tag, op] = itOp;
+            if (!op.entries.empty())
+                yaml[tag] = op.entries[op.selectedEntry];
+        }
+
+        std::ofstream fout(pCustomize, std::ios_base::trunc);
+        fout << yaml;
+        fout.close();
+    }
 }
 
 void SceneCustomize::updateTexts() const
