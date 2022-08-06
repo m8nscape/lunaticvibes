@@ -7,6 +7,7 @@
 
 SceneCustomize::SceneCustomize() : vScene(eMode::THEME_SELECT, 240)
 {
+    _scene = eScene::CUSTOMIZE;
     _updateCallback = std::bind(&SceneCustomize::updateStart, this);
 
     gCustomizeContext.skinDir = 0;
@@ -24,8 +25,6 @@ SceneCustomize::SceneCustomize() : vScene(eMode::THEME_SELECT, 240)
         skinList[s.info.mode].push_back(fs::absolute(p));
     }
 
-    _looper->loopStart();
-    _input.loopStart();
     LOG_DEBUG << "[Customize] Start";
 }
 
@@ -36,7 +35,6 @@ void SceneCustomize::_updateAsync()
 
     if (gAppIsExiting)
     {
-        _input.loopEnd();
         _skin->stopSpriteVideoUpdate();
         _skin->setHandleMouseEvents(false);
         if (SkinMgr::get(selectedMode))
@@ -217,8 +215,6 @@ void SceneCustomize::updateFadeout()
 
     if (rt.norm() > _skin->info.timeOutro)
     {
-        _input.loopEnd();
-        _skin->stopSpriteVideoUpdate();
         _skin->setHandleMouseEvents(false);
         if (SkinMgr::get(selectedMode))
         {

@@ -4,6 +4,7 @@
 #include <string>
 #include <stack>
 #include <shared_mutex>
+#include "scene.h"
 #include "common/types.h"
 #include "common/chartformat/chartformat.h"
 #include "game/chart/chart.h"
@@ -12,21 +13,6 @@
 #include "common/entry/entry_folder.h"
 #include "db/db_song.h"
 #include "db/db_score.h"
-
-enum class eScene
-{
-    NOTHINGNESS,
-    SELECT,
-    DECIDE,
-    PLAY,
-    RESULT,
-    COURSE_TRANS,
-    RETRY_TRANS,
-    KEYCONFIG,
-    CUSTOMIZE,
-    EXIT_TRANS,
-    EXIT
-};
 
 inline eScene gNextScene = eScene::SELECT;
 

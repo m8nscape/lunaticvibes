@@ -3,6 +3,8 @@
 
 ScenePlayCourseTrans::ScenePlayCourseTrans() : vScene(eMode::COURSE_TRANS, 240)
 {
+	_scene = eScene::COURSE_TRANS;
+
 	LOG_DEBUG << "[PlayCourseTrans]";
 	clearContextPlayForRetry();
 	gNextScene = eScene::SELECT;

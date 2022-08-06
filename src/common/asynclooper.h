@@ -48,7 +48,7 @@ public:
     virtual ~AsyncLooper();
     void loopStart();
     void loopEnd();
-    bool isRunning() { return _running; }
+    bool isRunning() const { return _running; }
     unsigned getRate();
     unsigned getRateRealtime();
 
@@ -62,10 +62,4 @@ private:
 #else // FALLBACK
     void _loopWithSleep();
 #endif
-
-protected:
-    static std::map<uintptr_t, AsyncLooper> loopers;
-public:
-    static AsyncLooper* addLooper(uintptr_t key, StringContentView tag, std::function<void()>, unsigned rate_per_sec, bool single_inst = false);
-    static void removeLooper(uintptr_t key);
 };

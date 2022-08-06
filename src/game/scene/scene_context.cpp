@@ -284,7 +284,15 @@ void setEntryInfo()
             }
             gOptions.queue(eOption::CHART_DIFFICULTY, op_difficulty);
 
-            // TODO TOTAL
+            // notes detail
+            gNumbers.queue(eNumber::INFO_TOTALNOTE, bms->notes_total);
+            gNumbers.queue(eNumber::INFO_TOTALNOTE_NORMAL, bms->notes_key);
+            gNumbers.queue(eNumber::INFO_TOTALNOTE_LN, bms->notes_key_ln);
+            gNumbers.queue(eNumber::INFO_TOTALNOTE_SCRATCH, bms->notes_scratch);
+            gNumbers.queue(eNumber::INFO_TOTALNOTE_BSS, bms->notes_scratch_ln);
+            gNumbers.queue(eNumber::INFO_TOTALNOTE_MINE, bms->notes_mine);
+
+            gNumbers.queue(eNumber::INFO_BMS_TOTAL, bms->total);
 
             gSwitches.queue(eSwitch::CHART_HAVE_BGA, bms->haveBGA);
             gSwitches.queue(eSwitch::CHART_HAVE_BPMCHANGE, bms->haveBPMChange);

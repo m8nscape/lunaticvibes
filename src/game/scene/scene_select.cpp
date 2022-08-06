@@ -232,6 +232,8 @@ void config_fx()
 
 SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
 {
+    _scene = eScene::SELECT;
+
     _inputAvailable = INPUT_MASK_FUNC | INPUT_MASK_MOUSE;
     _inputAvailable |= INPUT_MASK_1P;
     _inputAvailable |= INPUT_MASK_2P;
@@ -252,8 +254,6 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
 
     _state = eSelectState::PREPARE;
     _updateCallback = std::bind(&SceneSelect::updatePrepare, this);
-
-    _looper->loopStart();
 
     SoundMgr::stopSamples();
     SoundMgr::playSample(eSoundSample::BGM_SELECT);

@@ -31,9 +31,12 @@ GenericInfoUpdater gGenericInfo{ 1 };
 
 void mainLoop()
 {
-    eScene currentScene = gNextScene;
-    auto scene = SceneMgr::get(currentScene);
-	gGenericInfo.loopStart();
+    gGenericInfo.loopStart();
+
+    eScene currentScene = eScene::NOT_INIT;
+    gNextScene = eScene::SELECT;
+
+    pScene scene = nullptr;
     while (!gEventQuit && currentScene != eScene::EXIT && gNextScene != eScene::EXIT)
     {
         // Evenet handling
@@ -46,7 +49,11 @@ void mainLoop()
         // Scene change
         if (currentScene != gNextScene)
         {
-            scene->preRelease();
+            if (scene)
+            {
+                scene->inputLoopEnd();
+                scene->loopEnd();
+            }
 
             switch (gNextScene)
             {
@@ -66,9 +73,13 @@ void mainLoop()
 
             clearCustomDstOpt();
 			currentScene = gNextScene;
-			scene = SceneMgr::get(currentScene);
-			if (currentScene == eScene::EXIT)
-				break;
+            if (currentScene != eScene::EXIT)
+            {
+                scene = SceneMgr::get(currentScene);
+                assert(scene != nullptr);
+                scene->loopStart();
+                scene->inputLoopStart();
+            }
         }
 
         // draw
@@ -84,7 +95,9 @@ void mainLoop()
         // sound update (temporary)
         SoundMgr::update();
     }
-    scene->preRelease();
+    scene->inputLoopEnd();
+    scene->loopEnd();
+
 	gGenericInfo.loopEnd();
 }
 

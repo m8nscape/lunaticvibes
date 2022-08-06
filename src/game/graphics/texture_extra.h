@@ -13,7 +13,7 @@
 class TextureVideo : public Texture
 {
 protected:
-	AsyncLooper* looper;
+	AsyncLooper looper;
 	std::shared_ptr<sVideo> pVideo;
 	unsigned decoded_frames = ~0;
 	PixelFormat format;
@@ -89,7 +89,10 @@ public:
 		layerIt = layerSlot.begin();
 		poorIt = poorSlot.begin();
 	}
-	virtual ~TextureBmsBga() = default;
+	virtual ~TextureBmsBga()
+	{
+		int i = 1;
+	}
 
 public:
 	bool addBmp(size_t idx, const Path& path);

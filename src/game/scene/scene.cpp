@@ -11,10 +11,9 @@
 
 // prototype
 vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
+    AsyncLooper("Scene Update", std::bind(&vScene::_updateAsync1, this), rate),
     _input(1000, backgroundInput)
 {
-    _looper = AsyncLooper::addLooper((uintptr_t)this, "Scene Update", std::bind(&vScene::_updateAsync, this), rate);
-
     if (SkinMgr::get(mode) == nullptr)
         SkinMgr::load(mode);
     _skin = SkinMgr::get(mode);
@@ -92,19 +91,12 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
 vScene::~vScene() 
 {
     assert(!_input.isRunning());
-    assert(!_looper->isRunning());
-    AsyncLooper::removeLooper((uintptr_t)this);
+    assert(!isRunning());
     _input.unregister_r("SKIN_MOUSE_RELEASE");
     _input.unregister_h("SKIN_MOUSE_DRAG");
     _input.unregister_p("SKIN_MOUSE_CLICK");
     _input.unregister_p("DEBUG_TOGGLE");
     sceneEnding = true; 
-}
-
-void vScene::preRelease()
-{
-    _input.loopEnd();
-    _looper->loopEnd();
 }
 
 void vScene::update()
@@ -207,6 +199,16 @@ void vScene::draw() const
         {
             // TODO draw list
         }
+    }
+}
+
+void vScene::_updateAsync1()
+{
+    _updateAsync();
+
+    if (gNextScene != _scene)
+    {
+        _skin ? _skin->stopSpriteVideoUpdate() : __noop;
     }
 }
 

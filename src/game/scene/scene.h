@@ -8,14 +8,30 @@
 #include "game/input/input_wrapper.h"
 #include "common/types.h"
 
+enum class eScene
+{
+    NOT_INIT,
+    SELECT,
+    DECIDE,
+    PLAY,
+    RESULT,
+    COURSE_TRANS,
+    RETRY_TRANS,
+    KEYCONFIG,
+    CUSTOMIZE,
+    EXIT_TRANS,
+    EXIT
+};
+
 // Parent class of scenes, defines how an object being stored and drawn.
 // Every classes of scenes should inherit this class.
-class vScene
+class vScene: public AsyncLooper
 {
 protected:
+    eScene _scene;
     std::shared_ptr<vSkin> _skin;
     InputWrapper _input;
-    AsyncLooper* _looper;
+    AsyncLooper _looper;
 
     std::shared_ptr<TTFFont> _fNotifications;
     std::shared_ptr<Texture> _texNotificationsBG;
@@ -30,7 +46,8 @@ public:
     vScene() = delete;
     vScene(eMode mode, unsigned rate = 240, bool backgroundInput = false);
     virtual ~vScene();
-    void preRelease();
+    void inputLoopStart() { _input.loopStart(); }
+    void inputLoopEnd() { _input.loopEnd(); }
 
 public:
     virtual void update();      // skin update
@@ -43,6 +60,7 @@ public:
 
 protected:
     virtual void _updateAsync() = 0;
+    void _updateAsync1();
 
     virtual void _updateImgui();
     void DebugToggle(InputMask& m, const Time& t);

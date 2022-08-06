@@ -4,15 +4,14 @@
 #include <cassert>
 
 InputWrapper::InputWrapper(unsigned rate, bool background) : 
+    AsyncLooper("Input loop", std::bind(&InputWrapper::_loop, this), rate),
     _background(background)
 {
-    _looper = AsyncLooper::addLooper((uintptr_t)this, "Input loop", std::bind(&InputWrapper::_loop, this), rate);
 }
 
 InputWrapper::~InputWrapper()
 {
-    AsyncLooper::removeLooper((uintptr_t)this);
-
+    assert(!isRunning());
     {
         std::unique_lock _lock(_inputMutex);
         _pCallbackMap.clear();
@@ -26,7 +25,7 @@ InputWrapper::~InputWrapper()
 
 void InputWrapper::_loop()
 {
-	gNumbers.set(eNumber::INPUT_DETECT_FPS, _looper->getRateRealtime());
+	gNumbers.set(eNumber::INPUT_DETECT_FPS, getRateRealtime());
     _prev = _curr;
     _curr = InputMgr::detect();
     Time now;

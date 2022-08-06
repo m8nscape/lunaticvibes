@@ -6,6 +6,8 @@
 
 SceneDecide::SceneDecide() : vScene(eMode::DECIDE, 1000)
 {
+    _scene = eScene::DECIDE;
+
     _inputAvailable = INPUT_MASK_FUNC;
     _inputAvailable |= INPUT_MASK_1P | INPUT_MASK_2P;
 
@@ -16,9 +18,6 @@ SceneDecide::SceneDecide() : vScene(eMode::DECIDE, 1000)
 
     _state = eDecideState::START;
     _updateCallback = std::bind(&SceneDecide::updateStart, this);
-
-    _looper->loopStart();
-    _input.loopStart();
 
     SoundMgr::stopSamples();
     SoundMgr::playSample(eSoundSample::BGM_DECIDE);
@@ -32,8 +31,6 @@ void SceneDecide::_updateAsync()
 
     if (gAppIsExiting)
     {
-        _input.loopEnd();
-        _skin->stopSpriteVideoUpdate();
         gNextScene = eScene::EXIT_TRANS;
     }
 
@@ -47,8 +44,6 @@ void SceneDecide::updateStart()
 
     if (rt.norm() >= _skin->info.timeDecideExpiry)
     {
-        _input.loopEnd();
-        _skin->stopSpriteVideoUpdate();
         gNextScene = eScene::PLAY;
     }
 }
@@ -61,8 +56,6 @@ void SceneDecide::updateSkip()
 
     if (ft.norm() >= _skin->info.timeOutro)
     {
-        _input.loopEnd();
-        _skin->stopSpriteVideoUpdate();
         gNextScene = eScene::PLAY;
     }
 }
@@ -75,8 +68,6 @@ void SceneDecide::updateCancel()
 
     if (ft.norm() >= _skin->info.timeOutro)
     {
-        _input.loopEnd();
-        _skin->stopSpriteVideoUpdate();
         clearContextPlay();
         gNextScene = eScene::SELECT;
     }

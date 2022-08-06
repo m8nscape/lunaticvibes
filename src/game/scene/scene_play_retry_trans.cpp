@@ -3,6 +3,8 @@
 
 ScenePlayRetryTrans::ScenePlayRetryTrans() : vScene(eMode::RETRY_TRANS, 240)
 {
+	_scene = eScene::RETRY_TRANS;
+
 	LOG_DEBUG << "[PlayRetryTrans]";
 	clearContextPlayForRetry();
 	gNextScene = eScene::PLAY;

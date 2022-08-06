@@ -91,17 +91,13 @@ void AsyncLooper::loopStart()
 
         if (_running)
         {
-            LOG_DEBUG << "[Looper] Started with rate " << _rate << "/s";
+            LOG_DEBUG << "[Looper] Started with rate " << _rate << "/s " << _tag;
         }
     }
 }
 
 void AsyncLooper::loopEnd()
 {
-    if (_inLoopBody)
-    {
-        assert(_runThreadID != GetCurrentThreadID());
-    }
     if (_running)
     {
         _running = false;
@@ -110,11 +106,12 @@ void AsyncLooper::loopEnd()
             using namespace std::chrono_literals;
             std::this_thread::sleep_for(50ms);
         }
-        if (DeleteTimerQueueTimer(NULL, handler, INVALID_HANDLE_VALUE) != 0)
+        if (DeleteTimerQueueTimer(NULL, handler, INVALID_HANDLE_VALUE) == 0)
         {
             DWORD dwError = GetLastError();
             if (dwError != ERROR_INVALID_HANDLE)
             {
+                LOG_ERROR << "[Looper] Delete timer error: " << dwError;
                 while (dwError == ERROR_IO_PENDING && DeleteTimerQueueTimer(NULL, handler, INVALID_HANDLE_VALUE) != 0)
                 {
                     dwError = GetLastError();
@@ -122,7 +119,7 @@ void AsyncLooper::loopEnd()
                 assert(dwError == 0);
             }
         }
-        LOG_DEBUG << "[Looper] Ended of rate " << _rate << "/s";
+        LOG_DEBUG << "[Looper] Ended of rate " << _rate << "/s " << _tag;
     }
 }
 
@@ -149,24 +146,3 @@ void AsyncLooper::loopEnd()
     handler.join();
 }
 #endif
-
-std::map<uintptr_t, AsyncLooper> AsyncLooper::loopers;
-
-AsyncLooper* AsyncLooper::addLooper(uintptr_t key, StringContentView tag, std::function<void()> func, unsigned rate_per_sec, bool single_inst)
-{
-    assert(loopers.find(key) == loopers.end());
-    loopers.emplace(key, AsyncLooper(tag, func, rate_per_sec, single_inst));
-    return &loopers[key];
-}
-void AsyncLooper::removeLooper(uintptr_t key)
-{
-    if (loopers.find(key) != loopers.end())
-    {
-        loopers[key]._loopFuncBody = [] {};
-        std::thread([&, key]()
-            {
-                loopers[key].loopEnd();
-                loopers.erase(key);
-            }).detach();
-    }
-}

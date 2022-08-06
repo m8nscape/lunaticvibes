@@ -5,6 +5,8 @@
 
 SceneKeyConfig::SceneKeyConfig() : vScene(eMode::KEY_CONFIG, 240)
 {
+    _scene = eScene::KEYCONFIG;
+
     _updateCallback = std::bind(&SceneKeyConfig::updateStart, this);
 
     gSwitches.set(eSwitch::K11_CONFIG, false);
@@ -58,8 +60,6 @@ SceneKeyConfig::SceneKeyConfig() : vScene(eMode::KEY_CONFIG, 240)
     gOptions.set(eOption::KEY_CONFIG_KEY9, 1);
     setInputBindingText(gKeyconfigContext.keys, gKeyconfigContext.selecting.first);
 
-    _looper->loopStart();
-    _input.loopStart();
     LOG_DEBUG << "[KeyConfig] Start";
 }
 
@@ -70,7 +70,6 @@ void SceneKeyConfig::_updateAsync()
 
     if (gAppIsExiting)
     {
-        _input.loopEnd();
         _skin->stopSpriteVideoUpdate();
         gNextScene = eScene::EXIT_TRANS;
     }
@@ -119,7 +118,6 @@ void SceneKeyConfig::updateFadeout()
 
     if (rt.norm() > _skin->info.timeOutro)
     {
-        _input.loopEnd();
         _skin->stopSpriteVideoUpdate();
         ConfigMgr::Input(gKeyconfigContext.keys)->save();   // this is kinda important
         gNextScene = eScene::SELECT;

@@ -40,6 +40,8 @@ bool ScenePlay::isPlaymodeAuto() const
 
 ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
 {
+    _scene = eScene::PLAY;
+
     switch (gPlayContext.mode)
     {
     case eMode::PLAY5:
@@ -151,8 +153,8 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     gTexts.queue(eText::PLAY_SUBARTIST, gChartContext.artist2);
     gTexts.queue(eText::PLAY_GENRE, gChartContext.genre);
     gNumbers.queue(eNumber::PLAY_BPM, int(std::round(gChartContext.startBPM)));
-    gNumbers.queue(eNumber::BPM_MIN, int(std::round(gChartContext.minBPM)));
-    gNumbers.queue(eNumber::BPM_MAX, int(std::round(gChartContext.maxBPM)));
+    gNumbers.queue(eNumber::INFO_BPM_MIN, int(std::round(gChartContext.minBPM)));
+    gNumbers.queue(eNumber::INFO_BPM_MAX, int(std::round(gChartContext.maxBPM)));
 
     // player datas
     gNumbers.queue(eNumber::RESULT_MYBEST_EX, 0);
@@ -223,9 +225,6 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     _input.register_h("SCENE_HOLD", std::bind(&ScenePlay::inputGameHold, this, _1, _2));
     _input.register_r("SCENE_RELEASE", std::bind(&ScenePlay::inputGameRelease, this, _1, _2));
     _input.register_a("SCENE_AXIS", std::bind(&ScenePlay::inputGameAxis, this, _1, _2));
-
-    _looper->loopStart();
-    _input.loopStart();
 }
 
 void ScenePlay::setTempInitialHealthBMS()
@@ -238,7 +237,7 @@ void ScenePlay::setTempInitialHealthBMS()
         case eModGauge::EASY:
         case eModGauge::ASSISTEASY:
             gPlayContext.initialHealth[PLAYER_SLOT_1P] = 0.2;
-            gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, 20);
+            gNumbers.queue(eNumber::PLAY_1P_GROOVEGAUGE, 20);
             break;
 
         case eModGauge::HARD:
@@ -247,7 +246,7 @@ void ScenePlay::setTempInitialHealthBMS()
         case eModGauge::GATTACK:
         case eModGauge::EXHARD:
             gPlayContext.initialHealth[PLAYER_SLOT_1P] = 1.0;
-            gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, 100);
+            gNumbers.queue(eNumber::PLAY_1P_GROOVEGAUGE, 100);
             break;
 
         default: break;
@@ -261,7 +260,7 @@ void ScenePlay::setTempInitialHealthBMS()
             case eModGauge::EASY:
             case eModGauge::ASSISTEASY:
                 gPlayContext.initialHealth[PLAYER_SLOT_2P] = 0.2;
-                gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, 20);
+                gNumbers.queue(eNumber::PLAY_2P_GROOVEGAUGE, 20);
                 break;
 
             case eModGauge::HARD:
@@ -270,7 +269,7 @@ void ScenePlay::setTempInitialHealthBMS()
             case eModGauge::GATTACK:
             case eModGauge::EXHARD:
                 gPlayContext.initialHealth[PLAYER_SLOT_2P] = 1.0;
-                gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, 100);
+                gNumbers.queue(eNumber::PLAY_2P_GROOVEGAUGE, 100);
                 break;
 
             default: break;
@@ -279,14 +278,14 @@ void ScenePlay::setTempInitialHealthBMS()
     }
     else
     {
-        gNumbers.set(eNumber::PLAY_1P_GROOVEGAUGE, (int)gPlayContext.initialHealth[0]);
+        gNumbers.queue(eNumber::PLAY_1P_GROOVEGAUGE, (int)gPlayContext.initialHealth[0]);
 
         if (isPlaymodeBattle())
         {
-            gNumbers.set(eNumber::PLAY_2P_GROOVEGAUGE, (int)gPlayContext.initialHealth[1]);
+            gNumbers.queue(eNumber::PLAY_2P_GROOVEGAUGE, (int)gPlayContext.initialHealth[1]);
         }
     }
-
+    gNumbers.flush();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -541,13 +540,12 @@ void ScenePlay::_updateAsync()
 
     if (gAppIsExiting)
     {
-        _input.loopEnd();
         _skin->stopSpriteVideoUpdate();
         gPlayContext.bgaTexture->stopUpdate();
         gNextScene = eScene::EXIT_TRANS;
     }
 
-	gNumbers.set(eNumber::SCENE_UPDATE_FPS, _looper->getRate());
+	gNumbers.set(eNumber::SCENE_UPDATE_FPS, _looper.getRate());
     switch (_state)
     {
     case ePlayState::PREPARE:
@@ -817,7 +815,6 @@ void ScenePlay::updateFadeout()
                 wantRetry = true;
         }
 
-        _input.loopEnd();
         SoundMgr::stopKeySamples();
         _skin->stopSpriteVideoUpdate();
         gPlayContext.bgaTexture->reset();
@@ -1028,27 +1025,27 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
             {
                 if (_currentKeySample[i])
                     _keySampleIdxBuf[sampleCount++] = _currentKeySample[i];
-                gTimers.set(InputGamePressMapSingle[i].tm, t.norm());
-                gTimers.set(InputGameReleaseMapSingle[i].tm, TIMER_NEVER);
-                gSwitches.set(InputGamePressMapSingle[i].sw, true);
+                gTimers.queue(InputGamePressMapSingle[i].tm, t.norm());
+                gTimers.queue(InputGameReleaseMapSingle[i].tm, TIMER_NEVER);
+                gSwitches.queue(InputGamePressMapSingle[i].sw, true);
             }
         }
         SoundMgr::playKeySample(sampleCount, (size_t*)&_keySampleIdxBuf[0]);
 
         if (input[S1L] || input[S1R] || isPlaymodeSinglePlay() && (input[S2L] || input[S2R]))
         {
-            gTimers.set(eTimer::S1_DOWN, t.norm());
-            gTimers.set(eTimer::S1_UP, TIMER_NEVER);
-            gSwitches.set(eSwitch::S1_DOWN, true);
+            gTimers.queue(eTimer::S1_DOWN, t.norm());
+            gTimers.queue(eTimer::S1_UP, TIMER_NEVER);
+            gSwitches.queue(eSwitch::S1_DOWN, true);
         }
 
         if (!isPlaymodeSinglePlay())
         {
             if (input[S2L] || input[S2R])
             {
-                gTimers.set(eTimer::S2_DOWN, t.norm());
-                gTimers.set(eTimer::S2_UP, TIMER_NEVER);
-                gSwitches.set(eSwitch::S2_DOWN, true);
+                gTimers.queue(eTimer::S2_DOWN, t.norm());
+                gTimers.queue(eTimer::S2_UP, TIMER_NEVER);
+                gSwitches.queue(eSwitch::S2_DOWN, true);
             }
         }
     }
@@ -1066,15 +1063,21 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
         if (input[K1SPDUP] || isPlaymodeSinglePlay() && input[K2SPDUP] || _isHoldingStart[PLAYER_SLOT_1P] && black)
         {
             int hs = gNumbers.get(eNumber::HS_1P);
-            if (hs < 900)
-                gNumbers.set(eNumber::HS_1P, hs + 25);
+            if (hs < 1000)
+            {
+                hs += 25;
+                gNumbers.queue(eNumber::HS_1P, hs);
+            }
         }
 
         if (input[K1SPDDN] || isPlaymodeSinglePlay() && input[K2SPDDN] || _isHoldingStart[PLAYER_SLOT_1P] && white)
         {
             int hs = gNumbers.get(eNumber::HS_1P);
             if (hs > 25)
-                gNumbers.set(eNumber::HS_1P, hs - 25);
+            {
+                hs -= 25;
+                gNumbers.queue(eNumber::HS_1P, hs);
+            }
         }
 
     }
@@ -1089,17 +1092,27 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
         if (input[K2SPDUP] || black)
         {
             int hs = gNumbers.get(eNumber::HS_2P);
-            if (hs < 900)
-                gNumbers.set(eNumber::HS_2P, hs + 25);
+            if (hs < 1000)
+            {
+                hs += 25;
+                gNumbers.queue(eNumber::HS_2P, hs);
+            }
         }
         if (input[K2SPDDN] || white)
         {
             int hs = gNumbers.get(eNumber::HS_2P);
             if (hs > 25)
-                gNumbers.set(eNumber::HS_2P, hs - 25);
+            {
+                hs -= 25;
+                gNumbers.queue(eNumber::HS_2P, hs);
+            }
         }
 
     }
+    gTimers.flush();
+    gSwitches.flush();
+    gNumbers.flush();
+
 
     if (_state != ePlayState::FADEOUT &&
         (input[Input::ESC] || (input[Input::K1START] && input[Input::K1SELECT]) || (input[Input::K2START] && input[Input::K2SELECT])))

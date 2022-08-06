@@ -22,9 +22,9 @@ extern "C"
 TextureVideo::TextureVideo(std::shared_ptr<sVideo> pv) :
 	Texture(pv->getW(), pv->getH(), pv->getFormat()),
 	format(pv->getFormat()), 
-	pVideo(pv)
+	pVideo(pv),
+	looper("Video update", std::bind(&TextureVideo::update, this), 60, true)
 {
-	looper = AsyncLooper::addLooper((uintptr_t)this, "Video update", std::bind(&TextureVideo::update, this), 60, true);
 	_texRect.x = 0;
 	_texRect.y = 0;
 	_texRect.w = pv->getW();
@@ -33,21 +33,26 @@ TextureVideo::TextureVideo(std::shared_ptr<sVideo> pv) :
 
 TextureVideo::~TextureVideo()
 {
-	stop();
-	looper->loopEnd();
-	looper->removeLooper((uintptr_t)this);
+	assert(!looper.isRunning());
+	assert(!pVideo->isPlaying());
 }
 
 void TextureVideo::start()
 {
-	pVideo->startPlaying();
-	looper->loopStart();
+	if (!pVideo->isPlaying())
+	{
+		pVideo->startPlaying();
+		looper.loopStart();
+	}
 }
 
 void TextureVideo::stop()
 {
-	assert(!looper->isRunning());	// call stopUpdate() first
-	pVideo->stopPlaying();
+	if (pVideo->isPlaying())
+	{
+		assert(!looper.isRunning());	// call stopUpdate() first
+		pVideo->stopPlaying();
+	}
 }
 
 void TextureVideo::seek(int64_t sec)
@@ -96,7 +101,7 @@ void TextureVideo::update()
 void TextureVideo::stopUpdate()
 {
 	assert(!IsMainThread());
-	looper->loopEnd();
+	looper.loopEnd();
 	// AsyncLooper thread will end here, releasing pVideo->video_frame_mutex occupation by update()
 
 	updated = false;

@@ -8,6 +8,8 @@
 
 SceneResult::SceneResult(ePlayMode gamemode) : vScene(eMode::RESULT, 1000), _playmode(gamemode)
 {
+    _scene = eScene::RESULT;
+
     _inputAvailable = INPUT_MASK_FUNC;
 
     if (gPlayContext.chartObj[PLAYER_SLOT_1P] != nullptr)
@@ -150,9 +152,6 @@ SceneResult::SceneResult(ePlayMode gamemode) : vScene(eMode::RESULT, 1000), _pla
     Time t;
     gTimers.set(eTimer::RESULT_GRAPH_START, t.norm());
 
-    _looper->loopStart();
-    _input.loopStart();
-
     SoundMgr::stopSamples();
     if (cleared) 
         SoundMgr::playSample(eSoundSample::SOUND_CLEAR);
@@ -168,7 +167,6 @@ void SceneResult::_updateAsync()
 
     if (gAppIsExiting)
     {
-        _input.loopEnd();
         _skin->stopSpriteVideoUpdate();
         gNextScene = eScene::EXIT_TRANS;
     }
@@ -227,7 +225,6 @@ void SceneResult::updateFadeout()
 
     if (ft >= _skin->info.timeOutro)
     {
-        _input.loopEnd();
         SoundMgr::stopKeySamples();
 
         // save score

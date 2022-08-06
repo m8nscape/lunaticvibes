@@ -27,7 +27,7 @@ pScene SceneMgr::get(eScene e)
     switch (e)
     {
     case eScene::EXIT:
-    case eScene::NOTHINGNESS:
+    case eScene::NOT_INIT:
         break;
 
     case eScene::SELECT:
