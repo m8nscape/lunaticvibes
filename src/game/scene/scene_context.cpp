@@ -415,8 +415,8 @@ void setEntryInfo()
                 gNumbers.queue(eNumber::INFO_MAXCOMBO, pScore->maxcombo);
                 gNumbers.queue(eNumber::INFO_BP, pScore->bad + pScore->bpoor + pScore->miss);
                 gNumbers.queue(eNumber::INFO_PLAYCOUNT, pScore->playcount);
-                gNumbers.queue(eNumber::INFO_CLEARCOUNT, 0);    // TODO INFO_CLEARCOUNT
-                gNumbers.queue(eNumber::INFO_FAILCOUNT, 0);     // TODO INFO_FAILCOUNT
+                gNumbers.queue(eNumber::INFO_CLEARCOUNT, pScore->clearcount);    // TODO INFO_CLEARCOUNT
+                gNumbers.queue(eNumber::INFO_FAILCOUNT, pScore->playcount - pScore->clearcount);     // TODO INFO_FAILCOUNT
 
                 gNumbers.queue(eNumber::INFO_PERFECT_COUNT, pScore->pgreat);
                 gNumbers.queue(eNumber::INFO_GREAT_COUNT, pScore->great);

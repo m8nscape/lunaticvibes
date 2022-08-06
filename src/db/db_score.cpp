@@ -173,6 +173,11 @@ void ScoreDB::updateChartScoreBMS(const HashMD5& hash, const ScoreBMS& score)
             record.playcount = score.playcount;
         }
 
+        if (score.clearcount > record.clearcount)
+        {
+            record.clearcount = score.clearcount;
+        }
+
         if ((int)score.lamp > (int)record.lamp)
         {
             record.lamp = score.lamp;

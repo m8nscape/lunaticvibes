@@ -209,6 +209,7 @@ public:
     long long maxcombo = 0;
     long long addtime = 0;
     long long playcount = 0;
+    long long clearcount = 0;
     long long reserved[1]{ 0 };
     double reservedlf[2]{ 0.0 };
 

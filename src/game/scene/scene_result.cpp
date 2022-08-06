@@ -243,6 +243,9 @@ void SceneResult::updateFadeout()
             score.slow = data.slow;
             score.maxcombo = data.maxCombo;
             score.playcount = _pScoreOld ? _pScoreOld->playcount + 1 : 1;
+            auto isclear = ruleset->isCleared() ? 1 : 0;
+            score.clearcount = _pScoreOld ? _pScoreOld->clearcount + isclear : isclear;
+
             switch (format->type())
             {
             case eChartFormat::BMS:
