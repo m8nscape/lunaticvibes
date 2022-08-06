@@ -13,6 +13,7 @@ The project is still in development stage. Please do not expect a bug-free exper
 * Download the latest release
 * Copy LR2files folder from LR2
 
+### **Do NOT use this application to load unauthorized copyrighted contents (e.g. charts, skins).**
 
 ---------------
 
