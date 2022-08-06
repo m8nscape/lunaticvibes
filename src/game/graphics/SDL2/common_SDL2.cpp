@@ -409,19 +409,6 @@ void TextureFull::draw(const Rect& ignored, Rect dstRect,
     SDL_BlendMode sb = SDL_BLENDMODE_INVALID;
     if (BlendMap.find(b) != BlendMap.end()) SDL_SetTextureBlendMode(&*_pTexture, BlendMap.at(b));
 
-    double canvasScaleX = graphics_get_canvas_scale_x();
-    double canvasScaleY = graphics_get_canvas_scale_y();
-    if (canvasScaleX != 1.0)
-    {
-        dstRect.x = (int)std::floor(dstRect.x * canvasScaleX);
-        dstRect.w = (int)std::floor(dstRect.w * canvasScaleX);
-    }
-    if (canvasScaleY != 1.0)
-    {
-        dstRect.y = (int)std::floor(dstRect.y * canvasScaleY);
-        dstRect.h = (int)std::floor(dstRect.h * canvasScaleY);
-    }
-
     SDL_RenderCopyEx(
         gFrameRenderer,
         &*_pTexture,
@@ -433,19 +420,6 @@ void TextureFull::draw(const Rect& ignored, Rect dstRect,
 
 void GraphLine::draw(Point p1, Point p2, Color c) const
 {
-    double canvasScaleX = graphics_get_canvas_scale_x();
-    double canvasScaleY = graphics_get_canvas_scale_y();
-    if (canvasScaleX != 1.0)
-    {
-        p1.x *= canvasScaleX;
-        p2.x *= canvasScaleX;
-    }
-    if (canvasScaleY != 1.0)
-    {
-        p1.y *= canvasScaleY;
-        p2.y *= canvasScaleY;
-    }
-
 	thickLineRGBA(
 		gFrameRenderer,
 		(Sint16)p1.x, (Sint16)p1.y,
