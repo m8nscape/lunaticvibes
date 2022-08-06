@@ -325,6 +325,8 @@ void setEntryInfo()
     gNumbers.queue(eNumber::INFO_MAXCOMBO, 0);
     gNumbers.queue(eNumber::INFO_RATE, 0);
     gNumbers.queue(eNumber::INFO_BP, 0);
+    gNumbers.queue(eNumber::INFO_OPTION1, 0);
+    gNumbers.queue(eNumber::INFO_OPTION2, 0);
     gNumbers.queue(eNumber::INFO_PLAYCOUNT, 0);
     gNumbers.queue(eNumber::INFO_CLEARCOUNT, 0);
     gNumbers.queue(eNumber::INFO_FAILCOUNT, 0);
@@ -406,6 +408,8 @@ void setEntryInfo()
                 gNumbers.queue(eNumber::INFO_TOTALNOTE, pScore->notes);
                 gNumbers.queue(eNumber::INFO_MAXCOMBO, pScore->maxcombo);
                 gNumbers.queue(eNumber::INFO_BP, pScore->bad + pScore->bpoor + pScore->miss);
+                gNumbers.queue(eNumber::INFO_OPTION1, pScore->option1);
+                gNumbers.queue(eNumber::INFO_OPTION2, pScore->option2);
                 gNumbers.queue(eNumber::INFO_PLAYCOUNT, pScore->playcount);
                 gNumbers.queue(eNumber::INFO_CLEARCOUNT, 0);    // TODO INFO_CLEARCOUNT
                 gNumbers.queue(eNumber::INFO_FAILCOUNT, 0);     // TODO INFO_FAILCOUNT

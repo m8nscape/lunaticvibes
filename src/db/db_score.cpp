@@ -50,8 +50,6 @@ struct score_bms_all_params
     long long cb      = 0;
     long long option1 = 0;
     long long option2 = 0;
-    unsigned char ghost = 0;
-    unsigned char gauge = 0;
 
     score_bms_all_params(const std::vector<std::any>& queryResult)
     {
@@ -78,7 +76,6 @@ struct score_bms_all_params
             cb      = ANY_INT(queryResult.at(18));
             option1 = ANY_INT(queryResult.at(19));
             option2 = ANY_INT(queryResult.at(20));
-
         }
         catch (std::out_of_range&)
         {
