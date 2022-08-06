@@ -4,6 +4,7 @@
 static std::shared_mutex _mutex;
 static std::bitset<900> _op;
 static std::bitset<100> _customOp;
+std::map<size_t, bool> _extendedOp;
 
 inline bool dst(eOption option_entry, std::initializer_list<unsigned> entries)
 {
@@ -30,16 +31,22 @@ inline bool sw(eSwitch entry)
 
 inline void set(int idx, bool val = true)
 {
-	_op.set(idx, val); 
+	if (idx >= 1000)
+		_extendedOp[idx] = val;
+	else
+		_op.set(idx, val); 
 }
 inline void set(std::initializer_list<int> idx, bool val = true)
 {
 	for (auto& i : idx)
-		_op.set(i, val);
+		set(i, val);
 }
 inline bool get(int idx)
 {
-	return _op[idx]; 
+	if (idx >= 1000)
+		return _extendedOp[idx];
+	else
+		return _op[idx]; 
 }
 
 bool getDstOpt(int d)
@@ -929,6 +936,19 @@ void updateDstOpt()
 	// 723 コースstage3 difficulty3
 	// 724 コースstage3 difficulty4
 	// 725 コースstage3 difficulty5
+	
+	// LR2HelperG DST_OPTION HS-FIX 720-724
+	// Is there anybody using these? Let me know if needed
+	/*
+	switch (gOptions.get(eOption::PLAY_HSFIX_TYPE_1P))
+	{
+	case Option::SPEED_NORMAL: set(720); break;
+	case Option::SPEED_FIX_MIN: set(721); break;
+	case Option::SPEED_FIX_MAX: set(722); break;
+	case Option::SPEED_FIX_AVG: set(723); break;
+	case Option::SPEED_FIX_CONSTANT: set(724); break;
+	}
+	*/
 
 	// //コースstage4
 	// 730 コースstage4 difficulty未定義

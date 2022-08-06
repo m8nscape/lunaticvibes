@@ -59,6 +59,8 @@ enum class eOption : unsigned
     PLAY_ACCURACY_2P,
     PLAY_LAST_JUDGE_1P,
     PLAY_LAST_JUDGE_2P,
+    PLAY_LAST_JUDGE_FASTSLOW_1P,   // 0:exact 1:fast 2:slow
+    PLAY_LAST_JUDGE_FASTSLOW_2P,   // 0:exact 1:fast 2:slow
     PLAY_ENTRY_TYPE,
     PLAY_COURSE_STAGE,
 

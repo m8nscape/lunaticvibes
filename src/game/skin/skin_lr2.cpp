@@ -2020,7 +2020,17 @@ ParseRet SkinLR2::DST_NOTE()
     lr2skin::dst d(parseParamBuf);
 
     if (d._null >= 20)
+    {
         return ParseRet::PARAM_INVALID;
+    }
+    else if (d._null == 1)
+    {
+        info.noteLaneHeight1P = d.y + d.h;
+    }
+    else if (d._null == 11)
+    {
+        info.noteLaneHeight2P = d.y + d.h;
+    }
 
     NoteLaneIndex idx = NoteLaneIndex(NoteIdxToLaneMap[d._null]);
 
@@ -2856,6 +2866,58 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
         }
     }
 
+    if (info.noteLaneHeight1P != 0)
+    {
+        using namespace chart;
+        for (size_t i = 0; i < 10; ++i)
+        {
+            NoteLaneIndex lane = NoteLaneIndex(NoteIdxToLaneMap[i]);
+            if (lane == _) continue;
+            size_t idx;
+
+            idx = channelToIdx(NoteLaneCategory::Note, lane);
+            if (idx != LANE_INVALID && _laneSprites[idx] != nullptr)
+            {
+                _laneSprites[idx]->setHeight(info.noteLaneHeight1P);
+            }
+            idx = channelToIdx(NoteLaneCategory::Mine, lane);
+            if (idx != LANE_INVALID && _laneSprites[idx] != nullptr)
+            {
+                _laneSprites[idx]->setHeight(info.noteLaneHeight1P);
+            }
+            idx = channelToIdx(NoteLaneCategory::LN, lane);
+            if (idx != LANE_INVALID && _laneSprites[idx] != nullptr)
+            {
+                _laneSprites[idx]->setHeight(info.noteLaneHeight1P);
+            }
+        }
+    }
+    if (info.noteLaneHeight2P != 0)
+    {
+        using namespace chart;
+        for (size_t i = 10; i < 20; ++i)
+        {
+            NoteLaneIndex lane = NoteLaneIndex(NoteIdxToLaneMap[i]);
+            if (lane == _) continue;
+            size_t idx;
+
+            idx = channelToIdx(NoteLaneCategory::Note, lane);
+            if (idx != LANE_INVALID && _laneSprites[idx] != nullptr)
+            {
+                _laneSprites[idx]->setHeight(info.noteLaneHeight2P);
+            }
+            idx = channelToIdx(NoteLaneCategory::Mine, lane);
+            if (idx != LANE_INVALID && _laneSprites[idx] != nullptr)
+            {
+                _laneSprites[idx]->setHeight(info.noteLaneHeight2P);
+            }
+            idx = channelToIdx(NoteLaneCategory::LN, lane);
+            if (idx != LANE_INVALID && _laneSprites[idx] != nullptr)
+            {
+                _laneSprites[idx]->setHeight(info.noteLaneHeight2P);
+            }
+        }
+    }
 
     LOG_DEBUG << "[Skin] File: " << p.u8string() << "(Line " << csvLineNumber << "): Body loading finished";
     _loaded = true;

@@ -47,7 +47,7 @@ void config_player()
     }
 
     ConfigMgr::set('P',P_LOAD_BGA, gOptions.get(eOption::PLAY_BGA_TYPE) != Option::BGA_OFF);
-    ConfigMgr::set('P',P_LANECOVER, gNumbers.get(eNumber::LANECOVER_1P));
+    ConfigMgr::set('P',P_LANECOVER, gNumbers.get(eNumber::LANECOVER_TOP_1P));
 
 
     switch (gOptions.get(eOption::PLAY_RANDOM_TYPE_1P))

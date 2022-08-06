@@ -545,7 +545,40 @@ void ScenePlay::_updateAsync()
         gNextScene = eScene::EXIT_TRANS;
     }
 
-	gNumbers.set(eNumber::SCENE_UPDATE_FPS, _looper.getRate());
+    if (_skin->info.noteLaneHeight1P != 0)
+    {
+        double bpm = gChartContext.HSFixBPMFactor1P * gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentBPM();
+        double minBPM = gChartContext.HSFixBPMFactor1P * gChartContext.minBPM;
+        double maxBPM = gChartContext.HSFixBPMFactor1P * gChartContext.maxBPM;
+
+        double visible = 1.0 - std::clamp((gNumbers.get(eNumber::LANECOVER_TOP_1P) + gNumbers.get(eNumber::LIFT_1P)), 0, 1000) / 1000.0 ;
+        double den;
+        den = gNumbers.get(eNumber::HS_1P) / 100.0 * bpm;
+        gNumbers.queue(eNumber::GREEN_NUMBER_1P, den != 0.0 ? int(visible * std::round(180000.0 / den)) : 0);
+        den = gNumbers.get(eNumber::HS_1P) / 100.0 * maxBPM;
+        gNumbers.queue(eNumber::GREEN_NUMBER_1P, den != 0.0 ? int(visible * std::round(180000.0 / den)) : 0);
+        den = gNumbers.get(eNumber::HS_1P) / 100.0 * minBPM;
+        gNumbers.queue(eNumber::GREEN_NUMBER_1P, den != 0.0 ? int(visible * std::round(180000.0 / den)) : 0);
+    }
+    if (_skin->info.noteLaneHeight2P != 0 && gPlayContext.chartObj[PLAYER_SLOT_2P] != nullptr)
+    {
+        double bpm = gChartContext.HSFixBPMFactor2P * gPlayContext.chartObj[PLAYER_SLOT_2P]->getCurrentBPM();
+        double minBPM = gChartContext.HSFixBPMFactor2P * gChartContext.minBPM;
+        double maxBPM = gChartContext.HSFixBPMFactor2P * gChartContext.maxBPM;
+
+        double visible = 1.0 - std::clamp((gNumbers.get(eNumber::LANECOVER_TOP_2P) + gNumbers.get(eNumber::LIFT_2P)), 0, 1000) / 1000.0;
+        double den;
+        den = gNumbers.get(eNumber::HS_2P) / 100.0 * bpm;
+        gNumbers.queue(eNumber::GREEN_NUMBER_2P, den != 0.0 ? int(visible * std::round(180000.0 / den)) : 0);
+        den = gNumbers.get(eNumber::HS_2P) / 100.0 * maxBPM;
+        gNumbers.queue(eNumber::GREEN_NUMBER_2P, den != 0.0 ? int(visible * std::round(180000.0 / den)) : 0);
+        den = gNumbers.get(eNumber::HS_2P) / 100.0 * minBPM;
+        gNumbers.queue(eNumber::GREEN_NUMBER_2P, den != 0.0 ? int(visible * std::round(180000.0 / den)) : 0);
+    }
+
+	gNumbers.queue(eNumber::SCENE_UPDATE_FPS, _looper.getRate());
+    gNumbers.flush();
+
     switch (_state)
     {
     case ePlayState::PREPARE:
@@ -1226,8 +1259,9 @@ void ScenePlay::inputGameAxis(InputAxisPlus& m, const Time& t)
             isPlaymodeSinglePlay() && _isHoldingStart[PLAYER_SLOT_2P] && !_isHoldingSelect[PLAYER_SLOT_2P])
         {
             // lanecover 1P
-            int lanecoverPrev = gNumbers.get(eNumber::LANECOVER_1P);
-            gNumbers.set(eNumber::LANECOVER_1P, lanecoverPrev + S1);
+            int lanecoverPrev = gNumbers.get(eNumber::LANECOVER_TOP_1P);
+            gNumbers.set(eNumber::LANECOVER_TOP_1P, lanecoverPrev + S1);
+            gNumbers.set(eNumber::LANECOVER100_1P, int(lanecoverPrev + S1) / 10);
 
             // ars 1P
         }
@@ -1240,8 +1274,9 @@ void ScenePlay::inputGameAxis(InputAxisPlus& m, const Time& t)
         if (_isHoldingStart[PLAYER_SLOT_2P] && !_isHoldingSelect[PLAYER_SLOT_2P])
         {
             // lanecover 2P
-            int lanecoverPrev = gNumbers.get(eNumber::LANECOVER_2P);
-            gNumbers.set(eNumber::LANECOVER_2P, lanecoverPrev + S2);
+            int lanecoverPrev = gNumbers.get(eNumber::LANECOVER_TOP_2P);
+            gNumbers.set(eNumber::LANECOVER_TOP_2P, lanecoverPrev + S2);
+            gNumbers.set(eNumber::LANECOVER100_2P, int(lanecoverPrev + S2) / 10);
 
             // ars 2P
         }

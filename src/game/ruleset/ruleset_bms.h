@@ -182,8 +182,11 @@ protected:
     const NoteLaneTimerMap* _bombLNTimerMap = nullptr;
     PlaySide _side;
 	bool _k1P, _k2P;
+
     double inner_score = 0.0;
     std::array<judgeArea, chart::NOTELANEINDEX_COUNT> _lnJudge{ judgeArea::NOTHING };
+    judgeRes _lastNoteJudge;
+    double _avgErrorTime = 0.0;
 
     std::map<chart::NoteLane, decltype(_chart->firstNote(chart::NoteLaneCategory::_, chart::NoteLaneIndex::_))> _noteListIterators;
 

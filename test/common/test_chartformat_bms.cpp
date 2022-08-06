@@ -39,8 +39,8 @@ TEST(tBMS, meta_basic)
 
 	EXPECT_STRCASEEQ(bms->fileHash.hexdigest().c_str(), "C396F76B2DE46425ED22B196230173F0");
 	EXPECT_EQ(bms->haveNote, false);
-	EXPECT_EQ(bms->notes, 0);
-	EXPECT_EQ(bms->notes_ln, 0);
+	EXPECT_EQ(bms->notes_total, 0);
+	EXPECT_EQ(bms->notes_key_ln, 0);
 }
 
 TEST(tBMS, metre_change)

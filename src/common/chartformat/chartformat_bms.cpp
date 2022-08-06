@@ -606,17 +606,35 @@ int BMS::initWithFile(const Path& file)
     {
         for (int area = 0; area < 2; ++area)
             for (const auto& ch : chNotesRegular.lanes[area])
-                for (unsigned bar = 0; bar <= lastBarIdx; bar++)
-                    notes += ch[bar].notes.size();
+            {
+                notes_scratch += ch[0].notes.size();
+
+                for (unsigned bar = 1; bar <= lastBarIdx; bar++)
+                    notes_total += ch[bar].notes.size();
+            }
     }
 
     if (haveLN)
     {
         for (int area = 0; area < 2; ++area)
             for (const auto& ch : chNotesLN.lanes[area])
+            {
+                notes_scratch_ln += ch[0].notes.size();
+
+                for (unsigned bar = 1; bar <= lastBarIdx; bar++)
+                    notes_key_ln += ch[bar].notes.size();
+            }
+        notes_total += notes_key_ln / 2;
+    }
+
+    if (haveMine)
+    {
+        for (int area = 0; area < 2; ++area)
+            for (const auto& ch : chMines.lanes[area])
+            {
                 for (unsigned bar = 0; bar <= lastBarIdx; bar++)
-                    notes_ln += ch[bar].notes.size();
-        notes += notes_ln / 2;
+                    notes_mine += ch[bar].notes.size();
+            }
     }
 
     minBPM = bpm;

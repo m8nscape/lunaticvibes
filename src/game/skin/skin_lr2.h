@@ -723,8 +723,8 @@ namespace LR2SkinDef
         JUDGE_TIMING = 12,
         DEFAULT_TARGET_RATE = 13,
 
-        LANECOVER_1P = 14,
-        LANECOVER_2P = 15,
+        LANECOVER100_1P = 14,
+        LANECOVER100_2P = 15,
 
         // random stuff
         FPS = 20,

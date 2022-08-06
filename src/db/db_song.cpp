@@ -171,7 +171,7 @@ bool convert_bms(std::shared_ptr<BMS_prop> chart, const std::vector<std::any>& i
     if (chart->totalNotes > 0)
     {
         chart->haveNote = true;
-        chart->notes = chart->totalNotes;
+        chart->notes_total = chart->totalNotes;
     }
 
     return true;

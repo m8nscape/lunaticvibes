@@ -415,6 +415,11 @@ void RulesetBMS::_judgePress(NoteLaneCategory cat, NoteLaneIndex idx, HitableNot
         // TODO scratch LN miss
         break;
     }
+
+    if (note.hit || judge.area == judgeArea::EARLY_BPOOR)
+    {
+        _lastNoteJudge = judge;
+    }
 }
 void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot)
 {
@@ -443,6 +448,7 @@ void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote
 
             // TODO play mine sound + volume
 
+            _lastNoteJudge = { judgeArea::EARLY_BPOOR, t.norm() };
         }
         break;
     }
@@ -474,6 +480,8 @@ void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote
 
                 if (_bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
                     gTimers.set(_bombLNTimerMap->at(idx), TIMER_NEVER);
+
+                _lastNoteJudge = judge;
             }
         }
         break;
@@ -545,6 +553,11 @@ void RulesetBMS::_judgeRelease(NoteLaneCategory cat, NoteLaneIndex idx, HitableN
                 _basic.totaln++;
                 _lnJudge[idx] = RulesetBMS::judgeArea::NOTHING;
                 break;
+            }
+
+            if (note.hit)
+            {
+                _lastNoteJudge = judge;
             }
 
             break;
@@ -623,12 +636,36 @@ void RulesetBMS::updateHit(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeTyp
         setJudgeTimer1PInner(judge, t.norm());
         gNumbers.set(eNumber::_DISP_NOWCOMBO_1P, _basic.combo);
         if (setTimer) gTimers.set(_bombTimerMap->at(ch), t.norm());
+
+        Option::e_judge_type judgeType = Option::JUDGE_NONE;
+        switch (judge)
+        {
+        case JudgeType::PERFECT: judgeType = Option::JUDGE_0; break;
+        case JudgeType::GREAT:   judgeType = Option::JUDGE_1; break;
+        case JudgeType::GOOD:    judgeType = Option::JUDGE_2; break;
+        case JudgeType::BAD:     judgeType = Option::JUDGE_3; break;
+        case JudgeType::MISS:    judgeType = Option::JUDGE_4; break;
+        case JudgeType::BPOOR:   judgeType = Option::JUDGE_5; break;
+        }
+        gOptions.set(eOption::PLAY_LAST_JUDGE_1P, judgeType);
     }
     else if (slot == PLAYER_SLOT_2P)
     {
         setJudgeTimer2PInner(judge, t.norm());
         gNumbers.set(eNumber::_DISP_NOWCOMBO_2P, _basic.combo);
         if (setTimer) gTimers.set(_bombTimerMap->at(ch), t.norm());
+
+        Option::e_judge_type judgeType = Option::JUDGE_NONE;
+        switch (judge)
+        {
+        case JudgeType::PERFECT: judgeType = Option::JUDGE_0; break;
+        case JudgeType::GREAT:   judgeType = Option::JUDGE_1; break;
+        case JudgeType::GOOD:    judgeType = Option::JUDGE_2; break;
+        case JudgeType::BAD:     judgeType = Option::JUDGE_3; break;
+        case JudgeType::MISS:    judgeType = Option::JUDGE_4; break;
+        case JudgeType::BPOOR:   judgeType = Option::JUDGE_5; break;
+        }
+        gOptions.set(eOption::PLAY_LAST_JUDGE_2P, judgeType);
     }
 }
 
@@ -647,11 +684,15 @@ void RulesetBMS::updateMiss(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeTy
     {
         setJudgeTimer1PInner(judge, t.norm());
         gNumbers.set(eNumber::_DISP_NOWCOMBO_1P, _basic.combo);
+
+        gOptions.set(eOption::PLAY_LAST_JUDGE_1P, (judge != JudgeType::BPOOR ? Option::JUDGE_4 : Option::JUDGE_5));
     }
     else
     {
         setJudgeTimer2PInner(judge, t.norm());
         gNumbers.set(eNumber::_DISP_NOWCOMBO_2P, _basic.combo);
+
+        gOptions.set(eOption::PLAY_LAST_JUDGE_2P, (judge != JudgeType::BPOOR ? Option::JUDGE_4 : Option::JUDGE_5));
     }
 }
 
@@ -672,11 +713,13 @@ void RulesetBMS::judgeNotePress(Input::Pad k, const Time& t, const Time& rt, int
 
     if (pNote1 && (pNote2 == nullptr || pNote1->time < pNote2->time) && !pNote1->hit)
     {
-        _judgePress(NoteLaneCategory::Note, idx1, *pNote1, _judge(*pNote1, rt), t, slot);
+        auto j = _judge(*pNote1, rt);
+        _judgePress(NoteLaneCategory::Note, idx1, *pNote1, j, t, slot);
     }
     else if (pNote2 && !pNote2->hit)
     {
-        _judgePress(NoteLaneCategory::LN, idx2, *pNote2, _judge(*pNote2, rt), t, slot);
+        auto j = _judge(*pNote2, rt);
+        _judgePress(NoteLaneCategory::LN, idx2, *pNote2, j, t, slot);
     }
 }
 void RulesetBMS::judgeNoteHold(Input::Pad k, const Time& t, const Time& rt, int slot)
@@ -687,14 +730,16 @@ void RulesetBMS::judgeNoteHold(Input::Pad k, const Time& t, const Time& rt, int 
     if (!_chart->isLastNote(NoteLaneCategory::Mine, idx))
     {
         auto& note = *_chart->incomingNote(NoteLaneCategory::Mine, idx);
-        _judgeHold(NoteLaneCategory::Mine, idx, note, _judge(note, rt), t, slot);
+        auto j = _judge(note, rt);
+        _judgeHold(NoteLaneCategory::Mine, idx, note, j, t, slot);
     }
 
     idx = _chart->getLaneFromKey(NoteLaneCategory::LN, k);
     if (!_chart->isLastNote(NoteLaneCategory::LN, idx))
     {
         auto& note = *_chart->incomingNote(NoteLaneCategory::LN, idx);
-        _judgeHold(NoteLaneCategory::LN, idx, note, _judge(note, rt), t, slot);
+        auto j = _judge(note, rt);
+        _judgeHold(NoteLaneCategory::LN, idx, note, j, t, slot);
     }
 }
 void RulesetBMS::judgeNoteRelease(Input::Pad k, const Time& t, const Time& rt, int slot)
@@ -705,7 +750,8 @@ void RulesetBMS::judgeNoteRelease(Input::Pad k, const Time& t, const Time& rt, i
     {
         if (!itNote->hit)
         {
-            _judgeRelease(NoteLaneCategory::LN, idx, *itNote, _judge(*itNote, rt), t, slot);
+            auto j = _judge(*itNote, rt);
+            _judgeRelease(NoteLaneCategory::LN, idx, *itNote, j, t, slot);
             break;
         }
         ++itNote;
@@ -1037,7 +1083,37 @@ void RulesetBMS::updateGlobals()
         gNumbers.queue(eNumber::PLAY_1P_POOR, _count[JudgeType::BPOOR] + _count[JudgeType::MISS]);
         gNumbers.queue(eNumber::PLAY_1P_GROOVEGAUGE, int(_basic.health * 100));
 
-        gNumbers.queue(eNumber::_TEST6, _basic.totaln);
+        gNumbers.queue(eNumber::PLAY_1P_JUDGE_TIME_ERROR_MS, _lastNoteJudge.time.norm());
+        gNumbers.queue(eNumber::PLAY_1P_MISS, _count[JudgeType::MISS]);
+        gNumbers.queue(eNumber::PLAY_1P_FAST_COUNT, _basic.fast);
+        gNumbers.queue(eNumber::PLAY_1P_SLOW_COUNT, _basic.slow);
+        gNumbers.queue(eNumber::PLAY_1P_COMBOBREAK, _count[JudgeType::BAD] + _count[JudgeType::MISS]);
+        gNumbers.queue(eNumber::PLAY_1P_BPOOR, _count[JudgeType::BPOOR]);
+        gNumbers.queue(eNumber::PLAY_1P_BP, _count[JudgeType::BAD] + _count[JudgeType::BPOOR] + _count[JudgeType::MISS]);
+        gNumbers.queue(eNumber::LR2IR_REPLACE_PLAY_1P_JUDGE_TIME_ERROR_MS, _lastNoteJudge.time.norm());
+        gNumbers.queue(eNumber::LR2IR_REPLACE_PLAY_1P_FAST_COUNT, _basic.fast);
+        gNumbers.queue(eNumber::LR2IR_REPLACE_PLAY_1P_SLOW_COUNT, _basic.slow);
+        gNumbers.queue(eNumber::LR2IR_REPLACE_PLAY_1P_COMBOBREAK, _count[JudgeType::BAD] + _count[JudgeType::MISS]);
+
+        int fastslow = 0;   // 1:fast 2:slow
+        switch (_lastNoteJudge.area)
+        {
+        case judgeArea::EARLY_GREAT:
+        case judgeArea::EARLY_GOOD:
+        case judgeArea::EARLY_BAD:
+        case judgeArea::EARLY_BPOOR:
+            fastslow = 1;
+            break;
+
+        case judgeArea::LATE_GREAT:
+        case judgeArea::LATE_GOOD:
+        case judgeArea::LATE_BAD:
+        case judgeArea::MISS:
+            fastslow = 2;
+            break;
+        }
+        gNumbers.queue(eNumber::LR2IR_REPLACE_PLAY_1P_FAST_SLOW, fastslow);
+        gOptions.queue(eOption::PLAY_LAST_JUDGE_FASTSLOW_1P, fastslow);
 
         gBargraphs.queue(eBargraph::RESULT_PG, (double)_count[JudgeType::PERFECT] / _chart->getNoteCount());
         gBargraphs.queue(eBargraph::RESULT_GR, (double)_count[JudgeType::GREAT] / _chart->getNoteCount());
@@ -1047,6 +1123,8 @@ void RulesetBMS::updateGlobals()
         gBargraphs.queue(eBargraph::RESULT_MAXCOMBO, (double)_basic.maxCombo / getMaxCombo());
         gBargraphs.queue(eBargraph::RESULT_SCORE, (double)_basic.score / 200000);
         gBargraphs.queue(eBargraph::RESULT_EXSCORE, (double)_basic.score2 / getMaxScore());
+        gBargraphs.queue(eBargraph::PLAY_1P_FAST_COUNT, (double)_basic.fast / _chart->getNoteCount());
+        gBargraphs.queue(eBargraph::PLAY_1P_SLOW_COUNT, (double)_basic.slow / _chart->getNoteCount());
 
         {
             using namespace Option;
@@ -1087,6 +1165,34 @@ void RulesetBMS::updateGlobals()
         gNumbers.queue(eNumber::PLAY_2P_POOR, _count[JudgeType::BPOOR] + _count[JudgeType::MISS]);
         gNumbers.queue(eNumber::PLAY_2P_GROOVEGAUGE, int(_basic.health * 100));
 
+        gNumbers.queue(eNumber::PLAY_2P_JUDGE_TIME_ERROR_MS, _lastNoteJudge.time.norm());
+        gNumbers.queue(eNumber::PLAY_2P_MISS, _count[JudgeType::MISS]);
+        gNumbers.queue(eNumber::PLAY_2P_FAST_COUNT, _basic.fast);
+        gNumbers.queue(eNumber::PLAY_2P_SLOW_COUNT, _basic.slow);
+        gNumbers.queue(eNumber::PLAY_2P_COMBOBREAK, _count[JudgeType::BAD] + _count[JudgeType::MISS]);
+        gNumbers.queue(eNumber::PLAY_2P_BPOOR, _count[JudgeType::BPOOR]);
+        gNumbers.queue(eNumber::PLAY_2P_BP, _count[JudgeType::BAD] + _count[JudgeType::BPOOR] + _count[JudgeType::MISS]);
+
+        int fastslow = 0;   // 1:fast 2:slow
+        switch (_lastNoteJudge.area)
+        {
+        case judgeArea::EARLY_GREAT:
+        case judgeArea::EARLY_GOOD:
+        case judgeArea::EARLY_BAD:
+        case judgeArea::EARLY_BPOOR:
+            fastslow = 1;
+            break;
+
+        case judgeArea::LATE_GREAT:
+        case judgeArea::LATE_GOOD:
+        case judgeArea::LATE_BAD:
+        case judgeArea::MISS:
+            fastslow = 2;
+            break;
+        }
+        gNumbers.queue(eNumber::LR2IR_REPLACE_PLAY_2P_FAST_SLOW, fastslow);
+        gOptions.queue(eOption::PLAY_LAST_JUDGE_FASTSLOW_2P, fastslow);
+
         gBargraphs.queue(eBargraph::RESULT_RIVAL_PG, (double)_count[JudgeType::PERFECT] / _chart->getNoteCount());
         gBargraphs.queue(eBargraph::RESULT_RIVAL_GR, (double)_count[JudgeType::GREAT] / _chart->getNoteCount());
         gBargraphs.queue(eBargraph::RESULT_RIVAL_GD, (double)_count[JudgeType::GOOD] / _chart->getNoteCount());
@@ -1095,6 +1201,8 @@ void RulesetBMS::updateGlobals()
         gBargraphs.queue(eBargraph::RESULT_RIVAL_MAXCOMBO, (double)_basic.maxCombo / getMaxCombo());
         gBargraphs.queue(eBargraph::RESULT_RIVAL_SCORE, (double)_basic.score / 200000);
         gBargraphs.queue(eBargraph::RESULT_RIVAL_EXSCORE, (double)_basic.score2 / getMaxScore());
+        gBargraphs.queue(eBargraph::PLAY_2P_FAST_COUNT, (double)_basic.fast / _chart->getNoteCount());
+        gBargraphs.queue(eBargraph::PLAY_2P_SLOW_COUNT, (double)_basic.slow / _chart->getNoteCount());
 
         {
             using namespace Option;

@@ -93,8 +93,12 @@ public:
     bool haveBPMChange = false;
     bool haveBGA = false;
     bool haveRandom = false;
-    unsigned long notes = 0;
-    unsigned long notes_ln = 0;
+    unsigned long notes_total = 0;
+    unsigned long notes_key = 0;
+    unsigned long notes_scratch = 0;
+    unsigned long notes_key_ln = 0;
+    unsigned long notes_scratch_ln = 0;
+    unsigned long notes_mine = 0;
     unsigned lastBarIdx = 0;
 
 public:

@@ -107,6 +107,8 @@ public:
         unsigned timeMinimumLoad;
         unsigned timeGetReady;
         unsigned timeFailed;
+        unsigned noteLaneHeight1P = 0;
+        unsigned noteLaneHeight2P = 0;
 
         // Result
         unsigned timeResultRank; //ignored

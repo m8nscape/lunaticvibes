@@ -40,6 +40,8 @@ struct ChartContextParams
     BPM minBPM = 150;
     BPM maxBPM = 150;
     BPM startBPM = 150;
+    double HSFixBPMFactor1P = 1.0;
+    double HSFixBPMFactor2P = 1.0;
 
     TextureDynamic texStagefile;
     TextureDynamic texBackbmp;
