@@ -247,6 +247,9 @@ public:
     int miss;
     int bp;
     int combobreak;
+    int option1;
+    int option2;
+
 
     // extended info
     unsigned rival = 3; // win / lose / draw / noplay

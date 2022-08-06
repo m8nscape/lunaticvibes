@@ -298,6 +298,8 @@ void SceneResult::updateFadeout()
                 score.miss = rBMS->getJudgeCount(RulesetBMS::JudgeType::MISS);
                 score.bp = score.bad + score.bpoor + score.miss;
                 score.combobreak = rBMS->getJudgeCount(RulesetBMS::JudgeType::COMBOBREAK);
+                score.option1 = rBMS->getJudgeCount(RulesetBMS::JudgeType::OPTION1);
+                score.option2 = rBMS->getJudgeCount(RulesetBMS::JudgeType::OPTION2);
                 g_pScoreDB->updateChartScoreBMS(gChartContext.hash, score);
                 break;
             }

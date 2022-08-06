@@ -23,7 +23,10 @@ const char* CREATE_SCORE_BMS_TABLE_STR =
 "miss INTEGER NOT NULL, "                // 16
 "bp INTEGER NOT NULL, "                  // 17
 "cb INTEGER NOT NULL "                   // 18
+"random p1 options NOT NULL"             // 19 
+"random p2 options NOT NULL"             // 20
 ")";
+//options1 and options2: http://bemaniwiki.com/index.php?beatmania%20IIDX%2029%20CastHour#playing
 struct score_bms_all_params
 {
     std::string md5;
@@ -45,6 +48,10 @@ struct score_bms_all_params
     long long miss    = 0;
     long long bp      = 0;
     long long cb      = 0;
+    long long option1 = 0;
+    long long option2 = 0;
+    unsigned char ghost = 0;
+    unsigned char gauge = 0;
 
     score_bms_all_params(const std::vector<std::any>& queryResult)
     {
@@ -69,6 +76,9 @@ struct score_bms_all_params
             miss    = ANY_INT(queryResult.at(16));
             bp      = ANY_INT(queryResult.at(17));
             cb      = ANY_INT(queryResult.at(18));
+            option1 = ANY_INT(queryResult.at(19));
+            option2 = ANY_INT(queryResult.at(20));
+
         }
         catch (std::out_of_range&)
         {
@@ -98,7 +108,9 @@ bool convert_score_bms(std::shared_ptr<ScoreBMS> out, const std::vector<std::any
     out->bpoor      = params.bpoor  ;
     out->miss       = params.miss   ;
     out->bp         = params.bp     ;
-    out->combobreak = params.cb;
+    out->combobreak = params.cb     ;
+    out->option1 = params.option1   ;
+    out->option2 = params.option2   ;
     return true;
 }
 
@@ -156,6 +168,8 @@ void ScoreDB::updateChartScoreBMS(const HashMD5& hash, const ScoreBMS& score)
             record.bpoor = score.bpoor;
             record.miss = score.miss;
             record.combobreak = score.combobreak;
+            record.option1 = score.option1;
+            record.option2 = score.option2;
         }
 
         if (score.maxcombo > record.maxcombo)
@@ -184,10 +198,10 @@ void ScoreDB::updateChartScoreBMS(const HashMD5& hash, const ScoreBMS& score)
         }
 
         exec("UPDATE score_bms SET notes=?,score=?,rate=?,fast=?,slow=?,maxcombo=?,addtime=?,pc=?,exscore=?,lamp=?,"
-            "pgreat=?,great=?,good=?,bad=?,bpoor=?,miss=?,bp=?,cb=? WHERE md5=?",
+            "pgreat=?,great=?,good=?,bad=?,bpoor=?,miss=?,bp=?,cb=?,option1=?,option2=? WHERE md5=?",
             { record.notes, record.score, record.rate, record.fast, record.slow, 
             record.maxcombo, (long long)std::time(nullptr), record.playcount, record.exscore, (int)record.lamp, 
-            record.pgreat, record.great, record.good, record.bad, record.bpoor, record.miss, record.bp, record.combobreak,
+            record.pgreat, record.great, record.good, record.bad, record.bpoor, record.miss, record.bp, record.combobreak, record.option1, record.option2,
             hash.hexdigest()});
     }
     else
@@ -197,6 +211,6 @@ void ScoreDB::updateChartScoreBMS(const HashMD5& hash, const ScoreBMS& score)
             { hash.hexdigest(),
             score.notes, score.score, score.rate, score.fast, score.slow,
             score.maxcombo, (long long)std::time(nullptr), score.playcount, score.exscore, (int)score.lamp, 
-            score.pgreat, score.great, score.good, score.bad, score.bpoor, score.miss, score.bp, score.combobreak });
+            score.pgreat, score.great, score.good, score.bad, score.bpoor, score.miss, score.bp, score.combobreak, score.option1, score.option2 });
     }
 }

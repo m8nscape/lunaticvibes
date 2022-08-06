@@ -22,6 +22,8 @@ public:
         BPOOR,
         MISS,
         COMBOBREAK,
+        OPTION1,
+        OPTION2,
     };
 
     enum class GaugeType {
