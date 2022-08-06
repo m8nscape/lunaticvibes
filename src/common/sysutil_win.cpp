@@ -22,7 +22,7 @@ typedef struct tagTHREADNAME_INFO
 } THREADNAME_INFO;
 #pragma pack(pop)  
 
-void SetDebugThreadNameWin32(DWORD dwThreadID, const char* threadName) {
+void SetThreadNameWin32(DWORD dwThreadID, const char* threadName) {
 
     // change VS debugger thread name
     THREADNAME_INFO info;
@@ -63,9 +63,9 @@ bool IsMainThread()
     return GetCurrentThreadId() == dwMainThreadId;
 }
 
-void SetDebugThreadName(const char* name)
+void SetThreadName(const char* name)
 {
-    SetDebugThreadNameWin32(GetCurrentThreadId(), name); 
+    SetThreadNameWin32(GetCurrentThreadId(), name); 
 }
 void panic(const char* title, const char* msg) 
 {

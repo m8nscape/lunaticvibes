@@ -280,8 +280,8 @@ enum class eNumber: unsigned
 		PLAY_2P_BP,
 		PLAY_2P_JUDGE_TIME_ERROR_MS,
 
-		//  LR2HelperA A.0.39 - GITADORAïL JUDGE BAR¤Î×·¼Ó - Endless Circulation SE FS5¤Î¥ê¥¶¥ë¥È¤ËßmÓÃ¤µ¤ì¤Æ¤¤¤Ş¤¹
-		GITADORA_STYLE_JUDGE_BAR_0 = 400,	// (0:²Ğ¤ê,1:¥Î©`¥ß¥¹,2:¥ß¥¹)
+		//  LR2HelperA A.0.39 - GITADORAé¢¨ JUDGE BARã®è¿½åŠ  - Endless Circulation SE FS5ã®ãƒªã‚¶ãƒ«ãƒˆã«é©ç”¨ã•ã‚Œã¦ã„ã¾ã™
+		GITADORA_STYLE_JUDGE_BAR_0 = 400,	// (0:æ®‹ã‚Š,1:ãƒãƒ¼ãƒŸã‚¹,2:ãƒŸã‚¹)
 		GITADORA_STYLE_JUDGE_BAR_MAX = 449,	// not implemented; I assume these were imititating the completion bar to the right of score results in GITADORA.
 
 		// internal numbers
