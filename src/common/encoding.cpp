@@ -109,6 +109,7 @@ eFileEncoding getFileEncoding(const Path& path)
     {
         return eFileEncoding::LATIN1;
     }
+    return getFileEncoding(fs);
 
     std::string buf;
     while (!fs.eof())
@@ -123,6 +124,49 @@ eFileEncoding getFileEncoding(const Path& path)
 
     return eFileEncoding::LATIN1;
 }
+
+eFileEncoding getFileEncoding(std::istream& is)
+{
+    std::streampos oldPos = is.tellg();
+
+    is.clear();
+    is.seekg(0);
+
+    std::string buf;
+    eFileEncoding enc;
+    while (!is.eof())
+    {
+        std::getline(is, buf, '\n');
+
+        // the following order is important
+        if (is_shiftjis(buf)) { enc = eFileEncoding::SHIFT_JIS; break; }
+        if (is_euckr(buf)) { enc = eFileEncoding::EUC_KR; break; }
+        if (is_utf8(buf)) { enc = eFileEncoding::UTF8; break; }
+    }
+
+    is.clear();
+    is.seekg(oldPos);
+
+    return enc;
+}
+
+const char* getFileEncodingName(eFileEncoding enc)
+{
+    switch (enc)
+    {
+    case eFileEncoding::EUC_KR: 
+        return "EUC-KR";
+    case eFileEncoding::LATIN1: 
+        return "Latin 1";
+    case eFileEncoding::SHIFT_JIS: 
+        return "Shift JIS";
+    case eFileEncoding::UTF8: 
+        return "UTF-8";
+    default:
+        return "Unknown";
+    }
+}
+
 
 #ifdef WIN32
 

@@ -691,6 +691,8 @@ int SkinLR2::LR2FONT()
         lr2font.sync();
         ifsFile.close();
 
+        auto encoding = getFileEncoding(path);
+
         auto pf = std::make_shared<LR2Font>();
 
         int lr2fontLineNumber = 0;
@@ -699,6 +701,10 @@ int SkinLR2::LR2FONT()
             std::string raw;
             std::getline(lr2font, raw);
             ++lr2fontLineNumber;
+
+            // convert codepage
+            raw = to_utf8(raw, encoding);
+
             auto tokens = csvLineTokenize(raw);
             if (tokens.empty()) continue;
             auto key = tokens[0];
@@ -2695,7 +2701,6 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
 
     p = convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), p);
 
-    LOG_INFO << "[Skin] File: " << p.u8string();
     std::ifstream ifsFile(p, std::ios::binary);
     if (!ifsFile.is_open())
     {
@@ -2710,12 +2715,20 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
     csvFile.sync();
     ifsFile.close();
 
+    auto encoding = getFileEncoding(csvFile);
+
+    LOG_INFO << "[Skin] File (" << getFileEncodingName(encoding) << "): " << p.u8string();
+
     bool haveEndOfHeader = false;
     while (!csvFile.eof())
     {
         std::string raw;
         std::getline(csvFile, raw);
         ++csvLineNumber;
+
+        // convert codepage
+        raw = to_utf8(raw, encoding);
+
         auto tokens = csvLineTokenize(raw);
         if (tokens.empty()) continue;
 
@@ -2805,6 +2818,9 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
             std::string raw;
             std::getline(csvFile, raw);
             ++csvLineNumber;
+
+            raw = to_utf8(raw, encoding);
+
             auto tokens = csvLineTokenize(raw);
             if (tokens.empty()) continue;
 

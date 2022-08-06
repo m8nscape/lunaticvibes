@@ -21,6 +21,7 @@
 #ifdef WIN32
 #include <Windows.h>
 #pragma comment(lib, "winmm.lib")
+#include <consoleapi2.h>
 #endif //WIN32
 
 #include <regex>

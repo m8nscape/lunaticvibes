@@ -93,12 +93,12 @@ int BMS::initWithFile(const Path& file)
     bmsFile.sync();
     ifsFile.close();
 
+    auto encoding = getFileEncoding(bmsFile);
+
     if (toLower(file.extension().u8string()) == ".pms")
     {
         isPMS = true;
     }
-
-    auto encoding = getFileEncoding(absolutePath);
 
     // 拉面早就看出bms有多难读，直接鸽了我5年
 
