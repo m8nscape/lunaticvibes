@@ -2580,7 +2580,7 @@ int SkinLR2::parseBody(const Tokens &raw)
     return 0;
 }
 
-void SkinLR2::IF(const Tokens &t, std::istream& lr2skin)
+void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc)
 {
     bool isElseStmt = false;
     bool ifStmtTrue = true;
@@ -2621,6 +2621,9 @@ void SkinLR2::IF(const Tokens &t, std::istream& lr2skin)
             std::string raw;
             std::getline(lr2skin, raw);
             ++csvLineNumber;
+
+            raw = to_utf8(raw, enc);
+
             auto tokens = csvLineTokenize(raw);
             if (tokens.empty()) continue;
 
@@ -2652,12 +2655,12 @@ void SkinLR2::IF(const Tokens &t, std::istream& lr2skin)
 
             if (strEqual(*tokens.begin(), "#ELSE", true))
             {
-                IF(tokens, lr2skin);
+                IF(tokens, lr2skin, enc);
                 return;
             }
             else if (strEqual(*tokens.begin(), "#ELSEIF", true))
             {
-                IF(tokens, lr2skin);
+                IF(tokens, lr2skin, enc);
                 return;
             }
             else if (strEqual(*tokens.begin(), "#ENDIF", true))
@@ -2825,7 +2828,7 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
             if (tokens.empty()) continue;
 
             if (strEqual(*tokens.begin(), "#IF", true))
-                IF(tokens, csvFile);
+                IF(tokens, csvFile, encoding);
             else
                 parseBody(tokens);
         }
