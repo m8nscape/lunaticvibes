@@ -84,7 +84,6 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     {
         LOG_ERROR << "[Play] Invalid chart: " << gChartContext.path.u8string();
 
-        _skin->stopSpriteVideoUpdate();
         gNextScene = eScene::SELECT;
 
         return;
@@ -133,7 +132,6 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     default:
         LOG_WARNING << "[Play] chart format not supported.";
 
-        _skin->stopSpriteVideoUpdate();
         gNextScene = eScene::SELECT;
         return;
     }
@@ -156,17 +154,83 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     gNumbers.queue(eNumber::INFO_BPM_MIN, int(std::round(gChartContext.minBPM)));
     gNumbers.queue(eNumber::INFO_BPM_MAX, int(std::round(gChartContext.maxBPM)));
 
-    // player datas
-    gNumbers.queue(eNumber::RESULT_MYBEST_EX, 0);
-    gNumbers.queue(eNumber::RESULT_MYBEST_DIFF, 0);
-    gNumbers.queue(eNumber::RESULT_MYBEST_RATE, 0);
-    gNumbers.queue(eNumber::RESULT_MYBEST_RATE_DECIMAL2, 0);
-    gBargraphs.queue(eBargraph::PLAY_MYBEST, 0.0);
-    gBargraphs.queue(eBargraph::PLAY_MYBEST_NOW, 0.0);
+    // reset
+    eNumber numbersReset[] =
+    {
+        eNumber::PLAY_1P_SCORE,
+        eNumber::PLAY_1P_EXSCORE,
+        eNumber::PLAY_1P_RATE,
+        eNumber::PLAY_1P_RATEDECIMAL,
+        eNumber::PLAY_1P_NOWCOMBO,
+        eNumber::PLAY_1P_MAXCOMBO,
+        eNumber::PLAY_1P_EXSCORE_DIFF,
+        eNumber::PLAY_1P_PERFECT,
+        eNumber::PLAY_1P_GREAT,
+        eNumber::PLAY_1P_GOOD,
+        eNumber::PLAY_1P_BAD,
+        eNumber::PLAY_1P_POOR,
+        eNumber::PLAY_1P_TOTAL_RATE,
+        eNumber::PLAY_1P_TOTAL_RATE_DECIMAL2,
+        eNumber::PLAY_2P_SCORE,
+        eNumber::PLAY_2P_EXSCORE,
+        eNumber::PLAY_2P_RATE,
+        eNumber::PLAY_2P_RATEDECIMAL,
+        eNumber::PLAY_2P_NOWCOMBO,
+        eNumber::PLAY_2P_MAXCOMBO,
+        eNumber::PLAY_2P_EXSCORE_DIFF,
+        eNumber::PLAY_2P_PERFECT,
+        eNumber::PLAY_2P_GREAT,
+        eNumber::PLAY_2P_GOOD,
+        eNumber::PLAY_2P_BAD,
+        eNumber::PLAY_2P_POOR,
+        eNumber::PLAY_2P_TOTAL_RATE,
+        eNumber::PLAY_2P_TOTAL_RATE_DECIMAL2,
+        eNumber::RESULT_MYBEST_EX,
+        eNumber::RESULT_TARGET_EX,
+        eNumber::RESULT_MYBEST_DIFF,
+        eNumber::RESULT_TARGET_DIFF,
+        eNumber::RESULT_NEXT_RANK_EX_DIFF,
+        eNumber::RESULT_MYBEST_RATE,
+        eNumber::RESULT_MYBEST_RATE_DECIMAL2,
+        eNumber::RESULT_TARGET_RATE,
+        eNumber::RESULT_TARGET_RATE_DECIMAL2,
+    };
+    for (auto& e : numbersReset)
+    {
+        gNumbers.queue(e, 0);
+    }
+
+    eBargraph bargraphsReset[] =
+    {
+        eBargraph::PLAY_EXSCORE,
+        eBargraph::PLAY_EXSCORE_PREDICT,
+        eBargraph::PLAY_MYBEST_NOW,
+        eBargraph::PLAY_MYBEST,
+        eBargraph::PLAY_RIVAL_EXSCORE,
+        eBargraph::PLAY_RIVAL_EXSCORE_FINAL,
+        eBargraph::PLAY_1P_SLOW_COUNT,
+        eBargraph::PLAY_1P_FAST_COUNT,
+        eBargraph::PLAY_2P_SLOW_COUNT,
+        eBargraph::PLAY_2P_FAST_COUNT,
+    };
+    for (auto& e : bargraphsReset)
+    {
+        gBargraphs.queue(e, 0.0);
+    }
+
+    eSlider slidersReset[] =
+    {
+        eSlider::SONG_PROGRESS
+    };
+    for (auto& e : slidersReset)
+    {
+        gSliders.queue(e, 0.0);
+    }
 
     gTexts.flush();
     gNumbers.flush();
     gBargraphs.flush();
+    gSliders.flush();
 
     // set gauge type
     if (gChartContext.chartObj)
@@ -543,7 +607,6 @@ void ScenePlay::_updateAsync()
 
     if (gAppIsExiting)
     {
-        _skin->stopSpriteVideoUpdate();
         gPlayContext.bgaTexture->stopUpdate();
         gNextScene = eScene::EXIT_TRANS;
     }
@@ -852,7 +915,6 @@ void ScenePlay::updateFadeout()
         }
 
         SoundMgr::stopKeySamples();
-        _skin->stopSpriteVideoUpdate();
         gPlayContext.bgaTexture->reset();
 
         if (isPlaymodeAuto())
