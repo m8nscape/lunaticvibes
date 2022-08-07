@@ -290,31 +290,36 @@ std::string toUpper(std::string_view s)
 std::string toUpper(const std::string& s) { return toUpper(std::string_view(s)); }
 
 
-Path convertLR2Path(const std::string& lr2path, const Path& relative_path)
+std::string convertLR2Path(const std::string& lr2path, const Path& relative_path)
 {
     if (relative_path.is_absolute())
-        return relative_path;
+        return relative_path.u8string();
 
     return convertLR2Path(lr2path, relative_path.u8string());
 }
 
-std::string convertLR2Path(const std::string& lr2path, const std::string& relative_path)
+std::string convertLR2Path(const std::string& lr2path, const std::string& relative_path_utf8)
 {
-    return convertLR2Path(lr2path, relative_path.c_str());
+    return convertLR2Path(lr2path, std::string_view(relative_path_utf8));
 }
 
-std::string convertLR2Path(const std::string& lr2path, const char* relative_path)
+std::string convertLR2Path(const std::string& lr2path, const char* relative_path_utf8)
 {
-    if (auto p = Path(relative_path); p.is_absolute())
-        return relative_path;
+    return convertLR2Path(lr2path, std::string_view(relative_path_utf8));
+}
+
+std::string convertLR2Path(const std::string& lr2path, std::string_view relative_path_utf8)
+{
+    if (auto p = PathFromUTF8(relative_path_utf8); p.is_absolute())
+        return std::string(relative_path_utf8);
 
     int head = 0;
-    int tail = strlen(relative_path) - 1;
-    while (head <= tail && relative_path[0] == '"') head++;
-    while (head <= tail && relative_path[tail] == '"') tail--;
+    int tail = relative_path_utf8.length() - 1;
+    while (head <= tail && relative_path_utf8[0] == '"') head++;
+    while (head <= tail && relative_path_utf8[tail] == '"') tail--;
 
-    std::string_view raw(relative_path + head, tail - head + 1);
-    std::string_view prefix(relative_path + head, 2);
+    std::string_view raw(relative_path_utf8.data() + head, tail - head + 1);
+    std::string_view prefix(relative_path_utf8.data() + head, 2);
     if (!prefix.empty())
     {
         if (prefix == "./" || prefix == ".\\")
@@ -329,14 +334,23 @@ std::string convertLR2Path(const std::string& lr2path, const char* relative_path
     prefix = raw.substr(0, 8);
     if (strEqual(prefix, "LR2files", true))
     {
-        Path path(lr2path);
-        path /= raw;
-        return path.generic_string();
+        Path path = PathFromUTF8(lr2path);
+        path /= PathFromUTF8(raw);
+        return path.u8string();
     }
     else
     {
-        return relative_path;
+        return std::string(relative_path_utf8);
     }
+}
+
+Path PathFromUTF8(std::string_view s)
+{
+#ifdef _WIN32
+    return utf8_to_utf32(std::string(s));
+#else
+    return Path(s);
+#endif
 }
 
 void preciseSleep(long long sleep_ns)

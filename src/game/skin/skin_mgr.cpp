@@ -83,7 +83,7 @@ void SkinMgr::load(eMode e)
         break;
     }
 
-    skinFilePath = convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), skinFilePath);
+    skinFilePath = PathFromUTF8(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), skinFilePath));
 
     switch (type)
     {

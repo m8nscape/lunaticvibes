@@ -121,7 +121,7 @@ int main(int argc, char* argv[])
     if (ConfigMgr::get('P', cfg::P_RELATIVE_AXIS, false))
         InputMgr::setAxisMode(InputMgr::eAxisMode::AXIS_RELATIVE);
 
-    if (!fs::is_directory(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), "LR2Files/")))
+    if (!fs::is_directory(utf8_to_utf32(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), "LR2Files/"))))
     {
         LOG_ERROR << "LR2files directory not found!";
         return -1;

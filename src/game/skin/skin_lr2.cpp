@@ -530,7 +530,7 @@ int SkinLR2::IMAGE()
 {
     if (strEqual(parseKeyBuf, "#IMAGE", true))
     {
-        Path path = convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), parseParamBuf[0]);
+        Path path = PathFromUTF8(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), parseParamBuf[0]));
         StringPath pathStr = path.native();
         std::string pathU8Str = path.u8string();
         if (pathStr.find("*"_p) != pathStr.npos)
@@ -662,7 +662,7 @@ int SkinLR2::LR2FONT()
 {
     if (strEqual(parseKeyBuf, "#LR2FONT", true))
     {
-        Path path = convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), parseParamBuf[0]);
+        Path path = PathFromUTF8(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), parseParamBuf[0]));
         path = std::filesystem::absolute(path);
         size_t idx = LR2FontNameMap.size();
 
@@ -674,29 +674,42 @@ int SkinLR2::LR2FONT()
 
         if (!fs::is_regular_file(path))
         {
-            // find dxa file
-            Path dxa = path.parent_path().parent_path() / (path.parent_path().stem().u8string() + ".dxa");
-
-            // extract dxa
-            if (std::filesystem::is_regular_file(dxa))
+            std::string archiveName;
+            Path lr2skinFolder = fs::absolute(filePath).parent_path();
+            auto lr2skinFolderStr = lr2skinFolder.native();
+            Path folder = path.parent_path();
+            Path::string_type folderStr;
+            do
             {
-                LOG_DEBUG << "[Skin] Extract dxa file: " << fs::absolute(dxa);
-                extractDxaToFile(dxa);
-            }
+                archiveName = folder.stem().u8string() + ".dxa";
+                folder = folder.parent_path();
+                folderStr = fs::absolute(folder).native();
+
+                // find dxa file
+                Path dxa = folder / PathFromUTF8(archiveName);
+
+                // extract dxa
+                if (std::filesystem::is_regular_file(dxa))
+                {
+                    LOG_DEBUG << "[Skin] Extract dxa file: " << fs::absolute(dxa).u8string();
+                    extractDxaToFile(dxa);
+                    break;
+                }
+            } while (folderStr.length() >= lr2skinFolderStr.length() && folderStr.substr(0, lr2skinFolderStr.length()) == lr2skinFolderStr);
         }
 
         if (!fs::is_regular_file(path))
         {
             LR2FontNameMap[std::to_string(idx)] = nullptr;
             LOG_WARNING << "[Skin] " << csvLineNumber << ": LR2FONT file not found: " << path.u8string();
-            return 0;
+            return 1;
         }
 
         std::ifstream ifsFile(path, std::ios::binary);
         if (ifsFile.fail())
         {
             LOG_WARNING << "[Skin] " << csvLineNumber << ": LR2FONT file open failed: " << path.u8string();
-            return 0;
+            return 1;
         }
 
         // copy the whole file into ram, once for all
@@ -717,9 +730,9 @@ int SkinLR2::LR2FONT()
             ++lr2fontLineNumber;
 
             // convert codepage
-            raw = to_utf8(raw, encoding);
+            std::string rawUTF8 = to_utf8(raw, encoding);
 
-            auto tokens = csvLineTokenize(raw);
+            auto tokens = csvLineTokenize(rawUTF8);
             if (tokens.empty()) continue;
             auto key = tokens[0];
 
@@ -770,16 +783,7 @@ int SkinLR2::LR2FONT()
                 }
                 else continue;
 
-                // convert Shift-JIS to UTF-32
-                {
-#ifdef _WIN32
-                    const static auto locale932 = std::locale(".932");
-#else
-                    const static auto locale932 = std::locale("ja_JP.SJIS");
-#endif
-                    Path tmp{ s_sjis, locale932 };
-                    c_utf32 = tmp.u32string()[0];
-                }
+                c_utf32 = to_utf32(s_sjis, eFileEncoding::SHIFT_JIS)[0];
 
                 Rect r;
                 r.x = toInt(tokens[3]);
@@ -2451,9 +2455,9 @@ int SkinLR2::parseHeader(const Tokens& raw)
         while (parseParamBuf.size() < 4) parseParamBuf.push_back("");
 
         int type = toInt(parseParamBuf[0]);
-        StringContent title = StringContent(parseParamBuf[1]);
-        StringContent maker = StringContent(parseParamBuf[2]);
-        Path thumbnail(parseParamBuf[3]);
+        auto& title = StringContent(parseParamBuf[1]);
+        auto& maker = StringContent(parseParamBuf[2]);
+        StringContent thumbnail(parseParamBuf[3]);
 
         switch (type)
         {
@@ -2483,10 +2487,16 @@ int SkinLR2::parseHeader(const Tokens& raw)
         info.name = title;
         info.maker = maker;
 
+        if (thumbnail.find('*') != thumbnail.npos)
+        {
+            auto ls = findFiles(thumbnail);
+            if (!ls.empty())
+                thumbnail = ls[0].u8string();
+        }
         _textureNameMap["THUMBNAIL"] = std::make_shared<Texture>(Image(
-            convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), thumbnail.u8string().c_str())));
+            PathFromUTF8(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), thumbnail))));
         if (_textureNameMap["THUMBNAIL"] == nullptr)
-            LOG_WARNING << "[Skin] " << csvLineNumber << ": thumbnail loading failed: " << thumbnail.u8string();
+            LOG_WARNING << "[Skin] " << csvLineNumber << ": thumbnail loading failed: " << thumbnail;
 
         LOG_DEBUG << "[Skin] " << csvLineNumber << ": Loaded metadata: " << title << " | " << maker;
 
@@ -2495,7 +2505,9 @@ int SkinLR2::parseHeader(const Tokens& raw)
 
     else if (strEqual(parseKeyBuf, "#CUSTOMOPTION", true))
     {
-        StringContent title(parseParamBuf[0]);
+        while (parseParamBuf.size() < 2) parseParamBuf.push_back("");
+
+        auto& title(parseParamBuf[0]);
         int dst_op = toInt(parseParamBuf[1]);
         if (dst_op < 900 || dst_op > 999)
         {
@@ -2521,16 +2533,18 @@ int SkinLR2::parseHeader(const Tokens& raw)
 
     else if (strEqual(parseKeyBuf, "#CUSTOMFILE", true))
     {
-        StringContent title(parseParamBuf[0]);
-        StringContent path(parseParamBuf[1]);
-        Path pathf = convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), path);
-        Path def(parseParamBuf[2]);
+        while (parseParamBuf.size() < 3) parseParamBuf.push_back("");
+
+        auto& title(parseParamBuf[0]);
+        auto& path(parseParamBuf[1]);
+        Path pathf = PathFromUTF8(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), path));
+        auto& def(parseParamBuf[2]);
 
         auto ls = findFiles(pathf);
         size_t defVal = 0;
         for (size_t param = 0; param < ls.size(); ++param)
         {
-            if (ls[param].filename().stem() == def)
+            if (ls[param].filename().stem().u8string() == def)
             {
                 defVal = param;
                 break;
@@ -2646,9 +2660,9 @@ void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc)
             std::getline(lr2skin, raw);
             ++csvLineNumber;
 
-            raw = to_utf8(raw, enc);
+            std::string rawUTF8 = to_utf8(raw, enc);
 
-            auto tokens = csvLineTokenize(raw);
+            auto tokens = csvLineTokenize(rawUTF8);
             if (tokens.empty()) continue;
 
             if (strEqual(*tokens.begin(), "#ENDIF", true))
@@ -2726,7 +2740,7 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
     auto srcLineNumberParent = csvLineNumber;
     csvLineNumber = 0;
 
-    p = convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), p);
+    p = PathFromUTF8(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), p));
 
     std::ifstream ifsFile(p, std::ios::binary);
     if (!ifsFile.is_open())
@@ -2754,9 +2768,9 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
         ++csvLineNumber;
 
         // convert codepage
-        raw = to_utf8(raw, encoding);
+        std::string rawUTF8 = to_utf8(raw, encoding);
 
-        auto tokens = csvLineTokenize(raw);
+        auto tokens = csvLineTokenize(rawUTF8);
         if (tokens.empty()) continue;
 
         if (parseHeader(tokens) == -1)
@@ -2846,9 +2860,9 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
             std::getline(csvFile, raw);
             ++csvLineNumber;
 
-            raw = to_utf8(raw, encoding);
+            std::string rawUTF8 = to_utf8(raw, encoding);
 
-            auto tokens = csvLineTokenize(raw);
+            auto tokens = csvLineTokenize(rawUTF8);
             if (tokens.empty()) continue;
 
             if (strEqual(*tokens.begin(), "#IF", true))

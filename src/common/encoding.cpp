@@ -133,7 +133,7 @@ eFileEncoding getFileEncoding(std::istream& is)
     is.seekg(0);
 
     std::string buf;
-    eFileEncoding enc;
+    eFileEncoding enc = eFileEncoding::LATIN1;
     while (!is.eof())
     {
         std::getline(is, buf, '\n');
@@ -231,6 +231,18 @@ std::string from_utf8(const std::string& input, eFileEncoding toEncoding)
     return ret;
 }
 
+std::u32string to_utf32(const std::string& input, eFileEncoding fromEncoding)
+{
+    std::string inputUTF8 = to_utf8(input, fromEncoding);
+    return utf8_to_utf32(inputUTF8);
+}
+
+std::string from_utf32(const std::u32string& input, eFileEncoding toEncoding)
+{
+    std::string inputUTF8 = utf32_to_utf8(input);
+    return from_utf8(inputUTF8, toEncoding);
+}
+
 
 std::u32string utf8_to_utf32(const std::string& str)
 {
@@ -281,7 +293,6 @@ std::string utf32_to_utf8(const std::u32string& str)
     u8Text.resize(to_next - &u8Text[0]);
     return u8Text;
 }
-
 
 #else
 #include <iconv.h>

@@ -434,6 +434,9 @@ int DirectoryDecode(u8* NameP, u8* DirP, u8* FileP, DARC_HEAD_VER5* Head, DARC_D
 		DirFile = (DARC_FILEHEAD_VER5*)(FileP + Dir->DirectoryAddress);
 
 		DirPath /= GetOriginalFileName(NameP + DirFile->NameAddress);
+
+		if (!std::filesystem::exists(DirPath))
+			std::filesystem::create_directories(DirPath);
 	}
 
 	// 展開処理開始
