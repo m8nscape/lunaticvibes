@@ -687,7 +687,7 @@ void chartBMS::loadBMS(const BMS& objBms)
 
     }
 
-    _totalLength = basetime + Time(std::max(500'000'000ll, Time::singleBeatLengthFromBPM(bpm).hres() * 4), true);    // last measure + 1
+    _totalLength = basetime + Time(std::min(2000'000'000ll, std::max(500'000'000ll, Time::singleBeatLengthFromBPM(bpm).hres() * 4)), true);    // last measure + 1
 
     resetNoteListsIterators();
     _currentStopNote = incomingNoteSpecial(size_t(eNoteExt::STOP));

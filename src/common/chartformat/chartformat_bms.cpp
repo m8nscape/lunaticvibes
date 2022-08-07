@@ -109,6 +109,7 @@ int BMS::initWithFile(const Path& file)
 
     // #RANDOM related parameters
     std::stack<int> randomValue;
+    std::stack<std::set<int>> randomUnusedValues;
     std::stack<std::stack<int>> ifStack;
     std::stack<int> ifValue;
 
@@ -154,6 +155,23 @@ int BMS::initWithFile(const Path& file)
         try
         {
             auto space_idx = std::min(buf.length(), buf.find_first_of(' '));
+
+            // supporting one level control flow (#RANDOM, #IF, etc.), matching with LR2's capability
+            if (!randomUnusedValues.empty() && randomUnusedValues.top().empty())
+            {
+                StringContentView v = buf;
+                if (ifValue.empty() && !v.empty() && v[0] == '#' &&
+                    !strEqual(v.substr(0, 3), "#IF", true) && 
+                    !strEqual(v.substr(0, 6), "#ENDIF", true) && 
+                    !strEqual(v.substr(0, 10), "#ENDRANDOM", true))
+                {
+                    LOG_WARNING << "[BMS] definition found after all IF blocks finished, assuming #ENDRANDOM is missing. Line: " << srcLine;
+                    randomValue.pop();
+                    randomUnusedValues.pop();
+                    ifStack.pop();
+                }
+            }
+
             if (space_idx > 1 && strEqual(buf.substr(0, 7), "#RANDOM", true))
             {
                 StringContent value = space_idx < buf.length() ? buf.substr(space_idx + 1) : "";
@@ -167,7 +185,12 @@ int BMS::initWithFile(const Path& file)
                 haveRandom = true;
                 // TODO use global rng
                 static std::mt19937_64 rng(std::time(nullptr));
-                randomValue.push((rng() % toInt(value)) + 1);
+                int rngValue = (rng() % toInt(value)) + 1;
+                randomValue.push(rngValue);
+                std::set<int> v;
+                for (int i = 1; i <= iValue; ++i)
+                    v.insert(i);
+                randomUnusedValues.push(v);
 
                 ifStack.push(ifValue);
                 ifValue = std::stack<int>();
@@ -184,12 +207,27 @@ int BMS::initWithFile(const Path& file)
                     StringContent value = space_idx < buf.length() ? buf.substr(space_idx + 1) : "";
                     if (strEqual(key, "IF", true))
                     {
-                        ifValue.push(toInt(value));
+                        int ifBlockValue = toInt(value);
+                        if (randomUnusedValues.top().find(ifBlockValue) == randomUnusedValues.top().end())
+                        {
+                            LOG_WARNING << "[BMS] duplicate #IF value found at line " << srcLine;
+                        }
+
+                        // one level control flow
+                        if (!ifValue.empty())
+                        {
+                            LOG_WARNING << "[BMS] unexpected #IF found, assuming #ENDIF is missing. Line: " << srcLine;
+                            randomUnusedValues.top().erase(ifValue.top());
+                            ifValue.pop();
+                        }
+
+                        ifValue.push(ifBlockValue);
                     }
                     else if (strEqual(key, "ENDIF", true))
                     {
                         if (!ifValue.empty())
                         {
+                            randomUnusedValues.top().erase(ifValue.top());
                             ifValue.pop();
                         }
                         else
@@ -204,6 +242,7 @@ int BMS::initWithFile(const Path& file)
                             LOG_WARNING << "[BMS] #ENDRANDOM found before #ENDIF at line " << srcLine;
                         }
                         randomValue.pop();
+                        randomUnusedValues.pop();
 
                         if (!ifStack.empty())
                         {
