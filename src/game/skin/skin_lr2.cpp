@@ -16,6 +16,7 @@
 #include "skin_lr2_converters.h"
 #include "config/config_mgr.h"
 #include "game/scene/scene_customize.h"
+#include "game/graphics/dxa.h"
 
 #ifdef _WIN32
 // For GetWindowsDirectory
@@ -671,7 +672,20 @@ int SkinLR2::LR2FONT()
             return 1;
         }
 
-        if (!std::filesystem::is_regular_file(path))
+        if (!fs::is_regular_file(path))
+        {
+            // find dxa file
+            Path dxa = path.parent_path().parent_path() / (path.parent_path().stem().u8string() + ".dxa");
+
+            // extract dxa
+            if (std::filesystem::is_regular_file(dxa))
+            {
+                LOG_DEBUG << "[Skin] Extract dxa file: " << fs::absolute(dxa);
+                extractDxaToFile(dxa);
+            }
+        }
+
+        if (!fs::is_regular_file(path))
         {
             LR2FontNameMap[std::to_string(idx)] = nullptr;
             LOG_WARNING << "[Skin] " << csvLineNumber << ": LR2FONT file not found: " << path.u8string();

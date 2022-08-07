@@ -549,7 +549,7 @@ int DecodeArchive(Path& path, DXArchive* output = NULL)
 	KeyCreate(NULL, Key);
 
 	// アーカイブファイルを開く
-	std::string ps(path.u8string());
+	std::string ps(path.string());
 	const char* ArchiveName = ps.c_str();
 	std::ifstream ArcP(ArchiveName, std::ios_base::binary);
 	if (!ArcP.is_open()) return {};
@@ -600,7 +600,7 @@ int DecodeArchive(Path& path, DXArchive* output = NULL)
 		if (output != NULL)
 			DirectoryDecode(NameP, DirP, FileP, &Head, (DARC_DIRECTORY_VER5*)DirP, ArcP, Key, ".", *output);
 		else
-			DirectoryDecode(NameP, DirP, FileP, &Head, (DARC_DIRECTORY_VER5*)DirP, ArcP, Key, (path.parent_path() / path.stem()).u8string());
+			DirectoryDecode(NameP, DirP, FileP, &Head, (DARC_DIRECTORY_VER5*)DirP, ArcP, Key, path.parent_path() / path.stem());
 	}
 
 	// 終了

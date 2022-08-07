@@ -10,7 +10,6 @@
 #include "common/sysutil.h"
 #include "game/scene/scene_context.h"
 #include "game/generic_info.h"
-#include "game/graphics/dxa.h"
 
 #include "common/chartformat/chartformat_bms.h"
 
@@ -142,22 +141,6 @@ int main(int argc, char* argv[])
     // init sound
     if (auto sinit = SoundMgr::initFMOD())
         return sinit;
-
-    // extract dxa
-    for (auto& it : std::filesystem::recursive_directory_iterator(
-        convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), "LR2Files/Theme")))
-    {
-        if (std::filesystem::is_regular_file(it))
-        {
-            auto ext = it.path().extension().u8string();
-            for (char& c: ext) c = std::tolower(c);
-            if (ext == ".dxa")
-            {
-                LOG_INFO << "Extracting DXArchive file " << it.path().u8string() << "...";
-                extractDxaToFile(it.path());
-            }
-        }
-    }
 
 	// load input bindings
     InputMgr::init();
