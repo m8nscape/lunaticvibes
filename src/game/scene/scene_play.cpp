@@ -523,25 +523,39 @@ void ScenePlay::loadChart()
                 return;
             }
 
-            pushAndWaitMainThreadTask<void>([&]
+            std::list<std::pair<size_t, Path>> mapBgaFiles;
+            auto loadBgaFiles = [&]
+            {
+                for (auto& [i, pBmp] : mapBgaFiles)
                 {
-                    for (size_t i = 0; i < _pChart->bgaFiles.size(); ++i)
-                    {
-                        if (sceneEnding) return;
-                        const auto& bmp = _pChart->bgaFiles[i];
-                        if (bmp.empty()) continue;
+                    if (pBmp.is_absolute())
+                        gPlayContext.bgaTexture->addBmp(i, pBmp);
+                    else
+                        gPlayContext.bgaTexture->addBmp(i, chartDir / pBmp);
+                    ++_bmpLoaded;
+                }
+            };
+            for (size_t i = 0; i < _pChart->bgaFiles.size(); ++i)
+            {
+                if (sceneEnding) return;
+                const auto& bmp = _pChart->bgaFiles[i];
+                if (bmp.empty()) continue;
 
+                mapBgaFiles.emplace_back(i, fs::u8path(bmp));
 
-                        Path pBmp = fs::u8path(bmp);
-                        if (pBmp.is_absolute())
-                            gPlayContext.bgaTexture->addBmp(i, pBmp);
-                        else
-                            gPlayContext.bgaTexture->addBmp(i, chartDir / pBmp);
+                if (mapBgaFiles.size() >= 8)
+                {
+                    pushAndWaitMainThreadTask<void>(loadBgaFiles);
+                    mapBgaFiles.clear();
+                }
+            }
+            loadBgaFiles();
+            mapBgaFiles.clear();
 
-                        ++_bmpLoaded;
-                    }
-                });
-            if (_bmpLoaded > 0) gPlayContext.bgaTexture->setLoaded();
+            if (_bmpLoaded > 0)
+            {
+                gPlayContext.bgaTexture->setLoaded();
+            }
 			gPlayContext.bgaTexture->setSlotFromBMS(*std::reinterpret_pointer_cast<chartBMS>(gPlayContext.chartObj[PLAYER_SLOT_1P]));
             gChartContext.isBgaLoaded = true;
         });
