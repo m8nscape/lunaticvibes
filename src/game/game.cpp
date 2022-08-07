@@ -207,6 +207,16 @@ int main(int argc, char* argv[])
         }
     }
 
+    // preload all skins
+    LOG_INFO << "==============================================";
+    LOG_INFO << "Preload all skins";
+    for (eMode e = eMode::TITLE; e < eMode::MODE_COUNT; ++(*(int*)&e))
+    {
+        SkinMgr::load(e);
+    }
+    LOG_INFO << "Preload all skins finished";
+    LOG_INFO << "==============================================";
+
     // score db
     std::string scoreDBPath = (ConfigMgr::Profile()->getPath() / "score.db").u8string();
     g_pScoreDB = std::make_shared<ScoreDB>(scoreDBPath.c_str());
