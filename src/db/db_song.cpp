@@ -501,7 +501,15 @@ int SongDB::addFolder(Path path, HashMD5 parentHash)
     }
 
     int count = addFolderCharts(folderHash, path);
-    LOG_INFO << "[SongDB] " << path.u8string() << ": queued " << count << " entries";
+
+    if (parentHash == ROOT_FOLDER_HASH)
+    {
+        BS::thread_pool& pool = DBThreadPool[this];
+        pool.wait_for_tasks();
+
+        LOG_INFO << "[SongDB] " << path.u8string() << ": added " << count << " entries";
+    }
+
     return 0;
 }
 
@@ -521,7 +529,6 @@ int SongDB::addFolderCharts(const HashMD5& hash, const Path& folder)
 
     std::vector<Path> subFolderList;
 
-    addChartBuffer.clear();
     for (const auto& f : fs::directory_iterator(folder))
     {
         if (!isSongFolder && fs::is_directory(f))
@@ -530,11 +537,11 @@ int SongDB::addFolderCharts(const HashMD5& hash, const Path& folder)
         }
         else if (isSongFolder && analyzeChartType(f) != eChartFormat::UNKNOWN)
         {
-            addChartBuffer.push_back(std::make_pair(hash, f));
+            BS::thread_pool& pool = DBThreadPool[this];
+            pool.submit(std::bind(&SongDB::addChart, this, hash, f));
             ++count;
         }
     }
-    handleAddChartBuffer();
 
     for (const auto& sub : subFolderList)
     {
@@ -592,13 +599,12 @@ int SongDB::refreshFolder(const HashMD5& hash, const Path& path, FolderType type
         std::vector<Path> newFiles;
         std::set_difference(bmsFiles.begin(), bmsFiles.end(), existedFiles.begin(), existedFiles.end(), std::back_inserter(newFiles));
 
-        addChartBuffer.clear();
         for (auto& p : newFiles)
         {
-            addChartBuffer.push_back(std::make_pair(hash, p));
+            BS::thread_pool& pool = DBThreadPool[this];
+            pool.submit(std::bind(&SongDB::addChart, this, hash, p));
             count++;
         }
-        handleAddChartBuffer();
 
         // TODO set delete flag on not-found entries
 
@@ -623,51 +629,6 @@ int SongDB::refreshFolder(const HashMD5& hash, const Path& path, FolderType type
         LOG_DEBUG << "[SongDB] Checked " << count;
         return count;
     }
-}
-
-int SongDB::handleAddChartBuffer()
-{
-    int count = 0;
-
-    BS::thread_pool& pool = DBThreadPool[this];
-
-    unsigned finishedTaskCount = 0;
-    for (auto& chart : addChartBuffer)
-    {
-        HashMD5 hash = chart.first;
-        Path path = chart.second;
-        using namespace std::placeholders;
-
-        pool.submit([&, hash, path]()
-            {
-                try
-                {
-                    if (addChart(hash, path) == 0)
-                        count++;
-                }
-                catch (...)
-                {
-                }
-                finishedTaskCount++;
-            });
-    }
-    while (true)
-    {
-        using namespace std::chrono_literals;
-
-        if (finishedTaskCount != addChartBuffer.size())
-        {
-            std::this_thread::sleep_for(100ms);
-        }
-        else
-        {
-            break;
-        }
-    }
-
-    addChartBuffer.clear();
-
-    return count;
 }
 
 HashMD5 SongDB::getFolderParent(const Path& path) const

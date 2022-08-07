@@ -59,10 +59,7 @@ public:
     std::vector<pChart> findChartByHash(const HashMD5&) const;  // chart may duplicate
 
 protected:
-    std::list<std::pair<HashMD5, Path>> addChartBuffer;
     int addFolderCharts(const HashMD5& hash, const Path& folder);
-public:
-    int handleAddChartBuffer();
 
 public:
     int addFolder(Path path, HashMD5 parent = ROOT_FOLDER_HASH);

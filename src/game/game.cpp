@@ -231,7 +231,6 @@ int main(int argc, char* argv[])
     for (auto& f : folderList)
     {
         g_pSongDB->addFolder(f);
-        g_pSongDB->handleAddChartBuffer();
     }
 
     SongListProperties rootFolderProp{

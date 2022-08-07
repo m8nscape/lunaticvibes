@@ -77,13 +77,13 @@ int BMS::initWithFile(const Path& file)
 
     filePath = file.filename();
     absolutePath = std::filesystem::absolute(file);
-    LOG_INFO << "[BMS] File: " << absolutePath.u8string();
+    LOG_DEBUG << "[BMS] " << absolutePath.u8string();
     std::ifstream ifsFile(absolutePath.c_str());
     if (ifsFile.fail())
     {
         errorCode = err::FILE_ERROR;
         errorLine = 0;
-        LOG_INFO << "[BMS] File ERROR";
+        LOG_WARNING << "[BMS] " << absolutePath.u8string() << " File ERROR";
         return 1;
     }
 
@@ -163,7 +163,7 @@ int BMS::initWithFile(const Path& file)
                     !strEqual(v.substr(0, 6), "#ENDIF", true) && 
                     !strEqual(v.substr(0, 10), "#ENDRANDOM", true))
                 {
-                    LOG_WARNING << "[BMS] definition found after all IF blocks finished, assuming #ENDRANDOM is missing. Line: " << srcLine;
+                    LOG_WARNING << "[BMS] " << absolutePath.u8string() << " definition found after all IF blocks finished, assuming #ENDRANDOM is missing. Line: " << srcLine;
                     randomValue.pop();
                     randomUnusedValues.pop();
                     ifStack.pop();
@@ -176,7 +176,7 @@ int BMS::initWithFile(const Path& file)
                 int iValue = toInt(value);
                 if (iValue == 0)
                 {
-                    LOG_WARNING << "[BMS] Invalid #RANDOM value found at line" << srcLine;
+                    LOG_WARNING << "[BMS] " << absolutePath.u8string() << " Invalid #RANDOM value found at line" << srcLine;
                     continue;
                 }
 
@@ -208,13 +208,13 @@ int BMS::initWithFile(const Path& file)
                         int ifBlockValue = toInt(value);
                         if (randomUnusedValues.top().find(ifBlockValue) == randomUnusedValues.top().end())
                         {
-                            LOG_WARNING << "[BMS] duplicate #IF value found at line " << srcLine;
+                            LOG_WARNING << "[BMS] " << absolutePath.u8string() << " duplicate #IF value found at line " << srcLine;
                         }
 
                         // one level control flow
                         if (!ifValue.empty())
                         {
-                            LOG_WARNING << "[BMS] unexpected #IF found, assuming #ENDIF is missing. Line: " << srcLine;
+                            LOG_WARNING << "[BMS] " << absolutePath.u8string() << " unexpected #IF found, assuming #ENDIF is missing. Line: " << srcLine;
                             randomUnusedValues.top().erase(ifValue.top());
                             ifValue.pop();
                         }
@@ -230,14 +230,14 @@ int BMS::initWithFile(const Path& file)
                         }
                         else
                         {
-                            LOG_WARNING << "[BMS] unexpected #ENDIF found at line " << srcLine;
+                            LOG_WARNING << "[BMS] " << absolutePath.u8string() << " unexpected #ENDIF found at line " << srcLine;
                         }
                     }
                     else if (strEqual(key, "ENDRANDOM", true))
                     {
                         if (!ifValue.empty())
                         {
-                            LOG_WARNING << "[BMS] #ENDRANDOM found before #ENDIF at line " << srcLine;
+                            LOG_WARNING << "[BMS] " << absolutePath.u8string() << " #ENDRANDOM found before #ENDIF at line " << srcLine;
                         }
                         randomValue.pop();
                         randomUnusedValues.pop();
@@ -319,7 +319,7 @@ int BMS::initWithFile(const Path& file)
                 {
                     if (!lnobjSet.empty())
                     {
-                        LOG_WARNING << "[BMS] Multiple #LNOBJ found at line" << srcLine;
+                        LOG_WARNING << "[BMS] " << absolutePath.u8string() << " Multiple #LNOBJ found at line" << srcLine;
                         lnobjSet.clear();
                     }
                     lnobjSet.insert(base36(value[0], value[1]));
@@ -359,7 +359,7 @@ int BMS::initWithFile(const Path& file)
 
                 if (value.empty())
                 {
-                    LOG_WARNING << "[BMS] Empty note line detected: line " << srcLine;
+                    LOG_WARNING << "[BMS] " << absolutePath.u8string() << " Empty note line detected: line " << srcLine;
                     errorLine = srcLine;
                     errorCode = err::NOTE_LINE_ERROR;
                     return 1;
@@ -495,7 +495,7 @@ int BMS::initWithFile(const Path& file)
                 }
                 catch (noteLineException& e)
                 {
-                    LOG_WARNING << "[BMS] Line error. File: " << file.filename().u8string() << " Line: " << srcLine;
+                    LOG_WARNING << "[BMS] " << absolutePath.u8string() << " Line error. Line: " << srcLine;
                 }
             }
         }
@@ -763,7 +763,7 @@ int BMS::initWithFile(const Path& file)
     }
 
     fileHash = md5file(absolutePath);
-    LOG_INFO << "[BMS] File: " << absolutePath.filename().u8string() << " MD5: " << fileHash.hexdigest();
+    LOG_INFO << "[BMS] " << absolutePath.u8string() << " MD5: " << fileHash.hexdigest();
 
     _loaded = true;
 
