@@ -2866,10 +2866,10 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
         }
     }
 
-    if (info.noteLaneHeight1P != 0)
+    auto setLaneHeight = [&](size_t begin, size_t end, int height)
     {
         using namespace chart;
-        for (size_t i = 0; i < 10; ++i)
+        for (size_t i = begin; i <= end; ++i)
         {
             NoteLaneIndex lane = NoteLaneIndex(NoteIdxToLaneMap[i]);
             if (lane == _) continue;
@@ -2878,44 +2878,40 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
             idx = channelToIdx(NoteLaneCategory::Note, lane);
             if (idx != LANE_INVALID && _laneSprites[idx] != nullptr)
             {
-                _laneSprites[idx]->setHeight(info.noteLaneHeight1P);
+                _laneSprites[idx]->setHeight(height);
             }
             idx = channelToIdx(NoteLaneCategory::Mine, lane);
             if (idx != LANE_INVALID && _laneSprites[idx] != nullptr)
             {
-                _laneSprites[idx]->setHeight(info.noteLaneHeight1P);
+                _laneSprites[idx]->setHeight(height);
             }
             idx = channelToIdx(NoteLaneCategory::LN, lane);
             if (idx != LANE_INVALID && _laneSprites[idx] != nullptr)
             {
-                _laneSprites[idx]->setHeight(info.noteLaneHeight1P);
+                _laneSprites[idx]->setHeight(height);
             }
+        }
+    };
+    if (info.noteLaneHeight1P != 0)
+    {
+        using namespace chart;
+        setLaneHeight(0, 9, info.noteLaneHeight1P);
+
+        constexpr size_t idx = channelToIdx(NoteLaneCategory::EXTRA, NoteLaneExtra::EXTRA_BARLINE);
+        if (idx != LANE_INVALID && _laneSprites[idx] != nullptr)
+        {
+            _laneSprites[idx]->setHeight(info.noteLaneHeight1P);
         }
     }
     if (info.noteLaneHeight2P != 0)
     {
         using namespace chart;
-        for (size_t i = 10; i < 20; ++i)
-        {
-            NoteLaneIndex lane = NoteLaneIndex(NoteIdxToLaneMap[i]);
-            if (lane == _) continue;
-            size_t idx;
+        setLaneHeight(10, 19, info.noteLaneHeight2P);
 
-            idx = channelToIdx(NoteLaneCategory::Note, lane);
-            if (idx != LANE_INVALID && _laneSprites[idx] != nullptr)
-            {
-                _laneSprites[idx]->setHeight(info.noteLaneHeight2P);
-            }
-            idx = channelToIdx(NoteLaneCategory::Mine, lane);
-            if (idx != LANE_INVALID && _laneSprites[idx] != nullptr)
-            {
-                _laneSprites[idx]->setHeight(info.noteLaneHeight2P);
-            }
-            idx = channelToIdx(NoteLaneCategory::LN, lane);
-            if (idx != LANE_INVALID && _laneSprites[idx] != nullptr)
-            {
-                _laneSprites[idx]->setHeight(info.noteLaneHeight2P);
-            }
+        constexpr size_t idx = channelToIdx(NoteLaneCategory::EXTRA, NoteLaneExtra::EXTRA_BARLINE);
+        if (idx != LANE_INVALID && _laneSprites[idx] != nullptr)
+        {
+            _laneSprites[idx]->setHeight(info.noteLaneHeight2P);
         }
     }
 

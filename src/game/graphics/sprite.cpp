@@ -75,11 +75,11 @@ bool vSprite::updateByKeyframes(const Time& rawTime)
         return false;
 
     // Check if import time is valid
-	Time endTime = Time(_keyFrames[frameCount - 1].time, false);
-    if (time.norm() < 0 || _loopTo < 0 && time > endTime)
+    if (time.norm() < 0)
         return false;
 
     // Check if loop target is valid
+    Time endTime = Time(_keyFrames[frameCount - 1].time, false);
     if (_loopTo < 0 && time > endTime)
         return false;
     if (_loopTo > _keyFrames[frameCount - 1].time)

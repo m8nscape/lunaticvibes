@@ -121,6 +121,8 @@ int graphics_init()
 
         SDL_SetRenderTarget(gFrameRenderer, gInternalRenderTarget);
 
+        SDL_ShowCursor(SDL_DISABLE);
+
         SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 
         LOG_DEBUG << "[SDL2] Initializing window and render complete.";
@@ -182,7 +184,14 @@ void graphics_flush()
 
         // render imgui
         auto pData = ImGui::GetDrawData();
-        if (pData != NULL) ImGui_ImplSDLRenderer_RenderDrawData(pData);
+        if (pData != NULL)
+        {
+            if (pData->CmdListsCount == 0)
+            {
+                ImGui::SetMouseCursor(ImGuiMouseCursor_None);
+            }
+            ImGui_ImplSDLRenderer_RenderDrawData(pData);
+        }
 
         SDL_RenderPresent(gFrameRenderer);
     }

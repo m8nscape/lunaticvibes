@@ -8,7 +8,7 @@
 
 using namespace chart;
 
-void setJudgeTimer1PInner(RulesetBMS::JudgeType judge, long long t)
+void setJudgeInternalTimer1P(RulesetBMS::JudgeType judge, long long t)
 {
 	gTimers.set(eTimer::_JUDGE_1P_0, TIMER_NEVER);
 	gTimers.set(eTimer::_JUDGE_1P_1, TIMER_NEVER);
@@ -28,7 +28,7 @@ void setJudgeTimer1PInner(RulesetBMS::JudgeType judge, long long t)
 	}
 }
 
-void setJudgeTimer2PInner(RulesetBMS::JudgeType judge, long long t)
+void setJudgeInternalTimer2P(RulesetBMS::JudgeType judge, long long t)
 {
 	gTimers.set(eTimer::_JUDGE_2P_0, TIMER_NEVER);
 	gTimers.set(eTimer::_JUDGE_2P_1, TIMER_NEVER);
@@ -319,14 +319,6 @@ void RulesetBMS::_judgePress(NoteLaneCategory cat, NoteLaneIndex idx, HitableNot
     case NoteLaneCategory::Note:
         switch (judge.area)
         {
-        case judgeArea::NOTHING:
-            break;
-        default:
-            gTimers.set(eTimer::PLAY_JUDGE_1P, t.norm());
-            break;
-        }
-        switch (judge.area)
-        {
         case judgeArea::EARLY_PERFECT:
         case judgeArea::EXACT_PERFECT:
         case judgeArea::LATE_PERFECT:
@@ -439,11 +431,13 @@ void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote
             _basic.miss++;
             if (slot == PLAYER_SLOT_1P)
             {
-                setJudgeTimer1PInner(JudgeType::BPOOR, t.norm());
+                gTimers.set(eTimer::PLAY_JUDGE_1P, t.norm());
+                setJudgeInternalTimer1P(JudgeType::BPOOR, t.norm());
             }
             else if (slot == PLAYER_SLOT_2P)
             {
-                setJudgeTimer2PInner(JudgeType::BPOOR, t.norm());
+                gTimers.set(eTimer::PLAY_JUDGE_2P, t.norm());
+                setJudgeInternalTimer2P(JudgeType::BPOOR, t.norm());
             }
 
             // TODO play mine sound + volume
@@ -633,7 +627,8 @@ void RulesetBMS::updateHit(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeTyp
 
     if (slot == PLAYER_SLOT_1P)
     {
-        setJudgeTimer1PInner(judge, t.norm());
+        gTimers.set(eTimer::PLAY_JUDGE_1P, t.norm());
+        setJudgeInternalTimer1P(judge, t.norm());
         gNumbers.set(eNumber::_DISP_NOWCOMBO_1P, _basic.combo);
         if (setTimer) gTimers.set(_bombTimerMap->at(ch), t.norm());
 
@@ -651,7 +646,8 @@ void RulesetBMS::updateHit(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeTyp
     }
     else if (slot == PLAYER_SLOT_2P)
     {
-        setJudgeTimer2PInner(judge, t.norm());
+        gTimers.set(eTimer::PLAY_JUDGE_2P, t.norm());
+        setJudgeInternalTimer2P(judge, t.norm());
         gNumbers.set(eNumber::_DISP_NOWCOMBO_2P, _basic.combo);
         if (setTimer) gTimers.set(_bombTimerMap->at(ch), t.norm());
 
@@ -682,14 +678,16 @@ void RulesetBMS::updateMiss(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeTy
 
     if (slot == PLAYER_SLOT_1P)
     {
-        setJudgeTimer1PInner(judge, t.norm());
+        gTimers.set(eTimer::PLAY_JUDGE_1P, t.norm());
+        setJudgeInternalTimer1P(judge, t.norm());
         gNumbers.set(eNumber::_DISP_NOWCOMBO_1P, _basic.combo);
 
         gOptions.set(eOption::PLAY_LAST_JUDGE_1P, (judge != JudgeType::BPOOR ? Option::JUDGE_4 : Option::JUDGE_5));
     }
     else
     {
-        setJudgeTimer2PInner(judge, t.norm());
+        gTimers.set(eTimer::PLAY_JUDGE_2P, t.norm());
+        setJudgeInternalTimer2P(judge, t.norm());
         gNumbers.set(eNumber::_DISP_NOWCOMBO_2P, _basic.combo);
 
         gOptions.set(eOption::PLAY_LAST_JUDGE_2P, (judge != JudgeType::BPOOR ? Option::JUDGE_4 : Option::JUDGE_5));
