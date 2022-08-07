@@ -43,7 +43,7 @@ void imguiMonitorNumber()
 	if (ImGui::Begin("Numbers (F2)", NULL, ImGuiWindowFlags_NoCollapse))
 	{
 		char titleBuf[32] = { 0 };
-		for (int i = 0; i <= 499; i += 20)
+		for (int i = 0; i <= 699; i += 20)
 		{
 			sprintf(titleBuf, "%d - %d", i, i + 20);
 			if (ImGui::CollapsingHeader(titleBuf))
@@ -53,6 +53,18 @@ void imguiMonitorNumber()
 					ImGui::Text("% 4d: %d", i + j, gNumbers.get((eNumber)(i + j)));
 				}
 			}
+		}
+		if (ImGui::CollapsingHeader("etc."))
+		{
+			eNumber etcNumbers[] =
+			{
+				eNumber::RANDOM,
+				eNumber::SCENE_UPDATE_FPS,
+				eNumber::INPUT_DETECT_FPS,
+				eNumber::NEW_ENTRY_SECONDS,
+			};
+			for (auto& e: etcNumbers)
+				ImGui::Text("% 4d: %d", (int)e, gNumbers.get(e));
 		}
 		ImGui::End();
 	}

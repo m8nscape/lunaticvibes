@@ -722,6 +722,8 @@ void chartBMS::preUpdate(const Time& t)
     {
         if (t.hres() > _currentStopNote->time.hres() + _currentStopNote->dvalue)
         {
+            _stopMetre += _currentStopNote->fvalue;
+            _stopBar = _currentStopNote->measure;
             ++_currentStopNote;
         }
         else if (t >= _currentStopNote->time)
@@ -740,6 +742,14 @@ void chartBMS::postUpdate(const Time& t)
 {
     if (_inStopNote)
     {
-        _currentMetre = _currentStopNote->pos - _barMetrePos[_currentStopNote->measure];
+        _currentMetreTemp = _currentStopNote->pos - _barMetrePos[_currentStopNote->measure];
+    }
+    else if (_stopBar == _currentBarTemp)
+    {
+        _currentMetreTemp -= _stopMetre;
+    }
+    else
+    {
+        _stopMetre = 0.0;
     }
 }

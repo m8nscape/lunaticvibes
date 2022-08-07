@@ -285,7 +285,7 @@ enum class eNumber: unsigned
 		GITADORA_STYLE_JUDGE_BAR_MAX = 449,	// not implemented; I assume these were imititating the completion bar to the right of score results in GITADORA.
 
 		// internal numbers
-		_TEST1 = 600,
+		_TEST1 = 500,
 		_TEST2,
 		_TEST3,
 		_TEST4,
@@ -295,7 +295,7 @@ enum class eNumber: unsigned
 		_TEST8,
 		_TEST9,
 
-		_PPS1 = 611,
+		_PPS1 = 511,
 		_PPS2,
 		_PPS3,
 		_PPS4,
@@ -310,8 +310,8 @@ enum class eNumber: unsigned
 		_ANGLE_TT_1P,
 		_ANGLE_TT_2P,
 
-		_SELECT_BAR_LEVEL_0 = 650,
-		_SELECT_BAR_LEVEL_MAX = 681,
+		_SELECT_BAR_LEVEL_0 = 550,
+		_SELECT_BAR_LEVEL_MAX = 581,
 
 	RANDOM = 999,
 

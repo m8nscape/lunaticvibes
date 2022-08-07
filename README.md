@@ -11,7 +11,7 @@ The project is still in development stage. Please do not expect a bug-free exper
 ## Quick Start
 
 * Download the latest release
-* Copy LR2files folder from LR2
+* Copy LR2files folder from LR2 (must include default theme)
 
 ### **Do NOT use this application to load unauthorized copyrighted contents (e.g. charts, skins).**
 

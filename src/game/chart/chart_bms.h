@@ -38,6 +38,8 @@ protected:
 protected:
     decltype(_specialNoteLists.front().begin()) _currentStopNote;
     bool _inStopNote = false;
+    double _stopMetre = 0.0;
+    size_t _stopBar = 0;
 
 public:
     //virtual void update(hTime t);

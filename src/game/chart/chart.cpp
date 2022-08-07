@@ -34,8 +34,8 @@ std::shared_ptr<vChart> vChart::createFromChartFormat(int slot, std::shared_ptr<
 
 void vChart::reset()
 {
-    _currentBar         = 0;
-    _currentMetre        = 0;
+    _currentBarTemp         = 0;
+    _currentMetreTemp        = 0;
     _currentBPM         = _bpmNoteList.empty()? 150 : BPM(_bpmNoteList.front().fvalue);
     _currentBeatLength    = Time::singleBeatLengthFromBPM(_currentBPM);
     _lastChangedBPMTime = 0;
@@ -152,7 +152,7 @@ Time vChart::getBarLength(size_t bar)
 
 Time vChart::getCurrentBarLength()
 {
-    return getBarLength(_currentBar);
+    return getBarLength(_currentBarTemp);
 }
 
 Metre vChart::getBarMetre(size_t bar)
@@ -167,7 +167,7 @@ Metre vChart::getBarMetre(size_t bar)
 
 Metre vChart::getCurrentBarMetre()
 {
-	return getBarMetre(_currentBar);
+	return getBarMetre(_currentBarTemp);
 }
 
 Metre vChart::getBarMetrePosition(size_t bar)
@@ -192,10 +192,10 @@ void vChart::update(Time t)
     preUpdate(vt);
 
     // Go through expired measures
-    while (_currentBar + 1 < MAX_MEASURES && vt >= _barTimestamp[_currentBar + 1])
+    while (_currentBarTemp + 1 < MAX_MEASURES && vt >= _barTimestamp[_currentBarTemp + 1])
     {
-        ++_currentBar;
-        _currentMetre = 0;
+        ++_currentBarTemp;
+        _currentMetreTemp = 0;
         _lastChangedBPMTime = 0;
         _lastChangedBPMMetre = 0;
     }
@@ -204,11 +204,11 @@ void vChart::update(Time t)
     auto b = incomingNoteBpm();
     while (!isLastNoteBpm(b) && vt >= b->time)
     {
-        //_currentMetre = b->pos - getCurrentMeasureBeat();
+        //_currentMetreTemp = b->pos - getCurrentMeasureBeat();
         _currentBPM = BPM(b->fvalue);
         _currentBeatLength = Time::singleBeatLengthFromBPM(_currentBPM);
-        _lastChangedBPMTime = b->time - _barTimestamp[_currentBar];
-        _lastChangedBPMMetre = b->pos - _barMetrePos[_currentBar];
+        _lastChangedBPMTime = b->time - _barTimestamp[_currentBarTemp];
+        _lastChangedBPMMetre = b->pos - _barMetrePos[_currentBarTemp];
         b = nextNoteBpm();
     }
 
@@ -258,14 +258,16 @@ void vChart::update(Time t)
     }
 
     // update beat
-    Time currentMeasureTimePassed = vt - _barTimestamp[_currentBar];
+    Time currentMeasureTimePassed = vt - _barTimestamp[_currentBarTemp];
     Time timeFromBPMChange = currentMeasureTimePassed - _lastChangedBPMTime;
     gNumbers.set(eNumber::_TEST4, (int)currentMeasureTimePassed.norm());
-    _currentMetre = _lastChangedBPMMetre + (double)timeFromBPMChange.hres() / _currentBeatLength.hres() / 4;
+    _currentMetreTemp = _lastChangedBPMMetre + (double)timeFromBPMChange.hres() / _currentBeatLength.hres() / 4;
 
     postUpdate(vt);
 
-	gNumbers.set(eNumber::_TEST1, _currentBar);
-	gNumbers.set(eNumber::_TEST2, (int)std::floor(_currentMetre * 1000));
+	gNumbers.set(eNumber::_TEST1, _currentBarTemp);
+	gNumbers.set(eNumber::_TEST2, (int)std::floor(_currentMetreTemp * 1000));
 	
+    _currentBar = _currentBarTemp;
+    _currentMetre = _currentMetreTemp;
 }

@@ -177,8 +177,10 @@ public:
 	Time getCurrentBarTimestamp() { return getBarTimestamp(_currentBar); }
 
 protected:
+    unsigned _currentBarTemp       = 0;
     unsigned _currentBar           = 0;
-    double   _currentMetre          = 0;
+    double   _currentMetreTemp     = 0;
+    double   _currentMetre         = 0;
     BPM      _currentBPM           = 150.0;
     Time     _currentBeatLength    = Time::singleBeatLengthFromBPM(150.0);
     Time     _lastChangedBPMTime   = 0;
