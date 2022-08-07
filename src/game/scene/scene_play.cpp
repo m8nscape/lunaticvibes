@@ -459,21 +459,24 @@ void ScenePlay::loadChart()
                 return;
             }
 
-            for (size_t i = 0; i < _pChart->bgaFiles.size(); ++i)
-            {
-				if (sceneEnding) return;
-                const auto& bmp = _pChart->bgaFiles[i];
-                if (bmp.empty()) continue;
+            pushAndWaitMainThreadTask<void>([&]
+                {
+                    for (size_t i = 0; i < _pChart->bgaFiles.size(); ++i)
+                    {
+                        if (sceneEnding) return;
+                        const auto& bmp = _pChart->bgaFiles[i];
+                        if (bmp.empty()) continue;
 
 
-				Path pBmp = fs::u8path(bmp);
-				if (pBmp.is_absolute())
-					gPlayContext.bgaTexture->addBmp(i, pBmp);
-				else
-					gPlayContext.bgaTexture->addBmp(i, chartDir / pBmp);
+                        Path pBmp = fs::u8path(bmp);
+                        if (pBmp.is_absolute())
+                            gPlayContext.bgaTexture->addBmp(i, pBmp);
+                        else
+                            gPlayContext.bgaTexture->addBmp(i, chartDir / pBmp);
 
-                ++_bmpLoaded;
-            }
+                        ++_bmpLoaded;
+                    }
+                });
             if (_bmpLoaded > 0) gPlayContext.bgaTexture->setLoaded();
 			gPlayContext.bgaTexture->setSlotFromBMS(*std::reinterpret_pointer_cast<chartBMS>(gPlayContext.chartObj[PLAYER_SLOT_1P]));
             gChartContext.isBgaLoaded = true;
