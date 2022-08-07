@@ -102,8 +102,6 @@ int BMS::initWithFile(const Path& file)
 
     // 拉面早就看出bms有多难读，直接鸽了我5年
 
-    // SUPER LAZY PARSER FOR TESTING
-
     StringContent buf;
     unsigned srcLine = 0;
 
