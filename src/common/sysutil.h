@@ -3,7 +3,7 @@
 void SetThreadAsMainThread();
 int64_t GetCurrentThreadID();
 bool IsMainThread();
-void SetDebugThreadName(const char* name);
+void SetThreadName(const char* name);
 void panic(const char* title, const char* msg);
 void GetExecutablePath(char* output, size_t bufsize, size_t& len);
 
@@ -19,7 +19,7 @@ void SetWindowForeground(bool foreground);
 #undef SetDebugThreadName
 #endif
 #ifdef _DEBUG
-#define SetDebugThreadName(x) SetDebugThreadName(x)
+#define SetDebugThreadName(x) SetThreadName(x)
 #else
 #define SetDebugThreadName(x) __noop
 #endif
