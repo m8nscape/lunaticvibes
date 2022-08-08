@@ -90,9 +90,6 @@ void mainLoop()
             graphics_flush();
         }
 		++gFrameCount[0];
-
-        // sound update (temporary)
-        SoundMgr::update();
     }
     scene->inputLoopEnd();
     scene->loopEnd();
@@ -141,6 +138,7 @@ int main(int argc, char* argv[])
     // init sound
     if (auto sinit = SoundMgr::initFMOD())
         return sinit;
+    SoundMgr::startUpdate();
 
 	// load input bindings
     InputMgr::init();
@@ -310,6 +308,8 @@ int main(int argc, char* argv[])
 
     timeEndPeriod(1);
 #endif
+
+    SoundMgr::stopUpdate();
 
     SceneMgr::clean();	// clean resources before releasing framework
     graphics_free();

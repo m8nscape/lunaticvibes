@@ -7,7 +7,7 @@
 #include "common/utils.h"
 #include "config/config_mgr.h"
 
-SoundDriverFMOD::SoundDriverFMOD()
+SoundDriverFMOD::SoundDriverFMOD(): SoundDriver(std::bind(&SoundDriverFMOD::update, this))
 {
     initRet = FMOD::System_Create(&fmodSystem);      // Create the main system object.
     if (initRet != FMOD_OK)

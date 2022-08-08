@@ -1,6 +1,7 @@
 #pragma once
 #include <array>
 #include <string>
+#include "common/asynclooper.h"
 #include "fmod.hpp"
 
 typedef std::size_t size_t;
@@ -35,12 +36,12 @@ enum class SampleChannel
     BGM,
 };
 
-class SoundDriver
+class SoundDriver: public AsyncLooper
 {
     friend class SoundMgr;
 
 public:
-    SoundDriver() = default;
+    SoundDriver(std::function<void()> update) : AsyncLooper("Sound Driver", update, 1000, true) {}
     virtual ~SoundDriver() = default;
 
 public:
@@ -63,7 +64,6 @@ public:
     virtual void playSample(size_t index) = 0;
     virtual void stopSamples() = 0;
     virtual void freeSamples() = 0;
-    virtual void update() = 0;
 
 public:
     virtual void setVolume(SampleChannel ch, float v) = 0;

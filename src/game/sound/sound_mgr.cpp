@@ -68,10 +68,16 @@ void SoundMgr::freeSamples()
     return _inst.driver->freeSamples();
 }
 
-void SoundMgr::update()
+void SoundMgr::startUpdate()
 {
     if (!_inst._initialized) return;
-    return _inst.driver->update();
+    return _inst.driver->loopStart();
+}
+
+void SoundMgr::stopUpdate()
+{
+    if (!_inst._initialized) return;
+    return _inst.driver->loopEnd();
 }
 
 void SoundMgr::setVolume(SampleChannel ch, float v)

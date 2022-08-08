@@ -27,7 +27,8 @@ public:
     static void playSample(eSoundSample sample);
     static void stopSamples();
     static void freeSamples();
-    static void update();
+    static void startUpdate();
+    static void stopUpdate();
 
     static void setVolume(SampleChannel ch, float v);
 
