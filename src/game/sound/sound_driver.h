@@ -56,14 +56,7 @@ public:
 
 public:
     virtual std::vector<std::pair<int, std::string>> getDeviceList(bool asio = false) = 0;
-
-public:
-    static constexpr size_t NOTESAMPLES = 36 * 36 + 1;
-    static constexpr size_t SYSSAMPLES = 64;
-
-protected:
-    std::array<FMOD::Sound*, NOTESAMPLES> noteSamples{};  // Sound samples of key sound
-    std::array<FMOD::Sound*, SYSSAMPLES> sysSamples{};  // Sound samples of BGM, effect, etc
+    virtual int setDevice(size_t index, bool asio = false) = 0;
 
 public:
     virtual int loadNoteSample(const Path& path, size_t index) = 0;

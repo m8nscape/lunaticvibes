@@ -27,6 +27,12 @@ std::vector<std::pair<int, std::string>> SoundMgr::getDeviceList(bool asio)
     return _inst.driver->getDeviceList(asio);
 }
 
+int SoundMgr::setDevice(size_t index, bool asio)
+{
+    if (!_inst._initialized) return {};
+    return _inst.driver->setDevice(index, asio);
+}
+
 int SoundMgr::loadNoteSample(const Path& path, size_t sample)
 {
     if (!_inst._initialized) return 1;

@@ -63,6 +63,7 @@ void SceneSelect::_imguiInit()
     imgui_video_maxFPS = ConfigMgr::get("V", cfg::V_MAXFPS, 240);
 
     imgui_audio_checkASIODevices = ConfigMgr::get("A", cfg::A_MODE, cfg::A_MODE_ASIO) == cfg::A_MODE_ASIO;
+    imgui_audio_listASIODevices = imgui_audio_checkASIODevices;
     imgui_audio_bufferCount = ConfigMgr::get("A", cfg::A_BUFCOUNT, 2);
     imgui_audio_bufferSize = ConfigMgr::get("A", cfg::A_BUFLEN, 256);
     _imguiRefreshAudioDevices();
@@ -176,6 +177,7 @@ void SceneSelect::_imguiSettings()
                 ImGui::SameLine();
                 if (ImGui::Button("Refresh"))
                 {
+                    imgui_audio_listASIODevices = imgui_audio_checkASIODevices;
                     _imguiRefreshAudioDevices();
                 }
 
@@ -183,6 +185,11 @@ void SceneSelect::_imguiSettings()
 
                 ImGui::InputInt("Buffer Count", &imgui_audio_bufferCount, 0);
                 ImGui::InputInt("Buffer Size", &imgui_audio_bufferSize, 0);
+
+                if (ImGui::Button("Apply"))
+                {
+                    _imguiApplyAudioSettings();
+                }
 
                 ImGui::Separator();
                 ImGui::Spacing();
@@ -498,17 +505,45 @@ bool SceneSelect::_imguiRefreshAudioDevices()
     auto devList = SoundMgr::getDeviceList(imgui_audio_checkASIODevices);
     for (auto& d : devList)
     {
-        imgui_audio_devices.push_back(d);
-        imgui_audio_devices_display.push_back(imgui_audio_devices.back().second.c_str());
         if (adev == d.second)
         {
-            imgui_audio_device_index = (int)imgui_audio_devices.size() - 1;
+            imgui_audio_device_index = (int)imgui_audio_devices.size();
         }
+
+        if (d.first & 0x40000000)
+        {
+            // ASIO device
+            imgui_audio_devices_name.push_back(std::string("[ASIO] ") + d.second);
+        }
+        else
+        {
+            imgui_audio_devices_name.push_back(d.second);
+        }
+        imgui_audio_devices.push_back(d);
+        imgui_audio_devices_display.push_back(imgui_audio_devices_name.back().c_str());
+
     }
     if (imgui_audio_device_index == -1)
     {
         imgui_audio_device_index = 0;
     }
 
+    return false;
+}
+
+bool SceneSelect::_imguiApplyAudioSettings()
+{
+    if (SoundMgr::setDevice(imgui_audio_device_index, imgui_audio_listASIODevices) == 0)
+    {
+        auto& mode = std::next(imgui_audio_devices.begin(), imgui_audio_device_index);
+        ConfigMgr::set('A', cfg::A_DEVNAME, mode->second);
+        ConfigMgr::set('A', cfg::A_MODE, mode->first < 0 ? cfg::A_MODE_ASIO : cfg::A_MODE_AUTO);
+        ConfigMgr::set("A", cfg::A_BUFCOUNT, imgui_audio_bufferCount);
+        ConfigMgr::set("A", cfg::A_BUFLEN, imgui_audio_bufferSize);
+
+        SoundMgr::stopSysSamples();
+        SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::BGM_SELECT);
+        return true;
+    }
     return false;
 }

@@ -101,6 +101,7 @@ private:
     bool _imguiBrowseFolder();
     bool _imguiApplyResolution();
     bool _imguiRefreshAudioDevices();
+    bool _imguiApplyAudioSettings();
 
     // imgui variables
     std::list<std::string> imgui_profiles;
@@ -125,9 +126,11 @@ private:
     int imgui_video_maxFPS;
 
     std::list<std::pair<int, std::string>> imgui_audio_devices;
+    std::vector<std::string> imgui_audio_devices_name;
     std::vector<const char*> imgui_audio_devices_display;
     int old_audio_device_index, imgui_audio_device_index;
     bool imgui_audio_checkASIODevices;
+    bool imgui_audio_listASIODevices;
     int imgui_audio_bufferCount;
     int imgui_audio_bufferSize;
 

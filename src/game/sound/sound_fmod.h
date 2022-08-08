@@ -28,11 +28,28 @@ protected:
 	std::map<SoundChannelType, FMOD::DSP*> EQFilter[2];
 
 public:
+	static constexpr size_t NOTESAMPLES = 36 * 36 + 1;
+	static constexpr size_t SYSSAMPLES = 64;
+	struct SoundSample
+	{
+		FMOD::Sound* objptr = nullptr;
+		std::string path;
+		int flags = 0;
+	};
+
+protected:
+	std::array<SoundSample, NOTESAMPLES> noteSamples{};  // Sound samples of key sound
+	std::array<SoundSample, SYSSAMPLES> sysSamples{};  // Sound samples of BGM, effect, etc
+
+public:
 	SoundDriverFMOD();
 	virtual ~SoundDriverFMOD();
+	void createChannelGroups();
 
 public:
 	virtual std::vector<std::pair<int, std::string>> getDeviceList(bool asio = false);
+	virtual int setDevice(size_t index, bool asio = false);
+	int findDriver(const std::string& name, bool asio);
 
 private:
     bool bLoading = false;
