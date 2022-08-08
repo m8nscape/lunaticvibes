@@ -450,6 +450,7 @@ int SongDB::addFolder(Path path, HashMD5 parentHash)
     }
 
     // check if the folder is already added
+    int count = 0;
     HashMD5 folderHash = md5(path.u8string());
     if (auto q = query("select pathmd5,type from folder where path=?", 2, { path.u8string() }); !q.empty())
     {
@@ -458,10 +459,8 @@ int SongDB::addFolder(Path path, HashMD5 parentHash)
         // TODO check if refresh all folder on run. This is really slow
         if (1 || parentHash == ROOT_FOLDER_HASH)
         {
-            refreshFolder(ANY_STR(q[0][0]), path, (FolderType)ANY_INT(q[0][1]));
+            count = refreshFolder(ANY_STR(q[0][0]), path, (FolderType)ANY_INT(q[0][1]));
         }
-
-        return 0;
     }
     else
     {
@@ -498,9 +497,9 @@ int SongDB::addFolder(Path path, HashMD5 parentHash)
             LOG_WARNING << "[SongDB] Add folder fail: [" << ret << "] " << errmsg() << " (" << path.u8string() << ")";
             return 1;
         }
-    }
 
-    int count = addFolderCharts(folderHash, path);
+        count = addFolderCharts(folderHash, path);
+    }
 
     if (parentHash == ROOT_FOLDER_HASH)
     {
