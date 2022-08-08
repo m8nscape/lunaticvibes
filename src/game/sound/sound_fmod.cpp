@@ -726,7 +726,7 @@ int SoundDriverFMOD::loadNoteSample(const Path& spath, size_t index)
 
     if (r == FMOD_OK)
     {
-        sysSamples[index].path = path;
+        noteSamples[index].path = path;
         noteSamples[index].flags = flags;
     }
     else
