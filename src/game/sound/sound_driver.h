@@ -36,6 +36,16 @@ enum class SampleChannel
     BGM,
 };
 
+enum class SoundChannelType
+{
+    BGM_SYS,
+    BGM_NOTE,
+    KEY_SYS,
+    KEY_LEFT,
+    KEY_RIGHT,
+    TYPE_COUNT,
+};
+
 class SoundDriver: public AsyncLooper
 {
     friend class SoundMgr;
@@ -48,22 +58,22 @@ public:
     virtual std::vector<std::pair<int, std::string>> getDeviceList(bool asio = false) = 0;
 
 public:
-    static constexpr size_t KEYSAMPLES = 36 * 36 + 1;
-    static constexpr size_t ETCSAMPLES = 64; 
+    static constexpr size_t NOTESAMPLES = 36 * 36 + 1;
+    static constexpr size_t SYSSAMPLES = 64;
 
 protected:
-    std::array<FMOD::Sound*, KEYSAMPLES> keySamples{};  // Sound samples of key sound
-    std::array<FMOD::Sound*, ETCSAMPLES> etcSamples{};  // Sound samples of BGM, effect, etc
+    std::array<FMOD::Sound*, NOTESAMPLES> noteSamples{};  // Sound samples of key sound
+    std::array<FMOD::Sound*, SYSSAMPLES> sysSamples{};  // Sound samples of BGM, effect, etc
 
 public:
-    virtual int loadKeySample(const Path& path, size_t index) = 0;
-    virtual void playKeySample(size_t count, size_t index[]) = 0;
-    virtual void stopKeySamples() = 0;
-    virtual void freeKeySamples() = 0;
-    virtual int loadSample(const Path& path, size_t index, bool isStream = false, bool loop = false) = 0;
-    virtual void playSample(size_t index) = 0;
-    virtual void stopSamples() = 0;
-    virtual void freeSamples() = 0;
+    virtual int loadNoteSample(const Path& path, size_t index) = 0;
+    virtual void playNoteSample(SoundChannelType ch, size_t count, size_t index[]) = 0;
+    virtual void stopNoteSamples() = 0;
+    virtual void freeNoteSamples() = 0;
+    virtual int loadSysSample(const Path& path, size_t index, bool isStream = false, bool loop = false) = 0;
+    virtual void playSysSample(SoundChannelType ch, size_t index) = 0;
+    virtual void stopSysSamples() = 0;
+    virtual void freeSysSamples() = 0;
 
 public:
     virtual void setVolume(SampleChannel ch, float v) = 0;

@@ -255,8 +255,8 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
     _state = eSelectState::PREPARE;
     _updateCallback = std::bind(&SceneSelect::updatePrepare, this);
 
-    SoundMgr::stopSamples();
-    SoundMgr::playSample(eSoundSample::BGM_SELECT);
+    SoundMgr::stopSysSamples();
+    SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::BGM_SELECT);
 
     _imguiInit();
 }
@@ -314,7 +314,7 @@ void SceneSelect::updatePrepare()
             {
                 eTimer tm = static_cast<eTimer>(int(eTimer::PANEL1_START) - 1 + i);
                 gTimers.set(tm, t.norm());
-                SoundMgr::playSample(eSoundSample::SOUND_O_OPEN);
+                SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_OPEN);
             }
         }
 
@@ -401,18 +401,18 @@ void SceneSelect::updateFadeout()
         _skin->stopSpriteVideoUpdate();
         if (gSelectContext.isGoingToKeyConfig)
         {
-            SoundMgr::stopSamples();
+            SoundMgr::stopSysSamples();
             gNextScene = eScene::KEYCONFIG;
         }
         else if (gSelectContext.isGoingToSkinSelect)
         {
-            SoundMgr::stopSamples();
+            SoundMgr::stopSysSamples();
             gNextScene = eScene::CUSTOMIZE;
         }
         else
         {
             _input.loopEnd();
-            SoundMgr::stopSamples();
+            SoundMgr::stopSysSamples();
             gNextScene = eScene::EXIT_TRANS;
         }
     }
@@ -627,7 +627,7 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
             gSwitches.set(eSwitch::SELECT_PANEL1, true);
             gTimers.set(eTimer::PANEL1_START, t.norm());
             gTimers.set(eTimer::PANEL1_END, TIMER_NEVER);
-            SoundMgr::playSample(eSoundSample::SOUND_O_OPEN);
+            SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_OPEN);
             return;
         }
         if (input[Input::M2])
@@ -763,7 +763,7 @@ void SceneSelect::inputGameReleaseSelect(InputMask& input, const Time& t)
                 auto pSong = std::dynamic_pointer_cast<FolderSong>(gSelectContext.entries[gSelectContext.idx].first);
                 pSong->incCurrentChart();
                 setBarInfo();
-                SoundMgr::playSample(eSoundSample::SOUND_DIFFICULTY);
+                SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_DIFFICULTY);
             }
             selectDownTimestamp = -1;
             return;
@@ -873,7 +873,7 @@ void SceneSelect::inputGameReleasePanel(InputMask& input, const Time& t)
         gSwitches.set(eSwitch::SELECT_PANEL1, false);
         gTimers.set(eTimer::PANEL1_START, TIMER_NEVER);
         gTimers.set(eTimer::PANEL1_END, t.norm());
-        SoundMgr::playSample(eSoundSample::SOUND_O_CLOSE);
+        SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CLOSE);
         return;
     }
 
@@ -1319,7 +1319,7 @@ void SceneSelect::_navigateUpBy1(const Time& t)
         }
 
         gTimers.set(eTimer::LIST_MOVE, t.norm());
-        SoundMgr::playSample(eSoundSample::SOUND_SCRATCH);
+        SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
     }
     setDynamicTextures();
 }
@@ -1349,7 +1349,7 @@ void SceneSelect::_navigateDownBy1(const Time& t)
         }
 
         gTimers.set(eTimer::LIST_MOVE, t.norm());
-        SoundMgr::playSample(eSoundSample::SOUND_SCRATCH);
+        SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
     }
     setDynamicTextures();
 }
@@ -1395,7 +1395,7 @@ void SceneSelect::_navigateEnter(const Time& t)
                 gSliders.set(eSlider::SELECT_LIST, 0.0);
             }
 
-            SoundMgr::playSample(eSoundSample::SOUND_F_OPEN);
+            SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_OPEN);
             break;
         }
         default:
@@ -1434,7 +1434,7 @@ void SceneSelect::_navigateBack(const Time& t)
                 gSliders.set(eSlider::SELECT_LIST, 0.0);
             }
 
-            SoundMgr::playSample(eSoundSample::SOUND_F_CLOSE);
+            SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_CLOSE);
         }
     }
     setDynamicTextures();
@@ -1478,7 +1478,7 @@ bool SceneSelect::_closeAllPanels(const Time& t)
     }
     if (hasPanelOpened)
     {
-        SoundMgr::playSample(eSoundSample::SOUND_O_CLOSE);
+        SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CLOSE);
     }
     return hasPanelOpened;
 }

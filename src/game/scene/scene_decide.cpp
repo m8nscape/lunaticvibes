@@ -19,8 +19,8 @@ SceneDecide::SceneDecide() : vScene(eMode::DECIDE, 1000)
     _state = eDecideState::START;
     _updateCallback = std::bind(&SceneDecide::updateStart, this);
 
-    SoundMgr::stopSamples();
-    SoundMgr::playSample(eSoundSample::BGM_DECIDE);
+    SoundMgr::stopSysSamples();
+    SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::BGM_DECIDE);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

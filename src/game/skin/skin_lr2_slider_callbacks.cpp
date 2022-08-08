@@ -36,7 +36,7 @@ void select_pos(double p)
         setBarInfo();
         setEntryInfo();
 
-        SoundMgr::playSample(eSoundSample::SOUND_SCRATCH);
+        SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
     }
 }
 
@@ -61,7 +61,10 @@ void eq(int idx, double p)
     gSliders.set(eSlider(idx + (int)eSlider::EQ0), p);
     gNumbers.set(eNumber(idx + (int)eNumber::EQ0), val);
 
-    SoundMgr::setEQ((EQFreq)idx, val);
+    if (gSwitches.get(eSwitch::SOUND_EQ))
+    {
+        SoundMgr::setEQ((EQFreq)idx, val);
+    }
 }
 
 void master_volume(double p)

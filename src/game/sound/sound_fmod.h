@@ -18,12 +18,14 @@ private:
 	int initRet;
 
 protected:
-	std::shared_ptr<FMOD::ChannelGroup> keySamplesChannelGroup;
-	std::shared_ptr<FMOD::ChannelGroup> etcSamplesChannelGroup;
+	std::map<SoundChannelType, std::shared_ptr<FMOD::ChannelGroup>> channelGroup;
 	std::map<SampleChannel, float> volume;
-	FMOD::DSP* DSP[3][4];	// FX0,FX1,FX2 -> MasterKey, MasterBgm, Key, Bgm
-	FMOD::DSP* PitchShiftFilter[2]; // Key, Bgm
-	FMOD::DSP* EQFilter[2][2]; // Key, Bgm
+
+	std::map<SoundChannelType, FMOD::DSP*> DSPMaster[3];
+	std::map<SoundChannelType, FMOD::DSP*> DSPKey[3];
+	std::map<SoundChannelType, FMOD::DSP*> DSPBgm[3];
+	std::map<SoundChannelType, FMOD::DSP*> PitchShiftFilter;
+	std::map<SoundChannelType, FMOD::DSP*> EQFilter[2];
 
 public:
 	SoundDriverFMOD();
@@ -41,17 +43,17 @@ public:
     int setAsyncIO(bool async = true);
 
 public:
-	virtual int loadKeySample(const Path& path, size_t index);
-	virtual void playKeySample(size_t count, size_t index[]);
-	virtual void stopKeySamples();
-	virtual void freeKeySamples();
+	virtual int loadNoteSample(const Path& path, size_t index);
+	virtual void playNoteSample(SoundChannelType ch, size_t count, size_t index[]);
+	virtual void stopNoteSamples();
+	virtual void freeNoteSamples();
 	virtual void update();
 
 public:
-	virtual int loadSample(const Path& path, size_t index, bool isStream = false, bool loop = false);
-	virtual void playSample(size_t index);
-	virtual void stopSamples();
-	virtual void freeSamples();
+	virtual int loadSysSample(const Path& path, size_t index, bool isStream = false, bool loop = false);
+	virtual void playSysSample(SoundChannelType ch, size_t index);
+	virtual void stopSysSamples();
+	virtual void freeSysSamples();
 	int getChannelsPlaying();
 
 public:

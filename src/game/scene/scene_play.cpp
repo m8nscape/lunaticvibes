@@ -464,7 +464,7 @@ void ScenePlay::loadChart()
     {
         auto dtor = std::async(std::launch::async, [&]() {
             SetDebugThreadName("Chart sound sample loading thread");
-            SoundMgr::freeKeySamples();
+            SoundMgr::freeNoteSamples();
 
             auto _pChart = gChartContext.chartObj;
             auto chartDir = gChartContext.chartObj->getDirectory();
@@ -488,9 +488,9 @@ void ScenePlay::loadChart()
                 if (wav.empty()) continue;
 				Path pWav = fs::u8path(wav);
 				if (pWav.is_absolute())
-					SoundMgr::loadKeySample(pWav, i);
+					SoundMgr::loadNoteSample(pWav, i);
 				else
-					SoundMgr::loadKeySample((chartDir / pWav), i);
+					SoundMgr::loadNoteSample((chartDir / pWav), i);
                 ++_wavLoaded;
             }
             gChartContext.isSampleLoaded = true;
@@ -836,9 +836,9 @@ void ScenePlay::updatePlaying()
             gOptions.queue(eOption::PLAY_SCENE_STAT, Option::SPLAY_FAILED);
             _isExitingFromPlay = true;
             _state = ePlayState::FAILED;
-            SoundMgr::stopSamples();
-            SoundMgr::stopKeySamples();
-            SoundMgr::playSample(eSoundSample::SOUND_PLAYSTOP);
+            SoundMgr::stopSysSamples();
+            SoundMgr::stopNoteSamples();
+            SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::SOUND_PLAYSTOP);
             for (size_t i = 0; i < gPlayContext.ruleset.size(); ++i)
             {
                 _input.unregister_p("SCENE_PRESS");
@@ -928,7 +928,7 @@ void ScenePlay::updateFadeout()
                 wantRetry = true;
         }
 
-        SoundMgr::stopKeySamples();
+        SoundMgr::stopNoteSamples();
         gPlayContext.bgaTexture->reset();
 
         if (isPlaymodeAuto())
@@ -991,7 +991,7 @@ void ScenePlay::procCommonNotes()
             _bgmSampleIdxBuf[i] = (unsigned)it->dvalue;
         }
     }
-    SoundMgr::playKeySample(i, (size_t*)_bgmSampleIdxBuf.data());
+    SoundMgr::playNoteSample(SoundChannelType::KEY_LEFT, i, (size_t*)_bgmSampleIdxBuf.data());
 
     // also play keysound in auto
     if (gPlayContext.isAuto)
@@ -1008,7 +1008,7 @@ void ScenePlay::procCommonNotes()
             }
             ++it;
         }
-        SoundMgr::playKeySample(i, (size_t*)_keySampleIdxBuf.data());
+        SoundMgr::playNoteSample(SoundChannelType::KEY_LEFT, i, (size_t*)_keySampleIdxBuf.data());
     }
 }
 
@@ -1142,7 +1142,7 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
                 gSwitches.queue(InputGamePressMapSingle[i].sw, true);
             }
         }
-        SoundMgr::playKeySample(sampleCount, (size_t*)&_keySampleIdxBuf[0]);
+        SoundMgr::playNoteSample(SoundChannelType::KEY_LEFT, sampleCount, (size_t*)&_keySampleIdxBuf[0]);
 
         if (input[S1L] || input[S1R] || isPlaymodeSinglePlay() && (input[S2L] || input[S2R]))
         {
@@ -1415,5 +1415,5 @@ void ScenePlay::inputGameAxis(InputAxisPlus& m, const Time& t)
         _ttAxisLastUpdate[PLAYER_SLOT_2P] = TIMER_NEVER;
     }
 
-    SoundMgr::playKeySample(sampleCount, keySampleIdxBufScratch.data());
+    SoundMgr::playNoteSample(SoundChannelType::KEY_LEFT, sampleCount, keySampleIdxBufScratch.data());
 }

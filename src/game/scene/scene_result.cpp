@@ -152,11 +152,11 @@ SceneResult::SceneResult(ePlayMode gamemode) : vScene(eMode::RESULT, 1000), _pla
     Time t;
     gTimers.set(eTimer::RESULT_GRAPH_START, t.norm());
 
-    SoundMgr::stopSamples();
+    SoundMgr::stopSysSamples();
     if (cleared) 
-        SoundMgr::playSample(eSoundSample::SOUND_CLEAR);
+        SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::SOUND_CLEAR);
     else
-        SoundMgr::playSample(eSoundSample::SOUND_FAIL);
+        SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::SOUND_FAIL);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -225,7 +225,7 @@ void SceneResult::updateFadeout()
 
     if (ft >= _skin->info.timeOutro)
     {
-        SoundMgr::stopKeySamples();
+        SoundMgr::stopNoteSamples();
 
         // save score
         if (_playmode != ePlayMode::LOCAL_BATTLE && !gChartContext.hash.empty() && gSelectContext.pitchSpeed >= 1.0)

@@ -19,14 +19,14 @@ public:
     static std::vector<std::pair<int, std::string>> getDeviceList(bool asio = false);
 
 public:
-    static int loadKeySample(const Path& path, size_t sample);
-    static void playKeySample(size_t count, size_t* samples);
-    static void stopKeySamples();
-    static void freeKeySamples();
-    static int loadSample(const Path& path, eSoundSample sample, bool isStream = false, bool loop = false);
-    static void playSample(eSoundSample sample);
-    static void stopSamples();
-    static void freeSamples();
+    static int loadNoteSample(const Path& path, size_t sample);
+    static void playNoteSample(SoundChannelType ch, size_t count, size_t* samples);
+    static void stopNoteSamples();
+    static void freeNoteSamples();
+    static int loadSysSample(const Path& path, eSoundSample sample, bool isStream = false, bool loop = false);
+    static void playSysSample(SoundChannelType ch, eSoundSample sample);
+    static void stopSysSamples();
+    static void freeSysSamples();
     static void startUpdate();
     static void stopUpdate();
 

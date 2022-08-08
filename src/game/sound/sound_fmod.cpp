@@ -28,23 +28,19 @@ SoundDriverFMOD::SoundDriverFMOD(): SoundDriver(std::bind(&SoundDriverFMOD::upda
         return;
     }
 
-    FMOD::ChannelGroup* pk = nullptr;
-    initRet = fmodSystem->createChannelGroup("KEY_SAMPLES", &pk);
-    if (initRet != FMOD_OK)
+    for (SoundChannelType e = SoundChannelType::BGM_SYS; e != SoundChannelType::TYPE_COUNT; ++(*(int*)(&e)))
     {
-        LOG_ERROR << "Create Key channel group Failed: " << FMOD_ErrorString((FMOD_RESULT)initRet);
-        return;
+        FMOD::ChannelGroup* pcg = nullptr;
+        char name[16];
+        sprintf(name, "CHG_%d", (int)e);
+        initRet = fmodSystem->createChannelGroup(name, &pcg);
+        if (initRet != FMOD_OK)
+        {
+            LOG_ERROR << "Create channel group " << (int)e << " Failed: " << FMOD_ErrorString((FMOD_RESULT)initRet);
+            return;
+        }
+        channelGroup[e] = std::shared_ptr<FMOD::ChannelGroup>(pcg, [](FMOD::ChannelGroup* p) { p->release(); });
     }
-    keySamplesChannelGroup = std::shared_ptr<FMOD::ChannelGroup>(pk, [](FMOD::ChannelGroup* p) { p->release(); });
-
-    FMOD::ChannelGroup* pe = nullptr;
-    initRet = fmodSystem->createChannelGroup("SYS_SAMPLES", &pe);
-    if (initRet != FMOD_OK)
-    {
-        LOG_ERROR << "Create sys channel group Failed: " << FMOD_ErrorString((FMOD_RESULT)initRet);
-        return;
-    }
-    etcSamplesChannelGroup = std::shared_ptr<FMOD::ChannelGroup>(pe, [](FMOD::ChannelGroup* p) { p->release(); });
 
     volume[SampleChannel::MASTER] = 1.0f;
     volume[SampleChannel::KEY] = 1.0f;
@@ -52,56 +48,69 @@ SoundDriverFMOD::SoundDriverFMOD(): SoundDriver(std::bind(&SoundDriverFMOD::upda
 
     for (int c = 0; c < 3; ++c)
     {
-        for (int i = 0; i < 4; ++i)
+        // create dummy dsp
+        for (SoundChannelType e = SoundChannelType::BGM_SYS; e != SoundChannelType::TYPE_COUNT; ++(*(int*)(&e)))
         {
-            // create dummy dsp
-            fmodSystem->createDSPByType(FMOD_DSP_TYPE_MIXER, &DSP[c][i]);
-            DSP[c][i]->setBypass(true);
+            fmodSystem->createDSPByType(FMOD_DSP_TYPE_MIXER, &DSPMaster[c][e]);
+            DSPMaster[c][e]->setBypass(true);
         }
-        keySamplesChannelGroup->addDSP(c * 2 + 0, DSP[c][0]);
-        etcSamplesChannelGroup->addDSP(c * 2 + 0, DSP[c][1]);
-        keySamplesChannelGroup->addDSP(c * 2 + 1, DSP[c][2]);
-        etcSamplesChannelGroup->addDSP(c * 2 + 1, DSP[c][3]);
+        fmodSystem->createDSPByType(FMOD_DSP_TYPE_MIXER, &DSPBgm[c][SoundChannelType::BGM_NOTE]);
+        fmodSystem->createDSPByType(FMOD_DSP_TYPE_MIXER, &DSPBgm[c][SoundChannelType::BGM_SYS]);
+        fmodSystem->createDSPByType(FMOD_DSP_TYPE_MIXER, &DSPKey[c][SoundChannelType::KEY_SYS]);
+        fmodSystem->createDSPByType(FMOD_DSP_TYPE_MIXER, &DSPKey[c][SoundChannelType::KEY_LEFT]);
+        fmodSystem->createDSPByType(FMOD_DSP_TYPE_MIXER, &DSPKey[c][SoundChannelType::KEY_RIGHT]);
+        DSPBgm[c][SoundChannelType::BGM_NOTE]->setBypass(true);
+        DSPBgm[c][SoundChannelType::BGM_SYS]->setBypass(true);
+        DSPKey[c][SoundChannelType::KEY_SYS]->setBypass(true);
+        DSPKey[c][SoundChannelType::KEY_LEFT]->setBypass(true);
+        DSPKey[c][SoundChannelType::KEY_RIGHT]->setBypass(true);
+
+        channelGroup[SoundChannelType::BGM_NOTE]->addDSP (c * 2 + 0, DSPMaster[c][SoundChannelType::BGM_NOTE]);
+        channelGroup[SoundChannelType::BGM_NOTE]->addDSP (c * 2 + 1, DSPBgm[c][SoundChannelType::BGM_NOTE]);
+        channelGroup[SoundChannelType::BGM_SYS]->addDSP  (c * 2 + 0, DSPMaster[c][SoundChannelType::BGM_SYS]);
+        channelGroup[SoundChannelType::BGM_SYS]->addDSP  (c * 2 + 1, DSPBgm[c][SoundChannelType::BGM_SYS]);
+        channelGroup[SoundChannelType::KEY_SYS]->addDSP  (c * 2 + 0, DSPMaster[c][SoundChannelType::KEY_SYS]);
+        channelGroup[SoundChannelType::KEY_SYS]->addDSP  (c * 2 + 1, DSPKey[c][SoundChannelType::KEY_SYS]);
+        channelGroup[SoundChannelType::KEY_LEFT]->addDSP (c * 2 + 0, DSPMaster[c][SoundChannelType::KEY_LEFT]);
+        channelGroup[SoundChannelType::KEY_LEFT]->addDSP (c * 2 + 1, DSPKey[c][SoundChannelType::KEY_LEFT]);
+        channelGroup[SoundChannelType::KEY_RIGHT]->addDSP(c * 2 + 0, DSPMaster[c][SoundChannelType::KEY_RIGHT]);
+        channelGroup[SoundChannelType::KEY_RIGHT]->addDSP(c * 2 + 1, DSPKey[c][SoundChannelType::KEY_RIGHT]);
     }
 
     // create PITCHSHIFT dsp
-    fmodSystem->createDSPByType(FMOD_DSP_TYPE_PITCHSHIFT, &PitchShiftFilter[0]);
-    fmodSystem->createDSPByType(FMOD_DSP_TYPE_PITCHSHIFT, &PitchShiftFilter[1]);
-    PitchShiftFilter[0]->setParameterFloat(FMOD_DSP_PITCHSHIFT_FFTSIZE, 512.f);
-    PitchShiftFilter[1]->setParameterFloat(FMOD_DSP_PITCHSHIFT_FFTSIZE, 512.f);
-    keySamplesChannelGroup->addDSP(6, PitchShiftFilter[0]);
-    etcSamplesChannelGroup->addDSP(6, PitchShiftFilter[1]);
+    for (SoundChannelType e = SoundChannelType::BGM_SYS; e != SoundChannelType::TYPE_COUNT; ++(*(int*)(&e)))
+    {
+        fmodSystem->createDSPByType(FMOD_DSP_TYPE_PITCHSHIFT, &PitchShiftFilter[e]);
+        PitchShiftFilter[e]->setParameterFloat(FMOD_DSP_PITCHSHIFT_FFTSIZE, 512.f);
+        channelGroup[e]->addDSP(6, PitchShiftFilter[e]);
+    }
 
     // create MULTIBAND_EQ dsp
-    for (int i = 0; i < 2; ++i)
+    for (SoundChannelType e = SoundChannelType::BGM_SYS; e != SoundChannelType::TYPE_COUNT; ++(*(int*)(&e)))
     {
-        fmodSystem->createDSPByType(FMOD_DSP_TYPE_MULTIBAND_EQ, &EQFilter[i][0]);
-        fmodSystem->createDSPByType(FMOD_DSP_TYPE_MULTIBAND_EQ, &EQFilter[i][1]);
-
-        EQFilter[i][0]->setParameterInt(FMOD_DSP_MULTIBAND_EQ_A_FILTER, FMOD_DSP_MULTIBAND_EQ_FILTER_PEAKING);
-        EQFilter[i][0]->setParameterInt(FMOD_DSP_MULTIBAND_EQ_B_FILTER, FMOD_DSP_MULTIBAND_EQ_FILTER_PEAKING);
-        EQFilter[i][0]->setParameterInt(FMOD_DSP_MULTIBAND_EQ_C_FILTER, FMOD_DSP_MULTIBAND_EQ_FILTER_PEAKING);
-        EQFilter[i][0]->setParameterInt(FMOD_DSP_MULTIBAND_EQ_D_FILTER, FMOD_DSP_MULTIBAND_EQ_FILTER_PEAKING);
-        EQFilter[i][0]->setParameterInt(FMOD_DSP_MULTIBAND_EQ_E_FILTER, FMOD_DSP_MULTIBAND_EQ_FILTER_PEAKING);
-        EQFilter[i][0]->setParameterFloat(FMOD_DSP_MULTIBAND_EQ_A_FREQUENCY, 62.5f);
-        EQFilter[i][0]->setParameterFloat(FMOD_DSP_MULTIBAND_EQ_B_FREQUENCY, 160.f);
-        EQFilter[i][0]->setParameterFloat(FMOD_DSP_MULTIBAND_EQ_C_FREQUENCY, 400.f);
-        EQFilter[i][0]->setParameterFloat(FMOD_DSP_MULTIBAND_EQ_D_FREQUENCY, 1000.f);
-        EQFilter[i][0]->setParameterFloat(FMOD_DSP_MULTIBAND_EQ_E_FREQUENCY, 2500.f);
-
-        EQFilter[i][1]->setParameterInt(FMOD_DSP_MULTIBAND_EQ_A_FILTER, FMOD_DSP_MULTIBAND_EQ_FILTER_PEAKING);
-        EQFilter[i][1]->setParameterInt(FMOD_DSP_MULTIBAND_EQ_B_FILTER, FMOD_DSP_MULTIBAND_EQ_FILTER_PEAKING);
-        EQFilter[i][1]->setParameterInt(FMOD_DSP_MULTIBAND_EQ_C_FILTER, FMOD_DSP_MULTIBAND_EQ_FILTER_PEAKING);
-        EQFilter[i][1]->setParameterInt(FMOD_DSP_MULTIBAND_EQ_D_FILTER, FMOD_DSP_MULTIBAND_EQ_FILTER_PEAKING);
-        EQFilter[i][1]->setParameterFloat(FMOD_DSP_MULTIBAND_EQ_A_FREQUENCY, 1000.f);
-        EQFilter[i][1]->setParameterFloat(FMOD_DSP_MULTIBAND_EQ_B_FREQUENCY, 2500.f);
-        EQFilter[i][1]->setParameterFloat(FMOD_DSP_MULTIBAND_EQ_C_FREQUENCY, 6250.f);
-        EQFilter[i][1]->setParameterFloat(FMOD_DSP_MULTIBAND_EQ_D_FREQUENCY, 16000.f);
+        fmodSystem->createDSPByType(FMOD_DSP_TYPE_MULTIBAND_EQ, &EQFilter[0][e]);
+        fmodSystem->createDSPByType(FMOD_DSP_TYPE_MULTIBAND_EQ, &EQFilter[1][e]);
+        EQFilter[0][e]->setParameterInt(FMOD_DSP_MULTIBAND_EQ_A_FILTER, FMOD_DSP_MULTIBAND_EQ_FILTER_PEAKING);
+        EQFilter[0][e]->setParameterInt(FMOD_DSP_MULTIBAND_EQ_B_FILTER, FMOD_DSP_MULTIBAND_EQ_FILTER_PEAKING);
+        EQFilter[0][e]->setParameterInt(FMOD_DSP_MULTIBAND_EQ_C_FILTER, FMOD_DSP_MULTIBAND_EQ_FILTER_PEAKING);
+        EQFilter[0][e]->setParameterInt(FMOD_DSP_MULTIBAND_EQ_D_FILTER, FMOD_DSP_MULTIBAND_EQ_FILTER_PEAKING);
+        EQFilter[0][e]->setParameterInt(FMOD_DSP_MULTIBAND_EQ_E_FILTER, FMOD_DSP_MULTIBAND_EQ_FILTER_PEAKING);
+        EQFilter[0][e]->setParameterFloat(FMOD_DSP_MULTIBAND_EQ_A_FREQUENCY, 62.5f);
+        EQFilter[0][e]->setParameterFloat(FMOD_DSP_MULTIBAND_EQ_B_FREQUENCY, 160.f);
+        EQFilter[0][e]->setParameterFloat(FMOD_DSP_MULTIBAND_EQ_C_FREQUENCY, 400.f);
+        EQFilter[0][e]->setParameterFloat(FMOD_DSP_MULTIBAND_EQ_D_FREQUENCY, 1000.f);
+        EQFilter[0][e]->setParameterFloat(FMOD_DSP_MULTIBAND_EQ_E_FREQUENCY, 2500.f);
+        EQFilter[1][e]->setParameterInt(FMOD_DSP_MULTIBAND_EQ_A_FILTER, FMOD_DSP_MULTIBAND_EQ_FILTER_PEAKING);
+        EQFilter[1][e]->setParameterInt(FMOD_DSP_MULTIBAND_EQ_B_FILTER, FMOD_DSP_MULTIBAND_EQ_FILTER_PEAKING);
+        EQFilter[1][e]->setParameterInt(FMOD_DSP_MULTIBAND_EQ_C_FILTER, FMOD_DSP_MULTIBAND_EQ_FILTER_PEAKING);
+        EQFilter[1][e]->setParameterInt(FMOD_DSP_MULTIBAND_EQ_D_FILTER, FMOD_DSP_MULTIBAND_EQ_FILTER_PEAKING);
+        EQFilter[1][e]->setParameterFloat(FMOD_DSP_MULTIBAND_EQ_A_FREQUENCY, 1000.f);
+        EQFilter[1][e]->setParameterFloat(FMOD_DSP_MULTIBAND_EQ_B_FREQUENCY, 2500.f);
+        EQFilter[1][e]->setParameterFloat(FMOD_DSP_MULTIBAND_EQ_C_FREQUENCY, 6250.f);
+        EQFilter[1][e]->setParameterFloat(FMOD_DSP_MULTIBAND_EQ_D_FREQUENCY, 16000.f);
+        channelGroup[e]->addDSP(7, EQFilter[0][e]);
+        channelGroup[e]->addDSP(8, EQFilter[1][e]);
     }
-    keySamplesChannelGroup->addDSP(7, EQFilter[0][0]);
-    keySamplesChannelGroup->addDSP(8, EQFilter[0][1]);
-    etcSamplesChannelGroup->addDSP(7, EQFilter[1][0]);
-    etcSamplesChannelGroup->addDSP(8, EQFilter[1][1]);
 
     if (initRet == FMOD_OK)
     {
@@ -159,8 +168,7 @@ SoundDriverFMOD::~SoundDriverFMOD()
         tLoadSampleThread.join();
 
     // release before system release
-    keySamplesChannelGroup.reset();
-    etcSamplesChannelGroup.reset();
+    channelGroup.clear();
 
     if (initRet == FMOD_OK && fmodSystem != nullptr)
         fmodSystem->release();
@@ -277,7 +285,7 @@ void SoundDriverFMOD::loadSampleThread()
     }
 }
 
-int SoundDriverFMOD::loadKeySample(const Path& spath, size_t index)
+int SoundDriverFMOD::loadNoteSample(const Path& spath, size_t index)
 {
     if (spath.empty()) return 0;
     
@@ -285,11 +293,11 @@ int SoundDriverFMOD::loadKeySample(const Path& spath, size_t index)
 
 	FMOD_RESULT r = FMOD_ERR_FILE_NOTFOUND;
 	if (fs::exists(spath) && fs::is_regular_file(spath))
-		r = fmodSystem->createSound(path.c_str(), FMOD_LOOP_OFF | FMOD_UNIQUE, 0, &keySamples[index]);
+		r = fmodSystem->createSound(path.c_str(), FMOD_LOOP_OFF | FMOD_UNIQUE, 0, &noteSamples[index]);
 
     // Also find ogg with the same filename
     if (r == FMOD_ERR_FILE_NOTFOUND && strEqual(spath.extension().string(), ".wav", true))
-        r = fmodSystem->createSound(path.replace(path.length() - 4, 4, ".ogg").c_str(), FMOD_LOOP_OFF | FMOD_UNIQUE, 0, &keySamples[index]);
+        r = fmodSystem->createSound(path.replace(path.length() - 4, 4, ".ogg").c_str(), FMOD_LOOP_OFF | FMOD_UNIQUE, 0, &noteSamples[index]);
 
     if (r != FMOD_OK)
         LOG_DEBUG << "[FMOD] Loading Sample (" + path + ") Error: " << r << ", " << FMOD_ErrorString(r);
@@ -297,26 +305,28 @@ int SoundDriverFMOD::loadKeySample(const Path& spath, size_t index)
     return 1;
 }
 
-void SoundDriverFMOD::playKeySample(size_t count, size_t index[])
+void SoundDriverFMOD::playNoteSample(SoundChannelType ch, size_t count, size_t index[])
 {
     for (size_t i = 0; i < count; i++)
     {
         FMOD_RESULT r = FMOD_OK;
-        if (keySamples[index[i]] != nullptr)
-            r = fmodSystem->playSound(keySamples[index[i]], &*keySamplesChannelGroup, false, 0);
+        if (noteSamples[index[i]] != nullptr)
+            r = fmodSystem->playSound(noteSamples[index[i]], &*channelGroup[ch], false, 0);
         if (r != FMOD_OK)
             LOG_WARNING << "[FMOD] Playing Sample Error: " << r << ", " << FMOD_ErrorString(r);
     }
 }
 
-void SoundDriverFMOD::stopKeySamples()
+void SoundDriverFMOD::stopNoteSamples()
 {
-    keySamplesChannelGroup->stop();
+    channelGroup[SoundChannelType::BGM_NOTE]->stop();
+    channelGroup[SoundChannelType::KEY_LEFT]->stop();
+    channelGroup[SoundChannelType::KEY_RIGHT]->stop();
 }
 
-void SoundDriverFMOD::freeKeySamples()
+void SoundDriverFMOD::freeNoteSamples()
 {
-    for (auto& s : keySamples)
+    for (auto& s : noteSamples)
         if (s != nullptr)
         {
             s->release();
@@ -324,12 +334,12 @@ void SoundDriverFMOD::freeKeySamples()
         }
 }
 
-int SoundDriverFMOD::loadSample(const Path& spath, size_t index, bool isStream, bool loop)
+int SoundDriverFMOD::loadSysSample(const Path& spath, size_t index, bool isStream, bool loop)
 {
     if (spath.empty()) return 0;
     
-    if (etcSamples[index] != nullptr)
-        etcSamples[index]->release();
+    if (sysSamples[index] != nullptr)
+        sysSamples[index]->release();
 
     std::string path = spath.u8string();
 
@@ -339,34 +349,35 @@ int SoundDriverFMOD::loadSample(const Path& spath, size_t index, bool isStream, 
 
     FMOD_RESULT r = FMOD_ERR_FILE_NOTFOUND;
     if (fs::exists(spath) && fs::is_regular_file(spath))
-        r = fmodSystem->createSound(path.c_str(), flag, 0, &etcSamples[index]);
+        r = fmodSystem->createSound(path.c_str(), flag, 0, &sysSamples[index]);
 
     // Also find ogg with the same filename
     if (r == FMOD_ERR_FILE_NOTFOUND && strEqual(spath.extension().string(), ".wav", true))
-        r = fmodSystem->createSound(path.replace(path.length() - 4, 4, ".ogg").c_str(), flag, 0, &etcSamples[index]);
+        r = fmodSystem->createSound(path.replace(path.length() - 4, 4, ".ogg").c_str(), flag, 0, &sysSamples[index]);
     
     if (r != FMOD_OK)
         LOG_WARNING << "[FMOD] Loading Sample (" << path << ") Error: " << r << ", " << FMOD_ErrorString(r);
     return r;
 }
 
-void SoundDriverFMOD::playSample(size_t index)
+void SoundDriverFMOD::playSysSample(SoundChannelType ch, size_t index)
 {
     FMOD_RESULT r = FMOD_OK;
-    if (etcSamples[index] != nullptr)
-        r = fmodSystem->playSound(etcSamples[index], &*etcSamplesChannelGroup, false, 0);
+    if (sysSamples[index] != nullptr)
+        r = fmodSystem->playSound(sysSamples[index], &*channelGroup[ch], false, 0);
     if (r != FMOD_OK)
         LOG_WARNING << "[FMOD] Playing Sample Error: " << r << ", " << FMOD_ErrorString(r);
 }
 
-void SoundDriverFMOD::stopSamples()
+void SoundDriverFMOD::stopSysSamples()
 {
-    etcSamplesChannelGroup->stop();
+    channelGroup[SoundChannelType::BGM_SYS]->stop();
+    channelGroup[SoundChannelType::KEY_SYS]->stop();
 }
 
-void SoundDriverFMOD::freeSamples()
+void SoundDriverFMOD::freeSysSamples()
 {
-    for (auto& s : etcSamples)
+    for (auto& s : sysSamples)
         if (s != nullptr)
         {
             s->release();
@@ -396,14 +407,20 @@ void SoundDriverFMOD::setVolume(SampleChannel ch, float v)
     switch (ch)
     {
     case SampleChannel::MASTER:
-        keySamplesChannelGroup->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
-        etcSamplesChannelGroup->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::BGM]);
+        channelGroup[SoundChannelType::BGM_SYS]->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::BGM]);
+        channelGroup[SoundChannelType::BGM_NOTE]->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::BGM]);
+        channelGroup[SoundChannelType::KEY_SYS]->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
+        channelGroup[SoundChannelType::KEY_LEFT]->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
+        channelGroup[SoundChannelType::KEY_RIGHT]->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
         break;
     case SampleChannel::KEY:
-        keySamplesChannelGroup->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
+        channelGroup[SoundChannelType::KEY_SYS]->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
+        channelGroup[SoundChannelType::KEY_LEFT]->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
+        channelGroup[SoundChannelType::KEY_RIGHT]->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
         break;
     case SampleChannel::BGM:
-        etcSamplesChannelGroup->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::BGM]);
+        channelGroup[SoundChannelType::BGM_SYS]->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::BGM]);
+        channelGroup[SoundChannelType::BGM_NOTE]->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::BGM]);
         break;
     }
 }
@@ -424,10 +441,15 @@ void SoundDriverFMOD::setDSP(DSPType type, int dspIndex, SampleChannel ch, float
 
     if (fmodType == FMOD_DSP_TYPE_UNKNOWN)
     {
-        for (int c = 0; c < 4; ++c)
+        for (SoundChannelType e = SoundChannelType::BGM_SYS; e != SoundChannelType::TYPE_COUNT; ++(*(int*)(&e)))
         {
-            DSP[dspIndex][c]->setBypass(true);
+            DSPMaster[dspIndex][e]->setBypass(true);
         }
+        DSPBgm[dspIndex][SoundChannelType::BGM_NOTE]->setBypass(true);
+        DSPBgm[dspIndex][SoundChannelType::BGM_SYS]->setBypass(true);
+        DSPKey[dspIndex][SoundChannelType::KEY_SYS]->setBypass(true);
+        DSPKey[dspIndex][SoundChannelType::KEY_LEFT]->setBypass(true);
+        DSPKey[dspIndex][SoundChannelType::KEY_RIGHT]->setBypass(true);
     }
     else
     {
@@ -488,22 +510,37 @@ void SoundDriverFMOD::setDSP(DSPType type, int dspIndex, SampleChannel ch, float
         switch (ch)
         {
         case SampleChannel::MASTER:
-            DSP[dspIndex][2]->setBypass(true);
-            DSP[dspIndex][3]->setBypass(true);
-            updateDSP(keySamplesChannelGroup, DSP[dspIndex][0]);
-            updateDSP(etcSamplesChannelGroup, DSP[dspIndex][1]);
+            DSPBgm[dspIndex][SoundChannelType::BGM_NOTE]->setBypass(true);
+            DSPBgm[dspIndex][SoundChannelType::BGM_SYS]->setBypass(true);
+            DSPKey[dspIndex][SoundChannelType::KEY_SYS]->setBypass(true);
+            DSPKey[dspIndex][SoundChannelType::KEY_LEFT]->setBypass(true);
+            DSPKey[dspIndex][SoundChannelType::KEY_RIGHT]->setBypass(true);
+            for (SoundChannelType e = SoundChannelType::BGM_SYS; e != SoundChannelType::TYPE_COUNT; ++(*(int*)(&e)))
+            {
+                updateDSP(channelGroup[e], DSPMaster[dspIndex][e]);
+            }
             break;
         case SampleChannel::KEY:
-            DSP[dspIndex][0]->setBypass(true);
-            DSP[dspIndex][1]->setBypass(true);
-            DSP[dspIndex][3]->setBypass(true);
-            updateDSP(keySamplesChannelGroup, DSP[dspIndex][2]);
+            for (SoundChannelType e = SoundChannelType::BGM_SYS; e != SoundChannelType::TYPE_COUNT; ++(*(int*)(&e)))
+            {
+                DSPMaster[dspIndex][e]->setBypass(true);
+            }
+            DSPBgm[dspIndex][SoundChannelType::BGM_NOTE]->setBypass(true);
+            DSPBgm[dspIndex][SoundChannelType::BGM_SYS]->setBypass(true);
+            updateDSP(channelGroup[SoundChannelType::KEY_SYS], DSPKey[dspIndex][SoundChannelType::KEY_SYS]);
+            updateDSP(channelGroup[SoundChannelType::KEY_LEFT], DSPKey[dspIndex][SoundChannelType::KEY_LEFT]);
+            updateDSP(channelGroup[SoundChannelType::KEY_RIGHT], DSPKey[dspIndex][SoundChannelType::KEY_RIGHT]);
             break;
         case SampleChannel::BGM:
-            DSP[dspIndex][0]->setBypass(true);
-            DSP[dspIndex][1]->setBypass(true);
-            DSP[dspIndex][2]->setBypass(true);
-            updateDSP(etcSamplesChannelGroup, DSP[dspIndex][3]);
+            for (SoundChannelType e = SoundChannelType::BGM_SYS; e != SoundChannelType::TYPE_COUNT; ++(*(int*)(&e)))
+            {
+                DSPMaster[dspIndex][e]->setBypass(true);
+            }
+            DSPKey[dspIndex][SoundChannelType::KEY_SYS]->setBypass(true);
+            DSPKey[dspIndex][SoundChannelType::KEY_LEFT]->setBypass(true);
+            DSPKey[dspIndex][SoundChannelType::KEY_RIGHT]->setBypass(true);
+            updateDSP(channelGroup[SoundChannelType::BGM_SYS], DSPBgm[dspIndex][SoundChannelType::BGM_SYS]);
+            updateDSP(channelGroup[SoundChannelType::BGM_NOTE], DSPBgm[dspIndex][SoundChannelType::BGM_NOTE]);
             break;
         }
     }
@@ -511,33 +548,33 @@ void SoundDriverFMOD::setDSP(DSPType type, int dspIndex, SampleChannel ch, float
 
 void SoundDriverFMOD::setFreqFactor(double f)
 {
-    keySamplesChannelGroup->setPitch(f);
-    etcSamplesChannelGroup->setPitch(f);
-    PitchShiftFilter[0]->setParameterFloat(FMOD_DSP_PITCHSHIFT_PITCH, 1.0f);
-    PitchShiftFilter[1]->setParameterFloat(FMOD_DSP_PITCHSHIFT_PITCH, 1.0f);
-    PitchShiftFilter[0]->setBypass(true);
-    PitchShiftFilter[1]->setBypass(true);
+    for (SoundChannelType e = SoundChannelType::BGM_SYS; e != SoundChannelType::TYPE_COUNT; ++(*(int*)(&e)))
+    {
+        channelGroup[e]->setPitch(f);
+        PitchShiftFilter[e]->setParameterFloat(FMOD_DSP_PITCHSHIFT_PITCH, 1.0f);
+        PitchShiftFilter[e]->setBypass(true);
+    }
 }
 
 void SoundDriverFMOD::setSpeed(double speed)
 {
     double pitch = 1.0 / speed;
-    keySamplesChannelGroup->setPitch(speed);
-    etcSamplesChannelGroup->setPitch(speed);
-    PitchShiftFilter[0]->setParameterFloat(FMOD_DSP_PITCHSHIFT_PITCH, pitch);
-    PitchShiftFilter[1]->setParameterFloat(FMOD_DSP_PITCHSHIFT_PITCH, pitch);
-    PitchShiftFilter[0]->setBypass(false);
-    PitchShiftFilter[1]->setBypass(false);
+    for (SoundChannelType e = SoundChannelType::BGM_SYS; e != SoundChannelType::TYPE_COUNT; ++(*(int*)(&e)))
+    {
+        channelGroup[e]->setPitch(speed);
+        PitchShiftFilter[e]->setParameterFloat(FMOD_DSP_PITCHSHIFT_PITCH, pitch);
+        PitchShiftFilter[e]->setBypass(false);
+    }
 }
 
 void SoundDriverFMOD::setPitch(double pitch)
 {
-    keySamplesChannelGroup->setPitch(1.0);
-    etcSamplesChannelGroup->setPitch(1.0);
-    PitchShiftFilter[0]->setParameterFloat(FMOD_DSP_PITCHSHIFT_PITCH, pitch);
-    PitchShiftFilter[1]->setParameterFloat(FMOD_DSP_PITCHSHIFT_PITCH, pitch);
-    PitchShiftFilter[0]->setBypass(false);
-    PitchShiftFilter[1]->setBypass(false);
+    for (SoundChannelType e = SoundChannelType::BGM_SYS; e != SoundChannelType::TYPE_COUNT; ++(*(int*)(&e)))
+    {
+        channelGroup[e]->setPitch(1.0);
+        PitchShiftFilter[e]->setParameterFloat(FMOD_DSP_PITCHSHIFT_PITCH, pitch);
+        PitchShiftFilter[e]->setBypass(false);
+    }
 }
 
 void SoundDriverFMOD::setEQ(EQFreq freq, int gain)
@@ -553,6 +590,8 @@ void SoundDriverFMOD::setEQ(EQFreq freq, int gain)
     case EQFreq::_6250: i = 1; ch = FMOD_DSP_MULTIBAND_EQ_C_GAIN; break;
     case EQFreq::_16k:  i = 1; ch = FMOD_DSP_MULTIBAND_EQ_D_GAIN; break;
     }
-    EQFilter[0][i]->setParameterFloat(ch, (float)gain);
-    EQFilter[1][i]->setParameterFloat(ch, (float)gain);
+    for (SoundChannelType e = SoundChannelType::BGM_SYS; e != SoundChannelType::TYPE_COUNT; ++(*(int*)(&e)))
+    {
+        EQFilter[i][e]->setParameterFloat(ch, (float)gain);
+    }
 }

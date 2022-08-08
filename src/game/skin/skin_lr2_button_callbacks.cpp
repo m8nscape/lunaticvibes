@@ -135,7 +135,7 @@ void number_change(eNumber type, int plus)
 {
     gNumbers.set(type, gNumbers.get(type) + plus);
 
-    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
 void number_change_clamp(eNumber type, int min, int max, int plus)
@@ -143,7 +143,7 @@ void number_change_clamp(eNumber type, int min, int max, int plus)
     int val = std::clamp(gNumbers.get(type) + plus, min, max);
     gNumbers.set(type, val);
 
-    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
 #pragma endregion
@@ -167,7 +167,7 @@ void panel_switch(int idx, int plus)
             gSwitches.set(p, false);
             gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_START) - 1 + i), TIMER_NEVER);
             gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_END) - 1 + i), t.norm());
-            SoundMgr::playSample(eSoundSample::SOUND_O_CLOSE);
+            SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CLOSE);
         }
     }
 
@@ -177,7 +177,7 @@ void panel_switch(int idx, int plus)
         gSwitches.set(panel, false);
         gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_START) - 1 + idx), TIMER_NEVER);
         gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_END) - 1 + idx), t.norm());
-        SoundMgr::playSample(eSoundSample::SOUND_O_CLOSE);
+        SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CLOSE);
     }
     else
     {
@@ -185,7 +185,7 @@ void panel_switch(int idx, int plus)
         gSwitches.set(panel, true);
         gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_START) - 1 + idx), t.norm());
         gTimers.set(static_cast<eTimer>(int(eTimer::PANEL1_END) - 1 + idx), TIMER_NEVER);
-        SoundMgr::playSample(eSoundSample::SOUND_O_OPEN);
+        SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_OPEN);
     }
 }
 
@@ -193,14 +193,14 @@ void panel_switch(int idx, int plus)
 void enter_key_config()
 {
     gSelectContext.isGoingToKeyConfig = true;
-    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
 // 14
 void enter_skin_config()
 {
     gSelectContext.isGoingToSkinSelect = true;
-    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
 // 16
@@ -397,7 +397,7 @@ void gauge_type(int player, int plus)
     default: break;
     }
 
-    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
 // 42, 43
@@ -427,7 +427,7 @@ void random_type(int player, int plus)
     default: break;
     }
 
-    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
 // 44, 45
@@ -448,20 +448,20 @@ void autoscr(int player, int plus)
     gSwitches.set(sw, !val);
     gTexts.set(tx, (!val) ? "AUTO-SCR" : "NONE");
 
-    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
 // 46
 void shutter(int plus)
 {
 
-    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
 // 54
 void flip(int plus)
 {
-    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
 // 55
@@ -495,14 +495,14 @@ void hs_fix(int plus)
         break;
     }
 
-    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
 // 56
 void battle(int plus)
 {
 
-    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
 // 57, 58
@@ -534,7 +534,7 @@ void score_graph(int plus)
         gTexts.set(eText::SCORE_GRAPH, "ON");
     }
 
-    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
 // 71
@@ -563,7 +563,7 @@ void ghost_type(int plus)
         break;
     }
 
-    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
 // 72
@@ -588,21 +588,21 @@ void bga(int plus)
         break;
     }
 
-    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
 // 73
 void bga_size(int plus)
 {
 
-    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
 // 75
 void judge_auto_adjust(int plus)
 {
 
-    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 
 }
 
@@ -610,7 +610,7 @@ void judge_auto_adjust(int plus)
 void target_type(int plus)
 {
 
-    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
 // 80
@@ -636,25 +636,25 @@ void window_mode(int plus)
         break;
     }
 
-    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
 // 82
 void vsync(int plus)
 {
-    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
 // 83
 void save_replay_type(int plus)
 {
-    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
 // 90
 void favorite_ignore(int plus)
 {
-    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
 // 91 - 96
@@ -662,7 +662,7 @@ void difficulty(int diff, int plus)
 {
     gOptions.set(eOption::SELECT_FILTER_DIFF, diff);
     // TODO refresh song list
-    SoundMgr::playSample(eSoundSample::SOUND_DIFFICULTY);
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_DIFFICULTY);
 }
 
 // 100 - 139
@@ -806,7 +806,7 @@ void key_config_pad(Input::Pad pad)
             gTexts.set(eText(unsigned(eText::KEYCONFIG_SLOT1) + i), "-");
         }
     }
-    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
 // 143
@@ -859,7 +859,7 @@ void key_config_slot(int slot)
         setSwitch(slot, true);
         sel.second = slot;
     }
-    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
 
@@ -888,13 +888,13 @@ void skinselect_mode(int mode)
     }
 
     if (modeOld != gCustomizeContext.mode)
-        SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+        SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
 void skinselect_skin(int plus)
 {
     gCustomizeContext.skinDir = plus;
-    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
 void skinselect_option(int index, int plus)
@@ -902,7 +902,7 @@ void skinselect_option(int index, int plus)
     gCustomizeContext.optionIdx = index;
     gCustomizeContext.optionDir = plus;
     gCustomizeContext.optionUpdate = true;
-    SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
 #pragma endregion

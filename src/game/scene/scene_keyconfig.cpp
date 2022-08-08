@@ -179,7 +179,7 @@ void SceneKeyConfig::inputGamePressKeyboard(KeyboardMask& mask, const Time& t)
             }
 
             // play sound
-            SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+            SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
         }
     }
 }
@@ -219,7 +219,7 @@ void SceneKeyConfig::inputGamePressRawinput(int deviceID, RawinputKeyMap& button
             }
 
             // play sound
-            SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+            SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
         }
     }
 
@@ -263,7 +263,7 @@ void SceneKeyConfig::inputGamePressRawinput(int deviceID, RawinputKeyMap& button
                 }
 
                 // play sound
-                SoundMgr::playSample(eSoundSample::SOUND_O_CHANGE);
+                SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
             }
         }
     }

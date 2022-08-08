@@ -27,45 +27,45 @@ std::vector<std::pair<int, std::string>> SoundMgr::getDeviceList(bool asio)
     return _inst.driver->getDeviceList(asio);
 }
 
-int SoundMgr::loadKeySample(const Path& path, size_t sample)
+int SoundMgr::loadNoteSample(const Path& path, size_t sample)
 {
     if (!_inst._initialized) return 1;
-    return _inst.driver->loadKeySample(path, sample);
+    return _inst.driver->loadNoteSample(path, sample);
 }
-void SoundMgr::playKeySample(size_t count, size_t* samples)
+void SoundMgr::playNoteSample(SoundChannelType ch, size_t count, size_t* samples)
 {
     if (!_inst._initialized) return;
-    return _inst.driver->playKeySample(count, samples);
+    return _inst.driver->playNoteSample(ch, count, samples);
 }
-void SoundMgr::stopKeySamples()
+void SoundMgr::stopNoteSamples()
 {
     if (!_inst._initialized) return;
-    return _inst.driver->stopKeySamples();
+    return _inst.driver->stopNoteSamples();
 }
-void SoundMgr::freeKeySamples()
+void SoundMgr::freeNoteSamples()
 {
     if (!_inst._initialized) return;
-    return _inst.driver->freeKeySamples();
+    return _inst.driver->freeNoteSamples();
 }
-int SoundMgr::loadSample(const Path& path, eSoundSample sample, bool isStream, bool loop)
+int SoundMgr::loadSysSample(const Path& path, eSoundSample sample, bool isStream, bool loop)
 {
     if (!_inst._initialized) return 1;
-    return _inst.driver->loadSample(path, static_cast<size_t>(sample), isStream, loop);
+    return _inst.driver->loadSysSample(path, static_cast<size_t>(sample), isStream, loop);
 }
-void SoundMgr::playSample(eSoundSample sample)
+void SoundMgr::playSysSample(SoundChannelType ch, eSoundSample sample)
 {
     if (!_inst._initialized) return;
-    return _inst.driver->playSample(static_cast<size_t>(sample));
+    return _inst.driver->playSysSample(ch, static_cast<size_t>(sample));
 }
-void SoundMgr::stopSamples()
+void SoundMgr::stopSysSamples()
 {
     if (!_inst._initialized) return;
-    return _inst.driver->stopSamples();
+    return _inst.driver->stopSysSamples();
 }
-void SoundMgr::freeSamples()
+void SoundMgr::freeSysSamples()
 {
     if (!_inst._initialized) return;
-    return _inst.driver->freeSamples();
+    return _inst.driver->freeSysSamples();
 }
 
 void SoundMgr::startUpdate()
