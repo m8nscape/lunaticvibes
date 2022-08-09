@@ -6,7 +6,6 @@
 #include "input_mgr.h"
 #include "common/asynclooper.h"
 #include "common/beat.h"
-#include "input_rawinput.h"
 
 typedef std::bitset<Input::Pad::KEY_COUNT> InputMask;
 typedef std::function<void(InputMask&, const Time&)> INPUTCALLBACK;
@@ -19,10 +18,6 @@ typedef std::function<void(KeyboardMask, const Time&)> KEYBOARDCALLBACK;
 
 typedef std::map<Input::Pad, std::pair<double, int>> InputAxisPlus;
 typedef std::function<void(InputAxisPlus&, const Time&)> AXISPLUSCALLBACK;
-
-typedef std::map<int, bool> RawinputKeyMap;
-typedef std::map<int, std::pair<double, int>> RawinputAxisSpeedMap;
-typedef std::function<void(int, RawinputKeyMap&, RawinputAxisSpeedMap&, const Time&)> RAWINPUTCALLBACK;
 
 // FUNC:                                          BRDUEHDI><v^543210987654321_
 inline const InputMask INPUT_MASK_FUNC  { "00000001111111111111111111111111111000000000000000000000000000000" };
@@ -121,17 +116,5 @@ private:
 public:
     bool register_kb(const std::string& key, KEYBOARDCALLBACK f);
     bool unregister_kb(const std::string& key);
-
-    // Should only used for keyconfig
-#ifdef RAWINPUT_AVAILABLE
-protected:
-    std::map<int, RawinputKeyMap> _riprev;
-    std::map<int, RawinputKeyMap> _ricurr;
-private:
-    std::map<const std::string, RAWINPUTCALLBACK> _rawinputCallbackMap;
-public:
-    bool register_ri(const std::string& key, RAWINPUTCALLBACK f);
-    bool unregister_ri(const std::string& key);
-#endif
 };
 

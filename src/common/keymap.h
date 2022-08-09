@@ -401,8 +401,6 @@ public:
     AxisDir getAxisDir() const;
 
     void setKeyboard(Input::Keyboard kb);
-    void setRawInputKey(int deviceID, int code);
-    void setRawInputAxis(int deviceID, int idx, AxisDir direction);
 
 private:
     void fromString(const std::string_view& name);
@@ -410,10 +408,8 @@ private:
     void fromStringJoystick(const std::string_view& name);
     void fromStringController(const std::string_view& name);
     void fromStringMouse(const std::string_view& name);
-    void fromStringRawInput(const std::string_view& name);
     std::string toStringKeyboard() const;
     std::string toStringJoystick() const;
     std::string toStringController() const;
     std::string toStringMouse() const;
-    std::string toStringRawInput() const;
 };

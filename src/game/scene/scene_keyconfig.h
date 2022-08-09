@@ -23,10 +23,6 @@ protected:
     // Register to InputWrapper: judge / keysound
     void inputGamePress(InputMask&, const Time&);
     void inputGamePressKeyboard(KeyboardMask&, const Time&);
-#ifdef RAWINPUT_AVAILABLE
-    std::map<int, std::map<int, AxisDir>> _riAxisDirPrev;
-    void inputGamePressRawinput(int deviceID, RawinputKeyMap& button, RawinputAxisSpeedMap& axisDiff, const Time&);
-#endif
 
 public:
     static void setInputBindingText(GameModeKeys keys, Input::Pad pad);

@@ -19,7 +19,6 @@ InputWrapper::~InputWrapper()
         _rCallbackMap.clear();
         _aCallbackMap.clear();
         _keyboardCallbackMap.clear();
-        _rawinputCallbackMap.clear();
     }
 }
 
@@ -90,30 +89,6 @@ void InputWrapper::_loop()
                     callback(mask, now);
             }
         }
-
-#ifdef RAWINPUT_AVAILABLE
-        if (!_rawinputCallbackMap.empty())
-        {
-            for (int deviceID = 0; deviceID < (int)Input::rawinput::RIMgr::inst().getDeviceCount(); ++deviceID)
-            {
-                RawinputKeyMap pressedNew;
-
-                RawinputKeyMap pressedTmp = Input::rawinput::RIMgr::inst().getPressed(deviceID);
-                for (auto& [key, stat] : pressedTmp)
-                    if (stat && !_riprev[deviceID][key])
-                        pressedNew[key] = true;
-
-                RawinputAxisSpeedMap axisSpeed = Input::rawinput::RIMgr::inst().getAxisSpeed(deviceID);
-
-                if (!pressedNew.empty() || !axisSpeed.empty())
-                {
-                    for (auto& [cbname, callback] : _rawinputCallbackMap)
-                        callback(deviceID, pressedNew, axisSpeed, now);
-                }
-                _riprev[deviceID] = pressedTmp;
-            }
-        }
-#endif
     }
 
     InputMgr::getMousePos(_cursor_x, _cursor_y);
@@ -212,24 +187,3 @@ bool InputWrapper::unregister_kb(const std::string& key)
     _keyboardCallbackMap.erase(key);
     return true;
 }
-
-#ifdef RAWINPUT_AVAILABLE
-bool InputWrapper::register_ri(const std::string& key, RAWINPUTCALLBACK f)
-{
-    if (_rawinputCallbackMap.find(key) != _rawinputCallbackMap.end())
-        return false;
-
-    std::unique_lock _lock(_inputMutex);
-    _rawinputCallbackMap[key] = f;
-    return true;
-}
-bool InputWrapper::unregister_ri(const std::string& key)
-{
-    if (_rawinputCallbackMap.find(key) == _rawinputCallbackMap.end())
-        return false;
-
-    std::unique_lock _lock(_inputMutex);
-    _rawinputCallbackMap.erase(key);
-    return true;
-}
-#endif

@@ -87,9 +87,6 @@ void SceneKeyConfig::updateStart()
         using namespace std::placeholders;
         _input.register_p("SCENE_PRESS", std::bind(&SceneKeyConfig::inputGamePress, this, _1, _2));
         _input.register_kb("SCENE_KEYPRESS", std::bind(&SceneKeyConfig::inputGamePressKeyboard, this, _1, _2));
-#ifdef RAWINPUT_AVAILABLE
-        _input.register_ri("SCENE_RAWINPUTPRESS", std::bind(&SceneKeyConfig::inputGamePressRawinput, this, _1, _2, _3, _4));
-#endif
         LOG_DEBUG << "[KeyConfig] State changed to Main";
     }
 }
@@ -104,9 +101,6 @@ void SceneKeyConfig::updateMain()
         using namespace std::placeholders;
         _input.unregister_p("SCENE_PRESS");
         _input.unregister_kb("SCENE_KEYPRESS");
-#ifdef RAWINPUT_AVAILABLE
-        _input.unregister_ri("SCENE_RAWINPUTPRESS");
-#endif
         LOG_DEBUG << "[KeyConfig] State changed to Fadeout";
     }
 }
@@ -183,93 +177,6 @@ void SceneKeyConfig::inputGamePressKeyboard(KeyboardMask& mask, const Time& t)
         }
     }
 }
-
-
-#ifdef RAWINPUT_AVAILABLE
-void SceneKeyConfig::inputGamePressRawinput(int deviceID, RawinputKeyMap& button, RawinputAxisSpeedMap& axisSpeed, const Time&)
-{
-    auto [pad, slot] = gKeyconfigContext.selecting;
-    if (slot >= InputMgr::MAX_BINDINGS_PER_KEY) return;
-    for (auto& [key, stat] : button)
-    {
-        if (stat)
-        {
-            GameModeKeys keys = gKeyconfigContext.keys;
-
-            // modify slot
-            KeyMap km;
-            km.setRawInputKey(deviceID, key);
-            ConfigMgr::Input(keys)->bind(pad, km, slot);
-            InputMgr::updateBindings(keys, pad);
-
-            // update text
-            switch (slot)
-            {
-            case 0: gTexts.set(eText::KEYCONFIG_SLOT1, km.toString()); break;
-            case 1: gTexts.set(eText::KEYCONFIG_SLOT2, km.toString()); break;
-            case 2: gTexts.set(eText::KEYCONFIG_SLOT3, km.toString()); break;
-            case 3: gTexts.set(eText::KEYCONFIG_SLOT4, km.toString()); break;
-            case 4: gTexts.set(eText::KEYCONFIG_SLOT5, km.toString()); break;
-            case 5: gTexts.set(eText::KEYCONFIG_SLOT6, km.toString()); break;
-            case 6: gTexts.set(eText::KEYCONFIG_SLOT7, km.toString()); break;
-            case 7: gTexts.set(eText::KEYCONFIG_SLOT8, km.toString()); break;
-            case 8: gTexts.set(eText::KEYCONFIG_SLOT9, km.toString()); break;
-            case 9: gTexts.set(eText::KEYCONFIG_SLOT10, km.toString()); break;
-            default: break;
-            }
-
-            // play sound
-            SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
-        }
-    }
-
-    if (InputMgr::getAxisMode() == InputMgr::eAxisMode::AXIS_RELATIVE)
-    {
-        for (auto& [axis, speedtime] : axisSpeed)
-        {
-            auto& [speed, time] = speedtime;
-            if (speed == 0)
-            {
-                _riAxisDirPrev[deviceID][axis] = 0;
-                continue;
-            }
-
-            AxisDir dir(speed);
-            if (std::abs(speed) > InputMgr::getAxisMinSpeed() && _riAxisDirPrev[deviceID][axis] != dir)
-            {
-                _riAxisDirPrev[deviceID][axis] = dir;
-                GameModeKeys keys = gKeyconfigContext.keys;
-
-                // modify slot
-                KeyMap km;
-                km.setRawInputAxis(deviceID, axis, dir);
-                ConfigMgr::Input(keys)->bind(pad, km, slot);
-                InputMgr::updateBindings(keys, pad);
-
-                // update text
-                switch (slot)
-                {
-                case 0: gTexts.set(eText::KEYCONFIG_SLOT1, km.toString()); break;
-                case 1: gTexts.set(eText::KEYCONFIG_SLOT2, km.toString()); break;
-                case 2: gTexts.set(eText::KEYCONFIG_SLOT3, km.toString()); break;
-                case 3: gTexts.set(eText::KEYCONFIG_SLOT4, km.toString()); break;
-                case 4: gTexts.set(eText::KEYCONFIG_SLOT5, km.toString()); break;
-                case 5: gTexts.set(eText::KEYCONFIG_SLOT6, km.toString()); break;
-                case 6: gTexts.set(eText::KEYCONFIG_SLOT7, km.toString()); break;
-                case 7: gTexts.set(eText::KEYCONFIG_SLOT8, km.toString()); break;
-                case 8: gTexts.set(eText::KEYCONFIG_SLOT9, km.toString()); break;
-                case 9: gTexts.set(eText::KEYCONFIG_SLOT10, km.toString()); break;
-                default: break;
-                }
-
-                // play sound
-                SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
-            }
-        }
-    }
-}
-
-#endif
 
 void SceneKeyConfig::setInputBindingText(GameModeKeys keys, Input::Pad pad)
 {

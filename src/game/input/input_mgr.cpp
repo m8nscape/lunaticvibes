@@ -1,6 +1,5 @@
 #include "common/log.h"
 #include "input_mgr.h"
-#include "input_rawinput.h"
 #include "common/sysutil.h"
 #include "config/config_mgr.h"
 #include "game/graphics/graphics.h"
@@ -12,7 +11,6 @@ using namespace Input;
 void InputMgr::init()
 {
     using namespace std::placeholders;
-    addWMEventHandler(&Input::rawinput::RIMgr::WMMsgHandler);
     addWMEventHandler(&WMMouseWheelMsgHandler);
 }
 
@@ -26,8 +24,6 @@ void InputMgr::updateDevices()
     //        _inst.joysticksConnected[i] = true;
     //        _inst.haveJoystick = true;
     //    }
-
-    Input::rawinput::RIMgr::inst().refreshDevices();
 }
 
 void InputMgr::updateBindings(GameModeKeys keys, Pad K)
@@ -61,45 +57,6 @@ void InputMgr::updateBindings(GameModeKeys keys, Pad K)
 std::bitset<KEY_COUNT> InputMgr::detect()
 {
     std::bitset<KEY_COUNT> res{};
-
-#ifdef RAWINPUT_AVAILABLE
-    // rawinput
-    rawinput::RIMgr::inst().update();
-    {
-        std::shared_lock lock(rawinput::RIMgr::inst().mutexInput);
-        for (int k = S1L; k < ESC; k++)
-        {
-            for (const KeyMap& b : _inst.padBindings[k])
-            {
-                if (b.getType() == KeyMap::DeviceType::RAWINPUT)
-                {
-                    if (b.isAxis())
-                    {
-                        if (_inst.axisMode == eAxisMode::AXIS_NORMAL)
-                        {
-                            double val = rawinput::RIMgr::inst().getAxis(b.getDeviceID(), b.getAxis());
-                            if (b.getAxisDir() > 0 && val > 0 || b.getAxisDir() < 0 && val < 0)
-                            {
-                                int absVal = (int)std::abs(val);
-                                if (absVal > _inst.analogDeadZone)
-                                    res[k] = true;
-                            }
-                        }
-                        else
-                        {
-                            // Handled by detectRelativeAxis, do not modify result set here
-                        }
-                    }
-                    else
-                    {
-                        if (rawinput::RIMgr::inst().isPressed(b.getDeviceID(), b.getCode()))
-                            res[k] = true;
-                    }
-                }
-            }
-        }
-    }
-#endif
 
     // game input
     for (int k = S1L; k < ESC; k++)
@@ -176,23 +133,6 @@ std::map<Input::Pad, std::pair<double, int>> InputMgr::detectRelativeAxis()
         auto k = static_cast<Input::Pad>(i);
         for (const KeyMap& b : _inst.padBindings[k])
         {
-#ifdef RAWINPUT_AVAILABLE
-            if (b.getType() == KeyMap::DeviceType::RAWINPUT && b.isAxis())
-            {
-                auto [speed, time] = rawinput::RIMgr::inst().getAxisSpeed(b.getDeviceID(), b.getAxis());
-                //double diff = speed * time;
-                if (speed > 0 && b.getAxisDir() > 0)
-                {
-                    result[k].first += speed;
-                    result[k].second = std::max(result[static_cast<Input::Pad>(k)].second, time);
-                }
-                if (speed < 0 && b.getAxisDir() < 0)
-                {
-                    result[k].first += -speed;
-                    result[k].second = std::max(result[static_cast<Input::Pad>(k)].second, time);
-                }
-            }
-#endif
         }
     }
 
