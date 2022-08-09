@@ -205,16 +205,6 @@ int main(int argc, char* argv[])
         }
     }
 
-    // preload all skins
-    LOG_INFO << "==============================================";
-    LOG_INFO << "Preload all skins";
-    for (eMode e = eMode::TITLE; e < eMode::MODE_COUNT; ++(*(int*)&e))
-    {
-        SkinMgr::load(e);
-    }
-    LOG_INFO << "Preload all skins finished";
-    LOG_INFO << "==============================================";
-
     // score db
     std::string scoreDBPath = (ConfigMgr::Profile()->getPath() / "score.db").u8string();
     g_pScoreDB = std::make_shared<ScoreDB>(scoreDBPath.c_str());
@@ -254,6 +244,7 @@ int main(int argc, char* argv[])
         }
         if (!deleted)
         {
+            g_pSongDB->browse(entry->md5, true);
             rootFolderProp.list.push_back({ entry, nullptr });
         }
     }
@@ -287,6 +278,18 @@ int main(int argc, char* argv[])
             bms->maxBPM,
         };
     }
+
+#ifndef _DEBUG
+    // preload all skins
+    LOG_INFO << "==============================================";
+    LOG_INFO << "Preload all skins";
+    for (eMode e = eMode::TITLE; e < eMode::MODE_COUNT; ++(*(int*)&e))
+    {
+        SkinMgr::load(e);
+    }
+    LOG_INFO << "Preload all skins finished";
+    LOG_INFO << "==============================================";
+#endif
 
 #ifdef WIN32
     timeBeginPeriod(1);

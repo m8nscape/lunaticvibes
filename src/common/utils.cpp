@@ -347,7 +347,8 @@ std::string convertLR2Path(const std::string& lr2path, std::string_view relative
 Path PathFromUTF8(std::string_view s)
 {
 #ifdef _WIN32
-    return utf8_to_utf32(std::string(s));
+    const static auto locale_utf8 = std::locale(".65001");
+    return Path(std::string(s), locale_utf8);
 #else
     return Path(s);
 #endif
