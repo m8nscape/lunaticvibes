@@ -14,7 +14,7 @@ std::string KeyMap::toString() const
 }
 
 
-bool KeyMap::isAxis() const { assert(type == DeviceType::JOYSTICK || type == DeviceType::RAWINPUT); return !!(code & 0x40000000); }
+bool KeyMap::isAxis() const { assert(type == DeviceType::JOYSTICK); return !!(code & 0x40000000); }
 unsigned KeyMap::getAxis() const { return isAxis() ? (code & ~0x70000000) : 0; }
 AxisDir KeyMap::getAxisDir() const { return isAxis() ? ((code & 0x20000000) ? 1 : -1) : 0; }
 

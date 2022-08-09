@@ -372,8 +372,6 @@ public:
         JOYSTICK,
         CONTROLLER,
         MOUSE,          // ???
-
-        RAWINPUT,       // Windows 
     };
 
     typedef int DeviceID;
