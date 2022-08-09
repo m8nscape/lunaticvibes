@@ -52,7 +52,7 @@ add_library(gamelib
     ruleset/ruleset_bms_auto.cpp
     scene/scene_exit_trans.cpp
     skin/skin_lr2_debug.cpp
-)
+ "input/input_dinput8.cpp")
 
 if (UNIX OR MINGW)
     target_link_libraries(gamelib PRIVATE -lpthread)

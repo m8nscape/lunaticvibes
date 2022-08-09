@@ -206,10 +206,10 @@ enum class Keyboard : unsigned
     K_DOWN,
 
     // Japanese
-    K_JP_BACKSLASH,
-    K_JP_NOCHANGE,
-    K_JP_CHANGE,
-    K_JP_HIRAGANA,
+    K_JP_YEN,
+    K_JP_NOCONVERT,
+    K_JP_CONVERT,
+    K_JP_KANA,
 
     K_COUNT
 };
@@ -342,10 +342,10 @@ inline const char* keyboardNameMap[0xFF]
     "DOWN",
 
     // Japanese
-    "JP_BACKSLASH",
-    "JP_NOCHANGE",
-    "JP_CHANGE",
-    "JP_HIRAGANA",
+    "JP_YEN",
+    "JP_NOCONVERT",
+    "JP_CONVERT",
+    "JP_KANA",
 };
 
 struct Rawinput

@@ -4,26 +4,23 @@
 #include "config/config_mgr.h"
 #include "game/graphics/graphics.h"
 
+#ifdef _WIN32
+#include "input_dinput8.h"
+#endif
+
 InputMgr InputMgr::_inst;
 
 using namespace Input;
 
 void InputMgr::init()
 {
-    using namespace std::placeholders;
-    addWMEventHandler(&WMMouseWheelMsgHandler);
+    initInput();
 }
 
 void InputMgr::updateDevices()
 {
     // Check jostick connection status
-    _inst.haveJoystick = false;
-    //for (unsigned i = 0; i < sf::Joystick::Count; i++)
-    //    if (sf::Joystick::isConnected(i))
-    //    {
-    //        _inst.joysticksConnected[i] = true;
-    //        _inst.haveJoystick = true;
-    //    }
+    refreshInputDevices();
 }
 
 void InputMgr::updateBindings(GameModeKeys keys, Pad K)
@@ -56,6 +53,8 @@ void InputMgr::updateBindings(GameModeKeys keys, Pad K)
 
 std::bitset<KEY_COUNT> InputMgr::detect()
 {
+    pollInput();
+
     std::bitset<KEY_COUNT> res{};
 
     // game input

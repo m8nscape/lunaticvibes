@@ -25,7 +25,6 @@ public:
     // Game keys param / functions
 private:
     std::bitset<MAX_JOYSTICK_COUNT> joysticksConnected{};
-    bool haveJoystick = false;
     std::array<std::array<KeyMap, MAX_BINDINGS_PER_KEY>, Input::ESC> padBindings{};
 	int mouse_x = 0, mouse_y = 0;
 	int analogDeadZone = 25;
@@ -55,6 +54,12 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 // System specific range
 
+void initInput();
+
+void refreshInputDevices();
+
+void pollInput();
+
 // Keyboard detect
 bool isKeyPressed(Input::Keyboard c);
 
@@ -65,9 +70,4 @@ typedef int JoyBtn;
 // Mouse detect
 bool isMouseButtonPressed(int idx);
 
-#ifdef WIN32
-LRESULT WMMouseWheelMsgHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-#else
-// TODO something receives mouse wheel. Do not change the function displayName!
-#endif
 short getLastMouseWheelState();

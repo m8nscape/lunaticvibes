@@ -1,6 +1,21 @@
 #if _WIN32 || _WIN64
 #include "input_mgr.h"
-#include <Windows.h>
+#include "input_dinput8.h"
+
+void initInput()
+{
+    InputDirectInput8::inst();
+}
+
+void refreshInputDevices()
+{
+    InputDirectInput8::inst().refreshDevices();
+}
+
+void pollInput()
+{
+    InputDirectInput8::inst().poll();
+}
 
 bool isKeyPressed(Input::Keyboard key)
 {
@@ -8,160 +23,146 @@ bool isKeyPressed(Input::Keyboard key)
     static const int vkMap[] =
     {
         0,
-        VK_ESCAPE,
+        DIK_ESCAPE,
 
-        '1',
-        '2',
-        '3',
-        '4',
-        '5',
-        '6',
-        '7',
-        '8',
-        '9',
-        '0',
-        VK_OEM_MINUS,
-        VK_OEM_PLUS,
-        VK_BACK,
+        DIK_1,
+        DIK_2,
+        DIK_3,
+        DIK_4,
+        DIK_5,
+        DIK_6,
+        DIK_7,
+        DIK_8,
+        DIK_9,
+        DIK_0,
+        DIK_MINUS,
+        DIK_EQUALS,
+        DIK_BACK,
 
-        VK_TAB,
-        'Q',
-        'W',
-        'E',
-        'R',
-        'T',
-        'Y',
-        'U',
-        'I',
-        'O',
-        'P',
-        VK_OEM_4,
-        VK_OEM_6,
+        DIK_TAB,
+        DIK_Q,
+        DIK_W,
+        DIK_E,
+        DIK_R,
+        DIK_T,
+        DIK_Y,
+        DIK_U,
+        DIK_I,
+        DIK_O,
+        DIK_P,
+        DIK_LBRACKET,
+        DIK_RBRACKET,
 
-        VK_RETURN,
-        VK_LCONTROL,
+        DIK_RETURN,
+        DIK_LCONTROL,
 
-        'A',
-        'S',
-        'D',
-        'F',
-        'G',
-        'H',
-        'J',
-        'K',
-        'L',
-        VK_OEM_1,
-        VK_OEM_7,
+        DIK_A,
+        DIK_S,
+        DIK_D,
+        DIK_F,
+        DIK_G,
+        DIK_H,
+        DIK_J,
+        DIK_K,
+        DIK_L,
+        DIK_SEMICOLON,
+        DIK_APOSTROPHE,
 
-        VK_OEM_3,
-        VK_LSHIFT,
-        VK_OEM_5,
+        DIK_GRAVE,
+        DIK_LSHIFT,
+        DIK_BACKSLASH,
 
-        'Z',
-        'X',
-        'C',
-        'V',
-        'B',
-        'N',
-        'M',
-        VK_OEM_COMMA,
-        VK_OEM_PERIOD,
-        VK_OEM_2,
-        VK_RSHIFT,
+        DIK_Z,
+        DIK_X,
+        DIK_C,
+        DIK_V,
+        DIK_B,
+        DIK_N,
+        DIK_M,
+        DIK_COMMA,
+        DIK_PERIOD,
+        DIK_SLASH,
+        DIK_RSHIFT,
 
-        VK_SNAPSHOT,
-        VK_LMENU,
-        VK_SPACE,
-        VK_CAPITAL,
+        0,  // PRTSC
+        DIK_LMENU,
+        DIK_SPACE,
+        DIK_CAPITAL,
 
-        VK_F1,
-        VK_F2,
-        VK_F3,
-        VK_F4,
-        VK_F5,
-        VK_F6,
-        VK_F7,
-        VK_F8,
-        VK_F9,
-        VK_F10,
-        VK_NUMLOCK,
-        VK_SCROLL,
+        DIK_F1,
+        DIK_F2,
+        DIK_F3,
+        DIK_F4,
+        DIK_F5,
+        DIK_F6,
+        DIK_F7,
+        DIK_F8,
+        DIK_F9,
+        DIK_F10,
+        DIK_NUMLOCK,
+        DIK_SCROLL,
 
-        VK_NUMPAD7,
-        VK_NUMPAD8,
-        VK_NUMPAD9,
-        VK_SUBTRACT,
-        VK_NUMPAD4,
-        VK_NUMPAD5,
-        VK_NUMPAD6,
-        VK_ADD,
-        VK_NUMPAD1,
-        VK_NUMPAD2,
-        VK_NUMPAD3,
-        VK_NUMPAD0,
-        VK_DECIMAL,
-        0,
+        DIK_NUMPAD7,
+        DIK_NUMPAD8,
+        DIK_NUMPAD9,
+        DIK_SUBTRACT,
+        DIK_NUMPAD4,
+        DIK_NUMPAD5,
+        DIK_NUMPAD6,
+        DIK_ADD,
+        DIK_NUMPAD1,
+        DIK_NUMPAD2,
+        DIK_NUMPAD3,
+        DIK_NUMPAD0,
+        DIK_DECIMAL,
+        DIK_SYSRQ,
 
-        VK_F11,
-        VK_F12,
-        VK_F13,
-        VK_F14,
-        VK_F15,
+        DIK_F11,
+        DIK_F12,
+        DIK_F13,
+        DIK_F14,
+        DIK_F15,
 
-        VK_PAUSE,
-        VK_INSERT,
-        VK_DELETE,
-        VK_HOME,
-        VK_END,
-        VK_PRIOR,
-        VK_NEXT,
+        DIK_PAUSE,
+        DIK_INSERT,
+        DIK_DELETE,
+        DIK_HOME,
+        DIK_END,
+        DIK_PRIOR,
+        DIK_NEXT,
 
-        VK_RCONTROL,
+        DIK_RCONTROL,
+        DIK_LEFT,
+        DIK_UP,
+        DIK_RIGHT,
+        DIK_DOWN,
 
-        VK_LEFT,
-        VK_UP,
-        VK_RIGHT,
-        VK_DOWN,
-
-        VK_OEM_102,
-        VK_NONCONVERT,
-        VK_CONVERT,
-        VK_OEM_COPY,
+        DIK_YEN,
+        DIK_NOCONVERT,
+        DIK_CONVERT,
+        DIK_KANA,
     };
 
     int vk = vkMap[static_cast<size_t>(key)];
-    return GetAsyncKeyState(vk) & (1 << (sizeof(SHORT) * 8 - 1));
+    return InputDirectInput8::inst().getKeyboardState()[vk] & 0x80;
 }
 
 bool isMouseButtonPressed(int idx)
 {
     switch (idx)
     {
-    case 1: return GetAsyncKeyState(VK_LBUTTON);
-    case 2: return GetAsyncKeyState(VK_RBUTTON);
-    case 3: return GetAsyncKeyState(VK_MBUTTON);
-    case 4: return GetAsyncKeyState(VK_XBUTTON1);
-    case 5: return GetAsyncKeyState(VK_XBUTTON2);
+    case 1: 
+    case 2: 
+    case 3: 
+    case 4: return InputDirectInput8::inst().getMouseState().rgbButtons[idx - 1] & 0x80;
     default: return false;
     }
 }
 
-static short gMouseWheel = 0;
-
-LRESULT WMMouseWheelMsgHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    if (msg == WM_MOUSEWHEEL)
-    {
-        auto zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-        gMouseWheel = zDelta / WHEEL_DELTA;
-    }
-    return 0;
-}
 short getLastMouseWheelState()
 {
-    short gMouseWheelRet = gMouseWheel;
-    gMouseWheel = 0;
-    return gMouseWheelRet;
+    int z = InputDirectInput8::inst().getMouseState().lZ;
+    return z == 0 ? 0 : z / WHEEL_DELTA;
 }
 
 #endif
