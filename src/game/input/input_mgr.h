@@ -19,17 +19,16 @@ private:
 
 public:
     static constexpr std::size_t MAX_JOYSTICK_COUNT = 8;
-    static constexpr std::size_t MAX_BINDINGS_PER_KEY = 10;
-    enum class eAxisMode { AXIS_NORMAL, AXIS_RELATIVE };
+    static constexpr std::size_t MAX_JOYSTICK_BUTTON_COUNT = 32;
+    static constexpr std::size_t MAX_JOYSTICK_POV_COUNT = 4;    // 4 directions each pov
+    static constexpr std::size_t MAX_JOYSTICK_AXIS_COUNT = 8;       // 2 directions each axis
+    enum class eAxisMode { AXIS_NORMAL, AXIS_ABSOLUTE };
 
     // Game keys param / functions
 private:
     std::bitset<MAX_JOYSTICK_COUNT> joysticksConnected{};
-    std::array<std::array<KeyMap, MAX_BINDINGS_PER_KEY>, Input::ESC> padBindings{};
+    std::array<KeyMap, Input::ESC> padBindings{};
 	int mouse_x = 0, mouse_y = 0;
-	int analogDeadZone = 25;
-    double axisMinSpeed = 0.001;
-    eAxisMode axisMode = eAxisMode::AXIS_NORMAL;
 
 public:
     // Game keys param / functions
@@ -37,18 +36,7 @@ public:
     static void updateDevices();
     static void updateBindings(GameModeKeys keys, Input::Pad K);
     static std::bitset<Input::KEY_COUNT> detect();
-    static std::map<Input::Pad, std::pair<double, int>> detectRelativeAxis();
 	static bool getMousePos(int& x, int& y);
-
-    static void setDeadzone(int val) { _inst.analogDeadZone = val; }
-    static int getDeadzone() { return _inst.analogDeadZone; }
-
-    static void setAxisMode(eAxisMode mode) { _inst.axisMode = mode; }
-    static eAxisMode getAxisMode() { return _inst.axisMode; }
-
-    static void setAxisMinSpeed(double val) { _inst.axisMinSpeed = val; }
-    static double getAxisMinSpeed() { return _inst.axisMinSpeed; }
-
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -64,10 +52,12 @@ void pollInput();
 bool isKeyPressed(Input::Keyboard c);
 
 // Joystick detect
-typedef int JoyBtn;
-//bool isButtonPressed(Device d, Button b);
+bool isButtonPressed(Input::Joystick c, double deadzone = 0.0);
 
 // Mouse detect
 bool isMouseButtonPressed(int idx);
 
 short getLastMouseWheelState();
+
+// absolute axis
+

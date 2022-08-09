@@ -798,7 +798,7 @@ void SceneSelect::inputGameAxisSelect(InputAxisPlus& input, const Time& t)
     }
     double navVal = -navUp + navDn;
     double navValAbs = std::abs(navVal);
-    if (navValAbs >= InputMgr::getAxisMinSpeed())
+    if (navValAbs >= 0.2)
     {
         if (!isHoldingUp && !isHoldingDown /* && !isScrollingByAxis*/)
         {

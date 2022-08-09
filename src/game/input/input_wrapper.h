@@ -19,23 +19,27 @@ typedef std::function<void(KeyboardMask, const Time&)> KEYBOARDCALLBACK;
 typedef std::map<Input::Pad, std::pair<double, int>> InputAxisPlus;
 typedef std::function<void(InputAxisPlus&, const Time&)> AXISPLUSCALLBACK;
 
+constexpr size_t MAX_JOYSTICK_MASK_BIT_COUNT = InputMgr::MAX_JOYSTICK_BUTTON_COUNT + InputMgr::MAX_JOYSTICK_POV_COUNT * 4 + InputMgr::MAX_JOYSTICK_AXIS_COUNT * 2;
+typedef std::bitset<MAX_JOYSTICK_MASK_BIT_COUNT> JoystickMask;
+typedef std::function<void(JoystickMask, size_t, const Time&)> JOYSTICKCALLBACK;
+
 // FUNC:                                          BRDUEHDI><v^543210987654321_
-inline const InputMask INPUT_MASK_FUNC  { "00000001111111111111111111111111111000000000000000000000000000000" };
-// 1P:                                                                                       DUEA987654321SS
-inline const InputMask INPUT_MASK_1P    { "00000000000000000000000000000000000000000000000000111111111111111" };
-// 2P:                                                                        DUEA987654321SS
-inline const InputMask INPUT_MASK_2P    { "00000000000000000000000000000000000111111111111111000000000000000" };
+inline const InputMask INPUT_MASK_FUNC  { "0000000111111111111111111111111111100000000000000000000000000000000" };
+// 1P:                                                                                        sDUEA987654321SS
+inline const InputMask INPUT_MASK_1P    { "0000000000000000000000000000000000000000000000000001111111111111111" };
+// 2P:                                                                        sDUEA987654321SS
+inline const InputMask INPUT_MASK_2P    { "0000000000000000000000000000000000011111111111111110000000000000000" };
 // Mouse:                                  DU54321
-inline const InputMask INPUT_MASK_MOUSE { "11111110000000000000000000000000000000000000000000000000000000000" };
+inline const InputMask INPUT_MASK_MOUSE { "1111111000000000000000000000000000000000000000000000000000000000000" };
                                                   
-//                                                                            2P: 9 7 5 3 1  1P: 9 7 5 3 1  
-inline const InputMask INPUT_MASK_DECIDE{ "00000000100000000000000000000000000000010101010100000010101010100" };
-//                                                                            2P:  8 6 4 2   1P:  8 6 4 2
-inline const InputMask INPUT_MASK_CANCEL{ "00000001000000000000000000000000000000001010101000000001010101000" };
-//                                                         < ^                2P:           S1P:           S
-inline const InputMask INPUT_MASK_NAV_UP{ "00000000000000001010000000000000000000000000000001000000000000001" };
-//                                                        > v                 2P:          S 1P:          S
-inline const InputMask INPUT_MASK_NAV_DN{ "00000000000000010100000000000000000000000000000010000000000000010" };
+//                                                                              2P: 9 7 5 3 1  1P: 9 7 5 3 1  
+inline const InputMask INPUT_MASK_DECIDE{ "0000000010000000000000000000000000000000101010101000000010101010100" };
+//                                                                              2P:  8 6 4 2   1P:  8 6 4 2
+inline const InputMask INPUT_MASK_CANCEL{ "0000000100000000000000000000000000000000010101010000000001010101000" };
+//                                                         < ^                  2P:           S1P:           S
+inline const InputMask INPUT_MASK_NAV_UP{ "0000000000000000101000000000000000000000000000000010000000000000001" };
+//                                                        > v                   2P:          S 1P:          S
+inline const InputMask INPUT_MASK_NAV_DN{ "0000000000000001010000000000000000000000000000000100000000000000010" };
 
 // InputWrapper
 //  Start a process to check input upon 1000hz polling.
@@ -116,5 +120,13 @@ private:
 public:
     bool register_kb(const std::string& key, KEYBOARDCALLBACK f);
     bool unregister_kb(const std::string& key);
+protected:
+    std::array<JoystickMask, InputMgr::MAX_JOYSTICK_COUNT> _joyprev = { 0 };
+    std::array<JoystickMask, InputMgr::MAX_JOYSTICK_COUNT> _joycurr = { 0 };
+private:
+    std::map<const std::string, JOYSTICKCALLBACK> _joystickCallbackMap;
+public:
+    bool register_joy(const std::string& key, JOYSTICKCALLBACK f);
+    bool unregister_joy(const std::string& key);
 };
 

@@ -89,6 +89,70 @@ void InputWrapper::_loop()
                     callback(mask, now);
             }
         }
+
+        if (!_joystickCallbackMap.empty())
+        {
+            _joyprev = _joycurr;
+            for (int device = 0; device < InputMgr::MAX_JOYSTICK_COUNT; ++device)
+            {
+                JoystickMask mask;
+
+                Input::Joystick j;
+                j.device = device;
+                size_t base = 0;
+
+                j.type = Input::Joystick::Type::BUTTON;
+                for (j.index = 0; j.index < InputMgr::MAX_JOYSTICK_BUTTON_COUNT; ++j.index)
+                {
+                    if (isButtonPressed(j)) mask.set(base + j.index);
+                }
+                base += InputMgr::MAX_JOYSTICK_BUTTON_COUNT;
+
+                j.type = Input::Joystick::Type::POV;
+                for (size_t idxPOV = 0; idxPOV < InputMgr::MAX_JOYSTICK_POV_COUNT; ++idxPOV)
+                {
+                    j.index = idxPOV | (1ul << 31);
+                    if (isButtonPressed(j)) mask.set(base + idxPOV * 4 + 0);
+                    j.index = idxPOV | (1ul << 30);
+                    if (isButtonPressed(j)) mask.set(base + idxPOV * 4 + 1);
+                    j.index = idxPOV | (1ul << 29);
+                    if (isButtonPressed(j)) mask.set(base + idxPOV * 4 + 2);
+                    j.index = idxPOV | (1ul << 28);
+                    if (isButtonPressed(j)) mask.set(base + idxPOV * 4 + 3);
+                }
+                base += InputMgr::MAX_JOYSTICK_POV_COUNT * 4;
+
+                j.type = Input::Joystick::Type::AXIS_RELATIVE_POSITIVE;
+                for (j.index = 0; j.index < InputMgr::MAX_JOYSTICK_AXIS_COUNT; ++j.index)
+                {
+                    if (isButtonPressed(j, 0.7)) mask.set(base + j.index);
+                }
+                base += InputMgr::MAX_JOYSTICK_AXIS_COUNT;
+
+                j.type = Input::Joystick::Type::AXIS_RELATIVE_NEGATIVE;
+                for (j.index = 0; j.index < InputMgr::MAX_JOYSTICK_AXIS_COUNT; ++j.index)
+                {
+                    if (isButtonPressed(j, 0.7)) mask.set(base + j.index);
+                }
+                base += InputMgr::MAX_JOYSTICK_AXIS_COUNT;
+
+                _joycurr[device] = mask;
+
+                JoystickMask p;
+                for (size_t k = 0; k < MAX_JOYSTICK_MASK_BIT_COUNT; ++k)
+                {
+                    size_t ki = static_cast<size_t>(k);
+                    if (_joycurr[device][ki] && !_joyprev[device][ki]) p.set(ki);
+                }
+                if (p.any())
+                {
+                    std::shared_lock l(_inputMutex, std::defer_lock);
+
+                    for (auto& [cbname, callback] : _joystickCallbackMap)
+                        callback(mask, device, now);
+                }
+            }
+        }
     }
 
     InputMgr::getMousePos(_cursor_x, _cursor_y);
@@ -107,10 +171,10 @@ void InputWrapper::_loop()
                 for (auto& [cbname, callback] : _rCallbackMap)
                     callback(r, now);
             
-            auto a = InputMgr::detectRelativeAxis();
+            //auto a = InputMgr::detectAbsoluteAxis();
             //if (!a.empty())
-                for (auto& [cbname, callback] : _aCallbackMap)
-                    callback(a, now);
+                //for (auto& [cbname, callback] : _aCallbackMap)
+                //    callback(a, now);
         }
     }
 }
@@ -185,5 +249,24 @@ bool InputWrapper::unregister_kb(const std::string& key)
 
     std::unique_lock _lock(_inputMutex);
     _keyboardCallbackMap.erase(key);
+    return true;
+}
+
+bool InputWrapper::register_joy(const std::string& key, JOYSTICKCALLBACK f)
+{
+    if (_joystickCallbackMap.find(key) != _joystickCallbackMap.end())
+        return false;
+
+    std::unique_lock _lock(_inputMutex);
+    _joystickCallbackMap[key] = f;
+    return true;
+}
+bool InputWrapper::unregister_joy(const std::string& key)
+{
+    if (_joystickCallbackMap.find(key) == _joystickCallbackMap.end())
+        return false;
+
+    std::unique_lock _lock(_inputMutex);
+    _joystickCallbackMap.erase(key);
     return true;
 }

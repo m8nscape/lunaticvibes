@@ -1,6 +1,7 @@
 #if _WIN32 || _WIN64
 #include "input_mgr.h"
 #include "input_dinput8.h"
+#include <cmath>
 
 void initInput()
 {
@@ -145,6 +146,57 @@ bool isKeyPressed(Input::Keyboard key)
 
     int vk = vkMap[static_cast<size_t>(key)];
     return InputDirectInput8::inst().getKeyboardState()[vk] & 0x80;
+}
+
+bool isButtonPressed(Input::Joystick c, double deadzone)
+{
+    if (c.device < InputDirectInput8::inst().getJoystickCount())
+    {
+        auto& stat = InputDirectInput8::inst().getJoystickState(c.device);
+        switch (c.type)
+        {
+        case Input::Joystick::Type::BUTTON:
+            return stat.rgbButtons[c.index];
+        case Input::Joystick::Type::POV:
+            if (LOWORD(stat.rgdwPOV[LOWORD(c.index)]) != 0xFFFF)
+            {
+                float x = std::sinf(stat.rgdwPOV[c.index & 0xFFFFFFF] / 100.0f * 0.0174532925f);
+                float y = std::cosf(stat.rgdwPOV[c.index & 0xFFFFFFF] / 100.0f * 0.0174532925f);
+
+                if      (x < -0.01f && (c.index & (1ul << 31))) return true;
+                else if (y < -0.01f && (c.index & (1ul << 30))) return true;
+                else if (y > 0.01f && (c.index & (1ul << 29))) return true;
+                else if (x > 0.01f && (c.index & (1ul << 28))) return true;
+            }
+            return false;
+        case Input::Joystick::Type::AXIS_RELATIVE_POSITIVE:
+            switch (c.index)
+            {
+            case 0: return stat.lX != 0 && (stat.lX - 32767) / 32767.0 >= deadzone;
+            case 1: return stat.lY != 0 && (stat.lY - 32767) / 32767.0 >= deadzone;
+            case 2: return stat.lZ != 0 && (stat.lZ - 32767) / 32767.0 >= deadzone;
+            case 3: return stat.lRx != 0 && (stat.lRx - 32767) / 32767.0 >= deadzone;
+            case 4: return stat.lRy != 0 && (stat.lRy - 32767) / 32767.0 >= deadzone;
+            case 5: return stat.lRz != 0 && (stat.lRz - 32767) / 32767.0 >= deadzone;
+            case 6: return stat.rglSlider[0] != 0 && (stat.rglSlider[0] - 32767) / 32767.0 >= deadzone;
+            case 7: return stat.rglSlider[1] != 0 && (stat.rglSlider[1] - 32767) / 32767.0 >= deadzone;
+            }
+            break;
+        case Input::Joystick::Type::AXIS_RELATIVE_NEGATIVE:
+            switch (c.index)
+            {
+            case 0: return stat.lX != 0 && (stat.lX - 32767) / -32767.0 >= deadzone;
+            case 1: return stat.lY != 0 && (stat.lY - 32767) / -32767.0 >= deadzone;
+            case 2: return stat.lZ != 0 && (stat.lZ - 32767) / -32767.0 >= deadzone;
+            case 3: return stat.lRx != 0 && (stat.lRx - 32767) / -32767.0 >= deadzone;
+            case 4: return stat.lRy != 0 && (stat.lRy - 32767) / -32767.0 >= deadzone;
+            case 5: return stat.lRz != 0 && (stat.lRz - 32767) / -32767.0 >= deadzone;
+            case 6: return stat.rglSlider[0] != 0 && (stat.rglSlider[0] - 32767) / -32767.0 >= deadzone;
+            case 7: return stat.rglSlider[1] != 0 && (stat.rglSlider[1] - 32767) / -32767.0 >= deadzone;
+            }
+        }
+    }
+    return false;
 }
 
 bool isMouseButtonPressed(int idx)

@@ -26,6 +26,12 @@ public:
 	{
 		LPDIRECTINPUTDEVICE8 lpdid = nullptr;
 		DIJOYSTATE state = { 0 };
+		struct Capabilities
+		{
+			unsigned buttons = 0;
+			bool hasPOV[4] = { 0 };
+			bool hasAxis[8] = { 0 };
+		} caps;
 	};
 
 protected:
@@ -58,6 +64,7 @@ public:
 	const DIMOUSESTATE& getMouseState() const;
 	const BYTE* getKeyboardState() const;
 	const DIJOYSTATE& getJoystickState(size_t idx) const;
+	const DeviceJoystick::Capabilities& getJoystickCapabilities(size_t idx) const;
 
 public:
 	static InputDirectInput8& inst();

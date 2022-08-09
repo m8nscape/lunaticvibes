@@ -23,6 +23,7 @@ protected:
     // Register to InputWrapper: judge / keysound
     void inputGamePress(InputMask&, const Time&);
     void inputGamePressKeyboard(KeyboardMask&, const Time&);
+    void inputGamePressJoystick(JoystickMask&, size_t device, const Time&);
 
 public:
     static void setInputBindingText(GameModeKeys keys, Input::Pad pad);

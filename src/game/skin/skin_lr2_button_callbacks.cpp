@@ -797,11 +797,8 @@ void key_config_pad(Input::Pad pad)
         sel.first = pad;
 
         auto bindings = ConfigMgr::Input(gKeyconfigContext.keys)->getBindings(pad);
-        for (size_t i = 0; i < bindings.size(); ++i)
-        {
-            gTexts.set(eText(unsigned(eText::KEYCONFIG_SLOT1) + i), bindings[i].toString());
-        }
-        for (size_t i = bindings.size(); i < InputMgr::MAX_BINDINGS_PER_KEY; ++i)
+        gTexts.set(eText::KEYCONFIG_SLOT1, bindings.toString());
+        for (size_t i = 1; i < 10; ++i)
         {
             gTexts.set(eText(unsigned(eText::KEYCONFIG_SLOT1) + i), "-");
         }

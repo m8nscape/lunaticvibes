@@ -27,7 +27,7 @@ void InputMgr::updateBindings(GameModeKeys keys, Pad K)
 {
     // Clear current bindings
     for (auto& k : _inst.padBindings)
-        std::for_each(k.begin(), k.end(), [&](KeyMap& m) { m.reset(); });
+        k.reset();
 
     switch (keys)
     {
@@ -36,8 +36,7 @@ void InputMgr::updateBindings(GameModeKeys keys, Pad K)
     case 9:
         for (Input::Pad key = Input::S1L; key < Input::ESC; ++(*(int*)&key))
         {
-            auto padBindings = ConfigMgr::Input(keys)->getBindings(key);
-            std::copy_n(padBindings.begin(), std::min(MAX_BINDINGS_PER_KEY, padBindings.size()), _inst.padBindings[key].begin());
+            _inst.padBindings[key] = ConfigMgr::Input(keys)->getBindings(key);
         }
         break;
 
@@ -60,7 +59,7 @@ std::bitset<KEY_COUNT> InputMgr::detect()
     // game input
     for (int k = S1L; k < ESC; k++)
     {
-        for (const KeyMap& b : _inst.padBindings[k])
+        KeyMap& b = _inst.padBindings[k];
         {
 			switch (b.getType())
 			{
@@ -69,13 +68,13 @@ std::bitset<KEY_COUNT> InputMgr::detect()
                     res[k] = true;
 				break;
 			case KeyMap::DeviceType::JOYSTICK:
-                // TODO joystick
+                if (isButtonPressed(b.getJoystick(), 0.2))
+                    res[k] = true;
 				break;
-			case KeyMap::DeviceType::CONTROLLER:
 			case KeyMap::DeviceType::MOUSE:
 				break;
 			}
-			if (res[k]) break;
+			//if (res[k]) break;
         }
     }
 
@@ -120,22 +119,6 @@ std::bitset<KEY_COUNT> InputMgr::detect()
     res[MWHEELDOWN] = mouseWheelState < 0;
 
     return res;
-}
-
-std::map<Input::Pad, std::pair<double, int>> InputMgr::detectRelativeAxis()
-{
-    std::map<Input::Pad, std::pair<double, int>> result;
-    if (_inst.axisMode != eAxisMode::AXIS_RELATIVE) return result;
-
-    for (int i = S1L; i < ESC; i++)
-    {
-        auto k = static_cast<Input::Pad>(i);
-        for (const KeyMap& b : _inst.padBindings[k])
-        {
-        }
-    }
-
-    return result;
 }
 
 

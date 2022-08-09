@@ -840,7 +840,7 @@ void RulesetBMS::updateAxis(InputAxisPlus& m, const Time& t)
     if (_k1P) S1 = -m[S1L].first + m[S1R].first;
     if (_k2P) S2 = -m[S2L].first + m[S2R].first;
 
-    double minSpeed = InputMgr::getAxisMinSpeed();
+    double minSpeed = 0.2;
     auto Judge = [&](const Time& t, double val, Input::Pad up, Input::Pad dn, int slot)
     {
         if (val > minSpeed)

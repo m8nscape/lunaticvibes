@@ -30,6 +30,7 @@ namespace cfg
     constexpr char I_BINDINGS_K1Select[] = "1P_Select";
     constexpr char I_BINDINGS_K1SpdUp[] = "1P_SpdUp";
     constexpr char I_BINDINGS_K1SpdDn[] = "1P_SpdDn";
+    constexpr char I_BINDINGS_K1ScAxis[] = "1P_ScAxis";
 
     constexpr char I_BINDINGS_K2ScL[] = "2P_ScL";
     constexpr char I_BINDINGS_K2ScR[] = "2P_ScR";
@@ -46,6 +47,7 @@ namespace cfg
     constexpr char I_BINDINGS_K2Select[] = "2P_Select";
     constexpr char I_BINDINGS_K2SpdUp[] = "2P_SpdUp";
     constexpr char I_BINDINGS_K2SpdDn[] = "2P_SpdDn";
+    constexpr char I_BINDINGS_K2ScAxis[] = "2P_ScAxis";
 
 }
 
@@ -67,7 +69,6 @@ public:
     void clearAll();
 
     void clearKey(Input::Pad ingame);
-    void bind(Input::Pad ingame, const KeyMap& km, size_t slot);
-    //void bindButton(unsigned id, Input::Pad ingame, unsigned input);
-    std::vector<KeyMap> getBindings(Input::Pad key);
+    void bind(Input::Pad ingame, const KeyMap& km);
+    KeyMap getBindings(Input::Pad key);
 };

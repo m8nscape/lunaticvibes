@@ -246,6 +246,12 @@ const DIJOYSTATE& InputDirectInput8::getJoystickState(size_t idx) const
 	return deviceJoysticks[idx].state;
 }
 
+const InputDirectInput8::DeviceJoystick::Capabilities& InputDirectInput8::getJoystickCapabilities(size_t idx) const
+{
+	assert(idx < deviceJoysticks.size());
+	return deviceJoysticks[idx].caps;
+}
+
 InputDirectInput8& InputDirectInput8::inst() 
 {
 	static InputDirectInput8 _inst; 

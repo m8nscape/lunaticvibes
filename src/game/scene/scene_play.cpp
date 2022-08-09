@@ -1361,7 +1361,7 @@ void ScenePlay::inputGameAxis(InputAxisPlus& m, const Time& t)
         }
     }
 
-    double minSpeed = InputMgr::getAxisMinSpeed();
+    double minSpeed = 0.2;
 
     AxisDir dir(S1, minSpeed);
     if (dir != AxisDir::AXIS_NONE)
