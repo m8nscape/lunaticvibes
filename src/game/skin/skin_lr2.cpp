@@ -3050,37 +3050,41 @@ void SkinLR2::update()
         // read lock
         std::shared_lock<std::shared_mutex> u(gSelectContext._mutex);
         for (auto& s : _barSprites) s->update(t);
+    }
 
-        if (hasBarAnimOrigin)
+    // update songlist position
+    if (hasBarAnimOrigin && gSelectContext.scrollDirection != 0 && !gSelectContext.entries.empty())
+    {
+        for (size_t i = 1; i + 1 < _barSprites.size(); ++i)
         {
-            auto tMove = gTimers.get(eTimer::LIST_MOVE);
-            if (t.norm() - tMove < barAnimTimeLength)
+            if (!_barSpriteAdded[i]) continue;
+
+            double posNow = gSliders.get(eSlider::SELECT_LIST) * gSelectContext.entries.size();
+
+            double decimal = posNow - (int)posNow;
+            if (decimal <= 0.5 && _barSprites[i - 1]->isDraw())
             {
-                setListStopTimer = true;
-                for (size_t i = 1; i + 1 < _barSprites.size(); ++i)
-                {
-                    if (!_barSpriteAdded[i]) continue;
-
-                    double factor = 1.0 - (t.norm() - tMove) / double(barAnimTimeLength);
-
-                    auto& rectStored = _barAnimOrigin[i];
-                    auto& rectSprite = _barSprites[i]->_current.rect;
-                    Rect dr{
-                        static_cast<int>(std::round((rectStored.x - rectSprite.x) * factor)),
-                        static_cast<int>(std::round((rectStored.y - rectSprite.y) * factor)),
-                        0, 0
-                    };
-                    _barSprites[i]->setRectOffset(dr);
-
-                }
+                double factor = decimal;
+                auto& rectStored = _barAnimOrigin[i - 1];
+                auto& rectSprite = _barSprites[i]->_current.rect;
+                Rect dr{
+                    static_cast<int>(std::round((rectStored.x - rectSprite.x) * factor)),
+                    static_cast<int>(std::round((rectStored.y - rectSprite.y) * factor)),
+                    0, 0
+                };
+                _barSprites[i]->setRectOffset(dr);
             }
-            else
+            else if (_barSprites[i + 1]->isDraw())
             {
-                if (setListStopTimer)
-                {
-                    setListStopTimer = false;
-                    gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());
-                }
+                double factor = -decimal + 1.0;
+                auto& rectStored = _barAnimOrigin[i + 1];
+                auto& rectSprite = _barSprites[i]->_current.rect;
+                Rect dr{
+                    static_cast<int>(std::round((rectStored.x - rectSprite.x) * factor)),
+                    static_cast<int>(std::round((rectStored.y - rectSprite.y) * factor)),
+                    0, 0
+                };
+                _barSprites[i]->setRectOffset(dr);
             }
         }
     }
@@ -3092,21 +3096,11 @@ void SkinLR2::reset_bar_animation()
     _barAnimOrigin.fill(Rect(0, 0, 0, 0));
 }
 
-void SkinLR2::start_bar_animation(int direction)
+void SkinLR2::start_bar_animation()
 {
-    barAnimTimeLength = gSelectContext.scrollTime;
     for (size_t i = 0; i < BAR_ENTRY_SPRITE_COUNT; ++i)
     {
-        int di = direction + i;
-        if (di < 0 || di >= BAR_ENTRY_SPRITE_COUNT || !_barSpriteAdded[di])
-        {
-            _barAnimOrigin[i] = _barSprites[i]->_current.rect;
-        }
-        else
-        {
-            int j = di % BAR_ENTRY_SPRITE_COUNT;
-            _barAnimOrigin[i] = _barSprites[j]->_current.rect;
-        }
+        _barAnimOrigin[i] = _barSprites[i]->_current.rect;
     }
     hasBarAnimOrigin = true;
 }

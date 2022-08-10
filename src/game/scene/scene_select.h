@@ -29,8 +29,12 @@ private:
     bool isHoldingDown = false;
     bool isScrollingByAxis = false;
     bool isInVersionList = false;
-    Time scrollTimestamp = -1;
-    Time selectDownTimestamp = -1;
+
+    Time selectDownTimestamp;
+
+    Time scrollButtonTimestamp;
+    double scrollAccumulator = 0.0;
+    double scrollAccumulatorAddUnit = 0.0;
 
     // imgui
     bool imguiShow = false;

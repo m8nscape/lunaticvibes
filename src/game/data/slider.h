@@ -38,7 +38,9 @@ enum class eSlider : unsigned
 
     PITCH = 26,
 
-    _TEST1,
+    // internal values
+    _TEST1 = 30,
+
     SLIDER_COUNT
 };
 

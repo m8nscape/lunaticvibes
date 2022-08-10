@@ -243,7 +243,6 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
         loadSongList();
         setBarInfo();
         setEntryInfo();
-        _skin->reset_bar_animation();
     }
 
     gSelectContext.isGoingToKeyConfig = false;
@@ -283,6 +282,49 @@ void SceneSelect::_updateAsync()
         gNextScene = eScene::EXIT_TRANS;
     }
 
+    if (!gSelectContext.entries.empty() && scrollAccumulator != 0.0)
+    {
+        Time t;
+        if (-0.000001 < scrollAccumulator && scrollAccumulator < 0.000001)
+        {
+            gSliders.set(eSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.idx / gSelectContext.entries.size()));
+            scrollAccumulator = 0.0;
+            scrollAccumulatorAddUnit = 0.0;
+            gSelectContext.scrollDirection = 0;
+            _skin->reset_bar_animation();
+            gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());
+            gSelectContext.scrollTimeLength = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_INITIAL, 300);
+        }
+        else
+        {
+            if (gSelectContext.scrollDirection == 0)
+            {
+                _skin->start_bar_animation();
+            }
+
+            double posOld = gSliders.get(eSlider::SELECT_LIST);
+            double posNew = posOld + scrollAccumulatorAddUnit / gSelectContext.entries.size();
+
+            int idxOld = (int)std::round(posOld * gSelectContext.entries.size());
+            int idxNew = (int)std::round(posNew * gSelectContext.entries.size());
+            if (idxOld != idxNew)
+            {
+                if (idxOld < idxNew)
+                    _navigateDownBy1(t);
+                else
+                    _navigateUpBy1(t);
+            }
+
+            while (posNew < 0.) posNew += 1.;
+            while (posNew >= 1.) posNew -= 1.;
+            gSliders.set(eSlider::SELECT_LIST, posNew);
+
+            scrollAccumulator -= scrollAccumulatorAddUnit;
+
+            gSelectContext.scrollDirection = scrollAccumulator > 0. ? 1 : -1;
+        }
+    }
+    
     _updateCallback();
 }
 
@@ -327,11 +369,6 @@ void SceneSelect::updateSelect()
     Time t;
     Time rt = t - gTimers.get(eTimer::SCENE_START);
 
-    if ((t - scrollTimestamp).norm() >= gSelectContext.scrollTime)
-    {
-        if (!isHoldingUp && !isHoldingDown)
-            scrollTimestamp = -1;
-    }
     if (gSelectContext.isGoingToKeyConfig || gSelectContext.isGoingToSkinSelect)
     {
         gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
@@ -691,31 +728,37 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
         if ((input & INPUT_MASK_NAV_UP).any())
         {
             isHoldingUp = true;
-            if (scrollTimestamp == -1)
-            {
-                scrollTimestamp = t.norm();
-                _navigateUpBy1(t);
-            }
+            scrollAccumulator -= 1.0;
+            scrollButtonTimestamp = t;
+            scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (getRate() / 1000);
         }
         if ((input & INPUT_MASK_NAV_DN).any())
         {
             isHoldingDown = true;
-            if (scrollTimestamp == -1)
-            {
-                scrollTimestamp = t.norm();
-                _navigateDownBy1(t);
-            }
+            scrollAccumulator += 1.0;
+            scrollButtonTimestamp = t;
+            scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (getRate() / 1000);
         }
 
         if (input[Input::MWHEELUP])
         {
-            scrollTimestamp = t.norm();
-            _navigateUpBy1(t);
+            if (scrollAccumulator != 0.0)
+            {
+                gSelectContext.scrollTimeLength = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);
+            }
+            scrollAccumulator -= 1.0;
+            scrollButtonTimestamp = t;
+            scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (getRate() / 1000);
         }
         if (input[Input::MWHEELDOWN])
         {
-            scrollTimestamp = t.norm();
-            _navigateDownBy1(t);
+            if (scrollAccumulator != 0.0)
+            {
+                gSelectContext.scrollTimeLength = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);
+            }
+            scrollAccumulator += 1.0;
+            scrollButtonTimestamp = t;
+            scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (getRate() / 1000);
         }
     }
     else
@@ -728,17 +771,19 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
 void SceneSelect::inputGameHoldSelect(InputMask& input, const Time& t)
 {
     // navigate
-    if (isHoldingUp && (t - scrollTimestamp).norm() >= gSelectContext.scrollTime)
+    if (isHoldingUp && (t - scrollButtonTimestamp).norm() >= gSelectContext.scrollTimeLength)
     {
-        gSelectContext.scrollTime = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);
-        scrollTimestamp = t;
-        _navigateUpBy1(t);
+        gSelectContext.scrollTimeLength = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);
+        scrollButtonTimestamp = t;
+        scrollAccumulator -= 1.0;
+        scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (getRate() / 1000);
     }
-    if (isHoldingDown && (t - scrollTimestamp).norm() >= gSelectContext.scrollTime)
+    if (isHoldingDown && (t - scrollButtonTimestamp).norm() >= gSelectContext.scrollTimeLength)
     {
-        gSelectContext.scrollTime = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);
-        scrollTimestamp = t;
-        _navigateDownBy1(t);
+        gSelectContext.scrollTimeLength = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);
+        scrollButtonTimestamp = t;
+        scrollAccumulator += 1.0;
+        scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (getRate() / 1000);
     }
     if ((t - selectDownTimestamp).norm() >= 233 && !isInVersionList && (input[Input::Pad::K1SELECT] || input[Input::Pad::K2SELECT]))
     {
@@ -774,12 +819,10 @@ void SceneSelect::inputGameReleaseSelect(InputMask& input, const Time& t)
     if ((input & INPUT_MASK_NAV_UP).any())
     {
         isHoldingUp = false;
-        gSelectContext.scrollTime = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_INITIAL, 300);
     }
     if ((input & INPUT_MASK_NAV_DN).any())
     {
         isHoldingDown = false;
-        gSelectContext.scrollTime = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_INITIAL, 300);
     }
 }
 
@@ -802,22 +845,18 @@ void SceneSelect::inputGameAxisSelect(InputAxisPlus& input, const Time& t)
     {
         if (!isHoldingUp && !isHoldingDown /* && !isScrollingByAxis*/)
         {
-            gSelectContext.scrollTime = 1000 / (navValAbs * 1000);
+            gSelectContext.scrollTimeLength = 1000 / (navValAbs * 1000);
             isScrollingByAxis = true;
         }
-        if ((t - scrollTimestamp).norm() >= gSelectContext.scrollTime)
+        if ((t - scrollButtonTimestamp).norm() >= gSelectContext.scrollTimeLength)
         {
             isScrollingByAxis = false;
-            scrollTimestamp = t;
+            scrollButtonTimestamp = t;
             if (navVal > 0)
                 _navigateDownBy1(t);
             else
                 _navigateUpBy1(t);
         }
-    }
-    else if (!isHoldingUp && !isHoldingDown)
-    {
-        gSelectContext.scrollTime = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_INITIAL, 300);
     }
 }
 
@@ -1304,19 +1343,9 @@ void SceneSelect::_navigateUpBy1(const Time& t)
         std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
 
         gSelectContext.idx = (gSelectContext.entries.size() + gSelectContext.idx - 1) % gSelectContext.entries.size();
-        _skin->start_bar_animation(-1);
 
         setBarInfo();
         setEntryInfo();
-
-        if (!gSelectContext.entries.empty())
-        {
-            gSliders.set(eSlider::SELECT_LIST, (double)gSelectContext.idx / gSelectContext.entries.size());
-        }
-        else
-        {
-            gSliders.set(eSlider::SELECT_LIST, 0.0);
-        }
 
         gTimers.set(eTimer::LIST_MOVE, t.norm());
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
@@ -1334,19 +1363,9 @@ void SceneSelect::_navigateDownBy1(const Time& t)
         std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
 
         gSelectContext.idx = (gSelectContext.idx + 1) % gSelectContext.entries.size();
-        _skin->start_bar_animation(+1);
 
         setBarInfo();
         setEntryInfo();
-
-        if (!gSelectContext.entries.empty())
-        {
-            gSliders.set(eSlider::SELECT_LIST, (double)gSelectContext.idx / gSelectContext.entries.size());
-        }
-        else
-        {
-            gSliders.set(eSlider::SELECT_LIST, 0.0);
-        }
 
         gTimers.set(eTimer::LIST_MOVE, t.norm());
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
@@ -1394,6 +1413,8 @@ void SceneSelect::_navigateEnter(const Time& t)
             {
                 gSliders.set(eSlider::SELECT_LIST, 0.0);
             }
+            scrollAccumulator = 0.;
+            scrollAccumulatorAddUnit = 0.;
 
             SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_OPEN);
             break;
@@ -1433,6 +1454,8 @@ void SceneSelect::_navigateBack(const Time& t)
             {
                 gSliders.set(eSlider::SELECT_LIST, 0.0);
             }
+            scrollAccumulator = 0.;
+            scrollAccumulatorAddUnit = 0.;
 
             SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_CLOSE);
         }

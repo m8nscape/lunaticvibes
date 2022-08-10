@@ -1397,8 +1397,6 @@ protected:
     unsigned barClickableTo = 0;
     bool hasBarAnimOrigin = false;
     std::array<Rect, BAR_ENTRY_SPRITE_COUNT> _barAnimOrigin;
-    bool setListStopTimer = false;
-    unsigned barAnimTimeLength = 300;
 
 protected:
     std::vector<std::shared_ptr<SpriteLaneVertical>> _laneSprites;
@@ -1606,7 +1604,7 @@ private:
 public:
     virtual void update();
     virtual void reset_bar_animation();
-    virtual void start_bar_animation(int direction) override;
+    virtual void start_bar_animation() override;
     virtual void draw() const;
 
     virtual size_t getCustomizeOptionCount() const;
