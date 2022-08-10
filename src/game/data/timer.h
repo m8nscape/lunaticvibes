@@ -137,6 +137,7 @@ enum class eTimer : unsigned
     RESULT_RANK_START,          // graph end
     RESULT_HIGHSCORE_START,     // push any key from RESULT_RANK_START
 
+    // new
     S1L_DOWN = 200,
     S1L_UP,
     S1R_DOWN,
@@ -149,6 +150,7 @@ enum class eTimer : unsigned
     K1SELECT_UP,
     K1SPDUP_UP,
     K1SPDDN_UP,
+    S1A_MOVE,
 
     S2L_DOWN = 220,
     S2L_UP,
@@ -162,8 +164,9 @@ enum class eTimer : unsigned
     K2SELECT_UP,
     K2SPDUP_UP,
     K2SPDDN_UP,
+    S2A_MOVE,
 
-	// Inner timers
+	// internal timers
 	_CURRENT = 240,
 	_LOAD_START,
 		_JUDGE_1P_0,

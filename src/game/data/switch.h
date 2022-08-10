@@ -107,6 +107,7 @@ enum class eSwitch: unsigned
     K1SELECT_CONFIG,
     K1SPDUP_CONFIG,
     K1SPDDN_CONFIG,
+    S1A_CONFIG,
 
     K21_CONFIG,
     K22_CONFIG,
@@ -123,6 +124,7 @@ enum class eSwitch: unsigned
     K2SELECT_CONFIG,
     K2SPDUP_CONFIG,
     K2SPDDN_CONFIG,
+    S2A_CONFIG,
 
         KEY_CONFIG_SLOT0,
         KEY_CONFIG_SLOT1,

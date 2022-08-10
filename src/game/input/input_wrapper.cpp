@@ -179,6 +179,12 @@ void InputWrapper::_loop()
     }
 }
 
+double InputWrapper::getJoystickAxis(size_t device, Input::Joystick::Type type, size_t index)
+{
+    return ::getJoystickAxis(device, type, index);
+}
+
+
 bool InputWrapper::_register(unsigned type, const std::string& key, INPUTCALLBACK f)
 {
     if (_pCallbackMap.find(key) != _pCallbackMap.end())

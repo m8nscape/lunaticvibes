@@ -218,6 +218,35 @@ namespace cfg
     constexpr char P_FX_TYPE_CHORUS[] = "Chorus";
     constexpr char P_FX_TYPE_DIST[] = "Distortion";
 
+    constexpr char P_INPUT_DEADZONE_S1L[] = "InputDeadZoneS1L";
+    constexpr char P_INPUT_DEADZONE_S1R[] = "InputDeadZoneS1R";
+    constexpr char P_INPUT_DEADZONE_K1Start[] = "InputDeadZoneK1Start";
+    constexpr char P_INPUT_DEADZONE_K1Select[] = "InputDeadZoneK1Select";
+    constexpr char P_INPUT_DEADZONE_K11[] = "InputDeadZoneK11";
+    constexpr char P_INPUT_DEADZONE_K12[] = "InputDeadZoneK12";
+    constexpr char P_INPUT_DEADZONE_K13[] = "InputDeadZoneK13";
+    constexpr char P_INPUT_DEADZONE_K14[] = "InputDeadZoneK14";
+    constexpr char P_INPUT_DEADZONE_K15[] = "InputDeadZoneK15";
+    constexpr char P_INPUT_DEADZONE_K16[] = "InputDeadZoneK16";
+    constexpr char P_INPUT_DEADZONE_K17[] = "InputDeadZoneK17";
+    constexpr char P_INPUT_DEADZONE_K18[] = "InputDeadZoneK18";
+    constexpr char P_INPUT_DEADZONE_K19[] = "InputDeadZoneK19";
+    constexpr char P_INPUT_DEADZONE_S2L[] = "InputDeadZoneS2L";
+    constexpr char P_INPUT_DEADZONE_S2R[] = "InputDeadZoneS2R";
+    constexpr char P_INPUT_DEADZONE_K2Start[] = "InputDeadZoneK2Start";
+    constexpr char P_INPUT_DEADZONE_K2Select[] = "InputDeadZoneK2Select";
+    constexpr char P_INPUT_DEADZONE_K21[] = "InputDeadZoneK21";
+    constexpr char P_INPUT_DEADZONE_K22[] = "InputDeadZoneK22";
+    constexpr char P_INPUT_DEADZONE_K23[] = "InputDeadZoneK23";
+    constexpr char P_INPUT_DEADZONE_K24[] = "InputDeadZoneK24";
+    constexpr char P_INPUT_DEADZONE_K25[] = "InputDeadZoneK25";
+    constexpr char P_INPUT_DEADZONE_K26[] = "InputDeadZoneK26";
+    constexpr char P_INPUT_DEADZONE_K27[] = "InputDeadZoneK27";
+    constexpr char P_INPUT_DEADZONE_K28[] = "InputDeadZoneK28";
+    constexpr char P_INPUT_DEADZONE_K29[] = "InputDeadZoneK29";
+    constexpr char P_INPUT_SPEED_S1A[] = "InputSpeedS1L";
+    constexpr char P_INPUT_SPEED_S2A[] = "InputSpeedS1R";
+
     enum class eProfile
     {
         PLAYERNAME,

@@ -20,6 +20,10 @@ protected:
     void updateFadeout();
 
 protected:
+    std::map<Input::Pad, long long> forceBargraphTriggerTimestamp;
+    void updateForceBargraphs();
+
+protected:
     // Register to InputWrapper: judge / keysound
     void inputGamePress(InputMask&, const Time&);
     void inputGamePressKeyboard(KeyboardMask&, const Time&);

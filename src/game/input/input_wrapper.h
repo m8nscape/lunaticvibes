@@ -85,11 +85,13 @@ public:
         return (_prev[k]) && (_curr[k]);
     }
 
-    InputMask Pressed() { return ~_prev & _curr; }
-    InputMask Holding() { return _prev & _curr; }
-    InputMask Released() { return _prev & ~_curr; }
+    InputMask Pressed() const { return ~_prev & _curr; }
+    InputMask Holding() const { return _prev & _curr; }
+    InputMask Released() const { return _prev & ~_curr; }
 
-    std::pair<int, int> getCursorPos() { return { _cursor_x, _cursor_y }; }
+    std::pair<int, int> getCursorPos() const { return { _cursor_x, _cursor_y }; }
+
+    double getJoystickAxis(size_t device, Input::Joystick::Type type, size_t index);
 
 private:
     // Callback function maps

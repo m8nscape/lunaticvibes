@@ -280,6 +280,9 @@ enum class eNumber: unsigned
 		PLAY_2P_BP,
 		PLAY_2P_JUDGE_TIME_ERROR_MS,
 
+		SCRATCH_AXIS_1P_ANGLE = 380,
+		SCRATCH_AXIS_2P_ANGLE,
+
 		//  LR2HelperA A.0.39 - GITADORA風 JUDGE BARの追加 - Endless Circulation SE FS5のリザルトに適用されています
 		GITADORA_STYLE_JUDGE_BAR_0 = 400,	// (0:残り,1:ノーミス,2:ミス)
 		GITADORA_STYLE_JUDGE_BAR_MAX = 449,	// not implemented; I assume these were imititating the completion bar to the right of score results in GITADORA.

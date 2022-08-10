@@ -5,6 +5,8 @@ namespace Input
 
 enum Pad
 {
+    INVALID = -1,
+
     S1L = 0,
     S1R,
     K11,

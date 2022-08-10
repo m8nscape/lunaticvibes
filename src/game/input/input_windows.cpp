@@ -199,6 +199,43 @@ bool isButtonPressed(Input::Joystick c, double deadzone)
     return false;
 }
 
+double getJoystickAxis(size_t device, Input::Joystick::Type type, size_t index)
+{
+    if (device < InputDirectInput8::inst().getJoystickCount())
+    {
+        auto& stat = InputDirectInput8::inst().getJoystickState(device);
+        switch (type)
+        {
+        case Input::Joystick::Type::AXIS_RELATIVE_POSITIVE:
+            switch (index)
+            {
+            case 0: return stat.lX != 0 ? (stat.lX - 32767) / 32767.0 : -1.0;
+            case 1: return stat.lY != 0 ? (stat.lY - 32767) / 32767.0 : -1.0;
+            case 2: return stat.lZ != 0 ? (stat.lZ - 32767) / 32767.0 : -1.0;
+            case 3: return stat.lRx != 0 ? (stat.lRx - 32767) / 32767.0 : -1.0;
+            case 4: return stat.lRy != 0 ? (stat.lRy - 32767) / 32767.0 : -1.0;
+            case 5: return stat.lRz != 0 ? (stat.lRz - 32767) / 32767.0 : -1.0;
+            case 6: return stat.rglSlider[0] != 0 ? (stat.rglSlider[0] - 32767) / 32767.0 : -1.0;
+            case 7: return stat.rglSlider[1] != 0 ? (stat.rglSlider[1] - 32767) / 32767.0 : -1.0;
+            }
+            break;
+        case Input::Joystick::Type::AXIS_RELATIVE_NEGATIVE:
+            switch (index)
+            {
+            case 0: return stat.lX != 0 ? (stat.lX - 32767) / -32767.0 : -1.0;
+            case 1: return stat.lY != 0 ? (stat.lY - 32767) / -32767.0 : -1.0;
+            case 2: return stat.lZ != 0 ? (stat.lZ - 32767) / -32767.0 : -1.0;
+            case 3: return stat.lRx != 0 ? (stat.lRx - 32767) / -32767.0 : -1.0;
+            case 4: return stat.lRy != 0 ? (stat.lRy - 32767) / -32767.0 : -1.0;
+            case 5: return stat.lRz != 0 ? (stat.lRz - 32767) / -32767.0 : -1.0;
+            case 6: return stat.rglSlider[0] != 0 ? (stat.rglSlider[0] - 32767) / -32767.0 : -1.0;
+            case 7: return stat.rglSlider[1] != 0 ? (stat.rglSlider[1] - 32767) / -32767.0 : -1.0;
+            }
+        }
+    }
+    return -1.0;
+}
+
 bool isMouseButtonPressed(int idx)
 {
     switch (idx)
