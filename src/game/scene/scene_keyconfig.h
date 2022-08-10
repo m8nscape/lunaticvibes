@@ -23,11 +23,14 @@ protected:
     std::map<Input::Pad, long long> forceBargraphTriggerTimestamp;
     void updateForceBargraphs();
 
+    void updateInfo(KeyMap k, int slot);
+
 protected:
     // Register to InputWrapper: judge / keysound
     void inputGamePress(InputMask&, const Time&);
     void inputGamePressKeyboard(KeyboardMask&, const Time&);
     void inputGamePressJoystick(JoystickMask&, size_t device, const Time&);
+    void inputGameAbsoluteAxis(JoystickAxis&, size_t device, const Time&);
 
 public:
     static void setInputBindingText(GameModeKeys keys, Input::Pad pad);

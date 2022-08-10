@@ -190,9 +190,11 @@ protected:
 
     std::map<chart::NoteLane, decltype(_chart->firstNote(chart::NoteLaneCategory::_, chart::NoteLaneIndex::_))> _noteListIterators;
 
-    AxisDir _scratchDir[2] = { 0, 0 };
+
     bool _scratchKey[2][2] = { {false, false}, {false, false} };
-    Time _ttAxisLastUpdate[2] = { TIMER_NEVER, TIMER_NEVER };
+    std::array<double, 2>   _scratchSpeed{ 0 };
+    std::array<AxisDir, 2>  _scratchDir = { 0, 0 };
+    std::array<Time, 2>     _scratchLastUpdate = { TIMER_NEVER, TIMER_NEVER };
 
 public:
     RulesetBMS(
@@ -222,7 +224,7 @@ public:
     // Register to InputWrapper
     virtual void updateRelease(InputMask& rg, const Time& t) override;
     // Register to InputWrapper
-    virtual void updateAxis(InputAxisPlus& ag, const Time& t) override;
+    virtual void updateAxis(double s1, double s2, const Time& t) override;
     // Called by ScenePlay
     virtual void update(const Time& t);
 public:

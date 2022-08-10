@@ -120,7 +120,7 @@ void KeyMap::loadFromStringJ(const std::string_view& name)
                 break;
             }
         }
-        if (axisIndex != 0)
+        if (axisIndex != -1)
         {
             joystick.type = Input::Joystick::Type::AXIS_ABSOLUTE;
             joystick.index = (size_t)axisIndex;

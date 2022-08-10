@@ -39,10 +39,13 @@ private:
     bool _isHoldingSelect[2] = { false };
     bool _isExitingFromPlay = false;
     std::array<bool, 2> _isPlayerFinished{ false };
-    std::array<int, 2> _ttAngleTime{ 0 };
-    std::array<double, 2> _ttAngleDiff{ 0 };
-    std::array<AxisDir, 2> _ttAxisDir{ 0 };
-    std::array<Time, 2> _ttAxisLastUpdate{ TIMER_NEVER, TIMER_NEVER };
+
+    std::array<int, 2>      _ttAngleTime{ 0 };
+    std::array<double, 2>   _ttAngleDiff{ 0 };
+
+    std::array<double, 2>   _scratchSpeed{ 0 };
+    std::array<AxisDir, 2>  _scratchDir{ 0 };
+    std::array<Time, 2>     _scratchLastUpdate{ TIMER_NEVER, TIMER_NEVER };
 
     int _missPlayer[2] = { 0 };
     Time _missLastTime;
@@ -118,5 +121,5 @@ protected:
     void inputGamePress(InputMask&, const Time&);
     void inputGameHold(InputMask&, const Time&);
     void inputGameRelease(InputMask&, const Time&);
-    void inputGameAxis(InputAxisPlus&, const Time&);
+    void inputGameAxis(double s1, double s2, const Time&);
 };

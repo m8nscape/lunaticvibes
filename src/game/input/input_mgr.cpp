@@ -84,6 +84,8 @@ std::bitset<KEY_COUNT> InputMgr::detect()
     pollInput();
 
     std::bitset<KEY_COUNT> res{};
+    _inst.scratch1 = 0.0;
+    _inst.scratch2 = 0.0;
 
     // game input
     for (int k = S1L; k < ESC; k++)
@@ -97,8 +99,22 @@ std::bitset<KEY_COUNT> InputMgr::detect()
                     res[k] = true;
 				break;
 			case KeyMap::DeviceType::JOYSTICK:
-                if (k != S1A && k != S2A && isButtonPressed(b.getJoystick(), _inst.padDeadzones[k]))
-                    res[k] = true;
+                if (k == S1A || k == S2A)
+                {
+                    auto& j = b.getJoystick();
+                    if (j.type == Input::Joystick::Type::AXIS_ABSOLUTE)
+                    {
+                        if (k == S1A)
+                            _inst.scratch1 = getJoystickAxis(j.device, j.type, j.index);
+                        else
+                            _inst.scratch2 = getJoystickAxis(j.device, j.type, j.index);
+                    }
+                }
+                else
+                {
+                    if (isButtonPressed(b.getJoystick(), _inst.padDeadzones[k]))
+                        res[k] = true;
+                }
 				break;
 			case KeyMap::DeviceType::MOUSE:
 				break;
@@ -162,4 +178,11 @@ bool InputMgr::getMousePos(int& x, int& y)
         if (canvasScaleY != 1.0) y = (int)std::floor(y / canvasScaleY);
     }
     return ret;
+}
+
+bool InputMgr::getScratchPos(double& x, double& y)
+{
+    x = _inst.scratch1;
+    y = _inst.scratch2;
+    return true;
 }

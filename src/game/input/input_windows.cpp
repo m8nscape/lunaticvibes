@@ -231,6 +231,18 @@ double getJoystickAxis(size_t device, Input::Joystick::Type type, size_t index)
             case 6: return stat.rglSlider[0] != 0 ? (stat.rglSlider[0] - 32767) / -32767.0 : -1.0;
             case 7: return stat.rglSlider[1] != 0 ? (stat.rglSlider[1] - 32767) / -32767.0 : -1.0;
             }
+        case Input::Joystick::Type::AXIS_ABSOLUTE:
+            switch (index)
+            {
+            case 0: return stat.lX != 0 ? stat.lX / 65535.0 : -1.0;
+            case 1: return stat.lY != 0 ? stat.lY / 65535.0 : -1.0;
+            case 2: return stat.lZ != 0 ? stat.lZ / 65535.0 : -1.0;
+            case 3: return stat.lRx != 0 ? stat.lRx / 65535.0 : -1.0;
+            case 4: return stat.lRy != 0 ? stat.lRy / 65535.0 : -1.0;
+            case 5: return stat.lRz != 0 ? stat.lRz / 65535.0 : -1.0;
+            case 6: return stat.rglSlider[0] != 0 ? stat.rglSlider[0] / 65535.0 : -1.0;
+            case 7: return stat.rglSlider[1] != 0 ? stat.rglSlider[1] / 65535.0 : -1.0;
+            }
         }
     }
     return -1.0;

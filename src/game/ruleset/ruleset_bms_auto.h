@@ -38,7 +38,7 @@ public:
     // Register to InputWrapper
     virtual void updateRelease(InputMask& rg, const Time& t) override {}
     // Register to InputWrapper
-    virtual void updateAxis(InputAxisPlus& ag, const Time& t) override {}
+    virtual void updateAxis(double s1, double s2, const Time& t) override {}
 	// Called by ScenePlay
 	virtual void update(const Time& t) override;
 

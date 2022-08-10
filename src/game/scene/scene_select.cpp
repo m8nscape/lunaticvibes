@@ -285,7 +285,9 @@ void SceneSelect::_updateAsync()
     if (!gSelectContext.entries.empty() && scrollAccumulator != 0.0)
     {
         Time t;
-        if (-0.000001 < scrollAccumulator && scrollAccumulator < 0.000001)
+        if (scrollAccumulator > 0 && scrollAccumulator + scrollAccumulatorAddUnit < 0 ||
+            scrollAccumulator < 0 && scrollAccumulator + scrollAccumulatorAddUnit > 0 ||
+            -0.000001 < scrollAccumulator && scrollAccumulator < 0.000001)
         {
             gSliders.set(eSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.idx / gSelectContext.entries.size()));
             scrollAccumulator = 0.0;
@@ -342,7 +344,7 @@ void SceneSelect::updatePrepare()
         _input.register_p("SCENE_PRESS", std::bind(&SceneSelect::inputGamePress, this, _1, _2));
         _input.register_h("SCENE_HOLD", std::bind(&SceneSelect::inputGameHold, this, _1, _2));
         _input.register_r("SCENE_RELEASE", std::bind(&SceneSelect::inputGameRelease, this, _1, _2));
-        _input.register_a("SCENE_AXIS", std::bind(&SceneSelect::inputGameAxisSelect, this, _1, _2));
+        _input.register_a("SCENE_AXIS", std::bind(&SceneSelect::inputGameAxisSelect, this, _1, _2, _3));
         _input.loopStart();
 
         gTimers.set(eTimer::LIST_MOVE, t.norm());
@@ -826,37 +828,16 @@ void SceneSelect::inputGameReleaseSelect(InputMask& input, const Time& t)
     }
 }
 
-void SceneSelect::inputGameAxisSelect(InputAxisPlus& input, const Time& t)
+void SceneSelect::inputGameAxisSelect(double s1, double s2, const Time& t)
 {
-    double navUp = 0;
-    double navDn = 0;
-    for (int i = Input::Pad::S1L; i < Input::Pad::ESC; ++i)
+    double s = (s1 + s2) * 50.0;
+    if (s <= -0.01 || 0.01 <= s)
     {
-        auto k = static_cast<Input::Pad>(i);
-        if (input[k].first > 0)
-        {
-            if (INPUT_MASK_NAV_UP[i]) navUp += input[k].first * input[k].second;
-            if (INPUT_MASK_NAV_DN[i]) navDn += input[k].first * input[k].second;
-        }
-    }
-    double navVal = -navUp + navDn;
-    double navValAbs = std::abs(navVal);
-    if (navValAbs >= 0.2)
-    {
-        if (!isHoldingUp && !isHoldingDown /* && !isScrollingByAxis*/)
-        {
-            gSelectContext.scrollTimeLength = 1000 / (navValAbs * 1000);
-            isScrollingByAxis = true;
-        }
-        if ((t - scrollButtonTimestamp).norm() >= gSelectContext.scrollTimeLength)
-        {
-            isScrollingByAxis = false;
-            scrollButtonTimestamp = t;
-            if (navVal > 0)
-                _navigateDownBy1(t);
-            else
-                _navigateUpBy1(t);
-        }
+        scrollAccumulator += s;
+        if (scrollAccumulator > 0)
+            scrollAccumulatorAddUnit = std::max(0.001, scrollAccumulator / 100.0);
+        else
+            scrollAccumulatorAddUnit = std::min(-0.001, scrollAccumulator / 100.0);
     }
 }
 

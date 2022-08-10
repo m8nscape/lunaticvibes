@@ -64,6 +64,9 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
 
     _currentKeySample.assign(Input::ESC, 0);
 
+    _scratchSpeed[PLAYER_SLOT_1P] = ConfigMgr::get('P', cfg::P_INPUT_SPEED_S1A, 0.2);
+    _scratchSpeed[PLAYER_SLOT_2P] = ConfigMgr::get('P', cfg::P_INPUT_SPEED_S2A, 0.2);
+
     _inputAvailable = INPUT_MASK_FUNC;
     _inputAvailable |= INPUT_MASK_1P | INPUT_MASK_2P;
 
@@ -288,7 +291,7 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     _input.register_p("SCENE_PRESS", std::bind(&ScenePlay::inputGamePress, this, _1, _2));
     _input.register_h("SCENE_HOLD", std::bind(&ScenePlay::inputGameHold, this, _1, _2));
     _input.register_r("SCENE_RELEASE", std::bind(&ScenePlay::inputGameRelease, this, _1, _2));
-    _input.register_a("SCENE_AXIS", std::bind(&ScenePlay::inputGameAxis, this, _1, _2));
+    _input.register_a("SCENE_AXIS", std::bind(&ScenePlay::inputGameAxis, this, _1, _2, _3));
 }
 
 void ScenePlay::setTempInitialHealthBMS()
@@ -573,7 +576,7 @@ void ScenePlay::setInputJudgeCallback()
         _input.register_h("JUDGE_HOLD_1", fh);
         auto fr = std::bind(&vRuleset::updateRelease, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2);
         _input.register_r("JUDGE_RELEASE_1", fr);
-        auto fa = std::bind(&vRuleset::updateAxis, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2);
+        auto fa = std::bind(&vRuleset::updateAxis, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2, _3);
         _input.register_a("JUDGE_AXIS_1", fa);
     }
     else
@@ -589,7 +592,7 @@ void ScenePlay::setInputJudgeCallback()
         _input.register_h("JUDGE_HOLD_2", fh);
         auto fr = std::bind(&vRuleset::updateRelease, gPlayContext.ruleset[PLAYER_SLOT_2P], _1, _2);
         _input.register_r("JUDGE_RELEASE_2", fr);
-        auto fa = std::bind(&vRuleset::updateAxis, gPlayContext.ruleset[PLAYER_SLOT_2P], _1, _2);
+        auto fa = std::bind(&vRuleset::updateAxis, gPlayContext.ruleset[PLAYER_SLOT_2P], _1, _2, _3);
         _input.register_a("JUDGE_AXIS_2", fa);
     }
     else if (!gPlayContext.isAuto)
@@ -631,7 +634,7 @@ void ScenePlay::_updateAsync()
         double minBPM = gChartContext.HSFixBPMFactor1P * gChartContext.minBPM;
         double maxBPM = gChartContext.HSFixBPMFactor1P * gChartContext.maxBPM;
 
-        double visible = 1.0 - std::clamp((gNumbers.get(eNumber::LANECOVER_TOP_1P) + gNumbers.get(eNumber::LIFT_1P)), 0, 1000) / 1000.0 ;
+        double visible = 1.0 - std::clamp((gNumbers.get(eNumber::LANECOVER_TOP_1P) + gNumbers.get(eNumber::LIFT_1P)), 0, 1000) / 1000.0;
         double den;
         den = gNumbers.get(eNumber::HS_1P) / 100.0 * bpm;
         gNumbers.queue(eNumber::GREEN_NUMBER_1P, den != 0.0 ? int(visible * std::round(180000.0 / den)) : 0);
@@ -656,8 +659,37 @@ void ScenePlay::_updateAsync()
         gNumbers.queue(eNumber::GREEN_NUMBER_2P, den != 0.0 ? int(visible * std::round(180000.0 / den)) : 0);
     }
 
-	gNumbers.queue(eNumber::SCENE_UPDATE_FPS, _looper.getRate());
+    gNumbers.queue(eNumber::SCENE_UPDATE_FPS, _looper.getRate());
     gNumbers.flush();
+
+    Time t;
+    auto updateScratchTimer = [&](int slot)
+    {
+        if ((t - _scratchLastUpdate[slot]).norm() > 133)
+        {
+            // release
+            if (_scratchDir[slot] != AxisDir::AXIS_NONE)
+            {
+                if (slot == PLAYER_SLOT_1P)
+                {
+                    gTimers.set(eTimer::S1_DOWN, TIMER_NEVER);
+                    gTimers.set(eTimer::S1_UP, t.norm());
+                    gSwitches.set(eSwitch::S1_DOWN, false);
+                }
+                else
+                {
+                    gTimers.set(eTimer::S2_DOWN, TIMER_NEVER);
+                    gTimers.set(eTimer::S2_UP, t.norm());
+                    gSwitches.set(eSwitch::S2_DOWN, false);
+                }
+            }
+
+            _scratchDir[slot] = AxisDir::AXIS_NONE;
+            _scratchLastUpdate[slot] = TIMER_NEVER;
+        }
+    };
+    updateScratchTimer(PLAYER_SLOT_1P);
+    updateScratchTimer(PLAYER_SLOT_2P);
 
     switch (_state)
     {
@@ -1324,16 +1356,16 @@ void ScenePlay::inputGameRelease(InputMask& m, const Time& t)
 }
 
 // CALLBACK
-void ScenePlay::inputGameAxis(InputAxisPlus& m, const Time& t)
+void ScenePlay::inputGameAxis(double S1, double S2, const Time& t)
 {
     using namespace Input;
     std::array<size_t, 4> keySampleIdxBufScratch;
     size_t sampleCount = 0;
 
-    double S1 = -m[S1L].first + m[S1R].first;
     if (true)
     {
         _ttAngleDiff[PLAYER_SLOT_1P] += S1 * 360;
+
         if (_isHoldingStart[PLAYER_SLOT_1P] && !_isHoldingSelect[PLAYER_SLOT_1P] ||
             isPlaymodeSinglePlay() && _isHoldingStart[PLAYER_SLOT_2P] && !_isHoldingSelect[PLAYER_SLOT_2P])
         {
@@ -1346,7 +1378,6 @@ void ScenePlay::inputGameAxis(InputAxisPlus& m, const Time& t)
         }
     }
 
-    double S2 = -m[S2L].first + m[S2R].first;
     if (!isPlaymodeSinglePlay())
     {
         _ttAngleDiff[PLAYER_SLOT_2P] += S2 * 360;
@@ -1361,59 +1392,85 @@ void ScenePlay::inputGameAxis(InputAxisPlus& m, const Time& t)
         }
     }
 
-    double minSpeed = 0.2;
+    auto Scratch = [&](const Time& t, double val, Input::Pad up, Input::Pad dn, int slot)
+    {
+        if (val * _scratchSpeed[slot] > 0.002)
+        {
+            // scratch down
+            if (_scratchDir[slot] != AxisDir::AXIS_DOWN)
+            {
+                if (slot == PLAYER_SLOT_1P)
+                {
+                    gTimers.set(eTimer::S1_DOWN, t.norm());
+                    gTimers.set(eTimer::S1_UP, TIMER_NEVER);
+                    gSwitches.set(eSwitch::S1_DOWN, true);
+                }
+                else
+                {
+                    gTimers.set(eTimer::S2_DOWN, t.norm());
+                    gTimers.set(eTimer::S2_UP, TIMER_NEVER);
+                    gSwitches.set(eSwitch::S2_DOWN, true);
+                }
+            }
 
-    AxisDir dir(S1, minSpeed);
-    if (dir != AxisDir::AXIS_NONE)
-    {
-        _ttAxisLastUpdate[PLAYER_SLOT_1P] = t;
-    }
-    if (dir != AxisDir::AXIS_NONE && dir != _ttAxisDir[PLAYER_SLOT_1P])
-    {
-        gTimers.set(eTimer::S1_DOWN, t.norm());
-        gTimers.set(eTimer::S1_UP, TIMER_NEVER);
-        gSwitches.set(eSwitch::S1_DOWN, true);
-        _ttAxisDir[PLAYER_SLOT_1P] = dir;
+            if (slot == PLAYER_SLOT_1P)
+            {
+                if (_scratchDir[slot] == AxisDir::AXIS_UP && _currentKeySample[S1L])
+                    keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S1L];
+                if (_scratchDir[slot] == AxisDir::AXIS_DOWN && _currentKeySample[S1R])
+                    keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S1R];
+            }
+            else
+            {
+                if (_scratchDir[slot] == AxisDir::AXIS_UP && _currentKeySample[S2L])
+                    keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S2L];
+                if (_scratchDir[slot] == AxisDir::AXIS_DOWN && _currentKeySample[S2R])
+                    keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S2R];
+            }
 
-        if (dir == AxisDir::AXIS_UP && _currentKeySample[S1L])
-            keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S1L];
-        if (dir == AxisDir::AXIS_DOWN && _currentKeySample[S1R])
-            keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S1R];
-    }
-    else if ((t - _ttAxisLastUpdate[PLAYER_SLOT_1P]).norm() > 133)
-    {
-        gTimers.set(eTimer::S1_DOWN, TIMER_NEVER);
-        gTimers.set(eTimer::S1_UP, t.norm());
-        gSwitches.set(eSwitch::S1_DOWN, false);
-        _ttAxisDir[PLAYER_SLOT_1P] = 0;
-        _ttAxisLastUpdate[PLAYER_SLOT_1P] = TIMER_NEVER;
-    }
+            _scratchLastUpdate[slot] = t;
+            _scratchDir[slot] = AxisDir::AXIS_DOWN;
+        }
+        else if (val * _scratchSpeed[slot] < -0.002)
+        {
+            // scratch up
+            if (_scratchDir[slot] != AxisDir::AXIS_UP)
+            {
+                if (slot == PLAYER_SLOT_1P)
+                {
+                    gTimers.set(eTimer::S1_DOWN, t.norm());
+                    gTimers.set(eTimer::S1_UP, TIMER_NEVER);
+                    gSwitches.set(eSwitch::S1_DOWN, true);
+                }
+                else
+                {
+                    gTimers.set(eTimer::S2_DOWN, t.norm());
+                    gTimers.set(eTimer::S2_UP, TIMER_NEVER);
+                    gSwitches.set(eSwitch::S2_DOWN, true);
+                }
+            }
 
-    dir = AxisDir(S2, minSpeed);
-    if (dir != AxisDir::AXIS_NONE)
-    {
-        _ttAxisLastUpdate[PLAYER_SLOT_2P] = t;
-    }
-    if (dir != AxisDir::AXIS_NONE && dir != _ttAxisDir[PLAYER_SLOT_2P])
-    {
-        gTimers.set(eTimer::S2_DOWN, t.norm());
-        gTimers.set(eTimer::S2_UP, TIMER_NEVER);
-        gSwitches.set(eSwitch::S2_DOWN, true);
-        _ttAxisDir[PLAYER_SLOT_2P] = dir;
+            if (slot == PLAYER_SLOT_1P)
+            {
+                if (_scratchDir[slot] == AxisDir::AXIS_UP && _currentKeySample[S1L])
+                    keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S1L];
+                if (_scratchDir[slot] == AxisDir::AXIS_DOWN && _currentKeySample[S1R])
+                    keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S1R];
+            }
+            else
+            {
+                if (_scratchDir[slot] == AxisDir::AXIS_UP && _currentKeySample[S2L])
+                    keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S2L];
+                if (_scratchDir[slot] == AxisDir::AXIS_DOWN && _currentKeySample[S2R])
+                    keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S2R];
+            }
 
-        if (dir == AxisDir::AXIS_UP && _currentKeySample[S2L])
-            keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S2L];
-        if (dir == AxisDir::AXIS_DOWN && _currentKeySample[S2R])
-            keySampleIdxBufScratch[sampleCount++] = _currentKeySample[S2R];
-    }
-    else if ((t - _ttAxisLastUpdate[PLAYER_SLOT_2P]).norm() > 133)
-    {
-        gTimers.set(eTimer::S2_DOWN, TIMER_NEVER);
-        gTimers.set(eTimer::S2_UP, t.norm());
-        gSwitches.set(eSwitch::S2_DOWN, false);
-        _ttAxisDir[PLAYER_SLOT_2P] = 0;
-        _ttAxisLastUpdate[PLAYER_SLOT_2P] = TIMER_NEVER;
-    }
+            _scratchLastUpdate[slot] = t;
+            _scratchDir[slot] = AxisDir::AXIS_UP;
+        }
+    };
+    Scratch(t, S1, S1L, S1R, PLAYER_SLOT_1P);
+    Scratch(t, S2, S2L, S2R, PLAYER_SLOT_2P);
 
     SoundMgr::playNoteSample(SoundChannelType::KEY_LEFT, sampleCount, keySampleIdxBufScratch.data());
 }

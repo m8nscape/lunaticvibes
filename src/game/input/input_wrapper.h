@@ -16,12 +16,14 @@ typedef std::function<void(InputMask&, const Time&)> INPUTCALLBACK;
 typedef std::bitset<Input::keyboardKeyCount> KeyboardMask;
 typedef std::function<void(KeyboardMask, const Time&)> KEYBOARDCALLBACK;
 
-typedef std::map<Input::Pad, std::pair<double, int>> InputAxisPlus;
-typedef std::function<void(InputAxisPlus&, const Time&)> AXISPLUSCALLBACK;
+typedef std::function<void(double, double, const Time&)> AXISPLUSCALLBACK;
 
 constexpr size_t MAX_JOYSTICK_MASK_BIT_COUNT = InputMgr::MAX_JOYSTICK_BUTTON_COUNT + InputMgr::MAX_JOYSTICK_POV_COUNT * 4 + InputMgr::MAX_JOYSTICK_AXIS_COUNT * 2;
 typedef std::bitset<MAX_JOYSTICK_MASK_BIT_COUNT> JoystickMask;
 typedef std::function<void(JoystickMask, size_t, const Time&)> JOYSTICKCALLBACK;
+
+typedef std::array<double, InputMgr::MAX_JOYSTICK_AXIS_COUNT> JoystickAxis;
+typedef std::function<void(JoystickAxis, size_t, const Time&)> ABSAXISCALLBACK;
 
 // FUNC:                                          BRDUEHDI><v^543210987654321_
 inline const InputMask INPUT_MASK_FUNC  { "0000000111111111111111111111111111100000000000000000000000000000000" };
@@ -62,6 +64,9 @@ protected:
     InputMask _prev = 0;
     InputMask _curr = 0;
 
+    double scratchAxisPrev[2] = { 0. };
+    double scratchAxisCurr[2] = { 0. };
+
 public:
     InputWrapper(unsigned rate = 1000, bool background = false);
     virtual ~InputWrapper();
@@ -93,6 +98,8 @@ public:
 
     double getJoystickAxis(size_t device, Input::Joystick::Type type, size_t index);
 
+    double getScratchAxis(int player);
+
 private:
     // Callback function maps
     std::map<const std::string, INPUTCALLBACK> _pCallbackMap;
@@ -122,6 +129,7 @@ private:
 public:
     bool register_kb(const std::string& key, KEYBOARDCALLBACK f);
     bool unregister_kb(const std::string& key);
+
 protected:
     std::array<JoystickMask, InputMgr::MAX_JOYSTICK_COUNT> _joyprev = { 0 };
     std::array<JoystickMask, InputMgr::MAX_JOYSTICK_COUNT> _joycurr = { 0 };
@@ -130,5 +138,14 @@ private:
 public:
     bool register_joy(const std::string& key, JOYSTICKCALLBACK f);
     bool unregister_joy(const std::string& key);
+
+protected:
+    std::array<JoystickAxis, InputMgr::MAX_JOYSTICK_COUNT> _joyaxisprev = { 0 };
+    std::array<JoystickAxis, InputMgr::MAX_JOYSTICK_COUNT> _joyaxiscurr = { 0 };
+private:
+    std::map<const std::string, ABSAXISCALLBACK> _absaxisCallbackMap;
+public:
+    bool register_aa(const std::string& key, ABSAXISCALLBACK f);
+    bool unregister_aa(const std::string& key);
 };
 

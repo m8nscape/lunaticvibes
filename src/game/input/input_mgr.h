@@ -29,7 +29,7 @@ private:
     std::bitset<MAX_JOYSTICK_COUNT> joysticksConnected{};
     std::array<KeyMap, Input::ESC> padBindings{};
     std::array<double, Input::ESC> padDeadzones{};
-	int mouse_x = 0, mouse_y = 0;
+    double scratch1, scratch2;
 
 public:
     // Game keys param / functions
@@ -39,6 +39,7 @@ public:
     static void updateDeadzones();
     static std::bitset<Input::KEY_COUNT> detect();
 	static bool getMousePos(int& x, int& y);
+    static bool getScratchPos(double& s1, double& s2);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

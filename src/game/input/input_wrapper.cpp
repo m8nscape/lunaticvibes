@@ -29,21 +29,20 @@ void InputWrapper::_loop()
     _curr = InputMgr::detect();
     Time now;
 
+    // detect key / button
     InputMask p{ 0 }, h{ 0 }, r{ 0 };
-
-    auto d = _curr;
-    if (!_background && !IsWindowForeground()) d.reset();
-
+    auto curr = _curr;
+    if (!_background && !IsWindowForeground()) curr.reset();
     for (Input::Pad i = Input::S1L; i < Input::KEY_COUNT; ++(int&)i)
     {
         auto& [ms, stat] = _inputBuffer[i];
-        if (d[i] && !stat)
+        if (curr[i] && !stat)
         {
             ms = now.norm();
             stat = true;
             p.set(i);
         }
-        else if (!d[i] && stat)
+        else if (!curr[i] && stat)
         {
             if (_releaseBuffer[i] == -1)
             {
@@ -63,6 +62,18 @@ void InputWrapper::_loop()
         }
     }
 
+    // detect absolute axis
+    scratchAxisPrev[0] = scratchAxisCurr[0];
+    scratchAxisPrev[1] = scratchAxisCurr[1];
+    InputMgr::getScratchPos(scratchAxisCurr[0], scratchAxisCurr[1]);
+    double aDelta[2] = { 
+        normalizeLinearGrowth(scratchAxisPrev[0], scratchAxisCurr[0]), 
+        normalizeLinearGrowth(scratchAxisPrev[1], scratchAxisCurr[1]) };
+
+    // mouse pos
+    InputMgr::getMousePos(_cursor_x, _cursor_y);
+
+    // key config callbacks
     if (_background || IsWindowForeground())
     {
         if (!_keyboardCallbackMap.empty())
@@ -125,14 +136,16 @@ void InputWrapper::_loop()
                 j.type = Input::Joystick::Type::AXIS_RELATIVE_POSITIVE;
                 for (j.index = 0; j.index < InputMgr::MAX_JOYSTICK_AXIS_COUNT; ++j.index)
                 {
-                    if (isButtonPressed(j, 0.7)) mask.set(base + j.index);
+                    if (isButtonPressed(j, 0.7) && !_joyprev[device][base + j.index])
+                        mask.set(base + j.index);
                 }
                 base += InputMgr::MAX_JOYSTICK_AXIS_COUNT;
 
                 j.type = Input::Joystick::Type::AXIS_RELATIVE_NEGATIVE;
                 for (j.index = 0; j.index < InputMgr::MAX_JOYSTICK_AXIS_COUNT; ++j.index)
                 {
-                    if (isButtonPressed(j, 0.7)) mask.set(base + j.index);
+                    if (isButtonPressed(j, 0.7) && !_joyprev[device][base + j.index])
+                        mask.set(base + j.index);
                 }
                 base += InputMgr::MAX_JOYSTICK_AXIS_COUNT;
 
@@ -153,10 +166,41 @@ void InputWrapper::_loop()
                 }
             }
         }
+    
+        if (!_absaxisCallbackMap.empty())
+        {
+            _joyaxisprev = _joyaxiscurr;
+            for (int device = 0; device < InputMgr::MAX_JOYSTICK_COUNT; ++device)
+            {
+                JoystickAxis mask;
+                mask.fill(-1.0);
+                bool moved = false;
+                for (size_t index = 0; index < InputMgr::MAX_JOYSTICK_AXIS_COUNT; ++index)
+                {
+                    double axis = getJoystickAxis(device, Input::Joystick::Type::AXIS_ABSOLUTE, index);
+                    if (axis != -1.0)
+                    {
+                        double delta = normalizeLinearGrowth(_joyaxisprev[device][index], axis);
+                        if (std::abs(delta) > 0.05)
+                        {
+                            moved = true;
+                            _joyaxiscurr[device][index] = axis;
+                            mask[index] = axis;
+                        }
+                    }
+                }
+                if (moved)
+                {
+                    std::shared_lock l(_inputMutex, std::defer_lock);
+
+                    for (auto& [cbname, callback] : _absaxisCallbackMap)
+                        callback(mask, device, now);
+                }
+            }
+        }
     }
 
-    InputMgr::getMousePos(_cursor_x, _cursor_y);
-
+    // regular callbacks
     {
         std::shared_lock l(_inputMutex, std::defer_lock);
         if (l.try_lock())
@@ -171,10 +215,9 @@ void InputWrapper::_loop()
                 for (auto& [cbname, callback] : _rCallbackMap)
                     callback(r, now);
             
-            //auto a = InputMgr::detectAbsoluteAxis();
-            //if (!a.empty())
-                //for (auto& [cbname, callback] : _aCallbackMap)
-                //    callback(a, now);
+            if (aDelta[0] != 0.0 || aDelta[1] != 0.0)
+                for (auto& [cbname, callback] : _aCallbackMap)
+                    callback(aDelta[0], aDelta[1], now);
         }
     }
 }
@@ -184,6 +227,11 @@ double InputWrapper::getJoystickAxis(size_t device, Input::Joystick::Type type, 
     return ::getJoystickAxis(device, type, index);
 }
 
+double InputWrapper::getScratchAxis(int player)
+{
+    assert(player == 0 || player == 1);
+    return scratchAxisCurr[player];
+}
 
 bool InputWrapper::_register(unsigned type, const std::string& key, INPUTCALLBACK f)
 {
@@ -274,5 +322,24 @@ bool InputWrapper::unregister_joy(const std::string& key)
 
     std::unique_lock _lock(_inputMutex);
     _joystickCallbackMap.erase(key);
+    return true;
+}
+
+bool InputWrapper::register_aa(const std::string& key, ABSAXISCALLBACK f)
+{
+    if (_absaxisCallbackMap.find(key) != _absaxisCallbackMap.end())
+        return false;
+
+    std::unique_lock _lock(_inputMutex);
+    _absaxisCallbackMap[key] = f;
+    return true;
+}
+bool InputWrapper::unregister_aa(const std::string& key)
+{
+    if (_absaxisCallbackMap.find(key) == _absaxisCallbackMap.end())
+        return false;
+
+    std::unique_lock _lock(_inputMutex);
+    _absaxisCallbackMap.erase(key);
     return true;
 }

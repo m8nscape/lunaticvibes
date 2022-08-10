@@ -388,3 +388,21 @@ void preciseSleep(long long sleep_ns)
 
 #endif
 }
+
+double normalizeLinearGrowth(double prev, double curr)
+{
+    if (prev == -1.0) return 0.0;
+    if (curr == -1.0) return 0.0;
+
+    assert(prev >= 0.0 && prev <= 1.0);
+    assert(curr >= 0.0 && curr <= 1.0);
+
+    double delta = curr - prev;
+    if (prev > 0.8 && curr < 0.2)
+        delta += 1.0;
+    else if (prev < 0.2 && curr > 0.8)
+        delta -= 1.0;
+
+    assert(delta >= -1.0 && delta <= 1.0);
+    return delta;
+}

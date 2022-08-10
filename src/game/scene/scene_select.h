@@ -68,7 +68,7 @@ private:
     void inputGamePressSelect(InputMask&, const Time&);
     void inputGameHoldSelect(InputMask&, const Time&);
     void inputGameReleaseSelect(InputMask&, const Time&);
-    void inputGameAxisSelect(InputAxisPlus&, const Time&);
+    void inputGameAxisSelect(double s1, double s2, const Time&);
 
     void inputGamePressPanel(InputMask&, const Time&);
     void inputGameHoldPanel(InputMask&, const Time&);

@@ -75,3 +75,5 @@ std::string convertLR2Path(const std::string& lr2path, std::string_view relative
 Path PathFromUTF8(std::string_view s);
 
 void preciseSleep(long long nanoseconds);
+
+double normalizeLinearGrowth(double prev, double curr);
