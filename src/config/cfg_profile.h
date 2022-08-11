@@ -168,6 +168,12 @@ namespace cfg
     constexpr char P_BATTLE[] = "Battle";
     constexpr char P_FLIP[] = "Flip";
     constexpr char P_SCORE_GRAPH[] = "ScoreGraph";
+    constexpr char P_LANECOVER_ENABLE[] = "Lanecover";
+    constexpr char P_LANECOVER_TOP[] = "LanecoverTop";
+    constexpr char P_LANECOVER_BOTTOM[] = "LanecoverBottom";
+    constexpr char P_LANECOVER2_ENABLE[] = "Lanecover2";
+    constexpr char P_LANECOVER2_TOP[] = "Lanecover2Top";
+    constexpr char P_LANECOVER2_BOTTOM[] = "Lanecover2Bottom";
 
     constexpr char P_LIST_SCROLL_TIME_INITIAL[] = "SongListScrollTimeInit";
     constexpr char P_LIST_SCROLL_TIME_HOLD[] = "SongListScrollTimeHold";

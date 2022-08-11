@@ -84,7 +84,7 @@ void SpriteLaneVertical::updateNoteRect(const Time& t)
     auto currTotalMetre = pChart->getBarMetrePosition(bar).toDouble() + metre;
 
     // generate note rects and store to buffer
-	// 150BPM with 1.0x HS is 2000ms (400ms/beat, green number 1200)
+	// 135BPM with 1.0x HS is 2000ms (400ms/beat, green number 1200)
 	// !!! scroll height should not affected by note height
     int y = (c.y + c.h);
     auto it = pChart->incomingNote(_category, _index);

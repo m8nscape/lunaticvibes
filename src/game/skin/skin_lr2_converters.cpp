@@ -84,7 +84,7 @@ static const std::vector<std::variant<std::monostate, eSwitch, eOption>> buttonA
     eSwitch::PLAY_OPTION_AUTOSCR_2P,
 
     //46~49
-    eSwitch::_FALSE,	// shutter?
+    eSwitch::_TRUE,	    // lanecover
     eSwitch::_FALSE,
     eSwitch::_FALSE,	// reserved
     eSwitch::_FALSE,	// reserved
