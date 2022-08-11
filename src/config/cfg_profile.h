@@ -18,7 +18,8 @@ namespace cfg
 
     constexpr char P_HISPEED[] = "Hispeed";
 
-    constexpr char P_REGULAR_SPEED[] = "RegularSpeed";           // 0.1f in 60fps
+    constexpr char P_GREENNUMBER[] = "GreenNumber";
+    constexpr char P_LOCK_SPEED[] = "LockSpeed";
 
 	constexpr char P_LOAD_BGA[] = "LoadBga";
 
@@ -38,8 +39,6 @@ namespace cfg
         AVG,
         CONSTANT
     };
-    
-    constexpr char P_LANECOVER[] = "Lanecover";
 
     constexpr char P_LIFT[] = "Lift";
 
@@ -171,9 +170,6 @@ namespace cfg
     constexpr char P_LANECOVER_ENABLE[] = "Lanecover";
     constexpr char P_LANECOVER_TOP[] = "LanecoverTop";
     constexpr char P_LANECOVER_BOTTOM[] = "LanecoverBottom";
-    constexpr char P_LANECOVER2_ENABLE[] = "Lanecover2";
-    constexpr char P_LANECOVER2_TOP[] = "Lanecover2Top";
-    constexpr char P_LANECOVER2_BOTTOM[] = "Lanecover2Bottom";
 
     constexpr char P_LIST_SCROLL_TIME_INITIAL[] = "SongListScrollTimeInit";
     constexpr char P_LIST_SCROLL_TIME_HOLD[] = "SongListScrollTimeHold";
@@ -258,7 +254,6 @@ namespace cfg
         PLAYERNAME,
         BASESPD,
         HISPEED,
-        REGULARSPD,
         SPEEDTYPE,
         LANECOVER,
         LIFT,

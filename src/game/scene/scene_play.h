@@ -41,6 +41,7 @@ private:
     std::array<bool, 2>     _isHoldingStart = { false };
     std::array<bool, 2>     _isHoldingSelect = { false };
     std::array<Time, 2>     _startPressedTime = { TIMER_NEVER, TIMER_NEVER };
+    std::array<Time, 2>     _selectPressedTime = { TIMER_NEVER, TIMER_NEVER };
 
     std::array<int, 2>      _ttAngleTime{ 0 };
     std::array<double, 2>   _ttAngleDiff{ 0 };
@@ -50,6 +51,8 @@ private:
     std::array<Time, 2>     _scratchLastUpdate{ TIMER_NEVER, TIMER_NEVER };
 
     std::array<bool, 2>     _lanecoverEnabled{ false };
+    std::array<bool, 2>     _lockspeedEnabled{ false };
+    std::array<double, 2>      _lockspeedValue{ 0 };
 
     std::array<int, 2>      _hispeedAdd{ 0 };
     std::array<int, 2>      _lanecoverAdd{ 0 };

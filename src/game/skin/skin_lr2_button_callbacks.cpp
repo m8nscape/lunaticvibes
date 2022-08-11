@@ -512,8 +512,14 @@ void hs(int player, int plus)
     plus = plus > 0 ? 25 : -25;
     switch (player)
     {
-    case 0: number_change_clamp(eNumber::HS_1P, 50, 1000, plus); break;
-    case 1: number_change_clamp(eNumber::HS_2P, 50, 1000, plus); break;
+    case 0: 
+        number_change_clamp(eNumber::HS_1P, 50, 1000, plus);
+        gPlayContext.Hispeed = gNumbers.get(eNumber::HS_1P) / 100.0;
+        break;
+    case 1: 
+        number_change_clamp(eNumber::HS_2P, 50, 1000, plus);
+        gPlayContext.battle2PHispeed = gNumbers.get(eNumber::HS_2P) / 100.0;
+        break;
     default: break;
     }
 }

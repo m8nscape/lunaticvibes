@@ -36,7 +36,7 @@ void config_player()
 {
     using namespace cfg;
 
-    ConfigMgr::set('P',P_HISPEED, gNumbers.get(eNumber::HS_1P) / 100.0);
+    ConfigMgr::set('P',P_HISPEED, gPlayContext.Hispeed);
     switch (gOptions.get(eOption::PLAY_HSFIX_TYPE_1P))
     {
     case Option::SPEED_FIX_MAX:      ConfigMgr::set('P',P_SPEED_TYPE, P_SPEED_TYPE_MAX); break;
@@ -47,7 +47,7 @@ void config_player()
     }
 
     ConfigMgr::set('P',P_LOAD_BGA, gOptions.get(eOption::PLAY_BGA_TYPE) != Option::BGA_OFF);
-    ConfigMgr::set('P',P_LANECOVER, gNumbers.get(eNumber::LANECOVER_TOP_1P));
+    ConfigMgr::set('P',P_LANECOVER_TOP, gNumbers.get(eNumber::LANECOVER_TOP_1P) / 10);
 
 
     switch (gOptions.get(eOption::PLAY_RANDOM_TYPE_1P))

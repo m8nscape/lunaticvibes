@@ -86,6 +86,16 @@ struct PlayContextParams
     unsigned int randomSeedMod;
 
     bool isAuto = false;
+
+    double Hispeed = 2.0;
+
+    // BATTLE 2P side settings
+    double battle2PHispeed = 2.0;
+    bool battle2PLanecover = false;
+    int battle2PLanecoverTop = 0;
+    int battle2PLanecoverBottom = 0;
+    bool battle2PLockSpeed = false;
+    int battle2PGreenNumber = 1200;
 };
 
 void clearContextPlayForRetry();

@@ -24,10 +24,12 @@ void ConfigProfile::setDefaults() noexcept
     set(P_NO_COMBINE_CHARTS, false);
 	set(P_BASESPEED, 1.0);
 	set(P_HISPEED, 1.0);
-	set(P_REGULAR_SPEED, 1200);
+    set(P_LOCK_SPEED, false);
 	set(P_SPEED_TYPE, P_SPEED_TYPE_NORMAL);
 	set(P_LOAD_BGA, true);
-    set(P_LANECOVER, 0);
+    set(P_LANECOVER_ENABLE, false);
+    set(P_LANECOVER_TOP, 0);
+    set(P_LANECOVER_BOTTOM, 0);
     set(P_LIFT, 0);
     set(P_CHART_OP, P_CHART_OP_NORMAL);
     set(P_GAUGE_OP, P_GAUGE_OP_NORMAL);

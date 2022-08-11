@@ -17,8 +17,8 @@ void setNumbers()
     g.queue(e::HS_1P, ConfigMgr::get('P', P_HISPEED, 1.0) * 100);
     g.queue(e::HS_2P, ConfigMgr::get('P', P_HISPEED, 1.0) * 100);
 
-    g.queue(e::LANECOVER100_1P, ConfigMgr::get('P', P_LANECOVER, 0));
-    g.queue(e::LANECOVER100_2P, ConfigMgr::get('P', P_LANECOVER, 0));
+    g.queue(e::LANECOVER100_1P, ConfigMgr::get('P', P_LANECOVER_TOP, 0) / 10);
+    g.queue(e::LANECOVER100_2P, ConfigMgr::get('P', P_LANECOVER_TOP, 0) / 10);
 
     g.queue(e::TIMING_ADJUST_VISUAL, ConfigMgr::get('P', P_JUDGE_OFFSET, 0));
     
@@ -418,7 +418,7 @@ void setText()
     }
 
     // lanecover
-    g.queue(e::SHUTTER, ConfigMgr::get('P', P_LANECOVER, 0) > 0 ? "ON" : "OFF");
+    g.queue(e::SHUTTER, ConfigMgr::get('P', P_LANECOVER_ENABLE, false) ? "ON" : "OFF");
 
     // chart op
     {
