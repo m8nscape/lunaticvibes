@@ -371,6 +371,23 @@ void SceneSelect::updateSelect()
     Time t;
     Time rt = t - gTimers.get(eTimer::SCENE_START);
 
+    if (gSwitches.get(eSwitch::SELECT_PANEL1) && (!_skin->isSupportGreenNumber))
+    {
+        std::stringstream ss;
+        bool lock1 = ConfigMgr::get('P', cfg::P_LOCK_SPEED, false);
+
+        if (lock1) ss << "G(1P): FIX " << ConfigMgr::get('P', cfg::P_GREENNUMBER, 0);
+
+        bool lock2 = gPlayContext.battle2PLockSpeed;
+        if (lock2) ss << (lock1 ? "\n" : "") << "G(2P): " << gPlayContext.battle2PGreenNumber;
+
+        gTexts.set(eText::_OVERLAY_TOPLEFT, ss.str());
+    }
+    else
+    {
+        gTexts.set(eText::_OVERLAY_TOPLEFT, "");
+    }
+
     if (gSelectContext.isGoingToKeyConfig || gSelectContext.isGoingToSkinSelect)
     {
         gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());

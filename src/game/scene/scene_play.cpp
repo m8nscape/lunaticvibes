@@ -764,6 +764,24 @@ void ScenePlay::_updateAsync()
     }
     gSwitches.flush();
 
+    // show greennumber on top-left for unsupported skins
+    if (!_skin->isSupportGreenNumber)
+    {
+        std::stringstream ss;
+        if (_isHoldingStart[PLAYER_SLOT_1P] || _isHoldingSelect[PLAYER_SLOT_1P] || _isHoldingStart[PLAYER_SLOT_2P] || _isHoldingSelect[PLAYER_SLOT_2P])
+        {
+            ss << "G(1P): " << (_lockspeedEnabled[PLAYER_SLOT_1P] ? "FIX " : "") << gNumbers.get(eNumber::GREEN_NUMBER_1P) <<
+                " (" << gNumbers.get(eNumber::GREEN_NUMBER_MINBPM_1P) << " - " << gNumbers.get(eNumber::GREEN_NUMBER_MAXBPM_1P) << ")";
+
+            if (isPlaymodeBattle())
+            {
+                ss << " | G(2P): " << (_lockspeedEnabled[PLAYER_SLOT_2P] ? "FIX " : "") << gNumbers.get(eNumber::GREEN_NUMBER_2P) <<
+                    " (" << gNumbers.get(eNumber::GREEN_NUMBER_MINBPM_2P) << " - " << gNumbers.get(eNumber::GREEN_NUMBER_MAXBPM_2P) << ")";
+            }
+        }
+        gTexts.set(eText::_OVERLAY_TOPLEFT, ss.str());
+    }
+
     Time t;
     auto updateScratchTimer = [&](int slot)
     {

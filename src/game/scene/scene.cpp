@@ -180,6 +180,8 @@ void vScene::MouseRelease(InputMask& m, const Time& t)
 void vScene::draw() const
 {
     _skin ? _skin->draw() : __noop;
+
+    _sTopLeft->updateText();
     _sTopLeft->draw();
 
     {
@@ -192,6 +194,7 @@ void vScene::draw() const
             {
                 const auto& [timestamp, text] = *itNotification;
                 _sNotificationsBG[i]->draw();
+                _sNotifications[i]->updateText();
                 _sNotifications[i]->draw();
             }
         }

@@ -134,4 +134,11 @@ public:
     virtual StringContent getName() const = 0;
     virtual StringContent getMaker() const = 0;
     virtual StringPath getFilePath() const = 0;
+
+////////////////////////////////////////////////////////////////////////////////
+// extended capability support
+public:
+    bool isSupportExHardAndAssistEasy = false;
+    bool isSupportFastSlow = false;
+    bool isSupportGreenNumber = false;
 };

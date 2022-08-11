@@ -1152,6 +1152,33 @@ ParseRet SkinLR2::SRC_NUMBER()
         textureBuf, Rect(d.x, d.y, d.w, d.h), (NumberAlign)d.align, d.keta, d.div_y, d.div_x, d.cycle, iNum, (eTimer)d.timer, f));
     _sprites.back()->setSrcLine(csvLineNumber);
 
+    switch (iNum)
+    {
+    case eNumber::LR2IR_REPLACE_PLAY_1P_JUDGE_TIME_ERROR_MS:
+    case eNumber::LR2IR_REPLACE_PLAY_2P_JUDGE_TIME_ERROR_MS:
+    case eNumber::LR2IR_REPLACE_PLAY_1P_FAST_SLOW:
+    case eNumber::LR2IR_REPLACE_PLAY_2P_FAST_SLOW:
+    case eNumber::LR2IR_REPLACE_PLAY_1P_FAST_COUNT:
+    case eNumber::LR2IR_REPLACE_PLAY_1P_SLOW_COUNT:
+    case eNumber::PLAY_1P_FAST_COUNT:
+    case eNumber::PLAY_1P_SLOW_COUNT:
+    case eNumber::PLAY_2P_FAST_COUNT:
+    case eNumber::PLAY_2P_SLOW_COUNT:
+    case eNumber::PLAY_1P_JUDGE_TIME_ERROR_MS:
+    case eNumber::PLAY_2P_JUDGE_TIME_ERROR_MS:
+        isSupportFastSlow = true;
+        break;
+
+    case eNumber::GREEN_NUMBER_1P:
+    case eNumber::GREEN_NUMBER_2P:
+    case eNumber::GREEN_NUMBER_MAXBPM_1P:
+    case eNumber::GREEN_NUMBER_MAXBPM_2P:
+    case eNumber::GREEN_NUMBER_MINBPM_1P:
+    case eNumber::GREEN_NUMBER_MINBPM_2P:
+        isSupportGreenNumber = true;
+        break;
+    }
+
     return ParseRet::OK;
 }
 
@@ -1218,6 +1245,15 @@ ParseRet SkinLR2::SRC_BUTTON()
         if (lr2skin::buttonOp(d.type, op))
         {
             s->setInd(SpriteOption::opType::OPTION, (unsigned)op);
+
+            if (info.mode == eMode::MUSIC_SELECT)
+            {
+                if (op == eOption::PLAY_GAUGE_TYPE_1P || op == eOption::PLAY_GAUGE_TYPE_2P)
+                {
+                    if (d.div_x * d.div_y >= 6)
+                        isSupportExHardAndAssistEasy = true;
+                }
+            }
         }
         _sprites.push_back(s);
         _sprites.back()->setSrcLine(csvLineNumber);
@@ -1421,7 +1457,7 @@ ParseRet SkinLR2::SRC_GROOVEGAUGE()
     auto p = std::make_shared<SpriteGlobal>(idx);
     _sprites.push_back(p);
     _sprites.back()->setSrcLine(csvLineNumber);
-    
+
     return ParseRet::OK;
 }
 

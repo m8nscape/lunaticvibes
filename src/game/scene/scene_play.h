@@ -52,7 +52,7 @@ private:
 
     std::array<bool, 2>     _lanecoverEnabled{ false };
     std::array<bool, 2>     _lockspeedEnabled{ false };
-    std::array<double, 2>      _lockspeedValue{ 0 };
+    std::array<double, 2>   _lockspeedValue{ 0 };
 
     std::array<int, 2>      _hispeedAdd{ 0 };
     std::array<int, 2>      _lanecoverAdd{ 0 };
