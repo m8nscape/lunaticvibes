@@ -51,10 +51,10 @@ bool SpriteLaneVertical::update(const Time& t)
 		switch (playerSlot)
 		{
 		case 0:
-			_hispeed = double(gNumbers.get(eNumber::HS_1P)) / 100.0;
+			_hispeed = gPlayContext.Hispeed;
 			break;
 		case 1:
-			_hispeed = double(gNumbers.get(eNumber::HS_2P)) / 100.0;
+			_hispeed = gPlayContext.battle2PHispeed;
 			break;
 		default:
 			break;
@@ -84,7 +84,7 @@ void SpriteLaneVertical::updateNoteRect(const Time& t)
     auto currTotalMetre = pChart->getBarMetrePosition(bar).toDouble() + metre;
 
     // generate note rects and store to buffer
-	// 150BPM with 1.0x HS is 2000ms (400ms/beat, green number 1200)
+	// 120BPM with 1.0x HS is 2000ms (500ms/beat, green number 1200)
 	// !!! scroll height should not affected by note height
     int y = (c.y + c.h);
     auto it = pChart->incomingNote(_category, _index);

@@ -6,7 +6,6 @@
 #include "input_mgr.h"
 #include "common/asynclooper.h"
 #include "common/beat.h"
-#include "input_rawinput.h"
 
 typedef std::bitset<Input::Pad::KEY_COUNT> InputMask;
 typedef std::function<void(InputMask&, const Time&)> INPUTCALLBACK;
@@ -17,30 +16,32 @@ typedef std::function<void(InputMask&, const Time&)> INPUTCALLBACK;
 typedef std::bitset<Input::keyboardKeyCount> KeyboardMask;
 typedef std::function<void(KeyboardMask, const Time&)> KEYBOARDCALLBACK;
 
-typedef std::map<Input::Pad, std::pair<double, int>> InputAxisPlus;
-typedef std::function<void(InputAxisPlus&, const Time&)> AXISPLUSCALLBACK;
+typedef std::function<void(double, double, const Time&)> AXISPLUSCALLBACK;
 
-typedef std::map<int, bool> RawinputKeyMap;
-typedef std::map<int, std::pair<double, int>> RawinputAxisSpeedMap;
-typedef std::function<void(int, RawinputKeyMap&, RawinputAxisSpeedMap&, const Time&)> RAWINPUTCALLBACK;
+constexpr size_t MAX_JOYSTICK_MASK_BIT_COUNT = InputMgr::MAX_JOYSTICK_BUTTON_COUNT + InputMgr::MAX_JOYSTICK_POV_COUNT * 4 + InputMgr::MAX_JOYSTICK_AXIS_COUNT * 2;
+typedef std::bitset<MAX_JOYSTICK_MASK_BIT_COUNT> JoystickMask;
+typedef std::function<void(JoystickMask, size_t, const Time&)> JOYSTICKCALLBACK;
+
+typedef std::array<double, InputMgr::MAX_JOYSTICK_AXIS_COUNT> JoystickAxis;
+typedef std::function<void(JoystickAxis, size_t, const Time&)> ABSAXISCALLBACK;
 
 // FUNC:                                          BRDUEHDI><v^543210987654321_
-inline const InputMask INPUT_MASK_FUNC  { "00000001111111111111111111111111111000000000000000000000000000000" };
-// 1P:                                                                                       DUEA987654321SS
-inline const InputMask INPUT_MASK_1P    { "00000000000000000000000000000000000000000000000000111111111111111" };
-// 2P:                                                                        DUEA987654321SS
-inline const InputMask INPUT_MASK_2P    { "00000000000000000000000000000000000111111111111111000000000000000" };
+inline const InputMask INPUT_MASK_FUNC  { "0000000111111111111111111111111111100000000000000000000000000000000" };
+// 1P:                                                                                        sDUEA987654321SS
+inline const InputMask INPUT_MASK_1P    { "0000000000000000000000000000000000000000000000000001111111111111111" };
+// 2P:                                                                        sDUEA987654321SS
+inline const InputMask INPUT_MASK_2P    { "0000000000000000000000000000000000011111111111111110000000000000000" };
 // Mouse:                                  DU54321
-inline const InputMask INPUT_MASK_MOUSE { "11111110000000000000000000000000000000000000000000000000000000000" };
+inline const InputMask INPUT_MASK_MOUSE { "1111111000000000000000000000000000000000000000000000000000000000000" };
                                                   
-//                                                                            2P: 9 7 5 3 1  1P: 9 7 5 3 1  
-inline const InputMask INPUT_MASK_DECIDE{ "00000000100000000000000000000000000000010101010100000010101010100" };
-//                                                                            2P:  8 6 4 2   1P:  8 6 4 2
-inline const InputMask INPUT_MASK_CANCEL{ "00000001000000000000000000000000000000001010101000000001010101000" };
-//                                                         < ^                2P:           S1P:           S
-inline const InputMask INPUT_MASK_NAV_UP{ "00000000000000001010000000000000000000000000000001000000000000001" };
-//                                                        > v                 2P:          S 1P:          S
-inline const InputMask INPUT_MASK_NAV_DN{ "00000000000000010100000000000000000000000000000010000000000000010" };
+//                                                                              2P: 9 7 5 3 1  1P: 9 7 5 3 1  
+inline const InputMask INPUT_MASK_DECIDE{ "0000000010000000000000000000000000000000101010101000000010101010100" };
+//                                                                              2P:  8 6 4 2   1P:  8 6 4 2
+inline const InputMask INPUT_MASK_CANCEL{ "0000000100000000000000000000000000000000010101010000000001010101000" };
+//                                                         < ^                  2P:           S1P:           S
+inline const InputMask INPUT_MASK_NAV_UP{ "0000000000000000101000000000000000000000000000000010000000000000001" };
+//                                                        > v                   2P:          S 1P:          S
+inline const InputMask INPUT_MASK_NAV_DN{ "0000000000000001010000000000000000000000000000000100000000000000010" };
 
 // InputWrapper
 //  Start a process to check input upon 1000hz polling.
@@ -62,6 +63,9 @@ protected:
 
     InputMask _prev = 0;
     InputMask _curr = 0;
+
+    double scratchAxisPrev[2] = { 0. };
+    double scratchAxisCurr[2] = { 0. };
 
 public:
     InputWrapper(unsigned rate = 1000, bool background = false);
@@ -86,11 +90,15 @@ public:
         return (_prev[k]) && (_curr[k]);
     }
 
-    InputMask Pressed() { return ~_prev & _curr; }
-    InputMask Holding() { return _prev & _curr; }
-    InputMask Released() { return _prev & ~_curr; }
+    InputMask Pressed() const { return ~_prev & _curr; }
+    InputMask Holding() const { return _prev & _curr; }
+    InputMask Released() const { return _prev & ~_curr; }
 
-    std::pair<int, int> getCursorPos() { return { _cursor_x, _cursor_y }; }
+    std::pair<int, int> getCursorPos() const { return { _cursor_x, _cursor_y }; }
+
+    double getJoystickAxis(size_t device, Input::Joystick::Type type, size_t index);
+
+    double getScratchAxis(int player);
 
 private:
     // Callback function maps
@@ -122,16 +130,22 @@ public:
     bool register_kb(const std::string& key, KEYBOARDCALLBACK f);
     bool unregister_kb(const std::string& key);
 
-    // Should only used for keyconfig
-#ifdef RAWINPUT_AVAILABLE
 protected:
-    std::map<int, RawinputKeyMap> _riprev;
-    std::map<int, RawinputKeyMap> _ricurr;
+    std::array<JoystickMask, InputMgr::MAX_JOYSTICK_COUNT> _joyprev = { 0 };
+    std::array<JoystickMask, InputMgr::MAX_JOYSTICK_COUNT> _joycurr = { 0 };
 private:
-    std::map<const std::string, RAWINPUTCALLBACK> _rawinputCallbackMap;
+    std::map<const std::string, JOYSTICKCALLBACK> _joystickCallbackMap;
 public:
-    bool register_ri(const std::string& key, RAWINPUTCALLBACK f);
-    bool unregister_ri(const std::string& key);
-#endif
+    bool register_joy(const std::string& key, JOYSTICKCALLBACK f);
+    bool unregister_joy(const std::string& key);
+
+protected:
+    std::array<JoystickAxis, InputMgr::MAX_JOYSTICK_COUNT> _joyaxisprev = { 0 };
+    std::array<JoystickAxis, InputMgr::MAX_JOYSTICK_COUNT> _joyaxiscurr = { 0 };
+private:
+    std::map<const std::string, ABSAXISCALLBACK> _absaxisCallbackMap;
+public:
+    bool register_aa(const std::string& key, ABSAXISCALLBACK f);
+    bool unregister_aa(const std::string& key);
 };
 

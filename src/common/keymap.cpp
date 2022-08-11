@@ -4,134 +4,186 @@ std::string KeyMap::toString() const
 {
     switch (type)
     {
-    case DeviceType::KEYBOARD:   return toStringKeyboard();
-    case DeviceType::JOYSTICK:   return toStringJoystick();
-    case DeviceType::CONTROLLER: return toStringController();
-    case DeviceType::MOUSE:      return toStringMouse();
-    case DeviceType::RAWINPUT:   return toStringRawInput();
+    case DeviceType::KEYBOARD: return toStringK();
+    case DeviceType::JOYSTICK: return toStringJ();
+    case DeviceType::MOUSE:    return toStringM();
     default: break;
     }
     return "";
 }
 
-
-bool KeyMap::isAxis() const { assert(type == DeviceType::JOYSTICK || type == DeviceType::RAWINPUT); return !!(code & 0x40000000); }
-unsigned KeyMap::getAxis() const { return isAxis() ? (code & ~0x70000000) : 0; }
-AxisDir KeyMap::getAxisDir() const { return isAxis() ? ((code & 0x20000000) ? 1 : -1) : 0; }
-
 void KeyMap::setKeyboard(Input::Keyboard kb)
 {
     type = DeviceType::KEYBOARD;
-    device = 0;
     keyboard = kb;
 }
 
-void KeyMap::setRawInputKey(int deviceID, int code)
+void KeyMap::setJoystick(size_t device, Input::Joystick::Type jtype, size_t index)
 {
-    type = DeviceType::RAWINPUT;
-    device = deviceID;
-    this->code = code;
+    type = DeviceType::JOYSTICK;
+    joystick.type = jtype;
+    joystick.device = device;
+    joystick.index = index;
 }
 
-
-void KeyMap::setRawInputAxis(int deviceID, int idx, AxisDir direction)
-{
-    type = DeviceType::RAWINPUT;
-    device = deviceID;
-    this->code = idx & 0x7fffffff;
-    this->code |= 0x40000000;
-    if (direction == AxisDir::AXIS_DOWN) this->code |= 0x20000000;
-}
-
-void KeyMap::fromString(const std::string_view& name)
+void KeyMap::loadFromString(const std::string_view& name)
 {
     type = DeviceType::UNDEF;
     if (name.empty()) return;
 
     switch (name[0])
     {
-    case 'K': fromStringKeyboard(name); break;
-    case 'J': fromStringJoystick(name); break;
-    case 'C': fromStringController(name); break;
-    case 'M': fromStringMouse(name); break;
-    case 'R': fromStringRawInput(name); break;
+    case 'K': loadFromStringK(name); break;
+    case 'J': loadFromStringJ(name); break;
+    case 'M': loadFromStringM(name); break;
     default: break;
     }
 }
 
-void KeyMap::fromStringKeyboard(const std::string_view& name)
+void KeyMap::loadFromStringK(const std::string_view& name)
 {
+    if (name.length() < 3) return;
     if (name.substr(0, 2) != "K_") return;
+    type = DeviceType::KEYBOARD;
+
     auto keystr = name.substr(2);
     for (size_t i = 0; i < 0xFF; ++i)
     {
         if (Input::keyboardNameMap[i] != NULL && keystr == Input::keyboardNameMap[i])
         {
-            setKeyboard(static_cast<Input::Keyboard>(i));
+            keyboard = static_cast<Input::Keyboard>(i);
             return;
         }
     }
-    setKeyboard(Input::Keyboard::K_ERROR);
+
+    keyboard = Input::Keyboard::K_ERROR;
 }
 
-void KeyMap::fromStringJoystick(const std::string_view& name)
+void KeyMap::loadFromStringJ(const std::string_view& name)
 {
-    if (name.substr(0, 2) != "J_") return;
+    if (name.length() < 8) return;
+    if (name[0] != 'J' || name[2] != '_') return;
     type = DeviceType::JOYSTICK;
-    assert(false);
+    joystick.type = Input::Joystick::Type::UNDEF;
+
+    std::string_view subType = name.substr(3, 4);
+    if (subType == "BTN_")
+    {
+        joystick.type = Input::Joystick::Type::BUTTON;
+        joystick.index = toInt(name.substr(7)) - 1;
+    }
+    else if (subType == "POV_" && name.length() > 10)
+    {
+        int povIndex = toInt(name.substr(7, 1)) - 1;
+        size_t idxMask = 0;
+        switch (name[9])
+        {
+        case 'L': idxMask = (1ul << 31); break;
+        case 'D': idxMask = (1ul << 30); break;
+        case 'U': idxMask = (1ul << 29); break;
+        case 'R': idxMask = (1ul << 28); break;
+        }
+        if (idxMask != 0)
+        {
+            joystick.type = Input::Joystick::Type::POV;
+            joystick.index = idxMask | povIndex;
+        }
+    }
+    else if (subType == "REL_" && (name[name.size() - 1] == '+' || name[name.size() - 1] == '-'))
+    {
+        std::string_view axisName = name.substr(7, name.size() - 1 - 7);
+        bool axisPositive = name[name.size() - 1] == '+';
+        int axisIndex = -1;
+        for (int i = 0; i < (int)Input::JoystickAxis::COUNT; ++i)
+        {
+            if (axisName == Input::joystickAxisName[i])
+            {
+                axisIndex = i;
+                break;
+            }
+        }
+        if (axisIndex != -1)
+        {
+            joystick.type = axisPositive ? Input::Joystick::Type::AXIS_RELATIVE_POSITIVE : Input::Joystick::Type::AXIS_RELATIVE_NEGATIVE;
+            joystick.index = (size_t)axisIndex;
+        }
+    }
+    else if (subType == "ABS_")
+    {
+        std::string_view axisName = name.substr(7);
+        int axisIndex = -1;
+        for (int i = 0; i < (int)Input::JoystickAxis::COUNT; ++i)
+        {
+            if (axisName == Input::joystickAxisName[i])
+            {
+                axisIndex = i;
+                break;
+            }
+        }
+        if (axisIndex != -1)
+        {
+            joystick.type = Input::Joystick::Type::AXIS_ABSOLUTE;
+            joystick.index = (size_t)axisIndex;
+        }
+    }
+
+    if (joystick.type != Input::Joystick::Type::UNDEF)
+    {
+        int device = toInt(name.substr(1, 1));
+        if (device >= 1 && device <= 8)
+        {
+            joystick.device = device - 1;
+        }
+        else
+        {
+            joystick.type = Input::Joystick::Type::UNDEF;
+        }
+    }
+    
 }
 
-void KeyMap::fromStringController(const std::string_view& name)
-{
-    if (name.substr(0, 2) != "C_") return;
-    type = DeviceType::CONTROLLER;
-    assert(false);
-}
-
-void KeyMap::fromStringMouse(const std::string_view& name)
+void KeyMap::loadFromStringM(const std::string_view& name)
 {
     if (name.substr(0, 2) != "M_") return;
     type = DeviceType::MOUSE;
     assert(false);
 }
 
-void KeyMap::fromStringRawInput(const std::string_view& name)
-{
-    if (name.substr(0, 2) != "R_") return;
-    std::string_view val = name.substr(2);
-    size_t sep = val.find('_');
-    if (sep == val.npos) return;
-    if (sep == val.length() - 1) return;
-    
-    type = DeviceType::RAWINPUT;
-    device = toInt(val.substr(0, sep), -1);
-    code = toInt(val.substr(sep + 1), 0);
-}
-
-std::string KeyMap::toStringKeyboard() const
+std::string KeyMap::toStringK() const
 {
     return "K_"s + Input::keyboardNameMap[static_cast<size_t>(keyboard)];
 }
 
-std::string KeyMap::toStringJoystick() const
+std::string KeyMap::toStringJ() const
 {
-    assert(false);
-    return "J_"s + "NULL";
+    std::stringstream ss;
+    ss << "J" << joystick.device + 1 << "_";
+    switch (joystick.type)
+    {
+    case Input::Joystick::Type::BUTTON:        
+        ss << "BTN_" << joystick.index + 1;
+        break;
+    case Input::Joystick::Type::POV:
+        if      (joystick.index & (1ul << 31)) ss << "POV_" << (joystick.index & 0xFFFFFFF) + 1 << "_LEFT";
+        else if (joystick.index & (1ul << 30)) ss << "POV_" << (joystick.index & 0xFFFFFFF) + 1 << "_DOWN";
+        else if (joystick.index & (1ul << 29)) ss << "POV_" << (joystick.index & 0xFFFFFFF) + 1 << "_UP";
+        else if (joystick.index & (1ul << 28)) ss << "POV_" << (joystick.index & 0xFFFFFFF) + 1 << "_RIGHT";
+        break;
+    case Input::Joystick::Type::AXIS_RELATIVE_POSITIVE: 
+        ss << "REL_" << Input::joystickAxisName[joystick.index] << "+";
+        break;
+    case Input::Joystick::Type::AXIS_RELATIVE_NEGATIVE:
+        ss << "REL_" << Input::joystickAxisName[joystick.index] << "-";
+        break;
+    case Input::Joystick::Type::AXIS_ABSOLUTE: 
+        ss << "ABS_" << Input::joystickAxisName[joystick.index];
+        break;
+    }
+    return ss.str();
 }
 
-std::string KeyMap::toStringController() const
-{
-    assert(false);
-    return "C_"s + "NULL";
-}
-
-std::string KeyMap::toStringMouse() const
+std::string KeyMap::toStringM() const
 {
     assert(false);
     return "M_"s + "NULL";
-}
-
-std::string KeyMap::toStringRawInput() const
-{
-    return "R_"s + std::to_string(device) + "_" + std::to_string(code);
 }

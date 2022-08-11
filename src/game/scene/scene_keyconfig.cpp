@@ -20,6 +20,7 @@ SceneKeyConfig::SceneKeyConfig() : vScene(eMode::KEY_CONFIG, 240)
     gSwitches.set(eSwitch::K19_CONFIG, false);
     gSwitches.set(eSwitch::S1L_CONFIG, false);
     gSwitches.set(eSwitch::S1R_CONFIG, false);
+    gSwitches.set(eSwitch::S1A_CONFIG, false);
     gSwitches.set(eSwitch::K1START_CONFIG, false);
     gSwitches.set(eSwitch::K1SELECT_CONFIG, false);
     gSwitches.set(eSwitch::K1SPDUP_CONFIG, false);
@@ -35,6 +36,7 @@ SceneKeyConfig::SceneKeyConfig() : vScene(eMode::KEY_CONFIG, 240)
     gSwitches.set(eSwitch::K29_CONFIG, false);
     gSwitches.set(eSwitch::S2L_CONFIG, false);
     gSwitches.set(eSwitch::S2R_CONFIG, false);
+    gSwitches.set(eSwitch::S2A_CONFIG, false);
     gSwitches.set(eSwitch::K2START_CONFIG, false);
     gSwitches.set(eSwitch::K2SELECT_CONFIG, false);
     gSwitches.set(eSwitch::K2SPDUP_CONFIG, false);
@@ -75,6 +77,8 @@ void SceneKeyConfig::_updateAsync()
     }
 
     _updateCallback();
+
+    updateForceBargraphs();
 }
 
 void SceneKeyConfig::updateStart()
@@ -87,9 +91,8 @@ void SceneKeyConfig::updateStart()
         using namespace std::placeholders;
         _input.register_p("SCENE_PRESS", std::bind(&SceneKeyConfig::inputGamePress, this, _1, _2));
         _input.register_kb("SCENE_KEYPRESS", std::bind(&SceneKeyConfig::inputGamePressKeyboard, this, _1, _2));
-#ifdef RAWINPUT_AVAILABLE
-        _input.register_ri("SCENE_RAWINPUTPRESS", std::bind(&SceneKeyConfig::inputGamePressRawinput, this, _1, _2, _3, _4));
-#endif
+        _input.register_joy("SCENE_JOYPRESS", std::bind(&SceneKeyConfig::inputGamePressJoystick, this, _1, _2, _3));
+        _input.register_aa("SCENE_ABSOLUTEAXIS", std::bind(&SceneKeyConfig::inputGameAbsoluteAxis, this, _1, _2, _3));
         LOG_DEBUG << "[KeyConfig] State changed to Main";
     }
 }
@@ -104,9 +107,8 @@ void SceneKeyConfig::updateMain()
         using namespace std::placeholders;
         _input.unregister_p("SCENE_PRESS");
         _input.unregister_kb("SCENE_KEYPRESS");
-#ifdef RAWINPUT_AVAILABLE
-        _input.unregister_ri("SCENE_RAWINPUTPRESS");
-#endif
+        _input.unregister_joy("SCENE_JOYPRESS");
+        _input.unregister_aa("SCENE_ABSOLUTEAXIS");
         LOG_DEBUG << "[KeyConfig] State changed to Fadeout";
     }
 }
@@ -145,141 +147,314 @@ void SceneKeyConfig::inputGamePress(InputMask& m, const Time& t)
     }
 }
 
+static const std::map<Input::Pad, eBargraph> forceBargraphMap =
+{
+    { Input::Pad::S1L,      eBargraph::FORCE_S1L },
+    { Input::Pad::S1R,      eBargraph::FORCE_S1R },
+    { Input::Pad::K1START,  eBargraph::FORCE_K1Start },
+    { Input::Pad::K1SELECT, eBargraph::FORCE_K1Select },
+    { Input::Pad::S2L,      eBargraph::FORCE_S2L },
+    { Input::Pad::S2R,      eBargraph::FORCE_S2R },
+    { Input::Pad::K2START,  eBargraph::FORCE_K2Start },
+    { Input::Pad::K2SELECT, eBargraph::FORCE_K2Select },
+    { Input::Pad::K11,      eBargraph::FORCE_K11 },
+    { Input::Pad::K12,      eBargraph::FORCE_K12 },
+    { Input::Pad::K13,      eBargraph::FORCE_K13 },
+    { Input::Pad::K14,      eBargraph::FORCE_K14 },
+    { Input::Pad::K15,      eBargraph::FORCE_K15 },
+    { Input::Pad::K16,      eBargraph::FORCE_K16 },
+    { Input::Pad::K17,      eBargraph::FORCE_K17 },
+    { Input::Pad::K18,      eBargraph::FORCE_K18 },
+    { Input::Pad::K19,      eBargraph::FORCE_K19 },
+    { Input::Pad::K21,      eBargraph::FORCE_K21 },
+    { Input::Pad::K22,      eBargraph::FORCE_K22 },
+    { Input::Pad::K23,      eBargraph::FORCE_K23 },
+    { Input::Pad::K24,      eBargraph::FORCE_K24 },
+    { Input::Pad::K25,      eBargraph::FORCE_K25 },
+    { Input::Pad::K26,      eBargraph::FORCE_K26 },
+    { Input::Pad::K27,      eBargraph::FORCE_K27 },
+    { Input::Pad::K28,      eBargraph::FORCE_K28 },
+    { Input::Pad::K29,      eBargraph::FORCE_K29 },
+};
 
 void SceneKeyConfig::inputGamePressKeyboard(KeyboardMask& mask, const Time& t)
 {
     // update bindings
     auto [pad, slot] = gKeyconfigContext.selecting;
-    if (slot >= InputMgr::MAX_BINDINGS_PER_KEY) return;
-    for (Input::Keyboard k = Input::Keyboard::K_1; k != Input::Keyboard::K_COUNT; ++ * (unsigned*)&k)
+    if (pad == Input::Pad::S1A || pad == Input::Pad::S2A)
+        return;
+
+    GameModeKeys keys = gKeyconfigContext.keys;
+
+    if (pad != Input::Pad::INVALID)
     {
-        if (mask[static_cast<size_t>(k)])
+        for (Input::Keyboard k = Input::Keyboard::K_1; k != Input::Keyboard::K_COUNT; ++ * (unsigned*)&k)
         {
-            GameModeKeys keys = gKeyconfigContext.keys;
-
-            // modify slot
-            KeyMap km(k);
-            ConfigMgr::Input(keys)->bind(pad, km, slot);
-            InputMgr::updateBindings(keys, pad);
-
-            // update text
-            switch (slot)
+            if (mask[static_cast<size_t>(k)])
             {
-                case 0: gTexts.set(eText::KEYCONFIG_SLOT1,  km.toString()); break;
-                case 1: gTexts.set(eText::KEYCONFIG_SLOT2,  km.toString()); break;
-                case 2: gTexts.set(eText::KEYCONFIG_SLOT3,  km.toString()); break;
-                case 3: gTexts.set(eText::KEYCONFIG_SLOT4,  km.toString()); break;
-                case 4: gTexts.set(eText::KEYCONFIG_SLOT5,  km.toString()); break;
-                case 5: gTexts.set(eText::KEYCONFIG_SLOT6,  km.toString()); break;
-                case 6: gTexts.set(eText::KEYCONFIG_SLOT7,  km.toString()); break;
-                case 7: gTexts.set(eText::KEYCONFIG_SLOT8,  km.toString()); break;
-                case 8: gTexts.set(eText::KEYCONFIG_SLOT9,  km.toString()); break;
-                case 9: gTexts.set(eText::KEYCONFIG_SLOT10, km.toString()); break;
-                default: break;
-            }
-
-            // play sound
-            SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
-        }
-    }
-}
-
-
-#ifdef RAWINPUT_AVAILABLE
-void SceneKeyConfig::inputGamePressRawinput(int deviceID, RawinputKeyMap& button, RawinputAxisSpeedMap& axisSpeed, const Time&)
-{
-    auto [pad, slot] = gKeyconfigContext.selecting;
-    if (slot >= InputMgr::MAX_BINDINGS_PER_KEY) return;
-    for (auto& [key, stat] : button)
-    {
-        if (stat)
-        {
-            GameModeKeys keys = gKeyconfigContext.keys;
-
-            // modify slot
-            KeyMap km;
-            km.setRawInputKey(deviceID, key);
-            ConfigMgr::Input(keys)->bind(pad, km, slot);
-            InputMgr::updateBindings(keys, pad);
-
-            // update text
-            switch (slot)
-            {
-            case 0: gTexts.set(eText::KEYCONFIG_SLOT1, km.toString()); break;
-            case 1: gTexts.set(eText::KEYCONFIG_SLOT2, km.toString()); break;
-            case 2: gTexts.set(eText::KEYCONFIG_SLOT3, km.toString()); break;
-            case 3: gTexts.set(eText::KEYCONFIG_SLOT4, km.toString()); break;
-            case 4: gTexts.set(eText::KEYCONFIG_SLOT5, km.toString()); break;
-            case 5: gTexts.set(eText::KEYCONFIG_SLOT6, km.toString()); break;
-            case 6: gTexts.set(eText::KEYCONFIG_SLOT7, km.toString()); break;
-            case 7: gTexts.set(eText::KEYCONFIG_SLOT8, km.toString()); break;
-            case 8: gTexts.set(eText::KEYCONFIG_SLOT9, km.toString()); break;
-            case 9: gTexts.set(eText::KEYCONFIG_SLOT10, km.toString()); break;
-            default: break;
-            }
-
-            // play sound
-            SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
-        }
-    }
-
-    if (InputMgr::getAxisMode() == InputMgr::eAxisMode::AXIS_RELATIVE)
-    {
-        for (auto& [axis, speedtime] : axisSpeed)
-        {
-            auto& [speed, time] = speedtime;
-            if (speed == 0)
-            {
-                _riAxisDirPrev[deviceID][axis] = 0;
-                continue;
-            }
-
-            AxisDir dir(speed);
-            if (std::abs(speed) > InputMgr::getAxisMinSpeed() && _riAxisDirPrev[deviceID][axis] != dir)
-            {
-                _riAxisDirPrev[deviceID][axis] = dir;
-                GameModeKeys keys = gKeyconfigContext.keys;
-
                 // modify slot
-                KeyMap km;
-                km.setRawInputAxis(deviceID, axis, dir);
-                ConfigMgr::Input(keys)->bind(pad, km, slot);
+                KeyMap km(k);
+                ConfigMgr::Input(keys)->bind(pad, km);
                 InputMgr::updateBindings(keys, pad);
 
-                // update text
-                switch (slot)
-                {
-                case 0: gTexts.set(eText::KEYCONFIG_SLOT1, km.toString()); break;
-                case 1: gTexts.set(eText::KEYCONFIG_SLOT2, km.toString()); break;
-                case 2: gTexts.set(eText::KEYCONFIG_SLOT3, km.toString()); break;
-                case 3: gTexts.set(eText::KEYCONFIG_SLOT4, km.toString()); break;
-                case 4: gTexts.set(eText::KEYCONFIG_SLOT5, km.toString()); break;
-                case 5: gTexts.set(eText::KEYCONFIG_SLOT6, km.toString()); break;
-                case 6: gTexts.set(eText::KEYCONFIG_SLOT7, km.toString()); break;
-                case 7: gTexts.set(eText::KEYCONFIG_SLOT8, km.toString()); break;
-                case 8: gTexts.set(eText::KEYCONFIG_SLOT9, km.toString()); break;
-                case 9: gTexts.set(eText::KEYCONFIG_SLOT10, km.toString()); break;
-                default: break;
-                }
+                updateInfo(km, slot);
 
-                // play sound
-                SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
             }
         }
     }
 }
 
-#endif
+void SceneKeyConfig::inputGamePressJoystick(JoystickMask& mask, size_t device, const Time& t)
+{
+    // update bindings
+    auto [pad, slot] = gKeyconfigContext.selecting;
+    if (pad == Input::Pad::S1A || pad == Input::Pad::S2A)
+        return;
+
+    GameModeKeys keys = gKeyconfigContext.keys;
+
+    if (pad != Input::Pad::INVALID)
+    {
+        size_t base = 0;
+        for (size_t index = 0; index < InputMgr::MAX_JOYSTICK_BUTTON_COUNT; ++index)
+        {
+            if (mask[static_cast<size_t>(base + index)])
+            {
+                KeyMap j(device, Input::Joystick::Type::BUTTON, index);
+                ConfigMgr::Input(keys)->bind(pad, j);
+                InputMgr::updateBindings(keys, pad);
+                updateInfo(j, slot);
+            }
+        }
+        base += InputMgr::MAX_JOYSTICK_BUTTON_COUNT;
+
+        for (size_t index = 0; index < InputMgr::MAX_JOYSTICK_POV_COUNT; ++index)
+        {
+            if (mask[static_cast<size_t>(base + index * 4 + 0)])
+            {
+                KeyMap j(device, Input::Joystick::Type::POV, index | (1ul << 31));
+                ConfigMgr::Input(keys)->bind(pad, j);
+                InputMgr::updateBindings(keys, pad);
+                updateInfo(j, slot);
+            }
+            else if (mask[static_cast<size_t>(base + index * 4 + 1)])
+            {
+                KeyMap j(device, Input::Joystick::Type::POV, index | (1ul << 30));
+                ConfigMgr::Input(keys)->bind(pad, j);
+                InputMgr::updateBindings(keys, pad);
+                updateInfo(j, slot);
+            }
+            else if (mask[static_cast<size_t>(base + index * 4 + 2)])
+            {
+                KeyMap j(device, Input::Joystick::Type::POV, index | (1ul << 29));
+                ConfigMgr::Input(keys)->bind(pad, j);
+                InputMgr::updateBindings(keys, pad);
+                updateInfo(j, slot);
+            }
+            else if (mask[static_cast<size_t>(base + index * 4 + 3)])
+            {
+                KeyMap j(device, Input::Joystick::Type::POV, index | (1ul << 28));
+                ConfigMgr::Input(keys)->bind(pad, j);
+                InputMgr::updateBindings(keys, pad);
+                updateInfo(j, slot);
+            }
+        }
+        base += InputMgr::MAX_JOYSTICK_POV_COUNT * 4;
+
+        for (size_t index = 0; index < InputMgr::MAX_JOYSTICK_AXIS_COUNT; ++index)
+        {
+            if (mask[static_cast<size_t>(base + index)])
+            {
+                KeyMap j(device, Input::Joystick::Type::AXIS_RELATIVE_POSITIVE, index);
+                ConfigMgr::Input(keys)->bind(pad, j);
+                InputMgr::updateBindings(keys, pad);
+                updateInfo(j, slot);
+            }
+        }
+        base += InputMgr::MAX_JOYSTICK_AXIS_COUNT;
+
+        for (size_t index = 0; index < InputMgr::MAX_JOYSTICK_AXIS_COUNT; ++index)
+        {
+            if (mask[static_cast<size_t>(base + index)])
+            {
+                KeyMap j(device, Input::Joystick::Type::AXIS_RELATIVE_NEGATIVE, index);
+                ConfigMgr::Input(keys)->bind(pad, j);
+                InputMgr::updateBindings(keys, pad);
+                updateInfo(j, slot);
+            }
+        }
+    }
+}
+
+void SceneKeyConfig::inputGameAbsoluteAxis(JoystickAxis& axis, size_t device, const Time&)
+{
+    auto [pad, slot] = gKeyconfigContext.selecting;
+    if (pad != Input::Pad::S1A && pad != Input::Pad::S2A)
+        return;
+
+    GameModeKeys keys = gKeyconfigContext.keys;
+
+    for (size_t index = 0; index < InputMgr::MAX_JOYSTICK_AXIS_COUNT; ++index)
+    {
+        if (axis[index] != -1.0)
+        {
+            auto& bindings = ConfigMgr::Input(keys)->getBindings(pad);
+            if (bindings.getType() != KeyMap::DeviceType::JOYSTICK ||
+                bindings.getJoystick().index != index)
+            {
+                KeyMap j(device, Input::Joystick::Type::AXIS_ABSOLUTE, index);
+                ConfigMgr::Input(keys)->bind(pad, j);
+                InputMgr::updateBindings(keys, pad);
+                updateInfo(j, slot);
+            }
+        }
+    }
+}
 
 void SceneKeyConfig::setInputBindingText(GameModeKeys keys, Input::Pad pad)
 {
     auto bindings = ConfigMgr::Input(keys)->getBindings(pad);
-    for (size_t i = 0; i < bindings.size(); ++i)
-    {
-        gTexts.set(eText(unsigned(eText::KEYCONFIG_SLOT1) + i), bindings[i].toString());
-    }
-    for (size_t i = bindings.size(); i < InputMgr::MAX_BINDINGS_PER_KEY; ++i)
+    gTexts.set(eText::KEYCONFIG_SLOT1, bindings.toString());
+    for (size_t i = 1; i < 10; ++i)
     {
         gTexts.set(eText(unsigned(eText::KEYCONFIG_SLOT1) + i), "-");
     }
+}
+
+void SceneKeyConfig::updateForceBargraphs()
+{
+    GameModeKeys keys = gKeyconfigContext.keys;
+    auto& input = ConfigMgr::Input(keys);
+    Time t;
+
+    // update keyboard force bargraph
+    for (Input::Keyboard k = Input::Keyboard::K_1; k != Input::Keyboard::K_COUNT; ++ * (unsigned*)&k)
+    {
+        auto& input = ConfigMgr::Input(keys);
+        for (const auto& [p, bar] : forceBargraphMap)
+        {
+            auto& binding = input->getBindings(p);
+            if (binding.getType() == KeyMap::DeviceType::KEYBOARD && binding.getKeyboard() == k)
+            {
+                if (isKeyPressed(k))
+                {
+                    forceBargraphTriggerTimestamp[p] = t.norm();
+                    gBargraphs.set(bar, 1.0);
+                }
+            }
+        }
+    }
+    // update joystick force bargraph
+    size_t base = 0;
+
+    for (size_t index = 0; index < InputMgr::MAX_JOYSTICK_BUTTON_COUNT; ++index)
+    {
+        for (const auto& [p, bar] : forceBargraphMap)
+        {
+            auto& binding = input->getBindings(p);
+            if (binding.getType() == KeyMap::DeviceType::JOYSTICK &&
+                binding.getJoystick().type == Input::Joystick::Type::BUTTON &&
+                binding.getJoystick().index == index)
+            {
+                if (isButtonPressed(binding.getJoystick(), 0.0));
+                {
+                    forceBargraphTriggerTimestamp[p] = t.norm();
+                    gBargraphs.set(bar, 1.0);
+                }
+            }
+        }
+    }
+    base += InputMgr::MAX_JOYSTICK_BUTTON_COUNT;
+
+    for (size_t index = 0; index < InputMgr::MAX_JOYSTICK_POV_COUNT; ++index)
+    {
+        for (const auto& [p, bar] : forceBargraphMap)
+        {
+            auto& binding = input->getBindings(p);
+            if (binding.getType() == KeyMap::DeviceType::JOYSTICK &&
+                binding.getJoystick().type == Input::Joystick::Type::POV &&
+                (binding.getJoystick().index & 0xFFFF) == index)
+            {
+                if (isButtonPressed(binding.getJoystick(), 0.0));
+                {
+                    forceBargraphTriggerTimestamp[p] = t.norm();
+                    gBargraphs.set(bar, 1.0);
+                }
+            }
+        }
+    }
+    base += InputMgr::MAX_JOYSTICK_POV_COUNT * 4;
+
+    for (size_t index = 0; index < InputMgr::MAX_JOYSTICK_AXIS_COUNT; ++index)
+    {
+        for (const auto& [p, bar] : forceBargraphMap)
+        {
+            auto& binding = input->getBindings(p);
+            if (binding.getType() == KeyMap::DeviceType::JOYSTICK &&
+                binding.getJoystick().type == Input::Joystick::Type::AXIS_RELATIVE_POSITIVE &&
+                binding.getJoystick().index == index)
+            {
+                double axis = _input.getJoystickAxis(binding.getJoystick().device, Input::Joystick::Type::AXIS_RELATIVE_POSITIVE, index);
+                if (axis >= 0.0 && axis <= 1.0)
+                {
+                    forceBargraphTriggerTimestamp[p] = 0;
+                    gBargraphs.set(bar, axis);
+                }
+            }
+        }
+    }
+    base += InputMgr::MAX_JOYSTICK_AXIS_COUNT;
+
+    for (size_t index = 0; index < InputMgr::MAX_JOYSTICK_AXIS_COUNT; ++index)
+    {
+        for (const auto& [p, bar] : forceBargraphMap)
+        {
+            auto& binding = input->getBindings(p);
+            if (binding.getType() == KeyMap::DeviceType::JOYSTICK &&
+                binding.getJoystick().type == Input::Joystick::Type::AXIS_RELATIVE_NEGATIVE &&
+                binding.getJoystick().index == index)
+            {
+                double axis = _input.getJoystickAxis(binding.getJoystick().device, Input::Joystick::Type::AXIS_RELATIVE_NEGATIVE, index);
+                if (axis >= 0.0 && axis <= 1.0)
+                {
+                    forceBargraphTriggerTimestamp[p] = 0;
+                    gBargraphs.set(bar, axis);
+                }
+            }
+        }
+    }
+
+    for (auto& [pad, bar] : forceBargraphMap)
+    {
+        if (forceBargraphTriggerTimestamp.find(pad) != forceBargraphTriggerTimestamp.end() &&
+            forceBargraphTriggerTimestamp[pad] != 0 &&
+            t - forceBargraphTriggerTimestamp[pad] > 500)  // 1s timeout
+        {
+            gBargraphs.set(bar, 0.0);
+        }
+    }
+}
+
+void SceneKeyConfig::updateInfo(KeyMap k, int slot)
+{
+    slot = 0;
+
+    // update text
+    switch (slot)
+    {
+    case 0: gTexts.set(eText::KEYCONFIG_SLOT1, k.toString()); break;
+    case 1: gTexts.set(eText::KEYCONFIG_SLOT2, k.toString()); break;
+    case 2: gTexts.set(eText::KEYCONFIG_SLOT3, k.toString()); break;
+    case 3: gTexts.set(eText::KEYCONFIG_SLOT4, k.toString()); break;
+    case 4: gTexts.set(eText::KEYCONFIG_SLOT5, k.toString()); break;
+    case 5: gTexts.set(eText::KEYCONFIG_SLOT6, k.toString()); break;
+    case 6: gTexts.set(eText::KEYCONFIG_SLOT7, k.toString()); break;
+    case 7: gTexts.set(eText::KEYCONFIG_SLOT8, k.toString()); break;
+    case 8: gTexts.set(eText::KEYCONFIG_SLOT9, k.toString()); break;
+    case 9: gTexts.set(eText::KEYCONFIG_SLOT10, k.toString()); break;
+    default: break;
+    }
+
+    // play sound
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }

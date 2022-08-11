@@ -1,6 +1,5 @@
 #include "common/log.h"
 #include "input_mgr.h"
-#include "input_rawinput.h"
 #include "common/sysutil.h"
 #include "config/config_mgr.h"
 #include "game/graphics/graphics.h"
@@ -11,30 +10,20 @@ using namespace Input;
 
 void InputMgr::init()
 {
-    using namespace std::placeholders;
-    addWMEventHandler(&Input::rawinput::RIMgr::WMMsgHandler);
-    addWMEventHandler(&WMMouseWheelMsgHandler);
+    initInput();
 }
 
 void InputMgr::updateDevices()
 {
     // Check jostick connection status
-    _inst.haveJoystick = false;
-    //for (unsigned i = 0; i < sf::Joystick::Count; i++)
-    //    if (sf::Joystick::isConnected(i))
-    //    {
-    //        _inst.joysticksConnected[i] = true;
-    //        _inst.haveJoystick = true;
-    //    }
-
-    Input::rawinput::RIMgr::inst().refreshDevices();
+    refreshInputDevices();
 }
 
 void InputMgr::updateBindings(GameModeKeys keys, Pad K)
 {
     // Clear current bindings
     for (auto& k : _inst.padBindings)
-        std::for_each(k.begin(), k.end(), [&](KeyMap& m) { m.reset(); });
+        k.reset();
 
     switch (keys)
     {
@@ -43,8 +32,7 @@ void InputMgr::updateBindings(GameModeKeys keys, Pad K)
     case 9:
         for (Input::Pad key = Input::S1L; key < Input::ESC; ++(*(int*)&key))
         {
-            auto padBindings = ConfigMgr::Input(keys)->getBindings(key);
-            std::copy_n(padBindings.begin(), std::min(MAX_BINDINGS_PER_KEY, padBindings.size()), _inst.padBindings[key].begin());
+            _inst.padBindings[key] = ConfigMgr::Input(keys)->getBindings(key);
         }
         break;
 
@@ -54,57 +42,55 @@ void InputMgr::updateBindings(GameModeKeys keys, Pad K)
     LOG_INFO << "Key bindings updated";
 }
 
+void InputMgr::updateDeadzones()
+{
+    using namespace cfg;
+    _inst.padDeadzones[Input::S1L] = ConfigMgr::get('P', P_INPUT_DEADZONE_S1L, 0.2);
+    _inst.padDeadzones[Input::S1R] = ConfigMgr::get('P', P_INPUT_DEADZONE_S1R, 0.2);
+    _inst.padDeadzones[Input::K1START] = ConfigMgr::get('P', P_INPUT_DEADZONE_K1Start, 0.2);
+    _inst.padDeadzones[Input::K1SELECT] = ConfigMgr::get('P', P_INPUT_DEADZONE_K1Select, 0.2);
+    _inst.padDeadzones[Input::K11] = ConfigMgr::get('P', P_INPUT_DEADZONE_K11, 0.2);
+    _inst.padDeadzones[Input::K12] = ConfigMgr::get('P', P_INPUT_DEADZONE_K12, 0.2);
+    _inst.padDeadzones[Input::K13] = ConfigMgr::get('P', P_INPUT_DEADZONE_K13, 0.2);
+    _inst.padDeadzones[Input::K14] = ConfigMgr::get('P', P_INPUT_DEADZONE_K14, 0.2);
+    _inst.padDeadzones[Input::K15] = ConfigMgr::get('P', P_INPUT_DEADZONE_K15, 0.2);
+    _inst.padDeadzones[Input::K16] = ConfigMgr::get('P', P_INPUT_DEADZONE_K16, 0.2);
+    _inst.padDeadzones[Input::K17] = ConfigMgr::get('P', P_INPUT_DEADZONE_K17, 0.2);
+    _inst.padDeadzones[Input::K18] = ConfigMgr::get('P', P_INPUT_DEADZONE_K18, 0.2);
+    _inst.padDeadzones[Input::K19] = ConfigMgr::get('P', P_INPUT_DEADZONE_K19, 0.2);
+    _inst.padDeadzones[Input::S2L] = ConfigMgr::get('P', P_INPUT_DEADZONE_S2L, 0.2);
+    _inst.padDeadzones[Input::S2R] = ConfigMgr::get('P', P_INPUT_DEADZONE_S2R, 0.2);
+    _inst.padDeadzones[Input::K2START] = ConfigMgr::get('P', P_INPUT_DEADZONE_K2Start, 0.2);
+    _inst.padDeadzones[Input::K2SELECT] = ConfigMgr::get('P', P_INPUT_DEADZONE_K2Select, 0.2);
+    _inst.padDeadzones[Input::K21] = ConfigMgr::get('P', P_INPUT_DEADZONE_K21, 0.2);
+    _inst.padDeadzones[Input::K22] = ConfigMgr::get('P', P_INPUT_DEADZONE_K22, 0.2);
+    _inst.padDeadzones[Input::K23] = ConfigMgr::get('P', P_INPUT_DEADZONE_K23, 0.2);
+    _inst.padDeadzones[Input::K24] = ConfigMgr::get('P', P_INPUT_DEADZONE_K24, 0.2);
+    _inst.padDeadzones[Input::K25] = ConfigMgr::get('P', P_INPUT_DEADZONE_K25, 0.2);
+    _inst.padDeadzones[Input::K26] = ConfigMgr::get('P', P_INPUT_DEADZONE_K26, 0.2);
+    _inst.padDeadzones[Input::K27] = ConfigMgr::get('P', P_INPUT_DEADZONE_K27, 0.2);
+    _inst.padDeadzones[Input::K28] = ConfigMgr::get('P', P_INPUT_DEADZONE_K28, 0.2);
+    _inst.padDeadzones[Input::K29] = ConfigMgr::get('P', P_INPUT_DEADZONE_K29, 0.2);
+    _inst.padDeadzones[Input::S1A] = ConfigMgr::get('P', P_INPUT_SPEED_S1A, 0.2);
+    _inst.padDeadzones[Input::S2A] = ConfigMgr::get('P', P_INPUT_SPEED_S2A, 0.2);
+}
+
 #ifdef RENDER_SDL2
 #include "SDL_mouse.h"
 #endif
 
 std::bitset<KEY_COUNT> InputMgr::detect()
 {
-    std::bitset<KEY_COUNT> res{};
+    pollInput();
 
-#ifdef RAWINPUT_AVAILABLE
-    // rawinput
-    rawinput::RIMgr::inst().update();
-    {
-        std::shared_lock lock(rawinput::RIMgr::inst().mutexInput);
-        for (int k = S1L; k < ESC; k++)
-        {
-            for (const KeyMap& b : _inst.padBindings[k])
-            {
-                if (b.getType() == KeyMap::DeviceType::RAWINPUT)
-                {
-                    if (b.isAxis())
-                    {
-                        if (_inst.axisMode == eAxisMode::AXIS_NORMAL)
-                        {
-                            double val = rawinput::RIMgr::inst().getAxis(b.getDeviceID(), b.getAxis());
-                            if (b.getAxisDir() > 0 && val > 0 || b.getAxisDir() < 0 && val < 0)
-                            {
-                                int absVal = (int)std::abs(val);
-                                if (absVal > _inst.analogDeadZone)
-                                    res[k] = true;
-                            }
-                        }
-                        else
-                        {
-                            // Handled by detectRelativeAxis, do not modify result set here
-                        }
-                    }
-                    else
-                    {
-                        if (rawinput::RIMgr::inst().isPressed(b.getDeviceID(), b.getCode()))
-                            res[k] = true;
-                    }
-                }
-            }
-        }
-    }
-#endif
+    std::bitset<KEY_COUNT> res{};
+    _inst.scratch1 = 0.0;
+    _inst.scratch2 = 0.0;
 
     // game input
     for (int k = S1L; k < ESC; k++)
     {
-        for (const KeyMap& b : _inst.padBindings[k])
+        KeyMap& b = _inst.padBindings[k];
         {
 			switch (b.getType())
 			{
@@ -113,13 +99,27 @@ std::bitset<KEY_COUNT> InputMgr::detect()
                     res[k] = true;
 				break;
 			case KeyMap::DeviceType::JOYSTICK:
-                // TODO joystick
+                if (k == S1A || k == S2A)
+                {
+                    auto& j = b.getJoystick();
+                    if (j.type == Input::Joystick::Type::AXIS_ABSOLUTE)
+                    {
+                        if (k == S1A)
+                            _inst.scratch1 = getJoystickAxis(j.device, j.type, j.index);
+                        else
+                            _inst.scratch2 = getJoystickAxis(j.device, j.type, j.index);
+                    }
+                }
+                else
+                {
+                    if (isButtonPressed(b.getJoystick(), _inst.padDeadzones[k]))
+                        res[k] = true;
+                }
 				break;
-			case KeyMap::DeviceType::CONTROLLER:
 			case KeyMap::DeviceType::MOUSE:
 				break;
 			}
-			if (res[k]) break;
+			//if (res[k]) break;
         }
     }
 
@@ -166,39 +166,6 @@ std::bitset<KEY_COUNT> InputMgr::detect()
     return res;
 }
 
-std::map<Input::Pad, std::pair<double, int>> InputMgr::detectRelativeAxis()
-{
-    std::map<Input::Pad, std::pair<double, int>> result;
-    if (_inst.axisMode != eAxisMode::AXIS_RELATIVE) return result;
-
-    for (int i = S1L; i < ESC; i++)
-    {
-        auto k = static_cast<Input::Pad>(i);
-        for (const KeyMap& b : _inst.padBindings[k])
-        {
-#ifdef RAWINPUT_AVAILABLE
-            if (b.getType() == KeyMap::DeviceType::RAWINPUT && b.isAxis())
-            {
-                auto [speed, time] = rawinput::RIMgr::inst().getAxisSpeed(b.getDeviceID(), b.getAxis());
-                //double diff = speed * time;
-                if (speed > 0 && b.getAxisDir() > 0)
-                {
-                    result[k].first += speed;
-                    result[k].second = std::max(result[static_cast<Input::Pad>(k)].second, time);
-                }
-                if (speed < 0 && b.getAxisDir() < 0)
-                {
-                    result[k].first += -speed;
-                    result[k].second = std::max(result[static_cast<Input::Pad>(k)].second, time);
-                }
-            }
-#endif
-        }
-    }
-
-    return result;
-}
-
 
 bool InputMgr::getMousePos(int& x, int& y)
 {
@@ -211,4 +178,11 @@ bool InputMgr::getMousePos(int& x, int& y)
         if (canvasScaleY != 1.0) y = (int)std::floor(y / canvasScaleY);
     }
     return ret;
+}
+
+bool InputMgr::getScratchPos(double& x, double& y)
+{
+    x = _inst.scratch1;
+    y = _inst.scratch2;
+    return true;
 }

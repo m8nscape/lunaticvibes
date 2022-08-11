@@ -780,7 +780,7 @@ int SoundDriverFMOD::loadSysSample(const Path& spath, size_t index, bool isStrea
 
     std::string path = spath.u8string();
 
-    int flags = FMOD_DEFAULT;
+    int flags = FMOD_DEFAULT | FMOD_UNIQUE;
     flags |= isStream ? FMOD_CREATESTREAM : FMOD_CREATESAMPLE;
     flags |= loop ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF;
 

@@ -5,6 +5,8 @@ namespace Input
 
 enum Pad
 {
+    INVALID = -1,
+
     S1L = 0,
     S1R,
     K11,
@@ -20,6 +22,7 @@ enum Pad
     K1SELECT,
     K1SPDUP,
     K1SPDDN,
+    S1A,
 
     S2L,
     S2R,
@@ -36,6 +39,7 @@ enum Pad
     K2SELECT,
     K2SPDUP,
     K2SPDDN,
+    S2A,
 
     ESC,
     F1,
@@ -78,7 +82,6 @@ enum Pad
 };
 
 // Ingame key definitions, mostly based on scancodes.
-// I hate jp keyboard layout. Just mentioning.
 enum class Keyboard : unsigned
 {
     K_ERROR = 0,
@@ -206,10 +209,10 @@ enum class Keyboard : unsigned
     K_DOWN,
 
     // Japanese
-    K_JP_BACKSLASH,
-    K_JP_NOCHANGE,
-    K_JP_CHANGE,
-    K_JP_HIRAGANA,
+    K_JP_YEN,
+    K_JP_NOCONVERT,
+    K_JP_CONVERT,
+    K_JP_KANA,
 
     K_COUNT
 };
@@ -342,18 +345,51 @@ inline const char* keyboardNameMap[0xFF]
     "DOWN",
 
     // Japanese
-    "JP_BACKSLASH",
-    "JP_NOCHANGE",
-    "JP_CHANGE",
-    "JP_HIRAGANA",
+    "JP_YEN",
+    "JP_NOCONVERT",
+    "JP_CONVERT",
+    "JP_KANA",
 };
 
-struct Rawinput
+
+enum class JoystickAxis
 {
-    int deviceID;
-    int keycode;
-};
+    X,
+    Y,
+    Z,
+    Rx,
+    Ry,
+    Rz,
+    Slider1,
+    Slider2,
 
+    COUNT
+};
+inline const char* joystickAxisName[(size_t)JoystickAxis::COUNT] =
+{
+    "X",
+    "Y",
+    "Z",
+    "Rx",
+    "Ry",
+    "Rz",
+    "Slider1",
+    "Slider2",
+};
+struct Joystick
+{
+    size_t device;
+    enum class Type
+    {
+        UNDEF,
+        BUTTON,
+        POV,    // bit31:left bit30:down bit29:up bit28:right
+        AXIS_RELATIVE_POSITIVE,
+        AXIS_RELATIVE_NEGATIVE,
+        AXIS_ABSOLUTE,
+    } type;
+    size_t index;
+};
 
 }
 
@@ -361,8 +397,9 @@ class KeyMap
 {
 public:
     KeyMap() = default;
-    KeyMap(const std::string_view & name) { fromString(name); }
-    KeyMap(const Input::Keyboard & kb) { setKeyboard(kb); }
+    KeyMap(const std::string_view & name) { loadFromString(name); }
+    KeyMap(const Input::Keyboard& kb) { setKeyboard(kb); }
+    KeyMap(size_t device, Input::Joystick::Type type, size_t index) { setJoystick(device, type, index); }
     ~KeyMap() = default;
 
     enum class DeviceType
@@ -370,21 +407,17 @@ public:
         UNDEF,
         KEYBOARD,
         JOYSTICK,
-        CONTROLLER,
         MOUSE,          // ???
-
-        RAWINPUT,       // Windows 
     };
 
     typedef int DeviceID;
 
 protected:
     DeviceType type = DeviceType::UNDEF;
-    DeviceID device = -1;
     union
     {
         Input::Keyboard keyboard;
-        unsigned code;
+        Input::Joystick joystick;
     };
 
 public:
@@ -393,27 +426,17 @@ public:
     std::string toString() const;
 
     Input::Keyboard getKeyboard() const { assert(type == DeviceType::KEYBOARD); return keyboard; }
-    int getDeviceID() const { return device; }
-
-    unsigned getCode() const { return code; }
-    bool isAxis() const;
-    unsigned getAxis() const;
-    AxisDir getAxisDir() const;
-
     void setKeyboard(Input::Keyboard kb);
-    void setRawInputKey(int deviceID, int code);
-    void setRawInputAxis(int deviceID, int idx, AxisDir direction);
+
+    Input::Joystick getJoystick() const { assert(type == DeviceType::JOYSTICK); return joystick; }
+    void setJoystick(size_t device, Input::Joystick::Type jtype, size_t index);
 
 private:
-    void fromString(const std::string_view& name);
-    void fromStringKeyboard(const std::string_view& name);
-    void fromStringJoystick(const std::string_view& name);
-    void fromStringController(const std::string_view& name);
-    void fromStringMouse(const std::string_view& name);
-    void fromStringRawInput(const std::string_view& name);
-    std::string toStringKeyboard() const;
-    std::string toStringJoystick() const;
-    std::string toStringController() const;
-    std::string toStringMouse() const;
-    std::string toStringRawInput() const;
+    void loadFromString(const std::string_view& name);
+    void loadFromStringK(const std::string_view& name);
+    void loadFromStringJ(const std::string_view& name);
+    void loadFromStringM(const std::string_view& name);
+    std::string toStringK() const;
+    std::string toStringJ() const;
+    std::string toStringM() const;
 };

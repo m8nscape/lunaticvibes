@@ -1152,6 +1152,33 @@ ParseRet SkinLR2::SRC_NUMBER()
         textureBuf, Rect(d.x, d.y, d.w, d.h), (NumberAlign)d.align, d.keta, d.div_y, d.div_x, d.cycle, iNum, (eTimer)d.timer, f));
     _sprites.back()->setSrcLine(csvLineNumber);
 
+    switch (iNum)
+    {
+    case eNumber::LR2IR_REPLACE_PLAY_1P_JUDGE_TIME_ERROR_MS:
+    case eNumber::LR2IR_REPLACE_PLAY_2P_JUDGE_TIME_ERROR_MS:
+    case eNumber::LR2IR_REPLACE_PLAY_1P_FAST_SLOW:
+    case eNumber::LR2IR_REPLACE_PLAY_2P_FAST_SLOW:
+    case eNumber::LR2IR_REPLACE_PLAY_1P_FAST_COUNT:
+    case eNumber::LR2IR_REPLACE_PLAY_1P_SLOW_COUNT:
+    case eNumber::PLAY_1P_FAST_COUNT:
+    case eNumber::PLAY_1P_SLOW_COUNT:
+    case eNumber::PLAY_2P_FAST_COUNT:
+    case eNumber::PLAY_2P_SLOW_COUNT:
+    case eNumber::PLAY_1P_JUDGE_TIME_ERROR_MS:
+    case eNumber::PLAY_2P_JUDGE_TIME_ERROR_MS:
+        isSupportFastSlow = true;
+        break;
+
+    case eNumber::GREEN_NUMBER_1P:
+    case eNumber::GREEN_NUMBER_2P:
+    case eNumber::GREEN_NUMBER_MAXBPM_1P:
+    case eNumber::GREEN_NUMBER_MAXBPM_2P:
+    case eNumber::GREEN_NUMBER_MINBPM_1P:
+    case eNumber::GREEN_NUMBER_MINBPM_2P:
+        isSupportGreenNumber = true;
+        break;
+    }
+
     return ParseRet::OK;
 }
 
@@ -1218,6 +1245,15 @@ ParseRet SkinLR2::SRC_BUTTON()
         if (lr2skin::buttonOp(d.type, op))
         {
             s->setInd(SpriteOption::opType::OPTION, (unsigned)op);
+
+            if (info.mode == eMode::MUSIC_SELECT)
+            {
+                if (op == eOption::PLAY_GAUGE_TYPE_1P || op == eOption::PLAY_GAUGE_TYPE_2P)
+                {
+                    if (d.div_x * d.div_y >= 6)
+                        isSupportExHardAndAssistEasy = true;
+                }
+            }
         }
         _sprites.push_back(s);
         _sprites.back()->setSrcLine(csvLineNumber);
@@ -1421,7 +1457,7 @@ ParseRet SkinLR2::SRC_GROOVEGAUGE()
     auto p = std::make_shared<SpriteGlobal>(idx);
     _sprites.push_back(p);
     _sprites.back()->setSrcLine(csvLineNumber);
-    
+
     return ParseRet::OK;
 }
 
@@ -3050,37 +3086,41 @@ void SkinLR2::update()
         // read lock
         std::shared_lock<std::shared_mutex> u(gSelectContext._mutex);
         for (auto& s : _barSprites) s->update(t);
+    }
 
-        if (hasBarAnimOrigin)
+    // update songlist position
+    if (hasBarAnimOrigin && gSelectContext.scrollDirection != 0 && !gSelectContext.entries.empty())
+    {
+        for (size_t i = 1; i + 1 < _barSprites.size(); ++i)
         {
-            auto tMove = gTimers.get(eTimer::LIST_MOVE);
-            if (t.norm() - tMove < barAnimTimeLength)
+            if (!_barSpriteAdded[i]) continue;
+
+            double posNow = gSliders.get(eSlider::SELECT_LIST) * gSelectContext.entries.size();
+
+            double decimal = posNow - (int)posNow;
+            if (decimal <= 0.5 && _barSprites[i - 1]->isDraw())
             {
-                setListStopTimer = true;
-                for (size_t i = 1; i + 1 < _barSprites.size(); ++i)
-                {
-                    if (!_barSpriteAdded[i]) continue;
-
-                    double factor = 1.0 - (t.norm() - tMove) / double(barAnimTimeLength);
-
-                    auto& rectStored = _barAnimOrigin[i];
-                    auto& rectSprite = _barSprites[i]->_current.rect;
-                    Rect dr{
-                        static_cast<int>(std::round((rectStored.x - rectSprite.x) * factor)),
-                        static_cast<int>(std::round((rectStored.y - rectSprite.y) * factor)),
-                        0, 0
-                    };
-                    _barSprites[i]->setRectOffset(dr);
-
-                }
+                double factor = decimal;
+                auto& rectStored = _barAnimOrigin[i - 1];
+                auto& rectSprite = _barSprites[i]->_current.rect;
+                Rect dr{
+                    static_cast<int>(std::round((rectStored.x - rectSprite.x) * factor)),
+                    static_cast<int>(std::round((rectStored.y - rectSprite.y) * factor)),
+                    0, 0
+                };
+                _barSprites[i]->setRectOffset(dr);
             }
-            else
+            else if (_barSprites[i + 1]->isDraw())
             {
-                if (setListStopTimer)
-                {
-                    setListStopTimer = false;
-                    gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());
-                }
+                double factor = -decimal + 1.0;
+                auto& rectStored = _barAnimOrigin[i + 1];
+                auto& rectSprite = _barSprites[i]->_current.rect;
+                Rect dr{
+                    static_cast<int>(std::round((rectStored.x - rectSprite.x) * factor)),
+                    static_cast<int>(std::round((rectStored.y - rectSprite.y) * factor)),
+                    0, 0
+                };
+                _barSprites[i]->setRectOffset(dr);
             }
         }
     }
@@ -3092,21 +3132,11 @@ void SkinLR2::reset_bar_animation()
     _barAnimOrigin.fill(Rect(0, 0, 0, 0));
 }
 
-void SkinLR2::start_bar_animation(int direction)
+void SkinLR2::start_bar_animation()
 {
-    barAnimTimeLength = gSelectContext.scrollTime;
     for (size_t i = 0; i < BAR_ENTRY_SPRITE_COUNT; ++i)
     {
-        int di = direction + i;
-        if (di < 0 || di >= BAR_ENTRY_SPRITE_COUNT || !_barSpriteAdded[di])
-        {
-            _barAnimOrigin[i] = _barSprites[i]->_current.rect;
-        }
-        else
-        {
-            int j = di % BAR_ENTRY_SPRITE_COUNT;
-            _barAnimOrigin[i] = _barSprites[j]->_current.rect;
-        }
+        _barAnimOrigin[i] = _barSprites[i]->_current.rect;
     }
     hasBarAnimOrigin = true;
 }

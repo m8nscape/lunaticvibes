@@ -20,13 +20,17 @@ protected:
     void updateFadeout();
 
 protected:
+    std::map<Input::Pad, long long> forceBargraphTriggerTimestamp;
+    void updateForceBargraphs();
+
+    void updateInfo(KeyMap k, int slot);
+
+protected:
     // Register to InputWrapper: judge / keysound
     void inputGamePress(InputMask&, const Time&);
     void inputGamePressKeyboard(KeyboardMask&, const Time&);
-#ifdef RAWINPUT_AVAILABLE
-    std::map<int, std::map<int, AxisDir>> _riAxisDirPrev;
-    void inputGamePressRawinput(int deviceID, RawinputKeyMap& button, RawinputAxisSpeedMap& axisDiff, const Time&);
-#endif
+    void inputGamePressJoystick(JoystickMask&, size_t device, const Time&);
+    void inputGameAbsoluteAxis(JoystickAxis&, size_t device, const Time&);
 
 public:
     static void setInputBindingText(GameModeKeys keys, Input::Pad pad);

@@ -96,6 +96,7 @@ public:
     virtual void setLoopTime(int t);
 	virtual void setTrigTimer(eTimer t);
     virtual void appendKeyFrame(const RenderKeyFrame& f);
+    bool isDraw() const { return _draw; }
     virtual void draw() const = 0;
     void setHide(bool hide) { _hide = hide; }
     bool isHidden() const { return _hide; }

@@ -347,7 +347,8 @@ std::string convertLR2Path(const std::string& lr2path, std::string_view relative
 Path PathFromUTF8(std::string_view s)
 {
 #ifdef _WIN32
-    return utf8_to_utf32(std::string(s));
+    const static auto locale_utf8 = std::locale(".65001");
+    return Path(std::string(s), locale_utf8);
 #else
     return Path(s);
 #endif
@@ -386,4 +387,22 @@ void preciseSleep(long long sleep_ns)
     std::this_thread::sleep_for(sleep_ns);
 
 #endif
+}
+
+double normalizeLinearGrowth(double prev, double curr)
+{
+    if (prev == -1.0) return 0.0;
+    if (curr == -1.0) return 0.0;
+
+    assert(prev >= 0.0 && prev <= 1.0);
+    assert(curr >= 0.0 && curr <= 1.0);
+
+    double delta = curr - prev;
+    if (prev > 0.8 && curr < 0.2)
+        delta += 1.0;
+    else if (prev < 0.2 && curr > 0.8)
+        delta -= 1.0;
+
+    assert(delta >= -1.0 && delta <= 1.0);
+    return delta;
 }

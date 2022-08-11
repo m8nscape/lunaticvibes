@@ -217,6 +217,42 @@ void pitch(double p)
     }
 }
 
+void deadzone(int type, double p)
+{
+    using namespace cfg;
+    switch (type)
+    {
+    case 30: ConfigMgr::set('P', P_INPUT_DEADZONE_S1L, p); break;
+    case 31: ConfigMgr::set('P', P_INPUT_DEADZONE_S1R, p); break;
+    case 32: ConfigMgr::set('P', P_INPUT_DEADZONE_K1Start, p); break;
+    case 33: ConfigMgr::set('P', P_INPUT_DEADZONE_K1Select, p); break;
+    case 40: ConfigMgr::set('P', P_INPUT_SPEED_S1A, p); break;
+    case 41: ConfigMgr::set('P', P_INPUT_DEADZONE_K11, p); break;
+    case 42: ConfigMgr::set('P', P_INPUT_DEADZONE_K12, p); break;
+    case 43: ConfigMgr::set('P', P_INPUT_DEADZONE_K13, p); break;
+    case 44: ConfigMgr::set('P', P_INPUT_DEADZONE_K14, p); break;
+    case 45: ConfigMgr::set('P', P_INPUT_DEADZONE_K15, p); break;
+    case 46: ConfigMgr::set('P', P_INPUT_DEADZONE_K16, p); break;
+    case 47: ConfigMgr::set('P', P_INPUT_DEADZONE_K17, p); break;
+    case 48: ConfigMgr::set('P', P_INPUT_DEADZONE_K18, p); break;
+    case 49: ConfigMgr::set('P', P_INPUT_DEADZONE_K19, p); break;
+    case 35: ConfigMgr::set('P', P_INPUT_DEADZONE_S2L, p); break;
+    case 36: ConfigMgr::set('P', P_INPUT_DEADZONE_S2R, p); break;
+    case 37: ConfigMgr::set('P', P_INPUT_DEADZONE_K2Start, p); break;
+    case 38: ConfigMgr::set('P', P_INPUT_DEADZONE_K2Select, p); break;
+    case 50: ConfigMgr::set('P', P_INPUT_SPEED_S2A, p); break;
+    case 51: ConfigMgr::set('P', P_INPUT_DEADZONE_K21, p); break;
+    case 52: ConfigMgr::set('P', P_INPUT_DEADZONE_K22, p); break;
+    case 53: ConfigMgr::set('P', P_INPUT_DEADZONE_K23, p); break;
+    case 54: ConfigMgr::set('P', P_INPUT_DEADZONE_K24, p); break;
+    case 55: ConfigMgr::set('P', P_INPUT_DEADZONE_K25, p); break;
+    case 56: ConfigMgr::set('P', P_INPUT_DEADZONE_K26, p); break;
+    case 57: ConfigMgr::set('P', P_INPUT_DEADZONE_K27, p); break;
+    case 58: ConfigMgr::set('P', P_INPUT_DEADZONE_K28, p); break;
+    case 59: ConfigMgr::set('P', P_INPUT_DEADZONE_K29, p); break;
+    }
+    InputMgr::updateDeadzones();
+}
 
 #pragma endregion
 
@@ -265,6 +301,12 @@ std::function<void(double)> getSliderCallback(int type)
         return std::bind(fx2, 1, _1);
     case 26:
         return std::bind(pitch, _1);
+
+    case 30:
+    case 31:
+    case 32:
+    case 33:
+        return std::bind(deadzone, type, _1);
 
     default:
         return [](double) {};

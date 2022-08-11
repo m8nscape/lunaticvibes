@@ -32,37 +32,39 @@ void ConfigInput::clearAll()
 {
     using namespace cfg;
     
-    set(I_BINDINGS_K1ScL, std::vector<std::string>());
-    set(I_BINDINGS_K1ScR, std::vector<std::string>());
-    set(I_BINDINGS_K11, std::vector<std::string>());
-    set(I_BINDINGS_K12, std::vector<std::string>());
-    set(I_BINDINGS_K13, std::vector<std::string>());
-    set(I_BINDINGS_K14, std::vector<std::string>());
-    set(I_BINDINGS_K15, std::vector<std::string>());
-    set(I_BINDINGS_K16, std::vector<std::string>());
-    set(I_BINDINGS_K17, std::vector<std::string>());
-    set(I_BINDINGS_K18, std::vector<std::string>());
-    set(I_BINDINGS_K19, std::vector<std::string>());
-    set(I_BINDINGS_K1Start, std::vector<std::string>());
-    set(I_BINDINGS_K1Select, std::vector<std::string>());
-    set(I_BINDINGS_K1SpdUp, std::vector<std::string>());
-    set(I_BINDINGS_K1SpdDn, std::vector<std::string>());
+    set(I_BINDINGS_K1ScL, "");
+    set(I_BINDINGS_K1ScR, "");
+    set(I_BINDINGS_K11, "");
+    set(I_BINDINGS_K12, "");
+    set(I_BINDINGS_K13, "");
+    set(I_BINDINGS_K14, "");
+    set(I_BINDINGS_K15, "");
+    set(I_BINDINGS_K16, "");
+    set(I_BINDINGS_K17, "");
+    set(I_BINDINGS_K18, "");
+    set(I_BINDINGS_K19, "");
+    set(I_BINDINGS_K1Start, "");
+    set(I_BINDINGS_K1Select, "");
+    set(I_BINDINGS_K1SpdUp, "");
+    set(I_BINDINGS_K1SpdDn, "");
+    set(I_BINDINGS_K1ScAxis, "");
 
-    set(I_BINDINGS_K2ScL, std::vector<std::string>());
-    set(I_BINDINGS_K2ScR, std::vector<std::string>());
-    set(I_BINDINGS_K21, std::vector<std::string>());
-    set(I_BINDINGS_K22, std::vector<std::string>());
-    set(I_BINDINGS_K23, std::vector<std::string>());
-    set(I_BINDINGS_K24, std::vector<std::string>());
-    set(I_BINDINGS_K25, std::vector<std::string>());
-    set(I_BINDINGS_K26, std::vector<std::string>());
-    set(I_BINDINGS_K27, std::vector<std::string>());
-    set(I_BINDINGS_K28, std::vector<std::string>());
-    set(I_BINDINGS_K29, std::vector<std::string>());
-    set(I_BINDINGS_K2Start, std::vector<std::string>());
-    set(I_BINDINGS_K2Select, std::vector<std::string>());
-    set(I_BINDINGS_K2SpdUp, std::vector<std::string>());
-    set(I_BINDINGS_K2SpdDn, std::vector<std::string>());
+    set(I_BINDINGS_K2ScL, "");
+    set(I_BINDINGS_K2ScR, "");
+    set(I_BINDINGS_K21, "");
+    set(I_BINDINGS_K22, "");
+    set(I_BINDINGS_K23, "");
+    set(I_BINDINGS_K24, "");
+    set(I_BINDINGS_K25, "");
+    set(I_BINDINGS_K26, "");
+    set(I_BINDINGS_K27, "");
+    set(I_BINDINGS_K28, "");
+    set(I_BINDINGS_K29, "");
+    set(I_BINDINGS_K2Start, "");
+    set(I_BINDINGS_K2Select, "");
+    set(I_BINDINGS_K2SpdUp, "");
+    set(I_BINDINGS_K2SpdDn, "");
+    set(I_BINDINGS_K2ScAxis, "");
 }
 
 std::string getBindingKey(Input::Pad ingame)
@@ -86,6 +88,7 @@ std::string getBindingKey(Input::Pad ingame)
     case K1SELECT:  return I_BINDINGS_K1Select; 
     case K1SPDUP:   return I_BINDINGS_K1SpdUp; 
     case K1SPDDN:   return I_BINDINGS_K1SpdDn; 
+    case S1A:       return I_BINDINGS_K1ScAxis;
     
     case S2L:       return I_BINDINGS_K2ScL; 
     case S2R:       return I_BINDINGS_K2ScR; 
@@ -101,7 +104,8 @@ std::string getBindingKey(Input::Pad ingame)
     case K2START:   return I_BINDINGS_K2Start; 
     case K2SELECT:  return I_BINDINGS_K2Select; 
     case K2SPDUP:   return I_BINDINGS_K2SpdUp; 
-    case K2SPDDN:   return I_BINDINGS_K2SpdDn; 
+    case K2SPDDN:   return I_BINDINGS_K2SpdDn;
+    case S2A:       return I_BINDINGS_K2ScAxis;
 
     default:        return I_NOTBOUND;
     }
@@ -114,33 +118,22 @@ void ConfigInput::clearKey(Input::Pad ingame)
 
     StringContent mapKey = getBindingKey(ingame);
     if (mapKey != I_NOTBOUND)
-        set(mapKey, std::vector<std::string>());
+        set(mapKey, "");
 }
 
-void ConfigInput::bind(Input::Pad ingame, const KeyMap& km, size_t slot)
+void ConfigInput::bind(Input::Pad ingame, const KeyMap& km)
 {
     StringContent mapKey = getBindingKey(ingame);
     if (mapKey != cfg::I_NOTBOUND) 
-        set(mapKey, slot, km.toString());
+        set(mapKey, km.toString());
 }
 
-std::vector<KeyMap> ConfigInput::getBindings(Input::Pad ingame)
+KeyMap ConfigInput::getBindings(Input::Pad ingame)
 {
     using namespace Input;
     using namespace cfg;
     StringContent mapKey = getBindingKey(ingame);
 
-    auto keys = _yaml[mapKey];
-    std::vector<KeyMap> ret;
-    for (const auto& k : keys)
-    {
-        std::string name = k.as<std::string>("INVALID");
-        KeyMap binding(name);
-        if (binding.getType() != KeyMap::DeviceType::UNDEF)
-        {
-            ret.push_back(binding);
-        }
-    }
-    
-    return ret;
+    std::string name = _yaml[mapKey].as<std::string>("INVALID");
+    return KeyMap(name);
 }

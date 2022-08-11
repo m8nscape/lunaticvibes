@@ -84,7 +84,7 @@ static const std::vector<std::variant<std::monostate, eSwitch, eOption>> buttonA
     eSwitch::PLAY_OPTION_AUTOSCR_2P,
 
     //46~49
-    eSwitch::_FALSE,	// shutter?
+    eSwitch::_TRUE,	    // lanecover
     eSwitch::_FALSE,
     eSwitch::_FALSE,	// reserved
     eSwitch::_FALSE,	// reserved
@@ -169,9 +169,9 @@ eSwitch::S1L_CONFIG,
 eSwitch::S1R_CONFIG,
 eSwitch::K1START_CONFIG,
 eSwitch::K1SELECT_CONFIG,
-eSwitch::K1SPDUP_CONFIG,
-eSwitch::K1SPDDN_CONFIG,
-eSwitch::_FALSE,
+eSwitch::K1SPDUP_CONFIG,    // new 114
+eSwitch::K1SPDDN_CONFIG,    // new 115
+eSwitch::S1A_CONFIG,        // new 116
 eSwitch::_FALSE,
 eSwitch::_FALSE,
 eSwitch::_FALSE,
@@ -191,9 +191,9 @@ eSwitch::S2L_CONFIG,
 eSwitch::S2R_CONFIG,
 eSwitch::K2START_CONFIG,
 eSwitch::K2SELECT_CONFIG,
-eSwitch::K2SPDUP_CONFIG,
-eSwitch::K2SPDDN_CONFIG,
-eSwitch::_FALSE,
+eSwitch::K2SPDUP_CONFIG,    // new 134
+eSwitch::K2SPDDN_CONFIG,    // new 135
+eSwitch::S2A_CONFIG,        // new 136
 eSwitch::_FALSE,
 eSwitch::_FALSE,
 eSwitch::_FALSE,

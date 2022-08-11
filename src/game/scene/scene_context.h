@@ -86,6 +86,16 @@ struct PlayContextParams
     unsigned int randomSeedMod;
 
     bool isAuto = false;
+
+    double Hispeed = 2.0;
+
+    // BATTLE 2P side settings
+    double battle2PHispeed = 2.0;
+    bool battle2PLanecover = false;
+    int battle2PLanecoverTop = 0;
+    int battle2PLanecoverBottom = 0;
+    bool battle2PLockSpeed = false;
+    int battle2PGreenNumber = 1200;
 };
 
 void clearContextPlayForRetry();
@@ -122,8 +132,10 @@ struct SelectContextParams
     SongListSort sort = SongListSort::DEFAULT;
     unsigned difficulty = 0; // all / B / N / H / A / I (type 0 is not included)
     unsigned gamemode = 0; // all / 5, 7, 9, 10, 14, etc
-    unsigned scrollTime = 300; // 
     double pitchSpeed = 1.0;
+
+    unsigned scrollTimeLength = 300; // 
+    int scrollDirection = 0;    // -1: up / 1: down
 
     int panel = 0;
 

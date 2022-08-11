@@ -512,8 +512,14 @@ void hs(int player, int plus)
     plus = plus > 0 ? 25 : -25;
     switch (player)
     {
-    case 0: number_change_clamp(eNumber::HS_1P, 50, 1000, plus); break;
-    case 1: number_change_clamp(eNumber::HS_2P, 50, 1000, plus); break;
+    case 0: 
+        number_change_clamp(eNumber::HS_1P, 50, 1000, plus);
+        gPlayContext.Hispeed = gNumbers.get(eNumber::HS_1P) / 100.0;
+        break;
+    case 1: 
+        number_change_clamp(eNumber::HS_2P, 50, 1000, plus);
+        gPlayContext.battle2PHispeed = gNumbers.get(eNumber::HS_2P) / 100.0;
+        break;
     default: break;
     }
 }
@@ -670,6 +676,18 @@ void key_config_pad(Input::Pad pad)
 {
     auto& sel = gKeyconfigContext.selecting;
     auto old = sel.first;
+
+    if (old == pad)
+    {
+        switch (pad)
+        {
+        case Input::Pad::S1L:
+        case Input::Pad::S1R: pad = Input::Pad::S1A; break;
+        case Input::Pad::S2L:
+        case Input::Pad::S2R: pad = Input::Pad::S2A; break;
+        }
+    }
+
     if (old != pad)
     {
         auto setSwitch = [](Input::Pad pad, bool sw)
@@ -706,6 +724,16 @@ void key_config_pad(Input::Pad pad)
             case Input::Pad::K2SELECT: gSwitches.set(eSwitch::K2SELECT_CONFIG, sw); break;
             case Input::Pad::K2SPDUP:  gSwitches.set(eSwitch::K2SPDUP_CONFIG, sw); break;
             case Input::Pad::K2SPDDN:  gSwitches.set(eSwitch::K2SPDDN_CONFIG, sw); break;
+            case Input::Pad::S1A:      
+                gSwitches.set(eSwitch::S1L_CONFIG, sw);
+                gSwitches.set(eSwitch::S1R_CONFIG, sw);
+                gSwitches.set(eSwitch::S1A_CONFIG, sw); 
+                break;
+            case Input::Pad::S2A:
+                gSwitches.set(eSwitch::S2L_CONFIG, sw);
+                gSwitches.set(eSwitch::S2R_CONFIG, sw);
+                gSwitches.set(eSwitch::S2A_CONFIG, sw);
+                break;
             default: break;
             }
         };
@@ -735,6 +763,8 @@ void key_config_pad(Input::Pad pad)
                 case Input::Pad::S2R:      idx = 16; break;
                 case Input::Pad::K2START:  idx = 17; break;
                 case Input::Pad::K2SELECT: idx = 18; break;
+                case Input::Pad::S1A:      idx = 19; break;
+                case Input::Pad::S2A:      idx = 20; break;
                 default: break;
                 }
                 gOptions.set(eOption::KEY_CONFIG_KEY5, idx);
@@ -764,6 +794,8 @@ void key_config_pad(Input::Pad pad)
                 case Input::Pad::S2R:      idx = 20; break;
                 case Input::Pad::K2START:  idx = 21; break;
                 case Input::Pad::K2SELECT: idx = 22; break;
+                case Input::Pad::S1A:      idx = 23; break;
+                case Input::Pad::S2A:      idx = 24; break;
                 default: break;
                 }
                 gOptions.set(eOption::KEY_CONFIG_KEY7, idx);
@@ -797,11 +829,8 @@ void key_config_pad(Input::Pad pad)
         sel.first = pad;
 
         auto bindings = ConfigMgr::Input(gKeyconfigContext.keys)->getBindings(pad);
-        for (size_t i = 0; i < bindings.size(); ++i)
-        {
-            gTexts.set(eText(unsigned(eText::KEYCONFIG_SLOT1) + i), bindings[i].toString());
-        }
-        for (size_t i = bindings.size(); i < InputMgr::MAX_BINDINGS_PER_KEY; ++i)
+        gTexts.set(eText::KEYCONFIG_SLOT1, bindings.toString());
+        for (size_t i = 1; i < 10; ++i)
         {
             gTexts.set(eText(unsigned(eText::KEYCONFIG_SLOT1) + i), "-");
         }
@@ -1058,6 +1087,11 @@ std::function<void(int)> getButtonCallback(int type)
         return std::bind(key_config_pad, Input::Pad::K1START);
     case 113:
         return std::bind(key_config_pad, Input::Pad::K1SELECT);
+    case 114:
+    case 115:
+        break;
+    case 116:
+        return std::bind(key_config_pad, Input::Pad::S1A);
 
     case 121:
     case 122:
@@ -1078,6 +1112,11 @@ std::function<void(int)> getButtonCallback(int type)
         return std::bind(key_config_pad, Input::Pad::K2START);
     case 133:
         return std::bind(key_config_pad, Input::Pad::K2SELECT);
+    case 134:
+    case 135:
+        break;
+    case 136:
+        return std::bind(key_config_pad, Input::Pad::S2A);
 
     case 143:
         return std::bind(key_config_mode_rotate);

@@ -76,7 +76,7 @@ public:
     virtual void update_mouse_drag(int x, int y);
     virtual void update_mouse_release();
     virtual void reset_bar_animation() = 0;
-    virtual void start_bar_animation(int direction) = 0;
+    virtual void start_bar_animation() = 0;
     virtual void draw() const;
     void setHandleMouseEvents(bool b) { _handleMouseEvents = b; }
     void startSpriteVideoPlayback();
@@ -134,4 +134,11 @@ public:
     virtual StringContent getName() const = 0;
     virtual StringContent getMaker() const = 0;
     virtual StringPath getFilePath() const = 0;
+
+////////////////////////////////////////////////////////////////////////////////
+// extended capability support
+public:
+    bool isSupportExHardAndAssistEasy = false;
+    bool isSupportFastSlow = false;
+    bool isSupportGreenNumber = false;
 };

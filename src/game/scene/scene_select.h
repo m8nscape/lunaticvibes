@@ -29,8 +29,12 @@ private:
     bool isHoldingDown = false;
     bool isScrollingByAxis = false;
     bool isInVersionList = false;
-    Time scrollTimestamp = -1;
-    Time selectDownTimestamp = -1;
+
+    Time selectDownTimestamp;
+
+    Time scrollButtonTimestamp;
+    double scrollAccumulator = 0.0;
+    double scrollAccumulatorAddUnit = 0.0;
 
     // imgui
     bool imguiShow = false;
@@ -64,7 +68,7 @@ private:
     void inputGamePressSelect(InputMask&, const Time&);
     void inputGameHoldSelect(InputMask&, const Time&);
     void inputGameReleaseSelect(InputMask&, const Time&);
-    void inputGameAxisSelect(InputAxisPlus&, const Time&);
+    void inputGameAxisSelect(double s1, double s2, const Time&);
 
     void inputGamePressPanel(InputMask&, const Time&);
     void inputGameHoldPanel(InputMask&, const Time&);

@@ -211,7 +211,6 @@ enum class eNumber: unsigned
 		LANECOVER_TOP_1P,
 		GREEN_NUMBER_MINBPM_1P,
 		GREEN_NUMBER_MAXBPM_1P,
-		LIFT_1P,
 		LANECOVER_BOTTOM_1P,
 
 		PLAY_3COL_JUDGE_COMBO_LEFT = 310,
@@ -253,7 +252,6 @@ enum class eNumber: unsigned
 		LANECOVER_TOP_2P,
 		GREEN_NUMBER_MINBPM_2P,
 		GREEN_NUMBER_MAXBPM_2P,
-		LIFT_2P,
 		LANECOVER_BOTTOM_2P,
 
 		FOLDER_TOTALSONGS = 340,	// not yet implemented
@@ -279,6 +277,9 @@ enum class eNumber: unsigned
 		PLAY_2P_COMBOBREAK,
 		PLAY_2P_BP,
 		PLAY_2P_JUDGE_TIME_ERROR_MS,
+
+		SCRATCH_AXIS_1P_ANGLE = 380,
+		SCRATCH_AXIS_2P_ANGLE,
 
 		//  LR2HelperA A.0.39 - GITADORA風 JUDGE BARの追加 - Endless Circulation SE FS5のリザルトに適用されています
 		GITADORA_STYLE_JUDGE_BAR_0 = 400,	// (0:残り,1:ノーミス,2:ミス)

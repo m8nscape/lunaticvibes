@@ -75,7 +75,7 @@ private:
         }
     }
 
-    std::vector<KeyMap> _getKeyBindings(GameModeKeys mode, Input::Pad key)
+    KeyMap _getKeyBindings(GameModeKeys mode, Input::Pad key)
     {
         switch (mode)
         {

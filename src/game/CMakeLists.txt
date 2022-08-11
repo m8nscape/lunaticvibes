@@ -46,14 +46,13 @@ add_library(gamelib
     sound/sound_sample.cpp  
     scene/scene_keyconfig.cpp
     scene/scene_play_course_trans.cpp
-    input/input_rawinput.cpp
     scene/scene_customize.cpp
     skin/skin_lr2_slider_callbacks.cpp
     scene/scene_select_imgui.cpp
     ruleset/ruleset_bms_auto.cpp
     scene/scene_exit_trans.cpp
     skin/skin_lr2_debug.cpp
-)
+ "input/input_dinput8.cpp")
 
 if (UNIX OR MINGW)
     target_link_libraries(gamelib PRIVATE -lpthread)

@@ -19,55 +19,49 @@ private:
 
 public:
     static constexpr std::size_t MAX_JOYSTICK_COUNT = 8;
-    static constexpr std::size_t MAX_BINDINGS_PER_KEY = 10;
-    enum class eAxisMode { AXIS_NORMAL, AXIS_RELATIVE };
+    static constexpr std::size_t MAX_JOYSTICK_BUTTON_COUNT = 32;
+    static constexpr std::size_t MAX_JOYSTICK_POV_COUNT = 4;    // 4 directions each pov
+    static constexpr std::size_t MAX_JOYSTICK_AXIS_COUNT = 8;       // 2 directions each axis
+    enum class eAxisMode { AXIS_NORMAL, AXIS_ABSOLUTE };
 
     // Game keys param / functions
 private:
     std::bitset<MAX_JOYSTICK_COUNT> joysticksConnected{};
-    bool haveJoystick = false;
-    std::array<std::array<KeyMap, MAX_BINDINGS_PER_KEY>, Input::ESC> padBindings{};
-	int mouse_x = 0, mouse_y = 0;
-	int analogDeadZone = 25;
-    double axisMinSpeed = 0.001;
-    eAxisMode axisMode = eAxisMode::AXIS_NORMAL;
+    std::array<KeyMap, Input::ESC> padBindings{};
+    std::array<double, Input::ESC> padDeadzones{};
+    double scratch1, scratch2;
 
 public:
     // Game keys param / functions
     static void init();
     static void updateDevices();
     static void updateBindings(GameModeKeys keys, Input::Pad K);
+    static void updateDeadzones();
     static std::bitset<Input::KEY_COUNT> detect();
-    static std::map<Input::Pad, std::pair<double, int>> detectRelativeAxis();
 	static bool getMousePos(int& x, int& y);
-
-    static void setDeadzone(int val) { _inst.analogDeadZone = val; }
-    static int getDeadzone() { return _inst.analogDeadZone; }
-
-    static void setAxisMode(eAxisMode mode) { _inst.axisMode = mode; }
-    static eAxisMode getAxisMode() { return _inst.axisMode; }
-
-    static void setAxisMinSpeed(double val) { _inst.axisMinSpeed = val; }
-    static double getAxisMinSpeed() { return _inst.axisMinSpeed; }
-
+    static bool getScratchPos(double& s1, double& s2);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 // System specific range
 
+void initInput();
+
+void refreshInputDevices();
+
+void pollInput();
+
 // Keyboard detect
 bool isKeyPressed(Input::Keyboard c);
 
 // Joystick detect
-typedef int JoyBtn;
-//bool isButtonPressed(Device d, Button b);
+bool isButtonPressed(Input::Joystick c, double deadzone = 0.0);
+double getJoystickAxis(size_t device, Input::Joystick::Type type, size_t index);
 
 // Mouse detect
 bool isMouseButtonPressed(int idx);
 
-#ifdef WIN32
-LRESULT WMMouseWheelMsgHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-#else
-// TODO something receives mouse wheel. Do not change the function displayName!
-#endif
 short getLastMouseWheelState();
+
+// absolute axis
+

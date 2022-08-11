@@ -107,6 +107,7 @@ enum class eSwitch: unsigned
     K1SELECT_CONFIG,
     K1SPDUP_CONFIG,
     K1SPDDN_CONFIG,
+    S1A_CONFIG,
 
     K21_CONFIG,
     K22_CONFIG,
@@ -123,6 +124,7 @@ enum class eSwitch: unsigned
     K2SELECT_CONFIG,
     K2SPDUP_CONFIG,
     K2SPDDN_CONFIG,
+    S2A_CONFIG,
 
         KEY_CONFIG_SLOT0,
         KEY_CONFIG_SLOT1,
@@ -137,6 +139,9 @@ enum class eSwitch: unsigned
 
 	P1_SETTING_SPEED,
 	P2_SETTING_SPEED,
+
+        P1_LOCK_SPEED,
+        P2_LOCK_SPEED,
 
     _FALSE = 999,        // should be initialized with false
 
