@@ -28,7 +28,7 @@ protected:
 
 public:
     SceneResult();
-    virtual ~SceneResult() = default;
+    virtual ~SceneResult();
 
 protected:
     // Looper callbacks

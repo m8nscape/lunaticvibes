@@ -23,6 +23,12 @@ SceneDecide::SceneDecide() : vScene(eMode::DECIDE, 1000)
     SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::BGM_DECIDE);
 }
 
+SceneDecide::~SceneDecide()
+{
+    _input.loopEnd();
+    loopEnd();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void SceneDecide::_updateAsync()

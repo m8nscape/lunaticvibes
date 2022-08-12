@@ -3104,45 +3104,45 @@ void SkinLR2::update()
     }
 
     // update songlist bar
+    std::shared_lock<std::shared_mutex> u(gSelectContext._mutex, std::try_to_lock); // read lock
+    if (u.owns_lock())
     {
-        // read lock
-        std::shared_lock<std::shared_mutex> u(gSelectContext._mutex);
         for (auto& s : _barSprites) s->update(t);
-    }
 
-    // update songlist position
-    if (hasBarAnimOrigin && gSelectContext.scrollDirection != 0 && !gSelectContext.entries.empty())
-    {
-        for (size_t i = 1; i + 1 < _barSprites.size(); ++i)
+        // update songlist position
+        if (hasBarAnimOrigin && gSelectContext.scrollDirection != 0 && !gSelectContext.entries.empty())
         {
-            if (!_barSpriteAdded[i]) continue;
-
-            double posNow = gSliders.get(eSlider::SELECT_LIST) * gSelectContext.entries.size();
-
-            double decimal = posNow - (int)posNow;
-            if (decimal <= 0.5 && _barSprites[i - 1]->isDraw())
+            for (size_t i = 1; i + 1 < _barSprites.size(); ++i)
             {
-                double factor = decimal;
-                auto& rectStored = _barAnimOrigin[i - 1];
-                auto& rectSprite = _barSprites[i]->_current.rect;
-                Rect dr{
-                    static_cast<int>(std::round((rectStored.x - rectSprite.x) * factor)),
-                    static_cast<int>(std::round((rectStored.y - rectSprite.y) * factor)),
-                    0, 0
-                };
-                _barSprites[i]->setRectOffset(dr);
-            }
-            else if (_barSprites[i + 1]->isDraw())
-            {
-                double factor = -decimal + 1.0;
-                auto& rectStored = _barAnimOrigin[i + 1];
-                auto& rectSprite = _barSprites[i]->_current.rect;
-                Rect dr{
-                    static_cast<int>(std::round((rectStored.x - rectSprite.x) * factor)),
-                    static_cast<int>(std::round((rectStored.y - rectSprite.y) * factor)),
-                    0, 0
-                };
-                _barSprites[i]->setRectOffset(dr);
+                if (!_barSpriteAdded[i]) continue;
+
+                double posNow = gSliders.get(eSlider::SELECT_LIST) * gSelectContext.entries.size();
+
+                double decimal = posNow - (int)posNow;
+                if (decimal <= 0.5 && _barSprites[i - 1]->isDraw())
+                {
+                    double factor = decimal;
+                    auto& rectStored = _barAnimOrigin[i - 1];
+                    auto& rectSprite = _barSprites[i]->_current.rect;
+                    Rect dr{
+                        static_cast<int>(std::round((rectStored.x - rectSprite.x) * factor)),
+                        static_cast<int>(std::round((rectStored.y - rectSprite.y) * factor)),
+                        0, 0
+                    };
+                    _barSprites[i]->setRectOffset(dr);
+                }
+                else if (_barSprites[i + 1]->isDraw())
+                {
+                    double factor = -decimal + 1.0;
+                    auto& rectStored = _barAnimOrigin[i + 1];
+                    auto& rectSprite = _barSprites[i]->_current.rect;
+                    Rect dr{
+                        static_cast<int>(std::round((rectStored.x - rectSprite.x) * factor)),
+                        static_cast<int>(std::round((rectStored.y - rectSprite.y) * factor)),
+                        0, 0
+                    };
+                    _barSprites[i]->setRectOffset(dr);
+                }
             }
         }
     }

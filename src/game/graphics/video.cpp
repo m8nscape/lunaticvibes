@@ -134,8 +134,8 @@ Texture::PixelFormat sVideo::getFormat()
 void sVideo::startPlaying()
 {
 	if (playing) return;
+	if (finished) return;
 	playing = true;
-	setVideo(file, loop_playback);	// start video from the beginning
 	startTime = std::chrono::system_clock::now();
 	decodeEnd = std::async(std::launch::async, std::bind(&sVideo::decodeLoop, this));
 }
@@ -145,6 +145,8 @@ void sVideo::stopPlaying()
 	if (!playing) return;
 	playing = false;
 	decodeEnd.wait();
+	finished = false;
+	seek(0);
 }
 
 void sVideo::decodeLoop()
@@ -252,7 +254,7 @@ void sVideo::decodeLoop()
 				}
 				if (pFrame1->pts >= 0)
 				{
-					std::lock_guard l(video_frame_mutex);
+					std::unique_lock l(video_frame_mutex);
 
 					av_frame_unref(pFrame);
 					av_frame_ref(pFrame, pFrame1);
@@ -262,6 +264,7 @@ void sVideo::decodeLoop()
 			}
 
 			playing = false;
+			finished = true;
 		}
 
 	} while (playing);
@@ -279,6 +282,7 @@ void sVideo::seek(int64_t second, bool backwards)
 
 	if (int ret = av_seek_frame(pFormatCtx, videoIndex, int64_t(std::round(second / tsps)), backwards ? AVSEEK_FLAG_BACKWARD : 0); ret >= 0)
 	{
+		finished = false;
 		avcodec_flush_buffers(pCodecCtx);
 	}
 	else

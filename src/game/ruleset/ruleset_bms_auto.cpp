@@ -54,19 +54,19 @@ void RulesetBMSAuto::setTargetRate(double rate)
     noteJudges.reserve(count);
     while (noteJudges.size() < count)
     {
-        if (count2 > 0 && (double)noteJudges.size() >= c2)
+        if (count2 > 0 && noteJudges.size() >= c2 - 0.000001)
         {
             noteJudges.push_back(JudgeType::PERFECT);
             count2--;
             c2 += interval2;
         }
-        if (count1 > 0 && (double)noteJudges.size() >= c1)
+        if (count1 > 0 && noteJudges.size() >= c1 - 0.000001)
         {
             noteJudges.push_back(JudgeType::GREAT);
             count1--;
             c1 += interval1;
         }
-        if (count0 > 0 && (double)noteJudges.size() >= c0)
+        if (count0 > 0 && noteJudges.size() >= c0 - 0.000001)
         {
             noteJudges.push_back(JudgeType::GOOD);
             count0--;

@@ -80,7 +80,6 @@ public:
     virtual void draw() const;
     void setHandleMouseEvents(bool b) { _handleMouseEvents = b; }
     void startSpriteVideoPlayback();
-    void stopSpriteVideoUpdate();
     void stopSpriteVideoPlayback();
 
     ///////////////////////////////////////////////////////////

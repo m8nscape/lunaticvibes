@@ -62,12 +62,7 @@ private:
 
 public:
     ScenePlay();
-	virtual ~ScenePlay()
-	{
-		sceneEnding = true; 
-		if (_loadChartFuture.valid()) 
-			_loadChartFuture.wait();
-	}
+    virtual ~ScenePlay();
 
 protected:
     void setTempInitialHealthBMS();

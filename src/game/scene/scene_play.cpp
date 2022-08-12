@@ -362,6 +362,18 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     _input.register_a("SCENE_AXIS", std::bind(&ScenePlay::inputGameAxis, this, _1, _2, _3));
 }
 
+ScenePlay::~ScenePlay()
+{
+    gPlayContext.bgaTexture->stopUpdate();
+
+    sceneEnding = true;
+    if (_loadChartFuture.valid())
+        _loadChartFuture.wait();
+
+    _input.loopEnd();
+    loopEnd();
+}
+
 void ScenePlay::setTempInitialHealthBMS()
 {
     if (!gPlayContext.isCourse || gPlayContext.isCourseFirstStage)
@@ -694,7 +706,6 @@ void ScenePlay::_updateAsync()
 
     if (gAppIsExiting)
     {
-        gPlayContext.bgaTexture->stopUpdate();
         gNextScene = eScene::EXIT_TRANS;
     }
 
@@ -710,13 +721,11 @@ void ScenePlay::_updateAsync()
         {
             _lanecoverAdd[PLAYER_SLOT_1P] -= lcThreshold;
             lc += 1;
-            LOG_DEBUG << "LC + 1: " << lc;
         }
         while (lc > 0 && _lanecoverAdd[PLAYER_SLOT_1P] <= -lcThreshold)
         {
             _lanecoverAdd[PLAYER_SLOT_1P] += lcThreshold;
             lc -= 1;
-            LOG_DEBUG << "LC - 1: " << lc;
         }
         if (lc <= 0)
         {
@@ -1301,6 +1310,7 @@ void ScenePlay::updatePlaying()
         gOptions.queue(eOption::PLAY_SCENE_STAT, Option::SPLAY_FADEOUT);
         _isExitingFromPlay = true;
         _state = ePlayState::FADEOUT;
+        LOG_DEBUG << "[Play] State changed to FADEOUT";
     }
      
     gTimers.flush();
@@ -1317,6 +1327,7 @@ void ScenePlay::updateFadeout()
     if (gChartContext.started)
         gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentMetre() * 4.0)) % 1000);
     spinTurntable(gChartContext.started);
+
 	gPlayContext.bgaTexture->update(rt, false);
 
     if (ft >= _skin->info.timeOutro)
@@ -1417,6 +1428,7 @@ void ScenePlay::updateFailed()
         gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
         gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FADEOUT);
         _state = ePlayState::FADEOUT;
+        LOG_DEBUG << "[Play] State changed to FADEOUT";
     }
 }
 
@@ -1570,7 +1582,7 @@ void ScenePlay::spinTurntable(bool startedPlaying)
         auto t = Time();
         auto rt = t - gTimers.get(eTimer::PLAY_START);
         for (auto& aa : _ttAngleTime)
-            aa = int(rt.norm() * 360 / 1000);
+            aa = int(rt.norm() * 360 / 2000);
     }
     gNumbers.set(eNumber::_ANGLE_TT_1P, (_ttAngleTime[0] + (int)_ttAngleDiff[0]) % 360);
     gNumbers.set(eNumber::_ANGLE_TT_2P, (_ttAngleTime[1] + (int)_ttAngleDiff[1]) % 360);
@@ -1799,6 +1811,7 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
         gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
         gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_FADEOUT);
         _state = ePlayState::FADEOUT;
+        LOG_DEBUG << "[Play] State changed to FADEOUT";
     }
 }
 

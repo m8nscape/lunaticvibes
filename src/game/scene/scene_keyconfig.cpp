@@ -65,6 +65,11 @@ SceneKeyConfig::SceneKeyConfig() : vScene(eMode::KEY_CONFIG, 240)
     LOG_DEBUG << "[KeyConfig] Start";
 }
 
+SceneKeyConfig::~SceneKeyConfig()
+{
+    _input.loopEnd();
+    loopEnd();
+}
 
 void SceneKeyConfig::_updateAsync()
 {
@@ -72,7 +77,6 @@ void SceneKeyConfig::_updateAsync()
 
     if (gAppIsExiting)
     {
-        _skin->stopSpriteVideoUpdate();
         gNextScene = eScene::EXIT_TRANS;
     }
 
@@ -120,7 +124,6 @@ void SceneKeyConfig::updateFadeout()
 
     if (rt.norm() > _skin->info.timeOutro)
     {
-        _skin->stopSpriteVideoUpdate();
         ConfigMgr::Input(gKeyconfigContext.keys)->save();   // this is kinda important
         gNextScene = eScene::SELECT;
     }

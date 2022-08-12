@@ -676,7 +676,7 @@ int BMS::initWithFile(const Path& file)
                 }
             }
         }
-        notes_total += notes_key_ln / 2;
+        notes_total += (notes_scratch_ln + notes_key_ln) / 2;
     }
 
     if (haveMine)

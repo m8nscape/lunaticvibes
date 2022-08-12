@@ -22,19 +22,31 @@ extern "C"
 TextureVideo::TextureVideo(std::shared_ptr<sVideo> pv) :
 	Texture(pv->getW(), pv->getH(), pv->getFormat()),
 	format(pv->getFormat()), 
-	pVideo(pv),
-	looper("Video update", std::bind(&TextureVideo::update, this), 60, true)
+	pVideo(pv)
 {
 	_texRect.x = 0;
 	_texRect.y = 0;
 	_texRect.w = pv->getW();
 	_texRect.h = pv->getH();
+
+	if (!texMapMutex)
+		texMapMutex = std::make_shared<std::shared_mutex>();
+	if (!textures)
+		textures = std::make_shared<std::map<uintptr_t, TextureVideo*>>();
+
+	pTexMapMutex = texMapMutex;
+	pTextures = textures;
+
+	std::unique_lock l(*texMapMutex);
+	(*textures)[(uintptr_t)this] = this;
 }
 
 TextureVideo::~TextureVideo()
 {
-	assert(!looper.isRunning());
 	assert(!pVideo->isPlaying());
+
+	std::unique_lock l(*texMapMutex);
+	textures->erase((uintptr_t)this);
 }
 
 void TextureVideo::start()
@@ -42,7 +54,6 @@ void TextureVideo::start()
 	if (!pVideo->isPlaying())
 	{
 		pVideo->startPlaying();
-		looper.loopStart();
 	}
 }
 
@@ -50,7 +61,6 @@ void TextureVideo::stop()
 {
 	if (pVideo->isPlaying())
 	{
-		assert(!looper.isRunning());	// call stopUpdate() first
 		pVideo->stopPlaying();
 	}
 }
@@ -70,40 +80,30 @@ void TextureVideo::update()
 	if (decoded_frames == vrfc) return;
 	decoded_frames = vrfc;
 
-	{
-		using namespace std::chrono_literals;
+	using namespace std::chrono_literals;
 		
-		std::shared_lock l(pVideo->video_frame_mutex);
+	std::shared_lock l(pVideo->video_frame_mutex);
 
-		auto pf = pVideo->getFrame();
-		if (!pf) return;
+	auto pf = pVideo->getFrame();
+	if (!pf) return;
 
-		pushAndWaitMainThreadTask<void>([&]()
-			{
-				switch (format)
-				{
-				case Texture::PixelFormat::IYUV:
-					if (updateYUV(
-						pf->data[0], pf->linesize[0],
-						pf->data[1], pf->linesize[1],
-						pf->data[2], pf->linesize[2]) == 0)
-						updated = true;
-					break;
+	switch (format)
+	{
+	case Texture::PixelFormat::IYUV:
+		if (updateYUV(
+			pf->data[0], pf->linesize[0],
+			pf->data[1], pf->linesize[1],
+			pf->data[2], pf->linesize[2]) == 0)
+			updated = true;
+		break;
 
-				default:
-					break;
-				}
-			}
-		);
+	default:
+		break;
 	}
 }
 
 void TextureVideo::stopUpdate()
 {
-	assert(!IsMainThread());
-	looper.loopEnd();
-	// AsyncLooper thread will end here, releasing pVideo->video_frame_mutex occupation by update()
-
 	updated = false;
 }
 
@@ -135,6 +135,18 @@ void TextureVideo::reset()
 	decoded_frames = 0;
 }
 
+std::shared_ptr<std::shared_mutex> TextureVideo::texMapMutex;
+std::shared_ptr<std::map<uintptr_t, TextureVideo*>> TextureVideo::textures;
+
+void TextureVideo::updateAll()
+{
+	std::shared_lock l(*texMapMutex);
+	for (auto& t : *textures)
+	{
+		t.second->update();
+	}
+}
+
 #endif
 
 bool TextureBmsBga::addBmp(size_t idx, Path pBmp)
@@ -159,7 +171,12 @@ bool TextureBmsBga::addBmp(size_t idx, Path pBmp)
 
 	if (!fs::exists(pBmp) && pBmp.has_extension() && toLower(pBmp.extension().string()) == ".bmp")
 	{
-		pBmp = pBmp.parent_path() / PathFromUTF8(pBmp.filename().stem().u8string() + ".png");
+		pBmp = pBmp.parent_path() / PathFromUTF8(pBmp.filename().stem().u8string() + ".jpg");
+
+		if (!fs::exists(pBmp))
+		{
+			pBmp = pBmp.parent_path() / PathFromUTF8(pBmp.filename().stem().u8string() + ".png");
+		}
 	}
 	if (fs::exists(pBmp) && fs::is_regular_file(pBmp) && pBmp.has_extension())
 	{
@@ -293,7 +310,7 @@ void TextureBmsBga::update(const Time& t, bool poor)
 				{
 					auto pt = std::reinterpret_pointer_cast<TextureVideo>(objs[it->second].pt);
 					pt->start();
-					pt->update();
+					//pt->update();	// Do NOT call update here; videos are updated in main thread with TextureVideo::updateAll()
 				}
 #endif
 			}

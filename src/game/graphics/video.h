@@ -46,6 +46,7 @@ private:
 	double speed = 1.0;
 	int w = -1, h = -1;		// set in setVideo()
 	bool playing = false;
+	bool finished = false;
 	bool decoding = false;
 	bool valid = false;
 	bool loop_playback = false;

@@ -13,7 +13,6 @@
 class TextureVideo : public Texture
 {
 protected:
-	AsyncLooper looper;
 	std::shared_ptr<sVideo> pVideo;
 	unsigned decoded_frames = ~0;
 	PixelFormat format;
@@ -38,6 +37,14 @@ public:
 		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point& center) const;
 
 	void stopUpdate();
+
+private:
+	static std::shared_ptr<std::shared_mutex> texMapMutex;
+	static std::shared_ptr<std::map<uintptr_t, TextureVideo*>> textures;
+	std::shared_ptr<std::shared_mutex> pTexMapMutex;	// ref counter guard
+	std::shared_ptr<std::map<uintptr_t, TextureVideo*>> pTextures;	// ref counter guard
+public:
+	static void updateAll();
 };
 
 #endif
@@ -91,7 +98,7 @@ public:
 	}
 	virtual ~TextureBmsBga()
 	{
-		int i = 1;
+		stopUpdate();
 	}
 
 public:

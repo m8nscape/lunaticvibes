@@ -175,13 +175,18 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+SceneResult::~SceneResult()
+{
+    _input.loopEnd();
+    loopEnd();
+}
+
 void SceneResult::_updateAsync()
 {
     if (gNextScene != eScene::RESULT) return;
 
     if (gAppIsExiting)
     {
-        _skin->stopSpriteVideoUpdate();
         gNextScene = eScene::EXIT_TRANS;
     }
 
@@ -328,13 +333,11 @@ void SceneResult::updateFadeout()
         if (_retryRequested && gPlayContext.canRetry)
         {
             clearContextPlayForRetry();
-            _skin->stopSpriteVideoUpdate();
             gNextScene = eScene::PLAY;
         }
         else
         {
             clearContextPlay();
-            _skin->stopSpriteVideoUpdate();
             gNextScene = gQuitOnFinish ? eScene::EXIT : eScene::SELECT;
         }
     }
