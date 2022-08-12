@@ -48,6 +48,7 @@ private:
 	bool playing = false;
 	bool finished = false;
 	bool decoding = false;
+	bool firstFrame = true;
 	bool valid = false;
 	bool loop_playback = false;
 

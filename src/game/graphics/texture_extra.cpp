@@ -82,23 +82,25 @@ void TextureVideo::update()
 
 	using namespace std::chrono_literals;
 		
-	std::shared_lock l(pVideo->video_frame_mutex);
-
-	auto pf = pVideo->getFrame();
-	if (!pf) return;
-
-	switch (format)
+	std::shared_lock l(pVideo->video_frame_mutex, std::try_to_lock);
+	if (l.owns_lock())
 	{
-	case Texture::PixelFormat::IYUV:
-		if (updateYUV(
-			pf->data[0], pf->linesize[0],
-			pf->data[1], pf->linesize[1],
-			pf->data[2], pf->linesize[2]) == 0)
-			updated = true;
-		break;
+		auto pf = pVideo->getFrame();
+		if (!pf) return;
 
-	default:
-		break;
+		switch (format)
+		{
+		case Texture::PixelFormat::IYUV:
+			if (updateYUV(
+				pf->data[0], pf->linesize[0],
+				pf->data[1], pf->linesize[1],
+				pf->data[2], pf->linesize[2]) == 0)
+				updated = true;
+			break;
+
+		default:
+			break;
+		}
 	}
 }
 

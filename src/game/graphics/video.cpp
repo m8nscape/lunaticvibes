@@ -107,6 +107,8 @@ int sVideo::setVideo(const Path& file, bool loop)
 int sVideo::unsetVideo()
 {
 	haveVideo = false;
+	finished = false;
+	firstFrame = true;
 	if (pPacket) av_packet_free(&pPacket);
 	if (pFrame) av_frame_free(&pFrame);
 	if (pCodecCtx) avcodec_free_context(&pCodecCtx);
@@ -145,7 +147,6 @@ void sVideo::stopPlaying()
 	if (!playing) return;
 	playing = false;
 	decodeEnd.wait();
-	finished = false;
 	seek(0);
 }
 
@@ -223,10 +224,19 @@ void sVideo::decodeLoop()
 					valid = true;
 				}
 
-				auto frameTime_ms = decltype(std::declval<std::chrono::milliseconds>().count())(std::round(pFrame1->pts / tsps * 1000));
-				if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - startTime).count() < frameTime_ms)
+				using namespace std::chrono;
+				auto frameTime_ms = long long(std::round(pFrame1->pts / tsps * 1000));	// TODO set playback speed
+				if (firstFrame)
 				{
-					std::this_thread::sleep_until(startTime + std::chrono::milliseconds(frameTime_ms));
+					firstFrame = false;
+					startTime -= milliseconds(frameTime_ms);
+				}
+				else
+				{
+					if (duration_cast<milliseconds>(system_clock::now() - startTime).count() < frameTime_ms)
+					{
+						std::this_thread::sleep_until(startTime + milliseconds(frameTime_ms));
+					}
 				}
 			}
 			decoded_frames = pCodecCtx->frame_number;
@@ -275,6 +285,8 @@ void sVideo::decodeLoop()
 void sVideo::seek(int64_t second, bool backwards)
 {
 	if (!haveVideo) return;
+	if (second == 0) 
+		firstFrame = true;
 
 	// timestamps per second
 	double tsps = pFormatCtx->streams[videoIndex]->time_base.num == 0 ? 
