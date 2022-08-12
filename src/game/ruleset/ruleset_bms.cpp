@@ -701,24 +701,39 @@ void RulesetBMS::judgeNotePress(Input::Pad k, const Time& t, const Time& rt, int
     HitableNote* pNote1 = nullptr;
     if (!_chart->isLastNote(NoteLaneCategory::Note, idx1))
     {
-        pNote1 = &*_chart->incomingNote(NoteLaneCategory::Note, idx1);
+        auto itNote = _chart->incomingNote(NoteLaneCategory::Note, idx1);
+        while (itNote->hit && !_chart->isLastNote(NoteLaneCategory::Note, idx1, itNote))
+            ++itNote;
+        if (!_chart->isLastNote(NoteLaneCategory::Note, idx1, itNote))
+            pNote1 = &*itNote;
     }
     NoteLaneIndex idx2 = _chart->getLaneFromKey(NoteLaneCategory::LN, k);
     HitableNote* pNote2 = nullptr;
     if (!_chart->isLastNote(NoteLaneCategory::LN, idx2))
     {
-        pNote2 = &*_chart->incomingNote(NoteLaneCategory::LN, idx2);
+        auto itNote = _chart->incomingNote(NoteLaneCategory::LN, idx2);
+        while (itNote->hit && !_chart->isLastNote(NoteLaneCategory::LN, idx2, itNote))
+            ++itNote;
+        if (!_chart->isLastNote(NoteLaneCategory::LN, idx2, itNote))
+            pNote2 = &*itNote;
     }
 
+    JudgeRes j;
     if (pNote1 && (pNote2 == nullptr || pNote1->time < pNote2->time) && !pNote1->hit)
     {
-        auto j = _judge(*pNote1, rt);
+        j = _judge(*pNote1, rt);
         _judgePress(NoteLaneCategory::Note, idx1, *pNote1, j, t, slot);
     }
     else if (pNote2 && !pNote2->hit)
     {
-        auto j = _judge(*pNote2, rt);
+        j = _judge(*pNote2, rt);
         _judgePress(NoteLaneCategory::LN, idx2, *pNote2, j, t, slot);
+    }
+
+    // break-out BAD chain 
+    if (j.area == judgeArea::LATE_BAD)
+    {
+        judgeNotePress(k, t, rt, slot);
     }
 }
 void RulesetBMS::judgeNoteHold(Input::Pad k, const Time& t, const Time& rt, int slot)
