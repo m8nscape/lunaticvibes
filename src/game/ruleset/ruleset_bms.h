@@ -192,9 +192,9 @@ protected:
 
 
     bool _scratchKey[2][2] = { {false, false}, {false, false} };
-    std::array<double, 2>   _scratchSpeed{ 0 };
     std::array<AxisDir, 2>  _scratchDir = { 0, 0 };
     std::array<Time, 2>     _scratchLastUpdate = { TIMER_NEVER, TIMER_NEVER };
+    std::array<double, 2>   _scratchAccumulator = { 0, 0 };
 
 public:
     RulesetBMS(

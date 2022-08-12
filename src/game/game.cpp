@@ -142,6 +142,7 @@ int main(int argc, char* argv[])
     InputMgr::init();
 	InputMgr::updateDevices();
 	InputMgr::updateBindings(7, Input::Pad::S1L);
+    InputMgr::updateDeadzones();
 
     // reset globals
     //gNumbers.setDefault(eNumber::ZERO, 0);

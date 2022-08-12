@@ -249,9 +249,6 @@ RulesetBMS::RulesetBMS(std::shared_ptr<vChartFormat> format, std::shared_ptr<vCh
 		break;
 	}
 
-    _scratchSpeed[PLAYER_SLOT_1P] = ConfigMgr::get('P', cfg::P_INPUT_SPEED_S1A, 0.2);
-    _scratchSpeed[PLAYER_SLOT_2P] = ConfigMgr::get('P', cfg::P_INPUT_SPEED_S2A, 0.2);
-
     _lnJudge.fill(judgeArea::NOTHING);
 
     for (size_t k = Input::S1L; k <= Input::K2SPDDN; ++k)
@@ -839,58 +836,8 @@ void RulesetBMS::updateAxis(double s1, double s2, const Time& t)
 
     using namespace Input;
 
-    double S1 = 0;
-    double S2 = 0;
-    if (_k1P) S1 = s1;
-    if (_k2P) S2 = s2;
-
-    auto Judge = [&](const Time& t, double val, Input::Pad up, Input::Pad dn, int slot)
-    {
-        if (val * _scratchSpeed[slot] > 0.002)
-        {
-            // scratch down
-            switch (_scratchDir[slot])
-            {
-            case AxisDir::AXIS_DOWN: 
-                judgeNoteHold(dn, t, rt, slot);
-                break;
-            case AxisDir::AXIS_UP:
-                judgeNoteRelease(up, t, rt, slot);
-                judgeNotePress(dn, t, rt, slot);
-                break;
-            case AxisDir::AXIS_NONE:
-                judgeNoteRelease(up, t, rt, slot);
-                judgeNotePress(dn, t, rt, slot);
-                break;
-            }
-
-            _scratchLastUpdate[slot] = t;
-            _scratchDir[slot] = AxisDir::AXIS_DOWN;
-        }
-        else if (val * _scratchSpeed[slot] < -0.002)
-        {
-            // scratch up
-            switch (_scratchDir[slot])
-            {
-            case AxisDir::AXIS_UP: 
-                judgeNoteHold(up, t, rt, slot);
-                break;
-            case AxisDir::AXIS_DOWN:
-                judgeNoteRelease(dn, t, rt, slot);
-                judgeNotePress(up, t, rt, slot);
-                break;
-            case AxisDir::AXIS_NONE:
-                judgeNoteRelease(dn, t, rt, slot);
-                judgeNotePress(up, t, rt, slot);
-                break;
-            }
-
-            _scratchLastUpdate[slot] = t;
-            _scratchDir[slot] = AxisDir::AXIS_UP;
-        }
-    };
-    Judge(t, S1, S1L, S1R, PLAYER_SLOT_1P);
-    Judge(t, S2, S2L, S2R, PLAYER_SLOT_2P);
+    _scratchAccumulator[PLAYER_SLOT_1P] += s1;
+    _scratchAccumulator[PLAYER_SLOT_2P] += s2;
 }
 
 void RulesetBMS::update(const Time& t)
@@ -1014,8 +961,65 @@ void RulesetBMS::update(const Time& t)
     if (_k1P) updateRange(Input::S1L, Input::K1SPDDN, PLAYER_SLOT_1P);
     if (_k2P) updateRange(Input::S2L, Input::K2SPDDN, PLAYER_SLOT_2P);
 
-    auto updateScratchRelease = [&](const Time& t, Input::Pad up, Input::Pad dn, int slot)
+
+    auto updateScratch = [&](const Time& t, Input::Pad up, Input::Pad dn, double& val, int slot)
     {
+        double scratchThreshold = 0.001;
+        double scratchRewind = 0.0001;
+        if (val > scratchThreshold)
+        {
+            // scratch down
+            val -= scratchThreshold;
+
+            switch (_scratchDir[slot])
+            {
+            case AxisDir::AXIS_DOWN:
+                judgeNoteHold(dn, t, rt, slot);
+                break;
+            case AxisDir::AXIS_UP:
+                judgeNoteRelease(up, t, rt, slot);
+                judgeNotePress(dn, t, rt, slot);
+                break;
+            case AxisDir::AXIS_NONE:
+                judgeNoteRelease(up, t, rt, slot);
+                judgeNotePress(dn, t, rt, slot);
+                break;
+            }
+
+            _scratchLastUpdate[slot] = t;
+            _scratchDir[slot] = AxisDir::AXIS_DOWN;
+        }
+        else if (val < -scratchThreshold)
+        {
+            // scratch up
+            val += scratchThreshold;
+
+            switch (_scratchDir[slot])
+            {
+            case AxisDir::AXIS_UP:
+                judgeNoteHold(up, t, rt, slot);
+                break;
+            case AxisDir::AXIS_DOWN:
+                judgeNoteRelease(dn, t, rt, slot);
+                judgeNotePress(up, t, rt, slot);
+                break;
+            case AxisDir::AXIS_NONE:
+                judgeNoteRelease(dn, t, rt, slot);
+                judgeNotePress(up, t, rt, slot);
+                break;
+            }
+
+            _scratchLastUpdate[slot] = t;
+            _scratchDir[slot] = AxisDir::AXIS_UP;
+        }
+
+        if (val > scratchRewind)
+            val -= scratchRewind;
+        else if (val < -scratchRewind)
+            val += scratchRewind;
+        else 
+            val = 0.;
+
         if ((t - _scratchLastUpdate[slot]).norm() > 133)
         {
             // release
@@ -1033,8 +1037,8 @@ void RulesetBMS::update(const Time& t)
             _scratchLastUpdate[slot] = TIMER_NEVER;
         }
     };
-    updateScratchRelease(t, Input::S1L, Input::S1R, PLAYER_SLOT_1P);
-    updateScratchRelease(t, Input::S2L, Input::S2R, PLAYER_SLOT_2P);
+    updateScratch(t, Input::S1L, Input::S1R, _scratchAccumulator[PLAYER_SLOT_1P], PLAYER_SLOT_1P);
+    updateScratch(t, Input::S2L, Input::S2R, _scratchAccumulator[PLAYER_SLOT_2P], PLAYER_SLOT_2P);
 
 
 	unsigned max = _chart->getNoteCount() * 2;

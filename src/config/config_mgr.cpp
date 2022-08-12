@@ -357,8 +357,8 @@ void setSliders()
     g.queue(e::DEADZONE_K27, ConfigMgr::get('P', P_INPUT_DEADZONE_K27, 0.2));
     g.queue(e::DEADZONE_K28, ConfigMgr::get('P', P_INPUT_DEADZONE_K28, 0.2));
     g.queue(e::DEADZONE_K29, ConfigMgr::get('P', P_INPUT_DEADZONE_K29, 0.2));
-    g.queue(e::SPEED_S1A, ConfigMgr::get('P', P_INPUT_SPEED_S1A, 0.2));
-    g.queue(e::SPEED_S2A, ConfigMgr::get('P', P_INPUT_SPEED_S2A, 0.2));
+    g.queue(e::SPEED_S1A, ConfigMgr::get('P', P_INPUT_SPEED_S1A, 0.5));
+    g.queue(e::SPEED_S2A, ConfigMgr::get('P', P_INPUT_SPEED_S2A, 0.5));
 
     g.flush();
 

@@ -46,9 +46,9 @@ private:
     std::array<int, 2>      _ttAngleTime{ 0 };
     std::array<double, 2>   _ttAngleDiff{ 0 };
 
-    std::array<double, 2>   _scratchSpeed{ 0 };
     std::array<AxisDir, 2>  _scratchDir{ 0 };
     std::array<Time, 2>     _scratchLastUpdate{ TIMER_NEVER, TIMER_NEVER };
+    std::array<double, 2>   _scratchAccumulator = { 0, 0 };
 
     std::array<bool, 2>     _lanecoverEnabled{ false };
     std::array<bool, 2>     _lockspeedEnabled{ false };

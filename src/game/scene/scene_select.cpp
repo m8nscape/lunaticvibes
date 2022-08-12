@@ -847,7 +847,7 @@ void SceneSelect::inputGameReleaseSelect(InputMask& input, const Time& t)
 
 void SceneSelect::inputGameAxisSelect(double s1, double s2, const Time& t)
 {
-    double s = (s1 + s2) * 50.0;
+    double s = (s1 + s2) * 75.0;
     if (s <= -0.01 || 0.01 <= s)
     {
         scrollAccumulator += s;
