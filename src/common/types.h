@@ -100,10 +100,9 @@ enum class eMode {
 
 enum class ePlayMode
 {
-    SINGLE,         // means "Single Player Mode", so DP is also included
+    SINGLE_PLAYER,  // means "Single Player Mode", so DP is also included
     LOCAL_BATTLE,   // separate chart objects are required
-    AUTO,           // do not save score, replay and result
-    AUTO_BATTLE,    // AUTO + LOCAL_BATTLE
+    GHOST_BATTLE,   // 
     REPLAY,         // do not save score
 };
 

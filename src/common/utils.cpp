@@ -61,8 +61,10 @@ std::vector<Path> findFiles(Path p)
         auto pathRegex = std::basic_regex<StringPath::value_type>(pstr, std::regex_constants::extended | std::regex_constants::optimize);
         for (auto& f : fs::recursive_directory_iterator(folder))
         {
-            if (std::regex_match(f.path().native(), pathRegex))
+            if (f.path().filename().u8string().substr(0, 2) != "._" && std::regex_match(f.path().native(), pathRegex))
+            {
                 res.push_back(f.path());
+            }
         }
     }
 

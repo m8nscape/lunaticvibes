@@ -22,7 +22,6 @@ enum Pad
     K1SELECT,
     K1SPDUP,
     K1SPDDN,
-    S1A,
 
     S2L,
     S2R,
@@ -39,6 +38,10 @@ enum Pad
     K2SELECT,
     K2SPDUP,
     K2SPDDN,
+
+    LANE_COUNT, 
+
+    S1A = LANE_COUNT,
     S2A,
 
     ESC,

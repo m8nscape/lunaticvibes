@@ -31,11 +31,7 @@ bool ScenePlay::isPlaymodeSinglePlay() const
 }
 bool ScenePlay::isPlaymodeBattle() const
 {
-    return (_playmode == ePlayMode::LOCAL_BATTLE || _playmode == ePlayMode::AUTO_BATTLE);
-}
-bool ScenePlay::isPlaymodeAuto() const
-{
-    return (_playmode == ePlayMode::AUTO || _playmode == ePlayMode::AUTO_BATTLE);
+    return (_playmode == ePlayMode::LOCAL_BATTLE || _playmode == ePlayMode::GHOST_BATTLE);
 }
 
 ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
@@ -49,13 +45,19 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     case eMode::PLAY9:
     case eMode::PLAY10:
     case eMode::PLAY14:
-        _playmode = gPlayContext.isAuto ? ePlayMode::AUTO : ePlayMode::SINGLE;
+        _playmode = ePlayMode::SINGLE_PLAYER;
         break;
 
     case eMode::PLAY5_2:
     case eMode::PLAY7_2:
     case eMode::PLAY9_2:
-        _playmode = gPlayContext.isAuto ? ePlayMode::AUTO_BATTLE : ePlayMode::LOCAL_BATTLE;
+        switch (gOptions.get(eOption::PLAY_BATTLE_TYPE))
+        {
+        case Option::BATTLE_OFF:    
+        case Option::BATTLE_DB:     assert(false); [[ fallthrough ]];
+        case Option::BATTLE_LOCAL:  _playmode = ePlayMode::LOCAL_BATTLE; break;
+        case Option::BATTLE_GHOST:  _playmode = ePlayMode::GHOST_BATTLE; break;
+        }
         break;
 
     default:
@@ -145,7 +147,7 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         auto bms = std::reinterpret_pointer_cast<BMS>(gChartContext.chartObj);
         // TODO mods
 
-        if (isPlaymodeAuto())
+        if (gPlayContext.isAuto)
         {
             gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<chartBMS>(PLAYER_SLOT_1P, bms);
         }
@@ -467,7 +469,7 @@ void ScenePlay::loadChart()
         defualt: break;
         }
 
-        if (isPlaymodeAuto())
+        if (gPlayContext.isAuto)
         {
             gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetBMSAuto>(
                 gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_1P],
@@ -504,16 +506,18 @@ void ScenePlay::loadChart()
                 double targetRateReal = 0.0;
                 switch (targetRate)
                 {
-                    // TODO set target name
-                case 22:  targetRateReal = 2.0 / 9; break;  // E
-                case 33:  targetRateReal = 3.0 / 9; break;  // D
-                case 44:  targetRateReal = 4.0 / 9; break;  // C
-                case 55:  targetRateReal = 5.0 / 9; break;  // B
-                case 66:  targetRateReal = 6.0 / 9; break;  // A
-                case 77:  targetRateReal = 7.0 / 9; break;  // AA
-                case 88:  targetRateReal = 8.0 / 9; break;  // AAA
-                case 100: targetRateReal = 1.0;     break;  // MAX
-                default:  targetRateReal = targetRate / 100.0; break;
+                case 22:  targetRateReal = 2.0 / 9; gTexts.set(eText::TARGET_NAME, "RANK E"); break;  // E
+                case 33:  targetRateReal = 3.0 / 9; gTexts.set(eText::TARGET_NAME, "RANK D"); break;  // D
+                case 44:  targetRateReal = 4.0 / 9; gTexts.set(eText::TARGET_NAME, "RANK C"); break;  // C
+                case 55:  targetRateReal = 5.0 / 9; gTexts.set(eText::TARGET_NAME, "RANK B"); break;  // B
+                case 66:  targetRateReal = 6.0 / 9; gTexts.set(eText::TARGET_NAME, "RANK A"); break;  // A
+                case 77:  targetRateReal = 7.0 / 9; gTexts.set(eText::TARGET_NAME, "RANK AA"); break;  // AA
+                case 88:  targetRateReal = 8.0 / 9; gTexts.set(eText::TARGET_NAME, "RANK AAA"); break;  // AAA
+                case 100: targetRateReal = 1.0;     gTexts.set(eText::TARGET_NAME, "DJ AUTO"); break;  // MAX
+                default:  
+                    targetRateReal = targetRate / 100.0;
+                    gTexts.set(eText::TARGET_NAME, "RATE "s + std::to_string(targetRate) + "%"s);
+                    break;
                 }
                 std::reinterpret_pointer_cast<RulesetBMSAuto>(gPlayContext.ruleset[PLAYER_SLOT_2P])->setTargetRate(targetRateReal);
                 gBargraphs.set(eBargraph::PLAY_RIVAL_EXSCORE_FINAL, targetRateReal);
@@ -1386,7 +1390,7 @@ void ScenePlay::updateFadeout()
         SoundMgr::stopNoteSamples();
         gPlayContext.bgaTexture->reset();
 
-        if (isPlaymodeAuto())
+        if (gPlayContext.isAuto)
         {
             gNextScene = (gPlayContext.isCourse && gChartContext.started) ? eScene::COURSE_TRANS : eScene::SELECT;
         }
@@ -1543,7 +1547,7 @@ void ScenePlay::changeKeySampleMapping(const Time& t)
 			if (_inputAvailable[i])
 				changeKeySample((Input::Pad)i, PLAYER_SLOT_1P);
 		}
-		for (size_t i = Input::S2L; i < Input::ESC; ++i)
+		for (size_t i = Input::S2L; i < Input::LANE_COUNT; ++i)
 		{
 			if (_inputAvailable[i])
 				changeKeySample((Input::Pad)i, PLAYER_SLOT_2P);
@@ -1553,7 +1557,7 @@ void ScenePlay::changeKeySampleMapping(const Time& t)
 	{
 		assert(gPlayContext.chartObj[PLAYER_SLOT_1P] != nullptr);
 
-		for (auto i = 0; i < Input::ESC; ++i)
+		for (auto i = 0; i < Input::LANE_COUNT; ++i)
 		{
 			if (_inputAvailable[i])
 				changeKeySample((Input::Pad)i, PLAYER_SLOT_1P);
@@ -1586,7 +1590,7 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
     if (!gPlayContext.isAuto)
     {
         size_t sampleCount = 0;
-        for (size_t i = 0; i < ESC; ++i)
+        for (size_t i = S1L; i < LANE_COUNT; ++i)
         {
             if (input[i])
             {
@@ -1883,7 +1887,7 @@ void ScenePlay::inputGameRelease(InputMask& m, const Time& t)
     if (!gPlayContext.isAuto)
     {
         size_t count = 0;
-        for (size_t i = 0; i < Input::ESC; ++i)
+        for (size_t i = Input::S1L; i < Input::LANE_COUNT; ++i)
             if (input[i])
             {
                 gTimers.set(InputGamePressMapSingle[i].tm, TIMER_NEVER);

@@ -19,13 +19,15 @@ private:
     InputMask _inputAvailable;
 
 protected:
-    ePlayMode _playmode;
     bool _scoreSyncFinished = false;
     bool _retryRequested = false;
     std::shared_ptr<vScore> _pScoreOld;
 
+    bool saveScore = false;
+    ScoreBMS::Lamp saveLamp;
+
 public:
-    SceneResult(ePlayMode);
+    SceneResult();
     virtual ~SceneResult() = default;
 
 protected:

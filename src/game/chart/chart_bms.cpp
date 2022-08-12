@@ -696,7 +696,7 @@ void chartBMS::loadBMS(const BMS& objBms)
 
 chart::NoteLaneIndex chartBMS::getLaneFromKey(chart::NoteLaneCategory cat, Input::Pad input)
 {
-    if (input >= Input::S1L && input < Input::ESC && KeyToLaneMap[input] != _)
+    if (input >= Input::S1L && input < Input::LANE_COUNT && KeyToLaneMap[input] != _)
     {
         NoteLaneIndex idx = KeyToLaneMap[input];
         if (!isLastNote(cat, idx))

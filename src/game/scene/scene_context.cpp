@@ -17,6 +17,40 @@ OverlayContextParams gOverlayContext;
 std::shared_ptr<SongDB> g_pSongDB;
 std::shared_ptr<ScoreDB> g_pScoreDB;
 
+std::pair<bool, Option::e_lamp_type> getSaveScoreType()
+{
+    if (gSelectContext.pitchSpeed < 1.0)
+        return { false, Option::LAMP_NOPLAY };
+
+    int battleType = gOptions.get(eOption::PLAY_BATTLE_TYPE);
+    if (battleType == Option::BATTLE_LOCAL || battleType == Option::BATTLE_DB)
+        return { false, Option::LAMP_NOPLAY };
+
+    if (gOptions.get(eOption::PLAY_HSFIX_TYPE_1P) == Option::e_speed_type::SPEED_FIX_CONSTANT)
+        return { false, Option::LAMP_NOPLAY };
+
+    if (gSwitches.get(eSwitch::PLAY_OPTION_AUTOSCR_1P))
+        return { true, Option::LAMP_ASSIST };
+
+    Option::e_random_type randomType = (Option::e_random_type)gOptions.get(eOption::PLAY_RANDOM_TYPE_1P);
+    if (randomType == Option::e_random_type::RAN_HRAN)
+        return { false, Option::LAMP_ASSIST };
+    else if (randomType == Option::e_random_type::RAN_ALLSCR)
+        return { false, Option::LAMP_NOPLAY };
+
+    Option::e_gauge_type gaugeType = (Option::e_gauge_type)gOptions.get(eOption::PLAY_GAUGE_TYPE_1P);
+    Option::e_lamp_type lampType = Option::e_lamp_type::LAMP_NOPLAY;
+    switch (gaugeType)
+    {
+    case Option::GAUGE_NORMAL: lampType = Option::e_lamp_type::LAMP_NORMAL; break;
+    case Option::GAUGE_HARD:   lampType = Option::e_lamp_type::LAMP_HARD; break;
+    case Option::GAUGE_DEATH:  lampType = Option::e_lamp_type::LAMP_FULLCOMBO; break;
+    case Option::GAUGE_EASY:   lampType = Option::e_lamp_type::LAMP_EASY; break;
+    case Option::GAUGE_ASSIST: lampType = Option::e_lamp_type::LAMP_ASSIST; break;
+    case Option::GAUGE_EXHARD: lampType = Option::e_lamp_type::LAMP_EXHARD; break;
+    }
+    return { true, lampType };
+}
 
 void clearContextPlayForRetry()
 {
@@ -191,26 +225,6 @@ void setEntryInfo()
         case eChartFormat::BMS:
         {
             const auto bms = std::reinterpret_pointer_cast<const BMS_prop>(pf);
-
-            // gamemode
-            switch (bms->player)
-            {
-            case 5:
-            case 7:
-            case 9:
-            case 24:
-                gOptions.queue(eOption::CHART_PLAY_MODE, Option::PLAY_SINGLE);
-                break;
-
-            case 10:
-            case 14:
-            case 48:
-                gOptions.queue(eOption::CHART_PLAY_MODE, Option::PLAY_DOUBLE);
-                break;
-
-            default:
-                break;
-            }
 
             // gamemode
             unsigned op_keys = Option::KEYS_NOT_PLAYABLE;
@@ -460,7 +474,7 @@ void setEntryInfo()
 
     case eEntryType::NEW_COURSE:
         gOptions.queue(eOption::SELECT_ENTRY_TYPE, Option::ENTRY_NEW_COURSE);
-        gOptions.queue(eOption::SELECT_ENTRY_LAMP, Option::LAMP_NOT_APPLICIABLE);
+        gOptions.queue(eOption::SELECT_ENTRY_LAMP, Option::LAMP_NOPLAY);
         gOptions.queue(eOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
         gOptions.queue(eOption::CHART_PLAY_KEYS, Option::KEYS_NOT_PLAYABLE);
         break;
@@ -470,7 +484,7 @@ void setEntryInfo()
     case eEntryType::RIVAL:
     default:
         gOptions.queue(eOption::SELECT_ENTRY_TYPE, Option::ENTRY_FOLDER);
-        gOptions.queue(eOption::SELECT_ENTRY_LAMP, Option::LAMP_NOT_APPLICIABLE);
+        gOptions.queue(eOption::SELECT_ENTRY_LAMP, Option::LAMP_NOPLAY);
         gOptions.queue(eOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
         gOptions.queue(eOption::CHART_PLAY_KEYS, Option::KEYS_NOT_PLAYABLE);
         break;

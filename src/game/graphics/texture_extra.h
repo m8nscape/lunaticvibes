@@ -95,7 +95,7 @@ public:
 	}
 
 public:
-	bool addBmp(size_t idx, const Path& path);
+	bool addBmp(size_t idx, Path path);
 	bool setSlot(size_t idx, Time time, bool base, bool layer, bool poor);
 	void sortSlot();
 	bool setSlotFromBMS(chartBMS& bms);

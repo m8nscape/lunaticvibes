@@ -96,7 +96,7 @@ std::bitset<KEY_COUNT> InputMgr::detect()
     _inst.scratch2 = 0.0;
 
     // game input
-    for (int k = S1L; k < ESC; k++)
+    for (int k = S1L; k < LANE_COUNT; k++)
     {
         KeyMap& b = _inst.padBindings[k];
         {
@@ -107,28 +107,26 @@ std::bitset<KEY_COUNT> InputMgr::detect()
                     res[k] = true;
 				break;
 			case KeyMap::DeviceType::JOYSTICK:
-                if (k == S1A || k == S2A)
-                {
-                    auto& j = b.getJoystick();
-                    if (j.type == Input::Joystick::Type::AXIS_ABSOLUTE)
-                    {
-                        if (k == S1A)
-                            _inst.scratch1 = getJoystickAxis(j.device, j.type, j.index);
-                        else
-                            _inst.scratch2 = getJoystickAxis(j.device, j.type, j.index);
-                    }
-                }
-                else
-                {
-                    if (isButtonPressed(b.getJoystick(), _inst.padDeadzones[k]))
-                        res[k] = true;
-                }
+                if (isButtonPressed(b.getJoystick(), _inst.padDeadzones[k]))
+                    res[k] = true;
 				break;
 			case KeyMap::DeviceType::MOUSE:
 				break;
 			}
 			//if (res[k]) break;
         }
+    }
+    if (_inst.padBindings[S1A].getType() == KeyMap::DeviceType::JOYSTICK)
+    {
+        auto& j = _inst.padBindings[S1A].getJoystick();
+        if (j.type == Input::Joystick::Type::AXIS_ABSOLUTE)
+            _inst.scratch1 = getJoystickAxis(j.device, j.type, j.index);
+    }
+    if (_inst.padBindings[S2A].getType() == KeyMap::DeviceType::JOYSTICK)
+    {
+        auto& j = _inst.padBindings[S2A].getJoystick();
+        if (j.type == Input::Joystick::Type::AXIS_ABSOLUTE)
+            _inst.scratch2 = getJoystickAxis(j.device, j.type, j.index);
     }
 
     // FN input

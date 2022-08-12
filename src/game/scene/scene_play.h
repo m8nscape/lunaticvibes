@@ -32,7 +32,6 @@ private:
 protected:
     bool isPlaymodeSinglePlay() const;
     bool isPlaymodeBattle() const;
-    bool isPlaymodeAuto() const;
 
 private:
     bool _isExitingFromPlay = false;

@@ -40,33 +40,37 @@ void RulesetBMSAuto::setTargetRate(double rate)
     count1 = 2 * count - score;
     count2 = score - count;
     count0 = count - count1 - count2;
-    totalJudgeCount[JudgeType::PERFECT] = count0;
+    totalJudgeCount[JudgeType::PERFECT] = count2;
     totalJudgeCount[JudgeType::GREAT] = count1;
-    totalJudgeCount[JudgeType::GOOD] = count2;
+    totalJudgeCount[JudgeType::GOOD] = count0;
 
-    unsigned interval0 = count0 ? count / count0 : 0;
-    unsigned interval1 = count1 ? count / count1 : 0;
-    unsigned interval2 = count2 ? count / count2 : 0;
-    unsigned c = 0;
+    double interval0 = count0 ? (double)count / count0 : 0.;
+    double interval1 = count1 ? (double)count / count1 : 0.;
+    double interval2 = count2 ? (double)count / count2 : 0.;
+    double c0 = 0.;
+    double c1 = 0.;
+    double c2 = 0.;
     noteJudges.clear();
     noteJudges.reserve(count);
     while (noteJudges.size() < count)
     {
-        ++c;
-        if (count2 > 0 && c % interval2 == 0)
+        if (count2 > 0 && (double)noteJudges.size() >= c2)
         {
             noteJudges.push_back(JudgeType::PERFECT);
             count2--;
+            c2 += interval2;
         }
-        if (count1 > 0 && c % interval1 == 0)
+        if (count1 > 0 && (double)noteJudges.size() >= c1)
         {
             noteJudges.push_back(JudgeType::GREAT);
             count1--;
+            c1 += interval1;
         }
-        if (count0 > 0 && c % interval0 == 0)
+        if (count0 > 0 && (double)noteJudges.size() >= c0)
         {
             noteJudges.push_back(JudgeType::GOOD);
             count0--;
+            c0 += interval0;
         }
     }
     while (count0--)

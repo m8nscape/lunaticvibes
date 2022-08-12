@@ -66,9 +66,13 @@ void InputWrapper::_loop()
     scratchAxisPrev[0] = scratchAxisCurr[0];
     scratchAxisPrev[1] = scratchAxisCurr[1];
     InputMgr::getScratchPos(scratchAxisCurr[0], scratchAxisCurr[1]);
-    double aDelta[2] = { 
-        normalizeLinearGrowth(scratchAxisPrev[0], scratchAxisCurr[0]) * InputMgr::getDeadzone(Input::S1A),
-        normalizeLinearGrowth(scratchAxisPrev[1], scratchAxisCurr[1]) * InputMgr::getDeadzone(Input::S2A) };
+    double aDelta[2] = { 0., 0. };
+    if (scratchAxisSet)
+    {
+        aDelta[0] = normalizeLinearGrowth(scratchAxisPrev[0], scratchAxisCurr[0]) * InputMgr::getDeadzone(Input::S1A);
+        aDelta[1] = normalizeLinearGrowth(scratchAxisPrev[1], scratchAxisCurr[1]) * InputMgr::getDeadzone(Input::S2A);
+    }
+    scratchAxisSet = true;
 
     // mouse pos
     InputMgr::getMousePos(_cursor_x, _cursor_y);

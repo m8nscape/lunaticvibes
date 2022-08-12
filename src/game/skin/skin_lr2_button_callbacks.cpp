@@ -351,6 +351,10 @@ void pitch_switch(int plus)
         gSwitches.set(eSwitch::SOUND_PITCH, true);
         update_pitch();
     }
+
+    auto& [score, lamp] = getSaveScoreType();
+    gSwitches.set(eSwitch::CHART_CAN_SAVE_SCORE, score);
+    gOptions.set(eOption::CHART_SAVE_LAMP_TYPE, lamp);
 }
 
 // 33
@@ -366,6 +370,10 @@ void pitch_type(int plus)
         gNumbers.set(eNumber::PITCH, p);
         update_pitch();
     }
+
+    auto& [score, lamp] = getSaveScoreType();
+    gSwitches.set(eSwitch::CHART_CAN_SAVE_SCORE, score);
+    gOptions.set(eOption::CHART_SAVE_LAMP_TYPE, lamp);
 }
 
 // 40, 41
@@ -418,16 +426,20 @@ void random_type(int player, int plus)
     gOptions.set(op, val);
     switch (val)
     {
-    case 0: gPlayContext.mods[slot].chart = eModChart::NONE; gTexts.set(tx, "NORMAL"); break;
-    case 1: gPlayContext.mods[slot].chart = eModChart::MIRROR; gTexts.set(tx, "MIRROR"); break;
-    case 2: gPlayContext.mods[slot].chart = eModChart::RANDOM; gTexts.set(tx, "RANDOM"); break;
-    case 3: gPlayContext.mods[slot].chart = eModChart::SRAN; gTexts.set(tx, "S-RANDOM"); break;
-    case 4: gPlayContext.mods[slot].chart = eModChart::HRAN; gTexts.set(tx, "H-RANDOM"); break;
-    case 5: gPlayContext.mods[slot].chart = eModChart::ALLSCR; gTexts.set(tx, "ALL-SCR"); break;
+    case 0: gPlayContext.mods[slot].chart = eModChart::NONE;    gTexts.set(tx, "NORMAL");   break;
+    case 1: gPlayContext.mods[slot].chart = eModChart::MIRROR;  gTexts.set(tx, "MIRROR");   break;
+    case 2: gPlayContext.mods[slot].chart = eModChart::RANDOM;  gTexts.set(tx, "RANDOM");   break;
+    case 3: gPlayContext.mods[slot].chart = eModChart::SRAN;    gTexts.set(tx, "S-RANDOM"); break;
+    case 4: gPlayContext.mods[slot].chart = eModChart::HRAN;    gTexts.set(tx, "H-RANDOM"); break;
+    case 5: gPlayContext.mods[slot].chart = eModChart::ALLSCR;  gTexts.set(tx, "ALL-SCR");  break;
     default: break;
     }
 
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
+
+    auto& [score, lamp] = getSaveScoreType();
+    gSwitches.set(eSwitch::CHART_CAN_SAVE_SCORE, score);
+    gOptions.set(eOption::CHART_SAVE_LAMP_TYPE, lamp);
 }
 
 // 44, 45
@@ -449,6 +461,10 @@ void autoscr(int player, int plus)
     gTexts.set(tx, (!val) ? "AUTO-SCR" : "NONE");
 
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
+
+    auto& [score, lamp] = getSaveScoreType();
+    gSwitches.set(eSwitch::CHART_CAN_SAVE_SCORE, score);
+    gOptions.set(eOption::CHART_SAVE_LAMP_TYPE, lamp);
 }
 
 // 46
@@ -496,6 +512,10 @@ void hs_fix(int plus)
     }
 
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
+
+    auto& [score, lamp] = getSaveScoreType();
+    gSwitches.set(eSwitch::CHART_CAN_SAVE_SCORE, score);
+    gOptions.set(eOption::CHART_SAVE_LAMP_TYPE, lamp);
 }
 
 // 56
@@ -503,6 +523,10 @@ void battle(int plus)
 {
 
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
+
+    auto& [score, lamp] = getSaveScoreType();
+    gSwitches.set(eSwitch::CHART_CAN_SAVE_SCORE, score);
+    gOptions.set(eOption::CHART_SAVE_LAMP_TYPE, lamp);
 }
 
 // 57, 58
@@ -578,6 +602,7 @@ void bga(int plus)
     int val = (gOptions.get(eOption::PLAY_BGA_TYPE) + 2 + plus) % 2;
 
     gOptions.set(eOption::PLAY_BGA_TYPE, val);
+    ConfigMgr::set('P', cfg::P_LOAD_BGA, (val != 0));
 
     switch (val)
     {

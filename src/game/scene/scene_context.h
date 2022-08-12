@@ -98,6 +98,7 @@ struct PlayContextParams
     int battle2PGreenNumber = 1200;
 };
 
+std::pair<bool, Option::e_lamp_type> getSaveScoreType();
 void clearContextPlayForRetry();
 void clearContextPlay();
 void pushGraphPoints();

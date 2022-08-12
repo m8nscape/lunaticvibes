@@ -137,7 +137,7 @@ void TextureVideo::reset()
 
 #endif
 
-bool TextureBmsBga::addBmp(size_t idx, const Path& pBmp)
+bool TextureBmsBga::addBmp(size_t idx, Path pBmp)
 {
 	if (idx == size_t(-1)) return false;
 
@@ -157,6 +157,10 @@ bool TextureBmsBga::addBmp(size_t idx, const Path& pBmp)
 		".webm",
 	};
 
+	if (!fs::exists(pBmp) && pBmp.has_extension() && toLower(pBmp.extension().string()) == ".bmp")
+	{
+		pBmp = pBmp.parent_path() / PathFromUTF8(pBmp.filename().stem().u8string() + ".png");
+	}
 	if (fs::exists(pBmp) && fs::is_regular_file(pBmp) && pBmp.has_extension())
 	{
 		if (video_file_extensions.find(toLower(pBmp.extension().u8string())) != video_file_extensions.end())
@@ -185,13 +189,19 @@ bool TextureBmsBga::addBmp(size_t idx, const Path& pBmp)
 			return true;
 		}
 	}
-	LOG_DEBUG << "[TextureBmsBga] file not found: " << pBmp.u8string();
+	else
+	{
+		objs[idx].type = obj::Ty::EMPTY;
+
+		objs_layer[idx].type = obj::Ty::EMPTY;
+
+		LOG_DEBUG << "[TextureBmsBga] file not found, added dummy: " << pBmp.u8string();
+	}
 	return false;
 }
 
 bool TextureBmsBga::setSlot(size_t idx, Time time, bool base, bool layer, bool poor)
 {
-	if (objs.find(idx) == objs.end()) return false;
 	if (base) baseSlot.emplace_back(time, idx);
 	if (layer) layerSlot.emplace_back(time, idx);
 	if (poor) poorSlot.emplace_back(time, idx);

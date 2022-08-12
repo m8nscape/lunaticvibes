@@ -64,6 +64,7 @@ protected:
     InputMask _prev = 0;
     InputMask _curr = 0;
 
+    bool scratchAxisSet = false;
     double scratchAxisPrev[2] = { 0. };
     double scratchAxisCurr[2] = { 0. };
 

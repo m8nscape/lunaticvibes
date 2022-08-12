@@ -3041,42 +3041,64 @@ void SkinLR2::update()
     }
 
     // update nowjudge/nowcombo
+    // 0-5:   NOWJUDGE 1P
+    // 6-11:  NOWCOMBO 1P
+    // 12-17: NOWJUDGE 2P
+    // 18-23: NOWCOMBO 2P
     for (size_t i = 0; i < 6; ++i)
     {
         if (gSprites[i] && gSprites[i + 6] && gSprites[i]->_draw && gSprites[i + 6]->_draw)
         {
             std::shared_ptr<SpriteAnimated> judge = std::reinterpret_pointer_cast<SpriteAnimated>(gSprites[i]);
             std::shared_ptr<SpriteNumber> combo = std::reinterpret_pointer_cast<SpriteNumber>(gSprites[i + 6]);
-            Rect diff{ 0,0,0,0 };
-            //diff.x = int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
-            diff.x += judge->_current.rect.x;
-            diff.y += judge->_current.rect.y;
-            if (!noshiftJudge1P[i])
+            if (judge->isDraw())
             {
-                judge->_current.rect.x -= int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
+                combo->setHide(false);
+
+                Rect diff{ 0,0,0,0 };
+                //diff.x = int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
+                diff.x += judge->_current.rect.x;
+                diff.y += judge->_current.rect.y;
+                if (!noshiftJudge1P[i])
+                {
+                    judge->_current.rect.x -= int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
+                }
+                for (auto& d : combo->_rects)
+                {
+                    d.x += diff.x;
+                    d.y += diff.y;
+                }
             }
-            for (auto& d : combo->_rects)
+            else
             {
-                d.x += diff.x;
-                d.y += diff.y;
+                combo->setHide(true);
             }
         }
         if (gSprites[i + 12] && gSprites[i + 18] && gSprites[i + 12]->_draw && gSprites[i + 18]->_draw)
         {
             std::shared_ptr<SpriteAnimated> judge = std::reinterpret_pointer_cast<SpriteAnimated>(gSprites[i + 12]);
             std::shared_ptr<SpriteNumber> combo = std::reinterpret_pointer_cast<SpriteNumber>(gSprites[i + 18]);
-            Rect diff{ 0,0,0,0 };
-            //diff.x = int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
-            diff.x += judge->_current.rect.x;
-            diff.y += judge->_current.rect.y;
-            if (!noshiftJudge2P[i])
+            if (judge->isDraw())
             {
-                judge->_current.rect.x -= int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
+                combo->setHide(false);
+
+                Rect diff{ 0,0,0,0 };
+                //diff.x = int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
+                diff.x += judge->_current.rect.x;
+                diff.y += judge->_current.rect.y;
+                if (!noshiftJudge2P[i])
+                {
+                    judge->_current.rect.x -= int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
+                }
+                for (auto& d : combo->_rects)
+                {
+                    d.x += diff.x;
+                    d.y += diff.y;
+                }
             }
-            for (auto& d : combo->_rects)
+            else
             {
-                d.x += diff.x;
-                d.y += diff.y;
+                combo->setHide(true);
             }
         }
     }

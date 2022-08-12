@@ -251,6 +251,10 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
     gSelectContext.isGoingToReplay = false;
     gSwitches.set(eSwitch::SYSTEM_AUTOPLAY, false);
 
+    auto& [score, lamp] = getSaveScoreType();
+    gSwitches.set(eSwitch::CHART_CAN_SAVE_SCORE, score);
+    gOptions.set(eOption::CHART_SAVE_LAMP_TYPE, lamp);
+
     _state = eSelectState::PREPARE;
     _updateCallback = std::bind(&SceneSelect::updatePrepare, this);
 
@@ -285,9 +289,10 @@ void SceneSelect::_updateAsync()
     if (!gSelectContext.entries.empty() && scrollAccumulator != 0.0)
     {
         Time t;
-        if (scrollAccumulator > 0 && scrollAccumulator + scrollAccumulatorAddUnit < 0 ||
-            scrollAccumulator < 0 && scrollAccumulator + scrollAccumulatorAddUnit > 0 ||
-            -0.000001 < scrollAccumulator && scrollAccumulator < 0.000001)
+        if (!(isHoldingUp || isHoldingDown) &&
+            (scrollAccumulator > 0 && scrollAccumulator + scrollAccumulatorAddUnit < 0 ||
+                scrollAccumulator < 0 && scrollAccumulator + scrollAccumulatorAddUnit > 0 ||
+                -0.000001 < scrollAccumulator && scrollAccumulator < 0.000001))
         {
             gSliders.set(eSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.idx / gSelectContext.entries.size()));
             scrollAccumulator = 0.0;
@@ -1041,19 +1046,34 @@ void SceneSelect::_decide()
         c.startBPM = chart.startBPM;
 
         // set gamemode
-        // FIXME 2P battle
-        // FIXME DP battle
         if (c.chartObj->type() == eChartFormat::BMS)
         {
             auto pBMS = std::reinterpret_pointer_cast<BMS_prop>(c.chartObj);
             switch (pBMS->gamemode)
             {
-            case 5: gPlayContext.mode = eMode::PLAY5; break;
-            case 7: gPlayContext.mode = eMode::PLAY7; break;
-            case 9: gPlayContext.mode = eMode::PLAY9; break;
+            case 5:  gPlayContext.mode = eMode::PLAY5;  break;
+            case 7:  gPlayContext.mode = eMode::PLAY7;  break;
+            case 9:  gPlayContext.mode = eMode::PLAY9;  break;
             case 10: gPlayContext.mode = eMode::PLAY10; break;
             case 14: gPlayContext.mode = eMode::PLAY14; break;
-            default: gPlayContext.mode = eMode::PLAY7; break;
+            default: gPlayContext.mode = eMode::PLAY7;  break;
+            }
+            switch (gOptions.get(eOption::PLAY_BATTLE_TYPE))
+            {
+            case Option::BATTLE_OFF:   gOptions.set(eOption::PLAY_MODE, (unsigned)ePlayMode::SINGLE_PLAYER); break;
+            case Option::BATTLE_LOCAL: gOptions.set(eOption::PLAY_MODE, (unsigned)ePlayMode::LOCAL_BATTLE); break;
+            case Option::BATTLE_GHOST: gOptions.set(eOption::PLAY_MODE, (unsigned)ePlayMode::GHOST_BATTLE); break;
+            case Option::BATTLE_DB:    gOptions.set(eOption::PLAY_MODE, (unsigned)ePlayMode::SINGLE_PLAYER); break;
+            default: assert(false);    gOptions.set(eOption::PLAY_MODE, (unsigned)ePlayMode::SINGLE_PLAYER); break;
+            }
+            if (gOptions.get(eOption::PLAY_BATTLE_TYPE) == Option::BATTLE_DB)
+            {
+                switch (pBMS->gamemode)
+                {
+                case 5:  gPlayContext.mode = eMode::PLAY10;  break;
+                case 7:  gPlayContext.mode = eMode::PLAY14;  break;
+                default: break;
+                }
             }
         }
 

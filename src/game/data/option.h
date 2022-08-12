@@ -30,14 +30,13 @@ enum class eOption : unsigned
     KEY_CONFIG_KEY5,        // none/1P1/1P2/1P3/1P4/1P5/1PLEFT/1PRIGHT/1PSTART/1PSELECT/2P1/2P2/2P3/2P4/2P5/2PLEFT/2PRIGHT/2PSTART/2PSELECT/1PSCRATCH(new)/2PSCRATCH(new)
 
     CHART_DIFFICULTY,
-    CHART_PLAY_MODE,
     CHART_PLAY_KEYS,
     CHART_JUDGE_TYPE,
 
-    CHART_CAN_SAVE_LAMP,
+    CHART_SAVE_LAMP_TYPE,    // 
 
     PLAY_SCENE_STAT,
-    PLAY_MODE,
+    PLAY_MODE,              // ePlayMode
     PLAY_KEYS,
     PLAY_BGA_TYPE,
     PLAY_GHOST_TYPE_1P,
@@ -128,12 +127,6 @@ namespace Option
 		SPLAY_FAILED,
 	};
 
-    enum e_play_mode {
-        PLAY_SINGLE,
-        PLAY_DOUBLE,
-        PLAY_BATTLE
-    };
-
     enum e_play_keys {
         KEYS_NOT_PLAYABLE,
         KEYS_ALL,
@@ -168,6 +161,13 @@ namespace Option
         SPEED_FIX_CONSTANT,
     };
 
+    enum e_battle_type {
+        BATTLE_OFF,
+        BATTLE_LOCAL,
+        BATTLE_GHOST,
+        BATTLE_DB,
+    };
+
     enum e_gauge_type{
         GAUGE_NORMAL,
         GAUGE_HARD,
@@ -196,7 +196,6 @@ namespace Option
     };
 
     enum e_lamp_type {
-        LAMP_NOT_APPLICIABLE,
         LAMP_NOPLAY,
         LAMP_FAILED,
         LAMP_ASSIST,
