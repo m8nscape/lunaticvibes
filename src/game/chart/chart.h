@@ -105,16 +105,23 @@ class vChart
 {
 public:
     static constexpr size_t MAX_MEASURES = 1000;
+
 protected:
     int _playerSlot = -1;
 
 protected:
-	unsigned _noteCount;
+	unsigned _noteCount_total;
 	unsigned _noteCount_regular;
 	unsigned _noteCount_ln;
+
 public:
-	unsigned constexpr getNoteCount() const { return _noteCount; }
+    // Includes normal notes and LNs; One LN counts as one note
+	unsigned constexpr getNoteTotalCount() const { return _noteCount_total; }
+
+    // Normal notes
 	unsigned constexpr getNoteRegularCount() const { return _noteCount_regular; }
+
+    // LNs; One LN counts as one note
 	unsigned constexpr getNoteLnCount() const { return _noteCount_ln; }
 
 protected:

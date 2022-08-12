@@ -143,7 +143,6 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
 
     auto& [saveScoreTmp, saveLampTmp] = getSaveScoreType();
     saveScore = saveScoreTmp;
-    ScoreBMS::Lamp saveLamp;
     switch (saveLampTmp)
     {
     case Option::e_lamp_type::LAMP_NOPLAY:      saveLamp = ScoreBMS::Lamp::NOPLAY; break;
@@ -257,7 +256,7 @@ void SceneResult::updateFadeout()
             auto& chart = gPlayContext.chartObj[PLAYER_SLOT_1P];
             auto& ruleset = gPlayContext.ruleset[PLAYER_SLOT_1P];
             auto& data = ruleset->getData();
-            score.notes = chart->getNoteCount();
+            score.notes = chart->getNoteTotalCount();
             score.score = data.score;
             score.rate = data.total_acc;
             score.fast = data.fast;

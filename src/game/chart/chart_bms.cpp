@@ -134,7 +134,7 @@ chartBMS::chartBMS(int slot, const BMS& b) : chartBMS(slot)
 
 void chartBMS::loadBMS(const BMS& objBms)
 {
-	_noteCount = objBms.notes_total;
+	_noteCount_total = objBms.notes_total;
 	_noteCount_regular = objBms.notes_scratch + objBms.notes_key;
 	_noteCount_ln = objBms.notes_scratch_ln + objBms.notes_key_ln;
 	Time basetime{ 0 };

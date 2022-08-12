@@ -1281,14 +1281,14 @@ void ScenePlay::updatePlaying()
         {
             _isPlayerFinished[PLAYER_SLOT_1P] = true;
             gTimers.queue(eTimer::PLAY_P1_FINISHED, t.norm());
-            if (gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().combo == gPlayContext.chartObj[PLAYER_SLOT_1P]->getNoteCount())
+            if (gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().combo == gPlayContext.chartObj[PLAYER_SLOT_1P]->getNoteTotalCount())
                 gTimers.queue(eTimer::PLAY_FULLCOMBO_1P, t.norm());
         }
         if (gPlayContext.ruleset[PLAYER_SLOT_2P] != nullptr && _isPlayerFinished[PLAYER_SLOT_2P] ^ gPlayContext.ruleset[PLAYER_SLOT_2P]->isFinished())
         {
             _isPlayerFinished[PLAYER_SLOT_2P] = true;
             gTimers.queue(eTimer::PLAY_P2_FINISHED, t.norm());
-            if (gPlayContext.ruleset[PLAYER_SLOT_2P]->getData().combo == gPlayContext.chartObj[PLAYER_SLOT_2P]->getNoteCount())
+            if (gPlayContext.ruleset[PLAYER_SLOT_2P]->getData().combo == gPlayContext.chartObj[PLAYER_SLOT_2P]->getNoteTotalCount())
                 gTimers.queue(eTimer::PLAY_FULLCOMBO_2P, t.norm());
         }
     }

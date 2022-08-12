@@ -51,7 +51,7 @@ void setJudgeInternalTimer2P(RulesetBMS::JudgeType judge, long long t)
 
 RulesetBMS::RulesetBMS(std::shared_ptr<vChartFormat> format, std::shared_ptr<vChart> chart,
     eModGauge gauge, GameModeKeys keys, RulesetBMS::JudgeDifficulty difficulty, double health, RulesetBMS::PlaySide side) :
-    vRuleset(format, chart), _diff(difficulty)
+    vRuleset(format, chart), _judgeDifficulty(difficulty)
 {
     switch (gauge)
     {
@@ -105,12 +105,12 @@ RulesetBMS::RulesetBMS(std::shared_ptr<vChartFormat> format, std::shared_ptr<vCh
         _minHealth                  = 0;
         _clearHealth                = 0;
         _failWhenNoHealth = true;
-        _healthIncrement[JudgeType::PERFECT] = 1.0 / 1001.0;
-        _healthIncrement[JudgeType::GREAT]   = 1.0 / 1001.0;
-        _healthIncrement[JudgeType::GOOD]    = 1.0 / 1001.0 / 2;
-        _healthIncrement[JudgeType::BAD]     = -0.06;
-        _healthIncrement[JudgeType::MISS]    = -0.1;
-        _healthIncrement[JudgeType::BPOOR]   = -0.02;
+        _healthGain[JudgeType::PERFECT] = 1.0 / 1001.0;
+        _healthGain[JudgeType::GREAT]   = 1.0 / 1001.0;
+        _healthGain[JudgeType::GOOD]    = 1.0 / 1001.0 / 2;
+        _healthGain[JudgeType::BAD]     = -0.06;
+        _healthGain[JudgeType::MISS]    = -0.1;
+        _healthGain[JudgeType::BPOOR]   = -0.02;
         break;
 
     case GaugeType::EXHARD:
@@ -118,12 +118,12 @@ RulesetBMS::RulesetBMS(std::shared_ptr<vChartFormat> format, std::shared_ptr<vCh
         _minHealth                  = 0;
         _clearHealth                = 0;
         _failWhenNoHealth = true;
-        _healthIncrement[JudgeType::PERFECT] = 1.0 / 1001.0;
-        _healthIncrement[JudgeType::GREAT]   = 1.0 / 1001.0;
-        _healthIncrement[JudgeType::GOOD]    = 1.0 / 1001.0 / 2;
-        _healthIncrement[JudgeType::BAD]     = -0.12;
-        _healthIncrement[JudgeType::MISS]    = -0.2;
-        _healthIncrement[JudgeType::BPOOR]   = -0.1;
+        _healthGain[JudgeType::PERFECT] = 1.0 / 1001.0;
+        _healthGain[JudgeType::GREAT]   = 1.0 / 1001.0;
+        _healthGain[JudgeType::GOOD]    = 1.0 / 1001.0 / 2;
+        _healthGain[JudgeType::BAD]     = -0.12;
+        _healthGain[JudgeType::MISS]    = -0.2;
+        _healthGain[JudgeType::BPOOR]   = -0.1;
         break;
 
     case GaugeType::DEATH:
@@ -131,12 +131,12 @@ RulesetBMS::RulesetBMS(std::shared_ptr<vChartFormat> format, std::shared_ptr<vCh
         _minHealth                  = 0;
         _clearHealth                = 0;
         _failWhenNoHealth = true;
-        _healthIncrement[JudgeType::PERFECT] = 1.0 / 1001.0;
-        _healthIncrement[JudgeType::GREAT]   = 1.0 / 1001.0 / 2;
-        _healthIncrement[JudgeType::GOOD]    = 0.0;
-        _healthIncrement[JudgeType::BAD]     = -1.0;
-        _healthIncrement[JudgeType::MISS]    = -1.0;
-        _healthIncrement[JudgeType::BPOOR]   = -0.02;
+        _healthGain[JudgeType::PERFECT] = 1.0 / 1001.0;
+        _healthGain[JudgeType::GREAT]   = 1.0 / 1001.0 / 2;
+        _healthGain[JudgeType::GOOD]    = 0.0;
+        _healthGain[JudgeType::BAD]     = -1.0;
+        _healthGain[JudgeType::MISS]    = -1.0;
+        _healthGain[JudgeType::BPOOR]   = -0.02;
         break;
 
     case GaugeType::P_ATK:
@@ -144,12 +144,12 @@ RulesetBMS::RulesetBMS(std::shared_ptr<vChartFormat> format, std::shared_ptr<vCh
         _minHealth                  = 0;
         _clearHealth                = 0;
         _failWhenNoHealth = true;
-        _healthIncrement[JudgeType::PERFECT] = 1.0 / 1001.0;
-        _healthIncrement[JudgeType::GREAT]   = -0.02;
-        _healthIncrement[JudgeType::GOOD]    = -1.0;
-        _healthIncrement[JudgeType::BAD]     = -1.0;
-        _healthIncrement[JudgeType::MISS]    = -1.0;
-        _healthIncrement[JudgeType::BPOOR]   = -0.02;
+        _healthGain[JudgeType::PERFECT] = 1.0 / 1001.0;
+        _healthGain[JudgeType::GREAT]   = -0.02;
+        _healthGain[JudgeType::GOOD]    = -1.0;
+        _healthGain[JudgeType::BAD]     = -1.0;
+        _healthGain[JudgeType::MISS]    = -1.0;
+        _healthGain[JudgeType::BPOOR]   = -0.02;
         break;
 
     case GaugeType::G_ATK:
@@ -157,48 +157,48 @@ RulesetBMS::RulesetBMS(std::shared_ptr<vChartFormat> format, std::shared_ptr<vCh
         _minHealth                  = 0;
         _clearHealth                = 0;
         _failWhenNoHealth = true;
-        _healthIncrement[JudgeType::PERFECT] = -0.02;
-        _healthIncrement[JudgeType::GREAT]   = -0.02;
-        _healthIncrement[JudgeType::GOOD]    = 0.0;
-        _healthIncrement[JudgeType::BAD]     = -1.0;
-        _healthIncrement[JudgeType::MISS]    = -1.0;
-        _healthIncrement[JudgeType::BPOOR]   = -0.02;
+        _healthGain[JudgeType::PERFECT] = -0.02;
+        _healthGain[JudgeType::GREAT]   = -0.02;
+        _healthGain[JudgeType::GOOD]    = 0.0;
+        _healthGain[JudgeType::BAD]     = -1.0;
+        _healthGain[JudgeType::MISS]    = -1.0;
+        _healthGain[JudgeType::BPOOR]   = -0.02;
         break;
 
     case GaugeType::GROOVE:
         _basic.health             = 0.2;
         _minHealth                  = 0.02;
         _clearHealth                = 0.8;
-        _healthIncrement[JudgeType::PERFECT] = 0.01 * total / chart->getNoteCount();
-        _healthIncrement[JudgeType::GREAT]   = 0.01 * total / chart->getNoteCount();
-        _healthIncrement[JudgeType::GOOD]    = 0.01 * total / chart->getNoteCount() / 2;
-        _healthIncrement[JudgeType::BAD]     = -0.04;
-        _healthIncrement[JudgeType::MISS]    = -0.06;
-        _healthIncrement[JudgeType::BPOOR]   = -0.02;
+        _healthGain[JudgeType::PERFECT] = 0.01 * total / chart->getNoteTotalCount();
+        _healthGain[JudgeType::GREAT]   = 0.01 * total / chart->getNoteTotalCount();
+        _healthGain[JudgeType::GOOD]    = 0.01 * total / chart->getNoteTotalCount() / 2;
+        _healthGain[JudgeType::BAD]     = -0.04;
+        _healthGain[JudgeType::MISS]    = -0.06;
+        _healthGain[JudgeType::BPOOR]   = -0.02;
         break;
 
     case GaugeType::EASY:
         _basic.health             = 0.2;
         _minHealth                  = 0.02;
         _clearHealth                = 0.8;
-        _healthIncrement[JudgeType::PERFECT] = 0.01 * total / chart->getNoteCount() * 1.2;
-        _healthIncrement[JudgeType::GREAT]   = 0.01 * total / chart->getNoteCount() * 1.2;
-        _healthIncrement[JudgeType::GOOD]    = 0.01 * total / chart->getNoteCount() / 2 * 1.2;
-        _healthIncrement[JudgeType::BAD]     = -0.032;
-        _healthIncrement[JudgeType::MISS]    = -0.048;
-        _healthIncrement[JudgeType::BPOOR]   = -0.016;
+        _healthGain[JudgeType::PERFECT] = 0.01 * total / chart->getNoteTotalCount() * 1.2;
+        _healthGain[JudgeType::GREAT]   = 0.01 * total / chart->getNoteTotalCount() * 1.2;
+        _healthGain[JudgeType::GOOD]    = 0.01 * total / chart->getNoteTotalCount() / 2 * 1.2;
+        _healthGain[JudgeType::BAD]     = -0.032;
+        _healthGain[JudgeType::MISS]    = -0.048;
+        _healthGain[JudgeType::BPOOR]   = -0.016;
         break;
 
     case GaugeType::ASSIST:
         _basic.health             = 0.2;
         _minHealth                  = 0.02;
         _clearHealth                = 0.6;
-        _healthIncrement[JudgeType::PERFECT] = 0.01 * total / chart->getNoteCount() * 1.2;
-        _healthIncrement[JudgeType::GREAT]   = 0.01 * total / chart->getNoteCount() * 1.2;
-        _healthIncrement[JudgeType::GOOD]    = 0.01 * total / chart->getNoteCount() / 2 * 1.2;
-        _healthIncrement[JudgeType::BAD]     = -0.032;
-        _healthIncrement[JudgeType::MISS]    = -0.048;
-        _healthIncrement[JudgeType::BPOOR]   = -0.016;
+        _healthGain[JudgeType::PERFECT] = 0.01 * total / chart->getNoteTotalCount() * 1.2;
+        _healthGain[JudgeType::GREAT]   = 0.01 * total / chart->getNoteTotalCount() * 1.2;
+        _healthGain[JudgeType::GOOD]    = 0.01 * total / chart->getNoteTotalCount() / 2 * 1.2;
+        _healthGain[JudgeType::BAD]     = -0.032;
+        _healthGain[JudgeType::MISS]    = -0.048;
+        _healthGain[JudgeType::BPOOR]   = -0.016;
         break;
 
     case GaugeType::GRADE:
@@ -206,12 +206,12 @@ RulesetBMS::RulesetBMS(std::shared_ptr<vChartFormat> format, std::shared_ptr<vCh
         _minHealth                  = 0;
         _clearHealth                = 0;
         _failWhenNoHealth = true;
-        _healthIncrement[JudgeType::PERFECT] = 1.0 / 1001.0;
-        _healthIncrement[JudgeType::GREAT]   = 1.0 / 1001.0;
-        _healthIncrement[JudgeType::GOOD]    = 1.0 / 1001.0 / 2;
-        _healthIncrement[JudgeType::BAD]     = -0.02;
-        _healthIncrement[JudgeType::MISS]    = -0.03;
-        _healthIncrement[JudgeType::BPOOR]   = -0.02;
+        _healthGain[JudgeType::PERFECT] = 1.0 / 1001.0;
+        _healthGain[JudgeType::GREAT]   = 1.0 / 1001.0;
+        _healthGain[JudgeType::GOOD]    = 1.0 / 1001.0 / 2;
+        _healthGain[JudgeType::BAD]     = -0.02;
+        _healthGain[JudgeType::MISS]    = -0.03;
+        _healthGain[JudgeType::BPOOR]   = -0.02;
         break;
 
     case GaugeType::EXGRADE:
@@ -219,12 +219,12 @@ RulesetBMS::RulesetBMS(std::shared_ptr<vChartFormat> format, std::shared_ptr<vCh
         _minHealth                  = 0;
         _clearHealth                = 0;
         _failWhenNoHealth = true;
-        _healthIncrement[JudgeType::PERFECT] = 1.0 / 1001.0;
-        _healthIncrement[JudgeType::GREAT]   = 1.0 / 1001.0;
-        _healthIncrement[JudgeType::GOOD]    = 1.0 / 1001.0 / 2;
-        _healthIncrement[JudgeType::BAD]     = -0.12;
-        _healthIncrement[JudgeType::MISS]    = -0.2;     // FIXME not as hard as exhard
-        _healthIncrement[JudgeType::BPOOR]   = -0.1;
+        _healthGain[JudgeType::PERFECT] = 1.0 / 1001.0;
+        _healthGain[JudgeType::GREAT]   = 1.0 / 1001.0;
+        _healthGain[JudgeType::GOOD]    = 1.0 / 1001.0 / 2;
+        _healthGain[JudgeType::BAD]     = -0.12;
+        _healthGain[JudgeType::MISS]    = -0.2;     // FIXME not as hard as exhard
+        _healthGain[JudgeType::BPOOR]   = -0.1;
         break;
 
     default:
@@ -265,32 +265,32 @@ RulesetBMS::RulesetBMS(std::shared_ptr<vChartFormat> format, std::shared_ptr<vCh
     }
 }
 
-RulesetBMS::judgeRes RulesetBMS::_judge(const Note& note, Time time)
+RulesetBMS::JudgeRes RulesetBMS::_judge(const Note& note, Time time)
 {
     // spot judge area
     judgeArea a = judgeArea::NOTHING;
 	Time error = time - note.time;
-    if (error > -judgeTime[(size_t)_diff].BPOOR)
+    if (error > -judgeTime[(size_t)_judgeDifficulty].BPOOR)
     {
-        if (error < -judgeTime[(size_t)_diff].BAD)
+        if (error < -judgeTime[(size_t)_judgeDifficulty].BAD)
             a = judgeArea::EARLY_BPOOR;
-        else if (error < -judgeTime[(size_t)_diff].GOOD)
+        else if (error < -judgeTime[(size_t)_judgeDifficulty].GOOD)
             a = judgeArea::EARLY_BAD;
-        else if (error < -judgeTime[(size_t)_diff].GREAT)
+        else if (error < -judgeTime[(size_t)_judgeDifficulty].GREAT)
             a = judgeArea::EARLY_GOOD;
-        else if (error < -judgeTime[(size_t)_diff].PERFECT)
+        else if (error < -judgeTime[(size_t)_judgeDifficulty].PERFECT)
             a = judgeArea::EARLY_GREAT;
         else if (error < 0)
             a = judgeArea::EARLY_PERFECT;
         else if (error == 0)
             a = judgeArea::EXACT_PERFECT;
-        else if (error < judgeTime[(size_t)_diff].PERFECT)
+        else if (error < judgeTime[(size_t)_judgeDifficulty].PERFECT)
             a = judgeArea::LATE_PERFECT;
-        else if (error < judgeTime[(size_t)_diff].GREAT)
+        else if (error < judgeTime[(size_t)_judgeDifficulty].GREAT)
             a = judgeArea::LATE_GREAT;
-        else if (error < judgeTime[(size_t)_diff].GOOD)
+        else if (error < judgeTime[(size_t)_judgeDifficulty].GOOD)
             a = judgeArea::LATE_GOOD;
-        else if (error < judgeTime[(size_t)_diff].BAD)
+        else if (error < judgeTime[(size_t)_judgeDifficulty].BAD)
             a = judgeArea::LATE_BAD;
     }
 
@@ -313,7 +313,7 @@ RulesetBMS::judgeRes RulesetBMS::_judge(const Note& note, Time time)
     return { a, error };
 }
 
-void RulesetBMS::_judgePress(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot)
+void RulesetBMS::_judgePress(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote& note, JudgeRes judge, const Time& t, int slot)
 {
     switch (cat)
     {
@@ -361,7 +361,7 @@ void RulesetBMS::_judgePress(NoteLaneCategory cat, NoteLaneIndex idx, HitableNot
         if (judge.area > judgeArea::EARLY_BPOOR)
         {
             note.hit = true;
-            _basic.totaln++;
+            _basic.notesExpired++;
         }
         break;
 
@@ -414,7 +414,7 @@ void RulesetBMS::_judgePress(NoteLaneCategory cat, NoteLaneIndex idx, HitableNot
         _lastNoteJudge = judge;
     }
 }
-void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot)
+void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote& note, JudgeRes judge, const Time& t, int slot)
 {
     switch (cat)
     {
@@ -428,7 +428,7 @@ void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote
             _updateHp(-0.01 * note.dvalue / 2);
 
             // bpoor + 1
-            _count[JudgeType::BPOOR]++;
+            _judgeCount[JudgeType::BPOOR]++;
             _basic.miss++;
             if (slot == PLAYER_SLOT_1P)
             {
@@ -470,7 +470,7 @@ void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote
                 }
                 updateHit(t, idx, JudgeType::PERFECT, slot);
                 note.hit = true;
-                _basic.totaln++;
+                _basic.notesExpired++;
                 _lnJudge[idx] = RulesetBMS::judgeArea::NOTHING;
 
                 if (_bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
@@ -485,7 +485,7 @@ void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote
         break;
     }
 }
-void RulesetBMS::_judgeRelease(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot)
+void RulesetBMS::_judgeRelease(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote& note, JudgeRes judge, const Time& t, int slot)
 {
     switch (cat)
     {
@@ -517,7 +517,7 @@ void RulesetBMS::_judgeRelease(NoteLaneCategory cat, NoteLaneIndex idx, HitableN
                 else
                     updateHit(t, idx, JudgeType::PERFECT, slot);
                 note.hit = true;
-                _basic.totaln++;
+                _basic.notesExpired++;
                 _lnJudge[idx] = RulesetBMS::judgeArea::NOTHING;
                 break;
 
@@ -528,7 +528,7 @@ void RulesetBMS::_judgeRelease(NoteLaneCategory cat, NoteLaneIndex idx, HitableN
                 else
                     updateHit(t, idx, JudgeType::GREAT, slot);
                 note.hit = true;
-                _basic.totaln++;
+                _basic.notesExpired++;
                 _lnJudge[idx] = RulesetBMS::judgeArea::NOTHING;
                 break;
 
@@ -536,7 +536,7 @@ void RulesetBMS::_judgeRelease(NoteLaneCategory cat, NoteLaneIndex idx, HitableN
                 _basic.fast++;
                 updateHit(t, idx, JudgeType::GOOD, slot);
                 note.hit = true;
-                _basic.totaln++;
+                _basic.notesExpired++;
                 _lnJudge[idx] = RulesetBMS::judgeArea::NOTHING;
                 break;
 
@@ -545,7 +545,7 @@ void RulesetBMS::_judgeRelease(NoteLaneCategory cat, NoteLaneIndex idx, HitableN
                 _basic.fast++;
                 updateMiss(t, idx, JudgeType::BAD, slot);
                 note.hit = true;
-                _basic.totaln++;
+                _basic.notesExpired++;
                 _lnJudge[idx] = RulesetBMS::judgeArea::NOTHING;
                 break;
             }
@@ -589,32 +589,32 @@ void RulesetBMS::_updateHp(const double diff)
 }
 void RulesetBMS::_updateHp(JudgeType judge)
 {
-    _updateHp(_healthIncrement.at(judge));
+    _updateHp(_healthGain.at(judge));
 }
 
 void RulesetBMS::updateHit(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeType judge, int slot)
 {
-    ++_count[judge];
+    ++_judgeCount[judge];
     ++_basic.hit;
     ++_basic.combo;
     bool setTimer = false;
     switch (judge)
     {
     case JudgeType::PERFECT:
-        inner_score += 1.0 * 150000 / _chart->getNoteCount() + 
-            1.0 * std::min(int(_basic.combo) - 1, 10) * 50000 / (10 * _chart->getNoteCount() - 55);
+        moneyScore += 1.0 * 150000 / _chart->getNoteTotalCount() + 
+            1.0 * std::min(int(_basic.combo) - 1, 10) * 50000 / (10 * _chart->getNoteTotalCount() - 55);
         _basic.score2 += 2;
         setTimer = true;
         break;
     case JudgeType::GREAT:
-        inner_score += 1.0 * 100000 / _chart->getNoteCount() + 
-            1.0 * std::min(int(_basic.combo) - 1, 10) * 50000 / (10 * _chart->getNoteCount() - 55);
+        moneyScore += 1.0 * 100000 / _chart->getNoteTotalCount() + 
+            1.0 * std::min(int(_basic.combo) - 1, 10) * 50000 / (10 * _chart->getNoteTotalCount() - 55);
         _basic.score2 += 1;
         setTimer = true;
         break;
     case JudgeType::GOOD:
-        inner_score += 1.0 * 20000 / _chart->getNoteCount() + 
-            1.0 * std::min(int(_basic.combo) - 1, 10) * 50000 / (10 * _chart->getNoteCount() - 55);
+        moneyScore += 1.0 * 20000 / _chart->getNoteTotalCount() + 
+            1.0 * std::min(int(_basic.combo) - 1, 10) * 50000 / (10 * _chart->getNoteTotalCount() - 55);
         break;
     default:
         break;
@@ -668,12 +668,12 @@ void RulesetBMS::updateHit(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeTyp
 
 void RulesetBMS::updateMiss(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeType judge, int slot)
 {
-    ++_count[judge];
+    ++_judgeCount[judge];
     ++_basic.miss;
     _updateHp(judge);
     if (judge != JudgeType::BPOOR)
     {
-        if (_basic.combo == 0) ++_count[JudgeType::COMBOBREAK];
+        if (_basic.combo == 0) ++_judgeCount[JudgeType::COMBOBREAK];
         _basic.combo = 0;
     }
 
@@ -775,11 +775,6 @@ void RulesetBMS::updatePress(InputMask& pg, const Time& t)
     };
     if (_k1P) updatePressRange(Input::S1L, Input::K1SPDDN, PLAYER_SLOT_1P);
     if (_k2P) updatePressRange(Input::S2L, Input::K2SPDDN, PLAYER_SLOT_2P);
-
-    if (pg[Input::S1L]) _scratchKey[0][0] = true;
-    if (pg[Input::S1R]) _scratchKey[0][1] = true;
-    if (pg[Input::S2L]) _scratchKey[1][0] = true;
-    if (pg[Input::S2R]) _scratchKey[1][1] = true;
 }
 void RulesetBMS::updateHold(InputMask& hg, const Time& t)
 {
@@ -804,24 +799,11 @@ void RulesetBMS::updateRelease(InputMask& rg, const Time& t)
     if (rt < 0) return;
     if (gPlayContext.isAuto) return;
 
-    if (rg[Input::S1L]) _scratchKey[0][0] = false;
-    if (rg[Input::S1R]) _scratchKey[0][1] = false;
-    if (rg[Input::S2L]) _scratchKey[1][0] = false;
-    if (rg[Input::S2R]) _scratchKey[1][1] = false;
-
     auto updateReleaseRange = [&](Input::Pad begin, Input::Pad end, int slot)
     {
         for (size_t k = begin; k <= end; ++k)
         {
             if (!rg[k]) continue;
-            switch (k)
-            {
-            case Input::S1L: if (_scratchKey[0][1]) continue; break;
-            case Input::S1R: if (_scratchKey[0][0]) continue; break;
-            case Input::S2L: if (_scratchKey[1][1]) continue; break;
-            case Input::S2R: if (_scratchKey[1][0]) continue; break;
-            default: break;
-            }
             judgeNoteRelease((Input::Pad)k, t, rt, slot);
         }
     };
@@ -852,12 +834,12 @@ void RulesetBMS::update(const Time& t)
             switch (cat)
             {
             case NoteLaneCategory::Note:
-                _basic.totalnr++;
+                _basic.notesReached++;
                 break;
 
             case NoteLaneCategory::LN:
                 if (n->flags & Note::LN_TAIL)
-                    _basic.totalnr++;
+                    _basic.notesReached++;
                 break;
             }
 
@@ -877,13 +859,13 @@ void RulesetBMS::update(const Time& t)
                 auto itNote = _chart->incomingNote(NoteLaneCategory::Note, idx);
                 while (!_chart->isLastNote(NoteLaneCategory::Note, idx, itNote) && !itNote->hit)
                 {
-                    const Time& hitTime = judgeTime[(size_t)_diff].BAD;
+                    const Time& hitTime = judgeTime[(size_t)_judgeDifficulty].BAD;
                     if (rt - itNote->time >= hitTime)
                     {
                         itNote->hit = true;
                         _basic.slow++;
                         updateMiss(t, idx, RulesetBMS::JudgeType::MISS, slot);
-                        _basic.totaln++;
+                        _basic.notesExpired++;
                         //LOG_DEBUG << "LATE   POOR    "; break;
                     }
                     itNote++;
@@ -900,7 +882,7 @@ void RulesetBMS::update(const Time& t)
                     {
                         if (rt >= itNote->time)
                         {
-                            Time hitTime = itNote->time + judgeTime[(size_t)_diff].BAD;
+                            Time hitTime = itNote->time + judgeTime[(size_t)_judgeDifficulty].BAD;
                             auto itTail = itNote;
                             itTail++;
                             if (!_chart->isLastNote(NoteLaneCategory::LN, idx, itTail) && (itTail->flags & Note::LN_TAIL) && hitTime > itTail->time)
@@ -925,7 +907,7 @@ void RulesetBMS::update(const Time& t)
                             itNote->hit = true;
                             if (_lnJudge[idx] == judgeArea::EARLY_BAD || _lnJudge[idx] == judgeArea::LATE_BAD)
                             {
-                                _basic.totaln++;
+                                _basic.notesExpired++;
                                 _lnJudge[idx] = judgeArea::NOTHING;
                             }
                         }
@@ -937,7 +919,7 @@ void RulesetBMS::update(const Time& t)
             idx = _chart->getLaneFromKey(NoteLaneCategory::Invs, (Input::Pad)k);
             if (idx != NoteLaneIndex::_)
             {
-                const Time& hitTime = -judgeTime[(size_t)_diff].BAD;
+                const Time& hitTime = -judgeTime[(size_t)_judgeDifficulty].BAD;
                 auto itNote = _chart->incomingNote(NoteLaneCategory::Invs, idx);
                 while (!_chart->isLastNote(NoteLaneCategory::Invs, idx, itNote) && !itNote->hit && rt - itNote->time >= hitTime)
                 {
@@ -1041,10 +1023,10 @@ void RulesetBMS::update(const Time& t)
     updateScratch(t, Input::S2L, Input::S2R, _scratchAccumulator[PLAYER_SLOT_2P], PLAYER_SLOT_2P);
 
 
-	unsigned max = _chart->getNoteCount() * 2;
+	unsigned max = _chart->getNoteTotalCount() * 2;
 	_basic.total_acc = 100.0 * _basic.score2 / max;
-    _basic.acc = _basic.totaln ? (100.0 * _basic.score2 / _basic.totaln / 2) : 0;
-    _basic.score = int(std::round(inner_score));
+    _basic.acc = _basic.notesExpired ? (100.0 * _basic.score2 / _basic.notesExpired / 2) : 0;
+    _basic.score = int(std::round(moneyScore));
 
     updateGlobals();
 }
@@ -1056,10 +1038,10 @@ void RulesetBMS::fail()
     _basic.health = _minHealth; 
     _basic.combo = 0;
 
-    int notesRemain = _chart->getNoteCount() - _basic.totaln;
+    int notesRemain = _chart->getNoteTotalCount() - _basic.notesExpired;
     _basic.miss += notesRemain;
-    _count[JudgeType::MISS] += notesRemain;
-    _basic.totaln = _basic.totalnr = _chart->getNoteCount();
+    _judgeCount[JudgeType::MISS] += notesRemain;
+    _basic.notesExpired = _basic.notesReached = _chart->getNoteTotalCount();
 
     _basic.acc = _basic.total_acc;
 }
@@ -1068,7 +1050,7 @@ void RulesetBMS::reset()
 {
     vRuleset::reset();
 
-    _count.clear();
+    _judgeCount.clear();
 
     updateGlobals();
 }
@@ -1086,27 +1068,27 @@ void RulesetBMS::updateGlobals()
         gNumbers.queue(eNumber::PLAY_1P_MAXCOMBO, _basic.maxCombo);
         gNumbers.queue(eNumber::PLAY_1P_RATE, int(std::floor(_basic.acc)));
         gNumbers.queue(eNumber::PLAY_1P_RATEDECIMAL, int(std::floor((_basic.acc - int(_basic.acc)) * 100)));
-        gNumbers.queue(eNumber::PLAY_1P_TOTALNOTES, _chart->getNoteCount());
+        gNumbers.queue(eNumber::PLAY_1P_TOTALNOTES, _chart->getNoteTotalCount());
         gNumbers.queue(eNumber::PLAY_1P_TOTAL_RATE, int(std::floor(_basic.total_acc)));
         gNumbers.queue(eNumber::PLAY_1P_TOTAL_RATE_DECIMAL2, int(std::floor((_basic.total_acc - int(_basic.total_acc)) * 100)));
-        gNumbers.queue(eNumber::PLAY_1P_PERFECT, _count[JudgeType::PERFECT]);
-        gNumbers.queue(eNumber::PLAY_1P_GREAT, _count[JudgeType::GREAT]);
-        gNumbers.queue(eNumber::PLAY_1P_GOOD, _count[JudgeType::GOOD]);
-        gNumbers.queue(eNumber::PLAY_1P_BAD, _count[JudgeType::BAD]);
-        gNumbers.queue(eNumber::PLAY_1P_POOR, _count[JudgeType::BPOOR] + _count[JudgeType::MISS]);
+        gNumbers.queue(eNumber::PLAY_1P_PERFECT, _judgeCount[JudgeType::PERFECT]);
+        gNumbers.queue(eNumber::PLAY_1P_GREAT, _judgeCount[JudgeType::GREAT]);
+        gNumbers.queue(eNumber::PLAY_1P_GOOD, _judgeCount[JudgeType::GOOD]);
+        gNumbers.queue(eNumber::PLAY_1P_BAD, _judgeCount[JudgeType::BAD]);
+        gNumbers.queue(eNumber::PLAY_1P_POOR, _judgeCount[JudgeType::BPOOR] + _judgeCount[JudgeType::MISS]);
         gNumbers.queue(eNumber::PLAY_1P_GROOVEGAUGE, int(_basic.health * 100));
 
         gNumbers.queue(eNumber::PLAY_1P_JUDGE_TIME_ERROR_MS, _lastNoteJudge.time.norm());
-        gNumbers.queue(eNumber::PLAY_1P_MISS, _count[JudgeType::MISS]);
+        gNumbers.queue(eNumber::PLAY_1P_MISS, _judgeCount[JudgeType::MISS]);
         gNumbers.queue(eNumber::PLAY_1P_FAST_COUNT, _basic.fast);
         gNumbers.queue(eNumber::PLAY_1P_SLOW_COUNT, _basic.slow);
-        gNumbers.queue(eNumber::PLAY_1P_COMBOBREAK, _count[JudgeType::BAD] + _count[JudgeType::MISS]);
-        gNumbers.queue(eNumber::PLAY_1P_BPOOR, _count[JudgeType::BPOOR]);
-        gNumbers.queue(eNumber::PLAY_1P_BP, _count[JudgeType::BAD] + _count[JudgeType::BPOOR] + _count[JudgeType::MISS]);
+        gNumbers.queue(eNumber::PLAY_1P_COMBOBREAK, _judgeCount[JudgeType::BAD] + _judgeCount[JudgeType::MISS]);
+        gNumbers.queue(eNumber::PLAY_1P_BPOOR, _judgeCount[JudgeType::BPOOR]);
+        gNumbers.queue(eNumber::PLAY_1P_BP, _judgeCount[JudgeType::BAD] + _judgeCount[JudgeType::BPOOR] + _judgeCount[JudgeType::MISS]);
         gNumbers.queue(eNumber::LR2IR_REPLACE_PLAY_1P_JUDGE_TIME_ERROR_MS, _lastNoteJudge.time.norm());
         gNumbers.queue(eNumber::LR2IR_REPLACE_PLAY_1P_FAST_COUNT, _basic.fast);
         gNumbers.queue(eNumber::LR2IR_REPLACE_PLAY_1P_SLOW_COUNT, _basic.slow);
-        gNumbers.queue(eNumber::LR2IR_REPLACE_PLAY_1P_COMBOBREAK, _count[JudgeType::BAD] + _count[JudgeType::MISS]);
+        gNumbers.queue(eNumber::LR2IR_REPLACE_PLAY_1P_COMBOBREAK, _judgeCount[JudgeType::BAD] + _judgeCount[JudgeType::MISS]);
 
         int fastslow = 0;   // 1:fast 2:slow
         switch (_lastNoteJudge.area)
@@ -1128,16 +1110,16 @@ void RulesetBMS::updateGlobals()
         gNumbers.queue(eNumber::LR2IR_REPLACE_PLAY_1P_FAST_SLOW, fastslow);
         gOptions.queue(eOption::PLAY_LAST_JUDGE_FASTSLOW_1P, fastslow);
 
-        gBargraphs.queue(eBargraph::RESULT_PG, (double)_count[JudgeType::PERFECT] / _chart->getNoteCount());
-        gBargraphs.queue(eBargraph::RESULT_GR, (double)_count[JudgeType::GREAT] / _chart->getNoteCount());
-        gBargraphs.queue(eBargraph::RESULT_GD, (double)_count[JudgeType::GOOD] / _chart->getNoteCount());
-        gBargraphs.queue(eBargraph::RESULT_BD, (double)_count[JudgeType::BAD] / _chart->getNoteCount());
-        gBargraphs.queue(eBargraph::RESULT_PR, (double)(_count[JudgeType::BPOOR] + _count[JudgeType::MISS]) / _chart->getNoteCount());
+        gBargraphs.queue(eBargraph::RESULT_PG, (double)_judgeCount[JudgeType::PERFECT] / _chart->getNoteTotalCount());
+        gBargraphs.queue(eBargraph::RESULT_GR, (double)_judgeCount[JudgeType::GREAT] / _chart->getNoteTotalCount());
+        gBargraphs.queue(eBargraph::RESULT_GD, (double)_judgeCount[JudgeType::GOOD] / _chart->getNoteTotalCount());
+        gBargraphs.queue(eBargraph::RESULT_BD, (double)_judgeCount[JudgeType::BAD] / _chart->getNoteTotalCount());
+        gBargraphs.queue(eBargraph::RESULT_PR, (double)(_judgeCount[JudgeType::BPOOR] + _judgeCount[JudgeType::MISS]) / _chart->getNoteTotalCount());
         gBargraphs.queue(eBargraph::RESULT_MAXCOMBO, (double)_basic.maxCombo / getMaxCombo());
         gBargraphs.queue(eBargraph::RESULT_SCORE, (double)_basic.score / 200000);
         gBargraphs.queue(eBargraph::RESULT_EXSCORE, (double)_basic.score2 / getMaxScore());
-        gBargraphs.queue(eBargraph::PLAY_1P_FAST_COUNT, (double)_basic.fast / _chart->getNoteCount());
-        gBargraphs.queue(eBargraph::PLAY_1P_SLOW_COUNT, (double)_basic.slow / _chart->getNoteCount());
+        gBargraphs.queue(eBargraph::PLAY_1P_FAST_COUNT, (double)_basic.fast / _chart->getNoteTotalCount());
+        gBargraphs.queue(eBargraph::PLAY_1P_SLOW_COUNT, (double)_basic.slow / _chart->getNoteTotalCount());
 
         {
             using namespace Option;
@@ -1168,23 +1150,23 @@ void RulesetBMS::updateGlobals()
         gNumbers.queue(eNumber::PLAY_2P_MAXCOMBO, _basic.maxCombo);
         gNumbers.queue(eNumber::PLAY_2P_RATE, int(std::floor(_basic.acc)));
         gNumbers.queue(eNumber::PLAY_2P_RATEDECIMAL, int(std::floor((_basic.acc - int(_basic.acc)) * 100)));
-        gNumbers.queue(eNumber::PLAY_2P_TOTALNOTES, _chart->getNoteCount());
+        gNumbers.queue(eNumber::PLAY_2P_TOTALNOTES, _chart->getNoteTotalCount());
         gNumbers.queue(eNumber::PLAY_2P_TOTAL_RATE, int(std::floor(_basic.total_acc)));
         gNumbers.queue(eNumber::PLAY_2P_TOTAL_RATE_DECIMAL2, int(std::floor((_basic.total_acc - int(_basic.total_acc)) * 100)));
-        gNumbers.queue(eNumber::PLAY_2P_PERFECT, _count[JudgeType::PERFECT]);
-        gNumbers.queue(eNumber::PLAY_2P_GREAT, _count[JudgeType::GREAT]);
-        gNumbers.queue(eNumber::PLAY_2P_GOOD, _count[JudgeType::GOOD]);
-        gNumbers.queue(eNumber::PLAY_2P_BAD, _count[JudgeType::BAD]);
-        gNumbers.queue(eNumber::PLAY_2P_POOR, _count[JudgeType::BPOOR] + _count[JudgeType::MISS]);
+        gNumbers.queue(eNumber::PLAY_2P_PERFECT, _judgeCount[JudgeType::PERFECT]);
+        gNumbers.queue(eNumber::PLAY_2P_GREAT, _judgeCount[JudgeType::GREAT]);
+        gNumbers.queue(eNumber::PLAY_2P_GOOD, _judgeCount[JudgeType::GOOD]);
+        gNumbers.queue(eNumber::PLAY_2P_BAD, _judgeCount[JudgeType::BAD]);
+        gNumbers.queue(eNumber::PLAY_2P_POOR, _judgeCount[JudgeType::BPOOR] + _judgeCount[JudgeType::MISS]);
         gNumbers.queue(eNumber::PLAY_2P_GROOVEGAUGE, int(_basic.health * 100));
 
         gNumbers.queue(eNumber::PLAY_2P_JUDGE_TIME_ERROR_MS, _lastNoteJudge.time.norm());
-        gNumbers.queue(eNumber::PLAY_2P_MISS, _count[JudgeType::MISS]);
+        gNumbers.queue(eNumber::PLAY_2P_MISS, _judgeCount[JudgeType::MISS]);
         gNumbers.queue(eNumber::PLAY_2P_FAST_COUNT, _basic.fast);
         gNumbers.queue(eNumber::PLAY_2P_SLOW_COUNT, _basic.slow);
-        gNumbers.queue(eNumber::PLAY_2P_COMBOBREAK, _count[JudgeType::BAD] + _count[JudgeType::MISS]);
-        gNumbers.queue(eNumber::PLAY_2P_BPOOR, _count[JudgeType::BPOOR]);
-        gNumbers.queue(eNumber::PLAY_2P_BP, _count[JudgeType::BAD] + _count[JudgeType::BPOOR] + _count[JudgeType::MISS]);
+        gNumbers.queue(eNumber::PLAY_2P_COMBOBREAK, _judgeCount[JudgeType::BAD] + _judgeCount[JudgeType::MISS]);
+        gNumbers.queue(eNumber::PLAY_2P_BPOOR, _judgeCount[JudgeType::BPOOR]);
+        gNumbers.queue(eNumber::PLAY_2P_BP, _judgeCount[JudgeType::BAD] + _judgeCount[JudgeType::BPOOR] + _judgeCount[JudgeType::MISS]);
 
         int fastslow = 0;   // 1:fast 2:slow
         switch (_lastNoteJudge.area)
@@ -1206,16 +1188,16 @@ void RulesetBMS::updateGlobals()
         gNumbers.queue(eNumber::LR2IR_REPLACE_PLAY_2P_FAST_SLOW, fastslow);
         gOptions.queue(eOption::PLAY_LAST_JUDGE_FASTSLOW_2P, fastslow);
 
-        gBargraphs.queue(eBargraph::RESULT_RIVAL_PG, (double)_count[JudgeType::PERFECT] / _chart->getNoteCount());
-        gBargraphs.queue(eBargraph::RESULT_RIVAL_GR, (double)_count[JudgeType::GREAT] / _chart->getNoteCount());
-        gBargraphs.queue(eBargraph::RESULT_RIVAL_GD, (double)_count[JudgeType::GOOD] / _chart->getNoteCount());
-        gBargraphs.queue(eBargraph::RESULT_RIVAL_BD, (double)_count[JudgeType::BAD] / _chart->getNoteCount());
-        gBargraphs.queue(eBargraph::RESULT_RIVAL_PR, (double)(_count[JudgeType::BPOOR] + _count[JudgeType::MISS]) / _chart->getNoteCount());
+        gBargraphs.queue(eBargraph::RESULT_RIVAL_PG, (double)_judgeCount[JudgeType::PERFECT] / _chart->getNoteTotalCount());
+        gBargraphs.queue(eBargraph::RESULT_RIVAL_GR, (double)_judgeCount[JudgeType::GREAT] / _chart->getNoteTotalCount());
+        gBargraphs.queue(eBargraph::RESULT_RIVAL_GD, (double)_judgeCount[JudgeType::GOOD] / _chart->getNoteTotalCount());
+        gBargraphs.queue(eBargraph::RESULT_RIVAL_BD, (double)_judgeCount[JudgeType::BAD] / _chart->getNoteTotalCount());
+        gBargraphs.queue(eBargraph::RESULT_RIVAL_PR, (double)(_judgeCount[JudgeType::BPOOR] + _judgeCount[JudgeType::MISS]) / _chart->getNoteTotalCount());
         gBargraphs.queue(eBargraph::RESULT_RIVAL_MAXCOMBO, (double)_basic.maxCombo / getMaxCombo());
         gBargraphs.queue(eBargraph::RESULT_RIVAL_SCORE, (double)_basic.score / 200000);
         gBargraphs.queue(eBargraph::RESULT_RIVAL_EXSCORE, (double)_basic.score2 / getMaxScore());
-        gBargraphs.queue(eBargraph::PLAY_2P_FAST_COUNT, (double)_basic.fast / _chart->getNoteCount());
-        gBargraphs.queue(eBargraph::PLAY_2P_SLOW_COUNT, (double)_basic.slow / _chart->getNoteCount());
+        gBargraphs.queue(eBargraph::PLAY_2P_FAST_COUNT, (double)_basic.fast / _chart->getNoteTotalCount());
+        gBargraphs.queue(eBargraph::PLAY_2P_SLOW_COUNT, (double)_basic.slow / _chart->getNoteTotalCount());
 
         {
             using namespace Option;

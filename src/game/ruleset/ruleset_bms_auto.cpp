@@ -23,7 +23,7 @@ RulesetBMSAuto::RulesetBMSAuto(
 void RulesetBMSAuto::setTargetRate(double rate)
 {
     targetRate = rate;
-    unsigned count = _chart->getNoteCount();
+    unsigned count = _chart->getNoteTotalCount();
     unsigned score = (unsigned)std::round(2 * count * rate);
 
     if (rate == 1.0)
@@ -98,7 +98,7 @@ void RulesetBMSAuto::update(const Time& t)
     {
         for (size_t k = begin; k <= end; ++k)
         {
-            judgeRes j;
+            JudgeRes j;
             NoteLaneIndex idx;
 
             idx = _chart->getLaneFromKey(NoteLaneCategory::Note, (Input::Pad)k);
@@ -109,7 +109,7 @@ void RulesetBMSAuto::update(const Time& t)
                 {
                     updateHit(t, idx, noteJudges[judgeIndex++], side);
                     itNote->hit = true;
-                    _basic.totaln++;
+                    _basic.notesExpired++;
 
                     if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P)
                     {
@@ -142,7 +142,7 @@ void RulesetBMSAuto::update(const Time& t)
                 {
                     if (!(itNote->flags & Note::LN_TAIL))
                     {
-                        const Time& hitTime = judgeTime[(size_t)_diff].BAD;
+                        const Time& hitTime = judgeTime[(size_t)_judgeDifficulty].BAD;
                         if (!itNote->hit && rt >= itNote->time)
                         {
                             itNote->hit = true;
@@ -179,7 +179,7 @@ void RulesetBMSAuto::update(const Time& t)
                         {
                             updateHit(t, idx, noteJudges[judgeIndex++], side);
                             itNote->hit = true;
-                            _basic.totaln++;
+                            _basic.notesExpired++;
 
                             if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P)
                             {
@@ -260,10 +260,10 @@ void RulesetBMSAuto::update(const Time& t)
     updateSection(Input::S1L, Input::K1SPDDN, showJudge ? PLAYER_SLOT_1P : -1);
     updateSection(Input::S2L, Input::K2SPDDN, showJudge ? PLAYER_SLOT_2P : -1);
 
-    unsigned max = _chart->getNoteCount() * 2;
+    unsigned max = _chart->getNoteTotalCount() * 2;
     _basic.total_acc = 100.0 * _basic.score2 / max;
-    _basic.acc = _basic.totaln ? (100.0 * _basic.score2 / _basic.totaln) : 0;
-    _basic.score = int(std::round(inner_score));
+    _basic.acc = _basic.notesExpired ? (100.0 * _basic.score2 / (_basic.notesExpired * 2)) : 0;
+    _basic.score = int(std::round(moneyScore));
 
     updateGlobals();
 }
@@ -272,15 +272,15 @@ void RulesetBMSAuto::fail()
 {
     _isFailed = true;
 
-    _basic.totaln = _basic.totalnr = _chart->getNoteCount();
+    _basic.notesExpired = _basic.notesReached = _chart->getNoteTotalCount();
     _basic.combo = getMaxCombo();
 
-    _count[JudgeType::PERFECT] = totalJudgeCount[JudgeType::PERFECT];
-    _count[JudgeType::GREAT] = totalJudgeCount[JudgeType::GREAT];
-    _count[JudgeType::GOOD] = totalJudgeCount[JudgeType::GOOD];
+    _judgeCount[JudgeType::PERFECT] = totalJudgeCount[JudgeType::PERFECT];
+    _judgeCount[JudgeType::GREAT] = totalJudgeCount[JudgeType::GREAT];
+    _judgeCount[JudgeType::GOOD] = totalJudgeCount[JudgeType::GOOD];
 
-    unsigned exscore = _count[JudgeType::PERFECT] * 2 + _count[JudgeType::GREAT];
-    _basic.total_acc = _basic.totaln ? (100.0 * exscore / _basic.totaln / 2) : 0;
+    unsigned exscore = _judgeCount[JudgeType::PERFECT] * 2 + _judgeCount[JudgeType::GREAT];
+    _basic.total_acc = _basic.notesExpired ? (100.0 * exscore / (_basic.notesExpired * 2)) : 0;
     _basic.acc = _basic.total_acc;
 }
 
@@ -288,7 +288,7 @@ void RulesetBMSAuto::reset()
 {
     vRuleset::reset();
 
-    _count.clear();
+    _judgeCount.clear();
 
     judgeIndex = 0;
 

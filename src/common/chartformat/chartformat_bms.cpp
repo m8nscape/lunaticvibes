@@ -642,36 +642,55 @@ int BMS::initWithFile(const Path& file)
     if (haveNote)
     {
         for (int area = 0; area < 2; ++area)
-            for (const auto& ch : chNotesRegular.lanes[area])
+        {
+            for (unsigned bar = 0; bar <= lastBarIdx; bar++)
             {
-                notes_scratch += ch[0].notes.size();
-
-                for (unsigned bar = 1; bar <= lastBarIdx; bar++)
-                    notes_total += ch[bar].notes.size();
+                notes_scratch += chNotesRegular.lanes[area][0][bar].notes.size();
             }
+
+            for (size_t lane = 1; lane < chNotesRegular.lanes[area].size(); ++lane)
+            {
+                for (unsigned bar = 0; bar <= lastBarIdx; bar++)
+                {
+                    notes_key += chNotesRegular.lanes[area][lane][bar].notes.size();
+                }
+            }
+        }
+        notes_total += notes_scratch + notes_key;
     }
 
     if (haveLN)
     {
         for (int area = 0; area < 2; ++area)
-            for (const auto& ch : chNotesLN.lanes[area])
+        {
+            for (unsigned bar = 0; bar <= lastBarIdx; bar++)
             {
-                notes_scratch_ln += ch[0].notes.size();
-
-                for (unsigned bar = 1; bar <= lastBarIdx; bar++)
-                    notes_key_ln += ch[bar].notes.size();
+                notes_scratch_ln += chNotesLN.lanes[area][0][bar].notes.size();
             }
+
+            for (size_t lane = 1; lane < chNotesRegular.lanes[area].size(); ++lane)
+            {
+                for (unsigned bar = 0; bar <= lastBarIdx; bar++)
+                {
+                    notes_key_ln += chNotesLN.lanes[area][lane][bar].notes.size();
+                }
+            }
+        }
         notes_total += notes_key_ln / 2;
     }
 
     if (haveMine)
     {
         for (int area = 0; area < 2; ++area)
+        {
             for (const auto& ch : chMines.lanes[area])
             {
                 for (unsigned bar = 0; bar <= lastBarIdx; bar++)
+                {
                     notes_mine += ch[bar].notes.size();
+                }
             }
+        }
     }
 
     minBPM = bpm;

@@ -25,8 +25,9 @@ public:
         unsigned maxCombo;
         unsigned hit;       // total notes hit
         unsigned miss;      // total misses
-        unsigned totaln;    // total notes expired
-        unsigned totalnr;    // total notes reached
+
+        unsigned notesReached;    // total notes reached
+        unsigned notesExpired;    // total notes expired
 
         unsigned fast;
         unsigned slow;
@@ -57,7 +58,7 @@ public:
     constexpr BasicData getData() const { return _basic; }
     double getClearHealth() const { return _clearHealth; }
     bool failWhenNoHealth() const { return _failWhenNoHealth; }
-    virtual bool isFinished() const { return _basic.totaln == _chart->getNoteCount(); }
+    virtual bool isFinished() const { return _basic.notesExpired == _chart->getNoteTotalCount(); }
     virtual bool isCleared() const { return _isCleared; }
     virtual bool isFailed() const { return _isFailed; }
 
