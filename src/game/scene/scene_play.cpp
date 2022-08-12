@@ -1268,7 +1268,6 @@ void ScenePlay::updatePlaying()
             _isExitingFromPlay = true;
             _state = ePlayState::FAILED;
             SoundMgr::stopSysSamples();
-            SoundMgr::stopNoteSamples();
             SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::SOUND_PLAYSTOP);
             for (size_t i = 0; i < gPlayContext.ruleset.size(); ++i)
             {
@@ -1387,7 +1386,6 @@ void ScenePlay::updateFadeout()
                 wantRetry = true;
         }
 
-        SoundMgr::stopNoteSamples();
         gPlayContext.bgaTexture->reset();
 
         if (gPlayContext.isAuto)
