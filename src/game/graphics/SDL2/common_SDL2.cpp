@@ -326,6 +326,8 @@ void Texture::_draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, Rect
     SDL_Point scenter;
     if (center) scenter = { (int)center->x, (int)center->y };
 
+    SDL_SetTextureScaleMode(&*pTex, filter ? SDL_ScaleModeBest : SDL_ScaleModeNearest);
+
     int r = SDL_RenderCopyEx(
         gFrameRenderer,
         &*pTex,

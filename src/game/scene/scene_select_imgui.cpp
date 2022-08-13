@@ -488,8 +488,8 @@ bool SceneSelect::_imguiApplyResolution()
     renderH = ConfigMgr::get("V", cfg::V_RES_Y, CANVAS_HEIGHT);
 
     graphics_change_window_mode(imgui_video_mode);
-    graphics_resize_canvas(renderW, renderH);
     graphics_resize_window(windowW, windowH);
+    graphics_resize_canvas(renderW, renderH);
     graphics_change_vsync(imgui_video_vsync);
 
     return true;

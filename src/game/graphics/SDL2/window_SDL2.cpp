@@ -118,6 +118,7 @@ int graphics_init()
             LOG_ERROR << "[SDL2] Init Target Texture Error! " << SDL_GetError();
             return -3;
         }
+        SDL_SetTextureScaleMode(gInternalRenderTarget, SDL_ScaleModeBest);
 
         SDL_SetRenderTarget(gFrameRenderer, gInternalRenderTarget);
 
