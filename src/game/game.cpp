@@ -278,6 +278,7 @@ int main(int argc, char* argv[])
         };
     }
 
+    /*
 #ifndef _DEBUG
     // preload all skins
     LOG_INFO << "==============================================";
@@ -289,6 +290,7 @@ int main(int argc, char* argv[])
     LOG_INFO << "Preload all skins finished";
     LOG_INFO << "==============================================";
 #endif
+    */
 
 #ifdef WIN32
     timeBeginPeriod(1);

@@ -127,27 +127,7 @@ int BMS::initWithFile(const Path& file)
         buf = to_utf8(buf, encoding);
 
         if (buf[0] != '#') continue;
-
-        // skip comments
-        bool skip = false;
-        static const std::vector<std::regex> skipRegex
-        {
-            std::regex(R"(\*-.*)", prebuiltRegexFlags),     // *-
-            std::regex(R"(\/\/.*)", prebuiltRegexFlags),    // //
-            std::regex(R"(;.*)", prebuiltRegexFlags),       // ;
-            std::regex(R"(#BPM00 .*)", prebuiltRegexFlags),
-            std::regex(R"(#STOP00 .*)", prebuiltRegexFlags),
-            std::regex(R"(#BMP00 .*)", prebuiltRegexFlags),
-        };
-        for (auto& reg : skipRegex)
-        {
-            if (std::regex_match(buf, reg))
-            {
-                skip = true;
-                break;
-            }
-        }
-        if (skip) continue;
+        if (buf.length() < 2) continue;
 
         // parsing
         try
@@ -334,17 +314,20 @@ int BMS::initWithFile(const Path& file)
                 else if (std::regex_match(key, regexBga))
                 {
                     int idx = base36(key[3], key[4]);
-                    bgaFiles[idx].assign(value.begin(), value.end());
+                    if (idx != 0)
+                        bgaFiles[idx].assign(value.begin(), value.end());
                 }
                 else if (std::regex_match(key, regexBpm))
                 {
                     int idx = base36(key[3], key[4]);
-                    exBPM[idx] = toDouble(value);
+                    if (idx != 0)
+                        exBPM[idx] = toDouble(value);
                 }
                 else if (std::regex_match(key, regexStop))
                 {
                     int idx = base36(key[4], key[5]);
-                    stop[idx] = toDouble(value);
+                    if (idx != 0)
+                        stop[idx] = toDouble(value);
                 }
 
                 // unknown
