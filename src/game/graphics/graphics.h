@@ -23,6 +23,8 @@ int graphics_free();
 // 0: windowed / 1: fullscreen / 2: borderless
 void graphics_change_window_mode(int mode);
 
+void graphics_set_supersample_level(int scale);
+int graphics_get_supersample_level();
 void graphics_resize_canvas(int x, int y);
 void graphics_resize_window(int x, int y);
 

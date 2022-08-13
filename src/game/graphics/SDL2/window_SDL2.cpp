@@ -80,6 +80,9 @@ int graphics_init()
         canvasRect.h = ConfigMgr::get("V", cfg::V_RES_Y, CANVAS_HEIGHT);
         graphics_resize_canvas(canvasRect.w, canvasRect.h);
 
+        int ss = ConfigMgr::get("V", cfg::V_RES_SUPERSAMPLE, 1);
+        graphics_set_supersample_level(ss);
+
         int maxFPS = ConfigMgr::get("V", cfg::V_MAXFPS, 480);
         if (maxFPS < 30 && maxFPS != 0)
             maxFPS = 30;
@@ -176,11 +179,15 @@ void graphics_flush()
     SDL_SetRenderTarget(gFrameRenderer, NULL);
     {
         // TODO scale internal canvas
+        Rect ssRect = canvasRect;
+        int ssLevel = graphics_get_supersample_level();
+        ssRect.w *= ssLevel;
+        ssRect.h *= ssLevel;
 
         // render internal canvas texture
         SDL_RenderCopyEx(
             gFrameRenderer, gInternalRenderTarget,
-            &canvasRect, &windowRect,
+            &ssRect, &windowRect,
             0, NULL, SDL_FLIP_NONE);
 
         // render imgui
@@ -255,6 +262,17 @@ void graphics_change_vsync(bool enable)
 {
     // codes below should work since we are explicitly indicated to use OpenGL backend
     SDL_GL_SetSwapInterval(enable ? 1 : 0);
+}
+
+static int superSampleLevel = 1;
+void graphics_set_supersample_level(int level)
+{
+    assert(canvasRect.w * level <= 3840);
+    superSampleLevel = level;
+}
+int graphics_get_supersample_level()
+{
+    return superSampleLevel;
 }
 
 static double canvasScaleX = 1.0;

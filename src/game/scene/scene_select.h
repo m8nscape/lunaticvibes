@@ -126,6 +126,7 @@ private:
     int old_video_display_resolution_index, imgui_video_display_resolution_index;
 
     int old_video_mode, imgui_video_mode;   // 0:windowed 1:fullscreen 2:borderless
+    int imgui_video_ssLevel;
     bool imgui_video_vsync;
     int imgui_video_maxFPS;
 

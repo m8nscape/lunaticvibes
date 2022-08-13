@@ -323,8 +323,14 @@ void Texture::_draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, Rect
     SDL_BlendMode sb = SDL_BLENDMODE_INVALID;
     if (BlendMap.find(b) != BlendMap.end()) SDL_SetTextureBlendMode(&*pTex, BlendMap.at(b));
 
+    int ssLevel = graphics_get_supersample_level();
+    dstRect.x *= ssLevel;
+    dstRect.y *= ssLevel;
+    dstRect.w *= ssLevel;
+    dstRect.h *= ssLevel;
+
     SDL_Point scenter;
-    if (center) scenter = { (int)center->x, (int)center->y };
+    if (center) scenter = { (int)center->x * ssLevel, (int)center->y * ssLevel };
 
     SDL_SetTextureScaleMode(&*pTex, filter ? SDL_ScaleModeBest : SDL_ScaleModeNearest);
 
