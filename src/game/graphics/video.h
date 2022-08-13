@@ -2,6 +2,7 @@
 #ifndef VIDEO_DISABLED
 
 #include <shared_mutex>
+#include <set>
 #include <future>
 #include "common/types.h"
 #include "graphics.h"
@@ -83,6 +84,27 @@ public:
 	
 };
 
+inline const std::set<std::string> video_file_extensions =
+{
+	".mpg",
+	".mp2",
+	".mpeg",
+	".mpeg2",
+	".mpe",
+	".mpv",
+	".flv",
+	".mp4",
+	".m4p",
+	".m4v",
+	".f4v",
+	".avi",
+	".wmv",
+	".mkv",
+	".webm",
+	".mov",
+	".m1v",
+};
+
 #else
 
 class sVideo
@@ -91,4 +113,5 @@ public:
 	sVideo() = default;
 	virtual ~sVideo() = default;
 };
+
 #endif

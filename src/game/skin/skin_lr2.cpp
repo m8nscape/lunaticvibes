@@ -17,6 +17,7 @@
 #include "config/config_mgr.h"
 #include "game/scene/scene_customize.h"
 #include "game/graphics/dxa.h"
+#include "game/graphics/video.h"
 
 #ifdef _WIN32
 // For GetWindowsDirectory
@@ -535,22 +536,6 @@ int SkinLR2::IMAGE()
         std::string pathU8Str = path.u8string();
         if (pathStr.find("*"_p) != pathStr.npos)
         {
-            static const std::set<std::string> video_file_extensions =
-            {
-                ".mpg",
-                ".flv",
-                ".mp4",
-                ".m4p",
-                ".m4v",
-                ".f4v",
-                ".avi",
-                ".wmv",
-                ".mpeg",
-                ".mpeg2",
-                ".mkv",
-                ".webm",
-            };
-
             // Check if the wildcard path is specified by custom settings
             for (auto& cf : customize)
             {

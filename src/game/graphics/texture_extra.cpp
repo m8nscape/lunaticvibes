@@ -155,22 +155,6 @@ bool TextureBmsBga::addBmp(size_t idx, Path pBmp)
 {
 	if (idx == size_t(-1)) return false;
 
-	static const std::set<std::string> video_file_extensions =
-	{
-		".mpg",
-		".flv",
-		".mp4",
-		".m4p",
-		".m4v",
-		".f4v",
-		".avi",
-		".wmv",
-		".mpeg",
-		".mpeg2",
-		".mkv",
-		".webm",
-	};
-
 	if (!fs::exists(pBmp) && pBmp.has_extension() && toLower(pBmp.extension().string()) == ".bmp")
 	{
 		pBmp = pBmp.parent_path() / PathFromUTF8(pBmp.filename().stem().u8string() + ".jpg");
