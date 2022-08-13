@@ -191,17 +191,26 @@ void SceneKeyConfig::inputGamePressKeyboard(KeyboardMask& mask, const Time& t)
 
     if (pad != Input::Pad::INVALID)
     {
-        for (Input::Keyboard k = Input::Keyboard::K_1; k != Input::Keyboard::K_COUNT; ++ * (unsigned*)&k)
+        if (mask[static_cast<size_t>(Input::Keyboard::K_DEL)])
         {
-            if (mask[static_cast<size_t>(k)])
+            KeyMap undef;
+            ConfigMgr::Input(keys)->bind(pad, undef);
+            InputMgr::updateBindings(keys, pad);
+            updateInfo(undef, slot);
+        }
+        else
+        {
+            for (Input::Keyboard k = Input::Keyboard::K_1; k != Input::Keyboard::K_COUNT; ++ * (unsigned*)&k)
             {
-                // modify slot
-                KeyMap km(k);
-                ConfigMgr::Input(keys)->bind(pad, km);
-                InputMgr::updateBindings(keys, pad);
+                if (mask[static_cast<size_t>(k)])
+                {
+                    // modify slot
+                    KeyMap km(k);
+                    ConfigMgr::Input(keys)->bind(pad, km);
+                    InputMgr::updateBindings(keys, pad);
 
-                updateInfo(km, slot);
-
+                    updateInfo(km, slot);
+                }
             }
         }
     }
@@ -268,6 +277,11 @@ void SceneKeyConfig::inputGamePressJoystick(JoystickMask& mask, size_t device, c
         {
             if (mask[static_cast<size_t>(base + index)])
             {
+                auto b = ConfigMgr::Input(keys)->getBindings(pad);
+                if (b.getType() == KeyMap::DeviceType::JOYSTICK && 
+                    b.getJoystick().type == Input::Joystick::Type::AXIS_RELATIVE_POSITIVE &&
+                    b.getJoystick().index == index)
+                    continue;
                 KeyMap j(device, Input::Joystick::Type::AXIS_RELATIVE_POSITIVE, index);
                 ConfigMgr::Input(keys)->bind(pad, j);
                 InputMgr::updateBindings(keys, pad);
@@ -280,6 +294,11 @@ void SceneKeyConfig::inputGamePressJoystick(JoystickMask& mask, size_t device, c
         {
             if (mask[static_cast<size_t>(base + index)])
             {
+                auto b = ConfigMgr::Input(keys)->getBindings(pad);
+                if (b.getType() == KeyMap::DeviceType::JOYSTICK &&
+                    b.getJoystick().type == Input::Joystick::Type::AXIS_RELATIVE_NEGATIVE &&
+                    b.getJoystick().index == index)
+                    continue;
                 KeyMap j(device, Input::Joystick::Type::AXIS_RELATIVE_NEGATIVE, index);
                 ConfigMgr::Input(keys)->bind(pad, j);
                 InputMgr::updateBindings(keys, pad);
