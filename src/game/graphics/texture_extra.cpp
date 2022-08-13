@@ -142,10 +142,13 @@ std::shared_ptr<std::map<uintptr_t, TextureVideo*>> TextureVideo::textures;
 
 void TextureVideo::updateAll()
 {
-	std::shared_lock l(*texMapMutex);
-	for (auto& t : *textures)
+	if (texMapMutex)
 	{
-		t.second->update();
+		std::shared_lock l(*texMapMutex);
+		for (auto& t : *textures)
+		{
+			t.second->update();
+		}
 	}
 }
 
