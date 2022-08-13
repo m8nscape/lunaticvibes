@@ -530,19 +530,19 @@ void setDynamicTextures()
 
         // _BG
         if (!pf->stagefile.empty())
-            gChartContext.texStagefile.setPath(pf->getDirectory() / pf->stagefile);
+            gChartContext.texStagefile.setPath(pf->getDirectory() / PathFromUTF8(pf->stagefile));
         else
             gChartContext.texStagefile.setPath("");
 
         // backbmp
         if (!pf->backbmp.empty())
-            gChartContext.texBackbmp.setPath(pf->getDirectory() / pf->backbmp);
+            gChartContext.texBackbmp.setPath(pf->getDirectory() / PathFromUTF8(pf->backbmp));
         else
             gChartContext.texBackbmp.setPath("");
 
         // _banner
         if (!pf->banner.empty())
-            gChartContext.texBanner.setPath(pf->getDirectory() / pf->banner);
+            gChartContext.texBanner.setPath(pf->getDirectory() / PathFromUTF8(pf->banner));
         else
             gChartContext.texBanner.setPath("");
     }

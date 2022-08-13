@@ -808,7 +808,7 @@ void ScenePlay::_updateAsync()
             _hispeedAdd[PLAYER_SLOT_2P] += hsThreshold;
             hs -= 0.01;
         }
-        if (hs <= 0.0)
+        if (hs <= 0.01)
         {
             hs = 0.01;
             if (_hispeedAdd[PLAYER_SLOT_2P] < 0)

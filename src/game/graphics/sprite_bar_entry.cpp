@@ -451,16 +451,19 @@ bool SpriteBarEntry::update(Time time)
 void SpriteBarEntry::setLoopTime(int t)
 {
     LOG_ERROR << "[Sprite] setLoopTime(f) of SpriteBarEntry should not be used";
+    assert(false);
 }
 
 void SpriteBarEntry::setTrigTimer(eTimer t)
 {
     LOG_ERROR << "[Sprite] setTrigTimer(f) of SpriteBarEntry should not be used";
+    assert(false);
 }
 
 void SpriteBarEntry::appendKeyFrame(const RenderKeyFrame& f)
 {
     LOG_ERROR << "[Sprite] appendKeyFrame(f) of SpriteBarEntry should not be used";
+    assert(false);
 }
 
 void SpriteBarEntry::draw() const

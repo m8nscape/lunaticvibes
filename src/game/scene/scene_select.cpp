@@ -288,53 +288,60 @@ void SceneSelect::_updateAsync()
         gNextScene = eScene::EXIT_TRANS;
     }
 
+    _updateCallback();
+
     if (!gSelectContext.entries.empty() && scrollAccumulator != 0.0)
     {
-        Time t;
-        if (!(isHoldingUp || isHoldingDown) &&
-            (scrollAccumulator > 0 && scrollAccumulator + scrollAccumulatorAddUnit < 0 ||
-                scrollAccumulator < 0 && scrollAccumulator + scrollAccumulatorAddUnit > 0 ||
-                -0.000001 < scrollAccumulator && scrollAccumulator < 0.000001))
         {
-            gSliders.set(eSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.idx / gSelectContext.entries.size()));
-            scrollAccumulator = 0.0;
-            scrollAccumulatorAddUnit = 0.0;
-            gSelectContext.scrollDirection = 0;
-            _skin->reset_bar_animation();
-            gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());
-            gSelectContext.scrollTimeLength = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_INITIAL, 300);
-        }
-        else
-        {
-            if (gSelectContext.scrollDirection == 0)
+            std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
+
+            Time t;
+            if (!(isHoldingUp || isHoldingDown) &&
+                (scrollAccumulator > 0 && scrollAccumulator + scrollAccumulatorAddUnit < 0 ||
+                    scrollAccumulator < 0 && scrollAccumulator + scrollAccumulatorAddUnit > 0 ||
+                    -0.000001 < scrollAccumulator && scrollAccumulator < 0.000001))
             {
-                _skin->start_bar_animation();
+                gSliders.set(eSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.idx / gSelectContext.entries.size()));
+                scrollAccumulator = 0.0;
+                scrollAccumulatorAddUnit = 0.0;
+                gSelectContext.scrollDirection = 0;
+                _skin->reset_bar_animation();
+                gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());
+                gSelectContext.scrollTimeLength = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_INITIAL, 300);
             }
-
-            double posOld = gSliders.get(eSlider::SELECT_LIST);
-            double posNew = posOld + scrollAccumulatorAddUnit / gSelectContext.entries.size();
-
-            int idxOld = (int)std::round(posOld * gSelectContext.entries.size());
-            int idxNew = (int)std::round(posNew * gSelectContext.entries.size());
-            if (idxOld != idxNew)
+            else
             {
-                if (idxOld < idxNew)
-                    _navigateDownBy1(t);
-                else
-                    _navigateUpBy1(t);
+                if (gSelectContext.scrollDirection == 0)
+                {
+                    _skin->start_bar_animation();
+                }
+
+                double posOld = gSliders.get(eSlider::SELECT_LIST);
+                double posNew = posOld + scrollAccumulatorAddUnit / gSelectContext.entries.size();
+
+                int idxOld = (int)std::round(posOld * gSelectContext.entries.size());
+                int idxNew = (int)std::round(posNew * gSelectContext.entries.size());
+                if (idxOld != idxNew)
+                {
+                    if (idxOld < idxNew)
+                        _navigateDownBy1(t);
+                    else
+                        _navigateUpBy1(t);
+                }
+
+                while (posNew < 0.) posNew += 1.;
+                while (posNew >= 1.) posNew -= 1.;
+                gSliders.set(eSlider::SELECT_LIST, posNew);
+
+                scrollAccumulator -= scrollAccumulatorAddUnit;
+
+                gSelectContext.scrollDirection = scrollAccumulator > 0. ? 1 : -1;
             }
-
-            while (posNew < 0.) posNew += 1.;
-            while (posNew >= 1.) posNew -= 1.;
-            gSliders.set(eSlider::SELECT_LIST, posNew);
-
-            scrollAccumulator -= scrollAccumulatorAddUnit;
-
-            gSelectContext.scrollDirection = scrollAccumulator > 0. ? 1 : -1;
         }
+
+        setDynamicTextures();
     }
-    
-    _updateCallback();
+
 }
 
 void SceneSelect::updatePrepare()
@@ -1362,8 +1369,6 @@ void SceneSelect::_navigateUpBy1(const Time& t)
 
     if (!gSelectContext.entries.empty())
     {
-        std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
-
         gSelectContext.idx = (gSelectContext.entries.size() + gSelectContext.idx - 1) % gSelectContext.entries.size();
 
         setBarInfo();
@@ -1372,7 +1377,6 @@ void SceneSelect::_navigateUpBy1(const Time& t)
         gTimers.set(eTimer::LIST_MOVE, t.norm());
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
     }
-    setDynamicTextures();
 }
 
 void SceneSelect::_navigateDownBy1(const Time& t)
@@ -1382,8 +1386,6 @@ void SceneSelect::_navigateDownBy1(const Time& t)
 
     if (!gSelectContext.entries.empty())
     {
-        std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
-
         gSelectContext.idx = (gSelectContext.idx + 1) % gSelectContext.entries.size();
 
         setBarInfo();
@@ -1392,7 +1394,6 @@ void SceneSelect::_navigateDownBy1(const Time& t)
         gTimers.set(eTimer::LIST_MOVE, t.norm());
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
     }
-    setDynamicTextures();
 }
 
 void SceneSelect::_navigateEnter(const Time& t)
