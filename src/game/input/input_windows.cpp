@@ -132,7 +132,9 @@ bool isKeyPressed(Input::Keyboard key)
         DIK_PRIOR,
         DIK_NEXT,
 
+        DIK_RMENU,
         DIK_RCONTROL,
+
         DIK_LEFT,
         DIK_UP,
         DIK_RIGHT,

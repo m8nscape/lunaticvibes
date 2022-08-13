@@ -297,9 +297,10 @@ void SceneSelect::_updateAsync()
 
             Time t;
             if (!(isHoldingUp || isHoldingDown) &&
-                (scrollAccumulator > 0 && scrollAccumulator + scrollAccumulatorAddUnit < 0 ||
-                    scrollAccumulator < 0 && scrollAccumulator + scrollAccumulatorAddUnit > 0 ||
-                    -0.000001 < scrollAccumulator && scrollAccumulator < 0.000001))
+                (scrollAccumulator > 0 && scrollAccumulator - scrollAccumulatorAddUnit < 0 ||
+                    scrollAccumulator < 0 && scrollAccumulator - scrollAccumulatorAddUnit > 0 ||
+                    -0.000001 < scrollAccumulator && scrollAccumulator < 0.000001 ||
+                    scrollAccumulator * scrollAccumulatorAddUnit < 0))
             {
                 gSliders.set(eSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.idx / gSelectContext.entries.size()));
                 scrollAccumulator = 0.0;

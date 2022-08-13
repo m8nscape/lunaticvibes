@@ -204,6 +204,7 @@ enum class Keyboard : unsigned
     K_PGUP,
     K_PGDN,
 
+    K_RALT,
     K_RCTRL,
 
     K_LEFT,
@@ -340,7 +341,8 @@ inline const char* keyboardNameMap[0xFF]
     "PGUP",
     "PGDN",
 
-    "RCTRL"
+    "RALT",
+    "RCTRL",
 
     "LEFT",
     "UP",
