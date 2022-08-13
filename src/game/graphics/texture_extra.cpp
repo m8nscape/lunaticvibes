@@ -273,6 +273,7 @@ void TextureBmsBga::seek(const Time& t)
 		//slotIt = slot.end();	// not found
 	};
 
+	std::unique_lock l(idxLock);
 	seekSub(baseSlot, baseIdx, baseIt);
 	seekSub(layerSlot, layerIdx, layerIt);
 	seekSub(poorSlot, poorIdx, poorIt);
@@ -307,6 +308,7 @@ void TextureBmsBga::update(const Time& t, bool poor)
 
 	};
 
+	std::unique_lock l(idxLock);
 	seekSub(baseSlot, baseIdx, baseIt);
 	seekSub(layerSlot, layerIdx, layerIt);
 	seekSub(poorSlot, poorIdx, poorIt);
@@ -316,6 +318,7 @@ void TextureBmsBga::update(const Time& t, bool poor)
 void TextureBmsBga::draw(const Rect& sr, Rect dr,
 	const Color c, const BlendMode b, const bool f, const double a) const
 {
+	std::shared_lock l(idxLock);
 	if (inPoor && poorIdx != INDEX_INVALID && objs.at(poorIdx).type != obj::Ty::EMPTY)
 	{
 		objs.at(poorIdx).pt->draw(dr, c, b, f, a);
@@ -338,6 +341,7 @@ void TextureBmsBga::draw(const Rect& sr, Rect dr,
 void TextureBmsBga::draw(const Rect& sr, Rect dr,
 	const Color c, const BlendMode b, const bool f, const double a, const Point& ct) const
 {
+	std::shared_lock l(idxLock);
 	if (inPoor && poorIdx != INDEX_INVALID && objs.at(poorIdx).type != obj::Ty::EMPTY)
 	{
 		objs.at(poorIdx).pt->draw(dr, c, b, f, a, ct);
@@ -362,9 +366,13 @@ void TextureBmsBga::reset()
 	baseIt = baseSlot.begin();
 	layerIt = layerSlot.begin();
 	poorIt = poorSlot.begin();
-	baseIdx = INDEX_INVALID;
-	layerIdx = INDEX_INVALID;
-	poorIdx = INDEX_INVALID;
+
+	std::unique_lock l(idxLock);
+	{
+		baseIdx = INDEX_INVALID;
+		layerIdx = INDEX_INVALID;
+		poorIdx = INDEX_INVALID;
+	}
 
 	auto resetSub = [this](decltype(baseSlot)& slot)
 	{

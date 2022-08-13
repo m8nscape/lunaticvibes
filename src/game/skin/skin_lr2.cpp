@@ -1623,7 +1623,7 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
     {
     case DefType::LINE:
         cat = NoteLaneCategory::EXTRA;
-        idx = (NoteLaneIndex)EXTRA_BARLINE;
+        idx = (NoteLaneIndex)(d._null == 0 ? EXTRA_BARLINE_1P : EXTRA_BARLINE_2P);
         break;
     case DefType::NOTE:
         cat = NoteLaneCategory::Note;
@@ -1659,6 +1659,18 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
     switch (type)
     {
     case DefType::LINE:
+    {
+        _sprites.push_back(std::make_shared<SpriteLaneVertical>(
+            _textureNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, iTimer, d.div_y, d.div_x, false, d._null == 0 ? 0 : 1));
+
+        _laneSprites[i] = std::static_pointer_cast<SpriteLaneVertical>(_sprites.back());
+        _laneSprites[i]->setLane(cat, idx);
+        _laneSprites[i]->pNote->appendKeyFrame({ 0, {Rect(),
+            RenderParams::accTy::CONSTANT, Color(0xffffffff), BlendMode::ALPHA, 0, 0.0 } });
+        _laneSprites[i]->pNote->setLoopTime(0);
+        break;
+    }
+
     case DefType::NOTE:
     case DefType::MINE:
     case DefType::AUTO_NOTE:
@@ -2062,14 +2074,6 @@ ParseRet SkinLR2::DST_NOTE()
     {
         return ParseRet::PARAM_INVALID;
     }
-    else if (d._null == 1)
-    {
-        info.noteLaneHeight1P = d.y + d.h;
-    }
-    else if (d._null == 11)
-    {
-        info.noteLaneHeight2P = d.y + d.h;
-    }
 
     NoteLaneIndex idx = NoteLaneIndex(NoteIdxToLaneMap[d._null]);
 
@@ -2106,7 +2110,6 @@ ParseRet SkinLR2::DST_LINE()
     // load raw into data struct
     lr2skin::dst d(parseParamBuf);
     
-
     int ret = 0;
     auto e = _sprites.back();
     if (e == nullptr)
@@ -2132,11 +2135,9 @@ ParseRet SkinLR2::DST_LINE()
     // set sprite channel
     auto p = std::static_pointer_cast<SpriteLaneVertical>(e);
 
-    p->playerSlot = d._null / 10;  // player slot, 1P:0, 2P:1
-
     chart::NoteLaneCategory cat = p->getLaneCat();
     chart::NoteLaneIndex idx = p->getLaneIdx();
-    if (cat != chart::NoteLaneCategory::EXTRA || idx != chart::EXTRA_BARLINE)
+    if (cat != chart::NoteLaneCategory::EXTRA || (idx != chart::EXTRA_BARLINE_1P && idx != chart::EXTRA_BARLINE_2P))
     {
         LOG_WARNING << "[Skin] " << csvLineNumber << ": Previous SRC definition is not LINE " <<
             "(Line: " << csvLineNumber << ")";
@@ -2154,7 +2155,14 @@ ParseRet SkinLR2::DST_LINE()
     //e->pushKeyFrame(time, x, y, w, h, acc, r, g, b, a, blend, filter, angle, center);
     //LOG_DEBUG << "[Skin] " << raw << ": Set Lane sprite (Barline) Keyframe (time: " << d.time << ")";
 
-    _noteAreaHeight = d.y;
+    if (idx == chart::EXTRA_BARLINE_1P)
+    {
+        info.noteLaneHeight1P = d.y + d.h;
+    }
+    else if (idx == chart::EXTRA_BARLINE_2P)
+    {
+        info.noteLaneHeight2P = d.y + d.h;
+    }
 
     return ParseRet::OK;
 }
@@ -2910,7 +2918,7 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
             auto pS = std::dynamic_pointer_cast<SpriteLaneVertical>(s);
             if (pS != nullptr)
             {
-                pS->setHeight(_noteAreaHeight);
+                pS->setHeight(500);
             }
         }
     }
@@ -2946,7 +2954,7 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
         using namespace chart;
         setLaneHeight(0, 9, info.noteLaneHeight1P);
 
-        constexpr size_t idx = channelToIdx(NoteLaneCategory::EXTRA, NoteLaneExtra::EXTRA_BARLINE);
+        constexpr size_t idx = channelToIdx(NoteLaneCategory::EXTRA, NoteLaneExtra::EXTRA_BARLINE_1P);
         if (idx != LANE_INVALID && _laneSprites[idx] != nullptr)
         {
             _laneSprites[idx]->setHeight(info.noteLaneHeight1P);
@@ -2957,7 +2965,7 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
         using namespace chart;
         setLaneHeight(10, 19, info.noteLaneHeight2P);
 
-        constexpr size_t idx = channelToIdx(NoteLaneCategory::EXTRA, NoteLaneExtra::EXTRA_BARLINE);
+        constexpr size_t idx = channelToIdx(NoteLaneCategory::EXTRA, NoteLaneExtra::EXTRA_BARLINE_2P);
         if (idx != LANE_INVALID && _laneSprites[idx] != nullptr)
         {
             _laneSprites[idx]->setHeight(info.noteLaneHeight2P);

@@ -101,11 +101,6 @@ void AsyncLooper::loopEnd()
     if (_running)
     {
         _running = false;
-        while (_iterateCount != _iterateEndCount)
-        {
-            using namespace std::chrono_literals;
-            std::this_thread::sleep_for(50ms);
-        }
         if (DeleteTimerQueueTimer(NULL, handler, INVALID_HANDLE_VALUE) == 0)
         {
             DWORD dwError = GetLastError();
@@ -118,6 +113,10 @@ void AsyncLooper::loopEnd()
                 }
                 assert(dwError == 0);
             }
+        }
+        if (_iterateCount != _iterateEndCount)
+        {
+            LOG_WARNING << "[Looper] iterate count not match " << _tag;
         }
         LOG_DEBUG << "[Looper] Ended of rate " << _rate << "/s " << _tag;
     }

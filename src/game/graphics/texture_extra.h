@@ -55,6 +55,7 @@ class chartBMS;
 class TextureBmsBga: public Texture
 {
 protected:
+	mutable std::shared_mutex idxLock;
 	size_t baseIdx = INDEX_INVALID;
 	size_t layerIdx = INDEX_INVALID;
 	size_t poorIdx = INDEX_INVALID;

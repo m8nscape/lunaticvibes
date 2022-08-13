@@ -64,18 +64,25 @@ typedef std::pair<NoteLaneCategory, NoteLaneIndex> NoteLane;
 
 enum NoteLaneExtra : size_t
 {
-    EXTRA_BARLINE,
+    EXTRA_BARLINE_1P,
+    EXTRA_BARLINE_2P,
 
     NOTELANEEXTRA_COUNT = NOTELANEINDEX_COUNT,
 };
 constexpr size_t LANE_ALL_KEY_COUNT = size_t(NoteLaneCategory::NOTECATEGORY_COUNT) * NOTELANEINDEX_COUNT;
-constexpr size_t LANE_BARLINE = LANE_ALL_KEY_COUNT;
-constexpr size_t LANE_INVALID = LANE_ALL_KEY_COUNT + 1;
+constexpr size_t LANE_BARLINE_1P = LANE_ALL_KEY_COUNT + 0;
+constexpr size_t LANE_BARLINE_2P = LANE_ALL_KEY_COUNT + 1;
+constexpr size_t LANE_INVALID = LANE_ALL_KEY_COUNT + 2;
 constexpr size_t LANE_COUNT = LANE_INVALID + 1;
 constexpr size_t channelToIdx(NoteLaneCategory cat, size_t idx)
 {
-    if (cat == NoteLaneCategory::EXTRA && idx == NoteLaneExtra::EXTRA_BARLINE)
-        return LANE_BARLINE;
+    if (cat == NoteLaneCategory::EXTRA)
+    {
+        if (idx == NoteLaneExtra::EXTRA_BARLINE_1P)
+            return LANE_BARLINE_1P;
+        else if (idx == NoteLaneExtra::EXTRA_BARLINE_2P)
+            return LANE_BARLINE_2P;
+    }
 
     auto ch = size_t(cat) * NOTELANEINDEX_COUNT + idx;
     return (ch >= LANE_ALL_KEY_COUNT) ? LANE_INVALID : ch;

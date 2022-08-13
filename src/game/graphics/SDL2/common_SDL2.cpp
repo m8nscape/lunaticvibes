@@ -429,11 +429,12 @@ void TextureFull::draw(const Rect& ignored, Rect dstRect,
 
 void GraphLine::draw(Point p1, Point p2, Color c) const
 {
+    int ss = graphics_get_supersample_level();
 	thickLineRGBA(
 		gFrameRenderer,
-		(Sint16)p1.x, (Sint16)p1.y,
-        (Sint16)p2.x, (Sint16)p2.y,
-		_width,
+		(Sint16)p1.x * ss, (Sint16)p1.y * ss,
+        (Sint16)p2.x * ss, (Sint16)p2.y * ss,
+		_width * ss,
 		c.r, c.g, c.b, c.a
 	);
     SDL_SetRenderDrawColor(gFrameRenderer, 0, 0, 0, 255);

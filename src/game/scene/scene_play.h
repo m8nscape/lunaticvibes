@@ -27,10 +27,8 @@ private:
     InputMask _inputAvailable;
     std::vector<size_t> _currentKeySample;
 
-private:
-    ePlayMode _playmode;
 protected:
-    bool isPlaymodeSinglePlay() const;
+    bool isPlaymodeDP() const;
     bool isPlaymodeBattle() const;
 
 private:
@@ -52,6 +50,7 @@ private:
     std::array<bool, 2>     _lanecoverEnabled{ false };
     std::array<bool, 2>     _lockspeedEnabled{ false };
     std::array<double, 2>   _lockspeedValue{ 0 };
+    std::array<int, 2>      _lockspeedGreenNumber{ 0 };
 
     std::array<int, 2>      _hispeedAdd{ 0 };
     std::array<int, 2>      _lanecoverAdd{ 0 };

@@ -699,7 +699,7 @@ void RulesetBMS::judgeNotePress(Input::Pad k, const Time& t, const Time& rt, int
 {
     NoteLaneIndex idx1 = _chart->getLaneFromKey(NoteLaneCategory::Note, k);
     HitableNote* pNote1 = nullptr;
-    if (!_chart->isLastNote(NoteLaneCategory::Note, idx1))
+    if (idx1 != _ && !_chart->isLastNote(NoteLaneCategory::Note, idx1))
     {
         auto itNote = _chart->incomingNote(NoteLaneCategory::Note, idx1);
         while (itNote->hit && !_chart->isLastNote(NoteLaneCategory::Note, idx1, itNote))
@@ -709,7 +709,7 @@ void RulesetBMS::judgeNotePress(Input::Pad k, const Time& t, const Time& rt, int
     }
     NoteLaneIndex idx2 = _chart->getLaneFromKey(NoteLaneCategory::LN, k);
     HitableNote* pNote2 = nullptr;
-    if (!_chart->isLastNote(NoteLaneCategory::LN, idx2))
+    if (idx2 != _ && !_chart->isLastNote(NoteLaneCategory::LN, idx2))
     {
         auto itNote = _chart->incomingNote(NoteLaneCategory::LN, idx2);
         while (itNote->hit && !_chart->isLastNote(NoteLaneCategory::LN, idx2, itNote))
@@ -741,7 +741,7 @@ void RulesetBMS::judgeNoteHold(Input::Pad k, const Time& t, const Time& rt, int 
     NoteLaneIndex idx; 
 
     idx = _chart->getLaneFromKey(NoteLaneCategory::Mine, k);
-    if (!_chart->isLastNote(NoteLaneCategory::Mine, idx))
+    if (idx != _ && !_chart->isLastNote(NoteLaneCategory::Mine, idx))
     {
         auto& note = *_chart->incomingNote(NoteLaneCategory::Mine, idx);
         auto j = _judge(note, rt);
@@ -749,7 +749,7 @@ void RulesetBMS::judgeNoteHold(Input::Pad k, const Time& t, const Time& rt, int 
     }
 
     idx = _chart->getLaneFromKey(NoteLaneCategory::LN, k);
-    if (!_chart->isLastNote(NoteLaneCategory::LN, idx))
+    if (idx != _ && !_chart->isLastNote(NoteLaneCategory::LN, idx))
     {
         auto& note = *_chart->incomingNote(NoteLaneCategory::LN, idx);
         auto j = _judge(note, rt);
@@ -759,16 +759,19 @@ void RulesetBMS::judgeNoteHold(Input::Pad k, const Time& t, const Time& rt, int 
 void RulesetBMS::judgeNoteRelease(Input::Pad k, const Time& t, const Time& rt, int slot)
 {
     NoteLaneIndex idx = _chart->getLaneFromKey(NoteLaneCategory::LN, k);
-    auto itNote = _chart->incomingNote(NoteLaneCategory::LN, idx);
-    while (!_chart->isLastNote(NoteLaneCategory::LN, idx, itNote))
+    if (idx != _)
     {
-        if (!itNote->hit)
+        auto itNote = _chart->incomingNote(NoteLaneCategory::LN, idx);
+        while (!_chart->isLastNote(NoteLaneCategory::LN, idx, itNote))
         {
-            auto j = _judge(*itNote, rt);
-            _judgeRelease(NoteLaneCategory::LN, idx, *itNote, j, t, slot);
-            break;
+            if (!itNote->hit)
+            {
+                auto j = _judge(*itNote, rt);
+                _judgeRelease(NoteLaneCategory::LN, idx, *itNote, j, t, slot);
+                break;
+            }
+            ++itNote;
         }
-        ++itNote;
     }
 
     if (_bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())

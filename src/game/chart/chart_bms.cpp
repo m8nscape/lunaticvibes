@@ -682,9 +682,11 @@ void chartBMS::loadBMS(const BMS& objBms)
 		basemetre += barMetre;
 
         // add barline for next measure
-        _noteLists[chart::channelToIdx(NoteLaneCategory::EXTRA, EXTRA_BARLINE)].push_back(
+        _noteLists[chart::channelToIdx(NoteLaneCategory::EXTRA, EXTRA_BARLINE_1P)].push_back(
 			{ m + 1, basemetre, basetime, long long(0), false });
 
+        _noteLists[chart::channelToIdx(NoteLaneCategory::EXTRA, EXTRA_BARLINE_2P)].push_back(
+            { m + 1, basemetre, basetime, long long(0), false });
     }
 
     _totalLength = basetime + Time(std::min(2000'000'000ll, std::max(500'000'000ll, Time::singleBeatLengthFromBPM(bpm).hres() * 4)), true);    // last measure + 1

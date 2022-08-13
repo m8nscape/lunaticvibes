@@ -935,6 +935,13 @@ void SceneSelect::_decide()
         gPlayContext.canRetry = false;
         gPlayContext.isAuto = true;
     }
+    switch (gOptions.get(eOption::PLAY_BATTLE_TYPE))
+    {
+    case Option::BATTLE_OFF:
+    case Option::BATTLE_DB:     gPlayContext.isBattle = false; break;
+    case Option::BATTLE_LOCAL:
+    case Option::BATTLE_GHOST:  gPlayContext.isBattle = true; break;
+    }
 
     if (entry->type() == eEntryType::COURSE)
     {

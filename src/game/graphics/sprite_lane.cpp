@@ -54,7 +54,7 @@ bool SpriteLaneVertical::update(const Time& t)
 			_hispeed = gPlayContext.Hispeed;
 			break;
 		case 1:
-			_hispeed = gPlayContext.battle2PHispeed;
+			_hispeed = gPlayContext.isBattle ? gPlayContext.battle2PHispeed : gPlayContext.Hispeed;
 			break;
 		default:
 			break;
@@ -68,7 +68,7 @@ bool SpriteLaneVertical::update(const Time& t)
 void SpriteLaneVertical::updateNoteRect(const Time& t)
 {
 	_outRect.clear();
-	auto pChart = gPlayContext.chartObj[playerSlot];
+	auto pChart = gPlayContext.chartObj[gPlayContext.isBattle ? playerSlot : 0];
 	if (pChart == nullptr || !gChartContext.started)
 	{
 		return;

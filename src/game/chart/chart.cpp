@@ -227,8 +227,15 @@ void vChart::update(Time t)
     // Skip expired barline
     {
         NoteLaneCategory cat = NoteLaneCategory::EXTRA;
-        NoteLaneIndex idx = (NoteLaneIndex)EXTRA_BARLINE;
+        NoteLaneIndex idx = (NoteLaneIndex)EXTRA_BARLINE_1P;
         auto it = incomingNote(cat, idx);
+        while (!isLastNote(cat, idx, it) && vt >= it->time)
+        {
+            it->hit = true;
+            it = nextNote(cat, idx);
+        }
+        idx = (NoteLaneIndex)EXTRA_BARLINE_2P;
+        it = incomingNote(cat, idx);
         while (!isLastNote(cat, idx, it) && vt >= it->time)
         {
             it->hit = true;
