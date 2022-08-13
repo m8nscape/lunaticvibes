@@ -74,6 +74,7 @@ target_link_libraries(gamelib
     PUBLIC db
     PUBLIC fmod
     PUBLIC imgui
+    PUBLIC re2
 )
 
 if (${GRAPHICS_BACKEND} STREQUAL SDL2)

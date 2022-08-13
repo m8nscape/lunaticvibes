@@ -18,7 +18,7 @@ typedef unsigned long timeMS;
 
 //typedef StringContent Token;
 //typedef std::vector<StringContent> Tokens;
-typedef StringContentView Token;
+typedef StringContent Token;
 typedef std::vector<Token> Tokens;
 typedef std::shared_ptr<vSprite> pSprite;
 typedef std::shared_ptr<Texture> pTexture;

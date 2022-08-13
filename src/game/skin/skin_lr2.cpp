@@ -18,6 +18,7 @@
 #include "game/scene/scene_customize.h"
 #include "game/graphics/dxa.h"
 #include "game/graphics/video.h"
+#include "re2/re2.h"
 
 #ifdef _WIN32
 // For GetWindowsDirectory
@@ -472,7 +473,7 @@ Tokens csvLineTokenizeSimple(const std::string& raw)
     {
         pos = linecsv.find(',', idx);
         auto token = linecsv.substr(idx, pos - idx);
-        res.push_back(token);
+        res.push_back(Token(token));
         idx = pos + 1;
     } while (pos != linecsv.npos);
     return res;
@@ -488,17 +489,17 @@ Tokens csvLineTokenize(const std::string& raw)
     StringContentView linecsv = csvLineNormalize(raw);
     if (linecsv.empty()) return {};
 
-    static const std::regex re{ R"(((?:(?:\\,)|[^,])*?)(?:,|$))",
-        std::regex_constants::ECMAScript | std::regex_constants::optimize };
-    std::match_results<decltype(linecsv.begin())> matchResults;
-    typedef std::regex_token_iterator<decltype(linecsv.begin())> scv_regex_token_iterator;
     Tokens res;
     res.reserve(32);
-    for (auto it = scv_regex_token_iterator(linecsv.begin(), linecsv.end(), re, 1);
-        it != scv_regex_token_iterator() && it->first != linecsv.end(); ++it)
+
+    auto lineBuf = re2::StringPiece(linecsv.data(), linecsv.length());
+    static const LazyRE2 re{ R"(((?:(?:\\,)|[^,])*?)(?:,|$))" };
+    std::string token;
+    while (!lineBuf.empty() && RE2::Consume(&lineBuf, *re, &token))
     {
-        res.push_back(StringContentView(&*it->first, it->second - it->first));
+        res.push_back(token);
     }
+
     return res;
 }
 
