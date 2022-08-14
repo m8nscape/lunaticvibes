@@ -198,6 +198,14 @@ void SceneKeyConfig::inputGamePressKeyboard(KeyboardMask& mask, const Time& t)
             InputMgr::updateBindings(keys, pad);
             updateInfo(undef, slot);
         }
+        else if (mask[static_cast<size_t>(Input::Keyboard::K_F1)])
+        {
+            ConfigMgr::Input(keys)->clearAll();
+        }
+        else if (mask[static_cast<size_t>(Input::Keyboard::K_F2)])
+        {
+            ConfigMgr::Input(keys)->setDefaults();
+        }
         else
         {
             for (Input::Keyboard k = Input::Keyboard::K_1; k != Input::Keyboard::K_COUNT; ++ * (unsigned*)&k)
