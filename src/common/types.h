@@ -3,6 +3,7 @@
 #include <utility>
 #include <string>
 #include <string_view>
+#include <cassert>
 
 typedef std::filesystem::path                   Path;
 typedef Path::string_type                       StringPath;
@@ -51,13 +52,17 @@ public:
     std::string hexdigest() const { return bin2hex(data, _Len); }
 
     template <size_t _Len2>
-    bool operator<(const Hash<_Len2>& rhs) const { return hexdigest() < rhs.hexdigest(); }
+    bool operator<(const Hash<_Len2>& rhs) const { return memcmp(data, rhs.data, _Len) < 0; }
     template <size_t _Len2>
-    bool operator>(const Hash<_Len2>& rhs) const { return hexdigest() > rhs.hexdigest(); }
+    bool operator>(const Hash<_Len2>& rhs) const { return memcmp(data, rhs.data, _Len) > 0; }
     template <size_t _Len2>
-    bool operator==(const Hash<_Len2>& rhs) const { return _Len == _Len2 && hexdigest() == rhs.hexdigest(); }
+    bool operator<=(const Hash<_Len2>& rhs) const { return !(*this > rhs); }
     template <size_t _Len2>
-    bool operator!=(const Hash<_Len2>& rhs) const { return _Len != _Len2 || hexdigest() != rhs.hexdigest(); }
+    bool operator>=(const Hash<_Len2>& rhs) const { return !(*this > rhs); }
+    template <size_t _Len2>
+    bool operator==(const Hash<_Len2>& rhs) const { return _Len == _Len2 && memcmp(data, rhs.data, _Len) == 0; }
+    template <size_t _Len2>
+    bool operator!=(const Hash<_Len2>& rhs) const { return _Len != _Len2 || memcmp(data, rhs.data, _Len) != 0; }
 
 };
 
@@ -198,7 +203,6 @@ public:
         UNKNOWN,
         BMS,
     };
-    Type type = Type::UNKNOWN;
 
     int notes = 0;
     int score = 0;
@@ -212,13 +216,14 @@ public:
     double reservedlf[2]{ 0.0 };
 
 public:
-    vScore(Type t) : type(t) {}
+    vScore() = default;
+    virtual Type getType() { return Type::UNKNOWN; }
 };
 
 class ScoreBMS : public vScore
 {
 public:
-    ScoreBMS() : vScore(Type::BMS) {}
+    ScoreBMS() = default;
 
 public:
     int exscore;
@@ -251,6 +256,8 @@ public:
     unsigned rival = 3; // win / lose / draw / noplay
     double rival_rate = 0;
     Lamp rival_lamp;
+
+    virtual Type getType() override { return Type::BMS; }
 };
 
 class AxisDir

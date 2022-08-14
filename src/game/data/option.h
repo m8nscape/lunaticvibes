@@ -105,8 +105,8 @@ namespace Option
 
     enum e_select_sort {
         SORT_FOLDER,
-        SORT_TITLE,
         SORT_LEVEL,
+        SORT_TITLE,
         SORT_CLEAR,
         SORT_RATE,
     };
@@ -126,6 +126,17 @@ namespace Option
 		SPLAY_FADEOUT,
 		SPLAY_FAILED,
 	};
+
+    enum e_filter_keys {
+        FILTER_KEYS_ALL,
+        FILTER_KEYS_SINGLE,
+        FILTER_KEYS_7,
+        FILTER_KEYS_5,
+        FILTER_KEYS_DOUBLE,
+        FILTER_KEYS_14,
+        FILTER_KEYS_10,
+        FILTER_KEYS_9,
+    };
 
     enum e_play_keys {
         KEYS_NOT_PLAYABLE,

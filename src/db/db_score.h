@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <map>
 #include "common/types.h"
 #include "db_conn.h"
 
@@ -16,6 +17,8 @@ class ScoreBMS;
 */
 class ScoreDB : public SQLite
 {
+protected:
+    mutable std::map<HashMD5, std::shared_ptr<ScoreBMS>> cache;
 
 public:
     ScoreDB() = delete;

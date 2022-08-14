@@ -75,7 +75,6 @@ private:
     void inputGameReleasePanel(InputMask&, const Time&);
 
 private:
-    void loadSongList();
     void _navigateUpBy1(const Time& t);
     void _navigateDownBy1(const Time& t);
     void _navigateEnter(const Time& t);

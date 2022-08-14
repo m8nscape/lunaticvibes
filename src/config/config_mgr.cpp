@@ -152,17 +152,19 @@ void setOptions()
 
     // play mode
     {
-        static const std::map<string, e_play_keys> smap =
+        static const std::map<string, e_filter_keys> smap =
         {
-            {P_PLAY_MODE_ALL, KEYS_ALL},
-            {P_PLAY_MODE_7K, KEYS_7},
-            {P_PLAY_MODE_5K, KEYS_5},
-            {P_PLAY_MODE_14K, KEYS_14},
-            {P_PLAY_MODE_10K, KEYS_10},
-            {P_PLAY_MODE_9K, KEYS_9},
+            {P_FILTER_KEYS_ALL, FILTER_KEYS_ALL},
+            {P_FILTER_KEYS_SINGLE,  FILTER_KEYS_SINGLE},
+            {P_FILTER_KEYS_7K,  FILTER_KEYS_7},
+            {P_FILTER_KEYS_5K,  FILTER_KEYS_5},
+            {P_FILTER_KEYS_DOUBLE, FILTER_KEYS_DOUBLE},
+            {P_FILTER_KEYS_14K, FILTER_KEYS_14},
+            {P_FILTER_KEYS_10K, FILTER_KEYS_10},
+            {P_FILTER_KEYS_9K,  FILTER_KEYS_9},
         };
 
-        auto&& s = ConfigMgr::get<string>('P', P_PLAY_MODE, P_PLAY_MODE_ALL);
+        auto&& s = ConfigMgr::get<string>('P', P_FILTER_KEYS, P_FILTER_KEYS_ALL);
         if (smap.find(s) != smap.end())
             g.queue(e::SELECT_FILTER_KEYS, smap.at(s));
         else
@@ -523,19 +525,21 @@ void setText()
     {
         static const std::map<string, string> smap =
         {
-            {P_PLAY_MODE_ALL, "ALL"},
-            {P_PLAY_MODE_7K, "7KEYS"},
-            {P_PLAY_MODE_5K, "5KEYS"},
-            {P_PLAY_MODE_14K, "14KEYS"},
-            {P_PLAY_MODE_10K, "10KEYS"},
-            {P_PLAY_MODE_9K, "9KEYS"},
+            {P_FILTER_KEYS_ALL, "ALL"},
+            {P_FILTER_KEYS_SINGLE, "SINGLE"},
+            {P_FILTER_KEYS_7K, "7KEYS"},
+            {P_FILTER_KEYS_5K, "5KEYS"},
+            {P_FILTER_KEYS_DOUBLE, "DOUBLE"},
+            {P_FILTER_KEYS_14K, "14KEYS"},
+            {P_FILTER_KEYS_10K, "10KEYS"},
+            {P_FILTER_KEYS_9K, "9KEYS"},
         };
 
-        auto&& s = ConfigMgr::get<string>('P', P_PLAY_MODE, P_PLAY_MODE_ALL);
+        auto&& s = ConfigMgr::get<string>('P', P_FILTER_KEYS, P_FILTER_KEYS_ALL);
         if (smap.find(s) != smap.end())
-            g.queue(e::PLAY_MODE, smap.at(s));
+            g.queue(e::FILTER_KEYS, smap.at(s));
         else
-            g.queue(e::PLAY_MODE, "ALL");
+            g.queue(e::FILTER_KEYS, "ALL");
     }
 
     // sort mode
@@ -570,9 +574,9 @@ void setText()
 
         auto&& s = ConfigMgr::get<string>('P', P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_ALL);
         if (smap.find(s) != smap.end())
-            g.queue(e::DIFFICULTY, smap.at(s));
+            g.queue(e::FILTER_DIFFICULTY, smap.at(s));
         else
-            g.queue(e::DIFFICULTY, "ALL");
+            g.queue(e::FILTER_DIFFICULTY, "ALL");
     }
 
     // battle

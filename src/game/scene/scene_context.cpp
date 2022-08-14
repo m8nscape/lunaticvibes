@@ -1,6 +1,7 @@
 #include "scene_context.h"
 #include "game/data/data.h"
 #include "common/chartformat/chartformat_types.h"
+#include "config/config_mgr.h"
 #include <random>
 #include <mutex>
 
@@ -101,6 +102,228 @@ void pushGraphPoints()
         gPlayContext.ruleset[PLAYER_SLOT_1P]->getCurrentMaxScore() * (0.01 * gNumbers.get(eNumber::DEFAULT_TARGET_RATE)))));
 }
 
+
+void loadSongList()
+{
+    gSelectContext.entries.clear();
+    for (auto& [e, s] : gSelectContext.backtrace.top().dbBrowseEntries)
+    {
+        // TODO replace name/name2 by tag.db
+
+        // apply filter
+        auto checkFilterKeys = [](int keys)
+        {
+            switch (gSelectContext.filterKeys)
+            {
+            case 0: return true;
+            case 1: return keys == 5 || keys == 7;
+            case 2: return keys == 10 || keys == 14;
+            default:
+                return keys == gSelectContext.filterKeys;
+            }
+        };
+        auto checkFilterDifficulty = [](int difficulty)
+        {
+            if (gSelectContext.filterDifficulty == 0) return true;
+            return difficulty == gSelectContext.filterDifficulty;
+        };
+        bool skip = false;
+        switch (e->type())
+        {
+        case eEntryType::SONG:
+        case eEntryType::RIVAL_SONG:
+        {
+            auto f = std::reinterpret_pointer_cast<FolderSong>(e);
+            if (ConfigMgr::get('P', cfg::P_NO_COMBINE_CHARTS, false))
+            {
+                int nChartIdx = -1;
+                for (size_t idx = 0; idx < f->getContentsCount() && !skip; ++idx)
+                {
+                    if (f->getChart(idx)->type() == eChartFormat::BMS)
+                    {
+                        auto p = std::reinterpret_pointer_cast<BMS_prop>(f->getChart(idx));
+
+                        if (!checkFilterKeys(p->gamemode)) continue;
+                        if (!checkFilterDifficulty(p->difficulty))
+                        {
+                            nChartIdx = idx;
+                            continue;
+                        }
+
+                        // filters are matched
+                        nChartIdx = idx;
+                        break;
+                    }
+                }
+                // add entry into list
+                gSelectContext.entries.push_back({ f, nullptr });
+            }
+            else
+            {
+                for (size_t idx = 0; idx < f->getContentsCount() && !skip; ++idx)
+                {
+                    switch (f->getChart(idx)->type())
+                    {
+                    case eChartFormat::BMS:
+                    {
+                        auto p = std::reinterpret_pointer_cast<BMS_prop>(f->getChart(idx));
+
+                        if (!checkFilterDifficulty(p->difficulty)) continue;
+                        if (!checkFilterKeys(p->gamemode)) continue;
+
+                        // FIXME add all charts as individual entries into list. For now.
+                        gSelectContext.entries.push_back({ std::make_shared<EntryChart>(p), nullptr });
+                    }
+                    break;
+
+                    default:
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+        case eEntryType::CHART:
+        case eEntryType::RIVAL_CHART:
+        {
+            auto f = std::reinterpret_pointer_cast<EntryChart>(e)->_file;
+            if (f->type() == eChartFormat::BMS)
+            {
+                auto p = std::reinterpret_pointer_cast<BMS_prop>(f);
+
+                if (!checkFilterDifficulty(p->difficulty)) continue;
+                if (!checkFilterKeys(p->gamemode)) continue;
+
+                // filters are matched
+                gSelectContext.entries.push_back({ e, nullptr });
+                break;
+            }
+            break;
+        }
+
+        default:
+            gSelectContext.entries.push_back({ e, nullptr });
+            break;
+        }
+    }
+
+    // load score
+    for (auto& [entry, score] : gSelectContext.entries)
+    {
+        std::shared_ptr<vChartFormat> pf;
+        switch (entry->type())
+        {
+        case eEntryType::SONG:
+        case eEntryType::RIVAL_SONG:
+            pf = std::reinterpret_pointer_cast<FolderSong>(entry)->getCurrentChart();
+            break;
+        case eEntryType::CHART:
+        case eEntryType::RIVAL_CHART:
+            pf = std::reinterpret_pointer_cast<EntryChart>(entry)->_file;
+            break;
+        default: break;
+        }
+
+        if (pf)
+        {
+            switch (pf->type())
+            {
+            case eChartFormat::BMS:
+            {
+                auto pScore = g_pScoreDB->getChartScoreBMS(pf->fileHash);
+                score = pScore;
+            }
+            break;
+            default: break;
+            }
+        }
+    }
+}
+
+void sortSongList()
+{
+    auto& entries = gSelectContext.entries;
+    std::sort(entries.begin(), entries.end(), [](const Entry& entry1, const Entry& entry2)
+        {
+            auto& lhs = entry1.first;
+            auto& rhs = entry2.first;
+            if (lhs->type() != rhs->type())
+            {
+                return lhs->type() > rhs->type();
+            }
+            else
+            {
+                pChart l, r;
+                if (lhs->type() == eEntryType::SONG || lhs->type() == eEntryType::RIVAL_SONG)
+                {
+                    l = std::reinterpret_pointer_cast<FolderSong>(lhs)->getChart(0);
+                    r = std::reinterpret_pointer_cast<FolderSong>(rhs)->getChart(0);
+                }
+                else if (lhs->type() == eEntryType::CHART || lhs->type() == eEntryType::RIVAL_CHART)
+                {
+                    l = std::reinterpret_pointer_cast<const EntryChart>(lhs)->_file;
+                    r = std::reinterpret_pointer_cast<const EntryChart>(rhs)->_file;
+                }
+                if (l && r)
+                {
+                    switch (gSelectContext.sort)
+                    {
+                    case SongListSort::DEFAULT:
+                        if (l->folderHash != r->folderHash) return l->folderHash < r->folderHash;
+                        if (l->levelEstimated != r->levelEstimated) return l->levelEstimated < r->levelEstimated;
+                        if (l->title != r->title) return l->title < r->title;
+                        if (l->title2 != r->title2) return l->title2 < r->title2;
+                        if (l->version != r->version) return l->version < r->version;
+                        break;
+                    case SongListSort::TITLE:
+                        if (l->title != r->title) return l->title < r->title;
+                        if (l->title2 != r->title2) return l->title2 < r->title2;
+                        if (l->version != r->version) return l->version < r->version;
+                        break;
+                    case SongListSort::LEVEL:
+                        if (l->levelEstimated != r->levelEstimated) return l->levelEstimated < r->levelEstimated;
+                        if (l->title != r->title) return l->title < r->title;
+                        if (l->title2 != r->title2) return l->title2 < r->title2;
+                        if (l->version != r->version) return l->version < r->version;
+                        break;
+                    case SongListSort::CLEAR:
+                    {
+                        auto l_lamp = std::dynamic_pointer_cast<ScoreBMS>(entry1.second) ? std::reinterpret_pointer_cast<ScoreBMS>(entry1.second)->lamp : ScoreBMS::Lamp::NOPLAY;
+                        auto r_lamp = std::dynamic_pointer_cast<ScoreBMS>(entry2.second) ? std::reinterpret_pointer_cast<ScoreBMS>(entry2.second)->lamp : ScoreBMS::Lamp::NOPLAY;
+                        if (l_lamp != r_lamp) return l_lamp < r_lamp;
+                        if (l->title != r->title) return l->title < r->title;
+                        if (l->title2 != r->title2) return l->title2 < r->title2;
+                        if (l->version != r->version) return l->version < r->version;
+                        break;
+                    }
+                    case SongListSort::RATE:
+                    {
+                        auto l_rate = std::dynamic_pointer_cast<ScoreBMS>(entry1.second) ? std::reinterpret_pointer_cast<ScoreBMS>(entry1.second)->rate : 0.;
+                        auto r_rate = std::dynamic_pointer_cast<ScoreBMS>(entry2.second) ? std::reinterpret_pointer_cast<ScoreBMS>(entry2.second)->rate : 0.;
+                        if (l_rate != r_rate) return l_rate < r_rate;
+                        if (l->title != r->title) return l->title < r->title;
+                        if (l->title2 != r->title2) return l->title2 < r->title2;
+                        if (l->version != r->version) return l->version < r->version;
+                        break;
+                    }
+                    }
+                }
+                else
+                {
+                    if (lhs->_name != rhs->_name) return lhs->_name < rhs->_name;
+                    if (lhs->_name2 != rhs->_name2) return lhs->_name2 < rhs->_name2;
+                    if (lhs->md5 != rhs->md5) return lhs->md5 < rhs->md5;
+                }
+                return false;
+            }
+        });
+
+    if (gSelectContext.idx >= gSelectContext.entries.size())
+    {
+        gSelectContext.idx = 0;
+    }
+    gSliders.set(eSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.idx / gSelectContext.entries.size()));
+}
 
 void setBarInfo()
 {

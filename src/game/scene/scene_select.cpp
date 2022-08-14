@@ -83,12 +83,14 @@ void config_player()
 
     switch (gOptions.get(eOption::SELECT_FILTER_KEYS))
     {
-    case Option::KEYS_7:  ConfigMgr::set('P',P_PLAY_MODE, P_PLAY_MODE_7K); break;
-    case Option::KEYS_5:  ConfigMgr::set('P',P_PLAY_MODE, P_PLAY_MODE_5K); break;
-    case Option::KEYS_14: ConfigMgr::set('P',P_PLAY_MODE, P_PLAY_MODE_14K); break;
-    case Option::KEYS_10: ConfigMgr::set('P',P_PLAY_MODE, P_PLAY_MODE_10K); break;
-    case Option::KEYS_9:  ConfigMgr::set('P',P_PLAY_MODE, P_PLAY_MODE_9K); break;
-    default:              ConfigMgr::set('P',P_PLAY_MODE, P_PLAY_MODE_ALL); break;
+    case Option::FILTER_KEYS_SINGLE:  ConfigMgr::set('P', P_FILTER_KEYS, P_FILTER_KEYS_SINGLE); break;
+    case Option::FILTER_KEYS_7:       ConfigMgr::set('P', P_FILTER_KEYS, P_FILTER_KEYS_7K); break;
+    case Option::FILTER_KEYS_5:       ConfigMgr::set('P', P_FILTER_KEYS, P_FILTER_KEYS_5K); break;
+    case Option::FILTER_KEYS_14:      ConfigMgr::set('P', P_FILTER_KEYS, P_FILTER_KEYS_14K); break;
+    case Option::FILTER_KEYS_DOUBLE:  ConfigMgr::set('P', P_FILTER_KEYS, P_FILTER_KEYS_DOUBLE); break;
+    case Option::FILTER_KEYS_10:      ConfigMgr::set('P', P_FILTER_KEYS, P_FILTER_KEYS_10K); break;
+    case Option::FILTER_KEYS_9:       ConfigMgr::set('P', P_FILTER_KEYS, P_FILTER_KEYS_9K); break;
+    default:                          ConfigMgr::set('P', P_FILTER_KEYS, P_FILTER_KEYS_ALL); break;
     }
 
     switch (gOptions.get(eOption::SELECT_SORT))
@@ -241,8 +243,32 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
     {
         std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
         loadSongList();
+        sortSongList();
         setBarInfo();
         setEntryInfo();
+    }
+
+    switch (gOptions.get(eOption::SELECT_FILTER_KEYS))
+    {
+    case Option::FILTER_KEYS_SINGLE: gSelectContext.filterKeys = 1; break;
+    case Option::FILTER_KEYS_7:      gSelectContext.filterKeys = 7; break;
+    case Option::FILTER_KEYS_5:      gSelectContext.filterKeys = 5; break;
+    case Option::FILTER_KEYS_DOUBLE: gSelectContext.filterKeys = 2; break;
+    case Option::FILTER_KEYS_14:     gSelectContext.filterKeys = 14; break;
+    case Option::FILTER_KEYS_10:     gSelectContext.filterKeys = 10; break;
+    case Option::FILTER_KEYS_9:      gSelectContext.filterKeys = 9; break;
+    default:                         gSelectContext.filterKeys = 0; break;
+    }
+
+    gSelectContext.filterDifficulty = gOptions.get(eOption::SELECT_FILTER_DIFF);
+
+    switch (gOptions.get(eOption::SELECT_SORT))
+    {
+    case Option::SORT_TITLE: gSelectContext.sort = SongListSort::TITLE; break;
+    case Option::SORT_LEVEL: gSelectContext.sort = SongListSort::LEVEL; break;
+    case Option::SORT_CLEAR: gSelectContext.sort = SongListSort::CLEAR; break;
+    case Option::SORT_RATE:  gSelectContext.sort = SongListSort::RATE; break;
+    default:                 gSelectContext.sort = SongListSort::DEFAULT; break;
     }
 
     gSelectContext.isGoingToKeyConfig = false;
@@ -1133,236 +1159,6 @@ void SceneSelect::_decide()
     gNextScene = eScene::DECIDE;
 }
 
-void SceneSelect::loadSongList()
-{
-    // TODO load song list
-    gSelectContext.entries.clear();
-    for (auto& [e, s] : gSelectContext.backtrace.top().list)
-    {
-        // TODO replace name/name2 by tag.db
-
-        // apply filter
-        bool skip = false;
-        switch (e->type())
-        {
-        case eEntryType::SONG:
-        case eEntryType::RIVAL_SONG:
-        {
-            auto f = std::reinterpret_pointer_cast<FolderSong>(e);
-            if (ConfigMgr::get('P', cfg::P_NO_COMBINE_CHARTS, false))
-            {
-                int nChartIdx = -1;
-                for (size_t idx = 0; idx < f->getContentsCount() && !skip; ++idx)
-                {
-                    if (f->getChart(idx)->type() == eChartFormat::BMS)
-                    {
-                        auto p = std::reinterpret_pointer_cast<BMS_prop>(f->getChart(idx));
-
-                        // gamemode filter
-                        if (gSelectContext.gamemode != 0 &&
-                            p->gamemode != gSelectContext.gamemode)
-                        {
-                            continue;
-                        }
-                        // difficulty filter
-                        if (gSelectContext.difficulty != 0 &&
-                            p->difficulty != gSelectContext.difficulty)
-                        {
-                            nChartIdx = idx;
-                            continue;
-                        }
-                        // filters are matched
-                        nChartIdx = idx;
-                        break;
-                    }
-                }
-                // add entry into list
-                gSelectContext.entries.push_back({ f, nullptr });
-            }
-            else
-            {
-                for (size_t idx = 0; idx < f->getContentsCount() && !skip; ++idx)
-                {
-                    switch (f->getChart(idx)->type())
-                    {
-                    case eChartFormat::BMS:
-                    {
-                        auto p = std::reinterpret_pointer_cast<BMS_prop>(f->getChart(idx));
-
-                        // difficulty filter
-                        if (gSelectContext.difficulty != 0 &&
-                            p->difficulty != gSelectContext.difficulty)
-                        {
-                            continue;
-                        }
-                        // gamemode filter
-                        if (gSelectContext.gamemode != 0 &&
-                            p->gamemode != gSelectContext.gamemode)
-                        {
-                            continue;
-                        }
-                        // add all charts as individual entries into list
-                        gSelectContext.entries.push_back({ std::make_shared<EntryChart>(p), nullptr });
-                    }
-                    break;
-
-                    default:
-                        break;
-                    }
-                }
-            }
-            break;
-        }
-        case eEntryType::CHART:
-        case eEntryType::RIVAL_CHART:
-        {
-            auto f = std::reinterpret_pointer_cast<EntryChart>(e)->_file;
-            if (f->type() == eChartFormat::BMS)
-            {
-                auto p = std::reinterpret_pointer_cast<BMS_prop>(f);
-
-                // gamemode filter
-                if (gSelectContext.gamemode != 0 &&
-                    p->gamemode != gSelectContext.gamemode)
-                {
-                    break;
-                }
-                // filters are matched
-                gSelectContext.entries.push_back({ e, nullptr });
-                break;
-            }
-            break;
-        }
-
-        default:
-            gSelectContext.entries.push_back({ e, nullptr });
-            break;
-        }
-    }
-
-    // load score
-    for (auto& [entry, score] : gSelectContext.entries)
-    {
-        std::shared_ptr<vChartFormat> pf;
-        switch (entry->type())
-        {
-        case eEntryType::SONG:
-        case eEntryType::RIVAL_SONG:
-            pf = std::reinterpret_pointer_cast<FolderSong>(entry)->getCurrentChart();
-            break;
-        case eEntryType::CHART:
-        case eEntryType::RIVAL_CHART:
-            pf = std::reinterpret_pointer_cast<EntryChart>(entry)->_file;
-            break;
-        default: break;
-        }
-
-        if (pf)
-        {
-            switch (pf->type())
-            {
-            case eChartFormat::BMS:
-            {
-                auto pScore = g_pScoreDB->getChartScoreBMS(pf->fileHash);
-                score = pScore;
-            }
-            break;
-            default: break;
-            }
-        }
-    }
-
-    // TODO sort song list
-    switch (gSelectContext.sort)
-    {
-    case SongListSort::DEFAULT:
-    {
-        auto& l = gSelectContext.entries;
-        auto compareEntry = [](const Entry& entry1, const Entry& entry2)
-        {
-            auto& lhs = entry1.first;
-            auto& rhs = entry2.first;
-            if (lhs->type() != rhs->type())
-                return lhs->type() < rhs->type();
-            else
-            {
-                if (lhs->type() == eEntryType::SONG || lhs->type() == eEntryType::RIVAL_SONG)
-                {
-                    auto l = std::reinterpret_pointer_cast<FolderSong>(lhs)->getChart(0);
-                    auto r = std::reinterpret_pointer_cast<FolderSong>(rhs)->getChart(0);
-                    if (l->levelEstimated != r->levelEstimated) return l->levelEstimated < r->levelEstimated;
-                    if (l->title != r->title) return l->title < r->title;
-                    if (l->title2 != r->title2) return l->title2 < r->title2;
-                    if (l->version != r->version) return l->version < r->version;
-                    return l->fileHash < r->fileHash;
-                }
-                else if (lhs->type() == eEntryType::CHART || lhs->type() == eEntryType::RIVAL_CHART)
-                {
-                    const auto& l = std::reinterpret_pointer_cast<const EntryChart>(lhs)->_file;
-                    const auto& r = std::reinterpret_pointer_cast<const EntryChart>(rhs)->_file;
-                    if (l->levelEstimated != r->levelEstimated) return l->levelEstimated < r->levelEstimated;
-                    if (l->title != r->title) return l->title < r->title;
-                    if (l->title2 != r->title2) return l->title2 < r->title2;
-                    if (l->version != r->version) return l->version < r->version;
-                    return l->fileHash < r->fileHash;
-                }
-                else
-                {
-                    if (lhs->_name != rhs->_name) return lhs->_name < rhs->_name;
-                    if (lhs->_name2 != rhs->_name2) return lhs->_name2 < rhs->_name2;
-                    return lhs->md5 < rhs->md5;
-                }
-            }
-        };
-        std::sort(l.begin(), l.end(), compareEntry);
-        break;
-    }
-    case SongListSort::TITLE:
-    {
-        auto& l = gSelectContext.entries;
-        std::sort(l.begin(), l.end(), [](const Entry& entry1, const Entry& entry2)
-            {
-                auto&& lhs = entry1.first;
-                auto&& rhs = entry2.first;
-                if (lhs->type() != rhs->type())
-                    return lhs->type() > rhs->type();
-                else
-                {
-                    if (lhs->type() == eEntryType::SONG || lhs->type() == eEntryType::RIVAL_SONG)
-                    {
-                        auto l = std::reinterpret_pointer_cast<FolderSong>(lhs)->getChart(0);
-                        auto r = std::reinterpret_pointer_cast<FolderSong>(rhs)->getChart(0);
-                        if (l->title != r->title) return l->title < r->title;
-                        if (l->title2 != r->title2) return l->title2 < r->title2;
-                        if (l->version != r->version) return l->version < r->version;
-                        return l->fileHash < r->fileHash;
-                    }
-                    else if (lhs->type() == eEntryType::CHART || lhs->type() == eEntryType::RIVAL_CHART)
-                    {
-                        const auto& l = std::reinterpret_pointer_cast<const EntryChart>(lhs)->_file;
-                        const auto& r = std::reinterpret_pointer_cast<const EntryChart>(rhs)->_file;
-                        if (l->title != r->title) return l->title < r->title;
-                        if (l->title2 != r->title2) return l->title2 < r->title2;
-                        if (l->version != r->version) return l->version < r->version;
-                        return l->fileHash < r->fileHash;
-                    }
-                    else
-                    {
-                        if (lhs->_name != rhs->_name) return lhs->_name < rhs->_name;
-                        if (lhs->_name2 != rhs->_name2) return lhs->_name2 < rhs->_name2;
-                        return lhs->md5 < rhs->md5;
-                    }
-                }
-            });
-        break;
-    }
-    // TODO sort by difficulty
-    // TODO sort by level
-    default:
-        break;
-    }
-}
-
 void SceneSelect::_navigateUpBy1(const Time& t)
 {
     if (!isInVersionList)
@@ -1414,17 +1210,20 @@ void SceneSelect::_navigateEnter(const Time& t)
                 e->md5,
                 e->_name,
                 {},
+                {},
                 0
             };
             auto top = g_pSongDB->browse(e->md5, false);
             for (size_t i = 0; i < top.getContentsCount(); ++i)
-                prop.list.push_back({ top.getEntry(i), nullptr });
+                prop.dbBrowseEntries.push_back({ top.getEntry(i), nullptr });
 
             gSelectContext.backtrace.top().index = gSelectContext.idx;
+            gSelectContext.backtrace.top().displayEntries = gSelectContext.entries;
             gSelectContext.backtrace.push(prop);
             gSelectContext.entries.clear();
             gSelectContext.idx = 0;
             loadSongList();
+            sortSongList();
 
             setBarInfo();
             setEntryInfo();
@@ -1458,14 +1257,14 @@ void SceneSelect::_navigateBack(const Time& t)
     {
         std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
 
-        auto top = gSelectContext.backtrace.top();
+        auto& top = gSelectContext.backtrace.top();
         if (!top.parent.empty())
         {
             gSelectContext.idx = 0;
             gSelectContext.backtrace.pop();
-            top = gSelectContext.backtrace.top();
-            gSelectContext.entries = top.list;
-            gSelectContext.idx = top.index;
+            auto& parent = gSelectContext.backtrace.top();
+            gSelectContext.entries = parent.displayEntries;
+            gSelectContext.idx = parent.index;
 
             setBarInfo();
             setEntryInfo();

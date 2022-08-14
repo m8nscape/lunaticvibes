@@ -189,6 +189,89 @@ void panel_switch(int idx, int plus)
     }
 }
 
+// 10
+void select_difficulty_filter(int plus, int iterateCount)
+{
+    if (iterateCount < 6)
+    {
+        gOptions.set(eOption::SELECT_FILTER_DIFF, (gOptions.get(eOption::SELECT_FILTER_DIFF) + plus) % 6);
+        gSelectContext.filterDifficulty = gOptions.get(eOption::SELECT_FILTER_DIFF);
+
+        {
+            std::unique_lock l(gSelectContext._mutex);
+            loadSongList();
+            sortSongList();
+            setBarInfo();
+            setEntryInfo();
+        }
+        if (gSelectContext.entries.empty())
+        {
+            return select_difficulty_filter(plus, iterateCount + 1);
+        }
+    }
+
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_DIFFICULTY);
+}
+
+// 11
+void select_keys_filter(int plus, int iterateCount)
+{
+    if (iterateCount < 8)
+    {
+        gOptions.set(eOption::SELECT_FILTER_KEYS, (gOptions.get(eOption::SELECT_FILTER_KEYS) + plus) % 8);
+        switch (gOptions.get(eOption::SELECT_FILTER_KEYS))
+        {
+        case Option::FILTER_KEYS_SINGLE: gSelectContext.filterKeys = 1; break;
+        case Option::FILTER_KEYS_7:      gSelectContext.filterKeys = 7; break;
+        case Option::FILTER_KEYS_5:      gSelectContext.filterKeys = 5; break;
+        case Option::FILTER_KEYS_DOUBLE: gSelectContext.filterKeys = 2; break;
+        case Option::FILTER_KEYS_14:     gSelectContext.filterKeys = 14; break;
+        case Option::FILTER_KEYS_10:     gSelectContext.filterKeys = 10; break;
+        case Option::FILTER_KEYS_9:      gSelectContext.filterKeys = 9; break;
+        default:                         gSelectContext.filterKeys = 0; break;
+        }
+
+        {
+            std::unique_lock l(gSelectContext._mutex);
+            loadSongList();
+            sortSongList();
+            setBarInfo();
+            setEntryInfo();
+        }
+        if (gSelectContext.entries.empty())
+        {
+            return select_keys_filter(plus, iterateCount + 1);
+        }
+    }
+
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_DIFFICULTY);
+}
+
+// 12
+void select_sort_type(int plus)
+{
+    gOptions.set(eOption::SELECT_SORT, (gOptions.get(eOption::SELECT_SORT) + plus) % 5);
+
+    switch (gOptions.get(eOption::SELECT_SORT))
+    {
+    case Option::SORT_TITLE: gSelectContext.sort = SongListSort::TITLE; break;
+    case Option::SORT_LEVEL: gSelectContext.sort = SongListSort::LEVEL; break;
+    case Option::SORT_CLEAR: gSelectContext.sort = SongListSort::CLEAR; break;
+    case Option::SORT_RATE:  gSelectContext.sort = SongListSort::RATE; break;
+    default:                 gSelectContext.sort = SongListSort::DEFAULT; break;
+    }
+
+    {
+        std::unique_lock l(gSelectContext._mutex);
+        loadSongList();
+        sortSongList();
+        setBarInfo();
+        setEntryInfo();
+    }
+
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_DIFFICULTY);
+}
+
 // 13
 void enter_key_config()
 {
@@ -692,7 +775,12 @@ void favorite_ignore(int plus)
 void difficulty(int diff, int plus)
 {
     gOptions.set(eOption::SELECT_FILTER_DIFF, diff);
-    // TODO refresh song list
+
+    loadSongList();
+    sortSongList();
+    setBarInfo();
+    setEntryInfo();
+
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_DIFFICULTY);
 }
 
@@ -977,6 +1065,13 @@ std::function<void(int)> getButtonCallback(int type)
     case 8:
     case 9:
         return std::bind(panel_switch, type, _1);
+
+    case 10:
+        return std::bind(select_difficulty_filter, _1, 0);
+    case 11:
+        return std::bind(select_keys_filter, _1, 0);
+    case 12:
+        return std::bind(select_sort_type, _1);
 
     case 13:
         return std::bind(enter_key_config);

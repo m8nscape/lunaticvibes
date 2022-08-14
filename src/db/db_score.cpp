@@ -114,6 +114,8 @@ ScoreDB::ScoreDB(const char* path): SQLite(path, "SCORE")
 
 std::shared_ptr<ScoreBMS> ScoreDB::getChartScoreBMS(const HashMD5& hash) const
 {
+    if (cache.find(hash) != cache.end()) return cache[hash];
+
     auto result = query("SELECT * FROM score_bms WHERE md5=?", 19, { hash.hexdigest() });
 
     if (!result.empty())
@@ -121,9 +123,14 @@ std::shared_ptr<ScoreBMS> ScoreDB::getChartScoreBMS(const HashMD5& hash) const
         const auto& r = result[0];
         auto ret = std::make_shared<ScoreBMS>();
         convert_score_bms(ret, r);
+        cache[hash] = ret;
         return ret;
     }
-    return nullptr;
+    else
+    {
+        cache[hash] = nullptr;
+        return nullptr;
+    }
 }
 
 void ScoreDB::updateChartScoreBMS(const HashMD5& hash, const ScoreBMS& score)
@@ -199,4 +206,6 @@ void ScoreDB::updateChartScoreBMS(const HashMD5& hash, const ScoreBMS& score)
             score.maxcombo, (long long)std::time(nullptr), score.playcount, score.exscore, (int)score.lamp, 
             score.pgreat, score.great, score.good, score.bad, score.bpoor, score.miss, score.bp, score.combobreak });
     }
+
+    cache.erase(hash);
 }

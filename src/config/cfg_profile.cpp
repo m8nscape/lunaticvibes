@@ -49,7 +49,7 @@ void ConfigProfile::setDefaults() noexcept
     set(P_GHOST_FS_TYPE, P_GHOST_FS_TYPE_NORMAL);
     set(P_GHOST_FS_POS_X, 0);
     set(P_GHOST_FS_POS_Y, 0);
-    set(P_PLAY_MODE, P_PLAY_MODE_ALL);
+    set(P_FILTER_KEYS, P_FILTER_KEYS_ALL);
     set(P_SORT_MODE, P_SORT_MODE_FOLDER);
     set(P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_ALL);
     set(P_BATTLE, false);

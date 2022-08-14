@@ -141,13 +141,15 @@ namespace cfg
     constexpr char P_GHOST_FS_POS_X[] = "GhostFSPosX";           // off, normal, ms, both
     constexpr char P_GHOST_FS_POS_Y[] = "GhostFSPosY";           // off, normal, ms, both
 
-    constexpr char P_PLAY_MODE[] = "PlayMode";
-    constexpr char P_PLAY_MODE_ALL[] = "All";
-    constexpr char P_PLAY_MODE_7K[] = "7K";
-    constexpr char P_PLAY_MODE_5K[] = "5K";
-    constexpr char P_PLAY_MODE_14K[] = "14K";
-    constexpr char P_PLAY_MODE_10K[] = "10K";
-    constexpr char P_PLAY_MODE_9K[] = "9K";
+    constexpr char P_FILTER_KEYS[] = "KeysFilter";
+    constexpr char P_FILTER_KEYS_ALL[] = "All";
+    constexpr char P_FILTER_KEYS_SINGLE[] = "SINGLE";
+    constexpr char P_FILTER_KEYS_7K[] = "7K";
+    constexpr char P_FILTER_KEYS_5K[] = "5K";
+    constexpr char P_FILTER_KEYS_DOUBLE[] = "DOUBLE";
+    constexpr char P_FILTER_KEYS_14K[] = "14K";
+    constexpr char P_FILTER_KEYS_10K[] = "10K";
+    constexpr char P_FILTER_KEYS_9K[] = "9K";
 
     constexpr char P_SORT_MODE[] = "SortMode";
     constexpr char P_SORT_MODE_FOLDER[] = "Folder";

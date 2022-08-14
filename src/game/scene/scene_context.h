@@ -114,7 +114,8 @@ struct SongListProperties
     HashMD5 parent;
     HashMD5 folder;
     std::string name;       // folder path, search query+result, etc.
-    EntryList list;
+    EntryList dbBrowseEntries;
+    EntryList displayEntries;
     size_t index;
 };
 
@@ -122,6 +123,11 @@ enum class SongListSort
 {
     DEFAULT,    // LEVEL
     TITLE,
+    LEVEL,
+    CLEAR,
+    RATE,
+
+    TYPE_COUNT,
 };
 
 struct SelectContextParams
@@ -132,8 +138,8 @@ struct SelectContextParams
     size_t idx = 0;     // current selected entry index
     size_t cursor = 0;  // highlighted bar index
     SongListSort sort = SongListSort::DEFAULT;
-    unsigned difficulty = 0; // all / B / N / H / A / I (type 0 is not included)
-    unsigned gamemode = 0; // all / 5, 7, 9, 10, 14, etc
+    unsigned filterDifficulty = 0; // all / B / N / H / A / I (type 0 is not included)
+    unsigned filterKeys = 0; // all / 5, 7, 9, 10, 14, etc
     double pitchSpeed = 1.0;
 
     unsigned scrollTimeLength = 300; // 
@@ -147,8 +153,11 @@ struct SelectContextParams
     bool isGoingToReplay = false;
 };
 
+void loadSongList();
+void sortSongList();
 void setBarInfo();
 void setEntryInfo();
+
 void setDynamicTextures();
 
 ////////////////////////////////////////////////////////////////////////////////

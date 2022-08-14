@@ -225,6 +225,7 @@ int main(int argc, char* argv[])
         ROOT_FOLDER_HASH,
         "",
         {},
+        {},
         0
     };
     auto top = g_pSongDB->browse(ROOT_FOLDER_HASH, false);
@@ -244,7 +245,7 @@ int main(int argc, char* argv[])
         if (!deleted)
         {
             g_pSongDB->browse(entry->md5, true);
-            rootFolderProp.list.push_back({ entry, nullptr });
+            rootFolderProp.dbBrowseEntries.push_back({ entry, nullptr });
         }
     }
     gSelectContext.backtrace.push(rootFolderProp);
