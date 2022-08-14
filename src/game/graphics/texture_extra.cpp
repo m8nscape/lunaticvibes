@@ -22,19 +22,31 @@ extern "C"
 TextureVideo::TextureVideo(std::shared_ptr<sVideo> pv) :
 	Texture(pv->getW(), pv->getH(), pv->getFormat()),
 	format(pv->getFormat()), 
-	pVideo(pv),
-	looper("Video update", std::bind(&TextureVideo::update, this), 60, true)
+	pVideo(pv)
 {
 	_texRect.x = 0;
 	_texRect.y = 0;
 	_texRect.w = pv->getW();
 	_texRect.h = pv->getH();
+
+	if (!texMapMutex)
+		texMapMutex = std::make_shared<std::shared_mutex>();
+	if (!textures)
+		textures = std::make_shared<std::map<uintptr_t, TextureVideo*>>();
+
+	pTexMapMutex = texMapMutex;
+	pTextures = textures;
+
+	std::unique_lock l(*texMapMutex);
+	(*textures)[(uintptr_t)this] = this;
 }
 
 TextureVideo::~TextureVideo()
 {
-	assert(!looper.isRunning());
 	assert(!pVideo->isPlaying());
+
+	std::unique_lock l(*texMapMutex);
+	textures->erase((uintptr_t)this);
 }
 
 void TextureVideo::start()
@@ -42,7 +54,6 @@ void TextureVideo::start()
 	if (!pVideo->isPlaying())
 	{
 		pVideo->startPlaying();
-		looper.loopStart();
 	}
 }
 
@@ -50,7 +61,6 @@ void TextureVideo::stop()
 {
 	if (pVideo->isPlaying())
 	{
-		assert(!looper.isRunning());	// call stopUpdate() first
 		pVideo->stopPlaying();
 	}
 }
@@ -70,40 +80,32 @@ void TextureVideo::update()
 	if (decoded_frames == vrfc) return;
 	decoded_frames = vrfc;
 
-	{
-		using namespace std::chrono_literals;
+	using namespace std::chrono_literals;
 		
-		std::shared_lock l(pVideo->video_frame_mutex);
-
+	std::shared_lock l(pVideo->video_frame_mutex, std::try_to_lock);
+	if (l.owns_lock())
+	{
 		auto pf = pVideo->getFrame();
 		if (!pf) return;
 
-		pushAndWaitMainThreadTask<void>([&]()
-			{
-				switch (format)
-				{
-				case Texture::PixelFormat::IYUV:
-					if (updateYUV(
-						pf->data[0], pf->linesize[0],
-						pf->data[1], pf->linesize[1],
-						pf->data[2], pf->linesize[2]) == 0)
-						updated = true;
-					break;
+		switch (format)
+		{
+		case Texture::PixelFormat::IYUV:
+			if (updateYUV(
+				pf->data[0], pf->linesize[0],
+				pf->data[1], pf->linesize[1],
+				pf->data[2], pf->linesize[2]) == 0)
+				updated = true;
+			break;
 
-				default:
-					break;
-				}
-			}
-		);
+		default:
+			break;
+		}
 	}
 }
 
 void TextureVideo::stopUpdate()
 {
-	assert(!IsMainThread());
-	looper.loopEnd();
-	// AsyncLooper thread will end here, releasing pVideo->video_frame_mutex occupation by update()
-
 	updated = false;
 }
 
@@ -135,28 +137,36 @@ void TextureVideo::reset()
 	decoded_frames = 0;
 }
 
+std::shared_ptr<std::shared_mutex> TextureVideo::texMapMutex;
+std::shared_ptr<std::map<uintptr_t, TextureVideo*>> TextureVideo::textures;
+
+void TextureVideo::updateAll()
+{
+	if (texMapMutex)
+	{
+		std::shared_lock l(*texMapMutex);
+		for (auto& t : *textures)
+		{
+			t.second->update();
+		}
+	}
+}
+
 #endif
 
-bool TextureBmsBga::addBmp(size_t idx, const Path& pBmp)
+bool TextureBmsBga::addBmp(size_t idx, Path pBmp)
 {
 	if (idx == size_t(-1)) return false;
 
-	static const std::set<std::string> video_file_extensions =
+	if (!fs::exists(pBmp) && pBmp.has_extension() && toLower(pBmp.extension().string()) == ".bmp")
 	{
-		".mpg",
-		".flv",
-		".mp4",
-		".m4p",
-		".m4v",
-		".f4v",
-		".avi",
-		".wmv",
-		".mpeg",
-		".mpeg2",
-		".mkv",
-		".webm",
-	};
+		pBmp = pBmp.parent_path() / PathFromUTF8(pBmp.filename().stem().u8string() + ".jpg");
 
+		if (!fs::exists(pBmp))
+		{
+			pBmp = pBmp.parent_path() / PathFromUTF8(pBmp.filename().stem().u8string() + ".png");
+		}
+	}
 	if (fs::exists(pBmp) && fs::is_regular_file(pBmp) && pBmp.has_extension())
 	{
 		if (video_file_extensions.find(toLower(pBmp.extension().u8string())) != video_file_extensions.end())
@@ -185,13 +195,19 @@ bool TextureBmsBga::addBmp(size_t idx, const Path& pBmp)
 			return true;
 		}
 	}
-	LOG_DEBUG << "[TextureBmsBga] file not found: " << pBmp.u8string();
+	else
+	{
+		objs[idx].type = obj::Ty::EMPTY;
+
+		objs_layer[idx].type = obj::Ty::EMPTY;
+
+		LOG_DEBUG << "[TextureBmsBga] file not found, added dummy: " << pBmp.u8string();
+	}
 	return false;
 }
 
 bool TextureBmsBga::setSlot(size_t idx, Time time, bool base, bool layer, bool poor)
 {
-	if (objs.find(idx) == objs.end()) return false;
 	if (base) baseSlot.emplace_back(time, idx);
 	if (layer) layerSlot.emplace_back(time, idx);
 	if (poor) poorSlot.emplace_back(time, idx);
@@ -257,6 +273,7 @@ void TextureBmsBga::seek(const Time& t)
 		//slotIt = slot.end();	// not found
 	};
 
+	std::unique_lock l(idxLock);
 	seekSub(baseSlot, baseIdx, baseIt);
 	seekSub(layerSlot, layerIdx, layerIt);
 	seekSub(poorSlot, poorIdx, poorIt);
@@ -283,7 +300,7 @@ void TextureBmsBga::update(const Time& t, bool poor)
 				{
 					auto pt = std::reinterpret_pointer_cast<TextureVideo>(objs[it->second].pt);
 					pt->start();
-					pt->update();
+					//pt->update();	// Do NOT call update here; videos are updated in main thread with TextureVideo::updateAll()
 				}
 #endif
 			}
@@ -291,6 +308,7 @@ void TextureBmsBga::update(const Time& t, bool poor)
 
 	};
 
+	std::unique_lock l(idxLock);
 	seekSub(baseSlot, baseIdx, baseIt);
 	seekSub(layerSlot, layerIdx, layerIt);
 	seekSub(poorSlot, poorIdx, poorIt);
@@ -300,6 +318,7 @@ void TextureBmsBga::update(const Time& t, bool poor)
 void TextureBmsBga::draw(const Rect& sr, Rect dr,
 	const Color c, const BlendMode b, const bool f, const double a) const
 {
+	std::shared_lock l(idxLock);
 	if (inPoor && poorIdx != INDEX_INVALID && objs.at(poorIdx).type != obj::Ty::EMPTY)
 	{
 		objs.at(poorIdx).pt->draw(dr, c, b, f, a);
@@ -322,6 +341,7 @@ void TextureBmsBga::draw(const Rect& sr, Rect dr,
 void TextureBmsBga::draw(const Rect& sr, Rect dr,
 	const Color c, const BlendMode b, const bool f, const double a, const Point& ct) const
 {
+	std::shared_lock l(idxLock);
 	if (inPoor && poorIdx != INDEX_INVALID && objs.at(poorIdx).type != obj::Ty::EMPTY)
 	{
 		objs.at(poorIdx).pt->draw(dr, c, b, f, a, ct);
@@ -346,9 +366,13 @@ void TextureBmsBga::reset()
 	baseIt = baseSlot.begin();
 	layerIt = layerSlot.begin();
 	poorIt = poorSlot.begin();
-	baseIdx = INDEX_INVALID;
-	layerIdx = INDEX_INVALID;
-	poorIdx = INDEX_INVALID;
+
+	std::unique_lock l(idxLock);
+	{
+		baseIdx = INDEX_INVALID;
+		layerIdx = INDEX_INVALID;
+		poorIdx = INDEX_INVALID;
+	}
 
 	auto resetSub = [this](decltype(baseSlot)& slot)
 	{

@@ -9,7 +9,7 @@ private:
 
 public:
     SceneKeyConfig();
-    virtual ~SceneKeyConfig() = default;
+    virtual ~SceneKeyConfig();
 
 protected:
     // Looper callbacks

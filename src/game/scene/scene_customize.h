@@ -8,7 +8,7 @@ private:
 
 public:
     SceneCustomize();
-    virtual ~SceneCustomize() = default;
+    virtual ~SceneCustomize();
 
 protected:
     struct Option

@@ -4,6 +4,7 @@ std::string KeyMap::toString() const
 {
     switch (type)
     {
+    case DeviceType::UNDEF:    return "-";
     case DeviceType::KEYBOARD: return toStringK();
     case DeviceType::JOYSTICK: return toStringJ();
     case DeviceType::MOUSE:    return toStringM();

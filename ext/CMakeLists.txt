@@ -87,3 +87,7 @@ target_include_directories(imgui PUBLIC
 add_library(BS_thread_pool INTERFACE)
 target_include_directories(BS_thread_pool INTERFACE 
     ${CMAKE_CURRENT_LIST_DIR}/thread-pool)
+
+# Add google/re2
+option(RE2_BUILD_TESTING "enable testing for RE2" OFF)
+add_subdirectory(re2)

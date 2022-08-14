@@ -39,9 +39,6 @@ public:
 	virtual bool update(const Time& t);
     virtual void updateNoteRect(const Time& t);
     virtual void draw() const;
-
-public:
-    constexpr void setHiSpeed(double s) { _hispeed = s; }
 };
 
 

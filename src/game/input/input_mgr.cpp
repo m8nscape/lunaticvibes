@@ -39,13 +39,15 @@ void InputMgr::updateBindings(GameModeKeys keys, Pad K)
     default: break;
     }
 
+    updateDeadzones();
     LOG_INFO << "Key bindings updated";
 }
 
 void InputMgr::updateDeadzones()
 {
+    // FIXME move deadzones to key config file
     using namespace cfg;
-    _inst.padDeadzones[Input::S1L] = ConfigMgr::get('P', P_INPUT_DEADZONE_S1L, 0.2);
+    _inst.padDeadzones[Input::S1L] = ConfigMgr::get('I', P_INPUT_DEADZONE_S1L, 0.2);
     _inst.padDeadzones[Input::S1R] = ConfigMgr::get('P', P_INPUT_DEADZONE_S1R, 0.2);
     _inst.padDeadzones[Input::K1START] = ConfigMgr::get('P', P_INPUT_DEADZONE_K1Start, 0.2);
     _inst.padDeadzones[Input::K1SELECT] = ConfigMgr::get('P', P_INPUT_DEADZONE_K1Select, 0.2);
@@ -71,9 +73,15 @@ void InputMgr::updateDeadzones()
     _inst.padDeadzones[Input::K27] = ConfigMgr::get('P', P_INPUT_DEADZONE_K27, 0.2);
     _inst.padDeadzones[Input::K28] = ConfigMgr::get('P', P_INPUT_DEADZONE_K28, 0.2);
     _inst.padDeadzones[Input::K29] = ConfigMgr::get('P', P_INPUT_DEADZONE_K29, 0.2);
-    _inst.padDeadzones[Input::S1A] = ConfigMgr::get('P', P_INPUT_SPEED_S1A, 0.2);
-    _inst.padDeadzones[Input::S2A] = ConfigMgr::get('P', P_INPUT_SPEED_S2A, 0.2);
+    _inst.padDeadzones[Input::S1A] = ConfigMgr::get('P', P_INPUT_SPEED_S1A, 0.5);
+    _inst.padDeadzones[Input::S2A] = ConfigMgr::get('P', P_INPUT_SPEED_S2A, 0.5);
 }
+
+double InputMgr::getDeadzone(Input::Pad k)
+{
+    return _inst.padDeadzones[k];
+}
+
 
 #ifdef RENDER_SDL2
 #include "SDL_mouse.h"
@@ -88,7 +96,7 @@ std::bitset<KEY_COUNT> InputMgr::detect()
     _inst.scratch2 = 0.0;
 
     // game input
-    for (int k = S1L; k < ESC; k++)
+    for (int k = S1L; k < LANE_COUNT; k++)
     {
         KeyMap& b = _inst.padBindings[k];
         {
@@ -99,28 +107,26 @@ std::bitset<KEY_COUNT> InputMgr::detect()
                     res[k] = true;
 				break;
 			case KeyMap::DeviceType::JOYSTICK:
-                if (k == S1A || k == S2A)
-                {
-                    auto& j = b.getJoystick();
-                    if (j.type == Input::Joystick::Type::AXIS_ABSOLUTE)
-                    {
-                        if (k == S1A)
-                            _inst.scratch1 = getJoystickAxis(j.device, j.type, j.index);
-                        else
-                            _inst.scratch2 = getJoystickAxis(j.device, j.type, j.index);
-                    }
-                }
-                else
-                {
-                    if (isButtonPressed(b.getJoystick(), _inst.padDeadzones[k]))
-                        res[k] = true;
-                }
+                if (isButtonPressed(b.getJoystick(), _inst.padDeadzones[k]))
+                    res[k] = true;
 				break;
 			case KeyMap::DeviceType::MOUSE:
 				break;
 			}
 			//if (res[k]) break;
         }
+    }
+    if (_inst.padBindings[S1A].getType() == KeyMap::DeviceType::JOYSTICK)
+    {
+        auto& j = _inst.padBindings[S1A].getJoystick();
+        if (j.type == Input::Joystick::Type::AXIS_ABSOLUTE)
+            _inst.scratch1 = getJoystickAxis(j.device, j.type, j.index);
+    }
+    if (_inst.padBindings[S2A].getType() == KeyMap::DeviceType::JOYSTICK)
+    {
+        auto& j = _inst.padBindings[S2A].getJoystick();
+        if (j.type == Input::Joystick::Type::AXIS_ABSOLUTE)
+            _inst.scratch2 = getJoystickAxis(j.device, j.type, j.index);
     }
 
     // FN input

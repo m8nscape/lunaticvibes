@@ -28,6 +28,11 @@ SceneCustomize::SceneCustomize() : vScene(eMode::THEME_SELECT, 240)
     LOG_DEBUG << "[Customize] Start";
 }
 
+SceneCustomize::~SceneCustomize()
+{
+    _input.loopEnd();
+    loopEnd();
+}
 
 void SceneCustomize::_updateAsync()
 {
@@ -35,11 +40,9 @@ void SceneCustomize::_updateAsync()
 
     if (gAppIsExiting)
     {
-        _skin->stopSpriteVideoUpdate();
         _skin->setHandleMouseEvents(false);
         if (SkinMgr::get(selectedMode))
         {
-            SkinMgr::get(selectedMode)->stopSpriteVideoUpdate();
             SkinMgr::unload(selectedMode);
         }
         gNextScene = eScene::EXIT_TRANS;
@@ -73,7 +76,6 @@ void SceneCustomize::updateMain()
         _skin->setHandleMouseEvents(false);
         if (SkinMgr::get(selectedMode))
         {
-            SkinMgr::get(selectedMode)->stopSpriteVideoUpdate();
             SkinMgr::unload(selectedMode);
         }
         load(selectedMode);
@@ -158,7 +160,6 @@ void SceneCustomize::updateMain()
                 _skin->setHandleMouseEvents(false);
                 if (SkinMgr::get(selectedMode))
                 {
-                    SkinMgr::get(selectedMode)->stopSpriteVideoUpdate();
                     SkinMgr::unload(selectedMode);
                 }
                 load(selectedMode);
@@ -218,7 +219,6 @@ void SceneCustomize::updateFadeout()
         _skin->setHandleMouseEvents(false);
         if (SkinMgr::get(selectedMode))
         {
-            SkinMgr::get(selectedMode)->stopSpriteVideoUpdate();
             SkinMgr::unload(selectedMode);
         }
         gNextScene = eScene::SELECT;

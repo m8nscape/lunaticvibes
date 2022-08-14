@@ -31,15 +31,6 @@ void SpriteVideo::startPlaying()
 	pVid->start();
 }
 
-void SpriteVideo::stopUpdating()
-{
-	assert(!IsMainThread());
-
-	auto pVid = std::reinterpret_pointer_cast<TextureVideo>(_pTexture);
-	if (!pVid) return;
-	pVid->stopUpdate();
-}
-
 void SpriteVideo::stopPlaying()
 {
 	auto pVid = std::reinterpret_pointer_cast<TextureVideo>(_pTexture);

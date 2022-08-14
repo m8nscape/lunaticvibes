@@ -18,7 +18,7 @@ typedef unsigned long timeMS;
 
 //typedef StringContent Token;
 //typedef std::vector<StringContent> Tokens;
-typedef StringContentView Token;
+typedef StringContent Token;
 typedef std::vector<Token> Tokens;
 typedef std::shared_ptr<vSprite> pSprite;
 typedef std::shared_ptr<Texture> pTexture;
@@ -64,8 +64,6 @@ protected:
     bool _handleMouseEvents = true;
     std::list<std::map<Rect, pSprite>> _mouseCursorAreaMap;
 
-    int _noteAreaHeight = 500;  // used to calculate note speed for play skin
-
     std::shared_ptr<iSpriteMouse> _pDragging = nullptr;  // currently (mouse) dragging element
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -80,7 +78,6 @@ public:
     virtual void draw() const;
     void setHandleMouseEvents(bool b) { _handleMouseEvents = b; }
     void startSpriteVideoPlayback();
-    void stopSpriteVideoUpdate();
     void stopSpriteVideoPlayback();
 
     ///////////////////////////////////////////////////////////

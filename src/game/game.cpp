@@ -142,6 +142,7 @@ int main(int argc, char* argv[])
     InputMgr::init();
 	InputMgr::updateDevices();
 	InputMgr::updateBindings(7, Input::Pad::S1L);
+    InputMgr::updateDeadzones();
 
     // reset globals
     //gNumbers.setDefault(eNumber::ZERO, 0);
@@ -277,6 +278,7 @@ int main(int argc, char* argv[])
         };
     }
 
+    /*
 #ifndef _DEBUG
     // preload all skins
     LOG_INFO << "==============================================";
@@ -288,6 +290,7 @@ int main(int argc, char* argv[])
     LOG_INFO << "Preload all skins finished";
     LOG_INFO << "==============================================";
 #endif
+    */
 
 #ifdef WIN32
     timeBeginPeriod(1);

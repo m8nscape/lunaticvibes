@@ -10,9 +10,6 @@
 #include "common/utils.h"
 #include "common/types.h"
 
-constexpr std::regex_constants::syntax_option_type prebuiltRegexFlags =
-    std::regex_constants::ECMAScript | std::regex_constants::icase | std::regex_constants::optimize;
-
 namespace bms
 {
     const unsigned BGMCHANNELS = 32;
@@ -143,7 +140,9 @@ public:
 protected:
     // Lanes.
     int strToLane36(channel&, const StringContent& str);
+    int strToLane36(channel&, StringContentView str);
     int strToLane16(channel&, const StringContent& str);
+    int strToLane16(channel&, StringContentView str);
 
     std::vector<LaneArray> chBGM{};
     LaneArray chStop{};

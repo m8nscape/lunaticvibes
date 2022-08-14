@@ -170,31 +170,31 @@ public:
         RIVAL,
     };
 
-    struct judgeRes { judgeArea area = judgeArea::NOTHING; Time time; };
+    struct JudgeRes { judgeArea area = judgeArea::NOTHING; Time time; };
 
 protected:
-    JudgeDifficulty _diff;
+    PlaySide _side;
+    bool _k1P, _k2P;
+    JudgeDifficulty _judgeDifficulty;
     GaugeType _gauge;
-    std::map<JudgeType, double> _healthIncrement;
 
-    std::map<JudgeType, unsigned> _count;
+    std::map<JudgeType, double> _healthGain;
+
     const NoteLaneTimerMap* _bombTimerMap = nullptr;
     const NoteLaneTimerMap* _bombLNTimerMap = nullptr;
-    PlaySide _side;
-	bool _k1P, _k2P;
 
-    double inner_score = 0.0;
+
     std::array<judgeArea, chart::NOTELANEINDEX_COUNT> _lnJudge{ judgeArea::NOTHING };
-    judgeRes _lastNoteJudge;
-    double _avgErrorTime = 0.0;
+    std::map<JudgeType, unsigned> _judgeCount;
+    JudgeRes _lastNoteJudge;
+
+    double moneyScore = 0.0;
 
     std::map<chart::NoteLane, decltype(_chart->firstNote(chart::NoteLaneCategory::_, chart::NoteLaneIndex::_))> _noteListIterators;
 
-
-    bool _scratchKey[2][2] = { {false, false}, {false, false} };
-    std::array<double, 2>   _scratchSpeed{ 0 };
     std::array<AxisDir, 2>  _scratchDir = { 0, 0 };
     std::array<Time, 2>     _scratchLastUpdate = { TIMER_NEVER, TIMER_NEVER };
+    std::array<double, 2>   _scratchAccumulator = { 0, 0 };
 
 public:
     RulesetBMS(
@@ -206,11 +206,11 @@ public:
         double health = 1.0,
         PlaySide side = PlaySide::SINGLE);
 protected:
-    judgeRes _judge(const Note& note, Time time);
+    JudgeRes _judge(const Note& note, Time time);
 private:
-    void _judgePress(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot);
-    void _judgeHold(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot);
-    void _judgeRelease(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx, HitableNote& note, judgeRes judge, const Time& t, int slot);
+    void _judgePress(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx, HitableNote& note, JudgeRes judge, const Time& t, int slot);
+    void _judgeHold(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx, HitableNote& note, JudgeRes judge, const Time& t, int slot);
+    void _judgeRelease(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx, HitableNote& note, JudgeRes judge, const Time& t, int slot);
     void judgeNotePress(Input::Pad k, const Time& t, const Time& rt, int slot);
     void judgeNoteHold(Input::Pad k, const Time& t, const Time& rt, int slot);
     void judgeNoteRelease(Input::Pad k, const Time& t, const Time& rt, int slot);
@@ -233,11 +233,11 @@ public:
     void updateMiss(const Time& t, chart::NoteLaneIndex ch, JudgeType judge, int slot);
     virtual bool isCleared() const { return !_isFailed && isFinished() && _basic.health >= _clearHealth; }
     virtual bool isFailed() const { return _isFailed; }
-    virtual unsigned getCurrentMaxScore() const { return _basic.totalnr * 2; }
+    virtual unsigned getCurrentMaxScore() const { return _basic.notesReached * 2; }
     virtual unsigned getMaxScore() const { return _chart->getNoteRegularCount() * 2 + _chart->getNoteLnCount() * 2; }
-    unsigned getJudgeCount(JudgeType idx) const { return _count.find(idx) != _count.end() ? _count.at(idx) : 0; }
+    unsigned getJudgeCount(JudgeType idx) const { return _judgeCount.find(idx) != _judgeCount.end() ? _judgeCount.at(idx) : 0; }
     GaugeType getGaugeType() const { return _gauge; }
-    virtual unsigned getMaxCombo() const { return _chart->getNoteCount(); }
+    virtual unsigned getMaxCombo() const { return _chart->getNoteTotalCount(); }
     virtual void fail();
     virtual void reset();
     virtual void updateGlobals();

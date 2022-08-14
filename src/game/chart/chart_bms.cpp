@@ -134,7 +134,7 @@ chartBMS::chartBMS(int slot, const BMS& b) : chartBMS(slot)
 
 void chartBMS::loadBMS(const BMS& objBms)
 {
-	_noteCount = objBms.notes_total;
+	_noteCount_total = objBms.notes_total;
 	_noteCount_regular = objBms.notes_scratch + objBms.notes_key;
 	_noteCount_ln = objBms.notes_scratch_ln + objBms.notes_key_ln;
 	Time basetime{ 0 };
@@ -682,9 +682,11 @@ void chartBMS::loadBMS(const BMS& objBms)
 		basemetre += barMetre;
 
         // add barline for next measure
-        _noteLists[chart::channelToIdx(NoteLaneCategory::EXTRA, EXTRA_BARLINE)].push_back(
+        _noteLists[chart::channelToIdx(NoteLaneCategory::EXTRA, EXTRA_BARLINE_1P)].push_back(
 			{ m + 1, basemetre, basetime, long long(0), false });
 
+        _noteLists[chart::channelToIdx(NoteLaneCategory::EXTRA, EXTRA_BARLINE_2P)].push_back(
+            { m + 1, basemetre, basetime, long long(0), false });
     }
 
     _totalLength = basetime + Time(std::min(2000'000'000ll, std::max(500'000'000ll, Time::singleBeatLengthFromBPM(bpm).hres() * 4)), true);    // last measure + 1
@@ -696,7 +698,7 @@ void chartBMS::loadBMS(const BMS& objBms)
 
 chart::NoteLaneIndex chartBMS::getLaneFromKey(chart::NoteLaneCategory cat, Input::Pad input)
 {
-    if (input >= Input::S1L && input < Input::ESC && KeyToLaneMap[input] != _)
+    if (input >= Input::S1L && input < Input::LANE_COUNT && KeyToLaneMap[input] != _)
     {
         NoteLaneIndex idx = KeyToLaneMap[input];
         if (!isLastNote(cat, idx))

@@ -139,6 +139,9 @@ void vScene::update()
     }
     _sTopLeft->update(t);
 
+    // update videos
+    TextureVideo::updateAll();
+
     auto ss = gTimers.get(eTimer::SCENE_START);
     auto rt = t.norm() - ss;
     if (ss != TIMER_NEVER && rt > 1000)
@@ -208,11 +211,6 @@ void vScene::draw() const
 void vScene::_updateAsync1()
 {
     _updateAsync();
-
-    if (gNextScene != _scene)
-    {
-        _skin ? _skin->stopSpriteVideoUpdate() : __noop;
-    }
 }
 
 void vScene::_updateImgui()

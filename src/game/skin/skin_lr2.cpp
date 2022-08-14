@@ -17,6 +17,8 @@
 #include "config/config_mgr.h"
 #include "game/scene/scene_customize.h"
 #include "game/graphics/dxa.h"
+#include "game/graphics/video.h"
+#include "re2/re2.h"
 
 #ifdef _WIN32
 // For GetWindowsDirectory
@@ -471,7 +473,7 @@ Tokens csvLineTokenizeSimple(const std::string& raw)
     {
         pos = linecsv.find(',', idx);
         auto token = linecsv.substr(idx, pos - idx);
-        res.push_back(token);
+        res.push_back(Token(token));
         idx = pos + 1;
     } while (pos != linecsv.npos);
     return res;
@@ -487,17 +489,17 @@ Tokens csvLineTokenize(const std::string& raw)
     StringContentView linecsv = csvLineNormalize(raw);
     if (linecsv.empty()) return {};
 
-    static const std::regex re{ R"(((?:(?:\\,)|[^,])*?)(?:,|$))",
-        std::regex_constants::ECMAScript | std::regex_constants::optimize };
-    std::match_results<decltype(linecsv.begin())> matchResults;
-    typedef std::regex_token_iterator<decltype(linecsv.begin())> scv_regex_token_iterator;
     Tokens res;
     res.reserve(32);
-    for (auto it = scv_regex_token_iterator(linecsv.begin(), linecsv.end(), re, 1);
-        it != scv_regex_token_iterator() && it->first != linecsv.end(); ++it)
+
+    auto lineBuf = re2::StringPiece(linecsv.data(), linecsv.length());
+    static const LazyRE2 re{ R"(((?:(?:\\,)|[^,])*?)(?:,|$))" };
+    std::string token;
+    while (!lineBuf.empty() && RE2::Consume(&lineBuf, *re, &token))
     {
-        res.push_back(StringContentView(&*it->first, it->second - it->first));
+        res.push_back(token);
     }
+
     return res;
 }
 
@@ -535,22 +537,6 @@ int SkinLR2::IMAGE()
         std::string pathU8Str = path.u8string();
         if (pathStr.find("*"_p) != pathStr.npos)
         {
-            static const std::set<std::string> video_file_extensions =
-            {
-                ".mpg",
-                ".flv",
-                ".mp4",
-                ".m4p",
-                ".m4v",
-                ".f4v",
-                ".avi",
-                ".wmv",
-                ".mpeg",
-                ".mpeg2",
-                ".mkv",
-                ".webm",
-            };
-
             // Check if the wildcard path is specified by custom settings
             for (auto& cf : customize)
             {
@@ -1638,7 +1624,7 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
     {
     case DefType::LINE:
         cat = NoteLaneCategory::EXTRA;
-        idx = (NoteLaneIndex)EXTRA_BARLINE;
+        idx = (NoteLaneIndex)(d._null == 0 ? EXTRA_BARLINE_1P : EXTRA_BARLINE_2P);
         break;
     case DefType::NOTE:
         cat = NoteLaneCategory::Note;
@@ -1674,6 +1660,18 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
     switch (type)
     {
     case DefType::LINE:
+    {
+        _sprites.push_back(std::make_shared<SpriteLaneVertical>(
+            _textureNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, iTimer, d.div_y, d.div_x, false, d._null == 0 ? 0 : 1));
+
+        _laneSprites[i] = std::static_pointer_cast<SpriteLaneVertical>(_sprites.back());
+        _laneSprites[i]->setLane(cat, idx);
+        _laneSprites[i]->pNote->appendKeyFrame({ 0, {Rect(),
+            RenderParams::accTy::CONSTANT, Color(0xffffffff), BlendMode::ALPHA, 0, 0.0 } });
+        _laneSprites[i]->pNote->setLoopTime(0);
+        break;
+    }
+
     case DefType::NOTE:
     case DefType::MINE:
     case DefType::AUTO_NOTE:
@@ -2077,14 +2075,6 @@ ParseRet SkinLR2::DST_NOTE()
     {
         return ParseRet::PARAM_INVALID;
     }
-    else if (d._null == 1)
-    {
-        info.noteLaneHeight1P = d.y + d.h;
-    }
-    else if (d._null == 11)
-    {
-        info.noteLaneHeight2P = d.y + d.h;
-    }
 
     NoteLaneIndex idx = NoteLaneIndex(NoteIdxToLaneMap[d._null]);
 
@@ -2121,7 +2111,6 @@ ParseRet SkinLR2::DST_LINE()
     // load raw into data struct
     lr2skin::dst d(parseParamBuf);
     
-
     int ret = 0;
     auto e = _sprites.back();
     if (e == nullptr)
@@ -2147,11 +2136,9 @@ ParseRet SkinLR2::DST_LINE()
     // set sprite channel
     auto p = std::static_pointer_cast<SpriteLaneVertical>(e);
 
-    p->playerSlot = d._null / 10;  // player slot, 1P:0, 2P:1
-
     chart::NoteLaneCategory cat = p->getLaneCat();
     chart::NoteLaneIndex idx = p->getLaneIdx();
-    if (cat != chart::NoteLaneCategory::EXTRA || idx != chart::EXTRA_BARLINE)
+    if (cat != chart::NoteLaneCategory::EXTRA || (idx != chart::EXTRA_BARLINE_1P && idx != chart::EXTRA_BARLINE_2P))
     {
         LOG_WARNING << "[Skin] " << csvLineNumber << ": Previous SRC definition is not LINE " <<
             "(Line: " << csvLineNumber << ")";
@@ -2169,7 +2156,14 @@ ParseRet SkinLR2::DST_LINE()
     //e->pushKeyFrame(time, x, y, w, h, acc, r, g, b, a, blend, filter, angle, center);
     //LOG_DEBUG << "[Skin] " << raw << ": Set Lane sprite (Barline) Keyframe (time: " << d.time << ")";
 
-    _noteAreaHeight = d.y;
+    if (idx == chart::EXTRA_BARLINE_1P)
+    {
+        info.noteLaneHeight1P = d.y + d.h;
+    }
+    else if (idx == chart::EXTRA_BARLINE_2P)
+    {
+        info.noteLaneHeight2P = d.y + d.h;
+    }
 
     return ParseRet::OK;
 }
@@ -2925,7 +2919,7 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
             auto pS = std::dynamic_pointer_cast<SpriteLaneVertical>(s);
             if (pS != nullptr)
             {
-                pS->setHeight(_noteAreaHeight);
+                pS->setHeight(500);
             }
         }
     }
@@ -2961,7 +2955,7 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
         using namespace chart;
         setLaneHeight(0, 9, info.noteLaneHeight1P);
 
-        constexpr size_t idx = channelToIdx(NoteLaneCategory::EXTRA, NoteLaneExtra::EXTRA_BARLINE);
+        constexpr size_t idx = channelToIdx(NoteLaneCategory::EXTRA, NoteLaneExtra::EXTRA_BARLINE_1P);
         if (idx != LANE_INVALID && _laneSprites[idx] != nullptr)
         {
             _laneSprites[idx]->setHeight(info.noteLaneHeight1P);
@@ -2972,7 +2966,7 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
         using namespace chart;
         setLaneHeight(10, 19, info.noteLaneHeight2P);
 
-        constexpr size_t idx = channelToIdx(NoteLaneCategory::EXTRA, NoteLaneExtra::EXTRA_BARLINE);
+        constexpr size_t idx = channelToIdx(NoteLaneCategory::EXTRA, NoteLaneExtra::EXTRA_BARLINE_2P);
         if (idx != LANE_INVALID && _laneSprites[idx] != nullptr)
         {
             _laneSprites[idx]->setHeight(info.noteLaneHeight2P);
@@ -3041,86 +3035,108 @@ void SkinLR2::update()
     }
 
     // update nowjudge/nowcombo
+    // 0-5:   NOWJUDGE 1P
+    // 6-11:  NOWCOMBO 1P
+    // 12-17: NOWJUDGE 2P
+    // 18-23: NOWCOMBO 2P
     for (size_t i = 0; i < 6; ++i)
     {
         if (gSprites[i] && gSprites[i + 6] && gSprites[i]->_draw && gSprites[i + 6]->_draw)
         {
             std::shared_ptr<SpriteAnimated> judge = std::reinterpret_pointer_cast<SpriteAnimated>(gSprites[i]);
             std::shared_ptr<SpriteNumber> combo = std::reinterpret_pointer_cast<SpriteNumber>(gSprites[i + 6]);
-            Rect diff{ 0,0,0,0 };
-            //diff.x = int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
-            diff.x += judge->_current.rect.x;
-            diff.y += judge->_current.rect.y;
-            if (!noshiftJudge1P[i])
+            if (judge->isDraw())
             {
-                judge->_current.rect.x -= int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
+                combo->setHide(false);
+
+                Rect diff{ 0,0,0,0 };
+                //diff.x = int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
+                diff.x += judge->_current.rect.x;
+                diff.y += judge->_current.rect.y;
+                if (!noshiftJudge1P[i])
+                {
+                    judge->_current.rect.x -= int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
+                }
+                for (auto& d : combo->_rects)
+                {
+                    d.x += diff.x;
+                    d.y += diff.y;
+                }
             }
-            for (auto& d : combo->_rects)
+            else
             {
-                d.x += diff.x;
-                d.y += diff.y;
+                combo->setHide(true);
             }
         }
         if (gSprites[i + 12] && gSprites[i + 18] && gSprites[i + 12]->_draw && gSprites[i + 18]->_draw)
         {
             std::shared_ptr<SpriteAnimated> judge = std::reinterpret_pointer_cast<SpriteAnimated>(gSprites[i + 12]);
             std::shared_ptr<SpriteNumber> combo = std::reinterpret_pointer_cast<SpriteNumber>(gSprites[i + 18]);
-            Rect diff{ 0,0,0,0 };
-            //diff.x = int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
-            diff.x += judge->_current.rect.x;
-            diff.y += judge->_current.rect.y;
-            if (!noshiftJudge2P[i])
+            if (judge->isDraw())
             {
-                judge->_current.rect.x -= int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
+                combo->setHide(false);
+
+                Rect diff{ 0,0,0,0 };
+                //diff.x = int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
+                diff.x += judge->_current.rect.x;
+                diff.y += judge->_current.rect.y;
+                if (!noshiftJudge2P[i])
+                {
+                    judge->_current.rect.x -= int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
+                }
+                for (auto& d : combo->_rects)
+                {
+                    d.x += diff.x;
+                    d.y += diff.y;
+                }
             }
-            for (auto& d : combo->_rects)
+            else
             {
-                d.x += diff.x;
-                d.y += diff.y;
+                combo->setHide(true);
             }
         }
     }
 
     // update songlist bar
+    std::shared_lock<std::shared_mutex> u(gSelectContext._mutex, std::try_to_lock); // read lock
+    if (u.owns_lock())
     {
-        // read lock
-        std::shared_lock<std::shared_mutex> u(gSelectContext._mutex);
         for (auto& s : _barSprites) s->update(t);
-    }
 
-    // update songlist position
-    if (hasBarAnimOrigin && gSelectContext.scrollDirection != 0 && !gSelectContext.entries.empty())
-    {
-        for (size_t i = 1; i + 1 < _barSprites.size(); ++i)
+        // update songlist position
+        if (hasBarAnimOrigin && gSelectContext.scrollDirection != 0 && !gSelectContext.entries.empty())
         {
-            if (!_barSpriteAdded[i]) continue;
-
-            double posNow = gSliders.get(eSlider::SELECT_LIST) * gSelectContext.entries.size();
-
-            double decimal = posNow - (int)posNow;
-            if (decimal <= 0.5 && _barSprites[i - 1]->isDraw())
+            for (size_t i = 1; i + 1 < _barSprites.size(); ++i)
             {
-                double factor = decimal;
-                auto& rectStored = _barAnimOrigin[i - 1];
-                auto& rectSprite = _barSprites[i]->_current.rect;
-                Rect dr{
-                    static_cast<int>(std::round((rectStored.x - rectSprite.x) * factor)),
-                    static_cast<int>(std::round((rectStored.y - rectSprite.y) * factor)),
-                    0, 0
-                };
-                _barSprites[i]->setRectOffset(dr);
-            }
-            else if (_barSprites[i + 1]->isDraw())
-            {
-                double factor = -decimal + 1.0;
-                auto& rectStored = _barAnimOrigin[i + 1];
-                auto& rectSprite = _barSprites[i]->_current.rect;
-                Rect dr{
-                    static_cast<int>(std::round((rectStored.x - rectSprite.x) * factor)),
-                    static_cast<int>(std::round((rectStored.y - rectSprite.y) * factor)),
-                    0, 0
-                };
-                _barSprites[i]->setRectOffset(dr);
+                if (!_barSpriteAdded[i]) continue;
+
+                double posNow = gSliders.get(eSlider::SELECT_LIST) * gSelectContext.entries.size();
+
+                double decimal = posNow - (int)posNow;
+                if (decimal <= 0.5 && _barSprites[i - 1]->isDraw())
+                {
+                    double factor = decimal;
+                    auto& rectStored = _barAnimOrigin[i - 1];
+                    auto& rectSprite = _barSprites[i]->_current.rect;
+                    Rect dr{
+                        static_cast<int>(std::round((rectStored.x - rectSprite.x) * factor)),
+                        static_cast<int>(std::round((rectStored.y - rectSprite.y) * factor)),
+                        0, 0
+                    };
+                    _barSprites[i]->setRectOffset(dr);
+                }
+                else if (_barSprites[i + 1]->isDraw())
+                {
+                    double factor = -decimal + 1.0;
+                    auto& rectStored = _barAnimOrigin[i + 1];
+                    auto& rectSprite = _barSprites[i]->_current.rect;
+                    Rect dr{
+                        static_cast<int>(std::round((rectStored.x - rectSprite.x) * factor)),
+                        static_cast<int>(std::round((rectStored.y - rectSprite.y) * factor)),
+                        0, 0
+                    };
+                    _barSprites[i]->setRectOffset(dr);
+                }
             }
         }
     }

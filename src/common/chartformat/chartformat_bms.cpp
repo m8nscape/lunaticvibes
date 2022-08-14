@@ -2,7 +2,6 @@
 #include "common/log.h"
 #include <iostream>
 #include <fstream>
-#include <regex>
 #include <set>
 #include <utility>
 #include <exception>
@@ -10,6 +9,7 @@
 #include <numeric>
 #include <random>
 #include "db/db_song.h"
+#include "re2/re2.h"
 
 class noteLineException : public std::exception {};
 
@@ -102,7 +102,6 @@ int BMS::initWithFile(const Path& file)
 
     // 拉面早就看出bms有多难读，直接鸽了我5年
 
-    StringContent buf;
     unsigned srcLine = 0;
 
     // #RANDOM related parameters
@@ -116,38 +115,19 @@ int BMS::initWithFile(const Path& file)
 
     while (!bmsFile.eof())
     {
-        std::getline(bmsFile, buf, '\n');
+        StringContent lineBuf;
+        std::getline(bmsFile, lineBuf, '\n');
         srcLine++;
-        if (buf.length() <= 1) continue;
+        if (lineBuf.length() <= 1) continue;
 
         // remove not needed spaces
-        buf = buf.substr(buf.find_first_not_of(' '),  buf.find_first_of('\r') - buf.find_first_not_of(' '));
+        lineBuf = lineBuf.substr(lineBuf.find_first_not_of(' '), lineBuf.find_first_of('\r') - lineBuf.find_first_not_of(' '));
 
         // convert codepage
-        buf = to_utf8(buf, encoding);
+        lineBuf = to_utf8(lineBuf, encoding);
 
+        StringContentView buf(lineBuf);
         if (buf[0] != '#') continue;
-
-        // skip comments
-        bool skip = false;
-        static const std::vector<std::regex> skipRegex
-        {
-            std::regex(R"(\*-.*)", prebuiltRegexFlags),     // *-
-            std::regex(R"(\/\/.*)", prebuiltRegexFlags),    // //
-            std::regex(R"(;.*)", prebuiltRegexFlags),       // ;
-            std::regex(R"(#BPM00 .*)", prebuiltRegexFlags),
-            std::regex(R"(#STOP00 .*)", prebuiltRegexFlags),
-            std::regex(R"(#BMP00 .*)", prebuiltRegexFlags),
-        };
-        for (auto& reg : skipRegex)
-        {
-            if (std::regex_match(buf, reg))
-            {
-                skip = true;
-                break;
-            }
-        }
-        if (skip) continue;
 
         // parsing
         try
@@ -172,7 +152,7 @@ int BMS::initWithFile(const Path& file)
 
             if (space_idx > 1 && strEqual(buf.substr(0, 7), "#RANDOM", true))
             {
-                StringContent value = space_idx < buf.length() ? buf.substr(space_idx + 1) : "";
+                StringContentView value = space_idx < buf.length() ? buf.substr(space_idx + 1) : "";
                 int iValue = toInt(value);
                 if (iValue == 0)
                 {
@@ -201,8 +181,8 @@ int BMS::initWithFile(const Path& file)
                 // read IF headers outside of blocks
                 if (space_idx > 1)
                 {
-                    StringContent key = buf.substr(1, space_idx - 1);
-                    StringContent value = space_idx < buf.length() ? buf.substr(space_idx + 1) : "";
+                    StringContentView key = buf.substr(1, space_idx - 1);
+                    StringContentView value = space_idx < buf.length() ? buf.substr(space_idx + 1) : "";
                     if (strEqual(key, "IF", true))
                     {
                         int ifBlockValue = toInt(value);
@@ -263,20 +243,20 @@ int BMS::initWithFile(const Path& file)
                     continue;
             }
 
-            static const std::regex regexNotes = std::regex(R"(\d{3}[0-9A-Za-z]{2}:)", prebuiltRegexFlags);
             bool isNoteDef = false;
-            if (!std::regex_match(buf.substr(1, 6), regexNotes))
+            static LazyRE2 regexNote{ R"(#[\d]{3}[0-9A-Za-z]{2}:.*)" };
+            if (!RE2::FullMatch(re2::StringPiece(buf.data(), buf.length()), *regexNote))
             {
                 auto space_idx = std::min(buf.length(), buf.find_first_of(' '));
                 if (space_idx <= 1) continue;
 
-                StringContent key = buf.substr(1, space_idx - 1);
-                StringContent value = space_idx < buf.length() ? buf.substr(space_idx + 1) : "";
+                StringContentView key = buf.substr(1, space_idx - 1);
+                StringContentView value = space_idx < buf.length() ? buf.substr(space_idx + 1) : "";
 
-                static const std::regex regexWav = std::regex(R"(WAV[0-9A-Za-z]{1,2})", prebuiltRegexFlags);
-                static const std::regex regexBga = std::regex(R"(BMP[0-9A-Za-z]{1,2})", prebuiltRegexFlags);
-                static const std::regex regexBpm = std::regex(R"(BPM[0-9A-Za-z]{1,2})", prebuiltRegexFlags);
-                static const std::regex regexStop = std::regex(R"(STOP[0-9A-Za-z]{1,2})", prebuiltRegexFlags);
+                static LazyRE2 regexWav{ R"((?i)WAV[0-9A-Za-z]{1,2})" };
+                static LazyRE2 regexBga{ R"((?i)BMP[0-9A-Za-z]{1,2})" };
+                static LazyRE2 regexBpm{ R"((?i)BPM[0-9A-Za-z]{1,2})" };
+                static LazyRE2 regexStop{ R"((?i)STOP[0-9A-Za-z]{1,2})" };
 
                 if (value.empty()) continue;
 
@@ -326,36 +306,39 @@ int BMS::initWithFile(const Path& file)
                 }
 
                 // #xxx00
-                else if (std::regex_match(key, regexWav))
+                else if (RE2::FullMatch(re2::StringPiece(key.data(), key.length()), *regexWav))
                 {
                     int idx = base36(key[3], key[4]);
                     wavFiles[idx].assign(value.begin(), value.end());
                 }
-                else if (std::regex_match(key, regexBga))
+                else if (RE2::FullMatch(re2::StringPiece(key.data(), key.length()), *regexBga))
                 {
                     int idx = base36(key[3], key[4]);
-                    bgaFiles[idx].assign(value.begin(), value.end());
+                    if (idx != 0)
+                        bgaFiles[idx].assign(value.begin(), value.end());
                 }
-                else if (std::regex_match(key, regexBpm))
+                else if (RE2::FullMatch(re2::StringPiece(key.data(), key.length()), *regexBpm))
                 {
                     int idx = base36(key[3], key[4]);
-                    exBPM[idx] = toDouble(value);
+                    if (idx != 0)
+                        exBPM[idx] = toDouble(value);
                 }
-                else if (std::regex_match(key, regexStop))
+                else if (RE2::FullMatch(re2::StringPiece(key.data(), key.length()), *regexStop))
                 {
                     int idx = base36(key[4], key[5]);
-                    stop[idx] = toDouble(value);
+                    if (idx != 0)
+                        stop[idx] = toDouble(value);
                 }
 
                 // unknown
                 else
-                    extraCommands[key] = StringContent(value.begin(), value.end());
+                    extraCommands[std::string(key)] = StringContent(value.begin(), value.end());
             }
             else
             {
                 auto colon_idx = buf.find_first_of(':');
-                StringContent key = buf.substr(1, 5);
-                StringContent value = buf.substr(7);
+                StringContentView key = buf.substr(1, 5);
+                StringContentView value = buf.substr(7);
 
                 if (value.empty())
                 {
@@ -524,21 +507,19 @@ int BMS::initWithFile(const Path& file)
     // implicit subtitle
     if (title2.empty())
     {
-        static const std::vector<std::regex> subTitleRegex
+        static const LazyRE2 subTitleRegex[]
         {
-            std::regex(R"((.+) *(-.*?-))", prebuiltRegexFlags),
-            std::regex(R"((.+) *(〜.*?〜))", prebuiltRegexFlags),
-            std::regex(R"((.+) *(\(.*?\)))", prebuiltRegexFlags),
-            std::regex(R"((.+) *(\[.*?\]))", prebuiltRegexFlags),
-            std::regex(R"((.+) *(<.*?>))", prebuiltRegexFlags),
+            { R"((.+) *(-.*?-))" },
+            { R"((.+) *(〜.*?〜))" },
+            { R"((.+) *(\(.*?\)))" },
+            { R"((.+) *(\[.*?\]))" },
+            { R"((.+) *(<.*?>))" },
         };
         for (auto& reg : subTitleRegex)
         {
-            std::smatch sm;
-            if (std::regex_match(title, sm, reg))
+            std::string title1, title2;
+            if (RE2::FullMatch(title, *reg, &title1, &title2))
             {
-                title2 = sm[2].str();
-                title = sm[1].str();
                 break;
             }
         }
@@ -547,18 +528,18 @@ int BMS::initWithFile(const Path& file)
     // implicit difficulty
     if (!hasDifficulty)
     {
-        static const std::vector<std::regex> difficultyRegex
+        static const LazyRE2 difficultyRegex[]
         {
-            std::regex(""),
-            std::regex(R"((easy|beginner|light))", prebuiltRegexFlags),
-            std::regex(R"((normal|standard))", prebuiltRegexFlags),
-            std::regex(R"((hard|hyper))", prebuiltRegexFlags),
-            std::regex(R"((ex|another|insane))", prebuiltRegexFlags),
+            { "" },
+            { R"((?i)(easy|beginner|light))" },
+            { R"((?i)(normal|standard))" },
+            { R"((?i)(hard|hyper))" },
+            { R"((?i)(ex|another|insane|lunatic|maniac))" },
         };
         difficulty = -1;
         for (int i = 1; i <= 4; ++i)
         {
-            if (std::regex_search(title2, difficultyRegex[i]))
+            if (RE2::PartialMatch(title2, *difficultyRegex[i]))
                 difficulty = i;
         }
         if (difficulty == -1)
@@ -642,36 +623,55 @@ int BMS::initWithFile(const Path& file)
     if (haveNote)
     {
         for (int area = 0; area < 2; ++area)
-            for (const auto& ch : chNotesRegular.lanes[area])
+        {
+            for (unsigned bar = 0; bar <= lastBarIdx; bar++)
             {
-                notes_scratch += ch[0].notes.size();
-
-                for (unsigned bar = 1; bar <= lastBarIdx; bar++)
-                    notes_total += ch[bar].notes.size();
+                notes_scratch += chNotesRegular.lanes[area][0][bar].notes.size();
             }
+
+            for (size_t lane = 1; lane < chNotesRegular.lanes[area].size(); ++lane)
+            {
+                for (unsigned bar = 0; bar <= lastBarIdx; bar++)
+                {
+                    notes_key += chNotesRegular.lanes[area][lane][bar].notes.size();
+                }
+            }
+        }
+        notes_total += notes_scratch + notes_key;
     }
 
     if (haveLN)
     {
         for (int area = 0; area < 2; ++area)
-            for (const auto& ch : chNotesLN.lanes[area])
+        {
+            for (unsigned bar = 0; bar <= lastBarIdx; bar++)
             {
-                notes_scratch_ln += ch[0].notes.size();
-
-                for (unsigned bar = 1; bar <= lastBarIdx; bar++)
-                    notes_key_ln += ch[bar].notes.size();
+                notes_scratch_ln += chNotesLN.lanes[area][0][bar].notes.size();
             }
-        notes_total += notes_key_ln / 2;
+
+            for (size_t lane = 1; lane < chNotesRegular.lanes[area].size(); ++lane)
+            {
+                for (unsigned bar = 0; bar <= lastBarIdx; bar++)
+                {
+                    notes_key_ln += chNotesLN.lanes[area][lane][bar].notes.size();
+                }
+            }
+        }
+        notes_total += (notes_scratch_ln + notes_key_ln) / 2;
     }
 
     if (haveMine)
     {
         for (int area = 0; area < 2; ++area)
+        {
             for (const auto& ch : chMines.lanes[area])
             {
                 for (unsigned bar = 0; bar <= lastBarIdx; bar++)
+                {
                     notes_mine += ch[bar].notes.size();
+                }
             }
+        }
     }
 
     minBPM = bpm;
@@ -770,7 +770,7 @@ int BMS::initWithFile(const Path& file)
     return 0;
 }
 
-int BMS::strToLane36(channel& ch, const StringContent& str)
+int BMS::strToLane36(channel& ch, StringContentView str)
 {
     //if (str.length() % 2 != 0)
     //    throw new noteLineException;
@@ -802,8 +802,12 @@ int BMS::strToLane36(channel& ch, const StringContent& str)
 
     return 0;
 }
+int BMS::strToLane36(channel& ch, const StringContent& str)
+{
+    return strToLane36(ch, StringContentView(str));
+}
 
-int BMS::strToLane16(channel& ch, const StringContent& str)
+int BMS::strToLane16(channel& ch, StringContentView str)
 {
     //if (str.length() % 2 != 0)
     //    throw new noteLineException;
@@ -834,6 +838,10 @@ int BMS::strToLane16(channel& ch, const StringContent& str)
     ch.sortNotes();
 
     return 0;
+}
+int BMS::strToLane16(channel& ch, const StringContent& str)
+{
+    return strToLane16(ch, StringContentView(str));
 }
 
 std::pair<int, int> BMS::normalizeIndexesBME(int layer, int ch)

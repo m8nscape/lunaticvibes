@@ -90,6 +90,7 @@ struct PlayContextParams
     double Hispeed = 2.0;
 
     // BATTLE 2P side settings
+    bool isBattle = false;  // Note: DB is NOT Battle
     double battle2PHispeed = 2.0;
     bool battle2PLanecover = false;
     int battle2PLanecoverTop = 0;
@@ -98,6 +99,7 @@ struct PlayContextParams
     int battle2PGreenNumber = 1200;
 };
 
+std::pair<bool, Option::e_lamp_type> getSaveScoreType();
 void clearContextPlayForRetry();
 void clearContextPlay();
 void pushGraphPoints();

@@ -22,6 +22,7 @@ set_target_properties(common PROPERTIES
 
 target_link_libraries(common 
     PUBLIC plog
+    PUBLIC re2
 )
 
 target_precompile_headers(common PUBLIC pch.h)

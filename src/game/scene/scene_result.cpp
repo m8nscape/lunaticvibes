@@ -6,7 +6,7 @@
 #include "game/sound/sound_mgr.h"
 #include "game/sound/sound_sample.h"
 
-SceneResult::SceneResult(ePlayMode gamemode) : vScene(eMode::RESULT, 1000), _playmode(gamemode)
+SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
 {
     _scene = eScene::RESULT;
 
@@ -139,9 +139,23 @@ SceneResult::SceneResult(ePlayMode gamemode) : vScene(eMode::RESULT, 1000), _pla
     // Moved to play
     //gSwitches.set(eSwitch::RESULT_CLEAR, cleared);
 
-    if (_playmode != ePlayMode::LOCAL_BATTLE && !gChartContext.hash.empty())
+    _pScoreOld = g_pScoreDB->getChartScoreBMS(gChartContext.hash);
+
+    auto& [saveScoreTmp, saveLampTmp] = getSaveScoreType();
+    saveScore = saveScoreTmp;
+    switch (saveLampTmp)
     {
-        _pScoreOld = g_pScoreDB->getChartScoreBMS(gChartContext.hash);
+    case Option::e_lamp_type::LAMP_NOPLAY:      saveLamp = ScoreBMS::Lamp::NOPLAY; break;
+    case Option::e_lamp_type::LAMP_FAILED:      saveLamp = ScoreBMS::Lamp::FAILED; break;
+    case Option::e_lamp_type::LAMP_ASSIST:      saveLamp = ScoreBMS::Lamp::ASSIST; break;
+    case Option::e_lamp_type::LAMP_EASY:        saveLamp = ScoreBMS::Lamp::EASY; break;
+    case Option::e_lamp_type::LAMP_NORMAL:      saveLamp = ScoreBMS::Lamp::NORMAL; break;
+    case Option::e_lamp_type::LAMP_HARD:        saveLamp = ScoreBMS::Lamp::HARD; break;
+    case Option::e_lamp_type::LAMP_EXHARD:      saveLamp = ScoreBMS::Lamp::EXHARD; break;
+    case Option::e_lamp_type::LAMP_FULLCOMBO:   saveLamp = ScoreBMS::Lamp::FULLCOMBO; break;
+    case Option::e_lamp_type::LAMP_PERFECT:     saveLamp = ScoreBMS::Lamp::PERFECT; break;
+    case Option::e_lamp_type::LAMP_MAX:         saveLamp = ScoreBMS::Lamp::MAX; break;
+    default: assert(false); break;
     }
 
     using namespace std::placeholders;
@@ -161,13 +175,18 @@ SceneResult::SceneResult(ePlayMode gamemode) : vScene(eMode::RESULT, 1000), _pla
 
 ////////////////////////////////////////////////////////////////////////////////
 
+SceneResult::~SceneResult()
+{
+    _input.loopEnd();
+    loopEnd();
+}
+
 void SceneResult::_updateAsync()
 {
     if (gNextScene != eScene::RESULT) return;
 
     if (gAppIsExiting)
     {
-        _skin->stopSpriteVideoUpdate();
         gNextScene = eScene::EXIT_TRANS;
     }
 
@@ -215,6 +234,12 @@ void SceneResult::updateRecord()
 {
     auto t = Time();
     auto rt = t - gTimers.get(eTimer::SCENE_START);
+
+    // TODO sync score in online mode?
+    if (true)
+    {
+        _scoreSyncFinished = true;
+    }
 }
 
 void SceneResult::updateFadeout()
@@ -228,7 +253,7 @@ void SceneResult::updateFadeout()
         SoundMgr::stopNoteSamples();
 
         // save score
-        if (_playmode != ePlayMode::LOCAL_BATTLE && !gChartContext.hash.empty() && gSelectContext.pitchSpeed >= 1.0)
+        if (saveScore && !gChartContext.hash.empty())
         {
             assert(gPlayContext.ruleset[PLAYER_SLOT_1P] != nullptr);
             ScoreBMS score;
@@ -236,7 +261,7 @@ void SceneResult::updateFadeout()
             auto& chart = gPlayContext.chartObj[PLAYER_SLOT_1P];
             auto& ruleset = gPlayContext.ruleset[PLAYER_SLOT_1P];
             auto& data = ruleset->getData();
-            score.notes = chart->getNoteCount();
+            score.notes = chart->getNoteTotalCount();
             score.score = data.score;
             score.rate = data.total_acc;
             score.fast = data.fast;
@@ -289,6 +314,7 @@ void SceneResult::updateFadeout()
                 {
                     score.lamp = ScoreBMS::Lamp::FAILED;
                 }
+                score.lamp = std::min(score.lamp, saveLamp);
 
                 score.pgreat = rBMS->getJudgeCount(RulesetBMS::JudgeType::PERFECT);
                 score.great = rBMS->getJudgeCount(RulesetBMS::JudgeType::GREAT);
@@ -310,13 +336,11 @@ void SceneResult::updateFadeout()
         if (_retryRequested && gPlayContext.canRetry)
         {
             clearContextPlayForRetry();
-            _skin->stopSpriteVideoUpdate();
             gNextScene = eScene::PLAY;
         }
         else
         {
             clearContextPlay();
-            _skin->stopSpriteVideoUpdate();
             gNextScene = gQuitOnFinish ? eScene::EXIT : eScene::SELECT;
         }
     }
@@ -341,15 +365,24 @@ void SceneResult::inputGamePress(InputMask& m, const Time& t)
             break;
 
         case eResultState::STOP:
-            gTimers.set(eTimer::RESULT_HIGHSCORE_START, t.norm());
-            // TODO stop result sound
-            // TODO play record sound
-            _state = eResultState::RECORD;
-            LOG_DEBUG << "[Result] State changed to RECORD";
+            if (saveScore)
+            {
+                gTimers.set(eTimer::RESULT_HIGHSCORE_START, t.norm());
+                // TODO stop result sound
+                // TODO play record sound
+                _state = eResultState::RECORD;
+                LOG_DEBUG << "[Result] State changed to RECORD";
+            }
+            else
+            {
+                gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
+                _state = eResultState::FADEOUT;
+                LOG_DEBUG << "[Result] State changed to FADEOUT";
+            }
             break;
 
         case eResultState::RECORD:
-            if (_scoreSyncFinished || true) // debug
+            if (_scoreSyncFinished)
             {
                 gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
                 _state = eResultState::FADEOUT;

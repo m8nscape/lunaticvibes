@@ -27,12 +27,9 @@ private:
     InputMask _inputAvailable;
     std::vector<size_t> _currentKeySample;
 
-private:
-    ePlayMode _playmode;
 protected:
-    bool isPlaymodeSinglePlay() const;
+    bool isPlaymodeDP() const;
     bool isPlaymodeBattle() const;
-    bool isPlaymodeAuto() const;
 
 private:
     bool _isExitingFromPlay = false;
@@ -46,13 +43,14 @@ private:
     std::array<int, 2>      _ttAngleTime{ 0 };
     std::array<double, 2>   _ttAngleDiff{ 0 };
 
-    std::array<double, 2>   _scratchSpeed{ 0 };
     std::array<AxisDir, 2>  _scratchDir{ 0 };
     std::array<Time, 2>     _scratchLastUpdate{ TIMER_NEVER, TIMER_NEVER };
+    std::array<double, 2>   _scratchAccumulator = { 0, 0 };
 
     std::array<bool, 2>     _lanecoverEnabled{ false };
     std::array<bool, 2>     _lockspeedEnabled{ false };
     std::array<double, 2>   _lockspeedValue{ 0 };
+    std::array<int, 2>      _lockspeedGreenNumber{ 0 };
 
     std::array<int, 2>      _hispeedAdd{ 0 };
     std::array<int, 2>      _lanecoverAdd{ 0 };
@@ -63,12 +61,7 @@ private:
 
 public:
     ScenePlay();
-	virtual ~ScenePlay()
-	{
-		sceneEnding = true; 
-		if (_loadChartFuture.valid()) 
-			_loadChartFuture.wait();
-	}
+    virtual ~ScenePlay();
 
 protected:
     void setTempInitialHealthBMS();

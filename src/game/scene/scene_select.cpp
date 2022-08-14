@@ -251,9 +251,14 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
     gSelectContext.isGoingToReplay = false;
     gSwitches.set(eSwitch::SYSTEM_AUTOPLAY, false);
 
+    auto& [score, lamp] = getSaveScoreType();
+    gSwitches.set(eSwitch::CHART_CAN_SAVE_SCORE, score);
+    gOptions.set(eOption::CHART_SAVE_LAMP_TYPE, lamp);
+
     _state = eSelectState::PREPARE;
     _updateCallback = std::bind(&SceneSelect::updatePrepare, this);
 
+    SoundMgr::stopNoteSamples();
     SoundMgr::stopSysSamples();
     SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::BGM_SELECT);
 
@@ -269,6 +274,9 @@ SceneSelect::~SceneSelect()
     config_freq();
     config_fx();
     ConfigMgr::save();
+
+    _input.loopEnd();
+    loopEnd();
 }
 
 void SceneSelect::_updateAsync()
@@ -277,57 +285,64 @@ void SceneSelect::_updateAsync()
 
     if (gAppIsExiting)
     {
-        _input.loopEnd();
-        _skin->stopSpriteVideoUpdate();
         gNextScene = eScene::EXIT_TRANS;
     }
 
+    _updateCallback();
+
     if (!gSelectContext.entries.empty() && scrollAccumulator != 0.0)
     {
-        Time t;
-        if (scrollAccumulator > 0 && scrollAccumulator + scrollAccumulatorAddUnit < 0 ||
-            scrollAccumulator < 0 && scrollAccumulator + scrollAccumulatorAddUnit > 0 ||
-            -0.000001 < scrollAccumulator && scrollAccumulator < 0.000001)
         {
-            gSliders.set(eSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.idx / gSelectContext.entries.size()));
-            scrollAccumulator = 0.0;
-            scrollAccumulatorAddUnit = 0.0;
-            gSelectContext.scrollDirection = 0;
-            _skin->reset_bar_animation();
-            gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());
-            gSelectContext.scrollTimeLength = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_INITIAL, 300);
-        }
-        else
-        {
-            if (gSelectContext.scrollDirection == 0)
+            std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
+
+            Time t;
+            if (!(isHoldingUp || isHoldingDown) &&
+                (scrollAccumulator > 0 && scrollAccumulator - scrollAccumulatorAddUnit < 0 ||
+                    scrollAccumulator < 0 && scrollAccumulator - scrollAccumulatorAddUnit > 0 ||
+                    -0.000001 < scrollAccumulator && scrollAccumulator < 0.000001 ||
+                    scrollAccumulator * scrollAccumulatorAddUnit < 0))
             {
-                _skin->start_bar_animation();
+                gSliders.set(eSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.idx / gSelectContext.entries.size()));
+                scrollAccumulator = 0.0;
+                scrollAccumulatorAddUnit = 0.0;
+                gSelectContext.scrollDirection = 0;
+                _skin->reset_bar_animation();
+                gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());
+                gSelectContext.scrollTimeLength = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_INITIAL, 300);
             }
-
-            double posOld = gSliders.get(eSlider::SELECT_LIST);
-            double posNew = posOld + scrollAccumulatorAddUnit / gSelectContext.entries.size();
-
-            int idxOld = (int)std::round(posOld * gSelectContext.entries.size());
-            int idxNew = (int)std::round(posNew * gSelectContext.entries.size());
-            if (idxOld != idxNew)
+            else
             {
-                if (idxOld < idxNew)
-                    _navigateDownBy1(t);
-                else
-                    _navigateUpBy1(t);
+                if (gSelectContext.scrollDirection == 0)
+                {
+                    _skin->start_bar_animation();
+                }
+
+                double posOld = gSliders.get(eSlider::SELECT_LIST);
+                double posNew = posOld + scrollAccumulatorAddUnit / gSelectContext.entries.size();
+
+                int idxOld = (int)std::round(posOld * gSelectContext.entries.size());
+                int idxNew = (int)std::round(posNew * gSelectContext.entries.size());
+                if (idxOld != idxNew)
+                {
+                    if (idxOld < idxNew)
+                        _navigateDownBy1(t);
+                    else
+                        _navigateUpBy1(t);
+                }
+
+                while (posNew < 0.) posNew += 1.;
+                while (posNew >= 1.) posNew -= 1.;
+                gSliders.set(eSlider::SELECT_LIST, posNew);
+
+                scrollAccumulator -= scrollAccumulatorAddUnit;
+
+                gSelectContext.scrollDirection = scrollAccumulator > 0. ? 1 : -1;
             }
-
-            while (posNew < 0.) posNew += 1.;
-            while (posNew >= 1.) posNew -= 1.;
-            gSliders.set(eSlider::SELECT_LIST, posNew);
-
-            scrollAccumulator -= scrollAccumulatorAddUnit;
-
-            gSelectContext.scrollDirection = scrollAccumulator > 0. ? 1 : -1;
         }
+
+        setDynamicTextures();
     }
-    
-    _updateCallback();
+
 }
 
 void SceneSelect::updatePrepare()
@@ -453,8 +468,6 @@ void SceneSelect::updateFadeout()
 
     if (ft >= _skin->info.timeOutro)
     {
-        _input.loopEnd();
-        _skin->stopSpriteVideoUpdate();
         if (gSelectContext.isGoingToKeyConfig)
         {
             SoundMgr::stopSysSamples();
@@ -467,7 +480,6 @@ void SceneSelect::updateFadeout()
         }
         else
         {
-            _input.loopEnd();
             SoundMgr::stopSysSamples();
             gNextScene = eScene::EXIT_TRANS;
         }
@@ -514,7 +526,6 @@ void SceneSelect::inputGamePress(InputMask& m, const Time& t)
         if (!hasPanelOpened)
         {
             LOG_DEBUG << "[Select] ESC";
-            _skin->stopSpriteVideoUpdate();
             gNextScene = eScene::EXIT_TRANS;
             return;
         }
@@ -847,7 +858,7 @@ void SceneSelect::inputGameReleaseSelect(InputMask& input, const Time& t)
 
 void SceneSelect::inputGameAxisSelect(double s1, double s2, const Time& t)
 {
-    double s = (s1 + s2) * 50.0;
+    double s = (s1 + s2) * 75.0;
     if (s <= -0.01 || 0.01 <= s)
     {
         scrollAccumulator += s;
@@ -931,6 +942,13 @@ void SceneSelect::_decide()
     {
         gPlayContext.canRetry = false;
         gPlayContext.isAuto = true;
+    }
+    switch (gOptions.get(eOption::PLAY_BATTLE_TYPE))
+    {
+    case Option::BATTLE_OFF:
+    case Option::BATTLE_DB:     gPlayContext.isBattle = false; break;
+    case Option::BATTLE_LOCAL:
+    case Option::BATTLE_GHOST:  gPlayContext.isBattle = true; break;
     }
 
     if (entry->type() == eEntryType::COURSE)
@@ -1041,19 +1059,34 @@ void SceneSelect::_decide()
         c.startBPM = chart.startBPM;
 
         // set gamemode
-        // FIXME 2P battle
-        // FIXME DP battle
         if (c.chartObj->type() == eChartFormat::BMS)
         {
             auto pBMS = std::reinterpret_pointer_cast<BMS_prop>(c.chartObj);
             switch (pBMS->gamemode)
             {
-            case 5: gPlayContext.mode = eMode::PLAY5; break;
-            case 7: gPlayContext.mode = eMode::PLAY7; break;
-            case 9: gPlayContext.mode = eMode::PLAY9; break;
+            case 5:  gPlayContext.mode = eMode::PLAY5;  break;
+            case 7:  gPlayContext.mode = eMode::PLAY7;  break;
+            case 9:  gPlayContext.mode = eMode::PLAY9;  break;
             case 10: gPlayContext.mode = eMode::PLAY10; break;
             case 14: gPlayContext.mode = eMode::PLAY14; break;
-            default: gPlayContext.mode = eMode::PLAY7; break;
+            default: gPlayContext.mode = eMode::PLAY7;  break;
+            }
+            switch (gOptions.get(eOption::PLAY_BATTLE_TYPE))
+            {
+            case Option::BATTLE_OFF:   gOptions.set(eOption::PLAY_MODE, (unsigned)ePlayMode::SINGLE_PLAYER); break;
+            case Option::BATTLE_LOCAL: gOptions.set(eOption::PLAY_MODE, (unsigned)ePlayMode::LOCAL_BATTLE); break;
+            case Option::BATTLE_GHOST: gOptions.set(eOption::PLAY_MODE, (unsigned)ePlayMode::GHOST_BATTLE); break;
+            case Option::BATTLE_DB:    gOptions.set(eOption::PLAY_MODE, (unsigned)ePlayMode::SINGLE_PLAYER); break;
+            default: assert(false);    gOptions.set(eOption::PLAY_MODE, (unsigned)ePlayMode::SINGLE_PLAYER); break;
+            }
+            if (gOptions.get(eOption::PLAY_BATTLE_TYPE) == Option::BATTLE_DB)
+            {
+                switch (pBMS->gamemode)
+                {
+                case 5:  gPlayContext.mode = eMode::PLAY10;  break;
+                case 7:  gPlayContext.mode = eMode::PLAY14;  break;
+                default: break;
+                }
             }
         }
 
@@ -1097,7 +1130,6 @@ void SceneSelect::_decide()
         break;
     }
 
-    _skin->stopSpriteVideoUpdate();
     gNextScene = eScene::DECIDE;
 }
 
@@ -1338,8 +1370,6 @@ void SceneSelect::_navigateUpBy1(const Time& t)
 
     if (!gSelectContext.entries.empty())
     {
-        std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
-
         gSelectContext.idx = (gSelectContext.entries.size() + gSelectContext.idx - 1) % gSelectContext.entries.size();
 
         setBarInfo();
@@ -1348,7 +1378,6 @@ void SceneSelect::_navigateUpBy1(const Time& t)
         gTimers.set(eTimer::LIST_MOVE, t.norm());
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
     }
-    setDynamicTextures();
 }
 
 void SceneSelect::_navigateDownBy1(const Time& t)
@@ -1358,8 +1387,6 @@ void SceneSelect::_navigateDownBy1(const Time& t)
 
     if (!gSelectContext.entries.empty())
     {
-        std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
-
         gSelectContext.idx = (gSelectContext.idx + 1) % gSelectContext.entries.size();
 
         setBarInfo();
@@ -1368,7 +1395,6 @@ void SceneSelect::_navigateDownBy1(const Time& t)
         gTimers.set(eTimer::LIST_MOVE, t.norm());
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
     }
-    setDynamicTextures();
 }
 
 void SceneSelect::_navigateEnter(const Time& t)

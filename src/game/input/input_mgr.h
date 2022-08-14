@@ -37,6 +37,7 @@ public:
     static void updateDevices();
     static void updateBindings(GameModeKeys keys, Input::Pad K);
     static void updateDeadzones();
+    static double getDeadzone(Input::Pad k);
     static std::bitset<Input::KEY_COUNT> detect();
 	static bool getMousePos(int& x, int& y);
     static bool getScratchPos(double& s1, double& s2);

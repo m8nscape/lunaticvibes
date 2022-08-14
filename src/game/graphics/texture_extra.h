@@ -13,7 +13,6 @@
 class TextureVideo : public Texture
 {
 protected:
-	AsyncLooper looper;
 	std::shared_ptr<sVideo> pVideo;
 	unsigned decoded_frames = ~0;
 	PixelFormat format;
@@ -38,6 +37,14 @@ public:
 		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point& center) const;
 
 	void stopUpdate();
+
+private:
+	static std::shared_ptr<std::shared_mutex> texMapMutex;
+	static std::shared_ptr<std::map<uintptr_t, TextureVideo*>> textures;
+	std::shared_ptr<std::shared_mutex> pTexMapMutex;	// ref counter guard
+	std::shared_ptr<std::map<uintptr_t, TextureVideo*>> pTextures;	// ref counter guard
+public:
+	static void updateAll();
 };
 
 #endif
@@ -48,6 +55,7 @@ class chartBMS;
 class TextureBmsBga: public Texture
 {
 protected:
+	mutable std::shared_mutex idxLock;
 	size_t baseIdx = INDEX_INVALID;
 	size_t layerIdx = INDEX_INVALID;
 	size_t poorIdx = INDEX_INVALID;
@@ -91,11 +99,11 @@ public:
 	}
 	virtual ~TextureBmsBga()
 	{
-		int i = 1;
+		stopUpdate();
 	}
 
 public:
-	bool addBmp(size_t idx, const Path& path);
+	bool addBmp(size_t idx, Path path);
 	bool setSlot(size_t idx, Time time, bool base, bool layer, bool poor);
 	void sortSlot();
 	bool setSlotFromBMS(chartBMS& bms);

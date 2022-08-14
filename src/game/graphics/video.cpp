@@ -107,6 +107,8 @@ int sVideo::setVideo(const Path& file, bool loop)
 int sVideo::unsetVideo()
 {
 	haveVideo = false;
+	finished = false;
+	firstFrame = true;
 	if (pPacket) av_packet_free(&pPacket);
 	if (pFrame) av_frame_free(&pFrame);
 	if (pCodecCtx) avcodec_free_context(&pCodecCtx);
@@ -134,8 +136,8 @@ Texture::PixelFormat sVideo::getFormat()
 void sVideo::startPlaying()
 {
 	if (playing) return;
+	if (finished) return;
 	playing = true;
-	setVideo(file, loop_playback);	// start video from the beginning
 	startTime = std::chrono::system_clock::now();
 	decodeEnd = std::async(std::launch::async, std::bind(&sVideo::decodeLoop, this));
 }
@@ -145,6 +147,7 @@ void sVideo::stopPlaying()
 	if (!playing) return;
 	playing = false;
 	decodeEnd.wait();
+	seek(0);
 }
 
 void sVideo::decodeLoop()
@@ -221,10 +224,19 @@ void sVideo::decodeLoop()
 					valid = true;
 				}
 
-				auto frameTime_ms = decltype(std::declval<std::chrono::milliseconds>().count())(std::round(pFrame1->pts / tsps * 1000));
-				if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - startTime).count() < frameTime_ms)
+				using namespace std::chrono;
+				auto frameTime_ms = long long(std::round(pFrame1->pts / tsps * 1000));	// TODO set playback speed
+				if (firstFrame)
 				{
-					std::this_thread::sleep_until(startTime + std::chrono::milliseconds(frameTime_ms));
+					firstFrame = false;
+					startTime -= milliseconds(frameTime_ms);
+				}
+				else
+				{
+					if (duration_cast<milliseconds>(system_clock::now() - startTime).count() < frameTime_ms)
+					{
+						std::this_thread::sleep_until(startTime + milliseconds(frameTime_ms));
+					}
 				}
 			}
 			decoded_frames = pCodecCtx->frame_number;
@@ -252,7 +264,7 @@ void sVideo::decodeLoop()
 				}
 				if (pFrame1->pts >= 0)
 				{
-					std::lock_guard l(video_frame_mutex);
+					std::unique_lock l(video_frame_mutex);
 
 					av_frame_unref(pFrame);
 					av_frame_ref(pFrame, pFrame1);
@@ -262,6 +274,7 @@ void sVideo::decodeLoop()
 			}
 
 			playing = false;
+			finished = true;
 		}
 
 	} while (playing);
@@ -272,6 +285,8 @@ void sVideo::decodeLoop()
 void sVideo::seek(int64_t second, bool backwards)
 {
 	if (!haveVideo) return;
+	if (second == 0) 
+		firstFrame = true;
 
 	// timestamps per second
 	double tsps = pFormatCtx->streams[videoIndex]->time_base.num == 0 ? 
@@ -279,6 +294,7 @@ void sVideo::seek(int64_t second, bool backwards)
 
 	if (int ret = av_seek_frame(pFormatCtx, videoIndex, int64_t(std::round(second / tsps)), backwards ? AVSEEK_FLAG_BACKWARD : 0); ret >= 0)
 	{
+		finished = false;
 		avcodec_flush_buffers(pCodecCtx);
 	}
 	else

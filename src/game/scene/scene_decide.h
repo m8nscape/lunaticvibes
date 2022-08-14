@@ -17,7 +17,7 @@ private:
 
 public:
     SceneDecide();
-    virtual ~SceneDecide() = default;
+    virtual ~SceneDecide();
 
 protected:
     // Looper callbacks

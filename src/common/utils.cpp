@@ -8,6 +8,7 @@
 #include <charconv>
 #include <regex>
 #include <chrono>
+#include "re2/re2.h"
 
 #ifdef WIN32
 #include <Windows.h>
@@ -16,23 +17,23 @@
 #include <openssl/md5.h>
 #endif
 
-static const std::vector<std::pair<std::basic_regex<StringPath::value_type>, StringPath>> path_replace_pattern
+static const std::pair<RE2, re2::StringPiece> path_replace_pattern[]
 {
-    { std::basic_regex<StringPath::value_type>("\\\\"_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "\\\\"_p},
-    { std::basic_regex<StringPath::value_type>("\\^"_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "\\^"_p}, 
-    { std::basic_regex<StringPath::value_type>("\\."_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "\\."_p}, 
-    { std::basic_regex<StringPath::value_type>("\\$"_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "\\$"_p}, 
-    { std::basic_regex<StringPath::value_type>("\\|"_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "\\|"_p}, 
-    { std::basic_regex<StringPath::value_type>("\\("_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "\\("_p}, 
-    { std::basic_regex<StringPath::value_type>("\\)"_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "\\)"_p}, 
-    { std::basic_regex<StringPath::value_type>("\\{"_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "\\{"_p}, 
-    { std::basic_regex<StringPath::value_type>("\\{"_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "\\{"_p}, 
-    { std::basic_regex<StringPath::value_type>("\\["_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "\\["_p}, 
-    { std::basic_regex<StringPath::value_type>("\\]"_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "\\]"_p}, 
-    { std::basic_regex<StringPath::value_type>("\\+"_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "\\+"_p}, 
-    { std::basic_regex<StringPath::value_type>("\\/"_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "\\/"_p}, 
-    { std::basic_regex<StringPath::value_type>("\\?"_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), "."_p}, 
-    { std::basic_regex<StringPath::value_type>("\\*"_p, std::regex_constants::ECMAScript | std::regex_constants::optimize), ".*"_p}, 
+    {"\\\\", "\\\\\\\\"},
+    {"\\^", "\\\\^"},
+    {"\\.", "\\\\."},
+    {"\\$", "\\\\$"},
+    {"\\|", "\\\\|"},
+    {"\\(", "\\\\("},
+    {"\\)", "\\\\)"},
+    {"\\{", "\\\\{"},
+    {"\\{", "\\\\{"},
+    {"\\[", "\\\\["},
+    {"\\]", "\\\\]"},
+    {"\\+", "\\\\+"},
+    {"\\/", "\\\\/"},
+    {"\\?", "."},
+    {"\\*", ".*"},
 };
 
 std::vector<Path> findFiles(Path p)
@@ -53,16 +54,19 @@ std::vector<Path> findFiles(Path p)
     {
         pstr = pstr.substr(pstr[folder.length() - 1] == Path::preferred_separator ? folder.length() : folder.length() + 1);
 
+        std::string str = Path(pstr).u8string();
         for (const auto& [in, out] : path_replace_pattern)
         {
-            pstr = std::regex_replace(pstr, in, out);
+            RE2::GlobalReplace(&str, in, out);
         }
 
-        auto pathRegex = std::basic_regex<StringPath::value_type>(pstr, std::regex_constants::extended | std::regex_constants::optimize);
+        auto pathRegex = RE2(str);
         for (auto& f : fs::recursive_directory_iterator(folder))
         {
-            if (f.path().has_filename() && f.path().filename().native()[0] != '.' && std::regex_match(f.path().native(), pathRegex))
+            if (f.path().filename().u8string().substr(0, 2) != "._" && RE2::FullMatch(f.path().u8string(), pathRegex))
+            {
                 res.push_back(f.path());
+            }
         }
     }
 

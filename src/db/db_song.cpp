@@ -300,7 +300,7 @@ int SongDB::addChart(const HashMD5& folder, const Path& path)
                 c->minBPM,
                 c->maxBPM,
                 s->getTotalLength().norm() / 1000,
-                static_cast<int>(s->getNoteCount()),
+                static_cast<int>(s->getNoteTotalCount()),
                 c->stagefile,
                 c->banner,
                 bmsc->gamemode,

@@ -9,6 +9,7 @@ void ConfigGeneral::setDefaults() noexcept
 	set(A_BUFLEN, 256);
 	set(V_RES_X, CANVAS_WIDTH);
 	set(V_RES_Y, CANVAS_HEIGHT);
+	set(V_RES_SUPERSAMPLE, 1);
 	set(V_DISPLAY_RES_X, CANVAS_WIDTH);
 	set(V_DISPLAY_RES_Y, CANVAS_HEIGHT);
 	set(V_WINMODE, V_WINMODE_WINDOWED);

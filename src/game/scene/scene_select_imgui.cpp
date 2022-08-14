@@ -21,16 +21,35 @@ void SceneSelect::_imguiInit()
 
     _imguiRefreshVideoResolutionList();
     auto resolutionY = ConfigMgr::get("V", cfg::V_RES_Y, CANVAS_HEIGHT);
-    if (resolutionY == 720)
-        imgui_video_resolution_index = 1;
-    else if (resolutionY == 1080)
-        imgui_video_resolution_index = 2;
-    else if (resolutionY == 1440)
-        imgui_video_resolution_index = 3;
-    else if (resolutionY == 2160)
-        imgui_video_resolution_index = 4;
-    else
-        imgui_video_resolution_index = 0;
+    auto ss = ConfigMgr::get("V", cfg::V_RES_SUPERSAMPLE, 1);
+    imgui_video_resolution_index = 0;
+    switch (resolutionY)
+    {
+    case 480:
+    default:
+        switch (ss)
+        {
+        case 1: imgui_video_resolution_index = 0; break;
+        case 2: imgui_video_resolution_index = 3; break;
+        case 3: imgui_video_resolution_index = 4; break;
+        }
+        break;
+    case 720:
+        switch (ss)
+        {
+        case 1: imgui_video_resolution_index = 1; break;
+        case 2: imgui_video_resolution_index = 5; break;
+        case 3: imgui_video_resolution_index = 6; break;
+        }
+        break;
+    case 1080:
+        switch (ss)
+        {
+        case 1: imgui_video_resolution_index = 2; break;
+        case 2: imgui_video_resolution_index = 7; break;
+        }
+        break;
+    }
     old_video_resolution_index = imgui_video_resolution_index;
 
     _imguiRefreshVideoDisplayResolutionList();
@@ -286,6 +305,11 @@ void SceneSelect::_imguiRefreshVideoResolutionList()
     imgui_video_resolution.push_back("480p SD (640x480)");
     imgui_video_resolution.push_back("720p HD (1280x720)");
     imgui_video_resolution.push_back("1080p FHD (1920x1080)");
+    imgui_video_resolution.push_back("480p SD 2xSS (1280x960)");
+    imgui_video_resolution.push_back("480p SD 3xSS (1920x1440)");
+    imgui_video_resolution.push_back("720p HD 2xSS (2560x1440)");
+    imgui_video_resolution.push_back("720p HD 3xSS (3840x2160)");
+    imgui_video_resolution.push_back("1080p FHD 2xSS (3840x2160)");
     //imgui_video_resolution.push_back("2K WQHD (2560x1440)");
     //imgui_video_resolution.push_back("4K UHD (3840x2160)");
     for (const auto& r : imgui_video_resolution)
@@ -334,17 +358,21 @@ void SceneSelect::_imguiCheckSettings()
     if (imgui_video_resolution_index != old_video_resolution_index)
     {
         old_video_resolution_index = imgui_video_resolution_index;
-        int x, y;
+        int x, y, ss;
         switch (imgui_video_resolution_index)
         {
-        case 0: x = 640; y = 480; break;
-        case 1: x = 1280; y = 720; break;
-        case 2: x = 1920; y = 1080; break;
-        case 3: x = 2560; y = 1440; break;
-        case 4: x = 3840; y = 2160; break;
+        case 0: x = 640;  y = 480;  ss = 1; break;
+        case 1: x = 1280; y = 720;  ss = 1; break;
+        case 2: x = 1920; y = 1080; ss = 1; break;
+        case 3: x = 640;  y = 480;  ss = 2; break;
+        case 4: x = 640;  y = 480;  ss = 3; break;
+        case 5: x = 1280; y = 720;  ss = 2; break;
+        case 6: x = 1280; y = 720;  ss = 3; break;
+        case 7: x = 1920; y = 1080; ss = 2; break;
         }
         ConfigMgr::set("V", cfg::V_RES_X, x);
         ConfigMgr::set("V", cfg::V_RES_Y, y);
+        ConfigMgr::set("V", cfg::V_RES_SUPERSAMPLE, ss);
     }
     if (imgui_video_display_resolution_index != old_video_display_resolution_index)
     {
@@ -486,10 +514,12 @@ bool SceneSelect::_imguiApplyResolution()
     windowH = ConfigMgr::get("V", cfg::V_DISPLAY_RES_Y, CANVAS_HEIGHT);
     renderW = ConfigMgr::get("V", cfg::V_RES_X, CANVAS_WIDTH);
     renderH = ConfigMgr::get("V", cfg::V_RES_Y, CANVAS_HEIGHT);
+    int ss = ConfigMgr::get("V", cfg::V_RES_SUPERSAMPLE, 1);
 
     graphics_change_window_mode(imgui_video_mode);
-    graphics_resize_canvas(renderW, renderH);
     graphics_resize_window(windowW, windowH);
+    graphics_set_supersample_level(ss);
+    graphics_resize_canvas(renderW, renderH);
     graphics_change_vsync(imgui_video_vsync);
 
     return true;

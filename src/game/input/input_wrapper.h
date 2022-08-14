@@ -34,14 +34,14 @@ inline const InputMask INPUT_MASK_2P    { "0000000000000000000000000000000000011
 // Mouse:                                  DU54321
 inline const InputMask INPUT_MASK_MOUSE { "1111111000000000000000000000000000000000000000000000000000000000000" };
                                                   
-//                                                                              2P: 9 7 5 3 1  1P: 9 7 5 3 1  
-inline const InputMask INPUT_MASK_DECIDE{ "0000000010000000000000000000000000000000101010101000000010101010100" };
-//                                                                              2P:  8 6 4 2   1P:  8 6 4 2
-inline const InputMask INPUT_MASK_CANCEL{ "0000000100000000000000000000000000000000010101010000000001010101000" };
-//                                                         < ^                  2P:           S1P:           S
-inline const InputMask INPUT_MASK_NAV_UP{ "0000000000000000101000000000000000000000000000000010000000000000001" };
-//                                                        > v                   2P:          S 1P:          S
-inline const InputMask INPUT_MASK_NAV_DN{ "0000000000000001010000000000000000000000000000000100000000000000010" };
+//                                                 Return >                     2P: 9 7 5 3 1  1P: 9 7 5 3 1  
+inline const InputMask INPUT_MASK_DECIDE{ "0000000010000001000000000000000000000000010101010100000010101010100" };
+//                                                Bksp     <                    2P:  8 6 4 2   1P:  8 6 4 2
+inline const InputMask INPUT_MASK_CANCEL{ "0000000100000000100000000000000000000000001010101000000001010101000" };
+//                                                           ^                  2P:           S1P:           S
+inline const InputMask INPUT_MASK_NAV_UP{ "0000000000000000001000000000000000000000000000000001000000000000001" };
+//                                                          v                   2P:          S 1P:          S
+inline const InputMask INPUT_MASK_NAV_DN{ "0000000000000000010000000000000000000000000000000010000000000000010" };
 
 // InputWrapper
 //  Start a process to check input upon 1000hz polling.
@@ -64,6 +64,7 @@ protected:
     InputMask _prev = 0;
     InputMask _curr = 0;
 
+    bool scratchAxisSet = false;
     double scratchAxisPrev[2] = { 0. };
     double scratchAxisCurr[2] = { 0. };
 

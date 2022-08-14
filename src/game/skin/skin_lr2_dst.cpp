@@ -228,11 +228,11 @@ void updateDstOpt()
 	// 66 DEATH/P-ATTACKゲージ （仕様書では「フルコンのみ」）
 	{
 		using namespace Option;
-		set(62, dst(eOption::CHART_CAN_SAVE_LAMP, { LAMP_NOPLAY, LAMP_FAILED }));
-		set(63, dst(eOption::CHART_CAN_SAVE_LAMP, { LAMP_ASSIST, LAMP_EASY }));
-		set(64, dst(eOption::CHART_CAN_SAVE_LAMP, LAMP_NORMAL));
-		set(65, dst(eOption::CHART_CAN_SAVE_LAMP, { LAMP_HARD, LAMP_EXHARD }));
-		set(66, dst(eOption::CHART_CAN_SAVE_LAMP, { LAMP_FULLCOMBO, LAMP_PERFECT, LAMP_MAX }));
+		set(62, dst(eOption::CHART_SAVE_LAMP_TYPE, { LAMP_NOPLAY, LAMP_FAILED }));
+		set(63, dst(eOption::CHART_SAVE_LAMP_TYPE, { LAMP_ASSIST, LAMP_EASY }));
+		set(64, dst(eOption::CHART_SAVE_LAMP_TYPE, LAMP_NORMAL));
+		set(65, dst(eOption::CHART_SAVE_LAMP_TYPE, { LAMP_HARD, LAMP_EXHARD }));
+		set(66, dst(eOption::CHART_SAVE_LAMP_TYPE, { LAMP_FULLCOMBO, LAMP_PERFECT, LAMP_MAX }));
 	}
 
 	// 70 同フォルダbeginnerのレベルが規定値を越えていない(5/10keysはLV9、7/14keysはLV12、9keysはLV42以内)
@@ -297,7 +297,6 @@ void updateDstOpt()
 		using namespace Option;
 		switch (gOptions.get(eOption::SELECT_ENTRY_LAMP))
 		{
-		case LAMP_NOT_APPLICIABLE: break;
 		case LAMP_NOPLAY: set(100); break;
 		case LAMP_FAILED: set(101); break;
 		case LAMP_ASSIST:
