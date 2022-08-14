@@ -51,13 +51,13 @@ public:
     std::string hexdigest() const { return bin2hex(data, _Len); }
 
     template <size_t _Len2>
-    bool operator<(const Hash<_Len2>& rhs) { return hexdigest() < rhs.hexdigest(); }
+    bool operator<(const Hash<_Len2>& rhs) const { return hexdigest() < rhs.hexdigest(); }
     template <size_t _Len2>
-    bool operator>(const Hash<_Len2>& rhs) { return hexdigest() > rhs.hexdigest(); }
+    bool operator>(const Hash<_Len2>& rhs) const { return hexdigest() > rhs.hexdigest(); }
     template <size_t _Len2>
-    bool operator==(const Hash<_Len2>& rhs) { return _Len == _Len2 && hexdigest() == rhs.hexdigest(); }
+    bool operator==(const Hash<_Len2>& rhs) const { return _Len == _Len2 && hexdigest() == rhs.hexdigest(); }
     template <size_t _Len2>
-    bool operator!=(const Hash<_Len2>& rhs) { return _Len != _Len2 || hexdigest() != rhs.hexdigest(); }
+    bool operator!=(const Hash<_Len2>& rhs) const { return _Len != _Len2 || hexdigest() != rhs.hexdigest(); }
 
 };
 
