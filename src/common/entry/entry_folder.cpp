@@ -4,6 +4,7 @@
 vFolder::vFolder(eFolderType t, HashMD5 md5, const Path& path): _path(path)
 {
     this->md5 = md5;
+    this->_ftype = t;
     switch (t)
     {
     case eFolderType::FOLDER: 

@@ -786,7 +786,7 @@ FolderRegular SongDB::browse(HashMD5 root, bool recursive)
             auto md5 = ANY_STR(c[0]);
             auto parent = ANY_STR(c[1]);
             auto name = ANY_STR(c[2]);
-            auto type = ANY_INT(c[3]);
+            auto type = (FolderType) ANY_INT(c[3]);
             auto path = ANY_STR(c[4]);
 
             switch (type)
