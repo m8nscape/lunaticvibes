@@ -1354,7 +1354,7 @@ bool SceneSelect::checkAndStartTextEdit()
                 return true;
             }
         }
-        else
+        else if (isInTextEdit())
         {
             stopTextEdit(false);
             return false;
