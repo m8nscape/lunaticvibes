@@ -776,10 +776,13 @@ void difficulty(int diff, int plus)
 {
     gOptions.set(eOption::SELECT_FILTER_DIFF, diff);
 
-    loadSongList();
-    sortSongList();
-    setBarInfo();
-    setEntryInfo();
+    {
+        std::unique_lock l(gSelectContext._mutex);
+        loadSongList();
+        sortSongList();
+        setBarInfo();
+        setEntryInfo();
+    }
 
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_DIFFICULTY);
 }
