@@ -106,9 +106,12 @@ void vScene::update()
 
     if (_skin)
     {
+        // update skin
         _skin->update();
         auto [x, y] = _input.getCursorPos();
         _skin->update_mouse(x, y);
+
+        checkAndStartTextEdit();
     }
 
     std::unique_lock lock(gOverlayContext._mutex);
@@ -286,4 +289,32 @@ void vScene::DebugToggle(InputMask& p, const Time& t)
     }
 #endif
 
+}
+
+bool vScene::isInTextEdit() const
+{
+    return inTextEdit;
+}
+
+eText vScene::textEditType() const
+{
+    return inTextEdit ? _skin->textEditType() : eText::INVALID;
+}
+
+void vScene::startTextEdit(bool clear)
+{
+    if (_skin)
+    {
+        _skin->startTextEdit(clear);
+        inTextEdit = true;
+    }
+}
+
+void vScene::stopTextEdit(bool modify)
+{
+    if (_skin)
+    {
+        inTextEdit = false;
+        _skin->stopTextEdit(modify);
+    }
 }

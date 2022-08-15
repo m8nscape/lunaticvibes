@@ -34,7 +34,7 @@ protected:
     eSkinType _type;
     vSkin();
 public:
-	virtual ~vSkin() = default;
+	virtual ~vSkin();
     eSkinType type() const { return _type; }
 
 protected:
@@ -65,6 +65,8 @@ protected:
     std::list<std::map<Rect, pSprite>> _mouseCursorAreaMap;
 
     std::shared_ptr<iSpriteMouse> _pDragging = nullptr;  // currently (mouse) dragging element
+    std::shared_ptr<SpriteText> _pEditing = nullptr;     // currently text edit element
+    std::shared_ptr<iSpriteMouse> _pLastClick = nullptr; 
 
 ////////////////////////////////////////////////////////////////////////////////
 public:
@@ -79,6 +81,11 @@ public:
     void setHandleMouseEvents(bool b) { _handleMouseEvents = b; }
     void startSpriteVideoPlayback();
     void stopSpriteVideoPlayback();
+
+    bool textEditSpriteClicked() const;
+    eText textEditType() const;
+    void startTextEdit(bool clear);
+    void stopTextEdit(bool modify);
 
     ///////////////////////////////////////////////////////////
     // Info defined by header

@@ -1287,13 +1287,15 @@ ParseRet SkinLR2::SRC_TEXT()
     if (LR2FontNameMap.find(font) != LR2FontNameMap.end() && LR2FontNameMap[font] != nullptr)
     {
         auto& pf = LR2FontNameMap[font];
-        _sprites.push_back(std::make_shared<SpriteImageText>(
-            pf->T_texture, pf->R, (eText)d.st, (TextAlign)d.align, pf->S, pf->M));
+        auto ps = std::make_shared<SpriteImageText>(pf->T_texture, pf->R, (eText)d.st, (TextAlign)d.align, pf->S, pf->M);
+        if (d.edit) ps->setEditable(true);
+        _sprites.push_back(ps);
     }
     else
     {
-        _sprites.push_back(std::make_shared<SpriteText>(
-            _fontNameMap[std::to_string(d.font)], (eText)d.st, (TextAlign)d.align));
+        auto ps = std::make_shared<SpriteText>(_fontNameMap[std::to_string(d.font)], (eText)d.st, (TextAlign)d.align);
+        if (d.edit) ps->setEditable(true);
+        _sprites.push_back(ps);
     }
 
     _sprites.back()->setSrcLine(csvLineNumber);

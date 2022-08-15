@@ -514,10 +514,53 @@ void SpriteText::setInputBindingText(std::string&& text, const Color& c)
     }
 }
 
+bool SpriteText::OnClick(int x, int y)
+{
+    if (!_editable) return false;
+    if (_current.rect.x <= x && x < _current.rect.x + _current.rect.w &&
+        _current.rect.y <= y && y < _current.rect.y + _current.rect.h)
+    {
+        return true;
+    }
+    return false;
+}
+
+void SpriteText::startEditing(bool clear)
+{
+    using namespace std::placeholders;
+    if (!_editing)
+    {
+        _editing = true;
+        _textBeforeEdit = gTexts.get(_textInd);
+        _textAfterEdit = (clear ? "" : _currText);
+        startTextInput(_current.rect, _textAfterEdit, std::bind(&SpriteText::EditUpdateText, this, _1));
+    }
+}
+
+void SpriteText::stopEditing(bool modify)
+{
+    if (_editing)
+    {
+        stopTextInput();
+        _editing = false;
+        gTexts.set(_textInd, (modify ? _textAfterEdit : _textBeforeEdit));
+        updateText();
+    }
+}
+
+void SpriteText::EditUpdateText(const std::string& text)
+{
+    _textAfterEdit = text;
+    gTexts.set(_textInd, text + "|");
+    updateText();
+}
+
 void SpriteText::draw() const
 {
-	if (!_hide && _draw && _pTexture)
-		SpriteStatic::draw();
+    if (!_hide && _draw && _pTexture)
+    {
+        SpriteStatic::draw();
+    }
 }
 
 

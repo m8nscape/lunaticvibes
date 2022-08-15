@@ -14,7 +14,15 @@ vSkin::vSkin()
     _textureNameMap["STAGEFILE"] = std::shared_ptr<Texture>(&gChartContext.texStagefile, [](Texture*) {});
     _textureNameMap["BACKBMP"] = std::shared_ptr<Texture>(&gChartContext.texBackbmp, [](Texture*) {});
     _textureNameMap["BANNER"] = std::shared_ptr<Texture>(&gChartContext.texBanner, [](Texture*) {});
+}
 
+vSkin::~vSkin()
+{
+    if (_pEditing)
+    {
+        _pEditing->stopEditing(false);
+        _pEditing = nullptr;
+    }
 }
 
 void vSkin::update()
@@ -84,6 +92,8 @@ void vSkin::update_mouse_click(int x, int y)
 
     // sprite inserted last has priority
     bool invoked = false;
+    bool invokedText = false;
+    _pLastClick = nullptr;
     for (auto it = _sprites.rbegin(); it != _sprites.rend() && !invoked; ++it)
     {
         if (!(*it)->isHidden())
@@ -93,13 +103,21 @@ void vSkin::update_mouse_click(int x, int y)
             {
                 if (pS->OnClick(x, y))
                 {
+                    if (std::dynamic_pointer_cast<SpriteText>(*it))
+                    {
+                        if (_pEditing)
+                        {
+                            _pEditing->stopEditing(false);
+                        }
+                        _pEditing = std::reinterpret_pointer_cast<SpriteText>(*it);
+                    }
                     invoked = true;
                     _pDragging = pS;
+                    _pLastClick = pS;
                 }
             }
         }
     }
-
 }
 
 void vSkin::update_mouse_drag(int x, int y)
@@ -149,4 +167,31 @@ void vSkin::stopSpriteVideoPlayback()
         }
     }
 #endif
+}
+
+bool vSkin::textEditSpriteClicked() const
+{
+    return _pEditing != nullptr && _pEditing == _pLastClick;
+}
+
+eText vSkin::textEditType() const
+{
+    return _pEditing ? _pEditing->getInd() : eText::INVALID;
+}
+
+void vSkin::startTextEdit(bool clear)
+{
+    if (_pEditing)
+    {
+        _pEditing->startEditing(clear);
+    }
+}
+
+void vSkin::stopTextEdit(bool modify)
+{
+    if (_pEditing)
+    {
+        _pEditing->stopEditing(modify);
+        _pEditing = nullptr;
+    }
 }

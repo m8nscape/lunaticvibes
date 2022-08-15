@@ -48,6 +48,7 @@ int graphics_init()
         }
         */
         SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
+        SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
 
         Uint32 flags = SDL_WINDOW_OPENGL;
 #ifdef _DEBUG
@@ -287,6 +288,7 @@ void graphics_resize_canvas(int x, int y)
 double graphics_get_canvas_scale_x() { return canvasScaleX; }
 double graphics_get_canvas_scale_y() { return canvasScaleY; }
 
+
 void graphics_set_maxfps(int fps)
 {
     maxFPS = fps;
@@ -296,7 +298,16 @@ void graphics_set_maxfps(int fps)
     }
 }
 
+///////////////////////////////////////////////////////////////////////////
+
 extern bool gEventQuit;
+
+static bool isEditing = false;
+static std::string textBuf, textBufSuffix;
+void funEditing(const SDL_TextEditingEvent& e);
+void funInput(const SDL_TextInputEvent& e);
+void funKeyDown(const SDL_KeyboardEvent& e);
+
 void event_handle()
 {
     SDL_Event e;
@@ -335,6 +346,19 @@ void event_handle()
                 break;
             }
             break;
+
+        case SDL_TEXTINPUT:
+            if (isEditing) funInput(e.text);
+            break;
+
+        case SDL_TEXTEDITING:
+            if (isEditing) funEditing(e.edit);
+            break;
+
+        case SDL_KEYDOWN:
+            if (isEditing) funKeyDown(e.key);
+            break;
+
         default:
             break;
         }
@@ -348,6 +372,100 @@ void ImGuiNewFrame()
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
     SDL_SetRenderTarget(gFrameRenderer, gInternalRenderTarget);
+}
+
+static std::function<void(const std::string&)> funUpdateText;
+void startTextInput(const Rect& textBox, const std::string& oldText, std::function<void(const std::string&)> funUpdateText)
+{
+    textBuf = oldText;
+    textBuf.reserve(32);
+
+    ::funUpdateText = funUpdateText;
+
+    SDL_Rect r;
+    r.x = textBox.x;
+    r.y = textBox.y;
+    r.w = textBox.w;
+    r.h = textBox.h;
+    SDL_SetTextInputRect(&r);
+    SDL_StartTextInput();
+    isEditing = true;
+
+    funUpdateText(textBuf);
+}
+
+void stopTextInput()
+{
+    isEditing = false;
+    funUpdateText = [](const std::string&) {};
+    SDL_StopTextInput();
+}
+
+
+void funEditing(const SDL_TextEditingEvent& e)
+{
+    LOG_DEBUG << "Editing " << e.start << " " << e.length << " " << e.text;
+    if (strlen(e.text) == 0)
+    {
+        textBuf += textBufSuffix;
+        textBufSuffix.clear();
+        funUpdateText(textBuf);
+    }
+    else
+    {
+        if (e.length > 0)
+        {
+            textBufSuffix = textBuf.substr(e.start + e.length);
+            textBuf.erase(e.start, textBuf.npos);
+        }
+        funUpdateText(textBuf + e.text + textBufSuffix);
+    }
+}
+
+void funInput(const SDL_TextInputEvent& e)
+{
+    LOG_DEBUG << "Input " << e.text;
+    textBuf = textBuf + e.text + textBufSuffix;
+    textBufSuffix.clear();
+    funUpdateText(textBuf);
+}
+
+void funKeyDown(const SDL_KeyboardEvent& e)
+{
+    LOG_DEBUG << "KeyDown " << e.keysym.sym << " Keymod " << e.keysym.mod;
+    if (e.keysym.mod & (KMOD_LCTRL | KMOD_RCTRL))
+    {
+        switch (e.keysym.sym)
+        {
+        case SDLK_v:
+        {
+            std::stringstream ss;
+            char* pText = SDL_GetClipboardText();
+            ss << pText;
+            SDL_free(pText);
+            std::string textLine;
+            std::getline(ss, textLine);
+            textBuf += textLine;
+            funUpdateText(textBuf + textBufSuffix);
+            break;
+        }
+        }
+    }
+    else
+    {
+        switch (e.keysym.sym)
+        {
+        case SDLK_BACKSPACE:
+            if (textBufSuffix.empty() && !textBuf.empty())
+            {
+                std::u32string textTmp = utf8_to_utf32(textBuf);
+                textTmp.erase(textTmp.length() - 1, 1);
+                textBuf = utf32_to_utf8(textTmp);
+                funUpdateText(textBuf + textBufSuffix);
+            }
+            break;
+        }
+    }
 }
 
 #endif

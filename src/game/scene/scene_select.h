@@ -84,6 +84,12 @@ private:
     void _navigateSongBack(const Time& t);
     bool _closeAllPanels(const Time& t);
 
+protected:
+    virtual bool checkAndStartTextEdit() override;
+    void inputGamePressTextEdit(InputMask&, const Time&);
+    virtual void stopTextEdit(bool modify) override;
+    void resetJukeboxText();
+
 private:
     void _imguiInit();
 

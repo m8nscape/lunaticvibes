@@ -246,6 +246,8 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
         sortSongList();
         setBarInfo();
         setEntryInfo();
+
+        resetJukeboxText();
     }
 
     switch (gOptions.get(eOption::SELECT_FILTER_KEYS))
@@ -529,6 +531,12 @@ void SceneSelect::inputGamePress(InputMask& m, const Time& t)
     if (rt.norm() < _skin->info.timeIntro) return;
 
     using namespace Input;
+
+    if (isInTextEdit())
+    {
+        inputGamePressTextEdit(m, t);
+        return;
+    }
 
     if (m[Input::Pad::F9])
     {
@@ -950,8 +958,8 @@ void SceneSelect::inputGameReleasePanel(InputMask& input, const Time& t)
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CLOSE);
         return;
     }
-
 }
+
 
 void SceneSelect::_decide()
 {
@@ -1236,6 +1244,9 @@ void SceneSelect::_navigateEnter(const Time& t)
             {
                 gSliders.set(eSlider::SELECT_LIST, 0.0);
             }
+
+            resetJukeboxText();
+
             scrollAccumulator = 0.;
             scrollAccumulatorAddUnit = 0.;
 
@@ -1277,6 +1288,9 @@ void SceneSelect::_navigateBack(const Time& t)
             {
                 gSliders.set(eSlider::SELECT_LIST, 0.0);
             }
+
+            resetJukeboxText();
+
             scrollAccumulator = 0.;
             scrollAccumulatorAddUnit = 0.;
 
@@ -1327,4 +1341,59 @@ bool SceneSelect::_closeAllPanels(const Time& t)
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CLOSE);
     }
     return hasPanelOpened;
+}
+
+
+bool SceneSelect::checkAndStartTextEdit()
+{
+    if (_skin)
+    {
+        if (_skin->textEditSpriteClicked())
+        {
+            if (_skin->textEditType() == eText::EDIT_JUKEBOX_NAME)
+            {
+                startTextEdit(true);
+                return true;
+            }
+        }
+        else
+        {
+            stopTextEdit(false);
+            return false;
+        }
+    }
+    return false;
+}
+
+void SceneSelect::inputGamePressTextEdit(InputMask& input, const Time& t)
+{
+    if (input[Input::Pad::ESC])
+    {
+        stopTextEdit(false);
+    }
+    else if (input[Input::Pad::RETURN])
+    {
+        if (textEditType() == eText::EDIT_JUKEBOX_NAME)
+        {
+            stopTextEdit(true);
+            std::string searchText = gTexts.get(eText::EDIT_JUKEBOX_NAME);
+            LOG_DEBUG << "Search: " << searchText;
+            // TODO start search
+        }
+    }
+}
+
+void SceneSelect::stopTextEdit(bool modify)
+{
+    vScene::stopTextEdit(modify);
+    if (!modify)
+        resetJukeboxText();
+}
+
+void SceneSelect::resetJukeboxText()
+{
+    if (gSelectContext.backtrace.top().name.empty())
+        gTexts.set(eText::EDIT_JUKEBOX_NAME, "SEARCH SONG");
+    else
+        gTexts.set(eText::EDIT_JUKEBOX_NAME, gSelectContext.backtrace.top().name);
 }

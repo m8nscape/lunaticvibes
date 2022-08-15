@@ -41,6 +41,8 @@ protected:
 
 public:
 	bool sceneEnding = false;
+    bool inTextEdit = false;
+    std::string textBeforeEdit;
 
 public:
     vScene() = delete;
@@ -64,6 +66,12 @@ protected:
 
     virtual void _updateImgui();
     void DebugToggle(InputMask& m, const Time& t);
+
+    bool isInTextEdit() const;
+    eText textEditType() const;
+    virtual bool checkAndStartTextEdit() { return false; }
+    virtual void startTextEdit(bool clear);
+    virtual void stopTextEdit(bool modify);
 };
 
 

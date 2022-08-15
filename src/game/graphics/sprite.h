@@ -250,7 +250,7 @@ typedef std::shared_ptr<TTFFont> pFont;
 
 // Text sprite:
 // TTFFont contains Texture object
-class SpriteText: public SpriteStatic
+class SpriteText: public SpriteStatic, public iSpriteMouse
 {
 private:
 	pFont _pFont;
@@ -263,6 +263,10 @@ protected:
 	TextAlign _align;
     //bool _haveRect = false;
 	//Rect _frameRect;
+    bool _editable = false;
+    bool _editing = false;
+    std::string _textBeforeEdit;
+    std::string _textAfterEdit;
 
 public:
     SpriteText() = delete;
@@ -275,8 +279,20 @@ public:
 	virtual bool update(const Time& t);
     virtual void draw() const;
     TextAlign getAlignType() const { return _align; }
+    void setEditable(bool e) { _editable = e; }
 private:
     void setInputBindingText(std::string&& text, const Color& c);
+
+public:
+    virtual void OnMouseMove(int x, int y) {}
+    virtual bool OnClick(int x, int y);
+    virtual bool OnDrag(int x, int y) { return false; }
+
+    bool isEditing() const { return _editing; }
+    void startEditing(bool clear);
+    void stopEditing(bool modify);
+    eText getInd() const { return _textInd; }
+    virtual void EditUpdateText(const std::string& text);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
