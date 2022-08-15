@@ -424,7 +424,6 @@ void funEditing(const SDL_TextEditingEvent& e)
 
 void funInput(const SDL_TextInputEvent& e)
 {
-    LOG_DEBUG << "Input " << e.text;
     textBuf = textBuf + e.text + textBufSuffix;
     textBufSuffix.clear();
     funUpdateText(textBuf);
@@ -432,7 +431,6 @@ void funInput(const SDL_TextInputEvent& e)
 
 void funKeyDown(const SDL_KeyboardEvent& e)
 {
-    LOG_DEBUG << "KeyDown " << e.keysym.sym << " Keymod " << e.keysym.mod;
     if (e.keysym.mod & (KMOD_LCTRL | KMOD_RCTRL))
     {
         switch (e.keysym.sym)
