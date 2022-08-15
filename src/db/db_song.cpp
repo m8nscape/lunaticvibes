@@ -6,6 +6,7 @@
 #include "common/chartformat/chartformat_types.h"
 #include "game/chart/chart_types.h"
 #include "BS_thread_pool.hpp"
+#include "re2/re2.h"
 
 static std::map<SongDB*, BS::thread_pool> DBThreadPool;
 
@@ -18,6 +19,7 @@ const char* CREATE_FOLDER_TABLE_STR =
 "path TEXT NOT NULL,"
 "modtime INTEGER"
 ");";
+static constexpr size_t FOLDER_PARAM_COUNT = 6;
 
 const char* CREATE_SONG_TABLE_STR =
 "CREATE TABLE IF NOT EXISTS song("
@@ -53,6 +55,7 @@ const char* CREATE_SONG_TABLE_STR =
 "addtime INTEGER, "            // 29
 "CONSTRAINT pk_pf PRIMARY KEY (parent,file) "
 ");";
+static constexpr size_t SONG_PARAM_COUNT = 30;
 struct song_all_params
 {
     std::string md5;
@@ -340,64 +343,69 @@ int SongDB::removeChart(const HashMD5& md5)
     return 0;
 }
 
-int pushResult(std::vector<pChart>& list, const std::vector<std::vector<std::any>>& result)
+// search from genre, version, artist, artist2, title, title2
+std::vector<pChart> SongDB::findChartByName(const HashMD5& folder, const std::string& tagRaw, unsigned limit) const
 {
-    int count = 0;
+    LOG_INFO << "[SongDB] Search for songs matching: " << tagRaw;
+
+    std::string tag = tagRaw;
+    static const std::pair<RE2, re2::StringPiece> search_replace_pattern[]
+    {
+        {"%", "\\\\%"},
+        {"_", "\\\\_"},
+    };
+    for (const auto& [in, out] : search_replace_pattern)
+    {
+        RE2::GlobalReplace(&tag, in, out);
+    }
+
+    std::stringstream ss;
+    ss << "SELECT * FROM song WHERE ";
+    if (folder != ROOT_FOLDER_HASH) 
+        ss << "parent=" << folder.hexdigest() << " AND ";
+    ss << "(title   LIKE '%' || ? || '%' ESCAPE '\\' OR "
+        << "title2  LIKE '%' || ? || '%' ESCAPE '\\' OR "
+        << "artist  LIKE '%' || ? || '%' ESCAPE '\\' OR "
+        << "artist2 LIKE '%' || ? || '%' ESCAPE '\\' OR "
+        << "genre   LIKE '%' || ? || '%' ESCAPE '\\' OR "
+        << "version LIKE '%' || ? || '%' ESCAPE '\\' )";
+    if (limit > 0) 
+        ss << " LIMIT " << limit;
+
+    std::string strSql = ss.str();
+    auto result = query(strSql.c_str(), SONG_PARAM_COUNT, {tag, tag, tag, tag, tag, tag});
+
+    std::vector<pChart> ret;
     for (const auto& r : result)
     {
         switch (eChartFormat(ANY_INT(r[3])))
         {
         case eChartFormat::BMS:
         {
-            auto bms = std::make_shared<BMS>();
-            convert_bms(bms, r);
-            list.push_back(bms);
-            ++count;
+            auto p = std::make_shared<BMS_prop>();
+            if (convert_bms(p, r))
+            {
+                if (p->filePath.is_absolute())
+                {
+                    p->absolutePath = p->filePath;
+                    ret.push_back(p);
+                }
+                else
+                {
+                    Path folderPath;
+                    if (0 == getFolderPath(p->folderHash, folderPath))
+                    {
+                        p->absolutePath = folderPath / p->filePath;
+                        ret.push_back(p);
+                    }
+                }
+            }
             break;
         }
 
         default: break;
         }
     }
-    return count;
-}
-
-// search from genre, version, artist, artist2, title, title2
-std::vector<pChart> SongDB::findChartByName(const HashMD5& folder, const std::string& tag, unsigned limit) const
-{
-    LOG_INFO << "[SongDB] Search for songs matching: " << tag;
-
-    decltype(query("", {})) result;
-    if (limit > 0)
-    {
-        result = query(
-"SELECT * FROM song WHERE \
-parent=? AND (\
-INSTR(title, ?) OR \
-INSTR(title2, ?) OR \
-INSTR(artist, ?) OR \
-INSTR(artist2, ?) OR \
-INSTR(genre, ?) OR \
-INSTR(version, ?))\
-LIMIT ?",
-29, { folder, tag, tag, tag, tag, tag, tag, limit });
-    }
-    else
-    {
-        result = query(
-"SELECT * FROM song WHERE \
-parent=? AND (\
-INSTR(title, ?) OR \
-INSTR(title2, ?) OR \
-INSTR(artist, ?) OR \
-INSTR(artist2, ?) OR \
-INSTR(genre, ?) OR \
-INSTR(version, ?))", 
-29, { folder, tag, tag, tag, tag, tag, tag});
-    }
-
-    std::vector<pChart> ret;
-    pushResult(ret, result);
 
     LOG_INFO << "[SongDB] found " << ret.size() << " songs";
     return ret;
@@ -408,10 +416,39 @@ std::vector<pChart> SongDB::findChartByHash(const HashMD5& target) const
 {
     LOG_INFO << "[SongDB] Search for song " << target.hexdigest();
 
-    auto result = query("SELECT * FROM song WHERE md5=?", 29, { target.hexdigest() });
+    auto result = query("SELECT * FROM song WHERE md5=?", SONG_PARAM_COUNT, { target.hexdigest() });
 
     std::vector<pChart> ret;
-    pushResult(ret, result);
+    for (const auto& r : result)
+    {
+        switch (eChartFormat(ANY_INT(r[3])))
+        {
+        case eChartFormat::BMS:
+        {
+            auto p = std::make_shared<BMS_prop>();
+            if (convert_bms(p, r))
+            {
+                if (p->filePath.is_absolute())
+                {
+                    p->absolutePath = p->filePath;
+                    ret.push_back(p);
+                }
+                else
+                {
+                    Path folderPath;
+                    if (0 == getFolderPath(p->folderHash, folderPath))
+                    {
+                        p->absolutePath = folderPath / p->filePath;
+                        ret.push_back(p);
+                    }
+                }
+            }
+            break;
+        }
+
+        default: break;
+        }
+    }
 
     LOG_INFO << "[SongDB] found " << ret.size() << " songs";
     return ret;
@@ -832,7 +869,7 @@ FolderSong SongDB::browseSong(HashMD5 root)
     FolderSong list(root, path);
     bool isNameSet = false;
 
-    auto result = query("SELECT * from song WHERE parent=?", 30, { root.hexdigest() });
+    auto result = query("SELECT * from song WHERE parent=?", SONG_PARAM_COUNT, { root.hexdigest() });
     if (!result.empty())
     {
         for (auto& c : result)
@@ -883,7 +920,9 @@ FolderRegular SongDB::search(HashMD5 root, std::string key)
     FolderRegular list(md5(key), "");
     for (auto& c : findChartByName(root, key))
     {
-        //list.pushChart(c);
+        std::shared_ptr<FolderSong> f = std::make_shared<FolderSong>(HashMD5(), "", c->title, c->title2);
+        f->pushChart(c);
+        list.pushEntry(f);
     }
 
     LOG_DEBUG << "[SongDB] " << list.getContentsCount() << " entries found";

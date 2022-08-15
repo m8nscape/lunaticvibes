@@ -25,7 +25,7 @@ const char* SQLite::errmsg() const { return sqlite3_errmsg(_db); }
 std::vector<std::vector<std::any>> SQLite::query(const char* zsql, size_t retSize, std::initializer_list<std::any> args) const
 {
     memset(lastSql, 0, sizeof(lastSql));
-    strncpy(lastSql, zsql, sizeof(lastSql));
+    strncpy(lastSql, zsql, sizeof(lastSql) - 1);
 
     size_t argc = args.size();
 

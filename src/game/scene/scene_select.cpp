@@ -1269,33 +1269,31 @@ void SceneSelect::_navigateBack(const Time& t)
         std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
 
         auto& top = gSelectContext.backtrace.top();
-        if (!top.parent.empty())
+
+        gSelectContext.idx = 0;
+        gSelectContext.backtrace.pop();
+        auto& parent = gSelectContext.backtrace.top();
+        gSelectContext.entries = parent.displayEntries;
+        gSelectContext.idx = parent.index;
+
+        setBarInfo();
+        setEntryInfo();
+
+        if (!gSelectContext.entries.empty())
         {
-            gSelectContext.idx = 0;
-            gSelectContext.backtrace.pop();
-            auto& parent = gSelectContext.backtrace.top();
-            gSelectContext.entries = parent.displayEntries;
-            gSelectContext.idx = parent.index;
-
-            setBarInfo();
-            setEntryInfo();
-
-            if (!gSelectContext.entries.empty())
-            {
-                gSliders.set(eSlider::SELECT_LIST, (double)gSelectContext.idx / gSelectContext.entries.size());
-            }
-            else
-            {
-                gSliders.set(eSlider::SELECT_LIST, 0.0);
-            }
-
-            resetJukeboxText();
-
-            scrollAccumulator = 0.;
-            scrollAccumulatorAddUnit = 0.;
-
-            SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_CLOSE);
+            gSliders.set(eSlider::SELECT_LIST, (double)gSelectContext.idx / gSelectContext.entries.size());
         }
+        else
+        {
+            gSliders.set(eSlider::SELECT_LIST, 0.0);
+        }
+
+        resetJukeboxText();
+
+        scrollAccumulator = 0.;
+        scrollAccumulatorAddUnit = 0.;
+
+        SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_CLOSE);
     }
     setDynamicTextures();
 }
@@ -1377,8 +1375,7 @@ void SceneSelect::inputGamePressTextEdit(InputMask& input, const Time& t)
         {
             stopTextEdit(true);
             std::string searchText = gTexts.get(eText::EDIT_JUKEBOX_NAME);
-            LOG_DEBUG << "Search: " << searchText;
-            // TODO start search
+            searchSong(searchText);
         }
     }
 }
@@ -1396,4 +1393,57 @@ void SceneSelect::resetJukeboxText()
         gTexts.set(eText::EDIT_JUKEBOX_NAME, "SEARCH SONG");
     else
         gTexts.set(eText::EDIT_JUKEBOX_NAME, gSelectContext.backtrace.top().name);
+}
+
+void SceneSelect::searchSong(const std::string& text)
+{
+    LOG_DEBUG << "Search: " << text;
+
+    auto top = g_pSongDB->search(ROOT_FOLDER_HASH, text);
+    if (top.empty())
+    {
+        gTexts.set(eText::EDIT_JUKEBOX_NAME, "SEARCH FAILED");
+        return;
+    }
+
+    std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
+
+    std::string name = "SEARCH: "s + text + " ("s + std::to_string(top.getContentsCount()) + " entries)"s;
+    SongListProperties prop{
+        "",
+        "",
+        name,
+        {},
+        {},
+        0
+    };
+    for (size_t i = 0; i < top.getContentsCount(); ++i)
+        prop.dbBrowseEntries.push_back({ top.getEntry(i), nullptr });
+
+    gSelectContext.backtrace.top().index = gSelectContext.idx;
+    gSelectContext.backtrace.top().displayEntries = gSelectContext.entries;
+    gSelectContext.backtrace.push(prop);
+    gSelectContext.entries.clear();
+    gSelectContext.idx = 0;
+    loadSongList();
+    sortSongList();
+
+    setBarInfo();
+    setEntryInfo();
+
+    if (!gSelectContext.entries.empty())
+    {
+        gSliders.set(eSlider::SELECT_LIST, (double)gSelectContext.idx / gSelectContext.entries.size());
+    }
+    else
+    {
+        gSliders.set(eSlider::SELECT_LIST, 0.0);
+    }
+
+    resetJukeboxText();
+
+    scrollAccumulator = 0.;
+    scrollAccumulatorAddUnit = 0.;
+
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_OPEN);
 }
