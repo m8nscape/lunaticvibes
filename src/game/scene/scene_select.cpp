@@ -1426,6 +1426,9 @@ void SceneSelect::_navigateEnter(const Time& t)
             gSelectContext.idx = 0;
             loadSongList();
 
+            // set return context list of entries to browse result
+            gSelectContext.backtrace.top().list = gSelectContext.entries;
+
             setBarInfo();
             setEntryInfo();
 
