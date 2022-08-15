@@ -520,6 +520,8 @@ int BMS::initWithFile(const Path& file)
             std::string title1, title2;
             if (RE2::FullMatch(title, *reg, &title1, &title2))
             {
+                this->title = title1;
+                this->title2 = title2;
                 break;
             }
         }
@@ -537,10 +539,23 @@ int BMS::initWithFile(const Path& file)
             { R"((?i)(ex|another|insane|lunatic|maniac))" },
         };
         difficulty = -1;
-        for (int i = 1; i <= 4; ++i)
+        for (int i = 4; i >= 1; --i)
         {
-            if (RE2::PartialMatch(title2, *difficultyRegex[i]))
+            if (RE2::PartialMatch(version, *difficultyRegex[i]))
+            {
                 difficulty = i;
+                break;
+            }
+            if (RE2::PartialMatch(title2, *difficultyRegex[i]))
+            {
+                difficulty = i;
+                break;
+            }
+            if (RE2::PartialMatch(title, *difficultyRegex[i]))
+            {
+                difficulty = i;
+                break;
+            }
         }
         if (difficulty == -1)
             difficulty = 2; // defaults to normal
