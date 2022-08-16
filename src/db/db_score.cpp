@@ -2,6 +2,8 @@
 #include "common/types.h"
 #include "common/log.h"
 
+// TODO uncomment clearcount at 0.8 release
+
 const char* CREATE_SCORE_BMS_TABLE_STR =
 "CREATE TABLE IF NOT EXISTS score_bms( "
 "md5 TEXT PRIMARY KEY UNIQUE NOT NULL, " // 0
@@ -13,6 +15,7 @@ const char* CREATE_SCORE_BMS_TABLE_STR =
 "maxcombo INTEGER NOT NULL DEFAULT 0, "  // 6
 "addtime INTEGER NOT NULL DEFAULT 0, "   // 7
 "pc INTEGER NOT NULL DEFAULT 0, "        // 8
+//"clearcount INTEGER NOT NULL DEFAULT 0, "        // 
 "exscore INTEGER NOT NULL, "             // 9
 "lamp INTEGER NOT NULL, "                // 10
 "pgreat INTEGER NOT NULL, "              // 11
@@ -24,6 +27,7 @@ const char* CREATE_SCORE_BMS_TABLE_STR =
 "bp INTEGER NOT NULL, "                  // 17
 "cb INTEGER NOT NULL "                   // 18
 ")";
+constexpr size_t SCORE_BMS_PARAM_COUNT = 19;
 struct score_bms_all_params
 {
     std::string md5;
@@ -35,6 +39,7 @@ struct score_bms_all_params
     long long maxcombo = 0;
     long long addtime = 0;
     long long pc      = 0;
+    long long clearcount = 0;
     long long exscore = 0;
     long long lamp    = 0;
     long long pgreat  = 0;
@@ -59,6 +64,7 @@ struct score_bms_all_params
             maxcombo = ANY_INT(queryResult.at(6));
             addtime = ANY_INT(queryResult.at(7));
             pc      = ANY_INT(queryResult.at(8));
+            //clearcount = ANY_INT(queryResult.at(8));
             exscore = ANY_INT(queryResult.at(9));
             lamp    = ANY_INT(queryResult.at(10));
             pgreat  = ANY_INT(queryResult.at(11));
@@ -77,7 +83,7 @@ struct score_bms_all_params
 };
 bool convert_score_bms(std::shared_ptr<ScoreBMS> out, const std::vector<std::any>& in)
 {
-    if (in.size() < 19) return false;
+    if (in.size() < SCORE_BMS_PARAM_COUNT) return false;
 
     score_bms_all_params params(in);
 
@@ -89,6 +95,7 @@ bool convert_score_bms(std::shared_ptr<ScoreBMS> out, const std::vector<std::any
     out->maxcombo   = params.maxcombo;
     out->addtime    = params.addtime;
     out->playcount  = params.pc;
+    out->clearcount = params.clearcount;
     out->exscore    = params.exscore;
     out->lamp       = (ScoreBMS::Lamp)params.lamp   ;
     out->pgreat     = params.pgreat ;
@@ -116,7 +123,7 @@ std::shared_ptr<ScoreBMS> ScoreDB::getChartScoreBMS(const HashMD5& hash) const
 {
     if (cache.find(hash) != cache.end()) return cache[hash];
 
-    auto result = query("SELECT * FROM score_bms WHERE md5=?", 19, { hash.hexdigest() });
+    auto result = query("SELECT * FROM score_bms WHERE md5=?", SCORE_BMS_PARAM_COUNT, { hash.hexdigest() });
 
     if (!result.empty())
     {
@@ -180,6 +187,11 @@ void ScoreDB::updateChartScoreBMS(const HashMD5& hash, const ScoreBMS& score)
             record.playcount = score.playcount;
         }
 
+        if (score.clearcount > record.clearcount)
+        {
+            record.clearcount = score.clearcount;
+        }
+
         if ((int)score.lamp > (int)record.lamp)
         {
             record.lamp = score.lamp;
@@ -196,6 +208,13 @@ void ScoreDB::updateChartScoreBMS(const HashMD5& hash, const ScoreBMS& score)
             record.maxcombo, (long long)std::time(nullptr), record.playcount, record.exscore, (int)record.lamp, 
             record.pgreat, record.great, record.good, record.bad, record.bpoor, record.miss, record.bp, record.combobreak,
             hash.hexdigest()});
+
+        //exec("UPDATE score_bms SET notes=?,score=?,rate=?,fast=?,slow=?,maxcombo=?,addtime=?,pc=?,clearcount=?,exscore=?,lamp=?,"
+        //    "pgreat=?,great=?,good=?,bad=?,bpoor=?,miss=?,bp=?,cb=? WHERE md5=?",
+        //    { record.notes, record.score, record.rate, record.fast, record.slow,
+        //    record.maxcombo, (long long)std::time(nullptr), record.playcount, record.clearcount, record.exscore, (int)record.lamp,
+        //    record.pgreat, record.great, record.good, record.bad, record.bpoor, record.miss, record.bp, record.combobreak,
+        //    hash.hexdigest() });
     }
     else
     {
@@ -205,6 +224,13 @@ void ScoreDB::updateChartScoreBMS(const HashMD5& hash, const ScoreBMS& score)
             score.notes, score.score, score.rate, score.fast, score.slow,
             score.maxcombo, (long long)std::time(nullptr), score.playcount, score.exscore, (int)score.lamp, 
             score.pgreat, score.great, score.good, score.bad, score.bpoor, score.miss, score.bp, score.combobreak });
+
+        //exec("INSERT INTO score_bms(md5,notes,score,rate,fast,slow,maxcombo,addtime,pc,clearcount,exscore,lamp,"
+        //    "pgreat,great,good,bad,bpoor,miss,bp,cb) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        //    { hash.hexdigest(),
+        //    score.notes, score.score, score.rate, score.fast, score.slow,
+        //    score.maxcombo, (long long)std::time(nullptr), score.playcount, score.clearcount, score.exscore, (int)score.lamp,
+        //    score.pgreat, score.great, score.good, score.bad, score.bpoor, score.miss, score.bp, score.combobreak });
     }
 
     cache.erase(hash);
