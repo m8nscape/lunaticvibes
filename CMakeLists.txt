@@ -3,6 +3,12 @@ cmake_minimum_required(VERSION 3.16)
 #########################################################################
 # PROJECT CONFIG
 
+set(BUILD_X64 TRUE CACHE BOOL "Build x64 arch")
+
+if (MSVC)
+    set(VCPKG_TARGET_TRIPLET "x64-windows" CACHE STRING "")
+endif()
+
 project(LunaticVibes
     VERSION 0.7
     LANGUAGES CXX
@@ -18,6 +24,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
     
 if (MSVC)
     add_compile_options("/utf-8")
+    include_directories("${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include")
+    link_directories("${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib")
 endif()
 
 if (WIN32)
@@ -29,8 +37,6 @@ if (CMAKE_BUILD_TYPE)
         set(BUILD_DEBUG TRUE CACHE BOOL "Build with debug libraries")
     endif()
 endif()
-
-set(BUILD_X64 TRUE CACHE BOOL "Build x64 arch")
 
 #########################################################################
 # GRAPHICS BACKEND
