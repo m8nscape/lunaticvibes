@@ -91,3 +91,14 @@ target_include_directories(BS_thread_pool INTERFACE
 # Add google/re2
 option(RE2_BUILD_TESTING "enable testing for RE2" OFF)
 add_subdirectory(re2)
+
+# Add taocpp/json
+add_subdirectory(json)
+
+# Add html tidy
+add_subdirectory(tidy-html5)
+
+# Add RapidXml
+add_library(RapidXml INTERFACE)
+target_include_directories(RapidXml INTERFACE 
+    ${CMAKE_CURRENT_LIST_DIR}/rapidxml)
