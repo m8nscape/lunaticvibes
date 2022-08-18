@@ -97,8 +97,3 @@ add_subdirectory(json)
 
 # Add html tidy
 add_subdirectory(tidy-html5)
-
-# Add RapidXml
-add_library(RapidXml INTERFACE)
-target_include_directories(RapidXml INTERFACE 
-    ${CMAKE_CURRENT_LIST_DIR}/rapidxml)

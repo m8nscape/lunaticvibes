@@ -26,6 +26,3 @@
 [submodule "ext/tidy-html5"]
 	path = ext/tidy-html5
 	url = https://github.com/htacg/tidy-html5
-[submodule "ext/rapidxml"]
-	path = ext/rapidxml
-	url = https://github.com/discord/rapidxml
