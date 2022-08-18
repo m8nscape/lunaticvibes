@@ -11,6 +11,7 @@
 #include "re2/re2.h"
 
 #ifdef WIN32
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <wincrypt.h>
 #else

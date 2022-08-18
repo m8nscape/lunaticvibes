@@ -22,6 +22,7 @@
 
 #ifdef _WIN32
 // For GetWindowsDirectory
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #endif
 

@@ -5,6 +5,7 @@
 #include "types.h"
 
 #if WIN32
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 typedef HANDLE LooperHandler;
 VOID CALLBACK WaitOrTimerCallback(_In_ PVOID lpParameter, _In_ BOOLEAN TimerOrWaitFired);
