@@ -1,8 +1,10 @@
 #pragma once
 #include <memory>
+#include <boost/format.hpp>
 #include "entry_folder.h"
 #include "common/chartformat/chartformat.h"
 
+// entry for individual song, e.g. jukebox/bms/L9
 class FolderSong : public vFolder
 {
 public:
@@ -27,6 +29,7 @@ public:
     virtual bool empty() { return charts.empty(); }
 };
 
+// entry for each charts of song, e.g. jukebox/bms/L9/kuso9_7.bme
 class EntryChart : public vEntry
 {
 public:
@@ -36,7 +39,7 @@ public:
     bool have_more = false;
 
 public:
-    EntryChart() = delete;
+    EntryChart() = default;
     EntryChart(std::shared_ptr<vChartFormat> p): _file(p)
     {
         _type = eEntryType::CHART;
@@ -47,4 +50,21 @@ public:
         _addTime = _file->addTime;
     }
     EntryChart(vChartFormat& f) : EntryChart(std::make_shared<vChartFormat>(f)) {}
+};
+
+// entry for tables
+class EntryChartLink : public EntryChart
+{
+public:
+    std::string urlBase;
+    std::string urlChart;
+
+public:
+    EntryChartLink(const std::string& md5, const std::string& urlBase, const std::string urlChart)
+    {
+        _type = eEntryType::CHART_LINK;
+        this->md5 = md5;
+        this->urlBase = urlBase;
+        this->urlChart = urlChart;
+    }
 };

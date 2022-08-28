@@ -251,6 +251,10 @@ void sortSongList()
             {
                 return lhs->type() > rhs->type();
             }
+            else if (lhs->type() == eEntryType::CUSTOM_FOLDER)
+            {
+                return entry1.first->md5 < entry2.first->md5;
+            }
             else
             {
                 pChart l, r;

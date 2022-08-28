@@ -74,6 +74,7 @@ namespace cfg {
     constexpr char E_PROFILE[] = "Profile";
     constexpr char E_LR2PATH[] = "LR2Path";
     constexpr char E_FOLDERS[] = "Folders";
+    constexpr char E_TABLES[] = "Tables";
 
     constexpr char PROFILE_DEFAULT[] = "default";
 }
@@ -88,6 +89,8 @@ public:
 
     void setFolders(const std::vector<StringPath>& path);
     void setFolders(const std::vector<std::string>& path);
+    void setTables(const std::vector<std::string>& urls);
     std::vector<StringPath> getFoldersPath();
     std::vector<std::string> getFoldersStr();
+    std::vector<std::string> getTablesUrl();
 };

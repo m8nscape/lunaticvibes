@@ -101,6 +101,7 @@ private:
     // misc
     void _imguiRefreshProfileList();
     void _imguiRefreshFolderList();
+    void _imguiRefreshTableList();
     void _imguiRefreshVideoResolutionList();
     void _imguiRefreshVideoDisplayResolutionList();
     void _imguiCheckSettings();
@@ -109,6 +110,9 @@ private:
     bool _imguiAddFolder();
     bool _imguiDelFolder();
     bool _imguiBrowseFolder();
+    bool _imguiAddTable();
+    bool _imguiDelTable();
+    bool _imguiUpdateTable();
     bool _imguiApplyResolution();
     bool _imguiRefreshAudioDevices();
     bool _imguiApplyAudioSettings();
@@ -121,6 +125,12 @@ private:
     std::list<std::string> imgui_folders;
     std::vector<const char*> imgui_folders_display;
     int imgui_folder_index;
+
+    bool imgui_table_popup = false;
+    char imgui_table_url_buf[256] = { 0 };
+    std::list<std::string> imgui_tables;
+    std::vector<const char*> imgui_tables_display;
+    int imgui_table_index;
 
     std::list<std::string> imgui_video_resolution;
     std::vector<const char*> imgui_video_resolution_display;

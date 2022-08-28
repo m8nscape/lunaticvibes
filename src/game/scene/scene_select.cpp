@@ -1211,7 +1211,6 @@ void SceneSelect::_navigateEnter(const Time& t)
         switch (e->type())
         {
         case eEntryType::FOLDER:
-        case eEntryType::CUSTOM_FOLDER:
         {
             SongListProperties prop{
                 gSelectContext.backtrace.top().folder,
@@ -1253,6 +1252,51 @@ void SceneSelect::_navigateEnter(const Time& t)
             SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_OPEN);
             break;
         }
+
+        case eEntryType::CUSTOM_FOLDER:
+        {
+            SongListProperties prop{
+                gSelectContext.backtrace.top().folder,
+                e->md5,
+                e->_name,
+                {},
+                {},
+                0
+            };
+            auto top = std::dynamic_pointer_cast<FolderTable>(e);
+            assert(top != nullptr);
+            for (size_t i = 0; i < top->getContentsCount(); ++i)
+                prop.dbBrowseEntries.push_back({ top->getEntry(i), nullptr });
+
+            gSelectContext.backtrace.top().index = gSelectContext.idx;
+            gSelectContext.backtrace.top().displayEntries = gSelectContext.entries;
+            gSelectContext.backtrace.push(prop);
+            gSelectContext.entries.clear();
+            gSelectContext.idx = 0;
+            loadSongList();
+            sortSongList();
+
+            setBarInfo();
+            setEntryInfo();
+
+            if (!gSelectContext.entries.empty())
+            {
+                gSliders.set(eSlider::SELECT_LIST, (double)gSelectContext.idx / gSelectContext.entries.size());
+            }
+            else
+            {
+                gSliders.set(eSlider::SELECT_LIST, 0.0);
+            }
+
+            resetJukeboxText();
+
+            scrollAccumulator = 0.;
+            scrollAccumulatorAddUnit = 0.;
+
+            SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_OPEN);
+            break;
+        }
+
         default:
             break;
         }

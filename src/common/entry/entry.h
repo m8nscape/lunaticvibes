@@ -16,6 +16,8 @@ enum eEntryType
     NEW_COURSE,
     COURSE,
     RANDOM_COURSE,
+
+    CHART_LINK,
 };
 
 class vEntry

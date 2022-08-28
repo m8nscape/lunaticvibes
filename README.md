@@ -34,6 +34,7 @@ The project is still in development stage. Please do not expect a bug-free exper
 
 3. Install dependencies via vcpkg (skip any you have already installed)
     ```
+    vcpkg install openssl:x64-windows
     vcpkg install boost:x64-windows
     ```
     You may have to modify CMake Toolchain File path to somewhat like "D:/vcpkg/scripts/buildsystems/vcpkg.cmake" in VS cmake configuration.

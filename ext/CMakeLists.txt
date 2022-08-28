@@ -96,4 +96,10 @@ add_subdirectory(re2)
 add_subdirectory(json)
 
 # Add html tidy
+option(BUILD_SHARED_LIB "Set OFF to NOT build shared library" OFF)
 add_subdirectory(tidy-html5)
+
+# Add OpenSSL
+if (UNIX OR MINGW)
+    find_library(OpenSSL REQUIRED)
+endif()

@@ -4,6 +4,10 @@
 #include "game/sound/sound_sample.h"
 #include "imgui.h"
 
+#ifdef _WIN32
+#include <shellapi.h>
+#endif
+
 void SceneSelect::_imguiSampleDialog()
 {
     if (imguiShow)
@@ -18,6 +22,7 @@ void SceneSelect::_imguiInit()
     old_profile_index = imgui_profile_index;
 
     _imguiRefreshFolderList();
+    _imguiRefreshTableList();
 
     _imguiRefreshVideoResolutionList();
     auto resolutionY = ConfigMgr::get("V", cfg::V_RES_Y, CANVAS_HEIGHT);
@@ -152,6 +157,32 @@ void SceneSelect::_imguiSettings()
                 ImGui::Spacing();
             }
 
+            if (ImGui::CollapsingHeader("Table"))
+            {
+                ImGui::Text("*Changing table settings requires a restart now.");
+
+                ImGui::ListBox("Tables", &imgui_table_index, imgui_tables_display.data(), imgui_tables_display.size());
+
+                if (ImGui::Button("Add..."))
+                {
+                    imgui_table_popup = true;
+                    ImGui::OpenPopup("Input table URL");
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Delete Selected"))
+                {
+                    _imguiDelTable();
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Update Selected"))
+                {
+                    _imguiUpdateTable();
+                }
+
+                ImGui::Separator();
+                ImGui::Spacing();
+            }
+
             if (ImGui::CollapsingHeader("Video"))
             {
                 ImGui::Combo("Internal Resolution", &imgui_video_resolution_index, imgui_video_resolution_display.data(), (int)imgui_video_resolution_display.size());
@@ -234,6 +265,29 @@ void SceneSelect::_imguiSettings()
             }
 
         }
+        if (imgui_table_popup)
+        {
+            if (ImGui::BeginPopupModal("Input table URL", nullptr, ImGuiWindowFlags_NoCollapse))
+            {
+                if (ImGui::InputText("URL", imgui_table_url_buf, sizeof(imgui_table_url_buf), ImGuiInputTextFlags_EnterReturnsTrue)
+                    || ImGui::Button("OK"))
+                {
+                    _imguiAddTable();
+                    memset(imgui_table_url_buf, 0, sizeof(imgui_table_url_buf));
+                    ImGui::CloseCurrentPopup();
+                    imgui_table_popup = false;
+                }
+
+                ImGui::SameLine();
+                if (ImGui::Button("Cancel"))
+                {
+                    memset(imgui_table_url_buf, 0, sizeof(imgui_table_url_buf));
+                    ImGui::CloseCurrentPopup();
+                    imgui_table_popup = false;
+                }
+            }
+            ImGui::EndPopup();
+        }
         ImGui::End();
     }
 
@@ -295,6 +349,18 @@ void SceneSelect::_imguiRefreshFolderList()
     imgui_folders.assign(folders.begin(), folders.end());
     for (const auto& f : imgui_folders)
         imgui_folders_display.push_back(f.c_str());
+}
+
+void SceneSelect::_imguiRefreshTableList()
+{
+    imgui_table_index = -1;
+    imgui_tables.clear();
+    imgui_tables_display.clear();
+
+    auto tables = ConfigMgr::General()->getTablesUrl();
+    imgui_tables.assign(tables.begin(), tables.end());
+    for (const auto& f : imgui_tables)
+        imgui_tables_display.push_back(f.c_str());
 }
 
 void SceneSelect::_imguiRefreshVideoResolutionList()
@@ -502,6 +568,48 @@ bool SceneSelect::_imguiBrowseFolder()
 #elif defined __linux__
     // linux has many WMs that may have to handle differently
 #endif
+
+    return true;
+}
+
+bool SceneSelect::_imguiAddTable()
+{
+    bool added = false;
+
+    imgui_tables.push_back(imgui_table_url_buf);
+    imgui_tables_display.push_back(imgui_tables.back().c_str());
+    added = true;
+
+    if (added)
+    {
+        imgui_table_index = imgui_tables.size() - 1;
+
+        ConfigMgr::General()->setTables(std::vector<std::string>(imgui_tables.begin(), imgui_tables.end()));
+
+        _imguiUpdateTable();
+    }
+
+    return added;
+}
+
+bool SceneSelect::_imguiDelTable()
+{
+    if (imgui_table_index < 0 || imgui_table_index >= imgui_tables_display.size()) return false;
+
+    int oldSize = imgui_tables.size();
+    imgui_tables.erase(std::next(imgui_tables.begin(), imgui_table_index));
+    imgui_tables_display.erase(std::next(imgui_tables_display.begin(), imgui_table_index));
+    if (imgui_table_index == oldSize - 1)
+        imgui_table_index--;
+
+    return false;
+}
+
+bool SceneSelect::_imguiUpdateTable()
+{
+    if (imgui_table_index < 0 || imgui_table_index >= imgui_tables_display.size()) return false;
+
+    // TODO call update table
 
     return true;
 }

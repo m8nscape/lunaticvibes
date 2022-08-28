@@ -18,6 +18,7 @@ void ConfigGeneral::setDefaults() noexcept
 	set(E_PROFILE, PROFILE_DEFAULT);
 	set(E_LR2PATH, ".");
 	set(E_FOLDERS, std::vector<std::string>());
+	set(E_TABLES, std::vector<std::string>());
 }
 
 
@@ -36,6 +37,11 @@ void ConfigGeneral::setFolders(const std::vector<std::string>& path)
 	_yaml[cfg::E_FOLDERS] = path;
 }
 
+void ConfigGeneral::setTables(const std::vector<std::string>& urls)
+{
+	_yaml[cfg::E_TABLES] = urls;
+}
+
 std::vector<StringPath> ConfigGeneral::getFoldersPath()
 {
 	auto folderList = _yaml[cfg::E_FOLDERS].as<std::vector<std::string>>(std::vector<std::string>());
@@ -50,4 +56,9 @@ std::vector<StringPath> ConfigGeneral::getFoldersPath()
 std::vector<std::string> ConfigGeneral::getFoldersStr()
 {
 	return _yaml[cfg::E_FOLDERS].as<std::vector<std::string>>(std::vector<std::string>());
+}
+
+std::vector<std::string> ConfigGeneral::getTablesUrl()
+{
+	return _yaml[cfg::E_TABLES].as<std::vector<std::string>>(std::vector<std::string>());
 }

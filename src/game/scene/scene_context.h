@@ -13,6 +13,7 @@
 #include "common/entry/entry_folder.h"
 #include "db/db_song.h"
 #include "db/db_score.h"
+#include "common/difficultytable/table_bms.h"
 
 inline eScene gNextScene = eScene::SELECT;
 
@@ -137,9 +138,13 @@ struct SelectContextParams
     EntryList entries;
     size_t idx = 0;     // current selected entry index
     size_t cursor = 0;  // highlighted bar index
+
     SongListSort sort = SongListSort::DEFAULT;
     unsigned filterDifficulty = 0; // all / B / N / H / A / I (type 0 is not included)
     unsigned filterKeys = 0; // all / 5, 7, 9, 10, 14, etc
+
+    std::vector<DifficultyTableBMS> tables;
+
     double pitchSpeed = 1.0;
 
     unsigned scrollTimeLength = 300; // 

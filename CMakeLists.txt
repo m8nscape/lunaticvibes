@@ -10,7 +10,7 @@ if (MSVC)
 endif()
 
 project(LunaticVibes
-    VERSION 0.7
+    VERSION 0.7.2
     LANGUAGES CXX
 )
 
@@ -24,6 +24,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
     
 if (MSVC)
     add_compile_options("/utf-8")
+    add_compile_options("/bigobj")
     include_directories("${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include")
     link_directories("${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib")
 endif()

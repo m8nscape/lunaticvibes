@@ -11,7 +11,10 @@ add_library(common STATIC
     chartformat/chartformat.cpp
     chartformat/chartformat_bms.cpp
     entry/entry_folder.cpp
-     "entry/entry_song.cpp")
+    entry/entry_song.cpp
+    difficultytable/difficultytable.cpp
+    difficultytable/table_bms.cpp
+)
 
 target_include_directories(common PRIVATE
     ${PROJECT_INCLUDE_DIR}
@@ -23,6 +26,8 @@ set_target_properties(common PROPERTIES
 target_link_libraries(common 
     PUBLIC plog
     PUBLIC re2
+    PUBLIC taocpp::json
+    PUBLIC tidy-static
 )
 
 target_precompile_headers(common PUBLIC pch.h)

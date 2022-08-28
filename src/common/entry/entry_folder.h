@@ -56,3 +56,15 @@ public:
     virtual size_t getContentsCount() { return entries.size(); }
     virtual bool empty() { return entries.empty(); }
 };
+
+class FolderTable : public FolderRegular
+{
+public:
+    FolderTable() = delete;
+    FolderTable(const StringContent& name = "", const StringContent& name2 = "") :
+        FolderRegular(HashMD5(""), "", name, name2)
+    {
+        _ftype = eFolderType::CUSTOM_FOLDER;
+        _type = eEntryType::CUSTOM_FOLDER;
+    }
+};
