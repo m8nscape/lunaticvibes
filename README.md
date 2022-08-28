@@ -39,7 +39,9 @@ The project is still in development stage. Please do not expect a bug-free exper
     ```
     You may have to modify CMake Toolchain File path to somewhat like "D:/vcpkg/scripts/buildsystems/vcpkg.cmake" in VS cmake configuration.
 
-4. build game.exe
+4. Open project directory with Visual Studio
+
+5. build game.exe
 
 ---------------
 
