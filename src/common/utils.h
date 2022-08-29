@@ -10,8 +10,8 @@ namespace fs = std::filesystem;
 
 inline Path executablePath;
 
-// path may include wildcard (*, ?); Searching is recursive.
-std::vector<Path> findFiles(Path path);
+// path may include wildcard (*, ?)
+std::vector<Path> findFiles(Path path, bool recursive = false);
 
 bool isParentPath(Path parent, Path dir);
 

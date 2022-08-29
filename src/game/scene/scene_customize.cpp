@@ -18,7 +18,7 @@ SceneCustomize::SceneCustomize() : vScene(eMode::THEME_SELECT, 240)
     gCustomizeContext.mode = selectedMode;
     load(selectedMode);
 
-    auto skinFileList = findFiles(utf8_to_utf32(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), "LR2Files/Theme/*.lr2skin")));
+    auto skinFileList = findFiles(utf8_to_utf32(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), "LR2Files/Theme/*.lr2skin")), true);
     for (auto& p : skinFileList)
     {
         SkinLR2 s(p, true);

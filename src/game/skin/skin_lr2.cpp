@@ -543,8 +543,7 @@ int SkinLR2::IMAGE()
             {
                 if (cf.type == Customize::_Type::FILE && cf.filepath == pathU8Str.substr(0, cf.filepath.length()))
                 {
-                    const auto& paths = cf.pathList;
-                    if (paths.empty())
+                    if (cf.pathList.empty())
                     {
                         _textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(""));
                         LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added IMAGE[" << imageCount << "]: " << "(placeholder)";
@@ -554,8 +553,8 @@ int SkinLR2::IMAGE()
                         if (cf.filepath.length() < pathU8Str.length())
                         {
                             // #IMAGE offered a more specific path. Rebuild customfile list
-                            auto selection = paths[cf.value];
-                            auto defaultSel = paths[cf.defIdx];
+                            auto selection = cf.pathList[cf.value];
+                            auto defaultSel = cf.pathList[cf.defIdx];
                             cf.value = 0;
                             cf.defIdx = 0;
 
@@ -581,23 +580,31 @@ int SkinLR2::IMAGE()
                             }
                             cf.pathList = std::move(ls);
                         }
-
-                        if (video_file_extensions.find(toLower(paths[cf.value].extension().u8string())) != video_file_extensions.end())
+                        if (cf.pathList.empty())
                         {
-#ifndef VIDEO_DISABLED
-                            _vidNameMap[std::to_string(imageCount)] = std::make_shared<sVideo>(paths[cf.value], true);
-                            _textureNameMap[std::to_string(imageCount)] = _textureNameMap["White"];
-#else
-                            _textureNameMap[std::to_string(imageCount)] = _textureNameMap["Black"];
-#endif
+                            _textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(""));
+                            LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added IMAGE[" << imageCount << "]: " << "(placeholder)";
                         }
                         else
                         {
-                            Image img = Image(paths[cf.value].u8string().c_str());
-                            if (info.hasTransparentColor) img.setTransparentColorRGB(info.transparentColor);
-                            _textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(img);
+
+                            if (video_file_extensions.find(toLower(cf.pathList[cf.value].extension().u8string())) != video_file_extensions.end())
+                            {
+#ifndef VIDEO_DISABLED
+                                _vidNameMap[std::to_string(imageCount)] = std::make_shared<sVideo>(cf.pathList[cf.value], true);
+                                _textureNameMap[std::to_string(imageCount)] = _textureNameMap["White"];
+#else
+                                _textureNameMap[std::to_string(imageCount)] = _textureNameMap["Black"];
+#endif
+                            }
+                            else
+                            {
+                                Image img = Image(cf.pathList[cf.value].u8string().c_str());
+                                if (info.hasTransparentColor) img.setTransparentColorRGB(info.transparentColor);
+                                _textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(img);
+                            }
+                            LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added IMAGE[" << imageCount << "]: " << cf.filepath;
                         }
-                        LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added IMAGE[" << imageCount << "]: " << cf.filepath;
                     }
                     ++imageCount;
                     return 2;
