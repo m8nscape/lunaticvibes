@@ -17,7 +17,7 @@ protected:
 
 	// level -> chart
 	// level may be other than numbers. (e.g. ★???)
-	std::map<std::string, std::vector<std::shared_ptr<vEntry>>> entries;
+	std::map<std::string, std::vector<std::shared_ptr<EntryBase>>> entries;
 
 public:
 	const std::string& getName() const { return name; }
@@ -46,5 +46,5 @@ public:
 	virtual bool loadFromFile() = 0;
 
 	std::vector<std::string> getLevelList() const;
-	std::vector<std::shared_ptr<vEntry>> getEntryList(const std::string& level);
+	std::vector<std::shared_ptr<EntryBase>> getEntryList(const std::string& level);
 };

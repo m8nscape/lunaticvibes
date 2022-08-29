@@ -230,7 +230,7 @@ void TextureBmsBga::sortSlot()
 	poorIt = poorSlot.begin();
 }
 
-bool TextureBmsBga::setSlotFromBMS(chartBMS& bms)
+bool TextureBmsBga::setSlotFromBMS(ChartObjectBMS& bms)
 {
 	baseSlot.clear();
 	layerSlot.clear();

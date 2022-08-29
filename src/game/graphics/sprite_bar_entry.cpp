@@ -280,10 +280,10 @@ bool SpriteBarEntry::update(Time time)
             (BarType)barTypeIdx == BarType::NEW_SONG || 
             (BarType)barTypeIdx == BarType::SONG_RIVAL)
         {
-            std::shared_ptr<vChartFormat> pf;
+            std::shared_ptr<ChartFormatBase> pf;
             if (pEntry->type() == eEntryType::SONG || pEntry->type() == eEntryType::RIVAL_SONG)
             {
-                pf = std::reinterpret_pointer_cast<FolderSong>(pEntry)->getCurrentChart();
+                pf = std::reinterpret_pointer_cast<EntryFolderSong>(pEntry)->getCurrentChart();
             }
             else if (pEntry->type() == eEntryType::CHART || pEntry->type() == eEntryType::RIVAL_CHART)
             {
@@ -295,7 +295,7 @@ bool SpriteBarEntry::update(Time time)
                 {
                 case eChartFormat::BMS:
                 {
-                    const auto bms = std::reinterpret_pointer_cast<const BMS_prop>(pf);
+                    const auto bms = std::reinterpret_pointer_cast<const ChartFormatBMSMeta>(pf);
 
                     // level
                     if ((size_t)bms->difficulty < sLevel.size() && sLevel[bms->difficulty])

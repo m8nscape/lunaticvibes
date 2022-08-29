@@ -264,11 +264,11 @@ int main(int argc, char* argv[])
 
         auto convertTable = [&](DifficultyTableBMS& t)
         {
-            std::shared_ptr<FolderTable> tbl = std::make_shared<FolderTable>(t.getName(), "");
+            std::shared_ptr<EntryFolderTable> tbl = std::make_shared<EntryFolderTable>(t.getName(), "");
             size_t index = 0;
             for (const auto& lv : t.getLevelList())
             {
-                std::shared_ptr<FolderTable> tblLevel = std::make_shared<FolderTable>((boost::format("%s%s") % t.getSymbol() % lv).str(), "");
+                std::shared_ptr<EntryFolderTable> tblLevel = std::make_shared<EntryFolderTable>((boost::format("%s%s") % t.getSymbol() % lv).str(), "");
                 for (const auto& r : t.getEntryList(lv))
                 {
                     auto charts = g_pSongDB->findChartByHash(r->md5);
@@ -277,7 +277,7 @@ int main(int argc, char* argv[])
                     {
                         if (fs::exists(c->absolutePath))
                         {
-                            std::shared_ptr<FolderSong> f = std::make_shared<FolderSong>(HashMD5((boost::format("%032lu") % index++).str()), "", c->title, c->title2);
+                            std::shared_ptr<EntryFolderSong> f = std::make_shared<EntryFolderSong>(HashMD5((boost::format("%032lu") % index++).str()), "", c->title, c->title2);
                             f->pushChart(c);
                             tblLevel->pushEntry(f);
                             added = true;
@@ -343,7 +343,7 @@ int main(int argc, char* argv[])
         gNextScene = eScene::PLAY;
         gQuitOnFinish = true;
 
-        std::shared_ptr<BMS> bms = std::make_shared<BMS>(argv[1]);
+        std::shared_ptr<ChartFormatBMS> bms = std::make_shared<ChartFormatBMS>(argv[1]);
         gChartContext = ChartContextParams{
             argv[1],
             md5file(argv[1]),

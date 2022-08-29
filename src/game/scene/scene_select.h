@@ -17,7 +17,7 @@ enum class eSelectState
     FADEOUT,
 };
 
-class vChartFormat;
+class ChartFormatBase;
 class SceneSelect : public vScene
 {
 private:

@@ -133,7 +133,7 @@ void loadSongList()
         case eEntryType::SONG:
         case eEntryType::RIVAL_SONG:
         {
-            auto f = std::reinterpret_pointer_cast<FolderSong>(e);
+            auto f = std::reinterpret_pointer_cast<EntryFolderSong>(e);
             if (ConfigMgr::get('P', cfg::P_NO_COMBINE_CHARTS, false))
             {
                 int nChartIdx = -1;
@@ -141,7 +141,7 @@ void loadSongList()
                 {
                     if (f->getChart(idx)->type() == eChartFormat::BMS)
                     {
-                        auto p = std::reinterpret_pointer_cast<BMS_prop>(f->getChart(idx));
+                        auto p = std::reinterpret_pointer_cast<ChartFormatBMSMeta>(f->getChart(idx));
 
                         if (!checkFilterKeys(p->gamemode)) continue;
                         if (!checkFilterDifficulty(p->difficulty))
@@ -166,7 +166,7 @@ void loadSongList()
                     {
                     case eChartFormat::BMS:
                     {
-                        auto p = std::reinterpret_pointer_cast<BMS_prop>(f->getChart(idx));
+                        auto p = std::reinterpret_pointer_cast<ChartFormatBMSMeta>(f->getChart(idx));
 
                         if (!checkFilterDifficulty(p->difficulty)) continue;
                         if (!checkFilterKeys(p->gamemode)) continue;
@@ -189,7 +189,7 @@ void loadSongList()
             auto f = std::reinterpret_pointer_cast<EntryChart>(e)->_file;
             if (f->type() == eChartFormat::BMS)
             {
-                auto p = std::reinterpret_pointer_cast<BMS_prop>(f);
+                auto p = std::reinterpret_pointer_cast<ChartFormatBMSMeta>(f);
 
                 if (!checkFilterDifficulty(p->difficulty)) continue;
                 if (!checkFilterKeys(p->gamemode)) continue;
@@ -210,12 +210,12 @@ void loadSongList()
     // load score
     for (auto& [entry, score] : gSelectContext.entries)
     {
-        std::shared_ptr<vChartFormat> pf;
+        std::shared_ptr<ChartFormatBase> pf;
         switch (entry->type())
         {
         case eEntryType::SONG:
         case eEntryType::RIVAL_SONG:
-            pf = std::reinterpret_pointer_cast<FolderSong>(entry)->getCurrentChart();
+            pf = std::reinterpret_pointer_cast<EntryFolderSong>(entry)->getCurrentChart();
             break;
         case eEntryType::CHART:
         case eEntryType::RIVAL_CHART:
@@ -257,11 +257,11 @@ void sortSongList()
             }
             else
             {
-                pChart l, r;
+                pChartFormat l, r;
                 if (lhs->type() == eEntryType::SONG || lhs->type() == eEntryType::RIVAL_SONG)
                 {
-                    l = std::reinterpret_pointer_cast<FolderSong>(lhs)->getChart(0);
-                    r = std::reinterpret_pointer_cast<FolderSong>(rhs)->getChart(0);
+                    l = std::reinterpret_pointer_cast<EntryFolderSong>(lhs)->getChart(0);
+                    r = std::reinterpret_pointer_cast<EntryFolderSong>(rhs)->getChart(0);
                 }
                 else if (lhs->type() == eEntryType::CHART || lhs->type() == eEntryType::RIVAL_CHART)
                 {
@@ -341,13 +341,13 @@ void setBarInfo()
     auto setSingleBarInfo = [&](size_t list_idx, size_t bar_index)
     {
         auto entry = e[list_idx].first;
-        std::shared_ptr<vChartFormat> pf = nullptr;
+        std::shared_ptr<ChartFormatBase> pf = nullptr;
         switch (entry->type())
         {
         case eEntryType::SONG:
         case eEntryType::RIVAL_SONG:
         {
-            auto ps = std::reinterpret_pointer_cast<FolderSong>(entry);
+            auto ps = std::reinterpret_pointer_cast<EntryFolderSong>(entry);
             pf = ps->getCurrentChart();
             break;
         }
@@ -369,7 +369,7 @@ void setBarInfo()
             {
             case eChartFormat::BMS:
             {
-                const auto bms = std::reinterpret_pointer_cast<const BMS_prop>(pf);
+                const auto bms = std::reinterpret_pointer_cast<const ChartFormatBMSMeta>(pf);
                 std::string name = entry->_name;
                 if (!name.empty()) name += " ";
                 if (!entry->_name2.empty()) name += entry->_name2;
@@ -416,7 +416,7 @@ void setEntryInfo()
     if (e[idx].first->type() == eEntryType::CHART || e[idx].first->type() == eEntryType::RIVAL_CHART)
     {
         auto ps = std::reinterpret_pointer_cast<EntryChart>(e[idx].first);
-        auto pf = std::reinterpret_pointer_cast<vChartFormat>(ps->_file);
+        auto pf = std::reinterpret_pointer_cast<ChartFormatBase>(ps->_file);
 
         gSwitches.queue(eSwitch::CHART_HAVE_README,
             !(pf->text1.empty() && pf->text2.empty() && pf->text3.empty()));
@@ -451,7 +451,7 @@ void setEntryInfo()
         {
         case eChartFormat::BMS:
         {
-            const auto bms = std::reinterpret_pointer_cast<const BMS_prop>(pf);
+            const auto bms = std::reinterpret_pointer_cast<const ChartFormatBMSMeta>(pf);
 
             // gamemode
             unsigned op_keys = Option::KEYS_NOT_PLAYABLE;
@@ -621,7 +621,7 @@ void setEntryInfo()
 
         auto ps = std::reinterpret_pointer_cast<EntryChart>(e[idx].first);
         auto psc = std::reinterpret_pointer_cast<vScore>(e[idx].second);
-        auto pf = std::reinterpret_pointer_cast<vChartFormat>(ps->_file);
+        auto pf = std::reinterpret_pointer_cast<ChartFormatBase>(ps->_file);
         if (psc)
         {
             switch (pf->type())
@@ -743,16 +743,16 @@ void setDynamicTextures()
     case eEntryType::CHART:
     case eEntryType::RIVAL_CHART:
     {
-        std::shared_ptr<vChartFormat> pf;
+        std::shared_ptr<ChartFormatBase> pf;
         if (entry->type() == eEntryType::SONG || entry->type() == eEntryType::RIVAL_SONG)
         {
-            auto ps = std::reinterpret_pointer_cast<FolderSong>(entry);
-            pf = std::reinterpret_pointer_cast<vChartFormat>(ps->getCurrentChart());
+            auto ps = std::reinterpret_pointer_cast<EntryFolderSong>(entry);
+            pf = std::reinterpret_pointer_cast<ChartFormatBase>(ps->getCurrentChart());
         }
         else
         {
             auto ps = std::reinterpret_pointer_cast<EntryChart>(entry);
-            pf = std::reinterpret_pointer_cast<vChartFormat>(ps->_file);
+            pf = std::reinterpret_pointer_cast<ChartFormatBase>(ps->_file);
         }
 
         // _BG

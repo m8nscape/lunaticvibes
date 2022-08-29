@@ -3,27 +3,15 @@
 #include <memory>
 #include "entry.h"
 
-enum class eFolderType
-{
-    UNKNOWN,
-
-    FOLDER,
-    SONG,
-    CUSTOM_FOLDER
-};
-
-class vFolder: public vEntry
+class EntryFolderBase: public EntryBase
 {
 protected:
-    eFolderType _ftype = eFolderType::UNKNOWN;
     Path _path;
-public:
-    constexpr eFolderType folderType() { return _ftype; }
 
 public:
-    vFolder() = delete;
-    vFolder(eFolderType t, HashMD5 md5, const Path& path);
-    virtual ~vFolder() = default;
+    EntryFolderBase() = delete;
+    EntryFolderBase(HashMD5 md5, const Path& path);
+    virtual ~EntryFolderBase() = default;
 
 // following fields are generic info, which are stored in db
 public:
@@ -36,35 +24,35 @@ public:
     
 };
 
-class vChartFormat;
-class FolderRegular : public vFolder
+class ChartFormatBase;
+class EntryFolderRegular : public EntryFolderBase
 {
 public:
-    FolderRegular() = delete;
-    FolderRegular(HashMD5 md5, const Path& path, const StringContent& name = "", const StringContent& name2 = "") : 
-        vFolder(eFolderType::FOLDER, md5, path)
+    EntryFolderRegular() = delete;
+    EntryFolderRegular(HashMD5 md5, const Path& path, const StringContent& name = "", const StringContent& name2 = "") : 
+        EntryFolderBase(md5, path)
     {
+        _type = eEntryType::FOLDER;
         _name = name;
         _name2 = name2;
     }
 
 protected:
-    std::vector<std::shared_ptr<vFolder>> entries;
+    std::vector<std::shared_ptr<EntryFolderBase>> entries;
 public:
-    std::shared_ptr<vFolder> getEntry(size_t idx);
-    void pushEntry(std::shared_ptr<vFolder> f);
+    std::shared_ptr<EntryFolderBase> getEntry(size_t idx);
+    void pushEntry(std::shared_ptr<EntryFolderBase> f);
     virtual size_t getContentsCount() { return entries.size(); }
     virtual bool empty() { return entries.empty(); }
 };
 
-class FolderTable : public FolderRegular
+class EntryFolderTable : public EntryFolderRegular
 {
 public:
-    FolderTable() = delete;
-    FolderTable(const StringContent& name = "", const StringContent& name2 = "") :
-        FolderRegular(HashMD5(""), "", name, name2)
+    EntryFolderTable() = delete;
+    EntryFolderTable(const StringContent& name = "", const StringContent& name2 = "") :
+        EntryFolderRegular(HashMD5(""), "", name, name2)
     {
-        _ftype = eFolderType::CUSTOM_FOLDER;
         _type = eEntryType::CUSTOM_FOLDER;
     }
 };

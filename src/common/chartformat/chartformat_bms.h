@@ -56,7 +56,7 @@ using namespace bms;
 class SceneSelect;
 class SongDB;
 
-class BMS_prop : public vChartFormat
+class ChartFormatBMSMeta : public ChartFormatBase
 {
 public:
     // File properties.
@@ -99,12 +99,12 @@ public:
     unsigned lastBarIdx = 0;
 
 public:
-    BMS_prop() { _type = eChartFormat::BMS; }
-    virtual ~BMS_prop() = default;
+    ChartFormatBMSMeta() { _type = eChartFormat::BMS; }
+    virtual ~ChartFormatBMSMeta() = default;
 };
 
 // the size of parsing result is kinda large..
-class BMS: public BMS_prop
+class ChartFormatBMS: public ChartFormatBMSMeta
 {
     friend class SceneSelect;
     friend class SongDB;
@@ -113,9 +113,9 @@ public:
     virtual int getExtendedProperty(const std::string& key, void* ret) override;
 
 public:
-    BMS();
-    BMS(const Path& absolutePath);
-    virtual ~BMS() = default;
+    ChartFormatBMS();
+    ChartFormatBMS(const Path& absolutePath);
+    virtual ~ChartFormatBMS() = default;
     std::string getError();
     int initWithPathParam(const SongDB& db);
 
@@ -131,6 +131,7 @@ public:
         struct NoteParseValue { unsigned segment; unsigned value; };
         std::list<NoteParseValue> notes{};
         unsigned resolution = 1;
+
         unsigned relax(unsigned target_resolution);
         void sortNotes();
     };

@@ -23,7 +23,7 @@ struct ChartContextParams
 {
     Path path{};
     HashMD5 hash{};
-    std::shared_ptr<vChartFormat> chartObj;
+    std::shared_ptr<ChartFormatBase> chartObj;
     //bool isChartSamplesLoaded;
     bool isSampleLoaded = false;
     bool isBgaLoaded = false;
@@ -62,7 +62,7 @@ struct PlayContextParams
     bool isCourseFirstStage = false;
     unsigned judgeLevel = 0;
 
-    std::shared_ptr<chart::vChart> chartObj[2]{ nullptr, nullptr };
+    std::shared_ptr<ChartObjectBase> chartObj[2]{ nullptr, nullptr };
     double initialHealth[2]{ 1.0, 1.0 };
 
 	std::shared_ptr<TextureBmsBga> bgaTexture = std::make_shared<TextureBmsBga>();
@@ -103,11 +103,12 @@ struct PlayContextParams
 std::pair<bool, Option::e_lamp_type> getSaveScoreType();
 void clearContextPlayForRetry();
 void clearContextPlay();
+
 void pushGraphPoints();
 
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef std::pair<std::shared_ptr<vEntry>, std::shared_ptr<vScore>> Entry;
+typedef std::pair<std::shared_ptr<EntryBase>, std::shared_ptr<vScore>> Entry;
 typedef std::vector<Entry> EntryList;
 
 struct SongListProperties

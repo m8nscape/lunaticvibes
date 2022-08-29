@@ -33,8 +33,8 @@ public:
         unsigned slow;
     };
 protected:
-    std::shared_ptr<vChartFormat> _format;
-    std::shared_ptr<chart::vChart> _chart;
+    std::shared_ptr<ChartFormatBase> _format;
+    std::shared_ptr<ChartObjectBase> _chart;
     BasicData _basic;
     double _minHealth;
     double _clearHealth;
@@ -45,7 +45,7 @@ protected:
     bool _isAutoplay = false;
 public:
     vRuleset() = delete;
-    vRuleset(std::shared_ptr<vChartFormat> format, std::shared_ptr<chart::vChart> chart) :
+    vRuleset(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<ChartObjectBase> chart) :
         _format(format), _chart(chart), _basic{ 0 }{}
     virtual ~vRuleset() = default;
 public:

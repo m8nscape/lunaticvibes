@@ -25,7 +25,7 @@ std::vector<std::string> DifficultyTable::getLevelList() const
 	return levelList;
 }
 
-std::vector<std::shared_ptr<vEntry>> DifficultyTable::getEntryList(const std::string& level)
+std::vector<std::shared_ptr<EntryBase>> DifficultyTable::getEntryList(const std::string& level)
 {
 	if (entries.find(level) == entries.end())
 	{

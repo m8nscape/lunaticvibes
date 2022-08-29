@@ -2139,8 +2139,7 @@ ParseRet SkinLR2::DST_LINE()
     // set sprite channel
     auto p = std::static_pointer_cast<SpriteLaneVertical>(e);
 
-    chart::NoteLaneCategory cat = p->getLaneCat();
-    chart::NoteLaneIndex idx = p->getLaneIdx();
+    auto& [cat, idx] = p->getLane();
     if (cat != chart::NoteLaneCategory::EXTRA || (idx != chart::EXTRA_BARLINE_1P && idx != chart::EXTRA_BARLINE_2P))
     {
         LOG_WARNING << "[Skin] " << csvLineNumber << ": Previous SRC definition is not LINE " <<

@@ -31,6 +31,12 @@ void SpriteLaneVertical::setLane(NoteLaneCategory cat, NoteLaneIndex idx)
 	_index = idx;
 }
 
+
+std::pair<NoteLaneCategory, NoteLaneIndex> SpriteLaneVertical::getLane() const
+{
+	return std::make_pair(_category, _index); 
+}
+
 void SpriteLaneVertical::getRectSize(int& w, int& h)
 {
 	if (pNote->_texRect.empty())

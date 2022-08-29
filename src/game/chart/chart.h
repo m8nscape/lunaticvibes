@@ -69,6 +69,7 @@ enum NoteLaneExtra : size_t
 
     NOTELANEEXTRA_COUNT = NOTELANEINDEX_COUNT,
 };
+
 constexpr size_t LANE_ALL_KEY_COUNT = size_t(NoteLaneCategory::NOTECATEGORY_COUNT) * NOTELANEINDEX_COUNT;
 constexpr size_t LANE_BARLINE_1P = LANE_ALL_KEY_COUNT + 0;
 constexpr size_t LANE_BARLINE_2P = LANE_ALL_KEY_COUNT + 1;
@@ -95,7 +96,9 @@ constexpr NoteLane idxToChannel(size_t idx)
     return { NoteLaneCategory(idx / NOTELANEINDEX_COUNT), NoteLaneIndex(idx % NOTELANEINDEX_COUNT) };
 }
 
-class ::vChartFormat;
+}
+
+class ::ChartFormatBase;
 
 // Chart in-game data representation. Contains following:
 //  - Converts plain-beat to real-beat (adds up Stop beat) 
@@ -108,7 +111,7 @@ class ::vChartFormat;
 //          Metre(double)
 //          BPM(BPM)
 //          Expired Notes List (including normal, plain, ext, speed)
-class vChart
+class ChartObjectBase
 {
 public:
     static constexpr size_t MAX_MEASURES = 1000;
@@ -133,7 +136,7 @@ public:
 
 protected:
      // full list of corresponding channel through all measures; only this list is handled by input looper
-    std::array<std::list<HitableNote>, LANE_COUNT> _noteLists;
+    std::array<std::list<HitableNote>, chart::LANE_COUNT> _noteLists;
     std::vector<std::list<Note>> _bgmNoteLists;      // BGM notes; handled with timer
     std::vector<std::list<Note>> _specialNoteLists;     // Special definitions for each format. e.g. BGA, Stop
     std::list<Note>              _bpmNoteList;          // BPM change is so common that they are not special
@@ -147,36 +150,36 @@ protected:
 
 
 public:
-    vChart() = delete;
-    vChart(int slot, size_t plain_n, size_t ext_n);
-    static std::shared_ptr<vChart> createFromChartFormat(int slot, std::shared_ptr<vChartFormat> p);
+    ChartObjectBase() = delete;
+    ChartObjectBase(int slot, size_t plain_n, size_t ext_n);
+    static std::shared_ptr<ChartObjectBase> createFromChartFormat(int slot, std::shared_ptr<ChartFormatBase> p);
 
 protected:
-    std::array<decltype(_noteLists.front().begin()), LANE_COUNT>    _noteListIterators;
+    std::array<decltype(_noteLists.front().begin()), chart::LANE_COUNT>    _noteListIterators;
     std::vector<decltype(_bgmNoteLists.front().begin())>            _bgmNoteListIters;
     std::vector<decltype(_specialNoteLists.front().begin())>        _specialNoteListIters;
     decltype(_bpmNoteList.begin())                                  _bpmNoteListIter;
 
 public:
-    auto firstNote(NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteLists.front().begin());
+    auto firstNote            (chart::NoteLaneCategory cat, chart::NoteLaneIndex idx) -> decltype(_noteLists.front().begin());
 
-    auto incomingNote         (NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteLists.front().begin());
+    auto incomingNote         (chart::NoteLaneCategory cat, chart::NoteLaneIndex idx) -> decltype(_noteLists.front().begin());
     auto incomingNoteBgm      (size_t idx) -> decltype(_bgmNoteLists.front().begin());
     auto incomingNoteSpecial  (size_t idx) -> decltype(_specialNoteLists.front().begin());
     auto incomingNoteBpm      () -> decltype(_bpmNoteListIter);
 
-    bool isLastNote           (NoteLaneCategory cat, NoteLaneIndex idx);
+    bool isLastNote           (chart::NoteLaneCategory cat, chart::NoteLaneIndex idx);
     bool isLastNoteBgm        (size_t idx);
     bool isLastNoteSpecial    (size_t idx);
     bool isLastNoteBpm        ();
 
-    bool isLastNote           (NoteLaneCategory cat, NoteLaneIndex idx, decltype(_noteListIterators.front()) it);
+    bool isLastNote           (chart::NoteLaneCategory cat, chart::NoteLaneIndex idx, decltype(_noteListIterators.front()) it);
     bool isLastNoteBgm        (size_t idx, decltype(_bgmNoteListIters.front()) it);
     bool isLastNoteSpecial    (size_t idx, decltype(_specialNoteListIters.front()) it);
     bool isLastNoteBpm        (decltype(_bpmNoteListIter) it);
 
 protected:
-    auto nextNote             (NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteListIterators.front());
+    auto nextNote             (chart::NoteLaneCategory cat, chart::NoteLaneIndex idx) -> decltype(_noteListIterators.front());
     auto nextNoteBgm          (size_t idx) -> decltype(_bgmNoteListIters.front());
     auto nextNoteSpecial      (size_t idx) -> decltype(_specialNoteListIters.front());
     auto nextNoteBpm          () -> decltype(_bpmNoteListIter);
@@ -216,10 +219,9 @@ public:
     std::list<Note>   noteSpecialExpired;
 
 public:
-    virtual NoteLaneIndex getLaneFromKey(NoteLaneCategory cat, Input::Pad input) = 0;
+    virtual chart::NoteLaneIndex getLaneFromKey(chart::NoteLaneCategory cat, Input::Pad input) = 0;
     virtual std::vector<Input::Pad> getInputFromLane(size_t channel) = 0;
 
     inline auto getTotalLength() const { return _totalLength; }
 };
 
-}

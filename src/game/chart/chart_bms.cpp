@@ -5,83 +5,10 @@
 #include "game/data/option.h"
 #include "game/data/number.h"
 
+static const size_t NOPE = -1;
+
 using namespace chart;
 
-const size_t NOPE = -1;
-
-// channel misorder (#xxx08, #xxx09) is already handled in chartformat object, do not convert here
-// 0 is Scratch, 1-9 are keys, matching by order
-const std::vector<size_t> BMSToLaneMap = 
-{
-    // Normal notes
-    Sc1,
-    K1,
-    K2,
-    K3,
-    K4,
-    K5,
-    K6,
-    K7,
-    NOPE,
-    NOPE,
-
-    Sc2,
-    K8,
-    K9,
-    K10,
-    K11,
-    K12,
-    K13,
-    K14,
-    NOPE,
-    NOPE,
-
-    // LN Head 
-    chart::channelToIdx(NoteLaneCategory::LN, Sc1),
-    chart::channelToIdx(NoteLaneCategory::LN, K1),
-    chart::channelToIdx(NoteLaneCategory::LN, K2),
-    chart::channelToIdx(NoteLaneCategory::LN, K3),
-    chart::channelToIdx(NoteLaneCategory::LN, K4),
-    chart::channelToIdx(NoteLaneCategory::LN, K5),
-    chart::channelToIdx(NoteLaneCategory::LN, K6),
-    chart::channelToIdx(NoteLaneCategory::LN, K7),
-    NOPE,
-    NOPE,
-
-    chart::channelToIdx(NoteLaneCategory::LN, Sc2),
-    chart::channelToIdx(NoteLaneCategory::LN, K8),
-    chart::channelToIdx(NoteLaneCategory::LN, K9),
-    chart::channelToIdx(NoteLaneCategory::LN, K10),
-    chart::channelToIdx(NoteLaneCategory::LN, K11),
-    chart::channelToIdx(NoteLaneCategory::LN, K12),
-    chart::channelToIdx(NoteLaneCategory::LN, K13),
-    chart::channelToIdx(NoteLaneCategory::LN, K14),
-    NOPE,
-    NOPE,
-
-    // LN Tail
-    chart::channelToIdx(NoteLaneCategory::LN, Sc1),
-    chart::channelToIdx(NoteLaneCategory::LN, K1),
-    chart::channelToIdx(NoteLaneCategory::LN, K2),
-    chart::channelToIdx(NoteLaneCategory::LN, K3),
-    chart::channelToIdx(NoteLaneCategory::LN, K4),
-    chart::channelToIdx(NoteLaneCategory::LN, K5),
-    chart::channelToIdx(NoteLaneCategory::LN, K6),
-    chart::channelToIdx(NoteLaneCategory::LN, K7),
-    NOPE,
-    NOPE,
-
-    chart::channelToIdx(NoteLaneCategory::LN, Sc2),
-    chart::channelToIdx(NoteLaneCategory::LN, K8),
-    chart::channelToIdx(NoteLaneCategory::LN, K9),
-    chart::channelToIdx(NoteLaneCategory::LN, K10),
-    chart::channelToIdx(NoteLaneCategory::LN, K11),
-    chart::channelToIdx(NoteLaneCategory::LN, K12),
-    chart::channelToIdx(NoteLaneCategory::LN, K13),
-    chart::channelToIdx(NoteLaneCategory::LN, K14),
-    NOPE,
-    NOPE,
-};
 
 // from NoteLaneIndex to Input::Pad
 const std::vector<Input::Pad> LaneToKeyMap[] = 
@@ -118,21 +45,21 @@ const NoteLaneIndex KeyToLaneMap[] =
     _, _, _, _, _, _,
 };
 
-chartBMS::chartBMS(int slot) : vChart(slot, BGM_LANE_COUNT, (size_t)eNoteExt::EXT_COUNT),
+ChartObjectBMS::ChartObjectBMS(int slot) : ChartObjectBase(slot, BGM_LANE_COUNT, (size_t)eNoteExt::EXT_COUNT),
     _currentStopNote(_specialNoteLists.front().begin())
 {
 }
 
-chartBMS::chartBMS(int slot, std::shared_ptr<BMS> b) : chartBMS(slot)
+ChartObjectBMS::ChartObjectBMS(int slot, std::shared_ptr<ChartFormatBMS> b) : ChartObjectBMS(slot)
 {
     loadBMS(*b);
 }
-chartBMS::chartBMS(int slot, const BMS& b) : chartBMS(slot)
+ChartObjectBMS::ChartObjectBMS(int slot, const ChartFormatBMS& b) : ChartObjectBMS(slot)
 {
     loadBMS(b);
 }
 
-void chartBMS::loadBMS(const BMS& objBms)
+void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
 {
 	_noteCount_total = objBms.notes_total;
 	_noteCount_regular = objBms.notes_scratch + objBms.notes_key;
@@ -263,6 +190,7 @@ void chartBMS::loadBMS(const BMS& objBms)
                             case 9:
                             case 18:
                                 index += 9 * area;
+                                break;
 
                             default:
                                 assert(false);  // other gamemodes does not support notes on 2P side
@@ -307,6 +235,7 @@ void chartBMS::loadBMS(const BMS& objBms)
                             case 9:
                             case 18:
                                 index += 9 * area;
+                                break;
 
                             default:
                                 assert(false);  // other gamemodes does not support notes on 2P side
@@ -323,7 +252,9 @@ void chartBMS::loadBMS(const BMS& objBms)
                 }
             };
 
-            // Lookup BMSToLaneMap[]
+            // channel misorder (#xxx08, #xxx09) is already handled in chartformat object, do not convert here
+            // 0 is Scratch, 1-9 are keys, matching by order
+            
             // Regular Notes
             push_notes(notes, eLanePriority::NOTE, LaneCode::NOTE1, 0);
             if (objBms.player != 1) push_notes(notes, eLanePriority::NOTE, LaneCode::NOTE2, 1);
@@ -424,7 +355,7 @@ void chartBMS::loadBMS(const BMS& objBms)
             {
                 if (lane.type == eLanePriority::LNTAIL)
                 {
-                    NoteLane chartLane = idxToChannel(chart::channelToIdx(NoteLaneCategory::LN, lane.index));
+                    NoteLane chartLane = idxToChannel(channelToIdx(NoteLaneCategory::LN, lane.index));
                     size_t gameLaneIdx = gameLaneMap[chartLane.second];
                     size_t gameLaneIdxLN = gameLaneLNIndex[gameLaneIdx];
                     assert(gameLaneIdxLN != _); // duplicate LN tail found. Check chartformat parsing
@@ -448,14 +379,14 @@ void chartBMS::loadBMS(const BMS& objBms)
                         chartLane = idxToChannel(lane.index);
                         break;
                     case eLanePriority::LNHEAD:
-                        chartLane = idxToChannel(chart::channelToIdx(NoteLaneCategory::LN, lane.index));
+                        chartLane = idxToChannel(channelToIdx(NoteLaneCategory::LN, lane.index));
                         break;
                     case eLanePriority::INV:
-                        chartLane = idxToChannel(chart::channelToIdx(NoteLaneCategory::Invs, lane.index));
+                        chartLane = idxToChannel(channelToIdx(NoteLaneCategory::Invs, lane.index));
                         flags = Note::Flags::INVS;
                         break;
                     case eLanePriority::MINE:
-                        chartLane = idxToChannel(chart::channelToIdx(NoteLaneCategory::Mine, lane.index));
+                        chartLane = idxToChannel(channelToIdx(NoteLaneCategory::Mine, lane.index));
                         flags = Note::Flags::MINE;
                         break;
                     default:
@@ -558,7 +489,7 @@ void chartBMS::loadBMS(const BMS& objBms)
                     case eModChart::ALLSCR:
                     {
                         constexpr int threshold_scr_ms = 33;    // threshold of moving notes to keyboard lanes
-                        constexpr int threshold_ms = 250;       // try to not make keyboard jacks
+                        constexpr int threshold_ms = 250;       // try not to make keyboard jacks
                         size_t laneScratch;
                         int laneStep;
 
@@ -682,10 +613,10 @@ void chartBMS::loadBMS(const BMS& objBms)
 		basemetre += barMetre;
 
         // add barline for next measure
-        _noteLists[chart::channelToIdx(NoteLaneCategory::EXTRA, EXTRA_BARLINE_1P)].push_back(
+        _noteLists[channelToIdx(NoteLaneCategory::EXTRA, EXTRA_BARLINE_1P)].push_back(
 			{ m + 1, basemetre, basetime, long long(0), false });
 
-        _noteLists[chart::channelToIdx(NoteLaneCategory::EXTRA, EXTRA_BARLINE_2P)].push_back(
+        _noteLists[channelToIdx(NoteLaneCategory::EXTRA, EXTRA_BARLINE_2P)].push_back(
             { m + 1, basemetre, basetime, long long(0), false });
     }
 
@@ -696,7 +627,7 @@ void chartBMS::loadBMS(const BMS& objBms)
 }
 
 
-chart::NoteLaneIndex chartBMS::getLaneFromKey(chart::NoteLaneCategory cat, Input::Pad input)
+NoteLaneIndex ChartObjectBMS::getLaneFromKey(NoteLaneCategory cat, Input::Pad input)
 {
     if (input >= Input::S1L && input < Input::LANE_COUNT && KeyToLaneMap[input] != _)
     {
@@ -707,7 +638,7 @@ chart::NoteLaneIndex chartBMS::getLaneFromKey(chart::NoteLaneCategory cat, Input
     return _;
 }
 
-std::vector<Input::Pad> chartBMS::getInputFromLane(size_t channel)
+std::vector<Input::Pad> ChartObjectBMS::getInputFromLane(size_t channel)
 {
     if (channel >= LaneToKeyMap->size())
         return {};
@@ -715,7 +646,7 @@ std::vector<Input::Pad> chartBMS::getInputFromLane(size_t channel)
         return LaneToKeyMap[channel];
 }
 
-void chartBMS::preUpdate(const Time& t)
+void ChartObjectBMS::preUpdate(const Time& t)
 {
     // check stop
     size_t idx = (size_t)eNoteExt::STOP;
@@ -740,7 +671,7 @@ void chartBMS::preUpdate(const Time& t)
     }
 }
 
-void chartBMS::postUpdate(const Time& t)
+void ChartObjectBMS::postUpdate(const Time& t)
 {
     if (_inStopNote)
     {

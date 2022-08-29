@@ -33,8 +33,7 @@ public:
 public:
     void setLane(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx);
     void setHeight(int h) { _noteAreaHeight = h; }
-    decltype(_category) getLaneCat() const { return _category; }
-    decltype(_index) getLaneIdx() const { return _index; }
+    std::pair<chart::NoteLaneCategory, chart::NoteLaneIndex> getLane() const;
     void getRectSize(int& w, int& h);
 	virtual bool update(const Time& t);
     virtual void updateNoteRect(const Time& t);

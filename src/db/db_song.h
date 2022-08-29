@@ -8,8 +8,8 @@
 #include "common/entry/entry_folder.h"
 #include "common/entry/entry_song.h"
 
-class vChartFormat;
-typedef std::shared_ptr<vChartFormat> pChart;
+class ChartFormatBase;
+typedef std::shared_ptr<ChartFormatBase> pChartFormat;
 
 inline const HashMD5 ROOT_FOLDER_HASH = md5("", 0);
 
@@ -55,8 +55,8 @@ protected:
     int removeChart(const HashMD5& md5);
     
 public:
-    std::vector<pChart> findChartByName(const HashMD5& folder, const std::string&, unsigned limit = 1000) const;  // search from genre, version, artist, artist2, title, title2
-    std::vector<pChart> findChartByHash(const HashMD5&) const;  // chart may duplicate
+    std::vector<pChartFormat> findChartByName(const HashMD5& folder, const std::string&, unsigned limit = 1000) const;  // search from genre, version, artist, artist2, title, title2
+    std::vector<pChartFormat> findChartByHash(const HashMD5&) const;  // chart may duplicate
 
 protected:
     int addFolderCharts(const HashMD5& hash, const Path& folder);
@@ -71,8 +71,8 @@ public:
     int getFolderPath(const HashMD5& folder, Path& output) const;
     HashMD5 getFolderHash(Path path) const;
 
-    FolderRegular browse(HashMD5 root, bool recursive = true);
-    FolderSong browseSong(HashMD5 root);
-    FolderRegular search(HashMD5 root, std::string key);
+    EntryFolderRegular browse(HashMD5 root, bool recursive = true);
+    EntryFolderSong browseSong(HashMD5 root);
+    EntryFolderRegular search(HashMD5 root, std::string key);
 
 };

@@ -13,7 +13,7 @@
 
 class noteLineException : public std::exception {};
 
-int BMS::getExtendedProperty(const std::string& key, void* ret)
+int ChartFormatBMS::getExtendedProperty(const std::string& key, void* ret)
 {
     if (strEqual(key, "PLAYER", true))
     {
@@ -38,20 +38,20 @@ int BMS::getExtendedProperty(const std::string& key, void* ret)
     return -1;
 }
 
-BMS::BMS() {
+ChartFormatBMS::ChartFormatBMS() {
     wavFiles.resize(MAXSAMPLEIDX + 1);
     bgaFiles.resize(MAXSAMPLEIDX + 1);
     metres.resize(MAXBARIDX + 1);
 }
 
-BMS::BMS(const Path& file): BMS_prop() {
+ChartFormatBMS::ChartFormatBMS(const Path& file): ChartFormatBMSMeta() {
     wavFiles.resize(MAXSAMPLEIDX + 1);
     bgaFiles.resize(MAXSAMPLEIDX + 1);
     metres.resize(MAXBARIDX + 1);
     initWithFile(file);
 }
 
-int BMS::initWithPathParam(const SongDB& db)
+int ChartFormatBMS::initWithPathParam(const SongDB& db)
 {
     if (filePath.is_absolute())
         absolutePath = filePath;
@@ -65,7 +65,7 @@ int BMS::initWithPathParam(const SongDB& db)
     return initWithFile(absolutePath);
 }
 
-int BMS::initWithFile(const Path& file)
+int ChartFormatBMS::initWithFile(const Path& file)
 {
     using err = ErrorCode;
     if (_loaded)
@@ -785,7 +785,7 @@ int BMS::initWithFile(const Path& file)
     return 0;
 }
 
-int BMS::strToLane36(channel& ch, StringContentView str)
+int ChartFormatBMS::strToLane36(channel& ch, StringContentView str)
 {
     //if (str.length() % 2 != 0)
     //    throw new noteLineException;
@@ -817,12 +817,12 @@ int BMS::strToLane36(channel& ch, StringContentView str)
 
     return 0;
 }
-int BMS::strToLane36(channel& ch, const StringContent& str)
+int ChartFormatBMS::strToLane36(channel& ch, const StringContent& str)
 {
     return strToLane36(ch, StringContentView(str));
 }
 
-int BMS::strToLane16(channel& ch, StringContentView str)
+int ChartFormatBMS::strToLane16(channel& ch, StringContentView str)
 {
     //if (str.length() % 2 != 0)
     //    throw new noteLineException;
@@ -854,12 +854,12 @@ int BMS::strToLane16(channel& ch, StringContentView str)
 
     return 0;
 }
-int BMS::strToLane16(channel& ch, const StringContent& str)
+int ChartFormatBMS::strToLane16(channel& ch, const StringContent& str)
 {
     return strToLane16(ch, StringContentView(str));
 }
 
-std::pair<int, int> BMS::normalizeIndexesBME(int layer, int ch)
+std::pair<int, int> ChartFormatBMS::normalizeIndexesBME(int layer, int ch)
 {
     int area = 0;
     int idx = 0;
@@ -915,7 +915,7 @@ std::pair<int, int> BMS::normalizeIndexesBME(int layer, int ch)
     return { area, idx };
 }
 
-std::pair<int, int> BMS::normalizeIndexesPMS(int layer, int ch)
+std::pair<int, int> ChartFormatBMS::normalizeIndexesPMS(int layer, int ch)
 {
     int area = 0;
     int idx = 0;
@@ -962,7 +962,7 @@ std::pair<int, int> BMS::normalizeIndexesPMS(int layer, int ch)
     return { area, idx };
 }
 
-std::string BMS::getError()
+std::string ChartFormatBMS::getError()
 {
     using err = ErrorCode;
     switch (errorCode)
@@ -974,7 +974,7 @@ std::string BMS::getError()
     return "?";
 }
 
-int BMS::getMode() const
+int ChartFormatBMS::getMode() const
 {
     switch (gamemode)
     {
@@ -987,7 +987,7 @@ int BMS::getMode() const
     }
 }
 
-auto BMS::getLane(LaneCode code, unsigned chIdx, unsigned measureIdx) const -> const decltype(chBGM[0][0])&
+auto ChartFormatBMS::getLane(LaneCode code, unsigned chIdx, unsigned measureIdx) const -> const decltype(chBGM[0][0])&
 {
     using eC = LaneCode;
     switch (code)
@@ -1014,7 +1014,7 @@ auto BMS::getLane(LaneCode code, unsigned chIdx, unsigned measureIdx) const -> c
     return chBGM[0][0];
 }
 
-unsigned BMS::channel::relax(unsigned target_resolution)
+unsigned ChartFormatBMS::channel::relax(unsigned target_resolution)
 {
     unsigned target = std::lcm(target_resolution, resolution);
     unsigned pow = target / resolution;
@@ -1028,7 +1028,7 @@ unsigned BMS::channel::relax(unsigned target_resolution)
     return target;
 }
 
-void BMS::channel::sortNotes()
+void ChartFormatBMS::channel::sortNotes()
 {
     std::vector<NoteParseValue> vec(notes.begin(), notes.end());
     std::stable_sort(vec.begin(), vec.end(), [](const NoteParseValue& lhs, const NoteParseValue& rhs)

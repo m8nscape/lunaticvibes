@@ -51,7 +51,7 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class chartBMS;
+class ChartObjectBMS;
 class TextureBmsBga: public Texture
 {
 protected:
@@ -106,7 +106,7 @@ public:
 	bool addBmp(size_t idx, Path path);
 	bool setSlot(size_t idx, Time time, bool base, bool layer, bool poor);
 	void sortSlot();
-	bool setSlotFromBMS(chartBMS& bms);
+	bool setSlotFromBMS(ChartObjectBMS& bms);
 	virtual void seek(const Time& t);
 
 	virtual void update(const Time& t, bool poor);

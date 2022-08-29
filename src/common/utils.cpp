@@ -388,7 +388,7 @@ void preciseSleep(long long sleep_ns)
 
 #else
 
-    // not optimized and not accurate
+    // FIXME not optimized and not accurate
     std::this_thread::sleep_for(sleep_ns);
 
 #endif

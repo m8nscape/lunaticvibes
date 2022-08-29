@@ -869,7 +869,7 @@ void SceneSelect::inputGameReleaseSelect(InputMask& input, const Time& t)
             {
                 // short press on song, inc version by 1
                 // TODO play some animation
-                auto pSong = std::dynamic_pointer_cast<FolderSong>(gSelectContext.entries[gSelectContext.idx].first);
+                auto pSong = std::dynamic_pointer_cast<EntryFolderSong>(gSelectContext.entries[gSelectContext.idx].first);
                 pSong->incCurrentChart();
                 setBarInfo();
                 SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_DIFFICULTY);
@@ -1060,7 +1060,7 @@ void SceneSelect::_decide()
         // set metadata
         if (entry->type() == eEntryType::SONG || entry->type() == eEntryType::RIVAL_SONG)
         {
-            auto pFile = std::reinterpret_pointer_cast<FolderSong>(entry)->getCurrentChart();
+            auto pFile = std::reinterpret_pointer_cast<EntryFolderSong>(entry)->getCurrentChart();
             c.chartObj = pFile;
         }
         else
@@ -1080,7 +1080,7 @@ void SceneSelect::_decide()
         }
         c.hash = chart.fileHash;
 
-        //c.chartObj = std::make_shared<vChartFormat>(chart);
+        //c.chartObj = std::make_shared<ChartFormatBase>(chart);
         c.title = chart.title;
         c.title2 = chart.title2;
         c.artist = chart.artist;
@@ -1095,7 +1095,7 @@ void SceneSelect::_decide()
         // set gamemode
         if (c.chartObj->type() == eChartFormat::BMS)
         {
-            auto pBMS = std::reinterpret_pointer_cast<BMS_prop>(c.chartObj);
+            auto pBMS = std::reinterpret_pointer_cast<ChartFormatBMSMeta>(c.chartObj);
             switch (pBMS->gamemode)
             {
             case 5:  gPlayContext.mode = eMode::PLAY5;  break;
@@ -1263,7 +1263,7 @@ void SceneSelect::_navigateEnter(const Time& t)
                 {},
                 0
             };
-            auto top = std::dynamic_pointer_cast<FolderTable>(e);
+            auto top = std::dynamic_pointer_cast<EntryFolderTable>(e);
             assert(top != nullptr);
             for (size_t i = 0; i < top->getContentsCount(); ++i)
                 prop.dbBrowseEntries.push_back({ top->getEntry(i), nullptr });

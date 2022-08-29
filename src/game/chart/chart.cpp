@@ -8,7 +8,7 @@
 
 using namespace chart;
 
-vChart::vChart(int slot, size_t pn, size_t en) :
+ChartObjectBase::ChartObjectBase(int slot, size_t pn, size_t en) :
     _playerSlot(slot), _noteLists{}, _bgmNoteLists(pn), _specialNoteLists(en), _bgmNoteListIters(pn), _specialNoteListIters(en)
 {
     reset();
@@ -20,19 +20,19 @@ vChart::vChart(int slot, size_t pn, size_t en) :
 }
 
 
-std::shared_ptr<vChart> vChart::createFromChartFormat(int slot, std::shared_ptr<vChartFormat> p)
+std::shared_ptr<ChartObjectBase> ChartObjectBase::createFromChartFormat(int slot, std::shared_ptr<ChartFormatBase> p)
 {
     switch (p->type())
     {
     case eChartFormat::BMS:
-        return std::make_shared<chartBMS>(slot, std::reinterpret_pointer_cast<BMS>(p));
+        return std::make_shared<ChartObjectBMS>(slot, std::reinterpret_pointer_cast<ChartFormatBMS>(p));
     default:
         LOG_WARNING << "[chart] Chart type unknown (" << int(p->type()) << "): " << p->filePath.u8string();
         return nullptr;
     }
 }
 
-void vChart::reset()
+void ChartObjectBase::reset()
 {
     _currentBarTemp         = 0;
     _currentMetreTemp        = 0;
@@ -50,7 +50,7 @@ void vChart::reset()
     resetNoteListsIterators();
 }
 
-void vChart::resetNoteListsIterators()
+void ChartObjectBase::resetNoteListsIterators()
 {
     for (size_t i = 0; i < _noteLists.size(); ++i)         
         _noteListIterators[i]  = _noteLists[i].begin();
@@ -61,85 +61,85 @@ void vChart::resetNoteListsIterators()
     _bpmNoteListIter = _bpmNoteList.begin();
 }
 
-auto vChart::firstNote(NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteLists.front().begin())
+auto ChartObjectBase::firstNote(NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteLists.front().begin())
 {
     size_t channel = channelToIdx(cat, idx);
     return _noteLists[channel].begin();
 }
 
-auto vChart::incomingNote(NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteLists.front().begin())
+auto ChartObjectBase::incomingNote(NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteLists.front().begin())
 {
     size_t channel = channelToIdx(cat, idx);
     return _noteListIterators[channel];
 }
 
-auto vChart::incomingNoteBgm(size_t channel) -> decltype(_bgmNoteLists.front().begin())
+auto ChartObjectBase::incomingNoteBgm(size_t channel) -> decltype(_bgmNoteLists.front().begin())
 {
     return _bgmNoteListIters[channel];
 }
-auto vChart::incomingNoteSpecial(size_t channel) -> decltype(_specialNoteLists.front().begin())
+auto ChartObjectBase::incomingNoteSpecial(size_t channel) -> decltype(_specialNoteLists.front().begin())
 {
     return _specialNoteListIters[channel];
 }
-auto vChart::incomingNoteBpm() -> decltype(_bpmNoteListIter)
+auto ChartObjectBase::incomingNoteBpm() -> decltype(_bpmNoteListIter)
 {
     return _bpmNoteListIter;
 }
-bool vChart::isLastNote(NoteLaneCategory cat, NoteLaneIndex idx, decltype(_noteListIterators.front()) it)
+bool ChartObjectBase::isLastNote(NoteLaneCategory cat, NoteLaneIndex idx, decltype(_noteListIterators.front()) it)
 {
     size_t channel = channelToIdx(cat, idx);
     return _noteLists[channel].empty() || it == _noteLists[channel].end();
 }
-bool vChart::isLastNoteBgm(size_t idx, decltype(_bgmNoteListIters.front()) it)
+bool ChartObjectBase::isLastNoteBgm(size_t idx, decltype(_bgmNoteListIters.front()) it)
 {
     return _bgmNoteLists[idx].empty() || it == _bgmNoteLists[idx].end();
 }
-bool vChart::isLastNoteSpecial(size_t idx, decltype(_specialNoteListIters.front()) it)
+bool ChartObjectBase::isLastNoteSpecial(size_t idx, decltype(_specialNoteListIters.front()) it)
 {
     return _specialNoteLists[idx].empty() || it == _specialNoteLists[idx].end(); 
 }
-bool vChart::isLastNoteBpm(decltype(_bpmNoteListIter) it)
+bool ChartObjectBase::isLastNoteBpm(decltype(_bpmNoteListIter) it)
 {
 	return _bpmNoteList.empty() || it == _bpmNoteList.end(); 
 }
 
-bool vChart::isLastNote(NoteLaneCategory cat, NoteLaneIndex idx)
+bool ChartObjectBase::isLastNote(NoteLaneCategory cat, NoteLaneIndex idx)
 {
 	return isLastNote(cat, idx, incomingNote(cat, idx));
 }
-bool vChart::isLastNoteBgm(size_t channel)
+bool ChartObjectBase::isLastNoteBgm(size_t channel)
 {
 	return isLastNoteBgm(channel, incomingNoteBgm(channel));
 }
-bool vChart::isLastNoteSpecial(size_t channel)
+bool ChartObjectBase::isLastNoteSpecial(size_t channel)
 {
 	return isLastNoteSpecial(channel, incomingNoteSpecial(channel));
 }
-bool vChart::isLastNoteBpm()
+bool ChartObjectBase::isLastNoteBpm()
 {
 	return isLastNoteBpm(incomingNoteBpm());
 }
 
-auto vChart::nextNote(NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteListIterators.front())
+auto ChartObjectBase::nextNote(NoteLaneCategory cat, NoteLaneIndex idx) -> decltype(_noteListIterators.front())
 {
     size_t channel = channelToIdx(cat, idx);
     return ++_noteListIterators[channel];
 }
 
-auto vChart::nextNoteBgm(size_t channel) -> decltype(_bgmNoteListIters.front())
+auto ChartObjectBase::nextNoteBgm(size_t channel) -> decltype(_bgmNoteListIters.front())
 {
     return ++_bgmNoteListIters[channel];
 }
-auto vChart::nextNoteSpecial(size_t channel) -> decltype(_specialNoteListIters.front())
+auto ChartObjectBase::nextNoteSpecial(size_t channel) -> decltype(_specialNoteListIters.front())
 {
     return ++_specialNoteListIters[channel];
 }
-auto vChart::nextNoteBpm() -> decltype(_bpmNoteListIter)
+auto ChartObjectBase::nextNoteBpm() -> decltype(_bpmNoteListIter)
 {
     return ++_bpmNoteListIter;
 }
 
-Time vChart::getBarLength(size_t bar)
+Time ChartObjectBase::getBarLength(size_t bar)
 {
     if (bar + 1 >= _barTimestamp.size())
     {
@@ -150,12 +150,12 @@ Time vChart::getBarLength(size_t bar)
 	return l.hres() > 0 ? l : -1;
 }
 
-Time vChart::getCurrentBarLength()
+Time ChartObjectBase::getCurrentBarLength()
 {
     return getBarLength(_currentBarTemp);
 }
 
-Metre vChart::getBarMetre(size_t bar)
+Metre ChartObjectBase::getBarMetre(size_t bar)
 {
     if (bar >= barMetreLength.size())
     {
@@ -165,12 +165,12 @@ Metre vChart::getBarMetre(size_t bar)
 	return barMetreLength[bar];
 }
 
-Metre vChart::getCurrentBarMetre()
+Metre ChartObjectBase::getCurrentBarMetre()
 {
 	return getBarMetre(_currentBarTemp);
 }
 
-Metre vChart::getBarMetrePosition(size_t bar)
+Metre ChartObjectBase::getBarMetrePosition(size_t bar)
 {
     if (bar >= _barMetrePos.size())
     {
@@ -180,7 +180,7 @@ Metre vChart::getBarMetrePosition(size_t bar)
 	return _barMetrePos[bar];
 }
 
-void vChart::update(Time t)
+void ChartObjectBase::update(Time t)
 {
     Time vt = t + Time(gNumbers.get(eNumber::TIMING_ADJUST_VISUAL), false);
     Time at = t;

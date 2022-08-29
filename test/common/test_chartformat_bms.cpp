@@ -3,7 +3,7 @@
 #include "../../src/common/utils.h"
 #include <fstream>
 
-bool ExpectNotePosition(BMS& bms, LaneCode area, int ch, int bar, int res, std::vector<int>& segments)
+bool ExpectNotePosition(ChartFormatBMS& bms, LaneCode area, int ch, int bar, int res, std::vector<int>& segments)
 {
 	auto& lane = bms.getLane(area, ch, bar);
 	unsigned maxres = lane.resolution * res;
@@ -19,22 +19,22 @@ bool ExpectNotePosition(BMS& bms, LaneCode area, int ch, int bar, int res, std::
 };
 TEST(tBMS, folder_not_exist)
 {
-	std::shared_ptr<BMS> bms = nullptr;
-	ASSERT_NO_THROW(bms = std::make_shared<BMS>("bbb/asdlfkjasdlfkjsdalgjsdalgjasd.bms"));
+	std::shared_ptr<ChartFormatBMS> bms = nullptr;
+	ASSERT_NO_THROW(bms = std::make_shared<ChartFormatBMS>("bbb/asdlfkjasdlfkjsdalgjsdalgjasd.bms"));
 	EXPECT_EQ(bms->isLoaded(), false);
 }
 
 TEST(tBMS, file_not_exist)
 {
-	std::shared_ptr<BMS> bms = nullptr; 
-	ASSERT_NO_THROW(bms = std::make_shared<BMS>("bms/asdlfkjasdlfkjsdalgjsdalgjasd.bms"));
+	std::shared_ptr<ChartFormatBMS> bms = nullptr; 
+	ASSERT_NO_THROW(bms = std::make_shared<ChartFormatBMS>("bms/asdlfkjasdlfkjsdalgjsdalgjasd.bms"));
 	EXPECT_EQ(bms->isLoaded(), false);
 }
 
 TEST(tBMS, meta_basic)
 {
-	std::shared_ptr<BMS> bms = nullptr;
-	ASSERT_NO_THROW(bms = std::make_shared<BMS>("bms/bgm32.bms"));
+	std::shared_ptr<ChartFormatBMS> bms = nullptr;
+	ASSERT_NO_THROW(bms = std::make_shared<ChartFormatBMS>("bms/bgm32.bms"));
 	ASSERT_EQ(bms->isLoaded(), true);
 
 	EXPECT_STRCASEEQ(bms->fileHash.hexdigest().c_str(), "C396F76B2DE46425ED22B196230173F0");
@@ -45,8 +45,8 @@ TEST(tBMS, meta_basic)
 
 TEST(tBMS, metre_change)
 {
-	std::shared_ptr<BMS> bms = nullptr;
-	ASSERT_NO_THROW(bms = std::make_shared<BMS>("bms/bar.bms"));
+	std::shared_ptr<ChartFormatBMS> bms = nullptr;
+	ASSERT_NO_THROW(bms = std::make_shared<ChartFormatBMS>("bms/bar.bms"));
 	ASSERT_EQ(bms->isLoaded(), true);
 
 	ASSERT_EQ(bms->lastBarIdx, 3);
@@ -58,8 +58,8 @@ TEST(tBMS, metre_change)
 
 TEST(tBMS, bpm_change)
 {
-	std::shared_ptr<BMS> bms = nullptr;
-	ASSERT_NO_THROW(bms = std::make_shared<BMS>("bms/bpm.bms"));
+	std::shared_ptr<ChartFormatBMS> bms = nullptr;
+	ASSERT_NO_THROW(bms = std::make_shared<ChartFormatBMS>("bms/bpm.bms"));
 	ASSERT_EQ(bms->isLoaded(), true);
 
 	ASSERT_EQ(bms->lastBarIdx, 3);
@@ -81,8 +81,8 @@ TEST(tBMS, bpm_change)
 
 TEST(tBMS, stop)
 {
-	std::shared_ptr<BMS> bms = nullptr;
-	ASSERT_NO_THROW(bms = std::make_shared<BMS>("bms/stop.bms"));
+	std::shared_ptr<ChartFormatBMS> bms = nullptr;
+	ASSERT_NO_THROW(bms = std::make_shared<ChartFormatBMS>("bms/stop.bms"));
 	ASSERT_EQ(bms->isLoaded(), true);
 
 	EXPECT_EQ(bms->getLane(bms::LaneCode::STOP, 0, 1).notes.size(), 3);
@@ -96,8 +96,8 @@ TEST(tBMS, stop)
 
 TEST(tBMS, note_5k)
 {
-	std::shared_ptr<BMS> bms = nullptr;
-	ASSERT_NO_THROW(bms = std::make_shared<BMS>("bms/5k.bms"));
+	std::shared_ptr<ChartFormatBMS> bms = nullptr;
+	ASSERT_NO_THROW(bms = std::make_shared<ChartFormatBMS>("bms/5k.bms"));
 	ASSERT_EQ(bms->isLoaded(), true);
 
 	// note count
@@ -123,8 +123,8 @@ TEST(tBMS, note_5k)
 }
 TEST(tBMS, note_7k)
 {
-	std::shared_ptr<BMS> bms = nullptr;
-	ASSERT_NO_THROW(bms = std::make_shared<BMS>("bms/7k.bme"));
+	std::shared_ptr<ChartFormatBMS> bms = nullptr;
+	ASSERT_NO_THROW(bms = std::make_shared<ChartFormatBMS>("bms/7k.bme"));
 	ASSERT_EQ(bms->isLoaded(), true);
 
 	EXPECT_EQ(bms->getLane(bms::LaneCode::NOTE1, 0, 1).notes.size(), 1);
@@ -171,8 +171,8 @@ TEST(tBMS, note_7k)
 }
 TEST(tBMS, note_10k)
 {
-	std::shared_ptr<BMS> bms = nullptr;
-	ASSERT_NO_THROW(bms = std::make_shared<BMS>("bms/10k.bms"));
+	std::shared_ptr<ChartFormatBMS> bms = nullptr;
+	ASSERT_NO_THROW(bms = std::make_shared<ChartFormatBMS>("bms/10k.bms"));
 	ASSERT_EQ(bms->isLoaded(), true);
 
 	// note count
@@ -205,8 +205,8 @@ TEST(tBMS, note_10k)
 }
 TEST(tBMS, note_14k)
 {
-	std::shared_ptr<BMS> bms = nullptr;
-	ASSERT_NO_THROW(bms = std::make_shared<BMS>("bms/14k.bme"));
+	std::shared_ptr<ChartFormatBMS> bms = nullptr;
+	ASSERT_NO_THROW(bms = std::make_shared<ChartFormatBMS>("bms/14k.bme"));
 	ASSERT_EQ(bms->isLoaded(), true);
 
 	// note count
@@ -248,8 +248,8 @@ TEST(tBMS, note_14k)
 
 TEST(tBMS, ln)
 {
-	std::shared_ptr<BMS> bms = nullptr;
-	ASSERT_NO_THROW(bms = std::make_shared<BMS>("bms/ln.bme"));
+	std::shared_ptr<ChartFormatBMS> bms = nullptr;
+	ASSERT_NO_THROW(bms = std::make_shared<ChartFormatBMS>("bms/ln.bme"));
 	ASSERT_EQ(bms->isLoaded(), true);
 
 	// note count

@@ -7,8 +7,8 @@ class RulesetBMSAuto : public RulesetBMS
 {
 public:
     RulesetBMSAuto(
-        std::shared_ptr<vChartFormat> format,
-        std::shared_ptr<chart::vChart> chart,
+        std::shared_ptr<ChartFormatBase> format,
+        std::shared_ptr<ChartObjectBase> chart,
         eModGauge gauge,
         GameModeKeys keys,
         JudgeDifficulty difficulty = JudgeDifficulty::NORMAL,

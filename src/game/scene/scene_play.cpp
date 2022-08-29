@@ -82,7 +82,7 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
             return;
         }
 
-        gChartContext.chartObj = vChartFormat::createFromFile(gChartContext.path);
+        gChartContext.chartObj = ChartFormatBase::createFromFile(gChartContext.path);
     }
 
     if (gChartContext.chartObj == nullptr || !gChartContext.chartObj->isLoaded())
@@ -107,24 +107,24 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     {
     case eChartFormat::BMS:
     {
-        auto bms = std::reinterpret_pointer_cast<BMS>(gChartContext.chartObj);
+        auto bms = std::reinterpret_pointer_cast<ChartFormatBMS>(gChartContext.chartObj);
         // TODO mods
 
         if (gPlayContext.isAuto)
         {
-            gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<chartBMS>(PLAYER_SLOT_1P, bms);
+            gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_1P, bms);
         }
         else
         {
             if (isPlaymodeBattle())
             {
-                gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<chartBMS>(PLAYER_SLOT_1P, bms);
-                gPlayContext.chartObj[PLAYER_SLOT_2P] = std::make_shared<chartBMS>(PLAYER_SLOT_2P, bms);
+                gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_1P, bms);
+                gPlayContext.chartObj[PLAYER_SLOT_2P] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_2P, bms);
             }
             else
             {
-                gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<chartBMS>(PLAYER_SLOT_1P, bms);
-                gPlayContext.chartObj[PLAYER_SLOT_2P] = std::make_shared<chartBMS>(PLAYER_SLOT_1P, bms);    // create for rival; loading with 1P options
+                gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_1P, bms);
+                gPlayContext.chartObj[PLAYER_SLOT_2P] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_1P, bms);    // create for rival; loading with 1P options
             }
         }
         _chartLoaded = true;
@@ -416,7 +416,7 @@ void ScenePlay::loadChart()
         switch (gChartContext.chartObj->type())
         {
         case eChartFormat::BMS:
-            switch (std::reinterpret_pointer_cast<BMS>(gChartContext.chartObj)->rank)
+            switch (std::reinterpret_pointer_cast<ChartFormatBMS>(gChartContext.chartObj)->rank)
             {
             case 1: judgeDiff = RulesetBMS::JudgeDifficulty::HARD; break;
             case 2: judgeDiff = RulesetBMS::JudgeDifficulty::NORMAL; break;
@@ -608,7 +608,7 @@ void ScenePlay::loadChart()
             {
                 gPlayContext.bgaTexture->setLoaded();
             }
-			gPlayContext.bgaTexture->setSlotFromBMS(*std::reinterpret_pointer_cast<chartBMS>(gPlayContext.chartObj[PLAYER_SLOT_1P]));
+			gPlayContext.bgaTexture->setSlotFromBMS(*std::reinterpret_pointer_cast<ChartObjectBMS>(gPlayContext.chartObj[PLAYER_SLOT_1P]));
             gChartContext.isBgaLoaded = true;
         });
     }
