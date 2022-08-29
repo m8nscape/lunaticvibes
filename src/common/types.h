@@ -97,6 +97,8 @@ enum class eMode {
     COURSE_TRANS,
     EXIT_TRANS,
 
+    PRE_SELECT,
+
     TMPL,
     TEST,
 

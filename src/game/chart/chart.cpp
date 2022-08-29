@@ -25,7 +25,15 @@ std::shared_ptr<ChartObjectBase> ChartObjectBase::createFromChartFormat(int slot
     switch (p->type())
     {
     case eChartFormat::BMS:
-        return std::make_shared<ChartObjectBMS>(slot, std::reinterpret_pointer_cast<ChartFormatBMS>(p));
+        try
+        {
+            return std::static_pointer_cast<ChartObjectBase>(std::make_shared<ChartObjectBMS>(slot, std::reinterpret_pointer_cast<ChartFormatBMS>(p)));
+        }
+        catch (std::exception& e)
+        {
+            LOG_ERROR << "[chart] Load chart exception (" << e.what() << "): " << p->filePath.u8string();
+            return nullptr;
+        }
     default:
         LOG_WARNING << "[chart] Chart type unknown (" << int(p->type()) << "): " << p->filePath.u8string();
         return nullptr;

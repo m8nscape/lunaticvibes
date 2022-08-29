@@ -36,7 +36,6 @@ void mainLoop()
     gGenericInfo.loopStart();
 
     eScene currentScene = eScene::NOT_INIT;
-    gNextScene = eScene::SELECT;
 
     pScene scene = nullptr;
     while (!gEventQuit && currentScene != eScene::EXIT && gNextScene != eScene::EXIT)
@@ -211,131 +210,12 @@ int main(int argc, char* argv[])
     std::string scoreDBPath = (ConfigMgr::Profile()->getPath() / "score.db").u8string();
     g_pScoreDB = std::make_shared<ScoreDB>(scoreDBPath.c_str());
 
-    // initialize song list
+    // song db
     Path dbPath = Path(GAMEDATA_PATH) / "database";
     if (!fs::exists(dbPath)) fs::create_directories(dbPath);
     g_pSongDB = std::make_shared<SongDB>(dbPath / "song.db");
 
-    // get folders from config
-    auto folderList = ConfigMgr::General()->getFoldersPath();
-    for (auto& f : folderList)
-    {
-        LOG_INFO << "[List] Add folder " << f;
-        g_pSongDB->addFolder(f);
-    }
-
-    SongListProperties rootFolderProp{
-        "",
-        ROOT_FOLDER_HASH,
-        "",
-        {},
-        {},
-        0
-    };
-    auto top = g_pSongDB->browse(ROOT_FOLDER_HASH, false);
-    for (size_t i = 0; i < top.getContentsCount(); ++i)
-    {
-        auto entry = top.getEntry(i);
-
-        bool deleted = true;
-        for (auto& f : folderList)
-        {
-            if (fs::equivalent(f, entry->getPath()))
-            {
-                deleted = false;
-                break;
-            }
-        }
-        if (!deleted)
-        {
-            g_pSongDB->browse(entry->md5, true);
-            rootFolderProp.dbBrowseEntries.push_back({ entry, nullptr });
-        }
-    }
-
-    // initialize table list
-    auto tableList = ConfigMgr::General()->getTablesUrl();
-    for (auto& tableUrl : tableList)
-    {
-        LOG_INFO << "[List] Add table " << tableUrl;
-        gSelectContext.tables.emplace_back();
-        DifficultyTableBMS& t = gSelectContext.tables.back();
-        t.setUrl(tableUrl);
-
-        auto convertTable = [&](DifficultyTableBMS& t)
-        {
-            std::shared_ptr<EntryFolderTable> tbl = std::make_shared<EntryFolderTable>(t.getName(), "");
-            size_t index = 0;
-            for (const auto& lv : t.getLevelList())
-            {
-                std::shared_ptr<EntryFolderTable> tblLevel = std::make_shared<EntryFolderTable>((boost::format("%s%s") % t.getSymbol() % lv).str(), "");
-                for (const auto& r : t.getEntryList(lv))
-                {
-                    auto charts = g_pSongDB->findChartByHash(r->md5);
-                    bool added = false;
-                    for (auto& c : charts)
-                    {
-                        if (fs::exists(c->absolutePath))
-                        {
-                            std::shared_ptr<EntryFolderSong> f = std::make_shared<EntryFolderSong>(HashMD5((boost::format("%032lu") % index++).str()), "", c->title, c->title2);
-                            f->pushChart(c);
-                            tblLevel->pushEntry(f);
-                            added = true;
-                            break;
-                        }
-                    }
-                    /*
-                    if (!added)
-                    {
-                        std::shared_ptr<FolderSong> f = std::make_shared<FolderSong>(HashMD5(), "", r->_name, r->_name2);
-                        f->pushChart(c);
-                        tblLevel->pushEntry(f);
-                        added = true;
-                        break;
-                    }
-                    */
-                }
-                tbl->pushEntry(tblLevel);
-            }
-            return tbl;
-        };
-
-        if (t.loadFromFile())
-        {
-            rootFolderProp.dbBrowseEntries.push_back({ convertTable(t), nullptr });
-        }
-        else
-        {
-            t.updateFromUrl([&](DifficultyTable::UpdateResult result)
-                {
-                    if (result == DifficultyTable::UpdateResult::OK)
-                    {
-                        rootFolderProp.dbBrowseEntries.push_back({ convertTable(t), nullptr });
-                    }
-                    else
-                    {
-                        switch (result)
-                        {
-                        case DifficultyTable::UpdateResult::INTERNAL_ERROR:         LOG_WARNING << "[List] Update table " << tableUrl << " failed: INTERNAL_ERROR";      break;
-                        case DifficultyTable::UpdateResult::WEB_PATH_ERROR:         LOG_WARNING << "[List] Update table " << tableUrl << " failed: WEB_PATH_ERROR";      break;
-                        case DifficultyTable::UpdateResult::WEB_CONNECT_ERR:        LOG_WARNING << "[List] Update table " << tableUrl << " failed: WEB_CONNECT_ERR";     break;
-                        case DifficultyTable::UpdateResult::WEB_TIMEOUT:            LOG_WARNING << "[List] Update table " << tableUrl << " failed: WEB_TIMEOUT";         break;
-                        case DifficultyTable::UpdateResult::WEB_PARSE_FAILED:       LOG_WARNING << "[List] Update table " << tableUrl << " failed: WEB_PARSE_FAILED";    break;
-                        case DifficultyTable::UpdateResult::HEADER_PATH_ERROR:      LOG_WARNING << "[List] Update table " << tableUrl << " failed: HEADER_PATH_ERROR";   break;
-                        case DifficultyTable::UpdateResult::HEADER_CONNECT_ERR:     LOG_WARNING << "[List] Update table " << tableUrl << " failed: HEADER_CONNECT_ERR";  break;
-                        case DifficultyTable::UpdateResult::HEADER_TIMEOUT:         LOG_WARNING << "[List] Update table " << tableUrl << " failed: HEADER_TIMEOUT";      break;
-                        case DifficultyTable::UpdateResult::HEADER_PARSE_FAILED:    LOG_WARNING << "[List] Update table " << tableUrl << " failed: HEADER_PARSE_FAILED"; break;
-                        case DifficultyTable::UpdateResult::DATA_PATH_ERROR:        LOG_WARNING << "[List] Update table " << tableUrl << " failed: DATA_PATH_ERROR";     break;
-                        case DifficultyTable::UpdateResult::DATA_CONNECT_ERR:       LOG_WARNING << "[List] Update table " << tableUrl << " failed: DATA_CONNECT_ERR";    break;
-                        case DifficultyTable::UpdateResult::DATA_TIMEOUT:           LOG_WARNING << "[List] Update table " << tableUrl << " failed: DATA_TIMEOUT";        break;
-                        case DifficultyTable::UpdateResult::DATA_PARSE_FAILED:      LOG_WARNING << "[List] Update table " << tableUrl << " failed: DATA_PARSE_FAILED1";  break;
-                        }
-                    }
-                });
-        }
-    }
-
-    gSelectContext.backtrace.push(rootFolderProp);
+    // load songs / tables at ScenePreSelect
 
     // arg parsing
     if (argc >= 2)
@@ -364,6 +244,10 @@ int main(int argc, char* argv[])
             bms->startBPM,
             bms->maxBPM,
         };
+    }
+    else
+    {
+        gNextScene = eScene::PRE_SELECT;
     }
 
     /*

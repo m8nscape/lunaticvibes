@@ -1,5 +1,6 @@
 #include "scene_mgr.h"
 #include "scene_context.h"
+#include "scene_pre_select.h"
 #include "scene_select.h"
 #include "scene_decide.h"
 #include "scene_play.h"
@@ -28,6 +29,10 @@ pScene SceneMgr::get(eScene e)
     {
     case eScene::EXIT:
     case eScene::NOT_INIT:
+        break;
+
+    case eScene::PRE_SELECT:
+        ps = std::make_shared<ScenePreSelect>();
         break;
 
     case eScene::SELECT:

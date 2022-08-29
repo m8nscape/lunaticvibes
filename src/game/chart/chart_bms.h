@@ -6,7 +6,7 @@ class ChartObjectBMS : public ChartObjectBase
 {
 public:
     // 32 -> 40 (9_7_L.bms, 2022-05-04)
-    const size_t BGM_LANE_COUNT = 40;
+    static inline const size_t BGM_LANE_COUNT = 40;
 
     enum class eNoteExt : unsigned
     {

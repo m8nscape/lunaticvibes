@@ -23,36 +23,38 @@ add_library(gamelib
     graphics/dxa.cpp
     input/input_linux.cpp
     input/input_mgr.cpp
+    input/input_dinput8.cpp
     input/input_windows.cpp
     input/input_wrapper.cpp
     ruleset/ruleset_bms.cpp
+    ruleset/ruleset_bms_auto.cpp
     scene/scene.cpp
     scene/scene_context.cpp
     scene/scene_decide.cpp
     scene/scene_mgr.cpp
     scene/scene_play.cpp
-    scene/scene_play_retry_trans.cpp
+    scene/scene_pre_select.cpp
     scene/scene_result.cpp
     scene/scene_select.cpp
+    scene/scene_keyconfig.cpp
+    scene/scene_play_course_trans.cpp
+    scene/scene_customize.cpp
+    scene/scene_select_imgui.cpp
+    scene/scene_play_retry_trans.cpp
+    scene/scene_exit_trans.cpp
     skin/skin.cpp
     skin/skin_lr2.cpp
     skin/skin_lr2_button_callbacks.cpp
+    skin/skin_lr2_slider_callbacks.cpp
     skin/skin_lr2_converters.cpp
     skin/skin_lr2_dst.cpp
+    skin/skin_lr2_debug.cpp
     skin/skin_mgr.cpp
     sound/sound_fmod.cpp
     sound/sound_fmod_callback.cpp
     sound/sound_mgr.cpp
     sound/sound_sample.cpp  
-    scene/scene_keyconfig.cpp
-    scene/scene_play_course_trans.cpp
-    scene/scene_customize.cpp
-    skin/skin_lr2_slider_callbacks.cpp
-    scene/scene_select_imgui.cpp
-    ruleset/ruleset_bms_auto.cpp
-    scene/scene_exit_trans.cpp
-    skin/skin_lr2_debug.cpp
- "input/input_dinput8.cpp")
+)
 
 if (UNIX OR MINGW)
     target_link_libraries(gamelib PRIVATE -lpthread)

@@ -417,7 +417,7 @@ void SpriteAnimated::draw() const
 // Text
 
 SpriteText::SpriteText(pFont f, eText e, TextAlign a, unsigned ptsize, Color c):
-   SpriteStatic(nullptr), _pFont(f), _textInd(e), _align(a), _color(c)
+   SpriteStatic(nullptr), _pFont(f), _textInd(e), _align(a), _height(ptsize * 3 / 2), _color(c)
 {
     _type = SpriteTypes::TEXT;
 }
@@ -506,6 +506,7 @@ void SpriteText::setInputBindingText(std::string&& text, const Color& c)
     if (_pTexture)
     {
         _texRect = _pTexture->getRect();
+        _texRect.h = _height;
         _draw = true;
     }
     else

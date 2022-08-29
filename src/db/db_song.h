@@ -75,4 +75,15 @@ public:
     EntryFolderSong browseSong(HashMD5 root);
     EntryFolderRegular search(HashMD5 root, std::string key);
 
+public:
+    int addFolderLoaded = 0;
+    int addFolderTotal = 0;
+    int addChartLoaded = 0;
+    int addChartTotal = 0;
+    std::shared_mutex addCurrentPathMutex;
+    std::string addCurrentPath;
+    void resetAddSummary();
+
+    bool stopRequested = false;
+    void stopLoading();
 };

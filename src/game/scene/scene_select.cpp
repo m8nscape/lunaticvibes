@@ -283,6 +283,9 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
     gSwitches.set(eSwitch::CHART_CAN_SAVE_SCORE, score);
     gOptions.set(eOption::CHART_SAVE_LAMP_TYPE, lamp);
 
+    gTexts.set(eText::_OVERLAY_TOPLEFT, "");
+    gTexts.set(eText::_OVERLAY_TOPLEFT2, "");
+
     _state = eSelectState::PREPARE;
     _updateCallback = std::bind(&SceneSelect::updatePrepare, this);
 

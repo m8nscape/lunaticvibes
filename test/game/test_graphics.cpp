@@ -899,7 +899,7 @@ public:
     mock_SpriteSlider(pTexture texture, const Rect& rect, SliderDirection dir, int range,
         unsigned animFrames, unsigned frameTime, eSlider ind = eSlider::_TEST1, eTimer animtimer = eTimer::K11_BOMB,
         unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false) :
-        SpriteSlider(texture, rect, dir, range, animFrames, frameTime, ind, animtimer, selRows, selCols, selVerticalIndexing) {}
+        SpriteSlider(texture, rect, dir, range, [](double) {}, animFrames, frameTime, ind, animtimer, selRows, selCols, selVerticalIndexing) {}
 };
 
 class sSlider : public ::testing::Test

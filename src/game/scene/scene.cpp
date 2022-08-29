@@ -57,6 +57,8 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
         int textHeight = 16;
         _sTopLeft = std::make_shared<SpriteText>(_fNotifications, eText::_OVERLAY_TOPLEFT, TextAlign::TEXT_ALIGN_LEFT, textHeight);
         _sTopLeft->setLoopTime(0);
+        _sTopLeft2 = std::make_shared<SpriteText>(_fNotifications, eText::_OVERLAY_TOPLEFT2, TextAlign::TEXT_ALIGN_LEFT, textHeight);
+        _sTopLeft2->setLoopTime(0);
         RenderKeyFrame f;
         f.time = 0;
         f.param.rect = Rect(0, 0, notificationWidth, textHeight);
@@ -67,6 +69,8 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
         f.param.angle = 0;
         f.param.center = Point(0, 0);
         _sTopLeft->appendKeyFrame(f);
+        f.param.rect.y += 24;
+        _sTopLeft2->appendKeyFrame(f);
     }
 
 	Time t;
@@ -139,8 +143,10 @@ void vScene::update()
     {
         _sNotifications[i]->update(t);
         _sNotificationsBG[i]->update(t);
+
     }
     _sTopLeft->update(t);
+    _sTopLeft2->update(t);
 
     // update videos
     TextureVideo::updateAll();
@@ -159,6 +165,7 @@ void vScene::update()
 
 void vScene::MouseClick(InputMask& m, const Time& t)
 {
+    if (!_skin) return;
     if (m[Input::Pad::M1])
     {
         auto [x, y] = _input.getCursorPos();
@@ -168,6 +175,7 @@ void vScene::MouseClick(InputMask& m, const Time& t)
 
 void vScene::MouseDrag(InputMask& m, const Time& t)
 {
+    if (!_skin) return;
     if (m[Input::Pad::M1])
     {
         auto [x, y] = _input.getCursorPos();
@@ -177,6 +185,7 @@ void vScene::MouseDrag(InputMask& m, const Time& t)
 
 void vScene::MouseRelease(InputMask& m, const Time& t)
 {
+    if (!_skin) return;
     if (m[Input::Pad::M1])
     {
         _skin->update_mouse_release();
@@ -189,6 +198,8 @@ void vScene::draw() const
 
     _sTopLeft->updateText();
     _sTopLeft->draw();
+    _sTopLeft2->updateText();
+    _sTopLeft2->draw();
 
     {
         std::shared_lock lock(gOverlayContext._mutex);

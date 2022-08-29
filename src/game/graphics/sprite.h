@@ -104,7 +104,7 @@ public:
     void clearKeyFrames() { _keyFrames.clear(); }
 };
 
-class iSpriteMouse : public std::enable_shared_from_this<iSpriteMouse>
+class iSpriteMouse
 {
 public:
     virtual void OnMouseMove(int x, int y) = 0;
@@ -254,6 +254,7 @@ class SpriteText: public SpriteStatic, public iSpriteMouse
 {
 private:
 	pFont _pFont;
+    unsigned _height;
     Color _color;
     inline static std::mutex _updateMutex;
 

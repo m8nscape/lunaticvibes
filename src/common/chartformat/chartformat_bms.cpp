@@ -10,6 +10,7 @@
 #include <random>
 #include "db/db_song.h"
 #include "re2/re2.h"
+#include <boost/algorithm/string.hpp>
 
 class noteLineException : public std::exception {};
 
@@ -38,7 +39,7 @@ int ChartFormatBMS::getExtendedProperty(const std::string& key, void* ret)
     return -1;
 }
 
-ChartFormatBMS::ChartFormatBMS() {
+ChartFormatBMS::ChartFormatBMS() : ChartFormatBMSMeta() {
     wavFiles.resize(MAXSAMPLEIDX + 1);
     bgaFiles.resize(MAXSAMPLEIDX + 1);
     metres.resize(MAXBARIDX + 1);
@@ -121,7 +122,12 @@ int ChartFormatBMS::initWithFile(const Path& file)
         if (lineBuf.length() <= 1) continue;
 
         // remove not needed spaces
-        lineBuf = lineBuf.substr(lineBuf.find_first_not_of(' '), lineBuf.find_first_of('\r') - lineBuf.find_first_not_of(' '));
+#ifdef WIN32
+        static const auto localeUTF8 = std::locale(".65001");
+#else
+        static const auto localeUTF8 = std::locale("en_US.UTF-8");
+#endif
+        boost::trim_right(lineBuf, localeUTF8);
 
         // convert codepage
         lineBuf = to_utf8(lineBuf, encoding);
@@ -627,8 +633,8 @@ int ChartFormatBMS::initWithFile(const Path& file)
                     }
                 }
 
-                chNotesLN.lanes[area][ch][bar_head].sortNotes();
-                chNotesLN.lanes[area][ch][bar_curr].sortNotes();
+                if (bar_head <= lastBarIdx) chNotesLN.lanes[area][ch][bar_head].sortNotes();
+                if (bar_curr <= lastBarIdx) chNotesLN.lanes[area][ch][bar_curr].sortNotes();
             }
         }
 

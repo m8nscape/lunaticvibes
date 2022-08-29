@@ -11,6 +11,7 @@
 enum class eScene
 {
     NOT_INIT,
+    PRE_SELECT,
     SELECT,
     DECIDE,
     PLAY,
@@ -36,6 +37,7 @@ protected:
     std::shared_ptr<TTFFont> _fNotifications;
     std::shared_ptr<Texture> _texNotificationsBG;
     std::shared_ptr<SpriteText> _sTopLeft;
+    std::shared_ptr<SpriteText> _sTopLeft2;
     std::array<std::shared_ptr<SpriteText>, size_t(eText::_OVERLAY_NOTIFICATION_MAX) - size_t(eText::_OVERLAY_NOTIFICATION_0) + 1> _sNotifications;
     std::array<std::shared_ptr<SpriteStatic>, size_t(eText::_OVERLAY_NOTIFICATION_MAX) - size_t(eText::_OVERLAY_NOTIFICATION_0) + 1> _sNotificationsBG;
 

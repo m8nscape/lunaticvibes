@@ -18,6 +18,7 @@ configure_file(
     "${CMAKE_SOURCE_DIR}/src/cmake_config.h.in"
     "${PROJECT_BINARY_DIR}/cmake_config.h"
 )
+
 include_directories("${PROJECT_BINARY_DIR}")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")

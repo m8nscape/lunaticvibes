@@ -5,10 +5,13 @@
 #include "common/log.h"
 #include "common/chartformat/chartformat_types.h"
 #include "game/chart/chart_types.h"
-#include "BS_thread_pool.hpp"
 #include "re2/re2.h"
 
-static std::map<SongDB*, BS::thread_pool> DBThreadPool;
+#define BOOST_ASIO_NO_EXCEPTIONS
+#include <boost/asio/post.hpp>
+#include <boost/asio/thread_pool.hpp>
+
+static std::map<SongDB*, boost::asio::thread_pool> DBThreadPool;
 
 const char* CREATE_FOLDER_TABLE_STR =
 "CREATE TABLE IF NOT EXISTS folder( "
@@ -238,6 +241,7 @@ int SongDB::addChart(const HashMD5& folder, const Path& path)
     catch (const std::exception& e)
     {
         LOG_WARNING << "[SongDB] "<< e.what() << ": " << path.filename().wstring();
+        addChartLoaded++;
         return 1;
     }
 
@@ -249,6 +253,7 @@ int SongDB::addChart(const HashMD5& folder, const Path& path)
         HashMD5 filemd5 = md5file(path);
         if (dbmd5 == filemd5)
         {
+            addChartLoaded++;
             return 0;
         }
         else
@@ -257,15 +262,17 @@ int SongDB::addChart(const HashMD5& folder, const Path& path)
             if (SQLITE_OK != exec("DELETE FROM song WHERE parent=? AND file=?", { folder.hexdigest(), filename }))
             {
                 LOG_WARNING << "[SongDB] Remove existing chart from db failed: " << path.u8string();
+                addChartLoaded++;
                 return 1;
             }
         }
     }
 
-    auto c = ChartFormatBase::createFromFile(path);
+    pChartFormat c = ChartFormatBase::createFromFile(path);
     if (c == nullptr)
     {
         LOG_WARNING << "[SongDB] File error: " << path.u8string();
+        addChartLoaded++;
         return 1;
     }
 
@@ -273,14 +280,24 @@ int SongDB::addChart(const HashMD5& folder, const Path& path)
     if (s == nullptr)
     {
         LOG_WARNING << "[SongDB] File parsing error: " << path.u8string();
+        addChartLoaded++;
         return 1;
+    }
+
+    {
+        std::unique_lock l(addCurrentPathMutex, std::try_to_lock);
+        if (l.owns_lock())
+        {
+            addCurrentPath = path.u8string();
+        }
     }
 
     switch (c->type())
     {
     case eChartFormat::BMS:
     {
-        auto bmsc = std::reinterpret_pointer_cast<ChartFormatBMS>(c);
+        auto bmsc = std::dynamic_pointer_cast<ChartFormatBMS>(c);
+        assert(bmsc != nullptr);
         if (SQLITE_OK != exec("INSERT INTO song("
             "md5,parent,type,file,title,title2,artist,artist2,genre,version,"
             "level,bpm,minbpm,maxbpm,length,totalnotes,stagefile,bannerfile,gamemode,judgerank,"
@@ -322,6 +339,7 @@ int SongDB::addChart(const HashMD5& folder, const Path& path)
             }))
         {
             LOG_WARNING << "[SongDB] Insert into db error: " << path.u8string() << ": " << errmsg();
+            addChartLoaded++;
             return 1;
         }
     }
@@ -330,6 +348,8 @@ int SongDB::addChart(const HashMD5& folder, const Path& path)
     default:
         break;
     }
+
+    addChartLoaded++;
     return 0;
 }
 
@@ -457,6 +477,8 @@ std::vector<pChartFormat> SongDB::findChartByHash(const HashMD5& target) const
 
 int SongDB::addFolder(Path path, HashMD5 parentHash)
 {
+    addFolderTotal++;
+
     if (parentHash == ROOT_FOLDER_HASH)
     {
         LOG_INFO << "[SongDB] Add folder: " << path.u8string();
@@ -567,11 +589,10 @@ int SongDB::addFolder(Path path, HashMD5 parentHash)
 
     if (parentHash == ROOT_FOLDER_HASH)
     {
-        BS::thread_pool& pool = DBThreadPool[this];
-        pool.wait_for_tasks();
-
         LOG_INFO << "[SongDB] " << path.u8string() << ": added " << count << " entries";
     }
+
+    addFolderLoaded++;
 
     return 0;
 }
@@ -596,20 +617,29 @@ int SongDB::addFolderCharts(const HashMD5& hash, const Path& path)
 
     for (const auto& f : fs::directory_iterator(path))
     {
+        if (stopRequested)
+        {
+            break;
+        }
         if (!isSongFolder && fs::is_directory(f))
         {
             subFolderList.push_back(f);
         }
         else if (isSongFolder && analyzeChartType(f) != eChartFormat::UNKNOWN)
         {
-            BS::thread_pool& pool = DBThreadPool[this];
-            pool.submit(std::bind(&SongDB::addChart, this, hash, f));
+            addChartTotal++;
+            boost::asio::thread_pool& pool = DBThreadPool[this];
+            boost::asio::post(pool, std::bind(&SongDB::addChart, this, hash, f));
             ++count;
         }
     }
 
     for (const auto& sub : subFolderList)
     {
+        if (stopRequested)
+        {
+            break;
+        }
         if (0 == addFolder(sub, hash))
             ++count;
     }
@@ -685,8 +715,13 @@ int SongDB::refreshFolder(const HashMD5& hash, const Path& path, FolderType type
         std::set_difference(bmsFiles.begin(), bmsFiles.end(), existedFiles.begin(), existedFiles.end(), std::back_inserter(newFiles));
         for (auto& p : newFiles)
         {
-            BS::thread_pool& pool = DBThreadPool[this];
-            pool.submit(std::bind(&SongDB::addChart, this, hash, p));
+            if (stopRequested)
+            {
+                break;
+            }
+            addChartTotal++;
+            boost::asio::thread_pool& pool = DBThreadPool[this];
+            boost::asio::post(pool, std::bind(&SongDB::addChart, this, hash, p));
             count++;
         }
 
@@ -703,6 +738,10 @@ int SongDB::refreshFolder(const HashMD5& hash, const Path& path, FolderType type
         std::vector<Path> subFolders;
         for (auto& f : fs::directory_iterator(path))
         {
+            if (stopRequested)
+            {
+                break;
+            }
             if (fs::is_directory(f))
                 count += addFolder(f, hash);
         }
@@ -809,6 +848,12 @@ EntryFolderRegular SongDB::browse(HashMD5 root, bool recursive)
 {
     LOG_DEBUG << "[SongDB] browse " << root.hexdigest() << (recursive ? " RECURSIVE" : "");
 
+    if (root == ROOT_FOLDER_HASH)
+    {
+        boost::asio::thread_pool& pool = DBThreadPool[this];
+        pool.join();
+    }
+
     Path path;
     if (getFolderPath(root, path) < 0)
         return EntryFolderRegular(HashMD5(), path);
@@ -832,9 +877,9 @@ EntryFolderRegular SongDB::browse(HashMD5 root, bool recursive)
             {
                 if (recursive)
                 {
-                auto sub = std::make_shared<EntryFolderRegular>(browse(md5, false));
-                sub->_name = name;
-                list.pushEntry(sub);
+                    auto sub = std::make_shared<EntryFolderRegular>(browse(md5, false));
+                    sub->_name = name;
+                    list.pushEntry(sub);
                 }
                 else
                 {
@@ -847,7 +892,9 @@ EntryFolderRegular SongDB::browse(HashMD5 root, bool recursive)
                 auto bmsList = std::make_shared<EntryFolderSong>(browseSong(md5));
                 // name is set inside browseSong
                 if (!bmsList->empty())
+                {
                     list.pushEntry(bmsList);
+                }
                 break;
             }
         }
@@ -920,7 +967,7 @@ EntryFolderRegular SongDB::search(HashMD5 root, std::string key)
     EntryFolderRegular list(md5(key), "");
     for (auto& c : findChartByName(root, key))
     {
-        std::shared_ptr<EntryFolderSong> f = std::make_shared<EntryFolderSong>(HashMD5(), "", c->title, c->title2);
+        auto f = std::make_shared<EntryFolderSong>(HashMD5(), "", c->title, c->title2);
         f->pushChart(c);
         list.pushEntry(f);
     }
@@ -928,4 +975,20 @@ EntryFolderRegular SongDB::search(HashMD5 root, std::string key)
     LOG_DEBUG << "[SongDB] " << list.getContentsCount() << " entries found";
 
     return list;
+}
+
+void SongDB::resetAddSummary()
+{
+    addFolderLoaded = 0;
+    addFolderTotal = 0;
+    addChartLoaded = 0;
+    addChartTotal = 0;
+    addCurrentPath.clear();
+}
+
+void SongDB::stopLoading()
+{
+    boost::asio::thread_pool& pool = DBThreadPool[this];
+    pool.stop();
+    stopRequested = true;
 }
