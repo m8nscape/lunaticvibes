@@ -94,7 +94,13 @@ add_subdirectory(json)
 option(BUILD_SHARED_LIB "Set OFF to NOT build shared library" OFF)
 add_subdirectory(tidy-html5)
 
-# Add OpenSSL
+# Add OpenSSL (from system)
 if (UNIX OR MINGW)
     find_library(OpenSSL REQUIRED)
 endif()
+
+# Add cereal
+option(BUILD_DOC "Build documentation" OFF)
+option(BUILD_SANDBOX "Build sandbox examples" OFF)
+option(SKIP_PERFORMANCE_COMPARISON "Skip building performance sandbox comparison (requires boost)" ON)
+add_subdirectory(cereal)
