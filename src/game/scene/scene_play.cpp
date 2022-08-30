@@ -6,6 +6,7 @@
 #include "game/sound/sound_mgr.h"
 #include "game/ruleset/ruleset_bms.h"
 #include "game/ruleset/ruleset_bms_auto.h"
+#include "game/ruleset/ruleset_bms_replay.h"
 #include "common/chartformat/chartformat_bms.h"
 #include "game/chart/chart_bms.h"
 #include "game/graphics/sprite_video.h"
@@ -79,20 +80,47 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         if (gChartContext.path.empty())
         {
             LOG_ERROR << "[Play] Chart not specified!";
+            gNextScene = eScene::SELECT;
             return;
         }
-
-        gChartContext.chartObj = ChartFormatBase::createFromFile(gChartContext.path);
+        if (gPlayContext.isReplay && gPlayContext.replay)
+        {
+            gChartContext.chartObj = ChartFormatBase::createFromFile(gChartContext.path, gPlayContext.replay->randomSeed);
+        }
+        else
+        {
+            gChartContext.chartObj = ChartFormatBase::createFromFile(gChartContext.path, gPlayContext.randomSeed);
+        }
     }
-
     if (gChartContext.chartObj == nullptr || !gChartContext.chartObj->isLoaded())
     {
         LOG_ERROR << "[Play] Invalid chart: " << gChartContext.path.u8string();
-
         gNextScene = eScene::SELECT;
-
         return;
     }
+
+    if (gPlayContext.replayMybest)
+    {
+        gChartContext.chartObjMybest = ChartFormatBase::createFromFile(gChartContext.path, gPlayContext.replayMybest->randomSeed);
+    }
+
+    clearGlobalDatas();
+    // global info
+    // 
+    // basic info
+    gTexts.queue(eText::PLAY_TITLE, gChartContext.title);
+    gTexts.queue(eText::PLAY_SUBTITLE, gChartContext.title2);
+    if (gChartContext.title2.empty())
+        gTexts.queue(eText::PLAY_FULLTITLE, gChartContext.title);
+    else
+        gTexts.queue(eText::PLAY_FULLTITLE, gChartContext.title + " " + gChartContext.title2);
+    gTexts.queue(eText::PLAY_ARTIST, gChartContext.artist);
+    gTexts.queue(eText::PLAY_SUBARTIST, gChartContext.artist2);
+    gTexts.queue(eText::PLAY_GENRE, gChartContext.genre);
+    gNumbers.queue(eNumber::PLAY_BPM, int(std::round(gChartContext.startBPM)));
+    gNumbers.queue(eNumber::INFO_BPM_MIN, int(std::round(gChartContext.minBPM)));
+    gNumbers.queue(eNumber::INFO_BPM_MAX, int(std::round(gChartContext.maxBPM)));
+
     gChartContext.title = gChartContext.chartObj->title;
     gChartContext.title2 = gChartContext.chartObj->title2;
     gChartContext.artist = gChartContext.chartObj->artist;
@@ -102,46 +130,10 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     gChartContext.startBPM = gChartContext.chartObj->startBPM;
     gChartContext.maxBPM = gChartContext.chartObj->maxBPM;
 
-    //load chart object from Chart object
-    switch (gChartContext.chartObj->type())
-    {
-    case eChartFormat::BMS:
-    {
-        auto bms = std::reinterpret_pointer_cast<ChartFormatBMS>(gChartContext.chartObj);
-        // TODO mods
-
-        if (gPlayContext.isAuto)
-        {
-            gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_1P, bms);
-        }
-        else
-        {
-            if (isPlaymodeBattle())
-            {
-                gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_1P, bms);
-                gPlayContext.chartObj[PLAYER_SLOT_2P] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_2P, bms);
-            }
-            else
-            {
-                gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_1P, bms);
-                gPlayContext.chartObj[PLAYER_SLOT_2P] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_1P, bms);    // create for rival; loading with 1P options
-            }
-        }
-        _chartLoaded = true;
-        gNumbers.set(eNumber::PLAY_REMAIN_MIN, int(gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() / 1000 / 60));
-        gNumbers.set(eNumber::PLAY_REMAIN_SEC, int(gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() / 1000 % 60));
-        break;
-    }
-
-    case eChartFormat::BMSON:
-    default:
-        LOG_WARNING << "[Play] chart format not supported.";
-
-        gNextScene = eScene::SELECT;
-        return;
-    }
-
+    _chartLoaded = createChartObj();
     gPlayContext.remainTime = gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength();
+
+    _rulesetLoaded = createRuleset();
 
     if (ConfigMgr::get('P', cfg::P_LOCK_SPEED, false))
     {
@@ -174,22 +166,72 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         _lockspeedGreenNumber[PLAYER_SLOT_2P] = green;
     }
 
-	// global info
-    // 
-    // basic info
-    gTexts.queue(eText::PLAY_TITLE, gChartContext.title);
-    gTexts.queue(eText::PLAY_SUBTITLE, gChartContext.title2);
-    if (gChartContext.title2.empty())
-        gTexts.queue(eText::PLAY_FULLTITLE, gChartContext.title);
-    else
-        gTexts.queue(eText::PLAY_FULLTITLE, gChartContext.title + " " + gChartContext.title2);
-    gTexts.queue(eText::PLAY_ARTIST, gChartContext.artist);
-    gTexts.queue(eText::PLAY_SUBARTIST, gChartContext.artist2);
-    gTexts.queue(eText::PLAY_GENRE, gChartContext.genre);
-    gNumbers.queue(eNumber::PLAY_BPM, int(std::round(gChartContext.startBPM)));
-    gNumbers.queue(eNumber::INFO_BPM_MIN, int(std::round(gChartContext.minBPM)));
-    gNumbers.queue(eNumber::INFO_BPM_MAX, int(std::round(gChartContext.maxBPM)));
+    // apply datas
+    gTexts.flush();
+    gNumbers.flush();
+    gBargraphs.flush();
+    gSliders.flush();
 
+    // set gauge type
+    if (gChartContext.chartObj)
+    {
+        switch (gChartContext.chartObj->type())
+        {
+        case eChartFormat::BMS:
+        case eChartFormat::BMSON:
+            setTempInitialHealthBMS();
+            break;
+        default:
+            break;
+        }
+    }
+
+    {
+        using namespace std::string_literals;
+        eGaugeOp tmp = eGaugeOp::GROOVE;
+        switch (gPlayContext.mods[PLAYER_SLOT_1P].gauge)
+        {
+        case eModGauge::NORMAL:    tmp = eGaugeOp::GROOVE; break;
+        case eModGauge::HARD:      tmp = eGaugeOp::SURVIVAL; break;
+        case eModGauge::DEATH:     tmp = eGaugeOp::EX_SURVIVAL; break;
+        case eModGauge::EASY:      tmp = eGaugeOp::GROOVE; break;
+        // case eModGauge::PATTACK:   tmp = eGaugeOp::EX_SURVIVAL; break;
+        // case eModGauge::GATTACK:   tmp = eGaugeOp::EX_SURVIVAL; break;
+        case eModGauge::ASSISTEASY:tmp = eGaugeOp::GROOVE; break;
+        case eModGauge::EXHARD:    tmp = eGaugeOp::EX_SURVIVAL; break;
+        default: break;
+        }
+        _skin->setExtendedProperty("GAUGETYPE_1P"s, (void*)&tmp);
+
+        if (isPlaymodeBattle())
+        {
+            switch (gPlayContext.mods[PLAYER_SLOT_2P].gauge)
+            {
+            case eModGauge::NORMAL:    tmp = eGaugeOp::GROOVE; break;
+            case eModGauge::HARD:      tmp = eGaugeOp::SURVIVAL; break;
+            case eModGauge::EASY:      tmp = eGaugeOp::GROOVE; break;
+            case eModGauge::DEATH:     tmp = eGaugeOp::EX_SURVIVAL; break;
+            // case eModGauge::PATTACK:   tmp = eGaugeOp::EX_SURVIVAL; break;
+            // case eModGauge::GATTACK:   tmp = eGaugeOp::EX_SURVIVAL; break;
+            case eModGauge::ASSISTEASY:tmp = eGaugeOp::GROOVE; break;
+            case eModGauge::EXHARD:    tmp = eGaugeOp::EX_SURVIVAL; break;
+            default: break;
+            }
+            _skin->setExtendedProperty("GAUGETYPE_2P"s, (void*)&tmp);
+        }
+    }
+
+    _missBgaLength = ConfigMgr::get("P", cfg::P_MISSBGA_LENGTH, 500);
+
+    using namespace std::placeholders;
+    _input.register_p("SCENE_PRESS", std::bind(&ScenePlay::inputGamePress, this, _1, _2));
+    _input.register_h("SCENE_HOLD", std::bind(&ScenePlay::inputGameHold, this, _1, _2));
+    _input.register_r("SCENE_RELEASE", std::bind(&ScenePlay::inputGameRelease, this, _1, _2));
+    _input.register_a("SCENE_AXIS", std::bind(&ScenePlay::inputGameAxis, this, _1, _2, _3));
+}
+
+void ScenePlay::clearGlobalDatas()
+{
     // reset
     eNumber numbersReset[] =
     {
@@ -243,7 +285,7 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         eBargraph::PLAY_EXSCORE,
         eBargraph::PLAY_EXSCORE_PREDICT,
         eBargraph::PLAY_MYBEST_NOW,
-        eBargraph::PLAY_MYBEST,
+        eBargraph::PLAY_MYBEST_FINAL,
         eBargraph::PLAY_RIVAL_EXSCORE,
         eBargraph::PLAY_RIVAL_EXSCORE_FINAL,
         eBargraph::PLAY_1P_SLOW_COUNT,
@@ -269,64 +311,227 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     gNumbers.flush();
     gBargraphs.flush();
     gSliders.flush();
+}
 
-    // set gauge type
-    if (gChartContext.chartObj)
+bool ScenePlay::createChartObj()
+{
+    //load chart object from Chart object
+    switch (gChartContext.chartObj->type())
     {
+    case eChartFormat::BMS:
+    {
+        auto bms = std::reinterpret_pointer_cast<ChartFormatBMS>(gChartContext.chartObj);
+        // TODO mods
+
+        if (gPlayContext.isAuto || gPlayContext.isReplay)
+        {
+            gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_1P, bms);
+            gPlayContext.chartObj[PLAYER_SLOT_2P] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_1P, bms);    // create for rival; loading with 1P options
+
+            if (gPlayContext.replayMybest)
+                gPlayContext.chartObj[PLAYER_SLOT_MYBEST] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_MYBEST, bms);
+
+            itReplayCommand = gPlayContext.replay->commands.begin();
+        }
+        else
+        {
+            if (isPlaymodeBattle())
+            {
+                gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_1P, bms);
+                gPlayContext.chartObj[PLAYER_SLOT_2P] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_2P, bms);
+            }
+            else
+            {
+                gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_1P, bms);
+                gPlayContext.chartObj[PLAYER_SLOT_2P] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_1P, bms);    // create for rival; loading with 1P options
+
+                if (gPlayContext.replayMybest)
+                    gPlayContext.chartObj[PLAYER_SLOT_MYBEST] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_MYBEST, bms);
+            }
+        }
+        gNumbers.set(eNumber::PLAY_REMAIN_MIN, int(gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() / 1000 / 60));
+        gNumbers.set(eNumber::PLAY_REMAIN_SEC, int(gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() / 1000 % 60));
+        return true;
+    }
+
+    case eChartFormat::BMSON:
+    default:
+        LOG_WARNING << "[Play] chart format not supported.";
+
+        gNextScene = eScene::SELECT;
+        return false;
+    }
+
+}
+
+bool ScenePlay::createRuleset()
+{
+    // build Ruleset object
+    switch (gPlayContext.rulesetType)
+    {
+    case eRuleset::BMS:
+    {
+        // set judge diff
+        RulesetBMS::JudgeDifficulty judgeDiff;
         switch (gChartContext.chartObj->type())
         {
         case eChartFormat::BMS:
-        case eChartFormat::BMSON:
-            setTempInitialHealthBMS();
-            break;
-        default:
-            break;
-        }
-    }
-
-
-    {
-        using namespace std::string_literals;
-        eGaugeOp tmp = eGaugeOp::GROOVE;
-        switch (gPlayContext.mods[PLAYER_SLOT_1P].gauge)
-        {
-        case eModGauge::NORMAL:    tmp = eGaugeOp::GROOVE; break;
-        case eModGauge::HARD:      tmp = eGaugeOp::SURVIVAL; break;
-        case eModGauge::DEATH:     tmp = eGaugeOp::EX_SURVIVAL; break;
-        case eModGauge::EASY:      tmp = eGaugeOp::GROOVE; break;
-        case eModGauge::PATTACK:   tmp = eGaugeOp::EX_SURVIVAL; break;
-        case eModGauge::GATTACK:   tmp = eGaugeOp::EX_SURVIVAL; break;
-        case eModGauge::ASSISTEASY:tmp = eGaugeOp::GROOVE; break;
-        case eModGauge::EXHARD:    tmp = eGaugeOp::EX_SURVIVAL; break;
-        default: break;
-        }
-        _skin->setExtendedProperty("GAUGETYPE_1P"s, (void*)&tmp);
-
-        if (isPlaymodeBattle())
-        {
-            switch (gPlayContext.mods[PLAYER_SLOT_2P].gauge)
+            switch (std::reinterpret_pointer_cast<ChartFormatBMS>(gChartContext.chartObj)->rank)
             {
-            case eModGauge::NORMAL:    tmp = eGaugeOp::GROOVE; break;
-            case eModGauge::HARD:      tmp = eGaugeOp::SURVIVAL; break;
-            case eModGauge::EASY:      tmp = eGaugeOp::GROOVE; break;
-            case eModGauge::DEATH:     tmp = eGaugeOp::EX_SURVIVAL; break;
-            case eModGauge::PATTACK:   tmp = eGaugeOp::EX_SURVIVAL; break;
-            case eModGauge::GATTACK:   tmp = eGaugeOp::EX_SURVIVAL; break;
-            case eModGauge::ASSISTEASY:tmp = eGaugeOp::GROOVE; break;
-            case eModGauge::EXHARD:    tmp = eGaugeOp::EX_SURVIVAL; break;
-            default: break;
+            case 1: judgeDiff = RulesetBMS::JudgeDifficulty::HARD; break;
+            case 2: judgeDiff = RulesetBMS::JudgeDifficulty::NORMAL; break;
+            case 3: judgeDiff = RulesetBMS::JudgeDifficulty::EASY; break;
+            case 4: judgeDiff = RulesetBMS::JudgeDifficulty::VERYEASY; break;
+            case 6: judgeDiff = RulesetBMS::JudgeDifficulty::WHAT; break;
+            case 0:
+            default:
+                judgeDiff = RulesetBMS::JudgeDifficulty::VERYHARD; break;
             }
-            _skin->setExtendedProperty("GAUGETYPE_2P"s, (void*)&tmp);
+            break;
+        case eChartFormat::BMSON:
+        default:
+            LOG_WARNING << "[Play] chart format not supported.";
+            break;
         }
+
+        unsigned keys = 7;
+        switch (gPlayContext.mode)
+        {
+        case eMode::PLAY5:
+        case eMode::PLAY5_2: keys = 5; break;
+        case eMode::PLAY7:
+        case eMode::PLAY7_2: keys = 7; break;
+        case eMode::PLAY9:
+        case eMode::PLAY9_2: keys = 9; break;
+        case eMode::PLAY10: keys = 10; break;
+        case eMode::PLAY14: keys = 14; break;
+        defualt: break;
+        }
+
+        if (gPlayContext.isAuto)
+        {
+            gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetBMSAuto>(
+                gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_1P],
+                gPlayContext.mods[PLAYER_SLOT_1P].gauge, keys, judgeDiff,
+                gPlayContext.initialHealth[PLAYER_SLOT_1P], RulesetBMS::PlaySide::AUTO);
+        }
+        else if (gPlayContext.isReplay)
+        {
+            gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetBMSReplay>(
+                gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_1P], gPlayContext.replay,
+                gPlayContext.mods[PLAYER_SLOT_1P].gauge, keys, judgeDiff,
+                gPlayContext.initialHealth[PLAYER_SLOT_1P], RulesetBMS::PlaySide::AUTO);
+
+            gPlayContext.ruleset[PLAYER_SLOT_2P] = std::make_shared<RulesetBMSAuto>(
+                gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_2P],
+                gPlayContext.mods[PLAYER_SLOT_2P].gauge, keys, judgeDiff,
+                gPlayContext.initialHealth[PLAYER_SLOT_2P], RulesetBMS::PlaySide::RIVAL);
+
+            if (gPlayContext.replayMybest)
+            {
+                gPlayContext.ruleset[PLAYER_SLOT_MYBEST] = std::make_shared<RulesetBMSReplay>(
+                    gChartContext.chartObjMybest, gPlayContext.chartObj[PLAYER_SLOT_MYBEST], gPlayContext.replayMybest,
+                    gPlayContext.replayMybest->gaugeType, keys, judgeDiff,
+                    gPlayContext.initialHealth[PLAYER_SLOT_MYBEST], RulesetBMS::PlaySide::MYBEST);
+            }
+        }
+        else
+        {
+            if (isPlaymodeBattle())
+            {
+                gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetBMS>(
+                    gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_1P],
+                    gPlayContext.mods[PLAYER_SLOT_1P].gauge, keys, judgeDiff,
+                    gPlayContext.initialHealth[PLAYER_SLOT_1P], RulesetBMS::PlaySide::BATTLE_1P);
+
+                gPlayContext.ruleset[PLAYER_SLOT_2P] = std::make_shared<RulesetBMS>(
+                    gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_2P],
+                    gPlayContext.mods[PLAYER_SLOT_2P].gauge, keys, judgeDiff,
+                    gPlayContext.initialHealth[PLAYER_SLOT_2P], RulesetBMS::PlaySide::BATTLE_2P);
+            }
+            else
+            {
+                gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetBMS>(
+                    gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_1P],
+                    gPlayContext.mods[PLAYER_SLOT_1P].gauge, keys, judgeDiff,
+                    gPlayContext.initialHealth[PLAYER_SLOT_1P], (keys == 10 || keys == 14) ? RulesetBMS::PlaySide::DOUBLE : RulesetBMS::PlaySide::SINGLE);
+
+                gPlayContext.ruleset[PLAYER_SLOT_2P] = std::make_shared<RulesetBMSAuto>(
+                    gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_2P],
+                    gPlayContext.mods[PLAYER_SLOT_2P].gauge, keys, judgeDiff,
+                    gPlayContext.initialHealth[PLAYER_SLOT_2P], RulesetBMS::PlaySide::RIVAL);
+
+                if (gPlayContext.replayMybest)
+                {
+                    gPlayContext.ruleset[PLAYER_SLOT_MYBEST] = std::make_shared<RulesetBMSReplay>(
+                        gChartContext.chartObjMybest, gPlayContext.chartObj[PLAYER_SLOT_MYBEST], gPlayContext.replayMybest,
+                        gPlayContext.replayMybest->gaugeType, keys, judgeDiff,
+                        gPlayContext.initialHealth[PLAYER_SLOT_MYBEST], RulesetBMS::PlaySide::MYBEST);
+                }
+
+                // create replay
+                gPlayContext.replayNew = std::make_shared<ReplayChart>();
+                gPlayContext.replayNew->chartHash = gChartContext.hash;
+                gPlayContext.replayNew->randomSeed = gPlayContext.randomSeed;
+                gPlayContext.replayNew->gaugeType = gPlayContext.mods[PLAYER_SLOT_1P].gauge;
+                gPlayContext.replayNew->randomType1P = gPlayContext.mods[PLAYER_SLOT_1P].chart;
+                gPlayContext.replayNew->assistMask = gPlayContext.mods[PLAYER_SLOT_1P].assist_mask;
+                gPlayContext.replayNew->hispeedFix = gPlayContext.mods[PLAYER_SLOT_1P].hs;
+                gPlayContext.replayNew->laneEffectType = gPlayContext.mods[PLAYER_SLOT_1P].visual_mask;
+                // TODO 2P random
+                gPlayContext.replayNew->pitchType = (int8_t)gOptions.get(eOption::SOUND_PITCH_TYPE);
+                gPlayContext.replayNew->pitchValue = (int8_t)std::round((gSliders.get(eSlider::PITCH) - 0.5) * 2 * 12);
+                // TODO flip, battle
+            }
+        }
+
+        if (gPlayContext.ruleset[PLAYER_SLOT_2P] != nullptr)
+        {
+            // rename target
+            int targetRate = gNumbers.get(eNumber::DEFAULT_TARGET_RATE);
+            double targetRateReal = 0.0;
+            switch (targetRate)
+            {
+            case 22:  targetRateReal = 2.0 / 9; gTexts.queue(eText::TARGET_NAME, "RANK E"); break;  // E
+            case 33:  targetRateReal = 3.0 / 9; gTexts.queue(eText::TARGET_NAME, "RANK D"); break;  // D
+            case 44:  targetRateReal = 4.0 / 9; gTexts.queue(eText::TARGET_NAME, "RANK C"); break;  // C
+            case 55:  targetRateReal = 5.0 / 9; gTexts.queue(eText::TARGET_NAME, "RANK B"); break;  // B
+            case 66:  targetRateReal = 6.0 / 9; gTexts.queue(eText::TARGET_NAME, "RANK A"); break;  // A
+            case 77:  targetRateReal = 7.0 / 9; gTexts.queue(eText::TARGET_NAME, "RANK AA"); break;  // AA
+            case 88:  targetRateReal = 8.0 / 9; gTexts.queue(eText::TARGET_NAME, "RANK AAA"); break;  // AAA
+            case 100: targetRateReal = 1.0;     gTexts.queue(eText::TARGET_NAME, "DJ AUTO"); break;  // MAX
+            default:
+                targetRateReal = targetRate / 100.0;
+                gTexts.queue(eText::TARGET_NAME, "RATE "s + std::to_string(targetRate) + "%"s);
+                break;
+            }
+            std::reinterpret_pointer_cast<RulesetBMSAuto>(gPlayContext.ruleset[PLAYER_SLOT_2P])->setTargetRate(targetRateReal);
+            gBargraphs.queue(eBargraph::PLAY_RIVAL_EXSCORE_FINAL, targetRateReal);
+        }
+
+        // load mybest score
+        auto pScore = g_pScoreDB->getChartScoreBMS(gChartContext.hash);
+        if (pScore)
+        {
+            gBargraphs.queue(eBargraph::PLAY_MYBEST_FINAL, (double)pScore->exscore / gPlayContext.ruleset[PLAYER_SLOT_1P]->getMaxScore());
+            if (!gPlayContext.replayMybest)
+            {
+                gBargraphs.queue(eBargraph::PLAY_MYBEST_NOW, (double)pScore->exscore / gPlayContext.ruleset[PLAYER_SLOT_1P]->getMaxScore());
+                gNumbers.queue(eNumber::RESULT_MYBEST_EX, pScore->exscore);
+                gNumbers.queue(eNumber::RESULT_MYBEST_RATE, (int)std::floor(pScore->rate * 100.0));
+                gNumbers.queue(eNumber::RESULT_MYBEST_RATE_DECIMAL2, (int)std::floor(pScore->rate * 10000.0) % 100);
+            }
+        }
+
+        return true;
+    }
+    break;
+
+    default:
+        break;
     }
 
-    _missBgaLength = ConfigMgr::get("P", cfg::P_MISSBGA_LENGTH, 500);
-
-    using namespace std::placeholders;
-    _input.register_p("SCENE_PRESS", std::bind(&ScenePlay::inputGamePress, this, _1, _2));
-    _input.register_h("SCENE_HOLD", std::bind(&ScenePlay::inputGameHold, this, _1, _2));
-    _input.register_r("SCENE_RELEASE", std::bind(&ScenePlay::inputGameRelease, this, _1, _2));
-    _input.register_a("SCENE_AXIS", std::bind(&ScenePlay::inputGameAxis, this, _1, _2, _3));
+    return false;
 }
 
 ScenePlay::~ScenePlay()
@@ -356,8 +561,8 @@ void ScenePlay::setTempInitialHealthBMS()
 
         case eModGauge::HARD:
         case eModGauge::DEATH:
-        case eModGauge::PATTACK:
-        case eModGauge::GATTACK:
+        // case eModGauge::PATTACK:
+        // case eModGauge::GATTACK:
         case eModGauge::EXHARD:
             gPlayContext.initialHealth[PLAYER_SLOT_1P] = 1.0;
             gNumbers.queue(eNumber::PLAY_1P_GROOVEGAUGE, 100);
@@ -379,11 +584,33 @@ void ScenePlay::setTempInitialHealthBMS()
 
             case eModGauge::HARD:
             case eModGauge::DEATH:
-            case eModGauge::PATTACK:
-            case eModGauge::GATTACK:
+            // case eModGauge::PATTACK:
+            // case eModGauge::GATTACK:
             case eModGauge::EXHARD:
                 gPlayContext.initialHealth[PLAYER_SLOT_2P] = 1.0;
                 gNumbers.queue(eNumber::PLAY_2P_GROOVEGAUGE, 100);
+                break;
+
+            default: break;
+            }
+        }
+
+        if (gPlayContext.replayMybest)
+        {
+            switch (gPlayContext.replayMybest->gaugeType)
+            {
+            case eModGauge::NORMAL:
+            case eModGauge::EASY:
+            case eModGauge::ASSISTEASY:
+                gPlayContext.initialHealth[PLAYER_SLOT_MYBEST] = 0.2;
+                break;
+
+            case eModGauge::HARD:
+            case eModGauge::DEATH:
+                // case eModGauge::PATTACK:
+                // case eModGauge::GATTACK:
+            case eModGauge::EXHARD:
+                gPlayContext.initialHealth[PLAYER_SLOT_MYBEST] = 1.0;
                 break;
 
             default: break;
@@ -406,111 +633,6 @@ void ScenePlay::setTempInitialHealthBMS()
 
 void ScenePlay::loadChart()
 {
-    // build Ruleset object
-    switch (gPlayContext.rulesetType)
-    {
-    case eRuleset::BMS:
-    {
-        // set judge diff
-        RulesetBMS::JudgeDifficulty judgeDiff;
-        switch (gChartContext.chartObj->type())
-        {
-        case eChartFormat::BMS:
-            switch (std::reinterpret_pointer_cast<ChartFormatBMS>(gChartContext.chartObj)->rank)
-            {
-            case 1: judgeDiff = RulesetBMS::JudgeDifficulty::HARD; break;
-            case 2: judgeDiff = RulesetBMS::JudgeDifficulty::NORMAL; break;
-            case 3: judgeDiff = RulesetBMS::JudgeDifficulty::EASY; break;
-            case 4: judgeDiff = RulesetBMS::JudgeDifficulty::VERYEASY; break;
-            case 6: judgeDiff = RulesetBMS::JudgeDifficulty::WHAT; break;
-            case 0: 
-            default:
-                judgeDiff = RulesetBMS::JudgeDifficulty::VERYHARD; break;
-            }
-            break;
-        case eChartFormat::BMSON:
-        default: 
-			LOG_WARNING << "[Play] chart format not supported.";
-			break;
-        }
-
-        unsigned keys = 7;
-        switch (gPlayContext.mode)
-        {
-        case eMode::PLAY5: 
-        case eMode::PLAY5_2: keys = 5; break;
-        case eMode::PLAY7:
-        case eMode::PLAY7_2: keys = 7; break;
-        case eMode::PLAY9:
-        case eMode::PLAY9_2: keys = 9; break;
-        case eMode::PLAY10: keys = 10; break;
-        case eMode::PLAY14: keys = 14; break;
-        defualt: break;
-        }
-
-        if (gPlayContext.isAuto)
-        {
-            gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetBMSAuto>(
-                gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_1P],
-                gPlayContext.mods[PLAYER_SLOT_1P].gauge, keys, judgeDiff,
-                gPlayContext.initialHealth[PLAYER_SLOT_1P], RulesetBMS::PlaySide::AUTO);
-        }
-        else
-        {
-            if (isPlaymodeBattle())
-            {
-                gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetBMS>(
-                    gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_1P],
-                    gPlayContext.mods[PLAYER_SLOT_1P].gauge, keys, judgeDiff,
-                    gPlayContext.initialHealth[PLAYER_SLOT_1P], RulesetBMS::PlaySide::BATTLE_1P);
-
-                gPlayContext.ruleset[PLAYER_SLOT_2P] = std::make_shared<RulesetBMS>(
-                    gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_2P],
-                    gPlayContext.mods[PLAYER_SLOT_2P].gauge, keys, judgeDiff,
-                    gPlayContext.initialHealth[PLAYER_SLOT_2P], RulesetBMS::PlaySide::BATTLE_2P);
-            }
-            else
-            {
-                gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetBMS>(
-                    gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_1P],
-                    gPlayContext.mods[PLAYER_SLOT_1P].gauge, keys, judgeDiff,
-                    gPlayContext.initialHealth[PLAYER_SLOT_1P], (keys == 10 || keys == 14) ? RulesetBMS::PlaySide::DOUBLE : RulesetBMS::PlaySide::SINGLE);
-
-                gPlayContext.ruleset[PLAYER_SLOT_2P] = std::make_shared<RulesetBMSAuto>(
-                    gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_2P],
-                    gPlayContext.mods[PLAYER_SLOT_2P].gauge, keys, judgeDiff,
-                    gPlayContext.initialHealth[PLAYER_SLOT_2P], RulesetBMS::PlaySide::RIVAL);
-
-                int targetRate = gNumbers.get(eNumber::DEFAULT_TARGET_RATE);
-                double targetRateReal = 0.0;
-                switch (targetRate)
-                {
-                case 22:  targetRateReal = 2.0 / 9; gTexts.set(eText::TARGET_NAME, "RANK E"); break;  // E
-                case 33:  targetRateReal = 3.0 / 9; gTexts.set(eText::TARGET_NAME, "RANK D"); break;  // D
-                case 44:  targetRateReal = 4.0 / 9; gTexts.set(eText::TARGET_NAME, "RANK C"); break;  // C
-                case 55:  targetRateReal = 5.0 / 9; gTexts.set(eText::TARGET_NAME, "RANK B"); break;  // B
-                case 66:  targetRateReal = 6.0 / 9; gTexts.set(eText::TARGET_NAME, "RANK A"); break;  // A
-                case 77:  targetRateReal = 7.0 / 9; gTexts.set(eText::TARGET_NAME, "RANK AA"); break;  // AA
-                case 88:  targetRateReal = 8.0 / 9; gTexts.set(eText::TARGET_NAME, "RANK AAA"); break;  // AAA
-                case 100: targetRateReal = 1.0;     gTexts.set(eText::TARGET_NAME, "DJ AUTO"); break;  // MAX
-                default:  
-                    targetRateReal = targetRate / 100.0;
-                    gTexts.set(eText::TARGET_NAME, "RATE "s + std::to_string(targetRate) + "%"s);
-                    break;
-                }
-                std::reinterpret_pointer_cast<RulesetBMSAuto>(gPlayContext.ruleset[PLAYER_SLOT_2P])->setTargetRate(targetRateReal);
-                gBargraphs.set(eBargraph::PLAY_RIVAL_EXSCORE_FINAL, targetRateReal);
-            }
-        }
-
-        _rulesetLoaded = true;
-    }
-    break;
-
-    default:
-        break;
-    }
-
     // load samples
     if (!gChartContext.isSampleLoaded && !sceneEnding)
     {
@@ -988,6 +1110,25 @@ void ScenePlay::_updateAsync()
 
             _scratchLastUpdate[slot] = t;
             _scratchDir[slot] = AxisDir::AXIS_DOWN;
+
+            // push replay command
+            if (gChartContext.started && gPlayContext.replayNew)
+            {
+                long long ms = t.norm() - gTimers.get(eTimer::PLAY_START);
+                ReplayChart::Commands cmd;
+                cmd.ms = ms;
+                if (slot == PLAYER_SLOT_1P)
+                {
+                    cmd.type = ReplayChart::Commands::Type::S1A_PLUS;
+                    replayKeyPressing[Input::Pad::S1A] = true;
+                }
+                else
+                {
+                    cmd.type = ReplayChart::Commands::Type::S2A_PLUS;
+                    replayKeyPressing[Input::Pad::S2A] = true;
+                }
+                gPlayContext.replayNew->commands.push_back(cmd);
+            }
         }
         else if (val < -scratchThreshold)
         {
@@ -1014,6 +1155,52 @@ void ScenePlay::_updateAsync()
             
             _scratchLastUpdate[slot] = t;
             _scratchDir[slot] = AxisDir::AXIS_UP;
+
+            // push replay command
+            if (gChartContext.started && gPlayContext.replayNew)
+            {
+                long long ms = t.norm() - gTimers.get(eTimer::PLAY_START);
+                ReplayChart::Commands cmd;
+                cmd.ms = ms;
+                if (slot == PLAYER_SLOT_1P)
+                {
+                    cmd.type = ReplayChart::Commands::Type::S1A_MINUS;
+                    replayKeyPressing[Input::Pad::S1A] = true;
+                }
+                else
+                {
+                    cmd.type = ReplayChart::Commands::Type::S2A_MINUS;
+                    replayKeyPressing[Input::Pad::S2A] = true;
+                }
+                gPlayContext.replayNew->commands.push_back(cmd);
+            }
+        }
+        else
+        {
+            if (slot == PLAYER_SLOT_1P)
+            {
+                if (replayKeyPressing[Input::Pad::S1A])
+                {
+                    long long ms = t.norm() - gTimers.get(eTimer::PLAY_START);
+                    ReplayChart::Commands cmd;
+                    cmd.ms = ms;
+                    cmd.type = ReplayChart::Commands::Type::S1A_STOP;
+                    replayKeyPressing[Input::Pad::S1A] = false;
+                    gPlayContext.replayNew->commands.push_back(cmd);
+                }
+            }
+            else
+            {
+                if (replayKeyPressing[Input::Pad::S2A])
+                {
+                    long long ms = t.norm() - gTimers.get(eTimer::PLAY_START);
+                    ReplayChart::Commands cmd;
+                    cmd.ms = ms;
+                    cmd.type = ReplayChart::Commands::Type::S2A_STOP;
+                    replayKeyPressing[Input::Pad::S2A] = false;
+                    gPlayContext.replayNew->commands.push_back(cmd);
+                }
+            }
         }
 
         if (playSample)
@@ -1168,6 +1355,91 @@ void ScenePlay::updatePlaying()
     gPlayContext.chartObj[PLAYER_SLOT_1P]->update(rt);
     gPlayContext.ruleset[PLAYER_SLOT_1P]->update(t);
 
+    if (gPlayContext.isReplay)
+    {
+        InputMask prev = replayKeyPressing;
+        while (itReplayCommand != gPlayContext.replay->commands.end() && rt.norm() >= itReplayCommand->ms)
+        {
+            switch (itReplayCommand->type)
+            {
+            case ReplayChart::Commands::Type::S1L_DOWN: replayKeyPressing[Input::Pad::S1L] = true; break;
+            case ReplayChart::Commands::Type::S1R_DOWN: replayKeyPressing[Input::Pad::S1R] = true; break;
+            case ReplayChart::Commands::Type::K11_DOWN: replayKeyPressing[Input::Pad::K11] = true; break;
+            case ReplayChart::Commands::Type::K12_DOWN: replayKeyPressing[Input::Pad::K12] = true; break;
+            case ReplayChart::Commands::Type::K13_DOWN: replayKeyPressing[Input::Pad::K13] = true; break;
+            case ReplayChart::Commands::Type::K14_DOWN: replayKeyPressing[Input::Pad::K14] = true; break;
+            case ReplayChart::Commands::Type::K15_DOWN: replayKeyPressing[Input::Pad::K15] = true; break;
+            case ReplayChart::Commands::Type::K16_DOWN: replayKeyPressing[Input::Pad::K16] = true; break;
+            case ReplayChart::Commands::Type::K17_DOWN: replayKeyPressing[Input::Pad::K17] = true; break;
+            case ReplayChart::Commands::Type::K18_DOWN: replayKeyPressing[Input::Pad::K18] = true; break;
+            case ReplayChart::Commands::Type::K19_DOWN: replayKeyPressing[Input::Pad::K19] = true; break;
+            case ReplayChart::Commands::Type::K1START_DOWN: replayKeyPressing[Input::Pad::K1START] = true; break;
+            case ReplayChart::Commands::Type::K1SELECT_DOWN: replayKeyPressing[Input::Pad::K1SELECT] = true; break;
+            case ReplayChart::Commands::Type::S2L_DOWN: replayKeyPressing[Input::Pad::S2L] = true; break;
+            case ReplayChart::Commands::Type::S2R_DOWN: replayKeyPressing[Input::Pad::S2R] = true; break;
+            case ReplayChart::Commands::Type::K21_DOWN: replayKeyPressing[Input::Pad::K21] = true; break;
+            case ReplayChart::Commands::Type::K22_DOWN: replayKeyPressing[Input::Pad::K22] = true; break;
+            case ReplayChart::Commands::Type::K23_DOWN: replayKeyPressing[Input::Pad::K23] = true; break;
+            case ReplayChart::Commands::Type::K24_DOWN: replayKeyPressing[Input::Pad::K24] = true; break;
+            case ReplayChart::Commands::Type::K25_DOWN: replayKeyPressing[Input::Pad::K25] = true; break;
+            case ReplayChart::Commands::Type::K26_DOWN: replayKeyPressing[Input::Pad::K26] = true; break;
+            case ReplayChart::Commands::Type::K27_DOWN: replayKeyPressing[Input::Pad::K27] = true; break;
+            case ReplayChart::Commands::Type::K28_DOWN: replayKeyPressing[Input::Pad::K28] = true; break;
+            case ReplayChart::Commands::Type::K29_DOWN: replayKeyPressing[Input::Pad::K29] = true; break;
+            case ReplayChart::Commands::Type::K2START_DOWN: replayKeyPressing[Input::Pad::K2START] = true; break;
+            case ReplayChart::Commands::Type::K2SELECT_DOWN: replayKeyPressing[Input::Pad::K2SELECT] = true; break;
+            case ReplayChart::Commands::Type::S1L_UP: replayKeyPressing[Input::Pad::S1L] = false; break;
+            case ReplayChart::Commands::Type::S1R_UP: replayKeyPressing[Input::Pad::S1R] = false; break;
+            case ReplayChart::Commands::Type::K11_UP: replayKeyPressing[Input::Pad::K11] = false; break;
+            case ReplayChart::Commands::Type::K12_UP: replayKeyPressing[Input::Pad::K12] = false; break;
+            case ReplayChart::Commands::Type::K13_UP: replayKeyPressing[Input::Pad::K13] = false; break;
+            case ReplayChart::Commands::Type::K14_UP: replayKeyPressing[Input::Pad::K14] = false; break;
+            case ReplayChart::Commands::Type::K15_UP: replayKeyPressing[Input::Pad::K15] = false; break;
+            case ReplayChart::Commands::Type::K16_UP: replayKeyPressing[Input::Pad::K16] = false; break;
+            case ReplayChart::Commands::Type::K17_UP: replayKeyPressing[Input::Pad::K17] = false; break;
+            case ReplayChart::Commands::Type::K18_UP: replayKeyPressing[Input::Pad::K18] = false; break;
+            case ReplayChart::Commands::Type::K19_UP: replayKeyPressing[Input::Pad::K19] = false; break;
+            case ReplayChart::Commands::Type::K1START_UP: replayKeyPressing[Input::Pad::K1START] = false; break;
+            case ReplayChart::Commands::Type::K1SELECT_UP: replayKeyPressing[Input::Pad::K1SELECT] = false; break;
+            case ReplayChart::Commands::Type::S2L_UP: replayKeyPressing[Input::Pad::S2L] = false; break;
+            case ReplayChart::Commands::Type::S2R_UP: replayKeyPressing[Input::Pad::S2R] = false; break;
+            case ReplayChart::Commands::Type::K21_UP: replayKeyPressing[Input::Pad::K21] = false; break;
+            case ReplayChart::Commands::Type::K22_UP: replayKeyPressing[Input::Pad::K22] = false; break;
+            case ReplayChart::Commands::Type::K23_UP: replayKeyPressing[Input::Pad::K23] = false; break;
+            case ReplayChart::Commands::Type::K24_UP: replayKeyPressing[Input::Pad::K24] = false; break;
+            case ReplayChart::Commands::Type::K25_UP: replayKeyPressing[Input::Pad::K25] = false; break;
+            case ReplayChart::Commands::Type::K26_UP: replayKeyPressing[Input::Pad::K26] = false; break;
+            case ReplayChart::Commands::Type::K27_UP: replayKeyPressing[Input::Pad::K27] = false; break;
+            case ReplayChart::Commands::Type::K28_UP: replayKeyPressing[Input::Pad::K28] = false; break;
+            case ReplayChart::Commands::Type::K29_UP: replayKeyPressing[Input::Pad::K29] = false; break;
+            case ReplayChart::Commands::Type::K2START_UP: replayKeyPressing[Input::Pad::K2START] = false; break;
+            case ReplayChart::Commands::Type::K2SELECT_UP: replayKeyPressing[Input::Pad::K2SELECT] = false; break;
+            case ReplayChart::Commands::Type::S1A_PLUS:  _scratchAccumulator[PLAYER_SLOT_1P] = 0.0015; break;
+            case ReplayChart::Commands::Type::S1A_MINUS: _scratchAccumulator[PLAYER_SLOT_1P] = -0.0015; break;
+            case ReplayChart::Commands::Type::S1A_STOP:  _scratchAccumulator[PLAYER_SLOT_1P] = 0; break;
+            case ReplayChart::Commands::Type::S2A_PLUS:  _scratchAccumulator[PLAYER_SLOT_2P] = 0.0015; break;
+            case ReplayChart::Commands::Type::S2A_MINUS: _scratchAccumulator[PLAYER_SLOT_2P] = -0.0015; break;
+            case ReplayChart::Commands::Type::S2A_STOP:  _scratchAccumulator[PLAYER_SLOT_2P] = 0; break;
+
+            // TODO
+            case ReplayChart::Commands::Type::HISPEED: break;
+            case ReplayChart::Commands::Type::LANECOVER_TOP: break;
+            case ReplayChart::Commands::Type::LANECOVER_BOTTOM: break;
+            }
+            itReplayCommand++;
+        }
+        InputMask pressed = replayKeyPressing & ~prev;
+        InputMask released = ~replayKeyPressing & prev;
+        if (pressed.any())
+            inputGamePressTimer(pressed, t);
+        if (released.any())
+            inputGameReleaseTimer(released, t);
+
+        if (replayKeyPressing[Input::Pad::K1START] || !isPlaymodeBattle() && replayKeyPressing[Input::Pad::K2START]) _isHoldingStart[PLAYER_SLOT_1P] = true;
+        if (replayKeyPressing[Input::Pad::K1SELECT] || !isPlaymodeBattle() && replayKeyPressing[Input::Pad::K2SELECT]) _isHoldingSelect[PLAYER_SLOT_1P] = true;
+
+    }
+
     auto dp1 = gPlayContext.ruleset[PLAYER_SLOT_1P]->getData();
     int miss1 = dp1.miss;
     if (_missPlayer[PLAYER_SLOT_1P] != miss1)
@@ -1176,7 +1448,7 @@ void ScenePlay::updatePlaying()
         _missLastTime = t;
     }
 
-    if (gPlayContext.chartObj[PLAYER_SLOT_2P] != nullptr)
+    if (gPlayContext.ruleset[PLAYER_SLOT_2P] != nullptr)
     {
         gPlayContext.chartObj[PLAYER_SLOT_2P]->update(rt);
         gPlayContext.ruleset[PLAYER_SLOT_2P]->update(t);
@@ -1196,6 +1468,22 @@ void ScenePlay::updatePlaying()
             _missPlayer[PLAYER_SLOT_2P] = miss2;
             _missLastTime = t;
         }
+    }
+
+    if (gPlayContext.ruleset[PLAYER_SLOT_MYBEST] != nullptr)
+    {
+        gPlayContext.chartObj[PLAYER_SLOT_MYBEST]->update(rt);
+        gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->update(t);
+
+        auto dpb = gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->getData();
+
+        gNumbers.set(eNumber::RESULT_MYBEST_EX, dpb.score2);
+        gNumbers.queue(eNumber::RESULT_MYBEST_RATE, (int)std::floor(dpb.acc * 100.0));
+        gNumbers.queue(eNumber::RESULT_MYBEST_RATE_DECIMAL2, (int)std::floor(dpb.acc * 10000.0) % 100);
+    }
+    if (!isPlaymodeBattle())
+    {
+        gNumbers.queue(eNumber::RESULT_MYBEST_DIFF, dp1.score2 - gNumbers.get(eNumber::RESULT_MYBEST_EX));
     }
 
     gPlayContext.bgaTexture->update(rt, t.norm() - _missLastTime.norm() < _missBgaLength);
@@ -1569,38 +1857,41 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
     auto input = _inputAvailable & m;
 
     // individual keys
-    if (!gPlayContext.isAuto)
+    if (!gPlayContext.isAuto && !gPlayContext.isReplay)
     {
-        size_t sampleCount = 0;
-        for (size_t i = S1L; i < LANE_COUNT; ++i)
-        {
-            if (input[i])
-            {
-                if (_currentKeySample[i])
-                    _keySampleIdxBuf[sampleCount++] = _currentKeySample[i];
-                gTimers.queue(InputGamePressMapSingle[i].tm, t.norm());
-                gTimers.queue(InputGameReleaseMapSingle[i].tm, TIMER_NEVER);
-                gSwitches.queue(InputGamePressMapSingle[i].sw, true);
-            }
-        }
-        SoundMgr::playNoteSample(SoundChannelType::KEY_LEFT, sampleCount, (size_t*)&_keySampleIdxBuf[0]);
-
-        if (input[S1L] || input[S1R] || !isPlaymodeBattle() && (input[S2L] || input[S2R]))
-        {
-            gTimers.queue(eTimer::S1_DOWN, t.norm());
-            gTimers.queue(eTimer::S1_UP, TIMER_NEVER);
-            gSwitches.queue(eSwitch::S1_DOWN, true);
-        }
-
-        if (isPlaymodeBattle())
-        {
-            if (input[S2L] || input[S2R])
-            {
-                gTimers.queue(eTimer::S2_DOWN, t.norm());
-                gTimers.queue(eTimer::S2_UP, TIMER_NEVER);
-                gSwitches.queue(eSwitch::S2_DOWN, true);
-            }
-        }
+        inputGamePressTimer(input, t);
+    }
+    if (gChartContext.started && gPlayContext.replayNew)
+    {
+        long long ms = t.norm() - gTimers.get(eTimer::PLAY_START);
+        ReplayChart::Commands cmd;
+        cmd.ms = ms;
+        if (input[S1L])      { cmd.type = ReplayChart::Commands::Type::S1L_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[S1R])      { cmd.type = ReplayChart::Commands::Type::S1R_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K11])      { cmd.type = ReplayChart::Commands::Type::K11_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K12])      { cmd.type = ReplayChart::Commands::Type::K12_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K13])      { cmd.type = ReplayChart::Commands::Type::K13_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K14])      { cmd.type = ReplayChart::Commands::Type::K14_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K15])      { cmd.type = ReplayChart::Commands::Type::K15_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K16])      { cmd.type = ReplayChart::Commands::Type::K16_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K17])      { cmd.type = ReplayChart::Commands::Type::K17_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K18])      { cmd.type = ReplayChart::Commands::Type::K18_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K19])      { cmd.type = ReplayChart::Commands::Type::K19_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K1START])  { cmd.type = ReplayChart::Commands::Type::K1START_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K1SELECT]) { cmd.type = ReplayChart::Commands::Type::K1SELECT_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[S2L])      { cmd.type = ReplayChart::Commands::Type::S2L_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[S2R])      { cmd.type = ReplayChart::Commands::Type::S2R_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K21])      { cmd.type = ReplayChart::Commands::Type::K21_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K22])      { cmd.type = ReplayChart::Commands::Type::K22_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K23])      { cmd.type = ReplayChart::Commands::Type::K23_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K24])      { cmd.type = ReplayChart::Commands::Type::K24_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K25])      { cmd.type = ReplayChart::Commands::Type::K25_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K26])      { cmd.type = ReplayChart::Commands::Type::K26_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K27])      { cmd.type = ReplayChart::Commands::Type::K27_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K28])      { cmd.type = ReplayChart::Commands::Type::K28_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K29])      { cmd.type = ReplayChart::Commands::Type::K29_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K2START])  { cmd.type = ReplayChart::Commands::Type::K2START_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K2SELECT]) { cmd.type = ReplayChart::Commands::Type::K2SELECT_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
     }
 
     // double click START: toggle top lanecover
@@ -1793,6 +2084,42 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
     }
 }
 
+void ScenePlay::inputGamePressTimer(InputMask& input, const Time& t)
+{
+    using namespace Input;
+
+    size_t sampleCount = 0;
+    for (size_t i = S1L; i < LANE_COUNT; ++i)
+    {
+        if (input[i])
+        {
+            if (_currentKeySample[i])
+                _keySampleIdxBuf[sampleCount++] = _currentKeySample[i];
+            gTimers.queue(InputGamePressMapSingle[i].tm, t.norm());
+            gTimers.queue(InputGameReleaseMapSingle[i].tm, TIMER_NEVER);
+            gSwitches.queue(InputGamePressMapSingle[i].sw, true);
+        }
+    }
+    SoundMgr::playNoteSample(SoundChannelType::KEY_LEFT, sampleCount, (size_t*)&_keySampleIdxBuf[0]);
+
+    if (input[S1L] || input[S1R] || !isPlaymodeBattle() && (input[S2L] || input[S2R]))
+    {
+        gTimers.queue(eTimer::S1_DOWN, t.norm());
+        gTimers.queue(eTimer::S1_UP, TIMER_NEVER);
+        gSwitches.queue(eSwitch::S1_DOWN, true);
+    }
+
+    if (isPlaymodeBattle())
+    {
+        if (input[S2L] || input[S2R])
+        {
+            gTimers.queue(eTimer::S2_DOWN, t.norm());
+            gTimers.queue(eTimer::S2_UP, TIMER_NEVER);
+            gSwitches.queue(eSwitch::S2_DOWN, true);
+        }
+    }
+}
+
 // CALLBACK
 void ScenePlay::inputGameHold(InputMask& m, const Time& t)
 {
@@ -1873,37 +2200,42 @@ void ScenePlay::inputGameRelease(InputMask& m, const Time& t)
     using namespace Input;
     auto input = _inputAvailable & m;
 
-    if (!gPlayContext.isAuto)
+    if (!gPlayContext.isAuto && !gPlayContext.isReplay)
     {
-        size_t count = 0;
-        for (size_t i = Input::S1L; i < Input::LANE_COUNT; ++i)
-            if (input[i])
-            {
-                gTimers.set(InputGamePressMapSingle[i].tm, TIMER_NEVER);
-                gTimers.set(InputGameReleaseMapSingle[i].tm, t.norm());
-                gSwitches.set(InputGameReleaseMapSingle[i].sw, false);
-
-                // TODO stop sample playing while release in LN notes
-            }
-
-        if (true)
-        {
-            if (input[S1L] || input[S1R] || !isPlaymodeBattle() && (input[S2L] || input[S2R]))
-            {
-                gTimers.set(eTimer::S1_DOWN, TIMER_NEVER);
-                gTimers.set(eTimer::S1_UP, t.norm());
-                gSwitches.set(eSwitch::S1_DOWN, false);
-            }
-        }
-        if (isPlaymodeBattle())
-        {
-            if (input[S2L] || input[S2R])
-            {
-                gTimers.set(eTimer::S2_DOWN, TIMER_NEVER);
-                gTimers.set(eTimer::S2_UP, t.norm());
-                gSwitches.set(eSwitch::S2_DOWN, false);
-            }
-        }
+        inputGameReleaseTimer(input, t);
+    }
+    
+    if (gChartContext.started && gPlayContext.replayNew)
+    {
+        long long ms = t.norm() - gTimers.get(eTimer::PLAY_START);
+        ReplayChart::Commands cmd;
+        cmd.ms = ms;
+        if (input[S1L])      { cmd.type = ReplayChart::Commands::Type::S1L_UP; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[S1R])      { cmd.type = ReplayChart::Commands::Type::S1R_UP; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K11])      { cmd.type = ReplayChart::Commands::Type::K11_UP; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K12])      { cmd.type = ReplayChart::Commands::Type::K12_UP; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K13])      { cmd.type = ReplayChart::Commands::Type::K13_UP; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K14])      { cmd.type = ReplayChart::Commands::Type::K14_UP; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K15])      { cmd.type = ReplayChart::Commands::Type::K15_UP; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K16])      { cmd.type = ReplayChart::Commands::Type::K16_UP; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K17])      { cmd.type = ReplayChart::Commands::Type::K17_UP; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K18])      { cmd.type = ReplayChart::Commands::Type::K18_UP; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K19])      { cmd.type = ReplayChart::Commands::Type::K19_UP; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K1START])  { cmd.type = ReplayChart::Commands::Type::K1START_UP; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K1SELECT]) { cmd.type = ReplayChart::Commands::Type::K1SELECT_UP; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[S2L])      { cmd.type = ReplayChart::Commands::Type::S2L_UP; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[S2R])      { cmd.type = ReplayChart::Commands::Type::S2R_UP; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K21])      { cmd.type = ReplayChart::Commands::Type::K21_UP; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K22])      { cmd.type = ReplayChart::Commands::Type::K22_UP; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K23])      { cmd.type = ReplayChart::Commands::Type::K23_UP; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K24])      { cmd.type = ReplayChart::Commands::Type::K24_UP; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K25])      { cmd.type = ReplayChart::Commands::Type::K25_UP; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K26])      { cmd.type = ReplayChart::Commands::Type::K26_UP; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K27])      { cmd.type = ReplayChart::Commands::Type::K27_UP; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K28])      { cmd.type = ReplayChart::Commands::Type::K28_UP; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K29])      { cmd.type = ReplayChart::Commands::Type::K29_UP; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K2START])  { cmd.type = ReplayChart::Commands::Type::K2START_UP; gPlayContext.replayNew->commands.push_back(cmd); }
+        if (input[K2SELECT]) { cmd.type = ReplayChart::Commands::Type::K2SELECT_UP; gPlayContext.replayNew->commands.push_back(cmd); }
     }
 
     if (input[K1START] || !isPlaymodeBattle() && input[K2START]) _isHoldingStart[PLAYER_SLOT_1P] = false;
@@ -1915,13 +2247,45 @@ void ScenePlay::inputGameRelease(InputMask& m, const Time& t)
     }
 }
 
+void ScenePlay::inputGameReleaseTimer(InputMask& input, const Time& t)
+{
+    using namespace Input;
+
+    size_t count = 0;
+    for (size_t i = Input::S1L; i < Input::LANE_COUNT; ++i)
+        if (input[i])
+        {
+            gTimers.set(InputGamePressMapSingle[i].tm, TIMER_NEVER);
+            gTimers.set(InputGameReleaseMapSingle[i].tm, t.norm());
+            gSwitches.set(InputGameReleaseMapSingle[i].sw, false);
+
+            // TODO stop sample playing while release in LN notes
+        }
+
+    if (true)
+    {
+        if (input[S1L] || input[S1R] || !isPlaymodeBattle() && (input[S2L] || input[S2R]))
+        {
+            gTimers.set(eTimer::S1_DOWN, TIMER_NEVER);
+            gTimers.set(eTimer::S1_UP, t.norm());
+            gSwitches.set(eSwitch::S1_DOWN, false);
+        }
+    }
+    if (isPlaymodeBattle())
+    {
+        if (input[S2L] || input[S2R])
+        {
+            gTimers.set(eTimer::S2_DOWN, TIMER_NEVER);
+            gTimers.set(eTimer::S2_UP, t.norm());
+            gSwitches.set(eSwitch::S2_DOWN, false);
+        }
+    }
+}
+
 // CALLBACK
 void ScenePlay::inputGameAxis(double S1, double S2, const Time& t)
 {
     using namespace Input;
-
-    _scratchAccumulator[PLAYER_SLOT_1P] += S1;
-    _scratchAccumulator[PLAYER_SLOT_2P] += S2;
 
     // turntable spin
     if (true)
@@ -1937,44 +2301,50 @@ void ScenePlay::inputGameAxis(double S1, double S2, const Time& t)
         _ttAngleDiff[PLAYER_SLOT_2P] += S2 * 2.0 * 360;
     }
 
-    // lanecover
-    double lanecoverThreshold = 0.0002;
-    if (_lanecoverEnabled[PLAYER_SLOT_1P])
+    if (!gPlayContext.isAuto && (!gPlayContext.isReplay || !gChartContext.started))
     {
-        if (_isHoldingStart[PLAYER_SLOT_1P])
-        {
-            _lanecoverAdd[PLAYER_SLOT_1P] += (int)std::round(S1 / lanecoverThreshold);
-        }
-        if (!isPlaymodeBattle() && _isHoldingStart[PLAYER_SLOT_2P])
-        {
-            _lanecoverAdd[PLAYER_SLOT_1P] += (int)std::round(S2 / lanecoverThreshold);
-        }
-    }
-    if (isPlaymodeBattle() && _lanecoverEnabled[PLAYER_SLOT_2P])
-    {
-        if (_isHoldingStart[PLAYER_SLOT_2P])
-        {
-            _lanecoverAdd[PLAYER_SLOT_2P] += (int)std::round(S2 / lanecoverThreshold);
-        }
-    }
+        _scratchAccumulator[PLAYER_SLOT_1P] += S1;
+        _scratchAccumulator[PLAYER_SLOT_2P] += S2;
 
-    // hispeed
-    if (true)
-    {
-        if (_isHoldingSelect[PLAYER_SLOT_1P])
+        // lanecover
+        double lanecoverThreshold = 0.0002;
+        if (_lanecoverEnabled[PLAYER_SLOT_1P])
         {
-            _hispeedAdd[PLAYER_SLOT_1P] += (int)std::round(S1 / lanecoverThreshold);
+            if (_isHoldingStart[PLAYER_SLOT_1P])
+            {
+                _lanecoverAdd[PLAYER_SLOT_1P] += (int)std::round(S1 / lanecoverThreshold);
+            }
+            if (!isPlaymodeBattle() && _isHoldingStart[PLAYER_SLOT_2P])
+            {
+                _lanecoverAdd[PLAYER_SLOT_1P] += (int)std::round(S2 / lanecoverThreshold);
+            }
         }
-        if (!isPlaymodeBattle() && _isHoldingSelect[PLAYER_SLOT_2P])
+        if (isPlaymodeBattle() && _lanecoverEnabled[PLAYER_SLOT_2P])
         {
-            _hispeedAdd[PLAYER_SLOT_1P] += (int)std::round(S2 / lanecoverThreshold);
+            if (_isHoldingStart[PLAYER_SLOT_2P])
+            {
+                _lanecoverAdd[PLAYER_SLOT_2P] += (int)std::round(S2 / lanecoverThreshold);
+            }
         }
-    }
-    if (isPlaymodeBattle())
-    {
-        if (_isHoldingSelect[PLAYER_SLOT_2P])
+
+        // hispeed
+        if (true)
         {
-            _hispeedAdd[PLAYER_SLOT_2P] += (int)std::round(S2 / lanecoverThreshold);
+            if (_isHoldingSelect[PLAYER_SLOT_1P])
+            {
+                _hispeedAdd[PLAYER_SLOT_1P] += (int)std::round(S1 / lanecoverThreshold);
+            }
+            if (!isPlaymodeBattle() && _isHoldingSelect[PLAYER_SLOT_2P])
+            {
+                _hispeedAdd[PLAYER_SLOT_1P] += (int)std::round(S2 / lanecoverThreshold);
+            }
+        }
+        if (isPlaymodeBattle())
+        {
+            if (_isHoldingSelect[PLAYER_SLOT_2P])
+            {
+                _hispeedAdd[PLAYER_SLOT_2P] += (int)std::round(S2 / lanecoverThreshold);
+            }
         }
     }
 }

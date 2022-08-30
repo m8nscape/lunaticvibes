@@ -28,7 +28,7 @@ public:
 public:
     ChartFormatBase() = default;
     virtual ~ChartFormatBase() = default;
-    static std::shared_ptr<ChartFormatBase> createFromFile(const Path& path);
+    static std::shared_ptr<ChartFormatBase> createFromFile(const Path& path, uint64_t randomSeed);
 
 protected:
     Path _path;

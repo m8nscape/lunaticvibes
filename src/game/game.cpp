@@ -223,11 +223,12 @@ int main(int argc, char* argv[])
         gNextScene = eScene::PLAY;
         gQuitOnFinish = true;
 
-        std::shared_ptr<ChartFormatBMS> bms = std::make_shared<ChartFormatBMS>(argv[1]);
+        std::shared_ptr<ChartFormatBMS> bms = std::make_shared<ChartFormatBMS>(argv[1], std::time(NULL));
         gChartContext = ChartContextParams{
             argv[1],
             md5file(argv[1]),
             bms,
+            nullptr,
             false,
             false,
             false,

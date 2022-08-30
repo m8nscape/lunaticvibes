@@ -15,6 +15,8 @@
 #include "game/scene/scene_context.h"
 #include "game/scene/scene_mgr.h"
 
+#include "game/replay/replay_chart.h"
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void config_sys()
@@ -273,6 +275,8 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
     default:                 gSelectContext.sort = SongListSort::DEFAULT; break;
     }
 
+    gPlayContext.isAuto = false;
+    gPlayContext.isReplay = false;
     gSelectContext.isGoingToKeyConfig = false;
     gSelectContext.isGoingToSkinSelect = false;
     gSelectContext.isGoingToAutoPlay = false;
@@ -440,7 +444,7 @@ void SceneSelect::updateSelect()
         _state = eSelectState::FADEOUT;
         _updateCallback = std::bind(&SceneSelect::updateFadeout, this);
     }
-    if (gSelectContext.isGoingToAutoPlay)
+    else if (gSelectContext.isGoingToAutoPlay)
     {
         gSelectContext.isGoingToAutoPlay = false;
         if (!gSelectContext.entries.empty())
@@ -453,13 +457,14 @@ void SceneSelect::updateSelect()
             case eEntryType::RIVAL_CHART:
             case eEntryType::COURSE:
                 gPlayContext.isAuto = true;
+                gPlayContext.canRetry = false;
                 gSwitches.set(eSwitch::SYSTEM_AUTOPLAY, true);
                 _decide();
                 break;
             }
         }
     }
-    if (gSelectContext.isGoingToReplay)
+    else if (gSelectContext.isGoingToReplay)
     {
         gSelectContext.isGoingToReplay = false;
         if (!gSelectContext.entries.empty())
@@ -470,10 +475,15 @@ void SceneSelect::updateSelect()
             case eEntryType::CHART:
             case eEntryType::RIVAL_SONG:
             case eEntryType::RIVAL_CHART:
-            case eEntryType::COURSE:
-                if (false /* current chart has a replay */)
-                _decide();
+            {
+                if (gSwitches.get(eSwitch::CHART_HAVE_REPLAY))
+                {
+                    gPlayContext.isReplay = true;
+                    gPlayContext.canRetry = false;
+                    _decide();
+                }
                 break;
+            }
             }
         }
     }
@@ -968,18 +978,13 @@ void SceneSelect::_decide()
 {
     std::shared_lock<std::shared_mutex> u(gSelectContext._mutex);
 
-    auto entry = gSelectContext.entries[gSelectContext.idx].first;
+    auto& [entry, score] = gSelectContext.entries[gSelectContext.idx];
     //auto& chart = entry.charts[entry.chart_idx];
     auto& c = gChartContext;
     auto& p = gPlayContext;
 
     clearContextPlay();
 
-    if (gSwitches.get(eSwitch::SYSTEM_AUTOPLAY))
-    {
-        gPlayContext.canRetry = false;
-        gPlayContext.isAuto = true;
-    }
     switch (gOptions.get(eOption::PLAY_BATTLE_TYPE))
     {
     case Option::BATTLE_OFF:
@@ -995,61 +1000,74 @@ void SceneSelect::_decide()
         gPlayContext.isCourseFirstStage = true;
     }
 
-    // gauge
-    auto convertGaugeType = [](int nType) -> eModGauge
+    if (!gPlayContext.isReplay)
     {
-        switch (nType)
+        // gauge
+        auto convertGaugeType = [](int nType) -> eModGauge
         {
-        case 1: return eModGauge::HARD;
-        case 2: return eModGauge::DEATH;
-        case 3: return eModGauge::EASY;
-        case 4: return eModGauge::PATTACK;
-        case 5: return eModGauge::GATTACK;
-        case 6: return eModGauge::ASSISTEASY;
-        case 7: return eModGauge::EXHARD;
-        case 0:
-        default: return eModGauge::NORMAL;
+            switch (nType)
+            {
+            case 1: return eModGauge::HARD;
+            case 2: return eModGauge::DEATH;
+            case 3: return eModGauge::EASY;
+                // case 4: return eModGauge::PATTACK;
+                // case 5: return eModGauge::GATTACK;
+            case 4: return eModGauge::HARD;
+            case 5: return eModGauge::HARD;
+            case 6: return eModGauge::ASSISTEASY;
+            case 7: return eModGauge::EXHARD;
+            case 0:
+            default: return eModGauge::NORMAL;
+            };
         };
-    };
-    gPlayContext.mods[PLAYER_SLOT_1P].gauge = convertGaugeType(gOptions.get(eOption::PLAY_GAUGE_TYPE_1P));
-    gPlayContext.mods[PLAYER_SLOT_2P].gauge = convertGaugeType(gOptions.get(eOption::PLAY_GAUGE_TYPE_2P));
+        gPlayContext.mods[PLAYER_SLOT_1P].gauge = convertGaugeType(gOptions.get(eOption::PLAY_GAUGE_TYPE_1P));
+        gPlayContext.mods[PLAYER_SLOT_2P].gauge = convertGaugeType(gOptions.get(eOption::PLAY_GAUGE_TYPE_2P));
 
-    // random
-    auto convertRandomType = [](int nType) -> eModChart
+        // random
+        auto convertRandomType = [](int nType) -> eModChart
+        {
+            switch (nType)
+            {
+            case 1: return eModChart::MIRROR;
+            case 2: return eModChart::RANDOM;
+            case 3: return eModChart::SRAN;
+            case 4: return eModChart::HRAN;
+            case 5: return eModChart::ALLSCR;
+            case 0:
+            default: return eModChart::NONE;
+            };
+        };
+        gPlayContext.mods[PLAYER_SLOT_1P].chart = convertRandomType(gOptions.get(eOption::PLAY_RANDOM_TYPE_1P));
+        gPlayContext.mods[PLAYER_SLOT_2P].chart = convertRandomType(gOptions.get(eOption::PLAY_RANDOM_TYPE_2P));
+
+        // assist
+        gPlayContext.mods[PLAYER_SLOT_1P].assist_mask |= gSwitches.get(eSwitch::PLAY_OPTION_AUTOSCR_1P) ? PLAY_MOD_ASSIST_AUTOSCR : 0;
+        gPlayContext.mods[PLAYER_SLOT_2P].assist_mask |= gSwitches.get(eSwitch::PLAY_OPTION_AUTOSCR_2P) ? PLAY_MOD_ASSIST_AUTOSCR : 0;
+
+        // HS fix
+        auto convertHSType = [](int nType) -> eModHs
+        {
+            switch (nType)
+            {
+            case 1: return eModHs::MAXBPM;
+            case 2: return eModHs::MINBPM;
+            case 3: return eModHs::AVERAGE;
+            case 4: return eModHs::CONSTANT;
+            case 0:
+            default: return eModHs::NONE;
+            };
+        };
+        gPlayContext.mods[PLAYER_SLOT_1P].hs = convertHSType(gOptions.get(eOption::PLAY_HSFIX_TYPE_1P));
+        gPlayContext.mods[PLAYER_SLOT_2P].hs = convertHSType(gOptions.get(eOption::PLAY_HSFIX_TYPE_2P));
+    }
+    else // gPlayContext.isReplay
     {
-        switch (nType)
-        {
-        case 1: return eModChart::MIRROR;
-        case 2: return eModChart::RANDOM;
-        case 3: return eModChart::SRAN;
-        case 4: return eModChart::HRAN;
-        case 5: return eModChart::ALLSCR;
-        case 0:
-        default: return eModChart::NONE;
-        };
-    };
-    gPlayContext.mods[PLAYER_SLOT_1P].chart = convertRandomType(gOptions.get(eOption::PLAY_RANDOM_TYPE_1P));
-    gPlayContext.mods[PLAYER_SLOT_2P].chart = convertRandomType(gOptions.get(eOption::PLAY_RANDOM_TYPE_2P));
-
-    // assist
-    gPlayContext.mods[PLAYER_SLOT_1P].assist_mask |= gSwitches.get(eSwitch::PLAY_OPTION_AUTOSCR_1P) ? PLAY_MOD_ASSIST_AUTOSCR : 0;
-    gPlayContext.mods[PLAYER_SLOT_2P].assist_mask |= gSwitches.get(eSwitch::PLAY_OPTION_AUTOSCR_2P) ? PLAY_MOD_ASSIST_AUTOSCR : 0;
-
-    // HS fix
-    auto convertHSType = [](int nType) -> eModHs
-    {
-        switch (nType)
-        {
-        case 1: return eModHs::MAXBPM;
-        case 2: return eModHs::MINBPM;
-        case 3: return eModHs::AVERAGE;
-        case 4: return eModHs::CONSTANT;
-        case 0:
-        default: return eModHs::NONE;
-        };
-    };
-    gPlayContext.mods[PLAYER_SLOT_1P].hs = convertHSType(gOptions.get(eOption::PLAY_HSFIX_TYPE_1P));
-    gPlayContext.mods[PLAYER_SLOT_2P].hs = convertHSType(gOptions.get(eOption::PLAY_HSFIX_TYPE_2P));
+        gPlayContext.mods[PLAYER_SLOT_1P].chart = gPlayContext.replay->randomType1P;
+        gPlayContext.mods[PLAYER_SLOT_1P].gauge = gPlayContext.replay->gaugeType;
+        gPlayContext.mods[PLAYER_SLOT_1P].assist_mask = gPlayContext.replay->assistMask;
+        gPlayContext.mods[PLAYER_SLOT_1P].hs = gPlayContext.replay->hispeedFix;
+        gPlayContext.mods[PLAYER_SLOT_1P].visual_mask = gPlayContext.replay->laneEffectType;
+    }
 
     // chart
     c.started = false;
@@ -1155,9 +1173,9 @@ void SceneSelect::_decide()
             gPlayContext.mods[PLAYER_SLOT_2P].chart = eModChart::NONE;
         }
         gSwitches.set(eSwitch::PLAY_OPTION_AUTOSCR_1P, false);
-        gPlayContext.mods[PLAYER_SLOT_1P].assist_mask = 0; 
+        gPlayContext.mods[PLAYER_SLOT_1P].assist_mask = 0;
         gSwitches.set(eSwitch::PLAY_OPTION_AUTOSCR_2P, false);
-        gPlayContext.mods[PLAYER_SLOT_2P].assist_mask = 0; 
+        gPlayContext.mods[PLAYER_SLOT_2P].assist_mask = 0;
 
         // set metadata
 
@@ -1165,6 +1183,27 @@ void SceneSelect::_decide()
     }
     default:
         break;
+    }
+
+    if (score && !score->replayFileName.empty())
+    {
+        Path replayFilePath = ReplayChart::getReplayPath(c.hash) / score->replayFileName;
+        if (fs::is_regular_file(replayFilePath))
+        {
+            gPlayContext.replayMybest = std::make_shared<ReplayChart>();
+            if (gPlayContext.replayMybest->loadFile(replayFilePath))
+            {
+                gPlayContext.mods[PLAYER_SLOT_MYBEST].chart = gPlayContext.replayMybest->randomType1P;
+                gPlayContext.mods[PLAYER_SLOT_MYBEST].gauge = gPlayContext.replayMybest->gaugeType;
+                gPlayContext.mods[PLAYER_SLOT_MYBEST].assist_mask = gPlayContext.replayMybest->assistMask;
+                gPlayContext.mods[PLAYER_SLOT_MYBEST].hs = gPlayContext.replayMybest->hispeedFix;
+                gPlayContext.mods[PLAYER_SLOT_MYBEST].visual_mask = gPlayContext.replayMybest->laneEffectType;
+            }
+            else
+            {
+                gPlayContext.replayMybest.reset();
+            }
+        }
     }
 
     gNextScene = eScene::DECIDE;

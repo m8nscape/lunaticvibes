@@ -50,6 +50,7 @@ public:
     constexpr size_t length() const { return _Len; }
     bool empty() const { return !set; }
     std::string hexdigest() const { return bin2hex(data, _Len); }
+    const unsigned char* hex() const { return data; }
 
     template <size_t _Len2>
     bool operator<(const Hash<_Len2>& rhs) const { return memcmp(data, rhs.data, _Len) < 0; }
@@ -132,15 +133,16 @@ enum class eModGauge : uint8_t
     HARD,
     DEATH,
     EASY,
-    PATTACK,
-    GATTACK,
     ASSISTEASY,
 
     GRADE_NORMAL,
-    GRADE_DEATH, // ?
+    GRADE_DEATH,
 
     EXHARD,
     GRADE_EX,
+
+    //PATTACK,
+    //GATTACK,
 };
 
 inline const uint8_t PLAY_MOD_ASSIST_AUTO67     = 1 << 0; // 5keys
@@ -218,9 +220,11 @@ public:
     long long reserved[1]{ 0 };
     double reservedlf[2]{ 0.0 };
 
+    std::string replayFileName;
+
 public:
     vScore() = default;
-    virtual Type getType() { return Type::UNKNOWN; }
+    virtual Type getType() const { return Type::UNKNOWN; }
 };
 
 class ScoreBMS : public vScore
@@ -229,7 +233,7 @@ public:
     ScoreBMS() = default;
 
 public:
-    int exscore;
+    int exscore = 0;
 
     enum class Lamp
     {
@@ -243,24 +247,23 @@ public:
         FULLCOMBO,
         PERFECT,
         MAX
-    };
-    Lamp lamp;
+    } lamp = Lamp::NOPLAY;
 
-    int pgreat;
-    int great;
-    int good;
-    int bad;
-    int bpoor;
-    int miss;
-    int bp;
-    int combobreak;
+    int pgreat = 0;
+    int great = 0;
+    int good = 0;
+    int bad = 0;
+    int bpoor = 0;
+    int miss = 0;
+    int bp = 0;
+    int combobreak = 0;
 
     // extended info
     unsigned rival = 3; // win / lose / draw / noplay
     double rival_rate = 0;
-    Lamp rival_lamp;
+    Lamp rival_lamp = Lamp::NOPLAY;
 
-    virtual Type getType() override { return Type::BMS; }
+    virtual Type getType() const override { return Type::BMS; }
 };
 
 class AxisDir

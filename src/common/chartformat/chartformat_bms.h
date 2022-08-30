@@ -114,13 +114,13 @@ public:
 
 public:
     ChartFormatBMS();
-    ChartFormatBMS(const Path& absolutePath);
+    ChartFormatBMS(const Path& absolutePath, uint64_t randomSeed);
     virtual ~ChartFormatBMS() = default;
     std::string getError();
-    int initWithPathParam(const SongDB& db);
+    int initWithPathParam(const SongDB& db, uint64_t randomSeed);
 
 protected:
-    int initWithFile(const Path& absolutePath);
+    int initWithFile(const Path& absolutePath, uint64_t randomSeed);
 
 protected:
     ErrorCode errorCode = ErrorCode::OK;

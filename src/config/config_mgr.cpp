@@ -611,7 +611,7 @@ void setText()
     g.queue(e::BGA_SIZE, "NORMAL");
     g.queue(e::COLOR_DEPTH, "WHAT DO YOU WANT FROM THIS");
     g.queue(e::JUDGE_AUTO, "NOT SUPPORTED");
-    g.queue(e::REPLAY_SAVE_TYPE, "NOT SUPPORTED");
+    g.queue(e::REPLAY_SAVE_TYPE, "BEST EXSCORE");
     g.queue(e::TRIAL1, "NOT SUPPORTED");
     g.queue(e::TRIAL2, "NOT SUPPORTED");
 

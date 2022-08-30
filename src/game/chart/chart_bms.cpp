@@ -90,7 +90,12 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
     for (size_t i = Sc1; i < NOTELANEINDEX_COUNT; ++i) 
         gameLaneMap[i] = (NoteLaneIndex)i;
 
-    std::mt19937 rng(gPlayContext.randomSeedMod);
+    uint64_t seed = gPlayContext.randomSeed;
+    if (gPlayContext.isReplay && gPlayContext.replay)
+        seed = gPlayContext.replay->randomSeed;
+    else if (_playerSlot == PLAYER_SLOT_MYBEST && gPlayContext.replayMybest)
+        seed = gPlayContext.replayMybest->randomSeed;
+    std::mt19937_64 rng(seed);
     switch (gPlayContext.mods[_playerSlot].chart)
     {
     case eModChart::RANDOM:

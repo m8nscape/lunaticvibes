@@ -168,6 +168,7 @@ public:
         AUTO,
         AUTO_2P,
         RIVAL,
+        MYBEST,
     };
 
     struct JudgeRes { judgeArea area = judgeArea::NOTHING; Time time; };
@@ -180,6 +181,7 @@ protected:
 
     std::map<JudgeType, double> _healthGain;
 
+    bool showJudge = true;
     const NoteLaneTimerMap* _bombTimerMap = nullptr;
     const NoteLaneTimerMap* _bombLNTimerMap = nullptr;
 

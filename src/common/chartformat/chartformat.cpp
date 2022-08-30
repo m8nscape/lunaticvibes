@@ -31,7 +31,7 @@ eChartFormat analyzeChartType(const Path& p)
         return fmt;
 }
 
-std::shared_ptr<ChartFormatBase> ChartFormatBase::createFromFile(const Path& path)
+std::shared_ptr<ChartFormatBase> ChartFormatBase::createFromFile(const Path& path, uint64_t randomSeed)
 {
     Path filePath = fs::absolute(path);
     std::ifstream fs(filePath.c_str());
@@ -45,7 +45,7 @@ std::shared_ptr<ChartFormatBase> ChartFormatBase::createFromFile(const Path& pat
     switch (analyzeChartType(path))
     {
     case eChartFormat::BMS:
-        return std::static_pointer_cast<ChartFormatBase>(std::make_shared<ChartFormatBMS>(filePath));
+        return std::static_pointer_cast<ChartFormatBase>(std::make_shared<ChartFormatBMS>(filePath, randomSeed));
 
     case eChartFormat::UNKNOWN:
         LOG_WARNING << "[Chart] File type unknown: " << filePath.u8string();

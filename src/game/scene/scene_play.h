@@ -55,6 +55,9 @@ private:
     std::array<int, 2>      _hispeedAdd{ 0 };
     std::array<int, 2>      _lanecoverAdd{ 0 };
 
+    std::vector<ReplayChart::Commands>::iterator itReplayCommand;
+    InputMask replayKeyPressing;
+
     std::array<int, 2>      _missPlayer = { 0 };
     Time _missLastTime;
     int _missBgaLength;
@@ -62,6 +65,9 @@ private:
 public:
     ScenePlay();
     virtual ~ScenePlay();
+    void clearGlobalDatas();
+    bool createChartObj();
+    bool createRuleset();
 
 protected:
     void setTempInitialHealthBMS();
@@ -124,5 +130,7 @@ protected:
     void inputGamePress(InputMask&, const Time&);
     void inputGameHold(InputMask&, const Time&);
     void inputGameRelease(InputMask&, const Time&);
+    void inputGamePressTimer(InputMask&, const Time&);
+    void inputGameReleaseTimer(InputMask&, const Time&);
     void inputGameAxis(double s1, double s2, const Time&);
 };

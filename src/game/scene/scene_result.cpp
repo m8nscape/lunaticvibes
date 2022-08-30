@@ -1,10 +1,15 @@
 #include "scene_result.h"
 #include "scene_context.h"
+#include "common/types.h"
 #include "game/ruleset/ruleset.h"
 #include "game/ruleset/ruleset_bms.h"
 
 #include "game/sound/sound_mgr.h"
 #include "game/sound/sound_sample.h"
+
+#include "config/config_mgr.h"
+#include "game/generic_info.h"
+#include <boost/algorithm/string.hpp>
 
 SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
 {
@@ -29,12 +34,15 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
     gOptions.queue(eOption::RESULT_RANK_1P, Option::getRankType(d1p.total_acc));
     gPlayContext.ruleset[PLAYER_SLOT_1P]->updateGlobals();
 
-    auto d2p = gPlayContext.ruleset[PLAYER_SLOT_2P]->getData();
-    gOptions.queue(eOption::RESULT_RANK_2P, Option::getRankType(d2p.total_acc));
-    gPlayContext.ruleset[PLAYER_SLOT_2P]->updateGlobals();
+    if (gPlayContext.ruleset[PLAYER_SLOT_2P])
+    {
+        auto d2p = gPlayContext.ruleset[PLAYER_SLOT_2P]->getData();
+        gOptions.queue(eOption::RESULT_RANK_2P, Option::getRankType(d2p.total_acc));
+        gPlayContext.ruleset[PLAYER_SLOT_2P]->updateGlobals();
 
-    gNumbers.queue(eNumber::PLAY_1P_EXSCORE_DIFF, d1p.score2 - d2p.score2);
-    gNumbers.queue(eNumber::PLAY_2P_EXSCORE_DIFF, d2p.score2 - d1p.score2);
+        gNumbers.queue(eNumber::PLAY_1P_EXSCORE_DIFF, d1p.score2 - d2p.score2);
+        gNumbers.queue(eNumber::PLAY_2P_EXSCORE_DIFF, d2p.score2 - d1p.score2);
+    }
 
     // TODO set chart info (total notes, etc.)
     auto chartLength = gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() / 1000;
@@ -141,21 +149,24 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
 
     _pScoreOld = g_pScoreDB->getChartScoreBMS(gChartContext.hash);
 
-    auto& [saveScoreTmp, saveLampTmp] = getSaveScoreType();
-    saveScore = saveScoreTmp;
-    switch (saveLampTmp)
+    if (!gPlayContext.isReplay)
     {
-    case Option::e_lamp_type::LAMP_NOPLAY:      saveLamp = ScoreBMS::Lamp::NOPLAY; break;
-    case Option::e_lamp_type::LAMP_FAILED:      saveLamp = ScoreBMS::Lamp::FAILED; break;
-    case Option::e_lamp_type::LAMP_ASSIST:      saveLamp = ScoreBMS::Lamp::ASSIST; break;
-    case Option::e_lamp_type::LAMP_EASY:        saveLamp = ScoreBMS::Lamp::EASY; break;
-    case Option::e_lamp_type::LAMP_NORMAL:      saveLamp = ScoreBMS::Lamp::NORMAL; break;
-    case Option::e_lamp_type::LAMP_HARD:        saveLamp = ScoreBMS::Lamp::HARD; break;
-    case Option::e_lamp_type::LAMP_EXHARD:      saveLamp = ScoreBMS::Lamp::EXHARD; break;
-    case Option::e_lamp_type::LAMP_FULLCOMBO:   saveLamp = ScoreBMS::Lamp::FULLCOMBO; break;
-    case Option::e_lamp_type::LAMP_PERFECT:     saveLamp = ScoreBMS::Lamp::PERFECT; break;
-    case Option::e_lamp_type::LAMP_MAX:         saveLamp = ScoreBMS::Lamp::MAX; break;
-    default: assert(false); break;
+        auto& [saveScoreTmp, saveLampTmp] = getSaveScoreType();
+        saveScore = saveScoreTmp;
+        switch (saveLampTmp)
+        {
+        case Option::e_lamp_type::LAMP_NOPLAY:      saveLamp = ScoreBMS::Lamp::NOPLAY; break;
+        case Option::e_lamp_type::LAMP_FAILED:      saveLamp = ScoreBMS::Lamp::FAILED; break;
+        case Option::e_lamp_type::LAMP_ASSIST:      saveLamp = ScoreBMS::Lamp::ASSIST; break;
+        case Option::e_lamp_type::LAMP_EASY:        saveLamp = ScoreBMS::Lamp::EASY; break;
+        case Option::e_lamp_type::LAMP_NORMAL:      saveLamp = ScoreBMS::Lamp::NORMAL; break;
+        case Option::e_lamp_type::LAMP_HARD:        saveLamp = ScoreBMS::Lamp::HARD; break;
+        case Option::e_lamp_type::LAMP_EXHARD:      saveLamp = ScoreBMS::Lamp::EXHARD; break;
+        case Option::e_lamp_type::LAMP_FULLCOMBO:   saveLamp = ScoreBMS::Lamp::FULLCOMBO; break;
+        case Option::e_lamp_type::LAMP_PERFECT:     saveLamp = ScoreBMS::Lamp::PERFECT; break;
+        case Option::e_lamp_type::LAMP_MAX:         saveLamp = ScoreBMS::Lamp::MAX; break;
+        default: assert(false); break;
+        }
     }
 
     using namespace std::placeholders;
@@ -252,6 +263,22 @@ void SceneResult::updateFadeout()
     {
         SoundMgr::stopNoteSamples();
 
+        std::string replayFileName = (boost::format("%04d%02d%02d-%02d%02d%02d.rep")
+            % gNumbers.get(eNumber::DATE_YEAR)
+            % gNumbers.get(eNumber::DATE_MON)
+            % gNumbers.get(eNumber::DATE_DAY)
+            % gNumbers.get(eNumber::DATE_HOUR)
+            % gNumbers.get(eNumber::DATE_MIN)
+            % gNumbers.get(eNumber::DATE_SEC)
+            ).str();
+        Path replayPath = ConfigMgr::Profile()->getPath() / "replay" / "chart" / gChartContext.hash.hexdigest() / replayFileName;
+
+        // save replay
+        if (saveScore)
+        {
+            gPlayContext.replayNew->saveFile(replayPath);
+        }
+
         // save score
         if (saveScore && !gChartContext.hash.empty())
         {
@@ -270,6 +297,7 @@ void SceneResult::updateFadeout()
             score.playcount = _pScoreOld ? _pScoreOld->playcount + 1 : 1;
             auto isclear = ruleset->isCleared() ? 1 : 0;
             score.clearcount = _pScoreOld ? _pScoreOld->clearcount + isclear : isclear;
+            score.replayFileName = replayFileName;
 
             switch (format->type())
             {
@@ -331,7 +359,7 @@ void SceneResult::updateFadeout()
                 break;
             }
         }
-
+        
         // check retry
         if (_retryRequested && gPlayContext.canRetry)
         {
@@ -341,6 +369,8 @@ void SceneResult::updateFadeout()
         else
         {
             clearContextPlay();
+            gPlayContext.isAuto = false;
+            gPlayContext.isReplay = false;
             gNextScene = gQuitOnFinish ? eScene::EXIT : eScene::SELECT;
         }
     }

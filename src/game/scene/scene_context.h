@@ -10,6 +10,7 @@
 #include "game/chart/chart.h"
 #include "game/ruleset/ruleset.h"
 #include "game/graphics/texture_extra.h"
+#include "game/replay/replay_chart.h"
 #include "common/entry/entry_folder.h"
 #include "db/db_song.h"
 #include "db/db_score.h"
@@ -24,6 +25,7 @@ struct ChartContextParams
     Path path{};
     HashMD5 hash{};
     std::shared_ptr<ChartFormatBase> chartObj;
+    std::shared_ptr<ChartFormatBase> chartObjMybest;
     //bool isChartSamplesLoaded;
     bool isSampleLoaded = false;
     bool isBgaLoaded = false;
@@ -54,16 +56,18 @@ struct ChartContextParams
 constexpr unsigned MAX_PLAYERS = 8;
 constexpr unsigned PLAYER_SLOT_1P = 0;
 constexpr unsigned PLAYER_SLOT_2P = 1;
+constexpr unsigned PLAYER_SLOT_MYBEST = 2;
 struct PlayContextParams
 {
     eMode mode = eMode::PLAY7;
     bool canRetry = false;
     bool isCourse = false;
     bool isCourseFirstStage = false;
+
     unsigned judgeLevel = 0;
 
-    std::shared_ptr<ChartObjectBase> chartObj[2]{ nullptr, nullptr };
-    double initialHealth[2]{ 1.0, 1.0 };
+    std::shared_ptr<ChartObjectBase> chartObj[3]{ nullptr, nullptr, nullptr };
+    double initialHealth[3]{ 1.0, 1.0, 1.0 };
 
 	std::shared_ptr<TextureBmsBga> bgaTexture = std::make_shared<TextureBmsBga>();
 
@@ -73,6 +77,7 @@ struct PlayContextParams
     std::array<std::vector<int>, MAX_PLAYERS> graphGauge;
     std::array<std::vector<int>, MAX_PLAYERS> graphScore;
     std::vector<int> graphScoreTarget;
+    std::vector<int> graphScoreMybest;
     std::array<eGaugeOp, MAX_PLAYERS> gaugeType{};        // resolve on ruleset construction
     std::array<PlayMod, MAX_PLAYERS> mods{};         // eMod: 
 
@@ -81,12 +86,17 @@ struct PlayContextParams
     eRuleset rulesetType = eRuleset::BMS;
     std::array<std::shared_ptr<vRuleset>, MAX_PLAYERS> ruleset;
 
+    std::shared_ptr<ReplayChart> replay;
+    std::shared_ptr<ReplayChart> replayMybest;
+    std::shared_ptr<ReplayChart> replayNew;
+
     Time remainTime;
 
-    unsigned int randomSeedChart;
-    unsigned int randomSeedMod;
+    uint64_t randomSeed;
 
     bool isAuto = false;
+    bool isReplay = false;
+    bool haveReplay = false;
 
     double Hispeed = 2.0;
 

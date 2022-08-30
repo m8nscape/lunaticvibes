@@ -45,14 +45,14 @@ ChartFormatBMS::ChartFormatBMS() : ChartFormatBMSMeta() {
     metres.resize(MAXBARIDX + 1);
 }
 
-ChartFormatBMS::ChartFormatBMS(const Path& file): ChartFormatBMSMeta() {
+ChartFormatBMS::ChartFormatBMS(const Path& file, uint64_t randomSeed): ChartFormatBMSMeta() {
     wavFiles.resize(MAXSAMPLEIDX + 1);
     bgaFiles.resize(MAXSAMPLEIDX + 1);
     metres.resize(MAXBARIDX + 1);
-    initWithFile(file);
+    initWithFile(file, randomSeed);
 }
 
-int ChartFormatBMS::initWithPathParam(const SongDB& db)
+int ChartFormatBMS::initWithPathParam(const SongDB& db, uint64_t randomSeed)
 {
     if (filePath.is_absolute())
         absolutePath = filePath;
@@ -63,10 +63,10 @@ int ChartFormatBMS::initWithPathParam(const SongDB& db)
         absolutePath = fp / filePath;
     }
 
-    return initWithFile(absolutePath);
+    return initWithFile(absolutePath, randomSeed);
 }
 
-int ChartFormatBMS::initWithFile(const Path& file)
+int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
 {
     using err = ErrorCode;
     if (_loaded)
@@ -167,8 +167,7 @@ int ChartFormatBMS::initWithFile(const Path& file)
                 }
 
                 haveRandom = true;
-                // TODO use global rng
-                static std::mt19937_64 rng(std::time(nullptr));
+                std::mt19937_64 rng(randomSeed);
                 int rngValue = (rng() % toInt(value)) + 1;
                 randomValue.push(rngValue);
                 std::set<int> v;

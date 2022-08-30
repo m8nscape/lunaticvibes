@@ -18,6 +18,7 @@ enum eEntryType
     RANDOM_COURSE,
 
     CHART_LINK,
+    REPLAY,
 };
 
 class EntryBase

@@ -75,6 +75,8 @@ void SceneDecide::updateCancel()
     if (ft.norm() >= _skin->info.timeOutro)
     {
         clearContextPlay();
+        gPlayContext.isAuto = false;
+        gPlayContext.isReplay = false;
         gNextScene = eScene::SELECT;
     }
 }

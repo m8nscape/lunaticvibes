@@ -61,11 +61,13 @@ void clearContextPlayForRetry()
     {
         gPlayContext.graphGauge[i].clear();
         gPlayContext.graphScore[i].clear();
-        if (gPlayContext.ruleset[i]) gPlayContext.ruleset[i]->reset();
-        gPlayContext.ruleset[i].reset();
+        if (gPlayContext.ruleset[i])
+            gPlayContext.ruleset[i].reset();
     }
     gPlayContext.graphScoreTarget.clear();
+    gPlayContext.graphScoreMybest.clear();
 
+    gPlayContext.replayNew.reset();
 }
 
 void clearContextPlay()
@@ -81,12 +83,13 @@ void clearContextPlay()
     gPlayContext.remainTime = 0;
 
     static std::random_device rd;
-    gPlayContext.randomSeedChart = rd();
-    gPlayContext.randomSeedMod = rd();
+    gPlayContext.randomSeed = ((uint64_t)rd() << 32) | rd();
 
-    gPlayContext.isAuto = false;
     gPlayContext.isCourse = false;
     gPlayContext.isCourseFirstStage = false;
+
+    // gPlayContext.replay.reset();     // load at setEntryInfo() @ scene_context.cpp
+    gPlayContext.replayMybest.reset();  // load at _decide() @ scene_play.cpp
 }
 
 void pushGraphPoints()
@@ -100,6 +103,12 @@ void pushGraphPoints()
 
     gPlayContext.graphScoreTarget.push_back(static_cast<int>(std::floor(
         gPlayContext.ruleset[PLAYER_SLOT_1P]->getCurrentMaxScore() * (0.01 * gNumbers.get(eNumber::DEFAULT_TARGET_RATE)))));
+
+    if (!gPlayContext.isAuto && !gPlayContext.isReplay && gPlayContext.replayMybest)
+    {
+        gPlayContext.graphScoreMybest.push_back(static_cast<int>(std::floor(
+            gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->getCurrentMaxScore() * (0.01 * gNumbers.get(eNumber::DEFAULT_TARGET_RATE)))));
+    }
 }
 
 
@@ -422,6 +431,25 @@ void setEntryInfo()
             !(pf->text1.empty() && pf->text2.empty() && pf->text3.empty()));
         gSwitches.queue(eSwitch::CHART_HAVE_BANNER, !pf->banner.empty());
         gSwitches.queue(eSwitch::CHART_HAVE_STAGEFILE, !pf->stagefile.empty());
+
+        gSwitches.queue(eSwitch::CHART_HAVE_REPLAY, false);
+        auto& score = e[idx].second;
+        if (score && !score->replayFileName.empty())
+        {
+            Path replayFilePath = ReplayChart::getReplayPath(ps->md5) / score->replayFileName;
+            if (fs::is_regular_file(replayFilePath))
+            {
+                gPlayContext.replay = std::make_shared<ReplayChart>();
+                if (gPlayContext.replay->loadFile(replayFilePath))
+                {
+                    gSwitches.queue(eSwitch::CHART_HAVE_REPLAY, true);
+                }
+                else
+                {
+                    gPlayContext.replay.reset();
+                }
+            }
+        }
 
         gTexts.queue(eText::PLAY_TITLE, pf->title);
         gTexts.queue(eText::PLAY_SUBTITLE, pf->title2);

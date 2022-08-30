@@ -28,6 +28,7 @@ add_library(gamelib
     input/input_wrapper.cpp
     ruleset/ruleset_bms.cpp
     ruleset/ruleset_bms_auto.cpp
+    ruleset/ruleset_bms_replay.cpp
     scene/scene.cpp
     scene/scene_context.cpp
     scene/scene_decide.cpp
@@ -54,7 +55,8 @@ add_library(gamelib
     sound/sound_fmod_callback.cpp
     sound/sound_mgr.cpp
     sound/sound_sample.cpp  
-)
+    replay/replay_chart.cpp
+ )
 
 if (UNIX OR MINGW)
     target_link_libraries(gamelib PRIVATE -lpthread)
@@ -82,6 +84,7 @@ target_link_libraries(gamelib
     PUBLIC fmod
     PUBLIC imgui
     PUBLIC re2
+    PUBLIC cereal
 )
 
 if (${GRAPHICS_BACKEND} STREQUAL SDL2)

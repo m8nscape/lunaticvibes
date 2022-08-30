@@ -1342,7 +1342,7 @@ ParseRet SkinLR2::SRC_SCORECHART()
     switch (d._null)
     {
     case 0:type = LineType::SCORE; color = {20, 20, 255, 255};  break;
-    case 1: type = LineType::SCORE; color = { 20, 255, 20, 255 };   break;
+    case 1: type = LineType::SCORE_MYBEST; color = { 20, 255, 20, 255 };   break;
     case 2: type = LineType::SCORE_TARGET; color = { 255, 20, 20, 255 };   break;
     default: break;
     }

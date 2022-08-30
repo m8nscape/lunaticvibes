@@ -268,7 +268,7 @@ int SongDB::addChart(const HashMD5& folder, const Path& path)
         }
     }
 
-    pChartFormat c = ChartFormatBase::createFromFile(path);
+    pChartFormat c = ChartFormatBase::createFromFile(path, 2356);
     if (c == nullptr)
     {
         LOG_WARNING << "[SongDB] File error: " << path.u8string();

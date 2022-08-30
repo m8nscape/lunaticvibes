@@ -1,5 +1,6 @@
 #include "skin_lr2.h"
 #include "game/data/number.h"
+#include "game/scene/scene_context.h"
 
 static std::shared_mutex _mutex;
 static std::bitset<900> _op;
@@ -278,6 +279,9 @@ void updateDstOpt()
 	// 82 リプレイオフ
 	// 83 リプレイ録画中
 	// 84 リプレイ再生中
+	set(82, false);
+	set(83, !sw(eSwitch::SYSTEM_AUTOPLAY) && !gPlayContext.isReplay);
+	set(84, !sw(eSwitch::SYSTEM_AUTOPLAY) && gPlayContext.isReplay);
 
 	// 90 リザ クリア
 	// 91 リザ ミス
@@ -496,7 +500,8 @@ void updateDstOpt()
 
 		// 196 リプレイ無し
 		// 197 リプレイ有り
-		set(196);
+		set(196, !sw(eSwitch::CHART_HAVE_REPLAY));
+		set(197, sw(eSwitch::CHART_HAVE_REPLAY));
 	}
 
 	// /////////////////////////////////
