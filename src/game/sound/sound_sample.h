@@ -21,11 +21,12 @@ enum class eSoundSample : size_t
     SOUND_CLEAR,
     SOUND_FAIL,
 
+    SOUND_LANDMINE,
+
     SOUND_SCREENSHOT,
 
     SOUND_COURSE_CLEAR,
     SOUND_COURSE_FAIL,
 };
 
-void loadLR2Bgm();
 void loadLR2Sound();

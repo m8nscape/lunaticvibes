@@ -13,7 +13,6 @@ int SoundMgr::initFMOD()
         if (ret == FMOD_OK)
         {
             _inst._initialized = true;
-            loadLR2Bgm();
             loadLR2Sound();
             return 0;
         }

@@ -55,6 +55,8 @@ add_library(gamelib
     sound/sound_fmod_callback.cpp
     sound/sound_mgr.cpp
     sound/sound_sample.cpp  
+    sound/soundset.cpp
+    sound/soundset_lr2.cpp
     replay/replay_chart.cpp
  )
 

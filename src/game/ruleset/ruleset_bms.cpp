@@ -436,15 +436,15 @@ void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote
                 {
                     gTimers.set(eTimer::PLAY_JUDGE_1P, t.norm());
                     setJudgeInternalTimer1P(JudgeType::BPOOR, t.norm());
+                    SoundMgr::playSysSample(SoundChannelType::KEY_LEFT, eSoundSample::SOUND_LANDMINE);
                 }
                 else if (slot == PLAYER_SLOT_2P)
                 {
                     gTimers.set(eTimer::PLAY_JUDGE_2P, t.norm());
                     setJudgeInternalTimer2P(JudgeType::BPOOR, t.norm());
+                    SoundMgr::playSysSample(SoundChannelType::KEY_RIGHT, eSoundSample::SOUND_LANDMINE);
                 }
             }
-
-            // TODO play mine sound + volume
 
             _lastNoteJudge = { judgeArea::EARLY_BPOOR, t.norm() };
         }

@@ -539,73 +539,35 @@ int SkinLR2::IMAGE()
         if (pathStr.find("*"_p) != pathStr.npos)
         {
             // Check if the wildcard path is specified by custom settings
-            for (auto& cf : customize)
+            std::srand(std::time(NULL));
+            for (size_t idx = 0; idx < customize.size(); ++idx)
             {
+                const auto& cf = customize[idx];
                 if (cf.type == Customize::_Type::FILE && cf.filepath == pathU8Str.substr(0, cf.filepath.length()))
                 {
-                    if (cf.pathList.empty())
+                    int value = (cf.pathList[cf.value] == "RANDOM") ? customizeRandom[idx] : cf.value;
+
+                    Path pathFile = cf.pathList[value];
+                    if (cf.filepath.length() < pathU8Str.length())
+                        pathFile /= PathFromUTF8(pathU8Str.substr(cf.filepath.length() + 1));
+
+                    if (video_file_extensions.find(toLower(pathFile.extension().u8string())) != video_file_extensions.end())
                     {
-                        _textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(""));
-                        LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added IMAGE[" << imageCount << "]: " << "(placeholder)";
+#ifndef VIDEO_DISABLED
+                        _vidNameMap[std::to_string(imageCount)] = std::make_shared<sVideo>(pathFile, true);
+                        _textureNameMap[std::to_string(imageCount)] = _textureNameMap["White"];
+#else
+                        _textureNameMap[std::to_string(imageCount)] = _textureNameMap["Black"];
+#endif
                     }
                     else
                     {
-                        if (cf.filepath.length() < pathU8Str.length())
-                        {
-                            // #IMAGE offered a more specific path. Rebuild customfile list
-                            auto selection = cf.pathList[cf.value];
-                            auto defaultSel = cf.pathList[cf.defIdx];
-                            cf.value = 0;
-                            cf.defIdx = 0;
-
-                            auto ls = findFiles(path);
-                            for (size_t param = 0; param < ls.size(); ++param)
-                            {
-                                auto filename = ls[param].filename().stem();
-                                if (filename == selection)
-                                {
-                                    cf.value = param;
-                                }
-                                if (filename == defaultSel)
-                                {
-                                    cf.defIdx = param;
-                                }
-                            }
-
-                            cf.filepath = pathU8Str;
-                            cf.label.clear();
-                            for (auto& p : ls)
-                            {
-                                cf.label.push_back(p.filename().stem().u8string());
-                            }
-                            cf.pathList = std::move(ls);
-                        }
-                        if (cf.pathList.empty())
-                        {
-                            _textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(""));
-                            LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added IMAGE[" << imageCount << "]: " << "(placeholder)";
-                        }
-                        else
-                        {
-
-                            if (video_file_extensions.find(toLower(cf.pathList[cf.value].extension().u8string())) != video_file_extensions.end())
-                            {
-#ifndef VIDEO_DISABLED
-                                _vidNameMap[std::to_string(imageCount)] = std::make_shared<sVideo>(cf.pathList[cf.value], true);
-                                _textureNameMap[std::to_string(imageCount)] = _textureNameMap["White"];
-#else
-                                _textureNameMap[std::to_string(imageCount)] = _textureNameMap["Black"];
-#endif
-                            }
-                            else
-                            {
-                                Image img = Image(cf.pathList[cf.value].u8string().c_str());
-                                if (info.hasTransparentColor) img.setTransparentColorRGB(info.transparentColor);
-                                _textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(img);
-                            }
-                            LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added IMAGE[" << imageCount << "]: " << cf.filepath;
-                        }
+                        Image img = Image(pathFile.u8string().c_str());
+                        if (info.hasTransparentColor) img.setTransparentColorRGB(info.transparentColor);
+                        _textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(img);
                     }
+                    LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added IMAGE[" << imageCount << "]: " << pathFile;
+
                     ++imageCount;
                     return 2;
                 }
@@ -2600,11 +2562,16 @@ int SkinLR2::parseHeader(const Tokens& raw)
         for (auto& p : ls)
         {
             c.label.push_back(p.filename().stem().u8string());
+            c.pathList.push_back(p);
         }
-        c.pathList = std::move(ls);
+        c.label.push_back("RANDOM");
+        c.pathList.push_back("RANDOM");
         c.defIdx = defVal;
         c.value = defVal;
         customize.push_back(c);
+
+        std::srand(std::time(NULL));
+        customizeRandom[customize.size() - 1] = ls.empty() ? 0 : (std::rand() % ls.size());
 
         return 3;
     }

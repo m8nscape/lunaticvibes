@@ -91,9 +91,6 @@ enum class eMode {
     RESULT,
     COURSE_RESULT,
 
-    BGM,
-    SOUND,
-
     RETRY_TRANS,
     COURSE_TRANS,
     EXIT_TRANS,

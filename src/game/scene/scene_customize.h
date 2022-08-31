@@ -23,6 +23,7 @@ protected:
     std::vector<StringContent> optionsKeyList;
 
     std::map<eMode, std::vector<Path>> skinList;
+    std::vector<Path> soundsetList;
 
     eMode selectedMode;
 

@@ -1355,6 +1355,7 @@ private:
         size_t defIdx;
     };
     std::vector<Customize> customize;
+    std::map<size_t, size_t> customizeRandom;
 
     struct LR2Font
     {

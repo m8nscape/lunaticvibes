@@ -49,6 +49,9 @@ namespace cfg
 
     constexpr char S_PATH_SOUND[] = "Sound folder (LR2)";
     constexpr char S_DEFAULT_PATH_SOUND[] = "LR2files/Sound/lr2";
+
+    constexpr char S_PATH_SOUNDSET[] = "Soundset";
+    constexpr char S_DEFAULT_PATH_SOUNDSET[] = "LR2files/Sound/lr2.lr2ss";
 }
 
 class ConfigSkin : public vConfig
