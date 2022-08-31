@@ -31,73 +31,7 @@
 bool gEventQuit;
 GenericInfoUpdater gGenericInfo{ 1 };
 
-void mainLoop()
-{
-    gGenericInfo.loopStart();
-
-    eScene currentScene = eScene::NOT_INIT;
-
-    pScene scene = nullptr;
-    while (!gEventQuit && currentScene != eScene::EXIT && gNextScene != eScene::EXIT)
-    {
-        // Evenet handling
-        event_handle();
-        if (gEventQuit)
-        {
-            gAppIsExiting = true;
-        }
-
-        // Scene change
-        if (currentScene != gNextScene)
-        {
-            if (scene)
-            {
-                scene->inputLoopEnd();
-                scene->loopEnd();
-            }
-
-            switch (gNextScene)
-            {
-            case eScene::SELECT: LOG_INFO << "Scene changed to SELECT"; break;
-            case eScene::DECIDE: LOG_INFO << "Scene changed to DECIDE"; break;
-            case eScene::PLAY:   LOG_INFO << "Scene changed to PLAY"; break;
-            case eScene::RETRY_TRANS:  LOG_INFO << "Scene changed to RETRY_TRANS"; break;
-            case eScene::RESULT: LOG_INFO << "Scene changed to RESULT"; break;
-            case eScene::KEYCONFIG: LOG_INFO << "Scene changed to KEYCONFIG"; break;
-            case eScene::CUSTOMIZE: LOG_INFO << "Scene changed to CUSTOMIZE"; break;
-            case eScene::EXIT:   LOG_INFO << "Scene changed to EXIT"; break;
-            default: break;
-            }
-
-            // Disable skin caching for now. dst options are changing all the time
-            SkinMgr::clean();
-
-            clearCustomDstOpt();
-			currentScene = gNextScene;
-            if (currentScene != eScene::EXIT)
-            {
-                scene = SceneMgr::get(currentScene);
-                assert(scene != nullptr);
-                scene->loopStart();
-                scene->inputLoopStart();
-            }
-        }
-
-        // draw
-        {
-            graphics_clear();
-            doMainThreadTask();
-            scene->update();
-            scene->draw();
-            graphics_flush();
-        }
-		++gFrameCount[0];
-    }
-    scene->inputLoopEnd();
-    scene->loopEnd();
-
-	gGenericInfo.loopEnd();
-}
+void mainLoop();
 
 // SDL_main
 int main(int argc, char* argv[])
@@ -297,4 +231,73 @@ int main(int argc, char* argv[])
 
     StopHandleMainThreadTask();
     return 0;
+}
+
+
+void mainLoop()
+{
+    gGenericInfo.loopStart();
+
+    eScene currentScene = eScene::NOT_INIT;
+
+    pScene scene = nullptr;
+    while (!gEventQuit && currentScene != eScene::EXIT && gNextScene != eScene::EXIT)
+    {
+        // Evenet handling
+        event_handle();
+        if (gEventQuit)
+        {
+            gAppIsExiting = true;
+        }
+
+        // Scene change
+        if (currentScene != gNextScene)
+        {
+            if (scene)
+            {
+                scene->inputLoopEnd();
+                scene->loopEnd();
+            }
+
+            switch (gNextScene)
+            {
+            case eScene::SELECT: LOG_INFO << "Scene changed to SELECT"; break;
+            case eScene::DECIDE: LOG_INFO << "Scene changed to DECIDE"; break;
+            case eScene::PLAY:   LOG_INFO << "Scene changed to PLAY"; break;
+            case eScene::RETRY_TRANS:  LOG_INFO << "Scene changed to RETRY_TRANS"; break;
+            case eScene::RESULT: LOG_INFO << "Scene changed to RESULT"; break;
+            case eScene::KEYCONFIG: LOG_INFO << "Scene changed to KEYCONFIG"; break;
+            case eScene::CUSTOMIZE: LOG_INFO << "Scene changed to CUSTOMIZE"; break;
+            case eScene::EXIT:   LOG_INFO << "Scene changed to EXIT"; break;
+            default: break;
+            }
+
+            // Disable skin caching for now. dst options are changing all the time
+            SkinMgr::clean();
+
+            clearCustomDstOpt();
+            currentScene = gNextScene;
+            if (currentScene != eScene::EXIT)
+            {
+                scene = SceneMgr::get(currentScene);
+                assert(scene != nullptr);
+                scene->loopStart();
+                scene->inputLoopStart();
+            }
+        }
+
+        // draw
+        {
+            graphics_clear();
+            doMainThreadTask();
+            scene->update();
+            scene->draw();
+            graphics_flush();
+        }
+        ++gFrameCount[0];
+    }
+    scene->inputLoopEnd();
+    scene->loopEnd();
+
+    gGenericInfo.loopEnd();
 }

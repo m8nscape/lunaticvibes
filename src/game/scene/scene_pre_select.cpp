@@ -209,6 +209,12 @@ void ScenePreSelect::updateLoadTables()
         loadTableEnd.get();
         _updateCallback = [] {};
 
+        // wait for updated text to draw
+        pushAndWaitMainThreadTask<void>([] {});
+
+        // wait for another frame
+        pushAndWaitMainThreadTask<void>([] {});
+
         int maxFPS = ConfigMgr::get("V", cfg::V_MAXFPS, 480);
         if (maxFPS < 30 && maxFPS != 0)
             maxFPS = 30;
