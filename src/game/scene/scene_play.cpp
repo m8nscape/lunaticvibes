@@ -1093,7 +1093,7 @@ void ScenePlay::_updateAsync()
 
             if (_scratchDir[slot] != AxisDir::AXIS_DOWN)
             {
-                if (slot == PLAYER_SLOT_PLAYER)
+                if (!isPlaymodeBattle() || slot == PLAYER_SLOT_PLAYER)
                 {
                     gTimers.set(eTimer::S1_DOWN, t.norm());
                     gTimers.set(eTimer::S1_UP, TIMER_NEVER);
@@ -1138,7 +1138,7 @@ void ScenePlay::_updateAsync()
 
             if (_scratchDir[slot] != AxisDir::AXIS_UP)
             {
-                if (slot == PLAYER_SLOT_PLAYER)
+                if (!isPlaymodeBattle() || slot == PLAYER_SLOT_PLAYER)
                 {
                     gTimers.set(eTimer::S1_DOWN, t.norm());
                     gTimers.set(eTimer::S1_UP, TIMER_NEVER);
@@ -1238,7 +1238,7 @@ void ScenePlay::_updateAsync()
             // release
             if (_scratchDir[slot] != AxisDir::AXIS_NONE)
             {
-                if (slot == PLAYER_SLOT_PLAYER)
+                if (!isPlaymodeBattle() || slot == PLAYER_SLOT_PLAYER)
                 {
                     gTimers.set(eTimer::S1_DOWN, TIMER_NEVER);
                     gTimers.set(eTimer::S1_UP, t.norm());
@@ -2103,17 +2103,19 @@ void ScenePlay::inputGamePressTimer(InputMask& input, const Time& t)
     }
     SoundMgr::playNoteSample(SoundChannelType::KEY_LEFT, sampleCount, (size_t*)&_keySampleIdxBuf[0]);
 
-    if (input[S1L] || input[S1R] || !isPlaymodeBattle() && (input[S2L] || input[S2R]))
+    if (input[S1L] || input[S1R] || !(isPlaymodeBattle() || isPlaymodeDP()) && (input[S2L] || input[S2R]))
     {
+        _scratchDir[PLAYER_SLOT_PLAYER] = (input[S1L] || input[S2L]) ? AxisDir::AXIS_UP : AxisDir::AXIS_DOWN;
         gTimers.queue(eTimer::S1_DOWN, t.norm());
         gTimers.queue(eTimer::S1_UP, TIMER_NEVER);
         gSwitches.queue(eSwitch::S1_DOWN, true);
     }
 
-    if (isPlaymodeBattle())
+    if (isPlaymodeBattle() || isPlaymodeDP())
     {
         if (input[S2L] || input[S2R])
         {
+            _scratchDir[PLAYER_SLOT_TARGET] = input[S2L] ? AxisDir::AXIS_UP : AxisDir::AXIS_DOWN;
             gTimers.queue(eTimer::S2_DOWN, t.norm());
             gTimers.queue(eTimer::S2_UP, TIMER_NEVER);
             gSwitches.queue(eSwitch::S2_DOWN, true);
@@ -2265,20 +2267,30 @@ void ScenePlay::inputGameReleaseTimer(InputMask& input, const Time& t)
 
     if (true)
     {
-        if (input[S1L] || input[S1R] || !isPlaymodeBattle() && (input[S2L] || input[S2R]))
+        if (input[S1L] || input[S1R] || !(isPlaymodeBattle() || isPlaymodeDP()) && (input[S2L] || input[S2R]))
         {
-            gTimers.set(eTimer::S1_DOWN, TIMER_NEVER);
-            gTimers.set(eTimer::S1_UP, t.norm());
-            gSwitches.set(eSwitch::S1_DOWN, false);
+            if (((input[S1L] || input[S2L]) && _scratchDir[PLAYER_SLOT_PLAYER] == AxisDir::AXIS_UP) ||
+                ((input[S1R] || input[S2R]) && _scratchDir[PLAYER_SLOT_PLAYER] == AxisDir::AXIS_DOWN))
+            {
+                gTimers.set(eTimer::S1_DOWN, TIMER_NEVER);
+                gTimers.set(eTimer::S1_UP, t.norm());
+                gSwitches.set(eSwitch::S1_DOWN, false);
+                _scratchDir[PLAYER_SLOT_PLAYER] = AxisDir::AXIS_NONE;
+            }
         }
     }
-    if (isPlaymodeBattle())
+    if (isPlaymodeBattle() || isPlaymodeDP())
     {
         if (input[S2L] || input[S2R])
         {
-            gTimers.set(eTimer::S2_DOWN, TIMER_NEVER);
-            gTimers.set(eTimer::S2_UP, t.norm());
-            gSwitches.set(eSwitch::S2_DOWN, false);
+            if ((input[S2L] && _scratchDir[PLAYER_SLOT_TARGET] == AxisDir::AXIS_UP) ||
+                (input[S2R] && _scratchDir[PLAYER_SLOT_TARGET] == AxisDir::AXIS_DOWN))
+            {
+                gTimers.set(eTimer::S2_DOWN, TIMER_NEVER);
+                gTimers.set(eTimer::S2_UP, t.norm());
+                gSwitches.set(eSwitch::S2_DOWN, false);
+                _scratchDir[PLAYER_SLOT_TARGET] = AxisDir::AXIS_NONE;
+            }
         }
     }
 }
