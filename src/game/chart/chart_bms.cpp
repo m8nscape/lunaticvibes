@@ -74,17 +74,22 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
     bool bpmfucked = false; // set to true when BPM is changed to zero or negative value
     std::bitset<NOTELANEINDEX_COUNT> isLnTail{ 0 };
 
-    int laneCountRandom = 7;
+    int laneCountOneSide = 7;
     switch (objBms.gamemode)
     {
     case 5:
-    case 10: laneCountRandom = 5; break;
+    case 10: laneCountOneSide = 5; break;
     case 7:
-    case 14: laneCountRandom = 7; break;
+    case 14: laneCountOneSide = 7; break;
     case 9:
-    case 18: laneCountRandom = 9; break;
+    case 18: laneCountOneSide = 9; break;
     default: break;
     }
+    bool isChartDP = objBms.gamemode >= 10;
+    size_t laneLeftStart = K1;
+    size_t laneLeftEnd = K1 + laneCountOneSide - 1;
+    size_t laneRightStart = K1 + laneCountOneSide;
+    size_t laneRightEnd = K1 + laneCountOneSide + laneCountOneSide - 1;
 
     std::array<NoteLaneIndex, NOTELANEINDEX_COUNT> gameLaneMap;
     for (size_t i = Sc1; i < NOTELANEINDEX_COUNT; ++i) 
@@ -96,23 +101,28 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
     else if (_playerSlot == PLAYER_SLOT_MYBEST && gPlayContext.replayMybest)
         seed = gPlayContext.replayMybest->randomSeed;
     std::mt19937_64 rng(seed);
-    switch (gPlayContext.mods[_playerSlot].chart)
+
+    switch (gPlayContext.mods[_playerSlot].randomLeft)
     {
-    case eModChart::RANDOM:
-        std::shuffle(gameLaneMap.begin() + 1, gameLaneMap.begin() + 1 + laneCountRandom, rng);
+    case eModRandom::RANDOM:
+        std::shuffle(gameLaneMap.begin() + laneLeftStart, gameLaneMap.begin() + laneLeftEnd, rng);
+        if (isChartDP)
+            std::shuffle(gameLaneMap.begin() + laneRightStart, gameLaneMap.begin() + laneRightEnd, rng);
         break;
 
-    case eModChart::MIRROR:
-        std::reverse(gameLaneMap.begin() + 1, gameLaneMap.begin() + 1 + laneCountRandom);
+    case eModRandom::MIRROR:
+        std::reverse(gameLaneMap.begin() + laneLeftStart, gameLaneMap.begin() + laneLeftEnd);
+        if (isChartDP)
+            std::reverse(gameLaneMap.begin() + laneRightStart, gameLaneMap.begin() + laneRightEnd);
         break;
 
-    case eModChart::SRAN:
-    case eModChart::HRAN:
-    case eModChart::ALLSCR:
+    case eModRandom::SRAN:
+    case eModRandom::HRAN:
+    case eModRandom::ALLSCR:
         // handled below
         break;
 
-    case eModChart::NONE:
+    case eModRandom::NONE:
     default: 
         break;
     }
@@ -165,7 +175,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
 
         // add notes
         {
-            auto push_notes = [&objBms, m](decltype(notes)& notes, eLanePriority priority, LaneCode code, int area)
+            auto push_notes = [&objBms, m, laneCountOneSide](decltype(notes)& notes, eLanePriority priority, LaneCode code, int area)
             {
                 for (unsigned i = 0; i < 10; i++)
                 {
@@ -180,27 +190,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                         }
                         else
                         {
-                            switch (objBms.gamemode)
-                            {
-                            case 5:
-                            case 10:
-                                index += 5 * area;
-                                break;
-
-                            case 7:
-                            case 14:
-                                index += 7 * area;
-                                break;
-
-                            case 9:
-                            case 18:
-                                index += 9 * area;
-                                break;
-
-                            default:
-                                assert(false);  // other gamemodes does not support notes on 2P side
-                                break;
-                            }
+                            index += laneCountOneSide * area;
                         }
                     }
                     for (const auto& n : ch.notes)
@@ -210,7 +200,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                     }
                 }
             };
-            auto push_notes_ln = [&objBms, m, &isLnTail](decltype(notes)& notes, LaneCode code, int area)
+            auto push_notes_ln = [&objBms, m, laneCountOneSide, &isLnTail](decltype(notes)& notes, LaneCode code, int area)
             {
                 for (unsigned i = 0; i < 10; i++)
                 {
@@ -225,27 +215,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                         }
                         else
                         {
-                            switch (objBms.gamemode)
-                            {
-                            case 5:
-                            case 10:
-                                index += 5 * area;
-                                break;
-
-                            case 7:
-                            case 14:
-                                index += 7 * area;
-                                break;
-
-                            case 9:
-                            case 18:
-                                index += 9 * area;
-                                break;
-
-                            default:
-                                assert(false);  // other gamemodes does not support notes on 2P side
-                                break;
-                            }
+                            index += laneCountOneSide * area;
                         }
                     }
                     for (const auto& n : ch.notes)
@@ -402,16 +372,16 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                     size_t gameLaneIdxMod = gameLaneIdx;
                     size_t laneMin, laneMax;
                     int laneArea;
-                    if (gameLaneIdx >= Sc1 && gameLaneIdx <= Sc1 + laneCountRandom)
+                    if (gameLaneIdx == Sc1 || gameLaneIdx >= laneLeftStart && gameLaneIdx <= laneLeftEnd)
                     {
-                        laneMin = K1;                              // K1
-                        laneMax = laneMin + (laneCountRandom - 1); // K7
+                        laneMin = laneLeftStart; // K1
+                        laneMax = laneLeftEnd; // K7
                         laneArea = 0;
                     }
-                    else if (gameLaneIdx >= Sc1 + laneCountRandom + 1 && gameLaneIdx <= Sc1 + laneCountRandom + 1 + laneCountRandom - 1 || gameLaneIdx == Sc2)
+                    else if (gameLaneIdx == Sc2 || gameLaneIdx >= laneRightStart && gameLaneIdx <= laneRightEnd)
                     {
-                        laneMin = K1 + laneCountRandom;            // K8
-                        laneMax = laneMin + (laneCountRandom - 1); // K14
+                        laneMin = laneRightStart; // K8
+                        laneMax = laneRightEnd; // K14
                         laneArea = 1;
                     }
                     else
@@ -420,9 +390,9 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                         break;
                     }
 
-                    switch (gPlayContext.mods[_playerSlot].chart)
+                    switch (gPlayContext.mods[_playerSlot].randomLeft)
                     {
-                    case eModChart::SRAN:
+                    case eModRandom::SRAN:
                         if (gameLaneIdx != Sc1 && gameLaneIdx != Sc2)
                         {
                             constexpr int threshold_ms = 50;
@@ -445,11 +415,11 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                                         placable.push_back(i);
                                 }
                             }
-                            gameLaneIdxMod = placable.empty() ? (K1 + rng() % laneCountRandom) : placable[rng() % placable.size()];
+                            gameLaneIdxMod = placable.empty() ? (K1 + rng() % laneCountOneSide) : placable[rng() % placable.size()];
                         }
                         break;
 
-                    case eModChart::HRAN:
+                    case eModRandom::HRAN:
                         if (gameLaneIdx != Sc1 && gameLaneIdx != Sc2)
                         {
                             constexpr int threshold_ms = 250;
@@ -491,7 +461,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                         }
                         break;
 
-                    case eModChart::ALLSCR:
+                    case eModRandom::ALLSCR:
                     {
                         constexpr int threshold_scr_ms = 33;    // threshold of moving notes to keyboard lanes
                         constexpr int threshold_ms = 250;       // try not to make keyboard jacks

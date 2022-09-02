@@ -17,12 +17,12 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
 
     _inputAvailable = INPUT_MASK_FUNC;
 
-    if (gPlayContext.chartObj[PLAYER_SLOT_1P] != nullptr)
+    if (gPlayContext.chartObj[PLAYER_SLOT_PLAYER] != nullptr)
     {
         _inputAvailable |= INPUT_MASK_1P;
     }
         
-    if (gPlayContext.chartObj[PLAYER_SLOT_2P] != nullptr)
+    if (gPlayContext.chartObj[PLAYER_SLOT_TARGET] != nullptr)
     {
         _inputAvailable |= INPUT_MASK_2P;
     }
@@ -30,29 +30,29 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
     _state = eResultState::DRAW;
 
     // set options
-    auto d1p = gPlayContext.ruleset[PLAYER_SLOT_1P]->getData();
+    auto d1p = gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData();
     gOptions.queue(eOption::RESULT_RANK_1P, Option::getRankType(d1p.total_acc));
-    gPlayContext.ruleset[PLAYER_SLOT_1P]->updateGlobals();
+    gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->updateGlobals();
 
-    if (gPlayContext.ruleset[PLAYER_SLOT_2P])
+    if (gPlayContext.ruleset[PLAYER_SLOT_TARGET])
     {
-        auto d2p = gPlayContext.ruleset[PLAYER_SLOT_2P]->getData();
+        auto d2p = gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData();
         gOptions.queue(eOption::RESULT_RANK_2P, Option::getRankType(d2p.total_acc));
-        gPlayContext.ruleset[PLAYER_SLOT_2P]->updateGlobals();
+        gPlayContext.ruleset[PLAYER_SLOT_TARGET]->updateGlobals();
 
         gNumbers.queue(eNumber::PLAY_1P_EXSCORE_DIFF, d1p.score2 - d2p.score2);
         gNumbers.queue(eNumber::PLAY_2P_EXSCORE_DIFF, d2p.score2 - d1p.score2);
     }
 
     // TODO set chart info (total notes, etc.)
-    auto chartLength = gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() / 1000;
+    auto chartLength = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getTotalLength().norm() / 1000;
     gNumbers.queue(eNumber::PLAY_MIN, int(chartLength / 60));
     gNumbers.queue(eNumber::PLAY_SEC, int(chartLength % 60));
     gNumbers.queue(eNumber::PLAY_REMAIN_MIN, int(chartLength / 60));
     gNumbers.queue(eNumber::PLAY_REMAIN_SEC, int(chartLength % 60));
 
     // compare to db record
-    auto dp = gPlayContext.ruleset[PLAYER_SLOT_1P]->getData();
+    auto dp = gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData();
     Option::e_rank_type nowRank = Option::getRankType(dp.total_acc);
     auto pScore = g_pScoreDB->getChartScoreBMS(gChartContext.hash);
     if (pScore)
@@ -116,8 +116,8 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
     case eMode::PLAY7_2:
     case eMode::PLAY9_2:
     {
-        auto d1p = gPlayContext.ruleset[PLAYER_SLOT_1P]->getData();
-        auto d2p = gPlayContext.ruleset[PLAYER_SLOT_2P]->getData();
+        auto d1p = gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData();
+        auto d2p = gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData();
 
         // TODO WIN/LOSE
         /*
@@ -135,12 +135,12 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
         */
 
         // clear or failed?
-        //cleared = gPlayContext.ruleset[PLAYER_SLOT_1P]->isCleared() || gPlayContext.ruleset[PLAYER_SLOT_2P]->isCleared();
+        //cleared = gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isCleared() || gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isCleared();
         break;
     }
 
     default:
-        //cleared = gPlayContext.ruleset[PLAYER_SLOT_1P]->isCleared();
+        //cleared = gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isCleared();
         break;
     }
 
@@ -282,11 +282,11 @@ void SceneResult::updateFadeout()
         // save score
         if (saveScore && !gChartContext.hash.empty())
         {
-            assert(gPlayContext.ruleset[PLAYER_SLOT_1P] != nullptr);
+            assert(gPlayContext.ruleset[PLAYER_SLOT_PLAYER] != nullptr);
             ScoreBMS score;
             auto& format = gChartContext.chartObj;
-            auto& chart = gPlayContext.chartObj[PLAYER_SLOT_1P];
-            auto& ruleset = gPlayContext.ruleset[PLAYER_SLOT_1P];
+            auto& chart = gPlayContext.chartObj[PLAYER_SLOT_PLAYER];
+            auto& ruleset = gPlayContext.ruleset[PLAYER_SLOT_PLAYER];
             auto& data = ruleset->getData();
             score.notes = chart->getNoteTotalCount();
             score.score = data.score;

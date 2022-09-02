@@ -113,7 +113,7 @@ enum class ePlayMode
 
 typedef unsigned GameModeKeys; // 5 7 9 10 14
 
-enum class eModChart: uint8_t
+enum class eModRandom: uint8_t
 {
     NONE = 0,
     MIRROR,
@@ -162,7 +162,8 @@ inline const uint8_t PLAY_MOD_VISUAL_LIFT       = 1 << 2;
 
 struct PlayMod
 {
-    eModChart chart = eModChart::NONE;
+    eModRandom randomLeft = eModRandom::NONE;
+    eModRandom randomRight = eModRandom::NONE;
     eModGauge gauge = eModGauge::NORMAL;
     uint8_t assist_mask = 0;
     eModHs hs = eModHs::NONE;
@@ -170,7 +171,8 @@ struct PlayMod
 
     void clear()
     {
-        chart = eModChart::NONE;
+        randomLeft = eModRandom::NONE;
+        randomRight = eModRandom::NONE;
         gauge = eModGauge::NORMAL;
         assist_mask = 0;
         hs = eModHs::NONE;

@@ -28,10 +28,10 @@ vSkin::~vSkin()
 void vSkin::update()
 {
     // current beat, measure
-    if (gPlayContext.chartObj[PLAYER_SLOT_1P] != nullptr)
+    if (gPlayContext.chartObj[PLAYER_SLOT_PLAYER] != nullptr)
     {
-        gUpdateContext.metre = gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentMetre();
-        gUpdateContext.bar = gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentBar();
+        gUpdateContext.metre = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentMetre();
+        gUpdateContext.bar = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentBar();
         gNumbers.set(eNumber::_TEST3, (int)(gUpdateContext.metre * 1000));
     }
 

@@ -257,8 +257,8 @@ void RulesetBMSAuto::update(const Time& t)
             }
         }
     };
-    updateSection(Input::S1L, Input::K1SPDDN, showJudge ? PLAYER_SLOT_1P : -1);
-    updateSection(Input::S2L, Input::K2SPDDN, showJudge ? PLAYER_SLOT_2P : -1);
+    updateSection(Input::S1L, Input::K1SPDDN, showJudge ? PLAYER_SLOT_PLAYER : -1);
+    updateSection(Input::S2L, Input::K2SPDDN, showJudge ? PLAYER_SLOT_TARGET : -1);
 
     unsigned max = _chart->getNoteTotalCount() * 2;
     _basic.total_acc = 100.0 * _basic.score2 / max;

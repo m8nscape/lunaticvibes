@@ -928,32 +928,32 @@ void SceneSelect::inputGamePressPanel(InputMask& input, const Time& t)
         if (gSwitches.get(eSwitch::SELECT_PANEL1))
         {
             // 1: KEYS
-            if (input[Pad::K12]) lr2skin::button::random_type(PLAYER_SLOT_1P, 1);
+            if (input[Pad::K12]) lr2skin::button::random_type(PLAYER_SLOT_PLAYER, 1);
             if (input[Pad::K13]) lr2skin::button::battle(1);
-            if (input[Pad::K14]) lr2skin::button::gauge_type(PLAYER_SLOT_1P, 1);
-            if (input[Pad::K15]) lr2skin::button::hs(PLAYER_SLOT_1P, -1);
-            if (input[Pad::K16]) lr2skin::button::autoscr(PLAYER_SLOT_1P, 1);
-            if (input[Pad::K17]) lr2skin::button::hs(PLAYER_SLOT_1P, 1);
+            if (input[Pad::K14]) lr2skin::button::gauge_type(PLAYER_SLOT_PLAYER, 1);
+            if (input[Pad::K15]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, -1);
+            if (input[Pad::K16]) lr2skin::button::autoscr(PLAYER_SLOT_PLAYER, 1);
+            if (input[Pad::K17]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, 1);
 
             if (gOptions.get(eOption::PLAY_BATTLE_TYPE) == 1)
             {
                 // 1: KEYS
-                if (input[Pad::K22]) lr2skin::button::random_type(PLAYER_SLOT_2P, 1);
+                if (input[Pad::K22]) lr2skin::button::random_type(PLAYER_SLOT_TARGET, 1);
                 if (input[Pad::K23]) lr2skin::button::battle(1);
-                if (input[Pad::K24]) lr2skin::button::gauge_type(PLAYER_SLOT_2P, 1);
-                if (input[Pad::K25]) lr2skin::button::hs(PLAYER_SLOT_2P, -1);
-                if (input[Pad::K26]) lr2skin::button::autoscr(PLAYER_SLOT_2P, 1);
-                if (input[Pad::K27]) lr2skin::button::hs(PLAYER_SLOT_2P, 1);
+                if (input[Pad::K24]) lr2skin::button::gauge_type(PLAYER_SLOT_TARGET, 1);
+                if (input[Pad::K25]) lr2skin::button::hs(PLAYER_SLOT_TARGET, -1);
+                if (input[Pad::K26]) lr2skin::button::autoscr(PLAYER_SLOT_TARGET, 1);
+                if (input[Pad::K27]) lr2skin::button::hs(PLAYER_SLOT_TARGET, 1);
             }
             else
             {
                 // 1: KEYS
-                if (input[Pad::K22]) lr2skin::button::random_type(PLAYER_SLOT_1P, 1);
+                if (input[Pad::K22]) lr2skin::button::random_type(PLAYER_SLOT_PLAYER, 1);
                 if (input[Pad::K23]) lr2skin::button::battle(1);
-                if (input[Pad::K24]) lr2skin::button::gauge_type(PLAYER_SLOT_1P, 1);
-                if (input[Pad::K25]) lr2skin::button::hs(PLAYER_SLOT_1P, -1);
-                if (input[Pad::K26]) lr2skin::button::autoscr(PLAYER_SLOT_1P, 1);
-                if (input[Pad::K27]) lr2skin::button::hs(PLAYER_SLOT_1P, 1);
+                if (input[Pad::K24]) lr2skin::button::gauge_type(PLAYER_SLOT_PLAYER, 1);
+                if (input[Pad::K25]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, -1);
+                if (input[Pad::K26]) lr2skin::button::autoscr(PLAYER_SLOT_PLAYER, 1);
+                if (input[Pad::K27]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, 1);
             }
         }
     }
@@ -1001,75 +1001,6 @@ void SceneSelect::_decide()
         gPlayContext.canRetry = false;
         gPlayContext.isCourse = true;
         gPlayContext.isCourseFirstStage = true;
-    }
-
-    if (!gPlayContext.isReplay)
-    {
-        // gauge
-        auto convertGaugeType = [](int nType) -> eModGauge
-        {
-            switch (nType)
-            {
-            case 1: return eModGauge::HARD;
-            case 2: return eModGauge::DEATH;
-            case 3: return eModGauge::EASY;
-                // case 4: return eModGauge::PATTACK;
-                // case 5: return eModGauge::GATTACK;
-            case 4: return eModGauge::HARD;
-            case 5: return eModGauge::HARD;
-            case 6: return eModGauge::ASSISTEASY;
-            case 7: return eModGauge::EXHARD;
-            case 0:
-            default: return eModGauge::NORMAL;
-            };
-        };
-        gPlayContext.mods[PLAYER_SLOT_1P].gauge = convertGaugeType(gOptions.get(eOption::PLAY_GAUGE_TYPE_1P));
-        gPlayContext.mods[PLAYER_SLOT_2P].gauge = convertGaugeType(gOptions.get(eOption::PLAY_GAUGE_TYPE_2P));
-
-        // random
-        auto convertRandomType = [](int nType) -> eModChart
-        {
-            switch (nType)
-            {
-            case 1: return eModChart::MIRROR;
-            case 2: return eModChart::RANDOM;
-            case 3: return eModChart::SRAN;
-            case 4: return eModChart::HRAN;
-            case 5: return eModChart::ALLSCR;
-            case 0:
-            default: return eModChart::NONE;
-            };
-        };
-        gPlayContext.mods[PLAYER_SLOT_1P].chart = convertRandomType(gOptions.get(eOption::PLAY_RANDOM_TYPE_1P));
-        gPlayContext.mods[PLAYER_SLOT_2P].chart = convertRandomType(gOptions.get(eOption::PLAY_RANDOM_TYPE_2P));
-
-        // assist
-        gPlayContext.mods[PLAYER_SLOT_1P].assist_mask |= gSwitches.get(eSwitch::PLAY_OPTION_AUTOSCR_1P) ? PLAY_MOD_ASSIST_AUTOSCR : 0;
-        gPlayContext.mods[PLAYER_SLOT_2P].assist_mask |= gSwitches.get(eSwitch::PLAY_OPTION_AUTOSCR_2P) ? PLAY_MOD_ASSIST_AUTOSCR : 0;
-
-        // HS fix
-        auto convertHSType = [](int nType) -> eModHs
-        {
-            switch (nType)
-            {
-            case 1: return eModHs::MAXBPM;
-            case 2: return eModHs::MINBPM;
-            case 3: return eModHs::AVERAGE;
-            case 4: return eModHs::CONSTANT;
-            case 0:
-            default: return eModHs::NONE;
-            };
-        };
-        gPlayContext.mods[PLAYER_SLOT_1P].hs = convertHSType(gOptions.get(eOption::PLAY_HSFIX_TYPE_1P));
-        gPlayContext.mods[PLAYER_SLOT_2P].hs = convertHSType(gOptions.get(eOption::PLAY_HSFIX_TYPE_2P));
-    }
-    else // gPlayContext.isReplay
-    {
-        gPlayContext.mods[PLAYER_SLOT_1P].chart = gPlayContext.replay->randomType1P;
-        gPlayContext.mods[PLAYER_SLOT_1P].gauge = gPlayContext.replay->gaugeType;
-        gPlayContext.mods[PLAYER_SLOT_1P].assist_mask = gPlayContext.replay->assistMask;
-        gPlayContext.mods[PLAYER_SLOT_1P].hs = gPlayContext.replay->hispeedFix;
-        gPlayContext.mods[PLAYER_SLOT_1P].visual_mask = gPlayContext.replay->laneEffectType;
     }
 
     // chart
@@ -1148,37 +1079,54 @@ void SceneSelect::_decide()
             }
         }
 
+        switch (gPlayContext.mode)
+        {
+        case eMode::PLAY5:
+        case eMode::PLAY7:
+        case eMode::PLAY9:
+        case eMode::PLAY10:
+        case eMode::PLAY14:
+            assert(!gPlayContext.isBattle);
+            break;
+
+        case eMode::PLAY5_2:
+        case eMode::PLAY7_2:
+        case eMode::PLAY9_2:
+            assert(gPlayContext.isBattle);
+            break;
+        }
+
         break;
     }
     case eEntryType::COURSE:
     {
         // reset mods
         static const std::set<eModGauge> courseGaugeModsAllowed = { eModGauge::NORMAL , eModGauge::HARD };
-        if (courseGaugeModsAllowed.find(gPlayContext.mods[PLAYER_SLOT_1P].gauge) == courseGaugeModsAllowed.end())
+        if (courseGaugeModsAllowed.find(gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge) == courseGaugeModsAllowed.end())
         {
             gOptions.set(eOption::PLAY_GAUGE_TYPE_1P, 0);
-            gPlayContext.mods[PLAYER_SLOT_1P].gauge = eModGauge::NORMAL;
+            gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge = eModGauge::NORMAL;
         }
-        if (courseGaugeModsAllowed.find(gPlayContext.mods[PLAYER_SLOT_2P].gauge) == courseGaugeModsAllowed.end())
+        if (courseGaugeModsAllowed.find(gPlayContext.mods[PLAYER_SLOT_TARGET].gauge) == courseGaugeModsAllowed.end())
         {
             gOptions.set(eOption::PLAY_GAUGE_TYPE_2P, 0);
-            gPlayContext.mods[PLAYER_SLOT_2P].gauge = eModGauge::NORMAL;
+            gPlayContext.mods[PLAYER_SLOT_TARGET].gauge = eModGauge::NORMAL;
         }
-        static const std::set<eModChart> courseChartModsAllowed = { eModChart::NONE , eModChart::MIRROR };
-        if (courseChartModsAllowed.find(gPlayContext.mods[PLAYER_SLOT_1P].chart) == courseChartModsAllowed.end())
+        static const std::set<eModRandom> courseChartModsAllowed = { eModRandom::NONE , eModRandom::MIRROR };
+        if (courseChartModsAllowed.find(gPlayContext.mods[PLAYER_SLOT_PLAYER].randomLeft) == courseChartModsAllowed.end())
         {
             gOptions.set(eOption::PLAY_RANDOM_TYPE_1P, 0);
-            gPlayContext.mods[PLAYER_SLOT_1P].chart = eModChart::NONE;
+            gPlayContext.mods[PLAYER_SLOT_PLAYER].randomLeft = eModRandom::NONE;
         }
-        if (courseChartModsAllowed.find(gPlayContext.mods[PLAYER_SLOT_2P].chart) == courseChartModsAllowed.end())
+        if (courseChartModsAllowed.find(gPlayContext.mods[PLAYER_SLOT_TARGET].randomLeft) == courseChartModsAllowed.end())
         {
             gOptions.set(eOption::PLAY_RANDOM_TYPE_2P, 0);
-            gPlayContext.mods[PLAYER_SLOT_2P].chart = eModChart::NONE;
+            gPlayContext.mods[PLAYER_SLOT_TARGET].randomLeft = eModRandom::NONE;
         }
         gSwitches.set(eSwitch::PLAY_OPTION_AUTOSCR_1P, false);
-        gPlayContext.mods[PLAYER_SLOT_1P].assist_mask = 0;
+        gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask = 0;
         gSwitches.set(eSwitch::PLAY_OPTION_AUTOSCR_2P, false);
-        gPlayContext.mods[PLAYER_SLOT_2P].assist_mask = 0;
+        gPlayContext.mods[PLAYER_SLOT_TARGET].assist_mask = 0;
 
         // set metadata
 
@@ -1188,6 +1136,82 @@ void SceneSelect::_decide()
         break;
     }
 
+    if (!gPlayContext.isReplay)
+    {
+        // gauge
+        auto convertGaugeType = [](int nType) -> eModGauge
+        {
+            switch (nType)
+            {
+            case 1: return eModGauge::HARD;
+            case 2: return eModGauge::DEATH;
+            case 3: return eModGauge::EASY;
+                // case 4: return eModGauge::PATTACK;
+                // case 5: return eModGauge::GATTACK;
+            case 4: return eModGauge::HARD;
+            case 5: return eModGauge::HARD;
+            case 6: return eModGauge::ASSISTEASY;
+            case 7: return eModGauge::EXHARD;
+            case 0:
+            default: return eModGauge::NORMAL;
+            };
+        };
+        gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge = convertGaugeType(gOptions.get(eOption::PLAY_GAUGE_TYPE_1P));
+        gPlayContext.mods[PLAYER_SLOT_TARGET].gauge = convertGaugeType(gOptions.get(gPlayContext.isBattle ? eOption::PLAY_GAUGE_TYPE_2P : eOption::PLAY_GAUGE_TYPE_1P));
+
+        // random
+        auto convertRandomType = [](int nType) -> eModRandom
+        {
+            switch (nType)
+            {
+            case 1: return eModRandom::MIRROR;
+            case 2: return eModRandom::RANDOM;
+            case 3: return eModRandom::SRAN;
+            case 4: return eModRandom::HRAN;
+            case 5: return eModRandom::ALLSCR;
+            case 0:
+            default: return eModRandom::NONE;
+            };
+        };
+        gPlayContext.mods[PLAYER_SLOT_PLAYER].randomLeft = convertRandomType(gOptions.get(eOption::PLAY_RANDOM_TYPE_1P));
+        gPlayContext.mods[PLAYER_SLOT_TARGET].randomLeft = convertRandomType(gOptions.get(gPlayContext.isBattle ? eOption::PLAY_RANDOM_TYPE_2P : eOption::PLAY_RANDOM_TYPE_1P));
+        if (gPlayContext.mode == eMode::PLAY10 || gPlayContext.mode == eMode::PLAY14)
+        {
+            gPlayContext.mods[PLAYER_SLOT_PLAYER].randomRight = convertRandomType(gOptions.get(eOption::PLAY_RANDOM_TYPE_2P));
+            gPlayContext.mods[PLAYER_SLOT_TARGET].randomRight = convertRandomType(gOptions.get(eOption::PLAY_RANDOM_TYPE_2P));
+        }
+
+        // assist
+        gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask |= gSwitches.get(eSwitch::PLAY_OPTION_AUTOSCR_1P) ? PLAY_MOD_ASSIST_AUTOSCR : 0;
+        gPlayContext.mods[PLAYER_SLOT_TARGET].assist_mask |= gSwitches.get(gPlayContext.isBattle ? eSwitch::PLAY_OPTION_AUTOSCR_2P : eSwitch::PLAY_OPTION_AUTOSCR_1P) ? PLAY_MOD_ASSIST_AUTOSCR : 0;
+
+        // HS fix
+        auto convertHSType = [](int nType) -> eModHs
+        {
+            switch (nType)
+            {
+            case 1: return eModHs::MAXBPM;
+            case 2: return eModHs::MINBPM;
+            case 3: return eModHs::AVERAGE;
+            case 4: return eModHs::CONSTANT;
+            case 0:
+            default: return eModHs::NONE;
+            };
+        };
+        gPlayContext.mods[PLAYER_SLOT_PLAYER].hs = convertHSType(gOptions.get(eOption::PLAY_HSFIX_TYPE_1P));
+        gPlayContext.mods[PLAYER_SLOT_TARGET].hs = convertHSType(gOptions.get(gPlayContext.isBattle ? eOption::PLAY_HSFIX_TYPE_2P : eOption::PLAY_HSFIX_TYPE_1P));
+    }
+    else // gPlayContext.isReplay
+    {
+        gPlayContext.mods[PLAYER_SLOT_PLAYER].randomLeft = gPlayContext.replay->randomTypeLeft;
+        gPlayContext.mods[PLAYER_SLOT_PLAYER].randomRight = gPlayContext.replay->randomTypeRight;
+        gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge = gPlayContext.replay->gaugeType;
+        gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask = gPlayContext.replay->assistMask;
+        gPlayContext.mods[PLAYER_SLOT_PLAYER].hs = gPlayContext.replay->hispeedFix;
+        gPlayContext.mods[PLAYER_SLOT_PLAYER].visual_mask = gPlayContext.replay->laneEffectType;
+    }
+    
+    // score (mybest)
     if (score && !score->replayFileName.empty())
     {
         Path replayFilePath = ReplayChart::getReplayPath(c.hash) / score->replayFileName;
@@ -1196,7 +1220,7 @@ void SceneSelect::_decide()
             gPlayContext.replayMybest = std::make_shared<ReplayChart>();
             if (gPlayContext.replayMybest->loadFile(replayFilePath))
             {
-                gPlayContext.mods[PLAYER_SLOT_MYBEST].chart = gPlayContext.replayMybest->randomType1P;
+                gPlayContext.mods[PLAYER_SLOT_MYBEST].randomLeft = gPlayContext.replayMybest->randomTypeLeft;
                 gPlayContext.mods[PLAYER_SLOT_MYBEST].gauge = gPlayContext.replayMybest->gaugeType;
                 gPlayContext.mods[PLAYER_SLOT_MYBEST].assist_mask = gPlayContext.replayMybest->assistMask;
                 gPlayContext.mods[PLAYER_SLOT_MYBEST].hs = gPlayContext.replayMybest->hispeedFix;

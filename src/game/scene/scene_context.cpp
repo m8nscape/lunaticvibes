@@ -64,8 +64,6 @@ void clearContextPlayForRetry()
         if (gPlayContext.ruleset[i])
             gPlayContext.ruleset[i].reset();
     }
-    gPlayContext.graphScoreTarget.clear();
-    gPlayContext.graphScoreMybest.clear();
 
     gPlayContext.replayNew.reset();
 }
@@ -94,19 +92,19 @@ void clearContextPlay()
 
 void pushGraphPoints()
 {
-    gPlayContext.graphGauge[PLAYER_SLOT_1P].push_back(gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().health * 100);
+    gPlayContext.graphGauge[PLAYER_SLOT_PLAYER].push_back(gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().health * 100);
 
-    gPlayContext.graphScore[PLAYER_SLOT_1P].push_back(gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().score2);
+    gPlayContext.graphScore[PLAYER_SLOT_PLAYER].push_back(gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().score2);
 
-    if (gPlayContext.ruleset[PLAYER_SLOT_2P])
-        gPlayContext.graphScore[PLAYER_SLOT_2P].push_back(gPlayContext.ruleset[PLAYER_SLOT_2P]->getData().score2);
+    if (gPlayContext.ruleset[PLAYER_SLOT_TARGET])
+        gPlayContext.graphScore[PLAYER_SLOT_TARGET].push_back(gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData().score2);
 
-    gPlayContext.graphScoreTarget.push_back(static_cast<int>(std::floor(
-        gPlayContext.ruleset[PLAYER_SLOT_1P]->getCurrentMaxScore() * (0.01 * gNumbers.get(eNumber::DEFAULT_TARGET_RATE)))));
+    gPlayContext.graphScore[PLAYER_SLOT_TARGET].push_back(static_cast<int>(std::floor(
+        gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getCurrentMaxScore() * (0.01 * gNumbers.get(eNumber::DEFAULT_TARGET_RATE)))));
 
     if (!gPlayContext.isAuto && !gPlayContext.isReplay && gPlayContext.replayMybest)
     {
-        gPlayContext.graphScoreMybest.push_back(static_cast<int>(std::floor(
+        gPlayContext.graphScore[PLAYER_SLOT_MYBEST].push_back(static_cast<int>(std::floor(
             gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->getCurrentMaxScore() * (0.01 * gNumbers.get(eNumber::DEFAULT_TARGET_RATE)))));
     }
 }

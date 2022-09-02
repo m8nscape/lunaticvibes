@@ -53,9 +53,9 @@ struct ChartContextParams
 
 ////////////////////////////////////////////////////////////////////////////////
 
-constexpr unsigned MAX_PLAYERS = 8;
-constexpr unsigned PLAYER_SLOT_1P = 0;
-constexpr unsigned PLAYER_SLOT_2P = 1;
+constexpr unsigned MAX_PLAYERS = 3;
+constexpr unsigned PLAYER_SLOT_PLAYER = 0;
+constexpr unsigned PLAYER_SLOT_TARGET = 1;
 constexpr unsigned PLAYER_SLOT_MYBEST = 2;
 struct PlayContextParams
 {
@@ -66,18 +66,12 @@ struct PlayContextParams
 
     unsigned judgeLevel = 0;
 
-    std::shared_ptr<ChartObjectBase> chartObj[3]{ nullptr, nullptr, nullptr };
-    double initialHealth[3]{ 1.0, 1.0, 1.0 };
-
 	std::shared_ptr<TextureBmsBga> bgaTexture = std::make_shared<TextureBmsBga>();
 
-    // gauge/score graph key points
-    // managed by SLOT, which includes local battle 1P/2P and multi battle player slots
-    // maximum slot is MAX_PLAYERS
+    std::array<std::shared_ptr<ChartObjectBase>, MAX_PLAYERS> chartObj{ nullptr, nullptr, nullptr };
+    std::array<double, MAX_PLAYERS> initialHealth{ 1.0, 1.0, 1.0 };
     std::array<std::vector<int>, MAX_PLAYERS> graphGauge;
     std::array<std::vector<int>, MAX_PLAYERS> graphScore;
-    std::vector<int> graphScoreTarget;
-    std::vector<int> graphScoreMybest;
     std::array<eGaugeOp, MAX_PLAYERS> gaugeType{};        // resolve on ruleset construction
     std::array<PlayMod, MAX_PLAYERS> mods{};         // eMod: 
 

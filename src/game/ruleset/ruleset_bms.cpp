@@ -432,13 +432,13 @@ void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote
             _basic.miss++;
             if (showJudge)
             {
-                if (slot == PLAYER_SLOT_1P)
+                if (slot == PLAYER_SLOT_PLAYER)
                 {
                     gTimers.set(eTimer::PLAY_JUDGE_1P, t.norm());
                     setJudgeInternalTimer1P(JudgeType::BPOOR, t.norm());
                     SoundMgr::playSysSample(SoundChannelType::KEY_LEFT, eSoundSample::SOUND_LANDMINE);
                 }
-                else if (slot == PLAYER_SLOT_2P)
+                else if (slot == PLAYER_SLOT_TARGET)
                 {
                     gTimers.set(eTimer::PLAY_JUDGE_2P, t.norm());
                     setJudgeInternalTimer2P(JudgeType::BPOOR, t.norm());
@@ -631,7 +631,7 @@ void RulesetBMS::updateHit(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeTyp
 
     if (showJudge)
     {
-        if (slot == PLAYER_SLOT_1P)
+        if (slot == PLAYER_SLOT_PLAYER)
         {
             gTimers.set(eTimer::PLAY_JUDGE_1P, t.norm());
             setJudgeInternalTimer1P(judge, t.norm());
@@ -651,7 +651,7 @@ void RulesetBMS::updateHit(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeTyp
             }
             gOptions.set(eOption::PLAY_LAST_JUDGE_1P, judgeType);
         }
-        else if (slot == PLAYER_SLOT_2P)
+        else if (slot == PLAYER_SLOT_TARGET)
         {
             gTimers.set(eTimer::PLAY_JUDGE_2P, t.norm());
             setJudgeInternalTimer2P(judge, t.norm());
@@ -687,7 +687,7 @@ void RulesetBMS::updateMiss(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeTy
 
     if (showJudge)
     {
-        if (slot == PLAYER_SLOT_1P)
+        if (slot == PLAYER_SLOT_PLAYER)
         {
             gTimers.set(eTimer::PLAY_JUDGE_1P, t.norm());
             setJudgeInternalTimer1P(judge, t.norm());
@@ -802,8 +802,8 @@ void RulesetBMS::updatePress(InputMask& pg, const Time& t)
             judgeNotePress((Input::Pad)k, t, rt, slot);
         }
     };
-    if (_k1P) updatePressRange(Input::S1L, Input::K1SPDDN, PLAYER_SLOT_1P);
-    if (_k2P) updatePressRange(Input::S2L, Input::K2SPDDN, PLAYER_SLOT_2P);
+    if (_k1P) updatePressRange(Input::S1L, Input::K1SPDDN, PLAYER_SLOT_PLAYER);
+    if (_k2P) updatePressRange(Input::S2L, Input::K2SPDDN, PLAYER_SLOT_TARGET);
 }
 void RulesetBMS::updateHold(InputMask& hg, const Time& t)
 {
@@ -819,8 +819,8 @@ void RulesetBMS::updateHold(InputMask& hg, const Time& t)
             judgeNoteHold((Input::Pad)k, t, rt, slot);
         }
     };
-    if (_k1P) updateHoldRange(Input::S1L, Input::K1SPDDN, PLAYER_SLOT_1P);
-    if (_k2P) updateHoldRange(Input::S2L, Input::K2SPDDN, PLAYER_SLOT_2P);
+    if (_k1P) updateHoldRange(Input::S1L, Input::K1SPDDN, PLAYER_SLOT_PLAYER);
+    if (_k2P) updateHoldRange(Input::S2L, Input::K2SPDDN, PLAYER_SLOT_TARGET);
 }
 void RulesetBMS::updateRelease(InputMask& rg, const Time& t)
 {
@@ -836,8 +836,8 @@ void RulesetBMS::updateRelease(InputMask& rg, const Time& t)
             judgeNoteRelease((Input::Pad)k, t, rt, slot);
         }
     };
-    if (_k1P) updateReleaseRange(Input::S1L, Input::K1SPDDN, PLAYER_SLOT_1P);
-    if (_k2P) updateReleaseRange(Input::S2L, Input::K2SPDDN, PLAYER_SLOT_2P);
+    if (_k1P) updateReleaseRange(Input::S1L, Input::K1SPDDN, PLAYER_SLOT_PLAYER);
+    if (_k2P) updateReleaseRange(Input::S2L, Input::K2SPDDN, PLAYER_SLOT_TARGET);
 }
 void RulesetBMS::updateAxis(double s1, double s2, const Time& t)
 {
@@ -848,8 +848,8 @@ void RulesetBMS::updateAxis(double s1, double s2, const Time& t)
 
     if (!gPlayContext.isAuto && (!gPlayContext.isReplay || !gChartContext.started))
     {
-        _scratchAccumulator[PLAYER_SLOT_1P] += s1;
-        _scratchAccumulator[PLAYER_SLOT_2P] += s2;
+        _scratchAccumulator[PLAYER_SLOT_PLAYER] += s1;
+        _scratchAccumulator[PLAYER_SLOT_TARGET] += s2;
     }
 }
 
@@ -971,8 +971,8 @@ void RulesetBMS::update(const Time& t)
             }
         }
     };
-    if (_k1P) updateRange(Input::S1L, Input::K1SPDDN, PLAYER_SLOT_1P);
-    if (_k2P) updateRange(Input::S2L, Input::K2SPDDN, PLAYER_SLOT_2P);
+    if (_k1P) updateRange(Input::S1L, Input::K1SPDDN, PLAYER_SLOT_PLAYER);
+    if (_k2P) updateRange(Input::S2L, Input::K2SPDDN, PLAYER_SLOT_TARGET);
 
 
     auto updateScratch = [&](const Time& t, Input::Pad up, Input::Pad dn, double& val, int slot)
@@ -1050,8 +1050,8 @@ void RulesetBMS::update(const Time& t)
             _scratchLastUpdate[slot] = TIMER_NEVER;
         }
     };
-    updateScratch(t, Input::S1L, Input::S1R, _scratchAccumulator[PLAYER_SLOT_1P], PLAYER_SLOT_1P);
-    updateScratch(t, Input::S2L, Input::S2R, _scratchAccumulator[PLAYER_SLOT_2P], PLAYER_SLOT_2P);
+    updateScratch(t, Input::S1L, Input::S1R, _scratchAccumulator[PLAYER_SLOT_PLAYER], PLAYER_SLOT_PLAYER);
+    updateScratch(t, Input::S2L, Input::S2R, _scratchAccumulator[PLAYER_SLOT_TARGET], PLAYER_SLOT_TARGET);
 
 
 	unsigned max = _chart->getNoteTotalCount() * 2;

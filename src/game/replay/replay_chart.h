@@ -105,8 +105,8 @@ public:
     uint64_t    randomSeed = 0;
 
     eModGauge   gaugeType = eModGauge::NORMAL;  
-    eModChart   randomType1P = eModChart::NONE; 
-    eModChart   randomType2P = eModChart::NONE; 
+    eModRandom  randomTypeLeft = eModRandom::NONE; 
+    eModRandom  randomTypeRight = eModRandom::NONE; 
     int8_t      laneEffectType = 0;     // are we gonna implement this?
     int8_t      pitchType = 0;          // FREQ/PITCH/SPEED
     int8_t      pitchValue = 0;         // -12 ~ +12 (value below 0 may invalid)
@@ -132,8 +132,8 @@ private:
         ar(chartHash);
         ar(randomSeed);
         ar(gaugeType);
-        ar(randomType1P);
-        ar(randomType2P);
+        ar(randomTypeLeft);
+        ar(randomTypeRight);
         ar(laneEffectType);
         ar(pitchType);
         ar(pitchValue);

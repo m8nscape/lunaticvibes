@@ -467,8 +467,8 @@ void gauge_type(int player, int plus)
     eText tx;
     switch (player)
     {
-    case 0: slot = PLAYER_SLOT_1P; op = eOption::PLAY_GAUGE_TYPE_1P; tx = eText::GAUGE_1P; break;
-    case 1: slot = PLAYER_SLOT_2P; op = eOption::PLAY_GAUGE_TYPE_2P; tx = eText::GAUGE_2P; break;
+    case 0: slot = PLAYER_SLOT_PLAYER; op = eOption::PLAY_GAUGE_TYPE_1P; tx = eText::GAUGE_1P; break;
+    case 1: slot = PLAYER_SLOT_TARGET; op = eOption::PLAY_GAUGE_TYPE_2P; tx = eText::GAUGE_2P; break;
     default: return;
     }
 
@@ -499,22 +499,22 @@ void random_type(int player, int plus)
     eText tx;
     switch (player)
     {
-    case 0: slot = PLAYER_SLOT_1P; op = eOption::PLAY_RANDOM_TYPE_1P; tx = eText::RANDOM_1P; break;
-    case 1: slot = PLAYER_SLOT_2P; op = eOption::PLAY_RANDOM_TYPE_2P; tx = eText::RANDOM_2P; break;
+    case 0: slot = PLAYER_SLOT_PLAYER; op = eOption::PLAY_RANDOM_TYPE_1P; tx = eText::RANDOM_1P; break;
+    case 1: slot = PLAYER_SLOT_TARGET; op = eOption::PLAY_RANDOM_TYPE_2P; tx = eText::RANDOM_2P; break;
     default: return;
     }
 
-    // eModChart
+    // eModRandom
     int val = (gOptions.get(op) + 6 + plus) % 6;
     gOptions.set(op, val);
     switch (val)
     {
-    case 0: gPlayContext.mods[slot].chart = eModChart::NONE;    gTexts.set(tx, "NORMAL");   break;
-    case 1: gPlayContext.mods[slot].chart = eModChart::MIRROR;  gTexts.set(tx, "MIRROR");   break;
-    case 2: gPlayContext.mods[slot].chart = eModChart::RANDOM;  gTexts.set(tx, "RANDOM");   break;
-    case 3: gPlayContext.mods[slot].chart = eModChart::SRAN;    gTexts.set(tx, "S-RANDOM"); break;
-    case 4: gPlayContext.mods[slot].chart = eModChart::HRAN;    gTexts.set(tx, "H-RANDOM"); break;
-    case 5: gPlayContext.mods[slot].chart = eModChart::ALLSCR;  gTexts.set(tx, "ALL-SCR");  break;
+    case 0: gPlayContext.mods[slot].randomLeft = eModRandom::NONE;    gTexts.set(tx, "NORMAL");   break;
+    case 1: gPlayContext.mods[slot].randomLeft = eModRandom::MIRROR;  gTexts.set(tx, "MIRROR");   break;
+    case 2: gPlayContext.mods[slot].randomLeft = eModRandom::RANDOM;  gTexts.set(tx, "RANDOM");   break;
+    case 3: gPlayContext.mods[slot].randomLeft = eModRandom::SRAN;    gTexts.set(tx, "S-RANDOM"); break;
+    case 4: gPlayContext.mods[slot].randomLeft = eModRandom::HRAN;    gTexts.set(tx, "H-RANDOM"); break;
+    case 5: gPlayContext.mods[slot].randomLeft = eModRandom::ALLSCR;  gTexts.set(tx, "ALL-SCR");  break;
     default: break;
     }
 
@@ -533,12 +533,12 @@ void autoscr(int player, int plus)
     eText tx;
     switch (player)
     {
-    case 0: slot = PLAYER_SLOT_1P; sw = eSwitch::PLAY_OPTION_AUTOSCR_1P; tx = eText::ASSIST_1P; break;
-    case 1: slot = PLAYER_SLOT_2P; sw = eSwitch::PLAY_OPTION_AUTOSCR_2P; tx = eText::ASSIST_2P; break;
+    case 0: slot = PLAYER_SLOT_PLAYER; sw = eSwitch::PLAY_OPTION_AUTOSCR_1P; tx = eText::ASSIST_1P; break;
+    case 1: slot = PLAYER_SLOT_TARGET; sw = eSwitch::PLAY_OPTION_AUTOSCR_2P; tx = eText::ASSIST_2P; break;
     default: return;
     }
 
-    // eModChart
+    // eModRandom
     bool val = gSwitches.get(sw);
     gSwitches.set(sw, !val);
     gTexts.set(tx, (!val) ? "AUTO-SCR" : "NONE");

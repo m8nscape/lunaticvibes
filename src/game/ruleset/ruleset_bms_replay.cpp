@@ -71,12 +71,12 @@ void RulesetBMSReplay::update(const Time& t)
         case ReplayChart::Commands::Type::K27_UP: keyPressing[Input::Pad::K27] = false; break;
         case ReplayChart::Commands::Type::K28_UP: keyPressing[Input::Pad::K28] = false; break;
         case ReplayChart::Commands::Type::K29_UP: keyPressing[Input::Pad::K29] = false; break;
-        case ReplayChart::Commands::Type::S1A_PLUS: _scratchAccumulator[PLAYER_SLOT_1P] = 0.0015; break;
-        case ReplayChart::Commands::Type::S1A_MINUS: _scratchAccumulator[PLAYER_SLOT_1P] = -0.0015; break;
-        case ReplayChart::Commands::Type::S1A_STOP: _scratchAccumulator[PLAYER_SLOT_1P] = 0; break;
-        case ReplayChart::Commands::Type::S2A_PLUS: _scratchAccumulator[PLAYER_SLOT_2P] = 0.0015; break;
-        case ReplayChart::Commands::Type::S2A_MINUS: _scratchAccumulator[PLAYER_SLOT_2P] = -0.0015; break;
-        case ReplayChart::Commands::Type::S2A_STOP: _scratchAccumulator[PLAYER_SLOT_2P] = 0; break;
+        case ReplayChart::Commands::Type::S1A_PLUS: _scratchAccumulator[PLAYER_SLOT_PLAYER] = 0.0015; break;
+        case ReplayChart::Commands::Type::S1A_MINUS: _scratchAccumulator[PLAYER_SLOT_PLAYER] = -0.0015; break;
+        case ReplayChart::Commands::Type::S1A_STOP: _scratchAccumulator[PLAYER_SLOT_PLAYER] = 0; break;
+        case ReplayChart::Commands::Type::S2A_PLUS: _scratchAccumulator[PLAYER_SLOT_TARGET] = 0.0015; break;
+        case ReplayChart::Commands::Type::S2A_MINUS: _scratchAccumulator[PLAYER_SLOT_TARGET] = -0.0015; break;
+        case ReplayChart::Commands::Type::S2A_STOP: _scratchAccumulator[PLAYER_SLOT_TARGET] = 0; break;
         }
         itReplayCommand++;
     }

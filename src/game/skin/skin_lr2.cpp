@@ -1286,7 +1286,7 @@ ParseRet SkinLR2::SRC_GAUGECHART(int player)
     }
 
     _sprites.push_back(std::make_shared<SpriteLine>(
-        player == 0 ? PLAYER_SLOT_1P : PLAYER_SLOT_2P,
+        player == 0 ? PLAYER_SLOT_PLAYER : PLAYER_SLOT_TARGET,
         type,
         d.field_w, d.field_h, d.start, d.end, 1));
 

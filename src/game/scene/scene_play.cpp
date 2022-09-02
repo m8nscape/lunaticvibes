@@ -38,10 +38,10 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
 
     _currentKeySample.assign(Input::ESC, 0);
 
-    _lanecoverEnabled[PLAYER_SLOT_1P] = ConfigMgr::get('P', cfg::P_LANECOVER_ENABLE, false);
+    _lanecoverEnabled[PLAYER_SLOT_PLAYER] = ConfigMgr::get('P', cfg::P_LANECOVER_ENABLE, false);
     if (!isPlaymodeBattle())
     {
-        _lanecoverEnabled[PLAYER_SLOT_2P] = gPlayContext.battle2PLanecover;
+        _lanecoverEnabled[PLAYER_SLOT_TARGET] = gPlayContext.battle2PLanecover;
     }
 
     int lcTop1 = ConfigMgr::get('P', cfg::P_LANECOVER_TOP, 0);
@@ -56,7 +56,7 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     gNumbers.queue(eNumber::LANECOVER_BOTTOM_2P, lcBottom2);
     gNumbers.queue(eNumber::LANECOVER100_2P, lcTop2 / 10);
 
-    if (_lanecoverEnabled[PLAYER_SLOT_1P])
+    if (_lanecoverEnabled[PLAYER_SLOT_PLAYER])
     {
         gSliders.queue(eSlider::SUD_1P, lcTop1 / 1000.0);
         if (isPlaymodeDP())
@@ -65,7 +65,7 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         }
         // TODO HID+, LIFT
     }
-    if (isPlaymodeBattle() && _lanecoverEnabled[PLAYER_SLOT_2P])
+    if (isPlaymodeBattle() && _lanecoverEnabled[PLAYER_SLOT_TARGET])
     {
         gSliders.queue(eSlider::SUD_2P, lcTop2 / 1000.0);
     }
@@ -131,39 +131,39 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     gChartContext.maxBPM = gChartContext.chartObj->maxBPM;
 
     _chartLoaded = createChartObj();
-    gPlayContext.remainTime = gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength();
+    gPlayContext.remainTime = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getTotalLength();
 
     _rulesetLoaded = createRuleset();
 
     if (ConfigMgr::get('P', cfg::P_LOCK_SPEED, false))
     {
-        _lockspeedEnabled[PLAYER_SLOT_1P] = true;
+        _lockspeedEnabled[PLAYER_SLOT_PLAYER] = true;
 
         int green = ConfigMgr::get('P', cfg::P_GREENNUMBER, 1200);
-        double bpm = gChartContext.HSFixBPMFactor1P * gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentBPM();
+        double bpm = gChartContext.HSFixBPMFactor1P * gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentBPM();
         int lcTop = gNumbers.get(eNumber::LANECOVER_TOP_1P);
         int lcBottom = gNumbers.get(eNumber::LANECOVER_BOTTOM_1P);
         double visible = std::max(0, (1000 - lcTop - lcBottom)) / 1000.0;
 
         gPlayContext.Hispeed = (green * bpm <= 0.0) ? 200 : std::min(visible * 120.0 * 1200 / green / bpm, 10.0);
         gNumbers.queue(eNumber::HS_1P, (int)std::round(gPlayContext.Hispeed * 100));
-        _lockspeedValue[PLAYER_SLOT_1P] = (visible == 0.0) ? std::numeric_limits<double>::max() : (bpm * gPlayContext.Hispeed / visible);
-        _lockspeedGreenNumber[PLAYER_SLOT_1P] = green;
+        _lockspeedValue[PLAYER_SLOT_PLAYER] = (visible == 0.0) ? std::numeric_limits<double>::max() : (bpm * gPlayContext.Hispeed / visible);
+        _lockspeedGreenNumber[PLAYER_SLOT_PLAYER] = green;
     }
     if (isPlaymodeBattle() && gPlayContext.battle2PLockSpeed)
     {
-        _lockspeedEnabled[PLAYER_SLOT_2P] = true;
+        _lockspeedEnabled[PLAYER_SLOT_TARGET] = true;
 
         int green = gPlayContext.battle2PGreenNumber;
-        double bpm = gChartContext.HSFixBPMFactor2P * gPlayContext.chartObj[PLAYER_SLOT_2P]->getCurrentBPM();
+        double bpm = gChartContext.HSFixBPMFactor2P * gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getCurrentBPM();
         int lcTop = gNumbers.get(eNumber::LANECOVER_TOP_2P);
         int lcBottom = gNumbers.get(eNumber::LANECOVER_BOTTOM_2P);
         double visible = std::max(0, (1000 - lcTop - lcBottom)) / 1000.0;
 
         gPlayContext.battle2PHispeed = (green * bpm <= 0.0) ? 200 : std::min(visible * 120.0 * 1200 / green / bpm, 10.0);
         gNumbers.queue(eNumber::HS_2P, (int)std::round(gPlayContext.battle2PHispeed));
-        _lockspeedValue[PLAYER_SLOT_2P] = (visible == 0.0) ? std::numeric_limits<double>::max() : (bpm * gPlayContext.battle2PHispeed / visible);
-        _lockspeedGreenNumber[PLAYER_SLOT_2P] = green;
+        _lockspeedValue[PLAYER_SLOT_TARGET] = (visible == 0.0) ? std::numeric_limits<double>::max() : (bpm * gPlayContext.battle2PHispeed / visible);
+        _lockspeedGreenNumber[PLAYER_SLOT_TARGET] = green;
     }
 
     // apply datas
@@ -189,7 +189,7 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     {
         using namespace std::string_literals;
         eGaugeOp tmp = eGaugeOp::GROOVE;
-        switch (gPlayContext.mods[PLAYER_SLOT_1P].gauge)
+        switch (gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge)
         {
         case eModGauge::NORMAL:    tmp = eGaugeOp::GROOVE; break;
         case eModGauge::HARD:      tmp = eGaugeOp::SURVIVAL; break;
@@ -205,7 +205,7 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
 
         if (isPlaymodeBattle())
         {
-            switch (gPlayContext.mods[PLAYER_SLOT_2P].gauge)
+            switch (gPlayContext.mods[PLAYER_SLOT_TARGET].gauge)
             {
             case eModGauge::NORMAL:    tmp = eGaugeOp::GROOVE; break;
             case eModGauge::HARD:      tmp = eGaugeOp::SURVIVAL; break;
@@ -325,8 +325,8 @@ bool ScenePlay::createChartObj()
 
         if (gPlayContext.isAuto || gPlayContext.isReplay)
         {
-            gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_1P, bms);
-            gPlayContext.chartObj[PLAYER_SLOT_2P] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_1P, bms);    // create for rival; loading with 1P options
+            gPlayContext.chartObj[PLAYER_SLOT_PLAYER] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_PLAYER, bms);
+            gPlayContext.chartObj[PLAYER_SLOT_TARGET] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_PLAYER, bms);    // create for rival; loading with 1P options
 
             if (gPlayContext.replayMybest)
                 gPlayContext.chartObj[PLAYER_SLOT_MYBEST] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_MYBEST, bms);
@@ -337,20 +337,20 @@ bool ScenePlay::createChartObj()
         {
             if (isPlaymodeBattle())
             {
-                gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_1P, bms);
-                gPlayContext.chartObj[PLAYER_SLOT_2P] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_2P, bms);
+                gPlayContext.chartObj[PLAYER_SLOT_PLAYER] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_PLAYER, bms);
+                gPlayContext.chartObj[PLAYER_SLOT_TARGET] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_TARGET, bms);
             }
             else
             {
-                gPlayContext.chartObj[PLAYER_SLOT_1P] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_1P, bms);
-                gPlayContext.chartObj[PLAYER_SLOT_2P] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_1P, bms);    // create for rival; loading with 1P options
+                gPlayContext.chartObj[PLAYER_SLOT_PLAYER] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_PLAYER, bms);
+                gPlayContext.chartObj[PLAYER_SLOT_TARGET] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_PLAYER, bms);    // create for rival; loading with 1P options
 
                 if (gPlayContext.replayMybest)
                     gPlayContext.chartObj[PLAYER_SLOT_MYBEST] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_MYBEST, bms);
             }
         }
-        gNumbers.set(eNumber::PLAY_REMAIN_MIN, int(gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() / 1000 / 60));
-        gNumbers.set(eNumber::PLAY_REMAIN_SEC, int(gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm() / 1000 % 60));
+        gNumbers.set(eNumber::PLAY_REMAIN_MIN, int(gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getTotalLength().norm() / 1000 / 60));
+        gNumbers.set(eNumber::PLAY_REMAIN_SEC, int(gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getTotalLength().norm() / 1000 % 60));
         return true;
     }
 
@@ -410,22 +410,22 @@ bool ScenePlay::createRuleset()
 
         if (gPlayContext.isAuto)
         {
-            gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetBMSAuto>(
-                gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_1P],
-                gPlayContext.mods[PLAYER_SLOT_1P].gauge, keys, judgeDiff,
-                gPlayContext.initialHealth[PLAYER_SLOT_1P], RulesetBMS::PlaySide::AUTO);
+            gPlayContext.ruleset[PLAYER_SLOT_PLAYER] = std::make_shared<RulesetBMSAuto>(
+                gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_PLAYER],
+                gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge, keys, judgeDiff,
+                gPlayContext.initialHealth[PLAYER_SLOT_PLAYER], RulesetBMS::PlaySide::AUTO);
         }
         else if (gPlayContext.isReplay)
         {
-            gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetBMSReplay>(
-                gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_1P], gPlayContext.replay,
-                gPlayContext.mods[PLAYER_SLOT_1P].gauge, keys, judgeDiff,
-                gPlayContext.initialHealth[PLAYER_SLOT_1P], RulesetBMS::PlaySide::AUTO);
+            gPlayContext.ruleset[PLAYER_SLOT_PLAYER] = std::make_shared<RulesetBMSReplay>(
+                gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_PLAYER], gPlayContext.replay,
+                gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge, keys, judgeDiff,
+                gPlayContext.initialHealth[PLAYER_SLOT_PLAYER], RulesetBMS::PlaySide::AUTO);
 
-            gPlayContext.ruleset[PLAYER_SLOT_2P] = std::make_shared<RulesetBMSAuto>(
-                gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_2P],
-                gPlayContext.mods[PLAYER_SLOT_2P].gauge, keys, judgeDiff,
-                gPlayContext.initialHealth[PLAYER_SLOT_2P], RulesetBMS::PlaySide::RIVAL);
+            gPlayContext.ruleset[PLAYER_SLOT_TARGET] = std::make_shared<RulesetBMSAuto>(
+                gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_TARGET],
+                gPlayContext.mods[PLAYER_SLOT_TARGET].gauge, keys, judgeDiff,
+                gPlayContext.initialHealth[PLAYER_SLOT_TARGET], RulesetBMS::PlaySide::RIVAL);
 
             if (gPlayContext.replayMybest)
             {
@@ -439,27 +439,27 @@ bool ScenePlay::createRuleset()
         {
             if (isPlaymodeBattle())
             {
-                gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetBMS>(
-                    gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_1P],
-                    gPlayContext.mods[PLAYER_SLOT_1P].gauge, keys, judgeDiff,
-                    gPlayContext.initialHealth[PLAYER_SLOT_1P], RulesetBMS::PlaySide::BATTLE_1P);
+                gPlayContext.ruleset[PLAYER_SLOT_PLAYER] = std::make_shared<RulesetBMS>(
+                    gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_PLAYER],
+                    gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge, keys, judgeDiff,
+                    gPlayContext.initialHealth[PLAYER_SLOT_PLAYER], RulesetBMS::PlaySide::BATTLE_1P);
 
-                gPlayContext.ruleset[PLAYER_SLOT_2P] = std::make_shared<RulesetBMS>(
-                    gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_2P],
-                    gPlayContext.mods[PLAYER_SLOT_2P].gauge, keys, judgeDiff,
-                    gPlayContext.initialHealth[PLAYER_SLOT_2P], RulesetBMS::PlaySide::BATTLE_2P);
+                gPlayContext.ruleset[PLAYER_SLOT_TARGET] = std::make_shared<RulesetBMS>(
+                    gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_TARGET],
+                    gPlayContext.mods[PLAYER_SLOT_TARGET].gauge, keys, judgeDiff,
+                    gPlayContext.initialHealth[PLAYER_SLOT_TARGET], RulesetBMS::PlaySide::BATTLE_2P);
             }
             else
             {
-                gPlayContext.ruleset[PLAYER_SLOT_1P] = std::make_shared<RulesetBMS>(
-                    gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_1P],
-                    gPlayContext.mods[PLAYER_SLOT_1P].gauge, keys, judgeDiff,
-                    gPlayContext.initialHealth[PLAYER_SLOT_1P], (keys == 10 || keys == 14) ? RulesetBMS::PlaySide::DOUBLE : RulesetBMS::PlaySide::SINGLE);
+                gPlayContext.ruleset[PLAYER_SLOT_PLAYER] = std::make_shared<RulesetBMS>(
+                    gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_PLAYER],
+                    gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge, keys, judgeDiff,
+                    gPlayContext.initialHealth[PLAYER_SLOT_PLAYER], (keys == 10 || keys == 14) ? RulesetBMS::PlaySide::DOUBLE : RulesetBMS::PlaySide::SINGLE);
 
-                gPlayContext.ruleset[PLAYER_SLOT_2P] = std::make_shared<RulesetBMSAuto>(
-                    gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_2P],
-                    gPlayContext.mods[PLAYER_SLOT_2P].gauge, keys, judgeDiff,
-                    gPlayContext.initialHealth[PLAYER_SLOT_2P], RulesetBMS::PlaySide::RIVAL);
+                gPlayContext.ruleset[PLAYER_SLOT_TARGET] = std::make_shared<RulesetBMSAuto>(
+                    gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_TARGET],
+                    gPlayContext.mods[PLAYER_SLOT_TARGET].gauge, keys, judgeDiff,
+                    gPlayContext.initialHealth[PLAYER_SLOT_TARGET], RulesetBMS::PlaySide::RIVAL);
 
                 if (gPlayContext.replayMybest)
                 {
@@ -473,11 +473,11 @@ bool ScenePlay::createRuleset()
                 gPlayContext.replayNew = std::make_shared<ReplayChart>();
                 gPlayContext.replayNew->chartHash = gChartContext.hash;
                 gPlayContext.replayNew->randomSeed = gPlayContext.randomSeed;
-                gPlayContext.replayNew->gaugeType = gPlayContext.mods[PLAYER_SLOT_1P].gauge;
-                gPlayContext.replayNew->randomType1P = gPlayContext.mods[PLAYER_SLOT_1P].chart;
-                gPlayContext.replayNew->assistMask = gPlayContext.mods[PLAYER_SLOT_1P].assist_mask;
-                gPlayContext.replayNew->hispeedFix = gPlayContext.mods[PLAYER_SLOT_1P].hs;
-                gPlayContext.replayNew->laneEffectType = gPlayContext.mods[PLAYER_SLOT_1P].visual_mask;
+                gPlayContext.replayNew->gaugeType = gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge;
+                gPlayContext.replayNew->randomTypeLeft = gPlayContext.mods[PLAYER_SLOT_PLAYER].randomLeft;
+                gPlayContext.replayNew->assistMask = gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask;
+                gPlayContext.replayNew->hispeedFix = gPlayContext.mods[PLAYER_SLOT_PLAYER].hs;
+                gPlayContext.replayNew->laneEffectType = gPlayContext.mods[PLAYER_SLOT_PLAYER].visual_mask;
                 // TODO 2P random
                 gPlayContext.replayNew->pitchType = (int8_t)gOptions.get(eOption::SOUND_PITCH_TYPE);
                 gPlayContext.replayNew->pitchValue = (int8_t)std::round((gSliders.get(eSlider::PITCH) - 0.5) * 2 * 12);
@@ -485,7 +485,7 @@ bool ScenePlay::createRuleset()
             }
         }
 
-        if (gPlayContext.ruleset[PLAYER_SLOT_2P] != nullptr)
+        if (gPlayContext.ruleset[PLAYER_SLOT_TARGET] != nullptr)
         {
             // rename target
             int targetRate = gNumbers.get(eNumber::DEFAULT_TARGET_RATE);
@@ -505,7 +505,7 @@ bool ScenePlay::createRuleset()
                 gTexts.queue(eText::TARGET_NAME, "RATE "s + std::to_string(targetRate) + "%"s);
                 break;
             }
-            std::reinterpret_pointer_cast<RulesetBMSAuto>(gPlayContext.ruleset[PLAYER_SLOT_2P])->setTargetRate(targetRateReal);
+            std::reinterpret_pointer_cast<RulesetBMSAuto>(gPlayContext.ruleset[PLAYER_SLOT_TARGET])->setTargetRate(targetRateReal);
             gBargraphs.queue(eBargraph::PLAY_RIVAL_EXSCORE_FINAL, targetRateReal);
         }
 
@@ -513,10 +513,10 @@ bool ScenePlay::createRuleset()
         auto pScore = g_pScoreDB->getChartScoreBMS(gChartContext.hash);
         if (pScore)
         {
-            gBargraphs.queue(eBargraph::PLAY_MYBEST_FINAL, (double)pScore->exscore / gPlayContext.ruleset[PLAYER_SLOT_1P]->getMaxScore());
+            gBargraphs.queue(eBargraph::PLAY_MYBEST_FINAL, (double)pScore->exscore / gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getMaxScore());
             if (!gPlayContext.replayMybest)
             {
-                gBargraphs.queue(eBargraph::PLAY_MYBEST_NOW, (double)pScore->exscore / gPlayContext.ruleset[PLAYER_SLOT_1P]->getMaxScore());
+                gBargraphs.queue(eBargraph::PLAY_MYBEST_NOW, (double)pScore->exscore / gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getMaxScore());
                 gNumbers.queue(eNumber::RESULT_MYBEST_EX, pScore->exscore);
                 gNumbers.queue(eNumber::RESULT_MYBEST_RATE, (int)std::floor(pScore->rate * 100.0));
                 gNumbers.queue(eNumber::RESULT_MYBEST_RATE_DECIMAL2, (int)std::floor(pScore->rate * 10000.0) % 100);
@@ -550,12 +550,12 @@ void ScenePlay::setTempInitialHealthBMS()
 {
     if (!gPlayContext.isCourse || gPlayContext.isCourseFirstStage)
     {
-        switch (gPlayContext.mods[PLAYER_SLOT_1P].gauge)
+        switch (gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge)
         {
         case eModGauge::NORMAL:
         case eModGauge::EASY:
         case eModGauge::ASSISTEASY:
-            gPlayContext.initialHealth[PLAYER_SLOT_1P] = 0.2;
+            gPlayContext.initialHealth[PLAYER_SLOT_PLAYER] = 0.2;
             gNumbers.queue(eNumber::PLAY_1P_GROOVEGAUGE, 20);
             break;
 
@@ -564,7 +564,7 @@ void ScenePlay::setTempInitialHealthBMS()
         // case eModGauge::PATTACK:
         // case eModGauge::GATTACK:
         case eModGauge::EXHARD:
-            gPlayContext.initialHealth[PLAYER_SLOT_1P] = 1.0;
+            gPlayContext.initialHealth[PLAYER_SLOT_PLAYER] = 1.0;
             gNumbers.queue(eNumber::PLAY_1P_GROOVEGAUGE, 100);
             break;
 
@@ -573,12 +573,12 @@ void ScenePlay::setTempInitialHealthBMS()
 
         if (isPlaymodeBattle())
         {
-            switch (gPlayContext.mods[PLAYER_SLOT_2P].gauge)
+            switch (gPlayContext.mods[PLAYER_SLOT_TARGET].gauge)
             {
             case eModGauge::NORMAL:
             case eModGauge::EASY:
             case eModGauge::ASSISTEASY:
-                gPlayContext.initialHealth[PLAYER_SLOT_2P] = 0.2;
+                gPlayContext.initialHealth[PLAYER_SLOT_TARGET] = 0.2;
                 gNumbers.queue(eNumber::PLAY_2P_GROOVEGAUGE, 20);
                 break;
 
@@ -587,7 +587,7 @@ void ScenePlay::setTempInitialHealthBMS()
             // case eModGauge::PATTACK:
             // case eModGauge::GATTACK:
             case eModGauge::EXHARD:
-                gPlayContext.initialHealth[PLAYER_SLOT_2P] = 1.0;
+                gPlayContext.initialHealth[PLAYER_SLOT_TARGET] = 1.0;
                 gNumbers.queue(eNumber::PLAY_2P_GROOVEGAUGE, 100);
                 break;
 
@@ -730,7 +730,7 @@ void ScenePlay::loadChart()
             {
                 gPlayContext.bgaTexture->setLoaded();
             }
-			gPlayContext.bgaTexture->setSlotFromBMS(*std::reinterpret_pointer_cast<ChartObjectBMS>(gPlayContext.chartObj[PLAYER_SLOT_1P]));
+			gPlayContext.bgaTexture->setSlotFromBMS(*std::reinterpret_pointer_cast<ChartObjectBMS>(gPlayContext.chartObj[PLAYER_SLOT_PLAYER]));
             gChartContext.isBgaLoaded = true;
         });
     }
@@ -739,15 +739,15 @@ void ScenePlay::loadChart()
 void ScenePlay::setInputJudgeCallback()
 {
     using namespace std::placeholders;
-    if (gPlayContext.ruleset[PLAYER_SLOT_1P] != nullptr)
+    if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER] != nullptr)
     {
-        auto fp = std::bind(&vRuleset::updatePress, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2);
+        auto fp = std::bind(&vRuleset::updatePress, gPlayContext.ruleset[PLAYER_SLOT_PLAYER], _1, _2);
         _input.register_p("JUDGE_PRESS_1", fp);
-        auto fh = std::bind(&vRuleset::updateHold, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2);
+        auto fh = std::bind(&vRuleset::updateHold, gPlayContext.ruleset[PLAYER_SLOT_PLAYER], _1, _2);
         _input.register_h("JUDGE_HOLD_1", fh);
-        auto fr = std::bind(&vRuleset::updateRelease, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2);
+        auto fr = std::bind(&vRuleset::updateRelease, gPlayContext.ruleset[PLAYER_SLOT_PLAYER], _1, _2);
         _input.register_r("JUDGE_RELEASE_1", fr);
-        auto fa = std::bind(&vRuleset::updateAxis, gPlayContext.ruleset[PLAYER_SLOT_1P], _1, _2, _3);
+        auto fa = std::bind(&vRuleset::updateAxis, gPlayContext.ruleset[PLAYER_SLOT_PLAYER], _1, _2, _3);
         _input.register_a("JUDGE_AXIS_1", fa);
     }
     else
@@ -755,15 +755,15 @@ void ScenePlay::setInputJudgeCallback()
         LOG_ERROR << "[Play] Ruleset of 1P not initialized!";
     }
 
-    if (gPlayContext.ruleset[PLAYER_SLOT_2P] != nullptr)
+    if (gPlayContext.ruleset[PLAYER_SLOT_TARGET] != nullptr)
     {
-        auto fp = std::bind(&vRuleset::updatePress, gPlayContext.ruleset[PLAYER_SLOT_2P], _1, _2);
+        auto fp = std::bind(&vRuleset::updatePress, gPlayContext.ruleset[PLAYER_SLOT_TARGET], _1, _2);
         _input.register_p("JUDGE_PRESS_2", fp);
-        auto fh = std::bind(&vRuleset::updateHold, gPlayContext.ruleset[PLAYER_SLOT_2P], _1, _2);
+        auto fh = std::bind(&vRuleset::updateHold, gPlayContext.ruleset[PLAYER_SLOT_TARGET], _1, _2);
         _input.register_h("JUDGE_HOLD_2", fh);
-        auto fr = std::bind(&vRuleset::updateRelease, gPlayContext.ruleset[PLAYER_SLOT_2P], _1, _2);
+        auto fr = std::bind(&vRuleset::updateRelease, gPlayContext.ruleset[PLAYER_SLOT_TARGET], _1, _2);
         _input.register_r("JUDGE_RELEASE_2", fr);
-        auto fa = std::bind(&vRuleset::updateAxis, gPlayContext.ruleset[PLAYER_SLOT_2P], _1, _2, _3);
+        auto fa = std::bind(&vRuleset::updateAxis, gPlayContext.ruleset[PLAYER_SLOT_TARGET], _1, _2, _3);
         _input.register_a("JUDGE_AXIS_2", fa);
     }
     else if (!gPlayContext.isAuto)
@@ -806,52 +806,52 @@ void ScenePlay::_updateAsync()
         // TODO SUD+ or HID+/LIFT?
         int lc = gNumbers.get(eNumber::LANECOVER_TOP_1P);
         int lcOld = lc;
-        while (lc < 1000 && _lanecoverAdd[PLAYER_SLOT_1P] >= lcThreshold)
+        while (lc < 1000 && _lanecoverAdd[PLAYER_SLOT_PLAYER] >= lcThreshold)
         {
-            _lanecoverAdd[PLAYER_SLOT_1P] -= lcThreshold;
+            _lanecoverAdd[PLAYER_SLOT_PLAYER] -= lcThreshold;
             lc += 1;
         }
-        while (lc > 0 && _lanecoverAdd[PLAYER_SLOT_1P] <= -lcThreshold)
+        while (lc > 0 && _lanecoverAdd[PLAYER_SLOT_PLAYER] <= -lcThreshold)
         {
-            _lanecoverAdd[PLAYER_SLOT_1P] += lcThreshold;
+            _lanecoverAdd[PLAYER_SLOT_PLAYER] += lcThreshold;
             lc -= 1;
         }
         if (lc <= 0)
         {
             lc = 0;
-            if (_lanecoverAdd[PLAYER_SLOT_1P] < 0)
-                _lanecoverAdd[PLAYER_SLOT_1P] = 0;
+            if (_lanecoverAdd[PLAYER_SLOT_PLAYER] < 0)
+                _lanecoverAdd[PLAYER_SLOT_PLAYER] = 0;
         }
         else if (lc >= 1000)
         {
             lc = 1000;
-            if (_lanecoverAdd[PLAYER_SLOT_1P] > 0)
-                _lanecoverAdd[PLAYER_SLOT_1P] = 0;
+            if (_lanecoverAdd[PLAYER_SLOT_PLAYER] > 0)
+                _lanecoverAdd[PLAYER_SLOT_PLAYER] = 0;
         }
 
         double hs = gPlayContext.Hispeed;
         double hsOld = hs;
-        while (hs < 10.0 && _hispeedAdd[PLAYER_SLOT_1P] >= hsThreshold)
+        while (hs < 10.0 && _hispeedAdd[PLAYER_SLOT_PLAYER] >= hsThreshold)
         {
-            _hispeedAdd[PLAYER_SLOT_1P] -= hsThreshold;
+            _hispeedAdd[PLAYER_SLOT_PLAYER] -= hsThreshold;
             hs += 0.01;
         }
-        while (hs > 0.25 && _hispeedAdd[PLAYER_SLOT_1P] <= -hsThreshold)
+        while (hs > 0.25 && _hispeedAdd[PLAYER_SLOT_PLAYER] <= -hsThreshold)
         {
-            _hispeedAdd[PLAYER_SLOT_1P] += hsThreshold;
+            _hispeedAdd[PLAYER_SLOT_PLAYER] += hsThreshold;
             hs -= 0.01;
         }
         if (hs <= 0.01)
         {
             hs = 0.01;
-            if (_hispeedAdd[PLAYER_SLOT_1P] < 0)
-                _hispeedAdd[PLAYER_SLOT_1P] = 0;
+            if (_hispeedAdd[PLAYER_SLOT_PLAYER] < 0)
+                _hispeedAdd[PLAYER_SLOT_PLAYER] = 0;
         }
         else if (hs >= 10.0)
         {
             hs = 10.0;
-            if (_hispeedAdd[PLAYER_SLOT_1P] > 0)
-                _hispeedAdd[PLAYER_SLOT_1P] = 0;
+            if (_hispeedAdd[PLAYER_SLOT_PLAYER] > 0)
+                _hispeedAdd[PLAYER_SLOT_PLAYER] = 0;
         }
 
         if (lc != lcOld)
@@ -860,13 +860,13 @@ void ScenePlay::_updateAsync()
             gNumbers.queue(eNumber::LANECOVER100_1P, lc / 10);
             gSliders.queue(eSlider::SUD_1P, lc / 1000.0);
 
-            if (_lockspeedEnabled[PLAYER_SLOT_1P])
+            if (_lockspeedEnabled[PLAYER_SLOT_PLAYER])
             {
-                double bpm = gChartContext.HSFixBPMFactor1P * gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentBPM();
+                double bpm = gChartContext.HSFixBPMFactor1P * gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentBPM();
                 int lcTop = lc;
                 int lcBottom = gNumbers.get(eNumber::LANECOVER_BOTTOM_1P);
                 double visible = std::max(0, (1000 - lcTop - lcBottom)) / 1000.0;
-                hs = std::min(_lockspeedValue[PLAYER_SLOT_1P] / bpm * visible, 10.0);
+                hs = std::min(_lockspeedValue[PLAYER_SLOT_PLAYER] / bpm * visible, 10.0);
                 gPlayContext.Hispeed = hs;
                 gNumbers.queue(eNumber::HS_1P, (int)std::round(hs * 100));
             }
@@ -876,16 +876,16 @@ void ScenePlay::_updateAsync()
             gPlayContext.Hispeed = hs;
             gNumbers.queue(eNumber::HS_1P, (int)std::round(hs * 100));
 
-            if (_lockspeedEnabled[PLAYER_SLOT_1P] && _isHoldingSelect[PLAYER_SLOT_1P])
+            if (_lockspeedEnabled[PLAYER_SLOT_PLAYER] && _isHoldingSelect[PLAYER_SLOT_PLAYER])
             {
-                double bpm = gChartContext.HSFixBPMFactor1P * gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentBPM();
+                double bpm = gChartContext.HSFixBPMFactor1P * gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentBPM();
                 int lcTop = lc;
                 int lcBottom = gNumbers.get(eNumber::LANECOVER_BOTTOM_1P);
                 double visible = std::max(0, (1000 - lcTop - lcBottom)) / 1000.0;
-                _lockspeedValue[PLAYER_SLOT_1P] = (visible == 0.0) ? std::numeric_limits<double>::max() : (bpm * hs / visible);
+                _lockspeedValue[PLAYER_SLOT_PLAYER] = (visible == 0.0) ? std::numeric_limits<double>::max() : (bpm * hs / visible);
 
                 double den = hs * bpm;
-                _lockspeedGreenNumber[PLAYER_SLOT_1P] = den != 0.0 ? int(std::round(visible * 120.0 * 1200 / hs / bpm)) : 0;
+                _lockspeedGreenNumber[PLAYER_SLOT_PLAYER] = den != 0.0 ? int(std::round(visible * 120.0 * 1200 / hs / bpm)) : 0;
             }
         }
 
@@ -895,52 +895,52 @@ void ScenePlay::_updateAsync()
         // TODO SUD+ or HID+/LIFT?
         int lc = gNumbers.get(eNumber::LANECOVER_TOP_2P);
         int lcOld = lc;
-        while (lc < 1000 && _lanecoverAdd[PLAYER_SLOT_2P] >= lcThreshold)
+        while (lc < 1000 && _lanecoverAdd[PLAYER_SLOT_TARGET] >= lcThreshold)
         {
-            _lanecoverAdd[PLAYER_SLOT_2P] -= lcThreshold;
+            _lanecoverAdd[PLAYER_SLOT_TARGET] -= lcThreshold;
             lc += 1;
         }
-        while (lc > 0 && _lanecoverAdd[PLAYER_SLOT_2P] <= -lcThreshold)
+        while (lc > 0 && _lanecoverAdd[PLAYER_SLOT_TARGET] <= -lcThreshold)
         {
-            _lanecoverAdd[PLAYER_SLOT_2P] += lcThreshold;
+            _lanecoverAdd[PLAYER_SLOT_TARGET] += lcThreshold;
             lc -= 1;
         }
         if (lc <= 0)
         {
             lc = 0;
-            if (_lanecoverAdd[PLAYER_SLOT_2P] < 0)
-                _lanecoverAdd[PLAYER_SLOT_2P] = 0;
+            if (_lanecoverAdd[PLAYER_SLOT_TARGET] < 0)
+                _lanecoverAdd[PLAYER_SLOT_TARGET] = 0;
         }
         else if (lc >= 1000)
         {
             lc = 1000;
-            if (_lanecoverAdd[PLAYER_SLOT_2P] > 0)
-                _lanecoverAdd[PLAYER_SLOT_2P] = 0;
+            if (_lanecoverAdd[PLAYER_SLOT_TARGET] > 0)
+                _lanecoverAdd[PLAYER_SLOT_TARGET] = 0;
         }
 
         double hs = gPlayContext.battle2PHispeed;
         double hsOld = hs;
-        while (hs < 10.0 && _hispeedAdd[PLAYER_SLOT_2P] >= hsThreshold)
+        while (hs < 10.0 && _hispeedAdd[PLAYER_SLOT_TARGET] >= hsThreshold)
         {
-            _hispeedAdd[PLAYER_SLOT_2P] -= hsThreshold;
+            _hispeedAdd[PLAYER_SLOT_TARGET] -= hsThreshold;
             hs += 0.01;
         }
-        while (hs > 0.25 && _hispeedAdd[PLAYER_SLOT_2P] <= -hsThreshold)
+        while (hs > 0.25 && _hispeedAdd[PLAYER_SLOT_TARGET] <= -hsThreshold)
         {
-            _hispeedAdd[PLAYER_SLOT_2P] += hsThreshold;
+            _hispeedAdd[PLAYER_SLOT_TARGET] += hsThreshold;
             hs -= 0.01;
         }
         if (hs <= 0.01)
         {
             hs = 0.01;
-            if (_hispeedAdd[PLAYER_SLOT_2P] < 0)
-                _hispeedAdd[PLAYER_SLOT_2P] = 0;
+            if (_hispeedAdd[PLAYER_SLOT_TARGET] < 0)
+                _hispeedAdd[PLAYER_SLOT_TARGET] = 0;
         }
         else if (hs >= 10.0)
         {
             hs = 10.0;
-            if (_hispeedAdd[PLAYER_SLOT_2P] > 0)
-                _hispeedAdd[PLAYER_SLOT_2P] = 0;
+            if (_hispeedAdd[PLAYER_SLOT_TARGET] > 0)
+                _hispeedAdd[PLAYER_SLOT_TARGET] = 0;
         }
 
         if (lc != lcOld)
@@ -949,13 +949,13 @@ void ScenePlay::_updateAsync()
             gNumbers.queue(eNumber::LANECOVER100_2P, lc / 10);
             gSliders.queue(eSlider::SUD_2P, lc / 1000.0);
 
-            if (_lockspeedEnabled[PLAYER_SLOT_2P])
+            if (_lockspeedEnabled[PLAYER_SLOT_TARGET])
             {
-                double bpm = gChartContext.HSFixBPMFactor2P * gPlayContext.chartObj[PLAYER_SLOT_2P]->getCurrentBPM();
+                double bpm = gChartContext.HSFixBPMFactor2P * gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getCurrentBPM();
                 int lcTop = lc;
                 int lcBottom = gNumbers.get(eNumber::LANECOVER_BOTTOM_2P);
                 double visible = std::max(0, (1000 - lcTop - lcBottom)) / 1000.0;
-                hs = std::min(_lockspeedValue[PLAYER_SLOT_2P] / bpm * visible, 10.0);
+                hs = std::min(_lockspeedValue[PLAYER_SLOT_TARGET] / bpm * visible, 10.0);
                 gPlayContext.battle2PHispeed = hs;
                 gNumbers.queue(eNumber::HS_2P, (int)std::round(hs * 100));
             }
@@ -965,24 +965,24 @@ void ScenePlay::_updateAsync()
             gPlayContext.battle2PHispeed = hs;
             gNumbers.queue(eNumber::HS_2P, (int)std::round(hs * 100));
 
-            if (_lockspeedEnabled[PLAYER_SLOT_2P] && _isHoldingSelect[PLAYER_SLOT_1P])
+            if (_lockspeedEnabled[PLAYER_SLOT_TARGET] && _isHoldingSelect[PLAYER_SLOT_PLAYER])
             {
-                double bpm = gChartContext.HSFixBPMFactor2P * gPlayContext.chartObj[PLAYER_SLOT_2P]->getCurrentBPM();
+                double bpm = gChartContext.HSFixBPMFactor2P * gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getCurrentBPM();
                 int lcTop = lc;
                 int lcBottom = gNumbers.get(eNumber::LANECOVER_BOTTOM_2P);
                 double visible = std::max(0, (1000 - lcTop - lcBottom)) / 1000.0;
-                _lockspeedValue[PLAYER_SLOT_2P] = (visible == 0.0) ? std::numeric_limits<double>::max() : (bpm * hs / visible);
+                _lockspeedValue[PLAYER_SLOT_TARGET] = (visible == 0.0) ? std::numeric_limits<double>::max() : (bpm * hs / visible);
 
                 double den = hs * bpm;
-                _lockspeedGreenNumber[PLAYER_SLOT_1P] = den != 0.0 ? int(std::round(visible * 120.0 * 1200 / hs / bpm)) : 0;
+                _lockspeedGreenNumber[PLAYER_SLOT_PLAYER] = den != 0.0 ? int(std::round(visible * 120.0 * 1200 / hs / bpm)) : 0;
             }
         }
     }
-    if (!_lanecoverEnabled[PLAYER_SLOT_1P])
+    if (!_lanecoverEnabled[PLAYER_SLOT_PLAYER])
     {
         gSliders.queue(eSlider::SUD_1P, 0.0);
     }
-    if (isPlaymodeDP() || !_lanecoverEnabled[PLAYER_SLOT_2P])
+    if (isPlaymodeDP() || !_lanecoverEnabled[PLAYER_SLOT_TARGET])
     {
         gSliders.queue(eSlider::SUD_2P, 0.0);
     }
@@ -993,14 +993,14 @@ void ScenePlay::_updateAsync()
     // 120BPM with 1.0x HS is 2000ms (500ms/beat, green number 1200)
     if (_skin->info.noteLaneHeight1P != 0)
     {
-        double bpm = gChartContext.HSFixBPMFactor1P * gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentBPM();
+        double bpm = gChartContext.HSFixBPMFactor1P * gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentBPM();
         double minBPM = gChartContext.HSFixBPMFactor1P * gChartContext.minBPM;
         double maxBPM = gChartContext.HSFixBPMFactor1P * gChartContext.maxBPM;
         int lcTop = gNumbers.get(eNumber::LANECOVER_TOP_1P);
         int lcBottom = gNumbers.get(eNumber::LANECOVER_BOTTOM_1P);
 
         double visible = 1.0;
-        if (_lanecoverEnabled[PLAYER_SLOT_1P])
+        if (_lanecoverEnabled[PLAYER_SLOT_PLAYER])
             visible -= std::clamp(lcTop + lcBottom, 0, 1000) / 1000.0;
         double den;
         den = gPlayContext.Hispeed * bpm;
@@ -1010,16 +1010,16 @@ void ScenePlay::_updateAsync()
         den = gPlayContext.Hispeed * minBPM;
         gNumbers.queue(eNumber::GREEN_NUMBER_MINBPM_1P, den != 0.0 ? int(std::round(visible * 120.0 * 1200 / den)) : 0);
     }
-    if (_skin->info.noteLaneHeight2P != 0 && gPlayContext.chartObj[PLAYER_SLOT_2P] != nullptr)
+    if (_skin->info.noteLaneHeight2P != 0 && gPlayContext.chartObj[PLAYER_SLOT_TARGET] != nullptr)
     {
-        double bpm = gChartContext.HSFixBPMFactor2P * gPlayContext.chartObj[PLAYER_SLOT_2P]->getCurrentBPM();
+        double bpm = gChartContext.HSFixBPMFactor2P * gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getCurrentBPM();
         double minBPM = gChartContext.HSFixBPMFactor2P * gChartContext.minBPM;
         double maxBPM = gChartContext.HSFixBPMFactor2P * gChartContext.maxBPM;
         int lcTop = gNumbers.get(eNumber::LANECOVER_TOP_2P);
         int lcBottom = gNumbers.get(eNumber::LANECOVER_BOTTOM_2P);
 
         double visible = 1.0;
-        if (_lanecoverEnabled[PLAYER_SLOT_2P])
+        if (_lanecoverEnabled[PLAYER_SLOT_TARGET])
             visible -= std::clamp(lcTop + lcBottom, 0, 1000) / 1000.0;
         double den;
         den = gPlayContext.battle2PHispeed * bpm;
@@ -1036,20 +1036,20 @@ void ScenePlay::_updateAsync()
     // setting speed / lanecover (if display white number / green number)
     gSwitches.queue(eSwitch::P1_SETTING_SPEED, false);
     gSwitches.queue(eSwitch::P2_SETTING_SPEED, false);
-    if (_lanecoverEnabled[PLAYER_SLOT_1P])
+    if (_lanecoverEnabled[PLAYER_SLOT_PLAYER])
     {
-        if (_isHoldingStart[PLAYER_SLOT_1P] || _isHoldingSelect[PLAYER_SLOT_1P])
+        if (_isHoldingStart[PLAYER_SLOT_PLAYER] || _isHoldingSelect[PLAYER_SLOT_PLAYER])
         {
             gSwitches.queue(eSwitch::P1_SETTING_SPEED, true);
         }
-        if (_isHoldingStart[PLAYER_SLOT_2P] || _isHoldingSelect[PLAYER_SLOT_2P])
+        if (_isHoldingStart[PLAYER_SLOT_TARGET] || _isHoldingSelect[PLAYER_SLOT_TARGET])
         {
             gSwitches.queue(!isPlaymodeDP() ? eSwitch::P1_SETTING_SPEED : eSwitch::P2_SETTING_SPEED, true);
         }
     }
-    if (_lanecoverEnabled[PLAYER_SLOT_2P])
+    if (_lanecoverEnabled[PLAYER_SLOT_TARGET])
     {
-        if (_isHoldingStart[PLAYER_SLOT_2P] || _isHoldingSelect[PLAYER_SLOT_2P])
+        if (_isHoldingStart[PLAYER_SLOT_TARGET] || _isHoldingSelect[PLAYER_SLOT_TARGET])
         {
             gSwitches.queue(eSwitch::P2_SETTING_SPEED, true);
         }
@@ -1060,14 +1060,14 @@ void ScenePlay::_updateAsync()
     if (!_skin->isSupportGreenNumber)
     {
         std::stringstream ss;
-        if (_isHoldingStart[PLAYER_SLOT_1P] || _isHoldingSelect[PLAYER_SLOT_1P] || _isHoldingStart[PLAYER_SLOT_2P] || _isHoldingSelect[PLAYER_SLOT_2P])
+        if (_isHoldingStart[PLAYER_SLOT_PLAYER] || _isHoldingSelect[PLAYER_SLOT_PLAYER] || _isHoldingStart[PLAYER_SLOT_TARGET] || _isHoldingSelect[PLAYER_SLOT_TARGET])
         {
-            ss << "G(1P): " << (_lockspeedEnabled[PLAYER_SLOT_1P] ? "FIX " : "") << gNumbers.get(eNumber::GREEN_NUMBER_1P) <<
+            ss << "G(1P): " << (_lockspeedEnabled[PLAYER_SLOT_PLAYER] ? "FIX " : "") << gNumbers.get(eNumber::GREEN_NUMBER_1P) <<
                 " (" << gNumbers.get(eNumber::GREEN_NUMBER_MINBPM_1P) << " - " << gNumbers.get(eNumber::GREEN_NUMBER_MAXBPM_1P) << ")";
 
             if (isPlaymodeBattle())
             {
-                ss << " | G(2P): " << (_lockspeedEnabled[PLAYER_SLOT_2P] ? "FIX " : "") << gNumbers.get(eNumber::GREEN_NUMBER_2P) <<
+                ss << " | G(2P): " << (_lockspeedEnabled[PLAYER_SLOT_TARGET] ? "FIX " : "") << gNumbers.get(eNumber::GREEN_NUMBER_2P) <<
                     " (" << gNumbers.get(eNumber::GREEN_NUMBER_MINBPM_2P) << " - " << gNumbers.get(eNumber::GREEN_NUMBER_MAXBPM_2P) << ")";
             }
         }
@@ -1092,7 +1092,7 @@ void ScenePlay::_updateAsync()
 
             if (_scratchDir[slot] != AxisDir::AXIS_DOWN)
             {
-                if (slot == PLAYER_SLOT_1P)
+                if (slot == PLAYER_SLOT_PLAYER)
                 {
                     gTimers.set(eTimer::S1_DOWN, t.norm());
                     gTimers.set(eTimer::S1_UP, TIMER_NEVER);
@@ -1117,7 +1117,7 @@ void ScenePlay::_updateAsync()
                 long long ms = t.norm() - gTimers.get(eTimer::PLAY_START);
                 ReplayChart::Commands cmd;
                 cmd.ms = ms;
-                if (slot == PLAYER_SLOT_1P)
+                if (slot == PLAYER_SLOT_PLAYER)
                 {
                     cmd.type = ReplayChart::Commands::Type::S1A_PLUS;
                     replayKeyPressing[Input::Pad::S1A] = true;
@@ -1137,7 +1137,7 @@ void ScenePlay::_updateAsync()
 
             if (_scratchDir[slot] != AxisDir::AXIS_UP)
             {
-                if (slot == PLAYER_SLOT_1P)
+                if (slot == PLAYER_SLOT_PLAYER)
                 {
                     gTimers.set(eTimer::S1_DOWN, t.norm());
                     gTimers.set(eTimer::S1_UP, TIMER_NEVER);
@@ -1162,7 +1162,7 @@ void ScenePlay::_updateAsync()
                 long long ms = t.norm() - gTimers.get(eTimer::PLAY_START);
                 ReplayChart::Commands cmd;
                 cmd.ms = ms;
-                if (slot == PLAYER_SLOT_1P)
+                if (slot == PLAYER_SLOT_PLAYER)
                 {
                     cmd.type = ReplayChart::Commands::Type::S1A_MINUS;
                     replayKeyPressing[Input::Pad::S1A] = true;
@@ -1177,7 +1177,7 @@ void ScenePlay::_updateAsync()
         }
         else
         {
-            if (slot == PLAYER_SLOT_1P)
+            if (slot == PLAYER_SLOT_PLAYER)
             {
                 if (replayKeyPressing[Input::Pad::S1A])
                 {
@@ -1205,7 +1205,7 @@ void ScenePlay::_updateAsync()
 
         if (playSample)
         {
-            if (slot == PLAYER_SLOT_1P)
+            if (slot == PLAYER_SLOT_PLAYER)
             {
                 if (_scratchDir[slot] == AxisDir::AXIS_UP && _currentKeySample[Input::S1L])
                     keySampleIdxBufScratch[sampleCount++] = _currentKeySample[Input::S1L];
@@ -1237,7 +1237,7 @@ void ScenePlay::_updateAsync()
             // release
             if (_scratchDir[slot] != AxisDir::AXIS_NONE)
             {
-                if (slot == PLAYER_SLOT_1P)
+                if (slot == PLAYER_SLOT_PLAYER)
                 {
                     gTimers.set(eTimer::S1_DOWN, TIMER_NEVER);
                     gTimers.set(eTimer::S1_UP, t.norm());
@@ -1255,8 +1255,8 @@ void ScenePlay::_updateAsync()
             _scratchLastUpdate[slot] = TIMER_NEVER;
         }
     };
-    Scratch(t, Input::S1L, Input::S1R, _scratchAccumulator[PLAYER_SLOT_1P], PLAYER_SLOT_1P);
-    Scratch(t, Input::S2L, Input::S2R, _scratchAccumulator[PLAYER_SLOT_2P], PLAYER_SLOT_2P);
+    Scratch(t, Input::S1L, Input::S1R, _scratchAccumulator[PLAYER_SLOT_PLAYER], PLAYER_SLOT_PLAYER);
+    Scratch(t, Input::S2L, Input::S2R, _scratchAccumulator[PLAYER_SLOT_TARGET], PLAYER_SLOT_TARGET);
 
     switch (_state)
     {
@@ -1350,10 +1350,10 @@ void ScenePlay::updatePlaying()
 {
 	auto t = Time();
 	auto rt = t - gTimers.get(eTimer::PLAY_START);
-    gTimers.queue(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentMetre() * 4.0)) % 1000);
+    gTimers.queue(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentMetre() * 4.0)) % 1000);
 
-    gPlayContext.chartObj[PLAYER_SLOT_1P]->update(rt);
-    gPlayContext.ruleset[PLAYER_SLOT_1P]->update(t);
+    gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->update(rt);
+    gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->update(t);
 
     if (gPlayContext.isReplay)
     {
@@ -1414,12 +1414,12 @@ void ScenePlay::updatePlaying()
             case ReplayChart::Commands::Type::K29_UP: replayKeyPressing[Input::Pad::K29] = false; break;
             case ReplayChart::Commands::Type::K2START_UP: replayKeyPressing[Input::Pad::K2START] = false; break;
             case ReplayChart::Commands::Type::K2SELECT_UP: replayKeyPressing[Input::Pad::K2SELECT] = false; break;
-            case ReplayChart::Commands::Type::S1A_PLUS:  _scratchAccumulator[PLAYER_SLOT_1P] = 0.0015; break;
-            case ReplayChart::Commands::Type::S1A_MINUS: _scratchAccumulator[PLAYER_SLOT_1P] = -0.0015; break;
-            case ReplayChart::Commands::Type::S1A_STOP:  _scratchAccumulator[PLAYER_SLOT_1P] = 0; break;
-            case ReplayChart::Commands::Type::S2A_PLUS:  _scratchAccumulator[PLAYER_SLOT_2P] = 0.0015; break;
-            case ReplayChart::Commands::Type::S2A_MINUS: _scratchAccumulator[PLAYER_SLOT_2P] = -0.0015; break;
-            case ReplayChart::Commands::Type::S2A_STOP:  _scratchAccumulator[PLAYER_SLOT_2P] = 0; break;
+            case ReplayChart::Commands::Type::S1A_PLUS:  _scratchAccumulator[PLAYER_SLOT_PLAYER] = 0.0015; break;
+            case ReplayChart::Commands::Type::S1A_MINUS: _scratchAccumulator[PLAYER_SLOT_PLAYER] = -0.0015; break;
+            case ReplayChart::Commands::Type::S1A_STOP:  _scratchAccumulator[PLAYER_SLOT_PLAYER] = 0; break;
+            case ReplayChart::Commands::Type::S2A_PLUS:  _scratchAccumulator[PLAYER_SLOT_TARGET] = 0.0015; break;
+            case ReplayChart::Commands::Type::S2A_MINUS: _scratchAccumulator[PLAYER_SLOT_TARGET] = -0.0015; break;
+            case ReplayChart::Commands::Type::S2A_STOP:  _scratchAccumulator[PLAYER_SLOT_TARGET] = 0; break;
 
             // TODO
             case ReplayChart::Commands::Type::HISPEED: break;
@@ -1435,25 +1435,25 @@ void ScenePlay::updatePlaying()
         if (released.any())
             inputGameReleaseTimer(released, t);
 
-        if (replayKeyPressing[Input::Pad::K1START] || !isPlaymodeBattle() && replayKeyPressing[Input::Pad::K2START]) _isHoldingStart[PLAYER_SLOT_1P] = true;
-        if (replayKeyPressing[Input::Pad::K1SELECT] || !isPlaymodeBattle() && replayKeyPressing[Input::Pad::K2SELECT]) _isHoldingSelect[PLAYER_SLOT_1P] = true;
+        if (replayKeyPressing[Input::Pad::K1START] || !isPlaymodeBattle() && replayKeyPressing[Input::Pad::K2START]) _isHoldingStart[PLAYER_SLOT_PLAYER] = true;
+        if (replayKeyPressing[Input::Pad::K1SELECT] || !isPlaymodeBattle() && replayKeyPressing[Input::Pad::K2SELECT]) _isHoldingSelect[PLAYER_SLOT_PLAYER] = true;
 
     }
 
-    auto dp1 = gPlayContext.ruleset[PLAYER_SLOT_1P]->getData();
+    auto dp1 = gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData();
     int miss1 = dp1.miss;
-    if (_missPlayer[PLAYER_SLOT_1P] != miss1)
+    if (_missPlayer[PLAYER_SLOT_PLAYER] != miss1)
     {
-        _missPlayer[PLAYER_SLOT_1P] = miss1;
+        _missPlayer[PLAYER_SLOT_PLAYER] = miss1;
         _missLastTime = t;
     }
 
-    if (gPlayContext.ruleset[PLAYER_SLOT_2P] != nullptr)
+    if (gPlayContext.ruleset[PLAYER_SLOT_TARGET] != nullptr)
     {
-        gPlayContext.chartObj[PLAYER_SLOT_2P]->update(rt);
-        gPlayContext.ruleset[PLAYER_SLOT_2P]->update(t);
+        gPlayContext.chartObj[PLAYER_SLOT_TARGET]->update(rt);
+        gPlayContext.ruleset[PLAYER_SLOT_TARGET]->update(t);
 
-        auto dp2 = gPlayContext.ruleset[PLAYER_SLOT_2P]->getData();
+        auto dp2 = gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData();
 
         gNumbers.queue(eNumber::PLAY_1P_EXSCORE_DIFF, dp1.score2 - dp2.score2);
         gNumbers.queue(eNumber::PLAY_2P_EXSCORE_DIFF, dp2.score2 - dp1.score2);
@@ -1463,9 +1463,9 @@ void ScenePlay::updatePlaying()
         gNumbers.queue(eNumber::RESULT_TARGET_RATE_DECIMAL2, (int)std::floor(dp2.acc * 10000.0) % 100);
 
         int miss2 = dp2.miss;
-        if (_missPlayer[PLAYER_SLOT_2P] != miss2)
+        if (_missPlayer[PLAYER_SLOT_TARGET] != miss2)
         {
-            _missPlayer[PLAYER_SLOT_2P] = miss2;
+            _missPlayer[PLAYER_SLOT_TARGET] = miss2;
             _missLastTime = t;
         }
     }
@@ -1488,11 +1488,11 @@ void ScenePlay::updatePlaying()
 
     gPlayContext.bgaTexture->update(rt, t.norm() - _missLastTime.norm() < _missBgaLength);
 
-    gNumbers.queue(eNumber::PLAY_BPM, int(std::round(gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentBPM())));
+    gNumbers.queue(eNumber::PLAY_BPM, int(std::round(gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentBPM())));
     // play time / remain time
     {
         auto startTime = rt - gTimers.get(eTimer::PLAY_START);
-        auto totalTime = gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().norm();
+        auto totalTime = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getTotalLength().norm();
         auto playtime_s = rt.norm() / 1000;
         auto remaintime_s = totalTime / 1000 - playtime_s;
         gNumbers.queue(eNumber::PLAY_MIN, int(playtime_s / 60));
@@ -1507,10 +1507,10 @@ void ScenePlay::updatePlaying()
 	//updateBga();
 
     // charts
-    if (rt.norm() / 500 >= gPlayContext.graphGauge[PLAYER_SLOT_1P].size())
+    if (rt.norm() / 500 >= gPlayContext.graphGauge[PLAYER_SLOT_PLAYER].size())
     {
-        auto& g = gPlayContext.graphGauge[PLAYER_SLOT_1P];
-        auto& r = gPlayContext.ruleset[PLAYER_SLOT_1P];
+        auto& g = gPlayContext.graphGauge[PLAYER_SLOT_PLAYER];
+        auto& r = gPlayContext.ruleset[PLAYER_SLOT_PLAYER];
         int h = r->getClearHealth() * 100;
         if (!g.empty())
         {
@@ -1528,8 +1528,8 @@ void ScenePlay::updatePlaying()
     // health check (-> to failed)
     if (!_isExitingFromPlay)
     {
-        if (gPlayContext.ruleset[PLAYER_SLOT_1P]->isFailed() &&
-            (gPlayContext.ruleset[PLAYER_SLOT_2P] == nullptr || gPlayContext.ruleset[PLAYER_SLOT_2P]->isFailed()))
+        if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isFailed() &&
+            (gPlayContext.ruleset[PLAYER_SLOT_TARGET] == nullptr || gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFailed()))
         {
             pushGraphPoints();
             gTimers.queue(eTimer::FAIL_BEGIN, t.norm());
@@ -1545,18 +1545,18 @@ void ScenePlay::updatePlaying()
             LOG_DEBUG << "[Play] State changed to PLAY_FAILED";
         }
 
-        if (_isPlayerFinished[PLAYER_SLOT_1P] ^ gPlayContext.ruleset[PLAYER_SLOT_1P]->isFinished())
+        if (_isPlayerFinished[PLAYER_SLOT_PLAYER] ^ gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isFinished())
         {
-            _isPlayerFinished[PLAYER_SLOT_1P] = true;
+            _isPlayerFinished[PLAYER_SLOT_PLAYER] = true;
             gTimers.queue(eTimer::PLAY_P1_FINISHED, t.norm());
-            if (gPlayContext.ruleset[PLAYER_SLOT_1P]->getData().combo == gPlayContext.chartObj[PLAYER_SLOT_1P]->getNoteTotalCount())
+            if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().combo == gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getNoteTotalCount())
                 gTimers.queue(eTimer::PLAY_FULLCOMBO_1P, t.norm());
         }
-        if (gPlayContext.ruleset[PLAYER_SLOT_2P] != nullptr && _isPlayerFinished[PLAYER_SLOT_2P] ^ gPlayContext.ruleset[PLAYER_SLOT_2P]->isFinished())
+        if (gPlayContext.ruleset[PLAYER_SLOT_TARGET] != nullptr && _isPlayerFinished[PLAYER_SLOT_TARGET] ^ gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFinished())
         {
-            _isPlayerFinished[PLAYER_SLOT_2P] = true;
+            _isPlayerFinished[PLAYER_SLOT_TARGET] = true;
             gTimers.queue(eTimer::PLAY_P2_FINISHED, t.norm());
-            if (gPlayContext.ruleset[PLAYER_SLOT_2P]->getData().combo == gPlayContext.chartObj[PLAYER_SLOT_2P]->getNoteTotalCount())
+            if (gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData().combo == gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getNoteTotalCount())
                 gTimers.queue(eTimer::PLAY_FULLCOMBO_2P, t.norm());
         }
     }
@@ -1564,7 +1564,7 @@ void ScenePlay::updatePlaying()
     spinTurntable(true);
 
     //last note check
-    if (rt.hres() - gPlayContext.chartObj[PLAYER_SLOT_1P]->getTotalLength().hres() >= 0)
+    if (rt.hres() - gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getTotalLength().hres() >= 0)
     {
         gTimers.queue(eTimer::FADEOUT_BEGIN, t.norm());
         gOptions.queue(eOption::PLAY_SCENE_STAT, Option::SPLAY_FADEOUT);
@@ -1585,7 +1585,7 @@ void ScenePlay::updateFadeout()
     auto rt = t - gTimers.get(eTimer::SCENE_START);
     auto ft = t - gTimers.get(eTimer::FADEOUT_BEGIN);
     if (gChartContext.started)
-        gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentMetre() * 4.0)) % 1000);
+        gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentMetre() * 4.0)) % 1000);
     spinTurntable(gChartContext.started);
 
 	gPlayContext.bgaTexture->update(rt, false);
@@ -1599,13 +1599,13 @@ void ScenePlay::updateFadeout()
             bool cleared = false;
             if (isPlaymodeBattle())
             {
-                if (gPlayContext.ruleset[PLAYER_SLOT_1P]->isCleared() &&
-                    gPlayContext.ruleset[PLAYER_SLOT_2P]->isCleared())
+                if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isCleared() &&
+                    gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isCleared())
                     cleared = true;
             }
             else
             {
-                if (gPlayContext.ruleset[PLAYER_SLOT_1P]->isCleared())
+                if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isCleared())
                     cleared = true;
             }
 
@@ -1613,30 +1613,30 @@ void ScenePlay::updateFadeout()
         }
 
         // save lanecover settings
-        ConfigMgr::set('P', cfg::P_LANECOVER_ENABLE, _lanecoverEnabled[PLAYER_SLOT_1P]);
-        if (_lanecoverEnabled[PLAYER_SLOT_1P])
+        ConfigMgr::set('P', cfg::P_LANECOVER_ENABLE, _lanecoverEnabled[PLAYER_SLOT_PLAYER]);
+        if (_lanecoverEnabled[PLAYER_SLOT_PLAYER])
         {
             ConfigMgr::set('P', cfg::P_LANECOVER_TOP, gNumbers.get(eNumber::LANECOVER_TOP_1P));
             ConfigMgr::set('P', cfg::P_LANECOVER_BOTTOM, gNumbers.get(eNumber::LANECOVER_BOTTOM_1P));
         }
-        ConfigMgr::set('P', cfg::P_LOCK_SPEED, _lockspeedEnabled[PLAYER_SLOT_1P]);
-        if (_lockspeedEnabled[PLAYER_SLOT_1P])
+        ConfigMgr::set('P', cfg::P_LOCK_SPEED, _lockspeedEnabled[PLAYER_SLOT_PLAYER]);
+        if (_lockspeedEnabled[PLAYER_SLOT_PLAYER])
         {
-            ConfigMgr::set('P', cfg::P_GREENNUMBER, _lockspeedGreenNumber[PLAYER_SLOT_1P]);
+            ConfigMgr::set('P', cfg::P_GREENNUMBER, _lockspeedGreenNumber[PLAYER_SLOT_PLAYER]);
         }
 
         if (isPlaymodeBattle())
         {
-            gPlayContext.battle2PLanecover = _lanecoverEnabled[PLAYER_SLOT_2P];
-            if (_lanecoverEnabled[PLAYER_SLOT_2P])
+            gPlayContext.battle2PLanecover = _lanecoverEnabled[PLAYER_SLOT_TARGET];
+            if (_lanecoverEnabled[PLAYER_SLOT_TARGET])
             {
                 gPlayContext.battle2PLanecoverTop = gNumbers.get(eNumber::LANECOVER_TOP_2P);
                 gPlayContext.battle2PLanecoverBottom = gNumbers.get(eNumber::LANECOVER_BOTTOM_2P);
             }
-            gPlayContext.battle2PLockSpeed = _lockspeedEnabled[PLAYER_SLOT_2P];
-            if (_lockspeedEnabled[PLAYER_SLOT_1P])
+            gPlayContext.battle2PLockSpeed = _lockspeedEnabled[PLAYER_SLOT_TARGET];
+            if (_lockspeedEnabled[PLAYER_SLOT_PLAYER])
             {
-                gPlayContext.battle2PGreenNumber = _lockspeedGreenNumber[PLAYER_SLOT_2P];
+                gPlayContext.battle2PGreenNumber = _lockspeedGreenNumber[PLAYER_SLOT_TARGET];
             }
         }
 
@@ -1644,13 +1644,13 @@ void ScenePlay::updateFadeout()
         bool wantRetry = false;
         auto h = _input.Holding();
         using namespace Input;
-        if (gPlayContext.chartObj[PLAYER_SLOT_1P] != nullptr)
+        if (gPlayContext.chartObj[PLAYER_SLOT_PLAYER] != nullptr)
         {
             if ((h.test(K1START) && h.test(K1SELECT)) ||
                 (h.test(K11) || h.test(K13) || h.test(K15) || h.test(K17) || h.test(K19)) && (h.test(K12) || h.test(K14) || h.test(K16) || h.test(K18)))
                 wantRetry = true;
         }
-        if (gPlayContext.chartObj[PLAYER_SLOT_2P] != nullptr)
+        if (gPlayContext.chartObj[PLAYER_SLOT_TARGET] != nullptr)
         {
             if ((h.test(K2START) && h.test(K2SELECT)) ||
                 (h.test(K21) || h.test(K23) || h.test(K25) || h.test(K27) || h.test(K29)) && (h.test(K22) || h.test(K24) || h.test(K26) || h.test(K28)))
@@ -1679,7 +1679,7 @@ void ScenePlay::updateFailed()
     auto t = Time();
     auto ft = t - gTimers.get(eTimer::FAIL_BEGIN);
     if (gChartContext.started)
-        gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentMetre() * 4.0)) % 1000);
+        gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentMetre() * 4.0)) % 1000);
     spinTurntable(gChartContext.started);
 
     //failed play finished, move to next scene. No fadeout
@@ -1695,11 +1695,11 @@ void ScenePlay::updateFailed()
 
 void ScenePlay::procCommonNotes()
 {
-    assert(gPlayContext.chartObj[PLAYER_SLOT_1P] != nullptr);
-    auto it = gPlayContext.chartObj[PLAYER_SLOT_1P]->noteBgmExpired.begin();
-    size_t max = std::min(_bgmSampleIdxBuf.size(), gPlayContext.chartObj[PLAYER_SLOT_1P]->noteBgmExpired.size());
+    assert(gPlayContext.chartObj[PLAYER_SLOT_PLAYER] != nullptr);
+    auto it = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->noteBgmExpired.begin();
+    size_t max = std::min(_bgmSampleIdxBuf.size(), gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->noteBgmExpired.size());
     size_t i = 0;
-    for (; i < max && it != gPlayContext.chartObj[PLAYER_SLOT_1P]->noteBgmExpired.end(); ++i, ++it)
+    for (; i < max && it != gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->noteBgmExpired.end(); ++i, ++it)
     {
         //if ((it->index & 0xF0) == 0xE0)
         {
@@ -1726,9 +1726,9 @@ void ScenePlay::procCommonNotes()
     if (gPlayContext.isAuto)
     {
         i = 0;
-        auto it = gPlayContext.chartObj[PLAYER_SLOT_1P]->noteExpired.begin();
-        size_t max2 = std::min(_keySampleIdxBuf.size(), max + gPlayContext.chartObj[PLAYER_SLOT_1P]->noteExpired.size());
-        while (i < max2 && it != gPlayContext.chartObj[PLAYER_SLOT_1P]->noteExpired.end())
+        auto it = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->noteExpired.begin();
+        size_t max2 = std::min(_keySampleIdxBuf.size(), max + gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->noteExpired.size());
+        while (i < max2 && it != gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->noteExpired.end())
         {
             if (it->flags == 0)
             {
@@ -1809,28 +1809,28 @@ void ScenePlay::changeKeySampleMapping(const Time& t)
 
 	if (isPlaymodeBattle())
 	{
-		assert(gPlayContext.chartObj[PLAYER_SLOT_1P] != nullptr);
-		assert(gPlayContext.chartObj[PLAYER_SLOT_2P] != nullptr);
+		assert(gPlayContext.chartObj[PLAYER_SLOT_PLAYER] != nullptr);
+		assert(gPlayContext.chartObj[PLAYER_SLOT_TARGET] != nullptr);
 
 		for (size_t i = 0; i < Input::S2L; ++i)
 		{
 			if (_inputAvailable[i])
-				changeKeySample((Input::Pad)i, PLAYER_SLOT_1P);
+				changeKeySample((Input::Pad)i, PLAYER_SLOT_PLAYER);
 		}
 		for (size_t i = Input::S2L; i < Input::LANE_COUNT; ++i)
 		{
 			if (_inputAvailable[i])
-				changeKeySample((Input::Pad)i, PLAYER_SLOT_2P);
+				changeKeySample((Input::Pad)i, PLAYER_SLOT_TARGET);
 		}
 	}
 	else
 	{
-		assert(gPlayContext.chartObj[PLAYER_SLOT_1P] != nullptr);
+		assert(gPlayContext.chartObj[PLAYER_SLOT_PLAYER] != nullptr);
 
 		for (auto i = 0; i < Input::LANE_COUNT; ++i)
 		{
 			if (_inputAvailable[i])
-				changeKeySample((Input::Pad)i, PLAYER_SLOT_1P);
+				changeKeySample((Input::Pad)i, PLAYER_SLOT_PLAYER);
 		}
 	}
 }
@@ -1897,12 +1897,12 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
     // double click START: toggle top lanecover
     if (input[K1START] || !isPlaymodeBattle() && input[K2START])
     {
-        if (t > _startPressedTime[PLAYER_SLOT_1P] && (t - _startPressedTime[PLAYER_SLOT_1P]).norm() < 200)
+        if (t > _startPressedTime[PLAYER_SLOT_PLAYER] && (t - _startPressedTime[PLAYER_SLOT_PLAYER]).norm() < 200)
         {
-            _lanecoverEnabled[PLAYER_SLOT_1P] = !_lanecoverEnabled[PLAYER_SLOT_1P];
-            _startPressedTime[PLAYER_SLOT_1P] = TIMER_NEVER;
+            _lanecoverEnabled[PLAYER_SLOT_PLAYER] = !_lanecoverEnabled[PLAYER_SLOT_PLAYER];
+            _startPressedTime[PLAYER_SLOT_PLAYER] = TIMER_NEVER;
 
-            if (_lanecoverEnabled[PLAYER_SLOT_1P])
+            if (_lanecoverEnabled[PLAYER_SLOT_PLAYER])
             {
                 gSliders.set(eSlider::SUD_1P, gNumbers.get(eNumber::LANECOVER_TOP_1P) / 1000.0);
                 if (isPlaymodeDP())
@@ -1911,91 +1911,91 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
         }
         else
         {
-            _startPressedTime[PLAYER_SLOT_1P] = t;
+            _startPressedTime[PLAYER_SLOT_PLAYER] = t;
         }
     }
     if (isPlaymodeBattle() && input[K2START])
     {
-        if (t > _startPressedTime[PLAYER_SLOT_2P] && (t - _startPressedTime[PLAYER_SLOT_2P]).norm() < 200)
+        if (t > _startPressedTime[PLAYER_SLOT_TARGET] && (t - _startPressedTime[PLAYER_SLOT_TARGET]).norm() < 200)
         {
-            _lanecoverEnabled[PLAYER_SLOT_2P] = !_lanecoverEnabled[PLAYER_SLOT_2P];
-            _startPressedTime[PLAYER_SLOT_2P] = TIMER_NEVER;
+            _lanecoverEnabled[PLAYER_SLOT_TARGET] = !_lanecoverEnabled[PLAYER_SLOT_TARGET];
+            _startPressedTime[PLAYER_SLOT_TARGET] = TIMER_NEVER;
 
-            if (_lanecoverEnabled[PLAYER_SLOT_2P])
+            if (_lanecoverEnabled[PLAYER_SLOT_TARGET])
                 gSliders.set(eSlider::SUD_2P, gNumbers.get(eNumber::LANECOVER_TOP_2P) / 1000.0);
         }
         else
         {
-            _startPressedTime[PLAYER_SLOT_2P] = t;
+            _startPressedTime[PLAYER_SLOT_TARGET] = t;
         }
     }
 
     // double click SELECT when lanecover enabled: lock green number
     if (input[K1SELECT] || !isPlaymodeBattle() && input[K2SELECT])
     {
-        if (t > _selectPressedTime[PLAYER_SLOT_1P] && (t - _selectPressedTime[PLAYER_SLOT_1P]).norm() < 200)
+        if (t > _selectPressedTime[PLAYER_SLOT_PLAYER] && (t - _selectPressedTime[PLAYER_SLOT_PLAYER]).norm() < 200)
         {
-            _lockspeedEnabled[PLAYER_SLOT_1P] = !_lockspeedEnabled[PLAYER_SLOT_1P];
-            _selectPressedTime[PLAYER_SLOT_1P] = TIMER_NEVER;
+            _lockspeedEnabled[PLAYER_SLOT_PLAYER] = !_lockspeedEnabled[PLAYER_SLOT_PLAYER];
+            _selectPressedTime[PLAYER_SLOT_PLAYER] = TIMER_NEVER;
 
-            gSwitches.set(eSwitch::P1_LOCK_SPEED, _lockspeedEnabled[PLAYER_SLOT_1P]);
-            if (_lockspeedEnabled[PLAYER_SLOT_1P])
+            gSwitches.set(eSwitch::P1_LOCK_SPEED, _lockspeedEnabled[PLAYER_SLOT_PLAYER]);
+            if (_lockspeedEnabled[PLAYER_SLOT_PLAYER])
             {
-                double bpm = gChartContext.HSFixBPMFactor1P * gPlayContext.chartObj[PLAYER_SLOT_1P]->getCurrentBPM();
+                double bpm = gChartContext.HSFixBPMFactor1P * gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentBPM();
                 double hs = gPlayContext.Hispeed;
                 int lcTop = gNumbers.get(eNumber::LANECOVER_TOP_1P);
                 int lcBottom = gNumbers.get(eNumber::LANECOVER_BOTTOM_1P);
                 double visible = std::max(0, (1000 - lcTop - lcBottom)) / 1000.0;
-                _lockspeedValue[PLAYER_SLOT_1P] = (visible == 0.0) ? std::numeric_limits<double>::max() : (bpm * hs / visible);
+                _lockspeedValue[PLAYER_SLOT_PLAYER] = (visible == 0.0) ? std::numeric_limits<double>::max() : (bpm * hs / visible);
 
                 double den = hs * bpm;
-                _lockspeedGreenNumber[PLAYER_SLOT_1P] = den != 0.0 ? int(std::round(visible * 120.0 * 1200 / hs / bpm)) : 0;
+                _lockspeedGreenNumber[PLAYER_SLOT_PLAYER] = den != 0.0 ? int(std::round(visible * 120.0 * 1200 / hs / bpm)) : 0;
             }
         }
         else
         {
-            _selectPressedTime[PLAYER_SLOT_1P] = t;
+            _selectPressedTime[PLAYER_SLOT_PLAYER] = t;
         }
     }
     if (isPlaymodeBattle() && input[K2SELECT])
     {
-        if (t > _selectPressedTime[PLAYER_SLOT_2P] && (t - _selectPressedTime[PLAYER_SLOT_2P]).norm() < 200)
+        if (t > _selectPressedTime[PLAYER_SLOT_TARGET] && (t - _selectPressedTime[PLAYER_SLOT_TARGET]).norm() < 200)
         {
-            _lockspeedEnabled[PLAYER_SLOT_2P] = !_lockspeedEnabled[PLAYER_SLOT_2P];
-            _selectPressedTime[PLAYER_SLOT_2P] = TIMER_NEVER;
+            _lockspeedEnabled[PLAYER_SLOT_TARGET] = !_lockspeedEnabled[PLAYER_SLOT_TARGET];
+            _selectPressedTime[PLAYER_SLOT_TARGET] = TIMER_NEVER;
 
-            gSwitches.set(eSwitch::P2_LOCK_SPEED, _lockspeedEnabled[PLAYER_SLOT_1P]);
-            if (_lockspeedEnabled[PLAYER_SLOT_2P])
+            gSwitches.set(eSwitch::P2_LOCK_SPEED, _lockspeedEnabled[PLAYER_SLOT_PLAYER]);
+            if (_lockspeedEnabled[PLAYER_SLOT_TARGET])
             {
-                double bpm = gChartContext.HSFixBPMFactor2P * gPlayContext.chartObj[PLAYER_SLOT_2P]->getCurrentBPM();
+                double bpm = gChartContext.HSFixBPMFactor2P * gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getCurrentBPM();
                 double hs = gPlayContext.battle2PHispeed;
                 int lcTop = gNumbers.get(eNumber::LANECOVER_TOP_2P);
                 int lcBottom = gNumbers.get(eNumber::LANECOVER_BOTTOM_2P);
                 double visible = std::max(0, (1000 - lcTop - lcBottom)) / 1000.0;
-                _lockspeedValue[PLAYER_SLOT_2P] = (visible == 0.0) ? std::numeric_limits<double>::max() : (bpm * hs / visible);
+                _lockspeedValue[PLAYER_SLOT_TARGET] = (visible == 0.0) ? std::numeric_limits<double>::max() : (bpm * hs / visible);
 
                 double den = hs * bpm;
-                _lockspeedGreenNumber[PLAYER_SLOT_1P] = den != 0.0 ? int(std::round(visible * 120.0 * 1200 / hs / bpm)) : 0;
+                _lockspeedGreenNumber[PLAYER_SLOT_PLAYER] = den != 0.0 ? int(std::round(visible * 120.0 * 1200 / hs / bpm)) : 0;
             }
         }
         else
         {
-            _selectPressedTime[PLAYER_SLOT_2P] = t;
+            _selectPressedTime[PLAYER_SLOT_TARGET] = t;
         }
     }
 
 
     if (true)
     {
-        if (input[K1START] || !isPlaymodeBattle() && input[K2START]) _isHoldingStart[PLAYER_SLOT_1P] = true;
-        if (input[K1SELECT] || !isPlaymodeBattle() && input[K2SELECT]) _isHoldingSelect[PLAYER_SLOT_1P] = true;
+        if (input[K1START] || !isPlaymodeBattle() && input[K2START]) _isHoldingStart[PLAYER_SLOT_PLAYER] = true;
+        if (input[K1SELECT] || !isPlaymodeBattle() && input[K2SELECT]) _isHoldingSelect[PLAYER_SLOT_PLAYER] = true;
 
         bool white = (input[K11] || input[K13] || input[K15] || input[K17] || input[K19]) ||
             !isPlaymodeBattle() && (input[K21] || input[K23] || input[K25] || input[K27] || input[K29]);
         bool black = (input[K12] || input[K14] || input[K16] || input[K18]) ||
             !isPlaymodeBattle() && (input[K22] || input[K24] || input[K26] || input[K28]);
 
-        if (input[K1SPDUP] || !isPlaymodeBattle() && input[K2SPDUP] || _isHoldingStart[PLAYER_SLOT_1P] && black)
+        if (input[K1SPDUP] || !isPlaymodeBattle() && input[K2SPDUP] || _isHoldingStart[PLAYER_SLOT_PLAYER] && black)
         {
             if (gPlayContext.Hispeed < 10.0)
             {
@@ -2004,7 +2004,7 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
             }
         }
 
-        if (input[K1SPDDN] || !isPlaymodeBattle() && input[K2SPDDN] || _isHoldingStart[PLAYER_SLOT_1P] && white)
+        if (input[K1SPDDN] || !isPlaymodeBattle() && input[K2SPDDN] || _isHoldingStart[PLAYER_SLOT_PLAYER] && white)
         {
             if (gPlayContext.Hispeed > 0.25)
             {
@@ -2016,8 +2016,8 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
     }
     if (isPlaymodeBattle())
     {
-        if (input[K2START]) _isHoldingStart[PLAYER_SLOT_2P] = true;
-        if (input[K2SELECT]) _isHoldingSelect[PLAYER_SLOT_2P] = true;
+        if (input[K2START]) _isHoldingStart[PLAYER_SLOT_TARGET] = true;
+        if (input[K2SELECT]) _isHoldingSelect[PLAYER_SLOT_TARGET] = true;
 
         bool white = (input[K21] || input[K23] || input[K25] || input[K27] || input[K29]);
         bool black = (input[K22] || input[K24] || input[K26] || input[K28]);
@@ -2054,22 +2054,22 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
 
             if (isPlaymodeBattle())
             {
-                if (!_isPlayerFinished[PLAYER_SLOT_1P])
+                if (!_isPlayerFinished[PLAYER_SLOT_PLAYER])
                 {
-                    gPlayContext.ruleset[PLAYER_SLOT_1P]->fail();
+                    gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->fail();
                 }
-                if (!_isPlayerFinished[PLAYER_SLOT_2P])
+                if (!_isPlayerFinished[PLAYER_SLOT_TARGET])
                 {
-                    gPlayContext.ruleset[PLAYER_SLOT_2P]->fail();
+                    gPlayContext.ruleset[PLAYER_SLOT_TARGET]->fail();
                 }
             }
             else
             {
-                if (!_isPlayerFinished[PLAYER_SLOT_1P])
+                if (!_isPlayerFinished[PLAYER_SLOT_PLAYER])
                 {
-                    gPlayContext.ruleset[PLAYER_SLOT_1P]->fail();
-                    if (gPlayContext.ruleset[PLAYER_SLOT_2P])
-                        gPlayContext.ruleset[PLAYER_SLOT_2P]->fail();
+                    gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->fail();
+                    if (gPlayContext.ruleset[PLAYER_SLOT_TARGET])
+                        gPlayContext.ruleset[PLAYER_SLOT_TARGET]->fail();
                 }
             }
 
@@ -2128,68 +2128,68 @@ void ScenePlay::inputGameHold(InputMask& m, const Time& t)
     auto input = _inputAvailable & m;
 
     // turntable spin
-    if (input[S1L]) _ttAngleDiff[PLAYER_SLOT_1P] -= 0.5;
-    if (input[S1R]) _ttAngleDiff[PLAYER_SLOT_1P] += 0.5;
+    if (input[S1L]) _ttAngleDiff[PLAYER_SLOT_PLAYER] -= 0.5;
+    if (input[S1R]) _ttAngleDiff[PLAYER_SLOT_PLAYER] += 0.5;
     if (!isPlaymodeDP() && !isPlaymodeBattle())
     {
-        if (input[S2L]) _ttAngleDiff[PLAYER_SLOT_1P] -= 0.5;
-        if (input[S2R]) _ttAngleDiff[PLAYER_SLOT_1P] += 0.5;
+        if (input[S2L]) _ttAngleDiff[PLAYER_SLOT_PLAYER] -= 0.5;
+        if (input[S2R]) _ttAngleDiff[PLAYER_SLOT_PLAYER] += 0.5;
     }
     else
     {
-        if (input[S2L]) _ttAngleDiff[PLAYER_SLOT_2P] -= 0.5;
-        if (input[S2R]) _ttAngleDiff[PLAYER_SLOT_2P] += 0.5;
+        if (input[S2L]) _ttAngleDiff[PLAYER_SLOT_TARGET] -= 0.5;
+        if (input[S2R]) _ttAngleDiff[PLAYER_SLOT_TARGET] += 0.5;
     }
 
     // lanecover
-    if (_lanecoverEnabled[PLAYER_SLOT_1P])
+    if (_lanecoverEnabled[PLAYER_SLOT_PLAYER])
     {
-        if (_isHoldingStart[PLAYER_SLOT_1P] || !isPlaymodeBattle() && _isHoldingStart[PLAYER_SLOT_2P])
+        if (_isHoldingStart[PLAYER_SLOT_PLAYER] || !isPlaymodeBattle() && _isHoldingStart[PLAYER_SLOT_TARGET])
         {
             if (input[S1L])
-                _lanecoverAdd[PLAYER_SLOT_1P]--;  // -1 per ms
+                _lanecoverAdd[PLAYER_SLOT_PLAYER]--;  // -1 per ms
             if (!isPlaymodeBattle() && input[S2L])
-                _lanecoverAdd[PLAYER_SLOT_1P]--;  // -1 per ms
+                _lanecoverAdd[PLAYER_SLOT_PLAYER]--;  // -1 per ms
             if (input[S1R])
-                _lanecoverAdd[PLAYER_SLOT_1P]++;  // +1 per ms
+                _lanecoverAdd[PLAYER_SLOT_PLAYER]++;  // +1 per ms
             if (!isPlaymodeBattle() && input[S2R])
-                _lanecoverAdd[PLAYER_SLOT_1P]++;  // +1 per ms
+                _lanecoverAdd[PLAYER_SLOT_PLAYER]++;  // +1 per ms
         }
     }
-    if (isPlaymodeBattle() && _lanecoverEnabled[PLAYER_SLOT_2P])
+    if (isPlaymodeBattle() && _lanecoverEnabled[PLAYER_SLOT_TARGET])
     {
-        if (_isHoldingStart[PLAYER_SLOT_2P])
+        if (_isHoldingStart[PLAYER_SLOT_TARGET])
         {
             if (input[S2L])
-                _lanecoverAdd[PLAYER_SLOT_2P]--;  // -1 per ms
+                _lanecoverAdd[PLAYER_SLOT_TARGET]--;  // -1 per ms
             if (input[S2R])
-                _lanecoverAdd[PLAYER_SLOT_2P]++;  // +1 per ms
+                _lanecoverAdd[PLAYER_SLOT_TARGET]++;  // +1 per ms
         }
     }
 
     // hispeed
     if (true)
     {
-        if (_isHoldingSelect[PLAYER_SLOT_1P] || !isPlaymodeBattle() && _isHoldingSelect[PLAYER_SLOT_2P])
+        if (_isHoldingSelect[PLAYER_SLOT_PLAYER] || !isPlaymodeBattle() && _isHoldingSelect[PLAYER_SLOT_TARGET])
         {
             if (input[S1L]) 
-                _hispeedAdd[PLAYER_SLOT_1P]--;  // -1 per ms
+                _hispeedAdd[PLAYER_SLOT_PLAYER]--;  // -1 per ms
             if (!isPlaymodeBattle() && input[S2L])
-                _hispeedAdd[PLAYER_SLOT_1P]--;  // -1 per ms
+                _hispeedAdd[PLAYER_SLOT_PLAYER]--;  // -1 per ms
             if (input[S1R])
-                _hispeedAdd[PLAYER_SLOT_1P]++;  // +1 per ms
+                _hispeedAdd[PLAYER_SLOT_PLAYER]++;  // +1 per ms
             if (!isPlaymodeBattle() && input[S2R])
-                _hispeedAdd[PLAYER_SLOT_1P]++;  // +1 per ms
+                _hispeedAdd[PLAYER_SLOT_PLAYER]++;  // +1 per ms
         }
     }
     if (isPlaymodeBattle())
     {
-        if (_isHoldingSelect[PLAYER_SLOT_2P])
+        if (_isHoldingSelect[PLAYER_SLOT_TARGET])
         {
             if (input[S2L])
-                _hispeedAdd[PLAYER_SLOT_2P]--;  // -1 per ms
+                _hispeedAdd[PLAYER_SLOT_TARGET]--;  // -1 per ms
             if (input[S2R])
-                _hispeedAdd[PLAYER_SLOT_2P]++;  // +1 per ms
+                _hispeedAdd[PLAYER_SLOT_TARGET]++;  // +1 per ms
         }
     }
 }
@@ -2238,12 +2238,12 @@ void ScenePlay::inputGameRelease(InputMask& m, const Time& t)
         if (input[K2SELECT]) { cmd.type = ReplayChart::Commands::Type::K2SELECT_UP; gPlayContext.replayNew->commands.push_back(cmd); }
     }
 
-    if (input[K1START] || !isPlaymodeBattle() && input[K2START]) _isHoldingStart[PLAYER_SLOT_1P] = false;
-    if (input[K1SELECT] || !isPlaymodeBattle() && input[K2SELECT]) _isHoldingSelect[PLAYER_SLOT_1P] = false;
+    if (input[K1START] || !isPlaymodeBattle() && input[K2START]) _isHoldingStart[PLAYER_SLOT_PLAYER] = false;
+    if (input[K1SELECT] || !isPlaymodeBattle() && input[K2SELECT]) _isHoldingSelect[PLAYER_SLOT_PLAYER] = false;
     if (isPlaymodeBattle())
     {
-        if (input[K2START]) _isHoldingStart[PLAYER_SLOT_2P] = false;
-        if (input[K2SELECT]) _isHoldingSelect[PLAYER_SLOT_2P] = false;
+        if (input[K2START]) _isHoldingStart[PLAYER_SLOT_TARGET] = false;
+        if (input[K2SELECT]) _isHoldingSelect[PLAYER_SLOT_TARGET] = false;
     }
 }
 
@@ -2290,60 +2290,60 @@ void ScenePlay::inputGameAxis(double S1, double S2, const Time& t)
     // turntable spin
     if (true)
     {
-        _ttAngleDiff[PLAYER_SLOT_1P] += S1 * 2.0 * 360;
+        _ttAngleDiff[PLAYER_SLOT_PLAYER] += S1 * 2.0 * 360;
     }
     if (!isPlaymodeDP() && !isPlaymodeBattle())
     {
-        _ttAngleDiff[PLAYER_SLOT_1P] += S2 * 2.0 * 360;
+        _ttAngleDiff[PLAYER_SLOT_PLAYER] += S2 * 2.0 * 360;
     }
     else
     {
-        _ttAngleDiff[PLAYER_SLOT_2P] += S2 * 2.0 * 360;
+        _ttAngleDiff[PLAYER_SLOT_TARGET] += S2 * 2.0 * 360;
     }
 
     if (!gPlayContext.isAuto && (!gPlayContext.isReplay || !gChartContext.started))
     {
-        _scratchAccumulator[PLAYER_SLOT_1P] += S1;
-        _scratchAccumulator[PLAYER_SLOT_2P] += S2;
+        _scratchAccumulator[PLAYER_SLOT_PLAYER] += S1;
+        _scratchAccumulator[PLAYER_SLOT_TARGET] += S2;
 
         // lanecover
         double lanecoverThreshold = 0.0002;
-        if (_lanecoverEnabled[PLAYER_SLOT_1P])
+        if (_lanecoverEnabled[PLAYER_SLOT_PLAYER])
         {
-            if (_isHoldingStart[PLAYER_SLOT_1P])
+            if (_isHoldingStart[PLAYER_SLOT_PLAYER])
             {
-                _lanecoverAdd[PLAYER_SLOT_1P] += (int)std::round(S1 / lanecoverThreshold);
+                _lanecoverAdd[PLAYER_SLOT_PLAYER] += (int)std::round(S1 / lanecoverThreshold);
             }
-            if (!isPlaymodeBattle() && _isHoldingStart[PLAYER_SLOT_2P])
+            if (!isPlaymodeBattle() && _isHoldingStart[PLAYER_SLOT_TARGET])
             {
-                _lanecoverAdd[PLAYER_SLOT_1P] += (int)std::round(S2 / lanecoverThreshold);
+                _lanecoverAdd[PLAYER_SLOT_PLAYER] += (int)std::round(S2 / lanecoverThreshold);
             }
         }
-        if (isPlaymodeBattle() && _lanecoverEnabled[PLAYER_SLOT_2P])
+        if (isPlaymodeBattle() && _lanecoverEnabled[PLAYER_SLOT_TARGET])
         {
-            if (_isHoldingStart[PLAYER_SLOT_2P])
+            if (_isHoldingStart[PLAYER_SLOT_TARGET])
             {
-                _lanecoverAdd[PLAYER_SLOT_2P] += (int)std::round(S2 / lanecoverThreshold);
+                _lanecoverAdd[PLAYER_SLOT_TARGET] += (int)std::round(S2 / lanecoverThreshold);
             }
         }
 
         // hispeed
         if (true)
         {
-            if (_isHoldingSelect[PLAYER_SLOT_1P])
+            if (_isHoldingSelect[PLAYER_SLOT_PLAYER])
             {
-                _hispeedAdd[PLAYER_SLOT_1P] += (int)std::round(S1 / lanecoverThreshold);
+                _hispeedAdd[PLAYER_SLOT_PLAYER] += (int)std::round(S1 / lanecoverThreshold);
             }
-            if (!isPlaymodeBattle() && _isHoldingSelect[PLAYER_SLOT_2P])
+            if (!isPlaymodeBattle() && _isHoldingSelect[PLAYER_SLOT_TARGET])
             {
-                _hispeedAdd[PLAYER_SLOT_1P] += (int)std::round(S2 / lanecoverThreshold);
+                _hispeedAdd[PLAYER_SLOT_PLAYER] += (int)std::round(S2 / lanecoverThreshold);
             }
         }
         if (isPlaymodeBattle())
         {
-            if (_isHoldingSelect[PLAYER_SLOT_2P])
+            if (_isHoldingSelect[PLAYER_SLOT_TARGET])
             {
-                _hispeedAdd[PLAYER_SLOT_2P] += (int)std::round(S2 / lanecoverThreshold);
+                _hispeedAdd[PLAYER_SLOT_TARGET] += (int)std::round(S2 / lanecoverThreshold);
             }
         }
     }
