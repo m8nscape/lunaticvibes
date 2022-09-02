@@ -427,11 +427,10 @@ void SceneSelect::updateSelect()
     {
         std::stringstream ss;
         bool lock1 = ConfigMgr::get('P', cfg::P_LOCK_SPEED, false);
-
         if (lock1) ss << "G(1P): FIX " << ConfigMgr::get('P', cfg::P_GREENNUMBER, 0);
 
         bool lock2 = gPlayContext.battle2PLockSpeed;
-        if (lock2) ss << (lock1 ? "\n" : "") << "G(2P): " << gPlayContext.battle2PGreenNumber;
+        if (lock2) ss << (lock1 ? " | " : "") << "G(2P): FIX " << gPlayContext.battle2PGreenNumber;
 
         gTexts.set(eText::_OVERLAY_TOPLEFT, ss.str());
     }

@@ -1591,6 +1591,7 @@ chart::NoteLaneIndex NoteIdxToLane(eMode gamemode, int idx)
         return lane[idx];
     }
     }
+    return _;
 }
 
 ParseRet SkinLR2::SRC_NOTE(DefType type)

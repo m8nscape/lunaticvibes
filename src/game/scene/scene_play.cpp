@@ -804,7 +804,7 @@ void ScenePlay::_updateAsync()
     // update lanecover / hispeed change
     int lcThreshold = getRate() / 200;  // lanecover, +200 per second
     int hsThreshold = getRate() / 25;   // hispeed, +25 per second
-    if (!isPlaymodeBattle())
+    if (true)
     {
         // TODO SUD+ or HID+/LIFT?
         int lc = gNumbers.get(eNumber::LANECOVER_TOP_1P);
@@ -893,7 +893,7 @@ void ScenePlay::_updateAsync()
         }
 
     }
-    else
+    if (isPlaymodeBattle())
     {
         // TODO SUD+ or HID+/LIFT?
         int lc = gNumbers.get(eNumber::LANECOVER_TOP_2P);
@@ -1602,7 +1602,7 @@ void ScenePlay::updateFadeout()
             bool cleared = false;
             if (isPlaymodeBattle())
             {
-                if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isCleared() &&
+                if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isCleared() ||
                     gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isCleared())
                     cleared = true;
             }
@@ -1637,7 +1637,7 @@ void ScenePlay::updateFadeout()
                 gPlayContext.battle2PLanecoverBottom = gNumbers.get(eNumber::LANECOVER_BOTTOM_2P);
             }
             gPlayContext.battle2PLockSpeed = _lockspeedEnabled[PLAYER_SLOT_TARGET];
-            if (_lockspeedEnabled[PLAYER_SLOT_PLAYER])
+            if (_lockspeedEnabled[PLAYER_SLOT_TARGET])
             {
                 gPlayContext.battle2PGreenNumber = _lockspeedGreenNumber[PLAYER_SLOT_TARGET];
             }
@@ -2025,15 +2025,15 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
         bool white = (input[K21] || input[K23] || input[K25] || input[K27] || input[K29]);
         bool black = (input[K22] || input[K24] || input[K26] || input[K28]);
 
-        if (input[K2SPDUP] || black)
+        if (input[K2SPDUP] || _isHoldingStart[PLAYER_SLOT_TARGET] && black)
         {
             if (gPlayContext.battle2PHispeed < 10.0)
             {
                 gPlayContext.battle2PHispeed = std::min(gPlayContext.battle2PHispeed + 0.25, 10.0);
-                gNumbers.queue(eNumber::HS_1P, (int)std::round(gPlayContext.Hispeed * 100));
+                gNumbers.queue(eNumber::HS_2P, (int)std::round(gPlayContext.battle2PHispeed * 100));
             }
         }
-        if (input[K2SPDDN] || white)
+        if (input[K2SPDDN] || _isHoldingStart[PLAYER_SLOT_TARGET] && white)
         {
             if (gPlayContext.battle2PHispeed > 0.25)
             {

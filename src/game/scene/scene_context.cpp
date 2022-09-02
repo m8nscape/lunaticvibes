@@ -97,10 +97,10 @@ void pushGraphPoints()
     gPlayContext.graphScore[PLAYER_SLOT_PLAYER].push_back(gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().score2);
 
     if (gPlayContext.ruleset[PLAYER_SLOT_TARGET])
+    {
+        gPlayContext.graphGauge[PLAYER_SLOT_TARGET].push_back(gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData().health * 100);
         gPlayContext.graphScore[PLAYER_SLOT_TARGET].push_back(gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData().score2);
-
-    gPlayContext.graphScore[PLAYER_SLOT_TARGET].push_back(static_cast<int>(std::floor(
-        gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getCurrentMaxScore() * (0.01 * gNumbers.get(eNumber::DEFAULT_TARGET_RATE)))));
+    }
 
     if (!gPlayContext.isAuto && !gPlayContext.isReplay && gPlayContext.replayMybest)
     {

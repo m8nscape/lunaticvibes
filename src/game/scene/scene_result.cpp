@@ -42,6 +42,13 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
 
         gNumbers.queue(eNumber::PLAY_1P_EXSCORE_DIFF, d1p.score2 - d2p.score2);
         gNumbers.queue(eNumber::PLAY_2P_EXSCORE_DIFF, d2p.score2 - d1p.score2);
+
+        if (d1p.score2 > d2p.score2)
+            gOptions.queue(eOption::RESULT_BATTLE_WIN_LOSE, 1);
+        else if (d1p.score2 < d2p.score2)
+            gOptions.queue(eOption::RESULT_BATTLE_WIN_LOSE, 2);
+        else
+            gOptions.queue(eOption::RESULT_BATTLE_WIN_LOSE, 0);
     }
 
     // TODO set chart info (total notes, etc.)

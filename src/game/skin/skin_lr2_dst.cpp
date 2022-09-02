@@ -772,6 +772,14 @@ void updateDstOpt()
 	// 352 1PWIN 2PLOSE
 	// 353 1PLOSE 2PWIN
 	// 354 DRAW
+	{
+		switch (gOptions.get(eOption::RESULT_BATTLE_WIN_LOSE))
+		{
+		case 0: set(354); break;
+		case 1: set(352); break;
+		case 2: set(353); break;
+		}
+	}
 
 
 	// ///////////////////////////////////

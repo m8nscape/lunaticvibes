@@ -33,10 +33,10 @@ protected:
 
 private:
     bool _isExitingFromPlay = false;
-    std::array<bool, 2>     _isPlayerFinished{ false };
+    std::array<bool, 2>     _isPlayerFinished{ false, false };
 
-    std::array<bool, 2>     _isHoldingStart = { false };
-    std::array<bool, 2>     _isHoldingSelect = { false };
+    std::array<bool, 2>     _isHoldingStart = { false, false };
+    std::array<bool, 2>     _isHoldingSelect = { false, false };
     std::array<Time, 2>     _startPressedTime = { TIMER_NEVER, TIMER_NEVER };
     std::array<Time, 2>     _selectPressedTime = { TIMER_NEVER, TIMER_NEVER };
 

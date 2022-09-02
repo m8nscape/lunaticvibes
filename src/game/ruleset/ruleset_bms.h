@@ -58,29 +58,37 @@ public:
 
     typedef std::map<chart::NoteLaneIndex, eTimer> NoteLaneTimerMap;
 
-    inline static const NoteLaneTimerMap bombTimer7k = {
+    inline static const NoteLaneTimerMap bombTimer5k = { {
         {chart::Sc1, eTimer::S1_BOMB},
         {chart::K1,  eTimer::K11_BOMB},
         {chart::K2,  eTimer::K12_BOMB},
         {chart::K3,  eTimer::K13_BOMB},
         {chart::K4,  eTimer::K14_BOMB},
         {chart::K5,  eTimer::K15_BOMB},
-        {chart::K6,  eTimer::K16_BOMB},
-        {chart::K7,  eTimer::K17_BOMB},
-    };
+        {chart::K6,  eTimer::K21_BOMB},
+        {chart::K7,  eTimer::K22_BOMB},
+        {chart::K8,  eTimer::K23_BOMB},
+        {chart::K9,  eTimer::K24_BOMB},
+        {chart::K10, eTimer::K25_BOMB},
+        {chart::Sc2, eTimer::S2_BOMB},
+    } };
 
-    inline static const NoteLaneTimerMap bombTimer7kLN = { {
-        {chart::Sc1, eTimer::S1_LN_BOMB },
+    inline static const NoteLaneTimerMap bombTimer5kLN = { {
+        {chart::Sc1, eTimer::S1_LN_BOMB},
         {chart::K1,  eTimer::K11_LN_BOMB},
         {chart::K2,  eTimer::K12_LN_BOMB},
         {chart::K3,  eTimer::K13_LN_BOMB},
         {chart::K4,  eTimer::K14_LN_BOMB},
         {chart::K5,  eTimer::K15_LN_BOMB},
-        {chart::K6,  eTimer::K16_LN_BOMB},
-        {chart::K7,  eTimer::K17_LN_BOMB},
+        {chart::K6,  eTimer::K21_LN_BOMB},
+        {chart::K7,  eTimer::K22_LN_BOMB},
+        {chart::K8,  eTimer::K23_LN_BOMB},
+        {chart::K9,  eTimer::K24_LN_BOMB},
+        {chart::K10, eTimer::K25_LN_BOMB},
+        {chart::Sc2, eTimer::S2_LN_BOMB},
     } };
 
-    inline static const NoteLaneTimerMap bombTimer14k = { {
+    inline static const NoteLaneTimerMap bombTimer7k = { {
         {chart::Sc1, eTimer::S1_BOMB},
         {chart::K1,  eTimer::K11_BOMB},
         {chart::K2,  eTimer::K12_BOMB},
@@ -99,7 +107,7 @@ public:
         {chart::Sc2, eTimer::S2_BOMB},
     } };
 
-    inline static const NoteLaneTimerMap bombTimer14kLN = { {
+    inline static const NoteLaneTimerMap bombTimer7kLN = { {
         {chart::Sc1, eTimer::S1_LN_BOMB},
         {chart::K1,  eTimer::K11_LN_BOMB},
         {chart::K2,  eTimer::K12_LN_BOMB},
