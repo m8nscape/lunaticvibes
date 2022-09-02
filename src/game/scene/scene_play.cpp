@@ -321,7 +321,6 @@ bool ScenePlay::createChartObj()
     case eChartFormat::BMS:
     {
         auto bms = std::reinterpret_pointer_cast<ChartFormatBMS>(gChartContext.chartObj);
-        // TODO mods
 
         if (gPlayContext.isAuto || gPlayContext.isReplay)
         {
@@ -506,8 +505,11 @@ bool ScenePlay::createRuleset()
                 gTexts.queue(eText::TARGET_NAME, "RATE "s + std::to_string(targetRate) + "%"s);
                 break;
             }
-            std::reinterpret_pointer_cast<RulesetBMSAuto>(gPlayContext.ruleset[PLAYER_SLOT_TARGET])->setTargetRate(targetRateReal);
-            gBargraphs.queue(eBargraph::PLAY_RIVAL_EXSCORE_FINAL, targetRateReal);
+            if (!gPlayContext.isBattle)
+            {
+                std::reinterpret_pointer_cast<RulesetBMSAuto>(gPlayContext.ruleset[PLAYER_SLOT_TARGET])->setTargetRate(targetRateReal);
+                gBargraphs.queue(eBargraph::PLAY_RIVAL_EXSCORE_FINAL, targetRateReal);
+            }
         }
 
         // load mybest score
@@ -1206,7 +1208,7 @@ void ScenePlay::_updateAsync()
 
         if (playSample)
         {
-            if (slot == PLAYER_SLOT_PLAYER)
+            if (slot == PLAYER_SLOT_PLAYER && !gPlayContext.isBattle || gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isFailed())
             {
                 if (_scratchDir[slot] == AxisDir::AXIS_UP && _currentKeySample[Input::S1L])
                     keySampleIdxBufScratch[sampleCount++] = _currentKeySample[Input::S1L];
@@ -1215,7 +1217,7 @@ void ScenePlay::_updateAsync()
 
                 SoundMgr::playNoteSample(SoundChannelType::KEY_LEFT, sampleCount, keySampleIdxBufScratch.data());
             }
-            else
+            else if (!gPlayContext.isBattle || gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFailed())
             {
                 if (_scratchDir[slot] == AxisDir::AXIS_UP && _currentKeySample[Input::S2L])
                     keySampleIdxBufScratch[sampleCount++] = _currentKeySample[Input::S2L];
@@ -2089,20 +2091,6 @@ void ScenePlay::inputGamePressTimer(InputMask& input, const Time& t)
 {
     using namespace Input;
 
-    size_t sampleCount = 0;
-    for (size_t i = S1L; i < LANE_COUNT; ++i)
-    {
-        if (input[i])
-        {
-            if (_currentKeySample[i])
-                _keySampleIdxBuf[sampleCount++] = _currentKeySample[i];
-            gTimers.queue(InputGamePressMapSingle[i].tm, t.norm());
-            gTimers.queue(InputGameReleaseMapSingle[i].tm, TIMER_NEVER);
-            gSwitches.queue(InputGamePressMapSingle[i].sw, true);
-        }
-    }
-    SoundMgr::playNoteSample(SoundChannelType::KEY_LEFT, sampleCount, (size_t*)&_keySampleIdxBuf[0]);
-
     if (input[S1L] || input[S1R] || !(isPlaymodeBattle() || isPlaymodeDP()) && (input[S2L] || input[S2R]))
     {
         _scratchDir[PLAYER_SLOT_PLAYER] = (input[S1L] || input[S2L]) ? AxisDir::AXIS_UP : AxisDir::AXIS_DOWN;
@@ -2121,6 +2109,29 @@ void ScenePlay::inputGamePressTimer(InputMask& input, const Time& t)
             gSwitches.queue(eSwitch::S2_DOWN, true);
         }
     }
+
+    InputMask inputSample = input;
+    if (gPlayContext.isBattle)
+    {
+        if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isFailed()) input &= ~INPUT_MASK_1P;
+        if (gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFailed()) input &= ~INPUT_MASK_2P;
+    }
+    size_t sampleCount = 0;
+    for (size_t i = S1L; i < LANE_COUNT; ++i)
+    {
+        if (inputSample[i])
+        {
+            if (_currentKeySample[i])
+                _keySampleIdxBuf[sampleCount++] = _currentKeySample[i];
+        }
+        if (input[i])
+        {
+            gTimers.queue(InputGamePressMapSingle[i].tm, t.norm());
+            gTimers.queue(InputGameReleaseMapSingle[i].tm, TIMER_NEVER);
+            gSwitches.queue(InputGamePressMapSingle[i].sw, true);
+        }
+    }
+    SoundMgr::playNoteSample(SoundChannelType::KEY_LEFT, sampleCount, (size_t*)&_keySampleIdxBuf[0]);
 }
 
 // CALLBACK

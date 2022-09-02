@@ -87,7 +87,7 @@ void clearContextPlay()
     gPlayContext.isCourseFirstStage = false;
 
     // gPlayContext.replay.reset();     // load at setEntryInfo() @ scene_context.cpp
-    gPlayContext.replayMybest.reset();  // load at _decide() @ scene_play.cpp
+    gPlayContext.replayMybest.reset();  // load at _decide() @ scene_select.cpp
 }
 
 void pushGraphPoints()

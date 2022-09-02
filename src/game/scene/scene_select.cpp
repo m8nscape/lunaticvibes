@@ -114,7 +114,6 @@ void config_player()
     default:                    ConfigMgr::set('P',P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_ALL); break;
     }
 
-    ConfigMgr::set('P',P_BATTLE, gOptions.get(eOption::PLAY_BATTLE_TYPE) != 0);
     ConfigMgr::set('P',P_FLIP, gSwitches.get(eSwitch::PLAY_OPTION_DP_FLIP));
     ConfigMgr::set('P',P_SCORE_GRAPH, gSwitches.get(eSwitch::SYSTEM_SCOREGRAPH));
 }
@@ -1064,13 +1063,25 @@ void SceneSelect::_decide()
             case 14: gPlayContext.mode = eMode::PLAY14; break;
             default: gPlayContext.mode = eMode::PLAY7;  break;
             }
-            if (gOptions.get(eOption::PLAY_BATTLE_TYPE) == Option::BATTLE_DB)
+            if (gOptions.get(eOption::PLAY_BATTLE_TYPE) == Option::BATTLE_LOCAL || gOptions.get(eOption::PLAY_BATTLE_TYPE) == Option::BATTLE_GHOST)
+            {
+                switch (pBMS->gamemode)
+                {
+                case 5:  gPlayContext.mode = eMode::PLAY5_2;  break;
+                case 7:  gPlayContext.mode = eMode::PLAY7_2;  break;
+                case 9:  gPlayContext.mode = eMode::PLAY9;  break;
+                case 10: gPlayContext.mode = eMode::PLAY10; break;
+                case 14: gPlayContext.mode = eMode::PLAY14; break;
+                default: assert(false); break;
+                }
+            }
+            else if (gOptions.get(eOption::PLAY_BATTLE_TYPE) == Option::BATTLE_DB)
             {
                 switch (pBMS->gamemode)
                 {
                 case 5:  gPlayContext.mode = eMode::PLAY10;  break;
                 case 7:  gPlayContext.mode = eMode::PLAY14;  break;
-                default: break;
+                default: assert(false); break;
                 }
                 gChartContext.isDoubleBattle = true;
             }
@@ -1082,12 +1093,14 @@ void SceneSelect::_decide()
         case eMode::PLAY7:
         case eMode::PLAY9:
             assert(!gPlayContext.isBattle);
+            assert(!gChartContext.isDoubleBattle);
             break;
 
         case eMode::PLAY5_2:
         case eMode::PLAY7_2:
         case eMode::PLAY9_2:
             assert(gPlayContext.isBattle);
+            assert(!gChartContext.isDoubleBattle);
             break;
 
         case eMode::PLAY10:
@@ -1174,7 +1187,17 @@ void SceneSelect::_decide()
             };
         };
         gPlayContext.mods[PLAYER_SLOT_PLAYER].randomLeft = convertRandomType(gOptions.get(eOption::PLAY_RANDOM_TYPE_1P));
-        gPlayContext.mods[PLAYER_SLOT_TARGET].randomLeft = convertRandomType(gOptions.get(gPlayContext.isBattle ? eOption::PLAY_RANDOM_TYPE_2P : eOption::PLAY_RANDOM_TYPE_1P));
+        if (gPlayContext.isBattle)
+        {
+            // notes are loaded in 2P area, we should check randomRight instead of randomLeft
+            gPlayContext.mods[PLAYER_SLOT_TARGET].randomRight = convertRandomType(gOptions.get(eOption::PLAY_RANDOM_TYPE_2P));
+        }
+        else
+        {
+            // copy 1P setting for target
+            gPlayContext.mods[PLAYER_SLOT_TARGET].randomLeft = convertRandomType(gOptions.get(eOption::PLAY_RANDOM_TYPE_1P));
+        }
+
         if (gPlayContext.mode == eMode::PLAY10 || gPlayContext.mode == eMode::PLAY14)
         {
             gPlayContext.mods[PLAYER_SLOT_PLAYER].randomRight = convertRandomType(gOptions.get(eOption::PLAY_RANDOM_TYPE_2P));
@@ -1215,7 +1238,7 @@ void SceneSelect::_decide()
     }
     
     // score (mybest)
-    if (score && !score->replayFileName.empty())
+    if (!gPlayContext.isBattle && score && !score->replayFileName.empty())
     {
         Path replayFilePath = ReplayChart::getReplayPath(gChartContext.hash) / score->replayFileName;
         if (fs::is_regular_file(replayFilePath))

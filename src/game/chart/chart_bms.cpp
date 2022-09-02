@@ -110,28 +110,9 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
         seed = gPlayContext.replayMybest->randomSeed;
     std::mt19937_64 rng(seed);
 
-    switch (gPlayContext.mods[_playerSlot].randomLeft)
+    if (gPlayContext.isBattle && _playerSlot == PLAYER_SLOT_TARGET)
     {
-    case eModRandom::RANDOM:
-        std::shuffle(gameLaneMap.begin() + laneLeftStart, gameLaneMap.begin() + laneLeftEnd + 1, rng);
-        break;
-
-    case eModRandom::MIRROR:
-        std::reverse(gameLaneMap.begin() + laneLeftStart, gameLaneMap.begin() + laneLeftEnd + 1);
-        break;
-
-    case eModRandom::SRAN:
-    case eModRandom::HRAN:
-    case eModRandom::ALLSCR:
-        // handled below
-        break;
-
-    case eModRandom::NONE:
-    default: 
-        break;
-    }
-    if (isChartDP || gChartContext.isDoubleBattle)
-    {
+        // notes are loaded in 2P area, we should check randomRight instead of randomLeft
         switch (gPlayContext.mods[_playerSlot].randomRight)
         {
         case eModRandom::RANDOM:
@@ -141,16 +122,32 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
         case eModRandom::MIRROR:
             std::reverse(gameLaneMap.begin() + laneRightStart, gameLaneMap.begin() + laneRightEnd + 1);
             break;
-
-        case eModRandom::SRAN:
-        case eModRandom::HRAN:
-        case eModRandom::ALLSCR:
-            // handled below
+        }
+    }
+    else
+    {
+        switch (gPlayContext.mods[_playerSlot].randomLeft)
+        {
+        case eModRandom::RANDOM:
+            std::shuffle(gameLaneMap.begin() + laneLeftStart, gameLaneMap.begin() + laneLeftEnd + 1, rng);
             break;
 
-        case eModRandom::NONE:
-        default:
+        case eModRandom::MIRROR:
+            std::reverse(gameLaneMap.begin() + laneLeftStart, gameLaneMap.begin() + laneLeftEnd + 1);
             break;
+        }
+        if (isChartDP || gChartContext.isDoubleBattle)
+        {
+            switch (gPlayContext.mods[_playerSlot].randomRight)
+            {
+            case eModRandom::RANDOM:
+                std::shuffle(gameLaneMap.begin() + laneRightStart, gameLaneMap.begin() + laneRightEnd + 1, rng);
+                break;
+
+            case eModRandom::MIRROR:
+                std::reverse(gameLaneMap.begin() + laneRightStart, gameLaneMap.begin() + laneRightEnd + 1);
+                break;
+            }
         }
     }
 
@@ -257,7 +254,23 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
             // channel misorder (#xxx08, #xxx09) is already handled in chartformat object, do not convert here
             // 0 is Scratch, 1-9 are keys, matching by order
 
-            if (isChartDP && gPlayContext.mods[_playerSlot].DPFlip)
+            if (gPlayContext.isBattle && _playerSlot == PLAYER_SLOT_TARGET)
+            {
+                // load notes into 2P area
+                
+                // Regular Notes
+                push_notes(notes, eLanePriority::NOTE, LaneCode::NOTE1, 1);
+
+                // LN
+                push_notes_ln(notes, LaneCode::NOTELN1, 1);
+
+                // invisible
+                push_notes(notes, eLanePriority::INV, LaneCode::NOTEINV1, 1);
+
+                // mine, specify a damage by [01-ZZ] (decimalize/2) ZZ: instant gameover
+                push_notes(notes, eLanePriority::MINE, LaneCode::NOTEMINE1, 1);
+            }
+            else if (isChartDP && gPlayContext.mods[_playerSlot].DPFlip)
             {
                 // Regular Notes
                 push_notes(notes, eLanePriority::NOTE, LaneCode::NOTE2, 0);

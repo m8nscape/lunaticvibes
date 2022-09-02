@@ -166,7 +166,6 @@ namespace cfg
     constexpr char P_DIFFICULTY_FILTER_ANOTHER[] = "Another";
     constexpr char P_DIFFICULTY_FILTER_INSANE[] = "Insane";
 
-    constexpr char P_BATTLE[] = "Battle";
     constexpr char P_FLIP[] = "Flip";
     constexpr char P_SCORE_GRAPH[] = "ScoreGraph";
     constexpr char P_LANECOVER_ENABLE[] = "Lanecover";

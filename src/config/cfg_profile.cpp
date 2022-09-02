@@ -52,7 +52,6 @@ void ConfigProfile::setDefaults() noexcept
     set(P_FILTER_KEYS, P_FILTER_KEYS_ALL);
     set(P_SORT_MODE, P_SORT_MODE_FOLDER);
     set(P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_ALL);
-    set(P_BATTLE, false);
     set(P_FLIP, false);
     set(P_SCORE_GRAPH, false);
 

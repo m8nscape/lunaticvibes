@@ -580,10 +580,10 @@ void setText()
     }
 
     // battle
-    g.queue(e::BATTLE, ConfigMgr::get('P', P_BATTLE, true) ? "ON" : "OFF");
+    g.queue(e::BATTLE, "OFF");
 
     // flip
-    g.queue(e::FLIP, ConfigMgr::get('P', P_FLIP, true) ? "FLIP" : "OFF");
+    g.queue(e::FLIP, ConfigMgr::get('P', P_FLIP, true) ? "DP FLIP" : "OFF");
 
     // graph
     g.queue(e::SCORE_GRAPH, ConfigMgr::get('P', P_SCORE_GRAPH, true) ? "ON" : "OFF");

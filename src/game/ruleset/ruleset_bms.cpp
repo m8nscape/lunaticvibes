@@ -597,6 +597,8 @@ void RulesetBMS::_updateHp(JudgeType judge)
 
 void RulesetBMS::updateHit(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeType judge, int slot)
 {
+    if (isFailed()) return;
+
     ++_judgeCount[judge];
     ++_basic.hit;
     ++_basic.combo;
@@ -675,6 +677,8 @@ void RulesetBMS::updateHit(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeTyp
 
 void RulesetBMS::updateMiss(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeType judge, int slot)
 {
+    if (isFailed()) return;
+
     ++_judgeCount[judge];
     ++_basic.miss;
     _updateHp(judge);

@@ -1536,30 +1536,62 @@ ParseRet SkinLR2::SRC_NOWCOMBO2()
     return ParseRet::OK;
 }
 
-const size_t NoteIdxToLaneMap[] =
+chart::NoteLaneIndex NoteIdxToLane(eMode gamemode, int idx)
 {
-    chart::Sc1,
-    chart::K1,
-    chart::K2,
-    chart::K3,
-    chart::K4,
-    chart::K5,
-    chart::K6,
-    chart::K7,
-    chart::_,
-    chart::_,
+    assert(idx < 20);
 
-    chart::Sc2,
-    chart::K8,
-    chart::K9,
-    chart::K10,
-    chart::K11,
-    chart::K12,
-    chart::K13,
-    chart::K14,
-    chart::_,
-    chart::_,
-};
+    using namespace chart;
+    switch (gamemode)
+    {
+    case eMode::PLAY5:
+    {
+        static const NoteLaneIndex lane[] =
+        {
+            Sc1, K1, K2, K3, K4, K5, _, _, _, _,
+            _, _, _, _, _, _, _, _, _, _,
+        };
+        return lane[idx];
+    }
+    case eMode::PLAY7:
+    {
+        static const NoteLaneIndex lane[] =
+        {
+            Sc1, K1, K2, K3, K4, K5, K6, K7, _, _,
+            _, _, _, _, _, _, _, _, _, _,
+        };
+        return lane[idx];
+    }
+    case eMode::PLAY9:
+    {
+        static const NoteLaneIndex lane[] =
+        {
+            _, K1, K2, K3, K4, K5, K6, K7, K8, K9,
+            _, _, _, _, _, _, _, _, _, _,
+        };
+        return lane[idx];
+    }
+    case eMode::PLAY5_2:
+    case eMode::PLAY10:
+    {
+        static const NoteLaneIndex lane[] =
+        {
+            Sc1, K1, K2, K3, K4, K5, _, _, _, _,
+            Sc2, K6, K7, K8, K9, K10, _, _, _, _,
+        };
+        return lane[idx];
+    }
+    case eMode::PLAY7_2:
+    case eMode::PLAY14:
+    {
+        static const NoteLaneIndex lane[] =
+        {
+            Sc1, K1, K2, K3, K4, K5, K6, K7, _, _,
+            Sc2, K8, K9, K10, K11, K12, K13, K14, _, _,
+        };
+        return lane[idx];
+    }
+    }
+}
 
 ParseRet SkinLR2::SRC_NOTE(DefType type)
 {
@@ -1600,17 +1632,17 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
         break;
     case DefType::NOTE:
         cat = NoteLaneCategory::Note;
-        idx = (NoteLaneIndex)NoteIdxToLaneMap[d._null];
+        idx = NoteIdxToLane(info.mode, d._null);
         break;
     case DefType::LN_END:
     case DefType::LN_BODY:
     case DefType::LN_START:
         cat = NoteLaneCategory::LN;
-        idx = (NoteLaneIndex)NoteIdxToLaneMap[d._null];
+        idx = NoteIdxToLane(info.mode, d._null);
         break;
     case DefType::MINE:
         cat = NoteLaneCategory::Mine;
-        idx = (NoteLaneIndex)NoteIdxToLaneMap[d._null];
+        idx = NoteIdxToLane(info.mode, d._null);
         break;
     case DefType::AUTO_NOTE:
     case DefType::AUTO_MINE:
@@ -1650,7 +1682,7 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
     case DefType::AUTO_MINE:
     {
         _sprites.push_back(std::make_shared<SpriteLaneVertical>(
-            _textureNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, iTimer, d.div_y, d.div_x, false, !!(d._null >= 20)));
+            _textureNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, iTimer, d.div_y, d.div_x, false, !!(d._null >= 10)));
 
         _laneSprites[i] = std::static_pointer_cast<SpriteLaneVertical>(_sprites.back());
         _laneSprites[i]->setLane(cat, idx);
@@ -1669,7 +1701,7 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
     {
         if (_laneSprites[i] == nullptr)
         {
-            _sprites.push_back(std::make_shared<SpriteLaneVerticalLN>(!!(d._null >= 20)));
+            _sprites.push_back(std::make_shared<SpriteLaneVerticalLN>(!!(d._null >= 10)));
             _laneSprites[i] = std::static_pointer_cast<SpriteLaneVerticalLN>(_sprites.back());
             _laneSprites[i]->setLane(cat, idx);
         }
@@ -2048,7 +2080,7 @@ ParseRet SkinLR2::DST_NOTE()
         return ParseRet::PARAM_INVALID;
     }
 
-    NoteLaneIndex idx = NoteLaneIndex(NoteIdxToLaneMap[d._null]);
+    NoteLaneIndex idx = NoteIdxToLane(info.mode, d._null);
 
     auto setDstNoteSprite = [&](NoteLaneCategory i, std::shared_ptr<SpriteLaneVertical> e)
     {
@@ -2473,17 +2505,12 @@ int SkinLR2::parseHeader(const Tokens& raw)
         case 8:		info.mode = eMode::KEY_CONFIG;	break;
         case 9:		info.mode = eMode::THEME_SELECT;	break;
         case 10:	info.mode = eMode::SOUNDSET;	break;
-        case 12:	info.mode = eMode::PLAY5_2;	break;
-        case 13:	info.mode = eMode::PLAY7_2;	break;
+        case 12:	info.mode = eMode::PLAY7_2;	break;
+        case 13:	info.mode = eMode::PLAY5_2;	break;
+        case 14:	info.mode = eMode::PLAY9_2;	break;
         case 15:	info.mode = eMode::COURSE_RESULT;	break;
 
         case 17:	info.mode = eMode::TITLE;	break;
-        case 16:	info.mode = eMode::PLAY9_2;	break;
-            // 11: THEME
-            // 14: COURSE EDIT
-            // 18: MODE SELECT
-            // 19: MODE DECIDE
-            // 20: COURSE SELECT
         }
         info.name = title;
         info.maker = maker;
@@ -2905,7 +2932,7 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
         using namespace chart;
         for (size_t i = begin; i <= end; ++i)
         {
-            NoteLaneIndex lane = NoteLaneIndex(NoteIdxToLaneMap[i]);
+            NoteLaneIndex lane = NoteIdxToLane(info.mode, i);
             if (lane == _) continue;
             size_t idx;
 
