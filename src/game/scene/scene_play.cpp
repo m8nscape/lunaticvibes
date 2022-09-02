@@ -541,10 +541,6 @@ ScenePlay::~ScenePlay()
 {
     gPlayContext.bgaTexture->stopUpdate();
 
-    sceneEnding = true;
-    if (_loadChartFuture.valid())
-        _loadChartFuture.wait();
-
     _input.loopEnd();
     loopEnd();
 }
@@ -636,8 +632,10 @@ void ScenePlay::setTempInitialHealthBMS()
 
 void ScenePlay::loadChart()
 {
+    // FIXME Disable caching for now, considering definitions inside #RANDOM blocks
+
     // load samples
-    if (!gChartContext.isSampleLoaded && !sceneEnding)
+    if (/*!gChartContext.isSampleLoaded &&*/ !sceneEnding)
     {
         auto dtor = std::async(std::launch::async, [&]() {
             SetDebugThreadName("Chart sound sample loading thread");
@@ -679,7 +677,7 @@ void ScenePlay::loadChart()
     }
 
     // load bga
-    if (gSwitches.get(eSwitch::SYSTEM_BGA) && !gChartContext.isBgaLoaded && !sceneEnding)
+    if (gSwitches.get(eSwitch::SYSTEM_BGA) && /*!gChartContext.isBgaLoaded &&*/ !sceneEnding)
     {
         auto dtor = std::async(std::launch::async, [&]() {
             SetDebugThreadName("Chart BGA loading thread");
@@ -1613,6 +1611,10 @@ void ScenePlay::updateFadeout()
 
     if (ft >= _skin->info.timeOutro)
     {
+        sceneEnding = true;
+        if (_loadChartFuture.valid())
+            _loadChartFuture.wait();
+
         if (_isExitingFromPlay)
         {
             removeInputJudgeCallback();
