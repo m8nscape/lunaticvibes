@@ -167,6 +167,7 @@ struct PlayMod
     uint8_t assist_mask = 0;
     eModHs hs = eModHs::NONE;
     uint8_t visual_mask = 0;
+    bool DPFlip = false;
 
     void clear()
     {
@@ -176,6 +177,7 @@ struct PlayMod
         assist_mask = 0;
         hs = eModHs::NONE;
         visual_mask = 0;
+        DPFlip = false;
     }
 };
 

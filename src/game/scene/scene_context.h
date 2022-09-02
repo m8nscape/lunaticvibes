@@ -26,11 +26,14 @@ struct ChartContextParams
     HashMD5 hash{};
     std::shared_ptr<ChartFormatBase> chartObj;
     std::shared_ptr<ChartFormatBase> chartObjMybest;
+
     //bool isChartSamplesLoaded;
     bool isSampleLoaded = false;
     bool isBgaLoaded = false;
-    bool isDoubleBattle = false;
 	bool started = false;
+
+    // DP flags
+    bool isDoubleBattle = false;
 
     // For displaying purpose, typically fetch from song db directly
     StringContent title{};

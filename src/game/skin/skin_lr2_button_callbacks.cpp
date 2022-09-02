@@ -241,6 +241,9 @@ void select_keys_filter(int plus, int iterateCount)
             {
                 gOptions.set(eOption::PLAY_BATTLE_TYPE, Option::BATTLE_OFF);
                 gTexts.set(eText::BATTLE, "OFF");
+                gSwitches.set(eSwitch::PLAY_OPTION_DP_FLIP, false);
+                gTexts.set(eText::FLIP, "OFF");
+
                 setEntryInfo();
 
                 auto& [score, lamp] = getSaveScoreType();
@@ -582,6 +585,15 @@ void shutter(int plus)
 // 54
 void flip(int plus)
 {
+    bool val = false;
+    auto gamemode = gOptions.get(eOption::PLAY_MODE);
+    if (gamemode == Option::PLAY_MODE_DOUBLE || gamemode == Option::PLAY_MODE_DP_GHOST_BATTLE)
+    {
+        val = !gSwitches.get(eSwitch::PLAY_OPTION_DP_FLIP);
+    }
+    gSwitches.set(eSwitch::PLAY_OPTION_DP_FLIP, val);
+    gTexts.set(eText::FLIP, val ? "DP FLIP" : "OFF");
+
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
@@ -691,6 +703,9 @@ void battle(int plus)
     case Option::BATTLE_DB:    gTexts.set(eText::BATTLE, "D-BATTLE"); break;
     case Option::BATTLE_GHOST: gTexts.set(eText::BATTLE, "G-BATTLE"); break;
     }
+
+    gSwitches.set(eSwitch::PLAY_OPTION_DP_FLIP, false);
+    gTexts.set(eText::FLIP, "OFF");
 
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 

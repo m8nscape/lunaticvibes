@@ -163,9 +163,11 @@ int main(int argc, char* argv[])
             md5file(argv[1]),
             bms,
             nullptr,
+
             false,
             false,
             false,
+
             false,
 
             bms->title,

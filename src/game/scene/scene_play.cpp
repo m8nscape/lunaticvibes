@@ -476,13 +476,13 @@ bool ScenePlay::createRuleset()
                 gPlayContext.replayNew->randomSeed = gPlayContext.randomSeed;
                 gPlayContext.replayNew->gaugeType = gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge;
                 gPlayContext.replayNew->randomTypeLeft = gPlayContext.mods[PLAYER_SLOT_PLAYER].randomLeft;
+                gPlayContext.replayNew->randomTypeRight = gPlayContext.mods[PLAYER_SLOT_PLAYER].randomRight;
                 gPlayContext.replayNew->assistMask = gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask;
                 gPlayContext.replayNew->hispeedFix = gPlayContext.mods[PLAYER_SLOT_PLAYER].hs;
                 gPlayContext.replayNew->laneEffectType = gPlayContext.mods[PLAYER_SLOT_PLAYER].visual_mask;
-                // TODO 2P random
                 gPlayContext.replayNew->pitchType = (int8_t)gOptions.get(eOption::SOUND_PITCH_TYPE);
                 gPlayContext.replayNew->pitchValue = (int8_t)std::round((gSliders.get(eSlider::PITCH) - 0.5) * 2 * 12);
-                // TODO flip, battle
+                gPlayContext.replayNew->DPFlip = gPlayContext.mods[PLAYER_SLOT_PLAYER].DPFlip;
             }
         }
 

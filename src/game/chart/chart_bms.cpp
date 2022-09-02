@@ -256,34 +256,53 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
 
             // channel misorder (#xxx08, #xxx09) is already handled in chartformat object, do not convert here
             // 0 is Scratch, 1-9 are keys, matching by order
-            
-            // Regular Notes
-            push_notes(notes, eLanePriority::NOTE, LaneCode::NOTE1, 0);
-            if (isChartDP) 
-                push_notes(notes, eLanePriority::NOTE, LaneCode::NOTE2, 1);
-            else if (gChartContext.isDoubleBattle) 
+
+            if (isChartDP && gPlayContext.mods[_playerSlot].DPFlip)
+            {
+                // Regular Notes
+                push_notes(notes, eLanePriority::NOTE, LaneCode::NOTE2, 0);
                 push_notes(notes, eLanePriority::NOTE, LaneCode::NOTE1, 1);
 
-            // LN
-            push_notes_ln(notes, LaneCode::NOTELN1, 0);
-            if (isChartDP) 
-                push_notes_ln(notes, LaneCode::NOTELN2, 1);
-            else if (gChartContext.isDoubleBattle)
+                // LN
+                push_notes_ln(notes, LaneCode::NOTELN2, 0);
                 push_notes_ln(notes, LaneCode::NOTELN1, 1);
 
-            // invisible
-            push_notes(notes, eLanePriority::INV, LaneCode::NOTEINV1, 0);
-            if (isChartDP) 
-                push_notes(notes, eLanePriority::INV, LaneCode::NOTEINV2, 1);
-            else if (gChartContext.isDoubleBattle)
+                // invisible
+                push_notes(notes, eLanePriority::INV, LaneCode::NOTEINV2, 0);
                 push_notes(notes, eLanePriority::INV, LaneCode::NOTEINV1, 1);
 
-            // mine, specify a damage by [01-ZZ] (decimalize/2) ZZ: instant gameover
-            push_notes(notes, eLanePriority::MINE, LaneCode::NOTEMINE1, 0);
-            if (isChartDP) 
-                push_notes(notes, eLanePriority::MINE, LaneCode::NOTEMINE2, 1);
-            else if (gChartContext.isDoubleBattle)
+                // mine, specify a damage by [01-ZZ] (decimalize/2) ZZ: instant gameover
+                push_notes(notes, eLanePriority::MINE, LaneCode::NOTEMINE2, 0);
                 push_notes(notes, eLanePriority::MINE, LaneCode::NOTEMINE1, 1);
+            }
+            else
+            {
+                // Regular Notes
+                push_notes(notes, eLanePriority::NOTE, LaneCode::NOTE1, 0);
+
+                // LN
+                push_notes_ln(notes, LaneCode::NOTELN1, 0);
+
+                // invisible
+                push_notes(notes, eLanePriority::INV, LaneCode::NOTEINV1, 0);
+
+                // mine, specify a damage by [01-ZZ] (decimalize/2) ZZ: instant gameover
+                push_notes(notes, eLanePriority::MINE, LaneCode::NOTEMINE1, 0);
+                if (isChartDP)
+                {
+                    push_notes(notes, eLanePriority::NOTE, LaneCode::NOTE2, 1);
+                    push_notes_ln(notes, LaneCode::NOTELN2, 1);
+                    push_notes(notes, eLanePriority::INV, LaneCode::NOTEINV2, 1);
+                    push_notes(notes, eLanePriority::MINE, LaneCode::NOTEMINE2, 1);
+                }
+                else if (gChartContext.isDoubleBattle)
+                {
+                    push_notes(notes, eLanePriority::NOTE, LaneCode::NOTE1, 1);
+                    push_notes_ln(notes, LaneCode::NOTELN1, 1);
+                    push_notes(notes, eLanePriority::INV, LaneCode::NOTEINV1, 1);
+                    push_notes(notes, eLanePriority::MINE, LaneCode::NOTEMINE1, 1);
+                }
+            }
 
             // BGM
             for (unsigned i = 0; i < objBms.bgmLayersCount[m]; i++)
