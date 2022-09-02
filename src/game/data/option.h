@@ -36,7 +36,7 @@ enum class eOption : unsigned
     CHART_SAVE_LAMP_TYPE,    // 
 
     PLAY_SCENE_STAT,
-    PLAY_MODE,              // ePlayMode
+    PLAY_MODE,              // SP/DP/SP Battle/DB/SP-GB/DP-GB
     PLAY_KEYS,
     PLAY_BGA_TYPE,
     PLAY_GHOST_TYPE_1P,
@@ -49,7 +49,7 @@ enum class eOption : unsigned
     PLAY_LANE_EFFECT_TYPE_2P,	// OFF/HIDDEN/SUDDEN/HID+SUD
     PLAY_HSFIX_TYPE_1P,	//OFF/MAXBPM/MINBPM/AVERAGE/CONSTANT
     PLAY_HSFIX_TYPE_2P,	//OFF/MAXBPM/MINBPM/AVERAGE/CONSTANT
-    PLAY_BATTLE_TYPE,	// OFF/BATTLE(VS HUMAN)/BATTLE(VS GHOST)/DOUBLE BATTLE/ONLINE BATTLE
+    PLAY_BATTLE_TYPE,	// OFF/BATTLE/DB/SPtoDP,9to7/GhostBattle
     PLAY_RANK_ESTIMATED_1P,
     PLAY_RANK_ESTIMATED_2P,
     PLAY_RANK_BORDER_1P,
@@ -127,6 +127,15 @@ namespace Option
 		SPLAY_FAILED,
 	};
 
+    enum e_play_mode {
+        PLAY_MODE_SINGLE,
+        PLAY_MODE_DOUBLE,
+        PLAY_MODE_BATTLE,
+        PLAY_MODE_DOUBLE_BATTLE,
+        PLAY_MODE_SP_GHOST_BATTLE,
+        PLAY_MODE_DP_GHOST_BATTLE,
+    };
+
     enum e_filter_keys {
         FILTER_KEYS_ALL,
         FILTER_KEYS_SINGLE,
@@ -175,8 +184,9 @@ namespace Option
     enum e_battle_type {
         BATTLE_OFF,
         BATTLE_LOCAL,
-        BATTLE_GHOST,
         BATTLE_DB,
+        BATTLE_SPtoDP_9to7, // not implemented
+        BATTLE_GHOST,
     };
 
     enum e_gauge_type{

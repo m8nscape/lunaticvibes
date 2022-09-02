@@ -108,21 +108,19 @@ void updateDstOpt()
 		}
 	}
 
-	// 10 ダブルorダブルバトルならtrue
-	// 11 バトルならtrue
-	// 12 ダブルorバトルorダブルバトルならtrue
-	// 13 ゴーストバトルorバトルならtrue
+	// 10 ダブル or ダブルバトル ならtrue
+	// 11 バトル ならtrue
+	// 12 ダブル or バトル or ダブルバトル ならtrue
+	// 13 ゴーストバトル or バトル ならtrue
 	{
-		auto m = gOptions.get(eOption::PLAY_MODE);
-		enum { SP, DP, SB, DB, GB } mode = decltype(mode)(m);
-		if (m == PLAY_BATTLE) mode = SB;
-		switch (mode)
+		switch (gOptions.get(eOption::PLAY_MODE))
 		{
-		case SP: break;
-		case DP: set({ 10, 12 }); break;
-		case SB: set({ 11, 12, 13 }); break;
-		case DB: set({ 10, 12 }); break;
-		case GB: set({ 13 }); break;
+		case Option::PLAY_MODE_SINGLE: break;
+		case Option::PLAY_MODE_DOUBLE: set({ 10, 12 }); break;
+		case Option::PLAY_MODE_BATTLE: set({ 11, 12, 13 }); break;
+		case Option::PLAY_MODE_DOUBLE_BATTLE: set({ 10, 12 }); break;
+		case Option::PLAY_MODE_SP_GHOST_BATTLE: set({ 11, 12, 13 }); break;
+		case Option::PLAY_MODE_DP_GHOST_BATTLE: set({ 10, 13 }); break;
 		}
 	}
 

@@ -120,13 +120,33 @@ void loadSongList()
         // apply filter
         auto checkFilterKeys = [](int keys)
         {
-            switch (gSelectContext.filterKeys)
+            if (gOptions.get(eOption::PLAY_BATTLE_TYPE) != Option::BATTLE_DB)
             {
-            case 0: return true;
-            case 1: return keys == 5 || keys == 7;
-            case 2: return keys == 10 || keys == 14;
-            default:
-                return keys == gSelectContext.filterKeys;
+                // not DB, filter as usual
+                switch (gSelectContext.filterKeys)
+                {
+                case 0: return true;
+                case 1: return keys == 5 || keys == 7;
+                case 2: return keys == 10 || keys == 14;
+                default:
+                    return keys == gSelectContext.filterKeys;
+                }
+            }
+            else
+            {
+                // DB, only display SP charts
+                switch (gSelectContext.filterKeys)
+                {
+                case 0: 
+                case 1: 
+                case 2: return keys == 5 || keys == 7;
+                case 5:
+                case 7:
+                case 9:
+                    return keys == gSelectContext.filterKeys;
+                default:
+                    return keys == gSelectContext.filterKeys / 2;
+                }
             }
         };
         auto checkFilterDifficulty = [](int difficulty)
@@ -748,6 +768,52 @@ void setEntryInfo()
     gSwitches.flush();
     gOptions.flush();
     gBargraphs.flush();
+
+    bool isModeDP = false;
+    if (gOptions.get(eOption::CHART_PLAY_KEYS) != Option::KEYS_NOT_PLAYABLE)
+    {
+        switch (gOptions.get(eOption::CHART_PLAY_KEYS))
+        {
+        case Option::KEYS_10:
+        case Option::KEYS_14:
+        case Option::KEYS_48:
+            isModeDP = true;
+            break;
+        }
+    }
+    else
+    {
+        switch (gSelectContext.filterKeys)
+        {
+        case 2:
+        case 10:
+        case 14:
+        case 48:
+            isModeDP = true;
+            break;
+        }
+    }
+    if (!isModeDP)
+    {
+        switch (gOptions.get(eOption::PLAY_BATTLE_TYPE))
+        {
+        case Option::BATTLE_OFF:   gOptions.set(eOption::PLAY_MODE, Option::PLAY_MODE_SINGLE); break;
+        case Option::BATTLE_LOCAL: gOptions.set(eOption::PLAY_MODE, Option::PLAY_MODE_BATTLE); break;
+        case Option::BATTLE_DB:    gOptions.set(eOption::PLAY_MODE, Option::PLAY_MODE_DOUBLE_BATTLE); break;
+        case Option::BATTLE_GHOST: gOptions.set(eOption::PLAY_MODE, Option::PLAY_MODE_SP_GHOST_BATTLE); break;
+        default: assert(false); break;
+        }
+    }
+    else
+    {
+        switch (gOptions.get(eOption::PLAY_BATTLE_TYPE))
+        {
+        case Option::BATTLE_OFF:   gOptions.set(eOption::PLAY_MODE, Option::PLAY_MODE_DOUBLE); break;
+        case Option::BATTLE_DB:    gOptions.set(eOption::PLAY_MODE, Option::PLAY_MODE_DOUBLE_BATTLE); break;
+        case Option::BATTLE_GHOST: gOptions.set(eOption::PLAY_MODE, Option::PLAY_MODE_SP_GHOST_BATTLE); break;
+        default: assert(false); break;
+        }
+    }
 }
 
 void setDynamicTextures()

@@ -108,7 +108,6 @@ enum class ePlayMode
     SINGLE_PLAYER,  // means "Single Player Mode", so DP is also included
     LOCAL_BATTLE,   // separate chart objects are required
     GHOST_BATTLE,   // 
-    REPLAY,         // do not save score
 };
 
 typedef unsigned GameModeKeys; // 5 7 9 10 14

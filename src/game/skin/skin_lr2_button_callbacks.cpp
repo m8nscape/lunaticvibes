@@ -236,7 +236,29 @@ void select_keys_filter(int plus, int iterateCount)
             loadSongList();
             sortSongList();
             setBarInfo();
-            setEntryInfo();
+
+            if (!gSelectContext.entries.empty())
+            {
+                gOptions.set(eOption::PLAY_BATTLE_TYPE, Option::BATTLE_OFF);
+                gTexts.set(eText::BATTLE, "OFF");
+                setEntryInfo();
+
+                auto& [score, lamp] = getSaveScoreType();
+                gSwitches.set(eSwitch::CHART_CAN_SAVE_SCORE, score);
+                gOptions.set(eOption::CHART_SAVE_LAMP_TYPE, lamp);
+
+                switch (gSelectContext.filterKeys)
+                {
+                case 0:  gTexts.set(eText::FILTER_KEYS, "ALL KEYS"); break;
+                case 1:  gTexts.set(eText::FILTER_KEYS, "SINGLE"); break;
+                case 2:  gTexts.set(eText::FILTER_KEYS, "DOUBLE"); break;
+                case 5:  gTexts.set(eText::FILTER_KEYS, "5KEYS"); break;
+                case 7:  gTexts.set(eText::FILTER_KEYS, "7KEYS"); break;
+                case 9:  gTexts.set(eText::FILTER_KEYS, "9BUTTONS"); break;
+                case 10: gTexts.set(eText::FILTER_KEYS, "10KEYS"); break;
+                case 14: gTexts.set(eText::FILTER_KEYS, "14KEYS"); break;
+                }
+            }
         }
         if (gSelectContext.entries.empty())
         {
@@ -604,6 +626,71 @@ void hs_fix(int plus)
 // 56
 void battle(int plus)
 {
+    // we only planned to support 3 battle modes: SP Battle (SP->2P) / DB (SP->DP) / Ghost Battle (SP->2P)
+    switch (gSelectContext.filterKeys)
+    {
+    case 0:
+    case 1:
+    case 5:
+    case 7:
+    case 9:
+    {
+        static const std::vector<Option::e_battle_type> modesSP =
+        {
+            Option::BATTLE_OFF,
+            Option::BATTLE_LOCAL,
+            Option::BATTLE_GHOST
+        };
+        auto it = std::find(modesSP.begin(), modesSP.end(), gOptions.get(eOption::PLAY_BATTLE_TYPE));
+        if (it != modesSP.end())
+        {
+            int idx = std::distance(modesSP.begin(), it);
+            idx = (idx + modesSP.size() + plus) % modesSP.size();
+            gOptions.set(eOption::PLAY_BATTLE_TYPE, modesSP[idx]);
+        }
+        break;
+    }
+    case 2:
+    case 10:
+    case 14:
+    {
+        static const std::vector<Option::e_battle_type> modesDP =
+        {
+            Option::BATTLE_OFF,
+            Option::BATTLE_DB,
+            Option::BATTLE_GHOST
+        };
+        auto it = std::find(modesDP.begin(), modesDP.end(), gOptions.get(eOption::PLAY_BATTLE_TYPE));
+        if (it != modesDP.end())
+        {
+            int idx = std::distance(modesDP.begin(), it);
+            idx = (idx + modesDP.size() + plus) % modesDP.size();
+            gOptions.set(eOption::PLAY_BATTLE_TYPE, modesDP[idx]);
+
+            if (*it == Option::BATTLE_DB || modesDP[idx] == Option::BATTLE_DB)
+            {
+                std::unique_lock l(gSelectContext._mutex);
+                loadSongList();
+                sortSongList();
+                setBarInfo();
+                setEntryInfo();
+            }
+            else
+            {
+                gOptions.set(eOption::PLAY_MODE, Option::PLAY_MODE_DOUBLE);
+            }
+        }
+        break;
+    }
+    }
+
+    switch (gOptions.get(eOption::PLAY_BATTLE_TYPE))
+    {
+    case Option::BATTLE_OFF:   gTexts.set(eText::BATTLE, "OFF"); break;
+    case Option::BATTLE_LOCAL: gTexts.set(eText::BATTLE, "BATTLE"); break;
+    case Option::BATTLE_DB:    gTexts.set(eText::BATTLE, "D-BATTLE"); break;
+    case Option::BATTLE_GHOST: gTexts.set(eText::BATTLE, "G-BATTLE"); break;
+    }
 
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 

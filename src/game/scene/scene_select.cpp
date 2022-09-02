@@ -928,6 +928,7 @@ void SceneSelect::inputGamePressPanel(InputMask& input, const Time& t)
         if (gSwitches.get(eSwitch::SELECT_PANEL1))
         {
             // 1: KEYS
+            if (input[Pad::K11]) lr2skin::button::select_keys_filter(1);
             if (input[Pad::K12]) lr2skin::button::random_type(PLAYER_SLOT_PLAYER, 1);
             if (input[Pad::K13]) lr2skin::button::battle(1);
             if (input[Pad::K14]) lr2skin::button::gauge_type(PLAYER_SLOT_PLAYER, 1);
@@ -938,6 +939,7 @@ void SceneSelect::inputGamePressPanel(InputMask& input, const Time& t)
             if (gOptions.get(eOption::PLAY_BATTLE_TYPE) == 1)
             {
                 // 1: KEYS
+                if (input[Pad::K21]) lr2skin::button::select_keys_filter(1);
                 if (input[Pad::K22]) lr2skin::button::random_type(PLAYER_SLOT_TARGET, 1);
                 if (input[Pad::K23]) lr2skin::button::battle(1);
                 if (input[Pad::K24]) lr2skin::button::gauge_type(PLAYER_SLOT_TARGET, 1);
@@ -948,6 +950,7 @@ void SceneSelect::inputGamePressPanel(InputMask& input, const Time& t)
             else
             {
                 // 1: KEYS
+                if (input[Pad::K21]) lr2skin::button::select_keys_filter(1);
                 if (input[Pad::K22]) lr2skin::button::random_type(PLAYER_SLOT_PLAYER, 1);
                 if (input[Pad::K23]) lr2skin::button::battle(1);
                 if (input[Pad::K24]) lr2skin::button::gauge_type(PLAYER_SLOT_PLAYER, 1);
@@ -1059,14 +1062,6 @@ void SceneSelect::_decide()
             case 10: gPlayContext.mode = eMode::PLAY10; break;
             case 14: gPlayContext.mode = eMode::PLAY14; break;
             default: gPlayContext.mode = eMode::PLAY7;  break;
-            }
-            switch (gOptions.get(eOption::PLAY_BATTLE_TYPE))
-            {
-            case Option::BATTLE_OFF:   gOptions.set(eOption::PLAY_MODE, (unsigned)ePlayMode::SINGLE_PLAYER); break;
-            case Option::BATTLE_LOCAL: gOptions.set(eOption::PLAY_MODE, (unsigned)ePlayMode::LOCAL_BATTLE); break;
-            case Option::BATTLE_GHOST: gOptions.set(eOption::PLAY_MODE, (unsigned)ePlayMode::GHOST_BATTLE); break;
-            case Option::BATTLE_DB:    gOptions.set(eOption::PLAY_MODE, (unsigned)ePlayMode::SINGLE_PLAYER); break;
-            default: assert(false);    gOptions.set(eOption::PLAY_MODE, (unsigned)ePlayMode::SINGLE_PLAYER); break;
             }
             if (gOptions.get(eOption::PLAY_BATTLE_TYPE) == Option::BATTLE_DB)
             {
