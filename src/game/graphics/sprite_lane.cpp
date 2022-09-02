@@ -131,7 +131,7 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 	_outRectBody.clear();
 	_outRectTail.clear();
 
-	auto pChart = gPlayContext.chartObj[playerSlot];
+	auto pChart = gPlayContext.chartObj[gPlayContext.isBattle ? playerSlot : 0];
 	if (pChart == nullptr || !gChartContext.started)
 	{
 		return;

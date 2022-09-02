@@ -7,43 +7,122 @@
 
 static const size_t NOPE = -1;
 
-using namespace chart;
-
-
 // from NoteLaneIndex to Input::Pad
-const std::vector<Input::Pad> LaneToKeyMap[] = 
+const std::vector<Input::Pad>& LaneToKey(int keys, size_t idx)
 {
-    // 0: Notes
-    {Input::Pad::S1L, Input::Pad::S1R}, // Sc1
-    {Input::Pad::K11},
-    {Input::Pad::K12},
-    {Input::Pad::K13},
-    {Input::Pad::K14},
-    {Input::Pad::K15},
-    {Input::Pad::K16},
-    {Input::Pad::K17},
-    {Input::Pad::K21}, //8
-    {Input::Pad::K22}, //9
-    {Input::Pad::K23}, //10
-    {Input::Pad::K24}, //11
-    {Input::Pad::K25}, //12
-    {Input::Pad::K26}, //13
-    {Input::Pad::K27}, //14
-    {},{},{},{},{},{},{},{},{},{}, //15~24
-    {Input::Pad::S2L, Input::Pad::S2R} // Sc2
-};
+    assert(idx < 26);
+    using namespace Input;
+    switch (keys)
+    {
+    case 5:
+    case 10:
+    {
+        static const std::vector<Input::Pad> pad[] = {
+            {Input::Pad::S1L, Input::Pad::S1R}, // Sc1
+            {Input::Pad::K11},
+            {Input::Pad::K12},
+            {Input::Pad::K13},
+            {Input::Pad::K14},
+            {Input::Pad::K15},
+            {Input::Pad::K21},
+            {Input::Pad::K22},
+            {Input::Pad::K23},
+            {Input::Pad::K24},
+            {Input::Pad::K25},
+            {}, {}, {}, {}, {},{},{},{},{},{},{},{},{},{}, //11~24
+            {Input::Pad::S2L, Input::Pad::S2R} // Sc2
+        };
+        return pad[idx];
+    }
+    case 7:
+    case 14:
+    {
+        static const std::vector<Input::Pad> pad[] = {
+            {Input::Pad::S1L, Input::Pad::S1R}, // Sc1
+            {Input::Pad::K11},
+            {Input::Pad::K12},
+            {Input::Pad::K13},
+            {Input::Pad::K14},
+            {Input::Pad::K15},
+            {Input::Pad::K16},
+            {Input::Pad::K17},
+            {Input::Pad::K21}, //8
+            {Input::Pad::K22}, //9
+            {Input::Pad::K23}, //10
+            {Input::Pad::K24}, //11
+            {Input::Pad::K25}, //12
+            {Input::Pad::K26}, //13
+            {Input::Pad::K27}, //14
+            {},{},{},{},{},{},{},{},{},{}, //15~24
+            {Input::Pad::S2L, Input::Pad::S2R} // Sc2
+        };
+        return pad[idx];
+    }
+    case 9:
+    {
+        static const std::vector<Input::Pad> pad[] = {
+            {}, // Sc1
+            {Input::Pad::K11},
+            {Input::Pad::K12},
+            {Input::Pad::K13},
+            {Input::Pad::K14},
+            {Input::Pad::K15},
+            {Input::Pad::K16},
+            {Input::Pad::K17},
+            {Input::Pad::K18},
+            {Input::Pad::K19},
+            {},{},{},{},{},{},{},{},{},{},{},{},{},{},{}, //15~24
+            {Input::Pad::S2L, Input::Pad::S2R} // Sc2
+        };
+        return pad[idx];
+    }
+    }
+    static const std::vector<Input::Pad> empty{};
+    return empty;
+}
 
 // from Input::Pad to NoteLaneIndex
-const NoteLaneIndex KeyToLaneMap[] = 
+chart::NoteLaneIndex KeyToLane(int keys, Input::Pad pad)
 {
-    Sc1, Sc1,
-    K1, K2, K3, K4, K5, K6, K7,
-    _, _, _, _, _, _,
+    assert(pad < 30);
 
-    Sc2, Sc2,
-    K8, K9, K10, K11, K12, K13, K14,
-    _, _, _, _, _, _,
-};
+    using namespace chart;
+    switch (keys)
+    {
+    case 5:
+    case 10:
+    {
+        static const NoteLaneIndex lane[] =
+        {
+            Sc1, Sc1, K1, K2, K3, K4, K5, _, _, _, _, _, _, _, _,
+            Sc2, Sc2, K6, K7, K8, K9, K10, _, _, _, _, _, _, _, _,
+        };
+        return lane[pad];
+    }
+    case 7:
+    case 14:
+    {
+        static const NoteLaneIndex lane[] =
+        {
+            Sc1, Sc1, K1, K2, K3, K4, K5, K6, K7, _, _, _, _, _, _,
+            Sc2, Sc2, K8, K9, K10, K11, K12, K13, K14, _, _, _, _, _, _,
+        };
+        return lane[pad];
+    }
+    case 9:
+    {
+        static const NoteLaneIndex lane[] =
+        {
+            _, _, K1, K2, K3, K4, K5, K6, K7, K8, K9, _, _, _, _,
+            _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+        };
+        return lane[pad];
+    }
+    }
+    return _;
+}
+
+using namespace chart;
 
 ChartObjectBMS::ChartObjectBMS(int slot) : ChartObjectBase(slot, BGM_LANE_COUNT, (size_t)eNoteExt::EXT_COUNT),
     _currentStopNote(_specialNoteLists.front().begin())
@@ -82,7 +161,12 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
     size_t laneRightEnd = K1 + laneCountOneSide + laneCountOneSide - 1;
 
     bool isChartDP = objBms.player != 1;
-    if (!isChartDP && gChartContext.isDoubleBattle)
+    _keys = laneCountOneSide;
+    if (isChartDP)
+    {
+        _keys *= 2;
+    }
+    else if (gChartContext.isDoubleBattle)
     {
         _noteCount_total *= 2;
         _noteCount_regular *= 2;
@@ -675,9 +759,9 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
 
 NoteLaneIndex ChartObjectBMS::getLaneFromKey(NoteLaneCategory cat, Input::Pad input)
 {
-    if (input >= Input::S1L && input < Input::LANE_COUNT && KeyToLaneMap[input] != _)
+    if (input >= Input::S1L && input < Input::LANE_COUNT && KeyToLane(_keys, input) != _)
     {
-        NoteLaneIndex idx = KeyToLaneMap[input];
+        NoteLaneIndex idx = KeyToLane(_keys, input);
         if (!isLastNote(cat, idx))
             return idx;
     }
@@ -686,10 +770,7 @@ NoteLaneIndex ChartObjectBMS::getLaneFromKey(NoteLaneCategory cat, Input::Pad in
 
 std::vector<Input::Pad> ChartObjectBMS::getInputFromLane(size_t channel)
 {
-    if (channel >= LaneToKeyMap->size())
-        return {};
-    else
-        return LaneToKeyMap[channel];
+    return LaneToKey(_keys, channel);
 }
 
 void ChartObjectBMS::preUpdate(const Time& t)

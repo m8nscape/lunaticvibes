@@ -325,7 +325,11 @@ bool ScenePlay::createChartObj()
         if (gPlayContext.isAuto || gPlayContext.isReplay)
         {
             gPlayContext.chartObj[PLAYER_SLOT_PLAYER] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_PLAYER, bms);
-            gPlayContext.chartObj[PLAYER_SLOT_TARGET] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_PLAYER, bms);    // create for rival; loading with 1P options
+
+            if (gPlayContext.isAuto && isPlaymodeBattle())
+                gPlayContext.chartObj[PLAYER_SLOT_TARGET] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_TARGET, bms);
+            else
+                gPlayContext.chartObj[PLAYER_SLOT_TARGET] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_PLAYER, bms);    // create for rival; loading with 1P options
 
             if (gPlayContext.replayMybest)
                 gPlayContext.chartObj[PLAYER_SLOT_MYBEST] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_MYBEST, bms);
@@ -414,6 +418,14 @@ bool ScenePlay::createRuleset()
                 gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_PLAYER],
                 gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge, keys, judgeDiff,
                 gPlayContext.initialHealth[PLAYER_SLOT_PLAYER], RulesetBMS::PlaySide::AUTO);
+
+            if (isPlaymodeBattle())
+            {
+                gPlayContext.ruleset[PLAYER_SLOT_TARGET] = std::make_shared<RulesetBMSAuto>(
+                    gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_TARGET],
+                    gPlayContext.mods[PLAYER_SLOT_TARGET].gauge, keys, judgeDiff,
+                    gPlayContext.initialHealth[PLAYER_SLOT_TARGET], RulesetBMS::PlaySide::AUTO_2P);
+            }
         }
         else if (gPlayContext.isReplay)
         {
@@ -505,7 +517,7 @@ bool ScenePlay::createRuleset()
                 gTexts.queue(eText::TARGET_NAME, "RATE "s + std::to_string(targetRate) + "%"s);
                 break;
             }
-            if (!gPlayContext.isBattle)
+            if (!isPlaymodeBattle())
             {
                 std::reinterpret_pointer_cast<RulesetBMSAuto>(gPlayContext.ruleset[PLAYER_SLOT_TARGET])->setTargetRate(targetRateReal);
                 gBargraphs.queue(eBargraph::PLAY_RIVAL_EXSCORE_FINAL, targetRateReal);

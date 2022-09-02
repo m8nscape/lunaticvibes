@@ -118,6 +118,7 @@ public:
 
 protected:
     int _playerSlot = -1;
+    int _keys = 7;
 
 protected:
 	unsigned _noteCount_total;
