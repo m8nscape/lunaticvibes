@@ -575,7 +575,7 @@ void RulesetBMS::_updateHp(const double diff)
     {
     case RulesetBMS::GaugeType::HARD:
     case RulesetBMS::GaugeType::GRADE:
-        if (tmp < 0.30 && diff < 0.0)
+        if (tmp < 0.3000001 && diff < 0.0)
             tmp += diff * 0.6;
         else
             tmp += diff;

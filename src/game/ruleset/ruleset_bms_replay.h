@@ -25,9 +25,6 @@ protected:
 
 public:
 
-    virtual bool isFailed() const override { return gPlayContext.isReplay ? RulesetBMS::isFailed() : true; }
-    virtual bool isFinished() const override { return gPlayContext.isReplay ? RulesetBMS::isFinished() : true; }
-
     // Register to InputWrapper
     virtual void updatePress(InputMask& pg, const Time& t) override {}
     // Register to InputWrapper

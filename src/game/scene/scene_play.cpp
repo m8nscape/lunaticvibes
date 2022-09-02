@@ -1322,6 +1322,7 @@ void ScenePlay::updateLoading()
         _rulesetLoaded &&
         gChartContext.isSampleLoaded && 
         (!gSwitches.get(eSwitch::SYSTEM_BGA) || gChartContext.isBgaLoaded) &&
+        (t - _readyTime) > 1000 &&
 		rt > _skin->info.timeMinimumLoad)
     {
 		gOptions.set(eOption::PLAY_SCENE_STAT, Option::SPLAY_READY);
@@ -1532,7 +1533,7 @@ void ScenePlay::updatePlaying()
     if (!_isExitingFromPlay)
     {
         if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isFailed() &&
-            (gPlayContext.ruleset[PLAYER_SLOT_TARGET] == nullptr || gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFailed()))
+            (!gPlayContext.isBattle || gPlayContext.ruleset[PLAYER_SLOT_TARGET] == nullptr || gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFailed()))
         {
             pushGraphPoints();
             gTimers.queue(eTimer::FAIL_BEGIN, t.norm());
@@ -1585,8 +1586,25 @@ void ScenePlay::updatePlaying()
 void ScenePlay::updateFadeout()
 {
     auto t = Time();
-    auto rt = t - gTimers.get(eTimer::SCENE_START);
+    auto rt = t - gTimers.get(eTimer::PLAY_START);
     auto ft = t - gTimers.get(eTimer::FADEOUT_BEGIN);
+
+    if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER] != nullptr)
+    {
+        gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->update(rt);
+        gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->update(t);
+    }
+    if (gPlayContext.ruleset[PLAYER_SLOT_TARGET] != nullptr)
+    {
+        gPlayContext.chartObj[PLAYER_SLOT_TARGET]->update(rt);
+        gPlayContext.ruleset[PLAYER_SLOT_TARGET]->update(t);
+    }
+    if (gPlayContext.ruleset[PLAYER_SLOT_MYBEST] != nullptr)
+    {
+        gPlayContext.chartObj[PLAYER_SLOT_MYBEST]->update(rt);
+        gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->update(t);
+    }
+
     if (gChartContext.started)
         gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentMetre() * 4.0)) % 1000);
     spinTurntable(gChartContext.started);
@@ -1680,7 +1698,25 @@ void ScenePlay::updateFadeout()
 void ScenePlay::updateFailed()
 {
     auto t = Time();
+    auto rt = t - gTimers.get(eTimer::PLAY_START);
     auto ft = t - gTimers.get(eTimer::FAIL_BEGIN);
+
+    if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER] != nullptr)
+    {
+        gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->update(rt);
+        gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->update(t);
+    }
+    if (gPlayContext.ruleset[PLAYER_SLOT_TARGET] != nullptr)
+    {
+        gPlayContext.chartObj[PLAYER_SLOT_TARGET]->update(rt);
+        gPlayContext.ruleset[PLAYER_SLOT_TARGET]->update(t);
+    }
+    if (gPlayContext.ruleset[PLAYER_SLOT_MYBEST] != nullptr)
+    {
+        gPlayContext.chartObj[PLAYER_SLOT_MYBEST]->update(rt);
+        gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->update(t);
+    }
+
     if (gChartContext.started)
         gTimers.set(eTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentMetre() * 4.0)) % 1000);
     spinTurntable(gChartContext.started);
@@ -2140,6 +2176,12 @@ void ScenePlay::inputGameHold(InputMask& m, const Time& t)
     using namespace Input;
 
     auto input = _inputAvailable & m;
+
+    // delay start
+    if (!gChartContext.started && (input[K1START] || input[K1SELECT] || input[K2START] || input[K2SELECT]))
+    {
+        _readyTime = t;
+    }
 
     // turntable spin
     if (input[S1L]) _ttAngleDiff[PLAYER_SLOT_PLAYER] -= 0.5;
