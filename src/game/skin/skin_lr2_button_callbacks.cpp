@@ -1394,10 +1394,8 @@ std::function<void(int)> getButtonCallback(int type)
     case 228:
     case 229:
         return std::bind(skinselect_option, type - 220, _1);
-
-    default:
-        return [](bool) {};
     }
+    return [](bool) {};
 }
 
 

@@ -178,6 +178,7 @@ bool SoundSetLR2::parseHeader(const std::vector<StringContent>& tokens)
 
         return true;
     }
+    return false;
 }
 bool SoundSetLR2::parseBody(const std::vector<StringContent>& tokens)
 {
