@@ -769,6 +769,11 @@ void setEntryInfo()
     gOptions.flush();
     gBargraphs.flush();
 
+    setPlayModeInfo();
+}
+
+void setPlayModeInfo()
+{
     bool isModeDP = false;
     if (gOptions.get(eOption::CHART_PLAY_KEYS) != Option::KEYS_NOT_PLAYABLE)
     {
@@ -810,7 +815,7 @@ void setEntryInfo()
         {
         case Option::BATTLE_OFF:   gOptions.set(eOption::PLAY_MODE, Option::PLAY_MODE_DOUBLE); break;
         case Option::BATTLE_DB:    gOptions.set(eOption::PLAY_MODE, Option::PLAY_MODE_DOUBLE_BATTLE); break;
-        case Option::BATTLE_GHOST: gOptions.set(eOption::PLAY_MODE, Option::PLAY_MODE_SP_GHOST_BATTLE); break;
+        case Option::BATTLE_GHOST: gOptions.set(eOption::PLAY_MODE, Option::PLAY_MODE_DP_GHOST_BATTLE); break;
         default: assert(false); break;
         }
     }

@@ -108,9 +108,9 @@ void updateDstOpt()
 		}
 	}
 
-	// 10 ダブル or ダブルバトル ならtrue
-	// 11 バトル ならtrue
-	// 12 ダブル or バトル or ダブルバトル ならtrue
+	// 10 ダブル or ダブルバトル ならtrue (flip?)
+	// 11 バトル ならtrue (HS, GAUGE 2P)
+	// 12 ダブル or バトル or ダブルバトル ならtrue (RANDOM, ASSIST, HID+SUD 2P)
 	// 13 ゴーストバトル or バトル ならtrue
 	{
 		switch (gOptions.get(eOption::PLAY_MODE))
@@ -119,8 +119,8 @@ void updateDstOpt()
 		case Option::PLAY_MODE_DOUBLE: set({ 10, 12 }); break;
 		case Option::PLAY_MODE_BATTLE: set({ 11, 12, 13 }); break;
 		case Option::PLAY_MODE_DOUBLE_BATTLE: set({ 10, 12 }); break;
-		case Option::PLAY_MODE_SP_GHOST_BATTLE: set({ 11, 12, 13 }); break;
-		case Option::PLAY_MODE_DP_GHOST_BATTLE: set({ 10, 13 }); break;
+		case Option::PLAY_MODE_SP_GHOST_BATTLE: set({ 13 }); break;
+		case Option::PLAY_MODE_DP_GHOST_BATTLE: set({ 10, 12, 13 }); break;
 		}
 	}
 

@@ -171,6 +171,7 @@ void loadSongList();
 void sortSongList();
 void setBarInfo();
 void setEntryInfo();
+void setPlayModeInfo();
 
 void setDynamicTextures();
 

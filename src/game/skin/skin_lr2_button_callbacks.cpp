@@ -236,34 +236,35 @@ void select_keys_filter(int plus, int iterateCount)
             loadSongList();
             sortSongList();
             setBarInfo();
+            setEntryInfo();
 
-            if (!gSelectContext.entries.empty())
+        }
+        if (!gSelectContext.entries.empty())
+        {
+            gOptions.set(eOption::PLAY_BATTLE_TYPE, Option::BATTLE_OFF);
+            gTexts.set(eText::BATTLE, "OFF");
+            gSwitches.set(eSwitch::PLAY_OPTION_DP_FLIP, false);
+            gTexts.set(eText::FLIP, "OFF");
+
+            setPlayModeInfo();
+
+            auto& [score, lamp] = getSaveScoreType();
+            gSwitches.set(eSwitch::CHART_CAN_SAVE_SCORE, score);
+            gOptions.set(eOption::CHART_SAVE_LAMP_TYPE, lamp);
+
+            switch (gSelectContext.filterKeys)
             {
-                gOptions.set(eOption::PLAY_BATTLE_TYPE, Option::BATTLE_OFF);
-                gTexts.set(eText::BATTLE, "OFF");
-                gSwitches.set(eSwitch::PLAY_OPTION_DP_FLIP, false);
-                gTexts.set(eText::FLIP, "OFF");
-
-                setEntryInfo();
-
-                auto& [score, lamp] = getSaveScoreType();
-                gSwitches.set(eSwitch::CHART_CAN_SAVE_SCORE, score);
-                gOptions.set(eOption::CHART_SAVE_LAMP_TYPE, lamp);
-
-                switch (gSelectContext.filterKeys)
-                {
-                case 0:  gTexts.set(eText::FILTER_KEYS, "ALL KEYS"); break;
-                case 1:  gTexts.set(eText::FILTER_KEYS, "SINGLE"); break;
-                case 2:  gTexts.set(eText::FILTER_KEYS, "DOUBLE"); break;
-                case 5:  gTexts.set(eText::FILTER_KEYS, "5KEYS"); break;
-                case 7:  gTexts.set(eText::FILTER_KEYS, "7KEYS"); break;
-                case 9:  gTexts.set(eText::FILTER_KEYS, "9BUTTONS"); break;
-                case 10: gTexts.set(eText::FILTER_KEYS, "10KEYS"); break;
-                case 14: gTexts.set(eText::FILTER_KEYS, "14KEYS"); break;
-                }
+            case 0:  gTexts.set(eText::FILTER_KEYS, "ALL KEYS"); break;
+            case 1:  gTexts.set(eText::FILTER_KEYS, "SINGLE"); break;
+            case 2:  gTexts.set(eText::FILTER_KEYS, "DOUBLE"); break;
+            case 5:  gTexts.set(eText::FILTER_KEYS, "5KEYS"); break;
+            case 7:  gTexts.set(eText::FILTER_KEYS, "7KEYS"); break;
+            case 9:  gTexts.set(eText::FILTER_KEYS, "9BUTTONS"); break;
+            case 10: gTexts.set(eText::FILTER_KEYS, "10KEYS"); break;
+            case 14: gTexts.set(eText::FILTER_KEYS, "14KEYS"); break;
             }
         }
-        if (gSelectContext.entries.empty())
+        else
         {
             return select_keys_filter(plus, iterateCount + 1);
         }
@@ -659,6 +660,8 @@ void battle(int plus)
             int idx = std::distance(modesSP.begin(), it);
             idx = (idx + modesSP.size() + plus) % modesSP.size();
             gOptions.set(eOption::PLAY_BATTLE_TYPE, modesSP[idx]);
+
+            setPlayModeInfo();
         }
         break;
     }
@@ -690,6 +693,7 @@ void battle(int plus)
             else
             {
                 gOptions.set(eOption::PLAY_MODE, Option::PLAY_MODE_DOUBLE);
+                setPlayModeInfo();
             }
         }
         break;
