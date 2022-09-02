@@ -986,8 +986,6 @@ void SceneSelect::_decide()
 
     auto& [entry, score] = gSelectContext.entries[gSelectContext.idx];
     //auto& chart = entry.charts[entry.chart_idx];
-    auto& c = gChartContext;
-    auto& p = gPlayContext;
 
     clearContextPlay();
 
@@ -1007,7 +1005,7 @@ void SceneSelect::_decide()
     }
 
     // chart
-    c.started = false;
+    gChartContext.started = false;
     switch (entry->type())
     {
     case eEntryType::SONG:
@@ -1019,41 +1017,44 @@ void SceneSelect::_decide()
         if (entry->type() == eEntryType::SONG || entry->type() == eEntryType::RIVAL_SONG)
         {
             auto pFile = std::reinterpret_pointer_cast<EntryFolderSong>(entry)->getCurrentChart();
-            c.chartObj = pFile;
+            gChartContext.chartObj = pFile;
         }
         else
         {
             auto pFile = std::reinterpret_pointer_cast<EntryChart>(entry)->_file;
-            c.chartObj = pFile;
+            gChartContext.chartObj = pFile;
         }
 
-        auto& chart = *c.chartObj;
-        //c.path = chart._filePath;
-        c.path = chart.absolutePath;
+        auto& chart = *gChartContext.chartObj;
+        //gChartContext.path = chart._filePath;
+        gChartContext.path = chart.absolutePath;
 
-        if (c.hash != chart.fileHash)
+        // FIXME consider BGA/SAMPLE definitions inside #RANDOM blocks
+        if (gChartContext.hash != chart.fileHash)
         {
-            c.isBgaLoaded = false;
-            c.isSampleLoaded = false;
+            gChartContext.isBgaLoaded = false;
+            gChartContext.isSampleLoaded = false;
         }
-        c.hash = chart.fileHash;
+        gChartContext.hash = chart.fileHash;
 
-        //c.chartObj = std::make_shared<ChartFormatBase>(chart);
-        c.title = chart.title;
-        c.title2 = chart.title2;
-        c.artist = chart.artist;
-        c.artist2 = chart.artist2;
-        c.genre = chart.genre;
-        c.version = chart.version;
-        c.level = chart.levelEstimated;
-        c.minBPM = chart.minBPM;
-        c.maxBPM = chart.maxBPM;
-        c.startBPM = chart.startBPM;
+        //gChartContext.chartObj = std::make_shared<ChartFormatBase>(chart);
+        gChartContext.title = chart.title;
+        gChartContext.title2 = chart.title2;
+        gChartContext.artist = chart.artist;
+        gChartContext.artist2 = chart.artist2;
+        gChartContext.genre = chart.genre;
+        gChartContext.version = chart.version;
+        gChartContext.level = chart.levelEstimated;
+        gChartContext.minBPM = chart.minBPM;
+        gChartContext.maxBPM = chart.maxBPM;
+        gChartContext.startBPM = chart.startBPM;
+
 
         // set gamemode
-        if (c.chartObj->type() == eChartFormat::BMS)
+        gChartContext.isDoubleBattle = false;
+        if (gChartContext.chartObj->type() == eChartFormat::BMS)
         {
-            auto pBMS = std::reinterpret_pointer_cast<ChartFormatBMSMeta>(c.chartObj);
+            auto pBMS = std::reinterpret_pointer_cast<ChartFormatBMSMeta>(gChartContext.chartObj);
             switch (pBMS->gamemode)
             {
             case 5:  gPlayContext.mode = eMode::PLAY5;  break;
@@ -1071,6 +1072,7 @@ void SceneSelect::_decide()
                 case 7:  gPlayContext.mode = eMode::PLAY14;  break;
                 default: break;
                 }
+                gChartContext.isDoubleBattle = true;
             }
         }
 
@@ -1209,7 +1211,7 @@ void SceneSelect::_decide()
     // score (mybest)
     if (score && !score->replayFileName.empty())
     {
-        Path replayFilePath = ReplayChart::getReplayPath(c.hash) / score->replayFileName;
+        Path replayFilePath = ReplayChart::getReplayPath(gChartContext.hash) / score->replayFileName;
         if (fs::is_regular_file(replayFilePath))
         {
             gPlayContext.replayMybest = std::make_shared<ReplayChart>();

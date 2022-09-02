@@ -29,6 +29,7 @@ struct ChartContextParams
     //bool isChartSamplesLoaded;
     bool isSampleLoaded = false;
     bool isBgaLoaded = false;
+    bool isDoubleBattle = false;
 	bool started = false;
 
     // For displaying purpose, typically fetch from song db directly

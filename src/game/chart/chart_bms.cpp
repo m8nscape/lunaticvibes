@@ -64,15 +64,6 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
 	_noteCount_total = objBms.notes_total;
 	_noteCount_regular = objBms.notes_scratch + objBms.notes_key;
 	_noteCount_ln = objBms.notes_scratch_ln + objBms.notes_key_ln;
-	Time basetime{ 0 };
-	Metre basemetre{ 0, 1 };
-
-    BPM bpm = objBms.startBPM * gSelectContext.pitchSpeed;
-    _currentBPM = bpm;
-    _bpmNoteList.push_back({ 0, {0, 1}, 0, 0, 0, bpm });
-	barMetreLength.fill({ 1, 1 });
-    bool bpmfucked = false; // set to true when BPM is changed to zero or negative value
-    std::bitset<NOTELANEINDEX_COUNT> isLnTail{ 0 };
 
     int laneCountOneSide = 7;
     switch (objBms.gamemode)
@@ -85,11 +76,28 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
     case 18: laneCountOneSide = 9; break;
     default: break;
     }
-    bool isChartDP = objBms.gamemode >= 10;
     size_t laneLeftStart = K1;
     size_t laneLeftEnd = K1 + laneCountOneSide - 1;
     size_t laneRightStart = K1 + laneCountOneSide;
     size_t laneRightEnd = K1 + laneCountOneSide + laneCountOneSide - 1;
+
+    bool isChartDP = objBms.player != 1;
+    if (!isChartDP && gChartContext.isDoubleBattle)
+    {
+        _noteCount_total *= 2;
+        _noteCount_regular *= 2;
+        _noteCount_ln *= 2;
+    }
+
+	Time basetime{ 0 };
+	Metre basemetre{ 0, 1 };
+
+    BPM bpm = objBms.startBPM * gSelectContext.pitchSpeed;
+    _currentBPM = bpm;
+    _bpmNoteList.push_back({ 0, {0, 1}, 0, 0, 0, bpm });
+	barMetreLength.fill({ 1, 1 });
+    bool bpmfucked = false; // set to true when BPM is changed to zero or negative value
+    std::bitset<NOTELANEINDEX_COUNT> isLnTail{ 0 };
 
     std::array<NoteLaneIndex, NOTELANEINDEX_COUNT> gameLaneMap;
     for (size_t i = Sc1; i < NOTELANEINDEX_COUNT; ++i) 
@@ -105,15 +113,11 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
     switch (gPlayContext.mods[_playerSlot].randomLeft)
     {
     case eModRandom::RANDOM:
-        std::shuffle(gameLaneMap.begin() + laneLeftStart, gameLaneMap.begin() + laneLeftEnd, rng);
-        if (isChartDP)
-            std::shuffle(gameLaneMap.begin() + laneRightStart, gameLaneMap.begin() + laneRightEnd, rng);
+        std::shuffle(gameLaneMap.begin() + laneLeftStart, gameLaneMap.begin() + laneLeftEnd + 1, rng);
         break;
 
     case eModRandom::MIRROR:
-        std::reverse(gameLaneMap.begin() + laneLeftStart, gameLaneMap.begin() + laneLeftEnd);
-        if (isChartDP)
-            std::reverse(gameLaneMap.begin() + laneRightStart, gameLaneMap.begin() + laneRightEnd);
+        std::reverse(gameLaneMap.begin() + laneLeftStart, gameLaneMap.begin() + laneLeftEnd + 1);
         break;
 
     case eModRandom::SRAN:
@@ -125,6 +129,29 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
     case eModRandom::NONE:
     default: 
         break;
+    }
+    if (isChartDP || gChartContext.isDoubleBattle)
+    {
+        switch (gPlayContext.mods[_playerSlot].randomRight)
+        {
+        case eModRandom::RANDOM:
+            std::shuffle(gameLaneMap.begin() + laneRightStart, gameLaneMap.begin() + laneRightEnd + 1, rng);
+            break;
+
+        case eModRandom::MIRROR:
+            std::reverse(gameLaneMap.begin() + laneRightStart, gameLaneMap.begin() + laneRightEnd + 1);
+            break;
+
+        case eModRandom::SRAN:
+        case eModRandom::HRAN:
+        case eModRandom::ALLSCR:
+            // handled below
+            break;
+
+        case eModRandom::NONE:
+        default:
+            break;
+        }
     }
 
     std::bitset<NOTELANEINDEX_COUNT> laneOccupiedByLN{ 0 };
@@ -181,7 +208,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                 {
                     auto ch = objBms.getLane(code, i, m);
                     unsigned index = i;
-                    if (area != 0 && objBms.player != 1)
+                    if (area != 0)
                     {
                         if (index == Sc1)
                         {
@@ -206,7 +233,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                 {
                     auto ch = objBms.getLane(code, i, m);
                     unsigned index = i;
-                    if (area != 0 && objBms.player != 1)
+                    if (area != 0)
                     {
                         if (index == Sc1)
                         {
@@ -232,19 +259,31 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
             
             // Regular Notes
             push_notes(notes, eLanePriority::NOTE, LaneCode::NOTE1, 0);
-            if (objBms.player != 1) push_notes(notes, eLanePriority::NOTE, LaneCode::NOTE2, 1);
+            if (isChartDP) 
+                push_notes(notes, eLanePriority::NOTE, LaneCode::NOTE2, 1);
+            else if (gChartContext.isDoubleBattle) 
+                push_notes(notes, eLanePriority::NOTE, LaneCode::NOTE1, 1);
 
             // LN
             push_notes_ln(notes, LaneCode::NOTELN1, 0);
-            if (objBms.player != 1) push_notes_ln(notes, LaneCode::NOTELN2, 1);
+            if (isChartDP) 
+                push_notes_ln(notes, LaneCode::NOTELN2, 1);
+            else if (gChartContext.isDoubleBattle)
+                push_notes_ln(notes, LaneCode::NOTELN1, 1);
 
             // invisible
             push_notes(notes, eLanePriority::INV, LaneCode::NOTEINV1, 0);
-            if (objBms.player != 1) push_notes(notes, eLanePriority::INV, LaneCode::NOTEINV2, 1);
+            if (isChartDP) 
+                push_notes(notes, eLanePriority::INV, LaneCode::NOTEINV2, 1);
+            else if (gChartContext.isDoubleBattle)
+                push_notes(notes, eLanePriority::INV, LaneCode::NOTEINV1, 1);
 
             // mine, specify a damage by [01-ZZ] (decimalize/2) ZZ: instant gameover
             push_notes(notes, eLanePriority::MINE, LaneCode::NOTEMINE1, 0);
-            if (objBms.player != 1) push_notes(notes, eLanePriority::MINE, LaneCode::NOTEMINE2, 1);
+            if (isChartDP) 
+                push_notes(notes, eLanePriority::MINE, LaneCode::NOTEMINE2, 1);
+            else if (gChartContext.isDoubleBattle)
+                push_notes(notes, eLanePriority::MINE, LaneCode::NOTEMINE1, 1);
 
             // BGM
             for (unsigned i = 0; i < objBms.bgmLayersCount[m]; i++)

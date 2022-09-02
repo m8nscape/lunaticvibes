@@ -331,7 +331,8 @@ bool ScenePlay::createChartObj()
             if (gPlayContext.replayMybest)
                 gPlayContext.chartObj[PLAYER_SLOT_MYBEST] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_MYBEST, bms);
 
-            itReplayCommand = gPlayContext.replay->commands.begin();
+            if (gPlayContext.isReplay)
+                itReplayCommand = gPlayContext.replay->commands.begin();
         }
         else
         {
