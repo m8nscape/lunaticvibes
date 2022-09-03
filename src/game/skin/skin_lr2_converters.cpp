@@ -98,7 +98,7 @@ static const std::vector<std::variant<std::monostate, eSwitch, eOption>> buttonA
 
     //54
     eSwitch::PLAY_OPTION_DP_FLIP,
-    eOption::PLAY_HSFIX_TYPE_1P,
+    eOption::PLAY_HSFIX_TYPE,
     eOption::PLAY_BATTLE_TYPE,
     eSwitch::_FALSE,	// HS-1P
     eSwitch::_FALSE,	// HS-2P

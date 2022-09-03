@@ -27,7 +27,7 @@ std::pair<bool, Option::e_lamp_type> getSaveScoreType()
     if (battleType == Option::BATTLE_LOCAL || battleType == Option::BATTLE_DB)
         return { false, Option::LAMP_NOPLAY };
 
-    if (gOptions.get(eOption::PLAY_HSFIX_TYPE_1P) == Option::e_speed_type::SPEED_FIX_CONSTANT)
+    if (gOptions.get(eOption::PLAY_HSFIX_TYPE) == Option::e_speed_type::SPEED_FIX_CONSTANT)
         return { false, Option::LAMP_NOPLAY };
 
     Option::e_random_type randomType = (Option::e_random_type)gOptions.get(eOption::PLAY_RANDOM_TYPE_1P);

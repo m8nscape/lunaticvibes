@@ -147,8 +147,9 @@ protected:
     std::array<Metre,  MAX_MEASURES>   _barMetrePos;
     std::array<Time, MAX_MEASURES>   _barTimestamp;
 
-    Time _totalLength;
-
+    Time   _totalLength;
+    double _averageBPM = 0.;
+    double _mainBPM = 0.;
 
 public:
     ChartObjectBase() = delete;
@@ -197,12 +198,12 @@ public:
 protected:
     unsigned _currentBarTemp       = 0;
     unsigned _currentBar           = 0;
-    double   _currentMetreTemp     = 0;
-    double   _currentMetre         = 0;
+    double   _currentMetreTemp     = 0.;
+    double   _currentMetre         = 0.;
     BPM      _currentBPM           = 150.0;
     Time     _currentBeatLength    = Time::singleBeatLengthFromBPM(150.0);
     Time     _lastChangedBPMTime   = 0;
-    double   _lastChangedBPMMetre  = 0;
+    double   _lastChangedBPMMetre  = 0.;
 
 public:
     void reset();
@@ -223,6 +224,8 @@ public:
     virtual chart::NoteLaneIndex getLaneFromKey(chart::NoteLaneCategory cat, Input::Pad input) = 0;
     virtual std::vector<Input::Pad> getInputFromLane(size_t channel) = 0;
 
-    inline auto getTotalLength() const { return _totalLength; }
+    inline const Time& getTotalLength() const { return _totalLength; }
+    constexpr auto getAverageBPM() -> decltype(_averageBPM) { return _averageBPM; }
+    constexpr auto getMainBPM() -> decltype(_mainBPM) { return _mainBPM; }
 };
 

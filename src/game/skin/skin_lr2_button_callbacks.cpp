@@ -608,10 +608,9 @@ void hs_fix(int plus)
 {
     // eModHs
     //OFF/MAXBPM/MINBPM/AVERAGE/CONSTANT
-    int val = (gOptions.get(eOption::PLAY_HSFIX_TYPE_1P) + 5 + plus) % 5;
+    int val = (gOptions.get(eOption::PLAY_HSFIX_TYPE) + 5 + plus) % 5;
     
-    gOptions.set(eOption::PLAY_HSFIX_TYPE_1P, val);
-    gOptions.set(eOption::PLAY_HSFIX_TYPE_2P, val);
+    gOptions.set(eOption::PLAY_HSFIX_TYPE, val);
 
     switch (val)
     {
@@ -619,10 +618,10 @@ void hs_fix(int plus)
         gTexts.set(eText::SCROLL_TYPE, "OFF"); 
         break;
     case 1:
-        gTexts.set(eText::SCROLL_TYPE, "MAX");
+        gTexts.set(eText::SCROLL_TYPE, "MAX BPM");
         break;
     case 2:
-        gTexts.set(eText::SCROLL_TYPE, "MIN");
+        gTexts.set(eText::SCROLL_TYPE, "MIN BPM");
         break;
     case 3:
         gTexts.set(eText::SCROLL_TYPE, "AVERAGE");

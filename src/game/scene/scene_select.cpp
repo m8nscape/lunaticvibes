@@ -39,7 +39,7 @@ void config_player()
     using namespace cfg;
 
     ConfigMgr::set('P',P_HISPEED, gPlayContext.Hispeed);
-    switch (gOptions.get(eOption::PLAY_HSFIX_TYPE_1P))
+    switch (gOptions.get(eOption::PLAY_HSFIX_TYPE))
     {
     case Option::SPEED_FIX_MAX:      ConfigMgr::set('P',P_SPEED_TYPE, P_SPEED_TYPE_MAX); break;
     case Option::SPEED_FIX_MIN:      ConfigMgr::set('P',P_SPEED_TYPE, P_SPEED_TYPE_MIN); break;
@@ -1222,8 +1222,8 @@ void SceneSelect::_decide()
             default: return eModHs::NONE;
             };
         };
-        gPlayContext.mods[PLAYER_SLOT_PLAYER].hs = convertHSType(gOptions.get(eOption::PLAY_HSFIX_TYPE_1P));
-        gPlayContext.mods[PLAYER_SLOT_TARGET].hs = convertHSType(gOptions.get(gPlayContext.isBattle ? eOption::PLAY_HSFIX_TYPE_2P : eOption::PLAY_HSFIX_TYPE_1P));
+        gPlayContext.mods[PLAYER_SLOT_PLAYER].hispeedFix = convertHSType(gOptions.get(eOption::PLAY_HSFIX_TYPE));
+        gPlayContext.mods[PLAYER_SLOT_TARGET].hispeedFix = convertHSType(gOptions.get(eOption::PLAY_HSFIX_TYPE));
     }
     else // gPlayContext.isReplay
     {
@@ -1231,7 +1231,7 @@ void SceneSelect::_decide()
         gPlayContext.mods[PLAYER_SLOT_PLAYER].randomRight = gPlayContext.replay->randomTypeRight;
         gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge = gPlayContext.replay->gaugeType;
         gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask = gPlayContext.replay->assistMask;
-        gPlayContext.mods[PLAYER_SLOT_PLAYER].hs = gPlayContext.replay->hispeedFix;
+        gPlayContext.mods[PLAYER_SLOT_PLAYER].hispeedFix = gPlayContext.replay->hispeedFix;
         gPlayContext.mods[PLAYER_SLOT_PLAYER].visual_mask = gPlayContext.replay->laneEffectType;
         gPlayContext.mods[PLAYER_SLOT_PLAYER].DPFlip = gPlayContext.replay->DPFlip;
     }
@@ -1249,7 +1249,7 @@ void SceneSelect::_decide()
                 gPlayContext.mods[PLAYER_SLOT_MYBEST].randomRight = gPlayContext.replayMybest->randomTypeRight;
                 gPlayContext.mods[PLAYER_SLOT_MYBEST].gauge = gPlayContext.replayMybest->gaugeType;
                 gPlayContext.mods[PLAYER_SLOT_MYBEST].assist_mask = gPlayContext.replayMybest->assistMask;
-                gPlayContext.mods[PLAYER_SLOT_MYBEST].hs = gPlayContext.replayMybest->hispeedFix;
+                gPlayContext.mods[PLAYER_SLOT_MYBEST].hispeedFix = gPlayContext.replayMybest->hispeedFix;
                 gPlayContext.mods[PLAYER_SLOT_MYBEST].visual_mask = gPlayContext.replayMybest->laneEffectType;
                 gPlayContext.mods[PLAYER_SLOT_MYBEST].DPFlip = gPlayContext.replayMybest->DPFlip;
             }

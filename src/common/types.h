@@ -165,7 +165,7 @@ struct PlayMod
     eModRandom randomRight = eModRandom::NONE;
     eModGauge gauge = eModGauge::NORMAL;
     uint8_t assist_mask = 0;
-    eModHs hs = eModHs::NONE;
+    eModHs hispeedFix = eModHs::NONE;
     uint8_t visual_mask = 0;
     bool DPFlip = false;
 
@@ -175,7 +175,7 @@ struct PlayMod
         randomRight = eModRandom::NONE;
         gauge = eModGauge::NORMAL;
         assist_mask = 0;
-        hs = eModHs::NONE;
+        hispeedFix = eModHs::NONE;
         visual_mask = 0;
         DPFlip = false;
     }

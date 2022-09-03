@@ -72,13 +72,11 @@ void setOptions()
         auto&& s = ConfigMgr::get<string>('P', P_SPEED_TYPE, P_SPEED_TYPE_NORMAL);
         if (smap.find(s) != smap.end())
         {
-            g.queue(e::PLAY_HSFIX_TYPE_1P, smap.at(s));
-            g.queue(e::PLAY_HSFIX_TYPE_2P, smap.at(s));
+            g.queue(e::PLAY_HSFIX_TYPE, smap.at(s));
         }
         else
         {
-            g.queue(e::PLAY_HSFIX_TYPE_1P, SPEED_NORMAL);
-            g.queue(e::PLAY_HSFIX_TYPE_2P, SPEED_NORMAL);
+            g.queue(e::PLAY_HSFIX_TYPE, SPEED_NORMAL);
         }
     }
 

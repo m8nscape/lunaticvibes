@@ -85,24 +85,49 @@ void SpriteLaneVertical::updateNoteRect(const Time& t)
     // refresh note sprites
 	pNote->update(t);
 
-    // fetch note size, c.y + c.h = judge line pos (top-left corner), -c.h = height start drawing
-    auto c = _current.rect;
-    auto currTotalMetre = pChart->getBarMetrePosition(bar).toDouble() + metre;
-
-    // generate note rects and store to buffer
-	// 120BPM with 1.0x HS is 2000ms (500ms/beat, green number 1200)
-	// !!! scroll height should not affected by note height
-    int y = (c.y + c.h);
-    auto it = pChart->incomingNote(_category, _index);
-	while (!pChart->isLastNote(_category, _index, it) && y >= 0)
+	if (gPlayContext.mods[playerSlot].hispeedFix != eModHs::CONSTANT)
 	{
-		auto noteMetreOffset = currTotalMetre - it->pos.toDouble();
-		if (noteMetreOffset >= 0)
-			y = (c.y + c.h); // expired notes stay on judge line, LR2 / pre RA behavior
-		else
-			y = (c.y + c.h) - static_cast<int>(std::floor(-noteMetreOffset * _noteAreaHeight * _basespd * _hispeed));
-		it++;
-		_outRect.push_front({ c.x, y, c.w, -c.h });
+		// fetch note size, c.y + c.h = judge line pos (top-left corner), -c.h = height start drawing
+		auto c = _current.rect;
+		auto currTotalMetre = pChart->getBarMetrePosition(bar).toDouble() + metre;
+
+		// generate note rects and store to buffer
+		// 120BPM with 1.0x HS is 2000ms (500ms/beat, green number 1200)
+		// !!! scroll height should not affected by note height
+		int y = (c.y + c.h);
+		auto it = pChart->incomingNote(_category, _index);
+		while (!pChart->isLastNote(_category, _index, it) && y >= 0)
+		{
+			auto noteMetreOffset = currTotalMetre - it->pos.toDouble();
+			if (noteMetreOffset >= 0)
+				y = (c.y + c.h); // expired notes stay on judge line, LR2 / pre RA behavior
+			else
+				y = (c.y + c.h) - static_cast<int>(std::floor(-noteMetreOffset * _noteAreaHeight * _basespd * _hispeed));
+			it++;
+			_outRect.push_front({ c.x, y, c.w, -c.h });
+		}
+	}
+	else
+	{
+		// fetch note size, c.y + c.h = judge line pos (top-left corner), -c.h = height start drawing
+		auto c = _current.rect;
+		long long currTimestamp = gChartContext.started ? (t - gTimers.get(eTimer::PLAY_START)).norm() : 0;
+
+		// generate note rects and store to buffer
+		// CONSTANT: generate note rects with timestamp (BPM=150)
+		// 150BPM with 1.0x HS is 1600ms (400ms/beat, green number 960)
+		int y = (c.y + c.h);
+		auto it = pChart->incomingNote(_category, _index);
+		while (!pChart->isLastNote(_category, _index, it) && y >= 0)
+		{
+			auto noteTimeOffset = currTimestamp - it->time.norm();
+			if (noteTimeOffset >= 0)
+				y = (c.y + c.h); // expired notes stay on judge line, LR2 / pre RA behavior
+			else
+				y = (c.y + c.h) - static_cast<int>(std::floor(-noteTimeOffset / 1600.0 * _noteAreaHeight * _basespd * _hispeed));
+			it++;
+			_outRect.push_front({ c.x, y, c.w, -c.h });
+		}
 	}
 }
 
@@ -142,50 +167,102 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 	// refresh note sprites
 	pNote->update(t);
 
-	// fetch note size, c.y + c.h = judge line pos (top-left corner), -c.h = height start drawing
-	auto c = _current.rect;
-	auto currTotalMetre = pChart->getBarMetrePosition(bar).toDouble() + metre;
-
-	// generate note rects and store to buffer
-	// 150BPM with 1.0x HS is 2000ms (400ms/beat, green number 1200)
-	int head_y_actual = c.y + c.h;
-	auto it = pChart->incomingNote(_category, _index);
-	while (!pChart->isLastNote(_category, _index, it) && head_y_actual >= 0)
+	if (gPlayContext.mods[playerSlot].hispeedFix != eModHs::CONSTANT)
 	{
-		int head_y = c.y + c.h;
-		int tail_y = 0;
+		// fetch note size, c.y + c.h = judge line pos (top-left corner), -c.h = height start drawing
+		auto c = _current.rect;
+		auto currTotalMetre = pChart->getBarMetrePosition(bar).toDouble() + metre;
 
-		if (it->flags & Note::LN_TAIL)
+		// generate note rects and store to buffer
+		// 120BPM with 1.0x HS is 2000ms (500ms/beat, green number 1200)
+		int head_y_actual = c.y + c.h;
+		auto it = pChart->incomingNote(_category, _index);
+		while (!pChart->isLastNote(_category, _index, it) && head_y_actual >= 0)
 		{
-			head_y_actual = c.y + c.h;
+			int head_y = c.y + c.h;
+			int tail_y = 0;
 
-			const auto& tail = *it;
-			auto tailBeatOffset = currTotalMetre - tail.pos.toDouble();
-			tail_y = (c.y + c.h) - static_cast<int>(std::floor(-tailBeatOffset * _noteAreaHeight * _basespd * _hispeed));
+			if (it->flags & Note::LN_TAIL)
+			{
+				head_y_actual = c.y + c.h;
 
-			++it;
+				const auto& tail = *it;
+				auto tailMetreOffset = currTotalMetre - tail.pos.toDouble();
+				tail_y = (c.y + c.h) - static_cast<int>(std::floor(-tailMetreOffset * _noteAreaHeight * _basespd * _hispeed));
+
+				++it;
+			}
+			else
+			{
+				const auto& head = *it;
+				++it;
+				if (pChart->isLastNote(_category, _index, it)) break;
+
+				const auto& tail = *it;
+
+				auto headMetreOffset = currTotalMetre - head.pos.toDouble();
+				head_y_actual = (c.y + c.h) - static_cast<int>(std::floor(-headMetreOffset * _noteAreaHeight * _basespd * _hispeed));
+				if (head_y_actual < head_y) head_y = head_y_actual;
+
+				auto tailMetreOffset = currTotalMetre - tail.pos.toDouble();
+				tail_y = (c.y + c.h) - static_cast<int>(std::floor(-tailMetreOffset * _noteAreaHeight * _basespd * _hispeed));
+
+				++it;
+			}
+
+			_outRect.push_front({ c.x, head_y, c.w, -c.h });
+			_outRectBody.push_front({ c.x, tail_y, c.w, head_y - tail_y - c.h });
+			_outRectTail.push_front({ c.x, tail_y, c.w, -c.h });
 		}
-		else
+	}
+	else
+	{
+		// fetch note size, c.y + c.h = judge line pos (top-left corner), -c.h = height start drawing
+		auto c = _current.rect;
+		long long currTimestamp = gChartContext.started ? (t - gTimers.get(eTimer::PLAY_START)).norm() : 0;
+
+		// generate note rects and store to buffer
+		// CONSTANT: generate note rects with timestamp (BPM=150)
+		// 150BPM with 1.0x HS is 1600ms (400ms/beat, green number 960)
+		int head_y_actual = c.y + c.h;
+		auto it = pChart->incomingNote(_category, _index);
+		while (!pChart->isLastNote(_category, _index, it) && head_y_actual >= 0)
 		{
-			const auto& head = *it;
-			++it;
-			if (pChart->isLastNote(_category, _index, it)) break;
+			int head_y = c.y + c.h;
+			int tail_y = 0;
 
-			const auto& tail = *it;
+			if (it->flags & Note::LN_TAIL)
+			{
+				head_y_actual = c.y + c.h;
 
-			auto headMetreOffset = currTotalMetre - head.pos.toDouble();
-			head_y_actual = (c.y + c.h) - static_cast<int>(std::floor(-headMetreOffset * _noteAreaHeight * _basespd * _hispeed));
-			if (head_y_actual < head_y) head_y = head_y_actual;
+				const auto& tail = *it;
+				auto tailTimeOffset = currTimestamp - tail.time.norm();
+				tail_y = (c.y + c.h) - static_cast<int>(std::floor(-tailTimeOffset / 1600.0 * _noteAreaHeight * _basespd * _hispeed));
 
-			auto tailMetreOffset = currTotalMetre - tail.pos.toDouble();
-			tail_y = (c.y + c.h) - static_cast<int>(std::floor(-tailMetreOffset * _noteAreaHeight * _basespd * _hispeed));
+				++it;
+			}
+			else
+			{
+				const auto& head = *it;
+				++it;
+				if (pChart->isLastNote(_category, _index, it)) break;
 
-			++it;
+				const auto& tail = *it;
+
+				auto headTimeOffset = currTimestamp - head.time.norm();
+				head_y_actual = (c.y + c.h) - static_cast<int>(std::floor(-headTimeOffset / 1600.0 * _noteAreaHeight * _basespd * _hispeed));
+				if (head_y_actual < head_y) head_y = head_y_actual;
+
+				auto tailTimeOffset = currTimestamp - tail.time.norm();
+				tail_y = (c.y + c.h) - static_cast<int>(std::floor(-tailTimeOffset / 1600.0 * _noteAreaHeight * _basespd * _hispeed));
+
+				++it;
+			}
+
+			_outRect.push_front({ c.x, head_y, c.w, -c.h });
+			_outRectBody.push_front({ c.x, tail_y, c.w, head_y - tail_y - c.h });
+			_outRectTail.push_front({ c.x, tail_y, c.w, -c.h });
 		}
-
-		_outRect.push_front({ c.x, head_y, c.w, -c.h });
-		_outRectBody.push_front({ c.x, tail_y, c.w, head_y - tail_y - c.h });
-		_outRectTail.push_front({ c.x, tail_y, c.w, -c.h });
 	}
 }
 

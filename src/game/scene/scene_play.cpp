@@ -144,8 +144,18 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     {
         _lockspeedEnabled[PLAYER_SLOT_PLAYER] = true;
 
+        double bpm = gChartContext.startBPM * gSelectContext.pitchSpeed;
+        switch (gPlayContext.mods[PLAYER_SLOT_PLAYER].hispeedFix)
+        {
+        case eModHs::MAXBPM:   bpm = gChartContext.maxBPM * gSelectContext.pitchSpeed; break;
+        case eModHs::MINBPM:   bpm = gChartContext.minBPM * gSelectContext.pitchSpeed; break;
+        case eModHs::AVERAGE:  bpm = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getAverageBPM(); break;
+        case eModHs::CONSTANT: bpm = 150.0; break;
+        case eModHs::NONE:     
+        default:               bpm = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentBPM(); break;
+        }
+
         int green = ConfigMgr::get('P', cfg::P_GREENNUMBER, 1200);
-        double bpm = gChartContext.HSFixBPMFactor1P * gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentBPM();
         int lcTop = gNumbers.get(eNumber::LANECOVER_TOP_1P);
         int lcBottom = gNumbers.get(eNumber::LANECOVER_BOTTOM_1P);
         double visible = std::max(0, (1000 - lcTop - lcBottom)) / 1000.0;
@@ -159,8 +169,18 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     {
         _lockspeedEnabled[PLAYER_SLOT_TARGET] = true;
 
+        double bpm = gChartContext.startBPM;
+        switch (gPlayContext.mods[PLAYER_SLOT_PLAYER].hispeedFix)
+        {
+        case eModHs::MAXBPM:   bpm = gChartContext.maxBPM * gSelectContext.pitchSpeed; break;
+        case eModHs::MINBPM:   bpm = gChartContext.minBPM * gSelectContext.pitchSpeed; break;
+        case eModHs::AVERAGE:  bpm = gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getAverageBPM(); break;
+        case eModHs::CONSTANT: bpm = 150.0; break;
+        case eModHs::NONE:
+        default:               bpm = gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getCurrentBPM(); break;
+        }
+
         int green = gPlayContext.battle2PGreenNumber;
-        double bpm = gChartContext.HSFixBPMFactor2P * gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getCurrentBPM();
         int lcTop = gNumbers.get(eNumber::LANECOVER_TOP_2P);
         int lcBottom = gNumbers.get(eNumber::LANECOVER_BOTTOM_2P);
         double visible = std::max(0, (1000 - lcTop - lcBottom)) / 1000.0;
@@ -494,7 +514,7 @@ bool ScenePlay::createRuleset()
                 gPlayContext.replayNew->randomTypeLeft = gPlayContext.mods[PLAYER_SLOT_PLAYER].randomLeft;
                 gPlayContext.replayNew->randomTypeRight = gPlayContext.mods[PLAYER_SLOT_PLAYER].randomRight;
                 gPlayContext.replayNew->assistMask = gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask;
-                gPlayContext.replayNew->hispeedFix = gPlayContext.mods[PLAYER_SLOT_PLAYER].hs;
+                gPlayContext.replayNew->hispeedFix = gPlayContext.mods[PLAYER_SLOT_PLAYER].hispeedFix;
                 gPlayContext.replayNew->laneEffectType = gPlayContext.mods[PLAYER_SLOT_PLAYER].visual_mask;
                 gPlayContext.replayNew->pitchType = (int8_t)gOptions.get(eOption::SOUND_PITCH_TYPE);
                 gPlayContext.replayNew->pitchValue = (int8_t)std::round((gSliders.get(eSlider::PITCH) - 0.5) * 2 * 12);
@@ -822,6 +842,7 @@ void ScenePlay::_updateAsync()
     if (true)
     {
         // TODO SUD+ or HID+/LIFT?
+        bool lcHasChanged = (_lanecoverAdd[PLAYER_SLOT_PLAYER] != 0);
         int lc = gNumbers.get(eNumber::LANECOVER_TOP_1P);
         int lcOld = lc;
         while (lc < 1000 && _lanecoverAdd[PLAYER_SLOT_PLAYER] >= lcThreshold)
@@ -872,7 +893,7 @@ void ScenePlay::_updateAsync()
                 _hispeedAdd[PLAYER_SLOT_PLAYER] = 0;
         }
 
-        if (lc != lcOld)
+        if (lcHasChanged)
         {
             gNumbers.queue(eNumber::LANECOVER_TOP_1P, lc);
             gNumbers.queue(eNumber::LANECOVER100_1P, lc / 10);
@@ -880,7 +901,8 @@ void ScenePlay::_updateAsync()
 
             if (_lockspeedEnabled[PLAYER_SLOT_PLAYER])
             {
-                double bpm = gChartContext.HSFixBPMFactor1P * gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentBPM();
+                double bpm = gPlayContext.mods[PLAYER_SLOT_PLAYER].hispeedFix == eModHs::CONSTANT ?
+                    150.0 : gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentBPM();
                 int lcTop = lc;
                 int lcBottom = gNumbers.get(eNumber::LANECOVER_BOTTOM_1P);
                 double visible = std::max(0, (1000 - lcTop - lcBottom)) / 1000.0;
@@ -896,7 +918,8 @@ void ScenePlay::_updateAsync()
 
             if (_lockspeedEnabled[PLAYER_SLOT_PLAYER] && _isHoldingSelect[PLAYER_SLOT_PLAYER])
             {
-                double bpm = gChartContext.HSFixBPMFactor1P * gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentBPM();
+                double bpm = gPlayContext.mods[PLAYER_SLOT_PLAYER].hispeedFix == eModHs::CONSTANT ?
+                    150.0 : gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentBPM();
                 int lcTop = lc;
                 int lcBottom = gNumbers.get(eNumber::LANECOVER_BOTTOM_1P);
                 double visible = std::max(0, (1000 - lcTop - lcBottom)) / 1000.0;
@@ -911,6 +934,7 @@ void ScenePlay::_updateAsync()
     if (isPlaymodeBattle())
     {
         // TODO SUD+ or HID+/LIFT?
+        bool lcHasChanged = (_lanecoverAdd[PLAYER_SLOT_TARGET] != 0);
         int lc = gNumbers.get(eNumber::LANECOVER_TOP_2P);
         int lcOld = lc;
         while (lc < 1000 && _lanecoverAdd[PLAYER_SLOT_TARGET] >= lcThreshold)
@@ -961,7 +985,7 @@ void ScenePlay::_updateAsync()
                 _hispeedAdd[PLAYER_SLOT_TARGET] = 0;
         }
 
-        if (lc != lcOld)
+        if (lcHasChanged)
         {
             gNumbers.queue(eNumber::LANECOVER_TOP_2P, lc);
             gNumbers.queue(eNumber::LANECOVER100_2P, lc / 10);
@@ -969,7 +993,8 @@ void ScenePlay::_updateAsync()
 
             if (_lockspeedEnabled[PLAYER_SLOT_TARGET])
             {
-                double bpm = gChartContext.HSFixBPMFactor2P * gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getCurrentBPM();
+                double bpm = gPlayContext.mods[PLAYER_SLOT_TARGET].hispeedFix == eModHs::CONSTANT ?
+                    150.0 : gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getCurrentBPM();
                 int lcTop = lc;
                 int lcBottom = gNumbers.get(eNumber::LANECOVER_BOTTOM_2P);
                 double visible = std::max(0, (1000 - lcTop - lcBottom)) / 1000.0;
@@ -985,7 +1010,8 @@ void ScenePlay::_updateAsync()
 
             if (_lockspeedEnabled[PLAYER_SLOT_TARGET] && _isHoldingSelect[PLAYER_SLOT_PLAYER])
             {
-                double bpm = gChartContext.HSFixBPMFactor2P * gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getCurrentBPM();
+                double bpm = gPlayContext.mods[PLAYER_SLOT_TARGET].hispeedFix == eModHs::CONSTANT ?
+                    150.0 : gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getCurrentBPM();
                 int lcTop = lc;
                 int lcBottom = gNumbers.get(eNumber::LANECOVER_BOTTOM_2P);
                 double visible = std::max(0, (1000 - lcTop - lcBottom)) / 1000.0;
@@ -1011,15 +1037,23 @@ void ScenePlay::_updateAsync()
     // 120BPM with 1.0x HS is 2000ms (500ms/beat, green number 1200)
     if (_skin->info.noteLaneHeight1P != 0)
     {
-        double bpm = gChartContext.HSFixBPMFactor1P * gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentBPM();
-        double minBPM = gChartContext.HSFixBPMFactor1P * gChartContext.minBPM;
-        double maxBPM = gChartContext.HSFixBPMFactor1P * gChartContext.maxBPM;
+        double bpm, minBPM, maxBPM;
+        if (gPlayContext.mods[PLAYER_SLOT_PLAYER].hispeedFix != eModHs::CONSTANT)
+        {
+            bpm = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentBPM();
+            minBPM = gChartContext.minBPM;
+            maxBPM = gChartContext.maxBPM;
+        }
+        else
+        {
+            bpm = minBPM = maxBPM = 150.0;
+        }
         int lcTop = gNumbers.get(eNumber::LANECOVER_TOP_1P);
         int lcBottom = gNumbers.get(eNumber::LANECOVER_BOTTOM_1P);
 
         double visible = 1.0;
         if (_lanecoverEnabled[PLAYER_SLOT_PLAYER])
-            visible -= std::clamp(lcTop + lcBottom, 0, 1000) / 1000.0;
+        visible -= std::clamp(lcTop + lcBottom, 0, 1000) / 1000.0;
         double den;
         den = gPlayContext.Hispeed * bpm;
         gNumbers.queue(eNumber::GREEN_NUMBER_1P, den != 0.0 ? int(std::round(visible * 120.0 * 1200 / den)) : 0);
@@ -1030,9 +1064,17 @@ void ScenePlay::_updateAsync()
     }
     if (_skin->info.noteLaneHeight2P != 0 && gPlayContext.chartObj[PLAYER_SLOT_TARGET] != nullptr)
     {
-        double bpm = gChartContext.HSFixBPMFactor2P * gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getCurrentBPM();
-        double minBPM = gChartContext.HSFixBPMFactor2P * gChartContext.minBPM;
-        double maxBPM = gChartContext.HSFixBPMFactor2P * gChartContext.maxBPM;
+        double bpm, minBPM, maxBPM;
+        if (gPlayContext.mods[PLAYER_SLOT_TARGET].hispeedFix != eModHs::CONSTANT)
+        {
+            bpm = gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getCurrentBPM();
+            minBPM = gChartContext.minBPM;
+            maxBPM = gChartContext.maxBPM;
+        }
+        else
+        {
+            bpm = minBPM = maxBPM = 150.0;
+        }
         int lcTop = gNumbers.get(eNumber::LANECOVER_TOP_2P);
         int lcBottom = gNumbers.get(eNumber::LANECOVER_BOTTOM_2P);
 
@@ -2001,7 +2043,8 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
             gSwitches.set(eSwitch::P1_LOCK_SPEED, _lockspeedEnabled[PLAYER_SLOT_PLAYER]);
             if (_lockspeedEnabled[PLAYER_SLOT_PLAYER])
             {
-                double bpm = gChartContext.HSFixBPMFactor1P * gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentBPM();
+                double bpm = gPlayContext.mods[PLAYER_SLOT_PLAYER].hispeedFix == eModHs::CONSTANT ?
+                    150.0 : gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentBPM();
                 double hs = gPlayContext.Hispeed;
                 int lcTop = gNumbers.get(eNumber::LANECOVER_TOP_1P);
                 int lcBottom = gNumbers.get(eNumber::LANECOVER_BOTTOM_1P);
@@ -2027,7 +2070,8 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
             gSwitches.set(eSwitch::P2_LOCK_SPEED, _lockspeedEnabled[PLAYER_SLOT_PLAYER]);
             if (_lockspeedEnabled[PLAYER_SLOT_TARGET])
             {
-                double bpm = gChartContext.HSFixBPMFactor2P * gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getCurrentBPM();
+                double bpm = gPlayContext.mods[PLAYER_SLOT_TARGET].hispeedFix == eModHs::CONSTANT ?
+                    150.0 : gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getCurrentBPM();
                 double hs = gPlayContext.battle2PHispeed;
                 int lcTop = gNumbers.get(eNumber::LANECOVER_TOP_2P);
                 int lcBottom = gNumbers.get(eNumber::LANECOVER_BOTTOM_2P);
