@@ -453,6 +453,7 @@ void pitch_switch(int plus)
         // close
         gSwitches.set(eSwitch::SOUND_PITCH, false);
         SoundMgr::setFreqFactor(1.0);
+        gSelectContext.pitchSpeed = 1.0;
     }
     else
     {
@@ -515,6 +516,10 @@ void gauge_type(int player, int plus)
     }
 
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
+
+    auto& [score, lamp] = getSaveScoreType();
+    gSwitches.set(eSwitch::CHART_CAN_SAVE_SCORE, score);
+    gOptions.set(eOption::CHART_SAVE_LAMP_TYPE, lamp);
 }
 
 // 42, 43

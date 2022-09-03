@@ -215,6 +215,10 @@ void pitch(double p)
             break;
         }
     }
+
+    auto& [score, lamp] = getSaveScoreType();
+    gSwitches.set(eSwitch::CHART_CAN_SAVE_SCORE, score);
+    gOptions.set(eOption::CHART_SAVE_LAMP_TYPE, lamp);
 }
 
 void deadzone(int type, double p)

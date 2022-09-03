@@ -30,14 +30,33 @@ std::pair<bool, Option::e_lamp_type> getSaveScoreType()
     if (gOptions.get(eOption::PLAY_HSFIX_TYPE_1P) == Option::e_speed_type::SPEED_FIX_CONSTANT)
         return { false, Option::LAMP_NOPLAY };
 
-    if (gSwitches.get(eSwitch::PLAY_OPTION_AUTOSCR_1P))
-        return { true, Option::LAMP_ASSIST };
-
     Option::e_random_type randomType = (Option::e_random_type)gOptions.get(eOption::PLAY_RANDOM_TYPE_1P);
+
+    bool isPlaymodeDP = (gOptions.get(eOption::PLAY_MODE) == Option::PLAY_MODE_DOUBLE ||
+        gOptions.get(eOption::PLAY_MODE) == Option::PLAY_MODE_DP_GHOST_BATTLE);
+
     if (randomType == Option::e_random_type::RAN_HRAN)
         return { false, Option::LAMP_ASSIST };
     else if (randomType == Option::e_random_type::RAN_ALLSCR)
         return { false, Option::LAMP_NOPLAY };
+
+    if (isPlaymodeDP)
+    {
+        Option::e_random_type randomType2P = (Option::e_random_type)gOptions.get(eOption::PLAY_RANDOM_TYPE_2P);
+        if (randomType2P == Option::e_random_type::RAN_HRAN)
+            return { false, Option::LAMP_ASSIST };
+        else if (randomType2P == Option::e_random_type::RAN_ALLSCR)
+            return { false, Option::LAMP_NOPLAY };
+    }
+
+    if (gSwitches.get(eSwitch::PLAY_OPTION_AUTOSCR_1P))
+        return { true, Option::LAMP_ASSIST };
+
+    if (isPlaymodeDP)
+    {
+        if (gSwitches.get(eSwitch::PLAY_OPTION_AUTOSCR_2P))
+            return { true, Option::LAMP_ASSIST };
+    }
 
     Option::e_gauge_type gaugeType = (Option::e_gauge_type)gOptions.get(eOption::PLAY_GAUGE_TYPE_1P);
     Option::e_lamp_type lampType = Option::e_lamp_type::LAMP_NOPLAY;
