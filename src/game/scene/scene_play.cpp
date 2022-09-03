@@ -1071,7 +1071,7 @@ void ScenePlay::_updateAsync()
     }
     if (gPlayContext.battle2PHispeedGradientStart != TIMER_NEVER)
     {
-        Time hsGradient1P = t - gPlayContext.HispeedGradientStart;
+        Time hsGradient1P = t - gPlayContext.battle2PHispeedGradientStart;
         if (hsGradient1P.norm() < HS_GRADIENT_LENGTH_MS)
         {
             double prog = std::sin((hsGradient1P.norm() / (double)HS_GRADIENT_LENGTH_MS * 1.57079632679));
