@@ -104,6 +104,13 @@ struct PlayContextParams
     int battle2PLanecoverBottom = 0;
     bool battle2PLockSpeed = false;
     int battle2PGreenNumber = 1200;
+
+    Time HispeedGradientStart;
+    double HispeedGradientFrom = 2.0;
+    double HispeedGradientNow = 2.0;
+    Time battle2PHispeedGradientStart;
+    double battle2PHispeedGradientFrom = 2.0;
+    double battle2PHispeedGradientNow = 2.0;
 };
 
 std::pair<bool, Option::e_lamp_type> getSaveScoreType();

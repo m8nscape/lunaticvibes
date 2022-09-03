@@ -127,33 +127,33 @@ bool vSprite::updateByKeyframes(const Time& rawTime)
         else
         {
             // normalize time
-            double t = 1.0 * (time.norm() - keyFrameCurr->time) / keyFrameLength;
+            double prog = 1.0 * (time.norm() - keyFrameCurr->time) / keyFrameLength;
             switch (keyFrameCurr->param.accel)
             {
             case RenderParams::CONSTANT:
                 break;
             case RenderParams::ACCEL:
-                t = std::pow(t, 2.0);
+                prog = -std::cos(prog * 1.57079632679) + 1.0;
                 break;
             case RenderParams::DECEL:
-                t = std::pow(t, 0.5);
+                prog = std::sin(prog * 1.57079632679);
                 break;
             case RenderParams::DISCONTINOUS:
-                t = 0.0;
+                prog = 0.0;
             }
 
             // calculate parameters
-            _current.rect.x = (int)grad(keyFrameNext->param.rect.x, keyFrameCurr->param.rect.x, t);
-            _current.rect.y = (int)grad(keyFrameNext->param.rect.y, keyFrameCurr->param.rect.y, t);
-            _current.rect.w = (int)grad(keyFrameNext->param.rect.w, keyFrameCurr->param.rect.w, t);
-            _current.rect.h = (int)grad(keyFrameNext->param.rect.h, keyFrameCurr->param.rect.h, t);
-            //_current.rect  = keyFrameNext->param.rect  * t + keyFrameCurr->param.rect  * (1.0 - t);
-            _current.color.r = (Uint8)grad(keyFrameNext->param.color.r, keyFrameCurr->param.color.r, t);
-            _current.color.g = (Uint8)grad(keyFrameNext->param.color.g, keyFrameCurr->param.color.g, t);
-            _current.color.b = (Uint8)grad(keyFrameNext->param.color.b, keyFrameCurr->param.color.b, t);
-            _current.color.a = (Uint8)grad(keyFrameNext->param.color.a, keyFrameCurr->param.color.a, t);
-            //_current.color = keyFrameNext->param.color * t + keyFrameNext->param.color * (1.0 - t);
-            _current.angle = grad(static_cast<int>(std::round(keyFrameNext->param.angle)), static_cast<int>(std::round(keyFrameCurr->param.angle)), t);
+            _current.rect.x = (int)grad(keyFrameNext->param.rect.x, keyFrameCurr->param.rect.x, prog);
+            _current.rect.y = (int)grad(keyFrameNext->param.rect.y, keyFrameCurr->param.rect.y, prog);
+            _current.rect.w = (int)grad(keyFrameNext->param.rect.w, keyFrameCurr->param.rect.w, prog);
+            _current.rect.h = (int)grad(keyFrameNext->param.rect.h, keyFrameCurr->param.rect.h, prog);
+            //_current.rect  = keyFrameNext->param.rect  * prog + keyFrameCurr->param.rect  * (1.0 - prog);
+            _current.color.r = (Uint8)grad(keyFrameNext->param.color.r, keyFrameCurr->param.color.r, prog);
+            _current.color.g = (Uint8)grad(keyFrameNext->param.color.g, keyFrameCurr->param.color.g, prog);
+            _current.color.b = (Uint8)grad(keyFrameNext->param.color.b, keyFrameCurr->param.color.b, prog);
+            _current.color.a = (Uint8)grad(keyFrameNext->param.color.a, keyFrameCurr->param.color.a, prog);
+            //_current.color = keyFrameNext->param.color * prog + keyFrameNext->param.color * (1.0 - prog);
+            _current.angle = grad(static_cast<int>(std::round(keyFrameNext->param.angle)), static_cast<int>(std::round(keyFrameCurr->param.angle)), prog);
             _current.center = keyFrameCurr->param.center;
             //LOG_DEBUG << "[Skin] Time: " << time << 
             //    " @ " << _current.rect.x << "," << _current.rect.y << " " << _current.rect.w << "x" << _current.rect.h;

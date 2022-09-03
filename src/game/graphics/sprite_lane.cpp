@@ -57,10 +57,10 @@ bool SpriteLaneVertical::update(const Time& t)
 		switch (playerSlot)
 		{
 		case 0:
-			_hispeed = gPlayContext.Hispeed;
+			_hispeed = gPlayContext.HispeedGradientNow;
 			break;
 		case 1:
-			_hispeed = gPlayContext.isBattle ? gPlayContext.battle2PHispeed : gPlayContext.Hispeed;
+			_hispeed = gPlayContext.isBattle ? gPlayContext.battle2PHispeedGradientNow : gPlayContext.HispeedGradientNow;
 			break;
 		default:
 			break;

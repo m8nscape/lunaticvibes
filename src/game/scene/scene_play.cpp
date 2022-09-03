@@ -190,6 +190,12 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         _lockspeedValue[PLAYER_SLOT_TARGET] = (visible == 0.0) ? std::numeric_limits<double>::max() : (bpm * gPlayContext.battle2PHispeed / visible);
         _lockspeedGreenNumber[PLAYER_SLOT_TARGET] = green;
     }
+    gPlayContext.HispeedGradientStart = TIMER_NEVER;
+    gPlayContext.HispeedGradientFrom = gPlayContext.HispeedGradientNow;
+    gPlayContext.HispeedGradientNow = gPlayContext.Hispeed;
+    gPlayContext.battle2PHispeedGradientStart = TIMER_NEVER;
+    gPlayContext.battle2PHispeedGradientFrom = gPlayContext.battle2PHispeed;
+    gPlayContext.battle2PHispeedGradientNow = gPlayContext.battle2PHispeed;
 
     // apply datas
     gTexts.flush();
@@ -836,6 +842,8 @@ void ScenePlay::_updateAsync()
         gNextScene = eScene::EXIT_TRANS;
     }
 
+    Time t;
+
     // update lanecover / hispeed change
     int lcThreshold = getRate() / 200;  // lanecover, +200 per second
     int hsThreshold = getRate() / 25;   // hispeed, +25 per second
@@ -901,6 +909,9 @@ void ScenePlay::_updateAsync()
 
             if (_lockspeedEnabled[PLAYER_SLOT_PLAYER])
             {
+                gPlayContext.HispeedGradientStart = t;
+                gPlayContext.HispeedGradientFrom = gPlayContext.HispeedGradientNow;
+
                 double bpm = gPlayContext.mods[PLAYER_SLOT_PLAYER].hispeedFix == eModHs::CONSTANT ?
                     150.0 : gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentBPM();
                 int lcTop = lc;
@@ -913,6 +924,9 @@ void ScenePlay::_updateAsync()
         }
         else if (hs != hsOld)
         {
+            gPlayContext.HispeedGradientStart = t;
+            gPlayContext.HispeedGradientFrom = gPlayContext.HispeedGradientNow;
+
             gPlayContext.Hispeed = hs;
             gNumbers.queue(eNumber::HS_1P, (int)std::round(hs * 100));
 
@@ -993,6 +1007,9 @@ void ScenePlay::_updateAsync()
 
             if (_lockspeedEnabled[PLAYER_SLOT_TARGET])
             {
+                gPlayContext.battle2PHispeedGradientStart = t;
+                gPlayContext.battle2PHispeedGradientFrom = gPlayContext.battle2PHispeedGradientNow;
+
                 double bpm = gPlayContext.mods[PLAYER_SLOT_TARGET].hispeedFix == eModHs::CONSTANT ?
                     150.0 : gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getCurrentBPM();
                 int lcTop = lc;
@@ -1005,6 +1022,9 @@ void ScenePlay::_updateAsync()
         }
         else if (hs != hsOld)
         {
+            gPlayContext.battle2PHispeedGradientStart = t;
+            gPlayContext.battle2PHispeedGradientFrom = gPlayContext.battle2PHispeedGradientNow;
+
             gPlayContext.battle2PHispeed = hs;
             gNumbers.queue(eNumber::HS_2P, (int)std::round(hs * 100));
 
@@ -1032,6 +1052,37 @@ void ScenePlay::_updateAsync()
     }
     gSliders.flush();
     gNumbers.flush();
+
+    // HS gradient
+    const long long HS_GRADIENT_LENGTH_MS = 200;
+    if (gPlayContext.HispeedGradientStart != TIMER_NEVER)
+    {
+        Time hsGradient1P = t - gPlayContext.HispeedGradientStart;
+        if (hsGradient1P.norm() < HS_GRADIENT_LENGTH_MS)
+        {
+            double prog = std::sin((hsGradient1P.norm() / (double)HS_GRADIENT_LENGTH_MS) * 1.57079632679);
+            gPlayContext.HispeedGradientNow = gPlayContext.HispeedGradientFrom + prog * (gPlayContext.Hispeed - gPlayContext.HispeedGradientFrom);
+        }
+        else
+        {
+            gPlayContext.HispeedGradientNow = gPlayContext.Hispeed;
+            gPlayContext.HispeedGradientStart = TIMER_NEVER;
+        }
+    }
+    if (gPlayContext.battle2PHispeedGradientStart != TIMER_NEVER)
+    {
+        Time hsGradient1P = t - gPlayContext.HispeedGradientStart;
+        if (hsGradient1P.norm() < HS_GRADIENT_LENGTH_MS)
+        {
+            double prog = std::sin((hsGradient1P.norm() / (double)HS_GRADIENT_LENGTH_MS * 1.57079632679));
+            gPlayContext.battle2PHispeedGradientNow = gPlayContext.battle2PHispeedGradientFrom + prog * (gPlayContext.battle2PHispeed - gPlayContext.battle2PHispeedGradientFrom);
+        }
+        else
+        {
+            gPlayContext.battle2PHispeedGradientNow = gPlayContext.battle2PHispeed;
+            gPlayContext.battle2PHispeedGradientStart = TIMER_NEVER;
+        }
+    }
 
     // update green number
     // 120BPM with 1.0x HS is 2000ms (500ms/beat, green number 1200)
@@ -1135,7 +1186,6 @@ void ScenePlay::_updateAsync()
     }
 
 
-    Time t;
     auto Scratch = [&](const Time& t, Input::Pad up, Input::Pad dn, double& val, int slot)
     {
         double scratchThreshold = 0.001;
@@ -2103,6 +2153,9 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
         {
             if (gPlayContext.Hispeed < 10.0)
             {
+                gPlayContext.HispeedGradientStart = t;
+                gPlayContext.HispeedGradientFrom = gPlayContext.HispeedGradientNow;
+
                 gPlayContext.Hispeed = std::min(gPlayContext.Hispeed + 0.25, 10.0);
                 gNumbers.queue(eNumber::HS_1P, (int)std::round(gPlayContext.Hispeed * 100));
             }
@@ -2112,6 +2165,9 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
         {
             if (gPlayContext.Hispeed > 0.25)
             {
+                gPlayContext.HispeedGradientStart = t;
+                gPlayContext.HispeedGradientFrom = gPlayContext.HispeedGradientNow;
+
                 gPlayContext.Hispeed = std::max(gPlayContext.Hispeed - 0.25, 0.25);
                 gNumbers.queue(eNumber::HS_1P, (int)std::round(gPlayContext.Hispeed * 100));
             }
@@ -2130,6 +2186,9 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
         {
             if (gPlayContext.battle2PHispeed < 10.0)
             {
+                gPlayContext.battle2PHispeedGradientStart = t;
+                gPlayContext.battle2PHispeedGradientFrom = gPlayContext.battle2PHispeedGradientNow;
+
                 gPlayContext.battle2PHispeed = std::min(gPlayContext.battle2PHispeed + 0.25, 10.0);
                 gNumbers.queue(eNumber::HS_2P, (int)std::round(gPlayContext.battle2PHispeed * 100));
             }
@@ -2138,6 +2197,9 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
         {
             if (gPlayContext.battle2PHispeed > 0.25)
             {
+                gPlayContext.battle2PHispeedGradientStart = t;
+                gPlayContext.battle2PHispeedGradientFrom = gPlayContext.battle2PHispeedGradientNow;
+
                 gPlayContext.battle2PHispeed = std::max(gPlayContext.battle2PHispeed - 0.25, 0.25);
                 gNumbers.queue(eNumber::HS_2P, (int)std::round(gPlayContext.battle2PHispeed * 100));
             }
