@@ -68,6 +68,8 @@ protected:
     double scratchAxisPrev[2] = { 0. };
     double scratchAxisCurr[2] = { 0. };
 
+    bool mergeInput = false;
+
 public:
     InputWrapper(unsigned rate = 1000, bool background = false);
     virtual ~InputWrapper();
@@ -100,6 +102,8 @@ public:
     double getJoystickAxis(size_t device, Input::Joystick::Type type, size_t index);
 
     double getScratchAxis(int player);
+
+    void setMergeInput() { mergeInput = true; }
 
 private:
     // Callback function maps

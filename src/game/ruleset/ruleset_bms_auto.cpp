@@ -113,9 +113,9 @@ void RulesetBMSAuto::update(const Time& t)
 
                     if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P)
                     {
-                        gTimers.set(InputGamePressMapSingle[k].tm, t.norm());
-                        gTimers.set(InputGameReleaseMapSingle[k].tm, TIMER_NEVER);
-                        gSwitches.set(InputGamePressMapSingle[k].sw, true);
+                        gTimers.set(InputGamePressMap[k].tm, t.norm());
+                        gTimers.set(InputGameReleaseMap[k].tm, TIMER_NEVER);
+                        gSwitches.set(InputGamePressMap[k].sw, true);
 
                         if (k == Input::S1L || k == Input::S1R)
                         {
@@ -149,9 +149,9 @@ void RulesetBMSAuto::update(const Time& t)
 
                             if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P)
                             {
-                                gTimers.set(InputGamePressMapSingle[k].tm, t.norm());
-                                gTimers.set(InputGameReleaseMapSingle[k].tm, TIMER_NEVER);
-                                gSwitches.set(InputGamePressMapSingle[k].sw, true);
+                                gTimers.set(InputGamePressMap[k].tm, t.norm());
+                                gTimers.set(InputGameReleaseMap[k].tm, TIMER_NEVER);
+                                gSwitches.set(InputGamePressMap[k].sw, true);
 
                                 if (k == Input::S1L || k == Input::S1R)
                                 {
@@ -183,9 +183,9 @@ void RulesetBMSAuto::update(const Time& t)
 
                             if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P)
                             {
-                                gTimers.set(InputGamePressMapSingle[k].tm, TIMER_NEVER);
-                                gTimers.set(InputGameReleaseMapSingle[k].tm, t.norm());
-                                gSwitches.set(InputGameReleaseMapSingle[k].sw, false);
+                                gTimers.set(InputGamePressMap[k].tm, TIMER_NEVER);
+                                gTimers.set(InputGameReleaseMap[k].tm, t.norm());
+                                gSwitches.set(InputGameReleaseMap[k].sw, false);
 
                                 if (k == Input::S1L || k == Input::S1R)
                                 {
@@ -235,11 +235,11 @@ void RulesetBMSAuto::update(const Time& t)
 
             if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P)
             {
-                if (t.norm() - gTimers.get(InputGamePressMapSingle[k].tm) > 83 && !isPressingLN[k])
+                if (t.norm() - gTimers.get(InputGamePressMap[k].tm) > 83 && !isPressingLN[k])
                 {
-                    gTimers.set(InputGamePressMapSingle[k].tm, TIMER_NEVER);
-                    gTimers.set(InputGameReleaseMapSingle[k].tm, t.norm());
-                    gSwitches.set(InputGameReleaseMapSingle[k].sw, false);
+                    gTimers.set(InputGamePressMap[k].tm, TIMER_NEVER);
+                    gTimers.set(InputGameReleaseMap[k].tm, t.norm());
+                    gSwitches.set(InputGameReleaseMap[k].sw, false);
 
                     if (k == Input::S1L || k == Input::S1R)
                     {

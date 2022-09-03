@@ -236,6 +236,9 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
 	switch (side)
 	{
 	case RulesetBMS::PlaySide::SINGLE:
+        _k1P = true;
+        _k2P = false;
+        break;
 	case RulesetBMS::PlaySide::DOUBLE:
 		_k1P = true;
 		_k2P = true;

@@ -143,9 +143,9 @@ void SceneKeyConfig::inputGamePress(InputMask& m, const Time& t)
     {
         if (m[i])
         {
-            gTimers.set(InputGamePressMapSingle[i].tm, t.norm());
-            gTimers.set(InputGameReleaseMapSingle[i].tm, TIMER_NEVER);
-            gSwitches.set(InputGamePressMapSingle[i].sw, true);
+            gTimers.set(InputGamePressMap[i].tm, t.norm());
+            gTimers.set(InputGameReleaseMap[i].tm, TIMER_NEVER);
+            gSwitches.set(InputGamePressMap[i].sw, true);
         }
     }
 }

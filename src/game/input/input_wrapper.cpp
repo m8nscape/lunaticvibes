@@ -32,7 +32,15 @@ void InputWrapper::_loop()
     // detect key / button
     InputMask p{ 0 }, h{ 0 }, r{ 0 };
     auto curr = _curr;
-    if (!_background && !IsWindowForeground()) curr.reset();
+    if (!_background && !IsWindowForeground())
+    {
+        curr.reset();
+    }
+    if (mergeInput)
+    {
+        curr |= (curr >> Input::S2L) & INPUT_MASK_1P;
+        curr &= ~INPUT_MASK_2P;
+    }
     for (Input::Pad i = Input::S1L; i < Input::KEY_COUNT; ++(int&)i)
     {
         auto& [ms, stat] = _inputBuffer[i];
@@ -221,7 +229,12 @@ void InputWrapper::_loop()
             
             if (aDelta[0] != 0.0 || aDelta[1] != 0.0)
                 for (auto& [cbname, callback] : _aCallbackMap)
-                    callback(aDelta[0], aDelta[1], now);
+                {
+                    if (mergeInput)
+                        callback(aDelta[0] + aDelta[1], 0.0, now);
+                    else
+                        callback(aDelta[0], aDelta[1], now);
+                }
         }
     }
 }
