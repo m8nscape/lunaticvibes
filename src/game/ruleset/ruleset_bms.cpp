@@ -251,6 +251,10 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
 		_k1P = false;
 		_k2P = true;
 		break;
+    default:
+        _k1P = true;
+        _k2P = true;
+        break;
 	}
 
     _lnJudge.fill(judgeArea::NOTHING);

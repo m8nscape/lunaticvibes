@@ -10,7 +10,7 @@ if (MSVC)
 endif()
 
 project(LunaticVibes
-    VERSION 0.8.1
+    VERSION 0.8.2
     LANGUAGES CXX
 )
 

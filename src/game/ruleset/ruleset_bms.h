@@ -182,10 +182,10 @@ public:
     struct JudgeRes { judgeArea area = judgeArea::NOTHING; Time time; };
 
 protected:
-    PlaySide _side;
-    bool _k1P, _k2P;
-    JudgeDifficulty _judgeDifficulty;
-    GaugeType _gauge;
+    PlaySide _side = PlaySide::SINGLE;
+    bool _k1P = false, _k2P = false;
+    JudgeDifficulty _judgeDifficulty = JudgeDifficulty::NORMAL;
+    GaugeType _gauge = GaugeType::GROOVE;
 
     std::map<JudgeType, double> _healthGain;
 
