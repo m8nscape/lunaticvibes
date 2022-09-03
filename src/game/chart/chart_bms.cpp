@@ -755,19 +755,16 @@ continue;
     // get average BPM
     if (_totalLength.norm() > 0)
     {
+        std::map<double, long long> bpmLength;
         double bpm = objBms.startBPM * gSelectContext.pitchSpeed;
         double bpmSum = 0.;
         Time prevTime(0);
         long long bpmMainLength = 0;
         for (const auto& n : _bpmNoteList)
         {
-            long long length = (prevTime - n.time).norm();
+            long long length = (n.time - prevTime).norm();
             bpmSum += length * bpm;
-            if (length > bpmMainLength)
-            {
-                bpmMainLength = length;
-                _mainBPM = bpm;
-            }
+            bpmLength[bpm] += length;
             bpm = n.fvalue;
             prevTime = n.time;
         }
@@ -775,14 +772,16 @@ continue;
         {
             long long length = (_totalLength - prevTime).norm();
             bpmSum += length * bpm;
-            if (length > bpmMainLength)
-            {
-                bpmMainLength = length;
-                _mainBPM = bpm;
-            }
+            bpmLength[bpm] += length;
         }
         if (bpmSum > 0)
+        {
             _averageBPM = bpmSum / _totalLength.norm();
+            _mainBPM = std::max_element(bpmLength.begin(), bpmLength.end(), [](const std::pair<double, long long>& lhs, const std::pair<double, long long>& rhs)
+                {
+                    return lhs.second < rhs.second;
+                })->first;
+        }
     }
     else
     {
