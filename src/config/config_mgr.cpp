@@ -404,8 +404,8 @@ void setText()
     {
         static const std::map<string, string> smap =
         {
-            {P_SPEED_TYPE_MIN, "MIN"},
-            {P_SPEED_TYPE_MAX, "MAX"},
+            {P_SPEED_TYPE_MIN, "MIN BPM"},
+            {P_SPEED_TYPE_MAX, "MAX BPM"},
             {P_SPEED_TYPE_AVG, "AVERAGE"},
             {P_SPEED_TYPE_CONSTANT, "CONSTANT"},
         };
@@ -414,7 +414,7 @@ void setText()
         if (smap.find(s) != smap.end())
             g.queue(e::SCROLL_TYPE, smap.at(s));
         else
-            g.queue(e::SCROLL_TYPE, "NORMAL");
+            g.queue(e::SCROLL_TYPE, "OFF");
     }
 
     // lanecover

@@ -1697,20 +1697,17 @@ void ScenePlay::updateFadeout()
     auto rt = t - gTimers.get(eTimer::PLAY_START);
     auto ft = t - gTimers.get(eTimer::FADEOUT_BEGIN);
 
-    if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER] != nullptr)
+    if (gPlayContext.chartObj[PLAYER_SLOT_PLAYER] != nullptr)
     {
         gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->update(rt);
-        gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->update(t);
     }
-    if (gPlayContext.ruleset[PLAYER_SLOT_TARGET] != nullptr)
+    if (gPlayContext.chartObj[PLAYER_SLOT_TARGET] != nullptr)
     {
         gPlayContext.chartObj[PLAYER_SLOT_TARGET]->update(rt);
-        gPlayContext.ruleset[PLAYER_SLOT_TARGET]->update(t);
     }
-    if (gPlayContext.ruleset[PLAYER_SLOT_MYBEST] != nullptr)
+    if (gPlayContext.chartObj[PLAYER_SLOT_MYBEST] != nullptr)
     {
         gPlayContext.chartObj[PLAYER_SLOT_MYBEST]->update(rt);
-        gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->update(t);
     }
 
     if (gChartContext.started)
@@ -1813,20 +1810,17 @@ void ScenePlay::updateFailed()
     auto rt = t - gTimers.get(eTimer::PLAY_START);
     auto ft = t - gTimers.get(eTimer::FAIL_BEGIN);
 
-    if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER] != nullptr)
+    if (gPlayContext.chartObj[PLAYER_SLOT_PLAYER] != nullptr)
     {
         gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->update(rt);
-        gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->update(t);
     }
-    if (gPlayContext.ruleset[PLAYER_SLOT_TARGET] != nullptr)
+    if (gPlayContext.chartObj[PLAYER_SLOT_TARGET] != nullptr)
     {
         gPlayContext.chartObj[PLAYER_SLOT_TARGET]->update(rt);
-        gPlayContext.ruleset[PLAYER_SLOT_TARGET]->update(t);
     }
-    if (gPlayContext.ruleset[PLAYER_SLOT_MYBEST] != nullptr)
+    if (gPlayContext.chartObj[PLAYER_SLOT_MYBEST] != nullptr)
     {
         gPlayContext.chartObj[PLAYER_SLOT_MYBEST]->update(rt);
-        gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->update(t);
     }
 
     if (gChartContext.started)
