@@ -4,6 +4,8 @@
 #include <plog/Appenders/ColorConsoleAppender.h>
 #include <plog/Formatters/TxtFormatter.h>
 
+bool gEventQuit;
+
 int main(int argc, char** argv)
 {
     std::filesystem::create_directories("test");

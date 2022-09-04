@@ -13,13 +13,13 @@ The project is still in development stage. Please do not expect a bug-free exper
 * Download the latest release
 * Copy LR2files folder from LR2 (must include default theme; a fresh copy right from LR2 release is recommended)
 
-### **Do NOT use this application to load unauthorized copyrighted contents (e.g. charts, skins).**
+**Do NOT use this application to load unauthorized copyrighted contents (e.g. charts, skins).**
 
 ---------------
 
 ## Build
 
-### Windows (Visual Studio 2022)
+### Windows (CMake + Visual Studio 2022)
 
 1. Clone repository
     ```
@@ -29,23 +29,32 @@ The project is still in development stage. Please do not expect a bug-free exper
     ```
 
 2. Configure / Build FFmpeg (this step may be removed in the future)
-
-    Check out ext/FFmpeg/build_lib.md for instructions. Default configuration emits chunkload around 100MB
+    * Check out ext/FFmpeg/build_lib.md for instructions. Default configuration emits chunkload around 100MB
 
 3. Install dependencies via vcpkg (skip any you have already installed)
     ```
     vcpkg install openssl:x64-windows
     vcpkg install boost:x64-windows
     ```
-    You may have to modify CMake Toolchain File path to somewhat like "D:/vcpkg/scripts/buildsystems/vcpkg.cmake" in VS cmake configuration.
 
-4. Open project directory with Visual Studio
+4. Choose a generator to build
 
-5. build game.exe
+    a. VS2022 (via console)
+
+        ```
+        mkdir build
+        cd build
+        cmake .. -G "Visual Studio 17 2022" -A x64
+        cmake --build . --config Release -j -t game
+        ```
+
+    b. Ninja (via IDE)
+
+        - Open project folder with Visual Studio
+        - Open CMake configuration, fill CMake toolchain file to the one from vcpkg like "D:/vcpkg/scripts/buildsystems/vcpkg.cmake"
+        - Build game.exe
 
 ---------------
 
-## 
-License
--
+## License
 * MIT License

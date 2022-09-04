@@ -3,7 +3,8 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "D:\\vcpkg\\installed\\x64-windows\\include"
             ],
             "defines": [
                 "_DEBUG",
@@ -15,7 +16,12 @@
             "cStandard": "c17",
             "cppStandard": "c++17",
             "intelliSenseMode": "windows-msvc-x64",
-            "configurationProvider": "ms-vscode.cmake-tools"
+            "configurationProvider": "ms-vscode.cpptools",
+            "browse": {
+                "path": [
+                    "D:\\vcpkg\\installed\\x64-windows\\include"
+                ]
+            }
         }
     ],
     "version": 4

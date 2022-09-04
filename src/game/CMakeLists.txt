@@ -122,10 +122,54 @@ target_link_libraries(game PRIVATE gamelib)
 set_target_properties(game PROPERTIES
     CXX_STANDARD 17
 )
-if (${EXT_DEPEND_LIBFILES_SET})
+
+add_custom_command(TARGET game POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    $<TARGET_FILE:fmod>
+    $<$<BOOL:${USE_BUNDLED_SQLITE3}>:$<TARGET_FILE:SQLite3>>
+    $<TARGET_FILE_DIR:game>
+)
+
+if (WIN32)
+    if (BUILD_X64)
+        set(MINGW_LIB_DIR ${CMAKE_SOURCE_DIR}/ext/mingw/lib/x64)
+    else()
+        set(MINGW_LIB_DIR ${CMAKE_SOURCE_DIR}/ext/mingw/lib/x86)
+    endif()
+    file(GLOB MINGW_LIB_DLLS ${MINGW_LIB_DIR}/*.dll)
     add_custom_command(TARGET game POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${EXT_DEPEND_LIBFILES}
+        ${MINGW_LIB_DLLS}
+        $<TARGET_FILE_DIR:game>
+    )
+endif()
+
+if (${GRAPHICS_BACKEND} STREQUAL SDL2)
+    add_custom_command(TARGET game POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:SDL2>
+        $<TARGET_FILE:SDL2_image>
+        $<TARGET_FILE:SDL2_image::libjpeg>
+        $<TARGET_FILE:SDL2_image::libpng>
+        $<TARGET_FILE:SDL2_image::libtiff>
+        $<TARGET_FILE:SDL2_image::libwebp>
+        $<TARGET_FILE:SDL2_ttf>
+        $<TARGET_FILE:SDL2_ttf::libfreetype>
+        $<TARGET_FILE:SDL2_ttf::zlib>
+        $<TARGET_FILE_DIR:game>
+    )
+endif()
+
+if (${VIDEO_ENABLED})
+    add_custom_command(TARGET game POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:libavcodec>
+        $<TARGET_FILE:libavdevice>
+        $<TARGET_FILE:libavfilter>
+        $<TARGET_FILE:libavformat>
+        $<TARGET_FILE:libswresample>
+        $<TARGET_FILE:libavutil>
+        $<TARGET_FILE:libswscale>
         $<TARGET_FILE_DIR:game>
     )
 endif()

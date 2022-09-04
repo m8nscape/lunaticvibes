@@ -14,47 +14,30 @@ set(SDL_IMAGE_INTERFACE_AGE 0)
 set(SDL_IMAGE_VERSION "${SDL_IMAGE_MAJOR_VERSION}.${SDL_IMAGE_MINOR_VERSION}.${SDL_IMAGE_MICRO_VERSION}")
 
 
+if (${BUILD_X64})
+    set(LIB_DIR x64)
+else()
+    set(LIB_DIR x86)
+endif()
 
 ##### library generation #####
+add_library(SDL2_image::libjpeg UNKNOWN IMPORTED GLOBAL)
+add_library(SDL2_image::libpng UNKNOWN IMPORTED GLOBAL)
+add_library(SDL2_image::libtiff UNKNOWN IMPORTED GLOBAL)
+add_library(SDL2_image::libwebp UNKNOWN IMPORTED GLOBAL)
+
 add_library(SDL2_image SHARED IMPORTED GLOBAL)
 if (WIN32)
-    if (${BUILD_X64})
-        set_target_properties(SDL2_image PROPERTIES
-            IMPORTED_LOCATION   ${CMAKE_CURRENT_LIST_DIR}/lib/x64/SDL2_image.dll
-            IMPORTED_IMPLIB     ${CMAKE_CURRENT_LIST_DIR}/lib/x64/SDL2_image.lib  
-        )
-        set(EXT_DEPEND_LIBFILES ${EXT_DEPEND_LIBFILES}
-            "${CMAKE_CURRENT_LIST_DIR}/lib/x64/libjpeg-9.dll"
-            "${CMAKE_CURRENT_LIST_DIR}/lib/x64/libpng16-16.dll"
-            "${CMAKE_CURRENT_LIST_DIR}/lib/x64/libtiff-5.dll"
-            "${CMAKE_CURRENT_LIST_DIR}/lib/x64/libwebp-7.dll"
-            "${CMAKE_CURRENT_LIST_DIR}/lib/x64/zlib1.dll"
-             CACHE INTERNAL "dependencies"
-            )
-        set(EXT_DEPEND_LIBFILES_SET TRUE CACHE INTERNAL "dependencies")
-    else()
-        set_target_properties(SDL2_image PROPERTIES
-            IMPORTED_LOCATION   ${CMAKE_CURRENT_LIST_DIR}/lib/x86/SDL2_image.dll
-            IMPORTED_IMPLIB     ${CMAKE_CURRENT_LIST_DIR}/lib/x86/SDL2_image.lib  
-        )
-        set(EXT_DEPEND_LIBFILES ${EXT_DEPEND_LIBFILES}
-            "${CMAKE_CURRENT_LIST_DIR}/lib/x86/libjpeg-9.dll"
-            "${CMAKE_CURRENT_LIST_DIR}/lib/x86/libpng16-16.dll"
-            "${CMAKE_CURRENT_LIST_DIR}/lib/x86/libtiff-5.dll"
-            "${CMAKE_CURRENT_LIST_DIR}/lib/x86/libwebp-7.dll"
-            "${CMAKE_CURRENT_LIST_DIR}/lib/x86/zlib1.dll"
-             CACHE INTERNAL "dependencies"
-            )
-        set(EXT_DEPEND_LIBFILES_SET TRUE CACHE INTERNAL "dependencies")
-    endif()
+    set_target_properties(SDL2_image::libjpeg PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/lib/${LIB_DIR}/libjpeg-9.dll)
+    set_target_properties(SDL2_image::libpng PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/lib/${LIB_DIR}/libpng16-16.dll)
+    set_target_properties(SDL2_image::libtiff PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/lib/${LIB_DIR}/libtiff-5.dll)
+    set_target_properties(SDL2_image::libwebp PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/lib/${LIB_DIR}/libwebp-7.dll)
+    
+    set_target_properties(SDL2_image PROPERTIES
+        IMPORTED_LOCATION   ${CMAKE_CURRENT_LIST_DIR}/lib/${LIB_DIR}/SDL2_image.dll
+        IMPORTED_IMPLIB     ${CMAKE_CURRENT_LIST_DIR}/lib/${LIB_DIR}/SDL2_image.lib  
+    )
 elseif (LINUX)
 endif()
 
 target_include_directories(SDL2_image INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-
-get_target_property(SDL2IMAGE_LIB_FILES SDL2_image IMPORTED_LOCATION)
-set(EXT_DEPEND_LIBFILES ${EXT_DEPEND_LIBFILES} 
-        ${SDL2IMAGE_LIB_FILES}
-        CACHE INTERNAL "dependencies"
-)
-set(EXT_DEPEND_LIBFILES_SET TRUE CACHE INTERNAL "dependencies")

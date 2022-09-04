@@ -1,18 +1,22 @@
 cmake_minimum_required(VERSION 3.16)
 
-#########################################################################
-# PROJECT CONFIG
-
-set(BUILD_X64 TRUE CACHE BOOL "Build x64 arch")
-
-if (MSVC)
+if (WIN32)
     set(VCPKG_TARGET_TRIPLET "x64-windows" CACHE STRING "")
 endif()
 
+#########################################################################
+# PROJECT CONFIG
+
 project(LunaticVibes
-    VERSION 0.8.2
+    VERSION 0.8.3
     LANGUAGES CXX
 )
+
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(BUILD_X64 TRUE CACHE BOOL "Build x64 arch")
+else()
+    set(BUILD_X64 FALSE CACHE BOOL "Build x64 arch")
+endif()
 
 configure_file(
     "${CMAKE_SOURCE_DIR}/src/cmake_config.h.in"
@@ -22,22 +26,21 @@ configure_file(
 include_directories("${PROJECT_BINARY_DIR}")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
-    
+
 if (MSVC)
     add_compile_options("/utf-8")
     add_compile_options("/bigobj")
+    add_definitions(-D_WIN32_WINNT=0x0601) # Target Windows 7
     include_directories("${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include")
     link_directories("${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib")
 endif()
 
 if (WIN32)
     add_definitions(-DNOMINMAX)
-endif()
 
-if (CMAKE_BUILD_TYPE)
-    if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
-        set(BUILD_DEBUG TRUE CACHE BOOL "Build with debug libraries")
-    endif()
+    #set(CMAKE_INSTALL_UCRT_LIBRARIES TRUE)
+    #set(CMAKE_INSTALL_SYSTEM_RUNTIME_COMPONENT runtime)
+    #include(InstallRequiredSystemLibraries)
 endif()
 
 #########################################################################
@@ -54,8 +57,6 @@ endif()
 #########################################################################
 # DEPENDENCIES
 
-set(EXT_DEPEND_LIBFILES "" CACHE INTERNAL "dependencies")
-set(EXT_DEPEND_LIBFILES_SET FALSE CACHE INTERNAL "dependencies")
 add_subdirectory(ext)
 
 #########################################################################
@@ -69,6 +70,7 @@ add_subdirectory(src)
 
 #########################################################################
 # GTEST
+
 option(BUILD_TEST "Enable building gtest targets" YES)
 if (${BUILD_TEST})
     add_subdirectory(test)
