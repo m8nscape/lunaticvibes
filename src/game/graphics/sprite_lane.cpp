@@ -188,7 +188,10 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 
 				const auto& tail = *it;
 				auto tailMetreOffset = currTotalMetre - tail.pos.toDouble();
-				tail_y = (c.y + c.h) - static_cast<int>(std::floor(-tailMetreOffset * _noteAreaHeight * _basespd * _hispeed));
+				if (tailMetreOffset >= 0)
+					tail_y = (c.y + c.h); // expired notes stay on judge line, LR2 / pre RA behavior
+				else
+					tail_y = (c.y + c.h) - static_cast<int>(std::floor(-tailMetreOffset * _noteAreaHeight * _basespd * _hispeed));
 
 				++it;
 			}
@@ -205,7 +208,10 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 				if (head_y_actual < head_y) head_y = head_y_actual;
 
 				auto tailMetreOffset = currTotalMetre - tail.pos.toDouble();
-				tail_y = (c.y + c.h) - static_cast<int>(std::floor(-tailMetreOffset * _noteAreaHeight * _basespd * _hispeed));
+				if (tailMetreOffset >= 0)
+					tail_y = (c.y + c.h); // expired notes stay on judge line, LR2 / pre RA behavior
+				else
+					tail_y = (c.y + c.h) - static_cast<int>(std::floor(-tailMetreOffset * _noteAreaHeight * _basespd * _hispeed));
 
 				++it;
 			}
