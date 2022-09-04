@@ -809,20 +809,20 @@ std::vector<Input::Pad> ChartObjectBMS::getInputFromLane(size_t channel)
     return LaneToKey(_keys, channel);
 }
 
-void ChartObjectBMS::preUpdate(const Time& t)
+void ChartObjectBMS::preUpdate(const Time& vt)
 {
     // check stop
     size_t idx = (size_t)eNoteExt::STOP;
     _inStopNote = false;
     while (!isLastNoteSpecial(idx, _currentStopNote))
     {
-        if (t.hres() > _currentStopNote->time.hres() + _currentStopNote->dvalue)
+        if (vt.hres() > _currentStopNote->time.hres() + _currentStopNote->dvalue)
         {
-            _stopMetre = _currentStopNote->fvalue;
+            _stopMetre += _currentStopNote->fvalue;
             _stopBar = _currentStopNote->measure;
             ++_currentStopNote;
         }
-        else if (t >= _currentStopNote->time)
+        else if (vt >= _currentStopNote->time)
         {
             _inStopNote = true;
             break;
@@ -832,9 +832,18 @@ void ChartObjectBMS::preUpdate(const Time& t)
             break;
         }
     }
+
+    // check inbounds BPM change, reset stop metre if found
+    auto b = incomingNoteBpm();
+    if (!isLastNoteBpm(b) && vt >= b->time)
+    {
+        _stopMetre = 0.0;
+        _stopBar = 0;
+        _inStopNote = false;
+    }
 }
 
-void ChartObjectBMS::postUpdate(const Time& t)
+void ChartObjectBMS::postUpdate(const Time& vt)
 {
     if (_inStopNote)
     {
