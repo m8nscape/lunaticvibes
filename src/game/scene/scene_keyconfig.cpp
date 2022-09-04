@@ -184,9 +184,6 @@ void SceneKeyConfig::inputGamePressKeyboard(KeyboardMask& mask, const Time& t)
 {
     // update bindings
     auto [pad, slot] = gKeyconfigContext.selecting;
-    if (pad == Input::Pad::S1A || pad == Input::Pad::S2A)
-        return;
-
     GameModeKeys keys = gKeyconfigContext.keys;
 
     if (pad != Input::Pad::INVALID)
@@ -198,7 +195,11 @@ void SceneKeyConfig::inputGamePressKeyboard(KeyboardMask& mask, const Time& t)
             InputMgr::updateBindings(keys, pad);
             updateInfo(undef, slot);
         }
-        else if (mask[static_cast<size_t>(Input::Keyboard::K_F1)])
+
+        if (pad == Input::Pad::S1A || pad == Input::Pad::S2A)
+            return;
+
+        if (mask[static_cast<size_t>(Input::Keyboard::K_F1)])
         {
             ConfigMgr::Input(keys)->clearAll();
         }
