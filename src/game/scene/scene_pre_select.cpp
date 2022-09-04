@@ -65,7 +65,7 @@ void ScenePreSelect::updateLoadSongs()
                 bool deleted = true;
                 for (auto& f : folderList)
                 {
-                    if (fs::equivalent(f, entry->getPath()))
+                    if (fs::exists(f) && fs::exists(entry->getPath()) && fs::equivalent(f, entry->getPath()))
                     {
                         deleted = false;
                         break;
@@ -198,9 +198,15 @@ void ScenePreSelect::updateLoadTables()
                 }
             }
 
+            gSelectContext.backtrace.push(rootFolderProp);
+            if (rootFolderProp.displayEntries.empty())
+            {
+                gTexts.set(eText::PLAY_TITLE, "BMS NOT FOUND");
+                gTexts.set(eText::PLAY_ARTIST, "Press F9 to add folders");
+            }
+
             gTexts.set(eText::_OVERLAY_TOPLEFT, (boost::format("%s %s") % PROJECT_NAME % PROJECT_VERSION).str());
             gTexts.set(eText::_OVERLAY_TOPLEFT2, "Please wait...");
-            gSelectContext.backtrace.push(rootFolderProp);
             });
     }
 

@@ -112,7 +112,7 @@ void SceneCustomize::updateMain()
                 {
                     Path path = PathFromUTF8(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."),
                         ConfigMgr::get("S", cfg::S_PATH_SOUNDSET, cfg::S_DEFAULT_PATH_SOUNDSET)));
-                    if (fs::equivalent(soundsetList[selectedIdx], path))
+                    if (fs::exists(soundsetList[selectedIdx]) && fs::exists(path) && fs::equivalent(soundsetList[selectedIdx], path))
                         break;
                 }
                 selectedIdx += gCustomizeContext.skinDir;
@@ -146,7 +146,9 @@ void SceneCustomize::updateMain()
                 int selectedIdx;
                 for (selectedIdx = 0; selectedIdx < (int)skinList[selectedMode].size(); selectedIdx++)
                 {
-                    if (fs::equivalent(skinList[selectedMode][selectedIdx], Path(SkinMgr::get(selectedMode)->getFilePath())))
+                    const Path& p1 = skinList[selectedMode][selectedIdx];
+                    const Path& p2 = Path(SkinMgr::get(selectedMode)->getFilePath());
+                    if (fs::exists(p1) && fs::exists(p2) && fs::equivalent(p1, p2))
                         break;
                 }
                 selectedIdx += gCustomizeContext.skinDir;

@@ -104,6 +104,7 @@ void SceneSelect::_imguiInit()
     if (imgui_folders.empty())
     {
         imguiShow = true;
+        _skin->setHandleMouseEvents(false);
     }
 }
 
