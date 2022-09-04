@@ -651,9 +651,9 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                                 {
                                     if (_noteLists[channelToIdx(NoteLaneCategory::Note, i)].empty())
                                     {
-gameLaneIdxMod = i;
-availableLaneFound = true;
-continue;
+                                        gameLaneIdxMod = i;
+                                        availableLaneFound = true;
+                                        continue;
                                     }
                                     else
                                     {
@@ -818,7 +818,7 @@ void ChartObjectBMS::preUpdate(const Time& t)
     {
         if (t.hres() > _currentStopNote->time.hres() + _currentStopNote->dvalue)
         {
-            _stopMetre += _currentStopNote->fvalue;
+            _stopMetre = _currentStopNote->fvalue;
             _stopBar = _currentStopNote->measure;
             ++_currentStopNote;
         }
