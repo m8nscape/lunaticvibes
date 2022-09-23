@@ -438,11 +438,12 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                                 break;
                             case 5:            // 5x: 1P LN
                             case 6:            // 6x: 2P LN
+                                haveLNchannels = true;
                                 if (!lnobjSet.empty())
                                 {
                                     // Note: there is so many possibilities of conflicting LN definition. Add all LN channel notes as regular notes
                                     channel noteLane;
-                                    strToLane36(noteLane, value);
+                                    strToLane36(noteLane, value, channel::NoteParseValue::LN);
                                     unsigned scale = chNotesRegular.lanes[area][idx][bar].relax(noteLane.resolution) / noteLane.resolution;
                                     for (auto& note : noteLane.notes)
                                     {
@@ -467,7 +468,7 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                                 else
                                 {
                                     // #LNTYPE 1
-                                    strToLane36(chNotesLN.lanes[area][idx][bar], value);
+                                    strToLane36(chNotesLN.lanes[area][idx][bar], value, channel::NoteParseValue::LN);
                                     haveLN = true;
                                     if (area == 1) haveAny_2 = true;
                                 }
@@ -573,8 +574,7 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
     // pick LNs out of notes for each lane
     for (int area = 0; area < 2; ++area)
     {
-        // LN head defined with #0001x
-        if (!lnobjSet.empty())
+        if (!lnobjSet.empty() || haveLNchannels)
         {
             for (size_t ch = 0; ch < PlayAreaLanes::LANE_COUNT; ++ch)
             {
@@ -594,7 +594,8 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                     auto itNote = noteList.begin();
                     while (itNote != noteList.end())
                     {
-                        if (lnobjSet.count(itNote->value) > 0 && hasHead)
+                        // Regular note inside a LN (can be seen with o2mania + #LNTYPE 1) is not allowed. Handle any following note as LN tail.
+                        if (hasHead)
                         {
                             unsigned segment = LNhead->segment * chNotesLN.lanes[area][ch][bar_head].relax(resolution_head) / resolution_head;
                             unsigned value = LNhead->value;
@@ -790,7 +791,7 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
     return 0;
 }
 
-int ChartFormatBMS::strToLane36(channel& ch, StringContentView str)
+int ChartFormatBMS::strToLane36(channel& ch, StringContentView str, unsigned flags)
 {
     //if (str.length() % 2 != 0)
     //    throw new noteLineException;
@@ -816,15 +817,15 @@ int ChartFormatBMS::strToLane36(channel& ch, StringContentView str)
         unsigned value = base36(str[i * 2], str[i * 2 + 1]);
         if (value == 0) continue;
 
-        ch.notes.push_back({ segment, value });
+        ch.notes.push_back({ segment, value, flags });
     }
     ch.sortNotes();
 
     return 0;
 }
-int ChartFormatBMS::strToLane36(channel& ch, const StringContent& str)
+int ChartFormatBMS::strToLane36(channel& ch, const StringContent& str, unsigned flags)
 {
-    return strToLane36(ch, StringContentView(str));
+    return strToLane36(ch, StringContentView(str), flags);
 }
 
 int ChartFormatBMS::strToLane16(channel& ch, StringContentView str)

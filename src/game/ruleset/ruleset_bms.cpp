@@ -323,6 +323,17 @@ RulesetBMS::JudgeRes RulesetBMS::_judge(const Note& note, Time time)
 
 void RulesetBMS::_judgePress(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote& note, JudgeRes judge, const Time& t, int slot)
 {
+    if (cat == NoteLaneCategory::LN && 
+        (note.flags & Note::LN_TAIL) &&
+        (idx == NoteLaneIndex::Sc1 || idx == NoteLaneIndex::Sc2) && 
+        _lnJudge[idx] != judgeArea::NOTHING)
+    {
+        // Handle scratch direction change as miss
+        _judgeRelease(cat, idx, note, judge, t, slot);
+        if (showJudge && _bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
+            gTimers.set(_bombLNTimerMap->at(idx), TIMER_NEVER);
+    }
+
     switch (cat)
     {
     case NoteLaneCategory::Note:
@@ -390,18 +401,20 @@ void RulesetBMS::_judgePress(NoteLaneCategory cat, NoteLaneIndex idx, HitableNot
             case judgeArea::LATE_GOOD:
                 _lnJudge[idx] = judge.area;
                 note.hit = true;
-                if (_bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
+                if (showJudge && _bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
                     gTimers.set(_bombLNTimerMap->at(idx), t.norm());
                 break;
 
             case judgeArea::EARLY_BAD:
                 _basic.fast++;
                 _lnJudge[idx] = judge.area;
+                updateMiss(t, idx, RulesetBMS::JudgeType::BAD, slot);
                 note.hit = true;
                 break;
             case judgeArea::LATE_BAD:
                 _basic.slow++;
                 _lnJudge[idx] = judge.area;
+                updateMiss(t, idx, RulesetBMS::JudgeType::BAD, slot);
                 note.hit = true;
                 break;
 
@@ -412,8 +425,6 @@ void RulesetBMS::_judgePress(NoteLaneCategory cat, NoteLaneIndex idx, HitableNot
             }
             break;
         }
-
-        // TODO scratch LN miss
         break;
     }
 
@@ -484,7 +495,7 @@ void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote
                 _basic.notesExpired++;
                 _lnJudge[idx] = RulesetBMS::judgeArea::NOTHING;
 
-                if (_bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
+                if (showJudge && _bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
                     gTimers.set(_bombLNTimerMap->at(idx), TIMER_NEVER);
 
                 _lastNoteJudge = judge;
@@ -797,7 +808,7 @@ void RulesetBMS::judgeNoteRelease(Input::Pad k, const Time& t, const Time& rt, i
         }
     }
 
-    if (_bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
+    if (showJudge && _bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
         gTimers.set(_bombLNTimerMap->at(idx), TIMER_NEVER);
 }
 

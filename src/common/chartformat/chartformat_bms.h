@@ -128,7 +128,17 @@ protected:
 
 public:
     struct channel {
-        struct NoteParseValue { unsigned segment; unsigned value; };
+        struct NoteParseValue
+        {
+            unsigned segment;
+            unsigned value;
+
+            enum Flags
+            {
+                LN = 1 << 1,
+            };
+            unsigned flags;
+        };
         std::list<NoteParseValue> notes{};
         unsigned resolution = 1;
 
@@ -140,8 +150,8 @@ public:
     
 protected:
     // Lanes.
-    int strToLane36(channel&, const StringContent& str);
-    int strToLane36(channel&, StringContentView str);
+    int strToLane36(channel&, const StringContent& str, unsigned flags = 0);
+    int strToLane36(channel&, StringContentView str, unsigned flags = 0);
     int strToLane16(channel&, const StringContent& str);
     int strToLane16(channel&, StringContentView str);
 
@@ -168,6 +178,7 @@ protected:
 
 public:
     std::set<unsigned> lnobjSet;
+    bool haveLNchannels = false;
 
 public:
     // Measures related.
