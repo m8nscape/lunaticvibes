@@ -327,19 +327,53 @@ void SceneSelect::_updateAsync()
 
     _updateCallback();
 
-    if (!gSelectContext.entries.empty() && scrollAccumulator != 0.0)
+    bool idxUpdated = false;
+    if (!gSelectContext.entries.empty())
     {
-        {
-            std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
+        std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
 
-            Time t;
-            if (!(isHoldingUp || isHoldingDown) &&
-                (scrollAccumulator > 0 && scrollAccumulator - scrollAccumulatorAddUnit < 0 ||
-                    scrollAccumulator < 0 && scrollAccumulator - scrollAccumulatorAddUnit > 0 ||
-                    -0.000001 < scrollAccumulator && scrollAccumulator < 0.000001 ||
-                    scrollAccumulator * scrollAccumulatorAddUnit < 0))
+        Time t;
+        if (!(isHoldingUp || isHoldingDown) && 
+            (scrollAccumulator > 0 && scrollAccumulator - scrollAccumulatorAddUnit < 0 ||
+                scrollAccumulator < 0 && scrollAccumulator - scrollAccumulatorAddUnit > 0 ||
+                -0.000001 < scrollAccumulator && scrollAccumulator < 0.000001 ||
+                scrollAccumulator * scrollAccumulatorAddUnit < 0))
+        {
+            bool scrollModified = false;
+
+            if (gSelectContext.scrollDirection != 0)
             {
-                gSliders.set(eSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.idx / gSelectContext.entries.size()));
+                double posOld = gSliders.get(eSlider::SELECT_LIST);
+                double idxOld = posOld * gSelectContext.entries.size();
+
+                int idxNew = (int)idxOld;
+                if (gSelectContext.scrollDirection > 0)
+                {
+                    double idxOldTmp = idxOld;
+                    if (idxOldTmp - (int)idxOldTmp < 0.0001)
+                        idxOldTmp -= 0.0001;
+                    idxNew = std::floor(idxOldTmp) + 1;
+                }
+                else
+                {
+                    double idxOldTmp = idxOld;
+                    if (idxOldTmp - (int)idxOldTmp > 0.9999)
+                        idxOldTmp += 0.0001;
+                    idxNew = std::ceil(idxOldTmp) - 1;
+                }
+
+                double margin = idxNew - idxOld;
+                if (margin < -0.05 || 0.05 < margin)
+                {
+                    scrollAccumulator = margin;
+                    scrollAccumulatorAddUnit = scrollAccumulator / 100 * (getRate() / 1000);
+                    scrollModified = true;
+                }
+            }
+
+            if (!scrollModified)
+            {
+                gSliders.set(eSlider::SELECT_LIST, (double)gSelectContext.idx / gSelectContext.entries.size());
                 scrollAccumulator = 0.0;
                 scrollAccumulatorAddUnit = 0.0;
                 gSelectContext.scrollDirection = 0;
@@ -347,38 +381,41 @@ void SceneSelect::_updateAsync()
                 gTimers.set(eTimer::LIST_MOVE_STOP, t.norm());
                 gSelectContext.scrollTimeLength = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_INITIAL, 300);
             }
-            else
-            {
-                if (gSelectContext.scrollDirection == 0)
-                {
-                    _skin->start_bar_animation();
-                }
-
-                double posOld = gSliders.get(eSlider::SELECT_LIST);
-                double posNew = posOld + scrollAccumulatorAddUnit / gSelectContext.entries.size();
-
-                int idxOld = (int)std::round(posOld * gSelectContext.entries.size());
-                int idxNew = (int)std::round(posNew * gSelectContext.entries.size());
-                if (idxOld != idxNew)
-                {
-                    if (idxOld < idxNew)
-                        _navigateDownBy1(t);
-                    else
-                        _navigateUpBy1(t);
-                }
-
-                while (posNew < 0.) posNew += 1.;
-                while (posNew >= 1.) posNew -= 1.;
-                gSliders.set(eSlider::SELECT_LIST, posNew);
-
-                scrollAccumulator -= scrollAccumulatorAddUnit;
-
-                gSelectContext.scrollDirection = scrollAccumulator > 0. ? 1 : -1;
-            }
         }
+        else if(gSelectContext.scrollDirection != 0 || scrollAccumulatorAddUnit < -0.003 || scrollAccumulatorAddUnit > 0.003)
+        {
+            if (gSelectContext.scrollDirection == 0)
+            {
+                _skin->start_bar_animation();
+            }
 
-        setDynamicTextures();
+            double posOld = gSliders.get(eSlider::SELECT_LIST);
+            double posNew = posOld + scrollAccumulatorAddUnit / gSelectContext.entries.size();
+
+            int idxOld = (int)std::round(posOld * gSelectContext.entries.size());
+            int idxNew = (int)std::round(posNew * gSelectContext.entries.size());
+            if (idxOld != idxNew)
+            {
+                if (idxOld < idxNew)
+                    _navigateDownBy1(t);
+                else
+                    _navigateUpBy1(t);
+
+                idxUpdated = true;
+            }
+
+            while (posNew < 0.) posNew += 1.;
+            while (posNew >= 1.) posNew -= 1.;
+            gSliders.set(eSlider::SELECT_LIST, posNew);
+
+            scrollAccumulator -= scrollAccumulatorAddUnit;
+            if (scrollAccumulator < -0.000001 || scrollAccumulator > 0.000001)
+                gSelectContext.scrollDirection = scrollAccumulator > 0. ? 1 : -1;
+        }
     }
+
+    if (idxUpdated)
+        setDynamicTextures();
 
 }
 
