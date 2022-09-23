@@ -25,6 +25,8 @@ protected:
 
     void updateInfo(KeyMap k, int slot);
 
+    std::map<size_t, JoystickMask> joystickPrev;
+
 protected:
     // Register to InputWrapper: judge / keysound
     void inputGamePress(InputMask&, const Time&);

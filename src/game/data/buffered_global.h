@@ -18,6 +18,7 @@ private:
     std::array<Value, _size> _data;
     std::array<Value, _size> _dataBuffer;
 	std::array<Value, _size> _dataDefault;
+	bool _dirty = false;
 
 public:
     Value get(Key n) const
@@ -40,6 +41,7 @@ public:
 		if (idx < _size)
 		{
 			_dataBuffer[idx] = value;
+			_dirty = true;
 			return true;
 		}
 		return false;
@@ -70,13 +72,18 @@ public:
 
 	void flush()
 	{
-		std::unique_lock lock(_mutex);
-		_data = _dataBuffer; 
+		if (_dirty)
+		{
+			std::unique_lock lock(_mutex);
+			_data = _dataBuffer;
+			_dirty = false;
+		}
 	}
 
 	void reset() 
 	{
 		_dataBuffer = _dataDefault;
+		_dirty = true;
 		flush();
 	}
 

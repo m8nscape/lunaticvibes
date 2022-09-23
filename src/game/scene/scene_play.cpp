@@ -1315,7 +1315,7 @@ void ScenePlay::_updateAsync()
 
         if (playSample)
         {
-            if (slot == PLAYER_SLOT_PLAYER && gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isFailed())
+            if (slot == PLAYER_SLOT_PLAYER && !gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isFailed())
             {
                 if (_scratchDir[slot] == AxisDir::AXIS_UP && _currentKeySample[Input::S1L])
                     keySampleIdxBufScratch[sampleCount++] = _currentKeySample[Input::S1L];
@@ -1324,7 +1324,7 @@ void ScenePlay::_updateAsync()
 
                 SoundMgr::playNoteSample(SoundChannelType::KEY_LEFT, sampleCount, keySampleIdxBufScratch.data());
             }
-            else if (isPlaymodeDP() || (isPlaymodeBattle() && gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFailed()))
+            if (slot != PLAYER_SLOT_PLAYER && (isPlaymodeDP() || (isPlaymodeBattle() && !gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFailed())))
             {
                 if (_scratchDir[slot] == AxisDir::AXIS_UP && _currentKeySample[Input::S2L])
                     keySampleIdxBufScratch[sampleCount++] = _currentKeySample[Input::S2L];
@@ -2144,7 +2144,8 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
         bool black = (input[K12] || input[K14] || input[K16] || input[K18]) ||
             isPlaymodeDP() && (input[K22] || input[K24] || input[K26] || input[K28]);
 
-        if (input[K1SPDUP] || isPlaymodeDP() && input[K2SPDUP] || _isHoldingStart[PLAYER_SLOT_PLAYER] && black)
+        if (input[K1SPDUP] || isPlaymodeDP() && input[K2SPDUP] || 
+            (_isHoldingStart[PLAYER_SLOT_PLAYER] || _isHoldingSelect[PLAYER_SLOT_PLAYER]) && black)
         {
             if (gPlayContext.Hispeed < 10.0)
             {
@@ -2156,7 +2157,8 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
             }
         }
 
-        if (input[K1SPDDN] || isPlaymodeDP() && input[K2SPDDN] || _isHoldingStart[PLAYER_SLOT_PLAYER] && white)
+        if (input[K1SPDDN] || isPlaymodeDP() && input[K2SPDDN] || 
+            (_isHoldingStart[PLAYER_SLOT_PLAYER] || _isHoldingSelect[PLAYER_SLOT_PLAYER]) && white)
         {
             if (gPlayContext.Hispeed > 0.25)
             {
@@ -2177,7 +2179,8 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
         bool white = (input[K21] || input[K23] || input[K25] || input[K27] || input[K29]);
         bool black = (input[K22] || input[K24] || input[K26] || input[K28]);
 
-        if (input[K2SPDUP] || _isHoldingStart[PLAYER_SLOT_TARGET] && black)
+        if (input[K2SPDUP] || 
+            (_isHoldingStart[PLAYER_SLOT_TARGET] || _isHoldingSelect[PLAYER_SLOT_TARGET]) && black)
         {
             if (gPlayContext.battle2PHispeed < 10.0)
             {
@@ -2188,7 +2191,8 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
                 gNumbers.queue(eNumber::HS_2P, (int)std::round(gPlayContext.battle2PHispeed * 100));
             }
         }
-        if (input[K2SPDDN] || _isHoldingStart[PLAYER_SLOT_TARGET] && white)
+        if (input[K2SPDDN] || 
+            (_isHoldingStart[PLAYER_SLOT_TARGET] || _isHoldingSelect[PLAYER_SLOT_TARGET]) && white)
         {
             if (gPlayContext.battle2PHispeed > 0.25)
             {

@@ -237,54 +237,52 @@ void SceneKeyConfig::inputGamePressJoystick(JoystickMask& mask, size_t device, c
     if (pad != Input::Pad::INVALID)
     {
         size_t base = 0;
+
+        // Buttons
         for (size_t index = 0; index < InputMgr::MAX_JOYSTICK_BUTTON_COUNT; ++index)
         {
-            if (mask[static_cast<size_t>(base + index)])
+            size_t bit = static_cast<size_t>(base + index);
+            if (mask[bit] && !joystickPrev[device][bit])
             {
                 KeyMap j(device, Input::Joystick::Type::BUTTON, index);
                 ConfigMgr::Input(keys)->bind(pad, j);
                 InputMgr::updateBindings(keys, pad);
                 updateInfo(j, slot);
             }
+            joystickPrev[device][bit] = mask[bit];
         }
         base += InputMgr::MAX_JOYSTICK_BUTTON_COUNT;
 
+        // Pov, 4 directions each
         for (size_t index = 0; index < InputMgr::MAX_JOYSTICK_POV_COUNT; ++index)
         {
-            if (mask[static_cast<size_t>(base + index * 4 + 0)])
+            static const std::pair<size_t, size_t> bitmask[] =
             {
-                KeyMap j(device, Input::Joystick::Type::POV, index | (1ul << 31));
-                ConfigMgr::Input(keys)->bind(pad, j);
-                InputMgr::updateBindings(keys, pad);
-                updateInfo(j, slot);
-            }
-            else if (mask[static_cast<size_t>(base + index * 4 + 1)])
+                {static_cast<size_t>(base + index * 4 + 0), (1ul << 31)},   // LEFT
+                {static_cast<size_t>(base + index * 4 + 1), (1ul << 30)},   // DOWN
+                {static_cast<size_t>(base + index * 4 + 2), (1ul << 29)},   // UP
+                {static_cast<size_t>(base + index * 4 + 3), (1ul << 28)},   // RIGHT
+            };
+            for (size_t i = 0; i < 4; ++i)
             {
-                KeyMap j(device, Input::Joystick::Type::POV, index | (1ul << 30));
-                ConfigMgr::Input(keys)->bind(pad, j);
-                InputMgr::updateBindings(keys, pad);
-                updateInfo(j, slot);
-            }
-            else if (mask[static_cast<size_t>(base + index * 4 + 2)])
-            {
-                KeyMap j(device, Input::Joystick::Type::POV, index | (1ul << 29));
-                ConfigMgr::Input(keys)->bind(pad, j);
-                InputMgr::updateBindings(keys, pad);
-                updateInfo(j, slot);
-            }
-            else if (mask[static_cast<size_t>(base + index * 4 + 3)])
-            {
-                KeyMap j(device, Input::Joystick::Type::POV, index | (1ul << 28));
-                ConfigMgr::Input(keys)->bind(pad, j);
-                InputMgr::updateBindings(keys, pad);
-                updateInfo(j, slot);
+                const auto& [bit, indexMask] = bitmask[i];
+                if (mask[bit] && !joystickPrev[device][bit])
+                {
+                    KeyMap j(device, Input::Joystick::Type::POV, index | indexMask);
+                    ConfigMgr::Input(keys)->bind(pad, j);
+                    InputMgr::updateBindings(keys, pad);
+                    updateInfo(j, slot);
+                }
+                joystickPrev[device][bit] = mask[bit];
             }
         }
         base += InputMgr::MAX_JOYSTICK_POV_COUNT * 4;
 
+        // Relative Axis +
         for (size_t index = 0; index < InputMgr::MAX_JOYSTICK_AXIS_COUNT; ++index)
         {
-            if (mask[static_cast<size_t>(base + index)])
+            size_t bit = static_cast<size_t>(base + index);
+            if (mask[bit] && !joystickPrev[device][bit])
             {
                 auto b = ConfigMgr::Input(keys)->getBindings(pad);
                 if (b.getType() == KeyMap::DeviceType::JOYSTICK && 
@@ -296,12 +294,15 @@ void SceneKeyConfig::inputGamePressJoystick(JoystickMask& mask, size_t device, c
                 InputMgr::updateBindings(keys, pad);
                 updateInfo(j, slot);
             }
+            joystickPrev[device][bit] = mask[bit];
         }
         base += InputMgr::MAX_JOYSTICK_AXIS_COUNT;
 
+        // Relative Axis -
         for (size_t index = 0; index < InputMgr::MAX_JOYSTICK_AXIS_COUNT; ++index)
         {
-            if (mask[static_cast<size_t>(base + index)])
+            size_t bit = static_cast<size_t>(base + index);
+            if (mask[bit] && !joystickPrev[device][bit])
             {
                 auto b = ConfigMgr::Input(keys)->getBindings(pad);
                 if (b.getType() == KeyMap::DeviceType::JOYSTICK &&
@@ -313,6 +314,7 @@ void SceneKeyConfig::inputGamePressJoystick(JoystickMask& mask, size_t device, c
                 InputMgr::updateBindings(keys, pad);
                 updateInfo(j, slot);
             }
+            joystickPrev[device][bit] = mask[bit];
         }
     }
 }
