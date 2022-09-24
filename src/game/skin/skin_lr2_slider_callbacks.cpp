@@ -35,6 +35,7 @@ void select_pos(double p)
 
         setBarInfo();
         setEntryInfo();
+        setDynamicTextures();
 
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
     }
