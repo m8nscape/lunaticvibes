@@ -541,8 +541,11 @@ bool ScenePlay::createRuleset()
                 gPlayContext.replayNew->assistMask = gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask;
                 gPlayContext.replayNew->hispeedFix = gPlayContext.mods[PLAYER_SLOT_PLAYER].hispeedFix;
                 gPlayContext.replayNew->laneEffectType = gPlayContext.mods[PLAYER_SLOT_PLAYER].visual_mask;
-                gPlayContext.replayNew->pitchType = (int8_t)gOptions.get(eOption::SOUND_PITCH_TYPE);
-                gPlayContext.replayNew->pitchValue = (int8_t)std::round((gSliders.get(eSlider::PITCH) - 0.5) * 2 * 12);
+                if (gSwitches.get(eSwitch::SOUND_PITCH))
+                {
+                    gPlayContext.replayNew->pitchType = (int8_t)gOptions.get(eOption::SOUND_PITCH_TYPE);
+                    gPlayContext.replayNew->pitchValue = (int8_t)std::round((gSliders.get(eSlider::PITCH) - 0.5) * 2 * 12);
+                }
                 gPlayContext.replayNew->DPFlip = gPlayContext.mods[PLAYER_SLOT_PLAYER].DPFlip;
             }
         }
@@ -1683,12 +1686,18 @@ void ScenePlay::updatePlaying()
                 gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().combo == gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getMaxCombo())
             {
                 gTimers.queue(eTimer::PLAY_P1_FINISHED, t.norm());
-                gTimers.queue(eTimer::PLAY_FULLCOMBO_1P, t.norm());
                 if (isPlaymodeDP())
                 {
                     gTimers.queue(eTimer::PLAY_P2_FINISHED, t.norm());
-                    gTimers.queue(eTimer::PLAY_FULLCOMBO_2P, t.norm());
                 }
+
+                if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().combo == gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getMaxCombo())
+                {
+                    gTimers.queue(eTimer::PLAY_FULLCOMBO_1P, t.norm());
+                    if (isPlaymodeDP())
+                        gTimers.queue(eTimer::PLAY_FULLCOMBO_2P, t.norm());
+                }
+
                 _isPlayerFinished[PLAYER_SLOT_PLAYER] = true;
             }
         }
@@ -1698,7 +1707,12 @@ void ScenePlay::updatePlaying()
                 gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData().combo == gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getMaxCombo())
             {
                 gTimers.queue(eTimer::PLAY_P2_FINISHED, t.norm());
-                gTimers.queue(eTimer::PLAY_FULLCOMBO_2P, t.norm());
+
+                if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().combo == gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getMaxCombo())
+                {
+                    gTimers.queue(eTimer::PLAY_FULLCOMBO_2P, t.norm());
+                }
+
                 _isPlayerFinished[PLAYER_SLOT_TARGET] = true;
             }
         }
