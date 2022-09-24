@@ -12,6 +12,7 @@
 #include "config/config_mgr.h"
 
 #include "game/skin/skin_lr2_button_callbacks.h"
+#include "game/skin/skin_lr2_slider_callbacks.h"
 #include "game/scene/scene_context.h"
 #include "game/scene/scene_mgr.h"
 
@@ -288,6 +289,9 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
 
     gTexts.set(eText::_OVERLAY_TOPLEFT, "");
     gTexts.set(eText::_OVERLAY_TOPLEFT2, "");
+
+    gSwitches.set(eSwitch::SOUND_PITCH, ConfigMgr::get('P', cfg::P_FREQ, true));
+    lr2skin::slider::pitch((ConfigMgr::get('P', cfg::P_FREQ_VAL, 0) + 12) / 24.0);
 
     _state = eSelectState::PREPARE;
     _updateCallback = std::bind(&SceneSelect::updatePrepare, this);
