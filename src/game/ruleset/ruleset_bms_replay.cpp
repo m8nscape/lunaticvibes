@@ -24,6 +24,21 @@ RulesetBMSReplay::RulesetBMSReplay(
         static const double tick = std::pow(2, 1.0 / 12);
         playbackSpeed = std::pow(tick, replay->pitchValue);
     }
+
+    switch (side)
+    {
+    case RulesetBMS::PlaySide::AUTO:
+        _judgeScratch = !(gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask & PLAY_MOD_ASSIST_AUTOSCR);
+        break;
+
+    case RulesetBMS::PlaySide::AUTO_2P:
+        _judgeScratch = !(gPlayContext.mods[PLAYER_SLOT_TARGET].assist_mask & PLAY_MOD_ASSIST_AUTOSCR);
+        break;
+
+    case RulesetBMS::PlaySide::MYBEST:
+        _judgeScratch = !(gPlayContext.mods[PLAYER_SLOT_MYBEST].assist_mask & PLAY_MOD_ASSIST_AUTOSCR);
+        break;
+    }
 }
 
 void RulesetBMSReplay::update(const Time& t)

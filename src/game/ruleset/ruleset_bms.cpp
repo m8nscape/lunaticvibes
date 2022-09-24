@@ -5,6 +5,7 @@
 #include "game/scene/scene_context.h"
 #include "game/sound/sound_mgr.h"
 #include "game/sound/sound_sample.h"
+#include "game/chart/chart_types.h"
 #include "config/config_mgr.h"
 
 using namespace chart;
@@ -238,22 +239,27 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
 	case RulesetBMS::PlaySide::SINGLE:
         _k1P = true;
         _k2P = false;
+        _judgeScratch = !(gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask & PLAY_MOD_ASSIST_AUTOSCR);
         break;
 	case RulesetBMS::PlaySide::DOUBLE:
 		_k1P = true;
 		_k2P = true;
+        _judgeScratch = !(gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask & PLAY_MOD_ASSIST_AUTOSCR);
 		break;
 	case RulesetBMS::PlaySide::BATTLE_1P:
 		_k1P = true;
 		_k2P = false;
+        _judgeScratch = !(gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask & PLAY_MOD_ASSIST_AUTOSCR);
 		break;
 	case RulesetBMS::PlaySide::BATTLE_2P:
 		_k1P = false;
 		_k2P = true;
+        _judgeScratch = !(gPlayContext.mods[PLAYER_SLOT_TARGET].assist_mask & PLAY_MOD_ASSIST_AUTOSCR);
 		break;
     default:
         _k1P = true;
         _k2P = true;
+        _judgeScratch = false;
         break;
 	}
 
@@ -938,8 +944,13 @@ void RulesetBMS::updatePress(InputMask& pg, const Time& t)
             judgeNotePress((Input::Pad)k, t, rt, slot);
         }
     };
-    if (_k1P) updatePressRange(Input::S1L, Input::K1SPDDN, PLAYER_SLOT_PLAYER);
-    if (_k2P) updatePressRange(Input::S2L, Input::K2SPDDN, PLAYER_SLOT_TARGET);
+    if (_k1P) updatePressRange(Input::K11, Input::K19, PLAYER_SLOT_PLAYER);
+    if (_k2P) updatePressRange(Input::K21, Input::K29, PLAYER_SLOT_TARGET);
+    if (_judgeScratch)
+    {
+        if (_k1P) updatePressRange(Input::S1L, Input::S1R, PLAYER_SLOT_PLAYER);
+        if (_k2P) updatePressRange(Input::S2L, Input::S2R, PLAYER_SLOT_TARGET);
+    }
 }
 void RulesetBMS::updateHold(InputMask& hg, const Time& t)
 {
@@ -955,8 +966,13 @@ void RulesetBMS::updateHold(InputMask& hg, const Time& t)
             judgeNoteHold((Input::Pad)k, t, rt, slot);
         }
     };
-    if (_k1P) updateHoldRange(Input::S1L, Input::K1SPDDN, PLAYER_SLOT_PLAYER);
-    if (_k2P) updateHoldRange(Input::S2L, Input::K2SPDDN, PLAYER_SLOT_TARGET);
+    if (_k1P) updateHoldRange(Input::K11, Input::K19, PLAYER_SLOT_PLAYER);
+    if (_k2P) updateHoldRange(Input::K21, Input::K29, PLAYER_SLOT_TARGET);
+    if (_judgeScratch)
+    {
+        if (_k1P) updateHoldRange(Input::S1L, Input::S1R, PLAYER_SLOT_PLAYER);
+        if (_k2P) updateHoldRange(Input::S2L, Input::S2R, PLAYER_SLOT_TARGET);
+    }
 }
 void RulesetBMS::updateRelease(InputMask& rg, const Time& t)
 {
@@ -972,8 +988,13 @@ void RulesetBMS::updateRelease(InputMask& rg, const Time& t)
             judgeNoteRelease((Input::Pad)k, t, rt, slot);
         }
     };
-    if (_k1P) updateReleaseRange(Input::S1L, Input::K1SPDDN, PLAYER_SLOT_PLAYER);
-    if (_k2P) updateReleaseRange(Input::S2L, Input::K2SPDDN, PLAYER_SLOT_TARGET);
+    if (_k1P) updateReleaseRange(Input::K11, Input::K19, PLAYER_SLOT_PLAYER);
+    if (_k2P) updateReleaseRange(Input::K21, Input::K29, PLAYER_SLOT_TARGET);
+    if (_judgeScratch)
+    {
+        if (_k1P) updateReleaseRange(Input::S1L, Input::S1R, PLAYER_SLOT_PLAYER);
+        if (_k2P) updateReleaseRange(Input::S2L, Input::S2R, PLAYER_SLOT_TARGET);
+    }
 }
 void RulesetBMS::updateAxis(double s1, double s2, const Time& t)
 {
@@ -1018,6 +1039,17 @@ void RulesetBMS::update(const Time& t)
     {
         for (size_t k = begin; k <= end; ++k)
         {
+            bool scratch = false;
+            switch (k)
+            {
+            case Input::S1L:
+            case Input::S1R:
+            case Input::S2L:
+            case Input::S2R:
+                scratch = true;
+                break;
+            }
+
             NoteLaneIndex idx;
 
             idx = _chart->getLaneFromKey(NoteLaneCategory::Note, (Input::Pad)k);
@@ -1026,24 +1058,29 @@ void RulesetBMS::update(const Time& t)
                 auto itNote = _chart->incomingNote(NoteLaneCategory::Note, idx);
                 while (!_chart->isLastNote(NoteLaneCategory::Note, idx, itNote) && !itNote->hit)
                 {
-                    const Time& hitTime = judgeTime[(size_t)_judgeDifficulty].BAD;
+                    Time hitTime = (!scratch || _judgeScratch) ? judgeTime[(size_t)_judgeDifficulty].BAD : 0;
                     if (rt - itNote->time >= hitTime)
                     {
                         itNote->hit = true;
-                        _basic.slow++;
-                        updateMiss(t, idx, RulesetBMS::JudgeType::MISS, slot);
+
+                        if (!scratch || _judgeScratch)
+                        {
+                            _basic.slow++;
+                            updateMiss(t, idx, RulesetBMS::JudgeType::MISS, slot);
+
+                            // push replay command
+                            if (doJudge && gChartContext.started && gPlayContext.replayNew)
+                            {
+                                long long ms = t.norm() - gTimers.get(eTimer::PLAY_START);
+                                ReplayChart::Commands cmd;
+                                cmd.ms = ms;
+                                cmd.type = slot == PLAYER_SLOT_PLAYER ? ReplayChart::Commands::Type::JUDGE_LEFT_LATE_4 : ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_4;
+                                gPlayContext.replayNew->commands.push_back(cmd);
+                            }
+                        }
+
                         _basic.notesExpired++;
                         //LOG_DEBUG << "LATE   POOR    "; break;
-
-                        // push replay command
-                        if (doJudge && gChartContext.started && gPlayContext.replayNew)
-                        {
-                            long long ms = t.norm() - gTimers.get(eTimer::PLAY_START);
-                            ReplayChart::Commands cmd;
-                            cmd.ms = ms;
-                            cmd.type = slot == PLAYER_SLOT_PLAYER ? ReplayChart::Commands::Type::JUDGE_LEFT_LATE_4 : ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_4;
-                            gPlayContext.replayNew->commands.push_back(cmd);
-                        }
                     }
                     itNote++;
                 }
@@ -1068,21 +1105,26 @@ void RulesetBMS::update(const Time& t)
                             }
                             if (rt >= hitTime)
                             {
-                                _basic.slow++;
-                                _lnJudge[idx] = judgeArea::LATE_BAD;
                                 itNote->hit = true;
-                                updateMiss(t, idx, RulesetBMS::JudgeType::MISS, slot);
-                                //LOG_DEBUG << "LATE   POOR    "; break;
 
-                                // push replay command
-                                if (doJudge && gChartContext.started && gPlayContext.replayNew)
+                                if (!scratch || _judgeScratch)
                                 {
-                                    long long ms = t.norm() - gTimers.get(eTimer::PLAY_START);
-                                    ReplayChart::Commands cmd;
-                                    cmd.ms = ms;
-                                    cmd.type = slot == PLAYER_SLOT_PLAYER ? ReplayChart::Commands::Type::JUDGE_LEFT_LATE_4 : ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_4;
-                                    gPlayContext.replayNew->commands.push_back(cmd);
+                                    _basic.slow++;
+                                    _lnJudge[idx] = judgeArea::LATE_BAD;
+                                    updateMiss(t, idx, RulesetBMS::JudgeType::MISS, slot);
+
+                                    // push replay command
+                                    if (doJudge && gChartContext.started && gPlayContext.replayNew)
+                                    {
+                                        long long ms = t.norm() - gTimers.get(eTimer::PLAY_START);
+                                        ReplayChart::Commands cmd;
+                                        cmd.ms = ms;
+                                        cmd.type = slot == PLAYER_SLOT_PLAYER ? ReplayChart::Commands::Type::JUDGE_LEFT_LATE_4 : ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_4;
+                                        gPlayContext.replayNew->commands.push_back(cmd);
+                                    }
                                 }
+
+                                //LOG_DEBUG << "LATE   POOR    "; break;
                             }
                         }
                     }
@@ -1090,12 +1132,16 @@ void RulesetBMS::update(const Time& t)
                     {
                         if (rt >= itNote->time)
                         {
-                            //_basic.slow++;
                             itNote->hit = true;
-                            if (_lnJudge[idx] == judgeArea::EARLY_BAD || _lnJudge[idx] == judgeArea::LATE_BAD)
+
+                            if (!scratch || _judgeScratch)
                             {
-                                _basic.notesExpired++;
-                                _lnJudge[idx] = judgeArea::NOTHING;
+                                //_basic.slow++;
+                                if (_lnJudge[idx] == judgeArea::EARLY_BAD || _lnJudge[idx] == judgeArea::LATE_BAD)
+                                {
+                                    _basic.notesExpired++;
+                                    _lnJudge[idx] = judgeArea::NOTHING;
+                                }
                             }
                         }
                     }
@@ -1127,88 +1173,89 @@ void RulesetBMS::update(const Time& t)
             }
         }
     };
-    if (_k1P) updateRange(Input::S1L, Input::K1SPDDN, PLAYER_SLOT_PLAYER);
-    if (_k2P) updateRange(Input::S2L, Input::K2SPDDN, PLAYER_SLOT_TARGET);
+    if (_k1P) updateRange(Input::S1L, Input::K19, PLAYER_SLOT_PLAYER);
+    if (_k2P) updateRange(Input::S2L, Input::K29, PLAYER_SLOT_TARGET);
 
-
-    auto updateScratch = [&](const Time& t, Input::Pad up, Input::Pad dn, double& val, int slot)
+    if (_judgeScratch)
     {
-        double scratchThreshold = 0.001;
-        double scratchRewind = 0.0001;
-        if (val > scratchThreshold)
+        auto updateScratch = [&](const Time& t, Input::Pad up, Input::Pad dn, double& val, int slot)
         {
-            // scratch down
-            val -= scratchThreshold;
-
-            switch (_scratchDir[slot])
+            double scratchThreshold = 0.001;
+            double scratchRewind = 0.0001;
+            if (val > scratchThreshold)
             {
-            case AxisDir::AXIS_DOWN:
-                judgeNoteHold(dn, t, rt, slot);
-                break;
-            case AxisDir::AXIS_UP:
-                judgeNoteRelease(up, t, rt, slot);
-                judgeNotePress(dn, t, rt, slot);
-                break;
-            case AxisDir::AXIS_NONE:
-                judgeNoteRelease(up, t, rt, slot);
-                judgeNotePress(dn, t, rt, slot);
-                break;
+                // scratch down
+                val -= scratchThreshold;
+
+                switch (_scratchDir[slot])
+                {
+                case AxisDir::AXIS_DOWN:
+                    judgeNoteHold(dn, t, rt, slot);
+                    break;
+                case AxisDir::AXIS_UP:
+                    judgeNoteRelease(up, t, rt, slot);
+                    judgeNotePress(dn, t, rt, slot);
+                    break;
+                case AxisDir::AXIS_NONE:
+                    judgeNoteRelease(up, t, rt, slot);
+                    judgeNotePress(dn, t, rt, slot);
+                    break;
+                }
+
+                _scratchLastUpdate[slot] = t;
+                _scratchDir[slot] = AxisDir::AXIS_DOWN;
+            }
+            else if (val < -scratchThreshold)
+            {
+                // scratch up
+                val += scratchThreshold;
+
+                switch (_scratchDir[slot])
+                {
+                case AxisDir::AXIS_UP:
+                    judgeNoteHold(up, t, rt, slot);
+                    break;
+                case AxisDir::AXIS_DOWN:
+                    judgeNoteRelease(dn, t, rt, slot);
+                    judgeNotePress(up, t, rt, slot);
+                    break;
+                case AxisDir::AXIS_NONE:
+                    judgeNoteRelease(dn, t, rt, slot);
+                    judgeNotePress(up, t, rt, slot);
+                    break;
+                }
+
+                _scratchLastUpdate[slot] = t;
+                _scratchDir[slot] = AxisDir::AXIS_UP;
             }
 
-            _scratchLastUpdate[slot] = t;
-            _scratchDir[slot] = AxisDir::AXIS_DOWN;
-        }
-        else if (val < -scratchThreshold)
-        {
-            // scratch up
-            val += scratchThreshold;
+            if (val > scratchRewind)
+                val -= scratchRewind;
+            else if (val < -scratchRewind)
+                val += scratchRewind;
+            else
+                val = 0.;
 
-            switch (_scratchDir[slot])
+            if ((t - _scratchLastUpdate[slot]).norm() > 133)
             {
-            case AxisDir::AXIS_UP:
-                judgeNoteHold(up, t, rt, slot);
-                break;
-            case AxisDir::AXIS_DOWN:
-                judgeNoteRelease(dn, t, rt, slot);
-                judgeNotePress(up, t, rt, slot);
-                break;
-            case AxisDir::AXIS_NONE:
-                judgeNoteRelease(dn, t, rt, slot);
-                judgeNotePress(up, t, rt, slot);
-                break;
+                // release
+                switch (_scratchDir[slot])
+                {
+                case AxisDir::AXIS_UP:
+                    judgeNoteRelease(up, t, rt, slot);
+                    break;
+                case AxisDir::AXIS_DOWN:
+                    judgeNoteRelease(dn, t, rt, slot);
+                    break;
+                }
+
+                _scratchDir[slot] = AxisDir::AXIS_NONE;
+                _scratchLastUpdate[slot] = TIMER_NEVER;
             }
-
-            _scratchLastUpdate[slot] = t;
-            _scratchDir[slot] = AxisDir::AXIS_UP;
-        }
-
-        if (val > scratchRewind)
-            val -= scratchRewind;
-        else if (val < -scratchRewind)
-            val += scratchRewind;
-        else 
-            val = 0.;
-
-        if ((t - _scratchLastUpdate[slot]).norm() > 133)
-        {
-            // release
-            switch (_scratchDir[slot])
-            {
-            case AxisDir::AXIS_UP:
-                judgeNoteRelease(up, t, rt, slot);
-                break;
-            case AxisDir::AXIS_DOWN:
-                judgeNoteRelease(dn, t, rt, slot);
-                break;
-            }
-
-            _scratchDir[slot] = AxisDir::AXIS_NONE;
-            _scratchLastUpdate[slot] = TIMER_NEVER;
-        }
-    };
-    updateScratch(t, Input::S1L, Input::S1R, _scratchAccumulator[PLAYER_SLOT_PLAYER], PLAYER_SLOT_PLAYER);
-    updateScratch(t, Input::S2L, Input::S2R, _scratchAccumulator[PLAYER_SLOT_TARGET], PLAYER_SLOT_TARGET);
-
+        };
+        updateScratch(t, Input::S1L, Input::S1R, _scratchAccumulator[PLAYER_SLOT_PLAYER], PLAYER_SLOT_PLAYER);
+        updateScratch(t, Input::S2L, Input::S2R, _scratchAccumulator[PLAYER_SLOT_TARGET], PLAYER_SLOT_TARGET);
+    }
 
 	unsigned max = _chart->getNoteTotalCount() * 2;
 	_basic.total_acc = 100.0 * _basic.score2 / max;
@@ -1217,6 +1264,25 @@ void RulesetBMS::update(const Time& t)
 
     updateGlobals();
 }
+
+unsigned RulesetBMS::getMaxCombo() const
+{
+    if (_judgeScratch)
+    {
+        return _chart->getNoteTotalCount();
+    }
+    else
+    {
+        unsigned count = _chart->getNoteTotalCount();
+        auto pChart = std::dynamic_pointer_cast<ChartObjectBMS>(_chart);
+        if (pChart != nullptr)
+        {
+            count -= pChart->getScratchCount();
+        }
+        return count;
+    }
+}
+
 
 void RulesetBMS::fail()
 {

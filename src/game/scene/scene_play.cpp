@@ -461,10 +461,20 @@ bool ScenePlay::createRuleset()
 
             if (isPlaymodeBattle())
             {
-                gPlayContext.ruleset[PLAYER_SLOT_TARGET] = std::make_shared<RulesetBMSAuto>(
-                    gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_TARGET],
-                    gPlayContext.mods[PLAYER_SLOT_TARGET].gauge, keys, judgeDiff,
-                    gPlayContext.initialHealth[PLAYER_SLOT_TARGET], RulesetBMS::PlaySide::AUTO_2P);
+                if (gPlayContext.replayMybest)
+                {
+                    gPlayContext.ruleset[PLAYER_SLOT_TARGET] = std::make_shared<RulesetBMSReplay>(
+                        gChartContext.chartObjMybest, gPlayContext.chartObj[PLAYER_SLOT_TARGET], gPlayContext.replayMybest,
+                        gPlayContext.replayMybest->gaugeType, keys, judgeDiff,
+                        gPlayContext.initialHealth[PLAYER_SLOT_TARGET], RulesetBMS::PlaySide::AUTO_2P);
+                }
+                else
+                {
+                    gPlayContext.ruleset[PLAYER_SLOT_TARGET] = std::make_shared<RulesetBMSAuto>(
+                        gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_TARGET],
+                        gPlayContext.mods[PLAYER_SLOT_TARGET].gauge, keys, judgeDiff,
+                        gPlayContext.initialHealth[PLAYER_SLOT_TARGET], RulesetBMS::PlaySide::AUTO_2P);
+                }
             }
         }
         else if (gPlayContext.isReplay)
@@ -1667,19 +1677,30 @@ void ScenePlay::updatePlaying()
             LOG_DEBUG << "[Play] State changed to PLAY_FAILED";
         }
 
-        if (_isPlayerFinished[PLAYER_SLOT_PLAYER] ^ gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isFinished())
+        if (!_isPlayerFinished[PLAYER_SLOT_PLAYER])
         {
-            _isPlayerFinished[PLAYER_SLOT_PLAYER] = true;
-            gTimers.queue(eTimer::PLAY_P1_FINISHED, t.norm());
-            if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().combo == gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getNoteTotalCount())
+            if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isFinished() ||
+                gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().combo == gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getMaxCombo())
+            {
+                gTimers.queue(eTimer::PLAY_P1_FINISHED, t.norm());
                 gTimers.queue(eTimer::PLAY_FULLCOMBO_1P, t.norm());
+                if (isPlaymodeDP())
+                {
+                    gTimers.queue(eTimer::PLAY_P2_FINISHED, t.norm());
+                    gTimers.queue(eTimer::PLAY_FULLCOMBO_2P, t.norm());
+                }
+                _isPlayerFinished[PLAYER_SLOT_PLAYER] = true;
+            }
         }
-        if (gPlayContext.ruleset[PLAYER_SLOT_TARGET] != nullptr && _isPlayerFinished[PLAYER_SLOT_TARGET] ^ gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFinished())
+        if (gPlayContext.ruleset[PLAYER_SLOT_TARGET] != nullptr && !_isPlayerFinished[PLAYER_SLOT_TARGET])
         {
-            _isPlayerFinished[PLAYER_SLOT_TARGET] = true;
-            gTimers.queue(eTimer::PLAY_P2_FINISHED, t.norm());
-            if (gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData().combo == gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getNoteTotalCount())
+            if (gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFinished() ||
+                gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData().combo == gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getMaxCombo())
+            {
+                gTimers.queue(eTimer::PLAY_P2_FINISHED, t.norm());
                 gTimers.queue(eTimer::PLAY_FULLCOMBO_2P, t.norm());
+                _isPlayerFinished[PLAYER_SLOT_TARGET] = true;
+            }
         }
     }
 
@@ -1885,7 +1906,7 @@ void ScenePlay::procCommonNotes()
         size_t max2 = std::min(_keySampleIdxBuf.size(), max + gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->noteExpired.size());
         while (i < max2 && it != gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->noteExpired.end())
         {
-            if (it->flags == 0)
+            if ((it->flags & ~(Note::SCRATCH | Note::KEY_6_7)) == 0)
             {
                 _keySampleIdxBuf[i] = (unsigned)it->dvalue;
                 ++i;
@@ -1893,6 +1914,40 @@ void ScenePlay::procCommonNotes()
             ++it;
         }
         SoundMgr::playNoteSample(SoundChannelType::KEY_LEFT, i, (size_t*)_keySampleIdxBuf.data());
+    }
+
+    // play auto-scratch keysound
+    if (gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask & PLAY_MOD_ASSIST_AUTOSCR)
+    {
+        i = 0;
+        auto it = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->noteExpired.begin();
+        size_t max2 = std::min(_keySampleIdxBuf.size(), max + gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->noteExpired.size());
+        while (i < max2 && it != gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->noteExpired.end())
+        {
+            if ((it->flags & (Note::SCRATCH | Note::LN_TAIL)) == Note::SCRATCH)
+            {
+                _keySampleIdxBuf[i] = (unsigned)it->dvalue;
+                ++i;
+            }
+            ++it;
+        }
+        SoundMgr::playNoteSample(SoundChannelType::KEY_LEFT, i, (size_t*)_keySampleIdxBuf.data());
+    }
+    if (isPlaymodeBattle() && gPlayContext.mods[PLAYER_SLOT_TARGET].assist_mask & PLAY_MOD_ASSIST_AUTOSCR)
+    {
+        i = 0;
+        auto it = gPlayContext.chartObj[PLAYER_SLOT_TARGET]->noteExpired.begin();
+        size_t max2 = std::min(_keySampleIdxBuf.size(), max + gPlayContext.chartObj[PLAYER_SLOT_TARGET]->noteExpired.size());
+        while (i < max2 && it != gPlayContext.chartObj[PLAYER_SLOT_TARGET]->noteExpired.end())
+        {
+            if ((it->flags & (Note::SCRATCH | Note::LN_TAIL)) == Note::SCRATCH)
+            {
+                _keySampleIdxBuf[i] = (unsigned)it->dvalue;
+                ++i;
+            }
+            ++it;
+        }
+        SoundMgr::playNoteSample(SoundChannelType::KEY_RIGHT, i, (size_t*)_keySampleIdxBuf.data());
     }
 }
 
@@ -1962,18 +2017,30 @@ void ScenePlay::changeKeySampleMapping(const Time& t)
         }
     };
 
-    if (true)
+    assert(gPlayContext.chartObj[PLAYER_SLOT_PLAYER] != nullptr);
+    for (size_t i = Input::K11; i <= Input::K19; ++i)
     {
-        assert(gPlayContext.chartObj[PLAYER_SLOT_PLAYER] != nullptr);
-
-        for (auto i = 0; i < Input::S2L; ++i)
+        if (_inputAvailable[i])
+            changeKeySample((Input::Pad)i, PLAYER_SLOT_PLAYER);
+    }
+    if (!(gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask & PLAY_MOD_ASSIST_AUTOSCR))
+    {
+        for (size_t i = Input::S1L; i <= Input::S1R; ++i)
         {
             if (_inputAvailable[i])
                 changeKeySample((Input::Pad)i, PLAYER_SLOT_PLAYER);
         }
-        if (isPlaymodeDP())
+    }
+    if (isPlaymodeDP())
+    {
+        for (size_t i = Input::K21; i <= Input::K29; ++i)
         {
-            for (size_t i = Input::S2L; i < Input::LANE_COUNT; ++i)
+            if (_inputAvailable[i])
+                changeKeySample((Input::Pad)i, PLAYER_SLOT_PLAYER);
+        }
+        if (!(gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask & PLAY_MOD_ASSIST_AUTOSCR))
+        {
+            for (size_t i = Input::S2L; i <= Input::S2R; ++i)
             {
                 if (_inputAvailable[i])
                     changeKeySample((Input::Pad)i, PLAYER_SLOT_PLAYER);
@@ -1983,12 +2050,19 @@ void ScenePlay::changeKeySampleMapping(const Time& t)
 	if (isPlaymodeBattle())
 	{
 		assert(gPlayContext.chartObj[PLAYER_SLOT_TARGET] != nullptr);
-
-		for (size_t i = Input::S2L; i < Input::LANE_COUNT; ++i)
+		for (size_t i = Input::K21; i <= Input::K29; ++i)
 		{
 			if (_inputAvailable[i])
 				changeKeySample((Input::Pad)i, PLAYER_SLOT_TARGET);
 		}
+        if (!(gPlayContext.mods[PLAYER_SLOT_TARGET].assist_mask & PLAY_MOD_ASSIST_AUTOSCR))
+        {
+            for (size_t i = Input::S2L; i <= Input::S2R; ++i)
+            {
+                if (_inputAvailable[i])
+                    changeKeySample((Input::Pad)i, PLAYER_SLOT_TARGET);
+            }
+        }
 	}
 }
 

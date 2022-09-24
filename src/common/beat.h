@@ -103,6 +103,9 @@ struct Note
 
 		MINE = 1 << 4,
 		INVS = 1 << 5,
+
+		SCRATCH = 1 << 6,
+		KEY_6_7 = 1 << 7,
 	};
 	size_t flags = 0;			// used for distinguishing plain notes
 

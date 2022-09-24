@@ -184,6 +184,7 @@ public:
 protected:
     PlaySide _side = PlaySide::SINGLE;
     bool _k1P = false, _k2P = false;
+    bool _judgeScratch = true;
     JudgeDifficulty _judgeDifficulty = JudgeDifficulty::NORMAL;
     GaugeType _gauge = GaugeType::GROOVE;
 
@@ -248,7 +249,7 @@ public:
     virtual unsigned getMaxScore() const { return _chart->getNoteRegularCount() * 2 + _chart->getNoteLnCount() * 2; }
     unsigned getJudgeCount(JudgeType idx) const { return _judgeCount.find(idx) != _judgeCount.end() ? _judgeCount.at(idx) : 0; }
     GaugeType getGaugeType() const { return _gauge; }
-    virtual unsigned getMaxCombo() const { return _chart->getNoteTotalCount(); }
+    virtual unsigned getMaxCombo() const;
     virtual void fail();
     virtual void reset();
     virtual void updateGlobals();

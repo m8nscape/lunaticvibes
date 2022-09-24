@@ -8,6 +8,17 @@ public:
     // 32 -> 40 (9_7_L.bms, 2022-05-04)
     static inline const size_t BGM_LANE_COUNT = 40;
 
+protected:
+    unsigned _noteCount_scratch;
+    unsigned _noteCount_scratch_ln;
+public:
+    unsigned constexpr getScratchCount() const { return _noteCount_scratch; }
+    unsigned constexpr getScratchLnCount() const { return _noteCount_scratch_ln; }
+
+public:
+    virtual chart::NoteLaneIndex getLaneFromKey(chart::NoteLaneCategory cat, Input::Pad input);
+    virtual std::vector<Input::Pad> getInputFromLane(size_t channel);
+
     enum class eNoteExt : unsigned
     {
         BGABASE,
@@ -18,13 +29,10 @@ public:
 
         EXT_COUNT
     };
-
-public:
-    virtual chart::NoteLaneIndex getLaneFromKey(chart::NoteLaneCategory cat, Input::Pad input);
-    virtual std::vector<Input::Pad> getInputFromLane(size_t channel);
     decltype(_specialNoteLists[0])& getBgaBase() { return _specialNoteLists[(size_t)eNoteExt::BGABASE]; }
     decltype(_specialNoteLists[0])& getBgaLayer() { return _specialNoteLists[(size_t)eNoteExt::BGALAYER]; }
     decltype(_specialNoteLists[0])& getBgaPoor() { return _specialNoteLists[(size_t)eNoteExt::BGAPOOR]; }
+
 public:
     ChartObjectBMS() = delete;
     ChartObjectBMS(int slot);

@@ -143,6 +143,8 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
 	_noteCount_total = objBms.notes_total;
 	_noteCount_regular = objBms.notes_scratch + objBms.notes_key;
 	_noteCount_ln = objBms.notes_scratch_ln + objBms.notes_key_ln;
+    _noteCount_scratch = objBms.notes_scratch;
+    _noteCount_scratch_ln = objBms.notes_scratch_ln;
 
     int laneCountOneSide = 7;
     switch (objBms.gamemode)
@@ -475,16 +477,29 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
 
         for (const auto& note : notes)
         {
-            auto[noteSegment, noteinfo] = note;
-            auto[lane, val] = noteinfo;
+            auto& [noteSegment, noteinfo] = note;
+            auto& [lane, val] = noteinfo;
             double metreFromBPMChange = (noteSegment - lastBPMChangedSegment) * barMetre;
             Metre notemetre = basemetre + noteSegment * barMetre;
 			Time notetime = bpmfucked ? LLONG_MAX : basetime + beatLength * (metreFromBPMChange * 4);
+
+            size_t flags = 0;
+            switch (lane.index)
+            {
+            case 0:
+                flags |= Note::SCRATCH;
+                break;
+            case 6:
+            case 7:
+                flags |= Note::KEY_6_7;
+                break;
+            }
 
             if (lane.type >= eLanePriority::NOTE && lane.type <= eLanePriority::MINE)
             {
                 if (lane.type == eLanePriority::LNTAIL)
                 {
+                    flags |= Note::LN_TAIL;
                     NoteLane chartLane = idxToChannel(channelToIdx(NoteLaneCategory::LN, lane.index));
                     size_t gameLaneIdx = gameLaneMap[chartLane.second];
                     size_t gameLaneIdxLN = gameLaneLNIndex[gameLaneIdx];
@@ -497,12 +512,11 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                     }
                     laneOccupiedByLN[gameLaneIdxLN] = false;
                     gameLaneLNIndex[gameLaneIdx] = _;
-                    _noteLists[channelToIdx(chartLane.first, gameLaneIdxLN)].push_back({ m, notemetre, notetime, Note::LN_TAIL, (long long)val, 0., false });
+                    _noteLists[channelToIdx(chartLane.first, gameLaneIdxLN)].push_back({ m, notemetre, notetime, flags, (long long)val, 0., false });
                 }
                 else // normal, invisible, mine, LN head
                 {
                     NoteLane chartLane;
-                    size_t flags = 0;
                     switch (lane.type)
                     {
                     case eLanePriority::NOTE:
@@ -513,11 +527,11 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                         break;
                     case eLanePriority::INV:
                         chartLane = idxToChannel(channelToIdx(NoteLaneCategory::Invs, lane.index));
-                        flags = Note::Flags::INVS;
+                        flags |= Note::Flags::INVS;
                         break;
                     case eLanePriority::MINE:
                         chartLane = idxToChannel(channelToIdx(NoteLaneCategory::Mine, lane.index));
-                        flags = Note::Flags::MINE;
+                        flags |= Note::Flags::MINE;
                         break;
                     default:
                         assert(false);
