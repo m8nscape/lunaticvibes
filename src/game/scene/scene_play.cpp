@@ -14,6 +14,7 @@
 #include "common/log.h"
 #include "common/sysutil.h"
 #include "game/sound/sound_sample.h"
+#include "game/skin/skin_lr2_slider_callbacks.h"
 
 bool ScenePlay::isPlaymodeDP() const
 {
@@ -79,6 +80,14 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     _inputAvailable |= INPUT_MASK_1P | INPUT_MASK_2P;
 
     _state = ePlayState::PREPARE;
+
+    if (gPlayContext.isReplay && gPlayContext.replay)
+    {
+        gSwitches.set(eSwitch::SOUND_PITCH, true);
+        gOptions.set(eOption::SOUND_PITCH_TYPE, gPlayContext.replay->pitchType);
+        double ps = (gPlayContext.replay->pitchValue + 12) / 24.0;
+        lr2skin::slider::pitch(ps);
+    }
 
     if (gChartContext.chartObj == nullptr || !gChartContext.chartObj->isLoaded())
     {

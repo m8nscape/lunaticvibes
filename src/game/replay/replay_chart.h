@@ -86,6 +86,54 @@ public:
             S2A_PLUS,
             S2A_MINUS,
             S2A_STOP,
+
+            JUDGE_LEFT_EXACT_0,  // PGREAT
+            JUDGE_LEFT_EARLY_0,  // PGREAT
+            JUDGE_LEFT_EARLY_1,  // GREAT
+            JUDGE_LEFT_EARLY_2,  // GOOD
+            JUDGE_LEFT_EARLY_3,  // BAD
+            JUDGE_LEFT_EARLY_4,  // POOR
+            JUDGE_LEFT_EARLY_5,  // BPOOR
+            JUDGE_LEFT_EARLY_6,
+            JUDGE_LEFT_EARLY_7,
+            JUDGE_LEFT_EARLY_8,
+            JUDGE_LEFT_EARLY_9,
+            JUDGE_LEFT_LATE_0,   // PGREAT
+            JUDGE_LEFT_LATE_1,   // GREAT
+            JUDGE_LEFT_LATE_2,   // GOOD
+            JUDGE_LEFT_LATE_3,   // BAD
+            JUDGE_LEFT_LATE_4,   // POOR
+            JUDGE_LEFT_LATE_5,   // BPOOR
+            JUDGE_LEFT_LATE_6,
+            JUDGE_LEFT_LATE_7,
+            JUDGE_LEFT_LATE_8,
+            JUDGE_LEFT_LATE_9,
+
+            JUDGE_RIGHT_EXACT_0,  // PGREAT
+            JUDGE_RIGHT_EARLY_0,  // PGREAT
+            JUDGE_RIGHT_EARLY_1,  // GREAT
+            JUDGE_RIGHT_EARLY_2,  // GOOD
+            JUDGE_RIGHT_EARLY_3,  // BAD
+            JUDGE_RIGHT_EARLY_4,  // POOR
+            JUDGE_RIGHT_EARLY_5,  // BPOOR
+            JUDGE_RIGHT_EARLY_6,
+            JUDGE_RIGHT_EARLY_7,
+            JUDGE_RIGHT_EARLY_8,
+            JUDGE_RIGHT_EARLY_9,
+            JUDGE_RIGHT_LATE_0,   // PGREAT
+            JUDGE_RIGHT_LATE_1,   // GREAT
+            JUDGE_RIGHT_LATE_2,   // GOOD
+            JUDGE_RIGHT_LATE_3,   // BAD
+            JUDGE_RIGHT_LATE_4,   // POOR
+            JUDGE_RIGHT_LATE_5,   // BPOOR
+            JUDGE_RIGHT_LATE_6,
+            JUDGE_RIGHT_LATE_7,
+            JUDGE_RIGHT_LATE_8,
+            JUDGE_RIGHT_LATE_9,
+
+            JUDGE_LEFT_LANDMINE,
+            JUDGE_RIGHT_LANDMINE,
+
         } type = Type::UNDEF;
 
         template<class Archive>
@@ -100,7 +148,6 @@ private:
     uint32_t    checksum = 0;           // md5(serirization of this, checksum=0)
 
 public:
-    uint32_t    version = 1;
     HashMD5     chartHash;
     uint64_t    randomSeed = 0;
 
@@ -126,7 +173,7 @@ private:
     friend class cereal::access;
 
     template<class Archive>
-    void serialize(Archive& ar)
+    void serialize(Archive& ar, const std::uint32_t version)
     {
         ar(checksum);
         ar(chartHash);
@@ -146,9 +193,11 @@ private:
         // more parameters goes below
         if (version >= 2)
         {
+
         }
     }
     void generateChecksum();
+
 
 public:
     bool loadFile(const Path& path);
@@ -158,3 +207,5 @@ public:
     static Path getReplayPath(const HashMD5& chartMD5);
     Path getReplayPath();
 };
+
+CEREAL_CLASS_VERSION(ReplayChart, 1);

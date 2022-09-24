@@ -17,6 +17,7 @@ public:
         PlaySide side = PlaySide::AUTO);
 
 public:
+    double playbackSpeed = 1.0;
 
 protected:
     std::shared_ptr<ReplayChart> replay;

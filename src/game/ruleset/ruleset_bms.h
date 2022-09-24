@@ -189,6 +189,7 @@ protected:
 
     std::map<JudgeType, double> _healthGain;
 
+    bool doJudge = true;
     bool showJudge = true;
     const NoteLaneTimerMap* _bombTimerMap = nullptr;
     const NoteLaneTimerMap* _bombLNTimerMap = nullptr;
@@ -239,8 +240,8 @@ public:
     virtual void update(const Time& t);
 public:
     //constexpr auto getJudge() const { return _count; }
-    void updateHit(const Time& t, chart::NoteLaneIndex ch, JudgeType judge, int slot);
-    void updateMiss(const Time& t, chart::NoteLaneIndex ch, JudgeType judge, int slot);
+    void updateHit(const Time& t, chart::NoteLaneIndex ch, JudgeType judge, int slot, bool force = false);
+    void updateMiss(const Time& t, chart::NoteLaneIndex ch, JudgeType judge, int slot, bool force = false);
     virtual bool isCleared() const { return !_isFailed && isFinished() && _basic.health >= _clearHealth; }
     virtual bool isFailed() const { return _isFailed; }
     virtual unsigned getCurrentMaxScore() const { return _basic.notesReached * 2; }

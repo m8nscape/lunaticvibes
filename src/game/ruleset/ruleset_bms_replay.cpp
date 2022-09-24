@@ -15,6 +15,15 @@ RulesetBMSReplay::RulesetBMSReplay(
     this->replay = replay;
     itReplayCommand = replay->commands.begin();
     showJudge = (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P);
+
+    doJudge = false;
+
+    if (replay->pitchValue != 0)
+    {
+        double ps = (replay->pitchValue + 12) / 24.0;
+        static const double tick = std::pow(2, 1.0 / 12);
+        playbackSpeed = std::pow(tick, replay->pitchValue);
+    }
 }
 
 void RulesetBMSReplay::update(const Time& t)
@@ -23,7 +32,7 @@ void RulesetBMSReplay::update(const Time& t)
     using namespace chart;
 
     InputMask prev = keyPressing;
-    while (itReplayCommand != replay->commands.end() && rt.norm() >= itReplayCommand->ms)
+    while (itReplayCommand != replay->commands.end() && rt.norm() >= (long long)std::round(itReplayCommand->ms * playbackSpeed / gSelectContext.pitchSpeed))
     {
         switch (itReplayCommand->type)
         {
@@ -77,6 +86,36 @@ void RulesetBMSReplay::update(const Time& t)
         case ReplayChart::Commands::Type::S2A_PLUS: _scratchAccumulator[PLAYER_SLOT_TARGET] = 0.0015; break;
         case ReplayChart::Commands::Type::S2A_MINUS: _scratchAccumulator[PLAYER_SLOT_TARGET] = -0.0015; break;
         case ReplayChart::Commands::Type::S2A_STOP: _scratchAccumulator[PLAYER_SLOT_TARGET] = 0; break;
+
+        // extract judge from frames
+        case ReplayChart::Commands::Type::JUDGE_LEFT_EXACT_0: updateHit(t, NoteLaneIndex::_, JudgeType::PERFECT, PLAYER_SLOT_PLAYER, true); break;
+        case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_0: updateHit(t, NoteLaneIndex::_, JudgeType::PERFECT, PLAYER_SLOT_PLAYER, true); _basic.fast++; break;
+        case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_1: updateHit(t, NoteLaneIndex::_, JudgeType::GREAT, PLAYER_SLOT_PLAYER, true); _basic.fast++; break;
+        case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_2: updateHit(t, NoteLaneIndex::_, JudgeType::GOOD, PLAYER_SLOT_PLAYER, true); _basic.fast++; break;
+        case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_3: updateMiss(t, NoteLaneIndex::_, JudgeType::BAD, PLAYER_SLOT_PLAYER, true); _basic.fast++; break;
+        case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_4: updateMiss(t, NoteLaneIndex::_, JudgeType::MISS, PLAYER_SLOT_PLAYER, true); _basic.fast++; break;
+        case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_5: updateMiss(t, NoteLaneIndex::_, JudgeType::BPOOR, PLAYER_SLOT_PLAYER, true); _basic.fast++; break;
+        case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_0: updateHit(t, NoteLaneIndex::_, JudgeType::PERFECT, PLAYER_SLOT_PLAYER, true); _basic.slow++; break;
+        case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_1: updateHit(t, NoteLaneIndex::_, JudgeType::GREAT, PLAYER_SLOT_PLAYER, true); _basic.slow++; break;
+        case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_2: updateHit(t, NoteLaneIndex::_, JudgeType::GOOD, PLAYER_SLOT_PLAYER, true); _basic.slow++; break;
+        case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_3: updateMiss(t, NoteLaneIndex::_, JudgeType::BAD, PLAYER_SLOT_PLAYER, true); _basic.slow++; break;
+        case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_4: updateMiss(t, NoteLaneIndex::_, JudgeType::MISS, PLAYER_SLOT_PLAYER, true); _basic.slow++; break;
+        case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_5: updateMiss(t, NoteLaneIndex::_, JudgeType::BPOOR, PLAYER_SLOT_PLAYER, true); _basic.slow++; break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_EXACT_0: updateHit(t, NoteLaneIndex::_, JudgeType::PERFECT, PLAYER_SLOT_TARGET, true); break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_0: updateHit(t, NoteLaneIndex::_, JudgeType::PERFECT, PLAYER_SLOT_TARGET, true); _basic.fast++; break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_1: updateHit(t, NoteLaneIndex::_, JudgeType::GREAT, PLAYER_SLOT_TARGET, true); _basic.fast++; break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_2: updateHit(t, NoteLaneIndex::_, JudgeType::GOOD, PLAYER_SLOT_TARGET, true); _basic.fast++; break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_3: updateMiss(t, NoteLaneIndex::_, JudgeType::BAD, PLAYER_SLOT_TARGET, true); _basic.fast++; break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_4: updateMiss(t, NoteLaneIndex::_, JudgeType::MISS, PLAYER_SLOT_TARGET, true); _basic.fast++; break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_5: updateMiss(t, NoteLaneIndex::_, JudgeType::BPOOR, PLAYER_SLOT_TARGET, true); _basic.fast++; break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_0: updateHit(t, NoteLaneIndex::_, JudgeType::PERFECT, PLAYER_SLOT_TARGET, true); _basic.slow++; break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_1: updateHit(t, NoteLaneIndex::_, JudgeType::GREAT, PLAYER_SLOT_TARGET, true); _basic.slow++; break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_2: updateHit(t, NoteLaneIndex::_, JudgeType::GOOD, PLAYER_SLOT_TARGET, true); _basic.slow++; break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_3: updateMiss(t, NoteLaneIndex::_, JudgeType::BAD, PLAYER_SLOT_TARGET, true); _basic.slow++; break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_4: updateMiss(t, NoteLaneIndex::_, JudgeType::MISS, PLAYER_SLOT_TARGET, true); _basic.slow++; break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_5: updateMiss(t, NoteLaneIndex::_, JudgeType::BPOOR, PLAYER_SLOT_TARGET, true); _basic.slow++; break;
+        case ReplayChart::Commands::Type::JUDGE_LEFT_LANDMINE: updateMiss(t, NoteLaneIndex::_, JudgeType::BPOOR, PLAYER_SLOT_PLAYER, true); break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_LANDMINE: updateMiss(t, NoteLaneIndex::_, JudgeType::BPOOR, PLAYER_SLOT_TARGET, true); break;
         }
         itReplayCommand++;
     }
@@ -84,7 +123,7 @@ void RulesetBMSReplay::update(const Time& t)
     InputMask released = ~keyPressing & prev;
     if (pressed.any())
         RulesetBMS::updatePress(pressed, t);
-    if (keyPressing.any()) 
+    if (keyPressing.any())
         RulesetBMS::updateHold(keyPressing, t);
     if (released.any())
         RulesetBMS::updateRelease(released, t);
