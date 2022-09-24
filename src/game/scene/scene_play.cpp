@@ -729,6 +729,7 @@ void ScenePlay::loadChart()
     }
 
     // load bga
+    // TODO if BGA caching is implemented, set playback speed on each play
     if (gSwitches.get(eSwitch::SYSTEM_BGA) && /*!gChartContext.isBgaLoaded &&*/ !sceneEnding)
     {
         auto dtor = std::async(std::launch::async, [&]() {

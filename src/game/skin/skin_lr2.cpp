@@ -554,7 +554,7 @@ int SkinLR2::IMAGE()
                     if (video_file_extensions.find(toLower(pathFile.extension().u8string())) != video_file_extensions.end())
                     {
 #ifndef VIDEO_DISABLED
-                        _vidNameMap[std::to_string(imageCount)] = std::make_shared<sVideo>(pathFile, true);
+                        _vidNameMap[std::to_string(imageCount)] = std::make_shared<sVideo>(pathFile, 1.0, true);
                         _textureNameMap[std::to_string(imageCount)] = _textureNameMap["White"];
 #else
                         _textureNameMap[std::to_string(imageCount)] = _textureNameMap["Black"];
@@ -587,7 +587,7 @@ int SkinLR2::IMAGE()
                 if (video_file_extensions.find(toLower(ls[ranidx].extension().u8string())) != video_file_extensions.end())
                 {
 #ifndef VIDEO_DISABLED
-                    _vidNameMap[std::to_string(imageCount)] = std::make_shared<sVideo>(ls[ranidx], true);
+                    _vidNameMap[std::to_string(imageCount)] = std::make_shared<sVideo>(ls[ranidx], 1.0, true);
                     _textureNameMap[std::to_string(imageCount)] = _textureNameMap["Error"];
 #else
                     _textureNameMap[std::to_string(imageCount)] = _textureNameMap["Black"];

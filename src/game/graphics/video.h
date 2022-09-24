@@ -55,9 +55,9 @@ private:
 
 public:
 	sVideo() = default;
-	sVideo(const Path& file, bool loop = false) { setVideo(file, loop); }
+	sVideo(const Path& file, double speed = 1.0, bool loop = false) { setVideo(file, speed, loop); }
 	virtual ~sVideo();
-	int setVideo(const Path& file, bool loop = false);
+	int setVideo(const Path& file, double speed, bool loop = false);
 	int unsetVideo();
 	int getW() { return w; }
 	int getH() { return h; }

@@ -173,7 +173,7 @@ bool TextureBmsBga::addBmp(size_t idx, Path pBmp)
 		{
 #ifndef VIDEO_DISABLED
 			objs[idx].type = obj::Ty::VIDEO;
-			objs[idx].pt = std::make_shared<TextureVideo>(std::make_shared<sVideo>(pBmp));
+			objs[idx].pt = std::make_shared<TextureVideo>(std::make_shared<sVideo>(pBmp, gSelectContext.pitchSpeed, false));
 			LOG_DEBUG << "[TextureBmsBga] added video: " << pBmp.u8string();
 			return true;
 #else

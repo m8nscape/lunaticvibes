@@ -32,13 +32,14 @@ sVideo::~sVideo()
 	}
 }
 
-int sVideo::setVideo(const Path& file, bool loop)
+int sVideo::setVideo(const Path& file, double speed, bool loop)
 {
 	if (!fs::exists(file)) return -1;
 	if (!fs::is_regular_file(file)) return -2;
 
 	if (haveVideo) unsetVideo();
 	this->file = file;
+	this->speed = speed;
 	loop_playback = loop;
 
 	if (int ret = avformat_open_input(&pFormatCtx, file.u8string().c_str(), NULL, NULL); ret != 0)
@@ -225,7 +226,7 @@ void sVideo::decodeLoop()
 				}
 
 				using namespace std::chrono;
-				auto frameTime_ms = long long(std::round(pFrame1->pts / tsps * 1000));	// TODO set playback speed
+				auto frameTime_ms = long long(std::round(pFrame1->pts / tsps * 1000 / speed));
 				if (firstFrame)
 				{
 					firstFrame = false;
