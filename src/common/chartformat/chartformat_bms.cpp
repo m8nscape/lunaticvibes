@@ -595,7 +595,7 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                     while (itNote != noteList.end())
                     {
                         // Regular note inside a LN (can be seen with o2mania + #LNTYPE 1) is not allowed. Handle any following note as LN tail.
-                        if (hasHead && (lnobjSet.count(LNhead->value) || (LNhead->flags & channel::NoteParseValue::LN)))
+                        if (hasHead && (lnobjSet.count(itNote->value) || (LNhead->flags & channel::NoteParseValue::LN)))
                         {
                             unsigned segment = LNhead->segment * chNotesLN.lanes[area][ch][bar_head].relax(resolution_head) / resolution_head;
                             unsigned value = LNhead->value;
