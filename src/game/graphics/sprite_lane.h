@@ -17,17 +17,19 @@ protected:
     double _hispeed;
     std::list<Rect> _outRect;
     unsigned _currentMeasure = 0;
+    bool _autoNotes = false;
+    bool _hide = false;
 
 public:
     unsigned playerSlot;
     std::shared_ptr<SpriteAnimated> pNote;
 
 public:
-    SpriteLaneVertical(unsigned player = 0, double basespeed = 1.0, double lanespeed = 1.0);
+    SpriteLaneVertical(unsigned player = 0, bool autoNotes = false, double basespeed = 1.0, double lanespeed = 1.0);
     SpriteLaneVertical(pTexture texture, Rect laneRect,
         unsigned animFrames, unsigned frameTime = 0, eTimer timer = eTimer::PLAY_START,
         unsigned animRows = 1, unsigned animCols = 1, bool animVerticalIndexing = false,
-        unsigned player = 0, double basespeed = 1.0, double lanespeed = 1.0
+        unsigned player = 0, bool autoNotes = false, double basespeed = 1.0, double lanespeed = 1.0
         );
 
 public:
@@ -49,8 +51,8 @@ public:
     std::shared_ptr<SpriteAnimated> pNoteBody, pNoteTail;
 
 public:
-    SpriteLaneVerticalLN(unsigned player = 0, double basespeed = 1.0, double lanespeed = 1.0) : 
-        SpriteLaneVertical(player, basespeed, lanespeed) {}
+    SpriteLaneVerticalLN(unsigned player = 0, bool autoNotes = false, double basespeed = 1.0, double lanespeed = 1.0) :
+        SpriteLaneVertical(player, autoNotes, basespeed, lanespeed) {}
 
 public:
     virtual void updateNoteRect(const Time& t) override;

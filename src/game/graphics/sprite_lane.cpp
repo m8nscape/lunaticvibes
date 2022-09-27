@@ -5,8 +5,8 @@
 
 using namespace chart;
 
-SpriteLaneVertical::SpriteLaneVertical(unsigned player, double basespeed, double lanespeed):
-	SpriteStatic(nullptr, Rect(0)), playerSlot(player)
+SpriteLaneVertical::SpriteLaneVertical(unsigned player, bool autoNotes, double basespeed, double lanespeed):
+	SpriteStatic(nullptr, Rect(0)), playerSlot(player), _autoNotes(autoNotes)
 {
 	_type = SpriteTypes::NOTE_VERT;
 	_basespd = basespeed * lanespeed;
@@ -18,8 +18,8 @@ SpriteLaneVertical::SpriteLaneVertical(unsigned player, double basespeed, double
 SpriteLaneVertical::SpriteLaneVertical(pTexture texture, Rect r,
     unsigned animFrames, unsigned frameTime, eTimer timer,
 	unsigned animRows, unsigned animCols, bool animVerticalIndexing,
-    unsigned player, double basespeed, double lanespeed):
-	SpriteLaneVertical(player, basespeed, lanespeed)
+    unsigned player, bool autoNotes, double basespeed, double lanespeed):
+	SpriteLaneVertical(player, autoNotes, basespeed, lanespeed)
 {
 	pNote = std::make_shared<SpriteAnimated>(texture, r, animFrames, frameTime, timer, animRows, animCols, animVerticalIndexing);
 }
@@ -29,6 +29,34 @@ void SpriteLaneVertical::setLane(NoteLaneCategory cat, NoteLaneIndex idx)
 {
 	_category = cat;
 	_index = idx;
+
+	switch (playerSlot)
+	{
+	case PLAYER_SLOT_PLAYER:
+		if ((gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask & PLAY_MOD_ASSIST_AUTOSCR) &&
+			(_index == chart::NoteLaneIndex::Sc1 || !gPlayContext.isBattle && _index == chart::NoteLaneIndex::Sc2))
+		{
+			if (!_autoNotes) _hide = true;
+		}
+		else
+		{
+			if (_autoNotes) _hide = true;
+		}
+		break;
+	case PLAYER_SLOT_TARGET:
+		if ((gPlayContext.mods[PLAYER_SLOT_TARGET].assist_mask & PLAY_MOD_ASSIST_AUTOSCR) &&
+			(_index == chart::NoteLaneIndex::Sc1 || gPlayContext.isBattle && _index == chart::NoteLaneIndex::Sc2))
+		{
+			if (!_autoNotes) _hide = true;
+		}
+		else
+		{
+			if (_autoNotes) _hide = true;
+		}
+		break;
+	default:
+		break;
+	}
 }
 
 
@@ -52,6 +80,8 @@ void SpriteLaneVertical::getRectSize(int& w, int& h)
 
 bool SpriteLaneVertical::update(const Time& t)
 {
+	if (_hide) return false;
+
 	if (updateByKeyframes(t))
 	{
 		switch (playerSlot)

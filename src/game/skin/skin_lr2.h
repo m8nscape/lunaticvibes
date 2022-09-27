@@ -1400,7 +1400,7 @@ protected:
     std::array<Rect, BAR_ENTRY_SPRITE_COUNT> _barAnimOrigin;
 
 protected:
-    std::vector<std::shared_ptr<SpriteLaneVertical>> _laneSprites;
+    std::vector<std::pair<std::shared_ptr<SpriteLaneVertical>, std::shared_ptr<SpriteLaneVertical>>> _laneSprites;  // { normal, auto }
     std::map<std::string, pFont>  _fontNameMap;
 
 protected:

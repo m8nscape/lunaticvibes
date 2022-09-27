@@ -141,10 +141,10 @@ enum class eModGauge : uint8_t
     //GATTACK,
 };
 
-inline const uint8_t PLAY_MOD_ASSIST_AUTO67     = 1 << 0; // 5keys
+inline const uint8_t PLAY_MOD_ASSIST_AUTO67     = 1 << 0; // 5keys, not implemented
 inline const uint8_t PLAY_MOD_ASSIST_AUTOSCR    = 1 << 1; // 
-inline const uint8_t PLAY_MOD_ASSIST_LEGACY     = 1 << 2; // LN -> note
-inline const uint8_t PLAY_MOD_ASSIST_NOMINES    = 1 << 3; // 5keys
+inline const uint8_t PLAY_MOD_ASSIST_LEGACY     = 1 << 2; // LN head -> note, not implemented
+inline const uint8_t PLAY_MOD_ASSIST_NOMINES    = 1 << 3; // from beatoraja, not implemented
 
 enum class eModHs : uint8_t
 {

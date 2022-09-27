@@ -1623,6 +1623,7 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
 
     NoteLaneCategory cat = NoteLaneCategory::_;
     NoteLaneIndex idx = NoteLaneIndex::_;
+    bool autoNotes = false;
 
     // SRC_NOTE
     switch (type)
@@ -1631,6 +1632,7 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
         cat = NoteLaneCategory::EXTRA;
         idx = (NoteLaneIndex)(d._null == 0 ? EXTRA_BARLINE_1P : EXTRA_BARLINE_2P);
         break;
+
     case DefType::NOTE:
         cat = NoteLaneCategory::Note;
         idx = NoteIdxToLane(info.mode, d._null);
@@ -1645,14 +1647,27 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
         cat = NoteLaneCategory::Mine;
         idx = NoteIdxToLane(info.mode, d._null);
         break;
+
     case DefType::AUTO_NOTE:
-    case DefType::AUTO_MINE:
+        cat = NoteLaneCategory::Note;
+        idx = NoteIdxToLane(info.mode, d._null);
+        autoNotes = true;
+        break;
     case DefType::AUTO_LN_END:
     case DefType::AUTO_LN_BODY:
     case DefType::AUTO_LN_START:
+        cat = NoteLaneCategory::LN;
+        idx = NoteIdxToLane(info.mode, d._null);
+        autoNotes = true;
+        break;
+    case DefType::AUTO_MINE:
+        cat = NoteLaneCategory::Mine;
+        idx = NoteIdxToLane(info.mode, d._null);
+        autoNotes = true;
+        break;
+
     default:
-        LOG_WARNING << "[Skin] " << csvLineNumber << ": \"" << parseKeyBuf << "\" is not supported yet";
-        return ParseRet::OK;
+        return ParseRet::SRC_DEF_INVALID;
     }
 
     size_t i = channelToIdx(cat, idx);
@@ -1669,11 +1684,13 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
         _sprites.push_back(std::make_shared<SpriteLaneVertical>(
             _textureNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, iTimer, d.div_y, d.div_x, false, d._null == 0 ? 0 : 1));
 
-        _laneSprites[i] = std::static_pointer_cast<SpriteLaneVertical>(_sprites.back());
-        _laneSprites[i]->setLane(cat, idx);
-        _laneSprites[i]->pNote->appendKeyFrame({ 0, {Rect(),
+        auto& ls = _laneSprites[i].first;
+
+        ls = std::static_pointer_cast<SpriteLaneVertical>(_sprites.back());
+        ls->setLane(cat, idx);
+        ls->pNote->appendKeyFrame({ 0, {Rect(),
             RenderParams::accTy::CONSTANT, Color(0xffffffff), BlendMode::ALPHA, 0, 0.0 } });
-        _laneSprites[i]->pNote->setLoopTime(0);
+        ls->pNote->setLoopTime(0);
         break;
     }
 
@@ -1683,13 +1700,23 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
     case DefType::AUTO_MINE:
     {
         _sprites.push_back(std::make_shared<SpriteLaneVertical>(
-            _textureNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, iTimer, d.div_y, d.div_x, false, !!(d._null >= 10)));
+            _textureNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, iTimer, d.div_y, d.div_x, false, !!(d._null >= 10), autoNotes));
 
-        _laneSprites[i] = std::static_pointer_cast<SpriteLaneVertical>(_sprites.back());
-        _laneSprites[i]->setLane(cat, idx);
-        _laneSprites[i]->pNote->appendKeyFrame({ 0, {Rect(),
+        std::shared_ptr<SpriteLaneVertical> ls = nullptr;
+        if (!autoNotes)
+        {
+            _laneSprites[i].first = std::static_pointer_cast<SpriteLaneVertical>(_sprites.back());
+            ls = _laneSprites[i].first;
+        }
+        else
+        {
+            _laneSprites[i].second = std::static_pointer_cast<SpriteLaneVertical>(_sprites.back());
+            ls = _laneSprites[i].second;
+        }
+        ls->setLane(cat, idx);
+        ls->pNote->appendKeyFrame({ 0, {Rect(),
             RenderParams::accTy::CONSTANT, Color(0xffffffff), BlendMode::ALPHA, 0, 0.0 } });
-        _laneSprites[i]->pNote->setLoopTime(0);
+        ls->pNote->setLoopTime(0);
         break;
     }
 
@@ -1700,14 +1727,27 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
     case DefType::AUTO_LN_BODY:
     case DefType::AUTO_LN_START:
     {
-        if (_laneSprites[i] == nullptr)
+        std::shared_ptr<SpriteLaneVerticalLN> p = nullptr;
+        if (!autoNotes)
         {
-            _sprites.push_back(std::make_shared<SpriteLaneVerticalLN>(!!(d._null >= 10)));
-            _laneSprites[i] = std::static_pointer_cast<SpriteLaneVerticalLN>(_sprites.back());
-            _laneSprites[i]->setLane(cat, idx);
+            if (_laneSprites[i].first == nullptr)
+            {
+                _sprites.push_back(std::make_shared<SpriteLaneVerticalLN>(!!(d._null >= 10), false));
+                _laneSprites[i].first = std::static_pointer_cast<SpriteLaneVerticalLN>(_sprites.back());
+                _laneSprites[i].first->setLane(cat, idx);
+            }
+            p = std::static_pointer_cast<SpriteLaneVerticalLN>(_laneSprites[i].first);
         }
-
-        auto p = std::static_pointer_cast<SpriteLaneVerticalLN>(_laneSprites[i]);
+        else
+        {
+            if (_laneSprites[i].second == nullptr)
+            {
+                _sprites.push_back(std::make_shared<SpriteLaneVerticalLN>(!!(d._null >= 10), true));
+                _laneSprites[i].second = std::static_pointer_cast<SpriteLaneVerticalLN>(_sprites.back());
+                _laneSprites[i].second->setLane(cat, idx);
+            }
+            p = std::static_pointer_cast<SpriteLaneVerticalLN>(_laneSprites[i].second);
+        }
         std::shared_ptr<SpriteAnimated> *pn = nullptr;
         switch (type)
         {
@@ -2099,14 +2139,17 @@ ParseRet SkinLR2::DST_NOTE()
         //LOG_DEBUG << "[Skin] " << raw << ": Set Lane sprite Keyframe (time: " << d.time << ")";
     };
 
-    auto e1 = _laneSprites[channelToIdx(NoteLaneCategory::Note, idx)];
+    auto& [e1, e1a] = _laneSprites[channelToIdx(NoteLaneCategory::Note, idx)];
     if (e1) setDstNoteSprite(NoteLaneCategory::Note, e1);
+    if (e1a) setDstNoteSprite(NoteLaneCategory::Note, e1a);
 
-    auto e2 = _laneSprites[channelToIdx(NoteLaneCategory::Mine, idx)];
+    auto& [e2, e2a] = _laneSprites[channelToIdx(NoteLaneCategory::Mine, idx)];
     if (e2) setDstNoteSprite(NoteLaneCategory::Mine, e2);
+    if (e2a) setDstNoteSprite(NoteLaneCategory::Mine, e2a);
 
-    auto e3 = _laneSprites[channelToIdx(NoteLaneCategory::LN, idx)];
+    auto& [e3, e3a] = _laneSprites[channelToIdx(NoteLaneCategory::LN, idx)];
     if (e3) setDstNoteSprite(NoteLaneCategory::LN, e3);
+    if (e3a) setDstNoteSprite(NoteLaneCategory::LN, e3a);
 
     return ParseRet::OK;
 }
@@ -2938,19 +2981,22 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
             size_t idx;
 
             idx = channelToIdx(NoteLaneCategory::Note, lane);
-            if (idx != LANE_INVALID && _laneSprites[idx] != nullptr)
+            if (idx != LANE_INVALID)
             {
-                _laneSprites[idx]->setHeight(height);
+                if (_laneSprites[idx].first != nullptr) _laneSprites[idx].first->setHeight(height);
+                if (_laneSprites[idx].second != nullptr) _laneSprites[idx].second->setHeight(height);
             }
             idx = channelToIdx(NoteLaneCategory::Mine, lane);
-            if (idx != LANE_INVALID && _laneSprites[idx] != nullptr)
+            if (idx != LANE_INVALID)
             {
-                _laneSprites[idx]->setHeight(height);
+                if (_laneSprites[idx].first != nullptr) _laneSprites[idx].first->setHeight(height);
+                if (_laneSprites[idx].second != nullptr) _laneSprites[idx].second->setHeight(height);
             }
             idx = channelToIdx(NoteLaneCategory::LN, lane);
-            if (idx != LANE_INVALID && _laneSprites[idx] != nullptr)
+            if (idx != LANE_INVALID)
             {
-                _laneSprites[idx]->setHeight(height);
+                if (_laneSprites[idx].first != nullptr) _laneSprites[idx].first->setHeight(height);
+                if (_laneSprites[idx].second != nullptr) _laneSprites[idx].second->setHeight(height);
             }
         }
     };
@@ -2960,9 +3006,10 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
         setLaneHeight(0, 9, info.noteLaneHeight1P);
 
         constexpr size_t idx = channelToIdx(NoteLaneCategory::EXTRA, NoteLaneExtra::EXTRA_BARLINE_1P);
-        if (idx != LANE_INVALID && _laneSprites[idx] != nullptr)
+        if (idx != LANE_INVALID)
         {
-            _laneSprites[idx]->setHeight(info.noteLaneHeight1P);
+            if (_laneSprites[idx].first != nullptr) _laneSprites[idx].first->setHeight(info.noteLaneHeight1P);
+            if (_laneSprites[idx].second != nullptr) _laneSprites[idx].second->setHeight(info.noteLaneHeight1P);
         }
     }
     if (info.noteLaneHeight2P != 0)
@@ -2971,9 +3018,10 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
         setLaneHeight(10, 19, info.noteLaneHeight2P);
 
         constexpr size_t idx = channelToIdx(NoteLaneCategory::EXTRA, NoteLaneExtra::EXTRA_BARLINE_2P);
-        if (idx != LANE_INVALID && _laneSprites[idx] != nullptr)
+        if (idx != LANE_INVALID)
         {
-            _laneSprites[idx]->setHeight(info.noteLaneHeight2P);
+            if (_laneSprites[idx].first != nullptr) _laneSprites[idx].first->setHeight(info.noteLaneHeight2P);
+            if (_laneSprites[idx].second != nullptr) _laneSprites[idx].second->setHeight(info.noteLaneHeight2P);
         }
     }
 
