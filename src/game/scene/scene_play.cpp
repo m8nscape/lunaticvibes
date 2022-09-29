@@ -708,9 +708,11 @@ void ScenePlay::setTempInitialHealthBMS()
 void ScenePlay::loadChart()
 {
     // FIXME Disable caching for now, considering definitions inside #RANDOM blocks
+    gChartContext.isSampleLoaded = false;
+    gChartContext.isBgaLoaded = false;
 
     // load samples
-    if (/*!gChartContext.isSampleLoaded &&*/ !sceneEnding)
+    if (!gChartContext.isSampleLoaded && !sceneEnding)
     {
         auto dtor = std::async(std::launch::async, [&]() {
             SetDebugThreadName("Chart sound sample loading thread");
@@ -753,7 +755,7 @@ void ScenePlay::loadChart()
 
     // load bga
     // TODO if BGA caching is implemented, set playback speed on each play
-    if (gSwitches.get(eSwitch::SYSTEM_BGA) && /*!gChartContext.isBgaLoaded &&*/ !sceneEnding)
+    if (gSwitches.get(eSwitch::SYSTEM_BGA) && !gChartContext.isBgaLoaded && !sceneEnding)
     {
         auto dtor = std::async(std::launch::async, [&]() {
             SetDebugThreadName("Chart BGA loading thread");
