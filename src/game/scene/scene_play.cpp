@@ -14,6 +14,7 @@
 #include "common/log.h"
 #include "common/sysutil.h"
 #include "game/sound/sound_sample.h"
+#include "game/skin/skin_lr2_button_callbacks.h"
 #include "game/skin/skin_lr2_slider_callbacks.h"
 
 bool ScenePlay::isPlaymodeDP() const
@@ -134,6 +135,7 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     gNumbers.queue(eNumber::PLAY_BPM, int(std::round(gChartContext.startBPM)));
     gNumbers.queue(eNumber::INFO_BPM_MIN, int(std::round(gChartContext.minBPM)));
     gNumbers.queue(eNumber::INFO_BPM_MAX, int(std::round(gChartContext.maxBPM)));
+    lr2skin::button::target_type(0);
 
     gChartContext.title = gChartContext.chartObj->title;
     gChartContext.title2 = gChartContext.chartObj->title2;
@@ -550,31 +552,39 @@ bool ScenePlay::createRuleset()
             }
         }
 
-        if (gPlayContext.ruleset[PLAYER_SLOT_TARGET] != nullptr)
+        if (gPlayContext.ruleset[PLAYER_SLOT_TARGET] != nullptr && !isPlaymodeBattle())
         {
-            // rename target
-            int targetRate = gNumbers.get(eNumber::DEFAULT_TARGET_RATE);
             double targetRateReal = 0.0;
-            switch (targetRate)
+            switch (gOptions.get(eOption::PLAY_TARGET_TYPE))
             {
-            case 22:  targetRateReal = 2.0 / 9; gTexts.queue(eText::TARGET_NAME, "RANK E"); break;  // E
-            case 33:  targetRateReal = 3.0 / 9; gTexts.queue(eText::TARGET_NAME, "RANK D"); break;  // D
-            case 44:  targetRateReal = 4.0 / 9; gTexts.queue(eText::TARGET_NAME, "RANK C"); break;  // C
-            case 55:  targetRateReal = 5.0 / 9; gTexts.queue(eText::TARGET_NAME, "RANK B"); break;  // B
-            case 66:  targetRateReal = 6.0 / 9; gTexts.queue(eText::TARGET_NAME, "RANK A"); break;  // A
-            case 77:  targetRateReal = 7.0 / 9; gTexts.queue(eText::TARGET_NAME, "RANK AA"); break;  // AA
-            case 88:  targetRateReal = 8.0 / 9; gTexts.queue(eText::TARGET_NAME, "RANK AAA"); break;  // AAA
-            case 100: targetRateReal = 1.0;     gTexts.queue(eText::TARGET_NAME, "DJ AUTO"); break;  // MAX
+            case Option::TARGET_A:   targetRateReal = 8.0 / 9; gTexts.queue(eText::TARGET_NAME, "RANK A");   break;
+            case Option::TARGET_AA:  targetRateReal = 7.0 / 9; gTexts.queue(eText::TARGET_NAME, "RANK AA");  break;
+            case Option::TARGET_AAA: targetRateReal = 6.0 / 9; gTexts.queue(eText::TARGET_NAME, "RANK AAA"); break;
             default:
-                targetRateReal = targetRate / 100.0;
-                gTexts.queue(eText::TARGET_NAME, "RATE "s + std::to_string(targetRate) + "%"s);
-                break;
-            }
-            if (!isPlaymodeBattle())
             {
-                std::reinterpret_pointer_cast<RulesetBMSAuto>(gPlayContext.ruleset[PLAYER_SLOT_TARGET])->setTargetRate(targetRateReal);
-                gBargraphs.queue(eBargraph::PLAY_RIVAL_EXSCORE_FINAL, targetRateReal);
+                // rename target
+                int targetRate = gNumbers.get(eNumber::DEFAULT_TARGET_RATE);
+                switch (targetRate)
+                {
+                case 22:  targetRateReal = 2.0 / 9; gTexts.queue(eText::TARGET_NAME, "RANK E"); break;  // E
+                case 33:  targetRateReal = 3.0 / 9; gTexts.queue(eText::TARGET_NAME, "RANK D"); break;  // D
+                case 44:  targetRateReal = 4.0 / 9; gTexts.queue(eText::TARGET_NAME, "RANK C"); break;  // C
+                case 55:  targetRateReal = 5.0 / 9; gTexts.queue(eText::TARGET_NAME, "RANK B"); break;  // B
+                case 66:  targetRateReal = 6.0 / 9; gTexts.queue(eText::TARGET_NAME, "RANK A");  break;  // A
+                case 77:  targetRateReal = 7.0 / 9; gTexts.queue(eText::TARGET_NAME, "RANK AA"); break;  // AA
+                case 88:  targetRateReal = 8.0 / 9; gTexts.queue(eText::TARGET_NAME, "RANK AAA"); break;  // AAA
+                case 100: targetRateReal = 1.0;     gTexts.queue(eText::TARGET_NAME, "DJ AUTO"); break;  // MAX
+                default:
+                    targetRateReal = targetRate / 100.0;
+                    gTexts.queue(eText::TARGET_NAME, "RATE "s + std::to_string(targetRate) + "%"s);
+                    break;
+                }
             }
+            break;
+            }
+
+            std::reinterpret_pointer_cast<RulesetBMSAuto>(gPlayContext.ruleset[PLAYER_SLOT_TARGET])->setTargetRate(targetRateReal);
+            gBargraphs.queue(eBargraph::PLAY_RIVAL_EXSCORE_FINAL, targetRateReal);
         }
 
         // load mybest score
@@ -1581,28 +1591,7 @@ void ScenePlay::updatePlaying()
         _missPlayer[PLAYER_SLOT_PLAYER] = miss1;
         _missLastTime = t;
     }
-
-    if (gPlayContext.ruleset[PLAYER_SLOT_TARGET] != nullptr)
-    {
-        gPlayContext.chartObj[PLAYER_SLOT_TARGET]->update(rt);
-        gPlayContext.ruleset[PLAYER_SLOT_TARGET]->update(t);
-
-        auto dp2 = gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData();
-
-        gNumbers.queue(eNumber::PLAY_1P_EXSCORE_DIFF, dp1.score2 - dp2.score2);
-        gNumbers.queue(eNumber::PLAY_2P_EXSCORE_DIFF, dp2.score2 - dp1.score2);
-        gNumbers.queue(eNumber::RESULT_TARGET_EX, dp2.score2);
-        gNumbers.queue(eNumber::RESULT_TARGET_DIFF, dp2.score2 - dp1.score2);
-        gNumbers.queue(eNumber::RESULT_TARGET_RATE, (int)std::floor(dp2.acc * 100.0));
-        gNumbers.queue(eNumber::RESULT_TARGET_RATE_DECIMAL2, (int)std::floor(dp2.acc * 10000.0) % 100);
-
-        int miss2 = dp2.miss;
-        if (_missPlayer[PLAYER_SLOT_TARGET] != miss2)
-        {
-            _missPlayer[PLAYER_SLOT_TARGET] = miss2;
-            _missLastTime = t;
-        }
-    }
+    gNumbers.queue(eNumber::PLAY_1P_EXSCORE, dp1.score2);
 
     if (gPlayContext.ruleset[PLAYER_SLOT_MYBEST] != nullptr)
     {
@@ -1618,6 +1607,57 @@ void ScenePlay::updatePlaying()
     if (!isPlaymodeBattle())
     {
         gNumbers.queue(eNumber::RESULT_MYBEST_DIFF, dp1.score2 - gNumbers.get(eNumber::RESULT_MYBEST_EX));
+    }
+
+    if (gPlayContext.ruleset[PLAYER_SLOT_TARGET] != nullptr)
+    {
+        gPlayContext.chartObj[PLAYER_SLOT_TARGET]->update(rt);
+        gPlayContext.ruleset[PLAYER_SLOT_TARGET]->update(t);
+
+        auto targetType = gOptions.get(eOption::PLAY_TARGET_TYPE);
+        
+        if (targetType == Option::TARGET_MYBEST && gPlayContext.replayMybest)
+        {
+            assert(gPlayContext.ruleset[PLAYER_SLOT_MYBEST] != nullptr);
+            auto dp2 = gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->getData();
+
+            gNumbers.queue(eNumber::PLAY_2P_EXSCORE, dp2.score2);
+            gNumbers.queue(eNumber::PLAY_1P_EXSCORE_DIFF, dp1.score2 - dp2.score2);
+            gNumbers.queue(eNumber::PLAY_2P_EXSCORE_DIFF, dp2.score2 - dp1.score2);
+            gNumbers.queue(eNumber::RESULT_TARGET_EX, dp2.score2);
+            gNumbers.queue(eNumber::RESULT_TARGET_DIFF, dp2.score2 - dp1.score2);
+            gNumbers.queue(eNumber::RESULT_TARGET_RATE, (int)std::floor(dp2.acc * 100.0));
+            gNumbers.queue(eNumber::RESULT_TARGET_RATE_DECIMAL2, (int)std::floor(dp2.acc * 10000.0) % 100);
+        }
+        else if (targetType == Option::TARGET_0)
+        {
+            gNumbers.queue(eNumber::PLAY_2P_EXSCORE, 0);
+            gNumbers.queue(eNumber::PLAY_1P_EXSCORE_DIFF, dp1.score2);
+            gNumbers.queue(eNumber::PLAY_2P_EXSCORE_DIFF, -dp1.score2);
+            gNumbers.queue(eNumber::RESULT_TARGET_EX, 0);
+            gNumbers.queue(eNumber::RESULT_TARGET_DIFF, -dp1.score2);
+            gNumbers.queue(eNumber::RESULT_TARGET_RATE, 0);
+            gNumbers.queue(eNumber::RESULT_TARGET_RATE_DECIMAL2, 0);
+        }
+        else
+        {
+            auto dp2 = gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData();
+
+            gNumbers.queue(eNumber::PLAY_2P_EXSCORE, dp2.score2);
+            gNumbers.queue(eNumber::PLAY_1P_EXSCORE_DIFF, dp1.score2 - dp2.score2);
+            gNumbers.queue(eNumber::PLAY_2P_EXSCORE_DIFF, dp2.score2 - dp1.score2);
+            gNumbers.queue(eNumber::RESULT_TARGET_EX, dp2.score2);
+            gNumbers.queue(eNumber::RESULT_TARGET_DIFF, dp2.score2 - dp1.score2);
+            gNumbers.queue(eNumber::RESULT_TARGET_RATE, (int)std::floor(dp2.acc * 100.0));
+            gNumbers.queue(eNumber::RESULT_TARGET_RATE_DECIMAL2, (int)std::floor(dp2.acc * 10000.0) % 100);
+
+            int miss2 = dp2.miss;
+            if (_missPlayer[PLAYER_SLOT_TARGET] != miss2)
+            {
+                _missPlayer[PLAYER_SLOT_TARGET] = miss2;
+                _missLastTime = t;
+            }
+        }
     }
 
     gPlayContext.bgaTexture->update(rt, t.norm() - _missLastTime.norm() < _missBgaLength);

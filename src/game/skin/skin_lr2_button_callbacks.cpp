@@ -16,6 +16,8 @@
 
 #include "config/config_mgr.h"
 
+#include <boost/algorithm/string.hpp>
+
 namespace lr2skin::button
 {
 
@@ -194,7 +196,7 @@ void select_difficulty_filter(int plus, int iterateCount)
 {
     if (iterateCount < 6)
     {
-        gOptions.set(eOption::SELECT_FILTER_DIFF, (gOptions.get(eOption::SELECT_FILTER_DIFF) + plus) % 6);
+        gOptions.set(eOption::SELECT_FILTER_DIFF, (gOptions.get(eOption::SELECT_FILTER_DIFF) + 6 + plus) % 6);
         gSelectContext.filterDifficulty = gOptions.get(eOption::SELECT_FILTER_DIFF);
 
         {
@@ -218,7 +220,7 @@ void select_keys_filter(int plus, int iterateCount)
 {
     if (iterateCount < 8)
     {
-        gOptions.set(eOption::SELECT_FILTER_KEYS, (gOptions.get(eOption::SELECT_FILTER_KEYS) + plus) % 8);
+        gOptions.set(eOption::SELECT_FILTER_KEYS, (gOptions.get(eOption::SELECT_FILTER_KEYS) + 8 + plus) % 8);
         switch (gOptions.get(eOption::SELECT_FILTER_KEYS))
         {
         case Option::FILTER_KEYS_SINGLE: gSelectContext.filterKeys = 1; break;
@@ -276,7 +278,7 @@ void select_keys_filter(int plus, int iterateCount)
 // 12
 void select_sort_type(int plus)
 {
-    gOptions.set(eOption::SELECT_SORT, (gOptions.get(eOption::SELECT_SORT) + plus) % 5);
+    gOptions.set(eOption::SELECT_SORT, (gOptions.get(eOption::SELECT_SORT) + 5 + plus) % 5);
 
     switch (gOptions.get(eOption::SELECT_SORT))
     {
@@ -500,7 +502,7 @@ void gauge_type(int player, int plus)
     }
 
     // eModGauge
-    int val = (gOptions.get(op) + plus) % 4;
+    int val = (gOptions.get(op) + 4 + plus) % 4;
     gOptions.set(op, val);
     switch (val)
     {
@@ -847,11 +849,36 @@ void judge_auto_adjust(int plus)
 
 }
 
+// 76
+void default_target_rate(int plus)
+{
+    number_change_clamp(eNumber::DEFAULT_TARGET_RATE, 0, 100, plus);
+
+    if (gOptions.get(eOption::PLAY_TARGET_TYPE) == Option::TARGET_DEFAULT)
+        gTexts.set(eText::TARGET_NAME, (boost::format("%d%%") % gNumbers.get(eNumber::DEFAULT_TARGET_RATE)).str());
+}
+
 // 77
 void target_type(int plus)
 {
+    gOptions.set(eOption::PLAY_TARGET_TYPE, (gOptions.get(eOption::PLAY_TARGET_TYPE) + 6 + plus) % 6);
 
-    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
+    switch (gOptions.get(eOption::PLAY_TARGET_TYPE))
+    {
+    case Option::TARGET_0:          gTexts.set(eText::TARGET_NAME, "NO TARGET"); break;
+    case Option::TARGET_MYBEST:     gTexts.set(eText::TARGET_NAME, "MY BEST"); break;
+    case Option::TARGET_AAA:        gTexts.set(eText::TARGET_NAME, "RANK AAA"); break;
+    case Option::TARGET_AA:         gTexts.set(eText::TARGET_NAME, "RANK AA"); break;
+    case Option::TARGET_A:          gTexts.set(eText::TARGET_NAME, "RANK A"); break;
+    case Option::TARGET_DEFAULT:    gTexts.set(eText::TARGET_NAME, (boost::format("RATE %d%%") % gNumbers.get(eNumber::DEFAULT_TARGET_RATE)).str()); break;
+    case Option::TARGET_IR_TOP:     gTexts.set(eText::TARGET_NAME, "IR TOP"); break;
+    case Option::TARGET_IR_NEXT:    gTexts.set(eText::TARGET_NAME, "IR NEXT"); break;
+    case Option::TARGET_IR_AVERAGE: gTexts.set(eText::TARGET_NAME, "IR AVERAGE"); break;
+    default:                        gTexts.set(eText::TARGET_NAME, "NO TARGET"); break;
+    }
+
+    if (plus)
+        SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
 // 80
@@ -1293,7 +1320,7 @@ std::function<void(int)> getButtonCallback(int type)
         return std::bind(judge_auto_adjust, _1);
 
     case 76:
-        return std::bind(number_change_clamp, eNumber::DEFAULT_TARGET_RATE, 0, 100, _1);
+        return std::bind(default_target_rate, _1);
 
     case 77:
         return std::bind(target_type, _1);

@@ -1315,7 +1315,6 @@ void RulesetBMS::updateGlobals()
         gBargraphs.queue(eBargraph::PLAY_EXSCORE, _basic.total_acc / 100.0);
         gBargraphs.queue(eBargraph::PLAY_EXSCORE_PREDICT, _basic.acc / 100.0);
 
-        gNumbers.queue(eNumber::PLAY_1P_EXSCORE, _basic.score2);
         gNumbers.queue(eNumber::PLAY_1P_SCORE, _basic.score);
         gNumbers.queue(eNumber::PLAY_1P_NOWCOMBO, _basic.combo);
         gNumbers.queue(eNumber::PLAY_1P_MAXCOMBO, _basic.maxCombo);
@@ -1394,7 +1393,6 @@ void RulesetBMS::updateGlobals()
     {
         gBargraphs.queue(eBargraph::PLAY_RIVAL_EXSCORE, _basic.total_acc / 100.0);
 
-        gNumbers.queue(eNumber::PLAY_2P_EXSCORE, _basic.score2);
         gNumbers.queue(eNumber::PLAY_2P_SCORE, _basic.score);
         gNumbers.queue(eNumber::PLAY_2P_NOWCOMBO, _basic.combo);
         gNumbers.queue(eNumber::PLAY_2P_MAXCOMBO, _basic.maxCombo);

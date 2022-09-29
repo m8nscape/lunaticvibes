@@ -40,7 +40,7 @@ enum class eOption : unsigned
     PLAY_KEYS,
     PLAY_BGA_TYPE,          // OFF/ON/AUTOPLAY
     PLAY_BGA_SIZE,          // NORMAL/EXTEND
-    PLAY_GHOST_TYPE_1P,
+    PLAY_GHOST_TYPE_1P,     // OFF/A/B/C
     PLAY_GHOST_TYPE_2P,
     PLAY_GAUGE_TYPE_1P,     // GROOVE/HARD/SUDDEN/EASY/EXHARD(new)/ASSIST(new)
     PLAY_GAUGE_TYPE_2P,     // GROOVE/HARD/SUDDEN/EASY/EXHARD(new)/ASSIST(new)
@@ -50,6 +50,8 @@ enum class eOption : unsigned
     PLAY_LANE_EFFECT_TYPE_2P,	// OFF/HIDDEN/SUDDEN/HID+SUD
     PLAY_HSFIX_TYPE,	//OFF/MAXBPM/MINBPM/AVERAGE/CONSTANT
     PLAY_BATTLE_TYPE,	// OFF/BATTLE/DB/SPtoDP,9to7/GhostBattle
+    PLAY_TARGET_TYPE,   // 0%/MYBEST/AAA/AA/A/DEFAULT/IRTOP/IRNEXT/IRAVERAGE
+
     PLAY_RANK_ESTIMATED_1P,
     PLAY_RANK_ESTIMATED_2P,
     PLAY_RANK_BORDER_1P,
@@ -193,6 +195,18 @@ namespace Option
         BATTLE_DB,
         BATTLE_SPtoDP_9to7, // not implemented
         BATTLE_GHOST,
+    };
+
+    enum e_target_type {
+        TARGET_0,
+        TARGET_MYBEST,
+        TARGET_AAA,
+        TARGET_AA,
+        TARGET_A,
+        TARGET_DEFAULT,
+        TARGET_IR_TOP,
+        TARGET_IR_NEXT,
+        TARGET_IR_AVERAGE,
     };
 
     enum e_gauge_type{

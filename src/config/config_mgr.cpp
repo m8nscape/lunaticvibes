@@ -107,6 +107,32 @@ void setOptions()
         }
     }
 
+    // target type
+    {
+        static const std::map<string, e_target_type> smap =
+        {
+            {P_TARGET_TYPE_0         , TARGET_0},
+            {P_TARGET_TYPE_MYBEST    , TARGET_MYBEST},
+            {P_TARGET_TYPE_AAA       , TARGET_AAA},
+            {P_TARGET_TYPE_AA        , TARGET_AA},
+            {P_TARGET_TYPE_A         , TARGET_A},
+            {P_TARGET_TYPE_DEFAULT   , TARGET_DEFAULT},
+            {P_TARGET_TYPE_IR_TOP    , TARGET_IR_TOP},
+            {P_TARGET_TYPE_IR_NEXT   , TARGET_IR_NEXT},
+            {P_TARGET_TYPE_IR_AVERAGE, TARGET_IR_AVERAGE},
+        };
+
+        auto&& s = ConfigMgr::get<string>('P', P_TARGET_TYPE, P_TARGET_TYPE_DEFAULT);
+        if (smap.find(s) != smap.end())
+        {
+            g.queue(e::PLAY_TARGET_TYPE, smap.at(s));
+        }
+        else
+        {
+            g.queue(e::PLAY_TARGET_TYPE, TARGET_MYBEST);
+        }
+    }
+
     // chart op
     {
         static const std::map<string, e_random_type> smap =
@@ -557,20 +583,30 @@ void setText()
     }
 
     // target
+    // target type
     {
         static const std::map<string, string> smap =
         {
-            {P_TARGET_MYBEST, "MY BEST"},
-            {P_TARGET_RANK_A, "RANK A"},
-            {P_TARGET_RANK_AA, "RANK AA"},
-            {P_TARGET_RANK_AAA, "RANK AAA"},
+            {P_TARGET_TYPE_0         , "NO TARGET"},
+            {P_TARGET_TYPE_MYBEST    , "MY BEST"},
+            {P_TARGET_TYPE_AAA       , "RANK AAA"},
+            {P_TARGET_TYPE_AA        , "RANK AA"},
+            {P_TARGET_TYPE_A         , "RANK A"},
+            {P_TARGET_TYPE_DEFAULT   , "50%"},
+            {P_TARGET_TYPE_IR_TOP    , "IR TOP"},
+            {P_TARGET_TYPE_IR_NEXT   , "IR NEXT"},
+            {P_TARGET_TYPE_IR_AVERAGE, "IR AVERAGE"},
         };
 
-        auto&& s = ConfigMgr::get('P', P_TARGET, "OFF");
+        auto&& s = ConfigMgr::get<string>('P', P_TARGET_TYPE, P_TARGET_TYPE_DEFAULT);
         if (smap.find(s) != smap.end())
+        {
             g.queue(e::TARGET_NAME, smap.at(s));
+        }
         else
-            g.queue(e::TARGET_NAME, "OFF");
+        {
+            g.queue(e::TARGET_NAME, "MY BEST");
+        }
     }
 
     // play mode

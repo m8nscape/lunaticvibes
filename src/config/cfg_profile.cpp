@@ -26,6 +26,7 @@ void ConfigProfile::setDefaults() noexcept
 	set(P_HISPEED, 1.0);
     set(P_LOCK_SPEED, false);
 	set(P_SPEED_TYPE, P_SPEED_TYPE_NORMAL);
+    set(P_TARGET_TYPE, P_TARGET_TYPE_MYBEST);
     set(P_BGA_TYPE, P_BGA_TYPE_ON);
     set(P_BGA_SIZE, P_BGA_SIZE_NORMAL);
     set(P_LANECOVER_ENABLE, false);
@@ -45,7 +46,6 @@ void ConfigProfile::setDefaults() noexcept
     set(P_GHOST_COLOR, P_GHOST_COLOR_NORMAL);
     set(P_GHOST_TYPE, false);
     set(P_GHOST_TARGET, 50);
-    set(P_TARGET, false);
     set(P_GHOST_FS_TRIGGER, false);
     set(P_GHOST_FS_TYPE, P_GHOST_FS_TYPE_NORMAL);
     set(P_GHOST_FS_POS_X, 0);

@@ -58,6 +58,29 @@ namespace cfg
         CONSTANT
     };
 
+    constexpr char P_TARGET_TYPE[] = "TargetType";
+    constexpr char P_TARGET_TYPE_0[] = "NotSet";
+    constexpr char P_TARGET_TYPE_MYBEST[] = "MyBest";
+    constexpr char P_TARGET_TYPE_AAA[] = "RankAAA";
+    constexpr char P_TARGET_TYPE_AA[] = "RankAA";
+    constexpr char P_TARGET_TYPE_A[] = "RankA";
+    constexpr char P_TARGET_TYPE_DEFAULT[] = "Default";
+    constexpr char P_TARGET_TYPE_IR_TOP[] = "IRTop";
+    constexpr char P_TARGET_TYPE_IR_NEXT[] = "IRNext";
+    constexpr char P_TARGET_TYPE_IR_AVERAGE[] = "IRAverage";
+    enum class eTargetType
+    {
+        NOTSET,
+        MYBEST,
+        RANK_AAA,
+        RANK_AA,
+        RANK_A,
+        DEFAULT,
+        IR_TOP,
+        IR_NEXT,
+        IR_AVERAGE,
+    };
+
     constexpr char P_LIFT[] = "Lift";
 
     constexpr char P_CHART_OP[] = "ChartOption";
@@ -128,14 +151,7 @@ namespace cfg
         NEAR_JUDGE_DOWN,
     };
 
-    constexpr char P_GHOST_TARGET[] = "GhostTarget";         // Rate (since multi ruleset)
-
-    constexpr char P_TARGET[] = "Target";
-    constexpr char P_TARGET_MYBEST[] = "Best score";
-    constexpr char P_TARGET_RANK_A[] = "Rank A";
-    constexpr char P_TARGET_RANK_AA[] = "Rank AA";
-    constexpr char P_TARGET_RANK_AAA[] = "Rank AAA";
-
+    constexpr char P_GHOST_TARGET[] = "GhostTarget";         // Ghost Target Rate% (Target: Default)
 
     constexpr char P_GHOST_FS_TRIGGER[] = "GhostFSTrigger";  // except PERFECT, always
     constexpr char P_GHOST_FS_TRIGGER_SUB[] = "Normal";
