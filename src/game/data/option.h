@@ -56,8 +56,8 @@ enum class eOption : unsigned
     PLAY_RANK_ESTIMATED_2P,
     PLAY_RANK_BORDER_1P,
     PLAY_RANK_BORDER_2P,
-    PLAY_ACCURACY_1P,
-    PLAY_ACCURACY_2P,
+    PLAY_HEALTH_1P,
+    PLAY_HEALTH_2P,
     PLAY_LAST_JUDGE_1P,
     PLAY_LAST_JUDGE_2P,
     PLAY_LAST_JUDGE_FASTSLOW_1P,   // 0:exact 1:fast 2:slow
@@ -275,32 +275,32 @@ namespace Option
         else                            return e_rank_type::RANK_NONE;
     }
 
-    enum e_acc_type {
-        ACC_0,  // 0~10
-        ACC_10, // 10~20
-        ACC_20, // 
-        ACC_30, //
-        ACC_40, //
-        ACC_50, //
-        ACC_60, //
-        ACC_70, //
-        ACC_80, //
-        ACC_90, //
-		ACC_100
+    enum e_health_range {
+        HEALTH_0,  // 0~10
+        HEALTH_10, // 10~20
+        HEALTH_20, // 
+        HEALTH_30, //
+        HEALTH_40, //
+        HEALTH_50, //
+        HEALTH_60, //
+        HEALTH_70, //
+        HEALTH_80, //
+        HEALTH_90, //
+		HEALTH_100
     };
-    constexpr e_acc_type getAccType(double rate)
+    constexpr e_health_range getHealthType(double health)
     {
-        if (rate >= 100.0)     return e_acc_type::ACC_100;
-        else if (rate >= 90.0) return e_acc_type::ACC_90;
-        else if (rate >= 80.0) return e_acc_type::ACC_80;
-        else if (rate >= 70.0) return e_acc_type::ACC_70;
-        else if (rate >= 60.0) return e_acc_type::ACC_60;
-        else if (rate >= 50.0) return e_acc_type::ACC_50;
-        else if (rate >= 40.0) return e_acc_type::ACC_40;
-        else if (rate >= 30.0) return e_acc_type::ACC_30;
-        else if (rate >= 20.0) return e_acc_type::ACC_20;
-        else if (rate >= 10.0) return e_acc_type::ACC_10;
-        else                   return e_acc_type::ACC_0;
+        if (health >= 100.0)     return e_health_range::HEALTH_100;
+        else if (health >= 90.0) return e_health_range::HEALTH_90;
+        else if (health >= 80.0) return e_health_range::HEALTH_80;
+        else if (health >= 70.0) return e_health_range::HEALTH_70;
+        else if (health >= 60.0) return e_health_range::HEALTH_60;
+        else if (health >= 50.0) return e_health_range::HEALTH_50;
+        else if (health >= 40.0) return e_health_range::HEALTH_40;
+        else if (health >= 30.0) return e_health_range::HEALTH_30;
+        else if (health >= 20.0) return e_health_range::HEALTH_20;
+        else if (health >= 10.0) return e_health_range::HEALTH_10;
+        else                     return e_health_range::HEALTH_0;
     }
 
     enum e_judge_diff {

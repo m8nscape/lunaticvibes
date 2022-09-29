@@ -135,6 +135,12 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     gNumbers.queue(eNumber::PLAY_BPM, int(std::round(gChartContext.startBPM)));
     gNumbers.queue(eNumber::INFO_BPM_MIN, int(std::round(gChartContext.minBPM)));
     gNumbers.queue(eNumber::INFO_BPM_MAX, int(std::round(gChartContext.maxBPM)));
+
+    gOptions.queue(eOption::PLAY_RANK_ESTIMATED_1P, Option::RANK_NONE);
+    gOptions.queue(eOption::PLAY_RANK_ESTIMATED_2P, Option::RANK_NONE);
+    gOptions.queue(eOption::PLAY_RANK_BORDER_1P, Option::RANK_NONE);
+    gOptions.queue(eOption::PLAY_RANK_BORDER_2P, Option::RANK_NONE);
+
     lr2skin::button::target_type(0);
 
     gChartContext.title = gChartContext.chartObj->title;
@@ -213,6 +219,7 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     gNumbers.flush();
     gBargraphs.flush();
     gSliders.flush();
+    gOptions.flush();
 
     // set gauge type
     if (gChartContext.chartObj)

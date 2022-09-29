@@ -569,19 +569,19 @@ void updateDstOpt()
 	// 230 1P 0-10%
 	{
 		using namespace Option;
-		switch (gOptions.get(eOption::PLAY_ACCURACY_1P))
+		switch (gOptions.get(eOption::PLAY_HEALTH_1P))
 		{
-		case ACC_0:  set(230); break;
-		case ACC_10: set(231); break;
-		case ACC_20: set(232); break;
-		case ACC_30: set(233); break;
-		case ACC_40: set(234); break;
-		case ACC_50: set(235); break;
-		case ACC_60: set(236); break;
-		case ACC_70: set(237); break;
-		case ACC_80: set(238); break;
-		case ACC_90: set(239); break;
-		case ACC_100: set(240); break;
+		case HEALTH_0:  set(230); break;
+		case HEALTH_10: set(231); break;
+		case HEALTH_20: set(232); break;
+		case HEALTH_30: set(233); break;
+		case HEALTH_40: set(234); break;
+		case HEALTH_50: set(235); break;
+		case HEALTH_60: set(236); break;
+		case HEALTH_70: set(237); break;
+		case HEALTH_80: set(238); break;
+		case HEALTH_90: set(239); break;
+		case HEALTH_100: set(240); break;
 		}
 	}
 
@@ -613,19 +613,19 @@ void updateDstOpt()
 	// 250 2P 0-10%
 	{
 		using namespace Option;
-		switch (gOptions.get(eOption::PLAY_ACCURACY_2P))
+		switch (gOptions.get(eOption::PLAY_HEALTH_2P))
 		{
-		case ACC_0:  set(250); break;
-		case ACC_10: set(251); break;
-		case ACC_20: set(252); break;
-		case ACC_30: set(253); break;
-		case ACC_40: set(254); break;
-		case ACC_50: set(255); break;
-		case ACC_60: set(256); break;
-		case ACC_70: set(257); break;
-		case ACC_80: set(258); break;
-		case ACC_90: set(259); break;
-		case ACC_100: set(260); break;
+		case HEALTH_0:  set(250); break;
+		case HEALTH_10: set(251); break;
+		case HEALTH_20: set(252); break;
+		case HEALTH_30: set(253); break;
+		case HEALTH_40: set(254); break;
+		case HEALTH_50: set(255); break;
+		case HEALTH_60: set(256); break;
+		case HEALTH_70: set(257); break;
+		case HEALTH_80: set(258); break;
+		case HEALTH_90: set(259); break;
+		case HEALTH_100: set(260); break;
 		}
 	}
 

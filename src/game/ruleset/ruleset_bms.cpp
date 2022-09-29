@@ -1375,7 +1375,7 @@ void RulesetBMS::updateGlobals()
 
         gOptions.queue(eOption::PLAY_RANK_ESTIMATED_1P, Option::getRankType(_basic.acc));
         gOptions.queue(eOption::PLAY_RANK_BORDER_1P, Option::getRankType(_basic.total_acc));
-        gOptions.queue(eOption::PLAY_ACCURACY_1P, Option::getAccType(_basic.acc));
+        gOptions.queue(eOption::PLAY_HEALTH_1P, Option::getHealthType(_basic.health));
 
         int maxScore = getMaxScore();
         //if      (dp.total_acc >= 94.44) gNumbers.queue(eNumber::RESULT_NEXT_RANK_EX_DIFF, int(maxScore * 1.000 - dp.score2));    // MAX-
@@ -1449,7 +1449,7 @@ void RulesetBMS::updateGlobals()
 
         gOptions.queue(eOption::PLAY_RANK_ESTIMATED_2P, Option::getRankType(_basic.acc));
         gOptions.queue(eOption::PLAY_RANK_BORDER_2P, Option::getRankType(_basic.total_acc));
-        gOptions.queue(eOption::PLAY_ACCURACY_2P, Option::getAccType(_basic.acc));
+        gOptions.queue(eOption::PLAY_HEALTH_2P, Option::getHealthType(_basic.health));
     }
     else if (_side == PlaySide::MYBEST)
     {
