@@ -714,9 +714,12 @@ void ScenePlay::setTempInitialHealthBMS()
 
 void ScenePlay::loadChart()
 {
-    // FIXME Disable caching for now, considering definitions inside #RANDOM blocks
-    gChartContext.isSampleLoaded = false;
-    gChartContext.isBgaLoaded = false;
+    // always reload unstable resources
+    if (!gChartContext.chartObj->resourceStable)
+    {
+        gChartContext.isSampleLoaded = false;
+        gChartContext.isBgaLoaded = false;
+    }
 
     // load samples
     if (!gChartContext.isSampleLoaded && !sceneEnding)
@@ -761,64 +764,71 @@ void ScenePlay::loadChart()
     }
 
     // load bga
-    // TODO if BGA caching is implemented, set playback speed on each play
-    if (gSwitches.get(eSwitch::SYSTEM_BGA) && !gChartContext.isBgaLoaded && !sceneEnding)
+    if (gSwitches.get(eSwitch::SYSTEM_BGA) && !sceneEnding)
     {
-        auto dtor = std::async(std::launch::async, [&]() {
-            SetDebugThreadName("Chart BGA loading thread");
-            gPlayContext.bgaTexture->clear();
+        if (!gChartContext.isBgaLoaded)
+        {
+            auto dtor = std::async(std::launch::async, [&]() {
+                SetDebugThreadName("Chart BGA loading thread");
+                gPlayContext.bgaTexture->clear();
 
-            auto _pChart = gChartContext.chartObj;
-			auto chartDir = gChartContext.chartObj->getDirectory();
-            for (const auto& it : _pChart->bgaFiles)
-            {
-				if (sceneEnding) return;
-                if (it.empty()) continue;
-                ++_bmpToLoad;
-            }
-            if (_bmpToLoad == 0)
-            {
-                _bmpLoaded = 1;
+                auto _pChart = gChartContext.chartObj;
+                auto chartDir = gChartContext.chartObj->getDirectory();
+                for (const auto& it : _pChart->bgaFiles)
+                {
+                    if (sceneEnding) return;
+                    if (it.empty()) continue;
+                    ++_bmpToLoad;
+                }
+                if (_bmpToLoad == 0)
+                {
+                    _bmpLoaded = 1;
+                    gChartContext.isBgaLoaded = true;
+                    return;
+                }
+
+                std::list<std::pair<size_t, Path>> mapBgaFiles;
+                auto loadBgaFiles = [&]
+                {
+                    for (auto& [i, pBmp] : mapBgaFiles)
+                    {
+                        if (pBmp.is_absolute())
+                            gPlayContext.bgaTexture->addBmp(i, pBmp);
+                        else
+                            gPlayContext.bgaTexture->addBmp(i, chartDir / pBmp);
+                        ++_bmpLoaded;
+                    }
+                };
+                for (size_t i = 0; i < _pChart->bgaFiles.size(); ++i)
+                {
+                    if (sceneEnding) return;
+                    const auto& bmp = _pChart->bgaFiles[i];
+                    if (bmp.empty()) continue;
+
+                    mapBgaFiles.emplace_back(i, fs::u8path(bmp));
+
+                    if (mapBgaFiles.size() >= 8)
+                    {
+                        pushAndWaitMainThreadTask<void>(loadBgaFiles);
+                        mapBgaFiles.clear();
+                    }
+                }
+                loadBgaFiles();
+                mapBgaFiles.clear();
+
+                if (_bmpLoaded > 0)
+                {
+                    gPlayContext.bgaTexture->setLoaded();
+                }
+                gPlayContext.bgaTexture->setSlotFromBMS(*std::reinterpret_pointer_cast<ChartObjectBMS>(gPlayContext.chartObj[PLAYER_SLOT_PLAYER]));
                 gChartContext.isBgaLoaded = true;
-                return;
-            }
-
-            std::list<std::pair<size_t, Path>> mapBgaFiles;
-            auto loadBgaFiles = [&]
-            {
-                for (auto& [i, pBmp] : mapBgaFiles)
-                {
-                    if (pBmp.is_absolute())
-                        gPlayContext.bgaTexture->addBmp(i, pBmp);
-                    else
-                        gPlayContext.bgaTexture->addBmp(i, chartDir / pBmp);
-                    ++_bmpLoaded;
-                }
-            };
-            for (size_t i = 0; i < _pChart->bgaFiles.size(); ++i)
-            {
-                if (sceneEnding) return;
-                const auto& bmp = _pChart->bgaFiles[i];
-                if (bmp.empty()) continue;
-
-                mapBgaFiles.emplace_back(i, fs::u8path(bmp));
-
-                if (mapBgaFiles.size() >= 8)
-                {
-                    pushAndWaitMainThreadTask<void>(loadBgaFiles);
-                    mapBgaFiles.clear();
-                }
-            }
-            loadBgaFiles();
-            mapBgaFiles.clear();
-
-            if (_bmpLoaded > 0)
-            {
-                gPlayContext.bgaTexture->setLoaded();
-            }
-			gPlayContext.bgaTexture->setSlotFromBMS(*std::reinterpret_pointer_cast<ChartObjectBMS>(gPlayContext.chartObj[PLAYER_SLOT_PLAYER]));
-            gChartContext.isBgaLoaded = true;
-        });
+                });
+        }
+        else
+        {
+            // set playback speed on each play
+            gPlayContext.bgaTexture->setVideoSpeed();
+        }
     }
 }
 

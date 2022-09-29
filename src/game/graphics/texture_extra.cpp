@@ -70,6 +70,11 @@ void TextureVideo::seek(int64_t sec)
 	pVideo->seek(sec);
 }
 
+void TextureVideo::setSpeed(double speed)
+{
+	pVideo->setSpeed(speed);
+}
+
 void TextureVideo::update()
 {
 	if (!pVideo) return;
@@ -434,6 +439,29 @@ void TextureBmsBga::stopUpdate()
 	resetSub(baseSlot);
 	resetSub(layerSlot);
 	resetSub(poorSlot);
+#endif
+}
+
+void TextureBmsBga::setVideoSpeed()
+{
+#ifndef VIDEO_DISABLED
+	auto setSpeed = [this](decltype(baseSlot)& slot)
+	{
+		for (auto it = slot.begin(); it != slot.end(); ++it)	// search from beginning
+		{
+			auto [time, idx] = *it;
+			if (objs[idx].type == obj::Ty::VIDEO)
+			{
+				auto pt = std::reinterpret_pointer_cast<TextureVideo>(objs[idx].pt);
+				pt->setSpeed(gSelectContext.pitchSpeed);
+			}
+		}
+		//slotIt = slot.end();	// not found
+	};
+
+	setSpeed(baseSlot);
+	setSpeed(layerSlot);
+	setSpeed(poorSlot);
 #endif
 }
 

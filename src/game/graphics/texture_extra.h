@@ -24,6 +24,7 @@ public:
 	void start();
 	void stop();
 	void seek(int64_t sec);
+	void setSpeed(double speed);
 	void update();
 	void reset();
 
@@ -121,6 +122,8 @@ public:
 
 	void setLoaded();
 	void stopUpdate();
+
+	void setVideoSpeed();
 };
 
 

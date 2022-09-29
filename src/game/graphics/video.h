@@ -80,6 +80,7 @@ public:
 	std::shared_mutex video_frame_mutex;
 
 public:
+	void setSpeed(double speed) { this->speed = speed; }
 	void seek(int64_t second, bool backwards = false);
 	
 };

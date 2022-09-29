@@ -75,6 +75,8 @@ public:
     std::vector<Metre> metres;
     //std::vector<_Inherit_SpriteStatic_with_playbegin_timer_> _BGAsprites;
 
+    bool resourceStable = true;    // Some BMS come with WAV/BGA resources defined inside a #RANDOM block; This variable is to prevent incorrect caching.
+
 public:
     Path getDirectory() const;
 

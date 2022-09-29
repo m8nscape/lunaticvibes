@@ -315,12 +315,16 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                 {
                     int idx = base36(key[3], key[4]);
                     wavFiles[idx].assign(value.begin(), value.end());
+                    if (!ifStack.empty()) resourceStable = false;
                 }
                 else if (RE2::FullMatch(re2::StringPiece(key.data(), key.length()), *regexBga))
                 {
                     int idx = base36(key[3], key[4]);
                     if (idx != 0)
+                    {
                         bgaFiles[idx].assign(value.begin(), value.end());
+                        if (!ifStack.empty()) resourceStable = false;
+                    }
                 }
                 else if (RE2::FullMatch(re2::StringPiece(key.data(), key.length()), *regexBpm))
                 {
