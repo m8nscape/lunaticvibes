@@ -437,14 +437,20 @@ void vol_switch(int plus)
     {
         // close
         gSwitches.set(eSwitch::SOUND_VOLUME, false);
+
+        SoundMgr::setVolume(SampleChannel::MASTER, 0.8);
+        SoundMgr::setVolume(SampleChannel::KEY, 1.0);
+        SoundMgr::setVolume(SampleChannel::BGM, 1.0);
     }
     else
     {
         // open
         gSwitches.set(eSwitch::SOUND_VOLUME, true);
-    }
 
-    // TODO volume
+        SoundMgr::setVolume(SampleChannel::MASTER, gSliders.get(eSlider::VOLUME_MASTER));
+        SoundMgr::setVolume(SampleChannel::KEY, gSliders.get(eSlider::VOLUME_KEY));
+        SoundMgr::setVolume(SampleChannel::BGM, gSliders.get(eSlider::VOLUME_BGM));
+    }
 }
 
 // 32
@@ -884,33 +890,34 @@ void target_type(int plus)
 // 80
 void window_mode(int plus)
 {
-    int val = (gOptions.get(eOption::SYS_WINDOWED) + 3 + plus) % 3;
-
-    gOptions.set(eOption::SYS_WINDOWED, val);
-
-    // TODO recreate window
-    switch (val)
-    {
-    case Option::WIN_FULLSCREEN: 
-        gTexts.set(eText::WINDOWMODE, "FULLSCREEN");
-        break;
-    case Option::WIN_BORDERLESS:
-        gTexts.set(eText::WINDOWMODE, "BORDERLESS");
-        break;
-    case Option::WIN_WINDOWED:
-        gTexts.set(eText::WINDOWMODE, "WINDOWED");
-        break;
-    default:
-        break;
-    }
-
-    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
+    // This button is disabled.
 }
 
 // 82
 void vsync(int plus)
 {
+    int val = (gOptions.get(eOption::SYS_VSYNC) + 2 + plus) % 2;
+
+    gOptions.set(eOption::SYS_VSYNC, val);
+
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
+
+    switch (val)
+    {
+    case 0:
+        gTexts.set(eText::VSYNC, "OFF");
+        break;
+    case 1:
+        gTexts.set(eText::VSYNC, "ON");
+        break;
+    case 2:
+        gTexts.set(eText::VSYNC, "ADAPTIVE");
+        break;
+    default:
+        break;
+    }
+
+    graphics_change_vsync(val);
 }
 
 // 83

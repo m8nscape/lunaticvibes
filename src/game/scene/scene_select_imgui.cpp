@@ -83,7 +83,9 @@ void SceneSelect::_imguiInit()
         imgui_video_mode = 0;
     old_video_mode = imgui_video_mode;
 
-    imgui_video_vsync = ConfigMgr::get("V", cfg::V_VSYNC, false);
+    _imguiRefreshVideoVsyncList();
+    imgui_video_vsync_index = ConfigMgr::get("V", cfg::V_VSYNC, 0);
+
     imgui_video_maxFPS = ConfigMgr::get("V", cfg::V_MAXFPS, 240);
 
     imgui_audio_checkASIODevices = ConfigMgr::get("A", cfg::A_MODE, cfg::A_MODE_ASIO) == cfg::A_MODE_ASIO;
@@ -194,10 +196,8 @@ void SceneSelect::_imguiSettings()
                 ImGui::RadioButton("FullScreen", &imgui_video_mode, 1);
                 ImGui::SameLine();
                 ImGui::RadioButton("Borderless", &imgui_video_mode, 2);
-                ImGui::SameLine();
-                ImGui::Checkbox("VSync", &imgui_video_vsync);
-                ImGui::SameLine();
-                ImGui::Spacing();
+
+                ImGui::Combo("VSync", &imgui_video_vsync_index, imgui_video_vsync_display.data(), (int)imgui_video_vsync_display.size());
 
                 ImGui::InputInt("Max FPS", &imgui_video_maxFPS, 0);
 
@@ -415,6 +415,22 @@ void SceneSelect::_imguiRefreshVideoDisplayResolutionList()
     }
 }
 
+void SceneSelect::_imguiRefreshVideoVsyncList()
+{
+    imgui_video_vsync.clear();
+    imgui_video_vsync_display.clear();
+
+    imgui_video_vsync.push_back("Off");
+    imgui_video_vsync.push_back("On (Double buffered)");
+    imgui_video_vsync.push_back("Adaptive Vsync");
+
+    for (const auto& r : imgui_video_vsync)
+    {
+        imgui_video_vsync_display.push_back(r.c_str());
+    }
+}
+
+
 void SceneSelect::_imguiCheckSettings()
 {
     if (imgui_profile_index != old_profile_index)
@@ -466,8 +482,9 @@ void SceneSelect::_imguiCheckSettings()
         case 2: windowMode = cfg::V_WINMODE_BORDERLESS; break;
         }
         ConfigMgr::set("V", cfg::V_WINMODE, windowMode);
+
     }
-    if (imgui_video_vsync != ConfigMgr::get("V", cfg::V_VSYNC, false))
+    if (imgui_video_vsync_index != ConfigMgr::get("V", cfg::V_VSYNC, 0))
     {
         ConfigMgr::set("V", cfg::V_VSYNC, imgui_video_vsync);
     }
@@ -629,7 +646,42 @@ bool SceneSelect::_imguiApplyResolution()
     graphics_resize_window(windowW, windowH);
     graphics_set_supersample_level(ss);
     graphics_resize_canvas(renderW, renderH);
-    graphics_change_vsync(imgui_video_vsync);
+    graphics_change_vsync(imgui_video_vsync_index);
+
+    // windowed
+    {
+        gOptions.set(eOption::SYS_WINDOWED, imgui_video_mode == 1 ? 1 : 0);
+
+        static const std::map<int, std::string> smap =
+        {
+            {0, "WINDOWED"},
+            {1, "FULLSCREEN"},
+            {2, "BORDERLESS"},
+        };
+
+        auto&& s = imgui_video_mode;
+        if (smap.find(s) != smap.end())
+            gTexts.queue(eText::WINDOWMODE, smap.at(s));
+        else
+            gTexts.queue(eText::WINDOWMODE, "WINDOWED");
+    }
+    // vsync
+    {
+        gOptions.set(eOption::SYS_VSYNC, imgui_video_vsync_index == 0 ? 0 : 1);
+
+        static const std::map<int, std::string> smap =
+        {
+            {0, "OFF"},
+            {1, "ON"},
+            {2, "ADAPTIVE"}
+        };
+
+        auto&& s = imgui_video_vsync_index;
+        if (smap.find(s) != smap.end())
+            gTexts.set(eText::VSYNC, smap.at(s));
+        else
+            gTexts.queue(eText::VSYNC, "OFF");
+    }
 
     return true;
 }

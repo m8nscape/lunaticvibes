@@ -253,16 +253,16 @@ void graphics_change_window_mode(int mode)
 
 void graphics_resize_window(int x, int y)
 {
-    windowRect.w = x;
-    windowRect.h = y;
-    SDL_SetWindowSize(gFrameWindow, x, y);
+    if (x != 0) windowRect.w = x;
+    if (y != 0) windowRect.h = y;
+    SDL_SetWindowSize(gFrameWindow, windowRect.w, windowRect.h);
     SDL_SetWindowPosition(gFrameWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 }
 
-void graphics_change_vsync(bool enable)
+void graphics_change_vsync(int mode)
 {
     // codes below should work since we are explicitly indicated to use OpenGL backend
-    SDL_GL_SetSwapInterval(enable ? 1 : 0);
+    SDL_GL_SetSwapInterval(mode == 2 ? -1 : mode);
 }
 
 static int superSampleLevel = 1;

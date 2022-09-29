@@ -52,9 +52,6 @@ void ir_ranking_scrollbar(double p)
     // no ir support right now
 }
 
-
-// TODO update sound effects for callbacks below
-
 void eq(int idx, double p)
 {
     int val = int(p * 24) - 12;
@@ -73,7 +70,8 @@ void master_volume(double p)
     gSliders.set(eSlider::VOLUME_MASTER, p);
     gNumbers.set(eNumber::VOLUME_MASTER, int(std::round(p * 100)));
 
-    SoundMgr::setVolume(SampleChannel::MASTER, (float)p);
+    if (gSwitches.get(eSwitch::SOUND_VOLUME))
+        SoundMgr::setVolume(SampleChannel::MASTER, (float)p);
 }
 
 void key_volume(double p)
@@ -81,7 +79,8 @@ void key_volume(double p)
     gSliders.set(eSlider::VOLUME_KEY, p);
     gNumbers.set(eNumber::VOLUME_KEY, int(std::round(p * 100)));
 
-    SoundMgr::setVolume(SampleChannel::KEY, (float)p);
+    if (gSwitches.get(eSwitch::SOUND_VOLUME))
+        SoundMgr::setVolume(SampleChannel::KEY, (float)p);
 }
 
 void bgm_volume(double p)
@@ -89,7 +88,8 @@ void bgm_volume(double p)
     gSliders.set(eSlider::VOLUME_BGM, p);
     gNumbers.set(eNumber::VOLUME_BGM, int(std::round(p * 100)));
 
-    SoundMgr::setVolume(SampleChannel::BGM, (float)p);
+    if (gSwitches.get(eSwitch::SOUND_VOLUME))
+        SoundMgr::setVolume(SampleChannel::BGM, (float)p);
 }
 
 void fx0(int idx, double p)

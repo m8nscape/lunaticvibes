@@ -104,6 +104,7 @@ private:
     void _imguiRefreshTableList();
     void _imguiRefreshVideoResolutionList();
     void _imguiRefreshVideoDisplayResolutionList();
+    void _imguiRefreshVideoVsyncList();
     void _imguiCheckSettings();
 
     // buttons
@@ -143,7 +144,11 @@ private:
 
     int old_video_mode, imgui_video_mode;   // 0:windowed 1:fullscreen 2:borderless
     int imgui_video_ssLevel;
-    bool imgui_video_vsync;
+
+    std::vector<std::string> imgui_video_vsync;
+    std::vector<const char*> imgui_video_vsync_display;
+    int imgui_video_vsync_index;
+
     int imgui_video_maxFPS;
 
     std::list<std::pair<int, std::string>> imgui_audio_devices;

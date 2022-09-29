@@ -25,7 +25,8 @@ void graphics_change_window_mode(int mode);
 
 void graphics_resize_window(int x, int y);
 
-void graphics_change_vsync(bool enable);
+// 0: off / 1: vsync (double buffer) / 2: adaptive vsync
+void graphics_change_vsync(int mode);
 
 
 // scaling functions

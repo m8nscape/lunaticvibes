@@ -73,6 +73,7 @@ enum class eOption : unsigned
     RESULT_BATTLE_WIN_LOSE,  // 0:DRAW 1:1PWIN 2:2PWIN
 
     SYS_WINDOWED,
+    SYS_VSYNC,
 
     _TEST1 = 200,
 

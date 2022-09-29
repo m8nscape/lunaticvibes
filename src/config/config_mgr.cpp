@@ -693,7 +693,20 @@ void setText()
     }
 
     // vsync
-    g.queue(e::VSYNC, ConfigMgr::get('C', V_VSYNC, true) ? "ON" : "OFF");
+    {
+        static const std::map<int, string> smap =
+        {
+            {0, "OFF"},
+            {1, "ON"},
+            {2, "ADAPTIVE"}
+        };
+
+        auto&& s = ConfigMgr::get<int>('C', V_VSYNC, 0);
+        if (smap.find(s) != smap.end())
+            g.queue(e::VSYNC, smap.at(s));
+        else
+            g.queue(e::VSYNC, "OFF");
+    }
 
     // fixed tokens
     g.queue(e::BGA_SIZE, "NORMAL");
