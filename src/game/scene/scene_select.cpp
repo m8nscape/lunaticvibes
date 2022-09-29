@@ -49,9 +49,21 @@ void config_player()
     default:                         ConfigMgr::set('P',P_SPEED_TYPE, P_SPEED_TYPE_NORMAL); break;
     }
 
-    ConfigMgr::set('P',P_LOAD_BGA, gOptions.get(eOption::PLAY_BGA_TYPE) != Option::BGA_OFF);
-    ConfigMgr::set('P',P_LANECOVER_TOP, gNumbers.get(eNumber::LANECOVER_TOP_1P) / 10);
+    switch (gOptions.get(eOption::PLAY_BGA_TYPE))
+    {
+    case Option::BGA_OFF:      ConfigMgr::set('P', P_BGA_TYPE, P_BGA_TYPE_OFF); break;
+    case Option::BGA_ON:       ConfigMgr::set('P', P_BGA_TYPE, P_BGA_TYPE_ON); break;
+    case Option::BGA_AUTOPLAY: ConfigMgr::set('P', P_BGA_TYPE, P_BGA_TYPE_AUTOPLAY); break;
+    default:                   ConfigMgr::set('P', P_BGA_TYPE, P_BGA_TYPE_ON); break;
+    }
+    switch (gOptions.get(eOption::PLAY_BGA_SIZE))
+    {
+    case Option::BGA_NORMAL:   ConfigMgr::set('P', P_BGA_SIZE, P_BGA_SIZE_NORMAL); break;
+    case Option::BGA_EXTEND:   ConfigMgr::set('P', P_BGA_SIZE, P_BGA_SIZE_EXTEND); break;
+    default:                   ConfigMgr::set('P', P_BGA_SIZE, P_BGA_SIZE_NORMAL); break;
+    }
 
+    ConfigMgr::set('P',P_LANECOVER_TOP, gNumbers.get(eNumber::LANECOVER_TOP_1P) / 10);
 
     switch (gOptions.get(eOption::PLAY_RANDOM_TYPE_1P))
     {

@@ -21,7 +21,25 @@ namespace cfg
     constexpr char P_GREENNUMBER[] = "GreenNumber";
     constexpr char P_LOCK_SPEED[] = "LockSpeed";
 
-	constexpr char P_LOAD_BGA[] = "LoadBga";
+    constexpr char P_BGA_TYPE[] = "BGAType";
+    constexpr char P_BGA_TYPE_OFF[] = "Off";
+    constexpr char P_BGA_TYPE_ON[] = "On";
+    constexpr char P_BGA_TYPE_AUTOPLAY[] = "Autoplay";
+    enum class eBgaType
+    {
+        OFF,
+        ON,
+        AUTOPLAY,
+    };
+
+    constexpr char P_BGA_SIZE[] = "BGASize";
+    constexpr char P_BGA_SIZE_NORMAL[] = "Normal";
+    constexpr char P_BGA_SIZE_EXTEND[] = "Extend";
+    enum class eBgaSize
+    {
+        NORMAL,
+        EXTEND,
+    };
 
     constexpr char P_SPEED_TYPE[] = "SpeedType";
     constexpr char P_SPEED_TYPE_NORMAL[] = "Normal";

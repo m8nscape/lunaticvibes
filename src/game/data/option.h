@@ -38,7 +38,8 @@ enum class eOption : unsigned
     PLAY_SCENE_STAT,
     PLAY_MODE,              // SP/DP/SP Battle/DB/SP-GB/DP-GB
     PLAY_KEYS,
-    PLAY_BGA_TYPE,
+    PLAY_BGA_TYPE,          // OFF/ON/AUTOPLAY
+    PLAY_BGA_SIZE,          // NORMAL/EXTEND
     PLAY_GHOST_TYPE_1P,
     PLAY_GHOST_TYPE_2P,
     PLAY_GAUGE_TYPE_1P,     // GROOVE/HARD/SUDDEN/EASY/EXHARD(new)/ASSIST(new)
@@ -168,6 +169,11 @@ namespace Option
 
     enum e_bga_type {
         BGA_OFF,
+        BGA_ON,
+        BGA_AUTOPLAY,
+    };
+
+    enum e_bga_size {
         BGA_NORMAL,
         BGA_EXTEND,
     };

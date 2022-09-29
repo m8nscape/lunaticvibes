@@ -57,7 +57,34 @@ void setOptions()
     using std::string;
 
     // bga
-    g.queue(e::PLAY_BGA_TYPE, ConfigMgr::get('P', P_LOAD_BGA, true) ? BGA_NORMAL : BGA_OFF);
+    {
+        static const std::map<string, Option::e_bga_type> smap =
+        {
+            {P_BGA_TYPE_OFF, Option::BGA_OFF},
+            {P_BGA_TYPE_ON, Option::BGA_ON},
+            {P_BGA_TYPE_AUTOPLAY, Option::BGA_AUTOPLAY},
+        };
+
+        auto&& s = ConfigMgr::get<string>('P', P_BGA_TYPE, P_BGA_TYPE_ON);
+        if (smap.find(s) != smap.end())
+            g.queue(e::PLAY_BGA_TYPE, smap.at(s));
+        else
+            g.queue(e::PLAY_BGA_TYPE, Option::BGA_OFF);
+    }
+    {
+        static const std::map<string, Option::e_bga_size> smap =
+        {
+            {P_BGA_SIZE_NORMAL, Option::BGA_NORMAL},
+            {P_BGA_SIZE_EXTEND, Option::BGA_EXTEND},
+        };
+
+        auto&& s = ConfigMgr::get<string>('P', P_BGA_SIZE, P_BGA_SIZE_NORMAL);
+        if (smap.find(s) != smap.end())
+            g.queue(e::PLAY_BGA_SIZE, smap.at(s));
+        else
+            g.queue(e::PLAY_BGA_SIZE, Option::BGA_NORMAL);
+    }
+
 
     // speed type
     {
@@ -371,7 +398,21 @@ void setSwitches()
     using namespace cfg;
     using std::string;
 
-    g.queue(e::SYSTEM_BGA, ConfigMgr::get('P', P_LOAD_BGA, true));
+    {
+        static const std::map<string, Option::e_bga_type> smap =
+        {
+            {P_BGA_TYPE_OFF, Option::BGA_OFF},
+            {P_BGA_TYPE_ON, Option::BGA_ON},
+            {P_BGA_TYPE_AUTOPLAY, Option::BGA_AUTOPLAY},
+        };
+
+        auto&& s = ConfigMgr::get<string>('P', P_BGA_TYPE, P_BGA_TYPE_ON);
+        if (smap.find(s) != smap.end())
+            g.queue(e::SYSTEM_BGA, smap.at(s));
+        else
+            g.queue(e::SYSTEM_BGA, Option::BGA_OFF);
+    }
+
     g.queue(e::PLAY_OPTION_DP_FLIP, ConfigMgr::get('P', P_FLIP, true));
     g.queue(e::SYSTEM_SCOREGRAPH, ConfigMgr::get('P', P_SCORE_GRAPH, true));
     g.queue(e::SOUND_VOLUME, true);
@@ -398,7 +439,20 @@ void setText()
     g.queue(e::PLAYER_NAME, ConfigMgr::Profile()->getName());
 
     // bga
-    g.queue(e::BGA, ConfigMgr::get('P', P_LOAD_BGA, true) ? "ON" : "OFF");
+    {
+        static const std::map<string, string> smap =
+        {
+            {P_BGA_TYPE_OFF, "OFF"},
+            {P_BGA_TYPE_ON, "ON"},
+            {P_BGA_TYPE_AUTOPLAY, "AUTOPLAY"},
+        };
+
+        auto&& s = ConfigMgr::get<string>('P', P_BGA_TYPE, P_BGA_TYPE_ON);
+        if (smap.find(s) != smap.end())
+            g.queue(e::BGA, smap.at(s));
+        else
+            g.queue(e::BGA, "ON");
+    }
 
     // speed type
     {

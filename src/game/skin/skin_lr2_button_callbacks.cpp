@@ -793,22 +793,22 @@ void ghost_type(int plus)
 // 72
 void bga(int plus)
 {
-    int val = (gOptions.get(eOption::PLAY_BGA_TYPE) + 2 + plus) % 2;
+    int val = (gOptions.get(eOption::PLAY_BGA_TYPE) + 3 + plus) % 3;
 
     gOptions.set(eOption::PLAY_BGA_TYPE, val);
-    ConfigMgr::set('P', cfg::P_LOAD_BGA, (val != 0));
+    ConfigMgr::set('P', cfg::P_BGA_TYPE, val);
 
     switch (val)
     {
-    case 0:
+    case Option::BGA_OFF:
         gTexts.set(eText::BGA, "OFF");
         break;
-    case 1:
+    case Option::BGA_ON:
         gTexts.set(eText::BGA, "ON");
         break;
-    //case 2:
-    //    gTexts.set(eText::BGA, "AUTOPLAY");
-    //    break;
+    case Option::BGA_AUTOPLAY:
+        gTexts.set(eText::BGA, "AUTOPLAY");
+        break;
     default:
         break;
     }
@@ -819,6 +819,22 @@ void bga(int plus)
 // 73
 void bga_size(int plus)
 {
+    int val = (gOptions.get(eOption::PLAY_BGA_SIZE) + 2 + plus) % 2;
+
+    gOptions.set(eOption::PLAY_BGA_SIZE, val);
+    ConfigMgr::set('P', cfg::P_BGA_SIZE, val);
+
+    switch (val)
+    {
+    case Option::BGA_NORMAL:
+        gTexts.set(eText::BGA_SIZE, "NORMAL");
+        break;
+    case Option::BGA_EXTEND:
+        gTexts.set(eText::BGA_SIZE, "EXTEND");
+        break;
+    default:
+        break;
+    }
 
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }

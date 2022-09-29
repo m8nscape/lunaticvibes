@@ -26,7 +26,8 @@ void ConfigProfile::setDefaults() noexcept
 	set(P_HISPEED, 1.0);
     set(P_LOCK_SPEED, false);
 	set(P_SPEED_TYPE, P_SPEED_TYPE_NORMAL);
-	set(P_LOAD_BGA, true);
+    set(P_BGA_TYPE, P_BGA_TYPE_ON);
+    set(P_BGA_SIZE, P_BGA_SIZE_NORMAL);
     set(P_LANECOVER_ENABLE, false);
     set(P_LANECOVER_TOP, 0);
     set(P_LANECOVER_BOTTOM, 0);

@@ -144,14 +144,11 @@ void updateDstOpt()
 
 	// 30 BGA normal
 	// 31 BGA extend
-	// 40 BGA off
-	// 41 BGA on
-	switch (gOptions.get(eOption::PLAY_BGA_TYPE))
+	switch (gOptions.get(eOption::PLAY_BGA_SIZE))
 	{
-	using namespace Option;
-	case BGA_OFF: set(40); break;
-	case BGA_NORMAL: set({ 30, 41 }); break;
-	case BGA_EXTEND: set({ 31, 41 }); break;
+		using namespace Option;
+	case BGA_NORMAL: set(30); break;
+	case BGA_EXTEND: set(31); break;
 	}
 
 	// 32 autoplay off
@@ -176,6 +173,16 @@ void updateDstOpt()
 	// 39 scoregraph on
 	set(38, !sw(eSwitch::SYSTEM_SCOREGRAPH));
 	set(39, sw(eSwitch::SYSTEM_SCOREGRAPH));
+
+	// 40 BGA off
+	// 41 BGA on
+	switch (gOptions.get(eOption::PLAY_BGA_TYPE))
+	{
+		using namespace Option;
+	case BGA_OFF:      set(40); break;
+	case BGA_ON:       set(41); break;
+	case BGA_AUTOPLAY: set(gSwitches.get(eSwitch::SYSTEM_AUTOPLAY) ? 41 : 40); break;
+	}
 
 	// 42 1P側がノーマルゲージ
 	// 43 1P側が赤ゲージ
