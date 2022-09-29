@@ -44,7 +44,7 @@ void select_pos(double p)
 void customize_scrollbar(double p)
 {
     gSliders.set(eSlider::SKIN_CONFIG_OPTIONS, p);
-    // TODO set position
+    gCustomizeContext.optionDragging = true;
 }
 
 void ir_ranking_scrollbar(double p)

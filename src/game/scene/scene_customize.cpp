@@ -256,6 +256,13 @@ void SceneCustomize::updateMain()
             }
         }
     }
+    if (gCustomizeContext.optionDragging)
+    {
+        gCustomizeContext.optionDragging = false;
+
+        topOptionIndex = gSliders.get(eSlider::SKIN_CONFIG_OPTIONS) * optionsMap.size();
+        updateTexts();
+    }
     if (_exiting)
     {
         save(selectedMode);

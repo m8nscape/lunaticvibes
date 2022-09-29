@@ -192,11 +192,13 @@ struct CustomizeContextParams
 {
     eMode mode;
 
-    int skinDir;
+    int skinDir = 0;
 
-    bool optionUpdate;
+    bool optionUpdate = false;
     size_t optionIdx;
-    int optionDir;
+    int optionDir = 0;
+
+    bool optionDragging = false;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
