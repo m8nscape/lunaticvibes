@@ -28,8 +28,12 @@ The project is still in development stage. Please do not expect a bug-free exper
     git submodule update --init --recursive
     ```
 
-2. Configure / Build FFmpeg (this step may be removed in the future)
-    * Check out ext/FFmpeg/build_lib.md for instructions. Default configuration emits chunkload around 100MB
+2. Configure / Build FFmpeg (Optional)
+
+    The configured header files are included now (see [#1](https://github.com/yaasdf/lunaticvibes/issues/1)), though it's recommended to configure FFmpeg by yourself.
+
+    If you choose to configure FFmpeg, check out `ext/FFmpeg/build_lib.md` for instructions. Default configuration emits chunkload around 100MB
+
 
 3. Install dependencies via vcpkg (skip any you have already installed)
     ```
