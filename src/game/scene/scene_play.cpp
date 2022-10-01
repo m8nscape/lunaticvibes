@@ -95,7 +95,7 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         if (gChartContext.path.empty())
         {
             LOG_ERROR << "[Play] Chart not specified!";
-            gNextScene = eScene::SELECT;
+            gNextScene = gQuitOnFinish ? eScene::EXIT_TRANS : eScene::SELECT;
             return;
         }
         if (gPlayContext.isReplay && gPlayContext.replay)
@@ -110,7 +110,7 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     if (gChartContext.chartObj == nullptr || !gChartContext.chartObj->isLoaded())
     {
         LOG_ERROR << "[Play] Invalid chart: " << gChartContext.path.u8string();
-        gNextScene = eScene::SELECT;
+        gNextScene = gQuitOnFinish ? eScene::EXIT_TRANS : eScene::SELECT;
         return;
     }
 
@@ -410,8 +410,7 @@ bool ScenePlay::createChartObj()
     case eChartFormat::BMSON:
     default:
         LOG_WARNING << "[Play] chart format not supported.";
-
-        gNextScene = eScene::SELECT;
+        gNextScene = gQuitOnFinish ? eScene::EXIT_TRANS : eScene::SELECT;
         return false;
     }
 
@@ -1895,7 +1894,7 @@ void ScenePlay::updateFadeout()
 
         if (gPlayContext.isAuto)
         {
-            gNextScene = (gPlayContext.isCourse && gChartContext.started) ? eScene::COURSE_TRANS : eScene::SELECT;
+            gNextScene = (gPlayContext.isCourse && gChartContext.started) ? eScene::COURSE_TRANS : (gQuitOnFinish ? eScene::EXIT_TRANS : eScene::SELECT);
         }
         else if (wantRetry && gPlayContext.canRetry)
         {
@@ -1903,7 +1902,7 @@ void ScenePlay::updateFadeout()
         }
         else
         {
-            gNextScene = (gPlayContext.isCourse || gChartContext.started) ? eScene::RESULT : eScene::SELECT;
+            gNextScene = (gPlayContext.isCourse || gChartContext.started) ? eScene::RESULT : (gQuitOnFinish ? eScene::EXIT_TRANS : eScene::SELECT);
         }
     }
 }

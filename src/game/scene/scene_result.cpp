@@ -378,7 +378,7 @@ void SceneResult::updateFadeout()
             clearContextPlay();
             gPlayContext.isAuto = false;
             gPlayContext.isReplay = false;
-            gNextScene = gQuitOnFinish ? eScene::EXIT : eScene::SELECT;
+            gNextScene = gQuitOnFinish ? eScene::EXIT_TRANS : eScene::SELECT;
         }
     }
 }
