@@ -22,6 +22,41 @@ SQLite::SQLite(const char* path, const char* tag)
 SQLite::~SQLite() { sqlite3_close(_db); }
 const char* SQLite::errmsg() const { return sqlite3_errmsg(_db); }
 
+std::string any_to_str(const std::any& a)
+{
+    std::stringstream ss;
+    if (a.type() == typeid(int))              ss << std::any_cast<int>(a);
+    else if (a.type() == typeid(bool))        ss << std::any_cast<bool>(a);
+    else if (a.type() == typeid(long long))   ss << std::any_cast<long long>(a);
+    else if (a.type() == typeid(time_t))      ss << std::any_cast<time_t>(a);
+    else if (a.type() == typeid(double))      ss << std::any_cast<double>(a);
+    else if (a.type() == typeid(std::string)) ss << "'" << std::any_cast<std::string>(a) << "'";
+    else if (a.type() == typeid(const char*)) ss << "'" << std::any_cast<const char*>(a) << "'";
+    else if (a.type() == typeid(nullptr))     ss << "NULL";
+    return ss.str();
+}
+
+void sql_bind_any(sqlite3_stmt* stmt, int i, const std::any& a)
+{
+    if (a.type() == typeid(int)) sqlite3_bind_int(stmt, i, std::any_cast<int>(a));
+    else if (a.type() == typeid(bool)) sqlite3_bind_int(stmt, i, int(std::any_cast<bool>(a)));
+    else if (a.type() == typeid(long long)) sqlite3_bind_int64(stmt, i, std::any_cast<long long>(a));
+    else if (a.type() == typeid(time_t)) sqlite3_bind_int64(stmt, i, std::any_cast<time_t>(a));
+    else if (a.type() == typeid(double)) sqlite3_bind_double(stmt, i, std::any_cast<double>(a));
+    else if (a.type() == typeid(std::string)) sqlite3_bind_text(stmt, i, std::any_cast<std::string>(a).c_str(), (int)std::any_cast<std::string>(a).length(), SQLITE_TRANSIENT);
+    else if (a.type() == typeid(const char*)) sqlite3_bind_text(stmt, i, std::any_cast<const char*>(a), (int)strlen(std::any_cast<const char*>(a)), SQLITE_TRANSIENT);
+    else if (a.type() == typeid(nullptr)) sqlite3_bind_null(stmt, i);
+    else assert(false); // type error
+}
+void sql_bind_any(sqlite3_stmt* stmt, const std::initializer_list<std::any>& args)
+{
+    int i = 1;
+    for (auto& a : args)
+    {
+        sql_bind_any(stmt, i++, a);
+    }
+}
+
 std::vector<std::vector<std::any>> SQLite::query(const char* zsql, size_t retSize, std::initializer_list<std::any> args) const
 {
     memset(lastSql, 0, sizeof(lastSql));
@@ -36,21 +71,7 @@ std::vector<std::vector<std::any>> SQLite::query(const char* zsql, size_t retSiz
         LOG_ERROR << "[sqlite3] sql \"" << zsql << "\" prepare error: [" << ret << "] " << errmsg();
         return {};
     }
-
-    int i = 1;
-    for (auto& a : args)
-    {
-        if (a.type() == typeid(int)) sqlite3_bind_int(stmt, i, std::any_cast<int>(a));
-        else if (a.type() == typeid(bool)) sqlite3_bind_int(stmt, i, int(std::any_cast<bool>(a)));
-        else if (a.type() == typeid(long long)) sqlite3_bind_int64(stmt, i, std::any_cast<long long>(a));
-        else if (a.type() == typeid(time_t)) sqlite3_bind_int64(stmt, i, std::any_cast<time_t>(a));
-        else if (a.type() == typeid(double)) sqlite3_bind_double(stmt, i, std::any_cast<double>(a));
-        else if (a.type() == typeid(std::string)) sqlite3_bind_text(stmt, i, std::any_cast<std::string>(a).c_str(), (int)std::any_cast<std::string>(a).length(), SQLITE_TRANSIENT);
-        else if (a.type() == typeid(const char*)) sqlite3_bind_text(stmt, i, std::any_cast<const char*>(a), (int)strlen(std::any_cast<const char*>(a)), SQLITE_TRANSIENT);
-        else if (a.type() == typeid(nullptr)) sqlite3_bind_null(stmt, i);
-        else assert(false); // type error
-        ++i;
-    }
+    sql_bind_any(stmt, args);
 
     std::vector<std::vector<std::any>> ret;
     size_t idx = 0;
@@ -70,7 +91,19 @@ std::vector<std::vector<std::any>> SQLite::query(const char* zsql, size_t retSiz
         }
         ++idx;
     }
-    LOG_DEBUG << "[sqlite3] " << tag << ": " << " query " << zsql << " result: " << ret.size() << " rows";
+
+#if _DEBUG
+    std::stringstream ss;
+    ss << "[sqlite3] " << tag << ": " << " query " << zsql;
+    ss << "(args: ";
+    for (auto& a : args)
+    {
+        ss << any_to_str(a) << ", ";
+    }
+    ss << ") result: " << ret.size() << " rows";
+    LOG_DEBUG << ss.str();
+#endif
+
     sqlite3_finalize(stmt);
     return ret;
 }
@@ -89,33 +122,31 @@ int SQLite::exec(const char* zsql, std::initializer_list<std::any> args)
         return ret;
     }
 
-    int i = 1;
-    for (auto& a : args)
-    {
-        if (a.type() == typeid(int)) sqlite3_bind_int(stmt, i, std::any_cast<int>(a));
-        else if (a.type() == typeid(bool)) sqlite3_bind_int(stmt, i, int(std::any_cast<bool>(a)));
-        else if (a.type() == typeid(long long)) sqlite3_bind_int64(stmt, i, std::any_cast<long long>(a));
-        else if (a.type() == typeid(time_t)) sqlite3_bind_int64(stmt, i, std::any_cast<time_t>(a));
-        else if (a.type() == typeid(double)) sqlite3_bind_double(stmt, i, std::any_cast<double>(a));
-        else if (a.type() == typeid(std::string)) sqlite3_bind_text(stmt, i, std::any_cast<std::string>(a).c_str(), (int)std::any_cast<std::string>(a).length(), SQLITE_TRANSIENT);
-        else if (a.type() == typeid(const char*)) sqlite3_bind_text(stmt, i, std::any_cast<const char*>(a), (int)strlen(std::any_cast<const char*>(a)), SQLITE_TRANSIENT);
-        else if (a.type() == typeid(nullptr)) sqlite3_bind_null(stmt, i);
-        else
-        {
-            LOG_ERROR << "[sqlite3] " << tag << ": " << " arg " << i << " type invalid " << errmsg();
-            sqlite3_finalize(stmt);
-            return -1;
-        }
-        ++i;
-    }
+    sql_bind_any(stmt, args);
 
-    if ((ret = sqlite3_step(stmt)) != SQLITE_OK && ret != SQLITE_ROW && ret != SQLITE_DONE)
+    ret = sqlite3_step(stmt);
+
+    if (ret != SQLITE_OK && ret != SQLITE_ROW && ret != SQLITE_DONE)
     {
         LOG_ERROR << "[sqlite3] " << tag << ": " << " exec " << zsql << ": " << errmsg();
         sqlite3_finalize(stmt);
         return ret;
     }
-    LOG_DEBUG << "[sqlite3] " << tag << ": " << " exec " << zsql;
+
+#if _DEBUG
+    std::stringstream ss;
+    ss << "[sqlite3] " << tag << ": " << " exec " << zsql;
+    ss << "(args: ";
+    for (auto& a : args)
+    {
+        ss << any_to_str(a) << ", ";
+    }
+    if (ret != SQLITE_OK && ret != SQLITE_ROW && ret != SQLITE_DONE)
+        LOG_ERROR << ss.str() << ": " << errmsg();
+    else
+        LOG_DEBUG << ss.str();
+#endif
+
     sqlite3_finalize(stmt);
     return SQLITE_OK;
 }
