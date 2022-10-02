@@ -13,6 +13,8 @@ SpriteLaneVertical::SpriteLaneVertical(unsigned player, bool autoNotes, double b
 	_hispeed = 1.0;
 	_category = NoteLaneCategory::_;
 	_index = NoteLaneIndex::_;
+
+	_hiddenCompatibleTexture = std::make_shared<TextureFull>(Color(128, 128, 128, 255));
 }
 
 SpriteLaneVertical::SpriteLaneVertical(pTexture texture, Rect r,
@@ -96,6 +98,7 @@ bool SpriteLaneVertical::update(const Time& t)
 			break;
 		}
 		updateNoteRect(t);
+		updateHIDDENCompatible();
 		return true;
 	}
 	return false;
@@ -175,6 +178,63 @@ void SpriteLaneVertical::draw() const
 				_current.filter,
 				_current.angle,
 				_current.center);
+		}
+	}
+
+	if (_hiddenCompatibleDraw)
+	{
+		_hiddenCompatibleTexture->draw(
+			_hiddenCompatibleArea, _hiddenCompatibleArea,
+			Color(0xffffffff), BlendMode::ALPHA, false, 0
+		);
+	}
+}
+
+void SpriteLaneVertical::updateHIDDENCompatible()
+{
+	if (_hiddenCompatible)
+	{
+		_hiddenCompatibleDraw = false;
+		if (playerSlot == PLAYER_SLOT_PLAYER)
+		{
+			auto lcType = Option::e_lane_effect_type(gOptions.get(eOption::PLAY_LANE_EFFECT_TYPE_1P));
+			if ((lcType == Option::LANE_HIDDEN || lcType == Option::LANE_SUDHID) &&
+				gSwitches.get(eSwitch::P1_LANECOVER_ENABLED))
+			{
+				_hiddenCompatibleDraw = true;
+				_hiddenCompatibleArea = _current.rect;
+				double p = gNumbers.get(eNumber::LANECOVER_BOTTOM_1P) / 1000.0;
+				int h = _current.rect.y + _current.rect.h;
+				_hiddenCompatibleArea.h = h * p;
+				_hiddenCompatibleArea.y = h - _hiddenCompatibleArea.h;
+			}
+		}
+		else
+		{
+			Option::e_lane_effect_type lcType;
+			bool sw;
+			int lc;
+			if (gPlayContext.isBattle)
+			{
+				lcType = Option::e_lane_effect_type(gOptions.get(eOption::PLAY_LANE_EFFECT_TYPE_2P));
+				sw = gSwitches.get(eSwitch::P2_LANECOVER_ENABLED);
+				lc = gNumbers.get(eNumber::LANECOVER_BOTTOM_2P);
+			}
+			else
+			{
+				lcType = Option::e_lane_effect_type(gOptions.get(eOption::PLAY_LANE_EFFECT_TYPE_1P));
+				sw = gSwitches.get(eSwitch::P1_LANECOVER_ENABLED);
+				lc = gNumbers.get(eNumber::LANECOVER_BOTTOM_1P);
+			}
+			if ((lcType == Option::LANE_HIDDEN || lcType == Option::LANE_SUDHID) && sw)
+			{
+				_hiddenCompatibleDraw = true;
+				_hiddenCompatibleArea = _current.rect;
+				double p = lc / 1000.0;
+				int h = _current.rect.y + _current.rect.h;
+				_hiddenCompatibleArea.h = h * p;
+				_hiddenCompatibleArea.y = h - _hiddenCompatibleArea.h;
+			}
 		}
 	}
 }
@@ -321,7 +381,20 @@ void SpriteLaneVerticalLN::draw() const
 	}
 
 	// head
-	SpriteLaneVertical::draw();
+	if (pNote->_pTexture && pNote->_pTexture->_loaded)
+	{
+		for (const auto& r : _outRect)
+		{
+			pNote->_pTexture->draw(
+				pNote->_texRect[pNote->_selectionIdx],
+				r,
+				_current.color,
+				_current.blend,
+				_current.filter,
+				_current.angle,
+				_current.center);
+		}
+	}
 
 	// tail
 	if (pNoteTail->_pTexture && pNoteTail->_pTexture->_loaded)
@@ -337,5 +410,14 @@ void SpriteLaneVerticalLN::draw() const
 				_current.angle,
 				_current.center);
 		}
+	}
+
+	// HIDDEN
+	if (_hiddenCompatibleDraw)
+	{
+		_hiddenCompatibleTexture->draw(
+			_hiddenCompatibleArea, _hiddenCompatibleArea,
+			Color(0xffffffff), BlendMode::ALPHA, false, 0
+		);
 	}
 }

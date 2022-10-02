@@ -36,7 +36,16 @@ private:
     double scrollAccumulator = 0.0;
     double scrollAccumulatorAddUnit = 0.0;
 
-    bool refreshing = false;    // F8
+    // F8
+    bool refreshing = false;
+
+    // 5+7 / 6+7
+    bool isHoldingK15 = false;
+    bool isHoldingK16 = false;
+    bool isHoldingK17 = false;
+    bool isHoldingK25 = false;
+    bool isHoldingK26 = false;
+    bool isHoldingK27 = false;
 
     // imgui
     bool imguiShow = false;

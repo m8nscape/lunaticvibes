@@ -13,6 +13,7 @@ void select_keys_filter(int plus, int iterateCount = 0);
 void gauge_type(int player, int plus);
 void random_type(int player, int plus);
 void autoscr(int player, int plus);
+void lane_effect(int player, int plus);
 void flip(int plus);
 void hs_fix(int plus);
 void battle(int plus);

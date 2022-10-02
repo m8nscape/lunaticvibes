@@ -418,6 +418,12 @@ void TextureFull::draw(const Rect& ignored, Rect dstRect,
     SDL_BlendMode sb = SDL_BLENDMODE_INVALID;
     if (BlendMap.find(b) != BlendMap.end()) SDL_SetTextureBlendMode(&*_pTexture, BlendMap.at(b));
 
+    int ssLevel = graphics_get_supersample_level();
+    dstRect.x *= ssLevel;
+    dstRect.y *= ssLevel;
+    dstRect.w *= ssLevel;
+    dstRect.h *= ssLevel;
+
     SDL_RenderCopyEx(
         gFrameRenderer,
         &*_pTexture,

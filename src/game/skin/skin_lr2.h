@@ -1589,6 +1589,11 @@ protected:
     //std::vector<SkinLR2> _csvIncluded;
 
 
+private:
+    // generated sprite references
+    pSprite spriteLanecoverTop1P = nullptr;
+    pSprite spriteLanecoverTop2P = nullptr;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 private:

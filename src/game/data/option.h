@@ -46,8 +46,8 @@ enum class eOption : unsigned
     PLAY_GAUGE_TYPE_2P,     // GROOVE/HARD/SUDDEN/EASY/EXHARD(new)/ASSIST(new)
     PLAY_RANDOM_TYPE_1P,
     PLAY_RANDOM_TYPE_2P,
-    PLAY_LANE_EFFECT_TYPE_1P,	// OFF/HIDDEN/SUDDEN/HID+SUD
-    PLAY_LANE_EFFECT_TYPE_2P,	// OFF/HIDDEN/SUDDEN/HID+SUD
+    PLAY_LANE_EFFECT_TYPE_1P,	// OFF/HID+/SUD+/SUD+&HID+/LIFT(new)/LIFT&SUD+(new)
+    PLAY_LANE_EFFECT_TYPE_2P,	// OFF/HID+/SUD+/SUD+&HID+/LIFT(new)/LIFT&SUD+(new)
     PLAY_HSFIX_TYPE,	//OFF/MAXBPM/MINBPM/AVERAGE/CONSTANT
     PLAY_BATTLE_TYPE,	// OFF/BATTLE/DB/SPtoDP,9to7/GhostBattle
     PLAY_TARGET_TYPE,   // 0%/MYBEST/AAA/AA/A/DEFAULT/IRTOP/IRNEXT/IRAVERAGE
@@ -179,6 +179,15 @@ namespace Option
     enum e_bga_size {
         BGA_NORMAL,
         BGA_EXTEND,
+    };
+
+    enum e_lane_effect_type {
+        LANE_OFF,
+        LANE_HIDDEN,
+        LANE_SUDDEN,
+        LANE_SUDHID,
+        LANE_LIFT,
+        LANE_LIFTSUD,
     };
 
     enum e_speed_type {

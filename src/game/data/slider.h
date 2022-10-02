@@ -17,6 +17,9 @@ enum class eSlider : unsigned
 
     SKIN_CONFIG_OPTIONS = 7,
 
+    HID_1P = 8,
+    HID_2P,
+
     EQ0 = 10,
     EQ1,
     EQ2,

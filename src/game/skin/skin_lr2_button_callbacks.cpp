@@ -592,6 +592,36 @@ void autoscr(int player, int plus)
 // 46
 void shutter(int plus)
 {
+    // fix to ON
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
+}
+
+// 50, 51
+void lane_effect(int player, int plus)
+{
+    int slot = 0;
+    eOption op;
+    eText tx;
+    switch (player)
+    {
+    case 0: slot = PLAYER_SLOT_PLAYER; op = eOption::PLAY_LANE_EFFECT_TYPE_1P; tx = eText::EFFECT_1P; break;
+    case 1: slot = PLAYER_SLOT_TARGET; op = eOption::PLAY_LANE_EFFECT_TYPE_2P; tx = eText::EFFECT_2P; break;
+    default: return;
+    }
+
+    // 
+    int val = (gOptions.get(op) + 4 + plus) % 4;
+    gOptions.set(op, val);
+    switch (val)
+    {
+    case 0: gTexts.set(tx, "OFF"); break;
+    case 1: gTexts.set(tx, "HIDDEN+"); break;
+    case 2: gTexts.set(tx, "SUDDEN+"); break;
+    case 3: gTexts.set(tx, "SUD+&HID+"); break;
+    //case 4: gTexts.set(tx, "LIFT"); break;
+    //case 5: gTexts.set(tx, "LIFT&SUD+"); break;
+    default: break;
+    }
 
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
@@ -1293,6 +1323,11 @@ std::function<void(int)> getButtonCallback(int type)
 
     case 46:
         return std::bind(shutter, _1);
+
+    case 50:
+        return std::bind(lane_effect, 0, _1);
+    case 51:
+        return std::bind(lane_effect, 1, _1);
 
     case 54:
         return std::bind(flip, _1);

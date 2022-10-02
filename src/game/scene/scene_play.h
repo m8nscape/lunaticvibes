@@ -47,13 +47,15 @@ private:
     std::array<Time, 2>     _scratchLastUpdate{ TIMER_NEVER, TIMER_NEVER };
     std::array<double, 2>   _scratchAccumulator = { 0, 0 };
 
-    std::array<double, 2>   _lockspeedValue{ 0 };
-    std::array<int, 2>      _lockspeedGreenNumber{ 0 };
+    std::array<double, 2>   _lockspeedValue{ 0 };           // internal use only, for precise calculation
+    std::array<int, 2>      _lockspeedGreenNumber{ 0 };     // green number integer
 
     std::array<int, 2>      _hispeedAdd{ 0 };
     std::array<int, 2>      _lanecoverAdd{ 0 };
 
     std::array<double, 2>   _hispeedOld{ 1.0, 1.0 };
+    std::array<bool, 2>     _laneEffectHIDDEN { false, false };
+    std::array<bool, 2>     _laneEffectSUDHID { false, false };
 
     Time _readyTime = 0;
 

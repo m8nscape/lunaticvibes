@@ -81,8 +81,6 @@ namespace cfg
         IR_AVERAGE,
     };
 
-    constexpr char P_LIFT[] = "Lift";
-
     constexpr char P_CHART_OP[] = "ChartOption";
     constexpr char P_CHART_OP_NORMAL[] = "Normal";
     constexpr char P_CHART_OP_MIRROR[] = "Mirror";
@@ -107,6 +105,23 @@ namespace cfg
     {
         NORMAL,
         AUTOSCR,
+    };
+
+    constexpr char P_LANE_EFFECT_OP[] = "LaneEffect";
+    constexpr char P_LANE_EFFECT_OP_OFF[] = "Off";
+    constexpr char P_LANE_EFFECT_OP_HIDDEN[] = "Hidden+";
+    constexpr char P_LANE_EFFECT_OP_SUDDEN[] = "Sudden+";
+    constexpr char P_LANE_EFFECT_OP_SUDHID[] = "SUD+&HID+";
+    constexpr char P_LANE_EFFECT_OP_LIFT[] = "Lift";
+    constexpr char P_LANE_EFFECT_OP_LIFTSUD[] = "LIFT&SUD+";
+    enum class eLaneEffectOp
+    {
+        OFF,
+        HIDDEN,
+        SUDDEN,
+        SUDHID,
+        LIFT,
+        LIFTSUD,
     };
 
     constexpr char P_GAUGE_OP[] = "GaugeOption";

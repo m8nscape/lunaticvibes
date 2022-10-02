@@ -32,7 +32,6 @@ void ConfigProfile::setDefaults() noexcept
     set(P_LANECOVER_ENABLE, false);
     set(P_LANECOVER_TOP, 0);
     set(P_LANECOVER_BOTTOM, 0);
-    set(P_LIFT, 0);
     set(P_CHART_OP, P_CHART_OP_NORMAL);
     set(P_GAUGE_OP, P_GAUGE_OP_NORMAL);
     set(P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_NONE);

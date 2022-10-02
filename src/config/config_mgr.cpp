@@ -550,7 +550,7 @@ void setText()
     {
         static const std::map<string, string> smap =
         {
-            {P_CHART_ASSIST_OP_AUTOSCR, "AUTO-SCR"},
+            {P_LANECOVER_BOTTOM, "AUTO-SCR"},
         };
 
         auto&& s = ConfigMgr::get<string>('P', P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_NONE);
@@ -563,6 +563,31 @@ void setText()
         {
             g.queue(e::ASSIST_1P, "NONE");
             g.queue(e::ASSIST_2P, "NONE");
+        }
+    }
+
+    // lane effect
+    {
+        static const std::map<string, string> smap =
+        {
+            {P_LANE_EFFECT_OP_OFF, "OFF"},
+            {P_LANE_EFFECT_OP_HIDDEN, "HIDDEN+"},
+            {P_LANE_EFFECT_OP_SUDDEN, "SUDDEN+"},
+            {P_LANE_EFFECT_OP_SUDHID, "SUD+&HID+"},
+            {P_LANE_EFFECT_OP_LIFT, "LIFT"},
+            {P_LANE_EFFECT_OP_LIFTSUD, "LIFT&SUD+"},
+        };
+
+        auto&& s = ConfigMgr::get<string>('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_OFF);
+        if (smap.find(s) != smap.end())
+        {
+            g.queue(e::EFFECT_1P, smap.at(s));
+            g.queue(e::EFFECT_2P, smap.at(s));
+        }
+        else
+        {
+            g.queue(e::EFFECT_1P, "OFF");
+            g.queue(e::EFFECT_2P, "OFF");
         }
     }
 

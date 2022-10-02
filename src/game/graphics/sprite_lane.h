@@ -35,11 +35,23 @@ public:
 public:
     void setLane(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx);
     void setHeight(int h) { _noteAreaHeight = h; }
+
     std::pair<chart::NoteLaneCategory, chart::NoteLaneIndex> getLane() const;
     void getRectSize(int& w, int& h);
 	virtual bool update(const Time& t);
     virtual void updateNoteRect(const Time& t);
     virtual void draw() const;
+
+protected:
+    bool _hiddenCompatible = false;
+    std::shared_ptr<Texture> _hiddenCompatibleTexture = nullptr;
+    bool _hiddenCompatibleDraw = false;
+    Rect _hiddenCompatibleArea;
+public:
+    void setHIDDENCompatible() { _hiddenCompatible = true; }
+protected:
+    void updateHIDDENCompatible();
+
 };
 
 

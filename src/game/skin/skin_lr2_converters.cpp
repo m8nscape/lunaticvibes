@@ -223,6 +223,7 @@ eSwitch::KEY_CONFIG_SLOT8,
 eSwitch::KEY_CONFIG_SLOT9,
 
 };
+
 bool buttonSw(int n, eSwitch& out)
 {
     if (n < 0 || n >= buttonAdapter.size()) 

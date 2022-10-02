@@ -1147,7 +1147,22 @@ ParseRet SkinLR2::SRC_SLIDER()
         d.disable ? lr2skin::slider::getSliderCallback(-1) : lr2skin::slider::getSliderCallback(d.type),
         d.div_y*d.div_x, d.cycle, (eSlider)d.type, (eTimer)d.timer, d.div_y, d.div_x));
     _sprites.back()->setSrcLine(csvLineNumber);
-    
+
+    switch ((eSlider)d.type)
+    {
+    case eSlider::SUD_1P:
+        spriteLanecoverTop1P = _sprites.back();
+        break;
+    case eSlider::SUD_2P:
+        spriteLanecoverTop1P = _sprites.back();
+        break;
+
+    case eSlider::HID_1P:
+    case eSlider::HID_2P:
+        isSupportLift = true;
+        break;
+    }
+
     return ParseRet::OK;
 }
 
@@ -1208,6 +1223,11 @@ ParseRet SkinLR2::SRC_BUTTON()
                 {
                     if (d.div_x * d.div_y >= 6)
                         isSupportExHardAndAssistEasy = true;
+                }
+                if (op == eOption::PLAY_LANE_EFFECT_TYPE_1P || op == eOption::PLAY_LANE_EFFECT_TYPE_2P)
+                {
+                    if (d.div_x * d.div_y >= 4)
+                        isSupportLift = true;
                 }
             }
         }
@@ -1809,7 +1829,7 @@ ParseRet SkinLR2::SRC_BAR_BODY()
     case 8:  type = BarType::COURSE; break;
     case 9:  type = BarType::RANDOM_COURSE; break;
     case 10: type = BarType::TYPE_COUNT; break;
-    default: break;
+    default: return ParseRet::PARAM_INVALID;
     }
 
     for (auto& bar : _barSprites)
@@ -3024,6 +3044,37 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
             if (_laneSprites[idx].second != nullptr) _laneSprites[idx].second->setHeight(info.noteLaneHeight2P);
         }
     }
+
+    if (!isSupportLift)
+    {
+        using namespace chart;
+        size_t idx;
+        for (size_t i = 0; i < 20; ++i)
+        {
+            NoteLaneIndex lane = NoteIdxToLane(info.mode, i);
+            if (lane == _) continue;
+
+            idx = channelToIdx(NoteLaneCategory::Note, lane);
+            if (idx != LANE_INVALID)
+            {
+                if (_laneSprites[idx].first != nullptr) _laneSprites[idx].first->setHIDDENCompatible();
+                if (_laneSprites[idx].second != nullptr) _laneSprites[idx].second->setHIDDENCompatible();
+            }
+            idx = channelToIdx(NoteLaneCategory::Mine, lane);
+            if (idx != LANE_INVALID)
+            {
+                if (_laneSprites[idx].first != nullptr) _laneSprites[idx].first->setHIDDENCompatible();
+                if (_laneSprites[idx].second != nullptr) _laneSprites[idx].second->setHIDDENCompatible();
+            }
+            idx = channelToIdx(NoteLaneCategory::LN, lane);
+            if (idx != LANE_INVALID)
+            {
+                if (_laneSprites[idx].first != nullptr) _laneSprites[idx].first->setHIDDENCompatible();
+                if (_laneSprites[idx].second != nullptr) _laneSprites[idx].second->setHIDDENCompatible();
+            }
+        }
+    }
+
 
     LOG_DEBUG << "[Skin] File: " << p.u8string() << "(Line " << csvLineNumber << "): Body loading finished";
     _loaded = true;

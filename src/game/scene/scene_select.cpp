@@ -80,8 +80,6 @@ void config_player()
     default:                   ConfigMgr::set('P', P_BGA_SIZE, P_BGA_SIZE_NORMAL); break;
     }
 
-    ConfigMgr::set('P',P_LANECOVER_TOP, gNumbers.get(eNumber::LANECOVER_TOP_1P) / 10);
-
     switch (gOptions.get(eOption::PLAY_RANDOM_TYPE_1P))
     {
     case Option::RAN_MIRROR: ConfigMgr::set('P',P_CHART_OP, P_CHART_OP_MIRROR); break;
@@ -663,6 +661,13 @@ void SceneSelect::inputGamePress(InputMask& m, const Time& t)
     auto input = _inputAvailable & m;
     if (input.any())
     {
+        if (input[Pad::K15]) isHoldingK15 = true;
+        if (input[Pad::K16]) isHoldingK16 = true;
+        if (input[Pad::K17]) isHoldingK17 = true;
+        if (input[Pad::K25]) isHoldingK25 = true;
+        if (input[Pad::K26]) isHoldingK26 = true;
+        if (input[Pad::K27]) isHoldingK27 = true;
+
         // sub callbacks
         if (gSwitches.get(eSwitch::SELECT_PANEL1))
         {
@@ -762,6 +767,13 @@ void SceneSelect::inputGameRelease(InputMask& m, const Time& t)
     auto input = _inputAvailable & m;
     if (input.any())
     {
+        if (input[Pad::K15]) isHoldingK15 = false;
+        if (input[Pad::K16]) isHoldingK16 = false;
+        if (input[Pad::K17]) isHoldingK17 = false;
+        if (input[Pad::K25]) isHoldingK25 = false;
+        if (input[Pad::K26]) isHoldingK26 = false;
+        if (input[Pad::K27]) isHoldingK27 = false;
+
         // sub callbacks
         if (gSwitches.get(eSwitch::SELECT_PANEL1))
         {
@@ -1063,14 +1075,34 @@ void SceneSelect::inputGamePressPanel(InputMask& input, const Time& t)
     {
         if (gSwitches.get(eSwitch::SELECT_PANEL1))
         {
+            if (input[Pad::K1SELECT] || input[Pad::K2SELECT])
+            {
+                // SELECT: TARGET
+                lr2skin::button::target_type(1);
+            }
+
             // 1: KEYS
             if (input[Pad::K11]) lr2skin::button::select_keys_filter(1);
             if (input[Pad::K12]) lr2skin::button::random_type(PLAYER_SLOT_PLAYER, 1);
             if (input[Pad::K13]) lr2skin::button::battle(1);
             if (input[Pad::K14]) lr2skin::button::gauge_type(PLAYER_SLOT_PLAYER, 1);
-            if (input[Pad::K15]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, -1);
-            if (input[Pad::K16]) lr2skin::button::autoscr(PLAYER_SLOT_PLAYER, 1);
-            if (input[Pad::K17]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, 1);
+
+            if (isHoldingK16 && input[Pad::K17] || isHoldingK17 && input[Pad::K16])
+            {
+                // 6+7: LANE EFFECT
+                lr2skin::button::lane_effect(PLAYER_SLOT_PLAYER, 1);
+            }
+            else if (isHoldingK15 && input[Pad::K17] || isHoldingK17 && input[Pad::K15])
+            {
+                // 5+7: HS FIX
+                lr2skin::button::hs_fix(1);
+            }
+            else
+            {
+                if (input[Pad::K15]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, -1);
+                if (input[Pad::K16]) lr2skin::button::autoscr(PLAYER_SLOT_PLAYER, 1);
+                if (input[Pad::K17]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, 1);
+            }
 
             if (gOptions.get(eOption::PLAY_BATTLE_TYPE) == 1)
             {
@@ -1079,9 +1111,23 @@ void SceneSelect::inputGamePressPanel(InputMask& input, const Time& t)
                 if (input[Pad::K22]) lr2skin::button::random_type(PLAYER_SLOT_TARGET, 1);
                 if (input[Pad::K23]) lr2skin::button::battle(1);
                 if (input[Pad::K24]) lr2skin::button::gauge_type(PLAYER_SLOT_TARGET, 1);
-                if (input[Pad::K25]) lr2skin::button::hs(PLAYER_SLOT_TARGET, -1);
-                if (input[Pad::K26]) lr2skin::button::autoscr(PLAYER_SLOT_TARGET, 1);
-                if (input[Pad::K27]) lr2skin::button::hs(PLAYER_SLOT_TARGET, 1);
+
+                if (isHoldingK26 && input[Pad::K27] || isHoldingK27 && input[Pad::K26])
+                {
+                    // 6+7: LANE EFFECT
+                    lr2skin::button::lane_effect(PLAYER_SLOT_TARGET, 1);
+                }
+                else if (isHoldingK25 && input[Pad::K27] || isHoldingK27 && input[Pad::K25])
+                {
+                    // 5+7: HS FIX
+                    lr2skin::button::hs_fix(1);
+                }
+                else
+                {
+                    if (input[Pad::K25]) lr2skin::button::hs(PLAYER_SLOT_TARGET, -1);
+                    if (input[Pad::K26]) lr2skin::button::autoscr(PLAYER_SLOT_TARGET, 1);
+                    if (input[Pad::K27]) lr2skin::button::hs(PLAYER_SLOT_TARGET, 1);
+                }
             }
             else
             {
@@ -1090,9 +1136,27 @@ void SceneSelect::inputGamePressPanel(InputMask& input, const Time& t)
                 if (input[Pad::K22]) lr2skin::button::random_type(PLAYER_SLOT_PLAYER, 1);
                 if (input[Pad::K23]) lr2skin::button::battle(1);
                 if (input[Pad::K24]) lr2skin::button::gauge_type(PLAYER_SLOT_PLAYER, 1);
-                if (input[Pad::K25]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, -1);
-                if (input[Pad::K26]) lr2skin::button::autoscr(PLAYER_SLOT_PLAYER, 1);
-                if (input[Pad::K27]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, 1);
+
+                if (isHoldingK26 && input[Pad::K27] || isHoldingK27 && input[Pad::K26] ||
+                    isHoldingK16 && input[Pad::K27] || isHoldingK17 && input[Pad::K26] ||
+                    isHoldingK26 && input[Pad::K17] || isHoldingK27 && input[Pad::K16])
+                {
+                    // 6+7: LANE EFFECT
+                    lr2skin::button::lane_effect(PLAYER_SLOT_PLAYER, 1);
+                }
+                else if (isHoldingK25 && input[Pad::K27] || isHoldingK27 && input[Pad::K25] ||
+                    isHoldingK15 && input[Pad::K27] || isHoldingK17 && input[Pad::K25] ||
+                    isHoldingK25 && input[Pad::K17] || isHoldingK27 && input[Pad::K15])
+                {
+                    // 5+7: HS FIX
+                    lr2skin::button::hs_fix(1);
+                }
+                else
+                {
+                    if (input[Pad::K25]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, -1);
+                    if (input[Pad::K26]) lr2skin::button::autoscr(PLAYER_SLOT_PLAYER, 1);
+                    if (input[Pad::K27]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, 1);
+                }
             }
         }
     }

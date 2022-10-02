@@ -145,4 +145,5 @@ public:
     bool isSupportExHardAndAssistEasy = false;
     bool isSupportFastSlow = false;
     bool isSupportGreenNumber = false;
+    bool isSupportLift = false;
 };
