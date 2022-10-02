@@ -193,6 +193,9 @@ void sVideo::decodeLoop()
 		{
 			if (!playing) return;
 
+			// Ignore packets from audio streams
+			if (pPacket->stream_index != videoIndex) continue;
+
 			avcodec_send_packet(pCodecCtx, pPacket);
 
 			int ret = avcodec_receive_frame(pCodecCtx, pFrame1);
