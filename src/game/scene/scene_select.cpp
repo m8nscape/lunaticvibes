@@ -39,7 +39,10 @@ void config_player()
 {
     using namespace cfg;
 
-    ConfigMgr::set('P',P_HISPEED, gPlayContext.Hispeed);
+    ConfigMgr::set('P', P_HISPEED, gPlayContext.Hispeed);
+    ConfigMgr::set('P', P_LANECOVER_ENABLE, gSwitches.get(eSwitch::P1_LANECOVER_ENABLED));
+    ConfigMgr::set('P', P_LOCK_SPEED, gSwitches.get(eSwitch::P1_LOCK_SPEED));
+
     switch (gOptions.get(eOption::PLAY_HSFIX_TYPE))
     {
     case Option::SPEED_FIX_MAX:      ConfigMgr::set('P',P_SPEED_TYPE, P_SPEED_TYPE_MAX); break;
@@ -501,10 +504,10 @@ void SceneSelect::updateSelect()
         if (gSwitches.get(eSwitch::SELECT_PANEL1) && (!_skin->isSupportGreenNumber))
         {
             std::stringstream ss;
-            bool lock1 = ConfigMgr::get('P', cfg::P_LOCK_SPEED, false);
+            bool lock1 = gSwitches.get(eSwitch::P1_LOCK_SPEED);
             if (lock1) ss << "G(1P): FIX " << ConfigMgr::get('P', cfg::P_GREENNUMBER, 0);
 
-            bool lock2 = gPlayContext.battle2PLockSpeed;
+            bool lock2 = gSwitches.get(eSwitch::P2_LOCK_SPEED);
             if (lock2) ss << (lock1 ? " | " : "") << "G(2P): FIX " << gPlayContext.battle2PGreenNumber;
 
             gTexts.set(eText::_OVERLAY_TOPLEFT, ss.str());

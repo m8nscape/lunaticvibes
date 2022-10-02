@@ -654,8 +654,8 @@ void updateDstOpt()
 
 	// 270 1P SUD+変更中
 	// 271 2P SUD+変更中
-	set(270, sw(eSwitch::P1_SETTING_SPEED));
-	set(271, sw(eSwitch::P2_SETTING_SPEED));
+	set(270, sw(eSwitch::P1_SETTING_LANECOVER));
+	set(271, sw(eSwitch::P2_SETTING_LANECOVER));
 
 	// 280 コースステージ1
 	// 281 コースステージ2
@@ -1005,4 +1005,17 @@ void updateDstOpt()
 	// 622 ゴーストバトルではない
 	// 623 ゴーストバトル発動中(決定演出～リザルトの間のみ)
 	set(622);
+
+
+	// ///////////////////////////////////
+	// Added by Lunatic Vibes
+	
+	// 800: Lanecover Enabled 1P
+	// 801: FHS 1P
+	// 810: Lanecover Enabled 2P
+	// 811: FHS 2P
+	set(800, gSwitches.get(eSwitch::P1_LANECOVER_ENABLED));
+	set(810, gSwitches.get(eSwitch::P1_LOCK_SPEED));
+	set(810, gSwitches.get(eSwitch::P2_LANECOVER_ENABLED));
+	set(811, gSwitches.get(eSwitch::P2_LOCK_SPEED));
 }

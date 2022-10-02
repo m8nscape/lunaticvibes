@@ -47,8 +47,6 @@ private:
     std::array<Time, 2>     _scratchLastUpdate{ TIMER_NEVER, TIMER_NEVER };
     std::array<double, 2>   _scratchAccumulator = { 0, 0 };
 
-    std::array<bool, 2>     _lanecoverEnabled{ false };
-    std::array<bool, 2>     _lockspeedEnabled{ false };
     std::array<double, 2>   _lockspeedValue{ 0 };
     std::array<int, 2>      _lockspeedGreenNumber{ 0 };
 
