@@ -157,6 +157,9 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
 
     _rulesetLoaded = createRuleset();
 
+    _hispeedOld[PLAYER_SLOT_PLAYER] = gPlayContext.Hispeed;
+    _hispeedOld[PLAYER_SLOT_TARGET] = gPlayContext.battle2PHispeed;
+
     if (ConfigMgr::get('P', cfg::P_LOCK_SPEED, false))
     {
         _lockspeedEnabled[PLAYER_SLOT_PLAYER] = true;
@@ -1843,6 +1846,18 @@ void ScenePlay::updateFadeout()
             }
 
             gSwitches.set(eSwitch::RESULT_CLEAR, cleared);
+        }
+
+        // restore hispeed if FHS
+        if (_lockspeedEnabled[PLAYER_SLOT_PLAYER])
+        {
+            gPlayContext.Hispeed = _hispeedOld[PLAYER_SLOT_PLAYER];
+            gNumbers.set(eNumber::HS_1P, (int)std::round(gPlayContext.Hispeed * 100));
+        }
+        if (isPlaymodeBattle() && _lockspeedEnabled[PLAYER_SLOT_TARGET])
+        {
+            gPlayContext.battle2PHispeed = _hispeedOld[PLAYER_SLOT_TARGET];
+            gNumbers.set(eNumber::HS_2P, (int)std::round(gPlayContext.battle2PHispeed * 100));
         }
 
         // save lanecover settings

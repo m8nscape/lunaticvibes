@@ -55,6 +55,8 @@ private:
     std::array<int, 2>      _hispeedAdd{ 0 };
     std::array<int, 2>      _lanecoverAdd{ 0 };
 
+    std::array<double, 2>   _hispeedOld{ 1.0, 1.0 };
+
     Time _readyTime = 0;
 
     std::vector<ReplayChart::Commands>::iterator itReplayCommand;
