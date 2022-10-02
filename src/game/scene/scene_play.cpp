@@ -132,9 +132,9 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     gTexts.queue(eText::PLAY_ARTIST, gChartContext.artist);
     gTexts.queue(eText::PLAY_SUBARTIST, gChartContext.artist2);
     gTexts.queue(eText::PLAY_GENRE, gChartContext.genre);
-    gNumbers.queue(eNumber::PLAY_BPM, int(std::round(gChartContext.startBPM)));
-    gNumbers.queue(eNumber::INFO_BPM_MIN, int(std::round(gChartContext.minBPM)));
-    gNumbers.queue(eNumber::INFO_BPM_MAX, int(std::round(gChartContext.maxBPM)));
+    gNumbers.queue(eNumber::PLAY_BPM, int(std::round(gChartContext.startBPM * gSelectContext.pitchSpeed)));
+    gNumbers.queue(eNumber::INFO_BPM_MIN, int(std::round(gChartContext.minBPM * gSelectContext.pitchSpeed)));
+    gNumbers.queue(eNumber::INFO_BPM_MAX, int(std::round(gChartContext.maxBPM * gSelectContext.pitchSpeed)));
 
     gOptions.queue(eOption::PLAY_RANK_ESTIMATED_1P, Option::RANK_NONE);
     gOptions.queue(eOption::PLAY_RANK_ESTIMATED_2P, Option::RANK_NONE);
