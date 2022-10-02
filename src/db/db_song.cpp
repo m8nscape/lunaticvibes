@@ -734,6 +734,32 @@ int SongDB::refreshFolder(const HashMD5& hash, const Path& path, FolderType type
     {
         LOG_DEBUG << "[SongDB] Checking for new subfolders" << " (" << path.u8string() << ")";
 
+        // get folders from db
+        std::vector<Path> existedFiles;
+        auto existedList = std::make_shared<EntryFolderRegular>(browse(hash, false));
+        for (size_t i = 0; i < existedList->getContentsCount(); ++i)
+        {
+            existedFiles.push_back(existedList->getEntry(i)->getPath());
+        }
+        std::sort(existedFiles.begin(), existedFiles.end());
+
+        // delete file-not-found folders
+        if (!existedFiles.empty())
+        {
+            std::vector<HashMD5> deletedFiles;
+            for (size_t i = 0; i < existedList->getContentsCount(); ++i)
+            {
+                if (!fs::exists(existedList->getEntry(i)->getPath()))
+                    deletedFiles.push_back(existedList->getEntry(i)->md5);
+            }
+
+            for (auto& folderMD5 : deletedFiles)
+            {
+                if (SQLITE_OK != exec("DELETE FROM folder WHERE pathmd5=? AND parent=?", { folderMD5.hexdigest(), hash.hexdigest() }))
+                    LOG_WARNING << "[SongDB] remove folder from db error: " << errmsg();
+            }
+        }
+
         // just add new entries
         int count = 0;
 

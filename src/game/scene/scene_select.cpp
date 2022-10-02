@@ -805,11 +805,12 @@ void SceneSelect::inputGameRelease(InputMask& m, const Time& t)
 
 void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
 {
-    // refresh folder
-    // LR2 behavior: refresh all folders regardless in which folder
-    // May optimize at some time
     if (input[Input::Pad::F8])
     {
+        // refresh folder
+        // LR2 behavior: refresh all folders regardless in which folder
+        // May optimize at some time
+
         refreshing = true;
         g_pSongDB->resetAddSummary();
 
@@ -825,7 +826,6 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
         gTexts.set(eText::_OVERLAY_TOPLEFT, "");
 
         // re-browse
-
         if (!isInVersionList)
             selectDownTimestamp = -1;
 
@@ -843,6 +843,7 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
                 gSelectContext.idx = parent.index;
             }
 
+            // reset infos, play sound
             _navigateEnter(Time());
         }
         else
