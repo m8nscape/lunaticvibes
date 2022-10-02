@@ -316,8 +316,9 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
     gTexts.set(eText::_OVERLAY_TOPLEFT, "");
     gTexts.set(eText::_OVERLAY_TOPLEFT2, "");
 
-    gSwitches.set(eSwitch::SOUND_PITCH, ConfigMgr::get('P', cfg::P_FREQ, true));
+    gSwitches.set(eSwitch::SOUND_PITCH, true);
     lr2skin::slider::pitch((ConfigMgr::get('P', cfg::P_FREQ_VAL, 0) + 12) / 24.0);
+    gSwitches.set(eSwitch::SOUND_PITCH, ConfigMgr::get('P', cfg::P_FREQ, true));
 
     lr2skin::button::target_type(0);
 
