@@ -18,8 +18,6 @@ RulesetBMSAuto::RulesetBMSAuto(
 
     isPressingLN.fill(false);
 
-    setTargetRate(1.0);
-
     switch (side)
     {
     case RulesetBMS::PlaySide::AUTO:
@@ -31,6 +29,8 @@ RulesetBMSAuto::RulesetBMSAuto(
         _judgeScratch = !(gPlayContext.mods[PLAYER_SLOT_TARGET].assist_mask & PLAY_MOD_ASSIST_AUTOSCR);
         break;
     }
+
+    setTargetRate(1.0);
 }
 
 void RulesetBMSAuto::setTargetRate(double rate)
