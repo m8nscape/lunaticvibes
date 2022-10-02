@@ -492,20 +492,23 @@ void SceneSelect::updateSelect()
     Time t;
     Time rt = t - gTimers.get(eTimer::SCENE_START);
 
-    if (gSwitches.get(eSwitch::SELECT_PANEL1) && (!_skin->isSupportGreenNumber))
+    if (!refreshing)
     {
-        std::stringstream ss;
-        bool lock1 = ConfigMgr::get('P', cfg::P_LOCK_SPEED, false);
-        if (lock1) ss << "G(1P): FIX " << ConfigMgr::get('P', cfg::P_GREENNUMBER, 0);
+        if (gSwitches.get(eSwitch::SELECT_PANEL1) && (!_skin->isSupportGreenNumber))
+        {
+            std::stringstream ss;
+            bool lock1 = ConfigMgr::get('P', cfg::P_LOCK_SPEED, false);
+            if (lock1) ss << "G(1P): FIX " << ConfigMgr::get('P', cfg::P_GREENNUMBER, 0);
 
-        bool lock2 = gPlayContext.battle2PLockSpeed;
-        if (lock2) ss << (lock1 ? " | " : "") << "G(2P): FIX " << gPlayContext.battle2PGreenNumber;
+            bool lock2 = gPlayContext.battle2PLockSpeed;
+            if (lock2) ss << (lock1 ? " | " : "") << "G(2P): FIX " << gPlayContext.battle2PGreenNumber;
 
-        gTexts.set(eText::_OVERLAY_TOPLEFT, ss.str());
-    }
-    else
-    {
-        gTexts.set(eText::_OVERLAY_TOPLEFT, "");
+            gTexts.set(eText::_OVERLAY_TOPLEFT, ss.str());
+        }
+        else
+        {
+            gTexts.set(eText::_OVERLAY_TOPLEFT, "");
+        }
     }
 
     if (gSelectContext.isGoingToKeyConfig || gSelectContext.isGoingToSkinSelect)
@@ -612,6 +615,8 @@ void SceneSelect::inputGamePress(InputMask& m, const Time& t)
     Time rt = t - gTimers.get(eTimer::SCENE_START);
 
     if (rt.norm() < _skin->info.timeIntro) return;
+
+    if (refreshing) return;
 
     using namespace Input;
 
@@ -800,6 +805,62 @@ void SceneSelect::inputGameRelease(InputMask& m, const Time& t)
 
 void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
 {
+    // refresh folder
+    // LR2 behavior: refresh all folders regardless in which folder
+    // May optimize at some time
+    if (input[Input::Pad::F8])
+    {
+        refreshing = true;
+        g_pSongDB->resetAddSummary();
+
+        // get folders from config
+        auto folderList = ConfigMgr::General()->getFoldersPath();
+        for (auto& f : folderList)
+        {
+            LOG_INFO << "[List] Refresh folder " << f;
+            gTexts.set(eText::_OVERLAY_TOPLEFT, (boost::format("Refresh folder: %s") % Path(f).u8string()).str());
+            g_pSongDB->addFolder(f);
+            g_pSongDB->waitLoadingFinish();
+        }
+        gTexts.set(eText::_OVERLAY_TOPLEFT, "");
+
+        // re-browse
+
+        if (!isInVersionList)
+            selectDownTimestamp = -1;
+
+        if (gSelectContext.backtrace.size() >= 2)
+        {
+            // simplified _navigateBack(t)
+            {
+                std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
+                auto& top = gSelectContext.backtrace.top();
+
+                gSelectContext.idx = 0;
+                gSelectContext.backtrace.pop();
+                auto& parent = gSelectContext.backtrace.top();
+                gSelectContext.entries = parent.displayEntries;
+                gSelectContext.idx = parent.index;
+            }
+
+            _navigateEnter(Time());
+        }
+        else
+        {
+            gSelectContext.idx = 0;
+            setBarInfo();
+            setEntryInfo();
+            setDynamicTextures();
+            gTimers.set(eTimer::LIST_MOVE, Time().norm());
+            SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::SOUND_F_OPEN);
+        }
+
+        setDynamicTextures();
+
+        refreshing = false;
+        return;
+    }
+
     if (_skin->type() == eSkinType::LR2)
     {
         if (input[Input::Pad::K1START] || input[Input::Pad::K2START])
@@ -1414,6 +1475,7 @@ void SceneSelect::_navigateEnter(const Time& t)
             scrollAccumulator = 0.;
             scrollAccumulatorAddUnit = 0.;
 
+            gTimers.set(eTimer::LIST_MOVE, Time().norm());
             SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_OPEN);
             break;
         }
@@ -1458,6 +1520,7 @@ void SceneSelect::_navigateEnter(const Time& t)
             scrollAccumulator = 0.;
             scrollAccumulatorAddUnit = 0.;
 
+            gTimers.set(eTimer::LIST_MOVE, Time().norm());
             SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_OPEN);
             break;
         }

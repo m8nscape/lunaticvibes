@@ -36,6 +36,8 @@ private:
     double scrollAccumulator = 0.0;
     double scrollAccumulatorAddUnit = 0.0;
 
+    bool refreshing = false;    // F8
+
     // imgui
     bool imguiShow = false;
 

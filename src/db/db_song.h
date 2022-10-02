@@ -66,6 +66,8 @@ public:
     int refreshFolder(const HashMD5& hash, const Path& path, FolderType type);
     int removeFolder(const HashMD5& hash, bool removeSong = false);
 
+    void waitLoadingFinish();
+
     HashMD5 getFolderParent(const HashMD5& folder) const;
     HashMD5 getFolderParent(const Path& path) const;
     int getFolderPath(const HashMD5& folder, Path& output) const;

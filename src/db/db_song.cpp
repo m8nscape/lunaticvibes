@@ -594,7 +594,7 @@ int SongDB::addFolder(Path path, HashMD5 parentHash)
 
     addFolderLoaded++;
 
-    return 0;
+    return count;
 }
 
 int SongDB::addFolderCharts(const HashMD5& hash, const Path& path)
@@ -641,7 +641,9 @@ int SongDB::addFolderCharts(const HashMD5& hash, const Path& path)
             break;
         }
         if (0 == addFolder(sub, hash))
+        {
             ++count;
+        }
     }
 
     return count;
@@ -781,6 +783,16 @@ int SongDB::removeFolder(const HashMD5& hash, bool removeSong)
     return exec("DELETE FROM folder WHERE pathmd5=?", { hash.hexdigest() });
 }
 
+void SongDB::waitLoadingFinish()
+{
+    boost::asio::thread_pool& pool = DBThreadPool[this];
+    pool.join();
+
+    // The old pool is not valid anymore, recreate
+    DBThreadPool.erase(this);
+    DBThreadPool.emplace(this, std::thread::hardware_concurrency() - 1);
+}
+
 HashMD5 SongDB::getFolderParent(const HashMD5& folder) const
 {
     auto result = query("SELECT type,parent FROM folder WHERE path=?", 2, { folder.hexdigest() });
@@ -850,8 +862,7 @@ EntryFolderRegular SongDB::browse(HashMD5 root, bool recursive)
 
     if (root == ROOT_FOLDER_HASH)
     {
-        boost::asio::thread_pool& pool = DBThreadPool[this];
-        pool.join();
+        waitLoadingFinish();
     }
 
     Path path;
