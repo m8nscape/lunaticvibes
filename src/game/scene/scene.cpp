@@ -20,7 +20,8 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
 
     int notificationPosY = ConfigMgr::General()->get(cfg::V_RES_Y, CANVAS_HEIGHT);
     int notificationWidth = ConfigMgr::General()->get(cfg::V_RES_X, CANVAS_WIDTH);
-    const int notificationHeight = 24;
+    const int notificationHeight = 20;
+
 #if defined _WIN32
     TCHAR windir[MAX_PATH];
     GetWindowsDirectory(windir, MAX_PATH);
@@ -29,11 +30,13 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
 #elif defined LINUX
     StringContent fontPath = "/usr/share/fonts/tbd.ttf"
 #endif
-    _fNotifications = std::make_shared<TTFFont>(fontPath.c_str(), notificationHeight);
+
+    const int textHeight = 16;
+    _fNotifications = std::make_shared<TTFFont>(fontPath.c_str(), int(textHeight * 1.5));
     _texNotificationsBG = std::make_shared<TextureFull>(0x000000ff);
     for (size_t i = 0; i < _sNotifications.size(); ++i)
     {
-        _sNotifications[i] = std::make_shared<SpriteText>(_fNotifications, eText(size_t(eText::_OVERLAY_NOTIFICATION_0) + i), TextAlign::TEXT_ALIGN_LEFT, notificationHeight);
+        _sNotifications[i] = std::make_shared<SpriteText>(_fNotifications, eText(size_t(eText::_OVERLAY_NOTIFICATION_0) + i), TextAlign::TEXT_ALIGN_LEFT, textHeight);
         _sNotifications[i]->setLoopTime(0);
         _sNotificationsBG[i] = std::make_shared<SpriteStatic>(_texNotificationsBG);
         _sNotificationsBG[i]->setLoopTime(0);
@@ -43,18 +46,19 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
         f.time = 0;
         f.param.rect = Rect(0, notificationPosY, notificationWidth, notificationHeight);
         f.param.accel = RenderParams::CONSTANT;
-        f.param.color = 0xffffffff;
         f.param.blend = BlendMode::ALPHA;
         f.param.filter = false;
         f.param.angle = 0;
         f.param.center = Point(0, 0);
-        _sNotifications[i]->appendKeyFrame(f);
-
         f.param.color = 0xffffff80;
         _sNotificationsBG[i]->appendKeyFrame(f);
+
+        f.param.rect.y += (notificationHeight - textHeight) / 2;
+        f.param.rect.h = textHeight;
+        f.param.color = 0xffffffff;
+        _sNotifications[i]->appendKeyFrame(f);
     }
     {
-        int textHeight = 16;
         _sTopLeft = std::make_shared<SpriteText>(_fNotifications, eText::_OVERLAY_TOPLEFT, TextAlign::TEXT_ALIGN_LEFT, textHeight);
         _sTopLeft->setLoopTime(0);
         _sTopLeft2 = std::make_shared<SpriteText>(_fNotifications, eText::_OVERLAY_TOPLEFT2, TextAlign::TEXT_ALIGN_LEFT, textHeight);
