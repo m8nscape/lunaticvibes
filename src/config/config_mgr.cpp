@@ -449,7 +449,7 @@ void setSwitches()
     g.queue(e::SOUND_FX2, ConfigMgr::get('P', P_FX2, true));
 
     g.queue(e::PLAY_OPTION_AUTOSCR_1P, ConfigMgr::get<string>('P', P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_NONE) == P_CHART_ASSIST_OP_AUTOSCR);
-    g.queue(e::PLAY_OPTION_AUTOSCR_2P, "OFF");
+    g.queue(e::PLAY_OPTION_AUTOSCR_2P, false);
 
     g.flush();
 }
