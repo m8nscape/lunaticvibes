@@ -179,6 +179,31 @@ void setOptions()
         }
     }
 
+    // lane effect
+    {
+        static const std::map<string, e_lane_effect_type> smap =
+        {
+            {P_LANE_EFFECT_OP_OFF, LANE_OFF},
+            {P_LANE_EFFECT_OP_HIDDEN, LANE_HIDDEN},
+            {P_LANE_EFFECT_OP_SUDDEN, LANE_SUDDEN},
+            {P_LANE_EFFECT_OP_SUDHID, LANE_SUDHID},
+            {P_LANE_EFFECT_OP_LIFT, LANE_LIFT},
+            {P_LANE_EFFECT_OP_LIFTSUD, LANE_LIFTSUD},
+        };
+
+        auto&& s = ConfigMgr::get<string>('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_OFF);
+        if (smap.find(s) != smap.end())
+        {
+            g.queue(e::PLAY_LANE_EFFECT_TYPE_1P, smap.at(s));
+            g.queue(e::PLAY_LANE_EFFECT_TYPE_2P, smap.at(s));
+        }
+        else
+        {
+            g.queue(e::PLAY_LANE_EFFECT_TYPE_1P, LANE_OFF);
+            g.queue(e::PLAY_LANE_EFFECT_TYPE_2P, LANE_OFF);
+        }
+    }
+
     // ghost type
     {
         static const std::map<string, e_play_ghost_mode> smap =
@@ -448,8 +473,9 @@ void setSwitches()
     g.queue(e::SOUND_FX1, ConfigMgr::get('P', P_FX1, true));
     g.queue(e::SOUND_FX2, ConfigMgr::get('P', P_FX2, true));
 
-    g.queue(e::PLAY_OPTION_AUTOSCR_1P, ConfigMgr::get<string>('P', P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_NONE) == P_CHART_ASSIST_OP_AUTOSCR);
-    g.queue(e::PLAY_OPTION_AUTOSCR_2P, false);
+    bool autoscr = ConfigMgr::get<string>('P', P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_NONE) == P_CHART_ASSIST_OP_AUTOSCR;
+    g.queue(e::PLAY_OPTION_AUTOSCR_1P, autoscr);
+    g.queue(e::PLAY_OPTION_AUTOSCR_2P, autoscr);
 
     g.flush();
 }
@@ -550,7 +576,8 @@ void setText()
     {
         static const std::map<string, string> smap =
         {
-            {P_LANECOVER_BOTTOM, "AUTO-SCR"},
+            {P_CHART_ASSIST_OP_NONE, "NONE"},
+            {P_CHART_ASSIST_OP_AUTOSCR, "AUTO-SCR"},
         };
 
         auto&& s = ConfigMgr::get<string>('P', P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_NONE);

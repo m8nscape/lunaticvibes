@@ -579,14 +579,32 @@ void autoscr(int player, int plus)
 
     // eModRandom
     bool val = gSwitches.get(sw);
-    gSwitches.set(sw, !val);
-    gTexts.set(tx, (!val) ? "AUTO-SCR" : "NONE");
+    if (plus % 2) val = !val;
+    gSwitches.set(sw, val);
+    gTexts.set(tx, val ? "AUTO-SCR" : "NONE");
 
-    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
+    if (plus != 0)
+    {
+        if (gOptions.get(eOption::PLAY_MODE) != Option::PLAY_MODE_BATTLE)
+        {
+            if (slot == PLAYER_SLOT_PLAYER)
+            {
+                gSwitches.set(eSwitch::PLAY_OPTION_AUTOSCR_2P, val);
+                autoscr(PLAYER_SLOT_TARGET, 0);
+            }
+            else
+            {
+                gSwitches.set(eSwitch::PLAY_OPTION_AUTOSCR_1P, val);
+                autoscr(PLAYER_SLOT_PLAYER, 0);
+            }
+        }
 
-    auto& [score, lamp] = getSaveScoreType();
-    gSwitches.set(eSwitch::CHART_CAN_SAVE_SCORE, score);
-    gOptions.set(eOption::CHART_SAVE_LAMP_TYPE, lamp);
+        SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
+
+        auto& [score, lamp] = getSaveScoreType();
+        gSwitches.set(eSwitch::CHART_CAN_SAVE_SCORE, score);
+        gOptions.set(eOption::CHART_SAVE_LAMP_TYPE, lamp);
+    }
 }
 
 // 46
@@ -612,6 +630,7 @@ void lane_effect(int player, int plus)
     // 
     int val = (gOptions.get(op) + 6 + plus) % 6;
     gOptions.set(op, val);
+
     switch (val)
     {
     case 0: gTexts.set(tx, "OFF"); break;
@@ -623,7 +642,24 @@ void lane_effect(int player, int plus)
     default: break;
     }
 
-    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
+    if (plus != 0)
+    {
+        if (gOptions.get(eOption::PLAY_MODE) != Option::PLAY_MODE_BATTLE)
+        {
+            if (slot == PLAYER_SLOT_PLAYER)
+            {
+                gOptions.set(eOption::PLAY_LANE_EFFECT_TYPE_2P, val);
+                lane_effect(PLAYER_SLOT_TARGET, 0);
+            }
+            else
+            {
+                gOptions.set(eOption::PLAY_LANE_EFFECT_TYPE_1P, val);
+                lane_effect(PLAYER_SLOT_PLAYER, 0);
+            }
+        }
+
+        SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
+    }
 }
 
 // 54
@@ -749,6 +785,14 @@ void battle(int plus)
     case Option::BATTLE_LOCAL: gTexts.set(eText::BATTLE, "BATTLE"); break;
     case Option::BATTLE_DB:    gTexts.set(eText::BATTLE, "D-BATTLE"); break;
     case Option::BATTLE_GHOST: gTexts.set(eText::BATTLE, "G-BATTLE"); break;
+    }
+
+    if (gOptions.get(eOption::PLAY_MODE) != Option::PLAY_MODE_BATTLE)
+    {
+        gOptions.set(eOption::PLAY_LANE_EFFECT_TYPE_2P, gOptions.get(eOption::PLAY_LANE_EFFECT_TYPE_1P));
+        lane_effect(PLAYER_SLOT_TARGET, 0);
+        gSwitches.set(eSwitch::PLAY_OPTION_AUTOSCR_2P, gSwitches.get(eSwitch::PLAY_OPTION_AUTOSCR_1P));
+        autoscr(PLAYER_SLOT_TARGET, 0);
     }
 
     gSwitches.set(eSwitch::PLAY_OPTION_DP_FLIP, false);
