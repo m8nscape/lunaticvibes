@@ -113,8 +113,8 @@ void config_player()
 
     switch (gSwitches.get(eSwitch::PLAY_OPTION_AUTOSCR_1P))
     {
-    case true:  ConfigMgr::set('P', P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_NONE); break;
-    case false: ConfigMgr::set('P', P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_AUTOSCR); break;
+    case false: ConfigMgr::set('P', P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_NONE); break;
+    case true:  ConfigMgr::set('P', P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_AUTOSCR); break;
     }
 
     switch (gOptions.get(eOption::PLAY_GHOST_TYPE_1P))
