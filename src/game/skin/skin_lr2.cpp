@@ -3123,39 +3123,76 @@ void SkinLR2::postLoad()
     // 
     // SRC_IMAGE with key input timers:
     //  h >= 100
-    for (auto& s : _sprites)
+    //
+    // the following conditions are added by Lunatic Vibes
+    // 
+    // SRC_NUMBER0:
+    // num=108/128 (target score): timer=40/46, y <= JUDGELINE.y
+    // num=210/211 (F/S): timer=40/46, y <= JUDGELINE.y
+    // num=310-315 (3col)
+    for (auto& e : drawQueue)
     {
+        auto& s = e.ps;
         if (s->isKeyFrameEmpty()) continue;
-        if (s->type() != SpriteTypes::ANIMATED) continue;
-
-        const Rect& rcFirst = s->_keyFrames.front().param.rect;
-        const Rect& rcLast = s->_keyFrames.back().param.rect;
-        int timer = (int)s->_triggerTimer;
-        if (timer >= 100 && timer <= 109 || timer >= 120 && timer <= 129 ||
-            timer >= 50 && timer <= 59 || timer >= 70 && timer <= 79 ||
-            timer == (int)eTimer::S1L_DOWN || timer == (int)eTimer::S1L_UP || timer == (int)eTimer::S1R_DOWN || timer == (int)eTimer::S1R_UP)
+        if (s->type() == SpriteTypes::ANIMATED)
         {
-            if (rcFirst.h <= -100 || rcFirst.h >= 100 || rcLast.h <= -100 || rcLast.h >= 100)
+            const Rect& rcFirst = s->_keyFrames.front().param.rect;
+            const Rect& rcLast = s->_keyFrames.back().param.rect;
+            int timer = (int)s->_triggerTimer;
+            if (timer >= 100 && timer <= 109 || timer >= 120 && timer <= 129 ||
+                timer >= 50 && timer <= 59 || timer >= 70 && timer <= 79 ||
+                timer == (int)eTimer::S1L_DOWN || timer == (int)eTimer::S1L_UP || timer == (int)eTimer::S1R_DOWN || timer == (int)eTimer::S1R_UP)
+            {
+                if (rcFirst.h <= -100 || rcFirst.h >= 100 || rcLast.h <= -100 || rcLast.h >= 100)
+                    spritesMoveWithLift1P.push_back(s);
+            }
+            else if (timer >= 110 && timer <= 119 || timer >= 130 && timer <= 139 ||
+                timer >= 60 && timer <= 69 || timer >= 80 && timer <= 89 ||
+                timer == (int)eTimer::S2L_DOWN || timer == (int)eTimer::S2L_UP || timer == (int)eTimer::S2R_DOWN || timer == (int)eTimer::S2R_UP)
+            {
+                if (rcFirst.h <= -100 || rcFirst.h >= 100 || rcLast.h <= -100 || rcLast.h >= 100)
+                    spritesMoveWithLift2P.push_back(s);
+            }
+            else if (judgeLineRect1P.x - 5 <= rcFirst.x && rcFirst.x <= judgeLineRect1P.x + 5 &&
+                judgeLineRect1P.w - 10 <= rcFirst.w && rcFirst.w <= judgeLineRect1P.w + 10 &&
+                rcFirst.y <= judgeLineRect1P.y)
+            {
                 spritesMoveWithLift1P.push_back(s);
-        }
-        else if (timer >= 110 && timer <= 119 || timer >= 130 && timer <= 139 ||
-            timer >= 60 && timer <= 69 || timer >= 80 && timer <= 89 ||
-            timer == (int)eTimer::S2L_DOWN || timer == (int)eTimer::S2L_UP || timer == (int)eTimer::S2R_DOWN || timer == (int)eTimer::S2R_UP)
-        {
-            if (rcFirst.h <= -100 || rcFirst.h >= 100 || rcLast.h <= -100 || rcLast.h >= 100)
+            }
+            else if (judgeLineRect2P.x - 5 <= rcFirst.x && rcFirst.x <= judgeLineRect2P.x + 5 &&
+                judgeLineRect2P.w - 10 <= rcFirst.w && rcFirst.w <= judgeLineRect2P.w + 10 &&
+                rcFirst.y <= judgeLineRect2P.y)
+            {
                 spritesMoveWithLift2P.push_back(s);
+            }
         }
-        else if (judgeLineRect1P.x - 5 <= rcFirst.x && rcFirst.x <= judgeLineRect1P.x + 5 &&
-            judgeLineRect1P.w - 10 <= rcFirst.w && rcFirst.w <= judgeLineRect1P.w + 10 &&
-            rcFirst.y <= judgeLineRect1P.y)
+        else if (s->type() == SpriteTypes::NUMBER)
         {
-            spritesMoveWithLift1P.push_back(s);
-        }
-        else if (judgeLineRect2P.x - 5 <= rcFirst.x && rcFirst.x <= judgeLineRect2P.x + 5 &&
-            judgeLineRect2P.w - 10 <= rcFirst.w && rcFirst.w <= judgeLineRect2P.w + 10 &&
-            rcFirst.y <= judgeLineRect2P.y)
-        {
-            spritesMoveWithLift2P.push_back(s);
+            const Rect& rcFirst = s->_keyFrames.front().param.rect;
+            const Rect& rcLast = s->_keyFrames.back().param.rect;
+            int num = (int)std::dynamic_pointer_cast<SpriteNumber>(s)->_numInd;
+            int timer = (int)s->_triggerTimer;
+            if (timer == 40 || timer == 46)
+            {
+                if (rcFirst.y <= judgeLineRect1P.y || rcLast.y <= judgeLineRect1P.y)
+                {
+                    if (num == 108 || num == 210)
+                    {
+                        spritesMoveWithLift1P.push_back(s);
+                    }
+                }
+                else if (rcFirst.y <= judgeLineRect2P.y || rcLast.y <= judgeLineRect2P.y)
+                {
+                    if (num == 128 || num == 211)
+                    {
+                        spritesMoveWithLift2P.push_back(s);
+                    }
+                }
+            }
+            else if (num >= 310 && num <= 315)
+            {
+                spritesMoveWithLift1P.push_back(s);
+            }
         }
     }
 

@@ -1067,6 +1067,8 @@ void RulesetBMS::update(const Time& t)
                         {
                             _basic.slow++;
                             updateMiss(t, idx, RulesetBMS::JudgeType::MISS, slot);
+                            _lastNoteJudge.area = judgeArea::MISS;
+                            _lastNoteJudge.time = hitTime;
 
                             // push replay command
                             if (doJudge && gChartContext.started && gPlayContext.replayNew)
