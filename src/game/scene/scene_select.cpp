@@ -499,21 +499,61 @@ void SceneSelect::updateSelect()
 
     if (!refreshing)
     {
-        if (gSwitches.get(eSwitch::SELECT_PANEL1) && (!_skin->isSupportGreenNumber))
+        int line = (int)eText::_OVERLAY_TOPLEFT;
+        if (gSwitches.get(eSwitch::SELECT_PANEL1))
         {
-            std::stringstream ss;
-            bool lock1 = gSwitches.get(eSwitch::P1_LOCK_SPEED);
-            if (lock1) ss << "G(1P): FIX " << ConfigMgr::get('P', cfg::P_GREENNUMBER, 0);
+            if (!_skin->isSupportGreenNumber)
+            {
+                std::stringstream ss;
+                bool lock1 = gSwitches.get(eSwitch::P1_LOCK_SPEED);
+                if (lock1) ss << "G(1P): FIX " << ConfigMgr::get('P', cfg::P_GREENNUMBER, 0);
 
-            bool lock2 = gSwitches.get(eSwitch::P2_LOCK_SPEED);
-            if (lock2) ss << (lock1 ? " | " : "") << "G(2P): FIX " << gPlayContext.battle2PGreenNumber;
+                bool lock2 = gSwitches.get(eSwitch::P2_LOCK_SPEED);
+                if (lock2) ss << (lock1 ? " | " : "") << "G(2P): FIX " << gPlayContext.battle2PGreenNumber;
 
-            gTexts.set(eText::_OVERLAY_TOPLEFT, ss.str());
+                std::string s = ss.str();
+                if (!s.empty())
+                {
+                    gTexts.set((eText)line++, ss.str());
+                }
+            }
+            if (!_skin->isSupportLift)
+            {
+                std::stringstream ss;
+                int lane1 = gOptions.get(eOption::PLAY_LANE_EFFECT_TYPE_1P);
+                switch (lane1)
+                {
+                case Option::LANE_OFF:      ss << "Lane(1P): OFF"; break;
+                case Option::LANE_HIDDEN:   ss << "Lane(1P): HIDDEN+"; break;
+                case Option::LANE_SUDDEN:   ss << "Lane(1P): SUDDEN+"; break;
+                case Option::LANE_SUDHID:   ss << "Lane(1P): SUD+ & HID+"; break;
+                case Option::LANE_LIFT:     ss << "Lane(1P): LIFT"; break;
+                case Option::LANE_LIFTSUD:  ss << "Lane(1P): LIFT & SUD+"; break;
+                }
+
+                if (gOptions.get(eOption::PLAY_BATTLE_TYPE) == Option::BATTLE_LOCAL)
+                {
+                    int lane2 = gOptions.get(eOption::PLAY_LANE_EFFECT_TYPE_2P);
+                    switch (lane2)
+                    {
+                    case Option::LANE_OFF:      ss << " | Lane(2P): OFF"; break;
+                    case Option::LANE_HIDDEN:   ss << " | Lane(2P): HIDDEN+"; break;
+                    case Option::LANE_SUDDEN:   ss << " | Lane(2P): SUDDEN+"; break;
+                    case Option::LANE_SUDHID:   ss << " | Lane(2P): SUD+ & HID+"; break;
+                    case Option::LANE_LIFT:     ss << " | Lane(2P): LIFT"; break;
+                    case Option::LANE_LIFTSUD:  ss << " | Lane(2P): LIFT & SUD+"; break;
+                    }
+                }
+
+                std::string s = ss.str();
+                if (!s.empty())
+                {
+                    gTexts.set((eText)line++, ss.str());
+                }
+            }
         }
-        else
-        {
-            gTexts.set(eText::_OVERLAY_TOPLEFT, "");
-        }
+        while (line <= (int)eText::_OVERLAY_TOPLEFT2)
+            gTexts.set((eText)line++, "");
     }
 
     if (gSelectContext.isGoingToKeyConfig || gSelectContext.isGoingToSkinSelect)

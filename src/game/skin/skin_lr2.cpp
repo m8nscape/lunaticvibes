@@ -1226,7 +1226,7 @@ ParseRet SkinLR2::SRC_BUTTON()
                 }
                 if (op == eOption::PLAY_LANE_EFFECT_TYPE_1P || op == eOption::PLAY_LANE_EFFECT_TYPE_2P)
                 {
-                    if (d.div_x * d.div_y >= 4)
+                    if (d.div_x * d.div_y >= 6)
                         isSupportLift = true;
                 }
             }
@@ -1289,6 +1289,14 @@ ParseRet SkinLR2::SRC_TEXT()
     }
 
     _sprites.back()->setSrcLine(csvLineNumber);
+
+    switch (d.st)
+    {
+    case 84:
+    case 85:
+        isSupportLift = true;
+        break;
+    }
 
     return ParseRet::OK;
 }
