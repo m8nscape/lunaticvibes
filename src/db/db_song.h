@@ -51,23 +51,24 @@ public:
     SongDB& operator= (SongDB&) = delete;
 
 protected:
-    int addChart(const HashMD5& folder, const Path& path);
-    int removeChart(const HashMD5& md5);
+    bool addChart(const HashMD5& folder, const Path& path);
+    bool removeChart(const Path& path, const HashMD5& parent);
+    bool removeChart(const HashMD5& md5, const HashMD5& parent);
     
 public:
     std::vector<pChartFormat> findChartByName(const HashMD5& folder, const std::string&, unsigned limit = 1000) const;  // search from genre, version, artist, artist2, title, title2
-    std::vector<pChartFormat> findChartByHash(const HashMD5&) const;  // chart may duplicate
-
-protected:
-    int addFolderCharts(const HashMD5& hash, const Path& folder);
+    std::vector<pChartFormat> findChartByHash(const HashMD5&) const;  // chart may duplicate, return a list
 
 public:
     int addFolder(Path path, HashMD5 parent = ROOT_FOLDER_HASH);
-    int refreshFolder(const HashMD5& hash, const Path& path, FolderType type);
     int removeFolder(const HashMD5& hash, bool removeSong = false);
-
     void waitLoadingFinish();
 
+protected:
+    int addNewFolder(const HashMD5& hash, const Path& path, const HashMD5& parent);
+    int refreshExistingFolder(const HashMD5& hash, const Path& path, FolderType type);
+
+public:
     HashMD5 getFolderParent(const HashMD5& folder) const;
     HashMD5 getFolderParent(const Path& path) const;
     int getFolderPath(const HashMD5& folder, Path& output) const;
@@ -78,10 +79,12 @@ public:
     EntryFolderRegular search(HashMD5 root, std::string key);
 
 public:
-    int addFolderLoaded = 0;
-    int addFolderTotal = 0;
-    int addChartLoaded = 0;
-    int addChartTotal = 0;
+    int addChartTaskCount = 0;
+    int addChartTaskFinishCount = 0;
+    int addChartSuccess = 0;
+    int addChartModified = 0;
+    int addChartDeleted = 0;
+
     std::shared_mutex addCurrentPathMutex;
     std::string addCurrentPath;
     void resetAddSummary();

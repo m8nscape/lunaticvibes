@@ -118,27 +118,34 @@ void vScene::update()
         checkAndStartTextEdit();
     }
 
-    std::unique_lock lock(gOverlayContext._mutex);
-    // notifications expire check
-    while (!gOverlayContext.notifications.empty() && (t - gOverlayContext.notifications.begin()->first).norm() > 10 * 1000) // 10s
+    // update notifications
     {
-        gOverlayContext.notifications.pop_front();
-    }
-    // update texts
-    auto itNotifications = gOverlayContext.notifications.rbegin();
-    for (size_t i = 0; i < _sNotifications.size(); ++i)
-    {
-        if (itNotifications != gOverlayContext.notifications.rend())
+        std::unique_lock lock(gOverlayContext._mutex);
+
+        // notifications expire check
+        while (!gOverlayContext.notifications.empty() && (t - gOverlayContext.notifications.begin()->first).norm() > 10 * 1000) // 10s
         {
-            gTexts.queue(eText(size_t(eText::_OVERLAY_NOTIFICATION_0) + i), itNotifications->second);
-            ++itNotifications;
+            gOverlayContext.notifications.pop_front();
         }
-        else
+
+        // update notification texts
+        auto itNotifications = gOverlayContext.notifications.rbegin();
+        for (size_t i = 0; i < _sNotifications.size(); ++i)
         {
-            gTexts.queue(eText(size_t(eText::_OVERLAY_NOTIFICATION_0) + i), "");
+            if (itNotifications != gOverlayContext.notifications.rend())
+            {
+                gTexts.queue(eText(size_t(eText::_OVERLAY_NOTIFICATION_0) + i), itNotifications->second);
+                ++itNotifications;
+            }
+            else
+            {
+                gTexts.queue(eText(size_t(eText::_OVERLAY_NOTIFICATION_0) + i), "");
+            }
         }
+        gTexts.flush();
     }
-    gTexts.flush();
+
+    // update top-left texts
     for (size_t i = 0; i < _sNotifications.size(); ++i)
     {
         _sNotifications[i]->update(t);
@@ -151,6 +158,7 @@ void vScene::update()
     // update videos
     TextureVideo::updateAll();
 
+    // ImGui
     auto ss = gTimers.get(eTimer::SCENE_START);
     auto rt = t.norm() - ss;
     if (ss != TIMER_NEVER && rt > 1000)

@@ -37,7 +37,7 @@ private:
     double scrollAccumulatorAddUnit = 0.0;
 
     // F8
-    bool refreshing = false;
+    bool refreshingSongList = false;
 
     // 5+7 / 6+7
     bool isHoldingK15 = false;

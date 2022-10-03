@@ -514,7 +514,7 @@ void SceneSelect::updateSelect()
     Time t;
     Time rt = t - gTimers.get(eTimer::SCENE_START);
 
-    if (!refreshing)
+    if (!refreshingSongList)
     {
         int line = (int)eText::_OVERLAY_TOPLEFT;
         if (gSwitches.get(eSwitch::SELECT_PANEL1))
@@ -678,7 +678,7 @@ void SceneSelect::inputGamePress(InputMask& m, const Time& t)
 
     if (rt.norm() < _skin->info.timeIntro) return;
 
-    if (refreshing) return;
+    if (refreshingSongList) return;
 
     using namespace Input;
 
@@ -887,17 +887,29 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
         // LR2 behavior: refresh all folders regardless in which folder
         // May optimize at some time
 
-        refreshing = true;
-        g_pSongDB->resetAddSummary();
+        refreshingSongList = true;
 
         // get folders from config
         auto folderList = ConfigMgr::General()->getFoldersPath();
         for (auto& f : folderList)
         {
-            LOG_INFO << "[List] Refresh folder " << f;
-            gTexts.set(eText::_OVERLAY_TOPLEFT, (boost::format("Refresh folder: %s") % Path(f).u8string()).str());
-            g_pSongDB->addFolder(f);
+            LOG_INFO << "[List] Refreshing folder " << f;
+            Path pf(f);
+            gTexts.set(eText::_OVERLAY_TOPLEFT, (boost::format("Refresh folder: %s") % pf.u8string()).str());
+
+            g_pSongDB->resetAddSummary();
+            int count = g_pSongDB->addFolder(f);
             g_pSongDB->waitLoadingFinish();
+
+            if (count > 0 || g_pSongDB->addChartDeleted)
+            {
+                createNotification((boost::format("%s: Added %d, Updated %d, Deleted %d") 
+                    % pf.u8string()
+                    % (g_pSongDB->addChartSuccess - g_pSongDB->addChartModified)
+                    % g_pSongDB->addChartModified
+                    % g_pSongDB->addChartDeleted
+                    ).str());
+            }
         }
         gTexts.set(eText::_OVERLAY_TOPLEFT, "");
 
@@ -934,7 +946,7 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
 
         setDynamicTextures();
 
-        refreshing = false;
+        refreshingSongList = false;
         return;
     }
 

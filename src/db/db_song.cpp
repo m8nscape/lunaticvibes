@@ -231,136 +231,140 @@ SongDB::SongDB(const char* path) : SQLite(path, "SONG")
 
 }
 
-int SongDB::addChart(const HashMD5& folder, const Path& path)
+bool SongDB::addChart(const HashMD5& folder, const Path& path)
 {
-    decltype(path.filename().u8string()) filename;
-    try
+    auto closure = [&]() -> bool
     {
-        filename = path.filename().u8string();
-    }
-    catch (const std::exception& e)
-    {
-        LOG_WARNING << "[SongDB] "<< e.what() << ": " << path.filename().wstring();
-        addChartLoaded++;
-        return 1;
-    }
-
-    if (auto result = query("SELECT md5 FROM song WHERE parent=? AND file=?", 1, 
-        { folder.hexdigest(), filename }); !result.empty() && !result[0].empty())
-    {
-        // file exists in db
-        HashMD5 dbmd5 = ANY_STR(result[0][0]);
-        HashMD5 filemd5 = md5file(path);
-        if (dbmd5 == filemd5)
+        decltype(path.filename().u8string()) filename;
+        try
         {
-            addChartLoaded++;
-            return 0;
+            filename = path.filename().u8string();
         }
-        else
+        catch (const std::exception& e)
         {
-            LOG_INFO << "[SongDB] File " << path.u8string() << " exists, but hash not match. Removing old entry from db";
-            if (SQLITE_OK != exec("DELETE FROM song WHERE parent=? AND file=?", { folder.hexdigest(), filename }))
+            LOG_WARNING << "[SongDB] " << e.what() << ": " << path.filename().wstring();
+            return false;
+        }
+
+        if (auto result = query("SELECT md5 FROM song WHERE parent=? AND file=?", 1,
+            { folder.hexdigest(), filename }); !result.empty() && !result[0].empty())
+        {
+            // check if file exists in db
+            HashMD5 dbmd5 = ANY_STR(result[0][0]);
+            HashMD5 filemd5 = md5file(path);
+            if (dbmd5 == filemd5)
             {
-                LOG_WARNING << "[SongDB] Remove existing chart from db failed: " << path.u8string();
-                addChartLoaded++;
-                return 1;
+                return false;
             }
         }
-    }
 
-    pChartFormat c = ChartFormatBase::createFromFile(path, 2356);
-    if (c == nullptr)
-    {
-        LOG_WARNING << "[SongDB] File error: " << path.u8string();
-        addChartLoaded++;
-        return 1;
-    }
-
-    auto s = ChartObjectBase::createFromChartFormat(0, c);
-    if (s == nullptr)
-    {
-        LOG_WARNING << "[SongDB] File parsing error: " << path.u8string();
-        addChartLoaded++;
-        return 1;
-    }
-
-    {
-        std::unique_lock l(addCurrentPathMutex, std::try_to_lock);
-        if (l.owns_lock())
+        pChartFormat c = ChartFormatBase::createFromFile(path, 2356);
+        if (c == nullptr)
         {
-            addCurrentPath = path.u8string();
+            LOG_WARNING << "[SongDB] File error: " << path.u8string();
+            return false;
         }
-    }
 
-    switch (c->type())
-    {
-    case eChartFormat::BMS:
-    {
-        auto bmsc = std::dynamic_pointer_cast<ChartFormatBMS>(c);
-        assert(bmsc != nullptr);
-        if (SQLITE_OK != exec("INSERT INTO song("
-            "md5,parent,type,file,title,title2,artist,artist2,genre,version,"
-            "level,bpm,minbpm,maxbpm,length,totalnotes,stagefile,bannerfile,gamemode,judgerank,"
-            "total,playlevel,difficulty,longnote,landmine,metricmod,stop,bga,random,addtime) "
-            "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);",
+        auto s = ChartObjectBase::createFromChartFormat(0, c);
+        if (s == nullptr)
+        {
+            LOG_WARNING << "[SongDB] File parsing error: " << path.u8string();
+            return false;
+        }
+
+        {
+            std::unique_lock l(addCurrentPathMutex, std::try_to_lock);
+            if (l.owns_lock())
             {
-                c->fileHash.hexdigest(),
-                folder.hexdigest(),
-                int(c->type()),
-                c->filePath.filename().u8string(),
-                c->title,
-                c->title2,
-                c->artist,
-                c->artist2,
-                c->genre,
-                c->version,
-
-                c->levelEstimated,
-                c->startBPM,
-                c->minBPM,
-                c->maxBPM,
-                s->getTotalLength().norm() / 1000,
-                static_cast<int>(s->getNoteTotalCount()),
-                c->stagefile,
-                c->banner,
-                bmsc->gamemode,
-                bmsc->rank,
-
-                bmsc->total,
-                bmsc->playLevel,
-                bmsc->difficulty,
-                bmsc->haveLN,
-                bmsc->haveMine,
-                bmsc->haveMetricMod,
-                bmsc->haveStop,
-                bmsc->haveBGA,
-                bmsc->haveRandom,
-                static_cast<long long>(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count())
-            }))
-        {
-            LOG_WARNING << "[SongDB] Insert into db error: " << path.u8string() << ": " << errmsg();
-            addChartLoaded++;
-            return 1;
+                addCurrentPath = path.u8string();
+            }
         }
-    }
-        break;
 
-    default:
-        break;
-    }
+        switch (c->type())
+        {
+        case eChartFormat::BMS:
+        {
+            auto bmsc = std::dynamic_pointer_cast<ChartFormatBMS>(c);
+            assert(bmsc != nullptr);
+            if (SQLITE_OK == exec("INSERT INTO song("
+                "md5,parent,type,file,title,title2,artist,artist2,genre,version,"
+                "level,bpm,minbpm,maxbpm,length,totalnotes,stagefile,bannerfile,gamemode,judgerank,"
+                "total,playlevel,difficulty,longnote,landmine,metricmod,stop,bga,random,addtime) "
+                "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);",
+                {
+                    c->fileHash.hexdigest(),
+                    folder.hexdigest(),
+                    int(c->type()),
+                    c->filePath.filename().u8string(),
+                    c->title,
+                    c->title2,
+                    c->artist,
+                    c->artist2,
+                    c->genre,
+                    c->version,
 
-    addChartLoaded++;
-    return 0;
+                    c->levelEstimated,
+                    c->startBPM,
+                    c->minBPM,
+                    c->maxBPM,
+                    s->getTotalLength().norm() / 1000,
+                    static_cast<int>(s->getNoteTotalCount()),
+                    c->stagefile,
+                    c->banner,
+                    bmsc->gamemode,
+                    bmsc->rank,
+
+                    bmsc->total,
+                    bmsc->playLevel,
+                    bmsc->difficulty,
+                    bmsc->haveLN,
+                    bmsc->haveMine,
+                    bmsc->haveMetricMod,
+                    bmsc->haveStop,
+                    bmsc->haveBGA,
+                    bmsc->haveRandom,
+                    static_cast<long long>(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count())
+                }))
+            {
+                return true;
+            }
+            else
+            {
+                LOG_WARNING << "[SongDB] Insert chart into db error: " << path.u8string() << ": " << errmsg();
+                return false;
+            }
+            break;
+        }
+        }
+
+        return false;
+    };
+
+    bool ret = closure();
+    if (ret) addChartSuccess++;
+
+    addChartTaskFinishCount++;
+    return ret;
 }
 
-int SongDB::removeChart(const HashMD5& md5)
+bool SongDB::removeChart(const Path& path, const HashMD5& parent)
 {
-    if (SQLITE_OK != exec("DELETE FROM song WHERE md5=?", { md5.hexdigest() }))
+    if (SQLITE_OK != exec("DELETE FROM song WHERE file=? AND parent=?", { path.filename().u8string(), parent.hexdigest()}))
     {
-        LOG_WARNING << "[SongDB] Delete from db error: " << md5.hexdigest() << ": " << errmsg();
-        return 1;
+        LOG_WARNING << "[SongDB] Delete chart from db error: " << path.u8string() << ": " << errmsg();
+        return false;
     }
-    return 0;
+    return true;
+}
+
+bool SongDB::removeChart(const HashMD5& md5, const HashMD5& parent)
+{
+    if (SQLITE_OK != exec("DELETE FROM song WHERE md5=? AND parent=?", { md5.hexdigest(), parent.hexdigest()}))
+    {
+        LOG_WARNING << "[SongDB] Delete chart from db error: " << md5.hexdigest() << ": " << errmsg();
+        return false;
+    }
+    return true;
 }
 
 // search from genre, version, artist, artist2, title, title2
@@ -477,11 +481,9 @@ std::vector<pChartFormat> SongDB::findChartByHash(const HashMD5& target) const
 
 int SongDB::addFolder(Path path, HashMD5 parentHash)
 {
-    addFolderTotal++;
-
     if (parentHash == ROOT_FOLDER_HASH)
     {
-        LOG_INFO << "[SongDB] Add folder: " << path.u8string();
+        LOG_INFO << "[SongDB] Add root folder: " << path.u8string();
     }
 
     path = (path / ".").lexically_normal();
@@ -489,12 +491,12 @@ int SongDB::addFolder(Path path, HashMD5 parentHash)
     if (!fs::exists(path))
     {
         LOG_WARNING << "[SongDB] Add folder fail: folder not exist (" << path.u8string() << ")";
-        return 1;
+        return -1;
     }
     if (!fs::is_directory(path))
     {
         LOG_WARNING << "[SongDB] Add folder fail: path is not folder (" << path.u8string() << ")";
-        return 1;
+        return -1;
     }
 
     if (isParentPath(executablePath, path))
@@ -518,73 +520,39 @@ int SongDB::addFolder(Path path, HashMD5 parentHash)
     int count = 0;
     HashMD5 folderHash = md5(path.u8string());
     long long nowTime = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-    long long folderModTime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(path).time_since_epoch()).count();
+    long long folderModifyTime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(path).time_since_epoch()).count();
+
     if (auto q = query("SELECT pathmd5,type,modtime FROM folder WHERE path=?", 3, { path.u8string() }); !q.empty())
     {
         LOG_DEBUG << "[SongDB] Folder already exists (" << path.u8string() << ")";
 
         std::string folderMD5 = ANY_STR(q[0][0]);
         FolderType folderType = (FolderType)ANY_INT(q[0][1]);
-        long long folderModTimeDB = ANY_INT(q[0][2]);
+        long long folderModifyTimeDB = ANY_INT(q[0][2]);
 
-        if (folderType != FolderType::SONG_BMS || folderModTime > folderModTimeDB)
+        if (folderType == FolderType::SONG_BMS)
         {
-            if (folderModTime > folderModTimeDB)
+            // only update song folder if recently modified
+            if (folderModifyTime > folderModifyTimeDB)
             {
-                LOG_DEBUG << "[SongDB] modification time has changed, refreshing" << " (" << path.u8string() << ")";
+                count = refreshExistingFolder(folderMD5, path, folderType);
             }
+        }
+        else
+        {
+            // step in sub folders
+            count = refreshExistingFolder(folderMD5, path, folderType);
+        }
 
-            count = refreshFolder(folderMD5, path, folderType);
-
-            if (folderModTime > folderModTimeDB || count > 0)
-            {
-                int ret = exec("UPDATE folder SET modtime=? WHERE pathmd5=?", { nowTime, folderMD5 });
-                if (SQLITE_OK != ret)
-                {
-                    LOG_WARNING << "[SongDB] Update modification time fail: [" << ret << "] " << errmsg() << " (" << path.u8string() << ")";
-                }
-            }
+        // update modification time
+        if (int ret = exec("UPDATE folder SET modtime=? WHERE pathmd5=?", { nowTime, folderMD5 }); ret != SQLITE_OK)
+        {
+            LOG_WARNING << "[SongDB] Update modification time fail: [" << ret << "] " << errmsg() << " (" << path.u8string() << ")";
         }
     }
     else
     {
-        auto files = std::filesystem::directory_iterator(path);
-        FolderType type = FolderType::FOLDER;
-        for (auto& f : files)
-        {
-            if (analyzeChartType(f) == eChartFormat::BMS)
-            {
-                type = FolderType::SONG_BMS;
-                break;  // break for
-            }
-            // else ...
-        }
-
-        int ret;
-        auto filename = fs::weakly_canonical(path).filename();
-        if (!parentHash.empty())
-            ret = exec("INSERT INTO folder VALUES(?,?,?,?,?,?)", {
-            folderHash.hexdigest(),
-            parentHash.hexdigest(),
-            filename.u8string(),
-            (int)type,
-            path.u8string(),
-            folderModTime });
-        else
-            ret = exec("INSERT INTO folder VALUES(?,?,?,?,?,?)", {
-            folderHash.hexdigest(),
-            nullptr,
-            filename.u8string(),
-            (int)type,
-            path.u8string(),
-            folderModTime });
-        if (SQLITE_OK != ret)
-        {
-            LOG_WARNING << "[SongDB] Add folder fail: [" << ret << "] " << errmsg() << " (" << path.u8string() << ")";
-            return 1;
-        }
-
-        count = addFolderCharts(folderHash, path);
+        count = addNewFolder(folderHash, path, parentHash);
     }
 
     if (parentHash == ROOT_FOLDER_HASH)
@@ -592,20 +560,82 @@ int SongDB::addFolder(Path path, HashMD5 parentHash)
         LOG_INFO << "[SongDB] " << path.u8string() << ": added " << count << " entries";
     }
 
-    addFolderLoaded++;
-
     return count;
 }
 
-int SongDB::addFolderCharts(const HashMD5& hash, const Path& path)
+int SongDB::removeFolder(const HashMD5& hash, bool removeSong)
 {
-    LOG_DEBUG << "[SongDB] Adding contents of " << path.u8string();
+    if (removeSong)
+    {
+        if (SQLITE_OK != exec("DELETE FROM song WHERE parent=?", { hash.hexdigest() }))
+            LOG_WARNING << "[SongDB] remove song from db error: " << errmsg();
+    }
+
+    return exec("DELETE FROM folder WHERE pathmd5=?", { hash.hexdigest() });
+}
+
+void SongDB::waitLoadingFinish()
+{
+    boost::asio::thread_pool& pool = DBThreadPool[this];
+    pool.join();
+
+    // The old pool is not valid anymore, recreate
+    DBThreadPool.erase(this);
+    DBThreadPool.emplace(this, std::thread::hardware_concurrency() - 1);
+}
+
+
+int SongDB::addNewFolder(const HashMD5& hash, const Path& path, const HashMD5& parentHash)
+{
+    LOG_DEBUG << "[SongDB] Adding new folder " << path.u8string();
+
+    FolderType type = FolderType::FOLDER;
+    for (auto& f : std::filesystem::directory_iterator(path))
+    {
+        if (analyzeChartType(f) == eChartFormat::BMS)
+        {
+            type = FolderType::SONG_BMS;
+            break;  // break for
+        }
+        // else ...
+    }
+
+    int ret;
+    auto folderName = fs::weakly_canonical(path).filename();
+    long long folderModifyTime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(path).time_since_epoch()).count();
+    if (!parentHash.empty())
+    {
+        ret = exec("INSERT INTO folder VALUES(?,?,?,?,?,?)", {
+            hash.hexdigest(),
+            parentHash.hexdigest(),
+            folderName.u8string(),
+            (int)type,
+            path.u8string(),
+            folderModifyTime });
+    }
+    else
+    {
+        ret = exec("INSERT INTO folder VALUES(?,?,?,?,?,?)", {
+            hash.hexdigest(),
+            nullptr,
+            folderName.u8string(),
+            (int)type,
+            path.u8string(),
+            folderModifyTime });
+    }
+    if (SQLITE_OK != ret)
+    {
+        LOG_WARNING << "[SongDB] Insert folder into db fail: [" << ret << "] " << errmsg() << " (" << path.u8string() << ")";
+        return -1;
+    }
 
     int count = 0;
 
     bool isSongFolder = false;
-    for (auto& f : fs::directory_iterator(path))
+    for (const auto& f : fs::directory_iterator(path))
     {
+        if (stopRequested) break;
+
         if (analyzeChartType(f) != eChartFormat::UNKNOWN)
         {
             isSongFolder = true;
@@ -614,20 +644,17 @@ int SongDB::addFolderCharts(const HashMD5& hash, const Path& path)
     }
 
     std::vector<Path> subFolderList;
-
     for (const auto& f : fs::directory_iterator(path))
     {
-        if (stopRequested)
-        {
-            break;
-        }
+        if (stopRequested) break;
+
         if (!isSongFolder && fs::is_directory(f))
         {
             subFolderList.push_back(f);
         }
         else if (isSongFolder && analyzeChartType(f) != eChartFormat::UNKNOWN)
         {
-            addChartTotal++;
+            addChartTaskCount++;
             boost::asio::thread_pool& pool = DBThreadPool[this];
             boost::asio::post(pool, std::bind(&SongDB::addChart, this, hash, f));
             ++count;
@@ -636,20 +663,17 @@ int SongDB::addFolderCharts(const HashMD5& hash, const Path& path)
 
     for (const auto& sub : subFolderList)
     {
-        if (stopRequested)
-        {
-            break;
-        }
-        if (0 == addFolder(sub, hash))
-        {
-            ++count;
-        }
+        if (stopRequested) break;
+
+        int addedCount = addFolder(sub, hash);
+        if (addedCount > 0)
+            count += addedCount;
     }
 
     return count;
 }
 
-int SongDB::refreshFolder(const HashMD5& hash, const Path& path, FolderType type)
+int SongDB::refreshExistingFolder(const HashMD5& hash, const Path& path, FolderType type)
 {
     LOG_DEBUG << "[SongDB] Refreshing contents of " << path.u8string();
 
@@ -698,18 +722,41 @@ int SongDB::refreshFolder(const HashMD5& hash, const Path& path, FolderType type
         if (!existedFiles.empty())
         {
             std::vector<HashMD5> deletedFiles;
+            std::vector<Path> modifiedFiles;
+
             for (size_t i = 0; i < existedList->getContentsCount(); ++i)
             {
                 pChartFormat chart = existedList->getChart(i);
                 if (!fs::exists(chart->absolutePath))
+                {
                     deletedFiles.push_back(chart->fileHash);
+                }
+                else if (md5file(chart->absolutePath) != chart->fileHash)
+                {
+                    modifiedFiles.push_back(chart->absolutePath);
+                }
             }
 
             for (auto& chartMD5 : deletedFiles)
             {
-                if (SQLITE_OK != exec("DELETE FROM song WHERE md5=? AND parent=?", { chartMD5.hexdigest(), hash.hexdigest() }))
-                    LOG_WARNING << "[SongDB] remove song from db error: " << errmsg();
+                if (removeChart(chartMD5, hash))
+                {
+                    addChartDeleted++;
+                }
             }
+
+            for (auto& chartPath : modifiedFiles)
+            {
+                if (removeChart(chartPath, hash))
+                {
+                    addChartModified++;
+                }
+            }
+
+            // remove modified files from existedFiles, and add again below
+            std::vector<Path> existedFilesReal;
+            std::set_difference(existedFiles.begin(), existedFiles.end(), modifiedFiles.begin(), modifiedFiles.end(), std::back_inserter(existedFilesReal));
+            std::swap(existedFiles, existedFilesReal);
         }
 
         // only add new entries
@@ -721,7 +768,7 @@ int SongDB::refreshFolder(const HashMD5& hash, const Path& path, FolderType type
             {
                 break;
             }
-            addChartTotal++;
+            addChartTaskCount++;
             boost::asio::thread_pool& pool = DBThreadPool[this];
             boost::asio::post(pool, std::bind(&SongDB::addChart, this, hash, p));
             count++;
@@ -755,8 +802,7 @@ int SongDB::refreshFolder(const HashMD5& hash, const Path& path, FolderType type
 
             for (auto& folderMD5 : deletedFiles)
             {
-                if (SQLITE_OK != exec("DELETE FROM folder WHERE pathmd5=? AND parent=?", { folderMD5.hexdigest(), hash.hexdigest() }))
-                    LOG_WARNING << "[SongDB] remove folder from db error: " << errmsg();
+                removeFolder(folderMD5);
             }
         }
 
@@ -771,13 +817,18 @@ int SongDB::refreshFolder(const HashMD5& hash, const Path& path, FolderType type
                 break;
             }
             if (fs::is_directory(f))
-                count += addFolder(f, hash);
+            {
+                int addedCount = addFolder(f, hash);
+                if (addedCount > 0)
+                    count += addedCount;
+            }
         }
 
         LOG_DEBUG << "[SongDB] Checked " << count << " (" << path.u8string() << ")";
         return count;
     }
 }
+
 
 HashMD5 SongDB::getFolderParent(const Path& path) const
 {
@@ -796,27 +847,6 @@ HashMD5 SongDB::getFolderParent(const Path& path) const
     }
 
     return "";
-}
-
-int SongDB::removeFolder(const HashMD5& hash, bool removeSong)
-{
-    if (removeSong)
-    {
-        if (SQLITE_OK != exec("DELETE FROM song WHERE parent=?", { hash.hexdigest() }))
-            LOG_WARNING << "[SongDB] remove song from db error: " << errmsg();
-    }
-
-    return exec("DELETE FROM folder WHERE pathmd5=?", { hash.hexdigest() });
-}
-
-void SongDB::waitLoadingFinish()
-{
-    boost::asio::thread_pool& pool = DBThreadPool[this];
-    pool.join();
-
-    // The old pool is not valid anymore, recreate
-    DBThreadPool.erase(this);
-    DBThreadPool.emplace(this, std::thread::hardware_concurrency() - 1);
 }
 
 HashMD5 SongDB::getFolderParent(const HashMD5& folder) const
@@ -1016,10 +1046,11 @@ EntryFolderRegular SongDB::search(HashMD5 root, std::string key)
 
 void SongDB::resetAddSummary()
 {
-    addFolderLoaded = 0;
-    addFolderTotal = 0;
-    addChartLoaded = 0;
-    addChartTotal = 0;
+    addChartTaskCount = 0;
+    addChartTaskFinishCount = 0;
+    addChartSuccess = 0;
+    addChartModified = 0;
+    addChartDeleted = 0;
     addCurrentPath.clear();
 }
 

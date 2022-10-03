@@ -80,15 +80,15 @@ void ScenePreSelect::updateLoadSongs()
             });
     }
 
-    if (g_pSongDB->addChartLoaded != prevChartLoaded)
+    if (g_pSongDB->addChartTaskFinishCount != prevChartLoaded)
     {
         std::shared_lock l(g_pSongDB->addCurrentPathMutex);
 
-        prevChartLoaded = g_pSongDB->addChartLoaded;
+        prevChartLoaded = g_pSongDB->addChartTaskFinishCount;
         textHint = (
             boost::format("Loading [%d/%d]:")
-                % g_pSongDB->addChartLoaded
-                % g_pSongDB->addChartTotal
+                % g_pSongDB->addChartTaskFinishCount
+                % g_pSongDB->addChartTaskCount
             ).str();
         textHint2 = g_pSongDB->addCurrentPath;
         gTexts.set(eText::_OVERLAY_TOPLEFT, textHint);
