@@ -548,12 +548,12 @@ void random_type(int player, int plus)
     gOptions.set(op, val);
     switch (val)
     {
-    case 0: gPlayContext.mods[slot].randomLeft = eModRandom::NONE;    gTexts.set(tx, "NORMAL");   break;
-    case 1: gPlayContext.mods[slot].randomLeft = eModRandom::MIRROR;  gTexts.set(tx, "MIRROR");   break;
-    case 2: gPlayContext.mods[slot].randomLeft = eModRandom::RANDOM;  gTexts.set(tx, "RANDOM");   break;
-    case 3: gPlayContext.mods[slot].randomLeft = eModRandom::SRAN;    gTexts.set(tx, "S-RANDOM"); break;
-    case 4: gPlayContext.mods[slot].randomLeft = eModRandom::HRAN;    gTexts.set(tx, "H-RANDOM"); break;
-    case 5: gPlayContext.mods[slot].randomLeft = eModRandom::ALLSCR;  gTexts.set(tx, "ALL-SCR");  break;
+    case 0: gTexts.set(tx, "NORMAL");   break;
+    case 1: gTexts.set(tx, "MIRROR");   break;
+    case 2: gTexts.set(tx, "RANDOM");   break;
+    case 3: gTexts.set(tx, "S-RANDOM"); break;
+    case 4: gTexts.set(tx, "H-RANDOM"); break;
+    case 5: gTexts.set(tx, "ALL-SCR");  break;
     default: break;
     }
 

@@ -559,7 +559,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                         break;
                     }
 
-                    switch (gPlayContext.mods[_playerSlot].randomLeft)
+                    switch (laneArea == 0 ? gPlayContext.mods[_playerSlot].randomLeft : gPlayContext.mods[_playerSlot].randomRight)
                     {
                     case eModRandom::SRAN:
                         if (gameLaneIdx != Sc1 && gameLaneIdx != Sc2)
@@ -636,20 +636,26 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                         constexpr int threshold_ms = 250;       // try not to make keyboard jacks
                         size_t laneScratch;
                         int laneStep;
-
+                        
                         if (laneArea == 0)
                         {
-                            laneStep = 1;
+                            laneStep = -1;
                             laneScratch = Sc1;
                         }
                         else
                         {
-                            laneStep = -1;
+                            // apply MIRROR (put notes from lane 1 to lane 7)
+                            laneStep = 1;
                             std::swap(laneMin, laneMax);
                             laneScratch = Sc2;
                         }
 
-                        // FIXME 2p side SP all-scr should reverse the lanes
+                        if (isChartDP)
+                        {
+                            // for DP, put notes from scratch-side keys prior
+                            laneStep = -laneStep;
+                            std::swap(laneMin, laneMax);
+                        }
 
                         if (_noteLists[laneScratch].empty())
                             gameLaneIdxMod = laneScratch;
@@ -661,23 +667,27 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                             else
                             {
                                 bool availableLaneFound = false;
-                                for (NoteLaneIndex i = (NoteLaneIndex)laneMin; i != (NoteLaneIndex)laneMax + laneStep; *(size_t*)&i += laneStep)
+                                for (size_t i = laneMax; i != laneMin + laneStep; i += laneStep)
                                 {
-                                    if (_noteLists[channelToIdx(NoteLaneCategory::Note, i)].empty())
+                                    if (laneOccupiedByLN[i])
                                     {
-                                        gameLaneIdxMod = i;
-                                        availableLaneFound = true;
                                         continue;
                                     }
-                                    else
-                                    {
-                                    auto lastNote = --_noteLists[channelToIdx(NoteLaneCategory::Note, i)].end();
-                                    if (notetime - lastNote->time >= threshold_ms && !laneOccupiedByLN[i])
+                                    if (_noteLists[channelToIdx(NoteLaneCategory::Note, i)].empty())
                                     {
                                         gameLaneIdxMod = i;
                                         availableLaneFound = true;
                                         break;
                                     }
+                                    else
+                                    {
+                                        auto lastNote = --_noteLists[channelToIdx(NoteLaneCategory::Note, i)].end();
+                                        if (notetime - lastNote->time >= threshold_ms && !laneOccupiedByLN[i])
+                                        {
+                                            gameLaneIdxMod = i;
+                                            availableLaneFound = true;
+                                            break;
+                                        }
                                     }
                                 }
                                 if (!availableLaneFound)

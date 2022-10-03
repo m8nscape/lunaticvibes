@@ -1155,7 +1155,9 @@ void SceneSelect::inputGamePressPanel(InputMask& input, const Time& t)
                 if (input[Pad::K17]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, 1);
             }
 
-            if (gOptions.get(eOption::PLAY_BATTLE_TYPE) == 1)
+            if (gOptions.get(eOption::PLAY_MODE) == Option::PLAY_MODE_DOUBLE ||
+                gOptions.get(eOption::PLAY_MODE) == Option::PLAY_MODE_DOUBLE_BATTLE ||
+                gOptions.get(eOption::PLAY_MODE) == Option::PLAY_MODE_DP_GHOST_BATTLE)
             {
                 // 1: KEYS
                 if (input[Pad::K21]) lr2skin::button::select_keys_filter(1);
