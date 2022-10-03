@@ -1386,7 +1386,10 @@ public:
     SkinLR2() = delete;
     SkinLR2(Path p, bool headerOnly = false);
     virtual ~SkinLR2();
+
+protected:
     void loadCSV(Path p, bool headerOnly = false);
+    void postLoad();
 
 protected:
     static constexpr size_t BAR_ENTRY_SPRITE_COUNT = 32;
@@ -1402,6 +1405,12 @@ protected:
 protected:
     std::vector<std::pair<std::shared_ptr<SpriteLaneVertical>, std::shared_ptr<SpriteLaneVertical>>> _laneSprites;  // { normal, auto }
     std::map<std::string, pFont>  _fontNameMap;
+
+protected:
+    std::list<pSprite> spritesMoveWithLift1P;
+    std::list<pSprite> spritesMoveWithLift2P;
+    Rect judgeLineRect1P;
+    Rect judgeLineRect2P;
 
 protected:
     typedef std::shared_ptr<SpriteLine> psLine;

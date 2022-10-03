@@ -223,6 +223,23 @@ void vSprite::appendKeyFrame(const RenderKeyFrame& f)
     _keyFrames.push_back(f);
 }
 
+void vSprite::moveAfterUpdate(int x, int y)
+{
+    _current.rect.x += x;
+    _current.rect.y += y;
+
+    auto updateChildLambda = [&](std::weak_ptr<vSprite> p) { if (!p.expired()) p.lock()->moveAfterUpdate(x, y); };
+
+    // children under the same level can be shuffled
+#ifdef _DEBUG
+    std::for_each(std::execution::par_unseq, _children.begin(), _children.end(), updateChildLambda);
+#else
+    std::for_each(std::execution::par_unseq, _children.begin(), _children.end(), updateChildLambda);
+#endif
+
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 // Static
 
@@ -793,6 +810,16 @@ void SpriteNumber::draw() const
                 _pTexture->draw(_texRect[_currAnimFrame * _selections + _digit[i]], _rects[i],
                     _current.color, _current.blend, _current.filter, _current.angle);
         }
+    }
+}
+
+void SpriteNumber::moveAfterUpdate(int x, int y)
+{
+    vSprite::moveAfterUpdate(x, y);
+    for (auto& d : _rects)
+    {
+        d.x += x;
+        d.y += y;
     }
 }
 

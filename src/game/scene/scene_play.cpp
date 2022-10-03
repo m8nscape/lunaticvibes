@@ -74,6 +74,7 @@ int getLanecoverBottom(int slot)
     {
     case Option::LANE_SUDHID:  return gNumbers.get(lcTopInd);
     case Option::LANE_HIDDEN:
+    case Option::LANE_LIFT:
     case Option::LANE_LIFTSUD: return gNumbers.get(lcBottomInd);
     }
     return 0;
@@ -687,7 +688,7 @@ bool ScenePlay::createRuleset()
                 gPlayContext.replayNew->randomTypeRight = gPlayContext.mods[PLAYER_SLOT_PLAYER].randomRight;
                 gPlayContext.replayNew->assistMask = gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask;
                 gPlayContext.replayNew->hispeedFix = gPlayContext.mods[PLAYER_SLOT_PLAYER].hispeedFix;
-                gPlayContext.replayNew->laneEffectType = gPlayContext.mods[PLAYER_SLOT_PLAYER].visual_mask;
+                gPlayContext.replayNew->laneEffectType = (int8_t)gPlayContext.mods[PLAYER_SLOT_PLAYER].laneEffect;
                 if (gSwitches.get(eSwitch::SOUND_PITCH))
                 {
                     gPlayContext.replayNew->pitchType = (int8_t)gOptions.get(eOption::SOUND_PITCH_TYPE);
@@ -1178,17 +1179,13 @@ void ScenePlay::_updateAsync()
                 break;
 
             case Option::LANE_LIFT:
+                gNumbers.queue(eNumber::LANECOVER_BOTTOM_1P, lc);
+                break;
+
             case Option::LANE_LIFTSUD:
-                if (gSwitches.get(eSwitch::P1_LANECOVER_ENABLED))
-                {
-                    gNumbers.queue(eNumber::LANECOVER_TOP_1P, lc);
-                    gNumbers.queue(eNumber::LANECOVER100_1P, lc / 10);
-                    gSliders.queue(eSlider::SUD_1P, lc / 1000.0);
-                }
-                else
-                {
-                    gNumbers.queue(eNumber::LANECOVER_BOTTOM_1P, lc);
-                }
+                gNumbers.queue(eNumber::LANECOVER_TOP_1P, lc);
+                gNumbers.queue(eNumber::LANECOVER100_1P, lc / 10);
+                gSliders.queue(eSlider::SUD_1P, lc / 1000.0);
                 break;
             }
 
@@ -2562,8 +2559,8 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
             }
             gOptions.set(eOption::PLAY_LANE_EFFECT_TYPE_1P, lcType);
 
-            int lcTop = ConfigMgr::get('P', cfg::P_LANECOVER_TOP, 0);
-            int lcBottom = ConfigMgr::get('P', cfg::P_LANECOVER_BOTTOM, 0);
+            int lcTop = gNumbers.get(eNumber::LANECOVER_TOP_1P);
+            int lcBottom = gNumbers.get(eNumber::LANECOVER_BOTTOM_1P);
             double sud = lcTop / 1000.0;
             double hid = lcBottom / 1000.0;
 
@@ -2854,7 +2851,7 @@ void ScenePlay::inputGameHold(InputMask& m, const Time& t)
     if (input[S2R]) _ttAngleDiff[PLAYER_SLOT_TARGET] += 0.5;
 
     // lanecover
-    if (gSwitches.get(eSwitch::P1_LANECOVER_ENABLED))
+    if (gSwitches.get(eSwitch::P1_LANECOVER_ENABLED) || gOptions.get(eOption::PLAY_LANE_EFFECT_TYPE_1P) == Option::LANE_LIFT)
     {
         if (_isHoldingStart[PLAYER_SLOT_PLAYER])
         {
@@ -2871,7 +2868,7 @@ void ScenePlay::inputGameHold(InputMask& m, const Time& t)
             }
         }
     }
-    if (isPlaymodeBattle() && gSwitches.get(eSwitch::P2_LANECOVER_ENABLED))
+    if (isPlaymodeBattle() && gSwitches.get(eSwitch::P2_LANECOVER_ENABLED) || gOptions.get(eOption::PLAY_LANE_EFFECT_TYPE_2P) == Option::LANE_LIFT)
     {
         if (_isHoldingStart[PLAYER_SLOT_TARGET])
         {

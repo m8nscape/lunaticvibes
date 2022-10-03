@@ -209,6 +209,9 @@ struct UpdateContextParams
     // vSkin / Sprite
     double metre;
     unsigned bar;
+
+    int liftHeight1P = 0;
+    int liftHeight2P = 0;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -155,9 +155,15 @@ enum class eModHs : uint8_t
     CONSTANT,
 };
 
-inline const uint8_t PLAY_MOD_VISUAL_SUD        = 1 << 0;
-inline const uint8_t PLAY_MOD_VISUAL_HID        = 1 << 1;
-inline const uint8_t PLAY_MOD_VISUAL_LIFT       = 1 << 2;
+enum class eModLaneEffect : uint8_t
+{
+    OFF,
+    HIDDEN,
+    SUDDEN,
+    SUDHID,
+    LIFT,
+    LIFTSUD,
+};
 
 struct PlayMod
 {
@@ -166,7 +172,7 @@ struct PlayMod
     eModGauge gauge = eModGauge::NORMAL;
     uint8_t assist_mask = 0;
     eModHs hispeedFix = eModHs::NONE;
-    uint8_t visual_mask = 0;
+    eModLaneEffect laneEffect = eModLaneEffect::OFF;
     bool DPFlip = false;
 
     void clear()
@@ -176,7 +182,7 @@ struct PlayMod
         gauge = eModGauge::NORMAL;
         assist_mask = 0;
         hispeedFix = eModHs::NONE;
-        visual_mask = 0;
+        laneEffect = eModLaneEffect::OFF;
         DPFlip = false;
     }
 };

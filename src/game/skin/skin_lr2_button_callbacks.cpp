@@ -610,7 +610,7 @@ void lane_effect(int player, int plus)
     }
 
     // 
-    int val = (gOptions.get(op) + 4 + plus) % 4;
+    int val = (gOptions.get(op) + 6 + plus) % 6;
     gOptions.set(op, val);
     switch (val)
     {
@@ -618,8 +618,8 @@ void lane_effect(int player, int plus)
     case 1: gTexts.set(tx, "HIDDEN+"); break;
     case 2: gTexts.set(tx, "SUDDEN+"); break;
     case 3: gTexts.set(tx, "SUD+&HID+"); break;
-    //case 4: gTexts.set(tx, "LIFT"); break;
-    //case 5: gTexts.set(tx, "LIFT&SUD+"); break;
+    case 4: gTexts.set(tx, "LIFT"); break;
+    case 5: gTexts.set(tx, "LIFT&SUD+"); break;
     default: break;
     }
 

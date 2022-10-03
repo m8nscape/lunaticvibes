@@ -2076,6 +2076,20 @@ bool SkinLR2::DST()
                 default: break;
                 }
                 break;
+
+            case DefType::JUDGELINE:
+                if (d._null == 0)
+                {
+                    judgeLineRect1P = Rect(d.x, d.y, d.w, d.h);
+                    if (d.w < 0) { judgeLineRect1P.x += d.w; judgeLineRect1P.w = -d.w; }
+                    if (d.h < 0) { judgeLineRect1P.y += d.h; judgeLineRect1P.h = -d.h; }
+                }
+                else
+                {
+                    judgeLineRect2P = Rect(d.x, d.y, d.w, d.h);
+                    if (d.w < 0) { judgeLineRect2P.x += d.w; judgeLineRect2P.w = -d.w; }
+                    if (d.h < 0) { judgeLineRect2P.y += d.h; judgeLineRect2P.h = -d.h; }
+                }
             }
 
             std::vector<dst_option> opEx;
@@ -2820,6 +2834,10 @@ SkinLR2::SkinLR2(Path p, bool headerOnly)
     _laneSprites.resize(chart::LANE_COUNT);
     updateDstOpt();
     loadCSV(p, headerOnly);
+    postLoad();
+
+    LOG_DEBUG << "[Skin] File: " << p.u8string() << "(Line " << csvLineNumber << "): Body loading finished";
+    _loaded = true;
 
     startSpriteVideoPlayback();
 }
@@ -2967,27 +2985,32 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
             else
                 parseBody(tokens);
         }
+    }
 
-        // set barcenter
-        if (barCenter < _barSprites.size())
+    csvLineNumber = srcLineNumberParent;
+}
+
+void SkinLR2::postLoad()
+{
+    // set barcenter
+    if (barCenter < _barSprites.size())
+    {
+        _barSprites[barCenter]->drawFlash = true;
+
+        if (gResetSelectCursor)
         {
-            _barSprites[barCenter]->drawFlash = true;
-
-            if (gResetSelectCursor)
-            {
-                gResetSelectCursor = false;
-                gSelectContext.cursor = barCenter;
-            }
+            gResetSelectCursor = false;
+            gSelectContext.cursor = barCenter;
         }
+    }
 
-        // set note area height
-        for (auto& s : _sprites)
+    // set note area height
+    for (auto& s : _sprites)
+    {
+        auto pS = std::dynamic_pointer_cast<SpriteLaneVertical>(s);
+        if (pS != nullptr)
         {
-            auto pS = std::dynamic_pointer_cast<SpriteLaneVertical>(s);
-            if (pS != nullptr)
-            {
-                pS->setHeight(500);
-            }
+            pS->setHeight(500);
         }
     }
 
@@ -3073,27 +3096,70 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
                 if (_laneSprites[idx].second != nullptr) _laneSprites[idx].second->setHIDDENCompatible();
             }
         }
-    }
-
-
-    LOG_DEBUG << "[Skin] File: " << p.u8string() << "(Line " << csvLineNumber << "): Body loading finished";
-    _loaded = true;
-
-    /*
-    loadImages();
-    convertImageToTexture();
-    for (auto& e : elements)
-    {
-        if (e && e->type() != elementType::TEXT)
+        idx = channelToIdx(NoteLaneCategory::EXTRA, NoteLaneExtra::EXTRA_BARLINE_1P);
+        if (idx != LANE_INVALID)
         {
-            createSprite(*e);
+            if (_laneSprites[idx].first != nullptr) _laneSprites[idx].first->setHIDDENCompatible();
+            if (_laneSprites[idx].second != nullptr) _laneSprites[idx].second->setHIDDENCompatible();
+        }
+        idx = channelToIdx(NoteLaneCategory::EXTRA, NoteLaneExtra::EXTRA_BARLINE_2P);
+        if (idx != LANE_INVALID)
+        {
+            if (_laneSprites[idx].first != nullptr) _laneSprites[idx].first->setHIDDENCompatible();
+            if (_laneSprites[idx].second != nullptr) _laneSprites[idx].second->setHIDDENCompatible();
         }
     }
-    */
 
-    csvLineNumber = srcLineNumberParent;
+    // LIFT:
+    // the following conditions are based on black box testing on LR2
+    // 
+    // SRC_IMAGE:
+    //  JUDGELINE.x - 5  <= x <= JUDGELINE.x + 5
+    //  JUDGELINE.w - 10 <= w <= JUDGELINE.w + 10
+    //  y <= JUDGELINE.y
+    //
+    // SRC_IMAGE with bomb timers:
+    //  did not found any obvious conditions
+    // 
+    // SRC_IMAGE with key input timers:
+    //  h >= 100
+    for (auto& s : _sprites)
+    {
+        if (s->isKeyFrameEmpty()) continue;
+        if (s->type() != SpriteTypes::ANIMATED) continue;
+
+        const Rect& rcFirst = s->_keyFrames.front().param.rect;
+        const Rect& rcLast = s->_keyFrames.back().param.rect;
+        int timer = (int)s->_triggerTimer;
+        if (timer >= 100 && timer <= 109 || timer >= 120 && timer <= 129 ||
+            timer >= 50 && timer <= 59 || timer >= 70 && timer <= 79 ||
+            timer == (int)eTimer::S1L_DOWN || timer == (int)eTimer::S1L_UP || timer == (int)eTimer::S1R_DOWN || timer == (int)eTimer::S1R_UP)
+        {
+            if (rcFirst.h <= -100 || rcFirst.h >= 100 || rcLast.h <= -100 || rcLast.h >= 100)
+                spritesMoveWithLift1P.push_back(s);
+        }
+        else if (timer >= 110 && timer <= 119 || timer >= 130 && timer <= 139 ||
+            timer >= 60 && timer <= 69 || timer >= 80 && timer <= 89 ||
+            timer == (int)eTimer::S2L_DOWN || timer == (int)eTimer::S2L_UP || timer == (int)eTimer::S2R_DOWN || timer == (int)eTimer::S2R_UP)
+        {
+            if (rcFirst.h <= -100 || rcFirst.h >= 100 || rcLast.h <= -100 || rcLast.h >= 100)
+                spritesMoveWithLift2P.push_back(s);
+        }
+        else if (judgeLineRect1P.x - 5 <= rcFirst.x && rcFirst.x <= judgeLineRect1P.x + 5 &&
+            judgeLineRect1P.w - 10 <= rcFirst.w && rcFirst.w <= judgeLineRect1P.w + 10 &&
+            rcFirst.y <= judgeLineRect1P.y)
+        {
+            spritesMoveWithLift1P.push_back(s);
+        }
+        else if (judgeLineRect2P.x - 5 <= rcFirst.x && rcFirst.x <= judgeLineRect2P.x + 5 &&
+            judgeLineRect2P.w - 10 <= rcFirst.w && rcFirst.w <= judgeLineRect2P.w + 10 &&
+            rcFirst.y <= judgeLineRect2P.y)
+        {
+            spritesMoveWithLift2P.push_back(s);
+        }
+    }
+
 }
-
 
 //////////////////////////////////////////////////
 
@@ -3144,11 +3210,12 @@ void SkinLR2::update()
     // 18-23: NOWCOMBO 2P
     for (size_t i = 0; i < 6; ++i)
     {
-        if (gSprites[i] && gSprites[i + 6] && gSprites[i]->_draw && gSprites[i + 6]->_draw)
+        // 1P judge
+        if (gSprites[i] && gSprites[i + 6] && gSprites[i]->isDraw() && gSprites[i + 6]->isDraw())
         {
             std::shared_ptr<SpriteAnimated> judge = std::reinterpret_pointer_cast<SpriteAnimated>(gSprites[i]);
             std::shared_ptr<SpriteNumber> combo = std::reinterpret_pointer_cast<SpriteNumber>(gSprites[i + 6]);
-            if (judge->isDraw())
+            if (judge->isDraw() && !judge->isHidden())
             {
                 combo->setHide(false);
 
@@ -3171,11 +3238,12 @@ void SkinLR2::update()
                 combo->setHide(true);
             }
         }
-        if (gSprites[i + 12] && gSprites[i + 18] && gSprites[i + 12]->_draw && gSprites[i + 18]->_draw)
+        // 2P judge
+        if (gSprites[i + 12] && gSprites[i + 18] && gSprites[i + 12]->isDraw() && gSprites[i + 18]->isDraw())
         {
             std::shared_ptr<SpriteAnimated> judge = std::reinterpret_pointer_cast<SpriteAnimated>(gSprites[i + 12]);
             std::shared_ptr<SpriteNumber> combo = std::reinterpret_pointer_cast<SpriteNumber>(gSprites[i + 18]);
-            if (judge->isDraw())
+            if (judge->isDraw() && !judge->isHidden())
             {
                 combo->setHide(false);
 
@@ -3198,6 +3266,96 @@ void SkinLR2::update()
                 combo->setHide(true);
             }
         }
+    }
+
+    // LIFT: move judgeline, nowjudge, nowcombo
+    // 0-5:   NOWJUDGE 1P
+    // 6-11:  NOWCOMBO 1P
+    // 12-17: NOWJUDGE 2P
+    // 18-23: NOWCOMBO 2P
+    // 26: GLOBAL_SPRITE_IDX_1PJUDGELINE
+    // 27: GLOBAL_SPRITE_IDX_2PJUDGELINE
+    int lift1P = 0, lift2P = 0;
+    if (gPlayContext.mods[PLAYER_SLOT_PLAYER].laneEffect == eModLaneEffect::LIFT ||
+        gPlayContext.mods[PLAYER_SLOT_PLAYER].laneEffect == eModLaneEffect::LIFTSUD)
+    {
+        lift1P = (gNumbers.get(eNumber::LANECOVER_BOTTOM_1P) / 1000.0) * info.noteLaneHeight1P;
+        if (gPlayContext.mode == eMode::PLAY10 || gPlayContext.mode == eMode::PLAY14)
+            lift2P = (gNumbers.get(eNumber::LANECOVER_BOTTOM_1P) / 1000.0) * info.noteLaneHeight2P;
+    }
+    if (gPlayContext.isBattle && 
+        (gPlayContext.mods[PLAYER_SLOT_TARGET].laneEffect == eModLaneEffect::LIFT ||
+         gPlayContext.mods[PLAYER_SLOT_TARGET].laneEffect == eModLaneEffect::LIFTSUD))
+    {
+        lift2P = (gNumbers.get(eNumber::LANECOVER_BOTTOM_2P) / 1000.0) * info.noteLaneHeight2P;
+    }
+    gUpdateContext.liftHeight1P = lift1P;
+    gUpdateContext.liftHeight2P = lift2P;
+    if (lift1P > 0)
+    {
+        for (size_t i = 0; i < 6; ++i)
+        {
+            if (gSprites[i])
+            {
+                std::shared_ptr<SpriteAnimated> judge = std::reinterpret_pointer_cast<SpriteAnimated>(gSprites[i]);
+                if (judge->isDraw() && !judge->isHidden())
+                {
+                    judge->moveAfterUpdate(0, -lift1P);
+                }
+            }
+            if (gSprites[i + 6])
+            {
+                std::shared_ptr<SpriteNumber> combo = std::reinterpret_pointer_cast<SpriteNumber>(gSprites[i + 6]);
+                if (combo->isDraw() && !combo->isHidden())
+                {
+                    combo->moveAfterUpdate(0, -lift1P);
+                }
+            }
+        }
+        std::shared_ptr<SpriteAnimated> judgeLine = std::reinterpret_pointer_cast<SpriteAnimated>(gSprites[GLOBAL_SPRITE_IDX_1PJUDGELINE]);
+        if (judgeLine && judgeLine->isDraw() && !judgeLine->isHidden())
+        {
+            judgeLine->moveAfterUpdate(0, -lift1P);
+        }
+    }
+    if (lift2P > 0)
+    {
+        for (size_t i = 0; i < 6; ++i)
+        {
+            if (gSprites[i + 12])
+            {
+                std::shared_ptr<SpriteAnimated> judge = std::reinterpret_pointer_cast<SpriteAnimated>(gSprites[i + 12]);
+                if (judge->isDraw() && !judge->isHidden())
+                {
+                    judge->moveAfterUpdate(0, -lift2P);
+                }
+            }
+            if (gSprites[i + 18])
+            {
+                std::shared_ptr<SpriteNumber> combo = std::reinterpret_pointer_cast<SpriteNumber>(gSprites[i + 18]);
+                if (combo->isDraw() && !combo->isHidden())
+                {
+                    combo->moveAfterUpdate(0, -lift2P);
+                }
+            }
+        }
+        std::shared_ptr<SpriteAnimated> judgeLine = std::reinterpret_pointer_cast<SpriteAnimated>(gSprites[GLOBAL_SPRITE_IDX_2PJUDGELINE]);
+        if (judgeLine && judgeLine->isDraw() && !judgeLine->isHidden())
+        {
+            judgeLine->moveAfterUpdate(0, -lift2P);
+        }
+    }
+
+    // LIFT: sprites
+    if (lift1P > 0)
+    {
+        for (auto& s : spritesMoveWithLift1P)
+            s->moveAfterUpdate(0, -lift1P);
+    }
+    if (lift2P > 0)
+    {
+        for (auto& s : spritesMoveWithLift2P)
+            s->moveAfterUpdate(0, -lift2P);
     }
 
     // update songlist bar

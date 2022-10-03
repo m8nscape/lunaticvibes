@@ -1411,6 +1411,10 @@ void SceneSelect::_decide()
         gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask |= gSwitches.get(eSwitch::PLAY_OPTION_AUTOSCR_1P) ? PLAY_MOD_ASSIST_AUTOSCR : 0;
         gPlayContext.mods[PLAYER_SLOT_TARGET].assist_mask |= gSwitches.get(gPlayContext.isBattle ? eSwitch::PLAY_OPTION_AUTOSCR_2P : eSwitch::PLAY_OPTION_AUTOSCR_1P) ? PLAY_MOD_ASSIST_AUTOSCR : 0;
 
+        // lane
+        gPlayContext.mods[PLAYER_SLOT_PLAYER].laneEffect = (eModLaneEffect)gOptions.get(eOption::PLAY_LANE_EFFECT_TYPE_1P);
+        gPlayContext.mods[PLAYER_SLOT_TARGET].laneEffect = (eModLaneEffect)gOptions.get(eOption::PLAY_LANE_EFFECT_TYPE_2P);
+
         // HS fix
         auto convertHSType = [](int nType) -> eModHs
         {
@@ -1434,7 +1438,7 @@ void SceneSelect::_decide()
         gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge = gPlayContext.replay->gaugeType;
         gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask = gPlayContext.replay->assistMask;
         gPlayContext.mods[PLAYER_SLOT_PLAYER].hispeedFix = gPlayContext.replay->hispeedFix;
-        gPlayContext.mods[PLAYER_SLOT_PLAYER].visual_mask = gPlayContext.replay->laneEffectType;
+        gPlayContext.mods[PLAYER_SLOT_PLAYER].laneEffect = (eModLaneEffect)gPlayContext.replay->laneEffectType;
         gPlayContext.mods[PLAYER_SLOT_PLAYER].DPFlip = gPlayContext.replay->DPFlip;
     }
     
@@ -1452,7 +1456,7 @@ void SceneSelect::_decide()
                 gPlayContext.mods[PLAYER_SLOT_MYBEST].gauge = gPlayContext.replayMybest->gaugeType;
                 gPlayContext.mods[PLAYER_SLOT_MYBEST].assist_mask = gPlayContext.replayMybest->assistMask;
                 gPlayContext.mods[PLAYER_SLOT_MYBEST].hispeedFix = gPlayContext.replayMybest->hispeedFix;
-                gPlayContext.mods[PLAYER_SLOT_MYBEST].visual_mask = gPlayContext.replayMybest->laneEffectType;
+                gPlayContext.mods[PLAYER_SLOT_MYBEST].laneEffect = (eModLaneEffect)gPlayContext.replayMybest->laneEffectType;
                 gPlayContext.mods[PLAYER_SLOT_MYBEST].DPFlip = gPlayContext.replayMybest->DPFlip;
             }
             else

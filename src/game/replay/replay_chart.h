@@ -154,7 +154,7 @@ public:
     eModGauge   gaugeType = eModGauge::NORMAL;  
     eModRandom  randomTypeLeft = eModRandom::NONE; 
     eModRandom  randomTypeRight = eModRandom::NONE; 
-    int8_t      laneEffectType = 0;     // are we gonna implement this?
+    int8_t      laneEffectType = 0;     // OFF/HID/SUD/SUDHID/LIFT/LIFTSUD
     int8_t      pitchType = 0;          // FREQ/PITCH/SPEED
     int8_t      pitchValue = 0;         // -12 ~ +12 (value below 0 may invalid)
     uint8_t     assistMask = 0;

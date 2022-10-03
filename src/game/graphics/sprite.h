@@ -102,6 +102,7 @@ public:
     bool isHidden() const { return _hide; }
     bool isKeyFrameEmpty() { return _keyFrames.empty(); }
     void clearKeyFrames() { _keyFrames.clear(); }
+    virtual void moveAfterUpdate(int x, int y);
 };
 
 class iSpriteMouse
@@ -363,6 +364,7 @@ public:
 	virtual bool update(const Time& t);
     virtual void appendKeyFrame(const RenderKeyFrame& f) override;
     virtual void draw() const;
+    virtual void moveAfterUpdate(int x, int y);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
