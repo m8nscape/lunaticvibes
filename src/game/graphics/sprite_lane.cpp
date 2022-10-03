@@ -32,32 +32,35 @@ void SpriteLaneVertical::setLane(NoteLaneCategory cat, NoteLaneIndex idx)
 	_category = cat;
 	_index = idx;
 
-	switch (playerSlot)
+	if (_category != chart::NoteLaneCategory::EXTRA)
 	{
-	case PLAYER_SLOT_PLAYER:
-		if ((gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask & PLAY_MOD_ASSIST_AUTOSCR) &&
-			(_index == chart::NoteLaneIndex::Sc1 || !gPlayContext.isBattle && _index == chart::NoteLaneIndex::Sc2))
+		switch (playerSlot)
 		{
-			if (!_autoNotes) _hide = true;
+		case PLAYER_SLOT_PLAYER:
+			if ((_index == chart::NoteLaneIndex::Sc1 && (gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask & PLAY_MOD_ASSIST_AUTOSCR)) ||
+				(_index == chart::NoteLaneIndex::Sc2 && !gPlayContext.isBattle))
+			{
+				if (!_autoNotes) _hide = true;
+			}
+			else
+			{
+				if (_autoNotes) _hide = true;
+			}
+			break;
+		case PLAYER_SLOT_TARGET:
+			if (_index == chart::NoteLaneIndex::Sc2 &&
+				(gPlayContext.mods[gPlayContext.isBattle ? PLAYER_SLOT_TARGET : PLAYER_SLOT_PLAYER].assist_mask & PLAY_MOD_ASSIST_AUTOSCR))
+			{
+				if (!_autoNotes) _hide = true;
+			}
+			else
+			{
+				if (_autoNotes) _hide = true;
+			}
+			break;
+		default:
+			break;
 		}
-		else
-		{
-			if (_autoNotes) _hide = true;
-		}
-		break;
-	case PLAYER_SLOT_TARGET:
-		if ((gPlayContext.mods[PLAYER_SLOT_TARGET].assist_mask & PLAY_MOD_ASSIST_AUTOSCR) &&
-			(_index == chart::NoteLaneIndex::Sc1 || gPlayContext.isBattle && _index == chart::NoteLaneIndex::Sc2))
-		{
-			if (!_autoNotes) _hide = true;
-		}
-		else
-		{
-			if (_autoNotes) _hide = true;
-		}
-		break;
-	default:
-		break;
 	}
 }
 

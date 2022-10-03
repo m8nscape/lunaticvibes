@@ -111,6 +111,12 @@ void config_player()
     default:                   ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_OFF); break;
     }
 
+    switch (gSwitches.get(eSwitch::PLAY_OPTION_AUTOSCR_1P))
+    {
+    case true:  ConfigMgr::set('P', P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_NONE); break;
+    case false: ConfigMgr::set('P', P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_AUTOSCR); break;
+    }
+
     switch (gOptions.get(eOption::PLAY_GHOST_TYPE_1P))
     {
     case Option::GHOST_TOP:         ConfigMgr::set('P',P_GHOST_TYPE, P_GHOST_TYPE_A); break;
