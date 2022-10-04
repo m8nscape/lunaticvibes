@@ -750,7 +750,7 @@ int SongDB::refreshExistingFolder(const HashMD5& hash, const Path& path, FolderT
                     {
                         long long dbTime = ANY_INT(q[0][0]);
 
-                        if (fstime < dbTime && md5file(chart->absolutePath) != chart->fileHash)
+                        if (fstime > dbTime && md5file(chart->absolutePath) != chart->fileHash)
                         {
                             modifiedFiles.push_back(chart->absolutePath);
                         }
