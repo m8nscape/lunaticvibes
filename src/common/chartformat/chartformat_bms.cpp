@@ -58,8 +58,7 @@ int ChartFormatBMS::initWithPathParam(const SongDB& db, uint64_t randomSeed)
         absolutePath = filePath;
     else
     {
-        Path fp;
-        db.getFolderPath(folderHash, fp);
+        Path fp = db.getFolderPath(folderHash).second;
         absolutePath = fp / filePath;
     }
 

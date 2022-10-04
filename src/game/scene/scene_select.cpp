@@ -18,6 +18,8 @@
 
 #include "game/replay/replay_chart.h"
 
+#include "scene_pre_select.h"
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void config_sys()
@@ -889,8 +891,20 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
 
         refreshingSongList = true;
 
-        // get folders from config
-        auto folderList = ConfigMgr::General()->getFoldersPath();
+        std::vector<StringPath> folderList;
+        if (gSelectContext.backtrace.size() >= 2)
+        {
+            // only update current folder
+            auto& [hasPath, path] = g_pSongDB->getFolderPath(gSelectContext.backtrace.top().folder);
+            if (hasPath)
+                folderList.push_back(path);
+        }
+        if (folderList.empty())
+        {
+            // Pressed at root, refresh all
+            folderList = ConfigMgr::General()->getFoldersPath();
+        }
+
         for (auto& f : folderList)
         {
             LOG_INFO << "[List] Refreshing folder " << f;
@@ -901,14 +915,12 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
             int count = g_pSongDB->addFolder(f);
             g_pSongDB->waitLoadingFinish();
 
-            if (count > 0 || g_pSongDB->addChartDeleted)
+            int added = g_pSongDB->addChartSuccess - g_pSongDB->addChartModified;
+            int updated = g_pSongDB->addChartModified;
+            int deleted = g_pSongDB->addChartDeleted;
+            if (added || updated || deleted)
             {
-                createNotification((boost::format("%s: Added %d, Updated %d, Deleted %d") 
-                    % pf.u8string()
-                    % (g_pSongDB->addChartSuccess - g_pSongDB->addChartModified)
-                    % g_pSongDB->addChartModified
-                    % g_pSongDB->addChartDeleted
-                    ).str());
+                createNotification((boost::format("%s: Added %d, Updated %d, Deleted %d") % pf.u8string() % added % updated % deleted).str());
             }
         }
         gTexts.set(eText::_OVERLAY_TOPLEFT, "");
@@ -933,13 +945,36 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
 
             // reset infos, play sound
             _navigateEnter(Time());
+
+            SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::SOUND_F_OPEN);
         }
         else
         {
-            gSelectContext.idx = 0;
-            setBarInfo();
-            setEntryInfo();
-            setDynamicTextures();
+            // Make a virtual preload scene to rebuild song list. This is very tricky...
+            {
+                gTexts.set(eText::_OVERLAY_TOPLEFT, "Rebuilding song list...");
+                ScenePreSelect s;
+                s.loopStart();
+                while (!s.isLoadingFinished())
+                {
+                    using namespace std::chrono_literals;
+                    std::this_thread::sleep_for(33ms);
+                }
+                s.loopEnd();
+            }
+            gTexts.set(eText::_OVERLAY_TOPLEFT, "");
+
+            {
+                std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
+                gSelectContext.idx = 0;
+                loadSongList();
+                sortSongList();
+                setBarInfo();
+                setEntryInfo();
+
+                resetJukeboxText();
+            }
+
             gTimers.set(eTimer::LIST_MOVE, Time().norm());
             SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::SOUND_F_OPEN);
         }

@@ -137,7 +137,7 @@ void SceneSelect::_imguiSettings()
 
             if (ImGui::CollapsingHeader("Folder"))
             {
-                ImGui::Text("*Changing folder settings requires a restart now.");
+                ImGui::Text("* Refresh by pressing F8 at song select screen!");
 
                 ImGui::ListBox("Folders", &imgui_folder_index, imgui_folders_display.data(), imgui_folders_display.size());
 
@@ -162,7 +162,7 @@ void SceneSelect::_imguiSettings()
 
             if (ImGui::CollapsingHeader("Table"))
             {
-                ImGui::Text("*Changing table settings requires a restart now.");
+                ImGui::Text("* Refresh by pressing F8 at song select screen!");
 
                 ImGui::ListBox("Tables", &imgui_table_index, imgui_tables_display.data(), imgui_tables_display.size());
 
@@ -554,7 +554,7 @@ bool SceneSelect::_imguiAddFolder()
 
             ConfigMgr::General()->setFolders(std::vector<std::string>(imgui_folders.begin(), imgui_folders.end()));
 
-            // TODO reload?
+            // TODO auto refresh?
         }
         CoTaskMemFree(lpiil);
     }
@@ -572,7 +572,9 @@ bool SceneSelect::_imguiDelFolder()
     if (imgui_folder_index == oldSize - 1)
         imgui_folder_index--;
 
-    return false;
+    ConfigMgr::General()->setFolders(std::vector<std::string>(imgui_folders.begin(), imgui_folders.end()));
+
+    return true;
 }
 
 bool SceneSelect::_imguiBrowseFolder()
@@ -619,6 +621,8 @@ bool SceneSelect::_imguiDelTable()
     imgui_tables_display.erase(std::next(imgui_tables_display.begin(), imgui_table_index));
     if (imgui_table_index == oldSize - 1)
         imgui_table_index--;
+
+    ConfigMgr::General()->setTables(std::vector<std::string>(imgui_tables.begin(), imgui_tables.end()));
 
     return false;
 }

@@ -77,23 +77,24 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
         _sTopLeft2->appendKeyFrame(f);
     }
 
-	Time t;
-
-    //gNumbers.reset();
-    //gSliders.reset();
-    //gSwitches.reset();
-    gTimers.reset();
-
-    gTexts.set(eText::_OVERLAY_TOPLEFT, "");
-
     _input.register_p("DEBUG_TOGGLE", std::bind(&vScene::DebugToggle, this, std::placeholders::_1, std::placeholders::_2));
 
     _input.register_p("SKIN_MOUSE_CLICK", std::bind(&vScene::MouseClick, this, std::placeholders::_1, std::placeholders::_2));
     _input.register_h("SKIN_MOUSE_DRAG", std::bind(&vScene::MouseDrag, this, std::placeholders::_1, std::placeholders::_2));
     _input.register_r("SKIN_MOUSE_RELEASE", std::bind(&vScene::MouseRelease, this, std::placeholders::_1, std::placeholders::_2));
 
-    // Skin may be cached. Reset mouse status
-    _skin ? _skin->setHandleMouseEvents(true) : __noop;
+    if (_skin)
+    {
+        //gNumbers.reset();
+        //gSliders.reset();
+        //gSwitches.reset();
+        gTimers.reset();
+
+        gTexts.set(eText::_OVERLAY_TOPLEFT, "");
+
+        // Skin may be cached. Reset mouse status
+        _skin->setHandleMouseEvents(true);
+    }
 }
 
 vScene::~vScene() 

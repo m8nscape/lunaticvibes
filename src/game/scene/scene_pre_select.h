@@ -25,4 +25,8 @@ protected:
     int prevChartLoaded = 0;
     std::string textHint;
     std::string textHint2;
+    bool loadingFinished = false;
+
+public:
+    bool isLoadingFinished() const;
 };

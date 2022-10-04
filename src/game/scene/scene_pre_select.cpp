@@ -29,11 +29,11 @@ ScenePreSelect::~ScenePreSelect()
 
 void ScenePreSelect::_updateAsync()
 {
-    if (gNextScene != eScene::PRE_SELECT) return;
+    if (gNextScene != eScene::PRE_SELECT && gNextScene != eScene::SELECT) return;
 
     if (gAppIsExiting)
     {
-        gNextScene = eScene::EXIT;
+        gNextScene = eScene::EXIT_TRANS;
         g_pSongDB->stopLoading();
     }
 
@@ -80,7 +80,7 @@ void ScenePreSelect::updateLoadSongs()
             });
     }
 
-    if (g_pSongDB->addChartTaskFinishCount != prevChartLoaded)
+    if (gNextScene == eScene::PRE_SELECT && g_pSongDB->addChartTaskFinishCount != prevChartLoaded)
     {
         std::shared_lock l(g_pSongDB->addCurrentPathMutex);
 
@@ -156,9 +156,12 @@ void ScenePreSelect::updateLoadTables()
                     return tbl;
                 };
 
-                textHint = (boost::format("Loading table: %s") % t.getUrl()).str();
-                gTexts.set(eText::_OVERLAY_TOPLEFT, textHint);
-                gTexts.set(eText::_OVERLAY_TOPLEFT2, "");
+                if (gNextScene == eScene::PRE_SELECT)
+                {
+                    textHint = (boost::format("Loading table: %s") % t.getUrl()).str();
+                    gTexts.set(eText::_OVERLAY_TOPLEFT, textHint);
+                    gTexts.set(eText::_OVERLAY_TOPLEFT2, "");
+                }
 
                 if (t.loadFromFile())
                 {
@@ -166,8 +169,11 @@ void ScenePreSelect::updateLoadTables()
                 }
                 else
                 {
-                    textHint2 = "Downloading...";
-                    gTexts.set(eText::_OVERLAY_TOPLEFT2, textHint2);
+                    if (gNextScene == eScene::PRE_SELECT)
+                    {
+                        textHint2 = "Downloading...";
+                        gTexts.set(eText::_OVERLAY_TOPLEFT2, textHint2);
+                    }
 
                     t.updateFromUrl([&](DifficultyTable::UpdateResult result)
                         {
@@ -198,15 +204,21 @@ void ScenePreSelect::updateLoadTables()
                 }
             }
 
+            while (!gSelectContext.backtrace.empty())
+                gSelectContext.backtrace.pop();
             gSelectContext.backtrace.push(rootFolderProp);
-            if (rootFolderProp.displayEntries.empty())
+
+            if (rootFolderProp.dbBrowseEntries.empty())
             {
                 gTexts.set(eText::PLAY_TITLE, "BMS NOT FOUND");
                 gTexts.set(eText::PLAY_ARTIST, "Press F9 to add folders");
             }
 
-            gTexts.set(eText::_OVERLAY_TOPLEFT, (boost::format("%s %s") % PROJECT_NAME % PROJECT_VERSION).str());
-            gTexts.set(eText::_OVERLAY_TOPLEFT2, "Please wait...");
+            if (gNextScene == eScene::PRE_SELECT)
+            {
+                gTexts.set(eText::_OVERLAY_TOPLEFT, (boost::format("%s %s") % PROJECT_NAME % PROJECT_VERSION).str());
+                gTexts.set(eText::_OVERLAY_TOPLEFT2, "Please wait...");
+            }
             });
     }
 
@@ -227,5 +239,11 @@ void ScenePreSelect::updateLoadTables()
         graphics_set_maxfps(maxFPS);
 
         gNextScene = eScene::SELECT;
+        loadingFinished = true;
     }
+}
+
+bool ScenePreSelect::isLoadingFinished() const
+{
+    return loadingFinished;
 }

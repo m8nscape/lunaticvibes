@@ -416,8 +416,8 @@ std::vector<pChartFormat> SongDB::findChartByName(const HashMD5& folder, const s
                 }
                 else
                 {
-                    Path folderPath;
-                    if (0 == getFolderPath(p->folderHash, folderPath))
+                    auto& [hasFolderPath, folderPath] = getFolderPath(p->folderHash);
+                    if (hasFolderPath)
                     {
                         p->absolutePath = folderPath / p->filePath;
                         ret.push_back(p);
@@ -459,8 +459,8 @@ std::vector<pChartFormat> SongDB::findChartByHash(const HashMD5& target) const
                 }
                 else
                 {
-                    Path folderPath;
-                    if (0 == getFolderPath(p->folderHash, folderPath))
+                    auto& [hasFolderPath, folderPath] = getFolderPath(p->folderHash);
+                    if (hasFolderPath)
                     {
                         p->absolutePath = folderPath / p->filePath;
                         ret.push_back(p);
@@ -868,7 +868,7 @@ HashMD5 SongDB::getFolderParent(const HashMD5& folder) const
 }
 
 
-int SongDB::getFolderPath(const HashMD5& folder, Path& output) const
+std::pair<bool, Path> SongDB::getFolderPath(const HashMD5& folder) const
 {
     auto result = query("SELECT type,path FROM folder WHERE pathmd5=?", 2, { folder.hexdigest()});
     if (!result.empty())
@@ -880,11 +880,10 @@ int SongDB::getFolderPath(const HashMD5& folder, Path& output) const
         //        " (" << folder << ")";
         //    return Path();
         //}
-        output = PathFromUTF8(ANY_STR(leaf[1]));
-        return 0;
+        return { true, PathFromUTF8(ANY_STR(leaf[1])) };
     }
     LOG_INFO << "[SongDB] Get folder path fail: target " << folder.hexdigest() << " not found";
-    return -1;
+    return { false, Path() };
 }
 
 HashMD5 SongDB::getFolderHash(Path path) const
@@ -921,9 +920,9 @@ EntryFolderRegular SongDB::browse(HashMD5 root, bool recursive)
         waitLoadingFinish();
     }
 
-    Path path;
-    if (getFolderPath(root, path) < 0)
-        return EntryFolderRegular(HashMD5(), path);
+    auto& [hasPath, path] = getFolderPath(root);
+    if (!hasPath)
+        return EntryFolderRegular(HashMD5(), "");
 
     EntryFolderRegular list(root, path);
 
@@ -976,9 +975,9 @@ EntryFolderSong SongDB::browseSong(HashMD5 root)
 {
     LOG_DEBUG << "[SongDB] browse song " << root.hexdigest();
 
-    Path path;
-    if (getFolderPath(root, path) < 0)
-        return EntryFolderSong(HashMD5(), path);
+    auto& [hasPath, path] = getFolderPath(root);
+    if (!hasPath)
+        return EntryFolderSong(HashMD5(), "");
 
     EntryFolderSong list(root, path);
     bool isNameSet = false;
@@ -1027,8 +1026,8 @@ EntryFolderRegular SongDB::search(HashMD5 root, std::string key)
 {
     LOG_DEBUG << "[SongDB] search " << root.hexdigest() << " " << key;
 
-    Path path;
-    if (getFolderPath(root, path) < 0)
+    auto& [hasPath, path] = getFolderPath(root);
+    if (!hasPath)
         return EntryFolderRegular(HashMD5(), "");
 
     EntryFolderRegular list(md5(key), "");
