@@ -520,7 +520,11 @@ int SongDB::addFolder(Path path, HashMD5 parentHash)
     int count = 0;
     HashMD5 folderHash = md5(path.u8string());
     long long nowTime = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+#if WIN32
+    long long folderModifyTime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(path).time_since_epoch()).count() - 11644473600;
+#else
     long long folderModifyTime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(path).time_since_epoch()).count();
+#endif
 
     if (auto q = query("SELECT pathmd5,type,modtime FROM folder WHERE path=?", 3, { path.u8string() }); !q.empty())
     {
@@ -602,7 +606,11 @@ int SongDB::addNewFolder(const HashMD5& hash, const Path& path, const HashMD5& p
 
     int ret;
     auto folderName = fs::weakly_canonical(path).filename();
+#if WIN32
+    long long folderModifyTime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(path).time_since_epoch()).count() - 11644473600;
+#else
     long long folderModifyTime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(path).time_since_epoch()).count();
+#endif
     if (!parentHash.empty())
     {
         ret = exec("INSERT INTO folder VALUES(?,?,?,?,?,?)", {
@@ -731,9 +739,22 @@ int SongDB::refreshExistingFolder(const HashMD5& hash, const Path& path, FolderT
                 {
                     deletedFiles.push_back(chart->fileHash);
                 }
-                else if (md5file(chart->absolutePath) != chart->fileHash)
+                else
                 {
-                    modifiedFiles.push_back(chart->absolutePath);
+#if WIN32
+                    long long fstime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(chart->absolutePath).time_since_epoch()).count() - 11644473600;
+#else
+                    long long fstime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(chart->absolutePath).time_since_epoch()).count();
+#endif
+                    if (auto q = query("SELECT addtime FROM song WHERE md5=? AND parent=?", 1, { chart->fileHash.hexdigest(), hash.hexdigest() }); !q.empty())
+                    {
+                        long long dbTime = ANY_INT(q[0][0]);
+
+                        if (fstime < dbTime && md5file(chart->absolutePath) != chart->fileHash)
+                        {
+                            modifiedFiles.push_back(chart->absolutePath);
+                        }
+                    }
                 }
             }
 
