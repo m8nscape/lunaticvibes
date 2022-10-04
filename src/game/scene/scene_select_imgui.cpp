@@ -486,7 +486,7 @@ void SceneSelect::_imguiCheckSettings()
     }
     if (imgui_video_vsync_index != ConfigMgr::get("V", cfg::V_VSYNC, 0))
     {
-        ConfigMgr::set("V", cfg::V_VSYNC, imgui_video_vsync);
+        ConfigMgr::set("V", cfg::V_VSYNC, imgui_video_vsync_index);
     }
 
     if (imgui_audio_device_index != old_audio_device_index && imgui_audio_devices_display[imgui_audio_device_index] != ConfigMgr::get('A', cfg::A_DEVNAME, ""))

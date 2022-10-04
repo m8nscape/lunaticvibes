@@ -372,7 +372,7 @@ void setOptions()
             {V_WINMODE_WINDOWED, WIN_WINDOWED}
         };
 
-        auto&& s = ConfigMgr::get<string>('C', V_WINMODE, V_WINMODE_WINDOWED);
+        auto&& s = ConfigMgr::get<string>('V', V_WINMODE, V_WINMODE_WINDOWED);
         if (smap.find(s) != smap.end())
             g.queue(e::SYS_WINDOWED, smap.at(s));
         else
@@ -737,7 +737,7 @@ void setText()
             {V_WINMODE_WINDOWED, "WINDOWED"}
         };
 
-        auto&& s = ConfigMgr::get<string>('C', V_WINMODE, V_WINMODE_WINDOWED);
+        auto&& s = ConfigMgr::get<string>('V', V_WINMODE, V_WINMODE_WINDOWED);
         if (smap.find(s) != smap.end())
             g.queue(e::WINDOWMODE, smap.at(s));
         else
@@ -753,7 +753,7 @@ void setText()
             {2, "ADAPTIVE"}
         };
 
-        auto&& s = ConfigMgr::get<int>('C', V_VSYNC, 0);
+        auto&& s = ConfigMgr::get<int>('V', V_VSYNC, 0);
         if (smap.find(s) != smap.end())
             g.queue(e::VSYNC, smap.at(s));
         else
@@ -761,7 +761,6 @@ void setText()
     }
 
     // fixed tokens
-    g.queue(e::BGA_SIZE, "NORMAL");
     g.queue(e::COLOR_DEPTH, "WHAT DO YOU WANT FROM THIS");
     g.queue(e::JUDGE_AUTO, "NOT SUPPORTED");
     g.queue(e::REPLAY_SAVE_TYPE, "BEST EXSCORE");
