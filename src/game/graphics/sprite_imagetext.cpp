@@ -2,7 +2,7 @@
 
 #include "common/encoding.h"
 
-SpriteImageText::SpriteImageText(std::vector<pTexture>& textures, CharMappingList& chrList, eText textInd, TextAlign align, unsigned height, int margin):
+SpriteImageText::SpriteImageText(std::vector<pTexture>& textures, CharMappingList& chrList, IndexText textInd, TextAlign align, unsigned height, int margin):
     SpriteText(nullptr, textInd, align), _textures(textures), _chrList(chrList), _height(height), _margin(margin)
 {
     _type = SpriteTypes::IMAGE_TEXT;
@@ -129,7 +129,7 @@ bool SpriteImageText::update(const Time& t)
 {
     if (_draw = updateByKeyframes(t))
     {
-        setInputBindingText(gTexts.get(_textInd));
+        setInputBindingText(State::get(_textInd));
         if (_draw) updateTextRect();
     }
     return _draw;

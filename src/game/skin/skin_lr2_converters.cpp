@@ -3,232 +3,232 @@
 namespace lr2skin
 {
 
-eNumber num(int n)
+IndexNumber num(int n)
 {
-    return eNumber(n);
+    return IndexNumber(n);
 }
 
-eTimer timer(int n)
+IndexTimer timer(int n)
 {
-    return eTimer(n);
+    return IndexTimer(n);
 }
 
-eText text(int n)
+IndexText text(int n)
 {
-    return eText(n);
+    return IndexText(n);
 }
 
-static const std::vector<std::variant<std::monostate, eSwitch, eOption>> buttonAdapter{
+static const std::vector<std::variant<std::monostate, IndexSwitch, IndexOption>> buttonAdapter{
     // 0
     std::monostate(),
 
     // 1~9
-    eSwitch::SELECT_PANEL1,
-    eSwitch::SELECT_PANEL2,
-    eSwitch::SELECT_PANEL3,
-    eSwitch::SELECT_PANEL4,
-    eSwitch::SELECT_PANEL5,
-    eSwitch::SELECT_PANEL6,
-    eSwitch::SELECT_PANEL7,
-    eSwitch::SELECT_PANEL8,
-    eSwitch::SELECT_PANEL9,
+    IndexSwitch::SELECT_PANEL1,
+    IndexSwitch::SELECT_PANEL2,
+    IndexSwitch::SELECT_PANEL3,
+    IndexSwitch::SELECT_PANEL4,
+    IndexSwitch::SELECT_PANEL5,
+    IndexSwitch::SELECT_PANEL6,
+    IndexSwitch::SELECT_PANEL7,
+    IndexSwitch::SELECT_PANEL8,
+    IndexSwitch::SELECT_PANEL9,
 
     // 10~12
-    eOption::SELECT_FILTER_DIFF,
-    eOption::SELECT_FILTER_KEYS,
-    eOption::SELECT_SORT,
+    IndexOption::SELECT_FILTER_DIFF,
+    IndexOption::SELECT_FILTER_KEYS,
+    IndexOption::SELECT_SORT,
 
     // 13~19
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
+    IndexSwitch::_FALSE,
+    IndexSwitch::_FALSE,
+    IndexSwitch::_FALSE,
+    IndexSwitch::_FALSE,
+    IndexSwitch::_FALSE,
+    IndexSwitch::_FALSE,
+    IndexSwitch::_FALSE,
 
     // 20~28
-    eOption::SOUND_FX0,
-    eOption::SOUND_FX1,
-    eOption::SOUND_FX2,
-    eSwitch::SOUND_FX0,
-    eSwitch::SOUND_FX1,
-    eSwitch::SOUND_FX2,
-    eOption::SOUND_TARGET_FX0,
-    eOption::SOUND_TARGET_FX1,
-    eOption::SOUND_TARGET_FX2,
+    IndexOption::SOUND_FX0,
+    IndexOption::SOUND_FX1,
+    IndexOption::SOUND_FX2,
+    IndexSwitch::SOUND_FX0,
+    IndexSwitch::SOUND_FX1,
+    IndexSwitch::SOUND_FX2,
+    IndexOption::SOUND_TARGET_FX0,
+    IndexOption::SOUND_TARGET_FX1,
+    IndexOption::SOUND_TARGET_FX2,
 
     //29~30
-    eSwitch::SOUND_EQ,	// EQ off/on
-    eSwitch::_FALSE,	// EQ Preset
+    IndexSwitch::SOUND_EQ,	// EQ off/on
+    IndexSwitch::_FALSE,	// EQ Preset
 
     //31~33
-    eSwitch::SOUND_VOLUME,		// volume control
-    eSwitch::SOUND_PITCH,
-    eOption::SOUND_PITCH_TYPE,
+    IndexSwitch::SOUND_VOLUME,		// volume control
+    IndexSwitch::SOUND_PITCH,
+    IndexOption::SOUND_PITCH_TYPE,
 
     //34~39
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
+    IndexSwitch::_FALSE,
+    IndexSwitch::_FALSE,
+    IndexSwitch::_FALSE,
+    IndexSwitch::_FALSE,
+    IndexSwitch::_FALSE,
+    IndexSwitch::_FALSE,
 
     //40~45
-    eOption::PLAY_GAUGE_TYPE_1P,
-    eOption::PLAY_GAUGE_TYPE_2P,
-    eOption::PLAY_RANDOM_TYPE_1P,
-    eOption::PLAY_RANDOM_TYPE_2P,
-    eSwitch::PLAY_OPTION_AUTOSCR_1P,
-    eSwitch::PLAY_OPTION_AUTOSCR_2P,
+    IndexOption::PLAY_GAUGE_TYPE_1P,
+    IndexOption::PLAY_GAUGE_TYPE_2P,
+    IndexOption::PLAY_RANDOM_TYPE_1P,
+    IndexOption::PLAY_RANDOM_TYPE_2P,
+    IndexSwitch::PLAY_OPTION_AUTOSCR_1P,
+    IndexSwitch::PLAY_OPTION_AUTOSCR_2P,
 
     //46~49
-    eSwitch::_TRUE,	    // lanecover
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,	// reserved
-    eSwitch::_FALSE,	// reserved
+    IndexSwitch::_TRUE,	    // lanecover
+    IndexSwitch::_FALSE,
+    IndexSwitch::_FALSE,	// reserved
+    IndexSwitch::_FALSE,	// reserved
 
     //50~51
-    eOption::PLAY_LANE_EFFECT_TYPE_1P,
-    eOption::PLAY_LANE_EFFECT_TYPE_2P,
+    IndexOption::PLAY_LANE_EFFECT_TYPE_1P,
+    IndexOption::PLAY_LANE_EFFECT_TYPE_2P,
 
-    eSwitch::_FALSE,	// reserved
-    eSwitch::_FALSE,	// reserved
+    IndexSwitch::_FALSE,	// reserved
+    IndexSwitch::_FALSE,	// reserved
 
     //54
-    eSwitch::PLAY_OPTION_DP_FLIP,
-    eOption::PLAY_HSFIX_TYPE,
-    eOption::PLAY_BATTLE_TYPE,
-    eSwitch::_FALSE,	// HS-1P
-    eSwitch::_FALSE,	// HS-2P
+    IndexSwitch::PLAY_OPTION_DP_FLIP,
+    IndexOption::PLAY_HSFIX_TYPE,
+    IndexOption::PLAY_BATTLE_TYPE,
+    IndexSwitch::_FALSE,	// HS-1P
+    IndexSwitch::_FALSE,	// HS-2P
 
     // 59~69
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
+    IndexSwitch::_FALSE,
+    IndexSwitch::_FALSE,
+    IndexSwitch::_FALSE,
+    IndexSwitch::_FALSE,
+    IndexSwitch::_FALSE,
+    IndexSwitch::_FALSE,
+    IndexSwitch::_FALSE,
+    IndexSwitch::_FALSE,
+    IndexSwitch::_FALSE,
+    IndexSwitch::_FALSE,
+    IndexSwitch::_FALSE,
 
     // 70
-    eSwitch::SYSTEM_SCOREGRAPH,
-    eOption::PLAY_GHOST_TYPE_1P,
-    eSwitch::_TRUE,	// bga off/on/autoplay only, special
-    eSwitch::_TRUE, // bga normal/extend, special
-    eSwitch::_FALSE,// JUDGE TIMING
-    eSwitch::_FALSE,// AUTO ADJUST, not supported
-    eSwitch::_FALSE, // default target rate
-    eSwitch::_FALSE, // target
+    IndexSwitch::SYSTEM_SCOREGRAPH,
+    IndexOption::PLAY_GHOST_TYPE_1P,
+    IndexSwitch::_TRUE,	// bga off/on/autoplay only, special
+    IndexSwitch::_TRUE, // bga normal/extend, special
+    IndexSwitch::_FALSE,// JUDGE TIMING
+    IndexSwitch::_FALSE,// AUTO ADJUST, not supported
+    IndexSwitch::_FALSE, // default target rate
+    IndexSwitch::_FALSE, // target
 
-    eSwitch::_FALSE,
-    eSwitch::_FALSE,
+    IndexSwitch::_FALSE,
+    IndexSwitch::_FALSE,
 
     // 80
-eSwitch::_TRUE, // screen mode full/window, special
-eSwitch::_FALSE, // color mode, 32bit fixed
-eSwitch::_TRUE, // vsync, special
-eSwitch::_FALSE,//save replay, not supported
-eSwitch::_FALSE,
-eSwitch::_FALSE,
-eSwitch::_FALSE,
-eSwitch::_FALSE,
-eSwitch::_FALSE,
-eSwitch::_FALSE,
+IndexSwitch::_TRUE, // screen mode full/window, special
+IndexSwitch::_FALSE, // color mode, 32bit fixed
+IndexSwitch::_TRUE, // vsync, special
+IndexSwitch::_FALSE,//save replay, not supported
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
 
 //90
-eSwitch::_FALSE,//off/favorite/ignore, not supported
-eSwitch::_FALSE,	// select all
-eSwitch::_FALSE,	// select beginner
-eSwitch::_FALSE,	// select normal
-eSwitch::_FALSE,	// select hyper
-eSwitch::_FALSE,	// select another
-eSwitch::_FALSE,	// select insane
+IndexSwitch::_FALSE,//off/favorite/ignore, not supported
+IndexSwitch::_FALSE,	// select all
+IndexSwitch::_FALSE,	// select beginner
+IndexSwitch::_FALSE,	// select normal
+IndexSwitch::_FALSE,	// select hyper
+IndexSwitch::_FALSE,	// select another
+IndexSwitch::_FALSE,	// select insane
 
-eSwitch::_FALSE,
-eSwitch::_FALSE,
-eSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
 
 // 100
-eSwitch::_FALSE,
-eSwitch::K11_CONFIG,
-eSwitch::K12_CONFIG,
-eSwitch::K13_CONFIG,
-eSwitch::K14_CONFIG,
-eSwitch::K15_CONFIG,
-eSwitch::K16_CONFIG,
-eSwitch::K17_CONFIG,
-eSwitch::K18_CONFIG,
-eSwitch::K19_CONFIG,
-eSwitch::S1L_CONFIG,
-eSwitch::S1R_CONFIG,
-eSwitch::K1START_CONFIG,
-eSwitch::K1SELECT_CONFIG,
-eSwitch::K1SPDUP_CONFIG,    // new 114
-eSwitch::K1SPDDN_CONFIG,    // new 115
-eSwitch::S1A_CONFIG,        // new 116
-eSwitch::_FALSE,
-eSwitch::_FALSE,
-eSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::K11_CONFIG,
+IndexSwitch::K12_CONFIG,
+IndexSwitch::K13_CONFIG,
+IndexSwitch::K14_CONFIG,
+IndexSwitch::K15_CONFIG,
+IndexSwitch::K16_CONFIG,
+IndexSwitch::K17_CONFIG,
+IndexSwitch::K18_CONFIG,
+IndexSwitch::K19_CONFIG,
+IndexSwitch::S1L_CONFIG,
+IndexSwitch::S1R_CONFIG,
+IndexSwitch::K1START_CONFIG,
+IndexSwitch::K1SELECT_CONFIG,
+IndexSwitch::K1SPDUP_CONFIG,    // new 114
+IndexSwitch::K1SPDDN_CONFIG,    // new 115
+IndexSwitch::S1A_CONFIG,        // new 116
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
 
 // 120
-eSwitch::_FALSE,
-eSwitch::K21_CONFIG,
-eSwitch::K22_CONFIG,
-eSwitch::K23_CONFIG,
-eSwitch::K24_CONFIG,
-eSwitch::K25_CONFIG,
-eSwitch::K26_CONFIG,
-eSwitch::K27_CONFIG,
-eSwitch::K28_CONFIG,
-eSwitch::K29_CONFIG,
-eSwitch::S2L_CONFIG,
-eSwitch::S2R_CONFIG,
-eSwitch::K2START_CONFIG,
-eSwitch::K2SELECT_CONFIG,
-eSwitch::K2SPDUP_CONFIG,    // new 134
-eSwitch::K2SPDDN_CONFIG,    // new 135
-eSwitch::S2A_CONFIG,        // new 136
-eSwitch::_FALSE,
-eSwitch::_FALSE,
-eSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::K21_CONFIG,
+IndexSwitch::K22_CONFIG,
+IndexSwitch::K23_CONFIG,
+IndexSwitch::K24_CONFIG,
+IndexSwitch::K25_CONFIG,
+IndexSwitch::K26_CONFIG,
+IndexSwitch::K27_CONFIG,
+IndexSwitch::K28_CONFIG,
+IndexSwitch::K29_CONFIG,
+IndexSwitch::S2L_CONFIG,
+IndexSwitch::S2R_CONFIG,
+IndexSwitch::K2START_CONFIG,
+IndexSwitch::K2SELECT_CONFIG,
+IndexSwitch::K2SPDUP_CONFIG,    // new 134
+IndexSwitch::K2SPDDN_CONFIG,    // new 135
+IndexSwitch::S2A_CONFIG,        // new 136
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
 
 // 140
-eOption::KEY_CONFIG_KEY7,
-eOption::KEY_CONFIG_KEY9,
-eOption::KEY_CONFIG_KEY5,
-eOption::KEY_CONFIG_MODE,
-eSwitch::_FALSE,
-eSwitch::_FALSE,
-eSwitch::_FALSE,
-eSwitch::_FALSE,
-eSwitch::_FALSE,
-eSwitch::_FALSE,
+IndexOption::KEY_CONFIG_KEY7,
+IndexOption::KEY_CONFIG_KEY9,
+IndexOption::KEY_CONFIG_KEY5,
+IndexOption::KEY_CONFIG_MODE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
 
 // 150
-eSwitch::KEY_CONFIG_SLOT0,
-eSwitch::KEY_CONFIG_SLOT1,
-eSwitch::KEY_CONFIG_SLOT2,
-eSwitch::KEY_CONFIG_SLOT3,
-eSwitch::KEY_CONFIG_SLOT4,
-eSwitch::KEY_CONFIG_SLOT5,
-eSwitch::KEY_CONFIG_SLOT6,
-eSwitch::KEY_CONFIG_SLOT7,
-eSwitch::KEY_CONFIG_SLOT8,
-eSwitch::KEY_CONFIG_SLOT9,
+IndexSwitch::KEY_CONFIG_SLOT0,
+IndexSwitch::KEY_CONFIG_SLOT1,
+IndexSwitch::KEY_CONFIG_SLOT2,
+IndexSwitch::KEY_CONFIG_SLOT3,
+IndexSwitch::KEY_CONFIG_SLOT4,
+IndexSwitch::KEY_CONFIG_SLOT5,
+IndexSwitch::KEY_CONFIG_SLOT6,
+IndexSwitch::KEY_CONFIG_SLOT7,
+IndexSwitch::KEY_CONFIG_SLOT8,
+IndexSwitch::KEY_CONFIG_SLOT9,
 
 };
 
-bool buttonSw(int n, eSwitch& out)
+bool buttonSw(int n, IndexSwitch& out)
 {
     if (n < 0 || n >= buttonAdapter.size()) 
         return false;
-    if (auto sw = std::get_if<eSwitch>(&buttonAdapter[n]))
+    if (auto sw = std::get_if<IndexSwitch>(&buttonAdapter[n]))
     {
         out = *sw;
         return true;
@@ -236,11 +236,11 @@ bool buttonSw(int n, eSwitch& out)
     else
         return false;
 }
-bool buttonOp(int n, eOption& out)
+bool buttonOp(int n, IndexOption& out)
 {
     if (n < 0 || n >= buttonAdapter.size())
         return false;
-    if (auto op = std::get_if<eOption>(&buttonAdapter[n]))
+    if (auto op = std::get_if<IndexOption>(&buttonAdapter[n]))
     {
         out = *op;
         return true;

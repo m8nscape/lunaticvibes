@@ -1,15 +1,15 @@
 #pragma once
-#include "game/data/data.h"
+#include "game/runtime/state.h"
 #include <vector>
 #include <variant>
 
 namespace lr2skin
 {
 
-eNumber num(int n);
-eTimer timer(int n);
-eText text(int n);
+IndexNumber num(int n);
+IndexTimer timer(int n);
+IndexText text(int n);
 
-bool buttonSw(int n, eSwitch& sw);
-bool buttonOp(int n, eOption& sw);
+bool buttonSw(int n, IndexSwitch& sw);
+bool buttonOp(int n, IndexOption& sw);
 }

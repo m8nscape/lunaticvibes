@@ -81,36 +81,24 @@ int main(int argc, char* argv[])
     InputMgr::updateDeadzones();
 
     // reset globals
-    //gNumbers.setDefault(eNumber::ZERO, 0);
-    gSwitches.setDefault(eSwitch::_FALSE, false);
-    gSwitches.setDefault(eSwitch::_TRUE, true);
-    //gSliders.setDefault(eSlider::ZERO, 0);
-    //gTexts.setDefault(eText::INVALID, "");
-    gTimers.setDefault(eTimer::_NEVER, TIMER_NEVER);
-
-    gNumbers.reset();
-    gSwitches.reset();
-    gSliders.reset();
-    gTexts.reset();
-    gTimers.reset();
     ConfigMgr::setGlobals();
 
-    SoundMgr::setVolume(SampleChannel::MASTER, (float)gSliders.get(eSlider::VOLUME_MASTER));
-    SoundMgr::setVolume(SampleChannel::KEY, (float)gSliders.get(eSlider::VOLUME_KEY));
-    SoundMgr::setVolume(SampleChannel::BGM, (float)gSliders.get(eSlider::VOLUME_BGM));
+    SoundMgr::setVolume(SampleChannel::MASTER, (float)State::get(IndexSlider::VOLUME_MASTER));
+    SoundMgr::setVolume(SampleChannel::KEY, (float)State::get(IndexSlider::VOLUME_KEY));
+    SoundMgr::setVolume(SampleChannel::BGM, (float)State::get(IndexSlider::VOLUME_BGM));
 
-    if (gSwitches.get(eSwitch::SOUND_FX0))
-        SoundMgr::setDSP((DSPType)gOptions.get(eOption::SOUND_FX0), 0, (SampleChannel)gOptions.get(eOption::SOUND_TARGET_FX0), gSliders.get(eSlider::FX0_P1), gSliders.get(eSlider::FX0_P2));
-    if (gSwitches.get(eSwitch::SOUND_FX1))
-        SoundMgr::setDSP((DSPType)gOptions.get(eOption::SOUND_FX1), 1, (SampleChannel)gOptions.get(eOption::SOUND_TARGET_FX1), gSliders.get(eSlider::FX1_P1), gSliders.get(eSlider::FX1_P2));
-    if (gSwitches.get(eSwitch::SOUND_FX2))
-        SoundMgr::setDSP((DSPType)gOptions.get(eOption::SOUND_FX2), 2, (SampleChannel)gOptions.get(eOption::SOUND_TARGET_FX2), gSliders.get(eSlider::FX2_P1), gSliders.get(eSlider::FX2_P2));
+    if (State::get(IndexSwitch::SOUND_FX0))
+        SoundMgr::setDSP((DSPType)State::get(IndexOption::SOUND_FX0), 0, (SampleChannel)State::get(IndexOption::SOUND_TARGET_FX0), State::get(IndexSlider::FX0_P1), State::get(IndexSlider::FX0_P2));
+    if (State::get(IndexSwitch::SOUND_FX1))
+        SoundMgr::setDSP((DSPType)State::get(IndexOption::SOUND_FX1), 1, (SampleChannel)State::get(IndexOption::SOUND_TARGET_FX1), State::get(IndexSlider::FX1_P1), State::get(IndexSlider::FX1_P2));
+    if (State::get(IndexSwitch::SOUND_FX2))
+        SoundMgr::setDSP((DSPType)State::get(IndexOption::SOUND_FX2), 2, (SampleChannel)State::get(IndexOption::SOUND_TARGET_FX2), State::get(IndexSlider::FX2_P1), State::get(IndexSlider::FX2_P2));
 
-    if (gSwitches.get(eSwitch::SOUND_PITCH))
+    if (State::get(IndexSwitch::SOUND_PITCH))
     {
         static const double tick = std::pow(2, 1.0 / 12);
-        double f = std::pow(tick, gNumbers.get(eNumber::PITCH));
-        switch (gOptions.get(eOption::SOUND_PITCH_TYPE))
+        double f = std::pow(tick, State::get(IndexNumber::PITCH));
+        switch (State::get(IndexOption::SOUND_PITCH_TYPE))
         {
         case 0: // FREQUENCY
             SoundMgr::setFreqFactor(f);
@@ -131,11 +119,11 @@ int main(int argc, char* argv[])
         }
     }
 
-    if (gSwitches.get(eSwitch::SOUND_EQ))
+    if (State::get(IndexSwitch::SOUND_EQ))
     {
         for (int idx = 0; idx < 7; ++idx)
         {
-            int val = gNumbers.get(eNumber(idx + (int)eNumber::EQ0));
+            int val = State::get(IndexNumber(idx + (int)IndexNumber::EQ0));
             SoundMgr::setEQ((EQFreq)idx, val);
         }
     }

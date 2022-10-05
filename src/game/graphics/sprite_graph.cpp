@@ -27,7 +27,7 @@ void SpriteLine::updateProgress(const Time& t)
     int duration = _end - _start;
     if (duration > 0)
     {
-        long long rt = t.norm() - gTimers.get(_triggerTimer);
+        long long rt = t.norm() - State::get(_triggerTimer);
         if (rt >= _start)
         {
             _progress = (double)(rt - _start) / duration;

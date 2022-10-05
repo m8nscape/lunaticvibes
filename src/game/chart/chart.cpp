@@ -1,10 +1,10 @@
 #include "chart.h"
-#include "common/chartformat/chartformat.h"
-#include "game/data/number.h"
-
-#include "common/chartformat/chartformat_types.h"
-
 #include "chart_types.h"
+#include "common/chartformat/chartformat.h"
+#include "common/chartformat/chartformat_types.h"
+#include "game/runtime/state.h"
+
+
 
 using namespace chart;
 
@@ -190,7 +190,7 @@ Metre ChartObjectBase::getBarMetrePosition(size_t bar)
 
 void ChartObjectBase::update(Time t)
 {
-    Time vt = t + Time(gNumbers.get(eNumber::TIMING_ADJUST_VISUAL), false);
+    Time vt = t + Time(State::get(IndexNumber::TIMING_ADJUST_VISUAL), false);
     Time at = t;
 
     noteExpired.clear();
@@ -275,13 +275,13 @@ void ChartObjectBase::update(Time t)
     // update beat
     Time currentMeasureTimePassed = vt - _barTimestamp[_currentBarTemp];
     Time timeFromBPMChange = currentMeasureTimePassed - _lastChangedBPMTime;
-    gNumbers.set(eNumber::_TEST4, (int)currentMeasureTimePassed.norm());
+    State::set(IndexNumber::_TEST4, (int)currentMeasureTimePassed.norm());
     _currentMetreTemp = _lastChangedBPMMetre + (double)timeFromBPMChange.hres() / _currentBeatLength.hres() / 4;
 
     postUpdate(vt);
 
-	gNumbers.set(eNumber::_TEST1, _currentBarTemp);
-	gNumbers.set(eNumber::_TEST2, (int)std::floor(_currentMetreTemp * 1000));
+	State::set(IndexNumber::_TEST1, _currentBarTemp);
+	State::set(IndexNumber::_TEST2, (int)std::floor(_currentMetreTemp * 1000));
 	
     _currentBar = _currentBarTemp;
     _currentMetre = _currentMetreTemp;

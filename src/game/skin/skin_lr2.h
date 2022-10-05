@@ -14,7 +14,7 @@
 #include "game/graphics/sprite_imagetext.h"
 #include "game/graphics/sprite_graph.h"
 #include "game/input/input_mgr.h"
-#include "game/data/switch.h"
+#include "game/runtime/state.h"
 
 namespace LR2SkinDef
 {

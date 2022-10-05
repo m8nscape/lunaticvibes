@@ -654,7 +654,7 @@ bool SceneSelect::_imguiApplyResolution()
 
     // windowed
     {
-        gOptions.set(eOption::SYS_WINDOWED, imgui_video_mode == 1 ? 1 : 0);
+        State::set(IndexOption::SYS_WINDOWED, imgui_video_mode == 1 ? 1 : 0);
 
         static const std::map<int, std::string> smap =
         {
@@ -665,13 +665,13 @@ bool SceneSelect::_imguiApplyResolution()
 
         auto&& s = imgui_video_mode;
         if (smap.find(s) != smap.end())
-            gTexts.queue(eText::WINDOWMODE, smap.at(s));
+            State::set(IndexText::WINDOWMODE, smap.at(s));
         else
-            gTexts.queue(eText::WINDOWMODE, "WINDOWED");
+            State::set(IndexText::WINDOWMODE, "WINDOWED");
     }
     // vsync
     {
-        gOptions.set(eOption::SYS_VSYNC, imgui_video_vsync_index == 0 ? 0 : 1);
+        State::set(IndexOption::SYS_VSYNC, imgui_video_vsync_index == 0 ? 0 : 1);
 
         static const std::map<int, std::string> smap =
         {
@@ -682,9 +682,9 @@ bool SceneSelect::_imguiApplyResolution()
 
         auto&& s = imgui_video_vsync_index;
         if (smap.find(s) != smap.end())
-            gTexts.set(eText::VSYNC, smap.at(s));
+            State::set(IndexText::VSYNC, smap.at(s));
         else
-            gTexts.queue(eText::VSYNC, "OFF");
+            State::set(IndexText::VSYNC, "OFF");
     }
 
     return true;

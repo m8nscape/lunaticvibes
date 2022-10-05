@@ -1,7 +1,6 @@
 #pragma once
 #include <chrono>
-#include "game/data/number.h"
-#include "game/data/text.h"
+#include "game/runtime/state.h"
 #include "common/asynclooper.h"
 
 #ifdef _MSC_VER
@@ -24,12 +23,12 @@ public:
 private:
 	void _loop()
 	{
-		gNumbers.set(eNumber::FPS, gFrameCount[0] / _rate);
+		State::set(IndexNumber::FPS, gFrameCount[0] / _rate);
 		gFrameCount[0] = 0;
 
 		for (unsigned i = 1; i < 10; ++i)
 		{
-			gNumbers.set((eNumber)((int)eNumber::_PPS1 + i - 1), gFrameCount[i] / _rate);
+			State::set((IndexNumber)((int)IndexNumber::_PPS1 + i - 1), gFrameCount[i] / _rate);
 			gFrameCount[i] = 0;
 		}
 
@@ -37,14 +36,14 @@ private:
 		auto d = localtime_(&t);
         if (d)
         {
-            gNumbers.set(eNumber::DATE_YEAR, d->tm_year + 1900);
-            gNumbers.set(eNumber::DATE_MON, d->tm_mon + 1);
-            gNumbers.set(eNumber::DATE_DAY, d->tm_mday);
-            gNumbers.set(eNumber::DATE_HOUR, d->tm_hour);
-            gNumbers.set(eNumber::DATE_MIN, d->tm_min);
-            gNumbers.set(eNumber::DATE_SEC, d->tm_sec);
+            State::set(IndexNumber::DATE_YEAR, d->tm_year + 1900);
+            State::set(IndexNumber::DATE_MON, d->tm_mon + 1);
+            State::set(IndexNumber::DATE_DAY, d->tm_mday);
+            State::set(IndexNumber::DATE_HOUR, d->tm_hour);
+            State::set(IndexNumber::DATE_MIN, d->tm_min);
+            State::set(IndexNumber::DATE_SEC, d->tm_sec);
 
-            gTexts.set(eText::_TEST1, ctime_(&t));
+            State::set(IndexText::_TEST1, ctime_(&t));
         }
 
 		//createNotification(std::to_string(t));

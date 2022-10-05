@@ -1,12 +1,14 @@
 #pragma once
-#include <chrono>
-#include "buffered_global.h"
-#include "common/beat.h"
 
-enum class eTimer : unsigned
+/*
+* !!! WARNING !!!
+* These indices are currently DIRECTLY casted to LR2skin indices.
+* When adding new value, do not modify existing values.
+*/
+enum class IndexTimer : unsigned
 {
     SCENE_START = 0,
-    
+
     START_INPUT,
     FADEOUT_BEGIN,
     FAIL_BEGIN,
@@ -36,10 +38,10 @@ enum class eTimer : unsigned
 
     PLAY_JUDGE_1P = 46,
     PLAY_JUDGE_2P,
-    PLAY_FULLCOMBO_1P, 
+    PLAY_FULLCOMBO_1P,
     PLAY_FULLCOMBO_2P,
-	
-	S1_BOMB = 50,
+
+    S1_BOMB = 50,
     K11_BOMB,
     K12_BOMB,
     K13_BOMB,
@@ -166,25 +168,24 @@ enum class eTimer : unsigned
     K2SPDDN_UP,
     S2A_MOVE,
 
-	// internal timers
-	_CURRENT = 240,
-	_LOAD_START,
-		_JUDGE_1P_0,
-		_JUDGE_1P_1,
-		_JUDGE_1P_2,
-		_JUDGE_1P_3,
-		_JUDGE_1P_4,
-		_JUDGE_1P_5,
-		_JUDGE_2P_0,
-		_JUDGE_2P_1,
-		_JUDGE_2P_2,
-		_JUDGE_2P_3,
-		_JUDGE_2P_4,
-		_JUDGE_2P_5,
+    // internal timers
+    _CURRENT = 240,
+    _LOAD_START,
+    _JUDGE_1P_0,
+    _JUDGE_1P_1,
+    _JUDGE_1P_2,
+    _JUDGE_1P_3,
+    _JUDGE_1P_4,
+    _JUDGE_1P_5,
+    _JUDGE_2P_0,
+    _JUDGE_2P_1,
+    _JUDGE_2P_2,
+    _JUDGE_2P_3,
+    _JUDGE_2P_4,
+    _JUDGE_2P_5,
 
-	_NEVER,
+    _NEVER,
     TIMER_COUNT
 };
 
 constexpr long long TIMER_NEVER = LLONG_MAX;
-inline buffered_global<eTimer, long long, (size_t)eTimer::TIMER_COUNT> gTimers{ TIMER_NEVER };

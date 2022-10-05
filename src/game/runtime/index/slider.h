@@ -1,7 +1,11 @@
 #pragma once
-#include "buffered_global.h"
 
-enum class eSlider : unsigned
+/*
+* !!! WARNING !!!
+* These indices are currently DIRECTLY casted to LR2skin indices.
+* When adding new value, do not modify existing values.
+*/
+enum class IndexSlider : unsigned
 {
     ZERO = 0,
 
@@ -80,18 +84,3 @@ enum class eSlider : unsigned
 
     SLIDER_COUNT
 };
-
-inline buffered_global<eSlider, double, (size_t)eSlider::SLIDER_COUNT> gSliders;
-
-/*
-class gSliders
-{
-protected:
-    constexpr gSliders() : _data{ 0u } {}
-private:
-    std::array<percent, (size_t)eSlider::SLIDER_COUNT> _data;
-public:
-    constexpr int get(eSlider n) { return _data[(size_t)n]; }
-    constexpr void set(eSlider n, percent value) { _data[(size_t)n] = value < 100u ? value : 100u; }
-};
-*/

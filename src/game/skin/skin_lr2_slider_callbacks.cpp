@@ -2,12 +2,7 @@
 
 #include "skin_lr2_slider_callbacks.h"
 
-#include "game/data/timer.h"
-#include "game/data/number.h"
-#include "game/data/option.h"
-#include "game/data/slider.h"
-#include "game/data/switch.h"
-#include "game/data/text.h"
+#include "game/runtime/state.h"
 
 #include "game/sound/sound_mgr.h"
 #include "game/sound/sound_sample.h"
@@ -31,7 +26,7 @@ void select_pos(double p)
     if (idx_new != gSelectContext.idx)
     {
         gSelectContext.idx = idx_new;
-        gSliders.set(eSlider::SELECT_LIST, (double)idx_new / gSelectContext.entries.size());
+        State::set(IndexSlider::SELECT_LIST, (double)idx_new / gSelectContext.entries.size());
 
         setBarInfo();
         setEntryInfo();
@@ -43,7 +38,7 @@ void select_pos(double p)
 
 void customize_scrollbar(double p)
 {
-    gSliders.set(eSlider::SKIN_CONFIG_OPTIONS, p);
+    State::set(IndexSlider::SKIN_CONFIG_OPTIONS, p);
     gCustomizeContext.optionDragging = true;
 }
 
@@ -56,10 +51,10 @@ void eq(int idx, double p)
 {
     int val = int(p * 24) - 12;
     p = (val + 12) / 24.0;
-    gSliders.set(eSlider(idx + (int)eSlider::EQ0), p);
-    gNumbers.set(eNumber(idx + (int)eNumber::EQ0), val);
+    State::set(IndexSlider(idx + (int)IndexSlider::EQ0), p);
+    State::set(IndexNumber(idx + (int)IndexNumber::EQ0), val);
 
-    if (gSwitches.get(eSwitch::SOUND_EQ))
+    if (State::get(IndexSwitch::SOUND_EQ))
     {
         SoundMgr::setEQ((EQFreq)idx, val);
     }
@@ -67,49 +62,49 @@ void eq(int idx, double p)
 
 void master_volume(double p)
 {
-    gSliders.set(eSlider::VOLUME_MASTER, p);
-    gNumbers.set(eNumber::VOLUME_MASTER, int(std::round(p * 100)));
+    State::set(IndexSlider::VOLUME_MASTER, p);
+    State::set(IndexNumber::VOLUME_MASTER, int(std::round(p * 100)));
 
-    if (gSwitches.get(eSwitch::SOUND_VOLUME))
+    if (State::get(IndexSwitch::SOUND_VOLUME))
         SoundMgr::setVolume(SampleChannel::MASTER, (float)p);
 }
 
 void key_volume(double p)
 {
-    gSliders.set(eSlider::VOLUME_KEY, p);
-    gNumbers.set(eNumber::VOLUME_KEY, int(std::round(p * 100)));
+    State::set(IndexSlider::VOLUME_KEY, p);
+    State::set(IndexNumber::VOLUME_KEY, int(std::round(p * 100)));
 
-    if (gSwitches.get(eSwitch::SOUND_VOLUME))
+    if (State::get(IndexSwitch::SOUND_VOLUME))
         SoundMgr::setVolume(SampleChannel::KEY, (float)p);
 }
 
 void bgm_volume(double p)
 {
-    gSliders.set(eSlider::VOLUME_BGM, p);
-    gNumbers.set(eNumber::VOLUME_BGM, int(std::round(p * 100)));
+    State::set(IndexSlider::VOLUME_BGM, p);
+    State::set(IndexNumber::VOLUME_BGM, int(std::round(p * 100)));
 
-    if (gSwitches.get(eSwitch::SOUND_VOLUME))
+    if (State::get(IndexSwitch::SOUND_VOLUME))
         SoundMgr::setVolume(SampleChannel::BGM, (float)p);
 }
 
 void fx0(int idx, double p)
 {
-    gSliders.set(idx == 0 ? eSlider::FX0_P1 : eSlider::FX0_P2, p);
-    gNumbers.set(idx == 0 ? eNumber::FX0_P1 : eNumber::FX0_P2, int(std::round(p * 100)));
+    State::set(idx == 0 ? IndexSlider::FX0_P1 : IndexSlider::FX0_P2, p);
+    State::set(idx == 0 ? IndexNumber::FX0_P1 : IndexNumber::FX0_P2, int(std::round(p * 100)));
 
-    float p1 = (idx == 0) ? (float)p : gSliders.get(eSlider::FX0_P1);
-    float p2 = (idx != 0) ? (float)p : gSliders.get(eSlider::FX0_P2);
+    float p1 = (idx == 0) ? (float)p : State::get(IndexSlider::FX0_P1);
+    float p2 = (idx != 0) ? (float)p : State::get(IndexSlider::FX0_P2);
 
-    if (gSwitches.get(eSwitch::SOUND_FX0))
+    if (State::get(IndexSwitch::SOUND_FX0))
     {
         SampleChannel ch;
-        switch (gOptions.get(eOption::SOUND_TARGET_FX0))
+        switch (State::get(IndexOption::SOUND_TARGET_FX0))
         {
         case 0: ch = SampleChannel::MASTER; break;
         case 1: ch = SampleChannel::KEY; break;
         case 2: ch = SampleChannel::BGM; break;
         }
-        switch (gOptions.get(eOption::SOUND_FX0))
+        switch (State::get(IndexOption::SOUND_FX0))
         {
         case 0: SoundMgr::setDSP(DSPType::OFF, 0, ch, 0.f, 0.f); break;
         case 1: SoundMgr::setDSP(DSPType::REVERB, 0, ch, p1, p2); break;
@@ -125,22 +120,22 @@ void fx0(int idx, double p)
 
 void fx1(int idx, double p)
 {
-    gSliders.set(idx == 0 ? eSlider::FX1_P1 : eSlider::FX1_P2, p);
-    gNumbers.set(idx == 0 ? eNumber::FX1_P1 : eNumber::FX1_P2, int(std::round(p * 100)));
+    State::set(idx == 0 ? IndexSlider::FX1_P1 : IndexSlider::FX1_P2, p);
+    State::set(idx == 0 ? IndexNumber::FX1_P1 : IndexNumber::FX1_P2, int(std::round(p * 100)));
 
-    float p1 = (idx == 0) ? (float)p : gSliders.get(eSlider::FX1_P1);
-    float p2 = (idx != 0) ? (float)p : gSliders.get(eSlider::FX1_P2);
+    float p1 = (idx == 0) ? (float)p : State::get(IndexSlider::FX1_P1);
+    float p2 = (idx != 0) ? (float)p : State::get(IndexSlider::FX1_P2);
 
-    if (gSwitches.get(eSwitch::SOUND_FX1))
+    if (State::get(IndexSwitch::SOUND_FX1))
     {
         SampleChannel ch;
-        switch (gOptions.get(eOption::SOUND_TARGET_FX1))
+        switch (State::get(IndexOption::SOUND_TARGET_FX1))
         {
         case 0: ch = SampleChannel::MASTER; break;
         case 1: ch = SampleChannel::KEY; break;
         case 2: ch = SampleChannel::BGM; break;
         }
-        switch (gOptions.get(eOption::SOUND_FX1))
+        switch (State::get(IndexOption::SOUND_FX1))
         {
         case 0: SoundMgr::setDSP(DSPType::OFF, 1, ch, 0.f, 0.f); break;
         case 1: SoundMgr::setDSP(DSPType::REVERB, 1, ch, p1, p2); break;
@@ -156,22 +151,22 @@ void fx1(int idx, double p)
 
 void fx2(int idx, double p)
 {
-    gSliders.set(idx == 0 ? eSlider::FX2_P1 : eSlider::FX2_P2, p);
-    gNumbers.set(idx == 0 ? eNumber::FX2_P1 : eNumber::FX2_P2, int(std::round(p * 100)));
+    State::set(idx == 0 ? IndexSlider::FX2_P1 : IndexSlider::FX2_P2, p);
+    State::set(idx == 0 ? IndexNumber::FX2_P1 : IndexNumber::FX2_P2, int(std::round(p * 100)));
 
-    float p1 = (idx == 0) ? (float)p : gSliders.get(eSlider::FX2_P1);
-    float p2 = (idx != 0) ? (float)p : gSliders.get(eSlider::FX2_P2);
+    float p1 = (idx == 0) ? (float)p : State::get(IndexSlider::FX2_P1);
+    float p2 = (idx != 0) ? (float)p : State::get(IndexSlider::FX2_P2);
 
-    if (gSwitches.get(eSwitch::SOUND_FX2))
+    if (State::get(IndexSwitch::SOUND_FX2))
     {
         SampleChannel ch;
-        switch (gOptions.get(eOption::SOUND_TARGET_FX2))
+        switch (State::get(IndexOption::SOUND_TARGET_FX2))
         {
         case 0: ch = SampleChannel::MASTER; break;
         case 1: ch = SampleChannel::KEY; break;
         case 2: ch = SampleChannel::BGM; break;
         }
-        switch (gOptions.get(eOption::SOUND_FX2))
+        switch (State::get(IndexOption::SOUND_FX2))
         {
         case 0: SoundMgr::setDSP(DSPType::OFF, 2, ch, 0.f, 0.f); break;
         case 1: SoundMgr::setDSP(DSPType::REVERB, 2, ch, p1, p2); break;
@@ -189,14 +184,14 @@ void pitch(double p)
 {
     int val = int(p * 24) - 12;
     double ps = (val + 12) / 24.0;
-    gSliders.set(eSlider::PITCH, ps);
-    gNumbers.set(eNumber::PITCH, val);
+    State::set(IndexSlider::PITCH, ps);
+    State::set(IndexNumber::PITCH, val);
 
-    if (gSwitches.get(eSwitch::SOUND_PITCH))
+    if (State::get(IndexSwitch::SOUND_PITCH))
     {
         static const double tick = std::pow(2, 1.0 / 12);
         double f = std::pow(tick, val);
-        switch (gOptions.get(eOption::SOUND_PITCH_TYPE))
+        switch (State::get(IndexOption::SOUND_PITCH_TYPE))
         {
         case 0: // FREQUENCY
             SoundMgr::setFreqFactor(f);
@@ -218,8 +213,8 @@ void pitch(double p)
     }
 
     auto& [score, lamp] = getSaveScoreType();
-    gSwitches.set(eSwitch::CHART_CAN_SAVE_SCORE, score);
-    gOptions.set(eOption::CHART_SAVE_LAMP_TYPE, lamp);
+    State::set(IndexSwitch::CHART_CAN_SAVE_SCORE, score);
+    State::set(IndexOption::CHART_SAVE_LAMP_TYPE, lamp);
 }
 
 void deadzone(int type, double p)

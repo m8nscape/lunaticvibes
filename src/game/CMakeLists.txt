@@ -9,6 +9,7 @@ if (${GRAPHICS_BACKEND} STREQUAL SDL2)
 endif()
 
 add_library(gamelib
+    runtime/state.cpp
     chart/chart.cpp
     chart/chart_bms.cpp
     ${GRAPHICS_BACKEND_SRC}

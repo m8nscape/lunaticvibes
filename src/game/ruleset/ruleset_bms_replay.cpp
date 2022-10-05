@@ -43,7 +43,7 @@ RulesetBMSReplay::RulesetBMSReplay(
 
 void RulesetBMSReplay::update(const Time& t)
 {
-    auto rt = t - gTimers.get(eTimer::PLAY_START);
+    auto rt = t - State::get(IndexTimer::PLAY_START);
     using namespace chart;
 
     InputMask prev = keyPressing;

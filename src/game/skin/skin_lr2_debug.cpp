@@ -1,5 +1,5 @@
 #include "skin_lr2_debug.h"
-#include "game/data/data.h"
+#include "game/runtime/state.h"
 #include "imgui.h"
 
 void imguiMonitorLR2DST()
@@ -50,21 +50,21 @@ void imguiMonitorNumber()
 			{
 				for (int j = 0; j <= 20; j++)
 				{
-					ImGui::Text("% 4d: %d", i + j, gNumbers.get((eNumber)(i + j)));
+					ImGui::Text("% 4d: %d", i + j, State::get((IndexNumber)(i + j)));
 				}
 			}
 		}
 		if (ImGui::CollapsingHeader("etc."))
 		{
-			eNumber etcNumbers[] =
+			IndexNumber etcNumbers[] =
 			{
-				eNumber::RANDOM,
-				eNumber::SCENE_UPDATE_FPS,
-				eNumber::INPUT_DETECT_FPS,
-				eNumber::NEW_ENTRY_SECONDS,
+				IndexNumber::RANDOM,
+				IndexNumber::SCENE_UPDATE_FPS,
+				IndexNumber::INPUT_DETECT_FPS,
+				IndexNumber::NEW_ENTRY_SECONDS,
 			};
 			for (auto& e: etcNumbers)
-				ImGui::Text("% 4d: %d", (int)e, gNumbers.get(e));
+				ImGui::Text("% 4d: %d", (int)e, State::get(e));
 		}
 		ImGui::End();
 	}
@@ -85,7 +85,7 @@ void imguiMonitorOption()
 			{
 				for (int j = 0; j <= 20; j++)
 				{
-					ImGui::Text("% 4d: %d", i + j, gOptions.get((eOption)(i + j)));
+					ImGui::Text("% 4d: %d", i + j, State::get((IndexOption)(i + j)));
 				}
 			}
 		}
@@ -108,7 +108,7 @@ void imguiMonitorSlider()
 			{
 				for (int j = 0; j <= 20; j++)
 				{
-					ImGui::Text("% 4d: %lf", i + j, gSliders.get((eSlider)(i + j)));
+					ImGui::Text("% 4d: %lf", i + j, State::get((IndexSlider)(i + j)));
 				}
 			}
 		}
@@ -164,7 +164,7 @@ void imguiMonitorText()
 			{
 				for (int j = 0; j <= 20; j++)
 				{
-					ImGui::Text("% 4d: %s", i + j, gTexts.get((eText)(i + j)).c_str());
+					ImGui::Text("% 4d: %s", i + j, State::get((IndexText)(i + j)).c_str());
 				}
 			}
 		}
@@ -187,7 +187,7 @@ void imguiMonitorBargraph()
 			{
 				for (int j = 0; j <= 20; j++)
 				{
-					ImGui::Text("% 4d: %lf", i + j, gBargraphs.get((eBargraph)(i + j)));
+					ImGui::Text("% 4d: %lf", i + j, State::get((IndexBargraph)(i + j)));
 				}
 			}
 		}
@@ -210,7 +210,7 @@ void imguiMonitorTimer()
 			{
 				for (int j = 0; j <= 20; j++)
 				{
-					long long t = gTimers.get((eTimer)(i + j));
+					long long t = State::get((IndexTimer)(i + j));
 					if (t == TIMER_NEVER)
 						ImGui::Text("% 4d: -", i + j);
 					else

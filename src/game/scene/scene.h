@@ -4,7 +4,7 @@
 #include <memory>
 #include <array>
 #include "game/skin/skin.h"
-#include "game/data/data.h"
+#include "game/runtime/state.h"
 #include "game/input/input_wrapper.h"
 #include "common/types.h"
 
@@ -38,8 +38,8 @@ protected:
     std::shared_ptr<Texture> _texNotificationsBG;
     std::shared_ptr<SpriteText> _sTopLeft;
     std::shared_ptr<SpriteText> _sTopLeft2;
-    std::array<std::shared_ptr<SpriteText>, size_t(eText::_OVERLAY_NOTIFICATION_MAX) - size_t(eText::_OVERLAY_NOTIFICATION_0) + 1> _sNotifications;
-    std::array<std::shared_ptr<SpriteStatic>, size_t(eText::_OVERLAY_NOTIFICATION_MAX) - size_t(eText::_OVERLAY_NOTIFICATION_0) + 1> _sNotificationsBG;
+    std::array<std::shared_ptr<SpriteText>, size_t(IndexText::_OVERLAY_NOTIFICATION_MAX) - size_t(IndexText::_OVERLAY_NOTIFICATION_0) + 1> _sNotifications;
+    std::array<std::shared_ptr<SpriteStatic>, size_t(IndexText::_OVERLAY_NOTIFICATION_MAX) - size_t(IndexText::_OVERLAY_NOTIFICATION_0) + 1> _sNotificationsBG;
 
 public:
 	bool sceneEnding = false;
@@ -70,7 +70,7 @@ protected:
     void DebugToggle(InputMask& m, const Time& t);
 
     bool isInTextEdit() const;
-    eText textEditType() const;
+    IndexText textEditType() const;
     virtual bool checkAndStartTextEdit() { return false; }
     virtual void startTextEdit(bool clear);
     virtual void stopTextEdit(bool modify);
@@ -80,76 +80,76 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 
 struct InputTimerSwitchMap {
-    eTimer tm;
-    eSwitch sw;
+    IndexTimer tm;
+    IndexSwitch sw;
 };
 
 inline const InputTimerSwitchMap InputGamePressMap[] =
 {
-    { eTimer::S1L_DOWN, eSwitch::S1L_DOWN },
-    { eTimer::S1R_DOWN, eSwitch::S1R_DOWN },
-    { eTimer::K11_DOWN, eSwitch::K11_DOWN },
-    { eTimer::K12_DOWN, eSwitch::K12_DOWN },
-    { eTimer::K13_DOWN, eSwitch::K13_DOWN },
-    { eTimer::K14_DOWN, eSwitch::K14_DOWN },
-    { eTimer::K15_DOWN, eSwitch::K15_DOWN },
-    { eTimer::K16_DOWN, eSwitch::K16_DOWN },
-    { eTimer::K17_DOWN, eSwitch::K17_DOWN },
-    { eTimer::K18_DOWN, eSwitch::K18_DOWN },
-    { eTimer::K19_DOWN, eSwitch::K19_DOWN },
-    { eTimer::K1START_DOWN, eSwitch::K1START_DOWN },
-    { eTimer::K1SELECT_DOWN, eSwitch::K1SELECT_DOWN },
-    { eTimer::K1SPDUP_DOWN, eSwitch::K1SPDUP_DOWN },
-    { eTimer::K1SPDDN_DOWN, eSwitch::K1SPDDN_DOWN },
-    { eTimer::S2L_DOWN, eSwitch::S2L_DOWN },
-    { eTimer::S2R_DOWN, eSwitch::S2R_DOWN },
-    { eTimer::K21_DOWN, eSwitch::K21_DOWN },
-    { eTimer::K22_DOWN, eSwitch::K22_DOWN },
-    { eTimer::K23_DOWN, eSwitch::K23_DOWN },
-    { eTimer::K24_DOWN, eSwitch::K24_DOWN },
-    { eTimer::K25_DOWN, eSwitch::K25_DOWN },
-    { eTimer::K26_DOWN, eSwitch::K26_DOWN },
-    { eTimer::K27_DOWN, eSwitch::K27_DOWN },
-    { eTimer::K28_DOWN, eSwitch::K28_DOWN },
-    { eTimer::K29_DOWN, eSwitch::K29_DOWN },
-    { eTimer::K2START_DOWN, eSwitch::K2START_DOWN },
-    { eTimer::K2SELECT_DOWN, eSwitch::K2SELECT_DOWN },
-    { eTimer::K2SPDUP_DOWN, eSwitch::K2SPDUP_DOWN },
-    { eTimer::K2SPDDN_DOWN, eSwitch::K2SPDDN_DOWN },
+    { IndexTimer::S1L_DOWN, IndexSwitch::S1L_DOWN },
+    { IndexTimer::S1R_DOWN, IndexSwitch::S1R_DOWN },
+    { IndexTimer::K11_DOWN, IndexSwitch::K11_DOWN },
+    { IndexTimer::K12_DOWN, IndexSwitch::K12_DOWN },
+    { IndexTimer::K13_DOWN, IndexSwitch::K13_DOWN },
+    { IndexTimer::K14_DOWN, IndexSwitch::K14_DOWN },
+    { IndexTimer::K15_DOWN, IndexSwitch::K15_DOWN },
+    { IndexTimer::K16_DOWN, IndexSwitch::K16_DOWN },
+    { IndexTimer::K17_DOWN, IndexSwitch::K17_DOWN },
+    { IndexTimer::K18_DOWN, IndexSwitch::K18_DOWN },
+    { IndexTimer::K19_DOWN, IndexSwitch::K19_DOWN },
+    { IndexTimer::K1START_DOWN, IndexSwitch::K1START_DOWN },
+    { IndexTimer::K1SELECT_DOWN, IndexSwitch::K1SELECT_DOWN },
+    { IndexTimer::K1SPDUP_DOWN, IndexSwitch::K1SPDUP_DOWN },
+    { IndexTimer::K1SPDDN_DOWN, IndexSwitch::K1SPDDN_DOWN },
+    { IndexTimer::S2L_DOWN, IndexSwitch::S2L_DOWN },
+    { IndexTimer::S2R_DOWN, IndexSwitch::S2R_DOWN },
+    { IndexTimer::K21_DOWN, IndexSwitch::K21_DOWN },
+    { IndexTimer::K22_DOWN, IndexSwitch::K22_DOWN },
+    { IndexTimer::K23_DOWN, IndexSwitch::K23_DOWN },
+    { IndexTimer::K24_DOWN, IndexSwitch::K24_DOWN },
+    { IndexTimer::K25_DOWN, IndexSwitch::K25_DOWN },
+    { IndexTimer::K26_DOWN, IndexSwitch::K26_DOWN },
+    { IndexTimer::K27_DOWN, IndexSwitch::K27_DOWN },
+    { IndexTimer::K28_DOWN, IndexSwitch::K28_DOWN },
+    { IndexTimer::K29_DOWN, IndexSwitch::K29_DOWN },
+    { IndexTimer::K2START_DOWN, IndexSwitch::K2START_DOWN },
+    { IndexTimer::K2SELECT_DOWN, IndexSwitch::K2SELECT_DOWN },
+    { IndexTimer::K2SPDUP_DOWN, IndexSwitch::K2SPDUP_DOWN },
+    { IndexTimer::K2SPDDN_DOWN, IndexSwitch::K2SPDDN_DOWN },
 };
 
 inline const InputTimerSwitchMap InputGameReleaseMap[] =
 {
-    { eTimer::S1L_UP, eSwitch::S1L_DOWN },
-    { eTimer::S1R_UP, eSwitch::S1R_DOWN },
-    { eTimer::K11_UP, eSwitch::K11_DOWN },
-    { eTimer::K12_UP, eSwitch::K12_DOWN },
-    { eTimer::K13_UP, eSwitch::K13_DOWN },
-    { eTimer::K14_UP, eSwitch::K14_DOWN },
-    { eTimer::K15_UP, eSwitch::K15_DOWN },
-    { eTimer::K16_UP, eSwitch::K16_DOWN },
-    { eTimer::K17_UP, eSwitch::K17_DOWN },
-    { eTimer::K18_UP, eSwitch::K18_DOWN },
-    { eTimer::K19_UP, eSwitch::K19_DOWN },
-    { eTimer::K1START_UP, eSwitch::K1START_DOWN },
-    { eTimer::K1SELECT_UP, eSwitch::K1SELECT_DOWN },
-    { eTimer::K1SPDUP_UP, eSwitch::K1SPDUP_DOWN },
-    { eTimer::K1SPDDN_UP, eSwitch::K1SPDDN_DOWN },
-    { eTimer::S2L_UP, eSwitch::S2L_DOWN },
-    { eTimer::S2R_UP, eSwitch::S2R_DOWN },
-    { eTimer::K21_UP, eSwitch::K21_DOWN },
-    { eTimer::K22_UP, eSwitch::K22_DOWN },
-    { eTimer::K23_UP, eSwitch::K23_DOWN },
-    { eTimer::K24_UP, eSwitch::K24_DOWN },
-    { eTimer::K25_UP, eSwitch::K25_DOWN },
-    { eTimer::K26_UP, eSwitch::K26_DOWN },
-    { eTimer::K27_UP, eSwitch::K27_DOWN },
-    { eTimer::K28_UP, eSwitch::K28_DOWN },
-    { eTimer::K29_UP, eSwitch::K29_DOWN },
-    { eTimer::K2START_UP, eSwitch::K2START_DOWN },
-    { eTimer::K2SELECT_UP, eSwitch::K2SELECT_DOWN },
-    { eTimer::K2SPDUP_UP, eSwitch::K2SPDUP_DOWN },
-    { eTimer::K2SPDDN_UP, eSwitch::K2SPDDN_DOWN },
+    { IndexTimer::S1L_UP, IndexSwitch::S1L_DOWN },
+    { IndexTimer::S1R_UP, IndexSwitch::S1R_DOWN },
+    { IndexTimer::K11_UP, IndexSwitch::K11_DOWN },
+    { IndexTimer::K12_UP, IndexSwitch::K12_DOWN },
+    { IndexTimer::K13_UP, IndexSwitch::K13_DOWN },
+    { IndexTimer::K14_UP, IndexSwitch::K14_DOWN },
+    { IndexTimer::K15_UP, IndexSwitch::K15_DOWN },
+    { IndexTimer::K16_UP, IndexSwitch::K16_DOWN },
+    { IndexTimer::K17_UP, IndexSwitch::K17_DOWN },
+    { IndexTimer::K18_UP, IndexSwitch::K18_DOWN },
+    { IndexTimer::K19_UP, IndexSwitch::K19_DOWN },
+    { IndexTimer::K1START_UP, IndexSwitch::K1START_DOWN },
+    { IndexTimer::K1SELECT_UP, IndexSwitch::K1SELECT_DOWN },
+    { IndexTimer::K1SPDUP_UP, IndexSwitch::K1SPDUP_DOWN },
+    { IndexTimer::K1SPDDN_UP, IndexSwitch::K1SPDDN_DOWN },
+    { IndexTimer::S2L_UP, IndexSwitch::S2L_DOWN },
+    { IndexTimer::S2R_UP, IndexSwitch::S2R_DOWN },
+    { IndexTimer::K21_UP, IndexSwitch::K21_DOWN },
+    { IndexTimer::K22_UP, IndexSwitch::K22_DOWN },
+    { IndexTimer::K23_UP, IndexSwitch::K23_DOWN },
+    { IndexTimer::K24_UP, IndexSwitch::K24_DOWN },
+    { IndexTimer::K25_UP, IndexSwitch::K25_DOWN },
+    { IndexTimer::K26_UP, IndexSwitch::K26_DOWN },
+    { IndexTimer::K27_UP, IndexSwitch::K27_DOWN },
+    { IndexTimer::K28_UP, IndexSwitch::K28_DOWN },
+    { IndexTimer::K29_UP, IndexSwitch::K29_DOWN },
+    { IndexTimer::K2START_UP, IndexSwitch::K2START_DOWN },
+    { IndexTimer::K2SELECT_UP, IndexSwitch::K2SELECT_DOWN },
+    { IndexTimer::K2SPDUP_UP, IndexSwitch::K2SPDUP_DOWN },
+    { IndexTimer::K2SPDDN_UP, IndexSwitch::K2SPDDN_DOWN },
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -1,7 +1,10 @@
 #pragma once
-#include "buffered_global.h"
 
-enum class eOption : unsigned
+/*
+* These indices are dymanically converted to LR2skin indices.
+* You may modify the sequnce order freely.
+*/
+enum class IndexOption : unsigned
 {
     DEFAULT = 0,           // should be initialized with 0
 
@@ -377,4 +380,3 @@ namespace Option
 }
 
 
-inline buffered_global<eOption, unsigned, (size_t)eOption::OPTION_COUNT> gOptions;

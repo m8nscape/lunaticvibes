@@ -5,7 +5,7 @@
 #include <utility>
 #include <chrono>
 #include "common/beat.h"
-#include "game/data/timer.h"
+#include "game/runtime/state.h"
 #include "game/input/input_mgr.h"
 
 struct HitableNote: Note

@@ -1,18 +1,11 @@
 #pragma once
-#include "buffered_global.h"
-#include <algorithm>
 
-class dpercent
-{
-protected:
-	double _data;
-public:
-	dpercent() : dpercent(0) {}
-	dpercent(double d) { _data = std::clamp(d, 0.0, 1.0); }
-	operator double() const { return _data; }
-};
-
-enum class eBargraph : unsigned
+/*
+* !!! WARNING !!!
+* These indices are currently DIRECTLY casted to LR2skin indices.
+* When adding new value, do not modify existing values.
+*/
+enum class IndexBargraph : unsigned
 {
     ZERO = 0,
 
@@ -113,18 +106,3 @@ enum class eBargraph : unsigned
 
     BARGRAPH_COUNT
 };
-
-inline buffered_global<eBargraph, dpercent, (size_t)eBargraph::BARGRAPH_COUNT> gBargraphs;
-
-/*
-class gBargraphs
-{
-protected:
-    constexpr gBargraphs() : _data{ 0u } {}
-private:
-    std::array<percent, (size_t)eBargraph::SLIDER_COUNT> _data;
-public:
-    constexpr int get(eBargraph n) { return _data[(size_t)n]; }
-    constexpr void set(eBargraph n, percent value) { _data[(size_t)n] = value < 100u ? value : 100u; }
-};
-*/

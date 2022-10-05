@@ -1,9 +1,7 @@
 #include "chart_bms.h"
 #include "game/scene/scene_context.h"
 #include <random>
-#include "game/data/switch.h"
-#include "game/data/option.h"
-#include "game/data/number.h"
+#include "game/runtime/state.h"
 
 static const size_t NOPE = -1;
 
@@ -413,7 +411,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
             }
 
             // BGA
-            if (gSwitches.get(eSwitch::SYSTEM_BGA))
+            if (State::get(IndexSwitch::SYSTEM_BGA))
             {
                 {
                     auto ch = objBms.getLane(LaneCode::BGABASE, 0, m);

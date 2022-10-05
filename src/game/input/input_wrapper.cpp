@@ -1,5 +1,5 @@
 #include "input_wrapper.h"
-#include "game/data/number.h"
+#include "game/runtime/state.h"
 #include "common/log.h"
 #include <cassert>
 
@@ -24,7 +24,7 @@ InputWrapper::~InputWrapper()
 
 void InputWrapper::_loop()
 {
-	gNumbers.set(eNumber::INPUT_DETECT_FPS, getRateRealtime());
+	State::set(IndexNumber::INPUT_DETECT_FPS, getRateRealtime());
     _prev = _curr;
     _curr = InputMgr::detect();
     Time now;

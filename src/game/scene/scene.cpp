@@ -1,7 +1,7 @@
 #include <execution>
 #include "scene.h"
 #include "common/beat.h"
-#include "game/data/data.h"
+#include "game/runtime/state.h"
 #include "game/skin/skin_mgr.h"
 #include "scene_context.h"
 #include "config/config_mgr.h"
@@ -36,7 +36,7 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
     _texNotificationsBG = std::make_shared<TextureFull>(0x000000ff);
     for (size_t i = 0; i < _sNotifications.size(); ++i)
     {
-        _sNotifications[i] = std::make_shared<SpriteText>(_fNotifications, eText(size_t(eText::_OVERLAY_NOTIFICATION_0) + i), TextAlign::TEXT_ALIGN_LEFT, textHeight);
+        _sNotifications[i] = std::make_shared<SpriteText>(_fNotifications, IndexText(size_t(IndexText::_OVERLAY_NOTIFICATION_0) + i), TextAlign::TEXT_ALIGN_LEFT, textHeight);
         _sNotifications[i]->setLoopTime(0);
         _sNotificationsBG[i] = std::make_shared<SpriteStatic>(_texNotificationsBG);
         _sNotificationsBG[i]->setLoopTime(0);
@@ -59,9 +59,9 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
         _sNotifications[i]->appendKeyFrame(f);
     }
     {
-        _sTopLeft = std::make_shared<SpriteText>(_fNotifications, eText::_OVERLAY_TOPLEFT, TextAlign::TEXT_ALIGN_LEFT, textHeight);
+        _sTopLeft = std::make_shared<SpriteText>(_fNotifications, IndexText::_OVERLAY_TOPLEFT, TextAlign::TEXT_ALIGN_LEFT, textHeight);
         _sTopLeft->setLoopTime(0);
-        _sTopLeft2 = std::make_shared<SpriteText>(_fNotifications, eText::_OVERLAY_TOPLEFT2, TextAlign::TEXT_ALIGN_LEFT, textHeight);
+        _sTopLeft2 = std::make_shared<SpriteText>(_fNotifications, IndexText::_OVERLAY_TOPLEFT2, TextAlign::TEXT_ALIGN_LEFT, textHeight);
         _sTopLeft2->setLoopTime(0);
         RenderKeyFrame f;
         f.time = 0;
@@ -85,12 +85,9 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
 
     if (_skin)
     {
-        //gNumbers.reset();
-        //gSliders.reset();
-        //gSwitches.reset();
-        gTimers.reset();
+        State::resetTimer();
 
-        gTexts.set(eText::_OVERLAY_TOPLEFT, "");
+        State::set(IndexText::_OVERLAY_TOPLEFT, "");
 
         // Skin may be cached. Reset mouse status
         _skin->setHandleMouseEvents(true);
@@ -139,15 +136,14 @@ void vScene::update()
         {
             if (itNotifications != gOverlayContext.notifications.rend())
             {
-                gTexts.queue(eText(size_t(eText::_OVERLAY_NOTIFICATION_0) + i), itNotifications->second);
+                State::set(IndexText(size_t(IndexText::_OVERLAY_NOTIFICATION_0) + i), itNotifications->second);
                 ++itNotifications;
             }
             else
             {
-                gTexts.queue(eText(size_t(eText::_OVERLAY_NOTIFICATION_0) + i), "");
+                State::set(IndexText(size_t(IndexText::_OVERLAY_NOTIFICATION_0) + i), "");
             }
         }
-        gTexts.flush();
     }
 
     // update top-left texts
@@ -164,7 +160,7 @@ void vScene::update()
     TextureVideo::updateAll();
 
     // ImGui
-    auto ss = gTimers.get(eTimer::SCENE_START);
+    auto ss = State::get(IndexTimer::SCENE_START);
     auto rt = t.norm() - ss;
     if (ss != TIMER_NEVER && rt > 1000)
     {
@@ -320,9 +316,9 @@ bool vScene::isInTextEdit() const
     return inTextEdit;
 }
 
-eText vScene::textEditType() const
+IndexText vScene::textEditType() const
 {
-    return inTextEdit ? _skin->textEditType() : eText::INVALID;
+    return inTextEdit ? _skin->textEditType() : IndexText::INVALID;
 }
 
 void vScene::startTextEdit(bool clear)

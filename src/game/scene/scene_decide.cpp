@@ -46,7 +46,7 @@ void SceneDecide::_updateAsync()
 void SceneDecide::updateStart()
 {
     auto t = Time();
-    auto rt = t - gTimers.get(eTimer::SCENE_START);
+    auto rt = t - State::get(IndexTimer::SCENE_START);
 
     if (rt.norm() >= _skin->info.timeDecideExpiry)
     {
@@ -57,8 +57,8 @@ void SceneDecide::updateStart()
 void SceneDecide::updateSkip()
 {
     auto t = Time();
-    auto rt = t - gTimers.get(eTimer::SCENE_START);
-    auto ft = t - gTimers.get(eTimer::FADEOUT_BEGIN);
+    auto rt = t - State::get(IndexTimer::SCENE_START);
+    auto ft = t - State::get(IndexTimer::FADEOUT_BEGIN);
 
     if (ft.norm() >= _skin->info.timeOutro)
     {
@@ -69,8 +69,8 @@ void SceneDecide::updateSkip()
 void SceneDecide::updateCancel()
 {
     auto t = Time();
-    auto rt = t - gTimers.get(eTimer::SCENE_START);
-    auto ft = t - gTimers.get(eTimer::FADEOUT_BEGIN);
+    auto rt = t - State::get(IndexTimer::SCENE_START);
+    auto ft = t - State::get(IndexTimer::FADEOUT_BEGIN);
 
     if (ft.norm() >= _skin->info.timeOutro)
     {
@@ -86,7 +86,7 @@ void SceneDecide::updateCancel()
 // CALLBACK
 void SceneDecide::inputGamePress(InputMask& m, Time t)
 {
-    unsigned rt = (t - gTimers.get(eTimer::SCENE_START)).norm();
+    unsigned rt = (t - State::get(IndexTimer::SCENE_START)).norm();
     if (rt < _skin->info.timeIntro) return;
 
     auto k = _inputAvailable & m;
@@ -95,7 +95,7 @@ void SceneDecide::inputGamePress(InputMask& m, Time t)
         switch (_state)
         {
         case eDecideState::START:
-            gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
+            State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
             _updateCallback = std::bind(&SceneDecide::updateSkip, this);
             _state = eDecideState::SKIP;
             LOG_DEBUG << "[Decide] State changed to SKIP";
@@ -111,7 +111,7 @@ void SceneDecide::inputGamePress(InputMask& m, Time t)
         switch (_state)
         {
         case eDecideState::START:
-            gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
+            State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
             _updateCallback = std::bind(&SceneDecide::updateCancel, this);
             _state = eDecideState::CANCEL;
             LOG_DEBUG << "[Decide] State changed to CANCEL";
@@ -131,7 +131,7 @@ void SceneDecide::inputGamePress(InputMask& m, Time t)
 // CALLBACK
 void SceneDecide::inputGameHold(InputMask& m, Time t)
 {
-    unsigned rt = (t - gTimers.get(eTimer::SCENE_START)).norm();
+    unsigned rt = (t - State::get(IndexTimer::SCENE_START)).norm();
     if (rt < _skin->info.timeIntro) return;
 
     auto k = _inputAvailable & m;
@@ -142,7 +142,7 @@ void SceneDecide::inputGameHold(InputMask& m, Time t)
         switch (_state)
         {
         case eDecideState::START:
-            gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
+            State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
             _updateCallback = std::bind(&SceneDecide::updateCancel, this);
             _state = eDecideState::CANCEL;
             LOG_DEBUG << "[Decide] State changed to CANCEL";
@@ -157,6 +157,6 @@ void SceneDecide::inputGameHold(InputMask& m, Time t)
 // CALLBACK
 void SceneDecide::inputGameRelease(InputMask& m, Time t)
 {
-    unsigned rt = (t - gTimers.get(eTimer::SCENE_START)).norm();
+    unsigned rt = (t - State::get(IndexTimer::SCENE_START)).norm();
     if (rt < _skin->info.timeIntro) return;
 }

@@ -32,7 +32,7 @@ void vSkin::update()
     {
         gUpdateContext.metre = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentMetre();
         gUpdateContext.bar = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentBar();
-        gNumbers.set(eNumber::_TEST3, (int)(gUpdateContext.metre * 1000));
+        State::set(IndexNumber::_TEST3, (int)(gUpdateContext.metre * 1000));
     }
 
     auto updateSpriteLambda = [](const pSprite& s)
@@ -174,9 +174,9 @@ bool vSkin::textEditSpriteClicked() const
     return _pEditing != nullptr && _pEditing == _pLastClick;
 }
 
-eText vSkin::textEditType() const
+IndexText vSkin::textEditType() const
 {
-    return _pEditing ? _pEditing->getInd() : eText::INVALID;
+    return _pEditing ? _pEditing->getInd() : IndexText::INVALID;
 }
 
 void vSkin::startTextEdit(bool clear)

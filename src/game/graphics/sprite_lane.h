@@ -27,7 +27,7 @@ public:
 public:
     SpriteLaneVertical(unsigned player = 0, bool autoNotes = false, double basespeed = 1.0, double lanespeed = 1.0);
     SpriteLaneVertical(pTexture texture, Rect laneRect,
-        unsigned animFrames, unsigned frameTime = 0, eTimer timer = eTimer::PLAY_START,
+        unsigned animFrames, unsigned frameTime = 0, IndexTimer timer = IndexTimer::PLAY_START,
         unsigned animRows = 1, unsigned animCols = 1, bool animVerticalIndexing = false,
         unsigned player = 0, bool autoNotes = false, double basespeed = 1.0, double lanespeed = 1.0
         );

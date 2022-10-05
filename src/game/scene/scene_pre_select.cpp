@@ -91,8 +91,8 @@ void ScenePreSelect::updateLoadSongs()
                 % g_pSongDB->addChartTaskCount
             ).str();
         textHint2 = g_pSongDB->addCurrentPath;
-        gTexts.set(eText::_OVERLAY_TOPLEFT, textHint);
-        gTexts.set(eText::_OVERLAY_TOPLEFT2, textHint2);
+        State::set(IndexText::_OVERLAY_TOPLEFT, textHint);
+        State::set(IndexText::_OVERLAY_TOPLEFT2, textHint2);
     }
     if (loadSongEnd.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
     {
@@ -159,8 +159,8 @@ void ScenePreSelect::updateLoadTables()
                 if (gNextScene == eScene::PRE_SELECT)
                 {
                     textHint = (boost::format("Loading table: %s") % t.getUrl()).str();
-                    gTexts.set(eText::_OVERLAY_TOPLEFT, textHint);
-                    gTexts.set(eText::_OVERLAY_TOPLEFT2, "");
+                    State::set(IndexText::_OVERLAY_TOPLEFT, textHint);
+                    State::set(IndexText::_OVERLAY_TOPLEFT2, "");
                 }
 
                 if (t.loadFromFile())
@@ -172,7 +172,7 @@ void ScenePreSelect::updateLoadTables()
                     if (gNextScene == eScene::PRE_SELECT)
                     {
                         textHint2 = "Downloading...";
-                        gTexts.set(eText::_OVERLAY_TOPLEFT2, textHint2);
+                        State::set(IndexText::_OVERLAY_TOPLEFT2, textHint2);
                     }
 
                     t.updateFromUrl([&](DifficultyTable::UpdateResult result)
@@ -210,14 +210,14 @@ void ScenePreSelect::updateLoadTables()
 
             if (rootFolderProp.dbBrowseEntries.empty())
             {
-                gTexts.set(eText::PLAY_TITLE, "BMS NOT FOUND");
-                gTexts.set(eText::PLAY_ARTIST, "Press F9 to add folders");
+                State::set(IndexText::PLAY_TITLE, "BMS NOT FOUND");
+                State::set(IndexText::PLAY_ARTIST, "Press F9 to add folders");
             }
 
             if (gNextScene == eScene::PRE_SELECT)
             {
-                gTexts.set(eText::_OVERLAY_TOPLEFT, (boost::format("%s %s") % PROJECT_NAME % PROJECT_VERSION).str());
-                gTexts.set(eText::_OVERLAY_TOPLEFT2, "Please wait...");
+                State::set(IndexText::_OVERLAY_TOPLEFT, (boost::format("%s %s") % PROJECT_NAME % PROJECT_VERSION).str());
+                State::set(IndexText::_OVERLAY_TOPLEFT2, "Please wait...");
             }
             });
     }

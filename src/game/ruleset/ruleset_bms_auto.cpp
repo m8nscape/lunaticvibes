@@ -113,7 +113,7 @@ void RulesetBMSAuto::setTargetRate(double rate)
 
 void RulesetBMSAuto::update(const Time& t)
 {
-    auto rt = t - gTimers.get(eTimer::PLAY_START);
+    auto rt = t - State::get(IndexTimer::PLAY_START);
     using namespace chart;
 
     auto updateSection = [&](Input::Pad begin, Input::Pad end, int side)
@@ -148,21 +148,21 @@ void RulesetBMSAuto::update(const Time& t)
 
                         if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P)
                         {
-                            gTimers.set(InputGamePressMap[k].tm, t.norm());
-                            gTimers.set(InputGameReleaseMap[k].tm, TIMER_NEVER);
-                            gSwitches.set(InputGamePressMap[k].sw, true);
+                            State::set(InputGamePressMap[k].tm, t.norm());
+                            State::set(InputGameReleaseMap[k].tm, TIMER_NEVER);
+                            State::set(InputGamePressMap[k].sw, true);
 
                             if (k == Input::S1L || k == Input::S1R)
                             {
-                                gTimers.set(eTimer::S1_DOWN, t.norm());
-                                gTimers.set(eTimer::S1_UP, TIMER_NEVER);
-                                gSwitches.set(eSwitch::S1_DOWN, true);
+                                State::set(IndexTimer::S1_DOWN, t.norm());
+                                State::set(IndexTimer::S1_UP, TIMER_NEVER);
+                                State::set(IndexSwitch::S1_DOWN, true);
                             }
                             if (k == Input::S2L || k == Input::S2R)
                             {
-                                gTimers.set(eTimer::S2_DOWN, t.norm());
-                                gTimers.set(eTimer::S2_UP, TIMER_NEVER);
-                                gSwitches.set(eSwitch::S2_DOWN, true);
+                                State::set(IndexTimer::S2_DOWN, t.norm());
+                                State::set(IndexTimer::S2_UP, TIMER_NEVER);
+                                State::set(IndexSwitch::S2_DOWN, true);
                             }
                         }
                     }
@@ -189,25 +189,25 @@ void RulesetBMSAuto::update(const Time& t)
                             {
                                 if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P)
                                 {
-                                    gTimers.set(InputGamePressMap[k].tm, t.norm());
-                                    gTimers.set(InputGameReleaseMap[k].tm, TIMER_NEVER);
-                                    gSwitches.set(InputGamePressMap[k].sw, true);
+                                    State::set(InputGamePressMap[k].tm, t.norm());
+                                    State::set(InputGameReleaseMap[k].tm, TIMER_NEVER);
+                                    State::set(InputGamePressMap[k].sw, true);
 
                                     if (k == Input::S1L || k == Input::S1R)
                                     {
-                                        gTimers.set(eTimer::S1_DOWN, t.norm());
-                                        gTimers.set(eTimer::S1_UP, TIMER_NEVER);
-                                        gSwitches.set(eSwitch::S1_DOWN, true);
+                                        State::set(IndexTimer::S1_DOWN, t.norm());
+                                        State::set(IndexTimer::S1_UP, TIMER_NEVER);
+                                        State::set(IndexSwitch::S1_DOWN, true);
                                     }
                                     if (k == Input::S2L || k == Input::S2R)
                                     {
-                                        gTimers.set(eTimer::S2_DOWN, t.norm());
-                                        gTimers.set(eTimer::S2_UP, TIMER_NEVER);
-                                        gSwitches.set(eSwitch::S2_DOWN, true);
+                                        State::set(IndexTimer::S2_DOWN, t.norm());
+                                        State::set(IndexTimer::S2_UP, TIMER_NEVER);
+                                        State::set(IndexSwitch::S2_DOWN, true);
                                     }
 
                                     if (_bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
-                                        gTimers.set(_bombLNTimerMap->at(idx), t.norm());
+                                        State::set(_bombLNTimerMap->at(idx), t.norm());
 
                                     isPressingLN[k] = true;
                                 }
@@ -226,25 +226,25 @@ void RulesetBMSAuto::update(const Time& t)
 
                                 if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P)
                                 {
-                                    gTimers.set(InputGamePressMap[k].tm, TIMER_NEVER);
-                                    gTimers.set(InputGameReleaseMap[k].tm, t.norm());
-                                    gSwitches.set(InputGameReleaseMap[k].sw, false);
+                                    State::set(InputGamePressMap[k].tm, TIMER_NEVER);
+                                    State::set(InputGameReleaseMap[k].tm, t.norm());
+                                    State::set(InputGameReleaseMap[k].sw, false);
 
                                     if (k == Input::S1L || k == Input::S1R)
                                     {
-                                        gTimers.set(eTimer::S1_DOWN, TIMER_NEVER);
-                                        gTimers.set(eTimer::S1_UP, t.norm());
-                                        gSwitches.set(eSwitch::S1_DOWN, false);
+                                        State::set(IndexTimer::S1_DOWN, TIMER_NEVER);
+                                        State::set(IndexTimer::S1_UP, t.norm());
+                                        State::set(IndexSwitch::S1_DOWN, false);
                                     }
                                     if (k == Input::S2L || k == Input::S2R)
                                     {
-                                        gTimers.set(eTimer::S2_DOWN, TIMER_NEVER);
-                                        gTimers.set(eTimer::S2_UP, t.norm());
-                                        gSwitches.set(eSwitch::S2_DOWN, false);
+                                        State::set(IndexTimer::S2_DOWN, TIMER_NEVER);
+                                        State::set(IndexTimer::S2_UP, t.norm());
+                                        State::set(IndexSwitch::S2_DOWN, false);
                                     }
 
                                     if (_bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
-                                        gTimers.set(_bombLNTimerMap->at(idx), TIMER_NEVER);
+                                        State::set(_bombLNTimerMap->at(idx), TIMER_NEVER);
 
                                     isPressingLN[k] = false;
                                 }
@@ -282,23 +282,23 @@ void RulesetBMSAuto::update(const Time& t)
             {
                 if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P)
                 {
-                    if (t.norm() - gTimers.get(InputGamePressMap[k].tm) > 83 && !isPressingLN[k])
+                    if (t.norm() - State::get(InputGamePressMap[k].tm) > 83 && !isPressingLN[k])
                     {
-                        gTimers.set(InputGamePressMap[k].tm, TIMER_NEVER);
-                        gTimers.set(InputGameReleaseMap[k].tm, t.norm());
-                        gSwitches.set(InputGameReleaseMap[k].sw, false);
+                        State::set(InputGamePressMap[k].tm, TIMER_NEVER);
+                        State::set(InputGameReleaseMap[k].tm, t.norm());
+                        State::set(InputGameReleaseMap[k].sw, false);
 
                         if (k == Input::S1L || k == Input::S1R)
                         {
-                            gTimers.set(eTimer::S1_DOWN, TIMER_NEVER);
-                            gTimers.set(eTimer::S1_UP, t.norm());
-                            gSwitches.set(eSwitch::S1_DOWN, false);
+                            State::set(IndexTimer::S1_DOWN, TIMER_NEVER);
+                            State::set(IndexTimer::S1_UP, t.norm());
+                            State::set(IndexSwitch::S1_DOWN, false);
                         }
                         if (k == Input::S2L || k == Input::S2R)
                         {
-                            gTimers.set(eTimer::S2_DOWN, TIMER_NEVER);
-                            gTimers.set(eTimer::S2_UP, t.norm());
-                            gSwitches.set(eSwitch::S2_DOWN, false);
+                            State::set(IndexTimer::S2_DOWN, TIMER_NEVER);
+                            State::set(IndexTimer::S2_UP, t.norm());
+                            State::set(IndexSwitch::S2_DOWN, false);
                         }
                     }
                 }

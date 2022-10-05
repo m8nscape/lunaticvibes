@@ -9,8 +9,7 @@
 #include <execution>
 #include "skin_lr2_button_callbacks.h"
 #include "skin_lr2_slider_callbacks.h"  
-#include "game/data/option.h"
-#include "game/data/switch.h"
+#include "game/runtime/state.h"
 #include "game/graphics/video.h"
 #include "game/scene/scene_context.h"
 #include "skin_lr2_converters.h"
@@ -1079,7 +1078,7 @@ ParseRet SkinLR2::SRC_IMAGE()
 #endif
     {
         _sprites.push_back(std::make_shared<SpriteAnimated>(
-            textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x));
+            textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x));
     }
 
     _sprites.back()->setSrcLine(csvLineNumber);
@@ -1091,7 +1090,7 @@ ParseRet SkinLR2::SRC_NUMBER()
 {
     lr2skin::s_number d(parseParamBuf, csvLineNumber);
 
-    eNumber iNum = lr2skin::num(d.num);
+    IndexNumber iNum = lr2skin::num(d.num);
 
     // get NumType from div_x, div_y
     unsigned f = d.div_y * d.div_x;
@@ -1105,32 +1104,32 @@ ParseRet SkinLR2::SRC_NUMBER()
     else f = 0;
 
     _sprites.emplace_back(std::make_shared<SpriteNumber>(
-        textureBuf, Rect(d.x, d.y, d.w, d.h), (NumberAlign)d.align, d.keta, d.div_y, d.div_x, d.cycle, iNum, (eTimer)d.timer, f));
+        textureBuf, Rect(d.x, d.y, d.w, d.h), (NumberAlign)d.align, d.keta, d.div_y, d.div_x, d.cycle, iNum, (IndexTimer)d.timer, f));
     _sprites.back()->setSrcLine(csvLineNumber);
 
     switch (iNum)
     {
-    case eNumber::LR2IR_REPLACE_PLAY_1P_JUDGE_TIME_ERROR_MS:
-    case eNumber::LR2IR_REPLACE_PLAY_2P_JUDGE_TIME_ERROR_MS:
-    case eNumber::LR2IR_REPLACE_PLAY_1P_FAST_SLOW:
-    case eNumber::LR2IR_REPLACE_PLAY_2P_FAST_SLOW:
-    case eNumber::LR2IR_REPLACE_PLAY_1P_FAST_COUNT:
-    case eNumber::LR2IR_REPLACE_PLAY_1P_SLOW_COUNT:
-    case eNumber::PLAY_1P_FAST_COUNT:
-    case eNumber::PLAY_1P_SLOW_COUNT:
-    case eNumber::PLAY_2P_FAST_COUNT:
-    case eNumber::PLAY_2P_SLOW_COUNT:
-    case eNumber::PLAY_1P_JUDGE_TIME_ERROR_MS:
-    case eNumber::PLAY_2P_JUDGE_TIME_ERROR_MS:
+    case IndexNumber::LR2IR_REPLACE_PLAY_1P_JUDGE_TIME_ERROR_MS:
+    case IndexNumber::LR2IR_REPLACE_PLAY_2P_JUDGE_TIME_ERROR_MS:
+    case IndexNumber::LR2IR_REPLACE_PLAY_1P_FAST_SLOW:
+    case IndexNumber::LR2IR_REPLACE_PLAY_2P_FAST_SLOW:
+    case IndexNumber::LR2IR_REPLACE_PLAY_1P_FAST_COUNT:
+    case IndexNumber::LR2IR_REPLACE_PLAY_1P_SLOW_COUNT:
+    case IndexNumber::PLAY_1P_FAST_COUNT:
+    case IndexNumber::PLAY_1P_SLOW_COUNT:
+    case IndexNumber::PLAY_2P_FAST_COUNT:
+    case IndexNumber::PLAY_2P_SLOW_COUNT:
+    case IndexNumber::PLAY_1P_JUDGE_TIME_ERROR_MS:
+    case IndexNumber::PLAY_2P_JUDGE_TIME_ERROR_MS:
         isSupportFastSlow = true;
         break;
 
-    case eNumber::GREEN_NUMBER_1P:
-    case eNumber::GREEN_NUMBER_2P:
-    case eNumber::GREEN_NUMBER_MAXBPM_1P:
-    case eNumber::GREEN_NUMBER_MAXBPM_2P:
-    case eNumber::GREEN_NUMBER_MINBPM_1P:
-    case eNumber::GREEN_NUMBER_MINBPM_2P:
+    case IndexNumber::GREEN_NUMBER_1P:
+    case IndexNumber::GREEN_NUMBER_2P:
+    case IndexNumber::GREEN_NUMBER_MAXBPM_1P:
+    case IndexNumber::GREEN_NUMBER_MAXBPM_2P:
+    case IndexNumber::GREEN_NUMBER_MINBPM_1P:
+    case IndexNumber::GREEN_NUMBER_MINBPM_2P:
         isSupportGreenNumber = true;
         break;
     }
@@ -1145,20 +1144,20 @@ ParseRet SkinLR2::SRC_SLIDER()
     _sprites.push_back(std::make_shared<SpriteSlider>(
         textureBuf, Rect(d.x, d.y, d.w, d.h), (SliderDirection)d.muki, d.range, 
         d.disable ? lr2skin::slider::getSliderCallback(-1) : lr2skin::slider::getSliderCallback(d.type),
-        d.div_y*d.div_x, d.cycle, (eSlider)d.type, (eTimer)d.timer, d.div_y, d.div_x));
+        d.div_y*d.div_x, d.cycle, (IndexSlider)d.type, (IndexTimer)d.timer, d.div_y, d.div_x));
     _sprites.back()->setSrcLine(csvLineNumber);
 
-    switch ((eSlider)d.type)
+    switch ((IndexSlider)d.type)
     {
-    case eSlider::SUD_1P:
+    case IndexSlider::SUD_1P:
         spriteLanecoverTop1P = _sprites.back();
         break;
-    case eSlider::SUD_2P:
+    case IndexSlider::SUD_2P:
         spriteLanecoverTop1P = _sprites.back();
         break;
 
-    case eSlider::HID_1P:
-    case eSlider::HID_2P:
+    case IndexSlider::HID_1P:
+    case IndexSlider::HID_2P:
         isSupportLift = true;
         break;
     }
@@ -1171,7 +1170,7 @@ ParseRet SkinLR2::SRC_BARGRAPH()
     lr2skin::s_bargraph d(parseParamBuf, csvLineNumber);
 
     _sprites.push_back(std::make_shared<SpriteBargraph>(
-        textureBuf, Rect(d.x, d.y, d.w, d.h), (BargraphDirection)d.muki, d.div_y*d.div_x, d.cycle, (eBargraph)d.type, (eTimer)d.timer, d.div_y, d.div_x));
+        textureBuf, Rect(d.x, d.y, d.w, d.h), (BargraphDirection)d.muki, d.div_y*d.div_x, d.cycle, (IndexBargraph)d.type, (IndexTimer)d.timer, d.div_y, d.div_x));
     _sprites.back()->setSrcLine(csvLineNumber);
 
     return ParseRet::OK;
@@ -1188,18 +1187,18 @@ ParseRet SkinLR2::SRC_BUTTON()
         if (d.click)
         {
             s = std::make_shared<SpriteButton>(
-                textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, lr2skin::button::getButtonCallback(d.type), d.panel, d.plusonly, eTimer::SCENE_START, d.div_y, d.div_x, false);
+                textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, lr2skin::button::getButtonCallback(d.type), d.panel, d.plusonly, IndexTimer::SCENE_START, d.div_y, d.div_x, false);
         }
         else
         {
             s = std::make_shared<SpriteOption>(
-                textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, eTimer::SCENE_START, d.div_y, d.div_x, false);
+                textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, IndexTimer::SCENE_START, d.div_y, d.div_x, false);
         }
-        eSwitch sw;
-        eOption op;
+        IndexSwitch sw;
+        IndexOption op;
         if (lr2skin::buttonSw(d.type, sw))
         {
-            if (sw == eSwitch::_TRUE)
+            if (sw == IndexSwitch::_TRUE)
             {
                 switch (d.type)
                 {
@@ -1219,12 +1218,12 @@ ParseRet SkinLR2::SRC_BUTTON()
 
             if (info.mode == eMode::MUSIC_SELECT)
             {
-                if (op == eOption::PLAY_GAUGE_TYPE_1P || op == eOption::PLAY_GAUGE_TYPE_2P)
+                if (op == IndexOption::PLAY_GAUGE_TYPE_1P || op == IndexOption::PLAY_GAUGE_TYPE_2P)
                 {
                     if (d.div_x * d.div_y >= 6)
                         isSupportExHardAndAssistEasy = true;
                 }
-                if (op == eOption::PLAY_LANE_EFFECT_TYPE_1P || op == eOption::PLAY_LANE_EFFECT_TYPE_2P)
+                if (op == IndexOption::PLAY_LANE_EFFECT_TYPE_1P || op == IndexOption::PLAY_LANE_EFFECT_TYPE_2P)
                 {
                     if (d.div_x * d.div_y >= 6)
                         isSupportLift = true;
@@ -1236,10 +1235,10 @@ ParseRet SkinLR2::SRC_BUTTON()
     }
     else
     {
-        // deal as eSwitch::_FALSE
+        // deal as IndexSwitch::_FALSE
         auto s = std::make_shared<SpriteOption>(
-            textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, eTimer::SCENE_START, d.div_y, d.div_x, false);
-        s->setInd(SpriteOption::opType::SWITCH, (unsigned)eSwitch::_FALSE);
+            textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, IndexTimer::SCENE_START, d.div_y, d.div_x, false);
+        s->setInd(SpriteOption::opType::SWITCH, (unsigned)IndexSwitch::_FALSE);
         _sprites.push_back(s);
         _sprites.back()->setSrcLine(csvLineNumber);
     }
@@ -1252,7 +1251,7 @@ ParseRet SkinLR2::SRC_ONMOUSE()
     lr2skin::s_onmouse d(parseParamBuf, csvLineNumber);
 
     _sprites.push_back(std::make_shared<SpriteOnMouse>(
-        textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, d.panel, Rect(d.x2, d.y2, d.w2, d.h2), (eTimer)d.timer, d.div_y, d.div_x));
+        textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, d.panel, Rect(d.x2, d.y2, d.w2, d.h2), (IndexTimer)d.timer, d.div_y, d.div_x));
     _sprites.back()->setSrcLine(csvLineNumber);
 
     return ParseRet::OK;
@@ -1263,7 +1262,7 @@ ParseRet SkinLR2::SRC_MOUSECURSOR()
     lr2skin::s_mousecursor d(parseParamBuf, csvLineNumber);
 
     _sprites.push_back(std::make_shared<SpriteCursor>(
-        textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x));
+        textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x));
     _sprites.back()->setSrcLine(csvLineNumber);
 
     return ParseRet::OK;
@@ -1277,13 +1276,13 @@ ParseRet SkinLR2::SRC_TEXT()
     if (LR2FontNameMap.find(font) != LR2FontNameMap.end() && LR2FontNameMap[font] != nullptr)
     {
         auto& pf = LR2FontNameMap[font];
-        auto ps = std::make_shared<SpriteImageText>(pf->T_texture, pf->R, (eText)d.st, (TextAlign)d.align, pf->S, pf->M);
+        auto ps = std::make_shared<SpriteImageText>(pf->T_texture, pf->R, (IndexText)d.st, (TextAlign)d.align, pf->S, pf->M);
         if (d.edit) ps->setEditable(true);
         _sprites.push_back(ps);
     }
     else
     {
-        auto ps = std::make_shared<SpriteText>(_fontNameMap[std::to_string(d.font)], (eText)d.st, (TextAlign)d.align);
+        auto ps = std::make_shared<SpriteText>(_fontNameMap[std::to_string(d.font)], (IndexText)d.st, (TextAlign)d.align);
         if (d.edit) ps->setEditable(true);
         _sprites.push_back(ps);
     }
@@ -1368,7 +1367,7 @@ ParseRet SkinLR2::SRC_JUDGELINE()
     }
 
     gSprites[spriteIdx] = std::make_shared<SpriteAnimated>(
-        textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x);
+        textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
     gSprites[spriteIdx]->setSrcLine(csvLineNumber);
 
     auto p = std::make_shared<SpriteGlobal>(spriteIdx);
@@ -1389,7 +1388,7 @@ ParseRet SkinLR2::SRC_NOWJUDGE(size_t idx)
     lr2skin::s_basic d(parseParamBuf, csvLineNumber);
 
     gSprites[idx] = std::make_shared<SpriteAnimated>(
-        textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x);
+        textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
     gSprites[idx]->setSrcLine(csvLineNumber);
 
     return ParseRet::OK;
@@ -1405,7 +1404,7 @@ ParseRet SkinLR2::SRC_NOWCOMBO(size_t idx)
 
     lr2skin::s_number d(parseParamBuf, csvLineNumber);
 
-    eNumber iNum = lr2skin::num(d.num);
+    IndexNumber iNum = lr2skin::num(d.num);
 
     // get NumType from div_x, div_y
     unsigned f = d.div_y * d.div_x;
@@ -1415,7 +1414,7 @@ ParseRet SkinLR2::SRC_NOWCOMBO(size_t idx)
     else f = 0;
 
     gSprites[idx] = std::make_shared<SpriteNumber>(
-        textureBuf, Rect(d.x, d.y, d.w, d.h), (NumberAlign)d.align, d.keta, d.div_y, d.div_x, d.cycle, iNum, (eTimer)d.timer, f);
+        textureBuf, Rect(d.x, d.y, d.w, d.h), (NumberAlign)d.align, d.keta, d.div_y, d.div_x, d.cycle, iNum, (IndexTimer)d.timer, f);
     gSprites[idx]->setSrcLine(csvLineNumber);
     std::reinterpret_pointer_cast<SpriteNumber>(gSprites[idx])->setInhibitZero(true);
 
@@ -1433,11 +1432,11 @@ ParseRet SkinLR2::SRC_GROOVEGAUGE()
     }
 
     size_t idx = d._null == 0 ? GLOBAL_SPRITE_IDX_1PGAUGE : GLOBAL_SPRITE_IDX_2PGAUGE;
-    eNumber en = d._null == 0 ? eNumber::PLAY_1P_GROOVEGAUGE : eNumber::PLAY_2P_GROOVEGAUGE;
+    IndexNumber en = d._null == 0 ? IndexNumber::PLAY_1P_GROOVEGAUGE : IndexNumber::PLAY_2P_GROOVEGAUGE;
 
     gSprites[idx] = std::make_shared<SpriteGaugeGrid>(
         textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x / 4, d.cycle, d.add_x, d.add_y, 0, 100, 50,
-        (eTimer)d.timer, en, d.div_y, d.div_x);
+        (IndexTimer)d.timer, en, d.div_y, d.div_x);
     gSprites[idx]->setSrcLine(csvLineNumber);
 
     auto p = std::make_shared<SpriteGlobal>(idx);
@@ -1502,7 +1501,7 @@ ParseRet SkinLR2::SRC_NOWCOMBO1()
 
     bufJudge1PSlot = d._null;
     // modify necessary info for SRC_NOWCOMBO(idx)
-    static StringContent eNumBuf = std::to_string((int)eNumber::_DISP_NOWCOMBO_1P);
+    static StringContent eNumBuf = std::to_string((int)IndexNumber::_DISP_NOWCOMBO_1P);
     parseParamBuf[10] = StringContentView(eNumBuf);
     switch (toInt(parseParamBuf[11]))
     {
@@ -1536,7 +1535,7 @@ ParseRet SkinLR2::SRC_NOWCOMBO2()
 
     bufJudge2PSlot = d._null;
     // modify necessary info for SRC_NOWCOMBO(idx)
-    static StringContent eNumBuf = std::to_string((int)eNumber::_DISP_NOWCOMBO_2P);
+    static StringContent eNumBuf = std::to_string((int)IndexNumber::_DISP_NOWCOMBO_2P);
     parseParamBuf[10] = StringContentView(eNumBuf);
     switch (toInt(parseParamBuf[11]))
     {
@@ -1629,7 +1628,7 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
     // load raw into data struct
     lr2skin::s_basic d(parseParamBuf, csvLineNumber);
 
-    eTimer iTimer = lr2skin::timer(d.timer);
+    IndexTimer iTimer = lr2skin::timer(d.timer);
 
     // Find texture from map by gr
     pTexture tex = nullptr;
@@ -1843,11 +1842,11 @@ ParseRet SkinLR2::SRC_BAR_BODY()
     for (auto& bar : _barSprites)
     {
         bar->setBody(type,
-            textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x);
+            textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
 
         if (type == BarType::SONG)
             bar->setBody(BarType::NEW_SONG,
-                textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x);
+                textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
     }
 
     return ParseRet::OK;
@@ -1859,7 +1858,7 @@ ParseRet SkinLR2::SRC_BAR_FLASH()
 
     for (auto& bar : _barSprites)
     {
-        bar->setFlash(textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x);
+        bar->setFlash(textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
     }
 
     return ParseRet::OK;
@@ -1881,7 +1880,7 @@ ParseRet SkinLR2::SRC_BAR_LEVEL()
     for (auto& bar : _barSprites)
     {
         bar->setLevel(type,
-            textureBuf, Rect(d.x, d.y, d.w, d.h), (NumberAlign)d.align, d.keta, d.div_y, d.div_x, d.cycle, (eTimer)d.timer, f);
+            textureBuf, Rect(d.x, d.y, d.w, d.h), (NumberAlign)d.align, d.keta, d.div_y, d.div_x, d.cycle, (IndexTimer)d.timer, f);
     }
 
     return ParseRet::OK;
@@ -1895,7 +1894,7 @@ ParseRet SkinLR2::SRC_BAR_LAMP()
 
     for (auto& bar : _barSprites)
     {
-        bar->setLamp(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x);
+        bar->setLamp(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
     }
 
     return ParseRet::OK;
@@ -1931,7 +1930,7 @@ ParseRet SkinLR2::SRC_BAR_RANK()
 
     for (auto& bar : _barSprites)
     {
-        bar->setRank(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x);
+        bar->setRank(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
     }
 
     return ParseRet::OK;
@@ -1945,7 +1944,7 @@ ParseRet SkinLR2::SRC_BAR_RIVAL()
 
     for (auto& bar : _barSprites)
     {
-        bar->setRivalWinLose(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x);
+        bar->setRivalWinLose(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
     }
 
     return ParseRet::OK;
@@ -1959,7 +1958,7 @@ ParseRet SkinLR2::SRC_BAR_RIVAL_MYLAMP()
 
     for (auto& bar : _barSprites)
     {
-        bar->setRivalLampSelf(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x);
+        bar->setRivalLampSelf(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
     }
 
     return ParseRet::OK;
@@ -1973,7 +1972,7 @@ ParseRet SkinLR2::SRC_BAR_RIVAL_RIVALLAMP()
 
     for (auto& bar : _barSprites)
     {
-        bar->setRivalLampRival(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (eTimer)d.timer, d.div_y, d.div_x);
+        bar->setRivalLampRival(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
     }
 
     return ParseRet::OK;
@@ -2061,12 +2060,12 @@ bool SkinLR2::DST()
             case DefType::NOWJUDGE_1P:
                 switch (bufJudge1PSlot)
                 {
-                case 0: d.timer = (int)eTimer::_JUDGE_1P_0; break;
-                case 1: d.timer = (int)eTimer::_JUDGE_1P_1; break;
-                case 2: d.timer = (int)eTimer::_JUDGE_1P_2; break;
-                case 3: d.timer = (int)eTimer::_JUDGE_1P_3; break;
-                case 4: d.timer = (int)eTimer::_JUDGE_1P_4; break;
-                case 5: d.timer = (int)eTimer::_JUDGE_1P_5; break;
+                case 0: d.timer = (int)IndexTimer::_JUDGE_1P_0; break;
+                case 1: d.timer = (int)IndexTimer::_JUDGE_1P_1; break;
+                case 2: d.timer = (int)IndexTimer::_JUDGE_1P_2; break;
+                case 3: d.timer = (int)IndexTimer::_JUDGE_1P_3; break;
+                case 4: d.timer = (int)IndexTimer::_JUDGE_1P_4; break;
+                case 5: d.timer = (int)IndexTimer::_JUDGE_1P_5; break;
                 default: break;
                 }
                 break;
@@ -2075,12 +2074,12 @@ bool SkinLR2::DST()
             case DefType::NOWJUDGE_2P:
                 switch (bufJudge2PSlot)
                 {
-                case 0: d.timer = (int)eTimer::_JUDGE_2P_0; break;
-                case 1: d.timer = (int)eTimer::_JUDGE_2P_1; break;
-                case 2: d.timer = (int)eTimer::_JUDGE_2P_2; break;
-                case 3: d.timer = (int)eTimer::_JUDGE_2P_3; break;
-                case 4: d.timer = (int)eTimer::_JUDGE_2P_4; break;
-                case 5: d.timer = (int)eTimer::_JUDGE_2P_5; break;
+                case 0: d.timer = (int)IndexTimer::_JUDGE_2P_0; break;
+                case 1: d.timer = (int)IndexTimer::_JUDGE_2P_1; break;
+                case 2: d.timer = (int)IndexTimer::_JUDGE_2P_2; break;
+                case 3: d.timer = (int)IndexTimer::_JUDGE_2P_3; break;
+                case 4: d.timer = (int)IndexTimer::_JUDGE_2P_4; break;
+                case 5: d.timer = (int)IndexTimer::_JUDGE_2P_5; break;
                 default: break;
                 }
                 break;
@@ -2106,17 +2105,17 @@ bool SkinLR2::DST()
                 auto p = std::reinterpret_pointer_cast<SpriteNumber>(e);
                 switch (p->_numInd)
                 {
-                case eNumber::MUSIC_BEGINNER_LEVEL:  opEx.push_back(dst_option::SELECT_HAVE_BEGINNER_IN_SAME_FOLDER); break;
-                case eNumber::MUSIC_NORMAL_LEVEL:    opEx.push_back(dst_option::SELECT_HAVE_NORMAL_IN_SAME_FOLDER);   break;
-                case eNumber::MUSIC_HYPER_LEVEL:     opEx.push_back(dst_option::SELECT_HAVE_HYPER_IN_SAME_FOLDER);    break;
-                case eNumber::MUSIC_ANOTHER_LEVEL:   opEx.push_back(dst_option::SELECT_HAVE_ANOTHER_IN_SAME_FOLDER);  break;
-                case eNumber::MUSIC_INSANE_LEVEL:    opEx.push_back(dst_option::SELECT_HAVE_INSANE_IN_SAME_FOLDER);   break;
+                case IndexNumber::MUSIC_BEGINNER_LEVEL:  opEx.push_back(dst_option::SELECT_HAVE_BEGINNER_IN_SAME_FOLDER); break;
+                case IndexNumber::MUSIC_NORMAL_LEVEL:    opEx.push_back(dst_option::SELECT_HAVE_NORMAL_IN_SAME_FOLDER);   break;
+                case IndexNumber::MUSIC_HYPER_LEVEL:     opEx.push_back(dst_option::SELECT_HAVE_HYPER_IN_SAME_FOLDER);    break;
+                case IndexNumber::MUSIC_ANOTHER_LEVEL:   opEx.push_back(dst_option::SELECT_HAVE_ANOTHER_IN_SAME_FOLDER);  break;
+                case IndexNumber::MUSIC_INSANE_LEVEL:    opEx.push_back(dst_option::SELECT_HAVE_INSANE_IN_SAME_FOLDER);   break;
                 }
             }
             drawQueue.push_back({ e, dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]), opEx });
 
             e->setLoopTime(d.loop);
-            e->setTrigTimer((eTimer)d.timer);
+            e->setTrigTimer((IndexTimer)d.timer);
         }
 
         if (type == DefType::GAUGECHART_1P || type == DefType::GAUGECHART_2P)
@@ -2280,7 +2279,7 @@ ParseRet SkinLR2::DST_BAR_BODY()
         {
             e->setSrcLine(csvLineNumber);
             e->setLoopTime(d.loop);
-            e->setTrigTimer((eTimer)d.timer);
+            e->setTrigTimer((IndexTimer)d.timer);
 
             if (!_barSpriteAdded[idx])
             {
@@ -2317,7 +2316,7 @@ ParseRet SkinLR2::DST_BAR_FLASH()
         {
             e->setSrcLine(csvLineNumber);
             e->setLoopTime(d.loop);
-            e->setTrigTimer((eTimer)d.timer);
+            e->setTrigTimer((IndexTimer)d.timer);
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
@@ -2349,7 +2348,7 @@ ParseRet SkinLR2::DST_BAR_LEVEL()
         {
             e->setSrcLine(csvLineNumber);
             e->setLoopTime(d.loop);
-            e->setTrigTimer((eTimer)d.timer);
+            e->setTrigTimer((IndexTimer)d.timer);
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
@@ -2382,7 +2381,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL_MYLAMP()
         {
             e->setSrcLine(csvLineNumber);
             e->setLoopTime(d.loop);
-            e->setTrigTimer((eTimer)d.timer);
+            e->setTrigTimer((IndexTimer)d.timer);
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
@@ -2413,7 +2412,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL_RIVALLAMP()
         {
             e->setSrcLine(csvLineNumber);
             e->setLoopTime(d.loop);
-            e->setTrigTimer((eTimer)d.timer);
+            e->setTrigTimer((IndexTimer)d.timer);
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
@@ -2445,7 +2444,7 @@ ParseRet SkinLR2::DST_BAR_LAMP()
         {
             e->setSrcLine(csvLineNumber);
             e->setLoopTime(d.loop);
-            e->setTrigTimer((eTimer)d.timer);
+            e->setTrigTimer((IndexTimer)d.timer);
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
@@ -2477,7 +2476,7 @@ ParseRet SkinLR2::DST_BAR_TITLE()
         {
             e->setSrcLine(csvLineNumber);
             e->setLoopTime(d.loop);
-            e->setTrigTimer((eTimer)d.timer);
+            e->setTrigTimer((IndexTimer)d.timer);
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
@@ -2509,7 +2508,7 @@ ParseRet SkinLR2::DST_BAR_RANK()
         {
             e->setSrcLine(csvLineNumber);
             e->setLoopTime(d.loop);
-            e->setTrigTimer((eTimer)d.timer);
+            e->setTrigTimer((IndexTimer)d.timer);
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
@@ -2541,7 +2540,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL()
         {
             e->setSrcLine(csvLineNumber);
             e->setLoopTime(d.loop);
-            e->setTrigTimer((eTimer)d.timer);
+            e->setTrigTimer((IndexTimer)d.timer);
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
@@ -3149,14 +3148,14 @@ void SkinLR2::postLoad()
             int timer = (int)s->_triggerTimer;
             if (timer >= 100 && timer <= 109 || timer >= 120 && timer <= 129 ||
                 timer >= 50 && timer <= 59 || timer >= 70 && timer <= 79 ||
-                timer == (int)eTimer::S1L_DOWN || timer == (int)eTimer::S1L_UP || timer == (int)eTimer::S1R_DOWN || timer == (int)eTimer::S1R_UP)
+                timer == (int)IndexTimer::S1L_DOWN || timer == (int)IndexTimer::S1L_UP || timer == (int)IndexTimer::S1R_DOWN || timer == (int)IndexTimer::S1R_UP)
             {
                 if (rcFirst.h <= -100 || rcFirst.h >= 100 || rcLast.h <= -100 || rcLast.h >= 100)
                     spritesMoveWithLift1P.push_back(s);
             }
             else if (timer >= 110 && timer <= 119 || timer >= 130 && timer <= 139 ||
                 timer >= 60 && timer <= 69 || timer >= 80 && timer <= 89 ||
-                timer == (int)eTimer::S2L_DOWN || timer == (int)eTimer::S2L_UP || timer == (int)eTimer::S2R_DOWN || timer == (int)eTimer::S2R_UP)
+                timer == (int)IndexTimer::S2L_DOWN || timer == (int)IndexTimer::S2L_UP || timer == (int)IndexTimer::S2R_DOWN || timer == (int)IndexTimer::S2R_UP)
             {
                 if (rcFirst.h <= -100 || rcFirst.h >= 100 || rcLast.h <= -100 || rcLast.h >= 100)
                     spritesMoveWithLift2P.push_back(s);
@@ -3220,8 +3219,8 @@ void SkinLR2::update()
 
     // update turntables
     {
-        int ttAngle1P = gNumbers.get(eNumber::_ANGLE_TT_1P);
-        int ttAngle2P = gNumbers.get(eNumber::_ANGLE_TT_2P);
+        int ttAngle1P = State::get(IndexNumber::_ANGLE_TT_1P);
+        int ttAngle2P = State::get(IndexNumber::_ANGLE_TT_2P);
 
 #ifndef _DEBUG
         std::for_each(std::execution::par_unseq, drawQueue.begin(), drawQueue.end(), [ttAngle1P, ttAngle2P](auto& e)
@@ -3324,15 +3323,15 @@ void SkinLR2::update()
     if (gPlayContext.mods[PLAYER_SLOT_PLAYER].laneEffect == eModLaneEffect::LIFT ||
         gPlayContext.mods[PLAYER_SLOT_PLAYER].laneEffect == eModLaneEffect::LIFTSUD)
     {
-        lift1P = (gNumbers.get(eNumber::LANECOVER_BOTTOM_1P) / 1000.0) * info.noteLaneHeight1P;
+        lift1P = (State::get(IndexNumber::LANECOVER_BOTTOM_1P) / 1000.0) * info.noteLaneHeight1P;
         if (gPlayContext.mode == eMode::PLAY10 || gPlayContext.mode == eMode::PLAY14)
-            lift2P = (gNumbers.get(eNumber::LANECOVER_BOTTOM_1P) / 1000.0) * info.noteLaneHeight2P;
+            lift2P = (State::get(IndexNumber::LANECOVER_BOTTOM_1P) / 1000.0) * info.noteLaneHeight2P;
     }
     if (gPlayContext.isBattle && 
         (gPlayContext.mods[PLAYER_SLOT_TARGET].laneEffect == eModLaneEffect::LIFT ||
          gPlayContext.mods[PLAYER_SLOT_TARGET].laneEffect == eModLaneEffect::LIFTSUD))
     {
-        lift2P = (gNumbers.get(eNumber::LANECOVER_BOTTOM_2P) / 1000.0) * info.noteLaneHeight2P;
+        lift2P = (State::get(IndexNumber::LANECOVER_BOTTOM_2P) / 1000.0) * info.noteLaneHeight2P;
     }
     gUpdateContext.liftHeight1P = lift1P;
     gUpdateContext.liftHeight2P = lift2P;
@@ -3416,7 +3415,7 @@ void SkinLR2::update()
             {
                 if (!_barSpriteAdded[i]) continue;
 
-                double posNow = gSliders.get(eSlider::SELECT_LIST) * gSelectContext.entries.size();
+                double posNow = State::get(IndexSlider::SELECT_LIST) * gSelectContext.entries.size();
 
                 double decimal = posNow - (int)posNow;
                 if (decimal <= 0.5 && _barSprites[i - 1]->isDraw())

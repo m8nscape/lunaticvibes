@@ -147,33 +147,33 @@ public:
     SpriteBarEntry(size_t idx) : vSprite(nullptr, SpriteTypes::BAR_ENTRY), index(idx) {}
     virtual ~SpriteBarEntry() = default;
     int setBody(BarType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-        eTimer timer = eTimer::SCENE_START, int nRows = 1, int nCols = 1, bool texVertSplit = false);
+        IndexTimer timer = IndexTimer::SCENE_START, int nRows = 1, int nCols = 1, bool texVertSplit = false);
     int setFlash(pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-        eTimer timer = eTimer::SCENE_START, int nRows = 1, int nCols = 1, bool texVertSplit = false);
+        IndexTimer timer = IndexTimer::SCENE_START, int nRows = 1, int nCols = 1, bool texVertSplit = false);
 	int setLevel(BarLevelType type, pTexture texture, const Rect& rect, NumberAlign align, unsigned maxDigits,
-        unsigned numRows, unsigned numCols, unsigned frameTime, eTimer animtimer = eTimer::SCENE_START,
+        unsigned numRows, unsigned numCols, unsigned frameTime, IndexTimer animtimer = IndexTimer::SCENE_START,
 		unsigned animFrames = 1, bool texVertSplit = false);
     int setLamp(BarLampType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-        eTimer timer = eTimer::SCENE_START, int nRows = 1, int nCols = 1, bool texVertSplit = false);
+        IndexTimer timer = IndexTimer::SCENE_START, int nRows = 1, int nCols = 1, bool texVertSplit = false);
     int setTitle(BarTitleType type, pFont f,
         TextAlign align = TEXT_ALIGN_LEFT, unsigned ptsize = 72, Color c = 0xffffffff);
     int setTitle(BarTitleType type, std::vector<pTexture>& textures, CharMappingList& chrList,
         TextAlign align = TEXT_ALIGN_LEFT, unsigned height = 72, int margin = 0);
     int setRank(BarRankType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-        eTimer timer = eTimer::SCENE_START, int nRows = 1, int nCols = 1, bool texVertSplit = false);
+        IndexTimer timer = IndexTimer::SCENE_START, int nRows = 1, int nCols = 1, bool texVertSplit = false);
     int setRivalWinLose(BarRivalType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-        eTimer timer = eTimer::SCENE_START, int nRows = 1, int nCols = 1, bool texVertSplit = false);
+        IndexTimer timer = IndexTimer::SCENE_START, int nRows = 1, int nCols = 1, bool texVertSplit = false);
     int setRivalLampSelf(BarLampType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-        eTimer timer = eTimer::SCENE_START, int nRows = 1, int nCols = 1, bool texVertSplit = false);
+        IndexTimer timer = IndexTimer::SCENE_START, int nRows = 1, int nCols = 1, bool texVertSplit = false);
     int setRivalLampRival(BarLampType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-        eTimer timer = eTimer::SCENE_START, int nRows = 1, int nCols = 1, bool texVertSplit = false);
+        IndexTimer timer = IndexTimer::SCENE_START, int nRows = 1, int nCols = 1, bool texVertSplit = false);
 
     void pushPartsOrder(BarPartsType type);
 
 public:
     virtual bool update(Time time);
     virtual void setLoopTime(int t);
-    virtual void setTrigTimer(eTimer t);
+    virtual void setTrigTimer(IndexTimer t);
     virtual void appendKeyFrame(const RenderKeyFrame& f) override;
     virtual void draw() const;
 

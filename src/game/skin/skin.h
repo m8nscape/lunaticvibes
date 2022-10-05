@@ -83,7 +83,7 @@ public:
     void stopSpriteVideoPlayback();
 
     bool textEditSpriteClicked() const;
-    eText textEditType() const;
+    IndexText textEditType() const;
     void startTextEdit(bool clear);
     void stopTextEdit(bool modify);
 

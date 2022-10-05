@@ -1,5 +1,5 @@
 #include "sprite_lane.h"
-#include "game/data/number.h"
+#include "game/runtime/state.h"
 #include "game/scene/scene_context.h"
 #include <cassert>
 
@@ -18,7 +18,7 @@ SpriteLaneVertical::SpriteLaneVertical(unsigned player, bool autoNotes, double b
 }
 
 SpriteLaneVertical::SpriteLaneVertical(pTexture texture, Rect r,
-    unsigned animFrames, unsigned frameTime, eTimer timer,
+    unsigned animFrames, unsigned frameTime, IndexTimer timer,
 	unsigned animRows, unsigned animCols, bool animVerticalIndexing,
     unsigned player, bool autoNotes, double basespeed, double lanespeed):
 	SpriteLaneVertical(player, autoNotes, basespeed, lanespeed)
@@ -157,7 +157,7 @@ void SpriteLaneVertical::updateNoteRect(const Time& t)
 	{
 		// fetch note size, c.y + c.h = judge line pos (top-left corner), -c.h = height start drawing
 		auto c = _current.rect;
-		long long currTimestamp = gChartContext.started ? (t - gTimers.get(eTimer::PLAY_START)).norm() : 0;
+		long long currTimestamp = gChartContext.started ? (t - State::get(IndexTimer::PLAY_START)).norm() : 0;
 
 		// generate note rects and store to buffer
 		// CONSTANT: generate note rects with timestamp (BPM=150)
@@ -210,13 +210,13 @@ void SpriteLaneVertical::updateHIDDENCompatible()
 		_hiddenCompatibleDraw = false;
 		if (playerSlot == PLAYER_SLOT_PLAYER)
 		{
-			auto lcType = Option::e_lane_effect_type(gOptions.get(eOption::PLAY_LANE_EFFECT_TYPE_1P));
+			auto lcType = Option::e_lane_effect_type(State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P));
 			if ((lcType == Option::LANE_HIDDEN || lcType == Option::LANE_SUDHID) &&
-				gSwitches.get(eSwitch::P1_LANECOVER_ENABLED))
+				State::get(IndexSwitch::P1_LANECOVER_ENABLED))
 			{
 				_hiddenCompatibleDraw = true;
 				_hiddenCompatibleArea = _current.rect;
-				double p = gNumbers.get(eNumber::LANECOVER_BOTTOM_1P) / 1000.0;
+				double p = State::get(IndexNumber::LANECOVER_BOTTOM_1P) / 1000.0;
 				int h = _noteAreaHeight;
 				_hiddenCompatibleArea.h = h * p;
 				_hiddenCompatibleArea.y = h - _hiddenCompatibleArea.h;
@@ -229,15 +229,15 @@ void SpriteLaneVertical::updateHIDDENCompatible()
 			int lc;
 			if (gPlayContext.isBattle)
 			{
-				lcType = Option::e_lane_effect_type(gOptions.get(eOption::PLAY_LANE_EFFECT_TYPE_2P));
-				sw = gSwitches.get(eSwitch::P2_LANECOVER_ENABLED);
-				lc = gNumbers.get(eNumber::LANECOVER_BOTTOM_2P);
+				lcType = Option::e_lane_effect_type(State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_2P));
+				sw = State::get(IndexSwitch::P2_LANECOVER_ENABLED);
+				lc = State::get(IndexNumber::LANECOVER_BOTTOM_2P);
 			}
 			else
 			{
-				lcType = Option::e_lane_effect_type(gOptions.get(eOption::PLAY_LANE_EFFECT_TYPE_1P));
-				sw = gSwitches.get(eSwitch::P1_LANECOVER_ENABLED);
-				lc = gNumbers.get(eNumber::LANECOVER_BOTTOM_1P);
+				lcType = Option::e_lane_effect_type(State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P));
+				sw = State::get(IndexSwitch::P1_LANECOVER_ENABLED);
+				lc = State::get(IndexNumber::LANECOVER_BOTTOM_1P);
 			}
 			if ((lcType == Option::LANE_HIDDEN || lcType == Option::LANE_SUDHID) && sw)
 			{
@@ -338,7 +338,7 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 	{
 		// fetch note size, c.y + c.h = judge line pos (top-left corner), -c.h = height start drawing
 		auto c = _current.rect;
-		long long currTimestamp = gChartContext.started ? (t - gTimers.get(eTimer::PLAY_START)).norm() : 0;
+		long long currTimestamp = gChartContext.started ? (t - State::get(IndexTimer::PLAY_START)).norm() : 0;
 
 		// generate note rects and store to buffer
 		// CONSTANT: generate note rects with timestamp (BPM=150)

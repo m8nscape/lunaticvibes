@@ -66,7 +66,6 @@ public:
     bool operator!=(const Hash<_Len2>& rhs) const { return _Len != _Len2 || memcmp(data, rhs.data, _Len) != 0; }
 
 };
-
 typedef Hash<16> HashMD5;
 typedef Hash<32> HashSHA1;
 
@@ -294,4 +293,14 @@ public:
             dir = AXIS_NONE;
     }
     operator int() const { return dir; }
+};
+
+class Ratio
+{
+protected:
+    double _data;
+public:
+    Ratio() : Ratio(0) {}
+    Ratio(double d) { _data = std::clamp(d, 0.0, 1.0); }
+    operator double() const { return _data; }
 };

@@ -9,57 +9,57 @@ SceneKeyConfig::SceneKeyConfig() : vScene(eMode::KEY_CONFIG, 240)
 
     _updateCallback = std::bind(&SceneKeyConfig::updateStart, this);
 
-    gSwitches.set(eSwitch::K11_CONFIG, false);
-    gSwitches.set(eSwitch::K12_CONFIG, false);
-    gSwitches.set(eSwitch::K13_CONFIG, false);
-    gSwitches.set(eSwitch::K14_CONFIG, false);
-    gSwitches.set(eSwitch::K15_CONFIG, false);
-    gSwitches.set(eSwitch::K16_CONFIG, false);
-    gSwitches.set(eSwitch::K17_CONFIG, false);
-    gSwitches.set(eSwitch::K18_CONFIG, false);
-    gSwitches.set(eSwitch::K19_CONFIG, false);
-    gSwitches.set(eSwitch::S1L_CONFIG, false);
-    gSwitches.set(eSwitch::S1R_CONFIG, false);
-    gSwitches.set(eSwitch::S1A_CONFIG, false);
-    gSwitches.set(eSwitch::K1START_CONFIG, false);
-    gSwitches.set(eSwitch::K1SELECT_CONFIG, false);
-    gSwitches.set(eSwitch::K1SPDUP_CONFIG, false);
-    gSwitches.set(eSwitch::K1SPDDN_CONFIG, false);
-    gSwitches.set(eSwitch::K21_CONFIG, false);
-    gSwitches.set(eSwitch::K22_CONFIG, false);
-    gSwitches.set(eSwitch::K23_CONFIG, false);
-    gSwitches.set(eSwitch::K24_CONFIG, false);
-    gSwitches.set(eSwitch::K25_CONFIG, false);
-    gSwitches.set(eSwitch::K26_CONFIG, false);
-    gSwitches.set(eSwitch::K27_CONFIG, false);
-    gSwitches.set(eSwitch::K28_CONFIG, false);
-    gSwitches.set(eSwitch::K29_CONFIG, false);
-    gSwitches.set(eSwitch::S2L_CONFIG, false);
-    gSwitches.set(eSwitch::S2R_CONFIG, false);
-    gSwitches.set(eSwitch::S2A_CONFIG, false);
-    gSwitches.set(eSwitch::K2START_CONFIG, false);
-    gSwitches.set(eSwitch::K2SELECT_CONFIG, false);
-    gSwitches.set(eSwitch::K2SPDUP_CONFIG, false);
-    gSwitches.set(eSwitch::K2SPDDN_CONFIG, false);
-    gSwitches.set(eSwitch::KEY_CONFIG_SLOT0, false);
-    gSwitches.set(eSwitch::KEY_CONFIG_SLOT1, false);
-    gSwitches.set(eSwitch::KEY_CONFIG_SLOT2, false);
-    gSwitches.set(eSwitch::KEY_CONFIG_SLOT3, false);
-    gSwitches.set(eSwitch::KEY_CONFIG_SLOT4, false);
-    gSwitches.set(eSwitch::KEY_CONFIG_SLOT5, false);
-    gSwitches.set(eSwitch::KEY_CONFIG_SLOT6, false);
-    gSwitches.set(eSwitch::KEY_CONFIG_SLOT7, false);
-    gSwitches.set(eSwitch::KEY_CONFIG_SLOT8, false);
-    gSwitches.set(eSwitch::KEY_CONFIG_SLOT9, false);
+    State::set(IndexSwitch::K11_CONFIG, false);
+    State::set(IndexSwitch::K12_CONFIG, false);
+    State::set(IndexSwitch::K13_CONFIG, false);
+    State::set(IndexSwitch::K14_CONFIG, false);
+    State::set(IndexSwitch::K15_CONFIG, false);
+    State::set(IndexSwitch::K16_CONFIG, false);
+    State::set(IndexSwitch::K17_CONFIG, false);
+    State::set(IndexSwitch::K18_CONFIG, false);
+    State::set(IndexSwitch::K19_CONFIG, false);
+    State::set(IndexSwitch::S1L_CONFIG, false);
+    State::set(IndexSwitch::S1R_CONFIG, false);
+    State::set(IndexSwitch::S1A_CONFIG, false);
+    State::set(IndexSwitch::K1START_CONFIG, false);
+    State::set(IndexSwitch::K1SELECT_CONFIG, false);
+    State::set(IndexSwitch::K1SPDUP_CONFIG, false);
+    State::set(IndexSwitch::K1SPDDN_CONFIG, false);
+    State::set(IndexSwitch::K21_CONFIG, false);
+    State::set(IndexSwitch::K22_CONFIG, false);
+    State::set(IndexSwitch::K23_CONFIG, false);
+    State::set(IndexSwitch::K24_CONFIG, false);
+    State::set(IndexSwitch::K25_CONFIG, false);
+    State::set(IndexSwitch::K26_CONFIG, false);
+    State::set(IndexSwitch::K27_CONFIG, false);
+    State::set(IndexSwitch::K28_CONFIG, false);
+    State::set(IndexSwitch::K29_CONFIG, false);
+    State::set(IndexSwitch::S2L_CONFIG, false);
+    State::set(IndexSwitch::S2R_CONFIG, false);
+    State::set(IndexSwitch::S2A_CONFIG, false);
+    State::set(IndexSwitch::K2START_CONFIG, false);
+    State::set(IndexSwitch::K2SELECT_CONFIG, false);
+    State::set(IndexSwitch::K2SPDUP_CONFIG, false);
+    State::set(IndexSwitch::K2SPDDN_CONFIG, false);
+    State::set(IndexSwitch::KEY_CONFIG_SLOT0, false);
+    State::set(IndexSwitch::KEY_CONFIG_SLOT1, false);
+    State::set(IndexSwitch::KEY_CONFIG_SLOT2, false);
+    State::set(IndexSwitch::KEY_CONFIG_SLOT3, false);
+    State::set(IndexSwitch::KEY_CONFIG_SLOT4, false);
+    State::set(IndexSwitch::KEY_CONFIG_SLOT5, false);
+    State::set(IndexSwitch::KEY_CONFIG_SLOT6, false);
+    State::set(IndexSwitch::KEY_CONFIG_SLOT7, false);
+    State::set(IndexSwitch::KEY_CONFIG_SLOT8, false);
+    State::set(IndexSwitch::KEY_CONFIG_SLOT9, false);
 
     gKeyconfigContext.selecting = { Input::Pad::K11, 0 };
     gKeyconfigContext.keys = 7;
-    gSwitches.set(eSwitch::K11_CONFIG, true);
-    gSwitches.set(eSwitch::KEY_CONFIG_SLOT0, true);
-    gOptions.set(eOption::KEY_CONFIG_MODE, Option::KEYCFG_7);
-    gOptions.set(eOption::KEY_CONFIG_KEY5, 1);
-    gOptions.set(eOption::KEY_CONFIG_KEY7, 1);
-    gOptions.set(eOption::KEY_CONFIG_KEY9, 1);
+    State::set(IndexSwitch::K11_CONFIG, true);
+    State::set(IndexSwitch::KEY_CONFIG_SLOT0, true);
+    State::set(IndexOption::KEY_CONFIG_MODE, Option::KEYCFG_7);
+    State::set(IndexOption::KEY_CONFIG_KEY5, 1);
+    State::set(IndexOption::KEY_CONFIG_KEY7, 1);
+    State::set(IndexOption::KEY_CONFIG_KEY9, 1);
     setInputBindingText(gKeyconfigContext.keys, gKeyconfigContext.selecting.first);
 
     LOG_DEBUG << "[KeyConfig] Start";
@@ -88,7 +88,7 @@ void SceneKeyConfig::_updateAsync()
 void SceneKeyConfig::updateStart()
 {
     Time t;
-    Time rt = t - gTimers.get(eTimer::SCENE_START);
+    Time rt = t - State::get(IndexTimer::SCENE_START);
     if (rt.norm() > _skin->info.timeIntro)
     {
         _updateCallback = std::bind(&SceneKeyConfig::updateMain, this);
@@ -106,7 +106,7 @@ void SceneKeyConfig::updateMain()
     Time t;
     if (_exiting)
     {
-        gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
+        State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
         _updateCallback = std::bind(&SceneKeyConfig::updateFadeout, this);
         using namespace std::placeholders;
         _input.unregister_p("SCENE_PRESS");
@@ -120,7 +120,7 @@ void SceneKeyConfig::updateMain()
 void SceneKeyConfig::updateFadeout()
 {
     Time t;
-    Time rt = t - gTimers.get(eTimer::FADEOUT_BEGIN);
+    Time rt = t - State::get(IndexTimer::FADEOUT_BEGIN);
 
     if (rt.norm() > _skin->info.timeOutro)
     {
@@ -143,41 +143,41 @@ void SceneKeyConfig::inputGamePress(InputMask& m, const Time& t)
     {
         if (m[i])
         {
-            gTimers.set(InputGamePressMap[i].tm, t.norm());
-            gTimers.set(InputGameReleaseMap[i].tm, TIMER_NEVER);
-            gSwitches.set(InputGamePressMap[i].sw, true);
+            State::set(InputGamePressMap[i].tm, t.norm());
+            State::set(InputGameReleaseMap[i].tm, TIMER_NEVER);
+            State::set(InputGamePressMap[i].sw, true);
         }
     }
 }
 
-static const std::map<Input::Pad, eBargraph> forceBargraphMap =
+static const std::map<Input::Pad, IndexBargraph> forceBargraphMap =
 {
-    { Input::Pad::S1L,      eBargraph::FORCE_S1L },
-    { Input::Pad::S1R,      eBargraph::FORCE_S1R },
-    { Input::Pad::K1START,  eBargraph::FORCE_K1Start },
-    { Input::Pad::K1SELECT, eBargraph::FORCE_K1Select },
-    { Input::Pad::S2L,      eBargraph::FORCE_S2L },
-    { Input::Pad::S2R,      eBargraph::FORCE_S2R },
-    { Input::Pad::K2START,  eBargraph::FORCE_K2Start },
-    { Input::Pad::K2SELECT, eBargraph::FORCE_K2Select },
-    { Input::Pad::K11,      eBargraph::FORCE_K11 },
-    { Input::Pad::K12,      eBargraph::FORCE_K12 },
-    { Input::Pad::K13,      eBargraph::FORCE_K13 },
-    { Input::Pad::K14,      eBargraph::FORCE_K14 },
-    { Input::Pad::K15,      eBargraph::FORCE_K15 },
-    { Input::Pad::K16,      eBargraph::FORCE_K16 },
-    { Input::Pad::K17,      eBargraph::FORCE_K17 },
-    { Input::Pad::K18,      eBargraph::FORCE_K18 },
-    { Input::Pad::K19,      eBargraph::FORCE_K19 },
-    { Input::Pad::K21,      eBargraph::FORCE_K21 },
-    { Input::Pad::K22,      eBargraph::FORCE_K22 },
-    { Input::Pad::K23,      eBargraph::FORCE_K23 },
-    { Input::Pad::K24,      eBargraph::FORCE_K24 },
-    { Input::Pad::K25,      eBargraph::FORCE_K25 },
-    { Input::Pad::K26,      eBargraph::FORCE_K26 },
-    { Input::Pad::K27,      eBargraph::FORCE_K27 },
-    { Input::Pad::K28,      eBargraph::FORCE_K28 },
-    { Input::Pad::K29,      eBargraph::FORCE_K29 },
+    { Input::Pad::S1L,      IndexBargraph::FORCE_S1L },
+    { Input::Pad::S1R,      IndexBargraph::FORCE_S1R },
+    { Input::Pad::K1START,  IndexBargraph::FORCE_K1Start },
+    { Input::Pad::K1SELECT, IndexBargraph::FORCE_K1Select },
+    { Input::Pad::S2L,      IndexBargraph::FORCE_S2L },
+    { Input::Pad::S2R,      IndexBargraph::FORCE_S2R },
+    { Input::Pad::K2START,  IndexBargraph::FORCE_K2Start },
+    { Input::Pad::K2SELECT, IndexBargraph::FORCE_K2Select },
+    { Input::Pad::K11,      IndexBargraph::FORCE_K11 },
+    { Input::Pad::K12,      IndexBargraph::FORCE_K12 },
+    { Input::Pad::K13,      IndexBargraph::FORCE_K13 },
+    { Input::Pad::K14,      IndexBargraph::FORCE_K14 },
+    { Input::Pad::K15,      IndexBargraph::FORCE_K15 },
+    { Input::Pad::K16,      IndexBargraph::FORCE_K16 },
+    { Input::Pad::K17,      IndexBargraph::FORCE_K17 },
+    { Input::Pad::K18,      IndexBargraph::FORCE_K18 },
+    { Input::Pad::K19,      IndexBargraph::FORCE_K19 },
+    { Input::Pad::K21,      IndexBargraph::FORCE_K21 },
+    { Input::Pad::K22,      IndexBargraph::FORCE_K22 },
+    { Input::Pad::K23,      IndexBargraph::FORCE_K23 },
+    { Input::Pad::K24,      IndexBargraph::FORCE_K24 },
+    { Input::Pad::K25,      IndexBargraph::FORCE_K25 },
+    { Input::Pad::K26,      IndexBargraph::FORCE_K26 },
+    { Input::Pad::K27,      IndexBargraph::FORCE_K27 },
+    { Input::Pad::K28,      IndexBargraph::FORCE_K28 },
+    { Input::Pad::K29,      IndexBargraph::FORCE_K29 },
 };
 
 void SceneKeyConfig::inputGamePressKeyboard(KeyboardMask& mask, const Time& t)
@@ -347,10 +347,10 @@ void SceneKeyConfig::inputGameAbsoluteAxis(JoystickAxis& axis, size_t device, co
 void SceneKeyConfig::setInputBindingText(GameModeKeys keys, Input::Pad pad)
 {
     auto bindings = ConfigMgr::Input(keys)->getBindings(pad);
-    gTexts.set(eText::KEYCONFIG_SLOT1, bindings.toString());
+    State::set(IndexText::KEYCONFIG_SLOT1, bindings.toString());
     for (size_t i = 1; i < 10; ++i)
     {
-        gTexts.set(eText(unsigned(eText::KEYCONFIG_SLOT1) + i), "-");
+        State::set(IndexText(unsigned(IndexText::KEYCONFIG_SLOT1) + i), "-");
     }
 }
 
@@ -372,7 +372,7 @@ void SceneKeyConfig::updateForceBargraphs()
                 if (isKeyPressed(k))
                 {
                     forceBargraphTriggerTimestamp[p] = t.norm();
-                    gBargraphs.set(bar, 1.0);
+                    State::set(bar, 1.0);
                 }
             }
         }
@@ -392,7 +392,7 @@ void SceneKeyConfig::updateForceBargraphs()
                 if (isButtonPressed(binding.getJoystick(), 0.0));
                 {
                     forceBargraphTriggerTimestamp[p] = t.norm();
-                    gBargraphs.set(bar, 1.0);
+                    State::set(bar, 1.0);
                 }
             }
         }
@@ -411,7 +411,7 @@ void SceneKeyConfig::updateForceBargraphs()
                 if (isButtonPressed(binding.getJoystick(), 0.0));
                 {
                     forceBargraphTriggerTimestamp[p] = t.norm();
-                    gBargraphs.set(bar, 1.0);
+                    State::set(bar, 1.0);
                 }
             }
         }
@@ -431,7 +431,7 @@ void SceneKeyConfig::updateForceBargraphs()
                 if (axis >= 0.0 && axis <= 1.0)
                 {
                     forceBargraphTriggerTimestamp[p] = 0;
-                    gBargraphs.set(bar, axis);
+                    State::set(bar, axis);
                 }
             }
         }
@@ -451,7 +451,7 @@ void SceneKeyConfig::updateForceBargraphs()
                 if (axis >= 0.0 && axis <= 1.0)
                 {
                     forceBargraphTriggerTimestamp[p] = 0;
-                    gBargraphs.set(bar, axis);
+                    State::set(bar, axis);
                 }
             }
         }
@@ -463,7 +463,7 @@ void SceneKeyConfig::updateForceBargraphs()
             forceBargraphTriggerTimestamp[pad] != 0 &&
             t - forceBargraphTriggerTimestamp[pad] > 500)  // 1s timeout
         {
-            gBargraphs.set(bar, 0.0);
+            State::set(bar, 0.0);
         }
     }
 }
@@ -475,16 +475,16 @@ void SceneKeyConfig::updateInfo(KeyMap k, int slot)
     // update text
     switch (slot)
     {
-    case 0: gTexts.set(eText::KEYCONFIG_SLOT1, k.toString()); break;
-    case 1: gTexts.set(eText::KEYCONFIG_SLOT2, k.toString()); break;
-    case 2: gTexts.set(eText::KEYCONFIG_SLOT3, k.toString()); break;
-    case 3: gTexts.set(eText::KEYCONFIG_SLOT4, k.toString()); break;
-    case 4: gTexts.set(eText::KEYCONFIG_SLOT5, k.toString()); break;
-    case 5: gTexts.set(eText::KEYCONFIG_SLOT6, k.toString()); break;
-    case 6: gTexts.set(eText::KEYCONFIG_SLOT7, k.toString()); break;
-    case 7: gTexts.set(eText::KEYCONFIG_SLOT8, k.toString()); break;
-    case 8: gTexts.set(eText::KEYCONFIG_SLOT9, k.toString()); break;
-    case 9: gTexts.set(eText::KEYCONFIG_SLOT10, k.toString()); break;
+    case 0: State::set(IndexText::KEYCONFIG_SLOT1, k.toString()); break;
+    case 1: State::set(IndexText::KEYCONFIG_SLOT2, k.toString()); break;
+    case 2: State::set(IndexText::KEYCONFIG_SLOT3, k.toString()); break;
+    case 3: State::set(IndexText::KEYCONFIG_SLOT4, k.toString()); break;
+    case 4: State::set(IndexText::KEYCONFIG_SLOT5, k.toString()); break;
+    case 5: State::set(IndexText::KEYCONFIG_SLOT6, k.toString()); break;
+    case 6: State::set(IndexText::KEYCONFIG_SLOT7, k.toString()); break;
+    case 7: State::set(IndexText::KEYCONFIG_SLOT8, k.toString()); break;
+    case 8: State::set(IndexText::KEYCONFIG_SLOT9, k.toString()); break;
+    case 9: State::set(IndexText::KEYCONFIG_SLOT10, k.toString()); break;
     default: break;
     }
 

@@ -1,8 +1,10 @@
 #pragma once
-//#include <bitset>
-#include "buffered_global.h"
 
-enum class eSwitch: unsigned
+/*
+* These indices are dymanically converted to LR2skin indices.
+* You may modify the sequnce order freely.
+*/
+enum class IndexSwitch: unsigned
 {
     _TRUE = 0,           // should be initialized with true
 
@@ -152,24 +154,3 @@ enum class eSwitch: unsigned
     _TEST1,
     SWITCH_COUNT
 };
-
-inline buffered_global<eSwitch, bool, (size_t)eSwitch::SWITCH_COUNT> gSwitches;
-
-/*
-class gSwitches
-{
-protected:
-    constexpr gSwitches() : _data{ false }, _dataBuffer{ false } { _data[(size_t)eSwitch::FALSE] = true; }
-private:
-    static gSwitches _inst;
-    std::bitset<(size_t)eSwitch::SWITCH_COUNT> _data;
-    std::bitset<(size_t)eSwitch::SWITCH_COUNT> _dataBuffer;
-public:
-    static constexpr bool get(eSwitch n) { return _inst._data[(size_t)n] - _inst._data[0]; }
-    static constexpr void queue(eSwitch n, bool value) { _inst._dataBuffer[(size_t)n] = value; }
-    static constexpr void flush() { _inst._data = _inst._dataBuffer; }
-protected:
-    static constexpr void _set(eSwitch n, bool value) { _inst._data[(size_t)n] = _inst._dataBuffer[(size_t)n] = value; }
-};
-*/
-

@@ -4,7 +4,7 @@
 #include "common/chartformat/chartformat_bms.h"
 
 int SpriteBarEntry::setBody(BarType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-    eTimer timer, int nRows, int nCols, bool texVertSplit)
+    IndexTimer timer, int nRows, int nCols, bool texVertSplit)
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarType::TYPE_COUNT))
     {
@@ -27,7 +27,7 @@ int SpriteBarEntry::setBody(BarType type, pTexture texture, const Rect& rect, un
 }
 
 int SpriteBarEntry::setFlash(pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-    eTimer timer, int nRows, int nCols, bool texVertSplit)
+    IndexTimer timer, int nRows, int nCols, bool texVertSplit)
 {
     sFlash = std::make_shared<SpriteAnimated>(texture, rect, animFrames, frameTime, timer, nRows, nCols, texVertSplit);
     sFlash->setParent(weak_from_this());
@@ -35,7 +35,7 @@ int SpriteBarEntry::setFlash(pTexture texture, const Rect& rect, unsigned animFr
 }
 
 int SpriteBarEntry::setLevel(BarLevelType type, pTexture texture, const Rect& rect, NumberAlign align, unsigned digits,
-    unsigned numRows, unsigned numCols, unsigned frameTime, eTimer animtimer,
+    unsigned numRows, unsigned numCols, unsigned frameTime, IndexTimer animtimer,
     unsigned animFrames, bool texVertSplit)
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarLevelType::LEVEL_TYPE_COUNT))
@@ -53,14 +53,14 @@ int SpriteBarEntry::setLevel(BarLevelType type, pTexture texture, const Rect& re
             << " (Line " << _srcLine << ")";
 
     sLevel[static_cast<size_t>(type)] = std::make_shared<SpriteNumber>(
-        texture, rect, align, digits, numRows, numCols, frameTime, eNumber(unsigned(eNumber::_SELECT_BAR_LEVEL_0) + index),
+        texture, rect, align, digits, numRows, numCols, frameTime, IndexNumber(unsigned(IndexNumber::_SELECT_BAR_LEVEL_0) + index),
         animtimer, animFrames, texVertSplit);
     sLevel[static_cast<size_t>(type)]->setParent(weak_from_this());
     return 0;
 }
 
 int SpriteBarEntry::setLamp(BarLampType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-    eTimer timer, int nRows, int nCols, bool texVertSplit)
+    IndexTimer timer, int nRows, int nCols, bool texVertSplit)
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarLampType::LAMP_TYPE_COUNT))
     {
@@ -77,8 +77,8 @@ int SpriteBarEntry::setLamp(BarLampType type, pTexture texture, const Rect& rect
 
 int SpriteBarEntry::setTitle(BarTitleType type, pFont f, TextAlign align, unsigned ptsize, Color c)
 {
-    const size_t i = int(eText::_SELECT_BAR_TITLE_FULL_0) + index;
-    sTitle[static_cast<size_t>(type)] = std::make_shared<SpriteText>(f, eText(i), align, ptsize, c);
+    const size_t i = int(IndexText::_SELECT_BAR_TITLE_FULL_0) + index;
+    sTitle[static_cast<size_t>(type)] = std::make_shared<SpriteText>(f, IndexText(i), align, ptsize, c);
     sTitle[static_cast<size_t>(type)]->setParent(weak_from_this());
     return 0;
 }
@@ -86,14 +86,14 @@ int SpriteBarEntry::setTitle(BarTitleType type, pFont f, TextAlign align, unsign
 int SpriteBarEntry::setTitle(BarTitleType type, std::vector<pTexture>& textures, CharMappingList& chrList,
     TextAlign align, unsigned height, int margin)
 {
-    const size_t i = int(eText::_SELECT_BAR_TITLE_FULL_0) + index;
-    sTitle[static_cast<size_t>(type)] = std::make_shared<SpriteImageText>(textures, chrList, eText(i), align, height, margin);
+    const size_t i = int(IndexText::_SELECT_BAR_TITLE_FULL_0) + index;
+    sTitle[static_cast<size_t>(type)] = std::make_shared<SpriteImageText>(textures, chrList, IndexText(i), align, height, margin);
     sTitle[static_cast<size_t>(type)]->setParent(weak_from_this());
     return 0;
 }
 
 int SpriteBarEntry::setRank(BarRankType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-    eTimer timer, int nRows, int nCols, bool texVertSplit)
+    IndexTimer timer, int nRows, int nCols, bool texVertSplit)
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarRankType::RANK_TYPE_COUNT))
     {
@@ -109,7 +109,7 @@ int SpriteBarEntry::setRank(BarRankType type, pTexture texture, const Rect& rect
 }
 
 int SpriteBarEntry::setRivalWinLose(BarRivalType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-    eTimer timer, int nRows, int nCols, bool texVertSplit)
+    IndexTimer timer, int nRows, int nCols, bool texVertSplit)
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarRivalType::RIVAL_TYPE_COUNT))
     {
@@ -125,7 +125,7 @@ int SpriteBarEntry::setRivalWinLose(BarRivalType type, pTexture texture, const R
 }
 
 int SpriteBarEntry::setRivalLampSelf(BarLampType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-    eTimer timer, int nRows, int nCols, bool texVertSplit)
+    IndexTimer timer, int nRows, int nCols, bool texVertSplit)
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarLampType::LAMP_TYPE_COUNT))
     {
@@ -141,7 +141,7 @@ int SpriteBarEntry::setRivalLampSelf(BarLampType type, pTexture texture, const R
 }
 
 int SpriteBarEntry::setRivalLampRival(BarLampType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-    eTimer timer, int nRows, int nCols, bool texVertSplit)
+    IndexTimer timer, int nRows, int nCols, bool texVertSplit)
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarLampType::LAMP_TYPE_COUNT))
     {
@@ -192,7 +192,7 @@ bool SpriteBarEntry::update(Time time)
         drawBodyOn = (index == gSelectContext.cursor);
 
         // check new song
-        bool isNewEntry = (pEntry->_addTime < std::time(nullptr) + gNumbers.get(eNumber::NEW_ENTRY_SECONDS));
+        bool isNewEntry = (pEntry->_addTime < std::time(nullptr) + State::get(IndexNumber::NEW_ENTRY_SECONDS));
 
         static const std::map<eEntryType, size_t> BAR_TYPE_MAP =
         {
@@ -454,7 +454,7 @@ void SpriteBarEntry::setLoopTime(int t)
     assert(false);
 }
 
-void SpriteBarEntry::setTrigTimer(eTimer t)
+void SpriteBarEntry::setTrigTimer(IndexTimer t)
 {
     LOG_ERROR << "[Sprite] setTrigTimer(f) of SpriteBarEntry should not be used";
     assert(false);

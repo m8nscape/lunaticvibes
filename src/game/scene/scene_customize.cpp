@@ -61,7 +61,7 @@ void SceneCustomize::_updateAsync()
 void SceneCustomize::updateStart()
 {
     Time t;
-    Time rt = t - gTimers.get(eTimer::SCENE_START);
+    Time rt = t - State::get(IndexTimer::SCENE_START);
     if (rt.norm() > _skin->info.timeIntro)
     {
         _updateCallback = std::bind(&SceneCustomize::updateMain, this);
@@ -260,14 +260,14 @@ void SceneCustomize::updateMain()
     {
         gCustomizeContext.optionDragging = false;
 
-        topOptionIndex = gSliders.get(eSlider::SKIN_CONFIG_OPTIONS) * optionsMap.size();
+        topOptionIndex = State::get(IndexSlider::SKIN_CONFIG_OPTIONS) * optionsMap.size();
         updateTexts();
     }
     if (_exiting)
     {
         save(selectedMode);
 
-        gTimers.set(eTimer::FADEOUT_BEGIN, t.norm());
+        State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
         _updateCallback = std::bind(&SceneCustomize::updateFadeout, this);
         using namespace std::placeholders;
         _input.unregister_p("SCENE_PRESS");
@@ -278,7 +278,7 @@ void SceneCustomize::updateMain()
 void SceneCustomize::updateFadeout()
 {
     Time t;
-    Time rt = t - gTimers.get(eTimer::FADEOUT_BEGIN);
+    Time rt = t - State::get(IndexTimer::FADEOUT_BEGIN);
 
     if (rt.norm() > _skin->info.timeOutro)
     {
@@ -364,8 +364,8 @@ void SceneCustomize::load(eMode mode)
 
         SoundSetLR2 ss(path);
 
-        gTexts.queue(eText::SKIN_NAME, ss.name);
-        gTexts.queue(eText::SKIN_MAKER_NAME, ss.maker);
+        State::set(IndexText::SKIN_NAME, ss.name);
+        State::set(IndexText::SKIN_MAKER_NAME, ss.maker);
 
         // load names
         size_t count = ss.getCustomizeOptionCount();
@@ -393,8 +393,8 @@ void SceneCustomize::load(eMode mode)
 
         if (ps != nullptr)
         {
-            gTexts.queue(eText::SKIN_NAME, ps->getName());
-            gTexts.queue(eText::SKIN_MAKER_NAME, ps->getMaker());
+            State::set(IndexText::SKIN_NAME, ps->getName());
+            State::set(IndexText::SKIN_MAKER_NAME, ps->getMaker());
 
             // load names
             size_t count = ps->getCustomizeOptionCount();
@@ -414,8 +414,8 @@ void SceneCustomize::load(eMode mode)
         }
         else
         {
-            gTexts.queue(eText::SKIN_NAME, "");
-            gTexts.queue(eText::SKIN_MAKER_NAME, "");
+            State::set(IndexText::SKIN_NAME, "");
+            State::set(IndexText::SKIN_MAKER_NAME, "");
         }
     }
 
@@ -447,7 +447,7 @@ void SceneCustomize::load(eMode mode)
     topOptionIndex = 0;
     if (!optionsMap.empty())
     {
-        gSliders.set(eSlider::SKIN_CONFIG_OPTIONS, double(topOptionIndex) / (optionsMap.size() - 1));
+        State::set(IndexSlider::SKIN_CONFIG_OPTIONS, double(topOptionIndex) / (optionsMap.size() - 1));
     }
     updateTexts();
 }
@@ -497,22 +497,21 @@ void SceneCustomize::updateTexts() const
 {
     for (size_t i = 0; i < 10; ++i)
     {
-        eText optionNameId = eText(size_t(eText::スキンカスタマイズカテゴリ名1個目) + i);
-        eText entryNameId = eText(size_t(eText::スキンカスタマイズ項目名1個目) + i);
+        IndexText optionNameId = IndexText(size_t(IndexText::スキンカスタマイズカテゴリ名1個目) + i);
+        IndexText entryNameId = IndexText(size_t(IndexText::スキンカスタマイズ項目名1個目) + i);
         size_t idx = topOptionIndex + i;
         if (idx < optionsKeyList.size())
         {
             const Option& op = optionsMap.at(optionsKeyList[idx]);
-            gTexts.queue(optionNameId, op.displayName);
-            gTexts.queue(entryNameId, !op.entries.empty() ? op.entries[op.selectedEntry] : "");
+            State::set(optionNameId, op.displayName);
+            State::set(entryNameId, !op.entries.empty() ? op.entries[op.selectedEntry] : "");
         }
         else
         {
-            gTexts.queue(optionNameId, "");
-            gTexts.queue(entryNameId, "");
+            State::set(optionNameId, "");
+            State::set(entryNameId, "");
         }
     }
-    gTexts.flush();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -528,7 +527,7 @@ void SceneCustomize::inputGamePress(InputMask& m, const Time& t)
         topOptionIndex--;
         if (!optionsMap.empty())
         {
-            gSliders.set(eSlider::SKIN_CONFIG_OPTIONS, double(topOptionIndex) / (optionsMap.size() - 1));
+            State::set(IndexSlider::SKIN_CONFIG_OPTIONS, double(topOptionIndex) / (optionsMap.size() - 1));
         }
         updateTexts();
     }
@@ -538,7 +537,7 @@ void SceneCustomize::inputGamePress(InputMask& m, const Time& t)
         topOptionIndex++;
         if (!optionsMap.empty())
         {
-            gSliders.set(eSlider::SKIN_CONFIG_OPTIONS, double(topOptionIndex) / (optionsMap.size() - 1));
+            State::set(IndexSlider::SKIN_CONFIG_OPTIONS, double(topOptionIndex) / (optionsMap.size() - 1));
         }
         updateTexts();
     }

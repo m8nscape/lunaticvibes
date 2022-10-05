@@ -1,7 +1,11 @@
 #pragma once
-#include "buffered_global.h"
 
-enum class eText: unsigned
+/*
+* !!! WARNING !!!
+* These indices are currently DIRECTLY casted to LR2skin indices.
+* When adding new value, do not modify existing values.
+*/
+enum class IndexText: unsigned
 {
     INVALID = 0,           // should be initialized with ""
 
@@ -189,5 +193,3 @@ enum TextAlign
 	TEXT_ALIGN_CENTER,
 	TEXT_ALIGN_RIGHT
 };
-
-inline buffered_global<eText, std::string, (size_t)eText::TEXT_COUNT> gTexts;
