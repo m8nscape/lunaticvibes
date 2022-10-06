@@ -32,6 +32,8 @@ SceneCustomize::SceneCustomize() : vScene(eMode::THEME_SELECT, 240)
         soundsetList.push_back(fs::absolute(p));
     }
 
+    SoundMgr::setSysVolume(1.0);
+
     LOG_DEBUG << "[Customize] Start";
 }
 
@@ -268,6 +270,7 @@ void SceneCustomize::updateMain()
         save(selectedMode);
 
         State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
+        SoundMgr::setSysVolume(0.0, 1000);
         _updateCallback = std::bind(&SceneCustomize::updateFadeout, this);
         using namespace std::placeholders;
         _input.unregister_p("SCENE_PRESS");

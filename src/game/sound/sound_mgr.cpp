@@ -90,10 +90,10 @@ void SoundMgr::stopUpdate()
     return _inst.driver->loopEnd();
 }
 
-void SoundMgr::setSysVolume(float v)
+void SoundMgr::setSysVolume(float v, int gradientTime)
 {
     if (!_inst._initialized) return;
-    return _inst.driver->setSysVolume(v);
+    return _inst.driver->setSysVolume(v, gradientTime);
 }
 
 void SoundMgr::setVolume(SampleChannel ch, float v)

@@ -356,6 +356,7 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
 
     SoundMgr::stopNoteSamples();
     SoundMgr::stopSysSamples();
+    SoundMgr::setSysVolume(1.0);
     SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::BGM_SELECT);
 
     // do not play preview right after scene is loaded
@@ -623,6 +624,7 @@ void SceneSelect::updateSelect()
 
     if (gSelectContext.isGoingToKeyConfig || gSelectContext.isGoingToSkinSelect)
     {
+        SoundMgr::setSysVolume(0.0, 500);
         State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
         _state = eSelectState::FADEOUT;
         _updateCallback = std::bind(&SceneSelect::updateFadeout, this);
@@ -2084,7 +2086,7 @@ void SceneSelect::updatePreview()
                             }
 
                             // FIXME add a gradient effect
-                            SoundMgr::setSysVolume(0.1);
+                            SoundMgr::setSysVolume(0.1, 200);
 
                             previewState = PREVIEW_PLAY;
                         }
@@ -2099,7 +2101,7 @@ void SceneSelect::updatePreview()
                 if ((Time() - previewStartTime).norm() > previewStandaloneLength)
                 {
                     previewState = PREVIEW_FINISH;
-                    SoundMgr::setSysVolume(1.0);
+                    SoundMgr::setSysVolume(1.0, 400);
                 }
             }
             else
@@ -2138,7 +2140,7 @@ void SceneSelect::updatePreview()
                 if (previewRuleset->isFinished())
                 {
                     previewState = PREVIEW_FINISH;
-                    SoundMgr::setSysVolume(1.0);
+                    SoundMgr::setSysVolume(1.0, 400);
                 }
             }
             break;
@@ -2154,6 +2156,6 @@ void SceneSelect::updatePreview()
 void SceneSelect::postStopPreview()
 {
     SoundMgr::stopNoteSamples();
-    SoundMgr::setSysVolume(1.0);
+    SoundMgr::setSysVolume(1.0, 400);
     previewState = PREVIEW_NONE;
 }

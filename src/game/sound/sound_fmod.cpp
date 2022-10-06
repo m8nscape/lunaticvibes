@@ -849,6 +849,28 @@ void SoundDriverFMOD::freeSysSamples()
 void SoundDriverFMOD::update()
 {
     if (!fmodSystem) return;
+
+    if (sysVolume != sysVolumeGradientEnd)
+    {
+        if (sysVolumeGradientLength == 0)
+        {
+            sysVolume = sysVolumeGradientEnd;
+        }
+        else
+        {
+            double progress = double((Time() - sysVolumeGradientBeginTime).norm()) / sysVolumeGradientLength;
+            if (progress >= 1.0)
+            {
+                sysVolume = sysVolumeGradientEnd;
+            }
+            else
+            {
+                sysVolume = sysVolumeGradientBegin + (sysVolumeGradientEnd - sysVolumeGradientBegin) * progress;
+            }
+        }
+        setVolume(SampleChannel::BGM, volume[SampleChannel::BGM]);
+    }
+
     FMOD_RESULT r = fmodSystem->update();
     if (r != FMOD_OK)
         LOG_ERROR << "[FMOD] SoundDriverFMOD System Update Error: " << r << ", " << FMOD_ErrorString(r);
@@ -861,10 +883,12 @@ int SoundDriverFMOD::getChannelsPlaying()
     return c;
 }
 
-void SoundDriverFMOD::setSysVolume(float v)
+void SoundDriverFMOD::setSysVolume(float v, int gradientTime)
 {
-    sysVolume = v;
-    setVolume(SampleChannel::MASTER, volume[SampleChannel::MASTER]);
+    sysVolumeGradientBegin = sysVolume;
+    sysVolumeGradientEnd = v;
+    sysVolumeGradientBeginTime = Time();
+    sysVolumeGradientLength = gradientTime;
 }
 
 void SoundDriverFMOD::setVolume(SampleChannel ch, float v)

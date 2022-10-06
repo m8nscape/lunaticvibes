@@ -386,7 +386,7 @@ void SceneResult::inputGamePress(InputMask& m, const Time& t)
 {
     if (t - State::get(IndexTimer::SCENE_START) < _skin->info.timeIntro) return;
 
-    if ((_inputAvailable & m & INPUT_MASK_DECIDE).any())
+    if ((_inputAvailable & m & (INPUT_MASK_DECIDE | INPUT_MASK_CANCEL)).any() || m[Input::ESC])
     {
         switch (_state)
         {
@@ -410,6 +410,7 @@ void SceneResult::inputGamePress(InputMask& m, const Time& t)
             {
                 State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
                 _state = eResultState::FADEOUT;
+                SoundMgr::setSysVolume(0.0, 2000);
                 LOG_DEBUG << "[Result] State changed to FADEOUT";
             }
             break;
@@ -419,6 +420,7 @@ void SceneResult::inputGamePress(InputMask& m, const Time& t)
             {
                 State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
                 _state = eResultState::FADEOUT;
+                SoundMgr::setSysVolume(0.0, 2000);
                 LOG_DEBUG << "[Result] State changed to FADEOUT";
             }
             break;
