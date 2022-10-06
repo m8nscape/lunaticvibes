@@ -148,6 +148,7 @@ struct SelectContextParams
     EntryList entries;
     size_t idx = 0;     // current selected entry index
     size_t cursor = 0;  // highlighted bar index
+    bool entryDragging = 0;    // is dragging slider
 
     SongListSort sort = SongListSort::DEFAULT;
     unsigned filterDifficulty = 0; // all / B / N / H / A / I (type 0 is not included)

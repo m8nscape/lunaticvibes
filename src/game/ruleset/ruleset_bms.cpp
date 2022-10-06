@@ -486,7 +486,7 @@ void RulesetBMS::_judgePress(NoteLaneCategory cat, NoteLaneIndex idx, HitableNot
     {
         if (judgeAreaReplayCommandType[slot].find(judge.area) != judgeAreaReplayCommandType[slot].end())
         {
-            long long ms = t.norm() - State::get(IndexTimer::PLAY_START);
+            long long ms = t.norm() - _startTime.norm();
             ReplayChart::Commands cmd;
             cmd.ms = ms;
             cmd.type = judgeAreaReplayCommandType[slot].at(judge.area);
@@ -532,7 +532,7 @@ void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote
             // push replay command
             if (doJudge && gChartContext.started && gPlayContext.replayNew)
             {
-                long long ms = t.norm() - State::get(IndexTimer::PLAY_START);
+                long long ms = t.norm() - _startTime.norm();
                 ReplayChart::Commands cmd;
                 cmd.ms = ms;
                 cmd.type = slot == PLAYER_SLOT_PLAYER ? ReplayChart::Commands::Type::JUDGE_LEFT_LANDMINE : ReplayChart::Commands::Type::JUDGE_RIGHT_LANDMINE;
@@ -585,7 +585,7 @@ void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote
     {
         if (judgeAreaReplayCommandType[slot].find(judge.area) != judgeAreaReplayCommandType[slot].end())
         {
-            long long ms = t.norm() - State::get(IndexTimer::PLAY_START);
+            long long ms = t.norm() - _startTime.norm();
             ReplayChart::Commands cmd;
             cmd.ms = ms;
             cmd.type = judgeAreaReplayCommandType[slot].at(judge.area);
@@ -681,7 +681,7 @@ void RulesetBMS::_judgeRelease(NoteLaneCategory cat, NoteLaneIndex idx, HitableN
     {
         if (judgeAreaReplayCommandType[slot].find(judge.area) != judgeAreaReplayCommandType[slot].end())
         {
-            long long ms = t.norm() - State::get(IndexTimer::PLAY_START);
+            long long ms = t.norm() - _startTime.norm();
             ReplayChart::Commands cmd;
             cmd.ms = ms;
             cmd.type = judgeAreaReplayCommandType[slot].at(judge.area);
@@ -933,7 +933,7 @@ void RulesetBMS::judgeNoteRelease(Input::Pad k, const Time& t, const Time& rt, i
 
 void RulesetBMS::updatePress(InputMask& pg, const Time& t)
 {
-	Time rt = t - State::get(IndexTimer::PLAY_START);
+	Time rt = t - _startTime.norm();
     if (rt.norm() < 0) return;
     if (gPlayContext.isAuto) return;
     auto updatePressRange = [&](Input::Pad begin, Input::Pad end, int slot)
@@ -954,7 +954,7 @@ void RulesetBMS::updatePress(InputMask& pg, const Time& t)
 }
 void RulesetBMS::updateHold(InputMask& hg, const Time& t)
 {
-	Time rt = t - State::get(IndexTimer::PLAY_START);
+	Time rt = t - _startTime.norm();
     if (rt < 0) return;
     if (gPlayContext.isAuto) return;
 
@@ -976,7 +976,7 @@ void RulesetBMS::updateHold(InputMask& hg, const Time& t)
 }
 void RulesetBMS::updateRelease(InputMask& rg, const Time& t)
 {
-	Time rt = t - State::get(IndexTimer::PLAY_START);
+	Time rt = t - _startTime.norm();
     if (rt < 0) return;
     if (gPlayContext.isAuto) return;
 
@@ -998,7 +998,7 @@ void RulesetBMS::updateRelease(InputMask& rg, const Time& t)
 }
 void RulesetBMS::updateAxis(double s1, double s2, const Time& t)
 {
-    Time rt = t - State::get(IndexTimer::PLAY_START);
+    Time rt = t - _startTime.norm();
     if (rt.norm() < 0) return;
 
     using namespace Input;
@@ -1012,7 +1012,10 @@ void RulesetBMS::updateAxis(double s1, double s2, const Time& t)
 
 void RulesetBMS::update(const Time& t)
 {
-	auto rt = t - State::get(IndexTimer::PLAY_START);
+    if (!_hasStartTime)
+        setStartTime(t);
+
+	auto rt = t - _startTime.norm();
 
     for (auto& [c, n]: _noteListIterators)
     {
@@ -1073,7 +1076,7 @@ void RulesetBMS::update(const Time& t)
                             // push replay command
                             if (doJudge && gChartContext.started && gPlayContext.replayNew)
                             {
-                                long long ms = t.norm() - State::get(IndexTimer::PLAY_START);
+                                long long ms = t.norm() - _startTime.norm();
                                 ReplayChart::Commands cmd;
                                 cmd.ms = ms;
                                 cmd.type = slot == PLAYER_SLOT_PLAYER ? ReplayChart::Commands::Type::JUDGE_LEFT_LATE_4 : ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_4;
@@ -1118,7 +1121,7 @@ void RulesetBMS::update(const Time& t)
                                     // push replay command
                                     if (doJudge && gChartContext.started && gPlayContext.replayNew)
                                     {
-                                        long long ms = t.norm() - State::get(IndexTimer::PLAY_START);
+                                        long long ms = t.norm() - _startTime.norm();
                                         ReplayChart::Commands cmd;
                                         cmd.ms = ms;
                                         cmd.type = slot == PLAYER_SLOT_PLAYER ? ReplayChart::Commands::Type::JUDGE_LEFT_LATE_4 : ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_4;

@@ -43,6 +43,10 @@ protected:
     bool _isCleared = false;
     bool _isFailed = false;
     bool _isAutoplay = false;
+
+    bool _hasStartTime = false;
+    Time _startTime;
+
 public:
     vRuleset() = delete;
     vRuleset(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<ChartObjectBase> chart) :
@@ -68,4 +72,6 @@ public:
     virtual void fail() { _isFailed = true; }
     virtual void reset() { _basic = { 0 }; };
     virtual void updateGlobals() = 0;
+
+    void setStartTime(const Time& t) { _hasStartTime = true; _startTime = t; }
 };

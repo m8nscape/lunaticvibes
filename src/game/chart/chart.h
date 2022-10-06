@@ -148,6 +148,8 @@ protected:
     std::array<Time, MAX_MEASURES>   _barTimestamp;
 
     Time   _totalLength;
+    Time   _leadInTime = 0;    // when the first sound note locates
+
     double _averageBPM = 0.;
     double _mainBPM = 0.;
 
@@ -194,6 +196,7 @@ public:
     Metre getBarMetrePosition(size_t bar);
 	Time getBarTimestamp(size_t m) { return m < MAX_MEASURES ? _barTimestamp[m] : LLONG_MAX; }
 	Time getCurrentBarTimestamp() { return getBarTimestamp(_currentBar); }
+    Time getLeadInTime() const { return _leadInTime.norm() > 200 ? Time(_leadInTime.hres() - 200 * 1000000, true) : Time(0); }
 
 protected:
     unsigned _currentBarTemp       = 0;
@@ -208,9 +211,9 @@ protected:
 public:
     void reset();
     void resetNoteListsIterators();            // set after parsing
-    /*virtual*/ void update(Time t);
-    virtual void preUpdate(const Time& t) = 0;
-    virtual void postUpdate(const Time& t) = 0;
+    /*virtual*/ void update(const Time& rt);    // call with RELATIVE time
+    virtual void preUpdate(const Time& rt) = 0;
+    virtual void postUpdate(const Time& rt) = 0;
     constexpr auto getCurrentBar() -> decltype(_currentBar) { return _currentBar; }
     constexpr auto getCurrentMetre() -> decltype(_currentMetre) { return _currentMetre; }
     constexpr auto getCurrentBPM() -> decltype(_currentBPM) { return _currentBPM; }

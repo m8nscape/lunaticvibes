@@ -20,6 +20,7 @@ private:
 protected:
 	std::map<SoundChannelType, std::shared_ptr<FMOD::ChannelGroup>> channelGroup;
 	std::map<SampleChannel, float> volume;
+	float sysVolume = 1.0;
 
 	std::map<SoundChannelType, FMOD::DSP*> DSPMaster[3];
 	std::map<SoundChannelType, FMOD::DSP*> DSPKey[3];
@@ -74,6 +75,7 @@ public:
 	int getChannelsPlaying();
 
 public:
+	virtual void setSysVolume(float v);
 	virtual void setVolume(SampleChannel ch, float v);
 	virtual void setDSP(DSPType type, int index, SampleChannel ch, float p1, float p2);
 	virtual void setFreqFactor(double f);

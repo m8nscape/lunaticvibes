@@ -31,6 +31,22 @@ private:
     bool isInVersionList = false;
 
     Time selectDownTimestamp;
+    Time navigateTimestamp;
+
+    std::mutex previewMutex;
+    enum
+    {
+        PREVIEW_NONE,
+        PREVIEW_PLAY,
+        PREVIEW_FINISH,
+    } previewState = PREVIEW_NONE;
+    bool previewStandalone = false; // true if chart has a preview sound track
+    std::shared_ptr<ChartFormatBase> previewChart = nullptr;
+    std::shared_ptr<ChartObjectBase> previewChartObj = nullptr;
+    std::shared_ptr<vRuleset> previewRuleset = nullptr;
+    Time previewStartTime;
+    std::array<size_t, 128> _bgmSampleIdxBuf{};
+    std::array<size_t, 128> _keySampleIdxBuf{};
 
     Time scrollButtonTimestamp;
     double scrollAccumulator = 0.0;
@@ -101,6 +117,12 @@ protected:
     virtual void stopTextEdit(bool modify) override;
     void resetJukeboxText();
     void searchSong(const std::string& text);
+
+protected:
+    void updatePreview();
+    void postStopPreview();
+
+/// //////////////////////////////////////////////////////
 
 private:
     void _imguiInit();

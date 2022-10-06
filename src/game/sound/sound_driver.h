@@ -69,6 +69,7 @@ public:
     virtual void freeSysSamples() = 0;
 
 public:
+    virtual void setSysVolume(float v) = 0;
     virtual void setVolume(SampleChannel ch, float v) = 0;
     virtual void setDSP(DSPType type, int index, SampleChannel ch, float p1, float p2) = 0;
     virtual void setFreqFactor(double f) = 0;

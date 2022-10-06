@@ -188,10 +188,10 @@ Metre ChartObjectBase::getBarMetrePosition(size_t bar)
 	return _barMetrePos[bar];
 }
 
-void ChartObjectBase::update(Time t)
+void ChartObjectBase::update(const Time& rt)
 {
-    Time vt = t + Time(State::get(IndexNumber::TIMING_ADJUST_VISUAL), false);
-    Time at = t;
+    Time vt = rt + Time(State::get(IndexNumber::TIMING_ADJUST_VISUAL), false);
+    Time at = rt;
 
     noteExpired.clear();
     noteBgmExpired.clear();

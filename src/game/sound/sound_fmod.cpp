@@ -851,6 +851,12 @@ int SoundDriverFMOD::getChannelsPlaying()
     return c;
 }
 
+void SoundDriverFMOD::setSysVolume(float v)
+{
+    sysVolume = v;
+    setVolume(SampleChannel::MASTER, volume[SampleChannel::MASTER]);
+}
+
 void SoundDriverFMOD::setVolume(SampleChannel ch, float v)
 {
     volume[ch] = v;
@@ -858,19 +864,19 @@ void SoundDriverFMOD::setVolume(SampleChannel ch, float v)
     switch (ch)
     {
     case SampleChannel::MASTER:
-        channelGroup[SoundChannelType::BGM_SYS]->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::BGM]);
+        channelGroup[SoundChannelType::BGM_SYS]->setVolume(sysVolume * volume[SampleChannel::MASTER] * volume[SampleChannel::BGM]);
         channelGroup[SoundChannelType::BGM_NOTE]->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::BGM]);
-        channelGroup[SoundChannelType::KEY_SYS]->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
+        channelGroup[SoundChannelType::KEY_SYS]->setVolume(sysVolume * volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
         channelGroup[SoundChannelType::KEY_LEFT]->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
         channelGroup[SoundChannelType::KEY_RIGHT]->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
         break;
     case SampleChannel::KEY:
-        channelGroup[SoundChannelType::KEY_SYS]->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
+        channelGroup[SoundChannelType::KEY_SYS]->setVolume(sysVolume * volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
         channelGroup[SoundChannelType::KEY_LEFT]->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
         channelGroup[SoundChannelType::KEY_RIGHT]->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
         break;
     case SampleChannel::BGM:
-        channelGroup[SoundChannelType::BGM_SYS]->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::BGM]);
+        channelGroup[SoundChannelType::BGM_SYS]->setVolume(sysVolume * volume[SampleChannel::MASTER] * volume[SampleChannel::BGM]);
         channelGroup[SoundChannelType::BGM_NOTE]->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::BGM]);
         break;
     }

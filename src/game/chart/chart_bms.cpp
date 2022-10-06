@@ -240,6 +240,8 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
     std::array<NoteLaneIndex, NOTELANEINDEX_COUNT> gameLaneLNIndex;
     gameLaneLNIndex.fill(_);
 
+    bool leadInTimeSet = false;
+
     for (unsigned m = 0; m <= objBms.lastBarIdx; m++)
     {
 		barMetreLength[m] = objBms.metres[m];
@@ -480,6 +482,12 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
             double metreFromBPMChange = (noteSegment - lastBPMChangedSegment) * barMetre;
             Metre notemetre = basemetre + noteSegment * barMetre;
 			Time notetime = bpmfucked ? LLONG_MAX : basetime + beatLength * (metreFromBPMChange * 4);
+
+            if (!leadInTimeSet && (lane.type == eLanePriority::NOTE || lane.type == eLanePriority::LNHEAD || lane.type == eLanePriority::BGM))
+            {
+                leadInTimeSet = true;
+                _leadInTime = notetime;
+            }
 
             size_t flags = 0;
             switch (lane.index)

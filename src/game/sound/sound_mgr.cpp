@@ -85,6 +85,12 @@ void SoundMgr::stopUpdate()
     return _inst.driver->loopEnd();
 }
 
+void SoundMgr::setSysVolume(float v)
+{
+    if (!_inst._initialized) return;
+    return _inst.driver->setSysVolume(v);
+}
+
 void SoundMgr::setVolume(SampleChannel ch, float v)
 {
     if (!_inst._initialized) return;

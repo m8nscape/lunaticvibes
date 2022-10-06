@@ -113,7 +113,10 @@ void RulesetBMSAuto::setTargetRate(double rate)
 
 void RulesetBMSAuto::update(const Time& t)
 {
-    auto rt = t - State::get(IndexTimer::PLAY_START);
+    if (!_hasStartTime)
+        setStartTime(t);
+
+    auto rt = t - _startTime.norm();
     using namespace chart;
 
     auto updateSection = [&](Input::Pad begin, Input::Pad end, int side)
