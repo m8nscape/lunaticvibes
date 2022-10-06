@@ -33,10 +33,11 @@ private:
     Time selectDownTimestamp;
     Time navigateTimestamp;
 
-    std::mutex previewMutex;
+    std::shared_mutex previewMutex;
     enum
     {
         PREVIEW_NONE,
+        PREVIEW_LOAD,
         PREVIEW_PLAY,
         PREVIEW_FINISH,
     } previewState = PREVIEW_NONE;

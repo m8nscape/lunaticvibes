@@ -366,8 +366,12 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
 
 SceneSelect::~SceneSelect()
 {
-    if (previewState == PREVIEW_PLAY)
-        postStopPreview();
+    postStopPreview();
+    {
+        // safe end loading
+        std::unique_lock l(previewMutex);
+        previewState = PREVIEW_FINISH;
+    }
 
     config_sys();
     config_player();
@@ -410,7 +414,6 @@ void SceneSelect::_updateAsync()
             idxUpdated = true;
 
             navigateTimestamp = t;
-            previewState = PREVIEW_NONE;
             postStopPreview();
 
             std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
@@ -1626,7 +1629,6 @@ void SceneSelect::_navigateUpBy1(const Time& t)
     if (!gSelectContext.entries.empty())
     {
         navigateTimestamp = t;
-        previewState = PREVIEW_NONE;
         postStopPreview();
 
         gSelectContext.idx = (gSelectContext.entries.size() + gSelectContext.idx - 1) % gSelectContext.entries.size();
@@ -1647,7 +1649,6 @@ void SceneSelect::_navigateDownBy1(const Time& t)
     if (!gSelectContext.entries.empty())
     {
         navigateTimestamp = t;
-        previewState = PREVIEW_NONE;
         postStopPreview();
 
         gSelectContext.idx = (gSelectContext.idx + 1) % gSelectContext.entries.size();
@@ -1665,7 +1666,6 @@ void SceneSelect::_navigateEnter(const Time& t)
     if (!gSelectContext.entries.empty())
     {
         navigateTimestamp = t;
-        previewState = PREVIEW_NONE;
         postStopPreview();
 
         std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
@@ -1776,7 +1776,6 @@ void SceneSelect::_navigateBack(const Time& t)
     if (gSelectContext.backtrace.size() >= 2)
     {
         navigateTimestamp = t;
-        previewState = PREVIEW_NONE;
         postStopPreview();
 
         std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
@@ -1972,13 +1971,17 @@ void SceneSelect::updatePreview()
     if (entry->type() == eEntryType::SONG || entry->type() == eEntryType::RIVAL_SONG ||
         entry->type() == eEntryType::CHART || entry->type() == eEntryType::RIVAL_CHART)
     {
-        std::lock_guard l(previewMutex);
+        std::unique_lock l(previewMutex, std::try_to_lock);
+        if (!l.owns_lock()) return;
 
         switch (previewState)
         {
         case PREVIEW_NONE:
-            std::async(std::launch::async, [&]()
+            previewState = PREVIEW_LOAD;
+            std::thread([&]()
                 {
+                    std::unique_lock l(previewMutex);
+
                     // create Chart object
                     if (entry->type() == eEntryType::SONG || entry->type() == eEntryType::RIVAL_SONG)
                     {
@@ -2004,7 +2007,11 @@ void SceneSelect::updatePreview()
                         {
                             // SoundMgr::loadNoteSample(preview file
                             previewStandalone = true;
-                            previewState = PREVIEW_PLAY;
+
+                            if (previewState == PREVIEW_LOAD)
+                            {
+                                previewState = PREVIEW_PLAY;
+                            }
                             break;
                         }
 
@@ -2020,7 +2027,7 @@ void SceneSelect::updatePreview()
                         int wavToLoad = 0;
                         for (const auto& it : bms->wavFiles)
                         {
-                            if (sceneEnding) break;
+                            if (sceneEnding || previewState != PREVIEW_LOAD) break;
 
                             if (it.empty()) continue;
                             ++wavToLoad;
@@ -2029,7 +2036,7 @@ void SceneSelect::updatePreview()
                         {
                             for (size_t i = 0; i < bms->wavFiles.size(); ++i)
                             {
-                                if (sceneEnding) break;
+                                if (sceneEnding || previewState != PREVIEW_LOAD) break;
 
                                 const auto& wav = bms->wavFiles[i];
                                 if (wav.empty()) continue;
@@ -2045,7 +2052,7 @@ void SceneSelect::updatePreview()
                     }
                     }
 
-                    if (!previewStandalone)
+                    if (!previewStandalone && previewState == PREVIEW_LOAD)
                     {
                         if (!gChartContext.isSampleLoaded)
                         {
@@ -2064,7 +2071,7 @@ void SceneSelect::updatePreview()
                             previewState = PREVIEW_PLAY;
                         }
                     }
-                });
+                }).detach();
             break;
 
         case PREVIEW_PLAY:
@@ -2123,11 +2130,7 @@ void SceneSelect::updatePreview()
 
 void SceneSelect::postStopPreview()
 {
-    std::lock_guard l(previewMutex);
-
     SoundMgr::stopNoteSamples();
     SoundMgr::setSysVolume(1.0);
-    previewRuleset.reset();
-    previewChartObj.reset();
-    previewChart.reset();
+    previewState = PREVIEW_NONE;
 }
