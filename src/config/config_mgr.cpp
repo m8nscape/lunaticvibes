@@ -474,35 +474,51 @@ void setText()
 
     // bga
     {
-        static const std::map<string, string> smap =
         {
-            {P_BGA_TYPE_OFF, "OFF"},
-            {P_BGA_TYPE_ON, "ON"},
-            {P_BGA_TYPE_AUTOPLAY, "AUTOPLAY"},
-        };
+            static const std::map<string, string> smap =
+            {
+                {P_BGA_TYPE_OFF,      Option::s_bga_type[Option::BGA_OFF]},
+                {P_BGA_TYPE_ON,       Option::s_bga_type[Option::BGA_ON]},
+                {P_BGA_TYPE_AUTOPLAY, Option::s_bga_type[Option::BGA_AUTOPLAY]},
+            };
 
-        auto&& s = ConfigMgr::get<string>('P', P_BGA_TYPE, P_BGA_TYPE_ON);
-        if (smap.find(s) != smap.end())
-            State::set(IndexText::BGA, smap.at(s));
-        else
-            State::set(IndexText::BGA, "ON");
+            auto&& s = ConfigMgr::get<string>('P', P_BGA_TYPE, P_BGA_TYPE_ON);
+            if (smap.find(s) != smap.end())
+                State::set(IndexText::BGA, smap.at(s));
+            else
+                State::set(IndexText::BGA, Option::s_bga_type[Option::BGA_OFF]);
+        }
+        {
+            static const std::map<string, string> smap =
+            {
+                {P_BGA_SIZE_NORMAL, Option::s_bga_size[Option::BGA_NORMAL]},
+                {P_BGA_SIZE_EXTEND, Option::s_bga_size[Option::BGA_EXTEND]},
+            };
+
+            auto&& s = ConfigMgr::get<string>('P', P_BGA_SIZE, P_BGA_SIZE_NORMAL);
+            if (smap.find(s) != smap.end())
+                State::set(IndexText::BGA_SIZE, smap.at(s));
+            else
+                State::set(IndexText::BGA_SIZE, Option::s_bga_size[Option::BGA_NORMAL]);
+        }
     }
 
     // speed type
     {
         static const std::map<string, string> smap =
         {
-            {P_SPEED_TYPE_MIN, "MIN BPM"},
-            {P_SPEED_TYPE_MAX, "MAX BPM"},
-            {P_SPEED_TYPE_AVG, "AVERAGE"},
-            {P_SPEED_TYPE_CONSTANT, "CONSTANT"},
+            {P_SPEED_TYPE_NORMAL,   Option::s_speed_type[Option::SPEED_NORMAL]},
+            {P_SPEED_TYPE_MIN,      Option::s_speed_type[Option::SPEED_FIX_MIN]},
+            {P_SPEED_TYPE_MAX,      Option::s_speed_type[Option::SPEED_FIX_MAX]},
+            {P_SPEED_TYPE_AVG,      Option::s_speed_type[Option::SPEED_FIX_AVG]},
+            {P_SPEED_TYPE_CONSTANT, Option::s_speed_type[Option::SPEED_FIX_CONSTANT]},
         };
 
         auto&& s = ConfigMgr::get<string>('P', P_SPEED_TYPE, P_SPEED_TYPE_NORMAL);
         if (smap.find(s) != smap.end())
             State::set(IndexText::SCROLL_TYPE, smap.at(s));
         else
-            State::set(IndexText::SCROLL_TYPE, "OFF");
+            State::set(IndexText::SCROLL_TYPE, Option::s_speed_type[Option::SPEED_NORMAL]);
     }
 
     // lanecover
@@ -512,11 +528,12 @@ void setText()
     {
         static const std::map<string, string> smap =
         {
-            {P_CHART_OP_MIRROR, "MIRROR"},
-            {P_CHART_OP_RANDOM, "RANDOM"},
-            {P_CHART_OP_SRAN, "S-RANDOM"},
-            {P_CHART_OP_HRAN, "H-RANDOM"},
-            {P_CHART_OP_ALLSCR, "ALL-SCR"},
+            {P_CHART_OP_NORMAL, Option::s_random_type[Option::RAN_NORMAL]},
+            {P_CHART_OP_MIRROR, Option::s_random_type[Option::RAN_MIRROR]},
+            {P_CHART_OP_RANDOM, Option::s_random_type[Option::RAN_RANDOM]},
+            {P_CHART_OP_SRAN,   Option::s_random_type[Option::RAN_SRAN]},
+            {P_CHART_OP_HRAN,   Option::s_random_type[Option::RAN_HRAN]},
+            {P_CHART_OP_ALLSCR, Option::s_random_type[Option::RAN_ALLSCR]},
         };
 
         auto&& s = ConfigMgr::get<string>('P', P_CHART_OP, P_CHART_OP_NORMAL);
@@ -527,8 +544,8 @@ void setText()
         }
         else
         {
-            State::set(IndexText::RANDOM_1P, "NORMAL");
-            State::set(IndexText::RANDOM_2P, "NORMAL");
+            State::set(IndexText::RANDOM_1P, Option::s_random_type[Option::RAN_NORMAL]);
+            State::set(IndexText::RANDOM_2P, Option::s_random_type[Option::RAN_NORMAL]);
         }
     }
 
@@ -536,9 +553,12 @@ void setText()
     {
         static const std::map<string, string> smap =
         {
-            {P_GAUGE_OP_HARD, "HARD"},
-            {P_GAUGE_OP_EASY, "EASY"},
-            {P_GAUGE_OP_DEATH, "DEATH"},
+            {P_GAUGE_OP_NORMAL, Option::s_gauge_type[Option::GAUGE_NORMAL]},
+            {P_GAUGE_OP_HARD,   Option::s_gauge_type[Option::GAUGE_HARD]},
+            {P_GAUGE_OP_EASY,   Option::s_gauge_type[Option::GAUGE_EASY]},
+            {P_GAUGE_OP_DEATH,  Option::s_gauge_type[Option::GAUGE_DEATH]},
+            {P_GAUGE_OP_ASSIST, Option::s_gauge_type[Option::GAUGE_ASSIST]},
+            {P_GAUGE_OP_EXHARD, Option::s_gauge_type[Option::GAUGE_EXHARD]},
         };
 
         auto&& s = ConfigMgr::get<string>('P', P_GAUGE_OP, P_GAUGE_OP_NORMAL);
@@ -549,8 +569,8 @@ void setText()
         }
         else
         {
-            State::set(IndexText::GAUGE_1P, "NORMAL");
-            State::set(IndexText::GAUGE_2P, "NORMAL");
+            State::set(IndexText::GAUGE_1P, Option::s_gauge_type[Option::GAUGE_NORMAL]);
+            State::set(IndexText::GAUGE_2P, Option::s_gauge_type[Option::GAUGE_NORMAL]);
         }
     }
 
@@ -558,8 +578,8 @@ void setText()
     {
         static const std::map<string, string> smap =
         {
-            {P_CHART_ASSIST_OP_NONE, "NONE"},
-            {P_CHART_ASSIST_OP_AUTOSCR, "AUTO-SCR"},
+            {P_CHART_ASSIST_OP_NONE,    Option::s_assist_type[Option::ASSIST_NONE]},
+            {P_CHART_ASSIST_OP_AUTOSCR, Option::s_assist_type[Option::ASSIST_AUTOSCR]},
         };
 
         auto&& s = ConfigMgr::get<string>('P', P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_NONE);
@@ -570,8 +590,8 @@ void setText()
         }
         else
         {
-            State::set(IndexText::ASSIST_1P, "NONE");
-            State::set(IndexText::ASSIST_2P, "NONE");
+            State::set(IndexText::ASSIST_1P, Option::s_assist_type[Option::ASSIST_NONE]);
+            State::set(IndexText::ASSIST_2P, Option::s_assist_type[Option::ASSIST_NONE]);
         }
     }
 
@@ -579,12 +599,12 @@ void setText()
     {
         static const std::map<string, string> smap =
         {
-            {P_LANE_EFFECT_OP_OFF, "OFF"},
-            {P_LANE_EFFECT_OP_HIDDEN, "HIDDEN+"},
-            {P_LANE_EFFECT_OP_SUDDEN, "SUDDEN+"},
-            {P_LANE_EFFECT_OP_SUDHID, "SUD+&HID+"},
-            {P_LANE_EFFECT_OP_LIFT, "LIFT"},
-            {P_LANE_EFFECT_OP_LIFTSUD, "LIFT&SUD+"},
+            {P_LANE_EFFECT_OP_OFF,     Option::s_lane_effect_type[Option::LANE_OFF]},
+            {P_LANE_EFFECT_OP_HIDDEN,  Option::s_lane_effect_type[Option::LANE_HIDDEN]},
+            {P_LANE_EFFECT_OP_SUDDEN,  Option::s_lane_effect_type[Option::LANE_SUDDEN]},
+            {P_LANE_EFFECT_OP_SUDHID,  Option::s_lane_effect_type[Option::LANE_SUDHID]},
+            {P_LANE_EFFECT_OP_LIFT,    Option::s_lane_effect_type[Option::LANE_LIFT]},
+            {P_LANE_EFFECT_OP_LIFTSUD, Option::s_lane_effect_type[Option::LANE_LIFTSUD]},
         };
 
         auto&& s = ConfigMgr::get<string>('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_OFF);
@@ -595,8 +615,8 @@ void setText()
         }
         else
         {
-            State::set(IndexText::EFFECT_1P, "OFF");
-            State::set(IndexText::EFFECT_2P, "OFF");
+            State::set(IndexText::EFFECT_1P, Option::s_lane_effect_type[Option::LANE_OFF]);
+            State::set(IndexText::EFFECT_2P, Option::s_lane_effect_type[Option::LANE_OFF]);
         }
     }
 
@@ -604,16 +624,17 @@ void setText()
     {
         static const std::map<string, string> smap =
         {
-            {P_GHOST_TYPE_A, "TYPE A"},
-            {P_GHOST_TYPE_B, "TYPE B"},
-            {P_GHOST_TYPE_C, "TYPE C"},
+            {P_GHOST_TYPE_OFF, Option::s_play_ghost_mode[Option::GHOST_OFF]},
+            {P_GHOST_TYPE_A,   Option::s_play_ghost_mode[Option::GHOST_TOP]},
+            {P_GHOST_TYPE_B,   Option::s_play_ghost_mode[Option::GHOST_SIDE]},
+            {P_GHOST_TYPE_C,   Option::s_play_ghost_mode[Option::GHOST_SIDE_BOTTOM]},
         };
 
-        auto&& s = ConfigMgr::get('P', P_GHOST_TYPE, "OFF");
+        auto&& s = ConfigMgr::get('P', P_GHOST_TYPE, P_GHOST_TYPE_OFF);
         if (smap.find(s) != smap.end())
             State::set(IndexText::GHOST, smap.at(s));
         else
-            State::set(IndexText::GHOST, "OFF");
+            State::set(IndexText::GHOST, Option::s_play_ghost_mode[Option::GHOST_OFF]);
     }
 
     // target
@@ -621,15 +642,15 @@ void setText()
     {
         static const std::map<string, string> smap =
         {
-            {P_TARGET_TYPE_0         , "NO TARGET"},
-            {P_TARGET_TYPE_MYBEST    , "MY BEST"},
-            {P_TARGET_TYPE_AAA       , "RANK AAA"},
-            {P_TARGET_TYPE_AA        , "RANK AA"},
-            {P_TARGET_TYPE_A         , "RANK A"},
-            {P_TARGET_TYPE_DEFAULT   , "50%"},
-            {P_TARGET_TYPE_IR_TOP    , "IR TOP"},
-            {P_TARGET_TYPE_IR_NEXT   , "IR NEXT"},
-            {P_TARGET_TYPE_IR_AVERAGE, "IR AVERAGE"},
+            {P_TARGET_TYPE_0         , Option::s_target_type[Option::TARGET_0]},
+            {P_TARGET_TYPE_MYBEST    , Option::s_target_type[Option::TARGET_MYBEST]},
+            {P_TARGET_TYPE_AAA       , Option::s_target_type[Option::TARGET_AAA]},
+            {P_TARGET_TYPE_AA        , Option::s_target_type[Option::TARGET_AA]},
+            {P_TARGET_TYPE_A         , Option::s_target_type[Option::TARGET_A]},
+            {P_TARGET_TYPE_DEFAULT   , Option::s_target_type[Option::TARGET_DEFAULT]},
+            {P_TARGET_TYPE_IR_TOP    , Option::s_target_type[Option::TARGET_IR_TOP]},
+            {P_TARGET_TYPE_IR_NEXT   , Option::s_target_type[Option::TARGET_IR_NEXT]},
+            {P_TARGET_TYPE_IR_AVERAGE, Option::s_target_type[Option::TARGET_IR_AVERAGE]},
         };
 
         auto&& s = ConfigMgr::get<string>('P', P_TARGET_TYPE, P_TARGET_TYPE_DEFAULT);
@@ -639,7 +660,7 @@ void setText()
         }
         else
         {
-            State::set(IndexText::TARGET_NAME, "MY BEST");
+            State::set(IndexText::TARGET_NAME, Option::s_target_type[Option::TARGET_DEFAULT]);
         }
     }
 
@@ -647,58 +668,58 @@ void setText()
     {
         static const std::map<string, string> smap =
         {
-            {P_FILTER_KEYS_ALL, "ALL"},
-            {P_FILTER_KEYS_SINGLE, "SINGLE"},
-            {P_FILTER_KEYS_7K, "7KEYS"},
-            {P_FILTER_KEYS_5K, "5KEYS"},
-            {P_FILTER_KEYS_DOUBLE, "DOUBLE"},
-            {P_FILTER_KEYS_14K, "14KEYS"},
-            {P_FILTER_KEYS_10K, "10KEYS"},
-            {P_FILTER_KEYS_9K, "9KEYS"},
+            {P_FILTER_KEYS_ALL,    Option::s_filter_keys[Option::FILTER_KEYS_ALL]},
+            {P_FILTER_KEYS_SINGLE, Option::s_filter_keys[Option::FILTER_KEYS_SINGLE]},
+            {P_FILTER_KEYS_7K,     Option::s_filter_keys[Option::FILTER_KEYS_7]},
+            {P_FILTER_KEYS_5K,     Option::s_filter_keys[Option::FILTER_KEYS_5]},
+            {P_FILTER_KEYS_DOUBLE, Option::s_filter_keys[Option::FILTER_KEYS_DOUBLE]},
+            {P_FILTER_KEYS_14K,    Option::s_filter_keys[Option::FILTER_KEYS_14]},
+            {P_FILTER_KEYS_10K,    Option::s_filter_keys[Option::FILTER_KEYS_10]},
+            {P_FILTER_KEYS_9K,     Option::s_filter_keys[Option::FILTER_KEYS_9]},
         };
 
         auto&& s = ConfigMgr::get<string>('P', P_FILTER_KEYS, P_FILTER_KEYS_ALL);
         if (smap.find(s) != smap.end())
             State::set(IndexText::FILTER_KEYS, smap.at(s));
         else
-            State::set(IndexText::FILTER_KEYS, "ALL");
+            State::set(IndexText::FILTER_KEYS, Option::s_filter_keys[Option::FILTER_KEYS_ALL]);
     }
 
     // sort mode
     {
         static const std::map<string, string> smap =
         {
-            {P_SORT_MODE_FOLDER, "FOLDER"},
-            {P_SORT_MODE_TITLE, "TITLE"},
-            {P_SORT_MODE_LEVEL, "LEVEL"},
-            {P_SORT_MODE_CLEAR, "CLEAR"},
-            {P_SORT_MODE_RATE, "RATE"},
+            {P_SORT_MODE_FOLDER, Option::s_select_sort[Option::SORT_FOLDER]},
+            {P_SORT_MODE_TITLE,  Option::s_select_sort[Option::SORT_TITLE]},
+            {P_SORT_MODE_LEVEL,  Option::s_select_sort[Option::SORT_LEVEL]},
+            {P_SORT_MODE_CLEAR,  Option::s_select_sort[Option::SORT_CLEAR]},
+            {P_SORT_MODE_RATE,   Option::s_select_sort[Option::SORT_RATE]},
         };
 
         auto&& s = ConfigMgr::get<string>('P', P_SORT_MODE, P_SORT_MODE_FOLDER);
         if (smap.find(s) != smap.end())
             State::set(IndexText::SORT_MODE, smap.at(s));
         else
-            State::set(IndexText::SORT_MODE, "FOLDER");
+            State::set(IndexText::SORT_MODE, Option::s_select_sort[Option::SORT_FOLDER]);
     }
 
     // diff filter mode
     {
         static const std::map<string, string> smap =
         {
-            {P_DIFFICULTY_FILTER_ALL, "ALL"},
-            {P_DIFFICULTY_FILTER_BEGINNER, "BEGINNER"},
-            {P_DIFFICULTY_FILTER_NORMAL, "NORMAL"},
-            {P_DIFFICULTY_FILTER_HYPER, "HYPER"},
-            {P_DIFFICULTY_FILTER_ANOTHER, "ANOTHER"},
-            {P_DIFFICULTY_FILTER_INSANE, "INSANE"},
+            {P_DIFFICULTY_FILTER_ALL,      Option::s_select_diff[Option::DIFF_ANY]},
+            {P_DIFFICULTY_FILTER_BEGINNER, Option::s_select_diff[Option::DIFF_BEGINNER]},
+            {P_DIFFICULTY_FILTER_NORMAL,   Option::s_select_diff[Option::DIFF_NORMAL]},
+            {P_DIFFICULTY_FILTER_HYPER,    Option::s_select_diff[Option::DIFF_HYPER]},
+            {P_DIFFICULTY_FILTER_ANOTHER,  Option::s_select_diff[Option::DIFF_ANOTHER]},
+            {P_DIFFICULTY_FILTER_INSANE,   Option::s_select_diff[Option::DIFF_INSANE]},
         };
 
         auto&& s = ConfigMgr::get<string>('P', P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_ALL);
         if (smap.find(s) != smap.end())
             State::set(IndexText::FILTER_DIFFICULTY, smap.at(s));
         else
-            State::set(IndexText::FILTER_DIFFICULTY, "ALL");
+            State::set(IndexText::FILTER_DIFFICULTY, Option::s_select_diff[Option::DIFF_ANY]);
     }
 
     // battle
@@ -714,40 +735,41 @@ void setText()
     {
         static const std::map<string, string> smap =
         {
-            {V_WINMODE_FULL, "FULLSCREEN"},
-            {V_WINMODE_BORDERLESS, "BORDERLESS"},
-            {V_WINMODE_WINDOWED, "WINDOWED"}
+            {V_WINMODE_FULL,       Option::s_windowed[Option::WIN_FULLSCREEN]},
+            {V_WINMODE_BORDERLESS, Option::s_windowed[Option::WIN_BORDERLESS]},
+            {V_WINMODE_WINDOWED,   Option::s_windowed[Option::WIN_WINDOWED]},
         };
 
         auto&& s = ConfigMgr::get<string>('V', V_WINMODE, V_WINMODE_WINDOWED);
         if (smap.find(s) != smap.end())
             State::set(IndexText::WINDOWMODE, smap.at(s));
         else
-            State::set(IndexText::WINDOWMODE, "WINDOWED");
+            State::set(IndexText::WINDOWMODE, Option::s_windowed[Option::WIN_WINDOWED]);
     }
 
     // vsync
     {
         static const std::map<int, string> smap =
         {
-            {0, "OFF"},
-            {1, "ON"},
-            {2, "ADAPTIVE"}
+            {0, Option::s_vsync_mode[Option::VSYNC_OFF]},
+            {1, Option::s_vsync_mode[Option::VSYNC_ON]},
+            {2, Option::s_vsync_mode[Option::VSYNC_ADAPTIVE]}
         };
 
         auto&& s = ConfigMgr::get<int>('V', V_VSYNC, 0);
         if (smap.find(s) != smap.end())
             State::set(IndexText::VSYNC, smap.at(s));
         else
-            State::set(IndexText::VSYNC, "OFF");
+            State::set(IndexText::VSYNC, Option::s_vsync_mode[Option::VSYNC_OFF]);
     }
 
     // fixed tokens
     State::set(IndexText::COLOR_DEPTH, "WHAT DO YOU WANT FROM THIS");
     State::set(IndexText::JUDGE_AUTO, "NOT SUPPORTED");
     State::set(IndexText::REPLAY_SAVE_TYPE, "BEST EXSCORE");
+
     State::set(IndexText::TRIAL1, "NOT SUPPORTED");
-    State::set(IndexText::TRIAL2, "NOT SUPPORTED");
+    State::set(IndexText::TRIAL2, "THANK YOU FOR PLAYING!");
 }
 
 int ConfigMgr::_selectProfile(const std::string& name)

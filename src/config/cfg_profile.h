@@ -155,6 +155,7 @@ namespace cfg
     };
 
     constexpr char P_GHOST_TYPE[] = "GhostType";;
+    constexpr char P_GHOST_TYPE_OFF[] = "Off";
     constexpr char P_GHOST_TYPE_A[] = "A";
     constexpr char P_GHOST_TYPE_B[] = "B";
     constexpr char P_GHOST_TYPE_C[] = "C";

@@ -215,8 +215,10 @@ void select_keys_filter(int plus, int iterateCount)
 {
     if (iterateCount < 8)
     {
-        State::set(IndexOption::SELECT_FILTER_KEYS, (State::get(IndexOption::SELECT_FILTER_KEYS) + 8 + plus) % 8);
-        switch (State::get(IndexOption::SELECT_FILTER_KEYS))
+        int val = (State::get(IndexOption::SELECT_FILTER_KEYS) + 8 + plus) % 8;
+        State::set(IndexOption::SELECT_FILTER_KEYS, val);
+
+        switch (val)
         {
         case Option::FILTER_KEYS_SINGLE: gSelectContext.filterKeys = 1; break;
         case Option::FILTER_KEYS_7:      gSelectContext.filterKeys = 7; break;
@@ -248,18 +250,7 @@ void select_keys_filter(int plus, int iterateCount)
             auto& [score, lamp] = getSaveScoreType();
             State::set(IndexSwitch::CHART_CAN_SAVE_SCORE, score);
             State::set(IndexOption::CHART_SAVE_LAMP_TYPE, lamp);
-
-            switch (gSelectContext.filterKeys)
-            {
-            case 0:  State::set(IndexText::FILTER_KEYS, "ALL KEYS"); break;
-            case 1:  State::set(IndexText::FILTER_KEYS, "SINGLE"); break;
-            case 2:  State::set(IndexText::FILTER_KEYS, "DOUBLE"); break;
-            case 5:  State::set(IndexText::FILTER_KEYS, "5KEYS"); break;
-            case 7:  State::set(IndexText::FILTER_KEYS, "7KEYS"); break;
-            case 9:  State::set(IndexText::FILTER_KEYS, "9BUTTONS"); break;
-            case 10: State::set(IndexText::FILTER_KEYS, "10KEYS"); break;
-            case 14: State::set(IndexText::FILTER_KEYS, "14KEYS"); break;
-            }
+            State::set(IndexText::FILTER_KEYS, Option::s_filter_keys[val]);
         }
         else
         {
@@ -505,18 +496,7 @@ void gauge_type(int player, int plus)
     // eModGauge
     int val = (State::get(op) + 4 + plus) % 4;
     State::set(op, val);
-    switch (val)
-    {
-    case 0: State::set(tx, "NORMAL"); break;
-    case 1: State::set(tx, "HARD"); break;
-    case 2: State::set(tx, "DEATH"); break;
-    case 3: State::set(tx, "EASY"); break;
-    //case 4: State::set(tx, "P-ATTACK"); break;
-    //case 5: State::set(tx, "G-ATTACK"); break;
-    //case 6: State::set(tx, "ASSIST-E"); break;
-    //case 7: break;
-    default: break;
-    }
+    State::set(tx, Option::s_gauge_type[val]);
 
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 
@@ -541,16 +521,7 @@ void random_type(int player, int plus)
     // eModRandom
     int val = (State::get(op) + 6 + plus) % 6;
     State::set(op, val);
-    switch (val)
-    {
-    case 0: State::set(tx, "NORMAL");   break;
-    case 1: State::set(tx, "MIRROR");   break;
-    case 2: State::set(tx, "RANDOM");   break;
-    case 3: State::set(tx, "S-RANDOM"); break;
-    case 4: State::set(tx, "H-RANDOM"); break;
-    case 5: State::set(tx, "ALL-SCR");  break;
-    default: break;
-    }
+    State::set(tx, Option::s_random_type[val]);
 
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 
@@ -576,7 +547,7 @@ void autoscr(int player, int plus)
     bool val = State::get(sw);
     if (plus % 2) val = !val;
     State::set(sw, val);
-    State::set(tx, val ? "AUTO-SCR" : "NONE");
+    State::set(tx, Option::s_assist_type[(int)val]);
 
     if (plus != 0)
     {
@@ -625,17 +596,7 @@ void lane_effect(int player, int plus)
     // 
     int val = (State::get(op) + 6 + plus) % 6;
     State::set(op, val);
-
-    switch (val)
-    {
-    case 0: State::set(tx, "OFF"); break;
-    case 1: State::set(tx, "HIDDEN+"); break;
-    case 2: State::set(tx, "SUDDEN+"); break;
-    case 3: State::set(tx, "SUD+&HID+"); break;
-    case 4: State::set(tx, "LIFT"); break;
-    case 5: State::set(tx, "LIFT&SUD+"); break;
-    default: break;
-    }
+    State::set(tx, Option::s_lane_effect_type[val]);
 
     if (plus != 0)
     {
@@ -680,27 +641,7 @@ void hs_fix(int plus)
     int val = (State::get(IndexOption::PLAY_HSFIX_TYPE) + 5 + plus) % 5;
     
     State::set(IndexOption::PLAY_HSFIX_TYPE, val);
-
-    switch (val)
-    {
-    case 0: 
-        State::set(IndexText::SCROLL_TYPE, "OFF"); 
-        break;
-    case 1:
-        State::set(IndexText::SCROLL_TYPE, "MAX BPM");
-        break;
-    case 2:
-        State::set(IndexText::SCROLL_TYPE, "MIN BPM");
-        break;
-    case 3:
-        State::set(IndexText::SCROLL_TYPE, "AVERAGE");
-        break;
-    case 4:
-        State::set(IndexText::SCROLL_TYPE, "CONSTANT");
-        break;
-    default: 
-        break;
-    }
+    State::set(IndexText::SCROLL_TYPE, Option::s_speed_type[val]);
 
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 
@@ -773,14 +714,7 @@ void battle(int plus)
         break;
     }
     }
-
-    switch (State::get(IndexOption::PLAY_BATTLE_TYPE))
-    {
-    case Option::BATTLE_OFF:   State::set(IndexText::BATTLE, "OFF"); break;
-    case Option::BATTLE_LOCAL: State::set(IndexText::BATTLE, "BATTLE"); break;
-    case Option::BATTLE_DB:    State::set(IndexText::BATTLE, "D-BATTLE"); break;
-    case Option::BATTLE_GHOST: State::set(IndexText::BATTLE, "G-BATTLE"); break;
-    }
+    State::set(IndexText::BATTLE, Option::s_battle_type[State::get(IndexOption::PLAY_BATTLE_TYPE)]);
 
     if (State::get(IndexOption::PLAY_MODE) != Option::PLAY_MODE_BATTLE)
     {
@@ -845,24 +779,7 @@ void ghost_type(int plus)
 
     State::set(IndexOption::PLAY_GHOST_TYPE_1P, val);
     State::set(IndexOption::PLAY_GHOST_TYPE_2P, val);
-
-    switch (val)
-    {
-    case 0:
-        State::set(IndexText::GHOST, "OFF");
-        break;
-    case 1:
-        State::set(IndexText::GHOST, "TYPE A");
-        break;
-    case 2:
-        State::set(IndexText::GHOST, "TYPE B");
-        break;
-    case 3:
-        State::set(IndexText::GHOST, "TYPE C");
-        break;
-    default:
-        break;
-    }
+    State::set(IndexText::GHOST, Option::s_play_ghost_mode[val]);
 
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
@@ -873,24 +790,13 @@ void bga(int plus)
     int val = (State::get(IndexOption::PLAY_BGA_TYPE) + 3 + plus) % 3;
 
     State::set(IndexOption::PLAY_BGA_TYPE, val);
-    ConfigMgr::set('P', cfg::P_BGA_TYPE, val);
-
-    switch (val)
-    {
-    case Option::BGA_OFF:
-        State::set(IndexText::BGA, "OFF");
-        break;
-    case Option::BGA_ON:
-        State::set(IndexText::BGA, "ON");
-        break;
-    case Option::BGA_AUTOPLAY:
-        State::set(IndexText::BGA, "AUTOPLAY");
-        break;
-    default:
-        break;
-    }
+    State::set(IndexText::BGA, Option::s_bga_type[val]);
 
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
+
+    // Play scene will check this config
+    ConfigMgr::set('P', cfg::P_BGA_TYPE, val);
+
 }
 
 // 73
@@ -899,21 +805,12 @@ void bga_size(int plus)
     int val = (State::get(IndexOption::PLAY_BGA_SIZE) + 2 + plus) % 2;
 
     State::set(IndexOption::PLAY_BGA_SIZE, val);
-    ConfigMgr::set('P', cfg::P_BGA_SIZE, val);
-
-    switch (val)
-    {
-    case Option::BGA_NORMAL:
-        State::set(IndexText::BGA_SIZE, "NORMAL");
-        break;
-    case Option::BGA_EXTEND:
-        State::set(IndexText::BGA_SIZE, "EXTEND");
-        break;
-    default:
-        break;
-    }
+    State::set(IndexText::BGA_SIZE, Option::s_bga_size[val]);
 
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
+
+    // Play scene will check this config
+    ConfigMgr::set('P', cfg::P_BGA_SIZE, val);
 }
 
 // 75
@@ -936,20 +833,16 @@ void default_target_rate(int plus)
 // 77
 void target_type(int plus)
 {
-    State::set(IndexOption::PLAY_TARGET_TYPE, (State::get(IndexOption::PLAY_TARGET_TYPE) + 6 + plus) % 6);
+    int val = (State::get(IndexOption::PLAY_TARGET_TYPE) + 6 + plus) % 6;
 
-    switch (State::get(IndexOption::PLAY_TARGET_TYPE))
+    State::set(IndexOption::PLAY_TARGET_TYPE, val);
+    if (val == Option::TARGET_DEFAULT)
     {
-    case Option::TARGET_0:          State::set(IndexText::TARGET_NAME, "NO TARGET"); break;
-    case Option::TARGET_MYBEST:     State::set(IndexText::TARGET_NAME, "MY BEST"); break;
-    case Option::TARGET_AAA:        State::set(IndexText::TARGET_NAME, "RANK AAA"); break;
-    case Option::TARGET_AA:         State::set(IndexText::TARGET_NAME, "RANK AA"); break;
-    case Option::TARGET_A:          State::set(IndexText::TARGET_NAME, "RANK A"); break;
-    case Option::TARGET_DEFAULT:    State::set(IndexText::TARGET_NAME, (boost::format("RATE %d%%") % State::get(IndexNumber::DEFAULT_TARGET_RATE)).str()); break;
-    case Option::TARGET_IR_TOP:     State::set(IndexText::TARGET_NAME, "IR TOP"); break;
-    case Option::TARGET_IR_NEXT:    State::set(IndexText::TARGET_NAME, "IR NEXT"); break;
-    case Option::TARGET_IR_AVERAGE: State::set(IndexText::TARGET_NAME, "IR AVERAGE"); break;
-    default:                        State::set(IndexText::TARGET_NAME, "NO TARGET"); break;
+        State::set(IndexText::TARGET_NAME, (boost::format("RATE %d%%") % State::get(IndexNumber::DEFAULT_TARGET_RATE)).str());
+    }
+    else
+    {
+        State::set(IndexText::TARGET_NAME, Option::s_target_type[val]);
     }
 
     if (plus)
@@ -965,26 +858,12 @@ void window_mode(int plus)
 // 82
 void vsync(int plus)
 {
-    int val = (State::get(IndexOption::SYS_VSYNC) + 2 + plus) % 2;
+    int val = (State::get(IndexOption::SYS_VSYNC) + 3 + plus) % 3;
 
     State::set(IndexOption::SYS_VSYNC, val);
+    State::set(IndexText::VSYNC, Option::s_vsync_mode[val]);
 
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
-
-    switch (val)
-    {
-    case 0:
-        State::set(IndexText::VSYNC, "OFF");
-        break;
-    case 1:
-        State::set(IndexText::VSYNC, "ON");
-        break;
-    case 2:
-        State::set(IndexText::VSYNC, "ADAPTIVE");
-        break;
-    default:
-        break;
-    }
 
     graphics_change_vsync(val);
 }
@@ -992,6 +871,7 @@ void vsync(int plus)
 // 83
 void save_replay_type(int plus)
 {
+    // TODO 
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 

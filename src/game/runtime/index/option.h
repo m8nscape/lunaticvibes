@@ -109,6 +109,14 @@ namespace Option
 		DIFF_ANOTHER,
 		DIFF_INSANE
 	};
+    constexpr char* s_select_diff[] = {
+        "ALL",
+        "BEGINNER",
+        "NORMAL",
+        "HYPER",
+        "ANOTHER",
+        "INSANE"
+    };
 
     enum e_select_sort {
         SORT_FOLDER,
@@ -116,6 +124,13 @@ namespace Option
         SORT_TITLE,
         SORT_CLEAR,
         SORT_RATE,
+    };
+    constexpr char* s_select_sort[] = {
+        "FOLDER",
+        "LEVEL",
+        "TITLE",
+        "CLEAR",
+        "INSANE"
     };
 
     enum e_key_config_mode {
@@ -153,6 +168,16 @@ namespace Option
         FILTER_KEYS_10,
         FILTER_KEYS_9,
     };
+    constexpr char *s_filter_keys[] = {
+        "ALL KEYS",
+        "SINGLE",
+        "7KEYS",
+        "5KEYS",
+        "DOUBLE",
+        "14KEYS",
+        "10KEYS",
+        "9BUTTONS"
+    };
 
     enum e_play_keys {
         KEYS_NOT_PLAYABLE,
@@ -172,16 +197,31 @@ namespace Option
         GHOST_SIDE, // B
         GHOST_SIDE_BOTTOM // C
     };
+    constexpr char* s_play_ghost_mode[] = {
+        "OFF",
+        "TYPE A",
+        "TYPE B",
+        "TYPE C",
+    };
 
     enum e_bga_type {
         BGA_OFF,
         BGA_ON,
         BGA_AUTOPLAY,
     };
+    constexpr char* s_bga_type[] = {
+        "OFF",
+        "ON",
+        "AUTOPLAY"
+    };
 
     enum e_bga_size {
         BGA_NORMAL,
         BGA_EXTEND,
+    };
+    constexpr char* s_bga_size[] = {
+        "NORMAL",
+        "EXTEND",
     };
 
     enum e_lane_effect_type {
@@ -192,6 +232,14 @@ namespace Option
         LANE_LIFT,
         LANE_LIFTSUD,
     };
+    constexpr char* s_lane_effect_type[] = {
+        "OFF",
+        "HIDDEN+",
+        "SUDDEN+",
+        "SUD+&HID+",
+        "LIFT",
+        "LIFT&SUD+",
+    };
 
     enum e_speed_type {
         SPEED_NORMAL,
@@ -201,6 +249,14 @@ namespace Option
         SPEED_FIX_AVG,
         SPEED_FIX_CONSTANT,
     };
+    constexpr char* s_speed_type[] = {
+        "OFF",
+        //"END",
+        "MIN FIX",
+        "MAX FIX",
+        "AVERAGE",
+        "CONSTANT",
+    };
 
     enum e_battle_type {
         BATTLE_OFF,
@@ -208,6 +264,13 @@ namespace Option
         BATTLE_DB,
         BATTLE_SPtoDP_9to7, // not implemented
         BATTLE_GHOST,
+    };
+    constexpr char* s_battle_type[] = {
+        "OFF",
+        "BATTLE",
+        "D-BATTLE",
+        "SP to DP",
+        "GHOST",
     };
 
     enum e_target_type {
@@ -221,6 +284,17 @@ namespace Option
         TARGET_IR_NEXT,
         TARGET_IR_AVERAGE,
     };
+    constexpr char* s_target_type[] = {
+        "NO TARGET",
+        "MY BEST",
+        "RANK AAA",
+        "RANK AA",
+        "RANK A",
+        "50%",
+        "IR TOP",
+        "IR NEXT",
+        "IR AVERAGE",
+    };
 
     enum e_gauge_type{
         GAUGE_NORMAL,
@@ -230,6 +304,14 @@ namespace Option
         GAUGE_ASSIST,
         GAUGE_EXHARD,
     };
+    constexpr char* s_gauge_type[] = {
+        "NORMAL",
+        "HARD",
+        "DEATH",
+        "EASY",
+        "ASSIST",
+        "EXHARD",
+    };
 
     enum e_random_type {
         RAN_NORMAL,
@@ -238,6 +320,23 @@ namespace Option
         RAN_SRAN,
         RAN_HRAN,
         RAN_ALLSCR,
+    };
+    constexpr char* s_random_type[] = {
+        "NORMAL",
+        "MIRROR",
+        "RANDOM",
+        "S-RANDOM",
+        "H-RANDOM",
+        "ALL-SCR",
+    };
+
+    enum e_assist_type {
+        ASSIST_NONE,
+        ASSIST_AUTOSCR,
+    };
+    constexpr char* s_assist_type[] = {
+        "NONE",
+        "AUTO-SCR",
     };
 
     enum e_chart_difficulty {
@@ -375,6 +474,22 @@ namespace Option
         WIN_FULLSCREEN,
         WIN_BORDERLESS,
         WIN_WINDOWED
+    };
+    constexpr char* s_windowed[] = {
+        "FULLSCREEN",
+        "BORDERLESS",
+        "WINDOWED",
+    };
+
+    enum e_vsync_mode {
+        VSYNC_OFF,
+        VSYNC_ON,
+        VSYNC_ADAPTIVE
+    };
+    constexpr char* s_vsync_mode[] = {
+        "OFF",
+        "ON",
+        "ADAPTIVE",
     };
 
 }
