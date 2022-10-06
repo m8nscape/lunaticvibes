@@ -703,7 +703,7 @@ void SoundDriverFMOD::loadSampleThread()
 
 int SoundDriverFMOD::loadNoteSample(const Path& spath, size_t index)
 {
-    if (spath.empty()) return 0;
+    if (spath.empty()) return -1;
 
     if (noteSamples[index].objptr != nullptr)
     {
@@ -712,7 +712,7 @@ int SoundDriverFMOD::loadNoteSample(const Path& spath, size_t index)
     }
     
     std::string path = spath.u8string();
-    int flags = FMOD_LOOP_OFF | FMOD_UNIQUE;
+    int flags = FMOD_LOOP_OFF | FMOD_UNIQUE | FMOD_CREATESAMPLE;
 
 	FMOD_RESULT r = FMOD_ERR_FILE_NOTFOUND;
 	if (fs::exists(spath) && fs::is_regular_file(spath))
@@ -735,7 +735,7 @@ int SoundDriverFMOD::loadNoteSample(const Path& spath, size_t index)
         LOG_DEBUG << "[FMOD] Loading Sample (" + path + ") Error: " << r << ", " << FMOD_ErrorString(r);
     }
 
-    return 1;
+    return (r == FMOD_OK) ? 0 : 1;
 }
 
 void SoundDriverFMOD::playNoteSample(SoundChannelType ch, size_t count, size_t index[])
@@ -769,9 +769,19 @@ void SoundDriverFMOD::freeNoteSamples()
     }
 }
 
+long long SoundDriverFMOD::getNoteSampleLength(size_t index)
+{
+    if (noteSamples[index].objptr == nullptr) return 0;
+    auto sample = noteSamples[index].objptr;
+
+    unsigned length = 0;
+    sample->getLength(&length, FMOD_TIMEUNIT_MS);
+    return length;
+}
+
 int SoundDriverFMOD::loadSysSample(const Path& spath, size_t index, bool isStream, bool loop)
 {
-    if (spath.empty()) return 0;
+    if (spath.empty()) return -1;
     
     if (sysSamples[index].objptr != nullptr)
     {
@@ -806,7 +816,7 @@ int SoundDriverFMOD::loadSysSample(const Path& spath, size_t index, bool isStrea
         LOG_DEBUG << "[FMOD] Loading Sample (" + path + ") Error: " << r << ", " << FMOD_ErrorString(r);
     }
 
-    return r;
+    return (r == FMOD_OK) ? 0 : 1;
 }
 
 void SoundDriverFMOD::playSysSample(SoundChannelType ch, size_t index)

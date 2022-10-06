@@ -42,6 +42,7 @@ private:
         PREVIEW_FINISH,
     } previewState = PREVIEW_NONE;
     bool previewStandalone = false; // true if chart has a preview sound track
+    long long previewStandaloneLength = 0;
     std::shared_ptr<ChartFormatBase> previewChart = nullptr;
     std::shared_ptr<ChartObjectBase> previewChartObj = nullptr;
     std::shared_ptr<vRuleset> previewRuleset = nullptr;

@@ -1982,6 +1982,9 @@ void SceneSelect::updatePreview()
                 {
                     std::unique_lock l(previewMutex);
 
+                    previewStandalone = false;
+                    previewStandaloneLength = 0;
+
                     // create Chart object
                     if (entry->type() == eEntryType::SONG || entry->type() == eEntryType::RIVAL_SONG)
                     {
@@ -2002,68 +2005,83 @@ void SceneSelect::updatePreview()
                     {
                         auto bms = std::reinterpret_pointer_cast<ChartFormatBMS>(previewChart);
 
-                        // TODO #PREVIEW
-                        if (false)
+                        for (auto& [key, val] : bms->extraCommands)
                         {
-                            // SoundMgr::loadNoteSample(preview file
-                            previewStandalone = true;
-
-                            if (previewState == PREVIEW_LOAD)
+                            // check if #PREVIEW is valid
+                            if (strEqual(key, "PREVIEW", true) && !val.empty())
                             {
-                                previewState = PREVIEW_PLAY;
+                                Path pWav = fs::u8path(val);
+                                if (!pWav.is_absolute())
+                                    pWav = bms->getDirectory() / pWav;
+                                if (SoundMgr::loadNoteSample(pWav, 0) == 0)
+                                    previewStandalone = true;
+
+                                break;
                             }
-                            break;
                         }
-
-                        bars = bms->lastBarIdx;
-                        previewChartObj = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_PLAYER, bms);
-                        previewRuleset = std::make_shared<RulesetBMSAuto>(previewChart, previewChartObj,
-                            eModGauge::NORMAL, bms->gamemode, RulesetBMS::JudgeDifficulty::VERYHARD, 0.2, RulesetBMS::PlaySide::RIVAL);
-
-                        // load samples
-                        gChartContext.isSampleLoaded = false;
-                        SoundMgr::freeNoteSamples();
-                        auto chartDir = bms->getDirectory();
-                        int wavToLoad = 0;
-                        for (const auto& it : bms->wavFiles)
+                        if (previewStandalone)
                         {
-                            if (sceneEnding || previewState != PREVIEW_LOAD) break;
-
-                            if (it.empty()) continue;
-                            ++wavToLoad;
+                            previewStartTime = Time();
+                            previewStandaloneLength = SoundMgr::getNoteSampleLength(0);
+                            size_t idx = 0;
+                            SoundMgr::playNoteSample(SoundChannelType::KEY_LEFT, 1, &idx);
                         }
-                        if (wavToLoad != 0)
+                        else
                         {
-                            for (size_t i = 0; i < bms->wavFiles.size(); ++i)
+
+                            bars = bms->lastBarIdx;
+                            previewChartObj = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_PLAYER, bms);
+                            previewRuleset = std::make_shared<RulesetBMSAuto>(previewChart, previewChartObj,
+                                eModGauge::NORMAL, bms->gamemode, RulesetBMS::JudgeDifficulty::VERYHARD, 0.2, RulesetBMS::PlaySide::RIVAL);
+
+                            // load samples
+                            gChartContext.isSampleLoaded = false;
+                            SoundMgr::freeNoteSamples();
+                            auto chartDir = bms->getDirectory();
+                            int wavToLoad = 0;
+                            for (const auto& it : bms->wavFiles)
                             {
                                 if (sceneEnding || previewState != PREVIEW_LOAD) break;
 
-                                const auto& wav = bms->wavFiles[i];
-                                if (wav.empty()) continue;
-                                Path pWav = fs::u8path(wav);
-                                if (pWav.is_absolute())
-                                    SoundMgr::loadNoteSample(pWav, i);
-                                else
-                                    SoundMgr::loadNoteSample((chartDir / pWav), i);
+                                if (it.empty()) continue;
+                                ++wavToLoad;
                             }
-                            gChartContext.isSampleLoaded = true;
+                            if (wavToLoad != 0)
+                            {
+                                for (size_t i = 0; i < bms->wavFiles.size(); ++i)
+                                {
+                                    if (sceneEnding || previewState != PREVIEW_LOAD) break;
+
+                                    const auto& wav = bms->wavFiles[i];
+                                    if (wav.empty()) continue;
+                                    Path pWav = fs::u8path(wav);
+                                    if (pWav.is_absolute())
+                                        SoundMgr::loadNoteSample(pWav, i);
+                                    else
+                                        SoundMgr::loadNoteSample((chartDir / pWav), i);
+                                }
+                                gChartContext.isSampleLoaded = true;
+                            }
                         }
                         break;
                     }
                     }
 
-                    if (!previewStandalone && previewState == PREVIEW_LOAD)
+                    if (previewState == PREVIEW_LOAD)
                     {
-                        if (!gChartContext.isSampleLoaded)
+                        if (!previewStandalone && !gChartContext.isSampleLoaded)
                         {
                             // quit
                             previewState = PREVIEW_FINISH;
                         }
                         else
                         {
-                            // start from beginning. It's difficult to seek a chart for playback due to lengthy BGM samples...
-                            previewStartTime = Time() - previewChartObj->getLeadInTime();
-                            previewRuleset->setStartTime(previewStartTime);
+                            if (!previewStandalone)
+                            {
+                                // start from beginning. It's difficult to seek a chart for playback due to lengthy BGM samples...
+                                previewStartTime = Time() - previewChartObj->getLeadInTime();
+                                previewRuleset->setStartTime(previewStartTime);
+                            }
 
                             // FIXME add a gradient effect
                             SoundMgr::setSysVolume(0.1);
@@ -2078,6 +2096,11 @@ void SceneSelect::updatePreview()
         {
             if (previewStandalone)
             {
+                if ((Time() - previewStartTime).norm() > previewStandaloneLength)
+                {
+                    previewState = PREVIEW_FINISH;
+                    SoundMgr::setSysVolume(1.0);
+                }
             }
             else
             {

@@ -65,6 +65,7 @@ public:
 	virtual void playNoteSample(SoundChannelType ch, size_t count, size_t index[]);
 	virtual void stopNoteSamples();
 	virtual void freeNoteSamples();
+	virtual long long getNoteSampleLength(size_t index);
 	virtual void update();
 
 public:

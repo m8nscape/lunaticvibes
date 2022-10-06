@@ -24,6 +24,7 @@ public:
     static void playNoteSample(SoundChannelType ch, size_t count, size_t* samples);
     static void stopNoteSamples();
     static void freeNoteSamples();
+    static long long getNoteSampleLength(size_t sample); // in ms
     static int loadSysSample(const Path& path, eSoundSample sample, bool isStream = false, bool loop = false);
     static void playSysSample(SoundChannelType ch, eSoundSample sample);
     static void stopSysSamples();
