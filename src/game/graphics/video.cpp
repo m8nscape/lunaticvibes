@@ -10,6 +10,7 @@ extern "C"
 #include "libavfilter/avfilter.h"
 #include "libavformat/avformat.h"
 #include "libavutil/avutil.h"
+#include "libavutil/frame.h"
 }
 
 #include "common/utils.h"
@@ -217,7 +218,7 @@ void sVideo::decodeLoop()
 				}
 			}
 
-			if (pFrame1->pts >= 0)
+			if (pFrame1->best_effort_timestamp >= 0)
 			{
 				if (!(pFrame1->flags & AV_FRAME_FLAG_CORRUPT))
 				{
@@ -229,7 +230,7 @@ void sVideo::decodeLoop()
 				}
 
 				using namespace std::chrono;
-				auto frameTime_ms = long long(std::round(pFrame1->pts / tsps * 1000 / speed));
+				auto frameTime_ms = long long(std::round(pFrame1->best_effort_timestamp / tsps * 1000 / speed));
 				if (firstFrame)
 				{
 					firstFrame = false;
@@ -266,7 +267,7 @@ void sVideo::decodeLoop()
 					av_strerror(ret, buf, 128);
 					LOG_ERROR << "[Video] playback drain error: " << buf;
 				}
-				if (pFrame1->pts >= 0)
+				if (pFrame1->best_effort_timestamp >= 0)
 				{
 					std::unique_lock l(video_frame_mutex);
 
