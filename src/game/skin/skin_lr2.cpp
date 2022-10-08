@@ -2788,7 +2788,7 @@ void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc)
                 // end #IF process
                 return;
             }
-            else if (isElseStmt || strEqual(*tokens.begin(), "#ELSEIF", true) || strEqual(*tokens.begin(), "#ELSE", true))
+            else if (strEqual(*tokens.begin(), "#ELSEIF", true) || strEqual(*tokens.begin(), "#ELSE", true))
             {
                 ifBlockEnded = true;
             }
