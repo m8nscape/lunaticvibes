@@ -152,9 +152,12 @@ void SpriteLine::updateRects()
 
     case LineType::SCORE_MYBEST:
     {
-        auto p = gPlayContext.graphScore[PLAYER_SLOT_MYBEST];
-        size_t s = p.size();
-        pushRects(s, p, gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->getMaxScore());
+        if (gPlayContext.ruleset[PLAYER_SLOT_MYBEST])
+        {
+            auto p = gPlayContext.graphScore[PLAYER_SLOT_MYBEST];
+            size_t s = p.size();
+            pushRects(s, p, gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->getMaxScore());
+        }
         break;
     }
 

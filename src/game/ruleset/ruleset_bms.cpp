@@ -1066,7 +1066,7 @@ void RulesetBMS::update(const Time& t)
                     {
                         itNote->hit = true;
 
-                        if (!scratch || _judgeScratch)
+                        if (doJudge && (!scratch || _judgeScratch))
                         {
                             _basic.slow++;
                             updateMiss(t, idx, RulesetBMS::JudgeType::MISS, slot);
@@ -1074,7 +1074,7 @@ void RulesetBMS::update(const Time& t)
                             _lastNoteJudge.time = hitTime;
 
                             // push replay command
-                            if (doJudge && gChartContext.started && gPlayContext.replayNew)
+                            if (gChartContext.started && gPlayContext.replayNew)
                             {
                                 long long ms = t.norm() - _startTime.norm();
                                 ReplayChart::Commands cmd;

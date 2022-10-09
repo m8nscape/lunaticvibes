@@ -52,7 +52,54 @@ void RulesetBMSReplay::update(const Time& t)
     InputMask prev = keyPressing;
     while (itReplayCommand != replay->commands.end() && rt.norm() >= (long long)std::round(itReplayCommand->ms * playbackSpeed / gSelectContext.pitchSpeed))
     {
-        switch (itReplayCommand->type)
+        auto cmd = itReplayCommand->type;
+        if (_side == PlaySide::AUTO_2P)
+        {
+            switch (itReplayCommand->type)
+            {
+            case ReplayChart::Commands::Type::S1L_DOWN: cmd = ReplayChart::Commands::Type::S2L_DOWN; break;
+            case ReplayChart::Commands::Type::S1R_DOWN: cmd = ReplayChart::Commands::Type::S2R_DOWN; break;
+            case ReplayChart::Commands::Type::K11_DOWN: cmd = ReplayChart::Commands::Type::K21_DOWN; break;
+            case ReplayChart::Commands::Type::K12_DOWN: cmd = ReplayChart::Commands::Type::K22_DOWN; break;
+            case ReplayChart::Commands::Type::K13_DOWN: cmd = ReplayChart::Commands::Type::K23_DOWN; break;
+            case ReplayChart::Commands::Type::K14_DOWN: cmd = ReplayChart::Commands::Type::K24_DOWN; break;
+            case ReplayChart::Commands::Type::K15_DOWN: cmd = ReplayChart::Commands::Type::K25_DOWN; break;
+            case ReplayChart::Commands::Type::K16_DOWN: cmd = ReplayChart::Commands::Type::K26_DOWN; break;
+            case ReplayChart::Commands::Type::K17_DOWN: cmd = ReplayChart::Commands::Type::K27_DOWN; break;
+            case ReplayChart::Commands::Type::K18_DOWN: cmd = ReplayChart::Commands::Type::K28_DOWN; break;
+            case ReplayChart::Commands::Type::K19_DOWN: cmd = ReplayChart::Commands::Type::K29_DOWN; break;
+            case ReplayChart::Commands::Type::S1L_UP: cmd = ReplayChart::Commands::Type::S2L_UP; break;
+            case ReplayChart::Commands::Type::S1R_UP: cmd = ReplayChart::Commands::Type::S2R_UP; break;
+            case ReplayChart::Commands::Type::K11_UP: cmd = ReplayChart::Commands::Type::K21_UP; break;
+            case ReplayChart::Commands::Type::K12_UP: cmd = ReplayChart::Commands::Type::K22_UP; break;
+            case ReplayChart::Commands::Type::K13_UP: cmd = ReplayChart::Commands::Type::K23_UP; break;
+            case ReplayChart::Commands::Type::K14_UP: cmd = ReplayChart::Commands::Type::K24_UP; break;
+            case ReplayChart::Commands::Type::K15_UP: cmd = ReplayChart::Commands::Type::K25_UP; break;
+            case ReplayChart::Commands::Type::K16_UP: cmd = ReplayChart::Commands::Type::K26_UP; break;
+            case ReplayChart::Commands::Type::K17_UP: cmd = ReplayChart::Commands::Type::K27_UP; break;
+            case ReplayChart::Commands::Type::K18_UP: cmd = ReplayChart::Commands::Type::K28_UP; break;
+            case ReplayChart::Commands::Type::K19_UP: cmd = ReplayChart::Commands::Type::K29_UP; break;
+            case ReplayChart::Commands::Type::S1A_PLUS:  cmd = ReplayChart::Commands::Type::S2A_PLUS; break;
+            case ReplayChart::Commands::Type::S1A_MINUS: cmd = ReplayChart::Commands::Type::S2A_MINUS; break;
+            case ReplayChart::Commands::Type::S1A_STOP:  cmd = ReplayChart::Commands::Type::S2A_STOP; break;
+            case ReplayChart::Commands::Type::JUDGE_LEFT_EXACT_0:   cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_EXACT_0; break;
+            case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_0:   cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_0; break;
+            case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_1:   cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_1; break;
+            case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_2:   cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_2; break;
+            case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_3:   cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_3; break;
+            case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_4:   cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_4; break;
+            case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_5:   cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_5; break;
+            case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_0:    cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_0; break;
+            case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_1:    cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_1; break;
+            case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_2:    cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_2; break;
+            case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_3:    cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_3; break;
+            case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_4:    cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_4; break;
+            case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_5:    cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_5; break;
+            case ReplayChart::Commands::Type::JUDGE_LEFT_LANDMINE:  cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_LANDMINE; break;
+            }
+        }
+
+        switch (cmd)
         {
         case ReplayChart::Commands::Type::S1L_DOWN: keyPressing[Input::Pad::S1L] = true; break;
         case ReplayChart::Commands::Type::S1R_DOWN: keyPressing[Input::Pad::S1R] = true; break;
@@ -98,42 +145,42 @@ void RulesetBMSReplay::update(const Time& t)
         case ReplayChart::Commands::Type::K27_UP: keyPressing[Input::Pad::K27] = false; break;
         case ReplayChart::Commands::Type::K28_UP: keyPressing[Input::Pad::K28] = false; break;
         case ReplayChart::Commands::Type::K29_UP: keyPressing[Input::Pad::K29] = false; break;
-        case ReplayChart::Commands::Type::S1A_PLUS: _scratchAccumulator[PLAYER_SLOT_PLAYER] = 0.0015; break;
+        case ReplayChart::Commands::Type::S1A_PLUS:  _scratchAccumulator[PLAYER_SLOT_PLAYER] = 0.0015; break;
         case ReplayChart::Commands::Type::S1A_MINUS: _scratchAccumulator[PLAYER_SLOT_PLAYER] = -0.0015; break;
-        case ReplayChart::Commands::Type::S1A_STOP: _scratchAccumulator[PLAYER_SLOT_PLAYER] = 0; break;
-        case ReplayChart::Commands::Type::S2A_PLUS: _scratchAccumulator[PLAYER_SLOT_TARGET] = 0.0015; break;
+        case ReplayChart::Commands::Type::S1A_STOP:  _scratchAccumulator[PLAYER_SLOT_PLAYER] = 0; break;
+        case ReplayChart::Commands::Type::S2A_PLUS:  _scratchAccumulator[PLAYER_SLOT_TARGET] = 0.0015; break;
         case ReplayChart::Commands::Type::S2A_MINUS: _scratchAccumulator[PLAYER_SLOT_TARGET] = -0.0015; break;
-        case ReplayChart::Commands::Type::S2A_STOP: _scratchAccumulator[PLAYER_SLOT_TARGET] = 0; break;
+        case ReplayChart::Commands::Type::S2A_STOP:  _scratchAccumulator[PLAYER_SLOT_TARGET] = 0; break;
 
         // extract judge from frames
-        case ReplayChart::Commands::Type::JUDGE_LEFT_EXACT_0: updateHit(t, NoteLaneIndex::_, JudgeType::PERFECT, PLAYER_SLOT_PLAYER, true); break;
-        case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_0: updateHit(t, NoteLaneIndex::_, JudgeType::PERFECT, PLAYER_SLOT_PLAYER, true); _basic.fast++; break;
-        case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_1: updateHit(t, NoteLaneIndex::_, JudgeType::GREAT, PLAYER_SLOT_PLAYER, true); _basic.fast++; break;
-        case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_2: updateHit(t, NoteLaneIndex::_, JudgeType::GOOD, PLAYER_SLOT_PLAYER, true); _basic.fast++; break;
-        case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_3: updateMiss(t, NoteLaneIndex::_, JudgeType::BAD, PLAYER_SLOT_PLAYER, true); _basic.fast++; break;
-        case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_4: updateMiss(t, NoteLaneIndex::_, JudgeType::MISS, PLAYER_SLOT_PLAYER, true); _basic.fast++; break;
-        case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_5: updateMiss(t, NoteLaneIndex::_, JudgeType::BPOOR, PLAYER_SLOT_PLAYER, true); _basic.fast++; break;
-        case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_0: updateHit(t, NoteLaneIndex::_, JudgeType::PERFECT, PLAYER_SLOT_PLAYER, true); _basic.slow++; break;
-        case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_1: updateHit(t, NoteLaneIndex::_, JudgeType::GREAT, PLAYER_SLOT_PLAYER, true); _basic.slow++; break;
-        case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_2: updateHit(t, NoteLaneIndex::_, JudgeType::GOOD, PLAYER_SLOT_PLAYER, true); _basic.slow++; break;
-        case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_3: updateMiss(t, NoteLaneIndex::_, JudgeType::BAD, PLAYER_SLOT_PLAYER, true); _basic.slow++; break;
-        case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_4: updateMiss(t, NoteLaneIndex::_, JudgeType::MISS, PLAYER_SLOT_PLAYER, true); _basic.slow++; break;
-        case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_5: updateMiss(t, NoteLaneIndex::_, JudgeType::BPOOR, PLAYER_SLOT_PLAYER, true); _basic.slow++; break;
-        case ReplayChart::Commands::Type::JUDGE_RIGHT_EXACT_0: updateHit(t, NoteLaneIndex::_, JudgeType::PERFECT, PLAYER_SLOT_TARGET, true); break;
-        case ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_0: updateHit(t, NoteLaneIndex::_, JudgeType::PERFECT, PLAYER_SLOT_TARGET, true); _basic.fast++; break;
-        case ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_1: updateHit(t, NoteLaneIndex::_, JudgeType::GREAT, PLAYER_SLOT_TARGET, true); _basic.fast++; break;
-        case ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_2: updateHit(t, NoteLaneIndex::_, JudgeType::GOOD, PLAYER_SLOT_TARGET, true); _basic.fast++; break;
-        case ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_3: updateMiss(t, NoteLaneIndex::_, JudgeType::BAD, PLAYER_SLOT_TARGET, true); _basic.fast++; break;
-        case ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_4: updateMiss(t, NoteLaneIndex::_, JudgeType::MISS, PLAYER_SLOT_TARGET, true); _basic.fast++; break;
-        case ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_5: updateMiss(t, NoteLaneIndex::_, JudgeType::BPOOR, PLAYER_SLOT_TARGET, true); _basic.fast++; break;
-        case ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_0: updateHit(t, NoteLaneIndex::_, JudgeType::PERFECT, PLAYER_SLOT_TARGET, true); _basic.slow++; break;
-        case ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_1: updateHit(t, NoteLaneIndex::_, JudgeType::GREAT, PLAYER_SLOT_TARGET, true); _basic.slow++; break;
-        case ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_2: updateHit(t, NoteLaneIndex::_, JudgeType::GOOD, PLAYER_SLOT_TARGET, true); _basic.slow++; break;
-        case ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_3: updateMiss(t, NoteLaneIndex::_, JudgeType::BAD, PLAYER_SLOT_TARGET, true); _basic.slow++; break;
-        case ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_4: updateMiss(t, NoteLaneIndex::_, JudgeType::MISS, PLAYER_SLOT_TARGET, true); _basic.slow++; break;
-        case ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_5: updateMiss(t, NoteLaneIndex::_, JudgeType::BPOOR, PLAYER_SLOT_TARGET, true); _basic.slow++; break;
-        case ReplayChart::Commands::Type::JUDGE_LEFT_LANDMINE: updateMiss(t, NoteLaneIndex::_, JudgeType::BPOOR, PLAYER_SLOT_PLAYER, true); break;
-        case ReplayChart::Commands::Type::JUDGE_RIGHT_LANDMINE: updateMiss(t, NoteLaneIndex::_, JudgeType::BPOOR, PLAYER_SLOT_TARGET, true); break;
+        case ReplayChart::Commands::Type::JUDGE_LEFT_EXACT_0:   updateHit(t,  NoteLaneIndex::_, JudgeType::PERFECT, PLAYER_SLOT_PLAYER, true); break;
+        case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_0:   updateHit(t,  NoteLaneIndex::_, JudgeType::PERFECT, PLAYER_SLOT_PLAYER, true); _basic.fast++; break;
+        case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_1:   updateHit(t,  NoteLaneIndex::_, JudgeType::GREAT,   PLAYER_SLOT_PLAYER, true); _basic.fast++; break;
+        case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_2:   updateHit(t,  NoteLaneIndex::_, JudgeType::GOOD,    PLAYER_SLOT_PLAYER, true); _basic.fast++; break;
+        case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_3:   updateMiss(t, NoteLaneIndex::_, JudgeType::BAD,     PLAYER_SLOT_PLAYER, true); _basic.fast++; break;
+        case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_4:   updateMiss(t, NoteLaneIndex::_, JudgeType::MISS,    PLAYER_SLOT_PLAYER, true); _basic.fast++; break;
+        case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_5:   updateMiss(t, NoteLaneIndex::_, JudgeType::BPOOR,   PLAYER_SLOT_PLAYER, true); _basic.fast++; break;
+        case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_0:    updateHit(t,  NoteLaneIndex::_, JudgeType::PERFECT, PLAYER_SLOT_PLAYER, true); _basic.slow++; break;
+        case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_1:    updateHit(t,  NoteLaneIndex::_, JudgeType::GREAT,   PLAYER_SLOT_PLAYER, true); _basic.slow++; break;
+        case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_2:    updateHit(t,  NoteLaneIndex::_, JudgeType::GOOD,    PLAYER_SLOT_PLAYER, true); _basic.slow++; break;
+        case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_3:    updateMiss(t, NoteLaneIndex::_, JudgeType::BAD,     PLAYER_SLOT_PLAYER, true); _basic.slow++; break;
+        case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_4:    updateMiss(t, NoteLaneIndex::_, JudgeType::MISS,    PLAYER_SLOT_PLAYER, true); _basic.slow++; break;
+        case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_5:    updateMiss(t, NoteLaneIndex::_, JudgeType::BPOOR,   PLAYER_SLOT_PLAYER, true); _basic.slow++; break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_EXACT_0:  updateHit(t,  NoteLaneIndex::_, JudgeType::PERFECT, PLAYER_SLOT_TARGET, true); break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_0:  updateHit(t,  NoteLaneIndex::_, JudgeType::PERFECT, PLAYER_SLOT_TARGET, true); _basic.fast++; break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_1:  updateHit(t,  NoteLaneIndex::_, JudgeType::GREAT,   PLAYER_SLOT_TARGET, true); _basic.fast++; break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_2:  updateHit(t,  NoteLaneIndex::_, JudgeType::GOOD,    PLAYER_SLOT_TARGET, true); _basic.fast++; break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_3:  updateMiss(t, NoteLaneIndex::_, JudgeType::BAD,     PLAYER_SLOT_TARGET, true); _basic.fast++; break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_4:  updateMiss(t, NoteLaneIndex::_, JudgeType::MISS,    PLAYER_SLOT_TARGET, true); _basic.fast++; break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_5:  updateMiss(t, NoteLaneIndex::_, JudgeType::BPOOR,   PLAYER_SLOT_TARGET, true); _basic.fast++; break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_0:   updateHit(t,  NoteLaneIndex::_, JudgeType::PERFECT, PLAYER_SLOT_TARGET, true); _basic.slow++; break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_1:   updateHit(t,  NoteLaneIndex::_, JudgeType::GREAT,   PLAYER_SLOT_TARGET, true); _basic.slow++; break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_2:   updateHit(t,  NoteLaneIndex::_, JudgeType::GOOD,    PLAYER_SLOT_TARGET, true); _basic.slow++; break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_3:   updateMiss(t, NoteLaneIndex::_, JudgeType::BAD,     PLAYER_SLOT_TARGET, true); _basic.slow++; break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_4:   updateMiss(t, NoteLaneIndex::_, JudgeType::MISS,    PLAYER_SLOT_TARGET, true); _basic.slow++; break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_5:   updateMiss(t, NoteLaneIndex::_, JudgeType::BPOOR,   PLAYER_SLOT_TARGET, true); _basic.slow++; break;
+        case ReplayChart::Commands::Type::JUDGE_LEFT_LANDMINE:  updateMiss(t, NoteLaneIndex::_, JudgeType::BPOOR,   PLAYER_SLOT_PLAYER, true); break;
+        case ReplayChart::Commands::Type::JUDGE_RIGHT_LANDMINE: updateMiss(t, NoteLaneIndex::_, JudgeType::BPOOR,   PLAYER_SLOT_TARGET, true); break;
         }
         itReplayCommand++;
     }

@@ -27,10 +27,6 @@ bool ScenePlay::isPlaymodeDP() const
     }
     return false;
 }
-bool ScenePlay::isPlaymodeBattle() const
-{
-    return gPlayContext.isBattle;
-}
 
 int getLanecoverTop(int slot)
 {
@@ -116,9 +112,9 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
 {
     _scene = eScene::PLAY;
 
-    assert(!isPlaymodeDP() || !isPlaymodeBattle());
+    assert(!isPlaymodeDP() || !gPlayContext.isBattle);
 
-    if (!isPlaymodeDP() && !isPlaymodeBattle())
+    if (!isPlaymodeDP() && !gPlayContext.isBattle)
     {
         _input.setMergeInput();
     }
@@ -174,7 +170,7 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
             hid2 = hid1;
         }
     }
-    if (isPlaymodeBattle())
+    if (gPlayContext.isBattle)
     {
         State::set(IndexSwitch::P2_LANECOVER_ENABLED,
             (lcType2 != Option::LANE_OFF && lcType2 != Option::LANE_LIFT));
@@ -214,12 +210,12 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
 
     if (lcType1 == Option::LANE_HIDDEN)
         _laneEffectHIDDEN[PLAYER_SLOT_PLAYER] = true;
-    if (isPlaymodeBattle() && lcType2 == Option::LANE_HIDDEN)
+    if (gPlayContext.isBattle && lcType2 == Option::LANE_HIDDEN)
         _laneEffectHIDDEN[PLAYER_SLOT_TARGET] = true;
 
     if (lcType1 == Option::LANE_SUDHID)
         _laneEffectSUDHID[PLAYER_SLOT_PLAYER] = true;
-    if (isPlaymodeBattle() && lcType2 == Option::LANE_SUDHID)
+    if (gPlayContext.isBattle && lcType2 == Option::LANE_SUDHID)
         _laneEffectSUDHID[PLAYER_SLOT_TARGET] = true;
 
     _inputAvailable = INPUT_MASK_FUNC;
@@ -243,14 +239,12 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
             gNextScene = gQuitOnFinish ? eScene::EXIT_TRANS : eScene::SELECT;
             return;
         }
-        if (gPlayContext.isReplay && gPlayContext.replay)
+        if (gPlayContext.replay && 
+            gPlayContext.isReplay || (gPlayContext.replay && State::get(IndexOption::PLAY_BATTLE_TYPE) == Option::BATTLE_GHOST))
         {
-            gChartContext.chartObj = ChartFormatBase::createFromFile(gChartContext.path, gPlayContext.replay->randomSeed);
+            gPlayContext.randomSeed = gPlayContext.replay->randomSeed;
         }
-        else
-        {
-            gChartContext.chartObj = ChartFormatBase::createFromFile(gChartContext.path, gPlayContext.randomSeed);
-        }
+        gChartContext.chartObj = ChartFormatBase::createFromFile(gChartContext.path, gPlayContext.replay->randomSeed);
     }
     if (gChartContext.chartObj == nullptr || !gChartContext.chartObj->isLoaded())
     {
@@ -326,7 +320,7 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         _lockspeedValue[PLAYER_SLOT_PLAYER] = val;
         _lockspeedGreenNumber[PLAYER_SLOT_PLAYER] = green;
     }
-    if (isPlaymodeBattle() && State::get(IndexSwitch::P2_LOCK_SPEED))
+    if (gPlayContext.isBattle && State::get(IndexSwitch::P2_LOCK_SPEED))
     {
         double bpm = gChartContext.startBPM;
         switch (gPlayContext.mods[PLAYER_SLOT_PLAYER].hispeedFix)
@@ -385,7 +379,7 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         }
         _skin->setExtendedProperty("GAUGETYPE_1P"s, (void*)&tmp);
 
-        if (isPlaymodeBattle())
+        if (gPlayContext.isBattle)
         {
             switch (gPlayContext.mods[PLAYER_SLOT_TARGET].gauge)
             {
@@ -504,7 +498,7 @@ bool ScenePlay::createChartObj()
         {
             gPlayContext.chartObj[PLAYER_SLOT_PLAYER] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_PLAYER, bms);
 
-            if (gPlayContext.isAuto && isPlaymodeBattle())
+            if (gPlayContext.isAuto && gPlayContext.isBattle)
                 gPlayContext.chartObj[PLAYER_SLOT_TARGET] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_TARGET, bms);
             else
                 gPlayContext.chartObj[PLAYER_SLOT_TARGET] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_PLAYER, bms);    // create for rival; loading with 1P options
@@ -517,7 +511,7 @@ bool ScenePlay::createChartObj()
         }
         else
         {
-            if (isPlaymodeBattle())
+            if (gPlayContext.isBattle)
             {
                 gPlayContext.chartObj[PLAYER_SLOT_PLAYER] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_PLAYER, bms);
                 gPlayContext.chartObj[PLAYER_SLOT_TARGET] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_TARGET, bms);
@@ -530,6 +524,9 @@ bool ScenePlay::createChartObj()
                 if (gPlayContext.replayMybest)
                     gPlayContext.chartObj[PLAYER_SLOT_MYBEST] = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_MYBEST, bms);
             }
+
+            if (gPlayContext.replay && (gPlayContext.isBattle && State::get(IndexOption::PLAY_BATTLE_TYPE) == Option::BATTLE_GHOST))
+                itReplayCommand = gPlayContext.replay->commands.begin();
         }
         State::set(IndexNumber::PLAY_REMAIN_MIN, int(gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getTotalLength().norm() / 1000 / 60));
         State::set(IndexNumber::PLAY_REMAIN_SEC, int(gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getTotalLength().norm() / 1000 % 60));
@@ -586,9 +583,9 @@ bool ScenePlay::createRuleset()
         case eMode::PLAY9_2: keys = 9; break;
         case eMode::PLAY10: keys = 10; break;
         case eMode::PLAY14: keys = 14; break;
-        defualt: break;
+        default: break;
         }
-
+        
         if (gPlayContext.isAuto)
         {
             gPlayContext.ruleset[PLAYER_SLOT_PLAYER] = std::make_shared<RulesetBMSAuto>(
@@ -596,7 +593,7 @@ bool ScenePlay::createRuleset()
                 gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge, keys, judgeDiff,
                 gPlayContext.initialHealth[PLAYER_SLOT_PLAYER], RulesetBMS::PlaySide::AUTO);
 
-            if (isPlaymodeBattle())
+            if (gPlayContext.isBattle)
             {
                 if (gPlayContext.replayMybest)
                 {
@@ -634,40 +631,53 @@ bool ScenePlay::createRuleset()
                     gPlayContext.initialHealth[PLAYER_SLOT_MYBEST], RulesetBMS::PlaySide::MYBEST);
             }
         }
-        else
+        else if (gPlayContext.isBattle)
         {
-            if (isPlaymodeBattle())
-            {
-                gPlayContext.ruleset[PLAYER_SLOT_PLAYER] = std::make_shared<RulesetBMS>(
-                    gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_PLAYER],
-                    gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge, keys, judgeDiff,
-                    gPlayContext.initialHealth[PLAYER_SLOT_PLAYER], RulesetBMS::PlaySide::BATTLE_1P);
+            gPlayContext.ruleset[PLAYER_SLOT_PLAYER] = std::make_shared<RulesetBMS>(
+                gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_PLAYER],
+                gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge, keys, judgeDiff,
+                gPlayContext.initialHealth[PLAYER_SLOT_PLAYER], RulesetBMS::PlaySide::BATTLE_1P);
 
+            if (gPlayContext.replay && State::get(IndexOption::PLAY_BATTLE_TYPE) == Option::BATTLE_GHOST)
+            {
+                gPlayContext.ruleset[PLAYER_SLOT_TARGET] = std::make_shared<RulesetBMSReplay>(
+                    gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_TARGET], gPlayContext.replay,
+                    gPlayContext.replay->gaugeType, keys, judgeDiff,
+                    gPlayContext.initialHealth[PLAYER_SLOT_TARGET], RulesetBMS::PlaySide::AUTO_2P);
+            }
+            else
+            {
                 gPlayContext.ruleset[PLAYER_SLOT_TARGET] = std::make_shared<RulesetBMS>(
                     gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_TARGET],
                     gPlayContext.mods[PLAYER_SLOT_TARGET].gauge, keys, judgeDiff,
                     gPlayContext.initialHealth[PLAYER_SLOT_TARGET], RulesetBMS::PlaySide::BATTLE_2P);
             }
-            else
+        }
+        else
+        {
+            gPlayContext.ruleset[PLAYER_SLOT_PLAYER] = std::make_shared<RulesetBMS>(
+                gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_PLAYER],
+                gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge, keys, judgeDiff,
+                gPlayContext.initialHealth[PLAYER_SLOT_PLAYER], (keys == 10 || keys == 14) ? RulesetBMS::PlaySide::DOUBLE : RulesetBMS::PlaySide::SINGLE);
+
+            gPlayContext.ruleset[PLAYER_SLOT_TARGET] = std::make_shared<RulesetBMSAuto>(
+                gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_TARGET],
+                gPlayContext.mods[PLAYER_SLOT_TARGET].gauge, keys, judgeDiff,
+                gPlayContext.initialHealth[PLAYER_SLOT_TARGET], RulesetBMS::PlaySide::RIVAL);
+
+            if (gPlayContext.replayMybest)
             {
-                gPlayContext.ruleset[PLAYER_SLOT_PLAYER] = std::make_shared<RulesetBMS>(
-                    gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_PLAYER],
-                    gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge, keys, judgeDiff,
-                    gPlayContext.initialHealth[PLAYER_SLOT_PLAYER], (keys == 10 || keys == 14) ? RulesetBMS::PlaySide::DOUBLE : RulesetBMS::PlaySide::SINGLE);
+                gPlayContext.ruleset[PLAYER_SLOT_MYBEST] = std::make_shared<RulesetBMSReplay>(
+                    gChartContext.chartObjMybest, gPlayContext.chartObj[PLAYER_SLOT_MYBEST], gPlayContext.replayMybest,
+                    gPlayContext.replayMybest->gaugeType, keys, judgeDiff,
+                    gPlayContext.initialHealth[PLAYER_SLOT_MYBEST], RulesetBMS::PlaySide::MYBEST);
+            }
+        }
 
-                gPlayContext.ruleset[PLAYER_SLOT_TARGET] = std::make_shared<RulesetBMSAuto>(
-                    gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_TARGET],
-                    gPlayContext.mods[PLAYER_SLOT_TARGET].gauge, keys, judgeDiff,
-                    gPlayContext.initialHealth[PLAYER_SLOT_TARGET], RulesetBMS::PlaySide::RIVAL);
-
-                if (gPlayContext.replayMybest)
-                {
-                    gPlayContext.ruleset[PLAYER_SLOT_MYBEST] = std::make_shared<RulesetBMSReplay>(
-                        gChartContext.chartObjMybest, gPlayContext.chartObj[PLAYER_SLOT_MYBEST], gPlayContext.replayMybest,
-                        gPlayContext.replayMybest->gaugeType, keys, judgeDiff,
-                        gPlayContext.initialHealth[PLAYER_SLOT_MYBEST], RulesetBMS::PlaySide::MYBEST);
-                }
-
+        if (!gPlayContext.isAuto && !gPlayContext.isReplay)
+        {
+            if (!gPlayContext.isBattle || (gPlayContext.replay && State::get(IndexOption::PLAY_BATTLE_TYPE) == Option::BATTLE_GHOST))
+            {
                 // create replay
                 gPlayContext.replayNew = std::make_shared<ReplayChart>();
                 gPlayContext.replayNew->chartHash = gChartContext.hash;
@@ -687,7 +697,7 @@ bool ScenePlay::createRuleset()
             }
         }
 
-        if (gPlayContext.ruleset[PLAYER_SLOT_TARGET] != nullptr && !isPlaymodeBattle())
+        if (gPlayContext.ruleset[PLAYER_SLOT_TARGET] != nullptr && !gPlayContext.isBattle)
         {
             double targetRateReal = 0.0;
             switch (State::get(IndexOption::PLAY_TARGET_TYPE))
@@ -780,7 +790,7 @@ void ScenePlay::setTempInitialHealthBMS()
         default: break;
         }
 
-        if (isPlaymodeBattle())
+        if (gPlayContext.isBattle)
         {
             switch (gPlayContext.mods[PLAYER_SLOT_TARGET].gauge)
             {
@@ -828,11 +838,11 @@ void ScenePlay::setTempInitialHealthBMS()
     }
     else
     {
-        State::set(IndexNumber::PLAY_1P_GROOVEGAUGE, (int)gPlayContext.initialHealth[0]);
+        State::set(IndexNumber::PLAY_1P_GROOVEGAUGE, (int)gPlayContext.initialHealth[PLAYER_SLOT_PLAYER]);
 
-        if (isPlaymodeBattle())
+        if (gPlayContext.isBattle)
         {
-            State::set(IndexNumber::PLAY_2P_GROOVEGAUGE, (int)gPlayContext.initialHealth[1]);
+            State::set(IndexNumber::PLAY_2P_GROOVEGAUGE, (int)gPlayContext.initialHealth[PLAYER_SLOT_TARGET]);
         }
     }
 }
@@ -1208,7 +1218,7 @@ void ScenePlay::_updateAsync()
         }
 
     }
-    if (isPlaymodeBattle())
+    if (gPlayContext.isBattle)
     {
         int lc = 0;
         switch (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_2P))
@@ -1537,7 +1547,7 @@ void ScenePlay::_updateAsync()
             ss << "G(1P): " << (State::get(IndexSwitch::P1_LOCK_SPEED) ? "FIX " : "") << State::get(IndexNumber::GREEN_NUMBER_1P) <<
                 " (" << State::get(IndexNumber::GREEN_NUMBER_MINBPM_1P) << " - " << State::get(IndexNumber::GREEN_NUMBER_MAXBPM_1P) << ")";
 
-            if (isPlaymodeBattle())
+            if (gPlayContext.isBattle)
             {
                 ss << " | G(2P): " << (State::get(IndexSwitch::P2_LOCK_SPEED) ? "FIX " : "") << State::get(IndexNumber::GREEN_NUMBER_2P) <<
                     " (" << State::get(IndexNumber::GREEN_NUMBER_MINBPM_2P) << " - " << State::get(IndexNumber::GREEN_NUMBER_MAXBPM_2P) << ")";
@@ -1685,14 +1695,14 @@ void ScenePlay::_updateAsync()
 
                 SoundMgr::playNoteSample(SoundChannelType::KEY_LEFT, sampleCount, keySampleIdxBufScratch.data());
             }
-            if (slot != PLAYER_SLOT_PLAYER && (isPlaymodeDP() || (isPlaymodeBattle() && !gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFailed())))
+            if (slot != PLAYER_SLOT_PLAYER && (isPlaymodeDP() || (gPlayContext.isBattle && !gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFailed())))
             {
                 if (_scratchDir[slot] == AxisDir::AXIS_UP && _currentKeySample[Input::S2L])
                     keySampleIdxBufScratch[sampleCount++] = _currentKeySample[Input::S2L];
                 if (_scratchDir[slot] == AxisDir::AXIS_DOWN && _currentKeySample[Input::S2R])
                     keySampleIdxBufScratch[sampleCount++] = _currentKeySample[Input::S2R];
 
-                SoundMgr::playNoteSample((!isPlaymodeBattle() ? SoundChannelType::KEY_LEFT : SoundChannelType::KEY_RIGHT), sampleCount, keySampleIdxBufScratch.data());
+                SoundMgr::playNoteSample((!gPlayContext.isBattle ? SoundChannelType::KEY_LEFT : SoundChannelType::KEY_RIGHT), sampleCount, keySampleIdxBufScratch.data());
             }
         }
 
@@ -1827,12 +1837,60 @@ void ScenePlay::updatePlaying()
     gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->update(rt);
     gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->update(t);
 
-    if (gPlayContext.isReplay)
+    if (gPlayContext.isReplay ||
+        (gPlayContext.isBattle && State::get(IndexOption::PLAY_BATTLE_TYPE) == Option::BATTLE_GHOST))
     {
         InputMask prev = replayKeyPressing;
         while (itReplayCommand != gPlayContext.replay->commands.end() && rt.norm() >= itReplayCommand->ms)
         {
-            switch (itReplayCommand->type)
+            auto cmd = itReplayCommand->type;
+            if (!gPlayContext.isReplay)
+            {
+                switch (itReplayCommand->type)
+                {
+                case ReplayChart::Commands::Type::S1L_DOWN: cmd = ReplayChart::Commands::Type::S2L_DOWN; break;
+                case ReplayChart::Commands::Type::S1R_DOWN: cmd = ReplayChart::Commands::Type::S2R_DOWN; break;
+                case ReplayChart::Commands::Type::K11_DOWN: cmd = ReplayChart::Commands::Type::K21_DOWN; break;
+                case ReplayChart::Commands::Type::K12_DOWN: cmd = ReplayChart::Commands::Type::K22_DOWN; break;
+                case ReplayChart::Commands::Type::K13_DOWN: cmd = ReplayChart::Commands::Type::K23_DOWN; break;
+                case ReplayChart::Commands::Type::K14_DOWN: cmd = ReplayChart::Commands::Type::K24_DOWN; break;
+                case ReplayChart::Commands::Type::K15_DOWN: cmd = ReplayChart::Commands::Type::K25_DOWN; break;
+                case ReplayChart::Commands::Type::K16_DOWN: cmd = ReplayChart::Commands::Type::K26_DOWN; break;
+                case ReplayChart::Commands::Type::K17_DOWN: cmd = ReplayChart::Commands::Type::K27_DOWN; break;
+                case ReplayChart::Commands::Type::K18_DOWN: cmd = ReplayChart::Commands::Type::K28_DOWN; break;
+                case ReplayChart::Commands::Type::K19_DOWN: cmd = ReplayChart::Commands::Type::K29_DOWN; break;
+                case ReplayChart::Commands::Type::S1L_UP: cmd = ReplayChart::Commands::Type::S2L_UP; break;
+                case ReplayChart::Commands::Type::S1R_UP: cmd = ReplayChart::Commands::Type::S2R_UP; break;
+                case ReplayChart::Commands::Type::K11_UP: cmd = ReplayChart::Commands::Type::K21_UP; break;
+                case ReplayChart::Commands::Type::K12_UP: cmd = ReplayChart::Commands::Type::K22_UP; break;
+                case ReplayChart::Commands::Type::K13_UP: cmd = ReplayChart::Commands::Type::K23_UP; break;
+                case ReplayChart::Commands::Type::K14_UP: cmd = ReplayChart::Commands::Type::K24_UP; break;
+                case ReplayChart::Commands::Type::K15_UP: cmd = ReplayChart::Commands::Type::K25_UP; break;
+                case ReplayChart::Commands::Type::K16_UP: cmd = ReplayChart::Commands::Type::K26_UP; break;
+                case ReplayChart::Commands::Type::K17_UP: cmd = ReplayChart::Commands::Type::K27_UP; break;
+                case ReplayChart::Commands::Type::K18_UP: cmd = ReplayChart::Commands::Type::K28_UP; break;
+                case ReplayChart::Commands::Type::K19_UP: cmd = ReplayChart::Commands::Type::K29_UP; break;
+                case ReplayChart::Commands::Type::S1A_PLUS:  cmd = ReplayChart::Commands::Type::S2A_PLUS; break;
+                case ReplayChart::Commands::Type::S1A_MINUS: cmd = ReplayChart::Commands::Type::S2A_MINUS; break;
+                case ReplayChart::Commands::Type::S1A_STOP:  cmd = ReplayChart::Commands::Type::S2A_STOP; break;
+                case ReplayChart::Commands::Type::JUDGE_LEFT_EXACT_0:   cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_EXACT_0; break;
+                case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_0:   cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_0; break;
+                case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_1:   cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_1; break;
+                case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_2:   cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_2; break;
+                case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_3:   cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_3; break;
+                case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_4:   cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_4; break;
+                case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_5:   cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_5; break;
+                case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_0:    cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_0; break;
+                case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_1:    cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_1; break;
+                case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_2:    cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_2; break;
+                case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_3:    cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_3; break;
+                case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_4:    cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_4; break;
+                case ReplayChart::Commands::Type::JUDGE_LEFT_LATE_5:    cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_5; break;
+                case ReplayChart::Commands::Type::JUDGE_LEFT_LANDMINE:  cmd = cmd = ReplayChart::Commands::Type::JUDGE_RIGHT_LANDMINE; break;
+                }
+            }
+
+            switch (cmd)
             {
             case ReplayChart::Commands::Type::S1L_DOWN: replayKeyPressing[Input::Pad::S1L] = true; break;
             case ReplayChart::Commands::Type::S1R_DOWN: replayKeyPressing[Input::Pad::S1R] = true; break;
@@ -1907,8 +1965,8 @@ void ScenePlay::updatePlaying()
         if (released.any())
             inputGameReleaseTimer(released, t);
 
-        if (replayKeyPressing[Input::Pad::K1START] || !isPlaymodeBattle() && replayKeyPressing[Input::Pad::K2START]) _isHoldingStart[PLAYER_SLOT_PLAYER] = true;
-        if (replayKeyPressing[Input::Pad::K1SELECT] || !isPlaymodeBattle() && replayKeyPressing[Input::Pad::K2SELECT]) _isHoldingSelect[PLAYER_SLOT_PLAYER] = true;
+        if (replayKeyPressing[Input::Pad::K1START] || !gPlayContext.isBattle && replayKeyPressing[Input::Pad::K2START]) _isHoldingStart[PLAYER_SLOT_PLAYER] = true;
+        if (replayKeyPressing[Input::Pad::K1SELECT] || !gPlayContext.isBattle && replayKeyPressing[Input::Pad::K2SELECT]) _isHoldingSelect[PLAYER_SLOT_PLAYER] = true;
 
     }
 
@@ -1932,7 +1990,7 @@ void ScenePlay::updatePlaying()
         State::set(IndexNumber::RESULT_MYBEST_RATE, (int)std::floor(dpb.acc * 100.0));
         State::set(IndexNumber::RESULT_MYBEST_RATE_DECIMAL2, (int)std::floor(dpb.acc * 10000.0) % 100);
     }
-    if (!isPlaymodeBattle())
+    if (!gPlayContext.isBattle)
     {
         State::set(IndexNumber::RESULT_MYBEST_DIFF, dp1.score2 - State::get(IndexNumber::RESULT_MYBEST_EX));
     }
@@ -2135,7 +2193,7 @@ void ScenePlay::updateFadeout()
             removeInputJudgeCallback();
 
             bool cleared = false;
-            if (isPlaymodeBattle())
+            if (gPlayContext.isBattle)
             {
                 if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isCleared() ||
                     gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isCleared())
@@ -2156,7 +2214,7 @@ void ScenePlay::updateFadeout()
             gPlayContext.Hispeed = _hispeedOld[PLAYER_SLOT_PLAYER];
             State::set(IndexNumber::HS_1P, (int)std::round(gPlayContext.Hispeed * 100));
         }
-        if (isPlaymodeBattle() && State::get(IndexSwitch::P2_LOCK_SPEED))
+        if (gPlayContext.isBattle && State::get(IndexSwitch::P2_LOCK_SPEED))
         {
             gPlayContext.battle2PHispeed = _hispeedOld[PLAYER_SLOT_TARGET];
             State::set(IndexNumber::HS_2P, (int)std::round(gPlayContext.battle2PHispeed * 100));
@@ -2177,7 +2235,7 @@ void ScenePlay::updateFadeout()
             ConfigMgr::set('P', cfg::P_GREENNUMBER, _lockspeedGreenNumber[PLAYER_SLOT_PLAYER]);
         }
 
-        if (isPlaymodeBattle())
+        if (gPlayContext.isBattle)
         {
             if (_laneEffectSUDHID[PLAYER_SLOT_TARGET])
             {
@@ -2326,7 +2384,7 @@ void ScenePlay::procCommonNotes()
         }
         SoundMgr::playNoteSample(SoundChannelType::KEY_LEFT, i, (size_t*)_keySampleIdxBuf.data());
     }
-    if (isPlaymodeBattle() && gPlayContext.mods[PLAYER_SLOT_TARGET].assist_mask & PLAY_MOD_ASSIST_AUTOSCR)
+    if (gPlayContext.isBattle && gPlayContext.mods[PLAYER_SLOT_TARGET].assist_mask & PLAY_MOD_ASSIST_AUTOSCR)
     {
         i = 0;
         auto it = gPlayContext.chartObj[PLAYER_SLOT_TARGET]->noteExpired.begin();
@@ -2440,7 +2498,7 @@ void ScenePlay::changeKeySampleMapping(const Time& t)
             }
         }
     }
-	if (isPlaymodeBattle())
+	if (gPlayContext.isBattle)
 	{
 		assert(gPlayContext.chartObj[PLAYER_SLOT_TARGET] != nullptr);
 		for (size_t i = Input::K21; i <= Input::K29; ++i)
@@ -2565,7 +2623,7 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
             _startPressedTime[PLAYER_SLOT_PLAYER] = t;
         }
     }
-    if (isPlaymodeBattle() && input[K2START])
+    if (gPlayContext.isBattle && input[K2START])
     {
         if (t > _startPressedTime[PLAYER_SLOT_TARGET] && (t - _startPressedTime[PLAYER_SLOT_TARGET]).norm() < 200)
         {
@@ -2630,7 +2688,7 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
             _selectPressedTime[PLAYER_SLOT_PLAYER] = t;
         }
     }
-    if (isPlaymodeBattle() && input[K2SELECT])
+    if (gPlayContext.isBattle && input[K2SELECT])
     {
         if (t > _selectPressedTime[PLAYER_SLOT_TARGET] && (t - _selectPressedTime[PLAYER_SLOT_TARGET]).norm() < 200)
         {
@@ -2691,7 +2749,7 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
         }
 
     }
-    if (isPlaymodeBattle())
+    if (gPlayContext.isBattle)
     {
         if (input[K2START]) _isHoldingStart[PLAYER_SLOT_TARGET] = true;
         if (input[K2SELECT]) _isHoldingSelect[PLAYER_SLOT_TARGET] = true;
@@ -2736,7 +2794,7 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
             {
                 gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->fail();
             }
-            if (!_isPlayerFinished[PLAYER_SLOT_TARGET] && isPlaymodeBattle() && gPlayContext.ruleset[PLAYER_SLOT_TARGET])
+            if (!_isPlayerFinished[PLAYER_SLOT_TARGET] && gPlayContext.isBattle && gPlayContext.ruleset[PLAYER_SLOT_TARGET])
             {
                 gPlayContext.ruleset[PLAYER_SLOT_TARGET]->fail();
             }
@@ -2766,7 +2824,7 @@ void ScenePlay::inputGamePressTimer(InputMask& input, const Time& t)
             State::set(IndexSwitch::S1_DOWN, true);
         }
     }
-    if (isPlaymodeBattle() || isPlaymodeDP())
+    if (gPlayContext.isBattle || isPlaymodeDP())
     {
         if (input[S2L] || input[S2R])
         {
@@ -2778,7 +2836,7 @@ void ScenePlay::inputGamePressTimer(InputMask& input, const Time& t)
     }
 
     InputMask inputSample = input;
-    if (isPlaymodeBattle())
+    if (gPlayContext.isBattle)
     {
         if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isFailed()) input &= ~INPUT_MASK_1P;
         if (gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFailed()) input &= ~INPUT_MASK_2P;
@@ -2840,7 +2898,7 @@ void ScenePlay::inputGameHold(InputMask& m, const Time& t)
             }
         }
     }
-    if (isPlaymodeBattle() && State::get(IndexSwitch::P2_LANECOVER_ENABLED) || State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_2P) == Option::LANE_LIFT)
+    if (gPlayContext.isBattle && State::get(IndexSwitch::P2_LANECOVER_ENABLED) || State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_2P) == Option::LANE_LIFT)
     {
         if (_isHoldingStart[PLAYER_SLOT_TARGET])
         {
@@ -2869,7 +2927,7 @@ void ScenePlay::inputGameHold(InputMask& m, const Time& t)
             }
         }
     }
-    if (isPlaymodeBattle())
+    if (gPlayContext.isBattle)
     {
         if (_isHoldingSelect[PLAYER_SLOT_TARGET])
         {
@@ -2927,7 +2985,7 @@ void ScenePlay::inputGameRelease(InputMask& m, const Time& t)
 
     if (input[K1START] || isPlaymodeDP() && input[K2START]) _isHoldingStart[PLAYER_SLOT_PLAYER] = false;
     if (input[K1SELECT] || isPlaymodeDP() && input[K2SELECT]) _isHoldingSelect[PLAYER_SLOT_PLAYER] = false;
-    if (isPlaymodeBattle())
+    if (gPlayContext.isBattle)
     {
         if (input[K2START]) _isHoldingStart[PLAYER_SLOT_TARGET] = false;
         if (input[K2SELECT]) _isHoldingSelect[PLAYER_SLOT_TARGET] = false;
@@ -2963,7 +3021,7 @@ void ScenePlay::inputGameReleaseTimer(InputMask& input, const Time& t)
             }
         }
     }
-    if (isPlaymodeBattle() || isPlaymodeDP())
+    if (gPlayContext.isBattle || isPlaymodeDP())
     {
         if (input[S2L] || input[S2R])
         {
@@ -3005,7 +3063,7 @@ void ScenePlay::inputGameAxis(double S1, double S2, const Time& t)
                     _lanecoverAdd[PLAYER_SLOT_PLAYER] += (int)std::round(S2 / lanecoverThreshold);
             }
         }
-        if (isPlaymodeBattle() && State::get(IndexSwitch::P2_LANECOVER_ENABLED))
+        if (gPlayContext.isBattle && State::get(IndexSwitch::P2_LANECOVER_ENABLED))
         {
             if (_isHoldingStart[PLAYER_SLOT_TARGET])
             {
@@ -3023,7 +3081,7 @@ void ScenePlay::inputGameAxis(double S1, double S2, const Time& t)
                     _hispeedAdd[PLAYER_SLOT_PLAYER] += (int)std::round(S2 / lanecoverThreshold);
             }
         }
-        if (isPlaymodeBattle())
+        if (gPlayContext.isBattle)
         {
             if (_isHoldingSelect[PLAYER_SLOT_TARGET])
             {

@@ -654,7 +654,6 @@ void hs_fix(int plus)
 void battle(int plus)
 {
     // we only planned to support 3 battle modes: SP Battle (SP->2P) / DB (SP->DP) / Ghost Battle (SP->2P)
-    // TODO Ghost Battle
     switch (gSelectContext.filterKeys)
     {
     case 0:
@@ -667,7 +666,7 @@ void battle(int plus)
         {
             Option::BATTLE_OFF,
             Option::BATTLE_LOCAL,
-            // Option::BATTLE_GHOST
+            Option::BATTLE_GHOST
         };
         auto it = std::find(modesSP.begin(), modesSP.end(), State::get(IndexOption::PLAY_BATTLE_TYPE));
         if (it != modesSP.end())
@@ -688,7 +687,7 @@ void battle(int plus)
         {
             Option::BATTLE_OFF,
             Option::BATTLE_DB,
-            // Option::BATTLE_GHOST
+            Option::BATTLE_GHOST
         };
         auto it = std::find(modesDP.begin(), modesDP.end(), State::get(IndexOption::PLAY_BATTLE_TYPE));
         if (it != modesDP.end())

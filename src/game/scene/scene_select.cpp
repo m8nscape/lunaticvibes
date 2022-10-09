@@ -850,7 +850,7 @@ void SceneSelect::inputGamePress(InputMask& m, const Time& t)
         {
             if (input[k])
             {
-                if (State::get(IndexOption::PLAY_BATTLE_TYPE) == 1)
+                if (State::get(IndexOption::PLAY_BATTLE_TYPE) == Option::BATTLE_LOCAL)
                 {
                     State::set(static_cast<IndexTimer>(static_cast<size_t>(IndexTimer::K21_DOWN) + k - Pad::K21), t.norm());
                     State::set(static_cast<IndexTimer>(static_cast<size_t>(IndexTimer::K21_UP) + k - Pad::K21), TIMER_NEVER);
@@ -948,7 +948,7 @@ void SceneSelect::inputGameRelease(InputMask& m, const Time& t)
         {
             if (input[k])
             {
-                if (State::get(IndexOption::PLAY_BATTLE_TYPE) == 1)
+                if (State::get(IndexOption::PLAY_BATTLE_TYPE) == Option::BATTLE_LOCAL)
                 {
                     State::set(static_cast<IndexTimer>(static_cast<size_t>(IndexTimer::K21_UP) + k - Pad::K21), t.norm());
                     State::set(static_cast<IndexTimer>(static_cast<size_t>(IndexTimer::K21_DOWN) + k - Pad::K21), TIMER_NEVER);
@@ -1383,12 +1383,13 @@ void SceneSelect::_decide()
     case Option::BATTLE_OFF:
     case Option::BATTLE_DB:     gPlayContext.isBattle = false; break;
     case Option::BATTLE_LOCAL:
-    case Option::BATTLE_GHOST:  gPlayContext.isBattle = true; break;
+    case Option::BATTLE_GHOST:  gPlayContext.isBattle = !gPlayContext.isAuto && State::get(IndexSwitch::CHART_HAVE_REPLAY); break;
     }
 
     if (entry->type() == eEntryType::COURSE)
     {
         gPlayContext.canRetry = false;
+        gPlayContext.isBattle = false;
         gPlayContext.isCourse = true;
         gPlayContext.isCourseFirstStage = true;
     }
@@ -1453,27 +1454,31 @@ void SceneSelect::_decide()
             case 14: gPlayContext.mode = eMode::PLAY14; break;
             default: gPlayContext.mode = eMode::PLAY7;  break;
             }
-            if (State::get(IndexOption::PLAY_BATTLE_TYPE) == Option::BATTLE_LOCAL || State::get(IndexOption::PLAY_BATTLE_TYPE) == Option::BATTLE_GHOST)
+            if (gPlayContext.isBattle)
             {
-                switch (pBMS->gamemode)
+                if (State::get(IndexOption::PLAY_BATTLE_TYPE) == Option::BATTLE_LOCAL || 
+                    State::get(IndexOption::PLAY_BATTLE_TYPE) == Option::BATTLE_GHOST)
                 {
-                case 5:  gPlayContext.mode = eMode::PLAY5_2;  break;
-                case 7:  gPlayContext.mode = eMode::PLAY7_2;  break;
-                case 9:  gPlayContext.mode = eMode::PLAY9;  break;
-                case 10: gPlayContext.mode = eMode::PLAY10; break;
-                case 14: gPlayContext.mode = eMode::PLAY14; break;
-                default: assert(false); break;
+                    switch (pBMS->gamemode)
+                    {
+                    case 5:  gPlayContext.mode = eMode::PLAY5_2;  break;
+                    case 7:  gPlayContext.mode = eMode::PLAY7_2;  break;
+                    case 9:  gPlayContext.mode = eMode::PLAY9;  gPlayContext.isBattle = false; break;
+                    case 10: gPlayContext.mode = eMode::PLAY10; gPlayContext.isBattle = false; break;
+                    case 14: gPlayContext.mode = eMode::PLAY14; gPlayContext.isBattle = false; break;
+                    default: assert(false); break;
+                    }
                 }
-            }
-            else if (State::get(IndexOption::PLAY_BATTLE_TYPE) == Option::BATTLE_DB)
-            {
-                switch (pBMS->gamemode)
+                else if (State::get(IndexOption::PLAY_BATTLE_TYPE) == Option::BATTLE_DB)
                 {
-                case 5:  gPlayContext.mode = eMode::PLAY10;  break;
-                case 7:  gPlayContext.mode = eMode::PLAY14;  break;
-                default: assert(false); break;
+                    switch (pBMS->gamemode)
+                    {
+                    case 5:  gPlayContext.mode = eMode::PLAY10;  break;
+                    case 7:  gPlayContext.mode = eMode::PLAY14;  break;
+                    default: assert(false); break;
+                    }
+                    gChartContext.isDoubleBattle = true;
                 }
-                gChartContext.isDoubleBattle = true;
             }
         }
 
@@ -1560,7 +1565,6 @@ void SceneSelect::_decide()
             };
         };
         gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge = convertGaugeType(State::get(IndexOption::PLAY_GAUGE_TYPE_1P));
-        gPlayContext.mods[PLAYER_SLOT_TARGET].gauge = convertGaugeType(State::get(gPlayContext.isBattle ? IndexOption::PLAY_GAUGE_TYPE_2P : IndexOption::PLAY_GAUGE_TYPE_1P));
 
         // random
         auto convertRandomType = [](int nType) -> eModRandom
@@ -1577,16 +1581,6 @@ void SceneSelect::_decide()
             };
         };
         gPlayContext.mods[PLAYER_SLOT_PLAYER].randomLeft = convertRandomType(State::get(IndexOption::PLAY_RANDOM_TYPE_1P));
-        if (gPlayContext.isBattle)
-        {
-            // notes are loaded in 2P area, we should check randomRight instead of randomLeft
-            gPlayContext.mods[PLAYER_SLOT_TARGET].randomRight = convertRandomType(State::get(IndexOption::PLAY_RANDOM_TYPE_2P));
-        }
-        else
-        {
-            // copy 1P setting for target
-            gPlayContext.mods[PLAYER_SLOT_TARGET].randomLeft = convertRandomType(State::get(IndexOption::PLAY_RANDOM_TYPE_1P));
-        }
 
         if (gPlayContext.mode == eMode::PLAY10 || gPlayContext.mode == eMode::PLAY14)
         {
@@ -1598,7 +1592,6 @@ void SceneSelect::_decide()
 
         // assist
         gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask |= State::get(IndexSwitch::PLAY_OPTION_AUTOSCR_1P) ? PLAY_MOD_ASSIST_AUTOSCR : 0;
-        gPlayContext.mods[PLAYER_SLOT_TARGET].assist_mask |= State::get(gPlayContext.isBattle ? IndexSwitch::PLAY_OPTION_AUTOSCR_2P : IndexSwitch::PLAY_OPTION_AUTOSCR_1P) ? PLAY_MOD_ASSIST_AUTOSCR : 0;
 
         // lane
         gPlayContext.mods[PLAYER_SLOT_PLAYER].laneEffect = (eModLaneEffect)State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P);
@@ -1619,6 +1612,32 @@ void SceneSelect::_decide()
         };
         gPlayContext.mods[PLAYER_SLOT_PLAYER].hispeedFix = convertHSType(State::get(IndexOption::PLAY_HSFIX_TYPE));
         gPlayContext.mods[PLAYER_SLOT_TARGET].hispeedFix = convertHSType(State::get(IndexOption::PLAY_HSFIX_TYPE));
+
+        if (gPlayContext.isBattle)
+        {
+            if (State::get(IndexOption::PLAY_BATTLE_TYPE) == Option::BATTLE_GHOST && gPlayContext.replay != nullptr)
+            {
+                // notes are loaded in 2P area, we should check randomRight instead of randomLeft
+                gPlayContext.mods[PLAYER_SLOT_TARGET].gauge = gPlayContext.replay->gaugeType;
+                gPlayContext.mods[PLAYER_SLOT_TARGET].randomRight = gPlayContext.replay->randomTypeLeft;
+                gPlayContext.mods[PLAYER_SLOT_TARGET].assist_mask = gPlayContext.replay->assistMask;
+                gPlayContext.mods[PLAYER_SLOT_TARGET].laneEffect = (eModLaneEffect)gPlayContext.replay->laneEffectType;
+            }
+            else
+            {
+                // notes are loaded in 2P area, we should check randomRight instead of randomLeft
+                gPlayContext.mods[PLAYER_SLOT_TARGET].gauge = convertGaugeType(State::get(IndexOption::PLAY_GAUGE_TYPE_2P));
+                gPlayContext.mods[PLAYER_SLOT_TARGET].randomRight = convertRandomType(State::get(IndexOption::PLAY_RANDOM_TYPE_2P));
+                gPlayContext.mods[PLAYER_SLOT_TARGET].assist_mask |= State::get(IndexSwitch::PLAY_OPTION_AUTOSCR_2P) ? PLAY_MOD_ASSIST_AUTOSCR : 0;
+            }
+        }
+        else
+        {
+            // copy 1P setting for target
+            gPlayContext.mods[PLAYER_SLOT_TARGET].gauge = convertGaugeType(State::get(IndexOption::PLAY_GAUGE_TYPE_1P));
+            gPlayContext.mods[PLAYER_SLOT_TARGET].randomLeft = convertRandomType(State::get(IndexOption::PLAY_RANDOM_TYPE_1P));
+            gPlayContext.mods[PLAYER_SLOT_TARGET].assist_mask |= State::get(IndexSwitch::PLAY_OPTION_AUTOSCR_1P) ? PLAY_MOD_ASSIST_AUTOSCR : 0;
+        }
     }
     else // gPlayContext.isReplay
     {
