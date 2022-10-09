@@ -345,6 +345,8 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
 
 }
 
+std::map<std::string, pTexture> SkinLR2::LR2SkinImageCache;
+
 std::map<Path, std::shared_ptr<SkinLR2::LR2Font>> SkinLR2::LR2FontCache;
 
 int SkinLR2::setExtendedProperty(std::string&& key, void* value)
@@ -530,11 +532,25 @@ Point getCenterPoint(const int& wi, const int& hi, int numpadCenter)
 #pragma region File parsing
 int SkinLR2::IMAGE()
 {
-    if (strEqual(parseKeyBuf, "#IMAGE", true))
+    if (!strEqual(parseKeyBuf, "#IMAGE", true)) return 0;
+
+    if (strEqual(parseParamBuf[0], "CONTINUE", true))
+    {
+        // already referenced inside constructor; create a blank texture if not exist
+        std::string textureMapKey = std::to_string(imageCount);
+        if (_textureNameMap.find(textureMapKey) == _textureNameMap.end())
+        {
+            _textureNameMap[textureMapKey] = std::make_shared<Texture>(nullptr, 0, 0);
+        }
+        ++imageCount;
+        return 1;
+    }
+    else
     {
         Path path = PathFromUTF8(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), parseParamBuf[0]));
         StringPath pathStr = path.native();
         std::string pathU8Str = path.u8string();
+        std::string textureMapKey = std::to_string(imageCount);
         if (pathStr.find("*"_p) != pathStr.npos)
         {
             // Check if the wildcard path is specified by custom settings
@@ -553,18 +569,20 @@ int SkinLR2::IMAGE()
                     if (video_file_extensions.find(toLower(pathFile.extension().u8string())) != video_file_extensions.end())
                     {
 #ifndef VIDEO_DISABLED
-                        _vidNameMap[std::to_string(imageCount)] = std::make_shared<sVideo>(pathFile, 1.0, true);
-                        _textureNameMap[std::to_string(imageCount)] = _textureNameMap["White"];
+                        _vidNameMap[textureMapKey] = std::make_shared<sVideo>(pathFile, 1.0, true);
+                        _textureNameMap[textureMapKey] = _textureNameMap["White"];
 #else
-                        _textureNameMap[std::to_string(imageCount)] = _textureNameMap["Black"];
+                        _textureNameMap[textureMapKey] = _textureNameMap["Black"];
 #endif
                     }
                     else
                     {
                         Image img = Image(pathFile.u8string().c_str());
                         if (info.hasTransparentColor) img.setTransparentColorRGB(info.transparentColor);
-                        _textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(img);
+                        _textureNameMap[textureMapKey] = std::make_shared<Texture>(img);
                     }
+
+                    LR2SkinImageCache[textureMapKey] = _textureNameMap[textureMapKey];
                     LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added IMAGE[" << imageCount << "]: " << pathFile;
 
                     ++imageCount;
@@ -576,8 +594,10 @@ int SkinLR2::IMAGE()
             auto ls = findFiles(path);
             if (ls.empty())
             {
-                _textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(""));
+                _textureNameMap[textureMapKey] = std::make_shared<Texture>(Image(""));
                 //imagePath.push_back(defs::file::errorTextureImage);
+
+                LR2SkinImageCache[textureMapKey] = _textureNameMap[textureMapKey];
                 LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added random IMAGE[" << imageCount << "]: " << "(file not found)";
             }
             else
@@ -586,25 +606,29 @@ int SkinLR2::IMAGE()
                 if (video_file_extensions.find(toLower(ls[ranidx].extension().u8string())) != video_file_extensions.end())
                 {
 #ifndef VIDEO_DISABLED
-                    _vidNameMap[std::to_string(imageCount)] = std::make_shared<sVideo>(ls[ranidx], 1.0, true);
-                    _textureNameMap[std::to_string(imageCount)] = _textureNameMap["Error"];
+                    _vidNameMap[textureMapKey] = std::make_shared<sVideo>(ls[ranidx], 1.0, true);
+                    _textureNameMap[textureMapKey] = _textureNameMap["Error"];
 #else
-                    _textureNameMap[std::to_string(imageCount)] = _textureNameMap["Black"];
+                    _textureNameMap[textureMapKey] = _textureNameMap["Black"];
 #endif
                 }
                 else
-                    _textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(ls[ranidx].u8string().c_str()));
+                {
+                    _textureNameMap[textureMapKey] = std::make_shared<Texture>(Image(ls[ranidx].u8string().c_str()));
+                }
+
+                LR2SkinImageCache[textureMapKey] = _textureNameMap[textureMapKey];
                 LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added random IMAGE[" << imageCount << "]: " << ls[ranidx].u8string();
             }
             ++imageCount;
             return 3;
-
-            // TODO #IMAGE CONTINUE (derive from previous skin)
         }
         else
         {
             // Normal path
-            _textureNameMap[std::to_string(imageCount)] = std::make_shared<Texture>(Image(path.u8string().c_str()));
+            _textureNameMap[textureMapKey] = std::make_shared<Texture>(Image(path.u8string().c_str()));
+
+            LR2SkinImageCache[textureMapKey] = _textureNameMap[textureMapKey];
             LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added IMAGE[" << imageCount << "]: " << path.u8string();
         }
         ++imageCount;
@@ -1010,7 +1034,8 @@ bool SkinLR2::SRC()
         }
         else
         {
-            textureBuf = _textureNameMap["Error"];
+            // textureBuf = _textureNameMap["Error"];
+            textureBuf = std::make_shared<Texture>(nullptr, 0, 0);
             videoBuf = nullptr;
             useVideo = false;
         }
@@ -2839,6 +2864,10 @@ SkinLR2::SkinLR2(Path p, bool headerOnly)
         _sprites.push_back(_barSprites[i]);
     }
     _laneSprites.resize(chart::LANE_COUNT);
+
+    // re-reference previously loaded #IMAGE
+    _textureNameMap.insert(LR2SkinImageCache.begin(), LR2SkinImageCache.end());
+
     updateDstOpt();
     loadCSV(p, headerOnly);
     postLoad();

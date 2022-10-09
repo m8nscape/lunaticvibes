@@ -1337,6 +1337,8 @@ protected:
     static bool customizeDst[100];  // temporary workaround
 
 private:
+    static std::map<std::string, pTexture> LR2SkinImageCache;
+
     struct Customize
     {
         enum class _Type { OPT, FILE } type;
