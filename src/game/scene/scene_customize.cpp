@@ -35,17 +35,22 @@ SceneCustomize::SceneCustomize() : vScene(eMode::THEME_SELECT, 240)
     SoundMgr::setSysVolume(1.0);
 
     LOG_DEBUG << "[Customize] Start";
+
+    State::set(IndexTimer::_SCENE_CUSTOMIZE_START, Time().norm());
 }
 
 SceneCustomize::~SceneCustomize()
 {
+    save(selectedMode);
+
+    _input.unregister_p("SCENE_PRESS_CUSTOMIZE");
     _input.loopEnd();
     loopEnd();
 }
 
 void SceneCustomize::_updateAsync()
 {
-    if (gNextScene != eScene::CUSTOMIZE) return;
+    if (gNextScene != eScene::CUSTOMIZE && gNextScene != eScene::SELECT) return;
 
     if (gAppIsExiting)
     {
@@ -63,12 +68,17 @@ void SceneCustomize::_updateAsync()
 void SceneCustomize::updateStart()
 {
     Time t;
-    Time rt = t - State::get(IndexTimer::SCENE_START);
+    Time rt = t - State::get(IndexTimer::_SCENE_CUSTOMIZE_START);
     if (rt.norm() > _skin->info.timeIntro)
     {
         _updateCallback = std::bind(&SceneCustomize::updateMain, this);
-        using namespace std::placeholders;
-        _input.register_p("SCENE_PRESS", std::bind(&SceneCustomize::inputGamePress, this, _1, _2));
+
+        if (gNextScene == eScene::CUSTOMIZE)
+        {
+            using namespace std::placeholders;
+            _input.register_p("SCENE_PRESS_CUSTOMIZE", std::bind(&SceneCustomize::inputGamePress, this, _1, _2));
+        }
+
         LOG_DEBUG << "[Customize] State changed to Main";
     }
 }
@@ -94,9 +104,12 @@ void SceneCustomize::updateMain()
         else
         {
             _skin->setHandleMouseEvents(false);
-            if (SkinMgr::get(selectedMode))
+            if (gNextScene != eScene::SELECT || selectedMode != eMode::MUSIC_SELECT)
             {
-                SkinMgr::unload(selectedMode);
+                if (SkinMgr::get(selectedMode))
+                {
+                    SkinMgr::unload(selectedMode);
+                }
             }
             load(selectedMode);
             _skin->setHandleMouseEvents(true);
@@ -140,6 +153,10 @@ void SceneCustomize::updateMain()
                     _skin->setHandleMouseEvents(true);
                 }
             }
+        }
+        else if (selectedMode == eMode::MUSIC_SELECT && gNextScene == eScene::SELECT)
+        {
+            // Hold up! You want to change select skin inside select skin?
         }
         else
         {
@@ -267,13 +284,11 @@ void SceneCustomize::updateMain()
     }
     if (_exiting)
     {
-        save(selectedMode);
-
         State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
         SoundMgr::setSysVolume(0.0, 1000);
         _updateCallback = std::bind(&SceneCustomize::updateFadeout, this);
         using namespace std::placeholders;
-        _input.unregister_p("SCENE_PRESS");
+        _input.unregister_p("SCENE_PRESS_CUSTOMIZE");
         LOG_DEBUG << "[Customize] State changed to Fadeout";
     }
 }
@@ -326,6 +341,7 @@ void SceneCustomize::setOption(size_t idxOption, size_t idxEntry)
             // save to file when exit
         }
         op.selectedEntry = idxEntry;
+        save(selectedMode);
         updateTexts();
         break;
     }
@@ -388,8 +404,8 @@ void SceneCustomize::load(eMode mode)
     }
     else
     {
-        SkinMgr::unload(mode);
-        SkinMgr::load(mode);
+        if (!SkinMgr::get(mode))
+            SkinMgr::load(mode);
         pSkin ps = SkinMgr::get(mode);
         optionsMap.clear();
         optionsKeyList.clear();

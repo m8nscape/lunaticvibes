@@ -1120,7 +1120,6 @@ void key_config_slot(int slot)
 
 void skinselect_mode(int mode)
 {
-    eMode modeOld = gCustomizeContext.mode;
     switch (mode)
     {
     case 0: gCustomizeContext.mode = eMode::PLAY7; break;
@@ -1142,8 +1141,8 @@ void skinselect_mode(int mode)
     default: break;
     }
 
-    if (modeOld != gCustomizeContext.mode)
-        SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
+    gCustomizeContext.modeUpdate = true;
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
 void skinselect_skin(int plus)

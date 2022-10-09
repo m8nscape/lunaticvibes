@@ -44,7 +44,6 @@ protected:
     void save(eMode mode) const;
     void updateTexts() const;
 
-
 protected:
     void inputGamePress(InputMask&, const Time&);
 };

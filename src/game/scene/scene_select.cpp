@@ -2,7 +2,11 @@
 #include <memory>
 
 #include "scene_select.h"
+#include "scene_mgr.h"
 #include "scene_context.h"
+#include "scene_pre_select.h"
+#include "scene_customize.h"
+
 #include "common/chartformat/chartformat_types.h"
 #include "common/entry/entry_song.h"
 
@@ -13,17 +17,14 @@
 
 #include "game/skin/skin_lr2_button_callbacks.h"
 #include "game/skin/skin_lr2_slider_callbacks.h"
-#include "game/scene/scene_context.h"
 #include "game/scene/scene_mgr.h"
-
-#include "game/replay/replay_chart.h"
-
-#include "scene_pre_select.h"
 
 #include "game/chart/chart_bms.h"
 #include "game/ruleset/ruleset_bms_auto.h"
 
 ////////////////////////////////////////////////////////////////////////////////
+
+#pragma region save config
 
 void config_sys()
 {
@@ -280,8 +281,11 @@ void config_fx()
     ConfigMgr::set('P',P_FX2_P2, State::get(IndexNumber::FX2_P2));
 }
 
+#pragma endregion
 
 ////////////////////////////////////////////////////////////////////////////////
+
+std::shared_ptr<SceneCustomize> SceneSelect::_virtualSceneCustomize = nullptr;
 
 SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
 {
@@ -354,6 +358,11 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
     // update random options
     loadLR2Sound();
 
+    if (_virtualSceneCustomize != nullptr)
+    {
+        _virtualSceneCustomize->loopStart();
+    }
+
     SoundMgr::stopNoteSamples();
     SoundMgr::stopSysSamples();
     SoundMgr::setSysVolume(1.0);
@@ -367,6 +376,15 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
 
 SceneSelect::~SceneSelect()
 {
+    if (_virtualSceneCustomize != nullptr)
+    {
+        _virtualSceneCustomize->loopEnd();
+        if (gNextScene == eScene::CUSTOMIZE || gNextScene == eScene::EXIT_TRANS || gNextScene == eScene::EXIT)
+        {
+            _virtualSceneCustomize.reset();
+        }
+    }
+
     postStopPreview();
     {
         // safe end loading
@@ -514,6 +532,23 @@ void SceneSelect::_updateAsync()
 
     if (idxUpdated)
         setDynamicTextures();
+
+    if (gCustomizeContext.modeUpdate)
+    {
+        gCustomizeContext.modeUpdate = false;
+
+        if (_virtualSceneCustomize == nullptr)
+        {
+            createNotification("Loading skin options...");
+
+            _skin->setHandleMouseEvents(false);
+            _virtualSceneCustomize = std::make_shared<SceneCustomize>();
+            _virtualSceneCustomize->loopStart();
+            _skin->setHandleMouseEvents(true);
+
+            createNotification("Load finished.");
+        }
+    }
 
     // load preview
     if ((t - navigateTimestamp).norm() > 500)

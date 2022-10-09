@@ -18,6 +18,7 @@ enum class eSelectState
 };
 
 class ChartFormatBase;
+class SceneCustomize;
 class SceneSelect : public vScene
 {
 private:
@@ -33,6 +34,7 @@ private:
     Time selectDownTimestamp;
     Time navigateTimestamp;
 
+    // preview
     std::shared_mutex previewMutex;
     enum
     {
@@ -50,6 +52,10 @@ private:
     std::array<size_t, 128> _bgmSampleIdxBuf{};
     std::array<size_t, 128> _keySampleIdxBuf{};
 
+    // virtual Customize scene, customize option toggle in select scene support
+    static std::shared_ptr<SceneCustomize> _virtualSceneCustomize;
+
+    // smooth scrolling
     Time scrollButtonTimestamp;
     double scrollAccumulator = 0.0;
     double scrollAccumulatorAddUnit = 0.0;

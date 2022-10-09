@@ -184,6 +184,8 @@ enum class IndexTimer : unsigned
     _JUDGE_2P_4,
     _JUDGE_2P_5,
 
+    _SCENE_CUSTOMIZE_START = 260,
+
     _NEVER,
     TIMER_COUNT
 };

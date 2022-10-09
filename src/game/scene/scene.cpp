@@ -83,7 +83,8 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
     _input.register_h("SKIN_MOUSE_DRAG", std::bind(&vScene::MouseDrag, this, std::placeholders::_1, std::placeholders::_2));
     _input.register_r("SKIN_MOUSE_RELEASE", std::bind(&vScene::MouseRelease, this, std::placeholders::_1, std::placeholders::_2));
 
-    if (_skin)
+    if (_skin && 
+        !(gNextScene == eScene::SELECT && mode == eMode::THEME_SELECT))
     {
         State::resetTimer();
 

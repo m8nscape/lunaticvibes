@@ -190,6 +190,7 @@ struct KeyConfigContextParams
 struct CustomizeContextParams
 {
     eMode mode;
+    bool modeUpdate = false;
 
     int skinDir = 0;
 
