@@ -72,7 +72,7 @@ std::pair<NoteLaneCategory, NoteLaneIndex> SpriteLaneVertical::getLane() const
 
 void SpriteLaneVertical::getRectSize(int& w, int& h)
 {
-	if (pNote->_texRect.empty())
+	if (!pNote || pNote->_texRect.empty())
 	{
 		w = h = 0;
 	}
@@ -119,6 +119,7 @@ void SpriteLaneVertical::updateNoteRect(const Time& t)
 	auto bar = gUpdateContext.bar;
 
     // refresh note sprites
+	if (!pNote) return;
 	pNote->update(t);
 
 	int lift = 0;
@@ -179,7 +180,7 @@ void SpriteLaneVertical::updateNoteRect(const Time& t)
 
 void SpriteLaneVertical::draw() const 
 {
-    if (pNote->_pTexture && pNote->_pTexture->_loaded)
+    if (pNote && pNote->_pTexture && pNote->_pTexture->_loaded)
 	{
 		for (const auto& r : _outRect)
 		{
@@ -268,6 +269,7 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 	auto bar = gUpdateContext.bar;
 
 	// refresh note sprites
+	if (!pNote) return;
 	pNote->update(t);
 
 	int lift = 0;
@@ -388,7 +390,7 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 void SpriteLaneVerticalLN::draw() const
 {
 	// body
-	if (pNoteBody->_pTexture && pNoteBody->_pTexture->_loaded)
+	if (pNoteBody && pNoteBody->_pTexture && pNoteBody->_pTexture->_loaded)
 	{
 		for (const auto& r : _outRectBody)
 		{
@@ -404,7 +406,7 @@ void SpriteLaneVerticalLN::draw() const
 	}
 
 	// head
-	if (pNote->_pTexture && pNote->_pTexture->_loaded)
+	if (pNote && pNote->_pTexture && pNote->_pTexture->_loaded)
 	{
 		for (const auto& r : _outRect)
 		{
@@ -420,7 +422,7 @@ void SpriteLaneVerticalLN::draw() const
 	}
 
 	// tail
-	if (pNoteTail->_pTexture && pNoteTail->_pTexture->_loaded)
+	if (pNoteTail && pNoteTail->_pTexture && pNoteTail->_pTexture->_loaded)
 	{
 		for (const auto& r : _outRectTail)
 		{
