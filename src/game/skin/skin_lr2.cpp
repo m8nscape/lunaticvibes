@@ -98,6 +98,8 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
     return i;
 }
 
+static bool flipSideFlag = false;
+
     struct s_basic
     {
         int _null = 0;
@@ -128,6 +130,35 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
                 LOG_WARNING << "[Skin] " << csvLineNumber << ": div_y is 0";
                 div_y = 1;
             }
+
+            if (flipSideFlag)
+            {
+                switch (timer)
+                {
+                case 42:    timer = 43; break;
+                case 43:    timer = 42; break;
+                case 44:    timer = 45; break;
+                case 45:    timer = 44; break;
+                case 46:    timer = 47; break;
+                case 47:    timer = 46; break;
+                case 48:    timer = 49; break;
+                case 49:    timer = 48; break;
+                case 143:   timer = 144; break;
+                case 144:   timer = 143; break;
+                default:
+                    if (50 <= timer && timer <= 59 ||
+                        70 <= timer && timer <= 79 ||
+                        100 <= timer && timer <= 109 ||
+                        120 <= timer && timer <= 129)
+                        timer += 10;
+                    else if (60 <= timer && timer <= 69 ||
+                        80 <= timer && timer <= 89 ||
+                        110 <= timer && timer <= 119 ||
+                        130 <= timer && timer <= 139)
+                        timer -= 10;
+                    break;
+                }
+            }
         }
     };
 
@@ -150,6 +181,34 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
         s_number(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
         {
             convertLine(tokens, (int*)this, &num - &_null, 3);
+
+            if (flipSideFlag)
+            {
+                if      (100 <= num && num <= 119) num += 20;
+                else if (302 <= num && num <= 306) num += 40;
+                else if (320 <= num && num <= 329) num += 10;
+                else if (360 <= num && num <= 369) num += 10;
+                else if (120 <= num && num <= 139) num -= 20;
+                else if (342 <= num && num <= 346) num -= 40;
+                else if (330 <= num && num <= 339) num -= 10;
+                else if (370 <= num && num <= 379) num -= 10;
+                else
+                {
+                    switch (num)
+                    {
+                    case 10:  num = 11; break;
+                    case 11:  num = 10; break;
+                    case 14:  num = 15; break;
+                    case 15:  num = 14; break;
+                    case 201: num = 213; break;
+                    case 210: num = 211; break;
+                    case 211: num = 210; break;
+                    case 212: num = 371; break;
+                    case 213: num = 213; break;
+                    case 214: num = 372; break;
+                    }
+                }
+            }
         }
     };
 
@@ -162,6 +221,19 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
         s_slider(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
         {
             convertLine(tokens, (int*)this, &muki - &_null, 4);
+
+            if (flipSideFlag)
+            {
+                switch (type)
+                {
+                case 2: type = 3; break;
+                case 3: type = 2; break;
+                case 4: type = 5; break;
+                case 5: type = 4; break;
+                case 8: type = 9; break;
+                case 9: type = 8; break;
+                }
+            }
         }
     };
 
@@ -172,6 +244,14 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
         s_bargraph(const Tokens& tokens, size_t csvLineNumber = 0) : s_basic(tokens, csvLineNumber)
         {
             convertLine(tokens, (int*)this, &type - &_null, 2);
+            
+            if (flipSideFlag)
+            {
+                if      (10 <= type && type <= 11) type += 4;
+                else if (20 <= type && type <= 29) type += 10;
+                else if (14 <= type && type <= 15) type -= 4;
+                else if (30 <= type && type <= 39) type -= 10;
+            }
         }
     };
 
@@ -212,6 +292,23 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
         {
             int count = sizeof(s_text) / sizeof(int);
             convertLine(tokens, (int*)this, 0, count);
+
+            if (flipSideFlag)
+            {
+                switch (st)
+                {
+                case 1:  st = 2; break;
+                case 2:  st = 1; break;
+                case 63: st = 64; break;
+                case 64: st = 63; break;
+                case 65: st = 66; break;
+                case 66: st = 65; break;
+                case 67: st = 68; break;
+                case 68: st = 67; break;
+                case 84: st = 85; break;
+                case 85: st = 84; break;
+                }
+            }
         }
     };
 
@@ -240,6 +337,8 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
             size_t offset = sizeof(s_basic) / sizeof(int);
             size_t count = (sizeof(*this) - sizeof(s_basic)) / sizeof(int);
             convertLine(tokens, (int*)this, offset, count);
+
+            // DO not flip index here; there are two separate definitions called SRC_NOWJUDGE_1P / SRC_NOWJUDGE_2P
         }
     };
 
@@ -253,6 +352,8 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
             size_t offset = sizeof(s_basic) / sizeof(int);
             size_t count = (sizeof(*this) - sizeof(s_basic)) / sizeof(int);
             convertLine(tokens, (int*)this, offset, count);
+
+            // DO not flip index here; there are two separate definitions called SRC_NOWCOMBO_1P / SRC_NOWCOMBO_2P
         }
     };
 
@@ -265,6 +366,12 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
             size_t offset = sizeof(s_basic) / sizeof(int);
             size_t count = (sizeof(*this) - sizeof(s_basic)) / sizeof(int);
             convertLine(tokens, (int*)this, offset, count);
+
+            switch (_null)
+            {
+            case 0: _null = lr2skin::flipSideFlag ? 1 : 0; break;
+            case 1: _null = lr2skin::flipSideFlag ? 0 : 1; break;
+            }
         }
     };
 
@@ -340,6 +447,35 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
             int count = sizeof(dst) / sizeof(int);
             convertLine(tokens, (int*)this, 0, count);
             convertOpsToInt(tokens, (int*)this, &op[0] - &_null, sizeof(op) / sizeof(op[0]));
+
+            if (flipSideFlag)
+            {
+                switch (timer)
+                {
+                case 42:    timer = 43; break;
+                case 43:    timer = 42; break;
+                case 44:    timer = 45; break;
+                case 45:    timer = 44; break;
+                case 46:    timer = 47; break;
+                case 47:    timer = 46; break;
+                case 48:    timer = 49; break;
+                case 49:    timer = 48; break;
+                case 143:   timer = 144; break;
+                case 144:   timer = 143; break;
+                default:
+                    if (50 <= timer && timer <= 59 ||
+                        70 <= timer && timer <= 79 ||
+                        100 <= timer && timer <= 109 ||
+                        120 <= timer && timer <= 129)
+                        timer += 10;
+                    else if (60 <= timer && timer <= 69 ||
+                        80 <= timer && timer <= 89 ||
+                        110 <= timer && timer <= 119 ||
+                        130 <= timer && timer <= 139)
+                        timer -= 10;
+                    break;
+                }
+            }
         }
     };
 
@@ -910,7 +1046,6 @@ int SkinLR2::others()
     if (strEqual(parseKeyBuf, "#RELOADBANNER", true))
     {
         reloadBanner = true;
-        LOG_DEBUG << "[Skin] " << csvLineNumber << ": Set dynamic banner loading";
         return 1;
     }
     if (strEqual(parseKeyBuf, "#TRANSCOLOR", true))
@@ -931,16 +1066,42 @@ int SkinLR2::others()
     if (strEqual(parseKeyBuf, "#FLIPSIDE", true))
     {
         flipSide = true;
+
+        switch (info.mode)
+        {
+        case eMode::PLAY5:
+        case eMode::PLAY5_2:
+        case eMode::PLAY7:
+        case eMode::PLAY7_2:
+        case eMode::PLAY9:
+        case eMode::PLAY10:
+        case eMode::PLAY14:
+            lr2skin::flipSideFlag = flipSide;
+            break;
+        }
+
         return 3;
     }
     if (strEqual(parseKeyBuf, "#FLIPRESULT", true))
     {
         flipResult = true;
+
+        if (info.mode == eMode::RESULT)
+        {
+            lr2skin::flipSideFlag = flipResult && !disableFlipResult;
+        }
+
         return 4;
     }
     if (strEqual(parseKeyBuf, "#DISABLEFLIP", true))
     {
         disableFlipResult = true;
+
+        if (info.mode == eMode::RESULT)
+        {
+            lr2skin::flipSideFlag = flipResult && !disableFlipResult;
+        }
+
         return 5;
     }
     if (strEqual(parseKeyBuf, "#SCRATCH", true))
@@ -1054,14 +1215,14 @@ bool SkinLR2::SRC()
         case DefType::JUDGELINE:      SRC_JUDGELINE();           break;
         case DefType::TEXT:           SRC_TEXT();                break;
         case DefType::GROOVEGAUGE:    SRC_GROOVEGAUGE();         break;
-        case DefType::NOWJUDGE_1P:    SRC_NOWJUDGE1();           break;
-        case DefType::NOWJUDGE_2P:    SRC_NOWJUDGE2();           break;
-        case DefType::NOWCOMBO_1P:    SRC_NOWCOMBO1();           break;
-        case DefType::NOWCOMBO_2P:    SRC_NOWCOMBO2();           break;
+        case DefType::NOWJUDGE_1P:    lr2skin::flipSideFlag ? SRC_NOWJUDGE2() : SRC_NOWJUDGE1(); break;
+        case DefType::NOWJUDGE_2P:    lr2skin::flipSideFlag ? SRC_NOWJUDGE1() : SRC_NOWJUDGE2(); break;
+        case DefType::NOWCOMBO_1P:    lr2skin::flipSideFlag ? SRC_NOWCOMBO2() : SRC_NOWCOMBO1(); break;
+        case DefType::NOWCOMBO_2P:    lr2skin::flipSideFlag ? SRC_NOWCOMBO1() : SRC_NOWCOMBO2(); break;
         case DefType::BGA:            SRC_BGA();                 break;
         case DefType::MOUSECURSOR:    SRC_MOUSECURSOR();         break;
-        case DefType::GAUGECHART_1P:  SRC_GAUGECHART(0);         break;
-        case DefType::GAUGECHART_2P:  SRC_GAUGECHART(1);         break;
+        case DefType::GAUGECHART_1P:  SRC_GAUGECHART(lr2skin::flipSideFlag ? 1 : 0); break;
+        case DefType::GAUGECHART_2P:  SRC_GAUGECHART(lr2skin::flipSideFlag ? 0 : 1); break;
         case DefType::SCORECHART:     SRC_SCORECHART();          break;
         case DefType::BAR_BODY:       SRC_BAR_BODY();            break;
         case DefType::BAR_FLASH:      SRC_BAR_FLASH();           break;
@@ -1377,6 +1538,10 @@ ParseRet SkinLR2::SRC_SCORECHART()
 ParseRet SkinLR2::SRC_JUDGELINE()
 {
     lr2skin::s_basic d(parseParamBuf, csvLineNumber);
+    if (lr2skin::flipSideFlag)
+    {
+        d._null = (d._null == 0) ? 1 : 0;
+    }
 
     int spriteIdx = -1;
     switch (d._null)
@@ -1652,6 +1817,13 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
 
     // load raw into data struct
     lr2skin::s_basic d(parseParamBuf, csvLineNumber);
+    if (lr2skin::flipSideFlag)
+    {
+        if (type == DefType::LINE)
+        {
+            d._null = (d._null == 0) ? 1 : 0;
+        }
+    }
 
     IndexTimer iTimer = lr2skin::timer(d.timer);
 
@@ -2079,38 +2251,78 @@ bool SkinLR2::DST()
 
         if (e->isKeyFrameEmpty())
         {
-            switch (type)
+            if (lr2skin::flipSideFlag)
             {
-            case DefType::NOWCOMBO_1P:
-            case DefType::NOWJUDGE_1P:
-                switch (bufJudge1PSlot)
+                switch (type)
                 {
-                case 0: d.timer = (int)IndexTimer::_JUDGE_1P_0; break;
-                case 1: d.timer = (int)IndexTimer::_JUDGE_1P_1; break;
-                case 2: d.timer = (int)IndexTimer::_JUDGE_1P_2; break;
-                case 3: d.timer = (int)IndexTimer::_JUDGE_1P_3; break;
-                case 4: d.timer = (int)IndexTimer::_JUDGE_1P_4; break;
-                case 5: d.timer = (int)IndexTimer::_JUDGE_1P_5; break;
-                default: break;
-                }
-                break;
+                case DefType::NOWCOMBO_2P:
+                case DefType::NOWJUDGE_2P:
+                    switch (bufJudge1PSlot)
+                    {
+                    case 0: d.timer = (int)IndexTimer::_JUDGE_1P_0; break;
+                    case 1: d.timer = (int)IndexTimer::_JUDGE_1P_1; break;
+                    case 2: d.timer = (int)IndexTimer::_JUDGE_1P_2; break;
+                    case 3: d.timer = (int)IndexTimer::_JUDGE_1P_3; break;
+                    case 4: d.timer = (int)IndexTimer::_JUDGE_1P_4; break;
+                    case 5: d.timer = (int)IndexTimer::_JUDGE_1P_5; break;
+                    default: break;
+                    }
+                    break;
 
-            case DefType::NOWCOMBO_2P:
-            case DefType::NOWJUDGE_2P:
-                switch (bufJudge2PSlot)
+                case DefType::NOWCOMBO_1P:
+                case DefType::NOWJUDGE_1P:
+                    switch (bufJudge2PSlot)
+                    {
+                    case 0: d.timer = (int)IndexTimer::_JUDGE_2P_0; break;
+                    case 1: d.timer = (int)IndexTimer::_JUDGE_2P_1; break;
+                    case 2: d.timer = (int)IndexTimer::_JUDGE_2P_2; break;
+                    case 3: d.timer = (int)IndexTimer::_JUDGE_2P_3; break;
+                    case 4: d.timer = (int)IndexTimer::_JUDGE_2P_4; break;
+                    case 5: d.timer = (int)IndexTimer::_JUDGE_2P_5; break;
+                    default: break;
+                    }
+                    break;
+                }
+            }
+            else
+            {
+                switch (type)
                 {
-                case 0: d.timer = (int)IndexTimer::_JUDGE_2P_0; break;
-                case 1: d.timer = (int)IndexTimer::_JUDGE_2P_1; break;
-                case 2: d.timer = (int)IndexTimer::_JUDGE_2P_2; break;
-                case 3: d.timer = (int)IndexTimer::_JUDGE_2P_3; break;
-                case 4: d.timer = (int)IndexTimer::_JUDGE_2P_4; break;
-                case 5: d.timer = (int)IndexTimer::_JUDGE_2P_5; break;
-                default: break;
-                }
-                break;
+                case DefType::NOWCOMBO_1P:
+                case DefType::NOWJUDGE_1P:
+                    switch (bufJudge1PSlot)
+                    {
+                    case 0: d.timer = (int)IndexTimer::_JUDGE_1P_0; break;
+                    case 1: d.timer = (int)IndexTimer::_JUDGE_1P_1; break;
+                    case 2: d.timer = (int)IndexTimer::_JUDGE_1P_2; break;
+                    case 3: d.timer = (int)IndexTimer::_JUDGE_1P_3; break;
+                    case 4: d.timer = (int)IndexTimer::_JUDGE_1P_4; break;
+                    case 5: d.timer = (int)IndexTimer::_JUDGE_1P_5; break;
+                    default: break;
+                    }
+                    break;
 
-            case DefType::JUDGELINE:
-                if (d._null == 0)
+                case DefType::NOWCOMBO_2P:
+                case DefType::NOWJUDGE_2P:
+                    switch (bufJudge2PSlot)
+                    {
+                    case 0: d.timer = (int)IndexTimer::_JUDGE_2P_0; break;
+                    case 1: d.timer = (int)IndexTimer::_JUDGE_2P_1; break;
+                    case 2: d.timer = (int)IndexTimer::_JUDGE_2P_2; break;
+                    case 3: d.timer = (int)IndexTimer::_JUDGE_2P_3; break;
+                    case 4: d.timer = (int)IndexTimer::_JUDGE_2P_4; break;
+                    case 5: d.timer = (int)IndexTimer::_JUDGE_2P_5; break;
+                    default: break;
+                    }
+                    break;
+                }
+            }
+
+            if (type == DefType::JUDGELINE)
+            {
+                auto p = std::static_pointer_cast<SpriteLaneVertical>(e);
+                auto& [cat, idx] = p->getLane();
+                if (idx == chart::EXTRA_BARLINE_1P)
                 {
                     judgeLineRect1P = Rect(d.x, d.y, d.w, d.h);
                     if (d.w < 0) { judgeLineRect1P.x += d.w; judgeLineRect1P.w = -d.w; }
@@ -2181,6 +2393,11 @@ ParseRet SkinLR2::DST_NOTE()
 
     // load raw into data struct
     lr2skin::dst d(parseParamBuf);
+    if (lr2skin::flipSideFlag)
+    {
+        if (0 <= d._null && d._null <= 9) d._null += 10;
+        else if (10 <= d._null && d._null <= 19) d._null -= 10;
+    }
 
     if (d._null >= 20)
     {
@@ -2867,6 +3084,19 @@ SkinLR2::SkinLR2(Path p, bool headerOnly)
 
     // re-reference previously loaded #IMAGE
     _textureNameMap.insert(LR2SkinImageCache.begin(), LR2SkinImageCache.end());
+
+    switch (info.mode)
+    {
+    case eMode::PLAY5:
+    case eMode::PLAY5_2:
+    case eMode::PLAY7:
+    case eMode::PLAY7_2:
+    case eMode::PLAY9:
+    case eMode::PLAY10:
+    case eMode::PLAY14:
+        flipResult = false;
+        break;
+    }
 
     updateDstOpt();
     loadCSV(p, headerOnly);

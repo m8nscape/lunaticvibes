@@ -1377,12 +1377,12 @@ protected:
     timeMS timeStartInputTimeRank = 0;            // Result / Course Result Only
     timeMS timeStartInputTimeUpdate = 0;        // Result / Course Result Only
     timeMS timeFadeoutLength = 0;
-    bool flipSide = false;
-    bool flipResult = false;                    // Result / Course Result Only
-    bool reloadBanner = false;
+    bool reloadBanner = false;                  // unused
+    bool flipSide = false;                      // flip 1P/2P defs: note indices, timers (42-139, 143, 144)
+    static inline bool flipResult = false;      // Set in play skin; Only result skin loads this, using static is fine
     bool disableFlipResult = false;
-    unsigned scratchSide1P = 0;                    // Play Skins Only; 0: left, 1: right
-    unsigned scratchSide2P = 0;                    // Play Skins Only; 0: left, 1: right
+    unsigned scratchSide1P = 0;                 // not implemented
+    unsigned scratchSide2P = 0;                 // not implemented
 
 public:
     SkinLR2() = delete;
