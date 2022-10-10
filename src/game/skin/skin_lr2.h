@@ -1371,6 +1371,7 @@ private:
     std::map<std::string, std::shared_ptr<LR2Font>> LR2FontNameMap;
 
     Path filePath;
+    int loadMode = 0;   // 0: FULL / 1: No Font / 2: Header Only
 
 protected:
     size_t imageCount = 0;
@@ -1386,11 +1387,11 @@ protected:
 
 public:
     SkinLR2() = delete;
-    SkinLR2(Path p, bool headerOnly = false);
+    SkinLR2(Path p, int loadMode = 0);
     virtual ~SkinLR2();
 
 protected:
-    void loadCSV(Path p, bool headerOnly = false);
+    void loadCSV(Path p);
     void postLoad();
 
 protected:

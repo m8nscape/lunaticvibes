@@ -29,7 +29,7 @@ SceneCustomize::SceneCustomize() : vScene(eMode::THEME_SELECT, 240)
     auto skinFileList = findFiles(utf8_to_utf32(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), "LR2Files/Theme/*.lr2skin")), true);
     for (auto& p : skinFileList)
     {
-        SkinLR2 s(p, true);
+        SkinLR2 s(p, 2);
         skinList[s.info.mode].push_back(fs::absolute(p));
     }
 
@@ -412,7 +412,7 @@ void SceneCustomize::load(eMode mode)
     else
     {
         if (!SkinMgr::get(mode))
-            SkinMgr::load(mode);
+            SkinMgr::load(mode, true);
         pSkin ps = SkinMgr::get(mode);
         optionsMap.clear();
         optionsKeyList.clear();

@@ -5,7 +5,7 @@
 
 SkinMgr SkinMgr::_inst;
 
-void SkinMgr::load(eMode e)
+void SkinMgr::load(eMode e, bool simple)
 {
     auto& skinObj = _inst.c[static_cast<size_t>(e)];
     if (skinObj != nullptr)
@@ -88,13 +88,18 @@ void SkinMgr::load(eMode e)
     switch (type)
     {
     case eSkinType::LR2:
-        skinObj = std::make_shared<SkinLR2>(skinFilePath);
+        skinObj = std::make_shared<SkinLR2>(skinFilePath, simple ? 1 : 0);
         if (!skinObj->isLoaded())
-            skinObj = std::make_shared<SkinLR2>(skinFilePathDefault);
+            skinObj = std::make_shared<SkinLR2>(skinFilePathDefault, simple ? 1 : 0);
         break;
 
     default:
         break;
+    }
+
+    if (simple)
+    {
+        _inst.shouldReload[(size_t)e] = true;
     }
 }
 
@@ -107,6 +112,7 @@ pSkin SkinMgr::get(eMode e)
 void SkinMgr::unload(eMode e)
 {
     _inst.c[static_cast<size_t>(e)].reset();
+    _inst.shouldReload[(size_t)e] = false;
 }
 
 void SkinMgr::clean()

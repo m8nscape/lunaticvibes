@@ -781,6 +781,12 @@ int SkinLR2::LR2FONT()
         path = std::filesystem::absolute(path);
         size_t idx = LR2FontNameMap.size();
 
+        if (loadMode >= 1)
+        {
+            LR2FontNameMap[std::to_string(idx)] = nullptr;
+            return 0;
+        }
+
         if (LR2FontCache.find(path) != LR2FontCache.end())
         {
             LR2FontNameMap[std::to_string(idx)] = LR2FontCache[path];
@@ -3061,7 +3067,7 @@ void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkinLR2::SkinLR2(Path p, bool headerOnly)
+SkinLR2::SkinLR2(Path p, int loadMode): loadMode(loadMode)
 {
     _type = eSkinType::LR2;
 
@@ -3089,7 +3095,7 @@ SkinLR2::SkinLR2(Path p, bool headerOnly)
     }
 
     updateDstOpt();
-    loadCSV(p, headerOnly);
+    loadCSV(p);
     postLoad();
 
     LOG_DEBUG << "[Skin] File: " << p.u8string() << "(Line " << csvLineNumber << "): Body loading finished";
@@ -3103,7 +3109,7 @@ SkinLR2::~SkinLR2()
     stopSpriteVideoPlayback();
 }
 
-void SkinLR2::loadCSV(Path p, bool headerOnly)
+void SkinLR2::loadCSV(Path p)
 {
     if (filePath.empty())
         filePath = p;
@@ -3153,7 +3159,7 @@ void SkinLR2::loadCSV(Path p, bool headerOnly)
     }
     LOG_DEBUG << "[Skin] File: " << p.u8string() << "(Line " << csvLineNumber << "): Header loading finished";
 
-    if (!headerOnly)
+    if (loadMode < 2)
     {
         if (!haveEndOfHeader && csvFile.eof())
         {
