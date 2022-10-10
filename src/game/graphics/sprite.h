@@ -33,6 +33,8 @@ enum class SpriteTypes
     BAR_ENTRY,
 
     MOUSE_CURSOR,
+
+    GAUGE,
 };
 
 struct RenderParams

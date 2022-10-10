@@ -1165,6 +1165,7 @@ SpriteGaugeGrid::SpriteGaugeGrid(pTexture texture, const Rect& rect,
 	SpriteAnimated(texture, rect, animFrames, frameTime, timer, selRows, selCols, selVerticalIndexing),
 	_diff_x(dx), _diff_y(dy), _grids(grids), _min(min), _max(max), _numInd(num)
 {
+    _type = SpriteTypes::GAUGE;
     _lighting.resize(_grids, false);
     setGaugeType(GaugeType::GROOVE);
 }
