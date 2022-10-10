@@ -1535,6 +1535,8 @@ private:
         {"AUTO_LN_START",  DefType::AUTO_LN_START},
     };
 
+    Path getCustomizePath(StringContentView input);
+
     int IMAGE();
     int INCLUDE();
     int LR2FONT();

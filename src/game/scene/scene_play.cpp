@@ -244,7 +244,7 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         {
             gPlayContext.randomSeed = gPlayContext.replay->randomSeed;
         }
-        gChartContext.chartObj = ChartFormatBase::createFromFile(gChartContext.path, gPlayContext.replay->randomSeed);
+        gChartContext.chartObj = ChartFormatBase::createFromFile(gChartContext.path, gPlayContext.randomSeed);
     }
     if (gChartContext.chartObj == nullptr || !gChartContext.chartObj->isLoaded())
     {

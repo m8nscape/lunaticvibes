@@ -666,6 +666,50 @@ Point getCenterPoint(const int& wi, const int& hi, int numpadCenter)
 ////////////////////////////////////////////////////////////////////////////////
 // File parsing
 #pragma region File parsing
+
+Path SkinLR2::getCustomizePath(StringContentView input)
+{
+    Path path = PathFromUTF8(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), input));
+    StringPath pathStr = path.native();
+    std::string pathU8Str = path.u8string();
+
+    if (pathStr.find("*"_p) != pathStr.npos)
+    {
+        // Check if the wildcard path is specified by custom settings
+        std::srand(std::time(NULL));
+        for (size_t idx = 0; idx < customize.size(); ++idx)
+        {
+            const auto& cf = customize[idx];
+            if (cf.type == Customize::_Type::FILE && cf.filepath == pathU8Str.substr(0, cf.filepath.length()))
+            {
+                int value = (cf.pathList[cf.value] == "RANDOM") ? customizeRandom[idx] : cf.value;
+
+                Path pathFile = cf.pathList[value];
+                if (cf.filepath.length() < pathU8Str.length())
+                    pathFile /= PathFromUTF8(pathU8Str.substr(cf.filepath.length() + 1));
+
+                return pathFile;
+            }
+        }
+
+        // Or, randomly choose a file
+        auto ls = findFiles(path);
+        if (ls.empty())
+        {
+            return Path();
+        }
+        else
+        {
+            size_t ranidx = std::rand() % ls.size();
+            return ls[ranidx];
+        }
+    }
+
+    // Normal path
+    return path;
+}
+
+
 int SkinLR2::IMAGE()
 {
     if (!strEqual(parseKeyBuf, "#IMAGE", true)) return 0;
@@ -683,90 +727,28 @@ int SkinLR2::IMAGE()
     }
     else
     {
-        Path path = PathFromUTF8(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), parseParamBuf[0]));
-        StringPath pathStr = path.native();
-        std::string pathU8Str = path.u8string();
+        Path pathFile = getCustomizePath(parseParamBuf[0]);
         std::string textureMapKey = std::to_string(imageCount);
-        if (pathStr.find("*"_p) != pathStr.npos)
+
+        if (video_file_extensions.find(toLower(pathFile.extension().u8string())) != video_file_extensions.end())
         {
-            // Check if the wildcard path is specified by custom settings
-            std::srand(std::time(NULL));
-            for (size_t idx = 0; idx < customize.size(); ++idx)
-            {
-                const auto& cf = customize[idx];
-                if (cf.type == Customize::_Type::FILE && cf.filepath == pathU8Str.substr(0, cf.filepath.length()))
-                {
-                    int value = (cf.pathList[cf.value] == "RANDOM") ? customizeRandom[idx] : cf.value;
-
-                    Path pathFile = cf.pathList[value];
-                    if (cf.filepath.length() < pathU8Str.length())
-                        pathFile /= PathFromUTF8(pathU8Str.substr(cf.filepath.length() + 1));
-
-                    if (video_file_extensions.find(toLower(pathFile.extension().u8string())) != video_file_extensions.end())
-                    {
 #ifndef VIDEO_DISABLED
-                        _vidNameMap[textureMapKey] = std::make_shared<sVideo>(pathFile, 1.0, true);
-                        _textureNameMap[textureMapKey] = _textureNameMap["White"];
+            _vidNameMap[textureMapKey] = std::make_shared<sVideo>(pathFile, 1.0, true);
+            _textureNameMap[textureMapKey] = _textureNameMap["White"];
 #else
-                        _textureNameMap[textureMapKey] = _textureNameMap["Black"];
+            _textureNameMap[textureMapKey] = _textureNameMap["Black"];
 #endif
-                    }
-                    else
-                    {
-                        Image img = Image(pathFile.u8string().c_str());
-                        if (info.hasTransparentColor) img.setTransparentColorRGB(info.transparentColor);
-                        _textureNameMap[textureMapKey] = std::make_shared<Texture>(img);
-                    }
-
-                    LR2SkinImageCache[textureMapKey] = _textureNameMap[textureMapKey];
-                    LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added IMAGE[" << imageCount << "]: " << pathFile;
-
-                    ++imageCount;
-                    return 2;
-                }
-            }
-
-            // Or, randomly choose a file
-            auto ls = findFiles(path);
-            if (ls.empty())
-            {
-                _textureNameMap[textureMapKey] = std::make_shared<Texture>(Image(""));
-                //imagePath.push_back(defs::file::errorTextureImage);
-
-                LR2SkinImageCache[textureMapKey] = _textureNameMap[textureMapKey];
-                LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added random IMAGE[" << imageCount << "]: " << "(file not found)";
-            }
-            else
-            {
-                size_t ranidx = std::rand() % ls.size();
-                if (video_file_extensions.find(toLower(ls[ranidx].extension().u8string())) != video_file_extensions.end())
-                {
-#ifndef VIDEO_DISABLED
-                    _vidNameMap[textureMapKey] = std::make_shared<sVideo>(ls[ranidx], 1.0, true);
-                    _textureNameMap[textureMapKey] = _textureNameMap["Error"];
-#else
-                    _textureNameMap[textureMapKey] = _textureNameMap["Black"];
-#endif
-                }
-                else
-                {
-                    _textureNameMap[textureMapKey] = std::make_shared<Texture>(Image(ls[ranidx].u8string().c_str()));
-                }
-
-                LR2SkinImageCache[textureMapKey] = _textureNameMap[textureMapKey];
-                LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added random IMAGE[" << imageCount << "]: " << ls[ranidx].u8string();
-            }
-            ++imageCount;
-            return 3;
         }
         else
         {
-            // Normal path
-            _textureNameMap[textureMapKey] = std::make_shared<Texture>(Image(path.u8string().c_str()));
-
-            LR2SkinImageCache[textureMapKey] = _textureNameMap[textureMapKey];
-            LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added IMAGE[" << imageCount << "]: " << path.u8string();
+            Image img = Image(pathFile.u8string().c_str());
+            if (info.hasTransparentColor) img.setTransparentColorRGB(info.transparentColor);
+            _textureNameMap[textureMapKey] = std::make_shared<Texture>(img);
         }
+
+        LR2SkinImageCache[textureMapKey] = _textureNameMap[textureMapKey];
+        LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added IMAGE[" << imageCount << "]: " << pathFile;
+
         ++imageCount;
         return 1;
     }
@@ -777,14 +759,14 @@ int SkinLR2::LR2FONT()
 {
     if (strEqual(parseKeyBuf, "#LR2FONT", true))
     {
-        Path path = PathFromUTF8(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), parseParamBuf[0]));
+        Path path = getCustomizePath(parseParamBuf[0]);
         path = std::filesystem::absolute(path);
         size_t idx = LR2FontNameMap.size();
 
         if (loadMode >= 1)
         {
             LR2FontNameMap[std::to_string(idx)] = nullptr;
-            return 0;
+            return 1;
         }
 
         if (LR2FontCache.find(path) != LR2FontCache.end())
@@ -953,7 +935,8 @@ int SkinLR2::INCLUDE()
 {
     if (strEqual(parseKeyBuf, "#INCLUDE", true))
     {
-        Path path(parseParamBuf[0]);
+        Path path = getCustomizePath(parseParamBuf[0]);
+
         LOG_DEBUG << "[Skin] " << csvLineNumber << ": INCLUDE: " << path.u8string();
         //auto subCsv = SkinLR2(path);
         //if (subCsv._loaded)
