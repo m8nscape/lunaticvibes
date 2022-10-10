@@ -2957,15 +2957,10 @@ int SkinLR2::parseBody(const Tokens &raw)
     return 0;
 }
 
-void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc)
+void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc, bool alreadyFailed)
 {
-    bool isElseStmt = false;
-    bool ifStmtTrue = true;
-    if (strEqual(t[0], "#ELSE", true))
-    {
-        isElseStmt = true;
-    }
-    else 
+    bool ifStmtTrue = false;
+    if (!alreadyFailed && !strEqual(t[0], "#ELSE", true))
     {
         if (t.size() <= 1)
         {
@@ -2973,6 +2968,7 @@ void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc)
         }
 
         // get dst indexes
+        ifStmtTrue = true;
         for (auto it = ++t.begin(); it != t.end() && ifStmtTrue; ++it)
         {
             if (it->empty()) continue;
@@ -2989,6 +2985,8 @@ void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc)
             ifStmtTrue = ifStmtTrue && dst;
         }
     }
+
+    LOG_DEBUG << "[Skin] " << t[0] << " " << ifStmtTrue << " (Line " << csvLineNumber << ")";
 
     if (ifStmtTrue)
     {
@@ -3007,16 +3005,25 @@ void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc)
             if (strEqual(*tokens.begin(), "#ENDIF", true))
             {
                 // end #IF process
+                LOG_DEBUG << "[Skin] #ENDIF" << " (Line " << csvLineNumber << ")";
                 return;
-            }
-            else if (strEqual(*tokens.begin(), "#ELSEIF", true) || strEqual(*tokens.begin(), "#ELSE", true))
-            {
-                ifBlockEnded = true;
             }
             else if (!ifBlockEnded)
             {
                 // parse current branch
-                parseBody(tokens);
+                if (strEqual(*tokens.begin(), "#ELSEIF", true) || strEqual(*tokens.begin(), "#ELSE", true))
+                {
+                    ifBlockEnded = true;
+                }
+                else if (strEqual(*tokens.begin(), "#IF", true))
+                {
+                    // nesting #IF
+                    IF(tokens, lr2skin, enc, false);
+                }
+                else
+                {
+                    parseBody(tokens);
+                }
             }
         }
     }
@@ -3030,18 +3037,26 @@ void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc)
             auto tokens = csvLineTokenize(raw);
             if (tokens.empty()) continue;
 
-            if (strEqual(*tokens.begin(), "#ELSE", true))
+            if (strEqual(*tokens.begin(), "#IF", true))
             {
-                IF(tokens, lr2skin, enc);
+                // nesting #IF
+                IF(tokens, lr2skin, enc, !ifStmtTrue);
+            }
+            else if (strEqual(*tokens.begin(), "#ELSE", true))
+            {
+                IF(tokens, lr2skin, enc, false);
                 return;
             }
             else if (strEqual(*tokens.begin(), "#ELSEIF", true))
             {
-                IF(tokens, lr2skin, enc);
+                IF(tokens, lr2skin, enc, false);
                 return;
             }
             else if (strEqual(*tokens.begin(), "#ENDIF", true))
+            {
+                LOG_DEBUG << "[Skin] #ENDIF" << " (Line " << csvLineNumber << ")";
                 return;
+            }
         }
     }
 }
