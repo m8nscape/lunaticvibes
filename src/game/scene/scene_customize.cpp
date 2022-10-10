@@ -14,9 +14,16 @@ SceneCustomize::SceneCustomize() : vScene(eMode::THEME_SELECT, 240)
     gCustomizeContext.skinDir = 0;
     gCustomizeContext.optionUpdate = 0;
 
-    // topest entry is PLAY7
-    selectedMode = eMode::PLAY7;
-    gCustomizeContext.mode = selectedMode;
+    if (gNextScene == eScene::CUSTOMIZE)
+    {
+        // topest entry is PLAY7
+        selectedMode = eMode::PLAY7;
+        gCustomizeContext.mode = selectedMode;
+    }
+    else
+    {
+        selectedMode = gCustomizeContext.mode;
+    }
     load(selectedMode);
 
     auto skinFileList = findFiles(utf8_to_utf32(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), "LR2Files/Theme/*.lr2skin")), true);

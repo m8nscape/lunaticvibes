@@ -358,6 +358,7 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
     // update random options
     loadLR2Sound();
 
+    gCustomizeContext.modeUpdate = false;
     if (_virtualSceneCustomize != nullptr)
     {
         _virtualSceneCustomize->loopStart();
@@ -1382,7 +1383,7 @@ void SceneSelect::_decide()
     {
     case Option::BATTLE_OFF:
     case Option::BATTLE_DB:     gPlayContext.isBattle = false; break;
-    case Option::BATTLE_LOCAL:
+    case Option::BATTLE_LOCAL:  gPlayContext.isBattle = true; break;
     case Option::BATTLE_GHOST:  gPlayContext.isBattle = !gPlayContext.isAuto && State::get(IndexSwitch::CHART_HAVE_REPLAY); break;
     }
 

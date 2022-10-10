@@ -20,6 +20,7 @@ SceneDecide::SceneDecide() : vScene(eMode::DECIDE, 1000)
     _updateCallback = std::bind(&SceneDecide::updateStart, this);
 
     SoundMgr::stopSysSamples();
+    SoundMgr::setSysVolume(1.0);
     SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::BGM_DECIDE);
 }
 
@@ -112,6 +113,7 @@ void SceneDecide::inputGamePress(InputMask& m, Time t)
         {
         case eDecideState::START:
             State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
+            SoundMgr::stopSysSamples();
             _updateCallback = std::bind(&SceneDecide::updateCancel, this);
             _state = eDecideState::CANCEL;
             LOG_DEBUG << "[Decide] State changed to CANCEL";
@@ -143,6 +145,7 @@ void SceneDecide::inputGameHold(InputMask& m, Time t)
         {
         case eDecideState::START:
             State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
+            SoundMgr::stopSysSamples();
             _updateCallback = std::bind(&SceneDecide::updateCancel, this);
             _state = eDecideState::CANCEL;
             LOG_DEBUG << "[Decide] State changed to CANCEL";
