@@ -663,11 +663,12 @@ void updateDstOpt()
 	// 289 コースステージFINAL
 	// (注意 例えばSTAGE3が最終ステージの場合、ステージFINALが優先され、283オン、282オフとなります。)
 	// (現在は実装していませんが、今後の拡張に備えて284-288にあたるSTAGE5-9の画像もあらかじめ作っておいた方がいいかもしれません。
+	// Note: LR2 handle single song as FINAL
 	{
 		switch (State::get(IndexOption::PLAY_COURSE_STAGE))
 		{
 			using namespace Option;
-		case STAGE_NOT_COURSE: break;
+		case STAGE_NOT_COURSE: set(289); break;
 		case STAGE_1: set(280); break;
 		case STAGE_2: set(281); break;
 		case STAGE_3: set(282); break;
