@@ -38,7 +38,7 @@ void SpriteImageText::setInputBindingText(std::string&& text)
 
     // save characters
     int x = 0;
-    int w = 0, h = 0;
+    int w = 0;
     _drawListOrig.clear();
     for (auto c : u32Text)
     {
@@ -48,11 +48,10 @@ void SpriteImageText::setInputBindingText(std::string&& text)
             _drawListOrig.push_back({ c, {x, 0, r.w, r.h} });
             w = x + r.w;
             x += r.w + _margin;
-            h = std::max(h, r.h);
         }
     }
     //_drawList = _drawListOrig;
-    _drawRect = { 0, 0, w, h };
+    _drawRect = { 0, 0, w, (int)_height};
 }
 
 void SpriteImageText::updateTextRect()

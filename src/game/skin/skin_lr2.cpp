@@ -2207,13 +2207,12 @@ bool SkinLR2::DST()
             return false;
         }
 
-        // TODO check if type of previous src definition matches
-
-        if (e->type() == SpriteTypes::GLOBAL)
+        SpriteTypes sType = e->type();
+        if (sType == SpriteTypes::GLOBAL)
         {
             // unpack stacking references
             auto p = std::reinterpret_pointer_cast<SpriteGlobal>(e);
-            auto enext = e;
+            decltype(e) enext = nullptr;
             do
             {
                 enext = gSprites[p->getIdx()];
@@ -2224,8 +2223,38 @@ bool SkinLR2::DST()
                     LOG_WARNING << "[Skin] " << csvLineNumber << ": Previous src definition invalid (Line: " << csvLineNumber << ")";
                     return false;
                 }
+                sType = enext->type();
 
-            } while (enext->type() == SpriteTypes::GLOBAL);
+            } while (sType == SpriteTypes::GLOBAL);
+        }
+
+        // check if type of previous src definition matches
+        bool typeMatch = true;
+        switch (type)
+        {
+        case DefType::IMAGE:         typeMatch = (sType == SpriteTypes::ANIMATED || sType == SpriteTypes::VIDEO); break;
+        case DefType::NUMBER:        typeMatch = sType == SpriteTypes::NUMBER; break;
+        case DefType::SLIDER:        typeMatch = sType == SpriteTypes::SLIDER; break;
+        case DefType::BARGRAPH:      typeMatch = sType == SpriteTypes::BARGRAPH; break;
+        case DefType::BUTTON:        typeMatch = (sType == SpriteTypes::BUTTON || sType == SpriteTypes::OPTION); break;
+        case DefType::ONMOUSE:       typeMatch = sType == SpriteTypes::ONMOUSE; break;
+        case DefType::TEXT:          typeMatch = (sType == SpriteTypes::TEXT || sType == SpriteTypes::IMAGE_TEXT); break;
+        case DefType::JUDGELINE:     typeMatch = sType == SpriteTypes::ANIMATED; break;
+        case DefType::GROOVEGAUGE:   typeMatch = sType == SpriteTypes::GAUGE; break;
+        case DefType::NOWJUDGE_1P:   typeMatch = sType == SpriteTypes::ANIMATED; break;
+        case DefType::NOWCOMBO_1P:   typeMatch = sType == SpriteTypes::NUMBER; break;
+        case DefType::NOWJUDGE_2P:   typeMatch = sType == SpriteTypes::ANIMATED; break;
+        case DefType::NOWCOMBO_2P:   typeMatch = sType == SpriteTypes::NUMBER; break;
+        case DefType::BGA:           typeMatch = sType == SpriteTypes::STATIC; break;
+        case DefType::MOUSECURSOR:   typeMatch = sType == SpriteTypes::MOUSE_CURSOR; break;
+        case DefType::GAUGECHART_1P: typeMatch = sType == SpriteTypes::LINE; break;
+        case DefType::GAUGECHART_2P: typeMatch = sType == SpriteTypes::LINE; break;
+        case DefType::SCORECHART:    typeMatch = sType == SpriteTypes::LINE; break;
+        }
+        if (!typeMatch)
+        {
+            LOG_WARNING << "[Skin] " << csvLineNumber << ": Previous src definition type mismatch (Line: " << csvLineNumber << ")";
+            return false;
         }
 
         if (e->isKeyFrameEmpty())
@@ -2960,7 +2989,11 @@ int SkinLR2::parseBody(const Tokens &raw)
 void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc, bool alreadyFailed)
 {
     bool ifStmtTrue = false;
-    if (!alreadyFailed && !strEqual(t[0], "#ELSE", true))
+    if (alreadyFailed && strEqual(t[0], "#ELSE", true))
+    {
+        ifStmtTrue = true;
+    }
+    else
     {
         if (t.size() <= 1)
         {
@@ -2986,8 +3019,6 @@ void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc, bool
         }
     }
 
-    LOG_DEBUG << "[Skin] " << t[0] << " " << ifStmtTrue << " (Line " << csvLineNumber << ")";
-
     if (ifStmtTrue)
     {
         bool ifBlockEnded = false;
@@ -3005,7 +3036,6 @@ void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc, bool
             if (strEqual(*tokens.begin(), "#ENDIF", true))
             {
                 // end #IF process
-                LOG_DEBUG << "[Skin] #ENDIF" << " (Line " << csvLineNumber << ")";
                 return;
             }
             else if (!ifBlockEnded)
@@ -3040,21 +3070,20 @@ void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc, bool
             if (strEqual(*tokens.begin(), "#IF", true))
             {
                 // nesting #IF
-                IF(tokens, lr2skin, enc, !ifStmtTrue);
+                IF(tokens, lr2skin, enc, true);
             }
             else if (strEqual(*tokens.begin(), "#ELSE", true))
             {
-                IF(tokens, lr2skin, enc, false);
+                IF(tokens, lr2skin, enc, true);
                 return;
             }
             else if (strEqual(*tokens.begin(), "#ELSEIF", true))
             {
-                IF(tokens, lr2skin, enc, false);
+                IF(tokens, lr2skin, enc, true);
                 return;
             }
             else if (strEqual(*tokens.begin(), "#ENDIF", true))
             {
-                LOG_DEBUG << "[Skin] #ENDIF" << " (Line " << csvLineNumber << ")";
                 return;
             }
         }
