@@ -1693,13 +1693,8 @@ ParseRet SkinLR2::SRC_NOWCOMBO1()
     // modify necessary info for SRC_NOWCOMBO(idx)
     static StringContent eNumBuf = std::to_string((int)IndexNumber::_DISP_NOWCOMBO_1P);
     parseParamBuf[10] = StringContentView(eNumBuf);
-    switch (toInt(parseParamBuf[11]))
-    {
-    case 0: parseParamBuf[11] = "1"; break;
-    case 1: parseParamBuf[11] = "2"; break;
-    case 2:
-    default:parseParamBuf[11] = "0"; break;
-    }
+    alignNowCombo1P[bufJudge1PSlot] = toInt(parseParamBuf[11]);
+    parseParamBuf[11] = "1";
 
     if (bufJudge1PSlot >= 0 && bufJudge1PSlot < 6)
     {
@@ -1727,13 +1722,8 @@ ParseRet SkinLR2::SRC_NOWCOMBO2()
     // modify necessary info for SRC_NOWCOMBO(idx)
     static StringContent eNumBuf = std::to_string((int)IndexNumber::_DISP_NOWCOMBO_2P);
     parseParamBuf[10] = StringContentView(eNumBuf);
-    switch (toInt(parseParamBuf[11]))
-    {
-    case 0: parseParamBuf[11] = "1"; break;
-    case 1: parseParamBuf[11] = "2"; break;
-    case 2: 
-    default:parseParamBuf[11] = "0"; break;
-    }
+    alignNowCombo2P[bufJudge2PSlot] = toInt(parseParamBuf[11]);
+    parseParamBuf[11] = "1";
 
     if (bufJudge2PSlot >= 0 && bufJudge2PSlot < 6)
     {
@@ -3522,18 +3512,30 @@ void SkinLR2::update()
             {
                 combo->setHide(false);
 
-                Rect diff{ 0,0,0,0 };
-                //diff.x = int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
-                diff.x += judge->_current.rect.x;
-                diff.y += judge->_current.rect.y;
-                if (!noshiftJudge1P[i])
-                {
-                    judge->_current.rect.x -= int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
-                }
+                Rect base = judge->_current.rect;
+                double shiftUnit = 0.5 * combo->_current.rect.w;
+
+                int judgeShiftWidth = noshiftJudge1P[i] ? 0 : int(std::floor(shiftUnit * combo->_numDigits));
+                judge->_current.rect.x -= judgeShiftWidth;
+
                 for (auto& d : combo->_rects)
                 {
-                    d.x += diff.x;
-                    d.y += diff.y;
+                    int comboShiftUnitCount = noshiftJudge1P[i] ? 0 : -1;
+
+                    switch (alignNowCombo1P[i])
+                    {
+                    case 0:
+                        comboShiftUnitCount += (combo->_maxDigits - combo->_numDigits) * 2 - combo->_numDigits + 1;
+                        break;
+                    case 1:
+                        comboShiftUnitCount -= combo->_numDigits - 1;
+                        break;
+                    case 2:
+                        comboShiftUnitCount += (-combo->_maxDigits - 1) + (combo->_maxDigits - combo->_numDigits + 1) * 2;
+                        break;
+                    }
+                    d.x += base.x + int(std::floor(shiftUnit * comboShiftUnitCount));
+                    d.y += base.y;
                 }
             }
             else
@@ -3550,18 +3552,30 @@ void SkinLR2::update()
             {
                 combo->setHide(false);
 
-                Rect diff{ 0,0,0,0 };
-                //diff.x = int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
-                diff.x += judge->_current.rect.x;
-                diff.y += judge->_current.rect.y;
-                if (!noshiftJudge2P[i])
-                {
-                    judge->_current.rect.x -= int(std::floor(0.5 * combo->_current.rect.w * combo->_numDigits));
-                }
+                Rect base = judge->_current.rect;
+                double shiftUnit = 0.5 * combo->_current.rect.w;
+
+                int judgeShiftWidth = noshiftJudge2P[i] ? 0 : int(std::floor(shiftUnit * combo->_numDigits));
+                judge->_current.rect.x -= judgeShiftWidth;
+
                 for (auto& d : combo->_rects)
                 {
-                    d.x += diff.x;
-                    d.y += diff.y;
+                    int comboShiftUnitCount = noshiftJudge2P[i] ? 0 : -1;
+
+                    switch (alignNowCombo2P[i])
+                    {
+                    case 0:
+                        comboShiftUnitCount += (combo->_maxDigits - combo->_numDigits) * 2 - combo->_numDigits + 1;
+                        break;
+                    case 1:
+                        comboShiftUnitCount -= combo->_numDigits - 1;
+                        break;
+                    case 2:
+                        comboShiftUnitCount += (-combo->_maxDigits - 1) + (combo->_maxDigits - combo->_numDigits + 1) * 2;
+                        break;
+                    }
+                    d.x += base.x + int(std::floor(shiftUnit * comboShiftUnitCount));
+                    d.y += base.y;
                 }
             }
             else
