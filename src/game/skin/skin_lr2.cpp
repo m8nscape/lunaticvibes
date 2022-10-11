@@ -871,7 +871,15 @@ int SkinLR2::LR2FONT()
                 r.w = toInt(tokens[5]);
                 r.h = toInt(tokens[6]);
 
-                pf->R[c_utf32] = {pf->T_id.at(imgId), r};
+                if (c_utf32 == U' ')
+                {
+                    // ID = space, LR2 displays a blank texture instead of actually texture file for spaces
+                    pf->R[c_utf32] = { size_t(-1), r };
+                }
+                else
+                {
+                    pf->R[c_utf32] = { pf->T_id.at(imgId), r };
+                }
             }
         }
 

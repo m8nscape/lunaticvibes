@@ -42,10 +42,11 @@ void SpriteImageText::setInputBindingText(std::string&& text)
     _drawListOrig.clear();
     for (auto c : u32Text)
     {
-        if (_chrList.find(c) != _chrList.end() && _chrList[c].textureIdx < _textures.size())
+        if (_chrList.find(c) != _chrList.end())
         {
             auto r = _chrList[c].textureRect;
-            _drawListOrig.push_back({ c, {x, 0, r.w, r.h} });
+            if (_chrList[c].textureIdx < _textures.size())
+                _drawListOrig.push_back({ c, {x, 0, r.w, r.h} });
             w = x + r.w;
             x += r.w + _margin;
         }
