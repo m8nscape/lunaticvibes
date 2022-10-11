@@ -775,31 +775,7 @@ int SkinLR2::LR2FONT()
             return 1;
         }
 
-        if (!fs::is_regular_file(path))
-        {
-            std::string archiveName;
-            Path lr2skinFolder = fs::absolute(filePath).parent_path();
-            auto lr2skinFolderStr = lr2skinFolder.native();
-            Path folder = path.parent_path();
-            Path::string_type folderStr;
-            do
-            {
-                archiveName = folder.stem().u8string() + ".dxa";
-                folder = folder.parent_path();
-                folderStr = fs::absolute(folder).native();
-
-                // find dxa file
-                Path dxa = folder / PathFromUTF8(archiveName);
-
-                // extract dxa
-                if (std::filesystem::is_regular_file(dxa))
-                {
-                    LOG_DEBUG << "[Skin] Extract dxa file: " << fs::absolute(dxa).u8string();
-                    extractDxaToFile(dxa);
-                    break;
-                }
-            } while (folderStr.length() >= lr2skinFolderStr.length() && folderStr.substr(0, lr2skinFolderStr.length()) == lr2skinFolderStr);
-        }
+        findAndExtractDXA(path);
 
         if (!fs::is_regular_file(path))
         {
@@ -854,6 +830,7 @@ int SkinLR2::LR2FONT()
 
                 // スキンcsvとは違って「lr2fontファイルからの相対参照」で画像ファイルを指定します。
                 Path p = path.parent_path() / Path(tokens[2]);
+                findAndExtractDXA(p);
                 pf->T_texture.push_back(std::make_shared<Texture>(Image(p.u8string().c_str())));
             }
             else if (strEqual(key, "#R", true))
@@ -3100,6 +3077,11 @@ void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc, bool
                     // nesting #IF
                     IF(tokens, lr2skin, enc, false, false);
                 }
+                else if (strEqual(*tokens.begin(), "#ENDIF", true))
+                {
+                    // end #IF process
+                    return;
+                }
                 else
                 {
                     parseBody(tokens);
@@ -3569,6 +3551,35 @@ void SkinLR2::postLoad()
         }
     }
 
+}
+
+void SkinLR2::findAndExtractDXA(const Path& path)
+{
+    if (!fs::is_regular_file(path))
+    {
+        std::string archiveName;
+        Path lr2skinFolder = fs::absolute(filePath).parent_path();
+        auto lr2skinFolderStr = lr2skinFolder.native();
+        Path folder = path.parent_path();
+        Path::string_type folderStr;
+        do
+        {
+            archiveName = folder.stem().u8string() + ".dxa";
+            folder = folder.parent_path();
+            folderStr = fs::absolute(folder).native();
+
+            // find dxa file
+            Path dxa = folder / PathFromUTF8(archiveName);
+
+            // extract dxa
+            if (std::filesystem::is_regular_file(dxa))
+            {
+                LOG_DEBUG << "[Skin] Extract dxa file: " << fs::absolute(dxa).u8string();
+                extractDxaToFile(dxa);
+                break;
+            }
+        } while (folderStr.length() >= lr2skinFolderStr.length() && folderStr.substr(0, lr2skinFolderStr.length()) == lr2skinFolderStr);
+    }
 }
 
 //////////////////////////////////////////////////

@@ -1393,6 +1393,7 @@ public:
 protected:
     void loadCSV(Path p);
     void postLoad();
+    void findAndExtractDXA(const Path& path);
 
 protected:
     static constexpr size_t BAR_ENTRY_SPRITE_COUNT = 32;
