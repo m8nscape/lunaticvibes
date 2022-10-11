@@ -197,6 +197,7 @@ void updateDstOpt()
 
 	// 46 難易度フィルタが有効
 	// 47 難易度フィルタが無効
+	// Note: It's an option of LR2 setup, not a runtime stat. Fix to ON
 	{
 		using namespace Option;
 		set(46);
@@ -305,7 +306,7 @@ void updateDstOpt()
 		using namespace Option;
 		switch (State::get(IndexOption::SELECT_ENTRY_LAMP))
 		{
-		case LAMP_NOPLAY: set(100); break;
+		case LAMP_NOPLAY: set(100, get(5)); break;
 		case LAMP_FAILED: set(101); break;
 		case LAMP_ASSIST:
 		case LAMP_EASY: set(102); break;

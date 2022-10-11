@@ -52,7 +52,7 @@ inline T pushAndWaitMainThreadTask(std::function<T()> f)
 	}
 	else
 	{
-		return T();
+		return f();
 	}
 }
 template<>

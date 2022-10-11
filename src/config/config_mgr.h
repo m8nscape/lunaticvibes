@@ -49,14 +49,14 @@ private:
         {
         case 'A':                               // Audio
         case 'E':                               // Audio
-        case 'V': return G->get<Ty_v>(key, fallback);  // Video
-        case 'P': return P->get<Ty_v>(key, fallback);  // Play
-        case '5': return I5->get<Ty_v>(key, fallback);  // Input
-        case '7': return I7->get<Ty_v>(key, fallback);  // Input
-        case '9': return I9->get<Ty_v>(key, fallback);  // Input
-        case 'S': return S->get<Ty_v>(key, fallback);  // Skin
-        default:  return Ty_v(); break;
+        case 'V': return G ? G->get<Ty_v>(key, fallback) : fallback;  // Video
+        case 'P': return P ? P->get<Ty_v>(key, fallback) : fallback;  // Play
+        case '5': return I5 ? I5->get<Ty_v>(key, fallback) : fallback;  // Input
+        case '7': return I7 ? I7->get<Ty_v>(key, fallback) : fallback;  // Input
+        case '9': return I9 ? I9->get<Ty_v>(key, fallback) : fallback;  // Input
+        case 'S': return S ? S->get<Ty_v>(key, fallback) : fallback;  // Skin
         }
+        return Ty_v();
     }
     template<class Ty_v>
     void _set(char type, const std::string& key, const Ty_v& value) noexcept
@@ -65,13 +65,12 @@ private:
         {
         case 'A':                               // Audio
         case 'E':                               // Audio
-        case 'V': return G->set<Ty_v>(key, value);     // Play
-        case 'P': return P->set<Ty_v>(key, value);  // Play
-        case '5': return I5->set<Ty_v>(key, value);     // Input
-        case '7': return I7->set<Ty_v>(key, value);     // Input
-        case '9': return I9->set<Ty_v>(key, value);     // Input
-        case 'S': return S->set<Ty_v>(key, value);     // Skin
-        default:  return;
+        case 'V': if (G)  return G->set<Ty_v>(key, value);  break; // Play
+        case 'P': if (P)  return P->set<Ty_v>(key, value);  break; // Play
+        case '5': if (I5) return I5->set<Ty_v>(key, value); break; // Input
+        case '7': if (I7) return I7->set<Ty_v>(key, value); break; // Input
+        case '9': if (I9) return I9->set<Ty_v>(key, value); break; // Input
+        case 'S': if (S)  return S->set<Ty_v>(key, value);  break; // Skin
         }
     }
 
@@ -79,11 +78,11 @@ private:
     {
         switch (mode)
         {
-        case 5: return I5->getBindings(key); break;
-        case 7: return I7->getBindings(key); break;
-        case 9: return I9->getBindings(key); break;
-        default: return {};
+        case 5: if (I5) return I5->getBindings(key); break;
+        case 7: if (I7) return I7->getBindings(key); break;
+        case 9: if (I9) return I9->getBindings(key); break;
         }
+        return {};
     }
     std::string _getDBPath()
     {

@@ -900,7 +900,7 @@ int SkinLR2::LR2FONT()
 
         LR2FontCache[path] = pf;
         LR2FontNameMap[std::to_string(idx)] = pf;
-        LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added LR2FONT: " << path.u8string();
+        LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added LR2FONT[" << idx << "]: " << path.u8string();
         return 1;
     }
     return 0;
@@ -2513,6 +2513,9 @@ ParseRet SkinLR2::DST_BAR_BODY()
 
     // load raw into data struct
     lr2skin::dst d(parseParamBuf);
+
+    // timers are ignored for bars
+    d.timer = 0;
     
     unsigned idx = unsigned(d._null);
 
@@ -2553,6 +2556,9 @@ ParseRet SkinLR2::DST_BAR_FLASH()
     // load raw into data struct
     lr2skin::dst d(parseParamBuf);
 
+    // timers are ignored for bars
+    d.timer = 0;
+
     for (auto& bar : _barSprites)
     {
         auto e = bar->getSpriteFlash();
@@ -2582,6 +2588,9 @@ ParseRet SkinLR2::DST_BAR_LEVEL()
 {
     // load raw into data struct
     lr2skin::dst d(parseParamBuf);
+
+    // timers are ignored for bars
+    d.timer = 0;
     
     BarLevelType type = BarLevelType(d._null);
 
@@ -2615,6 +2624,9 @@ ParseRet SkinLR2::DST_BAR_RIVAL_MYLAMP()
 {
     // load raw into data struct
     lr2skin::dst d(parseParamBuf);
+
+    // timers are ignored for bars
+    d.timer = 0;
     
     auto type = BarLampType(d._null);
 
@@ -2646,6 +2658,9 @@ ParseRet SkinLR2::DST_BAR_RIVAL_RIVALLAMP()
 {
     // load raw into data struct
     lr2skin::dst d(parseParamBuf);
+
+    // timers are ignored for bars
+    d.timer = 0;
     
     auto type = BarLampType(d._null);
 
@@ -2678,6 +2693,9 @@ ParseRet SkinLR2::DST_BAR_LAMP()
 {
     // load raw into data struct
     lr2skin::dst d(parseParamBuf);
+
+    // timers are ignored for bars
+    d.timer = 0;
     
     auto type = BarLampType(d._null);
 
@@ -2711,6 +2729,9 @@ ParseRet SkinLR2::DST_BAR_TITLE()
     // load raw into data struct
     lr2skin::dst d(parseParamBuf);
 
+    // timers are ignored for bars
+    d.timer = 0;
+
     auto type = BarTitleType(d._null);
 
     for (auto& bar : _barSprites)
@@ -2743,6 +2764,9 @@ ParseRet SkinLR2::DST_BAR_RANK()
     // load raw into data struct
     lr2skin::dst d(parseParamBuf);
 
+    // timers are ignored for bars
+    d.timer = 0;
+
     auto type = BarRankType(d._null);
 
     for (auto& bar : _barSprites)
@@ -2774,6 +2798,9 @@ ParseRet SkinLR2::DST_BAR_RIVAL()
 {
     // load raw into data struct
     lr2skin::dst d(parseParamBuf);
+
+    // timers are ignored for bars
+    d.timer = 0;
     
     auto type = BarRivalType(d._null);
 
@@ -2986,10 +3013,37 @@ int SkinLR2::parseBody(const Tokens &raw)
     return 0;
 }
 
-void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc, bool alreadyFailed)
+void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc, bool ifUnsatisfied, bool skipOnly)
 {
+    if (skipOnly)
+    {
+        // only look for #ENDIF, skip the whole sub #IF block
+        while (!lr2skin.eof())
+        {
+            std::string raw;
+            std::getline(lr2skin, raw);
+            ++csvLineNumber;
+
+            std::string rawUTF8 = to_utf8(raw, enc);
+
+            auto tokens = csvLineTokenize(rawUTF8);
+            if (tokens.empty()) continue;
+
+            if (strEqual(*tokens.begin(), "#IF", true))
+            {
+                // nesting #IF
+                IF(tokens, lr2skin, enc, false, true);
+            }
+            else if (strEqual(*tokens.begin(), "#ENDIF", true))
+            {
+                // end #IF process
+                return;
+            }
+        }
+    }
+
     bool ifStmtTrue = false;
-    if (alreadyFailed && strEqual(t[0], "#ELSE", true))
+    if (ifUnsatisfied && strEqual(t[0], "#ELSE", true))
     {
         ifStmtTrue = true;
     }
@@ -3033,26 +3087,40 @@ void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc, bool
             auto tokens = csvLineTokenize(rawUTF8);
             if (tokens.empty()) continue;
 
-            if (strEqual(*tokens.begin(), "#ENDIF", true))
-            {
-                // end #IF process
-                return;
-            }
-            else if (!ifBlockEnded)
+            if (!ifBlockEnded)
             {
                 // parse current branch
                 if (strEqual(*tokens.begin(), "#ELSEIF", true) || strEqual(*tokens.begin(), "#ELSE", true))
                 {
-                    ifBlockEnded = true;
+                    IF(tokens, lr2skin, enc, false, true);
+                    break;
                 }
                 else if (strEqual(*tokens.begin(), "#IF", true))
                 {
                     // nesting #IF
-                    IF(tokens, lr2skin, enc, false);
+                    IF(tokens, lr2skin, enc, false, false);
                 }
                 else
                 {
                     parseBody(tokens);
+                }
+            }
+            else
+            {
+                if (strEqual(*tokens.begin(), "#IF", true))
+                {
+                    // nesting #IF
+                    IF(tokens, lr2skin, enc, false, true);
+                }
+                else if (strEqual(*tokens.begin(), "#ELSEIF", true) || strEqual(*tokens.begin(), "#ELSE", true))
+                {
+                    IF(tokens, lr2skin, enc, false, true);
+                    break;
+                }
+                else if (strEqual(*tokens.begin(), "#ENDIF", true))
+                {
+                    // end #IF process
+                    return;
                 }
             }
         }
@@ -3070,16 +3138,16 @@ void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc, bool
             if (strEqual(*tokens.begin(), "#IF", true))
             {
                 // nesting #IF
-                IF(tokens, lr2skin, enc, true);
+                IF(tokens, lr2skin, enc, false, true);
             }
             else if (strEqual(*tokens.begin(), "#ELSE", true))
             {
-                IF(tokens, lr2skin, enc, true);
+                IF(tokens, lr2skin, enc, true, false);
                 return;
             }
             else if (strEqual(*tokens.begin(), "#ELSEIF", true))
             {
-                IF(tokens, lr2skin, enc, true);
+                IF(tokens, lr2skin, enc, true, false);
                 return;
             }
             else if (strEqual(*tokens.begin(), "#ENDIF", true))
@@ -3270,9 +3338,25 @@ void SkinLR2::loadCSV(Path p)
             if (tokens.empty()) continue;
 
             if (strEqual(*tokens.begin(), "#IF", true))
+            {
                 IF(tokens, csvFile, encoding);
+            }
+            else if (strEqual(*tokens.begin(), "#ELSE", true))
+            {
+                LOG_WARNING << "[Skin] Unexcepted #ELSE found without precedent #IF " << "(Line " << csvLineNumber << ")";
+            }
+            else if (strEqual(*tokens.begin(), "#ELSEIF", true))
+            {
+                LOG_WARNING << "[Skin] Unexcepted #ELSEIF found without precedent #IF " << "(Line " << csvLineNumber << ")";
+            }
+            else if (strEqual(*tokens.begin(), "#ENDIF", true))
+            {
+                LOG_WARNING << "[Skin] Unexcepted #ENDIF found without precedent #IF " << "(Line " << csvLineNumber << ")";
+            }
             else
+            {
                 parseBody(tokens);
+            }
         }
     }
 

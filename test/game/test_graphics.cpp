@@ -73,9 +73,6 @@ TEST(Rect, self_equal)
 TEST(Rect, construct)
 {
     EXPECT_EQ(Rect(0, 0, 40, 60), Rect(40, 60));
-    EXPECT_EQ(Rect(-1, -1, -1, -1), Rect());
-    EXPECT_EQ(Rect(-1, -1, -1, -1), Rect(0));
-    EXPECT_EQ(Rect(-1, -1, -1, -1), Rect(200));
 
     Rect r{ 1, 2, 3, 4 };
     Rect r1(r);

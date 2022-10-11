@@ -1600,7 +1600,7 @@ protected:
     std::array<int, 6> alignNowCombo1P{ 0 };
     std::array<int, 6> alignNowCombo2P{ 0 };
 
-    void IF(const Tokens& t, std::istream&, eFileEncoding enc, bool alreadyFailed = false);
+    void IF(const Tokens& t, std::istream&, eFileEncoding enc, bool ifUnsatisfied = false, bool skipOnly = false);
 
     //std::vector<SkinLR2> _csvIncluded;
 
@@ -1612,7 +1612,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-private:
+protected:
     struct element
     {
         std::shared_ptr<vSprite> ps;

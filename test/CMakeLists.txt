@@ -8,7 +8,7 @@ add_executable(apptest EXCLUDE_FROM_ALL
     common/test_fraction.cpp
     common/test_chartformat_bms.cpp
     game/test_graphics.cpp
-)
+ "game/test_lr2skin.cpp")
 target_link_libraries(apptest PUBLIC
     GTest::gtest GTest::gmock)
 
@@ -30,10 +30,15 @@ target_include_directories(apptest PRIVATE
 
 add_custom_command(TARGET apptest POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    ${CMAKE_CURRENT_SOURCE_DIR}/test
     $<TARGET_FILE:fmod>
     $<$<BOOL:${USE_BUNDLED_SQLITE3}>:$<TARGET_FILE:SQLite3>>
     $<TARGET_FILE_DIR:apptest>
+)
+
+add_custom_command(TARGET apptest PRE_LINK
+    COMMAND ${CMAKE_COMMAND} -E copy_directory 
+    "${CMAKE_CURRENT_SOURCE_DIR}/test"
+    "$<TARGET_FILE_DIR:apptest>/test"
 )
 
 if (WIN32)

@@ -1,0 +1,46 @@
+#INFORMATION,testskin,testcreator
+#ENDOFHEADER
+
+#IF,0
+// true
+
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer,op1,op2,op3,,,,,,,,
+#SRC_IMAGE,0,0,1237,431,14,13,1,1,0,0,0,0,0,,,,,,,,
+//DST定義,(NULL),time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3,
+#DST_IMAGE,0,300,348,315,14,13,0,0,255,255,255,1,0,0,0,600,0,1,0,0
+
+#IF,999
+// false
+
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer,op1,op2,op3,,,,,,,,
+#SRC_IMAGE,0,0,1237,431,14,13,1,1,0,0,0,0,0,,,,,,,,
+//DST定義,(NULL),time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3,
+#DST_IMAGE,0,300,348,315,14,13,0,0,255,255,255,1,0,0,0,600,0,2,0,0
+
+#ELSE
+// true
+
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer,op1,op2,op3,,,,,,,,
+#SRC_IMAGE,0,0,1237,431,14,13,1,1,0,0,0,0,0,,,,,,,,
+//DST定義,(NULL),time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3,
+#DST_IMAGE,0,300,348,315,14,13,0,0,255,255,255,1,0,0,0,600,0,3,0,0
+
+#ENDIF
+
+// true
+
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer,op1,op2,op3,,,,,,,,
+#SRC_IMAGE,0,0,1237,431,14,13,1,1,0,0,0,0,0,,,,,,,,
+//DST定義,(NULL),time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3,
+#DST_IMAGE,0,300,348,315,14,13,0,0,255,255,255,1,0,0,0,600,0,4,0,0
+
+#ELSE
+// false
+
+//SRC定義,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer,op1,op2,op3,,,,,,,,
+#SRC_IMAGE,0,0,1237,431,14,13,1,1,0,0,0,0,0,,,,,,,,
+//DST定義,(NULL),time,x,y,w,h,acc,a,r,g,b,blend,filter,angle,center,loop,timer,op1,op2,op3,
+#DST_IMAGE,0,300,348,315,14,13,0,0,255,255,255,1,0,0,0,600,0,5,0,0
+
+
+#ENDIF
