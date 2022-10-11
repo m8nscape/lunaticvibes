@@ -518,11 +518,11 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
     {
         static const LazyRE2 subTitleRegex[]
         {
-            { R"((.+) *(-.*?-))" },
-            { R"((.+) *(〜.*?〜))" },
-            { R"((.+) *(\(.*?\)))" },
-            { R"((.+) *(\[.*?\]))" },
-            { R"((.+) *(<.*?>))" },
+            { R"((.+?) *(-.*?-))" },
+            { R"((.+?) *(〜.*?〜))" },
+            { R"((.+?) *(\(.*?\)))" },
+            { R"((.+?) *(\[.*?\]))" },
+            { R"((.+?) *(<.*?>))" },
         };
         for (auto& reg : subTitleRegex)
         {

@@ -81,7 +81,14 @@ public:
     {
         using namespace plog::detail;
 
-        m_messageUTF8 << data;
+        try
+        {
+            m_messageUTF8 << data;
+        }
+        catch (...)
+        {
+            m_messageUTF8 << " (* String codepage convert failed *) ";
+        }
         return *this;
     }
 
