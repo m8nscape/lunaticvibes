@@ -483,6 +483,7 @@ static bool flipSideFlag = false;
 
 std::map<std::string, pTexture> SkinLR2::LR2SkinImageCache;
 
+std::map<std::string, Path> SkinLR2::LR2SkinFontPathCache;
 std::map<Path, std::shared_ptr<SkinLR2::LR2Font>> SkinLR2::LR2FontCache;
 
 int SkinLR2::setExtendedProperty(std::string&& key, void* value)
@@ -757,21 +758,39 @@ int SkinLR2::IMAGE()
 
 int SkinLR2::LR2FONT()
 {
-    if (strEqual(parseKeyBuf, "#LR2FONT", true))
+    if (!strEqual(parseKeyBuf, "#LR2FONT", true)) return 0;
+
+    if (strEqual(parseParamBuf[0], "CONTINUE", true))
+    {
+        // already referenced inside constructor; create a blank texture if not exist
+        std::string fontNameKey = std::to_string(LR2FontNameMap.size());
+        if (LR2SkinFontPathCache.find(fontNameKey) != LR2SkinFontPathCache.end())
+        {
+            Path path = LR2SkinFontPathCache[fontNameKey];
+            LR2FontNameMap[fontNameKey] = LR2FontCache[path];
+        }
+        else
+        {
+            LR2FontNameMap[fontNameKey] = nullptr;
+        }
+        return 1;
+    }
+    else
     {
         Path path = getCustomizePath(parseParamBuf[0]);
         path = std::filesystem::absolute(path);
-        size_t idx = LR2FontNameMap.size();
+        std::string fontNameKey = std::to_string(LR2FontNameMap.size());
 
         if (loadMode >= 1)
         {
-            LR2FontNameMap[std::to_string(idx)] = nullptr;
+            LR2FontNameMap[fontNameKey] = nullptr;
             return 1;
         }
 
         if (LR2FontCache.find(path) != LR2FontCache.end())
         {
-            LR2FontNameMap[std::to_string(idx)] = LR2FontCache[path];
+            LR2FontNameMap[fontNameKey] = LR2FontCache[path];
+            LR2SkinFontPathCache[fontNameKey] = path;
             return 1;
         }
 
@@ -779,7 +798,7 @@ int SkinLR2::LR2FONT()
 
         if (!fs::is_regular_file(path))
         {
-            LR2FontNameMap[std::to_string(idx)] = nullptr;
+            LR2FontNameMap[fontNameKey] = nullptr;
             LOG_WARNING << "[Skin] " << csvLineNumber << ": LR2FONT file not found: " << path.u8string();
             return 1;
         }
@@ -884,11 +903,11 @@ int SkinLR2::LR2FONT()
         }
 
         LR2FontCache[path] = pf;
-        LR2FontNameMap[std::to_string(idx)] = pf;
-        LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added LR2FONT[" << idx << "]: " << path.u8string();
+        LR2FontNameMap[fontNameKey] = pf;
+        LR2SkinFontPathCache[fontNameKey] = path;
+        LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added LR2FONT[" << fontNameKey << "]: " << path.u8string();
         return 1;
     }
-    return 0;
 }
 
 int SkinLR2::SYSTEMFONT()

@@ -1338,6 +1338,7 @@ protected:
 
 private:
     static std::map<std::string, pTexture> LR2SkinImageCache;
+    static std::map<std::string, Path> LR2SkinFontPathCache;
 
     struct Customize
     {
