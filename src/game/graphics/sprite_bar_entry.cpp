@@ -83,7 +83,7 @@ int SpriteBarEntry::setTitle(BarTitleType type, pFont f, TextAlign align, unsign
     return 0;
 }
 
-int SpriteBarEntry::setTitle(BarTitleType type, std::vector<pTexture>& textures, CharMappingList& chrList,
+int SpriteBarEntry::setTitle(BarTitleType type, std::vector<pTexture>& textures, CharMappingList* chrList,
     TextAlign align, unsigned height, int margin)
 {
     const size_t i = int(IndexText::_SELECT_BAR_TITLE_FULL_0) + index;

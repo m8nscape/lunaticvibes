@@ -157,7 +157,7 @@ public:
         IndexTimer timer = IndexTimer::SCENE_START, int nRows = 1, int nCols = 1, bool texVertSplit = false);
     int setTitle(BarTitleType type, pFont f,
         TextAlign align = TEXT_ALIGN_LEFT, unsigned ptsize = 72, Color c = 0xffffffff);
-    int setTitle(BarTitleType type, std::vector<pTexture>& textures, CharMappingList& chrList,
+    int setTitle(BarTitleType type, std::vector<pTexture>& textures, CharMappingList* chrList,
         TextAlign align = TEXT_ALIGN_LEFT, unsigned height = 72, int margin = 0);
     int setRank(BarRankType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
         IndexTimer timer = IndexTimer::SCENE_START, int nRows = 1, int nCols = 1, bool texVertSplit = false);

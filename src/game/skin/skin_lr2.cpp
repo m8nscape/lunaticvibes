@@ -1472,7 +1472,7 @@ ParseRet SkinLR2::SRC_TEXT()
     if (LR2FontNameMap.find(font) != LR2FontNameMap.end() && LR2FontNameMap[font] != nullptr)
     {
         auto& pf = LR2FontNameMap[font];
-        auto ps = std::make_shared<SpriteImageText>(pf->T_texture, pf->R, (IndexText)d.st, (TextAlign)d.align, pf->S, pf->M);
+        auto ps = std::make_shared<SpriteImageText>(pf->T_texture, &pf->R, (IndexText)d.st, (TextAlign)d.align, pf->S, pf->M);
         if (d.edit) ps->setEditable(true);
         _sprites.push_back(ps);
     }
@@ -2108,7 +2108,7 @@ ParseRet SkinLR2::SRC_BAR_TITLE()
         if (LR2FontNameMap.find(font) != LR2FontNameMap.end() && LR2FontNameMap[font] != nullptr)
         {
             auto& pf = LR2FontNameMap[font];
-            bar->setTitle(type, pf->T_texture, pf->R, (TextAlign)d.align, pf->S, pf->M);
+            bar->setTitle(type, pf->T_texture, &pf->R, (TextAlign)d.align, pf->S, pf->M);
         }
         else
         {

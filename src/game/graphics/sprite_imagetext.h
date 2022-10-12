@@ -15,7 +15,7 @@ class SpriteImageText : public SpriteText
 {
 protected:
     std::vector<pTexture> _textures;
-    CharMappingList _chrList;
+    CharMappingList* _chrList;
     unsigned _height;
     int _margin;
 
@@ -26,7 +26,7 @@ private:
 
 public:
     SpriteImageText() = delete;
-    SpriteImageText(std::vector<pTexture>& textures, CharMappingList& chrList, IndexText textInd = IndexText::INVALID, TextAlign align = TEXT_ALIGN_LEFT, unsigned height = 72, int margin = 0);
+    SpriteImageText(std::vector<pTexture>& textures, CharMappingList* chrList, IndexText textInd = IndexText::INVALID, TextAlign align = TEXT_ALIGN_LEFT, unsigned height = 72, int margin = 0);
     //SpriteText(pFont f, Rect rect, IndexText textInd = IndexText::INVALID, TextAlign align = TEXT_ALIGN_LEFT, unsigned ptsize = 72, Color c = 0xffffffff);
     virtual ~SpriteImageText() = default;
 

@@ -2,7 +2,7 @@
 
 #include "common/encoding.h"
 
-SpriteImageText::SpriteImageText(std::vector<pTexture>& textures, CharMappingList& chrList, IndexText textInd, TextAlign align, unsigned height, int margin):
+SpriteImageText::SpriteImageText(std::vector<pTexture>& textures, CharMappingList* chrList, IndexText textInd, TextAlign align, unsigned height, int margin):
     SpriteText(nullptr, textInd, align), _textures(textures), _chrList(chrList), _height(height), _margin(margin)
 {
     _type = SpriteTypes::IMAGE_TEXT;
@@ -42,10 +42,10 @@ void SpriteImageText::setInputBindingText(std::string&& text)
     _drawListOrig.clear();
     for (auto c : u32Text)
     {
-        if (_chrList.find(c) != _chrList.end())
+        if (_chrList->find(c) != _chrList->end())
         {
-            auto r = _chrList[c].textureRect;
-            if (_chrList[c].textureIdx < _textures.size())
+            auto& r = _chrList->at(c).textureRect;
+            if (_chrList->at(c).textureIdx < _textures.size())
                 _drawListOrig.push_back({ c, {x, 0, r.w, r.h} });
             w = x + r.w;
             x += r.w + _margin;
@@ -141,8 +141,9 @@ void SpriteImageText::draw() const
     {
         for (auto [c, r] : _drawList)
         {
-            size_t idx = _chrList.at(c).textureIdx;
-            _textures[idx]->draw(_chrList.at(c).textureRect, r, _current.color, _current.blend, _current.filter, _current.angle);
+            auto& [idx, rect] = _chrList->at(c);
+            if (idx >= 0)
+                _textures[idx]->draw(rect, r, _current.color, _current.blend, _current.filter, _current.angle);
         }
     }
 }
