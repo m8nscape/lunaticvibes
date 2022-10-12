@@ -83,8 +83,11 @@ void SceneSelect::_imguiInit()
         imgui_video_mode = 0;
     old_video_mode = imgui_video_mode;
 
-    _imguiRefreshVideoVsyncList();
     imgui_video_vsync_index = ConfigMgr::get("V", cfg::V_VSYNC, 0);
+#if _WIN32
+    if (imgui_video_vsync_index >= 2)
+        imgui_video_vsync_index = 1;
+#endif
 
     imgui_video_maxFPS = ConfigMgr::get("V", cfg::V_MAXFPS, 240);
 
@@ -191,13 +194,24 @@ void SceneSelect::_imguiSettings()
                 ImGui::Combo("Internal Resolution", &imgui_video_resolution_index, imgui_video_resolution_display.data(), (int)imgui_video_resolution_display.size());
                 ImGui::Combo("Display Resolution", &imgui_video_display_resolution_index, imgui_video_display_resolution_display.data(), (int)imgui_video_display_resolution_display.size());
 
-                ImGui::RadioButton("Windowed", &imgui_video_mode, 0);
-                ImGui::SameLine();
-                ImGui::RadioButton("FullScreen", &imgui_video_mode, 1);
-                ImGui::SameLine();
-                ImGui::RadioButton("Borderless", &imgui_video_mode, 2);
+                static const char* imgui_video_mode_display[] =
+                {
+                    "Windowed",
+                    "FullScreen",
+                    "Borderless"
+                };
+                ImGui::Combo("Screen Mode", &imgui_video_mode, imgui_video_mode_display, sizeof(imgui_video_mode_display) / sizeof(char*));
 
-                ImGui::Combo("VSync", &imgui_video_vsync_index, imgui_video_vsync_display.data(), (int)imgui_video_vsync_display.size());
+                static const char* imgui_vsync_mode_display[] =
+                {
+                    "Off",
+                    "On",
+#if _WIN32
+#else
+                    "Adaptive"
+#endif
+                };
+                ImGui::Combo("VSync", &imgui_video_vsync_index, imgui_vsync_mode_display, sizeof(imgui_vsync_mode_display) / sizeof(char*));
 
                 ImGui::InputInt("Max FPS", &imgui_video_maxFPS, 0);
 
@@ -414,22 +428,6 @@ void SceneSelect::_imguiRefreshVideoDisplayResolutionList()
         imgui_video_display_resolution_display.push_back(r.c_str());
     }
 }
-
-void SceneSelect::_imguiRefreshVideoVsyncList()
-{
-    imgui_video_vsync.clear();
-    imgui_video_vsync_display.clear();
-
-    imgui_video_vsync.push_back("Off");
-    imgui_video_vsync.push_back("On (Double buffered)");
-    imgui_video_vsync.push_back("Adaptive Vsync");
-
-    for (const auto& r : imgui_video_vsync)
-    {
-        imgui_video_vsync_display.push_back(r.c_str());
-    }
-}
-
 
 void SceneSelect::_imguiCheckSettings()
 {
@@ -677,7 +675,11 @@ bool SceneSelect::_imguiApplyResolution()
         {
             {0, "OFF"},
             {1, "ON"},
+#if _WIN32
+            {2, "ON"}
+#else
             {2, "ADAPTIVE"}
+#endif
         };
 
         auto&& s = imgui_video_vsync_index;

@@ -308,20 +308,6 @@ void Texture::_draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, Rect
     if (dstRect.h < 0) { dstRect.h = -dstRect.h; dstRect.y -= dstRect.h; /*flipFlags |= SDL_FLIP_VERTICAL;*/ }
 
 	SDL_SetTextureColorMod(&*pTex, c.r, c.g, c.b);
-	SDL_SetTextureAlphaMod(&*pTex, b == BlendMode::NONE ? 255 : c.a);
-
-    static const std::map<BlendMode, SDL_BlendMode> BlendMap
-    {
-        { BlendMode::NONE                       , SDL_BLENDMODE_BLEND      },  // Do not use SDL_BLENDMODE_NONE, set alpha=255 instead
-        { BlendMode::ALPHA                      , SDL_BLENDMODE_BLEND      },
-        { BlendMode::ADD                        , SDL_BLENDMODE_ADD        },
-        { BlendMode::MULTIPLY                   , SDL_BLENDMODE_MOD        },
-        { BlendMode::SUBTRACT                   , SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_SRC_COLOR, SDL_BLENDFACTOR_DST_COLOR, SDL_BLENDOPERATION_SUBTRACT, SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_DST_ALPHA, SDL_BLENDOPERATION_ADD)  },
-        { BlendMode::ANTICOLOR                  , SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE_MINUS_SRC_COLOR, SDL_BLENDFACTOR_DST_COLOR, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_DST_ALPHA, SDL_BLENDOPERATION_ADD)  },
-    };
-
-    SDL_BlendMode sb = SDL_BLENDMODE_INVALID;
-    if (BlendMap.find(b) != BlendMap.end()) SDL_SetTextureBlendMode(&*pTex, BlendMap.at(b));
 
     int ssLevel = graphics_get_supersample_level();
     dstRect.x *= ssLevel;
@@ -334,7 +320,47 @@ void Texture::_draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, Rect
 
     SDL_SetTextureScaleMode(&*pTex, filter ? SDL_ScaleModeBest : SDL_ScaleModeNearest);
 
-    int r = SDL_RenderCopyEx(
+    if (b == BlendMode::MULTIPLY_INVERTED_BACKGROUND)
+    {
+        if (c.a <= 1) return;   // do not draw
+
+        const SDL_BlendMode blendMode = SDL_ComposeCustomBlendMode(
+            SDL_BLENDFACTOR_DST_COLOR, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD,
+            SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD);
+
+        SDL_SetTextureBlendMode(&*pTex, blendMode);
+    }
+    else
+    {
+        SDL_SetTextureAlphaMod(&*pTex, b == BlendMode::NONE ? 255 : c.a);
+
+        static const std::map<BlendMode, SDL_BlendMode> BlendMap
+        {
+            { BlendMode::NONE, SDL_BLENDMODE_BLEND },  // Do not use SDL_BLENDMODE_NONE, set alpha=255 instead
+            { BlendMode::ALPHA, SDL_BLENDMODE_BLEND },
+            { BlendMode::ADD, SDL_BLENDMODE_ADD },
+            { BlendMode::MOD, SDL_BLENDMODE_MOD },
+
+            { BlendMode::SUBTRACT, SDL_ComposeCustomBlendMode(
+                SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_REV_SUBTRACT,
+                SDL_BLENDFACTOR_ONE_MINUS_DST_ALPHA, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD) },
+
+            { BlendMode::INVERT, SDL_ComposeCustomBlendMode(
+                SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_REV_SUBTRACT,
+                SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD) },
+
+            { BlendMode::MULTIPLY_WITH_ALPHA, SDL_ComposeCustomBlendMode(
+                SDL_BLENDFACTOR_DST_COLOR, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD,
+                SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD)} // This blend mode has issues with src alpha 0%
+        };
+
+        if (BlendMap.find(b) != BlendMap.end())
+        {
+            SDL_SetTextureBlendMode(&*pTex, BlendMap.at(b));
+        }
+    }
+
+    SDL_RenderCopyEx(
         gFrameRenderer,
         &*pTex,
         srcRect, &dstRect,
@@ -380,7 +406,7 @@ TextureFull::TextureFull(const Color& c): Texture(nullptr)
 {
     pushAndWaitMainThreadTask<void>([this, &c]()
         {
-            auto surface = SDL_CreateRGBSurface(0, 1, 1, 24, 0xff, 0xff, 0xff, 0xff);   // needs to be 24bit
+            auto surface = SDL_CreateRGBSurfaceWithFormat(0, 1, 1, 24, SDL_PIXELFORMAT_RGB24);
             _texRect = { 0,0,1,1 };
             SDL_FillRect(&*surface, &_texRect, SDL_MapRGBA(surface->format, c.r, c.g, c.b, c.a));
             _pTexture = std::shared_ptr<SDL_Texture>(
@@ -403,26 +429,54 @@ void TextureFull::draw(const Rect& ignored, Rect dstRect,
     const Color c, const BlendMode b, const bool filter, const double angle) const
 {
 	SDL_SetTextureColorMod(&*_pTexture, c.r, c.g, c.b);
-	SDL_SetTextureAlphaMod(&*_pTexture, c.a);
-
-    static const std::map<BlendMode, SDL_BlendMode> BlendMap
-    {
-        { BlendMode::NONE                       , SDL_BLENDMODE_BLEND      },  // ???
-        { BlendMode::ALPHA                      , SDL_BLENDMODE_BLEND      },
-        { BlendMode::ADD                        , SDL_BLENDMODE_ADD        },
-        { BlendMode::MULTIPLY                   , SDL_BLENDMODE_MOD        },
-        { BlendMode::SUBTRACT                   , SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_SRC_COLOR, SDL_BLENDFACTOR_DST_COLOR, SDL_BLENDOPERATION_SUBTRACT, SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_DST_ALPHA, SDL_BLENDOPERATION_ADD)  },
-        { BlendMode::ANTICOLOR                  , SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE_MINUS_SRC_COLOR, SDL_BLENDFACTOR_DST_COLOR, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_DST_ALPHA, SDL_BLENDOPERATION_ADD)  },
-    };
-
-    SDL_BlendMode sb = SDL_BLENDMODE_INVALID;
-    if (BlendMap.find(b) != BlendMap.end()) SDL_SetTextureBlendMode(&*_pTexture, BlendMap.at(b));
 
     int ssLevel = graphics_get_supersample_level();
     dstRect.x *= ssLevel;
     dstRect.y *= ssLevel;
     dstRect.w *= ssLevel;
     dstRect.h *= ssLevel;
+
+    SDL_SetTextureScaleMode(&*_pTexture, filter ? SDL_ScaleModeBest : SDL_ScaleModeNearest);
+
+    if (b == BlendMode::MULTIPLY_INVERTED_BACKGROUND)
+    {
+        if (c.a <= 1) return;   // do not draw
+
+        const SDL_BlendMode blendMode = SDL_ComposeCustomBlendMode(
+            SDL_BLENDFACTOR_DST_COLOR, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD,
+            SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD);
+
+        SDL_SetTextureBlendMode(&*_pTexture, blendMode);
+    }
+    else
+    {
+        SDL_SetTextureAlphaMod(&*_pTexture, b == BlendMode::NONE ? 255 : c.a);
+
+        static const std::map<BlendMode, SDL_BlendMode> BlendMap
+        {
+            { BlendMode::NONE, SDL_BLENDMODE_BLEND },  // Do not use SDL_BLENDMODE_NONE, set alpha=255 instead
+            { BlendMode::ALPHA, SDL_BLENDMODE_BLEND },
+            { BlendMode::ADD, SDL_BLENDMODE_ADD },
+            { BlendMode::MOD, SDL_BLENDMODE_MOD },
+
+            { BlendMode::SUBTRACT, SDL_ComposeCustomBlendMode(
+                SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_REV_SUBTRACT,
+                SDL_BLENDFACTOR_ONE_MINUS_DST_ALPHA, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD) },
+
+            { BlendMode::INVERT, SDL_ComposeCustomBlendMode(
+                SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_REV_SUBTRACT,
+                SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD) },
+
+            { BlendMode::MULTIPLY_WITH_ALPHA, SDL_ComposeCustomBlendMode(
+                SDL_BLENDFACTOR_DST_COLOR, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD,
+                SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD)}
+        };
+
+        if (BlendMap.find(b) != BlendMap.end())
+        {
+            SDL_SetTextureBlendMode(&*_pTexture, BlendMap.at(b));
+        }
+    }
 
     SDL_RenderCopyEx(
         gFrameRenderer,

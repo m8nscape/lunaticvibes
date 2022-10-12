@@ -118,17 +118,17 @@ target_precompile_headers(gamelib REUSE_FROM common)
 
 #############################################################
 
-add_executable(game game.cpp)
-target_link_libraries(game PRIVATE gamelib)
-set_target_properties(game PROPERTIES
+add_executable(LunaticVibes game.cpp)
+target_link_libraries(LunaticVibes PRIVATE gamelib)
+set_target_properties(LunaticVibes PROPERTIES
     CXX_STANDARD 17
 )
 
-add_custom_command(TARGET game POST_BUILD
+add_custom_command(TARGET LunaticVibes POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     $<TARGET_FILE:fmod>
     $<$<BOOL:${USE_BUNDLED_SQLITE3}>:$<TARGET_FILE:SQLite3>>
-    $<TARGET_FILE_DIR:game>
+    $<TARGET_FILE_DIR:LunaticVibes>
 )
 
 if (WIN32)
@@ -138,15 +138,15 @@ if (WIN32)
         set(MINGW_LIB_DIR ${CMAKE_SOURCE_DIR}/ext/mingw/lib/x86)
     endif()
     file(GLOB MINGW_LIB_DLLS ${MINGW_LIB_DIR}/*.dll)
-    add_custom_command(TARGET game POST_BUILD
+    add_custom_command(TARGET LunaticVibes POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         ${MINGW_LIB_DLLS}
-        $<TARGET_FILE_DIR:game>
+        $<TARGET_FILE_DIR:LunaticVibes>
     )
 endif()
 
 if (${GRAPHICS_BACKEND} STREQUAL SDL2)
-    add_custom_command(TARGET game POST_BUILD
+    add_custom_command(TARGET LunaticVibes POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:SDL2>
         $<TARGET_FILE:SDL2_image>
@@ -157,12 +157,12 @@ if (${GRAPHICS_BACKEND} STREQUAL SDL2)
         $<TARGET_FILE:SDL2_ttf>
         $<TARGET_FILE:SDL2_ttf::libfreetype>
         $<TARGET_FILE:SDL2_ttf::zlib>
-        $<TARGET_FILE_DIR:game>
+        $<TARGET_FILE_DIR:LunaticVibes>
     )
 endif()
 
 if (${VIDEO_ENABLED})
-    add_custom_command(TARGET game POST_BUILD
+    add_custom_command(TARGET LunaticVibes POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:libavcodec>
         $<TARGET_FILE:libavdevice>
@@ -171,6 +171,6 @@ if (${VIDEO_ENABLED})
         $<TARGET_FILE:libswresample>
         $<TARGET_FILE:libavutil>
         $<TARGET_FILE:libswscale>
-        $<TARGET_FILE_DIR:game>
+        $<TARGET_FILE_DIR:LunaticVibes>
     )
 endif()

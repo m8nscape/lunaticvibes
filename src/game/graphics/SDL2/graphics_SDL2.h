@@ -61,12 +61,11 @@ enum class BlendMode
     NONE,
     ALPHA,
     ADD,
-    MULTIPLY,
+    MOD,
     SUBTRACT,
-    ANTICOLOR,
-    //MULTIPLY_ANTI_BACKGROUND,
-    //MULTIPLY_WITH_ALPHA,
-    //XOR,
+    INVERT,
+    MULTIPLY_INVERTED_BACKGROUND,
+    MULTIPLY_WITH_ALPHA,
 };
 
 ////////////////////////////////////////////////////////////////////////////////

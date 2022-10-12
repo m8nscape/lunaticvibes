@@ -479,6 +479,22 @@ static bool flipSideFlag = false;
         }
     };
 
+    BlendMode convertBlend(int blend)
+    {
+        static const std::map<int, BlendMode> blendMap =
+        {
+            {0, BlendMode::NONE},
+            {1, BlendMode::ALPHA},
+            {2, BlendMode::ADD},
+            {3, BlendMode::SUBTRACT},
+            {4, BlendMode::MOD},
+            {6, BlendMode::ADD},    // LR2: XOR but implemented as ADD
+            {9, BlendMode::MULTIPLY_INVERTED_BACKGROUND},
+            {10, BlendMode::INVERT},
+            {11, BlendMode::MULTIPLY_WITH_ALPHA},
+        };
+        return (blendMap.find(blend) != blendMap.end()) ? blendMap.at(blend) : BlendMode::ALPHA;
+    }
 }
 
 std::map<std::string, pTexture> SkinLR2::LR2SkinImageCache;
@@ -743,7 +759,8 @@ int SkinLR2::IMAGE()
         else
         {
             Image img = Image(pathFile.u8string().c_str());
-            if (info.hasTransparentColor) img.setTransparentColorRGB(info.transparentColor);
+            if (info.hasTransparentColor)
+                img.setTransparentColorRGB(info.transparentColor);
             _textureNameMap[textureMapKey] = std::make_shared<Texture>(img);
         }
 
@@ -2386,7 +2403,7 @@ bool SkinLR2::DST()
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
-            (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
+            lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
         //e->pushKeyFrame(time, x, y, w, h, acc, r, g, b, a, blend, filter, angle, center);
         //LOG_DEBUG << "[Skin] " << raw << ": Set sprite Keyframe (time: " << d.time << ")";
 
@@ -2423,12 +2440,12 @@ ParseRet SkinLR2::DST_NOTE()
         /*
         e->pNote->clearKeyFrames();
         e->pNote->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
-            (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center)  } });
+            lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center)  } });
             */
         
         drawQueue.push_back({ e, dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]), {} });
         e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
-            (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
+            lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
         e->setLoopTime(0);
         //e->pushKeyFrame(time, x, y, w, h, acc, r, g, b, a, blend, filter, angle, center);
         //LOG_DEBUG << "[Skin] " << raw << ": Set Lane sprite Keyframe (time: " << d.time << ")";
@@ -2489,11 +2506,11 @@ ParseRet SkinLR2::DST_LINE()
 
     p->pNote->clearKeyFrames();
     p->pNote->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
-        (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
+        lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
 
     drawQueue.push_back({ e, dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]), {} });
     e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
-        (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
+        lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
     e->setLoopTime(0);
     //e->pushKeyFrame(time, x, y, w, h, acc, r, g, b, a, blend, filter, angle, center);
     //LOG_DEBUG << "[Skin] " << raw << ": Set Lane sprite (Barline) Keyframe (time: " << d.time << ")";
@@ -2547,7 +2564,7 @@ ParseRet SkinLR2::DST_BAR_BODY()
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
-            (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
+            lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
     }
 
     _barSprites[idx]->pushPartsOrder(bodyOn ? BarPartsType::BODY_ON : BarPartsType::BODY_OFF);
@@ -2580,7 +2597,7 @@ ParseRet SkinLR2::DST_BAR_FLASH()
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
-            (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
+            lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
 
         bar->pushPartsOrder(BarPartsType::FLASH);
     }
@@ -2615,7 +2632,7 @@ ParseRet SkinLR2::DST_BAR_LEVEL()
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
-            (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
+            lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
 
         bar->pushPartsOrder(BarPartsType::LEVEL);
     }
@@ -2651,7 +2668,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL_MYLAMP()
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
-            (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
+            lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
 
         bar->pushPartsOrder(BarPartsType::MYLAMP);
     }
@@ -2685,7 +2702,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL_RIVALLAMP()
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
-            (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
+            lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
 
         bar->pushPartsOrder(BarPartsType::RIVALLAMP);
     }
@@ -2720,7 +2737,7 @@ ParseRet SkinLR2::DST_BAR_LAMP()
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
-            (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
+            lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
 
         bar->pushPartsOrder(BarPartsType::LAMP);
     }
@@ -2755,7 +2772,7 @@ ParseRet SkinLR2::DST_BAR_TITLE()
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
-            (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
+            lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
 
         bar->pushPartsOrder(BarPartsType::TITLE);
     }
@@ -2790,7 +2807,7 @@ ParseRet SkinLR2::DST_BAR_RANK()
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
-            (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
+            lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
 
         bar->pushPartsOrder(BarPartsType::RANK);
     }
@@ -2825,7 +2842,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL()
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
-            (BlendMode)d.blend, !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
+            lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
 
         bar->pushPartsOrder(BarPartsType::RIVAL);
     }

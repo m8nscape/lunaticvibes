@@ -39,18 +39,16 @@ int graphics_init()
         title += ' ';
         title += PROJECT_VERSION;
 
-        /*
-        for (int i = 0; i < SDL_GetNumRenderDrivers(); ++i)
-        {
-            SDL_RendererInfo rendererInfo = {};
-            SDL_GetRenderDriverInfo(i, &rendererInfo);
-            LOG_INFO << rendererInfo.name;
-        }
-        */
-        SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
+#if _WIN32
+        // Direct3D9
+        SDL_SetHint(SDL_HINT_RENDER_DRIVER, "direct3d");
+#else
+        //SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
+#endif
+
         SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
 
-        Uint32 flags = SDL_WINDOW_OPENGL;
+        Uint32 flags = SDL_WINDOW_HIDDEN;   // window created with opengles2 will destroy itself when creating Renderer, resulting in flashes
 #ifdef _DEBUG
         flags |= SDL_WINDOW_RESIZABLE;
 #endif
@@ -89,14 +87,6 @@ int graphics_init()
             maxFPS = 30;
         graphics_set_maxfps(maxFPS);
 
-        SDL_SysWMinfo wmInfo;
-        SDL_VERSION(&wmInfo.version);
-        SDL_GetWindowWMInfo(gFrameWindow, &wmInfo);
-
-#if _WIN32 || _WIN64
-        setWindowHandle((void*)&wmInfo.info.win.window);
-#endif
-
         if (ConfigMgr::get("V", cfg::V_VSYNC, false))
         {
             gFrameRenderer = SDL_CreateRenderer(
@@ -114,6 +104,16 @@ int graphics_init()
             LOG_ERROR << "[SDL2] Init renderer ERROR! " << SDL_GetError();
             return -2;
         }
+
+        SDL_ShowWindow(gFrameWindow);
+
+        SDL_SysWMinfo wmInfo;
+        SDL_VERSION(&wmInfo.version);
+        SDL_GetWindowWMInfo(gFrameWindow, &wmInfo);
+
+#if _WIN32 || _WIN64
+        setWindowHandle((void*)&wmInfo.info.win.window);
+#endif
 
         gInternalRenderTarget = SDL_CreateTexture(gFrameRenderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_TARGET,
             3840, 2160);
@@ -261,8 +261,12 @@ void graphics_resize_window(int x, int y)
 
 void graphics_change_vsync(int mode)
 {
+#if _WIN32
+    SDL_RenderSetVSync(gFrameRenderer, mode);
+#else
     // codes below should work since we are explicitly indicated to use OpenGL backend
     SDL_GL_SetSwapInterval(mode == 2 ? -1 : mode);
+#endif
 }
 
 static int superSampleLevel = 1;

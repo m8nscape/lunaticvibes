@@ -40,7 +40,7 @@ namespace LR2SkinDef
 
         XOR = 6,
 
-        MULTIPLY_ANTI_BACKGROUND = 9,
+        MULTIPLY_INVERTED_BACKGROUND = 9,
         ANTI_COLOR = 10,
         MULTIPLY_WITH_ALPHA = 11
 
