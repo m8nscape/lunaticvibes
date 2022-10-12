@@ -381,39 +381,58 @@ void RulesetBMS::_judgePress(NoteLaneCategory cat, NoteLaneIndex idx, HitableNot
         case judgeArea::LATE_PERFECT:
             updateHit(t, idx, RulesetBMS::JudgeType::PERFECT, slot);
             pushReplayCommand = true;
+            note.hit = true;
+            note.expired = true;
+            _basic.notesExpired++;
             break;
 
         case judgeArea::EARLY_GREAT:
             _basic.fast++;
             updateHit(t, idx, RulesetBMS::JudgeType::GREAT, slot);
             pushReplayCommand = true;
+            note.hit = true;
+            note.expired = true;
+            _basic.notesExpired++;
             break;
         case judgeArea::LATE_GREAT:
             _basic.slow++;
             updateHit(t, idx, RulesetBMS::JudgeType::GREAT, slot);
             pushReplayCommand = true;
+            note.hit = true;
+            note.expired = true;
+            _basic.notesExpired++;
             break;
 
         case judgeArea::EARLY_GOOD:
             _basic.fast++;
             updateHit(t, idx, RulesetBMS::JudgeType::GOOD, slot);
             pushReplayCommand = true;
+            note.hit = true;
+            note.expired = true;
+            _basic.notesExpired++;
             break;
         case judgeArea::LATE_GOOD:
             _basic.slow++;
             updateHit(t, idx, RulesetBMS::JudgeType::GOOD, slot);
             pushReplayCommand = true;
+            note.hit = true;
+            note.expired = true;
+            _basic.notesExpired++;
             break;
 
         case judgeArea::EARLY_BAD:
             _basic.fast++;
             updateMiss(t, idx, RulesetBMS::JudgeType::BAD, slot);
             pushReplayCommand = true;
+            note.expired = true;
+            _basic.notesExpired++;
             break;
         case judgeArea::LATE_BAD:
             _basic.slow++;
             updateMiss(t, idx, RulesetBMS::JudgeType::BAD, slot);
             pushReplayCommand = true;
+            note.expired = true;
+            _basic.notesExpired++;
             break;
 
         case judgeArea::EARLY_BPOOR:
@@ -421,11 +440,6 @@ void RulesetBMS::_judgePress(NoteLaneCategory cat, NoteLaneIndex idx, HitableNot
             updateMiss(t, idx, RulesetBMS::JudgeType::BPOOR, slot);
             pushReplayCommand = true;
             break;
-        }
-        if (judge.area > judgeArea::EARLY_BPOOR)
-        {
-            note.hit = true;
-            _basic.notesExpired++;
         }
         break;
 
@@ -446,6 +460,7 @@ void RulesetBMS::_judgePress(NoteLaneCategory cat, NoteLaneIndex idx, HitableNot
             case judgeArea::LATE_GOOD:
                 _lnJudge[idx] = judge.area;
                 note.hit = true;
+                note.expired = true;
                 if (showJudge && _bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
                     State::set(_bombLNTimerMap->at(idx), t.norm());
                 break;
@@ -454,14 +469,14 @@ void RulesetBMS::_judgePress(NoteLaneCategory cat, NoteLaneIndex idx, HitableNot
                 _basic.fast++;
                 _lnJudge[idx] = judge.area;
                 updateMiss(t, idx, RulesetBMS::JudgeType::BAD, slot);
-                note.hit = true;
+                note.expired = true;
                 pushReplayCommand = true;
                 break;
             case judgeArea::LATE_BAD:
                 _basic.slow++;
                 _lnJudge[idx] = judge.area;
                 updateMiss(t, idx, RulesetBMS::JudgeType::BAD, slot);
-                note.hit = true;
+                note.expired = true;
                 pushReplayCommand = true;
                 break;
 
@@ -476,7 +491,7 @@ void RulesetBMS::_judgePress(NoteLaneCategory cat, NoteLaneIndex idx, HitableNot
         break;
     }
 
-    if (note.hit || judge.area == judgeArea::EARLY_BPOOR)
+    if (note.expired || judge.area == judgeArea::EARLY_BPOOR)
     {
         _lastNoteJudge = judge;
     }
@@ -506,6 +521,7 @@ void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote
             judge.area == judgeArea::LATE_PERFECT && judge.time < 2)
         {
             note.hit = true;
+            note.expired = true;
             _updateHp(-0.01 * note.dvalue / 2);
 
             // bpoor + 1
@@ -564,6 +580,7 @@ void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote
                 }
                 updateHit(t, idx, JudgeType::PERFECT, slot);
                 note.hit = true;
+                note.expired = true;
                 _basic.notesExpired++;
                 _lnJudge[idx] = RulesetBMS::judgeArea::NOTHING;
                 pushReplayCommand = true;
@@ -626,6 +643,7 @@ void RulesetBMS::_judgeRelease(NoteLaneCategory cat, NoteLaneIndex idx, HitableN
                 else
                     updateHit(t, idx, JudgeType::PERFECT, slot);
                 note.hit = true;
+                note.expired = true;
                 _basic.notesExpired++;
                 _lnJudge[idx] = RulesetBMS::judgeArea::NOTHING;
                 pushReplayCommand = true;
@@ -638,6 +656,7 @@ void RulesetBMS::_judgeRelease(NoteLaneCategory cat, NoteLaneIndex idx, HitableN
                 else
                     updateHit(t, idx, JudgeType::GREAT, slot);
                 note.hit = true;
+                note.expired = true;
                 _basic.notesExpired++;
                 _lnJudge[idx] = RulesetBMS::judgeArea::NOTHING;
                 pushReplayCommand = true;
@@ -647,6 +666,7 @@ void RulesetBMS::_judgeRelease(NoteLaneCategory cat, NoteLaneIndex idx, HitableN
                 _basic.fast++;
                 updateHit(t, idx, JudgeType::GOOD, slot);
                 note.hit = true;
+                note.expired = true;
                 _basic.notesExpired++;
                 _lnJudge[idx] = RulesetBMS::judgeArea::NOTHING;
                 pushReplayCommand = true;
@@ -656,14 +676,14 @@ void RulesetBMS::_judgeRelease(NoteLaneCategory cat, NoteLaneIndex idx, HitableN
             default:
                 _basic.fast++;
                 updateMiss(t, idx, JudgeType::BAD, slot);
-                note.hit = true;
+                note.expired = true;
                 _basic.notesExpired++;
                 _lnJudge[idx] = RulesetBMS::judgeArea::NOTHING;
                 pushReplayCommand = true;
                 break;
             }
 
-            if (note.hit)
+            if (note.expired)
             {
                 _lastNoteJudge = judge;
             }
@@ -855,7 +875,7 @@ void RulesetBMS::judgeNotePress(Input::Pad k, const Time& t, const Time& rt, int
     if (idx1 != _ && !_chart->isLastNote(NoteLaneCategory::Note, idx1))
     {
         auto itNote = _chart->incomingNote(NoteLaneCategory::Note, idx1);
-        while (!_chart->isLastNote(NoteLaneCategory::Note, idx1, itNote) && itNote->hit)
+        while (!_chart->isLastNote(NoteLaneCategory::Note, idx1, itNote) && itNote->expired)
             ++itNote;
         if (!_chart->isLastNote(NoteLaneCategory::Note, idx1, itNote))
             pNote1 = &*itNote;
@@ -865,19 +885,19 @@ void RulesetBMS::judgeNotePress(Input::Pad k, const Time& t, const Time& rt, int
     if (idx2 != _ && !_chart->isLastNote(NoteLaneCategory::LN, idx2))
     {
         auto itNote = _chart->incomingNote(NoteLaneCategory::LN, idx2);
-        while (!_chart->isLastNote(NoteLaneCategory::LN, idx2, itNote) && itNote->hit)
+        while (!_chart->isLastNote(NoteLaneCategory::LN, idx2, itNote) && itNote->expired)
             ++itNote;
         if (!_chart->isLastNote(NoteLaneCategory::LN, idx2, itNote))
             pNote2 = &*itNote;
     }
 
     JudgeRes j;
-    if (pNote1 && (pNote2 == nullptr || pNote1->time < pNote2->time) && !pNote1->hit)
+    if (pNote1 && (pNote2 == nullptr || pNote1->time < pNote2->time) && !pNote1->expired)
     {
         j = _judge(*pNote1, rt);
         _judgePress(NoteLaneCategory::Note, idx1, *pNote1, j, t, slot);
     }
-    else if (pNote2 && !pNote2->hit)
+    else if (pNote2 && !pNote2->expired)
     {
         j = _judge(*pNote2, rt);
         _judgePress(NoteLaneCategory::LN, idx2, *pNote2, j, t, slot);
@@ -917,7 +937,7 @@ void RulesetBMS::judgeNoteRelease(Input::Pad k, const Time& t, const Time& rt, i
         auto itNote = _chart->incomingNote(NoteLaneCategory::LN, idx);
         while (!_chart->isLastNote(NoteLaneCategory::LN, idx, itNote))
         {
-            if (!itNote->hit)
+            if (!itNote->expired)
             {
                 auto j = _judge(*itNote, rt);
                 _judgeRelease(NoteLaneCategory::LN, idx, *itNote, j, t, slot);
@@ -1059,12 +1079,12 @@ void RulesetBMS::update(const Time& t)
             if (idx != NoteLaneIndex::_)
             {
                 auto itNote = _chart->incomingNote(NoteLaneCategory::Note, idx);
-                while (!_chart->isLastNote(NoteLaneCategory::Note, idx, itNote) && !itNote->hit)
+                while (!_chart->isLastNote(NoteLaneCategory::Note, idx, itNote) && !itNote->expired)
                 {
                     Time hitTime = (!scratch || _judgeScratch) ? judgeTime[(size_t)_judgeDifficulty].BAD : 0;
                     if (rt - itNote->time >= hitTime)
                     {
-                        itNote->hit = true;
+                        itNote->expired = true;
 
                         if (doJudge && (!scratch || _judgeScratch))
                         {
@@ -1095,7 +1115,7 @@ void RulesetBMS::update(const Time& t)
             if (idx != NoteLaneIndex::_)
             {
                 auto itNote = _chart->incomingNote(NoteLaneCategory::LN, idx);
-                while (!_chart->isLastNote(NoteLaneCategory::LN, idx, itNote) && !itNote->hit)
+                while (!_chart->isLastNote(NoteLaneCategory::LN, idx, itNote) && !itNote->expired)
                 {
                     if (!(itNote->flags & Note::LN_TAIL))
                     {
@@ -1110,7 +1130,7 @@ void RulesetBMS::update(const Time& t)
                             }
                             if (rt >= hitTime)
                             {
-                                itNote->hit = true;
+                                itNote->expired = true;
 
                                 if (!scratch || _judgeScratch)
                                 {
@@ -1137,7 +1157,7 @@ void RulesetBMS::update(const Time& t)
                     {
                         if (rt >= itNote->time)
                         {
-                            itNote->hit = true;
+                            itNote->expired = true;
 
                             if (!scratch || _judgeScratch)
                             {
@@ -1159,9 +1179,9 @@ void RulesetBMS::update(const Time& t)
             {
                 const Time& hitTime = -judgeTime[(size_t)_judgeDifficulty].BAD;
                 auto itNote = _chart->incomingNote(NoteLaneCategory::Invs, idx);
-                while (!_chart->isLastNote(NoteLaneCategory::Invs, idx, itNote) && !itNote->hit && rt - itNote->time >= hitTime)
+                while (!_chart->isLastNote(NoteLaneCategory::Invs, idx, itNote) && !itNote->expired && rt - itNote->time >= hitTime)
                 {
-                    itNote->hit = true;
+                    itNote->expired = true;
                     itNote++;
                 }
             }
@@ -1170,9 +1190,9 @@ void RulesetBMS::update(const Time& t)
             if (idx != NoteLaneIndex::_)
             {
                 auto itNote = _chart->incomingNote(NoteLaneCategory::Mine, idx);
-                while (!_chart->isLastNote(NoteLaneCategory::Mine, idx, itNote) && !itNote->hit && rt >= itNote->time)
+                while (!_chart->isLastNote(NoteLaneCategory::Mine, idx, itNote) && !itNote->expired && rt >= itNote->time)
                 {
-                    itNote->hit = true;
+                    itNote->expired = true;
                     itNote++;
                 }
             }

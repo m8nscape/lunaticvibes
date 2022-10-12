@@ -52,7 +52,10 @@ void ChartObjectBase::reset()
     // reset notes
     for (auto& ch : _noteLists)
         for (auto& n : ch)
+        {
             n.hit = false;
+            n.expired = false;
+        }
 
     // reset iterators
     resetNoteListsIterators();
@@ -225,7 +228,7 @@ void ChartObjectBase::update(const Time& rt)
         for (NoteLaneIndex idx = Sc1; idx < NOTELANEINDEX_COUNT; ++*((size_t*)&idx))
         {
             auto it = incomingNote(cat, idx);
-            while (!isLastNote(cat, idx, it) && vt >= it->time && it->hit)
+            while (!isLastNote(cat, idx, it) && vt >= it->time && it->expired)
             {
                 noteExpired.push_back(*it);
                 it = nextNote(cat, idx);
@@ -239,14 +242,14 @@ void ChartObjectBase::update(const Time& rt)
         auto it = incomingNote(cat, idx);
         while (!isLastNote(cat, idx, it) && vt >= it->time)
         {
-            it->hit = true;
+            it->expired = true;
             it = nextNote(cat, idx);
         }
         idx = (NoteLaneIndex)EXTRA_BARLINE_2P;
         it = incomingNote(cat, idx);
         while (!isLastNote(cat, idx, it) && vt >= it->time)
         {
-            it->hit = true;
+            it->expired = true;
             it = nextNote(cat, idx);
         }
     }

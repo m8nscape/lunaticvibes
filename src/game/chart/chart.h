@@ -10,6 +10,7 @@
 
 struct HitableNote: Note
 {
+    bool expired = false;
     bool hit = false;
 };
 

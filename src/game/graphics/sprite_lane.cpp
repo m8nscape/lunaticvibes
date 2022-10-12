@@ -185,7 +185,7 @@ void SpriteLaneVertical::draw() const
 		for (const auto& r : _outRect)
 		{
 			pNote->_pTexture->draw(
-				pNote->_texRect[pNote->_selectionIdx], 
+				pNote->_texRect[pNote->_selectionIdx * pNote->_animFrames + pNote->_currAnimFrame],
 				r,
 				_current.color,
 				_current.blend, 
@@ -272,6 +272,8 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 	if (!pNote) return;
 	pNote->update(t);
 
+	if (pNoteTail) pNoteTail->update(t);
+
 	int lift = 0;
 	if (playerSlot == PLAYER_SLOT_TARGET && gPlayContext.isBattle)
 	{
@@ -292,6 +294,37 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 		// 120BPM with 1.0x HS is 2000ms (500ms/beat, green number 1200)
 		int head_y_actual = c.y + c.h - lift;
 		auto it = pChart->incomingNote(_category, _index);
+
+		if (!pChart->isLastNote(_category, _index, it))
+		{
+			// set hit status based on the first LN
+			headExpired = false;
+			tailExpired = false;
+			headHit = false;
+			tailHit = false;
+			if (it->flags & Note::LN_TAIL)
+			{
+				auto itHead = it;
+				itHead--;
+				headExpired = itHead->expired;
+				headHit = itHead->hit;
+				tailExpired = it->expired;
+				tailHit = it->hit;
+			}
+			else
+			{
+				auto itTail = it;
+				itTail++;
+				headExpired = it->expired;
+				headHit = it->hit;
+				if (!pChart->isLastNote(_category, _index, itTail))
+				{
+					tailExpired = itTail->expired;
+					tailHit = itTail->hit;
+				}
+			}
+		}
+
 		while (!pChart->isLastNote(_category, _index, it) && head_y_actual >= 0)
 		{
 			int head_y = c.y + c.h - lift;
@@ -347,6 +380,37 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 		// 150BPM with 1.0x HS is 1600ms (400ms/beat, green number 960)
 		int head_y_actual = c.y + c.h - lift;
 		auto it = pChart->incomingNote(_category, _index);
+
+		if (!pChart->isLastNote(_category, _index, it))
+		{
+			// set hit status based on the first LN
+			headExpired = false;
+			tailExpired = false;
+			headHit = false;
+			tailHit = false;
+			if (it->flags & Note::LN_TAIL)
+			{
+				auto itHead = it;
+				itHead--;
+				headExpired = itHead->expired;
+				headHit = itHead->hit;
+				tailExpired = it->expired;
+				tailHit = it->hit;
+			}
+			else
+			{
+				auto itTail = it;
+				itTail++;
+				headExpired = it->expired;
+				headHit = it->hit;
+				if (!pChart->isLastNote(_category, _index, itTail))
+				{
+					tailExpired = itTail->expired;
+					tailHit = itTail->hit;
+				}
+			}
+		}
+
 		while (!pChart->isLastNote(_category, _index, it) && head_y_actual >= 0)
 		{
 			int head_y = c.y + c.h - lift;
@@ -385,6 +449,19 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 			_outRectTail.push_front({ c.x, tail_y, c.w, -c.h });
 		}
 	}
+
+	if (pNoteBody)
+	{
+		pNoteBody->update(t);
+		if (pNoteBody->_animFrames > 1 && pNoteBody->_currAnimFrame == 0)
+		{
+			pNoteBody->_currAnimFrame = 1;
+		}
+		if ((headExpired && !headHit) || (tailExpired && !tailHit) || !(headHit && !tailHit))
+		{
+			pNoteBody->_currAnimFrame = 0;
+		}
+	}
 }
 
 void SpriteLaneVerticalLN::draw() const
@@ -392,16 +469,36 @@ void SpriteLaneVerticalLN::draw() const
 	// body
 	if (pNoteBody && pNoteBody->_pTexture && pNoteBody->_pTexture->_loaded)
 	{
-		for (const auto& r : _outRectBody)
+		Color colorMiss = _current.color;
+		colorMiss.r *= 0.5;
+		colorMiss.g *= 0.5;
+		colorMiss.b *= 0.5;
+
+		for (auto it = _outRectBody.begin(); it != _outRectBody.end(); ++it)
 		{
-			pNoteBody->_pTexture->draw(
-				pNoteBody->_texRect[pNoteBody->_selectionIdx],
-				r,
-				_current.color,
-				_current.blend,
-				_current.filter,
-				_current.angle,
-				_current.center);
+			auto itNext = it;
+			if (++itNext == _outRectBody.end())
+			{
+				pNoteBody->_pTexture->draw(
+					pNoteBody->_texRect[pNoteBody->_selectionIdx * pNoteBody->_animFrames + pNoteBody->_currAnimFrame],
+					*it,
+					((headExpired && !headHit) || (tailExpired && !tailHit)) ? colorMiss : _current.color,
+					_current.blend,
+					_current.filter,
+					_current.angle,
+					_current.center);
+			}
+			else
+			{
+				pNoteBody->_pTexture->draw(
+					pNoteBody->_texRect[pNoteBody->_selectionIdx],
+					*it,
+					_current.color,
+					_current.blend,
+					_current.filter,
+					_current.angle,
+					_current.center);
+			}
 		}
 	}
 
@@ -411,7 +508,7 @@ void SpriteLaneVerticalLN::draw() const
 		for (const auto& r : _outRect)
 		{
 			pNote->_pTexture->draw(
-				pNote->_texRect[pNote->_selectionIdx],
+				pNote->_texRect[pNote->_selectionIdx * pNote->_animFrames + pNote->_currAnimFrame],
 				r,
 				_current.color,
 				_current.blend,
@@ -427,7 +524,7 @@ void SpriteLaneVerticalLN::draw() const
 		for (const auto& r : _outRectTail)
 		{
 			pNoteTail->_pTexture->draw(
-				pNoteTail->_texRect[pNoteTail->_selectionIdx],
+				pNoteTail->_texRect[pNoteTail->_selectionIdx * pNoteTail->_animFrames + pNoteTail->_currAnimFrame],
 				r,
 				_current.color,
 				_current.blend,

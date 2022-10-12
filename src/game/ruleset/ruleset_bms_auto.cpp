@@ -141,9 +141,10 @@ void RulesetBMSAuto::update(const Time& t)
             if (idx != NoteLaneIndex::_)
             {
                 auto itNote = _chart->incomingNote(NoteLaneCategory::Note, idx);
-                while (!_chart->isLastNote(NoteLaneCategory::Note, idx, itNote) && !itNote->hit && rt >= itNote->time)
+                while (!_chart->isLastNote(NoteLaneCategory::Note, idx, itNote) && !itNote->expired && rt >= itNote->time)
                 {
                     itNote->hit = true;
+                    itNote->expired = true;
 
                     if (!scratch || _judgeScratch)
                     {
@@ -179,14 +180,15 @@ void RulesetBMSAuto::update(const Time& t)
             if (idx != NoteLaneIndex::_)
             {
                 auto itNote = _chart->incomingNote(NoteLaneCategory::LN, idx);
-                while (!_chart->isLastNote(NoteLaneCategory::LN, idx, itNote) && !itNote->hit)
+                while (!_chart->isLastNote(NoteLaneCategory::LN, idx, itNote) && !itNote->expired)
                 {
                     if (!(itNote->flags & Note::LN_TAIL))
                     {
                         const Time& hitTime = judgeTime[(size_t)_judgeDifficulty].BAD;
-                        if (!itNote->hit && rt >= itNote->time)
+                        if (!itNote->expired && rt >= itNote->time)
                         {
                             itNote->hit = true;
+                            itNote->expired = true;
 
                             if (!scratch || _judgeScratch)
                             {
@@ -222,6 +224,7 @@ void RulesetBMSAuto::update(const Time& t)
                         if (rt >= itNote->time)
                         {
                             itNote->hit = true;
+                            itNote->expired = true;
 
                             if (!scratch || _judgeScratch)
                             {
@@ -263,9 +266,10 @@ void RulesetBMSAuto::update(const Time& t)
             if (idx != NoteLaneIndex::_)
             {
                 auto itNote = _chart->incomingNote(NoteLaneCategory::Invs, idx);
-                while (!_chart->isLastNote(NoteLaneCategory::Invs, idx, itNote) && !itNote->hit && rt >= itNote->time)
+                while (!_chart->isLastNote(NoteLaneCategory::Invs, idx, itNote) && !itNote->expired && rt >= itNote->time)
                 {
                     itNote->hit = true;
+                    itNote->expired = true;
                     itNote++;
                 }
             }
@@ -274,9 +278,10 @@ void RulesetBMSAuto::update(const Time& t)
             if (idx != NoteLaneIndex::_)
             {
                 auto itNote = _chart->incomingNote(NoteLaneCategory::Mine, idx);
-                while (!_chart->isLastNote(NoteLaneCategory::Mine, idx, itNote) && !itNote->hit && rt >= itNote->time)
+                while (!_chart->isLastNote(NoteLaneCategory::Mine, idx, itNote) && !itNote->expired && rt >= itNote->time)
                 {
                     itNote->hit = true;
+                    itNote->expired = true;
                     itNote++;
                 }
             }

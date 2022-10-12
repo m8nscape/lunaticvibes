@@ -59,6 +59,10 @@ class SpriteLaneVerticalLN : public SpriteLaneVertical
 {
 protected:
     std::list<Rect> _outRectBody, _outRectTail;
+    bool headExpired = false;
+    bool tailExpired = false;
+    bool headHit = false;
+    bool tailHit = false;
 public:
     std::shared_ptr<SpriteAnimated> pNoteBody, pNoteTail;
 
