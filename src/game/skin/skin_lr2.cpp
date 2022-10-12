@@ -2211,11 +2211,13 @@ bool SkinLR2::DST()
             return false;
         }
 
+        std::shared_ptr<SpriteGlobal> psGlobal = nullptr;
         SpriteTypes sType = e->type();
         if (sType == SpriteTypes::GLOBAL)
         {
             // unpack stacking references
             auto p = std::reinterpret_pointer_cast<SpriteGlobal>(e);
+            psGlobal = p;
             decltype(e) enext = nullptr;
             do
             {
@@ -2332,15 +2334,13 @@ bool SkinLR2::DST()
 
             if (type == DefType::JUDGELINE)
             {
-                auto p = std::static_pointer_cast<SpriteLaneVertical>(e);
-                auto& [cat, idx] = p->getLane();
-                if (idx == chart::EXTRA_BARLINE_1P)
+                if (psGlobal->getIdx() == GLOBAL_SPRITE_IDX_1PJUDGELINE)
                 {
                     judgeLineRect1P = Rect(d.x, d.y, d.w, d.h);
                     if (d.w < 0) { judgeLineRect1P.x += d.w; judgeLineRect1P.w = -d.w; }
                     if (d.h < 0) { judgeLineRect1P.y += d.h; judgeLineRect1P.h = -d.h; }
                 }
-                else
+                else if (psGlobal->getIdx() == GLOBAL_SPRITE_IDX_2PJUDGELINE)
                 {
                     judgeLineRect2P = Rect(d.x, d.y, d.w, d.h);
                     if (d.w < 0) { judgeLineRect2P.x += d.w; judgeLineRect2P.w = -d.w; }
