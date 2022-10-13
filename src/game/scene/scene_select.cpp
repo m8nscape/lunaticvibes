@@ -2117,7 +2117,8 @@ void SceneSelect::updatePreview()
                                     else
                                         SoundMgr::loadNoteSample((chartDir / pWav), i);
                                 }
-                                gChartContext.isSampleLoaded = true;
+                                if (!(sceneEnding || previewState != PREVIEW_LOAD))
+                                    gChartContext.isSampleLoaded = true;
                             }
                         }
                         break;

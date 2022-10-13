@@ -892,7 +892,8 @@ void ScenePlay::loadChart()
 					SoundMgr::loadNoteSample((chartDir / pWav), i);
                 ++_wavLoaded;
             }
-            gChartContext.isSampleLoaded = true;
+            if (!sceneEnding)
+                gChartContext.isSampleLoaded = true;
         });
     }
     else
@@ -944,21 +945,27 @@ void ScenePlay::loadChart()
 
                     mapBgaFiles.emplace_back(i, fs::u8path(bmp));
 
+                    // load 8 bmps each frame
                     if (mapBgaFiles.size() >= 8)
                     {
                         pushAndWaitMainThreadTask<void>(loadBgaFiles);
                         mapBgaFiles.clear();
                     }
                 }
-                loadBgaFiles();
-                mapBgaFiles.clear();
-
-                if (_bmpLoaded > 0)
+                if (!sceneEnding)
                 {
-                    gPlayContext.bgaTexture->setLoaded();
+                    loadBgaFiles();
+                    mapBgaFiles.clear();
                 }
-                gPlayContext.bgaTexture->setSlotFromBMS(*std::reinterpret_pointer_cast<ChartObjectBMS>(gPlayContext.chartObj[PLAYER_SLOT_PLAYER]));
-                gChartContext.isBgaLoaded = true;
+                if (!sceneEnding)
+                {
+                    if (_bmpLoaded > 0)
+                    {
+                        gPlayContext.bgaTexture->setLoaded();
+                    }
+                    gPlayContext.bgaTexture->setSlotFromBMS(*std::reinterpret_pointer_cast<ChartObjectBMS>(gPlayContext.chartObj[PLAYER_SLOT_PLAYER]));
+                    gChartContext.isBgaLoaded = true;
+                }
                 });
         }
         else
