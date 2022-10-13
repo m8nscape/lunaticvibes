@@ -702,9 +702,9 @@ bool ScenePlay::createRuleset()
             double targetRateReal = 0.0;
             switch (State::get(IndexOption::PLAY_TARGET_TYPE))
             {
-            case Option::TARGET_A:   targetRateReal = 8.0 / 9; State::set(IndexText::TARGET_NAME, "RANK A");   break;
+            case Option::TARGET_AAA: targetRateReal = 8.0 / 9; State::set(IndexText::TARGET_NAME, "RANK AAA");   break;
             case Option::TARGET_AA:  targetRateReal = 7.0 / 9; State::set(IndexText::TARGET_NAME, "RANK AA");  break;
-            case Option::TARGET_AAA: targetRateReal = 6.0 / 9; State::set(IndexText::TARGET_NAME, "RANK AAA"); break;
+            case Option::TARGET_A:   targetRateReal = 6.0 / 9; State::set(IndexText::TARGET_NAME, "RANK A"); break;
             default:
             {
                 // rename target
