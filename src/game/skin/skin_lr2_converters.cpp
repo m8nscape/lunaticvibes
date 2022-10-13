@@ -124,7 +124,7 @@ static const std::vector<std::variant<std::monostate, IndexSwitch, IndexOption>>
     IndexSwitch::_FALSE,// JUDGE TIMING
     IndexSwitch::_FALSE,// AUTO ADJUST, not supported
     IndexSwitch::_FALSE, // default target rate
-    IndexSwitch::_FALSE, // target
+    IndexOption::PLAY_TARGET_TYPE, // target
 
     IndexSwitch::_FALSE,
     IndexSwitch::_FALSE,
