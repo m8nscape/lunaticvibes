@@ -982,8 +982,18 @@ void RulesetBMS::updatePress(InputMask& pg, const Time& t)
     if (_k2P) updatePressRange(Input::K21, Input::K29, PLAYER_SLOT_TARGET);
     if (_judgeScratch)
     {
-        if (_k1P) updatePressRange(Input::S1L, Input::S1R, PLAYER_SLOT_PLAYER);
-        if (_k2P) updatePressRange(Input::S2L, Input::S2R, PLAYER_SLOT_TARGET);
+        if (_k1P)
+        {
+            if (pg[Input::S1L]) _scratchDir[PLAYER_SLOT_PLAYER] = AxisDir::AXIS_UP;
+            if (pg[Input::S1R]) _scratchDir[PLAYER_SLOT_PLAYER] = AxisDir::AXIS_DOWN;
+            updatePressRange(Input::S1L, Input::S1R, PLAYER_SLOT_PLAYER);
+        }
+        if (_k2P)
+        {
+            if (pg[Input::S2L]) _scratchDir[PLAYER_SLOT_TARGET] = AxisDir::AXIS_UP;
+            if (pg[Input::S2R]) _scratchDir[PLAYER_SLOT_TARGET] = AxisDir::AXIS_DOWN;
+            updatePressRange(Input::S2L, Input::S2R, PLAYER_SLOT_TARGET);
+        }
     }
 }
 void RulesetBMS::updateHold(InputMask& hg, const Time& t)
