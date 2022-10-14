@@ -567,18 +567,18 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
     // pick LNs out of notes for each lane
     if (!lnobjSet.empty() || haveLNchannels)
     {
-        std::list<size_t> modifiedChannels;
-        decltype(std::declval<channel>().notes.begin()) LNhead;
-        unsigned bar_head = 0;
-        unsigned resolution_head = 1;
-        unsigned bar_curr = 0;
-        bool hasHead = false;
-
-        // find next LN head
         for (unsigned chIdx = 0; chIdx < 20; ++chIdx)
         {
             if (chNotesRegular.find(chIdx) == chNotesRegular.end()) continue;
 
+            std::list<size_t> modifiedChannels;
+            decltype(std::declval<channel>().notes.begin()) LNhead;
+            unsigned bar_head = 0;
+            unsigned resolution_head = 1;
+            unsigned bar_curr = 0;
+            bool hasHead = false;
+
+            // find next LN head
             for (; bar_curr <= lastBarIdx; bar_curr++)
             {
                 if (chNotesRegular[chIdx][bar_curr].notes.empty()) continue;
