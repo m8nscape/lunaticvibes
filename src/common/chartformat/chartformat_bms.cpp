@@ -639,9 +639,10 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
             notes_scratch += chNotesRegular[0][bar].notes.size() + chNotesRegular[10][bar].notes.size();
         }
 
-        for (const auto& [chIdx, chLane]: chNotesRegular)
+        for (unsigned lane = 0; lane < chNotesRegular.size(); ++lane)
         {
-            for (const auto& [barIdx, ch]: chLane)
+            if (lane == 0 || lane == 10) continue;
+            for (const auto& [barIdx, ch]: chNotesRegular[lane])
             {
                 notes_key += ch.notes.size();
             }
@@ -656,9 +657,10 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
             notes_scratch_ln += chNotesLN[0][bar].notes.size() + chNotesLN[10][bar].notes.size();
         }
 
-        for (const auto& [chIdx, chLane] : chNotesLN)
+        for (unsigned lane = 0; lane < chNotesLN.size(); ++lane)
         {
-            for (const auto& [barIdx, ch] : chLane)
+            if (lane == 0 || lane == 10) continue;
+            for (const auto& [barIdx, ch] : chNotesLN[lane])
             {
                 notes_key_ln += ch.notes.size();
             }
