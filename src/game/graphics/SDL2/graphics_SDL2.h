@@ -225,6 +225,11 @@ protected:
     TTF_Font* _pFont = NULL;
     std::string _filePath;
     bool _loaded = false;
+    int _ptsize = 0;
+
+    TTF_Font* _pFontOutline = NULL;
+    Color _outlineColor;
+    int _outlineWidth = 0;
 
 public:
     TTFFont(const char* filePath, int ptsize);
@@ -233,14 +238,12 @@ public:
 public:
     // Attributes Settings
     void setStyle(TTFStyle style);
-    void setOutline(bool enabled);
+    void setOutline(int width, const Color& c);
     void setHinting(TTFHinting mode);
     void setKerning(bool enabled);
     
     // Rendering Interfaces
     std::shared_ptr<Texture> TextUTF8(const char* text, const Color& c);
-    std::shared_ptr<Texture> TextUTF8Solid(const char* text, const Color& c);
-    std::shared_ptr<Texture> TextUTF8Shaded(const char* text, const Color& c, const Color& bg);
     Rect getRectUTF8(const char* text);
     //Rect getRectUTF16(const char* text);
 };

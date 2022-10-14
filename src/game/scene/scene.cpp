@@ -31,7 +31,7 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
     StringContent fontPath = "/usr/share/fonts/tbd.ttf"
 #endif
 
-    const int textHeight = 16;
+    const int textHeight = 20;
     _fNotifications = std::make_shared<TTFFont>(fontPath.c_str(), int(textHeight * 1.5));
     _texNotificationsBG = std::make_shared<TextureFull>(0x000000ff);
     for (size_t i = 0; i < _sNotifications.size(); ++i)
@@ -47,7 +47,7 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
         f.param.rect = Rect(0, notificationPosY, notificationWidth, notificationHeight);
         f.param.accel = RenderParams::CONSTANT;
         f.param.blend = BlendMode::ALPHA;
-        f.param.filter = false;
+        f.param.filter = true;
         f.param.angle = 0;
         f.param.center = Point(0, 0);
         f.param.color = 0xffffff80;
@@ -60,8 +60,10 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
     }
     {
         _sTopLeft = std::make_shared<SpriteText>(_fNotifications, IndexText::_OVERLAY_TOPLEFT, TextAlign::TEXT_ALIGN_LEFT, textHeight);
+        _sTopLeft->setOutline(1, Color(0, 0, 0, 255));
         _sTopLeft->setLoopTime(0);
         _sTopLeft2 = std::make_shared<SpriteText>(_fNotifications, IndexText::_OVERLAY_TOPLEFT2, TextAlign::TEXT_ALIGN_LEFT, textHeight);
+        _sTopLeft2->setOutline(1, Color(0, 0, 0, 255));
         _sTopLeft2->setLoopTime(0);
         RenderKeyFrame f;
         f.time = 0;
@@ -69,7 +71,7 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
         f.param.accel = RenderParams::CONSTANT;
         f.param.color = 0xffffffff;
         f.param.blend = BlendMode::ALPHA;
-        f.param.filter = false;
+        f.param.filter = true;
         f.param.angle = 0;
         f.param.center = Point(0, 0);
         _sTopLeft->appendKeyFrame(f);

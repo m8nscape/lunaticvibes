@@ -1,12 +1,9 @@
 #include "graphics_SDL2.h"
 #include "common/log.h"
 
-TTFFont::TTFFont(const char* filePath, int ptsize)
+TTFFont::TTFFont(const char* filePath, int ptsize): _filePath(filePath), _ptsize(ptsize)
 {
-	// FIXME Maybe we need a global buffer for fonts opened...
-	// Current implement may load the file EVERYTIME we declare a text instance.
-    _filePath = filePath;    // copy an instance here
-    pushMainThreadTask([&]() { _pFont = TTF_OpenFont(_filePath.c_str(), ptsize); });
+    pushAndWaitMainThreadTask<void>([&]() { _pFont = TTF_OpenFont(_filePath.c_str(), ptsize); });
     if (!_pFont)
         LOG_WARNING << "[TTF] " << filePath << ": " << TTF_GetError();
     else _loaded = true;
@@ -16,7 +13,10 @@ TTFFont::~TTFFont()
 {
     if (!_loaded) return;
 
-    pushMainThreadTask(std::bind(TTF_CloseFont, _pFont));
+    if (_pFontOutline)
+        pushAndWaitMainThreadTask<void>(std::bind(TTF_CloseFont, _pFontOutline));
+    if (_pFont) 
+        pushAndWaitMainThreadTask<void>(std::bind(TTF_CloseFont, _pFont));
 }
 
 
@@ -33,12 +33,32 @@ void TTFFont::setStyle(TTFStyle style)
     case TTFStyle::_BI:       pushMainThreadTask(std::bind(TTF_SetFontStyle, _pFont, TTF_STYLE_BOLD | TTF_STYLE_ITALIC)); break;
     }
 }
-void TTFFont::setOutline(bool enabled)
+void TTFFont::setOutline(int width, const Color& c)
 {
     assert(IsMainThread());
     if (!_loaded) return;
 
-    pushMainThreadTask(std::bind(TTF_SetFontOutline, _pFont, enabled));
+    if (width == 0)
+    {
+        if (_pFontOutline != NULL)
+        {
+            pushAndWaitMainThreadTask<void>(std::bind(TTF_CloseFont, _pFontOutline));
+            _pFontOutline = NULL;
+        }
+    }
+    else
+    {
+        if (_pFontOutline == NULL)
+        {
+            pushAndWaitMainThreadTask<void>([&]() 
+                { 
+                    _pFontOutline = TTF_OpenFont(_filePath.c_str(), _ptsize); 
+                    TTF_SetFontOutline(_pFontOutline, width);
+                });
+        }
+    }
+    _outlineWidth = width;
+    _outlineColor = c;
 }
 void TTFFont::setHinting(TTFHinting mode)
 {
@@ -66,42 +86,30 @@ std::shared_ptr<Texture> TTFFont::TextUTF8(const char* text, const Color& c)
     assert(IsMainThread());
     if (!_loaded) return nullptr;
 
-    auto pSurf = TTF_RenderUTF8_Blended(_pFont, text, c);
-    if (pSurf != NULL)
+    SDL_Surface* surfaceText = TTF_RenderUTF8_Blended(_pFont, text, c);
+    SDL_Rect rcText = { 0 };
+    TTF_SizeUTF8(_pFont, text, &rcText.w, &rcText.h);
+    if (_pFontOutline)
     {
-        auto p = std::shared_ptr<SDL_Surface>(pSurf, SDL_FreeSurface);
-        return std::make_shared<Texture>(&*p);
-    }
-    //LOG_WARNING << "[TTF] " << text << ": " << TTF_GetError();
-    return nullptr;
-}
-std::shared_ptr<Texture> TTFFont::TextUTF8Solid(const char* text, const Color& c)
-{
-    assert(IsMainThread());
-    if (!_loaded) return nullptr;
+        SDL_Surface* surfaceOutline = TTF_RenderUTF8_Blended(_pFontOutline, text, _outlineColor);
+        SDL_Rect rcOutline = { 0 };
+        TTF_SizeUTF8(_pFont, text, &rcOutline.w, &rcOutline.h);
+        SDL_Rect rcTextInner = rcText;
+        //rcTextInner.x += (rcOutline.w - rcText.w) / 2;
+        //rcTextInner.y += (rcOutline.h - rcText.h) / 2;
+        rcTextInner.x += _outlineWidth;
+        rcTextInner.y += _outlineWidth;
+        SDL_BlitSurface(surfaceText, &rcText, surfaceOutline, &rcTextInner);
 
-    auto pSurf = TTF_RenderUTF8_Solid(_pFont, text, c);
-    if (pSurf != NULL)
-    {
-        auto p = std::shared_ptr<SDL_Surface>(pSurf, SDL_FreeSurface);
-        return std::make_shared<Texture>(&*p);
+        std::shared_ptr<Texture> pTexture = std::make_shared<Texture>(surfaceOutline);
+        SDL_FreeSurface(surfaceText);
+        SDL_FreeSurface(surfaceOutline);
+        return pTexture;
     }
-    //LOG_WARNING << "[TTF] " << text << ": " << TTF_GetError();
-    return nullptr;
-}
-std::shared_ptr<Texture> TTFFont::TextUTF8Shaded(const char* text, const Color& c, const Color& bg)
-{
-    assert(IsMainThread());
-    if (!_loaded) return nullptr;
 
-    auto pSurf = TTF_RenderUTF8_Shaded(_pFont, text, c, bg);
-    if (pSurf != NULL)
-    {
-        auto p = std::shared_ptr<SDL_Surface>(pSurf, SDL_FreeSurface);
-        return std::make_shared<Texture>(&*p);
-    }
-    //LOG_WARNING << "[TTF] " << text << ": " << TTF_GetError();
-    return nullptr;
+    std::shared_ptr<Texture> pTexture = std::make_shared<Texture>(surfaceText);
+    SDL_FreeSurface(surfaceText);
+    return pTexture;
 }
 
 Rect TTFFont::getRectUTF8(const char* text)
@@ -110,6 +118,6 @@ Rect TTFFont::getRectUTF8(const char* text)
     Rect r{ 0, 0, 0, 0 };
 
     if (!_loaded) return r;
-    TTF_SizeUTF8(_pFont, text, &r.w, &r.h);
+    TTF_SizeUTF8(_pFontOutline ? _pFontOutline : _pFont, text, &r.w, &r.h);
     return r;
 }

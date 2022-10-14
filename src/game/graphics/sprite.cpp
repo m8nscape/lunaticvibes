@@ -523,7 +523,6 @@ void SpriteText::setInputBindingText(std::string&& text, const Color& c)
     if (_pTexture)
     {
         _texRect = _pTexture->getRect();
-        _texRect.h = _height;
         _draw = true;
     }
     else
@@ -579,6 +578,11 @@ void SpriteText::draw() const
     {
         SpriteStatic::draw();
     }
+}
+
+void SpriteText::setOutline(int width, const Color& c)
+{
+    pushMainThreadTask([&] { _pFont->setOutline(width, c); });
 }
 
 
