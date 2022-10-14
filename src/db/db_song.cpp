@@ -479,7 +479,7 @@ std::vector<pChartFormat> SongDB::findChartByHash(const HashMD5& target) const
 
 }
 
-int SongDB::addFolder(Path path, HashMD5 parentHash)
+int SongDB::addFolder(Path path, const HashMD5& parentHash)
 {
     if (parentHash == ROOT_FOLDER_HASH)
     {
@@ -488,11 +488,6 @@ int SongDB::addFolder(Path path, HashMD5 parentHash)
 
     path = (path / ".").lexically_normal();
 
-    if (!fs::exists(path))
-    {
-        LOG_WARNING << "[SongDB] Add folder fail: folder not exist (" << path.u8string() << ")";
-        return -1;
-    }
     if (!fs::is_directory(path))
     {
         LOG_WARNING << "[SongDB] Add folder fail: path is not folder (" << path.u8string() << ")";
@@ -520,7 +515,7 @@ int SongDB::addFolder(Path path, HashMD5 parentHash)
     int count = 0;
     HashMD5 folderHash = md5(path.u8string());
     long long nowTime = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-#if WIN32
+#if _WIN32
     long long folderModifyTime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(path).time_since_epoch()).count() - 11644473600;
 #else
     long long folderModifyTime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(path).time_since_epoch()).count();
@@ -606,7 +601,7 @@ int SongDB::addNewFolder(const HashMD5& hash, const Path& path, const HashMD5& p
 
     int ret;
     auto folderName = fs::weakly_canonical(path).filename();
-#if WIN32
+#if _WIN32
     long long folderModifyTime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(path).time_since_epoch()).count() - 11644473600;
 #else
     long long folderModifyTime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(path).time_since_epoch()).count();
@@ -741,7 +736,7 @@ int SongDB::refreshExistingFolder(const HashMD5& hash, const Path& path, FolderT
                 }
                 else
                 {
-#if WIN32
+#if _WIN32
                     long long fstime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(chart->absolutePath).time_since_epoch()).count() - 11644473600;
 #else
                     long long fstime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(chart->absolutePath).time_since_epoch()).count();

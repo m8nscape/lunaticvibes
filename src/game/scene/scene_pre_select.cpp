@@ -18,6 +18,8 @@ ScenePreSelect::ScenePreSelect(): vScene(eMode::PRE_SELECT, 240)
     };
 
     graphics_set_maxfps(30);
+
+    State::set(IndexText::_OVERLAY_TOPLEFT, "Initializing...");
 }
 
 ScenePreSelect::~ScenePreSelect()
@@ -46,14 +48,25 @@ void ScenePreSelect::updateLoadSongs()
     {
         startedLoadSong = true;
 
+        // wait for Initializing... text to draw
+        pushAndWaitMainThreadTask<void>([] {});
+
+        // wait for another frame
+        pushAndWaitMainThreadTask<void>([] {});
+
+
         // load files
         loadSongEnd = std::async(std::launch::async, [&]() {
+
+            State::set(IndexText::_OVERLAY_TOPLEFT, "Checking folders...");
 
             // get folders from config
             auto folderList = ConfigMgr::General()->getFoldersPath();
             for (auto& f : folderList)
             {
                 LOG_INFO << "[List] Add folder " << f;
+                State::set(IndexText::_OVERLAY_TOPLEFT2, Path(f).u8string());
+
                 g_pSongDB->addFolder(f);
             }
 
@@ -109,11 +122,15 @@ void ScenePreSelect::updateLoadTables()
 
         loadTableEnd = std::async(std::launch::async, [&]() {
 
+            State::set(IndexText::_OVERLAY_TOPLEFT, "Checking tables...");
+
             // initialize table list
             auto tableList = ConfigMgr::General()->getTablesUrl();
             for (auto& tableUrl : tableList)
             {
                 LOG_INFO << "[List] Add table " << tableUrl;
+                State::set(IndexText::_OVERLAY_TOPLEFT2, tableUrl);
+
                 gSelectContext.tables.emplace_back();
                 DifficultyTableBMS& t = gSelectContext.tables.back();
                 t.setUrl(tableUrl);
