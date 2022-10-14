@@ -164,6 +164,10 @@ int graphics_init()
     ImGui_ImplSDL2_InitForSDLRenderer(gFrameWindow, gFrameRenderer);
     ImGui_ImplSDLRenderer_Init(gFrameRenderer);
 
+    // Draw a black frame to prevent flashbang
+    graphics_clear();
+    graphics_flush();
+
     return 0;
 }
 
