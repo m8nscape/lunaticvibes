@@ -578,17 +578,31 @@ void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote
                     _basic.slow++;
                     break;
                 }
-                updateHit(t, idx, JudgeType::PERFECT, slot);
+                JudgeType judgeType = JudgeType::PERFECT;
+                switch (_lnJudge[idx])
+                {
+                case judgeArea::EARLY_GOOD:
+                case judgeArea::LATE_GOOD:
+                    judgeType = JudgeType::GOOD;
+                    break;
+
+                case judgeArea::EARLY_GREAT:
+                case judgeArea::LATE_GREAT:
+                    judgeType = JudgeType::GREAT;
+                    break;
+                }
+                updateHit(t, idx, judgeType, slot);
                 note.hit = true;
                 note.expired = true;
                 _basic.notesExpired++;
-                _lnJudge[idx] = RulesetBMS::judgeArea::NOTHING;
                 pushReplayCommand = true;
 
                 if (showJudge && _bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
                     State::set(_bombLNTimerMap->at(idx), TIMER_NEVER);
 
-                _lastNoteJudge = judge;
+                _lastNoteJudge.area = _lnJudge[idx];
+                _lastNoteJudge.time = 0;
+                _lnJudge[idx] = RulesetBMS::judgeArea::NOTHING;
             }
         }
         break;
@@ -1012,8 +1026,20 @@ void RulesetBMS::updateRelease(InputMask& rg, const Time& t)
     if (_k2P) updateReleaseRange(Input::K21, Input::K29, PLAYER_SLOT_TARGET);
     if (_judgeScratch)
     {
-        if (_k1P) updateReleaseRange(Input::S1L, Input::S1R, PLAYER_SLOT_PLAYER);
-        if (_k2P) updateReleaseRange(Input::S2L, Input::S2R, PLAYER_SLOT_TARGET);
+        if (_k1P)
+        {
+            if (_scratchDir[PLAYER_SLOT_PLAYER] == AxisDir::AXIS_UP && rg[Input::S1L])
+                updateReleaseRange(Input::S1L, Input::S1L, PLAYER_SLOT_PLAYER);
+            if (_scratchDir[PLAYER_SLOT_PLAYER] == AxisDir::AXIS_DOWN && rg[Input::S1R])
+                updateReleaseRange(Input::S1R, Input::S1R, PLAYER_SLOT_PLAYER);
+        }
+        if (_k2P)
+        {
+            if (_scratchDir[PLAYER_SLOT_TARGET] == AxisDir::AXIS_UP && rg[Input::S2L])
+                updateReleaseRange(Input::S2L, Input::S2L, PLAYER_SLOT_TARGET);
+            if (_scratchDir[PLAYER_SLOT_TARGET] == AxisDir::AXIS_DOWN && rg[Input::S2R])
+                updateReleaseRange(Input::S2R, Input::S2R, PLAYER_SLOT_TARGET);
+        }
     }
 }
 void RulesetBMS::updateAxis(double s1, double s2, const Time& t)
