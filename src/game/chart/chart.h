@@ -144,9 +144,9 @@ protected:
     std::list<Note>              _bpmNoteList;          // BPM change is so common that they are not special
 
 protected:
-    std::array<Metre,  MAX_MEASURES>   barMetreLength;
-    std::array<Metre,  MAX_MEASURES>   _barMetrePos;
-    std::array<Time, MAX_MEASURES>   _barTimestamp;
+    std::vector<Metre>   barMetreLength;
+    std::vector<Metre>   _barMetrePos;
+    std::vector<Time>    _barTimestamp;
 
     Time   _totalLength;
     Time   _leadInTime = 0;    // when the first sound note locates

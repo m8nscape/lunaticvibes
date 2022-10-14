@@ -9,8 +9,8 @@ public:
     static inline const size_t BGM_LANE_COUNT = 40;
 
 protected:
-    unsigned _noteCount_scratch;
-    unsigned _noteCount_scratch_ln;
+    unsigned _noteCount_scratch = 0;
+    unsigned _noteCount_scratch_ln = 0;
 public:
     unsigned constexpr getScratchCount() const { return _noteCount_scratch; }
     unsigned constexpr getScratchLnCount() const { return _noteCount_scratch_ln; }

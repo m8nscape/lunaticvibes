@@ -106,7 +106,7 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
 
     // #RANDOM related parameters
     std::stack<int> randomValue;
-    std::stack<std::set<int>> randomUnusedValues;
+    std::stack<std::set<int>> randomUsedValues;
     std::stack<std::stack<int>> ifStack;
     std::stack<int> ifValue;
 
@@ -139,8 +139,8 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
         {
             auto space_idx = std::min(buf.length(), buf.find_first_of(' '));
 
-            // supporting one level control flow (#RANDOM, #IF, etc.), matching with LR2's capability
-            if (!randomUnusedValues.empty() && randomUnusedValues.top().empty())
+            // supporting single level control flow (#RANDOM, #IF, etc.), matching with LR2's capability
+            if (!randomUsedValues.empty() && randomUsedValues.top().size() < randomValue.top())
             {
                 StringContentView v = buf;
                 if (ifValue.empty() && !v.empty() && v[0] == '#' &&
@@ -150,7 +150,7 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                 {
                     LOG_WARNING << "[BMS] " << absolutePath.u8string() << " definition found after all IF blocks finished, assuming #ENDRANDOM is missing. Line: " << srcLine;
                     randomValue.pop();
-                    randomUnusedValues.pop();
+                    randomUsedValues.pop();
                     ifStack.pop();
                 }
             }
@@ -169,10 +169,7 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                 std::mt19937_64 rng(randomSeed);
                 int rngValue = (rng() % toInt(value)) + 1;
                 randomValue.push(rngValue);
-                std::set<int> v;
-                for (int i = 1; i <= iValue; ++i)
-                    v.insert(i);
-                randomUnusedValues.push(v);
+                randomUsedValues.emplace();
 
                 ifStack.push(ifValue);
                 ifValue = std::stack<int>();
@@ -190,7 +187,7 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                     if (strEqual(key, "IF", true))
                     {
                         int ifBlockValue = toInt(value);
-                        if (randomUnusedValues.top().find(ifBlockValue) == randomUnusedValues.top().end())
+                        if (randomUsedValues.top().find(ifBlockValue) != randomUsedValues.top().end())
                         {
                             LOG_WARNING << "[BMS] " << absolutePath.u8string() << " duplicate #IF value found at line " << srcLine;
                         }
@@ -199,7 +196,7 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                         if (!ifValue.empty())
                         {
                             LOG_WARNING << "[BMS] " << absolutePath.u8string() << " unexpected #IF found, assuming #ENDIF is missing. Line: " << srcLine;
-                            randomUnusedValues.top().erase(ifValue.top());
+                            randomUsedValues.top().emplace(ifValue.top());
                             ifValue.pop();
                         }
 
@@ -209,7 +206,7 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                     {
                         if (!ifValue.empty())
                         {
-                            randomUnusedValues.top().erase(ifValue.top());
+                            randomUsedValues.top().emplace(ifValue.top());
                             ifValue.pop();
                         }
                         else
@@ -224,7 +221,7 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                             LOG_WARNING << "[BMS] " << absolutePath.u8string() << " #ENDRANDOM found before #ENDIF at line " << srcLine;
                         }
                         randomValue.pop();
-                        randomUnusedValues.pop();
+                        randomUsedValues.pop();
 
                         if (!ifStack.empty())
                         {
@@ -342,7 +339,7 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                 else
                     extraCommands[std::string(key)] = StringContent(value.begin(), value.end());
             }
-            else
+            else // matched #[\d]{3}[0-9A-Za-z]{2}:.*
             {
                 auto colon_idx = buf.find_first_of(':');
                 StringContentView key = buf.substr(1, 5);
@@ -357,7 +354,10 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                 }
 
                 unsigned bar = toInt(key.substr(0, 3));
-                if (lastBarIdx < bar) lastBarIdx = bar;
+                if (lastBarIdx < bar)
+                {
+                    lastBarIdx = bar;
+                }
 
                 try
                 {
@@ -369,15 +369,7 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                         switch (ch)
                         {
                         case 1:            // 01: BGM
-                            if (bgmLayersCount[bar] >= chBGM.size())
-                            {
-                                chBGM.emplace_back();
-                                strToLane36(chBGM.back()[bar], value);
-                            }
-                            else
-                            {
-                                strToLane36(chBGM[bgmLayersCount[bar]][bar], value);
-                            }
+                            strToLane36(chBGM[bgmLayersCount[bar]][bar], value);
                             ++bgmLayersCount[bar];
                             break;
 
@@ -420,22 +412,20 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                     else // layer != 0
                     {
                         auto [area, idx] = isPMS ? normalizeIndexesPMS(layer, ch) : normalizeIndexesBME(layer, ch);
+                        unsigned chIdx = idx + (area == 1 ? 10 : 0);
                         if (area >= 0)
                         {
-                            assert(area < sizeof(chNotesRegular.lanes) / sizeof(chNotesRegular.lanes[0]));
-                            assert(idx < sizeof(chNotesRegular.lanes[0]) / sizeof(chNotesRegular.lanes[0][0]));
-                            assert(bar < sizeof(chNotesRegular.lanes[0][0]) / sizeof(chNotesRegular.lanes[0][0][0]));
                             switch (layer)
                             {
                             case 1:            // 1x: 1P visible
                             case 2:            // 2x: 2P visible
-                                strToLane36(chNotesRegular.lanes[area][idx][bar], value);
+                                strToLane36(chNotesRegular[chIdx][bar], value);
                                 haveNote = true;
                                 if (area == 1) haveAny_2 = true;
                                 break;
                             case 3:            // 3x: 1P invisible
                             case 4:            // 4x: 2P invisible
-                                strToLane36(chNotesInvisible.lanes[area][idx][bar], value);
+                                strToLane36(chNotesInvisible[chIdx][bar], value);
                                 haveInvisible = true;
                                 if (area == 1) haveAny_2 = true;
                                 break;
@@ -447,12 +437,12 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                                     // Note: there is so many possibilities of conflicting LN definition. Add all LN channel notes as regular notes
                                     channel noteLane;
                                     strToLane36(noteLane, value, channel::NoteParseValue::LN);
-                                    unsigned scale = chNotesRegular.lanes[area][idx][bar].relax(noteLane.resolution) / noteLane.resolution;
+                                    unsigned scale = chNotesRegular[chIdx][bar].relax(noteLane.resolution) / noteLane.resolution;
                                     for (auto& note : noteLane.notes)
                                     {
                                         note.segment *= scale;
                                         bool noteInserted = false;
-                                        channel& chTarget = chNotesRegular.lanes[area][idx][bar];
+                                        channel& chTarget = chNotesRegular[chIdx][bar];
                                         for (auto it = chTarget.notes.begin(); it != chTarget.notes.end(); ++it)
                                         {
                                             if (it->segment > note.segment || (it->segment == note.segment && it->value > note.value))
@@ -471,14 +461,14 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                                 else
                                 {
                                     // #LNTYPE 1
-                                    strToLane36(chNotesLN.lanes[area][idx][bar], value, channel::NoteParseValue::LN);
+                                    strToLane36(chNotesLN[chIdx][bar], value, channel::NoteParseValue::LN);
                                     haveLN = true;
                                     if (area == 1) haveAny_2 = true;
                                 }
                                 break;
                             case 0xD:        // Dx: 1P mine
                             case 0xE:        // Ex: 2P mine
-                                strToLane36(chMines.lanes[area][idx][bar], value);
+                                strToLane36(chMines[chIdx][bar], value);
                                 haveMine = true;
                                 break;
                             }
@@ -575,90 +565,85 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
             metres[i] = Metre(4, 4);
 
     // pick LNs out of notes for each lane
-    for (int area = 0; area < 2; ++area)
+    if (!lnobjSet.empty() || haveLNchannels)
     {
-        if (!lnobjSet.empty() || haveLNchannels)
+        std::list<size_t> modifiedChannels;
+        decltype(std::declval<channel>().notes.begin()) LNhead;
+        unsigned bar_head = 0;
+        unsigned resolution_head = 1;
+        unsigned bar_curr = 0;
+        bool hasHead = false;
+
+        // find next LN head
+        for (unsigned chIdx = 0; chIdx < 20; ++chIdx)
         {
-            for (size_t ch = 0; ch < PlayAreaLanes::LANE_COUNT; ++ch)
+            if (chNotesRegular.find(chIdx) == chNotesRegular.end()) continue;
+
+            for (; bar_curr <= lastBarIdx; bar_curr++)
             {
-                std::list<size_t> modifiedChannels;
-                decltype(chNotesRegular.lanes[0][ch][0].notes.begin()) LNhead;
-                unsigned bar_head = 0;
-                unsigned resolution_head = 1;
-                unsigned bar_curr = 0;
-                bool hasHead = false;
+                if (chNotesRegular[chIdx][bar_curr].notes.empty()) continue;
 
-                // find next LN head
-                for (; bar_curr <= lastBarIdx; bar_curr++)
+                auto& noteList = chNotesRegular[chIdx][bar_curr].notes;
+                auto itNote = noteList.begin();
+                while (itNote != noteList.end())
                 {
-                    if (chNotesRegular.lanes[area][ch][bar_curr].notes.empty()) continue;
-
-                    auto& noteList = chNotesRegular.lanes[area][ch][bar_curr].notes;
-                    auto itNote = noteList.begin();
-                    while (itNote != noteList.end())
+                    // Regular note inside a LN (can be seen with o2mania + #LNTYPE 1) is not allowed. Handle any following note as LN tail.
+                    if (hasHead && (lnobjSet.count(itNote->value) || (LNhead->flags & channel::NoteParseValue::LN)))
                     {
-                        // Regular note inside a LN (can be seen with o2mania + #LNTYPE 1) is not allowed. Handle any following note as LN tail.
-                        if (hasHead && (lnobjSet.count(itNote->value) || (LNhead->flags & channel::NoteParseValue::LN)))
-                        {
-                            unsigned segment = LNhead->segment * chNotesLN.lanes[area][ch][bar_head].relax(resolution_head) / resolution_head;
-                            unsigned value = LNhead->value;
-                            unsigned resolution_tail = chNotesRegular.lanes[area][ch][bar_curr].resolution;
-                            unsigned segment2 = itNote->segment * chNotesLN.lanes[area][ch][bar_curr].relax(resolution_tail) / resolution_tail;
-                            unsigned value2 = itNote->value;
-                            chNotesLN.lanes[area][ch][bar_head].notes.push_back({ segment, value });
-                            chNotesLN.lanes[area][ch][bar_curr].notes.push_back({ segment2, value2 });
+                        unsigned segment = LNhead->segment * chNotesLN[chIdx][bar_head].relax(resolution_head) / resolution_head;
+                        unsigned value = LNhead->value;
+                        unsigned resolution_tail = chNotesRegular[chIdx][bar_curr].resolution;
+                        unsigned segment2 = itNote->segment * chNotesLN[chIdx][bar_curr].relax(resolution_tail) / resolution_tail;
+                        unsigned value2 = itNote->value;
+                        chNotesLN[chIdx][bar_head].notes.push_back({ segment, value });
+                        chNotesLN[chIdx][bar_curr].notes.push_back({ segment2, value2 });
 
-                            haveLN = true;
+                        haveLN = true;
 
-                            chNotesRegular.lanes[area][ch][bar_head].notes.erase(LNhead);
-                            auto itPrev = itNote;
-                            bool resetItNote = (itNote == noteList.begin());
-                            if (!resetItNote) itPrev--;
-                            chNotesRegular.lanes[area][ch][bar_curr].notes.erase(itNote);
-                            itNote = resetItNote ? noteList.begin() : ++itPrev;
+                        chNotesRegular[chIdx][bar_head].notes.erase(LNhead);
+                        auto itPrev = itNote;
+                        bool resetItNote = (itNote == noteList.begin());
+                        if (!resetItNote) itPrev--;
+                        chNotesRegular[chIdx][bar_curr].notes.erase(itNote);
+                        itNote = resetItNote ? noteList.begin() : ++itPrev;
 
-                            modifiedChannels.push_back(bar_head);
-                            modifiedChannels.push_back(bar_curr);
+                        modifiedChannels.push_back(bar_head);
+                        modifiedChannels.push_back(bar_curr);
 
-                            bar_head = 0;
-                            resolution_head = 1;
-                            hasHead = false;
-                        }
-                        else
-                        {
-                            LNhead = itNote;
-                            bar_head = bar_curr;
-                            resolution_head = chNotesRegular.lanes[area][ch][bar_curr].resolution;
-                            hasHead = true;
+                        bar_head = 0;
+                        resolution_head = 1;
+                        hasHead = false;
+                    }
+                    else
+                    {
+                        LNhead = itNote;
+                        bar_head = bar_curr;
+                        resolution_head = chNotesRegular[chIdx][bar_curr].resolution;
+                        hasHead = true;
 
-                            ++itNote;
-                        }
+                        ++itNote;
                     }
                 }
-
-                if (bar_head <= lastBarIdx) chNotesLN.lanes[area][ch][bar_head].sortNotes();
-                if (bar_curr <= lastBarIdx) chNotesLN.lanes[area][ch][bar_curr].sortNotes();
             }
-        }
 
+            if (bar_head <= lastBarIdx) chNotesLN[chIdx][bar_head].sortNotes();
+            if (bar_curr <= lastBarIdx) chNotesLN[chIdx][bar_curr].sortNotes();
+        }
     }
 
     // Get statistics
     if (haveNote)
     {
-        for (int area = 0; area < 2; ++area)
+        for (unsigned bar = 0; bar <= lastBarIdx; bar++)
         {
-            for (unsigned bar = 0; bar <= lastBarIdx; bar++)
-            {
-                notes_scratch += chNotesRegular.lanes[area][0][bar].notes.size();
-            }
+            notes_scratch += chNotesRegular[0][bar].notes.size() + chNotesRegular[10][bar].notes.size();
+        }
 
-            for (size_t lane = 1; lane < chNotesRegular.lanes[area].size(); ++lane)
+        for (const auto& [chIdx, chLane]: chNotesRegular)
+        {
+            for (const auto& [barIdx, ch]: chLane)
             {
-                for (unsigned bar = 0; bar <= lastBarIdx; bar++)
-                {
-                    notes_key += chNotesRegular.lanes[area][lane][bar].notes.size();
-                }
+                notes_key += ch.notes.size();
             }
         }
         notes_total += notes_scratch + notes_key;
@@ -666,19 +651,16 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
 
     if (haveLN)
     {
-        for (int area = 0; area < 2; ++area)
+        for (unsigned bar = 0; bar <= lastBarIdx; bar++)
         {
-            for (unsigned bar = 0; bar <= lastBarIdx; bar++)
-            {
-                notes_scratch_ln += chNotesLN.lanes[area][0][bar].notes.size();
-            }
+            notes_scratch_ln += chNotesLN[0][bar].notes.size() + chNotesLN[10][bar].notes.size();
+        }
 
-            for (size_t lane = 1; lane < chNotesRegular.lanes[area].size(); ++lane)
+        for (const auto& [chIdx, chLane] : chNotesLN)
+        {
+            for (const auto& [barIdx, ch] : chLane)
             {
-                for (unsigned bar = 0; bar <= lastBarIdx; bar++)
-                {
-                    notes_key_ln += chNotesLN.lanes[area][lane][bar].notes.size();
-                }
+                notes_key_ln += ch.notes.size();
             }
         }
         notes_total += (notes_scratch_ln + notes_key_ln) / 2;
@@ -686,14 +668,11 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
 
     if (haveMine)
     {
-        for (int area = 0; area < 2; ++area)
+        for (const auto& [chIdx, chLane] : chMines)
         {
-            for (const auto& ch : chMines.lanes[area])
+            for (const auto& [barIdx, ch] : chLane)
             {
-                for (unsigned bar = 0; bar <= lastBarIdx; bar++)
-                {
-                    notes_mine += ch[bar].notes.size();
-                }
+                notes_mine += ch.notes.size();
             }
         }
     }
@@ -723,12 +702,12 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
         if (have89)
         {
             // 11	12	13	14	15	18	19	16	17	not known or well known
-            std::swap(chNotesRegular.lanes[0][6], chNotesRegular.lanes[0][8]);
-            std::swap(chNotesRegular.lanes[0][7], chNotesRegular.lanes[0][9]);
-            std::swap(chNotesInvisible.lanes[0][6], chNotesInvisible.lanes[0][8]);
-            std::swap(chNotesInvisible.lanes[0][7], chNotesInvisible.lanes[0][9]);
-            std::swap(chNotesLN.lanes[0][6], chNotesLN.lanes[0][8]);
-            std::swap(chNotesLN.lanes[0][7], chNotesLN.lanes[0][9]);
+            std::swap(chNotesRegular[6], chNotesRegular[8]);
+            std::swap(chNotesRegular[7], chNotesRegular[9]);
+            std::swap(chNotesInvisible[6], chNotesInvisible[8]);
+            std::swap(chNotesInvisible[7], chNotesInvisible[9]);
+            std::swap(chNotesLN[6], chNotesLN[8]);
+            std::swap(chNotesLN[7], chNotesLN[9]);
             have67 = true;
 
             if (have67_2)
@@ -737,12 +716,12 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                 // 18KEYS is not supported. Parse as 9KEYS
                 gamemode = 9;
                 player = 1;
-                std::swap(chNotesRegular.lanes[1][6], chNotesRegular.lanes[1][8]);
-                std::swap(chNotesRegular.lanes[1][7], chNotesRegular.lanes[1][9]);
-                std::swap(chNotesInvisible.lanes[1][6], chNotesInvisible.lanes[1][8]);
-                std::swap(chNotesInvisible.lanes[1][7], chNotesInvisible.lanes[1][9]);
-                std::swap(chNotesLN.lanes[1][6], chNotesLN.lanes[1][8]);
-                std::swap(chNotesLN.lanes[1][7], chNotesLN.lanes[1][9]);
+                std::swap(chNotesRegular[16], chNotesRegular[18]);
+                std::swap(chNotesRegular[17], chNotesRegular[19]);
+                std::swap(chNotesInvisible[16], chNotesInvisible[18]);
+                std::swap(chNotesInvisible[17], chNotesInvisible[19]);
+                std::swap(chNotesLN[16], chNotesLN[18]);
+                std::swap(chNotesLN[17], chNotesLN[19]);
                 have67_2 = true;
             }
         }
@@ -751,18 +730,18 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
             // 11	12	13	14	15	22	23	24	25	standard PMS
             gamemode = 9;
             player = 1;
-            std::swap(chNotesRegular.lanes[0][6], chNotesRegular.lanes[1][2]);
-            std::swap(chNotesRegular.lanes[0][7], chNotesRegular.lanes[1][3]);
-            std::swap(chNotesRegular.lanes[0][8], chNotesRegular.lanes[1][4]);
-            std::swap(chNotesRegular.lanes[0][9], chNotesRegular.lanes[1][5]);
-            std::swap(chNotesInvisible.lanes[0][6], chNotesInvisible.lanes[1][2]);
-            std::swap(chNotesInvisible.lanes[0][7], chNotesInvisible.lanes[1][3]);
-            std::swap(chNotesInvisible.lanes[0][8], chNotesInvisible.lanes[1][4]);
-            std::swap(chNotesInvisible.lanes[0][9], chNotesInvisible.lanes[1][5]);
-            std::swap(chNotesLN.lanes[0][6], chNotesLN.lanes[1][2]);
-            std::swap(chNotesLN.lanes[0][7], chNotesLN.lanes[1][3]);
-            std::swap(chNotesLN.lanes[0][8], chNotesLN.lanes[1][4]);
-            std::swap(chNotesLN.lanes[0][9], chNotesLN.lanes[1][5]);
+            std::swap(chNotesRegular[6], chNotesRegular[12]);
+            std::swap(chNotesRegular[7], chNotesRegular[13]);
+            std::swap(chNotesRegular[8], chNotesRegular[14]);
+            std::swap(chNotesRegular[9], chNotesRegular[15]);
+            std::swap(chNotesInvisible[6], chNotesInvisible[12]);
+            std::swap(chNotesInvisible[7], chNotesInvisible[13]);
+            std::swap(chNotesInvisible[8], chNotesInvisible[14]);
+            std::swap(chNotesInvisible[9], chNotesInvisible[15]);
+            std::swap(chNotesLN[6], chNotesLN[12]);
+            std::swap(chNotesLN[7], chNotesLN[13]);
+            std::swap(chNotesLN[8], chNotesLN[14]);
+            std::swap(chNotesLN[9], chNotesLN[15]);
             have67 = true;
             have89 = true;
             haveAny_2 = false;
@@ -996,31 +975,59 @@ int ChartFormatBMS::getMode() const
     }
 }
 
-auto ChartFormatBMS::getLane(LaneCode code, unsigned chIdx, unsigned measureIdx) const -> const decltype(chBGM[0][0])&
+auto ChartFormatBMS::getLane(LaneCode code, unsigned chIdx, unsigned barIdx) const -> const channel&
 {
-    using eC = LaneCode;
-    switch (code)
+    static const channel emptyChannel;
+    if (barIdx <= lastBarIdx)
     {
-    case eC::BGM:          return chBGM[chIdx][measureIdx]; break;
-    case eC::BPM:          return chBPMChange[measureIdx]; break;
-    case eC::EXBPM:        return chExBPMChange[measureIdx]; break;
-    case eC::STOP:         return chStop[measureIdx]; break;
-    case eC::BGABASE:      return chBGABase[measureIdx]; break;
-    case eC::BGALAYER:     return chBGALayer[measureIdx]; break;
-    case eC::BGAPOOR:      return chBGAPoor[measureIdx]; break;;
-    case eC::NOTE1:        return chNotesRegular.lanes[0][chIdx][measureIdx]; break;
-    case eC::NOTE2:        return chNotesRegular.lanes[1][chIdx][measureIdx]; break;
-    case eC::NOTEINV1:     return chNotesInvisible.lanes[0][chIdx][measureIdx]; break;
-    case eC::NOTEINV2:     return chNotesInvisible.lanes[1][chIdx][measureIdx]; break;
-    case eC::NOTELN1:      return chNotesLN.lanes[0][chIdx][measureIdx]; break;
-    case eC::NOTELN2:      return chNotesLN.lanes[1][chIdx][measureIdx]; break;
-    case eC::NOTEMINE1:    return chMines.lanes[0][chIdx][measureIdx]; break;
-    case eC::NOTEMINE2:    return chMines.lanes[1][chIdx][measureIdx]; break;
-    default: break;
+        auto getCommonLane = [](const LaneMap& ch, unsigned barIdx) -> const channel&
+        {
+            if (ch.find(barIdx) != ch.end())
+            {
+                return ch.at(barIdx);
+            }
+            else
+            {
+                return emptyChannel;
+            }
+        };
+
+        auto getNoteLane = [&](const std::map<unsigned, LaneMap>& ch, unsigned chIdx, unsigned barIdx) -> const channel&
+        {
+            if (ch.find(chIdx) != ch.end())
+            {
+                return getCommonLane(ch.at(chIdx), barIdx);
+            }
+            else
+            {
+                return emptyChannel;
+            }
+        };
+
+        using eC = LaneCode;
+        switch (code)
+        {
+        case eC::BGM:          return getNoteLane(chBGM, chIdx, barIdx); 
+        case eC::BPM:          return getCommonLane(chBPMChange, barIdx); 
+        case eC::EXBPM:        return getCommonLane(chExBPMChange, barIdx); 
+        case eC::STOP:         return getCommonLane(chStop, barIdx); 
+        case eC::BGABASE:      return getCommonLane(chBGABase, barIdx); 
+        case eC::BGALAYER:     return getCommonLane(chBGALayer, barIdx); 
+        case eC::BGAPOOR:      return getCommonLane(chBGAPoor, barIdx); 
+        case eC::NOTE1:        return getNoteLane(chNotesRegular, chIdx, barIdx); 
+        case eC::NOTE2:        return getNoteLane(chNotesRegular, chIdx + 10, barIdx); 
+        case eC::NOTEINV1:     return getNoteLane(chNotesInvisible, chIdx, barIdx); 
+        case eC::NOTEINV2:     return getNoteLane(chNotesInvisible, chIdx + 10, barIdx);
+        case eC::NOTELN1:      return getNoteLane(chNotesLN, chIdx, barIdx); 
+        case eC::NOTELN2:      return getNoteLane(chNotesLN, chIdx + 10, barIdx); 
+        case eC::NOTEMINE1:    return getNoteLane(chMines, chIdx, barIdx); 
+        case eC::NOTEMINE2:    return getNoteLane(chMines, chIdx + 10, barIdx); 
+        default: break;
+        }
     }
 
     assert(false);
-    return chBGM[0][0];
+    return emptyChannel;
 }
 
 unsigned ChartFormatBMS::channel::relax(unsigned target_resolution)

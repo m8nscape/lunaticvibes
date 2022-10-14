@@ -146,7 +146,7 @@ public:
         void sortNotes();
     };
     typedef std::array<std::string, MAXSAMPLEIDX + 1> FileIdxArray;
-    typedef std::array<channel, MAXBARIDX + 1> LaneArray;
+    typedef std::map<unsigned, channel> LaneMap;    // bar -> channel
     
 protected:
     // Lanes.
@@ -155,23 +155,18 @@ protected:
     int strToLane16(channel&, const StringContent& str);
     int strToLane16(channel&, StringContentView str);
 
-    std::vector<LaneArray> chBGM{};
-    LaneArray chStop{};
-    LaneArray chBPMChange{};
-    LaneArray chExBPMChange{};
-    LaneArray chBGABase{};
-    LaneArray chBGALayer{};
-    LaneArray chBGAPoor{};
+    std::map<unsigned, LaneMap> chBGM{}; // lane -> [bar -> channel]
+    LaneMap chStop{};
+    LaneMap chBPMChange{};
+    LaneMap chExBPMChange{};
+    LaneMap chBGABase{};
+    LaneMap chBGALayer{};
+    LaneMap chBGAPoor{};
     
-    struct PlayAreaLanes
-    {
-        static constexpr size_t LANE_COUNT = 10;
-        std::array<LaneArray, LANE_COUNT> lanes[2];
-    };
-    PlayAreaLanes chNotesRegular{};
-    PlayAreaLanes chNotesInvisible{};
-    PlayAreaLanes chNotesLN{};
-    PlayAreaLanes chMines{};
+    std::map<unsigned, LaneMap> chNotesRegular{};   // lane -> [bar -> channel]
+    std::map<unsigned, LaneMap> chNotesInvisible{};
+    std::map<unsigned, LaneMap> chNotesLN{};
+    std::map<unsigned, LaneMap> chMines{};
 
     std::pair<int, int> normalizeIndexesBME(int layer, int ch);
     std::pair<int, int> normalizeIndexesPMS(int layer, int ch);
@@ -189,5 +184,5 @@ public:
 
 public:
     int getMode() const;
-    auto getLane(LaneCode, unsigned chIdx, unsigned measureIdx) const -> const decltype(chBGM[0][0])&;
+    auto getLane(LaneCode, unsigned chIdx, unsigned measureIdx) const -> const channel&;
 };

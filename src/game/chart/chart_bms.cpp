@@ -144,6 +144,10 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
     _noteCount_scratch = objBms.notes_scratch;
     _noteCount_scratch_ln = objBms.notes_scratch_ln;
 
+    barMetreLength.clear();
+    _barMetrePos.clear();
+    _barTimestamp.clear();
+
     int laneCountOneSide = 7;
     switch (objBms.gamemode)
     {
@@ -179,7 +183,6 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
     BPM bpm = objBms.startBPM * gSelectContext.pitchSpeed;
     _currentBPM = bpm;
     _bpmNoteList.push_back({ 0, {0, 1}, 0, 0, 0, bpm });
-	barMetreLength.fill({ 1, 1 });
     bool bpmfucked = false; // set to true when BPM is changed to zero or negative value
     std::bitset<NOTELANEINDEX_COUNT> isLnTail{ 0 };
 
@@ -244,10 +247,9 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
 
     for (unsigned m = 0; m <= objBms.lastBarIdx; m++)
     {
-		barMetreLength[m] = objBms.metres[m];
-		_barMetrePos[m] = basemetre;
-        _barTimestamp[m] = basetime;
-
+		barMetreLength.push_back(objBms.metres[m]);
+		_barMetrePos.push_back(basemetre);
+        _barTimestamp.push_back(basetime);
 
         // In case the channels from the file are shuffled, store the data into buffer and sort it out first
         // The following patterns must be arranged to keep process order by [Notes > BPM > Stop]

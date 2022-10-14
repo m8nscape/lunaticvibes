@@ -12,8 +12,6 @@ ChartObjectBase::ChartObjectBase(int slot, size_t pn, size_t en) :
     _playerSlot(slot), _noteLists{}, _bgmNoteLists(pn), _specialNoteLists(en), _bgmNoteListIters(pn), _specialNoteListIters(en)
 {
     reset();
-	_barTimestamp.fill({LLONG_MAX, false});
-    _barTimestamp[0] = 0;
     _bpmNoteList.clear();
     //_bpmList.push_back({ 0, {0, 1}, 0, 130 });
     //_stopList.push_back({ 0, {0, 1}, 0.0, 0, 1.0 });
@@ -203,7 +201,7 @@ void ChartObjectBase::update(const Time& rt)
     preUpdate(vt);
 
     // Go through expired measures
-    while (_currentBarTemp + 1 < MAX_MEASURES && vt >= _barTimestamp[_currentBarTemp + 1])
+    while (_currentBarTemp + 1 < _barTimestamp.size() && vt >= _barTimestamp[_currentBarTemp + 1])
     {
         ++_currentBarTemp;
         _currentMetreTemp = 0;
