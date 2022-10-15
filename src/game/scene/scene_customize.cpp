@@ -333,6 +333,14 @@ void SceneCustomize::updateMain()
                 setOption(idxOption, idxEntry);
             }
 
+            if (selectedMode == eMode::SOUNDSET)
+            {
+                SoundMgr::stopSysSamples();
+                load(eMode::SOUNDSET);
+                loadLR2Sound();
+                SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::BGM_SELECT);
+            }
+
             // reload preview
             if (gInCustomize)
             {
