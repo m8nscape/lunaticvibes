@@ -46,7 +46,7 @@ int SpriteBarEntry::setLevel(BarLevelType type, pTexture texture, const Rect& re
     }
 
     if (digits < 3 && type == BarLevelType::IRRANK)
-        LOG_WARNING << "[Sprite] BarEntry level digit (" << digits << ") not enough for idx " << int(type)
+        LOG_WARNING << "[Sprite] BarEntry level digit (" << digits << ") not enough for IRRANK "
             << " (Line " << _srcLine << ")";
     else if (digits < 2)
         LOG_WARNING << "[Sprite] BarEntry level digit (" << digits << ") not enough for idx " << int(type)
@@ -113,7 +113,7 @@ int SpriteBarEntry::setRivalWinLose(BarRivalType type, pTexture texture, const R
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarRivalType::RIVAL_TYPE_COUNT))
     {
-        LOG_WARNING << "[Sprite] BarEntry rival type (" << int(type) << "Invalid!"
+        LOG_WARNING << "[Sprite] BarEntry rival type (" << int(type) << ") Invalid!"
             << " (Line " << _srcLine << ")";
         return 1;
     }

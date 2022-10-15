@@ -1154,8 +1154,17 @@ bool SkinLR2::SRC()
         return false;
 
     auto name = toUpper(parseKeyBuf.substr(5));
-    DefType type = (defTypeName.find(name) != defTypeName.end()) ?
-        defTypeName.at(name) : DefType::UNDEF;
+
+    // partial match is enough
+    DefType type = DefType::UNDEF;
+    for (auto& [typeName, defType] : defTypeName)
+    {
+        if (name.substr(0, typeName.length()) == typeName)
+        {
+            type = defType;
+            break;
+        }
+    }
 
     switch (type)
     {
@@ -2184,8 +2193,17 @@ bool SkinLR2::DST()
         return false;
 
     auto name = toUpper(parseKeyBuf.substr(5));
-    DefType type = (defTypeName.find(name) != defTypeName.end()) ?
-        defTypeName.at(name) : DefType::UNDEF;
+
+    // partial match is enough
+    DefType type = DefType::UNDEF;
+    for (auto& [typeName, defType] : defTypeName)
+    {
+        if (name.substr(0, typeName.length()) == typeName)
+        {
+            type = defType;
+            break;
+        }
+    }
 
     switch (type)
     {
@@ -2614,6 +2632,12 @@ ParseRet SkinLR2::DST_BAR_LEVEL()
     d.timer = 0;
     
     BarLevelType type = BarLevelType(d._null);
+    if (d._null >= (int)BarLevelType::LEVEL_TYPE_COUNT)
+    {
+        LOG_WARNING << "[SkinLR2] BarEntry level type (" << int(type) << ") Invalid!"
+            << " (Line " << csvLineNumber << ")";
+        return ParseRet::PARAM_INVALID;
+    }
 
     for (auto& bar : _barSprites)
     {
@@ -2650,6 +2674,12 @@ ParseRet SkinLR2::DST_BAR_RIVAL_MYLAMP()
     d.timer = 0;
     
     auto type = BarLampType(d._null);
+    if (d._null >= (int)BarLampType::LAMP_TYPE_COUNT)
+    {
+        LOG_WARNING << "[SkinLR2] BarEntry mylamp type (" << int(type) << ") Invalid!"
+            << " (Line " << csvLineNumber << ")";
+        return ParseRet::PARAM_INVALID;
+    }
 
     for (auto& bar : _barSprites)
     {
@@ -2684,6 +2714,12 @@ ParseRet SkinLR2::DST_BAR_RIVAL_RIVALLAMP()
     d.timer = 0;
     
     auto type = BarLampType(d._null);
+    if (d._null >= (int)BarLampType::LAMP_TYPE_COUNT)
+    {
+        LOG_WARNING << "[SkinLR2] BarEntry rivallamp type (" << int(type) << ") Invalid!"
+            << " (Line " << csvLineNumber << ")";
+        return ParseRet::PARAM_INVALID;
+    }
 
     for (auto& bar : _barSprites)
     {
@@ -2719,6 +2755,12 @@ ParseRet SkinLR2::DST_BAR_LAMP()
     d.timer = 0;
     
     auto type = BarLampType(d._null);
+    if (d._null >= (int)BarLampType::LAMP_TYPE_COUNT)
+    {
+        LOG_WARNING << "[SkinLR2] BarEntry lamp type (" << int(type) << ") Invalid!"
+            << " (Line " << csvLineNumber << ")";
+        return ParseRet::PARAM_INVALID;
+    }
 
     for (auto& bar : _barSprites)
     {
@@ -2754,6 +2796,12 @@ ParseRet SkinLR2::DST_BAR_TITLE()
     d.timer = 0;
 
     auto type = BarTitleType(d._null);
+    if (d._null >= (int)BarTitleType::TITLE_TYPE_COUNT)
+    {
+        LOG_WARNING << "[SkinLR2] BarEntry title type (" << int(type) << ") Invalid!"
+            << " (Line " << csvLineNumber << ")";
+        return ParseRet::PARAM_INVALID;
+    }
 
     for (auto& bar : _barSprites)
     {
@@ -2789,6 +2837,12 @@ ParseRet SkinLR2::DST_BAR_RANK()
     d.timer = 0;
 
     auto type = BarRankType(d._null);
+    if (d._null >= (int)BarRankType::RANK_TYPE_COUNT)
+    {
+        LOG_WARNING << "[SkinLR2] BarEntry rank type (" << int(type) << ") Invalid!"
+            << " (Line " << csvLineNumber << ")";
+        return ParseRet::PARAM_INVALID;
+    }
 
     for (auto& bar : _barSprites)
     {
@@ -2824,6 +2878,12 @@ ParseRet SkinLR2::DST_BAR_RIVAL()
     d.timer = 0;
     
     auto type = BarRivalType(d._null);
+    if (d._null >= (int)BarRivalType::RIVAL_TYPE_COUNT)
+    {
+        LOG_WARNING << "[SkinLR2] BarEntry rival type (" << int(type) << ") Invalid!"
+            << " (Line " << csvLineNumber << ")";
+        return ParseRet::PARAM_INVALID;
+    }
 
     for (auto& bar : _barSprites)
     {

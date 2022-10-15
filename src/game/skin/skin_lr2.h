@@ -1493,7 +1493,7 @@ private:
         AUTO_LN_START,
     };
 
-    static inline const std::map<Token, DefType> defTypeName =
+    static inline const std::vector<std::pair<Token, DefType>> defTypeName =
     {
         {"IMAGE",          DefType::IMAGE},
         {"NUMBER",         DefType::NUMBER},
@@ -1513,9 +1513,9 @@ private:
         {"GAUGECHART_1P",  DefType::GAUGECHART_1P},
         {"GAUGECHART_2P",  DefType::GAUGECHART_2P},
         {"SCORECHART",     DefType::SCORECHART},
-        {"BAR_BODY",       DefType::BAR_BODY},
         {"BAR_BODY_OFF",   DefType::BAR_BODY_OFF},
         {"BAR_BODY_ON",    DefType::BAR_BODY_ON},
+        {"BAR_BODY",       DefType::BAR_BODY},
         {"BAR_FLASH",      DefType::BAR_FLASH},
         {"BAR_LEVEL",      DefType::BAR_LEVEL},
         {"BAR_LAMP",       DefType::BAR_LAMP},
