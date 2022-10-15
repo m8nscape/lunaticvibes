@@ -70,7 +70,7 @@ void vSkin::update_mouse(int x, int y)
 
     auto clickSpriteLambda = [x, y](const pSprite& s)
     {
-        if (!s->isHidden())
+        if (s->isDraw() && !s->isHidden())
         {
             auto pS = std::dynamic_pointer_cast<iSpriteMouse>(s);
             if (pS != nullptr)
@@ -97,7 +97,7 @@ void vSkin::update_mouse_click(int x, int y)
     _pLastClick = nullptr;
     for (auto it = _sprites.rbegin(); it != _sprites.rend() && !invoked; ++it)
     {
-        if (!(*it)->isHidden())
+        if ((*it)->isDraw() && !(*it)->isHidden())
         {
             auto pS = std::dynamic_pointer_cast<iSpriteMouse>(*it);
             if (pS != nullptr)
