@@ -49,14 +49,14 @@ The project is still in development stage. Please do not expect a bug-free exper
         mkdir build
         cd build
         cmake .. -G "Visual Studio 17 2022" -A x64
-        cmake --build . --config Release -j -t game
+        cmake --build . --config Release -j -t LunaticVibes
         ```
 
     b. Ninja (via IDE)
 
         - Open project folder with Visual Studio
         - Open CMake configuration, fill CMake toolchain file to the one from vcpkg like "D:/vcpkg/scripts/buildsystems/vcpkg.cmake"
-        - Build game.exe
+        - Build LunaticVibes.exe
 
 ---------------
 
