@@ -3676,7 +3676,7 @@ void SkinLR2::update()
     for (size_t i = 0; i < 6; ++i)
     {
         // 1P judge
-        if (gSprites[i] && gSprites[i + 6] && gSprites[i]->isDraw() && gSprites[i + 6]->isDraw())
+        if (gSprites[i] && gSprites[i + 6])
         {
             std::shared_ptr<SpriteAnimated> judge = std::reinterpret_pointer_cast<SpriteAnimated>(gSprites[i]);
             std::shared_ptr<SpriteNumber> combo = std::reinterpret_pointer_cast<SpriteNumber>(gSprites[i + 6]);
@@ -3716,7 +3716,7 @@ void SkinLR2::update()
             }
         }
         // 2P judge
-        if (gSprites[i + 12] && gSprites[i + 18] && gSprites[i + 12]->isDraw() && gSprites[i + 18]->isDraw())
+        if (gSprites[i + 12] && gSprites[i + 18])
         {
             std::shared_ptr<SpriteAnimated> judge = std::reinterpret_pointer_cast<SpriteAnimated>(gSprites[i + 12]);
             std::shared_ptr<SpriteNumber> combo = std::reinterpret_pointer_cast<SpriteNumber>(gSprites[i + 18]);

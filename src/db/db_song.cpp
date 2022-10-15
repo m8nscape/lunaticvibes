@@ -521,36 +521,38 @@ int SongDB::addFolder(Path path, const HashMD5& parentHash)
     long long folderModifyTime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(path).time_since_epoch()).count();
 #endif
 
-    if (auto q = query("SELECT pathmd5,type,modtime FROM folder WHERE path=?", 3, { path.u8string() }); !q.empty())
+    if (auto q = query("SELECT pathmd5,path,type,modtime FROM folder WHERE path=?", 4, { path.u8string() }); !q.empty())
     {
-        LOG_DEBUG << "[SongDB] Folder already exists (" << path.u8string() << ")";
+        LOG_DEBUG << "[SongDB] Sub folder already exists (" << path.u8string() << ")";
 
         std::string folderMD5 = ANY_STR(q[0][0]);
-        FolderType folderType = (FolderType)ANY_INT(q[0][1]);
-        long long folderModifyTimeDB = ANY_INT(q[0][2]);
+        std::string folderPath = ANY_STR(q[0][1]);
+        FolderType folderType = (FolderType)ANY_INT(q[0][2]);
+        long long folderModifyTimeDB = ANY_INT(q[0][3]);
 
         if (folderType == FolderType::SONG_BMS)
         {
             // only update song folder if recently modified
             if (folderModifyTime > folderModifyTimeDB)
             {
+                LOG_DEBUG << "[SongDB] Refresh song folder: " << folderPath;
                 count = refreshExistingFolder(folderMD5, path, folderType);
+            }
+            else
+            {
+                LOG_DEBUG << "[SongDB] Skip refreshing song folder: " << folderPath;
             }
         }
         else
         {
             // step in sub folders
+            LOG_DEBUG << "[SongDB] Step in sub folder: " << folderPath;
             count = refreshExistingFolder(folderMD5, path, folderType);
-        }
-
-        // update modification time
-        if (int ret = exec("UPDATE folder SET modtime=? WHERE pathmd5=?", { nowTime, folderMD5 }); ret != SQLITE_OK)
-        {
-            LOG_WARNING << "[SongDB] Update modification time fail: [" << ret << "] " << errmsg() << " (" << path.u8string() << ")";
         }
     }
     else
     {
+        LOG_DEBUG << "[SongDB] Add new sub folder (" << path.u8string() << ")";
         count = addNewFolder(folderHash, path, parentHash);
     }
 
@@ -722,6 +724,8 @@ int SongDB::refreshExistingFolder(const HashMD5& hash, const Path& path, FolderT
         std::sort(existedFiles.begin(), existedFiles.end());
 
         // delete file-not-found song entries
+        bool hasDeletedEntry = false;
+        bool hasModifiedEntry = false;
         if (!existedFiles.empty())
         {
             std::vector<HashMD5> deletedFiles;
@@ -753,6 +757,7 @@ int SongDB::refreshExistingFolder(const HashMD5& hash, const Path& path, FolderT
                 }
             }
 
+            hasDeletedEntry = !deletedFiles.empty();
             for (auto& chartMD5 : deletedFiles)
             {
                 if (removeChart(chartMD5, hash))
@@ -761,6 +766,7 @@ int SongDB::refreshExistingFolder(const HashMD5& hash, const Path& path, FolderT
                 }
             }
 
+            hasModifiedEntry = !modifiedFiles.empty();
             for (auto& chartPath : modifiedFiles)
             {
                 if (removeChart(chartPath, hash))
@@ -790,12 +796,27 @@ int SongDB::refreshExistingFolder(const HashMD5& hash, const Path& path, FolderT
             count++;
         }
 
+        if (hasDeletedEntry || hasModifiedEntry || count > 0)
+        {
+            // update modification time
+            long long nowTime = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+#if _WIN32
+            long long folderModifyTime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(path).time_since_epoch()).count() - 11644473600;
+#else
+            long long folderModifyTime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(path).time_since_epoch()).count();
+#endif
+            if (int ret = exec("UPDATE folder SET modtime=? WHERE pathmd5=?", { nowTime, hash.hexdigest() }); ret != SQLITE_OK)
+            {
+                LOG_WARNING << "[SongDB] Update modification time fail: [" << ret << "] " << errmsg() << " (" << path.u8string() << ")";
+            }
+    }
+
         LOG_DEBUG << "[SongDB] Folder originally has " << existedFiles.size() << " entries, added " << count << " (" << path.u8string() << ")";
         return count;
     }
     else
     {
-        LOG_DEBUG << "[SongDB] Checking for new subfolders" << " (" << path.u8string() << ")";
+        LOG_DEBUG << "[SongDB] Checking for new subfolders (" << path.u8string() << ")";
 
         // get folders from db
         std::vector<Path> existedFiles;
@@ -807,15 +828,19 @@ int SongDB::refreshExistingFolder(const HashMD5& hash, const Path& path, FolderT
         std::sort(existedFiles.begin(), existedFiles.end());
 
         // delete file-not-found folders
+        bool hasDeletedEntry = false;
         if (!existedFiles.empty())
         {
             std::vector<HashMD5> deletedFiles;
             for (size_t i = 0; i < existedList->getContentsCount(); ++i)
             {
                 if (!fs::exists(existedList->getEntry(i)->getPath()))
+                {
+                    LOG_DEBUG << "[SongDB] Deleting file-not-found folder: " << existedList->getEntry(i)->getPath();
                     deletedFiles.push_back(existedList->getEntry(i)->md5);
+                }
             }
-
+            hasDeletedEntry = !deletedFiles.empty();
             for (auto& folderMD5 : deletedFiles)
             {
                 removeFolder(folderMD5);
@@ -840,7 +865,22 @@ int SongDB::refreshExistingFolder(const HashMD5& hash, const Path& path, FolderT
             }
         }
 
-        LOG_DEBUG << "[SongDB] Checked " << count << " (" << path.u8string() << ")";
+        if (hasDeletedEntry || count > 0)
+        {
+            // update modification time
+            long long nowTime = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+#if _WIN32
+            long long folderModifyTime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(path).time_since_epoch()).count() - 11644473600;
+#else
+            long long folderModifyTime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(path).time_since_epoch()).count();
+#endif
+            if (int ret = exec("UPDATE folder SET modtime=? WHERE pathmd5=?", { nowTime, hash.hexdigest() }); ret != SQLITE_OK)
+            {
+                LOG_WARNING << "[SongDB] Update modification time fail: [" << ret << "] " << errmsg() << " (" << path.u8string() << ")";
+            }
+        }
+
+        LOG_DEBUG << "[SongDB] Checking for new subfolders finished. Added " << count << "entries (" << path.u8string() << ")";
         return count;
     }
 }
@@ -929,7 +969,7 @@ HashMD5 SongDB::getFolderHash(Path path) const
 
 EntryFolderRegular SongDB::browse(HashMD5 root, bool recursive)
 {
-    LOG_DEBUG << "[SongDB] browse " << root.hexdigest() << (recursive ? " RECURSIVE" : "");
+    LOG_DEBUG << "[SongDB] browse folder " << root.hexdigest() << (recursive ? " RECURSIVE" : "");
 
     if (root == ROOT_FOLDER_HASH)
     {
@@ -982,7 +1022,7 @@ EntryFolderRegular SongDB::browse(HashMD5 root, bool recursive)
         }
     }
 
-    LOG_DEBUG << "[SongDB] browsed " << list.getContentsCount() << " entries";
+    LOG_DEBUG << "[SongDB] browsed folder: " << list.getContentsCount() << " entries";
 
     return list;
 }
@@ -1032,7 +1072,7 @@ EntryFolderSong SongDB::browseSong(HashMD5 root)
         }
     }
 
-    LOG_DEBUG << "[SongDB] browsed " << list.getContentsCount() << " entries";
+    LOG_DEBUG << "[SongDB] browsed song: " << list.getContentsCount() << " entries";
 
     return list;
 }

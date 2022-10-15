@@ -95,7 +95,7 @@ std::vector<std::vector<std::any>> SQLite::query(const char* zsql, size_t retSiz
 #if _DEBUG
     std::stringstream ss;
     ss << "[sqlite3] " << tag << ": " << " query " << zsql;
-    ss << "(args: ";
+    ss << " (args: ";
     for (auto& a : args)
     {
         ss << any_to_str(a) << ", ";
@@ -136,11 +136,12 @@ int SQLite::exec(const char* zsql, std::initializer_list<std::any> args)
 #if _DEBUG
     std::stringstream ss;
     ss << "[sqlite3] " << tag << ": " << " exec " << zsql;
-    ss << "(args: ";
+    ss << " (args: ";
     for (auto& a : args)
     {
         ss << any_to_str(a) << ", ";
     }
+    ss << ")";
     if (ret != SQLITE_OK && ret != SQLITE_ROW && ret != SQLITE_DONE)
         LOG_ERROR << ss.str() << ": " << errmsg();
     else
