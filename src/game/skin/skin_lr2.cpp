@@ -1190,34 +1190,42 @@ bool SkinLR2::SRC()
         // Find texture from map by gr
         int gr = toInt(parseParamBuf[1]);
         std::string gr_key;
-        switch (gr)
+        if (gr == 105)
         {
-        case 100: gr_key = "STAGEFILE"; break;
-        case 101: gr_key = "BACKBMP"; break;
-        case 102: gr_key = "BANNER"; break;
-        case 105: gr_key = "THUMBNAIL"; break;
-        case 110: gr_key = "Black"; break;
-        case 111: gr_key = "White"; break;
-        default: gr_key = std::to_string(gr); break;
-        }
-        if (_vidNameMap.find(gr_key) != _vidNameMap.end())
-        {
-            textureBuf = _textureNameMap["White"];
-            videoBuf = _vidNameMap[gr_key];
-            useVideo = true;
-        }
-        else if (_textureNameMap.find(gr_key) != _textureNameMap.end())
-        {
-            textureBuf = _textureNameMap[gr_key];
+            textureBuf = getTextureCustomizeThumbnail();
             videoBuf = nullptr;
             useVideo = false;
         }
         else
         {
-            // textureBuf = _textureNameMap["Error"];
-            textureBuf = std::make_shared<Texture>(nullptr, 0, 0);
-            videoBuf = nullptr;
-            useVideo = false;
+            switch (gr)
+            {
+            case 100: gr_key = "STAGEFILE"; break;
+            case 101: gr_key = "BACKBMP"; break;
+            case 102: gr_key = "BANNER"; break;
+            case 110: gr_key = "Black"; break;
+            case 111: gr_key = "White"; break;
+            default: gr_key = std::to_string(gr); break;
+            }
+            if (_vidNameMap.find(gr_key) != _vidNameMap.end())
+            {
+                textureBuf = _textureNameMap["White"];
+                videoBuf = _vidNameMap[gr_key];
+                useVideo = true;
+            }
+            else if (_textureNameMap.find(gr_key) != _textureNameMap.end())
+            {
+                textureBuf = _textureNameMap[gr_key];
+                videoBuf = nullptr;
+                useVideo = false;
+            }
+            else
+            {
+                // textureBuf = _textureNameMap["Error"];
+                textureBuf = std::make_shared<Texture>(nullptr, 0, 0);
+                videoBuf = nullptr;
+                useVideo = false;
+            }
         }
     }
     break;
@@ -2957,17 +2965,6 @@ int SkinLR2::parseHeader(const Tokens& raw)
         }
         info.name = title;
         info.maker = maker;
-
-        if (thumbnail.find('*') != thumbnail.npos)
-        {
-            auto ls = findFiles(thumbnail);
-            if (!ls.empty())
-                thumbnail = ls[0].u8string();
-        }
-        _textureNameMap["THUMBNAIL"] = std::make_shared<Texture>(Image(
-            PathFromUTF8(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), thumbnail))));
-        if (_textureNameMap["THUMBNAIL"] == nullptr)
-            LOG_WARNING << "[Skin] " << csvLineNumber << ": thumbnail loading failed: " << thumbnail;
 
         LOG_DEBUG << "[Skin] " << csvLineNumber << ": Loaded metadata: " << title << " | " << maker;
 

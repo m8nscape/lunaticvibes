@@ -104,6 +104,7 @@ int graphics_init()
             LOG_ERROR << "[SDL2] Init renderer ERROR! " << SDL_GetError();
             return -2;
         }
+        SDL_SetRenderDrawColor(gFrameRenderer, 0, 0, 0, 255);
 
         SDL_ShowWindow(gFrameWindow);
 
@@ -205,7 +206,6 @@ void graphics_flush()
             }
             ImGui_ImplSDLRenderer_RenderDrawData(pData);
         }
-
         SDL_RenderPresent(gFrameRenderer);
     }
     SDL_SetRenderTarget(gFrameRenderer, gInternalRenderTarget);
@@ -235,6 +235,18 @@ int graphics_free()
 	SDL_Quit();
 
     return 0;
+}
+
+void graphics_copy_screen_texture(Texture& texture)
+{
+    assert(IsMainThread());
+
+    SDL_SetRenderTarget(gFrameRenderer, (SDL_Texture*)texture.raw());
+    SDL_RenderClear(gFrameRenderer);
+    Rect r = texture.getRect();
+    SDL_Rect rect{ r.x, r.y, r.w, r.h };
+    SDL_RenderCopyEx(gFrameRenderer, gInternalRenderTarget, &windowRect, &rect, 0, NULL, SDL_FLIP_NONE);
+    SDL_SetRenderTarget(gFrameRenderer, gInternalRenderTarget);
 }
 
 void graphics_change_window_mode(int mode)

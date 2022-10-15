@@ -189,9 +189,10 @@ public:
 	Texture(const Image& srcImage);
 	Texture(const SDL_Surface* pSurface);
 	Texture(const SDL_Texture* pTexture, int w, int h);
-	Texture(int w, int h, PixelFormat fmt);	// for streaming texture
+	Texture(int w, int h, PixelFormat fmt, bool target);
 	virtual ~Texture();
 public:
+    void* raw() { return (void*)_pTexture.get(); }
 	Rect getRect() const { return _texRect; }
 	bool isLoaded() const { return _loaded; }
     int updateYUV(uint8_t* Y, int Ypitch, uint8_t* U, int Upitch, uint8_t* V, int Vpitch);

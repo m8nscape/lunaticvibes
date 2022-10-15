@@ -20,7 +20,7 @@ extern "C"
 }
 
 TextureVideo::TextureVideo(std::shared_ptr<sVideo> pv) :
-	Texture(pv->getW(), pv->getH(), pv->getFormat()),
+	Texture(pv->getW(), pv->getH(), pv->getFormat(), false),
 	format(pv->getFormat()), 
 	pVideo(pv)
 {

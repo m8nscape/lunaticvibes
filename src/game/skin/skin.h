@@ -87,6 +87,8 @@ public:
     void startTextEdit(bool clear);
     void stopTextEdit(bool modify);
 
+    pTexture getTextureCustomizeThumbnail();
+
     ///////////////////////////////////////////////////////////
     // Info defined by header
     struct skinInfo

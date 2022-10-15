@@ -5,6 +5,7 @@ class SceneCustomize : public vScene
 {
 private:
     bool _exiting = false;
+    std::shared_ptr<Texture> graphics_get_screen_texture;
 
 public:
     SceneCustomize();
@@ -46,4 +47,10 @@ protected:
 
 protected:
     void inputGamePress(InputMask&, const Time&);
+
+protected:
+    std::shared_ptr<vScene> pSubScene = nullptr;
+public:
+    virtual void update() override;
+    virtual void draw() const override;
 };

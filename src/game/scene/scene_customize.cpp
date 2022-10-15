@@ -568,3 +568,30 @@ void SceneCustomize::inputGamePress(InputMask& m, const Time& t)
         updateTexts();
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+void SceneCustomize::update()
+{
+    if (pSubScene)
+    {
+        pSubScene->update();
+    }
+
+    vScene::update();
+}
+
+void SceneCustomize::draw() const
+{
+    if (pSubScene)
+    {
+        pSubScene->draw();
+    }
+
+    // screenshot
+    pTexture pTex = _skin->getTextureCustomizeThumbnail();
+    graphics_copy_screen_texture(*pTex);
+
+    // draw own things
+    vScene::draw();
+}

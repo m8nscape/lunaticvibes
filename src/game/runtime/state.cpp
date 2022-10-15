@@ -95,5 +95,7 @@ long long State::get(IndexTimer ind)
 
 void State::resetTimer()
 {
-	return _inst.gTimers.reset();
+	long long customizeTimer = get(IndexTimer::_SCENE_CUSTOMIZE_START);
+	_inst.gTimers.reset();
+	set(IndexTimer::_SCENE_CUSTOMIZE_START, customizeTimer);
 }

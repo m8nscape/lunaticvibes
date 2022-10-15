@@ -20,6 +20,8 @@ void graphics_clear();
 void graphics_flush();
 int graphics_free();
 
+void graphics_copy_screen_texture(Texture& texture);
+
 // 0: windowed / 1: fullscreen / 2: borderless
 void graphics_change_window_mode(int mode);
 

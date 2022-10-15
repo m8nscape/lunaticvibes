@@ -255,31 +255,39 @@ Texture::Texture(const SDL_Texture* pTexture, int w, int h)
     _loaded = true;
 }
 
-Texture::Texture(int w, int h, PixelFormat fmt)
+Texture::Texture(int w, int h, PixelFormat fmt, bool target)
 {
 	SDL_PixelFormatEnum sdlfmt = SDL_PIXELFORMAT_UNKNOWN;
 	switch (fmt)
 	{
-		case PixelFormat::YV12:
-			sdlfmt = SDL_PIXELFORMAT_YV12; break;
-		case PixelFormat::IYUV:
-			sdlfmt = SDL_PIXELFORMAT_IYUV; break;
-		case PixelFormat::YUY2:
-			sdlfmt = SDL_PIXELFORMAT_YUY2; break;
-		case PixelFormat::UYVY:
-			sdlfmt = SDL_PIXELFORMAT_UYVY; break;
-		case PixelFormat::YVYU:
-			sdlfmt = SDL_PIXELFORMAT_YVYU; break;
-		default:
-			sdlfmt = SDL_PIXELFORMAT_UNKNOWN; break;
+    case PixelFormat::RGB24:
+        sdlfmt = SDL_PIXELFORMAT_RGB24; break;
+    case PixelFormat::BGR24:
+        sdlfmt = SDL_PIXELFORMAT_BGR24; break;
+	case PixelFormat::YV12:
+		sdlfmt = SDL_PIXELFORMAT_YV12; break;
+	case PixelFormat::IYUV:
+		sdlfmt = SDL_PIXELFORMAT_IYUV; break;
+	case PixelFormat::YUY2:
+		sdlfmt = SDL_PIXELFORMAT_YUY2; break;
+	case PixelFormat::UYVY:
+		sdlfmt = SDL_PIXELFORMAT_UYVY; break;
+	case PixelFormat::YVYU:
+		sdlfmt = SDL_PIXELFORMAT_YVYU; break;
+	default:
+		sdlfmt = SDL_PIXELFORMAT_UNKNOWN; break;
 	}
 
 	if (sdlfmt != SDL_PIXELFORMAT_UNKNOWN)
 	{
         _pTexture = std::shared_ptr<SDL_Texture>(
-            pushAndWaitMainThreadTask<SDL_Texture*>(std::bind(SDL_CreateTexture, gFrameRenderer, sdlfmt, SDL_TEXTUREACCESS_STREAMING, w, h)),
+            pushAndWaitMainThreadTask<SDL_Texture*>(std::bind(SDL_CreateTexture, gFrameRenderer, sdlfmt, target ? SDL_TEXTUREACCESS_TARGET : SDL_TEXTUREACCESS_STREAMING, w, h)),
             std::bind(pushAndWaitMainThreadTask<void, SDL_Texture*>, SDL_DestroyTexture, _1));
-		if (_pTexture) _loaded = true;
+        if (_pTexture)
+        {
+            _texRect = { 0, 0, w, h };
+            _loaded = true;
+        }
 	}
 }
 
