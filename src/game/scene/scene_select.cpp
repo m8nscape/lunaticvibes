@@ -2062,9 +2062,9 @@ void SceneSelect::updatePreview()
                     {
                         auto bms = std::reinterpret_pointer_cast<ChartFormatBMS>(previewChart);
 
+                        // check if #PREVIEW is valid
                         for (auto& [key, val] : bms->extraCommands)
                         {
-                            // check if #PREVIEW is valid
                             if (strEqual(key, "PREVIEW", true) && !val.empty())
                             {
                                 Path pWav = fs::u8path(val);
@@ -2076,6 +2076,23 @@ void SceneSelect::updatePreview()
                                 break;
                             }
                         }
+                        // check if preview(*).ogg is valid
+                        if (!previewStandalone)
+                        {
+                            for (auto& f : fs::directory_iterator(bms->getDirectory()))
+                            {
+                                if (strEqual(f.path().filename().u8string().substr(0, 7), "preview", true))
+                                {
+                                    Path pWav = f.path();
+                                    if (SoundMgr::loadNoteSample(pWav, 0) == 0)
+                                    {
+                                        previewStandalone = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
                         if (previewStandalone)
                         {
                             previewStartTime = Time();
