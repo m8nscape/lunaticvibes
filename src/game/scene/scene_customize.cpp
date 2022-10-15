@@ -22,6 +22,8 @@ SceneCustomize::SceneCustomize() : vScene(eMode::THEME_SELECT, 240)
         selectedMode = eMode::PLAY7;
         gCustomizeContext.mode = selectedMode;
         gNextScene = eScene::PLAY;
+        gPlayContext.mode = selectedMode;
+        gPlayContext.isAuto = true;
         gCustomizeSceneChanged = true;
     }
     else
@@ -141,6 +143,7 @@ void SceneCustomize::updateMain()
                 case eMode::PLAY10:
                 case eMode::PLAY14:
                     gPlayContext.mode = selectedMode;
+                    gPlayContext.isAuto = true;
                     break;
                 }
                 gNextScene = getSceneFromMode(selectedMode);
@@ -289,6 +292,7 @@ void SceneCustomize::updateMain()
                         case eMode::PLAY10:
                         case eMode::PLAY14:
                             gPlayContext.mode = selectedMode;
+                            gPlayContext.isAuto = true;
                             break;
                         }
                         gNextScene = getSceneFromMode(selectedMode);
@@ -342,6 +346,7 @@ void SceneCustomize::updateMain()
                 case eMode::PLAY10:
                 case eMode::PLAY14:
                     gPlayContext.mode = selectedMode;
+                    gPlayContext.isAuto = true;
                     break;
                 }
                 gNextScene = getSceneFromMode(selectedMode);
