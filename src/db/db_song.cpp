@@ -481,9 +481,26 @@ std::vector<pChartFormat> SongDB::findChartByHash(const HashMD5& target) const
 
 int SongDB::addFolder(Path path, const HashMD5& parentHash)
 {
+    std::future<void> sessionFuture;
+    std::chrono::system_clock::time_point sessionTimestamp = std::chrono::system_clock::now();
     if (parentHash == ROOT_FOLDER_HASH)
     {
         LOG_INFO << "[SongDB] Add root folder: " << path.u8string();
+        inAddFolderSession = true;
+        transactionStart();
+        sessionFuture = std::async(std::launch::async, [&]()
+            {
+                while (inAddFolderSession)
+                {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                    if (inAddFolderSession && std::chrono::system_clock::now() - sessionTimestamp >= std::chrono::seconds(10))
+                    {
+                        sessionTimestamp = std::chrono::system_clock::now();
+                        transactionStop();
+                        transactionStart();
+                    }
+                }
+            });
     }
 
     path = (path / ".").lexically_normal();
@@ -559,6 +576,9 @@ int SongDB::addFolder(Path path, const HashMD5& parentHash)
     if (parentHash == ROOT_FOLDER_HASH)
     {
         LOG_INFO << "[SongDB] " << path.u8string() << ": added " << count << " entries";
+        inAddFolderSession = false;
+        transactionStop();
+        sessionFuture.wait_for(std::chrono::seconds(10));
     }
 
     return count;

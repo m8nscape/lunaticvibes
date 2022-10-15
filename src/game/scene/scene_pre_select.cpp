@@ -60,7 +60,6 @@ void ScenePreSelect::updateLoadSongs()
 
             State::set(IndexText::_OVERLAY_TOPLEFT, "Checking folders...");
 
-            g_pSongDB->transactionStart();
             loadSongTimer = std::chrono::system_clock::now();
 
             // get folders from config
@@ -116,15 +115,6 @@ void ScenePreSelect::updateLoadSongs()
         g_pSongDB->transactionStop();
         loadSongEnd.get();
         _updateCallback = std::bind(&ScenePreSelect::updateLoadTables, this);
-    }
-    else
-    {
-        if (std::chrono::system_clock::now() - loadSongTimer >= std::chrono::seconds(10))
-        {
-            g_pSongDB->transactionStop();
-            g_pSongDB->transactionStart();
-            loadSongTimer = std::chrono::system_clock::now();
-        }
     }
 }
 
