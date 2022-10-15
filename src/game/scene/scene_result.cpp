@@ -355,14 +355,17 @@ void SceneResult::updateFadeout()
                 }
                 score.lamp = std::min(score.lamp, saveLamp);
 
-                score.pgreat = rBMS->getJudgeCount(RulesetBMS::JudgeType::PERFECT);
-                score.great = rBMS->getJudgeCount(RulesetBMS::JudgeType::GREAT);
-                score.good = rBMS->getJudgeCount(RulesetBMS::JudgeType::GOOD);
-                score.bad = rBMS->getJudgeCount(RulesetBMS::JudgeType::BAD);
-                score.bpoor = rBMS->getJudgeCount(RulesetBMS::JudgeType::BPOOR);
-                score.miss = rBMS->getJudgeCount(RulesetBMS::JudgeType::MISS);
-                score.bp = score.bad + score.bpoor + score.miss;
-                score.combobreak = rBMS->getJudgeCount(RulesetBMS::JudgeType::COMBOBREAK);
+                if (gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask != 0)
+                {
+                    score.pgreat = rBMS->getJudgeCount(RulesetBMS::JudgeType::PERFECT);
+                    score.great = rBMS->getJudgeCount(RulesetBMS::JudgeType::GREAT);
+                    score.good = rBMS->getJudgeCount(RulesetBMS::JudgeType::GOOD);
+                    score.bad = rBMS->getJudgeCount(RulesetBMS::JudgeType::BAD);
+                    score.bpoor = rBMS->getJudgeCount(RulesetBMS::JudgeType::BPOOR);
+                    score.miss = rBMS->getJudgeCount(RulesetBMS::JudgeType::MISS);
+                    score.bp = score.bad + score.bpoor + score.miss;
+                    score.combobreak = rBMS->getJudgeCount(RulesetBMS::JudgeType::COMBOBREAK);
+                }
                 g_pScoreDB->updateChartScoreBMS(gChartContext.hash, score);
                 break;
             }
