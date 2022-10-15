@@ -20,6 +20,7 @@ protected:
     SongListProperties rootFolderProp;
     bool startedLoadSong = false;
     bool startedLoadTable = false;
+    std::chrono::system_clock::time_point loadSongTimer;
     std::future<void> loadSongEnd;
     std::future<void> loadTableEnd;
     int prevChartLoaded = 0;

@@ -170,7 +170,7 @@ void SQLite::transactionStart()
     }
     else
     {
-        LOG_ERROR << "[sqlite3] " << tag << ": " << "Transaction started";
+        LOG_INFO << "[sqlite3] " << tag << ": " << "Transaction started";
     }
     sqlite3_finalize(stmt);
 }
@@ -193,7 +193,7 @@ void SQLite::transactionStop()
     }
     else
     {
-        LOG_ERROR << "[sqlite3] " << tag << ": " << "Transaction finished";
+        LOG_INFO << "[sqlite3] " << tag << ": " << "Transaction finished";
     }
     sqlite3_finalize(stmt);
 }
