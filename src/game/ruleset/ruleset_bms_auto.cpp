@@ -59,9 +59,18 @@ void RulesetBMSAuto::setTargetRate(double rate)
     }
 
     unsigned count0 = 0, count1 = 0, count2 = 0;
-    count1 = 2 * count - score;
-    count2 = score - count;
-    count0 = count - count1 - count2;
+    if (rate >= 0.5)
+    {
+        count1 = 2 * count - score;
+        count2 = score - count;
+        count0 = count - count1 - count2;
+    }
+    else
+    {
+        count2 = 0;
+        count1 = score;
+        count0 = count - count1;
+    }
     totalJudgeCount[JudgeType::PERFECT] = count2;
     totalJudgeCount[JudgeType::GREAT] = count1;
     totalJudgeCount[JudgeType::GOOD] = count0;

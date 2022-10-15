@@ -2185,11 +2185,13 @@ void ScenePlay::updateFadeout()
         gPlayContext.chartObj[PLAYER_SLOT_MYBEST]->update(rt);
     }
 
-    if (gChartContext.started)
-        State::set(IndexTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentMetre() * 4.0)) % 1000);
     spinTurntable(gChartContext.started);
+    if (gChartContext.started)
+    {
+        State::set(IndexTimer::MUSIC_BEAT, int(1000 * (gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentMetre() * 4.0)) % 1000);
 
-	gPlayContext.bgaTexture->update(rt, false);
+        gPlayContext.bgaTexture->update(rt, false);
+    }
 
     if (ft >= _skin->info.timeOutro)
     {
