@@ -216,6 +216,7 @@ class SpriteAnimated : public SpriteSelection
     friend class SpriteLaneVertical;
     friend class SpriteLaneVerticalLN;
     friend class SpriteSlider;
+    friend class SkinLR2;
 protected:
     //bool _aVert = false;
     //Rect _aRect;

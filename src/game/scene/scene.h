@@ -23,6 +23,27 @@ enum class eScene
     EXIT_TRANS,
     EXIT
 };
+inline eScene getSceneFromMode(eMode m)
+{
+    static const std::map<eMode, eScene> modeSceneMap =
+    {
+    { eMode::MUSIC_SELECT,  eScene::SELECT},
+    { eMode::DECIDE,        eScene::DECIDE},
+    { eMode::THEME_SELECT,  eScene::CUSTOMIZE},
+    { eMode::KEY_CONFIG,    eScene::KEYCONFIG},
+    { eMode::PLAY5,         eScene::PLAY},
+    { eMode::PLAY5_2,       eScene::PLAY},
+    { eMode::PLAY7,         eScene::PLAY},
+    { eMode::PLAY7_2,       eScene::PLAY},
+    { eMode::PLAY9,         eScene::PLAY},
+    { eMode::PLAY9_2,       eScene::PLAY},
+    { eMode::PLAY10,        eScene::PLAY},
+    { eMode::PLAY14,        eScene::PLAY},
+    { eMode::RESULT,        eScene::RESULT},
+    //{ eMode::COURSE_RESULT, eScene::},
+    };
+    return modeSceneMap.find(m) != modeSceneMap.end() ? modeSceneMap.at(m) : eScene::NOT_INIT;
+}
 
 // Parent class of scenes, defines how an object being stored and drawn.
 // Every classes of scenes should inherit this class.
@@ -52,6 +73,7 @@ public:
     virtual ~vScene();
     void inputLoopStart() { _input.loopStart(); }
     void inputLoopEnd() { _input.loopEnd(); }
+    void disableMouseInput() { _skin->setHandleMouseEvents(false); }
 
 public:
     virtual void update();      // skin update

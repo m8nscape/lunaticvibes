@@ -244,38 +244,45 @@ void mainLoop()
         }
 
         // Scene change
-        if (currentScene != gNextScene)
+        static pScene sceneCustomize = nullptr;
+        if (gInCustomize)
         {
+            if (sceneCustomize == nullptr)
+            {
+                sceneCustomize = SceneMgr::get(eScene::CUSTOMIZE);
+                sceneCustomize->loopStart();
+                sceneCustomize->inputLoopStart();
+            }
+            if (gExitingCustomize && sceneCustomize)
+            {
+                gInCustomize = false;
+                sceneCustomize->inputLoopEnd();
+                sceneCustomize->loopEnd();
+                sceneCustomize.reset();
+                gNextScene = eScene::SELECT;
+            }
+        }
+        if (gInCustomize && gCustomizeSceneChanged || !gInCustomize && currentScene != gNextScene || gExitingCustomize)
+        {
+            if (!gInCustomize) gExitingCustomize = false;
+            gCustomizeSceneChanged = false;
+
             if (scene)
             {
                 scene->inputLoopEnd();
                 scene->loopEnd();
+                scene.reset();
             }
-
-            switch (gNextScene)
-            {
-            case eScene::SELECT: LOG_INFO << "Scene changed to SELECT"; break;
-            case eScene::DECIDE: LOG_INFO << "Scene changed to DECIDE"; break;
-            case eScene::PLAY:   LOG_INFO << "Scene changed to PLAY"; break;
-            case eScene::RETRY_TRANS:  LOG_INFO << "Scene changed to RETRY_TRANS"; break;
-            case eScene::RESULT: LOG_INFO << "Scene changed to RESULT"; break;
-            case eScene::KEYCONFIG: LOG_INFO << "Scene changed to KEYCONFIG"; break;
-            case eScene::CUSTOMIZE: LOG_INFO << "Scene changed to CUSTOMIZE"; break;
-            case eScene::EXIT:   LOG_INFO << "Scene changed to EXIT"; break;
-            default: break;
-            }
-
-            // Disable skin caching for now. dst options are changing all the time
-            SkinMgr::clean();
 
             clearCustomDstOpt();
             currentScene = gNextScene;
-            if (currentScene != eScene::EXIT)
+            if (currentScene != eScene::EXIT && currentScene != eScene::NOT_INIT)
             {
                 scene = SceneMgr::get(currentScene);
                 assert(scene != nullptr);
                 scene->loopStart();
                 scene->inputLoopStart();
+                if (gInCustomize) scene->disableMouseInput();
             }
         }
 
@@ -283,14 +290,26 @@ void mainLoop()
         {
             graphics_clear();
             doMainThreadTask();
-            scene->update();
-            scene->draw();
+            if (scene)
+            {
+                scene->update();
+                scene->draw();
+            }
+            if (sceneCustomize)
+            {
+                sceneCustomize->update();
+                sceneCustomize->draw();
+            }
             graphics_flush();
         }
         ++gFrameCount[0];
     }
-    scene->inputLoopEnd();
-    scene->loopEnd();
+    if (scene)
+    {
+        scene->inputLoopEnd();
+        scene->loopEnd();
+        scene.reset();
+    }
 
     gGenericInfo.loopEnd();
 }

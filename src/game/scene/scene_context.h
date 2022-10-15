@@ -17,6 +17,9 @@
 #include "common/difficultytable/table_bms.h"
 
 inline eScene gNextScene = eScene::SELECT;
+inline bool gInCustomize = false;
+inline bool gCustomizeSceneChanged = false;
+inline bool gExitingCustomize = false;
 
 ////////////////////////////////////////////////////////////////////////////////
 

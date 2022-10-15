@@ -851,6 +851,8 @@ void ScenePlay::setTempInitialHealthBMS()
 
 void ScenePlay::loadChart()
 {
+    if (!gChartContext.chartObj) return;
+
     // always reload unstable resources
     if (!gChartContext.chartObj->resourceStable)
     {
@@ -1486,7 +1488,7 @@ void ScenePlay::_updateAsync()
 
     // update green number
     // 120BPM with 1.0x HS is 2000ms (500ms/beat, green number 1200)
-    if (_skin->info.noteLaneHeight1P != 0)
+    if (_skin->info.noteLaneHeight1P != 0 && gPlayContext.chartObj[PLAYER_SLOT_PLAYER] != nullptr)
     {
         double bpm, minBPM, maxBPM;
         if (gPlayContext.mods[PLAYER_SLOT_PLAYER].hispeedFix != eModHs::CONSTANT)

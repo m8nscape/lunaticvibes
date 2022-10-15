@@ -14,8 +14,9 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
     AsyncLooper("Scene Update", std::bind(&vScene::_updateAsync1, this), rate),
     _input(1000, backgroundInput)
 {
-    if (SkinMgr::get(mode) == nullptr)
-        SkinMgr::load(mode);
+    // Disable skin caching for now. dst options are changing all the time
+    SkinMgr::unload(mode);
+    SkinMgr::load(mode);
     _skin = SkinMgr::get(mode);
 
     int notificationPosY = ConfigMgr::General()->get(cfg::V_RES_Y, CANVAS_HEIGHT);

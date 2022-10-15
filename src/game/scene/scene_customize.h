@@ -51,6 +51,5 @@ protected:
 protected:
     std::shared_ptr<vScene> pSubScene = nullptr;
 public:
-    virtual void update() override;
     virtual void draw() const override;
 };

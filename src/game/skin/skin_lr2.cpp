@@ -3273,13 +3273,15 @@ SkinLR2::SkinLR2(Path p, int loadMode): loadMode(loadMode)
     }
 
     updateDstOpt();
-    loadCSV(p);
-    postLoad();
+    if (loadCSV(p))
+    {
+        postLoad();
 
-    LOG_DEBUG << "[Skin] File: " << p.u8string() << "(Line " << csvLineNumber << "): Body loading finished";
-    _loaded = true;
+        LOG_DEBUG << "[Skin] File: " << p.u8string() << "(Line " << csvLineNumber << "): Body loading finished";
+        _loaded = true;
 
-    startSpriteVideoPlayback();
+        startSpriteVideoPlayback();
+    }
 }
 
 SkinLR2::~SkinLR2()
@@ -3287,7 +3289,7 @@ SkinLR2::~SkinLR2()
     stopSpriteVideoPlayback();
 }
 
-void SkinLR2::loadCSV(Path p)
+bool SkinLR2::loadCSV(Path p)
 {
     if (filePath.empty())
         filePath = p;
@@ -3302,7 +3304,7 @@ void SkinLR2::loadCSV(Path p)
     {
         LOG_ERROR << "[Skin] File Not Found: " << std::filesystem::absolute(p).u8string();
         csvLineNumber = srcLineNumberParent;
-        return;
+        return false;
     }
 
     // copy the whole file into ram, once for all
@@ -3444,6 +3446,7 @@ void SkinLR2::loadCSV(Path p)
     }
 
     csvLineNumber = srcLineNumberParent;
+    return true;
 }
 
 void SkinLR2::postLoad()
@@ -3652,6 +3655,22 @@ void SkinLR2::postLoad()
         }
     }
 
+    // customize: replace timer 0 with internal
+    if (info.mode == eMode::THEME_SELECT)
+    {
+        for (auto& s : _sprites)
+        {
+            if (s->_triggerTimer == IndexTimer::SCENE_START)
+                s->_triggerTimer = IndexTimer::_SCENE_CUSTOMIZE_START;
+
+            auto p = std::dynamic_pointer_cast<SpriteAnimated>(s);
+            if (p)
+            {
+                if (p->_resetAnimTimer == IndexTimer::SCENE_START)
+                    p->_resetAnimTimer = IndexTimer::_SCENE_CUSTOMIZE_START;
+            }
+        }
+    }
 }
 
 void SkinLR2::findAndExtractDXA(const Path& path)

@@ -20,6 +20,8 @@ std::shared_ptr<ScoreDB> g_pScoreDB;
 
 std::pair<bool, Option::e_lamp_type> getSaveScoreType()
 {
+    if (gInCustomize) return { false, Option::LAMP_NOPLAY };
+
     if (gSelectContext.pitchSpeed < 1.0)
         return { false, Option::LAMP_NOPLAY };
 

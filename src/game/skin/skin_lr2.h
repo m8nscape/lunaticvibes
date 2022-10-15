@@ -1392,7 +1392,7 @@ public:
     virtual ~SkinLR2();
 
 protected:
-    void loadCSV(Path p);
+    bool loadCSV(Path p);
     void postLoad();
     void findAndExtractDXA(const Path& path);
 

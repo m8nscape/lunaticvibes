@@ -364,10 +364,13 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
         _virtualSceneCustomize->loopStart();
     }
 
-    SoundMgr::stopNoteSamples();
-    SoundMgr::stopSysSamples();
-    SoundMgr::setSysVolume(1.0);
-    SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::BGM_SELECT);
+    if (!gInCustomize)
+    {
+        SoundMgr::stopNoteSamples();
+        SoundMgr::stopSysSamples();
+        SoundMgr::setSysVolume(1.0);
+        SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::BGM_SELECT);
+    }
 
     // do not play preview right after scene is loaded
     previewState = PREVIEW_FINISH;
@@ -534,7 +537,7 @@ void SceneSelect::_updateAsync()
     if (idxUpdated)
         setDynamicTextures();
 
-    if (gCustomizeContext.modeUpdate)
+    if (!gInCustomize && gCustomizeContext.modeUpdate)
     {
         gCustomizeContext.modeUpdate = false;
 
@@ -552,7 +555,7 @@ void SceneSelect::_updateAsync()
     }
 
     // load preview
-    if ((t - navigateTimestamp).norm() > 500)
+    if (!gInCustomize && (t - navigateTimestamp).norm() > 500)
     {
         updatePreview();
     }
@@ -660,7 +663,7 @@ void SceneSelect::updateSelect()
 
     if (gSelectContext.isGoingToKeyConfig || gSelectContext.isGoingToSkinSelect)
     {
-        SoundMgr::setSysVolume(0.0, 500);
+        if (!gInCustomize) SoundMgr::setSysVolume(0.0, 500);
         State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
         _state = eSelectState::FADEOUT;
         _updateCallback = std::bind(&SceneSelect::updateFadeout, this);
@@ -739,6 +742,7 @@ void SceneSelect::updateFadeout()
         {
             SoundMgr::stopSysSamples();
             gNextScene = eScene::CUSTOMIZE;
+            gInCustomize = true;
         }
         else
         {
@@ -2158,7 +2162,6 @@ void SceneSelect::updatePreview()
                                 previewRuleset->setStartTime(previewStartTime);
                             }
 
-                            // FIXME add a gradient effect
                             SoundMgr::setSysVolume(0.1, 200);
 
                             previewState = PREVIEW_PLAY;

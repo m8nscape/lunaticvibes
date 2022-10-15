@@ -6,6 +6,8 @@
 #include "game/skin/skin_lr2.h"
 #include "game/sound/soundset_lr2.h"
 
+#include "scene_decide.h"
+
 SceneCustomize::SceneCustomize() : vScene(eMode::THEME_SELECT, 240)
 {
     _scene = eScene::CUSTOMIZE;
@@ -14,11 +16,13 @@ SceneCustomize::SceneCustomize() : vScene(eMode::THEME_SELECT, 240)
     gCustomizeContext.skinDir = 0;
     gCustomizeContext.optionUpdate = 0;
 
-    if (gNextScene == eScene::CUSTOMIZE)
+    if (gInCustomize)
     {
         // topest entry is PLAY7
         selectedMode = eMode::PLAY7;
         gCustomizeContext.mode = selectedMode;
+        gNextScene = eScene::PLAY;
+        gCustomizeSceneChanged = true;
     }
     else
     {
@@ -57,7 +61,7 @@ SceneCustomize::~SceneCustomize()
 
 void SceneCustomize::_updateAsync()
 {
-    if (gNextScene != eScene::CUSTOMIZE && gNextScene != eScene::SELECT) return;
+    if (!gInCustomize && gNextScene != eScene::SELECT) return;
 
     if (gAppIsExiting)
     {
@@ -67,6 +71,7 @@ void SceneCustomize::_updateAsync()
             SkinMgr::unload(selectedMode);
         }
         gNextScene = eScene::EXIT_TRANS;
+        gExitingCustomize = true;
     }
 
     _updateCallback();
@@ -80,7 +85,7 @@ void SceneCustomize::updateStart()
     {
         _updateCallback = std::bind(&SceneCustomize::updateMain, this);
 
-        if (gNextScene == eScene::CUSTOMIZE)
+        if (gInCustomize)
         {
             using namespace std::placeholders;
             _input.register_p("SCENE_PRESS_CUSTOMIZE", std::bind(&SceneCustomize::inputGamePress, this, _1, _2));
@@ -93,6 +98,8 @@ void SceneCustomize::updateStart()
 void SceneCustomize::updateMain()
 {
     Time t;
+
+    // Mode has changed
     if (gCustomizeContext.mode != selectedMode)
     {
         eMode modeOld = selectedMode;
@@ -111,7 +118,7 @@ void SceneCustomize::updateMain()
         else
         {
             _skin->setHandleMouseEvents(false);
-            if (gNextScene != eScene::SELECT || selectedMode != eMode::MUSIC_SELECT)
+            if (!gInCustomize || selectedMode != eMode::MUSIC_SELECT)
             {
                 if (SkinMgr::get(selectedMode))
                 {
@@ -120,9 +127,29 @@ void SceneCustomize::updateMain()
             }
             load(selectedMode);
             _skin->setHandleMouseEvents(true);
+
+            // reload preview
+            if (gInCustomize)
+            {
+                switch (selectedMode)
+                {
+                case eMode::PLAY5:
+                case eMode::PLAY5_2:
+                case eMode::PLAY7:
+                case eMode::PLAY7_2:
+                case eMode::PLAY9:
+                case eMode::PLAY10:
+                case eMode::PLAY14:
+                    gPlayContext.mode = selectedMode;
+                    break;
+                }
+                gNextScene = getSceneFromMode(selectedMode);
+                gCustomizeSceneChanged = true;
+            }
         }
     }
 
+    // Skin has changed
     if (gCustomizeContext.skinDir != 0)
     {
         if (selectedMode == eMode::SOUNDSET)
@@ -161,7 +188,7 @@ void SceneCustomize::updateMain()
                 }
             }
         }
-        else if (selectedMode == eMode::MUSIC_SELECT && gNextScene == eScene::SELECT)
+        else if (!gInCustomize && selectedMode == eMode::MUSIC_SELECT)
         {
             // Hold up! You want to change select skin inside select skin?
         }
@@ -248,11 +275,32 @@ void SceneCustomize::updateMain()
                     }
                     load(selectedMode);
                     _skin->setHandleMouseEvents(true);
+
+                    // reload preview
+                    if (gInCustomize)
+                    {
+                        switch (selectedMode)
+                        {
+                        case eMode::PLAY5:
+                        case eMode::PLAY5_2:
+                        case eMode::PLAY7:
+                        case eMode::PLAY7_2:
+                        case eMode::PLAY9:
+                        case eMode::PLAY10:
+                        case eMode::PLAY14:
+                            gPlayContext.mode = selectedMode;
+                            break;
+                        }
+                        gNextScene = getSceneFromMode(selectedMode);
+                        gCustomizeSceneChanged = true;
+                    }
                 }
             }
         }
         gCustomizeContext.skinDir = 0;
     }
+
+    // Option has changed
     if (gCustomizeContext.optionUpdate)
     {
         gCustomizeContext.optionUpdate = false;
@@ -279,6 +327,25 @@ void SceneCustomize::updateMain()
             if (idxEntry != op.selectedEntry)
             {
                 setOption(idxOption, idxEntry);
+            }
+
+            // reload preview
+            if (gInCustomize)
+            {
+                switch (selectedMode)
+                {
+                case eMode::PLAY5:
+                case eMode::PLAY5_2:
+                case eMode::PLAY7:
+                case eMode::PLAY7_2:
+                case eMode::PLAY9:
+                case eMode::PLAY10:
+                case eMode::PLAY14:
+                    gPlayContext.mode = selectedMode;
+                    break;
+                }
+                gNextScene = getSceneFromMode(selectedMode);
+                gCustomizeSceneChanged = true;
             }
         }
     }
@@ -313,6 +380,7 @@ void SceneCustomize::updateFadeout()
             SkinMgr::unload(selectedMode);
         }
         gNextScene = eScene::SELECT;
+        gExitingCustomize = true;
     }
 }
 
@@ -571,23 +639,8 @@ void SceneCustomize::inputGamePress(InputMask& m, const Time& t)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SceneCustomize::update()
-{
-    if (pSubScene)
-    {
-        pSubScene->update();
-    }
-
-    vScene::update();
-}
-
 void SceneCustomize::draw() const
 {
-    if (pSubScene)
-    {
-        pSubScene->draw();
-    }
-
     // screenshot
     pTexture pTex = _skin->getTextureCustomizeThumbnail();
     graphics_copy_screen_texture(*pTex);
