@@ -556,18 +556,21 @@ void setEntryInfo()
     const size_t idx = gSelectContext.idx;
     const size_t cursor = gSelectContext.cursor;
 
+    std::map<std::string, int> param;
+    std::map<std::string, double> paramf;
+    std::map<std::string, std::string> text;
+
     // chart parameters
     if (e[idx].first->type() == eEntryType::CHART || e[idx].first->type() == eEntryType::RIVAL_CHART)
     {
         auto ps = std::reinterpret_pointer_cast<EntryChart>(e[idx].first);
         auto pf = std::reinterpret_pointer_cast<ChartFormatBase>(ps->_file);
 
-        State::set(IndexSwitch::CHART_HAVE_README,
-            !(pf->text1.empty() && pf->text2.empty() && pf->text3.empty()));
-        State::set(IndexSwitch::CHART_HAVE_BANNER, !pf->banner.empty());
-        State::set(IndexSwitch::CHART_HAVE_STAGEFILE, !pf->stagefile.empty());
+        param["havereadme"] = !(pf->text1.empty() && pf->text2.empty() && pf->text3.empty());
+        param["havebanner"] = !pf->banner.empty();
+        param["havestagefile"] = !pf->stagefile.empty();
 
-        State::set(IndexSwitch::CHART_HAVE_REPLAY, false);
+        param["havereplay"] = false;
         auto& score = e[idx].second;
         if (score && !score->replayFileName.empty())
         {
@@ -577,7 +580,7 @@ void setEntryInfo()
                 gPlayContext.replay = std::make_shared<ReplayChart>();
                 if (gPlayContext.replay->loadFile(replayFilePath))
                 {
-                    State::set(IndexSwitch::CHART_HAVE_REPLAY, true);
+                    param["havereplay"] = true;
                 }
                 else
                 {
@@ -586,29 +589,24 @@ void setEntryInfo()
             }
         }
 
-        State::set(IndexText::PLAY_TITLE, pf->title);
-        State::set(IndexText::PLAY_SUBTITLE, pf->title2);
-        if (pf->title2.empty())
-            State::set(IndexText::PLAY_FULLTITLE, pf->title);
-        else
-            State::set(IndexText::PLAY_FULLTITLE, pf->title + " " + pf->title2);
-        State::set(IndexText::PLAY_ARTIST, pf->artist);
-        State::set(IndexText::PLAY_SUBARTIST, pf->artist2);
-        State::set(IndexText::PLAY_GENRE, pf->genre);
-        State::set(IndexText::PLAY_DIFFICULTY, pf->version);
-        // _level
+        text["title"] = pf->title;
+        text["subtitle"] = pf->title2;
+        text["fulltitle"] = pf->title2.empty() ? pf->title : (pf->title + " " + pf->title2);
+        text["artist"] = pf->artist;
+        text["subartist"] = pf->artist2;
+        text["genre"] = pf->genre;
+        text["version"] = pf->version;
 
-        // _totalLength_sec
-        State::set(IndexNumber::INFO_EXSCORE_MAX, pf->totalNotes * 2);
-        State::set(IndexNumber::INFO_TOTALNOTE, pf->totalNotes);
+        param["max"] = pf->totalNotes * 2;
+        param["totalnotes"] = pf->totalNotes;
 
-        State::set(IndexNumber::PLAY_BPM, static_cast<int>(std::round(pf->startBPM)));
-        State::set(IndexNumber::INFO_BPM_MIN, static_cast<int>(std::round(pf->minBPM)));
-        State::set(IndexNumber::INFO_BPM_MAX, static_cast<int>(std::round(pf->maxBPM)));
-        if (pf->minBPM != pf->maxBPM)
-        {
-            State::set(IndexSwitch::CHART_HAVE_BPMCHANGE, true);
-        }
+        param["bpm"] = static_cast<int>(std::round(pf->startBPM));
+        param["minbpm"] = static_cast<int>(std::round(pf->minBPM));
+        param["maxbpm"] = static_cast<int>(std::round(pf->maxBPM));
+        param["bpmchange"] = pf->minBPM != pf->maxBPM;
+
+        param["min"] = pf->totalLength / 60;
+        param["sec"] = pf->totalLength % 60;
 
         switch (ps->_file->type())
         {
@@ -629,7 +627,7 @@ void setEntryInfo()
             case 48: op_keys = Option::KEYS_48; break;
             default: break;
             }
-            State::set(IndexOption::CHART_PLAY_KEYS, op_keys);
+            param["keys"] = op_keys;
 
             // judge
             unsigned op_judgerank = Option::JUDGE_NORMAL;
@@ -641,22 +639,22 @@ void setEntryInfo()
             case 3: op_judgerank = Option::JUDGE_EASY; break;
             default: break;
             }
-            State::set(IndexOption::CHART_JUDGE_TYPE, op_judgerank);
+            param["judgerank"] = op_judgerank;
 
             // notes detail
-            State::set(IndexNumber::INFO_TOTALNOTE, bms->notes_total);
-            State::set(IndexNumber::INFO_TOTALNOTE_NORMAL, bms->notes_key);
-            State::set(IndexNumber::INFO_TOTALNOTE_LN, bms->notes_key_ln);
-            State::set(IndexNumber::INFO_TOTALNOTE_SCRATCH, bms->notes_scratch);
-            State::set(IndexNumber::INFO_TOTALNOTE_BSS, bms->notes_scratch_ln);
-            State::set(IndexNumber::INFO_TOTALNOTE_MINE, bms->notes_mine);
+            param["totalnotes"] = bms->notes_total;
+            param["totalnoteskey"] = bms->notes_key;
+            param["totalnoteskeyln"] = bms->notes_key_ln;
+            param["totalnotesscr"] = bms->notes_scratch;
+            param["totalnotesscrln"] = bms->notes_scratch_ln;
+            param["totalnotesmine"] = bms->notes_mine;
 
-            State::set(IndexNumber::INFO_BMS_TOTAL, bms->total);
+            param["total"] = bms->total;
 
-            State::set(IndexSwitch::CHART_HAVE_BGA, bms->haveBGA);
-            State::set(IndexSwitch::CHART_HAVE_BPMCHANGE, bms->haveBPMChange);
-            State::set(IndexSwitch::CHART_HAVE_LN, bms->haveLN);
-            State::set(IndexSwitch::CHART_HAVE_RANDOM, bms->haveRandom);
+            param["havebga"] = bms->haveBGA;
+            param["bpmchange"] = bms->haveBPMChange;
+            param["haveln"] = bms->haveLN;
+            param["haverandom"] = bms->haveRandom;
 
             //State::set(IndexSwitch::CHART_HAVE_BACKBMP, ?);
 
@@ -670,27 +668,6 @@ void setEntryInfo()
         }
 
         // difficulty
-        State::set(IndexSwitch::CHART_HAVE_DIFFICULTY_1, false);
-        State::set(IndexSwitch::CHART_HAVE_DIFFICULTY_2, false);
-        State::set(IndexSwitch::CHART_HAVE_DIFFICULTY_3, false);
-        State::set(IndexSwitch::CHART_HAVE_DIFFICULTY_4, false);
-        State::set(IndexSwitch::CHART_HAVE_DIFFICULTY_5, false);
-        State::set(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_1, false);
-        State::set(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_2, false);
-        State::set(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_3, false);
-        State::set(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_4, false);
-        State::set(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_5, false);
-        State::set(IndexNumber::MUSIC_BEGINNER_LEVEL, 0);
-        State::set(IndexNumber::MUSIC_NORMAL_LEVEL, 0);
-        State::set(IndexNumber::MUSIC_HYPER_LEVEL, 0);
-        State::set(IndexNumber::MUSIC_ANOTHER_LEVEL, 0);
-        State::set(IndexNumber::MUSIC_INSANE_LEVEL, 0);
-        State::set(IndexBargraph::LEVEL_BAR_BEGINNER, 0.0);
-        State::set(IndexBargraph::LEVEL_BAR_NORMAL, 0.0);
-        State::set(IndexBargraph::LEVEL_BAR_HYPER, 0.0);
-        State::set(IndexBargraph::LEVEL_BAR_ANOTHER, 0.0);
-        State::set(IndexBargraph::LEVEL_BAR_INSANE, 0.0);
-
         unsigned op_difficulty = Option::DIFF_0;
         switch (pf->difficulty)
         {
@@ -713,7 +690,7 @@ void setEntryInfo()
             op_difficulty = Option::DIFF_5;
             break;
         }
-        State::set(IndexOption::CHART_DIFFICULTY, op_difficulty);
+        param["difficulty"] = op_difficulty;
         double barMaxLevel = 12.0;
         switch (pf->gamemode)
         {
@@ -723,8 +700,8 @@ void setEntryInfo()
         case 14: barMaxLevel = 12.0; break;
         case 9:  barMaxLevel = 50.0; break;
         }
-        State::set(IndexNumber((int)IndexNumber::MUSIC_BEGINNER_LEVEL + pf->difficulty - 1), pf->playLevel);
-        State::set(IndexBargraph((int)IndexBargraph::LEVEL_BAR_BEGINNER + pf->difficulty - 1), pf->playLevel / barMaxLevel);
+        param["level"s + std::to_string(pf->difficulty)] = pf->playLevel;
+        paramf["levelbar"s + std::to_string(pf->difficulty)] = pf->playLevel / barMaxLevel;
 
         auto pSong = ps->getSongEntry();
         if (pSong)
@@ -734,9 +711,9 @@ void setEntryInfo()
                 auto& chartList = pSong->getDifficultyList(pf->gamemode, difficulty);
                 if (chartList.size() > 0)
                 {
-                    State::set(IndexSwitch((int)IndexSwitch::CHART_HAVE_DIFFICULTY_1 + difficulty - 1), true);
+                    param["havedifficulty"s + std::to_string(difficulty)] = true;
                     if (chartList.size() > 1)
-                        State::set(IndexSwitch((int)IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_1 + difficulty - 1), true);
+                        param["havemultipledifficulty"s + std::to_string(difficulty)] = true;
 
                     if (difficulty != pf->difficulty)
                     {
@@ -749,8 +726,8 @@ void setEntryInfo()
                         case 14: barMaxLevel = 12.0; break;
                         case 9:  barMaxLevel = 50.0; break;
                         }
-                        State::set(IndexNumber((int)IndexNumber::MUSIC_BEGINNER_LEVEL + difficulty - 1), (*chartList.begin())->playLevel);
-                        State::set(IndexBargraph((int)IndexBargraph::LEVEL_BAR_BEGINNER + difficulty - 1), (*chartList.begin())->playLevel / barMaxLevel);
+                        param["level"s + std::to_string(difficulty)] = (*chartList.begin())->playLevel;
+                        paramf["levelbar"s + std::to_string(difficulty)] = (*chartList.begin())->playLevel / barMaxLevel;
                     }
                 }
             }
@@ -759,60 +736,17 @@ void setEntryInfo()
     }
     else
     {
-        State::set(IndexText::PLAY_TITLE, e[idx].first->_name);
-        State::set(IndexText::PLAY_SUBTITLE, e[idx].first->_name2);
-        if (e[idx].first->_name2.empty())
-            State::set(IndexText::PLAY_FULLTITLE, e[idx].first->_name);
-        else
-            State::set(IndexText::PLAY_FULLTITLE, e[idx].first->_name + " " + e[idx].first->_name2);
-        State::set(IndexText::PLAY_ARTIST, "");
-        State::set(IndexText::PLAY_SUBARTIST, "");
-        State::set(IndexText::PLAY_GENRE, "");
-        State::set(IndexText::PLAY_DIFFICULTY, "");
+        auto& p = e[idx].first;
+        text["title"] = p->_name;
+        text["subtitle"] = p->_name2;
+        text["fulltitle"] = p->_name2.empty() ? p->_name : (p->_name + " " + p->_name2);
     }
-
-    State::set(IndexOption::SELECT_ENTRY_TYPE, Option::ENTRY_FOLDER);
-    State::set(IndexOption::SELECT_ENTRY_LAMP, Option::LAMP_NOPLAY);
-    State::set(IndexOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
-
-    State::set(IndexNumber::INFO_SCORE, 0);
-    State::set(IndexNumber::INFO_EXSCORE, 0);
-    State::set(IndexNumber::INFO_EXSCORE_MAX, 0);
-    State::set(IndexNumber::INFO_RATE, 0);
-    State::set(IndexNumber::INFO_TOTALNOTE, 0);
-    State::set(IndexNumber::INFO_MAXCOMBO, 0);
-    State::set(IndexNumber::INFO_BP, 0);
-    State::set(IndexNumber::INFO_PLAYCOUNT, 0);
-    State::set(IndexNumber::INFO_CLEARCOUNT, 0);
-    State::set(IndexNumber::INFO_FAILCOUNT, 0);
-
-    State::set(IndexNumber::INFO_PERFECT_COUNT, 0);
-    State::set(IndexNumber::INFO_GREAT_COUNT, 0);
-    State::set(IndexNumber::INFO_GOOD_COUNT, 0);
-    State::set(IndexNumber::INFO_BAD_COUNT, 0);
-    State::set(IndexNumber::INFO_POOR_COUNT, 0);
-    State::set(IndexNumber::INFO_PERFECT_RATE, 0);
-    State::set(IndexNumber::INFO_GREAT_RATE, 0);
-    State::set(IndexNumber::INFO_GOOD_RATE, 0);
-    State::set(IndexNumber::INFO_BAD_RATE, 0);
-    State::set(IndexNumber::INFO_POOR_RATE, 0);
-
-    State::set(IndexBargraph::SELECT_MYBEST_PG, 0.);
-    State::set(IndexBargraph::SELECT_MYBEST_GR, 0.);
-    State::set(IndexBargraph::SELECT_MYBEST_GD, 0.);
-    State::set(IndexBargraph::SELECT_MYBEST_BD, 0.);
-    State::set(IndexBargraph::SELECT_MYBEST_PR, 0.);
-    State::set(IndexBargraph::SELECT_MYBEST_MAXCOMBO, 0.);
-    State::set(IndexBargraph::SELECT_MYBEST_SCORE, 0.);
-    State::set(IndexBargraph::SELECT_MYBEST_EXSCORE, 0.);
 
     switch (e[idx].first->type())
     {
     case eEntryType::SONG:
     case eEntryType::RIVAL_SONG:
-        State::set(IndexOption::SELECT_ENTRY_TYPE, Option::ENTRY_SONG);
-        State::set(IndexOption::SELECT_ENTRY_LAMP, Option::LAMP_NOPLAY);
-        State::set(IndexOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
+        param["entry"] = Option::ENTRY_SONG;
 
         break;
 
@@ -823,9 +757,7 @@ void setEntryInfo()
     }
     case eEntryType::CHART:
     {
-        State::set(IndexOption::SELECT_ENTRY_TYPE, Option::ENTRY_SONG);
-        State::set(IndexOption::SELECT_ENTRY_LAMP, Option::LAMP_NOPLAY);
-        State::set(IndexOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
+        param["entry"] = Option::ENTRY_SONG;
 
         auto ps = std::reinterpret_pointer_cast<EntryChart>(e[idx].first);
         auto psc = std::reinterpret_pointer_cast<vScore>(e[idx].second);
@@ -852,44 +784,43 @@ void setEntryInfo()
                 case ScoreBMS::Lamp::PERFECT:   lamp = Option::LAMP_PERFECT; break;
                 case ScoreBMS::Lamp::MAX:       lamp = Option::LAMP_MAX; break;
                 }
-                State::set(IndexOption::SELECT_ENTRY_LAMP, lamp);
+                param["lamp"] = lamp;
 
-                State::set(IndexOption::SELECT_ENTRY_RANK, Option::getRankType(pScore->rate));
+                param["rank"] = Option::getRankType(pScore->rate);
 
-                State::set(IndexNumber::INFO_SCORE, pScore->score);
-                State::set(IndexNumber::INFO_EXSCORE, pScore->exscore);
-                State::set(IndexNumber::INFO_EXSCORE_MAX, pScore->notes * 2);
-                State::set(IndexNumber::INFO_RATE, static_cast<int>(std::floor(pScore->rate)));
-                State::set(IndexNumber::INFO_TOTALNOTE, pScore->notes);
-                State::set(IndexNumber::INFO_MAXCOMBO, pScore->maxcombo);
-                State::set(IndexNumber::INFO_BP, pScore->bad + pScore->bpoor + pScore->miss);
-                State::set(IndexNumber::INFO_PLAYCOUNT, pScore->playcount);
-                State::set(IndexNumber::INFO_CLEARCOUNT, pScore->clearcount);
-                State::set(IndexNumber::INFO_FAILCOUNT, pScore->playcount - pScore->clearcount);
+                param["score"] = pScore->score;
+                param["exscore"] = pScore->exscore;
+                param["max"] = pScore->notes * 2;
+                param["rate"] = static_cast<int>(std::floor(pScore->rate));
+                param["totalnotes"] = pScore->notes;
+                param["maxcombo"] = pScore->maxcombo;
+                param["bp"] = pScore->bad + pScore->bpoor + pScore->miss;
+                param["playcount"] = pScore->playcount;
+                param["clearcount"] = pScore->clearcount;
+                param["failcount"] = pScore->playcount - pScore->clearcount;
 
-                State::set(IndexNumber::INFO_PERFECT_COUNT, pScore->pgreat);
-                State::set(IndexNumber::INFO_GREAT_COUNT, pScore->great);
-                State::set(IndexNumber::INFO_GOOD_COUNT, pScore->good);
-                State::set(IndexNumber::INFO_BAD_COUNT, pScore->bad);
-                State::set(IndexNumber::INFO_POOR_COUNT, pScore->bpoor + pScore->miss);
+                param["pg"] = pScore->pgreat;
+                param["gr"] = pScore->great;
+                param["gd"] = pScore->good;
+                param["bd"] = pScore->bad;
+                param["pr"] = pScore->bpoor + pScore->miss;
                 if (pScore->notes != 0)
                 {
-                    State::set(IndexNumber::INFO_PERFECT_RATE, int(100 * pScore->pgreat / pScore->notes));
-                    State::set(IndexNumber::INFO_GREAT_RATE, int(100 * pScore->great / pScore->notes));
-                    State::set(IndexNumber::INFO_GOOD_RATE, int(100 * pScore->good / pScore->notes));
-                    State::set(IndexNumber::INFO_BAD_RATE, int(100 * pScore->bad / pScore->notes));
-                    State::set(IndexNumber::INFO_POOR_RATE, int(100 * (pScore->bpoor + pScore->miss) / pScore->notes));
+                    param["pgrate"] = int(100 * pScore->pgreat / pScore->notes);
+                    param["grrate"] = int(100 * pScore->great / pScore->notes);
+                    param["gdrate"] = int(100 * pScore->good / pScore->notes);
+                    param["bdrate"] = int(100 * pScore->bad / pScore->notes);
+                    param["prrate"] = int(100 * (pScore->bpoor + pScore->miss) / pScore->notes);
 
-                    State::set(IndexBargraph::SELECT_MYBEST_PG, (double)pScore->pgreat / pScore->notes);
-                    State::set(IndexBargraph::SELECT_MYBEST_GR, (double)pScore->great / pScore->notes);
-                    State::set(IndexBargraph::SELECT_MYBEST_GD, (double)pScore->good / pScore->notes);
-                    State::set(IndexBargraph::SELECT_MYBEST_BD, (double)pScore->bad / pScore->notes);
-                    State::set(IndexBargraph::SELECT_MYBEST_PR, (double)(pScore->bpoor + pScore->miss) / pScore->notes);
-                    State::set(IndexBargraph::SELECT_MYBEST_MAXCOMBO, (double)pScore->maxcombo / pScore->notes);
-                    State::set(IndexBargraph::SELECT_MYBEST_SCORE, (double)pScore->score / 200000);
-                    State::set(IndexBargraph::SELECT_MYBEST_EXSCORE, (double)pScore->exscore / (pScore->notes * 2));
+                    paramf["pg"] = (double)pScore->pgreat / pScore->notes;
+                    paramf["gr"] = (double)pScore->great / pScore->notes;
+                    paramf["gd"] = (double)pScore->good / pScore->notes;
+                    paramf["bd"] = (double)pScore->bad / pScore->notes;
+                    paramf["pr"] = (double)(pScore->bpoor + pScore->miss) / pScore->notes;
+                    paramf["maxcombo"] = (double)pScore->maxcombo / pScore->notes;
+                    paramf["score"] = (double)pScore->score / 200000;
+                    paramf["exscore"] = (double)pScore->exscore / (pScore->notes * 2);
                 }
-
 
                 break;
             }
@@ -901,28 +832,119 @@ void setEntryInfo()
     }
 
     case eEntryType::COURSE:
-        State::set(IndexOption::SELECT_ENTRY_TYPE, Option::ENTRY_COURSE);
-        State::set(IndexOption::SELECT_ENTRY_LAMP, Option::LAMP_NOPLAY);
-        State::set(IndexOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
+        param["entry"] = Option::ENTRY_COURSE;
         // TODO course score
         break;
 
     case eEntryType::NEW_COURSE:
-        State::set(IndexOption::SELECT_ENTRY_TYPE, Option::ENTRY_NEW_COURSE);
-        State::set(IndexOption::SELECT_ENTRY_LAMP, Option::LAMP_NOPLAY);
-        State::set(IndexOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
-        State::set(IndexOption::CHART_PLAY_KEYS, Option::KEYS_NOT_PLAYABLE);
+        param["entry"] = Option::ENTRY_NEW_COURSE;
         break;
 
     case eEntryType::FOLDER:
     case eEntryType::CUSTOM_FOLDER:
     case eEntryType::RIVAL:
     default:
-        State::set(IndexOption::SELECT_ENTRY_TYPE, Option::ENTRY_FOLDER);
-        State::set(IndexOption::SELECT_ENTRY_LAMP, Option::LAMP_NOPLAY);
-        State::set(IndexOption::SELECT_ENTRY_RANK, Option::RANK_NONE);
-        State::set(IndexOption::CHART_PLAY_KEYS, Option::KEYS_NOT_PLAYABLE);
+        param["entry"] = Option::ENTRY_FOLDER;
         break;
+    }
+
+    // save
+    {
+        State::set(IndexSwitch::CHART_HAVE_README, param["havereadme"]);
+        State::set(IndexSwitch::CHART_HAVE_BANNER, param["havebanner"]);
+        State::set(IndexSwitch::CHART_HAVE_STAGEFILE, param["havestagefile"]);
+        State::set(IndexSwitch::CHART_HAVE_REPLAY, param["havereplay"]);
+
+        State::set(IndexOption::SELECT_ENTRY_TYPE, param["entry"]);
+        State::set(IndexOption::SELECT_ENTRY_LAMP, param["lamp"]);
+        State::set(IndexOption::SELECT_ENTRY_RANK, param["rank"]);
+
+        State::set(IndexText::PLAY_TITLE, text["title"]);
+        State::set(IndexText::PLAY_SUBTITLE, text["subtitle"]);
+        State::set(IndexText::PLAY_FULLTITLE, text["fulltitle"]);
+        State::set(IndexText::PLAY_ARTIST, text["artist"]);
+        State::set(IndexText::PLAY_SUBARTIST, text["subartist"]);
+        State::set(IndexText::PLAY_GENRE, text["genre"]);
+        State::set(IndexText::PLAY_DIFFICULTY, text["version"]);
+
+        State::set(IndexNumber::PLAY_BPM, param["bpm"]);
+        State::set(IndexNumber::INFO_BPM_MIN, param["minbpm"]);
+        State::set(IndexNumber::INFO_BPM_MAX, param["maxbpm"]);
+
+        State::set(IndexNumber::PLAY_MIN, param["min"]);
+        State::set(IndexNumber::PLAY_SEC, param["sec"]);
+        State::set(IndexNumber::PLAY_REMAIN_MIN, param["min"]);
+        State::set(IndexNumber::PLAY_REMAIN_SEC, param["sec"]);
+
+        State::set(IndexOption::CHART_DIFFICULTY, param["difficulty"]);
+        State::set(IndexOption::CHART_PLAY_KEYS, param["keys"]);
+        State::set(IndexOption::CHART_JUDGE_TYPE, param["judgerank"]);
+
+        State::set(IndexNumber::INFO_TOTALNOTE, param["totalnotes"]);
+        State::set(IndexNumber::INFO_TOTALNOTE_NORMAL, param["totalnoteskey"]);
+        State::set(IndexNumber::INFO_TOTALNOTE_LN, param["totalnoteskeyln"]);
+        State::set(IndexNumber::INFO_TOTALNOTE_SCRATCH, param["totalnotesscr"]);
+        State::set(IndexNumber::INFO_TOTALNOTE_BSS, param["totalnotesscrln"]);
+        State::set(IndexNumber::INFO_TOTALNOTE_MINE, param["totalnotesmine"]);
+
+        State::set(IndexNumber::INFO_BMS_TOTAL, param["total"]);
+
+        State::set(IndexSwitch::CHART_HAVE_BGA, param["havebga"]);
+        State::set(IndexSwitch::CHART_HAVE_BPMCHANGE, param["bpmchange"]);
+        State::set(IndexSwitch::CHART_HAVE_LN, param["haveln"]);
+        State::set(IndexSwitch::CHART_HAVE_RANDOM, param["haverandom"]);
+
+        State::set(IndexNumber::INFO_SCORE, param["score"]);
+        State::set(IndexNumber::INFO_EXSCORE, param["exscore"]);
+        State::set(IndexNumber::INFO_EXSCORE_MAX, param["max"]);
+        State::set(IndexNumber::INFO_RATE, param["rate"]);
+        State::set(IndexNumber::INFO_MAXCOMBO, param["maxcombo"]);
+        State::set(IndexNumber::INFO_BP, param["bp"]);
+        State::set(IndexNumber::INFO_PLAYCOUNT, param["playcount"]);
+        State::set(IndexNumber::INFO_CLEARCOUNT, param["clearcount"]);
+        State::set(IndexNumber::INFO_FAILCOUNT, param["failcount"]);
+
+        State::set(IndexNumber::INFO_PERFECT_COUNT, param["pg"]);
+        State::set(IndexNumber::INFO_GREAT_COUNT, param["gr"]);
+        State::set(IndexNumber::INFO_GOOD_COUNT, param["gd"]);
+        State::set(IndexNumber::INFO_BAD_COUNT, param["bd"]);
+        State::set(IndexNumber::INFO_POOR_COUNT, param["pr"]);
+
+        State::set(IndexNumber::INFO_PERFECT_RATE, param["pgrate"]);
+        State::set(IndexNumber::INFO_GREAT_RATE, param["grrate"]);
+        State::set(IndexNumber::INFO_GOOD_RATE, param["gdrate"]);
+        State::set(IndexNumber::INFO_BAD_RATE, param["bdrate"]);
+        State::set(IndexNumber::INFO_POOR_RATE, param["prrate"]);
+
+        State::set(IndexBargraph::SELECT_MYBEST_PG, paramf["pg"]);
+        State::set(IndexBargraph::SELECT_MYBEST_GR, paramf["gr"]);
+        State::set(IndexBargraph::SELECT_MYBEST_GD, paramf["gd"]);
+        State::set(IndexBargraph::SELECT_MYBEST_BD, paramf["bd"]);
+        State::set(IndexBargraph::SELECT_MYBEST_PR, paramf["pr"]);
+        State::set(IndexBargraph::SELECT_MYBEST_MAXCOMBO, paramf["maxcombo"]);
+        State::set(IndexBargraph::SELECT_MYBEST_SCORE, paramf["score"]);
+        State::set(IndexBargraph::SELECT_MYBEST_EXSCORE, paramf["exscore"]);
+
+        State::set(IndexSwitch::CHART_HAVE_DIFFICULTY_1, param["havedifficulty1"]);
+        State::set(IndexSwitch::CHART_HAVE_DIFFICULTY_2, param["havedifficulty2"]);
+        State::set(IndexSwitch::CHART_HAVE_DIFFICULTY_3, param["havedifficulty3"]);
+        State::set(IndexSwitch::CHART_HAVE_DIFFICULTY_4, param["havedifficulty4"]);
+        State::set(IndexSwitch::CHART_HAVE_DIFFICULTY_5, param["havedifficulty5"]);
+        State::set(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_1, param["havemultipledifficulty1"]);
+        State::set(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_2, param["havemultipledifficulty2"]);
+        State::set(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_3, param["havemultipledifficulty3"]);
+        State::set(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_4, param["havemultipledifficulty4"]);
+        State::set(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_5, param["havemultipledifficulty5"]);
+        State::set(IndexNumber::MUSIC_BEGINNER_LEVEL, param["level1"]);
+        State::set(IndexNumber::MUSIC_NORMAL_LEVEL, param["level2"]);
+        State::set(IndexNumber::MUSIC_HYPER_LEVEL, param["level3"]);
+        State::set(IndexNumber::MUSIC_ANOTHER_LEVEL, param["level4"]);
+        State::set(IndexNumber::MUSIC_INSANE_LEVEL, param["level5"]);
+        State::set(IndexBargraph::LEVEL_BAR_BEGINNER, paramf["levelbar1"]);
+        State::set(IndexBargraph::LEVEL_BAR_NORMAL, paramf["levelbar2"]);
+        State::set(IndexBargraph::LEVEL_BAR_HYPER, paramf["levelbar3"]);
+        State::set(IndexBargraph::LEVEL_BAR_ANOTHER, paramf["levelbar4"]);
+        State::set(IndexBargraph::LEVEL_BAR_INSANE, paramf["levelbar5"]);
     }
 
     setPlayModeInfo();

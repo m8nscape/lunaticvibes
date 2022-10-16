@@ -28,134 +28,6 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
 
     _state = eResultState::DRAW;
 
-    if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER])
-    {
-        // set options
-        auto d1p = gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData();
-        State::set(IndexOption::RESULT_RANK_1P, Option::getRankType(d1p.total_acc));
-        gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->updateGlobals();
-
-        if (gPlayContext.ruleset[PLAYER_SLOT_TARGET])
-        {
-            auto d2p = gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData();
-            State::set(IndexOption::RESULT_RANK_2P, Option::getRankType(d2p.total_acc));
-            gPlayContext.ruleset[PLAYER_SLOT_TARGET]->updateGlobals();
-
-            State::set(IndexNumber::PLAY_1P_EXSCORE_DIFF, d1p.score2 - d2p.score2);
-            State::set(IndexNumber::PLAY_2P_EXSCORE_DIFF, d2p.score2 - d1p.score2);
-
-            if (d1p.score2 > d2p.score2)
-                State::set(IndexOption::RESULT_BATTLE_WIN_LOSE, 1);
-            else if (d1p.score2 < d2p.score2)
-                State::set(IndexOption::RESULT_BATTLE_WIN_LOSE, 2);
-            else
-                State::set(IndexOption::RESULT_BATTLE_WIN_LOSE, 0);
-        }
-
-        // TODO set chart info (total notes, etc.)
-        auto chartLength = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getTotalLength().norm() / 1000;
-        State::set(IndexNumber::PLAY_MIN, int(chartLength / 60));
-        State::set(IndexNumber::PLAY_SEC, int(chartLength % 60));
-        State::set(IndexNumber::PLAY_REMAIN_MIN, int(chartLength / 60));
-        State::set(IndexNumber::PLAY_REMAIN_SEC, int(chartLength % 60));
-
-        // compare to db record
-        auto dp = gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData();
-        Option::e_rank_type nowRank = Option::getRankType(dp.total_acc);
-        auto pScore = g_pScoreDB->getChartScoreBMS(gChartContext.hash);
-        if (pScore)
-        {
-            State::set(IndexNumber::RESULT_RECORD_EX_NOW, (int)dp.score2);
-            State::set(IndexNumber::RESULT_RECORD_EX_DIFF, (int)dp.score2 - pScore->exscore);
-            State::set(IndexNumber::RESULT_RECORD_MAXCOMBO_NOW, (int)dp.maxCombo);
-            State::set(IndexNumber::RESULT_RECORD_MAXCOMBO_DIFF, (int)dp.maxCombo - pScore->exscore);
-            State::set(IndexNumber::RESULT_RECORD_BP_NOW, (int)dp.miss);
-            State::set(IndexNumber::RESULT_RECORD_BP_DIFF, (int)dp.miss - pScore->bp);
-
-            State::set(IndexNumber::RESULT_MYBEST_EX, pScore->exscore);
-            State::set(IndexNumber::RESULT_MYBEST_DIFF, dp.score2 - pScore->exscore);
-            State::set(IndexNumber::RESULT_MYBEST_RATE, (int)std::floor(pScore->rate));
-            State::set(IndexNumber::RESULT_MYBEST_RATE_DECIMAL2, (int)std::floor(pScore->rate * 100.0) % 100);
-
-            State::set(IndexNumber::RESULT_RECORD_EX_BEFORE, pScore->exscore);
-            State::set(IndexNumber::RESULT_RECORD_MAXCOMBO_BEFORE, pScore->maxcombo);
-            State::set(IndexNumber::RESULT_RECORD_BP_BEFORE, pScore->bp);
-            State::set(IndexNumber::RESULT_RECORD_MYBEST_RATE, (int)std::floor(pScore->rate));
-            State::set(IndexNumber::RESULT_RECORD_MYBEST_RATE_DECIMAL2, (int)std::floor(pScore->rate * 100.0) % 100);
-
-            Option::e_rank_type recordRank = Option::getRankType(pScore->rate);
-            State::set(IndexOption::RESULT_MYBEST_RANK, recordRank);
-            //State::set(IndexOption::RESULT_UPDATED_RANK, (pScore->exscore > (int)dp.score2) ? recordRank : nowRank);
-            State::set(IndexOption::RESULT_UPDATED_RANK, nowRank);
-
-            if (pScore->exscore < dp.score2)    State::set(IndexSwitch::RESULT_UPDATED_SCORE, true);
-            if (pScore->maxcombo < dp.maxCombo) State::set(IndexSwitch::RESULT_UPDATED_MAXCOMBO, true);
-            if (pScore->bp > dp.miss)           State::set(IndexSwitch::RESULT_UPDATED_BP, true);
-        }
-        else
-        {
-            State::set(IndexNumber::RESULT_RECORD_EX_NOW, (int)dp.score2);
-            State::set(IndexNumber::RESULT_RECORD_EX_DIFF, (int)dp.score2);
-            State::set(IndexNumber::RESULT_RECORD_MAXCOMBO_NOW, (int)dp.maxCombo);
-            State::set(IndexNumber::RESULT_RECORD_MAXCOMBO_DIFF, (int)dp.maxCombo);
-            State::set(IndexNumber::RESULT_RECORD_BP_NOW, (int)dp.miss);
-            State::set(IndexNumber::RESULT_RECORD_BP_DIFF, (int)dp.miss);
-
-            State::set(IndexOption::RESULT_MYBEST_RANK, Option::RANK_NONE);
-            State::set(IndexOption::RESULT_UPDATED_RANK, nowRank);
-
-            State::set(IndexSwitch::RESULT_UPDATED_SCORE, true);
-            State::set(IndexSwitch::RESULT_UPDATED_MAXCOMBO, true);
-            State::set(IndexSwitch::RESULT_UPDATED_BP, true);
-        }
-
-        // TODO compare to target
-    }
-
-    bool cleared = State::get(IndexSwitch::RESULT_CLEAR);
-
-    if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER] && gPlayContext.ruleset[PLAYER_SLOT_TARGET])
-    {
-        switch (gPlayContext.mode)
-        {
-        case eMode::PLAY5_2:
-        case eMode::PLAY7_2:
-        case eMode::PLAY9_2:
-        {
-            auto d1p = gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData();
-            auto d2p = gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData();
-
-            // TODO WIN/LOSE
-            /*
-            switch (context_play.rulesetType)
-            {
-            case eRuleset::CLASSIC:
-                if (d1p.score2 > d2p.score2)
-                    // TODO
-                    break;
-
-            default:
-                if (d1p.score > d2p.score)
-                    break;
-            }
-            */
-
-            // clear or failed?
-            //cleared = gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isCleared() || gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isCleared();
-            break;
-        }
-
-        default:
-            //cleared = gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isCleared();
-            break;
-        }
-    }
-
-    // Moved to play
-    //State::set(IndexSwitch::RESULT_CLEAR, cleared);
-
-    _pScoreOld = g_pScoreDB->getChartScoreBMS(gChartContext.hash);
-
     if (!gPlayContext.isReplay)
     {
         auto& [saveScoreTmp, saveLampTmp] = getSaveScoreType();
@@ -176,6 +48,115 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
         }
     }
 
+    std::map<std::string, int> param;
+
+    if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER])
+    {
+        gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->updateGlobals();
+
+        // set options
+        auto d1p = gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData();
+        param["1prank"] = Option::getRankType(d1p.total_acc);
+        param["1ptarget"] = d1p.score2;
+        param["1pexscore"] = d1p.score2;
+        param["1pmaxcombo"] = d1p.maxCombo;
+        param["1pbp"] = d1p.miss;
+
+        if (gPlayContext.ruleset[PLAYER_SLOT_TARGET])
+        {
+            gPlayContext.ruleset[PLAYER_SLOT_TARGET]->updateGlobals();
+
+            auto d2p = gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData();
+            param["2prank"] = Option::getRankType(d1p.total_acc);
+            param["2ptarget"] = d2p.score2 - d1p.score2;
+
+            param["1ptarget"] = d1p.score2 - d2p.score2;
+
+            if (d1p.score2 > d2p.score2)
+                param["winlose"] = 1;
+            else if (d1p.score2 < d2p.score2)
+                param["winlose"] = 2;
+        }
+
+        // TODO set chart info (total notes, etc.)
+        auto chartLength = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getTotalLength().norm() / 1000;
+        param["min"] = int(chartLength / 60);
+        param["sec"] = int(chartLength % 60);
+
+        // compare to db record
+        auto pScore = g_pScoreDB->getChartScoreBMS(gChartContext.hash);
+        if (pScore)
+        {
+            param["dbexscore"] = pScore->exscore;
+            param["newexscore"] = std::max(pScore->exscore, (int)d1p.score2);
+            param["newexscorediff"] = param["newexscore"] - pScore->exscore;
+            param["dbmaxcombo"] = (int)pScore->maxcombo;
+            param["newmaxcombo"] = std::max((int)pScore->maxcombo, (int)d1p.maxCombo);
+            param["newmaxcombodiff"] = param["newmaxcombo"] - pScore->maxcombo;
+            param["dbbp"] = pScore->bp;
+            param["newbp"] = std::min(pScore->bp, (int)d1p.miss);
+            param["newbpdiff"] = param["newbp"] - pScore->bp;
+            param["dbrate"] = (int)(pScore->rate);
+            param["dbrated2"] = (int)(pScore->rate * 100.0) % 100;
+            param["dbrank"] = Option::getRankType(pScore->rate);
+
+            param["updatedscore"] = pScore->exscore < d1p.score2;
+            param["updatedmaxcombo"] = pScore->maxcombo < d1p.maxCombo;
+            param["updatedbp"] = pScore->bp < d1p.miss;
+        }
+        else if (saveScore)
+        {
+            param["newexscore"] = (int)d1p.score2;
+            param["newexscorediff"] = param["newexscore"];
+            param["newmaxcombo"] = (int)d1p.maxCombo;
+            param["newmaxcombodiff"] = param["newmaxcombo"];
+            param["newbp"] = (int)d1p.miss;
+            param["newbpdiff"] = param["newbp"];
+            param["updatedscore"] = true;
+            param["updatedmaxcombo"] = true;
+            param["updatedbp"] = true;
+        }
+    }
+
+    // save
+    {
+        State::set(IndexOption::RESULT_RANK_1P, param["1prank"]);
+        State::set(IndexOption::RESULT_RANK_2P, param["2prank"]);
+        State::set(IndexNumber::PLAY_1P_EXSCORE_DIFF, param["1ptarget"]);
+        State::set(IndexNumber::PLAY_2P_EXSCORE_DIFF, param["2ptarget"]);
+        State::set(IndexOption::RESULT_BATTLE_WIN_LOSE, param["winlose"]);
+
+        State::set(IndexNumber::PLAY_MIN, param["min"]);
+        State::set(IndexNumber::PLAY_SEC, param["sec"]);
+        State::set(IndexNumber::PLAY_REMAIN_MIN, param["min"]);
+        State::set(IndexNumber::PLAY_REMAIN_SEC, param["sec"]);
+
+        State::set(IndexNumber::RESULT_RECORD_EX_BEFORE, param["dbexscore"]);
+        State::set(IndexNumber::RESULT_RECORD_EX_NOW, param["newexscore"]);
+        State::set(IndexNumber::RESULT_RECORD_EX_DIFF, param["newexscorediff"]);
+        State::set(IndexNumber::RESULT_RECORD_MAXCOMBO_BEFORE, param["dbmaxcombo"]);
+        State::set(IndexNumber::RESULT_RECORD_MAXCOMBO_NOW, param["newmaxcombo"]);
+        State::set(IndexNumber::RESULT_RECORD_MAXCOMBO_DIFF, param["newmaxombodiff"]);
+        State::set(IndexNumber::RESULT_RECORD_BP_BEFORE, param["dbbp"]);
+        State::set(IndexNumber::RESULT_RECORD_BP_NOW, param["1pbp"]);
+        State::set(IndexNumber::RESULT_RECORD_BP_DIFF, param["newbpdiff"]);
+        State::set(IndexNumber::RESULT_RECORD_MYBEST_RATE, param["dbrate"]);
+        State::set(IndexNumber::RESULT_RECORD_MYBEST_RATE_DECIMAL2, param["dbrated2"]);
+
+        State::set(IndexNumber::RESULT_MYBEST_EX, param["dbexscore"]);
+        State::set(IndexNumber::RESULT_MYBEST_DIFF, param["dbexscorediff"]);
+        State::set(IndexNumber::RESULT_MYBEST_RATE, param["dbrate"]);
+        State::set(IndexNumber::RESULT_MYBEST_RATE_DECIMAL2, param["dbrated2"]);
+
+        State::set(IndexOption::RESULT_MYBEST_RANK, param["dbrank"]);
+        State::set(IndexOption::RESULT_UPDATED_RANK, std::max(param["1prank"], param["dbrank"]));
+
+        State::set(IndexSwitch::RESULT_UPDATED_SCORE, param["updatedscore"]);
+        State::set(IndexSwitch::RESULT_UPDATED_MAXCOMBO, param["updatedmaxcombo"]);
+        State::set(IndexSwitch::RESULT_UPDATED_BP, param["updatedbp"]);
+    }
+
+
     using namespace std::placeholders;
     _input.register_p("SCENE_PRESS", std::bind(&SceneResult::inputGamePress, this, _1, _2));
     _input.register_h("SCENE_HOLD", std::bind(&SceneResult::inputGameHold, this, _1, _2));
@@ -187,7 +168,8 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
     if (!gInCustomize)
     {
         SoundMgr::stopSysSamples();
-        if (cleared)
+
+        if (State::get(IndexSwitch::RESULT_CLEAR))
             SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::SOUND_CLEAR);
         else
             SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::SOUND_FAIL);
