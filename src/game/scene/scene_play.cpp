@@ -318,6 +318,7 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
 
         gPlayContext.Hispeed = hs;
         State::set(IndexNumber::HS_1P, (int)std::round(gPlayContext.Hispeed * 100));
+        State::set(IndexSlider::HISPEED_1P, gPlayContext.Hispeed / 10.0);
         _lockspeedValue[PLAYER_SLOT_PLAYER] = val;
         _lockspeedGreenNumber[PLAYER_SLOT_PLAYER] = green;
     }
@@ -339,6 +340,7 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         
         gPlayContext.battle2PHispeed = hs;
         State::set(IndexNumber::HS_2P, (int)std::round(gPlayContext.battle2PHispeed));
+        State::set(IndexSlider::HISPEED_2P, gPlayContext.battle2PHispeed / 10.0);
         _lockspeedValue[PLAYER_SLOT_TARGET] = val;
         _lockspeedGreenNumber[PLAYER_SLOT_TARGET] = green;
     }
@@ -1227,6 +1229,7 @@ void ScenePlay::_updateAsync()
                 hs = std::min(getHiSpeed(bpm, PLAYER_SLOT_PLAYER, _lockspeedValue[PLAYER_SLOT_PLAYER]), 10.0);
                 gPlayContext.Hispeed = hs;
                 State::set(IndexNumber::HS_1P, (int)std::round(hs * 100));
+                State::set(IndexSlider::HISPEED_1P, gPlayContext.Hispeed / 10.0);
             }
         }
         else if (hs != hsOld)
@@ -1236,6 +1239,7 @@ void ScenePlay::_updateAsync()
 
             gPlayContext.Hispeed = hs;
             State::set(IndexNumber::HS_1P, (int)std::round(hs * 100));
+            State::set(IndexSlider::HISPEED_1P, gPlayContext.Hispeed / 10.0);
 
             if (State::get(IndexSwitch::P1_LOCK_SPEED) && _isHoldingSelect[PLAYER_SLOT_PLAYER])
             {
@@ -1413,6 +1417,7 @@ void ScenePlay::_updateAsync()
                 hs = std::min(getHiSpeed(bpm, PLAYER_SLOT_TARGET, _lockspeedValue[PLAYER_SLOT_TARGET]), 10.0);
                 gPlayContext.battle2PHispeed = hs;
                 State::set(IndexNumber::HS_2P, (int)std::round(hs * 100));
+                State::set(IndexSlider::HISPEED_2P, gPlayContext.battle2PHispeed / 10.0);
             }
         }
         else if (hs != hsOld)
@@ -1422,6 +1427,7 @@ void ScenePlay::_updateAsync()
 
             gPlayContext.battle2PHispeed = hs;
             State::set(IndexNumber::HS_2P, (int)std::round(hs * 100));
+            State::set(IndexSlider::HISPEED_2P, gPlayContext.battle2PHispeed / 10.0);
 
             if (State::get(IndexSwitch::P2_LOCK_SPEED) && _isHoldingSelect[PLAYER_SLOT_PLAYER])
             {
@@ -2257,11 +2263,13 @@ void ScenePlay::updateFadeout()
         {
             gPlayContext.Hispeed = _hispeedOld[PLAYER_SLOT_PLAYER];
             State::set(IndexNumber::HS_1P, (int)std::round(gPlayContext.Hispeed * 100));
+            State::set(IndexSlider::HISPEED_1P, gPlayContext.Hispeed / 10.0);
         }
         if (gPlayContext.isBattle && State::get(IndexSwitch::P2_LOCK_SPEED))
         {
             gPlayContext.battle2PHispeed = _hispeedOld[PLAYER_SLOT_TARGET];
             State::set(IndexNumber::HS_2P, (int)std::round(gPlayContext.battle2PHispeed * 100));
+            State::set(IndexSlider::HISPEED_2P, gPlayContext.battle2PHispeed / 10.0);
         }
 
         // save lanecover settings
@@ -2820,6 +2828,7 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
 
                 gPlayContext.Hispeed = std::min(gPlayContext.Hispeed + 0.25, 10.0);
                 State::set(IndexNumber::HS_1P, (int)std::round(gPlayContext.Hispeed * 100));
+                State::set(IndexSlider::HISPEED_1P, gPlayContext.Hispeed / 10.0);
             }
         }
 
@@ -2833,6 +2842,7 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
 
                 gPlayContext.Hispeed = std::max(gPlayContext.Hispeed - 0.25, 0.25);
                 State::set(IndexNumber::HS_1P, (int)std::round(gPlayContext.Hispeed * 100));
+                State::set(IndexSlider::HISPEED_1P, gPlayContext.Hispeed / 10.0);
             }
         }
 
@@ -2855,6 +2865,7 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
 
                 gPlayContext.battle2PHispeed = std::min(gPlayContext.battle2PHispeed + 0.25, 10.0);
                 State::set(IndexNumber::HS_2P, (int)std::round(gPlayContext.battle2PHispeed * 100));
+                State::set(IndexSlider::HISPEED_2P, gPlayContext.battle2PHispeed / 10.0);
             }
         }
         if (input[K2SPDDN] || 
@@ -2867,6 +2878,7 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
 
                 gPlayContext.battle2PHispeed = std::max(gPlayContext.battle2PHispeed - 0.25, 0.25);
                 State::set(IndexNumber::HS_2P, (int)std::round(gPlayContext.battle2PHispeed * 100));
+                State::set(IndexSlider::HISPEED_2P, gPlayContext.battle2PHispeed / 10.0);
             }
         }
     }
