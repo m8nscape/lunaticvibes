@@ -1137,24 +1137,41 @@ void key_config_slot(int slot)
 
 void skinselect_mode(int mode)
 {
+    State::set(IndexSwitch::SKINSELECT_7KEYS, false);
+    State::set(IndexSwitch::SKINSELECT_5KEYS, false);
+    State::set(IndexSwitch::SKINSELECT_14KEYS, false);
+    State::set(IndexSwitch::SKINSELECT_10KEYS, false);
+    State::set(IndexSwitch::SKINSELECT_9KEYS, false);
+    State::set(IndexSwitch::SKINSELECT_SELECT, false);
+    State::set(IndexSwitch::SKINSELECT_DECIDE, false);
+    State::set(IndexSwitch::SKINSELECT_RESULT, false);
+    State::set(IndexSwitch::SKINSELECT_KEYCONFIG, false);
+    State::set(IndexSwitch::SKINSELECT_SKINSELECT, false);
+    State::set(IndexSwitch::SKINSELECT_SOUNDSET, false);
+    State::set(IndexSwitch::SKINSELECT_THEME, false);
+    State::set(IndexSwitch::SKINSELECT_7KEYS_BATTLE, false);
+    State::set(IndexSwitch::SKINSELECT_5KEYS_BATTLE, false);
+    State::set(IndexSwitch::SKINSELECT_9KEYS_BATTLE, false);
+    State::set(IndexSwitch::SKINSELECT_COURSE_RESULT, false);
+
     switch (mode)
     {
-    case 0: gCustomizeContext.mode = eMode::PLAY7; break;
-    case 1: gCustomizeContext.mode = eMode::PLAY5; break;
-    case 2: gCustomizeContext.mode = eMode::PLAY14; break;
-    case 3: gCustomizeContext.mode = eMode::PLAY10; break;
-    case 4: gCustomizeContext.mode = eMode::PLAY9; break;
-    case 5: gCustomizeContext.mode = eMode::MUSIC_SELECT; break;
-    case 6: gCustomizeContext.mode = eMode::DECIDE; break;
-    case 7: gCustomizeContext.mode = eMode::RESULT; break;
-    case 8: gCustomizeContext.mode = eMode::KEY_CONFIG; break;
-    case 9: gCustomizeContext.mode = eMode::THEME_SELECT; break;
-    case 10: gCustomizeContext.mode = eMode::SOUNDSET; break;
-    case 11: break;
-    case 12: gCustomizeContext.mode = eMode::PLAY7_2; break;
-    case 13: gCustomizeContext.mode = eMode::PLAY5_2; break;
-    case 14: gCustomizeContext.mode = eMode::PLAY9_2; break;
-    case 15: gCustomizeContext.mode = eMode::COURSE_RESULT; break;
+    case 0:  gCustomizeContext.mode = eMode::PLAY7;         State::set(IndexSwitch::SKINSELECT_7KEYS, true);         break;
+    case 1:  gCustomizeContext.mode = eMode::PLAY5;         State::set(IndexSwitch::SKINSELECT_5KEYS, true);         break;
+    case 2:  gCustomizeContext.mode = eMode::PLAY14;        State::set(IndexSwitch::SKINSELECT_14KEYS, true);        break;
+    case 3:  gCustomizeContext.mode = eMode::PLAY10;        State::set(IndexSwitch::SKINSELECT_10KEYS, true);        break;
+    case 4:  gCustomizeContext.mode = eMode::PLAY9;         State::set(IndexSwitch::SKINSELECT_9KEYS, true);         break;
+    case 5:  gCustomizeContext.mode = eMode::MUSIC_SELECT;  State::set(IndexSwitch::SKINSELECT_SELECT, true);        break;
+    case 6:  gCustomizeContext.mode = eMode::DECIDE;        State::set(IndexSwitch::SKINSELECT_DECIDE, true);        break;
+    case 7:  gCustomizeContext.mode = eMode::RESULT;        State::set(IndexSwitch::SKINSELECT_RESULT, true);        break;
+    case 8:  gCustomizeContext.mode = eMode::KEY_CONFIG;    State::set(IndexSwitch::SKINSELECT_KEYCONFIG, true);     break;
+    case 9:  gCustomizeContext.mode = eMode::THEME_SELECT;  State::set(IndexSwitch::SKINSELECT_SKINSELECT, true);    break;
+    case 10: gCustomizeContext.mode = eMode::SOUNDSET;      State::set(IndexSwitch::SKINSELECT_SOUNDSET, true);      break;
+    case 11:                                                State::set(IndexSwitch::SKINSELECT_THEME, true);         break;
+    case 12: gCustomizeContext.mode = eMode::PLAY7_2;       State::set(IndexSwitch::SKINSELECT_7KEYS_BATTLE, true);  break;
+    case 13: gCustomizeContext.mode = eMode::PLAY5_2;       State::set(IndexSwitch::SKINSELECT_5KEYS_BATTLE, true);  break;
+    case 14: gCustomizeContext.mode = eMode::PLAY9_2;       State::set(IndexSwitch::SKINSELECT_9KEYS_BATTLE, true);  break;
+    case 15: gCustomizeContext.mode = eMode::COURSE_RESULT; State::set(IndexSwitch::SKINSELECT_COURSE_RESULT, true); break;
     default: break;
     }
 

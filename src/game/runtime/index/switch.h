@@ -161,6 +161,23 @@ enum class IndexSwitch: unsigned
         P1_LOCK_SPEED,
         P2_LOCK_SPEED,
 
+        SKINSELECT_7KEYS,
+        SKINSELECT_5KEYS,
+        SKINSELECT_14KEYS,
+        SKINSELECT_10KEYS,
+        SKINSELECT_9KEYS,
+        SKINSELECT_SELECT,
+        SKINSELECT_DECIDE,
+        SKINSELECT_RESULT,
+        SKINSELECT_KEYCONFIG,
+        SKINSELECT_SKINSELECT,
+        SKINSELECT_SOUNDSET,
+        SKINSELECT_THEME,
+        SKINSELECT_7KEYS_BATTLE,
+        SKINSELECT_5KEYS_BATTLE,
+        SKINSELECT_9KEYS_BATTLE,
+        SKINSELECT_COURSE_RESULT,
+
     _FALSE = 999,        // should be initialized with false
 
     _TEST1,

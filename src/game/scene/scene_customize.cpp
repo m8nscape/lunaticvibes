@@ -25,6 +25,23 @@ SceneCustomize::SceneCustomize() : vScene(eMode::THEME_SELECT, 240)
         gPlayContext.mode = selectedMode;
         gPlayContext.isAuto = true;
         gCustomizeSceneChanged = true;
+
+        State::set(IndexSwitch::SKINSELECT_7KEYS, true);
+        State::set(IndexSwitch::SKINSELECT_5KEYS, false);
+        State::set(IndexSwitch::SKINSELECT_14KEYS, false);
+        State::set(IndexSwitch::SKINSELECT_10KEYS, false);
+        State::set(IndexSwitch::SKINSELECT_9KEYS, false);
+        State::set(IndexSwitch::SKINSELECT_SELECT, false);
+        State::set(IndexSwitch::SKINSELECT_DECIDE, false);
+        State::set(IndexSwitch::SKINSELECT_RESULT, false);
+        State::set(IndexSwitch::SKINSELECT_KEYCONFIG, false);
+        State::set(IndexSwitch::SKINSELECT_SKINSELECT, false);
+        State::set(IndexSwitch::SKINSELECT_SOUNDSET, false);
+        State::set(IndexSwitch::SKINSELECT_THEME, false);
+        State::set(IndexSwitch::SKINSELECT_7KEYS_BATTLE, false);
+        State::set(IndexSwitch::SKINSELECT_5KEYS_BATTLE, false);
+        State::set(IndexSwitch::SKINSELECT_9KEYS_BATTLE, false);
+        State::set(IndexSwitch::SKINSELECT_COURSE_RESULT, false);
     }
     else
     {
@@ -372,7 +389,7 @@ void SceneCustomize::updateMain()
     }
     if (_exiting)
     {
-        State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
+        State::set(IndexTimer::_SCENE_CUSTOMIZE_FADEOUT, t.norm());
         SoundMgr::setSysVolume(0.0, 1000);
         _updateCallback = std::bind(&SceneCustomize::updateFadeout, this);
         using namespace std::placeholders;
@@ -384,7 +401,7 @@ void SceneCustomize::updateMain()
 void SceneCustomize::updateFadeout()
 {
     Time t;
-    Time rt = t - State::get(IndexTimer::FADEOUT_BEGIN);
+    Time rt = t - State::get(IndexTimer::_SCENE_CUSTOMIZE_FADEOUT);
 
     if (rt.norm() > _skin->info.timeOutro)
     {

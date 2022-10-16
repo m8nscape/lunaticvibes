@@ -3662,12 +3662,16 @@ void SkinLR2::postLoad()
         {
             if (s->_triggerTimer == IndexTimer::SCENE_START)
                 s->_triggerTimer = IndexTimer::_SCENE_CUSTOMIZE_START;
+            if (s->_triggerTimer == IndexTimer::FADEOUT_BEGIN)
+                s->_triggerTimer = IndexTimer::_SCENE_CUSTOMIZE_FADEOUT;
 
             auto p = std::dynamic_pointer_cast<SpriteAnimated>(s);
             if (p)
             {
                 if (p->_resetAnimTimer == IndexTimer::SCENE_START)
                     p->_resetAnimTimer = IndexTimer::_SCENE_CUSTOMIZE_START;
+                if (p->_triggerTimer == IndexTimer::FADEOUT_BEGIN)
+                    p->_triggerTimer = IndexTimer::_SCENE_CUSTOMIZE_FADEOUT;
             }
         }
     }

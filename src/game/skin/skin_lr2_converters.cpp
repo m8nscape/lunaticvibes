@@ -222,6 +222,41 @@ IndexSwitch::KEY_CONFIG_SLOT7,
 IndexSwitch::KEY_CONFIG_SLOT8,
 IndexSwitch::KEY_CONFIG_SLOT9,
 
+// 160 (undefined)
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+
+// 170
+IndexSwitch::SKINSELECT_7KEYS,
+IndexSwitch::SKINSELECT_5KEYS,
+IndexSwitch::SKINSELECT_14KEYS,
+IndexSwitch::SKINSELECT_10KEYS,
+IndexSwitch::SKINSELECT_9KEYS,
+IndexSwitch::SKINSELECT_SELECT,
+IndexSwitch::SKINSELECT_DECIDE,
+IndexSwitch::SKINSELECT_RESULT,
+IndexSwitch::SKINSELECT_KEYCONFIG,
+IndexSwitch::SKINSELECT_SKINSELECT,
+IndexSwitch::SKINSELECT_SOUNDSET,
+IndexSwitch::SKINSELECT_THEME,
+IndexSwitch::SKINSELECT_7KEYS_BATTLE,
+IndexSwitch::SKINSELECT_5KEYS_BATTLE,
+IndexSwitch::SKINSELECT_9KEYS_BATTLE,
+IndexSwitch::SKINSELECT_COURSE_RESULT,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+
+// 190
 };
 
 bool buttonSw(int n, IndexSwitch& out)
