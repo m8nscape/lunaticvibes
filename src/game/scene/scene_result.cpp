@@ -333,7 +333,7 @@ void SceneResult::updateFadeout()
                 }
                 score.lamp = std::min(score.lamp, saveLamp);
 
-                if (gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask != 0)
+                if (gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask == 0)
                 {
                     score.pgreat = rBMS->getJudgeCount(RulesetBMS::JudgeType::PERFECT);
                     score.great = rBMS->getJudgeCount(RulesetBMS::JudgeType::GREAT);
