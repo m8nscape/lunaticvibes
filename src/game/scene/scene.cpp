@@ -17,7 +17,7 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
 {
     // Disable skin caching for now. dst options are changing all the time
     SkinMgr::unload(mode);
-    SkinMgr::load(mode);
+    SkinMgr::load(mode, gInCustomize && mode != eMode::THEME_SELECT);
     _skin = SkinMgr::get(mode);
 
     int notificationPosY = ConfigMgr::General()->get(cfg::V_RES_Y, CANVAS_HEIGHT);
