@@ -2274,6 +2274,10 @@ void ScenePlay::updateFadeout()
             ConfigMgr::set('P', cfg::P_LANECOVER_TOP, State::get(IndexNumber::LANECOVER_TOP_1P));
             ConfigMgr::set('P', cfg::P_LANECOVER_BOTTOM, State::get(IndexNumber::LANECOVER_BOTTOM_1P));
         }
+        else if (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P) == Option::LANE_LIFT)
+        {
+            ConfigMgr::set('P', cfg::P_LANECOVER_BOTTOM, State::get(IndexNumber::LANECOVER_BOTTOM_1P));
+        }
         if (State::get(IndexSwitch::P1_LOCK_SPEED))
         {
             ConfigMgr::set('P', cfg::P_GREENNUMBER, _lockspeedGreenNumber[PLAYER_SLOT_PLAYER]);
@@ -2288,6 +2292,10 @@ void ScenePlay::updateFadeout()
             if (State::get(IndexSwitch::P2_LANECOVER_ENABLED))
             {
                 gPlayContext.battle2PLanecoverTop = State::get(IndexNumber::LANECOVER_TOP_2P);
+                gPlayContext.battle2PLanecoverBottom = State::get(IndexNumber::LANECOVER_BOTTOM_2P);
+            }
+            else if (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_2P) == Option::LANE_LIFT)
+            {
                 gPlayContext.battle2PLanecoverBottom = State::get(IndexNumber::LANECOVER_BOTTOM_2P);
             }
             if (State::get(IndexSwitch::P2_LOCK_SPEED))
