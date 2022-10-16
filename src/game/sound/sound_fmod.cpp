@@ -871,6 +871,27 @@ void SoundDriverFMOD::update()
         setVolume(SampleChannel::BGM, volume[SampleChannel::BGM]);
     }
 
+    if (noteVolume != noteVolumeGradientEnd)
+    {
+        if (noteVolumeGradientLength == 0)
+        {
+            noteVolume = noteVolumeGradientEnd;
+        }
+        else
+        {
+            double progress = double((Time() - noteVolumeGradientBeginTime).norm()) / noteVolumeGradientLength;
+            if (progress >= 1.0)
+            {
+                noteVolume = noteVolumeGradientEnd;
+            }
+            else
+            {
+                noteVolume = noteVolumeGradientBegin + (noteVolumeGradientEnd - noteVolumeGradientBegin) * progress;
+            }
+        }
+        setVolume(SampleChannel::MASTER, volume[SampleChannel::MASTER]);
+    }
+
     FMOD_RESULT r = fmodSystem->update();
     if (r != FMOD_OK)
         LOG_ERROR << "[FMOD] SoundDriverFMOD System Update Error: " << r << ", " << FMOD_ErrorString(r);
@@ -891,6 +912,14 @@ void SoundDriverFMOD::setSysVolume(float v, int gradientTime)
     sysVolumeGradientLength = gradientTime;
 }
 
+void SoundDriverFMOD::setNoteVolume(float v, int gradientTime)
+{
+    noteVolumeGradientBegin = noteVolume;
+    noteVolumeGradientEnd = v;
+    noteVolumeGradientBeginTime = Time();
+    noteVolumeGradientLength = gradientTime;
+}
+
 void SoundDriverFMOD::setVolume(SampleChannel ch, float v)
 {
     volume[ch] = v;
@@ -899,19 +928,19 @@ void SoundDriverFMOD::setVolume(SampleChannel ch, float v)
     {
     case SampleChannel::MASTER:
         channelGroup[SoundChannelType::BGM_SYS]->setVolume(sysVolume * volume[SampleChannel::MASTER] * volume[SampleChannel::BGM]);
-        channelGroup[SoundChannelType::BGM_NOTE]->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::BGM]);
+        channelGroup[SoundChannelType::BGM_NOTE]->setVolume(noteVolume * volume[SampleChannel::MASTER] * volume[SampleChannel::BGM]);
         channelGroup[SoundChannelType::KEY_SYS]->setVolume(sysVolume * volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
-        channelGroup[SoundChannelType::KEY_LEFT]->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
-        channelGroup[SoundChannelType::KEY_RIGHT]->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
+        channelGroup[SoundChannelType::KEY_LEFT]->setVolume(noteVolume * volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
+        channelGroup[SoundChannelType::KEY_RIGHT]->setVolume(noteVolume * volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
         break;
     case SampleChannel::KEY:
         channelGroup[SoundChannelType::KEY_SYS]->setVolume(sysVolume * volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
-        channelGroup[SoundChannelType::KEY_LEFT]->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
-        channelGroup[SoundChannelType::KEY_RIGHT]->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
+        channelGroup[SoundChannelType::KEY_LEFT]->setVolume(noteVolume * volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
+        channelGroup[SoundChannelType::KEY_RIGHT]->setVolume(noteVolume * volume[SampleChannel::MASTER] * volume[SampleChannel::KEY]);
         break;
     case SampleChannel::BGM:
         channelGroup[SoundChannelType::BGM_SYS]->setVolume(sysVolume * volume[SampleChannel::MASTER] * volume[SampleChannel::BGM]);
-        channelGroup[SoundChannelType::BGM_NOTE]->setVolume(volume[SampleChannel::MASTER] * volume[SampleChannel::BGM]);
+        channelGroup[SoundChannelType::BGM_NOTE]->setVolume(noteVolume * volume[SampleChannel::MASTER] * volume[SampleChannel::BGM]);
         break;
     }
 }

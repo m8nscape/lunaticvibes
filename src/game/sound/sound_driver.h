@@ -71,6 +71,7 @@ public:
 
 public:
     virtual void setSysVolume(float v, int gradientTime = 0) = 0;
+    virtual void setNoteVolume(float v, int gradientTime = 0) = 0;
     virtual void setVolume(SampleChannel ch, float v) = 0;
     virtual void setDSP(DSPType type, int index, SampleChannel ch, float p1, float p2) = 0;
     virtual void setFreqFactor(double f) = 0;

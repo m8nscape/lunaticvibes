@@ -8,7 +8,6 @@
 #include "game/sound/sound_sample.h"
 
 #include "config/config_mgr.h"
-#include "game/generic_info.h"
 #include <boost/algorithm/string.hpp>
 
 SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
@@ -419,6 +418,7 @@ void SceneResult::inputGamePress(InputMask& m, const Time& t)
                 State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
                 _state = eResultState::FADEOUT;
                 SoundMgr::setSysVolume(0.0, 2000);
+                SoundMgr::setNoteVolume(0.0, 2000);
                 LOG_DEBUG << "[Result] State changed to FADEOUT";
             }
             break;
@@ -429,6 +429,7 @@ void SceneResult::inputGamePress(InputMask& m, const Time& t)
                 State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
                 _state = eResultState::FADEOUT;
                 SoundMgr::setSysVolume(0.0, 2000);
+                SoundMgr::setNoteVolume(0.0, 2000);
                 LOG_DEBUG << "[Result] State changed to FADEOUT";
             }
             break;

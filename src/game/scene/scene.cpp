@@ -2,6 +2,7 @@
 #include "scene.h"
 #include "common/beat.h"
 #include "game/runtime/state.h"
+#include "game/runtime/generic_info.h"
 #include "game/skin/skin_mgr.h"
 #include "scene_context.h"
 #include "config/config_mgr.h"
@@ -238,6 +239,7 @@ void vScene::draw() const
 void vScene::_updateAsync1()
 {
     _updateAsync();
+    gFrameCount[FRAMECOUNT_IDX_SCENE]++;
 }
 
 void vScene::_updateImgui()

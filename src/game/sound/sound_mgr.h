@@ -33,6 +33,7 @@ public:
     static void stopUpdate();
 
     static void setSysVolume(float v, int gradientTime = 0);
+    static void setNoteVolume(float v, int gradientTime = 0);
     static void setVolume(SampleChannel ch, float v);
 
     static void setDSP(DSPType type, int index, SampleChannel ch, float p1, float p2);

@@ -29,7 +29,6 @@ private:
 
 protected:
     bool isPlaymodeDP() const;
-    bool isPlaymodeBattle() const;
 
 private:
     bool _isExitingFromPlay = false;
@@ -58,6 +57,7 @@ private:
     std::array<bool, 2>     _laneEffectSUDHID { false, false };
 
     Time _readyTime = 0;
+    int retryRequestTick = 0;
 
     std::vector<ReplayChart::Commands>::iterator itReplayCommand;
     InputMask replayKeyPressing;
@@ -128,6 +128,7 @@ protected:
     void procCommonNotes();
     void changeKeySampleMapping(const Time& t);
     void spinTurntable(bool startedPlaying);
+    void requestExit();
 
 protected:
     // Register to InputWrapper: judge / keysound

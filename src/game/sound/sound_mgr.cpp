@@ -96,6 +96,12 @@ void SoundMgr::setSysVolume(float v, int gradientTime)
     return _inst.driver->setSysVolume(v, gradientTime);
 }
 
+void SoundMgr::setNoteVolume(float v, int gradientTime)
+{
+    if (!_inst._initialized) return;
+    return _inst.driver->setNoteVolume(v, gradientTime);
+}
+
 void SoundMgr::setVolume(SampleChannel ch, float v)
 {
     if (!_inst._initialized) return;

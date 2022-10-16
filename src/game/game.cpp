@@ -9,7 +9,7 @@
 #include "common/utils.h"
 #include "common/sysutil.h"
 #include "game/scene/scene_context.h"
-#include "game/generic_info.h"
+#include "game/runtime/generic_info.h"
 
 #include "common/chartformat/chartformat_bms.h"
 

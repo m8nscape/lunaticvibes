@@ -369,6 +369,7 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
         SoundMgr::stopNoteSamples();
         SoundMgr::stopSysSamples();
         SoundMgr::setSysVolume(1.0);
+        SoundMgr::setNoteVolume(1.0);
         SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::BGM_SELECT);
     }
 
@@ -690,7 +691,6 @@ void SceneSelect::updateSelect()
             case eEntryType::RIVAL_CHART:
             case eEntryType::COURSE:
                 gPlayContext.isAuto = true;
-                gPlayContext.canRetry = false;
                 State::set(IndexSwitch::SYSTEM_AUTOPLAY, true);
                 _decide();
                 break;
@@ -712,7 +712,6 @@ void SceneSelect::updateSelect()
                 if (State::get(IndexSwitch::CHART_HAVE_REPLAY))
                 {
                     gPlayContext.isReplay = true;
-                    gPlayContext.canRetry = false;
                     _decide();
                 }
                 break;
@@ -1391,6 +1390,8 @@ void SceneSelect::_decide()
     //auto& chart = entry.charts[entry.chart_idx];
 
     clearContextPlay();
+
+    gPlayContext.canRetry = !(gPlayContext.isAuto || gPlayContext.isReplay);
 
     switch (State::get(IndexOption::PLAY_BATTLE_TYPE))
     {

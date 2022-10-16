@@ -1,6 +1,7 @@
 #include <cassert>
 #include <future>
 #include <set>
+#include <random>
 #include "scene_play.h"
 #include "scene_context.h"
 #include "game/sound/sound_mgr.h"
@@ -398,6 +399,8 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     }
 
     State::set(IndexTimer::MUSIC_BEAT, TIMER_NEVER);
+    SoundMgr::setSysVolume(1.0);
+    SoundMgr::setNoteVolume(1.0);
 
     _missBgaLength = ConfigMgr::get("P", cfg::P_MISSBGA_LENGTH, 500);
 
@@ -1541,8 +1544,6 @@ void ScenePlay::_updateAsync()
         State::set(IndexNumber::GREEN_NUMBER_MINBPM_2P, calcGreenNumber(minBPM, PLAYER_SLOT_TARGET, gPlayContext.battle2PHispeed).first);
     }
 
-    State::set(IndexNumber::SCENE_UPDATE_FPS, _looper.getRate());
-
     // setting speed / lanecover (if display white number / green number)
     State::set(IndexSwitch::P1_SETTING_LANECOVER, false);
     State::set(IndexSwitch::P2_SETTING_LANECOVER, false);
@@ -1765,6 +1766,20 @@ void ScenePlay::_updateAsync()
     };
     Scratch(t, Input::S1L, Input::S1R, _scratchAccumulator[PLAYER_SLOT_PLAYER], PLAYER_SLOT_PLAYER);
     Scratch(t, Input::S2L, Input::S2R, _scratchAccumulator[PLAYER_SLOT_TARGET], PLAYER_SLOT_TARGET);
+
+    if (_isHoldingStart[PLAYER_SLOT_PLAYER] && _isHoldingSelect[PLAYER_SLOT_PLAYER] ||
+        (gPlayContext.isBattle || isPlaymodeDP()) && _isHoldingStart[PLAYER_SLOT_TARGET] && _isHoldingSelect[PLAYER_SLOT_TARGET])
+    {
+        retryRequestTick++;
+    }
+    else
+    {
+        retryRequestTick = 0;
+    }
+    if (retryRequestTick >= getRate() * 1)
+    {
+        requestExit();
+    }
 
     switch (_state)
     {
@@ -2304,8 +2319,15 @@ void ScenePlay::updateFadeout()
         {
             gNextScene = (gPlayContext.isCourse && gChartContext.started) ? eScene::COURSE_TRANS : (gQuitOnFinish ? eScene::EXIT_TRANS : eScene::SELECT);
         }
-        else if (wantRetry && gPlayContext.canRetry)
+        else if (wantRetry && gPlayContext.canRetry && gChartContext.started)
         {
+            if (retryRequestTick)
+            {
+                // the retry is requested by START+SELECT
+                static std::random_device rd;
+                gPlayContext.randomSeed = ((uint64_t)rd() << 32) | rd();
+            }
+            SoundMgr::stopNoteSamples();
             gNextScene = eScene::RETRY_TRANS;
         }
         else
@@ -2557,6 +2579,35 @@ void ScenePlay::spinTurntable(bool startedPlaying)
     }
     State::set(IndexNumber::_ANGLE_TT_1P, (_ttAngleTime[0] + (int)_ttAngleDiff[0]) % 360);
     State::set(IndexNumber::_ANGLE_TT_2P, (_ttAngleTime[1] + (int)_ttAngleDiff[1]) % 360);
+}
+
+void ScenePlay::requestExit()
+{
+    if (_state == ePlayState::FADEOUT) return;
+
+    Time t;
+
+    if (gChartContext.started)
+    {
+        _isExitingFromPlay = true;
+
+        if (!_isPlayerFinished[PLAYER_SLOT_PLAYER])
+        {
+            gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->fail();
+        }
+        if (!_isPlayerFinished[PLAYER_SLOT_TARGET] && gPlayContext.isBattle && gPlayContext.ruleset[PLAYER_SLOT_TARGET])
+        {
+            gPlayContext.ruleset[PLAYER_SLOT_TARGET]->fail();
+        }
+
+        pushGraphPoints();
+    }
+
+    SoundMgr::setNoteVolume(0.0, 1000);
+    State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
+    State::set(IndexOption::PLAY_SCENE_STAT, Option::SPLAY_FADEOUT);
+    _state = ePlayState::FADEOUT;
+    LOG_DEBUG << "[Play] State changed to FADEOUT";
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2812,30 +2863,10 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
         }
     }
 
-    if (_state != ePlayState::FADEOUT &&
-        (input[Input::ESC] || (input[Input::K1START] && input[Input::K1SELECT]) || (input[Input::K2START] && input[Input::K2SELECT])))
+    auto holding = _input.Holding();
+    if (_state != ePlayState::FADEOUT && input[Input::ESC])
     {
-        if (gChartContext.started)
-        {
-            _isExitingFromPlay = true;
-
-            if (!_isPlayerFinished[PLAYER_SLOT_PLAYER])
-            {
-                gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->fail();
-            }
-            if (!_isPlayerFinished[PLAYER_SLOT_TARGET] && gPlayContext.isBattle && gPlayContext.ruleset[PLAYER_SLOT_TARGET])
-            {
-                gPlayContext.ruleset[PLAYER_SLOT_TARGET]->fail();
-            }
-
-            pushGraphPoints();
-
-        }
-
-        State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
-        State::set(IndexOption::PLAY_SCENE_STAT, Option::SPLAY_FADEOUT);
-        _state = ePlayState::FADEOUT;
-        LOG_DEBUG << "[Play] State changed to FADEOUT";
+        requestExit();
     }
 }
 
