@@ -402,16 +402,16 @@ namespace Option
     };
     constexpr e_health_range getHealthType(double health)
     {
-        if (health >= 100.0)     return e_health_range::HEALTH_100;
-        else if (health >= 90.0) return e_health_range::HEALTH_90;
-        else if (health >= 80.0) return e_health_range::HEALTH_80;
-        else if (health >= 70.0) return e_health_range::HEALTH_70;
-        else if (health >= 60.0) return e_health_range::HEALTH_60;
-        else if (health >= 50.0) return e_health_range::HEALTH_50;
-        else if (health >= 40.0) return e_health_range::HEALTH_40;
-        else if (health >= 30.0) return e_health_range::HEALTH_30;
-        else if (health >= 20.0) return e_health_range::HEALTH_20;
-        else if (health >= 10.0) return e_health_range::HEALTH_10;
+        if (health >= 1.0)     return e_health_range::HEALTH_100;
+        else if (health >= 0.9) return e_health_range::HEALTH_90;
+        else if (health >= 0.8) return e_health_range::HEALTH_80;
+        else if (health >= 0.7) return e_health_range::HEALTH_70;
+        else if (health >= 0.6) return e_health_range::HEALTH_60;
+        else if (health >= 0.5) return e_health_range::HEALTH_50;
+        else if (health >= 0.4) return e_health_range::HEALTH_40;
+        else if (health >= 0.3) return e_health_range::HEALTH_30;
+        else if (health >= 0.2) return e_health_range::HEALTH_20;
+        else if (health >= 0.1) return e_health_range::HEALTH_10;
         else                     return e_health_range::HEALTH_0;
     }
 
