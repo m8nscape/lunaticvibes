@@ -423,6 +423,15 @@ void SceneSelect::_updateAsync()
 
     bool idxUpdated = false;
 
+    if (gSelectContext.optionChanged)
+    {
+        gSelectContext.optionChanged = false;
+
+        State::set(IndexTimer::LIST_MOVE, t.norm());
+        navigateTimestamp = t;
+        postStopPreview();
+    }
+
     // update by slider
     if (gSelectContext.entryDragging)
     {

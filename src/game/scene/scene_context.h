@@ -158,6 +158,7 @@ struct SelectContextParams
     SongListSort sort = SongListSort::DEFAULT;
     unsigned filterDifficulty = 0; // all / B / N / H / A / I (type 0 is not included)
     unsigned filterKeys = 0; // all / 5, 7, 9, 10, 14, etc
+    bool optionChanged = false;
 
     std::vector<DifficultyTableBMS> tables;
 

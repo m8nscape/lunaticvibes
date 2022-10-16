@@ -207,6 +207,7 @@ void select_difficulty_filter(int plus, int iterateCount)
         }
     }
 
+    gSelectContext.optionChanged = true;
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_DIFFICULTY);
 }
 
@@ -258,6 +259,7 @@ void select_keys_filter(int plus, int iterateCount)
         }
     }
 
+    gSelectContext.optionChanged = true;
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_DIFFICULTY);
 }
 
@@ -283,6 +285,7 @@ void select_sort_type(int plus)
         setEntryInfo();
     }
 
+    gSelectContext.optionChanged = true;
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_DIFFICULTY);
 }
 
@@ -907,6 +910,7 @@ void difficulty(int diff, int plus)
         }
     }
 
+    gSelectContext.optionChanged = true;
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_DIFFICULTY);
 }
 
