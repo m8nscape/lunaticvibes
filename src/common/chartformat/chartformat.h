@@ -43,6 +43,7 @@ public:
     HashMD5 fileHash;
     HashMD5 folderHash;
     long long addTime = 0;  // from epoch time
+    int gamemode = 7;       // 5, 7, 9, 10, 14, 24?, 48?
 
     StringContent title;
     StringContent title2;
@@ -50,6 +51,8 @@ public:
     StringContent artist2;
     StringContent genre;
     StringContent version;     // mostly known as difficulty name
+    int playLevel = 0;
+    int difficulty = 3;            // N/H/A
     double levelEstimated = 0.0;
 
     int totalLength = 0;// in seconds

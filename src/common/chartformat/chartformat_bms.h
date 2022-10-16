@@ -62,11 +62,8 @@ public:
     // File properties.
     // Header.
     int player = 0;                // 1: single, 2: couple, 3: double, 4: battle
-    int gamemode = 7;               // 5, 7, 9, 10, 14, 24?, 48?
     int rank = 2;                 // judge, VHARD/HARD/NORMAL/EASY
     int total = -1;
-    int playLevel = 0;
-    int difficulty = 3;            // N/H/A
     double bpm = 130.0;
     std::map<std::string, StringContent> extraCommands;
 

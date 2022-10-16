@@ -28,20 +28,25 @@ public:
     void pushChart(std::shared_ptr<ChartFormatBase> c);
     virtual size_t getContentsCount() { return charts.size(); }
     virtual bool empty() { return charts.empty(); }
+
+protected:
+    std::map<int, std::map<unsigned, std::vector<std::shared_ptr<ChartFormatBase>>>> chartMap;
+public:
+    const std::vector<std::shared_ptr<ChartFormatBase>>& getDifficultyList(int gamemode, unsigned difficulty) const;
 };
 
 // entry for each charts of song, e.g. jukebox/bms/L9/kuso9_7.bme
 class EntryChart : public EntryBase
 {
 public:
-    std::shared_ptr<ChartFormatBase> _file;
+    std::shared_ptr<ChartFormatBase> _file = nullptr;
 
     // extend info
-    bool have_more = false;
+    std::shared_ptr<EntryFolderSong> _song = nullptr;
 
 public:
     EntryChart() = default;
-    EntryChart(std::shared_ptr<ChartFormatBase> p): _file(p)
+    EntryChart(std::shared_ptr<ChartFormatBase> p, std::shared_ptr<EntryFolderSong> ps = nullptr) : _file(p), _song(ps)
     {
         _type = eEntryType::CHART;
         md5 = _file->fileHash;
@@ -51,6 +56,8 @@ public:
         _addTime = _file->addTime;
     }
     EntryChart(ChartFormatBase& f) : EntryChart(std::make_shared<ChartFormatBase>(f)) {}
+
+    std::shared_ptr<EntryFolderSong> getSongEntry() const { return _song; }
 };
 
 // entry for tables

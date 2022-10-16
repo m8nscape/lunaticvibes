@@ -153,6 +153,8 @@ struct SelectContextParams
     size_t cursor = 0;  // highlighted bar index
     bool entryDragging = 0;    // is dragging slider
 
+    size_t sameDifficultyNextIdx = 0; // next entry index of same difficulty
+
     SongListSort sort = SongListSort::DEFAULT;
     unsigned filterDifficulty = 0; // all / B / N / H / A / I (type 0 is not included)
     unsigned filterKeys = 0; // all / 5, 7, 9, 10, 14, etc
@@ -177,6 +179,7 @@ void sortSongList();
 void setBarInfo();
 void setEntryInfo();
 void setPlayModeInfo();
+void switchDifficulty(int difficulty);
 
 void setDynamicTextures();
 

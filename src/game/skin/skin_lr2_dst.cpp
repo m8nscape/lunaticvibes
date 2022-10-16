@@ -815,26 +815,44 @@ void updateDstOpt()
 	// 502 同じフォルダにhyper譜面が存在しない
 	// 503 同じフォルダにanother譜面が存在しない
 	// 504 同じフォルダにinsane譜面が存在しない
+	set(500, !State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_1));
+	set(501, !State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_2));
+	set(502, !State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_3));
+	set(503, !State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_4));
+	set(504, !State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_5));
 
 	// 505 同じフォルダにbeginner譜面が存在する
 	// 506 同じフォルダにnormal譜面が存在する
 	// 507 同じフォルダにhyper譜面が存在する
 	// 508 同じフォルダにanother譜面が存在する
 	// 509 同じフォルダにinsane譜面が存在する
+	set(505, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_1));
+	set(506, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_2));
+	set(507, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_3));
+	set(508, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_4));
+	set(509, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_5));
 
 	// 510 同じフォルダに一個のbeginner譜面が存在する
 	// 511 同じフォルダに一個のnormal譜面が存在する
 	// 512 同じフォルダに一個のhyper譜面が存在する
 	// 513 同じフォルダに一個のanother譜面が存在する
 	// 514 同じフォルダに一個のnsane譜面が存在する
+	set(510, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_1) && !State::get(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_1));
+	set(511, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_2) && !State::get(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_2));
+	set(512, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_3) && !State::get(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_3));
+	set(513, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_4) && !State::get(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_4));
+	set(514, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_5) && !State::get(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_5));
 
 	// 515 同じフォルダに複数のbeginner譜面が存在する
 	// 516 同じフォルダに複数のnormal譜面が存在する
 	// 517 同じフォルダに複数のhyper譜面が存在する
 	// 518 同じフォルダに複数のanother譜面が存在する
 	// 519 同じフォルダに複数のnsane譜面が存在する
-
-	set({ 500, 501, 502, 503, 504 });
+	set(515, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_1) && State::get(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_1));
+	set(516, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_2) && State::get(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_2));
+	set(517, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_3) && State::get(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_3));
+	set(518, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_4) && State::get(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_4));
+	set(519, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_5) && State::get(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_5));
 
 	if (get(5))
 	{

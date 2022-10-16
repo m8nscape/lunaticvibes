@@ -887,14 +887,24 @@ void favorite_ignore(int plus)
 // 91 - 96
 void difficulty(int diff, int plus)
 {
-    State::set(IndexOption::SELECT_FILTER_DIFF, diff);
-
+    if (diff == gSelectContext.filterDifficulty)
     {
         std::unique_lock l(gSelectContext._mutex);
-        loadSongList();
-        sortSongList();
+        switchDifficulty(diff);
         setBarInfo();
         setEntryInfo();
+    }
+    else
+    {
+        State::set(IndexOption::SELECT_FILTER_DIFF, diff);
+        gSelectContext.filterDifficulty = State::get(IndexOption::SELECT_FILTER_DIFF);
+        {
+            std::unique_lock l(gSelectContext._mutex);
+            loadSongList();
+            sortSongList();
+            setBarInfo();
+            setEntryInfo();
+        }
     }
 
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_DIFFICULTY);

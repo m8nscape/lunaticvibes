@@ -133,6 +133,26 @@ void pushGraphPoints()
 
 void loadSongList()
 {
+    HashMD5 currentEntryHash;
+    std::shared_ptr<EntryFolderSong> currentEntrySong;
+    int currentEntryGamemode = 0;
+    int currentEntryDifficulty = 0;
+    if (!gSelectContext.entries.empty())
+    {
+        currentEntryHash = gSelectContext.entries.at(gSelectContext.idx).first->md5;
+
+        if (gSelectContext.entries[gSelectContext.idx].first->type() == eEntryType::CHART ||
+            gSelectContext.entries[gSelectContext.idx].first->type() == eEntryType::RIVAL_CHART)
+        {
+            auto& en = gSelectContext.entries[gSelectContext.idx].first;
+            auto ps = std::reinterpret_pointer_cast<EntryChart>(en);
+            auto pf = std::reinterpret_pointer_cast<ChartFormatBase>(ps->_file);
+            currentEntrySong = ps->getSongEntry();
+            currentEntryGamemode = pf->gamemode;
+            currentEntryDifficulty = pf->difficulty;
+        }
+    }
+
     gSelectContext.entries.clear();
     for (auto& [e, s] : gSelectContext.backtrace.top().dbBrowseEntries)
     {
@@ -182,51 +202,24 @@ void loadSongList()
         case eEntryType::RIVAL_SONG:
         {
             auto f = std::reinterpret_pointer_cast<EntryFolderSong>(e);
-            if (ConfigMgr::get('P', cfg::P_NO_COMBINE_CHARTS, false))
+            for (size_t idx = 0; idx < f->getContentsCount() && !skip; ++idx)
             {
-                int nChartIdx = -1;
-                for (size_t idx = 0; idx < f->getContentsCount() && !skip; ++idx)
+                switch (f->getChart(idx)->type())
                 {
-                    if (f->getChart(idx)->type() == eChartFormat::BMS)
-                    {
-                        auto p = std::reinterpret_pointer_cast<ChartFormatBMSMeta>(f->getChart(idx));
+                case eChartFormat::BMS:
+                {
+                    auto p = std::reinterpret_pointer_cast<ChartFormatBMSMeta>(f->getChart(idx));
 
-                        if (!checkFilterKeys(p->gamemode)) continue;
-                        if (!checkFilterDifficulty(p->difficulty))
-                        {
-                            nChartIdx = idx;
-                            continue;
-                        }
+                    if (!checkFilterDifficulty(p->difficulty)) continue;
+                    if (!checkFilterKeys(p->gamemode)) continue;
 
-                        // filters are matched
-                        nChartIdx = idx;
-                        break;
-                    }
+                    // add all charts as individual entries into list.
+                    gSelectContext.entries.push_back({ std::make_shared<EntryChart>(p, f), nullptr });
                 }
-                // add entry into list
-                gSelectContext.entries.push_back({ f, nullptr });
-            }
-            else
-            {
-                for (size_t idx = 0; idx < f->getContentsCount() && !skip; ++idx)
-                {
-                    switch (f->getChart(idx)->type())
-                    {
-                    case eChartFormat::BMS:
-                    {
-                        auto p = std::reinterpret_pointer_cast<ChartFormatBMSMeta>(f->getChart(idx));
+                break;
 
-                        if (!checkFilterDifficulty(p->difficulty)) continue;
-                        if (!checkFilterKeys(p->gamemode)) continue;
-
-                        // FIXME add all charts as individual entries into list. For now.
-                        gSelectContext.entries.push_back({ std::make_shared<EntryChart>(p), nullptr });
-                    }
+                default:
                     break;
-
-                    default:
-                        break;
-                    }
                 }
             }
             break;
@@ -286,10 +279,102 @@ void loadSongList()
             }
         }
     }
+
+    if (gSelectContext.idx >= gSelectContext.entries.size())
+    {
+        gSelectContext.idx = 0;
+    }
+    else
+    {
+        auto findChart = [&](const HashMD5& hash)
+        {
+            for (size_t idx = 0; idx < gSelectContext.entries.size(); ++idx)
+            {
+                if (hash == gSelectContext.entries.at(idx).first->md5)
+                {
+                    return idx;
+                }
+            }
+            return (size_t)-1;
+        };
+
+        gSelectContext.idx = 0;
+
+        // look for the exact same entry
+        size_t i = findChart(currentEntryHash);
+        if (i != (size_t)-1)
+        {
+            gSelectContext.idx = i;
+        }
+        else if (currentEntrySong)
+        {
+            if (gSelectContext.filterDifficulty != 0)
+            {
+                // search from current difficulty
+                const auto& chartList = currentEntrySong->getDifficultyList(currentEntryGamemode, gSelectContext.filterDifficulty);
+                if (!chartList.empty())
+                {
+                    i = findChart((*chartList.begin())->fileHash);
+                }
+            }
+            if (i != (size_t)-1)
+            {
+                gSelectContext.idx = i;
+            }
+            else
+            {
+                // search from the same difficulty
+                const auto& chartList = currentEntrySong->getDifficultyList(currentEntryGamemode, currentEntryDifficulty);
+                if (!chartList.empty())
+                {
+                    i = findChart((*chartList.begin())->fileHash);
+                }
+            }
+            if (i != (size_t)-1)
+            {
+                gSelectContext.idx = i;
+            }
+            else
+            {
+                // search from any difficulties
+                for (size_t diff = 1; diff <= 5; ++diff)
+                {
+                    if (currentEntryDifficulty == diff) continue;
+                    if (currentEntryDifficulty == gSelectContext.filterDifficulty) continue;
+                    const auto& diffList = currentEntrySong->getDifficultyList(currentEntryGamemode, diff);
+                    if (!diffList.empty())
+                    {
+                        i = findChart((*diffList.begin())->fileHash);
+                    }
+                }
+            }
+            if (i != (size_t)-1)
+            {
+                gSelectContext.idx = i;
+            }
+            else
+            {
+                // search the very first version
+                if (currentEntrySong->getContentsCount() > 0)
+                {
+                    i = findChart(currentEntrySong->getChart(0)->fileHash);
+                }
+            }
+            if (i != (size_t)-1)
+            {
+                gSelectContext.idx = i;
+            }
+        }
+    }
+    State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.idx / gSelectContext.entries.size()));
 }
 
 void sortSongList()
 {
+    HashMD5 currentEntryHash;
+    if (!gSelectContext.entries.empty())
+        currentEntryHash = gSelectContext.entries.at(gSelectContext.idx).first->md5;
+
     auto& entries = gSelectContext.entries;
     std::sort(entries.begin(), entries.end(), [](const Entry& entry1, const Entry& entry2)
         {
@@ -373,6 +458,17 @@ void sortSongList()
     if (gSelectContext.idx >= gSelectContext.entries.size())
     {
         gSelectContext.idx = 0;
+    }
+    else
+    {
+        for (size_t idx = 0; idx < gSelectContext.entries.size(); ++idx)
+        {
+            if (currentEntryHash == gSelectContext.entries.at(idx).first->md5)
+            {
+                gSelectContext.idx = idx;
+                break;
+            }
+        }
     }
     State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.idx / gSelectContext.entries.size()));
 }
@@ -547,51 +643,6 @@ void setEntryInfo()
             }
             State::set(IndexOption::CHART_JUDGE_TYPE, op_judgerank);
 
-            // difficulty
-            unsigned op_difficulty = Option::DIFF_0;
-            State::set(IndexNumber::MUSIC_BEGINNER_LEVEL, 0);
-            State::set(IndexNumber::MUSIC_NORMAL_LEVEL, 0);
-            State::set(IndexNumber::MUSIC_HYPER_LEVEL, 0);
-            State::set(IndexNumber::MUSIC_ANOTHER_LEVEL, 0);
-            State::set(IndexNumber::MUSIC_INSANE_LEVEL, 0);
-            State::set(IndexBargraph::LEVEL_BAR_BEGINNER, 0);
-            State::set(IndexBargraph::LEVEL_BAR_NORMAL, 0);
-            State::set(IndexBargraph::LEVEL_BAR_HYPER, 0);
-            State::set(IndexBargraph::LEVEL_BAR_ANOTHER, 0);
-            State::set(IndexBargraph::LEVEL_BAR_INSANE, 0);
-            switch (bms->difficulty)
-            {
-            case 0:
-                op_difficulty = Option::DIFF_0;
-                break;
-            case 1:
-                op_difficulty = Option::DIFF_1;
-                State::set(IndexNumber::MUSIC_BEGINNER_LEVEL, bms->playLevel);
-                State::set(IndexBargraph::LEVEL_BAR_BEGINNER, bms->playLevel / 12.0);
-                break;
-            case 2:
-                op_difficulty = Option::DIFF_2;
-                State::set(IndexNumber::MUSIC_NORMAL_LEVEL, bms->playLevel);
-                State::set(IndexBargraph::LEVEL_BAR_NORMAL, bms->playLevel / 12.0);
-                break;
-            case 3:
-                op_difficulty = Option::DIFF_3;
-                State::set(IndexNumber::MUSIC_HYPER_LEVEL, bms->playLevel);
-                State::set(IndexBargraph::LEVEL_BAR_HYPER, bms->playLevel / 12.0);
-                break;
-            case 4:
-                op_difficulty = Option::DIFF_4;
-                State::set(IndexNumber::MUSIC_ANOTHER_LEVEL, bms->playLevel);
-                State::set(IndexBargraph::LEVEL_BAR_ANOTHER, bms->playLevel / 12.0);
-                break;
-            case 5:
-                op_difficulty = Option::DIFF_5;
-                State::set(IndexNumber::MUSIC_INSANE_LEVEL, bms->playLevel);
-                State::set(IndexBargraph::LEVEL_BAR_INSANE, bms->playLevel / 12.0);
-                break;
-            }
-            State::set(IndexOption::CHART_DIFFICULTY, op_difficulty);
-
             // notes detail
             State::set(IndexNumber::INFO_TOTALNOTE, bms->notes_total);
             State::set(IndexNumber::INFO_TOTALNOTE_NORMAL, bms->notes_key);
@@ -617,6 +668,94 @@ void setEntryInfo()
         default:
             break;
         }
+
+        // difficulty
+        State::set(IndexSwitch::CHART_HAVE_DIFFICULTY_1, false);
+        State::set(IndexSwitch::CHART_HAVE_DIFFICULTY_2, false);
+        State::set(IndexSwitch::CHART_HAVE_DIFFICULTY_3, false);
+        State::set(IndexSwitch::CHART_HAVE_DIFFICULTY_4, false);
+        State::set(IndexSwitch::CHART_HAVE_DIFFICULTY_5, false);
+        State::set(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_1, false);
+        State::set(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_2, false);
+        State::set(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_3, false);
+        State::set(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_4, false);
+        State::set(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_5, false);
+        State::set(IndexNumber::MUSIC_BEGINNER_LEVEL, 0);
+        State::set(IndexNumber::MUSIC_NORMAL_LEVEL, 0);
+        State::set(IndexNumber::MUSIC_HYPER_LEVEL, 0);
+        State::set(IndexNumber::MUSIC_ANOTHER_LEVEL, 0);
+        State::set(IndexNumber::MUSIC_INSANE_LEVEL, 0);
+        State::set(IndexBargraph::LEVEL_BAR_BEGINNER, 0.0);
+        State::set(IndexBargraph::LEVEL_BAR_NORMAL, 0.0);
+        State::set(IndexBargraph::LEVEL_BAR_HYPER, 0.0);
+        State::set(IndexBargraph::LEVEL_BAR_ANOTHER, 0.0);
+        State::set(IndexBargraph::LEVEL_BAR_INSANE, 0.0);
+
+        unsigned op_difficulty = Option::DIFF_0;
+        switch (pf->difficulty)
+        {
+        case 0:
+            op_difficulty = Option::DIFF_0;
+            break;
+        case 1:
+            op_difficulty = Option::DIFF_1;
+            break;
+        case 2:
+            op_difficulty = Option::DIFF_2;
+            break;
+        case 3:
+            op_difficulty = Option::DIFF_3;
+            break;
+        case 4:
+            op_difficulty = Option::DIFF_4;
+            break;
+        case 5:
+            op_difficulty = Option::DIFF_5;
+            break;
+        }
+        State::set(IndexOption::CHART_DIFFICULTY, op_difficulty);
+        double barMaxLevel = 12.0;
+        switch (pf->gamemode)
+        {
+        case 5:
+        case 10: barMaxLevel = 10.0; break;
+        case 7:
+        case 14: barMaxLevel = 12.0; break;
+        case 9:  barMaxLevel = 50.0; break;
+        }
+        State::set(IndexNumber((int)IndexNumber::MUSIC_BEGINNER_LEVEL + pf->difficulty - 1), pf->playLevel);
+        State::set(IndexBargraph((int)IndexBargraph::LEVEL_BAR_BEGINNER + pf->difficulty - 1), pf->playLevel / barMaxLevel);
+
+        auto pSong = ps->getSongEntry();
+        if (pSong)
+        {
+            for (size_t difficulty = 1; difficulty <= 5; ++difficulty)
+            {
+                auto& chartList = pSong->getDifficultyList(pf->gamemode, difficulty);
+                if (chartList.size() > 0)
+                {
+                    State::set(IndexSwitch((int)IndexSwitch::CHART_HAVE_DIFFICULTY_1 + difficulty - 1), true);
+                    if (chartList.size() > 1)
+                        State::set(IndexSwitch((int)IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_1 + difficulty - 1), true);
+
+                    if (difficulty != pf->difficulty)
+                    {
+                        double barMaxLevel = 12.0;
+                        switch (pf->gamemode)
+                        {
+                        case 5:
+                        case 10: barMaxLevel = 10.0; break;
+                        case 7:
+                        case 14: barMaxLevel = 12.0; break;
+                        case 9:  barMaxLevel = 50.0; break;
+                        }
+                        State::set(IndexNumber((int)IndexNumber::MUSIC_BEGINNER_LEVEL + difficulty - 1), (*chartList.begin())->playLevel);
+                        State::set(IndexBargraph((int)IndexBargraph::LEVEL_BAR_BEGINNER + difficulty - 1), (*chartList.begin())->playLevel / barMaxLevel);
+                    }
+                }
+            }
+        }
+
     }
     else
     {
@@ -832,6 +971,108 @@ void setPlayModeInfo()
         case Option::BATTLE_DB:    State::set(IndexOption::PLAY_MODE, Option::PLAY_MODE_DOUBLE_BATTLE); break;
         case Option::BATTLE_GHOST: State::set(IndexOption::PLAY_MODE, Option::PLAY_MODE_DP_GHOST_BATTLE); break;
         default: assert(false); break;
+        }
+    }
+}
+
+void switchDifficulty(int difficulty)
+{
+    const EntryList& e = gSelectContext.entries;
+    if (e.empty()) return;
+
+    const size_t idx = gSelectContext.idx;
+    const size_t cursor = gSelectContext.cursor;
+
+    // chart parameters
+    if (e[idx].first->type() == eEntryType::CHART || e[idx].first->type() == eEntryType::RIVAL_CHART)
+    {
+        auto ps = std::reinterpret_pointer_cast<EntryChart>(e[idx].first);
+        auto pf = std::reinterpret_pointer_cast<ChartFormatBase>(ps->_file);
+        auto pSong = ps->getSongEntry();
+        if (pSong)
+        {
+            // choose next chart from song entry. They are likely be terribly scrambled
+            /*
+            pChartFormat pNextChart = nullptr;
+            auto& chartList = pSong->getDifficultyList(pf->gamemode, difficulty);
+            if (chartList.size() > 0)
+            {
+                if (difficulty == pf->difficulty)
+                {
+                    // find next entry
+                    size_t chartIdx = 0;
+                    for (; chartIdx < chartList.size(); ++chartIdx)
+                    {
+                        if (chartList[chartIdx] == pf) break;
+                    }
+                    if (chartIdx == chartList.size() - 1)
+                    {
+                        pNextChart = chartList[0];
+                    }
+                    else
+                    {
+                        pNextChart = chartList[chartIdx + 1];
+                    }
+                }
+                else
+                {
+                    pNextChart = chartList[0];
+                }
+            }
+            if (pNextChart)
+            {
+                for (size_t nextIdx = 0; nextIdx < e.size(); ++nextIdx)
+                {
+                    if (e[nextIdx].first->type() == eEntryType::CHART || e[nextIdx].first->type() == eEntryType::RIVAL_CHART)
+                    {
+                        auto pns = std::reinterpret_pointer_cast<EntryChart>(e[nextIdx].first);
+                        if (pns->_file == pNextChart)
+                        {
+                            gSelectContext.idx = nextIdx;
+                            break;
+                        }
+                    }
+                }
+                State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.idx / gSelectContext.entries.size()));
+            }
+            */
+
+            // choose directly from entry list
+            pChartFormat pFirstChart = nullptr;
+            size_t firstIdx = 0;
+            bool currentFound = false;
+            for (size_t nextIdx = 0; nextIdx < e.size(); ++nextIdx)
+            {
+                if (e[nextIdx].first->type() == eEntryType::CHART || e[nextIdx].first->type() == eEntryType::RIVAL_CHART)
+                {
+                    auto pns = std::reinterpret_pointer_cast<EntryChart>(e[nextIdx].first);
+                    if (pns->getSongEntry() == ps->getSongEntry())
+                    {
+                        if (pFirstChart == nullptr)
+                        {
+                            pFirstChart = pns->_file;
+                            firstIdx = nextIdx;
+                        }
+
+                        if (!currentFound && pns->_file == pf)
+                        {
+                            currentFound = true;
+                        }
+                        else if (currentFound && pns->_file->gamemode == pf->gamemode && pns->_file->difficulty == pf->difficulty)
+                        {
+                            gSelectContext.idx = nextIdx;
+                            State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.idx / gSelectContext.entries.size()));
+                            return;
+                        }
+                    }
+                }
+            }
+            // next chart not found, fallback to first
+            if (pFirstChart)
+            {
+                gSelectContext.idx = firstIdx;
+                State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.idx / gSelectContext.entries.size()));
+            }
         }
     }
 }
