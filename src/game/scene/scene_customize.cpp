@@ -200,10 +200,11 @@ void SceneCustomize::updateMain()
             if (skinList[selectedMode].size() > 1)
             {
                 int selectedIdx;
+                auto& currentSkin = SkinMgr::get(selectedMode);
                 for (selectedIdx = 0; selectedIdx < (int)skinList[selectedMode].size(); selectedIdx++)
                 {
                     const Path& p1 = skinList[selectedMode][selectedIdx];
-                    const Path& p2 = Path(SkinMgr::get(selectedMode)->getFilePath());
+                    const Path& p2 = currentSkin ? Path(currentSkin->getFilePath()) : Path();
                     if (fs::exists(p1) && fs::exists(p2) && fs::equivalent(p1, p2))
                         break;
                 }

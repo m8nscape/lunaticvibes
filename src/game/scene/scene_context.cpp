@@ -777,8 +777,10 @@ void setEntryInfo()
 
     State::set(IndexNumber::INFO_SCORE, 0);
     State::set(IndexNumber::INFO_EXSCORE, 0);
-    State::set(IndexNumber::INFO_MAXCOMBO, 0);
+    State::set(IndexNumber::INFO_EXSCORE_MAX, 0);
     State::set(IndexNumber::INFO_RATE, 0);
+    State::set(IndexNumber::INFO_TOTALNOTE, 0);
+    State::set(IndexNumber::INFO_MAXCOMBO, 0);
     State::set(IndexNumber::INFO_BP, 0);
     State::set(IndexNumber::INFO_PLAYCOUNT, 0);
     State::set(IndexNumber::INFO_CLEARCOUNT, 0);

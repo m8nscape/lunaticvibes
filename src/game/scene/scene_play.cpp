@@ -397,6 +397,8 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         }
     }
 
+    State::set(IndexTimer::MUSIC_BEAT, TIMER_NEVER);
+
     _missBgaLength = ConfigMgr::get("P", cfg::P_MISSBGA_LENGTH, 500);
 
     using namespace std::placeholders;
@@ -418,6 +420,7 @@ void ScenePlay::clearGlobalDatas()
         IndexNumber::PLAY_1P_NOWCOMBO,
         IndexNumber::PLAY_1P_MAXCOMBO,
         IndexNumber::PLAY_1P_EXSCORE_DIFF,
+        IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF,
         IndexNumber::PLAY_1P_PERFECT,
         IndexNumber::PLAY_1P_GREAT,
         IndexNumber::PLAY_1P_GOOD,
@@ -432,6 +435,7 @@ void ScenePlay::clearGlobalDatas()
         IndexNumber::PLAY_2P_NOWCOMBO,
         IndexNumber::PLAY_2P_MAXCOMBO,
         IndexNumber::PLAY_2P_EXSCORE_DIFF,
+        IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF,
         IndexNumber::PLAY_2P_PERFECT,
         IndexNumber::PLAY_2P_GREAT,
         IndexNumber::PLAY_2P_GOOD,
@@ -448,6 +452,20 @@ void ScenePlay::clearGlobalDatas()
         IndexNumber::RESULT_MYBEST_RATE_DECIMAL2,
         IndexNumber::RESULT_TARGET_RATE,
         IndexNumber::RESULT_TARGET_RATE_DECIMAL2,
+        IndexNumber::PLAY_1P_MISS,
+        IndexNumber::PLAY_1P_FAST_COUNT,
+        IndexNumber::PLAY_1P_SLOW_COUNT,
+        IndexNumber::PLAY_1P_BPOOR,
+        IndexNumber::PLAY_1P_COMBOBREAK,
+        IndexNumber::PLAY_1P_BP,
+        IndexNumber::PLAY_1P_JUDGE_TIME_ERROR_MS,
+        IndexNumber::PLAY_2P_MISS,
+        IndexNumber::PLAY_2P_FAST_COUNT,
+        IndexNumber::PLAY_2P_SLOW_COUNT,
+        IndexNumber::PLAY_2P_BPOOR,
+        IndexNumber::PLAY_2P_COMBOBREAK,
+        IndexNumber::PLAY_2P_BP,
+        IndexNumber::PLAY_2P_JUDGE_TIME_ERROR_MS,
         IndexNumber::_ANGLE_TT_1P,
         IndexNumber::_ANGLE_TT_2P
     };
@@ -2020,7 +2038,7 @@ void ScenePlay::updatePlaying()
             State::set(IndexNumber::PLAY_1P_EXSCORE_DIFF, dp1.score2 - dp2.score2);
             State::set(IndexNumber::PLAY_2P_EXSCORE_DIFF, dp2.score2 - dp1.score2);
             State::set(IndexNumber::RESULT_TARGET_EX, dp2.score2);
-            State::set(IndexNumber::RESULT_TARGET_DIFF, dp2.score2 - dp1.score2);
+            State::set(IndexNumber::RESULT_TARGET_DIFF, dp1.score2 - dp2.score2);
             State::set(IndexNumber::RESULT_TARGET_RATE, (int)std::floor(dp2.acc * 100.0));
             State::set(IndexNumber::RESULT_TARGET_RATE_DECIMAL2, (int)std::floor(dp2.acc * 10000.0) % 100);
         }
@@ -2030,7 +2048,7 @@ void ScenePlay::updatePlaying()
             State::set(IndexNumber::PLAY_1P_EXSCORE_DIFF, dp1.score2);
             State::set(IndexNumber::PLAY_2P_EXSCORE_DIFF, -dp1.score2);
             State::set(IndexNumber::RESULT_TARGET_EX, 0);
-            State::set(IndexNumber::RESULT_TARGET_DIFF, -dp1.score2);
+            State::set(IndexNumber::RESULT_TARGET_DIFF, dp1.score2);
             State::set(IndexNumber::RESULT_TARGET_RATE, 0);
             State::set(IndexNumber::RESULT_TARGET_RATE_DECIMAL2, 0);
         }
@@ -2042,7 +2060,7 @@ void ScenePlay::updatePlaying()
             State::set(IndexNumber::PLAY_1P_EXSCORE_DIFF, dp1.score2 - dp2.score2);
             State::set(IndexNumber::PLAY_2P_EXSCORE_DIFF, dp2.score2 - dp1.score2);
             State::set(IndexNumber::RESULT_TARGET_EX, dp2.score2);
-            State::set(IndexNumber::RESULT_TARGET_DIFF, dp2.score2 - dp1.score2);
+            State::set(IndexNumber::RESULT_TARGET_DIFF, dp1.score2 - dp2.score2);
             State::set(IndexNumber::RESULT_TARGET_RATE, (int)std::floor(dp2.acc * 100.0));
             State::set(IndexNumber::RESULT_TARGET_RATE_DECIMAL2, (int)std::floor(dp2.acc * 10000.0) % 100);
 

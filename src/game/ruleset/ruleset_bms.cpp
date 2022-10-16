@@ -1440,14 +1440,15 @@ void RulesetBMS::updateGlobals()
 
         int maxScore = getMaxScore();
         //if      (dp.total_acc >= 94.44) State::set(IndexNumber::RESULT_NEXT_RANK_EX_DIFF, int(maxScore * 1.000 - dp.score2));    // MAX-
-        if      (_basic.total_acc >= 100.0 * 8.0 / 9) State::set(IndexNumber::RESULT_NEXT_RANK_EX_DIFF, _basic.score2 - maxScore);    // MAX-
-        else if (_basic.total_acc >= 100.0 * 7.0 / 9) State::set(IndexNumber::RESULT_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 8.0 / 9));    // AAA-
-        else if (_basic.total_acc >= 100.0 * 6.0 / 9) State::set(IndexNumber::RESULT_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 7.0 / 9));    // AA-
-        else if (_basic.total_acc >= 100.0 * 5.0 / 9) State::set(IndexNumber::RESULT_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 6.0 / 9));    // A-
-        else if (_basic.total_acc >= 100.0 * 4.0 / 9) State::set(IndexNumber::RESULT_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 5.0 / 9));    // B-
-        else if (_basic.total_acc >= 100.0 * 3.0 / 9) State::set(IndexNumber::RESULT_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 4.0 / 9));    // C-
-        else if (_basic.total_acc >= 100.0 * 2.0 / 9) State::set(IndexNumber::RESULT_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 3.0 / 9));    // D-
-        else                                          State::set(IndexNumber::RESULT_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 2.0 / 9));    // E-
+        if      (_basic.total_acc >= 100.0 * 8.0 / 9) State::set(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF, _basic.score2 - maxScore);    // MAX-
+        else if (_basic.total_acc >= 100.0 * 7.0 / 9) State::set(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 8.0 / 9));    // AAA-
+        else if (_basic.total_acc >= 100.0 * 6.0 / 9) State::set(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 7.0 / 9));    // AA-
+        else if (_basic.total_acc >= 100.0 * 5.0 / 9) State::set(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 6.0 / 9));    // A-
+        else if (_basic.total_acc >= 100.0 * 4.0 / 9) State::set(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 5.0 / 9));    // B-
+        else if (_basic.total_acc >= 100.0 * 3.0 / 9) State::set(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 4.0 / 9));    // C-
+        else if (_basic.total_acc >= 100.0 * 2.0 / 9) State::set(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 3.0 / 9));    // D-
+        else                                          State::set(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 2.0 / 9));    // E-
+        State::set(IndexNumber::RESULT_NEXT_RANK_EX_DIFF, State::get(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF));
 
     }
     else if (_side == PlaySide::BATTLE_2P || _side == PlaySide::AUTO_2P || _side == PlaySide::RIVAL) // excludes DP
@@ -1511,6 +1512,17 @@ void RulesetBMS::updateGlobals()
         State::set(IndexOption::PLAY_RANK_ESTIMATED_2P, Option::getRankType(_basic.acc));
         State::set(IndexOption::PLAY_RANK_BORDER_2P, Option::getRankType(_basic.total_acc));
         State::set(IndexOption::PLAY_HEALTH_2P, Option::getHealthType(_basic.health));
+
+        int maxScore = getMaxScore();
+        //if      (dp.total_acc >= 94.44) State::set(IndexNumber::RESULT_NEXT_RANK_EX_DIFF, int(maxScore * 1.000 - dp.score2));    // MAX-
+        if      (_basic.total_acc >= 100.0 * 8.0 / 9) State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, _basic.score2 - maxScore);    // MAX-
+        else if (_basic.total_acc >= 100.0 * 7.0 / 9) State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 8.0 / 9));    // AAA-
+        else if (_basic.total_acc >= 100.0 * 6.0 / 9) State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 7.0 / 9));    // AA-
+        else if (_basic.total_acc >= 100.0 * 5.0 / 9) State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 6.0 / 9));    // A-
+        else if (_basic.total_acc >= 100.0 * 4.0 / 9) State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 5.0 / 9));    // B-
+        else if (_basic.total_acc >= 100.0 * 3.0 / 9) State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 4.0 / 9));    // C-
+        else if (_basic.total_acc >= 100.0 * 2.0 / 9) State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 3.0 / 9));    // D-
+        else                                          State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 2.0 / 9));    // E-
     }
     else if (_side == PlaySide::MYBEST)
     {

@@ -212,9 +212,6 @@ void SceneResult::_updateAsync()
         gNextScene = eScene::EXIT_TRANS;
     }
 
-    std::unique_lock<decltype(_mutex)> _lock(_mutex, std::try_to_lock);
-    if (!_lock.owns_lock()) return;
-
     switch (_state)
     {
     case eResultState::DRAW:

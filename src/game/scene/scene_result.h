@@ -14,7 +14,6 @@ enum class eResultState
 class SceneResult : public vScene
 {
 private:
-    std::mutex _mutex;
     eResultState _state;
     InputMask _inputAvailable;
 
