@@ -159,35 +159,37 @@ public:
     ChartObjectBase(int slot, size_t plain_n, size_t ext_n);
     static std::shared_ptr<ChartObjectBase> createFromChartFormat(int slot, std::shared_ptr<ChartFormatBase> p);
 
+public:
+    using NoteIterator = decltype(_noteLists)::value_type::iterator;
 protected:
-    std::array<decltype(_noteLists.front().begin()), chart::LANE_COUNT>    _noteListIterators;
-    std::vector<decltype(_bgmNoteLists.front().begin())>            _bgmNoteListIters;
-    std::vector<decltype(_specialNoteLists.front().begin())>        _specialNoteListIters;
-    decltype(_bpmNoteList.begin())                                  _bpmNoteListIter;
+    std::array<NoteIterator, chart::LANE_COUNT>                     _noteListIterators;
+    std::vector<decltype(_bgmNoteLists)::value_type::iterator>      _bgmNoteListIters;
+    std::vector<decltype(_specialNoteLists)::value_type::iterator>  _specialNoteListIters;
+    decltype(_bpmNoteList)::iterator                                _bpmNoteListIter;
 
 public:
-    auto firstNote            (chart::NoteLaneCategory cat, chart::NoteLaneIndex idx) -> decltype(_noteLists.front().begin());
+    auto firstNote            (chart::NoteLaneCategory cat, chart::NoteLaneIndex idx) -> NoteIterator;
 
-    auto incomingNote         (chart::NoteLaneCategory cat, chart::NoteLaneIndex idx) -> decltype(_noteLists.front().begin());
-    auto incomingNoteBgm      (size_t idx) -> decltype(_bgmNoteLists.front().begin());
-    auto incomingNoteSpecial  (size_t idx) -> decltype(_specialNoteLists.front().begin());
-    auto incomingNoteBpm      () -> decltype(_bpmNoteListIter);
+    auto incomingNote         (chart::NoteLaneCategory cat, chart::NoteLaneIndex idx) -> NoteIterator;
+    auto incomingNoteBgm      (size_t idx) -> decltype(_bgmNoteLists)::value_type::iterator;
+    auto incomingNoteSpecial  (size_t idx) -> decltype(_specialNoteLists)::value_type::iterator;
+    auto incomingNoteBpm      () -> decltype(_bpmNoteList)::iterator;
 
     bool isLastNote           (chart::NoteLaneCategory cat, chart::NoteLaneIndex idx);
     bool isLastNoteBgm        (size_t idx);
     bool isLastNoteSpecial    (size_t idx);
     bool isLastNoteBpm        ();
 
-    bool isLastNote           (chart::NoteLaneCategory cat, chart::NoteLaneIndex idx, decltype(_noteListIterators.front()) it);
-    bool isLastNoteBgm        (size_t idx, decltype(_bgmNoteListIters.front()) it);
-    bool isLastNoteSpecial    (size_t idx, decltype(_specialNoteListIters.front()) it);
-    bool isLastNoteBpm        (decltype(_bpmNoteListIter) it);
+    bool isLastNote           (chart::NoteLaneCategory cat, chart::NoteLaneIndex idx, NoteIterator& it);
+    bool isLastNoteBgm        (size_t idx, decltype(_bgmNoteLists)::value_type::iterator& it);
+    bool isLastNoteSpecial    (size_t idx, decltype(_specialNoteLists)::value_type::iterator& it);
+    bool isLastNoteBpm        (decltype(_bpmNoteList)::iterator& it);
 
 protected:
-    auto nextNote             (chart::NoteLaneCategory cat, chart::NoteLaneIndex idx) -> decltype(_noteListIterators.front());
-    auto nextNoteBgm          (size_t idx) -> decltype(_bgmNoteListIters.front());
-    auto nextNoteSpecial      (size_t idx) -> decltype(_specialNoteListIters.front());
-    auto nextNoteBpm          () -> decltype(_bpmNoteListIter);
+    auto nextNote             (chart::NoteLaneCategory cat, chart::NoteLaneIndex idx) -> NoteIterator&;
+    auto nextNoteBgm          (size_t idx) -> decltype(_bgmNoteLists)::value_type::iterator&;
+    auto nextNoteSpecial      (size_t idx) -> decltype(_specialNoteLists)::value_type::iterator&;
+    auto nextNoteBpm          () -> decltype(_bpmNoteList)::iterator&;
 
 public:
     Time getBarLength(size_t bar);

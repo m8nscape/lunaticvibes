@@ -202,7 +202,7 @@ protected:
 
     double moneyScore = 0.0;
 
-    std::map<chart::NoteLane, decltype(_chart->firstNote(chart::NoteLaneCategory::_, chart::NoteLaneIndex::_))> _noteListIterators;
+    std::map<chart::NoteLane, ChartObjectBase::NoteIterator> _noteListIterators;
 
     std::array<AxisDir, 2>  _scratchDir = { 0, 0 };
     std::array<Time, 2>     _scratchLastUpdate = { TIMER_NEVER, TIMER_NEVER };
