@@ -126,7 +126,7 @@ void updateDstOpt()
 	// 20 パネル起動していない
 	// 21 パネル1起動時
 	{
-		set(20, sw({
+		set(20, !sw({
 			IndexSwitch::SELECT_PANEL1,
 			IndexSwitch::SELECT_PANEL2,
 			IndexSwitch::SELECT_PANEL3,

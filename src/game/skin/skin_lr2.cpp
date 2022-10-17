@@ -638,6 +638,11 @@ Tokens csvLineTokenizeSimple(const std::string& raw)
 
 Tokens csvLineTokenize(const std::string& raw)
 {
+    if (size_t commentIdx = raw.find("//"); commentIdx != raw.npos)
+    {
+        return csvLineTokenize(raw.substr(0, commentIdx));
+    }
+
     if (raw.find('\\') == raw.npos)
     {
         return csvLineTokenizeSimple(raw);
