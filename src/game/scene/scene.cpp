@@ -165,15 +165,18 @@ void vScene::update()
     TextureVideo::updateAll();
 
     // ImGui
-    auto ss = State::get(IndexTimer::SCENE_START);
-    auto rt = t.norm() - ss;
-    if (ss != TIMER_NEVER && rt > 1000)
+    if (!gInCustomize || _scene == eScene::CUSTOMIZE)
     {
-        ImGuiNewFrame();
+        auto ss = State::get(IndexTimer::SCENE_START);
+        auto rt = t.norm() - ss;
+        if (ss != TIMER_NEVER && rt > 1000)
+        {
+            ImGuiNewFrame();
 
-        _updateImgui();
+            _updateImgui();
 
-        ImGui::Render();
+            ImGui::Render();
+        }
     }
 }
 
@@ -281,6 +284,8 @@ void vScene::_updateImgui()
 void vScene::DebugToggle(InputMask& p, const Time& t)
 {
 #ifdef _DEBUG
+    if (!(!gInCustomize || _scene == eScene::CUSTOMIZE)) return;
+
     if (p[Input::F1])
     {
         imguiShowMonitorLR2DST = !imguiShowMonitorLR2DST;
