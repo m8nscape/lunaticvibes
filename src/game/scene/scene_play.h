@@ -56,6 +56,8 @@ private:
     std::array<bool, 2>     _laneEffectHIDDEN { false, false };
     std::array<bool, 2>     _laneEffectSUDHID { false, false };
 
+    std::array<int, 2>      _healthLastTick{ 0 };
+
     Time _readyTime = 0;
     int retryRequestTick = 0;
 
@@ -74,7 +76,7 @@ public:
     bool createRuleset();
 
 protected:
-    void setTempInitialHealthBMS();
+    void setInitialHealthBMS();
 
 private:
     std::array<size_t, 128> _bgmSampleIdxBuf{};

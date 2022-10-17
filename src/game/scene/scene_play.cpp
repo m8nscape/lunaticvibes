@@ -358,12 +358,14 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         {
         case eChartFormat::BMS:
         case eChartFormat::BMSON:
-            setTempInitialHealthBMS();
+            setInitialHealthBMS();
             break;
         default:
             break;
         }
     }
+    _healthLastTick[PLAYER_SLOT_PLAYER] = State::get(IndexNumber::PLAY_1P_GROOVEGAUGE);
+    _healthLastTick[PLAYER_SLOT_TARGET] = State::get(IndexNumber::PLAY_2P_GROOVEGAUGE);
 
     {
         using namespace std::string_literals;
@@ -819,7 +821,7 @@ ScenePlay::~ScenePlay()
     loopEnd();
 }
 
-void ScenePlay::setTempInitialHealthBMS()
+void ScenePlay::setInitialHealthBMS()
 {
     if (!gPlayContext.isCourse || gPlayContext.isCourseFirstStage)
     {
@@ -1621,6 +1623,43 @@ void ScenePlay::_updateAsync()
         State::set(IndexText::_OVERLAY_TOPLEFT, ss.str());
     }
 
+    // health + timer, reset per 2%
+    int health1P = State::get(IndexNumber::PLAY_1P_GROOVEGAUGE);
+    int health2P = State::get(IndexNumber::PLAY_2P_GROOVEGAUGE);
+    if (_healthLastTick[PLAYER_SLOT_PLAYER] / 2 != health1P / 2)
+    {
+        if (health1P == 100)
+        {
+            State::set(IndexTimer::PLAY_GAUGE_1P_ADD, TIMER_NEVER);
+            State::set(IndexTimer::PLAY_GAUGE_1P_MAX, t.norm());
+        }
+        else if (health1P > _healthLastTick[PLAYER_SLOT_PLAYER])
+        {
+            State::set(IndexTimer::PLAY_GAUGE_1P_ADD, t.norm());
+        }
+        else
+        {
+            State::set(IndexTimer::PLAY_GAUGE_1P_MAX, TIMER_NEVER);
+        }
+    }
+    if (_healthLastTick[PLAYER_SLOT_TARGET] / 2 != health2P / 2)
+    {
+        if (health2P == 100)
+        {
+            State::set(IndexTimer::PLAY_GAUGE_2P_ADD, TIMER_NEVER);
+            State::set(IndexTimer::PLAY_GAUGE_2P_MAX, t.norm());
+        }
+        else if (health2P > _healthLastTick[PLAYER_SLOT_TARGET])
+        {
+            State::set(IndexTimer::PLAY_GAUGE_2P_ADD, t.norm());
+        }
+        else
+        {
+            State::set(IndexTimer::PLAY_GAUGE_2P_MAX, TIMER_NEVER);
+        }
+    }
+    _healthLastTick[PLAYER_SLOT_PLAYER] = health1P;
+    _healthLastTick[PLAYER_SLOT_TARGET] = health2P;
 
     auto Scratch = [&](const Time& t, Input::Pad up, Input::Pad dn, double& val, int slot)
     {
