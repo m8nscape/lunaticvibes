@@ -74,15 +74,16 @@ void SpriteImageText::updateTextRect()
 
     // shrink
     int text_w = static_cast<int>(std::round(_drawRect.w * sizeFactor));
-    if (text_w > _current.rect.w)
+    int rect_w = _current.rect.w * (double(_current.rect.h) / _height);
+    if (text_w > rect_w)
     {
-        double widthFactor = (double)_current.rect.w / text_w;
+        double widthFactor = (double)rect_w / text_w;
         for (auto& [c, r] : _drawList)
         {
             r.x *= widthFactor;
             r.w *= widthFactor;
         }
-        text_w = _current.rect.w;
+        text_w = rect_w;
     }
 
     // align
