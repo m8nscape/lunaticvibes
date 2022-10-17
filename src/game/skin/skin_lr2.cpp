@@ -3649,26 +3649,12 @@ void SkinLR2::postLoad()
                 // 2P bomb
                 spritesMoveWithLift2P.push_back(s);
             }
-            else if (judgeLineRect1P.x - 5 <= rcFirst.x && rcFirst.x <= judgeLineRect1P.x + 5 &&
-                judgeLineRect1P.w - 10 <= rcFirst.w && rcFirst.w <= judgeLineRect1P.w + 10 &&
-                rcFirst.y <= judgeLineRect1P.y)
-            {
-                // 1P background
-                spritesMoveWithLift1P.push_back(s);
-            }
             else if (judgeLineRect1P.x - 5 <= rcLast.x && rcLast.x <= judgeLineRect1P.x + 5 &&
                 judgeLineRect1P.w - 10 <= rcLast.w && rcLast.w <= judgeLineRect1P.w + 10 &&
                 rcLast.y <= judgeLineRect1P.y)
             {
                 // 1P background
                 spritesMoveWithLift1P.push_back(s);
-            }
-            else if (judgeLineRect2P.x - 5 <= rcFirst.x && rcFirst.x <= judgeLineRect2P.x + 5 &&
-                judgeLineRect2P.w - 10 <= rcFirst.w && rcFirst.w <= judgeLineRect2P.w + 10 &&
-                rcFirst.y <= judgeLineRect2P.y)
-            {
-                // 2P background
-                spritesMoveWithLift2P.push_back(s);
             }
             else if (judgeLineRect2P.x - 5 <= rcLast.x && rcLast.x <= judgeLineRect2P.x + 5 &&
                 judgeLineRect2P.w - 10 <= rcLast.w && rcLast.w <= judgeLineRect2P.w + 10 &&
