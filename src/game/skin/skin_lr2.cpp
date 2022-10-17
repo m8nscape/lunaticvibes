@@ -3589,7 +3589,7 @@ void SkinLR2::postLoad()
     // LIFT:
     // the following conditions are based on black box testing on LR2
     // 
-    // SRC_IMAGE:
+    // SRC_IMAGE (background):
     //  JUDGELINE.x - 5  <= x <= JUDGELINE.x + 5
     //  JUDGELINE.w - 10 <= w <= JUDGELINE.w + 10
     //  y <= JUDGELINE.y
@@ -3597,7 +3597,7 @@ void SkinLR2::postLoad()
     // SRC_IMAGE with bomb timers:
     //  did not found any obvious conditions
     // 
-    // SRC_IMAGE with key input timers:
+    // SRC_IMAGE with key input timers (laser):
     //  h >= 100
     //
     // the following conditions are added by Lunatic Vibes
@@ -3616,29 +3616,41 @@ void SkinLR2::postLoad()
             const Rect& rcLast = s->_keyFrames.back().param.rect;
             int timer = (int)s->_triggerTimer;
             if (timer >= 100 && timer <= 109 || timer >= 120 && timer <= 129 ||
-                timer >= 50 && timer <= 59 || timer >= 70 && timer <= 79 ||
                 timer == (int)IndexTimer::S1L_DOWN || timer == (int)IndexTimer::S1L_UP || timer == (int)IndexTimer::S1R_DOWN || timer == (int)IndexTimer::S1R_UP)
             {
+                // 1P laser
                 if (rcFirst.h <= -100 || rcFirst.h >= 100 || rcLast.h <= -100 || rcLast.h >= 100)
                     spritesMoveWithLift1P.push_back(s);
             }
             else if (timer >= 110 && timer <= 119 || timer >= 130 && timer <= 139 ||
-                timer >= 60 && timer <= 69 || timer >= 80 && timer <= 89 ||
                 timer == (int)IndexTimer::S2L_DOWN || timer == (int)IndexTimer::S2L_UP || timer == (int)IndexTimer::S2R_DOWN || timer == (int)IndexTimer::S2R_UP)
             {
+                // 2P laser
                 if (rcFirst.h <= -100 || rcFirst.h >= 100 || rcLast.h <= -100 || rcLast.h >= 100)
                     spritesMoveWithLift2P.push_back(s);
+            }
+            else if (timer >= 50 && timer <= 59 || timer >= 70 && timer <= 79)
+            {
+                // 1P bomb
+                spritesMoveWithLift1P.push_back(s);
+            }
+            else if (timer >= 60 && timer <= 69 || timer >= 80 && timer <= 89)
+            {
+                // 2P bomb
+                spritesMoveWithLift2P.push_back(s);
             }
             else if (judgeLineRect1P.x - 5 <= rcFirst.x && rcFirst.x <= judgeLineRect1P.x + 5 &&
                 judgeLineRect1P.w - 10 <= rcFirst.w && rcFirst.w <= judgeLineRect1P.w + 10 &&
                 rcFirst.y <= judgeLineRect1P.y)
             {
+                // 1P background
                 spritesMoveWithLift1P.push_back(s);
             }
             else if (judgeLineRect2P.x - 5 <= rcFirst.x && rcFirst.x <= judgeLineRect2P.x + 5 &&
                 judgeLineRect2P.w - 10 <= rcFirst.w && rcFirst.w <= judgeLineRect2P.w + 10 &&
                 rcFirst.y <= judgeLineRect2P.y)
             {
+                // 2P background
                 spritesMoveWithLift2P.push_back(s);
             }
         }
@@ -3654,6 +3666,7 @@ void SkinLR2::postLoad()
                 {
                     if (num == 108 || num == 210)
                     {
+                        // 1P target score, F/S
                         spritesMoveWithLift1P.push_back(s);
                     }
                 }
@@ -3661,12 +3674,14 @@ void SkinLR2::postLoad()
                 {
                     if (num == 128 || num == 211)
                     {
+                        // 1P target score, F/S
                         spritesMoveWithLift2P.push_back(s);
                     }
                 }
             }
             else if (num >= 310 && num <= 315)
             {
+                // 3col judge
                 spritesMoveWithLift1P.push_back(s);
             }
         }
