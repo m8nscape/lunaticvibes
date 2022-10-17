@@ -328,9 +328,52 @@ void Texture::_draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, Rect
 
     SDL_SetTextureScaleMode(&*pTex, filter ? SDL_ScaleModeBest : SDL_ScaleModeNearest);
 
-    if (b == BlendMode::MULTIPLY_INVERTED_BACKGROUND)
+    if (b == BlendMode::INVERT)
+    {
+        // ... pls help
+        Rect rc = dstRect;
+        rc.x = rc.y = 0;
+
+        SDL_Texture* pTextureInverted = SDL_CreateTexture(gFrameRenderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, dstRect.w, dstRect.h);
+        auto oldTarget = SDL_GetRenderTarget(gFrameRenderer);
+        SDL_SetRenderTarget(gFrameRenderer, pTextureInverted);
+
+        uint8_t r, g, b, a;
+        SDL_GetRenderDrawColor(gFrameRenderer, &r, &g, &b, &a);
+        SDL_SetRenderDrawColor(gFrameRenderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(gFrameRenderer, &rc);
+        SDL_SetRenderDrawColor(gFrameRenderer, r, g, b, a);
+
+        static auto blendMode = SDL_ComposeCustomBlendMode(
+            SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_ONE_MINUS_SRC_COLOR, SDL_BLENDOPERATION_ADD,
+            SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDOPERATION_ADD);
+        SDL_SetTextureBlendMode(&*pTex, blendMode);
+        SDL_SetTextureAlphaMod(&*pTex, c.a);
+        SDL_RenderCopyEx(
+            gFrameRenderer,
+            &*pTex,
+            srcRect, &rc,
+            0, 
+            NULL, SDL_FLIP_NONE
+        );
+
+        SDL_SetRenderTarget(gFrameRenderer, oldTarget);
+        SDL_SetTextureBlendMode(pTextureInverted, SDL_BLENDMODE_BLEND);
+        SDL_RenderCopyEx(
+            gFrameRenderer,
+            pTextureInverted,
+            &rc, &dstRect,
+            angle,
+            center ? &scenter : NULL, SDL_RendererFlip(flipFlags)
+        );
+
+        SDL_DestroyTexture(pTextureInverted);
+        return;
+    }
+    else if (b == BlendMode::MULTIPLY_INVERTED_BACKGROUND)
     {
         if (c.a <= 1) return;   // do not draw
+        // FIXME lmao
 
         const SDL_BlendMode blendMode = SDL_ComposeCustomBlendMode(
             SDL_BLENDFACTOR_DST_COLOR, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD,
@@ -359,7 +402,7 @@ void Texture::_draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, Rect
 
             { BlendMode::MULTIPLY_WITH_ALPHA, SDL_ComposeCustomBlendMode(
                 SDL_BLENDFACTOR_DST_COLOR, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD,
-                SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD)} // This blend mode has issues with src alpha 0%
+                SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD)} // FIXME this is not correct
         };
 
         if (BlendMap.find(b) != BlendMap.end())
