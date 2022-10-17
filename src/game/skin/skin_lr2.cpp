@@ -19,6 +19,8 @@
 #include "game/graphics/video.h"
 #include "re2/re2.h"
 
+#include <boost/algorithm/string.hpp>
+
 #ifdef _WIN32
 // For GetWindowsDirectory
 #define WIN32_LEAN_AND_MEAN
@@ -2463,18 +2465,14 @@ ParseRet SkinLR2::DST_NOTE()
 
     auto setDstNoteSprite = [&](NoteLaneCategory i, std::shared_ptr<SpriteLaneVertical> e)
     {
-        /*
-        e->pNote->clearKeyFrames();
-        e->pNote->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
-            lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center)  } });
-            */
-        
-        drawQueue.push_back({ e, dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]), {} });
-        e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
+        if (e->isKeyFrameEmpty())
+        {
+            drawQueue.push_back({ e, dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]), {} });
+            e->setLoopTime(d.loop);
+            e->setTrigTimer((IndexTimer)d.timer);
+        }
+        e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
-        e->setLoopTime(0);
-        //e->pushKeyFrame(time, x, y, w, h, acc, r, g, b, a, blend, filter, angle, center);
-        //LOG_DEBUG << "[Skin] " << raw << ": Set Lane sprite Keyframe (time: " << d.time << ")";
     };
 
     auto& [e1, e1a] = _laneSprites[channelToIdx(NoteLaneCategory::Note, idx)];
@@ -2931,8 +2929,18 @@ int SkinLR2::parseHeader(const Tokens& raw)
     if (raw.empty()) return 0;
     parseParamBuf.resize(raw.size() - 1);
     parseKeyBuf = raw[0];
+    if (parseKeyBuf.empty()) return 0;
     for (size_t idx = 0; idx < parseParamBuf.size(); ++idx)
+    {
         parseParamBuf[idx] = raw[idx + 1];
+
+#ifdef WIN32
+        static const auto localeUTF8 = std::locale(".65001");
+#else
+        static const auto localeUTF8 = std::locale("en_US.UTF-8");
+#endif
+        boost::trim(parseParamBuf[idx], localeUTF8);
+    }
 
     if (strEqual(parseKeyBuf, "#INFORMATION", true))
     {
@@ -3058,7 +3066,16 @@ int SkinLR2::parseBody(const Tokens &raw)
     parseKeyBuf = raw[0];
     if (parseKeyBuf.empty()) return 0;
     for (size_t idx = 0; idx < parseParamBuf.size(); ++idx)
+    {
         parseParamBuf[idx] = raw[idx + 1];
+
+#ifdef WIN32
+        static const auto localeUTF8 = std::locale(".65001");
+#else
+        static const auto localeUTF8 = std::locale("en_US.UTF-8");
+#endif
+        boost::trim(parseParamBuf[idx], localeUTF8);
+    }
 
     try {
         if (IMAGE())

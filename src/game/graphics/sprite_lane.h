@@ -35,6 +35,9 @@ public:
 public:
     void setLane(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx);
     void setHeight(int h) { _noteAreaHeight = h; }
+    virtual void setLoopTime(int t);
+    virtual void setTrigTimer(IndexTimer t);
+    virtual void appendKeyFrame(const RenderKeyFrame& f);
 
     std::pair<chart::NoteLaneCategory, chart::NoteLaneIndex> getLane() const;
     void getRectSize(int& w, int& h);

@@ -64,6 +64,23 @@ void SpriteLaneVertical::setLane(NoteLaneCategory cat, NoteLaneIndex idx)
 	}
 }
 
+void SpriteLaneVertical::setLoopTime(int t)
+{
+	SpriteStatic::setLoopTime(t);
+	if (pNote) pNote->setLoopTime(t);
+}
+
+void SpriteLaneVertical::setTrigTimer(IndexTimer t)
+{
+	SpriteStatic::setTrigTimer(t);
+	if (pNote) pNote->setTrigTimer(t);
+}
+
+void SpriteLaneVertical::appendKeyFrame(const RenderKeyFrame& f)
+{
+	SpriteStatic::appendKeyFrame(f);
+	if (pNote) pNote->appendKeyFrame(f);
+}
 
 std::pair<NoteLaneCategory, NoteLaneIndex> SpriteLaneVertical::getLane() const
 {
