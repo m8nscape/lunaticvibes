@@ -58,15 +58,17 @@ bool vSprite::updateByKeyframes(const Time& rawTime)
 
 	Time time;
 
+    // Check if timer is valid
+    if (State::get(_triggerTimer) < 0 || State::get(_triggerTimer) == TIMER_NEVER)
+        return false;
+
 	// Check if timer is 140
-	if (_triggerTimer == IndexTimer::MUSIC_BEAT)
-		time = State::get(IndexTimer::MUSIC_BEAT);
+    if (_triggerTimer == IndexTimer::MUSIC_BEAT)
+    {
+        time = State::get(IndexTimer::MUSIC_BEAT);
+    }
     else
     {
-        // Check if timer is valid
-        if (State::get(_triggerTimer) < 0)
-            return false;
-
         time = rawTime - Time(State::get(_triggerTimer), false);
     }
 

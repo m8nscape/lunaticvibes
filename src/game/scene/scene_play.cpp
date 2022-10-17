@@ -402,6 +402,8 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         }
     }
 
+    State::set(IndexTimer::PLAY_READY, TIMER_NEVER);
+    State::set(IndexTimer::PLAY_START, TIMER_NEVER);
     State::set(IndexTimer::MUSIC_BEAT, TIMER_NEVER);
     SoundMgr::setSysVolume(1.0);
     SoundMgr::setNoteVolume(1.0);

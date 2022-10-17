@@ -2388,22 +2388,6 @@ bool SkinLR2::DST()
                 }
             }
 
-            if (type == DefType::JUDGELINE)
-            {
-                if (psGlobal->getIdx() == GLOBAL_SPRITE_IDX_1PJUDGELINE)
-                {
-                    judgeLineRect1P = Rect(d.x, d.y, d.w, d.h);
-                    if (d.w < 0) { judgeLineRect1P.x += d.w; judgeLineRect1P.w = -d.w; }
-                    if (d.h < 0) { judgeLineRect1P.y += d.h; judgeLineRect1P.h = -d.h; }
-                }
-                else if (psGlobal->getIdx() == GLOBAL_SPRITE_IDX_2PJUDGELINE)
-                {
-                    judgeLineRect2P = Rect(d.x, d.y, d.w, d.h);
-                    if (d.w < 0) { judgeLineRect2P.x += d.w; judgeLineRect2P.w = -d.w; }
-                    if (d.h < 0) { judgeLineRect2P.y += d.h; judgeLineRect2P.h = -d.h; }
-                }
-            }
-
             std::vector<dst_option> opEx;
             if (type == DefType::NUMBER)
             {
@@ -3597,6 +3581,21 @@ void SkinLR2::postLoad()
         }
     }
 
+    if (gSprites[GLOBAL_SPRITE_IDX_1PJUDGELINE] && !gSprites[GLOBAL_SPRITE_IDX_1PJUDGELINE]->_keyFrames.empty())
+    {
+        Rect d = gSprites[GLOBAL_SPRITE_IDX_1PJUDGELINE]->_keyFrames.back().param.rect;
+        judgeLineRect1P = d;
+        if (d.w < 0) { judgeLineRect1P.x += d.w; judgeLineRect1P.w = -d.w; }
+        if (d.h < 0) { judgeLineRect1P.y += d.h; judgeLineRect1P.h = -d.h; }
+    }
+    if (gSprites[GLOBAL_SPRITE_IDX_2PJUDGELINE] && !gSprites[GLOBAL_SPRITE_IDX_2PJUDGELINE]->_keyFrames.empty())
+    {
+        Rect d = gSprites[GLOBAL_SPRITE_IDX_2PJUDGELINE]->_keyFrames.back().param.rect;
+        judgeLineRect2P = d;
+        if (d.w < 0) { judgeLineRect2P.x += d.w; judgeLineRect2P.w = -d.w; }
+        if (d.h < 0) { judgeLineRect2P.y += d.h; judgeLineRect2P.h = -d.h; }
+    }
+
     // LIFT:
     // the following conditions are based on black box testing on LR2
     // 
@@ -3657,9 +3656,23 @@ void SkinLR2::postLoad()
                 // 1P background
                 spritesMoveWithLift1P.push_back(s);
             }
+            else if (judgeLineRect1P.x - 5 <= rcLast.x && rcLast.x <= judgeLineRect1P.x + 5 &&
+                judgeLineRect1P.w - 10 <= rcLast.w && rcLast.w <= judgeLineRect1P.w + 10 &&
+                rcLast.y <= judgeLineRect1P.y)
+            {
+                // 1P background
+                spritesMoveWithLift1P.push_back(s);
+            }
             else if (judgeLineRect2P.x - 5 <= rcFirst.x && rcFirst.x <= judgeLineRect2P.x + 5 &&
                 judgeLineRect2P.w - 10 <= rcFirst.w && rcFirst.w <= judgeLineRect2P.w + 10 &&
                 rcFirst.y <= judgeLineRect2P.y)
+            {
+                // 2P background
+                spritesMoveWithLift2P.push_back(s);
+            }
+            else if (judgeLineRect2P.x - 5 <= rcLast.x && rcLast.x <= judgeLineRect2P.x + 5 &&
+                judgeLineRect2P.w - 10 <= rcLast.w && rcLast.w <= judgeLineRect2P.w + 10 &&
+                rcLast.y <= judgeLineRect2P.y)
             {
                 // 2P background
                 spritesMoveWithLift2P.push_back(s);
