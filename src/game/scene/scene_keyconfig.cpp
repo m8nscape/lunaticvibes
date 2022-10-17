@@ -7,6 +7,8 @@ SceneKeyConfig::SceneKeyConfig() : vScene(eMode::KEY_CONFIG, 240)
 {
     _scene = eScene::KEYCONFIG;
 
+    InputMgr::updateDevices();
+
     _updateCallback = std::bind(&SceneKeyConfig::updateStart, this);
 
     State::set(IndexSwitch::K11_CONFIG, false);

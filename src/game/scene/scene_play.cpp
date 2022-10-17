@@ -122,7 +122,6 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
 
     _currentKeySample.assign(Input::ESC, 0);
 
-
     Option::e_lane_effect_type lcType1 = (Option::e_lane_effect_type)State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P);
     int lcTop1 = ConfigMgr::get('P', cfg::P_LANECOVER_TOP, 0);
     int lcBottom1 = ConfigMgr::get('P', cfg::P_LANECOVER_BOTTOM, 0);
@@ -643,7 +642,12 @@ bool ScenePlay::createRuleset()
         case eMode::PLAY14: keys = 14; break;
         default: break;
         }
-        
+
+        if (!gInCustomize)
+        {
+            InputMgr::updateBindings(keys);
+        }
+
         if (gPlayContext.isAuto)
         {
             gPlayContext.ruleset[PLAYER_SLOT_PLAYER] = std::make_shared<RulesetBMSAuto>(

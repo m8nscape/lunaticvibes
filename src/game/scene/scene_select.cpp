@@ -352,6 +352,11 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
 
     lr2skin::button::target_type(0);
 
+    if (!gInCustomize)
+    {
+        InputMgr::updateBindings(7);
+    }
+
     _state = eSelectState::PREPARE;
     _updateCallback = std::bind(&SceneSelect::updatePrepare, this);
 

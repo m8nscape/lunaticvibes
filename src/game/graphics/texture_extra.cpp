@@ -43,7 +43,8 @@ TextureVideo::TextureVideo(std::shared_ptr<sVideo> pv) :
 
 TextureVideo::~TextureVideo()
 {
-	assert(!pVideo->isPlaying());
+	if (pVideo->isPlaying())
+		pVideo->stopPlaying();
 
 	std::unique_lock l(*texMapMutex);
 	textures->erase((uintptr_t)this);

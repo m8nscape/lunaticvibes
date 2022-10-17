@@ -19,12 +19,17 @@ void InputMgr::updateDevices()
     refreshInputDevices();
 }
 
-void InputMgr::updateBindings(GameModeKeys keys, Pad K)
+void InputMgr::updateBindings(GameModeKeys keys)
 {
     // Clear current bindings
     for (auto& k : _inst.padBindings)
         k.reset();
 
+    switch (keys)
+    {
+    case 10: keys = 5; break;
+    case 14: keys = 7; break;
+    }
     switch (keys)
     {
     case 5:
@@ -41,6 +46,11 @@ void InputMgr::updateBindings(GameModeKeys keys, Pad K)
 
     updateDeadzones();
     LOG_INFO << "Key bindings updated";
+}
+
+void InputMgr::updateBindings(GameModeKeys keys, Pad K)
+{
+    updateBindings(keys);
 }
 
 void InputMgr::updateDeadzones()
