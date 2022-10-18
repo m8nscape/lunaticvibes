@@ -323,8 +323,10 @@ void Texture::_draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, Rect
     dstRect.w *= ssLevel;
     dstRect.h *= ssLevel;
 
-    SDL_Point scenter;
-    if (center) scenter = { (int)center->x * ssLevel, (int)center->y * ssLevel };
+    SDL_FRect dstRectF{ (float)dstRect.x, (float)dstRect.y, (float)dstRect.w, (float)dstRect.h };
+
+    SDL_FPoint scenter;
+    if (center) scenter = { (float)center->x * ssLevel, (float)center->y * ssLevel };
 
     SDL_SetTextureScaleMode(&*pTex, filter ? SDL_ScaleModeBest : SDL_ScaleModeNearest);
 
@@ -359,10 +361,10 @@ void Texture::_draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, Rect
 
         SDL_SetRenderTarget(gFrameRenderer, oldTarget);
         SDL_SetTextureBlendMode(pTextureInverted, SDL_BLENDMODE_BLEND);
-        SDL_RenderCopyEx(
+        SDL_RenderCopyExF(
             gFrameRenderer,
             pTextureInverted,
-            &rc, &dstRect,
+            &rc, &dstRectF,
             angle,
             center ? &scenter : NULL, SDL_RendererFlip(flipFlags)
         );
@@ -411,13 +413,21 @@ void Texture::_draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, Rect
         }
     }
 
-    SDL_RenderCopyEx(
+    SDL_RenderCopyExF(
         gFrameRenderer,
         &*pTex,
-        srcRect, &dstRect,
+        srcRect, &dstRectF,
         angle,
         center ? &scenter : NULL, SDL_RendererFlip(flipFlags)
     );
+
+#if _DEBUG
+    SDL_FRect& d = dstRectF;
+    SDL_FPoint lines[5] = { {d.x, d.y}, {d.x + d.w, d.y}, {d.x + d.w, d.y + d.h}, {d.x, d.y + d.h}, {d.x, d.y} };
+    SDL_SetRenderDrawColor(gFrameRenderer, 255, 255, 255, 255);
+    SDL_RenderDrawLinesF(gFrameRenderer, lines, 5);
+    SDL_SetRenderDrawColor(gFrameRenderer, 0, 0, 0, 255);
+#endif
 }
 
 void Texture::draw(Rect dstRect,
