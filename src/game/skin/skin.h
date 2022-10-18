@@ -51,7 +51,11 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 // Textures
 protected:
-    std::map<std::string, pTexture> _textureNameMap;    // Use this to get texture instance from name
+    pTexture textureBlackDot;
+    pTexture textureWhiteDot;
+    pTexture textureErrorDot;
+    pTexture textureThumbnail;
+    std::map<std::string, pImage>    _imageNameMap;
 	std::map<std::string, pVideo>   _vidNameMap;	// Use this to get video instance from name
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -3,8 +3,8 @@
 #include "common/entry/entry_song.h"
 #include "common/chartformat/chartformat_bms.h"
 
-int SpriteBarEntry::setBody(BarType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-    IndexTimer timer, int nRows, int nCols, bool texVertSplit)
+int SpriteBarEntry::setBody(BarType type, const std::vector<pTexture>& texture, unsigned animFrames, unsigned frameTime,
+    IndexTimer timer)
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarType::TYPE_COUNT))
     {
@@ -16,27 +16,27 @@ int SpriteBarEntry::setBody(BarType type, pTexture texture, const Rect& rect, un
     auto idx = static_cast<size_t>(type);
 
     sBodyOff[idx] = std::make_shared<SpriteAnimated>(
-        texture, rect, animFrames, frameTime, timer, nRows, nCols, texVertSplit);
+        texture, animFrames, frameTime, timer);
     //sBodyOff[idx]->setParent(weak_from_this());
 
     sBodyOn[idx] = std::make_shared<SpriteAnimated>(
-        texture, rect, animFrames, frameTime, timer, nRows, nCols, texVertSplit);
+        texture, animFrames, frameTime, timer);
     //sBodyOn[idx]->setParent(weak_from_this());
 
     return 0;
 }
 
-int SpriteBarEntry::setFlash(pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-    IndexTimer timer, int nRows, int nCols, bool texVertSplit)
+int SpriteBarEntry::setFlash(const std::vector<pTexture>& texture, unsigned animFrames, unsigned frameTime,
+    IndexTimer timer)
 {
-    sFlash = std::make_shared<SpriteAnimated>(texture, rect, animFrames, frameTime, timer, nRows, nCols, texVertSplit);
+    sFlash = std::make_shared<SpriteAnimated>(texture, animFrames, frameTime, timer);
     sFlash->setParent(weak_from_this());
     return 0;
 }
 
-int SpriteBarEntry::setLevel(BarLevelType type, pTexture texture, const Rect& rect, NumberAlign align, unsigned digits,
-    unsigned numRows, unsigned numCols, unsigned frameTime, IndexTimer animtimer,
-    unsigned animFrames, bool texVertSplit)
+int SpriteBarEntry::setLevel(BarLevelType type, const std::vector<pTexture>& texture, NumberAlign align, unsigned digits,
+    unsigned frameTime, IndexTimer animtimer,
+    unsigned animFrames)
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarLevelType::LEVEL_TYPE_COUNT))
     {
@@ -53,14 +53,14 @@ int SpriteBarEntry::setLevel(BarLevelType type, pTexture texture, const Rect& re
             << " (Line " << _srcLine << ")";
 
     sLevel[static_cast<size_t>(type)] = std::make_shared<SpriteNumber>(
-        texture, rect, align, digits, numRows, numCols, frameTime, IndexNumber(unsigned(IndexNumber::_SELECT_BAR_LEVEL_0) + index),
-        animtimer, animFrames, texVertSplit);
+        texture, align, digits, frameTime, IndexNumber(unsigned(IndexNumber::_SELECT_BAR_LEVEL_0) + index),
+        animtimer, animFrames);
     sLevel[static_cast<size_t>(type)]->setParent(weak_from_this());
     return 0;
 }
 
-int SpriteBarEntry::setLamp(BarLampType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-    IndexTimer timer, int nRows, int nCols, bool texVertSplit)
+int SpriteBarEntry::setLamp(BarLampType type, const std::vector<pTexture>& texture, unsigned animFrames, unsigned frameTime,
+    IndexTimer timer)
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarLampType::LAMP_TYPE_COUNT))
     {
@@ -70,7 +70,7 @@ int SpriteBarEntry::setLamp(BarLampType type, pTexture texture, const Rect& rect
     }
 
     sLamp[static_cast<size_t>(type)] = std::make_shared<SpriteAnimated>(
-        texture, rect, animFrames, frameTime, timer, nRows, nCols, texVertSplit);
+        texture, animFrames, frameTime, timer);
     sLamp[static_cast<size_t>(type)]->setParent(weak_from_this());
     return 0;
 }
@@ -92,8 +92,8 @@ int SpriteBarEntry::setTitle(BarTitleType type, std::vector<pTexture>& textures,
     return 0;
 }
 
-int SpriteBarEntry::setRank(BarRankType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-    IndexTimer timer, int nRows, int nCols, bool texVertSplit)
+int SpriteBarEntry::setRank(BarRankType type, const std::vector<pTexture>& texture, unsigned animFrames, unsigned frameTime,
+    IndexTimer timer)
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarRankType::RANK_TYPE_COUNT))
     {
@@ -103,13 +103,13 @@ int SpriteBarEntry::setRank(BarRankType type, pTexture texture, const Rect& rect
     }
 
     sRank[static_cast<size_t>(type)] = std::make_shared<SpriteAnimated>(
-        texture, rect, animFrames, frameTime, timer, nRows, nCols, texVertSplit);
+        texture, animFrames, frameTime, timer);
     sRank[static_cast<size_t>(type)]->setParent(weak_from_this());
     return 0;
 }
 
-int SpriteBarEntry::setRivalWinLose(BarRivalType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-    IndexTimer timer, int nRows, int nCols, bool texVertSplit)
+int SpriteBarEntry::setRivalWinLose(BarRivalType type, const std::vector<pTexture>& texture, unsigned animFrames, unsigned frameTime,
+    IndexTimer timer)
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarRivalType::RIVAL_TYPE_COUNT))
     {
@@ -119,13 +119,13 @@ int SpriteBarEntry::setRivalWinLose(BarRivalType type, pTexture texture, const R
     }
 
     sRivalWinLose[static_cast<size_t>(type)] = std::make_shared<SpriteAnimated>(
-        texture, rect, animFrames, frameTime, timer, nRows, nCols, texVertSplit);
+        texture, animFrames, frameTime, timer);
     sRivalWinLose[static_cast<size_t>(type)]->setParent(weak_from_this());
     return 0;
 }
 
-int SpriteBarEntry::setRivalLampSelf(BarLampType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-    IndexTimer timer, int nRows, int nCols, bool texVertSplit)
+int SpriteBarEntry::setRivalLampSelf(BarLampType type, const std::vector<pTexture>& texture, unsigned animFrames, unsigned frameTime,
+    IndexTimer timer)
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarLampType::LAMP_TYPE_COUNT))
     {
@@ -135,13 +135,13 @@ int SpriteBarEntry::setRivalLampSelf(BarLampType type, pTexture texture, const R
     }
 
     sRivalLampSelf[static_cast<size_t>(type)] = std::make_shared<SpriteAnimated>(
-        texture, rect, animFrames, frameTime, timer, nRows, nCols, texVertSplit);
+        texture, animFrames, frameTime, timer);
     sRivalLampSelf[static_cast<size_t>(type)]->setParent(weak_from_this());
     return 0;
 }
 
-int SpriteBarEntry::setRivalLampRival(BarLampType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-    IndexTimer timer, int nRows, int nCols, bool texVertSplit)
+int SpriteBarEntry::setRivalLampRival(BarLampType type, const std::vector<pTexture>& texture, unsigned animFrames, unsigned frameTime,
+    IndexTimer timer)
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarLampType::LAMP_TYPE_COUNT))
     {
@@ -151,7 +151,7 @@ int SpriteBarEntry::setRivalLampRival(BarLampType type, pTexture texture, const 
     }
 
     sRivalLampRival[static_cast<size_t>(type)] = std::make_shared<SpriteAnimated>(
-        texture, rect, animFrames, frameTime, timer, nRows, nCols, texVertSplit);
+        texture, animFrames, frameTime, timer);
     sRivalLampRival[static_cast<size_t>(type)]->setParent(weak_from_this());
     return 0;
 }

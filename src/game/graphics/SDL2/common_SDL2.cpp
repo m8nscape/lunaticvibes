@@ -152,27 +152,26 @@ Image::Image(const char* path, std::shared_ptr<SDL_RWops>&& rw): _path(path), _p
     {
         _pSurface = std::shared_ptr<SDL_Surface>(
             pushAndWaitMainThreadTask<SDL_Surface*>(std::bind(IMG_LoadTGA_RW, &*_pRWop)),
-            std::bind(pushAndWaitMainThreadTask<void, SDL_Surface*>, SDL_FreeSurface, _1));
-        setTransparentColorRGB(Color(0, 255, 0, -1));
+            [](SDL_Surface* p) { pushMainThreadTask(std::bind(SDL_FreeSurface, p)); });
     }
     else if (isPNG(path))
     {
         _pSurface = std::shared_ptr<SDL_Surface>(
             pushAndWaitMainThreadTask<SDL_Surface*>(std::bind(IMG_LoadPNG_RW, &*_pRWop)),
-            std::bind(pushAndWaitMainThreadTask<void, SDL_Surface*>, SDL_FreeSurface, _1));
+            [](SDL_Surface* p) { pushMainThreadTask(std::bind(SDL_FreeSurface, p)); });
     }
     else if (isGIF(path))
     {
         _pSurface = std::shared_ptr<SDL_Surface>(
             pushAndWaitMainThreadTask<SDL_Surface*>(std::bind(IMG_LoadGIF_RW, &*_pRWop)),
-            std::bind(pushAndWaitMainThreadTask<void, SDL_Surface*>, SDL_FreeSurface, _1));
+            [](SDL_Surface* p) { pushMainThreadTask(std::bind(SDL_FreeSurface, p)); });
         setTransparentColorRGB(Color(0, 255, 0, -1));
     }
     else
     {
         _pSurface = std::shared_ptr<SDL_Surface>(
             pushAndWaitMainThreadTask<SDL_Surface*>(std::bind(IMG_Load_RW, &*_pRWop, SDL_LOAD_NOAUTOFREE)),
-            std::bind(pushAndWaitMainThreadTask<void, SDL_Surface*>, SDL_FreeSurface, _1));
+            [](SDL_Surface* p) { pushMainThreadTask(std::bind(SDL_FreeSurface, p)); });
     }
 
     if (!_pSurface)
@@ -217,7 +216,7 @@ Texture::Texture(const Image& srcImage)
 
     _pTexture = std::shared_ptr<SDL_Texture>(
         pushAndWaitMainThreadTask<SDL_Texture*>(std::bind(SDL_CreateTextureFromSurface, gFrameRenderer, &*srcImage._pSurface)),
-        std::bind(pushAndWaitMainThreadTask<void, SDL_Texture*>, SDL_DestroyTexture, _1));
+        [](SDL_Texture* p) { pushMainThreadTask(std::bind(SDL_DestroyTexture, p)); });
     if (_pTexture)
     {
         _texRect = srcImage.getRect();
@@ -235,11 +234,47 @@ Texture::Texture(const Image& srcImage)
     }
 }
 
+Texture::Texture(const Image& srcImage, const Rect& srcRect)
+{
+    if (!srcImage._loaded) return;
+    if (srcRect.w == 0 && srcRect.h == 0)
+    {
+        _loaded = true;
+        return;
+    }
+
+    auto pSrcSurface = srcImage._pSurface;
+    SDL_Surface* surfaceTmp = SDL_CreateRGBSurface(pSrcSurface->flags, srcRect.w, srcRect.h, pSrcSurface->format->BitsPerPixel,
+        pSrcSurface->format->Rmask, pSrcSurface->format->Gmask, pSrcSurface->format->Bmask, pSrcSurface->format->Amask);
+    SDL_SetSurfaceBlendMode(&*pSrcSurface, SDL_BLENDMODE_NONE);
+    SDL_BlitSurface(&*pSrcSurface, &srcRect, surfaceTmp, NULL);
+
+    _pTexture = std::shared_ptr<SDL_Texture>(
+        pushAndWaitMainThreadTask<SDL_Texture*>(std::bind(SDL_CreateTextureFromSurface, gFrameRenderer, surfaceTmp)),
+        [](SDL_Texture* p) { pushMainThreadTask(std::bind(SDL_DestroyTexture, p)); });
+    if (_pTexture)
+    {
+        _texRect = srcImage.getRect();
+        _loaded = true;
+    }
+    if (!_loaded)
+    {
+        LOG_WARNING << "[Texture] Build texture object error! " << srcImage._path.c_str();
+        LOG_WARNING << "[Texture] ^ " << SDL_GetError();
+    }
+    else
+    {
+        //LOG_DEBUG << "[Texture] Build texture object finished. " << srcImage._path.c_str();
+    }
+
+    SDL_FreeSurface(surfaceTmp);
+}
+
 Texture::Texture(const SDL_Surface* pSurface)
 {
     _pTexture = std::shared_ptr<SDL_Texture>(
         pushAndWaitMainThreadTask<SDL_Texture*>(std::bind(SDL_CreateTextureFromSurface, gFrameRenderer, const_cast<SDL_Surface*>(pSurface))),
-        std::bind(pushAndWaitMainThreadTask<void, SDL_Texture*>, SDL_DestroyTexture, _1));
+        [](SDL_Texture* p) { pushMainThreadTask(std::bind(SDL_DestroyTexture, p)); });
     if (!_pTexture) return;
     _texRect = pSurface->clip_rect;
     _loaded = true;
@@ -248,8 +283,8 @@ Texture::Texture(const SDL_Surface* pSurface)
 Texture::Texture(const SDL_Texture* pTexture, int w, int h)
 {
     _pTexture = std::shared_ptr<SDL_Texture>(
-        const_cast<SDL_Texture*>(pTexture), 
-        std::bind(pushAndWaitMainThreadTask<void, SDL_Texture*>, SDL_DestroyTexture, _1));
+        const_cast<SDL_Texture*>(pTexture),
+        [](SDL_Texture* p) { pushMainThreadTask(std::bind(SDL_DestroyTexture, p)); });
     if (!pTexture) return;
     _texRect = {0, 0, w, h};
     _loaded = true;
@@ -282,7 +317,7 @@ Texture::Texture(int w, int h, PixelFormat fmt, bool target)
 	{
         _pTexture = std::shared_ptr<SDL_Texture>(
             pushAndWaitMainThreadTask<SDL_Texture*>(std::bind(SDL_CreateTexture, gFrameRenderer, sdlfmt, target ? SDL_TEXTUREACCESS_TARGET : SDL_TEXTUREACCESS_STREAMING, w, h)),
-            std::bind(pushAndWaitMainThreadTask<void, SDL_Texture*>, SDL_DestroyTexture, _1));
+            [](SDL_Texture* p) { pushMainThreadTask(std::bind(SDL_DestroyTexture, p)); });
         if (_pTexture)
         {
             _texRect = { 0, 0, w, h };

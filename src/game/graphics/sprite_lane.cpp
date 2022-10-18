@@ -17,13 +17,12 @@ SpriteLaneVertical::SpriteLaneVertical(unsigned player, bool autoNotes, double b
 	_hiddenCompatibleTexture = std::make_shared<TextureFull>(Color(128, 128, 128, 255));
 }
 
-SpriteLaneVertical::SpriteLaneVertical(pTexture texture, Rect r,
+SpriteLaneVertical::SpriteLaneVertical(const std::vector<pTexture>& texture,
     unsigned animFrames, unsigned frameTime, IndexTimer timer,
-	unsigned animRows, unsigned animCols, bool animVerticalIndexing,
     unsigned player, bool autoNotes, double basespeed, double lanespeed):
 	SpriteLaneVertical(player, autoNotes, basespeed, lanespeed)
 {
-	pNote = std::make_shared<SpriteAnimated>(texture, r, animFrames, frameTime, timer, animRows, animCols, animVerticalIndexing);
+	pNote = std::make_shared<SpriteAnimated>(texture, animFrames, frameTime, timer);
 }
 
 
@@ -95,8 +94,8 @@ void SpriteLaneVertical::getRectSize(int& w, int& h)
 	}
 	else
 	{
-		w = pNote->_texRect[0].w;
-		h = pNote->_texRect[0].h;
+		w = pNote->_texRect[0]->getRect().w;
+		h = pNote->_texRect[0]->getRect().h;
 	}
 }
 
@@ -201,8 +200,7 @@ void SpriteLaneVertical::draw() const
 	{
 		for (const auto& r : _outRect)
 		{
-			pNote->_pTexture->draw(
-				pNote->_texRect[pNote->_selectionIdx * pNote->_animFrames + pNote->_currAnimFrame],
+			pNote->_texRect[pNote->_selectionIdx * pNote->_animFrames + pNote->_currAnimFrame]->draw(
 				r,
 				_current.color,
 				_current.blend, 
@@ -496,8 +494,7 @@ void SpriteLaneVerticalLN::draw() const
 			auto itNext = it;
 			if (++itNext == _outRectBody.end())
 			{
-				pNoteBody->_pTexture->draw(
-					pNoteBody->_texRect[pNoteBody->_selectionIdx * pNoteBody->_animFrames + pNoteBody->_currAnimFrame],
+				pNoteBody->_texRect[pNoteBody->_selectionIdx * pNoteBody->_animFrames + pNoteBody->_currAnimFrame]->draw(
 					*it,
 					((headExpired && !headHit) || (tailExpired && !tailHit)) ? colorMiss : _current.color,
 					_current.blend,
@@ -507,8 +504,7 @@ void SpriteLaneVerticalLN::draw() const
 			}
 			else
 			{
-				pNoteBody->_pTexture->draw(
-					pNoteBody->_texRect[pNoteBody->_selectionIdx],
+				pNoteBody->_texRect[pNoteBody->_selectionIdx]->draw(
 					*it,
 					_current.color,
 					_current.blend,
@@ -524,8 +520,7 @@ void SpriteLaneVerticalLN::draw() const
 	{
 		for (const auto& r : _outRect)
 		{
-			pNote->_pTexture->draw(
-				pNote->_texRect[pNote->_selectionIdx * pNote->_animFrames + pNote->_currAnimFrame],
+			pNote->_texRect[pNote->_selectionIdx * pNote->_animFrames + pNote->_currAnimFrame]->draw(
 				r,
 				_current.color,
 				_current.blend,
@@ -540,8 +535,7 @@ void SpriteLaneVerticalLN::draw() const
 	{
 		for (const auto& r : _outRectTail)
 		{
-			pNoteTail->_pTexture->draw(
-				pNoteTail->_texRect[pNoteTail->_selectionIdx * pNoteTail->_animFrames + pNoteTail->_currAnimFrame],
+			pNoteTail->_texRect[pNoteTail->_selectionIdx * pNoteTail->_animFrames + pNoteTail->_currAnimFrame]->draw(
 				r,
 				_current.color,
 				_current.blend,

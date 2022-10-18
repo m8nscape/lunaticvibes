@@ -186,7 +186,8 @@ public:
 	};
 
 public:
-	Texture(const Image& srcImage);
+    Texture(const Image& srcImage);
+    Texture(const Image& srcImage, const Rect& srcRect);
 	Texture(const SDL_Surface* pSurface);
 	Texture(const SDL_Texture* pTexture, int w, int h);
 	Texture(int w, int h, PixelFormat fmt, bool target);

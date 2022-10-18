@@ -188,17 +188,12 @@ typedef std::size_t frameIdx;
 class SpriteSelection : public vSprite
 {
 protected:
-    std::vector<Rect> _texRect;
-    unsigned _srows = 0, _scols = 0, _segments = 0;
+    std::vector<pTexture> _texRect;
     frameIdx _selectionIdx = 0;        
 public:
     SpriteSelection() = delete;
 
-    SpriteSelection(pTexture texture,
-        unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);  // Copy texture, full area
-
-    SpriteSelection(pTexture texture, const Rect& rect,
-        unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);  // Copy texture, specified area
+    SpriteSelection(const std::vector<pTexture>& texture);  // Copy texture, specified area
 
     virtual ~SpriteSelection() = default;
 public:
@@ -230,13 +225,8 @@ protected:
 public:
     SpriteAnimated() = delete;
 
-    SpriteAnimated(pTexture texture,
-        unsigned animFrames, unsigned frameTime, IndexTimer timer = IndexTimer::SCENE_START, 
-        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
-
-    SpriteAnimated(pTexture texture, const Rect& rect,
-        unsigned animFrames, unsigned frameTime, IndexTimer timer = IndexTimer::SCENE_START, 
-        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
+    SpriteAnimated(const std::vector<pTexture>& texture,
+        unsigned animFrames, unsigned frameTime, IndexTimer timer = IndexTimer::SCENE_START);
 
     virtual ~SpriteAnimated() = default;
 public:
@@ -350,13 +340,9 @@ protected:
 public:
     SpriteNumber() = delete;
 
-	SpriteNumber(pTexture texture, NumberAlign align, unsigned maxDigits,
-        unsigned numRows, unsigned numCols, unsigned frameTime, IndexNumber num = IndexNumber::ZERO, IndexTimer animtimer = IndexTimer::SCENE_START,
-		unsigned animFrames = 1, bool numVerticalIndexing = false);
-
-	SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align, unsigned maxDigits,
-        unsigned numRows, unsigned numCols, unsigned frameTime, IndexNumber num = IndexNumber::ZERO, IndexTimer animtimer = IndexTimer::SCENE_START,
-		unsigned animFrames = 1, bool numVerticalIndexing = false);
+	SpriteNumber(const std::vector<pTexture>& texture, NumberAlign align, unsigned maxDigits,
+        unsigned frameTime, IndexNumber num = IndexNumber::ZERO, IndexTimer animtimer = IndexTimer::SCENE_START,
+		unsigned animFrames = 1);
 
     virtual ~SpriteNumber() = default;
 
@@ -395,13 +381,8 @@ private:
 public:
     SpriteSlider() = delete;
 
-    SpriteSlider(pTexture texture, SliderDirection dir, int range, std::function<void(double)> cb,
-        unsigned animFrames, unsigned frameTime, IndexSlider s = IndexSlider::ZERO, IndexTimer timer = IndexTimer::SCENE_START,
-        unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
-
-    SpriteSlider(pTexture texture, const Rect& rect, SliderDirection dir, int range, std::function<void(double)> cb,
-        unsigned animFrames, unsigned frameTime, IndexSlider s = IndexSlider::ZERO, IndexTimer timer = IndexTimer::SCENE_START,
-        unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
+    SpriteSlider(const std::vector<pTexture>& texture, SliderDirection dir, int range, std::function<void(double)> cb,
+        unsigned animFrames, unsigned frameTime, IndexSlider s = IndexSlider::ZERO, IndexTimer timer = IndexTimer::SCENE_START);
 
     virtual ~SpriteSlider() = default;
 
@@ -437,13 +418,8 @@ private:
 public:
     SpriteBargraph() = delete;
 
-    SpriteBargraph(pTexture texture, BargraphDirection dir,
-        unsigned animFrames, unsigned frameTime, IndexBargraph s = IndexBargraph::ZERO, IndexTimer timer = IndexTimer::SCENE_START,
-        unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
-
-    SpriteBargraph(pTexture texture, const Rect& rect, BargraphDirection dir,
-        unsigned animFrames, unsigned frameTime, IndexBargraph s = IndexBargraph::ZERO, IndexTimer timer = IndexTimer::SCENE_START,
-        unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
+    SpriteBargraph(const std::vector<pTexture>& texture, BargraphDirection dir,
+        unsigned animFrames, unsigned frameTime, IndexBargraph s = IndexBargraph::ZERO, IndexTimer timer = IndexTimer::SCENE_START);
 
     virtual ~SpriteBargraph() = default;
 
@@ -475,13 +451,8 @@ protected:
 public:
     SpriteOption() = delete;
 
-    SpriteOption(pTexture texture,
-        unsigned animFrames, unsigned frameTime, IndexTimer timer = IndexTimer::SCENE_START,
-		 unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
-
-    SpriteOption(pTexture texture, const Rect& rect,
-        unsigned animFrames, unsigned frameTime, IndexTimer timer = IndexTimer::SCENE_START,
-		 unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
+    SpriteOption(const std::vector<pTexture>& texture, 
+        unsigned animFrames, unsigned frameTime, IndexTimer timer = IndexTimer::SCENE_START);
 
     virtual ~SpriteOption() = default;
 
@@ -505,13 +476,8 @@ protected:
 public:
     SpriteButton() = delete;
 
-    SpriteButton(pTexture texture,
-        unsigned animFrames, unsigned frameTime, std::function<void(int)> cb, int panel, int plusonlyValue, IndexTimer timer = IndexTimer::SCENE_START,
-        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
-
-    SpriteButton(pTexture texture, const Rect& rect,
-        unsigned animFrames, unsigned frameTime, std::function<void(int)> cb, int panel, int plusonlyValue, IndexTimer timer = IndexTimer::SCENE_START,
-        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
+    SpriteButton(const std::vector<pTexture>& texture, 
+        unsigned animFrames, unsigned frameTime, std::function<void(int)> cb, int panel, int plusonlyValue, IndexTimer timer = IndexTimer::SCENE_START);
 
     virtual ~SpriteButton() = default;
 
@@ -570,17 +536,10 @@ private:
 public:
     SpriteGaugeGrid() = delete;
 
-    SpriteGaugeGrid(pTexture texture,
+    SpriteGaugeGrid(const std::vector<pTexture>& texture, 
         unsigned animFrames, unsigned frameTime, int dx, int dy, 
         unsigned min = 0, unsigned max = 100, unsigned grids = 50,
-		IndexTimer timer = IndexTimer::SCENE_START, IndexNumber num = IndexNumber::PLAY_1P_GROOVEGAUGE,
-		 unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
-
-    SpriteGaugeGrid(pTexture texture, const Rect& rect,
-        unsigned animFrames, unsigned frameTime, int dx, int dy, 
-        unsigned min = 0, unsigned max = 100, unsigned grids = 50,
-		IndexTimer timer = IndexTimer::SCENE_START, IndexNumber num = IndexNumber::PLAY_1P_GROOVEGAUGE,
-		 unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
+		IndexTimer timer = IndexTimer::SCENE_START, IndexNumber num = IndexNumber::PLAY_1P_GROOVEGAUGE);
 
     virtual ~SpriteGaugeGrid() = default;
 
@@ -606,13 +565,8 @@ protected:
 public:
     SpriteOnMouse() = delete;
 
-    SpriteOnMouse(pTexture texture, 
-        unsigned animFrames, unsigned frameTime, int panel, const Rect& mouseArea, IndexTimer timer = IndexTimer::SCENE_START,
-        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
-
-    SpriteOnMouse(pTexture texture, const Rect& rect, 
-        unsigned animFrames, unsigned frameTime, int panel, const Rect& mouseArea, IndexTimer timer = IndexTimer::SCENE_START,
-        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
+    SpriteOnMouse(const std::vector<pTexture>& texture, 
+        unsigned animFrames, unsigned frameTime, int panel, const Rect& mouseArea, IndexTimer timer = IndexTimer::SCENE_START);
 
     virtual ~SpriteOnMouse() = default;
 
@@ -636,13 +590,8 @@ protected:
 public:
     SpriteCursor() = delete;
 
-    SpriteCursor(pTexture texture, 
-        unsigned animFrames, unsigned frameTime, IndexTimer timer = IndexTimer::SCENE_START,
-        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
-
-    SpriteCursor(pTexture texture, const Rect& rect,
-        unsigned animFrames, unsigned frameTime, IndexTimer timer = IndexTimer::SCENE_START,
-        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
+    SpriteCursor(const std::vector<pTexture>& texture,
+        unsigned animFrames, unsigned frameTime, IndexTimer timer = IndexTimer::SCENE_START);
 
     virtual ~SpriteCursor() = default;
 

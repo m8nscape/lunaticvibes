@@ -499,7 +499,7 @@ static bool flipSideFlag = false;
     }
 }
 
-std::map<std::string, pTexture> SkinLR2::LR2SkinImageCache;
+std::map<std::string, pImage> SkinLR2::LR2SkinImageCache;
 
 std::map<std::string, Path> SkinLR2::LR2SkinFontPathCache;
 std::map<Path, std::shared_ptr<SkinLR2::LR2Font>> SkinLR2::LR2FontCache;
@@ -741,10 +741,10 @@ int SkinLR2::IMAGE()
     if (strEqual(parseParamBuf[0], "CONTINUE", true))
     {
         // already referenced inside constructor; create a blank texture if not exist
-        std::string textureMapKey = std::to_string(imageCount);
-        if (_textureNameMap.find(textureMapKey) == _textureNameMap.end())
+        std::string imageMapKey = std::to_string(imageCount);
+        if (_imageNameMap.find(imageMapKey) == _imageNameMap.end())
         {
-            _textureNameMap[textureMapKey] = std::make_shared<Texture>(nullptr, 0, 0);
+            _imageNameMap[imageMapKey] = nullptr;
         }
         ++imageCount;
         return 1;
@@ -752,15 +752,15 @@ int SkinLR2::IMAGE()
     else
     {
         Path pathFile = getCustomizePath(parseParamBuf[0]);
-        std::string textureMapKey = std::to_string(imageCount);
+        std::string imageMapKey = std::to_string(imageCount);
 
         if (video_file_extensions.find(toLower(pathFile.extension().u8string())) != video_file_extensions.end())
         {
 #ifndef VIDEO_DISABLED
-            _vidNameMap[textureMapKey] = std::make_shared<sVideo>(pathFile, 1.0, true);
-            _textureNameMap[textureMapKey] = _textureNameMap["White"];
+            _vidNameMap[imageMapKey] = std::make_shared<sVideo>(pathFile, 1.0, true);
+            _imageNameMap[imageMapKey] = nullptr;
 #else
-            _textureNameMap[textureMapKey] = _textureNameMap["Black"];
+            _imageNameMap[imageMapKey] = nullptr;
 #endif
         }
         else
@@ -771,13 +771,16 @@ int SkinLR2::IMAGE()
                 std::string pathTmp = pathFile.u8string();
                 pathFile = PathFromUTF8(pathTmp.replace(pathTmp.length() - 4, 4, ".png"));
             }
-            Image img = Image(pathFile.u8string().c_str());
+            _imageNameMap[imageMapKey] = std::make_shared<Image>(pathFile.u8string().c_str());
             if (info.hasTransparentColor)
-                img.setTransparentColorRGB(info.transparentColor);
-            _textureNameMap[textureMapKey] = std::make_shared<Texture>(img);
+            {
+                std::string imageTransMapKey = imageMapKey + "T";
+                _imageNameMap[imageTransMapKey] = std::make_shared<Image>(pathFile.u8string().c_str());
+                LR2SkinImageCache[imageTransMapKey] = _imageNameMap[imageTransMapKey];
+            }
         }
 
-        LR2SkinImageCache[textureMapKey] = _textureNameMap[textureMapKey];
+        LR2SkinImageCache[imageMapKey] = _imageNameMap[imageMapKey];
         LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added IMAGE[" << imageCount << "]: " << pathFile;
 
         ++imageCount;
@@ -1200,44 +1203,41 @@ bool SkinLR2::SRC()
 
     default:
     {
+        textureBuf = nullptr;
+        videoBuf = nullptr;
+        imageBuf = nullptr;
+        useVideo = false;
+
         // Find texture from map by gr
         int gr = toInt(parseParamBuf[1]);
-        std::string gr_key;
-        if (gr == 105)
-        {
-            textureBuf = getTextureCustomizeThumbnail();
-            videoBuf = nullptr;
-            useVideo = false;
-        }
-        else
+        if (gr >= 100)
         {
             switch (gr)
             {
-            case 100: gr_key = "STAGEFILE"; break;
-            case 101: gr_key = "BACKBMP"; break;
-            case 102: gr_key = "BANNER"; break;
-            case 110: gr_key = "Black"; break;
-            case 111: gr_key = "White"; break;
-            default: gr_key = std::to_string(gr); break;
+            case 100: textureBuf = textureStagefile; break;
+            case 101: textureBuf = textureBackBMP; break;
+            case 102: textureBuf = textureBanner; break;
+            case 105: textureBuf = getTextureCustomizeThumbnail(); break;
+            case 110: textureBuf = textureBlackDot; break;
+            case 111: textureBuf = textureWhiteDot; break;
             }
+        }
+        else
+        {
+            std::string gr_key = std::to_string(gr);
             if (_vidNameMap.find(gr_key) != _vidNameMap.end())
             {
-                textureBuf = _textureNameMap["White"];
                 videoBuf = _vidNameMap[gr_key];
                 useVideo = true;
             }
-            else if (_textureNameMap.find(gr_key) != _textureNameMap.end())
+            else if (_imageNameMap.find(gr_key) != _imageNameMap.end() && _imageNameMap[gr_key] != nullptr)
             {
-                textureBuf = _textureNameMap[gr_key];
-                videoBuf = nullptr;
-                useVideo = false;
+                imageBuf = _imageNameMap[gr_key];
             }
             else
             {
-                // textureBuf = _textureNameMap["Error"];
+                // textureBuf = _imageNameMap["Error"];
                 textureBuf = std::make_shared<Texture>(nullptr, 0, 0);
-                videoBuf = nullptr;
-                useVideo = false;
             }
         }
     }
@@ -1290,9 +1290,54 @@ bool SkinLR2::SRC()
     return true;
 }
 
+void SkinLR2::cropImageToTexture(int* pd)
+{
+    textureDivBuf.clear();
+    if (imageBuf == nullptr) return;
+
+    lr2skin::s_basic& d = *(lr2skin::s_basic*)pd;
+    if (textureBuf == nullptr)
+    {
+        Rect srcRect(d.x, d.y, d.w, d.h);
+        if (d.div_x * d.div_y > 1)
+        {
+            if (srcRect == RECT_FULL) 
+                srcRect = imageBuf->getRect();
+
+            int dw = srcRect.w / (d.div_x ? d.div_x : 1);
+            int dh = srcRect.h / (d.div_y ? d.div_y : 1);
+
+            for (int row = 0; row < d.div_y; ++row)
+            {
+                for (int col = 0; col < d.div_x; ++col)
+                {
+                    textureDivBuf.push_back(std::make_shared<Texture>(*imageBuf, Rect(d.x + dw * col, d.y + dh * row, dw, dh)));
+                }
+            }
+        }
+        else
+        {
+            if (srcRect == RECT_FULL)
+                textureBuf = std::make_shared<Texture>(*imageBuf);
+            else
+                textureBuf = std::make_shared<Texture>(*imageBuf, Rect(d.x, d.y, d.w, d.h));
+
+            textureDivBuf.push_back(textureBuf);
+        }
+        d.x = 0;
+        d.y = 0;
+    }
+    else
+    {
+        textureDivBuf.push_back(textureBuf);
+    }
+}
+
 ParseRet SkinLR2::SRC_IMAGE()
 {
     lr2skin::s_basic d(parseParamBuf, csvLineNumber);
+
+    cropImageToTexture((int*)&d);
 
 #ifndef VIDEO_DISABLED
     if (useVideo && videoBuf && videoBuf->haveVideo)
@@ -1304,9 +1349,8 @@ ParseRet SkinLR2::SRC_IMAGE()
 #endif
     {
         _sprites.push_back(std::make_shared<SpriteAnimated>(
-            textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x));
+            textureDivBuf, d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer));
     }
-
     _sprites.back()->setSrcLine(csvLineNumber);
     
     return ParseRet::OK;
@@ -1315,6 +1359,8 @@ ParseRet SkinLR2::SRC_IMAGE()
 ParseRet SkinLR2::SRC_NUMBER()
 {
     lr2skin::s_number d(parseParamBuf, csvLineNumber);
+
+    cropImageToTexture((int*)&d);
 
     IndexNumber iNum = lr2skin::num(d.num);
 
@@ -1330,7 +1376,7 @@ ParseRet SkinLR2::SRC_NUMBER()
     else f = 0;
 
     _sprites.emplace_back(std::make_shared<SpriteNumber>(
-        textureBuf, Rect(d.x, d.y, d.w, d.h), (NumberAlign)d.align, d.keta, d.div_y, d.div_x, d.cycle, iNum, (IndexTimer)d.timer, f));
+        textureDivBuf, (NumberAlign)d.align, d.keta, d.cycle, iNum, (IndexTimer)d.timer, f));
     _sprites.back()->setSrcLine(csvLineNumber);
 
     switch (iNum)
@@ -1367,10 +1413,12 @@ ParseRet SkinLR2::SRC_SLIDER()
 {
     lr2skin::s_slider d(parseParamBuf, csvLineNumber);
 
+    cropImageToTexture((int*)&d);
+
     _sprites.push_back(std::make_shared<SpriteSlider>(
-        textureBuf, Rect(d.x, d.y, d.w, d.h), (SliderDirection)d.muki, d.range, 
+        textureDivBuf, (SliderDirection)d.muki, d.range,
         d.disable ? lr2skin::slider::getSliderCallback(-1) : lr2skin::slider::getSliderCallback(d.type),
-        d.div_y*d.div_x, d.cycle, (IndexSlider)d.type, (IndexTimer)d.timer, d.div_y, d.div_x));
+        d.div_y * d.div_x, d.cycle, (IndexSlider)d.type, (IndexTimer)d.timer));
     _sprites.back()->setSrcLine(csvLineNumber);
 
     switch ((IndexSlider)d.type)
@@ -1395,8 +1443,10 @@ ParseRet SkinLR2::SRC_BARGRAPH()
 {
     lr2skin::s_bargraph d(parseParamBuf, csvLineNumber);
 
+    cropImageToTexture((int*)&d);
+
     _sprites.push_back(std::make_shared<SpriteBargraph>(
-        textureBuf, Rect(d.x, d.y, d.w, d.h), (BargraphDirection)d.muki, d.div_y*d.div_x, d.cycle, (IndexBargraph)d.type, (IndexTimer)d.timer, d.div_y, d.div_x));
+        textureDivBuf, (BargraphDirection)d.muki, d.div_y*d.div_x, d.cycle, (IndexBargraph)d.type, (IndexTimer)d.timer));
     _sprites.back()->setSrcLine(csvLineNumber);
 
     return ParseRet::OK;
@@ -1405,7 +1455,9 @@ ParseRet SkinLR2::SRC_BARGRAPH()
 ParseRet SkinLR2::SRC_BUTTON()
 {
     lr2skin::s_button d(parseParamBuf, csvLineNumber);
-    
+
+    cropImageToTexture((int*)&d);
+
     if (d.type < 270)
     {
         std::shared_ptr<SpriteOption> s;
@@ -1413,12 +1465,12 @@ ParseRet SkinLR2::SRC_BUTTON()
         if (d.click)
         {
             s = std::make_shared<SpriteButton>(
-                textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, lr2skin::button::getButtonCallback(d.type), d.panel, d.plusonly, IndexTimer::SCENE_START, d.div_y, d.div_x, false);
+                textureDivBuf, 1, 0, lr2skin::button::getButtonCallback(d.type), d.panel, d.plusonly, IndexTimer::SCENE_START);
         }
         else
         {
             s = std::make_shared<SpriteOption>(
-                textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, IndexTimer::SCENE_START, d.div_y, d.div_x, false);
+                textureDivBuf, 1, 0, IndexTimer::SCENE_START);
         }
         IndexSwitch sw;
         IndexOption op;
@@ -1463,7 +1515,7 @@ ParseRet SkinLR2::SRC_BUTTON()
     {
         // deal as IndexSwitch::_FALSE
         auto s = std::make_shared<SpriteOption>(
-            textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, IndexTimer::SCENE_START, d.div_y, d.div_x, false);
+            textureDivBuf, 1, 0, IndexTimer::SCENE_START);
         s->setInd(SpriteOption::opType::SWITCH, (unsigned)IndexSwitch::_FALSE);
         _sprites.push_back(s);
         _sprites.back()->setSrcLine(csvLineNumber);
@@ -1476,8 +1528,10 @@ ParseRet SkinLR2::SRC_ONMOUSE()
 {
     lr2skin::s_onmouse d(parseParamBuf, csvLineNumber);
 
+    cropImageToTexture((int*)&d);
+
     _sprites.push_back(std::make_shared<SpriteOnMouse>(
-        textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, d.panel, Rect(d.x2, d.y2, d.w2, d.h2), (IndexTimer)d.timer, d.div_y, d.div_x));
+        textureDivBuf, d.div_y * d.div_x, d.cycle, d.panel, Rect(d.x2, d.y2, d.w2, d.h2), (IndexTimer)d.timer));
     _sprites.back()->setSrcLine(csvLineNumber);
 
     return ParseRet::OK;
@@ -1487,8 +1541,10 @@ ParseRet SkinLR2::SRC_MOUSECURSOR()
 {
     lr2skin::s_mousecursor d(parseParamBuf, csvLineNumber);
 
+    cropImageToTexture((int*)&d);
+
     _sprites.push_back(std::make_shared<SpriteCursor>(
-        textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x));
+        textureDivBuf, d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer));
     _sprites.back()->setSrcLine(csvLineNumber);
 
     return ParseRet::OK;
@@ -1578,6 +1634,9 @@ ParseRet SkinLR2::SRC_SCORECHART()
 ParseRet SkinLR2::SRC_JUDGELINE()
 {
     lr2skin::s_basic d(parseParamBuf, csvLineNumber);
+
+    cropImageToTexture((int*)&d);
+
     if (lr2skin::flipSideFlag)
     {
         d._null = (d._null == 0) ? 1 : 0;
@@ -1597,7 +1656,7 @@ ParseRet SkinLR2::SRC_JUDGELINE()
     }
 
     gSprites[spriteIdx] = std::make_shared<SpriteAnimated>(
-        textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
+        textureDivBuf, d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer);
     gSprites[spriteIdx]->setSrcLine(csvLineNumber);
 
     auto p = std::make_shared<SpriteGlobal>(spriteIdx);
@@ -1617,8 +1676,10 @@ ParseRet SkinLR2::SRC_NOWJUDGE(size_t idx)
 
     lr2skin::s_basic d(parseParamBuf, csvLineNumber);
 
+    cropImageToTexture((int*)&d);
+
     gSprites[idx] = std::make_shared<SpriteAnimated>(
-        textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
+        textureDivBuf, d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer);
     gSprites[idx]->setSrcLine(csvLineNumber);
 
     return ParseRet::OK;
@@ -1634,6 +1695,8 @@ ParseRet SkinLR2::SRC_NOWCOMBO(size_t idx)
 
     lr2skin::s_number d(parseParamBuf, csvLineNumber);
 
+    cropImageToTexture((int*)&d);
+
     IndexNumber iNum = lr2skin::num(d.num);
 
     // get NumType from div_x, div_y
@@ -1644,7 +1707,7 @@ ParseRet SkinLR2::SRC_NOWCOMBO(size_t idx)
     else f = 0;
 
     gSprites[idx] = std::make_shared<SpriteNumber>(
-        textureBuf, Rect(d.x, d.y, d.w, d.h), (NumberAlign)d.align, d.keta, d.div_y, d.div_x, d.cycle, iNum, (IndexTimer)d.timer, f);
+        textureDivBuf, (NumberAlign)d.align, d.keta, d.cycle, iNum, (IndexTimer)d.timer, f);
     gSprites[idx]->setSrcLine(csvLineNumber);
     std::reinterpret_pointer_cast<SpriteNumber>(gSprites[idx])->setInhibitZero(true);
 
@@ -1661,12 +1724,14 @@ ParseRet SkinLR2::SRC_GROOVEGAUGE()
         return ParseRet::DIV_NOT_ENOUGH;
     }
 
+    cropImageToTexture((int*)&d);
+
     size_t idx = d._null == 0 ? GLOBAL_SPRITE_IDX_1PGAUGE : GLOBAL_SPRITE_IDX_2PGAUGE;
     IndexNumber en = d._null == 0 ? IndexNumber::PLAY_1P_GROOVEGAUGE : IndexNumber::PLAY_2P_GROOVEGAUGE;
 
     gSprites[idx] = std::make_shared<SpriteGaugeGrid>(
-        textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x / 4, d.cycle, d.add_x, d.add_y, 0, 100, 50,
-        (IndexTimer)d.timer, en, d.div_y, d.div_x);
+        textureDivBuf, d.div_y * d.div_x / 4, d.cycle, d.add_x, d.add_y, 0, 100, 50,
+        (IndexTimer)d.timer, en);
     gSprites[idx]->setSrcLine(csvLineNumber);
 
     auto p = std::make_shared<SpriteGlobal>(idx);
@@ -1847,6 +1912,9 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
 
     // load raw into data struct
     lr2skin::s_basic d(parseParamBuf, csvLineNumber);
+
+    cropImageToTexture((int*)&d);
+
     if (lr2skin::flipSideFlag)
     {
         if (type == DefType::LINE)
@@ -1856,18 +1924,6 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
     }
 
     IndexTimer iTimer = lr2skin::timer(d.timer);
-
-    // Find texture from map by gr
-    pTexture tex = nullptr;
-    std::string gr_key = std::to_string(d.gr);
-    if (_textureNameMap.find(gr_key) != _textureNameMap.end())
-    {
-        tex = _textureNameMap[gr_key];
-    }
-    else
-    {
-        tex = _textureNameMap["Error"];
-    }
 
     // SRC
     if (d._null >= 20)
@@ -1936,7 +1992,7 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
     case DefType::LINE:
     {
         _sprites.push_back(std::make_shared<SpriteLaneVertical>(
-            _textureNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, iTimer, d.div_y, d.div_x, false, d._null == 0 ? 0 : 1));
+            textureDivBuf, d.div_y * d.div_x, d.cycle, iTimer, false, d._null == 0 ? 0 : 1));
 
         auto& ls = _laneSprites[i].first;
 
@@ -1954,7 +2010,7 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
     case DefType::AUTO_MINE:
     {
         _sprites.push_back(std::make_shared<SpriteLaneVertical>(
-            _textureNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, iTimer, d.div_y, d.div_x, false, !!(d._null >= 10), autoNotes));
+            textureDivBuf, d.div_y * d.div_x, d.cycle, iTimer, false, !!(d._null >= 10), autoNotes));
 
         std::shared_ptr<SpriteLaneVertical> ls = nullptr;
         if (!autoNotes)
@@ -2015,7 +2071,7 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
         if (pn)
         {
             *pn = std::make_shared<SpriteAnimated>(
-                _textureNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, iTimer, d.div_y, d.div_x);
+                textureDivBuf, d.div_y * d.div_x, d.cycle, iTimer);
             (*pn)->appendKeyFrame({ 0, {Rect(), RenderParams::accTy::CONSTANT, Color(0xffffffff), BlendMode::ALPHA, 0, 0.0 } });
             (*pn)->setLoopTime(0);
         }
@@ -2048,6 +2104,8 @@ ParseRet SkinLR2::SRC_BAR_BODY()
 {
     lr2skin::s_basic d(parseParamBuf, csvLineNumber);
 
+    cropImageToTexture((int*)&d);
+
     BarType type;
     switch (d._null & 0xFFFFFFFF)
     {
@@ -2069,11 +2127,11 @@ ParseRet SkinLR2::SRC_BAR_BODY()
     for (auto& bar : _barSprites)
     {
         bar->setBody(type,
-            textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
+            textureDivBuf, d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer);
 
         if (type == BarType::SONG)
             bar->setBody(BarType::NEW_SONG,
-                textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
+                textureDivBuf, d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer);
     }
 
     return ParseRet::OK;
@@ -2083,9 +2141,11 @@ ParseRet SkinLR2::SRC_BAR_FLASH()
 {
     lr2skin::s_basic d(parseParamBuf, csvLineNumber);
 
+    cropImageToTexture((int*)&d);
+
     for (auto& bar : _barSprites)
     {
-        bar->setFlash(textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
+        bar->setFlash(textureDivBuf, d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer);
     }
 
     return ParseRet::OK;
@@ -2094,6 +2154,8 @@ ParseRet SkinLR2::SRC_BAR_FLASH()
 ParseRet SkinLR2::SRC_BAR_LEVEL()
 {
     lr2skin::s_number d(parseParamBuf, csvLineNumber);
+
+    cropImageToTexture((int*)&d);
 
     BarLevelType type = BarLevelType(d._null & 0xFFFFFFFF);
 
@@ -2107,7 +2169,7 @@ ParseRet SkinLR2::SRC_BAR_LEVEL()
     for (auto& bar : _barSprites)
     {
         bar->setLevel(type,
-            textureBuf, Rect(d.x, d.y, d.w, d.h), (NumberAlign)d.align, d.keta, d.div_y, d.div_x, d.cycle, (IndexTimer)d.timer, f);
+            textureDivBuf, (NumberAlign)d.align, d.keta, d.cycle, (IndexTimer)d.timer, f);
     }
 
     return ParseRet::OK;
@@ -2117,11 +2179,13 @@ ParseRet SkinLR2::SRC_BAR_LAMP()
 {
     lr2skin::s_basic d(parseParamBuf, csvLineNumber);
 
+    cropImageToTexture((int*)&d);
+
     BarLampType type = BarLampType(d._null & 0xFFFFFFFF);
 
     for (auto& bar : _barSprites)
     {
-        bar->setLamp(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
+        bar->setLamp(type, textureDivBuf, d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer);
     }
 
     return ParseRet::OK;
@@ -2153,11 +2217,13 @@ ParseRet SkinLR2::SRC_BAR_RANK()
 {
     lr2skin::s_basic d(parseParamBuf, csvLineNumber);
 
+    cropImageToTexture((int*)&d);
+
     BarRankType type = BarRankType(d._null & 0xFFFFFFFF);
 
     for (auto& bar : _barSprites)
     {
-        bar->setRank(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
+        bar->setRank(type, textureDivBuf, d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer);
     }
 
     return ParseRet::OK;
@@ -2167,11 +2233,13 @@ ParseRet SkinLR2::SRC_BAR_RIVAL()
 {
     lr2skin::s_basic d(parseParamBuf, csvLineNumber);
 
+    cropImageToTexture((int*)&d);
+
     BarRivalType type = BarRivalType(d._null & 0xFFFFFFFF);
 
     for (auto& bar : _barSprites)
     {
-        bar->setRivalWinLose(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
+        bar->setRivalWinLose(type, textureDivBuf, d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer);
     }
 
     return ParseRet::OK;
@@ -2181,11 +2249,13 @@ ParseRet SkinLR2::SRC_BAR_RIVAL_MYLAMP()
 {
     lr2skin::s_basic d(parseParamBuf, csvLineNumber);
 
+    cropImageToTexture((int*)&d);
+
     BarLampType type = BarLampType(d._null & 0xFFFFFFFF);
 
     for (auto& bar : _barSprites)
     {
-        bar->setRivalLampSelf(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
+        bar->setRivalLampSelf(type, textureDivBuf, d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer);
     }
 
     return ParseRet::OK;
@@ -2195,11 +2265,13 @@ ParseRet SkinLR2::SRC_BAR_RIVAL_RIVALLAMP()
 {
     lr2skin::s_basic d(parseParamBuf, csvLineNumber);
 
+    cropImageToTexture((int*)&d);
+
     BarLampType type = BarLampType(d._null & 0xFFFFFFFF);
 
     for (auto& bar : _barSprites)
     {
-        bar->setRivalLampRival(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
+        bar->setRivalLampRival(type, textureDivBuf, d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer);
     }
 
     return ParseRet::OK;
@@ -3261,6 +3333,10 @@ SkinLR2::SkinLR2(Path p, int loadMode): loadMode(loadMode)
 {
     _type = eSkinType::LR2;
 
+    textureStagefile = std::shared_ptr<Texture>(&gChartContext.texStagefile, [](Texture*) {});
+    textureBackBMP = std::shared_ptr<Texture>(&gChartContext.texBackbmp, [](Texture*) {});
+    textureBanner = std::shared_ptr<Texture>(&gChartContext.texBanner, [](Texture*) {});
+
     for (size_t i = 0; i < BAR_ENTRY_SPRITE_COUNT; ++i)
     {
         _barSprites[i] = std::make_shared<SpriteBarEntry>(i);
@@ -3269,7 +3345,7 @@ SkinLR2::SkinLR2(Path p, int loadMode): loadMode(loadMode)
     _laneSprites.resize(chart::LANE_COUNT);
 
     // re-reference previously loaded #IMAGE
-    _textureNameMap.insert(LR2SkinImageCache.begin(), LR2SkinImageCache.end());
+    _imageNameMap.insert(LR2SkinImageCache.begin(), LR2SkinImageCache.end());
 
     switch (info.mode)
     {

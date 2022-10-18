@@ -1337,8 +1337,12 @@ protected:
     static bool customizeDst[100];  // temporary workaround
 
 private:
-    static std::map<std::string, pTexture> LR2SkinImageCache;
+    static std::map<std::string, pImage> LR2SkinImageCache;
     static std::map<std::string, Path> LR2SkinFontPathCache;
+
+    pTexture textureStagefile;
+    pTexture textureBackBMP;
+    pTexture textureBanner;
 
     struct Customize
     {
@@ -1439,6 +1443,8 @@ private:
     Tokens parseParamBuf;
 
     pTexture textureBuf;
+    std::vector<pTexture> textureDivBuf;
+    pImage   imageBuf;
     pVideo   videoBuf;
     bool     useVideo = false;
 
@@ -1547,6 +1553,7 @@ private:
     int others();
 
     bool SRC();
+    void cropImageToTexture(int* pd);
     ParseRet SRC_IMAGE();
     ParseRet SRC_NUMBER();
     ParseRet SRC_SLIDER();

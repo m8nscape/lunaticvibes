@@ -8,13 +8,10 @@
 
 vSkin::vSkin()
 {
-    _textureNameMap["Black"] = std::make_shared<TextureFull>(0x000000ff);
-    _textureNameMap["White"] = std::make_shared<TextureFull>(0xffffffff);
-    _textureNameMap["Error"] = std::make_shared<TextureFull>(0xff00ffff);
-    _textureNameMap["STAGEFILE"] = std::shared_ptr<Texture>(&gChartContext.texStagefile, [](Texture*) {});
-    _textureNameMap["BACKBMP"] = std::shared_ptr<Texture>(&gChartContext.texBackbmp, [](Texture*) {});
-    _textureNameMap["BANNER"] = std::shared_ptr<Texture>(&gChartContext.texBanner, [](Texture*) {});
-    _textureNameMap["THUMBNAIL"] = std::make_shared<Texture>(1920, 1080, Texture::PixelFormat::RGB24, true);
+    textureBlackDot = std::make_shared<TextureFull>(0x000000ff);
+    textureWhiteDot = std::make_shared<TextureFull>(0xffffffff);
+    textureErrorDot = std::make_shared<TextureFull>(0xff00ffff);
+    textureThumbnail = std::make_shared<Texture>(1920, 1080, Texture::PixelFormat::RGB24, true);
 }
 
 vSkin::~vSkin()
@@ -199,5 +196,5 @@ void vSkin::stopTextEdit(bool modify)
 
 pTexture vSkin::getTextureCustomizeThumbnail()
 {
-    return _textureNameMap["THUMBNAIL"];
+    return textureThumbnail;
 }
