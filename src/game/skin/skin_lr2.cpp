@@ -3154,7 +3154,8 @@ void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc, bool
 
         // get dst indexes
         ifStmtTrue = true;
-        for (auto it = ++t.begin(); it != t.end() && ifStmtTrue; ++it)
+        size_t argCount = 0;
+        for (auto it = ++t.begin(); it != t.end() && argCount < 9 && ifStmtTrue; ++it, argCount++)
         {
             if (it->empty()) continue;
 
