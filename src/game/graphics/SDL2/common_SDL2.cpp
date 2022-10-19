@@ -336,9 +336,12 @@ void Texture::_draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, Rect
         Rect rc = dstRect;
         rc.x = rc.y = 0;
 
-        SDL_Texture* pTextureInverted = SDL_CreateTexture(gFrameRenderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, dstRect.w, dstRect.h);
+        static auto pTextureInverted = std::shared_ptr<SDL_Texture>(
+            SDL_CreateTexture(gFrameRenderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, 3840, 2160),
+            std::bind(pushAndWaitMainThreadTask<void, SDL_Texture*>, SDL_DestroyTexture, _1));
+
         auto oldTarget = SDL_GetRenderTarget(gFrameRenderer);
-        SDL_SetRenderTarget(gFrameRenderer, pTextureInverted);
+        SDL_SetRenderTarget(gFrameRenderer, &*pTextureInverted);
 
         uint8_t r, g, b, a;
         SDL_GetRenderDrawColor(gFrameRenderer, &r, &g, &b, &a);
@@ -360,16 +363,14 @@ void Texture::_draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, Rect
         );
 
         SDL_SetRenderTarget(gFrameRenderer, oldTarget);
-        SDL_SetTextureBlendMode(pTextureInverted, SDL_BLENDMODE_BLEND);
+        SDL_SetTextureBlendMode(&*pTextureInverted, SDL_BLENDMODE_BLEND);
         SDL_RenderCopyExF(
             gFrameRenderer,
-            pTextureInverted,
+            &*pTextureInverted,
             &rc, &dstRectF,
             angle,
             center ? &scenter : NULL, SDL_RendererFlip(flipFlags)
         );
-
-        SDL_DestroyTexture(pTextureInverted);
         return;
     }
     else if (b == BlendMode::MULTIPLY_INVERTED_BACKGROUND)
