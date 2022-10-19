@@ -344,7 +344,7 @@ public:
 
 void DifficultyTableBMS::updateFromUrl(std::function<void(DifficultyTable::UpdateResult)> finishedCallback)
 {
-	if (!strEqual(url.substr(0, 7), "http://", true) && strEqual(url.substr(0, 8), "https://", true) ||
+	if (!strEqual(url.substr(0, 7), "http://", true) && !strEqual(url.substr(0, 8), "https://", true) ||
 		url.substr(8).find('/') == url.npos)
 	{
 		LOG_ERROR << "[TableBMS] URL error: " << url;
