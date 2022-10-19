@@ -784,6 +784,13 @@ int SkinLR2::LR2FONT()
 {
     if (!strEqual(parseKeyBuf, "#LR2FONT", true)) return 0;
 
+    if (loadMode >= 1)
+    {
+        std::string fontNameKey = std::to_string(LR2FontNameMap.size());
+        LR2FontNameMap[fontNameKey] = nullptr;
+        return 1;
+    }
+
     if (strEqual(parseParamBuf[0], "CONTINUE", true))
     {
         // already referenced inside constructor; create a blank texture if not exist
@@ -804,12 +811,6 @@ int SkinLR2::LR2FONT()
         Path path = getCustomizePath(parseParamBuf[0]);
         path = std::filesystem::absolute(path);
         std::string fontNameKey = std::to_string(LR2FontNameMap.size());
-
-        if (loadMode >= 1)
-        {
-            LR2FontNameMap[fontNameKey] = nullptr;
-            return 1;
-        }
 
         if (LR2FontCache.find(path) != LR2FontCache.end())
         {
@@ -939,6 +940,13 @@ int SkinLR2::SYSTEMFONT()
     // Could not get system font file path in a reliable way while cross-platforming..
     if (strEqual(parseKeyBuf, "#FONT", true))
     {
+        if (loadMode >= 1)
+        {
+            size_t idx = _fontNameMap.size();
+            _fontNameMap[std::to_string(idx)] = nullptr;
+            return 1;
+        }
+
         int ptsize = toInt(parseParamBuf[0]);
         int thick = toInt(parseParamBuf[1]);
         int fonttype = toInt(parseParamBuf[2]);
@@ -1490,6 +1498,8 @@ ParseRet SkinLR2::SRC_MOUSECURSOR()
 
 ParseRet SkinLR2::SRC_TEXT()
 {
+    if (loadMode >= 1) return ParseRet::OK;
+
     lr2skin::s_text d(parseParamBuf);
 
     auto font = std::to_string(d.font);
@@ -2248,6 +2258,10 @@ bool SkinLR2::DST()
     case DefType::LINE:           DST_LINE();                break;
     case DefType::NOTE:           DST_NOTE();                break;
 
+    case DefType::TEXT:
+        if (loadMode >= 1)
+            return true;
+        [[ fallthrough ]];
     default:
     {
         // load raw into data struct

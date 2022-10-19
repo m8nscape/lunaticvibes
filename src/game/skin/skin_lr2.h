@@ -1372,7 +1372,7 @@ private:
     std::map<std::string, std::shared_ptr<LR2Font>> LR2FontNameMap;
 
     Path filePath;
-    int loadMode = 0;   // 0: FULL / 1: No Font / 2: Header Only
+    int loadMode = 0;   // 0: FULL / 1: No Text / 2: Header Only
 
 protected:
     size_t imageCount = 0;
