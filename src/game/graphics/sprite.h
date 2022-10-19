@@ -65,6 +65,7 @@ typedef std::shared_ptr<Texture> pTexture;
 // Render interface
 class vSprite: public std::enable_shared_from_this<vSprite>
 {
+    friend class vSkin;
 	friend class SkinLR2;
 protected:
     SpriteTypes _type;
