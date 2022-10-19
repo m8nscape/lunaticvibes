@@ -97,8 +97,8 @@ public:
 protected:
     // common
     void loadChart();
-	constexpr double getWavLoadProgress() { return (_wavToLoad == 0) ? (_wavLoaded ? 1.0 : 0.0) : (double)_wavLoaded / _wavToLoad; }
-	constexpr double getBgaLoadProgress() { return (_bmpToLoad == 0) ? (_wavLoaded ? 1.0 : 0.0) : (double)_bmpLoaded / _bmpToLoad; }
+	constexpr double getWavLoadProgress() { return (_wavToLoad == 0) ? (gChartContext.isSampleLoaded ? 1.0 : 0.0) : (double)_wavLoaded / _wavToLoad; }
+	constexpr double getBgaLoadProgress() { return (_bmpToLoad == 0) ? (gChartContext.isBgaLoaded ? 1.0 : 0.0) : (double)_bmpLoaded / _bmpToLoad; }
 
     void setInputJudgeCallback();
     void removeInputJudgeCallback();

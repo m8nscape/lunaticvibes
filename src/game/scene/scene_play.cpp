@@ -460,6 +460,10 @@ void ScenePlay::clearGlobalDatas()
         IndexNumber::RESULT_MYBEST_RATE_DECIMAL2,
         IndexNumber::RESULT_TARGET_RATE,
         IndexNumber::RESULT_TARGET_RATE_DECIMAL2,
+        IndexNumber::PLAY_LOAD_PROGRESS_PERCENT,
+        IndexNumber::PLAY_LOAD_PROGRESS_SYS,
+        IndexNumber::PLAY_LOAD_PROGRESS_WAV,
+        IndexNumber::PLAY_LOAD_PROGRESS_BGA,
         IndexNumber::RESULT_RECORD_EX_BEFORE,
         IndexNumber::RESULT_RECORD_EX_NOW,
         IndexNumber::RESULT_RECORD_EX_DIFF,
@@ -525,6 +529,9 @@ void ScenePlay::clearGlobalDatas()
         IndexBargraph::PLAY_1P_FAST_COUNT,
         IndexBargraph::PLAY_2P_SLOW_COUNT,
         IndexBargraph::PLAY_2P_FAST_COUNT,
+        IndexBargraph::MUSIC_LOAD_PROGRESS_SYS,
+        IndexBargraph::MUSIC_LOAD_PROGRESS_WAV,
+        IndexBargraph::MUSIC_LOAD_PROGRESS_BGA,
     };
     for (auto& e : bargraphsReset)
     {
@@ -805,6 +812,7 @@ bool ScenePlay::createRuleset()
                 State::set(IndexNumber::RESULT_MYBEST_EX, pScore->exscore);
                 State::set(IndexNumber::RESULT_MYBEST_RATE, (int)std::floor(pScore->rate * 100.0));
                 State::set(IndexNumber::RESULT_MYBEST_RATE_DECIMAL2, (int)std::floor(pScore->rate * 10000.0) % 100);
+                State::set(IndexNumber::RESULT_MYBEST_DIFF, -pScore->exscore);
             }
         }
 
@@ -1906,19 +1914,17 @@ void ScenePlay::updateLoading()
 	auto t = Time();
     auto rt = t - State::get(IndexTimer::_LOAD_START);
 
-    State::set(IndexNumber::PLAY_LOAD_PROGRESS_SYS, int(_chartLoaded * 50 + _rulesetLoaded * 50) / 100);
-    State::set(IndexNumber::PLAY_LOAD_PROGRESS_WAV, int(getWavLoadProgress() * 100) / 100);
-    State::set(IndexNumber::PLAY_LOAD_PROGRESS_BGA, int(getBgaLoadProgress() * 100) / 100);
-    State::set(IndexNumber::PLAY_LOAD_PROGRESS_PERCENT, int
-        (int(_chartLoaded) * 50 + int(_rulesetLoaded) * 50 + 
-        getWavLoadProgress() * 100 + getBgaLoadProgress() * 100) / 300);
+    State::set(IndexNumber::PLAY_LOAD_PROGRESS_SYS, int(_chartLoaded * 50 + _rulesetLoaded * 50));
+    State::set(IndexNumber::PLAY_LOAD_PROGRESS_WAV, int(getWavLoadProgress() * 100));
+    State::set(IndexNumber::PLAY_LOAD_PROGRESS_BGA, int(getBgaLoadProgress() * 100));
+    State::set(IndexNumber::PLAY_LOAD_PROGRESS_PERCENT, int(
+        getWavLoadProgress() * 100 + getBgaLoadProgress() * 100) / 2);
 
     State::set(IndexBargraph::MUSIC_LOAD_PROGRESS_SYS, int(_chartLoaded) * 0.5 + int(_rulesetLoaded) * 0.5);
     State::set(IndexBargraph::MUSIC_LOAD_PROGRESS_WAV, getWavLoadProgress());
     State::set(IndexBargraph::MUSIC_LOAD_PROGRESS_BGA, getBgaLoadProgress());
-    State::set(IndexBargraph::MUSIC_LOAD_PROGRESS, int
-        (int(_chartLoaded) * 0.5 + int(_rulesetLoaded) * 0.5 +
-        getWavLoadProgress() + getBgaLoadProgress()) / 3.0);
+    State::set(IndexBargraph::MUSIC_LOAD_PROGRESS, int(
+        getWavLoadProgress() + getBgaLoadProgress()) / 2.0);
 
     if (_chartLoaded && 
         _rulesetLoaded &&
@@ -2113,10 +2119,7 @@ void ScenePlay::updatePlaying()
         State::set(IndexNumber::RESULT_MYBEST_EX, dpb.score2);
         State::set(IndexNumber::RESULT_MYBEST_RATE, (int)std::floor(dpb.acc * 100.0));
         State::set(IndexNumber::RESULT_MYBEST_RATE_DECIMAL2, (int)std::floor(dpb.acc * 10000.0) % 100);
-    }
-    if (!gPlayContext.isBattle)
-    {
-        State::set(IndexNumber::RESULT_MYBEST_DIFF, dp1.score2 - State::get(IndexNumber::RESULT_MYBEST_EX));
+        State::set(IndexNumber::RESULT_MYBEST_DIFF, dp1.score2 - dpb.score2);
     }
 
     if (gPlayContext.ruleset[PLAYER_SLOT_TARGET] != nullptr)
@@ -2136,7 +2139,7 @@ void ScenePlay::updatePlaying()
             State::set(IndexNumber::PLAY_2P_EXSCORE_DIFF, dp2.score2 - dp1.score2);
             State::set(IndexNumber::RESULT_TARGET_EX, dp2.score2);
             State::set(IndexNumber::RESULT_TARGET_DIFF, dp1.score2 - dp2.score2);
-            State::set(IndexNumber::RESULT_TARGET_RATE, (int)std::floor(dp2.acc * 100.0));
+            State::set(IndexNumber::RESULT_TARGET_RATE, (int)std::floor(dp2.acc * 100.0) / 100);
             State::set(IndexNumber::RESULT_TARGET_RATE_DECIMAL2, (int)std::floor(dp2.acc * 10000.0) % 100);
         }
         else if (targetType == Option::TARGET_0)
@@ -2158,7 +2161,7 @@ void ScenePlay::updatePlaying()
             State::set(IndexNumber::PLAY_2P_EXSCORE_DIFF, dp2.score2 - dp1.score2);
             State::set(IndexNumber::RESULT_TARGET_EX, dp2.score2);
             State::set(IndexNumber::RESULT_TARGET_DIFF, dp1.score2 - dp2.score2);
-            State::set(IndexNumber::RESULT_TARGET_RATE, (int)std::floor(dp2.acc * 100.0));
+            State::set(IndexNumber::RESULT_TARGET_RATE, (int)std::floor(dp2.acc * 100.0) / 100);
             State::set(IndexNumber::RESULT_TARGET_RATE_DECIMAL2, (int)std::floor(dp2.acc * 10000.0) % 100);
 
             int miss2 = dp2.miss;

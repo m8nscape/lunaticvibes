@@ -422,13 +422,13 @@ void Texture::_draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, Rect
         center ? &scenter : NULL, SDL_RendererFlip(flipFlags)
     );
 
-#if _DEBUG
-    SDL_FRect& d = dstRectF;
-    SDL_FPoint lines[5] = { {d.x, d.y}, {d.x + d.w, d.y}, {d.x + d.w, d.y + d.h}, {d.x, d.y + d.h}, {d.x, d.y} };
-    SDL_SetRenderDrawColor(gFrameRenderer, 255, 255, 255, 255);
-    SDL_RenderDrawLinesF(gFrameRenderer, lines, 5);
-    SDL_SetRenderDrawColor(gFrameRenderer, 0, 0, 0, 255);
-#endif
+//#if _DEBUG
+//    SDL_FRect& d = dstRectF;
+//    SDL_FPoint lines[5] = { {d.x, d.y}, {d.x + d.w, d.y}, {d.x + d.w, d.y + d.h}, {d.x, d.y + d.h}, {d.x, d.y} };
+//    SDL_SetRenderDrawColor(gFrameRenderer, 255, 255, 255, 255);
+//    SDL_RenderDrawLinesF(gFrameRenderer, lines, 5);
+//    SDL_SetRenderDrawColor(gFrameRenderer, 0, 0, 0, 255);
+//#endif
 }
 
 void Texture::draw(Rect dstRect,

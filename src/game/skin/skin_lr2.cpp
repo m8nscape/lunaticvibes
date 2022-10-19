@@ -600,6 +600,8 @@ std::string_view csvLineNormalize(const std::string& raw)
     StringContentView linecsv(raw);
 
     // remove leading spaces
+    if (linecsv.find_first_not_of(' ') == linecsv.npos) return {};
+    if (linecsv.find_first_not_of('\t') == linecsv.npos) return {};
     while (!linecsv.empty() && (linecsv[0] == ' ' || linecsv[0] == '\t'))
     {
         linecsv = linecsv.substr(linecsv.find_first_not_of(' '));

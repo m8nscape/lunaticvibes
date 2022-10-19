@@ -88,13 +88,14 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
         if (pScore)
         {
             param["dbexscore"] = pScore->exscore;
-            param["newexscore"] = std::max(pScore->exscore, (int)d1p.score2);
+            param["dbexscorediff"] = (int)d1p.score2 - pScore->exscore;
+            param["newexscore"] = (int)d1p.score2;
             param["newexscorediff"] = param["newexscore"] - pScore->exscore;
             param["dbmaxcombo"] = (int)pScore->maxcombo;
-            param["newmaxcombo"] = std::max((int)pScore->maxcombo, (int)d1p.maxCombo);
+            param["newmaxcombo"] = (int)d1p.maxCombo;
             param["newmaxcombodiff"] = param["newmaxcombo"] - pScore->maxcombo;
             param["dbbp"] = pScore->bp;
-            param["newbp"] = std::min(pScore->bp, (int)d1p.miss);
+            param["newbp"] = (int)d1p.miss;
             param["newbpdiff"] = param["newbp"] - pScore->bp;
             param["dbrate"] = (int)(pScore->rate);
             param["dbrated2"] = (int)(pScore->rate * 100.0) % 100;
@@ -106,6 +107,7 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
         }
         else if (saveScore)
         {
+            param["dbexscorediff"] = (int)d1p.score2;
             param["newexscore"] = (int)d1p.score2;
             param["newexscorediff"] = param["newexscore"];
             param["newmaxcombo"] = (int)d1p.maxCombo;
@@ -149,7 +151,7 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
         State::set(IndexNumber::RESULT_MYBEST_RATE_DECIMAL2, param["dbrated2"]);
 
         State::set(IndexOption::RESULT_MYBEST_RANK, param["dbrank"]);
-        State::set(IndexOption::RESULT_UPDATED_RANK, std::max(param["1prank"], param["dbrank"]));
+        State::set(IndexOption::RESULT_UPDATED_RANK, param["1prank"]);
 
         State::set(IndexSwitch::RESULT_UPDATED_SCORE, param["updatedscore"]);
         State::set(IndexSwitch::RESULT_UPDATED_MAXCOMBO, param["updatedmaxcombo"]);
