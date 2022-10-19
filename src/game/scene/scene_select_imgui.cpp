@@ -519,6 +519,7 @@ void SceneSelect::_imguiCheckSettings()
     if (imgui_adv_newSongDuration != ConfigMgr::get("P", cfg::P_NEW_SONG_DURATION, 24))
     {
         ConfigMgr::set("P", cfg::P_NEW_SONG_DURATION, imgui_adv_newSongDuration);
+        State::set(IndexNumber::NEW_ENTRY_SECONDS, ConfigMgr::get('P', cfg::P_NEW_SONG_DURATION, 0) * 60 * 60);
     }
     if (imgui_adv_mouseAnalog != ConfigMgr::get("P", cfg::P_MOUSE_ANALOG, false))
     {

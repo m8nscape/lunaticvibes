@@ -479,30 +479,48 @@ std::vector<pChartFormat> SongDB::findChartByHash(const HashMD5& target) const
 
 }
 
-int SongDB::addFolder(Path path, const HashMD5& parentHash)
+int SongDB::addFolders(const std::vector<Path>& paths)
 {
+    resetAddSummary();
+
     std::future<void> sessionFuture;
     std::chrono::system_clock::time_point sessionTimestamp = std::chrono::system_clock::now();
-    if (parentHash == ROOT_FOLDER_HASH)
-    {
-        LOG_INFO << "[SongDB] Add root folder: " << path.u8string();
-        inAddFolderSession = true;
-        transactionStart();
-        sessionFuture = std::async(std::launch::async, [&]()
+
+    bool inAddFolderSession = true;
+    transactionStart();
+    sessionFuture = std::async(std::launch::async, [&]()
+        {
+            while (inAddFolderSession)
             {
-                while (inAddFolderSession)
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                if (inAddFolderSession && std::chrono::system_clock::now() - sessionTimestamp >= std::chrono::seconds(10))
                 {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                    if (inAddFolderSession && std::chrono::system_clock::now() - sessionTimestamp >= std::chrono::seconds(10))
-                    {
-                        sessionTimestamp = std::chrono::system_clock::now();
-                        transactionStop();
-                        transactionStart();
-                    }
+                    sessionTimestamp = std::chrono::system_clock::now();
+                    transactionStop();
+                    transactionStart();
                 }
-            });
+            }
+        });
+
+    int count = 0;
+    for (const auto& p : paths)
+    {
+        int subCount = addSubFolder(p, ROOT_FOLDER_HASH);
+        count += subCount;
+        LOG_INFO << "[SongDB] " << p.u8string() << ": added " << subCount << " entries";
     }
 
+    inAddFolderSession = false;
+    transactionStop();
+    sessionFuture.wait_for(std::chrono::seconds(10));
+
+    waitLoadingFinish();
+
+    return count;
+}
+
+int SongDB::addSubFolder(Path path, const HashMD5& parentHash)
+{
     path = (path / ".").lexically_normal();
 
     if (!fs::is_directory(path))
@@ -573,14 +591,6 @@ int SongDB::addFolder(Path path, const HashMD5& parentHash)
         count = addNewFolder(folderHash, path, parentHash);
     }
 
-    if (parentHash == ROOT_FOLDER_HASH)
-    {
-        LOG_INFO << "[SongDB] " << path.u8string() << ": added " << count << " entries";
-        inAddFolderSession = false;
-        transactionStop();
-        sessionFuture.wait_for(std::chrono::seconds(10));
-    }
-
     return count;
 }
 
@@ -597,6 +607,7 @@ int SongDB::removeFolder(const HashMD5& hash, bool removeSong)
 
 void SongDB::waitLoadingFinish()
 {
+    // wait for all tasks
     boost::asio::thread_pool& pool = DBThreadPool[this];
     pool.join();
 
@@ -604,7 +615,6 @@ void SongDB::waitLoadingFinish()
     DBThreadPool.erase(this);
     DBThreadPool.emplace(this, std::thread::hardware_concurrency() - 1);
 }
-
 
 int SongDB::addNewFolder(const HashMD5& hash, const Path& path, const HashMD5& parentHash)
 {
@@ -690,7 +700,7 @@ int SongDB::addNewFolder(const HashMD5& hash, const Path& path, const HashMD5& p
     {
         if (stopRequested) break;
 
-        int addedCount = addFolder(sub, hash);
+        int addedCount = addSubFolder(sub, hash);
         if (addedCount > 0)
             count += addedCount;
     }
@@ -717,7 +727,7 @@ int SongDB::refreshExistingFolder(const HashMD5& hash, const Path& path, FolderT
 
         // analyze the folder again
         removeFolder(hash, true);
-        return addFolder(path, hash);
+        return addSubFolder(path, hash);
     }
     else if (type == FolderType::SONG_BMS)
     {
@@ -879,7 +889,7 @@ int SongDB::refreshExistingFolder(const HashMD5& hash, const Path& path, FolderT
             }
             if (fs::is_directory(f))
             {
-                int addedCount = addFolder(f, hash);
+                int addedCount = addSubFolder(f, hash);
                 if (addedCount > 0)
                     count += addedCount;
             }
@@ -991,18 +1001,13 @@ EntryFolderRegular SongDB::browse(HashMD5 root, bool recursive)
 {
     LOG_DEBUG << "[SongDB] browse folder " << root.hexdigest() << (recursive ? " RECURSIVE" : "");
 
-    if (root == ROOT_FOLDER_HASH)
-    {
-        waitLoadingFinish();
-    }
-
     auto& [hasPath, path] = getFolderPath(root);
     if (!hasPath)
         return EntryFolderRegular(HashMD5(), "");
 
     EntryFolderRegular list(root, path);
 
-    auto result = query("SELECT pathmd5,parent,name,type,path FROM folder WHERE parent=?", 5, { root.hexdigest() });
+    auto result = query("SELECT pathmd5,parent,name,type,path,modtime FROM folder WHERE parent=?", 6, { root.hexdigest() });
     if (!result.empty())
     {
         for (auto& c : result)
@@ -1012,6 +1017,7 @@ EntryFolderRegular SongDB::browse(HashMD5 root, bool recursive)
             auto name = ANY_STR(c[2]);
             auto type = (FolderType) ANY_INT(c[3]);
             auto path = ANY_STR(c[4]);
+            auto modtime = ANY_INT(c[5]);
 
             switch (type)
             {
@@ -1021,11 +1027,13 @@ EntryFolderRegular SongDB::browse(HashMD5 root, bool recursive)
                 {
                     auto sub = std::make_shared<EntryFolderRegular>(browse(md5, false));
                     sub->_name = name;
+                    sub->_addTime = modtime;
                     list.pushEntry(sub);
                 }
                 else
                 {
                     auto sub = std::make_shared<EntryFolderRegular>(md5, PathFromUTF8(path), name, "");
+                    sub->_addTime = modtime;
                     list.pushEntry(sub);
                 }
                 break;
@@ -1035,6 +1043,7 @@ EntryFolderRegular SongDB::browse(HashMD5 root, bool recursive)
                 // name is set inside browseSong
                 if (!bmsList->empty())
                 {
+                    bmsList->_addTime = modtime;
                     list.pushEntry(bmsList);
                 }
                 break;

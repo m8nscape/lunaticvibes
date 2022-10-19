@@ -64,13 +64,13 @@ void ScenePreSelect::updateLoadSongs()
 
             // get folders from config
             auto folderList = ConfigMgr::General()->getFoldersPath();
+            std::vector<Path> pathList;
             for (auto& f : folderList)
             {
-                LOG_INFO << "[List] Add folder " << f;
-                State::set(IndexText::_OVERLAY_TOPLEFT2, Path(f).u8string());
-
-                g_pSongDB->addFolder(f);
+                pathList.push_back(Path(f));
             }
+
+            g_pSongDB->addFolders(pathList);
 
             auto top = g_pSongDB->browse(ROOT_FOLDER_HASH, false);
             for (size_t i = 0; i < top.getContentsCount(); ++i)

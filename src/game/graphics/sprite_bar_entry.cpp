@@ -192,7 +192,7 @@ bool SpriteBarEntry::update(Time time)
         drawBodyOn = (index == gSelectContext.cursor);
 
         // check new song
-        bool isNewEntry = (pEntry->_addTime < std::time(nullptr) + State::get(IndexNumber::NEW_ENTRY_SECONDS));
+        bool isNewEntry = (pEntry->_addTime > std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count() - State::get(IndexNumber::NEW_ENTRY_SECONDS));
 
         static const std::map<eEntryType, size_t> BAR_TYPE_MAP =
         {

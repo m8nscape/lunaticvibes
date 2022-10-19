@@ -992,39 +992,65 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
 
         refreshingSongList = true;
 
-        std::vector<StringPath> folderList;
         if (gSelectContext.backtrace.size() >= 2)
         {
             // only update current folder
             auto& [hasPath, path] = g_pSongDB->getFolderPath(gSelectContext.backtrace.top().folder);
             if (hasPath)
-                folderList.push_back(path);
-        }
-        if (folderList.empty())
-        {
-            // Pressed at root, refresh all
-            folderList = ConfigMgr::General()->getFoldersPath();
-        }
-
-        for (auto& f : folderList)
-        {
-            LOG_INFO << "[List] Refreshing folder " << f;
-            Path pf(f);
-            State::set(IndexText::_OVERLAY_TOPLEFT, (boost::format("Refresh folder: %s") % pf.u8string()).str());
-
-            g_pSongDB->resetAddSummary();
-            int count = g_pSongDB->addFolder(f);
-            g_pSongDB->waitLoadingFinish();
-
-            int added = g_pSongDB->addChartSuccess - g_pSongDB->addChartModified;
-            int updated = g_pSongDB->addChartModified;
-            int deleted = g_pSongDB->addChartDeleted;
-            if (added || updated || deleted)
             {
-                createNotification((boost::format("%s: Added %d, Updated %d, Deleted %d") % pf.u8string() % added % updated % deleted).str());
+                LOG_INFO << "[List] Refreshing folder " << path.u8string();
+                State::set(IndexText::_OVERLAY_TOPLEFT, (boost::format("Refresh folder: %s") % path.u8string()).str());
+
+                g_pSongDB->resetAddSummary();
+                int count = g_pSongDB->addSubFolder(path, gSelectContext.backtrace.top().parent);
+                g_pSongDB->waitLoadingFinish();
+
+                int added = g_pSongDB->addChartSuccess - g_pSongDB->addChartModified;
+                int updated = g_pSongDB->addChartModified;
+                int deleted = g_pSongDB->addChartDeleted;
+                if (added || updated || deleted)
+                {
+                    createNotification((boost::format("%s: Added %d, Updated %d, Deleted %d") % path.u8string() % added % updated % deleted).str());
+                }
             }
         }
+        else
+        {
+            // Pressed at root, refresh all
+            LOG_INFO << "[List] Refreshing all folders";
+            State::set(IndexText::_OVERLAY_TOPLEFT, "Refresh folders...");
+
+            std::vector<Path> pathList;
+            for (auto& f : ConfigMgr::General()->getFoldersPath())
+            {
+                pathList.push_back(Path(f));
+            }
+
+            bool addingFolders = true;
+            auto refreshOverlayFuture = std::async(std::launch::async, [&]() {
+                while (addingFolders)
+                {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(33));
+                    {
+                        std::shared_lock l(g_pSongDB->addCurrentPathMutex);
+
+                        std::string textHint = (
+                            boost::format("Loading [%d/%d]:")
+                            % g_pSongDB->addChartTaskFinishCount
+                            % g_pSongDB->addChartTaskCount
+                            ).str();
+                        std::string textHint2 = g_pSongDB->addCurrentPath;
+                        State::set(IndexText::_OVERLAY_TOPLEFT, textHint);
+                        State::set(IndexText::_OVERLAY_TOPLEFT2, textHint2);
+                    }
+                }
+                });
+            g_pSongDB->addFolders(pathList);
+            addingFolders = false;
+            refreshOverlayFuture.wait_for(std::chrono::seconds(10));
+        }
         State::set(IndexText::_OVERLAY_TOPLEFT, "");
+        State::set(IndexText::_OVERLAY_TOPLEFT2, "");
 
         // re-browse
         if (!isInVersionList)

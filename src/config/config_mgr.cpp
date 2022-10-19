@@ -42,6 +42,8 @@ void setNumbers()
     State::set(IndexNumber::EQ6, ConfigMgr::get('P', P_EQ6, 0));
 
     State::set(IndexNumber::PITCH, ConfigMgr::get('P', P_FREQ_VAL, 0));
+
+    State::set(IndexNumber::NEW_ENTRY_SECONDS, ConfigMgr::get('P', P_NEW_SONG_DURATION, 0) * 60 * 60);
 }
 
 void setOptions()
