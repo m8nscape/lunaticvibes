@@ -765,12 +765,6 @@ int SkinLR2::IMAGE()
         }
         else
         {
-            // find *.png if fails
-            if (!fs::is_regular_file(pathFile) && !strEqual(pathFile.extension().u8string(), ".png", true))
-            {
-                std::string pathTmp = pathFile.u8string();
-                pathFile = PathFromUTF8(pathTmp.replace(pathTmp.length() - 4, 4, ".png"));
-            }
             Image img = Image(pathFile.u8string().c_str());
             if (info.hasTransparentColor)
                 img.setTransparentColorRGB(info.transparentColor);
