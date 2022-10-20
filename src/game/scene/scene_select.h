@@ -143,7 +143,6 @@ private:
     void _imguiRefreshProfileList();
     void _imguiRefreshFolderList();
     void _imguiRefreshTableList();
-    void _imguiRefreshVideoResolutionList();
     void _imguiRefreshVideoDisplayResolutionList();
     void _imguiCheckSettings();
 
@@ -172,10 +171,6 @@ private:
     std::list<std::string> imgui_tables;
     std::vector<const char*> imgui_tables_display;
     int imgui_table_index;
-
-    std::list<std::string> imgui_video_resolution;
-    std::vector<const char*> imgui_video_resolution_display;
-    int old_video_resolution_index, imgui_video_resolution_index;   // 0:480p 1:720p 2:1080p
 
     std::vector<std::pair<unsigned, unsigned>> imgui_video_display_resolution_size;
     std::vector<std::string> imgui_video_display_resolution;

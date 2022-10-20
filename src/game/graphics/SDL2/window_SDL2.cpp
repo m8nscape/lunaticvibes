@@ -75,9 +75,10 @@ int graphics_init()
             return -1;
         }
 
-        canvasRect.w = ConfigMgr::get("V", cfg::V_RES_X, CANVAS_WIDTH);
-        canvasRect.h = ConfigMgr::get("V", cfg::V_RES_Y, CANVAS_HEIGHT);
-        graphics_resize_canvas(canvasRect.w, canvasRect.h);
+        //canvasRect.w = ConfigMgr::get("V", cfg::V_RES_X, CANVAS_WIDTH);
+        //canvasRect.h = ConfigMgr::get("V", cfg::V_RES_Y, CANVAS_HEIGHT);
+        //graphics_resize_canvas(canvasRect.w, canvasRect.h);
+        graphics_resize_canvas(windowRect.w, windowRect.h);
 
         int ss = ConfigMgr::get("V", cfg::V_RES_SUPERSAMPLE, 1);
         graphics_set_supersample_level(ss);
@@ -287,7 +288,7 @@ void graphics_change_vsync(int mode)
 static int superSampleLevel = 1;
 void graphics_set_supersample_level(int level)
 {
-    assert(canvasRect.w * level <= 3840);
+    //assert(canvasRect.w * level <= 3840);
     superSampleLevel = level;
 }
 int graphics_get_supersample_level()

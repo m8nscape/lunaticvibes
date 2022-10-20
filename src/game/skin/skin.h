@@ -93,33 +93,34 @@ public:
     // Info defined by header
     struct skinInfo
     {
-        eMode mode;
+        eMode mode = eMode::PLAY7;
         std::string name;
         std::string maker;
+        int resolution = -1;     // #RESOLUTION | 0:480p / 1:720p / 2:1080p
 
-        bool hasTransparentColor;
+        bool hasTransparentColor = false;
         Color transparentColor;
 
         // General 
-        unsigned timeIntro; // #STARTINPUT | before this time the scene cannot receive input. Implemented by derived class
-        unsigned timeOutro; // #FADEOUT
+        unsigned timeIntro = 200; // #STARTINPUT | before this time the scene cannot receive input. Implemented by derived class
+        unsigned timeOutro = 200; // #FADEOUT
 
         // Decide
-        unsigned timeDecideSkip; // #SKIP | after this time the scene can be skipped. Solely for decide scene
-        unsigned timeDecideExpiry; // #SCENETIME | switch to play scene if not skipped
+        unsigned timeDecideSkip = 200; // #SKIP | after this time the scene can be skipped. Solely for decide scene
+        unsigned timeDecideExpiry = 200; // #SCENETIME | switch to play scene if not skipped
 
         // Play
-        unsigned timeStartLoading;
-        unsigned timeMinimumLoad;
-        unsigned timeGetReady;
-        unsigned timeFailed;
+        unsigned timeStartLoading = 200;
+        unsigned timeMinimumLoad = 200;
+        unsigned timeGetReady = 200;
+        unsigned timeFailed = 200;
         unsigned noteLaneHeight1P = 0;
         unsigned noteLaneHeight2P = 0;
-
+        
         // Result
-        unsigned timeResultRank; //ignored
-        unsigned timeResultRecord; //ignored
-    } info{};
+        unsigned timeResultRank = 200; //ignored
+        unsigned timeResultRecord = 200; //ignored
+    } info;
 
     ///////////////////////////////////////////////////////////
 

@@ -20,9 +20,23 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
     SkinMgr::load(mode, gInCustomize && mode != eMode::THEME_SELECT);
     _skin = SkinMgr::get(mode);
 
-    int notificationPosY = ConfigMgr::General()->get(cfg::V_RES_Y, CANVAS_HEIGHT);
-    int notificationWidth = ConfigMgr::General()->get(cfg::V_RES_X, CANVAS_WIDTH);
+    int notificationPosY = 480;
+    int notificationWidth = 640;
     const int notificationHeight = 20;
+
+    if (_skin && !gInCustomize)
+    {
+        int x, y;
+        switch (_skin->info.resolution)
+        {
+        case 1: x = 1280; y = 720; break;
+        case 2: x = 1920; y = 1080; break;
+        default: x = 640; y = 480; break;
+        }
+        graphics_resize_canvas(x, y);
+        notificationPosY = y;
+        notificationWidth = x;
+    }
 
 #if defined _WIN32
     TCHAR windir[MAX_PATH];
@@ -211,7 +225,10 @@ void vScene::MouseRelease(InputMask& m, const Time& t)
 
 void vScene::draw() const
 {
-    _skin ? _skin->draw() : __noop;
+    if (_skin)
+    {
+        _skin->draw();
+    }
 
     _sTopLeft->updateText();
     _sTopLeft->draw();

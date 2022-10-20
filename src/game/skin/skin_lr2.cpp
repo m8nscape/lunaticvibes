@@ -3056,6 +3056,13 @@ int SkinLR2::parseHeader(const Tokens& raw)
         return 3;
     }
 
+    else if (strEqual(parseKeyBuf, "#RESOLUTION", true))
+    {
+        while (parseParamBuf.size() < 1) parseParamBuf.push_back("");
+
+        info.resolution = toInt(parseParamBuf[0]);
+    }
+
     else if (strEqual(parseKeyBuf, "#ENDOFHEADER", true))
     {
         return -1;
@@ -3727,6 +3734,47 @@ void SkinLR2::postLoad()
                     p->_triggerTimer = IndexTimer::_SCENE_CUSTOMIZE_FADEOUT;
             }
         }
+    }
+
+    // try to detect resolution
+    if (info.resolution < 0)
+    {
+        info.resolution = 0;
+        size_t count = 0;
+        size_t countSD = 0;
+        size_t countHD = 0;
+        size_t countFHD = 0;
+        for (auto& s : _sprites)
+        {
+            if (s->isKeyFrameEmpty()) continue;
+
+            const Rect& rc = s->_keyFrames.rbegin()->param.rect;
+            if (rc.x >= 1280 || rc.y >= 720 || rc.x + rc.w >= 1280 || rc.y + rc.h >= 720)
+            {
+                countFHD++;
+            }
+            else if (rc.x >= 640 || rc.y >= 480 || rc.x + rc.w >= 640 || rc.y + rc.h >= 480)
+            {
+                countHD++;
+            }
+            else if (rc.x >= 0 || rc.y >= 0)
+            {
+                countSD++;
+            }
+            count++;
+        }
+        if (count > 0)
+        {
+            if ((double)countFHD / count > 0.35)
+            {
+                info.resolution = 2;
+            }
+            else if ((double)countHD / count > 0.35)
+            {
+                info.resolution = 1;
+            }
+        }
+        LOG_INFO << "[Skin] Resolution detect: " << info.resolution << " (" << countSD << "/" << countHD << "/" << countFHD << ")";
     }
 }
 
