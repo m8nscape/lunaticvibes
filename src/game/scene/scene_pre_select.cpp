@@ -277,7 +277,7 @@ void ScenePreSelect::updateLoadCourses()
                 switch (type)
                 {
                 case EntryCourse::CourseType::GRADE:
-                    folderTitle = "GRADE";
+                    folderTitle = "CLASS";
                     folderTitle2 = "Estimate your playing skills";
                     break;
                 }

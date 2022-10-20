@@ -749,7 +749,10 @@ void setEntryInfo()
 
         switch (ps->courseType)
         {
-        case EntryCourse::CourseType::GRADE: param["coursetype"] = Option::COURSE_GRADE; break;
+        case EntryCourse::CourseType::GRADE:
+            param["coursetype"] = Option::COURSE_GRADE; 
+            text["genre"] = "CLASS";
+            break;
         }
         param["coursestagecount"] = (int)ps->charts.size();
         for (size_t stage = 0; stage < ps->charts.size(); ++stage)
@@ -779,8 +782,15 @@ void setEntryInfo()
     {
         auto& p = e[idx].first;
         text["title"] = p->_name;
-        text["subtitle"] = p->_name2;
+        text["artist"] = p->_name2;
         text["fulltitle"] = p->_name2.empty() ? p->_name : (p->_name + " " + p->_name2);
+
+        switch (p->type())
+        {
+        case eEntryType::FOLDER:        text["genre"] = ""; break;
+        case eEntryType::CUSTOM_FOLDER: text["genre"] = "Custom Folder"; break;
+        case eEntryType::COURSE_FOLDER: text["genre"] = "Course Folder"; break;
+        }
     }
 
     switch (e[idx].first->type())
