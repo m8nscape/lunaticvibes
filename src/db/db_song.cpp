@@ -323,7 +323,7 @@ bool SongDB::addChart(const HashMD5& folder, const Path& path)
                     bmsc->haveStop,
                     bmsc->haveBGA,
                     bmsc->haveRandom,
-                    static_cast<long long>(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count())
+                    getFileTimeNow()
                 }))
             {
                 return true;
@@ -549,12 +549,8 @@ int SongDB::addSubFolder(Path path, const HashMD5& parentHash)
     // check if the folder is already added
     int count = 0;
     HashMD5 folderHash = md5(path.u8string());
-    long long nowTime = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-#if _WIN32
-    long long folderModifyTime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(path).time_since_epoch()).count() - 11644473600;
-#else
-    long long folderModifyTime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(path).time_since_epoch()).count();
-#endif
+    long long nowTime = getFileTimeNow();
+    long long folderModifyTime = getFileLastWriteTime(path);
 
     if (auto q = query("SELECT pathmd5,path,type,modtime FROM folder WHERE path=?", 4, { path.u8string() }); !q.empty())
     {
@@ -633,11 +629,7 @@ int SongDB::addNewFolder(const HashMD5& hash, const Path& path, const HashMD5& p
 
     int ret;
     auto folderName = fs::weakly_canonical(path).filename();
-#if _WIN32
-    long long folderModifyTime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(path).time_since_epoch()).count() - 11644473600;
-#else
-    long long folderModifyTime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(path).time_since_epoch()).count();
-#endif
+    long long folderModifyTime = getFileLastWriteTime(path);
     if (!parentHash.empty())
     {
         ret = exec("INSERT INTO folder VALUES(?,?,?,?,?,?)", {
@@ -770,11 +762,7 @@ int SongDB::refreshExistingFolder(const HashMD5& hash, const Path& path, FolderT
                 }
                 else
                 {
-#if _WIN32
-                    long long fstime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(chart->absolutePath).time_since_epoch()).count() - 11644473600;
-#else
-                    long long fstime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(chart->absolutePath).time_since_epoch()).count();
-#endif
+                    long long fstime = getFileLastWriteTime(path);
                     if (auto q = query("SELECT addtime FROM song WHERE md5=? AND parent=?", 1, { chart->fileHash.hexdigest(), hash.hexdigest() }); !q.empty())
                     {
                         long long dbTime = ANY_INT(q[0][0]);
@@ -829,12 +817,8 @@ int SongDB::refreshExistingFolder(const HashMD5& hash, const Path& path, FolderT
         if (hasDeletedEntry || hasModifiedEntry || count > 0)
         {
             // update modification time
-            long long nowTime = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-#if _WIN32
-            long long folderModifyTime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(path).time_since_epoch()).count() - 11644473600;
-#else
-            long long folderModifyTime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(path).time_since_epoch()).count();
-#endif
+            long long nowTime = getFileTimeNow();
+            long long folderModifyTime = getFileLastWriteTime(path);
             if (int ret = exec("UPDATE folder SET modtime=? WHERE pathmd5=?", { nowTime, hash.hexdigest() }); ret != SQLITE_OK)
             {
                 LOG_WARNING << "[SongDB] Update modification time fail: [" << ret << "] " << errmsg() << " (" << path.u8string() << ")";
@@ -898,12 +882,8 @@ int SongDB::refreshExistingFolder(const HashMD5& hash, const Path& path, FolderT
         if (hasDeletedEntry || count > 0)
         {
             // update modification time
-            long long nowTime = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-#if _WIN32
-            long long folderModifyTime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(path).time_since_epoch()).count() - 11644473600;
-#else
-            long long folderModifyTime = std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(path).time_since_epoch()).count();
-#endif
+            long long nowTime = getFileTimeNow();
+            long long folderModifyTime = getFileLastWriteTime(path);
             if (int ret = exec("UPDATE folder SET modtime=? WHERE pathmd5=?", { nowTime, hash.hexdigest() }); ret != SQLITE_OK)
             {
                 LOG_WARNING << "[SongDB] Update modification time fail: [" << ret << "] " << errmsg() << " (" << path.u8string() << ")";

@@ -2,6 +2,7 @@
 #include "game/runtime/state.h"
 #include "common/chartformat/chartformat_types.h"
 #include "config/config_mgr.h"
+#include "common/entry/entry_types.h"
 #include <random>
 #include <mutex>
 
@@ -105,7 +106,7 @@ void clearContextPlay()
     gPlayContext.randomSeed = ((uint64_t)rd() << 32) | rd();
 
     gPlayContext.isCourse = false;
-    gPlayContext.isCourseFirstStage = false;
+    gPlayContext.courseStage = 0;
 
     // gPlayContext.replay.reset();     // load at setEntryInfo() @ scene_context.cpp
     gPlayContext.replayMybest.reset();  // load at _decide() @ scene_select.cpp
@@ -267,6 +268,7 @@ void loadSongList()
 
         if (pf)
         {
+            // get chart score
             switch (pf->type())
             {
             case eChartFormat::BMS:
@@ -277,6 +279,12 @@ void loadSongList()
             break;
             default: break;
             }
+        }
+        else if (entry->type() == eEntryType::COURSE)
+        {
+            auto ps = std::reinterpret_pointer_cast<EntryCourse>(entry);
+            auto pScore = g_pScoreDB->getCourseScoreBMS(ps->md5);
+            score = pScore;
         }
     }
 
@@ -520,8 +528,6 @@ void setBarInfo()
                 State::set(IndexText(int(IndexText::_SELECT_BAR_TITLE_FULL_0) + bar_index), name);
                 State::set(IndexNumber(int(IndexNumber::_SELECT_BAR_LEVEL_0) + bar_index), bms->playLevel);
 
-                // TODO set bar lamp
-
                 break;
             }
 
@@ -734,6 +740,41 @@ void setEntryInfo()
         }
 
     }
+    else if (e[idx].first->type() == eEntryType::COURSE)
+    {
+        auto ps = std::reinterpret_pointer_cast<EntryCourse>(e[idx].first);
+        text["title"] = ps->_name;
+        text["subtitle"] = ps->_name2;
+        text["fulltitle"] = ps->_name2.empty() ? ps->_name : (ps->_name + " " + ps->_name2);
+
+        switch (ps->courseType)
+        {
+        case EntryCourse::CourseType::GRADE: param["coursetype"] = Option::COURSE_GRADE; break;
+        }
+        param["coursestagecount"] = (int)ps->charts.size();
+        for (size_t stage = 0; stage < ps->charts.size(); ++stage)
+        {
+            auto chartList = g_pSongDB->findChartByHash(ps->charts[stage]);
+            if (!chartList.empty())
+            {
+                auto pChart = chartList[0];
+                param["coursestagechartexist"s + std::to_string(stage + 1)] = 1;
+                param["courselevel"s + std::to_string(stage + 1)] = pChart->playLevel;
+                param["coursedifficulty"s + std::to_string(stage + 1)] = pChart->difficulty;
+                text["coursetitle"s + std::to_string(stage + 1)] = pChart->title;
+                text["coursesubtitle"s + std::to_string(stage + 1)] = pChart->title2;
+            }
+            else
+            {
+                param["coursenotplayable"s] = 1;
+                param["coursestagechartexist"s + std::to_string(stage + 1)] = 0;
+                param["courselevel"s + std::to_string(stage + 1)] = 0;
+                param["coursedifficulty"s + std::to_string(stage + 1)] = 0;
+                text["coursetitle"s + std::to_string(stage + 1)] = "CHART NOT FOUND";
+                text["coursesubtitle"s + std::to_string(stage + 1)] = "MD5: "s + ps->charts[stage].hexdigest();
+            }
+        }
+    }
     else
     {
         auto& p = e[idx].first;
@@ -832,9 +873,69 @@ void setEntryInfo()
     }
 
     case eEntryType::COURSE:
+    {
         param["entry"] = Option::ENTRY_COURSE;
-        // TODO course score
+
+        auto ps = std::reinterpret_pointer_cast<EntryCourse>(e[idx].first);
+        auto psc = std::reinterpret_pointer_cast<vScore>(e[idx].second);
+        if (psc)
+        {
+            auto pScore = std::reinterpret_pointer_cast<ScoreBMS>(psc);
+
+            Option::e_lamp_type lamp = Option::LAMP_NOPLAY;
+            switch (pScore->lamp)
+            {
+            case ScoreBMS::Lamp::NOPLAY:    lamp = Option::LAMP_NOPLAY; break;
+            case ScoreBMS::Lamp::FAILED:    lamp = Option::LAMP_FAILED; break;
+            case ScoreBMS::Lamp::ASSIST:    lamp = Option::LAMP_ASSIST; break;
+            case ScoreBMS::Lamp::EASY:      lamp = Option::LAMP_EASY; break;
+            case ScoreBMS::Lamp::NORMAL:    lamp = Option::LAMP_NORMAL; break;
+            case ScoreBMS::Lamp::HARD:      lamp = Option::LAMP_HARD; break;
+            case ScoreBMS::Lamp::EXHARD:    lamp = Option::LAMP_EXHARD; break;
+            case ScoreBMS::Lamp::FULLCOMBO: lamp = Option::LAMP_FULLCOMBO; break;
+            case ScoreBMS::Lamp::PERFECT:   lamp = Option::LAMP_PERFECT; break;
+            case ScoreBMS::Lamp::MAX:       lamp = Option::LAMP_MAX; break;
+            }
+            param["lamp"] = lamp;
+
+            param["rank"] = Option::getRankType(pScore->rate);
+
+            param["score"] = pScore->score;
+            param["exscore"] = pScore->exscore;
+            param["max"] = pScore->notes * 2;
+            param["rate"] = static_cast<int>(std::floor(pScore->rate));
+            param["totalnotes"] = pScore->notes;
+            param["maxcombo"] = pScore->maxcombo;
+            param["bp"] = pScore->bad + pScore->bpoor + pScore->miss;
+            param["playcount"] = pScore->playcount;
+            param["clearcount"] = pScore->clearcount;
+            param["failcount"] = pScore->playcount - pScore->clearcount;
+
+            param["pg"] = pScore->pgreat;
+            param["gr"] = pScore->great;
+            param["gd"] = pScore->good;
+            param["bd"] = pScore->bad;
+            param["pr"] = pScore->bpoor + pScore->miss;
+            if (pScore->notes != 0)
+            {
+                param["pgrate"] = int(100 * pScore->pgreat / pScore->notes);
+                param["grrate"] = int(100 * pScore->great / pScore->notes);
+                param["gdrate"] = int(100 * pScore->good / pScore->notes);
+                param["bdrate"] = int(100 * pScore->bad / pScore->notes);
+                param["prrate"] = int(100 * (pScore->bpoor + pScore->miss) / pScore->notes);
+
+                paramf["pg"] = (double)pScore->pgreat / pScore->notes;
+                paramf["gr"] = (double)pScore->great / pScore->notes;
+                paramf["gd"] = (double)pScore->good / pScore->notes;
+                paramf["bd"] = (double)pScore->bad / pScore->notes;
+                paramf["pr"] = (double)(pScore->bpoor + pScore->miss) / pScore->notes;
+                paramf["maxcombo"] = (double)pScore->maxcombo / pScore->notes;
+                paramf["score"] = ps->charts.empty() ? 0.0 : (double)pScore->score / 200000 * ps->charts.size();
+                paramf["exscore"] = (double)pScore->exscore / (pScore->notes * 2);
+            }
+        }
         break;
+    }
 
     case eEntryType::NEW_COURSE:
         param["entry"] = Option::ENTRY_NEW_COURSE;
@@ -842,6 +943,7 @@ void setEntryInfo()
 
     case eEntryType::FOLDER:
     case eEntryType::CUSTOM_FOLDER:
+    case eEntryType::COURSE_FOLDER:
     case eEntryType::RIVAL:
     default:
         param["entry"] = Option::ENTRY_FOLDER;
@@ -945,6 +1047,35 @@ void setEntryInfo()
         State::set(IndexBargraph::LEVEL_BAR_HYPER, paramf["levelbar3"]);
         State::set(IndexBargraph::LEVEL_BAR_ANOTHER, paramf["levelbar4"]);
         State::set(IndexBargraph::LEVEL_BAR_INSANE, paramf["levelbar5"]);
+
+        State::set(IndexOption::COURSE_TYPE, param["coursetype"]);
+        State::set(IndexOption::COURSE_STAGE_COUNT, param["coursestagecount"]);
+        State::set(IndexSwitch::COURSE_NOT_PLAYABLE, param["coursenotplayable"]);
+        State::set(IndexSwitch::COURSE_STAGE1_CHART_EXIST, param["coursestagechartexist1"]);
+        State::set(IndexSwitch::COURSE_STAGE2_CHART_EXIST, param["coursestagechartexist2"]);
+        State::set(IndexSwitch::COURSE_STAGE3_CHART_EXIST, param["coursestagechartexist3"]);
+        State::set(IndexSwitch::COURSE_STAGE4_CHART_EXIST, param["coursestagechartexist4"]);
+        State::set(IndexSwitch::COURSE_STAGE5_CHART_EXIST, param["coursestagechartexist5"]);
+        State::set(IndexNumber::COURSE_STAGE1_LEVEL, param["courselevel1"]);
+        State::set(IndexNumber::COURSE_STAGE2_LEVEL, param["courselevel2"]);
+        State::set(IndexNumber::COURSE_STAGE3_LEVEL, param["courselevel3"]);
+        State::set(IndexNumber::COURSE_STAGE4_LEVEL, param["courselevel4"]);
+        State::set(IndexNumber::COURSE_STAGE5_LEVEL, param["courselevel5"]);
+        State::set(IndexOption::COURSE_STAGE1_DIFFICULTY, param["coursedifficulty1"]);
+        State::set(IndexOption::COURSE_STAGE2_DIFFICULTY, param["coursedifficulty2"]);
+        State::set(IndexOption::COURSE_STAGE3_DIFFICULTY, param["coursedifficulty3"]);
+        State::set(IndexOption::COURSE_STAGE4_DIFFICULTY, param["coursedifficulty4"]);
+        State::set(IndexOption::COURSE_STAGE5_DIFFICULTY, param["coursedifficulty5"]);
+        State::set(IndexText::COURSE_STAGE1_TITLE, text["coursetitle1"]);
+        State::set(IndexText::COURSE_STAGE2_TITLE, text["coursetitle2"]);
+        State::set(IndexText::COURSE_STAGE3_TITLE, text["coursetitle3"]);
+        State::set(IndexText::COURSE_STAGE4_TITLE, text["coursetitle4"]);
+        State::set(IndexText::COURSE_STAGE5_TITLE, text["coursetitle5"]);
+        State::set(IndexText::COURSE_STAGE1_SUBTITLE, text["coursesubtitle1"]);
+        State::set(IndexText::COURSE_STAGE2_SUBTITLE, text["coursesubtitle2"]);
+        State::set(IndexText::COURSE_STAGE3_SUBTITLE, text["coursesubtitle3"]);
+        State::set(IndexText::COURSE_STAGE4_SUBTITLE, text["coursesubtitle4"]);
+        State::set(IndexText::COURSE_STAGE5_SUBTITLE, text["coursesubtitle5"]);
     }
 
     setPlayModeInfo();

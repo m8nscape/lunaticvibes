@@ -75,6 +75,14 @@ enum class IndexOption : unsigned
     RESULT_CLEARED,
     RESULT_BATTLE_WIN_LOSE,  // 0:DRAW 1:1PWIN 2:2PWIN
 
+    COURSE_TYPE,
+    COURSE_STAGE_COUNT,
+    COURSE_STAGE1_DIFFICULTY,
+    COURSE_STAGE2_DIFFICULTY,
+    COURSE_STAGE3_DIFFICULTY,
+    COURSE_STAGE4_DIFFICULTY,
+    COURSE_STAGE5_DIFFICULTY,
+
     SYS_WINDOWED,
     SYS_VSYNC,
 
@@ -492,6 +500,11 @@ namespace Option
         "ADAPTIVE",
     };
 
+    enum e_course_type {
+        COURSE_NONSTOP,
+        COURSE_EXPERT,
+        COURSE_GRADE,
+    };
 }
 
 

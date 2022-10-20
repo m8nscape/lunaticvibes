@@ -8,7 +8,7 @@
 #include "scene_customize.h"
 
 #include "common/chartformat/chartformat_types.h"
-#include "common/entry/entry_song.h"
+#include "common/entry/entry_types.h"
 
 #include "game/sound/sound_mgr.h"
 #include "game/sound/sound_sample.h"
@@ -1165,6 +1165,7 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
         {
         case eEntryType::FOLDER:
         case eEntryType::CUSTOM_FOLDER:
+        case eEntryType::COURSE_FOLDER:
             if ((input & INPUT_MASK_DECIDE).any())
                 return _navigateEnter(t);
             break;
@@ -1417,6 +1418,9 @@ void SceneSelect::_decide()
 {
     std::shared_lock<std::shared_mutex> u(gSelectContext._mutex);
 
+    if (State::get(IndexOption::SELECT_ENTRY_TYPE) == Option::ENTRY_COURSE && State::get(IndexSwitch::COURSE_NOT_PLAYABLE))
+        return;
+
     auto& [entry, score] = gSelectContext.entries[gSelectContext.idx];
     //auto& chart = entry.charts[entry.chart_idx];
 
@@ -1437,7 +1441,7 @@ void SceneSelect::_decide()
         gPlayContext.canRetry = false;
         gPlayContext.isBattle = false;
         gPlayContext.isCourse = true;
-        gPlayContext.isCourseFirstStage = true;
+        gPlayContext.courseStage = 0;
     }
 
     // chart
@@ -1583,6 +1587,39 @@ void SceneSelect::_decide()
         gPlayContext.mods[PLAYER_SLOT_TARGET].assist_mask = 0;
 
         // set metadata
+        auto pCourse = std::dynamic_pointer_cast<EntryCourse>(entry);
+        gPlayContext.courseHash = pCourse->md5;
+        gPlayContext.courseCharts = pCourse->charts;
+        gPlayContext.courseStageRulesetCopy[0].clear();
+        gPlayContext.courseStageRulesetCopy[1].clear();
+        gPlayContext.courseStageReplayPath.clear();
+
+        auto pChart = *g_pSongDB->findChartByHash(*pCourse->charts.begin()).begin();
+        gChartContext.chartObj = pChart;
+
+        auto& chart = *gChartContext.chartObj;
+        //gChartContext.path = chart._filePath;
+        gChartContext.path = chart.absolutePath;
+
+        // only reload resources if selected chart is different
+        if (gChartContext.hash != chart.fileHash)
+        {
+            gChartContext.isBgaLoaded = false;
+            gChartContext.isSampleLoaded = false;
+        }
+        gChartContext.hash = chart.fileHash;
+
+        //gChartContext.chartObj = std::make_shared<ChartFormatBase>(chart);
+        gChartContext.title = chart.title;
+        gChartContext.title2 = chart.title2;
+        gChartContext.artist = chart.artist;
+        gChartContext.artist2 = chart.artist2;
+        gChartContext.genre = chart.genre;
+        gChartContext.version = chart.version;
+        gChartContext.level = chart.levelEstimated;
+        gChartContext.minBPM = chart.minBPM;
+        gChartContext.maxBPM = chart.maxBPM;
+        gChartContext.startBPM = chart.startBPM;
 
         break;
     }
@@ -1595,6 +1632,23 @@ void SceneSelect::_decide()
         // gauge
         auto convertGaugeType = [](int nType) -> eModGauge
         {
+            if (gPlayContext.isCourse)
+            {
+                if (State::get(IndexOption::COURSE_TYPE) == Option::COURSE_GRADE)
+                {
+                    switch (nType)
+                    {
+                    case 1:
+                    case 4:
+                    case 5:
+                    case 7: return eModGauge::GRADE_HARD;
+                    case 2: return eModGauge::GRADE_DEATH;
+                    case 0:
+                    default: return eModGauge::GRADE_NORMAL;
+                    };
+                }
+            }
+
             switch (nType)
             {
             case 1: return eModGauge::HARD;
@@ -1697,25 +1751,33 @@ void SceneSelect::_decide()
     }
     
     // score (mybest)
-    if (!gPlayContext.isBattle && score && !score->replayFileName.empty())
+    if (!gPlayContext.isBattle)
     {
-        Path replayFilePath = ReplayChart::getReplayPath(gChartContext.hash) / score->replayFileName;
-        if (fs::is_regular_file(replayFilePath))
+        auto pScore = score;
+        if (pScore == nullptr)
         {
-            gPlayContext.replayMybest = std::make_shared<ReplayChart>();
-            if (gPlayContext.replayMybest->loadFile(replayFilePath))
+            pScore = g_pScoreDB->getChartScoreBMS(gChartContext.hash);
+        }
+        if (pScore && !pScore->replayFileName.empty())
+        {
+            Path replayFilePath = ReplayChart::getReplayPath(gChartContext.hash) / pScore->replayFileName;
+            if (fs::is_regular_file(replayFilePath))
             {
-                gPlayContext.mods[PLAYER_SLOT_MYBEST].randomLeft = gPlayContext.replayMybest->randomTypeLeft;
-                gPlayContext.mods[PLAYER_SLOT_MYBEST].randomRight = gPlayContext.replayMybest->randomTypeRight;
-                gPlayContext.mods[PLAYER_SLOT_MYBEST].gauge = gPlayContext.replayMybest->gaugeType;
-                gPlayContext.mods[PLAYER_SLOT_MYBEST].assist_mask = gPlayContext.replayMybest->assistMask;
-                gPlayContext.mods[PLAYER_SLOT_MYBEST].hispeedFix = gPlayContext.replayMybest->hispeedFix;
-                gPlayContext.mods[PLAYER_SLOT_MYBEST].laneEffect = (eModLaneEffect)gPlayContext.replayMybest->laneEffectType;
-                gPlayContext.mods[PLAYER_SLOT_MYBEST].DPFlip = gPlayContext.replayMybest->DPFlip;
-            }
-            else
-            {
-                gPlayContext.replayMybest.reset();
+                gPlayContext.replayMybest = std::make_shared<ReplayChart>();
+                if (gPlayContext.replayMybest->loadFile(replayFilePath))
+                {
+                    gPlayContext.mods[PLAYER_SLOT_MYBEST].randomLeft = gPlayContext.replayMybest->randomTypeLeft;
+                    gPlayContext.mods[PLAYER_SLOT_MYBEST].randomRight = gPlayContext.replayMybest->randomTypeRight;
+                    gPlayContext.mods[PLAYER_SLOT_MYBEST].gauge = gPlayContext.replayMybest->gaugeType;
+                    gPlayContext.mods[PLAYER_SLOT_MYBEST].assist_mask = gPlayContext.replayMybest->assistMask;
+                    gPlayContext.mods[PLAYER_SLOT_MYBEST].hispeedFix = gPlayContext.replayMybest->hispeedFix;
+                    gPlayContext.mods[PLAYER_SLOT_MYBEST].laneEffect = (eModLaneEffect)gPlayContext.replayMybest->laneEffectType;
+                    gPlayContext.mods[PLAYER_SLOT_MYBEST].DPFlip = gPlayContext.replayMybest->DPFlip;
+                }
+                else
+                {
+                    gPlayContext.replayMybest.reset();
+                }
             }
         }
     }
@@ -1833,6 +1895,54 @@ void SceneSelect::_navigateEnter(const Time& t)
             assert(top != nullptr);
             for (size_t i = 0; i < top->getContentsCount(); ++i)
                 prop.dbBrowseEntries.push_back({ top->getEntry(i), nullptr });
+
+            gSelectContext.backtrace.top().index = gSelectContext.idx;
+            gSelectContext.backtrace.top().displayEntries = gSelectContext.entries;
+            gSelectContext.backtrace.push(prop);
+            gSelectContext.entries.clear();
+            gSelectContext.idx = 0;
+            loadSongList();
+            sortSongList();
+
+            setBarInfo();
+            setEntryInfo();
+
+            if (!gSelectContext.entries.empty())
+            {
+                State::set(IndexSlider::SELECT_LIST, (double)gSelectContext.idx / gSelectContext.entries.size());
+            }
+            else
+            {
+                State::set(IndexSlider::SELECT_LIST, 0.0);
+            }
+
+            resetJukeboxText();
+
+            scrollAccumulator = 0.;
+            scrollAccumulatorAddUnit = 0.;
+
+            State::set(IndexTimer::LIST_MOVE, Time().norm());
+            SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_OPEN);
+            break;
+        }
+
+        case eEntryType::COURSE_FOLDER:
+        {
+            SongListProperties prop{
+                gSelectContext.backtrace.top().folder,
+                e->md5,
+                e->_name,
+                {},
+                {},
+                0
+            };
+            auto top = std::dynamic_pointer_cast<EntryFolderCourse>(e);
+            assert(top != nullptr);
+            for (size_t i = 0; i < top->getContentsCount(); ++i)
+            {
+                auto pCourse = top->getEntry(i);
+                prop.dbBrowseEntries.push_back({ pCourse, nullptr });
+            }
 
             gSelectContext.backtrace.top().index = gSelectContext.idx;
             gSelectContext.backtrace.top().displayEntries = gSelectContext.entries;

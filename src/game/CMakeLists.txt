@@ -37,6 +37,7 @@ add_library(gamelib
     scene/scene_play.cpp
     scene/scene_pre_select.cpp
     scene/scene_result.cpp
+    scene/scene_course_result.cpp
     scene/scene_select.cpp
     scene/scene_keyconfig.cpp
     scene/scene_play_course_trans.cpp

@@ -129,12 +129,11 @@ enum class eModGauge : uint8_t
     DEATH,
     EASY,
     ASSISTEASY,
-
-    GRADE_NORMAL,
-    GRADE_DEATH,
-
     EXHARD,
-    GRADE_EX,
+
+    GRADE_NORMAL = 10,
+    GRADE_HARD,
+    GRADE_DEATH,
 
     //PATTACK,
     //GATTACK,

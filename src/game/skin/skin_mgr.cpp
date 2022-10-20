@@ -33,6 +33,11 @@ void SkinMgr::load(eMode e, bool simple)
         skinFilePath = ConfigMgr::get("S", cfg::S_PATH_RESULT, cfg::S_DEFAULT_PATH_RESULT);
         break;
 
+    case eMode::COURSE_RESULT:
+        skinFilePathDefault = cfg::S_DEFAULT_PATH_COURSE_RESULT;
+        skinFilePath = ConfigMgr::get("S", cfg::S_PATH_COURSE_RESULT, cfg::S_DEFAULT_PATH_COURSE_RESULT);
+        break;
+
     case eMode::KEY_CONFIG:
         skinFilePathDefault = cfg::S_DEFAULT_PATH_KEYCONFIG;
         skinFilePath = ConfigMgr::get("S", cfg::S_PATH_KEYCONFIG, cfg::S_DEFAULT_PATH_KEYCONFIG);

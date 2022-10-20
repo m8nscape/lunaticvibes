@@ -1,6 +1,9 @@
 #include "scene_pre_select.h"
 #include "config/config_mgr.h"
 #include "scene_context.h"
+#include "common/coursefile/lr2crs.h"
+#include "common/entry/entry_table.h"
+#include "common/entry/entry_course.h"
 #include <future>
 #include <boost/format.hpp>
 
@@ -224,29 +227,97 @@ void ScenePreSelect::updateLoadTables()
                         });
                 }
             }
-
-            while (!gSelectContext.backtrace.empty())
-                gSelectContext.backtrace.pop();
-            gSelectContext.backtrace.push(rootFolderProp);
-
-            if (rootFolderProp.dbBrowseEntries.empty())
-            {
-                State::set(IndexText::PLAY_TITLE, "BMS NOT FOUND");
-                State::set(IndexText::PLAY_ARTIST, "Press F9 to add folders");
-            }
-
-            if (gNextScene == eScene::PRE_SELECT)
-            {
-                State::set(IndexText::_OVERLAY_TOPLEFT, (boost::format("%s %s") % PROJECT_NAME % PROJECT_VERSION).str());
-                State::set(IndexText::_OVERLAY_TOPLEFT2, "Please wait...");
-            }
             });
     }
 
     if (loadTableEnd.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
     {
         loadTableEnd.get();
-        _updateCallback = [] {};
+        _updateCallback = std::bind(&ScenePreSelect::updateLoadCourses, this);
+    }
+}
+
+void ScenePreSelect::updateLoadCourses()
+{
+    if (!startedLoadCourse)
+    {
+        startedLoadCourse = true;
+
+        loadCourseEnd = std::async(std::launch::async, [&]() {
+
+            State::set(IndexText::_OVERLAY_TOPLEFT, "Adding courses...");
+
+            std::map<EntryCourse::CourseType, std::vector<std::shared_ptr<EntryCourse>>> courses;
+
+            // initialize table list
+            for (auto& courseFile : fs::recursive_directory_iterator(Path(GAMEDATA_PATH) / "courses"))
+            {
+                if (!(fs::is_regular_file(courseFile) && strEqual(courseFile.path().extension().u8string(), ".lr2crs", true)))
+                    continue;
+
+                Path coursePath = courseFile.path();
+                LOG_INFO << "[List] Add course file: " << coursePath.u8string();
+                State::set(IndexText::_OVERLAY_TOPLEFT2, coursePath.u8string());
+
+                CourseLr2crs lr2crs(coursePath);
+                for (auto& c : lr2crs.courses)
+                {
+                    std::shared_ptr<EntryCourse> entry = std::make_shared<EntryCourse>(c, lr2crs.addTime);
+                    if (entry->courseType != EntryCourse::UNDEFINED)
+                        courses[entry->courseType].push_back(entry);
+                }
+            }
+
+            for (auto& [type, courses] : courses)
+            {
+                if (courses.empty()) continue;
+
+                std::string folderTitle = "COURSE";
+                std::string folderTitle2 = "Play course";
+                switch (type)
+                {
+                case EntryCourse::CourseType::GRADE:
+                    folderTitle = "GRADE";
+                    folderTitle2 = "Estimate your playing skills";
+                    break;
+                }
+
+                auto folder = std::make_shared<EntryFolderCourse>(folderTitle, folderTitle2);
+                for (auto& c : courses)
+                {
+                    folder->pushEntry(c);
+                }
+                rootFolderProp.dbBrowseEntries.push_back({ folder, nullptr });
+            }
+
+            });
+    }
+
+    if (loadCourseEnd.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+    {
+        loadCourseEnd.get();
+        _updateCallback = std::bind(&ScenePreSelect::loadFinished, this);
+    }
+}
+
+void ScenePreSelect::loadFinished()
+{
+    if (!loadingFinished)
+    {
+        while (!gSelectContext.backtrace.empty())
+            gSelectContext.backtrace.pop();
+        gSelectContext.backtrace.push(rootFolderProp);
+
+        if (rootFolderProp.dbBrowseEntries.empty())
+        {
+            State::set(IndexText::PLAY_TITLE, "BMS NOT FOUND");
+            State::set(IndexText::PLAY_ARTIST, "Press F9 to add folders");
+        }
+        if (gNextScene == eScene::PRE_SELECT)
+        {
+            State::set(IndexText::_OVERLAY_TOPLEFT, (boost::format("%s %s") % PROJECT_NAME % PROJECT_VERSION).str());
+            State::set(IndexText::_OVERLAY_TOPLEFT2, "Please wait...");
+        }
 
         // wait for updated text to draw
         pushAndWaitMainThreadTask<void>([] {});

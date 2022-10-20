@@ -14,7 +14,7 @@ add_library(common STATIC
     entry/entry_song.cpp
     difficultytable/difficultytable.cpp
     difficultytable/table_bms.cpp
-)
+ "entry/entry_course.h" "coursefile/lr2crs.h" "coursefile/lr2crs.cpp" "entry/entry_table.h" "entry/entry_course.cpp")
 
 target_include_directories(common PRIVATE
     ${PROJECT_INCLUDE_DIR}

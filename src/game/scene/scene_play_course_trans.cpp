@@ -7,5 +7,5 @@ ScenePlayCourseTrans::ScenePlayCourseTrans() : vScene(eMode::COURSE_TRANS, 240)
 
 	LOG_DEBUG << "[PlayCourseTrans]";
 	clearContextPlayForRetry();
-	gNextScene = eScene::SELECT;
+	gNextScene = eScene::PLAY;
 }

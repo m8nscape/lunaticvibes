@@ -15,14 +15,18 @@ protected:
 
     void updateLoadSongs();
     void updateLoadTables();
+    void updateLoadCourses();
+    void loadFinished();
 
 protected:
     SongListProperties rootFolderProp;
     bool startedLoadSong = false;
     bool startedLoadTable = false;
+    bool startedLoadCourse = false;
     std::chrono::system_clock::time_point loadSongTimer;
     std::future<void> loadSongEnd;
     std::future<void> loadTableEnd;
+    std::future<void> loadCourseEnd;
     int prevChartLoaded = 0;
     std::string textHint;
     std::string textHint2;

@@ -6,7 +6,7 @@
 #include "scene_play.h"
 #include "scene_result.h"
 #include "scene_play_retry_trans.h"
-#include "scene_play_course_trans.h"
+#include "scene_course_result.h"
 #include "scene_keyconfig.h"
 #include "scene_customize.h"
 #include "scene_exit_trans.h"
@@ -92,6 +92,10 @@ pScene SceneMgr::get(eScene e)
 
     case eScene::CUSTOMIZE:
         ps = std::make_shared<SceneCustomize>();
+        break;
+
+    case eScene::COURSE_RESULT:
+        ps = std::make_shared<SceneCourseResult>();
         break;
 
     case eScene::EXIT_TRANS:

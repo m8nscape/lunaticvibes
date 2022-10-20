@@ -151,4 +151,10 @@ void callWMEventHandler(void* arg1, void* arg2, void* arg3, void* arg4)
     }
 }
 
+long long getFileLastWriteTime(const Path& p)
+{
+    return std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(p).time_since_epoch()).count() - 11644473600;
+}
+
+
 #endif

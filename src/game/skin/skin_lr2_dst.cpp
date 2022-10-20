@@ -682,6 +682,13 @@ void updateDstOpt()
 	// 291 ノンストップ
 	// 292 エキスパート
 	// 293 段位認定
+	if (dst(IndexOption::SELECT_ENTRY_TYPE, Option::ENTRY_COURSE))
+	{
+		set(290);
+		set(291, dst(IndexOption::COURSE_TYPE, Option::COURSE_NONSTOP));
+		set(292, dst(IndexOption::COURSE_TYPE, Option::COURSE_EXPERT));
+		set(293, dst(IndexOption::COURSE_TYPE, Option::COURSE_GRADE));
+	}
 
 	// //////////////////////////////////
 	// //リザ
@@ -933,6 +940,20 @@ void updateDstOpt()
 	// 587 コースstage数8以上
 	// 588 コースstage数9以上
 	// 589 コースstage数10以上
+	switch (State::get(IndexOption::COURSE_STAGE_COUNT))
+	{
+	case 10: set(589); [[ fallthrough ]];
+	case 9: set(588); [[ fallthrough ]];
+	case 8: set(587); [[ fallthrough ]];
+	case 7: set(586); [[ fallthrough ]];
+	case 6: set(585); [[ fallthrough ]];
+	case 5: set(584); [[ fallthrough ]];
+	case 4: set(583); [[ fallthrough ]];
+	case 3: set(582); [[ fallthrough ]];
+	case 2: set(581); [[ fallthrough ]];
+	case 1: set(580); [[ fallthrough ]];
+	default: break;
+	}
 
 	// 590 コースセレクト stage1選択中
 	// 591 コースセレクト stage2選択中
@@ -956,6 +977,15 @@ void updateDstOpt()
 	// 703 コースstage1 difficulty3
 	// 704 コースstage1 difficulty4
 	// 705 コースstage1 difficulty5
+	if (sw(IndexSwitch::COURSE_STAGE1_CHART_EXIST))
+	{
+		set(700, dst(IndexOption::COURSE_STAGE1_DIFFICULTY, 0));
+		set(701, dst(IndexOption::COURSE_STAGE1_DIFFICULTY, 1));
+		set(702, dst(IndexOption::COURSE_STAGE1_DIFFICULTY, 2));
+		set(703, dst(IndexOption::COURSE_STAGE1_DIFFICULTY, 3));
+		set(704, dst(IndexOption::COURSE_STAGE1_DIFFICULTY, 4));
+		set(705, dst(IndexOption::COURSE_STAGE1_DIFFICULTY, 5));
+	}
 
 	// //コースstage2
 	// 710 コースstage2 difficulty未定義
@@ -964,6 +994,15 @@ void updateDstOpt()
 	// 713 コースstage2 difficulty3
 	// 714 コースstage2 difficulty4
 	// 715 コースstage2 difficulty5
+	if (sw(IndexSwitch::COURSE_STAGE2_CHART_EXIST))
+	{
+		set(710, dst(IndexOption::COURSE_STAGE2_DIFFICULTY, 0));
+		set(711, dst(IndexOption::COURSE_STAGE2_DIFFICULTY, 1));
+		set(712, dst(IndexOption::COURSE_STAGE2_DIFFICULTY, 2));
+		set(713, dst(IndexOption::COURSE_STAGE2_DIFFICULTY, 3));
+		set(714, dst(IndexOption::COURSE_STAGE2_DIFFICULTY, 4));
+		set(715, dst(IndexOption::COURSE_STAGE2_DIFFICULTY, 5));
+	}
 
 	// //コースstage3
 	// 720 コースstage3 difficulty未定義
@@ -972,6 +1011,15 @@ void updateDstOpt()
 	// 723 コースstage3 difficulty3
 	// 724 コースstage3 difficulty4
 	// 725 コースstage3 difficulty5
+	if (sw(IndexSwitch::COURSE_STAGE3_CHART_EXIST))
+	{
+		set(720, dst(IndexOption::COURSE_STAGE3_DIFFICULTY, 0));
+		set(721, dst(IndexOption::COURSE_STAGE3_DIFFICULTY, 1));
+		set(722, dst(IndexOption::COURSE_STAGE3_DIFFICULTY, 2));
+		set(723, dst(IndexOption::COURSE_STAGE3_DIFFICULTY, 3));
+		set(724, dst(IndexOption::COURSE_STAGE3_DIFFICULTY, 4));
+		set(725, dst(IndexOption::COURSE_STAGE3_DIFFICULTY, 5));
+	}
 	
 	// LR2HelperG DST_OPTION HS-FIX 720-724
 	// Is there anybody using these? Let me know if needed
@@ -993,6 +1041,15 @@ void updateDstOpt()
 	// 733 コースstage4 difficulty3
 	// 734 コースstage4 difficulty4
 	// 735 コースstage4 difficulty5
+	if (sw(IndexSwitch::COURSE_STAGE4_CHART_EXIST))
+	{
+		set(730, dst(IndexOption::COURSE_STAGE4_DIFFICULTY, 0));
+		set(731, dst(IndexOption::COURSE_STAGE4_DIFFICULTY, 1));
+		set(732, dst(IndexOption::COURSE_STAGE4_DIFFICULTY, 2));
+		set(733, dst(IndexOption::COURSE_STAGE4_DIFFICULTY, 3));
+		set(734, dst(IndexOption::COURSE_STAGE4_DIFFICULTY, 4));
+		set(735, dst(IndexOption::COURSE_STAGE4_DIFFICULTY, 5));
+	}
 
 	// //コースstage5
 	// 740 コースstage5 difficulty未定義
@@ -1001,6 +1058,15 @@ void updateDstOpt()
 	// 743 コースstage5 difficulty3
 	// 744 コースstage5 difficulty4
 	// 745 コースstage5 difficulty5
+	if (sw(IndexSwitch::COURSE_STAGE5_CHART_EXIST))
+	{
+		set(740, dst(IndexOption::COURSE_STAGE5_DIFFICULTY, 0));
+		set(741, dst(IndexOption::COURSE_STAGE5_DIFFICULTY, 1));
+		set(742, dst(IndexOption::COURSE_STAGE5_DIFFICULTY, 2));
+		set(743, dst(IndexOption::COURSE_STAGE5_DIFFICULTY, 3));
+		set(744, dst(IndexOption::COURSE_STAGE5_DIFFICULTY, 4));
+		set(745, dst(IndexOption::COURSE_STAGE5_DIFFICULTY, 5));
+	}
 
 
 	// ///////////////////////////////////

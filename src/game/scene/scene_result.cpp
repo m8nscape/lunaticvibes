@@ -360,6 +360,83 @@ void SceneResult::updateFadeout()
             clearContextPlayForRetry();
             gNextScene = eScene::PLAY;
         }
+        else if (gPlayContext.isCourse)
+        {
+            gPlayContext.courseStageReplayPath.push_back(saveScore ? replayPath : "");
+
+            if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER])
+            {
+                gPlayContext.initialHealth[PLAYER_SLOT_PLAYER] = gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().health;
+                gPlayContext.courseStageRulesetCopy[PLAYER_SLOT_PLAYER].push_back(gPlayContext.ruleset[PLAYER_SLOT_PLAYER]);
+            }
+            if (gPlayContext.ruleset[PLAYER_SLOT_TARGET])
+            {
+                gPlayContext.initialHealth[PLAYER_SLOT_TARGET] = gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData().health;
+                gPlayContext.courseStageRulesetCopy[PLAYER_SLOT_TARGET].push_back(gPlayContext.ruleset[PLAYER_SLOT_TARGET]);
+            }
+
+            gPlayContext.courseStage++;
+            if (gPlayContext.courseStage < gPlayContext.courseCharts.size() && State::get(IndexSwitch::RESULT_CLEAR))
+            {
+                // set metadata
+                auto pChart = *g_pSongDB->findChartByHash(gPlayContext.courseCharts[gPlayContext.courseStage]).begin();
+                gChartContext.chartObj = pChart;
+
+                auto& chart = *gChartContext.chartObj;
+                //gChartContext.path = chart._filePath;
+                gChartContext.path = chart.absolutePath;
+
+                // only reload resources if selected chart is different
+                if (gChartContext.hash != chart.fileHash)
+                {
+                    gChartContext.isBgaLoaded = false;
+                    gChartContext.isSampleLoaded = false;
+                }
+                gChartContext.hash = chart.fileHash;
+
+                //gChartContext.chartObj = std::make_shared<ChartFormatBase>(chart);
+                gChartContext.title = chart.title;
+                gChartContext.title2 = chart.title2;
+                gChartContext.artist = chart.artist;
+                gChartContext.artist2 = chart.artist2;
+                gChartContext.genre = chart.genre;
+                gChartContext.version = chart.version;
+                gChartContext.level = chart.levelEstimated;
+                gChartContext.minBPM = chart.minBPM;
+                gChartContext.maxBPM = chart.maxBPM;
+                gChartContext.startBPM = chart.startBPM;
+
+                auto pScore = g_pScoreDB->getChartScoreBMS(gChartContext.hash);
+                if (pScore && !pScore->replayFileName.empty())
+                {
+                    Path replayFilePath = ReplayChart::getReplayPath(gChartContext.hash) / pScore->replayFileName;
+                    if (fs::is_regular_file(replayFilePath))
+                    {
+                        gPlayContext.replayMybest = std::make_shared<ReplayChart>();
+                        if (gPlayContext.replayMybest->loadFile(replayFilePath))
+                        {
+                            gPlayContext.mods[PLAYER_SLOT_MYBEST].randomLeft = gPlayContext.replayMybest->randomTypeLeft;
+                            gPlayContext.mods[PLAYER_SLOT_MYBEST].randomRight = gPlayContext.replayMybest->randomTypeRight;
+                            gPlayContext.mods[PLAYER_SLOT_MYBEST].gauge = gPlayContext.replayMybest->gaugeType;
+                            gPlayContext.mods[PLAYER_SLOT_MYBEST].assist_mask = gPlayContext.replayMybest->assistMask;
+                            gPlayContext.mods[PLAYER_SLOT_MYBEST].hispeedFix = gPlayContext.replayMybest->hispeedFix;
+                            gPlayContext.mods[PLAYER_SLOT_MYBEST].laneEffect = (eModLaneEffect)gPlayContext.replayMybest->laneEffectType;
+                            gPlayContext.mods[PLAYER_SLOT_MYBEST].DPFlip = gPlayContext.replayMybest->DPFlip;
+                        }
+                        else
+                        {
+                            gPlayContext.replayMybest.reset();
+                        }
+                    }
+                }
+                clearContextPlayForRetry();
+                gNextScene = eScene::PLAY;
+            }
+            else
+            {
+                gNextScene = eScene::COURSE_RESULT;
+            }
+        }
         else
         {
             clearContextPlay();

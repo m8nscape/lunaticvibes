@@ -38,6 +38,9 @@ namespace cfg
     constexpr char S_PATH_RESULT[] = "Result";
     constexpr char S_DEFAULT_PATH_RESULT[] = "LR2files/Theme/LR2/Result/result.lr2skin";
 
+    constexpr char S_PATH_COURSE_RESULT[] = "CourseResult";
+    constexpr char S_DEFAULT_PATH_COURSE_RESULT[] = "LR2files/Theme/LR2/CourseResult/courseresult.lr2skin";
+
     constexpr char S_PATH_KEYCONFIG[] = "Key Config";
     constexpr char S_DEFAULT_PATH_KEYCONFIG[] = "LR2files/Theme/LR2/KeyConfig/keyconfig.lr2skin";
 

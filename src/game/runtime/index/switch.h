@@ -178,6 +178,13 @@ enum class IndexSwitch: unsigned
         SKINSELECT_9KEYS_BATTLE,
         SKINSELECT_COURSE_RESULT,
 
+        COURSE_NOT_PLAYABLE,
+        COURSE_STAGE1_CHART_EXIST,
+        COURSE_STAGE2_CHART_EXIST,
+        COURSE_STAGE3_CHART_EXIST,
+        COURSE_STAGE4_CHART_EXIST,
+        COURSE_STAGE5_CHART_EXIST,
+
     _FALSE = 999,        // should be initialized with false
 
     _TEST1,

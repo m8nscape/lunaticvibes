@@ -18,7 +18,7 @@ class ScoreBMS;
 class ScoreDB : public SQLite
 {
 protected:
-    mutable std::map<HashMD5, std::shared_ptr<ScoreBMS>> cache;
+    mutable std::map<std::string, std::shared_ptr<ScoreBMS>> cache;
 
 public:
     ScoreDB() = delete;
@@ -27,8 +27,14 @@ public:
     ScoreDB(ScoreDB&) = delete;
     ScoreDB& operator= (ScoreDB&) = delete;
 
+protected:
+    std::shared_ptr<ScoreBMS> getScoreBMS(const char* tableName, const HashMD5& hash) const;
+    void updateScoreBMS(const char* tableName, const HashMD5& hash, const ScoreBMS& score);
+
 public:
     std::shared_ptr<ScoreBMS> getChartScoreBMS(const HashMD5& hash) const;
     void updateChartScoreBMS(const HashMD5& hash, const ScoreBMS& score);
 
+    std::shared_ptr<ScoreBMS> getCourseScoreBMS(const HashMD5& hash) const;
+    void updateCourseScoreBMS(const HashMD5& hash, const ScoreBMS& score);
 };

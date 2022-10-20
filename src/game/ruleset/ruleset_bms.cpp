@@ -65,7 +65,7 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
         case eModGauge::GRADE_NORMAL: _gauge = GaugeType::GRADE;   break;
         case eModGauge::GRADE_DEATH : _gauge = GaugeType::EXGRADE; break;
         case eModGauge::EXHARD      : _gauge = GaugeType::EXHARD;  break;
-        case eModGauge::GRADE_EX    : _gauge = GaugeType::EXGRADE; break;
+        case eModGauge::GRADE_HARD  : _gauge = GaugeType::EXGRADE; break;
         case eModGauge::NORMAL:
         default: 
             _gauge = GaugeType::GROOVE;  break;
@@ -103,7 +103,7 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
     switch (_gauge)
     {
     case GaugeType::HARD:
-        _basic.health             = 1.0;
+        //_basic.health             = 1.0;
         _minHealth                  = 0;
         _clearHealth                = 0;
         _failWhenNoHealth = true;
@@ -116,7 +116,7 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
         break;
 
     case GaugeType::EXHARD:
-        _basic.health             = 1.0;
+        //_basic.health             = 1.0;
         _minHealth                  = 0;
         _clearHealth                = 0;
         _failWhenNoHealth = true;
@@ -129,7 +129,7 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
         break;
 
     case GaugeType::DEATH:
-        _basic.health               = 1.0;
+        //_basic.health               = 1.0;
         _minHealth                  = 0;
         _clearHealth                = 0;
         _failWhenNoHealth = true;
@@ -142,7 +142,7 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
         break;
 
     case GaugeType::P_ATK:
-        _basic.health             = 1.0;
+        //_basic.health             = 1.0;
         _minHealth                  = 0;
         _clearHealth                = 0;
         _failWhenNoHealth = true;
@@ -155,7 +155,7 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
         break;
 
     case GaugeType::G_ATK:
-        _basic.health             = 1.0;
+        //_basic.health             = 1.0;
         _minHealth                  = 0;
         _clearHealth                = 0;
         _failWhenNoHealth = true;
@@ -168,7 +168,7 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
         break;
 
     case GaugeType::GROOVE:
-        _basic.health             = 0.2;
+        //_basic.health             = 0.2;
         _minHealth                  = 0.02;
         _clearHealth                = 0.8;
         _healthGain[JudgeType::PERFECT] = 0.01 * total / chart->getNoteTotalCount();
@@ -180,7 +180,7 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
         break;
 
     case GaugeType::EASY:
-        _basic.health             = 0.2;
+        //_basic.health             = 0.2;
         _minHealth                  = 0.02;
         _clearHealth                = 0.8;
         _healthGain[JudgeType::PERFECT] = 0.01 * total / chart->getNoteTotalCount() * 1.2;
@@ -192,7 +192,7 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
         break;
 
     case GaugeType::ASSIST:
-        _basic.health             = 0.2;
+        //_basic.health             = 0.2;
         _minHealth                  = 0.02;
         _clearHealth                = 0.6;
         _healthGain[JudgeType::PERFECT] = 0.01 * total / chart->getNoteTotalCount() * 1.2;
@@ -204,7 +204,7 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
         break;
 
     case GaugeType::GRADE:
-        _basic.health             = 1.0;
+        //_basic.health             = 1.0;
         _minHealth                  = 0;
         _clearHealth                = 0;
         _failWhenNoHealth = true;
@@ -217,7 +217,7 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
         break;
 
     case GaugeType::EXGRADE:
-        _basic.health             = 1.0;
+        //_basic.health             = 1.0;
         _minHealth                  = 0;
         _clearHealth                = 0;
         _failWhenNoHealth = true;
@@ -225,7 +225,7 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
         _healthGain[JudgeType::GREAT]   = 1.0 / 1001.0;
         _healthGain[JudgeType::GOOD]    = 1.0 / 1001.0 / 2;
         _healthGain[JudgeType::BAD]     = -0.12;
-        _healthGain[JudgeType::MISS]    = -0.2;     // FIXME not as hard as exhard
+        _healthGain[JudgeType::MISS]    = -0.1;
         _healthGain[JudgeType::BPOOR]   = -0.1;
         break;
 

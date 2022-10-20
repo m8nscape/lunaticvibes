@@ -59,20 +59,3 @@ public:
 
     std::shared_ptr<EntryFolderSong> getSongEntry() const { return _song; }
 };
-
-// entry for tables
-class EntryChartLink : public EntryChart
-{
-public:
-    std::string urlBase;
-    std::string urlChart;
-
-public:
-    EntryChartLink(const std::string& md5, const std::string& urlBase, const std::string urlChart)
-    {
-        _type = eEntryType::CHART_LINK;
-        this->md5 = md5;
-        this->urlBase = urlBase;
-        this->urlChart = urlChart;
-    }
-};

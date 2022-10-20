@@ -45,14 +45,3 @@ public:
     virtual size_t getContentsCount() { return entries.size(); }
     virtual bool empty() { return entries.empty(); }
 };
-
-class EntryFolderTable : public EntryFolderRegular
-{
-public:
-    EntryFolderTable() = delete;
-    EntryFolderTable(const StringContent& name = "", const StringContent& name2 = "") :
-        EntryFolderRegular(HashMD5(""), "", name, name2)
-    {
-        _type = eEntryType::CUSTOM_FOLDER;
-    }
-};

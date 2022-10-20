@@ -1,6 +1,6 @@
 #include "sprite_bar_entry.h"
 #include "game/scene/scene_context.h"
-#include "common/entry/entry_song.h"
+#include "common/entry/entry_types.h"
 #include "common/chartformat/chartformat_bms.h"
 
 int SpriteBarEntry::setBody(BarType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
@@ -199,6 +199,7 @@ bool SpriteBarEntry::update(Time time)
             {eEntryType::UNKNOWN, (size_t)BarType::SONG},
             {eEntryType::FOLDER, (size_t)BarType::FOLDER},
             {eEntryType::CUSTOM_FOLDER, (size_t)BarType::CUSTOM_FOLDER},
+            {eEntryType::COURSE_FOLDER, (size_t)BarType::COURSE_FOLDER},
             {eEntryType::SONG, (size_t)BarType::SONG},
             {eEntryType::CHART, (size_t)BarType::SONG},
             {eEntryType::RIVAL, (size_t)BarType::RIVAL},
@@ -384,6 +385,37 @@ bool SpriteBarEntry::update(Time time)
                 default:
                     break;
                 }
+            }
+        }
+        else if ((BarType)barTypeIdx == BarType::COURSE)
+        {
+            auto ps = std::reinterpret_pointer_cast<EntryCourse>(pEntry);
+
+            auto score = std::dynamic_pointer_cast<ScoreBMS>(pScore);
+            if (score)
+            {
+                static const std::map<ScoreBMS::Lamp, BarLampType> BMS_LAMP_TYPE_MAP =
+                {
+                    {ScoreBMS::Lamp::NOPLAY,        BarLampType::NOPLAY      },
+                    {ScoreBMS::Lamp::FAILED,        BarLampType::FAILED      },
+                    {ScoreBMS::Lamp::ASSIST,        BarLampType::ASSIST_EASY },
+                    {ScoreBMS::Lamp::EASY,          BarLampType::EASY        },
+                    {ScoreBMS::Lamp::NORMAL,        BarLampType::NORMAL      },
+                    {ScoreBMS::Lamp::HARD,          BarLampType::HARD        },
+                    {ScoreBMS::Lamp::EXHARD,        BarLampType::HARD        }, // FIXME EXHARD
+                    {ScoreBMS::Lamp::FULLCOMBO,     BarLampType::FULLCOMBO   },
+                    {ScoreBMS::Lamp::PERFECT,       BarLampType::FULLCOMBO   }, // FIXME PERFECT
+                    {ScoreBMS::Lamp::MAX,           BarLampType::FULLCOMBO   }  // FIXME MAX
+                };
+                size_t lampTypeIdx = (BMS_LAMP_TYPE_MAP.find(score->lamp) != BMS_LAMP_TYPE_MAP.end()) ?
+                    (size_t)BMS_LAMP_TYPE_MAP.at(score->lamp) : (size_t)BarLampType::NOPLAY;
+                if (sLamp[lampTypeIdx])
+                {
+                    sLamp[lampTypeIdx]->update(time);
+                    drawLampType = lampTypeIdx;
+                    drawLamp = true;
+                }
+
             }
         }
         // TODO folder lamp

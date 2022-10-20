@@ -66,8 +66,6 @@ struct PlayContextParams
 {
     eMode mode = eMode::PLAY7;
     bool canRetry = false;
-    bool isCourse = false;
-    bool isCourseFirstStage = false;
 
     unsigned judgeLevel = 0;
 
@@ -86,6 +84,13 @@ struct PlayContextParams
     std::shared_ptr<ReplayChart> replay;
     std::shared_ptr<ReplayChart> replayMybest;
     std::shared_ptr<ReplayChart> replayNew;
+
+    bool isCourse = false;
+    int courseStage = 0;
+    HashMD5 courseHash;
+    std::vector<HashMD5> courseCharts;
+    std::vector<std::shared_ptr<vRuleset>> courseStageRulesetCopy[2];
+    std::vector<Path> courseStageReplayPath;
 
     Time remainTime;
 

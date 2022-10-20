@@ -20,6 +20,7 @@ enum class eScene
     RETRY_TRANS,
     KEYCONFIG,
     CUSTOMIZE,
+    COURSE_RESULT,
     EXIT_TRANS,
     EXIT
 };
@@ -40,7 +41,7 @@ inline eScene getSceneFromMode(eMode m)
         { eMode::PLAY10,        eScene::PLAY},
         { eMode::PLAY14,        eScene::PLAY},
         { eMode::RESULT,        eScene::RESULT},
-        //{ eMode::COURSE_RESULT, eScene::},
+        { eMode::COURSE_RESULT, eScene::COURSE_RESULT},
     };
     return modeSceneMap.find(m) != modeSceneMap.end() ? modeSceneMap.at(m) : eScene::NOT_INIT;
 }

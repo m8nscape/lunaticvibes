@@ -223,6 +223,18 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
 
     _state = ePlayState::PREPARE;
 
+
+
+
+    if (gPlayContext.isCourse)
+    {
+        State::set(IndexOption::PLAY_COURSE_STAGE, Option::STAGE_1 + gPlayContext.courseStage);
+    }
+    else
+    {
+        State::set(IndexOption::PLAY_COURSE_STAGE, Option::STAGE_NOT_COURSE);
+    }
+
     if (gPlayContext.isReplay && gPlayContext.replay)
     {
         State::set(IndexSwitch::SOUND_PITCH, true);
@@ -379,6 +391,9 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         // case eModGauge::GATTACK:   tmp = eGaugeOp::EX_SURVIVAL; break;
         case eModGauge::ASSISTEASY:tmp = eGaugeOp::GROOVE; break;
         case eModGauge::EXHARD:    tmp = eGaugeOp::EX_SURVIVAL; break;
+        case eModGauge::GRADE_NORMAL: tmp = eGaugeOp::SURVIVAL; break;
+        case eModGauge::GRADE_HARD:   tmp = eGaugeOp::EX_SURVIVAL; break;
+        case eModGauge::GRADE_DEATH:  tmp = eGaugeOp::EX_SURVIVAL; break;
         default: break;
         }
         _skin->setExtendedProperty("GAUGETYPE_1P"s, (void*)&tmp);
@@ -395,6 +410,9 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
             // case eModGauge::GATTACK:   tmp = eGaugeOp::EX_SURVIVAL; break;
             case eModGauge::ASSISTEASY:tmp = eGaugeOp::GROOVE; break;
             case eModGauge::EXHARD:    tmp = eGaugeOp::EX_SURVIVAL; break;
+            case eModGauge::GRADE_NORMAL: tmp = eGaugeOp::SURVIVAL; break;
+            case eModGauge::GRADE_HARD:   tmp = eGaugeOp::EX_SURVIVAL; break;
+            case eModGauge::GRADE_DEATH:  tmp = eGaugeOp::EX_SURVIVAL; break;
             default: break;
             }
             _skin->setExtendedProperty("GAUGETYPE_2P"s, (void*)&tmp);
@@ -837,7 +855,7 @@ ScenePlay::~ScenePlay()
 
 void ScenePlay::setInitialHealthBMS()
 {
-    if (!gPlayContext.isCourse || gPlayContext.isCourseFirstStage)
+    if (!gPlayContext.isCourse || gPlayContext.courseStage == 0)
     {
         switch (gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge)
         {
@@ -853,6 +871,9 @@ void ScenePlay::setInitialHealthBMS()
         // case eModGauge::PATTACK:
         // case eModGauge::GATTACK:
         case eModGauge::EXHARD:
+        case eModGauge::GRADE_NORMAL:
+        case eModGauge::GRADE_HARD:
+        case eModGauge::GRADE_DEATH:
             gPlayContext.initialHealth[PLAYER_SLOT_PLAYER] = 1.0;
             State::set(IndexNumber::PLAY_1P_GROOVEGAUGE, 100);
             break;
@@ -876,6 +897,9 @@ void ScenePlay::setInitialHealthBMS()
             // case eModGauge::PATTACK:
             // case eModGauge::GATTACK:
             case eModGauge::EXHARD:
+            case eModGauge::GRADE_NORMAL:
+            case eModGauge::GRADE_HARD:
+            case eModGauge::GRADE_DEATH:
                 gPlayContext.initialHealth[PLAYER_SLOT_TARGET] = 1.0;
                 State::set(IndexNumber::PLAY_2P_GROOVEGAUGE, 100);
                 break;
@@ -899,6 +923,9 @@ void ScenePlay::setInitialHealthBMS()
                 // case eModGauge::PATTACK:
                 // case eModGauge::GATTACK:
             case eModGauge::EXHARD:
+            case eModGauge::GRADE_NORMAL:
+            case eModGauge::GRADE_HARD:
+            case eModGauge::GRADE_DEATH:
                 gPlayContext.initialHealth[PLAYER_SLOT_MYBEST] = 1.0;
                 break;
 
@@ -908,11 +935,11 @@ void ScenePlay::setInitialHealthBMS()
     }
     else
     {
-        State::set(IndexNumber::PLAY_1P_GROOVEGAUGE, (int)gPlayContext.initialHealth[PLAYER_SLOT_PLAYER]);
+        State::set(IndexNumber::PLAY_1P_GROOVEGAUGE, (int)(gPlayContext.initialHealth[PLAYER_SLOT_PLAYER] * 100));
 
         if (gPlayContext.isBattle)
         {
-            State::set(IndexNumber::PLAY_2P_GROOVEGAUGE, (int)gPlayContext.initialHealth[PLAYER_SLOT_TARGET]);
+            State::set(IndexNumber::PLAY_2P_GROOVEGAUGE, (int)(gPlayContext.initialHealth[PLAYER_SLOT_TARGET] * 100));
         }
     }
 }
