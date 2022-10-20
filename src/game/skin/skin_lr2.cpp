@@ -3749,23 +3749,48 @@ void SkinLR2::postLoad()
             if (s->isKeyFrameEmpty()) continue;
 
             const Rect& rc = s->_keyFrames.rbegin()->param.rect;
-            if (rc.x >= 1280 || rc.y >= 720 || rc.x + rc.w >= 1280 || rc.y + rc.h >= 720)
+            if (rc.x > 1920 || rc.y > 1080 || rc.x + rc.w > 1920 || rc.y + rc.h > 1080)
+            {
+                // just skip this lol
+                continue;
+            }
+            if (rc.x > 1280 || rc.y > 720 || rc.x + rc.w > 1280 || rc.y + rc.h > 720)
             {
                 countFHD++;
+                count++;
             }
-            else if (rc.x >= 640 || rc.y >= 480 || rc.x + rc.w >= 640 || rc.y + rc.h >= 480)
+            else if (rc.x > 640 || rc.y > 480 || rc.x + rc.w > 640 || rc.y + rc.h > 480)
             {
-                countHD++;
+                if (rc.x == 0 && rc.y == 0 && rc.w == 1280 && rc.h == 720)
+                {
+                    // this is very likely a full-screen image
+                    countHD += 20;
+                    count += 20;
+                }
+                else
+                {
+                    countHD++;
+                    count++;
+                }
             }
             else if (rc.x >= 0 || rc.y >= 0)
             {
-                countSD++;
+                if (rc.x == 0 && rc.y == 0 && rc.w == 640 && rc.h == 480)
+                {
+                    // this is very likely a full-screen image
+                    countSD += 20;
+                    count += 20;
+                }
+                else
+                {
+                    countSD++;
+                    count++;
+                }
             }
-            count++;
         }
         if (count > 0)
         {
-            if ((double)countFHD / count > 0.35)
+            if ((double)countFHD / count > 0.5)
             {
                 info.resolution = 2;
             }

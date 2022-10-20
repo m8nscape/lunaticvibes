@@ -52,7 +52,7 @@ void SceneDecide::updateStart()
     auto t = Time();
     auto rt = t - State::get(IndexTimer::SCENE_START);
 
-    if (rt.norm() >= _skin->info.timeDecideExpiry)
+    if (!gInCustomize && rt.norm() >= _skin->info.timeDecideExpiry)
     {
         gNextScene = eScene::PLAY;
     }
