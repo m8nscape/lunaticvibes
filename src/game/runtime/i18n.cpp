@@ -1,6 +1,7 @@
 #include "i18n.h"
 #include <fstream>
 #include <sstream>
+#include <re2/re2.h>
 
 std::vector<i18n> i18n::languages;
 size_t i18n::currentLanguage = 0;
@@ -19,6 +20,11 @@ i18n::i18n(const Path& translationFile)
     {
         std::string line;
         std::getline(ss, line);
+
+        static const RE2 regexIn{ "\\\\n" };
+        static const re2::StringPiece regexOut{ "\n" };
+        RE2::GlobalReplace(&line, regexIn, regexOut);
+
         text[i] = line;
     }
 }
@@ -54,6 +60,18 @@ std::vector<std::string> i18n::getLanguageList()
 void i18n::setLanguage(size_t index)
 {
     currentLanguage = index >= languages.size() ? 0 : index;
+}
+
+void i18n::setLanguage(const std::string& name)
+{
+    for (size_t i = 0; i < languages.size(); ++i)
+    {
+        if (languages[i].text[i18nText::LANGUAGE_NAME] == name)
+        {
+            currentLanguage = i;
+            break;
+        }
+    }
 }
 
 const std::string& i18n::s(size_t index)

@@ -151,7 +151,6 @@ private:
     void _imguiCheckSettings();
 
     // buttons
-    bool _imguiApplyProfile();
     bool _imguiApplyPlayerName();
     bool _imguiAddFolder(const char* path = NULL);
     bool _imguiDelFolder();

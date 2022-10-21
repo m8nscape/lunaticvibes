@@ -12,7 +12,6 @@ Exit
 TODO
 General
 Jukebox
-Tables
 Video
 Audio
 Play
@@ -63,7 +62,7 @@ Play course
 CLASS
 Estimate your playing skills
 BMS NOT FOUND
-Press F9 to add folders
+Press ESC to add folders
 Please wait...
 Loading skin options...
 Load finished.

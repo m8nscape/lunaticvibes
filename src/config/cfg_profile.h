@@ -299,6 +299,8 @@ namespace cfg
     constexpr char P_INPUT_SPEED_S1A[] = "InputSpeedS1L";
     constexpr char P_INPUT_SPEED_S2A[] = "InputSpeedS1R";
 
+    constexpr char P_LANGUAGE[] = "Language";
+
     enum class eProfile
     {
         PLAYERNAME,

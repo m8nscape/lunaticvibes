@@ -118,6 +118,7 @@ int main(int argc, char* argv[])
     ConfigMgr::setGlobals();
 
     i18n::init();
+    i18n::setLanguage(ConfigMgr::get('P', cfg::P_LANGUAGE, "English"));
 
     SoundMgr::setVolume(SampleChannel::MASTER, (float)State::get(IndexSlider::VOLUME_MASTER));
     SoundMgr::setVolume(SampleChannel::KEY, (float)State::get(IndexSlider::VOLUME_KEY));

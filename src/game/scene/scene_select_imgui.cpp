@@ -204,11 +204,6 @@ void SceneSelect::_imguiSettings()
                                     {
                                         imgui_add_profile_popup = true;
                                     }
-                                    ImGui::SameLine();
-                                    if (ImGui::Button((i18n::s(APPLY) + "##applyprofile").c_str()))
-                                    {
-                                        _imguiApplyProfile();
-                                    }
 
                                     ImGui::Dummy({});
                                     ImGui::Separator();
@@ -240,7 +235,7 @@ void SceneSelect::_imguiSettings()
                             {
                                 if (ImGui::BeginChild("##pagesub12"))
                                 {
-                                    ImGui::Text("* Refresh by pressing F8 at song select screen!");
+                                    ImGui::Text(i18n::c(JUKEBOX_REFRESH_HINT));
 
                                     ImGui::Dummy({});
                                     ImGui::Separator();
@@ -312,7 +307,7 @@ void SceneSelect::_imguiSettings()
 
                                     ImGui::Text(i18n::c(VIDEO_SS_LEVEL));
                                     ImGui::SameLine(infoRowWidth);
-                                    static const char* imgui_video_ss_display[] =
+                                    const char* imgui_video_ss_display[] =
                                     {
                                         "1x",
                                         "2x",
@@ -326,7 +321,7 @@ void SceneSelect::_imguiSettings()
 
                                     ImGui::Text(i18n::c(VIDEO_SCREEN_MODE));
                                     ImGui::SameLine(infoRowWidth);
-                                    static const char* imgui_video_mode_display[] =
+                                    const char* imgui_video_mode_display[] =
                                     {
                                         i18n::c(VIDEO_WINDOWED),
                                         i18n::c(VIDEO_FULLSCREEN),
@@ -336,7 +331,7 @@ void SceneSelect::_imguiSettings()
 
                                     ImGui::Text("Vsync");
                                     ImGui::SameLine(infoRowWidth);
-                                    static const char* imgui_vsync_mode_display[] =
+                                    const char* imgui_vsync_mode_display[] =
                                     {
                                         i18n::c(OFF),
                                         i18n::c(ON),
@@ -666,17 +661,24 @@ void SceneSelect::_imguiRefreshProfileList()
 
 void SceneSelect::_imguiRefreshLanguageList()
 {
-    imgui_language_index = -1;
     imgui_languages.clear();
     imgui_languages_display.clear();
 
     for (auto& l : i18n::getLanguageList())
     {
+        if (l == ConfigMgr::get('P', cfg::P_LANGUAGE, "English"))
+        {
+            imgui_language_index = imgui_languages.size();
+            old_language_index = imgui_language_index;
+        }
+
         imgui_languages.push_back(l);
     }
 
     for (const auto& f : imgui_languages)
+    {
         imgui_languages_display.push_back(f.c_str());
+    }
 }
 
 
@@ -738,9 +740,20 @@ void SceneSelect::_imguiRefreshVideoDisplayResolutionList()
 
 void SceneSelect::_imguiCheckSettings()
 {
+    bool reboot = false;
+
     if (imgui_profile_index != old_profile_index)
     {
-        // TODO reload profile
+        old_profile_index = imgui_profile_index;
+        ConfigMgr::selectProfile(imgui_profiles_display[imgui_profile_index]);
+        reboot = true;
+    }
+    if (imgui_language_index != old_language_index)
+    {
+        old_language_index = imgui_language_index;
+        ConfigMgr::set("P", cfg::P_LANGUAGE, imgui_languages_display[imgui_language_index]);
+        i18n::setLanguage(imgui_language_index);
+        reboot = true;
     }
 
     if (imgui_video_display_resolution_index != old_video_display_resolution_index)
@@ -791,15 +804,12 @@ void SceneSelect::_imguiCheckSettings()
         ConfigMgr::set("P", cfg::P_MOUSE_ANALOG, imgui_adv_mouseAnalog);
     }
 
-}
-
-bool SceneSelect::_imguiApplyProfile()
-{
-    ConfigMgr::selectProfile(imgui_profiles_display[imgui_profile_index]);
-    imguiShow = false;
-    _skin->setHandleMouseEvents(true);
-    gSelectContext.isGoingToReboot = true;
-    return true;
+    if (reboot)
+    {
+        imguiShow = false;
+        _skin->setHandleMouseEvents(true);
+        gSelectContext.isGoingToReboot = true;
+    }
 }
 
 bool SceneSelect::_imguiApplyPlayerName()

@@ -752,7 +752,7 @@ void setEntryInfo()
         {
         case EntryCourse::CourseType::GRADE:
             param["coursetype"] = Option::COURSE_GRADE; 
-            text["genre"] = "CLASS";
+            text["genre"] = i18n::s(i18nText::CLASS_TITLE);
             break;
         }
         param["coursestagecount"] = (int)ps->charts.size();

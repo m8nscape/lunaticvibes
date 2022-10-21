@@ -22,7 +22,6 @@ namespace i18nText
 		TODO,
 		SETTINGS_GENERAL,
 		SETTINGS_JUKEBOX,
-		SETTINGS_TABLE,
 		SETTINGS_VIDEO,
 		SETTINGS_AUDIO,
 		SETTINGS_PLAY,
@@ -112,6 +111,7 @@ public:
 	static std::vector<std::string> getLanguageList();
 
 	static void setLanguage(size_t index);	// get index from getLanguageList()
+	static void setLanguage(const std::string& name);
 
 	static const std::string& s(size_t index);	// i18nText::i18nTextIndex
 	static const char* c(size_t index);	// i18nText::i18nTextIndex
