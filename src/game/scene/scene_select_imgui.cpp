@@ -1002,7 +1002,7 @@ bool SceneSelect::_imguiRefreshAudioDevices()
     imgui_audio_devices_display.clear();
     auto adev = ConfigMgr::get('A', cfg::A_DEVNAME, "");
 
-    auto devList = SoundMgr::getDeviceList(imgui_audio_checkASIODevices);
+    auto devList = SoundMgr::getDeviceList(true);
     for (auto& d : devList)
     {
         if (adev == d.second)
