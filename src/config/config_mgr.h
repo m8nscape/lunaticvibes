@@ -39,6 +39,7 @@ private:
     void _load() { G->load(); P->load(); I5->load(); I7->load(); I9->load(); S->load(); }
     void _save() { G->save(); P->save(); I5->save(); I7->save(); I9->save(); S->save(); }
     int _selectProfile(const std::string& name);
+    int _createProfile(const std::string& newProfile, const std::string& oldProfile);
     std::string _getProfileName() { return P->getName(); }
     void _setGlobals();
 
@@ -121,6 +122,7 @@ public:
     static void load() { getInst()._load(); }
     static void save() { getInst()._save(); }
     static int selectProfile(const std::string& name) { return getInst()._selectProfile(name); }
+    static int createProfile(const std::string& newProfile, const std::string& oldProfile) { return getInst()._createProfile(newProfile, oldProfile); }
     static void setGlobals() { getInst()._setGlobals(); }
     static std::shared_ptr<ConfigGeneral> General() { return getInst()._General(); }
     static std::shared_ptr<ConfigProfile> Profile() { return getInst()._Profile(); }

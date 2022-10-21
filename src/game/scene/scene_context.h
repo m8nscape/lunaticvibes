@@ -178,6 +178,7 @@ struct SelectContextParams
     bool isGoingToKeyConfig = false;
     bool isGoingToAutoPlay = false;
     bool isGoingToReplay = false;
+    bool isGoingToReboot = false;
 };
 
 void loadSongList();

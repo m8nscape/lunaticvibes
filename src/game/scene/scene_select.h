@@ -151,6 +151,8 @@ private:
     void _imguiCheckSettings();
 
     // buttons
+    bool _imguiApplyProfile();
+    bool _imguiApplyPlayerName();
     bool _imguiAddFolder(const char* path = NULL);
     bool _imguiDelFolder();
     bool _imguiBrowseFolder();
@@ -168,6 +170,13 @@ private:
     std::vector<const char*> imgui_profiles_display;
     int old_profile_index, imgui_profile_index;
 
+    bool imgui_add_profile_popup = false;
+    int imgui_add_profile_popup_error = 0;
+    char imgui_add_profile_buf[256] = { 0 };
+    bool imgui_add_profile_copy_from_current = true;
+
+    char imgui_player_name_buf[256] = { 0 };
+
     std::list<std::string> imgui_languages;
     std::vector<const char*> imgui_languages_display;
     int old_language_index, imgui_language_index;
@@ -176,7 +185,6 @@ private:
     std::vector<const char*> imgui_folders_display;
     int imgui_folder_index;
 
-    bool imgui_table_popup = false;
     char imgui_folder_path_buf[256] = { 0 };
     char imgui_table_url_buf[256] = { 0 };
     std::list<std::string> imgui_tables;

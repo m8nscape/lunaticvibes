@@ -334,6 +334,7 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
     gSelectContext.isGoingToSkinSelect = false;
     gSelectContext.isGoingToAutoPlay = false;
     gSelectContext.isGoingToReplay = false;
+    gSelectContext.isGoingToReboot = false;
     State::set(IndexSwitch::SYSTEM_AUTOPLAY, false);
 
     auto& [score, lamp] = getSaveScoreType();
@@ -676,7 +677,7 @@ void SceneSelect::updateSelect()
             State::set((IndexText)line++, "");
     }
 
-    if (gSelectContext.isGoingToKeyConfig || gSelectContext.isGoingToSkinSelect)
+    if (gSelectContext.isGoingToKeyConfig || gSelectContext.isGoingToSkinSelect || gSelectContext.isGoingToReboot)
     {
         if (!gInCustomize) SoundMgr::setSysVolume(0.0, 500);
         State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
@@ -757,6 +758,11 @@ void SceneSelect::updateFadeout()
             gNextScene = eScene::CUSTOMIZE;
             gInCustomize = true;
         }
+        else if (gSelectContext.isGoingToReboot)
+        {
+            SoundMgr::stopSysSamples();
+            gNextScene = eScene::PRE_SELECT;
+        }
         else
         {
             SoundMgr::stopSysSamples();
@@ -804,6 +810,7 @@ void SceneSelect::inputGamePress(InputMask& m, const Time& t)
         if (m[Input::Pad::F9] || m[Input::Pad::ESC])
         {
             imguiShow = false;
+            imgui_add_profile_popup = false;
             _skin->setHandleMouseEvents(true);
         }
         return;

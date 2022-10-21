@@ -834,6 +834,37 @@ int ConfigMgr::_selectProfile(const std::string& name)
     return 0;
 }
 
+int ConfigMgr::_createProfile(const std::string& newProfile, const std::string& oldProfile)
+{
+    Path newFolder = Path(GAMEDATA_PATH) / "profile" / newProfile;
+    if (fs::exists(newFolder))
+    {
+        LOG_WARNING << "[Config] Profile name duplicate: " << newProfile;
+        return 2;
+    }
+
+    fs::create_directories(newFolder);
+
+    Path oldFolder = Path(GAMEDATA_PATH) / "profile" / oldProfile;
+    if (!oldProfile.empty() && fs::exists(oldFolder))
+    {
+        for (auto& f : fs::directory_iterator(oldFolder))
+        {
+            if (strEqual(f.path().extension().u8string(), ".yml", true) ||
+                strEqual(f.path().filename().u8string(), "customize", true))
+            {
+                fs::copy(f, newFolder / f.path().lexically_relative(oldFolder));
+            }
+        }
+    }
+
+    ConfigProfile p(newProfile);
+    p.set(cfg::E_PROFILE, newProfile);
+    p.save();
+
+    return 0;
+}
+
 void ConfigMgr::_setGlobals()
 {
     setNumbers();

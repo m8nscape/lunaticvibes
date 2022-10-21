@@ -37,6 +37,9 @@ void SceneSelect::_imguiInit()
     _imguiRefreshProfileList();
     old_profile_index = imgui_profile_index;
 
+    std::string playerName = ConfigMgr::get('P', cfg::P_PLAYERNAME, "Unnamed");
+    strncpy(imgui_player_name_buf, playerName.c_str(), std::max(sizeof(imgui_player_name_buf) - 1, playerName.length()));
+
     _imguiRefreshLanguageList();
     old_language_index = imgui_language_index;
 
@@ -194,6 +197,32 @@ void SceneSelect::_imguiSettings()
                                     ImGui::SameLine(infoRowWidth);
                                     ImGui::Combo("##profile", &imgui_profile_index, imgui_profiles_display.data(), (int)imgui_profiles_display.size());
 
+                                    if (ImGui::Button("Add..."))
+                                    {
+                                        imgui_add_profile_popup = true;
+                                    }
+                                    ImGui::SameLine();
+                                    if (ImGui::Button("Apply##applyprofile"))
+                                    {
+                                        _imguiApplyProfile();
+                                    }
+
+                                    ImGui::Dummy({});
+                                    ImGui::Separator();
+
+                                    /////////////////////////////////////////////////////////////////////////////////////////
+
+                                    ImGui::Text("Player Name");
+                                    ImGui::SameLine(infoRowWidth);
+                                    bool modifiedPlayName = false;
+                                    modifiedPlayName |= ImGui::InputText("##playername", imgui_player_name_buf, sizeof(imgui_player_name_buf), ImGuiInputTextFlags_EnterReturnsTrue);
+                                    ImGui::SameLine();
+                                    modifiedPlayName |= ImGui::Button("Apply##applyname");
+                                    if (modifiedPlayName)
+                                    {
+                                        _imguiApplyPlayerName();
+                                    }
+
                                     ImGui::Text("Language");
                                     ImGui::SameLine(infoRowWidth);
                                     ImGui::Combo("##language", &imgui_language_index, imgui_languages_display.data(), (int)imgui_languages_display.size());
@@ -210,8 +239,8 @@ void SceneSelect::_imguiSettings()
                                 {
                                     ImGui::Text("* Refresh by pressing F8 at song select screen!");
 
+                                    ImGui::Dummy({});
                                     ImGui::Separator();
-                                    ImGui::Spacing();
 
                                     /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -241,8 +270,9 @@ void SceneSelect::_imguiSettings()
                                             _imguiBrowseFolder();
                                         }
                                     }
+
+                                    ImGui::Dummy({});
                                     ImGui::Separator();
-                                    ImGui::Spacing();
 
                                     /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -358,7 +388,7 @@ void SceneSelect::_imguiSettings()
                                         _imguiRefreshAudioDevices();
                                     }
 
-                                    ImGui::Spacing();
+                                    ImGui::Dummy({});
 
                                     ImGui::Text("Buffer Count");
                                     ImGui::SameLine(infoRowWidth);
@@ -509,6 +539,81 @@ Special Thanks:
                     }
                 }
                 ImGui::EndTable();
+            }
+
+            if (imgui_add_profile_popup)
+            {
+                ImGui::OpenPopup("New Profile");
+
+                ImGui::SetNextWindowSize(ImVec2(480.f, 180.f), ImGuiCond_Always);
+                if (ImGui::BeginPopupModal("New Profile", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
+                {
+                    static std::string errorMessage;
+                    int old_imgui_add_profile_popup_error = imgui_add_profile_popup_error;
+                    bool ok = false;
+
+                    ImGui::Text("Folder Name");
+                    ImGui::SameLine();
+                    ok |= ImGui::InputText("##newprofilename", imgui_add_profile_buf, sizeof(imgui_add_profile_buf), ImGuiInputTextFlags_EnterReturnsTrue);
+                    ImGui::SameLine();
+                    HelpMarker("Please note that this is just the name of folder which we're going to save your personal settings into.\nYou can change your player name at any time later.");
+
+                    ImGui::Checkbox("Copy from current profile", &imgui_add_profile_copy_from_current);
+
+                    ok |= ImGui::Button("OK");
+                    if (ok)
+                    {
+                        if (strnlen(imgui_add_profile_buf, sizeof(imgui_add_profile_buf)) == 0)
+                        {
+                            imgui_add_profile_popup_error = 1;
+                        }
+                        else
+                        {
+                            if (ConfigMgr::createProfile(imgui_add_profile_buf, 
+                                imgui_add_profile_copy_from_current ? ConfigMgr::get('E', cfg::E_PROFILE, cfg::PROFILE_DEFAULT) : "") == 0)
+                            {
+                                memset(imgui_add_profile_buf, 0, sizeof(imgui_add_profile_buf));
+                                ImGui::CloseCurrentPopup();
+                                _imguiRefreshProfileList();
+
+                                imgui_add_profile_popup = false;
+                                imgui_add_profile_popup_error = 0;
+                                
+                            }
+                            else
+                            {
+                                imgui_add_profile_popup_error = 2;
+                            }
+                        }
+                    }
+
+                    ImGui::SameLine();
+                    if (ImGui::Button("Cancel"))
+                    {
+                        memset(imgui_add_profile_buf, 0, sizeof(imgui_add_profile_buf));
+                        ImGui::CloseCurrentPopup();
+                        imgui_add_profile_popup = false;
+                        imgui_add_profile_popup_error = 0;
+                    }
+
+                    if (old_imgui_add_profile_popup_error != imgui_add_profile_popup_error)
+                    {
+                        errorMessage.clear();
+                    }
+                    if (imgui_add_profile_popup_error == 1)
+                    {
+                        if (errorMessage.empty()) 
+                            errorMessage = "Error: Profile name cannot be empty.";
+                    }
+                    else if (imgui_add_profile_popup_error == 2)
+                    {
+                        if (errorMessage.empty())
+                            errorMessage = (boost::format("Error: Profile \"%s\" already exists.") % imgui_add_profile_buf).str();
+                    }
+                    ImGui::TextColored({ 1.f, 0.2f, 0.2f, 1.f }, errorMessage.c_str());
+
+                    ImGui::EndPopup();
+                }
             }
         }
         ImGui::End();
@@ -689,6 +794,22 @@ void SceneSelect::_imguiCheckSettings()
         ConfigMgr::set("P", cfg::P_MOUSE_ANALOG, imgui_adv_mouseAnalog);
     }
 
+}
+
+bool SceneSelect::_imguiApplyProfile()
+{
+    ConfigMgr::selectProfile(imgui_profiles_display[imgui_profile_index]);
+    imguiShow = false;
+    _skin->setHandleMouseEvents(true);
+    gSelectContext.isGoingToReboot = true;
+    return true;
+}
+
+bool SceneSelect::_imguiApplyPlayerName()
+{
+    ConfigMgr::Profile()->set(cfg::P_PLAYERNAME, imgui_player_name_buf);
+    State::set(IndexText::PLAYER_NAME, imgui_player_name_buf);
+    return true;
 }
 
 bool SceneSelect::_imguiAddFolder(const char* path)
