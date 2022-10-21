@@ -96,6 +96,7 @@ class i18n
 {
 private:
 	i18n(const Path& translationFile);
+public:
 	~i18n() = default;
 
 private:

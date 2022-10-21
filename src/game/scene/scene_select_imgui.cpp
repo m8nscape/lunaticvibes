@@ -114,6 +114,8 @@ void SceneSelect::_imguiSettings()
     assert(IsMainThread());
     if (gNextScene != eScene::SELECT) return;
 
+    using namespace i18nText;
+
     if (imguiShow)
     {
         ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
@@ -146,13 +148,13 @@ void SceneSelect::_imguiSettings()
 
                     ImGui::Dummy( { mainTagWidth, ImGui::GetWindowHeight() - (height + interval) * MENU_COUNT - 20.0f });
 
-                    if (ImGui::Button("Key Config", { -1.f, height }))
+                    if (ImGui::Button(i18n::c(MAIN_KEYCONFIG), {-1.f, height}))
                     {
                         imgui_main_index = MENU_KEYCONFIG;
                     }
                     ImGui::Dummy({ 0.f, interval });
 
-                    if (ImGui::Button("Settings", { -1.f, height }))
+                    if (ImGui::Button(i18n::c(MAIN_SETTINGS), {-1.f, height}))
                     {
                         imgui_main_index = MENU_OPTIONS;
                     }
@@ -163,13 +165,13 @@ void SceneSelect::_imguiSettings()
                     }
                     ImGui::Dummy({ 0.f, interval });
 
-                    if (ImGui::Button("About", { -1.f, height }))
+                    if (ImGui::Button(i18n::c(MAIN_ABOUT), {-1.f, height}))
                     {
                         imgui_main_index = MENU_ABOUT;
                     }
                     ImGui::Dummy({ 0.f, interval });
 
-                    if (ImGui::Button("Exit", { -1.f, height }))
+                    if (ImGui::Button(i18n::c(MAIN_EXIT), {-1.f, height}))
                     {
                         gNextScene = eScene::EXIT_TRANS;
                     }
@@ -182,7 +184,7 @@ void SceneSelect::_imguiSettings()
 
                         if (imgui_main_index == MENU_KEYCONFIG && ImGui::BeginTabBar("##keyconfig", ImGuiTabBarFlags_FittingPolicyScroll))
                         {
-                            ImGui::Text("TODO");
+                            ImGui::Text(i18n::c(TODO));
 
                             ImGui::EndTabBar();
                         }
@@ -190,20 +192,20 @@ void SceneSelect::_imguiSettings()
                         if (imgui_main_index == MENU_OPTIONS && ImGui::BeginTabBar("##option", ImGuiTabBarFlags_FittingPolicyScroll))
                         {
                             ImGui::SetNextItemWidth(tabItemWidth);
-                            if (ImGui::BeginTabItem("General", NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
+                            if (ImGui::BeginTabItem(i18n::c(SETTINGS_GENERAL), NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
                             {
                                 if (ImGui::BeginChild("##pagesub11"))
                                 {
-                                    ImGui::Text("Profile");
+                                    ImGui::Text(i18n::c(PROFILE));
                                     ImGui::SameLine(infoRowWidth);
                                     ImGui::Combo("##profile", &imgui_profile_index, imgui_profiles_display.data(), (int)imgui_profiles_display.size());
 
-                                    if (ImGui::Button("Add..."))
+                                    if (ImGui::Button(i18n::c(ADD_MORE)))
                                     {
                                         imgui_add_profile_popup = true;
                                     }
                                     ImGui::SameLine();
-                                    if (ImGui::Button("Apply##applyprofile"))
+                                    if (ImGui::Button((i18n::s(APPLY) + "##applyprofile").c_str()))
                                     {
                                         _imguiApplyProfile();
                                     }
@@ -213,18 +215,18 @@ void SceneSelect::_imguiSettings()
 
                                     /////////////////////////////////////////////////////////////////////////////////////////
 
-                                    ImGui::Text("Player Name");
+                                    ImGui::Text(i18n::c(PLAYER_NAME));
                                     ImGui::SameLine(infoRowWidth);
                                     bool modifiedPlayName = false;
                                     modifiedPlayName |= ImGui::InputText("##playername", imgui_player_name_buf, sizeof(imgui_player_name_buf), ImGuiInputTextFlags_EnterReturnsTrue);
                                     ImGui::SameLine();
-                                    modifiedPlayName |= ImGui::Button("Apply##applyname");
+                                    modifiedPlayName |= ImGui::Button((i18n::s(APPLY) + "##applyname").c_str());
                                     if (modifiedPlayName)
                                     {
                                         _imguiApplyPlayerName();
                                     }
 
-                                    ImGui::Text("Language");
+                                    ImGui::Text(i18n::c(LANGUAGE));
                                     ImGui::SameLine(infoRowWidth);
                                     ImGui::Combo("##language", &imgui_language_index, imgui_languages_display.data(), (int)imgui_languages_display.size());
 
@@ -234,7 +236,7 @@ void SceneSelect::_imguiSettings()
                             }
 
                             ImGui::SetNextItemWidth(tabItemWidth);
-                            if (ImGui::BeginTabItem("Jukebox", NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
+                            if (ImGui::BeginTabItem(i18n::c(SETTINGS_JUKEBOX), NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
                             {
                                 if (ImGui::BeginChild("##pagesub12"))
                                 {
@@ -245,7 +247,7 @@ void SceneSelect::_imguiSettings()
 
                                     /////////////////////////////////////////////////////////////////////////////////////////
 
-                                    ImGui::Text("Folder");
+                                    ImGui::Text(i18n::c(JUKEBOX_FOLDER));
                                     {
                                         bool enterPath = ImGui::InputText("##NewPath", imgui_folder_path_buf, sizeof(imgui_folder_path_buf), ImGuiInputTextFlags_EnterReturnsTrue);
                                         if (enterPath || (ImGui::SameLine(), ImGui::Button(" + ")))
@@ -256,17 +258,17 @@ void SceneSelect::_imguiSettings()
 
                                         ImGui::ListBox("##Paths", &imgui_folder_index, imgui_folders_display.data(), imgui_folders_display.size());
 
-                                        if (ImGui::Button("Add..."))
+                                        if (ImGui::Button(i18n::c(ADD_MORE)))
                                         {
                                             _imguiAddFolder();
                                         }
                                         ImGui::SameLine();
-                                        if (ImGui::Button("Delete Selected##delfolder"))
+                                        if (ImGui::Button((i18n::s(JUKEBOX_DELETE_SELECTED) + "##delfolder").c_str()))
                                         {
                                             _imguiDelFolder();
                                         }
                                         ImGui::SameLine();
-                                        if (ImGui::Button("Browse Selected##browsefolder"))
+                                        if (ImGui::Button(i18n::c(JUKEBOX_BROWSE_SELECTED)))
                                         {
                                             _imguiBrowseFolder();
                                         }
@@ -277,7 +279,7 @@ void SceneSelect::_imguiSettings()
 
                                     /////////////////////////////////////////////////////////////////////////////////////////
 
-                                    ImGui::Text("Tables");
+                                    ImGui::Text(i18n::c(JUKEBOX_TABLES));
                                     {
 
                                         bool enterUrl = ImGui::InputText("##NewURL", imgui_table_url_buf, sizeof(imgui_table_url_buf), ImGuiInputTextFlags_EnterReturnsTrue);
@@ -289,7 +291,7 @@ void SceneSelect::_imguiSettings()
 
                                         ImGui::ListBox("##URLs", &imgui_table_index, imgui_tables_display.data(), imgui_tables_display.size());
 
-                                        if (ImGui::Button("Delete Selected##deltable"))
+                                        if (ImGui::Button((i18n::s(JUKEBOX_DELETE_SELECTED) + "##deltable").c_str()))
                                         {
                                             _imguiDelTable();
                                         }
@@ -300,15 +302,15 @@ void SceneSelect::_imguiSettings()
                             }
 
                             ImGui::SetNextItemWidth(tabItemWidth);
-                            if (ImGui::BeginTabItem("Video", NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
+                            if (ImGui::BeginTabItem(i18n::c(SETTINGS_VIDEO), NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
                             {
                                 if (ImGui::BeginChild("##pagesub13"))
                                 {
-                                    ImGui::Text("Resolution");
+                                    ImGui::Text(i18n::c(VIDEO_RESOLUTION));
                                     ImGui::SameLine(infoRowWidth);
                                     ImGui::Combo("##resolution", &imgui_video_display_resolution_index, imgui_video_display_resolution_display.data(), (int)imgui_video_display_resolution_display.size());
 
-                                    ImGui::Text("Supersample Level");
+                                    ImGui::Text(i18n::c(VIDEO_SS_LEVEL));
                                     ImGui::SameLine(infoRowWidth);
                                     static const char* imgui_video_ss_display[] =
                                     {
@@ -322,13 +324,13 @@ void SceneSelect::_imguiSettings()
                                         imgui_video_ssLevel = ssLevel + 1;
                                     }
 
-                                    ImGui::Text("Screen Mode");
+                                    ImGui::Text(i18n::c(VIDEO_SCREEN_MODE));
                                     ImGui::SameLine(infoRowWidth);
                                     static const char* imgui_video_mode_display[] =
                                     {
-                                        "Windowed",
-                                        "FullScreen",
-                                        "Borderless"
+                                        i18n::c(VIDEO_WINDOWED),
+                                        i18n::c(VIDEO_FULLSCREEN),
+                                        i18n::c(VIDEO_BORDERLESS)
                                     };
                                     ImGui::Combo("##window", &imgui_video_mode, imgui_video_mode_display, sizeof(imgui_video_mode_display) / sizeof(char*));
 
@@ -336,20 +338,20 @@ void SceneSelect::_imguiSettings()
                                     ImGui::SameLine(infoRowWidth);
                                     static const char* imgui_vsync_mode_display[] =
                                     {
-                                        "Off",
-                                        "On",
+                                        i18n::c(OFF),
+                                        i18n::c(ON),
     #if _WIN32
     #else
-                                        "Adaptive"
+                                        i18n::c(VIDEO_ADAPTIVE)
     #endif
                                 };
                                     ImGui::Combo("##vsync", &imgui_video_vsync_index, imgui_vsync_mode_display, sizeof(imgui_vsync_mode_display) / sizeof(char*));
 
-                                    ImGui::Text("Max FPS");
+                                    ImGui::Text(i18n::c(VIDEO_MAXFPS));
                                     ImGui::SameLine(infoRowWidth);
                                     ImGui::InputInt("##maxfps", &imgui_video_maxFPS, 0);
 
-                                    if (ImGui::Button("Apply", { 80.f, 0.f }))
+                                    if (ImGui::Button(i18n::c(APPLY), {80.f, 0.f}))
                                     {
                                         _imguiApplyResolution();
 
@@ -370,15 +372,15 @@ void SceneSelect::_imguiSettings()
                             }
 
                             ImGui::SetNextItemWidth(tabItemWidth);
-                            if (ImGui::BeginTabItem("Audio", NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
+                            if (ImGui::BeginTabItem(i18n::c(SETTINGS_AUDIO), NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
                             {
                                 if (ImGui::BeginChild("##pagesub14"))
                                 {
-                                    ImGui::Text("Device");
+                                    ImGui::Text(i18n::c(AUDIO_DEVICE));
                                     ImGui::SameLine(infoRowWidth);
                                     ImGui::Combo("##audiodevice", &imgui_audio_device_index, imgui_audio_devices_display.data(), (int)imgui_audio_devices_display.size());
 
-                                    if (ImGui::Button("Refresh Device List"))
+                                    if (ImGui::Button(i18n::c(AUDIO_REFRESH_DEVICE_LIST)))
                                     {
                                         imgui_audio_listASIODevices = true;
                                         _imguiRefreshAudioDevices();
@@ -386,15 +388,15 @@ void SceneSelect::_imguiSettings()
 
                                     ImGui::Dummy({});
 
-                                    ImGui::Text("Buffer Count");
+                                    ImGui::Text(i18n::c(AUDIO_BUFFER_COUNT));
                                     ImGui::SameLine(infoRowWidth);
                                     ImGui::InputInt("##bufcount", &imgui_audio_bufferCount, 0);
 
-                                    ImGui::Text("Buffer Length (samples)");
+                                    ImGui::Text(i18n::c(AUDIO_BUFFER_LENGTH));
                                     ImGui::SameLine(infoRowWidth);
                                     ImGui::InputInt("##bufsize", &imgui_audio_bufferSize, 0);
 
-                                    if (ImGui::Button("Apply", { 80.f, 0.f }))
+                                    if (ImGui::Button(i18n::c(APPLY), {80.f, 0.f}))
                                     {
                                         _imguiApplyAudioSettings();
                                     }
@@ -405,19 +407,19 @@ void SceneSelect::_imguiSettings()
                             }
 
                             ImGui::SetNextItemWidth(tabItemWidth);
-                            if (ImGui::BeginTabItem("Play", NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
+                            if (ImGui::BeginTabItem(i18n::c(SETTINGS_PLAY), NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
                             {
                                 if (ImGui::BeginChild("##pagesub15"))
                                 {
-                                    ImGui::Text("Miss BGA time (ms)");
+                                    ImGui::Text(i18n::c(MISS_BGA_TIME));
                                     ImGui::SameLine(infoRowWidth);
                                     ImGui::InputInt("##misstime", &imgui_adv_missBGATime, 0);
 
-                                    ImGui::Text("Minimum input interval (ms)");
+                                    ImGui::Text(i18n::c(MIN_INPUT_INTERVAL));
                                     ImGui::SameLine(infoRowWidth);
                                     ImGui::InputInt("##mininputinterval", &imgui_adv_minInputInterval, 1, 10);
                                     ImGui::SameLine();
-                                    HelpMarker("Also known as \"up debounce\": wait for extra amount of time before releasing a key at software side.");
+                                    HelpMarker(i18n::c(MIN_INPUT_INTERVAL_HINT));
                                     //ImGui::Checkbox("Accept mouse movements as Analog input", &imgui_adv_mouseAnalog);
 
                                     ImGui::EndChild();
@@ -426,21 +428,21 @@ void SceneSelect::_imguiSettings()
                             }
 
                             ImGui::SetNextItemWidth(tabItemWidth);
-                            if (ImGui::BeginTabItem("Advanced", NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
+                            if (ImGui::BeginTabItem(i18n::c(SETTINGS_ADVANCED), NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
                             {
                                 if (ImGui::BeginChild("##pagesub16"))
                                 {
-                                    ImGui::Text("Song select scroll speed (ms)");
+                                    ImGui::Text(i18n::c(SCROLL_SPEED));
                                     ImGui::SameLine(infoRowWidth);
                                     ImGui::InputInt2("##scrollspeed", imgui_adv_scrollSpeed);
                                     ImGui::SameLine();
-                                    HelpMarker("First / Hold");
+                                    HelpMarker(i18n::c(SCROLL_SPEED_HINT));
 
-                                    ImGui::Text("New song duration (hour)");
+                                    ImGui::Text(i18n::c(NEW_SONG_DURATION));
                                     ImGui::SameLine(infoRowWidth);
                                     ImGui::InputInt("##newsonghour", &imgui_adv_newSongDuration, 1, 10);
                                     ImGui::SameLine();
-                                    HelpMarker("Charts added within this time are highlighted");
+                                    HelpMarker(i18n::c(NEW_SONG_DURATION_HINT));
 
                                     ImGui::EndChild();
                                 }
@@ -539,24 +541,24 @@ Special Thanks:
 
             if (imgui_add_profile_popup)
             {
-                ImGui::OpenPopup("New Profile");
+                ImGui::OpenPopup(i18n::c(NEW_PROFILE));
 
                 ImGui::SetNextWindowSize(ImVec2(480.f, 180.f), ImGuiCond_Always);
-                if (ImGui::BeginPopupModal("New Profile", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
+                if (ImGui::BeginPopupModal(i18n::c(NEW_PROFILE), nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
                 {
                     static std::string errorMessage;
                     int old_imgui_add_profile_popup_error = imgui_add_profile_popup_error;
                     bool ok = false;
 
-                    ImGui::Text("Folder Name");
+                    ImGui::Text(i18n::c(NEW_PROFILE_NAME));
                     ImGui::SameLine();
                     ok |= ImGui::InputText("##newprofilename", imgui_add_profile_buf, sizeof(imgui_add_profile_buf), ImGuiInputTextFlags_EnterReturnsTrue);
                     ImGui::SameLine();
-                    HelpMarker("Please note that this is just the name of folder which we're going to save your personal settings into.\nYou can change your player name at any time later.");
+                    HelpMarker(i18n::c(NEW_PROFILE_NAME_HINT));
 
-                    ImGui::Checkbox("Copy from current profile", &imgui_add_profile_copy_from_current);
+                    ImGui::Checkbox(i18n::c(NEW_PROFILE_COPY_FROM_CURRENT), &imgui_add_profile_copy_from_current);
 
-                    ok |= ImGui::Button("OK");
+                    ok |= ImGui::Button(i18n::c(OK));
                     if (ok)
                     {
                         if (strnlen(imgui_add_profile_buf, sizeof(imgui_add_profile_buf)) == 0)
@@ -584,7 +586,7 @@ Special Thanks:
                     }
 
                     ImGui::SameLine();
-                    if (ImGui::Button("Cancel"))
+                    if (ImGui::Button(i18n::c(CANCEL)))
                     {
                         memset(imgui_add_profile_buf, 0, sizeof(imgui_add_profile_buf));
                         ImGui::CloseCurrentPopup();
@@ -599,12 +601,12 @@ Special Thanks:
                     if (imgui_add_profile_popup_error == 1)
                     {
                         if (errorMessage.empty()) 
-                            errorMessage = "Error: Profile name cannot be empty.";
+                            errorMessage = i18n::c(NEW_PROFILE_EMPTY);
                     }
                     else if (imgui_add_profile_popup_error == 2)
                     {
                         if (errorMessage.empty())
-                            errorMessage = (boost::format("Error: Profile \"%s\" already exists.") % imgui_add_profile_buf).str();
+                            errorMessage = (boost::format(i18n::c(NEW_PROFILE_DUPLICATE)) % imgui_add_profile_buf).str();
                     }
                     ImGui::TextColored({ 1.f, 0.2f, 0.2f, 1.f }, errorMessage.c_str());
 

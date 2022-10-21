@@ -7,6 +7,7 @@
 #include "imgui.h"
 #include <future>
 #include <boost/format.hpp>
+#include "game/runtime/i18n.h"
 
 ScenePreSelect::ScenePreSelect(): vScene(eMode::PRE_SELECT, 240)
 {
@@ -25,7 +26,7 @@ ScenePreSelect::ScenePreSelect(): vScene(eMode::PRE_SELECT, 240)
 
     if (gNextScene == eScene::PRE_SELECT)
     {
-        textHint = "Initializing...";
+        textHint = i18n::s(i18nText::INITIALIZING);
     }
 }
 
@@ -65,7 +66,7 @@ void ScenePreSelect::updateLoadSongs()
         // load files
         loadSongEnd = std::async(std::launch::async, [&]() {
 
-            textHint = "Checking folders...";
+            textHint = i18n::s(i18nText::CHECKING_FOLDERS);
 
             loadSongTimer = std::chrono::system_clock::now();
 
@@ -108,7 +109,7 @@ void ScenePreSelect::updateLoadSongs()
 
         prevChartLoaded = g_pSongDB->addChartTaskFinishCount;
         textHint = (
-            boost::format("Loading [%d/%d]:")
+            boost::format(i18n::c(i18nText::LOADING_CHARTS))
                 % g_pSongDB->addChartTaskFinishCount
                 % g_pSongDB->addChartTaskCount
             ).str();
@@ -131,7 +132,7 @@ void ScenePreSelect::updateLoadTables()
 
         loadTableEnd = std::async(std::launch::async, [&]() {
 
-            textHint = "Checking tables...";
+            textHint = i18n::s(i18nText::CHECKING_TABLES);
 
             // initialize table list
             auto tableList = ConfigMgr::General()->getTablesUrl();
@@ -182,7 +183,7 @@ void ScenePreSelect::updateLoadTables()
                     return tbl;
                 };
 
-                textHint = (boost::format("Loading table: %s") % t.getUrl()).str();
+                textHint = (boost::format(i18n::c(i18nText::LOADING_TABLE)) % t.getUrl()).str();
                 textHint2 = "";
 
                 if (t.loadFromFile())
@@ -191,8 +192,7 @@ void ScenePreSelect::updateLoadTables()
                 }
                 else
                 {
-                    textHint2 = "Downloading...";
-                    textHint2 = textHint2;
+                    textHint2 = i18n::s(i18nText::DOWNLOADING_TABLE);
 
                     t.updateFromUrl([&](DifficultyTable::UpdateResult result)
                         {
@@ -240,7 +240,7 @@ void ScenePreSelect::updateLoadCourses()
 
         loadCourseEnd = std::async(std::launch::async, [&]() {
 
-            textHint = "Adding courses...";
+            textHint = i18n::s(i18nText::LOADING_COURSES);
 
             std::map<EntryCourse::CourseType, std::vector<std::shared_ptr<EntryCourse>>> courses;
 
@@ -267,13 +267,13 @@ void ScenePreSelect::updateLoadCourses()
             {
                 if (courses.empty()) continue;
 
-                std::string folderTitle = "COURSE";
-                std::string folderTitle2 = "Play course";
+                std::string folderTitle = i18n::s(i18nText::COURSE_TITLE);
+                std::string folderTitle2 = i18n::s(i18nText::COURSE_SUBTITLE);
                 switch (type)
                 {
                 case EntryCourse::CourseType::GRADE:
-                    folderTitle = "CLASS";
-                    folderTitle2 = "Estimate your playing skills";
+                    folderTitle = i18n::s(i18nText::CLASS_TITLE);
+                    folderTitle2 = i18n::s(i18nText::CLASS_SUBTITLE);
                     break;
                 }
 
@@ -305,13 +305,13 @@ void ScenePreSelect::loadFinished()
 
         if (rootFolderProp.dbBrowseEntries.empty())
         {
-            State::set(IndexText::PLAY_TITLE, "BMS NOT FOUND");
-            State::set(IndexText::PLAY_ARTIST, "Press F9 to add folders");
+            State::set(IndexText::PLAY_TITLE, i18n::s(i18nText::BMS_NOT_FOUND));
+            State::set(IndexText::PLAY_ARTIST, i18n::s(i18nText::BMS_NOT_FOUND_HINT));
         }
         if (gNextScene == eScene::PRE_SELECT)
         {
             textHint = (boost::format("%s %s") % PROJECT_NAME % PROJECT_VERSION).str();
-            textHint2 = "Please wait...";
+            textHint2 = i18n::s(i18nText::PLEASE_WAIT);
         }
 
         // wait for updated text to draw

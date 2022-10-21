@@ -22,6 +22,8 @@
 #include "game/chart/chart_bms.h"
 #include "game/ruleset/ruleset_bms_auto.h"
 
+#include "game/runtime/i18n.h"
+
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma region save config
@@ -1017,7 +1019,7 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
             if (hasPath)
             {
                 LOG_INFO << "[List] Refreshing folder " << path.u8string();
-                State::set(IndexText::_OVERLAY_TOPLEFT, (boost::format("Refresh folder: %s") % path.u8string()).str());
+                State::set(IndexText::_OVERLAY_TOPLEFT, (boost::format(i18n::c(i18nText::REFRESH_FOLDER)) % path.u8string()).str());
 
                 g_pSongDB->resetAddSummary();
                 int count = g_pSongDB->addSubFolder(path, gSelectContext.backtrace.top().parent);
@@ -1028,7 +1030,7 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
                 int deleted = g_pSongDB->addChartDeleted;
                 if (added || updated || deleted)
                 {
-                    createNotification((boost::format("%s: Added %d, Updated %d, Deleted %d") % path.u8string() % added % updated % deleted).str());
+                    createNotification((boost::format(i18n::c(i18nText::REFRESH_FOLDER_DETAIL)) % path.u8string() % added % updated % deleted).str());
                 }
                 State::set(IndexText::_OVERLAY_TOPLEFT, "");
                 State::set(IndexText::_OVERLAY_TOPLEFT2, "");
@@ -2100,7 +2102,7 @@ void SceneSelect::stopTextEdit(bool modify)
 void SceneSelect::resetJukeboxText()
 {
     if (gSelectContext.backtrace.top().name.empty())
-        State::set(IndexText::EDIT_JUKEBOX_NAME, "SEARCH SONG");
+        State::set(IndexText::EDIT_JUKEBOX_NAME, i18n::s(i18nText::SEARCH_SONG));
     else
         State::set(IndexText::EDIT_JUKEBOX_NAME, gSelectContext.backtrace.top().name);
 }
@@ -2112,13 +2114,13 @@ void SceneSelect::searchSong(const std::string& text)
     auto top = g_pSongDB->search(ROOT_FOLDER_HASH, text);
     if (top.empty())
     {
-        State::set(IndexText::EDIT_JUKEBOX_NAME, "SEARCH FAILED");
+        State::set(IndexText::EDIT_JUKEBOX_NAME, i18n::s(i18nText::SEARCH_FAILED));
         return;
     }
 
     std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
 
-    std::string name = (boost::format("SEARCH: %s (%lu entries)") % text % top.getContentsCount()).str();
+    std::string name = (boost::format(i18n::c(i18nText::SEARCH_RESULT)) % text % top.getContentsCount()).str();
     SongListProperties prop{
         "",
         "",

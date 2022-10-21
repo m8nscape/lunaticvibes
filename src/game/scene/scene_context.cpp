@@ -5,6 +5,7 @@
 #include "common/entry/entry_types.h"
 #include <random>
 #include <mutex>
+#include "game/runtime/i18n.h"
 
 bool gResetSelectCursor = true;
 bool gQuitOnFinish = false;
@@ -773,8 +774,8 @@ void setEntryInfo()
                 param["coursestagechartexist"s + std::to_string(stage + 1)] = 0;
                 param["courselevel"s + std::to_string(stage + 1)] = 0;
                 param["coursedifficulty"s + std::to_string(stage + 1)] = 0;
-                text["coursetitle"s + std::to_string(stage + 1)] = "CHART NOT FOUND";
-                text["coursesubtitle"s + std::to_string(stage + 1)] = "MD5: "s + ps->charts[stage].hexdigest();
+                text["coursetitle"s + std::to_string(stage + 1)] = i18n::s(i18nText::CHART_NOT_FOUND);
+                text["coursesubtitle"s + std::to_string(stage + 1)] = (boost::format(i18n::c(i18nText::CHART_NOT_FOUND_MD5)) % ps->charts[stage].hexdigest()).str();
             }
         }
     }
@@ -788,8 +789,8 @@ void setEntryInfo()
         switch (p->type())
         {
         case eEntryType::FOLDER:        text["genre"] = ""; break;
-        case eEntryType::CUSTOM_FOLDER: text["genre"] = "Custom Folder"; break;
-        case eEntryType::COURSE_FOLDER: text["genre"] = "Course Folder"; break;
+        case eEntryType::CUSTOM_FOLDER: text["genre"] = i18n::s(i18nText::CUSTOM_FOLDER_DESCRIPTION); break;
+        case eEntryType::COURSE_FOLDER: text["genre"] = i18n::s(i18nText::COURSE_FOLDER_DESCRIPTION); break;
         }
     }
 
