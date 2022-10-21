@@ -141,13 +141,14 @@ private:
 
     // misc
     void _imguiRefreshProfileList();
+    void _imguiRefreshLanguageList();
     void _imguiRefreshFolderList();
     void _imguiRefreshTableList();
     void _imguiRefreshVideoDisplayResolutionList();
     void _imguiCheckSettings();
 
     // buttons
-    bool _imguiAddFolder();
+    bool _imguiAddFolder(const char* path = NULL);
     bool _imguiDelFolder();
     bool _imguiBrowseFolder();
     bool _imguiAddTable();
@@ -158,15 +159,22 @@ private:
     bool _imguiApplyAudioSettings();
 
     // imgui variables
+    int imgui_main_index = 0;
+
     std::list<std::string> imgui_profiles;
     std::vector<const char*> imgui_profiles_display;
     int old_profile_index, imgui_profile_index;
+
+    std::list<std::string> imgui_languages;
+    std::vector<const char*> imgui_languages_display;
+    int old_language_index, imgui_language_index;
 
     std::list<std::string> imgui_folders;
     std::vector<const char*> imgui_folders_display;
     int imgui_folder_index;
 
     bool imgui_table_popup = false;
+    char imgui_folder_path_buf[256] = { 0 };
     char imgui_table_url_buf[256] = { 0 };
     std::list<std::string> imgui_tables;
     std::vector<const char*> imgui_tables_display;

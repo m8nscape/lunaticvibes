@@ -791,32 +791,35 @@ void SceneSelect::inputGamePress(InputMask& m, const Time& t)
         return;
     }
 
-    if (m[Input::Pad::F9])
-    {
-        imguiShow = !imguiShow;
-        _skin->setHandleMouseEvents(!imguiShow);
-    }
     if (imguiShow)
     {
-        if (m[Input::Pad::ESC])
+        if (m[Input::Pad::F9] || m[Input::Pad::ESC])
         {
             imguiShow = false;
             _skin->setHandleMouseEvents(true);
         }
         return;
     }
-
-    if (m[Input::Pad::ESC])
+    else
     {
-        // close panels if opened. exit if no panel is opened
-        bool hasPanelOpened = _closeAllPanels(t);
-        if (!hasPanelOpened)
+        if (m[Input::Pad::F9] || m[Input::Pad::ESC])
         {
-            LOG_DEBUG << "[Select] ESC";
-            gNextScene = eScene::EXIT_TRANS;
-            return;
+            imguiShow = !imguiShow;
+            _skin->setHandleMouseEvents(!imguiShow);
         }
     }
+
+    //if (m[Input::Pad::ESC])
+    //{
+    //    // close panels if opened. exit if no panel is opened
+    //    bool hasPanelOpened = _closeAllPanels(t);
+    //    if (!hasPanelOpened)
+    //    {
+    //        LOG_DEBUG << "[Select] ESC";
+    //        gNextScene = eScene::EXIT_TRANS;
+    //        return;
+    //    }
+    //}
 
     auto input = _inputAvailable & m;
     if (input.any())

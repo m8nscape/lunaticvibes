@@ -18,6 +18,8 @@
 
 static SDL_Rect canvasRect;
 static SDL_Rect windowRect;
+static double canvasScaleX = 1.0;
+static double canvasScaleY = 1.0;
 
 int graphics_init()
 {
@@ -271,6 +273,8 @@ void graphics_resize_window(int x, int y)
 {
     if (x != 0) windowRect.w = x;
     if (y != 0) windowRect.h = y;
+    canvasScaleX = (double)windowRect.w / x;
+    canvasScaleY = (double)windowRect.h / y;
     SDL_SetWindowSize(gFrameWindow, windowRect.w, windowRect.h);
     SDL_SetWindowPosition(gFrameWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 }
@@ -296,8 +300,6 @@ int graphics_get_supersample_level()
     return superSampleLevel;
 }
 
-static double canvasScaleX = 1.0;
-static double canvasScaleY = 1.0;
 void graphics_resize_canvas(int x, int y)
 {
     canvasRect.w = x;

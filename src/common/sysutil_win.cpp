@@ -156,20 +156,4 @@ long long getFileLastWriteTime(const Path& p)
     return std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(p).time_since_epoch()).count() - 11644473600;
 }
 
-Path getSysFontPath(std::string* faceName, int* faceIndex)
-{
-    Path p = Path(GAMEDATA_PATH) / "resources" / "NotoSansCJK-Regular.ttc";
-    if (faceName) *faceName = "Noto Sans CJK JP";
-    if (faceIndex) *faceIndex = 0;
-    return p;
-}
-
-Path getSysMonoFontPath(std::string* faceName, int* faceIndex)
-{
-    Path p = Path(GAMEDATA_PATH) / "resources" / "NotoSansCJK-Regular.ttc";
-    if (faceName) *faceName = "Noto Sans Mono CJK JP";
-    if (faceIndex) *faceIndex = 6;
-    return p;
-}
-
 #endif

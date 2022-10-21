@@ -63,6 +63,40 @@ int main(int argc, char* argv[])
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     ImGui::StyleColorsDark();
+
+    {
+        ImGuiStyle& s = ImGui::GetStyle();
+
+        s.WindowRounding = 0.f;
+        s.WindowBorderSize = 0.f;
+        s.FrameRounding = 0.f;
+        s.FrameBorderSize = 1.f;
+
+        auto& c = s.Colors;
+        c[ImGuiCol_WindowBg] = { 0.f, 0.f, 0.f, 0.7f };
+
+        c[ImGuiCol_FrameBg] = { 0.3f, 0.3f, 0.3f, 0.6f };
+        c[ImGuiCol_FrameBgHovered] = { 0.6f, 0.6f, 0.6f, 0.6f };
+        c[ImGuiCol_FrameBgActive] = { 0.5f, 0.5f, 0.5f, 1.0f };
+
+        c[ImGuiCol_CheckMark] = { 0.f, 1.f, 0.f, 0.8f };
+
+        c[ImGuiCol_Button] = { 0.f, 0.f, 0.f, 0.6f };
+        c[ImGuiCol_ButtonHovered] = { 0.6f, 0.6f, 0.6f, 0.6f };
+        c[ImGuiCol_ButtonActive] = { 0.5f, 0.5f, 0.5f, 1.0f };
+
+        c[ImGuiCol_Header] = { 0.5f, 0.5f, 0.5f, 0.4f };
+        c[ImGuiCol_HeaderHovered] = { 0.6f, 0.6f, 0.6f, 0.6f };
+        c[ImGuiCol_HeaderActive] = { 0.5f, 0.5f, 0.5f, 1.0f };
+
+        c[ImGuiCol_Tab] = { 0.f, 0.f, 0.f, 0.6f };
+        c[ImGuiCol_TabHovered] = { 0.6f, 0.6f, 0.6f, 0.6f };
+        c[ImGuiCol_TabActive] = { 0.5f, 0.5f, 0.5f, 1.0f };
+        c[ImGuiCol_TabUnfocused] = { 0.f, 0.f, 0.f, 0.6f };
+        c[ImGuiCol_TabUnfocusedActive] = { 0.5f, 0.5f, 0.5f, 0.8f };
+
+    }
+
     // further operations present in graphics_init()
 
     // init graphics

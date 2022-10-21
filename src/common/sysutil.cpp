@@ -48,3 +48,19 @@ long long getFileTimeNow()
 {
     return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 }
+
+Path getSysFontPath(std::string* faceName, int* faceIndex)
+{
+    Path p = Path(GAMEDATA_PATH) / "resources" / "fonts" / "NotoSansCJK-Regular.ttc";
+    if (faceName) *faceName = "Noto Sans CJK JP";
+    if (faceIndex) *faceIndex = 0;
+    return p;
+}
+
+Path getSysMonoFontPath(std::string* faceName, int* faceIndex)
+{
+    Path p = Path(GAMEDATA_PATH) / "resources" / "fonts" / "NotoSansCJK-Regular.ttc";
+    if (faceName) *faceName = "Noto Sans Mono CJK JP";
+    if (faceIndex) *faceIndex = 6;
+    return p;
+}

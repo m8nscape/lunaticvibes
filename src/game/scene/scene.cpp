@@ -96,7 +96,8 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
         std::string fontName;
         Path fontPath = getSysFontPath(&fontName);
         strncpy(fontConfig.Name, fontName.c_str(), std::max(sizeof(fontConfig.Name) - 1, fontName.length()));
-        pImguiFont = ImGui::GetIO().Fonts->AddFontFromFileTTF(fontPath.u8string().c_str(), 24, &fontConfig);
+        ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
+        pImguiFont = fontAtlas.AddFontFromFileTTF(fontPath.u8string().c_str(), 24, &fontConfig, fontAtlas.GetGlyphRangesChineseFull());
     }
 
     _input.register_p("DEBUG_TOGGLE", std::bind(&vScene::DebugToggle, this, std::placeholders::_1, std::placeholders::_2));
