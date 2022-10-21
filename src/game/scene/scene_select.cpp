@@ -765,6 +765,14 @@ void SceneSelect::updateFadeout()
     }
 }
 
+void SceneSelect::update()
+{
+    vScene::update();
+
+    if (_virtualSceneLoadSongs)
+        _virtualSceneLoadSongs->update();
+}
+
 void SceneSelect::_updateImgui()
 {
     vScene::_updateImgui();
@@ -1015,52 +1023,14 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
                 {
                     createNotification((boost::format("%s: Added %d, Updated %d, Deleted %d") % path.u8string() % added % updated % deleted).str());
                 }
-            }
-        }
-        else
-        {
-            // Pressed at root, refresh all
-            LOG_INFO << "[List] Refreshing all folders";
-            State::set(IndexText::_OVERLAY_TOPLEFT, "Refresh folders...");
-
-            std::vector<Path> pathList;
-            for (auto& f : ConfigMgr::General()->getFoldersPath())
-            {
-                pathList.push_back(Path(f));
+                State::set(IndexText::_OVERLAY_TOPLEFT, "");
+                State::set(IndexText::_OVERLAY_TOPLEFT2, "");
             }
 
-            bool addingFolders = true;
-            auto refreshOverlayFuture = std::async(std::launch::async, [&]() {
-                while (addingFolders)
-                {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(33));
-                    {
-                        std::shared_lock l(g_pSongDB->addCurrentPathMutex);
+            // re-browse
+            if (!isInVersionList)
+                selectDownTimestamp = -1;
 
-                        std::string textHint = (
-                            boost::format("Loading [%d/%d]:")
-                            % g_pSongDB->addChartTaskFinishCount
-                            % g_pSongDB->addChartTaskCount
-                            ).str();
-                        std::string textHint2 = g_pSongDB->addCurrentPath;
-                        State::set(IndexText::_OVERLAY_TOPLEFT, textHint);
-                        State::set(IndexText::_OVERLAY_TOPLEFT2, textHint2);
-                    }
-                }
-                });
-            g_pSongDB->addFolders(pathList);
-            addingFolders = false;
-            refreshOverlayFuture.wait_for(std::chrono::seconds(10));
-        }
-        State::set(IndexText::_OVERLAY_TOPLEFT, "");
-        State::set(IndexText::_OVERLAY_TOPLEFT2, "");
-
-        // re-browse
-        if (!isInVersionList)
-            selectDownTimestamp = -1;
-
-        if (gSelectContext.backtrace.size() >= 2)
-        {
             // simplified _navigateBack(t)
             {
                 std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
@@ -1075,24 +1045,30 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
 
             // reset infos, play sound
             _navigateEnter(Time());
-
-            SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::SOUND_F_OPEN);
         }
         else
         {
+            // Pressed at root, refresh all
+            LOG_INFO << "[List] Refreshing all folders";
+
+            // re-browse
+            if (!isInVersionList)
+                selectDownTimestamp = -1;
+
             // Make a virtual preload scene to rebuild song list. This is very tricky...
+            assert(_virtualSceneLoadSongs == nullptr);
+            if (_virtualSceneLoadSongs == nullptr)
             {
-                State::set(IndexText::_OVERLAY_TOPLEFT, "Rebuilding song list...");
-                ScenePreSelect s;
-                s.loopStart();
-                while (!s.isLoadingFinished())
+                _virtualSceneLoadSongs = std::make_shared<ScenePreSelect>();
+                _virtualSceneLoadSongs->loopStart();
+                while (!_virtualSceneLoadSongs->isLoadingFinished())
                 {
                     using namespace std::chrono_literals;
                     std::this_thread::sleep_for(33ms);
                 }
-                s.loopEnd();
+                _virtualSceneLoadSongs->loopEnd();
+                _virtualSceneLoadSongs.reset();
             }
-            State::set(IndexText::_OVERLAY_TOPLEFT, "");
 
             {
                 std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
@@ -1149,7 +1125,7 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
         }
         if (selectDownTimestamp == -1 && (input[Input::Pad::K1SELECT || input[Input::Pad::K2SELECT]]))
         {
-            switch (gSelectContext.entries[gSelectContext.idx].first->type())
+            switch (!gSelectContext.entries.empty() && gSelectContext.entries[gSelectContext.idx].first->type())
             {
             case eEntryType::SONG:
             case eEntryType::RIVAL_SONG:

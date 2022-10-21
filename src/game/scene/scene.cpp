@@ -142,64 +142,59 @@ void vScene::update()
         _skin->update_mouse(x, y);
 
         checkAndStartTextEdit();
-    }
 
-    // update notifications
-    {
-        std::unique_lock lock(gOverlayContext._mutex);
-
-        // notifications expire check
-        while (!gOverlayContext.notifications.empty() && (t - gOverlayContext.notifications.begin()->first).norm() > 10 * 1000) // 10s
+        // update notifications
         {
-            gOverlayContext.notifications.pop_front();
+            std::unique_lock lock(gOverlayContext._mutex);
+
+            // notifications expire check
+            while (!gOverlayContext.notifications.empty() && (t - gOverlayContext.notifications.begin()->first).norm() > 10 * 1000) // 10s
+            {
+                gOverlayContext.notifications.pop_front();
+            }
+
+            // update notification texts
+            auto itNotifications = gOverlayContext.notifications.rbegin();
+            for (size_t i = 0; i < _sNotifications.size(); ++i)
+            {
+                if (itNotifications != gOverlayContext.notifications.rend())
+                {
+                    State::set(IndexText(size_t(IndexText::_OVERLAY_NOTIFICATION_0) + i), itNotifications->second);
+                    ++itNotifications;
+                }
+                else
+                {
+                    State::set(IndexText(size_t(IndexText::_OVERLAY_NOTIFICATION_0) + i), "");
+                }
+            }
         }
 
-        // update notification texts
-        auto itNotifications = gOverlayContext.notifications.rbegin();
+        // update top-left texts
         for (size_t i = 0; i < _sNotifications.size(); ++i)
         {
-            if (itNotifications != gOverlayContext.notifications.rend())
-            {
-                State::set(IndexText(size_t(IndexText::_OVERLAY_NOTIFICATION_0) + i), itNotifications->second);
-                ++itNotifications;
-            }
-            else
-            {
-                State::set(IndexText(size_t(IndexText::_OVERLAY_NOTIFICATION_0) + i), "");
-            }
+            _sNotifications[i]->update(t);
+            _sNotificationsBG[i]->update(t);
+
         }
+        _sTopLeft->update(t);
+        _sTopLeft2->update(t);
+
+        // update videos
+        TextureVideo::updateAll();
     }
-
-    // update top-left texts
-    for (size_t i = 0; i < _sNotifications.size(); ++i)
-    {
-        _sNotifications[i]->update(t);
-        _sNotificationsBG[i]->update(t);
-
-    }
-    _sTopLeft->update(t);
-    _sTopLeft2->update(t);
-
-    // update videos
-    TextureVideo::updateAll();
 
     // ImGui
     if (!gInCustomize || _scene == eScene::CUSTOMIZE)
     {
-        auto ss = State::get(IndexTimer::SCENE_START);
-        auto rt = t.norm() - ss;
-        if (ss != TIMER_NEVER && rt > 1000)
-        {
-            ImGuiNewFrame();
+        ImGuiNewFrame();
 
-            ImGui::PushFont(pImguiFont);
+        ImGui::PushFont(pImguiFont);
 
-            _updateImgui();
+        _updateImgui();
 
-            ImGui::PopFont();
+        ImGui::PopFont();
 
-            ImGui::Render();
-        }
+        ImGui::Render();
     }
 }
 

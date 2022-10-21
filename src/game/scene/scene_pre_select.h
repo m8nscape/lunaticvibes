@@ -18,6 +18,9 @@ protected:
     void updateLoadCourses();
     void loadFinished();
 
+    virtual void _updateImgui() override;
+
+
 protected:
     SongListProperties rootFolderProp;
     bool startedLoadSong = false;

@@ -7,6 +7,7 @@
 #include <memory>
 #include "scene.h"
 #include "scene_context.h"
+#include "scene_pre_select.h"
 
 enum class eSelectState
 {
@@ -61,6 +62,7 @@ private:
     double scrollAccumulatorAddUnit = 0.0;
 
     // F8
+    std::shared_ptr<ScenePreSelect> _virtualSceneLoadSongs;
     bool refreshingSongList = false;
 
     // 5+7 / 6+7
@@ -88,6 +90,7 @@ protected:
     void updatePanel(unsigned idx);
     void updateFadeout();
 
+    virtual void update() override;
     virtual void _updateImgui() override;
 
 protected:

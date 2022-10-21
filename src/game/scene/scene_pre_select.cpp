@@ -4,6 +4,7 @@
 #include "common/coursefile/lr2crs.h"
 #include "common/entry/entry_table.h"
 #include "common/entry/entry_course.h"
+#include "imgui.h"
 #include <future>
 #include <boost/format.hpp>
 
@@ -22,7 +23,10 @@ ScenePreSelect::ScenePreSelect(): vScene(eMode::PRE_SELECT, 240)
 
     graphics_set_maxfps(30);
 
-    State::set(IndexText::_OVERLAY_TOPLEFT, "Initializing...");
+    if (gNextScene == eScene::PRE_SELECT)
+    {
+        textHint = "Initializing...";
+    }
 }
 
 ScenePreSelect::~ScenePreSelect()
@@ -61,7 +65,7 @@ void ScenePreSelect::updateLoadSongs()
         // load files
         loadSongEnd = std::async(std::launch::async, [&]() {
 
-            State::set(IndexText::_OVERLAY_TOPLEFT, "Checking folders...");
+            textHint = "Checking folders...";
 
             loadSongTimer = std::chrono::system_clock::now();
 
@@ -98,7 +102,7 @@ void ScenePreSelect::updateLoadSongs()
             });
     }
 
-    if (gNextScene == eScene::PRE_SELECT && g_pSongDB->addChartTaskFinishCount != prevChartLoaded)
+    if (g_pSongDB->addChartTaskFinishCount != prevChartLoaded)
     {
         std::shared_lock l(g_pSongDB->addCurrentPathMutex);
 
@@ -109,8 +113,6 @@ void ScenePreSelect::updateLoadSongs()
                 % g_pSongDB->addChartTaskCount
             ).str();
         textHint2 = g_pSongDB->addCurrentPath;
-        State::set(IndexText::_OVERLAY_TOPLEFT, textHint);
-        State::set(IndexText::_OVERLAY_TOPLEFT2, textHint2);
     }
     
     if (loadSongEnd.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
@@ -129,14 +131,14 @@ void ScenePreSelect::updateLoadTables()
 
         loadTableEnd = std::async(std::launch::async, [&]() {
 
-            State::set(IndexText::_OVERLAY_TOPLEFT, "Checking tables...");
+            textHint = "Checking tables...";
 
             // initialize table list
             auto tableList = ConfigMgr::General()->getTablesUrl();
             for (auto& tableUrl : tableList)
             {
                 LOG_INFO << "[List] Add table " << tableUrl;
-                State::set(IndexText::_OVERLAY_TOPLEFT2, tableUrl);
+                textHint2 = tableUrl;
 
                 gSelectContext.tables.emplace_back();
                 DifficultyTableBMS& t = gSelectContext.tables.back();
@@ -180,12 +182,8 @@ void ScenePreSelect::updateLoadTables()
                     return tbl;
                 };
 
-                if (gNextScene == eScene::PRE_SELECT)
-                {
-                    textHint = (boost::format("Loading table: %s") % t.getUrl()).str();
-                    State::set(IndexText::_OVERLAY_TOPLEFT, textHint);
-                    State::set(IndexText::_OVERLAY_TOPLEFT2, "");
-                }
+                textHint = (boost::format("Loading table: %s") % t.getUrl()).str();
+                textHint2 = "";
 
                 if (t.loadFromFile())
                 {
@@ -193,11 +191,8 @@ void ScenePreSelect::updateLoadTables()
                 }
                 else
                 {
-                    if (gNextScene == eScene::PRE_SELECT)
-                    {
-                        textHint2 = "Downloading...";
-                        State::set(IndexText::_OVERLAY_TOPLEFT2, textHint2);
-                    }
+                    textHint2 = "Downloading...";
+                    textHint2 = textHint2;
 
                     t.updateFromUrl([&](DifficultyTable::UpdateResult result)
                         {
@@ -245,7 +240,7 @@ void ScenePreSelect::updateLoadCourses()
 
         loadCourseEnd = std::async(std::launch::async, [&]() {
 
-            State::set(IndexText::_OVERLAY_TOPLEFT, "Adding courses...");
+            textHint = "Adding courses...";
 
             std::map<EntryCourse::CourseType, std::vector<std::shared_ptr<EntryCourse>>> courses;
 
@@ -257,7 +252,7 @@ void ScenePreSelect::updateLoadCourses()
 
                 Path coursePath = courseFile.path();
                 LOG_INFO << "[List] Add course file: " << coursePath.u8string();
-                State::set(IndexText::_OVERLAY_TOPLEFT2, coursePath.u8string());
+                textHint2 = coursePath.u8string();
 
                 CourseLr2crs lr2crs(coursePath);
                 for (auto& c : lr2crs.courses)
@@ -315,8 +310,8 @@ void ScenePreSelect::loadFinished()
         }
         if (gNextScene == eScene::PRE_SELECT)
         {
-            State::set(IndexText::_OVERLAY_TOPLEFT, (boost::format("%s %s") % PROJECT_NAME % PROJECT_VERSION).str());
-            State::set(IndexText::_OVERLAY_TOPLEFT2, "Please wait...");
+            textHint = (boost::format("%s %s") % PROJECT_NAME % PROJECT_VERSION).str();
+            textHint2 = "Please wait...";
         }
 
         // wait for updated text to draw
@@ -334,6 +329,23 @@ void ScenePreSelect::loadFinished()
         loadingFinished = true;
     }
 }
+
+
+void ScenePreSelect::_updateImgui()
+{
+    if (gInCustomize) return;
+
+    ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(ConfigMgr::get('V', cfg::V_DISPLAY_RES_X, CANVAS_WIDTH), ConfigMgr::get('V', cfg::V_DISPLAY_RES_Y, CANVAS_HEIGHT)), ImGuiCond_Always);
+    if (ImGui::Begin("LoadSong", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoCollapse))
+    {
+        ImGui::Text(textHint.c_str());
+        ImGui::Text(textHint2.c_str());
+
+        ImGui::End();
+    }
+}
+
 
 bool ScenePreSelect::isLoadingFinished() const
 {
