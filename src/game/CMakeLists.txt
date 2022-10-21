@@ -60,7 +60,7 @@ add_library(gamelib
     sound/soundset.cpp
     sound/soundset_lr2.cpp
     replay/replay_chart.cpp
- )
+  "runtime/i18n.cpp")
 
 if (UNIX OR MINGW)
     target_link_libraries(gamelib PRIVATE -lpthread)

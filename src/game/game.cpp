@@ -15,6 +15,8 @@
 
 #include "common/log.h"
 
+#include "game/runtime/i18n.h"
+
 #include "imgui.h"
 
 #ifdef WIN32
@@ -114,6 +116,8 @@ int main(int argc, char* argv[])
 
     // reset globals
     ConfigMgr::setGlobals();
+
+    i18n::init();
 
     SoundMgr::setVolume(SampleChannel::MASTER, (float)State::get(IndexSlider::VOLUME_MASTER));
     SoundMgr::setVolume(SampleChannel::KEY, (float)State::get(IndexSlider::VOLUME_KEY));

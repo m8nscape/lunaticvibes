@@ -2,6 +2,7 @@
 #include "config/config_mgr.h"
 #include "game/sound/sound_mgr.h"
 #include "game/sound/sound_sample.h"
+#include "game/runtime/i18n.h"
 #include "imgui.h"
 
 #ifdef _WIN32
@@ -291,11 +292,6 @@ void SceneSelect::_imguiSettings()
                                         if (ImGui::Button("Delete Selected##deltable"))
                                         {
                                             _imguiDelTable();
-                                        }
-                                        ImGui::SameLine();
-                                        if (ImGui::Button("Update Selected##updatetable"))
-                                        {
-                                            _imguiUpdateTable();
                                         }
                                     }
                                     ImGui::EndChild();
@@ -672,11 +668,10 @@ void SceneSelect::_imguiRefreshLanguageList()
     imgui_languages.clear();
     imgui_languages_display.clear();
 
-    imgui_languages.push_back("English");
-    //imgui_languages.push_back("Japanese");
-    //imgui_languages.push_back("Korean");
-    //imgui_languages.push_back("Simplified Chinese");
-    //imgui_languages.push_back("Traditional Chinese");
+    for (auto& l : i18n::getLanguageList())
+    {
+        imgui_languages.push_back(l);
+    }
 
     for (const auto& f : imgui_languages)
         imgui_languages_display.push_back(f.c_str());
@@ -900,8 +895,6 @@ bool SceneSelect::_imguiAddTable()
         imgui_table_index = imgui_tables.size() - 1;
 
         ConfigMgr::General()->setTables(std::vector<std::string>(imgui_tables.begin(), imgui_tables.end()));
-
-        _imguiUpdateTable();
     }
 
     return added;
@@ -920,15 +913,6 @@ bool SceneSelect::_imguiDelTable()
     ConfigMgr::General()->setTables(std::vector<std::string>(imgui_tables.begin(), imgui_tables.end()));
 
     return false;
-}
-
-bool SceneSelect::_imguiUpdateTable()
-{
-    if (imgui_table_index < 0 || imgui_table_index >= imgui_tables_display.size()) return false;
-
-    // TODO call update table
-
-    return true;
 }
 
 bool SceneSelect::_imguiApplyResolution()

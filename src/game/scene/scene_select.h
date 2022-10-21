@@ -158,7 +158,6 @@ private:
     bool _imguiBrowseFolder();
     bool _imguiAddTable();
     bool _imguiDelTable();
-    bool _imguiUpdateTable();
     bool _imguiApplyResolution();
     bool _imguiRefreshAudioDevices();
     bool _imguiApplyAudioSettings();

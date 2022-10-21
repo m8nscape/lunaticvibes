@@ -2118,7 +2118,7 @@ void SceneSelect::searchSong(const std::string& text)
 
     std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
 
-    std::string name = "SEARCH: "s + text + " ("s + std::to_string(top.getContentsCount()) + " entries)"s;
+    std::string name = (boost::format("SEARCH: %s (%lu entries)") % text % top.getContentsCount()).str();
     SongListProperties prop{
         "",
         "",

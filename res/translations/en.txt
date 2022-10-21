@@ -1,1 +1,78 @@
 English
+Off
+On
+OK
+Cancel
+Apply
+Add...
+Key Config
+Settings
+About
+Exit
+TODO
+General
+Jukebox
+Tables
+Video
+Audio
+Play
+Advanced
+Profile
+Player Name
+Language
+* Refresh by pressing F8 at song select screen!
+Folder
+Delete Selected
+Browse Selected
+Tables
+Resolution
+Supersample Level
+Screen Mode
+Windowed
+FullScreen
+Borderless
+V-Sync
+Adaptive
+Max FPS
+Device
+Refresh Device List
+Buffer Count
+Buffer Length / samples
+Miss BGA time / ms
+Minimum input interval / ms
+Also known as "up debounce": wait for extra amount of time before releasing a key at software side.
+Song select scroll speed / ms
+First / Hold
+New song duration / hour
+Charts added within this time are highlighted
+New Profile
+Folder Name
+Please note that this is just the name of folder which we're going to save your personal settings into.\nYou can change your player name at any time later.
+Copy from current profile
+Error: Profile name cannot be empty.
+Error: Profile "%s" already exists.
+Initializing...
+Checking folders...
+Loading [%d/%d]:
+Checking tables...
+Loading table: %s
+Downloading...
+Loading courses...
+COURSE
+Play course
+CLASS
+Estimate your playing skills
+BMS NOT FOUND
+Press F9 to add folders
+Please wait...
+Loading skin options...
+Load finished.
+Refresh folder: %s
+%s: Added %d, Updated %d, Deleted %d
+SEARCH SONG
+SEARCH FAILED
+SEARCH: %s (%lu entries)
+CHART NOT FOUND
+MD5: %s
+Custom Folder
+Course Folder
