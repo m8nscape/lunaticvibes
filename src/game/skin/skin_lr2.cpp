@@ -953,16 +953,10 @@ int SkinLR2::SYSTEMFONT()
         int thick = toInt(parseParamBuf[1]);
         int fonttype = toInt(parseParamBuf[2]);
         //StringContent name = parseParamBuf[3];
-#if defined _WIN32
-        TCHAR windir[MAX_PATH];
-        GetWindowsDirectory(windir, MAX_PATH);
-        std::string fontPath = windir;
-        fontPath += "\\Fonts\\msgothic.ttc";
-#elif defined LINUX
-        StringContent fontPath = "/usr/share/fonts/tbd.ttf"
-#endif
+        int faceIndex;
+        Path fontPath = getSysMonoFontPath(NULL, &faceIndex);
         size_t idx = _fontNameMap.size();
-        _fontNameMap[std::to_string(idx)] = std::make_shared<TTFFont>(fontPath.c_str(), ptsize);
+        _fontNameMap[std::to_string(idx)] = std::make_shared<TTFFont>(fontPath.u8string().c_str(), ptsize, faceIndex);
         LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added FONT[" << idx << "]: " << fontPath;
         return 1;
     }

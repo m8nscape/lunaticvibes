@@ -9,6 +9,14 @@ TTFFont::TTFFont(const char* filePath, int ptsize): _filePath(filePath), _ptsize
     else _loaded = true;
 }
 
+TTFFont::TTFFont(const char* filePath, int ptsize, int faceIndex) : _filePath(filePath), _ptsize(ptsize), _faceIndex(faceIndex)
+{
+    pushAndWaitMainThreadTask<void>([&]() { _pFont = TTF_OpenFontIndex(_filePath.c_str(), ptsize, faceIndex); });
+    if (!_pFont)
+        LOG_WARNING << "[TTF] " << filePath << ": " << TTF_GetError();
+    else _loaded = true;
+}
+
 TTFFont::~TTFFont()
 {
     if (!_loaded) return;
@@ -52,7 +60,10 @@ void TTFFont::setOutline(int width, const Color& c)
         {
             pushAndWaitMainThreadTask<void>([&]() 
                 { 
-                    _pFontOutline = TTF_OpenFont(_filePath.c_str(), _ptsize); 
+                    if (_faceIndex >= 0)
+                        _pFontOutline = TTF_OpenFontIndex(_filePath.c_str(), _ptsize, _faceIndex);
+                    else
+                        _pFontOutline = TTF_OpenFont(_filePath.c_str(), _ptsize);
                     TTF_SetFontOutline(_pFontOutline, width);
                 });
         }
@@ -92,8 +103,7 @@ std::shared_ptr<Texture> TTFFont::TextUTF8(const char* text, const Color& c)
     if (_pFontOutline)
     {
         SDL_Surface* surfaceOutline = TTF_RenderUTF8_Blended(_pFontOutline, text, _outlineColor);
-        SDL_Rect rcOutline = { 0 };
-        TTF_SizeUTF8(_pFont, text, &rcOutline.w, &rcOutline.h);
+
         SDL_Rect rcTextInner = rcText;
         //rcTextInner.x += (rcOutline.w - rcText.w) / 2;
         //rcTextInner.y += (rcOutline.h - rcText.h) / 2;

@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
     // init imgui
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGuiIO& io = ImGui::GetIO();
     ImGui::StyleColorsDark();
     // further operations present in graphics_init()
 

@@ -225,6 +225,7 @@ class TTFFont
 protected:
     TTF_Font* _pFont = NULL;
     std::string _filePath;
+    int _faceIndex = -1;
     bool _loaded = false;
     int _ptsize = 0;
 
@@ -234,6 +235,7 @@ protected:
 
 public:
     TTFFont(const char* filePath, int ptsize);
+    TTFFont(const char* filePath, int ptsize, int faceIndex);
     ~TTFFont();
 
 public:

@@ -10,6 +10,8 @@
 #include "imgui.h"
 #include "game/skin/skin_lr2_debug.h"
 
+static ImFont* pImguiFont = NULL;
+
 // prototype
 vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
     AsyncLooper("Scene Update", std::bind(&vScene::_updateAsync1, this), rate),
@@ -38,17 +40,10 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
         notificationWidth = x;
     }
 
-#if defined _WIN32
-    TCHAR windir[MAX_PATH];
-    GetWindowsDirectory(windir, MAX_PATH);
-    std::string fontPath = windir;
-    fontPath += "\\Fonts\\msgothic.ttc";
-#elif defined LINUX
-    StringContent fontPath = "/usr/share/fonts/tbd.ttf"
-#endif
-
-    const int textHeight = 20;
-    _fNotifications = std::make_shared<TTFFont>(fontPath.c_str(), int(textHeight * 1.5));
+    int faceIndex;
+    Path fontPath = getSysMonoFontPath(NULL, &faceIndex);
+    const int textHeight = 24;
+    _fNotifications = std::make_shared<TTFFont>(fontPath.u8string().c_str(), int(textHeight * 1.5), faceIndex);
     _texNotificationsBG = std::make_shared<TextureFull>(0x000000ff);
     for (size_t i = 0; i < _sNotifications.size(); ++i)
     {
@@ -91,8 +86,17 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
         f.param.angle = 0;
         f.param.center = Point(0, 0);
         _sTopLeft->appendKeyFrame(f);
-        f.param.rect.y += 24;
+        f.param.rect.y += textHeight;
         _sTopLeft2->appendKeyFrame(f);
+    }
+
+    if (pImguiFont == NULL)
+    {
+        ImFontConfig fontConfig;
+        std::string fontName;
+        Path fontPath = getSysFontPath(&fontName);
+        strncpy(fontConfig.Name, fontName.c_str(), std::max(sizeof(fontConfig.Name) - 1, fontName.length()));
+        pImguiFont = ImGui::GetIO().Fonts->AddFontFromFileTTF(fontPath.u8string().c_str(), 24, &fontConfig);
     }
 
     _input.register_p("DEBUG_TOGGLE", std::bind(&vScene::DebugToggle, this, std::placeholders::_1, std::placeholders::_2));
@@ -187,7 +191,11 @@ void vScene::update()
         {
             ImGuiNewFrame();
 
+            ImGui::PushFont(pImguiFont);
+
             _updateImgui();
+
+            ImGui::PopFont();
 
             ImGui::Render();
         }

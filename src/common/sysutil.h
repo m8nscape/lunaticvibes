@@ -85,3 +85,6 @@ void callWMEventHandler(void* arg1 = 0, void* arg2 = 0, void* arg3 = 0, void* ar
 
 long long getFileTimeNow();
 long long getFileLastWriteTime(const Path& p);
+
+Path getSysFontPath(std::string* faceName = NULL, int* faceIndex = NULL);
+Path getSysMonoFontPath(std::string* faceName = NULL, int* faceIndex = NULL);
