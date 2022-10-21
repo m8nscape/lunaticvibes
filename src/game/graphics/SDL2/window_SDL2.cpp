@@ -120,7 +120,7 @@ int graphics_init()
 #endif
 
         gInternalRenderTarget = SDL_CreateTexture(gFrameRenderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_TARGET,
-            3840, 2160);
+            CANVAS_WIDTH_MAX, CANVAS_HEIGHT_MAX);
         if (!gInternalRenderTarget)
         {
             LOG_ERROR << "[SDL2] Init Target Texture Error! " << SDL_GetError();

@@ -1130,9 +1130,9 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
                 return;
             }
         }
-        if (selectDownTimestamp == -1 && (input[Input::Pad::K1SELECT || input[Input::Pad::K2SELECT]]))
+        if (selectDownTimestamp == -1 && (input[Input::Pad::K1SELECT || input[Input::Pad::K2SELECT]]) && !gSelectContext.entries.empty())
         {
-            switch (!gSelectContext.entries.empty() && gSelectContext.entries[gSelectContext.idx].first->type())
+            switch (gSelectContext.entries[gSelectContext.idx].first->type())
             {
             case eEntryType::SONG:
             case eEntryType::RIVAL_SONG:

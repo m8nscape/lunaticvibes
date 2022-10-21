@@ -10,3 +10,6 @@ constexpr char BUILD_TIME[] = __TIMESTAMP__;
 
 constexpr unsigned CANVAS_WIDTH = 640;
 constexpr unsigned CANVAS_HEIGHT = 480;
+
+constexpr unsigned CANVAS_WIDTH_MAX = 1920 * 3;
+constexpr unsigned CANVAS_HEIGHT_MAX = 1080 * 3;

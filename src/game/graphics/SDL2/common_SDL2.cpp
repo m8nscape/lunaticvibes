@@ -337,7 +337,7 @@ void Texture::_draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, Rect
         rc.x = rc.y = 0;
 
         static auto pTextureInverted = std::shared_ptr<SDL_Texture>(
-            SDL_CreateTexture(gFrameRenderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, 3840, 2160),
+            SDL_CreateTexture(gFrameRenderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, rc.w, rc.h),
             std::bind(pushAndWaitMainThreadTask<void, SDL_Texture*>, SDL_DestroyTexture, _1));
 
         auto oldTarget = SDL_GetRenderTarget(gFrameRenderer);
