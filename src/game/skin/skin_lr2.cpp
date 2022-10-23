@@ -1523,6 +1523,14 @@ ParseRet SkinLR2::SRC_TEXT()
 
     switch (d.st)
     {
+    case 63:
+    case 64:
+        isSupportNewRandom = true;
+        break;
+    case 65:
+    case 66:
+        isSupportExHardAndAssistEasy = true;
+        break;
     case 84:
     case 85:
         isSupportLift = true;
