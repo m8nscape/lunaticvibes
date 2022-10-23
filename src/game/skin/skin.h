@@ -149,4 +149,5 @@ public:
     bool isSupportFastSlow = false;
     bool isSupportGreenNumber = false;
     bool isSupportLift = false;
+    bool isSupportNewRandom = false;
 };

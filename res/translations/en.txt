@@ -75,3 +75,15 @@ CHART NOT FOUND
 MD5: %s
 Custom Folder
 Course Folder
+Enable Standalone Preview
+This option enables previewing charts with explicit preview audio files (e.g. #PREVIEW, preview*.ogg).\nIf disabled, the preview audio is ignored and Dynamic Preview is used instead.
+Enable Dynamic Preview
+This option enables previewing charts without any preview audio files, by loading the chart and its keysounds (same as LR2 preview).\nThis method may be relatively slow on regular BMS, since all keysound wavs should be loaded beforehand.
+Key Bindings at Select Scene
+9 Buttons config uses different buttons to navigate.\nUp/Down: Blue (4/6) | Enter: Red (5) | Back: Green (3/7)
+Enable New RANDOM options
+R-RANDOM, SYNCHRONIZE RANDOM (DB), SYMMETRY RANDOM (DB)\nA line of description text will be added at top-left on unsupported select skins.
+Enable New GROOVE GAUGE options
+EX-HARD, ASSIST EASY\nA line of description text will be added at top-left on unsupported select skins.
+Enable New LANE options
+LIFT, LIFT & SUD+\nA line of description text will be added at top-left on unsupported select skins.

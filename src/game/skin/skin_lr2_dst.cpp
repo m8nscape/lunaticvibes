@@ -189,9 +189,9 @@ void updateDstOpt()
 	// 45 2P側が赤ゲージ
 	{
 		using namespace Option;
-		set(42, dst(IndexOption::PLAY_GAUGE_TYPE_1P, { GAUGE_ASSIST, GAUGE_EASY, GAUGE_NORMAL }));
+		set(42, dst(IndexOption::PLAY_GAUGE_TYPE_1P, { GAUGE_ASSISTEASY, GAUGE_EASY, GAUGE_NORMAL }));
 		set(43, dst(IndexOption::PLAY_GAUGE_TYPE_1P, { GAUGE_HARD, GAUGE_EXHARD, GAUGE_DEATH }));
-		set(44, dst(IndexOption::PLAY_GAUGE_TYPE_2P, { GAUGE_ASSIST, GAUGE_EASY, GAUGE_NORMAL }));
+		set(44, dst(IndexOption::PLAY_GAUGE_TYPE_2P, { GAUGE_ASSISTEASY, GAUGE_EASY, GAUGE_NORMAL }));
 		set(45, dst(IndexOption::PLAY_GAUGE_TYPE_2P, { GAUGE_HARD, GAUGE_EXHARD, GAUGE_DEATH }));
 	}
 

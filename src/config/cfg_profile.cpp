@@ -20,7 +20,6 @@ void ConfigProfile::setDefaults() noexcept
     set(P_MISSBGA_LENGTH, 500);
     set(P_MIN_INPUT_INTERVAL, 5);
     set(P_NEW_SONG_DURATION, 6);
-    set(P_MOUSE_ANALOG, false);
 	set(P_BASESPEED, 1.0);
 	set(P_HISPEED, 1.0);
     set(P_LOCK_SPEED, false);
@@ -34,20 +33,9 @@ void ConfigProfile::setDefaults() noexcept
     set(P_CHART_OP, P_CHART_OP_NORMAL);
     set(P_GAUGE_OP, P_GAUGE_OP_NORMAL);
     set(P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_NONE);
-    set(P_COMBO_POS_X, 0);
-    set(P_COMBO_POS_Y, 0);
-    set(P_JUDGE_POS_X, 0);
-    set(P_JUDGE_POS_Y, 0);
-    set(P_DISPLAY_OFFSET, 0);
     set(P_JUDGE_OFFSET, 0);
-    set(P_JUDGE_STAT, false);
-    set(P_GHOST_COLOR, P_GHOST_COLOR_NORMAL);
     set(P_GHOST_TYPE, false);
     set(P_GHOST_TARGET, 50);
-    set(P_GHOST_FS_TRIGGER, false);
-    set(P_GHOST_FS_TYPE, P_GHOST_FS_TYPE_NORMAL);
-    set(P_GHOST_FS_POS_X, 0);
-    set(P_GHOST_FS_POS_Y, 0);
     set(P_FILTER_KEYS, P_FILTER_KEYS_ALL);
     set(P_SORT_MODE, P_SORT_MODE_FOLDER);
     set(P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_ALL);
@@ -89,4 +77,11 @@ void ConfigProfile::setDefaults() noexcept
     set(P_FX2_TYPE, false);
     set(P_FX2_P1, 0);
     set(P_FX2_P2, 0);
+
+    set(P_PREVIEW_DEDICATED, true);
+    set(P_PREVIEW_DIRECT, true);
+    set(P_SELECT_KEYBINDINGS, P_SELECT_KEYBINDINGS_7K);
+    set(P_ENABLE_NEW_RANDOM, false);
+    set(P_ENABLE_NEW_GAUGE, false);
+    set(P_ENABLE_NEW_LANE_OPTION, false);
 }

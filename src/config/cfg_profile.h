@@ -11,7 +11,6 @@ namespace cfg
     constexpr char P_MISSBGA_LENGTH[] = "MissBGATime";
     constexpr char P_MIN_INPUT_INTERVAL[] = "MinInputInterval";
     constexpr char P_NEW_SONG_DURATION[] = "NewSongDuration";
-    constexpr char P_MOUSE_ANALOG[] = "MouseAnalog";
 
     constexpr char P_BASESPEED[] = "Basespeed";
 
@@ -87,6 +86,9 @@ namespace cfg
     constexpr char P_CHART_OP_SRAN[] = "SRandom";
     constexpr char P_CHART_OP_HRAN[] = "HRandom";
     constexpr char P_CHART_OP_ALLSCR[] = "AllScratch";
+    constexpr char P_CHART_OP_RRAN[] = "RRandom";
+    constexpr char P_CHART_OP_DB_SYNCHRONIZE[] = "Synchronize";
+    constexpr char P_CHART_OP_DB_SYMMETRY[] = "Symmetry";
     enum class eChartOp
     {
         NORMAL,
@@ -94,7 +96,10 @@ namespace cfg
         RANDOM,
         SRAN,
         HRAN,
-        ASCR
+        ASCR,
+        RRAN,
+        DB_SYNCHRONIZE,
+        DB_SYMMETRY
     };
 
     constexpr char P_CHART_ASSIST_OP[] = "ChartAssistOption";
@@ -126,32 +131,12 @@ namespace cfg
     constexpr char P_GAUGE_OP[] = "GaugeOption";
     constexpr char P_GAUGE_OP_NORMAL[] = "Groove";
     constexpr char P_GAUGE_OP_EASY[] = "Easy";
-    constexpr char P_GAUGE_OP_ASSIST[] = "AssistEasy";
+    constexpr char P_GAUGE_OP_ASSISTEASY[] = "AssistEasy";
     constexpr char P_GAUGE_OP_HARD[] = "Hard";
     constexpr char P_GAUGE_OP_EXHARD[] = "ExHard";
     constexpr char P_GAUGE_OP_DEATH[] = "Death";
 
-    constexpr char P_COMBO_POS_X[] = "ComboPositionOffsetX";
-    constexpr char P_COMBO_POS_Y[] = "ComboPositionOffsetY";
-
-    constexpr char P_JUDGE_POS_X[] = "JudgePositionOffsetX";
-    constexpr char P_JUDGE_POS_Y[] = "JudgePositionOffsetY";
-
-    constexpr char P_DISPLAY_OFFSET[] = "DisplayOffset";
-
     constexpr char P_JUDGE_OFFSET[] = "JudgeOffset";
-
-    constexpr char P_JUDGE_STAT[] = "JudgeStatistics";       // off, on
-
-
-    constexpr char P_GHOST_COLOR[] = "GhostColor";
-    constexpr char P_GHOST_COLOR_NORMAL[] = "Normal";
-    constexpr char P_GHOST_COLOR_MONOCHROME[] = "Mono";
-    enum class eGhostColor
-    {
-        NORMAL,
-        MONO
-    };
 
     constexpr char P_GHOST_TYPE[] = "GhostType";;
     constexpr char P_GHOST_TYPE_OFF[] = "Off";
@@ -167,28 +152,6 @@ namespace cfg
     };
 
     constexpr char P_GHOST_TARGET[] = "GhostTarget";         // Ghost Target Rate% (Target: Default)
-
-    constexpr char P_GHOST_FS_TRIGGER[] = "GhostFSTrigger";  // except PERFECT, always
-    constexpr char P_GHOST_FS_TRIGGER_SUB[] = "Normal";
-    constexpr char P_GHOST_FS_TRIGGER_ALWAYS[] = "Always";
-    enum class eGhostFSTrigger
-    {
-        OFF,
-        NORMAL,
-        ALWAYS
-    };
-
-    constexpr char P_GHOST_FS_TYPE[] = "GhostFSType";   //  normal, ms
-    constexpr char P_GHOST_FS_TYPE_NORMAL[] = "Normal";
-    constexpr char P_GHOST_FS_TYPE_TIME[] = "Time";
-    enum class eGhostFSType
-    {
-        NORMAL,
-        TIME
-    };
-
-    constexpr char P_GHOST_FS_POS_X[] = "GhostFSPosX";           // off, normal, ms, both
-    constexpr char P_GHOST_FS_POS_Y[] = "GhostFSPosY";           // off, normal, ms, both
 
     constexpr char P_FILTER_KEYS[] = "KeysFilter";
     constexpr char P_FILTER_KEYS_ALL[] = "All";
@@ -301,32 +264,17 @@ namespace cfg
 
     constexpr char P_LANGUAGE[] = "Language";
 
-    enum class eProfile
-    {
-        PLAYERNAME,
-        BASESPD,
-        HISPEED,
-        SPEEDTYPE,
-        LANECOVER,
-        LIFT,
-        CHART_OP,
-        GAUGE_OP,
-        COMBO_POS_X,
-        COMBO_POS_Y,
-        JUDGE_POS_X,
-        JUDGE_POS_Y,
-        DISPLAY_LATENCY,
-        JUDGE_LATENCY,
-        JUDGE_STAT,
-        GHOST_TYPE,
-        GHOST_POS_X,
-        GHOST_POS_Y,
-        GHOST_TARGET,
-        GHOST_FS_TRIGGER,
-        GHOST_FS_TYPE,
-        GHOST_FS_POS_X,
-        GHOST_FS_POS_Y
-    };
+    constexpr char P_PREVIEW_DEDICATED[] = "PreviewDedicated";
+    constexpr char P_PREVIEW_DIRECT[] = "PreviewDirect";
+
+    constexpr char P_SELECT_KEYBINDINGS[] = "SelectKeybindings";
+    constexpr char P_SELECT_KEYBINDINGS_7K[] = "7Keys";
+    constexpr char P_SELECT_KEYBINDINGS_5K[] = "5Keys";
+    constexpr char P_SELECT_KEYBINDINGS_9K[] = "9Keys";
+
+    constexpr char P_ENABLE_NEW_RANDOM[] = "EnableNewRandomOptions";
+    constexpr char P_ENABLE_NEW_GAUGE[] = "EnableNewGauges";
+    constexpr char P_ENABLE_NEW_LANE_OPTION[] = "EnableNewLaneOptions";
 }
 
 class ConfigProfile : public vConfig

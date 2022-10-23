@@ -119,7 +119,9 @@ enum class eModRandom: uint8_t
     SRAN,
     HRAN,			// Scatter
     ALLSCR,			// Converge
-    // FIXME DP separated mod
+    RRAN,
+    DB_SYNCHRONIZE,
+    DB_SYMMETRY,
 };
 
 enum class eModGauge : uint8_t
@@ -128,15 +130,15 @@ enum class eModGauge : uint8_t
     HARD,
     DEATH,
     EASY,
-    ASSISTEASY,
+    PATTACK,    // placeholder, not included ingame
+    GATTACK,    // placeholder, not included ingame
     EXHARD,
+    ASSISTEASY,
 
     GRADE_NORMAL = 10,
     GRADE_HARD,
     GRADE_DEATH,
 
-    //PATTACK,
-    //GATTACK,
 };
 
 inline const uint8_t PLAY_MOD_ASSIST_AUTO67     = 1 << 0; // 5keys, not implemented

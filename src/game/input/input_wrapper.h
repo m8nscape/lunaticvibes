@@ -43,6 +43,15 @@ inline const InputMask INPUT_MASK_NAV_UP{ "0000000000000000001000000000000000000
 //                                                          v                   2P:          S 1P:          S
 inline const InputMask INPUT_MASK_NAV_DN{ "0000000000000000010000000000000000000000000000000010000000000000010" };
 
+//                                                    Return >                     2P:     5      1P:     5      
+inline const InputMask INPUT_MASK_DECIDE_9K{ "0000000010000001000000000000000000000000000001000000000000001000000" };
+//                                                   Bksp     <                    2P:   7   3    1P:   7   3 
+inline const InputMask INPUT_MASK_CANCEL_9K{ "0000000100000000100000000000000000000000000100010000000000100010000" };
+//                                                              ^                  2P:      4    S1P:      4    S
+inline const InputMask INPUT_MASK_NAV_UP_9K{ "0000000000000000001000000000000000000000000000100001000000000100001" };
+//                                                             v                   2P:    6     S 1P:    6     S
+inline const InputMask INPUT_MASK_NAV_DN_9K{ "0000000000000000010000000000000000000000000010000010000000010000010" };
+
 // InputWrapper
 //  Start a process to check input upon 1000hz polling.
 // Interface: 

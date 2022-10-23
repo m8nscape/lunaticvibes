@@ -1197,8 +1197,16 @@ void SpriteGaugeGrid::setGaugeType(SpriteGaugeGrid::GaugeType ty)
         _req = 1; break;
 
     case GaugeType::EX_SURVIVAL: 
-        _texIdxLightFail = EXHARD_LIGHT; _texIdxDarkFail = EXHARD_DARK;
-        _texIdxLightClear = EXHARD_LIGHT; _texIdxDarkClear = EXHARD_DARK;
+        if (_segments > EXHARD_LIGHT)
+        {
+            _texIdxLightFail = EXHARD_LIGHT; _texIdxDarkFail = EXHARD_DARK;
+            _texIdxLightClear = EXHARD_LIGHT; _texIdxDarkClear = EXHARD_DARK;
+        }
+        else
+        {
+            _texIdxLightFail = CLEAR_LIGHT; _texIdxDarkFail = CLEAR_DARK;
+            _texIdxLightClear = CLEAR_LIGHT; _texIdxDarkClear = CLEAR_DARK;
+        }
         _req = 1; break;
 	default: break;
 	}

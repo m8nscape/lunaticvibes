@@ -259,6 +259,13 @@ void select_keys_filter(int plus, int iterateCount)
         }
     }
 
+    auto ran = State::get(IndexOption::PLAY_RANDOM_TYPE_1P);
+    if (ran == Option::RAN_DB_SYNCHRONIZE_RANDOM || ran == Option::RAN_DB_SYMMETRY_RANDOM)
+    {
+        State::set(IndexOption::PLAY_RANDOM_TYPE_1P, 0);
+        State::set(IndexOption::PLAY_RANDOM_TYPE_2P, 0);
+    }
+
     gSelectContext.optionChanged = true;
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_DIFFICULTY);
 }
@@ -497,7 +504,12 @@ void gauge_type(int player, int plus)
     }
 
     // eModGauge
-    int val = (State::get(op) + 4 + plus) % 4;
+    int types = ConfigMgr::get('P', cfg::P_ENABLE_NEW_GAUGE, false) ? 8 : 4;
+    int val = (State::get(op) + types + plus) % types;
+    if (val == Option::GAUGE_PATTACK || val == Option::GAUGE_GATTACK)
+    {
+        val = (plus >= 0) ? Option::GAUGE_EXHARD : Option::GAUGE_EASY;
+    }
     State::set(op, val);
     State::set(tx, Option::s_gauge_type[val]);
 
@@ -522,7 +534,43 @@ void random_type(int player, int plus)
     }
 
     // eModRandom
-    int val = (State::get(op) + 6 + plus) % 6;
+    int types = ConfigMgr::get('P', cfg::P_ENABLE_NEW_RANDOM, false) ? 9 : 6;
+    int oldVal = State::get(op);
+    int val = (State::get(op) + types + plus) % types;
+    if (val == Option::RAN_DB_SYNCHRONIZE_RANDOM || val == Option::RAN_DB_SYMMETRY_RANDOM)
+    {
+        if (State::get(IndexOption::PLAY_BATTLE_TYPE) != Option::BATTLE_DB)
+        {
+            val = (plus >= 0) ? Option::RAN_NORMAL : Option::RAN_RRAN;
+        }
+        else
+        {
+            if (slot == PLAYER_SLOT_PLAYER)
+            {
+                State::set(IndexOption::PLAY_RANDOM_TYPE_2P, val);
+                State::set(IndexText::RANDOM_2P, Option::s_random_type[val]);
+            }
+            else
+            {
+                State::set(IndexOption::PLAY_RANDOM_TYPE_1P, val);
+                State::set(IndexText::RANDOM_1P, Option::s_random_type[val]);
+            }
+        }
+    }
+    else if ((oldVal == Option::RAN_DB_SYNCHRONIZE_RANDOM || oldVal == Option::RAN_DB_SYMMETRY_RANDOM) &&
+        (val != Option::RAN_DB_SYNCHRONIZE_RANDOM && val != Option::RAN_DB_SYMMETRY_RANDOM))
+    {
+        if (slot == PLAYER_SLOT_PLAYER)
+        {
+            State::set(IndexOption::PLAY_RANDOM_TYPE_2P, val);
+            State::set(IndexText::RANDOM_2P, Option::s_random_type[val]);
+        }
+        else
+        {
+            State::set(IndexOption::PLAY_RANDOM_TYPE_1P, val);
+            State::set(IndexText::RANDOM_1P, Option::s_random_type[val]);
+        }
+    }
     State::set(op, val);
     State::set(tx, Option::s_random_type[val]);
 
@@ -597,7 +645,8 @@ void lane_effect(int player, int plus)
     }
 
     // 
-    int val = (State::get(op) + 6 + plus) % 6;
+    int types = ConfigMgr::get('P', cfg::P_ENABLE_NEW_LANE_OPTION, false) ? 6 : 4;
+    int val = (State::get(op) + types + plus) % types;
     State::set(op, val);
     State::set(tx, Option::s_lane_effect_type[val]);
 
@@ -728,6 +777,13 @@ void battle(int plus)
 
     State::set(IndexSwitch::PLAY_OPTION_DP_FLIP, false);
     State::set(IndexText::FLIP, "OFF");
+    
+    auto ran = State::get(IndexOption::PLAY_RANDOM_TYPE_1P);
+    if (ran == Option::RAN_DB_SYNCHRONIZE_RANDOM || ran == Option::RAN_DB_SYMMETRY_RANDOM)
+    {
+        State::set(IndexOption::PLAY_RANDOM_TYPE_1P, 0);
+        State::set(IndexOption::PLAY_RANDOM_TYPE_2P, 0);
+    }
 
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 

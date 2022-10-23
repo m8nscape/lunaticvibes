@@ -76,6 +76,12 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
         _sTopLeft2 = std::make_shared<SpriteText>(_fNotifications, IndexText::_OVERLAY_TOPLEFT2, TextAlign::TEXT_ALIGN_LEFT, textHeight);
         _sTopLeft2->setOutline(1, Color(0, 0, 0, 255));
         _sTopLeft2->setLoopTime(0);
+        _sTopLeft3 = std::make_shared<SpriteText>(_fNotifications, IndexText::_OVERLAY_TOPLEFT3, TextAlign::TEXT_ALIGN_LEFT, textHeight);
+        _sTopLeft3->setOutline(1, Color(0, 0, 0, 255));
+        _sTopLeft3->setLoopTime(0);
+        _sTopLeft4 = std::make_shared<SpriteText>(_fNotifications, IndexText::_OVERLAY_TOPLEFT4, TextAlign::TEXT_ALIGN_LEFT, textHeight);
+        _sTopLeft4->setOutline(1, Color(0, 0, 0, 255));
+        _sTopLeft4->setLoopTime(0);
         RenderKeyFrame f;
         f.time = 0;
         f.param.rect = Rect(0, 0, notificationWidth, textHeight);
@@ -88,6 +94,10 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
         _sTopLeft->appendKeyFrame(f);
         f.param.rect.y += textHeight;
         _sTopLeft2->appendKeyFrame(f);
+        f.param.rect.y += textHeight;
+        _sTopLeft3->appendKeyFrame(f);
+        f.param.rect.y += textHeight;
+        _sTopLeft4->appendKeyFrame(f);
     }
 
     if (pImguiFont == NULL)
@@ -178,6 +188,8 @@ void vScene::update()
         }
         _sTopLeft->update(t);
         _sTopLeft2->update(t);
+        _sTopLeft3->update(t);
+        _sTopLeft4->update(t);
 
         // update videos
         TextureVideo::updateAll();
@@ -238,6 +250,10 @@ void vScene::draw() const
     _sTopLeft->draw();
     _sTopLeft2->updateText();
     _sTopLeft2->draw();
+    _sTopLeft3->updateText();
+    _sTopLeft3->draw();
+    _sTopLeft4->updateText();
+    _sTopLeft4->draw();
 
     {
         std::shared_lock lock(gOverlayContext._mutex);

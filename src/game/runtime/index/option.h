@@ -45,10 +45,10 @@ enum class IndexOption : unsigned
     PLAY_BGA_SIZE,          // NORMAL/EXTEND
     PLAY_GHOST_TYPE_1P,     // OFF/A/B/C
     PLAY_GHOST_TYPE_2P,
-    PLAY_GAUGE_TYPE_1P,     // GROOVE/HARD/SUDDEN/EASY/EXHARD(new)/ASSIST(new)
-    PLAY_GAUGE_TYPE_2P,     // GROOVE/HARD/SUDDEN/EASY/EXHARD(new)/ASSIST(new)
-    PLAY_RANDOM_TYPE_1P,
-    PLAY_RANDOM_TYPE_2P,
+    PLAY_GAUGE_TYPE_1P,     // GROOVE/HARD/SUDDEN/EASY/PATK(disabled)/GATK(disabled)/EXHARD(new)/ASSIST(new)
+    PLAY_GAUGE_TYPE_2P,     // GROOVE/HARD/SUDDEN/EASY/PATK(disabled)/GATK(disabled)/EXHARD(new)/ASSIST(new)
+    PLAY_RANDOM_TYPE_1P,    // OFF/MIRROR/RANDOM/S-RAN/H-RAN(SCATTER)/ALLSCR(CONVERGE)/R-RAN(new)/DB_SYNCHRONIZE(new)/DB_SYMMETRY(new)
+    PLAY_RANDOM_TYPE_2P,    // OFF/MIRROR/RANDOM/S-RAN/H-RAN(SCATTER)/ALLSCR(CONVERGE)/R-RAN(new)/DB_SYNCHRONIZE(new)/DB_SYMMETRY(new)
     PLAY_LANE_EFFECT_TYPE_1P,	// OFF/HID+/SUD+/SUD+&HID+/LIFT(new)/LIFT&SUD+(new)
     PLAY_LANE_EFFECT_TYPE_2P,	// OFF/HID+/SUD+/SUD+&HID+/LIFT(new)/LIFT&SUD+(new)
     PLAY_HSFIX_TYPE,	//OFF/MAXBPM/MINBPM/AVERAGE/CONSTANT
@@ -309,16 +309,20 @@ namespace Option
         GAUGE_HARD,
         GAUGE_DEATH,
         GAUGE_EASY,
-        GAUGE_ASSIST,
+        GAUGE_PATTACK,  // placeholder
+        GAUGE_GATTACK,  // placeholder
         GAUGE_EXHARD,
+        GAUGE_ASSISTEASY,
     };
     constexpr char* s_gauge_type[] = {
         "NORMAL",
         "HARD",
         "DEATH",
         "EASY",
-        "ASSIST",
+        "PATK_NOT_IMPLEMENTED",
+        "GATK_NOT_IMPLEMENTED",
         "EXHARD",
+        "ASSIST-EASY",
     };
 
     enum e_random_type {
@@ -328,6 +332,9 @@ namespace Option
         RAN_SRAN,
         RAN_HRAN,
         RAN_ALLSCR,
+        RAN_RRAN,
+        RAN_DB_SYNCHRONIZE_RANDOM,
+        RAN_DB_SYMMETRY_RANDOM,
     };
     constexpr char* s_random_type[] = {
         "NORMAL",
@@ -336,6 +343,9 @@ namespace Option
         "S-RANDOM",
         "H-RANDOM",
         "ALL-SCR",
+        "R-RANDOM",
+        "SYNCHRONIZE",
+        "SYMMETRY"
     };
 
     enum e_assist_type {

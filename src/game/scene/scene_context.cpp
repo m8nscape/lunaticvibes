@@ -70,7 +70,7 @@ std::pair<bool, Option::e_lamp_type> getSaveScoreType()
     case Option::GAUGE_HARD:   lampType = Option::e_lamp_type::LAMP_HARD; break;
     case Option::GAUGE_DEATH:  lampType = Option::e_lamp_type::LAMP_FULLCOMBO; break;
     case Option::GAUGE_EASY:   lampType = Option::e_lamp_type::LAMP_EASY; break;
-    case Option::GAUGE_ASSIST: lampType = Option::e_lamp_type::LAMP_ASSIST; break;
+    case Option::GAUGE_ASSISTEASY: lampType = Option::e_lamp_type::LAMP_ASSIST; break;
     case Option::GAUGE_EXHARD: lampType = Option::e_lamp_type::LAMP_EXHARD; break;
     }
     return { true, lampType };

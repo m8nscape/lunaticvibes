@@ -83,8 +83,6 @@ void SceneSelect::_imguiInit()
 
     imgui_video_maxFPS = ConfigMgr::get("V", cfg::V_MAXFPS, 240);
 
-    imgui_audio_checkASIODevices = ConfigMgr::get("A", cfg::A_MODE, cfg::A_MODE_ASIO) == cfg::A_MODE_ASIO;
-    imgui_audio_listASIODevices = imgui_audio_checkASIODevices;
     imgui_audio_bufferCount = ConfigMgr::get("A", cfg::A_BUFCOUNT, 2);
     imgui_audio_bufferSize = ConfigMgr::get("A", cfg::A_BUFLEN, 256);
     _imguiRefreshAudioDevices();
@@ -95,7 +93,29 @@ void SceneSelect::_imguiInit()
     imgui_adv_missBGATime = ConfigMgr::get("P", cfg::P_MISSBGA_LENGTH, 500);
     imgui_adv_minInputInterval = ConfigMgr::get("P", cfg::P_MIN_INPUT_INTERVAL, 16);
     imgui_adv_newSongDuration = ConfigMgr::get("P", cfg::P_NEW_SONG_DURATION, 24);
-    imgui_adv_mouseAnalog = ConfigMgr::get("P", cfg::P_MOUSE_ANALOG, false);
+
+    imgui_adv_previewDedicated = ConfigMgr::get("P", cfg::P_PREVIEW_DEDICATED, true);
+    imgui_adv_previewDirect = ConfigMgr::get("P", cfg::P_PREVIEW_DIRECT, true);
+
+    imgui_adv_selectKeyBindings = old_adv_selectKeyBindings = 0;
+    static const char* imgui_select_keybindings_str[] =
+    {
+        cfg::P_SELECT_KEYBINDINGS_7K,
+        cfg::P_SELECT_KEYBINDINGS_5K,
+        cfg::P_SELECT_KEYBINDINGS_9K,
+    };
+    for (size_t i = 0; i < sizeof(imgui_select_keybindings_str) / sizeof(imgui_select_keybindings_str[0]); ++i)
+    {
+        if (ConfigMgr::get('P', cfg::P_SELECT_KEYBINDINGS, cfg::P_SELECT_KEYBINDINGS_7K) == imgui_select_keybindings_str[i])
+        {
+            imgui_adv_selectKeyBindings = old_adv_selectKeyBindings = i;
+            break;
+        }
+    }
+
+    imgui_adv_enableNewRandom = ConfigMgr::get("P", cfg::P_ENABLE_NEW_RANDOM, false);
+    imgui_adv_enableNewGauge = ConfigMgr::get("P", cfg::P_ENABLE_NEW_GAUGE, false);
+    imgui_adv_enableNewLaneOption = ConfigMgr::get("P", cfg::P_ENABLE_NEW_LANE_OPTION, false);
 
     // auto popup settings for first runs
     if (imgui_folders.empty())
@@ -173,361 +193,33 @@ void SceneSelect::_imguiSettings()
 
                     if (ImGui::Button(i18n::c(MAIN_EXIT), {-1.f, height}))
                     {
-                        gNextScene = eScene::EXIT_TRANS;
+                        imgui_main_index = MENU_EXIT;
                     }
                     ImGui::Dummy({ 0.f, 20.0f });
 
                     if (ImGui::TableNextColumn())
                     {
-                        static const float tabItemWidth = 120.f;
-                        static const float infoRowWidth = 240.f;
-
                         if (imgui_main_index == MENU_KEYCONFIG && ImGui::BeginTabBar("##keyconfig", ImGuiTabBarFlags_FittingPolicyScroll))
                         {
-                            ImGui::Text(i18n::c(TODO));
-
+                            _imguiPage_KeyConfig();
                             ImGui::EndTabBar();
                         }
 
                         if (imgui_main_index == MENU_OPTIONS && ImGui::BeginTabBar("##option", ImGuiTabBarFlags_FittingPolicyScroll))
                         {
-                            ImGui::SetNextItemWidth(tabItemWidth);
-                            if (ImGui::BeginTabItem(i18n::c(SETTINGS_GENERAL), NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
-                            {
-                                if (ImGui::BeginChild("##pagesub11"))
-                                {
-                                    ImGui::Text(i18n::c(PROFILE));
-                                    ImGui::SameLine(infoRowWidth);
-                                    ImGui::Combo("##profile", &imgui_profile_index, imgui_profiles_display.data(), (int)imgui_profiles_display.size());
-
-                                    if (ImGui::Button(i18n::c(ADD_MORE)))
-                                    {
-                                        imgui_add_profile_popup = true;
-                                    }
-
-                                    ImGui::Dummy({});
-                                    ImGui::Separator();
-
-                                    /////////////////////////////////////////////////////////////////////////////////////////
-
-                                    ImGui::Text(i18n::c(PLAYER_NAME));
-                                    ImGui::SameLine(infoRowWidth);
-                                    bool modifiedPlayName = false;
-                                    modifiedPlayName |= ImGui::InputText("##playername", imgui_player_name_buf, sizeof(imgui_player_name_buf), ImGuiInputTextFlags_EnterReturnsTrue);
-                                    ImGui::SameLine();
-                                    modifiedPlayName |= ImGui::Button((i18n::s(APPLY) + "##applyname").c_str());
-                                    if (modifiedPlayName)
-                                    {
-                                        _imguiApplyPlayerName();
-                                    }
-
-                                    ImGui::Text(i18n::c(LANGUAGE));
-                                    ImGui::SameLine(infoRowWidth);
-                                    ImGui::Combo("##language", &imgui_language_index, imgui_languages_display.data(), (int)imgui_languages_display.size());
-
-                                    ImGui::EndChild();
-                                }
-                                ImGui::EndTabItem();
-                            }
-
-                            ImGui::SetNextItemWidth(tabItemWidth);
-                            if (ImGui::BeginTabItem(i18n::c(SETTINGS_JUKEBOX), NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
-                            {
-                                if (ImGui::BeginChild("##pagesub12"))
-                                {
-                                    ImGui::Text(i18n::c(JUKEBOX_REFRESH_HINT));
-
-                                    ImGui::Dummy({});
-                                    ImGui::Separator();
-
-                                    /////////////////////////////////////////////////////////////////////////////////////////
-
-                                    ImGui::Text(i18n::c(JUKEBOX_FOLDER));
-                                    {
-                                        bool enterPath = ImGui::InputText("##NewPath", imgui_folder_path_buf, sizeof(imgui_folder_path_buf), ImGuiInputTextFlags_EnterReturnsTrue);
-                                        if (enterPath || (ImGui::SameLine(), ImGui::Button(" + ")))
-                                        {
-                                            _imguiAddFolder(imgui_folder_path_buf);
-                                            memset(imgui_folder_path_buf, 0, sizeof(imgui_folder_path_buf));
-                                        }
-
-                                        ImGui::ListBox("##Paths", &imgui_folder_index, imgui_folders_display.data(), imgui_folders_display.size());
-
-                                        if (ImGui::Button(i18n::c(ADD_MORE)))
-                                        {
-                                            _imguiAddFolder();
-                                        }
-                                        ImGui::SameLine();
-                                        if (ImGui::Button((i18n::s(JUKEBOX_DELETE_SELECTED) + "##delfolder").c_str()))
-                                        {
-                                            _imguiDelFolder();
-                                        }
-                                        ImGui::SameLine();
-                                        if (ImGui::Button(i18n::c(JUKEBOX_BROWSE_SELECTED)))
-                                        {
-                                            _imguiBrowseFolder();
-                                        }
-                                    }
-
-                                    ImGui::Dummy({});
-                                    ImGui::Separator();
-
-                                    /////////////////////////////////////////////////////////////////////////////////////////
-
-                                    ImGui::Text(i18n::c(JUKEBOX_TABLES));
-                                    {
-
-                                        bool enterUrl = ImGui::InputText("##NewURL", imgui_table_url_buf, sizeof(imgui_table_url_buf), ImGuiInputTextFlags_EnterReturnsTrue);
-                                        if (enterUrl || (ImGui::SameLine(), ImGui::Button(" + ")))
-                                        {
-                                            _imguiAddTable();
-                                            memset(imgui_table_url_buf, 0, sizeof(imgui_table_url_buf));
-                                        }
-
-                                        ImGui::ListBox("##URLs", &imgui_table_index, imgui_tables_display.data(), imgui_tables_display.size());
-
-                                        if (ImGui::Button((i18n::s(JUKEBOX_DELETE_SELECTED) + "##deltable").c_str()))
-                                        {
-                                            _imguiDelTable();
-                                        }
-                                    }
-                                    ImGui::EndChild();
-                                }
-                                ImGui::EndTabItem();
-                            }
-
-                            ImGui::SetNextItemWidth(tabItemWidth);
-                            if (ImGui::BeginTabItem(i18n::c(SETTINGS_VIDEO), NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
-                            {
-                                if (ImGui::BeginChild("##pagesub13"))
-                                {
-                                    ImGui::Text(i18n::c(VIDEO_RESOLUTION));
-                                    ImGui::SameLine(infoRowWidth);
-                                    ImGui::Combo("##resolution", &imgui_video_display_resolution_index, imgui_video_display_resolution_display.data(), (int)imgui_video_display_resolution_display.size());
-
-                                    ImGui::Text(i18n::c(VIDEO_SS_LEVEL));
-                                    ImGui::SameLine(infoRowWidth);
-                                    const char* imgui_video_ss_display[] =
-                                    {
-                                        "1x",
-                                        "2x",
-                                        "3x",
-                                    };
-                                    int ssLevel = imgui_video_ssLevel - 1;
-                                    if (ImGui::Combo("##sslevel", &ssLevel, imgui_video_ss_display, sizeof(imgui_video_ss_display) / sizeof(char*)))
-                                    {
-                                        imgui_video_ssLevel = ssLevel + 1;
-                                    }
-
-                                    ImGui::Text(i18n::c(VIDEO_SCREEN_MODE));
-                                    ImGui::SameLine(infoRowWidth);
-                                    const char* imgui_video_mode_display[] =
-                                    {
-                                        i18n::c(VIDEO_WINDOWED),
-                                        i18n::c(VIDEO_FULLSCREEN),
-                                        i18n::c(VIDEO_BORDERLESS)
-                                    };
-                                    ImGui::Combo("##window", &imgui_video_mode, imgui_video_mode_display, sizeof(imgui_video_mode_display) / sizeof(char*));
-
-                                    ImGui::Text("Vsync");
-                                    ImGui::SameLine(infoRowWidth);
-                                    const char* imgui_vsync_mode_display[] =
-                                    {
-                                        i18n::c(OFF),
-                                        i18n::c(ON),
-    #if _WIN32
-    #else
-                                        i18n::c(VIDEO_ADAPTIVE)
-    #endif
-                                };
-                                    ImGui::Combo("##vsync", &imgui_video_vsync_index, imgui_vsync_mode_display, sizeof(imgui_vsync_mode_display) / sizeof(char*));
-
-                                    ImGui::Text(i18n::c(VIDEO_MAXFPS));
-                                    ImGui::SameLine(infoRowWidth);
-                                    ImGui::InputInt("##maxfps", &imgui_video_maxFPS, 0);
-
-                                    if (ImGui::Button(i18n::c(APPLY), {80.f, 0.f}))
-                                    {
-                                        _imguiApplyResolution();
-
-                                        if (imgui_video_maxFPS < 30 && imgui_video_maxFPS != 0)
-                                        {
-                                            imgui_video_maxFPS = 30;
-                                        }
-                                        if (imgui_video_maxFPS != ConfigMgr::get("V", cfg::V_MAXFPS, infoRowWidth))
-                                        {
-                                            ConfigMgr::set("V", cfg::V_MAXFPS, imgui_video_maxFPS);
-                                            graphics_set_maxfps(imgui_video_maxFPS);
-                                        }
-                                    }
-                                    ImGui::EndChild();
-                                }
-
-                                ImGui::EndTabItem();
-                            }
-
-                            ImGui::SetNextItemWidth(tabItemWidth);
-                            if (ImGui::BeginTabItem(i18n::c(SETTINGS_AUDIO), NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
-                            {
-                                if (ImGui::BeginChild("##pagesub14"))
-                                {
-                                    ImGui::Text(i18n::c(AUDIO_DEVICE));
-                                    ImGui::SameLine(infoRowWidth);
-                                    ImGui::Combo("##audiodevice", &imgui_audio_device_index, imgui_audio_devices_display.data(), (int)imgui_audio_devices_display.size());
-
-                                    if (ImGui::Button(i18n::c(AUDIO_REFRESH_DEVICE_LIST)))
-                                    {
-                                        imgui_audio_listASIODevices = true;
-                                        _imguiRefreshAudioDevices();
-                                    }
-
-                                    ImGui::Dummy({});
-
-                                    ImGui::Text(i18n::c(AUDIO_BUFFER_COUNT));
-                                    ImGui::SameLine(infoRowWidth);
-                                    ImGui::InputInt("##bufcount", &imgui_audio_bufferCount, 0);
-
-                                    ImGui::Text(i18n::c(AUDIO_BUFFER_LENGTH));
-                                    ImGui::SameLine(infoRowWidth);
-                                    ImGui::InputInt("##bufsize", &imgui_audio_bufferSize, 0);
-
-                                    if (ImGui::Button(i18n::c(APPLY), {80.f, 0.f}))
-                                    {
-                                        _imguiApplyAudioSettings();
-                                    }
-
-                                    ImGui::EndChild();
-                                }
-                                ImGui::EndTabItem();
-                            }
-
-                            ImGui::SetNextItemWidth(tabItemWidth);
-                            if (ImGui::BeginTabItem(i18n::c(SETTINGS_PLAY), NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
-                            {
-                                if (ImGui::BeginChild("##pagesub15"))
-                                {
-                                    ImGui::Text(i18n::c(MISS_BGA_TIME));
-                                    ImGui::SameLine(infoRowWidth);
-                                    ImGui::InputInt("##misstime", &imgui_adv_missBGATime, 0);
-
-                                    ImGui::Text(i18n::c(MIN_INPUT_INTERVAL));
-                                    ImGui::SameLine(infoRowWidth);
-                                    ImGui::InputInt("##mininputinterval", &imgui_adv_minInputInterval, 1, 10);
-                                    ImGui::SameLine();
-                                    HelpMarker(i18n::c(MIN_INPUT_INTERVAL_HINT));
-                                    //ImGui::Checkbox("Accept mouse movements as Analog input", &imgui_adv_mouseAnalog);
-
-                                    ImGui::EndChild();
-                                }
-                                ImGui::EndTabItem();
-                            }
-
-                            ImGui::SetNextItemWidth(tabItemWidth);
-                            if (ImGui::BeginTabItem(i18n::c(SETTINGS_ADVANCED), NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
-                            {
-                                if (ImGui::BeginChild("##pagesub16"))
-                                {
-                                    ImGui::Text(i18n::c(SCROLL_SPEED));
-                                    ImGui::SameLine(infoRowWidth);
-                                    ImGui::InputInt2("##scrollspeed", imgui_adv_scrollSpeed);
-                                    ImGui::SameLine();
-                                    HelpMarker(i18n::c(SCROLL_SPEED_HINT));
-
-                                    ImGui::Text(i18n::c(NEW_SONG_DURATION));
-                                    ImGui::SameLine(infoRowWidth);
-                                    ImGui::InputInt("##newsonghour", &imgui_adv_newSongDuration, 1, 10);
-                                    ImGui::SameLine();
-                                    HelpMarker(i18n::c(NEW_SONG_DURATION_HINT));
-
-                                    ImGui::EndChild();
-                                }
-
-                                ImGui::EndTabItem();
-                            }
-
-
+                            _imguiPage_Options();
                             ImGui::EndTabBar();
                         }
 
                         if (imgui_main_index == MENU_ABOUT && ImGui::BeginTabBar("##about", ImGuiTabBarFlags_FittingPolicyScroll))
                         {
-                            ImGui::SetNextItemWidth(tabItemWidth);
-                            if (ImGui::BeginTabItem("Lunatic Vibes", NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
-                            {
-                                if (ImGui::BeginChild("##pagesub21"))
-                                {
-                                    ImGui::TextUnformatted(R"("Lunatic Vibes" (2017-2022)
-https://github.com/yaasdf/lunaticvibes
-
-
-Casts:（敬称略）
-
-Leader:
-    rustbell
-
-Main Programmer:
-    rustbell
-Artwork:
-    - (Not yet! XD)
-Music:
-    -
-Sound Effects:
-    -
-
-Testers:
-    XX
-    ast
-    SonicTV
-    And more!
-
-Donators:
-    XX
-    ZTNP
-    (anonymous)
-    诡异
-    Komokom
-    udon
-    danRP
-    秋
-    Destinedone
-    菡
-    爱发电用户_3QVd
-    有只柠檬猫
-    Thank you for your generous support!
-
-Special Thanks:
-    lavalse, cyclia, SHiNKA, Kamiyu, and mur (Lunatic Rave 2)
-    kenjidct (LR2IR)
-    .RED (LR2スキン仕様書)
-
-)");
-                                    ImGui::EndChild();
-                                }
-                                ImGui::EndTabItem();
-                            }
-
-                            if (ImGui::BeginTabItem("3rd-party Softwares", NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
-                            {
-                                if (ImGui::BeginChild("##pagesub22"))
-                                {
-                                    static std::string text;
-                                    if (text.empty())
-                                    {
-                                        std::ifstream ifsFile(Path(GAMEDATA_PATH) / "resources" / "LICENSE_3RD_PARTY");
-                                        std::stringstream ss;
-                                        ss << ifsFile.rdbuf();
-                                        ss.sync();
-                                        ifsFile.close();
-                                        text = ss.str();
-                                    }
-                                    ImGui::TextUnformatted(text.c_str());
-
-                                    ImGui::EndChild();
-                                }
-                                ImGui::EndTabItem();
-                            }
-
+                            _imguiPage_About();
                             ImGui::EndTabBar();
+                        }
+
+                        if (imgui_main_index == MENU_EXIT)
+                        {
+                            _imguiPage_Exit();
                         }
                     }
                 }
@@ -614,6 +306,439 @@ Special Thanks:
 
     _imguiCheckSettings();
 }
+
+static const float tabItemWidth = 120.f;
+static const float infoRowWidth = 240.f;
+
+void SceneSelect::_imguiPage_KeyConfig()
+{
+    using namespace i18nText;
+    ImGui::Text(i18n::c(TODO));
+}
+
+void SceneSelect::_imguiPage_Options()
+{
+    using namespace i18nText;
+
+    ImGui::SetNextItemWidth(tabItemWidth);
+    if (ImGui::BeginTabItem(i18n::c(SETTINGS_GENERAL), NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
+    {
+        _imguiPage_Options_General();
+        ImGui::EndTabItem();
+    }
+
+    ImGui::SetNextItemWidth(tabItemWidth);
+    if (ImGui::BeginTabItem(i18n::c(SETTINGS_JUKEBOX), NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
+    {
+        _imguiPage_Options_Jukebox();
+        ImGui::EndTabItem();
+    }
+
+    ImGui::SetNextItemWidth(tabItemWidth);
+    if (ImGui::BeginTabItem(i18n::c(SETTINGS_VIDEO), NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
+    {
+        _imguiPage_Options_Video();
+        ImGui::EndTabItem();
+    }
+
+    ImGui::SetNextItemWidth(tabItemWidth);
+    if (ImGui::BeginTabItem(i18n::c(SETTINGS_AUDIO), NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
+    {
+        _imguiPage_Options_Audio();
+        ImGui::EndTabItem();
+    }
+
+    ImGui::SetNextItemWidth(tabItemWidth);
+    if (ImGui::BeginTabItem(i18n::c(SETTINGS_PLAY), NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
+    {
+        _imguiPage_Options_Play();
+        ImGui::EndTabItem();
+    }
+
+    ImGui::SetNextItemWidth(tabItemWidth);
+    if (ImGui::BeginTabItem(i18n::c(SETTINGS_ADVANCED), NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
+    {
+        _imguiPage_Options_Advanced();
+        ImGui::EndTabItem();
+    }
+}
+
+void SceneSelect::_imguiPage_Options_General()
+{
+    using namespace i18nText;
+
+    if (ImGui::BeginChild("##pagesub11"))
+    {
+        ImGui::Text(i18n::c(PROFILE));
+        ImGui::SameLine(infoRowWidth);
+        ImGui::Combo("##profile", &imgui_profile_index, imgui_profiles_display.data(), (int)imgui_profiles_display.size());
+
+        if (ImGui::Button(i18n::c(ADD_MORE)))
+        {
+            imgui_add_profile_popup = true;
+        }
+
+        ImGui::Dummy({});
+        ImGui::Separator();
+
+        /////////////////////////////////////////////////////////////////////////////////////////
+
+        ImGui::Text(i18n::c(PLAYER_NAME));
+        ImGui::SameLine(infoRowWidth);
+        bool modifiedPlayName = false;
+        modifiedPlayName |= ImGui::InputText("##playername", imgui_player_name_buf, sizeof(imgui_player_name_buf), ImGuiInputTextFlags_EnterReturnsTrue);
+        ImGui::SameLine();
+        modifiedPlayName |= ImGui::Button((i18n::s(APPLY) + "##applyname").c_str());
+        if (modifiedPlayName)
+        {
+            _imguiApplyPlayerName();
+        }
+
+        ImGui::Text(i18n::c(LANGUAGE));
+        ImGui::SameLine(infoRowWidth);
+        ImGui::Combo("##language", &imgui_language_index, imgui_languages_display.data(), (int)imgui_languages_display.size());
+
+        ImGui::EndChild();
+    }
+}
+
+void SceneSelect::_imguiPage_Options_Jukebox()
+{
+    using namespace i18nText;
+
+    if (ImGui::BeginChild("##pagesub12"))
+    {
+        ImGui::Text(i18n::c(JUKEBOX_REFRESH_HINT));
+
+        ImGui::Dummy({});
+        ImGui::Separator();
+
+        /////////////////////////////////////////////////////////////////////////////////////////
+
+        ImGui::Text(i18n::c(JUKEBOX_FOLDER));
+        {
+            bool enterPath = ImGui::InputText("##NewPath", imgui_folder_path_buf, sizeof(imgui_folder_path_buf), ImGuiInputTextFlags_EnterReturnsTrue);
+            if (enterPath || (ImGui::SameLine(), ImGui::Button(" + ")))
+            {
+                _imguiAddFolder(imgui_folder_path_buf);
+                memset(imgui_folder_path_buf, 0, sizeof(imgui_folder_path_buf));
+            }
+
+            ImGui::ListBox("##Paths", &imgui_folder_index, imgui_folders_display.data(), imgui_folders_display.size());
+
+            if (ImGui::Button(i18n::c(ADD_MORE)))
+            {
+                _imguiAddFolder();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button((i18n::s(JUKEBOX_DELETE_SELECTED) + "##delfolder").c_str()))
+            {
+                _imguiDelFolder();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button(i18n::c(JUKEBOX_BROWSE_SELECTED)))
+            {
+                _imguiBrowseFolder();
+            }
+        }
+
+        ImGui::Dummy({});
+        ImGui::Separator();
+
+        /////////////////////////////////////////////////////////////////////////////////////////
+
+        ImGui::Text(i18n::c(JUKEBOX_TABLES));
+        {
+
+            bool enterUrl = ImGui::InputText("##NewURL", imgui_table_url_buf, sizeof(imgui_table_url_buf), ImGuiInputTextFlags_EnterReturnsTrue);
+            if (enterUrl || (ImGui::SameLine(), ImGui::Button(" + ")))
+            {
+                _imguiAddTable();
+                memset(imgui_table_url_buf, 0, sizeof(imgui_table_url_buf));
+            }
+
+            ImGui::ListBox("##URLs", &imgui_table_index, imgui_tables_display.data(), imgui_tables_display.size());
+
+            if (ImGui::Button((i18n::s(JUKEBOX_DELETE_SELECTED) + "##deltable").c_str()))
+            {
+                _imguiDelTable();
+            }
+        }
+        ImGui::EndChild();
+    }
+}
+
+void SceneSelect::_imguiPage_Options_Video()
+{
+    using namespace i18nText;
+
+    if (ImGui::BeginChild("##pagesub13"))
+    {
+        ImGui::Text(i18n::c(VIDEO_RESOLUTION));
+        ImGui::SameLine(infoRowWidth);
+        ImGui::Combo("##resolution", &imgui_video_display_resolution_index, imgui_video_display_resolution_display.data(), (int)imgui_video_display_resolution_display.size());
+
+        ImGui::Text(i18n::c(VIDEO_SS_LEVEL));
+        ImGui::SameLine(infoRowWidth);
+        static const char* imgui_video_ss_display[] =
+        {
+            "1x",
+            "2x",
+            "3x",
+        };
+        int ssLevel = imgui_video_ssLevel - 1;
+        if (ImGui::Combo("##sslevel", &ssLevel, imgui_video_ss_display, sizeof(imgui_video_ss_display) / sizeof(char*)))
+        {
+            imgui_video_ssLevel = ssLevel + 1;
+        }
+
+        ImGui::Text(i18n::c(VIDEO_SCREEN_MODE));
+        ImGui::SameLine(infoRowWidth);
+        const char* imgui_video_mode_display[] =
+        {
+            i18n::c(VIDEO_WINDOWED),
+            i18n::c(VIDEO_FULLSCREEN),
+            i18n::c(VIDEO_BORDERLESS)
+        };
+        ImGui::Combo("##window", &imgui_video_mode, imgui_video_mode_display, sizeof(imgui_video_mode_display) / sizeof(char*));
+
+        ImGui::Text("Vsync");
+        ImGui::SameLine(infoRowWidth);
+        const char* imgui_vsync_mode_display[] =
+        {
+            i18n::c(OFF),
+            i18n::c(ON),
+#if _WIN32
+#else
+            i18n::c(VIDEO_ADAPTIVE)
+#endif
+        };
+        ImGui::Combo("##vsync", &imgui_video_vsync_index, imgui_vsync_mode_display, sizeof(imgui_vsync_mode_display) / sizeof(char*));
+
+        ImGui::Text(i18n::c(VIDEO_MAXFPS));
+        ImGui::SameLine(infoRowWidth);
+        ImGui::InputInt("##maxfps", &imgui_video_maxFPS, 0);
+
+        if (ImGui::Button(i18n::c(APPLY), { 80.f, 0.f }))
+        {
+            _imguiApplyResolution();
+
+            if (imgui_video_maxFPS < 30 && imgui_video_maxFPS != 0)
+            {
+                imgui_video_maxFPS = 30;
+            }
+            if (imgui_video_maxFPS != ConfigMgr::get("V", cfg::V_MAXFPS, infoRowWidth))
+            {
+                ConfigMgr::set("V", cfg::V_MAXFPS, imgui_video_maxFPS);
+                graphics_set_maxfps(imgui_video_maxFPS);
+            }
+        }
+        ImGui::EndChild();
+    }
+}
+
+void SceneSelect::_imguiPage_Options_Audio()
+{
+    using namespace i18nText;
+
+    if (ImGui::BeginChild("##pagesub14"))
+    {
+        ImGui::Text(i18n::c(AUDIO_DEVICE));
+        ImGui::SameLine(infoRowWidth);
+        ImGui::Combo("##audiodevice", &imgui_audio_device_index, imgui_audio_devices_display.data(), (int)imgui_audio_devices_display.size());
+
+        if (ImGui::Button(i18n::c(AUDIO_REFRESH_DEVICE_LIST)))
+        {
+            _imguiRefreshAudioDevices();
+        }
+
+        ImGui::Dummy({});
+
+        ImGui::Text(i18n::c(AUDIO_BUFFER_COUNT));
+        ImGui::SameLine(infoRowWidth);
+        ImGui::InputInt("##bufcount", &imgui_audio_bufferCount, 0);
+
+        ImGui::Text(i18n::c(AUDIO_BUFFER_LENGTH));
+        ImGui::SameLine(infoRowWidth);
+        ImGui::InputInt("##bufsize", &imgui_audio_bufferSize, 0);
+
+        if (ImGui::Button(i18n::c(APPLY), { 80.f, 0.f }))
+        {
+            _imguiApplyAudioSettings();
+        }
+
+        ImGui::EndChild();
+    }
+}
+
+void SceneSelect::_imguiPage_Options_Play()
+{
+    using namespace i18nText;
+
+    if (ImGui::BeginChild("##pagesub15"))
+    {
+        ImGui::Text(i18n::c(MISS_BGA_TIME));
+        ImGui::SameLine(infoRowWidth);
+        ImGui::InputInt("##misstime", &imgui_adv_missBGATime, 0);
+
+        ImGui::Text(i18n::c(MIN_INPUT_INTERVAL));
+        ImGui::SameLine(infoRowWidth);
+        ImGui::InputInt("##mininputinterval", &imgui_adv_minInputInterval, 1, 10);
+        ImGui::SameLine();
+        HelpMarker(i18n::c(MIN_INPUT_INTERVAL_HINT));
+        //ImGui::Checkbox("Accept mouse movements as Analog input", &imgui_adv_mouseAnalog);
+
+        ImGui::EndChild();
+    }
+}
+
+void SceneSelect::_imguiPage_Options_Advanced()
+{
+    using namespace i18nText;
+
+    if (ImGui::BeginChild("##pagesub16"))
+    {
+        ImGui::Text(i18n::c(SCROLL_SPEED));
+        ImGui::SameLine(infoRowWidth);
+        ImGui::InputInt2("##adv1", imgui_adv_scrollSpeed);
+        ImGui::SameLine();
+        HelpMarker(i18n::c(SCROLL_SPEED_HINT));
+
+        ImGui::Text(i18n::c(NEW_SONG_DURATION));
+        ImGui::SameLine(infoRowWidth);
+        ImGui::InputInt("##adv2", &imgui_adv_newSongDuration, 1, 10);
+        ImGui::SameLine();
+        HelpMarker(i18n::c(NEW_SONG_DURATION_HINT));
+
+        ImGui::Text(i18n::c(NEW_SONG_DURATION));
+        ImGui::SameLine(infoRowWidth);
+        ImGui::InputInt("##adv3", &imgui_adv_newSongDuration, 1, 10);
+        ImGui::SameLine();
+        HelpMarker(i18n::c(NEW_SONG_DURATION_HINT));
+
+        ImGui::Checkbox(i18n::c(PREVIEW_DEDICATED), &imgui_adv_previewDedicated);
+        ImGui::SameLine();
+        HelpMarker(i18n::c(PREVIEW_DEDICATED_HINT));
+
+        ImGui::Checkbox(i18n::c(PREVIEW_DIRECT), &imgui_adv_previewDedicated);
+        ImGui::SameLine();
+        HelpMarker(i18n::c(PREVIEW_DIRECT_HINT));
+
+        ImGui::Text(i18n::c(SELECT_KEYBINDINGS));
+        ImGui::SameLine(infoRowWidth);
+        static const char* imgui_adv_select_keybindings_display[] =
+        {
+            "7 Keys",
+            "5 Keys",
+            "9 Buttons"
+        };
+        ImGui::Combo("##adv6", &imgui_adv_selectKeyBindings, imgui_adv_select_keybindings_display, sizeof(imgui_adv_select_keybindings_display) / sizeof(char*));
+        ImGui::SameLine();
+        HelpMarker(i18n::c(SELECT_KEYBINDINGS_HINT));
+
+        ImGui::Checkbox(i18n::c(ENABLE_NEW_RANDOM_OPTIONS), &imgui_adv_enableNewRandom);
+        ImGui::SameLine();
+        HelpMarker(i18n::c(ENABLE_NEW_RANDOM_OPTIONS_HINT));
+
+        ImGui::Checkbox(i18n::c(ENABLE_NEW_GAUGE_OPTIONS), &imgui_adv_enableNewGauge);
+        ImGui::SameLine();
+        HelpMarker(i18n::c(ENABLE_NEW_GAUGE_OPTIONS_HINT));
+
+        ImGui::Checkbox(i18n::c(ENABLE_NEW_LANE_OPTIONS), &imgui_adv_enableNewLaneOption);
+        ImGui::SameLine();
+        HelpMarker(i18n::c(ENABLE_NEW_LANE_OPTIONS_HINT));
+
+        ImGui::EndChild();
+    }
+}
+
+void SceneSelect::_imguiPage_About()
+{
+    using namespace i18nText;
+
+    ImGui::SetNextItemWidth(tabItemWidth);
+    if (ImGui::BeginTabItem("Lunatic Vibes", NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
+    {
+        if (ImGui::BeginChild("##pagesub21"))
+        {
+            ImGui::TextUnformatted(R"("Lunatic Vibes" (2017-2022)
+https://github.com/yaasdf/lunaticvibes
+
+
+Casts:（敬称略）
+
+Leader:
+    rustbell
+
+Main Programmer:
+    rustbell
+Artwork:
+    - (Not yet! XD)
+Music:
+    -
+Sound Effects:
+    -
+
+Testers:
+    XX
+    ast
+    SonicTV
+    And more!
+
+Donators:
+    XX
+    ZTNP
+    (anonymous)
+    诡异
+    Komokom
+    udon
+    danRP
+    秋
+    Destinedone
+    菡
+    爱发电用户_3QVd
+    有只柠檬猫
+    Thank you for your generous support!
+
+Special Thanks:
+    lavalse, cyclia, SHiNKA, Kamiyu, and mur (Lunatic Rave 2)
+    kenjidct (LR2IR)
+    .RED (LR2スキン仕様書)
+
+)");
+            ImGui::EndChild();
+        }
+        ImGui::EndTabItem();
+    }
+
+    if (ImGui::BeginTabItem("3rd-party Softwares", NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
+    {
+        if (ImGui::BeginChild("##pagesub22"))
+        {
+            static std::string text;
+            if (text.empty())
+            {
+                std::ifstream ifsFile(Path(GAMEDATA_PATH) / "resources" / "LICENSE_3RD_PARTY");
+                std::stringstream ss;
+                ss << ifsFile.rdbuf();
+                ss.sync();
+                ifsFile.close();
+                text = ss.str();
+            }
+            ImGui::TextUnformatted(text.c_str());
+
+            ImGui::EndChild();
+        }
+        ImGui::EndTabItem();
+    }
+}
+
+void SceneSelect::_imguiPage_Exit()
+{
+    gNextScene = eScene::EXIT_TRANS;
+}
+
+
 
 void SceneSelect::_imguiRefreshProfileList()
 {
@@ -765,19 +890,6 @@ void SceneSelect::_imguiCheckSettings()
         }
     }
 
-    if (imgui_audio_device_index != old_audio_device_index && imgui_audio_devices_display[imgui_audio_device_index] != ConfigMgr::get('A', cfg::A_DEVNAME, ""))
-    {
-        // TODO recreate audio device
-    }
-    if (imgui_audio_bufferCount != ConfigMgr::get("A", cfg::A_BUFCOUNT, 2))
-    {
-        ConfigMgr::set("A", cfg::A_BUFCOUNT, imgui_audio_bufferCount);
-    }
-    if (imgui_audio_bufferSize != ConfigMgr::get("A", cfg::A_BUFLEN, 256))
-    {
-        ConfigMgr::set("A", cfg::A_BUFLEN, imgui_audio_bufferSize);
-    }
-
     if (imgui_adv_scrollSpeed[0] != ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_INITIAL, 300))
     {
         ConfigMgr::set("P", cfg::P_LIST_SCROLL_TIME_INITIAL, imgui_adv_scrollSpeed[0]);
@@ -799,9 +911,40 @@ void SceneSelect::_imguiCheckSettings()
         ConfigMgr::set("P", cfg::P_NEW_SONG_DURATION, imgui_adv_newSongDuration);
         State::set(IndexNumber::NEW_ENTRY_SECONDS, ConfigMgr::get('P', cfg::P_NEW_SONG_DURATION, 0) * 60 * 60);
     }
-    if (imgui_adv_mouseAnalog != ConfigMgr::get("P", cfg::P_MOUSE_ANALOG, false))
+
+    if (imgui_adv_previewDedicated != ConfigMgr::get("P", cfg::P_PREVIEW_DEDICATED, true))
     {
-        ConfigMgr::set("P", cfg::P_MOUSE_ANALOG, imgui_adv_mouseAnalog);
+        ConfigMgr::set("P", cfg::P_PREVIEW_DEDICATED, imgui_adv_previewDedicated);
+    }
+    if (imgui_adv_previewDirect != ConfigMgr::get("P", cfg::P_PREVIEW_DIRECT, true))
+    {
+        ConfigMgr::set("P", cfg::P_PREVIEW_DIRECT, imgui_adv_previewDirect);
+    }
+    if (imgui_adv_selectKeyBindings != old_adv_selectKeyBindings)
+    {
+        static const std::pair<GameModeKeys, std::string> imgui_select_keybindings_str[] =
+        {
+            { 7, cfg::P_SELECT_KEYBINDINGS_7K },
+            { 5, cfg::P_SELECT_KEYBINDINGS_5K },
+            { 9, cfg::P_SELECT_KEYBINDINGS_9K },
+        };
+        const auto& [keys, cfgstr] = imgui_select_keybindings_str[imgui_adv_selectKeyBindings];
+        old_adv_selectKeyBindings = imgui_adv_selectKeyBindings;
+        ConfigMgr::set("P", cfg::P_SELECT_KEYBINDINGS, cfgstr);
+        bindings9K = (keys == 9);
+        InputMgr::updateBindings(keys);
+    }
+    if (imgui_adv_enableNewRandom != ConfigMgr::get("P", cfg::P_ENABLE_NEW_RANDOM, false))
+    {
+        ConfigMgr::set("P", cfg::P_ENABLE_NEW_RANDOM, imgui_adv_enableNewRandom);
+    }
+    if (imgui_adv_enableNewGauge != ConfigMgr::get("P", cfg::P_ENABLE_NEW_GAUGE, false))
+    {
+        ConfigMgr::set("P", cfg::P_ENABLE_NEW_GAUGE, imgui_adv_enableNewGauge);
+    }
+    if (imgui_adv_enableNewLaneOption != ConfigMgr::get("P", cfg::P_ENABLE_NEW_LANE_OPTION, false))
+    {
+        ConfigMgr::set("P", cfg::P_ENABLE_NEW_LANE_OPTION, imgui_adv_enableNewLaneOption);
     }
 
     if (reboot)
@@ -1033,7 +1176,7 @@ bool SceneSelect::_imguiRefreshAudioDevices()
 
 bool SceneSelect::_imguiApplyAudioSettings()
 {
-    if (SoundMgr::setDevice(imgui_audio_device_index, imgui_audio_listASIODevices) == 0)
+    if (SoundMgr::setDevice(imgui_audio_device_index, true) == 0)
     {
         auto& mode = std::next(imgui_audio_devices.begin(), imgui_audio_device_index);
         ConfigMgr::set('A', cfg::A_DEVNAME, mode->second);

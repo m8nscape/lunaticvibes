@@ -45,6 +45,7 @@ enum class BarLampType
     //PATK_OR_GATK, // LR2Skin actually uses 5 as Fullcombo index
     FULLCOMBO,
     PERFECT,
+    EXHARD,
     ASSIST_EASY,
     LAMP_TYPE_COUNT
 };

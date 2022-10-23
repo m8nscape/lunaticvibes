@@ -311,6 +311,19 @@ bool SpriteBarEntry::update(Time time)
                     {
                         // lamp
                         // TODO rival entry has two lamps
+                        static const std::map<ScoreBMS::Lamp, BarLampType> BMS_LAMP_TYPE_MAP_OLD =
+                        {
+                            {ScoreBMS::Lamp::NOPLAY,        BarLampType::NOPLAY      },
+                            {ScoreBMS::Lamp::FAILED,        BarLampType::FAILED      },
+                            {ScoreBMS::Lamp::ASSIST,        BarLampType::FAILED      },
+                            {ScoreBMS::Lamp::EASY,          BarLampType::EASY        },
+                            {ScoreBMS::Lamp::NORMAL,        BarLampType::NORMAL      },
+                            {ScoreBMS::Lamp::HARD,          BarLampType::HARD        },
+                            {ScoreBMS::Lamp::EXHARD,        BarLampType::HARD        },
+                            {ScoreBMS::Lamp::FULLCOMBO,     BarLampType::FULLCOMBO   },
+                            {ScoreBMS::Lamp::PERFECT,       BarLampType::FULLCOMBO   },
+                            {ScoreBMS::Lamp::MAX,           BarLampType::FULLCOMBO   }
+                        };
                         static const std::map<ScoreBMS::Lamp, BarLampType> BMS_LAMP_TYPE_MAP =
                         {
                             {ScoreBMS::Lamp::NOPLAY,        BarLampType::NOPLAY      },
@@ -319,7 +332,7 @@ bool SpriteBarEntry::update(Time time)
                             {ScoreBMS::Lamp::EASY,          BarLampType::EASY        },
                             {ScoreBMS::Lamp::NORMAL,        BarLampType::NORMAL      },
                             {ScoreBMS::Lamp::HARD,          BarLampType::HARD        },
-                            {ScoreBMS::Lamp::EXHARD,        BarLampType::HARD        }, // FIXME EXHARD
+                            {ScoreBMS::Lamp::EXHARD,        BarLampType::EXHARD      }, // FIXME EXHARD
                             {ScoreBMS::Lamp::FULLCOMBO,     BarLampType::FULLCOMBO   },
                             {ScoreBMS::Lamp::PERFECT,       BarLampType::FULLCOMBO   }, // FIXME PERFECT
                             {ScoreBMS::Lamp::MAX,           BarLampType::FULLCOMBO   }  // FIXME MAX
@@ -331,6 +344,16 @@ bool SpriteBarEntry::update(Time time)
                             sLamp[lampTypeIdx]->update(time);
                             drawLampType = lampTypeIdx;
                             drawLamp = true;
+                        }
+                        else
+                        {
+                            lampTypeIdx = (size_t)BMS_LAMP_TYPE_MAP_OLD.at(score->lamp);
+                            if (sLamp[lampTypeIdx])
+                            {
+                                sLamp[lampTypeIdx]->update(time);
+                                drawLampType = lampTypeIdx;
+                                drawLamp = true;
+                            }
                         }
 
                         if ((BarType)barTypeIdx == BarType::SONG_RIVAL)
@@ -394,6 +417,19 @@ bool SpriteBarEntry::update(Time time)
             auto score = std::dynamic_pointer_cast<ScoreBMS>(pScore);
             if (score)
             {
+                static const std::map<ScoreBMS::Lamp, BarLampType> BMS_LAMP_TYPE_MAP_OLD =
+                {
+                    {ScoreBMS::Lamp::NOPLAY,        BarLampType::NOPLAY      },
+                    {ScoreBMS::Lamp::FAILED,        BarLampType::FAILED      },
+                    {ScoreBMS::Lamp::ASSIST,        BarLampType::FAILED      },
+                    {ScoreBMS::Lamp::EASY,          BarLampType::EASY        },
+                    {ScoreBMS::Lamp::NORMAL,        BarLampType::NORMAL      },
+                    {ScoreBMS::Lamp::HARD,          BarLampType::HARD        },
+                    {ScoreBMS::Lamp::EXHARD,        BarLampType::HARD        },
+                    {ScoreBMS::Lamp::FULLCOMBO,     BarLampType::FULLCOMBO   },
+                    {ScoreBMS::Lamp::PERFECT,       BarLampType::FULLCOMBO   },
+                    {ScoreBMS::Lamp::MAX,           BarLampType::FULLCOMBO   } 
+                };
                 static const std::map<ScoreBMS::Lamp, BarLampType> BMS_LAMP_TYPE_MAP =
                 {
                     {ScoreBMS::Lamp::NOPLAY,        BarLampType::NOPLAY      },
@@ -402,7 +438,7 @@ bool SpriteBarEntry::update(Time time)
                     {ScoreBMS::Lamp::EASY,          BarLampType::EASY        },
                     {ScoreBMS::Lamp::NORMAL,        BarLampType::NORMAL      },
                     {ScoreBMS::Lamp::HARD,          BarLampType::HARD        },
-                    {ScoreBMS::Lamp::EXHARD,        BarLampType::HARD        }, // FIXME EXHARD
+                    {ScoreBMS::Lamp::EXHARD,        BarLampType::EXHARD      },
                     {ScoreBMS::Lamp::FULLCOMBO,     BarLampType::FULLCOMBO   },
                     {ScoreBMS::Lamp::PERFECT,       BarLampType::FULLCOMBO   }, // FIXME PERFECT
                     {ScoreBMS::Lamp::MAX,           BarLampType::FULLCOMBO   }  // FIXME MAX
@@ -415,7 +451,16 @@ bool SpriteBarEntry::update(Time time)
                     drawLampType = lampTypeIdx;
                     drawLamp = true;
                 }
-
+                else
+                {
+                    lampTypeIdx = (size_t)BMS_LAMP_TYPE_MAP_OLD.at(score->lamp);
+                    if (sLamp[lampTypeIdx])
+                    {
+                        sLamp[lampTypeIdx]->update(time);
+                        drawLampType = lampTypeIdx;
+                        drawLamp = true;
+                    }
+                }
             }
         }
         // TODO folder lamp

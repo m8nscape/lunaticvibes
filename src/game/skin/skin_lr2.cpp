@@ -1442,9 +1442,14 @@ ParseRet SkinLR2::SRC_BUTTON()
 
             if (info.mode == eMode::MUSIC_SELECT)
             {
+                if (op == IndexOption::PLAY_RANDOM_TYPE_1P || op == IndexOption::PLAY_RANDOM_TYPE_2P)
+                {
+                    if (d.div_x * d.div_y >= 9)
+                        isSupportNewRandom = true;
+                }
                 if (op == IndexOption::PLAY_GAUGE_TYPE_1P || op == IndexOption::PLAY_GAUGE_TYPE_2P)
                 {
-                    if (d.div_x * d.div_y >= 6)
+                    if (d.div_x * d.div_y >= 8)
                         isSupportExHardAndAssistEasy = true;
                 }
                 if (op == IndexOption::PLAY_LANE_EFFECT_TYPE_1P || op == IndexOption::PLAY_LANE_EFFECT_TYPE_2P)

@@ -60,6 +60,8 @@ protected:
     std::shared_ptr<Texture> _texNotificationsBG;
     std::shared_ptr<SpriteText> _sTopLeft;
     std::shared_ptr<SpriteText> _sTopLeft2;
+    std::shared_ptr<SpriteText> _sTopLeft3;
+    std::shared_ptr<SpriteText> _sTopLeft4;
     std::array<std::shared_ptr<SpriteText>, size_t(IndexText::_OVERLAY_NOTIFICATION_MAX) - size_t(IndexText::_OVERLAY_NOTIFICATION_0) + 1> _sNotifications;
     std::array<std::shared_ptr<SpriteStatic>, size_t(IndexText::_OVERLAY_NOTIFICATION_MAX) - size_t(IndexText::_OVERLAY_NOTIFICATION_0) + 1> _sNotificationsBG;
 

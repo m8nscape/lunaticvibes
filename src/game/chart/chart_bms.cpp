@@ -209,6 +209,19 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
         case eModRandom::MIRROR:
             std::reverse(gameLaneMap.begin() + laneRightStart, gameLaneMap.begin() + laneRightEnd + 1);
             break;
+        
+        case eModRandom::RRAN:
+        {
+            size_t count = (laneRightEnd - laneRightStart + 1);
+            size_t lane = rng() % count;
+            for (size_t c = laneRightStart; c <= laneRightEnd; ++c, lane = (lane + 1) % count)
+                gameLaneMap[lane] = NoteLaneIndex(laneRightStart + lane);
+
+            bool mirror = bool(rng() % 2);
+            if (mirror)
+                std::reverse(gameLaneMap.begin() + laneRightStart, gameLaneMap.begin() + laneRightEnd + 1);
+            break;
+        }
         }
     }
     else
@@ -222,6 +235,19 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
         case eModRandom::MIRROR:
             std::reverse(gameLaneMap.begin() + laneLeftStart, gameLaneMap.begin() + laneLeftEnd + 1);
             break;
+
+        case eModRandom::RRAN:
+        {
+            size_t count = (laneLeftEnd - laneLeftStart + 1);
+            size_t lane = rng() % count;
+            for (size_t c = laneLeftStart; c <= laneLeftEnd; ++c, lane = (lane + 1) % count)
+                gameLaneMap[lane] = NoteLaneIndex(laneLeftStart + lane);
+
+            bool mirror = bool(rng() % 2);
+            if (mirror)
+                std::reverse(gameLaneMap.begin() + laneLeftStart, gameLaneMap.begin() + laneLeftEnd + 1);
+            break;
+        }
         }
         if (isChartDP || gChartContext.isDoubleBattle)
         {
@@ -234,6 +260,54 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
             case eModRandom::MIRROR:
                 std::reverse(gameLaneMap.begin() + laneRightStart, gameLaneMap.begin() + laneRightEnd + 1);
                 break;
+
+            case eModRandom::RRAN:
+            {
+                size_t count = (laneRightEnd - laneRightStart + 1);
+                size_t lane = rng() % count;
+                for (size_t c = laneRightStart; c <= laneRightEnd; ++c, lane = (lane + 1) % count)
+                    gameLaneMap[lane] = NoteLaneIndex(laneRightStart + lane);
+
+                bool mirror = bool(rng() % 2);
+                if (mirror)
+                    std::reverse(gameLaneMap.begin() + laneRightStart, gameLaneMap.begin() + laneRightEnd + 1);
+                break;
+            }
+
+            case eModRandom::DB_SYNCHRONIZE:
+            {
+                assert(gChartContext.isDoubleBattle);
+
+                size_t count = (laneLeftEnd - laneLeftStart + 1);
+                std::vector<size_t> offsets(count);
+                for (size_t i = 0; i <= laneLeftEnd - laneLeftStart; ++i)
+                    offsets[i] = i;
+                std::shuffle(offsets.begin(), offsets.end(), rng);
+
+                for (size_t i = laneLeftStart; i <= laneLeftEnd; ++i)
+                    gameLaneMap[i] = NoteLaneIndex(laneLeftStart + offsets[i - laneLeftStart]);
+                for (size_t i = laneRightStart; i <= laneRightEnd; ++i)
+                    gameLaneMap[i] = NoteLaneIndex(laneRightStart + offsets[i - laneRightStart]);
+                break;
+            }
+
+            case eModRandom::DB_SYMMETRY:
+            {
+                assert(gChartContext.isDoubleBattle);
+
+                size_t count = (laneLeftEnd - laneLeftStart + 1);
+                std::vector<size_t> offsets(count);
+                for (size_t i = 0; i <= laneLeftEnd - laneLeftStart; ++i)
+                    offsets[i] = i;
+                std::shuffle(offsets.begin(), offsets.end(), rng);
+
+                for (size_t i = laneLeftStart; i <= laneLeftEnd; ++i)
+                    gameLaneMap[i] = NoteLaneIndex(laneLeftStart + offsets[i - laneLeftStart]);
+                for (size_t i = laneRightStart; i <= laneRightEnd; ++i)
+                    gameLaneMap[i] = NoteLaneIndex(laneRightStart + (count - 1) - offsets[i - laneRightStart]);
+                break;
+            }
+
             }
         }
     }

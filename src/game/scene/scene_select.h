@@ -73,6 +73,9 @@ private:
     bool isHoldingK26 = false;
     bool isHoldingK27 = false;
 
+    // 9K
+    bool bindings9K = false;    // yellow buttons (2, 8) navigate, red button (5) enter, blue buttons (4, 6) back
+
     // imgui
     bool imguiShow = false;
 
@@ -142,6 +145,18 @@ private:
     void _imguiSampleDialog();
     void _imguiSettings();
 
+    // pages
+    void _imguiPage_KeyConfig();
+    void _imguiPage_Options();
+    void _imguiPage_Options_General();
+    void _imguiPage_Options_Jukebox();
+    void _imguiPage_Options_Video();
+    void _imguiPage_Options_Audio();
+    void _imguiPage_Options_Play();
+    void _imguiPage_Options_Advanced();
+    void _imguiPage_About();
+    void _imguiPage_Exit();
+
     // misc
     void _imguiRefreshProfileList();
     void _imguiRefreshLanguageList();
@@ -205,7 +220,6 @@ private:
     std::vector<std::string> imgui_audio_devices_name;
     std::vector<const char*> imgui_audio_devices_display;
     int old_audio_device_index, imgui_audio_device_index;
-    bool imgui_audio_checkASIODevices;
     bool imgui_audio_listASIODevices;
     int imgui_audio_bufferCount;
     int imgui_audio_bufferSize;
@@ -214,5 +228,11 @@ private:
     int imgui_adv_missBGATime;
     int imgui_adv_minInputInterval;
     int imgui_adv_newSongDuration;
-    bool imgui_adv_mouseAnalog;
+    bool imgui_adv_previewDedicated;
+    bool imgui_adv_previewDirect;
+    int old_adv_selectKeyBindings;
+    int imgui_adv_selectKeyBindings;
+    bool imgui_adv_enableNewRandom;
+    bool imgui_adv_enableNewGauge;
+    bool imgui_adv_enableNewLaneOption;
 };

@@ -138,6 +138,9 @@ void setOptions()
             {P_CHART_OP_SRAN, RAN_SRAN},
             {P_CHART_OP_HRAN, RAN_HRAN},
             {P_CHART_OP_ALLSCR, RAN_ALLSCR},
+            {P_CHART_OP_RRAN, RAN_RRAN},
+            {P_CHART_OP_DB_SYNCHRONIZE, RAN_DB_SYNCHRONIZE_RANDOM},
+            {P_CHART_OP_DB_SYMMETRY, RAN_DB_SYMMETRY_RANDOM},
         };
 
         auto&& s = ConfigMgr::get<string>('P', P_CHART_OP, P_CHART_OP_NORMAL);
@@ -559,8 +562,8 @@ void setText()
             {P_GAUGE_OP_HARD,   Option::s_gauge_type[Option::GAUGE_HARD]},
             {P_GAUGE_OP_EASY,   Option::s_gauge_type[Option::GAUGE_EASY]},
             {P_GAUGE_OP_DEATH,  Option::s_gauge_type[Option::GAUGE_DEATH]},
-            {P_GAUGE_OP_ASSIST, Option::s_gauge_type[Option::GAUGE_ASSIST]},
             {P_GAUGE_OP_EXHARD, Option::s_gauge_type[Option::GAUGE_EXHARD]},
+            {P_GAUGE_OP_ASSISTEASY, Option::s_gauge_type[Option::GAUGE_ASSISTEASY]},
         };
 
         auto&& s = ConfigMgr::get<string>('P', P_GAUGE_OP, P_GAUGE_OP_NORMAL);
