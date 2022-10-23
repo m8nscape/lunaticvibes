@@ -9,8 +9,7 @@
 
 #include "imgui.h"
 #include "game/skin/skin_lr2_debug.h"
-
-static ImFont* pImguiFont = NULL;
+#include "game/runtime/i18n.h"
 
 // prototype
 vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
@@ -41,7 +40,7 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
     }
 
     int faceIndex;
-    Path fontPath = getSysMonoFontPath(NULL, &faceIndex);
+    Path fontPath = getSysMonoFontPath(NULL, &faceIndex, i18n::getCurrentLanguage());
     const int textHeight = 24;
     _fNotifications = std::make_shared<TTFFont>(fontPath.u8string().c_str(), int(textHeight * 1.5), faceIndex);
     _texNotificationsBG = std::make_shared<TextureFull>(0x000000ff);
@@ -98,16 +97,6 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
         _sTopLeft3->appendKeyFrame(f);
         f.param.rect.y += textHeight;
         _sTopLeft4->appendKeyFrame(f);
-    }
-
-    if (pImguiFont == NULL)
-    {
-        ImFontConfig fontConfig;
-        std::string fontName;
-        Path fontPath = getSysFontPath(&fontName);
-        strncpy(fontConfig.Name, fontName.c_str(), std::max(sizeof(fontConfig.Name) - 1, fontName.length()));
-        ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
-        pImguiFont = fontAtlas.AddFontFromFileTTF(fontPath.u8string().c_str(), 24, &fontConfig, fontAtlas.GetGlyphRangesChineseFull());
     }
 
     _input.register_p("DEBUG_TOGGLE", std::bind(&vScene::DebugToggle, this, std::placeholders::_1, std::placeholders::_2));
@@ -200,11 +189,7 @@ void vScene::update()
     {
         ImGuiNewFrame();
 
-        ImGui::PushFont(pImguiFont);
-
         _updateImgui();
-
-        ImGui::PopFont();
 
         ImGui::Render();
     }

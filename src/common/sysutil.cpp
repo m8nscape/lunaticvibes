@@ -49,18 +49,64 @@ long long getFileTimeNow()
     return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 }
 
-Path getSysFontPath(std::string* faceName, int* faceIndex)
+Path getSysFontPath(std::string* faceName, int* faceIndex, Languages lang)
 {
     Path p = Path(GAMEDATA_PATH) / "resources" / "fonts" / "NotoSansCJK-Regular.ttc";
-    if (faceName) *faceName = "Noto Sans CJK JP";
-    if (faceIndex) *faceIndex = 0;
+    switch (lang)
+    {
+    case Languages::KR:
+        if (faceName) *faceName = "Noto Sans CJK KR";
+        if (faceIndex) *faceIndex = 1;
+        break;
+    case Languages::ZHCN:
+        if (faceName) *faceName = "Noto Sans CJK SC";
+        if (faceIndex) *faceIndex = 2;
+        break;
+    case Languages::ZHTW:
+        if (faceName) *faceName = "Noto Sans CJK TC";
+        if (faceIndex) *faceIndex = 3;
+        break;
+    case Languages::ZHHK:
+        if (faceName) *faceName = "Noto Sans CJK HK";
+        if (faceIndex) *faceIndex = 4;
+        break;
+    case Languages::EN:
+    case Languages::JP:
+    default:
+        if (faceName) *faceName = "Noto Sans CJK JP";
+        if (faceIndex) *faceIndex = 0;
+        break;
+    }
     return p;
 }
 
-Path getSysMonoFontPath(std::string* faceName, int* faceIndex)
+Path getSysMonoFontPath(std::string* faceName, int* faceIndex, Languages lang)
 {
     Path p = Path(GAMEDATA_PATH) / "resources" / "fonts" / "NotoSansCJK-Regular.ttc";
-    if (faceName) *faceName = "Noto Sans Mono CJK JP";
-    if (faceIndex) *faceIndex = 6;
+    switch (lang)
+    {
+    case Languages::KR:
+        if (faceName) *faceName = "Noto Sans Mono CJK KR";
+        if (faceIndex) *faceIndex = 6;
+        break;
+    case Languages::ZHCN:
+        if (faceName) *faceName = "Noto Sans Mono CJK SC";
+        if (faceIndex) *faceIndex = 7;
+        break;
+    case Languages::ZHTW:
+        if (faceName) *faceName = "Noto Sans Mono CJK TC";
+        if (faceIndex) *faceIndex = 8;
+        break;
+    case Languages::ZHHK:
+        if (faceName) *faceName = "Noto Sans Mono CJK HK";
+        if (faceIndex) *faceIndex = 9;
+        break;
+    case Languages::EN:
+    case Languages::JP:
+    default:
+        if (faceName) *faceName = "Noto Sans Mono CJK JP";
+        if (faceIndex) *faceIndex = 5;
+        break;
+    }
     return p;
 }

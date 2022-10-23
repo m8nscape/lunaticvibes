@@ -8,6 +8,12 @@ size_t i18n::currentLanguage = 0;
 
 i18n::i18n(const Path& translationFile)
 {
+    std::string stem = translationFile.stem().u8string();
+    if (strEqual(stem, "zh-cn", true))
+    {
+        type = Languages::ZHCN;
+    }
+
     std::ifstream ifsFile(translationFile);
     std::stringstream ss;
     ss << ifsFile.rdbuf();
@@ -86,4 +92,10 @@ const std::string& i18n::s(size_t index)
 const char* i18n::c(size_t index)
 {
     return s(index).c_str();
+}
+
+
+Languages i18n::getCurrentLanguage()
+{
+    return languages[currentLanguage].type;
 }

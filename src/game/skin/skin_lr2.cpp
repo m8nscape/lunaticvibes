@@ -18,6 +18,7 @@
 #include "game/graphics/dxa.h"
 #include "game/graphics/video.h"
 #include "re2/re2.h"
+#include "game/runtime/i18n.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -954,7 +955,7 @@ int SkinLR2::SYSTEMFONT()
         int fonttype = toInt(parseParamBuf[2]);
         //StringContent name = parseParamBuf[3];
         int faceIndex;
-        Path fontPath = getSysMonoFontPath(NULL, &faceIndex);
+        Path fontPath = getSysMonoFontPath(NULL, &faceIndex, i18n::getCurrentLanguage());
         size_t idx = _fontNameMap.size();
         _fontNameMap[std::to_string(idx)] = std::make_shared<TTFFont>(fontPath.u8string().c_str(), ptsize, faceIndex);
         LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added FONT[" << idx << "]: " << fontPath;

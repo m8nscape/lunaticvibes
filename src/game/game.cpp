@@ -117,9 +117,19 @@ int main(int argc, char* argv[])
     // reset globals
     ConfigMgr::setGlobals();
 
+    // language
     i18n::init();
     i18n::setLanguage(ConfigMgr::get('P', cfg::P_LANGUAGE, "English"));
 
+    // imgui font
+    int fontIndex = 0;
+    Path imguiFontPath = getSysFontPath(NULL, &fontIndex, i18n::getCurrentLanguage());
+    ImFontConfig fontConfig;
+    fontConfig.FontNo = fontIndex;
+    ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
+    fontAtlas.AddFontFromFileTTF(imguiFontPath.u8string().c_str(), 24, &fontConfig, fontAtlas.GetGlyphRangesChineseFull());
+
+    // etc
     SoundMgr::setVolume(SampleChannel::MASTER, (float)State::get(IndexSlider::VOLUME_MASTER));
     SoundMgr::setVolume(SampleChannel::KEY, (float)State::get(IndexSlider::VOLUME_KEY));
     SoundMgr::setVolume(SampleChannel::BGM, (float)State::get(IndexSlider::VOLUME_BGM));

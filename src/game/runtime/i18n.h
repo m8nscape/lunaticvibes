@@ -111,6 +111,7 @@ public:
 	~i18n() = default;
 
 private:
+	Languages type = Languages::EN;
 	std::array<std::string, i18n_TEXT_COUNT> text;
 
 private:
@@ -127,4 +128,6 @@ public:
 
 	static const std::string& s(size_t index);	// i18nText::i18nTextIndex
 	static const char* c(size_t index);	// i18nText::i18nTextIndex
+
+	static Languages getCurrentLanguage();
 };

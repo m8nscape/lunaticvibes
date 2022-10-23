@@ -86,5 +86,15 @@ void callWMEventHandler(void* arg1 = 0, void* arg2 = 0, void* arg3 = 0, void* ar
 long long getFileTimeNow();
 long long getFileLastWriteTime(const Path& p);
 
-Path getSysFontPath(std::string* faceName = NULL, int* faceIndex = NULL);
-Path getSysMonoFontPath(std::string* faceName = NULL, int* faceIndex = NULL);
+enum class Languages
+{
+	EN,
+	JP,
+	KR,
+	ZHCN,
+	ZHTW,
+	ZHHK,
+	// tbd
+};
+Path getSysFontPath(std::string* faceName = NULL, int* faceIndex = NULL, Languages lang = Languages::EN);
+Path getSysMonoFontPath(std::string* faceName = NULL, int* faceIndex = NULL, Languages lang = Languages::EN);
