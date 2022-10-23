@@ -158,6 +158,10 @@ struct SelectContextParams
     size_t cursor = 0;  // highlighted bar index
     bool entryDragging = 0;    // is dragging slider
 
+    size_t cursorClick = 0;  // click bar
+    int cursorClickScroll = 0;  // -1: scroll up / 1: scroll down / 2: decide
+    bool cursorEnter = false;
+
     size_t sameDifficultyNextIdx = 0; // next entry index of same difficulty
 
     SongListSort sort = SongListSort::DEFAULT;

@@ -321,7 +321,7 @@ namespace Option
         "EASY",
         "PATK_NOT_IMPLEMENTED",
         "GATK_NOT_IMPLEMENTED",
-        "EXHARD",
+        "EX-HARD",
         "ASSIST-EASY",
     };
 

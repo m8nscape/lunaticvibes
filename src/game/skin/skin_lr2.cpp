@@ -3498,6 +3498,20 @@ void SkinLR2::postLoad()
         {
             gResetSelectCursor = false;
             gSelectContext.cursor = barCenter;
+            gSelectContext.cursorClick = barCenter;
+        }
+    }
+
+    // set bar available
+    for (auto& s : _sprites)
+    {
+        auto pS = std::dynamic_pointer_cast<SpriteBarEntry>(s);
+        if (pS != nullptr)
+        {
+            if (barClickableFrom <= pS->index && pS->index <= barClickableTo)
+            {
+                pS->setAvailable(true);
+            }
         }
     }
 

@@ -455,6 +455,67 @@ void SceneSelect::_updateAsync()
         postStopPreview();
     }
 
+    if (gSelectContext.cursorClick != gSelectContext.cursor)
+    {
+        int idx = gSelectContext.idx + gSelectContext.cursorClick - gSelectContext.cursor;
+        if (idx < 0)
+            idx += gSelectContext.entries.size() * ((-idx) / gSelectContext.entries.size() + 1);
+        gSelectContext.idx = idx % gSelectContext.entries.size();
+        gSelectContext.cursor = gSelectContext.cursorClick;
+
+        navigateTimestamp = t;
+        postStopPreview();
+        setBarInfo();
+        setEntryInfo();
+
+        State::set(IndexTimer::LIST_MOVE, t.norm());
+        SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
+    }
+
+    if (gSelectContext.cursorEnter)
+    {
+        gSelectContext.cursorEnter = false;
+
+        switch (gSelectContext.entries[gSelectContext.idx].first->type())
+        {
+        case eEntryType::FOLDER:
+        case eEntryType::CUSTOM_FOLDER:
+        case eEntryType::COURSE_FOLDER:
+            _navigateEnter(t);
+            break;
+
+        case eEntryType::SONG:
+        case eEntryType::CHART:
+        case eEntryType::RIVAL_SONG:
+        case eEntryType::RIVAL_CHART:
+        case eEntryType::COURSE:
+            _decide();
+            break;
+
+        default:
+            break;
+        }
+    }
+    if (gSelectContext.cursorClickScroll != 0)
+    {
+        if (scrollAccumulator == 0.0)
+        {
+            if (gSelectContext.cursorClickScroll > 0)
+            {
+                scrollAccumulator -= gSelectContext.cursorClickScroll;
+                scrollButtonTimestamp = t;
+                scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (getRate() / 1000);
+            }
+            else
+            {
+                scrollAccumulator += -gSelectContext.cursorClickScroll;
+                scrollButtonTimestamp = t;
+                scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (getRate() / 1000);
+            }
+        }
+        gSelectContext.cursorClickScroll = 0;
+    }
+
     // update by slider
     if (gSelectContext.entryDragging)
     {
@@ -706,7 +767,7 @@ void SceneSelect::updateSelect()
                 case Option::GAUGE_HARD:       ss << "Gauge(1P): HARD"; break;
                 case Option::GAUGE_DEATH:      ss << "Gauge(1P): DEATH"; break;
                 case Option::GAUGE_EASY:       ss << "Gauge(1P): EASY"; break;
-                case Option::GAUGE_EXHARD:     ss << "Gauge(1P): EXHARD"; break;
+                case Option::GAUGE_EXHARD:     ss << "Gauge(1P): EX-HARD"; break;
                 case Option::GAUGE_ASSISTEASY: ss << "Gauge(1P): ASSIST EASY"; break;
                 }
 
@@ -719,7 +780,7 @@ void SceneSelect::updateSelect()
                     case Option::GAUGE_HARD:       ss << " | Gauge(2P): HARD"; break;
                     case Option::GAUGE_DEATH:      ss << " | Gauge(2P): DEATH"; break;
                     case Option::GAUGE_EASY:       ss << " | Gauge(2P): EASY"; break;
-                    case Option::GAUGE_EXHARD:     ss << " | Gauge(2P): EXHARD"; break;
+                    case Option::GAUGE_EXHARD:     ss << " | Gauge(2P): EX-HARD"; break;
                     case Option::GAUGE_ASSISTEASY: ss << " | Gauge(2P): ASSIST EASY"; break;
                     }
                 }
@@ -775,6 +836,8 @@ void SceneSelect::updateSelect()
         State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
         _state = eSelectState::FADEOUT;
         _updateCallback = std::bind(&SceneSelect::updateFadeout, this);
+
+        gResetSelectCursor = true;
     }
     else if (gSelectContext.isGoingToAutoPlay)
     {

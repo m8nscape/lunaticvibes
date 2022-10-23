@@ -76,6 +76,8 @@ SceneCustomize::~SceneCustomize()
     _input.unregister_p("SCENE_PRESS_CUSTOMIZE");
     _input.loopEnd();
     loopEnd();
+
+    gResetSelectCursor = true;
 }
 
 void SceneCustomize::_updateAsync()

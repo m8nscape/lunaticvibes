@@ -169,7 +169,11 @@ bool SpriteBarEntry::update(Time time)
     auto& list = gSelectContext.entries;
     if (!list.empty())
     {
-        size_t listidx = (gSelectContext.idx + list.size() - gSelectContext.cursor + index) % list.size();
+        size_t listidx = gSelectContext.idx + index;
+        if (listidx < gSelectContext.cursor)
+            listidx += list.size() * ((gSelectContext.cursor - listidx) / list.size() + 1);
+        listidx -= gSelectContext.cursor;
+        listidx %= list.size();
 
         _draw = true;
 
@@ -266,16 +270,11 @@ bool SpriteBarEntry::update(Time time)
             drawTitle = true;
         }
 
-        /*
-        drawFlash = false;
-        if (sFlash)
+        drawFlash = gSelectContext.cursor == index;
+        if (drawFlash && sFlash)
         {
             sFlash->update(time);
-            drawFlash = true;
         }
-        */
-        if (drawFlash && sFlash)
-            sFlash->update(time);
 
         if ((BarType)barTypeIdx == BarType::SONG || 
             (BarType)barTypeIdx == BarType::NEW_SONG || 
@@ -593,4 +592,34 @@ void SpriteBarEntry::setRectOffset(const Rect& dr)
     if (drawRival) adjust_rect(sRivalWinLose[drawRivalType]->getCurrentRenderParamsRef().rect, dr);
     if (drawRivalLampSelf) adjust_rect(sRivalLampSelf[drawRivalLampSelfType]->getCurrentRenderParamsRef().rect, dr);
     if (drawRivalLampRival) adjust_rect(sRivalLampRival[drawRivalLampRivalType]->getCurrentRenderParamsRef().rect, dr);
+}
+
+bool SpriteBarEntry::OnClick(int x, int y)
+{
+    if (!_draw) return false;
+
+    if (_current.rect.x <= x && x < _current.rect.x + _current.rect.w &&
+        _current.rect.y <= y && y < _current.rect.y + _current.rect.h)
+    {
+        if (gSelectContext.cursor == index)
+        {
+            gSelectContext.cursorEnter = true;
+        }
+        else
+        {
+            if (available)
+            {
+                gSelectContext.cursorClick = index;
+            }
+            else
+            {
+                if (gSelectContext.cursor > index)
+                    gSelectContext.cursorClickScroll = (gSelectContext.cursor - index);
+                else
+                    gSelectContext.cursorClickScroll = -(index - gSelectContext.cursor);
+            }
+        }
+        return true;
+    }
+    return false;
 }

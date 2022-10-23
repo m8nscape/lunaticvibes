@@ -102,7 +102,7 @@ class SkinLR2;
 // select screen song bar. Have many sub-parts
 // The parent-child chain is a bit odd, it looks like this:
 //      BODY -> [sprite] -> TITLE/LEVEL/LAMP/RANK/etc.
-class SpriteBarEntry : public vSprite
+class SpriteBarEntry : public vSprite, public iSpriteMouse
 {
     typedef std::shared_ptr<SpriteAnimated> psAnimated;
     typedef std::shared_ptr<SpriteNumber>   psNumber;
@@ -113,6 +113,7 @@ class SpriteBarEntry : public vSprite
 
 protected:
     size_t      index = 0;
+    bool        available = false;
     std::array<psAnimated, static_cast<size_t>(BarType::TYPE_COUNT)> sBodyOff{ nullptr };
     std::array<psAnimated, static_cast<size_t>(BarType::TYPE_COUNT)> sBodyOn{ nullptr };
     std::array<psText, static_cast<size_t>(BarTitleType::TITLE_TYPE_COUNT)> sTitle{ nullptr };
@@ -191,4 +192,10 @@ public:
     auto getSpriteRivalLampRival(BarLampType type) { return sRivalLampRival[static_cast<size_t>(type)]; }
 
     void setRectOffset(const Rect& r);
+
+public:
+    void setAvailable(bool c) { available = c; }
+    virtual void OnMouseMove(int x, int y) {}
+    virtual bool OnClick(int x, int y);
+    virtual bool OnDrag(int x, int y) { return false; }
 };
