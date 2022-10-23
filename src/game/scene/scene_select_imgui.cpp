@@ -588,6 +588,42 @@ void SceneSelect::_imguiPage_Options_Play()
         HelpMarker(i18n::c(MIN_INPUT_INTERVAL_HINT));
         //ImGui::Checkbox("Accept mouse movements as Analog input", &imgui_adv_mouseAnalog);
 
+        ImGui::Text(i18n::c(DEFAULT_TARGET));
+        ImGui::SameLine(infoRowWidth);
+        imgui_play_defaultTarget = State::get(IndexNumber::DEFAULT_TARGET_RATE);
+        if (ImGui::SliderInt("##defaulttarget", &imgui_play_defaultTarget, 0, 100, "%d %%", ImGuiSliderFlags_None))
+        {
+            State::set(IndexNumber::DEFAULT_TARGET_RATE, std::clamp(imgui_play_defaultTarget, 0, 100));
+        }
+
+        ImGui::Text(i18n::c(JUDGE_TIMING));
+        ImGui::SameLine(infoRowWidth);
+        imgui_play_judgeTiming = State::get(IndexNumber::TIMING_ADJUST_VISUAL);
+        if (ImGui::SliderInt("##judgetiming", &imgui_play_judgeTiming, -99, 99, "%d ms", ImGuiSliderFlags_None))
+        {
+            State::set(IndexNumber::TIMING_ADJUST_VISUAL, imgui_play_judgeTiming);
+        }
+        ImGui::SameLine();
+        HelpMarker(i18n::c(JUDGE_TIMING_HINT));
+
+        imgui_play_lockGreenNumber = State::get(IndexSwitch::P1_LOCK_SPEED);
+        if (ImGui::Checkbox(i18n::c(LOCK_GREENNUMBER), &imgui_play_lockGreenNumber))
+        {
+            State::set(IndexSwitch::P1_LOCK_SPEED, imgui_play_lockGreenNumber);
+        }
+
+        ImGui::BeginDisabled(!imgui_play_lockGreenNumber);
+        ImGui::Text(i18n::c(GREENNUMBER));
+        ImGui::SameLine(infoRowWidth);
+        imgui_play_greenNumber = ConfigMgr::get('P', cfg::P_GREENNUMBER, 0);
+        if (ImGui::SliderInt("##greennumber", &imgui_play_greenNumber, 1, 1200, "%d", ImGuiSliderFlags_None))
+        {
+            ConfigMgr::set('P', cfg::P_GREENNUMBER, imgui_play_greenNumber >= 0 ? imgui_play_greenNumber : 0);
+        }
+        ImGui::SameLine();
+        HelpMarker(i18n::c(GREENNUMBER_HINT));
+        ImGui::EndDisabled();
+
         ImGui::EndChild();
     }
 }
@@ -607,12 +643,6 @@ void SceneSelect::_imguiPage_Options_Advanced()
         ImGui::Text(i18n::c(NEW_SONG_DURATION));
         ImGui::SameLine(infoRowWidth);
         ImGui::InputInt("##adv2", &imgui_adv_newSongDuration, 1, 10);
-        ImGui::SameLine();
-        HelpMarker(i18n::c(NEW_SONG_DURATION_HINT));
-
-        ImGui::Text(i18n::c(NEW_SONG_DURATION));
-        ImGui::SameLine(infoRowWidth);
-        ImGui::InputInt("##adv3", &imgui_adv_newSongDuration, 1, 10);
         ImGui::SameLine();
         HelpMarker(i18n::c(NEW_SONG_DURATION_HINT));
 

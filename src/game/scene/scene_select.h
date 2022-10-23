@@ -224,9 +224,14 @@ private:
     int imgui_audio_bufferCount;
     int imgui_audio_bufferSize;
 
-    int imgui_adv_scrollSpeed[2];
     int imgui_adv_missBGATime;
     int imgui_adv_minInputInterval;
+    int imgui_play_defaultTarget;
+    int imgui_play_judgeTiming;
+    bool imgui_play_lockGreenNumber;
+    int imgui_play_greenNumber;
+
+    int imgui_adv_scrollSpeed[2];
     int imgui_adv_newSongDuration;
     bool imgui_adv_previewDedicated;
     bool imgui_adv_previewDirect;
