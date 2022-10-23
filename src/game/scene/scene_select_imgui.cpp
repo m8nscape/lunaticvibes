@@ -491,6 +491,8 @@ void SceneSelect::_imguiPage_Options_Video()
         {
             imgui_video_ssLevel = ssLevel + 1;
         }
+        ImGui::SameLine();
+        HelpMarker(i18n::c(VIDEO_SS_LEVEL_HINT));
 
         ImGui::Text(i18n::c(VIDEO_SCREEN_MODE));
         ImGui::SameLine(infoRowWidth);
@@ -502,7 +504,7 @@ void SceneSelect::_imguiPage_Options_Video()
         };
         ImGui::Combo("##window", &imgui_video_mode, imgui_video_mode_display, sizeof(imgui_video_mode_display) / sizeof(char*));
 
-        ImGui::Text("Vsync");
+        ImGui::Text(i18n::c(VIDEO_VSYNC));
         ImGui::SameLine(infoRowWidth);
         const char* imgui_vsync_mode_display[] =
         {

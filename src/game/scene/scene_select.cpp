@@ -2303,18 +2303,21 @@ void SceneSelect::updatePreview()
     Path previewChartPath;
     {
         std::shared_lock<std::shared_mutex> s(gSelectContext._mutex);
-        const auto& entry = gSelectContext.entries[gSelectContext.idx].first;
-        type = entry->type();
+        if (!gSelectContext.entries.empty())
+        {
+            const auto& entry = gSelectContext.entries[gSelectContext.idx].first;
+            type = entry->type();
 
-        if (type == eEntryType::SONG || type == eEntryType::RIVAL_SONG)
-        {
-            auto pFile = std::reinterpret_pointer_cast<EntryFolderSong>(entry)->getCurrentChart();
-            if (pFile) previewChartPath = pFile->absolutePath;
-        }
-        else if (type == eEntryType::CHART || type == eEntryType::RIVAL_CHART)
-        {
-            auto pFile = std::reinterpret_pointer_cast<EntryChart>(entry)->_file;
-            if (pFile) previewChartPath = pFile->absolutePath;
+            if (type == eEntryType::SONG || type == eEntryType::RIVAL_SONG)
+            {
+                auto pFile = std::reinterpret_pointer_cast<EntryFolderSong>(entry)->getCurrentChart();
+                if (pFile) previewChartPath = pFile->absolutePath;
+            }
+            else if (type == eEntryType::CHART || type == eEntryType::RIVAL_CHART)
+            {
+                auto pFile = std::reinterpret_pointer_cast<EntryChart>(entry)->_file;
+                if (pFile) previewChartPath = pFile->absolutePath;
+            }
         }
     }
 

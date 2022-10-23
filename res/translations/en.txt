@@ -26,6 +26,7 @@ Browse Selected
 Tables
 Resolution
 Supersample Level
+Expand internal rendering resolution for better scaling high resolution textures.\nNote that artifact may appear on the edge of elements. I've not found an effective soluton yet...
 Screen Mode
 Windowed
 FullScreen
