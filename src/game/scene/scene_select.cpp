@@ -1234,9 +1234,9 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
 
             {
                 std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
-                gSelectContext.idx = 0;
                 loadSongList();
                 sortSongList();
+                gSelectContext.idx = 0;
                 setBarInfo();
                 setEntryInfo();
 
@@ -2030,9 +2030,9 @@ void SceneSelect::_navigateEnter(const Time& t)
             gSelectContext.backtrace.top().displayEntries = gSelectContext.entries;
             gSelectContext.backtrace.push(prop);
             gSelectContext.entries.clear();
-            gSelectContext.idx = 0;
             loadSongList();
             sortSongList();
+            gSelectContext.idx = 0;
 
             setBarInfo();
             setEntryInfo();
@@ -2075,9 +2075,9 @@ void SceneSelect::_navigateEnter(const Time& t)
             gSelectContext.backtrace.top().displayEntries = gSelectContext.entries;
             gSelectContext.backtrace.push(prop);
             gSelectContext.entries.clear();
-            gSelectContext.idx = 0;
             loadSongList();
             sortSongList();
+            gSelectContext.idx = 0;
 
             setBarInfo();
             setEntryInfo();
@@ -2123,9 +2123,9 @@ void SceneSelect::_navigateEnter(const Time& t)
             gSelectContext.backtrace.top().displayEntries = gSelectContext.entries;
             gSelectContext.backtrace.push(prop);
             gSelectContext.entries.clear();
-            gSelectContext.idx = 0;
             loadSongList();
             sortSongList();
+            gSelectContext.idx = 0;
 
             setBarInfo();
             setEntryInfo();
@@ -2323,9 +2323,9 @@ void SceneSelect::searchSong(const std::string& text)
     gSelectContext.backtrace.top().displayEntries = gSelectContext.entries;
     gSelectContext.backtrace.push(prop);
     gSelectContext.entries.clear();
-    gSelectContext.idx = 0;
     loadSongList();
     sortSongList();
+    gSelectContext.idx = 0;
 
     setBarInfo();
     setEntryInfo();
