@@ -85,19 +85,34 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
 
     _basic.health = health;
 
-    total = 160;
     switch (format->type())
     {
     case eChartFormat::BMS:
-        double total_bms;
-        format->getExtendedProperty("TOTAL", (void*)&total_bms);
-        total = int(total_bms);
-        if (total < 0) total = 160;
+        format->getExtendedProperty("TOTAL", (void*)&total);
         break;
 
     case eChartFormat::BMSON:
     default:
         break;
+    }
+    if (total < 0)
+    {
+        switch (_gauge)
+        {
+        case RulesetBMS::GaugeType::HARD:
+        case RulesetBMS::GaugeType::EXHARD:
+        case RulesetBMS::GaugeType::DEATH:
+        case RulesetBMS::GaugeType::GRADE:
+        case RulesetBMS::GaugeType::EXGRADE:
+            total = 300;
+            break;
+        case RulesetBMS::GaugeType::GROOVE:
+        case RulesetBMS::GaugeType::EASY:
+        case RulesetBMS::GaugeType::ASSIST:
+        default:
+            total = 160;
+            break;
+        }
     }
 
     switch (_gauge)
