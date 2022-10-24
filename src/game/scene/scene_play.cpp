@@ -303,9 +303,27 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     gChartContext.startBPM = gChartContext.chartObj->startBPM;
     gChartContext.maxBPM = gChartContext.chartObj->maxBPM;
 
+    // chartobj
     _chartLoaded = createChartObj();
     gPlayContext.remainTime = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getTotalLength();
 
+    // set gauge type
+    if (gChartContext.chartObj)
+    {
+        switch (gChartContext.chartObj->type())
+        {
+        case eChartFormat::BMS:
+        case eChartFormat::BMSON:
+            setInitialHealthBMS();
+            break;
+        default:
+            break;
+        }
+    }
+    _healthLastTick[PLAYER_SLOT_PLAYER] = State::get(IndexNumber::PLAY_1P_GROOVEGAUGE);
+    _healthLastTick[PLAYER_SLOT_TARGET] = State::get(IndexNumber::PLAY_2P_GROOVEGAUGE);
+
+    // ruleset, should be called after initial health set
     _rulesetLoaded = createRuleset();
 
     _hispeedOld[PLAYER_SLOT_PLAYER] = gPlayContext.Hispeed;
@@ -361,22 +379,6 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     gPlayContext.battle2PHispeedGradientStart = TIMER_NEVER;
     gPlayContext.battle2PHispeedGradientFrom = gPlayContext.battle2PHispeed;
     gPlayContext.battle2PHispeedGradientNow = gPlayContext.battle2PHispeed;
-
-    // set gauge type
-    if (gChartContext.chartObj)
-    {
-        switch (gChartContext.chartObj->type())
-        {
-        case eChartFormat::BMS:
-        case eChartFormat::BMSON:
-            setInitialHealthBMS();
-            break;
-        default:
-            break;
-        }
-    }
-    _healthLastTick[PLAYER_SLOT_PLAYER] = State::get(IndexNumber::PLAY_1P_GROOVEGAUGE);
-    _healthLastTick[PLAYER_SLOT_TARGET] = State::get(IndexNumber::PLAY_2P_GROOVEGAUGE);
 
     {
         using namespace std::string_literals;

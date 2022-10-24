@@ -85,7 +85,7 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
 
     _basic.health = health;
 
-    int total = 160;
+    total = 160;
     switch (format->type())
     {
     case eChartFormat::BMS:
@@ -724,14 +724,55 @@ void RulesetBMS::_judgeRelease(NoteLaneCategory cat, NoteLaneIndex idx, HitableN
     }
 }
 
-void RulesetBMS::_updateHp(const double diff)
+void RulesetBMS::_updateHp(double diff)
 {
+    // TOTAL補正, totalnotes補正
+    // ref: https://web.archive.org/web/20150226213104/http://2nd.geocities.jp/yoshi_65c816/bms/LR2.html
+    switch (_gauge)
+    {
+    case RulesetBMS::GaugeType::HARD:
+    case RulesetBMS::GaugeType::EXHARD:
+        if (diff < 0)
+        {
+            double pTotal = 1.0;
+            if (total >= 240);
+            else if (total >= 230) pTotal = 10.0 / 9;
+            else if (total >= 210) pTotal = 1.25;
+            else if (total >= 200) pTotal = 1.5;
+            else if (total >= 180) pTotal = 5.0 / 3;
+            else if (total >= 160) pTotal = 2.0;
+            else if (total >= 150) pTotal = 2.5;
+            else if (total >= 130) pTotal = 10.0 / 3;
+            else if (total >= 120) pTotal = 5.0;
+            else                   pTotal = 10.0;
+
+            double pNotes = 1.0;
+            int notes = _chart->getNoteTotalCount();
+            if (notes >= 1000);
+            else if (notes >= 500) pNotes = (notes - 500) * 0.002;
+            else if (notes >= 250) pNotes = 1.0 + (notes - 250) * 0.004;
+            else if (notes >= 125) pNotes = 2.0 + (notes - 125) * 0.008;
+            else if (notes >= 62)  pNotes = 3.0 + (notes - 62) * (1.0 / 62);
+            else if (notes >= 31)  pNotes = 4.0 + (notes - 31) * (1.0 / 31);
+            else if (notes >= 16)  pNotes = 5.0 + (notes - 16) * 0.0625;
+            else if (notes >= 8)   pNotes = 6.0 + (notes - 8) * 0.125;
+            else if (notes >= 4)   pNotes = 7.0 + (notes - 4) * 0.25;
+            else if (notes >= 2)   pNotes = 8.0 + (notes - 2) * 0.50;
+            else if (notes == 1)   pNotes = 9.0;
+            else                   pNotes = 10.0;
+
+            diff *= 1.0 * std::max(pTotal, pNotes);
+        }
+    }
+
     double tmp = _basic.health;
+
+    // 30% buff
     switch (_gauge)
     {
     case RulesetBMS::GaugeType::HARD:
     case RulesetBMS::GaugeType::GRADE:
-        if (tmp < 0.3000001 && diff < 0.0)
+        if (tmp < 0.32 && diff < 0.0)
             tmp += diff * 0.6;
         else
             tmp += diff;
@@ -740,6 +781,7 @@ void RulesetBMS::_updateHp(const double diff)
         tmp += diff;
         break;
     }
+
     _basic.health = std::max(_minHealth, std::min(1.0, tmp));
 
     if (failWhenNoHealth() && _basic.health <= _minHealth)

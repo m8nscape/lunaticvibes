@@ -163,6 +163,8 @@ void setOptions()
             {P_GAUGE_OP_HARD, GAUGE_HARD},
             {P_GAUGE_OP_EASY, GAUGE_EASY},
             {P_GAUGE_OP_DEATH, GAUGE_DEATH},
+            {P_GAUGE_OP_EXHARD, GAUGE_EXHARD},
+            {P_GAUGE_OP_ASSISTEASY, GAUGE_ASSISTEASY},
         };
 
         auto&& s = ConfigMgr::get<string>('P', P_GAUGE_OP, P_GAUGE_OP_NORMAL);

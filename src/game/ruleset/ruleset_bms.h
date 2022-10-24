@@ -201,6 +201,7 @@ protected:
     JudgeRes _lastNoteJudge;
 
     double moneyScore = 0.0;
+    int total = -1;
 
     std::map<chart::NoteLane, ChartObjectBase::NoteIterator> _noteListIterators;
 
@@ -226,7 +227,7 @@ private:
     void judgeNotePress(Input::Pad k, const Time& t, const Time& rt, int slot);
     void judgeNoteHold(Input::Pad k, const Time& t, const Time& rt, int slot);
     void judgeNoteRelease(Input::Pad k, const Time& t, const Time& rt, int slot);
-    void _updateHp(const double diff);
+    void _updateHp(double diff);
     void _updateHp(JudgeType judge);
 public:
     // Register to InputWrapper
