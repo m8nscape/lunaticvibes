@@ -720,7 +720,6 @@ Testers:
 Donators:
     XX
     ZTNP
-    (anonymous)
     诡异
     Komokom
     udon
