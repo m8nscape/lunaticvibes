@@ -135,10 +135,12 @@ bool vSprite::updateByKeyframes(const Time& rawTime)
             case RenderParams::CONSTANT:
                 break;
             case RenderParams::ACCEL:
-                prog = -std::cos(prog * 1.57079632679) + 1.0;
+                //prog = -std::cos(prog * 1.57079632679) + 1.0;
+                prog = prog * prog * prog;
                 break;
             case RenderParams::DECEL:
-                prog = std::sin(prog * 1.57079632679);
+                //prog = std::sin(prog * 1.57079632679);
+                prog = 1.0 - ((1.0 - prog) * (1.0 - prog) * (1.0 - prog));
                 break;
             case RenderParams::DISCONTINOUS:
                 prog = 0.0;
