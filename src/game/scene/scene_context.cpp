@@ -289,90 +289,84 @@ void loadSongList()
         }
     }
 
-    if (gSelectContext.idx >= gSelectContext.entries.size())
+    gSelectContext.idx = 0;
+
+    // look for the exact same entry
+
+    auto findChart = [&](const HashMD5& hash)
     {
-        gSelectContext.idx = 0;
-    }
-    else
-    {
-        auto findChart = [&](const HashMD5& hash)
+        for (size_t idx = 0; idx < gSelectContext.entries.size(); ++idx)
         {
-            for (size_t idx = 0; idx < gSelectContext.entries.size(); ++idx)
+            if (hash == gSelectContext.entries.at(idx).first->md5)
             {
-                if (hash == gSelectContext.entries.at(idx).first->md5)
-                {
-                    return idx;
-                }
+                return idx;
             }
-            return (size_t)-1;
-        };
+        }
+        return (size_t)-1;
+    };
 
-        gSelectContext.idx = 0;
-
-        // look for the exact same entry
-        size_t i = findChart(currentEntryHash);
+    size_t i = findChart(currentEntryHash);
+    if (i != (size_t)-1)
+    {
+        gSelectContext.idx = i;
+    }
+    else if (currentEntrySong)
+    {
+        if (gSelectContext.filterDifficulty != 0)
+        {
+            // search from current difficulty
+            const auto& chartList = currentEntrySong->getDifficultyList(currentEntryGamemode, gSelectContext.filterDifficulty);
+            if (!chartList.empty())
+            {
+                i = findChart((*chartList.begin())->fileHash);
+            }
+        }
         if (i != (size_t)-1)
         {
             gSelectContext.idx = i;
         }
-        else if (currentEntrySong)
+        else
         {
-            if (gSelectContext.filterDifficulty != 0)
+            // search from the same difficulty
+            const auto& chartList = currentEntrySong->getDifficultyList(currentEntryGamemode, currentEntryDifficulty);
+            if (!chartList.empty())
             {
-                // search from current difficulty
-                const auto& chartList = currentEntrySong->getDifficultyList(currentEntryGamemode, gSelectContext.filterDifficulty);
-                if (!chartList.empty())
+                i = findChart((*chartList.begin())->fileHash);
+            }
+        }
+        if (i != (size_t)-1)
+        {
+            gSelectContext.idx = i;
+        }
+        else
+        {
+            // search from any difficulties
+            for (size_t diff = 1; diff <= 5; ++diff)
+            {
+                if (currentEntryDifficulty == diff) continue;
+                if (currentEntryDifficulty == gSelectContext.filterDifficulty) continue;
+                const auto& diffList = currentEntrySong->getDifficultyList(currentEntryGamemode, diff);
+                if (!diffList.empty())
                 {
-                    i = findChart((*chartList.begin())->fileHash);
+                    i = findChart((*diffList.begin())->fileHash);
                 }
             }
-            if (i != (size_t)-1)
+        }
+        if (i != (size_t)-1)
+        {
+            gSelectContext.idx = i;
+        }
+        else
+        {
+            // search the very first version
+            if (currentEntrySong->getContentsCount() > 0)
             {
-                gSelectContext.idx = i;
+                i = findChart(currentEntrySong->getChart(0)->fileHash);
             }
-            else
-            {
-                // search from the same difficulty
-                const auto& chartList = currentEntrySong->getDifficultyList(currentEntryGamemode, currentEntryDifficulty);
-                if (!chartList.empty())
-                {
-                    i = findChart((*chartList.begin())->fileHash);
-                }
-            }
-            if (i != (size_t)-1)
-            {
-                gSelectContext.idx = i;
-            }
-            else
-            {
-                // search from any difficulties
-                for (size_t diff = 1; diff <= 5; ++diff)
-                {
-                    if (currentEntryDifficulty == diff) continue;
-                    if (currentEntryDifficulty == gSelectContext.filterDifficulty) continue;
-                    const auto& diffList = currentEntrySong->getDifficultyList(currentEntryGamemode, diff);
-                    if (!diffList.empty())
-                    {
-                        i = findChart((*diffList.begin())->fileHash);
-                    }
-                }
-            }
-            if (i != (size_t)-1)
-            {
-                gSelectContext.idx = i;
-            }
-            else
-            {
-                // search the very first version
-                if (currentEntrySong->getContentsCount() > 0)
-                {
-                    i = findChart(currentEntrySong->getChart(0)->fileHash);
-                }
-            }
-            if (i != (size_t)-1)
-            {
-                gSelectContext.idx = i;
-            }
+        }
+        if (i != (size_t)-1)
+        {
+            gSelectContext.idx = i;
         }
     }
     State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.idx / gSelectContext.entries.size()));
@@ -464,20 +458,17 @@ void sortSongList()
             }
         });
 
+    for (size_t idx = 0; idx < gSelectContext.entries.size(); ++idx)
+    {
+        if (currentEntryHash == gSelectContext.entries.at(idx).first->md5)
+        {
+            gSelectContext.idx = idx;
+            break;
+        }
+    }
     if (gSelectContext.idx >= gSelectContext.entries.size())
     {
         gSelectContext.idx = 0;
-    }
-    else
-    {
-        for (size_t idx = 0; idx < gSelectContext.entries.size(); ++idx)
-        {
-            if (currentEntryHash == gSelectContext.entries.at(idx).first->md5)
-            {
-                gSelectContext.idx = idx;
-                break;
-            }
-        }
     }
     State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.idx / gSelectContext.entries.size()));
 }
