@@ -30,10 +30,12 @@ private:
     bool isHoldingUp = false;
     bool isHoldingDown = false;
     bool isScrollingByAxis = false;
-    bool isInVersionList = false;
 
-    Time selectDownTimestamp;
     Time navigateTimestamp;
+
+    // hold SELECT to enter version list
+    bool isInVersionList = false;
+    Time selectDownTimestamp;
 
     // preview
     std::shared_mutex previewMutex;
@@ -121,8 +123,8 @@ private:
     void _navigateEnter(const Time& t);
     void _navigateBack(const Time& t);
     void _decide();
-    void _navigateSongEnter(const Time& t);
-    void _navigateSongBack(const Time& t);
+    void _navigateVersionEnter(const Time& t);
+    void _navigateVersionBack(const Time& t);
     bool _closeAllPanels(const Time& t);
 
 protected:

@@ -949,7 +949,7 @@ void difficulty(int diff, int plus)
     if (diff == gSelectContext.filterDifficulty)
     {
         std::unique_lock l(gSelectContext._mutex);
-        switchDifficulty(diff);
+        switchVersion(diff);
         setBarInfo();
         setEntryInfo();
     }

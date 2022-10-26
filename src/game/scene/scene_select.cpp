@@ -1285,16 +1285,18 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
                 return;
             }
         }
-        if (selectDownTimestamp == -1 && (input[Input::Pad::K1SELECT || input[Input::Pad::K2SELECT]]) && !gSelectContext.entries.empty())
+        if (selectDownTimestamp == -1 && (input[Input::Pad::K1SELECT] || input[Input::Pad::K2SELECT]) && !gSelectContext.entries.empty())
         {
             switch (gSelectContext.entries[gSelectContext.idx].first->type())
             {
-            case eEntryType::SONG:
-            case eEntryType::RIVAL_SONG:
-            {
+            case eEntryType::CHART:
+            case eEntryType::RIVAL_CHART:
                 selectDownTimestamp = t;
                 break;
-            }
+
+            default:
+                lr2skin::button::select_difficulty_filter(1);
+                break;
             }
         }
     }
@@ -1388,7 +1390,7 @@ void SceneSelect::inputGameHoldSelect(InputMask& input, const Time& t)
     }
     if ((t - selectDownTimestamp).norm() >= 233 && !isInVersionList && (input[Input::Pad::K1SELECT] || input[Input::Pad::K2SELECT]))
     {
-        _navigateSongEnter(t);
+        _navigateVersionEnter(t);
     }
 }
 
@@ -1400,15 +1402,16 @@ void SceneSelect::inputGameReleaseSelect(InputMask& input, const Time& t)
         {
             if (isInVersionList)
             {
-                _navigateSongBack(t);
+                _navigateVersionBack(t);
             }
             else
             {
                 // short press on song, inc version by 1
-                // TODO play some animation
-                auto pSong = std::dynamic_pointer_cast<EntryFolderSong>(gSelectContext.entries[gSelectContext.idx].first);
-                pSong->incCurrentChart();
+                std::unique_lock l(gSelectContext._mutex);
+                switchVersion(0);
                 setBarInfo();
+                setEntryInfo();
+                gSelectContext.optionChanged = true;
                 SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_DIFFICULTY);
             }
             selectDownTimestamp = -1;
@@ -2197,7 +2200,7 @@ void SceneSelect::_navigateBack(const Time& t)
     setDynamicTextures();
 }
 
-void SceneSelect::_navigateSongEnter(const Time& t)
+void SceneSelect::_navigateVersionEnter(const Time& t)
 {
     isInVersionList = true;
 
@@ -2207,9 +2210,12 @@ void SceneSelect::_navigateSongEnter(const Time& t)
     // push current list into buffer
     // create version list
     // show list
+
+    // For now we just switch difficulty filter
+    lr2skin::button::select_difficulty_filter(1);
 }
 
-void SceneSelect::_navigateSongBack(const Time& t)
+void SceneSelect::_navigateVersionBack(const Time& t)
 {
     // TODO
     // play some sound

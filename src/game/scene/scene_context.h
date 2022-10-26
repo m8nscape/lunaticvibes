@@ -190,7 +190,7 @@ void sortSongList();
 void setBarInfo();
 void setEntryInfo();
 void setPlayModeInfo();
-void switchDifficulty(int difficulty);
+void switchVersion(int difficulty);
 
 void setDynamicTextures();
 

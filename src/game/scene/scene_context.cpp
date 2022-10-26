@@ -1132,7 +1132,7 @@ void setPlayModeInfo()
     }
 }
 
-void switchDifficulty(int difficulty)
+void switchVersion(int difficulty)
 {
     const EntryList& e = gSelectContext.entries;
     if (e.empty()) return;
@@ -1215,7 +1215,7 @@ void switchDifficulty(int difficulty)
                         {
                             currentFound = true;
                         }
-                        else if (currentFound && pns->_file->gamemode == pf->gamemode && pns->_file->difficulty == pf->difficulty)
+                        else if (currentFound && pns->_file->gamemode == pf->gamemode && (difficulty == 0 || pns->_file->difficulty == difficulty))
                         {
                             gSelectContext.idx = nextIdx;
                             State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.idx / gSelectContext.entries.size()));
@@ -1224,9 +1224,27 @@ void switchDifficulty(int difficulty)
                     }
                 }
             }
-            // next chart not found, fallback to first
+            // next chart not found, search once again
             if (pFirstChart)
             {
+                for (size_t nextIdx = 0; nextIdx < e.size(); ++nextIdx)
+                {
+                    if (e[nextIdx].first->type() == eEntryType::CHART || e[nextIdx].first->type() == eEntryType::RIVAL_CHART)
+                    {
+                        auto pns = std::reinterpret_pointer_cast<EntryChart>(e[nextIdx].first);
+                        if (pns->getSongEntry() == ps->getSongEntry())
+                        {
+                            if (pns->_file != pf && pns->_file->gamemode == pf->gamemode && (difficulty == 0 || pns->_file->difficulty == difficulty))
+                            {
+                                gSelectContext.idx = nextIdx;
+                                State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.idx / gSelectContext.entries.size()));
+                                return;
+                            }
+                        }
+                    }
+                }
+
+                // fallback to first entry
                 gSelectContext.idx = firstIdx;
                 State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.idx / gSelectContext.entries.size()));
             }
