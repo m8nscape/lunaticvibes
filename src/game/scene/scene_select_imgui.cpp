@@ -952,6 +952,7 @@ void SceneSelect::_imguiCheckSettings()
     if (imgui_adv_minInputInterval != ConfigMgr::get("P", cfg::P_MIN_INPUT_INTERVAL, 16))
     {
         ConfigMgr::set("P", cfg::P_MIN_INPUT_INTERVAL, imgui_adv_minInputInterval);
+        InputMgr::setDebounceTime(imgui_adv_minInputInterval);
     }
     if (imgui_adv_newSongDuration != ConfigMgr::get("P", cfg::P_NEW_SONG_DURATION, 24))
     {

@@ -11,6 +11,8 @@ using namespace Input;
 void InputMgr::init()
 {
     initInput();
+
+    setDebounceTime(ConfigMgr::get('P', cfg::P_MIN_INPUT_INTERVAL, 16));
 }
 
 void InputMgr::updateDevices()
@@ -97,28 +99,36 @@ double InputMgr::getDeadzone(Input::Pad k)
 #include "SDL_mouse.h"
 #endif
 
-std::bitset<KEY_COUNT> InputMgr::detect()
+std::bitset<KEY_COUNT> InputMgr::_detect()
 {
     pollInput();
 
     std::bitset<KEY_COUNT> res{};
-    _inst.scratch1 = 0.0;
-    _inst.scratch2 = 0.0;
+    scratch1 = 0.0;
+    scratch2 = 0.0;
+
+    Time t;
 
     // game input
     for (int k = S1L; k < LANE_COUNT; k++)
     {
-        KeyMap& b = _inst.padBindings[k];
+        KeyMap& b = padBindings[k];
         {
 			switch (b.getType())
 			{
             case KeyMap::DeviceType::KEYBOARD:
                 if (isKeyPressed(b.getKeyboard()))
+                {
                     res[k] = true;
+                    pressedTime[k] = t;
+                }
 				break;
 			case KeyMap::DeviceType::JOYSTICK:
-                if (isButtonPressed(b.getJoystick(), _inst.padDeadzones[k]))
+                if (isButtonPressed(b.getJoystick(), padDeadzones[k]))
+                {
                     res[k] = true;
+                    pressedTime[k] = t;
+                }
 				break;
 			case KeyMap::DeviceType::MOUSE:
 				break;
@@ -126,17 +136,24 @@ std::bitset<KEY_COUNT> InputMgr::detect()
 			//if (res[k]) break;
         }
     }
-    if (_inst.padBindings[S1A].getType() == KeyMap::DeviceType::JOYSTICK)
+
+    for (int k = S1L; k < LANE_COUNT; k++)
     {
-        auto& j = _inst.padBindings[S1A].getJoystick();
-        if (j.type == Input::Joystick::Type::AXIS_ABSOLUTE)
-            _inst.scratch1 = getJoystickAxis(j.device, j.type, j.index);
+        if (!res[k] && (t - pressedTime[k]).norm() <= debounceTime)
+            res[k] = true;
     }
-    if (_inst.padBindings[S2A].getType() == KeyMap::DeviceType::JOYSTICK)
+
+    if (padBindings[S1A].getType() == KeyMap::DeviceType::JOYSTICK)
     {
-        auto& j = _inst.padBindings[S2A].getJoystick();
+        auto& j = padBindings[S1A].getJoystick();
         if (j.type == Input::Joystick::Type::AXIS_ABSOLUTE)
-            _inst.scratch2 = getJoystickAxis(j.device, j.type, j.index);
+            scratch1 = getJoystickAxis(j.device, j.type, j.index);
+    }
+    if (padBindings[S2A].getType() == KeyMap::DeviceType::JOYSTICK)
+    {
+        auto& j = padBindings[S2A].getJoystick();
+        if (j.type == Input::Joystick::Type::AXIS_ABSOLUTE)
+            scratch2 = getJoystickAxis(j.device, j.type, j.index);
     }
 
     // FN input
@@ -181,6 +198,10 @@ std::bitset<KEY_COUNT> InputMgr::detect()
 
     return res;
 }
+std::bitset<KEY_COUNT> InputMgr::detect()
+{
+    return _inst._detect();
+}
 
 
 bool InputMgr::getMousePos(int& x, int& y)
@@ -201,4 +222,9 @@ bool InputMgr::getScratchPos(double& x, double& y)
     x = _inst.scratch1;
     y = _inst.scratch2;
     return true;
+}
+
+void InputMgr::setDebounceTime(int ms)
+{
+    _inst.debounceTime = ms;
 }

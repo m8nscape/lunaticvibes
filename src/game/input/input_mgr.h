@@ -31,6 +31,9 @@ private:
     std::array<double, Input::ESC> padDeadzones{};
     double scratch1, scratch2;
 
+    int debounceTime = 0;
+    std::array<Time, Input::Pad::KEY_COUNT> pressedTime;
+
 public:
     // Game keys param / functions
     static void init();
@@ -39,9 +42,14 @@ public:
     static void updateBindings(GameModeKeys keys, Input::Pad K);
     static void updateDeadzones();
     static double getDeadzone(Input::Pad k);
+
+    std::bitset<Input::KEY_COUNT> _detect();
     static std::bitset<Input::KEY_COUNT> detect();
 	static bool getMousePos(int& x, int& y);
     static bool getScratchPos(double& s1, double& s2);
+
+    static void setDebounceTime(int ms);
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////
