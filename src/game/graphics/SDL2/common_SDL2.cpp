@@ -179,10 +179,9 @@ Image::Image(const char* path, std::shared_ptr<SDL_RWops>&& rw): _path(path), _p
         return;
     }
 
-    if (_pSurface->format->Amask == 0)
+    if (_pSurface->format->Amask == 0 || isTGA(path))
     {
         _haveAlphaLayer = false;
-        setTransparentColorRGB(Color(0, 255, 0, -1));
     }
     else
     {
@@ -201,8 +200,14 @@ void Image::setTransparentColorRGB(Color c)
 {
     if (_pSurface)
     {
-        pushAndWaitMainThreadTask<void>(std::bind(
-            SDL_SetColorKey, &*_pSurface, SDL_TRUE, SDL_MapRGB(_pSurface->format, c.r, c.g, c.b)));
+        auto pSurfaceTmp = std::shared_ptr<SDL_Surface>(
+            pushAndWaitMainThreadTask<SDL_Surface*>(std::bind(SDL_CreateRGBSurfaceWithFormat, 0, _pSurface->w, _pSurface->h, 32, SDL_PIXELFORMAT_RGBA32)),
+            std::bind(pushAndWaitMainThreadTask<void, SDL_Surface*>, SDL_FreeSurface, _1));
+        SDL_SetColorKey(&*_pSurface, SDL_TRUE, SDL_MapRGB(_pSurface->format, c.r, c.g, c.b));
+        SDL_Rect rc = _pSurface->clip_rect;
+        SDL_BlitSurface(&*_pSurface, &rc, &*pSurfaceTmp, &rc);
+
+        _pSurface = pSurfaceTmp;
     }
 }
 
