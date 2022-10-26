@@ -21,9 +21,9 @@ public:
         enum class Type: uint32_t
         {
             UNDEF,
-            HISPEED,
-            LANECOVER_TOP,
-            LANECOVER_BOTTOM,
+            RESERVED_1,
+            RESERVED_2,
+            RESERVED_3,
 
             S1L_DOWN,
             S1R_DOWN,
@@ -134,13 +134,20 @@ public:
             JUDGE_LEFT_LANDMINE,
             JUDGE_RIGHT_LANDMINE,
 
+            HISPEED,
+            LANECOVER_TOP,
+            LANECOVER_BOTTOM,
+            LANECOVER_ENABLE,
+
         } type = Type::UNDEF;
+        double value = 0.0;
 
         template<class Archive>
         void serialize(Archive& ar)
         {
             ar(ms);
             ar(type);
+            ar(value);
         }
     };
 
@@ -159,9 +166,12 @@ public:
     int8_t      pitchValue = 0;         // -12 ~ +12 (value below 0 may invalid)
     uint8_t     assistMask = 0;
     eModHs      hispeedFix = eModHs::NONE;
-
     bool        DPFlip = false;
     bool        DPBattle = false;
+    double      hispeed = 0;
+    int16_t     lanecoverTop = 0;
+    int16_t     lanecoverBottom = 0;
+    bool        lanecoverEnabled = false;
 
     std::vector<Commands> commands;
 
@@ -188,10 +198,15 @@ private:
         ar(hispeedFix);
         ar(DPFlip);
         ar(DPBattle);
+        ar(hispeed);
+        ar(lanecoverTop);
+        ar(lanecoverBottom);
+        ar(lanecoverEnabled);
+
         ar(commands);
 
         // more parameters goes below
-        if (version >= 2)
+        if (version >= 3)
         {
 
         }
@@ -208,4 +223,4 @@ public:
     Path getReplayPath();
 };
 
-CEREAL_CLASS_VERSION(ReplayChart, 1);
+CEREAL_CLASS_VERSION(ReplayChart, 2);

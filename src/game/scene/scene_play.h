@@ -63,6 +63,10 @@ private:
 
     std::vector<ReplayChart::Commands>::iterator itReplayCommand;
     InputMask replayKeyPressing;
+    std::array<bool, 2>   _hispeedHasChanged{ false, false };
+    std::array<bool, 2>   _lanecoverTopHasChanged{ false, false };
+    std::array<bool, 2>   _lanecoverBottomHasChanged{ false, false };
+    std::array<bool, 2>   _lanecoverStateHasChanged{ false, false };
 
     std::array<int, 2>      _missPlayer = { 0 };
     Time _missLastTime;
@@ -118,6 +122,12 @@ protected:
 protected:
     // Looper callbacks
     virtual void _updateAsync() override;
+    void updateAsyncLanecover(const Time& t);
+    void updateAsyncHSGradient(const Time& t);
+    void updateAsyncGreenNumber(const Time& t);
+    void updateAsyncGaugeUpTimer(const Time& t);
+    void updateAsyncLanecoverDisplay(const Time& t);
+    void updateAsyncAbsoluteAxis(const Time& t);
     void updatePrepare();
     void updateLoading();
     void updateLoadEnd();
@@ -131,6 +141,7 @@ protected:
     void changeKeySampleMapping(const Time& t);
     void spinTurntable(bool startedPlaying);
     void requestExit();
+    void toggleLanecover(int slot, bool state);
 
 protected:
     // Register to InputWrapper: judge / keysound

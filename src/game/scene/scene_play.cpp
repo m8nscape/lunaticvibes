@@ -241,6 +241,16 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         State::set(IndexOption::SOUND_PITCH_TYPE, gPlayContext.replay->pitchType);
         double ps = (gPlayContext.replay->pitchValue + 12) / 24.0;
         lr2skin::slider::pitch(ps);
+
+        gPlayContext.Hispeed = gPlayContext.replay->hispeed;
+        State::set(IndexNumber::LANECOVER_TOP_1P, gPlayContext.replay->lanecoverTop);
+        State::set(IndexNumber::LANECOVER_BOTTOM_1P, gPlayContext.replay->lanecoverBottom);
+        State::set(IndexSwitch::P1_LANECOVER_ENABLED, gPlayContext.replay->lanecoverEnabled);
+        _hispeedHasChanged[PLAYER_SLOT_PLAYER] = true;
+        _lanecoverTopHasChanged[PLAYER_SLOT_PLAYER] = true;
+        _lanecoverBottomHasChanged[PLAYER_SLOT_PLAYER] = true;
+        _lanecoverStateHasChanged[PLAYER_SLOT_PLAYER] = true;
+
     }
 
     if (gChartContext.chartObj == nullptr || !gChartContext.chartObj->isLoaded())
@@ -1142,6 +1152,87 @@ void ScenePlay::_updateAsync()
     Time t;
 
     // update lanecover / hispeed change
+    updateAsyncLanecover(t);
+
+    // HS gradient
+    updateAsyncHSGradient(t);
+
+    // health + timer, reset per 2%
+    updateAsyncGaugeUpTimer(t);
+
+    // absolute axis scratch
+    updateAsyncAbsoluteAxis(t);
+
+    // record 
+    if (gChartContext.started && gPlayContext.replayNew)
+    {
+        long long ms = t.norm() - State::get(IndexTimer::PLAY_START);
+        if (_hispeedHasChanged[PLAYER_SLOT_PLAYER])
+        {
+            gPlayContext.replayNew->commands.push_back({ int64_t(ms), ReplayChart::Commands::Type::HISPEED, gPlayContext.Hispeed });
+        }
+        if (_lanecoverTopHasChanged[PLAYER_SLOT_PLAYER])
+        {
+            gPlayContext.replayNew->commands.push_back({ int64_t(ms), ReplayChart::Commands::Type::LANECOVER_TOP, double(State::get(IndexNumber::LANECOVER_TOP_1P)) });
+        }
+        if (_lanecoverBottomHasChanged[PLAYER_SLOT_PLAYER])
+        {
+            gPlayContext.replayNew->commands.push_back({ int64_t(ms), ReplayChart::Commands::Type::LANECOVER_BOTTOM, double(State::get(IndexNumber::LANECOVER_BOTTOM_1P)) });
+        }
+        if (_lanecoverStateHasChanged[PLAYER_SLOT_PLAYER])
+        {
+            gPlayContext.replayNew->commands.push_back({ int64_t(ms), ReplayChart::Commands::Type::LANECOVER_ENABLE, double(int(State::get(IndexSwitch::P1_LANECOVER_ENABLED))) });
+        }
+    }
+
+    // adjust lanecover display
+    updateAsyncLanecoverDisplay(t);
+
+    // update green number
+    updateAsyncGreenNumber(t);
+
+    // retry / exit (SELECT+START)
+    if (_isHoldingStart[PLAYER_SLOT_PLAYER] && _isHoldingSelect[PLAYER_SLOT_PLAYER] ||
+        (gPlayContext.isBattle || isPlaymodeDP()) && _isHoldingStart[PLAYER_SLOT_TARGET] && _isHoldingSelect[PLAYER_SLOT_TARGET])
+    {
+        retryRequestTick++;
+    }
+    else
+    {
+        retryRequestTick = 0;
+    }
+    if (retryRequestTick >= getRate() * 1)
+    {
+        requestExit();
+    }
+
+    // state based callback
+    switch (_state)
+    {
+    case ePlayState::PREPARE:
+		State::set(IndexOption::PLAY_SCENE_STAT, Option::SPLAY_PREPARE);
+        updatePrepare();
+        break;
+    case ePlayState::LOADING:
+        updateLoading();
+        break;
+    case ePlayState::LOAD_END:
+        updateLoadEnd();
+        break;
+    case ePlayState::PLAYING:
+        updatePlaying();
+        break;
+    case ePlayState::FADEOUT:
+        updateFadeout();
+        break;
+    case ePlayState::FAILED:
+        updateFailed();
+        break;
+    }
+}
+
+void ScenePlay::updateAsyncLanecover(const Time& t)
+{
     int lcThreshold = getRate() / 200;  // lanecover, +200 per second
     int hsThreshold = getRate() / 25;   // hispeed, +25 per second
     if (true)
@@ -1149,11 +1240,11 @@ void ScenePlay::_updateAsync()
         int lc = 0;
         switch (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P))
         {
-        case Option::LANE_SUDDEN: 
-        case Option::LANE_SUDHID: 
+        case Option::LANE_SUDDEN:
+        case Option::LANE_SUDHID:
             lc = State::get(IndexNumber::LANECOVER_TOP_1P);
             break;
-        case Option::LANE_HIDDEN: 
+        case Option::LANE_HIDDEN:
             lc = State::get(IndexNumber::LANECOVER_BOTTOM_1P);
             break;
         case Option::LANE_LIFT:
@@ -1269,53 +1360,34 @@ void ScenePlay::_updateAsync()
             switch (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P))
             {
             case Option::LANE_SUDHID:
-                State::set(IndexNumber::LANECOVER_BOTTOM_1P, lc);
-                State::set(IndexSlider::HID_1P, lc / 1000.0);
-                [[ fallthrough ]];
-            case Option::LANE_SUDDEN:
-                State::set(IndexNumber::LANECOVER_TOP_1P, lc);
-                State::set(IndexNumber::LANECOVER100_1P, lc / 10);
-                State::set(IndexSlider::SUD_1P, lc / 1000.0);
-                break;
-
             case Option::LANE_HIDDEN:
-                State::set(IndexNumber::LANECOVER_BOTTOM_1P, lc);
-                State::set(IndexNumber::LANECOVER100_1P, lc / 10);
-                State::set(IndexSlider::HID_1P, lc / 1000.0);
-                break;
-
             case Option::LANE_LIFT:
-                State::set(IndexNumber::LANECOVER_BOTTOM_1P, lc);
-                break;
-
             case Option::LANE_LIFTSUD:
-                State::set(IndexNumber::LANECOVER_TOP_1P, lc);
-                State::set(IndexNumber::LANECOVER100_1P, lc / 10);
-                State::set(IndexSlider::SUD_1P, lc / 1000.0);
+                State::set(IndexNumber::LANECOVER_BOTTOM_1P, lc);
+                _lanecoverBottomHasChanged[PLAYER_SLOT_PLAYER] = true;
                 break;
             }
-
+            switch (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P))
+            {
+            case Option::LANE_SUDHID:
+            case Option::LANE_SUDDEN:
+            case Option::LANE_LIFTSUD:
+                State::set(IndexNumber::LANECOVER_TOP_1P, lc);
+                _lanecoverTopHasChanged[PLAYER_SLOT_PLAYER] = true;
+                break;
+            }
             if (State::get(IndexSwitch::P1_LOCK_SPEED))
             {
-                gPlayContext.HispeedGradientStart = t;
-                gPlayContext.HispeedGradientFrom = gPlayContext.HispeedGradientNow;
-
                 double bpm = gPlayContext.mods[PLAYER_SLOT_PLAYER].hispeedFix == eModHs::CONSTANT ?
                     150.0 : gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentBPM();
                 hs = std::min(getHiSpeed(bpm, PLAYER_SLOT_PLAYER, _lockspeedValue[PLAYER_SLOT_PLAYER]), 10.0);
                 gPlayContext.Hispeed = hs;
-                State::set(IndexNumber::HS_1P, (int)std::round(hs * 100));
-                State::set(IndexSlider::HISPEED_1P, gPlayContext.Hispeed / 10.0);
+                _hispeedHasChanged[PLAYER_SLOT_PLAYER] = true;
             }
         }
         else if (hs != hsOld)
         {
-            gPlayContext.HispeedGradientStart = t;
-            gPlayContext.HispeedGradientFrom = gPlayContext.HispeedGradientNow;
-
             gPlayContext.Hispeed = hs;
-            State::set(IndexNumber::HS_1P, (int)std::round(hs * 100));
-            State::set(IndexSlider::HISPEED_1P, gPlayContext.Hispeed / 10.0);
 
             if (State::get(IndexSwitch::P1_LOCK_SPEED) && _isHoldingSelect[PLAYER_SLOT_PLAYER])
             {
@@ -1325,6 +1397,8 @@ void ScenePlay::_updateAsync()
                 _lockspeedValue[PLAYER_SLOT_PLAYER] = val;
                 _lockspeedGreenNumber[PLAYER_SLOT_PLAYER] = green;
             }
+
+            _hispeedHasChanged[PLAYER_SLOT_PLAYER] = true;
         }
 
     }
@@ -1453,57 +1527,34 @@ void ScenePlay::_updateAsync()
             switch (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_2P))
             {
             case Option::LANE_SUDHID:
-                State::set(IndexNumber::LANECOVER_BOTTOM_2P, lc);
-                State::set(IndexSlider::HID_2P, lc / 1000.0);
-                [[ fallthrough ]];
-            case Option::LANE_SUDDEN:
-                State::set(IndexNumber::LANECOVER_TOP_2P, lc);
-                State::set(IndexNumber::LANECOVER100_2P, lc / 10);
-                State::set(IndexSlider::SUD_2P, lc / 1000.0);
-                break;
-
             case Option::LANE_HIDDEN:
-                State::set(IndexNumber::LANECOVER_BOTTOM_2P, lc);
-                State::set(IndexNumber::LANECOVER100_2P, lc / 10);
-                State::set(IndexSlider::HID_2P, lc / 1000.0);
-                break;
-
             case Option::LANE_LIFT:
             case Option::LANE_LIFTSUD:
-                if (State::get(IndexSwitch::P1_LANECOVER_ENABLED))
-                {
-                    State::set(IndexNumber::LANECOVER_TOP_2P, lc);
-                    State::set(IndexNumber::LANECOVER100_2P, lc / 10);
-                    State::set(IndexSlider::SUD_2P, lc / 1000.0);
-                }
-                else
-                {
-                    State::set(IndexNumber::LANECOVER_BOTTOM_2P, lc);
-                }
+                State::set(IndexNumber::LANECOVER_BOTTOM_2P, lc);
+                _lanecoverBottomHasChanged[PLAYER_SLOT_TARGET] = true;
                 break;
             }
-
+            switch (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_2P))
+            {
+            case Option::LANE_SUDHID:
+            case Option::LANE_SUDDEN:
+            case Option::LANE_LIFTSUD:
+                State::set(IndexNumber::LANECOVER_TOP_2P, lc);
+                _lanecoverTopHasChanged[PLAYER_SLOT_TARGET] = true;
+                break;
+            }
             if (State::get(IndexSwitch::P2_LOCK_SPEED))
             {
-                gPlayContext.battle2PHispeedGradientStart = t;
-                gPlayContext.battle2PHispeedGradientFrom = gPlayContext.battle2PHispeedGradientNow;
-
                 double bpm = gPlayContext.mods[PLAYER_SLOT_TARGET].hispeedFix == eModHs::CONSTANT ?
                     150.0 : gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getCurrentBPM();
                 hs = std::min(getHiSpeed(bpm, PLAYER_SLOT_TARGET, _lockspeedValue[PLAYER_SLOT_TARGET]), 10.0);
                 gPlayContext.battle2PHispeed = hs;
-                State::set(IndexNumber::HS_2P, (int)std::round(hs * 100));
-                State::set(IndexSlider::HISPEED_2P, gPlayContext.battle2PHispeed / 10.0);
+                _hispeedHasChanged[PLAYER_SLOT_TARGET] = true;
             }
         }
         else if (hs != hsOld)
         {
-            gPlayContext.battle2PHispeedGradientStart = t;
-            gPlayContext.battle2PHispeedGradientFrom = gPlayContext.battle2PHispeedGradientNow;
-
             gPlayContext.battle2PHispeed = hs;
-            State::set(IndexNumber::HS_2P, (int)std::round(hs * 100));
-            State::set(IndexSlider::HISPEED_2P, gPlayContext.battle2PHispeed / 10.0);
 
             if (State::get(IndexSwitch::P2_LOCK_SPEED) && _isHoldingSelect[PLAYER_SLOT_PLAYER])
             {
@@ -1513,52 +1564,14 @@ void ScenePlay::_updateAsync()
                 _lockspeedValue[PLAYER_SLOT_TARGET] = val;
                 _lockspeedGreenNumber[PLAYER_SLOT_TARGET] = green;
             }
+
+            _hispeedHasChanged[PLAYER_SLOT_TARGET] = true;
         }
     }
-    if (!State::get(IndexSwitch::P1_LANECOVER_ENABLED))
-    {
-        switch (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P))
-        {
-        case Option::LANE_SUDHID:
-            State::set(IndexSlider::HID_1P, 0.0);
-            [[ fallthrough ]];
-        case Option::LANE_SUDDEN:
-            State::set(IndexSlider::SUD_1P, 0.0);
-            break;
+}
 
-        case Option::LANE_HIDDEN:
-            State::set(IndexSlider::HID_1P, 0.0);
-            break;
-
-        case Option::LANE_LIFT:
-        case Option::LANE_LIFTSUD:
-            State::set(IndexSlider::SUD_1P, 0.0);
-            break;
-        }
-    }
-    if (isPlaymodeDP() || !State::get(IndexSwitch::P2_LANECOVER_ENABLED))
-    {
-        switch (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_2P))
-        {
-        case Option::LANE_SUDHID:
-            State::set(IndexSlider::HID_2P, 0.0);
-            [[ fallthrough ]];
-        case Option::LANE_SUDDEN:
-            State::set(IndexSlider::SUD_2P, 0.0);
-            break;
-
-        case Option::LANE_HIDDEN:
-            State::set(IndexSlider::HID_2P, 0.0);
-            break;
-
-        case Option::LANE_LIFT:
-        case Option::LANE_LIFTSUD:
-            State::set(IndexSlider::SUD_2P, 0.0);
-            break;
-        }
-    }
-
-    // HS gradient
+void ScenePlay::updateAsyncHSGradient(const Time& t)
+{
     const long long HS_GRADIENT_LENGTH_MS = 200;
     if (gPlayContext.HispeedGradientStart != TIMER_NEVER)
     {
@@ -1588,8 +1601,10 @@ void ScenePlay::_updateAsync()
             gPlayContext.battle2PHispeedGradientStart = TIMER_NEVER;
         }
     }
+}
 
-    // update green number
+void ScenePlay::updateAsyncGreenNumber(const Time& t)
+{
     // 120BPM with 1.0x HS is 2000ms (500ms/beat, green number 1200)
     if (_skin->info.noteLaneHeight1P != 0 && gPlayContext.chartObj[PLAYER_SLOT_PLAYER] != nullptr)
     {
@@ -1665,8 +1680,10 @@ void ScenePlay::_updateAsync()
         }
         State::set(IndexText::_OVERLAY_TOPLEFT, ss.str());
     }
+}
 
-    // health + timer, reset per 2%
+void ScenePlay::updateAsyncGaugeUpTimer(const Time& t)
+{
     int health1P = State::get(IndexNumber::PLAY_1P_GROOVEGAUGE);
     int health2P = State::get(IndexNumber::PLAY_2P_GROOVEGAUGE);
     if (_healthLastTick[PLAYER_SLOT_PLAYER] / 2 != health1P / 2)
@@ -1703,7 +1720,84 @@ void ScenePlay::_updateAsync()
     }
     _healthLastTick[PLAYER_SLOT_PLAYER] = health1P;
     _healthLastTick[PLAYER_SLOT_TARGET] = health2P;
+}
 
+void ScenePlay::updateAsyncLanecoverDisplay(const Time& t)
+{
+    if (_hispeedHasChanged[PLAYER_SLOT_PLAYER])
+    {
+        _hispeedHasChanged[PLAYER_SLOT_PLAYER] = false;
+
+        gPlayContext.HispeedGradientStart = t;
+        gPlayContext.HispeedGradientFrom = gPlayContext.HispeedGradientNow;
+        State::set(IndexNumber::HS_1P, (int)std::round(gPlayContext.Hispeed * 100));
+        State::set(IndexSlider::HISPEED_1P, gPlayContext.Hispeed / 10.0);
+    }
+    if (_hispeedHasChanged[PLAYER_SLOT_TARGET])
+    {
+        _hispeedHasChanged[PLAYER_SLOT_TARGET] = false;
+
+        gPlayContext.battle2PHispeedGradientStart = t;
+        gPlayContext.battle2PHispeedGradientFrom = gPlayContext.battle2PHispeedGradientNow;
+        State::set(IndexNumber::HS_2P, (int)std::round(gPlayContext.battle2PHispeed * 100));
+        State::set(IndexSlider::HISPEED_1P, gPlayContext.battle2PHispeed / 10.0);
+    }
+    if (_lanecoverBottomHasChanged[PLAYER_SLOT_PLAYER])
+    {
+        _lanecoverBottomHasChanged[PLAYER_SLOT_PLAYER] = false;
+
+        int lcBottom = State::get(IndexNumber::LANECOVER_BOTTOM_1P);
+        int lc100 = lcBottom / 10;
+        double hid = lcBottom / 1000.0;
+        State::set(IndexNumber::LANECOVER100_1P, lc100);
+        State::set(IndexSlider::HID_1P, hid);
+    }
+    if (_lanecoverBottomHasChanged[PLAYER_SLOT_TARGET])
+    {
+        _lanecoverBottomHasChanged[PLAYER_SLOT_TARGET] = false;
+
+        int lcBottom = State::get(IndexNumber::LANECOVER_BOTTOM_2P);
+        int lc100 = lcBottom / 10;
+        double hid = lcBottom / 1000.0;
+        State::set(IndexNumber::LANECOVER100_2P, lc100);
+        State::set(IndexSlider::HID_2P, hid);
+    }
+    if (_lanecoverTopHasChanged[PLAYER_SLOT_PLAYER])
+    {
+        _lanecoverTopHasChanged[PLAYER_SLOT_PLAYER] = false;
+
+        int lcTop = State::get(IndexNumber::LANECOVER_TOP_1P);
+        int lc100 = lcTop / 10;
+        double sud = lcTop / 1000.0;
+        State::set(IndexNumber::LANECOVER100_1P, lc100);
+        State::set(IndexSlider::SUD_1P, sud);
+    }
+    if (_lanecoverTopHasChanged[PLAYER_SLOT_TARGET])
+    {
+        _lanecoverTopHasChanged[PLAYER_SLOT_TARGET] = false;
+
+        int lcTop = State::get(IndexNumber::LANECOVER_TOP_2P);
+        int lc100 = lcTop / 10;
+        double sud = lcTop / 1000.0;
+        State::set(IndexNumber::LANECOVER100_2P, lc100);
+        State::set(IndexSlider::SUD_2P, sud);
+    }
+    if (_lanecoverStateHasChanged[PLAYER_SLOT_PLAYER])
+    {
+        _lanecoverStateHasChanged[PLAYER_SLOT_PLAYER] = false;
+
+        toggleLanecover(PLAYER_SLOT_PLAYER, State::get(IndexSwitch::P1_LANECOVER_ENABLED));
+    }
+    if (_lanecoverStateHasChanged[PLAYER_SLOT_TARGET])
+    {
+        _lanecoverStateHasChanged[PLAYER_SLOT_TARGET] = false;
+
+        toggleLanecover(PLAYER_SLOT_TARGET, State::get(IndexSwitch::P2_LANECOVER_ENABLED));
+    }
+}
+
+void ScenePlay::updateAsyncAbsoluteAxis(const Time& t)
+{
     auto Scratch = [&](const Time& t, Input::Pad up, Input::Pad dn, double& val, int slot)
     {
         double scratchThreshold = 0.001;
@@ -1780,7 +1874,7 @@ void ScenePlay::_updateAsync()
                     playSample = true;
                 }
             }
-            
+
             _scratchLastUpdate[slot] = t;
             _scratchDir[slot] = AxisDir::AXIS_UP;
 
@@ -1885,44 +1979,10 @@ void ScenePlay::_updateAsync()
     };
     Scratch(t, Input::S1L, Input::S1R, _scratchAccumulator[PLAYER_SLOT_PLAYER], PLAYER_SLOT_PLAYER);
     Scratch(t, Input::S2L, Input::S2R, _scratchAccumulator[PLAYER_SLOT_TARGET], PLAYER_SLOT_TARGET);
-
-    if (_isHoldingStart[PLAYER_SLOT_PLAYER] && _isHoldingSelect[PLAYER_SLOT_PLAYER] ||
-        (gPlayContext.isBattle || isPlaymodeDP()) && _isHoldingStart[PLAYER_SLOT_TARGET] && _isHoldingSelect[PLAYER_SLOT_TARGET])
-    {
-        retryRequestTick++;
-    }
-    else
-    {
-        retryRequestTick = 0;
-    }
-    if (retryRequestTick >= getRate() * 1)
-    {
-        requestExit();
-    }
-
-    switch (_state)
-    {
-    case ePlayState::PREPARE:
-		State::set(IndexOption::PLAY_SCENE_STAT, Option::SPLAY_PREPARE);
-        updatePrepare();
-        break;
-    case ePlayState::LOADING:
-        updateLoading();
-        break;
-    case ePlayState::LOAD_END:
-        updateLoadEnd();
-        break;
-    case ePlayState::PLAYING:
-        updatePlaying();
-        break;
-    case ePlayState::FADEOUT:
-        updateFadeout();
-        break;
-    case ePlayState::FAILED:
-        updateFailed();
-        break;
-    }
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
 
 void ScenePlay::updatePrepare()
 {
@@ -1982,6 +2042,13 @@ void ScenePlay::updateLoadEnd()
         State::set(IndexTimer::PLAY_START, t.norm());
         setInputJudgeCallback();
 		gChartContext.started = true;
+        if (gPlayContext.replayNew)
+        {
+            gPlayContext.replayNew->hispeed = gPlayContext.Hispeed;
+            gPlayContext.replayNew->lanecoverTop = State::get(IndexNumber::LANECOVER_TOP_1P);
+            gPlayContext.replayNew->lanecoverBottom = State::get(IndexNumber::LANECOVER_BOTTOM_1P);
+            gPlayContext.replayNew->lanecoverEnabled = State::get(IndexSwitch::P1_LANECOVER_ENABLED);
+        }
         _state = ePlayState::PLAYING;
         LOG_DEBUG << "[Play] State changed to PLAY_START";
     }
@@ -2003,8 +2070,9 @@ void ScenePlay::updatePlaying()
         while (itReplayCommand != gPlayContext.replay->commands.end() && rt.norm() >= itReplayCommand->ms)
         {
             auto cmd = itReplayCommand->type;
-            if (!gPlayContext.isReplay)
+            if (gPlayContext.isBattle)
             {
+                // Ghost battle, replace 1P input with 2P input
                 switch (itReplayCommand->type)
                 {
                 case ReplayChart::Commands::Type::S1L_DOWN: cmd = ReplayChart::Commands::Type::S2L_DOWN; break;
@@ -2110,10 +2178,63 @@ void ScenePlay::updatePlaying()
             case ReplayChart::Commands::Type::S2A_MINUS: _scratchAccumulator[PLAYER_SLOT_TARGET] = -0.0015; break;
             case ReplayChart::Commands::Type::S2A_STOP:  _scratchAccumulator[PLAYER_SLOT_TARGET] = 0; break;
 
-            // TODO
-            case ReplayChart::Commands::Type::HISPEED: break;
-            case ReplayChart::Commands::Type::LANECOVER_TOP: break;
-            case ReplayChart::Commands::Type::LANECOVER_BOTTOM: break;
+            case ReplayChart::Commands::Type::HISPEED:
+                if (!gPlayContext.isBattle)
+                {
+                    gPlayContext.Hispeed = itReplayCommand->value;
+                    _hispeedHasChanged[PLAYER_SLOT_PLAYER] = true;
+                }
+                else
+                {
+                    gPlayContext.battle2PHispeed = itReplayCommand->value;
+                    _hispeedHasChanged[PLAYER_SLOT_TARGET] = true;
+                }
+                break;
+
+            case ReplayChart::Commands::Type::LANECOVER_TOP: 
+                if (!gPlayContext.isBattle)
+                {
+                    int lcTop1 = itReplayCommand->value;
+                    State::set(IndexNumber::LANECOVER_TOP_1P, lcTop1);
+                    _lanecoverTopHasChanged[PLAYER_SLOT_PLAYER] = true;
+                }
+                else
+                {
+                    int lcTop2 = itReplayCommand->value;
+                    State::set(IndexNumber::LANECOVER_TOP_2P, lcTop2);
+                    _lanecoverTopHasChanged[PLAYER_SLOT_TARGET] = true;
+                }
+                break;
+
+            case ReplayChart::Commands::Type::LANECOVER_BOTTOM:
+                if (!gPlayContext.isBattle)
+                {
+                    int lcBottom1 = itReplayCommand->value;
+                    State::set(IndexNumber::LANECOVER_BOTTOM_1P, lcBottom1);
+                    _lanecoverBottomHasChanged[PLAYER_SLOT_PLAYER] = true;
+                }
+                else
+                {
+                    int lcBottom2 = itReplayCommand->value;
+                    State::set(IndexNumber::LANECOVER_BOTTOM_2P, lcBottom2);
+                    _lanecoverBottomHasChanged[PLAYER_SLOT_TARGET] = true;
+                }
+                break;
+
+            case ReplayChart::Commands::Type::LANECOVER_ENABLE:
+                if (!gPlayContext.isBattle)
+                {
+                    bool state = (bool)(int)itReplayCommand->value;
+                    State::set(IndexSwitch::P1_LANECOVER_ENABLED, state);
+                    _lanecoverStateHasChanged[PLAYER_SLOT_PLAYER] = true;
+                }
+                else
+                {
+                    bool state = (bool)(int)itReplayCommand->value;
+                    State::set(IndexSwitch::P2_LANECOVER_ENABLED, state);
+                    _lanecoverStateHasChanged[PLAYER_SLOT_TARGET] = true;
+                }
+                break;
             }
             itReplayCommand++;
         }
@@ -2124,8 +2245,10 @@ void ScenePlay::updatePlaying()
         if (released.any())
             inputGameReleaseTimer(released, t);
 
-        if (replayKeyPressing[Input::Pad::K1START] || !gPlayContext.isBattle && replayKeyPressing[Input::Pad::K2START]) _isHoldingStart[PLAYER_SLOT_PLAYER] = true;
-        if (replayKeyPressing[Input::Pad::K1SELECT] || !gPlayContext.isBattle && replayKeyPressing[Input::Pad::K2SELECT]) _isHoldingSelect[PLAYER_SLOT_PLAYER] = true;
+        _isHoldingStart[PLAYER_SLOT_PLAYER] = replayKeyPressing[Input::Pad::K1START];
+        _isHoldingSelect[PLAYER_SLOT_PLAYER] = replayKeyPressing[Input::Pad::K1SELECT];
+        _isHoldingStart[PLAYER_SLOT_TARGET] = gPlayContext.isBattle && replayKeyPressing[Input::Pad::K2START];
+        _isHoldingSelect[PLAYER_SLOT_TARGET] = gPlayContext.isBattle && replayKeyPressing[Input::Pad::K2SELECT];
 
     }
 
@@ -2380,43 +2503,46 @@ void ScenePlay::updateFadeout()
             State::set(IndexSlider::HISPEED_2P, gPlayContext.battle2PHispeed / 10.0);
         }
 
-        // save lanecover settings
-        if (_laneEffectSUDHID[PLAYER_SLOT_PLAYER])
+        if (!gPlayContext.isReplay)
         {
-            State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_1P, Option::LANE_SUDHID);
-        }
-        if (State::get(IndexSwitch::P1_LANECOVER_ENABLED))
-        {
-            ConfigMgr::set('P', cfg::P_LANECOVER_TOP, State::get(IndexNumber::LANECOVER_TOP_1P));
-            ConfigMgr::set('P', cfg::P_LANECOVER_BOTTOM, State::get(IndexNumber::LANECOVER_BOTTOM_1P));
-        }
-        else if (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P) == Option::LANE_LIFT)
-        {
-            ConfigMgr::set('P', cfg::P_LANECOVER_BOTTOM, State::get(IndexNumber::LANECOVER_BOTTOM_1P));
-        }
-        if (State::get(IndexSwitch::P1_LOCK_SPEED))
-        {
-            ConfigMgr::set('P', cfg::P_GREENNUMBER, _lockspeedGreenNumber[PLAYER_SLOT_PLAYER]);
-        }
+            // save lanecover settings
+            if (_laneEffectSUDHID[PLAYER_SLOT_PLAYER])
+            {
+                State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_1P, Option::LANE_SUDHID);
+            }
+            if (State::get(IndexSwitch::P1_LANECOVER_ENABLED))
+            {
+                ConfigMgr::set('P', cfg::P_LANECOVER_TOP, State::get(IndexNumber::LANECOVER_TOP_1P));
+                ConfigMgr::set('P', cfg::P_LANECOVER_BOTTOM, State::get(IndexNumber::LANECOVER_BOTTOM_1P));
+            }
+            else if (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P) == Option::LANE_LIFT)
+            {
+                ConfigMgr::set('P', cfg::P_LANECOVER_BOTTOM, State::get(IndexNumber::LANECOVER_BOTTOM_1P));
+            }
+            if (State::get(IndexSwitch::P1_LOCK_SPEED))
+            {
+                ConfigMgr::set('P', cfg::P_GREENNUMBER, _lockspeedGreenNumber[PLAYER_SLOT_PLAYER]);
+            }
 
-        if (gPlayContext.isBattle)
-        {
-            if (_laneEffectSUDHID[PLAYER_SLOT_TARGET])
+            if (gPlayContext.isBattle)
             {
-                State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_2P, Option::LANE_SUDHID);
-            }
-            if (State::get(IndexSwitch::P2_LANECOVER_ENABLED))
-            {
-                gPlayContext.battle2PLanecoverTop = State::get(IndexNumber::LANECOVER_TOP_2P);
-                gPlayContext.battle2PLanecoverBottom = State::get(IndexNumber::LANECOVER_BOTTOM_2P);
-            }
-            else if (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_2P) == Option::LANE_LIFT)
-            {
-                gPlayContext.battle2PLanecoverBottom = State::get(IndexNumber::LANECOVER_BOTTOM_2P);
-            }
-            if (State::get(IndexSwitch::P2_LOCK_SPEED))
-            {
-                gPlayContext.battle2PGreenNumber = _lockspeedGreenNumber[PLAYER_SLOT_TARGET];
+                if (_laneEffectSUDHID[PLAYER_SLOT_TARGET])
+                {
+                    State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_2P, Option::LANE_SUDHID);
+                }
+                if (State::get(IndexSwitch::P2_LANECOVER_ENABLED))
+                {
+                    gPlayContext.battle2PLanecoverTop = State::get(IndexNumber::LANECOVER_TOP_2P);
+                    gPlayContext.battle2PLanecoverBottom = State::get(IndexNumber::LANECOVER_BOTTOM_2P);
+                }
+                else if (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_2P) == Option::LANE_LIFT)
+                {
+                    gPlayContext.battle2PLanecoverBottom = State::get(IndexNumber::LANECOVER_BOTTOM_2P);
+                }
+                if (State::get(IndexSwitch::P2_LOCK_SPEED))
+                {
+                    gPlayContext.battle2PGreenNumber = _lockspeedGreenNumber[PLAYER_SLOT_TARGET];
+                }
             }
         }
 
@@ -2734,6 +2860,52 @@ void ScenePlay::requestExit()
     LOG_DEBUG << "[Play] State changed to FADEOUT";
 }
 
+void ScenePlay::toggleLanecover(int slot, bool state)
+{
+    IndexSwitch sw = slot == PLAYER_SLOT_PLAYER ? IndexSwitch::P1_LANECOVER_ENABLED : IndexSwitch::P2_LANECOVER_ENABLED;
+    IndexOption op = slot == PLAYER_SLOT_PLAYER ? IndexOption::PLAY_LANE_EFFECT_TYPE_1P : IndexOption::PLAY_LANE_EFFECT_TYPE_2P;
+    State::set(sw, state);
+
+    Option::e_lane_effect_type lcType = (Option::e_lane_effect_type)State::get(op);
+    switch (lcType)
+    {
+    case Option::LANE_OFF:      lcType = _laneEffectSUDHID[PLAYER_SLOT_TARGET] ? Option::LANE_SUDHID : (_laneEffectHIDDEN[PLAYER_SLOT_TARGET] ? Option::LANE_HIDDEN : Option::LANE_SUDDEN); break;
+    case Option::LANE_HIDDEN:   lcType = Option::LANE_OFF; break;
+    case Option::LANE_SUDDEN:   lcType = Option::LANE_OFF; break;
+    case Option::LANE_SUDHID:   lcType = Option::LANE_OFF; break;
+    case Option::LANE_LIFT:     lcType = Option::LANE_LIFTSUD; break;
+    case Option::LANE_LIFTSUD:  lcType = Option::LANE_LIFT; break;
+    }
+    State::set(op, lcType);
+
+    int lcTop, lcBottom;
+    if (slot == PLAYER_SLOT_PLAYER)
+    {
+        lcTop = State::get(IndexNumber::LANECOVER_TOP_1P);
+        lcBottom = State::get(IndexNumber::LANECOVER_BOTTOM_1P);
+    }
+    else
+    {
+        lcTop = gPlayContext.battle2PLanecoverTop;
+        lcBottom = gPlayContext.battle2PLanecoverBottom;
+    }
+
+    double sud = lcTop / 1000.0;
+    double hid = lcBottom / 1000.0;
+
+    switch (lcType)
+    {
+    case Option::LANE_OFF:     sud = 0.; hid = 0.;  break;
+    case Option::LANE_HIDDEN:  sud = 0.;            break;
+    case Option::LANE_SUDDEN:            hid = 0.;  break;
+    case Option::LANE_SUDHID:            hid = sud; break;
+    case Option::LANE_LIFT:    sud = 0.;            break;
+    case Option::LANE_LIFTSUD:                      break;
+    }
+    State::set(slot == PLAYER_SLOT_PLAYER ? IndexSlider::SUD_1P : IndexSlider::SUD_2P, sud);
+    State::set(slot == PLAYER_SLOT_PLAYER ? IndexSlider::HID_1P : IndexSlider::HID_2P, hid);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // CALLBACK
 void ScenePlay::inputGamePress(InputMask& m, const Time& t)
@@ -2785,42 +2957,9 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
     {
         if (t > _startPressedTime[PLAYER_SLOT_PLAYER] && (t - _startPressedTime[PLAYER_SLOT_PLAYER]).norm() < 200)
         {
-            State::set(IndexSwitch::P1_LANECOVER_ENABLED, !State::get(IndexSwitch::P1_LANECOVER_ENABLED));
             _startPressedTime[PLAYER_SLOT_PLAYER] = TIMER_NEVER;
-
-            Option::e_lane_effect_type lcType = (Option::e_lane_effect_type)State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P);
-            switch (lcType)
-            {
-            case Option::LANE_OFF:      lcType = _laneEffectSUDHID[PLAYER_SLOT_PLAYER] ? Option::LANE_SUDHID : (_laneEffectHIDDEN[PLAYER_SLOT_PLAYER] ? Option::LANE_HIDDEN : Option::LANE_SUDDEN); break;
-            case Option::LANE_HIDDEN:   lcType = Option::LANE_OFF; break;
-            case Option::LANE_SUDDEN:   lcType = Option::LANE_OFF; break;
-            case Option::LANE_SUDHID:   lcType = Option::LANE_OFF; break;
-            case Option::LANE_LIFT:     lcType = Option::LANE_LIFTSUD; break;
-            case Option::LANE_LIFTSUD:  lcType = Option::LANE_LIFT; break;
-            }
-            State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_1P, lcType);
-
-            int lcTop = State::get(IndexNumber::LANECOVER_TOP_1P);
-            int lcBottom = State::get(IndexNumber::LANECOVER_BOTTOM_1P);
-            double sud = lcTop / 1000.0;
-            double hid = lcBottom / 1000.0;
-
-            switch (lcType)
-            {
-            case Option::LANE_OFF:     sud = 0.; hid = 0.;   break;
-            case Option::LANE_HIDDEN:  sud = 0.;             break;
-            case Option::LANE_SUDDEN:            hid = 0.;   break;
-            case Option::LANE_SUDHID:            hid = sud;  break;
-            case Option::LANE_LIFT:    sud = 0.;             break;
-            case Option::LANE_LIFTSUD:                       break;
-            }
-            State::set(IndexSlider::SUD_1P, sud);
-            State::set(IndexSlider::HID_1P, hid);
-            if (isPlaymodeDP())
-            {
-                State::set(IndexSlider::SUD_2P, sud);
-                State::set(IndexSlider::HID_2P, hid);
-            }
+            State::set(IndexSwitch::P1_LANECOVER_ENABLED, !State::get(IndexSwitch::P1_LANECOVER_ENABLED));
+            _lanecoverStateHasChanged[PLAYER_SLOT_PLAYER] = true;
         }
         else
         {
@@ -2831,37 +2970,9 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
     {
         if (t > _startPressedTime[PLAYER_SLOT_TARGET] && (t - _startPressedTime[PLAYER_SLOT_TARGET]).norm() < 200)
         {
-            State::set(IndexSwitch::P2_LANECOVER_ENABLED, !State::get(IndexSwitch::P2_LANECOVER_ENABLED));
             _startPressedTime[PLAYER_SLOT_TARGET] = TIMER_NEVER;
-
-            Option::e_lane_effect_type lcType = (Option::e_lane_effect_type)State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_2P);
-            switch (lcType)
-            {
-            case Option::LANE_OFF:      lcType = _laneEffectSUDHID[PLAYER_SLOT_TARGET] ? Option::LANE_SUDHID : (_laneEffectHIDDEN[PLAYER_SLOT_TARGET] ? Option::LANE_HIDDEN : Option::LANE_SUDDEN); break;
-            case Option::LANE_HIDDEN:   lcType = Option::LANE_OFF; break;
-            case Option::LANE_SUDDEN:   lcType = Option::LANE_OFF; break;
-            case Option::LANE_SUDHID:   lcType = Option::LANE_OFF; break;
-            case Option::LANE_LIFT:     lcType = Option::LANE_LIFTSUD; break;
-            case Option::LANE_LIFTSUD:  lcType = Option::LANE_LIFT; break;
-            }
-            State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_2P, lcType);
-
-            int lcTop = gPlayContext.battle2PLanecoverTop;
-            int lcBottom = gPlayContext.battle2PLanecoverBottom;
-            double sud = lcTop / 1000.0;
-            double hid = lcBottom / 1000.0;
-
-            switch (lcType)
-            {
-            case Option::LANE_OFF:     sud = 0.; hid = 0.;  break;
-            case Option::LANE_HIDDEN:  sud = 0.;            break;
-            case Option::LANE_SUDDEN:            hid = 0.;  break;
-            case Option::LANE_SUDHID:            hid = sud; break;
-            case Option::LANE_LIFT:    sud = 0.;            break;
-            case Option::LANE_LIFTSUD:                      break;
-            }
-            State::set(IndexSlider::SUD_2P, sud);
-            State::set(IndexSlider::HID_2P, hid);
+            State::set(IndexSwitch::P2_LANECOVER_ENABLED, !State::get(IndexSwitch::P2_LANECOVER_ENABLED));
+            _lanecoverStateHasChanged[PLAYER_SLOT_TARGET] = true;
         }
         else
         {
@@ -2916,6 +3027,7 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
     }
 
 
+    // hs adjusted by key
     if (true)
     {
         if (input[K1START] || isPlaymodeDP() && input[K2START]) _isHoldingStart[PLAYER_SLOT_PLAYER] = true;
@@ -2931,12 +3043,8 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
         {
             if (gPlayContext.Hispeed < 10.0)
             {
-                gPlayContext.HispeedGradientStart = t;
-                gPlayContext.HispeedGradientFrom = gPlayContext.HispeedGradientNow;
-
                 gPlayContext.Hispeed = std::min(gPlayContext.Hispeed + 0.25, 10.0);
-                State::set(IndexNumber::HS_1P, (int)std::round(gPlayContext.Hispeed * 100));
-                State::set(IndexSlider::HISPEED_1P, gPlayContext.Hispeed / 10.0);
+                _hispeedHasChanged[PLAYER_SLOT_PLAYER] = true;
             }
         }
 
@@ -2945,12 +3053,8 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
         {
             if (gPlayContext.Hispeed > 0.25)
             {
-                gPlayContext.HispeedGradientStart = t;
-                gPlayContext.HispeedGradientFrom = gPlayContext.HispeedGradientNow;
-
                 gPlayContext.Hispeed = std::max(gPlayContext.Hispeed - 0.25, 0.25);
-                State::set(IndexNumber::HS_1P, (int)std::round(gPlayContext.Hispeed * 100));
-                State::set(IndexSlider::HISPEED_1P, gPlayContext.Hispeed / 10.0);
+                _hispeedHasChanged[PLAYER_SLOT_PLAYER] = true;
             }
         }
 
@@ -2968,12 +3072,8 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
         {
             if (gPlayContext.battle2PHispeed < 10.0)
             {
-                gPlayContext.battle2PHispeedGradientStart = t;
-                gPlayContext.battle2PHispeedGradientFrom = gPlayContext.battle2PHispeedGradientNow;
-
                 gPlayContext.battle2PHispeed = std::min(gPlayContext.battle2PHispeed + 0.25, 10.0);
-                State::set(IndexNumber::HS_2P, (int)std::round(gPlayContext.battle2PHispeed * 100));
-                State::set(IndexSlider::HISPEED_2P, gPlayContext.battle2PHispeed / 10.0);
+                _hispeedHasChanged[PLAYER_SLOT_TARGET] = true;
             }
         }
         if (input[K2SPDDN] || 
@@ -2981,12 +3081,8 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
         {
             if (gPlayContext.battle2PHispeed > 0.25)
             {
-                gPlayContext.battle2PHispeedGradientStart = t;
-                gPlayContext.battle2PHispeedGradientFrom = gPlayContext.battle2PHispeedGradientNow;
-
                 gPlayContext.battle2PHispeed = std::max(gPlayContext.battle2PHispeed - 0.25, 0.25);
-                State::set(IndexNumber::HS_2P, (int)std::round(gPlayContext.battle2PHispeed * 100));
-                State::set(IndexSlider::HISPEED_2P, gPlayContext.battle2PHispeed / 10.0);
+                _hispeedHasChanged[PLAYER_SLOT_TARGET] = true;
             }
         }
     }
