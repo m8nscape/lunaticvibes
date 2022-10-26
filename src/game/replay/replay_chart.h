@@ -138,6 +138,7 @@ public:
             LANECOVER_TOP,
             LANECOVER_BOTTOM,
             LANECOVER_ENABLE,
+            ESC,
 
         } type = Type::UNDEF;
         double value = 0.0;

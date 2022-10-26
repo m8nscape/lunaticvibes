@@ -2235,6 +2235,10 @@ void ScenePlay::updatePlaying()
                     _lanecoverStateHasChanged[PLAYER_SLOT_TARGET] = true;
                 }
                 break;
+
+            case ReplayChart::Commands::Type::ESC:
+                requestExit();
+                break;
             }
             itReplayCommand++;
         }
@@ -2848,6 +2852,12 @@ void ScenePlay::requestExit()
         if (!_isPlayerFinished[PLAYER_SLOT_TARGET] && gPlayContext.isBattle && gPlayContext.ruleset[PLAYER_SLOT_TARGET])
         {
             gPlayContext.ruleset[PLAYER_SLOT_TARGET]->fail();
+        }
+
+        if (gPlayContext.replayNew)
+        {
+            long long ms = t.norm() - State::get(IndexTimer::PLAY_START);
+            gPlayContext.replayNew->commands.push_back({ ms, ReplayChart::Commands::Type::ESC, 0 });
         }
 
         pushGraphPoints();
