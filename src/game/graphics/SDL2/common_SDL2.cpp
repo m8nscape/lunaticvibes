@@ -153,7 +153,6 @@ Image::Image(const char* path, std::shared_ptr<SDL_RWops>&& rw): _path(path), _p
         _pSurface = std::shared_ptr<SDL_Surface>(
             pushAndWaitMainThreadTask<SDL_Surface*>(std::bind(IMG_LoadTGA_RW, &*_pRWop)),
             std::bind(pushAndWaitMainThreadTask<void, SDL_Surface*>, SDL_FreeSurface, _1));
-        setTransparentColorRGB(Color(0, 255, 0, -1));
     }
     else if (isPNG(path))
     {
@@ -166,7 +165,6 @@ Image::Image(const char* path, std::shared_ptr<SDL_RWops>&& rw): _path(path), _p
         _pSurface = std::shared_ptr<SDL_Surface>(
             pushAndWaitMainThreadTask<SDL_Surface*>(std::bind(IMG_LoadGIF_RW, &*_pRWop)),
             std::bind(pushAndWaitMainThreadTask<void, SDL_Surface*>, SDL_FreeSurface, _1));
-        setTransparentColorRGB(Color(0, 255, 0, -1));
     }
     else
     {
@@ -179,6 +177,16 @@ Image::Image(const char* path, std::shared_ptr<SDL_RWops>&& rw): _path(path), _p
     {
         LOG_WARNING << "[Image] Build surface object error! " << IMG_GetError();
         return;
+    }
+
+    if (_pSurface->format->Amask == 0)
+    {
+        _haveAlphaLayer = false;
+        setTransparentColorRGB(Color(0, 255, 0, -1));
+    }
+    else
+    {
+        _haveAlphaLayer = true;
     }
 
     _loaded = true;

@@ -117,7 +117,7 @@ private:
     std::shared_ptr<SDL_RWops> _pRWop;
     std::shared_ptr<SDL_Surface> _pSurface;
     bool _loaded = false;
-    //bool _haveAlphaLayer = false;
+    bool _haveAlphaLayer = false;
 private:
     Image(const char* path, std::shared_ptr<SDL_RWops>&& rw);
 public:
@@ -126,6 +126,7 @@ public:
     Image(const char* format, void* bmp, size_t size);
     ~Image();
     void setTransparentColorRGB(Color c);
+    bool hasAlphaLayer() const { return _haveAlphaLayer; }
 public:
     Rect getRect() const;
 };

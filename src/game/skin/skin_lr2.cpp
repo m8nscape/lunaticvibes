@@ -769,7 +769,7 @@ int SkinLR2::IMAGE()
         else
         {
             Image img = Image(pathFile.u8string().c_str());
-            if (info.hasTransparentColor)
+            if (!img.hasAlphaLayer() && info.hasTransparentColor)
                 img.setTransparentColorRGB(info.transparentColor);
             _textureNameMap[textureMapKey] = std::make_shared<Texture>(img);
         }
