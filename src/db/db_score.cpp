@@ -179,7 +179,6 @@ std::shared_ptr<ScoreBMS> ScoreDB::getScoreBMS(const char* tableName, const Hash
 void ScoreDB::updateScoreBMS(const char* tableName, const HashMD5& hash, const ScoreBMS& score)
 {
     std::string hashStr = hash.hexdigest();
-    cache.erase(hashStr);
 
     auto pRecord = getScoreBMS(tableName, hash);
     if (pRecord)
@@ -267,6 +266,7 @@ void ScoreDB::updateScoreBMS(const char* tableName, const HashMD5& hash, const S
             score.maxcombo, (long long)std::time(nullptr), score.playcount, score.clearcount, score.exscore, (int)score.lamp,
             score.pgreat, score.great, score.good, score.bad, score.bpoor, score.miss, score.bp, score.combobreak, score.replayFileName });
     }
+    cache.erase(hashStr);
 }
 
 std::shared_ptr<ScoreBMS> ScoreDB::getChartScoreBMS(const HashMD5& hash) const
