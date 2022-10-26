@@ -8,7 +8,16 @@ if (${GRAPHICS_BACKEND} STREQUAL SDL2)
     )
 endif()
 
+add_custom_command(
+    OUTPUT ${CMAKE_BINARY_DIR}/git_version.cpp
+           ${CMAKE_BINARY_DIR}/_dummy.cpp
+    COMMAND ${CMAKE_COMMAND} -P 
+            ${CMAKE_CURRENT_SOURCE_DIR}/git_version.cmake
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+
 add_library(gamelib
+    ${CMAKE_BINARY_DIR}/git_version.cpp
     runtime/state.cpp
     chart/chart.cpp
     chart/chart_bms.cpp

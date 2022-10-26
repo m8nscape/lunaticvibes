@@ -8,6 +8,7 @@
 #include <future>
 #include <boost/format.hpp>
 #include "game/runtime/i18n.h"
+#include "git_version.h"
 
 ScenePreSelect::ScenePreSelect(): vScene(eMode::PRE_SELECT, 240)
 {
@@ -310,13 +311,14 @@ void ScenePreSelect::loadFinished()
         }
         if (gNextScene == eScene::PRE_SELECT)
         {
-            textHint = (boost::format("%s %s%s")
+            textHint = (boost::format("%s %s %s (%s %s)")
                 % PROJECT_NAME % PROJECT_VERSION
 #if _DEBUG
-                % " Debug (commit " PROJECT_BUILD_HASH ")"
+                % "Debug"
 #else
-                % " (commit " PROJECT_BUILD_HASH ")"
+                % ""
 #endif
+                % GIT_BRANCH % GIT_COMMIT
                 ).str();
             textHint2 = i18n::s(i18nText::PLEASE_WAIT);
         }

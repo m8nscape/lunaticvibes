@@ -4,6 +4,7 @@
 #include "game/sound/sound_sample.h"
 #include "game/runtime/i18n.h"
 #include "imgui.h"
+#include "git_version.h"
 
 #ifdef _WIN32
 #include <shellapi.h>
@@ -694,13 +695,14 @@ void SceneSelect::_imguiPage_About()
         if (ImGui::BeginChild("##pagesub21"))
         {
             ImGui::TextUnformatted("\"Lunatic Vibes\" 2017-2022");
-            ImGui::TextUnformatted((boost::format("Version: %s%s")
+            ImGui::TextUnformatted((boost::format("Version: %s %s (%s %s)")
                 % PROJECT_VERSION
 #if _DEBUG
-                % " Debug (commit " PROJECT_BUILD_HASH ")"
+                % "Debug" 
 #else
-                % " Release (commit " PROJECT_BUILD_HASH ")"
+                % "Release"
 #endif
+                % GIT_BRANCH % GIT_COMMIT
                 ).str().c_str());
                 
             ImGui::TextUnformatted("https://github.com/yaasdf/lunaticvibes");
