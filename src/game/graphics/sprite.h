@@ -71,7 +71,6 @@ protected:
     SpriteTypes _type;
     std::weak_ptr<vSprite> _parent;
     std::list<std::weak_ptr<vSprite>> _children;
-    std::map<std::string, std::string> properties;
 public:
     constexpr SpriteTypes type() { return _type; }
 protected:
@@ -107,10 +106,6 @@ public:
     bool isKeyFrameEmpty() { return _keyFrames.empty(); }
     void clearKeyFrames() { _keyFrames.clear(); }
     virtual void moveAfterUpdate(int x, int y);
-
-    void replaceTexture(pTexture pNewTexture);
-    const std::string& getProperty(const std::string& key) const;
-    void setProperty(const std::string& key, const std::string& value);
 };
 
 class iSpriteMouse

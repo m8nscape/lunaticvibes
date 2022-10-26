@@ -243,27 +243,6 @@ void vSprite::moveAfterUpdate(int x, int y)
 
 }
 
-void vSprite::replaceTexture(pTexture newTexture)
-{
-    if (_pTexture && _pTexture->isLoaded())
-    {
-        assert(newTexture->_loaded);
-        assert(_pTexture->getRect() == newTexture->getRect());
-    }
-    _pTexture = newTexture;
-}
-
-
-const std::string& vSprite::getProperty(const std::string& key) const
-{
-    static std::string emptyVal;
-    return properties.find(key) == properties.end() ? emptyVal : properties.at(key);
-}
-void vSprite::setProperty(const std::string& key, const std::string& value)
-{
-    properties[key] = value;
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Static
