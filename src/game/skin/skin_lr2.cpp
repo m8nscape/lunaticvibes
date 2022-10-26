@@ -769,9 +769,14 @@ int SkinLR2::IMAGE()
         else
         {
             Image img = Image(pathFile.u8string().c_str());
-            if (info.hasTransparentColor)
-                img.setTransparentColorRGB(info.transparentColor);
             _textureNameMap[textureMapKey] = std::make_shared<Texture>(img);
+            if (info.hasTransparentColor)
+            {
+                std::string textureMapKeyT = textureMapKey + "T";
+                img.setTransparentColorRGB(info.transparentColor);
+                _textureNameMap[textureMapKeyT] = std::make_shared<Texture>(img);
+                LR2SkinImageCache[textureMapKeyT] = _textureNameMap[textureMapKeyT];
+            }
         }
 
         LR2SkinImageCache[textureMapKey] = _textureNameMap[textureMapKey];
@@ -1178,6 +1183,7 @@ bool SkinLR2::SRC()
         }
     }
 
+    std::string gr_key;
     switch (type)
     {
     case DefType::UNDEF:
@@ -1201,7 +1207,6 @@ bool SkinLR2::SRC()
     {
         // Find texture from map by gr
         int gr = toInt(parseParamBuf[1]);
-        std::string gr_key;
         if (gr == 105)
         {
             textureBuf = getTextureCustomizeThumbnail();
@@ -1243,35 +1248,36 @@ bool SkinLR2::SRC()
     break;
     }
 
+    ParseRet ret = ParseRet::PARAM_INVALID;
     switch (type)
     {
-        case DefType::IMAGE:          SRC_IMAGE();               break;
-        case DefType::NUMBER:         SRC_NUMBER();              break;
-        case DefType::SLIDER:         SRC_SLIDER();              break;
-        case DefType::BARGRAPH:       SRC_BARGRAPH();            break;
-        case DefType::BUTTON:         SRC_BUTTON();              break;
-        case DefType::ONMOUSE:        SRC_ONMOUSE();             break;
-        case DefType::JUDGELINE:      SRC_JUDGELINE();           break;
-        case DefType::TEXT:           SRC_TEXT();                break;
-        case DefType::GROOVEGAUGE:    SRC_GROOVEGAUGE();         break;
-        case DefType::NOWJUDGE_1P:    lr2skin::flipSideFlag ? SRC_NOWJUDGE2() : SRC_NOWJUDGE1(); break;
-        case DefType::NOWJUDGE_2P:    lr2skin::flipSideFlag ? SRC_NOWJUDGE1() : SRC_NOWJUDGE2(); break;
-        case DefType::NOWCOMBO_1P:    lr2skin::flipSideFlag ? SRC_NOWCOMBO2() : SRC_NOWCOMBO1(); break;
-        case DefType::NOWCOMBO_2P:    lr2skin::flipSideFlag ? SRC_NOWCOMBO1() : SRC_NOWCOMBO2(); break;
-        case DefType::BGA:            SRC_BGA();                 break;
-        case DefType::MOUSECURSOR:    SRC_MOUSECURSOR();         break;
-        case DefType::GAUGECHART_1P:  SRC_GAUGECHART(lr2skin::flipSideFlag ? 1 : 0); break;
-        case DefType::GAUGECHART_2P:  SRC_GAUGECHART(lr2skin::flipSideFlag ? 0 : 1); break;
-        case DefType::SCORECHART:     SRC_SCORECHART();          break;
-        case DefType::BAR_BODY:       SRC_BAR_BODY();            break;
-        case DefType::BAR_FLASH:      SRC_BAR_FLASH();           break;
-        case DefType::BAR_LEVEL:      SRC_BAR_LEVEL();           break;
-        case DefType::BAR_LAMP:       SRC_BAR_LAMP();            break;
-        case DefType::BAR_TITLE:      SRC_BAR_TITLE();           break;
-        case DefType::BAR_RANK:       SRC_BAR_RANK();            break;
-        case DefType::BAR_RIVAL:      SRC_BAR_RIVAL();           break;
-        case DefType::BAR_MY_LAMP:    SRC_BAR_RIVAL_MYLAMP();    break;
-        case DefType::BAR_RIVAL_LAMP: SRC_BAR_RIVAL_RIVALLAMP(); break;
+        case DefType::IMAGE:          ret = SRC_IMAGE();               break;
+        case DefType::NUMBER:         ret = SRC_NUMBER();              break;
+        case DefType::SLIDER:         ret = SRC_SLIDER();              break;
+        case DefType::BARGRAPH:       ret = SRC_BARGRAPH();            break;
+        case DefType::BUTTON:         ret = SRC_BUTTON();              break;
+        case DefType::ONMOUSE:        ret = SRC_ONMOUSE();             break;
+        case DefType::JUDGELINE:      ret = SRC_JUDGELINE();           break;
+        case DefType::TEXT:           ret = SRC_TEXT();                break;
+        case DefType::GROOVEGAUGE:    ret = SRC_GROOVEGAUGE();         break;
+        case DefType::NOWJUDGE_1P:    ret = lr2skin::flipSideFlag ? SRC_NOWJUDGE2() : SRC_NOWJUDGE1(); break;
+        case DefType::NOWJUDGE_2P:    ret = lr2skin::flipSideFlag ? SRC_NOWJUDGE1() : SRC_NOWJUDGE2(); break;
+        case DefType::NOWCOMBO_1P:    ret = lr2skin::flipSideFlag ? SRC_NOWCOMBO2() : SRC_NOWCOMBO1(); break;
+        case DefType::NOWCOMBO_2P:    ret = lr2skin::flipSideFlag ? SRC_NOWCOMBO1() : SRC_NOWCOMBO2(); break;
+        case DefType::BGA:            ret = SRC_BGA();                 break;
+        case DefType::MOUSECURSOR:    ret = SRC_MOUSECURSOR();         break;
+        case DefType::GAUGECHART_1P:  ret = SRC_GAUGECHART(lr2skin::flipSideFlag ? 1 : 0); break;
+        case DefType::GAUGECHART_2P:  ret = SRC_GAUGECHART(lr2skin::flipSideFlag ? 0 : 1); break;
+        case DefType::SCORECHART:     ret = SRC_SCORECHART();          break;
+        case DefType::BAR_BODY:       ret = SRC_BAR_BODY();            break;
+        case DefType::BAR_FLASH:      ret = SRC_BAR_FLASH();           break;
+        case DefType::BAR_LEVEL:      ret = SRC_BAR_LEVEL();           break;
+        case DefType::BAR_LAMP:       ret = SRC_BAR_LAMP();            break;
+        case DefType::BAR_TITLE:      ret = SRC_BAR_TITLE();           break;
+        case DefType::BAR_RANK:       ret = SRC_BAR_RANK();            break;
+        case DefType::BAR_RIVAL:      ret = SRC_BAR_RIVAL();           break;
+        case DefType::BAR_MY_LAMP:    ret = SRC_BAR_RIVAL_MYLAMP();    break;
+        case DefType::BAR_RIVAL_LAMP: ret = SRC_BAR_RIVAL_RIVALLAMP(); break;
 
         case DefType::LINE:
         case DefType::NOTE:           
@@ -1283,8 +1289,15 @@ bool SkinLR2::SRC()
         case DefType::AUTO_MINE:      
         case DefType::AUTO_LN_END:    
         case DefType::AUTO_LN_BODY:   
-        case DefType::AUTO_LN_START:  SRC_NOTE(type); break;
+        case DefType::AUTO_LN_START:  ret = SRC_NOTE(type); break;
     };
+
+    if (ret == ParseRet::OK && type != DefType::BGA && type != DefType::TEXT && type != DefType::GAUGECHART_1P && type != DefType::GAUGECHART_2P)
+    {
+        pSprite ps = _sprites.back();
+        assert(ps != nullptr);
+        ps->setProperty("gr", gr_key);
+    }
 
     return true;
 }
@@ -2423,6 +2436,17 @@ bool SkinLR2::DST()
 
             e->setLoopTime(d.loop);
             e->setTrigTimer((IndexTimer)d.timer);
+
+            if (d.blend == 0 && info.hasTransparentColor)
+            {
+                // blend=0, replace texture with color key enabled one
+                std::string gr_key = e->getProperty("gr");
+                if (!gr_key.empty())
+                {
+                    gr_key += "T";
+                    e->replaceTexture(_textureNameMap[gr_key]);
+                }
+            }
         }
 
         if (type == DefType::GAUGECHART_1P || type == DefType::GAUGECHART_2P)
