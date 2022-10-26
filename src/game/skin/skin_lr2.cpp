@@ -2449,24 +2449,6 @@ bool SkinLR2::DST()
             }
         }
 
-        if (type == DefType::GAUGECHART_1P || type == DefType::GAUGECHART_2P)
-        {
-            switch (d._null)
-            {
-            case 0: d.r = d.b = 0; break;   // green
-            case 1: d.g = d.b = 0; break;   // red
-            }
-        }
-        else if (type == DefType::SCORECHART)
-        {
-            switch (d._null)
-            {
-            case 0: d.r = d.g = 0; break;   // blue
-            case 1: d.r = d.b = 0; break;   // green
-            case 2: d.g = d.b = 0; break;   // red
-            }
-        }
-
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
         //e->pushKeyFrame(time, x, y, w, h, acc, r, g, b, a, blend, filter, angle, center);

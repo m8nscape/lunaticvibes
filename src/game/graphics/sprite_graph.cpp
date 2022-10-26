@@ -181,6 +181,45 @@ bool SpriteLine::update(const Time& t)
         if (_current.blend == BlendMode::NONE)
             _current.color.a = 255;
 
+        switch (_ltype)
+        {
+        case LineType::GAUGE_F:
+            _current.color.r = 0;
+            _current.color.b = 0;
+            break;
+
+        case LineType::GAUGE_C:
+            switch (gPlayContext.mods[_player].gauge)
+            {
+            case eModGauge::EXHARD:
+            case eModGauge::DEATH:
+            case eModGauge::GRADE_HARD:
+            case eModGauge::GRADE_DEATH:
+                _current.color.g = _current.color.r;
+                break;
+            default:
+                _current.color.g = 0;
+                break;
+            }
+            _current.color.b = 0;
+            break;
+
+        case LineType::SCORE:
+            _current.color.r = 0;
+            _current.color.g = 0;
+            break;
+
+        case LineType::SCORE_MYBEST:
+            _current.color.r = 0;
+            _current.color.b = 0;
+            break;
+
+        case LineType::SCORE_TARGET:
+            _current.color.g = 0;
+            _current.color.b = 0;
+            break;
+        }
+
         _line._width = _current.rect.w;
 
         updateProgress(t);
