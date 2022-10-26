@@ -693,8 +693,19 @@ void SceneSelect::_imguiPage_About()
     {
         if (ImGui::BeginChild("##pagesub21"))
         {
-            ImGui::TextUnformatted(R"("Lunatic Vibes" (2017-2022)
-https://github.com/yaasdf/lunaticvibes
+            ImGui::TextUnformatted("\"Lunatic Vibes\" 2017-2022");
+            ImGui::TextUnformatted((boost::format("Version: %s%s")
+                % PROJECT_VERSION
+#if _DEBUG
+                % " Debug (commit " PROJECT_BUILD_HASH ")"
+#else
+                % " Release (commit " PROJECT_BUILD_HASH ")"
+#endif
+                ).str().c_str());
+                
+            ImGui::TextUnformatted("https://github.com/yaasdf/lunaticvibes");
+
+            ImGui::TextUnformatted(R"(
 
 
 Casts:（敬称略）
@@ -710,6 +721,9 @@ Music:
     -
 Sound Effects:
     -
+Contributors:
+    jbscj
+    lxdlam
 
 Testers:
     XX

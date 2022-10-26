@@ -11,6 +11,19 @@ project(LunaticVibes
     VERSION 0.9
     LANGUAGES CXX
 )
+set(PROJECT_TITLE "Lunatic Vibes")
+
+find_package(Git)
+if(GIT_EXECUTABLE)
+	execute_process(
+    COMMAND "${GIT_EXECUTABLE}" log -n 1 --pretty=%h
+    OUTPUT_VARIABLE GIT_HASH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+    set(PROJECT_BUILD_HASH ${GIT_HASH})
+    message("Git commit hash: ${PROJECT_BUILD_HASH}")
+endif()
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(BUILD_X64 TRUE CACHE BOOL "Build x64 arch")

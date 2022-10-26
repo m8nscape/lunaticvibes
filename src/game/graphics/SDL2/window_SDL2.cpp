@@ -35,11 +35,8 @@ int graphics_init()
         std::string title;
         title += PROJECT_NAME;
 #ifdef _DEBUG
-        title += ' ';
-        title += "Debug";
+        title += " Debug";
 #endif
-        title += ' ';
-        title += PROJECT_VERSION;
 
 #if _WIN32
         // Direct3D9

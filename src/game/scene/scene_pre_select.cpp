@@ -310,7 +310,14 @@ void ScenePreSelect::loadFinished()
         }
         if (gNextScene == eScene::PRE_SELECT)
         {
-            textHint = (boost::format("%s %s") % PROJECT_NAME % PROJECT_VERSION).str();
+            textHint = (boost::format("%s %s%s")
+                % PROJECT_NAME % PROJECT_VERSION
+#if _DEBUG
+                % " Debug (commit " PROJECT_BUILD_HASH ")"
+#else
+                % " (commit " PROJECT_BUILD_HASH ")"
+#endif
+                ).str();
             textHint2 = i18n::s(i18nText::PLEASE_WAIT);
         }
 
