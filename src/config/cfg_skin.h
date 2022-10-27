@@ -47,12 +47,6 @@ namespace cfg
     constexpr char S_PATH_CUSTOMIZE[] = "Customize";
     constexpr char S_DEFAULT_PATH_CUSTOMIZE[] = "LR2files/Theme/LR2/SkinSelect/skinselect.lr2skin";
 
-    constexpr char S_PATH_BGM[] = "BGM folder (LR2)";
-    constexpr char S_DEFAULT_PATH_BGM[] = "LR2files/Bgm/LR2 ver sta";
-
-    constexpr char S_PATH_SOUND[] = "Sound folder (LR2)";
-    constexpr char S_DEFAULT_PATH_SOUND[] = "LR2files/Sound/lr2";
-
     constexpr char S_PATH_SOUNDSET[] = "Soundset";
     constexpr char S_DEFAULT_PATH_SOUNDSET[] = "LR2files/Sound/lr2.lr2ss";
 }
