@@ -55,9 +55,11 @@ int main(int argc, char* argv[])
     ConfigMgr::load();
     ConfigMgr::selectProfile(ConfigMgr::get('E', cfg::E_PROFILE, cfg::PROFILE_DEFAULT));
 
-    if (!fs::is_directory(utf8_to_utf32(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), "LR2Files/"))))
+    Path lr2path = Path(utf8_to_utf32(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), "LR2Files/")));
+    if (!fs::is_directory(lr2path))
     {
-        LOG_ERROR << "LR2files directory not found!";
+        LOG_ERROR << "LR2files directory not found! " << lr2path.u8string();
+        panic("Error", "LR2files directory not found!");
         return -1;
     }
 
@@ -125,6 +127,12 @@ int main(int argc, char* argv[])
     // imgui font
     int fontIndex = 0;
     Path imguiFontPath = getSysFontPath(NULL, &fontIndex, i18n::getCurrentLanguage());
+    if (!fs::exists(imguiFontPath))
+    {
+        LOG_ERROR << "Font file not found. Please reinstall the game.";
+        panic("Error", "Font file not found. Please reinstall the game.");
+        return -1;
+    }
     ImFontConfig fontConfig;
     fontConfig.FontNo = fontIndex;
     ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
