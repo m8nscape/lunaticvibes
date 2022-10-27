@@ -53,6 +53,7 @@ int main(int argc, char* argv[])
     // load configs
     ConfigMgr::init();
     ConfigMgr::load();
+    ConfigMgr::selectProfile(ConfigMgr::get('E', cfg::E_PROFILE, cfg::PROFILE_DEFAULT));
 
     if (!fs::is_directory(utf8_to_utf32(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), "LR2Files/"))))
     {

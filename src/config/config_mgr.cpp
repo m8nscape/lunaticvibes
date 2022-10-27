@@ -817,18 +817,22 @@ int ConfigMgr::_selectProfile(const std::string& name)
         return 3;
     }
 
-    try
     {
-        P = std::make_shared<ConfigProfile>(name);
-        I5 = std::make_shared<ConfigInput>(name, 5);
-        I7 = std::make_shared<ConfigInput>(name, 7);
-        I9 = std::make_shared<ConfigInput>(name, 9);
-        S = std::make_shared<ConfigSkin>(name);
-    }
-    catch (YAML::BadFile&)
-    {
-        LOG_WARNING << "[Config] Bad profile: " << name;
-        return 1;
+        std::unique_lock l(getInst()._mutex);
+
+        try
+        {
+            P = std::make_shared<ConfigProfile>(name);
+            I5 = std::make_shared<ConfigInput>(name, 5);
+            I7 = std::make_shared<ConfigInput>(name, 7);
+            I9 = std::make_shared<ConfigInput>(name, 9);
+            S = std::make_shared<ConfigSkin>(name);
+        }
+        catch (YAML::BadFile&)
+        {
+            LOG_WARNING << "[Config] Bad profile: " << name;
+            return 1;
+        }
     }
 
     load();
@@ -864,7 +868,8 @@ int ConfigMgr::_createProfile(const std::string& newProfile, const std::string& 
     }
 
     ConfigProfile p(newProfile);
-    p.set(cfg::E_PROFILE, newProfile);
+    p.setDefaults();
+    p.set(cfg::P_PLAYERNAME, newProfile);
     p.save();
 
     return 0;
@@ -872,6 +877,8 @@ int ConfigMgr::_createProfile(const std::string& newProfile, const std::string& 
 
 void ConfigMgr::_setGlobals()
 {
+    std::shared_lock l(getInst()._mutex);
+
     setNumbers();
     setOptions();
     setSliders();

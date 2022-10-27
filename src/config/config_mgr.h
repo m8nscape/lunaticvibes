@@ -6,6 +6,7 @@
 #include <string>
 #include <memory>
 #include <filesystem>
+#include <shared_mutex>
 
 class ConfigMgr
 {
@@ -36,8 +37,8 @@ private:
         S->setDefaults();
     }
 
-    void _load() { G->load(); P->load(); I5->load(); I7->load(); I9->load(); S->load(); }
-    void _save() { G->save(); P->save(); I5->save(); I7->save(); I9->save(); S->save(); }
+    void _load() { std::unique_lock l(_mutex); G->load(); P->load(); I5->load(); I7->load(); I9->load(); S->load(); }
+    void _save() { std::shared_lock l(_mutex); G->save(); P->save(); I5->save(); I7->save(); I9->save(); S->save(); }
     int _selectProfile(const std::string& name);
     int _createProfile(const std::string& newProfile, const std::string& oldProfile);
     std::string _getProfileName() { return P->getName(); }
@@ -46,6 +47,7 @@ private:
     template<class Ty_v>
     Ty_v _get(char type, const std::string& key, const Ty_v& fallback)
     {
+        std::shared_lock l(_mutex);
         switch (type)
         {
         case 'A':                               // Audio
@@ -62,6 +64,7 @@ private:
     template<class Ty_v>
     void _set(char type, const std::string& key, const Ty_v& value) noexcept
     {
+        std::unique_lock l(_mutex);
         switch (type)
         {
         case 'A':                               // Audio
@@ -77,6 +80,7 @@ private:
 
     KeyMap _getKeyBindings(GameModeKeys mode, Input::Pad key)
     {
+        std::shared_lock l(_mutex);
         switch (mode)
         {
         case 5: if (I5) return I5->getBindings(key); break;
@@ -101,6 +105,7 @@ protected:
     std::shared_ptr<ConfigInput>       I9;
     std::shared_ptr<ConfigSkin>        S;
     std::string profileName;
+    std::shared_mutex _mutex;
 
 public:
     std::shared_ptr<ConfigGeneral> _General() { return G; }
