@@ -142,15 +142,15 @@ add_custom_command(TARGET LunaticVibes POST_BUILD
 )
 
 add_custom_command(TARGET LunaticVibes POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    ${CMAKE_SOURCE_DIR}/LICENSE_3RD_PARTY
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/res
     $<TARGET_FILE_DIR:LunaticVibes>/gamedata/resources
 )
 
 add_custom_command(TARGET LunaticVibes POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_SOURCE_DIR}/res
-    $<TARGET_FILE_DIR:LunaticVibes>/gamedata/resources
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_SOURCE_DIR}/LICENSE_3RD_PARTY
+    $<TARGET_FILE_DIR:LunaticVibes>/gamedata/resources/LICENSE_3RD_PARTY
 )
 
 if (WIN32)
