@@ -1,11 +1,13 @@
 #pragma once
 #include "scene.h"
 #include "common/keymap.h"
+#include <shared_mutex>
 
 class SceneKeyConfig : public vScene
 {
 private:
     bool _exiting = false;
+    std::shared_mutex _mutex;
 
 public:
     SceneKeyConfig();

@@ -190,6 +190,8 @@ void SceneKeyConfig::inputGamePressKeyboard(KeyboardMask& mask, const Time& t)
 
     if (pad != Input::Pad::INVALID)
     {
+        std::unique_lock l(_mutex);
+
         if (mask[static_cast<size_t>(Input::Keyboard::K_DEL)])
         {
             KeyMap undef;
@@ -238,6 +240,8 @@ void SceneKeyConfig::inputGamePressJoystick(JoystickMask& mask, size_t device, c
 
     if (pad != Input::Pad::INVALID)
     {
+        std::unique_lock l(_mutex);
+
         size_t base = 0;
 
         // Buttons
@@ -327,6 +331,8 @@ void SceneKeyConfig::inputGameAbsoluteAxis(JoystickAxis& axis, size_t device, co
     if (pad != Input::Pad::S1A && pad != Input::Pad::S2A)
         return;
 
+    std::unique_lock l(_mutex);
+
     GameModeKeys keys = gKeyconfigContext.keys;
 
     for (size_t index = 0; index < InputMgr::MAX_JOYSTICK_AXIS_COUNT; ++index)
@@ -358,6 +364,8 @@ void SceneKeyConfig::setInputBindingText(GameModeKeys keys, Input::Pad pad)
 
 void SceneKeyConfig::updateForceBargraphs()
 {
+    std::shared_lock l(_mutex);
+
     GameModeKeys keys = gKeyconfigContext.keys;
     auto& input = ConfigMgr::Input(keys);
     Time t;

@@ -134,6 +134,10 @@ KeyMap ConfigInput::getBindings(Input::Pad ingame)
     using namespace cfg;
     StringContent mapKey = getBindingKey(ingame);
 
-    std::string name = _yaml[mapKey].as<std::string>("INVALID");
-    return KeyMap(name);
+    if (_yaml[mapKey].Type() == YAML::NodeType::Scalar)
+    {
+        std::string name = _yaml[mapKey].as<std::string>("INVALID");
+        return KeyMap(name);
+    }
+    return KeyMap("INVALID");
 }
