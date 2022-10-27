@@ -541,7 +541,8 @@ public:
 	{
 		GROOVE,
 		SURVIVAL,
-		EX_SURVIVAL
+		EX_SURVIVAL,
+        ASSIST_EASY,
 	};
 
 	enum TextureSelection

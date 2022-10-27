@@ -394,7 +394,7 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         case eModGauge::EASY:      tmp = eGaugeOp::GROOVE; break;
         // case eModGauge::PATTACK:   tmp = eGaugeOp::EX_SURVIVAL; break;
         // case eModGauge::GATTACK:   tmp = eGaugeOp::EX_SURVIVAL; break;
-        case eModGauge::ASSISTEASY:tmp = eGaugeOp::GROOVE; break;
+        case eModGauge::ASSISTEASY:tmp = eGaugeOp::ASSIST_EASY; break;
         case eModGauge::EXHARD:    tmp = eGaugeOp::EX_SURVIVAL; break;
         case eModGauge::GRADE_NORMAL: tmp = eGaugeOp::SURVIVAL; break;
         case eModGauge::GRADE_HARD:   tmp = eGaugeOp::EX_SURVIVAL; break;
@@ -413,7 +413,7 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
             case eModGauge::DEATH:     tmp = eGaugeOp::EX_SURVIVAL; break;
             // case eModGauge::PATTACK:   tmp = eGaugeOp::EX_SURVIVAL; break;
             // case eModGauge::GATTACK:   tmp = eGaugeOp::EX_SURVIVAL; break;
-            case eModGauge::ASSISTEASY:tmp = eGaugeOp::GROOVE; break;
+            case eModGauge::ASSISTEASY:tmp = eGaugeOp::ASSIST_EASY; break;
             case eModGauge::EXHARD:    tmp = eGaugeOp::EX_SURVIVAL; break;
             case eModGauge::GRADE_NORMAL: tmp = eGaugeOp::SURVIVAL; break;
             case eModGauge::GRADE_HARD:   tmp = eGaugeOp::EX_SURVIVAL; break;

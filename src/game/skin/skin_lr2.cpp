@@ -523,7 +523,10 @@ int SkinLR2::setExtendedProperty(std::string&& key, void* value)
                 pS->setGaugeType(SpriteGaugeGrid::GaugeType::EX_SURVIVAL);
                 break;
 
-            case eGaugeOp::GROOVE:
+            case eGaugeOp::ASSIST_EASY:
+                pS->setGaugeType(SpriteGaugeGrid::GaugeType::ASSIST_EASY);
+                break;
+
             default:
                 pS->setGaugeType(SpriteGaugeGrid::GaugeType::GROOVE);
                 break;
@@ -550,7 +553,10 @@ int SkinLR2::setExtendedProperty(std::string&& key, void* value)
                 pS->setGaugeType(SpriteGaugeGrid::GaugeType::EX_SURVIVAL);
                 break;
 
-            case eGaugeOp::GROOVE:
+            case eGaugeOp::ASSIST_EASY:
+                pS->setGaugeType(SpriteGaugeGrid::GaugeType::ASSIST_EASY);
+                break;
+
             default:
                 pS->setGaugeType(SpriteGaugeGrid::GaugeType::GROOVE);
                 break;

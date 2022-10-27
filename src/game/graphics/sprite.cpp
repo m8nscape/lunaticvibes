@@ -1188,6 +1188,11 @@ void SpriteGaugeGrid::setGaugeType(SpriteGaugeGrid::GaugeType ty)
 	_gaugeType = ty;
 	switch (_gaugeType)
 	{
+    case GaugeType::ASSIST_EASY:
+        _texIdxLightFail = NORMAL_LIGHT; _texIdxDarkFail = NORMAL_DARK;
+        _texIdxLightClear = CLEAR_LIGHT; _texIdxDarkClear = CLEAR_DARK;
+        _req = (unsigned short)std::floor(0.6 * _grids); break;
+
     case GaugeType::GROOVE: 
         _texIdxLightFail = NORMAL_LIGHT; _texIdxDarkFail = NORMAL_DARK; 
         _texIdxLightClear = CLEAR_LIGHT; _texIdxDarkClear = CLEAR_DARK;

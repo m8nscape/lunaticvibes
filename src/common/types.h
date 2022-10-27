@@ -192,6 +192,7 @@ enum class eGaugeOp
     GROOVE,
     SURVIVAL,
     EX_SURVIVAL,
+    ASSIST_EASY,
 };
 
 enum class eLevel
