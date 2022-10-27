@@ -1362,7 +1362,6 @@ void ScenePlay::updateAsyncLanecover(const Time& t)
             case Option::LANE_SUDHID:
             case Option::LANE_HIDDEN:
             case Option::LANE_LIFT:
-            case Option::LANE_LIFTSUD:
                 State::set(IndexNumber::LANECOVER_BOTTOM_1P, lc);
                 _lanecoverBottomHasChanged[PLAYER_SLOT_PLAYER] = true;
                 break;
