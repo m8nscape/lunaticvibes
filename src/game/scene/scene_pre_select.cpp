@@ -246,7 +246,10 @@ void ScenePreSelect::updateLoadCourses()
             std::map<EntryCourse::CourseType, std::vector<std::shared_ptr<EntryCourse>>> courses;
 
             // initialize table list
-            for (auto& courseFile : fs::recursive_directory_iterator(Path(GAMEDATA_PATH) / "courses"))
+            Path coursePath = Path(GAMEDATA_PATH) / "courses";
+            if (!fs::exists(coursePath))
+                fs::create_directories(coursePath);
+            for (auto& courseFile : fs::recursive_directory_iterator(coursePath))
             {
                 if (!(fs::is_regular_file(courseFile) && strEqual(courseFile.path().extension().u8string(), ".lr2crs", true)))
                     continue;
