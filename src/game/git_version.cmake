@@ -20,7 +20,7 @@ const char* GIT_COMMIT = \"${GIT_COMMIT}\"\;
 ")
 
 if (EXISTS "git_version.h")
-    file(READ "git_version.h" GIT_VERSION_HEADER_)
+    file(STRINGS "git_version.h" GIT_VERSION_HEADER_ NEWLINE_CONSUME)
 else()
     set(GIT_VERSION_HEADER_ "")
 endif()
@@ -29,7 +29,7 @@ if (NOT "${GIT_VERSION_HEADER}" STREQUAL "${GIT_VERSION_HEADER_}")
 endif()
 
 if (EXISTS "git_version.cpp")
-    file(READ "git_version.cpp" GIT_VERSION_)
+    file(STRINGS "git_version.cpp" GIT_VERSION_ NEWLINE_CONSUME)
 else()
     set(GIT_VERSION_ "")
 endif()
