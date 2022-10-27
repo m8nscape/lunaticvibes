@@ -1422,8 +1422,6 @@ void RulesetBMS::reset()
     vRuleset::reset();
 
     _judgeCount.clear();
-
-    updateGlobals();
 }
 
 void RulesetBMS::updateGlobals()

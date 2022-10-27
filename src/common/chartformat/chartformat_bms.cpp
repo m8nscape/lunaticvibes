@@ -30,7 +30,7 @@ int ChartFormatBMS::getExtendedProperty(const std::string& key, void* ret)
     }
     if (strEqual(key, "TOTAL", true))
     {
-        *(double*)ret = total;
+        *(int*)ret = total;
     }
     if (strEqual(key, "DIFFICULTY", true))
     {

@@ -378,6 +378,11 @@ void SceneResult::updateFadeout()
             gPlayContext.courseStage++;
             if (gPlayContext.courseStage < gPlayContext.courseCharts.size() && State::get(IndexSwitch::RESULT_CLEAR))
             {
+                if (gPlayContext.courseStage + 1 == gPlayContext.courseCharts.size())
+                    State::set(IndexOption::PLAY_COURSE_STAGE, Option::STAGE_FINAL);
+                else
+                    State::set(IndexOption::PLAY_COURSE_STAGE, Option::STAGE_1 + gPlayContext.courseStage);
+
                 // set metadata
                 auto pChart = *g_pSongDB->findChartByHash(gPlayContext.courseCharts[gPlayContext.courseStage]).begin();
                 gChartContext.chartObj = pChart;

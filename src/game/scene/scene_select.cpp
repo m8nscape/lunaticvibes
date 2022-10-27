@@ -1617,6 +1617,15 @@ void SceneSelect::_decide()
         gPlayContext.isBattle = false;
         gPlayContext.isCourse = true;
         gPlayContext.courseStage = 0;
+
+        if (gPlayContext.courseStage + 1 == gPlayContext.courseCharts.size())
+            State::set(IndexOption::PLAY_COURSE_STAGE, Option::STAGE_FINAL);
+        else
+            State::set(IndexOption::PLAY_COURSE_STAGE, Option::STAGE_1 + gPlayContext.courseStage);
+    }
+    else
+    {
+        State::set(IndexOption::PLAY_COURSE_STAGE, Option::STAGE_NOT_COURSE);
     }
 
     // chart

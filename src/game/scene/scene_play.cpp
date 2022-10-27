@@ -225,16 +225,6 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
 
 
 
-
-    if (gPlayContext.isCourse)
-    {
-        State::set(IndexOption::PLAY_COURSE_STAGE, Option::STAGE_1 + gPlayContext.courseStage);
-    }
-    else
-    {
-        State::set(IndexOption::PLAY_COURSE_STAGE, Option::STAGE_NOT_COURSE);
-    }
-
     if (gPlayContext.isReplay && gPlayContext.replay)
     {
         State::set(IndexSwitch::SOUND_PITCH, true);
@@ -493,6 +483,8 @@ void ScenePlay::clearGlobalDatas()
         IndexNumber::RESULT_MYBEST_RATE_DECIMAL2,
         IndexNumber::RESULT_TARGET_RATE,
         IndexNumber::RESULT_TARGET_RATE_DECIMAL2,
+        IndexNumber::PLAY_MIN,
+        IndexNumber::PLAY_SEC,
         IndexNumber::PLAY_LOAD_PROGRESS_PERCENT,
         IndexNumber::PLAY_LOAD_PROGRESS_SYS,
         IndexNumber::PLAY_LOAD_PROGRESS_WAV,
