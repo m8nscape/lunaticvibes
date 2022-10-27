@@ -215,7 +215,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
             size_t count = (laneRightEnd - laneRightStart + 1);
             size_t lane = rng() % count;
             for (size_t c = laneRightStart; c <= laneRightEnd; ++c, lane = (lane + 1) % count)
-                gameLaneMap[lane] = NoteLaneIndex(laneRightStart + lane);
+                gameLaneMap[c] = NoteLaneIndex(laneRightStart + lane);
 
             bool mirror = bool(rng() % 2);
             if (mirror)
@@ -241,7 +241,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
             size_t count = (laneLeftEnd - laneLeftStart + 1);
             size_t lane = rng() % count;
             for (size_t c = laneLeftStart; c <= laneLeftEnd; ++c, lane = (lane + 1) % count)
-                gameLaneMap[lane] = NoteLaneIndex(laneLeftStart + lane);
+                gameLaneMap[c] = NoteLaneIndex(laneLeftStart + lane);
 
             bool mirror = bool(rng() % 2);
             if (mirror)
