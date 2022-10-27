@@ -3673,14 +3673,14 @@ void SkinLR2::postLoad()
             }
             else if (judgeLineRect1P.x - 5 <= rcLast.x && rcLast.x <= judgeLineRect1P.x + 5 &&
                 judgeLineRect1P.w - 10 <= rcLast.w && rcLast.w <= judgeLineRect1P.w + 10 &&
-                rcLast.y <= judgeLineRect1P.y)
+                rcLast.y <= judgeLineRect1P.y + judgeLineRect1P.h)
             {
                 // 1P background
                 spritesMoveWithLift1P.push_back(s);
             }
             else if (judgeLineRect2P.x - 5 <= rcLast.x && rcLast.x <= judgeLineRect2P.x + 5 &&
                 judgeLineRect2P.w - 10 <= rcLast.w && rcLast.w <= judgeLineRect2P.w + 10 &&
-                rcLast.y <= judgeLineRect2P.y)
+                rcLast.y <= judgeLineRect2P.y + judgeLineRect2P.h)
             {
                 // 2P background
                 spritesMoveWithLift2P.push_back(s);
@@ -3694,7 +3694,7 @@ void SkinLR2::postLoad()
             int timer = (int)s->_triggerTimer;
             if (timer == 40 || timer == 46)
             {
-                if (rcFirst.y <= judgeLineRect1P.y || rcLast.y <= judgeLineRect1P.y)
+                if (rcFirst.y <= judgeLineRect1P.y + judgeLineRect1P.h || rcLast.y <= judgeLineRect1P.y + judgeLineRect1P.h)
                 {
                     if (num == 108 || num == 210)
                     {
@@ -3702,7 +3702,7 @@ void SkinLR2::postLoad()
                         spritesMoveWithLift1P.push_back(s);
                     }
                 }
-                else if (rcFirst.y <= judgeLineRect2P.y || rcLast.y <= judgeLineRect2P.y)
+                else if (rcFirst.y <= judgeLineRect2P.y + judgeLineRect2P.h || rcLast.y <= judgeLineRect2P.y + judgeLineRect2P.h)
                 {
                     if (num == 128 || num == 211)
                     {
