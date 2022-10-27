@@ -390,6 +390,9 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     gPlayContext.battle2PHispeedGradientFrom = gPlayContext.battle2PHispeed;
     gPlayContext.battle2PHispeedGradientNow = gPlayContext.battle2PHispeed;
 
+    State::set(IndexSlider::HISPEED_1P, gPlayContext.Hispeed / 10.0);
+    State::set(IndexSlider::HISPEED_2P, gPlayContext.battle2PHispeed / 10.0);
+
     {
         using namespace std::string_literals;
         eGaugeOp tmp = eGaugeOp::GROOVE;
@@ -1739,7 +1742,7 @@ void ScenePlay::updateAsyncLanecoverDisplay(const Time& t)
         gPlayContext.battle2PHispeedGradientStart = t;
         gPlayContext.battle2PHispeedGradientFrom = gPlayContext.battle2PHispeedGradientNow;
         State::set(IndexNumber::HS_2P, (int)std::round(gPlayContext.battle2PHispeed * 100));
-        State::set(IndexSlider::HISPEED_1P, gPlayContext.battle2PHispeed / 10.0);
+        State::set(IndexSlider::HISPEED_2P, gPlayContext.battle2PHispeed / 10.0);
     }
     if (_lanecoverBottomHasChanged[PLAYER_SLOT_PLAYER])
     {
