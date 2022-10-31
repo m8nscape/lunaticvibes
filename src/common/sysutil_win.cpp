@@ -43,7 +43,7 @@ void SetThreadNameWin32(DWORD dwThreadID, const char* threadName) {
 
 [[noreturn]] inline void panicWin32(const char* title, const char* msg)
 {
-    MessageBox(NULL, title, msg, MB_OK);
+    MessageBox(NULL, msg, title, MB_OK);
     abort();
 }
 
