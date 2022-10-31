@@ -836,8 +836,6 @@ void SceneSelect::updateSelect()
         State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
         _state = eSelectState::FADEOUT;
         _updateCallback = std::bind(&SceneSelect::updateFadeout, this);
-
-        gResetSelectCursor = true;
     }
     else if (gSelectContext.isGoingToAutoPlay)
     {

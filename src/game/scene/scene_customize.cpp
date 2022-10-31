@@ -76,8 +76,6 @@ SceneCustomize::~SceneCustomize()
     _input.unregister_p("SCENE_PRESS_CUSTOMIZE");
     _input.loopEnd();
     loopEnd();
-
-    gResetSelectCursor = true;
 }
 
 void SceneCustomize::_updateAsync()
@@ -243,7 +241,6 @@ void SceneCustomize::updateMain()
                     {
                     case eMode::MUSIC_SELECT:
                         ConfigMgr::set("S", cfg::S_PATH_MUSIC_SELECT, p);
-                        gResetSelectCursor = true;
                         break;
 
                     case eMode::DECIDE:

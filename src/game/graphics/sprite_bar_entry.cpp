@@ -97,8 +97,11 @@ int SpriteBarEntry::setRank(BarRankType type, pTexture texture, const Rect& rect
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarRankType::RANK_TYPE_COUNT))
     {
-        LOG_WARNING << "[Sprite] BarEntry rank type (" << int(type) << "Invalid!"
-            << " (Line " << _srcLine << ")";
+        if (_srcLine >= 0)
+        {
+            LOG_WARNING << "[Sprite] BarEntry rank type (" << int(type) << "Invalid!"
+                << " (Line " << _srcLine << ")";
+        }
         return 1;
     }
 
@@ -113,8 +116,11 @@ int SpriteBarEntry::setRivalWinLose(BarRivalType type, pTexture texture, const R
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarRivalType::RIVAL_TYPE_COUNT))
     {
-        LOG_WARNING << "[Sprite] BarEntry rival type (" << int(type) << ") Invalid!"
-            << " (Line " << _srcLine << ")";
+        if (_srcLine >= 0)
+        {
+            LOG_WARNING << "[Sprite] BarEntry rival type (" << int(type) << ") Invalid!"
+                << " (Line " << _srcLine << ")";
+        }
         return 1;
     }
 
@@ -129,8 +135,11 @@ int SpriteBarEntry::setRivalLampSelf(BarLampType type, pTexture texture, const R
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarLampType::LAMP_TYPE_COUNT))
     {
-        LOG_WARNING << "[Sprite] BarEntry rival lamp self type (" << int(type) << "Invalid!"
-            << " (Line " << _srcLine << ")";
+        if (_srcLine >= 0)
+        {
+            LOG_WARNING << "[Sprite] BarEntry rival lamp self type (" << int(type) << "Invalid!"
+                << " (Line " << _srcLine << ")";
+        }
         return 1;
     }
 
@@ -145,8 +154,11 @@ int SpriteBarEntry::setRivalLampRival(BarLampType type, pTexture texture, const 
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarLampType::LAMP_TYPE_COUNT))
     {
-        LOG_WARNING << "[Sprite] BarEntry rival lamp rival type (" << int(type) << "Invalid!"
-            << " (Line " << _srcLine << ")";
+        if (_srcLine >= 0)
+        {
+            LOG_WARNING << "[Sprite] BarEntry rival lamp rival type (" << int(type) << "Invalid!"
+                << " (Line " << _srcLine << ")";
+        }
         return 1;
     }
 

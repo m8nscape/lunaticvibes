@@ -249,7 +249,6 @@ void createNotification(StringContentView text);
 
 ////////////////////////////////////////////////////////////////////////////////
 
-extern bool gResetSelectCursor;
 extern bool gQuitOnFinish;
 extern bool gAppIsExiting;
 extern ChartContextParams gChartContext;

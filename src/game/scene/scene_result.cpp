@@ -158,6 +158,7 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
         State::set(IndexSwitch::RESULT_UPDATED_BP, param["updatedbp"]);
     }
 
+    LOG_INFO << "[Result] " << (State::get(IndexSwitch::RESULT_CLEAR) ? "CLEARED" : "FAILED");
 
     using namespace std::placeholders;
     _input.register_p("SCENE_PRESS", std::bind(&SceneResult::inputGamePress, this, _1, _2));
