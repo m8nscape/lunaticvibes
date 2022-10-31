@@ -1619,7 +1619,9 @@ void SceneSelect::_decide()
         if (gPlayContext.courseStage + 1 == gPlayContext.courseCharts.size())
             State::set(IndexOption::PLAY_COURSE_STAGE, Option::STAGE_FINAL);
         else
+        {
             State::set(IndexOption::PLAY_COURSE_STAGE, Option::STAGE_1 + gPlayContext.courseStage);
+        }
     }
     else
     {

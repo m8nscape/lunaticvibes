@@ -51,10 +51,10 @@ void RulesetBMSAuto::setTargetRate(double rate)
     if (rate == 1.0)
     {
         noteJudges.resize(count);
-        std::fill(noteJudges.begin(), noteJudges.end(), JudgeType::PERFECT);
-        totalJudgeCount[JudgeType::PERFECT] = count;
-        totalJudgeCount[JudgeType::GREAT] = 0;
-        totalJudgeCount[JudgeType::GOOD] = 0;
+        std::fill(noteJudges.begin(), noteJudges.end(), JudgeArea::EXACT_PERFECT);
+        totalJudgeCount[JudgeArea::EXACT_PERFECT] = count;
+        totalJudgeCount[JudgeArea::EARLY_GREAT] = 0;
+        totalJudgeCount[JudgeArea::EARLY_GOOD] = 0;
         return;
     }
 
@@ -71,9 +71,9 @@ void RulesetBMSAuto::setTargetRate(double rate)
         count1 = score;
         count0 = count - count1;
     }
-    totalJudgeCount[JudgeType::PERFECT] = count2;
-    totalJudgeCount[JudgeType::GREAT] = count1;
-    totalJudgeCount[JudgeType::GOOD] = count0;
+    totalJudgeCount[JudgeArea::EXACT_PERFECT] = count2;
+    totalJudgeCount[JudgeArea::EARLY_GREAT] = count1;
+    totalJudgeCount[JudgeArea::EARLY_GOOD] = count0;
 
     double interval0 = count0 ? (double)count / count0 : 0.;
     double interval1 = count1 ? (double)count / count1 : 0.;
@@ -87,34 +87,34 @@ void RulesetBMSAuto::setTargetRate(double rate)
     {
         if (count2 > 0 && noteJudges.size() >= c2 - 0.000001)
         {
-            noteJudges.push_back(JudgeType::PERFECT);
+            noteJudges.push_back(JudgeArea::EXACT_PERFECT);
             count2--;
             c2 += interval2;
         }
         if (count1 > 0 && noteJudges.size() >= c1 - 0.000001)
         {
-            noteJudges.push_back(JudgeType::GREAT);
+            noteJudges.push_back(JudgeArea::EARLY_GREAT);
             count1--;
             c1 += interval1;
         }
         if (count0 > 0 && noteJudges.size() >= c0 - 0.000001)
         {
-            noteJudges.push_back(JudgeType::GOOD);
+            noteJudges.push_back(JudgeArea::EARLY_GOOD);
             count0--;
             c0 += interval0;
         }
     }
     while (count0--)
     {
-        noteJudges.push_back(JudgeType::GOOD);
+        noteJudges.push_back(JudgeArea::EARLY_GOOD);
     }
     while (count1--)
     {
-        noteJudges.push_back(JudgeType::GREAT);
+        noteJudges.push_back(JudgeArea::EARLY_GREAT);
     }
     while (count2--)
     {
-        noteJudges.push_back(JudgeType::PERFECT);
+        noteJudges.push_back(JudgeArea::EXACT_PERFECT);
     }
 
     assert(noteJudges.size() == count);
@@ -157,7 +157,7 @@ void RulesetBMSAuto::update(const Time& t)
 
                     if (!scratch || _judgeScratch)
                     {
-                        updateHit(t, idx, noteJudges[judgeIndex++], side);
+                        updateJudge(t, idx, noteJudges[judgeIndex++], side);
 
                         if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P)
                         {
@@ -180,7 +180,7 @@ void RulesetBMSAuto::update(const Time& t)
                         }
                     }
 
-                    _basic.notesExpired++;
+                    notesExpired++;
                     itNote++;
                 }
             }
@@ -237,7 +237,7 @@ void RulesetBMSAuto::update(const Time& t)
 
                             if (!scratch || _judgeScratch)
                             {
-                                updateHit(t, idx, noteJudges[judgeIndex++], side);
+                                updateJudge(t, idx, noteJudges[judgeIndex++], side);
 
                                 if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P)
                                 {
@@ -264,7 +264,7 @@ void RulesetBMSAuto::update(const Time& t)
                                     isPressingLN[k] = false;
                                 }
                             }
-                            _basic.notesExpired++;
+                            notesExpired++;
                         }
                     }
                     ++itNote;
@@ -326,9 +326,8 @@ void RulesetBMSAuto::update(const Time& t)
     updateSection(Input::S2L, Input::K29, showJudge ? PLAYER_SLOT_TARGET : -1);
 
     unsigned max = _chart->getNoteTotalCount() * 2;
-    _basic.total_acc = 100.0 * _basic.score2 / max;
-    _basic.acc = _basic.notesExpired ? (100.0 * _basic.score2 / (_basic.notesExpired * 2)) : 0;
-    _basic.score = int(std::round(moneyScore));
+    _basic.total_acc = 100.0 * exScore / max;
+    _basic.acc = notesExpired ? (100.0 * exScore / (notesExpired * 2)) : 0;
 
     updateGlobals();
 }
@@ -337,23 +336,20 @@ void RulesetBMSAuto::fail()
 {
     _isFailed = true;
 
-    _basic.notesExpired = _basic.notesReached = _chart->getNoteTotalCount();
+    notesExpired = notesReached = _chart->getNoteTotalCount();
     _basic.combo = getMaxCombo();
 
-    _judgeCount[JudgeType::PERFECT] = totalJudgeCount[JudgeType::PERFECT];
-    _judgeCount[JudgeType::GREAT] = totalJudgeCount[JudgeType::GREAT];
-    _judgeCount[JudgeType::GOOD] = totalJudgeCount[JudgeType::GOOD];
+    _basic.judge[JUDGE_PERFECT] = totalJudgeCount[JudgeArea::EXACT_PERFECT];
+    _basic.judge[JUDGE_GREAT] = totalJudgeCount[JudgeArea::EARLY_GREAT];
+    _basic.judge[JUDGE_GOOD] = totalJudgeCount[JudgeArea::EARLY_GOOD];
 
-    unsigned exscore = _judgeCount[JudgeType::PERFECT] * 2 + _judgeCount[JudgeType::GREAT];
-    _basic.total_acc = _basic.notesExpired ? (100.0 * exscore / (_basic.notesExpired * 2)) : 0;
+    _basic.total_acc = notesExpired ? (100.0 * exScore / (notesExpired * 2)) : 0;
     _basic.acc = _basic.total_acc;
 }
 
 void RulesetBMSAuto::reset()
 {
     vRuleset::reset();
-
-    _judgeCount.clear();
 
     judgeIndex = 0;
 

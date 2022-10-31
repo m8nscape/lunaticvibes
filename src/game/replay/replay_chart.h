@@ -93,7 +93,7 @@ public:
             JUDGE_LEFT_EARLY_2,  // GOOD
             JUDGE_LEFT_EARLY_3,  // BAD
             JUDGE_LEFT_EARLY_4,  // POOR
-            JUDGE_LEFT_EARLY_5,  // BPOOR
+            JUDGE_LEFT_EARLY_5,  // KPOOR
             JUDGE_LEFT_EARLY_6,
             JUDGE_LEFT_EARLY_7,
             JUDGE_LEFT_EARLY_8,
@@ -103,7 +103,7 @@ public:
             JUDGE_LEFT_LATE_2,   // GOOD
             JUDGE_LEFT_LATE_3,   // BAD
             JUDGE_LEFT_LATE_4,   // POOR
-            JUDGE_LEFT_LATE_5,   // BPOOR
+            JUDGE_LEFT_LATE_5,   // KPOOR
             JUDGE_LEFT_LATE_6,
             JUDGE_LEFT_LATE_7,
             JUDGE_LEFT_LATE_8,
@@ -115,7 +115,7 @@ public:
             JUDGE_RIGHT_EARLY_2,  // GOOD
             JUDGE_RIGHT_EARLY_3,  // BAD
             JUDGE_RIGHT_EARLY_4,  // POOR
-            JUDGE_RIGHT_EARLY_5,  // BPOOR
+            JUDGE_RIGHT_EARLY_5,  // KPOOR
             JUDGE_RIGHT_EARLY_6,
             JUDGE_RIGHT_EARLY_7,
             JUDGE_RIGHT_EARLY_8,
@@ -125,7 +125,7 @@ public:
             JUDGE_RIGHT_LATE_2,   // GOOD
             JUDGE_RIGHT_LATE_3,   // BAD
             JUDGE_RIGHT_LATE_4,   // POOR
-            JUDGE_RIGHT_LATE_5,   // BPOOR
+            JUDGE_RIGHT_LATE_5,   // KPOOR
             JUDGE_RIGHT_LATE_6,
             JUDGE_RIGHT_LATE_7,
             JUDGE_RIGHT_LATE_8,

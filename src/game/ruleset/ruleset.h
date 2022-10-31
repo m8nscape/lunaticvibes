@@ -16,26 +16,21 @@ class vRuleset
 public:
     struct BasicData
     {
-        unsigned score;
-        unsigned score2;
         double health = 1.0;
+
         double acc;         // 0.0 - 100.0
         double total_acc;   // 0.0 - 100.0
+
         unsigned combo;
         unsigned maxCombo;
-        unsigned hit;       // total notes hit
-        unsigned miss;      // total misses
 
-        unsigned notesReached;    // total notes reached
-        unsigned notesExpired;    // total notes expired
-
-        unsigned fast;
-        unsigned slow;
+        unsigned judge[32]; // judge count. reserved for implementation
     };
+
 protected:
     std::shared_ptr<ChartFormatBase> _format;
     std::shared_ptr<ChartObjectBase> _chart;
-    BasicData _basic;
+    BasicData _basic = { 0 };
     double _minHealth;
     double _clearHealth;
     bool _failWhenNoHealth = false;
@@ -46,6 +41,9 @@ protected:
 
     bool _hasStartTime = false;
     Time _startTime;
+
+    unsigned notesReached = 0;    // total notes reached. +1 when timestamp reached
+    unsigned notesExpired = 0;    // total notes expired. +1 when timestamp+POOR reached; +1 for LN when tail timestamp (no +POOR) is reached
 
 public:
     vRuleset() = delete;
@@ -62,15 +60,23 @@ public:
     constexpr BasicData getData() const { return _basic; }
     double getClearHealth() const { return _clearHealth; }
     bool failWhenNoHealth() const { return _failWhenNoHealth; }
-    virtual bool isFinished() const { return _basic.notesExpired == _chart->getNoteTotalCount(); }
+
+    virtual bool isFinished() const { return notesExpired >= getNoteCount(); }
     virtual bool isCleared() const { return _isCleared; }
     virtual bool isFailed() const { return _isFailed; }
 
     virtual unsigned getCurrentMaxScore() const = 0;
     virtual unsigned getMaxScore() const = 0;
+
+    // Some games count one LN as two notes. Leave it virtual
+    virtual unsigned getNoteCount() const = 0;
+
+    // A LN may have more than one combo (head+tail=2 / rolling LN). Leave it virtual
     virtual unsigned getMaxCombo() const = 0;
+
     virtual void fail() { _isFailed = true; }
-    virtual void reset() { _basic = { 0 }; };
+    virtual void reset() { _basic = { 0 }; notesReached = 0; notesExpired = 0; };
+
     virtual void updateGlobals() = 0;
 
     void setStartTime(const Time& t) { _hasStartTime = true; _startTime = t; }

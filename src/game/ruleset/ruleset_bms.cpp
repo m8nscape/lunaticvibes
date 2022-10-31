@@ -20,7 +20,7 @@ void setJudgeInternalTimer1P(RulesetBMS::JudgeType judge, long long t)
 	State::set(IndexTimer::_JUDGE_1P_5, TIMER_NEVER);
 	switch (judge)
 	{
-	case RulesetBMS::JudgeType::BPOOR:   State::set(IndexTimer::_JUDGE_1P_0, t); break;
+	case RulesetBMS::JudgeType::KPOOR:   State::set(IndexTimer::_JUDGE_1P_0, t); break;
 	case RulesetBMS::JudgeType::MISS:    State::set(IndexTimer::_JUDGE_1P_1, t); break;
 	case RulesetBMS::JudgeType::BAD:     State::set(IndexTimer::_JUDGE_1P_2, t); break;
 	case RulesetBMS::JudgeType::GOOD:    State::set(IndexTimer::_JUDGE_1P_3, t); break;
@@ -40,7 +40,7 @@ void setJudgeInternalTimer2P(RulesetBMS::JudgeType judge, long long t)
 	State::set(IndexTimer::_JUDGE_2P_5, TIMER_NEVER);
 	switch (judge)
 	{
-    case RulesetBMS::JudgeType::BPOOR:   State::set(IndexTimer::_JUDGE_2P_0, t); break;
+    case RulesetBMS::JudgeType::KPOOR:   State::set(IndexTimer::_JUDGE_2P_0, t); break;
     case RulesetBMS::JudgeType::MISS:    State::set(IndexTimer::_JUDGE_2P_1, t); break;
     case RulesetBMS::JudgeType::BAD:     State::set(IndexTimer::_JUDGE_2P_2, t); break;
     case RulesetBMS::JudgeType::GOOD:    State::set(IndexTimer::_JUDGE_2P_3, t); break;
@@ -127,7 +127,7 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
         _healthGain[JudgeType::GOOD]    = 1.0 / 1001.0 / 2;
         _healthGain[JudgeType::BAD]     = -0.06;
         _healthGain[JudgeType::MISS]    = -0.1;
-        _healthGain[JudgeType::BPOOR]   = -0.02;
+        _healthGain[JudgeType::KPOOR]   = -0.02;
         break;
 
     case GaugeType::EXHARD:
@@ -140,7 +140,7 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
         _healthGain[JudgeType::GOOD]    = 1.0 / 1001.0 / 2;
         _healthGain[JudgeType::BAD]     = -0.12;
         _healthGain[JudgeType::MISS]    = -0.2;
-        _healthGain[JudgeType::BPOOR]   = -0.1;
+        _healthGain[JudgeType::KPOOR]   = -0.1;
         break;
 
     case GaugeType::DEATH:
@@ -153,7 +153,7 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
         _healthGain[JudgeType::GOOD]    = 0.0;
         _healthGain[JudgeType::BAD]     = -1.0;
         _healthGain[JudgeType::MISS]    = -1.0;
-        _healthGain[JudgeType::BPOOR]   = -0.02;
+        _healthGain[JudgeType::KPOOR]   = -0.02;
         break;
 
     case GaugeType::P_ATK:
@@ -166,7 +166,7 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
         _healthGain[JudgeType::GOOD]    = -1.0;
         _healthGain[JudgeType::BAD]     = -1.0;
         _healthGain[JudgeType::MISS]    = -1.0;
-        _healthGain[JudgeType::BPOOR]   = -0.02;
+        _healthGain[JudgeType::KPOOR]   = -0.02;
         break;
 
     case GaugeType::G_ATK:
@@ -179,7 +179,7 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
         _healthGain[JudgeType::GOOD]    = 0.0;
         _healthGain[JudgeType::BAD]     = -1.0;
         _healthGain[JudgeType::MISS]    = -1.0;
-        _healthGain[JudgeType::BPOOR]   = -0.02;
+        _healthGain[JudgeType::KPOOR]   = -0.02;
         break;
 
     case GaugeType::GROOVE:
@@ -191,7 +191,7 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
         _healthGain[JudgeType::GOOD]    = 0.01 * total / chart->getNoteTotalCount() / 2;
         _healthGain[JudgeType::BAD]     = -0.04;
         _healthGain[JudgeType::MISS]    = -0.06;
-        _healthGain[JudgeType::BPOOR]   = -0.02;
+        _healthGain[JudgeType::KPOOR]   = -0.02;
         break;
 
     case GaugeType::EASY:
@@ -203,7 +203,7 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
         _healthGain[JudgeType::GOOD]    = 0.01 * total / chart->getNoteTotalCount() / 2 * 1.2;
         _healthGain[JudgeType::BAD]     = -0.032;
         _healthGain[JudgeType::MISS]    = -0.048;
-        _healthGain[JudgeType::BPOOR]   = -0.016;
+        _healthGain[JudgeType::KPOOR]   = -0.016;
         break;
 
     case GaugeType::ASSIST:
@@ -215,7 +215,7 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
         _healthGain[JudgeType::GOOD]    = 0.01 * total / chart->getNoteTotalCount() / 2 * 1.2;
         _healthGain[JudgeType::BAD]     = -0.032;
         _healthGain[JudgeType::MISS]    = -0.048;
-        _healthGain[JudgeType::BPOOR]   = -0.016;
+        _healthGain[JudgeType::KPOOR]   = -0.016;
         break;
 
     case GaugeType::GRADE:
@@ -228,7 +228,7 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
         _healthGain[JudgeType::GOOD]    = 1.0 / 1001.0 / 2;
         _healthGain[JudgeType::BAD]     = -0.02;
         _healthGain[JudgeType::MISS]    = -0.03;
-        _healthGain[JudgeType::BPOOR]   = -0.02;
+        _healthGain[JudgeType::KPOOR]   = -0.02;
         break;
 
     case GaugeType::EXGRADE:
@@ -241,7 +241,7 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
         _healthGain[JudgeType::GOOD]    = 1.0 / 1001.0 / 2;
         _healthGain[JudgeType::BAD]     = -0.12;
         _healthGain[JudgeType::MISS]    = -0.1;
-        _healthGain[JudgeType::BPOOR]   = -0.1;
+        _healthGain[JudgeType::KPOOR]   = -0.1;
         break;
 
     default:
@@ -278,7 +278,7 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
         break;
 	}
 
-    _lnJudge.fill(judgeArea::NOTHING);
+    _lnJudge.fill(JudgeArea::NOTHING);
 
     for (size_t k = Input::S1L; k <= Input::K2SPDDN; ++k)
     {
@@ -297,78 +297,78 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
 RulesetBMS::JudgeRes RulesetBMS::_judge(const Note& note, Time time)
 {
     // spot judge area
-    judgeArea a = judgeArea::NOTHING;
+    JudgeArea a = JudgeArea::NOTHING;
 	Time error = time - note.time;
-    if (error > -judgeTime[(size_t)_judgeDifficulty].BPOOR)
+    if (error > -judgeTime[(size_t)_judgeDifficulty].KPOOR)
     {
         if (error < -judgeTime[(size_t)_judgeDifficulty].BAD)
-            a = judgeArea::EARLY_BPOOR;
+            a = JudgeArea::EARLY_KPOOR;
         else if (error < -judgeTime[(size_t)_judgeDifficulty].GOOD)
-            a = judgeArea::EARLY_BAD;
+            a = JudgeArea::EARLY_BAD;
         else if (error < -judgeTime[(size_t)_judgeDifficulty].GREAT)
-            a = judgeArea::EARLY_GOOD;
+            a = JudgeArea::EARLY_GOOD;
         else if (error < -judgeTime[(size_t)_judgeDifficulty].PERFECT)
-            a = judgeArea::EARLY_GREAT;
+            a = JudgeArea::EARLY_GREAT;
         else if (error < 0)
-            a = judgeArea::EARLY_PERFECT;
+            a = JudgeArea::EARLY_PERFECT;
         else if (error == 0)
-            a = judgeArea::EXACT_PERFECT;
+            a = JudgeArea::EXACT_PERFECT;
         else if (error < judgeTime[(size_t)_judgeDifficulty].PERFECT)
-            a = judgeArea::LATE_PERFECT;
+            a = JudgeArea::LATE_PERFECT;
         else if (error < judgeTime[(size_t)_judgeDifficulty].GREAT)
-            a = judgeArea::LATE_GREAT;
+            a = JudgeArea::LATE_GREAT;
         else if (error < judgeTime[(size_t)_judgeDifficulty].GOOD)
-            a = judgeArea::LATE_GOOD;
+            a = JudgeArea::LATE_GOOD;
         else if (error < judgeTime[(size_t)_judgeDifficulty].BAD)
-            a = judgeArea::LATE_BAD;
+            a = JudgeArea::LATE_BAD;
     }
 
     // log
     /*
     switch (a)
     {
-    case judgeArea::EARLY_BPOOR:   LOG_DEBUG << "EARLY  BPOOR   " << error; break;
-    case judgeArea::EARLY_BAD:     LOG_DEBUG << "EARLY  BAD     " << error; break;
-    case judgeArea::EARLY_GOOD:    LOG_DEBUG << "EARLY  GOOD    " << error; break;
-    case judgeArea::EARLY_GREAT:   LOG_DEBUG << "EARLY  GREAT   " << error; break;
-    case judgeArea::EARLY_PERFECT: LOG_DEBUG << "EARLY  PERFECT " << error; break;
-    case judgeArea::LATE_PERFECT:  LOG_DEBUG << "LATE   PERFECT " << error; break;
-    case judgeArea::LATE_GREAT:    LOG_DEBUG << "LATE   GREAT   " << error; break;
-    case judgeArea::LATE_GOOD:     LOG_DEBUG << "LATE   GOOD    " << error; break;
-    case judgeArea::LATE_BAD:      LOG_DEBUG << "LATE   BAD     " << error; break;
+    case JudgeArea::EARLY_KPOOR:   LOG_DEBUG << "EARLY  KPOOR   " << error; break;
+    case JudgeArea::EARLY_BAD:     LOG_DEBUG << "EARLY  BAD     " << error; break;
+    case JudgeArea::EARLY_GOOD:    LOG_DEBUG << "EARLY  GOOD    " << error; break;
+    case JudgeArea::EARLY_GREAT:   LOG_DEBUG << "EARLY  GREAT   " << error; break;
+    case JudgeArea::EARLY_PERFECT: LOG_DEBUG << "EARLY  PERFECT " << error; break;
+    case JudgeArea::LATE_PERFECT:  LOG_DEBUG << "LATE   PERFECT " << error; break;
+    case JudgeArea::LATE_GREAT:    LOG_DEBUG << "LATE   GREAT   " << error; break;
+    case JudgeArea::LATE_GOOD:     LOG_DEBUG << "LATE   GOOD    " << error; break;
+    case JudgeArea::LATE_BAD:      LOG_DEBUG << "LATE   BAD     " << error; break;
     }
     */
 
     return { a, error };
 }
 
-static const std::map<RulesetBMS::judgeArea, ReplayChart::Commands::Type> judgeAreaReplayCommandType[] =
+static const std::map<RulesetBMS::JudgeArea, ReplayChart::Commands::Type> judgeAreaReplayCommandType[] =
 {
     {
-        {RulesetBMS::judgeArea::EXACT_PERFECT, ReplayChart::Commands::Type::JUDGE_LEFT_EXACT_0},
-        {RulesetBMS::judgeArea::EARLY_PERFECT, ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_0},
-        {RulesetBMS::judgeArea::EARLY_GREAT, ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_1},
-        {RulesetBMS::judgeArea::EARLY_GOOD, ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_2},
-        {RulesetBMS::judgeArea::EARLY_BAD, ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_3},
-        {RulesetBMS::judgeArea::EARLY_BPOOR, ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_5},
-        {RulesetBMS::judgeArea::LATE_PERFECT, ReplayChart::Commands::Type::JUDGE_LEFT_LATE_0},
-        {RulesetBMS::judgeArea::LATE_GREAT, ReplayChart::Commands::Type::JUDGE_LEFT_LATE_1},
-        {RulesetBMS::judgeArea::LATE_GOOD, ReplayChart::Commands::Type::JUDGE_LEFT_LATE_2},
-        {RulesetBMS::judgeArea::LATE_BAD, ReplayChart::Commands::Type::JUDGE_LEFT_LATE_3},
-        {RulesetBMS::judgeArea::MISS, ReplayChart::Commands::Type::JUDGE_LEFT_LATE_4},
+        {RulesetBMS::JudgeArea::EXACT_PERFECT, ReplayChart::Commands::Type::JUDGE_LEFT_EXACT_0},
+        {RulesetBMS::JudgeArea::EARLY_PERFECT, ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_0},
+        {RulesetBMS::JudgeArea::EARLY_GREAT, ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_1},
+        {RulesetBMS::JudgeArea::EARLY_GOOD, ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_2},
+        {RulesetBMS::JudgeArea::EARLY_BAD, ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_3},
+        {RulesetBMS::JudgeArea::EARLY_KPOOR, ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_5},
+        {RulesetBMS::JudgeArea::LATE_PERFECT, ReplayChart::Commands::Type::JUDGE_LEFT_LATE_0},
+        {RulesetBMS::JudgeArea::LATE_GREAT, ReplayChart::Commands::Type::JUDGE_LEFT_LATE_1},
+        {RulesetBMS::JudgeArea::LATE_GOOD, ReplayChart::Commands::Type::JUDGE_LEFT_LATE_2},
+        {RulesetBMS::JudgeArea::LATE_BAD, ReplayChart::Commands::Type::JUDGE_LEFT_LATE_3},
+        {RulesetBMS::JudgeArea::MISS, ReplayChart::Commands::Type::JUDGE_LEFT_LATE_4},
     },
     {
-        {RulesetBMS::judgeArea::EXACT_PERFECT, ReplayChart::Commands::Type::JUDGE_RIGHT_EXACT_0},
-        {RulesetBMS::judgeArea::EARLY_PERFECT, ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_0},
-        {RulesetBMS::judgeArea::EARLY_GREAT, ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_1},
-        {RulesetBMS::judgeArea::EARLY_GOOD, ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_2},
-        {RulesetBMS::judgeArea::EARLY_BAD, ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_3},
-        {RulesetBMS::judgeArea::EARLY_BPOOR, ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_5},
-        {RulesetBMS::judgeArea::LATE_PERFECT, ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_0},
-        {RulesetBMS::judgeArea::LATE_GREAT, ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_1},
-        {RulesetBMS::judgeArea::LATE_GOOD, ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_2},
-        {RulesetBMS::judgeArea::LATE_BAD, ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_3},
-        {RulesetBMS::judgeArea::MISS, ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_4},
+        {RulesetBMS::JudgeArea::EXACT_PERFECT, ReplayChart::Commands::Type::JUDGE_RIGHT_EXACT_0},
+        {RulesetBMS::JudgeArea::EARLY_PERFECT, ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_0},
+        {RulesetBMS::JudgeArea::EARLY_GREAT, ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_1},
+        {RulesetBMS::JudgeArea::EARLY_GOOD, ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_2},
+        {RulesetBMS::JudgeArea::EARLY_BAD, ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_3},
+        {RulesetBMS::JudgeArea::EARLY_KPOOR, ReplayChart::Commands::Type::JUDGE_RIGHT_EARLY_5},
+        {RulesetBMS::JudgeArea::LATE_PERFECT, ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_0},
+        {RulesetBMS::JudgeArea::LATE_GREAT, ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_1},
+        {RulesetBMS::JudgeArea::LATE_GOOD, ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_2},
+        {RulesetBMS::JudgeArea::LATE_BAD, ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_3},
+        {RulesetBMS::JudgeArea::MISS, ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_4},
     }
 };
 
@@ -377,7 +377,7 @@ void RulesetBMS::_judgePress(NoteLaneCategory cat, NoteLaneIndex idx, HitableNot
     if (cat == NoteLaneCategory::LN && 
         (note.flags & Note::LN_TAIL) &&
         (idx == NoteLaneIndex::Sc1 || idx == NoteLaneIndex::Sc2) && 
-        _lnJudge[idx] != judgeArea::NOTHING)
+        _lnJudge[idx] != JudgeArea::NOTHING)
     {
         // Handle scratch direction change as miss
         _judgeRelease(cat, idx, note, judge, t, slot);
@@ -391,68 +391,30 @@ void RulesetBMS::_judgePress(NoteLaneCategory cat, NoteLaneIndex idx, HitableNot
     case NoteLaneCategory::Note:
         switch (judge.area)
         {
-        case judgeArea::EARLY_PERFECT:
-        case judgeArea::EXACT_PERFECT:
-        case judgeArea::LATE_PERFECT:
-            updateHit(t, idx, RulesetBMS::JudgeType::PERFECT, slot);
+        case JudgeArea::EARLY_PERFECT:
+        case JudgeArea::EXACT_PERFECT:
+        case JudgeArea::LATE_PERFECT:
+        case JudgeArea::EARLY_GREAT:
+        case JudgeArea::LATE_GREAT:
+        case JudgeArea::EARLY_GOOD:
+        case JudgeArea::LATE_GOOD:
+            updateJudge(t, idx, judge.area, slot);
             pushReplayCommand = true;
             note.hit = true;
             note.expired = true;
-            _basic.notesExpired++;
+            notesExpired++;
             break;
 
-        case judgeArea::EARLY_GREAT:
-            _basic.fast++;
-            updateHit(t, idx, RulesetBMS::JudgeType::GREAT, slot);
+        case JudgeArea::EARLY_BAD:
+        case JudgeArea::LATE_BAD:
+            updateJudge(t, idx, judge.area, slot);
             pushReplayCommand = true;
-            note.hit = true;
             note.expired = true;
-            _basic.notesExpired++;
-            break;
-        case judgeArea::LATE_GREAT:
-            _basic.slow++;
-            updateHit(t, idx, RulesetBMS::JudgeType::GREAT, slot);
-            pushReplayCommand = true;
-            note.hit = true;
-            note.expired = true;
-            _basic.notesExpired++;
+            notesExpired++;
             break;
 
-        case judgeArea::EARLY_GOOD:
-            _basic.fast++;
-            updateHit(t, idx, RulesetBMS::JudgeType::GOOD, slot);
-            pushReplayCommand = true;
-            note.hit = true;
-            note.expired = true;
-            _basic.notesExpired++;
-            break;
-        case judgeArea::LATE_GOOD:
-            _basic.slow++;
-            updateHit(t, idx, RulesetBMS::JudgeType::GOOD, slot);
-            pushReplayCommand = true;
-            note.hit = true;
-            note.expired = true;
-            _basic.notesExpired++;
-            break;
-
-        case judgeArea::EARLY_BAD:
-            _basic.fast++;
-            updateMiss(t, idx, RulesetBMS::JudgeType::BAD, slot);
-            pushReplayCommand = true;
-            note.expired = true;
-            _basic.notesExpired++;
-            break;
-        case judgeArea::LATE_BAD:
-            _basic.slow++;
-            updateMiss(t, idx, RulesetBMS::JudgeType::BAD, slot);
-            pushReplayCommand = true;
-            note.expired = true;
-            _basic.notesExpired++;
-            break;
-
-        case judgeArea::EARLY_BPOOR:
-            _basic.fast++;
-            updateMiss(t, idx, RulesetBMS::JudgeType::BPOOR, slot);
+        case JudgeArea::EARLY_KPOOR:
+            updateJudge(t, idx, judge.area, slot);
             pushReplayCommand = true;
             break;
         }
@@ -466,13 +428,13 @@ void RulesetBMS::_judgePress(NoteLaneCategory cat, NoteLaneIndex idx, HitableNot
         {
             switch (judge.area)
             {
-            case judgeArea::EARLY_PERFECT:
-            case judgeArea::EXACT_PERFECT:
-            case judgeArea::LATE_PERFECT:
-            case judgeArea::EARLY_GREAT:
-            case judgeArea::LATE_GREAT:
-            case judgeArea::EARLY_GOOD:
-            case judgeArea::LATE_GOOD:
+            case JudgeArea::EARLY_PERFECT:
+            case JudgeArea::EXACT_PERFECT:
+            case JudgeArea::LATE_PERFECT:
+            case JudgeArea::EARLY_GREAT:
+            case JudgeArea::LATE_GREAT:
+            case JudgeArea::EARLY_GOOD:
+            case JudgeArea::LATE_GOOD:
                 _lnJudge[idx] = judge.area;
                 note.hit = true;
                 note.expired = true;
@@ -480,24 +442,16 @@ void RulesetBMS::_judgePress(NoteLaneCategory cat, NoteLaneIndex idx, HitableNot
                     State::set(_bombLNTimerMap->at(idx), t.norm());
                 break;
 
-            case judgeArea::EARLY_BAD:
-                _basic.fast++;
+            case JudgeArea::EARLY_BAD:
+            case JudgeArea::LATE_BAD:
                 _lnJudge[idx] = judge.area;
-                updateMiss(t, idx, RulesetBMS::JudgeType::BAD, slot);
-                note.expired = true;
-                pushReplayCommand = true;
-                break;
-            case judgeArea::LATE_BAD:
-                _basic.slow++;
-                _lnJudge[idx] = judge.area;
-                updateMiss(t, idx, RulesetBMS::JudgeType::BAD, slot);
+                updateJudge(t, idx, judge.area, slot);
                 note.expired = true;
                 pushReplayCommand = true;
                 break;
 
-            case judgeArea::EARLY_BPOOR:
-                _basic.fast++;
-                updateMiss(t, idx, RulesetBMS::JudgeType::BPOOR, slot);
+            case JudgeArea::EARLY_KPOOR:
+                updateJudge(t, idx, judge.area, slot);
                 pushReplayCommand = true;
                 break;
             }
@@ -506,7 +460,7 @@ void RulesetBMS::_judgePress(NoteLaneCategory cat, NoteLaneIndex idx, HitableNot
         break;
     }
 
-    if (note.expired || judge.area == judgeArea::EARLY_BPOOR)
+    if (note.expired || judge.area == JudgeArea::EARLY_KPOOR || judge.area == JudgeArea::MINE_KPOOR)
     {
         _lastNoteJudge = judge;
     }
@@ -531,34 +485,36 @@ void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote
     {
     case NoteLaneCategory::Mine:
     {
-        if (judge.area == judgeArea::EXACT_PERFECT ||
-            judge.area == judgeArea::EARLY_PERFECT && judge.time < -2 ||
-            judge.area == judgeArea::LATE_PERFECT && judge.time < 2)
+        if (judge.area == JudgeArea::EXACT_PERFECT ||
+            judge.area == JudgeArea::EARLY_PERFECT && judge.time < -2 ||
+            judge.area == JudgeArea::LATE_PERFECT && judge.time < 2)
         {
             note.hit = true;
             note.expired = true;
             _updateHp(-0.01 * note.dvalue / 2);
 
-            // bpoor + 1
-            _judgeCount[JudgeType::BPOOR]++;
-            _basic.miss++;
+            // kpoor + 1
+            for (auto& i : JudgeAreaIndexAccMap.at(JudgeArea::MINE_KPOOR))
+            {
+                ++_basic.judge[i];
+            }
             if (showJudge)
             {
                 if (slot == PLAYER_SLOT_PLAYER)
                 {
                     State::set(IndexTimer::PLAY_JUDGE_1P, t.norm());
-                    setJudgeInternalTimer1P(JudgeType::BPOOR, t.norm());
+                    setJudgeInternalTimer1P(JudgeType::KPOOR, t.norm());
                     SoundMgr::playSysSample(SoundChannelType::KEY_LEFT, eSoundSample::SOUND_LANDMINE);
                 }
                 else if (slot == PLAYER_SLOT_TARGET)
                 {
                     State::set(IndexTimer::PLAY_JUDGE_2P, t.norm());
-                    setJudgeInternalTimer2P(JudgeType::BPOOR, t.norm());
+                    setJudgeInternalTimer2P(JudgeType::KPOOR, t.norm());
                     SoundMgr::playSysSample(SoundChannelType::KEY_RIGHT, eSoundSample::SOUND_LANDMINE);
                 }
             }
 
-            _lastNoteJudge = { judgeArea::EARLY_BPOOR, t.norm() };
+            _lastNoteJudge = { JudgeArea::MINE_KPOOR, t.norm() };
 
             // push replay command
             if (doJudge && gChartContext.started && gPlayContext.replayNew)
@@ -574,42 +530,18 @@ void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote
     }
     case NoteLaneCategory::LN:
         if ((note.flags & Note::LN_TAIL) &&
-            _lnJudge[idx] != RulesetBMS::judgeArea::NOTHING &&
-            _lnJudge[idx] != RulesetBMS::judgeArea::EARLY_BAD &&
-            _lnJudge[idx] != RulesetBMS::judgeArea::LATE_BAD)
+            _lnJudge[idx] != RulesetBMS::JudgeArea::NOTHING &&
+            _lnJudge[idx] != RulesetBMS::JudgeArea::EARLY_BAD &&
+            _lnJudge[idx] != RulesetBMS::JudgeArea::LATE_BAD)
         {
-            if (judge.area == judgeArea::EXACT_PERFECT ||
-                judge.area == judgeArea::EARLY_PERFECT && judge.time < -2 ||
-                judge.area == judgeArea::LATE_PERFECT && judge.time < 2)
+            if (judge.area == JudgeArea::EXACT_PERFECT ||
+                judge.area == JudgeArea::EARLY_PERFECT && judge.time < -2 ||
+                judge.area == JudgeArea::LATE_PERFECT && judge.time < 2)
             {
-                switch (_lnJudge[idx])
-                {
-                case judgeArea::EARLY_GOOD:
-                case judgeArea::EARLY_GREAT:
-                    _basic.fast++;
-                    break;
-                case judgeArea::LATE_GOOD:
-                case judgeArea::LATE_GREAT:
-                    _basic.slow++;
-                    break;
-                }
-                JudgeType judgeType = JudgeType::PERFECT;
-                switch (_lnJudge[idx])
-                {
-                case judgeArea::EARLY_GOOD:
-                case judgeArea::LATE_GOOD:
-                    judgeType = JudgeType::GOOD;
-                    break;
-
-                case judgeArea::EARLY_GREAT:
-                case judgeArea::LATE_GREAT:
-                    judgeType = JudgeType::GREAT;
-                    break;
-                }
-                updateHit(t, idx, judgeType, slot);
+                updateJudge(t, idx, _lnJudge[idx], slot);
                 note.hit = true;
                 note.expired = true;
-                _basic.notesExpired++;
+                notesExpired++;
                 pushReplayCommand = true;
 
                 if (showJudge && _bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
@@ -617,7 +549,7 @@ void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote
 
                 _lastNoteJudge.area = _lnJudge[idx];
                 _lastNoteJudge.time = 0;
-                _lnJudge[idx] = RulesetBMS::judgeArea::NOTHING;
+                _lnJudge[idx] = RulesetBMS::JudgeArea::NOTHING;
             }
         }
         break;
@@ -646,68 +578,46 @@ void RulesetBMS::_judgeRelease(NoteLaneCategory cat, NoteLaneIndex idx, HitableN
     {
     case NoteLaneCategory::LN:
         if ((note.flags & Note::LN_TAIL) &&
-            _lnJudge[idx] != RulesetBMS::judgeArea::NOTHING &&
-            _lnJudge[idx] != RulesetBMS::judgeArea::EARLY_BAD &&
-            _lnJudge[idx] != RulesetBMS::judgeArea::LATE_BAD)
+            _lnJudge[idx] != RulesetBMS::JudgeArea::NOTHING &&
+            _lnJudge[idx] != RulesetBMS::JudgeArea::EARLY_BAD &&
+            _lnJudge[idx] != RulesetBMS::JudgeArea::LATE_BAD)
         {
             switch (judge.area)
             {
-            case judgeArea::EARLY_PERFECT:
-            case judgeArea::EXACT_PERFECT:
-                switch (_lnJudge[idx])
-                {
-                case judgeArea::EARLY_GOOD:
-                case judgeArea::EARLY_GREAT:
-                    _basic.fast++;
-                    break;
-                case judgeArea::LATE_GOOD:
-                case judgeArea::LATE_GREAT:
-                    _basic.slow++;
-                    break;
-                }
-                if (_lnJudge[idx] == judgeArea::EARLY_GOOD || _lnJudge[idx] == judgeArea::LATE_GOOD)
-                    updateHit(t, idx, JudgeType::GOOD, slot);
-                else if (_lnJudge[idx] == judgeArea::EARLY_GREAT || _lnJudge[idx] == judgeArea::LATE_GREAT)
-                    updateHit(t, idx, JudgeType::GREAT, slot);
-                else
-                    updateHit(t, idx, JudgeType::PERFECT, slot);
+            case JudgeArea::EARLY_PERFECT:
+            case JudgeArea::EXACT_PERFECT:
+                updateJudge(t, idx, _lnJudge[idx], slot);
                 note.hit = true;
                 note.expired = true;
-                _basic.notesExpired++;
-                _lnJudge[idx] = RulesetBMS::judgeArea::NOTHING;
+                notesExpired++;
+                _lnJudge[idx] = RulesetBMS::JudgeArea::NOTHING;
                 pushReplayCommand = true;
                 break;
 
-            case judgeArea::EARLY_GREAT:
-                _basic.fast++;
-                if (_lnJudge[idx] == judgeArea::EARLY_GOOD || _lnJudge[idx] == judgeArea::LATE_GOOD)
-                    updateHit(t, idx, JudgeType::GOOD, slot);
-                else
-                    updateHit(t, idx, JudgeType::GREAT, slot);
+            case JudgeArea::EARLY_GREAT:
+                updateJudge(t, idx, _lnJudge[idx], slot);
                 note.hit = true;
                 note.expired = true;
-                _basic.notesExpired++;
-                _lnJudge[idx] = RulesetBMS::judgeArea::NOTHING;
+                notesExpired++;
+                _lnJudge[idx] = RulesetBMS::JudgeArea::NOTHING;
                 pushReplayCommand = true;
                 break;
 
-            case judgeArea::EARLY_GOOD:
-                _basic.fast++;
-                updateHit(t, idx, JudgeType::GOOD, slot);
+            case JudgeArea::EARLY_GOOD:
+                updateJudge(t, idx, _lnJudge[idx], slot);
                 note.hit = true;
                 note.expired = true;
-                _basic.notesExpired++;
-                _lnJudge[idx] = RulesetBMS::judgeArea::NOTHING;
+                notesExpired++;
+                _lnJudge[idx] = RulesetBMS::JudgeArea::NOTHING;
                 pushReplayCommand = true;
                 break;
 
-            case judgeArea::EARLY_BAD:
+            case JudgeArea::EARLY_BAD:
             default:
-                _basic.fast++;
-                updateMiss(t, idx, JudgeType::BAD, slot);
+                updateJudge(t, idx, _lnJudge[idx], slot);
                 note.expired = true;
-                _basic.notesExpired++;
-                _lnJudge[idx] = RulesetBMS::judgeArea::NOTHING;
+                notesExpired++;
+                _lnJudge[idx] = RulesetBMS::JudgeArea::NOTHING;
                 pushReplayCommand = true;
                 break;
             }
@@ -762,7 +672,7 @@ void RulesetBMS::_updateHp(double diff)
             else                   pTotal = 10.0;
 
             double pNotes = 1.0;
-            int notes = _chart->getNoteTotalCount();
+            int notes = getNoteCount();
             if (notes >= 1000);
             else if (notes >= 500) pNotes = (notes - 500) * 0.002;
             else if (notes >= 250) pNotes = 1.0 + (notes - 250) * 0.004;
@@ -804,36 +714,54 @@ void RulesetBMS::_updateHp(double diff)
         fail();
     }
 }
-void RulesetBMS::_updateHp(JudgeType judge)
+void RulesetBMS::_updateHp(JudgeArea judge)
 {
-    _updateHp(_healthGain.at(judge));
+    _updateHp(_healthGain.at(JudgeAreaTypeMap.at(judge)));
 }
 
-void RulesetBMS::updateHit(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeType judge, int slot, bool force)
+void RulesetBMS::updateJudge(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeArea judge, int slot, bool force)
 {
     if (isFailed()) return;
     
     if (doJudge || force)
     {
-        ++_judgeCount[judge];
-        ++_basic.hit;
-        ++_basic.combo;
+        for (auto& i : JudgeAreaIndexAccMap.at(judge))
+        {
+            ++_basic.judge[i];
+        }
+
         switch (judge)
         {
-        case JudgeType::PERFECT:
-            moneyScore += 1.0 * 150000 / _chart->getNoteTotalCount() +
-                1.0 * std::min(int(_basic.combo) - 1, 10) * 50000 / (10 * _chart->getNoteTotalCount() - 55);
-            _basic.score2 += 2;
+        case JudgeArea::EARLY_PERFECT:
+        case JudgeArea::EXACT_PERFECT:
+        case JudgeArea::LATE_PERFECT:
+            moneyScore += 1.0 * 150000 / getNoteCount() +
+                1.0 * std::min(int(_basic.combo) - 1, 10) * 50000 / (10 * getNoteCount() - 55);
+            exScore += 2;
+            ++_basic.combo;
             break;
-        case JudgeType::GREAT:
-            moneyScore += 1.0 * 100000 / _chart->getNoteTotalCount() +
-                1.0 * std::min(int(_basic.combo) - 1, 10) * 50000 / (10 * _chart->getNoteTotalCount() - 55);
-            _basic.score2 += 1;
+
+        case JudgeArea::EARLY_GREAT:
+        case JudgeArea::LATE_GREAT:
+            moneyScore += 1.0 * 100000 / getNoteCount() +
+                1.0 * std::min(int(_basic.combo) - 1, 10) * 50000 / (10 * getNoteCount() - 55);
+            exScore += 1;
+            ++_basic.combo;
             break;
-        case JudgeType::GOOD:
-            moneyScore += 1.0 * 20000 / _chart->getNoteTotalCount() +
-                1.0 * std::min(int(_basic.combo) - 1, 10) * 50000 / (10 * _chart->getNoteTotalCount() - 55);
+
+        case JudgeArea::EARLY_GOOD:
+        case JudgeArea::LATE_GOOD:
+            moneyScore += 1.0 * 20000 / getNoteCount() +
+                1.0 * std::min(int(_basic.combo) - 1, 10) * 50000 / (10 * getNoteCount() - 55);
+            ++_basic.combo;
             break;
+
+        case JudgeArea::EARLY_BAD:
+        case JudgeArea::LATE_BAD:
+        case JudgeArea::MISS:
+            _basic.combo = 0;
+            break;
+
         default:
             break;
         }
@@ -843,10 +771,11 @@ void RulesetBMS::updateHit(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeTyp
             _basic.maxCombo = _basic.combo;
     }
 
+    JudgeType judgeType = JudgeAreaTypeMap.at(judge);
     if (showJudge)
     {
         bool setBombTimer = false;
-        switch (judge)
+        switch (judgeType)
         {
         case JudgeType::PERFECT:
         case JudgeType::GREAT:
@@ -855,86 +784,25 @@ void RulesetBMS::updateHit(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeTyp
         default:
             break;
         }
-
         if (_bombTimerMap == nullptr || _bombTimerMap->find(ch) == _bombTimerMap->end())
             setBombTimer = false;
+
+        if (setBombTimer) 
+            State::set(_bombTimerMap->at(ch), t.norm());
 
         if (slot == PLAYER_SLOT_PLAYER)
         {
             State::set(IndexTimer::PLAY_JUDGE_1P, t.norm());
-            setJudgeInternalTimer1P(judge, t.norm());
+            setJudgeInternalTimer1P(judgeType, t.norm());
             State::set(IndexNumber::_DISP_NOWCOMBO_1P, _basic.combo);
-            if (setBombTimer)
-                State::set(_bombTimerMap->at(ch), t.norm());
-
-            Option::e_judge_type judgeType = Option::JUDGE_NONE;
-            switch (judge)
-            {
-            case JudgeType::PERFECT: judgeType = Option::JUDGE_0; break;
-            case JudgeType::GREAT:   judgeType = Option::JUDGE_1; break;
-            case JudgeType::GOOD:    judgeType = Option::JUDGE_2; break;
-            case JudgeType::BAD:     judgeType = Option::JUDGE_3; break;
-            case JudgeType::MISS:    judgeType = Option::JUDGE_4; break;
-            case JudgeType::BPOOR:   judgeType = Option::JUDGE_5; break;
-            }
-            State::set(IndexOption::PLAY_LAST_JUDGE_1P, judgeType);
+            State::set(IndexOption::PLAY_LAST_JUDGE_1P, (Option::e_judge_type)judgeType);
         }
         else if (slot == PLAYER_SLOT_TARGET)
         {
             State::set(IndexTimer::PLAY_JUDGE_2P, t.norm());
-            setJudgeInternalTimer2P(judge, t.norm());
+            setJudgeInternalTimer2P(judgeType, t.norm());
             State::set(IndexNumber::_DISP_NOWCOMBO_2P, _basic.combo);
-            if (setBombTimer) State::set(_bombTimerMap->at(ch), t.norm());
-
-            Option::e_judge_type judgeType = Option::JUDGE_NONE;
-            switch (judge)
-            {
-            case JudgeType::PERFECT: judgeType = Option::JUDGE_0; break;
-            case JudgeType::GREAT:   judgeType = Option::JUDGE_1; break;
-            case JudgeType::GOOD:    judgeType = Option::JUDGE_2; break;
-            case JudgeType::BAD:     judgeType = Option::JUDGE_3; break;
-            case JudgeType::MISS:    judgeType = Option::JUDGE_4; break;
-            case JudgeType::BPOOR:   judgeType = Option::JUDGE_5; break;
-            }
-            State::set(IndexOption::PLAY_LAST_JUDGE_2P, judgeType);
-        }
-    }
-}
-
-void RulesetBMS::updateMiss(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeType judge, int slot, bool force)
-{
-    if (isFailed()) return;
-
-    if (doJudge || force)
-    {
-        ++_judgeCount[judge];
-        ++_basic.miss;
-        if (judge != JudgeType::BPOOR)
-        {
-            if (_basic.combo == 0) ++_judgeCount[JudgeType::COMBOBREAK];
-            _basic.combo = 0;
-        }
-
-        _updateHp(judge);
-    }
-
-    if (showJudge)
-    {
-        if (slot == PLAYER_SLOT_PLAYER)
-        {
-            State::set(IndexTimer::PLAY_JUDGE_1P, t.norm());
-            setJudgeInternalTimer1P(judge, t.norm());
-            State::set(IndexNumber::_DISP_NOWCOMBO_1P, _basic.combo);
-
-            State::set(IndexOption::PLAY_LAST_JUDGE_1P, (judge != JudgeType::BPOOR ? Option::JUDGE_4 : Option::JUDGE_5));
-        }
-        else
-        {
-            State::set(IndexTimer::PLAY_JUDGE_2P, t.norm());
-            setJudgeInternalTimer2P(judge, t.norm());
-            State::set(IndexNumber::_DISP_NOWCOMBO_2P, _basic.combo);
-
-            State::set(IndexOption::PLAY_LAST_JUDGE_2P, (judge != JudgeType::BPOOR ? Option::JUDGE_4 : Option::JUDGE_5));
+            State::set(IndexOption::PLAY_LAST_JUDGE_2P, (Option::e_judge_type)judgeType);
         }
     }
 }
@@ -975,7 +843,7 @@ void RulesetBMS::judgeNotePress(Input::Pad k, const Time& t, const Time& rt, int
     }
 
     // break-out BAD chain 
-    if (j.area == judgeArea::LATE_BAD)
+    if (j.area == JudgeArea::LATE_BAD)
     {
          judgeNotePress(k, t, rt, slot);
     }
@@ -1138,12 +1006,12 @@ void RulesetBMS::update(const Time& t)
             switch (cat)
             {
             case NoteLaneCategory::Note:
-                _basic.notesReached++;
+                notesReached++;
                 break;
 
             case NoteLaneCategory::LN:
                 if (n->flags & Note::LN_TAIL)
-                    _basic.notesReached++;
+                    notesReached++;
                 break;
             }
 
@@ -1181,9 +1049,8 @@ void RulesetBMS::update(const Time& t)
 
                         if (doJudge && (!scratch || _judgeScratch))
                         {
-                            _basic.slow++;
-                            updateMiss(t, idx, RulesetBMS::JudgeType::MISS, slot);
-                            _lastNoteJudge.area = judgeArea::MISS;
+                            updateJudge(t, idx, JudgeArea::MISS, slot);
+                            _lastNoteJudge.area = JudgeArea::MISS;
                             _lastNoteJudge.time = hitTime;
 
                             // push replay command
@@ -1197,7 +1064,7 @@ void RulesetBMS::update(const Time& t)
                             }
                         }
 
-                        _basic.notesExpired++;
+                        notesExpired++;
                         //LOG_DEBUG << "LATE   POOR    "; break;
                     }
                     itNote++;
@@ -1227,9 +1094,9 @@ void RulesetBMS::update(const Time& t)
 
                                 if (!scratch || _judgeScratch)
                                 {
-                                    _basic.slow++;
-                                    _lnJudge[idx] = judgeArea::LATE_BAD;
-                                    updateMiss(t, idx, RulesetBMS::JudgeType::MISS, slot);
+                                    updateJudge(t, idx, JudgeArea::LATE_BAD, slot);
+                                    _lastNoteJudge.area = JudgeArea::LATE_BAD;
+                                    _lastNoteJudge.time = hitTime;
 
                                     // push replay command
                                     if (doJudge && gChartContext.started && gPlayContext.replayNew)
@@ -1237,7 +1104,7 @@ void RulesetBMS::update(const Time& t)
                                         long long ms = t.norm() - _startTime.norm();
                                         ReplayChart::Commands cmd;
                                         cmd.ms = ms;
-                                        cmd.type = slot == PLAYER_SLOT_PLAYER ? ReplayChart::Commands::Type::JUDGE_LEFT_LATE_4 : ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_4;
+                                        cmd.type = slot == PLAYER_SLOT_PLAYER ? ReplayChart::Commands::Type::JUDGE_LEFT_LATE_3 : ReplayChart::Commands::Type::JUDGE_RIGHT_LATE_3;
                                         gPlayContext.replayNew->commands.push_back(cmd);
                                     }
                                 }
@@ -1255,10 +1122,10 @@ void RulesetBMS::update(const Time& t)
                             if (!scratch || _judgeScratch)
                             {
                                 //_basic.slow++;
-                                if (_lnJudge[idx] == judgeArea::EARLY_BAD || _lnJudge[idx] == judgeArea::LATE_BAD)
+                                if (_lnJudge[idx] == JudgeArea::EARLY_BAD || _lnJudge[idx] == JudgeArea::LATE_BAD)
                                 {
-                                    _basic.notesExpired++;
-                                    _lnJudge[idx] = judgeArea::NOTHING;
+                                    notesExpired++;
+                                    _lnJudge[idx] = JudgeArea::NOTHING;
                                 }
                             }
                         }
@@ -1375,23 +1242,56 @@ void RulesetBMS::update(const Time& t)
         updateScratch(t, Input::S2L, Input::S2R, _scratchAccumulator[PLAYER_SLOT_TARGET], PLAYER_SLOT_TARGET);
     }
 
-	unsigned max = _chart->getNoteTotalCount() * 2;
-	_basic.total_acc = 100.0 * _basic.score2 / max;
-    _basic.acc = _basic.notesExpired ? (100.0 * _basic.score2 / _basic.notesExpired / 2) : 0;
-    _basic.score = int(std::round(moneyScore));
+	unsigned max = getNoteCount() * 2;
+	_basic.total_acc = 100.0 * exScore / max;
+    _basic.acc = notesExpired ? (100.0 * exScore / notesExpired / 2) : 0;
 
     updateGlobals();
+}
+
+double RulesetBMS::getScore() const
+{
+    return moneyScore;
+}
+
+unsigned RulesetBMS::getExScore() const
+{
+    return exScore;
+}
+
+unsigned RulesetBMS::getJudgeCount(JudgeType idx) const
+{
+    switch (idx)
+    {
+        case JudgeType::PERFECT: return _basic.judge[JUDGE_PERFECT];
+        case JudgeType::GREAT: return _basic.judge[JUDGE_GREAT];
+        case JudgeType::GOOD: return _basic.judge[JUDGE_GOOD];
+        case JudgeType::BAD: return _basic.judge[JUDGE_BAD];
+        case JudgeType::KPOOR: return _basic.judge[JUDGE_KPOOR];
+        case JudgeType::MISS: return _basic.judge[JUDGE_MISS];
+    }
+    return 0;
+}
+
+unsigned RulesetBMS::getJudgeCountEx(JudgeIndex idx) const
+{
+    return _basic.judge[idx];
+}
+
+unsigned RulesetBMS::getNoteCount() const
+{
+    return _chart->getNoteRegularCount() + _chart->getNoteLnCount();
 }
 
 unsigned RulesetBMS::getMaxCombo() const
 {
     if (_judgeScratch)
     {
-        return _chart->getNoteTotalCount();
+        return getNoteCount();
     }
     else
     {
-        unsigned count = _chart->getNoteTotalCount();
+        unsigned count = getNoteCount();
         auto pChart = std::dynamic_pointer_cast<ChartObjectBMS>(_chart);
         if (pChart != nullptr)
         {
@@ -1409,19 +1309,19 @@ void RulesetBMS::fail()
     _basic.health = _minHealth; 
     _basic.combo = 0;
 
-    int notesRemain = _chart->getNoteTotalCount() - _basic.notesExpired;
-    _basic.miss += notesRemain;
-    _judgeCount[JudgeType::MISS] += notesRemain;
-    _basic.notesExpired = _basic.notesReached = _chart->getNoteTotalCount();
+    int notesRemain = getNoteCount() - notesExpired;
+    _basic.judge[JUDGE_BP] += notesRemain;
+    _basic.judge[JUDGE_CB] += notesRemain;
+    notesExpired = notesReached = getNoteCount();
 
-    _basic.acc = _basic.total_acc;
+    //_basic.acc = _basic.total_acc;
 }
 
 void RulesetBMS::reset()
 {
     vRuleset::reset();
-
-    _judgeCount.clear();
+    moneyScore = 0.0;
+    exScore = 0;
 }
 
 void RulesetBMS::updateGlobals()
@@ -1431,63 +1331,65 @@ void RulesetBMS::updateGlobals()
         State::set(IndexBargraph::PLAY_EXSCORE, _basic.total_acc / 100.0);
         State::set(IndexBargraph::PLAY_EXSCORE_PREDICT, _basic.acc / 100.0);
 
-        State::set(IndexNumber::PLAY_1P_SCORE, _basic.score);
+        State::set(IndexNumber::PLAY_1P_SCORE, int(std::floor(moneyScore)));
+        State::set(IndexNumber::PLAY_1P_EXSCORE, exScore);
         State::set(IndexNumber::PLAY_1P_NOWCOMBO, _basic.combo);
         State::set(IndexNumber::PLAY_1P_MAXCOMBO, _basic.maxCombo);
         State::set(IndexNumber::PLAY_1P_RATE, int(std::floor(_basic.acc)));
         State::set(IndexNumber::PLAY_1P_RATEDECIMAL, int(std::floor((_basic.acc - int(_basic.acc)) * 100)));
-        State::set(IndexNumber::PLAY_1P_TOTALNOTES, _chart->getNoteTotalCount());
+        State::set(IndexNumber::PLAY_1P_TOTALNOTES, getNoteCount());
         State::set(IndexNumber::PLAY_1P_TOTAL_RATE, int(std::floor(_basic.total_acc)));
         State::set(IndexNumber::PLAY_1P_TOTAL_RATE_DECIMAL2, int(std::floor((_basic.total_acc - int(_basic.total_acc)) * 100)));
-        State::set(IndexNumber::PLAY_1P_PERFECT, _judgeCount[JudgeType::PERFECT]);
-        State::set(IndexNumber::PLAY_1P_GREAT, _judgeCount[JudgeType::GREAT]);
-        State::set(IndexNumber::PLAY_1P_GOOD, _judgeCount[JudgeType::GOOD]);
-        State::set(IndexNumber::PLAY_1P_BAD, _judgeCount[JudgeType::BAD]);
-        State::set(IndexNumber::PLAY_1P_POOR, _judgeCount[JudgeType::BPOOR] + _judgeCount[JudgeType::MISS]);
+        State::set(IndexNumber::PLAY_1P_PERFECT, _basic.judge[JUDGE_PERFECT]);
+        State::set(IndexNumber::PLAY_1P_GREAT, _basic.judge[JUDGE_GREAT]);
+        State::set(IndexNumber::PLAY_1P_GOOD, _basic.judge[JUDGE_GOOD]);
+        State::set(IndexNumber::PLAY_1P_BAD, _basic.judge[JUDGE_BAD]);
+        State::set(IndexNumber::PLAY_1P_POOR, _basic.judge[JUDGE_POOR]);
         State::set(IndexNumber::PLAY_1P_GROOVEGAUGE, int(_basic.health * 100));
 
         State::set(IndexNumber::PLAY_1P_JUDGE_TIME_ERROR_MS, _lastNoteJudge.time.norm());
-        State::set(IndexNumber::PLAY_1P_MISS, _judgeCount[JudgeType::MISS]);
-        State::set(IndexNumber::PLAY_1P_FAST_COUNT, _basic.fast);
-        State::set(IndexNumber::PLAY_1P_SLOW_COUNT, _basic.slow);
-        State::set(IndexNumber::PLAY_1P_COMBOBREAK, _judgeCount[JudgeType::BAD] + _judgeCount[JudgeType::MISS]);
-        State::set(IndexNumber::PLAY_1P_BPOOR, _judgeCount[JudgeType::BPOOR]);
-        State::set(IndexNumber::PLAY_1P_BP, _judgeCount[JudgeType::BAD] + _judgeCount[JudgeType::BPOOR] + _judgeCount[JudgeType::MISS]);
+        State::set(IndexNumber::PLAY_1P_MISS, _basic.judge[JUDGE_MISS]);
+        State::set(IndexNumber::PLAY_1P_FAST_COUNT, _basic.judge[JUDGE_EARLY]);
+        State::set(IndexNumber::PLAY_1P_SLOW_COUNT, _basic.judge[JUDGE_LATE]);
+        State::set(IndexNumber::PLAY_1P_COMBOBREAK, _basic.judge[JUDGE_CB]);
+        State::set(IndexNumber::PLAY_1P_BPOOR, _basic.judge[JUDGE_KPOOR]);
+        State::set(IndexNumber::PLAY_1P_BP, _basic.judge[JUDGE_BP]);
         State::set(IndexNumber::LR2IR_REPLACE_PLAY_1P_JUDGE_TIME_ERROR_MS, _lastNoteJudge.time.norm());
-        State::set(IndexNumber::LR2IR_REPLACE_PLAY_1P_FAST_COUNT, _basic.fast);
-        State::set(IndexNumber::LR2IR_REPLACE_PLAY_1P_SLOW_COUNT, _basic.slow);
-        State::set(IndexNumber::LR2IR_REPLACE_PLAY_1P_COMBOBREAK, _judgeCount[JudgeType::BAD] + _judgeCount[JudgeType::MISS]);
+        State::set(IndexNumber::LR2IR_REPLACE_PLAY_1P_FAST_COUNT, _basic.judge[JUDGE_EARLY]);
+        State::set(IndexNumber::LR2IR_REPLACE_PLAY_1P_SLOW_COUNT, _basic.judge[JUDGE_LATE]);
+        State::set(IndexNumber::LR2IR_REPLACE_PLAY_1P_COMBOBREAK, _basic.judge[JUDGE_CB]);
 
         int fastslow = 0;   // 1:fast 2:slow
         switch (_lastNoteJudge.area)
         {
-        case judgeArea::EARLY_GREAT:
-        case judgeArea::EARLY_GOOD:
-        case judgeArea::EARLY_BAD:
-        case judgeArea::EARLY_BPOOR:
+        case JudgeArea::EARLY_GREAT:
+        case JudgeArea::EARLY_GOOD:
+        case JudgeArea::EARLY_BAD:
+        case JudgeArea::EARLY_KPOOR:
             fastslow = 1;
             break;
 
-        case judgeArea::LATE_GREAT:
-        case judgeArea::LATE_GOOD:
-        case judgeArea::LATE_BAD:
-        case judgeArea::MISS:
+        case JudgeArea::LATE_GREAT:
+        case JudgeArea::LATE_GOOD:
+        case JudgeArea::LATE_BAD:
+        case JudgeArea::MISS:
+        case JudgeArea::LATE_KPOOR:
             fastslow = 2;
             break;
         }
         State::set(IndexNumber::LR2IR_REPLACE_PLAY_1P_FAST_SLOW, fastslow);
         State::set(IndexOption::PLAY_LAST_JUDGE_FASTSLOW_1P, fastslow);
 
-        State::set(IndexBargraph::RESULT_PG, (double)_judgeCount[JudgeType::PERFECT] / _chart->getNoteTotalCount());
-        State::set(IndexBargraph::RESULT_GR, (double)_judgeCount[JudgeType::GREAT] / _chart->getNoteTotalCount());
-        State::set(IndexBargraph::RESULT_GD, (double)_judgeCount[JudgeType::GOOD] / _chart->getNoteTotalCount());
-        State::set(IndexBargraph::RESULT_BD, (double)_judgeCount[JudgeType::BAD] / _chart->getNoteTotalCount());
-        State::set(IndexBargraph::RESULT_PR, (double)(_judgeCount[JudgeType::BPOOR] + _judgeCount[JudgeType::MISS]) / _chart->getNoteTotalCount());
+        State::set(IndexBargraph::RESULT_PG, (double)_basic.judge[JUDGE_PERFECT] / getNoteCount());
+        State::set(IndexBargraph::RESULT_GR, (double)_basic.judge[JUDGE_GREAT] / getNoteCount());
+        State::set(IndexBargraph::RESULT_GD, (double)_basic.judge[JUDGE_GOOD] / getNoteCount());
+        State::set(IndexBargraph::RESULT_BD, (double)_basic.judge[JUDGE_BAD] / getNoteCount());
+        State::set(IndexBargraph::RESULT_PR, (double)_basic.judge[JUDGE_POOR] / getNoteCount());
         State::set(IndexBargraph::RESULT_MAXCOMBO, (double)_basic.maxCombo / getMaxCombo());
-        State::set(IndexBargraph::RESULT_SCORE, (double)_basic.score / 200000);
-        State::set(IndexBargraph::RESULT_EXSCORE, (double)_basic.score2 / getMaxScore());
-        State::set(IndexBargraph::PLAY_1P_FAST_COUNT, (double)_basic.fast / _chart->getNoteTotalCount());
-        State::set(IndexBargraph::PLAY_1P_SLOW_COUNT, (double)_basic.slow / _chart->getNoteTotalCount());
+        State::set(IndexBargraph::RESULT_SCORE, moneyScore / 200000);
+        State::set(IndexBargraph::RESULT_EXSCORE, (double)exScore / getMaxScore());
+        State::set(IndexBargraph::PLAY_1P_FAST_COUNT, (double)_basic.judge[JUDGE_EARLY] / getNoteCount());
+        State::set(IndexBargraph::PLAY_1P_SLOW_COUNT, (double)_basic.judge[JUDGE_LATE] / getNoteCount());
 
         State::set(IndexOption::PLAY_RANK_ESTIMATED_1P, Option::getRankType(_basic.acc));
         State::set(IndexOption::PLAY_RANK_BORDER_1P, Option::getRankType(_basic.total_acc));
@@ -1495,74 +1397,77 @@ void RulesetBMS::updateGlobals()
 
         int maxScore = getMaxScore();
         //if      (dp.total_acc >= 94.44) State::set(IndexNumber::RESULT_NEXT_RANK_EX_DIFF, int(maxScore * 1.000 - dp.score2));    // MAX-
-        if      (_basic.total_acc >= 100.0 * 8.0 / 9) State::set(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF, _basic.score2 - maxScore);    // MAX-
-        else if (_basic.total_acc >= 100.0 * 7.0 / 9) State::set(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 8.0 / 9));    // AAA-
-        else if (_basic.total_acc >= 100.0 * 6.0 / 9) State::set(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 7.0 / 9));    // AA-
-        else if (_basic.total_acc >= 100.0 * 5.0 / 9) State::set(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 6.0 / 9));    // A-
-        else if (_basic.total_acc >= 100.0 * 4.0 / 9) State::set(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 5.0 / 9));    // B-
-        else if (_basic.total_acc >= 100.0 * 3.0 / 9) State::set(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 4.0 / 9));    // C-
-        else if (_basic.total_acc >= 100.0 * 2.0 / 9) State::set(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 3.0 / 9));    // D-
-        else                                          State::set(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 2.0 / 9));    // E-
+        if      (_basic.total_acc >= 100.0 * 8.0 / 9) State::set(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF,     exScore - maxScore);    // MAX-
+        else if (_basic.total_acc >= 100.0 * 7.0 / 9) State::set(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF, int(exScore - maxScore * 8.0 / 9));    // AAA-
+        else if (_basic.total_acc >= 100.0 * 6.0 / 9) State::set(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF, int(exScore - maxScore * 7.0 / 9));    // AA-
+        else if (_basic.total_acc >= 100.0 * 5.0 / 9) State::set(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF, int(exScore - maxScore * 6.0 / 9));    // A-
+        else if (_basic.total_acc >= 100.0 * 4.0 / 9) State::set(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF, int(exScore - maxScore * 5.0 / 9));    // B-
+        else if (_basic.total_acc >= 100.0 * 3.0 / 9) State::set(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF, int(exScore - maxScore * 4.0 / 9));    // C-
+        else if (_basic.total_acc >= 100.0 * 2.0 / 9) State::set(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF, int(exScore - maxScore * 3.0 / 9));    // D-
+        else                                          State::set(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF, int(exScore - maxScore * 2.0 / 9));    // E-
         State::set(IndexNumber::RESULT_NEXT_RANK_EX_DIFF, State::get(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF));
 
     }
     else if (_side == PlaySide::BATTLE_2P || _side == PlaySide::AUTO_2P || _side == PlaySide::RIVAL) // excludes DP
     {
         State::set(IndexBargraph::PLAY_RIVAL_EXSCORE, _basic.total_acc / 100.0);
-
-        State::set(IndexNumber::PLAY_2P_SCORE, _basic.score);
+        
+        State::set(IndexNumber::PLAY_2P_SCORE, int(std::floor(moneyScore)));
+        State::set(IndexNumber::PLAY_2P_EXSCORE, exScore);
         State::set(IndexNumber::PLAY_2P_NOWCOMBO, _basic.combo);
         State::set(IndexNumber::PLAY_2P_MAXCOMBO, _basic.maxCombo);
         State::set(IndexNumber::PLAY_2P_RATE, int(std::floor(_basic.acc)));
         State::set(IndexNumber::PLAY_2P_RATEDECIMAL, int(std::floor((_basic.acc - int(_basic.acc)) * 100)));
-        State::set(IndexNumber::PLAY_2P_TOTALNOTES, _chart->getNoteTotalCount());
+        State::set(IndexNumber::PLAY_2P_TOTALNOTES, getNoteCount());
         State::set(IndexNumber::PLAY_2P_TOTAL_RATE, int(std::floor(_basic.total_acc)));
         State::set(IndexNumber::PLAY_2P_TOTAL_RATE_DECIMAL2, int(std::floor((_basic.total_acc - int(_basic.total_acc)) * 100)));
-        State::set(IndexNumber::PLAY_2P_PERFECT, _judgeCount[JudgeType::PERFECT]);
-        State::set(IndexNumber::PLAY_2P_GREAT, _judgeCount[JudgeType::GREAT]);
-        State::set(IndexNumber::PLAY_2P_GOOD, _judgeCount[JudgeType::GOOD]);
-        State::set(IndexNumber::PLAY_2P_BAD, _judgeCount[JudgeType::BAD]);
-        State::set(IndexNumber::PLAY_2P_POOR, _judgeCount[JudgeType::BPOOR] + _judgeCount[JudgeType::MISS]);
+        State::set(IndexNumber::PLAY_2P_PERFECT, _basic.judge[JUDGE_PERFECT]);
+        State::set(IndexNumber::PLAY_2P_GREAT, _basic.judge[JUDGE_GREAT]);
+        State::set(IndexNumber::PLAY_2P_GOOD, _basic.judge[JUDGE_GOOD]);
+        State::set(IndexNumber::PLAY_2P_BAD, _basic.judge[JUDGE_BAD]);
+        State::set(IndexNumber::PLAY_2P_POOR, _basic.judge[JUDGE_POOR]);
         State::set(IndexNumber::PLAY_2P_GROOVEGAUGE, int(_basic.health * 100));
 
         State::set(IndexNumber::PLAY_2P_JUDGE_TIME_ERROR_MS, _lastNoteJudge.time.norm());
-        State::set(IndexNumber::PLAY_2P_MISS, _judgeCount[JudgeType::MISS]);
-        State::set(IndexNumber::PLAY_2P_FAST_COUNT, _basic.fast);
-        State::set(IndexNumber::PLAY_2P_SLOW_COUNT, _basic.slow);
-        State::set(IndexNumber::PLAY_2P_COMBOBREAK, _judgeCount[JudgeType::BAD] + _judgeCount[JudgeType::MISS]);
-        State::set(IndexNumber::PLAY_2P_BPOOR, _judgeCount[JudgeType::BPOOR]);
-        State::set(IndexNumber::PLAY_2P_BP, _judgeCount[JudgeType::BAD] + _judgeCount[JudgeType::BPOOR] + _judgeCount[JudgeType::MISS]);
+        State::set(IndexNumber::PLAY_2P_MISS, _basic.judge[JUDGE_MISS]);
+        State::set(IndexNumber::PLAY_2P_FAST_COUNT, _basic.judge[JUDGE_EARLY]);
+        State::set(IndexNumber::PLAY_2P_SLOW_COUNT, _basic.judge[JUDGE_LATE]);
+        State::set(IndexNumber::PLAY_2P_COMBOBREAK, _basic.judge[JUDGE_CB]);
+        State::set(IndexNumber::PLAY_2P_BPOOR, _basic.judge[JUDGE_KPOOR]);
+        State::set(IndexNumber::PLAY_2P_BP, _basic.judge[JUDGE_BP]);
+        State::set(IndexNumber::LR2IR_REPLACE_PLAY_2P_JUDGE_TIME_ERROR_MS, _lastNoteJudge.time.norm());
 
         int fastslow = 0;   // 1:fast 2:slow
         switch (_lastNoteJudge.area)
         {
-        case judgeArea::EARLY_GREAT:
-        case judgeArea::EARLY_GOOD:
-        case judgeArea::EARLY_BAD:
-        case judgeArea::EARLY_BPOOR:
+        case JudgeArea::EARLY_GREAT:
+        case JudgeArea::EARLY_GOOD:
+        case JudgeArea::EARLY_BAD:
+        case JudgeArea::EARLY_KPOOR:
             fastslow = 1;
             break;
 
-        case judgeArea::LATE_GREAT:
-        case judgeArea::LATE_GOOD:
-        case judgeArea::LATE_BAD:
-        case judgeArea::MISS:
+        case JudgeArea::LATE_GREAT:
+        case JudgeArea::LATE_GOOD:
+        case JudgeArea::LATE_BAD:
+        case JudgeArea::MISS:
+        case JudgeArea::LATE_KPOOR:
             fastslow = 2;
             break;
         }
         State::set(IndexNumber::LR2IR_REPLACE_PLAY_2P_FAST_SLOW, fastslow);
         State::set(IndexOption::PLAY_LAST_JUDGE_FASTSLOW_2P, fastslow);
 
-        State::set(IndexBargraph::RESULT_RIVAL_PG, (double)_judgeCount[JudgeType::PERFECT] / _chart->getNoteTotalCount());
-        State::set(IndexBargraph::RESULT_RIVAL_GR, (double)_judgeCount[JudgeType::GREAT] / _chart->getNoteTotalCount());
-        State::set(IndexBargraph::RESULT_RIVAL_GD, (double)_judgeCount[JudgeType::GOOD] / _chart->getNoteTotalCount());
-        State::set(IndexBargraph::RESULT_RIVAL_BD, (double)_judgeCount[JudgeType::BAD] / _chart->getNoteTotalCount());
-        State::set(IndexBargraph::RESULT_RIVAL_PR, (double)(_judgeCount[JudgeType::BPOOR] + _judgeCount[JudgeType::MISS]) / _chart->getNoteTotalCount());
+        State::set(IndexBargraph::RESULT_RIVAL_PG, (double)_basic.judge[JUDGE_PERFECT] / getNoteCount());
+        State::set(IndexBargraph::RESULT_RIVAL_GR, (double)_basic.judge[JUDGE_GREAT] / getNoteCount());
+        State::set(IndexBargraph::RESULT_RIVAL_GD, (double)_basic.judge[JUDGE_GOOD] / getNoteCount());
+        State::set(IndexBargraph::RESULT_RIVAL_BD, (double)_basic.judge[JUDGE_BAD] / getNoteCount());
+        State::set(IndexBargraph::RESULT_RIVAL_PR, (double)_basic.judge[JUDGE_POOR] / getNoteCount());
         State::set(IndexBargraph::RESULT_RIVAL_MAXCOMBO, (double)_basic.maxCombo / getMaxCombo());
-        State::set(IndexBargraph::RESULT_RIVAL_SCORE, (double)_basic.score / 200000);
-        State::set(IndexBargraph::RESULT_RIVAL_EXSCORE, (double)_basic.score2 / getMaxScore());
-        State::set(IndexBargraph::PLAY_2P_FAST_COUNT, (double)_basic.fast / _chart->getNoteTotalCount());
-        State::set(IndexBargraph::PLAY_2P_SLOW_COUNT, (double)_basic.slow / _chart->getNoteTotalCount());
+        State::set(IndexBargraph::RESULT_RIVAL_SCORE, moneyScore / 200000);
+        State::set(IndexBargraph::RESULT_RIVAL_EXSCORE, (double)exScore / getMaxScore());
+        State::set(IndexBargraph::PLAY_2P_FAST_COUNT, (double)_basic.judge[JUDGE_EARLY] / getNoteCount());
+        State::set(IndexBargraph::PLAY_2P_SLOW_COUNT, (double)_basic.judge[JUDGE_LATE] / getNoteCount());
 
         State::set(IndexOption::PLAY_RANK_ESTIMATED_2P, Option::getRankType(_basic.acc));
         State::set(IndexOption::PLAY_RANK_BORDER_2P, Option::getRankType(_basic.total_acc));
@@ -1570,14 +1475,14 @@ void RulesetBMS::updateGlobals()
 
         int maxScore = getMaxScore();
         //if      (dp.total_acc >= 94.44) State::set(IndexNumber::RESULT_NEXT_RANK_EX_DIFF, int(maxScore * 1.000 - dp.score2));    // MAX-
-        if      (_basic.total_acc >= 100.0 * 8.0 / 9) State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, _basic.score2 - maxScore);    // MAX-
-        else if (_basic.total_acc >= 100.0 * 7.0 / 9) State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 8.0 / 9));    // AAA-
-        else if (_basic.total_acc >= 100.0 * 6.0 / 9) State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 7.0 / 9));    // AA-
-        else if (_basic.total_acc >= 100.0 * 5.0 / 9) State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 6.0 / 9));    // A-
-        else if (_basic.total_acc >= 100.0 * 4.0 / 9) State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 5.0 / 9));    // B-
-        else if (_basic.total_acc >= 100.0 * 3.0 / 9) State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 4.0 / 9));    // C-
-        else if (_basic.total_acc >= 100.0 * 2.0 / 9) State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 3.0 / 9));    // D-
-        else                                          State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(_basic.score2 - maxScore * 2.0 / 9));    // E-
+        if      (_basic.total_acc >= 100.0 * 8.0 / 9) State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF,     exScore - maxScore);    // MAX-
+        else if (_basic.total_acc >= 100.0 * 7.0 / 9) State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(exScore - maxScore * 8.0 / 9));    // AAA-
+        else if (_basic.total_acc >= 100.0 * 6.0 / 9) State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(exScore - maxScore * 7.0 / 9));    // AA-
+        else if (_basic.total_acc >= 100.0 * 5.0 / 9) State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(exScore - maxScore * 6.0 / 9));    // A-
+        else if (_basic.total_acc >= 100.0 * 4.0 / 9) State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(exScore - maxScore * 5.0 / 9));    // B-
+        else if (_basic.total_acc >= 100.0 * 3.0 / 9) State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(exScore - maxScore * 4.0 / 9));    // C-
+        else if (_basic.total_acc >= 100.0 * 2.0 / 9) State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(exScore - maxScore * 3.0 / 9));    // D-
+        else                                          State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(exScore - maxScore * 2.0 / 9));    // E-
     }
     else if (_side == PlaySide::MYBEST)
     {

@@ -47,7 +47,7 @@ struct score_bms_all_params
     long long great = 0;
     long long good = 0;
     long long bad = 0;
-    long long bpoor = 0;
+    long long kpoor = 0;
     long long miss = 0;
     long long bp = 0;
     long long cb = 0;
@@ -73,7 +73,7 @@ struct score_bms_all_params
             great = ANY_INT(queryResult.at(13));
             good = ANY_INT(queryResult.at(14));
             bad = ANY_INT(queryResult.at(15));
-            bpoor = ANY_INT(queryResult.at(16));
+            kpoor = ANY_INT(queryResult.at(16));
             miss = ANY_INT(queryResult.at(17));
             bp = ANY_INT(queryResult.at(18));
             cb = ANY_INT(queryResult.at(19));
@@ -105,7 +105,7 @@ bool convert_score_bms(std::shared_ptr<ScoreBMS> out, const std::vector<std::any
     out->great = params.great;
     out->good = params.good;
     out->bad = params.bad;
-    out->bpoor = params.bpoor;
+    out->kpoor = params.kpoor;
     out->miss = params.miss;
     out->bp = params.bp;
     out->combobreak = params.cb;
@@ -205,7 +205,7 @@ void ScoreDB::updateScoreBMS(const char* tableName, const HashMD5& hash, const S
             record.great = score.great;
             record.good = score.good;
             record.bad = score.bad;
-            record.bpoor = score.bpoor;
+            record.kpoor = score.kpoor;
             record.miss = score.miss;
             record.combobreak = score.combobreak;
             record.replayFileName = score.replayFileName;
@@ -252,7 +252,7 @@ void ScoreDB::updateScoreBMS(const char* tableName, const HashMD5& hash, const S
         exec(sqlbuf,
             { record.notes, record.score, record.rate, record.fast, record.slow,
             record.maxcombo, (long long)std::time(nullptr), record.playcount, record.clearcount, record.exscore, (int)record.lamp,
-            record.pgreat, record.great, record.good, record.bad, record.bpoor, record.miss, record.bp, record.combobreak, record.replayFileName,
+            record.pgreat, record.great, record.good, record.bad, record.kpoor, record.miss, record.bp, record.combobreak, record.replayFileName,
             hashStr });
     }
     else
@@ -264,7 +264,7 @@ void ScoreDB::updateScoreBMS(const char* tableName, const HashMD5& hash, const S
             { hashStr,
             score.notes, score.score, score.rate, score.fast, score.slow,
             score.maxcombo, (long long)std::time(nullptr), score.playcount, score.clearcount, score.exscore, (int)score.lamp,
-            score.pgreat, score.great, score.good, score.bad, score.bpoor, score.miss, score.bp, score.combobreak, score.replayFileName });
+            score.pgreat, score.great, score.good, score.bad, score.kpoor, score.miss, score.bp, score.combobreak, score.replayFileName });
     }
     cache.erase(hashStr);
 }

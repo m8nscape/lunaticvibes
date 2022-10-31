@@ -260,7 +260,7 @@ public:
     int great = 0;
     int good = 0;
     int bad = 0;
-    int bpoor = 0;
+    int kpoor = 0;
     int miss = 0;
     int bp = 0;
     int combobreak = 0;

@@ -23,9 +23,27 @@ protected:
     bool _retryRequested = false;
     std::shared_ptr<vScore> _pScoreOld;
 
-    vRuleset::BasicData d1p;
-    std::map<unsigned, unsigned> judgeCount;
-    unsigned totalNotes = 0;
+    enum SummaryArgs
+    {
+        ARG_TOTAL_NOTES,
+        ARG_MAX_SCORE,
+        ARG_SCORE,
+        ARG_EXSCORE,
+        ARG_MAXCOMBO,
+        ARG_FAST,
+        ARG_SLOW,
+        ARG_BP,
+        ARG_CB,
+
+        ARG_JUDGE_0,
+        ARG_JUDGE_1,
+        ARG_JUDGE_2,
+        ARG_JUDGE_3,
+        ARG_JUDGE_4,
+        ARG_JUDGE_5,
+    };
+    std::map<SummaryArgs, unsigned> summary;
+    double acc = 0.;
 
 public:
     SceneCourseResult();

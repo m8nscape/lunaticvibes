@@ -74,7 +74,7 @@ struct PlayContextParams
     std::array<std::shared_ptr<ChartObjectBase>, MAX_PLAYERS> chartObj{ nullptr, nullptr, nullptr };
     std::array<double, MAX_PLAYERS> initialHealth{ 1.0, 1.0, 1.0 };
     std::array<std::vector<int>, MAX_PLAYERS> graphGauge;
-    std::array<std::vector<int>, MAX_PLAYERS> graphScore;
+    std::array<std::vector<double>, MAX_PLAYERS> graphAcc;
     std::array<eGaugeOp, MAX_PLAYERS> gaugeType{};        // resolve on ruleset construction
     std::array<PlayMod, MAX_PLAYERS> mods{};         // eMod: 
 

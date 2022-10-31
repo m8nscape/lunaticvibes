@@ -443,12 +443,12 @@ namespace Option
 
     enum e_judge_type {
         JUDGE_NONE,
-        JUDGE_0,
-        JUDGE_1,
-        JUDGE_2,
-        JUDGE_3,
-        JUDGE_4,
-        JUDGE_5,
+        JUDGE_0,    // PG
+        JUDGE_1,    // GR
+        JUDGE_2,    // GD
+        JUDGE_3,    // BD
+        JUDGE_4,    // PR
+        JUDGE_5,    // KP
         JUDGE_6,
         //...
     };

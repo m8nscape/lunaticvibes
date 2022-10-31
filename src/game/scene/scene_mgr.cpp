@@ -5,6 +5,7 @@
 #include "scene_decide.h"
 #include "scene_play.h"
 #include "scene_result.h"
+#include "scene_play_course_trans.h"
 #include "scene_play_retry_trans.h"
 #include "scene_course_result.h"
 #include "scene_keyconfig.h"
@@ -84,6 +85,10 @@ pScene SceneMgr::get(eScene e)
             LOG_ERROR << "[Scene] Invalid mode: " << int(gPlayContext.mode);
             return nullptr;
         }
+        break;
+
+    case eScene::COURSE_TRANS:
+        ps = std::make_shared<ScenePlayCourseTrans>();
         break;
 
     case eScene::KEYCONFIG:

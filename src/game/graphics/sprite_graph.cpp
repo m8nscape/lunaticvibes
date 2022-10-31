@@ -44,6 +44,8 @@ void SpriteLine::updateProgress(const Time& t)
     }
 }
 
+
+
 void SpriteLine::updateRects()
 {
     /*
@@ -122,6 +124,70 @@ void SpriteLine::updateRects()
         }
     };
 
+    auto pushRectsF = [this](int size, const std::vector<double>& points, double maxh, std::function<bool(int val1, int val2)> cond = [](int, int) { return true; })
+    {
+        std::vector<std::pair<Point, Point>> tmp;
+        const auto& r = _current.rect;
+        size_t region = static_cast<size_t>(std::floor(size * _progress));
+        if (region == 0) return;
+        region--;
+
+        if (size > RT_GRAPH_THRESHOLD)
+        {
+            for (size_t i = 0; i < region; ++i)
+            {
+                if (cond(points[i], points[i + 1]))
+                {
+                    tmp.push_back({
+                        {
+                            r.x + _field_w * (double(i) / (size - 1)),
+                            r.y - _field_h * points[i] / maxh
+                        },
+                        {
+                            r.x + _field_w * (double(i + 1) / (size - 1)),
+                            r.y - _field_h * points[i + 1] / maxh
+                        }
+                        });
+                }
+            }
+        }
+        else
+        {
+            for (size_t i = 0; i < region; ++i)
+            {
+                if (cond(points[i], points[i + 1]))
+                {
+                    tmp.push_back({
+                        {
+                            r.x + _field_w * (double(i) / (size - 1)),
+                            r.y - _field_h * points[i] / maxh
+                        },
+                        {
+                            r.x + _field_w * (double(i) / (size - 1)),
+                            r.y - _field_h * points[i + 1] / maxh
+                        }
+                        });
+                    tmp.push_back({
+                        {
+                            r.x + _field_w * (double(i) / (size - 1)),
+                            r.y - _field_h * points[i + 1] / maxh
+                        },
+                        {
+                            r.x + _field_w * (double(i + 1) / (size - 1)),
+                            r.y - _field_h * points[i + 1] / maxh
+                        }
+                        });
+                }
+            }
+        }
+
+        _rects.clear();
+        for (auto& [p1, p2] : tmp)
+        {
+            if (int(p1.x) != int(p2.x) || int(p1.y) != int(p2.y))
+                _rects.push_back({ p1, p2 });
+        }
+    };
 
     int h = gPlayContext.ruleset[_player]->getClearHealth() * 100;
     switch (_ltype)
@@ -144,9 +210,9 @@ void SpriteLine::updateRects()
 
     case LineType::SCORE:
     {
-        auto p = gPlayContext.graphScore[_player];
+        auto p = gPlayContext.graphAcc[_player];
         size_t s = p.size();
-        pushRects(s, p, gPlayContext.ruleset[_player]->getMaxScore());
+        pushRectsF(s, p, 100.0);
         break;
     }
 
@@ -154,18 +220,18 @@ void SpriteLine::updateRects()
     {
         if (gPlayContext.ruleset[PLAYER_SLOT_MYBEST])
         {
-            auto p = gPlayContext.graphScore[PLAYER_SLOT_MYBEST];
+            auto p = gPlayContext.graphAcc[PLAYER_SLOT_MYBEST];
             size_t s = p.size();
-            pushRects(s, p, gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->getMaxScore());
+            pushRectsF(s, p, 100.0);
         }
         break;
     }
 
     case LineType::SCORE_TARGET:
     {
-        auto pt = gPlayContext.graphScore[PLAYER_SLOT_TARGET];
+        auto pt = gPlayContext.graphAcc[PLAYER_SLOT_TARGET];
         size_t s = pt.size();
-        pushRects(s, pt, gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getMaxScore());
+        pushRectsF(s, pt, 100.0);
         break;
     }
 

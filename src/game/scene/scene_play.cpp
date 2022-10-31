@@ -326,6 +326,38 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     // ruleset, should be called after initial health set
     _rulesetLoaded = createRuleset();
 
+    // course: skip play scene if already failed
+    if (gPlayContext.isCourse && gPlayContext.initialHealth[PLAYER_SLOT_PLAYER] <= 0.)
+    {
+        if (gPlayContext.courseStage < gPlayContext.courseCharts.size())
+        {
+            gPlayContext.courseStageReplayPath.push_back("");
+
+            if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER])
+            {
+                gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->fail();
+                gPlayContext.courseStageRulesetCopy[PLAYER_SLOT_PLAYER].push_back(gPlayContext.ruleset[PLAYER_SLOT_PLAYER]);
+            }
+            if (gPlayContext.ruleset[PLAYER_SLOT_TARGET])
+            {
+                gPlayContext.ruleset[PLAYER_SLOT_TARGET]->fail();
+                gPlayContext.courseStageRulesetCopy[PLAYER_SLOT_TARGET].push_back(gPlayContext.ruleset[PLAYER_SLOT_TARGET]);
+            }
+
+            // do not draw anything
+            _skin.reset();
+
+            ++gPlayContext.courseStage;
+            gNextScene = eScene::COURSE_TRANS;
+            return;
+        }
+        else
+        {
+            gNextScene = eScene::COURSE_RESULT;
+            return;
+        }
+    }
+
     _hispeedOld[PLAYER_SLOT_PLAYER] = gPlayContext.Hispeed;
     _hispeedOld[PLAYER_SLOT_TARGET] = gPlayContext.battle2PHispeed;
 
@@ -2251,13 +2283,16 @@ void ScenePlay::updatePlaying()
     }
 
     auto dp1 = gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData();
-    int miss1 = dp1.miss;
-    if (_missPlayer[PLAYER_SLOT_PLAYER] != miss1)
+
+    long long exScore1P = 0;
+    long long exScore2P = 0;
+    int miss1 = 0;
+    int miss2 = 0;
+    if (auto pr = std::dynamic_pointer_cast<RulesetBMS>(gPlayContext.ruleset[PLAYER_SLOT_PLAYER]); pr)
     {
-        _missPlayer[PLAYER_SLOT_PLAYER] = miss1;
-        _missLastTime = t;
+        exScore1P = pr->getExScore();
+        miss1 = pr->getJudgeCountEx(RulesetBMS::JUDGE_BP);
     }
-    State::set(IndexNumber::PLAY_1P_EXSCORE, dp1.score2);
 
     if (gPlayContext.ruleset[PLAYER_SLOT_MYBEST] != nullptr)
     {
@@ -2266,10 +2301,14 @@ void ScenePlay::updatePlaying()
 
         auto dpb = gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->getData();
 
-        State::set(IndexNumber::RESULT_MYBEST_EX, dpb.score2);
         State::set(IndexNumber::RESULT_MYBEST_RATE, (int)std::floor(dpb.acc * 100.0));
         State::set(IndexNumber::RESULT_MYBEST_RATE_DECIMAL2, (int)std::floor(dpb.acc * 10000.0) % 100);
-        State::set(IndexNumber::RESULT_MYBEST_DIFF, dp1.score2 - dpb.score2);
+
+        if (auto pr2 = std::dynamic_pointer_cast<RulesetBMS>(gPlayContext.ruleset[PLAYER_SLOT_MYBEST]); pr2)
+        {
+            exScore2P = pr2->getExScore();
+            miss2 = pr2->getJudgeCountEx(RulesetBMS::JUDGE_BP);
+        }
     }
 
     if (gPlayContext.ruleset[PLAYER_SLOT_TARGET] != nullptr)
@@ -2284,21 +2323,11 @@ void ScenePlay::updatePlaying()
             assert(gPlayContext.ruleset[PLAYER_SLOT_MYBEST] != nullptr);
             auto dp2 = gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->getData();
 
-            State::set(IndexNumber::PLAY_2P_EXSCORE, dp2.score2);
-            State::set(IndexNumber::PLAY_1P_EXSCORE_DIFF, dp1.score2 - dp2.score2);
-            State::set(IndexNumber::PLAY_2P_EXSCORE_DIFF, dp2.score2 - dp1.score2);
-            State::set(IndexNumber::RESULT_TARGET_EX, dp2.score2);
-            State::set(IndexNumber::RESULT_TARGET_DIFF, dp1.score2 - dp2.score2);
             State::set(IndexNumber::RESULT_TARGET_RATE, (int)std::floor(dp2.acc * 100.0) / 100);
             State::set(IndexNumber::RESULT_TARGET_RATE_DECIMAL2, (int)std::floor(dp2.acc * 10000.0) % 100);
         }
         else if (targetType == Option::TARGET_0)
         {
-            State::set(IndexNumber::PLAY_2P_EXSCORE, 0);
-            State::set(IndexNumber::PLAY_1P_EXSCORE_DIFF, dp1.score2);
-            State::set(IndexNumber::PLAY_2P_EXSCORE_DIFF, -dp1.score2);
-            State::set(IndexNumber::RESULT_TARGET_EX, 0);
-            State::set(IndexNumber::RESULT_TARGET_DIFF, dp1.score2);
             State::set(IndexNumber::RESULT_TARGET_RATE, 0);
             State::set(IndexNumber::RESULT_TARGET_RATE_DECIMAL2, 0);
         }
@@ -2306,22 +2335,33 @@ void ScenePlay::updatePlaying()
         {
             auto dp2 = gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData();
 
-            State::set(IndexNumber::PLAY_2P_EXSCORE, dp2.score2);
-            State::set(IndexNumber::PLAY_1P_EXSCORE_DIFF, dp1.score2 - dp2.score2);
-            State::set(IndexNumber::PLAY_2P_EXSCORE_DIFF, dp2.score2 - dp1.score2);
-            State::set(IndexNumber::RESULT_TARGET_EX, dp2.score2);
-            State::set(IndexNumber::RESULT_TARGET_DIFF, dp1.score2 - dp2.score2);
             State::set(IndexNumber::RESULT_TARGET_RATE, (int)std::floor(dp2.acc * 100.0) / 100);
             State::set(IndexNumber::RESULT_TARGET_RATE_DECIMAL2, (int)std::floor(dp2.acc * 10000.0) % 100);
+        }
 
-            int miss2 = dp2.miss;
-            if (_missPlayer[PLAYER_SLOT_TARGET] != miss2)
-            {
-                _missPlayer[PLAYER_SLOT_TARGET] = miss2;
-                _missLastTime = t;
-            }
+        if (auto pr2 = std::dynamic_pointer_cast<RulesetBMS>(gPlayContext.ruleset[PLAYER_SLOT_TARGET]); pr2)
+        {
+            exScore2P = pr2->getExScore();
+            miss2 = pr2->getJudgeCountEx(RulesetBMS::JUDGE_BP);
         }
     }
+    State::set(IndexNumber::RESULT_MYBEST_EX, exScore2P);
+    State::set(IndexNumber::RESULT_MYBEST_DIFF, exScore1P - exScore2P);
+    State::set(IndexNumber::PLAY_1P_EXSCORE_DIFF, exScore1P - exScore2P);
+    State::set(IndexNumber::PLAY_2P_EXSCORE_DIFF, exScore2P - exScore1P);
+    State::set(IndexNumber::RESULT_TARGET_EX, exScore2P);
+    State::set(IndexNumber::RESULT_TARGET_DIFF, exScore1P - exScore2P);
+    if (_missPlayer[PLAYER_SLOT_PLAYER] != miss1)
+    {
+        _missPlayer[PLAYER_SLOT_PLAYER] = miss1;
+        _missLastTime = t;
+    }
+    if (_missPlayer[PLAYER_SLOT_TARGET] != miss2)
+    {
+        _missPlayer[PLAYER_SLOT_TARGET] = miss2;
+        _missLastTime = t;
+    }
+
 
     gPlayContext.bgaTexture->update(rt, t.norm() - _missLastTime.norm() < _missBgaLength);
 
@@ -2388,20 +2428,28 @@ void ScenePlay::updatePlaying()
             if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isFinished() ||
                 gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().combo == gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getMaxCombo())
             {
-                State::set(IndexTimer::PLAY_P1_FINISHED, t.norm());
                 if (isPlaymodeDP())
                 {
                     State::set(IndexTimer::PLAY_P2_FINISHED, t.norm());
-                }
 
-                if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().combo == gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getMaxCombo())
-                {
-                    State::set(IndexTimer::PLAY_FULLCOMBO_1P, t.norm());
-                    if (isPlaymodeDP())
+                    if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().combo == gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getMaxCombo())
+                    {
                         State::set(IndexTimer::PLAY_FULLCOMBO_2P, t.norm());
+                    }
+                }
+                else
+                {
+                    State::set(IndexTimer::PLAY_P1_FINISHED, t.norm());
+
+                    if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().combo == gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getMaxCombo())
+                    {
+                        State::set(IndexTimer::PLAY_FULLCOMBO_1P, t.norm());
+                    }
                 }
 
                 _isPlayerFinished[PLAYER_SLOT_PLAYER] = true;
+
+                LOG_INFO << "[Play] 1P finished";
             }
         }
         if (gPlayContext.ruleset[PLAYER_SLOT_TARGET] != nullptr && !_isPlayerFinished[PLAYER_SLOT_TARGET])
@@ -2417,6 +2465,8 @@ void ScenePlay::updatePlaying()
                 }
 
                 _isPlayerFinished[PLAYER_SLOT_TARGET] = true;
+
+                LOG_INFO << "[Play] 2P finished";
             }
         }
     }
@@ -2565,7 +2615,22 @@ void ScenePlay::updateFadeout()
 
         if (gPlayContext.isAuto)
         {
-            gNextScene = (gPlayContext.isCourse && gChartContext.started) ? eScene::COURSE_TRANS : (gQuitOnFinish ? eScene::EXIT_TRANS : eScene::SELECT);
+            if (gPlayContext.isCourse && gChartContext.started)
+            {
+                if (gPlayContext.courseStage < gPlayContext.courseCharts.size())
+                {
+                    ++gPlayContext.courseStage;
+                    gNextScene = eScene::COURSE_TRANS;
+                }
+                else
+                {
+                    gNextScene = eScene::COURSE_RESULT;
+                }
+            }
+            else
+            {
+                gNextScene = gQuitOnFinish ? eScene::EXIT_TRANS : eScene::SELECT;
+            }
         }
         else if (wantRetry && gPlayContext.canRetry && gChartContext.started)
         {

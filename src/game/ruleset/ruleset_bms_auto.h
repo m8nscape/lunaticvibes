@@ -17,10 +17,10 @@ public:
 
 protected:
 	double targetRate = 100.0;
-    std::vector<JudgeType> noteJudges;
+    std::vector<JudgeArea> noteJudges;
     size_t judgeIndex = 0;
 
-    std::map<JudgeType, unsigned> totalJudgeCount;
+    std::map<JudgeArea, unsigned> totalJudgeCount;
 
     std::array<bool, Input::Pad::KEY_COUNT> isPressingLN;
 

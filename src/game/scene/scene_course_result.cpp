@@ -32,129 +32,127 @@ SceneCourseResult::SceneCourseResult() : vScene(eMode::COURSE_RESULT, 1000)
 
     if (!gPlayContext.courseStageRulesetCopy[0].empty())
     {
-        d1p = { 0 };
-        int max = 0;
         for (const auto& r : gPlayContext.courseStageRulesetCopy[0])
         {
             auto& d = r->getData();
-            totalNotes += r->getMaxCombo();
-            max += r->getMaxScore();
-            d1p.score += d.score;
-            d1p.score2 += d.score2;
-            d1p.maxCombo += d.maxCombo;
-            d1p.hit += d.hit;
-            d1p.miss += d.miss;
-            d1p.fast += d.fast;
-            d1p.slow += d.slow;
+            summary[ARG_TOTAL_NOTES] += r->getNoteCount();
+            summary[ARG_MAX_SCORE] += r->getMaxScore();
+            summary[ARG_MAXCOMBO] += d.maxCombo;
 
-            switch (gChartContext.chartObj->type())
+            if (auto pr = std::dynamic_pointer_cast<RulesetBMS>(r); pr)
             {
-            case eChartFormat::BMS:
-            case eChartFormat::BMSON:
-            {
-                auto rBMS = std::reinterpret_pointer_cast<RulesetBMS>(r);
-                for (unsigned j = 0; j <= (unsigned)RulesetBMS::JudgeType::COMBOBREAK; ++j)
-                    judgeCount[j] += rBMS->getJudgeCount((RulesetBMS::JudgeType)j);
-                break;
-            }
+                summary[ARG_SCORE] += unsigned(std::floor(pr->getScore()));
+                summary[ARG_EXSCORE] += pr->getExScore();
+                summary[ARG_FAST] += pr->getJudgeCountEx(RulesetBMS::JUDGE_EARLY);
+                summary[ARG_SLOW] += pr->getJudgeCountEx(RulesetBMS::JUDGE_LATE);
+                summary[ARG_BP] += pr->getJudgeCountEx(RulesetBMS::JUDGE_BP);
+                summary[ARG_CB] += pr->getJudgeCountEx(RulesetBMS::JUDGE_CB);
+                summary[ARG_JUDGE_0] += pr->getJudgeCount(RulesetBMS::JudgeType::PERFECT);
+                summary[ARG_JUDGE_1] += pr->getJudgeCount(RulesetBMS::JudgeType::GREAT);
+                summary[ARG_JUDGE_2] += pr->getJudgeCount(RulesetBMS::JudgeType::GOOD);
+                summary[ARG_JUDGE_3] += pr->getJudgeCount(RulesetBMS::JudgeType::BAD);
+                summary[ARG_JUDGE_4] += pr->getJudgeCount(RulesetBMS::JudgeType::KPOOR);
+                summary[ARG_JUDGE_5] += pr->getJudgeCount(RulesetBMS::JudgeType::MISS);
             }
         }
-        if (max > 0)
+        if (summary[ARG_TOTAL_NOTES] > 0)
         {
-            d1p.acc = (double)d1p.score2 / max;
-            d1p.total_acc = d1p.acc;
+            for (const auto& r : gPlayContext.courseStageRulesetCopy[0])
+            {
+                acc += r->getData().total_acc * r->getNoteCount() / summary[ARG_TOTAL_NOTES];
+            }
         }
 
         // set options
-        param["1prank"] = Option::getRankType(d1p.total_acc);
-        param["1ptarget"] = d1p.score2;
-        param["1pexscore"] = d1p.score2;
-        param["1pmaxcombo"] = d1p.maxCombo;
-        param["1pbp"] = d1p.miss;
-        param["1ppg"] = judgeCount[0];
-        param["1pgr"] = judgeCount[1];
-        param["1pgd"] = judgeCount[2];
-        param["1pbd"] = judgeCount[3];
-        param["1ppr"] = judgeCount[4] + judgeCount[5];
-        param["1pcb"] = judgeCount[3] + judgeCount[5];
-        param["1pfast"] = d1p.fast;
-        param["1pslow"] = d1p.slow;
+        param["1prank"] = Option::getRankType(acc);
+        param["1ptarget"] = summary[ARG_EXSCORE];
+        param["1pexscore"] = summary[ARG_EXSCORE];
+        param["1pmaxcombo"] = summary[ARG_MAXCOMBO];
+        param["1pbp"] = summary[ARG_BP];
+        param["1ppg"] = summary[ARG_JUDGE_0];
+        param["1pgr"] = summary[ARG_JUDGE_1];
+        param["1pgd"] = summary[ARG_JUDGE_2];
+        param["1pbd"] = summary[ARG_JUDGE_3];
+        param["1ppr"] = summary[ARG_JUDGE_4] + summary[ARG_JUDGE_5];
+        param["1pcb"] = summary[ARG_CB];
+        param["1pfast"] = summary[ARG_FAST];
+        param["1pslow"] = summary[ARG_SLOW];
+        param["1prate"] = (int)acc;
+        param["1prated2"] = (int)(acc * 100.0) % 100;
 
-        if (totalNotes > 0)
+        if (summary[ARG_TOTAL_NOTES] > 0)
         {
-            param["1ppgrate"] = int(100 * param["1ppg"] / totalNotes);
-            param["1pgrrate"] = int(100 * param["1pgr"] / totalNotes);
-            param["1pgdrate"] = int(100 * param["1pgd"] / totalNotes);
-            param["1pbdrate"] = int(100 * param["1pbd"] / totalNotes);
-            param["1pprrate"] = int(100 * param["1ppr"] / totalNotes);
+            param["1ppgrate"] = int(100 * param["1ppg"] / summary[ARG_TOTAL_NOTES]);
+            param["1pgrrate"] = int(100 * param["1pgr"] / summary[ARG_TOTAL_NOTES]);
+            param["1pgdrate"] = int(100 * param["1pgd"] / summary[ARG_TOTAL_NOTES]);
+            param["1pbdrate"] = int(100 * param["1pbd"] / summary[ARG_TOTAL_NOTES]);
+            param["1pprrate"] = int(100 * param["1ppr"] / summary[ARG_TOTAL_NOTES]);
         }
 
 
         if (gPlayContext.isBattle && !gPlayContext.courseStageRulesetCopy[1].empty())
         {
-            vRuleset::BasicData d2p = { 0 };
-            std::map<unsigned, unsigned> judgeCount2P;
-            int max = 0;
-            for (const auto& r : gPlayContext.courseStageRulesetCopy[0])
+            decltype(summary) summary2P;
+            double acc2P = 0.;
+            for (const auto& r : gPlayContext.courseStageRulesetCopy[1])
             {
                 auto& d = r->getData();
-                max += r->getMaxScore();
-                d2p.score += d.score;
-                d2p.score2 += d.score2;
-                d2p.maxCombo += d.maxCombo;
-                d2p.hit += d.hit;
-                d2p.miss += d.miss;
-                d2p.fast += d.fast;
-                d2p.slow += d.slow;
+                summary2P[ARG_TOTAL_NOTES] += r->getNoteCount();
+                summary2P[ARG_MAX_SCORE] += r->getMaxScore();
+                summary2P[ARG_MAXCOMBO] += d.maxCombo;
+                acc2P += r->getNoteCount() > 0 ? (d.total_acc / r->getNoteCount()) : 0.0;
 
-                switch (gChartContext.chartObj->type())
+                if (auto pr = std::dynamic_pointer_cast<RulesetBMS>(r); pr)
                 {
-                case eChartFormat::BMS:
-                case eChartFormat::BMSON:
+                    summary2P[ARG_SCORE] += unsigned(std::floor(pr->getScore()));
+                    summary2P[ARG_EXSCORE] += pr->getExScore();
+                    summary2P[ARG_FAST] += pr->getJudgeCountEx(RulesetBMS::JUDGE_EARLY);
+                    summary2P[ARG_SLOW] += pr->getJudgeCountEx(RulesetBMS::JUDGE_LATE);
+                    summary2P[ARG_BP] += pr->getJudgeCountEx(RulesetBMS::JUDGE_BP);
+                    summary2P[ARG_CB] += pr->getJudgeCountEx(RulesetBMS::JUDGE_CB);
+                    summary2P[ARG_JUDGE_0] += pr->getJudgeCount(RulesetBMS::JudgeType::PERFECT);
+                    summary2P[ARG_JUDGE_1] += pr->getJudgeCount(RulesetBMS::JudgeType::GREAT);
+                    summary2P[ARG_JUDGE_2] += pr->getJudgeCount(RulesetBMS::JudgeType::GOOD);
+                    summary2P[ARG_JUDGE_3] += pr->getJudgeCount(RulesetBMS::JudgeType::BAD);
+                    summary2P[ARG_JUDGE_4] += pr->getJudgeCount(RulesetBMS::JudgeType::KPOOR);
+                    summary2P[ARG_JUDGE_5] += pr->getJudgeCount(RulesetBMS::JudgeType::MISS);
+                }
+            }
+            if (summary[ARG_TOTAL_NOTES] > 0)
+            {
+                for (const auto& r : gPlayContext.courseStageRulesetCopy[1])
                 {
-                    auto rBMS = std::reinterpret_pointer_cast<RulesetBMS>(r);
-                    for (unsigned j = 0; j <= (unsigned)RulesetBMS::JudgeType::COMBOBREAK; ++j)
-                        judgeCount2P[j] += rBMS->getJudgeCount((RulesetBMS::JudgeType)j);
-                    break;
-                }
+                    acc2P += r->getData().total_acc * r->getNoteCount() / summary2P[ARG_TOTAL_NOTES];
                 }
             }
-            if (max > 0)
+
+            param["2prank"] = Option::getRankType(acc2P);
+            param["2ptarget"] = summary2P[ARG_EXSCORE];
+            param["2pexscore"] = summary2P[ARG_EXSCORE];
+            param["2pmaxcombo"] = summary2P[ARG_MAXCOMBO];
+            param["2pbp"] = summary2P[ARG_BP];
+            param["2ppg"] = summary2P[ARG_JUDGE_0];
+            param["2pgr"] = summary2P[ARG_JUDGE_1];
+            param["2pgd"] = summary2P[ARG_JUDGE_2];
+            param["2pbd"] = summary2P[ARG_JUDGE_3];
+            param["2ppr"] = summary2P[ARG_JUDGE_4] + summary2P[ARG_JUDGE_5];
+            param["2pcb"] = summary2P[ARG_CB];
+            param["2pfast"] = summary2P[ARG_FAST];
+            param["2pslow"] = summary2P[ARG_SLOW];
+            param["2prate"] = (int)acc2P;
+            param["2prated2"] = (int)(acc2P * 100.0) % 100;
+
+            if (summary2P[ARG_TOTAL_NOTES] > 0)
             {
-                d2p.acc = (double)d1p.score2 / max;
-                d2p.total_acc = d1p.acc;
+                param["2ppgrate"] = int(100 * param["2ppg"] / summary2P[ARG_TOTAL_NOTES]);
+                param["2pgrrate"] = int(100 * param["2pgr"] / summary2P[ARG_TOTAL_NOTES]);
+                param["2pgdrate"] = int(100 * param["2pgd"] / summary2P[ARG_TOTAL_NOTES]);
+                param["2pbdrate"] = int(100 * param["2pbd"] / summary2P[ARG_TOTAL_NOTES]);
+                param["2pprrate"] = int(100 * param["2ppr"] / summary2P[ARG_TOTAL_NOTES]);
             }
 
-            param["2prank"] = Option::getRankType(d1p.total_acc);
-            param["2ptarget"] = d2p.score2 - d1p.score2;
-            param["2pexscore"] = d2p.score2;
-            param["2pmaxcombo"] = d2p.maxCombo;
-            param["2pbp"] = d2p.miss;
-            param["2ppg"] = judgeCount2P[0];
-            param["2pgr"] = judgeCount2P[1];
-            param["2pgd"] = judgeCount2P[2];
-            param["2pbd"] = judgeCount2P[3];
-            param["2pbpoor"] = judgeCount2P[4];
-            param["2ppr"] = judgeCount2P[4] + judgeCount2P[5];
-            param["2pcb"] = judgeCount2P[3] + judgeCount2P[5];
-            param["2pfast"] = d2p.fast;
-            param["2pslow"] = d2p.slow;
-
-            if (totalNotes > 0)
-            {
-                param["2ppgrate"] = int(100 * param["2ppg"] / totalNotes);
-                param["2pgrrate"] = int(100 * param["2pgr"] / totalNotes);
-                param["2pgdrate"] = int(100 * param["2pgd"] / totalNotes);
-                param["2pbdrate"] = int(100 * param["2pbd"] / totalNotes);
-                param["2pprrate"] = int(100 * param["2ppr"] / totalNotes);
-            }
-
-            param["1ptarget"] = d1p.score2 - d2p.score2;
-
-            if (d1p.score2 > d2p.score2)
-                param["winlose"] = 1;
-            else if (d1p.score2 < d2p.score2)
-                param["winlose"] = 2;
+            param["1ptarget"] = summary[ARG_EXSCORE] - summary2P[ARG_EXSCORE];
+            param["winlose"] = (param["1ptarget"] > 0) ? 1 : (param["1ptarget"] < 0) ? 2 : 0;
         }
 
         // compare to db record
@@ -162,31 +160,31 @@ SceneCourseResult::SceneCourseResult() : vScene(eMode::COURSE_RESULT, 1000)
         if (pScore)
         {
             param["dbexscore"] = pScore->exscore;
-            param["dbexscorediff"] = (int)d1p.score2 - pScore->exscore;
-            param["newexscore"] = (int)d1p.score2;
+            param["dbexscorediff"] = param["1pexscore"] - pScore->exscore;
+            param["newexscore"] = param["1pexscore"];
             param["newexscorediff"] = param["newexscore"] - pScore->exscore;
             param["dbmaxcombo"] = (int)pScore->maxcombo;
-            param["newmaxcombo"] = (int)d1p.maxCombo;
+            param["newmaxcombo"] = param["1pmaxcombo"];
             param["newmaxcombodiff"] = param["newmaxcombo"] - pScore->maxcombo;
             param["dbbp"] = pScore->bp;
-            param["newbp"] = (int)d1p.miss;
+            param["newbp"] = param["1pbp"];
             param["newbpdiff"] = param["newbp"] - pScore->bp;
             param["dbrate"] = (int)(pScore->rate);
             param["dbrated2"] = (int)(pScore->rate * 100.0) % 100;
             param["dbrank"] = Option::getRankType(pScore->rate);
 
-            param["updatedscore"] = pScore->exscore < d1p.score2;
-            param["updatedmaxcombo"] = pScore->maxcombo < d1p.maxCombo;
-            param["updatedbp"] = pScore->bp < d1p.miss;
+            param["updatedscore"] = pScore->exscore < param["1pexscore"];
+            param["updatedmaxcombo"] = pScore->maxcombo < param["1pmaxcombo"];
+            param["updatedbp"] = pScore->bp < param["1pbp"];
         }
         else
         {
-            param["dbexscorediff"] = (int)d1p.score2;
-            param["newexscore"] = (int)d1p.score2;
+            param["dbexscorediff"] = param["1pexscore"];
+            param["newexscore"] = param["1pmaxcombo"];
             param["newexscorediff"] = param["newexscore"];
-            param["newmaxcombo"] = (int)d1p.maxCombo;
+            param["newmaxcombo"] = param["1pmaxcombo"];
             param["newmaxcombodiff"] = param["newmaxcombo"];
-            param["newbp"] = (int)d1p.miss;
+            param["newbp"] = param["1pbp"];
             param["newbpdiff"] = param["newbp"];
             param["updatedscore"] = true;
             param["updatedmaxcombo"] = true;
@@ -213,6 +211,8 @@ SceneCourseResult::SceneCourseResult() : vScene(eMode::COURSE_RESULT, 1000)
         State::set(IndexNumber::PLAY_1P_BP, param["1pbp"]);
         State::set(IndexNumber::PLAY_1P_FAST_COUNT, param["1pfast"]);
         State::set(IndexNumber::PLAY_1P_SLOW_COUNT, param["1pslow"]);
+        State::set(IndexNumber::PLAY_1P_RATE, param["1prate"]);
+        State::set(IndexNumber::PLAY_1P_RATEDECIMAL, param["1prated2"]);
 
         State::set(IndexNumber::PLAY_2P_EXSCORE, param["2pexscore"]);
         State::set(IndexNumber::PLAY_2P_PERFECT, param["2ppg"]);
@@ -225,6 +225,8 @@ SceneCourseResult::SceneCourseResult() : vScene(eMode::COURSE_RESULT, 1000)
         State::set(IndexNumber::PLAY_2P_BP, param["2pbp"]);
         State::set(IndexNumber::PLAY_2P_FAST_COUNT, param["2pfast"]);
         State::set(IndexNumber::PLAY_2P_SLOW_COUNT, param["2pslow"]);
+        State::set(IndexNumber::PLAY_2P_RATE, param["2prate"]);
+        State::set(IndexNumber::PLAY_2P_RATEDECIMAL, param["2prated2"]);
 
         State::set(IndexNumber::PLAY_MIN, param["min"]);
         State::set(IndexNumber::PLAY_SEC, param["sec"]);
@@ -355,12 +357,9 @@ void SceneCourseResult::updateFadeout()
         {
             assert(gPlayContext.ruleset[PLAYER_SLOT_PLAYER] != nullptr);
             ScoreBMS score;
-            score.notes = totalNotes;
-            score.score = d1p.score;
-            score.rate = d1p.total_acc;
-            score.fast = d1p.fast;
-            score.slow = d1p.slow;
-            score.maxcombo = d1p.maxCombo;
+            score.notes = summary[ARG_TOTAL_NOTES];
+            score.rate = acc;
+            score.maxcombo = summary[ARG_MAXCOMBO];
             score.playcount = _pScoreOld ? _pScoreOld->playcount + 1 : 1;
             auto isclear = State::get(IndexSwitch::RESULT_CLEAR) ? 1 : 0;
             score.clearcount = _pScoreOld ? _pScoreOld->clearcount + isclear : isclear;
@@ -373,52 +372,46 @@ void SceneCourseResult::updateFadeout()
             }
             score.replayFileName = dbReplayFile.str();
 
-            switch (gChartContext.chartObj->type())
-            {
-            case eChartFormat::BMS:
-            case eChartFormat::BMSON:
-            {
-                auto rBMS = std::reinterpret_pointer_cast<RulesetBMS>(gPlayContext.ruleset[PLAYER_SLOT_PLAYER]);
-                score.exscore = d1p.score2;
+            score.score = summary[ARG_SCORE];
+            score.exscore = summary[ARG_EXSCORE];
+            score.fast = summary[ARG_FAST];
+            score.slow = summary[ARG_SLOW];
 
-                score.lamp = ScoreBMS::Lamp::NOPLAY;
-                if (isclear)
-                {
-                    if (d1p.maxCombo == totalNotes)
-                    {
-                        score.lamp = ScoreBMS::Lamp::FULLCOMBO;
-                    }
-                    else if (rBMS->getGaugeType() == RulesetBMS::GaugeType::EXGRADE)
-                    {
-                        score.lamp = ScoreBMS::Lamp::HARD;
-                    }
-                    else if (rBMS->getGaugeType() == RulesetBMS::GaugeType::GRADE)
-                    {
-                        score.lamp = ScoreBMS::Lamp::NORMAL;
-                    }
-                }
-                else
-                {
-                    score.lamp = ScoreBMS::Lamp::FAILED;
-                }
+            if (gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask == 0)
+            {
+                score.pgreat = summary[ARG_JUDGE_0];
+                score.great = summary[ARG_JUDGE_1];
+                score.good = summary[ARG_JUDGE_2];
+                score.bad = summary[ARG_JUDGE_3];
+                score.kpoor = summary[ARG_JUDGE_4];
+                score.miss = summary[ARG_JUDGE_5];
+                score.bp = summary[ARG_BP];
+                score.combobreak = summary[ARG_CB];
+            }
 
-                if (gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask == 0)
+            score.lamp = ScoreBMS::Lamp::NOPLAY;
+            if (isclear)
+            {
+                if (summary[ARG_MAXCOMBO] == summary[ARG_TOTAL_NOTES])
                 {
-                    score.pgreat = judgeCount[0];
-                    score.great = judgeCount[1];
-                    score.good = judgeCount[2];
-                    score.bad = judgeCount[3];
-                    score.bpoor = judgeCount[4];
-                    score.miss = judgeCount[5];
-                    score.bp = d1p.miss;
-                    score.combobreak = score.bad + score.miss;
+                    score.lamp = ScoreBMS::Lamp::FULLCOMBO;
                 }
-                g_pScoreDB->updateCourseScoreBMS(gPlayContext.courseHash, score);
-                break;
+                else if (gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge == eModGauge::GRADE_HARD)
+                {
+                    score.lamp = ScoreBMS::Lamp::HARD;
+                }
+                else if (gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge == eModGauge::GRADE_NORMAL)
+                {
+                    score.lamp = ScoreBMS::Lamp::NORMAL;
+                }
             }
-            default:
-                break;
+            else
+            {
+                score.lamp = ScoreBMS::Lamp::FAILED;
             }
+
+            // 
+            g_pScoreDB->updateCourseScoreBMS(gPlayContext.courseHash, score);
         }
         
         clearContextPlay();

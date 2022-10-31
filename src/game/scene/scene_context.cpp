@@ -82,7 +82,7 @@ void clearContextPlayForRetry()
     for (size_t i = 0; i < MAX_PLAYERS; ++i)
     {
         gPlayContext.graphGauge[i].clear();
-        gPlayContext.graphScore[i].clear();
+        gPlayContext.graphAcc[i].clear();
         if (gPlayContext.ruleset[i])
             gPlayContext.ruleset[i].reset();
     }
@@ -116,18 +116,17 @@ void pushGraphPoints()
 {
     gPlayContext.graphGauge[PLAYER_SLOT_PLAYER].push_back(gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().health * 100);
 
-    gPlayContext.graphScore[PLAYER_SLOT_PLAYER].push_back(gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().score2);
+    gPlayContext.graphAcc[PLAYER_SLOT_PLAYER].push_back(gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().total_acc);
 
     if (gPlayContext.ruleset[PLAYER_SLOT_TARGET])
     {
         gPlayContext.graphGauge[PLAYER_SLOT_TARGET].push_back(gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData().health * 100);
-        gPlayContext.graphScore[PLAYER_SLOT_TARGET].push_back(gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData().score2);
+        gPlayContext.graphAcc[PLAYER_SLOT_TARGET].push_back(gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData().total_acc);
     }
 
     if (!gPlayContext.isAuto && !gPlayContext.isReplay && gPlayContext.replayMybest)
     {
-        gPlayContext.graphScore[PLAYER_SLOT_MYBEST].push_back(static_cast<int>(std::floor(
-            gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->getCurrentMaxScore() * (0.01 * State::get(IndexNumber::DEFAULT_TARGET_RATE)))));
+        gPlayContext.graphAcc[PLAYER_SLOT_MYBEST].push_back(gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->getData().total_acc);
     }
 }
 
@@ -836,7 +835,7 @@ void setEntryInfo()
                 param["rate"] = static_cast<int>(std::floor(pScore->rate));
                 param["totalnotes"] = pScore->notes;
                 param["maxcombo"] = pScore->maxcombo;
-                param["bp"] = pScore->bad + pScore->bpoor + pScore->miss;
+                param["bp"] = pScore->bad + pScore->kpoor + pScore->miss;
                 param["playcount"] = pScore->playcount;
                 param["clearcount"] = pScore->clearcount;
                 param["failcount"] = pScore->playcount - pScore->clearcount;
@@ -845,20 +844,20 @@ void setEntryInfo()
                 param["gr"] = pScore->great;
                 param["gd"] = pScore->good;
                 param["bd"] = pScore->bad;
-                param["pr"] = pScore->bpoor + pScore->miss;
+                param["pr"] = pScore->kpoor + pScore->miss;
                 if (pScore->notes != 0)
                 {
                     param["pgrate"] = int(100 * pScore->pgreat / pScore->notes);
                     param["grrate"] = int(100 * pScore->great / pScore->notes);
                     param["gdrate"] = int(100 * pScore->good / pScore->notes);
                     param["bdrate"] = int(100 * pScore->bad / pScore->notes);
-                    param["prrate"] = int(100 * (pScore->bpoor + pScore->miss) / pScore->notes);
+                    param["prrate"] = int(100 * (pScore->kpoor + pScore->miss) / pScore->notes);
 
                     paramf["pg"] = (double)pScore->pgreat / pScore->notes;
                     paramf["gr"] = (double)pScore->great / pScore->notes;
                     paramf["gd"] = (double)pScore->good / pScore->notes;
                     paramf["bd"] = (double)pScore->bad / pScore->notes;
-                    paramf["pr"] = (double)(pScore->bpoor + pScore->miss) / pScore->notes;
+                    paramf["pr"] = (double)(pScore->kpoor + pScore->miss) / pScore->notes;
                     paramf["maxcombo"] = (double)pScore->maxcombo / pScore->notes;
                     paramf["score"] = (double)pScore->score / 200000;
                     paramf["exscore"] = (double)pScore->exscore / (pScore->notes * 2);
@@ -907,7 +906,7 @@ void setEntryInfo()
             param["rate"] = static_cast<int>(std::floor(pScore->rate));
             param["totalnotes"] = pScore->notes;
             param["maxcombo"] = pScore->maxcombo;
-            param["bp"] = pScore->bad + pScore->bpoor + pScore->miss;
+            param["bp"] = pScore->bad + pScore->kpoor + pScore->miss;
             param["playcount"] = pScore->playcount;
             param["clearcount"] = pScore->clearcount;
             param["failcount"] = pScore->playcount - pScore->clearcount;
@@ -916,20 +915,20 @@ void setEntryInfo()
             param["gr"] = pScore->great;
             param["gd"] = pScore->good;
             param["bd"] = pScore->bad;
-            param["pr"] = pScore->bpoor + pScore->miss;
+            param["pr"] = pScore->kpoor + pScore->miss;
             if (pScore->notes != 0)
             {
                 param["pgrate"] = int(100 * pScore->pgreat / pScore->notes);
                 param["grrate"] = int(100 * pScore->great / pScore->notes);
                 param["gdrate"] = int(100 * pScore->good / pScore->notes);
                 param["bdrate"] = int(100 * pScore->bad / pScore->notes);
-                param["prrate"] = int(100 * (pScore->bpoor + pScore->miss) / pScore->notes);
+                param["prrate"] = int(100 * (pScore->kpoor + pScore->miss) / pScore->notes);
 
                 paramf["pg"] = (double)pScore->pgreat / pScore->notes;
                 paramf["gr"] = (double)pScore->great / pScore->notes;
                 paramf["gd"] = (double)pScore->good / pScore->notes;
                 paramf["bd"] = (double)pScore->bad / pScore->notes;
-                paramf["pr"] = (double)(pScore->bpoor + pScore->miss) / pScore->notes;
+                paramf["pr"] = (double)(pScore->kpoor + pScore->miss) / pScore->notes;
                 paramf["maxcombo"] = (double)pScore->maxcombo / pScore->notes;
                 paramf["score"] = ps->charts.empty() ? 0.0 : (double)pScore->score / 200000 * ps->charts.size();
                 paramf["exscore"] = (double)pScore->exscore / (pScore->notes * 2);
