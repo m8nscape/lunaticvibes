@@ -2157,7 +2157,21 @@ void SceneSelect::_navigateEnter(const Time& t)
             gSelectContext.backtrace.top().displayEntries = gSelectContext.entries;
             gSelectContext.backtrace.push(prop);
             gSelectContext.entries.clear();
+
             loadSongList();
+            if (gSelectContext.entries.empty())
+            {
+                State::set(IndexOption::SELECT_FILTER_DIFF, Option::DIFF_ANY);
+                gSelectContext.filterDifficulty = State::get(IndexOption::SELECT_FILTER_DIFF);
+                loadSongList();
+            }
+            if (gSelectContext.entries.empty())
+            {
+                State::set(IndexOption::SELECT_FILTER_KEYS, Option::FILTER_KEYS_ALL);
+                gSelectContext.filterKeys = State::get(IndexOption::SELECT_FILTER_KEYS);
+                loadSongList();
+            }
+
             sortSongList();
             gSelectContext.idx = 0;
 
