@@ -14,7 +14,7 @@ RulesetBMSReplay::RulesetBMSReplay(
 {
     this->replay = replay;
     itReplayCommand = replay->commands.begin();
-    showJudge = (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P);
+    showJudge = (_side == PlaySide::AUTO || _side == PlaySide::AUTO_DOUBLE || _side == PlaySide::AUTO_2P);
 
     doJudge = false;
 

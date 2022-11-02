@@ -3555,6 +3555,9 @@ void SkinLR2::postLoad()
             if (_laneSprites[idx].first != nullptr) _laneSprites[idx].first->setHeight(info.noteLaneHeight1P);
             if (_laneSprites[idx].second != nullptr) _laneSprites[idx].second->setHeight(info.noteLaneHeight1P);
         }
+
+        if (info.noteLaneHeight2P == 0)
+            info.noteLaneHeight2P = info.noteLaneHeight1P;
     }
     if (info.noteLaneHeight2P != 0)
     {
