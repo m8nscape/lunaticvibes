@@ -1437,6 +1437,9 @@ void RulesetBMS::updateGlobals()
         else                                          State::set(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF, int(exScore - maxScore * 2.0 / 9));    // E-
         State::set(IndexNumber::RESULT_NEXT_RANK_EX_DIFF, State::get(IndexNumber::PLAY_1P_NEXT_RANK_EX_DIFF));
 
+        State::set(IndexNumber::LR2IR_REPLACE_PLAY_RUNNING_NOTES, notesExpired);
+        State::set(IndexNumber::LR2IR_REPLACE_PLAY_REMAIN_NOTES, getNoteCount() - notesExpired);
+
     }
     else if (_side == PlaySide::BATTLE_2P || _side == PlaySide::AUTO_2P || _side == PlaySide::RIVAL) // excludes DP
     {
