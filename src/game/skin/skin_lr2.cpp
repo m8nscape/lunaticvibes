@@ -3679,19 +3679,24 @@ void SkinLR2::postLoad()
                 // 2P bomb
                 spritesMoveWithLift2P.push_back(s);
             }
-            else if (judgeLineRect1P.x - 5 <= rcLast.x && rcLast.x <= judgeLineRect1P.x + 5 &&
-                judgeLineRect1P.w - 10 <= rcLast.w && rcLast.w <= judgeLineRect1P.w + 10 &&
-                rcLast.y <= judgeLineRect1P.y + judgeLineRect1P.h)
+            else if (timer != 143 && timer != 144)
             {
-                // 1P background
-                spritesMoveWithLift1P.push_back(s);
-            }
-            else if (judgeLineRect2P.x - 5 <= rcLast.x && rcLast.x <= judgeLineRect2P.x + 5 &&
-                judgeLineRect2P.w - 10 <= rcLast.w && rcLast.w <= judgeLineRect2P.w + 10 &&
-                rcLast.y <= judgeLineRect2P.y + judgeLineRect2P.h)
-            {
-                // 2P background
-                spritesMoveWithLift2P.push_back(s);
+                // ignore last note timer
+
+                if (judgeLineRect1P.x - 5 <= rcLast.x && rcLast.x <= judgeLineRect1P.x + 5 &&
+                    judgeLineRect1P.w - 10 <= rcLast.w && rcLast.w <= judgeLineRect1P.w + 10 &&
+                    rcLast.y <= judgeLineRect1P.y + judgeLineRect1P.h)
+                {
+                    // 1P background
+                    spritesMoveWithLift1P.push_back(s);
+                }
+                else if (judgeLineRect2P.x - 5 <= rcLast.x && rcLast.x <= judgeLineRect2P.x + 5 &&
+                    judgeLineRect2P.w - 10 <= rcLast.w && rcLast.w <= judgeLineRect2P.w + 10 &&
+                    rcLast.y <= judgeLineRect2P.y + judgeLineRect2P.h)
+                {
+                    // 2P background
+                    spritesMoveWithLift2P.push_back(s);
+                }
             }
         }
         else if (s->type() == SpriteTypes::NUMBER)
