@@ -742,7 +742,7 @@ bool ScenePlay::createRuleset()
             gPlayContext.ruleset[PLAYER_SLOT_PLAYER] = std::make_shared<RulesetBMSReplay>(
                 gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_PLAYER], gPlayContext.replay,
                 gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge, keys, judgeDiff,
-                gPlayContext.initialHealth[PLAYER_SLOT_PLAYER], RulesetBMS::PlaySide::AUTO);
+                gPlayContext.initialHealth[PLAYER_SLOT_PLAYER], (keys == 10 || keys == 14) ? RulesetBMS::PlaySide::AUTO_DOUBLE : RulesetBMS::PlaySide::AUTO);
 
             gPlayContext.ruleset[PLAYER_SLOT_TARGET] = std::make_shared<RulesetBMSAuto>(
                 gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_TARGET],

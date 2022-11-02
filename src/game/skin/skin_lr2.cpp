@@ -3700,23 +3700,17 @@ void SkinLR2::postLoad()
             const Rect& rcLast = s->_keyFrames.back().param.rect;
             int num = (int)std::dynamic_pointer_cast<SpriteNumber>(s)->_numInd;
             int timer = (int)s->_triggerTimer;
-            if (timer == 40 || timer == 46)
+            if (timer == 40 || timer == 46 || timer == 47)
             {
-                if (rcFirst.y <= judgeLineRect1P.y + judgeLineRect1P.h || rcLast.y <= judgeLineRect1P.y + judgeLineRect1P.h)
+                if ((rcFirst.y <= judgeLineRect1P.y + judgeLineRect1P.h || rcLast.y <= judgeLineRect1P.y + judgeLineRect1P.h) && (num == 108 || num == 210))
                 {
-                    if (num == 108 || num == 210)
-                    {
-                        // 1P target score, F/S
-                        spritesMoveWithLift1P.push_back(s);
-                    }
+                    // 2P target score, F/S
+                    spritesMoveWithLift1P.push_back(s);
                 }
-                else if (rcFirst.y <= judgeLineRect2P.y + judgeLineRect2P.h || rcLast.y <= judgeLineRect2P.y + judgeLineRect2P.h)
+                else if ((rcFirst.y <= judgeLineRect2P.y + judgeLineRect2P.h || rcLast.y <= judgeLineRect2P.y + judgeLineRect2P.h) && (num == 128 || num == 211))
                 {
-                    if (num == 128 || num == 211)
-                    {
-                        // 1P target score, F/S
-                        spritesMoveWithLift2P.push_back(s);
-                    }
+                    // 2P target score, F/S
+                    spritesMoveWithLift2P.push_back(s);
                 }
             }
             else if (num >= 310 && num <= 315)

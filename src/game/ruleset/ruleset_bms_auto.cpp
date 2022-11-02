@@ -12,15 +12,16 @@ RulesetBMSAuto::RulesetBMSAuto(
     double health,
     PlaySide side) : RulesetBMS(format, chart, gauge, keys, difficulty, health, side)
 {
-    assert(side == PlaySide::AUTO || side == PlaySide::AUTO_2P || side == PlaySide::RIVAL);
+    assert(side == PlaySide::AUTO || side == PlaySide::AUTO_DOUBLE || side == PlaySide::AUTO_2P || side == PlaySide::RIVAL);
 
-    showJudge = (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P);
+    showJudge = (_side == PlaySide::AUTO || _side == PlaySide::AUTO_DOUBLE || _side == PlaySide::AUTO_2P);
 
     isPressingLN.fill(false);
 
     switch (side)
     {
     case RulesetBMS::PlaySide::AUTO:
+    case RulesetBMS::PlaySide::AUTO_DOUBLE:
         _judgeScratch = !(gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask & PLAY_MOD_ASSIST_AUTOSCR);
         break;
 
@@ -159,7 +160,7 @@ void RulesetBMSAuto::update(const Time& t)
                     {
                         updateJudge(t, idx, noteJudges[judgeIndex++], side);
 
-                        if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P)
+                        if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_DOUBLE || _side == PlaySide::AUTO_2P)
                         {
                             State::set(InputGamePressMap[k].tm, t.norm());
                             State::set(InputGameReleaseMap[k].tm, TIMER_NEVER);
@@ -201,7 +202,7 @@ void RulesetBMSAuto::update(const Time& t)
 
                             if (!scratch || _judgeScratch)
                             {
-                                if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P)
+                                if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_DOUBLE || _side == PlaySide::AUTO_2P)
                                 {
                                     State::set(InputGamePressMap[k].tm, t.norm());
                                     State::set(InputGameReleaseMap[k].tm, TIMER_NEVER);
@@ -239,7 +240,7 @@ void RulesetBMSAuto::update(const Time& t)
                             {
                                 updateJudge(t, idx, noteJudges[judgeIndex++], side);
 
-                                if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P)
+                                if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_DOUBLE || _side == PlaySide::AUTO_2P)
                                 {
                                     State::set(InputGamePressMap[k].tm, TIMER_NEVER);
                                     State::set(InputGameReleaseMap[k].tm, t.norm());
@@ -297,7 +298,7 @@ void RulesetBMSAuto::update(const Time& t)
 
             if (!scratch || _judgeScratch)
             {
-                if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_2P)
+                if (_side == PlaySide::AUTO || _side == PlaySide::AUTO_DOUBLE || _side == PlaySide::AUTO_2P)
                 {
                     if (t.norm() - State::get(InputGamePressMap[k].tm) > 83 && !isPressingLN[k])
                     {

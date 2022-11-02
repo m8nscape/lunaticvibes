@@ -28,6 +28,7 @@ RulesetBMSReplay::RulesetBMSReplay(
     switch (side)
     {
     case RulesetBMS::PlaySide::AUTO:
+    case RulesetBMS::PlaySide::AUTO_DOUBLE:
         _judgeScratch = !(gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask & PLAY_MOD_ASSIST_AUTOSCR);
         break;
 

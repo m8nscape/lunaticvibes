@@ -239,6 +239,7 @@ public:
         BATTLE_2P,
         AUTO,
         AUTO_2P,
+        AUTO_DOUBLE,
         RIVAL,
         MYBEST,
     };
@@ -259,7 +260,7 @@ protected:
     bool doJudge = true;
     bool _judgeScratch = true;
     std::array<JudgeArea, chart::NOTELANEINDEX_COUNT> _lnJudge{ JudgeArea::NOTHING };
-    JudgeRes _lastNoteJudge;
+    std::array<JudgeRes, 2> _lastNoteJudge;
 
     bool showJudge = true;
     const NoteLaneTimerMap* _bombTimerMap = nullptr;

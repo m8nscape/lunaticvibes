@@ -462,7 +462,7 @@ void RulesetBMS::_judgePress(NoteLaneCategory cat, NoteLaneIndex idx, HitableNot
 
     if (note.expired || judge.area == JudgeArea::EARLY_KPOOR || judge.area == JudgeArea::MINE_KPOOR)
     {
-        _lastNoteJudge = judge;
+        _lastNoteJudge[slot] = judge;
     }
 
     // push replay command
@@ -547,8 +547,8 @@ void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote
                 if (showJudge && _bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
                     State::set(_bombLNTimerMap->at(idx), TIMER_NEVER);
 
-                _lastNoteJudge.area = _lnJudge[idx];
-                _lastNoteJudge.time = 0;
+                _lastNoteJudge[slot].area = _lnJudge[idx];
+                _lastNoteJudge[slot].time = 0;
                 _lnJudge[idx] = RulesetBMS::JudgeArea::NOTHING;
             }
         }
@@ -624,7 +624,7 @@ void RulesetBMS::_judgeRelease(NoteLaneCategory cat, NoteLaneIndex idx, HitableN
 
             if (note.expired)
             {
-                _lastNoteJudge = judge;
+                _lastNoteJudge[slot] = judge;
             }
 
             break;
@@ -1050,8 +1050,8 @@ void RulesetBMS::update(const Time& t)
                         if (doJudge && (!scratch || _judgeScratch))
                         {
                             updateJudge(t, idx, JudgeArea::MISS, slot);
-                            _lastNoteJudge.area = JudgeArea::MISS;
-                            _lastNoteJudge.time = hitTime;
+                            _lastNoteJudge[slot].area = JudgeArea::MISS;
+                            _lastNoteJudge[slot].time = hitTime;
 
                             // push replay command
                             if (gChartContext.started && gPlayContext.replayNew)
@@ -1095,8 +1095,8 @@ void RulesetBMS::update(const Time& t)
                                 if (!scratch || _judgeScratch)
                                 {
                                     updateJudge(t, idx, JudgeArea::LATE_BAD, slot);
-                                    _lastNoteJudge.area = JudgeArea::LATE_BAD;
-                                    _lastNoteJudge.time = hitTime;
+                                    _lastNoteJudge[slot].area = JudgeArea::LATE_BAD;
+                                    _lastNoteJudge[slot].time = hitTime;
 
                                     // push replay command
                                     if (doJudge && gChartContext.started && gPlayContext.replayNew)
@@ -1326,7 +1326,7 @@ void RulesetBMS::reset()
 
 void RulesetBMS::updateGlobals()
 {
-    if (_side == PlaySide::SINGLE || _side == PlaySide::DOUBLE || _side == PlaySide::BATTLE_1P || _side == PlaySide::AUTO) // includes DP
+    if (_side == PlaySide::SINGLE || _side == PlaySide::DOUBLE || _side == PlaySide::BATTLE_1P || _side == PlaySide::AUTO || _side == PlaySide::AUTO_DOUBLE) // includes DP
     {
         State::set(IndexBargraph::PLAY_EXSCORE, _basic.total_acc / 100.0);
         State::set(IndexBargraph::PLAY_EXSCORE_PREDICT, _basic.acc / 100.0);
@@ -1347,38 +1347,67 @@ void RulesetBMS::updateGlobals()
         State::set(IndexNumber::PLAY_1P_POOR, _basic.judge[JUDGE_POOR]);
         State::set(IndexNumber::PLAY_1P_GROOVEGAUGE, int(_basic.health * 100));
 
-        State::set(IndexNumber::PLAY_1P_JUDGE_TIME_ERROR_MS, _lastNoteJudge.time.norm());
         State::set(IndexNumber::PLAY_1P_MISS, _basic.judge[JUDGE_MISS]);
         State::set(IndexNumber::PLAY_1P_FAST_COUNT, _basic.judge[JUDGE_EARLY]);
         State::set(IndexNumber::PLAY_1P_SLOW_COUNT, _basic.judge[JUDGE_LATE]);
         State::set(IndexNumber::PLAY_1P_COMBOBREAK, _basic.judge[JUDGE_CB]);
         State::set(IndexNumber::PLAY_1P_BPOOR, _basic.judge[JUDGE_KPOOR]);
         State::set(IndexNumber::PLAY_1P_BP, _basic.judge[JUDGE_BP]);
-        State::set(IndexNumber::LR2IR_REPLACE_PLAY_1P_JUDGE_TIME_ERROR_MS, _lastNoteJudge.time.norm());
         State::set(IndexNumber::LR2IR_REPLACE_PLAY_1P_FAST_COUNT, _basic.judge[JUDGE_EARLY]);
         State::set(IndexNumber::LR2IR_REPLACE_PLAY_1P_SLOW_COUNT, _basic.judge[JUDGE_LATE]);
         State::set(IndexNumber::LR2IR_REPLACE_PLAY_1P_COMBOBREAK, _basic.judge[JUDGE_CB]);
 
-        int fastslow = 0;   // 1:fast 2:slow
-        switch (_lastNoteJudge.area)
+        if (showJudge)
         {
-        case JudgeArea::EARLY_GREAT:
-        case JudgeArea::EARLY_GOOD:
-        case JudgeArea::EARLY_BAD:
-        case JudgeArea::EARLY_KPOOR:
-            fastslow = 1;
-            break;
+            int fastslow = 0;   // 1:fast 2:slow
+            switch (_lastNoteJudge[PLAYER_SLOT_PLAYER].area)
+            {
+            case JudgeArea::EARLY_GREAT:
+            case JudgeArea::EARLY_GOOD:
+            case JudgeArea::EARLY_BAD:
+            case JudgeArea::EARLY_KPOOR:
+                fastslow = 1;
+                break;
 
-        case JudgeArea::LATE_GREAT:
-        case JudgeArea::LATE_GOOD:
-        case JudgeArea::LATE_BAD:
-        case JudgeArea::MISS:
-        case JudgeArea::LATE_KPOOR:
-            fastslow = 2;
-            break;
+            case JudgeArea::LATE_GREAT:
+            case JudgeArea::LATE_GOOD:
+            case JudgeArea::LATE_BAD:
+            case JudgeArea::MISS:
+            case JudgeArea::LATE_KPOOR:
+                fastslow = 2;
+                break;
+            }
+            State::set(IndexNumber::LR2IR_REPLACE_PLAY_1P_FAST_SLOW, fastslow);
+            State::set(IndexOption::PLAY_LAST_JUDGE_FASTSLOW_1P, fastslow);
+            State::set(IndexNumber::LR2IR_REPLACE_PLAY_1P_JUDGE_TIME_ERROR_MS, _lastNoteJudge[PLAYER_SLOT_PLAYER].time.norm());
+            State::set(IndexNumber::PLAY_1P_JUDGE_TIME_ERROR_MS, _lastNoteJudge[PLAYER_SLOT_PLAYER].time.norm());
+
+            if (_side == PlaySide::DOUBLE || _side == PlaySide::AUTO_DOUBLE)
+            {
+                fastslow = 0;   // 1:fast 2:slow
+                switch (_lastNoteJudge[PLAYER_SLOT_TARGET].area)
+                {
+                case JudgeArea::EARLY_GREAT:
+                case JudgeArea::EARLY_GOOD:
+                case JudgeArea::EARLY_BAD:
+                case JudgeArea::EARLY_KPOOR:
+                    fastslow = 1;
+                    break;
+
+                case JudgeArea::LATE_GREAT:
+                case JudgeArea::LATE_GOOD:
+                case JudgeArea::LATE_BAD:
+                case JudgeArea::MISS:
+                case JudgeArea::LATE_KPOOR:
+                    fastslow = 2;
+                    break;
+                }
+                State::set(IndexNumber::LR2IR_REPLACE_PLAY_2P_FAST_SLOW, fastslow);
+                State::set(IndexOption::PLAY_LAST_JUDGE_FASTSLOW_2P, fastslow);
+                State::set(IndexNumber::LR2IR_REPLACE_PLAY_2P_JUDGE_TIME_ERROR_MS, _lastNoteJudge[PLAYER_SLOT_TARGET].time.norm());
+                State::set(IndexNumber::PLAY_2P_JUDGE_TIME_ERROR_MS, _lastNoteJudge[PLAYER_SLOT_TARGET].time.norm());
+            }
         }
-        State::set(IndexNumber::LR2IR_REPLACE_PLAY_1P_FAST_SLOW, fastslow);
-        State::set(IndexOption::PLAY_LAST_JUDGE_FASTSLOW_1P, fastslow);
 
         State::set(IndexBargraph::RESULT_PG, (double)_basic.judge[JUDGE_PERFECT] / getNoteCount());
         State::set(IndexBargraph::RESULT_GR, (double)_basic.judge[JUDGE_GREAT] / getNoteCount());
@@ -1428,35 +1457,38 @@ void RulesetBMS::updateGlobals()
         State::set(IndexNumber::PLAY_2P_POOR, _basic.judge[JUDGE_POOR]);
         State::set(IndexNumber::PLAY_2P_GROOVEGAUGE, int(_basic.health * 100));
 
-        State::set(IndexNumber::PLAY_2P_JUDGE_TIME_ERROR_MS, _lastNoteJudge.time.norm());
         State::set(IndexNumber::PLAY_2P_MISS, _basic.judge[JUDGE_MISS]);
         State::set(IndexNumber::PLAY_2P_FAST_COUNT, _basic.judge[JUDGE_EARLY]);
         State::set(IndexNumber::PLAY_2P_SLOW_COUNT, _basic.judge[JUDGE_LATE]);
         State::set(IndexNumber::PLAY_2P_COMBOBREAK, _basic.judge[JUDGE_CB]);
         State::set(IndexNumber::PLAY_2P_BPOOR, _basic.judge[JUDGE_KPOOR]);
         State::set(IndexNumber::PLAY_2P_BP, _basic.judge[JUDGE_BP]);
-        State::set(IndexNumber::LR2IR_REPLACE_PLAY_2P_JUDGE_TIME_ERROR_MS, _lastNoteJudge.time.norm());
 
-        int fastslow = 0;   // 1:fast 2:slow
-        switch (_lastNoteJudge.area)
+        if (showJudge)
         {
-        case JudgeArea::EARLY_GREAT:
-        case JudgeArea::EARLY_GOOD:
-        case JudgeArea::EARLY_BAD:
-        case JudgeArea::EARLY_KPOOR:
-            fastslow = 1;
-            break;
+            int fastslow = 0;   // 1:fast 2:slow
+            switch (_lastNoteJudge[PLAYER_SLOT_TARGET].area)
+            {
+            case JudgeArea::EARLY_GREAT:
+            case JudgeArea::EARLY_GOOD:
+            case JudgeArea::EARLY_BAD:
+            case JudgeArea::EARLY_KPOOR:
+                fastslow = 1;
+                break;
 
-        case JudgeArea::LATE_GREAT:
-        case JudgeArea::LATE_GOOD:
-        case JudgeArea::LATE_BAD:
-        case JudgeArea::MISS:
-        case JudgeArea::LATE_KPOOR:
-            fastslow = 2;
-            break;
+            case JudgeArea::LATE_GREAT:
+            case JudgeArea::LATE_GOOD:
+            case JudgeArea::LATE_BAD:
+            case JudgeArea::MISS:
+            case JudgeArea::LATE_KPOOR:
+                fastslow = 2;
+                break;
+            }
+            State::set(IndexNumber::LR2IR_REPLACE_PLAY_2P_FAST_SLOW, fastslow);
+            State::set(IndexOption::PLAY_LAST_JUDGE_FASTSLOW_2P, fastslow);
+            State::set(IndexNumber::LR2IR_REPLACE_PLAY_2P_JUDGE_TIME_ERROR_MS, _lastNoteJudge[PLAYER_SLOT_TARGET].time.norm());
+            State::set(IndexNumber::PLAY_2P_JUDGE_TIME_ERROR_MS, _lastNoteJudge[PLAYER_SLOT_TARGET].time.norm());
         }
-        State::set(IndexNumber::LR2IR_REPLACE_PLAY_2P_FAST_SLOW, fastslow);
-        State::set(IndexOption::PLAY_LAST_JUDGE_FASTSLOW_2P, fastslow);
 
         State::set(IndexBargraph::RESULT_RIVAL_PG, (double)_basic.judge[JUDGE_PERFECT] / getNoteCount());
         State::set(IndexBargraph::RESULT_RIVAL_GR, (double)_basic.judge[JUDGE_GREAT] / getNoteCount());
