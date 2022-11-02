@@ -109,7 +109,7 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
 
             param["updatedscore"] = pScore->exscore < param["1pexscore"];
             param["updatedmaxcombo"] = pScore->maxcombo < d1p.maxCombo;
-            param["updatedbp"] = pScore->bp < param["1pbp"];
+            param["updatedbp"] = pScore->bp > param["1pbp"];
         }
         else if (saveScore)
         {
@@ -144,7 +144,7 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
         State::set(IndexNumber::RESULT_RECORD_EX_DIFF, param["newexscorediff"]);
         State::set(IndexNumber::RESULT_RECORD_MAXCOMBO_BEFORE, param["dbmaxcombo"]);
         State::set(IndexNumber::RESULT_RECORD_MAXCOMBO_NOW, param["newmaxcombo"]);
-        State::set(IndexNumber::RESULT_RECORD_MAXCOMBO_DIFF, param["newmaxombodiff"]);
+        State::set(IndexNumber::RESULT_RECORD_MAXCOMBO_DIFF, param["newmaxcombodiff"]);
         State::set(IndexNumber::RESULT_RECORD_BP_BEFORE, param["dbbp"]);
         State::set(IndexNumber::RESULT_RECORD_BP_NOW, param["1pbp"]);
         State::set(IndexNumber::RESULT_RECORD_BP_DIFF, param["newbpdiff"]);
