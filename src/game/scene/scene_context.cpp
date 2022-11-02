@@ -842,7 +842,7 @@ void setEntryInfo()
                 param["rate"] = static_cast<int>(std::floor(pScore->rate));
                 param["totalnotes"] = pScore->notes;
                 param["maxcombo"] = pScore->maxcombo;
-                param["bp"] = pScore->bad + pScore->kpoor + pScore->miss;
+                param["bp"] = pScore->bp;
                 param["playcount"] = pScore->playcount;
                 param["clearcount"] = pScore->clearcount;
                 param["failcount"] = pScore->playcount - pScore->clearcount;
@@ -913,7 +913,7 @@ void setEntryInfo()
             param["rate"] = static_cast<int>(std::floor(pScore->rate));
             param["totalnotes"] = pScore->notes;
             param["maxcombo"] = pScore->maxcombo;
-            param["bp"] = pScore->bad + pScore->kpoor + pScore->miss;
+            param["bp"] = pScore->bp;
             param["playcount"] = pScore->playcount;
             param["clearcount"] = pScore->clearcount;
             param["failcount"] = pScore->playcount - pScore->clearcount;
