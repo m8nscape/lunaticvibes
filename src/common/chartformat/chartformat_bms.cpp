@@ -654,17 +654,20 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
     {
         for (unsigned bar = 0; bar <= lastBarIdx; bar++)
         {
-            notes_scratch_ln += chNotesLN[0][bar].notes.size() / 2 + chNotesLN[10][bar].notes.size() / 2;
+            notes_scratch_ln += chNotesLN[0][bar].notes.size() + chNotesLN[10][bar].notes.size();
         }
+        notes_scratch_ln /= 2;
 
         for (unsigned lane = 0; lane < chNotesLN.size(); ++lane)
         {
             if (lane == 0 || lane == 10) continue;
             for (const auto& [barIdx, ch] : chNotesLN[lane])
             {
-                notes_key_ln += ch.notes.size() / 2;
+                notes_key_ln += ch.notes.size();
             }
         }
+        notes_key_ln /= 2;
+
         notes_total += notes_scratch_ln + notes_key_ln;
     }
 
