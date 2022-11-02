@@ -480,7 +480,6 @@ void RulesetBMS::_judgePress(NoteLaneCategory cat, NoteLaneIndex idx, HitableNot
 }
 void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote& note, JudgeRes judge, const Time& t, int slot)
 {
-    bool pushReplayCommand = false;
     switch (cat)
     {
     case NoteLaneCategory::Mine:
@@ -542,13 +541,26 @@ void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote
                 note.hit = true;
                 note.expired = true;
                 notesExpired++;
-                pushReplayCommand = true;
 
                 if (showJudge && _bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
                     State::set(_bombLNTimerMap->at(idx), TIMER_NEVER);
 
                 _lastNoteJudge[slot].area = _lnJudge[idx];
                 _lastNoteJudge[slot].time = 0;
+
+                // push replay command
+                if (doJudge && gChartContext.started && gPlayContext.replayNew)
+                {
+                    if (judgeAreaReplayCommandType[slot].find(_lnJudge[idx]) != judgeAreaReplayCommandType[slot].end())
+                    {
+                        long long ms = t.norm() - _startTime.norm();
+                        ReplayChart::Commands cmd;
+                        cmd.ms = ms;
+                        cmd.type = judgeAreaReplayCommandType[slot].at(_lnJudge[idx]);
+                        gPlayContext.replayNew->commands.push_back(cmd);
+                    }
+                }
+
                 _lnJudge[idx] = RulesetBMS::JudgeArea::NOTHING;
             }
         }
@@ -556,19 +568,6 @@ void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote
 
     default:
         break;
-    }
-
-    // push replay command
-    if (pushReplayCommand && doJudge && gChartContext.started && gPlayContext.replayNew)
-    {
-        if (judgeAreaReplayCommandType[slot].find(judge.area) != judgeAreaReplayCommandType[slot].end())
-        {
-            long long ms = t.norm() - _startTime.norm();
-            ReplayChart::Commands cmd;
-            cmd.ms = ms;
-            cmd.type = judgeAreaReplayCommandType[slot].at(judge.area);
-            gPlayContext.replayNew->commands.push_back(cmd);
-        }
     }
 }
 void RulesetBMS::_judgeRelease(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote& note, JudgeRes judge, const Time& t, int slot)
@@ -582,45 +581,50 @@ void RulesetBMS::_judgeRelease(NoteLaneCategory cat, NoteLaneIndex idx, HitableN
             _lnJudge[idx] != RulesetBMS::JudgeArea::EARLY_BAD &&
             _lnJudge[idx] != RulesetBMS::JudgeArea::LATE_BAD)
         {
+            JudgeArea lnJudge = judge.area;
             switch (judge.area)
             {
-            case JudgeArea::EARLY_PERFECT:
-            case JudgeArea::EXACT_PERFECT:
-                updateJudge(t, idx, _lnJudge[idx], slot);
-                note.hit = true;
-                note.expired = true;
-                notesExpired++;
-                _lnJudge[idx] = RulesetBMS::JudgeArea::NOTHING;
-                pushReplayCommand = true;
-                break;
-
-            case JudgeArea::EARLY_GREAT:
-                updateJudge(t, idx, _lnJudge[idx], slot);
-                note.hit = true;
-                note.expired = true;
-                notesExpired++;
-                _lnJudge[idx] = RulesetBMS::JudgeArea::NOTHING;
-                pushReplayCommand = true;
-                break;
-
-            case JudgeArea::EARLY_GOOD:
-                updateJudge(t, idx, _lnJudge[idx], slot);
-                note.hit = true;
-                note.expired = true;
-                notesExpired++;
-                _lnJudge[idx] = RulesetBMS::JudgeArea::NOTHING;
-                pushReplayCommand = true;
-                break;
-
+            case JudgeArea::NOTHING:
+            case JudgeArea::EARLY_KPOOR:
             case JudgeArea::EARLY_BAD:
+                lnJudge = JudgeArea::EARLY_BAD;
+                break;
+
             default:
-                updateJudge(t, idx, _lnJudge[idx], slot);
-                note.expired = true;
-                notesExpired++;
-                _lnJudge[idx] = RulesetBMS::JudgeArea::NOTHING;
-                pushReplayCommand = true;
+                switch (_lnJudge[idx])
+                {
+                case JudgeArea::EARLY_PERFECT:
+                case JudgeArea::LATE_PERFECT:
+                    if (judge.area == JudgeArea::EARLY_PERFECT)
+                        lnJudge = JudgeArea::EARLY_PERFECT;
+                    break;
+
+                case JudgeArea::EARLY_GREAT:
+                case JudgeArea::LATE_GREAT:
+                    if (judge.area == JudgeArea::EARLY_PERFECT || judge.area == JudgeArea::EARLY_GREAT)
+                        lnJudge = JudgeArea::EARLY_GREAT;
+                    break;
+
+                case JudgeArea::EARLY_GOOD:
+                case JudgeArea::LATE_GOOD:
+                    if (judge.area == JudgeArea::EARLY_PERFECT || judge.area == JudgeArea::EARLY_GREAT || judge.area == JudgeArea::EARLY_GOOD)
+                        lnJudge = JudgeArea::EARLY_GOOD;
+                    break;
+
+                default:
+                    lnJudge = JudgeArea::EARLY_BAD;
+                    break;
+                }
                 break;
             }
+
+            updateJudge(t, idx, lnJudge, slot);
+            note.hit = lnJudge != JudgeArea::EARLY_BAD;
+            note.expired = true;
+            notesExpired++;
+            _lnJudge[idx] = RulesetBMS::JudgeArea::NOTHING;
+            pushReplayCommand = true;
+
 
             if (note.expired)
             {
@@ -878,7 +882,7 @@ void RulesetBMS::judgeNoteRelease(Input::Pad k, const Time& t, const Time& rt, i
         {
             if (!itNote->expired)
             {
-                auto j = _judge(*itNote, rt);
+;                auto j = _judge(*itNote, rt);
                 _judgeRelease(NoteLaneCategory::LN, idx, *itNote, j, t, slot);
                 break;
             }
@@ -1094,8 +1098,8 @@ void RulesetBMS::update(const Time& t)
 
                                 if (!scratch || _judgeScratch)
                                 {
-                                    updateJudge(t, idx, JudgeArea::LATE_BAD, slot);
-                                    _lastNoteJudge[slot].area = JudgeArea::LATE_BAD;
+                                    updateJudge(t, idx, JudgeArea::MISS, slot);
+                                    _lastNoteJudge[slot].area = JudgeArea::MISS;
                                     _lastNoteJudge[slot].time = hitTime;
 
                                     // push replay command
