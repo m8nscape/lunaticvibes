@@ -1422,6 +1422,7 @@ void RulesetBMS::updateGlobals()
 
         State::set(IndexOption::PLAY_RANK_ESTIMATED_1P, Option::getRankType(_basic.acc));
         State::set(IndexOption::PLAY_RANK_BORDER_1P, Option::getRankType(_basic.total_acc));
+        State::set(IndexOption::RESULT_RANK_1P, Option::getRankType(_basic.total_acc));
         State::set(IndexOption::PLAY_HEALTH_1P, Option::getHealthType(_basic.health));
 
         int maxScore = getMaxScore();
@@ -1503,6 +1504,7 @@ void RulesetBMS::updateGlobals()
 
         State::set(IndexOption::PLAY_RANK_ESTIMATED_2P, Option::getRankType(_basic.acc));
         State::set(IndexOption::PLAY_RANK_BORDER_2P, Option::getRankType(_basic.total_acc));
+        State::set(IndexOption::RESULT_RANK_2P, Option::getRankType(_basic.total_acc));
         State::set(IndexOption::PLAY_HEALTH_2P, Option::getHealthType(_basic.health));
 
         int maxScore = getMaxScore();
