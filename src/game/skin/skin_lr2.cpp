@@ -2589,13 +2589,13 @@ ParseRet SkinLR2::DST_BAR_BODY()
                 _barSpriteAdded[idx] = true;
                 drawQueue.push_back({ _barSprites[idx], dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]), {} });
             }
+
+            drawQueue.push_back({ e, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE, {} });
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
     }
-
-    _barSprites[idx]->pushPartsOrder(bodyOn ? BarPartsType::BODY_ON : BarPartsType::BODY_OFF);
 
     return ParseRet::OK;
 }
@@ -2622,12 +2622,12 @@ ParseRet SkinLR2::DST_BAR_FLASH()
             e->setSrcLine(csvLineNumber);
             e->setLoopTime(d.loop);
             e->setTrigTimer((IndexTimer)d.timer);
+
+            drawQueue.push_back({ e, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE, {} });
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
-
-        bar->pushPartsOrder(BarPartsType::FLASH);
     }
 
     return ParseRet::OK;
@@ -2663,12 +2663,12 @@ ParseRet SkinLR2::DST_BAR_LEVEL()
             e->setSrcLine(csvLineNumber);
             e->setLoopTime(d.loop);
             e->setTrigTimer((IndexTimer)d.timer);
+
+            drawQueue.push_back({ e, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE, {} });
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
-
-        bar->pushPartsOrder(BarPartsType::LEVEL);
     }
 
 
@@ -2705,12 +2705,12 @@ ParseRet SkinLR2::DST_BAR_RIVAL_MYLAMP()
             e->setSrcLine(csvLineNumber);
             e->setLoopTime(d.loop);
             e->setTrigTimer((IndexTimer)d.timer);
+
+            drawQueue.push_back({ e, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE, {} });
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
-
-        bar->pushPartsOrder(BarPartsType::MYLAMP);
     }
 
     return ParseRet::OK;
@@ -2745,12 +2745,12 @@ ParseRet SkinLR2::DST_BAR_RIVAL_RIVALLAMP()
             e->setSrcLine(csvLineNumber);
             e->setLoopTime(d.loop);
             e->setTrigTimer((IndexTimer)d.timer);
+
+            drawQueue.push_back({ e, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE, {} });
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
-
-        bar->pushPartsOrder(BarPartsType::RIVALLAMP);
     }
 
     return ParseRet::OK;
@@ -2786,12 +2786,12 @@ ParseRet SkinLR2::DST_BAR_LAMP()
             e->setSrcLine(csvLineNumber);
             e->setLoopTime(d.loop);
             e->setTrigTimer((IndexTimer)d.timer);
+
+            drawQueue.push_back({ e, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE, {} });
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
-
-        bar->pushPartsOrder(BarPartsType::LAMP);
     }
 
     return ParseRet::OK;
@@ -2827,12 +2827,12 @@ ParseRet SkinLR2::DST_BAR_TITLE()
             e->setSrcLine(csvLineNumber);
             e->setLoopTime(d.loop);
             e->setTrigTimer((IndexTimer)d.timer);
+
+            drawQueue.push_back({ e, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE, {} });
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
-
-        bar->pushPartsOrder(BarPartsType::TITLE);
     }
 
     return ParseRet::OK;
@@ -2868,12 +2868,12 @@ ParseRet SkinLR2::DST_BAR_RANK()
             e->setSrcLine(csvLineNumber);
             e->setLoopTime(d.loop);
             e->setTrigTimer((IndexTimer)d.timer);
+
+            drawQueue.push_back({ e, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE, {} });
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
-
-        bar->pushPartsOrder(BarPartsType::RANK);
     }
 
     return ParseRet::OK;
@@ -2912,12 +2912,12 @@ ParseRet SkinLR2::DST_BAR_RIVAL()
             e->setSrcLine(csvLineNumber);
             e->setLoopTime(d.loop);
             e->setTrigTimer((IndexTimer)d.timer);
+
+            drawQueue.push_back({ e, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE, {} });
         }
 
         e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
             lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
-
-        bar->pushPartsOrder(BarPartsType::RIVAL);
     }
 
     return ParseRet::OK;
@@ -3863,29 +3863,22 @@ void SkinLR2::update()
         int ttAngle1P = State::get(IndexNumber::_ANGLE_TT_1P);
         int ttAngle2P = State::get(IndexNumber::_ANGLE_TT_2P);
 
-#ifndef _DEBUG
         std::for_each(std::execution::par_unseq, drawQueue.begin(), drawQueue.end(), [ttAngle1P, ttAngle2P](auto& e)
-#else
-        for (auto& e : drawQueue)
-#endif
-        {
-            e.ps->setHide(!(getDstOpt(e.op1) && getDstOpt(e.op2) && getDstOpt(e.op3)));
-            for (auto op : e.opEx)
             {
-                if (!getDstOpt(op))
+                if (!(getDstOpt(e.op1) && getDstOpt(e.op2) && getDstOpt(e.op3)))
                     e.ps->setHide(true);
-            }
-            switch (e.op4)
-            {
-            case 1: e.ps->_current.angle += ttAngle1P; break;
-            case 2: e.ps->_current.angle += ttAngle2P; break;
-            default: break;
-            }
-
-        }
-#ifndef _DEBUG
-        );
-#endif
+                for (auto op : e.opEx)
+                {
+                    if (!getDstOpt(op))
+                        e.ps->setHide(true);
+                }
+                switch (e.op4)
+                {
+                case 1: e.ps->_current.angle += ttAngle1P; break;
+                case 2: e.ps->_current.angle += ttAngle2P; break;
+                default: break;
+                }
+            });
     }
 
     // update nowjudge/nowcombo
@@ -4093,7 +4086,7 @@ void SkinLR2::update()
                         static_cast<int>(std::round((rectStored.y - rectSprite.y) * factor)),
                         0, 0
                     };
-                    _barSprites[i]->setRectOffset(dr);
+                    _barSprites[i]->setRectOffsetAnim(dr);
                 }
                 else if (_barSprites[i + 1]->isDraw())
                 {
@@ -4105,7 +4098,7 @@ void SkinLR2::update()
                         static_cast<int>(std::round((rectStored.y - rectSprite.y) * factor)),
                         0, 0
                     };
-                    _barSprites[i]->setRectOffset(dr);
+                    _barSprites[i]->setRectOffsetAnim(dr);
                 }
             }
         }

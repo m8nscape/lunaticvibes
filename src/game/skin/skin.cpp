@@ -38,8 +38,9 @@ void vSkin::update()
 
     auto updateSpriteLambda = [](const pSprite& s)
     {
-        // children are updated inside parent's update()
-        if (s->hasParent()) return;
+        // reset
+        s->_draw = false;
+        s->setHide(false);
 
 		s->update(gUpdateContext.updateTime);
     };

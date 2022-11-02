@@ -168,35 +168,12 @@ bool vSprite::updateByKeyframes(const Time& rawTime)
         }
     }
 
-    if (hasParent())
-    {
-        auto parent = _parent.lock();
-        const auto& parentRect = parent->getCurrentRenderParams().rect;
-        _current.rect.x += parentRect.x;
-        _current.rect.y += parentRect.y;
-        _current.color.r = (Uint8)(parent->getCurrentRenderParams().color.r / 255.0 * _current.color.r);
-        _current.color.g = (Uint8)(parent->getCurrentRenderParams().color.g / 255.0 * _current.color.g);
-        _current.color.b = (Uint8)(parent->getCurrentRenderParams().color.b / 255.0 * _current.color.b);
-        _current.color.a = (Uint8)(parent->getCurrentRenderParams().color.a / 255.0 * _current.color.a);
-        //_current.angle += parent->getCurrentRenderParams().angle;
-		//_current.center = parent->getCurrentRenderParams().center;
-    }
-    
     return true;
 }
 
 bool vSprite::update(const Time& t)
 {
     _draw = updateByKeyframes(t);
-
-    auto updateChildLambda = [&t](std::weak_ptr<vSprite> p) { if (!p.expired()) p.lock()->update(t); };
-
-    // children under the same level can be shuffled
-#ifdef _DEBUG
-    std::for_each(std::execution::par_unseq, _children.begin(), _children.end(), updateChildLambda);
-#else
-    std::for_each(std::execution::par_unseq, _children.begin(), _children.end(), updateChildLambda);
-#endif
 
     if (_draw) _drawn = true;
     return _draw;
@@ -231,16 +208,6 @@ void vSprite::moveAfterUpdate(int x, int y)
 {
     _current.rect.x += x;
     _current.rect.y += y;
-
-    auto updateChildLambda = [&](std::weak_ptr<vSprite> p) { if (!p.expired()) p.lock()->moveAfterUpdate(x, y); };
-
-    // children under the same level can be shuffled
-#ifdef _DEBUG
-    std::for_each(std::execution::par_unseq, _children.begin(), _children.end(), updateChildLambda);
-#else
-    std::for_each(std::execution::par_unseq, _children.begin(), _children.end(), updateChildLambda);
-#endif
-
 }
 
 

@@ -69,14 +69,12 @@ class vSprite: public std::enable_shared_from_this<vSprite>
 	friend class SkinLR2;
 protected:
     SpriteTypes _type;
-    std::weak_ptr<vSprite> _parent;
-    std::list<std::weak_ptr<vSprite>> _children;
 public:
     constexpr SpriteTypes type() { return _type; }
 protected:
     bool _draw = false;     // modified by self
     bool _drawn = false; // modified by self::update()
-    bool _hide = false;     // modified by skin::update()
+    bool _hide = false;     // modified externally
     pTexture _pTexture;
     IndexTimer _triggerTimer = IndexTimer::SCENE_START;
     int _loopTo = -1;
@@ -89,9 +87,6 @@ public:
 	virtual ~vSprite() = default;
 public:
     void setSrcLine(int i) { _srcLine = i; }
-    void setParent(std::weak_ptr<vSprite> p) { _parent = p;}
-    bool hasParent() const { return !_parent.expired(); }
-    size_t appendChild(std::weak_ptr<vSprite> p) { _children.push_back(p); return _children.size(); }
     RenderParams getCurrentRenderParams();
     RenderParams& getCurrentRenderParamsRef();
     bool updateByKeyframes(const Time& time);
