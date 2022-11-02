@@ -304,6 +304,14 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
     // reset globals
     ConfigMgr::setGlobals();
 
+    if (!gSelectContext.entries.empty())
+    {
+        // delay sorting chart list after playing
+        std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
+        updateEntryScore(gSelectContext.idx);
+        setEntryInfo();
+    }
+    else
     {
         std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
         loadSongList();

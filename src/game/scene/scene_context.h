@@ -186,6 +186,7 @@ struct SelectContextParams
 };
 
 void loadSongList();
+void updateEntryScore(size_t idx);
 void sortSongList();
 void setBarInfo();
 void setEntryInfo();

@@ -249,42 +249,9 @@ void loadSongList()
     }
 
     // load score
-    for (auto& [entry, score] : gSelectContext.entries)
+    for (size_t idx = 0; idx < gSelectContext.entries.size(); ++idx)
     {
-        std::shared_ptr<ChartFormatBase> pf;
-        switch (entry->type())
-        {
-        case eEntryType::SONG:
-        case eEntryType::RIVAL_SONG:
-            pf = std::reinterpret_pointer_cast<EntryFolderSong>(entry)->getCurrentChart();
-            break;
-        case eEntryType::CHART:
-        case eEntryType::RIVAL_CHART:
-            pf = std::reinterpret_pointer_cast<EntryChart>(entry)->_file;
-            break;
-        default: break;
-        }
-
-        if (pf)
-        {
-            // get chart score
-            switch (pf->type())
-            {
-            case eChartFormat::BMS:
-            {
-                auto pScore = g_pScoreDB->getChartScoreBMS(pf->fileHash);
-                score = pScore;
-            }
-            break;
-            default: break;
-            }
-        }
-        else if (entry->type() == eEntryType::COURSE)
-        {
-            auto ps = std::reinterpret_pointer_cast<EntryCourse>(entry);
-            auto pScore = g_pScoreDB->getCourseScoreBMS(ps->md5);
-            score = pScore;
-        }
+        updateEntryScore(idx);
     }
 
     gSelectContext.idx = 0;
@@ -368,6 +335,46 @@ void loadSongList()
         }
     }
     State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.idx / gSelectContext.entries.size()));
+}
+
+void updateEntryScore(size_t idx)
+{
+    auto& [entry, score] = gSelectContext.entries[idx];
+
+    std::shared_ptr<ChartFormatBase> pf;
+    switch (entry->type())
+    {
+    case eEntryType::SONG:
+    case eEntryType::RIVAL_SONG:
+        pf = std::reinterpret_pointer_cast<EntryFolderSong>(entry)->getCurrentChart();
+        break;
+    case eEntryType::CHART:
+    case eEntryType::RIVAL_CHART:
+        pf = std::reinterpret_pointer_cast<EntryChart>(entry)->_file;
+        break;
+    default: break;
+    }
+
+    if (pf)
+    {
+        // get chart score
+        switch (pf->type())
+        {
+        case eChartFormat::BMS:
+        {
+            auto pScore = g_pScoreDB->getChartScoreBMS(pf->fileHash);
+            score = pScore;
+        }
+        break;
+        default: break;
+        }
+    }
+    else if (entry->type() == eEntryType::COURSE)
+    {
+        auto ps = std::reinterpret_pointer_cast<EntryCourse>(entry);
+        auto pScore = g_pScoreDB->getCourseScoreBMS(ps->md5);
+        score = pScore;
+    }
 }
 
 void sortSongList()
