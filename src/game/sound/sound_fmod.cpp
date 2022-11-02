@@ -65,6 +65,9 @@ SoundDriverFMOD::SoundDriverFMOD(): SoundDriver(std::bind(&SoundDriverFMOD::upda
         fmodSystem->setOutput(FMOD_OUTPUTTYPE_AUTODETECT);
     }
 
+    // This is mandatory for a keysounded rhythm game. 64 is obviously not enough
+    fmodSystem->setSoftwareChannels(512);
+
     if (driver > 0)
     {
 #ifdef _WIN32
