@@ -136,6 +136,19 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     double sud2 = lcTop2 / 1000.0;
     double hid2 = lcBottom2 / 1000.0;
 
+    if (gPlayContext.isReplay && gPlayContext.replay)
+    {
+        State::set(IndexSwitch::SOUND_PITCH, true);
+        State::set(IndexOption::SOUND_PITCH_TYPE, gPlayContext.replay->pitchType);
+        double ps = (gPlayContext.replay->pitchValue + 12) / 24.0;
+        lr2skin::slider::pitch(ps);
+
+        gPlayContext.Hispeed = gPlayContext.replay->hispeed;
+        lcTop1 = gPlayContext.replay->lanecoverTop;
+        lcBottom1 = gPlayContext.replay->lanecoverBottom;
+        lc100_1 = lcTop1 / 10;
+    }
+
     if (true)
     {
         State::set(IndexSwitch::P1_LANECOVER_ENABLED, 
@@ -223,25 +236,6 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
 
     _state = ePlayState::PREPARE;
 
-
-
-    if (gPlayContext.isReplay && gPlayContext.replay)
-    {
-        State::set(IndexSwitch::SOUND_PITCH, true);
-        State::set(IndexOption::SOUND_PITCH_TYPE, gPlayContext.replay->pitchType);
-        double ps = (gPlayContext.replay->pitchValue + 12) / 24.0;
-        lr2skin::slider::pitch(ps);
-
-        gPlayContext.Hispeed = gPlayContext.replay->hispeed;
-        State::set(IndexNumber::LANECOVER_TOP_1P, gPlayContext.replay->lanecoverTop);
-        State::set(IndexNumber::LANECOVER_BOTTOM_1P, gPlayContext.replay->lanecoverBottom);
-        State::set(IndexSwitch::P1_LANECOVER_ENABLED, gPlayContext.replay->lanecoverEnabled);
-        _hispeedHasChanged[PLAYER_SLOT_PLAYER] = true;
-        _lanecoverTopHasChanged[PLAYER_SLOT_PLAYER] = true;
-        _lanecoverBottomHasChanged[PLAYER_SLOT_PLAYER] = true;
-        _lanecoverStateHasChanged[PLAYER_SLOT_PLAYER] = true;
-
-    }
 
     if (gChartContext.chartObj == nullptr || !gChartContext.chartObj->isLoaded())
     {
