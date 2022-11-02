@@ -912,6 +912,7 @@ void ScenePlay::setInitialHealthBMS()
         case eModGauge::ASSISTEASY:
             gPlayContext.initialHealth[PLAYER_SLOT_PLAYER] = 0.2;
             State::set(IndexNumber::PLAY_1P_GROOVEGAUGE, 20);
+            State::set(IndexOption::PLAY_HEALTH_1P, Option::HEALTH_20);
             break;
 
         case eModGauge::HARD:
@@ -924,6 +925,7 @@ void ScenePlay::setInitialHealthBMS()
         case eModGauge::GRADE_DEATH:
             gPlayContext.initialHealth[PLAYER_SLOT_PLAYER] = 1.0;
             State::set(IndexNumber::PLAY_1P_GROOVEGAUGE, 100);
+            State::set(IndexOption::PLAY_HEALTH_1P, Option::HEALTH_100);
             break;
 
         default: break;
@@ -938,6 +940,7 @@ void ScenePlay::setInitialHealthBMS()
             case eModGauge::ASSISTEASY:
                 gPlayContext.initialHealth[PLAYER_SLOT_TARGET] = 0.2;
                 State::set(IndexNumber::PLAY_2P_GROOVEGAUGE, 20);
+                State::set(IndexOption::PLAY_HEALTH_2P, Option::HEALTH_20);
                 break;
 
             case eModGauge::HARD:
@@ -950,6 +953,7 @@ void ScenePlay::setInitialHealthBMS()
             case eModGauge::GRADE_DEATH:
                 gPlayContext.initialHealth[PLAYER_SLOT_TARGET] = 1.0;
                 State::set(IndexNumber::PLAY_2P_GROOVEGAUGE, 100);
+                State::set(IndexOption::PLAY_HEALTH_2P, Option::HEALTH_100);
                 break;
 
             default: break;
