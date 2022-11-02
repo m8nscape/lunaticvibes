@@ -363,7 +363,7 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
 
     State::set(IndexSwitch::SOUND_PITCH, true);
     lr2skin::slider::pitch(0.5);
-    State::set(IndexSwitch::SOUND_PITCH, ConfigMgr::get('P', cfg::P_FREQ_TYPE_PITCH, false));
+    State::set(IndexSwitch::SOUND_PITCH, ConfigMgr::get('P', cfg::P_FREQ, false));
     lr2skin::slider::pitch((ConfigMgr::get('P', cfg::P_FREQ_VAL, 0) + 12) / 24.0);
 
     gPlayContext.Hispeed = ConfigMgr::get('P', cfg::P_HISPEED, 1.0);
