@@ -50,6 +50,15 @@ public:
         KPOOR,
         MISS,
     };
+    inline static const std::map<JudgeType, Option::e_judge_type> JudgeTypeOptMap =
+    {
+        { JudgeType::PERFECT, Option::JUDGE_0 },
+        { JudgeType::GREAT, Option::JUDGE_1 },
+        { JudgeType::GOOD, Option::JUDGE_2 },
+        { JudgeType::BAD, Option::JUDGE_3 },
+        { JudgeType::KPOOR, Option::JUDGE_4 },
+        { JudgeType::MISS, Option::JUDGE_5 },
+    };
 
     enum class GaugeType {
         GROOVE,

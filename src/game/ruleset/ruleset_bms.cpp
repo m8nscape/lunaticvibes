@@ -799,14 +799,14 @@ void RulesetBMS::updateJudge(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeA
             State::set(IndexTimer::PLAY_JUDGE_1P, t.norm());
             setJudgeInternalTimer1P(judgeType, t.norm());
             State::set(IndexNumber::_DISP_NOWCOMBO_1P, _basic.combo);
-            State::set(IndexOption::PLAY_LAST_JUDGE_1P, (Option::e_judge_type)judgeType);
+            State::set(IndexOption::PLAY_LAST_JUDGE_1P, JudgeTypeOptMap.at(judgeType));
         }
         else if (slot == PLAYER_SLOT_TARGET)
         {
             State::set(IndexTimer::PLAY_JUDGE_2P, t.norm());
             setJudgeInternalTimer2P(judgeType, t.norm());
             State::set(IndexNumber::_DISP_NOWCOMBO_2P, _basic.combo);
-            State::set(IndexOption::PLAY_LAST_JUDGE_2P, (Option::e_judge_type)judgeType);
+            State::set(IndexOption::PLAY_LAST_JUDGE_2P, JudgeTypeOptMap.at(judgeType));
         }
     }
 }
