@@ -47,19 +47,6 @@ void config_player()
 {
     using namespace cfg;
 
-    ConfigMgr::set('P', P_HISPEED, gPlayContext.Hispeed);
-    ConfigMgr::set('P', P_LANECOVER_ENABLE, State::get(IndexSwitch::P1_LANECOVER_ENABLED));
-    ConfigMgr::set('P', P_LOCK_SPEED, State::get(IndexSwitch::P1_LOCK_SPEED));
-
-    switch (State::get(IndexOption::PLAY_HSFIX_TYPE))
-    {
-    case Option::SPEED_FIX_MAX:      ConfigMgr::set('P',P_SPEED_TYPE, P_SPEED_TYPE_MAX); break;
-    case Option::SPEED_FIX_MIN:      ConfigMgr::set('P',P_SPEED_TYPE, P_SPEED_TYPE_MIN); break;
-    case Option::SPEED_FIX_AVG:      ConfigMgr::set('P',P_SPEED_TYPE, P_SPEED_TYPE_AVG); break;
-    case Option::SPEED_FIX_CONSTANT: ConfigMgr::set('P',P_SPEED_TYPE, P_SPEED_TYPE_CONSTANT); break;
-    default:                         ConfigMgr::set('P',P_SPEED_TYPE, P_SPEED_TYPE_NORMAL); break;
-    }
-
     switch (State::get(IndexOption::PLAY_TARGET_TYPE))
     {
     case Option::TARGET_0:          ConfigMgr::set('P', P_TARGET_TYPE, P_TARGET_TYPE_0); break;
@@ -88,41 +75,59 @@ void config_player()
     default:                   ConfigMgr::set('P', P_BGA_SIZE, P_BGA_SIZE_NORMAL); break;
     }
 
-    switch (State::get(IndexOption::PLAY_RANDOM_TYPE_1P))
+    if (!gPlayContext.isReplay)
     {
-    case Option::RAN_MIRROR: ConfigMgr::set('P',P_CHART_OP, P_CHART_OP_MIRROR); break;
-    case Option::RAN_RANDOM: ConfigMgr::set('P',P_CHART_OP, P_CHART_OP_RANDOM); break;
-    case Option::RAN_SRAN:   ConfigMgr::set('P',P_CHART_OP, P_CHART_OP_SRAN); break;
-    case Option::RAN_HRAN:   ConfigMgr::set('P',P_CHART_OP, P_CHART_OP_HRAN); break;
-    case Option::RAN_ALLSCR: ConfigMgr::set('P',P_CHART_OP, P_CHART_OP_ALLSCR); break;
-    default:                 ConfigMgr::set('P',P_CHART_OP, P_CHART_OP_NORMAL); break;
-    }
+        ConfigMgr::set('P', P_HISPEED, gPlayContext.Hispeed);
+        ConfigMgr::set('P', P_LANECOVER_ENABLE, State::get(IndexSwitch::P1_LANECOVER_ENABLED));
+        ConfigMgr::set('P', P_LOCK_SPEED, State::get(IndexSwitch::P1_LOCK_SPEED));
 
-    switch (State::get(IndexOption::PLAY_GAUGE_TYPE_1P))
-    {
-    case Option::GAUGE_HARD:   ConfigMgr::set('P',P_GAUGE_OP, P_GAUGE_OP_HARD); break;
-    case Option::GAUGE_EASY:   ConfigMgr::set('P',P_GAUGE_OP, P_GAUGE_OP_EASY); break;
-    case Option::GAUGE_DEATH:  ConfigMgr::set('P',P_GAUGE_OP, P_GAUGE_OP_DEATH); break;
-    case Option::GAUGE_EXHARD: ConfigMgr::set('P',P_GAUGE_OP, P_GAUGE_OP_EXHARD); break;
-    case Option::GAUGE_ASSISTEASY: ConfigMgr::set('P',P_GAUGE_OP, P_GAUGE_OP_ASSISTEASY); break;
-    default:                   ConfigMgr::set('P',P_GAUGE_OP, P_GAUGE_OP_NORMAL); break;
-    }
+        switch (State::get(IndexOption::PLAY_HSFIX_TYPE))
+        {
+        case Option::SPEED_FIX_MAX:      ConfigMgr::set('P', P_SPEED_TYPE, P_SPEED_TYPE_MAX); break;
+        case Option::SPEED_FIX_MIN:      ConfigMgr::set('P', P_SPEED_TYPE, P_SPEED_TYPE_MIN); break;
+        case Option::SPEED_FIX_AVG:      ConfigMgr::set('P', P_SPEED_TYPE, P_SPEED_TYPE_AVG); break;
+        case Option::SPEED_FIX_CONSTANT: ConfigMgr::set('P', P_SPEED_TYPE, P_SPEED_TYPE_CONSTANT); break;
+        default:                         ConfigMgr::set('P', P_SPEED_TYPE, P_SPEED_TYPE_NORMAL); break;
+        }
 
-    switch (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P))
-    {
-    case Option::LANE_OFF:     ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_OFF); break;
-    case Option::LANE_HIDDEN:  ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_HIDDEN); break;
-    case Option::LANE_SUDDEN:  ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_SUDDEN); break;
-    case Option::LANE_SUDHID:  ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_SUDHID); break;
-    case Option::LANE_LIFT:    ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_LIFT); break;
-    case Option::LANE_LIFTSUD: ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_LIFTSUD); break;
-    default:                   ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_OFF); break;
-    }
+        switch (State::get(IndexOption::PLAY_RANDOM_TYPE_1P))
+        {
+        case Option::RAN_MIRROR: ConfigMgr::set('P', P_CHART_OP, P_CHART_OP_MIRROR); break;
+        case Option::RAN_RANDOM: ConfigMgr::set('P', P_CHART_OP, P_CHART_OP_RANDOM); break;
+        case Option::RAN_SRAN:   ConfigMgr::set('P', P_CHART_OP, P_CHART_OP_SRAN); break;
+        case Option::RAN_HRAN:   ConfigMgr::set('P', P_CHART_OP, P_CHART_OP_HRAN); break;
+        case Option::RAN_ALLSCR: ConfigMgr::set('P', P_CHART_OP, P_CHART_OP_ALLSCR); break;
+        default:                 ConfigMgr::set('P', P_CHART_OP, P_CHART_OP_NORMAL); break;
+        }
 
-    switch (State::get(IndexSwitch::PLAY_OPTION_AUTOSCR_1P))
-    {
-    case false: ConfigMgr::set('P', P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_NONE); break;
-    case true:  ConfigMgr::set('P', P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_AUTOSCR); break;
+        switch (State::get(IndexOption::PLAY_GAUGE_TYPE_1P))
+        {
+        case Option::GAUGE_HARD:   ConfigMgr::set('P', P_GAUGE_OP, P_GAUGE_OP_HARD); break;
+        case Option::GAUGE_EASY:   ConfigMgr::set('P', P_GAUGE_OP, P_GAUGE_OP_EASY); break;
+        case Option::GAUGE_DEATH:  ConfigMgr::set('P', P_GAUGE_OP, P_GAUGE_OP_DEATH); break;
+        case Option::GAUGE_EXHARD: ConfigMgr::set('P', P_GAUGE_OP, P_GAUGE_OP_EXHARD); break;
+        case Option::GAUGE_ASSISTEASY: ConfigMgr::set('P', P_GAUGE_OP, P_GAUGE_OP_ASSISTEASY); break;
+        default:                   ConfigMgr::set('P', P_GAUGE_OP, P_GAUGE_OP_NORMAL); break;
+        }
+
+        switch (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P))
+        {
+        case Option::LANE_OFF:     ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_OFF); break;
+        case Option::LANE_HIDDEN:  ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_HIDDEN); break;
+        case Option::LANE_SUDDEN:  ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_SUDDEN); break;
+        case Option::LANE_SUDHID:  ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_SUDHID); break;
+        case Option::LANE_LIFT:    ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_LIFT); break;
+        case Option::LANE_LIFTSUD: ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_LIFTSUD); break;
+        default:                   ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_OFF); break;
+        }
+
+        switch (State::get(IndexSwitch::PLAY_OPTION_AUTOSCR_1P))
+        {
+        case false: ConfigMgr::set('P', P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_NONE); break;
+        case true:  ConfigMgr::set('P', P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_AUTOSCR); break;
+        }
+
+        ConfigMgr::set('P', P_FLIP, State::get(IndexSwitch::PLAY_OPTION_DP_FLIP));
     }
 
     switch (State::get(IndexOption::PLAY_GHOST_TYPE_1P))
@@ -167,7 +172,6 @@ void config_player()
     default:                    ConfigMgr::set('P',P_DIFFICULTY_FILTER, P_DIFFICULTY_FILTER_ALL); break;
     }
 
-    ConfigMgr::set('P',P_FLIP, State::get(IndexSwitch::PLAY_OPTION_DP_FLIP));
     ConfigMgr::set('P',P_SCORE_GRAPH, State::get(IndexSwitch::SYSTEM_SCOREGRAPH));
 }
 
@@ -296,6 +300,9 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
     _inputAvailable = INPUT_MASK_FUNC | INPUT_MASK_MOUSE;
     _inputAvailable |= INPUT_MASK_1P;
     _inputAvailable |= INPUT_MASK_2P;
+
+    // reset globals
+    ConfigMgr::setGlobals();
 
     {
         std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
@@ -1909,6 +1916,42 @@ void SceneSelect::_decide()
                 gPlayContext.mods[PLAYER_SLOT_TARGET].randomRight = gPlayContext.replay->randomTypeLeft;
                 gPlayContext.mods[PLAYER_SLOT_TARGET].assist_mask = gPlayContext.replay->assistMask;
                 gPlayContext.mods[PLAYER_SLOT_TARGET].laneEffect = (eModLaneEffect)gPlayContext.replay->laneEffectType;
+
+                switch (gPlayContext.replay->randomTypeRight)
+                {
+                case eModRandom::MIRROR:         State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_MIRROR); break;
+                case eModRandom::RANDOM:         State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_RANDOM); break;
+                case eModRandom::SRAN:           State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_SRAN); break;
+                case eModRandom::HRAN:           State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_HRAN); break;
+                case eModRandom::ALLSCR:         State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_ALLSCR); break;
+                case eModRandom::RRAN:           State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_RRAN); break;
+                case eModRandom::DB_SYNCHRONIZE: State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_DB_SYNCHRONIZE_RANDOM); break;
+                case eModRandom::DB_SYMMETRY:    State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_DB_SYMMETRY_RANDOM); break;
+                default:                         State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_NORMAL); break;
+                }
+
+                switch (gPlayContext.replay->gaugeType)
+                {
+                case eModGauge::HARD:
+                case eModGauge::GRADE_NORMAL: State::set(IndexOption::PLAY_GAUGE_TYPE_2P, Option::GAUGE_HARD); break;
+                case eModGauge::EASY:         State::set(IndexOption::PLAY_GAUGE_TYPE_2P, Option::GAUGE_EASY); break;
+                case eModGauge::ASSISTEASY:   State::set(IndexOption::PLAY_GAUGE_TYPE_2P, Option::GAUGE_ASSISTEASY); break;
+                case eModGauge::EXHARD:
+                case eModGauge::GRADE_HARD:   State::set(IndexOption::PLAY_GAUGE_TYPE_2P, Option::GAUGE_EXHARD); break;
+                default:                      State::set(IndexOption::PLAY_GAUGE_TYPE_2P, Option::GAUGE_NORMAL); break;
+                }
+
+                switch ((eModLaneEffect)gPlayContext.replay->laneEffectType)
+                {
+                case eModLaneEffect::SUDDEN:  State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_2P, Option::LANE_SUDDEN); break;
+                case eModLaneEffect::HIDDEN:  State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_2P, Option::LANE_HIDDEN); break;
+                case eModLaneEffect::SUDHID:  State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_2P, Option::LANE_SUDHID); break;
+                case eModLaneEffect::LIFT:    State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_2P, Option::LANE_LIFT); break;
+                case eModLaneEffect::LIFTSUD: State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_2P, Option::LANE_LIFTSUD); break;
+                default:                      State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_2P, Option::LANE_OFF); break;
+                }
+
+                State::set(IndexSwitch::PLAY_OPTION_AUTOSCR_2P, !!(gPlayContext.replay->assistMask & PLAY_MOD_ASSIST_AUTOSCR));
             }
             else
             {
@@ -1924,6 +1967,10 @@ void SceneSelect::_decide()
             gPlayContext.mods[PLAYER_SLOT_TARGET].gauge = convertGaugeType(State::get(IndexOption::PLAY_GAUGE_TYPE_1P));
             gPlayContext.mods[PLAYER_SLOT_TARGET].randomLeft = convertRandomType(State::get(IndexOption::PLAY_RANDOM_TYPE_1P));
             gPlayContext.mods[PLAYER_SLOT_TARGET].assist_mask = 0;  // rival do not use assist options
+
+            State::set(IndexOption::PLAY_GAUGE_TYPE_2P, State::get(IndexOption::PLAY_GAUGE_TYPE_1P));
+            State::set(IndexOption::PLAY_RANDOM_TYPE_2P, State::get(IndexOption::PLAY_RANDOM_TYPE_1P));
+            State::set(IndexSwitch::PLAY_OPTION_AUTOSCR_2P, false);
         }
     }
     else // gPlayContext.isReplay
@@ -1935,6 +1982,66 @@ void SceneSelect::_decide()
         gPlayContext.mods[PLAYER_SLOT_PLAYER].hispeedFix = gPlayContext.replay->hispeedFix;
         gPlayContext.mods[PLAYER_SLOT_PLAYER].laneEffect = (eModLaneEffect)gPlayContext.replay->laneEffectType;
         gPlayContext.mods[PLAYER_SLOT_PLAYER].DPFlip = gPlayContext.replay->DPFlip;
+
+        switch (gPlayContext.replay->randomTypeLeft)
+        {
+        case eModRandom::MIRROR:         State::set(IndexOption::PLAY_RANDOM_TYPE_1P, Option::RAN_MIRROR); break;
+        case eModRandom::RANDOM:         State::set(IndexOption::PLAY_RANDOM_TYPE_1P, Option::RAN_RANDOM); break;
+        case eModRandom::SRAN:           State::set(IndexOption::PLAY_RANDOM_TYPE_1P, Option::RAN_SRAN); break;
+        case eModRandom::HRAN:           State::set(IndexOption::PLAY_RANDOM_TYPE_1P, Option::RAN_HRAN); break;
+        case eModRandom::ALLSCR:         State::set(IndexOption::PLAY_RANDOM_TYPE_1P, Option::RAN_ALLSCR); break;
+        case eModRandom::RRAN:           State::set(IndexOption::PLAY_RANDOM_TYPE_1P, Option::RAN_RRAN); break;
+        case eModRandom::DB_SYNCHRONIZE: State::set(IndexOption::PLAY_RANDOM_TYPE_1P, Option::RAN_DB_SYNCHRONIZE_RANDOM); break;
+        case eModRandom::DB_SYMMETRY:    State::set(IndexOption::PLAY_RANDOM_TYPE_1P, Option::RAN_DB_SYMMETRY_RANDOM); break;
+        default:                         State::set(IndexOption::PLAY_RANDOM_TYPE_1P, Option::RAN_NORMAL); break;
+        }
+
+        switch (gPlayContext.replay->randomTypeRight)
+        {
+        case eModRandom::MIRROR:         State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_MIRROR); break;
+        case eModRandom::RANDOM:         State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_RANDOM); break;
+        case eModRandom::SRAN:           State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_SRAN); break;
+        case eModRandom::HRAN:           State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_HRAN); break;
+        case eModRandom::ALLSCR:         State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_ALLSCR); break;
+        case eModRandom::RRAN:           State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_RRAN); break;
+        case eModRandom::DB_SYNCHRONIZE: State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_DB_SYNCHRONIZE_RANDOM); break;
+        case eModRandom::DB_SYMMETRY:    State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_DB_SYMMETRY_RANDOM); break;
+        default:                         State::set(IndexOption::PLAY_RANDOM_TYPE_2P, Option::RAN_NORMAL); break;
+        }
+
+        switch (gPlayContext.replay->gaugeType)
+        {
+        case eModGauge::HARD:
+        case eModGauge::GRADE_NORMAL: State::set(IndexOption::PLAY_GAUGE_TYPE_1P, Option::GAUGE_HARD); break;
+        case eModGauge::EASY:         State::set(IndexOption::PLAY_GAUGE_TYPE_1P, Option::GAUGE_EASY); break;
+        case eModGauge::ASSISTEASY:   State::set(IndexOption::PLAY_GAUGE_TYPE_1P, Option::GAUGE_ASSISTEASY); break;
+        case eModGauge::EXHARD:
+        case eModGauge::GRADE_HARD:   State::set(IndexOption::PLAY_GAUGE_TYPE_1P, Option::GAUGE_EXHARD); break;
+        default:                      State::set(IndexOption::PLAY_GAUGE_TYPE_1P, Option::GAUGE_NORMAL); break;
+        }
+
+        switch ((eModLaneEffect)gPlayContext.replay->laneEffectType)
+        {
+        case eModLaneEffect::SUDDEN:  State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_1P, Option::LANE_SUDDEN); break;
+        case eModLaneEffect::HIDDEN:  State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_1P, Option::LANE_HIDDEN); break;
+        case eModLaneEffect::SUDHID:  State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_1P, Option::LANE_SUDHID); break;
+        case eModLaneEffect::LIFT:    State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_1P, Option::LANE_LIFT); break;
+        case eModLaneEffect::LIFTSUD: State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_1P, Option::LANE_LIFTSUD); break;
+        default:                      State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_1P, Option::LANE_OFF); break;
+        }
+
+        switch (gPlayContext.replay->hispeedFix)
+        {
+        case eModHs::MAXBPM:    State::set(IndexOption::PLAY_HSFIX_TYPE, Option::SPEED_FIX_MAX); break;
+        case eModHs::MINBPM:    State::set(IndexOption::PLAY_HSFIX_TYPE, Option::SPEED_FIX_MIN); break;
+        case eModHs::AVERAGE:   State::set(IndexOption::PLAY_HSFIX_TYPE, Option::SPEED_FIX_AVG); break;
+        case eModHs::CONSTANT:  State::set(IndexOption::PLAY_HSFIX_TYPE, Option::SPEED_FIX_CONSTANT); break;
+        default:                State::set(IndexOption::PLAY_HSFIX_TYPE, Option::SPEED_NORMAL); break;
+        }
+
+        State::set(IndexSwitch::PLAY_OPTION_AUTOSCR_1P, !!(gPlayContext.replay->assistMask& PLAY_MOD_ASSIST_AUTOSCR));
+        State::set(IndexSwitch::PLAY_OPTION_AUTOSCR_2P, false);
+        State::set(IndexSwitch::PLAY_OPTION_DP_FLIP, gPlayContext.replay->DPFlip);
     }
     
     // score (mybest)

@@ -187,12 +187,16 @@ void updateDstOpt()
 	// 43 1P側が赤ゲージ
 	// 44 2P側がノーマルゲージ
 	// 45 2P側が赤ゲージ
+	// 48 New: 1P gauge is exhard / death
+	// 49 New: 2P gauge is exhard / death
 	{
 		using namespace Option;
 		set(42, dst(IndexOption::PLAY_GAUGE_TYPE_1P, { GAUGE_ASSISTEASY, GAUGE_EASY, GAUGE_NORMAL }));
 		set(43, dst(IndexOption::PLAY_GAUGE_TYPE_1P, { GAUGE_HARD, GAUGE_EXHARD, GAUGE_DEATH }));
 		set(44, dst(IndexOption::PLAY_GAUGE_TYPE_2P, { GAUGE_ASSISTEASY, GAUGE_EASY, GAUGE_NORMAL }));
 		set(45, dst(IndexOption::PLAY_GAUGE_TYPE_2P, { GAUGE_HARD, GAUGE_EXHARD, GAUGE_DEATH }));
+		set(48, dst(IndexOption::PLAY_GAUGE_TYPE_1P, { GAUGE_EXHARD, GAUGE_DEATH }));
+		set(49, dst(IndexOption::PLAY_GAUGE_TYPE_2P, { GAUGE_EXHARD, GAUGE_DEATH }));
 	}
 
 	// 46 難易度フィルタが有効
