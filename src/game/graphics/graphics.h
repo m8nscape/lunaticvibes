@@ -50,3 +50,6 @@ void ImGuiNewFrame();
 // text input support
 void startTextInput(const Rect& textBox, const std::string& oldText, std::function<void(const std::string&)> funUpdateText);
 void stopTextInput();
+
+
+void graphics_screenshot(const Path& png);

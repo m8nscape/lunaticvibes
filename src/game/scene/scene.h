@@ -70,6 +70,9 @@ public:
     bool inTextEdit = false;
     std::string textBeforeEdit;
 
+protected:
+    std::shared_mutex screenShotMutex;
+
 public:
     vScene() = delete;
     vScene(eMode mode, unsigned rate = 240, bool backgroundInput = false);
@@ -99,6 +102,8 @@ protected:
     virtual bool checkAndStartTextEdit() { return false; }
     virtual void startTextEdit(bool clear);
     virtual void stopTextEdit(bool modify);
+
+    void ScreenShot(InputMask& m, const Time& t);
 };
 
 

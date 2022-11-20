@@ -11,6 +11,9 @@
 #include "game/skin/skin_lr2_debug.h"
 #include "game/runtime/i18n.h"
 
+#include "game/sound/sound_mgr.h"
+#include "game/sound/sound_sample.h"
+
 // prototype
 vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
     AsyncLooper("Scene Update", std::bind(&vScene::_updateAsync1, this), rate),
@@ -101,6 +104,8 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
 
     _input.register_p("DEBUG_TOGGLE", std::bind(&vScene::DebugToggle, this, std::placeholders::_1, std::placeholders::_2));
 
+    _input.register_p("SCREENSHOT", std::bind(&vScene::ScreenShot, this, std::placeholders::_1, std::placeholders::_2));
+
     _input.register_p("SKIN_MOUSE_CLICK", std::bind(&vScene::MouseClick, this, std::placeholders::_1, std::placeholders::_2));
     _input.register_h("SKIN_MOUSE_DRAG", std::bind(&vScene::MouseDrag, this, std::placeholders::_1, std::placeholders::_2));
     _input.register_r("SKIN_MOUSE_RELEASE", std::bind(&vScene::MouseRelease, this, std::placeholders::_1, std::placeholders::_2));
@@ -124,6 +129,7 @@ vScene::~vScene()
     _input.unregister_r("SKIN_MOUSE_RELEASE");
     _input.unregister_h("SKIN_MOUSE_DRAG");
     _input.unregister_p("SKIN_MOUSE_CLICK");
+    _input.unregister_p("SCREENSHOT");
     _input.unregister_p("DEBUG_TOGGLE");
     sceneEnding = true; 
 }
@@ -370,4 +376,27 @@ void vScene::stopTextEdit(bool modify)
         inTextEdit = false;
         _skin->stopTextEdit(modify);
     }
+}
+
+
+void vScene::ScreenShot(InputMask& m, const Time& t)
+{
+    if (!m[Input::F6]) return;
+    if (!_skin) return;
+
+    std::unique_lock l(screenShotMutex, std::try_to_lock);
+    if (!l.owns_lock()) return;
+
+    Path p = "screenshot";
+    p /= (boost::format("LV %04d-%02d-%02d %02d-%02d-%02d.png")
+        % State::get(IndexNumber::DATE_YEAR)
+        % State::get(IndexNumber::DATE_MON)
+        % State::get(IndexNumber::DATE_DAY)
+        % State::get(IndexNumber::DATE_HOUR)
+        % State::get(IndexNumber::DATE_MIN)
+        % State::get(IndexNumber::DATE_SEC)).str();
+
+    graphics_screenshot(p);
+
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCREENSHOT);
 }

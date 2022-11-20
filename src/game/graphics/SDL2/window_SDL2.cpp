@@ -180,6 +180,7 @@ void graphics_clear()
 static int maxFPS = 0;
 static std::chrono::nanoseconds desiredFrameTimeBetweenFrames;
 static std::chrono::high_resolution_clock::time_point frameTimestampPrev;
+static Path screenshotPath;
 void graphics_flush()
 {
     SDL_SetRenderTarget(gFrameRenderer, NULL);
@@ -207,6 +208,16 @@ void graphics_flush()
             ImGui_ImplSDLRenderer_RenderDrawData(pData);
         }
         SDL_RenderPresent(gFrameRenderer);
+
+        if (!screenshotPath.empty())
+        {
+            fs::create_directories(screenshotPath.parent_path());
+            SDL_Surface* sshot = SDL_CreateRGBSurface(0, windowRect.w, windowRect.h, 32, 0, 0, 0, 0);
+            SDL_RenderReadPixels(gFrameRenderer, NULL, SDL_PIXELFORMAT_ARGB8888, sshot->pixels, sshot->pitch);
+            IMG_SavePNG(sshot, screenshotPath.u8string().c_str());
+            SDL_FreeSurface(sshot);
+            screenshotPath.clear();
+        }
     }
     SDL_SetRenderTarget(gFrameRenderer, gInternalRenderTarget);
 
@@ -486,3 +497,8 @@ void funKeyDown(const SDL_KeyboardEvent& e)
 }
 
 #endif
+
+void graphics_screenshot(const Path& png)
+{
+    screenshotPath = png;
+}
