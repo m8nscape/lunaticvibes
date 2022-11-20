@@ -231,6 +231,7 @@ private:
     int imgui_play_defaultTarget;
     int imgui_play_judgeTiming;
     bool imgui_play_lockGreenNumber;
+    float imgui_play_hispeed;
     int imgui_play_greenNumber;
 
     int imgui_adv_scrollSpeed[2];

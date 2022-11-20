@@ -91,6 +91,7 @@ LIFT, LIFT & SUD+\nA line of description text will be added at top-left on unsup
 TARGET Rate%
 Display Timing
 Ctrl+Click the slider for further values.
-Lock greennumber
-Greennumber
+Lock Notes Time (green number)
+Notes Time
 Ctrl+Click the slider for further values. (lol are you sure you need this)
+Hi-Speed
