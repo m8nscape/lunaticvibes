@@ -58,10 +58,6 @@ protected:
 
     std::shared_ptr<TTFFont> _fNotifications;
     std::shared_ptr<Texture> _texNotificationsBG;
-    std::shared_ptr<SpriteText> _sTopLeft;
-    std::shared_ptr<SpriteText> _sTopLeft2;
-    std::shared_ptr<SpriteText> _sTopLeft3;
-    std::shared_ptr<SpriteText> _sTopLeft4;
     std::array<std::shared_ptr<SpriteText>, size_t(IndexText::_OVERLAY_NOTIFICATION_MAX) - size_t(IndexText::_OVERLAY_NOTIFICATION_0) + 1> _sNotifications;
     std::array<std::shared_ptr<SpriteStatic>, size_t(IndexText::_OVERLAY_NOTIFICATION_MAX) - size_t(IndexText::_OVERLAY_NOTIFICATION_0) + 1> _sNotificationsBG;
 
@@ -71,7 +67,10 @@ public:
     std::string textBeforeEdit;
 
 protected:
-    std::shared_mutex screenShotMutex;
+    static bool queuedScreenshot;
+    static bool queuedFPS;
+
+    static bool showFPS;
 
 public:
     vScene() = delete;
@@ -103,7 +102,7 @@ protected:
     virtual void startTextEdit(bool clear);
     virtual void stopTextEdit(bool modify);
 
-    void ScreenShot(InputMask& m, const Time& t);
+    void GlobalFuncKeys(InputMask& m, const Time& t);
 };
 
 

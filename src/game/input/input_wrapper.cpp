@@ -1,5 +1,6 @@
 #include "input_wrapper.h"
 #include "game/runtime/state.h"
+#include "game/runtime/generic_info.h"
 #include "common/log.h"
 #include <cassert>
 
@@ -24,7 +25,8 @@ InputWrapper::~InputWrapper()
 
 void InputWrapper::_loop()
 {
-	State::set(IndexNumber::INPUT_DETECT_FPS, getRateRealtime());
+    gFrameCount[FRAMECOUNT_IDX_INPUT]++;
+
     _prev = _curr;
     _curr = InputMgr::detect();
     Time now;

@@ -28,7 +28,7 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
     int notificationWidth = 640;
     const int notificationHeight = 20;
 
-    if (_skin && !gInCustomize)
+    if (_skin && !gInCustomize && mode != eMode::THEME_SELECT)
     {
         int x, y;
         switch (_skin->info.resolution)
@@ -71,40 +71,10 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
         f.param.color = 0xffffffff;
         _sNotifications[i]->appendKeyFrame(f);
     }
-    {
-        _sTopLeft = std::make_shared<SpriteText>(_fNotifications, IndexText::_OVERLAY_TOPLEFT, TextAlign::TEXT_ALIGN_LEFT, textHeight);
-        _sTopLeft->setOutline(1, Color(0, 0, 0, 255));
-        _sTopLeft->setLoopTime(0);
-        _sTopLeft2 = std::make_shared<SpriteText>(_fNotifications, IndexText::_OVERLAY_TOPLEFT2, TextAlign::TEXT_ALIGN_LEFT, textHeight);
-        _sTopLeft2->setOutline(1, Color(0, 0, 0, 255));
-        _sTopLeft2->setLoopTime(0);
-        _sTopLeft3 = std::make_shared<SpriteText>(_fNotifications, IndexText::_OVERLAY_TOPLEFT3, TextAlign::TEXT_ALIGN_LEFT, textHeight);
-        _sTopLeft3->setOutline(1, Color(0, 0, 0, 255));
-        _sTopLeft3->setLoopTime(0);
-        _sTopLeft4 = std::make_shared<SpriteText>(_fNotifications, IndexText::_OVERLAY_TOPLEFT4, TextAlign::TEXT_ALIGN_LEFT, textHeight);
-        _sTopLeft4->setOutline(1, Color(0, 0, 0, 255));
-        _sTopLeft4->setLoopTime(0);
-        RenderKeyFrame f;
-        f.time = 0;
-        f.param.rect = Rect(0, 0, notificationWidth, textHeight);
-        f.param.accel = RenderParams::CONSTANT;
-        f.param.color = 0xffffffff;
-        f.param.blend = BlendMode::ALPHA;
-        f.param.filter = true;
-        f.param.angle = 0;
-        f.param.center = Point(0, 0);
-        _sTopLeft->appendKeyFrame(f);
-        f.param.rect.y += textHeight;
-        _sTopLeft2->appendKeyFrame(f);
-        f.param.rect.y += textHeight;
-        _sTopLeft3->appendKeyFrame(f);
-        f.param.rect.y += textHeight;
-        _sTopLeft4->appendKeyFrame(f);
-    }
 
     _input.register_p("DEBUG_TOGGLE", std::bind(&vScene::DebugToggle, this, std::placeholders::_1, std::placeholders::_2));
 
-    _input.register_p("SCREENSHOT", std::bind(&vScene::ScreenShot, this, std::placeholders::_1, std::placeholders::_2));
+    _input.register_p("GLOBALFUNC", std::bind(&vScene::GlobalFuncKeys, this, std::placeholders::_1, std::placeholders::_2));
 
     _input.register_p("SKIN_MOUSE_CLICK", std::bind(&vScene::MouseClick, this, std::placeholders::_1, std::placeholders::_2));
     _input.register_h("SKIN_MOUSE_DRAG", std::bind(&vScene::MouseDrag, this, std::placeholders::_1, std::placeholders::_2));
@@ -120,6 +90,9 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
         // Skin may be cached. Reset mouse status
         _skin->setHandleMouseEvents(true);
     }
+
+    if (!gInCustomize && mode == eMode::THEME_SELECT || gInCustomize && mode != eMode::THEME_SELECT)
+        _input.disableCountFPS();
 }
 
 vScene::~vScene() 
@@ -129,7 +102,7 @@ vScene::~vScene()
     _input.unregister_r("SKIN_MOUSE_RELEASE");
     _input.unregister_h("SKIN_MOUSE_DRAG");
     _input.unregister_p("SKIN_MOUSE_CLICK");
-    _input.unregister_p("SCREENSHOT");
+    _input.unregister_p("GLOBALFUNC");
     _input.unregister_p("DEBUG_TOGGLE");
     sceneEnding = true; 
 }
@@ -181,10 +154,6 @@ void vScene::update()
             _sNotificationsBG[i]->update(t);
 
         }
-        _sTopLeft->update(t);
-        _sTopLeft2->update(t);
-        _sTopLeft3->update(t);
-        _sTopLeft4->update(t);
 
         // update videos
         TextureVideo::updateAll();
@@ -230,21 +199,16 @@ void vScene::MouseRelease(InputMask& m, const Time& t)
     }
 }
 
+bool vScene::queuedScreenshot = false;
+bool vScene::queuedFPS = false;
+bool vScene::showFPS = false;
+
 void vScene::draw() const
 {
     if (_skin)
     {
         _skin->draw();
     }
-
-    _sTopLeft->updateText();
-    _sTopLeft->draw();
-    _sTopLeft2->updateText();
-    _sTopLeft2->draw();
-    _sTopLeft3->updateText();
-    _sTopLeft3->draw();
-    _sTopLeft4->updateText();
-    _sTopLeft4->draw();
 
     {
         std::shared_lock lock(gOverlayContext._mutex);
@@ -265,16 +229,93 @@ void vScene::draw() const
             // TODO draw list
         }
     }
+
+    if (queuedScreenshot)
+    {
+        Path p = "screenshot";
+        p /= (boost::format("LV %04d-%02d-%02d %02d-%02d-%02d.png")
+            % State::get(IndexNumber::DATE_YEAR)
+            % State::get(IndexNumber::DATE_MON)
+            % State::get(IndexNumber::DATE_DAY)
+            % State::get(IndexNumber::DATE_HOUR)
+            % State::get(IndexNumber::DATE_MIN)
+            % State::get(IndexNumber::DATE_SEC)).str();
+
+        graphics_screenshot(p);
+
+        SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCREENSHOT);
+        queuedScreenshot = false;
+    }
+
+    if (queuedFPS)
+    {
+        showFPS = !showFPS;
+        queuedFPS = false;
+    }
 }
 
 void vScene::_updateAsync1()
 {
     _updateAsync();
-    gFrameCount[FRAMECOUNT_IDX_SCENE]++;
+
+    if (!gInCustomize && _scene != eScene::CUSTOMIZE || gInCustomize && _scene == eScene::CUSTOMIZE)
+        gFrameCount[FRAMECOUNT_IDX_SCENE]++;
 }
 
 void vScene::_updateImgui()
 {
+    bool showTextOverlay = false;
+    if (showFPS) showTextOverlay = true;
+    for (size_t i = 0; i < 4; ++i)
+    {
+        IndexText idx = IndexText(int(IndexText::_OVERLAY_TOPLEFT) + i);
+        if (!State::get(idx).empty())
+        {
+            showTextOverlay = true;
+            break;
+        }
+    }
+    if (showTextOverlay)
+    {
+        ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, { 0.f, 0.f, 0.f, 0.4f });
+        if (ImGui::Begin("##textoverlay", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            if (showFPS)
+            {
+                ImGui::PushID("##fps");
+                ImGui::Text((boost::format("FPS: Render %d | Input %d | Update %d")
+                    % State::get(IndexNumber::FPS)
+                    % State::get(IndexNumber::INPUT_DETECT_FPS)
+                    % State::get(IndexNumber::SCENE_UPDATE_FPS)).str().c_str());
+                ImGui::PopID();
+            }
+
+            static const char* overlayTextID[] =
+            {
+                "##overlaytext1",
+                "##overlaytext2",
+                "##overlaytext3",
+                "##overlaytext4",
+            };
+            size_t count = 0;
+            for (size_t i = 0; i < 4; ++i)
+            {
+                IndexText idx = IndexText(int(IndexText::_OVERLAY_TOPLEFT) + i);
+                if (!State::get(idx).empty())
+                {
+                    ImGui::PushID(overlayTextID[count++]);
+                    ImGui::Text(State::get(idx).c_str());
+                    ImGui::PopID();
+                }
+            }
+
+            ImGui::End();
+        }
+        ImGui::PopStyleColor();
+    }
+
+#ifdef _DEBUG
     if (imguiShowMonitorLR2DST)
     {
         imguiMonitorLR2DST();
@@ -307,6 +348,7 @@ void vScene::_updateImgui()
     {
         imguiMonitorTimer();
     }
+#endif
 }
 
 void vScene::DebugToggle(InputMask& p, const Time& t)
@@ -379,24 +421,15 @@ void vScene::stopTextEdit(bool modify)
 }
 
 
-void vScene::ScreenShot(InputMask& m, const Time& t)
+void vScene::GlobalFuncKeys(InputMask& m, const Time& t)
 {
-    if (!m[Input::F6]) return;
-    if (!_skin) return;
+    if (m[Input::F6])
+    {
+        queuedScreenshot = true;
+    }
 
-    std::unique_lock l(screenShotMutex, std::try_to_lock);
-    if (!l.owns_lock()) return;
-
-    Path p = "screenshot";
-    p /= (boost::format("LV %04d-%02d-%02d %02d-%02d-%02d.png")
-        % State::get(IndexNumber::DATE_YEAR)
-        % State::get(IndexNumber::DATE_MON)
-        % State::get(IndexNumber::DATE_DAY)
-        % State::get(IndexNumber::DATE_HOUR)
-        % State::get(IndexNumber::DATE_MIN)
-        % State::get(IndexNumber::DATE_SEC)).str();
-
-    graphics_screenshot(p);
-
-    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCREENSHOT);
+    if (m[Input::F7])
+    {
+        queuedFPS = true;
+    }
 }

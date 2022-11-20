@@ -16,6 +16,7 @@ inline const char* ctime_(const std::time_t* t) { return ctime(t); };
 inline unsigned gFrameCount[10]{ 0 };
 constexpr size_t FRAMECOUNT_IDX_FPS = 0;
 constexpr size_t FRAMECOUNT_IDX_SCENE = 1;
+constexpr size_t FRAMECOUNT_IDX_INPUT = 2;
 
 // Should only have one instance at once.
 class GenericInfoUpdater : public AsyncLooper
@@ -34,6 +35,7 @@ private:
 			gFrameCount[i] = 0;
 		}
 		State::set(IndexNumber::SCENE_UPDATE_FPS, State::get(IndexNumber::_PPS1));
+		State::set(IndexNumber::INPUT_DETECT_FPS, State::get(IndexNumber::_PPS2));
 
 		std::time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 		auto d = localtime_(&t);
