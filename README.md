@@ -2,7 +2,7 @@
 
 Lunatic Vibes is a rhythm game that plays community-made charts in BMS format.
 
-The project is basically a rewritten version of the Lunatic Rave 2 (beta3 100201). Some useful functions will be added in the future as well.
+The project is basically a rewritten version of the Lunatic Rave 2 (beta3 100201). For compatibility list, check out [the wiki](https://github.com/yaasdf/lunaticvibes/wiki/LR2-Function-Compatibility).
 
 The project is still in development stage. Please do not expect a bug-free experience. Feel free to open issues.
 
