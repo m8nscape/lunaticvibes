@@ -118,6 +118,15 @@ void SceneSelect::_imguiInit()
     imgui_adv_enableNewGauge = ConfigMgr::get("P", cfg::P_ENABLE_NEW_GAUGE, false);
     imgui_adv_enableNewLaneOption = ConfigMgr::get("P", cfg::P_ENABLE_NEW_LANE_OPTION, false);
 
+    imgui_sel_onlyDisplayMainTitleOnBars = ConfigMgr::get("P", cfg::P_ONLY_DISPLAY_MAIN_TITLE_ON_BARS, false);
+    imgui_sel_disablePlaymodeAll = ConfigMgr::get("P", cfg::P_DISABLE_PLAYMODE_ALL, false);
+    imgui_sel_disableDifficultyAll = ConfigMgr::get("P", cfg::P_DISABLE_DIFFICULTY_ALL, false);
+    imgui_sel_disablePlaymodeSingle = ConfigMgr::get("P", cfg::P_DISABLE_PLAYMODE_SINGLE, false);
+    imgui_sel_disablePlaymodeDouble = ConfigMgr::get("P", cfg::P_DISABLE_PLAYMODE_DOUBLE, false);
+    imgui_sel_ignoreDPCharts = ConfigMgr::get("P", cfg::P_IGNORE_DP_CHARTS, false);
+    imgui_sel_ignore9keys = ConfigMgr::get("P", cfg::P_IGNORE_9KEYS_CHARTS, false);
+    imgui_sel_ignore5keysif7keysexist = ConfigMgr::get("P", cfg::P_IGNORE_5KEYS_IF_7KEYS_EXIST, false);
+
     // auto popup settings for first runs
     if (imgui_folders.empty())
     {
@@ -357,9 +366,9 @@ void SceneSelect::_imguiPage_Options()
     }
 
     ImGui::SetNextItemWidth(tabItemWidth);
-    if (ImGui::BeginTabItem(i18n::c(SETTINGS_ADVANCED), NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
+    if (ImGui::BeginTabItem(i18n::c(SETTINGS_SELECT), NULL, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
     {
-        _imguiPage_Options_Advanced();
+        _imguiPage_Options_Select();
         ImGui::EndTabItem();
     }
 }
@@ -379,7 +388,7 @@ void SceneSelect::_imguiPage_Options_General()
             imgui_add_profile_popup = true;
         }
 
-        ImGui::Dummy({});
+        ImGui::Spacing();
         ImGui::Separator();
 
         /////////////////////////////////////////////////////////////////////////////////////////
@@ -411,7 +420,7 @@ void SceneSelect::_imguiPage_Options_Jukebox()
     {
         ImGui::Text(i18n::c(JUKEBOX_REFRESH_HINT));
 
-        ImGui::Dummy({});
+        ImGui::Spacing();
         ImGui::Separator();
 
         /////////////////////////////////////////////////////////////////////////////////////////
@@ -443,7 +452,7 @@ void SceneSelect::_imguiPage_Options_Jukebox()
             }
         }
 
-        ImGui::Dummy({});
+        ImGui::Spacing();
         ImGui::Separator();
 
         /////////////////////////////////////////////////////////////////////////////////////////
@@ -555,7 +564,7 @@ void SceneSelect::_imguiPage_Options_Audio()
             _imguiRefreshAudioDevices();
         }
 
-        ImGui::Dummy({});
+        ImGui::Spacing();
 
         ImGui::Text(i18n::c(AUDIO_BUFFER_COUNT));
         ImGui::SameLine(infoRowWidth);
@@ -609,6 +618,9 @@ void SceneSelect::_imguiPage_Options_Play()
         ImGui::SameLine();
         HelpMarker(i18n::c(JUDGE_TIMING_HINT));
 
+        ImGui::Spacing();
+        ImGui::Separator();
+
         imgui_play_lockGreenNumber = State::get(IndexSwitch::P1_LOCK_SPEED);
         if (ImGui::Checkbox(i18n::c(LOCK_GREENNUMBER), &imgui_play_lockGreenNumber))
         {
@@ -643,7 +655,7 @@ void SceneSelect::_imguiPage_Options_Play()
     }
 }
 
-void SceneSelect::_imguiPage_Options_Advanced()
+void SceneSelect::_imguiPage_Options_Select()
 {
     using namespace i18nText;
 
@@ -661,14 +673,6 @@ void SceneSelect::_imguiPage_Options_Advanced()
         ImGui::SameLine();
         HelpMarker(i18n::c(NEW_SONG_DURATION_HINT));
 
-        ImGui::Checkbox(i18n::c(PREVIEW_DEDICATED), &imgui_adv_previewDedicated);
-        ImGui::SameLine();
-        HelpMarker(i18n::c(PREVIEW_DEDICATED_HINT));
-
-        ImGui::Checkbox(i18n::c(PREVIEW_DIRECT), &imgui_adv_previewDedicated);
-        ImGui::SameLine();
-        HelpMarker(i18n::c(PREVIEW_DIRECT_HINT));
-
         ImGui::Text(i18n::c(SELECT_KEYBINDINGS));
         ImGui::SameLine(infoRowWidth);
         static const char* imgui_adv_select_keybindings_display[] =
@@ -681,6 +685,14 @@ void SceneSelect::_imguiPage_Options_Advanced()
         ImGui::SameLine();
         HelpMarker(i18n::c(SELECT_KEYBINDINGS_HINT));
 
+        ImGui::Checkbox(i18n::c(PREVIEW_DEDICATED), &imgui_adv_previewDedicated);
+        ImGui::SameLine();
+        HelpMarker(i18n::c(PREVIEW_DEDICATED_HINT));
+
+        ImGui::Checkbox(i18n::c(PREVIEW_DIRECT), &imgui_adv_previewDedicated);
+        ImGui::SameLine();
+        HelpMarker(i18n::c(PREVIEW_DIRECT_HINT));
+
         ImGui::Checkbox(i18n::c(ENABLE_NEW_RANDOM_OPTIONS), &imgui_adv_enableNewRandom);
         ImGui::SameLine();
         HelpMarker(i18n::c(ENABLE_NEW_RANDOM_OPTIONS_HINT));
@@ -692,6 +704,42 @@ void SceneSelect::_imguiPage_Options_Advanced()
         ImGui::Checkbox(i18n::c(ENABLE_NEW_LANE_OPTIONS), &imgui_adv_enableNewLaneOption);
         ImGui::SameLine();
         HelpMarker(i18n::c(ENABLE_NEW_LANE_OPTIONS_HINT));
+
+        ImGui::Spacing();
+        ImGui::Separator();
+
+        if (ImGui::Checkbox(i18n::c(ONLY_DISPLAY_MAIN_TITLE_ON_BARS), &imgui_sel_onlyDisplayMainTitleOnBars))
+        {
+            ConfigMgr::set("P", cfg::P_ONLY_DISPLAY_MAIN_TITLE_ON_BARS, imgui_sel_onlyDisplayMainTitleOnBars);
+        }
+        if (ImGui::Checkbox(i18n::c(DISABLE_PLAYMODE_ALL), &imgui_sel_disablePlaymodeAll))
+        {
+            ConfigMgr::set("P", cfg::P_DISABLE_PLAYMODE_ALL, imgui_sel_disablePlaymodeAll);
+        }
+        if (ImGui::Checkbox(i18n::c(DISABLE_DIFFICULTY_ALL), &imgui_sel_disableDifficultyAll))
+        {
+            ConfigMgr::set("P", cfg::P_DISABLE_DIFFICULTY_ALL, imgui_sel_disableDifficultyAll);
+        }
+        if (ImGui::Checkbox(i18n::c(DISABLE_PLAYMODE_SINGLE), &imgui_sel_disablePlaymodeSingle))
+        {
+            ConfigMgr::set("P", cfg::P_DISABLE_PLAYMODE_SINGLE, imgui_sel_disablePlaymodeSingle);
+        }
+        if (ImGui::Checkbox(i18n::c(DISABLE_PLAYMODE_DOUBLE), &imgui_sel_disablePlaymodeDouble))
+        {
+            ConfigMgr::set("P", cfg::P_DISABLE_PLAYMODE_DOUBLE, imgui_sel_disablePlaymodeDouble);
+        }
+        if (ImGui::Checkbox(i18n::c(IGNORE_DP_CHARTS), &imgui_sel_ignoreDPCharts))
+        {
+            ConfigMgr::set("P", cfg::P_IGNORE_DP_CHARTS, imgui_sel_ignoreDPCharts);
+        }
+        if (ImGui::Checkbox(i18n::c(IGNORE_9K_CHARTS), &imgui_sel_ignore9keys))
+        {
+            ConfigMgr::set("P", cfg::P_IGNORE_9KEYS_CHARTS, imgui_sel_ignore9keys);
+        }
+        if (ImGui::Checkbox(i18n::c(IGNORE_5K_IF_7K_EXISTS), &imgui_sel_ignore5keysif7keysexist))
+        {
+            ConfigMgr::set("P", cfg::P_IGNORE_5KEYS_IF_7KEYS_EXIST, imgui_sel_ignore5keysif7keysexist);
+        }
 
         ImGui::EndChild();
     }

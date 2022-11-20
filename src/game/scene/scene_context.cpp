@@ -161,6 +161,15 @@ void loadSongList()
         // apply filter
         auto checkFilterKeys = [](int keys)
         {
+            if ((keys == 10 || keys == 14) && ConfigMgr::get("P", cfg::P_IGNORE_DP_CHARTS, false))
+            {
+                return false;
+            }
+            if (keys == 9 && ConfigMgr::get("P", cfg::P_IGNORE_9KEYS_CHARTS, false))
+            {
+                return false;
+            }
+
             if (State::get(IndexOption::PLAY_BATTLE_TYPE) != Option::BATTLE_DB)
             {
                 // not DB, filter as usual
@@ -202,16 +211,36 @@ void loadSongList()
         case eEntryType::RIVAL_SONG:
         {
             auto f = std::reinterpret_pointer_cast<EntryFolderSong>(e);
+
+            bool have7k = false;
+            bool have14k = false;
+            if (ConfigMgr::get("P", cfg::P_IGNORE_5KEYS_IF_7KEYS_EXIST, false))
+            {
+                for (size_t idx = 0; idx < f->getContentsCount() && !skip; ++idx)
+                {
+                    auto pBase = f->getChart(idx);
+                    if (pBase->gamemode == 7) have7k = true;
+                    if (pBase->gamemode == 14) have14k = true;
+                }
+            }
+
             for (size_t idx = 0; idx < f->getContentsCount() && !skip; ++idx)
             {
+                auto pBase = f->getChart(idx);
+
+                if (ConfigMgr::get("P", cfg::P_IGNORE_5KEYS_IF_7KEYS_EXIST, false))
+                {
+                    if (pBase->gamemode == 5 && have7k) continue;
+                    if (pBase->gamemode == 10 && have14k) continue;
+                }
+                if (!checkFilterDifficulty(pBase->difficulty)) continue;
+                if (!checkFilterKeys(pBase->gamemode)) continue;
+
                 switch (f->getChart(idx)->type())
                 {
                 case eChartFormat::BMS:
                 {
                     auto p = std::reinterpret_pointer_cast<ChartFormatBMSMeta>(f->getChart(idx));
-
-                    if (!checkFilterDifficulty(p->difficulty)) continue;
-                    if (!checkFilterKeys(p->gamemode)) continue;
 
                     // add all charts as individual entries into list.
                     gSelectContext.entries.push_back({ std::make_shared<EntryChart>(p, f), nullptr });

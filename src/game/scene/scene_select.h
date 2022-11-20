@@ -155,7 +155,7 @@ private:
     void _imguiPage_Options_Video();
     void _imguiPage_Options_Audio();
     void _imguiPage_Options_Play();
-    void _imguiPage_Options_Advanced();
+    void _imguiPage_Options_Select();
     void _imguiPage_About();
     void _imguiPage_Exit();
 
@@ -243,4 +243,12 @@ private:
     bool imgui_adv_enableNewRandom;
     bool imgui_adv_enableNewGauge;
     bool imgui_adv_enableNewLaneOption;
+    bool imgui_sel_onlyDisplayMainTitleOnBars;
+    bool imgui_sel_disablePlaymodeAll;
+    bool imgui_sel_disableDifficultyAll;
+    bool imgui_sel_disablePlaymodeSingle;
+    bool imgui_sel_disablePlaymodeDouble;
+    bool imgui_sel_ignoreDPCharts;
+    bool imgui_sel_ignore9keys;
+    bool imgui_sel_ignore5keysif7keysexist;
 };

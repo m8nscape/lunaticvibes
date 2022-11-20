@@ -275,6 +275,14 @@ namespace cfg
     constexpr char P_ENABLE_NEW_RANDOM[] = "EnableNewRandomOptions";
     constexpr char P_ENABLE_NEW_GAUGE[] = "EnableNewGauges";
     constexpr char P_ENABLE_NEW_LANE_OPTION[] = "EnableNewLaneOptions";
+    constexpr char P_ONLY_DISPLAY_MAIN_TITLE_ON_BARS[] = "OnlyDisplayMainTitleOnBars";
+    constexpr char P_DISABLE_PLAYMODE_ALL[] = "DisablePlaymodeFilterAll";
+    constexpr char P_DISABLE_DIFFICULTY_ALL[] = "DisableDifficultyFilterAll";
+    constexpr char P_DISABLE_PLAYMODE_SINGLE[] = "DisablePlaymodeFilterSingle";
+    constexpr char P_DISABLE_PLAYMODE_DOUBLE[] = "DisablePlaymodeFilterDouble";
+    constexpr char P_IGNORE_DP_CHARTS[] = "IgnoreDPCharts";
+    constexpr char P_IGNORE_9KEYS_CHARTS[] = "Ignore9kCharts";
+    constexpr char P_IGNORE_5KEYS_IF_7KEYS_EXIST[] = "Ignore5keysIf7keysExist";
 }
 
 class ConfigProfile : public vConfig

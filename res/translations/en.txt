@@ -15,7 +15,7 @@ Jukebox
 Video
 Audio
 Play
-Advanced
+Select
 Profile
 Player Name
 Language
@@ -95,3 +95,11 @@ Lock Notes Time (green number)
 Notes Time
 Ctrl+Click the slider for further values. (lol are you sure you need this)
 Hi-Speed
+Only show main title on entry bar
+Disable Playmode Filter: ALL
+Disable Difficulty Filter: ALL
+Disable Playmode Filter: SINGLE (5+7)
+Disable Playmode Filter: DOUBLE (10+14)
+Ignore DP charts (10k, 14k)
+Ignore 9k charts
+Ignore 5k sabun if 7k exist
