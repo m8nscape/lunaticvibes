@@ -57,6 +57,8 @@ class ConfigInput : public vConfig
 {
 private:
     GameModeKeys keys;
+    std::map<Input::Pad, KeyMap> buffer;
+
 public:
     ConfigInput() = delete;
     ConfigInput(const std::string& profile, GameModeKeys k);
