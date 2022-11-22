@@ -198,6 +198,8 @@ void SceneKeyConfig::inputGamePressKeyboard(KeyboardMask& mask, const Time& t)
             ConfigMgr::Input(keys)->bind(pad, undef);
             InputMgr::updateBindings(keys, pad);
             updateInfo(undef, slot);
+            SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
+            return;
         }
 
         if (pad == Input::Pad::S1A || pad == Input::Pad::S2A)
@@ -206,16 +208,36 @@ void SceneKeyConfig::inputGamePressKeyboard(KeyboardMask& mask, const Time& t)
         if (mask[static_cast<size_t>(Input::Keyboard::K_F1)])
         {
             ConfigMgr::Input(keys)->clearAll();
+            updateInfo(KeyMap(), slot);
+            SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
         }
         else if (mask[static_cast<size_t>(Input::Keyboard::K_F2)])
         {
             ConfigMgr::Input(keys)->setDefaults();
+            updateInfo(ConfigMgr::Input(keys)->getBindings(pad), slot);
+            SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
         }
         else
         {
+            KeyboardMask filtered = mask;
+            filtered[(size_t)Input::Keyboard::K_F1] = false;
+            filtered[(size_t)Input::Keyboard::K_F2] = false;
+            filtered[(size_t)Input::Keyboard::K_F3] = false;
+            filtered[(size_t)Input::Keyboard::K_F4] = false;
+            filtered[(size_t)Input::Keyboard::K_F5] = false;
+            filtered[(size_t)Input::Keyboard::K_F6] = false;
+            filtered[(size_t)Input::Keyboard::K_F7] = false;
+            filtered[(size_t)Input::Keyboard::K_F8] = false;
+            filtered[(size_t)Input::Keyboard::K_F9] = false;
+            filtered[(size_t)Input::Keyboard::K_F10] = false;
+            filtered[(size_t)Input::Keyboard::K_F11] = false;
+            filtered[(size_t)Input::Keyboard::K_F12] = false;
+            filtered[(size_t)Input::Keyboard::K_ESC] = false;
+            filtered[(size_t)Input::Keyboard::K_DEL] = false;
+
             for (Input::Keyboard k = Input::Keyboard::K_1; k != Input::Keyboard::K_COUNT; ++ * (unsigned*)&k)
             {
-                if (mask[static_cast<size_t>(k)])
+                if (filtered[static_cast<size_t>(k)])
                 {
                     // modify slot
                     KeyMap km(k);
