@@ -148,7 +148,6 @@ private:
     void _imguiSettings();
 
     // pages
-    void _imguiPage_KeyConfig();
     void _imguiPage_Options();
     void _imguiPage_Options_General();
     void _imguiPage_Options_Jukebox();

@@ -2,6 +2,7 @@
 #include "scene_context.h"
 #include "config/config_mgr.h"
 #include "game/sound/sound_mgr.h"
+#include "game/runtime/i18n.h"
 
 SceneKeyConfig::SceneKeyConfig() : vScene(eMode::KEY_CONFIG, 240)
 {
@@ -64,6 +65,44 @@ SceneKeyConfig::SceneKeyConfig() : vScene(eMode::KEY_CONFIG, 240)
     State::set(IndexOption::KEY_CONFIG_KEY9, 1);
     setInputBindingText(gKeyconfigContext.keys, gKeyconfigContext.selecting.first);
 
+    State::set(IndexText::KEYCONFIG_HINT_KEY, i18n::s(i18nText::KEYCONFIG_HINT_KEY));
+    State::set(IndexText::KEYCONFIG_HINT_BIND, i18n::s(i18nText::KEYCONFIG_HINT_BIND));
+    State::set(IndexText::KEYCONFIG_HINT_DEADZONE, i18n::s(i18nText::KEYCONFIG_HINT_DEADZONE));
+    State::set(IndexText::KEYCONFIG_HINT_F1, i18n::s(i18nText::KEYCONFIG_HINT_F1));
+    State::set(IndexText::KEYCONFIG_HINT_F2, i18n::s(i18nText::KEYCONFIG_HINT_F2));
+    State::set(IndexText::KEYCONFIG_HINT_DEL, i18n::s(i18nText::KEYCONFIG_HINT_DEL));
+    State::set(IndexText::KEYCONFIG_HINT_SCRATCH_ABS, i18n::s(i18nText::KEYCONFIG_HINT_SCRATCH_ABS));
+    State::set(IndexText::KEYCONFIG_1P_1, "1P 1");
+    State::set(IndexText::KEYCONFIG_1P_2, "1P 2");
+    State::set(IndexText::KEYCONFIG_1P_3, "1P 3");
+    State::set(IndexText::KEYCONFIG_1P_4, "1P 4");
+    State::set(IndexText::KEYCONFIG_1P_5, "1P 5");
+    State::set(IndexText::KEYCONFIG_1P_6, "1P 6");
+    State::set(IndexText::KEYCONFIG_1P_7, "1P 7");
+    State::set(IndexText::KEYCONFIG_1P_8, "1P 8");
+    State::set(IndexText::KEYCONFIG_1P_9, "1P 9");
+    State::set(IndexText::KEYCONFIG_1P_START, "1P START");
+    State::set(IndexText::KEYCONFIG_1P_SELECT, "1P SELECT");
+    State::set(IndexText::KEYCONFIG_1P_SCRATCH_L, "1P SC-L");
+    State::set(IndexText::KEYCONFIG_1P_SCRATCH_R, "1P SC-R");
+    State::set(IndexText::KEYCONFIG_1P_SCRATCH_ABS, "1P SC ABS");
+    State::set(IndexText::KEYCONFIG_2P_1, "2P 1");
+    State::set(IndexText::KEYCONFIG_2P_2, "2P 2");
+    State::set(IndexText::KEYCONFIG_2P_3, "2P 3");
+    State::set(IndexText::KEYCONFIG_2P_4, "2P 4");
+    State::set(IndexText::KEYCONFIG_2P_5, "2P 5");
+    State::set(IndexText::KEYCONFIG_2P_6, "2P 6");
+    State::set(IndexText::KEYCONFIG_2P_7, "2P 7");
+    State::set(IndexText::KEYCONFIG_2P_8, "2P 8");
+    State::set(IndexText::KEYCONFIG_2P_9, "2P 9");
+    State::set(IndexText::KEYCONFIG_2P_START, "2P START");
+    State::set(IndexText::KEYCONFIG_2P_SELECT, "2P SELECT");
+    State::set(IndexText::KEYCONFIG_2P_SCRATCH_L, "2P SC-L");
+    State::set(IndexText::KEYCONFIG_2P_SCRATCH_R, "2P SC-R");
+    State::set(IndexText::KEYCONFIG_2P_SCRATCH_ABS, "2P SC ABS");
+
+    updateAllText();
+
     LOG_DEBUG << "[KeyConfig] Start";
 }
 
@@ -85,6 +124,13 @@ void SceneKeyConfig::_updateAsync()
     _updateCallback();
 
     updateForceBargraphs();
+
+    State::set(IndexNumber::_ANGLE_TT_1P, int(_ttAngleDiff[0]) % 360);
+    State::set(IndexNumber::_ANGLE_TT_2P, int(_ttAngleDiff[1]) % 360);
+    State::set(IndexNumber::SCRATCH_AXIS_1P_ANGLE, (360 + int(_ttAngleDiff[0]) % 360) % 360 / 360.0 * 256);
+    State::set(IndexNumber::SCRATCH_AXIS_2P_ANGLE, (360 + int(_ttAngleDiff[1]) % 360) % 360 / 360.0 * 256);
+    State::set(IndexText::KEYCONFIG_1P_SCRATCH_ABS_VALUE, std::to_string(State::get(IndexNumber::SCRATCH_AXIS_1P_ANGLE)));
+    State::set(IndexText::KEYCONFIG_2P_SCRATCH_ABS_VALUE, std::to_string(State::get(IndexNumber::SCRATCH_AXIS_2P_ANGLE)));
 }
 
 void SceneKeyConfig::updateStart()
@@ -96,6 +142,7 @@ void SceneKeyConfig::updateStart()
         _updateCallback = std::bind(&SceneKeyConfig::updateMain, this);
         using namespace std::placeholders;
         _input.register_p("SCENE_PRESS", std::bind(&SceneKeyConfig::inputGamePress, this, _1, _2));
+        _input.register_a("SCENE_AXIS", std::bind(&SceneKeyConfig::inputGameAxis, this, _1, _2, _3));
         _input.register_kb("SCENE_KEYPRESS", std::bind(&SceneKeyConfig::inputGamePressKeyboard, this, _1, _2));
         _input.register_joy("SCENE_JOYPRESS", std::bind(&SceneKeyConfig::inputGamePressJoystick, this, _1, _2, _3));
         _input.register_aa("SCENE_ABSOLUTEAXIS", std::bind(&SceneKeyConfig::inputGameAbsoluteAxis, this, _1, _2, _3));
@@ -112,6 +159,7 @@ void SceneKeyConfig::updateMain()
         _updateCallback = std::bind(&SceneKeyConfig::updateFadeout, this);
         using namespace std::placeholders;
         _input.unregister_p("SCENE_PRESS");
+        _input.unregister_a("SCENE_AXIS");
         _input.unregister_kb("SCENE_KEYPRESS");
         _input.unregister_joy("SCENE_JOYPRESS");
         _input.unregister_aa("SCENE_ABSOLUTEAXIS");
@@ -150,6 +198,15 @@ void SceneKeyConfig::inputGamePress(InputMask& m, const Time& t)
             State::set(InputGamePressMap[i].sw, true);
         }
     }
+}
+
+void SceneKeyConfig::inputGameAxis(double S1, double S2, const Time& t)
+{
+    using namespace Input;
+
+    // turntable spin
+    _ttAngleDiff[PLAYER_SLOT_PLAYER] += S1 * 2.0 * 360;
+    _ttAngleDiff[PLAYER_SLOT_TARGET] += S2 * 2.0 * 360;
 }
 
 static const std::map<Input::Pad, IndexBargraph> forceBargraphMap =
@@ -309,8 +366,9 @@ void SceneKeyConfig::inputGamePressJoystick(JoystickMask& mask, size_t device, c
         auto s1a = ConfigMgr::Input(keys)->getBindings(Input::Pad::S1A);
         auto s2a = ConfigMgr::Input(keys)->getBindings(Input::Pad::S2A);
 
-        if (s1a.getType() == KeyMap::DeviceType::UNDEF && (pad == Input::Pad::S1L || pad == Input::Pad::S1R) ||
-            s2a.getType() == KeyMap::DeviceType::UNDEF && (pad == Input::Pad::S2L || pad == Input::Pad::S2R))
+        if (pad != Input::Pad::S1A && pad != Input::Pad::S2A ||
+            (pad == Input::Pad::S1L || pad == Input::Pad::S1R) && s1a.getType() == KeyMap::DeviceType::UNDEF ||
+            (pad == Input::Pad::S2L || pad == Input::Pad::S2R) && s2a.getType() == KeyMap::DeviceType::UNDEF)
         {
             // Relative Axis +
             for (size_t index = 0; index < InputMgr::MAX_JOYSTICK_AXIS_COUNT; ++index)
@@ -382,6 +440,7 @@ void SceneKeyConfig::inputGameAbsoluteAxis(JoystickAxis& axis, size_t device, co
     }
 }
 
+
 void SceneKeyConfig::setInputBindingText(GameModeKeys keys, Input::Pad pad)
 {
     auto bindings = ConfigMgr::Input(keys)->getBindings(pad);
@@ -429,7 +488,7 @@ void SceneKeyConfig::updateForceBargraphs()
                 binding.getJoystick().type == Input::Joystick::Type::BUTTON &&
                 binding.getJoystick().index == index)
             {
-                if (isButtonPressed(binding.getJoystick(), 0.0));
+                if (isButtonPressed(binding.getJoystick(), 0.0))
                 {
                     forceBargraphTriggerTimestamp[p] = t.norm();
                     State::set(bar, 1.0);
@@ -448,7 +507,7 @@ void SceneKeyConfig::updateForceBargraphs()
                 binding.getJoystick().type == Input::Joystick::Type::POV &&
                 (binding.getJoystick().index & 0xFFFF) == index)
             {
-                if (isButtonPressed(binding.getJoystick(), 0.0));
+                if (isButtonPressed(binding.getJoystick(), 0.0))
                 {
                     forceBargraphTriggerTimestamp[p] = t.norm();
                     State::set(bar, 1.0);
@@ -468,9 +527,9 @@ void SceneKeyConfig::updateForceBargraphs()
                 binding.getJoystick().index == index)
             {
                 double axis = _input.getJoystickAxis(binding.getJoystick().device, Input::Joystick::Type::AXIS_RELATIVE_POSITIVE, index);
-                if (axis >= 0.0 && axis <= 1.0)
+                if (axis > 0.01 && axis <= 1.0)
                 {
-                    forceBargraphTriggerTimestamp[p] = 0;
+                    forceBargraphTriggerTimestamp[p] = t.norm();
                     State::set(bar, axis);
                 }
             }
@@ -488,9 +547,9 @@ void SceneKeyConfig::updateForceBargraphs()
                 binding.getJoystick().index == index)
             {
                 double axis = _input.getJoystickAxis(binding.getJoystick().device, Input::Joystick::Type::AXIS_RELATIVE_NEGATIVE, index);
-                if (axis >= 0.0 && axis <= 1.0)
+                if (axis > 0.01 && axis <= 1.0)
                 {
-                    forceBargraphTriggerTimestamp[p] = 0;
+                    forceBargraphTriggerTimestamp[p] = t.norm();
                     State::set(bar, axis);
                 }
             }
@@ -501,7 +560,7 @@ void SceneKeyConfig::updateForceBargraphs()
     {
         if (forceBargraphTriggerTimestamp.find(pad) != forceBargraphTriggerTimestamp.end() &&
             forceBargraphTriggerTimestamp[pad] != 0 &&
-            t - forceBargraphTriggerTimestamp[pad] > 500)  // 1s timeout
+            t - forceBargraphTriggerTimestamp[pad] > 200)  // 1s timeout
         {
             State::set(bar, 0.0);
         }
@@ -530,4 +589,43 @@ void SceneKeyConfig::updateInfo(KeyMap k, int slot)
 
     // play sound
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
+
+    updateAllText();
+}
+
+void SceneKeyConfig::updateAllText()
+{
+    auto [pad, slot] = gKeyconfigContext.selecting;
+    GameModeKeys keys = gKeyconfigContext.keys;
+
+    auto& input = ConfigMgr::Input(keys);
+
+    State::set(IndexText::KEYCONFIG_1P_BIND_1, input->getBindings(Input::Pad::K11).toString());
+    State::set(IndexText::KEYCONFIG_1P_BIND_2, input->getBindings(Input::Pad::K12).toString());
+    State::set(IndexText::KEYCONFIG_1P_BIND_3, input->getBindings(Input::Pad::K13).toString());
+    State::set(IndexText::KEYCONFIG_1P_BIND_4, input->getBindings(Input::Pad::K14).toString());
+    State::set(IndexText::KEYCONFIG_1P_BIND_5, input->getBindings(Input::Pad::K15).toString());
+    State::set(IndexText::KEYCONFIG_1P_BIND_6, input->getBindings(Input::Pad::K16).toString());
+    State::set(IndexText::KEYCONFIG_1P_BIND_7, input->getBindings(Input::Pad::K17).toString());
+    State::set(IndexText::KEYCONFIG_1P_BIND_8, input->getBindings(Input::Pad::K18).toString());
+    State::set(IndexText::KEYCONFIG_1P_BIND_9, input->getBindings(Input::Pad::K19).toString());
+    State::set(IndexText::KEYCONFIG_1P_BIND_SCRATCH_L, input->getBindings(Input::Pad::S1L).toString());
+    State::set(IndexText::KEYCONFIG_1P_BIND_SCRATCH_R, input->getBindings(Input::Pad::S1R).toString());
+    State::set(IndexText::KEYCONFIG_1P_BIND_START, input->getBindings(Input::Pad::K1START).toString());
+    State::set(IndexText::KEYCONFIG_1P_BIND_SELECT, input->getBindings(Input::Pad::K1SELECT).toString());
+    State::set(IndexText::KEYCONFIG_1P_BIND_SCRATCH_ABS, input->getBindings(Input::Pad::S1A).toString());
+    State::set(IndexText::KEYCONFIG_2P_BIND_1, input->getBindings(Input::Pad::K21).toString());
+    State::set(IndexText::KEYCONFIG_2P_BIND_2, input->getBindings(Input::Pad::K22).toString());
+    State::set(IndexText::KEYCONFIG_2P_BIND_3, input->getBindings(Input::Pad::K23).toString());
+    State::set(IndexText::KEYCONFIG_2P_BIND_4, input->getBindings(Input::Pad::K24).toString());
+    State::set(IndexText::KEYCONFIG_2P_BIND_5, input->getBindings(Input::Pad::K25).toString());
+    State::set(IndexText::KEYCONFIG_2P_BIND_6, input->getBindings(Input::Pad::K26).toString());
+    State::set(IndexText::KEYCONFIG_2P_BIND_7, input->getBindings(Input::Pad::K27).toString());
+    State::set(IndexText::KEYCONFIG_2P_BIND_8, input->getBindings(Input::Pad::K28).toString());
+    State::set(IndexText::KEYCONFIG_2P_BIND_9, input->getBindings(Input::Pad::K29).toString());
+    State::set(IndexText::KEYCONFIG_2P_BIND_SCRATCH_L, input->getBindings(Input::Pad::S2L).toString());
+    State::set(IndexText::KEYCONFIG_2P_BIND_SCRATCH_R, input->getBindings(Input::Pad::S2R).toString());
+    State::set(IndexText::KEYCONFIG_2P_BIND_START, input->getBindings(Input::Pad::K2START).toString());
+    State::set(IndexText::KEYCONFIG_2P_BIND_SELECT, input->getBindings(Input::Pad::K2SELECT).toString());
+    State::set(IndexText::KEYCONFIG_2P_BIND_SCRATCH_ABS, input->getBindings(Input::Pad::S2A).toString());
 }

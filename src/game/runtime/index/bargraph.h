@@ -65,18 +65,7 @@ enum class IndexBargraph : unsigned
 	PLAY_2P_FAST_COUNT,
 
 	// key config extended
-	FORCE_S1L = 60,
-	FORCE_S1R,
-	FORCE_K1Start,
-	FORCE_K1Select,
-
-	FORCE_S2L = 65,
-	FORCE_S2R,
-	FORCE_K2Start,
-	FORCE_K2Select,
-
-	FORCE_S1A = 70,
-	FORCE_K11,
+	FORCE_K11 = 61,
 	FORCE_K12,
 	FORCE_K13,
 	FORCE_K14,
@@ -85,9 +74,12 @@ enum class IndexBargraph : unsigned
 	FORCE_K17,
 	FORCE_K18,
 	FORCE_K19,
+	FORCE_S1L,
+	FORCE_S1R,
+	FORCE_K1Start,
+	FORCE_K1Select,
 
-	FORCE_S2A = 80,
-	FORCE_K21,
+	FORCE_K21 = 81,
 	FORCE_K22,
 	FORCE_K23,
 	FORCE_K24,
@@ -96,6 +88,10 @@ enum class IndexBargraph : unsigned
 	FORCE_K27,
 	FORCE_K28,
 	FORCE_K29,
+	FORCE_S2L,
+	FORCE_S2R,
+	FORCE_K2Start,
+	FORCE_K2Select,
 
 	// internal 
     MUSIC_LOAD_PROGRESS_SYS = 90,

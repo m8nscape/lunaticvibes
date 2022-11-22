@@ -214,34 +214,34 @@ void deadzone(int type, double p)
     using namespace cfg;
     switch (type)
     {
-    case 30: ConfigMgr::set('P', P_INPUT_DEADZONE_S1L, p); break;
-    case 31: ConfigMgr::set('P', P_INPUT_DEADZONE_S1R, p); break;
-    case 32: ConfigMgr::set('P', P_INPUT_DEADZONE_K1Start, p); break;
-    case 33: ConfigMgr::set('P', P_INPUT_DEADZONE_K1Select, p); break;
-    case 40: ConfigMgr::set('P', P_INPUT_SPEED_S1A, p); break;
-    case 41: ConfigMgr::set('P', P_INPUT_DEADZONE_K11, p); break;
-    case 42: ConfigMgr::set('P', P_INPUT_DEADZONE_K12, p); break;
-    case 43: ConfigMgr::set('P', P_INPUT_DEADZONE_K13, p); break;
-    case 44: ConfigMgr::set('P', P_INPUT_DEADZONE_K14, p); break;
-    case 45: ConfigMgr::set('P', P_INPUT_DEADZONE_K15, p); break;
-    case 46: ConfigMgr::set('P', P_INPUT_DEADZONE_K16, p); break;
-    case 47: ConfigMgr::set('P', P_INPUT_DEADZONE_K17, p); break;
-    case 48: ConfigMgr::set('P', P_INPUT_DEADZONE_K18, p); break;
-    case 49: ConfigMgr::set('P', P_INPUT_DEADZONE_K19, p); break;
-    case 35: ConfigMgr::set('P', P_INPUT_DEADZONE_S2L, p); break;
-    case 36: ConfigMgr::set('P', P_INPUT_DEADZONE_S2R, p); break;
-    case 37: ConfigMgr::set('P', P_INPUT_DEADZONE_K2Start, p); break;
-    case 38: ConfigMgr::set('P', P_INPUT_DEADZONE_K2Select, p); break;
-    case 50: ConfigMgr::set('P', P_INPUT_SPEED_S2A, p); break;
-    case 51: ConfigMgr::set('P', P_INPUT_DEADZONE_K21, p); break;
-    case 52: ConfigMgr::set('P', P_INPUT_DEADZONE_K22, p); break;
-    case 53: ConfigMgr::set('P', P_INPUT_DEADZONE_K23, p); break;
-    case 54: ConfigMgr::set('P', P_INPUT_DEADZONE_K24, p); break;
-    case 55: ConfigMgr::set('P', P_INPUT_DEADZONE_K25, p); break;
-    case 56: ConfigMgr::set('P', P_INPUT_DEADZONE_K26, p); break;
-    case 57: ConfigMgr::set('P', P_INPUT_DEADZONE_K27, p); break;
-    case 58: ConfigMgr::set('P', P_INPUT_DEADZONE_K28, p); break;
-    case 59: ConfigMgr::set('P', P_INPUT_DEADZONE_K29, p); break;
+    case 31: State::set(IndexSlider::DEADZONE_K11, p); ConfigMgr::set('P', P_INPUT_DEADZONE_K11, p); break;
+    case 32: State::set(IndexSlider::DEADZONE_K12, p); ConfigMgr::set('P', P_INPUT_DEADZONE_K12, p); break;
+    case 33: State::set(IndexSlider::DEADZONE_K13, p); ConfigMgr::set('P', P_INPUT_DEADZONE_K13, p); break;
+    case 34: State::set(IndexSlider::DEADZONE_K14, p); ConfigMgr::set('P', P_INPUT_DEADZONE_K14, p); break;
+    case 35: State::set(IndexSlider::DEADZONE_K15, p); ConfigMgr::set('P', P_INPUT_DEADZONE_K15, p); break;
+    case 36: State::set(IndexSlider::DEADZONE_K16, p); ConfigMgr::set('P', P_INPUT_DEADZONE_K16, p); break;
+    case 37: State::set(IndexSlider::DEADZONE_K17, p); ConfigMgr::set('P', P_INPUT_DEADZONE_K17, p); break;
+    case 38: State::set(IndexSlider::DEADZONE_K18, p); ConfigMgr::set('P', P_INPUT_DEADZONE_K18, p); break;
+    case 39: State::set(IndexSlider::DEADZONE_K19, p); ConfigMgr::set('P', P_INPUT_DEADZONE_K19, p); break;
+    case 40: State::set(IndexSlider::DEADZONE_K1Start, p); ConfigMgr::set('P', P_INPUT_DEADZONE_K1Start, p); break;
+    case 41: State::set(IndexSlider::DEADZONE_K1Select, p); ConfigMgr::set('P', P_INPUT_DEADZONE_K1Select, p); break;
+    case 42: State::set(IndexSlider::DEADZONE_S1L, p); ConfigMgr::set('P', P_INPUT_DEADZONE_S1L, p); break;
+    case 43: State::set(IndexSlider::DEADZONE_S1R, p); ConfigMgr::set('P', P_INPUT_DEADZONE_S1R, p); break;
+    case 44: State::set(IndexSlider::SPEED_S1A, p); ConfigMgr::set('P', P_INPUT_SPEED_S1A, p); break;
+    case 51: State::set(IndexSlider::DEADZONE_K21, p); ConfigMgr::set('P', P_INPUT_DEADZONE_K21, p); break;
+    case 52: State::set(IndexSlider::DEADZONE_K22, p); ConfigMgr::set('P', P_INPUT_DEADZONE_K22, p); break;
+    case 53: State::set(IndexSlider::DEADZONE_K23, p); ConfigMgr::set('P', P_INPUT_DEADZONE_K23, p); break;
+    case 54: State::set(IndexSlider::DEADZONE_K24, p); ConfigMgr::set('P', P_INPUT_DEADZONE_K24, p); break;
+    case 55: State::set(IndexSlider::DEADZONE_K25, p); ConfigMgr::set('P', P_INPUT_DEADZONE_K25, p); break;
+    case 56: State::set(IndexSlider::DEADZONE_K26, p); ConfigMgr::set('P', P_INPUT_DEADZONE_K26, p); break;
+    case 57: State::set(IndexSlider::DEADZONE_K27, p); ConfigMgr::set('P', P_INPUT_DEADZONE_K27, p); break;
+    case 58: State::set(IndexSlider::DEADZONE_K28, p); ConfigMgr::set('P', P_INPUT_DEADZONE_K28, p); break;
+    case 59: State::set(IndexSlider::DEADZONE_K29, p); ConfigMgr::set('P', P_INPUT_DEADZONE_K29, p); break;
+    case 60: State::set(IndexSlider::DEADZONE_K2Start, p); ConfigMgr::set('P', P_INPUT_DEADZONE_K2Start, p); break;
+    case 61: State::set(IndexSlider::DEADZONE_K2Select, p); ConfigMgr::set('P', P_INPUT_DEADZONE_K2Select, p); break;
+    case 62: State::set(IndexSlider::DEADZONE_S2L, p); ConfigMgr::set('P', P_INPUT_DEADZONE_S2L, p); break;
+    case 63: State::set(IndexSlider::DEADZONE_S2R, p); ConfigMgr::set('P', P_INPUT_DEADZONE_S2R, p); break;
+    case 64: State::set(IndexSlider::SPEED_S2A, p); ConfigMgr::set('P', P_INPUT_SPEED_S2A, p); break;
     }
     InputMgr::updateDeadzones();
 }
@@ -294,10 +294,34 @@ std::function<void(double)> getSliderCallback(int type)
     case 26:
         return std::bind(pitch, _1);
 
-    case 30:
     case 31:
     case 32:
     case 33:
+    case 34:
+    case 35:
+    case 36:
+    case 37:
+    case 38:
+    case 39:
+    case 40:
+    case 41:
+    case 42:
+    case 43:
+    case 44:
+    case 51:
+    case 52:
+    case 53:
+    case 54:
+    case 55:
+    case 56:
+    case 57:
+    case 58:
+    case 59:
+    case 60:
+    case 61:
+    case 62:
+    case 63:
+    case 64:
         return std::bind(deadzone, type, _1);
 
     default:

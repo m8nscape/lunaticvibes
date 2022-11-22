@@ -163,7 +163,6 @@ void SceneSelect::_imguiSettings()
                 {
                     MENU_NONE = 0,
 
-                    MENU_KEYCONFIG,
                     MENU_OPTIONS,
                     MENU__________,
                     MENU_ABOUT,
@@ -177,12 +176,6 @@ void SceneSelect::_imguiSettings()
                     float interval = 5.0f;
 
                     ImGui::Dummy( { mainTagWidth, ImGui::GetWindowHeight() - (height + interval) * MENU_COUNT - 20.0f });
-
-                    if (ImGui::Button(i18n::c(MAIN_KEYCONFIG), {-1.f, height}))
-                    {
-                        imgui_main_index = MENU_KEYCONFIG;
-                    }
-                    ImGui::Dummy({ 0.f, interval });
 
                     if (ImGui::Button(i18n::c(MAIN_SETTINGS), {-1.f, height}))
                     {
@@ -209,12 +202,6 @@ void SceneSelect::_imguiSettings()
 
                     if (ImGui::TableNextColumn())
                     {
-                        if (imgui_main_index == MENU_KEYCONFIG && ImGui::BeginTabBar("##keyconfig", ImGuiTabBarFlags_FittingPolicyScroll))
-                        {
-                            _imguiPage_KeyConfig();
-                            ImGui::EndTabBar();
-                        }
-
                         if (imgui_main_index == MENU_OPTIONS && ImGui::BeginTabBar("##option", ImGuiTabBarFlags_FittingPolicyScroll))
                         {
                             _imguiPage_Options();
@@ -319,12 +306,6 @@ void SceneSelect::_imguiSettings()
 
 static const float tabItemWidth = 120.f;
 static const float infoRowWidth = 240.f;
-
-void SceneSelect::_imguiPage_KeyConfig()
-{
-    using namespace i18nText;
-    ImGui::Text(i18n::c(TODO));
-}
 
 void SceneSelect::_imguiPage_Options()
 {

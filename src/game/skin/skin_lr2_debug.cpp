@@ -157,7 +157,7 @@ void imguiMonitorText()
 	if (ImGui::Begin("Text (F6)", NULL, ImGuiWindowFlags_NoCollapse))
 	{
 		char titleBuf[32] = { 0 };
-		for (int i = 0; i <= 299; i += 20)
+		for (int i = 0; i <= (int)IndexText::TEXT_COUNT; i += 20)
 		{
 			sprintf(titleBuf, "%d - %d", i, i + 20);
 			if (ImGui::CollapsingHeader(titleBuf))

@@ -42,7 +42,7 @@ namespace cfg
     constexpr char S_DEFAULT_PATH_COURSE_RESULT[] = "LR2files/Theme/LR2/CourseResult/courseresult.lr2skin";
 
     constexpr char S_PATH_KEYCONFIG[] = "Key Config";
-    constexpr char S_DEFAULT_PATH_KEYCONFIG[] = "LR2files/Theme/LR2/KeyConfig/keyconfig.lr2skin";
+    constexpr char S_DEFAULT_PATH_KEYCONFIG[] = "gamedata/resources/keyconfig/keyconfig.lr2skin";
 
     constexpr char S_PATH_CUSTOMIZE[] = "Customize";
     constexpr char S_DEFAULT_PATH_CUSTOMIZE[] = "LR2files/Theme/LR2/SkinSelect/skinselect.lr2skin";

@@ -280,7 +280,7 @@ enum class IndexNumber: unsigned
 		PLAY_2P_BP,
 		PLAY_2P_JUDGE_TIME_ERROR_MS,
 
-		SCRATCH_AXIS_1P_ANGLE = 380,
+		SCRATCH_AXIS_1P_ANGLE = 380,	// 0-255, used in key config
 		SCRATCH_AXIS_2P_ANGLE,
 
 		//  LR2HelperA A.0.39 - GITADORA風 JUDGE BARの追加 - Endless Circulation SE FS5のリザルトに適用されています

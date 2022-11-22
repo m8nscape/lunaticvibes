@@ -47,18 +47,7 @@ enum class IndexSlider : unsigned
 
     // new
 	// key config extended
-    DEADZONE_S1L = 30,
-    DEADZONE_S1R,
-    DEADZONE_K1Start,
-    DEADZONE_K1Select,
-
-    DEADZONE_S2L = 35,
-    DEADZONE_S2R,
-    DEADZONE_K2Start,
-    DEADZONE_K2Select,
-
-    SPEED_S1A = 40,
-    DEADZONE_K11,
+    DEADZONE_K11 = 31,
     DEADZONE_K12,
     DEADZONE_K13,
     DEADZONE_K14,
@@ -67,9 +56,13 @@ enum class IndexSlider : unsigned
     DEADZONE_K17,
     DEADZONE_K18,
     DEADZONE_K19,
+    DEADZONE_K1Start,
+    DEADZONE_K1Select,
+    DEADZONE_S1L,
+    DEADZONE_S1R,
+    SPEED_S1A,
 
-    SPEED_S2A = 50,
-    DEADZONE_K21,
+    DEADZONE_K21 = 51,
     DEADZONE_K22,
     DEADZONE_K23,
     DEADZONE_K24,
@@ -78,6 +71,11 @@ enum class IndexSlider : unsigned
     DEADZONE_K27,
     DEADZONE_K28,
     DEADZONE_K29,
+    DEADZONE_K2Start,
+    DEADZONE_K2Select,
+    DEADZONE_S2L,
+    DEADZONE_S2R,
+    SPEED_S2A,
 
     // internal values
     _TEST1 = 60,

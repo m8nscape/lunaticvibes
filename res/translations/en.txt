@@ -103,3 +103,10 @@ Disable Playmode Filter: DOUBLE (10+14)
 Ignore DP charts (10k, 14k)
 Ignore 9k charts
 Ignore 5k sabun if 7k exist
+Key
+Binding
+Deadzone
+F1: Clear all bindings
+F2: Load default
+DEL: Delete current binding
+Speed

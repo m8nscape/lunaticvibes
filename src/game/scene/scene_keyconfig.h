@@ -26,12 +26,15 @@ protected:
     void updateForceBargraphs();
 
     void updateInfo(KeyMap k, int slot);
+    void updateAllText();
 
     std::map<size_t, JoystickMask> joystickPrev;
+    std::array<double, 2>   _ttAngleDiff{ 0 };
 
 protected:
     // Register to InputWrapper: judge / keysound
     void inputGamePress(InputMask&, const Time&);
+    void inputGameAxis(double s1, double s2, const Time&);
     void inputGamePressKeyboard(KeyboardMask&, const Time&);
     void inputGamePressJoystick(JoystickMask&, size_t device, const Time&);
     void inputGameAbsoluteAxis(JoystickAxis&, size_t device, const Time&);
