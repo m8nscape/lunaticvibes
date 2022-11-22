@@ -152,6 +152,9 @@ bool isKeyPressed(Input::Keyboard key)
 
 bool isButtonPressed(Input::Joystick c, double deadzone)
 {
+    if (deadzone < 0.01) 
+        deadzone = 0.01;
+
     if (c.device < InputDirectInput8::inst().getJoystickCount())
     {
         auto& stat = InputDirectInput8::inst().getJoystickState(c.device);

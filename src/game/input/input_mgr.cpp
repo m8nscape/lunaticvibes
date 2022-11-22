@@ -59,7 +59,7 @@ void InputMgr::updateDeadzones()
 {
     // FIXME move deadzones to key config file
     using namespace cfg;
-    _inst.padDeadzones[Input::S1L] = ConfigMgr::get('I', P_INPUT_DEADZONE_S1L, 0.2);
+    _inst.padDeadzones[Input::S1L] = ConfigMgr::get('P', P_INPUT_DEADZONE_S1L, 0.2);
     _inst.padDeadzones[Input::S1R] = ConfigMgr::get('P', P_INPUT_DEADZONE_S1R, 0.2);
     _inst.padDeadzones[Input::K1START] = ConfigMgr::get('P', P_INPUT_DEADZONE_K1Start, 0.2);
     _inst.padDeadzones[Input::K1SELECT] = ConfigMgr::get('P', P_INPUT_DEADZONE_K1Select, 0.2);
