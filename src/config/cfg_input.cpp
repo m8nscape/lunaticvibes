@@ -52,6 +52,25 @@ const char* getBindingKey(Input::Pad ingame)
     }
 }
 
+void ConfigInput::load()
+{
+    vConfig::load();
+
+    for (auto p = Input::Pad::S1L; p < Input::Pad::ESC; p = Input::Pad(int(p) + 1))
+    {
+        const char* mapKey = getBindingKey(p);
+        auto& c = _yaml[mapKey];
+        if (c.Type() == YAML::NodeType::Scalar)
+        {
+            buffer[p] = KeyMap(c.as<std::string>("INVALID"));
+        }
+        else
+        {
+            buffer[p] = KeyMap("INVALID");
+        }
+    }
+}
+
 void ConfigInput::setDefaults() noexcept
 {
     using namespace cfg;
@@ -65,7 +84,7 @@ void ConfigInput::setDefaults() noexcept
     try
     {
         _yaml = YAML::LoadFile(path.string());
-        for (auto p = Input::Pad::S1L; p < Input::Pad::LANE_COUNT; p = Input::Pad(int(p) + 1))
+        for (auto p = Input::Pad::S1L; p < Input::Pad::ESC; p = Input::Pad(int(p) + 1))
         {
             const char* mapKey = getBindingKey(p);
             auto& c = _yaml[mapKey];
@@ -123,7 +142,7 @@ void ConfigInput::clearAll()
     set(I_BINDINGS_K2SpdDn, "");
     set(I_BINDINGS_K2ScAxis, "");
 
-    for (auto p = Input::Pad::S1L; p < Input::Pad::LANE_COUNT; p = Input::Pad(int(p) + 1))
+    for (auto p = Input::Pad::S1L; p < Input::Pad::ESC; p = Input::Pad(int(p) + 1))
     {
         buffer[p] = KeyMap("INVALID");
     }
@@ -155,7 +174,7 @@ void ConfigInput::bind(Input::Pad ingame, const KeyMap& km)
 
 KeyMap ConfigInput::getBindings(Input::Pad ingame)
 {
-    if (ingame >= Input::Pad::LANE_COUNT)
+    if (ingame >= Input::Pad::ESC)
         return KeyMap("INVALID");
     else
         return buffer[ingame];

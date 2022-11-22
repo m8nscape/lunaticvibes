@@ -64,6 +64,7 @@ public:
     ConfigInput(const std::string& profile, GameModeKeys k);
     virtual ~ConfigInput();
 
+    virtual void load() override;
     virtual void setDefaults() noexcept override;
     void setDefaultsUSLayout() noexcept;
 

@@ -20,8 +20,8 @@ public:
 
     virtual void setDefaults() noexcept = 0;
 
-	void load();
-	void save();
+	virtual void load();
+	virtual void save();
     
     template<class Ty_v>
     inline Ty_v get(const std::string& key, const Ty_v& fallback) const { return _yaml[key].as<Ty_v>(fallback); }
