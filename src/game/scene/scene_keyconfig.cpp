@@ -284,43 +284,50 @@ void SceneKeyConfig::inputGamePressJoystick(JoystickMask& mask, size_t device, c
         }
         base += InputMgr::MAX_JOYSTICK_POV_COUNT * 4;
 
-        // Relative Axis +
-        for (size_t index = 0; index < InputMgr::MAX_JOYSTICK_AXIS_COUNT; ++index)
-        {
-            size_t bit = static_cast<size_t>(base + index);
-            if (mask[bit] && !joystickPrev[device][bit])
-            {
-                auto b = ConfigMgr::Input(keys)->getBindings(pad);
-                if (b.getType() == KeyMap::DeviceType::JOYSTICK && 
-                    b.getJoystick().type == Input::Joystick::Type::AXIS_RELATIVE_POSITIVE &&
-                    b.getJoystick().index == index)
-                    continue;
-                KeyMap j(device, Input::Joystick::Type::AXIS_RELATIVE_POSITIVE, index);
-                ConfigMgr::Input(keys)->bind(pad, j);
-                InputMgr::updateBindings(keys, pad);
-                updateInfo(j, slot);
-            }
-            joystickPrev[device][bit] = mask[bit];
-        }
-        base += InputMgr::MAX_JOYSTICK_AXIS_COUNT;
+        auto s1a = ConfigMgr::Input(keys)->getBindings(Input::Pad::S1A);
+        auto s2a = ConfigMgr::Input(keys)->getBindings(Input::Pad::S2A);
 
-        // Relative Axis -
-        for (size_t index = 0; index < InputMgr::MAX_JOYSTICK_AXIS_COUNT; ++index)
+        if (s1a.getType() == KeyMap::DeviceType::UNDEF && (pad == Input::Pad::S1L || pad == Input::Pad::S1R) ||
+            s2a.getType() == KeyMap::DeviceType::UNDEF && (pad == Input::Pad::S2L || pad == Input::Pad::S2R))
         {
-            size_t bit = static_cast<size_t>(base + index);
-            if (mask[bit] && !joystickPrev[device][bit])
+            // Relative Axis +
+            for (size_t index = 0; index < InputMgr::MAX_JOYSTICK_AXIS_COUNT; ++index)
             {
-                auto b = ConfigMgr::Input(keys)->getBindings(pad);
-                if (b.getType() == KeyMap::DeviceType::JOYSTICK &&
-                    b.getJoystick().type == Input::Joystick::Type::AXIS_RELATIVE_NEGATIVE &&
-                    b.getJoystick().index == index)
-                    continue;
-                KeyMap j(device, Input::Joystick::Type::AXIS_RELATIVE_NEGATIVE, index);
-                ConfigMgr::Input(keys)->bind(pad, j);
-                InputMgr::updateBindings(keys, pad);
-                updateInfo(j, slot);
+                size_t bit = static_cast<size_t>(base + index);
+                if (mask[bit] && !joystickPrev[device][bit])
+                {
+                    auto b = ConfigMgr::Input(keys)->getBindings(pad);
+                    if (b.getType() == KeyMap::DeviceType::JOYSTICK &&
+                        b.getJoystick().type == Input::Joystick::Type::AXIS_RELATIVE_POSITIVE &&
+                        b.getJoystick().index == index)
+                        continue;
+                    KeyMap j(device, Input::Joystick::Type::AXIS_RELATIVE_POSITIVE, index);
+                    ConfigMgr::Input(keys)->bind(pad, j);
+                    InputMgr::updateBindings(keys, pad);
+                    updateInfo(j, slot);
+                }
+                joystickPrev[device][bit] = mask[bit];
             }
-            joystickPrev[device][bit] = mask[bit];
+            base += InputMgr::MAX_JOYSTICK_AXIS_COUNT;
+
+            // Relative Axis -
+            for (size_t index = 0; index < InputMgr::MAX_JOYSTICK_AXIS_COUNT; ++index)
+            {
+                size_t bit = static_cast<size_t>(base + index);
+                if (mask[bit] && !joystickPrev[device][bit])
+                {
+                    auto b = ConfigMgr::Input(keys)->getBindings(pad);
+                    if (b.getType() == KeyMap::DeviceType::JOYSTICK &&
+                        b.getJoystick().type == Input::Joystick::Type::AXIS_RELATIVE_NEGATIVE &&
+                        b.getJoystick().index == index)
+                        continue;
+                    KeyMap j(device, Input::Joystick::Type::AXIS_RELATIVE_NEGATIVE, index);
+                    ConfigMgr::Input(keys)->bind(pad, j);
+                    InputMgr::updateBindings(keys, pad);
+                    updateInfo(j, slot);
+                }
+                joystickPrev[device][bit] = mask[bit];
+            }
         }
     }
 }
@@ -345,6 +352,7 @@ void SceneKeyConfig::inputGameAbsoluteAxis(JoystickAxis& axis, size_t device, co
             {
                 KeyMap j(device, Input::Joystick::Type::AXIS_ABSOLUTE, index);
                 ConfigMgr::Input(keys)->bind(pad, j);
+
                 InputMgr::updateBindings(keys, pad);
                 updateInfo(j, slot);
             }

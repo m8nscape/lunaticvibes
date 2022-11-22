@@ -169,6 +169,26 @@ void ConfigInput::bind(Input::Pad ingame, const KeyMap& km)
     {
         set(mapKey, km.toString());
         buffer[ingame] = km;
+
+        switch (ingame)
+        {
+        case Input::Pad::S1A:
+            clearKey(Input::Pad::S1L);
+            clearKey(Input::Pad::S1R);
+            break;
+        case Input::Pad::S2A:
+            clearKey(Input::Pad::S2L);
+            clearKey(Input::Pad::S2R);
+            break;
+        case Input::Pad::S1L:
+        case Input::Pad::S1R:
+            clearKey(Input::Pad::S1A);
+            break;
+        case Input::Pad::S2L:
+        case Input::Pad::S2R:
+            clearKey(Input::Pad::S2A);
+            break;
+        }
     }
 }
 
