@@ -91,6 +91,9 @@ struct PlayContextParams
     std::vector<HashMD5> courseCharts;
     std::vector<std::shared_ptr<vRuleset>> courseStageRulesetCopy[2];
     std::vector<Path> courseStageReplayPath;
+    std::vector<Path> courseStageReplayPathNew;
+    unsigned courseRunningCombo[2] = { 0, 0 };
+    unsigned courseMaxCombo[2] = { 0, 0 };
 
     Time remainTime;
 

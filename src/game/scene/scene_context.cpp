@@ -7,6 +7,8 @@
 #include <mutex>
 #include "game/runtime/i18n.h"
 
+#include <boost/algorithm/string.hpp>
+
 bool gQuitOnFinish = false;
 bool gAppIsExiting = false;
 ChartContextParams gChartContext;
@@ -88,6 +90,7 @@ void clearContextPlayForRetry()
     }
 
     gPlayContext.replayNew.reset();
+
 }
 
 void clearContextPlay()
@@ -107,6 +110,10 @@ void clearContextPlay()
 
     gPlayContext.isCourse = false;
     gPlayContext.courseStage = 0;
+    gPlayContext.courseRunningCombo[PLAYER_SLOT_PLAYER] = 0;
+    gPlayContext.courseMaxCombo[PLAYER_SLOT_PLAYER] = 0;
+    gPlayContext.courseRunningCombo[PLAYER_SLOT_TARGET] = 0;
+    gPlayContext.courseMaxCombo[PLAYER_SLOT_TARGET] = 0;
 
     // gPlayContext.replay.reset();     // load at setEntryInfo() @ scene_context.cpp
     gPlayContext.replayMybest.reset();  // load at _decide() @ scene_select.cpp
@@ -592,6 +599,8 @@ void setEntryInfo()
     std::map<std::string, double> paramf;
     std::map<std::string, std::string> text;
 
+    gPlayContext.courseStageReplayPath.clear();
+
     // chart parameters
     if (e[idx].first->type() == eEntryType::CHART || e[idx].first->type() == eEntryType::RIVAL_CHART)
     {
@@ -801,6 +810,51 @@ void setEntryInfo()
                 param["coursedifficulty"s + std::to_string(stage + 1)] = 0;
                 text["coursetitle"s + std::to_string(stage + 1)] = i18n::s(i18nText::CHART_NOT_FOUND);
                 text["coursesubtitle"s + std::to_string(stage + 1)] = (boost::format(i18n::c(i18nText::CHART_NOT_FOUND_MD5)) % ps->charts[stage].hexdigest()).str();
+            }
+        }
+
+        param["havereplay"] = false;
+        auto& score = e[idx].second;
+        if (score && !score->replayFileName.empty())
+        {
+            std::vector<std::string> replayFileNames;
+            boost::split(replayFileNames, score->replayFileName, boost::is_any_of("|"), boost::token_compress_off);
+            if (replayFileNames.size() <= ps->charts.size())
+            {
+                bool loadFailed = false;
+                for (size_t stage = 0; stage < ps->charts.size(); ++stage)
+                {
+                    if (stage >= replayFileNames.size())
+                    {
+                        gPlayContext.courseStageReplayPath.push_back(Path());
+                    }
+                    else
+                    {
+                        Path replayFilePath = PathFromUTF8(replayFileNames[stage]);
+                        if (fs::is_regular_file(replayFilePath))
+                        {
+                            auto replay = std::make_shared<ReplayChart>();
+                            if (replay->loadFile(replayFilePath))
+                            {
+                                gPlayContext.courseStageReplayPath.push_back(replayFilePath);
+                                if (stage == 0)
+                                {
+                                    gPlayContext.replay = replay;
+                                }
+                            }
+                            else
+                            {
+                                loadFailed = true;
+                                gPlayContext.replay.reset();
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (!loadFailed && gPlayContext.replay != nullptr)
+                {
+                    param["havereplay"] = true;
+                }
             }
         }
     }

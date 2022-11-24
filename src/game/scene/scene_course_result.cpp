@@ -37,7 +37,7 @@ SceneCourseResult::SceneCourseResult() : vScene(eMode::COURSE_RESULT, 1000)
             auto& d = r->getData();
             summary[ARG_TOTAL_NOTES] += r->getNoteCount();
             summary[ARG_MAX_SCORE] += r->getMaxScore();
-            summary[ARG_MAXCOMBO] += d.maxCombo;
+            summary[ARG_MAXCOMBO] = std::max(summary[ARG_MAXCOMBO], d.maxComboDisplay);
 
             if (auto pr = std::dynamic_pointer_cast<RulesetBMS>(r); pr)
             {
@@ -99,7 +99,7 @@ SceneCourseResult::SceneCourseResult() : vScene(eMode::COURSE_RESULT, 1000)
                 auto& d = r->getData();
                 summary2P[ARG_TOTAL_NOTES] += r->getNoteCount();
                 summary2P[ARG_MAX_SCORE] += r->getMaxScore();
-                summary2P[ARG_MAXCOMBO] += d.maxCombo;
+                summary2P[ARG_MAXCOMBO] = std::max(summary2P[ARG_MAXCOMBO], d.maxComboDisplay);
                 acc2P += r->getNoteCount() > 0 ? (d.total_acc / r->getNoteCount()) : 0.0;
 
                 if (auto pr = std::dynamic_pointer_cast<RulesetBMS>(r); pr)
@@ -353,7 +353,7 @@ void SceneCourseResult::updateFadeout()
     if (ft >= _skin->info.timeOutro)
     {
         // save score
-        if (!gInCustomize && !gPlayContext.isBattle && !gChartContext.hash.empty())
+        if (!gInCustomize && !gPlayContext.isReplay && !gPlayContext.isBattle && !gChartContext.hash.empty())
         {
             assert(gPlayContext.ruleset[PLAYER_SLOT_PLAYER] != nullptr);
             ScoreBMS score;
@@ -365,10 +365,10 @@ void SceneCourseResult::updateFadeout()
             score.clearcount = _pScoreOld ? _pScoreOld->clearcount + isclear : isclear;
 
             std::stringstream dbReplayFile;
-            for (size_t i = 0; i < gPlayContext.courseStageReplayPath.size(); ++i)
+            for (size_t i = 0; i < gPlayContext.courseStageReplayPathNew.size(); ++i)
             {
                 if (i != 0) dbReplayFile << "|";
-                dbReplayFile << gPlayContext.courseStageReplayPath[i].u8string();
+                dbReplayFile << gPlayContext.courseStageReplayPathNew[i].u8string();
             }
             score.replayFileName = dbReplayFile.str();
 
@@ -417,7 +417,7 @@ void SceneCourseResult::updateFadeout()
         clearContextPlay();
         gPlayContext.courseStageRulesetCopy[0].clear();
         gPlayContext.courseStageRulesetCopy[1].clear();
-        gPlayContext.courseStageReplayPath.clear();
+        gPlayContext.courseStageReplayPathNew.clear();
         gPlayContext.isAuto = false;
         gPlayContext.isReplay = false;
         gNextScene = gQuitOnFinish ? eScene::EXIT_TRANS : eScene::SELECT;
@@ -443,7 +443,7 @@ void SceneCourseResult::inputGamePress(InputMask& m, const Time& t)
             break;
 
         case eCourseResultState::STOP:
-            if (!gPlayContext.isBattle)
+            if (!gPlayContext.isBattle && !gPlayContext.isReplay)
             {
                 State::set(IndexTimer::RESULT_HIGHSCORE_START, t.norm());
                 // TODO stop result sound

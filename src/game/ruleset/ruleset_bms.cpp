@@ -764,6 +764,7 @@ void RulesetBMS::updateJudge(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeA
         case JudgeArea::LATE_BAD:
         case JudgeArea::MISS:
             _basic.combo = 0;
+            _basic.comboDisplay = 0;
             break;
 
         default:
@@ -773,6 +774,8 @@ void RulesetBMS::updateJudge(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeA
         _updateHp(judge);
         if (_basic.combo > _basic.maxCombo)
             _basic.maxCombo = _basic.combo;
+        if (_basic.combo + _basic.comboDisplay > _basic.maxComboDisplay)
+            _basic.maxComboDisplay = _basic.combo + _basic.comboDisplay;
     }
 
     JudgeType judgeType = JudgeAreaTypeMap.at(judge);
@@ -798,14 +801,14 @@ void RulesetBMS::updateJudge(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeA
         {
             State::set(IndexTimer::PLAY_JUDGE_1P, t.norm());
             setJudgeInternalTimer1P(judgeType, t.norm());
-            State::set(IndexNumber::_DISP_NOWCOMBO_1P, _basic.combo);
+            State::set(IndexNumber::_DISP_NOWCOMBO_1P, _basic.combo + _basic.comboDisplay);
             State::set(IndexOption::PLAY_LAST_JUDGE_1P, JudgeTypeOptMap.at(judgeType));
         }
         else if (slot == PLAYER_SLOT_TARGET)
         {
             State::set(IndexTimer::PLAY_JUDGE_2P, t.norm());
             setJudgeInternalTimer2P(judgeType, t.norm());
-            State::set(IndexNumber::_DISP_NOWCOMBO_2P, _basic.combo);
+            State::set(IndexNumber::_DISP_NOWCOMBO_2P, _basic.combo + _basic.comboDisplay);
             State::set(IndexOption::PLAY_LAST_JUDGE_2P, JudgeTypeOptMap.at(judgeType));
         }
     }
@@ -1337,8 +1340,8 @@ void RulesetBMS::updateGlobals()
 
         State::set(IndexNumber::PLAY_1P_SCORE, int(std::floor(moneyScore)));
         State::set(IndexNumber::PLAY_1P_EXSCORE, exScore);
-        State::set(IndexNumber::PLAY_1P_NOWCOMBO, _basic.combo);
-        State::set(IndexNumber::PLAY_1P_MAXCOMBO, _basic.maxCombo);
+        State::set(IndexNumber::PLAY_1P_NOWCOMBO, _basic.combo + _basic.comboDisplay);
+        State::set(IndexNumber::PLAY_1P_MAXCOMBO, _basic.maxComboDisplay);
         State::set(IndexNumber::PLAY_1P_RATE, int(std::floor(_basic.acc)));
         State::set(IndexNumber::PLAY_1P_RATEDECIMAL, int(std::floor((_basic.acc - int(_basic.acc)) * 100)));
         State::set(IndexNumber::PLAY_1P_TOTALNOTES, getNoteCount());
@@ -1451,8 +1454,8 @@ void RulesetBMS::updateGlobals()
         
         State::set(IndexNumber::PLAY_2P_SCORE, int(std::floor(moneyScore)));
         State::set(IndexNumber::PLAY_2P_EXSCORE, exScore);
-        State::set(IndexNumber::PLAY_2P_NOWCOMBO, _basic.combo);
-        State::set(IndexNumber::PLAY_2P_MAXCOMBO, _basic.maxCombo);
+        State::set(IndexNumber::PLAY_2P_NOWCOMBO, _basic.combo + _basic.comboDisplay);
+        State::set(IndexNumber::PLAY_2P_MAXCOMBO, _basic.maxComboDisplay);
         State::set(IndexNumber::PLAY_2P_RATE, int(std::floor(_basic.acc)));
         State::set(IndexNumber::PLAY_2P_RATEDECIMAL, int(std::floor((_basic.acc - int(_basic.acc)) * 100)));
         State::set(IndexNumber::PLAY_2P_TOTALNOTES, getNoteCount());

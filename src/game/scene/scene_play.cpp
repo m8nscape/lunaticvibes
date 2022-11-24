@@ -325,7 +325,7 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     {
         if (gPlayContext.courseStage < gPlayContext.courseCharts.size())
         {
-            gPlayContext.courseStageReplayPath.push_back("");
+            gPlayContext.courseStageReplayPathNew.push_back("");
 
             if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER])
             {
@@ -739,6 +739,17 @@ bool ScenePlay::createRuleset()
                         gPlayContext.initialHealth[PLAYER_SLOT_TARGET], RulesetBMS::PlaySide::AUTO_2P);
                 }
             }
+
+            if (gPlayContext.isCourse)
+            {
+                gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->setComboDisplay(gPlayContext.courseRunningCombo[PLAYER_SLOT_PLAYER]);
+                gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->setMaxComboDisplay(gPlayContext.courseMaxCombo[PLAYER_SLOT_PLAYER]);
+                if (gPlayContext.ruleset[PLAYER_SLOT_TARGET])
+                {
+                    gPlayContext.ruleset[PLAYER_SLOT_TARGET]->setComboDisplay(gPlayContext.courseRunningCombo[PLAYER_SLOT_TARGET]);
+                    gPlayContext.ruleset[PLAYER_SLOT_TARGET]->setMaxComboDisplay(gPlayContext.courseMaxCombo[PLAYER_SLOT_TARGET]);
+                }
+            }
         }
         else if (gPlayContext.isReplay)
         {
@@ -758,6 +769,14 @@ bool ScenePlay::createRuleset()
                     gChartContext.chartObjMybest, gPlayContext.chartObj[PLAYER_SLOT_MYBEST], gPlayContext.replayMybest,
                     gPlayContext.replayMybest->gaugeType, keys, judgeDiff,
                     gPlayContext.initialHealth[PLAYER_SLOT_MYBEST], RulesetBMS::PlaySide::MYBEST);
+            }
+
+            if (gPlayContext.isCourse)
+            {
+                gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->setComboDisplay(gPlayContext.courseRunningCombo[PLAYER_SLOT_PLAYER]);
+                gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->setMaxComboDisplay(gPlayContext.courseMaxCombo[PLAYER_SLOT_PLAYER]);
+                gPlayContext.ruleset[PLAYER_SLOT_TARGET]->setComboDisplay(gPlayContext.courseRunningCombo[PLAYER_SLOT_TARGET]);
+                gPlayContext.ruleset[PLAYER_SLOT_TARGET]->setMaxComboDisplay(gPlayContext.courseMaxCombo[PLAYER_SLOT_TARGET]);
             }
         }
         else if (gPlayContext.isBattle)
@@ -781,6 +800,14 @@ bool ScenePlay::createRuleset()
                     gPlayContext.mods[PLAYER_SLOT_TARGET].gauge, keys, judgeDiff,
                     gPlayContext.initialHealth[PLAYER_SLOT_TARGET], RulesetBMS::PlaySide::BATTLE_2P);
             }
+
+            if (gPlayContext.isCourse)
+            {
+                gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->setComboDisplay(gPlayContext.courseRunningCombo[PLAYER_SLOT_PLAYER]);
+                gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->setMaxComboDisplay(gPlayContext.courseMaxCombo[PLAYER_SLOT_PLAYER]);
+                gPlayContext.ruleset[PLAYER_SLOT_TARGET]->setComboDisplay(gPlayContext.courseRunningCombo[PLAYER_SLOT_TARGET]);
+                gPlayContext.ruleset[PLAYER_SLOT_TARGET]->setMaxComboDisplay(gPlayContext.courseMaxCombo[PLAYER_SLOT_TARGET]);
+            }
         }
         else
         {
@@ -800,6 +827,14 @@ bool ScenePlay::createRuleset()
                     gChartContext.chartObjMybest, gPlayContext.chartObj[PLAYER_SLOT_MYBEST], gPlayContext.replayMybest,
                     gPlayContext.replayMybest->gaugeType, keys, judgeDiff,
                     gPlayContext.initialHealth[PLAYER_SLOT_MYBEST], RulesetBMS::PlaySide::MYBEST);
+            }
+
+            if (gPlayContext.isCourse)
+            {
+                gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->setComboDisplay(gPlayContext.courseRunningCombo[PLAYER_SLOT_PLAYER]);
+                gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->setMaxComboDisplay(gPlayContext.courseMaxCombo[PLAYER_SLOT_PLAYER]);
+                gPlayContext.ruleset[PLAYER_SLOT_TARGET]->setComboDisplay(gPlayContext.courseRunningCombo[PLAYER_SLOT_TARGET]);
+                gPlayContext.ruleset[PLAYER_SLOT_TARGET]->setMaxComboDisplay(gPlayContext.courseMaxCombo[PLAYER_SLOT_TARGET]);
             }
         }
 

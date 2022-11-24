@@ -369,22 +369,35 @@ void SceneResult::updateFadeout()
         }
         else if (gPlayContext.isCourse)
         {
-            gPlayContext.courseStageReplayPath.push_back(saveScore ? replayPath : "");
+            if (saveScore)
+                gPlayContext.courseStageReplayPathNew.push_back(replayPath);
+            else
+                gPlayContext.courseStageReplayPathNew.push_back(Path());
 
             if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER])
             {
                 gPlayContext.initialHealth[PLAYER_SLOT_PLAYER] = gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().health;
                 gPlayContext.courseStageRulesetCopy[PLAYER_SLOT_PLAYER].push_back(gPlayContext.ruleset[PLAYER_SLOT_PLAYER]);
+                gPlayContext.courseRunningCombo[PLAYER_SLOT_PLAYER] = gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().comboDisplay;
+                gPlayContext.courseMaxCombo[PLAYER_SLOT_PLAYER] = gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().maxComboDisplay;
             }
             if (gPlayContext.ruleset[PLAYER_SLOT_TARGET])
             {
                 gPlayContext.initialHealth[PLAYER_SLOT_TARGET] = gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData().health;
                 gPlayContext.courseStageRulesetCopy[PLAYER_SLOT_TARGET].push_back(gPlayContext.ruleset[PLAYER_SLOT_TARGET]);
+                gPlayContext.courseRunningCombo[PLAYER_SLOT_TARGET] = gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData().comboDisplay;
+                gPlayContext.courseMaxCombo[PLAYER_SLOT_TARGET] = gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData().maxComboDisplay;
             }
 
             gPlayContext.courseStage++;
             if (gPlayContext.courseStage < gPlayContext.courseCharts.size())
             {
+                if (gPlayContext.isReplay)
+                {
+                    gPlayContext.replay = std::make_shared<ReplayChart>();
+                    gPlayContext.replay->loadFile(gPlayContext.courseStageReplayPath[gPlayContext.courseStage]);
+                }
+
                 if (gPlayContext.courseStage + 1 == gPlayContext.courseCharts.size())
                     State::set(IndexOption::PLAY_COURSE_STAGE, Option::STAGE_FINAL);
                 else

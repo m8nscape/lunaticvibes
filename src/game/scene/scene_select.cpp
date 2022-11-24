@@ -882,6 +882,7 @@ void SceneSelect::updateSelect()
             case eEntryType::CHART:
             case eEntryType::RIVAL_SONG:
             case eEntryType::RIVAL_CHART:
+            case eEntryType::COURSE:
             {
                 if (State::get(IndexSwitch::CHART_HAVE_REPLAY))
                 {
@@ -1791,7 +1792,7 @@ void SceneSelect::_decide()
         gPlayContext.courseCharts = pCourse->charts;
         gPlayContext.courseStageRulesetCopy[0].clear();
         gPlayContext.courseStageRulesetCopy[1].clear();
-        gPlayContext.courseStageReplayPath.clear();
+        gPlayContext.courseStageReplayPathNew.clear();
 
         auto pChart = *g_pSongDB->findChartByHash(*pCourse->charts.begin()).begin();
         gChartContext.chartObj = pChart;
@@ -2062,8 +2063,20 @@ void SceneSelect::_decide()
         }
         if (pScore && !pScore->replayFileName.empty())
         {
-            Path replayFilePath = ReplayChart::getReplayPath(gChartContext.hash) / pScore->replayFileName;
-            if (fs::is_regular_file(replayFilePath))
+            Path replayFilePath;
+            if ((entry->type() == eEntryType::CHART || entry->type() == eEntryType::RIVAL_CHART))
+            {
+                replayFilePath = ReplayChart::getReplayPath(gChartContext.hash) / pScore->replayFileName;
+            }
+            else if (entry->type() == eEntryType::COURSE && !gPlayContext.courseCharts.empty())
+            {
+                auto pScoreStage1 = g_pScoreDB->getChartScoreBMS(gPlayContext.courseCharts[0]);
+                if (pScoreStage1 && !pScoreStage1->replayFileName.empty())
+                {
+                    replayFilePath = ReplayChart::getReplayPath(gPlayContext.courseCharts[0]) / pScoreStage1->replayFileName;
+                }
+            }
+            if (!replayFilePath.empty() && fs::is_regular_file(replayFilePath))
             {
                 gPlayContext.replayMybest = std::make_shared<ReplayChart>();
                 if (gPlayContext.replayMybest->loadFile(replayFilePath))
