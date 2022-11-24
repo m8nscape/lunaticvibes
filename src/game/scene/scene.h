@@ -54,7 +54,6 @@ protected:
     eScene _scene;
     std::shared_ptr<vSkin> _skin;
     InputWrapper _input;
-    AsyncLooper _looper;
 
     std::shared_ptr<TTFFont> _fNotifications;
     std::shared_ptr<Texture> _texNotificationsBG;

@@ -84,6 +84,9 @@ public:
     InputWrapper(unsigned rate = 1000, bool background = false);
     virtual ~InputWrapper();
 
+public:
+    void setRate(unsigned rate_per_sec);
+
 private:
     virtual void _loop();
 

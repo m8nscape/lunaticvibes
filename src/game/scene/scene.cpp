@@ -19,6 +19,12 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
     AsyncLooper("Scene Update", std::bind(&vScene::_updateAsync1, this), rate),
     _input(1000, backgroundInput)
 {
+    unsigned inputPollingRate = ConfigMgr::get("P", cfg::P_INPUT_POLLING_RATE, 1000);
+    if (inputPollingRate != 1000)
+    {
+        _input.setRate(inputPollingRate);
+    }
+
     // Disable skin caching for now. dst options are changing all the time
     SkinMgr::unload(mode);
     SkinMgr::load(mode, gInCustomize && mode != eMode::THEME_SELECT);

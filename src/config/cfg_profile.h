@@ -10,6 +10,7 @@ namespace cfg
 
     constexpr char P_MISSBGA_LENGTH[] = "MissBGATime";
     constexpr char P_MIN_INPUT_INTERVAL[] = "MinInputInterval";
+    constexpr char P_INPUT_POLLING_RATE[] = "InputPollingRate";
     constexpr char P_NEW_SONG_DURATION[] = "NewSongDuration";
 
     constexpr char P_BASESPEED[] = "Basespeed";

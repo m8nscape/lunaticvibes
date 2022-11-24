@@ -19,6 +19,7 @@ void ConfigProfile::setDefaults() noexcept
 	set(P_PLAYERNAME, "Unnamed");
     set(P_MISSBGA_LENGTH, 500);
     set(P_MIN_INPUT_INTERVAL, 5);
+    set(P_INPUT_POLLING_RATE, 1000);
     set(P_NEW_SONG_DURATION, 6);
 	set(P_BASESPEED, 1.0);
 	set(P_HISPEED, 1.0);

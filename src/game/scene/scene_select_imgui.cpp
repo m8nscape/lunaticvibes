@@ -95,6 +95,15 @@ void SceneSelect::_imguiInit()
     imgui_adv_minInputInterval = ConfigMgr::get("P", cfg::P_MIN_INPUT_INTERVAL, 16);
     imgui_adv_newSongDuration = ConfigMgr::get("P", cfg::P_NEW_SONG_DURATION, 24);
 
+    imgui_play_inputPollingRate = 0;
+    switch (ConfigMgr::get("P", cfg::P_INPUT_POLLING_RATE, 1000))
+    {
+    case 1000: imgui_play_inputPollingRate = 0; break;
+    case 2000: imgui_play_inputPollingRate = 1; break;
+    case 4000: imgui_play_inputPollingRate = 2; break;
+    case 8000: imgui_play_inputPollingRate = 3; break;
+    }
+
     imgui_adv_previewDedicated = ConfigMgr::get("P", cfg::P_PREVIEW_DEDICATED, true);
     imgui_adv_previewDirect = ConfigMgr::get("P", cfg::P_PREVIEW_DIRECT, true);
 
@@ -580,6 +589,28 @@ void SceneSelect::_imguiPage_Options_Play()
         ImGui::SameLine();
         HelpMarker(i18n::c(MIN_INPUT_INTERVAL_HINT));
         //ImGui::Checkbox("Accept mouse movements as Analog input", &imgui_adv_mouseAnalog);
+
+        ImGui::Text(i18n::c(INPUT_POLLING_RATE));
+        ImGui::SameLine(infoRowWidth);
+        static const char* imgui_play_inputPollingRate_display[] =
+        {
+            "1000 Hz",
+            "2000 Hz",
+            "4000 Hz",
+            "8000 Hz",
+            //"Unlimited (Not recommended)"
+        };
+        if (ImGui::Combo("##inputpollingrate", &imgui_play_inputPollingRate, imgui_play_inputPollingRate_display, sizeof(imgui_play_inputPollingRate_display) / sizeof(char*)))
+        {
+            switch (imgui_play_inputPollingRate)
+            {
+            case 0: ConfigMgr::set("P", cfg::P_INPUT_POLLING_RATE, 1000); _input.setRate(1000); break;
+            case 1: ConfigMgr::set("P", cfg::P_INPUT_POLLING_RATE, 2000); _input.setRate(2000); break;
+            case 2: ConfigMgr::set("P", cfg::P_INPUT_POLLING_RATE, 4000); _input.setRate(4000); break;
+            case 3: ConfigMgr::set("P", cfg::P_INPUT_POLLING_RATE, 8000); _input.setRate(8000); break;
+            case 4: ConfigMgr::set("P", cfg::P_INPUT_POLLING_RATE, 0); _input.setRate(0); break;
+            }
+        }
 
         ImGui::Text(i18n::c(DEFAULT_TARGET));
         ImGui::SameLine(infoRowWidth);

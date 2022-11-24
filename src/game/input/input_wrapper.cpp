@@ -23,6 +23,11 @@ InputWrapper::~InputWrapper()
     }
 }
 
+void InputWrapper::setRate(unsigned rate)
+{
+    AsyncLooper::setRate(rate);
+}
+
 void InputWrapper::_loop()
 {
     gFrameCount[FRAMECOUNT_IDX_INPUT]++;

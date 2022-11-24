@@ -6,25 +6,51 @@
 AsyncLooper::AsyncLooper(StringContentView tag, std::function<void()> func, unsigned rate_per_sec, bool single_inst) : 
     _tag(tag), _loopFunc(func)
 {
-    _loopTimeBuffer.assign(LOOP_TIME_BUFFER_SIZE, 0);
-    _bufferIt = _loopTimeBuffer.begin();
-    
     _rate = rate_per_sec;
-    _rateTime = 1000 / rate_per_sec;
+
+#if WIN32
+    handler = CreateWaitableTimerExA(
+        NULL,
+        _tag.empty() ? NULL : _tag.c_str(),
+        0,
+        TIMER_ALL_ACCESS
+    );
+    assert(handler != NULL);
+#endif
 }
 
 AsyncLooper::~AsyncLooper()
 {
     assert(!_running);
+
+#if WIN32
+    if (handler)
+    {
+        CloseHandle(handler);
+        handler = NULL;
+    }
+#endif
+}
+
+void AsyncLooper::setRate(unsigned rate_per_sec)
+{
+    _rate = rate_per_sec;
+    if (_running)
+    {
+        loopEnd();
+        loopStart();
+    }
 }
 
 void AsyncLooper::run()
 {
+#if _DEBUG
     _runThreadID = GetCurrentThreadID();
+#endif
     if (_running && !_inLoopBody)
     {
         _inLoopBody = true;
-        _loopFuncBody();
+        _loopFunc();
         _inLoopBody = false;
     }
 }
@@ -34,60 +60,61 @@ unsigned AsyncLooper::getRate()
     return _rate;
 }
 
-void AsyncLooper::_recordLoopTime()
-{
-    auto current = std::chrono::duration_cast<std::chrono::milliseconds>(
-        std::chrono::system_clock::now().time_since_epoch());
-
-    // Skip first invoke
-    if (_prevLoopTime == 0)
-    {
-        _prevLoopTime = current.count();
-        return;
-    }
-
-    // ring-buffer simulation
-    if (++_bufferIt == _loopTimeBuffer.end())
-    {
-        _bufferIt = _loopTimeBuffer.begin();
-        _statReady = true;
-    }
-
-    // save duration from previous invoke
-    *_bufferIt = current.count() - _prevLoopTime;
-    _prevLoopTime = current.count();
-}
-
-unsigned AsyncLooper::getRateRealtime()
-{
-    auto sum = std::reduce(_loopTimeBuffer.begin(), _loopTimeBuffer.end());
-    return (unsigned)(1000.0 / ((double)sum / LOOP_TIME_BUFFER_SIZE));
-}
-
 #if WIN32
-
-typedef HANDLE LooperHandler;
-VOID CALLBACK WaitOrTimerCallback(_In_ PVOID lpParameter, _In_ BOOLEAN TimerOrWaitFired)
-{
-    AsyncLooper* looper = (AsyncLooper*)lpParameter;
-    looper->_iterateCount++;
-    looper->run();
-    looper->_iterateEndCount++;
-}
 
 void AsyncLooper::loopStart()
 {
     if (!_running)
     {
-        _loopFuncBody = _loopFunc;
-        _running = CreateTimerQueueTimer(
-            &handler,
-            NULL, WaitOrTimerCallback,
-            this,
-            0,
-            _rateTime,
-            WT_EXECUTEDEFAULT
-        );
+        if (handler)
+        {
+            _running = true;
+
+            loopFuture = std::async(std::launch::async, [this]()
+                {
+                    long long us = _rate > 0 ? 1000000 / _rate : 0;
+                    LARGE_INTEGER dueTime = { 0 };
+                    dueTime.QuadPart = -(long long(us) * 10);
+
+                    using namespace std::chrono;
+                    using namespace std::chrono_literals;
+
+                    tStart = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count();
+
+                    while (_running)
+                    {
+                        if (us > 0 && dueTime.QuadPart < 0)
+                        {
+                            SetWaitableTimerEx(
+                                handler,
+                                &dueTime,
+                                0,
+                                NULL,
+                                NULL,
+                                NULL,
+                                0
+                            );
+                            //SleepEx(100, TRUE);
+                            WaitForSingleObjectEx(handler, 1000, TRUE);
+                        }
+
+                        run();
+
+                        auto t2 = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count();
+
+                        if (us > (t2 - tStart))
+                        {
+                            dueTime.QuadPart = -(long long(us - (t2 - tStart)) * 10);
+                            tStart += us;
+                        }
+                        else
+                        {
+                            dueTime.QuadPart = 0;
+                            tStart += t2 - tStart;
+                        }
+                    }
+                });
+        }
 
         if (_running)
         {
@@ -101,7 +128,8 @@ void AsyncLooper::loopEnd()
     if (_running)
     {
         _running = false;
-        if (DeleteTimerQueueTimer(NULL, handler, INVALID_HANDLE_VALUE) == 0)
+        loopFuture.wait_for(std::chrono::seconds(1));
+        if (CancelWaitableTimer(handler) == 0)
         {
             DWORD dwError = GetLastError();
             if (dwError != ERROR_INVALID_HANDLE)
@@ -113,10 +141,6 @@ void AsyncLooper::loopEnd()
                 }
                 assert(dwError == 0);
             }
-        }
-        if (_iterateCount != _iterateEndCount)
-        {
-            LOG_WARNING << "[Looper] iterate count not match " << _tag;
         }
         LOG_DEBUG << "[Looper] Ended of rate " << _rate << "/s " << _tag;
     }

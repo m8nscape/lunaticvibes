@@ -110,3 +110,4 @@ F1: Clear all bindings
 F2: Load default
 DEL: Delete current binding
 Speed
+Input polling frequency

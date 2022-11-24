@@ -293,7 +293,7 @@ void config_fx()
 
 std::shared_ptr<SceneCustomize> SceneSelect::_virtualSceneCustomize = nullptr;
 
-SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 1000)
+SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 250)
 {
     _scene = eScene::SELECT;
 
@@ -519,13 +519,13 @@ void SceneSelect::_updateAsync()
             {
                 scrollAccumulator -= gSelectContext.cursorClickScroll;
                 scrollButtonTimestamp = t;
-                scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (getRate() / 1000);
+                scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (1000.0 / getRate());
             }
             else
             {
                 scrollAccumulator += -gSelectContext.cursorClickScroll;
                 scrollButtonTimestamp = t;
-                scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (getRate() / 1000);
+                scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (1000.0 / getRate());
             }
         }
         gSelectContext.cursorClickScroll = 0;
@@ -594,7 +594,7 @@ void SceneSelect::_updateAsync()
                 if (margin < -0.05 || 0.05 < margin)
                 {
                     scrollAccumulator = margin;
-                    scrollAccumulatorAddUnit = scrollAccumulator / 100 * (getRate() / 1000);
+                    scrollAccumulatorAddUnit = scrollAccumulator / 100 * (1000.0 / getRate());
                     scrollModified = true;
                 }
             }
@@ -1346,14 +1346,14 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
             isHoldingUp = true;
             scrollAccumulator -= 1.0;
             scrollButtonTimestamp = t;
-            scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (getRate() / 1000);
+            scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (1000.0 / getRate());
         }
         if (bindings9K && (input & INPUT_MASK_NAV_DN_9K).any() || !bindings9K && (input & INPUT_MASK_NAV_DN).any())
         {
             isHoldingDown = true;
             scrollAccumulator += 1.0;
             scrollButtonTimestamp = t;
-            scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (getRate() / 1000);
+            scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (1000.0 / getRate());
         }
 
         if (input[Input::MWHEELUP])
@@ -1364,7 +1364,7 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
             }
             scrollAccumulator -= 1.0;
             scrollButtonTimestamp = t;
-            scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (getRate() / 1000);
+            scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (1000.0 / getRate());
         }
         if (input[Input::MWHEELDOWN])
         {
@@ -1374,7 +1374,7 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
             }
             scrollAccumulator += 1.0;
             scrollButtonTimestamp = t;
-            scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (getRate() / 1000);
+            scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (1000.0 / getRate());
         }
     }
     else
@@ -1392,14 +1392,14 @@ void SceneSelect::inputGameHoldSelect(InputMask& input, const Time& t)
         gSelectContext.scrollTimeLength = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);
         scrollButtonTimestamp = t;
         scrollAccumulator -= 1.0;
-        scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (getRate() / 1000);
+        scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (1000.0 / getRate());
     }
     if (isHoldingDown && (t - scrollButtonTimestamp).norm() >= gSelectContext.scrollTimeLength)
     {
         gSelectContext.scrollTimeLength = ConfigMgr::get("P", cfg::P_LIST_SCROLL_TIME_HOLD, 150);
         scrollButtonTimestamp = t;
         scrollAccumulator += 1.0;
-        scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (getRate() / 1000);
+        scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (1000.0 / getRate());
     }
     if ((t - selectDownTimestamp).norm() >= 233 && !isInVersionList && (input[Input::Pad::K1SELECT] || input[Input::Pad::K2SELECT]))
     {

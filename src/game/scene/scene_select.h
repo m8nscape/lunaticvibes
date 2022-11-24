@@ -227,6 +227,7 @@ private:
 
     int imgui_adv_missBGATime;
     int imgui_adv_minInputInterval;
+    int imgui_play_inputPollingRate;
     int imgui_play_defaultTarget;
     int imgui_play_judgeTiming;
     bool imgui_play_lockGreenNumber;
