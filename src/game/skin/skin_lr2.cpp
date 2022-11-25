@@ -2490,6 +2490,16 @@ ParseRet SkinLR2::DST_NOTE()
     if (e3) setDstNoteSprite(NoteLaneCategory::LN, e3);
     if (e3a) setDstNoteSprite(NoteLaneCategory::LN, e3a);
 
+    if (d._null == 3)       // 1P 3
+    {
+        info.noteLaneHeight1PSub = d.y + d.h;
+    }
+    else if (d._null == 15) // 2P 5
+    {
+        info.noteLaneHeight2PSub = d.y + d.h;
+    }
+
+
     return ParseRet::OK;
 }
 
@@ -3547,6 +3557,12 @@ void SkinLR2::postLoad()
             }
         }
     };
+    if (info.noteLaneHeight1PSub != 0 &&
+        (info.noteLaneHeight1P == 0 || std::abs((int)info.noteLaneHeight1P - (int)info.noteLaneHeight1PSub) > 50))
+    {
+        LOG_WARNING << "[Skin] 1P Bar line position (" << info.noteLaneHeight1P << ") is suspiciously wrong. Using Note position (" << info.noteLaneHeight1PSub << ") for calculating lane speed";
+        info.noteLaneHeight1P = info.noteLaneHeight1PSub;
+    }
     if (info.noteLaneHeight1P != 0)
     {
         using namespace chart;
@@ -3561,6 +3577,13 @@ void SkinLR2::postLoad()
 
         if (info.noteLaneHeight2P == 0)
             info.noteLaneHeight2P = info.noteLaneHeight1P;
+    }
+
+    if (info.noteLaneHeight2PSub != 0 && 
+        (info.noteLaneHeight2P == 0 || std::abs((int)info.noteLaneHeight2P - (int)info.noteLaneHeight2PSub) > 50))
+    {
+        LOG_WARNING << "[Skin] 2P Bar line position (" << info.noteLaneHeight2P << ") is suspiciously wrong. Using Note position (" << info.noteLaneHeight2PSub << ") for calculating lane speed";
+        info.noteLaneHeight2P = info.noteLaneHeight2PSub;
     }
     if (info.noteLaneHeight2P != 0)
     {

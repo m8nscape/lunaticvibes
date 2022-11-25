@@ -116,6 +116,8 @@ public:
         unsigned timeFailed = 200;
         unsigned noteLaneHeight1P = 0;
         unsigned noteLaneHeight2P = 0;
+        unsigned noteLaneHeight1PSub = 0;
+        unsigned noteLaneHeight2PSub = 0;
         
         // Result
         unsigned timeResultRank = 200; //ignored
