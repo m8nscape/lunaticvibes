@@ -54,6 +54,13 @@ SceneCustomize::SceneCustomize() : vScene(eMode::THEME_SELECT, 240)
     {
         SkinLR2 s(p, 2);
         skinList[s.info.mode].push_back(fs::absolute(p));
+
+        switch (s.info.mode)
+        {
+        case eMode::PLAY7:   skinList[eMode::PLAY5].push_back(fs::absolute(p)); break;
+        case eMode::PLAY7_2: skinList[eMode::PLAY5_2].push_back(fs::absolute(p)); break;
+        case eMode::PLAY14:  skinList[eMode::PLAY10].push_back(fs::absolute(p)); break;
+        }
     }
 
     auto soundsetFileList = findFiles(utf8_to_utf32(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), "LR2Files/Sound/*.lr2ss")), true);
