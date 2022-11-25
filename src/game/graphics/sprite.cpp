@@ -98,15 +98,15 @@ bool vSprite::updateByKeyframes(const Time& rawTime)
     }
 
     // Check if specific time
-    if (frameCount == 1 || time.norm() <= _keyFrames[0].time)
-    {
-        // exactly first frame
-        _current = _keyFrames[0].param;
-    }
-    else if (time == _keyFrames[frameCount - 1].time)       
+    if (time == _keyFrames[frameCount - 1].time)
     {
         // exactly last frame
         _current = _keyFrames[frameCount - 1].param;
+    }
+    else if (frameCount == 1 || time.norm() <= _keyFrames[0].time)
+    {
+        // exactly first frame
+        _current = _keyFrames[0].param;
     }
     else
     {
@@ -114,8 +114,10 @@ bool vSprite::updateByKeyframes(const Time& rawTime)
         decltype(_keyFrames.begin()) keyFrameCurr, keyFrameNext;
         for (auto it = _keyFrames.begin(); it != _keyFrames.end(); ++it)
         {
-            if (it->time <= time.norm()) keyFrameCurr = it;
-            else break;
+            if (it->time <= time.norm()) 
+                keyFrameCurr = it;
+            else 
+                break;
         }
         keyFrameNext = keyFrameCurr;
         if (keyFrameCurr + 1 != _keyFrames.end()) ++keyFrameNext;
