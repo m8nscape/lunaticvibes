@@ -780,7 +780,6 @@ int SkinLR2::IMAGE()
             _textureNameMap[textureMapKey] = std::make_shared<Texture>(img);
         }
 
-        LR2SkinImageCache[textureMapKey] = _textureNameMap[textureMapKey];
         LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added IMAGE[" << imageCount << "]: " << pathFile;
 
         ++imageCount;
@@ -3288,9 +3287,6 @@ SkinLR2::SkinLR2(Path p, int loadMode): loadMode(loadMode)
     }
     _laneSprites.resize(chart::LANE_COUNT);
 
-    // re-reference previously loaded #IMAGE
-    _textureNameMap.insert(LR2SkinImageCache.begin(), LR2SkinImageCache.end());
-
     switch (info.mode)
     {
     case eMode::PLAY5:
@@ -3313,6 +3309,13 @@ SkinLR2::SkinLR2(Path p, int loadMode): loadMode(loadMode)
         _loaded = true;
 
         startSpriteVideoPlayback();
+    }
+
+    // clear expired cache
+    LR2SkinImageCache.clear();
+    for (auto& [key, texture] : _textureNameMap)
+    {
+        LR2SkinImageCache[key] = texture;
     }
 }
 
