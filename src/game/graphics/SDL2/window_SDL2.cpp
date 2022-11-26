@@ -201,10 +201,6 @@ void graphics_flush()
         auto pData = ImGui::GetDrawData();
         if (pData != NULL)
         {
-            if (pData->CmdListsCount == 0)
-            {
-                ImGui::SetMouseCursor(ImGuiMouseCursor_None);
-            }
             ImGui_ImplSDLRenderer_RenderDrawData(pData);
         }
         SDL_RenderPresent(gFrameRenderer);
@@ -402,6 +398,7 @@ void ImGuiNewFrame()
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
     SDL_SetRenderTarget(gFrameRenderer, gInternalRenderTarget);
+    ImGui::SetMouseCursor(ImGuiMouseCursor_None);
 }
 
 static std::function<void(const std::string&)> funUpdateText;
