@@ -2513,6 +2513,7 @@ void SceneSelect::updatePreview()
     bool previewDirect = ConfigMgr::get('P', cfg::P_PREVIEW_DIRECT, false);
     if (!previewDedicated && !previewDirect)
     {
+        std::unique_lock l(previewMutex);
         previewState = PREVIEW_FINISH;
         return;
     }
@@ -2520,178 +2521,252 @@ void SceneSelect::updatePreview()
     switch (previewState)
     {
     case PREVIEW_NONE:
-        previewState = PREVIEW_LOAD;
-        std::thread([&, previewDedicated, previewDirect]()
+    {
+        {
+            std::unique_lock l(previewMutex);
+            previewState = PREVIEW_LOAD;
+        }
+
+        Path previewChartPath;
+        eEntryType type = eEntryType::UNKNOWN;
+        {
+            std::shared_lock<std::shared_mutex> s(gSelectContext._mutex);
+            if (!gSelectContext.entries.empty())
             {
-                std::unique_lock l(previewMutex);
+                const auto& entry = gSelectContext.entries[gSelectContext.idx].first;
+                type = entry->type();
 
-                Path previewChartPath;
-                eEntryType type = eEntryType::UNKNOWN;
-                {
-                    std::shared_lock<std::shared_mutex> s(gSelectContext._mutex);
-                    if (!gSelectContext.entries.empty())
-                    {
-                        const auto& entry = gSelectContext.entries[gSelectContext.idx].first;
-                        type = entry->type();
-
-                        if (type == eEntryType::SONG || type == eEntryType::RIVAL_SONG)
-                        {
-                            auto pFile = std::reinterpret_pointer_cast<EntryFolderSong>(entry)->getCurrentChart();
-                            if (pFile) previewChartPath = pFile->absolutePath;
-                        }
-                        else if (type == eEntryType::CHART || type == eEntryType::RIVAL_CHART)
-                        {
-                            auto pFile = std::reinterpret_pointer_cast<EntryChart>(entry)->_file;
-                            if (pFile) previewChartPath = pFile->absolutePath;
-                        }
-                    }
-                }
-                if (previewChartPath.empty())
-                {
-                    previewState = PREVIEW_FINISH;
-                    return;
-                }
-
-                previewStandalone = false;
-                previewStandaloneLength = 0;
-
-                // create Chart object
                 if (type == eEntryType::SONG || type == eEntryType::RIVAL_SONG)
                 {
-                    previewChart = ChartFormatBase::createFromFile(previewChartPath, gPlayContext.randomSeed);
+                    auto pFile = std::reinterpret_pointer_cast<EntryFolderSong>(entry)->getCurrentChart();
+                    if (pFile) previewChartPath = pFile->absolutePath;
+                }
+                else if (type == eEntryType::CHART || type == eEntryType::RIVAL_CHART)
+                {
+                    auto pFile = std::reinterpret_pointer_cast<EntryChart>(entry)->_file;
+                    if (pFile) previewChartPath = pFile->absolutePath;
+                }
+            }
+        }
+        if (previewChartPath.empty())
+        {
+            std::unique_lock l(previewMutex);
+            previewState = PREVIEW_FINISH;
+            return;
+        }
+
+        // create Chart object
+        {
+            std::unique_lock l(previewMutex);
+            previewState = PREVIEW_CHART;
+            previewChart.reset();
+        }
+        std::thread([&, previewChartPath, type]()
+            {
+                pChartFormat previewChartTmp;
+                if (type == eEntryType::SONG || type == eEntryType::RIVAL_SONG)
+                {
+                    previewChartTmp = ChartFormatBase::createFromFile(previewChartPath, gPlayContext.randomSeed);
                 }
                 else
                 {
-                    previewChart = ChartFormatBase::createFromFile(previewChartPath, gPlayContext.randomSeed);
-                }
-                if (previewChart == nullptr)
-                {
-                    previewState = PREVIEW_FINISH;
-                    return;
+                    previewChartTmp = ChartFormatBase::createFromFile(previewChartPath, gPlayContext.randomSeed);
                 }
 
-                // load chart object from Chart object
-                unsigned bars = 0;
-                switch (previewChart->type())
                 {
-                case eChartFormat::BMS:
-                {
-                    auto bms = std::reinterpret_pointer_cast<ChartFormatBMS>(previewChart);
-
-                    // check if #PREVIEW is valid
-                    for (auto& [key, val] : bms->extraCommands)
+                    std::unique_lock l(previewMutex);
+                    if (previewState == PREVIEW_CHART)
                     {
-                        if (strEqual(key, "PREVIEW", true) && !val.empty())
-                        {
-                            Path pWav = fs::u8path(val);
-                            if (!pWav.is_absolute())
-                                pWav = bms->getDirectory() / pWav;
-                            if (SoundMgr::loadNoteSample(pWav, 0) == 0)
-                                previewStandalone = true;
-
-                            break;
-                        }
-                    }
-                    // check if preview(*).ogg is valid
-                    if (!previewStandalone)
-                    {
-                        for (auto& f : fs::directory_iterator(bms->getDirectory()))
-                        {
-                            if (strEqual(f.path().filename().u8string().substr(0, 7), "preview", true))
-                            {
-                                Path pWav = f.path();
-                                if (SoundMgr::loadNoteSample(pWav, 0) == 0)
-                                {
-                                    previewStandalone = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    if (previewStandalone && previewDedicated)
-                    {
-                        LOG_DEBUG << "[Select] Preview dedicated";
-
-                        previewStartTime = Time();
-                        previewStandaloneLength = SoundMgr::getNoteSampleLength(0);
-                        size_t idx = 0;
-                        SoundMgr::playNoteSample(SoundChannelType::KEY_LEFT, 1, &idx);
-                    }
-                    else if (previewDirect)
-                    {
-                        LOG_DEBUG << "[Select] Preview direct";
-
-                        bars = bms->lastBarIdx;
-                        previewChartObj = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_PLAYER, bms);
-                        previewRuleset = std::make_shared<RulesetBMSAuto>(previewChart, previewChartObj,
-                            eModGauge::NORMAL, bms->gamemode, RulesetBMS::JudgeDifficulty::VERYHARD, 0.2, RulesetBMS::PlaySide::RIVAL);
-
-                        // load samples
-                        gChartContext.isSampleLoaded = false;
-                        SoundMgr::freeNoteSamples();
-                        auto chartDir = bms->getDirectory();
-                        int wavToLoad = 0;
-                        for (const auto& it : bms->wavFiles)
-                        {
-                            if (sceneEnding || previewState != PREVIEW_LOAD) break;
-
-                            if (it.empty()) continue;
-                            ++wavToLoad;
-                        }
-                        if (wavToLoad != 0)
-                        {
-                            for (size_t i = 0; i < bms->wavFiles.size(); ++i)
-                            {
-                                if (sceneEnding || previewState != PREVIEW_LOAD) break;
-
-                                const auto& wav = bms->wavFiles[i];
-                                if (wav.empty()) continue;
-                                Path pWav = fs::u8path(wav);
-                                if (pWav.is_absolute())
-                                    SoundMgr::loadNoteSample(pWav, i);
-                                else
-                                    SoundMgr::loadNoteSample((chartDir / pWav), i);
-                            }
-                            if (!(sceneEnding || previewState != PREVIEW_LOAD))
-                                gChartContext.isSampleLoaded = true;
-                        }
-                    }
-                    else
-                    {
-                        previewState = PREVIEW_FINISH;
-                    }
-                    break;
-                }
-                }
-
-                if (previewState == PREVIEW_LOAD)
-                {
-                    if (!previewStandalone && !gChartContext.isSampleLoaded)
-                    {
-                        LOG_DEBUG << "[Select] Preview no sample, stop";
-
-                        // quit
-                        previewState = PREVIEW_FINISH;
-                    }
-                    else
-                    {
-                        LOG_DEBUG << "[Select] Preview start";
-
-                        if (!previewStandalone)
-                        {
-                            // start from beginning. It's difficult to seek a chart for playback due to lengthy BGM samples...
-                            previewStartTime = Time() - previewChartObj->getLeadInTime();
-                            previewRuleset->setStartTime(previewStartTime);
-                        }
-
-                        SoundMgr::setSysVolume(0.1, 200);
-
-                        previewState = PREVIEW_PLAY;
+                        previewChart = previewChartTmp;
                     }
                 }
             }).detach();
+
+            break;
+    }
+
+    case PREVIEW_CHART:
+    {
+        pChartFormat previewChartTmp;
+        {
+            std::shared_lock l(previewMutex);
+            if (previewChart == nullptr)
+                break;
+
+            previewChartTmp = previewChart;
+        }
+
+        previewStandalone = false;
+        previewStandaloneLength = 0;
+
+        // load chart object from Chart object
+        switch (previewChartTmp->type())
+        {
+        case eChartFormat::BMS:
+        {
+            auto bms = std::reinterpret_pointer_cast<ChartFormatBMS>(previewChartTmp);
+
+            if (previewDedicated)
+            {
+                // check if #PREVIEW is valid
+                for (auto& [key, val] : bms->extraCommands)
+                {
+                    if (strEqual(key, "PREVIEW", true) && !val.empty())
+                    {
+                        Path pWav = fs::u8path(val);
+                        if (!pWav.is_absolute())
+                            pWav = bms->getDirectory() / pWav;
+                        if (SoundMgr::loadNoteSample(pWav, 0) == 0)
+                            previewStandalone = true;
+
+                        break;
+                    }
+                }
+                // check if preview(*).ogg is valid
+                if (!previewStandalone)
+                {
+                    for (auto& f : fs::directory_iterator(bms->getDirectory()))
+                    {
+                        if (strEqual(f.path().filename().u8string().substr(0, 7), "preview", true))
+                        {
+                            Path pWav = f.path();
+                            if (SoundMgr::loadNoteSample(pWav, 0) == 0)
+                            {
+                                previewStandalone = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (previewStandalone)
+            {
+                LOG_DEBUG << "[Select] Preview dedicated";
+
+                std::unique_lock l(previewMutex);
+                previewState = PREVIEW_LOADED;
+            }
+            else if (previewDirect)
+            {
+                LOG_DEBUG << "[Select] Preview direct";
+
+                {
+                    std::unique_lock l(previewMutex);
+                    previewState = PREVIEW_LOAD;
+                }
+
+                gChartContext.isSampleLoaded = false;
+
+                std::thread([&, bms] {
+                    unsigned bars = bms->lastBarIdx;
+                    auto previewChartObjTmp = std::make_shared<ChartObjectBMS>(PLAYER_SLOT_PLAYER, bms);
+                    auto previewRulesetTmp = std::make_shared<RulesetBMSAuto>(bms, previewChartObjTmp,
+                        eModGauge::NORMAL, bms->gamemode, RulesetBMS::JudgeDifficulty::VERYHARD, 0.2, RulesetBMS::PlaySide::RIVAL);
+
+                    // load samples
+                    SoundMgr::freeNoteSamples();
+                    auto chartDir = bms->getDirectory();
+
+                    int wavToLoad = 0;
+                    for (const auto& it : bms->wavFiles)
+                    {
+                        if (!it.empty()) ++wavToLoad;
+                    }
+                    if (wavToLoad != 0)
+                    {
+                        for (size_t i = 0; i < bms->wavFiles.size(); ++i)
+                        {
+                            const auto& wav = bms->wavFiles[i];
+                            if (wav.empty()) continue;
+
+                            Path pWav = fs::u8path(wav);
+                            if (pWav.is_absolute())
+                                SoundMgr::loadNoteSample(pWav, i);
+                            else
+                                SoundMgr::loadNoteSample((chartDir / pWav), i);
+
+                            std::shared_lock l(previewMutex);
+                            if (sceneEnding || previewState != PREVIEW_LOAD)
+                            {
+                                LOG_DEBUG << "[Select] Preview loading interrupted";
+                                return;
+                            }
+                        }
+
+                        gChartContext.isSampleLoaded = true;
+
+                        {
+                            std::unique_lock l(previewMutex);
+                            if (bms == previewChart)
+                            {
+                                LOG_DEBUG << "[Select] Preview loading finished";
+                                previewChartObj = previewChartObjTmp;
+                                previewRuleset = previewRulesetTmp;
+                                previewState = PREVIEW_LOADED;
+                            }
+                            else
+                            {
+                                LOG_DEBUG << "[Select] Preview chart has changed, stop";
+                                previewState = PREVIEW_FINISH;
+                            }
+                        }
+                    }
+                    }).detach();
+            }
+            else
+            {
+                std::unique_lock l(previewMutex);
+                previewState = PREVIEW_FINISH;
+            }
+            break;
+        }
+        }
+        
         break;
+    }
+
+    case PREVIEW_LOAD:
+    {
+        // wait for the loading thread
+        break;
+    }
+
+    case PREVIEW_LOADED:
+    {
+        if (previewStandalone)
+        {
+            std::unique_lock l(previewMutex);
+
+            LOG_DEBUG << "[Select] Preview start";
+
+            previewStartTime = 0;
+            previewStandaloneLength = SoundMgr::getNoteSampleLength(0);
+
+            SoundMgr::setSysVolume(0.1, 200);
+            previewState = PREVIEW_PLAY;
+        }
+        else if (gChartContext.isSampleLoaded)
+        {
+            std::unique_lock l(previewMutex);
+
+            LOG_DEBUG << "[Select] Preview start";
+
+            // start from beginning. It's difficult to seek a chart for playback due to lengthy BGM samples...
+            previewStartTime = Time() - previewChartObj->getLeadInTime();
+            previewRuleset->setStartTime(previewStartTime);
+
+            SoundMgr::setSysVolume(0.1, 200);
+            previewState = PREVIEW_PLAY;
+        }
+        else
+        {
+            std::unique_lock l(previewMutex);
+            previewState = PREVIEW_FINISH;
+        }
+
+        break;
+    }
 
     case PREVIEW_PLAY:
     {
@@ -2699,7 +2774,14 @@ void SceneSelect::updatePreview()
 
         if (previewStandalone)
         {
-            if ((Time() - previewStartTime).norm() > previewStandaloneLength)
+            if (previewStartTime == 0)
+            {
+                previewStartTime = Time();
+
+                size_t idx = 0;
+                SoundMgr::playNoteSample(SoundChannelType::KEY_LEFT, 1, &idx);
+            }
+            else if ((Time() - previewStartTime).norm() > previewStandaloneLength)
             {
                 LOG_DEBUG << "[Select] Preview finished";
 
@@ -2753,12 +2835,13 @@ void SceneSelect::updatePreview()
 
     case PREVIEW_FINISH:
         break;
-
     }
 }
 
 void SceneSelect::postStopPreview()
 {
+    std::unique_lock l(previewMutex);
+
     LOG_DEBUG << "[Select] Preview stop";
 
     SoundMgr::stopNoteSamples();

@@ -42,7 +42,9 @@ private:
     enum
     {
         PREVIEW_NONE,
+        PREVIEW_CHART,
         PREVIEW_LOAD,
+        PREVIEW_LOADED,
         PREVIEW_PLAY,
         PREVIEW_FINISH,
     } previewState = PREVIEW_NONE;

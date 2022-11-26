@@ -701,7 +701,7 @@ void SceneSelect::_imguiPage_Options_Select()
         ImGui::SameLine();
         HelpMarker(i18n::c(PREVIEW_DEDICATED_HINT));
 
-        ImGui::Checkbox(i18n::c(PREVIEW_DIRECT), &imgui_adv_previewDedicated);
+        ImGui::Checkbox(i18n::c(PREVIEW_DIRECT), &imgui_adv_previewDirect);
         ImGui::SameLine();
         HelpMarker(i18n::c(PREVIEW_DIRECT_HINT));
 
