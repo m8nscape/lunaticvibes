@@ -235,6 +235,7 @@ public:
     unsigned getJudgeCount(JudgeType idx) const;
     unsigned getJudgeCountEx(JudgeIndex idx) const;
 
+    virtual bool isNoScore() const { return moneyScore == 0.0; }
     virtual bool isCleared() const { return !_isFailed && isFinished() && _basic.health >= _clearHealth; }
     virtual bool isFailed() const { return _isFailed; }
 

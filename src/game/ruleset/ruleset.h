@@ -63,6 +63,7 @@ public:
     double getClearHealth() const { return _clearHealth; }
     bool failWhenNoHealth() const { return _failWhenNoHealth; }
 
+    virtual bool isNoScore() const { return false; }    // for quick esc
     virtual bool isFinished() const { return notesExpired >= getNoteCount(); }
     virtual bool isCleared() const { return _isCleared; }
     virtual bool isFailed() const { return _isFailed; }

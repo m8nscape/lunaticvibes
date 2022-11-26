@@ -2690,9 +2690,21 @@ void ScenePlay::updateFadeout()
             SoundMgr::stopNoteSamples();
             gNextScene = eScene::RETRY_TRANS;
         }
+        else if (gPlayContext.isCourse && 
+            (gPlayContext.courseStage > 0 ||
+             gChartContext.started && gPlayContext.ruleset[PLAYER_SLOT_PLAYER] && !gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isNoScore()))
+        {
+            gNextScene = eScene::RESULT;
+        }
+        else if (gChartContext.started && 
+            (gPlayContext.ruleset[PLAYER_SLOT_PLAYER] && !gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isNoScore() ||
+             gPlayContext.isBattle && gPlayContext.ruleset[PLAYER_SLOT_TARGET] && !gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isNoScore()))
+        {
+            gNextScene = eScene::RESULT;
+        }
         else
         {
-            gNextScene = (gPlayContext.isCourse || gChartContext.started) ? eScene::RESULT : (gQuitOnFinish ? eScene::EXIT_TRANS : eScene::SELECT);
+            gNextScene = gQuitOnFinish ? eScene::EXIT_TRANS : eScene::SELECT;
         }
     }
 }
