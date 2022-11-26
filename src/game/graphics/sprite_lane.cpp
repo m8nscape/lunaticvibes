@@ -483,14 +483,14 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 
 void SpriteLaneVerticalLN::draw() const
 {
+	Color colorMiss = _current.color;
+	colorMiss.r *= 0.5;
+	colorMiss.g *= 0.5;
+	colorMiss.b *= 0.5;
+
 	// body
 	if (pNoteBody && pNoteBody->_pTexture && pNoteBody->_pTexture->_loaded)
 	{
-		Color colorMiss = _current.color;
-		colorMiss.r *= 0.5;
-		colorMiss.g *= 0.5;
-		colorMiss.b *= 0.5;
-
 		for (auto it = _outRectBody.begin(); it != _outRectBody.end(); ++it)
 		{
 			auto itNext = it;
@@ -510,7 +510,7 @@ void SpriteLaneVerticalLN::draw() const
 				pNoteBody->_pTexture->draw(
 					pNoteBody->_texRect[pNoteBody->_selectionIdx],
 					*it,
-					_current.color,
+					((headExpired && !headHit) || (tailExpired && !tailHit)) ? colorMiss : _current.color,
 					_current.blend,
 					_current.filter,
 					_current.angle,
@@ -527,7 +527,7 @@ void SpriteLaneVerticalLN::draw() const
 			pNote->_pTexture->draw(
 				pNote->_texRect[pNote->_selectionIdx * pNote->_animFrames + pNote->_currAnimFrame],
 				r,
-				_current.color,
+				((headExpired && !headHit) || (tailExpired && !tailHit)) ? colorMiss : _current.color,
 				_current.blend,
 				_current.filter,
 				_current.angle,
@@ -543,7 +543,7 @@ void SpriteLaneVerticalLN::draw() const
 			pNoteTail->_pTexture->draw(
 				pNoteTail->_texRect[pNoteTail->_selectionIdx * pNoteTail->_animFrames + pNoteTail->_currAnimFrame],
 				r,
-				_current.color,
+				((headExpired && !headHit) || (tailExpired && !tailHit)) ? colorMiss : _current.color,
 				_current.blend,
 				_current.filter,
 				_current.angle,

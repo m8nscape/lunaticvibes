@@ -113,3 +113,4 @@ Speed
 Input polling frequency
 Input Folder Path Here
 Input Table URL Here (with http://, https://)
+This works over Windows Timer, of which the minimum interval is 0.5ms (1ms for Win7).

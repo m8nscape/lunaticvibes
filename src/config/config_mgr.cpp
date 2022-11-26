@@ -457,6 +457,7 @@ void setSwitches()
             State::set(IndexSwitch::SYSTEM_BGA, Option::BGA_OFF);
     }
 
+    State::set(IndexSwitch::P1_LOCK_SPEED, ConfigMgr::get('P', P_LOCK_SPEED, false));
     State::set(IndexSwitch::PLAY_OPTION_DP_FLIP, ConfigMgr::get('P', P_FLIP, true));
     State::set(IndexSwitch::SYSTEM_SCOREGRAPH, ConfigMgr::get('P', P_SCORE_GRAPH, true));
     State::set(IndexSwitch::SOUND_VOLUME, true);

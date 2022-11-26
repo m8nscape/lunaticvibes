@@ -128,7 +128,11 @@ target_precompile_headers(gamelib REUSE_FROM common)
 
 #############################################################
 
-add_executable(LunaticVibes game.cpp)
+if (WIN32)
+    add_executable(LunaticVibes game.cpp LunaticVibes.exe.manifest)
+else()
+    add_executable(LunaticVibes game.cpp)
+endif()
 target_link_libraries(LunaticVibes PRIVATE gamelib)
 set_target_properties(LunaticVibes PROPERTIES
     CXX_STANDARD 17

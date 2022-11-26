@@ -277,8 +277,8 @@ void graphics_resize_window(int x, int y)
 {
     if (x != 0) windowRect.w = x;
     if (y != 0) windowRect.h = y;
-    canvasScaleX = (double)windowRect.w / x;
-    canvasScaleY = (double)windowRect.h / y;
+    canvasScaleX = (double)x / canvasRect.w;
+    canvasScaleY = (double)y / canvasRect.h;
     SDL_SetWindowSize(gFrameWindow, windowRect.w, windowRect.h);
     SDL_SetWindowPosition(gFrameWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 }

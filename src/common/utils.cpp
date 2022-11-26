@@ -373,6 +373,8 @@ Path PathFromUTF8(std::string_view s)
 
 void preciseSleep(long long sleep_ns)
 {
+    if (sleep_ns <= 0) return;
+
     using namespace std::chrono;
     using namespace std::chrono_literals;
 
@@ -380,14 +382,14 @@ void preciseSleep(long long sleep_ns)
 
     static HANDLE timer = CreateWaitableTimer(NULL, FALSE, NULL);
 
-    while (sleep_ns > 1e6)
+    while (sleep_ns > 1'000'000)
     {
         LARGE_INTEGER due;
-        due.QuadPart = -int64_t(sleep_ns / 100);
+        due.QuadPart = -int64_t((sleep_ns - sleep_ns % 1'000'000) / 100);  // wrap to 1ms
 
         auto start = high_resolution_clock::now();
         SetWaitableTimerEx(timer, &due, 0, NULL, NULL, NULL, 0);
-        WaitForSingleObject(timer, INFINITE);
+        WaitForSingleObjectEx(timer, INFINITE, TRUE);
         auto end = high_resolution_clock::now();
 
         double observed = duration_cast<nanoseconds>(end - start).count();

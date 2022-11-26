@@ -11,7 +11,7 @@ AsyncLooper::AsyncLooper(StringContentView tag, std::function<void()> func, unsi
 #if WIN32
     handler = CreateWaitableTimerExA(
         NULL,
-        _tag.empty() ? NULL : _tag.c_str(),
+        NULL,
         0,
         TIMER_ALL_ACCESS
     );
@@ -73,6 +73,8 @@ void AsyncLooper::loopStart()
             loopFuture = std::async(std::launch::async, [this]()
                 {
                     long long us = _rate > 0 ? 1000000 / _rate : 0;
+                    long long reset_threshold = us * 4;
+
                     LARGE_INTEGER dueTime = { 0 };
                     dueTime.QuadPart = -(long long(us) * 10);
 
@@ -105,12 +107,19 @@ void AsyncLooper::loopStart()
                         if (us > (t2 - tStart))
                         {
                             dueTime.QuadPart = -(long long(us - (t2 - tStart)) * 10);
-                            tStart += us;
                         }
                         else
                         {
                             dueTime.QuadPart = 0;
-                            tStart += t2 - tStart;
+                        }
+
+                        if ((t2 - tStart) < reset_threshold)
+                        {
+                            tStart += us;
+                        }
+                        else
+                        {
+                            tStart = t2;
                         }
                     }
                 });

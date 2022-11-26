@@ -9,6 +9,7 @@
 
 #ifdef _WIN32
 #include <shellapi.h>
+#include <VersionHelpers.h>
 #endif
 
 void SceneSelect::_imguiSampleDialog()
@@ -602,7 +603,12 @@ void SceneSelect::_imguiPage_Options_Play()
             "8000 Hz",
             //"Unlimited (Not recommended)"
         };
-        if (ImGui::Combo("##inputpollingrate", &imgui_play_inputPollingRate, imgui_play_inputPollingRate_display, sizeof(imgui_play_inputPollingRate_display) / sizeof(char*)))
+#if WIN32
+        int imgui_play_inputPollingRate_count = IsWindows10OrGreater() ? 2 : 1;
+#else
+        int imgui_play_inputPollingRate_count = 4;
+#endif
+        if (ImGui::Combo("##inputpollingrate", &imgui_play_inputPollingRate, imgui_play_inputPollingRate_display, imgui_play_inputPollingRate_count))
         {
             switch (imgui_play_inputPollingRate)
             {
@@ -613,6 +619,10 @@ void SceneSelect::_imguiPage_Options_Play()
             case 4: ConfigMgr::set("P", cfg::P_INPUT_POLLING_RATE, 0); _input.setRate(0); break;
             }
         }
+#if WIN32
+        ImGui::SameLine();
+        HelpMarker(i18n::c(INPUT_POLLING_RATE_WARNING_WINDOWS));
+#endif
 
         ImGui::Text(i18n::c(DEFAULT_TARGET));
         ImGui::SameLine(infoRowWidth);

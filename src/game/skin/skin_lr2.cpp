@@ -3561,8 +3561,11 @@ void SkinLR2::postLoad()
     {
         _barSprites[barCenter]->drawFlash = true;
 
-        gSelectContext.cursor = barCenter;
-        gSelectContext.cursorClick = barCenter;
+        if (loadMode == 0)
+        {
+            gSelectContext.cursor = barCenter;
+            gSelectContext.cursorClick = barCenter;
+        }
     }
 
     // set bar available

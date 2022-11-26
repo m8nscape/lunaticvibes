@@ -606,9 +606,14 @@ bool DifficultyTableBMS::loadFromFile()
 
 	Path headerPath = tablePath / "header.json";
 	Path dataPath = tablePath / "data.json";
-	if (!fs::exists(headerPath) || !fs::exists(dataPath))
+	if (!fs::exists(headerPath))
 	{
-		LOG_ERROR << "[TableBMS] header.json or data.json not found!";
+		LOG_WARNING << "[TableBMS] header.json not found!";
+		return false;
+	}
+	if (!fs::exists(dataPath))
+	{
+		LOG_WARNING << "[TableBMS] data.json not found!";
 		return false;
 	}
 
