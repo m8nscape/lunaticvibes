@@ -67,6 +67,7 @@ private:
     std::array<bool, 2>   _lanecoverTopHasChanged{ false, false };
     std::array<bool, 2>   _lanecoverBottomHasChanged{ false, false };
     std::array<bool, 2>   _lanecoverStateHasChanged{ false, false };
+    unsigned replayCmdMapIndex = 0;
 
     std::array<int, 2>      _missPlayer = { 0 };
     Time _missLastTime;

@@ -3,10 +3,150 @@
 #include "common/chartformat/chartformat.h"
 #include "common/chartformat/chartformat_types.h"
 #include "game/runtime/state.h"
-
+#include "game/scene/scene_context.h"
 
 
 using namespace chart;
+
+
+// from NoteLaneIndex to Input::Pad
+const std::vector<Input::Pad>& chart::LaneToKey(int keys, size_t idx)
+{
+    assert(idx < 26);
+    using namespace Input;
+    switch (keys)
+    {
+    case 5:
+    case 10:
+    {
+        static const std::vector<Input::Pad> pad[] = {
+            {Input::Pad::S1L, Input::Pad::S1R}, // Sc1
+            {Input::Pad::K11},
+            {Input::Pad::K12},
+            {Input::Pad::K13},
+            {Input::Pad::K14},
+            {Input::Pad::K15},
+            {},{},{},{},
+            {Input::Pad::K21},
+            {Input::Pad::K22},
+            {Input::Pad::K23},
+            {Input::Pad::K24},
+            {Input::Pad::K25},
+            {},{},{},{},
+            {Input::Pad::S2L, Input::Pad::S2R} // Sc2
+        };
+        return pad[idx];
+    }
+    case 7:
+    case 14:
+    {
+        static const std::vector<Input::Pad> pad[] = {
+            {Input::Pad::S1L, Input::Pad::S1R}, // Sc1
+            {Input::Pad::K11},
+            {Input::Pad::K12},
+            {Input::Pad::K13},
+            {Input::Pad::K14},
+            {Input::Pad::K15},
+            {Input::Pad::K16},
+            {Input::Pad::K17},
+            {},{},
+            {Input::Pad::K21},
+            {Input::Pad::K22},
+            {Input::Pad::K23},
+            {Input::Pad::K24},
+            {Input::Pad::K25},
+            {Input::Pad::K26},
+            {Input::Pad::K27},
+            {},{},
+            {Input::Pad::S2L, Input::Pad::S2R} // Sc2
+        };
+        return pad[idx];
+    }
+    case 9:
+    {
+        static const std::vector<Input::Pad> pad[] = {
+            {}, // Sc1
+            {Input::Pad::K11},
+            {Input::Pad::K12},
+            {Input::Pad::K13},
+            {Input::Pad::K14},
+            {Input::Pad::K15},
+            {Input::Pad::K16},
+            {Input::Pad::K17},
+            {Input::Pad::K18},
+            {Input::Pad::K19},
+            {},{},{},{},{},{},{},{},{},
+            {} // Sc2
+        };
+        return pad[idx];
+    }
+    }
+    static const std::vector<Input::Pad> empty{};
+    return empty;
+}
+
+// from Input::Pad to NoteLaneIndex
+chart::NoteLaneIndex chart::KeyToLane(int keys, Input::Pad pad)
+{
+    assert(pad < 30);
+
+    using namespace chart;
+    switch (keys)
+    {
+    case 5:
+    case 10:
+    {
+        static const NoteLaneIndex lane[4][30] =
+        {
+            {
+                Sc1, Sc1, N11, N12, N13, N14, N15, _, _, _, _, _, _, _, _,
+                Sc2, Sc2, N21, N22, N23, N24, N25, _, _, _, _, _, _, _, _,
+            },
+            {
+                Sc1, Sc1, N11, N12, N13, N14, N15, _, _, _, _, _, _, _, _,
+                Sc2, Sc2, _, _, N21, N22, N23, N24, N25, _, _, _, _, _, _,
+            },
+            {
+                Sc1, Sc1, _, _, N11, N12, N13, N14, N15, _, _, _, _, _, _,
+                Sc2, Sc2, N21, N22, N23, N24, N25, _, _, _, _, _, _, _, _,
+            },
+            {
+                Sc1, Sc1, _, _, N11, N12, N13, N14, N15, _, _, _, _, _, _,
+                Sc2, Sc2, _, _, N21, N22, N23, N24, N25, _, _, _, _, _, _,
+            },
+        };
+        if (gPlayContext.shift1PNotes5KFor7KSkin)
+        {
+            return gPlayContext.shift2PNotes5KFor7KSkin ? lane[3][pad] : lane[2][pad];
+        }
+        else
+        {
+            return gPlayContext.shift2PNotes5KFor7KSkin ? lane[1][pad] : lane[0][pad];
+        }
+    }
+    case 7:
+    case 14:
+    {
+        static const NoteLaneIndex lane[] =
+        {
+            Sc1, Sc1, N11, N12, N13, N14, N15, N16, N17, _, _, _, _, _, _,
+            Sc2, Sc2, N21, N22, N23, N24, N25, N26, N27, _, _, _, _, _, _,
+        };
+        return lane[pad];
+    }
+    case 9:
+    {
+        static const NoteLaneIndex lane[] =
+        {
+            _, _, N11, N12, N13, N14, N15, N16, N17, N18, N19, _, _, _, _,
+            _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+        };
+        return lane[pad];
+    }
+    }
+    return _;
+}
+
 
 ChartObjectBase::ChartObjectBase(int slot, size_t pn, size_t en) :
     _playerSlot(slot), _noteLists{}, _bgmNoteLists(pn), _specialNoteLists(en), _bgmNoteListIters(pn), _specialNoteListIters(en)

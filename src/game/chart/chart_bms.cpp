@@ -5,121 +5,6 @@
 
 static const size_t NOPE = -1;
 
-// from NoteLaneIndex to Input::Pad
-const std::vector<Input::Pad>& LaneToKey(int keys, size_t idx)
-{
-    assert(idx < 26);
-    using namespace Input;
-    switch (keys)
-    {
-    case 5:
-    case 10:
-    {
-        static const std::vector<Input::Pad> pad[] = {
-            {Input::Pad::S1L, Input::Pad::S1R}, // Sc1
-            {Input::Pad::K11},
-            {Input::Pad::K12},
-            {Input::Pad::K13},
-            {Input::Pad::K14},
-            {Input::Pad::K15},
-            {Input::Pad::K21},
-            {Input::Pad::K22},
-            {Input::Pad::K23},
-            {Input::Pad::K24},
-            {Input::Pad::K25},
-            {}, {}, {}, {}, {},{},{},{},{},{},{},{},{},{}, //11~24
-            {Input::Pad::S2L, Input::Pad::S2R} // Sc2
-        };
-        return pad[idx];
-    }
-    case 7:
-    case 14:
-    {
-        static const std::vector<Input::Pad> pad[] = {
-            {Input::Pad::S1L, Input::Pad::S1R}, // Sc1
-            {Input::Pad::K11},
-            {Input::Pad::K12},
-            {Input::Pad::K13},
-            {Input::Pad::K14},
-            {Input::Pad::K15},
-            {Input::Pad::K16},
-            {Input::Pad::K17},
-            {Input::Pad::K21}, //8
-            {Input::Pad::K22}, //9
-            {Input::Pad::K23}, //10
-            {Input::Pad::K24}, //11
-            {Input::Pad::K25}, //12
-            {Input::Pad::K26}, //13
-            {Input::Pad::K27}, //14
-            {},{},{},{},{},{},{},{},{},{}, //15~24
-            {Input::Pad::S2L, Input::Pad::S2R} // Sc2
-        };
-        return pad[idx];
-    }
-    case 9:
-    {
-        static const std::vector<Input::Pad> pad[] = {
-            {}, // Sc1
-            {Input::Pad::K11},
-            {Input::Pad::K12},
-            {Input::Pad::K13},
-            {Input::Pad::K14},
-            {Input::Pad::K15},
-            {Input::Pad::K16},
-            {Input::Pad::K17},
-            {Input::Pad::K18},
-            {Input::Pad::K19},
-            {},{},{},{},{},{},{},{},{},{},{},{},{},{},{}, //15~24
-            {Input::Pad::S2L, Input::Pad::S2R} // Sc2
-        };
-        return pad[idx];
-    }
-    }
-    static const std::vector<Input::Pad> empty{};
-    return empty;
-}
-
-// from Input::Pad to NoteLaneIndex
-chart::NoteLaneIndex KeyToLane(int keys, Input::Pad pad)
-{
-    assert(pad < 30);
-
-    using namespace chart;
-    switch (keys)
-    {
-    case 5:
-    case 10:
-    {
-        static const NoteLaneIndex lane[] =
-        {
-            Sc1, Sc1, K1, K2, K3, K4, K5, _, _, _, _, _, _, _, _,
-            Sc2, Sc2, K6, K7, K8, K9, K10, _, _, _, _, _, _, _, _,
-        };
-        return lane[pad];
-    }
-    case 7:
-    case 14:
-    {
-        static const NoteLaneIndex lane[] =
-        {
-            Sc1, Sc1, K1, K2, K3, K4, K5, K6, K7, _, _, _, _, _, _,
-            Sc2, Sc2, K8, K9, K10, K11, K12, K13, K14, _, _, _, _, _, _,
-        };
-        return lane[pad];
-    }
-    case 9:
-    {
-        static const NoteLaneIndex lane[] =
-        {
-            _, _, K1, K2, K3, K4, K5, K6, K7, K8, K9, _, _, _, _,
-            _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
-        };
-        return lane[pad];
-    }
-    }
-    return _;
-}
-
 using namespace chart;
 
 ChartObjectBMS::ChartObjectBMS(int slot) : ChartObjectBase(slot, BGM_LANE_COUNT, (size_t)eNoteExt::EXT_COUNT),
@@ -159,10 +44,10 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
     case 18: laneCountOneSide = 9; break;
     default: break;
     }
-    size_t laneLeftStart = K1;
-    size_t laneLeftEnd = K1 + laneCountOneSide - 1;
-    size_t laneRightStart = K1 + laneCountOneSide;
-    size_t laneRightEnd = K1 + laneCountOneSide + laneCountOneSide - 1;
+    size_t laneLeftStart = N11;
+    size_t laneLeftEnd = laneLeftStart + laneCountOneSide - 1;
+    size_t laneRightStart = N21;
+    size_t laneRightEnd = laneRightStart + laneCountOneSide - 1;
 
     bool isChartDP = objBms.player != 1;
     _keys = laneCountOneSide;
@@ -371,15 +256,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                     unsigned index = i;
                     if (area != 0)
                     {
-                        if (index == Sc1)
-                        {
-                            assert(area == 1);
-                            index = Sc2;
-                        }
-                        else
-                        {
-                            index += laneCountOneSide * area;
-                        }
+                        index += 10;
                     }
                     for (const auto& n : ch.notes)
                     {
@@ -396,15 +273,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                     unsigned index = i;
                     if (area != 0)
                     {
-                        if (index == Sc1)
-                        {
-                            assert(area == 1);
-                            index = Sc2;
-                        }
-                        else
-                        {
-                            index += laneCountOneSide * area;
-                        }
+                        index += 10;
                     }
                     for (const auto& n : ch.notes)
                     {
@@ -629,14 +498,14 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                     int laneArea;
                     if (gameLaneIdx == Sc1 || gameLaneIdx >= laneLeftStart && gameLaneIdx <= laneLeftEnd)
                     {
-                        laneMin = laneLeftStart; // K1
-                        laneMax = laneLeftEnd; // K7
+                        laneMin = laneLeftStart;
+                        laneMax = laneLeftEnd;
                         laneArea = 0;
                     }
                     else if (gameLaneIdx == Sc2 || gameLaneIdx >= laneRightStart && gameLaneIdx <= laneRightEnd)
                     {
-                        laneMin = laneRightStart; // K8
-                        laneMax = laneRightEnd; // K14
+                        laneMin = laneRightStart;
+                        laneMax = laneRightEnd;
                         laneArea = 1;
                     }
                     else
@@ -670,7 +539,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                                         placable.push_back(i);
                                 }
                             }
-                            gameLaneIdxMod = placable.empty() ? (K1 + rng() % laneCountOneSide) : placable[rng() % placable.size()];
+                            gameLaneIdxMod = placable.empty() ? (N11 + rng() % laneCountOneSide) : placable[rng() % placable.size()];
                         }
                         break;
 

@@ -33,31 +33,25 @@ enum NoteLaneIndex : size_t
 {
     _ = -1ull, // INVALID
     Sc1 = 0,
-    K1,
-    K2,
-    K3,
-    K4,
-    K5,
-    K6,
-    K7,
-    K8,
-    K9,
-    K10,
-    K11,
-    K12,
-    K13,
-    K14,
-    K15,
-    K16,
-    K17,
-    K18,
-    K19,
-    K20,
-    K21,
-    K22,
-    K23,
-    K24,
+    N11,
+    N12,
+    N13,
+    N14,
+    N15,
+    N16,
+    N17,
+    N18,
+    N19,
     Sc2,
+    N21,
+    N22,
+    N23,
+    N24,
+    N25,
+    N26,
+    N27,
+    N28,
+    N29,
     NOTELANEINDEX_COUNT,
 };
 
@@ -96,6 +90,14 @@ constexpr NoteLane idxToChannel(size_t idx)
 
     return { NoteLaneCategory(idx / NOTELANEINDEX_COUNT), NoteLaneIndex(idx % NOTELANEINDEX_COUNT) };
 }
+
+
+// from NoteLaneIndex to Input::Pad
+const std::vector<Input::Pad>& LaneToKey(int keys, size_t idx);
+
+// from Input::Pad to NoteLaneIndex
+chart::NoteLaneIndex KeyToLane(int keys, Input::Pad pad);
+
 
 }
 

@@ -109,6 +109,9 @@ std::pair<int, double> calcGreenNumber(double bpm, int slot, double hs)
     return { green, speedValue };
 }
 
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+
 ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
 {
     _scene = eScene::PLAY;
@@ -118,6 +121,24 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     if (!isPlaymodeDP() && !gPlayContext.isBattle)
     {
         _input.setMergeInput();
+    }
+
+    gPlayContext.shift1PNotes5KFor7KSkin = false;
+    gPlayContext.shift2PNotes5KFor7KSkin = false;
+    if ((_skin->info.mode == eMode::PLAY7 || _skin->info.mode == eMode::PLAY7_2) &&
+        (State::get(IndexOption::CHART_PLAY_KEYS) == Option::KEYS_5 || State::get(IndexOption::CHART_PLAY_KEYS) == Option::KEYS_10))
+    {
+        gPlayContext.shift1PNotes5KFor7KSkin = (_skin->info.scratchSide1P == 1);
+        gPlayContext.shift2PNotes5KFor7KSkin = (_skin->info.scratchSide2P == 1);
+
+        if (gPlayContext.shift1PNotes5KFor7KSkin)
+        {
+            replayCmdMapIndex = gPlayContext.shift2PNotes5KFor7KSkin ? 3 : 2;
+        }
+        else
+        {
+            replayCmdMapIndex = gPlayContext.shift2PNotes5KFor7KSkin ? 1 : 0;
+        }
     }
 
     _currentKeySample.assign(Input::ESC, 0);
@@ -712,7 +733,20 @@ bool ScenePlay::createRuleset()
 
         if (!gInCustomize)
         {
-            InputMgr::updateBindings(keys);
+            unsigned skinKeys = 7;
+            switch (_skin->info.mode)
+            {
+            case eMode::PLAY5:
+            case eMode::PLAY5_2: skinKeys = 5; break;
+            case eMode::PLAY7:
+            case eMode::PLAY7_2: skinKeys = 7; break;
+            case eMode::PLAY9:
+            case eMode::PLAY9_2: skinKeys = 9; break;
+            case eMode::PLAY10: skinKeys = 10; break;
+            case eMode::PLAY14: skinKeys = 14; break;
+            default: break;
+            }
+            InputMgr::updateBindings(skinKeys);
         }
 
         if (gPlayContext.isAuto)
@@ -2185,60 +2219,31 @@ void ScenePlay::updatePlaying()
                 }
             }
 
+            if (gPlayContext.mode == eMode::PLAY5 || gPlayContext.mode == eMode::PLAY5_2)
+            {
+                if (replay_cmd_input_down_map_5k[replayCmdMapIndex].find(cmd) != replay_cmd_input_down_map_5k[replayCmdMapIndex].end())
+                {
+                    replayKeyPressing[replay_cmd_input_down_map_5k[replayCmdMapIndex].at(cmd)] = true;
+                }
+                else if (replay_cmd_input_up_map_5k[replayCmdMapIndex].find(cmd) != replay_cmd_input_up_map_5k[replayCmdMapIndex].end())
+                {
+                    replayKeyPressing[replay_cmd_input_up_map_5k[replayCmdMapIndex].at(cmd)] = false;
+                }
+            }
+            else
+            {
+                if (replay_cmd_input_down_map.find(cmd) != replay_cmd_input_down_map.end())
+                {
+                    replayKeyPressing[replay_cmd_input_down_map.at(cmd)] = true;
+                }
+                else if (replay_cmd_input_up_map.find(cmd) != replay_cmd_input_up_map.end())
+                {
+                    replayKeyPressing[replay_cmd_input_up_map.at(cmd)] = false;
+                }
+            }
+
             switch (cmd)
             {
-            case ReplayChart::Commands::Type::S1L_DOWN: replayKeyPressing[Input::Pad::S1L] = true; break;
-            case ReplayChart::Commands::Type::S1R_DOWN: replayKeyPressing[Input::Pad::S1R] = true; break;
-            case ReplayChart::Commands::Type::K11_DOWN: replayKeyPressing[Input::Pad::K11] = true; break;
-            case ReplayChart::Commands::Type::K12_DOWN: replayKeyPressing[Input::Pad::K12] = true; break;
-            case ReplayChart::Commands::Type::K13_DOWN: replayKeyPressing[Input::Pad::K13] = true; break;
-            case ReplayChart::Commands::Type::K14_DOWN: replayKeyPressing[Input::Pad::K14] = true; break;
-            case ReplayChart::Commands::Type::K15_DOWN: replayKeyPressing[Input::Pad::K15] = true; break;
-            case ReplayChart::Commands::Type::K16_DOWN: replayKeyPressing[Input::Pad::K16] = true; break;
-            case ReplayChart::Commands::Type::K17_DOWN: replayKeyPressing[Input::Pad::K17] = true; break;
-            case ReplayChart::Commands::Type::K18_DOWN: replayKeyPressing[Input::Pad::K18] = true; break;
-            case ReplayChart::Commands::Type::K19_DOWN: replayKeyPressing[Input::Pad::K19] = true; break;
-            case ReplayChart::Commands::Type::K1START_DOWN: replayKeyPressing[Input::Pad::K1START] = true; break;
-            case ReplayChart::Commands::Type::K1SELECT_DOWN: replayKeyPressing[Input::Pad::K1SELECT] = true; break;
-            case ReplayChart::Commands::Type::S2L_DOWN: replayKeyPressing[Input::Pad::S2L] = true; break;
-            case ReplayChart::Commands::Type::S2R_DOWN: replayKeyPressing[Input::Pad::S2R] = true; break;
-            case ReplayChart::Commands::Type::K21_DOWN: replayKeyPressing[Input::Pad::K21] = true; break;
-            case ReplayChart::Commands::Type::K22_DOWN: replayKeyPressing[Input::Pad::K22] = true; break;
-            case ReplayChart::Commands::Type::K23_DOWN: replayKeyPressing[Input::Pad::K23] = true; break;
-            case ReplayChart::Commands::Type::K24_DOWN: replayKeyPressing[Input::Pad::K24] = true; break;
-            case ReplayChart::Commands::Type::K25_DOWN: replayKeyPressing[Input::Pad::K25] = true; break;
-            case ReplayChart::Commands::Type::K26_DOWN: replayKeyPressing[Input::Pad::K26] = true; break;
-            case ReplayChart::Commands::Type::K27_DOWN: replayKeyPressing[Input::Pad::K27] = true; break;
-            case ReplayChart::Commands::Type::K28_DOWN: replayKeyPressing[Input::Pad::K28] = true; break;
-            case ReplayChart::Commands::Type::K29_DOWN: replayKeyPressing[Input::Pad::K29] = true; break;
-            case ReplayChart::Commands::Type::K2START_DOWN: replayKeyPressing[Input::Pad::K2START] = true; break;
-            case ReplayChart::Commands::Type::K2SELECT_DOWN: replayKeyPressing[Input::Pad::K2SELECT] = true; break;
-            case ReplayChart::Commands::Type::S1L_UP: replayKeyPressing[Input::Pad::S1L] = false; break;
-            case ReplayChart::Commands::Type::S1R_UP: replayKeyPressing[Input::Pad::S1R] = false; break;
-            case ReplayChart::Commands::Type::K11_UP: replayKeyPressing[Input::Pad::K11] = false; break;
-            case ReplayChart::Commands::Type::K12_UP: replayKeyPressing[Input::Pad::K12] = false; break;
-            case ReplayChart::Commands::Type::K13_UP: replayKeyPressing[Input::Pad::K13] = false; break;
-            case ReplayChart::Commands::Type::K14_UP: replayKeyPressing[Input::Pad::K14] = false; break;
-            case ReplayChart::Commands::Type::K15_UP: replayKeyPressing[Input::Pad::K15] = false; break;
-            case ReplayChart::Commands::Type::K16_UP: replayKeyPressing[Input::Pad::K16] = false; break;
-            case ReplayChart::Commands::Type::K17_UP: replayKeyPressing[Input::Pad::K17] = false; break;
-            case ReplayChart::Commands::Type::K18_UP: replayKeyPressing[Input::Pad::K18] = false; break;
-            case ReplayChart::Commands::Type::K19_UP: replayKeyPressing[Input::Pad::K19] = false; break;
-            case ReplayChart::Commands::Type::K1START_UP: replayKeyPressing[Input::Pad::K1START] = false; break;
-            case ReplayChart::Commands::Type::K1SELECT_UP: replayKeyPressing[Input::Pad::K1SELECT] = false; break;
-            case ReplayChart::Commands::Type::S2L_UP: replayKeyPressing[Input::Pad::S2L] = false; break;
-            case ReplayChart::Commands::Type::S2R_UP: replayKeyPressing[Input::Pad::S2R] = false; break;
-            case ReplayChart::Commands::Type::K21_UP: replayKeyPressing[Input::Pad::K21] = false; break;
-            case ReplayChart::Commands::Type::K22_UP: replayKeyPressing[Input::Pad::K22] = false; break;
-            case ReplayChart::Commands::Type::K23_UP: replayKeyPressing[Input::Pad::K23] = false; break;
-            case ReplayChart::Commands::Type::K24_UP: replayKeyPressing[Input::Pad::K24] = false; break;
-            case ReplayChart::Commands::Type::K25_UP: replayKeyPressing[Input::Pad::K25] = false; break;
-            case ReplayChart::Commands::Type::K26_UP: replayKeyPressing[Input::Pad::K26] = false; break;
-            case ReplayChart::Commands::Type::K27_UP: replayKeyPressing[Input::Pad::K27] = false; break;
-            case ReplayChart::Commands::Type::K28_UP: replayKeyPressing[Input::Pad::K28] = false; break;
-            case ReplayChart::Commands::Type::K29_UP: replayKeyPressing[Input::Pad::K29] = false; break;
-            case ReplayChart::Commands::Type::K2START_UP: replayKeyPressing[Input::Pad::K2START] = false; break;
-            case ReplayChart::Commands::Type::K2SELECT_UP: replayKeyPressing[Input::Pad::K2SELECT] = false; break;
             case ReplayChart::Commands::Type::S1A_PLUS:  _scratchAccumulator[PLAYER_SLOT_PLAYER] = 0.0015; break;
             case ReplayChart::Commands::Type::S1A_MINUS: _scratchAccumulator[PLAYER_SLOT_PLAYER] = -0.0015; break;
             case ReplayChart::Commands::Type::S1A_STOP:  _scratchAccumulator[PLAYER_SLOT_PLAYER] = 0; break;
@@ -3035,32 +3040,27 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
         long long ms = t.norm() - State::get(IndexTimer::PLAY_START);
         ReplayChart::Commands cmd;
         cmd.ms = ms;
-        if (input[S1L])      { cmd.type = ReplayChart::Commands::Type::S1L_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[S1R])      { cmd.type = ReplayChart::Commands::Type::S1R_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K11])      { cmd.type = ReplayChart::Commands::Type::K11_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K12])      { cmd.type = ReplayChart::Commands::Type::K12_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K13])      { cmd.type = ReplayChart::Commands::Type::K13_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K14])      { cmd.type = ReplayChart::Commands::Type::K14_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K15])      { cmd.type = ReplayChart::Commands::Type::K15_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K16])      { cmd.type = ReplayChart::Commands::Type::K16_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K17])      { cmd.type = ReplayChart::Commands::Type::K17_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K18])      { cmd.type = ReplayChart::Commands::Type::K18_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K19])      { cmd.type = ReplayChart::Commands::Type::K19_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K1START])  { cmd.type = ReplayChart::Commands::Type::K1START_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K1SELECT]) { cmd.type = ReplayChart::Commands::Type::K1SELECT_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[S2L])      { cmd.type = ReplayChart::Commands::Type::S2L_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[S2R])      { cmd.type = ReplayChart::Commands::Type::S2R_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K21])      { cmd.type = ReplayChart::Commands::Type::K21_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K22])      { cmd.type = ReplayChart::Commands::Type::K22_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K23])      { cmd.type = ReplayChart::Commands::Type::K23_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K24])      { cmd.type = ReplayChart::Commands::Type::K24_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K25])      { cmd.type = ReplayChart::Commands::Type::K25_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K26])      { cmd.type = ReplayChart::Commands::Type::K26_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K27])      { cmd.type = ReplayChart::Commands::Type::K27_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K28])      { cmd.type = ReplayChart::Commands::Type::K28_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K29])      { cmd.type = ReplayChart::Commands::Type::K29_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K2START])  { cmd.type = ReplayChart::Commands::Type::K2START_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K2SELECT]) { cmd.type = ReplayChart::Commands::Type::K2SELECT_DOWN; gPlayContext.replayNew->commands.push_back(cmd); }
+        for (size_t k = S1L; k < LANE_COUNT; ++k)
+        {
+            if (!input[k]) continue;
+
+            if (gPlayContext.mode == eMode::PLAY5 || gPlayContext.mode == eMode::PLAY5_2)
+            {
+                if (replay_input_down_cmd_map_5k[replayCmdMapIndex].find((Input::Pad)k) != replay_input_down_cmd_map_5k[replayCmdMapIndex].end())
+                {
+                    cmd.type = replay_input_down_cmd_map_5k[replayCmdMapIndex].at((Input::Pad)k);
+                    gPlayContext.replayNew->commands.push_back(cmd);
+                }
+            }
+            else
+            {
+                if (replay_input_down_cmd_map.find((Input::Pad)k) != replay_input_down_cmd_map.end())
+                {
+                    cmd.type = replay_input_down_cmd_map.at((Input::Pad)k);
+                    gPlayContext.replayNew->commands.push_back(cmd);
+                }
+            }
+        }
     }
 
     // double click START: toggle top lanecover
@@ -3350,32 +3350,27 @@ void ScenePlay::inputGameRelease(InputMask& m, const Time& t)
         long long ms = t.norm() - State::get(IndexTimer::PLAY_START);
         ReplayChart::Commands cmd;
         cmd.ms = ms;
-        if (input[S1L])      { cmd.type = ReplayChart::Commands::Type::S1L_UP; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[S1R])      { cmd.type = ReplayChart::Commands::Type::S1R_UP; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K11])      { cmd.type = ReplayChart::Commands::Type::K11_UP; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K12])      { cmd.type = ReplayChart::Commands::Type::K12_UP; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K13])      { cmd.type = ReplayChart::Commands::Type::K13_UP; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K14])      { cmd.type = ReplayChart::Commands::Type::K14_UP; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K15])      { cmd.type = ReplayChart::Commands::Type::K15_UP; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K16])      { cmd.type = ReplayChart::Commands::Type::K16_UP; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K17])      { cmd.type = ReplayChart::Commands::Type::K17_UP; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K18])      { cmd.type = ReplayChart::Commands::Type::K18_UP; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K19])      { cmd.type = ReplayChart::Commands::Type::K19_UP; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K1START])  { cmd.type = ReplayChart::Commands::Type::K1START_UP; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K1SELECT]) { cmd.type = ReplayChart::Commands::Type::K1SELECT_UP; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[S2L])      { cmd.type = ReplayChart::Commands::Type::S2L_UP; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[S2R])      { cmd.type = ReplayChart::Commands::Type::S2R_UP; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K21])      { cmd.type = ReplayChart::Commands::Type::K21_UP; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K22])      { cmd.type = ReplayChart::Commands::Type::K22_UP; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K23])      { cmd.type = ReplayChart::Commands::Type::K23_UP; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K24])      { cmd.type = ReplayChart::Commands::Type::K24_UP; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K25])      { cmd.type = ReplayChart::Commands::Type::K25_UP; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K26])      { cmd.type = ReplayChart::Commands::Type::K26_UP; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K27])      { cmd.type = ReplayChart::Commands::Type::K27_UP; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K28])      { cmd.type = ReplayChart::Commands::Type::K28_UP; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K29])      { cmd.type = ReplayChart::Commands::Type::K29_UP; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K2START])  { cmd.type = ReplayChart::Commands::Type::K2START_UP; gPlayContext.replayNew->commands.push_back(cmd); }
-        if (input[K2SELECT]) { cmd.type = ReplayChart::Commands::Type::K2SELECT_UP; gPlayContext.replayNew->commands.push_back(cmd); }
+        for (size_t k = S1L; k < LANE_COUNT; ++k)
+        {
+            if (!input[k]) continue;
+
+            if (gPlayContext.mode == eMode::PLAY5 || gPlayContext.mode == eMode::PLAY5_2)
+            {
+                if (replay_input_up_cmd_map_5k[replayCmdMapIndex].find((Input::Pad)k) != replay_input_up_cmd_map_5k[replayCmdMapIndex].end())
+                {
+                    cmd.type = replay_input_up_cmd_map_5k[replayCmdMapIndex].at((Input::Pad)k);
+                    gPlayContext.replayNew->commands.push_back(cmd);
+                }
+            }
+            else
+            {
+                if (replay_input_up_cmd_map.find((Input::Pad)k) != replay_input_up_cmd_map.end())
+                {
+                    cmd.type = replay_input_up_cmd_map.at((Input::Pad)k);
+                    gPlayContext.replayNew->commands.push_back(cmd);
+                }
+            }
+        }
     }
 
     if (input[K1START] || isPlaymodeDP() && input[K2START]) _isHoldingStart[PLAYER_SLOT_PLAYER] = false;

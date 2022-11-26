@@ -1131,13 +1131,13 @@ int SkinLR2::others()
 
         return 5;
     }
-    if (strEqual(parseKeyBuf, "#SCRATCH", true))
+    if (strEqual(parseKeyBuf, "#SCRATCHSIDE", true))
     {
         int a, b;
         a = !!toInt(parseParamBuf[0]);
         b = !!toInt(parseParamBuf[1]);
-        scratchSide1P = a;
-        scratchSide2P = b;
+        info.scratchSide1P = a;
+        info.scratchSide2P = b;
         return 6;
     }
     if (strEqual(parseKeyBuf, "#BAR_CENTER", true))
@@ -1805,7 +1805,7 @@ ParseRet SkinLR2::SRC_NOWCOMBO2()
     return ParseRet::OK;
 }
 
-chart::NoteLaneIndex NoteIdxToLane(eMode gamemode, int idx)
+chart::NoteLaneIndex NoteIdxToLane(eMode gamemode, int idx, unsigned scratchSide1P, unsigned scratchSide2P)
 {
     assert(idx < 20);
 
@@ -1816,25 +1816,43 @@ chart::NoteLaneIndex NoteIdxToLane(eMode gamemode, int idx)
     {
         static const NoteLaneIndex lane[] =
         {
-            Sc1, K1, K2, K3, K4, K5, _, _, _, _,
+            Sc1, N11, N12, N13, N14, N15, _, _, _, _,
             _, _, _, _, _, _, _, _, _, _,
         };
         return lane[idx];
     }
     case eMode::PLAY7:
     {
-        static const NoteLaneIndex lane[] =
+        if (State::get(IndexOption::CHART_PLAY_KEYS) == Option::KEYS_5 || State::get(IndexOption::CHART_PLAY_KEYS) == Option::KEYS_10)
         {
-            Sc1, K1, K2, K3, K4, K5, K6, K7, _, _,
-            _, _, _, _, _, _, _, _, _, _,
-        };
-        return lane[idx];
+            static const NoteLaneIndex lane[][20] =
+            {
+                {
+                    Sc1, N11, N12, N13, N14, N15, _, _, _, _,
+                    _, _, _, _, _, _, _, _, _, _,
+                },
+                {
+                    Sc1, _, _, N11, N12, N13, N14, N15, _, _,
+                    _, _, _, _, _, _, _, _, _, _,
+                },
+            };
+            return (scratchSide1P == 1) ? lane[1][idx] : lane[0][idx];
+        }
+        else
+        {
+            static const NoteLaneIndex lane[] =
+            {
+                Sc1, N11, N12, N13, N14, N15, N16, N17, _, _,
+                _, _, _, _, _, _, _, _, _, _,
+            };
+            return lane[idx];
+        }
     }
     case eMode::PLAY9:
     {
         static const NoteLaneIndex lane[] =
         {
-            _, K1, K2, K3, K4, K5, K6, K7, K8, K9,
+            _, N11, N12, N13, N14, N15, N16, N17, N18, N19,
             _, _, _, _, _, _, _, _, _, _,
         };
         return lane[idx];
@@ -1844,20 +1862,53 @@ chart::NoteLaneIndex NoteIdxToLane(eMode gamemode, int idx)
     {
         static const NoteLaneIndex lane[] =
         {
-            Sc1, K1, K2, K3, K4, K5, _, _, _, _,
-            Sc2, K6, K7, K8, K9, K10, _, _, _, _,
+            Sc1, N11, N12, N13, N14, N15, _, _, _, _,
+            Sc2, N21, N22, N23, N24, N25, _, _, _, _,
         };
         return lane[idx];
     }
     case eMode::PLAY7_2:
     case eMode::PLAY14:
     {
-        static const NoteLaneIndex lane[] =
+        if (State::get(IndexOption::CHART_PLAY_KEYS) == Option::KEYS_5 || State::get(IndexOption::CHART_PLAY_KEYS) == Option::KEYS_10)
         {
-            Sc1, K1, K2, K3, K4, K5, K6, K7, _, _,
-            Sc2, K8, K9, K10, K11, K12, K13, K14, _, _,
-        };
-        return lane[idx];
+            static const NoteLaneIndex lane[][20] =
+            {
+                {
+                    Sc1, N11, N12, N13, N14, N15, _, _, _, _,
+                    Sc2, N21, N22, N23, N24, N25, _, _, _, _,
+                },
+                {
+                    Sc1, N11, N12, N13, N14, N15, _, _, _, _,
+                    Sc2, _, _, N21, N22, N23, N24, N25, _, _,
+                },
+                {
+                    Sc1, _, _, N11, N12, N13, N14, N15, _, _,
+                    Sc2, N21, N22, N23, N24, N25, _, _, _, _,
+                },
+                {
+                    Sc1, _, _, N11, N12, N13, N14, N15, _, _,
+                    Sc2, _, _, N21, N22, N23, N24, N25, _, _,
+                },
+            };
+            if (scratchSide1P == 1)
+            {
+                return (scratchSide2P == 1) ? lane[3][idx] : lane[2][idx];
+            }
+            else
+            {
+                return (scratchSide2P == 1) ? lane[1][idx] : lane[0][idx];
+            }
+        }
+        else
+        {
+            static const NoteLaneIndex lane[] =
+            {
+                Sc1, N11, N12, N13, N14, N15, N16, N17, _, _,
+                Sc2, N21, N22, N23, N24, N25, N26, N27, _, _,
+            };
+            return lane[idx];
+        }
     }
     }
     return _;
@@ -1911,34 +1962,34 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
 
     case DefType::NOTE:
         cat = NoteLaneCategory::Note;
-        idx = NoteIdxToLane(info.mode, d._null);
+        idx = NoteIdxToLane(info.mode, d._null, info.scratchSide1P, info.scratchSide2P);
         break;
     case DefType::LN_END:
     case DefType::LN_BODY:
     case DefType::LN_START:
         cat = NoteLaneCategory::LN;
-        idx = NoteIdxToLane(info.mode, d._null);
+        idx = NoteIdxToLane(info.mode, d._null, info.scratchSide1P, info.scratchSide2P);
         break;
     case DefType::MINE:
         cat = NoteLaneCategory::Mine;
-        idx = NoteIdxToLane(info.mode, d._null);
+        idx = NoteIdxToLane(info.mode, d._null, info.scratchSide1P, info.scratchSide2P);
         break;
 
     case DefType::AUTO_NOTE:
         cat = NoteLaneCategory::Note;
-        idx = NoteIdxToLane(info.mode, d._null);
+        idx = NoteIdxToLane(info.mode, d._null, info.scratchSide1P, info.scratchSide2P);
         autoNotes = true;
         break;
     case DefType::AUTO_LN_END:
     case DefType::AUTO_LN_BODY:
     case DefType::AUTO_LN_START:
         cat = NoteLaneCategory::LN;
-        idx = NoteIdxToLane(info.mode, d._null);
+        idx = NoteIdxToLane(info.mode, d._null, info.scratchSide1P, info.scratchSide2P);
         autoNotes = true;
         break;
     case DefType::AUTO_MINE:
         cat = NoteLaneCategory::Mine;
-        idx = NoteIdxToLane(info.mode, d._null);
+        idx = NoteIdxToLane(info.mode, d._null, info.scratchSide1P, info.scratchSide2P);
         autoNotes = true;
         break;
 
@@ -2464,7 +2515,7 @@ ParseRet SkinLR2::DST_NOTE()
         return ParseRet::PARAM_INVALID;
     }
 
-    NoteLaneIndex idx = NoteIdxToLane(info.mode, d._null);
+    NoteLaneIndex idx = NoteIdxToLane(info.mode, d._null, info.scratchSide1P, info.scratchSide2P);
 
     auto setDstNoteSprite = [&](NoteLaneCategory i, std::shared_ptr<SpriteLaneVertical> e)
     {
@@ -3533,7 +3584,7 @@ void SkinLR2::postLoad()
         using namespace chart;
         for (size_t i = begin; i <= end; ++i)
         {
-            NoteLaneIndex lane = NoteIdxToLane(info.mode, i);
+            NoteLaneIndex lane = NoteIdxToLane(info.mode, i, info.scratchSide1P, info.scratchSide2P);
             if (lane == _) continue;
             size_t idx;
 
@@ -3604,7 +3655,7 @@ void SkinLR2::postLoad()
         size_t idx;
         for (size_t i = 0; i < 20; ++i)
         {
-            NoteLaneIndex lane = NoteIdxToLane(info.mode, i);
+            NoteLaneIndex lane = NoteIdxToLane(info.mode, i, info.scratchSide1P, info.scratchSide2P);
             if (lane == _) continue;
 
             idx = channelToIdx(NoteLaneCategory::Note, lane);

@@ -71,10 +71,204 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
             _gauge = GaugeType::GROOVE;  break;
     }
 
+
+    static const NoteLaneTimerMap bombTimer5k[] = {
+        {{
+            {chart::Sc1, IndexTimer::S1_BOMB},
+            {chart::N11, IndexTimer::K11_BOMB},
+            {chart::N12, IndexTimer::K12_BOMB},
+            {chart::N13, IndexTimer::K13_BOMB},
+            {chart::N14, IndexTimer::K14_BOMB},
+            {chart::N15, IndexTimer::K15_BOMB},
+            {chart::N21, IndexTimer::K21_BOMB},
+            {chart::N22, IndexTimer::K22_BOMB},
+            {chart::N23, IndexTimer::K23_BOMB},
+            {chart::N24, IndexTimer::K24_BOMB},
+            {chart::N25, IndexTimer::K25_BOMB},
+            {chart::Sc2, IndexTimer::S2_BOMB},
+        }},
+        {{
+            {chart::Sc1, IndexTimer::S1_BOMB},
+            {chart::N11, IndexTimer::K11_BOMB},
+            {chart::N12, IndexTimer::K12_BOMB},
+            {chart::N13, IndexTimer::K13_BOMB},
+            {chart::N14, IndexTimer::K14_BOMB},
+            {chart::N15, IndexTimer::K15_BOMB},
+            {chart::N21, IndexTimer::K23_BOMB},
+            {chart::N22, IndexTimer::K24_BOMB},
+            {chart::N23, IndexTimer::K25_BOMB},
+            {chart::N24, IndexTimer::K26_BOMB},
+            {chart::N25, IndexTimer::K27_BOMB},
+            {chart::Sc2, IndexTimer::S2_BOMB},
+        }},
+        {{
+            {chart::Sc1, IndexTimer::S1_BOMB},
+            {chart::N11, IndexTimer::K13_BOMB},
+            {chart::N12, IndexTimer::K14_BOMB},
+            {chart::N13, IndexTimer::K15_BOMB},
+            {chart::N14, IndexTimer::K16_BOMB},
+            {chart::N15, IndexTimer::K17_BOMB},
+            {chart::N21, IndexTimer::K21_BOMB},
+            {chart::N22, IndexTimer::K22_BOMB},
+            {chart::N23, IndexTimer::K23_BOMB},
+            {chart::N24, IndexTimer::K24_BOMB},
+            {chart::N25, IndexTimer::K25_BOMB},
+            {chart::Sc2, IndexTimer::S2_BOMB},
+        }},
+        {{
+            {chart::Sc1, IndexTimer::S1_BOMB},
+            {chart::N11, IndexTimer::K13_BOMB},
+            {chart::N12, IndexTimer::K14_BOMB},
+            {chart::N13, IndexTimer::K15_BOMB},
+            {chart::N14, IndexTimer::K16_BOMB},
+            {chart::N15, IndexTimer::K17_BOMB},
+            {chart::N21, IndexTimer::K23_BOMB},
+            {chart::N22, IndexTimer::K24_BOMB},
+            {chart::N23, IndexTimer::K25_BOMB},
+            {chart::N24, IndexTimer::K26_BOMB},
+            {chart::N25, IndexTimer::K27_BOMB},
+            {chart::Sc2, IndexTimer::S2_BOMB},
+        }},
+    };
+
+    static const NoteLaneTimerMap bombTimer5kLN[] = {
+        {{
+            {chart::Sc1, IndexTimer::S1_LN_BOMB},
+            {chart::N11, IndexTimer::K11_LN_BOMB},
+            {chart::N12, IndexTimer::K12_LN_BOMB},
+            {chart::N13, IndexTimer::K13_LN_BOMB},
+            {chart::N14, IndexTimer::K14_LN_BOMB},
+            {chart::N15, IndexTimer::K15_LN_BOMB},
+            {chart::N21, IndexTimer::K21_LN_BOMB},
+            {chart::N22, IndexTimer::K22_LN_BOMB},
+            {chart::N23, IndexTimer::K23_LN_BOMB},
+            {chart::N24, IndexTimer::K24_LN_BOMB},
+            {chart::N25, IndexTimer::K25_LN_BOMB},
+            {chart::Sc2, IndexTimer::S2_LN_BOMB},
+        }},
+        {{
+            {chart::Sc1, IndexTimer::S1_LN_BOMB},
+            {chart::N11, IndexTimer::K11_LN_BOMB},
+            {chart::N12, IndexTimer::K12_LN_BOMB},
+            {chart::N13, IndexTimer::K13_LN_BOMB},
+            {chart::N14, IndexTimer::K14_LN_BOMB},
+            {chart::N15, IndexTimer::K15_LN_BOMB},
+            {chart::N21, IndexTimer::K23_LN_BOMB},
+            {chart::N22, IndexTimer::K24_LN_BOMB},
+            {chart::N23, IndexTimer::K25_LN_BOMB},
+            {chart::N24, IndexTimer::K26_LN_BOMB},
+            {chart::N25, IndexTimer::K27_LN_BOMB},
+            {chart::Sc2, IndexTimer::S2_LN_BOMB},
+        }},
+        {{
+            {chart::Sc1, IndexTimer::S1_LN_BOMB},
+            {chart::N11, IndexTimer::K13_LN_BOMB},
+            {chart::N12, IndexTimer::K14_LN_BOMB},
+            {chart::N13, IndexTimer::K15_LN_BOMB},
+            {chart::N14, IndexTimer::K16_LN_BOMB},
+            {chart::N15, IndexTimer::K17_LN_BOMB},
+            {chart::N21, IndexTimer::K21_LN_BOMB},
+            {chart::N22, IndexTimer::K22_LN_BOMB},
+            {chart::N23, IndexTimer::K23_LN_BOMB},
+            {chart::N24, IndexTimer::K24_LN_BOMB},
+            {chart::N25, IndexTimer::K25_LN_BOMB},
+            {chart::Sc2, IndexTimer::S2_LN_BOMB},
+        }},
+        {{
+            {chart::Sc1, IndexTimer::S1_LN_BOMB},
+            {chart::N11, IndexTimer::K13_LN_BOMB},
+            {chart::N12, IndexTimer::K14_LN_BOMB},
+            {chart::N13, IndexTimer::K15_LN_BOMB},
+            {chart::N14, IndexTimer::K16_LN_BOMB},
+            {chart::N15, IndexTimer::K17_LN_BOMB},
+            {chart::N21, IndexTimer::K23_LN_BOMB},
+            {chart::N22, IndexTimer::K24_LN_BOMB},
+            {chart::N23, IndexTimer::K25_LN_BOMB},
+            {chart::N24, IndexTimer::K26_LN_BOMB},
+            {chart::N25, IndexTimer::K27_LN_BOMB},
+            {chart::Sc2, IndexTimer::S2_LN_BOMB},
+        }},
+    };
+
+    static const NoteLaneTimerMap bombTimer7k = { {
+        {chart::Sc1, IndexTimer::S1_BOMB},
+        {chart::N11, IndexTimer::K11_BOMB},
+        {chart::N12, IndexTimer::K12_BOMB},
+        {chart::N13, IndexTimer::K13_BOMB},
+        {chart::N14, IndexTimer::K14_BOMB},
+        {chart::N15, IndexTimer::K15_BOMB},
+        {chart::N16, IndexTimer::K16_BOMB},
+        {chart::N17, IndexTimer::K17_BOMB},
+        {chart::N21, IndexTimer::K21_BOMB},
+        {chart::N22, IndexTimer::K22_BOMB},
+        {chart::N23, IndexTimer::K23_BOMB},
+        {chart::N24, IndexTimer::K24_BOMB},
+        {chart::N25, IndexTimer::K25_BOMB},
+        {chart::N26, IndexTimer::K26_BOMB},
+        {chart::N27, IndexTimer::K27_BOMB},
+        {chart::Sc2, IndexTimer::S2_BOMB},
+    } };
+
+    static const NoteLaneTimerMap bombTimer7kLN = { {
+        {chart::Sc1, IndexTimer::S1_LN_BOMB},
+        {chart::N11, IndexTimer::K11_LN_BOMB},
+        {chart::N12, IndexTimer::K12_LN_BOMB},
+        {chart::N13, IndexTimer::K13_LN_BOMB},
+        {chart::N14, IndexTimer::K14_LN_BOMB},
+        {chart::N15, IndexTimer::K15_LN_BOMB},
+        {chart::N16, IndexTimer::K16_LN_BOMB},
+        {chart::N17, IndexTimer::K17_LN_BOMB},
+        {chart::N21, IndexTimer::K21_LN_BOMB},
+        {chart::N22, IndexTimer::K22_LN_BOMB},
+        {chart::N23, IndexTimer::K23_LN_BOMB},
+        {chart::N24, IndexTimer::K24_LN_BOMB},
+        {chart::N25, IndexTimer::K25_LN_BOMB},
+        {chart::N26, IndexTimer::K26_LN_BOMB},
+        {chart::N27, IndexTimer::K27_LN_BOMB},
+        {chart::Sc2, IndexTimer::S2_LN_BOMB},
+    } };
+
+    static const NoteLaneTimerMap bombTimer9k = { {
+        {chart::N11, IndexTimer::K11_BOMB},
+        {chart::N12, IndexTimer::K12_BOMB},
+        {chart::N13, IndexTimer::K13_BOMB},
+        {chart::N14, IndexTimer::K14_BOMB},
+        {chart::N15, IndexTimer::K15_BOMB},
+        {chart::N16, IndexTimer::K16_BOMB},
+        {chart::N17, IndexTimer::K17_BOMB},
+        {chart::N18, IndexTimer::K18_BOMB},
+        {chart::N19, IndexTimer::K19_BOMB},
+    } };
+
+    static const NoteLaneTimerMap bombTimer9kLN = { {
+        {chart::N11,  IndexTimer::K11_LN_BOMB},
+        {chart::N12,  IndexTimer::K12_LN_BOMB},
+        {chart::N13,  IndexTimer::K13_LN_BOMB},
+        {chart::N14,  IndexTimer::K14_LN_BOMB},
+        {chart::N15,  IndexTimer::K15_LN_BOMB},
+        {chart::N16,  IndexTimer::K16_LN_BOMB},
+        {chart::N17,  IndexTimer::K17_LN_BOMB},
+        {chart::N18,  IndexTimer::K18_LN_BOMB},
+        {chart::N19,  IndexTimer::K19_LN_BOMB},
+    } };
+
     switch (keys)
     {
     case 5:
-    case 10: _bombTimerMap = &bombTimer5k;  _bombLNTimerMap = &bombTimer5kLN; break;
+    case 10: 
+    {
+        size_t mapIndex = 0;
+        if (gPlayContext.shift1PNotes5KFor7KSkin)
+        {
+            mapIndex = gPlayContext.shift2PNotes5KFor7KSkin ? 3 : 2;
+        }
+        else
+        {
+            mapIndex = gPlayContext.shift2PNotes5KFor7KSkin ? 1 : 0;
+        }
+        _bombTimerMap = &bombTimer5k[mapIndex];  _bombLNTimerMap = &bombTimer5kLN[mapIndex];
+        break;
+    }
     case 7:  
     case 14: _bombTimerMap = &bombTimer7k;  _bombLNTimerMap = &bombTimer7kLN; break;
     case 9:  _bombTimerMap = &bombTimer9k;  _bombLNTimerMap = &bombTimer9kLN; break;

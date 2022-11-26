@@ -118,6 +118,9 @@ struct PlayContextParams
     Time battle2PHispeedGradientStart;
     double battle2PHispeedGradientFrom = 2.0;
     double battle2PHispeedGradientNow = 2.0;
+
+    bool shift1PNotes5KFor7KSkin = false;
+    bool shift2PNotes5KFor7KSkin = false;
 };
 
 std::pair<bool, Option::e_lamp_type> getSaveScoreType();

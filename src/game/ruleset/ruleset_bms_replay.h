@@ -23,6 +23,7 @@ protected:
     std::shared_ptr<ReplayChart> replay;
     std::vector<ReplayChart::Commands>::iterator itReplayCommand;
     InputMask keyPressing;
+    unsigned replayCmdMapIndex = 0;
 
 public:
 

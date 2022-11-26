@@ -122,6 +122,9 @@ public:
         // Result
         unsigned timeResultRank = 200; //ignored
         unsigned timeResultRecord = 200; //ignored
+
+        unsigned scratchSide1P = 0;
+        unsigned scratchSide2P = 0;
     } info;
 
     ///////////////////////////////////////////////////////////
