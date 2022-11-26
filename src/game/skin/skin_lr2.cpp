@@ -3221,7 +3221,7 @@ void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc, bool
     }
 
     bool ifStmtTrue = false;
-    if (ifUnsatisfied && matchToken(t[0], "#ELSE"))
+    if (ifUnsatisfied && strEqual(t[0], "#ELSE", true))
     {
         ifStmtTrue = true;
     }
@@ -3324,12 +3324,12 @@ void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc, bool
                 // nesting #IF
                 IF(tokens, lr2skin, enc, false, true);
             }
-            else if (matchToken(*tokens.begin(), "#ELSE"))
+            else if (matchToken(*tokens.begin(), "#ELSEIF"))
             {
                 IF(tokens, lr2skin, enc, true, false);
                 return;
             }
-            else if (matchToken(*tokens.begin(), "#ELSEIF"))
+            else if (matchToken(*tokens.begin(), "#ELSE"))
             {
                 IF(tokens, lr2skin, enc, true, false);
                 return;
