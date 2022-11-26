@@ -111,3 +111,5 @@ F2: Load default
 DEL: Delete current binding
 Speed
 Input polling frequency
+Input Folder Path Here
+Input Table URL Here (with http://, https://)

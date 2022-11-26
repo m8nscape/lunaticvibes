@@ -4,6 +4,7 @@
 #include "game/sound/sound_sample.h"
 #include "game/runtime/i18n.h"
 #include "imgui.h"
+#include "imgui_internal.h"
 #include "git_version.h"
 
 #ifdef _WIN32
@@ -419,8 +420,8 @@ void SceneSelect::_imguiPage_Options_Jukebox()
 
         ImGui::Text(i18n::c(JUKEBOX_FOLDER));
         {
-            bool enterPath = ImGui::InputText("##NewPath", imgui_folder_path_buf, sizeof(imgui_folder_path_buf), ImGuiInputTextFlags_EnterReturnsTrue);
-            if (enterPath || (ImGui::SameLine(), ImGui::Button(" + ")))
+            bool enterPath = ImGui::InputTextWithHint("##folderpath", i18n::c(JUKEBOX_FOLDER_PATH_HINT), imgui_folder_path_buf, sizeof(imgui_folder_path_buf), ImGuiInputTextFlags_EnterReturnsTrue);
+            if (enterPath || (ImGui::SameLine(), ImGui::Button(" + ##folder")))
             {
                 _imguiAddFolder(imgui_folder_path_buf);
                 memset(imgui_folder_path_buf, 0, sizeof(imgui_folder_path_buf));
@@ -451,9 +452,8 @@ void SceneSelect::_imguiPage_Options_Jukebox()
 
         ImGui::Text(i18n::c(JUKEBOX_TABLES));
         {
-
-            bool enterUrl = ImGui::InputText("##NewURL", imgui_table_url_buf, sizeof(imgui_table_url_buf), ImGuiInputTextFlags_EnterReturnsTrue);
-            if (enterUrl || (ImGui::SameLine(), ImGui::Button(" + ")))
+            bool enterUrl = ImGui::InputTextWithHint("##tableurl", i18n::c(JUKEBOX_TABLE_URL_HINT), imgui_table_url_buf, sizeof(imgui_table_url_buf), ImGuiInputTextFlags_EnterReturnsTrue);
+            if (enterUrl || (ImGui::SameLine(), ImGui::Button(" + ##table")))
             {
                 _imguiAddTable();
                 memset(imgui_table_url_buf, 0, sizeof(imgui_table_url_buf));
@@ -787,10 +787,10 @@ void SceneSelect::_imguiPage_About()
 Casts:（敬称略）
 
 Leader:
-    rustbell
+    yaasdf a.k.a. rustbell
 
 Main Programmer:
-    rustbell
+    yaasdf a.k.a. rustbell
 Artwork:
     - (Not yet! XD)
 Music:

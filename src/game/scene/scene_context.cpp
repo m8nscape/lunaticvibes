@@ -522,6 +522,7 @@ void setBarInfo()
     const size_t idx = gSelectContext.idx;
     const size_t cursor = gSelectContext.cursor;
     const size_t count = size_t(IndexText::_SELECT_BAR_TITLE_FULL_MAX) - size_t(IndexText::_SELECT_BAR_TITLE_FULL_0) + 1;
+    const bool subtitle = !ConfigMgr::get('P', cfg::P_ONLY_DISPLAY_MAIN_TITLE_ON_BARS, false);
 
     auto setSingleBarInfo = [&](size_t list_idx, size_t bar_index)
     {
@@ -556,8 +557,11 @@ void setBarInfo()
             {
                 const auto bms = std::reinterpret_pointer_cast<const ChartFormatBMSMeta>(pf);
                 std::string name = entry->_name;
-                if (!name.empty()) name += " ";
-                if (!entry->_name2.empty()) name += entry->_name2;
+                if (subtitle)
+                {
+                    if (!name.empty()) name += " ";
+                    if (!entry->_name2.empty()) name += entry->_name2;
+                }
                 State::set(IndexText(int(IndexText::_SELECT_BAR_TITLE_FULL_0) + bar_index), name);
                 State::set(IndexNumber(int(IndexNumber::_SELECT_BAR_LEVEL_0) + bar_index), bms->playLevel);
 
