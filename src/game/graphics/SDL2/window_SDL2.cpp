@@ -255,6 +255,34 @@ void graphics_copy_screen_texture(Texture& texture)
     SDL_SetRenderTarget(gFrameRenderer, gInternalRenderTarget);
 }
 
+int graphics_get_monitor_index()
+{
+    return SDL_GetWindowDisplayIndex(gFrameWindow);
+}
+
+std::pair<int, int> graphics_get_desktop_resolution()
+{
+    int index = graphics_get_monitor_index();
+    SDL_DisplayMode mode = { 0 };
+    SDL_GetDesktopDisplayMode(index, &mode);
+    return { mode.w, mode.h };
+}
+
+std::vector<std::tuple<int, int, int>> graphics_get_resolution_list()
+{
+    int index = graphics_get_monitor_index();
+    int modes = SDL_GetNumDisplayModes(index);
+    std::vector<std::tuple<int, int, int>> res;
+    for (int i = 0; i < modes; ++i)
+    {
+        SDL_DisplayMode mode = { 0 };
+        SDL_GetDisplayMode(index, i, &mode);
+        LOG_DEBUG << mode.w << 'x' << mode.h << ' ' << mode.refresh_rate << "Hz";
+        res.push_back({ mode.w, mode.h, mode.refresh_rate });
+    }
+    return res;
+}
+
 void graphics_change_window_mode(int mode)
 {
     switch (mode)
@@ -268,6 +296,10 @@ void graphics_change_window_mode(int mode)
         break;
     case 2:
         SDL_SetWindowFullscreen(gFrameWindow, 0);
+        SDL_SetWindowBordered(gFrameWindow, SDL_FALSE);
+        break;
+    case 3:
+        SDL_SetWindowFullscreen(gFrameWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
         SDL_SetWindowBordered(gFrameWindow, SDL_FALSE);
         break;
     }

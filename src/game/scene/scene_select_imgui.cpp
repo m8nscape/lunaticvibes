@@ -53,11 +53,12 @@ void SceneSelect::_imguiInit()
     imgui_video_ssLevel = ConfigMgr::get("V", cfg::V_RES_SUPERSAMPLE, 1);
 
     _imguiRefreshVideoDisplayResolutionList();
+    auto windowX = ConfigMgr::get("V", cfg::V_DISPLAY_RES_X, CANVAS_HEIGHT);
     auto windowY = ConfigMgr::get("V", cfg::V_DISPLAY_RES_Y, CANVAS_HEIGHT);
     imgui_video_display_resolution_index = -1;
     for (int i = 0; i < (int)imgui_video_display_resolution_size.size(); ++i)
     {
-        if (imgui_video_display_resolution_size[i].second == windowY)
+        if (imgui_video_display_resolution_size[i].first == windowX && imgui_video_display_resolution_size[i].second == windowY)
         {
             imgui_video_display_resolution_index = i;
             break;
@@ -505,7 +506,10 @@ void SceneSelect::_imguiPage_Options_Video()
             i18n::c(VIDEO_FULLSCREEN),
             i18n::c(VIDEO_BORDERLESS)
         };
-        ImGui::Combo("##window", &imgui_video_mode, imgui_video_mode_display, sizeof(imgui_video_mode_display) / sizeof(char*));
+        if (ImGui::Combo("##window", &imgui_video_mode, imgui_video_mode_display, sizeof(imgui_video_mode_display) / sizeof(char*)))
+        {
+            _imguiRefreshVideoDisplayResolutionList();
+        }
 
         ImGui::Text(i18n::c(VIDEO_VSYNC));
         ImGui::SameLine(infoRowWidth);
@@ -968,16 +972,43 @@ void SceneSelect::_imguiRefreshVideoDisplayResolutionList()
     imgui_video_display_resolution.clear();
     imgui_video_display_resolution_display.clear();
 
-    // TODO get resolution list from system
-    imgui_video_display_resolution_size.push_back({ 640, 480 });
-    imgui_video_display_resolution_size.push_back({ 800, 600 });
-    imgui_video_display_resolution_size.push_back({ 1280, 720 });
-    imgui_video_display_resolution_size.push_back({ 1280, 960 });
-    imgui_video_display_resolution_size.push_back({ 1366, 768 });
-    imgui_video_display_resolution_size.push_back({ 1600, 900 });
-    imgui_video_display_resolution_size.push_back({ 1920, 1080 });
-    imgui_video_display_resolution_size.push_back({ 2560, 1440 });
-    imgui_video_display_resolution_size.push_back({ 3840, 2160 });
+    if (imgui_video_mode == 1)
+    {
+        // get resolution list from system
+        auto list = graphics_get_resolution_list();
+        std::set<std::pair<int, int>> resolutions;
+        for (auto& r : list)
+        {
+            resolutions.insert({ std::get<0>(r), std::get<1>(r) });
+        }
+        for (auto& r : resolutions)
+        {
+            imgui_video_display_resolution_size.push_back(r);
+        }
+    }
+    else
+    {
+        // filter out resolutions bigger than desktop
+        auto res = graphics_get_desktop_resolution();
+        int w = res.first;
+        int h = res.second;
+        auto addResolution = [w, h, this](int dw, int dh)
+        {
+            if (w >= dw && h >= dh)
+            {
+                imgui_video_display_resolution_size.push_back({ dw, dh });
+            }
+        };
+        addResolution(640, 480);
+        addResolution(800, 600);
+        addResolution(1280, 720);
+        addResolution(1280, 960);
+        addResolution(1366, 768);
+        addResolution(1600, 900);
+        addResolution(1920, 1080);
+        addResolution(2560, 1440);
+        addResolution(3840, 2160);
+    }
 
     for (size_t i = 0; i < imgui_video_display_resolution_size.size(); ++i)
     {
@@ -992,6 +1023,8 @@ void SceneSelect::_imguiRefreshVideoDisplayResolutionList()
     {
         imgui_video_display_resolution_display.push_back(r.c_str());
     }
+
+    imgui_video_display_resolution_index = 0;
 }
 
 void SceneSelect::_imguiCheckSettings()
@@ -1205,9 +1238,18 @@ bool SceneSelect::_imguiDelTable()
 bool SceneSelect::_imguiApplyResolution()
 {
     const auto& [windowW, windowH] = imgui_video_display_resolution_size[imgui_video_display_resolution_index];
+    auto [desktopW, desktopH] = graphics_get_desktop_resolution();
 
-    graphics_change_window_mode(imgui_video_mode);
-    graphics_resize_window(windowW, windowH);
+    if (imgui_video_mode == 2 && windowW == desktopW && windowH == desktopH)
+    {
+        graphics_change_window_mode(3);
+        graphics_resize_window(windowW, windowH);
+    }
+    else
+    {
+        graphics_change_window_mode(imgui_video_mode);
+        graphics_resize_window(windowW, windowH);
+    }
     graphics_set_supersample_level(imgui_video_ssLevel);
     graphics_change_vsync(imgui_video_vsync_index);
 

@@ -15,12 +15,24 @@
 #include "SDL2/graphics_SDL2.h"
 #endif
 
+#include <vector>
+#include <utility>
+
 int graphics_init();
 void graphics_clear();
 void graphics_flush();
 int graphics_free();
 
 void graphics_copy_screen_texture(Texture& texture);
+
+// get monitor index where the window locates
+int graphics_get_monitor_index();
+
+// w, h
+std::pair<int, int> graphics_get_desktop_resolution();
+
+// w, h, hz
+std::vector<std::tuple<int, int, int>> graphics_get_resolution_list();
 
 // 0: windowed / 1: fullscreen / 2: borderless
 void graphics_change_window_mode(int mode);
