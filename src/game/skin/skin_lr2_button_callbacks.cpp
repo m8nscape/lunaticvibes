@@ -356,12 +356,25 @@ void fx_type(int idx, int plus)
     int val = (State::get(op) + 8 + plus) % 8;
     State::set(op, val);
 
+    if (val == Option::FX_LOWPASS)
+    {
+        State::set(sli_p1, 1.0);
+        State::set(sli_p2, 0.0);
+        State::set(num_p1, 100);
+        State::set(num_p2, 0);
+    }
+    else
+    {
+        State::set(sli_p1, 0.0);
+        State::set(sli_p2, 0.0);
+        State::set(num_p1, 0);
+        State::set(num_p2, 0);
+    }
+
     if (State::get(sw))
     {
         float p1 = float(State::get(sli_p1));
         float p2 = float(State::get(sli_p2));
-        State::set(num_p1, static_cast<int>(p1 * 100));
-        State::set(num_p2, static_cast<int>(p2 * 100));
         update_fx(val, idx, ch, p1, p2);
     }
     else
@@ -388,8 +401,6 @@ void fx_switch(int idx, int plus)
         State::set(sw, true);
         float p1 = float(State::get(sli_p1));
         float p2 = float(State::get(sli_p2));
-        State::set(num_p1, static_cast<int>(p1 * 100));
-        State::set(num_p2, static_cast<int>(p2 * 100));
         update_fx(State::get(op), idx, ch, p1, p2);
     }
 }

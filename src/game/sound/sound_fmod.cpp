@@ -953,7 +953,7 @@ void SoundDriverFMOD::setDSP(DSPType type, int dspIndex, SampleChannel ch, float
     FMOD_DSP_TYPE fmodType = FMOD_DSP_TYPE_UNKNOWN;
     switch (type)
 	{
-	case DSPType::REVERB:     fmodType = FMOD_DSP_TYPE_SFXREVERB; break;
+	case DSPType::REVERB:     fmodType = FMOD_DSP_TYPE_SFXREVERB; break; // The DSP type LR2 used (FMOD_DSP_TYPE_REVERB) is long gone
 	case DSPType::DELAY:      fmodType = FMOD_DSP_TYPE_ECHO; break;
 	case DSPType::LOWPASS:    fmodType = FMOD_DSP_TYPE_LOWPASS; break;
 	case DSPType::HIGHPASS:   fmodType = FMOD_DSP_TYPE_HIGHPASS; break;
@@ -989,41 +989,45 @@ void SoundDriverFMOD::setDSP(DSPType type, int dspIndex, SampleChannel ch, float
             }
             if (dsp != nullptr)
             {
-                // How DSP tweaked by LR2 is unknown. These parameters are just assumptions.
+                auto percentageToDecibel = [](float p)
+                {
+                    return 10.0 * std::log10(p);
+                };
                 switch (fmodType)
                 {
                 case FMOD_DSP_TYPE_SFXREVERB:
-                    dsp->setParameterFloat(FMOD_DSP_SFXREVERB_EARLYLATEMIX, float(p1 * 100.0));
-                    dsp->setParameterFloat(FMOD_DSP_SFXREVERB_WETLEVEL, float(p2 * (20.0 - (-10.0)) + (-10.0)));
+                    // emulates old reverb DSP effect
+                    dsp->setParameterFloat(FMOD_DSP_SFXREVERB_DECAYTIME, std::clamp(float(p1 * 20000.0), 100.0f, 20000.0f)); // FMOD_DSP_REVERB_ROOMSIZE 0.0-1.0
+                    dsp->setParameterFloat(FMOD_DSP_SFXREVERB_WETLEVEL, std::clamp(float(percentageToDecibel(p2)), -80.0f, 20.0f)); // FMOD_DSP_REVERB_WETMIX 0.0-1.0
                     break;
 
                 case FMOD_DSP_TYPE_ECHO:
-                    dsp->setParameterFloat(FMOD_DSP_ECHO_DELAY, float(p1 * (100.0 - 20.0) + 20.0));
-                    dsp->setParameterFloat(FMOD_DSP_ECHO_FEEDBACK, float(p2 * 50.0));
+                    dsp->setParameterFloat(FMOD_DSP_ECHO_DELAY, std::clamp(float(p1 * 1000.0), 1.0f, 5000.0f));
+                    dsp->setParameterFloat(FMOD_DSP_ECHO_WETLEVEL, std::clamp(float(percentageToDecibel(p2)), -80.0f, 10.0f));
                     break;
 
                 case FMOD_DSP_TYPE_LOWPASS:
-                    dsp->setParameterFloat(FMOD_DSP_LOWPASS_CUTOFF, float(p1 * (22000.0 - 500.0) + 500.0));
-                    dsp->setParameterFloat(FMOD_DSP_LOWPASS_RESONANCE, float(p2 * (10.0 - 1.0) + 1.0));
+                    dsp->setParameterFloat(FMOD_DSP_LOWPASS_CUTOFF, std::clamp(float(22000.0 / std::pow(1.06, (1.0 - p1) * 100.0)), 1.0f, 22000.0f));
+                    dsp->setParameterFloat(FMOD_DSP_LOWPASS_RESONANCE, std::clamp(float(p2 * 9.0 + 1.0), 0.0f, 10.0f));
                     break;
 
                 case FMOD_DSP_TYPE_HIGHPASS:
-                    dsp->setParameterFloat(FMOD_DSP_HIGHPASS_CUTOFF, float(p1 * (5050.0 - 500.0) + 500.0));
-                    dsp->setParameterFloat(FMOD_DSP_HIGHPASS_RESONANCE, float(p2 * (10.0 - 1.0) + 1.0));
+                    dsp->setParameterFloat(FMOD_DSP_HIGHPASS_CUTOFF, std::clamp(float(22.0 * std::pow(1.06, p1 * 100.0)), 1.0f, 22000.0f));
+                    dsp->setParameterFloat(FMOD_DSP_HIGHPASS_RESONANCE, std::clamp(float(p2 * 9.0 + 1.0), 0.0f, 10.0f));
                     break;
 
                 case FMOD_DSP_TYPE_FLANGE:
-                    dsp->setParameterFloat(FMOD_DSP_FLANGE_DEPTH, float(p1 * (1.0 - 0.01) + 0.01));
-                    dsp->setParameterFloat(FMOD_DSP_FLANGE_RATE, float(p2 * 20.0));
+                    dsp->setParameterFloat(FMOD_DSP_FLANGE_DEPTH, std::clamp(p1, 0.01f, 1.0f));
+                    dsp->setParameterFloat(FMOD_DSP_FLANGE_RATE, std::clamp(float(0.02 * std::pow(1.06, p2 * 100.0)), 0.0f, 20.0f));
                     break;
 
                 case FMOD_DSP_TYPE_CHORUS:
-                    dsp->setParameterFloat(FMOD_DSP_CHORUS_RATE, float(p1 * 20.0));
-                    dsp->setParameterFloat(FMOD_DSP_CHORUS_DEPTH, float(p2 * 100.0));
+                    dsp->setParameterFloat(FMOD_DSP_CHORUS_RATE, std::clamp(p1 * 20.0f, 0.0f, 20.0f));
+                    dsp->setParameterFloat(FMOD_DSP_CHORUS_DEPTH, std::clamp(p2 * 100.0f, 0.0f, 1.0f)); // FMOD_DSP_CHORUS_DELAY 0.1-100.0
                     break;
 
                 case FMOD_DSP_TYPE_DISTORTION:
-                    dsp->setParameterFloat(FMOD_DSP_DISTORTION_LEVEL, float(p1 * 1.0));
+                    dsp->setParameterFloat(FMOD_DSP_DISTORTION_LEVEL, std::clamp(p1, 0.0f, 1.0f));
                     break;
                 }
                 dsp->setBypass(false);
