@@ -49,6 +49,34 @@ namespace cfg
     constexpr char I_BINDINGS_K2SpdDn[] = "2P_SpdDn";
     constexpr char I_BINDINGS_K2ScAxis[] = "2P_ScAxis";
 
+    constexpr char I_INPUT_DEADZONE_S1L[] = "InputDeadZoneS1L";
+    constexpr char I_INPUT_DEADZONE_S1R[] = "InputDeadZoneS1R";
+    constexpr char I_INPUT_DEADZONE_K1Start[] = "InputDeadZoneK1Start";
+    constexpr char I_INPUT_DEADZONE_K1Select[] = "InputDeadZoneK1Select";
+    constexpr char I_INPUT_DEADZONE_K11[] = "InputDeadZoneK11";
+    constexpr char I_INPUT_DEADZONE_K12[] = "InputDeadZoneK12";
+    constexpr char I_INPUT_DEADZONE_K13[] = "InputDeadZoneK13";
+    constexpr char I_INPUT_DEADZONE_K14[] = "InputDeadZoneK14";
+    constexpr char I_INPUT_DEADZONE_K15[] = "InputDeadZoneK15";
+    constexpr char I_INPUT_DEADZONE_K16[] = "InputDeadZoneK16";
+    constexpr char I_INPUT_DEADZONE_K17[] = "InputDeadZoneK17";
+    constexpr char I_INPUT_DEADZONE_K18[] = "InputDeadZoneK18";
+    constexpr char I_INPUT_DEADZONE_K19[] = "InputDeadZoneK19";
+    constexpr char I_INPUT_DEADZONE_S2L[] = "InputDeadZoneS2L";
+    constexpr char I_INPUT_DEADZONE_S2R[] = "InputDeadZoneS2R";
+    constexpr char I_INPUT_DEADZONE_K2Start[] = "InputDeadZoneK2Start";
+    constexpr char I_INPUT_DEADZONE_K2Select[] = "InputDeadZoneK2Select";
+    constexpr char I_INPUT_DEADZONE_K21[] = "InputDeadZoneK21";
+    constexpr char I_INPUT_DEADZONE_K22[] = "InputDeadZoneK22";
+    constexpr char I_INPUT_DEADZONE_K23[] = "InputDeadZoneK23";
+    constexpr char I_INPUT_DEADZONE_K24[] = "InputDeadZoneK24";
+    constexpr char I_INPUT_DEADZONE_K25[] = "InputDeadZoneK25";
+    constexpr char I_INPUT_DEADZONE_K26[] = "InputDeadZoneK26";
+    constexpr char I_INPUT_DEADZONE_K27[] = "InputDeadZoneK27";
+    constexpr char I_INPUT_DEADZONE_K28[] = "InputDeadZoneK28";
+    constexpr char I_INPUT_DEADZONE_K29[] = "InputDeadZoneK29";
+    constexpr char I_INPUT_SPEED_S1A[] = "InputSpeedS1L";
+    constexpr char I_INPUT_SPEED_S2A[] = "InputSpeedS1R";
 }
 
 

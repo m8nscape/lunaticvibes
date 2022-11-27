@@ -999,14 +999,17 @@ void key_config_pad(Input::Pad pad, bool force)
     auto& sel = gKeyconfigContext.selecting;
     auto old = sel.first;
 
-    if (old == pad)
+    if (!gKeyconfigContext.skinHasAbsAxis)
     {
-        switch (pad)
+        if (old == pad)
         {
-        case Input::Pad::S1L:
-        case Input::Pad::S1R: pad = Input::Pad::S1A; break;
-        case Input::Pad::S2L:
-        case Input::Pad::S2R: pad = Input::Pad::S2A; break;
+            switch (pad)
+            {
+            case Input::Pad::S1L:
+            case Input::Pad::S1R: pad = Input::Pad::S1A; break;
+            case Input::Pad::S2L:
+            case Input::Pad::S2R: pad = Input::Pad::S2A; break;
+            }
         }
     }
 
@@ -1047,13 +1050,19 @@ void key_config_pad(Input::Pad pad, bool force)
             case Input::Pad::K2SPDUP:  State::set(IndexSwitch::K2SPDUP_CONFIG, sw); break;
             case Input::Pad::K2SPDDN:  State::set(IndexSwitch::K2SPDDN_CONFIG, sw); break;
             case Input::Pad::S1A:      
-                State::set(IndexSwitch::S1L_CONFIG, sw);
-                State::set(IndexSwitch::S1R_CONFIG, sw);
+                if (!gKeyconfigContext.skinHasAbsAxis)
+                {
+                    State::set(IndexSwitch::S1L_CONFIG, sw);
+                    State::set(IndexSwitch::S1R_CONFIG, sw);
+                }
                 State::set(IndexSwitch::S1A_CONFIG, sw); 
                 break;
             case Input::Pad::S2A:
-                State::set(IndexSwitch::S2L_CONFIG, sw);
-                State::set(IndexSwitch::S2R_CONFIG, sw);
+                if (!gKeyconfigContext.skinHasAbsAxis)
+                {
+                    State::set(IndexSwitch::S2L_CONFIG, sw);
+                    State::set(IndexSwitch::S2R_CONFIG, sw);
+                }
                 State::set(IndexSwitch::S2A_CONFIG, sw);
                 break;
             default: break;
@@ -1180,6 +1189,8 @@ void key_config_mode_rotate()
     }
 
     key_config_pad(Input::Pad::K11, true);
+
+    gKeyconfigContext.modeChanged = true;
 }
 
 // 150 - 159

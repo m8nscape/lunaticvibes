@@ -155,4 +155,5 @@ public:
     bool isSupportGreenNumber = false;
     bool isSupportLift = false;
     bool isSupportNewRandom = false;
+    bool isSupportKeyConfigAbsAxis = false;
 };

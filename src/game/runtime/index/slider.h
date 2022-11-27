@@ -78,7 +78,7 @@ enum class IndexSlider : unsigned
     SPEED_S2A,
 
     // internal values
-    _TEST1 = 60,
+    _TEST1 = 80,
 
     SLIDER_COUNT
 };

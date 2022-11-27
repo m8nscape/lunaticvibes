@@ -40,7 +40,7 @@ public:
     static void updateDevices();
     static void updateBindings(GameModeKeys keys);
     static void updateBindings(GameModeKeys keys, Input::Pad K);
-    static void updateDeadzones();
+    static void updateDeadzones(GameModeKeys keys);
     static double getDeadzone(Input::Pad k);
 
     std::bitset<Input::KEY_COUNT> _detect();

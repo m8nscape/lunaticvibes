@@ -405,36 +405,6 @@ void setSliders()
     State::set(IndexSlider::FX1_P2, ConfigMgr::get('P', P_FX1_P2, 0) / 100.0);
     State::set(IndexSlider::FX2_P1, ConfigMgr::get('P', P_FX2_P1, 0) / 100.0);
     State::set(IndexSlider::FX2_P2, ConfigMgr::get('P', P_FX2_P2, 0) / 100.0);
-
-    State::set(IndexSlider::DEADZONE_S1L, ConfigMgr::get('P', P_INPUT_DEADZONE_S1L, 0.2));
-    State::set(IndexSlider::DEADZONE_S1R, ConfigMgr::get('P', P_INPUT_DEADZONE_S1R, 0.2));
-    State::set(IndexSlider::DEADZONE_K1Start, ConfigMgr::get('P', P_INPUT_DEADZONE_K1Start, 0.2));
-    State::set(IndexSlider::DEADZONE_K1Select, ConfigMgr::get('P', P_INPUT_DEADZONE_K1Select, 0.2));
-    State::set(IndexSlider::DEADZONE_K11, ConfigMgr::get('P', P_INPUT_DEADZONE_K11, 0.2));
-    State::set(IndexSlider::DEADZONE_K12, ConfigMgr::get('P', P_INPUT_DEADZONE_K12, 0.2));
-    State::set(IndexSlider::DEADZONE_K13, ConfigMgr::get('P', P_INPUT_DEADZONE_K13, 0.2));
-    State::set(IndexSlider::DEADZONE_K14, ConfigMgr::get('P', P_INPUT_DEADZONE_K14, 0.2));
-    State::set(IndexSlider::DEADZONE_K15, ConfigMgr::get('P', P_INPUT_DEADZONE_K15, 0.2));
-    State::set(IndexSlider::DEADZONE_K16, ConfigMgr::get('P', P_INPUT_DEADZONE_K16, 0.2));
-    State::set(IndexSlider::DEADZONE_K17, ConfigMgr::get('P', P_INPUT_DEADZONE_K17, 0.2));
-    State::set(IndexSlider::DEADZONE_K18, ConfigMgr::get('P', P_INPUT_DEADZONE_K18, 0.2));
-    State::set(IndexSlider::DEADZONE_K19, ConfigMgr::get('P', P_INPUT_DEADZONE_K19, 0.2));
-    State::set(IndexSlider::DEADZONE_S2L, ConfigMgr::get('P', P_INPUT_DEADZONE_S2L, 0.2));
-    State::set(IndexSlider::DEADZONE_S2R, ConfigMgr::get('P', P_INPUT_DEADZONE_S2R, 0.2));
-    State::set(IndexSlider::DEADZONE_K2Start, ConfigMgr::get('P', P_INPUT_DEADZONE_K2Start, 0.2));
-    State::set(IndexSlider::DEADZONE_K2Select, ConfigMgr::get('P', P_INPUT_DEADZONE_K2Select, 0.2));
-    State::set(IndexSlider::DEADZONE_K21, ConfigMgr::get('P', P_INPUT_DEADZONE_K21, 0.2));
-    State::set(IndexSlider::DEADZONE_K22, ConfigMgr::get('P', P_INPUT_DEADZONE_K22, 0.2));
-    State::set(IndexSlider::DEADZONE_K23, ConfigMgr::get('P', P_INPUT_DEADZONE_K23, 0.2));
-    State::set(IndexSlider::DEADZONE_K24, ConfigMgr::get('P', P_INPUT_DEADZONE_K24, 0.2));
-    State::set(IndexSlider::DEADZONE_K25, ConfigMgr::get('P', P_INPUT_DEADZONE_K25, 0.2));
-    State::set(IndexSlider::DEADZONE_K26, ConfigMgr::get('P', P_INPUT_DEADZONE_K26, 0.2));
-    State::set(IndexSlider::DEADZONE_K27, ConfigMgr::get('P', P_INPUT_DEADZONE_K27, 0.2));
-    State::set(IndexSlider::DEADZONE_K28, ConfigMgr::get('P', P_INPUT_DEADZONE_K28, 0.2));
-    State::set(IndexSlider::DEADZONE_K29, ConfigMgr::get('P', P_INPUT_DEADZONE_K29, 0.2));
-    State::set(IndexSlider::SPEED_S1A, ConfigMgr::get('P', P_INPUT_SPEED_S1A, 0.5));
-    State::set(IndexSlider::SPEED_S2A, ConfigMgr::get('P', P_INPUT_SPEED_S2A, 0.5));
-
 }
 
 void setSwitches()

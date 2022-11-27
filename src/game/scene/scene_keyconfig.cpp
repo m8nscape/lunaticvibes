@@ -7,6 +7,7 @@
 SceneKeyConfig::SceneKeyConfig() : vScene(eMode::KEY_CONFIG, 240)
 {
     _scene = eScene::KEYCONFIG;
+    gKeyconfigContext.skinHasAbsAxis = _skin->isSupportKeyConfigAbsAxis;
 
     InputMgr::updateDevices();
 
@@ -101,7 +102,7 @@ SceneKeyConfig::SceneKeyConfig() : vScene(eMode::KEY_CONFIG, 240)
     State::set(IndexText::KEYCONFIG_2P_SCRATCH_R, "2P SC-R");
     State::set(IndexText::KEYCONFIG_2P_SCRATCH_ABS, "2P SC ABS");
 
-    updateAllText();
+    updateInfo(KeyMap(), 0);
 
     LOG_DEBUG << "[KeyConfig] Start";
 }
@@ -124,6 +125,12 @@ void SceneKeyConfig::_updateAsync()
     _updateCallback();
 
     updateForceBargraphs();
+
+    if (gKeyconfigContext.modeChanged)
+    {
+        gKeyconfigContext.modeChanged = false;
+        updateInfo(KeyMap(), 0);
+    }
 
     State::set(IndexNumber::_ANGLE_TT_1P, int(_ttAngleDiff[0]) % 360);
     State::set(IndexNumber::_ANGLE_TT_2P, int(_ttAngleDiff[1]) % 360);
@@ -302,6 +309,9 @@ void SceneKeyConfig::inputGamePressKeyboard(KeyboardMask& mask, const Time& t)
                     InputMgr::updateBindings(keys, pad);
 
                     updateInfo(km, slot);
+
+                    // play sound
+                    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
                 }
             }
         }
@@ -333,6 +343,9 @@ void SceneKeyConfig::inputGamePressJoystick(JoystickMask& mask, size_t device, c
                 ConfigMgr::Input(keys)->bind(pad, j);
                 InputMgr::updateBindings(keys, pad);
                 updateInfo(j, slot);
+
+                // play sound
+                SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
             }
             joystickPrev[device][bit] = mask[bit];
         }
@@ -357,6 +370,9 @@ void SceneKeyConfig::inputGamePressJoystick(JoystickMask& mask, size_t device, c
                     ConfigMgr::Input(keys)->bind(pad, j);
                     InputMgr::updateBindings(keys, pad);
                     updateInfo(j, slot);
+
+                    // play sound
+                    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
                 }
                 joystickPrev[device][bit] = mask[bit];
             }
@@ -385,6 +401,9 @@ void SceneKeyConfig::inputGamePressJoystick(JoystickMask& mask, size_t device, c
                     ConfigMgr::Input(keys)->bind(pad, j);
                     InputMgr::updateBindings(keys, pad);
                     updateInfo(j, slot);
+
+                    // play sound
+                    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
                 }
                 joystickPrev[device][bit] = mask[bit];
             }
@@ -405,6 +424,9 @@ void SceneKeyConfig::inputGamePressJoystick(JoystickMask& mask, size_t device, c
                     ConfigMgr::Input(keys)->bind(pad, j);
                     InputMgr::updateBindings(keys, pad);
                     updateInfo(j, slot);
+
+                    // play sound
+                    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
                 }
                 joystickPrev[device][bit] = mask[bit];
             }
@@ -435,6 +457,9 @@ void SceneKeyConfig::inputGameAbsoluteAxis(JoystickAxis& axis, size_t device, co
 
                 InputMgr::updateBindings(keys, pad);
                 updateInfo(j, slot);
+
+                // play sound
+                SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
             }
         }
     }
@@ -587,8 +612,47 @@ void SceneKeyConfig::updateInfo(KeyMap k, int slot)
     default: break;
     }
 
-    // play sound
-    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
+    // update sliders
+    int keys = 0;
+    switch (State::get(IndexOption::KEY_CONFIG_MODE))
+    {
+    case Option::KEYCFG_5: keys = 5; break;
+    case Option::KEYCFG_7: keys = 7; break;
+    case Option::KEYCFG_9: keys = 9; break;
+    default: return;
+    }
+    if (keys != 0)
+    {
+        using namespace cfg;
+        State::set(IndexSlider::DEADZONE_S1L, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_S1L, 0.2));
+        State::set(IndexSlider::DEADZONE_S1R, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_S1R, 0.2));
+        State::set(IndexSlider::DEADZONE_K1Start, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K1Start, 0.2));
+        State::set(IndexSlider::DEADZONE_K1Select, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K1Select, 0.2));
+        State::set(IndexSlider::DEADZONE_K11, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K11, 0.2));
+        State::set(IndexSlider::DEADZONE_K12, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K12, 0.2));
+        State::set(IndexSlider::DEADZONE_K13, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K13, 0.2));
+        State::set(IndexSlider::DEADZONE_K14, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K14, 0.2));
+        State::set(IndexSlider::DEADZONE_K15, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K15, 0.2));
+        State::set(IndexSlider::DEADZONE_K16, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K16, 0.2));
+        State::set(IndexSlider::DEADZONE_K17, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K17, 0.2));
+        State::set(IndexSlider::DEADZONE_K18, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K18, 0.2));
+        State::set(IndexSlider::DEADZONE_K19, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K19, 0.2));
+        State::set(IndexSlider::DEADZONE_S2L, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_S2L, 0.2));
+        State::set(IndexSlider::DEADZONE_S2R, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_S2R, 0.2));
+        State::set(IndexSlider::DEADZONE_K2Start, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K2Start, 0.2));
+        State::set(IndexSlider::DEADZONE_K2Select, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K2Select, 0.2));
+        State::set(IndexSlider::DEADZONE_K21, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K21, 0.2));
+        State::set(IndexSlider::DEADZONE_K22, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K22, 0.2));
+        State::set(IndexSlider::DEADZONE_K23, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K23, 0.2));
+        State::set(IndexSlider::DEADZONE_K24, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K24, 0.2));
+        State::set(IndexSlider::DEADZONE_K25, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K25, 0.2));
+        State::set(IndexSlider::DEADZONE_K26, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K26, 0.2));
+        State::set(IndexSlider::DEADZONE_K27, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K27, 0.2));
+        State::set(IndexSlider::DEADZONE_K28, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K28, 0.2));
+        State::set(IndexSlider::DEADZONE_K29, ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K29, 0.2));
+        State::set(IndexSlider::SPEED_S1A, ConfigMgr::Input(keys)->get(I_INPUT_SPEED_S1A, 0.5));
+        State::set(IndexSlider::SPEED_S2A, ConfigMgr::Input(keys)->get(I_INPUT_SPEED_S2A, 0.5));
+    }
 
     updateAllText();
 }

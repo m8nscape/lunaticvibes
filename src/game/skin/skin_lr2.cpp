@@ -1450,6 +1450,11 @@ ParseRet SkinLR2::SRC_BUTTON()
                 }
             }
             s->setInd(SpriteOption::opType::SWITCH, (unsigned)sw);
+
+            if (sw == IndexSwitch::S1A_CONFIG || sw == IndexSwitch::S2A_CONFIG)
+            {
+                isSupportKeyConfigAbsAxis = true;
+            }
         }
         if (lr2skin::buttonOp(d.type, op))
         {

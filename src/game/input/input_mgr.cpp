@@ -46,7 +46,7 @@ void InputMgr::updateBindings(GameModeKeys keys)
     default: break;
     }
 
-    updateDeadzones();
+    updateDeadzones(keys);
     LOG_INFO << "Key bindings updated";
 }
 
@@ -55,38 +55,37 @@ void InputMgr::updateBindings(GameModeKeys keys, Pad K)
     updateBindings(keys);
 }
 
-void InputMgr::updateDeadzones()
+void InputMgr::updateDeadzones(GameModeKeys keys)
 {
-    // FIXME move deadzones to key config file
     using namespace cfg;
-    _inst.padDeadzones[Input::S1L] = ConfigMgr::get('P', P_INPUT_DEADZONE_S1L, 0.2);
-    _inst.padDeadzones[Input::S1R] = ConfigMgr::get('P', P_INPUT_DEADZONE_S1R, 0.2);
-    _inst.padDeadzones[Input::K1START] = ConfigMgr::get('P', P_INPUT_DEADZONE_K1Start, 0.2);
-    _inst.padDeadzones[Input::K1SELECT] = ConfigMgr::get('P', P_INPUT_DEADZONE_K1Select, 0.2);
-    _inst.padDeadzones[Input::K11] = ConfigMgr::get('P', P_INPUT_DEADZONE_K11, 0.2);
-    _inst.padDeadzones[Input::K12] = ConfigMgr::get('P', P_INPUT_DEADZONE_K12, 0.2);
-    _inst.padDeadzones[Input::K13] = ConfigMgr::get('P', P_INPUT_DEADZONE_K13, 0.2);
-    _inst.padDeadzones[Input::K14] = ConfigMgr::get('P', P_INPUT_DEADZONE_K14, 0.2);
-    _inst.padDeadzones[Input::K15] = ConfigMgr::get('P', P_INPUT_DEADZONE_K15, 0.2);
-    _inst.padDeadzones[Input::K16] = ConfigMgr::get('P', P_INPUT_DEADZONE_K16, 0.2);
-    _inst.padDeadzones[Input::K17] = ConfigMgr::get('P', P_INPUT_DEADZONE_K17, 0.2);
-    _inst.padDeadzones[Input::K18] = ConfigMgr::get('P', P_INPUT_DEADZONE_K18, 0.2);
-    _inst.padDeadzones[Input::K19] = ConfigMgr::get('P', P_INPUT_DEADZONE_K19, 0.2);
-    _inst.padDeadzones[Input::S2L] = ConfigMgr::get('P', P_INPUT_DEADZONE_S2L, 0.2);
-    _inst.padDeadzones[Input::S2R] = ConfigMgr::get('P', P_INPUT_DEADZONE_S2R, 0.2);
-    _inst.padDeadzones[Input::K2START] = ConfigMgr::get('P', P_INPUT_DEADZONE_K2Start, 0.2);
-    _inst.padDeadzones[Input::K2SELECT] = ConfigMgr::get('P', P_INPUT_DEADZONE_K2Select, 0.2);
-    _inst.padDeadzones[Input::K21] = ConfigMgr::get('P', P_INPUT_DEADZONE_K21, 0.2);
-    _inst.padDeadzones[Input::K22] = ConfigMgr::get('P', P_INPUT_DEADZONE_K22, 0.2);
-    _inst.padDeadzones[Input::K23] = ConfigMgr::get('P', P_INPUT_DEADZONE_K23, 0.2);
-    _inst.padDeadzones[Input::K24] = ConfigMgr::get('P', P_INPUT_DEADZONE_K24, 0.2);
-    _inst.padDeadzones[Input::K25] = ConfigMgr::get('P', P_INPUT_DEADZONE_K25, 0.2);
-    _inst.padDeadzones[Input::K26] = ConfigMgr::get('P', P_INPUT_DEADZONE_K26, 0.2);
-    _inst.padDeadzones[Input::K27] = ConfigMgr::get('P', P_INPUT_DEADZONE_K27, 0.2);
-    _inst.padDeadzones[Input::K28] = ConfigMgr::get('P', P_INPUT_DEADZONE_K28, 0.2);
-    _inst.padDeadzones[Input::K29] = ConfigMgr::get('P', P_INPUT_DEADZONE_K29, 0.2);
-    _inst.padDeadzones[Input::S1A] = ConfigMgr::get('P', P_INPUT_SPEED_S1A, 0.5);
-    _inst.padDeadzones[Input::S2A] = ConfigMgr::get('P', P_INPUT_SPEED_S2A, 0.5);
+    _inst.padDeadzones[Input::S1L] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_S1L, 0.2);
+    _inst.padDeadzones[Input::S1R] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_S1R, 0.2);
+    _inst.padDeadzones[Input::K1START] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K1Start, 0.2);
+    _inst.padDeadzones[Input::K1SELECT] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K1Select, 0.2);
+    _inst.padDeadzones[Input::K11] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K11, 0.2);
+    _inst.padDeadzones[Input::K12] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K12, 0.2);
+    _inst.padDeadzones[Input::K13] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K13, 0.2);
+    _inst.padDeadzones[Input::K14] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K14, 0.2);
+    _inst.padDeadzones[Input::K15] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K15, 0.2);
+    _inst.padDeadzones[Input::K16] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K16, 0.2);
+    _inst.padDeadzones[Input::K17] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K17, 0.2);
+    _inst.padDeadzones[Input::K18] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K18, 0.2);
+    _inst.padDeadzones[Input::K19] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K19, 0.2);
+    _inst.padDeadzones[Input::S2L] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_S2L, 0.2);
+    _inst.padDeadzones[Input::S2R] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_S2R, 0.2);
+    _inst.padDeadzones[Input::K2START] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K2Start, 0.2);
+    _inst.padDeadzones[Input::K2SELECT] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K2Select, 0.2);
+    _inst.padDeadzones[Input::K21] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K21, 0.2);
+    _inst.padDeadzones[Input::K22] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K22, 0.2);
+    _inst.padDeadzones[Input::K23] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K23, 0.2);
+    _inst.padDeadzones[Input::K24] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K24, 0.2);
+    _inst.padDeadzones[Input::K25] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K25, 0.2);
+    _inst.padDeadzones[Input::K26] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K26, 0.2);
+    _inst.padDeadzones[Input::K27] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K27, 0.2);
+    _inst.padDeadzones[Input::K28] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K28, 0.2);
+    _inst.padDeadzones[Input::K29] = ConfigMgr::Input(keys)->get(I_INPUT_DEADZONE_K29, 0.2);
+    _inst.padDeadzones[Input::S1A] = ConfigMgr::Input(keys)->get(I_INPUT_SPEED_S1A, 0.5);
+    _inst.padDeadzones[Input::S2A] = ConfigMgr::Input(keys)->get(I_INPUT_SPEED_S2A, 0.5);
 }
 
 double InputMgr::getDeadzone(Input::Pad k)
