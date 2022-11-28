@@ -5,9 +5,9 @@
 constexpr char CONFIG_FILE_INPUT_5[] = "input5.yml";
 constexpr char CONFIG_FILE_INPUT_7[] = "input7.yml";
 constexpr char CONFIG_FILE_INPUT_9[] = "input9.yml";
-constexpr char CONFIG_FILE_INPUT_DEFAULT_5[] = "default5.yml";
-constexpr char CONFIG_FILE_INPUT_DEFAULT_7[] = "default7.yml";
-constexpr char CONFIG_FILE_INPUT_DEFAULT_9[] = "default9.yml";
+constexpr char CONFIG_FILE_INPUT_DEFAULT_5[] = "resources/keyconfig/default5.yml";
+constexpr char CONFIG_FILE_INPUT_DEFAULT_7[] = "resources/keyconfig/default7.yml";
+constexpr char CONFIG_FILE_INPUT_DEFAULT_9[] = "resources/keyconfig/default9.yml";
 
 namespace cfg
 {
