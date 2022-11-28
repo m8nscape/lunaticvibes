@@ -1086,7 +1086,9 @@ int SkinLR2::others()
         reloadBanner = true;
         return 1;
     }
-    if (matchToken(parseKeyBuf, "#TRANSCOLOR"))
+    if (matchToken(parseKeyBuf, "#TRANSCOLOR") ||
+        matchToken(parseKeyBuf, "#TRANSCLOLR") ||   // why
+        matchToken(parseKeyBuf, "#TRANSCLOLOR"))    // why
     {
         int r, g, b;
         r = toInt(parseParamBuf[0]);
@@ -1102,24 +1104,24 @@ int SkinLR2::others()
         return 2;
     }
     // tested with several skins on LR2 but seems to do nothing
-    //if (matchToken(parseKeyBuf, "#FLIPSIDE"))
-    //{
-    //    switch (info.mode)
-    //    {
-    //    case eMode::PLAY5:
-    //    case eMode::PLAY5_2:
-    //    case eMode::PLAY7:
-    //    case eMode::PLAY7_2:
-    //    case eMode::PLAY9:
-    //    case eMode::PLAY10:
-    //    case eMode::PLAY14:
-    //        flipSide = true;
-    //        lr2skin::flipSideFlag = flipSide;
-    //        break;
-    //    }
+    if (matchToken(parseKeyBuf, "#FLIPSIDE"))
+    {
+        //switch (info.mode)
+        //{
+        //case eMode::PLAY5:
+        //case eMode::PLAY5_2:
+        //case eMode::PLAY7:
+        //case eMode::PLAY7_2:
+        //case eMode::PLAY9:
+        //case eMode::PLAY10:
+        //case eMode::PLAY14:
+        //    flipSide = true;
+        //    lr2skin::flipSideFlag = flipSide;
+        //    break;
+        //}
 
-    //    return 3;
-    //}
+        return 3;
+    }
     if (matchToken(parseKeyBuf, "#FLIPRESULT"))
     {
         lr2skin::flipResultFlag = true;
