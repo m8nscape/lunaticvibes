@@ -2756,6 +2756,7 @@ void SceneSelect::updatePreview()
 
             // start from beginning. It's difficult to seek a chart for playback due to lengthy BGM samples...
             previewStartTime = Time() - previewChartObj->getLeadInTime();
+            previewEndTime = 0;
             previewRuleset->setStartTime(previewStartTime);
 
             SoundMgr::setSysVolume(0.1, 200);
@@ -2826,10 +2827,17 @@ void SceneSelect::updatePreview()
 
             if (previewRuleset->isFinished())
             {
-                LOG_DEBUG << "[Select] Preview finished";
+                if (previewEndTime == 0)
+                {
+                    previewEndTime = t;
+                }
+                else if ((t - previewEndTime).norm() > 1000)
+                {
+                    LOG_DEBUG << "[Select] Preview finished";
 
-                previewState = PREVIEW_FINISH;
-                SoundMgr::setSysVolume(1.0, 400);
+                    previewState = PREVIEW_FINISH;
+                    SoundMgr::setSysVolume(1.0, 400);
+                }
             }
         }
         break;

@@ -54,6 +54,7 @@ private:
     std::shared_ptr<ChartObjectBase> previewChartObj = nullptr;
     std::shared_ptr<vRuleset> previewRuleset = nullptr;
     Time previewStartTime;
+    Time previewEndTime;
     std::array<size_t, 128> _bgmSampleIdxBuf{};
     std::array<size_t, 128> _keySampleIdxBuf{};
 
