@@ -113,13 +113,20 @@ int graphics_init()
 
         SDL_ShowWindow(gFrameWindow);
 
+        SDL_RendererInfo rendererInfo;
+        if (SDL_GetRendererInfo(gFrameRenderer, &rendererInfo) == 0)
+        {
+            LOG_INFO << "[SDL2] Renderer driver: " << rendererInfo.name;
+        }
+
         SDL_SysWMinfo wmInfo;
         SDL_VERSION(&wmInfo.version);
-        SDL_GetWindowWMInfo(gFrameWindow, &wmInfo);
-
+        if (SDL_GetWindowWMInfo(gFrameWindow, &wmInfo) == SDL_TRUE)
+        {
 #if _WIN32 || _WIN64
-        setWindowHandle((void*)&wmInfo.info.win.window);
+            setWindowHandle((void*)&wmInfo.info.win.window);
 #endif
+        }
 
         gInternalRenderTarget = SDL_CreateTexture(gFrameRenderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_TARGET,
             CANVAS_WIDTH_MAX, CANVAS_HEIGHT_MAX);

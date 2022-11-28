@@ -158,7 +158,6 @@ SoundDriverFMOD::SoundDriverFMOD(): SoundDriver(std::bind(&SoundDriverFMOD::upda
         case FMOD_OUTPUTTYPE_MAX: LOG_INFO << "[FMOD] Output Type: MAX"; break;
         default: LOG_INFO << "[FMOD] Output Type: ???";
         }
-        LOG_INFO;
 
         int driverId;
         fmodSystem->getDriver(&driverId);
