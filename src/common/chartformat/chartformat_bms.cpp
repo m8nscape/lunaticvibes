@@ -704,9 +704,11 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
 
     if (isPMS)
     {
+        gamemode = 9;
         if (have89)
         {
             // 11	12	13	14	15	18	19	16	17	not known or well known
+            player = 1;
             std::swap(chNotesRegular[6], chNotesRegular[8]);
             std::swap(chNotesRegular[7], chNotesRegular[9]);
             std::swap(chNotesInvisible[6], chNotesInvisible[8]);
@@ -733,7 +735,6 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
         else
         {
             // 11	12	13	14	15	22	23	24	25	standard PMS
-            gamemode = 9;
             player = 1;
             std::swap(chNotesRegular[6], chNotesRegular[12]);
             std::swap(chNotesRegular[7], chNotesRegular[13]);
