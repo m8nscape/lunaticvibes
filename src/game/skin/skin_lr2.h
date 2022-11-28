@@ -1381,7 +1381,6 @@ protected:
     timeMS timeFadeoutLength = 0;
     bool reloadBanner = false;                  // unused
     bool flipSide = false;                      // flip 1P/2P defs: note indices, timers (42-139, 143, 144)
-    static inline bool flipResult = false;      // Set in play skin; Only result skin loads this, using static is fine
     bool disableFlipResult = false;
 
 public:

@@ -366,7 +366,9 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 250)
     State::set(IndexSwitch::SOUND_PITCH, ConfigMgr::get('P', cfg::P_FREQ, false));
     lr2skin::slider::pitch((ConfigMgr::get('P', cfg::P_FREQ_VAL, 0) + 12) / 24.0);
 
-    gPlayContext.Hispeed = ConfigMgr::get('P', cfg::P_HISPEED, 1.0);
+    // only load on run
+    gPlayContext.Hispeed = State::get(IndexNumber::HS_1P) / 100.0;
+    gPlayContext.battle2PHispeed = State::get(IndexNumber::HS_2P) / 100.0;
 
     lr2skin::button::target_type(0);
 

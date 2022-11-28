@@ -73,7 +73,7 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
             param["2prank"] = Option::getRankType(d1p.total_acc);
             param["2pmaxcombo"] = d2p.maxCombo;
 
-            if (auto pr = std::dynamic_pointer_cast<RulesetBMS>(gPlayContext.ruleset[PLAYER_SLOT_PLAYER]); pr)
+            if (auto pr = std::dynamic_pointer_cast<RulesetBMS>(gPlayContext.ruleset[PLAYER_SLOT_TARGET]); pr)
             {
                 param["2pexscore"] = pr->getExScore();
                 param["2pbp"] = pr->getJudgeCountEx(RulesetBMS::JUDGE_BP);

@@ -836,10 +836,12 @@ void hs(int player, int plus)
     case 0: 
         number_change_clamp(IndexNumber::HS_1P, 50, 1000, plus);
         gPlayContext.Hispeed = State::get(IndexNumber::HS_1P) / 100.0;
+        State::set(IndexSlider::HISPEED_1P, gPlayContext.Hispeed / 10.0);
         break;
     case 1: 
         number_change_clamp(IndexNumber::HS_2P, 50, 1000, plus);
         gPlayContext.battle2PHispeed = State::get(IndexNumber::HS_2P) / 100.0;
+        State::set(IndexSlider::HISPEED_2P, gPlayContext.battle2PHispeed / 10.0);
         break;
     default: break;
     }

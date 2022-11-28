@@ -22,7 +22,7 @@ protected:
 
     std::map<JudgeArea, unsigned> totalJudgeCount;
 
-    std::array<bool, Input::Pad::KEY_COUNT> isPressingLN;
+    std::array<bool, Input::Pad::LANE_COUNT> isPressingLN;
 
 public:
     void setTargetRate(double rate);

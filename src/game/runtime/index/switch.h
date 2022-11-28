@@ -185,6 +185,8 @@ enum class IndexSwitch: unsigned
         COURSE_STAGE4_CHART_EXIST,
         COURSE_STAGE5_CHART_EXIST,
 
+        FLIP_RESULT,
+
     _FALSE = 999,        // should be initialized with false
 
     _TEST1,

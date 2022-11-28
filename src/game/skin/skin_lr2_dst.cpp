@@ -786,7 +786,8 @@ void updateDstOpt()
 
 	// 350 リザルトフリップ無効(プレイスキンで#FLIPRESULT命令無し、もしくは#DISABLEFLIP命令以降
 	// 351 リザルトフリップ有効(プレイスキンで#FLIPRESULT命令有り
-	set(350);
+	set(350, sw(IndexSwitch::FLIP_RESULT));
+	set(351, !sw(IndexSwitch::FLIP_RESULT));
 
 	// 352 1PWIN 2PLOSE
 	// 353 1PLOSE 2PWIN

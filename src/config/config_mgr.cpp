@@ -12,8 +12,12 @@ void setNumbers()
 {
     using namespace cfg;
 
-    State::set(IndexNumber::HS_1P, ConfigMgr::get('P', P_HISPEED, 1.0) * 100);
-    State::set(IndexNumber::HS_2P, ConfigMgr::get('P', P_HISPEED, 1.0) * 100);
+    int hs = State::get(IndexNumber::HS_1P);
+    if (hs == 0)
+    {
+        State::set(IndexNumber::HS_1P, ConfigMgr::get('P', cfg::P_HISPEED, 1.0) * 100);
+        State::set(IndexNumber::HS_2P, ConfigMgr::get('P', cfg::P_HISPEED, 1.0) * 100);
+    }
 
     State::set(IndexNumber::LANECOVER100_1P, ConfigMgr::get('P', P_LANECOVER_TOP, 0) / 10);
     State::set(IndexNumber::LANECOVER100_2P, ConfigMgr::get('P', P_LANECOVER_TOP, 0) / 10);
@@ -361,9 +365,6 @@ void setOptions()
             State::set(IndexOption::SOUND_FX2, FX_OFF);
     }
 
-    // battle
-    State::set(IndexOption::PLAY_BATTLE_TYPE, 0);
-
     // windowed
     {
         static const std::map<string, e_windowed> smap =
@@ -701,7 +702,7 @@ void setText()
     }
 
     // battle
-    State::set(IndexText::BATTLE, "OFF");
+    State::set(IndexText::BATTLE, Option::s_battle_type[State::get(IndexOption::PLAY_BATTLE_TYPE)]);
 
     // flip
     State::set(IndexText::FLIP, ConfigMgr::get('P', P_FLIP, true) ? "DP FLIP" : "OFF");

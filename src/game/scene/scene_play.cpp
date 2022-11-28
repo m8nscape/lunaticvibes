@@ -2504,7 +2504,7 @@ void ScenePlay::updatePlaying()
             {
                 State::set(IndexTimer::PLAY_P2_FINISHED, t.norm());
 
-                if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().combo == gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getMaxCombo())
+                if (gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData().combo == gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getMaxCombo())
                 {
                     State::set(IndexTimer::PLAY_FULLCOMBO_2P, t.norm());
                 }
@@ -2586,12 +2586,15 @@ void ScenePlay::updateFadeout()
         if (State::get(IndexSwitch::P1_LOCK_SPEED))
         {
             gPlayContext.Hispeed = _hispeedOld[PLAYER_SLOT_PLAYER];
-            State::set(IndexNumber::HS_1P, (int)std::round(gPlayContext.Hispeed * 100));
-            State::set(IndexSlider::HISPEED_1P, gPlayContext.Hispeed / 10.0);
         }
-        if (gPlayContext.isBattle && State::get(IndexSwitch::P2_LOCK_SPEED))
+        State::set(IndexNumber::HS_1P, (int)std::round(gPlayContext.Hispeed * 100));
+        State::set(IndexSlider::HISPEED_1P, gPlayContext.Hispeed / 10.0);
+        if (gPlayContext.isBattle)
         {
-            gPlayContext.battle2PHispeed = _hispeedOld[PLAYER_SLOT_TARGET];
+            if (State::get(IndexSwitch::P2_LOCK_SPEED))
+            {
+                gPlayContext.battle2PHispeed = _hispeedOld[PLAYER_SLOT_TARGET];
+            }
             State::set(IndexNumber::HS_2P, (int)std::round(gPlayContext.battle2PHispeed * 100));
             State::set(IndexSlider::HISPEED_2P, gPlayContext.battle2PHispeed / 10.0);
         }

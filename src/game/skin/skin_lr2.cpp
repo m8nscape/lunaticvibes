@@ -102,6 +102,8 @@ size_t convertOpsToInt(const Tokens& tokens, int* pData, size_t offset, size_t s
 }
 
 static bool flipSideFlag = false;
+static bool flipResultFlag = false;      // Set in play skin
+static bool flipSide = false;
 
     struct s_basic
     {
@@ -134,7 +136,7 @@ static bool flipSideFlag = false;
                 div_y = 1;
             }
 
-            if (flipSideFlag)
+            if (flipSide)
             {
                 switch (timer)
                 {
@@ -185,7 +187,7 @@ static bool flipSideFlag = false;
         {
             convertLine(tokens, (int*)this, &num - &_null, 3);
 
-            if (flipSideFlag)
+            if (flipSide)
             {
                 if      (100 <= num && num <= 119) num += 20;
                 else if (302 <= num && num <= 306) num += 40;
@@ -225,7 +227,7 @@ static bool flipSideFlag = false;
         {
             convertLine(tokens, (int*)this, &muki - &_null, 4);
 
-            if (flipSideFlag)
+            if (flipSide)
             {
                 switch (type)
                 {
@@ -248,7 +250,7 @@ static bool flipSideFlag = false;
         {
             convertLine(tokens, (int*)this, &type - &_null, 2);
             
-            if (flipSideFlag)
+            if (flipSide)
             {
                 if      (10 <= type && type <= 11) type += 4;
                 else if (20 <= type && type <= 29) type += 10;
@@ -296,7 +298,7 @@ static bool flipSideFlag = false;
             int count = sizeof(s_text) / sizeof(int);
             convertLine(tokens, (int*)this, 0, count);
 
-            if (flipSideFlag)
+            if (flipSide)
             {
                 switch (st)
                 {
@@ -372,8 +374,8 @@ static bool flipSideFlag = false;
 
             switch (_null)
             {
-            case 0: _null = lr2skin::flipSideFlag ? 1 : 0; break;
-            case 1: _null = lr2skin::flipSideFlag ? 0 : 1; break;
+            case 0: _null = lr2skin::flipSide ? 1 : 0; break;
+            case 1: _null = lr2skin::flipSide ? 0 : 1; break;
             }
         }
     };
@@ -451,7 +453,7 @@ static bool flipSideFlag = false;
             convertLine(tokens, (int*)this, 0, count);
             convertOpsToInt(tokens, (int*)this, &op[0] - &_null, sizeof(op) / sizeof(op[0]));
 
-            if (flipSideFlag)
+            if (flipSide)
             {
                 switch (timer)
                 {
@@ -1099,32 +1101,36 @@ int SkinLR2::others()
             << std::hex << r << ' ' << g << ' ' << b << std::dec;
         return 2;
     }
-    if (matchToken(parseKeyBuf, "#FLIPSIDE"))
+    // tested with several skins on LR2 but seems to do nothing
+    //if (matchToken(parseKeyBuf, "#FLIPSIDE"))
+    //{
+    //    switch (info.mode)
+    //    {
+    //    case eMode::PLAY5:
+    //    case eMode::PLAY5_2:
+    //    case eMode::PLAY7:
+    //    case eMode::PLAY7_2:
+    //    case eMode::PLAY9:
+    //    case eMode::PLAY10:
+    //    case eMode::PLAY14:
+    //        flipSide = true;
+    //        lr2skin::flipSideFlag = flipSide;
+    //        break;
+    //    }
+
+    //    return 3;
+    //}
+    if (matchToken(parseKeyBuf, "#FLIPRESULT"))
     {
-        flipSide = true;
+        lr2skin::flipResultFlag = true;
 
         switch (info.mode)
         {
-        case eMode::PLAY5:
-        case eMode::PLAY5_2:
-        case eMode::PLAY7:
-        case eMode::PLAY7_2:
-        case eMode::PLAY9:
-        case eMode::PLAY10:
-        case eMode::PLAY14:
-            lr2skin::flipSideFlag = flipSide;
+        case eMode::RESULT:
+        case eMode::COURSE_RESULT:
+            lr2skin::flipSide = (lr2skin::flipSideFlag || lr2skin::flipResultFlag) && !disableFlipResult;
+            State::set(IndexSwitch::FLIP_RESULT, lr2skin::flipSide);
             break;
-        }
-
-        return 3;
-    }
-    if (matchToken(parseKeyBuf, "#FLIPRESULT"))
-    {
-        flipResult = true;
-
-        if (info.mode == eMode::RESULT)
-        {
-            lr2skin::flipSideFlag = flipResult && !disableFlipResult;
         }
 
         return 4;
@@ -1133,9 +1139,13 @@ int SkinLR2::others()
     {
         disableFlipResult = true;
 
-        if (info.mode == eMode::RESULT)
+        switch (info.mode)
         {
-            lr2skin::flipSideFlag = flipResult && !disableFlipResult;
+        case eMode::RESULT:
+        case eMode::COURSE_RESULT:
+            lr2skin::flipSide = (lr2skin::flipSideFlag || lr2skin::flipResultFlag) && !disableFlipResult;
+            State::set(IndexSwitch::FLIP_RESULT, lr2skin::flipSide);
+            break;
         }
 
         return 5;
@@ -1268,14 +1278,14 @@ bool SkinLR2::SRC()
         case DefType::JUDGELINE:      SRC_JUDGELINE();           break;
         case DefType::TEXT:           SRC_TEXT();                break;
         case DefType::GROOVEGAUGE:    SRC_GROOVEGAUGE();         break;
-        case DefType::NOWJUDGE_1P:    lr2skin::flipSideFlag ? SRC_NOWJUDGE2() : SRC_NOWJUDGE1(); break;
-        case DefType::NOWJUDGE_2P:    lr2skin::flipSideFlag ? SRC_NOWJUDGE1() : SRC_NOWJUDGE2(); break;
-        case DefType::NOWCOMBO_1P:    lr2skin::flipSideFlag ? SRC_NOWCOMBO2() : SRC_NOWCOMBO1(); break;
-        case DefType::NOWCOMBO_2P:    lr2skin::flipSideFlag ? SRC_NOWCOMBO1() : SRC_NOWCOMBO2(); break;
+        case DefType::NOWJUDGE_1P:    flipSide ? SRC_NOWJUDGE2() : SRC_NOWJUDGE1(); break;
+        case DefType::NOWJUDGE_2P:    flipSide ? SRC_NOWJUDGE1() : SRC_NOWJUDGE2(); break;
+        case DefType::NOWCOMBO_1P:    flipSide ? SRC_NOWCOMBO2() : SRC_NOWCOMBO1(); break;
+        case DefType::NOWCOMBO_2P:    flipSide ? SRC_NOWCOMBO1() : SRC_NOWCOMBO2(); break;
         case DefType::BGA:            SRC_BGA();                 break;
         case DefType::MOUSECURSOR:    SRC_MOUSECURSOR();         break;
-        case DefType::GAUGECHART_1P:  SRC_GAUGECHART(lr2skin::flipSideFlag ? 1 : 0); break;
-        case DefType::GAUGECHART_2P:  SRC_GAUGECHART(lr2skin::flipSideFlag ? 0 : 1); break;
+        case DefType::GAUGECHART_1P:  SRC_GAUGECHART(flipSide ? 1 : 0); break;
+        case DefType::GAUGECHART_2P:  SRC_GAUGECHART(flipSide ? 0 : 1); break;
         case DefType::SCORECHART:     SRC_SCORECHART();          break;
         case DefType::BAR_BODY:       SRC_BAR_BODY();            break;
         case DefType::BAR_FLASH:      SRC_BAR_FLASH();           break;
@@ -1611,7 +1621,7 @@ ParseRet SkinLR2::SRC_SCORECHART()
 ParseRet SkinLR2::SRC_JUDGELINE()
 {
     lr2skin::s_basic d(parseParamBuf, csvLineNumber);
-    if (lr2skin::flipSideFlag)
+    if (flipSide)
     {
         d._null = (d._null == 0) ? 1 : 0;
     }
@@ -1934,7 +1944,7 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
 
     // load raw into data struct
     lr2skin::s_basic d(parseParamBuf, csvLineNumber);
-    if (lr2skin::flipSideFlag)
+    if (flipSide)
     {
         if (type == DefType::LINE)
         {
@@ -2412,7 +2422,7 @@ bool SkinLR2::DST()
 
         if (e->isKeyFrameEmpty())
         {
-            if (lr2skin::flipSideFlag)
+            if (flipSide)
             {
                 switch (type)
                 {
@@ -2518,7 +2528,7 @@ ParseRet SkinLR2::DST_NOTE()
 
     // load raw into data struct
     lr2skin::dst d(parseParamBuf);
-    if (lr2skin::flipSideFlag)
+    if (flipSide)
     {
         if (0 <= d._null && d._null <= 9) d._null += 10;
         else if (10 <= d._null && d._null <= 19) d._null -= 10;
@@ -3362,19 +3372,6 @@ SkinLR2::SkinLR2(Path p, int loadMode): loadMode(loadMode)
     }
     _laneSprites.resize(chart::LANE_COUNT);
 
-    switch (info.mode)
-    {
-    case eMode::PLAY5:
-    case eMode::PLAY5_2:
-    case eMode::PLAY7:
-    case eMode::PLAY7_2:
-    case eMode::PLAY9:
-    case eMode::PLAY10:
-    case eMode::PLAY14:
-        flipResult = false;
-        break;
-    }
-
     updateDstOpt();
     if (loadCSV(p))
     {
@@ -3448,6 +3445,29 @@ bool SkinLR2::loadCSV(Path p)
         }
     }
     LOG_DEBUG << "[Skin] File: " << p.u8string() << "(Line " << csvLineNumber << "): Header loading finished";
+
+    switch (info.mode)
+    {
+    case eMode::PLAY5:
+    case eMode::PLAY5_2:
+    case eMode::PLAY7:
+    case eMode::PLAY7_2:
+    case eMode::PLAY9:
+    case eMode::PLAY10:
+    case eMode::PLAY14:
+        lr2skin::flipSide = false;
+        break;
+    case eMode::RESULT:
+    case eMode::COURSE_RESULT:
+        lr2skin::flipSide = (lr2skin::flipSideFlag || lr2skin::flipResultFlag);
+        break;
+    default:
+        lr2skin::flipSide = false;
+        lr2skin::flipSideFlag = false;
+        lr2skin::flipResultFlag = false;
+        break;
+    }
+    State::set(IndexSwitch::FLIP_RESULT, lr2skin::flipSide);
 
     if (loadMode < 2)
     {
