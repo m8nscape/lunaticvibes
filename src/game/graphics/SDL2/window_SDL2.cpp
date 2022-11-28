@@ -39,8 +39,13 @@ int graphics_init()
 #endif
 
 #if _WIN32
-        // Direct3D9
-        SDL_SetHint(SDL_HINT_RENDER_DRIVER, "direct3d");
+        // I have tested several renderers on Windows and each of them has its own issues.
+        // direct3d (D3D9): skin "filter" parameters are affected by textures
+        // direct3d11: such a simple 2D game should not be so picky about hardware...
+        // direct3d12: same as above; plus the dll from the official site does not include this renderer
+        // opengl: does not support certain custom blend mode
+        // opengles2: does not support virtual textures created by hand (e.g. black dot)
+        SDL_SetHint(SDL_HINT_RENDER_DRIVER, "direct3d11");
 #else
         //SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
 #endif
