@@ -364,6 +364,7 @@ void SceneResult::updateFadeout()
         // check retry
         if (_retryRequested && gPlayContext.canRetry)
         {
+            SoundMgr::stopSysSamples();
             clearContextPlayForRetry();
             gNextScene = eScene::PLAY;
         }
