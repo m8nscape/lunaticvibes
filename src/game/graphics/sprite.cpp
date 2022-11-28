@@ -206,10 +206,12 @@ void vSprite::appendKeyFrame(const RenderKeyFrame& f)
     _keyFrames.push_back(f);
 }
 
-void vSprite::moveAfterUpdate(int x, int y)
+void vSprite::adjustAfterUpdate(int x, int y, int w, int h)
 {
-    _current.rect.x += x;
-    _current.rect.y += y;
+    _current.rect.x += x - w;
+    _current.rect.y += y - h;
+    _current.rect.w += w * 2;
+    _current.rect.h += h * 2;
 }
 
 
@@ -790,13 +792,15 @@ void SpriteNumber::draw() const
     }
 }
 
-void SpriteNumber::moveAfterUpdate(int x, int y)
+void SpriteNumber::adjustAfterUpdate(int x, int y, int w, int h)
 {
-    vSprite::moveAfterUpdate(x, y);
+    vSprite::adjustAfterUpdate(x, y, w, h);
     for (auto& d : _rects)
     {
-        d.x += x;
-        d.y += y;
+        d.x += x - w;
+        d.y += y - h;
+        d.w += w * 2;
+        d.h += h * 2;
     }
 }
 

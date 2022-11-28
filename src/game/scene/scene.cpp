@@ -270,6 +270,8 @@ void vScene::_updateAsync1()
 
 void vScene::_updateImgui()
 {
+    assert(IsMainThread());
+
     bool showTextOverlay = false;
     if (showFPS) showTextOverlay = true;
     for (size_t i = 0; i < 4; ++i)

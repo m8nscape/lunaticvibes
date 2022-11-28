@@ -1384,6 +1384,25 @@ protected:
     bool disableFlipResult = false;
 
 public:
+    int adjustPlaySkinX = 0;
+    int adjustPlaySkinY = 0;
+    int adjustPlaySkinW = 0;
+    int adjustPlaySkinH = 0;
+    bool adjustPlayJudgePositionLift = true;
+    int adjustPlayJudgePosition1PX = 0;
+    int adjustPlayJudgePosition1PY = 0;
+    int adjustPlayJudgePosition2PX = 0;
+    int adjustPlayJudgePosition2PY = 0;
+    int adjustPlayNote1PX = 0;
+    int adjustPlayNote1PY = 0;
+    int adjustPlayNote1PW = 0;
+    int adjustPlayNote1PH = 0;
+    int adjustPlayNote2PX = 0;
+    int adjustPlayNote2PY = 0;
+    int adjustPlayNote2PW = 0;
+    int adjustPlayNote2PH = 0;
+
+public:
     SkinLR2() = delete;
     SkinLR2(Path p, int loadMode = 0);
     virtual ~SkinLR2();

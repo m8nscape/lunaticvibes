@@ -73,6 +73,13 @@ private:
     Time _missLastTime;
     int _missBgaLength;
 
+    bool imguiShowAdjustMenu = false;
+    int imguiAdjustBorderX = 640;
+    int imguiAdjustBorderY = 480;
+    int imguiAdjustBorderSize = 50;
+    bool imguiAdjustIsDP = false;
+    bool imguiAdjustHas2P = false;
+
 public:
     ScenePlay();
     virtual ~ScenePlay();
@@ -152,4 +159,9 @@ protected:
     void inputGamePressTimer(InputMask&, const Time&);
     void inputGameReleaseTimer(InputMask&, const Time&);
     void inputGameAxis(double s1, double s2, const Time&);
+
+protected:
+    virtual void _updateImgui() override;
+    void imguiInit();
+    void imguiAdjustMenu();
 };

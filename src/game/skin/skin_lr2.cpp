@@ -3396,6 +3396,51 @@ SkinLR2::SkinLR2(Path p, int loadMode): loadMode(loadMode)
 SkinLR2::~SkinLR2()
 {
     stopSpriteVideoPlayback();
+
+    switch (info.mode)
+    {
+    case eMode::PLAY5:
+    case eMode::PLAY5_2:
+    case eMode::PLAY7:
+    case eMode::PLAY7_2:
+    case eMode::PLAY9:
+    case eMode::PLAY10:
+    case eMode::PLAY14:
+    {
+        Path pCustomize = ConfigMgr::Profile()->getPath() / "customize" / SceneCustomize::getConfigFileName(getFilePath());
+        try
+        {
+            auto yaml = YAML::LoadFile(pCustomize.u8string());
+
+            yaml["PLAY_SKIN_X"] = adjustPlaySkinX;
+            yaml["PLAY_SKIN_Y"] = adjustPlaySkinY;
+            yaml["PLAY_SKIN_W"] = adjustPlaySkinW;
+            yaml["PLAY_SKIN_H"] = adjustPlaySkinH;
+            yaml["PLAY_JUDGE_POS_LIFT"] = adjustPlayJudgePositionLift;
+            yaml["PLAY_JUDGE_POS_1P_X"] = adjustPlayJudgePosition1PX;
+            yaml["PLAY_JUDGE_POS_1P_Y"] = adjustPlayJudgePosition2PY;
+            yaml["PLAY_JUDGE_POS_2P_X"] = adjustPlayJudgePosition1PX;
+            yaml["PLAY_JUDGE_POS_2P_Y"] = adjustPlayJudgePosition2PY;
+            yaml["PLAY_NOTE_1P_X"] = adjustPlayNote1PX;
+            yaml["PLAY_NOTE_1P_Y"] = adjustPlayNote1PY;
+            yaml["PLAY_NOTE_1P_W"] = adjustPlayNote1PW;
+            yaml["PLAY_NOTE_1P_H"] = adjustPlayNote1PH;
+            yaml["PLAY_NOTE_2P_X"] = adjustPlayNote2PX;
+            yaml["PLAY_NOTE_2P_Y"] = adjustPlayNote2PY;
+            yaml["PLAY_NOTE_2P_W"] = adjustPlayNote2PW;
+            yaml["PLAY_NOTE_2P_H"] = adjustPlayNote2PH;
+
+            std::ofstream fout(pCustomize, std::ios_base::trunc);
+            fout << yaml;
+            fout.close();
+        }
+        catch (YAML::BadFile&)
+        {
+            LOG_WARNING << "[Skin] Bad customize config file: " << pCustomize.u8string();
+        }
+        break;
+    }
+    }
 }
 
 bool SkinLR2::loadCSV(Path p)
@@ -3498,6 +3543,26 @@ bool SkinLR2::loadCSV(Path p)
                 else if (key.substr(0, 5) == "FILE_")
                 {
                     opFileMap[key.substr(5)] = node.second.as<std::string>();
+                }
+                else if (key.substr(0, 5) == "PLAY_")
+                {
+                    if (key == "PLAY_SKIN_X") adjustPlaySkinX = node.second.as<int>(0);
+                    else if (key == "PLAY_SKIN_Y") adjustPlaySkinY = node.second.as<int>(0);
+                    else if (key == "PLAY_SKIN_W") adjustPlaySkinW = node.second.as<int>(0);
+                    else if (key == "PLAY_SKIN_H") adjustPlaySkinH = node.second.as<int>(0);
+                    else if (key == "PLAY_JUDGE_POS_LIFT") adjustPlayJudgePositionLift = node.second.as<bool>(true);
+                    else if (key == "PLAY_JUDGE_POS_1P_X") adjustPlayJudgePosition1PX = node.second.as<int>(0);
+                    else if (key == "PLAY_JUDGE_POS_1P_Y") adjustPlayJudgePosition2PY = node.second.as<int>(0);
+                    else if (key == "PLAY_JUDGE_POS_2P_X") adjustPlayJudgePosition1PX = node.second.as<int>(0);
+                    else if (key == "PLAY_JUDGE_POS_2P_Y") adjustPlayJudgePosition2PY = node.second.as<int>(0);
+                    else if (key == "PLAY_NOTE_1P_X") adjustPlayNote1PX = node.second.as<int>(0);
+                    else if (key == "PLAY_NOTE_1P_Y") adjustPlayNote1PY = node.second.as<int>(0);
+                    else if (key == "PLAY_NOTE_1P_W") adjustPlayNote1PW = node.second.as<int>(0);
+                    else if (key == "PLAY_NOTE_1P_H") adjustPlayNote1PH = node.second.as<int>(0);
+                    else if (key == "PLAY_NOTE_2P_X") adjustPlayNote2PX = node.second.as<int>(0);
+                    else if (key == "PLAY_NOTE_2P_Y") adjustPlayNote2PY = node.second.as<int>(0);
+                    else if (key == "PLAY_NOTE_2P_W") adjustPlayNote2PW = node.second.as<int>(0);
+                    else if (key == "PLAY_NOTE_2P_H") adjustPlayNote2PH = node.second.as<int>(0);
                 }
             }
             for (auto& itOp : customize)
@@ -4107,9 +4172,17 @@ void SkinLR2::update()
     {
         lift2P = (State::get(IndexNumber::LANECOVER_BOTTOM_2P) / 1000.0) * info.noteLaneHeight2P;
     }
-    gUpdateContext.liftHeight1P = lift1P;
-    gUpdateContext.liftHeight2P = lift2P;
-    if (lift1P > 0)
+
+    int move1PX = adjustPlayJudgePosition1PX;
+    int move1PY = adjustPlayJudgePosition1PY;
+    int move2PX = adjustPlayJudgePosition2PX;
+    int move2PY = adjustPlayJudgePosition2PY;
+    if (adjustPlayJudgePositionLift)
+    {
+        move1PY -= lift1P;
+        move2PY -= lift2P;
+    }
+    if (move1PX != 0 || move1PY != 0)
     {
         for (size_t i = 0; i < 6; ++i)
         {
@@ -4118,7 +4191,7 @@ void SkinLR2::update()
                 std::shared_ptr<SpriteAnimated> judge = std::reinterpret_pointer_cast<SpriteAnimated>(gSprites[i]);
                 if (judge->isDraw() && !judge->isHidden())
                 {
-                    judge->moveAfterUpdate(0, -lift1P);
+                    judge->adjustAfterUpdate(move1PX, move1PY);
                 }
             }
             if (gSprites[i + 6])
@@ -4126,17 +4199,12 @@ void SkinLR2::update()
                 std::shared_ptr<SpriteNumber> combo = std::reinterpret_pointer_cast<SpriteNumber>(gSprites[i + 6]);
                 if (combo->isDraw() && !combo->isHidden())
                 {
-                    combo->moveAfterUpdate(0, -lift1P);
+                    combo->adjustAfterUpdate(move1PX, move1PY);
                 }
             }
         }
-        std::shared_ptr<SpriteAnimated> judgeLine = std::reinterpret_pointer_cast<SpriteAnimated>(gSprites[GLOBAL_SPRITE_IDX_1PJUDGELINE]);
-        if (judgeLine && judgeLine->isDraw() && !judgeLine->isHidden())
-        {
-            judgeLine->moveAfterUpdate(0, -lift1P);
-        }
     }
-    if (lift2P > 0)
+    if (move2PX != 0 || move2PY != 0)
     {
         for (size_t i = 0; i < 6; ++i)
         {
@@ -4145,7 +4213,7 @@ void SkinLR2::update()
                 std::shared_ptr<SpriteAnimated> judge = std::reinterpret_pointer_cast<SpriteAnimated>(gSprites[i + 12]);
                 if (judge->isDraw() && !judge->isHidden())
                 {
-                    judge->moveAfterUpdate(0, -lift2P);
+                    judge->adjustAfterUpdate(move2PX, move2PY);
                 }
             }
             if (gSprites[i + 18])
@@ -4153,28 +4221,70 @@ void SkinLR2::update()
                 std::shared_ptr<SpriteNumber> combo = std::reinterpret_pointer_cast<SpriteNumber>(gSprites[i + 18]);
                 if (combo->isDraw() && !combo->isHidden())
                 {
-                    combo->moveAfterUpdate(0, -lift2P);
+                    combo->adjustAfterUpdate(move2PX, move2PY);
                 }
             }
         }
+    }
+
+    // LIFT: judgeline, sprites
+    move1PX = adjustPlayNote1PX;
+    move1PY = adjustPlayNote1PY - lift1P;
+    move2PX = adjustPlayNote2PX;
+    move2PY = adjustPlayNote2PY - lift2P;
+    if (move1PX != 0 || move1PY != 0)
+    {
+        std::shared_ptr<SpriteAnimated> judgeLine = std::reinterpret_pointer_cast<SpriteAnimated>(gSprites[GLOBAL_SPRITE_IDX_1PJUDGELINE]);
+        if (judgeLine && judgeLine->isDraw() && !judgeLine->isHidden())
+        {
+            judgeLine->adjustAfterUpdate(move1PX, move1PY);
+        }
+
+        for (auto& s : spritesMoveWithLift1P)
+            s->adjustAfterUpdate(move1PX, move1PY);
+    }
+    if (move2PX != 0 || move2PY != 0)
+    {
         std::shared_ptr<SpriteAnimated> judgeLine = std::reinterpret_pointer_cast<SpriteAnimated>(gSprites[GLOBAL_SPRITE_IDX_2PJUDGELINE]);
         if (judgeLine && judgeLine->isDraw() && !judgeLine->isHidden())
         {
-            judgeLine->moveAfterUpdate(0, -lift2P);
+            judgeLine->adjustAfterUpdate(move2PX, move2PY);
         }
+
+        for (auto& s : spritesMoveWithLift2P)
+            s->adjustAfterUpdate(move2PX, move2PY);
     }
 
-    // LIFT: sprites
-    if (lift1P > 0)
-    {
-        for (auto& s : spritesMoveWithLift1P)
-            s->moveAfterUpdate(0, -lift1P);
-    }
-    if (lift2P > 0)
-    {
-        for (auto& s : spritesMoveWithLift2P)
-            s->moveAfterUpdate(0, -lift2P);
-    }
+    // note scale
+    std::for_each(std::execution::par_unseq, drawQueue.begin(), drawQueue.end(), [&](element& e)
+        {
+            auto pS = std::dynamic_pointer_cast<SpriteLaneVertical>(e.ps);
+            if (pS != nullptr)
+            {
+                if (pS->getLane().first == chart::NoteLaneCategory::EXTRA)
+                {
+                    if (pS->getLane().second == chart::NoteLaneExtra::EXTRA_BARLINE_1P)
+                    {
+                        pS->adjustAfterUpdate(move1PX, move1PY, adjustPlayNote1PW, 0);
+                    }
+                    else
+                    {
+                        pS->adjustAfterUpdate(move2PX, move2PY, adjustPlayNote2PW, 0);
+                    }
+                }
+                else
+                {
+                    if (pS->playerSlot == PLAYER_SLOT_PLAYER)
+                    {
+                        pS->adjustAfterUpdate(move1PX, move1PY, adjustPlayNote1PW, adjustPlayNote1PH);
+                    }
+                    else if (pS->playerSlot == PLAYER_SLOT_TARGET)
+                    {
+                        pS->adjustAfterUpdate(move2PX, move2PY, adjustPlayNote2PW, adjustPlayNote2PH);
+                    }
+                }
+            }
+        });
 
     // update songlist bar
     std::shared_lock<std::shared_mutex> u(gSelectContext._mutex, std::try_to_lock); // read lock

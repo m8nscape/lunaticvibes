@@ -139,16 +139,6 @@ void SpriteLaneVertical::updateNoteRect(const Time& t)
 	if (!pNote) return;
 	pNote->update(t);
 
-	int lift = 0;
-	if (playerSlot == PLAYER_SLOT_TARGET && gPlayContext.isBattle)
-	{
-		lift = gUpdateContext.liftHeight2P;
-	}
-	else
-	{
-		lift = gUpdateContext.liftHeight1P;
-	}
-
 	if (gPlayContext.mods[playerSlot].hispeedFix != eModHs::CONSTANT)
 	{
 		// fetch note size, c.y + c.h = judge line pos (top-left corner), -c.h = height start drawing
@@ -158,15 +148,15 @@ void SpriteLaneVertical::updateNoteRect(const Time& t)
 		// generate note rects and store to buffer
 		// 120BPM with 1.0x HS is 2000ms (500ms/beat, green number 1200)
 		// !!! scroll height should not affected by note height
-		int y = (c.y + c.h) - lift;
+		int y = (c.y + c.h);
 		auto it = pChart->incomingNote(_category, _index);
 		while (!pChart->isLastNote(_category, _index, it) && y >= 0)
 		{
 			auto noteMetreOffset = currTotalMetre - it->pos.toDouble();
 			if (noteMetreOffset >= 0)
-				y = (c.y + c.h) - lift; // expired notes stay on judge line, LR2 / pre RA behavior
+				y = (c.y + c.h); // expired notes stay on judge line, LR2 / pre RA behavior
 			else
-				y = (c.y + c.h) - lift - static_cast<int>(std::floor(-noteMetreOffset * _noteAreaHeight * _basespd * _hispeed));
+				y = (c.y + c.h) - static_cast<int>(std::floor(-noteMetreOffset * _noteAreaHeight * _basespd * _hispeed));
 			it++;
 			_outRect.push_front({ c.x, y, c.w, -c.h });
 		}
@@ -180,15 +170,15 @@ void SpriteLaneVertical::updateNoteRect(const Time& t)
 		// generate note rects and store to buffer
 		// CONSTANT: generate note rects with timestamp (BPM=150)
 		// 150BPM with 1.0x HS is 1600ms (400ms/beat, green number 960)
-		int y = (c.y + c.h) - lift;
+		int y = (c.y + c.h);
 		auto it = pChart->incomingNote(_category, _index);
 		while (!pChart->isLastNote(_category, _index, it) && y >= 0)
 		{
 			auto noteTimeOffset = currTimestamp - it->time.norm();
 			if (noteTimeOffset >= 0)
-				y = (c.y + c.h) - lift; // expired notes stay on judge line, LR2 / pre RA behavior
+				y = (c.y + c.h); // expired notes stay on judge line, LR2 / pre RA behavior
 			else
-				y = (c.y + c.h) - lift - static_cast<int>(std::floor(-noteTimeOffset / 1600.0 * _noteAreaHeight * _basespd * _hispeed));
+				y = (c.y + c.h) - static_cast<int>(std::floor(-noteTimeOffset / 1600.0 * _noteAreaHeight * _basespd * _hispeed));
 			it++;
 			_outRect.push_front({ c.x, y, c.w, -c.h });
 		}
@@ -218,6 +208,17 @@ void SpriteLaneVertical::draw() const
 			_hiddenCompatibleArea, _hiddenCompatibleArea,
 			Color(0xffffffff), BlendMode::ALPHA, false, 0
 		);
+	}
+}
+
+void SpriteLaneVertical::adjustAfterUpdate(int x, int y, int w, int h)
+{
+	for (auto& r : _outRect)
+	{
+		r.x += x - w;
+		r.y += y - h;
+		r.w += w * 2;
+		r.h += h * 2;
 	}
 }
 
@@ -291,15 +292,6 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 
 	if (pNoteTail) pNoteTail->update(t);
 
-	int lift = 0;
-	if (playerSlot == PLAYER_SLOT_TARGET && gPlayContext.isBattle)
-	{
-		lift = gUpdateContext.liftHeight2P;
-	}
-	else
-	{
-		lift = gUpdateContext.liftHeight1P;
-	}
 
 	if (gPlayContext.mods[playerSlot].hispeedFix != eModHs::CONSTANT)
 	{
@@ -309,7 +301,7 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 
 		// generate note rects and store to buffer
 		// 120BPM with 1.0x HS is 2000ms (500ms/beat, green number 1200)
-		int head_y_actual = c.y + c.h - lift;
+		int head_y_actual = c.y + c.h;
 		auto it = pChart->incomingNote(_category, _index);
 
 		if (!pChart->isLastNote(_category, _index, it))
@@ -344,19 +336,19 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 
 		while (!pChart->isLastNote(_category, _index, it) && head_y_actual >= 0)
 		{
-			int head_y = c.y + c.h - lift;
+			int head_y = c.y + c.h;
 			int tail_y = 0;
 
 			if (it->flags & Note::LN_TAIL)
 			{
-				head_y_actual = c.y + c.h - lift;
+				head_y_actual = c.y + c.h;
 
 				const auto& tail = *it;
 				auto tailMetreOffset = currTotalMetre - tail.pos.toDouble();
 				if (tailMetreOffset >= 0)
-					tail_y = (c.y + c.h) - lift; // expired notes stay on judge line, LR2 / pre RA behavior
+					tail_y = (c.y + c.h); // expired notes stay on judge line, LR2 / pre RA behavior
 				else
-					tail_y = (c.y + c.h) - lift - static_cast<int>(std::floor(-tailMetreOffset * _noteAreaHeight * _basespd * _hispeed));
+					tail_y = (c.y + c.h) - static_cast<int>(std::floor(-tailMetreOffset * _noteAreaHeight * _basespd * _hispeed));
 
 				++it;
 			}
@@ -369,14 +361,14 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 				const auto& tail = *it;
 
 				auto headMetreOffset = currTotalMetre - head.pos.toDouble();
-				head_y_actual = (c.y + c.h) - lift - static_cast<int>(std::floor(-headMetreOffset * _noteAreaHeight * _basespd * _hispeed));
+				head_y_actual = (c.y + c.h) - static_cast<int>(std::floor(-headMetreOffset * _noteAreaHeight * _basespd * _hispeed));
 				if (head_y_actual < head_y) head_y = head_y_actual;
 
 				auto tailMetreOffset = currTotalMetre - tail.pos.toDouble();
 				if (tailMetreOffset >= 0)
-					tail_y = (c.y + c.h) - lift; // expired notes stay on judge line, LR2 / pre RA behavior
+					tail_y = (c.y + c.h); // expired notes stay on judge line, LR2 / pre RA behavior
 				else
-					tail_y = (c.y + c.h) - lift - static_cast<int>(std::floor(-tailMetreOffset * _noteAreaHeight * _basespd * _hispeed));
+					tail_y = (c.y + c.h) - static_cast<int>(std::floor(-tailMetreOffset * _noteAreaHeight * _basespd * _hispeed));
 
 				++it;
 			}
@@ -395,7 +387,7 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 		// generate note rects and store to buffer
 		// CONSTANT: generate note rects with timestamp (BPM=150)
 		// 150BPM with 1.0x HS is 1600ms (400ms/beat, green number 960)
-		int head_y_actual = c.y + c.h - lift;
+		int head_y_actual = c.y + c.h;
 		auto it = pChart->incomingNote(_category, _index);
 
 		if (!pChart->isLastNote(_category, _index, it))
@@ -430,16 +422,16 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 
 		while (!pChart->isLastNote(_category, _index, it) && head_y_actual >= 0)
 		{
-			int head_y = c.y + c.h - lift;
+			int head_y = c.y + c.h;
 			int tail_y = 0;
 
 			if (it->flags & Note::LN_TAIL)
 			{
-				head_y_actual = c.y + c.h - lift;
+				head_y_actual = c.y + c.h;
 
 				const auto& tail = *it;
 				auto tailTimeOffset = currTimestamp - tail.time.norm();
-				tail_y = (c.y + c.h) - lift - static_cast<int>(std::floor(-tailTimeOffset / 1600.0 * _noteAreaHeight * _basespd * _hispeed));
+				tail_y = (c.y + c.h) - static_cast<int>(std::floor(-tailTimeOffset / 1600.0 * _noteAreaHeight * _basespd * _hispeed));
 
 				++it;
 			}
@@ -452,11 +444,11 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 				const auto& tail = *it;
 
 				auto headTimeOffset = currTimestamp - head.time.norm();
-				head_y_actual = (c.y + c.h) - lift - static_cast<int>(std::floor(-headTimeOffset / 1600.0 * _noteAreaHeight * _basespd * _hispeed));
+				head_y_actual = (c.y + c.h) - static_cast<int>(std::floor(-headTimeOffset / 1600.0 * _noteAreaHeight * _basespd * _hispeed));
 				if (head_y_actual < head_y) head_y = head_y_actual;
 
 				auto tailTimeOffset = currTimestamp - tail.time.norm();
-				tail_y = (c.y + c.h) - lift - static_cast<int>(std::floor(-tailTimeOffset / 1600.0 * _noteAreaHeight * _basespd * _hispeed));
+				tail_y = (c.y + c.h) - static_cast<int>(std::floor(-tailTimeOffset / 1600.0 * _noteAreaHeight * _basespd * _hispeed));
 
 				++it;
 			}
@@ -558,5 +550,29 @@ void SpriteLaneVerticalLN::draw() const
 			_hiddenCompatibleArea, _hiddenCompatibleArea,
 			Color(0xffffffff), BlendMode::ALPHA, false, 0
 		);
+	}
+}
+
+void SpriteLaneVerticalLN::adjustAfterUpdate(int x, int y, int w, int h)
+{
+	for (auto& r : _outRect)
+	{
+		r.x += x - w;
+		r.y += y - h;
+		r.w += w * 2;
+		r.h += h * 2;
+	}
+	for (auto& r : _outRectBody)
+	{
+		r.x += x - w;
+		r.y += y;
+		r.w += w * 2;
+	}
+	for (auto& r : _outRectTail)
+	{
+		r.x += x - w;
+		r.y += y - h;
+		r.w += w * 2;
+		r.h += h * 2;
 	}
 }

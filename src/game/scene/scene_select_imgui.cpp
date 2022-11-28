@@ -147,15 +147,22 @@ void SceneSelect::_imguiInit()
     }
 }
 
+
+void SceneSelect::_updateImgui()
+{
+    vScene::_updateImgui();
+    if (gNextScene != eScene::SELECT) return;
+
+    _imguiSettings();
+}
+
+
 #ifdef WIN32
 #include <ShlObj.h>
 #include <ShlObj_core.h>
 #endif
 void SceneSelect::_imguiSettings()
 {
-    assert(IsMainThread());
-    if (gNextScene != eScene::SELECT) return;
-
     using namespace i18nText;
 
     if (imguiShow)

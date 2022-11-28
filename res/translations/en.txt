@@ -114,3 +114,17 @@ Input polling frequency
 Input Folder Path Here
 Input Table URL Here (with http://, https://)
 This works over Windows Timer, of which the minimum interval is 0.5ms (1ms for Win7).
+Move Judge with LIFT
+1P Judge Position (x)
+1P Judge Position (y)
+2P Judge Position (w)
+2P Judge Position (y)
+1P Note Position (x)
+1P Note Position (y)
+1P Note Size (w)
+1P Note Size (y)
+2P Note Position (x)
+2P Note Position (y)
+2P Note Size (w)
+2P Note Size (h)
+Reset

@@ -951,13 +951,6 @@ void SceneSelect::update()
         _virtualSceneLoadSongs->update();
 }
 
-void SceneSelect::_updateImgui()
-{
-    vScene::_updateImgui();
-
-    _imguiSettings();
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 // CALLBACK

@@ -44,6 +44,7 @@ public:
 	virtual bool update(const Time& t);
     virtual void updateNoteRect(const Time& t);
     virtual void draw() const;
+    virtual void adjustAfterUpdate(int x, int y, int w = 0, int h = 0) override;
 
 protected:
     bool _hiddenCompatible = false;
@@ -76,4 +77,5 @@ public:
 public:
     virtual void updateNoteRect(const Time& t) override;
     virtual void draw() const;
+    virtual void adjustAfterUpdate(int x, int y, int w = 0, int h = 0) override;
 };

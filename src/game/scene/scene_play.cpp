@@ -484,6 +484,8 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     _input.register_h("SCENE_HOLD", std::bind(&ScenePlay::inputGameHold, this, _1, _2));
     _input.register_r("SCENE_RELEASE", std::bind(&ScenePlay::inputGameRelease, this, _1, _2));
     _input.register_a("SCENE_AXIS", std::bind(&ScenePlay::inputGameAxis, this, _1, _2, _3));
+
+    imguiInit();
 }
 
 void ScenePlay::clearGlobalDatas()
@@ -754,7 +756,7 @@ bool ScenePlay::createRuleset()
             gPlayContext.ruleset[PLAYER_SLOT_PLAYER] = std::make_shared<RulesetBMSAuto>(
                 gChartContext.chartObj, gPlayContext.chartObj[PLAYER_SLOT_PLAYER],
                 gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge, keys, judgeDiff,
-                gPlayContext.initialHealth[PLAYER_SLOT_PLAYER], RulesetBMS::PlaySide::AUTO);
+                gPlayContext.initialHealth[PLAYER_SLOT_PLAYER], (keys == 10 || keys == 14) ? RulesetBMS::PlaySide::AUTO_DOUBLE : RulesetBMS::PlaySide::AUTO);
 
             if (gPlayContext.isBattle)
             {
@@ -3212,9 +3214,19 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
     }
 
     auto holding = _input.Holding();
-    if (_state != ePlayState::FADEOUT && input[Input::ESC])
+    if (_state != ePlayState::FADEOUT)
     {
-        requestExit();
+        if (input[Input::F1])
+        {
+            imguiShowAdjustMenu = !imguiShowAdjustMenu;
+        }
+        if (input[Input::ESC])
+        {
+            if (imguiShowAdjustMenu) 
+                imguiShowAdjustMenu = false;
+            else
+                requestExit();
+        }
     }
 }
 

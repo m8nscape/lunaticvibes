@@ -54,6 +54,7 @@ add_library(gamelib
     scene/scene_select_imgui.cpp
     scene/scene_play_retry_trans.cpp
     scene/scene_exit_trans.cpp
+    scene/scene_play_imgui.cpp
     skin/skin.cpp
     skin/skin_lr2.cpp
     skin/skin_lr2_button_callbacks.cpp
@@ -69,7 +70,7 @@ add_library(gamelib
     sound/soundset.cpp
     sound/soundset_lr2.cpp
     replay/replay_chart.cpp
-  "runtime/i18n.cpp")
+    runtime/i18n.cpp)
 
 if (UNIX OR MINGW)
     target_link_libraries(gamelib PRIVATE -lpthread)
