@@ -498,6 +498,7 @@ void SceneSelect::_updateAsync()
         case eEntryType::FOLDER:
         case eEntryType::CUSTOM_FOLDER:
         case eEntryType::COURSE_FOLDER:
+        case eEntryType::NEW_SONG_FOLDER:
             _navigateEnter(t);
             break;
 
@@ -1325,6 +1326,7 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
         case eEntryType::FOLDER:
         case eEntryType::CUSTOM_FOLDER:
         case eEntryType::COURSE_FOLDER:
+        case eEntryType::NEW_SONG_FOLDER:
             if (bindings9K && (input & INPUT_MASK_DECIDE_9K).any() || !bindings9K && (input & INPUT_MASK_DECIDE).any())
                 return _navigateEnter(t);
             break;
@@ -2274,6 +2276,51 @@ void SceneSelect::_navigateEnter(const Time& t)
                 auto pCourse = top->getEntry(i);
                 prop.dbBrowseEntries.push_back({ pCourse, nullptr });
             }
+
+            gSelectContext.backtrace.top().index = gSelectContext.idx;
+            gSelectContext.backtrace.top().displayEntries = gSelectContext.entries;
+            gSelectContext.backtrace.push(prop);
+            gSelectContext.entries.clear();
+            loadSongList();
+            sortSongList();
+            gSelectContext.idx = 0;
+
+            setBarInfo();
+            setEntryInfo();
+
+            if (!gSelectContext.entries.empty())
+            {
+                State::set(IndexSlider::SELECT_LIST, (double)gSelectContext.idx / gSelectContext.entries.size());
+            }
+            else
+            {
+                State::set(IndexSlider::SELECT_LIST, 0.0);
+            }
+
+            resetJukeboxText();
+
+            scrollAccumulator = 0.;
+            scrollAccumulatorAddUnit = 0.;
+
+            State::set(IndexTimer::LIST_MOVE, Time().norm());
+            SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_OPEN);
+            break;
+        }
+
+        case eEntryType::NEW_SONG_FOLDER:
+        {
+            SongListProperties prop{
+                gSelectContext.backtrace.top().folder,
+                e->md5,
+                e->_name,
+                {},
+                {},
+                0
+            };
+            auto top = std::dynamic_pointer_cast<EntryFolderNewSong>(e);
+            assert(top != nullptr);
+            for (size_t i = 0; i < top->getContentsCount(); ++i)
+                prop.dbBrowseEntries.push_back({ top->getEntry(i), nullptr });
 
             gSelectContext.backtrace.top().index = gSelectContext.idx;
             gSelectContext.backtrace.top().displayEntries = gSelectContext.entries;

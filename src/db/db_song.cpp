@@ -479,6 +479,57 @@ std::vector<pChartFormat> SongDB::findChartByHash(const HashMD5& target) const
 
 }
 
+// chart may duplicate, return all found
+std::vector<pChartFormat> SongDB::findChartFromTime(const HashMD5& folder, unsigned long long addTime) const
+{
+    LOG_INFO << "[SongDB] Search from epoch time " << addTime;
+
+    std::stringstream ss;
+    ss << "SELECT * FROM song WHERE ";
+    if (folder != ROOT_FOLDER_HASH)
+        ss << "parent=" << folder.hexdigest() << " AND ";
+    ss << "addtime>=?";
+
+    std::string strSql = ss.str();
+    auto result = query(strSql.c_str(), SONG_PARAM_COUNT, { (long long)addTime });
+
+    std::vector<pChartFormat> ret;
+    for (const auto& r : result)
+    {
+        switch (eChartFormat(ANY_INT(r[3])))
+        {
+        case eChartFormat::BMS:
+        {
+            auto p = std::make_shared<ChartFormatBMSMeta>();
+            if (convert_bms(p, r))
+            {
+                if (p->filePath.is_absolute())
+                {
+                    p->absolutePath = p->filePath;
+                    ret.push_back(p);
+                }
+                else
+                {
+                    auto& [hasFolderPath, folderPath] = getFolderPath(p->folderHash);
+                    if (hasFolderPath)
+                    {
+                        p->absolutePath = folderPath / p->filePath;
+                        ret.push_back(p);
+                    }
+                }
+            }
+            break;
+        }
+
+        default: break;
+        }
+    }
+
+    LOG_INFO << "[SongDB] found " << ret.size() << " songs";
+    return ret;
+
+}
+
 int SongDB::addFolders(const std::vector<Path>& paths)
 {
     resetAddSummary();

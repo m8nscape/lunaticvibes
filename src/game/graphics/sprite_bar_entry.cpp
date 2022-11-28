@@ -208,12 +208,17 @@ bool SpriteBarEntry::update(Time time)
         drawBodyOn = (index == gSelectContext.cursor);
 
         // check new song
-        bool isNewEntry = (pEntry->_addTime > std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count() - State::get(IndexNumber::NEW_ENTRY_SECONDS));
+        bool isNewEntry = false;
+        if (pEntry->type() == eEntryType::NEW_SONG_FOLDER)
+            isNewEntry = true;
+        else
+            isNewEntry = (pEntry->_addTime > std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count() - State::get(IndexNumber::NEW_ENTRY_SECONDS));
 
         static const std::map<eEntryType, size_t> BAR_TYPE_MAP =
         {
             {eEntryType::UNKNOWN, (size_t)BarType::SONG},
             {eEntryType::FOLDER, (size_t)BarType::FOLDER},
+            {eEntryType::NEW_SONG_FOLDER, (size_t)BarType::NEW_SONG_FOLDER},
             {eEntryType::CUSTOM_FOLDER, (size_t)BarType::CUSTOM_FOLDER},
             {eEntryType::COURSE_FOLDER, (size_t)BarType::COURSE_FOLDER},
             {eEntryType::SONG, (size_t)BarType::SONG},
@@ -228,17 +233,9 @@ bool SpriteBarEntry::update(Time time)
         size_t barTypeIdx = (size_t)BarType::SONG;
         if (BAR_TYPE_MAP.find(pEntry->type()) != BAR_TYPE_MAP.end())
             barTypeIdx = BAR_TYPE_MAP.at(pEntry->type());
-        if (isNewEntry)
+        if (isNewEntry && (BarType)barTypeIdx == BarType::SONG)
         {
-            switch ((BarType)barTypeIdx)
-            {
-            case BarType::SONG:
-                barTypeIdx = (size_t)BarType::NEW_SONG;
-                break;
-
-            default:
-                break;
-            }
+            barTypeIdx = (size_t)BarType::NEW_SONG;
         }
         pSprite pBody = nullptr;
         if (!drawBodyOn && sBodyOff[barTypeIdx])

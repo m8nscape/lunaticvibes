@@ -6,11 +6,12 @@
 enum eEntryType
 {
     UNKNOWN,
+    NEW_SONG_FOLDER,
     FOLDER,
-    CUSTOM_FOLDER,
-    COURSE_FOLDER,
     SONG,   // all charts in folder
     CHART,  // one chart in folder
+    CUSTOM_FOLDER,
+    COURSE_FOLDER,
     RIVAL,
     RIVAL_SONG,
     RIVAL_CHART,

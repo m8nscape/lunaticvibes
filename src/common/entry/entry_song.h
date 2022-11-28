@@ -59,3 +59,18 @@ public:
 
     std::shared_ptr<EntryFolderSong> getSongEntry() const { return _song; }
 };
+
+
+// entry for individual song, e.g. jukebox/bms/L9
+class EntryFolderNewSong : public EntryFolderRegular
+{
+public:
+    EntryFolderNewSong() = delete;
+    EntryFolderNewSong(const StringContent& name, const StringContent& name2 = "") :
+        EntryFolderRegular(HashMD5(""), "")
+    {
+        _type = eEntryType::NEW_SONG_FOLDER;
+        _name = name;
+        _name2 = name2;
+    }
+};

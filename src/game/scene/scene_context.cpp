@@ -426,7 +426,7 @@ void sortSongList()
             auto& rhs = entry2.first;
             if (lhs->type() != rhs->type())
             {
-                return lhs->type() > rhs->type();
+                return lhs->type() < rhs->type();
             }
             else if (lhs->type() == eEntryType::CUSTOM_FOLDER)
             {
