@@ -170,6 +170,7 @@ protected:
     GaugeType _gauge = GaugeType::GROOVE;
 
     double moneyScore = 0.0;
+    double maxMoneyScore = 200000.0;
     unsigned exScore = 0;
 
     std::map<JudgeType, double> _healthGain;

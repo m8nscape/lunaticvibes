@@ -275,6 +275,17 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
     default: break;
     }
 
+    switch (keys)
+    {
+    case 7:
+    case 14: maxMoneyScore = 200000.0; break;
+    case 5:
+    case 10:
+    case 9:  maxMoneyScore = 100000.0; break;
+    default: break;
+    }
+
+
     using namespace std::string_literals;
 
     _basic.health = health;
@@ -933,24 +944,27 @@ void RulesetBMS::updateJudge(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeA
         case JudgeArea::EARLY_PERFECT:
         case JudgeArea::EXACT_PERFECT:
         case JudgeArea::LATE_PERFECT:
-            moneyScore += 1.0 * 150000 / getNoteCount() +
-                1.0 * std::min(int(_basic.combo) - 1, 10) * 50000 / (10 * getNoteCount() - 55);
+            //moneyScore += 150000.0 / getNoteCount() +
+            //    std::min(int(_basic.combo) - 1, 10) * 50000.0 / (10 * getNoteCount() - 55);
+            moneyScore += 1.0 * maxMoneyScore / getNoteCount();
             exScore += 2;
             ++_basic.combo;
             break;
 
         case JudgeArea::EARLY_GREAT:
         case JudgeArea::LATE_GREAT:
-            moneyScore += 1.0 * 100000 / getNoteCount() +
-                1.0 * std::min(int(_basic.combo) - 1, 10) * 50000 / (10 * getNoteCount() - 55);
+            //moneyScore += 100000.0 / getNoteCount() +
+            //    std::min(int(_basic.combo) - 1, 10) * 50000.0 / (10 * getNoteCount() - 55);
+            moneyScore += 0.5 * maxMoneyScore / getNoteCount();
             exScore += 1;
             ++_basic.combo;
             break;
 
         case JudgeArea::EARLY_GOOD:
         case JudgeArea::LATE_GOOD:
-            moneyScore += 1.0 * 20000 / getNoteCount() +
-                1.0 * std::min(int(_basic.combo) - 1, 10) * 50000 / (10 * getNoteCount() - 55);
+            //moneyScore += 20000.0 / getNoteCount() +
+            //    std::min(int(_basic.combo) - 1, 10) * 50000.0 / (10 * getNoteCount() - 55);
+            moneyScore += 0.25 * maxMoneyScore / getNoteCount();
             ++_basic.combo;
             break;
 
@@ -1532,7 +1546,7 @@ void RulesetBMS::updateGlobals()
         State::set(IndexBargraph::PLAY_EXSCORE, _basic.total_acc / 100.0);
         State::set(IndexBargraph::PLAY_EXSCORE_PREDICT, _basic.acc / 100.0);
 
-        State::set(IndexNumber::PLAY_1P_SCORE, int(std::floor(moneyScore)));
+        State::set(IndexNumber::PLAY_1P_SCORE, int(std::round(moneyScore)));
         State::set(IndexNumber::PLAY_1P_EXSCORE, exScore);
         State::set(IndexNumber::PLAY_1P_NOWCOMBO, _basic.combo + _basic.comboDisplay);
         State::set(IndexNumber::PLAY_1P_MAXCOMBO, _basic.maxComboDisplay);
@@ -1616,7 +1630,7 @@ void RulesetBMS::updateGlobals()
         State::set(IndexBargraph::RESULT_BD, (double)_basic.judge[JUDGE_BAD] / getNoteCount());
         State::set(IndexBargraph::RESULT_PR, (double)_basic.judge[JUDGE_POOR] / getNoteCount());
         State::set(IndexBargraph::RESULT_MAXCOMBO, (double)_basic.maxCombo / getMaxCombo());
-        State::set(IndexBargraph::RESULT_SCORE, moneyScore / 200000);
+        State::set(IndexBargraph::RESULT_SCORE, moneyScore / maxMoneyScore);
         State::set(IndexBargraph::RESULT_EXSCORE, (double)exScore / getMaxScore());
         State::set(IndexBargraph::PLAY_1P_FAST_COUNT, (double)_basic.judge[JUDGE_EARLY] / getNoteCount());
         State::set(IndexBargraph::PLAY_1P_SLOW_COUNT, (double)_basic.judge[JUDGE_LATE] / getNoteCount());
@@ -1646,7 +1660,7 @@ void RulesetBMS::updateGlobals()
     {
         State::set(IndexBargraph::PLAY_RIVAL_EXSCORE, _basic.total_acc / 100.0);
         
-        State::set(IndexNumber::PLAY_2P_SCORE, int(std::floor(moneyScore)));
+        State::set(IndexNumber::PLAY_2P_SCORE, int(std::round(moneyScore)));
         State::set(IndexNumber::PLAY_2P_EXSCORE, exScore);
         State::set(IndexNumber::PLAY_2P_NOWCOMBO, _basic.combo + _basic.comboDisplay);
         State::set(IndexNumber::PLAY_2P_MAXCOMBO, _basic.maxComboDisplay);
@@ -1701,7 +1715,7 @@ void RulesetBMS::updateGlobals()
         State::set(IndexBargraph::RESULT_RIVAL_BD, (double)_basic.judge[JUDGE_BAD] / getNoteCount());
         State::set(IndexBargraph::RESULT_RIVAL_PR, (double)_basic.judge[JUDGE_POOR] / getNoteCount());
         State::set(IndexBargraph::RESULT_RIVAL_MAXCOMBO, (double)_basic.maxCombo / getMaxCombo());
-        State::set(IndexBargraph::RESULT_RIVAL_SCORE, moneyScore / 200000);
+        State::set(IndexBargraph::RESULT_RIVAL_SCORE, moneyScore / maxMoneyScore);
         State::set(IndexBargraph::RESULT_RIVAL_EXSCORE, (double)exScore / getMaxScore());
         State::set(IndexBargraph::PLAY_2P_FAST_COUNT, (double)_basic.judge[JUDGE_EARLY] / getNoteCount());
         State::set(IndexBargraph::PLAY_2P_SLOW_COUNT, (double)_basic.judge[JUDGE_LATE] / getNoteCount());

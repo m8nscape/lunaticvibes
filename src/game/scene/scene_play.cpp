@@ -2484,14 +2484,12 @@ void ScenePlay::updatePlaying()
                         State::set(IndexTimer::PLAY_FULLCOMBO_2P, t.norm());
                     }
                 }
-                else
-                {
-                    State::set(IndexTimer::PLAY_P1_FINISHED, t.norm());
 
-                    if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().combo == gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getMaxCombo())
-                    {
-                        State::set(IndexTimer::PLAY_FULLCOMBO_1P, t.norm());
-                    }
+                State::set(IndexTimer::PLAY_P1_FINISHED, t.norm());
+
+                if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().combo == gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getMaxCombo())
+                {
+                    State::set(IndexTimer::PLAY_FULLCOMBO_1P, t.norm());
                 }
 
                 _isPlayerFinished[PLAYER_SLOT_PLAYER] = true;
