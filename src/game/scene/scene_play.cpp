@@ -125,7 +125,7 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
 
     gPlayContext.shift1PNotes5KFor7KSkin = false;
     gPlayContext.shift2PNotes5KFor7KSkin = false;
-    if ((_skin->info.mode == eMode::PLAY7 || _skin->info.mode == eMode::PLAY7_2) &&
+    if ((_skin->info.mode == eMode::PLAY7 || _skin->info.mode == eMode::PLAY7_2 || _skin->info.mode == eMode::PLAY14) &&
         (State::get(IndexOption::CHART_PLAY_KEYS) == Option::KEYS_5 || State::get(IndexOption::CHART_PLAY_KEYS) == Option::KEYS_10))
     {
         gPlayContext.shift1PNotes5KFor7KSkin = (_skin->info.scratchSide1P == 1);
