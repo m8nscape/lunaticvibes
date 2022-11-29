@@ -1,7 +1,7 @@
 #INFORMATION,testskin,testcreator
 #ENDOFHEADER
 
-#IF,0
+#IF,0,
 // true
 
 //SRC¶¨Áx,(NULL),gr,x,y,w,h,div_x,div_y,cycle,timer,op1,op2,op3,,,,,,,,

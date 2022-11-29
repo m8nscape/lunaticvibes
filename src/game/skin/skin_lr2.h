@@ -1555,6 +1555,8 @@ private:
 
     Path getCustomizePath(StringContentView input);
 
+    Tokens SkinLR2::csvLineTokenize(const std::string& raw);
+
     int IMAGE();
     int INCLUDE();
     int LR2FONT();

@@ -656,23 +656,12 @@ Tokens csvLineTokenizeSimple(const std::string& raw)
     return res;
 }
 
-Tokens csvLineTokenize(const std::string& raw)
+Tokens csvLineTokenizeRegex(const std::string& raw)
 {
-    if (size_t commentIdx = raw.find("//"); commentIdx != raw.npos)
-    {
-        return csvLineTokenize(raw.substr(0, commentIdx));
-    }
-
-    if (raw.find('\\') == raw.npos)
-    {
-        return csvLineTokenizeSimple(raw);
-    }
-
-    StringContentView linecsv = csvLineNormalize(raw);
-    if (linecsv.empty()) return {};
-
     Tokens res;
     res.reserve(32);
+    StringContentView linecsv = csvLineNormalize(raw);
+    if (linecsv.empty()) return {};
 
     auto lineBuf = re2::StringPiece(linecsv.data(), linecsv.length());
     static const LazyRE2 re{ R"(((?:(?:\\,)|[^,])*?)(?:,|$))" };
@@ -681,7 +670,6 @@ Tokens csvLineTokenize(const std::string& raw)
     {
         res.push_back(token);
     }
-
     return res;
 }
 
@@ -751,6 +739,41 @@ Path SkinLR2::getCustomizePath(StringContentView input)
 
     // Normal path
     return path;
+}
+
+
+Tokens SkinLR2::csvLineTokenize(const std::string& raw)
+{
+    Tokens res;
+    res.reserve(32);
+    if (size_t commentIdx = raw.find("//"); commentIdx != raw.npos)
+    {
+        res = csvLineTokenize(raw.substr(0, commentIdx));
+    }
+    else if (raw.find('\\') == raw.npos)
+    {
+        res = csvLineTokenizeSimple(raw);
+    }
+    else
+    {
+        res = csvLineTokenizeRegex(raw);
+    }
+
+    // #ELSE
+    if (res.size() == 1 && strEqual(res[0], "#ELSE", true))
+    {
+        LOG_WARNING << "[Skin] Ignored #ELSE without trailing comma. Line: " << csvLineNumber;
+        res.clear();
+    }
+
+    // last param
+    if (!res.empty() && res.back().length() == 1)
+    {
+        LOG_WARNING << "[Skin] Ignored last parameter with 1 character long. Don't forget the trailing comma! Line: " << csvLineNumber;
+        res.pop_back();
+    }
+
+    return res;
 }
 
 
@@ -3210,6 +3233,12 @@ int SkinLR2::parseBody(const Tokens &raw)
 
 void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc, bool ifUnsatisfied, bool skipOnly)
 {
+    if (t.size() <= 1)
+    {
+        LOG_WARNING << "[Skin] " << csvLineNumber << ": No IF parameters, ignoring. " << " (Line " << csvLineNumber << ")";
+        return;
+    }
+
     if (skipOnly)
     {
         // only look for #ENDIF, skip the whole sub #IF block
@@ -3244,11 +3273,6 @@ void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc, bool
     }
     else
     {
-        if (t.size() <= 1)
-        {
-            LOG_WARNING << "[Skin] " << csvLineNumber << ": No IF parameters " << " (Line " << csvLineNumber << ")";
-        }
-
         // get dst indexes
         ifStmtTrue = true;
         size_t argCount = 0;
