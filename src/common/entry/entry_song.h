@@ -9,25 +9,36 @@ class EntryFolderSong : public EntryFolderBase
 {
 public:
     EntryFolderSong() = delete;
-    EntryFolderSong(HashMD5 md5, const Path& path, const StringContent& name = "", const StringContent& name2 = "") :
-        EntryFolderBase(md5, path)
+    EntryFolderSong(HashMD5 md5, const Path& path, StringContentView name = "", StringContentView name2 = "") :
+        EntryFolderBase(md5, name, name2), _path(path)
     {
         _type = eEntryType::SONG;
-        _name = name;
-        _name2 = name2;
+    }
+    EntryFolderSong(std::shared_ptr<ChartFormatBase> pChart):
+        EntryFolderBase(pChart->fileHash, pChart->title, pChart->title2), _path(pChart->filePath)
+    {
+        pushChart(pChart);
+        _type = eEntryType::SONG;
     }
 
 protected:
+    Path _path;
     std::vector<std::shared_ptr<ChartFormatBase>> charts;
     size_t idx = 0;
 
+private:
+    virtual std::shared_ptr<EntryBase> getEntry(size_t idx) { return nullptr; }
+    virtual void pushEntry(std::shared_ptr<EntryBase> f) {}
+
 public:
+    virtual Path getPath() { return _path; }
+    virtual size_t getContentsCount() { return charts.size(); }
+    virtual bool empty() { return charts.empty(); }
+
     std::shared_ptr<ChartFormatBase> getChart(size_t idx);
     std::shared_ptr<ChartFormatBase> getCurrentChart();
     size_t incCurrentChart();
     void pushChart(std::shared_ptr<ChartFormatBase> c);
-    virtual size_t getContentsCount() { return charts.size(); }
-    virtual bool empty() { return charts.empty(); }
 
 protected:
     std::map<int, std::map<unsigned, std::vector<std::shared_ptr<ChartFormatBase>>>> chartMap;
@@ -60,17 +71,32 @@ public:
     std::shared_ptr<EntryFolderSong> getSongEntry() const { return _song; }
 };
 
+class ChartFormatBase;
+class EntryFolderRegular : public EntryFolderBase
+{
+public:
+    EntryFolderRegular() = delete;
+    EntryFolderRegular(HashMD5 md5, const Path& path, StringContentView name = "", StringContentView name2 = "") :
+        EntryFolderBase(md5, name, name2), _path(path)
+    {
+        _type = eEntryType::FOLDER;
+    }
+
+protected:
+    Path _path;
+
+public:
+    virtual Path getPath() { return _path; }
+};
 
 // entry for individual song, e.g. jukebox/bms/L9
 class EntryFolderNewSong : public EntryFolderRegular
 {
 public:
     EntryFolderNewSong() = delete;
-    EntryFolderNewSong(const StringContent& name, const StringContent& name2 = "") :
-        EntryFolderRegular(HashMD5(""), "")
+    EntryFolderNewSong(StringContentView name, StringContentView name2 = "") :
+        EntryFolderRegular(HashMD5(""), "", name, name2)
     {
         _type = eEntryType::NEW_SONG_FOLDER;
-        _name = name;
-        _name2 = name2;
     }
 };

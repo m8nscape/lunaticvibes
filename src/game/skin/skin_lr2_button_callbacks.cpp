@@ -1296,6 +1296,11 @@ void skinselect_option(int index, int plus)
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
+void help(int index)
+{
+    // TODO #SRC_README, #HELPFILE
+}
+
 #pragma endregion
 
 std::function<void(int)> getButtonCallback(int type)
@@ -1528,6 +1533,22 @@ std::function<void(int)> getButtonCallback(int type)
     case 190:
         return std::bind(skinselect_skin, _1);
 
+    case 200:
+    case 201:
+    case 202:
+    case 203:
+    case 204:
+    case 205:
+    case 206:
+    case 207:
+    case 208:
+    case 209:
+        return std::bind(help, type - 200);
+
+    case 210:
+        // IR page
+        break;
+
     case 220:
     case 221:
     case 222:
@@ -1539,6 +1560,7 @@ std::function<void(int)> getButtonCallback(int type)
     case 228:
     case 229:
         return std::bind(skinselect_option, type - 220, _1);
+
     }
     return [](bool) {};
 }

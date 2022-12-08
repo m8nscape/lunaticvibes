@@ -29,6 +29,7 @@ public:
     Hash() = default;
     Hash(const std::string& hex)
     {
+        reset();
         if (!hex.empty())
         {
             set = true;
@@ -40,6 +41,7 @@ public:
     }
     Hash(const Hash<_Len>& rhs)
     {
+        reset();
         if (!rhs.empty())
         {
             set = true;
@@ -51,6 +53,7 @@ public:
     bool empty() const { return !set; }
     std::string hexdigest() const { return bin2hex(data, _Len); }
     const unsigned char* hex() const { return data; }
+    void reset() { set = false; memset(data, 0, _Len); }
 
     template <size_t _Len2>
     bool operator<(const Hash<_Len2>& rhs) const { return memcmp(data, rhs.data, _Len) < 0; }

@@ -19,6 +19,10 @@ enum eEntryType
     COURSE,
     RANDOM_COURSE,
 
+    ARENA_FOLDER,
+    ARENA_COMMAND,
+    ARENA_LOBBY,
+
     CHART_LINK,
     REPLAY,
 };
@@ -39,5 +43,6 @@ public:
     unsigned long long _addTime = 0;  // from epoch time
 
 public:
+    virtual Path getPath() { return Path(); }
     constexpr eEntryType type() const { return _type; }
 };

@@ -102,19 +102,10 @@ static const std::vector<std::variant<std::monostate, IndexSwitch, IndexOption>>
     IndexOption::PLAY_BATTLE_TYPE,
     IndexSwitch::_FALSE,	// HS-1P
     IndexSwitch::_FALSE,	// HS-2P
+    IndexSwitch::_FALSE,
 
-    // 59~69
-    IndexSwitch::_FALSE,
-    IndexSwitch::_FALSE,
-    IndexSwitch::_FALSE,
-    IndexSwitch::_FALSE,
-    IndexSwitch::_FALSE,
-    IndexSwitch::_FALSE,
-    IndexSwitch::_FALSE,
-    IndexSwitch::_FALSE,
-    IndexSwitch::_FALSE,
-    IndexSwitch::_FALSE,
-    IndexSwitch::_FALSE,
+    // 60 (undefined)
+    IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE,
 
     // 70
     IndexSwitch::SYSTEM_SCOREGRAPH,
@@ -223,16 +214,7 @@ IndexSwitch::KEY_CONFIG_SLOT8,
 IndexSwitch::KEY_CONFIG_SLOT9,
 
 // 160 (undefined)
-IndexSwitch::_FALSE,
-IndexSwitch::_FALSE,
-IndexSwitch::_FALSE,
-IndexSwitch::_FALSE,
-IndexSwitch::_FALSE,
-IndexSwitch::_FALSE,
-IndexSwitch::_FALSE,
-IndexSwitch::_FALSE,
-IndexSwitch::_FALSE,
-IndexSwitch::_FALSE,
+IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE,
 
 // 170
 IndexSwitch::SKINSELECT_7KEYS,
@@ -257,6 +239,18 @@ IndexSwitch::_FALSE,
 IndexSwitch::_FALSE,
 
 // 190
+IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE,
+
+// 200
+IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE,
+IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE,
+IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE,
+IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE,
+IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE,
+IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE,
+IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE,
+
+// 270
 };
 
 bool buttonSw(int n, IndexSwitch& out)

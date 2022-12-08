@@ -24,6 +24,10 @@
 
 #include "game/runtime/i18n.h"
 
+#include "game/arena/arena_data.h"
+#include "game/arena/arena_client.h"
+#include "game/arena/arena_host.h"
+
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma region save config
@@ -415,6 +419,9 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 250)
     // do not play preview right after scene is loaded
     previewState = PREVIEW_FINISH;
 
+    if (gArenaData.isOnline())
+        State::set(IndexTimer::ARENA_SHOW_LOBBY, Time().norm());
+
     _imguiInit();
 }
 
@@ -499,6 +506,7 @@ void SceneSelect::_updateAsync()
         case eEntryType::CUSTOM_FOLDER:
         case eEntryType::COURSE_FOLDER:
         case eEntryType::NEW_SONG_FOLDER:
+        case eEntryType::ARENA_FOLDER:
             _navigateEnter(t);
             break;
 
@@ -508,6 +516,14 @@ void SceneSelect::_updateAsync()
         case eEntryType::RIVAL_CHART:
         case eEntryType::COURSE:
             _decide();
+            break;
+
+        case eEntryType::ARENA_COMMAND:
+            arenaCommand();
+            break;
+
+        case eEntryType::ARENA_LOBBY:
+            // TODO enter ARENA_LOBBY
             break;
 
         default:
@@ -558,6 +574,67 @@ void SceneSelect::_updateAsync()
 
             SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
         }
+    }
+
+    // update by arena
+    if (imgui_arena_joinLobby)
+    {
+        imgui_arena_joinLobby = false;
+        arenaJoinLobby();
+    }
+    if (!gSelectContext.remoteRequestedChart.empty())
+    {
+        std::string folderName = (boost::format("Request by %s") % gSelectContext.remoteRequestedPlayer).str(); // FIXME i18n
+        SongListProperties prop{
+            gSelectContext.backtrace.top().folder,
+            {},
+            folderName,
+            {},
+            {},
+            0
+        };
+        prop.dbBrowseEntries.push_back({ std::make_shared<EntryChart>(*g_pSongDB->findChartByHash(gSelectContext.remoteRequestedChart).begin()), nullptr });
+
+        gSelectContext.backtrace.top().index = gSelectContext.idx;
+        gSelectContext.backtrace.top().displayEntries = gSelectContext.entries;
+        gSelectContext.backtrace.push(prop);
+        gSelectContext.entries.clear();
+        loadSongList();
+        sortSongList();
+        gSelectContext.idx = 0;
+
+        setBarInfo();
+        setEntryInfo();
+
+        if (!gSelectContext.entries.empty())
+        {
+            State::set(IndexSlider::SELECT_LIST, (double)gSelectContext.idx / gSelectContext.entries.size());
+        }
+        else
+        {
+            State::set(IndexSlider::SELECT_LIST, 0.0);
+        }
+
+        resetJukeboxText();
+
+        scrollAccumulator = 0.;
+        scrollAccumulatorAddUnit = 0.;
+
+        State::set(IndexTimer::LIST_MOVE, Time().norm());
+        SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_OPEN);
+
+        gSelectContext.remoteRequestedChart.reset();
+        gSelectContext.remoteRequestedPlayer.clear();
+    }
+
+    if (gArenaData.isOnline() && gSelectContext.isArenaReady)
+    {
+        _decide();
+    }
+
+    if (gArenaData.isOnline() && gArenaData.isExpired())
+    {
+        gArenaData.reset();
     }
 
     if (!gSelectContext.entries.empty())
@@ -970,7 +1047,16 @@ void SceneSelect::inputGamePress(InputMask& m, const Time& t)
         return;
     }
 
-    if (imguiShow)
+    if (imgui_show_arenaJoinLobbyPrompt)
+    {
+        if (m[Input::Pad::ESC])
+        {
+            imgui_show_arenaJoinLobbyPrompt = false;
+            _skin->setHandleMouseEvents(true);
+        }
+        return;
+    }
+    else if (imguiShow)
     {
         if (m[Input::Pad::F9] || m[Input::Pad::ESC])
         {
@@ -1314,27 +1400,30 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
     // navigate
     if (!gSelectContext.entries.empty())
     {
-        switch (gSelectContext.entries[gSelectContext.idx].first->type())
+        if (bindings9K && (input & INPUT_MASK_DECIDE_9K).any() || !bindings9K && (input & INPUT_MASK_DECIDE).any())
         {
-        case eEntryType::FOLDER:
-        case eEntryType::CUSTOM_FOLDER:
-        case eEntryType::COURSE_FOLDER:
-        case eEntryType::NEW_SONG_FOLDER:
-            if (bindings9K && (input & INPUT_MASK_DECIDE_9K).any() || !bindings9K && (input & INPUT_MASK_DECIDE).any())
+            switch (gSelectContext.entries[gSelectContext.idx].first->type())
+            {
+            case eEntryType::FOLDER:
+            case eEntryType::CUSTOM_FOLDER:
+            case eEntryType::COURSE_FOLDER:
+            case eEntryType::NEW_SONG_FOLDER:
+            case eEntryType::ARENA_FOLDER:
                 return _navigateEnter(t);
-            break;
 
-        case eEntryType::SONG:
-        case eEntryType::CHART:
-        case eEntryType::RIVAL_SONG:
-        case eEntryType::RIVAL_CHART:
-        case eEntryType::COURSE:
-            if (bindings9K && (input & INPUT_MASK_DECIDE_9K).any() || !bindings9K && (input & INPUT_MASK_DECIDE).any())
+            case eEntryType::SONG:
+            case eEntryType::CHART:
+            case eEntryType::RIVAL_SONG:
+            case eEntryType::RIVAL_CHART:
+            case eEntryType::COURSE:
                 return _decide();
-            break;
 
-        default:
-            break;
+            case eEntryType::ARENA_COMMAND:
+                return arenaCommand();
+
+            default:
+                break;
+            }
         }
         if (bindings9K && (input & INPUT_MASK_CANCEL_9K).any() || !bindings9K && (input & INPUT_MASK_CANCEL).any())
             return _navigateBack(t);
@@ -1399,7 +1488,7 @@ void SceneSelect::inputGameHoldSelect(InputMask& input, const Time& t)
         scrollAccumulator += 1.0;
         scrollAccumulatorAddUnit = scrollAccumulator / gSelectContext.scrollTimeLength * (1000.0 / getRate());
     }
-    if ((t - selectDownTimestamp).norm() >= 233 && !isInVersionList && (input[Input::Pad::K1SELECT] || input[Input::Pad::K2SELECT]))
+    if (selectDownTimestamp != -1 && (t - selectDownTimestamp).norm() >= 233 && !isInVersionList && (input[Input::Pad::K1SELECT] || input[Input::Pad::K2SELECT]))
     {
         _navigateVersionEnter(t);
     }
@@ -1604,6 +1693,32 @@ void SceneSelect::_decide()
 {
     std::shared_lock<std::shared_mutex> u(gSelectContext._mutex);
 
+    if (gArenaData.isOnline())
+    {
+        if (!gSelectContext.isArenaReady)
+        {
+            if (State::get(IndexOption::SELECT_ENTRY_TYPE) == Option::ENTRY_SONG)
+            {
+                createNotification("Please wait...");   // FIXME i18n
+
+                auto& [entry, score] = gSelectContext.entries[gSelectContext.idx];
+                if (gArenaData.isClient())
+                    g_pArenaClient->requestChart(entry->md5);
+                else
+                    g_pArenaHost->requestChart(entry->md5, "host");
+            }
+            else
+            {
+                createNotification("Cannot select type other than chart");   // FIXME i18n
+            }
+            return;
+        }
+        else
+        {
+            // do nothing. The list is guaranteed to contain only the correct chart
+        }
+    }
+
     if (State::get(IndexOption::SELECT_ENTRY_TYPE) == Option::ENTRY_COURSE && State::get(IndexSwitch::COURSE_NOT_PLAYABLE))
         return;
 
@@ -1639,6 +1754,11 @@ void SceneSelect::_decide()
     else
     {
         State::set(IndexOption::PLAY_COURSE_STAGE, Option::STAGE_NOT_COURSE);
+    }
+
+    if (gArenaData.isOnline())
+    {
+        gPlayContext.canRetry = false;
     }
 
     // chart
@@ -2146,27 +2266,28 @@ void SceneSelect::_navigateEnter(const Time& t)
 
         std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
 
-        const auto& [e, s] = gSelectContext.entries[gSelectContext.idx];
-        switch (e->type())
+        if (gSelectContext.entries[gSelectContext.idx].first->type() == eEntryType::FOLDER)
         {
-        case eEntryType::FOLDER:
-        {
-            SongListProperties prop{
-                gSelectContext.backtrace.top().folder,
-                e->md5,
-                e->_name,
-                {},
-                {},
-                0
-            };
-            auto top = g_pSongDB->browse(e->md5, false);
-            for (size_t i = 0; i < top.getContentsCount(); ++i)
-                prop.dbBrowseEntries.push_back({ top.getEntry(i), nullptr });
+            {
+                const auto& [e, s] = gSelectContext.entries[gSelectContext.idx];
 
-            gSelectContext.backtrace.top().index = gSelectContext.idx;
-            gSelectContext.backtrace.top().displayEntries = gSelectContext.entries;
-            gSelectContext.backtrace.push(prop);
-            gSelectContext.entries.clear();
+                SongListProperties prop{
+                    gSelectContext.backtrace.top().folder,
+                    e->md5,
+                    e->_name,
+                    {},
+                    {},
+                    0
+                };
+                auto top = g_pSongDB->browse(e->md5, false);
+                for (size_t i = 0; i < top.getContentsCount(); ++i)
+                    prop.dbBrowseEntries.push_back({ top.getEntry(i), nullptr });
+
+                gSelectContext.backtrace.top().index = gSelectContext.idx;
+                gSelectContext.backtrace.top().displayEntries = gSelectContext.entries;
+                gSelectContext.backtrace.push(prop);
+                gSelectContext.entries.clear();
+            }
 
             loadSongList();
             if (gSelectContext.entries.empty())
@@ -2181,177 +2302,59 @@ void SceneSelect::_navigateEnter(const Time& t)
                 gSelectContext.filterKeys = State::get(IndexOption::SELECT_FILTER_KEYS);
                 loadSongList();
             }
-
-            sortSongList();
-            gSelectContext.idx = 0;
-
-            setBarInfo();
-            setEntryInfo();
-
-            if (!gSelectContext.entries.empty())
-            {
-                State::set(IndexSlider::SELECT_LIST, (double)gSelectContext.idx / gSelectContext.entries.size());
-            }
-            else
-            {
-                State::set(IndexSlider::SELECT_LIST, 0.0);
-            }
-
-            resetJukeboxText();
-
-            scrollAccumulator = 0.;
-            scrollAccumulatorAddUnit = 0.;
-
-            State::set(IndexTimer::LIST_MOVE, Time().norm());
-            SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_OPEN);
-            break;
         }
-
-        case eEntryType::CUSTOM_FOLDER:
+        else if (auto top = std::dynamic_pointer_cast<EntryFolderBase>(gSelectContext.entries[gSelectContext.idx].first); top)
         {
-            SongListProperties prop{
-                gSelectContext.backtrace.top().folder,
-                e->md5,
-                e->_name,
-                {},
-                {},
-                0
-            };
-            auto top = std::dynamic_pointer_cast<EntryFolderTable>(e);
-            assert(top != nullptr);
-            for (size_t i = 0; i < top->getContentsCount(); ++i)
-                prop.dbBrowseEntries.push_back({ top->getEntry(i), nullptr });
+            {
+                const auto& [e, s] = gSelectContext.entries[gSelectContext.idx];
 
-            gSelectContext.backtrace.top().index = gSelectContext.idx;
-            gSelectContext.backtrace.top().displayEntries = gSelectContext.entries;
-            gSelectContext.backtrace.push(prop);
-            gSelectContext.entries.clear();
+                SongListProperties prop{
+                    gSelectContext.backtrace.top().folder,
+                    e->md5,
+                    e->_name,
+                    {},
+                    {},
+                    0
+                };
+                for (size_t i = 0; i < top->getContentsCount(); ++i)
+                    prop.dbBrowseEntries.push_back({ top->getEntry(i), nullptr });
+
+                gSelectContext.backtrace.top().index = gSelectContext.idx;
+                gSelectContext.backtrace.top().displayEntries = gSelectContext.entries;
+                gSelectContext.backtrace.push(prop);
+                gSelectContext.entries.clear();
+            }
+
             loadSongList();
-            sortSongList();
-            gSelectContext.idx = 0;
-
-            setBarInfo();
-            setEntryInfo();
-
-            if (!gSelectContext.entries.empty())
-            {
-                State::set(IndexSlider::SELECT_LIST, (double)gSelectContext.idx / gSelectContext.entries.size());
-            }
-            else
-            {
-                State::set(IndexSlider::SELECT_LIST, 0.0);
-            }
-
-            resetJukeboxText();
-
-            scrollAccumulator = 0.;
-            scrollAccumulatorAddUnit = 0.;
-
-            State::set(IndexTimer::LIST_MOVE, Time().norm());
-            SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_OPEN);
-            break;
         }
 
-        case eEntryType::COURSE_FOLDER:
+        sortSongList();
+        gSelectContext.idx = 0;
+
+        setBarInfo();
+        setEntryInfo();
+
+        if (!gSelectContext.entries.empty())
         {
-            SongListProperties prop{
-                gSelectContext.backtrace.top().folder,
-                e->md5,
-                e->_name,
-                {},
-                {},
-                0
-            };
-            auto top = std::dynamic_pointer_cast<EntryFolderCourse>(e);
-            assert(top != nullptr);
-            for (size_t i = 0; i < top->getContentsCount(); ++i)
-            {
-                auto pCourse = top->getEntry(i);
-                prop.dbBrowseEntries.push_back({ pCourse, nullptr });
-            }
-
-            gSelectContext.backtrace.top().index = gSelectContext.idx;
-            gSelectContext.backtrace.top().displayEntries = gSelectContext.entries;
-            gSelectContext.backtrace.push(prop);
-            gSelectContext.entries.clear();
-            loadSongList();
-            sortSongList();
-            gSelectContext.idx = 0;
-
-            setBarInfo();
-            setEntryInfo();
-
-            if (!gSelectContext.entries.empty())
-            {
-                State::set(IndexSlider::SELECT_LIST, (double)gSelectContext.idx / gSelectContext.entries.size());
-            }
-            else
-            {
-                State::set(IndexSlider::SELECT_LIST, 0.0);
-            }
-
-            resetJukeboxText();
-
-            scrollAccumulator = 0.;
-            scrollAccumulatorAddUnit = 0.;
-
-            State::set(IndexTimer::LIST_MOVE, Time().norm());
-            SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_OPEN);
-            break;
+            State::set(IndexSlider::SELECT_LIST, (double)gSelectContext.idx / gSelectContext.entries.size());
         }
-
-        case eEntryType::NEW_SONG_FOLDER:
+        else
         {
-            SongListProperties prop{
-                gSelectContext.backtrace.top().folder,
-                e->md5,
-                e->_name,
-                {},
-                {},
-                0
-            };
-            auto top = std::dynamic_pointer_cast<EntryFolderNewSong>(e);
-            assert(top != nullptr);
-            for (size_t i = 0; i < top->getContentsCount(); ++i)
-                prop.dbBrowseEntries.push_back({ top->getEntry(i), nullptr });
-
-            gSelectContext.backtrace.top().index = gSelectContext.idx;
-            gSelectContext.backtrace.top().displayEntries = gSelectContext.entries;
-            gSelectContext.backtrace.push(prop);
-            gSelectContext.entries.clear();
-            loadSongList();
-            sortSongList();
-            gSelectContext.idx = 0;
-
-            setBarInfo();
-            setEntryInfo();
-
-            if (!gSelectContext.entries.empty())
-            {
-                State::set(IndexSlider::SELECT_LIST, (double)gSelectContext.idx / gSelectContext.entries.size());
-            }
-            else
-            {
-                State::set(IndexSlider::SELECT_LIST, 0.0);
-            }
-
-            resetJukeboxText();
-
-            scrollAccumulator = 0.;
-            scrollAccumulatorAddUnit = 0.;
-
-            State::set(IndexTimer::LIST_MOVE, Time().norm());
-            SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_OPEN);
-            break;
+            State::set(IndexSlider::SELECT_LIST, 0.0);
         }
 
-        default:
-            break;
-        }
+        resetJukeboxText();
+
+        scrollAccumulator = 0.;
+        scrollAccumulatorAddUnit = 0.;
+
+        State::set(IndexTimer::LIST_MOVE, Time().norm());
+        SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_OPEN);
     }
+
     setDynamicTextures();
 }
-void SceneSelect::_navigateBack(const Time& t)
+void SceneSelect::_navigateBack(const Time& t, bool sound)
 {
     if (!isInVersionList)
         selectDownTimestamp = -1;
@@ -2362,6 +2365,14 @@ void SceneSelect::_navigateBack(const Time& t)
         postStopPreview();
 
         std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
+
+        if (gArenaData.isOnline())
+        {
+            if (gArenaData.isClient())
+                g_pArenaClient->requestChart(HashMD5());
+            else
+                g_pArenaHost->requestChart(HashMD5(), "host");
+        }
 
         auto& top = gSelectContext.backtrace.top();
 
@@ -2388,7 +2399,8 @@ void SceneSelect::_navigateBack(const Time& t)
         scrollAccumulator = 0.;
         scrollAccumulatorAddUnit = 0.;
 
-        SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_CLOSE);
+        if (sound)
+            SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_CLOSE);
     }
     setDynamicTextures();
 }
@@ -2897,4 +2909,113 @@ void SceneSelect::postStopPreview()
     SoundMgr::stopNoteSamples();
     SoundMgr::setSysVolume(1.0, 400);
     previewState = PREVIEW_NONE;
+}
+
+
+void SceneSelect::arenaCommand()
+{
+    if (auto p = std::dynamic_pointer_cast<EntryArenaCommand>(gSelectContext.entries[gSelectContext.idx].first); p)
+    {
+        switch (p->getCmdType())
+        {
+        case EntryArenaCommand::Type::HOST_LOBBY:  arenaHostLobby(); break;
+        case EntryArenaCommand::Type::LEAVE_LOBBY: arenaLeaveLobby(); break;
+        case EntryArenaCommand::Type::JOIN_LOBBY:  arenaJoinLobbyPrompt(); break;
+        }
+    }
+}
+
+void SceneSelect::arenaHostLobby()
+{
+    if (gArenaData.isOnline())
+    {
+        createNotification("Host failed! Please leave your current lobby first.");
+        return;
+    }
+
+    g_pArenaHost = std::make_shared<ArenaHost>();
+
+    if (g_pArenaHost->createLobby())
+    {
+        g_pArenaHost->loopStart();
+        createNotification("Host success");
+
+        Time t;
+        _navigateBack(t, false);
+        State::set(IndexTimer::ARENA_SHOW_LOBBY, t.norm());
+
+        SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_OPEN);
+    }
+    else
+    {
+        g_pArenaHost.reset();
+        createNotification("Host failed");
+    }
+}
+
+void SceneSelect::arenaLeaveLobby()
+{
+    if (!gArenaData.isOnline())
+    {
+        createNotification("Leave failed! You cannot leave if you are not in a lobby.");
+        return;
+    }
+
+    if (gArenaData.isClient())
+    {
+        g_pArenaClient->leaveLobby();
+        g_pArenaClient->loopEnd();
+        g_pArenaClient.reset();
+    }
+    if (gArenaData.isServer())
+    {
+        g_pArenaHost->disbandLobby();
+        g_pArenaHost->loopEnd();
+        g_pArenaHost.reset();
+    }
+
+    Time t;
+    _navigateBack(t, false);
+    State::set(IndexTimer::ARENA_SHOW_LOBBY, TIMER_NEVER);
+
+    SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_OPEN);
+}
+
+void SceneSelect::arenaJoinLobbyPrompt()
+{
+    if (gArenaData.isOnline())
+    {
+        createNotification("Join failed! Please leave your current lobby first.");
+        return;
+    }
+
+    imgui_show_arenaJoinLobbyPrompt = true;
+    _skin->setHandleMouseEvents(false);
+}
+
+void SceneSelect::arenaJoinLobby()
+{
+    assert(!gArenaData.isOnline());
+
+    std::string address = imgui_arena_address_buf;
+    createNotification("Joining \""s + address + "\"...");
+
+    g_pArenaClient = std::make_shared<ArenaClient>();
+    if (g_pArenaClient->joinLobby(address))
+    {
+        g_pArenaClient->loopStart();
+        createNotification("Join success");
+
+        Time t;
+        _navigateBack(t, false);
+        State::set(IndexTimer::ARENA_SHOW_LOBBY, t.norm());
+
+        SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_OPEN);
+    }
+    else
+    {
+        g_pArenaClient.reset();
+        createNotification("Join failed");
+    }
+    _skin->setHandleMouseEvents(true);
 }

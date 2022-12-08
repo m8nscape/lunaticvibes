@@ -7,6 +7,10 @@
 #include "game/sound/sound_mgr.h"
 #include "game/sound/sound_sample.h"
 
+#include "game/arena/arena_data.h"
+#include "game/arena/arena_client.h"
+#include "game/arena/arena_host.h"
+
 #include "config/config_mgr.h"
 #include <boost/algorithm/string.hpp>
 
@@ -216,6 +220,9 @@ void SceneResult::_updateAsync()
     case eResultState::FADEOUT:
         updateFadeout();
         break;
+    case eResultState::WAIT_ARENA:
+        updateWaitArena();
+        break;
     }
 }
 
@@ -299,7 +306,7 @@ void SceneResult::updateFadeout()
             case eChartFormat::BMS:
             case eChartFormat::BMSON:
             {
-                auto rBMS = std::reinterpret_pointer_cast<RulesetBMS>(ruleset);
+                auto rBMS = std::dynamic_pointer_cast<RulesetBMS>(ruleset);
                 score.score = int(std::floor(rBMS->getScore()));
                 score.exscore = rBMS->getExScore();
                 score.fast = rBMS->getJudgeCountEx(RulesetBMS::JUDGE_EARLY);
@@ -473,6 +480,21 @@ void SceneResult::updateFadeout()
     }
 }
 
+void SceneResult::updateWaitArena()
+{
+    assert(gArenaData.isOnline());
+
+    Time t;
+    if (!gSelectContext.isArenaReady)
+    {
+        State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
+        _state = eResultState::FADEOUT;
+        SoundMgr::setSysVolume(0.0, 2000);
+        SoundMgr::setNoteVolume(0.0, 2000);
+        LOG_DEBUG << "[Result] State changed to FADEOUT";
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 // CALLBACK
@@ -500,6 +522,17 @@ void SceneResult::inputGamePress(InputMask& m, const Time& t)
                 _state = eResultState::RECORD;
                 LOG_DEBUG << "[Result] State changed to RECORD";
             }
+            else if (gArenaData.isOnline())
+            {
+                if (gArenaData.isClient())
+                    g_pArenaClient->setResultFinished();
+                else
+                    g_pArenaHost->setResultFinished();
+
+                State::set(IndexTimer::ARENA_RESULT_WAIT, t.norm());
+                _state = eResultState::WAIT_ARENA;
+                LOG_DEBUG << "[Result] State changed to WAIT_ARENA";
+            }
             else
             {
                 State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
@@ -513,11 +546,25 @@ void SceneResult::inputGamePress(InputMask& m, const Time& t)
         case eResultState::RECORD:
             if (_scoreSyncFinished)
             {
-                State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
-                _state = eResultState::FADEOUT;
-                SoundMgr::setSysVolume(0.0, 2000);
-                SoundMgr::setNoteVolume(0.0, 2000);
-                LOG_DEBUG << "[Result] State changed to FADEOUT";
+                if (gArenaData.isOnline())
+                {
+                    if (gArenaData.isClient())
+                        g_pArenaClient->setResultFinished();
+                    else
+                        g_pArenaHost->setResultFinished();
+
+                    State::set(IndexTimer::ARENA_RESULT_WAIT, t.norm());
+                    _state = eResultState::WAIT_ARENA;
+                    LOG_DEBUG << "[Result] State changed to WAIT_ARENA";
+                }
+                else
+                {
+                    State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
+                    _state = eResultState::FADEOUT;
+                    SoundMgr::setSysVolume(0.0, 2000);
+                    SoundMgr::setNoteVolume(0.0, 2000);
+                    LOG_DEBUG << "[Result] State changed to FADEOUT";
+                }
             }
             break;
 

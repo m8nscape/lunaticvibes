@@ -184,6 +184,11 @@ struct SelectContextParams
 
     int panel = 0;
 
+    HashMD5 remoteRequestedChart;       // only valid when remote is requesting a new chart; reset after list change
+    std::string remoteRequestedPlayer;  // only valid when remote is requesting a new chart; reset after list change
+
+    bool isArenaReady = false;
+
     bool isGoingToSkinSelect = false;
     bool isGoingToKeyConfig = false;
     bool isGoingToAutoPlay = false;

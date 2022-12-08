@@ -474,6 +474,23 @@ std::vector<pChartFormat> SongDB::findChartByHash(const HashMD5& target) const
         }
     }
 
+    // remove file mismatch
+    std::list<size_t> removing;
+    for (size_t i = 0; i < ret.size(); ++i)
+    {
+        auto hash = md5file(ret[i]->absolutePath);
+        if (hash != target)
+        {
+            LOG_WARNING << "[SongDB] Chart " << ret[i]->absolutePath.u8string() << " has been modified, ignoring";
+            removing.push_front(i);
+        }
+    }
+    for (size_t i : removing)
+    {
+        ret.erase(ret.begin() + i);
+    }
+
+
     LOG_INFO << "[SongDB] found " << ret.size() << " songs";
     return ret;
 

@@ -168,8 +168,12 @@ enum class IndexTimer : unsigned
     K2SPDDN_UP,
     S2A_MOVE,
 
+    ARENA_SHOW_LOBBY = 240,
+        ARENA_PLAY_WAIT,
+        ARENA_RESULT_WAIT,
+
     // internal timers
-    _CURRENT = 240,
+    _CURRENT = 250,
     _LOAD_START,
     _JUDGE_1P_0,
     _JUDGE_1P_1,
@@ -184,7 +188,7 @@ enum class IndexTimer : unsigned
     _JUDGE_2P_4,
     _JUDGE_2P_5,
 
-    _SCENE_CUSTOMIZE_START = 260,
+    _SCENE_CUSTOMIZE_START = 270,
     _SCENE_CUSTOMIZE_FADEOUT,
 
     _NEVER = 300,

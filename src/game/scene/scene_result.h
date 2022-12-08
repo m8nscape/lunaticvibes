@@ -9,6 +9,7 @@ enum class eResultState
     STOP,
     RECORD,
     FADEOUT,
+    WAIT_ARENA,
 };
 
 class SceneResult : public vScene
@@ -36,6 +37,7 @@ protected:
     void updateStop();
     void updateRecord();
     void updateFadeout();
+    void updateWaitArena();
 
 protected:
     // Register to InputWrapper: judge / keysound

@@ -124,7 +124,7 @@ private:
     void _navigateUpBy1(const Time& t);
     void _navigateDownBy1(const Time& t);
     void _navigateEnter(const Time& t);
-    void _navigateBack(const Time& t);
+    void _navigateBack(const Time& t, bool sound = true);
     void _decide();
     void _navigateVersionEnter(const Time& t);
     void _navigateVersionBack(const Time& t);
@@ -140,6 +140,14 @@ protected:
 protected:
     void updatePreview();
     void postStopPreview();
+
+/// //////////////////////////////////////////////////////
+protected:
+    void arenaCommand();
+    void arenaHostLobby();
+    void arenaLeaveLobby();
+    void arenaJoinLobbyPrompt();
+    void arenaJoinLobby();
 
 /// //////////////////////////////////////////////////////
 
@@ -179,6 +187,9 @@ private:
     bool _imguiApplyResolution();
     bool _imguiRefreshAudioDevices();
     bool _imguiApplyAudioSettings();
+
+    // etc
+    bool _imguiArenaJoinLobbyPrompt();
 
     // imgui variables
     int imgui_main_index = 0;
@@ -254,4 +265,8 @@ private:
     bool imgui_sel_ignoreDPCharts;
     bool imgui_sel_ignore9keys;
     bool imgui_sel_ignore5keysif7keysexist;
+
+    bool imgui_show_arenaJoinLobbyPrompt = false;
+    bool imgui_arena_joinLobby = false;
+    char imgui_arena_address_buf[256] = { 0 };
 };

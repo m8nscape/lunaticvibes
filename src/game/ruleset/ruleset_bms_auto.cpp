@@ -10,7 +10,7 @@ RulesetBMSAuto::RulesetBMSAuto(
     GameModeKeys keys,
     JudgeDifficulty difficulty,
     double health,
-    PlaySide side) : RulesetBMS(format, chart, gauge, keys, difficulty, health, side)
+    PlaySide side) : vRuleset(format, chart), RulesetBMS(format, chart, gauge, keys, difficulty, health, side)
 {
     assert(side == PlaySide::AUTO || side == PlaySide::AUTO_DOUBLE || side == PlaySide::AUTO_2P || side == PlaySide::RIVAL);
 
@@ -37,7 +37,7 @@ RulesetBMSAuto::RulesetBMSAuto(
 void RulesetBMSAuto::setTargetRate(double rate)
 {
     targetRate = rate;
-    unsigned count = _chart->getNoteTotalCount();
+    unsigned count = getNoteCount();
     unsigned score = (unsigned)std::round(2 * count * rate);
     if (!_judgeScratch)
     {

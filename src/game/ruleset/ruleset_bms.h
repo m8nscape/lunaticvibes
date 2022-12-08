@@ -1,7 +1,7 @@
 #pragma once
 #include "ruleset.h"
 
-class RulesetBMS : public vRuleset
+class RulesetBMS : virtual public vRuleset
 {
 public:
     enum JudgeIndex
@@ -159,38 +159,49 @@ public:
         AUTO_DOUBLE,
         RIVAL,
         MYBEST,
+        NETWORK,
     };
 
     struct JudgeRes { JudgeArea area = JudgeArea::NOTHING; Time time; };
 
 protected:
+    // members set on construction
     PlaySide _side = PlaySide::SINGLE;
     bool _k1P = false, _k2P = false;
     JudgeDifficulty _judgeDifficulty = JudgeDifficulty::NORMAL;
     GaugeType _gauge = GaugeType::GROOVE;
 
-    double moneyScore = 0.0;
-    double maxMoneyScore = 200000.0;
-    unsigned exScore = 0;
-
     std::map<JudgeType, double> _healthGain;
 
     bool doJudge = true;
     bool _judgeScratch = true;
-    std::array<JudgeArea, chart::NOTELANEINDEX_COUNT> _lnJudge{ JudgeArea::NOTHING };
-    std::array<JudgeRes, 2> _lastNoteJudge;
 
     bool showJudge = true;
     const NoteLaneTimerMap* _bombTimerMap = nullptr;
     const NoteLaneTimerMap* _bombLNTimerMap = nullptr;
 
     int total = -1;
+    unsigned noteCount = 0;
+
+    std::string modifierText, modifierTextShort;
+
+protected:
+    // members change in game
+    std::array<JudgeArea, chart::NOTELANEINDEX_COUNT> _lnJudge{ JudgeArea::NOTHING };
+    std::array<JudgeRes, 2> _lastNoteJudge;
 
     std::map<chart::NoteLane, ChartObjectBase::NoteIterator> _noteListIterators;
 
     std::array<AxisDir, 2>  _scratchDir = { 0, 0 };
     std::array<Time, 2>     _scratchLastUpdate = { TIMER_NEVER, TIMER_NEVER };
     std::array<double, 2>   _scratchAccumulator = { 0, 0 };
+
+protected:
+    // members essential for score calculation
+    double moneyScore = 0.0;
+    double maxMoneyScore = 200000.0;
+    unsigned exScore = 0;
+
 
 public:
     RulesetBMS(
@@ -201,6 +212,9 @@ public:
         JudgeDifficulty difficulty = JudgeDifficulty::NORMAL,
         double health = 1.0,
         PlaySide side = PlaySide::SINGLE);
+
+    void initGaugeParams(eModGauge gauge);
+
 protected:
     JudgeRes _judge(const Note& note, Time time);
 private:
@@ -232,16 +246,19 @@ public:
     GaugeType getGaugeType() const { return _gauge; }
 
     double getScore() const;
+    double getMaxMoneyScore() const;
     unsigned getExScore() const;
     unsigned getJudgeCount(JudgeType idx) const;
     unsigned getJudgeCountEx(JudgeIndex idx) const;
+    std::string getModifierText() const;
+    std::string getModifierTextShort() const;
 
     virtual bool isNoScore() const { return moneyScore == 0.0; }
     virtual bool isCleared() const { return !_isFailed && isFinished() && _basic.health >= _clearHealth; }
     virtual bool isFailed() const { return _isFailed; }
 
     virtual unsigned getCurrentMaxScore() const { return notesReached * 2; }
-    virtual unsigned getMaxScore() const { return _chart->getNoteRegularCount() * 2 + _chart->getNoteLnCount() * 2; }
+    virtual unsigned getMaxScore() const { return getNoteCount() * 2; }
 
     virtual unsigned getNoteCount() const;
     virtual unsigned getMaxCombo() const;

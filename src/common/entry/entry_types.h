@@ -3,3 +3,4 @@
 #include "entry_song.h"
 #include "entry_table.h"
 #include "entry_course.h"
+#include "entry_arena.h"

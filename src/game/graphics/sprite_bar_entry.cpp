@@ -229,6 +229,9 @@ bool SpriteBarEntry::update(Time time)
             {eEntryType::NEW_COURSE, (size_t)BarType::NEW_COURSE},
             {eEntryType::COURSE, (size_t)BarType::COURSE},
             {eEntryType::RANDOM_COURSE, (size_t)BarType::RANDOM_COURSE},
+            {eEntryType::ARENA_FOLDER, (size_t)BarType::RIVAL},
+            {eEntryType::ARENA_COMMAND, (size_t)BarType::RIVAL},
+            {eEntryType::ARENA_LOBBY, (size_t)BarType::SONG},
         };
         size_t barTypeIdx = (size_t)BarType::SONG;
         if (BAR_TYPE_MAP.find(pEntry->type()) != BAR_TYPE_MAP.end())

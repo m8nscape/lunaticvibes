@@ -10,7 +10,7 @@ RulesetBMSReplay::RulesetBMSReplay(
     GameModeKeys keys,
     JudgeDifficulty difficulty,
     double health,
-    PlaySide side) : RulesetBMS(format, chart, gauge, keys, difficulty, health, side)
+    PlaySide side) : vRuleset(format, chart), RulesetBMS(format, chart, gauge, keys, difficulty, health, side)
 {
     this->replay = replay;
     itReplayCommand = replay->commands.begin();

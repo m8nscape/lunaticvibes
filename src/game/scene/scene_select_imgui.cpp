@@ -154,6 +154,7 @@ void SceneSelect::_updateImgui()
     if (gNextScene != eScene::SELECT) return;
 
     _imguiSettings();
+    _imguiArenaJoinLobbyPrompt();
 }
 
 
@@ -1367,6 +1368,65 @@ bool SceneSelect::_imguiApplyAudioSettings()
 
         SoundMgr::stopSysSamples();
         SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::BGM_SELECT);
+        return true;
+    }
+    return false;
+}
+
+
+#include "game/arena/arena_data.h"
+#include "game/arena/arena_client.h"
+#include "game/arena/arena_host.h"
+
+bool SceneSelect::_imguiArenaJoinLobbyPrompt()
+{
+    if (imgui_show_arenaJoinLobbyPrompt)
+    {
+        using namespace i18nText;
+        bool ok = false;
+
+        ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
+
+        ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(ConfigMgr::get('V', cfg::V_DISPLAY_RES_X, CANVAS_WIDTH), ConfigMgr::get('V', cfg::V_DISPLAY_RES_Y, CANVAS_HEIGHT)), ImGuiCond_Always);
+        if (ImGui::Begin("Join Lobby Main", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoCollapse))
+        {
+            ImGui::OpenPopup("JOIN LOBBY");
+
+            ImGui::SetNextWindowSize(ImVec2(480.f, 180.f), ImGuiCond_Always);
+            if (ImGui::BeginPopupModal("JOIN LOBBY", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
+            {
+                ImGui::Text("IP Address");
+                ImGui::SameLine();
+                ImGui::SetKeyboardFocusHere();
+                ok |= ImGui::InputText("##joinlobbyaddr", imgui_arena_address_buf, sizeof(imgui_arena_address_buf), ImGuiInputTextFlags_EnterReturnsTrue);
+
+                ok |= ImGui::Button(i18n::c(OK));
+
+                if (ok)
+                {
+                    ImGui::CloseCurrentPopup();
+                }
+
+                ImGui::SameLine();
+                if (ImGui::Button(i18n::c(CANCEL)))
+                {
+                    ImGui::CloseCurrentPopup();
+                    imgui_show_arenaJoinLobbyPrompt = false;
+                    _skin->setHandleMouseEvents(true);
+                }
+
+                ImGui::EndPopup();
+            }
+            ImGui::End();
+        }
+
+        if (ok)
+        {
+            imgui_show_arenaJoinLobbyPrompt = false;
+            imgui_arena_joinLobby = true;
+        }
+
         return true;
     }
     return false;

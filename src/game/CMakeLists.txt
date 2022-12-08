@@ -39,6 +39,8 @@ add_library(gamelib
     ruleset/ruleset_bms.cpp
     ruleset/ruleset_bms_auto.cpp
     ruleset/ruleset_bms_replay.cpp
+    ruleset/ruleset_network.cpp
+    ruleset/ruleset_bms_network.cpp
     scene/scene.cpp
     scene/scene_context.cpp
     scene/scene_decide.cpp
@@ -70,7 +72,12 @@ add_library(gamelib
     sound/soundset.cpp
     sound/soundset_lr2.cpp
     replay/replay_chart.cpp
-    runtime/i18n.cpp)
+    runtime/i18n.cpp 
+    arena/arena_data.cpp
+    arena/arena_internal.cpp
+    arena/arena_host.cpp
+    arena/arena_client.cpp
+)
 
 if (UNIX OR MINGW)
     target_link_libraries(gamelib PRIVATE -lpthread)

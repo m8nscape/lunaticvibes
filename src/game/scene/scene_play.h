@@ -15,6 +15,7 @@ enum class ePlayState
     PLAYING,
     FAILED,
     FADEOUT,
+    WAIT_ARENA,
 };
 
 class ScenePlay : public vScene
@@ -142,6 +143,7 @@ protected:
     void updatePlaying();
     void updateFadeout();
     void updateFailed();
+    void updateWaitArena();
 
 protected:
     // Inner-state updates

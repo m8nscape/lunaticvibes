@@ -4,6 +4,7 @@
 #include "common/coursefile/lr2crs.h"
 #include "common/entry/entry_table.h"
 #include "common/entry/entry_course.h"
+#include "common/entry/entry_arena.h"
 #include "imgui.h"
 #include <future>
 #include <boost/format.hpp>
@@ -102,6 +103,7 @@ void ScenePreSelect::updateLoadSongs()
                 }
             }
 
+            // NEW SONG
             auto newSongList = g_pSongDB->findChartFromTime(ROOT_FOLDER_HASH,
                 std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count() - State::get(IndexNumber::NEW_ENTRY_SECONDS));
             if (!newSongList.empty())
@@ -110,11 +112,26 @@ void ScenePreSelect::updateLoadSongs()
                 std::shared_ptr<EntryFolderNewSong> entry = std::make_shared<EntryFolderNewSong>("NEW SONGS");
                 for (auto& c : newSongList)
                 {
-                    std::shared_ptr<EntryFolderSong> f = std::make_shared<EntryFolderSong>(HashMD5((boost::format("%032lu") % index++).str()), "", c->title, c->title2);
-                    f->pushChart(c);
-                    entry->pushEntry(f);
+                    //std::shared_ptr<EntryFolderSong> f = std::make_shared<EntryFolderSong>(HashMD5((boost::format("%032lu") % index++).str()), "", c->title, c->title2);
+                    //f->pushChart(c);
+                    //entry->pushEntry(f);
+                    entry->pushEntry(std::make_shared<EntryFolderSong>(c));
                 }
                 rootFolderProp.dbBrowseEntries.insert(rootFolderProp.dbBrowseEntries.begin(), {entry, nullptr});
+            }
+
+            // ARENA
+            if (!rootFolderProp.dbBrowseEntries.empty())
+            {
+                std::shared_ptr<EntryFolderArena> entry = std::make_shared<EntryFolderArena>();
+
+                entry->pushEntry(std::make_shared<EntryArenaCommand>(EntryArenaCommand::Type::HOST_LOBBY, "HOST LOBBY"));
+                entry->pushEntry(std::make_shared<EntryArenaCommand>(EntryArenaCommand::Type::JOIN_LOBBY, "JOIN LOBBY"));
+                entry->pushEntry(std::make_shared<EntryArenaCommand>(EntryArenaCommand::Type::LEAVE_LOBBY, "LEAVE LOBBY"));
+
+                // TODO load lobby list from file
+
+                rootFolderProp.dbBrowseEntries.push_back({ entry, nullptr });
             }
 
             });
@@ -168,7 +185,8 @@ void ScenePreSelect::updateLoadTables()
                     size_t index = 0;
                     for (const auto& lv : t.getLevelList())
                     {
-                        std::shared_ptr<EntryFolderTable> tblLevel = std::make_shared<EntryFolderTable>((boost::format("%s%s") % t.getSymbol() % lv).str(), "");
+                        std::string folderName = (boost::format("%s%s") % t.getSymbol() % lv).str();
+                        std::shared_ptr<EntryFolderTable> tblLevel = std::make_shared<EntryFolderTable>(folderName, "");
                         for (const auto& r : t.getEntryList(lv))
                         {
                             auto charts = g_pSongDB->findChartByHash(r->md5);
@@ -177,9 +195,10 @@ void ScenePreSelect::updateLoadTables()
                             {
                                 if (fs::exists(c->absolutePath))
                                 {
-                                    std::shared_ptr<EntryFolderSong> f = std::make_shared<EntryFolderSong>(HashMD5((boost::format("%032lu") % index++).str()), "", c->title, c->title2);
-                                    f->pushChart(c);
-                                    tblLevel->pushEntry(f);
+                                    //std::shared_ptr<EntryFolderSong> f = std::make_shared<EntryFolderSong>(HashMD5((boost::format("%032lu") % index++).str()), "", c->title, c->title2);
+                                    //f->pushChart(c);
+                                    //tblLevel->pushEntry(f);
+                                    tblLevel->pushEntry(std::make_shared<EntryFolderSong>(c));
                                     added = true;
                                     break;
                                 }

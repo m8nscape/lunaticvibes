@@ -1,5 +1,9 @@
 #include "skin_lr2.h"
 #include "game/scene/scene_context.h"
+#include "game/arena/arena_data.h"
+
+#include "game/ruleset/ruleset_network.h"
+#include "game/ruleset/ruleset_bms.h"
 
 static std::shared_mutex _mutex;
 static std::bitset<900> _op;
@@ -55,7 +59,9 @@ bool getDstOpt(int d)
 	dst_option op = (dst_option)std::abs(d);
 
 	std::shared_lock l(_mutex);
-	if (d == DST_TRUE)
+	if (d == 9999)	// Lunatic Vibes flag
+		result = true;
+	else if (d == DST_TRUE)
 		result = true;
 	else if (d == DST_FALSE)
 		result = false;
@@ -64,7 +70,7 @@ bool getDstOpt(int d)
 	else if (op >= 900) 
 	{
 		if (op > 999)
-			result = false;
+			result = _extendedOp[op];
 		else
 			result = _customOp[op - 900];
 	}
@@ -88,6 +94,9 @@ void updateDstOpt()
 {
 	std::unique_lock l(_mutex);
 	_op.reset();
+
+	for (auto& [i, o] : _extendedOp)
+		o = false;
 
 	// 0 常にtrue
 	set(0);
@@ -1108,4 +1117,95 @@ void updateDstOpt()
 	set(810, State::get(IndexSwitch::P1_LOCK_SPEED));
 	set(810, State::get(IndexSwitch::P2_LANECOVER_ENABLED));
 	set(811, State::get(IndexSwitch::P2_LOCK_SPEED));
+
+	// 1000: arena Online
+	if (gArenaData.isOnline())
+	{
+		set(1000);
+
+		switch (gArenaData.getPlayerCount())
+		{
+		case 8: set(1008);
+		case 7: set(1007);
+		case 6: set(1006);
+		case 5: set(1005);
+		case 4: set(1004);
+		case 3: set(1003);
+		case 2: set(1002);
+		case 1: set(1001);
+		}
+
+		for (size_t i = 0; i < MAX_ARENA_PLAYERS; ++i)
+		{
+			if (auto pr = gArenaData.getPlayerRuleset(i); pr)
+			{
+				auto& d = pr->getData();
+				int offset = 50 * i;
+
+				using namespace Option;
+				switch (Option::getRankType(d.acc))
+				{
+				case RANK_0:
+				case RANK_1: set(1011 + offset); break;
+				case RANK_2: set(1012 + offset); break;
+				case RANK_3: set(1013 + offset); break;
+				case RANK_4: set(1014 + offset); break;
+				case RANK_5: set(1015 + offset); break;
+				case RANK_6: set(1016 + offset); break;
+				case RANK_7: set(1017 + offset); break;
+				case RANK_8: set(1018 + offset); break;
+				}
+				switch (Option::getRankType(d.total_acc))
+				{
+				case RANK_0:
+				case RANK_1: set(1021 + offset); break;
+				case RANK_2: set(1022 + offset); break;
+				case RANK_3: set(1023 + offset); break;
+				case RANK_4: set(1024 + offset); break;
+				case RANK_5: set(1025 + offset); break;
+				case RANK_6: set(1026 + offset); break;
+				case RANK_7: set(1027 + offset); break;
+				case RANK_8: set(1028 + offset); break;
+				}
+				switch (Option::getHealthType(d.health))
+				{
+				case HEALTH_0:   set(1030 + offset); break;
+				case HEALTH_10:  set(1031 + offset); break;
+				case HEALTH_20:  set(1032 + offset); break;
+				case HEALTH_30:  set(1033 + offset); break;
+				case HEALTH_40:  set(1034 + offset); break;
+				case HEALTH_50:  set(1035 + offset); break;
+				case HEALTH_60:  set(1036 + offset); break;
+				case HEALTH_70:  set(1037 + offset); break;
+				case HEALTH_80:  set(1038 + offset); break;
+				case HEALTH_90:  set(1039 + offset); break;
+				case HEALTH_100: set(1040 + offset); break;
+				}
+
+				if (d.judge[RulesetBMS::JUDGE_CB] == 0)
+				{
+					set(1045 + offset);
+				}
+				else if (d.health >= pr->getClearHealth())
+				{
+					if (auto prb = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(i)); prb)
+					{
+						switch (prb->getGaugeType())
+						{
+						case RulesetBMS::GaugeType::GROOVE:  set(1043 + offset); break;
+						case RulesetBMS::GaugeType::EASY:    set(1042 + offset); break;
+						case RulesetBMS::GaugeType::ASSIST:  set(1047 + offset); break;
+						case RulesetBMS::GaugeType::HARD:    set(1044 + offset); break;
+						case RulesetBMS::GaugeType::EXHARD:  set(1046 + offset); break;
+						}
+					}
+				}
+				else
+				{
+					set(1041 + offset);
+				}
+				
+			}
+		}
+	}
 }

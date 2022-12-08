@@ -17,6 +17,10 @@
 
 #include "game/runtime/i18n.h"
 
+#include "game/arena/arena_data.h"
+#include "game/arena/arena_client.h"
+#include "game/arena/arena_host.h"
+
 #include "imgui.h"
 
 #ifdef WIN32
@@ -257,8 +261,30 @@ int main(int argc, char* argv[])
         LOG_WARNING << "OleInitialize Failed";
     }
 #endif
+    
+    ///////////////////////////////////////////////////////////
 
     mainLoop();
+
+    ///////////////////////////////////////////////////////////
+
+    if (gArenaData.isOnline())
+    {
+        if (gArenaData.isClient())
+        {
+            if (gArenaData.isOnline())
+                g_pArenaClient->leaveLobby();
+            g_pArenaClient->loopEnd();
+            g_pArenaClient.reset();
+        }
+        if (gArenaData.isServer())
+        {
+            if (gArenaData.isOnline())
+                g_pArenaHost->disbandLobby();
+            g_pArenaHost->loopEnd();
+            g_pArenaHost.reset();
+        }
+    }
 
 #ifdef WIN32
     if (oleInitializeResult >= 0)

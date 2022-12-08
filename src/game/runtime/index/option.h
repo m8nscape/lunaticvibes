@@ -72,8 +72,10 @@ enum class IndexOption : unsigned
     RESULT_RANK_2P,
     RESULT_MYBEST_RANK,
     RESULT_UPDATED_RANK,
-    RESULT_CLEARED,
     RESULT_BATTLE_WIN_LOSE,  // 0:DRAW 1:1PWIN 2:2PWIN
+    RESULT_CLEAR_TYPE_1P,
+    RESULT_CLEAR_TYPE_2P,
+    RESULT_ARENA_PLAYER_RANKING,
 
     COURSE_TYPE,
     COURSE_STAGE_COUNT,
@@ -86,7 +88,21 @@ enum class IndexOption : unsigned
     SYS_WINDOWED,
     SYS_VSYNC,
 
-    _TEST1 = 200,
+
+    // network match
+    ARENA_PLAYDATA_BASE = 100,
+
+    ARENA_PLAYDATA_RANK_ESTIMATED = ARENA_PLAYDATA_BASE,
+    ARENA_PLAYDATA_RANK,
+    ARENA_PLAYDATA_HEALTH,
+    ARENA_PLAYDATA_CLEAR_TYPE,
+    ARENA_PLAYDATA_RANKING,
+
+    ARENA_PLAYDATA_MAX,
+
+    ARENA_PLAYDATA_ALL_MAX = ARENA_PLAYDATA_BASE + (ARENA_PLAYDATA_MAX - ARENA_PLAYDATA_BASE) * 8,
+
+    _TEST1 = 150,
 
     OPTION_COUNT
 };
@@ -347,6 +363,17 @@ namespace Option
         "SYNCHRONIZE",
         "SYMMETRY"
     };
+    constexpr char* s_random_type_short[] = {
+        "",
+        "MIR",
+        "RAN",
+        "S-RAN",
+        "H-RAN",
+        "ALL-SCR",
+        "R-RAN",
+        "SYN",
+        "SYM"
+    };
 
     enum e_assist_type {
         ASSIST_NONE,
@@ -355,6 +382,10 @@ namespace Option
     constexpr char* s_assist_type[] = {
         "NONE",
         "AUTO-SCR",
+    };
+    constexpr char* s_assist_type_short[] = {
+        "NONE",
+        "AS",
     };
 
     enum e_chart_difficulty {

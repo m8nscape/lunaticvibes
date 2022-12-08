@@ -10,23 +10,11 @@ class EntryFolderCourse : public EntryFolderBase
 {
 public:
 	EntryFolderCourse() = delete;
-	EntryFolderCourse(const StringContent& name = "", const StringContent& name2 = "") :
-		EntryFolderBase(HashMD5(""), "")
+	EntryFolderCourse(StringContentView name = "", StringContentView name2 = "") :
+		EntryFolderBase(HashMD5(""), name, name2)
 	{
 		_type = eEntryType::COURSE_FOLDER;
-		_name = name;
-		_name2 = name2;
 	}
-	
-protected:
-	std::vector<std::shared_ptr<EntryCourse>> courses;
-	size_t idx = 0;
-
-public:
-	std::shared_ptr<EntryCourse> getEntry(size_t idx);
-	void pushEntry(std::shared_ptr<EntryCourse> f);
-	virtual size_t getContentsCount() { return courses.size(); }
-	virtual bool empty() { return courses.empty(); }
 };
 
 // entry for courses

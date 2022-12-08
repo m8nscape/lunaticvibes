@@ -10,7 +10,7 @@ void imguiMonitorLR2DST()
 	if (ImGui::Begin("LR2 dst_option (F1)", NULL, ImGuiWindowFlags_NoCollapse))
 	{
 		char titleBuf[32] = { 0 };
-		for (int i = 0; i <= 999; i += 100)
+		for (int i = 0; i <= 1099; i += 100)
 		{
 			sprintf(titleBuf, "%d - %d", i, i + 99);
 			if (ImGui::CollapsingHeader(titleBuf))

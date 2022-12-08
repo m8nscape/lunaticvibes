@@ -48,7 +48,7 @@ protected:
     unsigned notesExpired = 0;    // total notes expired. +1 when timestamp+POOR reached; +1 for LN when tail timestamp (no +POOR) is reached
 
 public:
-    vRuleset() = delete;
+    vRuleset() : _basic{ 0 } {}
     vRuleset(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<ChartObjectBase> chart) :
         _format(format), _chart(chart), _basic{ 0 }{}
     virtual ~vRuleset() = default;

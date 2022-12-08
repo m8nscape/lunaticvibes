@@ -7,6 +7,7 @@
 #include "game/sound/sound_sample.h"
 #include "game/chart/chart_types.h"
 #include "config/config_mgr.h"
+#include "game/arena/arena_data.h"
 
 using namespace chart;
 
@@ -54,23 +55,6 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
     eModGauge gauge, GameModeKeys keys, RulesetBMS::JudgeDifficulty difficulty, double health, RulesetBMS::PlaySide side) :
     vRuleset(format, chart), _judgeDifficulty(difficulty)
 {
-    switch (gauge)
-    {
-        case eModGauge::HARD        : _gauge = GaugeType::HARD;    break;
-        case eModGauge::DEATH       : _gauge = GaugeType::DEATH;   break;
-        case eModGauge::EASY        : _gauge = GaugeType::EASY;    break;
-        //case eModGauge::PATTACK     : _gauge = GaugeType::P_ATK;   break;
-        //case eModGauge::GATTACK     : _gauge = GaugeType::G_ATK;   break;
-        case eModGauge::ASSISTEASY  : _gauge = GaugeType::ASSIST;  break;
-        case eModGauge::GRADE_NORMAL: _gauge = GaugeType::GRADE;   break;
-        case eModGauge::GRADE_DEATH : _gauge = GaugeType::EXGRADE; break;
-        case eModGauge::EXHARD      : _gauge = GaugeType::EXHARD;  break;
-        case eModGauge::GRADE_HARD  : _gauge = GaugeType::EXGRADE; break;
-        case eModGauge::NORMAL:
-        default: 
-            _gauge = GaugeType::GROOVE;  break;
-    }
-
 
     static const NoteLaneTimerMap bombTimer5k[] = {
         {{
@@ -285,173 +269,15 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
     default: break;
     }
 
+    if (_chart)
+    {
+        noteCount = _chart->getNoteRegularCount() + _chart->getNoteLnCount();
+    }
 
     using namespace std::string_literals;
 
     _basic.health = health;
-
-    switch (format->type())
-    {
-    case eChartFormat::BMS:
-        format->getExtendedProperty("TOTAL", (void*)&total);
-        break;
-
-    case eChartFormat::BMSON:
-    default:
-        break;
-    }
-    if (total < 0)
-    {
-        switch (_gauge)
-        {
-        case RulesetBMS::GaugeType::HARD:
-        case RulesetBMS::GaugeType::EXHARD:
-        case RulesetBMS::GaugeType::DEATH:
-        case RulesetBMS::GaugeType::GRADE:
-        case RulesetBMS::GaugeType::EXGRADE:
-            total = 300;
-            break;
-        case RulesetBMS::GaugeType::GROOVE:
-        case RulesetBMS::GaugeType::EASY:
-        case RulesetBMS::GaugeType::ASSIST:
-        default:
-            total = 160;
-            break;
-        }
-    }
-
-    switch (_gauge)
-    {
-    case GaugeType::HARD:
-        //_basic.health             = 1.0;
-        _minHealth                  = 0;
-        _clearHealth                = 0;
-        _failWhenNoHealth = true;
-        _healthGain[JudgeType::PERFECT] = 1.0 / 1001.0;
-        _healthGain[JudgeType::GREAT]   = 1.0 / 1001.0;
-        _healthGain[JudgeType::GOOD]    = 1.0 / 1001.0 / 2;
-        _healthGain[JudgeType::BAD]     = -0.06;
-        _healthGain[JudgeType::MISS]    = -0.1;
-        _healthGain[JudgeType::KPOOR]   = -0.02;
-        break;
-
-    case GaugeType::EXHARD:
-        //_basic.health             = 1.0;
-        _minHealth                  = 0;
-        _clearHealth                = 0;
-        _failWhenNoHealth = true;
-        _healthGain[JudgeType::PERFECT] = 1.0 / 1001.0;
-        _healthGain[JudgeType::GREAT]   = 1.0 / 1001.0;
-        _healthGain[JudgeType::GOOD]    = 1.0 / 1001.0 / 2;
-        _healthGain[JudgeType::BAD]     = -0.12;
-        _healthGain[JudgeType::MISS]    = -0.2;
-        _healthGain[JudgeType::KPOOR]   = -0.1;
-        break;
-
-    case GaugeType::DEATH:
-        //_basic.health               = 1.0;
-        _minHealth                  = 0;
-        _clearHealth                = 0;
-        _failWhenNoHealth = true;
-        _healthGain[JudgeType::PERFECT] = 1.0 / 1001.0;
-        _healthGain[JudgeType::GREAT]   = 1.0 / 1001.0 / 2;
-        _healthGain[JudgeType::GOOD]    = 0.0;
-        _healthGain[JudgeType::BAD]     = -1.0;
-        _healthGain[JudgeType::MISS]    = -1.0;
-        _healthGain[JudgeType::KPOOR]   = -0.02;
-        break;
-
-    case GaugeType::P_ATK:
-        //_basic.health             = 1.0;
-        _minHealth                  = 0;
-        _clearHealth                = 0;
-        _failWhenNoHealth = true;
-        _healthGain[JudgeType::PERFECT] = 1.0 / 1001.0;
-        _healthGain[JudgeType::GREAT]   = -0.02;
-        _healthGain[JudgeType::GOOD]    = -1.0;
-        _healthGain[JudgeType::BAD]     = -1.0;
-        _healthGain[JudgeType::MISS]    = -1.0;
-        _healthGain[JudgeType::KPOOR]   = -0.02;
-        break;
-
-    case GaugeType::G_ATK:
-        //_basic.health             = 1.0;
-        _minHealth                  = 0;
-        _clearHealth                = 0;
-        _failWhenNoHealth = true;
-        _healthGain[JudgeType::PERFECT] = -0.02;
-        _healthGain[JudgeType::GREAT]   = -0.02;
-        _healthGain[JudgeType::GOOD]    = 0.0;
-        _healthGain[JudgeType::BAD]     = -1.0;
-        _healthGain[JudgeType::MISS]    = -1.0;
-        _healthGain[JudgeType::KPOOR]   = -0.02;
-        break;
-
-    case GaugeType::GROOVE:
-        //_basic.health             = 0.2;
-        _minHealth                  = 0.02;
-        _clearHealth                = 0.8;
-        _healthGain[JudgeType::PERFECT] = 0.01 * total / chart->getNoteTotalCount();
-        _healthGain[JudgeType::GREAT]   = 0.01 * total / chart->getNoteTotalCount();
-        _healthGain[JudgeType::GOOD]    = 0.01 * total / chart->getNoteTotalCount() / 2;
-        _healthGain[JudgeType::BAD]     = -0.04;
-        _healthGain[JudgeType::MISS]    = -0.06;
-        _healthGain[JudgeType::KPOOR]   = -0.02;
-        break;
-
-    case GaugeType::EASY:
-        //_basic.health             = 0.2;
-        _minHealth                  = 0.02;
-        _clearHealth                = 0.8;
-        _healthGain[JudgeType::PERFECT] = 0.01 * total / chart->getNoteTotalCount() * 1.2;
-        _healthGain[JudgeType::GREAT]   = 0.01 * total / chart->getNoteTotalCount() * 1.2;
-        _healthGain[JudgeType::GOOD]    = 0.01 * total / chart->getNoteTotalCount() / 2 * 1.2;
-        _healthGain[JudgeType::BAD]     = -0.032;
-        _healthGain[JudgeType::MISS]    = -0.048;
-        _healthGain[JudgeType::KPOOR]   = -0.016;
-        break;
-
-    case GaugeType::ASSIST:
-        //_basic.health             = 0.2;
-        _minHealth                  = 0.02;
-        _clearHealth                = 0.6;
-        _healthGain[JudgeType::PERFECT] = 0.01 * total / chart->getNoteTotalCount() * 1.2;
-        _healthGain[JudgeType::GREAT]   = 0.01 * total / chart->getNoteTotalCount() * 1.2;
-        _healthGain[JudgeType::GOOD]    = 0.01 * total / chart->getNoteTotalCount() / 2 * 1.2;
-        _healthGain[JudgeType::BAD]     = -0.032;
-        _healthGain[JudgeType::MISS]    = -0.048;
-        _healthGain[JudgeType::KPOOR]   = -0.016;
-        break;
-
-    case GaugeType::GRADE:
-        //_basic.health             = 1.0;
-        _minHealth                  = 0;
-        _clearHealth                = 0;
-        _failWhenNoHealth = true;
-        _healthGain[JudgeType::PERFECT] = 1.0 / 1001.0;
-        _healthGain[JudgeType::GREAT]   = 1.0 / 1001.0;
-        _healthGain[JudgeType::GOOD]    = 1.0 / 1001.0 / 2;
-        _healthGain[JudgeType::BAD]     = -0.02;
-        _healthGain[JudgeType::MISS]    = -0.03;
-        _healthGain[JudgeType::KPOOR]   = -0.02;
-        break;
-
-    case GaugeType::EXGRADE:
-        //_basic.health             = 1.0;
-        _minHealth                  = 0;
-        _clearHealth                = 0;
-        _failWhenNoHealth = true;
-        _healthGain[JudgeType::PERFECT] = 1.0 / 1001.0;
-        _healthGain[JudgeType::GREAT]   = 1.0 / 1001.0;
-        _healthGain[JudgeType::GOOD]    = 1.0 / 1001.0 / 2;
-        _healthGain[JudgeType::BAD]     = -0.12;
-        _healthGain[JudgeType::MISS]    = -0.1;
-        _healthGain[JudgeType::KPOOR]   = -0.1;
-        break;
-
-    default:
-        break;
-    }
+    initGaugeParams(gauge);
 
     _side = side;
 	switch (side)
@@ -483,19 +309,273 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
         break;
 	}
 
+    std::stringstream ssMod;
+    std::stringstream ssModShort;
+    switch (side)
+    {
+    case RulesetBMS::PlaySide::SINGLE:
+    case RulesetBMS::PlaySide::BATTLE_1P:
+    case RulesetBMS::PlaySide::AUTO:
+        ssMod << (State::get(IndexOption::PLAY_RANDOM_TYPE_1P) == Option::RAN_NORMAL ? "" : Option::s_random_type[State::get(IndexOption::PLAY_RANDOM_TYPE_1P)]);
+        ssModShort << (State::get(IndexOption::PLAY_RANDOM_TYPE_1P) == Option::RAN_NORMAL ? "" : Option::s_random_type_short[State::get(IndexOption::PLAY_RANDOM_TYPE_1P)]);
+        if (State::get(IndexSwitch::PLAY_OPTION_AUTOSCR_1P))
+        {
+            if (!ssMod.str().empty()) ssMod << ", ";
+            if (!ssModShort.str().empty()) ssModShort << ",";
+            ssMod << "" << Option::s_assist_type[Option::ASSIST_AUTOSCR];
+            ssModShort << "" << Option::s_assist_type_short[Option::ASSIST_AUTOSCR];
+        }
+        break;
+
+    case RulesetBMS::PlaySide::RIVAL:
+    case RulesetBMS::PlaySide::BATTLE_2P:
+    case RulesetBMS::PlaySide::AUTO_2P:
+        ssMod << (State::get(IndexOption::PLAY_RANDOM_TYPE_2P) == Option::RAN_NORMAL ? "" : Option::s_random_type[State::get(IndexOption::PLAY_RANDOM_TYPE_2P)]);
+        ssModShort << (State::get(IndexOption::PLAY_RANDOM_TYPE_2P) == Option::RAN_NORMAL ? "" : Option::s_random_type_short[State::get(IndexOption::PLAY_RANDOM_TYPE_2P)]);
+        if (State::get(IndexSwitch::PLAY_OPTION_AUTOSCR_2P))
+        {
+            if (!ssMod.str().empty()) ssMod << ", ";
+            if (!ssModShort.str().empty()) ssModShort << ",";
+            ssMod << "" << Option::s_assist_type[Option::ASSIST_AUTOSCR];
+            ssModShort << "" << Option::s_assist_type_short[Option::ASSIST_AUTOSCR];
+        }
+        break;
+
+    case RulesetBMS::PlaySide::DOUBLE:
+    case RulesetBMS::PlaySide::AUTO_DOUBLE:
+        if (!(State::get(IndexOption::PLAY_RANDOM_TYPE_1P) == Option::RAN_NORMAL && State::get(IndexOption::PLAY_RANDOM_TYPE_2P) == Option::RAN_NORMAL))
+        {
+            ssMod << (State::get(IndexOption::PLAY_RANDOM_TYPE_1P) == Option::RAN_NORMAL ? "-" : Option::s_random_type_short[State::get(IndexOption::PLAY_RANDOM_TYPE_1P)])
+                << "/" << (State::get(IndexOption::PLAY_RANDOM_TYPE_2P) == Option::RAN_NORMAL ? "-" : Option::s_random_type_short[State::get(IndexOption::PLAY_RANDOM_TYPE_2P)]);
+            ssModShort << (State::get(IndexOption::PLAY_RANDOM_TYPE_1P) == Option::RAN_NORMAL ? "-" : Option::s_random_type_short[State::get(IndexOption::PLAY_RANDOM_TYPE_1P)])
+                << "/" << (State::get(IndexOption::PLAY_RANDOM_TYPE_2P) == Option::RAN_NORMAL ? "-" : Option::s_random_type_short[State::get(IndexOption::PLAY_RANDOM_TYPE_2P)]);
+        }
+        if (State::get(IndexSwitch::PLAY_OPTION_DP_FLIP))
+        {
+            if (!ssMod.str().empty()) ssMod << ", ";
+            if (!ssModShort.str().empty()) ssModShort << ",";
+            ssMod << "FLIP";
+            ssModShort << "F";
+        }
+        if (State::get(IndexSwitch::PLAY_OPTION_AUTOSCR_1P))
+        {
+            if (!ssMod.str().empty()) ssMod << ", ";
+            if (!ssModShort.str().empty()) ssModShort << ",";
+            ssMod << "" << Option::s_assist_type[Option::ASSIST_AUTOSCR];
+            ssModShort << "" << Option::s_assist_type_short[Option::ASSIST_AUTOSCR];
+        }
+        break;
+    }
+    modifierText = ssMod.str();
+    if (modifierText.empty())
+    {
+        modifierText = "NONE";
+    }
+    modifierTextShort = ssMod.str();
+
+
     _lnJudge.fill(JudgeArea::NOTHING);
 
-    for (size_t k = Input::S1L; k <= Input::K2SPDDN; ++k)
+    if (_chart)
     {
-        NoteLaneIndex idx;
-        idx = _chart->getLaneFromKey(NoteLaneCategory::Note, (Input::Pad)k);
-        if (idx != NoteLaneIndex::_) _noteListIterators[{NoteLaneCategory::Note, idx}] = _chart->firstNote(NoteLaneCategory::Note, idx);
-        idx = _chart->getLaneFromKey(NoteLaneCategory::LN, (Input::Pad)k);
-        if (idx != NoteLaneIndex::_) _noteListIterators[{NoteLaneCategory::LN,   idx}] = _chart->firstNote(NoteLaneCategory::LN, idx);
-        idx = _chart->getLaneFromKey(NoteLaneCategory::Mine, (Input::Pad)k);
-        if (idx != NoteLaneIndex::_) _noteListIterators[{NoteLaneCategory::Mine, idx}] = _chart->firstNote(NoteLaneCategory::Mine, idx);
-        idx = _chart->getLaneFromKey(NoteLaneCategory::Invs, (Input::Pad)k);
-        if (idx != NoteLaneIndex::_) _noteListIterators[{NoteLaneCategory::Invs, idx}] = _chart->firstNote(NoteLaneCategory::Invs, idx);
+        for (size_t k = Input::S1L; k <= Input::K2SPDDN; ++k)
+        {
+            NoteLaneIndex idx;
+            idx = _chart->getLaneFromKey(NoteLaneCategory::Note, (Input::Pad)k);
+            if (idx != NoteLaneIndex::_) _noteListIterators[{NoteLaneCategory::Note, idx}] = _chart->firstNote(NoteLaneCategory::Note, idx);
+            idx = _chart->getLaneFromKey(NoteLaneCategory::LN, (Input::Pad)k);
+            if (idx != NoteLaneIndex::_) _noteListIterators[{NoteLaneCategory::LN, idx}] = _chart->firstNote(NoteLaneCategory::LN, idx);
+            idx = _chart->getLaneFromKey(NoteLaneCategory::Mine, (Input::Pad)k);
+            if (idx != NoteLaneIndex::_) _noteListIterators[{NoteLaneCategory::Mine, idx}] = _chart->firstNote(NoteLaneCategory::Mine, idx);
+            idx = _chart->getLaneFromKey(NoteLaneCategory::Invs, (Input::Pad)k);
+            if (idx != NoteLaneIndex::_) _noteListIterators[{NoteLaneCategory::Invs, idx}] = _chart->firstNote(NoteLaneCategory::Invs, idx);
+        }
+    }
+}
+
+void RulesetBMS::initGaugeParams(eModGauge gauge)
+{
+    switch (gauge)
+    {
+    case eModGauge::HARD: _gauge = GaugeType::HARD;    break;
+    case eModGauge::DEATH: _gauge = GaugeType::DEATH;   break;
+    case eModGauge::EASY: _gauge = GaugeType::EASY;    break;
+        //case eModGauge::PATTACK     : _gauge = GaugeType::P_ATK;   break;
+        //case eModGauge::GATTACK     : _gauge = GaugeType::G_ATK;   break;
+    case eModGauge::ASSISTEASY: _gauge = GaugeType::ASSIST;  break;
+    case eModGauge::GRADE_NORMAL: _gauge = GaugeType::GRADE;   break;
+    case eModGauge::GRADE_DEATH: _gauge = GaugeType::EXGRADE; break;
+    case eModGauge::EXHARD: _gauge = GaugeType::EXHARD;  break;
+    case eModGauge::GRADE_HARD: _gauge = GaugeType::EXGRADE; break;
+    case eModGauge::NORMAL:
+    default:
+        _gauge = GaugeType::GROOVE;  break;
+    }
+
+    if (_format)
+    {
+        switch (_format->type())
+        {
+        case eChartFormat::BMS:
+            _format->getExtendedProperty("TOTAL", (void*)&total);
+            break;
+
+        case eChartFormat::BMSON:
+        default:
+            break;
+        }
+    }
+    if (total < 0)
+    {
+        switch (_gauge)
+        {
+        case RulesetBMS::GaugeType::HARD:
+        case RulesetBMS::GaugeType::EXHARD:
+        case RulesetBMS::GaugeType::DEATH:
+        case RulesetBMS::GaugeType::GRADE:
+        case RulesetBMS::GaugeType::EXGRADE:
+            total = 300;
+            break;
+        case RulesetBMS::GaugeType::GROOVE:
+        case RulesetBMS::GaugeType::EASY:
+        case RulesetBMS::GaugeType::ASSIST:
+        default:
+            total = 160;
+            break;
+        }
+    }
+
+    switch (_gauge)
+    {
+    case GaugeType::HARD:
+        //_basic.health             = 1.0;
+        _minHealth = 0;
+        _clearHealth = 0;
+        _failWhenNoHealth = true;
+        _healthGain[JudgeType::PERFECT] = 1.0 / 1001.0;
+        _healthGain[JudgeType::GREAT] = 1.0 / 1001.0;
+        _healthGain[JudgeType::GOOD] = 1.0 / 1001.0 / 2;
+        _healthGain[JudgeType::BAD] = -0.06;
+        _healthGain[JudgeType::MISS] = -0.1;
+        _healthGain[JudgeType::KPOOR] = -0.02;
+        break;
+
+    case GaugeType::EXHARD:
+        //_basic.health             = 1.0;
+        _minHealth = 0;
+        _clearHealth = 0;
+        _failWhenNoHealth = true;
+        _healthGain[JudgeType::PERFECT] = 1.0 / 1001.0;
+        _healthGain[JudgeType::GREAT] = 1.0 / 1001.0;
+        _healthGain[JudgeType::GOOD] = 1.0 / 1001.0 / 2;
+        _healthGain[JudgeType::BAD] = -0.12;
+        _healthGain[JudgeType::MISS] = -0.2;
+        _healthGain[JudgeType::KPOOR] = -0.1;
+        break;
+
+    case GaugeType::DEATH:
+        //_basic.health               = 1.0;
+        _minHealth = 0;
+        _clearHealth = 0;
+        _failWhenNoHealth = true;
+        _healthGain[JudgeType::PERFECT] = 1.0 / 1001.0;
+        _healthGain[JudgeType::GREAT] = 1.0 / 1001.0 / 2;
+        _healthGain[JudgeType::GOOD] = 0.0;
+        _healthGain[JudgeType::BAD] = -1.0;
+        _healthGain[JudgeType::MISS] = -1.0;
+        _healthGain[JudgeType::KPOOR] = -0.02;
+        break;
+
+    case GaugeType::P_ATK:
+        //_basic.health             = 1.0;
+        _minHealth = 0;
+        _clearHealth = 0;
+        _failWhenNoHealth = true;
+        _healthGain[JudgeType::PERFECT] = 1.0 / 1001.0;
+        _healthGain[JudgeType::GREAT] = -0.02;
+        _healthGain[JudgeType::GOOD] = -1.0;
+        _healthGain[JudgeType::BAD] = -1.0;
+        _healthGain[JudgeType::MISS] = -1.0;
+        _healthGain[JudgeType::KPOOR] = -0.02;
+        break;
+
+    case GaugeType::G_ATK:
+        //_basic.health             = 1.0;
+        _minHealth = 0;
+        _clearHealth = 0;
+        _failWhenNoHealth = true;
+        _healthGain[JudgeType::PERFECT] = -0.02;
+        _healthGain[JudgeType::GREAT] = -0.02;
+        _healthGain[JudgeType::GOOD] = 0.0;
+        _healthGain[JudgeType::BAD] = -1.0;
+        _healthGain[JudgeType::MISS] = -1.0;
+        _healthGain[JudgeType::KPOOR] = -0.02;
+        break;
+
+    case GaugeType::GROOVE:
+        //_basic.health             = 0.2;
+        _minHealth = 0.02;
+        _clearHealth = 0.8;
+        _healthGain[JudgeType::PERFECT] = 0.01 * total / noteCount;
+        _healthGain[JudgeType::GREAT] = 0.01 * total / noteCount;
+        _healthGain[JudgeType::GOOD] = 0.01 * total / noteCount / 2;
+        _healthGain[JudgeType::BAD] = -0.04;
+        _healthGain[JudgeType::MISS] = -0.06;
+        _healthGain[JudgeType::KPOOR] = -0.02;
+        break;
+
+    case GaugeType::EASY:
+        //_basic.health             = 0.2;
+        _minHealth = 0.02;
+        _clearHealth = 0.8;
+        _healthGain[JudgeType::PERFECT] = 0.01 * total / noteCount * 1.2;
+        _healthGain[JudgeType::GREAT] = 0.01 * total / noteCount * 1.2;
+        _healthGain[JudgeType::GOOD] = 0.01 * total / noteCount / 2 * 1.2;
+        _healthGain[JudgeType::BAD] = -0.032;
+        _healthGain[JudgeType::MISS] = -0.048;
+        _healthGain[JudgeType::KPOOR] = -0.016;
+        break;
+
+    case GaugeType::ASSIST:
+        //_basic.health             = 0.2;
+        _minHealth = 0.02;
+        _clearHealth = 0.6;
+        _healthGain[JudgeType::PERFECT] = 0.01 * total / noteCount * 1.2;
+        _healthGain[JudgeType::GREAT] = 0.01 * total / noteCount * 1.2;
+        _healthGain[JudgeType::GOOD] = 0.01 * total / noteCount / 2 * 1.2;
+        _healthGain[JudgeType::BAD] = -0.032;
+        _healthGain[JudgeType::MISS] = -0.048;
+        _healthGain[JudgeType::KPOOR] = -0.016;
+        break;
+
+    case GaugeType::GRADE:
+        //_basic.health             = 1.0;
+        _minHealth = 0;
+        _clearHealth = 0;
+        _failWhenNoHealth = true;
+        _healthGain[JudgeType::PERFECT] = 1.0 / 1001.0;
+        _healthGain[JudgeType::GREAT] = 1.0 / 1001.0;
+        _healthGain[JudgeType::GOOD] = 1.0 / 1001.0 / 2;
+        _healthGain[JudgeType::BAD] = -0.02;
+        _healthGain[JudgeType::MISS] = -0.03;
+        _healthGain[JudgeType::KPOOR] = -0.02;
+        break;
+
+    case GaugeType::EXGRADE:
+        //_basic.health             = 1.0;
+        _minHealth = 0;
+        _clearHealth = 0;
+        _failWhenNoHealth = true;
+        _healthGain[JudgeType::PERFECT] = 1.0 / 1001.0;
+        _healthGain[JudgeType::GREAT] = 1.0 / 1001.0;
+        _healthGain[JudgeType::GOOD] = 1.0 / 1001.0 / 2;
+        _healthGain[JudgeType::BAD] = -0.12;
+        _healthGain[JudgeType::MISS] = -0.1;
+        _healthGain[JudgeType::KPOOR] = -0.1;
+        break;
+
+    default:
+        break;
     }
 }
 
@@ -1469,6 +1549,11 @@ double RulesetBMS::getScore() const
     return moneyScore;
 }
 
+double RulesetBMS::getMaxMoneyScore() const
+{
+    return maxMoneyScore;
+}
+
 unsigned RulesetBMS::getExScore() const
 {
     return exScore;
@@ -1493,9 +1578,18 @@ unsigned RulesetBMS::getJudgeCountEx(JudgeIndex idx) const
     return _basic.judge[idx];
 }
 
+std::string RulesetBMS::getModifierText() const
+{
+    return modifierText;
+}
+std::string RulesetBMS::getModifierTextShort() const
+{
+    return modifierTextShort;
+}
+
 unsigned RulesetBMS::getNoteCount() const
 {
-    return _chart->getNoteRegularCount() + _chart->getNoteLnCount();
+    return noteCount;
 }
 
 unsigned RulesetBMS::getMaxCombo() const
@@ -1543,8 +1637,12 @@ void RulesetBMS::updateGlobals()
 {
     if (_side == PlaySide::SINGLE || _side == PlaySide::DOUBLE || _side == PlaySide::BATTLE_1P || _side == PlaySide::AUTO || _side == PlaySide::AUTO_DOUBLE) // includes DP
     {
-        State::set(IndexBargraph::PLAY_EXSCORE, _basic.total_acc / 100.0);
-        State::set(IndexBargraph::PLAY_EXSCORE_PREDICT, _basic.acc / 100.0);
+        if (!gArenaData.isOnline())
+        {
+            State::set(IndexBargraph::PLAY_EXSCORE, _basic.total_acc / 100.0);
+            State::set(IndexBargraph::PLAY_EXSCORE_PREDICT, _basic.acc / 100.0);
+        }
+        State::set(IndexBargraph::PLAY_EXSCORE_BACKUP, _basic.total_acc / 100.0);
 
         State::set(IndexNumber::PLAY_1P_SCORE, int(std::round(moneyScore)));
         State::set(IndexNumber::PLAY_1P_EXSCORE, exScore);
@@ -1658,7 +1756,11 @@ void RulesetBMS::updateGlobals()
     }
     else if (_side == PlaySide::BATTLE_2P || _side == PlaySide::AUTO_2P || _side == PlaySide::RIVAL) // excludes DP
     {
-        State::set(IndexBargraph::PLAY_RIVAL_EXSCORE, _basic.total_acc / 100.0);
+        if (!gArenaData.isOnline())
+        {
+            State::set(IndexBargraph::PLAY_RIVAL_EXSCORE, _basic.total_acc / 100.0);
+        }
+        State::set(IndexBargraph::PLAY_RIVAL_EXSCORE_BACKUP, _basic.total_acc / 100.0);
         
         State::set(IndexNumber::PLAY_2P_SCORE, int(std::round(moneyScore)));
         State::set(IndexNumber::PLAY_2P_EXSCORE, exScore);
@@ -1736,7 +1838,7 @@ void RulesetBMS::updateGlobals()
         else if (_basic.total_acc >= 100.0 * 2.0 / 9) State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(exScore - maxScore * 3.0 / 9));    // D-
         else                                          State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(exScore - maxScore * 2.0 / 9));    // E-
     }
-    else if (_side == PlaySide::MYBEST)
+    else if (_side == PlaySide::MYBEST && !gArenaData.isOnline())
     {
         State::set(IndexBargraph::PLAY_MYBEST_NOW, _basic.total_acc / 100.0);
     }
