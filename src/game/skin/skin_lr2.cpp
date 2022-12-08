@@ -767,7 +767,7 @@ Tokens SkinLR2::csvLineTokenize(const std::string& raw)
     }
 
     // last param
-    if (!res.empty() && res.back().length() == 1)
+    if (!res.empty() && (strEqual(res[0], "#IF", true) || strEqual(res[0], "#ELSEIF", true)) && res.back().length() == 1)
     {
         LOG_WARNING << "[Skin] Ignored last parameter with 1 character long. Don't forget the trailing comma! Line: " << csvLineNumber;
         res.pop_back();
@@ -3043,10 +3043,10 @@ ParseRet SkinLR2::DST_BAR_RIVAL()
 int SkinLR2::parseHeader(const Tokens& raw)
 {
     if (raw.empty()) return 0;
-    parseParamBuf.resize(raw.size() - 1);
+    for (auto& s : parseParamBuf) s.clear();
     parseKeyBuf = raw[0];
     if (parseKeyBuf.empty()) return 0;
-    for (size_t idx = 0; idx < parseParamBuf.size(); ++idx)
+    for (size_t idx = 0; idx < 24 && idx < raw.size() - 1; ++idx)
     {
         parseParamBuf[idx] = raw[idx + 1];
 
@@ -3185,10 +3185,10 @@ int SkinLR2::parseHeader(const Tokens& raw)
 int SkinLR2::parseBody(const Tokens &raw)
 {
     if (raw.empty()) return 0;
-    parseParamBuf.resize(raw.size() - 1);
+    for (auto& s : parseParamBuf) s.clear();
     parseKeyBuf = raw[0];
     if (parseKeyBuf.empty()) return 0;
-    for (size_t idx = 0; idx < parseParamBuf.size(); ++idx)
+    for (size_t idx = 0; idx < 24 && idx < raw.size() - 1; ++idx)
     {
         parseParamBuf[idx] = raw[idx + 1];
 
@@ -3233,10 +3233,16 @@ int SkinLR2::parseBody(const Tokens &raw)
 
 void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc, bool ifUnsatisfied, bool skipOnly)
 {
-    if (t.size() <= 1)
+    if (t.size() <= 1 && !matchToken(*t.begin(), "#ELSEIF") && matchToken(*t.begin(), "#ENDIF"))
     {
         LOG_WARNING << "[Skin] " << csvLineNumber << ": No IF parameters, ignoring. " << " (Line " << csvLineNumber << ")";
         return;
+    }
+
+    if (matchToken(*t.begin(), "#IF"))
+    {
+        // do not remove this
+        skipOnly = false;
     }
 
     if (skipOnly)
@@ -3390,6 +3396,8 @@ void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc, bool
 SkinLR2::SkinLR2(Path p, int loadMode): loadMode(loadMode)
 {
     _type = eSkinType::LR2;
+
+    parseParamBuf.resize(24);
 
     for (size_t i = 0; i < BAR_ENTRY_SPRITE_COUNT; ++i)
     {
