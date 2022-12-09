@@ -2705,6 +2705,7 @@ void ScenePlay::updateFadeout()
             {
                 ConfigMgr::set('P', cfg::P_GREENNUMBER, _lockspeedGreenNumber[PLAYER_SLOT_PLAYER]);
             }
+            ConfigMgr::set('P', cfg::P_LOCK_SPEED, State::get(IndexSwitch::P1_LOCK_SPEED));
 
             if (gPlayContext.isBattle)
             {
@@ -2725,6 +2726,7 @@ void ScenePlay::updateFadeout()
                 {
                     gPlayContext.battle2PGreenNumber = _lockspeedGreenNumber[PLAYER_SLOT_TARGET];
                 }
+                gPlayContext.battle2P
             }
         }
 
