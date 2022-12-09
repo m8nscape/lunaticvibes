@@ -162,18 +162,18 @@ class ArenaMessageJoinLobby : public ArenaMessage
 public:
 	ArenaMessageJoinLobby() { type = Arena::JOIN_LOBBY; }
 
+	std::string version;
 	std::string playerName;
-	std::string reserved1;
-	std::string reserved2;
+	std::string reserved;
 
 public:
 	template<class Archive>
 	void serialize(Archive& ar)
 	{
 		ArenaMessage::serialize(ar);
+		ar(version);
 		ar(playerName);
-		ar(reserved1);
-		ar(reserved2);
+		ar(reserved);
 	}
 };
 

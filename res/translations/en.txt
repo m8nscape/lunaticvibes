@@ -129,6 +129,7 @@ Move Judge with LIFT
 2P Note Size (h)
 Reset
 ARENA
+Online Game
 P2P Online Matching mode
 Host
 Create a lobby as Server
@@ -144,6 +145,7 @@ Host failed. Please refer to log
 Joining %s ...
 Join success.
 Join failed. Address error
+Join failed. Your game version does not match
 Join failed. The lobby is full
 Join failed. The lobby is in game
 Join failed. Duplicate client address

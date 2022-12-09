@@ -123,11 +123,11 @@ void ScenePreSelect::updateLoadSongs()
             // ARENA
             if (!rootFolderProp.dbBrowseEntries.empty())
             {
-                std::shared_ptr<EntryFolderArena> entry = std::make_shared<EntryFolderArena>();
+                std::shared_ptr<EntryFolderArena> entry = std::make_shared<EntryFolderArena>(i18n::s(i18nText::ARENA_FOLDER_TITLE), i18n::s(i18nText::ARENA_FOLDER_SUBTITLE));
 
-                entry->pushEntry(std::make_shared<EntryArenaCommand>(EntryArenaCommand::Type::HOST_LOBBY, "HOST LOBBY"));
-                entry->pushEntry(std::make_shared<EntryArenaCommand>(EntryArenaCommand::Type::JOIN_LOBBY, "JOIN LOBBY"));
-                entry->pushEntry(std::make_shared<EntryArenaCommand>(EntryArenaCommand::Type::LEAVE_LOBBY, "LEAVE LOBBY"));
+                entry->pushEntry(std::make_shared<EntryArenaCommand>(EntryArenaCommand::Type::HOST_LOBBY, i18n::s(i18nText::ARENA_HOST), i18n::s(i18nText::ARENA_HOST_DESCRIPTION)));
+                entry->pushEntry(std::make_shared<EntryArenaCommand>(EntryArenaCommand::Type::JOIN_LOBBY, i18n::s(i18nText::ARENA_JOIN), i18n::s(i18nText::ARENA_JOIN_DESCRIPTION)));
+                entry->pushEntry(std::make_shared<EntryArenaCommand>(EntryArenaCommand::Type::LEAVE_LOBBY, i18n::s(i18nText::ARENA_LEAVE), i18n::s(i18nText::ARENA_LEAVE_DESCRIPTION)));
 
                 // TODO load lobby list from file
 

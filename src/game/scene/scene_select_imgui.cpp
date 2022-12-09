@@ -1398,7 +1398,8 @@ bool SceneSelect::_imguiArenaJoinLobbyPrompt()
             {
                 ImGui::Text("IP Address");
                 ImGui::SameLine();
-                ImGui::SetKeyboardFocusHere();
+                if (ImGui::IsWindowAppearing())
+                    ImGui::SetKeyboardFocusHere();
                 ok |= ImGui::InputText("##joinlobbyaddr", imgui_arena_address_buf, sizeof(imgui_arena_address_buf), ImGuiInputTextFlags_EnterReturnsTrue);
 
                 ok |= ImGui::Button(i18n::c(OK));
@@ -1406,6 +1407,7 @@ bool SceneSelect::_imguiArenaJoinLobbyPrompt()
                 if (ok)
                 {
                     ImGui::CloseCurrentPopup();
+                    imgui_show_arenaJoinLobbyPrompt = false;
                 }
 
                 ImGui::SameLine();
@@ -1423,7 +1425,6 @@ bool SceneSelect::_imguiArenaJoinLobbyPrompt()
 
         if (ok)
         {
-            imgui_show_arenaJoinLobbyPrompt = false;
             imgui_arena_joinLobby = true;
         }
 

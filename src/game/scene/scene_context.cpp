@@ -874,6 +874,10 @@ void setEntryInfo()
         case eEntryType::FOLDER:        text["genre"] = ""; break;
         case eEntryType::CUSTOM_FOLDER: text["genre"] = i18n::s(i18nText::CUSTOM_FOLDER_DESCRIPTION); break;
         case eEntryType::COURSE_FOLDER: text["genre"] = i18n::s(i18nText::COURSE_FOLDER_DESCRIPTION); break;
+
+        case eEntryType::ARENA_FOLDER: 
+        case eEntryType::ARENA_COMMAND: 
+        case eEntryType::ARENA_LOBBY: text["genre"] = i18n::s(i18nText::ARENA_FOLDER_DESCRIPTION); break;
         }
     }
 

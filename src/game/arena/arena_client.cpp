@@ -5,6 +5,7 @@
 #include "game/scene/scene_context.h"
 #include "game/runtime/i18n.h"
 #include "re2/re2.h"
+#include "git_version.h"
 
 std::shared_ptr<ArenaClient> g_pArenaClient = nullptr;
 
@@ -108,6 +109,7 @@ bool ArenaClient::joinLobby(const std::string& address)
 
 	auto n = std::make_shared<ArenaMessageJoinLobby>();
 	n->messageIndex = ++sendMessageIndex;
+	n->version = (boost::format("%s %s") % GIT_BRANCH % GIT_COMMIT).str();
 	n->playerName = State::get(IndexText::PLAYER_NAME);
 
 	auto payload = n->pack();
@@ -132,6 +134,7 @@ bool ArenaClient::joinLobby(const std::string& address)
 				{
 				case 1: createNotification(i18n::s(i18nText::ARENA_JOIN_FAILED_FULL)); break;
 				case 2: createNotification(i18n::s(i18nText::ARENA_JOIN_FAILED_IN_GAME)); break;
+				case 254: createNotification(i18n::s(i18nText::ARENA_JOIN_FAILED_VERSION_ERROR)); break;
 				case 255: createNotification(i18n::s(i18nText::ARENA_JOIN_FAILED_DUPLICATE_CLIENT)); break;
 				}
 				LOG_WARNING << "[Arena] Join failed: " << joinLobbyErrorCode; break;

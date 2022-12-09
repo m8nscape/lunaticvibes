@@ -5,8 +5,8 @@
 class EntryFolderArena : public EntryFolderBase
 {
 public:
-    EntryFolderArena() :
-        EntryFolderBase(HashMD5(""), "ARENA", "")
+    EntryFolderArena(const std::string& name, const std::string& name2 = "") :
+        EntryFolderBase(HashMD5(""), name, name2)
     {
         _type = eEntryType::ARENA_FOLDER;
     }
@@ -27,9 +27,10 @@ protected:
 
 public:
     EntryArenaCommand() = default;
-    EntryArenaCommand(Type type, const std::string& name): cmdType(type)
+    EntryArenaCommand(Type type, const std::string& name, const std::string& name2 = "") : cmdType(type)
     {
         _name = name;
+        _name2 = name2;
         _type = eEntryType::ARENA_COMMAND;
     }
 

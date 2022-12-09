@@ -9,6 +9,7 @@
 #include "game/scene/scene_context.h"
 #include "db/db_song.h"
 #include "game/runtime/i18n.h"
+#include "git_version.h"
 
 std::shared_ptr<ArenaHost> g_pArenaHost = nullptr;
 
@@ -417,21 +418,33 @@ void ArenaHost::handleRequest(const unsigned char* recv_buf, size_t recv_buf_len
 		if (pMsg->type == Arena::JOIN_LOBBY)
 		{
 			auto socket = addr.is_v4() ? v4 : v6;
-			if (!gArenaData.playing)
+
+			auto pJoinLobbyMsg = std::static_pointer_cast<ArenaMessageJoinLobby>(pMsg);
+			if (pJoinLobbyMsg->version == (boost::format("%s %s") % GIT_BRANCH % GIT_COMMIT).str())
 			{
-				if (clients.find(key) == clients.end())
+				if (!gArenaData.playing)
 				{
-					if (gArenaData.getPlayerCount() < MAX_ARENA_PLAYERS)
+					if (clients.find(key) == clients.end())
 					{
-						std::unique_lock l(clientsMutex);
-						clients[key].id = ++clientID;
-						clients[key].serverSocket = socket;
-						clients[key].endpoint = remote_endpoint;
+						if (gArenaData.getPlayerCount() < MAX_ARENA_PLAYERS)
+						{
+							std::unique_lock l(clientsMutex);
+							clients[key].id = ++clientID;
+							clients[key].serverSocket = socket;
+							clients[key].endpoint = remote_endpoint;
+						}
+						else
+						{
+							ArenaMessageResponse resp(*pMsg);
+							resp.errorCode = 1;	// FIXME no enough slots
+							auto payload = resp.pack();
+							socket->async_send_to(boost::asio::buffer(*payload), remote_endpoint, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
+						}
 					}
 					else
 					{
 						ArenaMessageResponse resp(*pMsg);
-						resp.errorCode = 1;	// FIXME no enough slots
+						resp.errorCode = 255;	// FIXME duplicate address
 						auto payload = resp.pack();
 						socket->async_send_to(boost::asio::buffer(*payload), remote_endpoint, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
 					}
@@ -439,7 +452,7 @@ void ArenaHost::handleRequest(const unsigned char* recv_buf, size_t recv_buf_len
 				else
 				{
 					ArenaMessageResponse resp(*pMsg);
-					resp.errorCode = 255;	// FIXME duplicate address
+					resp.errorCode = 2;	// FIXME host is playing
 					auto payload = resp.pack();
 					socket->async_send_to(boost::asio::buffer(*payload), remote_endpoint, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
 				}
@@ -447,7 +460,7 @@ void ArenaHost::handleRequest(const unsigned char* recv_buf, size_t recv_buf_len
 			else
 			{
 				ArenaMessageResponse resp(*pMsg);
-				resp.errorCode = 2;	// FIXME host is playing
+				resp.errorCode = 254;	// FIXME version not match
 				auto payload = resp.pack();
 				socket->async_send_to(boost::asio::buffer(*payload), remote_endpoint, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
 			}
