@@ -224,6 +224,11 @@ void SceneResult::_updateAsync()
         updateWaitArena();
         break;
     }
+
+    if (gArenaData.isOnline() && gArenaData.isExpired())
+    {
+        gArenaData.reset();
+    }
 }
 
 void SceneResult::updateDraw()
@@ -485,7 +490,7 @@ void SceneResult::updateWaitArena()
     assert(gArenaData.isOnline());
 
     Time t;
-    if (!gSelectContext.isArenaReady)
+    if (!gArenaData.isOnline() || !gSelectContext.isArenaReady)
     {
         State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
         _state = eResultState::FADEOUT;

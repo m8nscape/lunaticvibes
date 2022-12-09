@@ -308,7 +308,8 @@ void ArenaClient::handleRequest(const unsigned char* recv_buf, size_t recv_buf_l
 		case Arena::HOST_FINISHED_RESULT:	   handleHostFinishedResult (pMsg); break;
 		}
 	}
-	recvMessageIndex = std::max(recvMessageIndex, pMsg->messageIndex);
+	if (pMsg->type != Arena::RESPONSE)
+		recvMessageIndex = std::max(recvMessageIndex, pMsg->messageIndex);
 }
 
 void ArenaClient::handleResponse(std::shared_ptr<ArenaMessage> msg)
@@ -699,10 +700,7 @@ void ArenaClient::update()
 	}
 	else
 	{
-		if (!gArenaData.playing)
-		{
-			leaveLobby();
-		}
+		leaveLobby();
 		createNotification(i18n::s(i18nText::ARENA_LEAVE_TIMEOUT));
 	}
 

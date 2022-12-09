@@ -484,7 +484,8 @@ void ArenaHost::handleRequest(const unsigned char* recv_buf, size_t recv_buf_len
 		case Arena::CLIENT_FINISHED_PLAYING:  handleFinishedPlaying(key, pMsg); break;
 		case Arena::CLIENT_FINISHED_RESULT:   handleFinishedResult(key, pMsg); break;
 		}
-		clients[key].recvMessageIndex = std::max(clients[key].recvMessageIndex, pMsg->messageIndex);
+		if (pMsg->type != Arena::RESPONSE)
+			clients[key].recvMessageIndex = std::max(clients[key].recvMessageIndex, pMsg->messageIndex);
 	}
 }
 
@@ -926,29 +927,24 @@ void ArenaHost::update()
 			requestChartPending.reset();
 
 			std::string requestPlayerName;
-			if (requestChartHash == hostRequestChartHash)
+			if (requestChartPendingClientKey == "host")
 			{
 				// host select chart
+				hostRequestChartHash = requestChartHash;
 				requestPlayerName = State::get(IndexText::PLAYER_NAME);
 			}
 			else
 			{
 				// notice success
-				requestPlayerName = clients[requestChartPendingClientKey].name;
+				auto& cc = clients[requestChartPendingClientKey];
+				cc.requestChartHash = requestChartHash;
+				requestPlayerName = cc.name;
 			}
 			gSelectContext.remoteRequestedPlayer = requestPlayerName;
 			gSelectContext.remoteRequestedChart = requestChartHash;
 
-			if (requestChartPendingClientKey == "host")
-			{
-				hostRequestChartHash = requestChartHash;
-			}
-
 			for (auto& [k, cc] : clients)
 			{
-				if (k == requestChartPendingClientKey)
-					cc.requestChartHash = requestChartHash;
-
 				auto n = std::make_shared<ArenaMessageHostRequestChart>();
 				n->messageIndex = ++cc.sendMessageIndex;
 				n->requestPlayerName = requestPlayerName;

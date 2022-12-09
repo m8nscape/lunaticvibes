@@ -21,15 +21,15 @@ void RulesetBMSNetwork::update(const Time& t)
 
     auto B = [this](IndexBargraph base) -> IndexBargraph
     {
-        return IndexBargraph((int)base + ((int)IndexBargraph::ARENA_PLAYDATA_MAX - (int)IndexBargraph::ARENA_PLAYDATA_BASE) * playerIndex);
+        return IndexBargraph((int)base + ((int)IndexBargraph::ARENA_PLAYDATA_MAX - (int)IndexBargraph::ARENA_PLAYDATA_BASE + 1) * playerIndex);
     };
     auto N = [this](IndexNumber base) -> IndexNumber
     {
-        return IndexNumber((int)base + ((int)IndexNumber::ARENA_PLAYDATA_MAX - (int)IndexNumber::ARENA_PLAYDATA_BASE) * playerIndex);
+        return IndexNumber((int)base + ((int)IndexNumber::ARENA_PLAYDATA_MAX - (int)IndexNumber::ARENA_PLAYDATA_BASE + 1) * playerIndex);
     };
     auto O = [this](IndexOption base) -> IndexOption
     {
-        return IndexOption((int)base + ((int)IndexOption::ARENA_PLAYDATA_MAX - (int)IndexOption::ARENA_PLAYDATA_BASE) * playerIndex);
+        return IndexOption((int)base + ((int)IndexOption::ARENA_PLAYDATA_MAX - (int)IndexOption::ARENA_PLAYDATA_BASE + 1) * playerIndex);
     };
 
     State::set(B(IndexBargraph::ARENA_PLAYDATA_EXSCORE), _basic.total_acc / 100.0);
@@ -72,6 +72,42 @@ void RulesetBMSNetwork::update(const Time& t)
 
     if (auto player = std::dynamic_pointer_cast<RulesetBMS>(gPlayContext.ruleset[PLAYER_SLOT_PLAYER]); player)
         State::set(N(IndexNumber::ARENA_PLAYDATA_PLAYER_EX_DIFF), player->getExScore() - exScore);
+
+    if (isNoScore() && _basic.judge[JUDGE_BP] == 0)
+    {
+        State::set(O(IndexOption::ARENA_PLAYDATA_CLEAR_TYPE), Option::LAMP_NOPLAY);
+    }
+    else if (_basic.judge[JUDGE_CB] == 0)
+    {
+        if (_basic.acc >= 100.0)
+            State::set(O(IndexOption::ARENA_PLAYDATA_CLEAR_TYPE), Option::LAMP_MAX);
+        else if (_basic.judge[JUDGE_GOOD] == 0)
+            State::set(O(IndexOption::ARENA_PLAYDATA_CLEAR_TYPE), Option::LAMP_PERFECT);
+        else
+            State::set(O(IndexOption::ARENA_PLAYDATA_CLEAR_TYPE), Option::LAMP_FULLCOMBO);
+    }
+    else if (!isFailed())
+    {
+        switch (_gauge)
+        {
+        case GaugeType::HARD:       State::set(O(IndexOption::ARENA_PLAYDATA_CLEAR_TYPE), Option::LAMP_HARD); break;
+        case GaugeType::EXHARD:     State::set(O(IndexOption::ARENA_PLAYDATA_CLEAR_TYPE), Option::LAMP_EXHARD); break;
+        case GaugeType::DEATH:      State::set(O(IndexOption::ARENA_PLAYDATA_CLEAR_TYPE), Option::LAMP_FULLCOMBO); break;
+            //case GaugeType::P_ATK:      State::set(O(IndexOption::ARENA_PLAYDATA_CLEAR_TYPE), Option::LAMP_FULLCOMBO); break;
+            //case GaugeType::G_ATK:      State::set(O(IndexOption::ARENA_PLAYDATA_CLEAR_TYPE), Option::LAMP_FULLCOMBO); break;
+        case GaugeType::GROOVE:     State::set(O(IndexOption::ARENA_PLAYDATA_CLEAR_TYPE), Option::LAMP_NORMAL); break;
+        case GaugeType::EASY:       State::set(O(IndexOption::ARENA_PLAYDATA_CLEAR_TYPE), Option::LAMP_EASY); break;
+        case GaugeType::ASSIST:     State::set(O(IndexOption::ARENA_PLAYDATA_CLEAR_TYPE), Option::LAMP_ASSIST); break;
+        case GaugeType::GRADE:      State::set(O(IndexOption::ARENA_PLAYDATA_CLEAR_TYPE), Option::LAMP_NORMAL); break;
+        case GaugeType::EXGRADE:    State::set(O(IndexOption::ARENA_PLAYDATA_CLEAR_TYPE), Option::LAMP_HARD); break;
+        default:
+            break;
+        }
+    }
+    else
+    {
+        State::set(O(IndexOption::ARENA_PLAYDATA_CLEAR_TYPE), Option::LAMP_FAILED);
+    }
 }
 
 std::vector<unsigned char> RulesetBMSNetwork::packInit(std::shared_ptr<RulesetBMS> local)

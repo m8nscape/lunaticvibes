@@ -251,6 +251,44 @@ IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FAL
 IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE,
 
 // 270
+IndexOption::RESULT_CLEAR_TYPE_1P,  // FAILED / EASY / GROOVE / HARD / FULLCOMBO / ASSIST-EASY / EX-HARD
+IndexOption::RESULT_CLEAR_TYPE_2P,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+IndexSwitch::_FALSE,
+
+// 280
+IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE,
+IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE,
+
+// 300
+IndexSwitch::_FALSE,
+IndexOption::ARENA_PLAYDATA_CLEAR_TYPE, // FAILED / EASY / GROOVE / HARD / FULLCOMBO / ASSIST-EASY / EX-HARD
+IndexOption(int(IndexOption::ARENA_PLAYDATA_CLEAR_TYPE) + (int(IndexOption::ARENA_PLAYDATA_MAX) - int(IndexOption::ARENA_PLAYDATA_BASE) + 1) * 1),
+IndexOption(int(IndexOption::ARENA_PLAYDATA_CLEAR_TYPE) + (int(IndexOption::ARENA_PLAYDATA_MAX) - int(IndexOption::ARENA_PLAYDATA_BASE) + 1) * 2),
+IndexOption(int(IndexOption::ARENA_PLAYDATA_CLEAR_TYPE) + (int(IndexOption::ARENA_PLAYDATA_MAX) - int(IndexOption::ARENA_PLAYDATA_BASE) + 1) * 3),
+IndexOption(int(IndexOption::ARENA_PLAYDATA_CLEAR_TYPE) + (int(IndexOption::ARENA_PLAYDATA_MAX) - int(IndexOption::ARENA_PLAYDATA_BASE) + 1) * 4),
+IndexOption(int(IndexOption::ARENA_PLAYDATA_CLEAR_TYPE) + (int(IndexOption::ARENA_PLAYDATA_MAX) - int(IndexOption::ARENA_PLAYDATA_BASE) + 1) * 5),
+IndexOption(int(IndexOption::ARENA_PLAYDATA_CLEAR_TYPE) + (int(IndexOption::ARENA_PLAYDATA_MAX) - int(IndexOption::ARENA_PLAYDATA_BASE) + 1) * 6),
+IndexOption(int(IndexOption::ARENA_PLAYDATA_CLEAR_TYPE) + (int(IndexOption::ARENA_PLAYDATA_MAX) - int(IndexOption::ARENA_PLAYDATA_BASE) + 1) * 7),
+IndexSwitch::_FALSE,
+
+// 310
+IndexOption::RESULT_ARENA_PLAYER_RANKING,
+IndexOption::ARENA_PLAYDATA_RANKING,    // ABSENT / 1st / 2nd / 3rd / 4th / 5th / 6th / 7th / 8th / 9th
+IndexOption(int(IndexOption::ARENA_PLAYDATA_RANKING) + (int(IndexOption::ARENA_PLAYDATA_MAX) - int(IndexOption::ARENA_PLAYDATA_BASE) + 1) * 1),
+IndexOption(int(IndexOption::ARENA_PLAYDATA_RANKING) + (int(IndexOption::ARENA_PLAYDATA_MAX) - int(IndexOption::ARENA_PLAYDATA_BASE) + 1) * 2),
+IndexOption(int(IndexOption::ARENA_PLAYDATA_RANKING) + (int(IndexOption::ARENA_PLAYDATA_MAX) - int(IndexOption::ARENA_PLAYDATA_BASE) + 1) * 3),
+IndexOption(int(IndexOption::ARENA_PLAYDATA_RANKING) + (int(IndexOption::ARENA_PLAYDATA_MAX) - int(IndexOption::ARENA_PLAYDATA_BASE) + 1) * 4),
+IndexOption(int(IndexOption::ARENA_PLAYDATA_RANKING) + (int(IndexOption::ARENA_PLAYDATA_MAX) - int(IndexOption::ARENA_PLAYDATA_BASE) + 1) * 5),
+IndexOption(int(IndexOption::ARENA_PLAYDATA_RANKING) + (int(IndexOption::ARENA_PLAYDATA_MAX) - int(IndexOption::ARENA_PLAYDATA_BASE) + 1) * 6),
+IndexOption(int(IndexOption::ARENA_PLAYDATA_RANKING) + (int(IndexOption::ARENA_PLAYDATA_MAX) - int(IndexOption::ARENA_PLAYDATA_BASE) + 1) * 7),
+IndexSwitch::_FALSE,
 };
 
 bool buttonSw(int n, IndexSwitch& out)

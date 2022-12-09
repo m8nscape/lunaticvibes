@@ -584,7 +584,7 @@ void SceneSelect::_updateAsync()
     }
     if (!gSelectContext.remoteRequestedChart.empty())
     {
-        std::string folderName = (boost::format("Request by %s") % gSelectContext.remoteRequestedPlayer).str(); // FIXME i18n
+        std::string folderName = (boost::format(i18n::c(i18nText::ARENA_REQUEST_BY)) % gSelectContext.remoteRequestedPlayer).str();
         SongListProperties prop{
             gSelectContext.backtrace.top().folder,
             {},
@@ -601,8 +601,15 @@ void SceneSelect::_updateAsync()
         gSelectContext.entries.clear();
         loadSongList();
         sortSongList();
-        gSelectContext.idx = 0;
 
+        idxUpdated = true;
+
+        navigateTimestamp = t;
+        postStopPreview();
+
+        std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
+
+        gSelectContext.idx = 0;
         setBarInfo();
         setEntryInfo();
 

@@ -1463,78 +1463,66 @@ ParseRet SkinLR2::SRC_BUTTON()
 {
     lr2skin::s_button d(parseParamBuf, csvLineNumber);
     
-    if (d.type < 270)
+    std::shared_ptr<SpriteOption> s;
+
+    if (d.click)
     {
-        std::shared_ptr<SpriteOption> s;
-
-        if (d.click)
-        {
-            s = std::make_shared<SpriteButton>(
-                textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, lr2skin::button::getButtonCallback(d.type), d.panel, d.plusonly, IndexTimer::SCENE_START, d.div_y, d.div_x, false);
-        }
-        else
-        {
-            s = std::make_shared<SpriteOption>(
-                textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, IndexTimer::SCENE_START, d.div_y, d.div_x, false);
-        }
-        IndexSwitch sw;
-        IndexOption op;
-        if (lr2skin::buttonSw(d.type, sw))
-        {
-            if (sw == IndexSwitch::_TRUE)
-            {
-                switch (d.type)
-                {
-                case 72:	// bga off/on/autoplay only, special
-                case 73:	// bga normal/extend, special
-                case 80:	// window mode, windowed/fullscreen
-                case 82:	// vsync
-                default:
-                    break;
-                }
-            }
-            s->setInd(SpriteOption::opType::SWITCH, (unsigned)sw);
-
-            if (sw == IndexSwitch::S1A_CONFIG || sw == IndexSwitch::S2A_CONFIG)
-            {
-                isSupportKeyConfigAbsAxis = true;
-            }
-        }
-        if (lr2skin::buttonOp(d.type, op))
-        {
-            s->setInd(SpriteOption::opType::OPTION, (unsigned)op);
-
-            if (info.mode == eMode::MUSIC_SELECT)
-            {
-                if (op == IndexOption::PLAY_RANDOM_TYPE_1P || op == IndexOption::PLAY_RANDOM_TYPE_2P)
-                {
-                    if (d.div_x * d.div_y >= 9)
-                        isSupportNewRandom = true;
-                }
-                if (op == IndexOption::PLAY_GAUGE_TYPE_1P || op == IndexOption::PLAY_GAUGE_TYPE_2P)
-                {
-                    if (d.div_x * d.div_y >= 8)
-                        isSupportExHardAndAssistEasy = true;
-                }
-                if (op == IndexOption::PLAY_LANE_EFFECT_TYPE_1P || op == IndexOption::PLAY_LANE_EFFECT_TYPE_2P)
-                {
-                    if (d.div_x * d.div_y >= 6)
-                        isSupportLift = true;
-                }
-            }
-        }
-        _sprites.push_back(s);
-        _sprites.back()->setSrcLine(csvLineNumber);
+        s = std::make_shared<SpriteButton>(
+            textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, lr2skin::button::getButtonCallback(d.type), d.panel, d.plusonly, IndexTimer::SCENE_START, d.div_y, d.div_x, false);
     }
     else
     {
-        // deal as IndexSwitch::_FALSE
-        auto s = std::make_shared<SpriteOption>(
+        s = std::make_shared<SpriteOption>(
             textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, IndexTimer::SCENE_START, d.div_y, d.div_x, false);
-        s->setInd(SpriteOption::opType::SWITCH, (unsigned)IndexSwitch::_FALSE);
-        _sprites.push_back(s);
-        _sprites.back()->setSrcLine(csvLineNumber);
     }
+    IndexSwitch sw;
+    IndexOption op;
+    if (lr2skin::buttonSw(d.type, sw))
+    {
+        if (sw == IndexSwitch::_TRUE)
+        {
+            switch (d.type)
+            {
+            case 72:	// bga off/on/autoplay only, special
+            case 73:	// bga normal/extend, special
+            case 80:	// window mode, windowed/fullscreen
+            case 82:	// vsync
+            default:
+                break;
+            }
+        }
+        s->setInd(SpriteOption::opType::SWITCH, (unsigned)sw);
+
+        if (sw == IndexSwitch::S1A_CONFIG || sw == IndexSwitch::S2A_CONFIG)
+        {
+            isSupportKeyConfigAbsAxis = true;
+        }
+    }
+    if (lr2skin::buttonOp(d.type, op))
+    {
+        s->setInd(SpriteOption::opType::OPTION, (unsigned)op);
+
+        if (info.mode == eMode::MUSIC_SELECT)
+        {
+            if (op == IndexOption::PLAY_RANDOM_TYPE_1P || op == IndexOption::PLAY_RANDOM_TYPE_2P)
+            {
+                if (d.div_x * d.div_y >= 9)
+                    isSupportNewRandom = true;
+            }
+            if (op == IndexOption::PLAY_GAUGE_TYPE_1P || op == IndexOption::PLAY_GAUGE_TYPE_2P)
+            {
+                if (d.div_x * d.div_y >= 8)
+                    isSupportExHardAndAssistEasy = true;
+            }
+            if (op == IndexOption::PLAY_LANE_EFFECT_TYPE_1P || op == IndexOption::PLAY_LANE_EFFECT_TYPE_2P)
+            {
+                if (d.div_x * d.div_y >= 6)
+                    isSupportLift = true;
+            }
+        }
+    }
+    _sprites.push_back(s);
+    _sprites.back()->setSrcLine(csvLineNumber);
 
     return ParseRet::OK;
 }
@@ -3547,7 +3535,7 @@ bool SkinLR2::loadCSV(Path p)
         break;
     case eMode::RESULT:
     case eMode::COURSE_RESULT:
-        lr2skin::flipSide = (lr2skin::flipSideFlag || lr2skin::flipResultFlag);
+        lr2skin::flipSide = (lr2skin::flipSideFlag || lr2skin::flipResultFlag) && !disableFlipResult;
         break;
     default:
         lr2skin::flipSide = false;

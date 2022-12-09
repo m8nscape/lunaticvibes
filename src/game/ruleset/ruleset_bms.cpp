@@ -397,19 +397,18 @@ void RulesetBMS::initGaugeParams(eModGauge gauge)
 {
     switch (gauge)
     {
-    case eModGauge::HARD: _gauge = GaugeType::HARD;    break;
-    case eModGauge::DEATH: _gauge = GaugeType::DEATH;   break;
-    case eModGauge::EASY: _gauge = GaugeType::EASY;    break;
+    case eModGauge::HARD:               _gauge = GaugeType::HARD;    break;
+    case eModGauge::DEATH:              _gauge = GaugeType::DEATH;   break;
+    case eModGauge::EASY:               _gauge = GaugeType::EASY;    break;
         //case eModGauge::PATTACK     : _gauge = GaugeType::P_ATK;   break;
         //case eModGauge::GATTACK     : _gauge = GaugeType::G_ATK;   break;
-    case eModGauge::ASSISTEASY: _gauge = GaugeType::ASSIST;  break;
-    case eModGauge::GRADE_NORMAL: _gauge = GaugeType::GRADE;   break;
-    case eModGauge::GRADE_DEATH: _gauge = GaugeType::EXGRADE; break;
-    case eModGauge::EXHARD: _gauge = GaugeType::EXHARD;  break;
-    case eModGauge::GRADE_HARD: _gauge = GaugeType::EXGRADE; break;
+    case eModGauge::ASSISTEASY:         _gauge = GaugeType::ASSIST;  break;
+    case eModGauge::GRADE_NORMAL:       _gauge = GaugeType::GRADE;   break;
+    case eModGauge::GRADE_DEATH:        _gauge = GaugeType::EXGRADE; break;
+    case eModGauge::EXHARD:             _gauge = GaugeType::EXHARD;  break;
+    case eModGauge::GRADE_HARD:         _gauge = GaugeType::EXGRADE; break;
     case eModGauge::NORMAL:
-    default:
-        _gauge = GaugeType::GROOVE;  break;
+    default:                            _gauge = GaugeType::GROOVE;  break;
     }
 
     if (_format)
@@ -1753,6 +1752,41 @@ void RulesetBMS::updateGlobals()
         State::set(IndexNumber::LR2IR_REPLACE_PLAY_RUNNING_NOTES, notesExpired);
         State::set(IndexNumber::LR2IR_REPLACE_PLAY_REMAIN_NOTES, getNoteCount() - notesExpired);
 
+        if (isNoScore() && _basic.judge[JUDGE_BP] == 0)
+        {
+            State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_NOPLAY);
+        }
+        else if (_basic.judge[JUDGE_CB] == 0)
+        {
+            if (_basic.acc >= 100.0)
+                State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_MAX);
+            else if (_basic.judge[JUDGE_GOOD] == 0)
+                State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_PERFECT);
+            else
+                State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_FULLCOMBO);
+        }
+        else if (!isFailed())
+        {
+            switch (_gauge)
+            {
+            case GaugeType::HARD:       State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_HARD); break;
+            case GaugeType::EXHARD:     State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_EXHARD); break;
+            case GaugeType::DEATH:      State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_FULLCOMBO); break;
+            //case GaugeType::P_ATK:      State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_FULLCOMBO); break;
+            //case GaugeType::G_ATK:      State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_FULLCOMBO); break;
+            case GaugeType::GROOVE:     State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_NORMAL); break;
+            case GaugeType::EASY:       State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_EASY); break;
+            case GaugeType::ASSIST:     State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_ASSIST); break;
+            case GaugeType::GRADE:      State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_NORMAL); break;
+            case GaugeType::EXGRADE:    State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_HARD); break;
+            default:
+                break;
+            }
+        }
+        else
+        {
+            State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_FAILED);
+        }
     }
     else if (_side == PlaySide::BATTLE_2P || _side == PlaySide::AUTO_2P || _side == PlaySide::RIVAL) // excludes DP
     {
@@ -1837,6 +1871,42 @@ void RulesetBMS::updateGlobals()
         else if (_basic.total_acc >= 100.0 * 3.0 / 9) State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(exScore - maxScore * 4.0 / 9));    // C-
         else if (_basic.total_acc >= 100.0 * 2.0 / 9) State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(exScore - maxScore * 3.0 / 9));    // D-
         else                                          State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(exScore - maxScore * 2.0 / 9));    // E-
+
+        if (isNoScore() && _basic.judge[JUDGE_BP] == 0)
+        {
+            State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_NOPLAY);
+        }
+        else if (_basic.judge[JUDGE_CB] == 0)
+        {
+            if (_basic.acc >= 100.0)
+                State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_MAX);
+            else if (_basic.judge[JUDGE_GOOD] == 0)
+                State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_PERFECT);
+            else
+                State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_FULLCOMBO);
+        }
+        else if (!isFailed())
+        {
+            switch (_gauge)
+            {
+            case GaugeType::HARD:       State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_HARD); break;
+            case GaugeType::EXHARD:     State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_EXHARD); break;
+            case GaugeType::DEATH:      State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_FULLCOMBO); break;
+                //case GaugeType::P_ATK:      State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_FULLCOMBO); break;
+                //case GaugeType::G_ATK:      State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_FULLCOMBO); break;
+            case GaugeType::GROOVE:     State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_NORMAL); break;
+            case GaugeType::EASY:       State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_EASY); break;
+            case GaugeType::ASSIST:     State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_ASSIST); break;
+            case GaugeType::GRADE:      State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_NORMAL); break;
+            case GaugeType::EXGRADE:    State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_HARD); break;
+            default:
+                break;
+            }
+        }
+        else
+        {
+            State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_FAILED);
+        }
     }
     else if (_side == PlaySide::MYBEST && !gArenaData.isOnline())
     {

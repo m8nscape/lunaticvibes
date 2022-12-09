@@ -67,6 +67,9 @@ private:
 	}
 
 public:
+	int getPlayerID() const { return playerID; }
+
+public:
 	// lobby
 	std::vector<ArenaLobbyInfo> seekLobby();
 	bool joinLobby(const std::string& address);

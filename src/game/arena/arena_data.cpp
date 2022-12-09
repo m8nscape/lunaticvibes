@@ -113,11 +113,39 @@ void ArenaData::updateTexts()
 void ArenaData::updateGlobals()
 {
 	Time t;
-	for (auto& [id, d] : data)
+	std::vector<std::pair<unsigned, IndexOption>> ranking;
+	for (size_t i = 0; i < getPlayerCount(); ++i)
 	{
+		auto& d = data[playerIDs[i]];
 		if (d.ruleset)
 		{
 			d.ruleset->update(t);
+			if (auto p = std::dynamic_pointer_cast<RulesetBMS>(d.ruleset); p)
+			{
+				size_t offset = (int(IndexOption::ARENA_PLAYDATA_MAX) - int(IndexOption::ARENA_PLAYDATA_BASE) + 1) * i;
+				ranking.push_back({ p->getExScore(), IndexOption(int(IndexOption::ARENA_PLAYDATA_RANKING) + offset) });
+			}
 		}
+	}
+	ranking.push_back({ State::get(IndexNumber::PLAY_1P_EXSCORE), IndexOption::RESULT_ARENA_PLAYER_RANKING });
+
+	std::sort(ranking.begin(), ranking.end());
+	int rank = 1;
+	int step = 0;
+	unsigned exscorePrev = 0;
+	for (auto it = ranking.rbegin(); it != ranking.rend(); ++it)
+	{
+		auto& [exscore, op] = *it;
+		if (exscore == exscorePrev)
+		{
+			step++;
+		}
+		else
+		{
+			rank += step;
+			exscorePrev = exscore;
+			step = 1;
+		}
+		State::set(op, rank);
 	}
 }

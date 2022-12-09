@@ -1369,6 +1369,11 @@ void ScenePlay::_updateAsync()
         updateWaitArena();
         break;
     }
+
+    if (gArenaData.isOnline() && gArenaData.isExpired())
+    {
+        gArenaData.reset();
+    }
 }
 
 void ScenePlay::updateAsyncLanecover(const Time& t)
@@ -3356,12 +3361,15 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
         {
             imguiShowAdjustMenu = !imguiShowAdjustMenu;
         }
-        if (input[Input::ESC])
+        if (!gArenaData.isOnline() || _state == ePlayState::PLAYING)
         {
-            if (imguiShowAdjustMenu) 
-                imguiShowAdjustMenu = false;
-            else
-                requestExit();
+            if (input[Input::ESC])
+            {
+                if (imguiShowAdjustMenu)
+                    imguiShowAdjustMenu = false;
+                else
+                    requestExit();
+            }
         }
     }
 }
