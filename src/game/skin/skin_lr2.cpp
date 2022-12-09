@@ -1197,7 +1197,16 @@ int SkinLR2::others()
     }
     if (matchToken(parseKeyBuf, "#SETOPTION"))
     {
-        setCustomDstOpt(toInt(parseParamBuf[0]), 0, toInt(parseParamBuf[1]));
+        int dst = toInt(parseParamBuf[0]);
+        bool val = !!toInt(parseParamBuf[1]);
+        if (dst >= 900 && dst <= 999)
+        {
+            setCustomDstOpt(dst, 0, val);
+        }
+        else
+        {
+            LOG_WARNING << "[Skin] #SETOPTION dst invalid (" << dst << "). Should be 900~999";
+        }
         return 9;
     }
     return 0;
@@ -3559,82 +3568,85 @@ bool SkinLR2::loadCSV(Path p)
         }
 
         // load skin customization from profile
-        Path pCustomize = ConfigMgr::Profile()->getPath() / "customize" / SceneCustomize::getConfigFileName(getFilePath());
-        try
+        if (p == filePath)
         {
-            std::map<size_t, StringContent> opDstMap;
-            std::map<StringContent, StringContent> opFileMap;
-            for (const auto& node : YAML::LoadFile(pCustomize.u8string()))
+            Path pCustomize = ConfigMgr::Profile()->getPath() / "customize" / SceneCustomize::getConfigFileName(getFilePath());
+            try
             {
-                auto key = node.first.as<std::string>();
-                if (key.substr(0, 4) == "OPT_")
+                std::map<size_t, StringContent> opDstMap;
+                std::map<StringContent, StringContent> opFileMap;
+                for (const auto& node : YAML::LoadFile(pCustomize.u8string()))
                 {
-                    size_t dst_op = std::strtoul(key.substr(4).c_str(), nullptr, 10);
-                    opDstMap[dst_op] = node.second.as<std::string>();
-                }
-                else if (key.substr(0, 5) == "FILE_")
-                {
-                    opFileMap[key.substr(5)] = node.second.as<std::string>();
-                }
-                else if (key.substr(0, 5) == "PLAY_")
-                {
-                    if (key == "PLAY_SKIN_X") adjustPlaySkinX = node.second.as<int>(0);
-                    else if (key == "PLAY_SKIN_Y") adjustPlaySkinY = node.second.as<int>(0);
-                    else if (key == "PLAY_SKIN_W") adjustPlaySkinW = node.second.as<int>(0);
-                    else if (key == "PLAY_SKIN_H") adjustPlaySkinH = node.second.as<int>(0);
-                    else if (key == "PLAY_JUDGE_POS_LIFT") adjustPlayJudgePositionLift = node.second.as<bool>(true);
-                    else if (key == "PLAY_JUDGE_POS_1P_X") adjustPlayJudgePosition1PX = node.second.as<int>(0);
-                    else if (key == "PLAY_JUDGE_POS_1P_Y") adjustPlayJudgePosition2PY = node.second.as<int>(0);
-                    else if (key == "PLAY_JUDGE_POS_2P_X") adjustPlayJudgePosition1PX = node.second.as<int>(0);
-                    else if (key == "PLAY_JUDGE_POS_2P_Y") adjustPlayJudgePosition2PY = node.second.as<int>(0);
-                    else if (key == "PLAY_NOTE_1P_X") adjustPlayNote1PX = node.second.as<int>(0);
-                    else if (key == "PLAY_NOTE_1P_Y") adjustPlayNote1PY = node.second.as<int>(0);
-                    else if (key == "PLAY_NOTE_1P_W") adjustPlayNote1PW = node.second.as<int>(0);
-                    else if (key == "PLAY_NOTE_1P_H") adjustPlayNote1PH = node.second.as<int>(0);
-                    else if (key == "PLAY_NOTE_2P_X") adjustPlayNote2PX = node.second.as<int>(0);
-                    else if (key == "PLAY_NOTE_2P_Y") adjustPlayNote2PY = node.second.as<int>(0);
-                    else if (key == "PLAY_NOTE_2P_W") adjustPlayNote2PW = node.second.as<int>(0);
-                    else if (key == "PLAY_NOTE_2P_H") adjustPlayNote2PH = node.second.as<int>(0);
-                }
-            }
-            for (auto& itOp : customize)
-            {
-                for (auto& itDst : opDstMap)
-                {
-                    if (itDst.first == itOp.dst_op)
+                    auto key = node.first.as<std::string>();
+                    if (key.substr(0, 4) == "OPT_")
                     {
-                        if (const auto itEntry = std::find(itOp.label.begin(), itOp.label.end(), itDst.second); itEntry != itOp.label.end())
+                        size_t dst_op = std::strtoul(key.substr(4).c_str(), nullptr, 10);
+                        opDstMap[dst_op] = node.second.as<std::string>();
+                    }
+                    else if (key.substr(0, 5) == "FILE_")
+                    {
+                        opFileMap[key.substr(5)] = node.second.as<std::string>();
+                    }
+                    else if (key.substr(0, 5) == "PLAY_")
+                    {
+                        if (key == "PLAY_SKIN_X") adjustPlaySkinX = node.second.as<int>(0);
+                        else if (key == "PLAY_SKIN_Y") adjustPlaySkinY = node.second.as<int>(0);
+                        else if (key == "PLAY_SKIN_W") adjustPlaySkinW = node.second.as<int>(0);
+                        else if (key == "PLAY_SKIN_H") adjustPlaySkinH = node.second.as<int>(0);
+                        else if (key == "PLAY_JUDGE_POS_LIFT") adjustPlayJudgePositionLift = node.second.as<bool>(true);
+                        else if (key == "PLAY_JUDGE_POS_1P_X") adjustPlayJudgePosition1PX = node.second.as<int>(0);
+                        else if (key == "PLAY_JUDGE_POS_1P_Y") adjustPlayJudgePosition2PY = node.second.as<int>(0);
+                        else if (key == "PLAY_JUDGE_POS_2P_X") adjustPlayJudgePosition1PX = node.second.as<int>(0);
+                        else if (key == "PLAY_JUDGE_POS_2P_Y") adjustPlayJudgePosition2PY = node.second.as<int>(0);
+                        else if (key == "PLAY_NOTE_1P_X") adjustPlayNote1PX = node.second.as<int>(0);
+                        else if (key == "PLAY_NOTE_1P_Y") adjustPlayNote1PY = node.second.as<int>(0);
+                        else if (key == "PLAY_NOTE_1P_W") adjustPlayNote1PW = node.second.as<int>(0);
+                        else if (key == "PLAY_NOTE_1P_H") adjustPlayNote1PH = node.second.as<int>(0);
+                        else if (key == "PLAY_NOTE_2P_X") adjustPlayNote2PX = node.second.as<int>(0);
+                        else if (key == "PLAY_NOTE_2P_Y") adjustPlayNote2PY = node.second.as<int>(0);
+                        else if (key == "PLAY_NOTE_2P_W") adjustPlayNote2PW = node.second.as<int>(0);
+                        else if (key == "PLAY_NOTE_2P_H") adjustPlayNote2PH = node.second.as<int>(0);
+                    }
+                }
+                for (auto& itOp : customize)
+                {
+                    for (auto& itDst : opDstMap)
+                    {
+                        if (itDst.first == itOp.dst_op)
                         {
-                            itOp.value = std::distance(itOp.label.begin(), itEntry);
+                            if (const auto itEntry = std::find(itOp.label.begin(), itOp.label.end(), itDst.second); itEntry != itOp.label.end())
+                            {
+                                itOp.value = std::distance(itOp.label.begin(), itEntry);
+                            }
+                        }
+                    }
+                    for (auto& itFile : opFileMap)
+                    {
+                        if (itOp.title == itFile.first && itOp.dst_op == 0)
+                        {
+                            if (const auto itEntry = std::find(itOp.label.begin(), itOp.label.end(), itFile.second); itEntry != itOp.label.end())
+                            {
+                                itOp.value = std::distance(itOp.label.begin(), itEntry);
+                            }
                         }
                     }
                 }
-                for (auto& itFile : opFileMap)
-                {
-                    if (itOp.title == itFile.first && itOp.dst_op == 0)
-                    {
-                        if (const auto itEntry = std::find(itOp.label.begin(), itOp.label.end(), itFile.second); itEntry != itOp.label.end())
-                        {
-                            itOp.value = std::distance(itOp.label.begin(), itEntry);
-                        }
-                    }
-                }
             }
-        }
-        catch (YAML::BadFile&)
-        {
-            LOG_WARNING << "[Skin] Bad customize config file: " << pCustomize.u8string();
-        }
-        for (auto c : customize)
-        {
-            if (c.dst_op != 0)
+            catch (YAML::BadFile&)
             {
-                //data().setDstOption(static_cast<dst_option>(c.dst_op + c.value), true);
-                for (size_t i = 0; i < c.label.size(); ++i)
+                LOG_WARNING << "[Skin] Bad customize config file: " << pCustomize.u8string();
+            }
+            for (auto c : customize)
+            {
+                if (c.dst_op != 0)
                 {
-                    setCustomDstOpt(c.dst_op, i, false);
+                    //data().setDstOption(static_cast<dst_option>(c.dst_op + c.value), true);
+                    for (size_t i = 0; i < c.label.size(); ++i)
+                    {
+                        setCustomDstOpt(c.dst_op, i, false);
+                    }
+                    setCustomDstOpt(c.dst_op, c.value, true);
                 }
-                setCustomDstOpt(c.dst_op, c.value, true);
             }
         }
 
