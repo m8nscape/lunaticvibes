@@ -287,7 +287,6 @@ void ArenaClient::handleRequest(const unsigned char* recv_buf, size_t recv_buf_l
 	auto pMsg = ArenaMessage::unpack(recv_buf, recv_buf_len);
 	if (pMsg)
 	{
-		recvMessageIndex = std::max(recvMessageIndex, pMsg->messageIndex);
 		switch (pMsg->type)
 		{
 		case Arena::RESPONSE:                  handleResponse(pMsg); break;
@@ -306,6 +305,7 @@ void ArenaClient::handleRequest(const unsigned char* recv_buf, size_t recv_buf_l
 		case Arena::HOST_FINISHED_RESULT:	   handleHostFinishedResult (pMsg); break;
 		}
 	}
+	recvMessageIndex = std::max(recvMessageIndex, pMsg->messageIndex);
 }
 
 void ArenaClient::handleResponse(std::shared_ptr<ArenaMessage> msg)
@@ -587,10 +587,13 @@ void ArenaClient::handleHostPlayData(std::shared_ptr<ArenaMessage> msg)
 {
 	auto pMsg = std::static_pointer_cast<ArenaMessageHostPlayData>(msg);
 
-	for (auto& [id, payload]: pMsg->payload)
+	if (pMsg->messageIndex > recvMessageIndex)
 	{
-		if (gArenaData.data.find(id) == gArenaData.data.end()) continue;
-		gArenaData.data[id].ruleset->unpackFrame(payload);
+		for (auto& [id, payload] : pMsg->payload)
+		{
+			if (gArenaData.data.find(id) == gArenaData.data.end()) continue;
+			gArenaData.data[id].ruleset->unpackFrame(payload);
+		}
 	}
 }
 
