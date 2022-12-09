@@ -128,3 +128,31 @@ Move Judge with LIFT
 2P Note Size (w)
 2P Note Size (h)
 Reset
+ARENA
+P2P Online Matching mode
+Host
+Create a lobby as Server
+Join
+Join a lobby as Client
+Leave / Disband
+Exit current Arena session
+Host failed! Please leave your current lobby first.
+Join failed! Please leave your current lobby first.
+Leave failed! You cannot leave if you are not in a lobby.
+Host success.
+Host failed. Please refer to log
+Joining %s ...
+Join success.
+Join failed. Address error
+Join failed. The lobby is full
+Join failed. The lobby is in game
+Join failed. Duplicate client address
+Join failed. Connect timed out 5s
+Join failed. Please refer to log
+%s has joined.
+%s has left.
+The lobby has been disbanded.
+Cannot select type other than normal chart!
+Request by %s
+FAILED: Player %s does not have this chart.
+Leaving: Server timeout

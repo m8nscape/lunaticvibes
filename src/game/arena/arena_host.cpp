@@ -8,6 +8,7 @@
 #include "game/runtime/state.h"
 #include "game/scene/scene_context.h"
 #include "db/db_song.h"
+#include "game/runtime/i18n.h"
 
 std::shared_ptr<ArenaHost> g_pArenaHost = nullptr;
 
@@ -222,7 +223,9 @@ void ArenaHost::requestChart(const HashMD5& reqChart, const std::string clientKe
 
 			auto n = std::make_shared<ArenaMessageNotice>();
 			n->messageIndex = ++c.sendMessageIndex;
-			n->text = "FAILED: Player "s + State::get(IndexText::PLAYER_NAME) + " does not have this chart.";;
+			n->i18nIndex = i18nText::ARENA_REQUEST_FAILED_PLAYER_NO_CHART;
+			n->format = ArenaMessageNotice::S1;
+			n->s1 = State::get(IndexText::PLAYER_NAME);
 
 			auto payload = n->pack();
 			c.serverSocket->async_send_to(boost::asio::buffer(*payload), c.endpoint, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
@@ -557,7 +560,7 @@ void ArenaHost::handleJoinLobby(const std::string& clientKey, std::shared_ptr<Ar
 	auto payload = resp.pack();
 	c.serverSocket->async_send_to(boost::asio::buffer(*payload), c.endpoint, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
 
-	createNotification(c.name + " has joined.");
+	createNotification((boost::format(i18n::c(i18nText::ARENA_PLAYER_JOINED)) % c.name).str());
 
 	// update player list for all clients
 	for (auto& [k, cc] : clients)
@@ -604,7 +607,7 @@ void ArenaHost::handlePlayerLeft(const std::string& clientKey, std::shared_ptr<A
 		auto payload = resp.pack();
 		c.serverSocket->async_send_to(boost::asio::buffer(*payload), c.endpoint, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
 
-		createNotification(c.name + " has left.");
+		createNotification((boost::format(i18n::c(i18nText::ARENA_PLAYER_LEFT)) % c.name).str());
 
 		clients.erase(clientKey);
 
@@ -676,7 +679,7 @@ void ArenaHost::handleCheckChartExistResp(const std::string& clientKey, std::sha
 	}
 	else if (requestChartPendingClientKey == "host")
 	{
-		createNotification("FAILED: Player "s + c.name + " does not have this chart.");	// FIXME i18n
+		createNotification((boost::format(i18n::c(i18nText::ARENA_REQUEST_FAILED_PLAYER_NO_CHART)) % c.name).str());
 	}
 	else
 	{
@@ -684,7 +687,9 @@ void ArenaHost::handleCheckChartExistResp(const std::string& clientKey, std::sha
 
 		ArenaMessageNotice n;
 		n.messageIndex = ++c.sendMessageIndex;
-		n.text = "FAILED: Player "s + c.name + " does not have this chart.";	// FIXME i18n
+		n.i18nIndex = i18nText::ARENA_REQUEST_FAILED_PLAYER_NO_CHART;
+		n.format = ArenaMessageNotice::S1;
+		n.s1 = c.name;
 
 		auto payload = n.pack();
 		cc.serverSocket->async_send_to(boost::asio::buffer(*payload), cc.endpoint, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
@@ -890,7 +895,7 @@ void ArenaHost::update()
 					gArenaData.updateTexts();
 				}
 			}
-			createNotification(c.name + " has left.");
+			createNotification((boost::format(i18n::c(i18nText::ARENA_PLAYER_LEFT)) % c.name).str());
 			clients.erase(k);
 		}
 	}

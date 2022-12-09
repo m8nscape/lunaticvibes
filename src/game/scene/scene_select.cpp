@@ -1699,8 +1699,6 @@ void SceneSelect::_decide()
         {
             if (State::get(IndexOption::SELECT_ENTRY_TYPE) == Option::ENTRY_SONG)
             {
-                createNotification("Please wait...");   // FIXME i18n
-
                 auto& [entry, score] = gSelectContext.entries[gSelectContext.idx];
                 if (gArenaData.isClient())
                     g_pArenaClient->requestChart(entry->md5);
@@ -1709,7 +1707,7 @@ void SceneSelect::_decide()
             }
             else
             {
-                createNotification("Cannot select type other than chart");   // FIXME i18n
+                createNotification(i18n::s(i18nText::ARENA_REQUEST_FAILED_CHART_ONLY));
             }
             return;
         }
@@ -2929,7 +2927,7 @@ void SceneSelect::arenaHostLobby()
 {
     if (gArenaData.isOnline())
     {
-        createNotification("Host failed! Please leave your current lobby first.");
+        createNotification(i18n::s(i18nText::ARENA_HOST_FAILED_IN_LOBBY));
         return;
     }
 
@@ -2938,7 +2936,7 @@ void SceneSelect::arenaHostLobby()
     if (g_pArenaHost->createLobby())
     {
         g_pArenaHost->loopStart();
-        createNotification("Host success");
+        createNotification(i18n::s(i18nText::ARENA_HOST_SUCCESS));
 
         Time t;
         _navigateBack(t, false);
@@ -2949,7 +2947,7 @@ void SceneSelect::arenaHostLobby()
     else
     {
         g_pArenaHost.reset();
-        createNotification("Host failed");
+        createNotification(i18n::s(i18nText::ARENA_HOST_FAILED));
     }
 }
 
@@ -2957,7 +2955,7 @@ void SceneSelect::arenaLeaveLobby()
 {
     if (!gArenaData.isOnline())
     {
-        createNotification("Leave failed! You cannot leave if you are not in a lobby.");
+        createNotification(i18n::s(i18nText::ARENA_LEAVE_FAILED_NO_LOBBY));
         return;
     }
 
@@ -2985,7 +2983,7 @@ void SceneSelect::arenaJoinLobbyPrompt()
 {
     if (gArenaData.isOnline())
     {
-        createNotification("Join failed! Please leave your current lobby first.");
+        createNotification(i18n::s(i18nText::ARENA_JOIN_FAILED_IN_LOBBY));
         return;
     }
 
@@ -2998,13 +2996,13 @@ void SceneSelect::arenaJoinLobby()
     assert(!gArenaData.isOnline());
 
     std::string address = imgui_arena_address_buf;
-    createNotification("Joining \""s + address + "\"...");
+    createNotification((boost::format(i18n::c(i18nText::ARENA_JOINING)) % address).str());
 
     g_pArenaClient = std::make_shared<ArenaClient>();
     if (g_pArenaClient->joinLobby(address))
     {
         g_pArenaClient->loopStart();
-        createNotification("Join success");
+        createNotification(i18n::s(i18nText::ARENA_JOIN_SUCCESS));
 
         Time t;
         _navigateBack(t, false);
@@ -3015,7 +3013,7 @@ void SceneSelect::arenaJoinLobby()
     else
     {
         g_pArenaClient.reset();
-        createNotification("Join failed");
+        createNotification(i18n::s(i18nText::ARENA_JOIN_FAILED));
     }
     _skin->setHandleMouseEvents(true);
 }

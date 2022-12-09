@@ -110,14 +110,37 @@ public:
 	ArenaMessageNotice() { type = Arena::NOTICE; }
 
 public:
-	std::string text;
+	enum Format
+	{
+		PLAIN,
+		S1,
+		S2,
+		D1,
+		D2,
+	};
+
+	uint32_t i18nIndex = 0;
+	uint32_t format = PLAIN;
+	std::string s1;
+	std::string s2;
+	int32_t d1 = 0;
+	int32_t d2 = 0;
+	double lf1 = 0.;
+	double lf2 = 0.;
 
 public:
 	template<class Archive>
 	void serialize(Archive& ar)
 	{
 		ArenaMessage::serialize(ar);
-		ar(text);
+		ar(i18nIndex);
+		ar(format);
+		ar(s1);
+		ar(s2);
+		ar(d1);
+		ar(d2);
+		ar(lf1);
+		ar(lf2);
 	}
 
 };

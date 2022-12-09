@@ -3,6 +3,8 @@
 #include "arena_internal.h"
 #include "cereal/archives/portable_binary.hpp"
 #include "game/scene/scene_context.h"
+#include "game/runtime/i18n.h"
+#include "re2/re2.h"
 
 std::shared_ptr<ArenaClient> g_pArenaClient = nullptr;
 
@@ -42,6 +44,7 @@ bool ArenaClient::joinLobby(const std::string& address)
 	if (gArenaData.isOnline())
 	{
 		LOG_WARNING << "[Arena] Join failed! Please leave your current lobby first.";
+		createNotification(i18n::s(i18nText::ARENA_JOIN_FAILED_IN_LOBBY));
 		return false;
 	}
 
@@ -61,14 +64,14 @@ bool ArenaClient::joinLobby(const std::string& address)
 		}
 		else
 		{
-			createNotification("Join failed! Address error");
+			createNotification(i18n::s(i18nText::ARENA_JOIN_FAILED_ADDRESS_ERROR));
 			LOG_WARNING << "[Arena] Address error";
 			return false;
 		}
 	}
 	catch (...)
 	{
-		createNotification("Join failed! Address error");
+		createNotification(i18n::s(i18nText::ARENA_JOIN_FAILED_ADDRESS_ERROR));
 		LOG_WARNING << "[Arena] Address error";
 		return false;
 	}
@@ -127,9 +130,9 @@ bool ArenaClient::joinLobby(const std::string& address)
 			{
 				switch (joinLobbyErrorCode)
 				{
-				case 1: createNotification("Join failed! The lobby is full."); break;
-				case 2: createNotification("Join failed! The lobby is currently in game."); break;
-				case 255: createNotification("Join failed! Duplicate client address."); break;
+				case 1: createNotification(i18n::s(i18nText::ARENA_JOIN_FAILED_FULL)); break;
+				case 2: createNotification(i18n::s(i18nText::ARENA_JOIN_FAILED_IN_GAME)); break;
+				case 255: createNotification(i18n::s(i18nText::ARENA_JOIN_FAILED_DUPLICATE_CLIENT)); break;
 				}
 				LOG_WARNING << "[Arena] Join failed: " << joinLobbyErrorCode; break;
 				return false;
@@ -140,7 +143,7 @@ bool ArenaClient::joinLobby(const std::string& address)
 		}
 	}
 
-	createNotification("Join failed! Connect timeout 5s.");
+	createNotification(i18n::s(i18nText::ARENA_JOIN_FAILED_TIMEOUT));
 	LOG_WARNING << "[Arena] Join failed: Timeout 5s";
 	return false;
 }
@@ -378,7 +381,36 @@ void ArenaClient::handleNotice(std::shared_ptr<ArenaMessage> msg)
 {
 	auto pMsg = std::static_pointer_cast<ArenaMessageNotice>(msg);
 
-	createNotification(pMsg->text);
+	static const LazyRE2 reS1{ R"(.*%s.*)" };
+	static const LazyRE2 reS2{ R"(.*%s.*%s.*)" };
+	static const LazyRE2 reD1{ R"(.*%d.*)" };
+	static const LazyRE2 reD2{ R"(.*%d.*%d.*)" };
+	switch (pMsg->format)
+	{
+	case ArenaMessageNotice::PLAIN:
+		createNotification(i18n::s(pMsg->i18nIndex));
+		break;
+
+	case ArenaMessageNotice::S1:
+		if (RE2::FullMatch(i18n::s(pMsg->i18nIndex), *reS1))
+			createNotification((boost::format(i18n::s(pMsg->i18nIndex)) % pMsg->s1).str());
+		break;
+
+	case ArenaMessageNotice::S2:
+		if (RE2::FullMatch(i18n::s(pMsg->i18nIndex), *reS2))
+			createNotification((boost::format(i18n::s(pMsg->i18nIndex)) % pMsg->s1 % pMsg->s2).str());
+		break;
+
+	case ArenaMessageNotice::D1:
+		if (RE2::FullMatch(i18n::s(pMsg->i18nIndex), *reD1))
+			createNotification((boost::format(i18n::s(pMsg->i18nIndex)) % pMsg->d1).str());
+		break;
+
+	case ArenaMessageNotice::D2:
+		if (RE2::FullMatch(i18n::s(pMsg->i18nIndex), *reD2))
+			createNotification((boost::format(i18n::s(pMsg->i18nIndex)) % pMsg->d1 % pMsg->d2).str());
+		break;
+	}
 
 	ArenaMessageResponse resp(*pMsg);
 
@@ -390,7 +422,7 @@ void ArenaClient::handleDisbandLobby(std::shared_ptr<ArenaMessage> msg)
 {
 	auto pMsg = std::static_pointer_cast<ArenaMessageDisbandLobby>(msg);
 
-	createNotification("The lobby has been disbanded.");
+	createNotification(i18n::s(i18nText::ARENA_LOBBY_DISBANDED));
 	LOG_WARNING << "[Arena] Host disbanded";
 
 	socket->close();
@@ -427,7 +459,7 @@ void ArenaClient::handlePlayerJoined(std::shared_ptr<ArenaMessage> msg)
 	gArenaData.data[pMsg->playerID].name = pMsg->playerName;
 	gArenaData.playerIDs.push_back(pMsg->playerID);
 
-	createNotification(pMsg->playerName + " has joined.");
+	createNotification((boost::format(i18n::c(i18nText::ARENA_PLAYER_JOINED)) % pMsg->playerName).str());
 }
 
 void ArenaClient::handlePlayerLeft(std::shared_ptr<ArenaMessage> msg)
@@ -449,7 +481,7 @@ void ArenaClient::handlePlayerLeft(std::shared_ptr<ArenaMessage> msg)
 		{
 			if (gArenaData.playerIDs[i] == pMsg->playerID)
 			{
-				createNotification(gArenaData.data[i].name + " has left.");
+				createNotification((boost::format(i18n::c(i18nText::ARENA_PLAYER_LEFT)) % gArenaData.data[i].name).str());
 				gArenaData.playerIDs.erase(gArenaData.playerIDs.begin() + i);
 				gArenaData.data.erase(i);
 				break;
@@ -665,7 +697,7 @@ void ArenaClient::update()
 		{
 			leaveLobby();
 		}
-		createNotification("Server timeout");
+		createNotification(i18n::s(i18nText::ARENA_LEAVE_TIMEOUT));
 	}
 
 }
