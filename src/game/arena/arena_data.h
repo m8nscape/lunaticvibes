@@ -33,6 +33,7 @@ private:
 	bool playReady = false;
 	int playStartTimeMs = 0;
 	bool playingFinished = false;
+	uint64_t randomSeed = 0;
 
 	std::map<int, ArenaPlayData> data;	// host:0 client:1+
 	std::vector<int> playerIDs;
@@ -50,8 +51,8 @@ public:
 
 	bool isPlaying() const { return playing; }
 	int getPlayStartTimeMs() const { return playStartTimeMs; }
-
 	bool isPlayingFinished() const { return playingFinished; }
+	uint64_t getRandomSeed() const { return randomSeed; }
 
 	size_t getPlayerCount();
 	const std::string& getPlayerName(size_t index);

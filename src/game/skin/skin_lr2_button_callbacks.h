@@ -11,6 +11,7 @@ std::function<void(int)> getButtonCallback(int type);
 // may be used externally
 void select_difficulty_filter(int plus, int iterateCount = 0);
 void select_keys_filter(int plus, int iterateCount = 0);
+void pitch_switch(int plus);
 void gauge_type(int player, int plus);
 void random_type(int player, int plus);
 void autoscr(int player, int plus);

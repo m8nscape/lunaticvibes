@@ -269,7 +269,11 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
             gNextScene = gQuitOnFinish ? eScene::EXIT_TRANS : eScene::SELECT;
             return;
         }
-        if (gPlayContext.replay && 
+        if (gArenaData.isOnline())
+        {
+            gPlayContext.randomSeed = gArenaData.getRandomSeed();
+        }
+        else if (gPlayContext.replay && 
             gPlayContext.isReplay || (gPlayContext.replay && State::get(IndexOption::PLAY_BATTLE_TYPE) == Option::BATTLE_GHOST))
         {
             gPlayContext.randomSeed = gPlayContext.replay->randomSeed;

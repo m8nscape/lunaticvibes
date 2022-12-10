@@ -11,6 +11,8 @@
 #include "game/runtime/i18n.h"
 #include "git_version.h"
 
+#include <random>
+
 std::shared_ptr<ArenaHost> g_pArenaHost = nullptr;
 
 ArenaHost::~ArenaHost()
@@ -248,7 +250,7 @@ void ArenaHost::startPlaying()
 		n->messageIndex = ++cc.sendMessageIndex;
 		n->rulesetType = (uint32_t)gPlayContext.rulesetType;
 		n->chartHashMD5String = hostRequestChartHash.hexdigest();
-		n->randomSeed = gPlayContext.randomSeed;
+		n->randomSeed = gArenaData.getRandomSeed();
 
 		auto payload = n->pack();
 		cc.serverSocket->async_send_to(boost::asio::buffer(*payload), cc.endpoint, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
@@ -954,6 +956,9 @@ void ArenaHost::update()
 			// host decide
 
 			LOG_WARNING << "[Arena] Decide";
+
+			static std::random_device rd;
+			gArenaData.randomSeed = ((uint64_t)rd() << 32) | rd();
 
 			startPlaying();
 		}

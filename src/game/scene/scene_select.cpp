@@ -2979,6 +2979,9 @@ void SceneSelect::arenaHostLobby()
         _navigateBack(t, false);
         State::set(IndexTimer::ARENA_SHOW_LOBBY, t.norm());
 
+        // Reset freq option for arena. Not supported yet
+        lr2skin::button::pitch_switch(0);
+
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_OPEN);
     }
     else
@@ -3044,6 +3047,9 @@ void SceneSelect::arenaJoinLobby()
         Time t;
         _navigateBack(t, false);
         State::set(IndexTimer::ARENA_SHOW_LOBBY, t.norm());
+
+        // Reset freq option for arena. Not supported yet
+        lr2skin::button::pitch_switch(0);
 
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_OPEN);
     }

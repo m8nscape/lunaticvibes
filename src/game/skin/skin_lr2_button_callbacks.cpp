@@ -3,11 +3,10 @@
 #include "skin_lr2_button_callbacks.h"
 
 #include "game/runtime/state.h"
-
 #include "game/sound/sound_mgr.h"
 #include "game/sound/sound_sample.h"
-
 #include "game/scene/scene_context.h"
+#include "game/arena/arena_data.h"
 
 #include "config/config_mgr.h"
 
@@ -486,7 +485,7 @@ void vol_switch(int plus)
 // 32
 void pitch_switch(int plus)
 {
-    if (State::get(IndexSwitch::SOUND_PITCH))
+    if (gArenaData.isOnline() || State::get(IndexSwitch::SOUND_PITCH))
     {
         // close
         State::set(IndexSwitch::SOUND_PITCH, false);
