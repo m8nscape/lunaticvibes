@@ -240,8 +240,11 @@ void loadSongList()
                     if (pBase->gamemode == 5 && have7k) continue;
                     if (pBase->gamemode == 10 && have14k) continue;
                 }
-                if (!checkFilterDifficulty(pBase->difficulty)) continue;
-                if (!checkFilterKeys(pBase->gamemode)) continue;
+                if (!gSelectContext.backtrace.top().ignoreFilters)
+                {
+                    if (!checkFilterDifficulty(pBase->difficulty)) continue;
+                    if (!checkFilterKeys(pBase->gamemode)) continue;
+                }
 
                 switch (f->getChart(idx)->type())
                 {
@@ -268,8 +271,11 @@ void loadSongList()
             {
                 auto p = std::reinterpret_pointer_cast<ChartFormatBMSMeta>(f);
 
-                if (!checkFilterDifficulty(p->difficulty)) continue;
-                if (!checkFilterKeys(p->gamemode)) continue;
+                if (!gSelectContext.backtrace.top().ignoreFilters)
+                {
+                    if (!checkFilterDifficulty(p->difficulty)) continue;
+                    if (!checkFilterKeys(p->gamemode)) continue;
+                }
 
                 // filters are matched
                 gSelectContext.entries.push_back({ e, nullptr });
@@ -282,6 +288,19 @@ void loadSongList()
             gSelectContext.entries.push_back({ e, nullptr });
             break;
         }
+    }
+
+    if (gSelectContext.backtrace.top().ignoreFilters)
+    {
+        // change display only
+        State::set(IndexOption::SELECT_FILTER_DIFF, Option::DIFF_ANY);
+        State::set(IndexOption::SELECT_FILTER_KEYS, Option::FILTER_KEYS_ALL);
+    }
+    else
+    {
+        // restore prev
+        State::set(IndexOption::SELECT_FILTER_DIFF, gSelectContext.filterDifficulty);
+        State::set(IndexOption::SELECT_FILTER_KEYS, gSelectContext.filterKeys);
     }
 
     // load score

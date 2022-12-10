@@ -591,7 +591,8 @@ void SceneSelect::_updateAsync()
             folderName,
             {},
             {},
-            0
+            0,
+            true
         };
         prop.dbBrowseEntries.push_back({ std::make_shared<EntryChart>(*g_pSongDB->findChartByHash(gSelectContext.remoteRequestedChart).begin()), nullptr });
 
@@ -1306,6 +1307,19 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
                 auto& parent = gSelectContext.backtrace.top();
                 gSelectContext.entries = parent.displayEntries;
                 gSelectContext.idx = parent.index;
+
+                if (parent.ignoreFilters)
+                {
+                    // change display only
+                    State::set(IndexOption::SELECT_FILTER_DIFF, Option::DIFF_ANY);
+                    State::set(IndexOption::SELECT_FILTER_KEYS, Option::FILTER_KEYS_ALL);
+                }
+                else
+                {
+                    // restore prev
+                    State::set(IndexOption::SELECT_FILTER_DIFF, gSelectContext.filterDifficulty);
+                    State::set(IndexOption::SELECT_FILTER_KEYS, gSelectContext.filterKeys);
+                }
             }
 
             // reset infos, play sound
@@ -2282,7 +2296,8 @@ void SceneSelect::_navigateEnter(const Time& t)
                     e->_name,
                     {},
                     {},
-                    0
+                    0,
+                    false
                 };
                 auto top = g_pSongDB->browse(e->md5, false);
                 for (size_t i = 0; i < top.getContentsCount(); ++i)
@@ -2311,6 +2326,7 @@ void SceneSelect::_navigateEnter(const Time& t)
         else if (auto top = std::dynamic_pointer_cast<EntryFolderBase>(gSelectContext.entries[gSelectContext.idx].first); top)
         {
             {
+                auto folderType = gSelectContext.entries[gSelectContext.idx].first->type();
                 const auto& [e, s] = gSelectContext.entries[gSelectContext.idx];
 
                 SongListProperties prop{
@@ -2319,7 +2335,8 @@ void SceneSelect::_navigateEnter(const Time& t)
                     e->_name,
                     {},
                     {},
-                    0
+                    0,
+                    folderType == eEntryType::CUSTOM_FOLDER || folderType == eEntryType::RIVAL
                 };
                 for (size_t i = 0; i < top->getContentsCount(); ++i)
                     prop.dbBrowseEntries.push_back({ top->getEntry(i), nullptr });
@@ -2386,6 +2403,19 @@ void SceneSelect::_navigateBack(const Time& t, bool sound)
         auto& parent = gSelectContext.backtrace.top();
         gSelectContext.entries = parent.displayEntries;
         gSelectContext.idx = parent.index;
+
+        if (parent.ignoreFilters)
+        {
+            // change display only
+            State::set(IndexOption::SELECT_FILTER_DIFF, Option::DIFF_ANY);
+            State::set(IndexOption::SELECT_FILTER_KEYS, Option::FILTER_KEYS_ALL);
+        }
+        else
+        {
+            // restore prev
+            State::set(IndexOption::SELECT_FILTER_DIFF, gSelectContext.filterDifficulty);
+            State::set(IndexOption::SELECT_FILTER_KEYS, gSelectContext.filterKeys);
+        }
 
         setBarInfo();
         setEntryInfo();

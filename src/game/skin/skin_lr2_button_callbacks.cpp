@@ -189,7 +189,7 @@ void panel_switch(int idx, int plus)
 // 10
 void select_difficulty_filter(int plus, int iterateCount)
 {
-    if (iterateCount < 6)
+    if (!gSelectContext.backtrace.top().ignoreFilters && iterateCount < 6)
     {
         int val = (State::get(IndexOption::SELECT_FILTER_DIFF) + 6 + plus) % 6;
         if (val == Option::DIFF_ANY && ConfigMgr::get("P", cfg::P_DISABLE_DIFFICULTY_ALL, false))
@@ -221,7 +221,7 @@ void select_difficulty_filter(int plus, int iterateCount)
 // 11
 void select_keys_filter(int plus, int iterateCount)
 {
-    if (iterateCount < 8)
+    if (!gSelectContext.backtrace.top().ignoreFilters && iterateCount < 8)
     {
         int val = (State::get(IndexOption::SELECT_FILTER_KEYS) + 8 + plus) % 8;
         if (val == Option::FILTER_KEYS_ALL && ConfigMgr::get("P", cfg::P_DISABLE_PLAYMODE_ALL, false))

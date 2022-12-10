@@ -7,9 +7,14 @@
 
 #include "common/asynclooper.h"
 
+class SceneSelect;
 class ArenaMessage;
 class ArenaHost: public AsyncLooper
 {
+#if _DEBUG
+	friend class SceneSelect;
+#endif
+
 public:
 	ArenaHost() : AsyncLooper("Arena Host", std::bind(&ArenaHost::update, this), 60) {}
 	virtual ~ArenaHost();
@@ -48,6 +53,7 @@ private:
 
 		int id = 0;
 		std::string name;
+		bool alive = true;
 
 		int ping = 0;
 		int sendMessageIndex = 0;

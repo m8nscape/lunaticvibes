@@ -45,6 +45,10 @@ std::shared_ptr<vRulesetNetwork> ArenaData::getPlayerRuleset(size_t index)
 	return index < getPlayerCount() && playing ? data[playerIDs[index]].ruleset : nullptr;
 }
 
+int ArenaData::getPlayerID(size_t index)
+{
+	return index < getPlayerCount() ? playerIDs[index] : -1;
+}
 
 void ArenaData::initPlaying(eRuleset rulesetType)
 {
@@ -81,6 +85,9 @@ void ArenaData::startPlaying()
 
 void ArenaData::stopPlaying()
 {
+	playReady = false;
+	playStartTimeMs = 0;
+	playingFinished = false;
 	playing = false;
 
 	for (auto& [id, d] : data)

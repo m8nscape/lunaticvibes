@@ -60,8 +60,8 @@ public:
     virtual void update(const Time& t) = 0;
 public:
     constexpr BasicData getData() const { return _basic; }
-    double getClearHealth() const { return _clearHealth; }
-    bool failWhenNoHealth() const { return _failWhenNoHealth; }
+    constexpr double getClearHealth() const { return _clearHealth; }
+    constexpr bool failWhenNoHealth() const { return _failWhenNoHealth; }
 
     virtual bool isNoScore() const { return false; }    // for quick esc
     virtual bool isFinished() const { return notesExpired >= getNoteCount(); }

@@ -20,9 +20,14 @@ struct ArenaLobbyInfo
 	unsigned players = 0;		// 
 };
 
+class SceneSelect;
 class ArenaMessage;
 class ArenaClient: public AsyncLooper
 {
+#if _DEBUG
+	friend class SceneSelect;
+#endif
+
 public:
 	ArenaClient() : AsyncLooper("Arena Client", std::bind(&ArenaClient::update, this), 60) {}
 	virtual ~ArenaClient();

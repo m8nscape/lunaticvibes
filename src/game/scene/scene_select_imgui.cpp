@@ -3,6 +3,10 @@
 #include "game/sound/sound_mgr.h"
 #include "game/sound/sound_sample.h"
 #include "game/runtime/i18n.h"
+#include "game/arena/arena_data.h"
+#include "game/arena/arena_client.h"
+#include "game/arena/arena_host.h"
+
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "git_version.h"
@@ -190,6 +194,8 @@ void SceneSelect::_imguiSettings()
                 {
                     MENU_NONE = 0,
 
+                    MENU_ARENADIAGNOSE,
+                    MENU_________,
                     MENU_OPTIONS,
                     MENU__________,
                     MENU_ABOUT,
@@ -203,6 +209,23 @@ void SceneSelect::_imguiSettings()
                     float interval = 5.0f;
 
                     ImGui::Dummy( { mainTagWidth, ImGui::GetWindowHeight() - (height + interval) * MENU_COUNT - 20.0f });
+
+#if _DEBUG
+                    if (ImGui::Button("ARENA", {-1.f, height}))
+                    {
+                        imgui_main_index = MENU_ARENADIAGNOSE;
+                    }
+                    ImGui::Dummy({ 0.f, interval });
+#else
+                    if (ImGui::InvisibleButton("##dummy123123121", { -1.f, height }))
+                    {
+                    }
+                    ImGui::Dummy({ 0.f, interval });
+#endif
+                    if (ImGui::InvisibleButton("##dummy123123122", { -1.f, height }))
+                    {
+                    }
+                    ImGui::Dummy({ 0.f, interval });
 
                     if (ImGui::Button(i18n::c(MAIN_SETTINGS), {-1.f, height}))
                     {
@@ -229,6 +252,12 @@ void SceneSelect::_imguiSettings()
 
                     if (ImGui::TableNextColumn())
                     {
+                        if (imgui_main_index == MENU_ARENADIAGNOSE && ImGui::BeginTabBar("##arena", ImGuiTabBarFlags_FittingPolicyScroll))
+                        {
+                            _imguiPage_ArenaDiagnose();
+                            ImGui::EndTabBar();
+                        }
+
                         if (imgui_main_index == MENU_OPTIONS && ImGui::BeginTabBar("##option", ImGuiTabBarFlags_FittingPolicyScroll))
                         {
                             _imguiPage_Options();
@@ -333,6 +362,129 @@ void SceneSelect::_imguiSettings()
 
 static const float tabItemWidth = 120.f;
 static const float infoRowWidth = 240.f;
+
+void SceneSelect::_imguiPage_ArenaDiagnose()
+{
+    auto& d = gArenaData;
+
+    static bool online = false;
+    online = d.isOnline();
+
+    ImGui::Checkbox("Online", &online);
+
+    if (!online) return;
+
+    static bool expired = false;
+    expired = d.isExpired();
+    ImGui::Checkbox("Expired", &expired);
+
+    if (expired) return;
+
+    static bool client = false;
+    static bool server = false;
+    client = d.isClient();
+    server = !client;
+    ImGui::Checkbox("Client", &client);
+    ImGui::SameLine();
+    ImGui::Checkbox("Server", &server);
+
+    ImGui::Spacing();
+    ImGui::Separator();
+
+    static bool playing = false;
+    playing = d.isPlaying();
+    ImGui::Checkbox("Playing", &expired);
+
+    ImGui::Text("Start Time: %d", d.getPlayStartTimeMs());
+
+    static bool finished = false;
+    finished = d.isPlayingFinished();
+    ImGui::Checkbox("Finished", &finished);
+
+    ImGui::Text("Players: %lu", d.getPlayerCount());
+    for (size_t i = 0; i < d.getPlayerCount(); ++i)
+    {
+        auto& r = d.getPlayerRuleset(i);
+        if (r)
+        {
+            ImGui::Text("%d: %s [%s%s%s%s ]", d.getPlayerID(i), d.getPlayerName(i).c_str(),
+                r->isNoScore() ? " NoScore" : "",
+                r->isFinished() ? " Finished" : "",
+                r->isCleared() ? " Cleared" : "",
+                r->isFailed() ? " Failed" : "");
+        }
+        else
+        {
+            ImGui::Text("%d: %s empty", d.getPlayerID(i), d.getPlayerName(i).c_str());
+        }
+    }
+
+    if (client && g_pArenaClient)
+    {
+        auto& c = *g_pArenaClient;
+        
+        ImGui::Text("PlayerID: %d", c.getPlayerID());
+        ImGui::Text("isCreatedRuleset: %d", c.isCreatedRuleset());
+        ImGui::Text("isLoadingFinished: %d", c.isLoadingFinished());
+        ImGui::Text("isPlayingFinished: %d", c.isPlayingFinished());
+        ImGui::Text("isResultFinished: %d", c.isResultFinished());
+
+#if _DEBUG
+        ImGui::Spacing();
+        ImGui::Separator();
+
+        static std::string reqChartHash;
+        reqChartHash = c.requestChartHash.hexdigest();
+        ImGui::Text("recvMessageIndex: %d", c.recvMessageIndex);
+        ImGui::Text("sendMessageIndex: %d", c.sendMessageIndex);
+        ImGui::Text("requestChartHash: %s", reqChartHash.c_str());
+        ImGui::Text("Heartbeat: %ds ago", (Time() - c.heartbeatTime).norm() / 1000);
+#endif
+    }
+    else if (server && g_pArenaHost)
+    {
+        auto& s = *g_pArenaHost;
+
+        ImGui::Text("isCreatedRuleset: %d", s.isCreatedRuleset());
+        ImGui::Text("isLoadingFinished: %d", s.isLoadingFinished());
+        ImGui::Text("isPlayingFinished: %d", s.isPlayingFinished());
+        ImGui::Text("isResultFinished: %d", s.isResultFinished());
+
+#if _DEBUG
+        ImGui::Spacing();
+        ImGui::Separator();
+
+        static std::string reqChartHash;
+        reqChartHash = s.requestChartHash.hexdigest();
+        ImGui::Text("currentChart: %s", reqChartHash.c_str());
+
+        static std::string reqChartPending;
+        reqChartPending = s.requestChartPending.hexdigest();
+        ImGui::Text("requestChartPending: %s", reqChartPending.c_str());
+        ImGui::Text("requestChartPendingClientKey: %s", s.requestChartPendingClientKey.c_str());
+        ImGui::Text("requestChartPendingExistCount: %d", s.requestChartPendingExistCount);
+
+        ImGui::Spacing();
+        ImGui::Separator();
+
+        ImGui::Text("hostRequestChartHash: %s", s.hostRequestChartHash.hexdigest().c_str());
+
+        std::shared_lock l(s.clientsMutex);
+        static std::map<std::string, std::string> hashs;
+        for (auto& [key, c]: s.clients)
+        {
+            hashs[key] = c.requestChartHash.hexdigest();
+            ImGui::Text("%s %d: %s ping:%dms send:%d recv:%d hb:%ds [%s%s%s ] req:%s", key.c_str(), c.id,
+                c.name.c_str(), c.ping, c.sendMessageIndex, c.recvMessageIndex, (Time() - c.heartbeatRecvTime).norm() / 1000,
+                c.isLoadingFinished ? " isLoadingFinished" : "",
+                c.isPlayingFinished ? " isPlayingFinished" : "",
+                c.isResultFinished ? " isResultFinished" : "",
+                hashs[key].c_str()
+            );
+        }
+#endif
+    }
+}
 
 void SceneSelect::_imguiPage_Options()
 {

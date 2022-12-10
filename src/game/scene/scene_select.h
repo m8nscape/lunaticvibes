@@ -159,6 +159,7 @@ private:
     void _imguiSettings();
 
     // pages
+    void _imguiPage_ArenaDiagnose();
     void _imguiPage_Options();
     void _imguiPage_Options_General();
     void _imguiPage_Options_Jukebox();

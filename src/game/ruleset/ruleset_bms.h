@@ -254,8 +254,8 @@ public:
     std::string getModifierTextShort() const;
 
     virtual bool isNoScore() const { return moneyScore == 0.0; }
-    virtual bool isCleared() const { return !_isFailed && isFinished() && _basic.health >= _clearHealth; }
-    virtual bool isFailed() const { return _isFailed; }
+    virtual bool isCleared() const { return !isFailed() && isFinished() && _basic.health >= getClearHealth(); }
+    virtual bool isFailed() const { return isFinished() && (_basic.health < getClearHealth() || (failWhenNoHealth() && _basic.health <= _minHealth)); }
 
     virtual unsigned getCurrentMaxScore() const { return notesReached * 2; }
     virtual unsigned getMaxScore() const { return getNoteCount() * 2; }

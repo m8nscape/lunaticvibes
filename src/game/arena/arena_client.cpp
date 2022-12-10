@@ -626,7 +626,7 @@ void ArenaClient::handleHostFinishedResult(std::shared_ptr<ArenaMessage> msg)
 	gSelectContext.isArenaReady = false;
 	gArenaData.stopPlaying();
 
-
+	requestChartHash.reset();
 	_isLoadingFinished = false;
 	_isCreatedRuleset = false;
 	_isPlayingFinished = false;

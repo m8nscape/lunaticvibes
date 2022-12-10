@@ -142,6 +142,7 @@ struct SongListProperties
     EntryList dbBrowseEntries;
     EntryList displayEntries;
     size_t index;
+    bool ignoreFilters = false;
 };
 
 enum class SongListSort

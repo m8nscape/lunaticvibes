@@ -30,13 +30,12 @@ private:
 	bool expired = false;
 
 	bool playing = false;
-	std::map<int, ArenaPlayData> data;	// host:0 client:1+
-	std::vector<int> playerIDs;
-
 	bool playReady = false;
 	int playStartTimeMs = 0;
-
 	bool playingFinished = false;
+
+	std::map<int, ArenaPlayData> data;	// host:0 client:1+
+	std::vector<int> playerIDs;
 
 public:
 	void reset();
@@ -57,6 +56,7 @@ public:
 	size_t getPlayerCount();
 	const std::string& getPlayerName(size_t index);
 	std::shared_ptr<vRulesetNetwork> getPlayerRuleset(size_t index);
+	int getPlayerID(size_t index);
 
 	void updateTexts();
 	void updateGlobals();

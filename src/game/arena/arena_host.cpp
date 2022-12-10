@@ -221,17 +221,19 @@ void ArenaHost::requestChart(const HashMD5& reqChart, const std::string clientKe
 			// client requested, but host does not have this chart
 
 			Client& c = clients[clientKey];
+			if (c.alive)
+			{
+				auto n = std::make_shared<ArenaMessageNotice>();
+				n->messageIndex = ++c.sendMessageIndex;
+				n->i18nIndex = i18nText::ARENA_REQUEST_FAILED_PLAYER_NO_CHART;
+				n->format = ArenaMessageNotice::S1;
+				n->s1 = State::get(IndexText::PLAYER_NAME);
 
-			auto n = std::make_shared<ArenaMessageNotice>();
-			n->messageIndex = ++c.sendMessageIndex;
-			n->i18nIndex = i18nText::ARENA_REQUEST_FAILED_PLAYER_NO_CHART;
-			n->format = ArenaMessageNotice::S1;
-			n->s1 = State::get(IndexText::PLAYER_NAME);
+				auto payload = n->pack();
+				c.serverSocket->async_send_to(boost::asio::buffer(*payload), c.endpoint, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
 
-			auto payload = n->pack();
-			c.serverSocket->async_send_to(boost::asio::buffer(*payload), c.endpoint, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
-
-			c.addTaskWaitingForResponse(n->messageIndex, payload);
+				c.addTaskWaitingForResponse(n->messageIndex, payload);
+			}
 		}
 	}
 
@@ -599,50 +601,25 @@ void ArenaHost::handlePlayerLeft(const std::string& clientKey, std::shared_ptr<A
 	Client& c = clients[clientKey];
 	ArenaMessageResponse resp(*pMsg);
 
-	if (!gArenaData.playing)
+	auto payload = resp.pack();
+	c.serverSocket->async_send_to(boost::asio::buffer(*payload), c.endpoint, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
+
+	createNotification((boost::format(i18n::c(i18nText::ARENA_PLAYER_LEFT)) % c.name).str());
+
+	c.alive = false;
+
+	// update player list for all clients
+	for (auto& [k, cc] : clients)
 	{
-		for (int i = 0; i < gArenaData.getPlayerCount(); ++i)
-		{
-			if (c.id == i)
-			{
-				if (requestChartPending == c.requestChartHash)
-				{
-					requestChartPendingExistCount--;
-				}
+		if (k == clientKey) continue;
 
-				assert(gArenaData.playerIDs[i] == i);
-				gArenaData.playerIDs.erase(gArenaData.playerIDs.begin() + i);
-				gArenaData.data.erase(i);
-				gArenaData.updateTexts();
-				break;
-			}
-		}
+		auto n = std::make_shared<ArenaMessagePlayerLeftLobby>();
+		n->messageIndex = ++cc.sendMessageIndex;
+		n->playerID = c.id;
 
-		auto payload = resp.pack();
-		c.serverSocket->async_send_to(boost::asio::buffer(*payload), c.endpoint, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
-
-		createNotification((boost::format(i18n::c(i18nText::ARENA_PLAYER_LEFT)) % c.name).str());
-
-		clients.erase(clientKey);
-
-		// update player list for all clients
-		for (auto& [k, cc] : clients)
-		{
-			auto n = std::make_shared<ArenaMessagePlayerLeftLobby>();
-			n->messageIndex = ++cc.sendMessageIndex;
-			n->playerID = c.id;
-
-			auto payload = n->pack();
-			cc.serverSocket->async_send_to(boost::asio::buffer(*payload), cc.endpoint, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
-			cc.addTaskWaitingForResponse(n->messageIndex, payload);
-		}
-	}
-	else
-	{
-		// check and inform after play finished
-
-		auto payload = resp.pack();
-		c.serverSocket->async_send_to(boost::asio::buffer(*payload), c.endpoint, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
+		auto payload = n->pack();
+		cc.serverSocket->async_send_to(boost::asio::buffer(*payload), cc.endpoint, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
+		cc.addTaskWaitingForResponse(n->messageIndex, payload);
 	}
 }
 
@@ -822,8 +799,6 @@ void ArenaHost::update()
 {
 	Time now;
 
-	std::set<std::string> clientsRemoving;
-
 	// wait response timeout
 	{
 		std::shared_lock l(clientsMutex);
@@ -843,7 +818,7 @@ void ArenaHost::update()
 						if (task.retryTimes > 3)
 						{
 							// client has dead. Removing
-							clientsRemoving.insert(k);
+							cc.alive = false;
 						}
 						else
 						{
@@ -884,13 +859,22 @@ void ArenaHost::update()
 			if ((now - cc.heartbeatRecvTime).norm() > 30000)
 			{
 				// client has dead. Removing
-				clientsRemoving.insert(k);
+				cc.alive = false;
 			}
 		}
 	}
 
 	// remove dead clients
+	std::set<std::string> clientsRemoving;
 	if (!gArenaData.playing)
+	{
+		std::shared_lock l(clientsMutex);
+		for (auto& [k, cc] : clients)
+		{
+			if (!cc.alive)
+				clientsRemoving.insert(k);
+		}
+	}
 	{
 		std::unique_lock l(clientsMutex);
 		for (auto& k : clientsRemoving)
@@ -898,14 +882,13 @@ void ArenaHost::update()
 			Client& c = clients[k];
 			for (int i = 0; i < gArenaData.getPlayerCount(); ++i)
 			{
-				if (c.id == i)
+				if (c.id == gArenaData.getPlayerID(i))
 				{
-					if (requestChartPending == c.requestChartHash)
+					if (!requestChartPending.empty() && requestChartPending == c.requestChartHash)
 					{
 						requestChartPendingExistCount--;
 					}
 
-					assert(gArenaData.playerIDs[i] == i);
 					gArenaData.playerIDs.erase(gArenaData.playerIDs.begin() + i);
 					gArenaData.data.erase(i);
 					gArenaData.updateTexts();
@@ -915,7 +898,6 @@ void ArenaHost::update()
 			clients.erase(k);
 		}
 	}
-	clientsRemoving.clear();
 
 	// pending chart
 	{
@@ -1114,6 +1096,7 @@ void ArenaHost::update()
 				cc.isResultFinished = false;
 			}
 
+			requestChartHash.reset();
 			hostRequestChartHash.reset();
 			_isLoadingFinished = false;
 			_isCreatedRuleset = false;

@@ -1540,6 +1540,9 @@ void RulesetBMS::update(const Time& t)
 	_basic.total_acc = 100.0 * exScore / max;
     _basic.acc = notesExpired ? (100.0 * exScore / notesExpired / 2) : 0;
 
+    _isCleared = isCleared();
+    _isFailed = isFailed();
+
     updateGlobals();
 }
 
