@@ -269,4 +269,9 @@ private:
     bool imgui_show_arenaJoinLobbyPrompt = false;
     bool imgui_arena_joinLobby = false;
     char imgui_arena_address_buf[256] = { 0 };
+
+    bool imgui_play_adjustHispeedWithUpDown = false;
+    bool imgui_play_adjustLanecoverWithStart67 = false;
+    bool imgui_play_adjustLanecoverWithMousewheel = false;
+    bool imgui_play_adjustLanecoverWithLeftRight = false;
 };

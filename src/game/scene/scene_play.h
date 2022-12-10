@@ -81,6 +81,16 @@ private:
     bool imguiAdjustIsDP = false;
     bool imguiAdjustHas2P = false;
 
+    double hiSpeedMinSoft = 0.25;
+    double hiSpeedMinHard = 0.01;
+    double hiSpeedMax = 10.0;
+    double hiSpeedMargin = 0.25;
+    int lanecoverMargin = 100;
+    bool adjustHispeedWithUpDown = false;
+    bool adjustLanecoverWithStart67 = false;
+    bool adjustLanecoverWithMousewheel = false;
+    bool adjustLanecoverWithLeftRight = false;
+
 public:
     ScenePlay();
     virtual ~ScenePlay();

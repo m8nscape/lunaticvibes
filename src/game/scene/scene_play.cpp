@@ -482,6 +482,14 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         }
     }
 
+    adjustHispeedWithUpDown = ConfigMgr::get('P', cfg::P_ADJUST_HISPEED_WITH_ARROWKEYS, false);
+    adjustLanecoverWithStart67 = ConfigMgr::get('P', cfg::P_ADJUST_LANECOVER_WITH_START_67, false);
+    adjustLanecoverWithMousewheel = ConfigMgr::get('P', cfg::P_ADJUST_LANECOVER_WITH_MOUSEWHEEL, false);
+    adjustLanecoverWithLeftRight = ConfigMgr::get('P', cfg::P_ADJUST_LANECOVER_WITH_ARROWKEYS, false);
+
+    if (adjustLanecoverWithMousewheel)
+        _inputAvailable |= INPUT_MASK_MOUSE;
+
     State::set(IndexTimer::PLAY_READY, TIMER_NEVER);
     State::set(IndexTimer::PLAY_START, TIMER_NEVER);
     State::set(IndexTimer::MUSIC_BEAT, TIMER_NEVER);
@@ -1477,25 +1485,25 @@ void ScenePlay::updateAsyncLanecover(const Time& t)
 
         double hs = gPlayContext.Hispeed;
         double hsOld = hs;
-        while (hs < 10.0 && _hispeedAdd[PLAYER_SLOT_PLAYER] >= hsThreshold)
+        while (hs < hiSpeedMax && _hispeedAdd[PLAYER_SLOT_PLAYER] >= hsThreshold)
         {
             _hispeedAdd[PLAYER_SLOT_PLAYER] -= hsThreshold;
             hs += 0.01;
         }
-        while (hs > 0.25 && _hispeedAdd[PLAYER_SLOT_PLAYER] <= -hsThreshold)
+        while (hs > hiSpeedMinSoft && _hispeedAdd[PLAYER_SLOT_PLAYER] <= -hsThreshold)
         {
             _hispeedAdd[PLAYER_SLOT_PLAYER] += hsThreshold;
             hs -= 0.01;
         }
-        if (hs <= 0.01)
+        if (hs <= hiSpeedMinHard)
         {
-            hs = 0.01;
+            hs = hiSpeedMinHard;
             if (_hispeedAdd[PLAYER_SLOT_PLAYER] < 0)
                 _hispeedAdd[PLAYER_SLOT_PLAYER] = 0;
         }
-        else if (hs >= 10.0)
+        else if (hs >= hiSpeedMax)
         {
-            hs = 10.0;
+            hs = hiSpeedMax;
             if (_hispeedAdd[PLAYER_SLOT_PLAYER] > 0)
                 _hispeedAdd[PLAYER_SLOT_PLAYER] = 0;
         }
@@ -1643,25 +1651,25 @@ void ScenePlay::updateAsyncLanecover(const Time& t)
 
         double hs = gPlayContext.battle2PHispeed;
         double hsOld = hs;
-        while (hs < 10.0 && _hispeedAdd[PLAYER_SLOT_TARGET] >= hsThreshold)
+        while (hs < hiSpeedMax && _hispeedAdd[PLAYER_SLOT_TARGET] >= hsThreshold)
         {
             _hispeedAdd[PLAYER_SLOT_TARGET] -= hsThreshold;
             hs += 0.01;
         }
-        while (hs > 0.25 && _hispeedAdd[PLAYER_SLOT_TARGET] <= -hsThreshold)
+        while (hs > hiSpeedMinSoft && _hispeedAdd[PLAYER_SLOT_TARGET] <= -hsThreshold)
         {
             _hispeedAdd[PLAYER_SLOT_TARGET] += hsThreshold;
             hs -= 0.01;
         }
-        if (hs <= 0.01)
+        if (hs <= hiSpeedMinHard)
         {
-            hs = 0.01;
+            hs = hiSpeedMinHard;
             if (_hispeedAdd[PLAYER_SLOT_TARGET] < 0)
                 _hispeedAdd[PLAYER_SLOT_TARGET] = 0;
         }
-        else if (hs >= 10.0)
+        else if (hs >= hiSpeedMax)
         {
-            hs = 10.0;
+            hs = hiSpeedMax;
             if (_hispeedAdd[PLAYER_SLOT_TARGET] > 0)
                 _hispeedAdd[PLAYER_SLOT_TARGET] = 0;
         }
@@ -2726,7 +2734,6 @@ void ScenePlay::updateFadeout()
                 {
                     gPlayContext.battle2PGreenNumber = _lockspeedGreenNumber[PLAYER_SLOT_TARGET];
                 }
-                gPlayContext.battle2P
             }
         }
 
@@ -3307,26 +3314,27 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
         bool black = (input[K12] || input[K14] || input[K16] || input[K18]) ||
             isPlaymodeDP() && (input[K22] || input[K24] || input[K26] || input[K28]);
 
-        if (input[K1SPDUP] || isPlaymodeDP() && input[K2SPDUP] || 
-            (_isHoldingStart[PLAYER_SLOT_PLAYER] || _isHoldingSelect[PLAYER_SLOT_PLAYER]) && black)
+        if (input[K1SPDUP] || isPlaymodeDP() && input[K2SPDUP] ||
+            ((_isHoldingStart[PLAYER_SLOT_PLAYER] || _isHoldingSelect[PLAYER_SLOT_PLAYER]) && black) ||
+            (adjustHispeedWithUpDown && input[UP]))
         {
-            if (gPlayContext.Hispeed < 10.0)
+            if (gPlayContext.Hispeed < hiSpeedMax)
             {
-                gPlayContext.Hispeed = std::min(gPlayContext.Hispeed + 0.25, 10.0);
+                gPlayContext.Hispeed = std::min(gPlayContext.Hispeed + hiSpeedMargin, hiSpeedMax);
                 _hispeedHasChanged[PLAYER_SLOT_PLAYER] = true;
             }
         }
 
-        if (input[K1SPDDN] || isPlaymodeDP() && input[K2SPDDN] || 
-            (_isHoldingStart[PLAYER_SLOT_PLAYER] || _isHoldingSelect[PLAYER_SLOT_PLAYER]) && white)
+        if (input[K1SPDDN] || isPlaymodeDP() && input[K2SPDDN] ||
+            ((_isHoldingStart[PLAYER_SLOT_PLAYER] || _isHoldingSelect[PLAYER_SLOT_PLAYER]) && white) ||
+            (adjustHispeedWithUpDown && input[DOWN]))
         {
-            if (gPlayContext.Hispeed > 0.25)
+            if (gPlayContext.Hispeed > hiSpeedMinSoft)
             {
-                gPlayContext.Hispeed = std::max(gPlayContext.Hispeed - 0.25, 0.25);
+                gPlayContext.Hispeed = std::max(gPlayContext.Hispeed - hiSpeedMargin, hiSpeedMinSoft);
                 _hispeedHasChanged[PLAYER_SLOT_PLAYER] = true;
             }
         }
-
     }
     if (gPlayContext.isBattle)
     {
@@ -3336,22 +3344,60 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
         bool white = (input[K21] || input[K23] || input[K25] || input[K27] || input[K29]);
         bool black = (input[K22] || input[K24] || input[K26] || input[K28]);
 
-        if (input[K2SPDUP] || 
+        if (input[K2SPDUP] ||
             (_isHoldingStart[PLAYER_SLOT_TARGET] || _isHoldingSelect[PLAYER_SLOT_TARGET]) && black)
         {
-            if (gPlayContext.battle2PHispeed < 10.0)
+            if (gPlayContext.battle2PHispeed < hiSpeedMax)
             {
-                gPlayContext.battle2PHispeed = std::min(gPlayContext.battle2PHispeed + 0.25, 10.0);
+                gPlayContext.battle2PHispeed = std::min(gPlayContext.battle2PHispeed + hiSpeedMargin, hiSpeedMax);
                 _hispeedHasChanged[PLAYER_SLOT_TARGET] = true;
             }
         }
-        if (input[K2SPDDN] || 
+        if (input[K2SPDDN] ||
             (_isHoldingStart[PLAYER_SLOT_TARGET] || _isHoldingSelect[PLAYER_SLOT_TARGET]) && white)
         {
-            if (gPlayContext.battle2PHispeed > 0.25)
+            if (gPlayContext.battle2PHispeed > hiSpeedMinSoft)
             {
-                gPlayContext.battle2PHispeed = std::max(gPlayContext.battle2PHispeed - 0.25, 0.25);
+                gPlayContext.battle2PHispeed = std::max(gPlayContext.battle2PHispeed - hiSpeedMargin, hiSpeedMinSoft);
                 _hispeedHasChanged[PLAYER_SLOT_TARGET] = true;
+            }
+        }
+    }
+
+    // lanecover adjusted by key
+    if (State::get(IndexSwitch::P1_LANECOVER_ENABLED) || State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P) == Option::LANE_LIFT)
+    {
+        int lcThreshold = getRate() / 200;  // updateAsyncLanecover()
+        if (adjustLanecoverWithMousewheel)
+        {
+            if (input[MWHEELUP])
+                _lanecoverAdd[PLAYER_SLOT_PLAYER] -= lcThreshold * 10;
+            if (input[MWHEELDOWN])
+                _lanecoverAdd[PLAYER_SLOT_PLAYER] += lcThreshold * 10;
+        }
+        if (adjustLanecoverWithLeftRight)
+        {
+            if (input[LEFT])
+                _lanecoverAdd[PLAYER_SLOT_PLAYER] -= lcThreshold * lanecoverMargin;
+            if (input[RIGHT])
+                _lanecoverAdd[PLAYER_SLOT_PLAYER] += lcThreshold * lanecoverMargin;
+        }
+        if (adjustLanecoverWithStart67)
+        {
+            if (_isHoldingStart[PLAYER_SLOT_PLAYER] || _isHoldingSelect[PLAYER_SLOT_PLAYER] ||
+                gPlayContext.isBattle && (_isHoldingStart[PLAYER_SLOT_TARGET] || _isHoldingSelect[PLAYER_SLOT_TARGET]))
+            {
+                if (input[K16])
+                    _lanecoverAdd[PLAYER_SLOT_PLAYER] -= lcThreshold * lanecoverMargin;
+                if (input[K17])
+                    _lanecoverAdd[PLAYER_SLOT_PLAYER] += lcThreshold * lanecoverMargin;
+            }
+            if (!gPlayContext.isBattle && (_isHoldingStart[PLAYER_SLOT_TARGET] || _isHoldingSelect[PLAYER_SLOT_TARGET]))
+            {
+                if (input[K26])
+                    _lanecoverAdd[PLAYER_SLOT_TARGET] -= lcThreshold * lanecoverMargin;
+                if (input[K27])
+                    _lanecoverAdd[PLAYER_SLOT_TARGET] += lcThreshold * lanecoverMargin;
             }
         }
     }

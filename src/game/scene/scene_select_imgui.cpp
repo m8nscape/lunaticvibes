@@ -139,6 +139,11 @@ void SceneSelect::_imguiInit()
     imgui_sel_ignore9keys = ConfigMgr::get("P", cfg::P_IGNORE_9KEYS_CHARTS, false);
     imgui_sel_ignore5keysif7keysexist = ConfigMgr::get("P", cfg::P_IGNORE_5KEYS_IF_7KEYS_EXIST, false);
 
+    imgui_play_adjustHispeedWithUpDown = ConfigMgr::get('P', cfg::P_ADJUST_HISPEED_WITH_ARROWKEYS, false);
+    imgui_play_adjustLanecoverWithStart67 = ConfigMgr::get('P', cfg::P_ADJUST_LANECOVER_WITH_START_67, false);
+    imgui_play_adjustLanecoverWithMousewheel = ConfigMgr::get('P', cfg::P_ADJUST_LANECOVER_WITH_MOUSEWHEEL, false);
+    imgui_play_adjustLanecoverWithLeftRight = ConfigMgr::get('P', cfg::P_ADJUST_LANECOVER_WITH_ARROWKEYS, false);
+
     // auto popup settings for first runs
     if (imgui_folders.empty())
     {
@@ -687,6 +692,30 @@ void SceneSelect::_imguiPage_Options_Play()
         HelpMarker(i18n::c(GREENNUMBER_HINT));
         ImGui::EndDisabled();
 
+        ImGui::Spacing();
+        ImGui::Separator();
+
+		if (ImGui::Checkbox(i18n::c(PLAY_ADJUST_HISPEED_WITH_ARROWKEYS), &imgui_play_adjustHispeedWithUpDown))
+		{
+			ConfigMgr::set('P', cfg::P_ADJUST_HISPEED_WITH_ARROWKEYS, imgui_play_adjustHispeedWithUpDown);
+		}
+
+		if (ImGui::Checkbox(i18n::c(PLAY_ADJUST_LANECOVER_WITH_START_67), &imgui_play_adjustLanecoverWithStart67))
+		{
+			ConfigMgr::set('P', cfg::P_ADJUST_LANECOVER_WITH_START_67, imgui_play_adjustLanecoverWithStart67);
+		}
+
+		if (ImGui::Checkbox(i18n::c(PLAY_ADJUST_LANECOVER_WITH_MOUSEWHEEL), &imgui_play_adjustLanecoverWithMousewheel))
+		{
+			ConfigMgr::set('P', cfg::P_ADJUST_LANECOVER_WITH_MOUSEWHEEL, imgui_play_adjustLanecoverWithMousewheel);
+		}
+
+		if (ImGui::Checkbox(i18n::c(PLAY_ADJUST_LANECOVER_WITH_ARROWKEYS), &imgui_play_adjustLanecoverWithLeftRight))
+		{
+			ConfigMgr::set('P', cfg::P_ADJUST_LANECOVER_WITH_ARROWKEYS, imgui_play_adjustLanecoverWithLeftRight);
+		}
+
+
         ImGui::EndChild();
     }
 }
@@ -833,6 +862,7 @@ Donators:
     XX
     ZTNP
     诡异
+    冰兔
     Komokom
     udon
     danRP
