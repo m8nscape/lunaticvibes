@@ -4,6 +4,8 @@
 #include "game/sound/sound_mgr.h"
 #include "game/sound/sound_sample.h"
 
+#include "game/arena/arena_data.h"
+
 SceneDecide::SceneDecide() : vScene(eMode::DECIDE, 1000)
 {
     _scene = eScene::DECIDE;
@@ -110,26 +112,24 @@ void SceneDecide::inputGamePress(InputMask& m, Time t)
         }
     }
 
-    if (k[Input::ESC])
+    if (!gArenaData.isOnline())
     {
-        switch (_state)
+        if (k[Input::ESC])
         {
-        case eDecideState::START:
-            State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
-            SoundMgr::stopSysSamples();
-            _updateCallback = std::bind(&SceneDecide::updateCancel, this);
-            _state = eDecideState::CANCEL;
-            LOG_DEBUG << "[Decide] State changed to CANCEL";
-            break;
+            switch (_state)
+            {
+            case eDecideState::START:
+                State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
+                SoundMgr::stopSysSamples();
+                _updateCallback = std::bind(&SceneDecide::updateCancel, this);
+                _state = eDecideState::CANCEL;
+                LOG_DEBUG << "[Decide] State changed to CANCEL";
+                break;
 
-        default:
-            break;
+            default:
+                break;
+            }
         }
-    }
-
-    if ((k[Input::K1START] && k[Input::K1SELECT]) || (k[Input::K2START] && k[Input::K2SELECT]))
-    {
-        // start hold timer
     }
 }
 
@@ -140,22 +140,24 @@ void SceneDecide::inputGameHold(InputMask& m, Time t)
     if (rt < _skin->info.timeIntro) return;
 
     auto k = _inputAvailable & m;
-    if ((k[Input::K1START] && k[Input::K1SELECT]) || (k[Input::K2START] && k[Input::K2SELECT]))
+
+    if (!gArenaData.isOnline())
     {
-        // check hold timer
-
-        switch (_state)
+        if ((k[Input::K1START] && k[Input::K1SELECT]) || (k[Input::K2START] && k[Input::K2SELECT]))
         {
-        case eDecideState::START:
-            State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
-            SoundMgr::stopSysSamples();
-            _updateCallback = std::bind(&SceneDecide::updateCancel, this);
-            _state = eDecideState::CANCEL;
-            LOG_DEBUG << "[Decide] State changed to CANCEL";
-            break;
+            switch (_state)
+            {
+            case eDecideState::START:
+                State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
+                SoundMgr::stopSysSamples();
+                _updateCallback = std::bind(&SceneDecide::updateCancel, this);
+                _state = eDecideState::CANCEL;
+                LOG_DEBUG << "[Decide] State changed to CANCEL";
+                break;
 
-        default:
-            break;
+            default:
+                break;
+            }
         }
     }
 }
