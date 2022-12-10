@@ -74,7 +74,8 @@ public:
 protected:
     bool _draw = false;     // modified by self
     bool _drawn = false; // modified by self::update()
-    bool _hide = false;     // modified externally
+    bool _hideInternal = false;     // modified internally
+    bool _hideExternal = false;     // modified externally
     pTexture _pTexture;
     IndexTimer _triggerTimer = IndexTimer::SCENE_START;
     int _loopTo = -1;
@@ -96,8 +97,9 @@ public:
     virtual void appendKeyFrame(const RenderKeyFrame& f);
     bool isDraw() const { return _draw; }
     virtual void draw() const = 0;
-    void setHide(bool hide) { _hide = hide; }
-    bool isHidden() const { return _hide; }
+    void setHideInternal(bool hide) { _hideInternal = hide; }
+    void setHideExternal(bool hide) { _hideExternal = hide; }
+    bool isHidden() const { return _hideInternal || _hideExternal; }
     bool isKeyFrameEmpty() { return _keyFrames.empty(); }
     void clearKeyFrames() { _keyFrames.clear(); }
     virtual void adjustAfterUpdate(int x, int y, int w = 0, int h = 0);

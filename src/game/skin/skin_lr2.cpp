@@ -4076,15 +4076,21 @@ void SkinLR2::update()
         int ttAngle1P = State::get(IndexNumber::_ANGLE_TT_1P);
         int ttAngle2P = State::get(IndexNumber::_ANGLE_TT_2P);
 
-        std::for_each(std::execution::par_unseq, drawQueue.begin(), drawQueue.end(), [ttAngle1P, ttAngle2P](auto& e)
+        std::for_each(std::execution::par_unseq, drawQueue.begin(), drawQueue.end(), [ttAngle1P, ttAngle2P](element& e)
             {
+                bool hide = false;
                 if (!(getDstOpt(e.op1) && getDstOpt(e.op2) && getDstOpt(e.op3)))
-                    e.ps->setHide(true);
+                    hide = true;
                 for (auto op : e.opEx)
                 {
                     if (!getDstOpt(op))
-                        e.ps->setHide(true);
+                    {
+                        hide = true;
+                        break;
+                    }
                 }
+                e.ps->setHideExternal(hide);
+
                 switch (e.op4)
                 {
                 case 1: e.ps->_current.angle += ttAngle1P; break;
@@ -4108,7 +4114,7 @@ void SkinLR2::update()
             std::shared_ptr<SpriteNumber> combo = std::reinterpret_pointer_cast<SpriteNumber>(gSprites[i + 6]);
             if (judge->isDraw() && !judge->isHidden())
             {
-                combo->setHide(false);
+                combo->setHideExternal(false);
 
                 Rect base = judge->_current.rect;
                 double shiftUnit = 0.5 * combo->_current.rect.w;
@@ -4138,7 +4144,7 @@ void SkinLR2::update()
             }
             else
             {
-                combo->setHide(true);
+                combo->setHideExternal(true);
             }
         }
         // 2P judge
@@ -4148,7 +4154,7 @@ void SkinLR2::update()
             std::shared_ptr<SpriteNumber> combo = std::reinterpret_pointer_cast<SpriteNumber>(gSprites[i + 18]);
             if (judge->isDraw() && !judge->isHidden())
             {
-                combo->setHide(false);
+                combo->setHideExternal(false);
 
                 Rect base = judge->_current.rect;
                 double shiftUnit = 0.5 * combo->_current.rect.w;
@@ -4178,7 +4184,7 @@ void SkinLR2::update()
             }
             else
             {
-                combo->setHide(true);
+                combo->setHideExternal(true);
             }
         }
     }

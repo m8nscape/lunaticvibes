@@ -40,7 +40,6 @@ void vSkin::update()
     {
         // reset
         s->_draw = false;
-        s->setHide(false);
 
 		s->update(gUpdateContext.updateTime);
     };

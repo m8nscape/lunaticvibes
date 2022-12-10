@@ -40,22 +40,22 @@ void SpriteLaneVertical::setLane(NoteLaneCategory cat, NoteLaneIndex idx)
 			if ((_index == chart::NoteLaneIndex::Sc1 && (gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask & PLAY_MOD_ASSIST_AUTOSCR)) ||
 				(_index == chart::NoteLaneIndex::Sc2 && !gPlayContext.isBattle))
 			{
-				if (!_autoNotes) _hide = true;
+				if (!_autoNotes) _hideInternal = true;
 			}
 			else
 			{
-				if (_autoNotes) _hide = true;
+				if (_autoNotes) _hideInternal = true;
 			}
 			break;
 		case PLAYER_SLOT_TARGET:
 			if (_index == chart::NoteLaneIndex::Sc2 &&
 				(gPlayContext.mods[gPlayContext.isBattle ? PLAYER_SLOT_TARGET : PLAYER_SLOT_PLAYER].assist_mask & PLAY_MOD_ASSIST_AUTOSCR))
 			{
-				if (!_autoNotes) _hide = true;
+				if (!_autoNotes) _hideInternal = true;
 			}
 			else
 			{
-				if (_autoNotes) _hide = true;
+				if (_autoNotes) _hideInternal = true;
 			}
 			break;
 		default:
@@ -102,7 +102,7 @@ void SpriteLaneVertical::getRectSize(int& w, int& h)
 
 bool SpriteLaneVertical::update(const Time& t)
 {
-	if (_hide) return false;
+	if (_hideInternal) return false;
 
 	if (updateByKeyframes(t))
 	{
@@ -187,6 +187,8 @@ void SpriteLaneVertical::updateNoteRect(const Time& t)
 
 void SpriteLaneVertical::draw() const 
 {
+	if (_hideInternal || _hideExternal) return;
+
     if (pNote && pNote->_pTexture && pNote->_pTexture->_loaded)
 	{
 		for (const auto& r : _outRect)

@@ -167,16 +167,16 @@ void SpriteBarEntry::pushPartsOrder(BarPartsType type)
 
 bool SpriteBarEntry::update(Time time)
 {
-    for (auto& s: sBodyOff) if (s) s->setHide(true);
-    for (auto& s: sBodyOn) if (s) s->setHide(true);
-    for (auto& s: sTitle) if (s) s->setHide(true);
-    for (auto& s: sLevel) if (s) s->setHide(true);
-    for (auto& s: sLamp) if (s) s->setHide(true);
-    for (auto& s: sRank) if (s) s->setHide(true);
-    for (auto& s: sRivalWinLose) if (s) s->setHide(true);
-    for (auto& s: sRivalLampSelf) if (s) s->setHide(true);
-    for (auto& s: sRivalLampRival) if (s) s->setHide(true);
-    if (sFlash) sFlash->setHide(true);
+    for (auto& s: sBodyOff) if (s) s->setHideInternal(true);
+    for (auto& s: sBodyOn) if (s) s->setHideInternal(true);
+    for (auto& s: sTitle) if (s) s->setHideInternal(true);
+    for (auto& s: sLevel) if (s) s->setHideInternal(true);
+    for (auto& s: sLamp) if (s) s->setHideInternal(true);
+    for (auto& s: sRank) if (s) s->setHideInternal(true);
+    for (auto& s: sRivalWinLose) if (s) s->setHideInternal(true);
+    for (auto& s: sRivalLampSelf) if (s) s->setHideInternal(true);
+    for (auto& s: sRivalLampRival) if (s) s->setHideInternal(true);
+    if (sFlash) sFlash->setHideInternal(true);
 
     auto& list = gSelectContext.entries;
     if (!list.empty())
@@ -248,7 +248,7 @@ bool SpriteBarEntry::update(Time time)
                 _draw = false;
                 return false;
             }
-            sBodyOff[barTypeIdx]->setHide(false);
+            sBodyOff[barTypeIdx]->setHideInternal(false);
             drawBodyType = barTypeIdx;
             pBody = sBodyOff[barTypeIdx];
         }
@@ -259,7 +259,7 @@ bool SpriteBarEntry::update(Time time)
                 _draw = false;
                 return false;
             }
-            sBodyOn[barTypeIdx]->setHide(false);
+            sBodyOn[barTypeIdx]->setHideInternal(false);
             drawBodyType = barTypeIdx;
             pBody = sBodyOn[barTypeIdx];
         }
@@ -279,7 +279,7 @@ bool SpriteBarEntry::update(Time time)
         if (sTitle[drawTitleType])
         {
             sTitle[drawTitleType]->update(time);
-            sTitle[drawTitleType]->setHide(false);
+            sTitle[drawTitleType]->setHideInternal(false);
             drawTitle = true;
         }
 
@@ -287,7 +287,7 @@ bool SpriteBarEntry::update(Time time)
         if (drawFlash && sFlash)
         {
             sFlash->update(time);
-            sFlash->setHide(false);
+            sFlash->setHideInternal(false);
         }
 
         if ((BarType)barTypeIdx == BarType::SONG || 
@@ -315,7 +315,7 @@ bool SpriteBarEntry::update(Time time)
                     if ((size_t)bms->difficulty < sLevel.size() && sLevel[bms->difficulty])
                     {
                         sLevel[bms->difficulty]->update(time);
-                        sLevel[bms->difficulty]->setHide(false);
+                        sLevel[bms->difficulty]->setHideInternal(false);
                         drawLevelType = bms->difficulty;
                         drawLevel = true;
                     }
@@ -356,7 +356,7 @@ bool SpriteBarEntry::update(Time time)
                         if (sLamp[lampTypeIdx])
                         {
                             sLamp[lampTypeIdx]->update(time);
-                            sLamp[lampTypeIdx]->setHide(false);
+                            sLamp[lampTypeIdx]->setHideInternal(false);
                             drawLampType = lampTypeIdx;
                             drawLamp = true;
                         }
@@ -366,7 +366,7 @@ bool SpriteBarEntry::update(Time time)
                             if (sLamp[lampTypeIdx])
                             {
                                 sLamp[lampTypeIdx]->update(time);
-                                sLamp[lampTypeIdx]->setHide(false);
+                                sLamp[lampTypeIdx]->setHideInternal(false);
                                 drawLampType = lampTypeIdx;
                                 drawLamp = true;
                             }
@@ -392,14 +392,14 @@ bool SpriteBarEntry::update(Time time)
                             if (sRank[drawRankType])
                             {
                                 sRank[drawRankType]->update(time);
-                                sRank[drawRankType]->setHide(false);
+                                sRank[drawRankType]->setHideInternal(false);
                                 drawRank = true;
                             }
                             // win/lose/draw
                             if ((size_t)score->rival < sRivalWinLose.size() && sRivalWinLose[score->rival])
                             {
                                 sRivalWinLose[score->rival]->update(time);
-                                sRivalWinLose[score->rival]->setHide(false);
+                                sRivalWinLose[score->rival]->setHideInternal(false);
                                 drawRivalType = score->rival;
                                 drawRival = true;
                             }
@@ -409,7 +409,7 @@ bool SpriteBarEntry::update(Time time)
                                 drawRivalLampSelfType = drawLampType;
                                 drawRivalLampSelf = true;
                                 sRivalLampSelf[drawRivalLampSelfType]->update(time);
-                                sRivalLampSelf[drawRivalLampSelfType]->setHide(false);
+                                sRivalLampSelf[drawRivalLampSelfType]->setHideInternal(false);
                             }
                             // rival lamp
                             size_t rivalLampTypeIdx = (BMS_LAMP_TYPE_MAP.find(score->rival_lamp) != BMS_LAMP_TYPE_MAP.end()) ?
@@ -417,7 +417,7 @@ bool SpriteBarEntry::update(Time time)
                             if (sRivalLampRival[rivalLampTypeIdx])
                             {
                                 sRivalLampRival[rivalLampTypeIdx]->update(time);
-                                sRivalLampRival[rivalLampTypeIdx]->setHide(false);
+                                sRivalLampRival[rivalLampTypeIdx]->setHideInternal(false);
                                 drawRivalLampRivalType = rivalLampTypeIdx;
                                 drawRivalLampRival = true;
                             }
@@ -468,7 +468,7 @@ bool SpriteBarEntry::update(Time time)
                 if (sLamp[lampTypeIdx])
                 {
                     sLamp[lampTypeIdx]->update(time);
-                    sLamp[lampTypeIdx]->setHide(false);
+                    sLamp[lampTypeIdx]->setHideInternal(false);
                     drawLampType = lampTypeIdx;
                     drawLamp = true;
                 }
@@ -478,7 +478,7 @@ bool SpriteBarEntry::update(Time time)
                     if (sLamp[lampTypeIdx])
                     {
                         sLamp[lampTypeIdx]->update(time);
-                        sLamp[lampTypeIdx]->setHide(false);
+                        sLamp[lampTypeIdx]->setHideInternal(false);
                         drawLampType = lampTypeIdx;
                         drawLamp = true;
                     }

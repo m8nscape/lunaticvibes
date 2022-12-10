@@ -18,7 +18,6 @@ protected:
     std::list<Rect> _outRect;
     unsigned _currentMeasure = 0;
     bool _autoNotes = false;
-    bool _hide = false;
 
 public:
     unsigned playerSlot;

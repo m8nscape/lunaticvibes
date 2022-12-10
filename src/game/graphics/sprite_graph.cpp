@@ -13,12 +13,11 @@ void SpriteLine::appendPoint(const ColorPoint& c) { _points.push_back(c); }
 
 void SpriteLine::draw() const
 {
-    if (!_hide)
+    if (isHidden()) return;
+
+    for (auto& [p1, p2] : _rects)
     {
-        for (auto& [p1, p2] : _rects)
-        {
-            _line.draw(p1, p2, _color * _current.color);
-        }
+        _line.draw(p1, p2, _color * _current.color);
     }
 }
 
