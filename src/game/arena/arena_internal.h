@@ -31,6 +31,7 @@ enum ArenaMessageType : uint8_t
 	CHECK_CHART_EXIST,
 	HOST_REQUEST_CHART,
 
+	HOST_READY_STAT,
 	HOST_START_PLAYING,			// sent when all players accepted chart. also includes random seed
 
 	CLIENT_PLAY_INIT,
@@ -264,6 +265,22 @@ public:
 		ArenaMessage::serialize(ar);
 		ar(requestPlayerName);
 		ar(chartHashMD5String);
+	}
+};
+
+class ArenaMessageHostReadyStat : public ArenaMessage
+{
+public:
+	ArenaMessageHostReadyStat() { type = Arena::HOST_READY_STAT; }
+
+	std::map<int32_t, uint8_t> ready;	// using uint8_t instead of bool
+
+public:
+	template<class Archive>
+	void serialize(Archive& ar)
+	{
+		ArenaMessage::serialize(ar);
+		ar(ready);
 	}
 };
 

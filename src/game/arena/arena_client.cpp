@@ -177,7 +177,7 @@ void ArenaClient::requestChart(const HashMD5& reqChart)
 	requestChartHash = reqChart;
 	auto n = std::make_shared<ArenaMessageRequestChart>();
 	n->messageIndex = ++sendMessageIndex;
-	n->chartHashMD5String = reqChart.hexdigest();
+	n->chartHashMD5String = !reqChart.empty() ? reqChart.hexdigest() : "";
 	
 	auto payload = n->pack();
 	socket->async_send_to(boost::asio::buffer(*payload), server, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
@@ -299,7 +299,8 @@ void ArenaClient::handleRequest(const unsigned char* recv_buf, size_t recv_buf_l
 		case Arena::PLAYER_JOINED_LOBBY:       handlePlayerJoined(pMsg); break;
 		case Arena::PLAYER_LEFT_LOBBY:		   handlePlayerLeft(pMsg); break;
 		case Arena::CHECK_CHART_EXIST:		   handleCheckChartExist(pMsg); break;
-		case Arena::HOST_REQUEST_CHART:        handleHostRequestChart(pMsg); break; 
+		case Arena::HOST_REQUEST_CHART:        handleHostRequestChart(pMsg); break;
+		case Arena::HOST_READY_STAT:           handleHostReadyStat(pMsg); break;
 		case Arena::HOST_START_PLAYING:  	   handleHostStartPlaying(pMsg); break;
 		case Arena::HOST_PLAY_INIT:			   handleHostPlayInit(pMsg); break;
 		case Arena::HOST_FINISHED_LOADING:	   handleHostFinishedLoading(pMsg); break;
@@ -539,6 +540,27 @@ void ArenaClient::handleHostRequestChart(std::shared_ptr<ArenaMessage> msg)
 	// select chart
 	gSelectContext.remoteRequestedPlayer = pMsg->requestPlayerName;
 	gSelectContext.remoteRequestedChart = hash;
+}
+
+void ArenaClient::handleHostReadyStat(std::shared_ptr<ArenaMessage> msg)
+{
+	auto pMsg = std::static_pointer_cast<ArenaMessageHostReadyStat>(msg);
+
+	ArenaMessageResponse resp(*pMsg);
+
+	auto payload = resp.pack();
+	socket->async_send_to(boost::asio::buffer(*payload), server, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
+
+	// select chart
+	for (auto& [id, ready] : pMsg->ready)
+	{
+		if (id == playerID)
+			gArenaData.ready = !!ready;
+		else if (gArenaData.data.find(id) != gArenaData.data.end())
+		{
+			gArenaData.data[id].ready = !!ready;
+		}
+	}
 }
 
 void ArenaClient::handleHostStartPlaying(std::shared_ptr<ArenaMessage> msg)

@@ -143,19 +143,30 @@ void ArenaHost::requestChart(const HashMD5& reqChart, const std::string clientKe
 {
 	if (reqChart.empty())
 	{
-		if (clientKey == "host")
-		{
-			// host has cancelled
-			hostRequestChartHash = reqChart;
-		}
-		else
-		{
-			// client has cancelled
-			Client& c = clients[clientKey];
-			c.requestChartHash = reqChart;
-		}
+		requestChartHash.reset();
+		hostRequestChartHash.reset();
 
-		// inform clients? (ready mark)
+		// inform clients. Remove all ready stat
+		decltype(std::declval<ArenaMessageHostReadyStat>().ready) ready;
+		ready[0] = false;
+		gArenaData.ready = false;
+		for (auto& [k, cc] : clients)
+		{
+			cc.requestChartHash.reset();
+			ready[cc.id] = false;
+			gArenaData.data[cc.id].ready = false;
+		}
+		for (auto& [k, cc] : clients)
+		{
+			auto n = std::make_shared<ArenaMessageHostReadyStat>();
+			n->messageIndex = ++cc.sendMessageIndex;
+			n->ready = ready;
+
+			auto payload = n->pack();
+			cc.serverSocket->async_send_to(boost::asio::buffer(*payload), cc.endpoint, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
+
+			cc.addTaskWaitingForResponse(n->messageIndex, payload);
+		}
 		return;
 	}
 
@@ -190,7 +201,24 @@ void ArenaHost::requestChart(const HashMD5& reqChart, const std::string clientKe
 			c.requestChartHash = reqChart;
 		}
 
-		// inform clients? (ready mark)
+		// inform clients
+		decltype(std::declval<ArenaMessageHostReadyStat>().ready) ready;
+		ready[0] = hostRequestChartHash == reqChart;
+		for (auto& [k, cc] : clients)
+		{
+			ready[cc.id] = cc.requestChartHash == reqChart;
+		}
+		for (auto& [k, cc] : clients)
+		{
+			auto n = std::make_shared<ArenaMessageHostReadyStat>();
+			n->messageIndex = ++cc.sendMessageIndex;
+			n->ready = ready;
+
+			auto payload = n->pack();
+			cc.serverSocket->async_send_to(boost::asio::buffer(*payload), cc.endpoint, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
+
+			cc.addTaskWaitingForResponse(n->messageIndex, payload);
+		}
 	}
 	else
 	{
@@ -633,15 +661,6 @@ void ArenaHost::handleRequestChart(const std::string& clientKey, std::shared_ptr
 	ArenaMessageResponse resp(*pMsg);
 
 	HashMD5 reqChart(pMsg->chartHashMD5String);
-	if (reqChart.empty())
-	{
-		LOG_WARNING << "[Arena] Invalid chart requested";
-		resp.errorCode = 1;
-		auto payload = resp.pack();
-		c.serverSocket->async_send_to(boost::asio::buffer(*payload), c.endpoint, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
-		return;
-	}
-
 	requestChart(reqChart, clientKey);
 
 	auto payload = resp.pack();
@@ -916,6 +935,7 @@ void ArenaHost::update()
 				// host select chart
 				hostRequestChartHash = requestChartHash;
 				requestPlayerName = State::get(IndexText::PLAYER_NAME);
+				gArenaData.ready = true;
 			}
 			else
 			{
@@ -923,6 +943,7 @@ void ArenaHost::update()
 				auto& cc = clients[requestChartPendingClientKey];
 				cc.requestChartHash = requestChartHash;
 				requestPlayerName = cc.name;
+				gArenaData.data[cc.id].ready = true;
 			}
 			gSelectContext.remoteRequestedPlayer = requestPlayerName;
 			gSelectContext.remoteRequestedChart = requestChartHash;
@@ -936,6 +957,25 @@ void ArenaHost::update()
 
 				auto payload = n->pack();
 				cc.serverSocket->async_send_to(boost::asio::buffer(*payload), cc.endpoint, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
+				cc.addTaskWaitingForResponse(n->messageIndex, payload);
+			}
+
+			// inform clients that requester is ready
+			decltype(std::declval<ArenaMessageHostReadyStat>().ready) ready;
+			ready[0] = requestChartPendingClientKey == "host";
+			for (auto& [k, cc] : clients)
+			{
+				ready[cc.id] = requestChartPendingClientKey == k;
+			}
+			for (auto& [k, cc] : clients)
+			{
+				auto n = std::make_shared<ArenaMessageHostReadyStat>();
+				n->messageIndex = ++cc.sendMessageIndex;
+				n->ready = ready;
+
+				auto payload = n->pack();
+				cc.serverSocket->async_send_to(boost::asio::buffer(*payload), cc.endpoint, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
+
 				cc.addTaskWaitingForResponse(n->messageIndex, payload);
 			}
 		}

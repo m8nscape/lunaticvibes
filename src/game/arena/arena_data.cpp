@@ -13,9 +13,9 @@ void ArenaData::reset()
 	playing = false;
 	data.clear();
 	playerIDs.clear();
-	playReady = false;
 	playStartTimeMs = 0;
 	playingFinished = false;
+	ready = false;
 
 	if (g_pArenaClient)
 	{
@@ -48,6 +48,16 @@ std::shared_ptr<vRulesetNetwork> ArenaData::getPlayerRuleset(size_t index)
 int ArenaData::getPlayerID(size_t index)
 {
 	return index < getPlayerCount() ? playerIDs[index] : -1;
+}
+
+bool ArenaData::isSelfReady()
+{
+	return ready;
+}
+
+bool ArenaData::isPlayerReady(size_t index)
+{
+	return index < getPlayerCount() ? data[playerIDs[index]].ready: false;
 }
 
 void ArenaData::initPlaying(eRuleset rulesetType)
@@ -85,13 +95,14 @@ void ArenaData::startPlaying()
 
 void ArenaData::stopPlaying()
 {
-	playReady = false;
+	ready = false;
 	playStartTimeMs = 0;
 	playingFinished = false;
 	playing = false;
 
 	for (auto& [id, d] : data)
 	{
+		d.ready = false;
 		d.ruleset.reset();
 	}
 }

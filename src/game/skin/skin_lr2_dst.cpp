@@ -1135,6 +1135,8 @@ void updateDstOpt()
 		case 1: set(1001);
 		}
 
+		set(1400, gArenaData.isSelfReady());
+
 		for (size_t i = 0; i < MAX_ARENA_PLAYERS; ++i)
 		{
 			if (auto pr = gArenaData.getPlayerRuleset(i); pr)
@@ -1204,8 +1206,9 @@ void updateDstOpt()
 				{
 					set(1041 + offset);
 				}
-				
 			}
+
+			set(1401 + i, gArenaData.isPlayerReady(i));
 		}
 	}
 }

@@ -108,6 +108,7 @@ protected:
 	void handlePlayerLeft(std::shared_ptr<ArenaMessage> msg);
 	void handleCheckChartExist(std::shared_ptr<ArenaMessage> msg);
 	void handleHostRequestChart(std::shared_ptr<ArenaMessage> msg);
+	void handleHostReadyStat(std::shared_ptr<ArenaMessage> msg);
 	void handleHostStartPlaying(std::shared_ptr<ArenaMessage> msg);
 	void handleHostPlayInit(std::shared_ptr<ArenaMessage> msg);
 	void handleHostFinishedLoading(std::shared_ptr<ArenaMessage> msg);

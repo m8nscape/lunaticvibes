@@ -36,6 +36,7 @@ std::shared_ptr<std::vector<unsigned char>> ArenaMessage::pack()
 		case REQUEST_CHART:           ar(*static_cast<ArenaMessageRequestChart*>(this)); break;
 		case CHECK_CHART_EXIST:       ar(*static_cast<ArenaMessageCheckChartExist*>(this)); break;
 		case HOST_REQUEST_CHART:      ar(*static_cast<ArenaMessageHostRequestChart*>(this)); break;
+		case HOST_READY_STAT:         ar(*static_cast<ArenaMessageHostReadyStat*>(this)); break;
 		case HOST_START_PLAYING:      ar(*static_cast<ArenaMessageHostStartPlaying*>(this)); break;
 		case CLIENT_PLAY_INIT:        ar(*static_cast<ArenaMessageClientPlayInit*>(this)); break;
 		case HOST_PLAY_INIT:          ar(*static_cast<ArenaMessageHostPlayInit*>(this)); break;
@@ -98,7 +99,8 @@ std::shared_ptr<ArenaMessage> ArenaMessage::unpack(const unsigned char* data, si
 		case PLAYER_LEFT_LOBBY:       { auto m = std::make_shared<ArenaMessagePlayerLeftLobby>();       { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
 		case REQUEST_CHART:           { auto m = std::make_shared<ArenaMessageRequestChart>();          { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
 		case CHECK_CHART_EXIST:       { auto m = std::make_shared<ArenaMessageCheckChartExist>();       { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
-		case HOST_REQUEST_CHART:      { auto m = std::make_shared<ArenaMessageHostRequestChart>();      { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
+		case HOST_REQUEST_CHART:	  { auto m = std::make_shared<ArenaMessageHostRequestChart>();      { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
+		case HOST_READY_STAT:         { auto m = std::make_shared<ArenaMessageHostReadyStat>();         { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
 		case HOST_START_PLAYING:      { auto m = std::make_shared<ArenaMessageHostStartPlaying>();      { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
 		case CLIENT_PLAY_INIT:        { auto m = std::make_shared<ArenaMessageClientPlayInit>();        { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
 		case HOST_PLAY_INIT:          { auto m = std::make_shared<ArenaMessageHostPlayInit>();          { cereal::PortableBinaryInputArchive ar(ss); ar(*m); } return m; }
