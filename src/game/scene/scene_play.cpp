@@ -2533,6 +2533,7 @@ void ScenePlay::updatePlaying()
             _isExitingFromPlay = true;
             if (gArenaData.isOnline())
             {
+                State::set(IndexTimer::ARENA_PLAY_WAIT, t.norm());
                 _state = ePlayState::WAIT_ARENA;
                 LOG_DEBUG << "[Play] State changed to WAIT_ARENA";
             }
@@ -2614,6 +2615,7 @@ void ScenePlay::updatePlaying()
         _isExitingFromPlay = true;
         if (gArenaData.isOnline())
         {
+            State::set(IndexTimer::ARENA_PLAY_WAIT, t.norm());
             _state = ePlayState::WAIT_ARENA;
             LOG_DEBUG << "[Play] State changed to WAIT_ARENA";
         }
@@ -3132,6 +3134,7 @@ void ScenePlay::requestExit()
 
     if (gArenaData.isOnline())
     {
+        State::set(IndexTimer::ARENA_PLAY_WAIT, t.norm());
         _state = ePlayState::WAIT_ARENA;
         LOG_DEBUG << "[Play] State changed to WAIT_ARENA";
     }
