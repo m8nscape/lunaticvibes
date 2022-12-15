@@ -105,6 +105,7 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
     unsigned srcLine = 0;
 
     // #RANDOM related parameters
+    std::stack<int> randomValueMax;
     std::stack<int> randomValue;
     std::stack<std::set<int>> randomUsedValues;
     std::stack<std::stack<int>> ifStack;
@@ -149,6 +150,7 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                     !strEqual(v.substr(0, 10), "#ENDRANDOM", true))
                 {
                     LOG_WARNING << "[BMS] " << absolutePath.u8string() << " definition found after all IF blocks finished, assuming #ENDRANDOM is missing. Line: " << srcLine;
+                    randomValueMax.pop();
                     randomValue.pop();
                     randomUsedValues.pop();
                     ifStack.pop();
@@ -168,6 +170,7 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                 haveRandom = true;
                 std::mt19937_64 rng(randomSeed);
                 int rngValue = (rng() % toInt(value)) + 1;
+                randomValueMax.push(iValue);
                 randomValue.push(rngValue);
                 randomUsedValues.emplace();
 
@@ -220,6 +223,7 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                         {
                             LOG_WARNING << "[BMS] " << absolutePath.u8string() << " #ENDRANDOM found before #ENDIF at line " << srcLine;
                         }
+                        randomValueMax.pop();
                         randomValue.pop();
                         randomUsedValues.pop();
 
@@ -235,13 +239,32 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                     }
                 }
 
-                // skip orphan blocks
-                if (ifValue.empty())
-                    continue;
+                if (randomUsedValues.top().size() == randomValueMax.top())
+                {
+                    randomValueMax.pop();
+                    randomValue.pop();
+                    randomUsedValues.pop();
 
-                // skip mismatch IF value blocks
-                if (ifValue.top() != randomValue.top())
+                    if (!ifStack.empty())
+                    {
+                        ifValue = ifStack.top();
+                        ifStack.pop();
+                    }
+                    else
+                    {
+                        ifValue = std::stack<int>();
+                    }
+                }
+                else if (ifValue.empty())
+                {
+                    // skip orphan blocks
                     continue;
+                }
+                else if (ifValue.top() != randomValue.top())
+                {
+                    // skip mismatch IF value blocks
+                    continue;
+                }
             }
 
             bool isNoteDef = false;
