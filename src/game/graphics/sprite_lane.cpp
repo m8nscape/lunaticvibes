@@ -187,7 +187,7 @@ void SpriteLaneVertical::updateNoteRect(const Time& t)
 
 void SpriteLaneVertical::draw() const 
 {
-	if (_hideInternal || _hideExternal) return;
+	if (isHidden()) return;
 
     if (pNote && pNote->_pTexture && pNote->_pTexture->_loaded)
 	{
@@ -270,6 +270,41 @@ void SpriteLaneVertical::updateHIDDENCompatible()
 				_hiddenCompatibleArea.y = h - _hiddenCompatibleArea.h;
 			}
 		}
+	}
+}
+
+void SpriteLaneVerticalLN::setTrigTimer(IndexTimer t)
+{
+	SpriteLaneVertical::setTrigTimer(t);
+
+	switch (t)
+	{
+	case IndexTimer::S1_LN_BOMB:
+	case IndexTimer::K11_LN_BOMB:
+	case IndexTimer::K12_LN_BOMB:
+	case IndexTimer::K13_LN_BOMB:
+	case IndexTimer::K14_LN_BOMB:
+	case IndexTimer::K15_LN_BOMB:
+	case IndexTimer::K16_LN_BOMB:
+	case IndexTimer::K17_LN_BOMB:
+	case IndexTimer::K18_LN_BOMB:
+	case IndexTimer::K19_LN_BOMB:
+	case IndexTimer::S2_LN_BOMB:
+	case IndexTimer::K21_LN_BOMB:
+	case IndexTimer::K22_LN_BOMB:
+	case IndexTimer::K23_LN_BOMB:
+	case IndexTimer::K24_LN_BOMB:
+	case IndexTimer::K25_LN_BOMB:
+	case IndexTimer::K26_LN_BOMB:
+	case IndexTimer::K27_LN_BOMB:
+	case IndexTimer::K28_LN_BOMB:
+	case IndexTimer::K29_LN_BOMB:
+		animLimited = true;
+		break;
+
+	default:
+		animLimited = false;
+		break;
 	}
 }
 
@@ -477,10 +512,10 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 
 void SpriteLaneVerticalLN::draw() const
 {
+	if (isHidden()) return;
+
 	Color colorMiss = _current.color;
-	colorMiss.r *= 0.5;
-	colorMiss.g *= 0.5;
-	colorMiss.b *= 0.5;
+	colorMiss.a *= 0.5;
 
 	// body
 	if (pNoteBody && pNoteBody->_pTexture && pNoteBody->_pTexture->_loaded)
@@ -488,13 +523,15 @@ void SpriteLaneVerticalLN::draw() const
 		for (auto it = _outRectBody.begin(); it != _outRectBody.end(); ++it)
 		{
 			auto itNext = it;
-			if (++itNext == _outRectBody.end())
+			itNext++;
+			bool miss = (itNext == _outRectBody.end() && ((headExpired && !headHit) || (tailExpired && !tailHit)));
+			if (itNext == _outRectBody.end())
 			{
 				pNoteBody->_pTexture->draw(
 					pNoteBody->_texRect[pNoteBody->_selectionIdx * pNoteBody->_animFrames + pNoteBody->_currAnimFrame],
 					*it,
-					((headExpired && !headHit) || (tailExpired && !tailHit)) ? colorMiss : _current.color,
-					_current.blend,
+					miss ? colorMiss : _current.color,
+					miss ? BlendMode::ALPHA : _current.blend,
 					_current.filter,
 					_current.angle,
 					_current.center);
@@ -504,8 +541,8 @@ void SpriteLaneVerticalLN::draw() const
 				pNoteBody->_pTexture->draw(
 					pNoteBody->_texRect[pNoteBody->_selectionIdx],
 					*it,
-					((headExpired && !headHit) || (tailExpired && !tailHit)) ? colorMiss : _current.color,
-					_current.blend,
+					miss ? colorMiss : _current.color,
+					miss ? BlendMode::ALPHA : _current.blend,
 					_current.filter,
 					_current.angle,
 					_current.center);
@@ -516,32 +553,66 @@ void SpriteLaneVerticalLN::draw() const
 	// head
 	if (pNote && pNote->_pTexture && pNote->_pTexture->_loaded)
 	{
-		for (const auto& r : _outRect)
+		for (auto it = _outRect.begin(); it != _outRect.end(); ++it)
 		{
-			pNote->_pTexture->draw(
-				pNote->_texRect[pNote->_selectionIdx * pNote->_animFrames + pNote->_currAnimFrame],
-				r,
-				((headExpired && !headHit) || (tailExpired && !tailHit)) ? colorMiss : _current.color,
-				_current.blend,
-				_current.filter,
-				_current.angle,
-				_current.center);
+			auto itNext = it;
+			itNext++;
+			bool miss = (itNext == _outRect.end() && ((headExpired && !headHit) || (tailExpired && !tailHit)));
+			if (itNext == _outRect.end())
+			{
+				pNote->_pTexture->draw(
+					pNote->_texRect[pNote->_selectionIdx * pNote->_animFrames + pNote->_currAnimFrame],
+					*it,
+					miss ? colorMiss : _current.color,
+					miss ? BlendMode::ALPHA : _current.blend,
+					_current.filter,
+					_current.angle,
+					_current.center);
+			}
+			else
+			{
+				pNote->_pTexture->draw(
+					pNote->_texRect[pNoteBody->_selectionIdx],
+					*it,
+					miss ? colorMiss : _current.color,
+					miss ? BlendMode::ALPHA : _current.blend,
+					_current.filter,
+					_current.angle,
+					_current.center);
+			}
 		}
 	}
 
 	// tail
 	if (pNoteTail && pNoteTail->_pTexture && pNoteTail->_pTexture->_loaded)
 	{
-		for (const auto& r : _outRectTail)
+		for (auto it = _outRectTail.begin(); it != _outRectTail.end(); ++it)
 		{
-			pNoteTail->_pTexture->draw(
-				pNoteTail->_texRect[pNoteTail->_selectionIdx * pNoteTail->_animFrames + pNoteTail->_currAnimFrame],
-				r,
-				((headExpired && !headHit) || (tailExpired && !tailHit)) ? colorMiss : _current.color,
-				_current.blend,
-				_current.filter,
-				_current.angle,
-				_current.center);
+			auto itNext = it;
+			itNext++;
+			bool miss = (itNext == _outRectTail.end() && ((headExpired && !headHit) || (tailExpired && !tailHit)));
+			if (itNext == _outRectTail.end())
+			{
+				pNoteTail->_pTexture->draw(
+					pNoteTail->_texRect[pNoteTail->_selectionIdx * pNoteTail->_animFrames + pNoteTail->_currAnimFrame],
+					*it,
+					miss ? colorMiss : _current.color,
+					miss ? BlendMode::ALPHA : _current.blend,
+					_current.filter,
+					_current.angle,
+					_current.center);
+			}
+			else
+			{
+				pNoteTail->_pTexture->draw(
+					pNoteTail->_texRect[pNoteBody->_selectionIdx],
+					*it,
+					miss ? colorMiss : _current.color,
+					miss ? BlendMode::ALPHA : _current.blend,
+					_current.filter,
+					_current.angle,
+					_current.center);
+			}
 		}
 	}
 

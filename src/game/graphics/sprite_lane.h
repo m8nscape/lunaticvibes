@@ -66,6 +66,7 @@ protected:
     bool tailExpired = false;
     bool headHit = false;
     bool tailHit = false;
+    bool animLimited = false;
 public:
     std::shared_ptr<SpriteAnimated> pNoteBody, pNoteTail;
 
@@ -74,6 +75,8 @@ public:
         SpriteLaneVertical(player, autoNotes, basespeed, lanespeed) {}
 
 public:
+    virtual void setTrigTimer(IndexTimer t);
+
     virtual void updateNoteRect(const Time& t) override;
     virtual void draw() const;
     virtual void adjustAfterUpdate(int x, int y, int w = 0, int h = 0) override;
