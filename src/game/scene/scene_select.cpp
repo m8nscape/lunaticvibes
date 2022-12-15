@@ -633,6 +633,15 @@ void SceneSelect::_updateAsync()
 
         gSelectContext.remoteRequestedChart.reset();
         gSelectContext.remoteRequestedPlayer.clear();
+        gSelectContext.isInArenaRequest = true;
+    }
+    if (gArenaData.isOnline() && gSelectContext.isArenaCancellingRequest)
+    {
+        gSelectContext.isArenaCancellingRequest = false;
+        if (gSelectContext.isInArenaRequest)
+        {
+            _navigateBack(t);
+        }
     }
 
     if (gArenaData.isOnline() && gSelectContext.isArenaReady)
@@ -2394,6 +2403,8 @@ void SceneSelect::_navigateBack(const Time& t, bool sound)
                 g_pArenaClient->requestChart(HashMD5());
             else
                 g_pArenaHost->requestChart(HashMD5(), "host");
+
+            gSelectContext.isInArenaRequest = false;
         }
 
         auto& top = gSelectContext.backtrace.top();

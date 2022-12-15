@@ -531,9 +531,24 @@ void ArenaClient::handleHostRequestChart(std::shared_ptr<ArenaMessage> msg)
 
 	auto hash = HashMD5(pMsg->chartHashMD5String);
 
-	// select chart
-	gSelectContext.remoteRequestedPlayer = pMsg->requestPlayerName;
-	gSelectContext.remoteRequestedChart = hash;
+	if (!hash.empty())
+	{
+		// select chart
+		gSelectContext.remoteRequestedPlayer = pMsg->requestPlayerName;
+		gSelectContext.remoteRequestedChart = hash;
+	}
+	else
+	{
+		// remove ready stat
+		if (gSelectContext.isInArenaRequest)
+		{
+			gSelectContext.isArenaCancellingRequest = true;
+		}
+		for (auto& [id, d] : gArenaData.data)
+		{
+			d.ready = false;
+		}
+	}
 }
 
 void ArenaClient::handleHostReadyStat(std::shared_ptr<ArenaMessage> msg)

@@ -189,6 +189,8 @@ struct SelectContextParams
     std::string remoteRequestedPlayer;  // only valid when remote is requesting a new chart; reset after list change
 
     bool isArenaReady = false;
+    bool isInArenaRequest = false;
+    bool isArenaCancellingRequest = false;
 
     bool isGoingToSkinSelect = false;
     bool isGoingToKeyConfig = false;

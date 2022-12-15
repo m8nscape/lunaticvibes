@@ -146,7 +146,7 @@ void ArenaHost::requestChart(const HashMD5& reqChart, const std::string clientKe
 		requestChartHash.reset();
 		hostRequestChartHash.reset();
 
-		// inform clients. Remove all ready stat
+		// Remove all ready stat
 		decltype(std::declval<ArenaMessageHostReadyStat>().ready) ready;
 		ready[0] = false;
 		gArenaData.ready = false;
@@ -158,15 +158,14 @@ void ArenaHost::requestChart(const HashMD5& reqChart, const std::string clientKe
 		}
 		for (auto& [k, cc] : clients)
 		{
-			auto n = std::make_shared<ArenaMessageHostReadyStat>();
-			n->messageIndex = ++cc.sendMessageIndex;
-			n->ready = ready;
+			auto n1 = std::make_shared<ArenaMessageHostRequestChart>();
+			n1->messageIndex = ++cc.sendMessageIndex;
 
-			auto payload = n->pack();
+			auto payload = n1->pack();
 			cc.serverSocket->async_send_to(boost::asio::buffer(*payload), cc.endpoint, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
-
-			cc.addTaskWaitingForResponse(n->messageIndex, payload);
+			cc.addTaskWaitingForResponse(n1->messageIndex, payload);
 		}
+		gSelectContext.isArenaCancellingRequest = true;
 		return;
 	}
 
