@@ -1327,7 +1327,18 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
                 {
                     // restore prev
                     State::set(IndexOption::SELECT_FILTER_DIFF, gSelectContext.filterDifficulty);
-                    State::set(IndexOption::SELECT_FILTER_KEYS, gSelectContext.filterKeys);
+                    int keys = 0;
+                    switch (gSelectContext.filterKeys)
+                    {
+                     case 1: keys = Option::FILTER_KEYS_SINGLE; break;
+                     case 7: keys = Option::FILTER_KEYS_7; break;
+                     case 5: keys = Option::FILTER_KEYS_5; break;
+                     case 2: keys = Option::FILTER_KEYS_DOUBLE; break;
+                     case 14: keys = Option::FILTER_KEYS_14; break;
+                     case 10: keys = Option::FILTER_KEYS_10; break;
+                     case 9: keys = Option::FILTER_KEYS_9; break;
+                    }
+                    State::set(IndexOption::SELECT_FILTER_KEYS, keys);
                 }
             }
 
@@ -2328,7 +2339,17 @@ void SceneSelect::_navigateEnter(const Time& t)
             if (gSelectContext.entries.empty())
             {
                 State::set(IndexOption::SELECT_FILTER_KEYS, Option::FILTER_KEYS_ALL);
-                gSelectContext.filterKeys = State::get(IndexOption::SELECT_FILTER_KEYS);
+                switch (State::get(IndexOption::SELECT_FILTER_KEYS))
+                {
+                case Option::FILTER_KEYS_SINGLE: gSelectContext.filterKeys = 1; break;
+                case Option::FILTER_KEYS_7:      gSelectContext.filterKeys = 7; break;
+                case Option::FILTER_KEYS_5:      gSelectContext.filterKeys = 5; break;
+                case Option::FILTER_KEYS_DOUBLE: gSelectContext.filterKeys = 2; break;
+                case Option::FILTER_KEYS_14:     gSelectContext.filterKeys = 14; break;
+                case Option::FILTER_KEYS_10:     gSelectContext.filterKeys = 10; break;
+                case Option::FILTER_KEYS_9:      gSelectContext.filterKeys = 9; break;
+                default:                         gSelectContext.filterKeys = 0; break;
+                }
                 loadSongList();
             }
         }
@@ -2425,7 +2446,18 @@ void SceneSelect::_navigateBack(const Time& t, bool sound)
         {
             // restore prev
             State::set(IndexOption::SELECT_FILTER_DIFF, gSelectContext.filterDifficulty);
-            State::set(IndexOption::SELECT_FILTER_KEYS, gSelectContext.filterKeys);
+            int keys = 0;
+            switch (gSelectContext.filterKeys)
+            {
+            case 1: keys = Option::FILTER_KEYS_SINGLE; break;
+            case 7: keys = Option::FILTER_KEYS_7; break;
+            case 5: keys = Option::FILTER_KEYS_5; break;
+            case 2: keys = Option::FILTER_KEYS_DOUBLE; break;
+            case 14: keys = Option::FILTER_KEYS_14; break;
+            case 10: keys = Option::FILTER_KEYS_10; break;
+            case 9: keys = Option::FILTER_KEYS_9; break;
+            }
+            State::set(IndexOption::SELECT_FILTER_KEYS, keys);
         }
 
         setBarInfo();

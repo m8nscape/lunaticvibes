@@ -291,7 +291,18 @@ void loadSongList()
     {
         // restore prev
         State::set(IndexOption::SELECT_FILTER_DIFF, gSelectContext.filterDifficulty);
-        State::set(IndexOption::SELECT_FILTER_KEYS, gSelectContext.filterKeys);
+        int keys = 0;
+        switch (gSelectContext.filterKeys)
+        {
+        case 1: keys = Option::FILTER_KEYS_SINGLE; break;
+        case 7: keys = Option::FILTER_KEYS_7; break;
+        case 5: keys = Option::FILTER_KEYS_5; break;
+        case 2: keys = Option::FILTER_KEYS_DOUBLE; break;
+        case 14: keys = Option::FILTER_KEYS_14; break;
+        case 10: keys = Option::FILTER_KEYS_10; break;
+        case 9: keys = Option::FILTER_KEYS_9; break;
+        }
+        State::set(IndexOption::SELECT_FILTER_KEYS, keys);
     }
 
     // load score
