@@ -2525,8 +2525,8 @@ void ScenePlay::updatePlaying()
     // health check (-> to failed)
     if (!_isExitingFromPlay)
     {
-        if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isFailed() &&
-            (!gPlayContext.isBattle || gPlayContext.ruleset[PLAYER_SLOT_TARGET] == nullptr || gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFailed()))
+        if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isFailed() && gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->failWhenNoHealth() &&
+            (!gPlayContext.isBattle || gPlayContext.ruleset[PLAYER_SLOT_TARGET] == nullptr || gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFailed() && gPlayContext.ruleset[PLAYER_SLOT_TARGET]->failWhenNoHealth()))
         {
             pushGraphPoints();
 

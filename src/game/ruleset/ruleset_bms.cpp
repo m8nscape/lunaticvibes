@@ -729,9 +729,9 @@ void RulesetBMS::_judgePress(NoteLaneCategory cat, NoteLaneIndex idx, HitableNot
 
             case JudgeArea::EARLY_BAD:
             case JudgeArea::LATE_BAD:
-                _lnJudge[idx] = judge.area;
                 updateJudge(t, idx, judge.area, slot);
                 note.expired = true;
+                notesExpired++;
                 pushReplayCommand = true;
                 break;
 
@@ -862,10 +862,9 @@ void RulesetBMS::_judgeRelease(NoteLaneCategory cat, NoteLaneIndex idx, HitableN
     {
     case NoteLaneCategory::LN:
         if ((note.flags & Note::LN_TAIL) &&
-            _lnJudge[idx] != RulesetBMS::JudgeArea::NOTHING &&
-            _lnJudge[idx] != RulesetBMS::JudgeArea::EARLY_BAD &&
-            _lnJudge[idx] != RulesetBMS::JudgeArea::LATE_BAD)
+            _lnJudge[idx] != RulesetBMS::JudgeArea::NOTHING)
         {
+            bool hit = true;
             JudgeArea lnJudge = judge.area;
             switch (judge.area)
             {
@@ -873,6 +872,7 @@ void RulesetBMS::_judgeRelease(NoteLaneCategory cat, NoteLaneIndex idx, HitableN
             case JudgeArea::EARLY_KPOOR:
             case JudgeArea::EARLY_BAD:
                 lnJudge = JudgeArea::EARLY_BAD;
+                hit = false;
                 break;
 
             default:
@@ -904,17 +904,15 @@ void RulesetBMS::_judgeRelease(NoteLaneCategory cat, NoteLaneIndex idx, HitableN
             }
 
             updateJudge(t, idx, lnJudge, slot);
-            note.hit = lnJudge != JudgeArea::EARLY_BAD;
+            note.hit = hit;
             note.expired = true;
             notesExpired++;
             _lnJudge[idx] = RulesetBMS::JudgeArea::NOTHING;
+            _lastNoteJudge[slot] = judge;
             pushReplayCommand = true;
 
-
-            if (note.expired)
-            {
-                _lastNoteJudge[slot] = judge;
-            }
+            if (showJudge && _bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
+                State::set(_bombLNTimerMap->at(idx), TIMER_NEVER);
 
             break;
         }
@@ -1180,9 +1178,6 @@ void RulesetBMS::judgeNoteRelease(Input::Pad k, const Time& t, const Time& rt, i
             ++itNote;
         }
     }
-
-    if (showJudge && _bombLNTimerMap != nullptr && _bombLNTimerMap->find(idx) != _bombLNTimerMap->end())
-        State::set(_bombLNTimerMap->at(idx), TIMER_NEVER);
 }
 
 void RulesetBMS::updatePress(InputMask& pg, const Time& t)
@@ -1410,17 +1405,16 @@ void RulesetBMS::update(const Time& t)
                     }
                     else
                     {
+                        auto itHead = itNote;
+                        itHead--;
                         if (rt >= itNote->time)
                         {
-                            itNote->expired = true;
-
                             if (!scratch || _judgeScratch)
                             {
-                                //_basic.slow++;
-                                if (_lnJudge[idx] == JudgeArea::EARLY_BAD || _lnJudge[idx] == JudgeArea::LATE_BAD)
+                                if (!itHead->hit)
                                 {
+                                    itNote->expired = true;
                                     notesExpired++;
-                                    _lnJudge[idx] = JudgeArea::NOTHING;
                                 }
                             }
                         }
@@ -1542,6 +1536,9 @@ void RulesetBMS::update(const Time& t)
     _basic.acc = notesExpired ? (100.0 * exScore / notesExpired / 2) : 0;
 
     _isCleared = isCleared();
+
+    if (isFinished()) 
+        _isFailed |= _basic.health < getClearHealth();
 
     updateGlobals();
 }

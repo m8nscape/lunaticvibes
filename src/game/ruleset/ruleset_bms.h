@@ -256,7 +256,7 @@ public:
 
     virtual bool isNoScore() const { return moneyScore == 0.0; }
     virtual bool isCleared() const { return !isFailed() && isFinished() && _basic.health >= getClearHealth(); }
-    virtual bool isFailed() const { return failWhenNoHealth() && _basic.health <= _minHealth; }
+    virtual bool isFailed() const { return _isFailed; }
 
     virtual unsigned getCurrentMaxScore() const { return notesReached * 2; }
     virtual unsigned getMaxScore() const { return getNoteCount() * 2; }
