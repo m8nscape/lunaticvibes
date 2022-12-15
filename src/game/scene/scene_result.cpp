@@ -32,24 +32,54 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
 
     _state = eResultState::DRAW;
 
+    saveLampMax = ScoreBMS::Lamp::NOPLAY;
+    lamp[PLAYER_SLOT_TARGET] = ScoreBMS::Lamp::NOPLAY;
     if (!gPlayContext.isReplay)
     {
-        auto& [saveScoreTmp, saveLampTmp] = getSaveScoreType();
-        saveScore = saveScoreTmp;
-        switch (saveLampTmp)
+        auto& [saveScoreType, saveLampMaxType] = getSaveScoreType();
+        saveScore = saveScoreType;
+        switch (saveLampMaxType)
         {
-        case Option::e_lamp_type::LAMP_NOPLAY:      saveLamp = ScoreBMS::Lamp::NOPLAY; break;
-        case Option::e_lamp_type::LAMP_FAILED:      saveLamp = ScoreBMS::Lamp::FAILED; break;
-        case Option::e_lamp_type::LAMP_ASSIST:      saveLamp = ScoreBMS::Lamp::ASSIST; break;
-        case Option::e_lamp_type::LAMP_EASY:        saveLamp = ScoreBMS::Lamp::EASY; break;
-        case Option::e_lamp_type::LAMP_NORMAL:      saveLamp = ScoreBMS::Lamp::NORMAL; break;
-        case Option::e_lamp_type::LAMP_HARD:        saveLamp = ScoreBMS::Lamp::HARD; break;
-        case Option::e_lamp_type::LAMP_EXHARD:      saveLamp = ScoreBMS::Lamp::EXHARD; break;
-        case Option::e_lamp_type::LAMP_FULLCOMBO:   saveLamp = ScoreBMS::Lamp::FULLCOMBO; break;
-        case Option::e_lamp_type::LAMP_PERFECT:     saveLamp = ScoreBMS::Lamp::PERFECT; break;
-        case Option::e_lamp_type::LAMP_MAX:         saveLamp = ScoreBMS::Lamp::MAX; break;
+        case Option::e_lamp_type::LAMP_NOPLAY:      saveLampMax = ScoreBMS::Lamp::NOPLAY; break;
+        case Option::e_lamp_type::LAMP_FAILED:      saveLampMax = ScoreBMS::Lamp::FAILED; break;
+        case Option::e_lamp_type::LAMP_ASSIST:      saveLampMax = ScoreBMS::Lamp::ASSIST; break;
+        case Option::e_lamp_type::LAMP_EASY:        saveLampMax = ScoreBMS::Lamp::EASY; break;
+        case Option::e_lamp_type::LAMP_NORMAL:      saveLampMax = ScoreBMS::Lamp::NORMAL; break;
+        case Option::e_lamp_type::LAMP_HARD:        saveLampMax = ScoreBMS::Lamp::HARD; break;
+        case Option::e_lamp_type::LAMP_EXHARD:      saveLampMax = ScoreBMS::Lamp::EXHARD; break;
+        case Option::e_lamp_type::LAMP_FULLCOMBO:   saveLampMax = ScoreBMS::Lamp::FULLCOMBO; break;
+        case Option::e_lamp_type::LAMP_PERFECT:     saveLampMax = ScoreBMS::Lamp::PERFECT; break;
+        case Option::e_lamp_type::LAMP_MAX:         saveLampMax = ScoreBMS::Lamp::MAX; break;
         default: assert(false); break;
         }
+    }
+    switch (State::get(IndexOption::RESULT_CLEAR_TYPE_1P))
+    {
+    case Option::e_lamp_type::LAMP_NOPLAY:      lamp[PLAYER_SLOT_PLAYER] = ScoreBMS::Lamp::NOPLAY; break;
+    case Option::e_lamp_type::LAMP_FAILED:      lamp[PLAYER_SLOT_PLAYER] = ScoreBMS::Lamp::FAILED; break;
+    case Option::e_lamp_type::LAMP_ASSIST:      lamp[PLAYER_SLOT_PLAYER] = ScoreBMS::Lamp::ASSIST; break;
+    case Option::e_lamp_type::LAMP_EASY:        lamp[PLAYER_SLOT_PLAYER] = ScoreBMS::Lamp::EASY; break;
+    case Option::e_lamp_type::LAMP_NORMAL:      lamp[PLAYER_SLOT_PLAYER] = ScoreBMS::Lamp::NORMAL; break;
+    case Option::e_lamp_type::LAMP_HARD:        lamp[PLAYER_SLOT_PLAYER] = ScoreBMS::Lamp::HARD; break;
+    case Option::e_lamp_type::LAMP_EXHARD:      lamp[PLAYER_SLOT_PLAYER] = ScoreBMS::Lamp::EXHARD; break;
+    case Option::e_lamp_type::LAMP_FULLCOMBO:   lamp[PLAYER_SLOT_PLAYER] = ScoreBMS::Lamp::FULLCOMBO; break;
+    case Option::e_lamp_type::LAMP_PERFECT:     lamp[PLAYER_SLOT_PLAYER] = ScoreBMS::Lamp::PERFECT; break;
+    case Option::e_lamp_type::LAMP_MAX:         lamp[PLAYER_SLOT_PLAYER] = ScoreBMS::Lamp::MAX; break;
+    default: assert(false); break;
+    }
+    switch (State::get(IndexOption::RESULT_CLEAR_TYPE_2P))
+    {
+    case Option::e_lamp_type::LAMP_NOPLAY:      lamp[PLAYER_SLOT_TARGET] = ScoreBMS::Lamp::NOPLAY; break;
+    case Option::e_lamp_type::LAMP_FAILED:      lamp[PLAYER_SLOT_TARGET] = ScoreBMS::Lamp::FAILED; break;
+    case Option::e_lamp_type::LAMP_ASSIST:      lamp[PLAYER_SLOT_TARGET] = ScoreBMS::Lamp::ASSIST; break;
+    case Option::e_lamp_type::LAMP_EASY:        lamp[PLAYER_SLOT_TARGET] = ScoreBMS::Lamp::EASY; break;
+    case Option::e_lamp_type::LAMP_NORMAL:      lamp[PLAYER_SLOT_TARGET] = ScoreBMS::Lamp::NORMAL; break;
+    case Option::e_lamp_type::LAMP_HARD:        lamp[PLAYER_SLOT_TARGET] = ScoreBMS::Lamp::HARD; break;
+    case Option::e_lamp_type::LAMP_EXHARD:      lamp[PLAYER_SLOT_TARGET] = ScoreBMS::Lamp::EXHARD; break;
+    case Option::e_lamp_type::LAMP_FULLCOMBO:   lamp[PLAYER_SLOT_TARGET] = ScoreBMS::Lamp::FULLCOMBO; break;
+    case Option::e_lamp_type::LAMP_PERFECT:     lamp[PLAYER_SLOT_TARGET] = ScoreBMS::Lamp::PERFECT; break;
+    case Option::e_lamp_type::LAMP_MAX:         lamp[PLAYER_SLOT_TARGET] = ScoreBMS::Lamp::MAX; break;
+    default: assert(false); break;
     }
 
     std::map<std::string, int> param;
@@ -82,7 +112,6 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
                 param["2pexscore"] = pr->getExScore();
                 param["2pbp"] = pr->getJudgeCountEx(RulesetBMS::JUDGE_BP);
             }
-
         }
         param["1ptarget"] = param["1pexscore"] - param["2pexscore"];
         param["2ptarget"] = -param["1ptarget"];
@@ -166,6 +195,8 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
         State::set(IndexSwitch::RESULT_UPDATED_SCORE, param["updatedscore"]);
         State::set(IndexSwitch::RESULT_UPDATED_MAXCOMBO, param["updatedmaxcombo"]);
         State::set(IndexSwitch::RESULT_UPDATED_BP, param["updatedbp"]);
+
+        State::set(IndexOption::SELECT_ENTRY_LAMP, State::get(IndexOption::RESULT_CLEAR_TYPE_1P));
     }
 
     LOG_INFO << "[Result] " << (State::get(IndexSwitch::RESULT_CLEAR) ? "CLEARED" : "FAILED");
@@ -316,43 +347,7 @@ void SceneResult::updateFadeout()
                 score.exscore = rBMS->getExScore();
                 score.fast = rBMS->getJudgeCountEx(RulesetBMS::JUDGE_EARLY);
                 score.slow = rBMS->getJudgeCountEx(RulesetBMS::JUDGE_LATE);
-
-                score.lamp = ScoreBMS::Lamp::NOPLAY;
-                if (rBMS->isCleared())
-                {
-                    if (rBMS->getMaxCombo() == rBMS->getData().maxCombo)
-                    {
-                        score.lamp = ScoreBMS::Lamp::FULLCOMBO;
-                    }
-                    else
-                    {
-                        if (gPlayContext.isCourse)
-                        {
-                        }
-                        else
-                        {
-                            switch (rBMS->getGaugeType())
-                            {
-                            case RulesetBMS::GaugeType::GROOVE:  score.lamp = ScoreBMS::Lamp::NORMAL; break;
-                            case RulesetBMS::GaugeType::EASY:    score.lamp = ScoreBMS::Lamp::EASY; break;
-                            case RulesetBMS::GaugeType::ASSIST:  score.lamp = ScoreBMS::Lamp::ASSIST; break;
-                            case RulesetBMS::GaugeType::HARD:    score.lamp = ScoreBMS::Lamp::HARD; break;
-                            case RulesetBMS::GaugeType::EXHARD:  score.lamp = ScoreBMS::Lamp::EXHARD; break;
-                            case RulesetBMS::GaugeType::DEATH:   score.lamp = ScoreBMS::Lamp::FULLCOMBO; break;
-                            case RulesetBMS::GaugeType::P_ATK:   score.lamp = ScoreBMS::Lamp::EASY; break;
-                            case RulesetBMS::GaugeType::G_ATK:   score.lamp = ScoreBMS::Lamp::EASY; break;
-                            case RulesetBMS::GaugeType::GRADE:   score.lamp = ScoreBMS::Lamp::NOPLAY; break;
-                            case RulesetBMS::GaugeType::EXGRADE: score.lamp = ScoreBMS::Lamp::NOPLAY; break;
-                            default: break;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    score.lamp = ScoreBMS::Lamp::FAILED;
-                }
-                score.lamp = std::min(score.lamp, saveLamp);
+                score.lamp = std::min(lamp[PLAYER_SLOT_PLAYER], saveLampMax);
 
                 if (gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask == 0)
                 {

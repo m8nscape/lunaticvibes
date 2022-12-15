@@ -311,26 +311,33 @@ void updateDstOpt()
 	// //選曲リスト用
 	// 100 NOT PLAYED
 	// 101 FAILED
-	// 102 EASY CLEARED
+	// 102 EASY / ASSISTED EASY CLEARED
 	// 103 NORMAL CLEARED
-	// 104 HARD CLEARED
-	// 105 FULL COMBO
+	// 104 HARD / EXHARD CLEARED
+	// 105 FULL COMBO / PERFECT / MAX
+	// 146 EASY CLEARED
+	// 147 HARD CLEARED
+	// 148 FULL COMBO 
+	// 106 EXHARD CLEARED
+	// 107 PERFECT
+	// 108 MAX
+	// 109 ASSISTED EASY
 	{
-		using namespace Option;
-		switch (State::get(IndexOption::SELECT_ENTRY_LAMP))
-		{
-		case LAMP_NOPLAY: set(100, get(5)); break;
-		case LAMP_FAILED: set(101); break;
-		case LAMP_ASSIST:
-		case LAMP_EASY: set(102); break;
-		case LAMP_NORMAL: set(103); break;
-		case LAMP_HARD:
-		case LAMP_EXHARD: set(104); break;
-		case LAMP_FULLCOMBO:
-		case LAMP_PERFECT:
-		case LAMP_MAX: set(105); break;
-		}
-	}
+        using namespace Option;
+        switch (State::get(IndexOption::SELECT_ENTRY_LAMP))
+        {
+        case LAMP_NOPLAY:    set(100, get(5));   break;
+        case LAMP_FAILED:    set(101);           break;
+        case LAMP_ASSIST:    set(102); set(109); break;
+		case LAMP_EASY:      set(102); set(146); break;
+        case LAMP_NORMAL:    set(103);           break;
+		case LAMP_HARD:      set(104); set(147); break;
+        case LAMP_EXHARD:    set(104); set(106); break;
+		case LAMP_FULLCOMBO: set(105); set(148); break;
+		case LAMP_PERFECT:   set(105); set(107); break;
+		case LAMP_MAX:       set(105); set(108); break;
+        }
+    }
 
 	// 110 AAA 8/9
 	{

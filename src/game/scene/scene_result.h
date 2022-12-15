@@ -24,7 +24,8 @@ protected:
     std::shared_ptr<vScore> _pScoreOld;
 
     bool saveScore = false;
-    ScoreBMS::Lamp saveLamp;
+    ScoreBMS::Lamp saveLampMax;
+    ScoreBMS::Lamp lamp[2];
 
 public:
     SceneResult();

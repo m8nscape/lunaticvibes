@@ -184,6 +184,7 @@ protected:
     unsigned noteCount = 0;
 
     std::string modifierText, modifierTextShort;
+    Option::e_lamp_type saveLampMax;
 
 protected:
     // members change in game

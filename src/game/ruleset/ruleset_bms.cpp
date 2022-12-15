@@ -373,6 +373,7 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
     }
     modifierTextShort = ssMod.str();
 
+    saveLampMax = getSaveScoreType().second;
 
     _lnJudge.fill(JudgeArea::NOTHING);
 
@@ -1754,41 +1755,43 @@ void RulesetBMS::updateGlobals()
         State::set(IndexNumber::LR2IR_REPLACE_PLAY_RUNNING_NOTES, notesExpired);
         State::set(IndexNumber::LR2IR_REPLACE_PLAY_REMAIN_NOTES, getNoteCount() - notesExpired);
 
+        Option::e_lamp_type lamp = Option::LAMP_NOPLAY;
         if (isNoScore() && _basic.judge[JUDGE_BP] == 0)
         {
-            State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_NOPLAY);
+            lamp = Option::LAMP_NOPLAY;
         }
         else if (_basic.judge[JUDGE_CB] == 0)
         {
             if (_basic.acc >= 100.0)
-                State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_MAX);
+                lamp = Option::LAMP_MAX;
             else if (_basic.judge[JUDGE_GOOD] == 0)
-                State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_PERFECT);
+                lamp = Option::LAMP_PERFECT;
             else
-                State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_FULLCOMBO);
+                lamp = Option::LAMP_FULLCOMBO;
         }
         else if (!isFailed())
         {
             switch (_gauge)
             {
-            case GaugeType::HARD:       State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_HARD); break;
-            case GaugeType::EXHARD:     State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_EXHARD); break;
-            case GaugeType::DEATH:      State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_FULLCOMBO); break;
-            //case GaugeType::P_ATK:      State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_FULLCOMBO); break;
-            //case GaugeType::G_ATK:      State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_FULLCOMBO); break;
-            case GaugeType::GROOVE:     State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_NORMAL); break;
-            case GaugeType::EASY:       State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_EASY); break;
-            case GaugeType::ASSIST:     State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_ASSIST); break;
-            case GaugeType::GRADE:      State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_NORMAL); break;
-            case GaugeType::EXGRADE:    State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_HARD); break;
+            case GaugeType::HARD:       lamp = Option::LAMP_HARD; break;
+            case GaugeType::EXHARD:     lamp = Option::LAMP_EXHARD; break;
+            case GaugeType::DEATH:      lamp = Option::LAMP_FULLCOMBO; break;
+            //case GaugeType::P_ATK:      lamp = Option::LAMP_FULLCOMBO; break;
+            //case GaugeType::G_ATK:      lamp = Option::LAMP_FULLCOMBO; break;
+            case GaugeType::GROOVE:     lamp = Option::LAMP_NORMAL; break;
+            case GaugeType::EASY:       lamp = Option::LAMP_EASY; break;
+            case GaugeType::ASSIST:     lamp = Option::LAMP_ASSIST; break;
+            case GaugeType::GRADE:      lamp = Option::LAMP_NOPLAY; break;
+            case GaugeType::EXGRADE:    lamp = Option::LAMP_NOPLAY; break;
             default:
                 break;
             }
         }
         else
         {
-            State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_FAILED);
+            lamp = Option::LAMP_FAILED;
         }
+        State::set(IndexOption::RESULT_CLEAR_TYPE_1P, std::min(lamp, saveLampMax));
     }
     else if (_side == PlaySide::BATTLE_2P || _side == PlaySide::AUTO_2P || _side == PlaySide::RIVAL) // excludes DP
     {
@@ -1874,41 +1877,43 @@ void RulesetBMS::updateGlobals()
         else if (_basic.total_acc >= 100.0 * 2.0 / 9) State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(exScore - maxScore * 3.0 / 9));    // D-
         else                                          State::set(IndexNumber::PLAY_2P_NEXT_RANK_EX_DIFF, int(exScore - maxScore * 2.0 / 9));    // E-
 
+        Option::e_lamp_type lamp = Option::LAMP_NOPLAY;
         if (isNoScore() && _basic.judge[JUDGE_BP] == 0)
         {
-            State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_NOPLAY);
+            lamp = Option::LAMP_NOPLAY;
         }
         else if (_basic.judge[JUDGE_CB] == 0)
         {
             if (_basic.acc >= 100.0)
-                State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_MAX);
+                lamp = Option::LAMP_MAX;
             else if (_basic.judge[JUDGE_GOOD] == 0)
-                State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_PERFECT);
+                lamp = Option::LAMP_PERFECT;
             else
-                State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_FULLCOMBO);
+                lamp = Option::LAMP_FULLCOMBO;
         }
         else if (!isFailed())
         {
             switch (_gauge)
             {
-            case GaugeType::HARD:       State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_HARD); break;
-            case GaugeType::EXHARD:     State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_EXHARD); break;
-            case GaugeType::DEATH:      State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_FULLCOMBO); break;
-                //case GaugeType::P_ATK:      State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_FULLCOMBO); break;
-                //case GaugeType::G_ATK:      State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_FULLCOMBO); break;
-            case GaugeType::GROOVE:     State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_NORMAL); break;
-            case GaugeType::EASY:       State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_EASY); break;
-            case GaugeType::ASSIST:     State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_ASSIST); break;
-            case GaugeType::GRADE:      State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_NORMAL); break;
-            case GaugeType::EXGRADE:    State::set(IndexOption::RESULT_CLEAR_TYPE_2P, Option::LAMP_HARD); break;
+            case GaugeType::HARD:       lamp = Option::LAMP_HARD; break;
+            case GaugeType::EXHARD:     lamp = Option::LAMP_EXHARD; break;
+            case GaugeType::DEATH:      lamp = Option::LAMP_FULLCOMBO; break;
+                //case GaugeType::P_ATK:      lamp = Option::LAMP_FULLCOMBO; break;
+                //case GaugeType::G_ATK:      lamp = Option::LAMP_FULLCOMBO; break;
+            case GaugeType::GROOVE:     lamp = Option::LAMP_NORMAL; break;
+            case GaugeType::EASY:       lamp = Option::LAMP_EASY; break;
+            case GaugeType::ASSIST:     lamp = Option::LAMP_ASSIST; break;
+            case GaugeType::GRADE:      lamp = Option::LAMP_NOPLAY; break;
+            case GaugeType::EXGRADE:    lamp = Option::LAMP_NOPLAY; break;
             default:
                 break;
             }
         }
         else
         {
-            State::set(IndexOption::RESULT_CLEAR_TYPE_1P, Option::LAMP_FAILED);
+            lamp = Option::LAMP_FAILED;
         }
+        State::set(IndexOption::RESULT_CLEAR_TYPE_2P, std::min(lamp, saveLampMax));
     }
     else if (_side == PlaySide::MYBEST && !gArenaData.isOnline())
     {

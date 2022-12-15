@@ -64,16 +64,7 @@ std::pair<bool, Option::e_lamp_type> getSaveScoreType()
     }
 
     Option::e_gauge_type gaugeType = (Option::e_gauge_type)State::get(IndexOption::PLAY_GAUGE_TYPE_1P);
-    Option::e_lamp_type lampType = Option::e_lamp_type::LAMP_NOPLAY;
-    switch (gaugeType)
-    {
-    case Option::GAUGE_NORMAL: lampType = Option::e_lamp_type::LAMP_NORMAL; break;
-    case Option::GAUGE_HARD:   lampType = Option::e_lamp_type::LAMP_HARD; break;
-    case Option::GAUGE_DEATH:  lampType = Option::e_lamp_type::LAMP_FULLCOMBO; break;
-    case Option::GAUGE_EASY:   lampType = Option::e_lamp_type::LAMP_EASY; break;
-    case Option::GAUGE_ASSISTEASY: lampType = Option::e_lamp_type::LAMP_ASSIST; break;
-    case Option::GAUGE_EXHARD: lampType = Option::e_lamp_type::LAMP_EXHARD; break;
-    }
+    Option::e_lamp_type lampType = Option::e_lamp_type::LAMP_FULLCOMBO; // FIXME change to PERFECT / MAX
     return { true, lampType };
 }
 
