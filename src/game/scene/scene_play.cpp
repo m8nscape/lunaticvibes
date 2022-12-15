@@ -2406,8 +2406,10 @@ void ScenePlay::updatePlaying()
 
     long long exScore1P = 0;
     long long exScore2P = 0;
+    long long exScoreMybest = 0;
     int miss1 = 0;
     int miss2 = 0;
+    int missMybest = 0;
     if (auto pr = std::dynamic_pointer_cast<RulesetBMS>(gPlayContext.ruleset[PLAYER_SLOT_PLAYER]); pr)
     {
         exScore1P = pr->getExScore();
@@ -2424,10 +2426,10 @@ void ScenePlay::updatePlaying()
         State::set(IndexNumber::RESULT_MYBEST_RATE, (int)std::floor(dpb.acc * 100.0));
         State::set(IndexNumber::RESULT_MYBEST_RATE_DECIMAL2, (int)std::floor(dpb.acc * 10000.0) % 100);
 
-        if (auto pr2 = std::dynamic_pointer_cast<RulesetBMS>(gPlayContext.ruleset[PLAYER_SLOT_MYBEST]); pr2)
+        if (auto prpb = std::dynamic_pointer_cast<RulesetBMS>(gPlayContext.ruleset[PLAYER_SLOT_MYBEST]); prpb)
         {
-            exScore2P = pr2->getExScore();
-            miss2 = pr2->getJudgeCountEx(RulesetBMS::JUDGE_BP);
+            exScoreMybest = prpb->getExScore();
+            missMybest = prpb->getJudgeCountEx(RulesetBMS::JUDGE_BP);
         }
     }
 
@@ -2465,8 +2467,8 @@ void ScenePlay::updatePlaying()
             miss2 = pr2->getJudgeCountEx(RulesetBMS::JUDGE_BP);
         }
     }
-    State::set(IndexNumber::RESULT_MYBEST_EX, exScore2P);
-    State::set(IndexNumber::RESULT_MYBEST_DIFF, exScore1P - exScore2P);
+    State::set(IndexNumber::RESULT_MYBEST_EX, exScoreMybest);
+    State::set(IndexNumber::RESULT_MYBEST_DIFF, exScore1P - exScoreMybest);
     State::set(IndexNumber::PLAY_1P_EXSCORE_DIFF, exScore1P - exScore2P);
     State::set(IndexNumber::PLAY_2P_EXSCORE_DIFF, exScore2P - exScore1P);
     State::set(IndexNumber::RESULT_TARGET_EX, exScore2P);
