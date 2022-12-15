@@ -327,15 +327,9 @@ void ArenaHost::handleRecv4(const boost::system::error_code& error, size_t bytes
 {
 	if (error)
 	{
-		if (error == boost::asio::error::operation_aborted)
-		{
-			LOG_INFO << "[Arena] ipv6 socket closed";
-		}
-		else
-		{
-			LOG_WARNING << "[Arena] ipv4 socket exception: " << error.message();
-		}
+		LOG_WARNING << "[Arena] ipv4 socket exception: " << to_utf8(error.message(), eFileEncoding::LATIN1);
 
+		/*
 		if (v4)
 		{
 			ioc4.stop();
@@ -349,15 +343,18 @@ void ArenaHost::handleRecv4(const boost::system::error_code& error, size_t bytes
 
 		gArenaData.expired = true;
 		return;
+		*/
 	}
-
-	if (bytes_transferred > v4_recv_buf.size())
+	else
 	{
-		LOG_DEBUG << "[Arena] Ignored huge packet (" << bytes_transferred << ")";
-		return;
-	}
+		if (bytes_transferred > v4_recv_buf.size())
+		{
+			LOG_DEBUG << "[Arena] Ignored huge packet (" << bytes_transferred << ")";
+			return;
+		}
 
-	handleRequest(v4_recv_buf.data(), bytes_transferred, v4_remote_endpoint);
+		handleRequest(v4_recv_buf.data(), bytes_transferred, v4_remote_endpoint);
+	}
 
 	if (gArenaData.isOnline() && !gArenaData.isExpired())
 		asyncRecv4();
@@ -367,15 +364,9 @@ void ArenaHost::handleRecv6(const boost::system::error_code& error, size_t bytes
 {
 	if (error)
 	{
-		if (error == boost::asio::error::operation_aborted)
-		{
-			LOG_INFO << "[Arena] ipv6 socket closed";
-		}
-		else
-		{
-			LOG_WARNING << "[Arena] ipv6 socket exception: " << error.message();
-		}
+		LOG_WARNING << "[Arena] ipv6 socket exception: " << to_utf8(error.message(), eFileEncoding::LATIN1);
 
+		/*
 		if (v4)
 		{
 			ioc4.stop();
@@ -389,15 +380,18 @@ void ArenaHost::handleRecv6(const boost::system::error_code& error, size_t bytes
 
 		gArenaData.expired = true;
 		return;
+		*/
 	}
-
-	if (bytes_transferred > v6_recv_buf.size())
+	else
 	{
-		LOG_DEBUG << "[Arena] Ignored huge packet (" << bytes_transferred << ")";
-		return;
-	}
+		if (bytes_transferred > v6_recv_buf.size())
+		{
+			LOG_DEBUG << "[Arena] Ignored huge packet (" << bytes_transferred << ")";
+			return;
+		}
 
-	handleRequest(v6_recv_buf.data(), bytes_transferred, v6_remote_endpoint);
+		handleRequest(v6_recv_buf.data(), bytes_transferred, v6_remote_endpoint);
+	}
 
 	if (gArenaData.isOnline() && !gArenaData.isExpired())
 		asyncRecv6();
@@ -446,7 +440,7 @@ void ArenaHost::handleRequest(const unsigned char* recv_buf, size_t recv_buf_len
 			return;
 		}
 
-		std::string key = addr.to_string();
+		std::string key = addr.to_string() + ":" + std::to_string(remote_endpoint.port());
 		if (pMsg->type == Arena::JOIN_LOBBY)
 		{
 			auto socket = addr.is_v4() ? v4 : v6;
@@ -570,8 +564,8 @@ void ArenaHost::handleJoinLobby(const std::string& clientKey, std::shared_ptr<Ar
 
 	c.name = pMsg->playerName;
 
-	gArenaData.playerIDs.push_back(c.id);
 	gArenaData.data[c.id].name = pMsg->playerName;
+	gArenaData.playerIDs.push_back(c.id);
 	gArenaData.updateTexts();
 
 	ArenaMessageResponse resp(*pMsg);
@@ -633,8 +627,6 @@ void ArenaHost::handlePlayerLeft(const std::string& clientKey, std::shared_ptr<A
 
 	auto payload = resp.pack();
 	c.serverSocket->async_send_to(boost::asio::buffer(*payload), c.endpoint, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
-
-	createNotification((boost::format(i18n::c(i18nText::ARENA_PLAYER_LEFT)) % c.name).str());
 
 	c.alive = false;
 
@@ -893,7 +885,9 @@ void ArenaHost::update()
 		for (auto& [k, cc] : clients)
 		{
 			if (!cc.alive)
+			{
 				clientsRemoving.insert(k);
+			}
 		}
 	}
 	{
@@ -911,7 +905,7 @@ void ArenaHost::update()
 					}
 
 					gArenaData.playerIDs.erase(gArenaData.playerIDs.begin() + i);
-					gArenaData.data.erase(i);
+					gArenaData.data.erase(c.id);
 					gArenaData.updateTexts();
 				}
 			}

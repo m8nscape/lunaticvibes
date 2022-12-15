@@ -257,14 +257,7 @@ void ArenaClient::handleRecv(const boost::system::error_code& error, size_t byte
 {
 	if (error)
 	{
-		if (error == boost::asio::error::operation_aborted)
-		{
-			LOG_INFO << "[Arena] socket closed";
-		}
-		else
-		{
-			LOG_WARNING << "[Arena] socket exception: " << error.message();
-		}
+		LOG_WARNING << "[Arena] socket exception: " << to_utf8(error.message(), eFileEncoding::LATIN1);
 
 		ioc.stop();
 		listen.wait();
@@ -328,7 +321,7 @@ void ArenaClient::handleResponse(std::shared_ptr<ArenaMessage> msg)
 
 	if (pMsg->errorCode != 0)
 	{
-		LOG_WARNING << "[Arena] Req type " << pMsg->reqType << " error with code " << pMsg->errorCode;
+		LOG_WARNING << "[Arena] Req type " << (int)pMsg->reqType << " error with code " << (int)pMsg->errorCode;
 		return;
 	}
 
@@ -363,8 +356,8 @@ void ArenaClient::handleJoinLobbyResp(std::shared_ptr<ArenaMessage> msg)
 		for (const auto& [id, name] : p.playerName)
 		{
 			if (id == playerID) continue;
-			gArenaData.playerIDs.push_back(id);
 			gArenaData.data[id].name = name;
+			gArenaData.playerIDs.push_back(id);
 		}
 		gArenaData.updateTexts();
 	}
@@ -455,7 +448,7 @@ void ArenaClient::handlePlayerJoined(std::shared_ptr<ArenaMessage> msg)
 			if (gArenaData.playerIDs[i] == pMsg->playerID)
 			{
 				gArenaData.playerIDs.erase(gArenaData.playerIDs.begin() + i);
-				gArenaData.data.erase(i);
+				gArenaData.data.erase(pMsg->playerID);
 				break;
 			}
 		}
@@ -463,6 +456,7 @@ void ArenaClient::handlePlayerJoined(std::shared_ptr<ArenaMessage> msg)
 	
 	gArenaData.data[pMsg->playerID].name = pMsg->playerName;
 	gArenaData.playerIDs.push_back(pMsg->playerID);
+	gArenaData.updateTexts();
 
 	createNotification((boost::format(i18n::c(i18nText::ARENA_PLAYER_JOINED)) % pMsg->playerName).str());
 }
@@ -488,7 +482,7 @@ void ArenaClient::handlePlayerLeft(std::shared_ptr<ArenaMessage> msg)
 			{
 				createNotification((boost::format(i18n::c(i18nText::ARENA_PLAYER_LEFT)) % gArenaData.data[i].name).str());
 				gArenaData.playerIDs.erase(gArenaData.playerIDs.begin() + i);
-				gArenaData.data.erase(i);
+				gArenaData.data.erase(pMsg->playerID);
 				break;
 			}
 		}
