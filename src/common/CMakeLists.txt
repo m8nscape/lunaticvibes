@@ -27,7 +27,6 @@ target_link_libraries(common
     PUBLIC plog
     PUBLIC re2
     PUBLIC taocpp::json
-    PUBLIC tidy-static
 )
 
 target_precompile_headers(common PUBLIC pch.h)

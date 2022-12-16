@@ -90,11 +90,6 @@ add_subdirectory(re2)
 # Add taocpp/json
 add_subdirectory(json)
 
-# Add html tidy
-option(BUILD_SHARED_LIB "Set OFF to NOT build shared library" OFF)
-option(SUPPORT_CONSOLE_APP "Set OFF to build libraries only without console application support." OFF)
-add_subdirectory(tidy-html5)
-
 # Add OpenSSL (from system)
 if (UNIX OR MINGW)
     find_library(OpenSSL REQUIRED)

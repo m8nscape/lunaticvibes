@@ -23,9 +23,6 @@
 [submodule "ext/json"]
 	path = ext/json
 	url = https://github.com/taocpp/json
-[submodule "ext/tidy-html5"]
-	path = ext/tidy-html5
-	url = https://github.com/htacg/tidy-html5
 [submodule "ext/cereal"]
 	path = ext/cereal
 	url = https://github.com/USCiLab/cereal
