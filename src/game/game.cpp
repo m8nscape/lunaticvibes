@@ -34,6 +34,8 @@
 
 #include <boost/format.hpp>
 
+#include <curl/curl.h>
+
 bool gEventQuit;
 GenericInfoUpdater gGenericInfo{ 1 };
 
@@ -50,6 +52,9 @@ int main(int argc, char* argv[])
     GetExecutablePath(exePath, 256, exePathLen);
     executablePath = Path(exePath);
     fs::current_path(executablePath);
+
+    // init curl
+    curl_global_init(CURL_GLOBAL_DEFAULT);
 
     // init logger
     InitLogger();
@@ -305,6 +310,9 @@ int main(int argc, char* argv[])
     ConfigMgr::save();
 
     StopHandleMainThreadTask();
+
+    curl_global_cleanup();
+
     return 0;
 }
 

@@ -84,9 +84,11 @@ if (UNIX OR MINGW)
     target_link_libraries(gamelib PRIVATE -lstdc++fs)
     target_link_libraries(gamelib PRIVATE -lcrypto)
     target_link_libraries(gamelib PRIVATE -lssl)
+    target_link_libraries(gamelib PRIVATE -lcurl)
 elseif (MSVC)
     target_link_libraries(gamelib PRIVATE libcrypto.lib)
     target_link_libraries(gamelib PRIVATE libssl.lib)
+    target_link_libraries(gamelib PRIVATE libcurl.lib)
 endif()
 
 target_include_directories(gamelib PUBLIC 

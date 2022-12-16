@@ -1,346 +1,178 @@
 #include "table_bms.h"
 #include "../entry/entry_song.h"
-#include <boost/asio/strand.hpp>
-#include <boost/beast.hpp>
-#include <boost/beast/ssl.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/xml_parser.hpp>
 #include "tao/json.hpp"
-#include "tidy.h"
-#include "tidybuffio.h"
 #include "re2/re2.h"
 
-
-namespace beast = boost::beast;     // from <boost/beast.hpp>
-namespace http = beast::http;       // from <boost/beast/http.hpp>
-namespace net = boost::asio;        // from <boost/asio.hpp>
-namespace ssl = boost::asio::ssl;	// from <boost/asio/ssl.hpp>
-using tcp = net::ip::tcp;           // from <boost/asio/ip/tcp.hpp>
+#include <curl/curl.h>
 
 enum class GetResult
 {
 	OK,
-	ERR_SNI_HOSTNAME,
+	ERR_UNKNOWN,
+	ERR_SYSTEM,
 	ERR_RESOLVE,
 	ERR_CONNECT,
-	ERR_HANDSHAKE,
 	ERR_WRITE,
 	ERR_READ,
+	ERR_HTTP,
 	ERR_TIMEOUT
 };
 
-class session : public std::enable_shared_from_this<session>
+static size_t _GETWriteCallback(void* contents, size_t size, size_t nmemb, void* userp)
 {
-	// This class is mostly taken from Boost sample, with some modifications
-	// Original author: Vinnie Falco (vinnie dot falco at gmail dot com))
+	size_t realsize = size * nmemb;
+	std::stringstream& ss = *(std::stringstream*)userp;
 
-	tcp::resolver resolver_;
-	beast::tcp_stream stream_;
-	beast::ssl_stream<beast::tcp_stream> ssl_stream_;
-	beast::flat_buffer buffer_; // (Must persist between reads)
-	http::request<http::string_body> req_;
-	http::response<http::string_body> res_;
+	ss.write((char*)contents, realsize);
 
-	std::function<void(GetResult, const std::string&)> callback;
-	std::string target;
-	std::string body;
+	return realsize;
+}
 
-	bool ssl = false;
-
-public:
-	// Objects are constructed with a strand to
-	// ensure that handlers do not execute concurrently.
-	explicit
-		session(net::io_context& ioc, ssl::context& sslctx)
-		: resolver_(net::make_strand(ioc))
-		, stream_(net::make_strand(ioc))
-		, ssl_stream_(net::make_strand(ioc), sslctx)
+GetResult GET(const std::string& url, std::string& result)
+{
+	std::string https, host, port, target;
+	static LazyRE2 regexURL{ R"(http(s?)\:\/\/(.+?)(?:\:([\d]{1,5}))?(\/(?:.*)*))" };
+	if (RE2::FullMatch(url, *regexURL, &https, &host, &port, &target))
 	{
-	}
-
-	// Start the asynchronous operation
-	void
-		GET(
-			const std::string& url,
-			std::function<void(GetResult, const std::string&)> cb,
-			int version = 10)
-	{
-		callback = cb;
-
-		std::string https, host, port, target;
-		static LazyRE2 regexURL{ R"(http(s?)\:\/\/(.+?)(?:\:([\d]{1,5}))?(\/(?:.*)*))" };
-		if (RE2::FullMatch(url, *regexURL, &https, &host, &port, &target))
+		if (port.empty())
 		{
-			ssl = !https.empty();
-			if (port.empty())
-			{
-				port = ssl ? "443" : "80";
-			}
-		}
-		else
-		{
-			callback(GetResult::ERR_RESOLVE, body);
-			return;
-		}
-
-		this->target = "GET "s + target;
-
-		if (ssl)
-		{
-			// Set SNI Hostname (many hosts need this to handshake successfully)
-			if (!SSL_set_tlsext_host_name(ssl_stream_.native_handle(), host.c_str()))
-			{
-				beast::error_code ec{ static_cast<int>(::ERR_get_error()), net::error::get_ssl_category() };
-				callback(GetResult::ERR_SNI_HOSTNAME, body);
-				return;
-			}
-		}
-
-		// Set up an HTTP GET request message
-		req_.version(version);
-		req_.method(http::verb::get);
-		req_.target(target);
-		req_.set(http::field::host, host);
-		req_.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
-
-		// Look up the domain name
-		resolver_.async_resolve(
-			host,
-			port,
-			std::bind(
-				&session::on_resolve,
-				shared_from_this(),
-				std::placeholders::_1,
-				std::placeholders::_2));
-	}
-
-	void
-		on_resolve(
-			boost::system::error_code ec,
-			tcp::resolver::results_type results)
-	{
-		if (ec)
-		{
-			callback(GetResult::ERR_RESOLVE, body);
-			return;
-		}
-
-		if (ssl)
-		{
-			// Set a timeout on the operation
-			beast::get_lowest_layer(ssl_stream_).expires_after(std::chrono::seconds(5));
-
-			// Make the connection on the IP address we get from a lookup
-			beast::get_lowest_layer(ssl_stream_).async_connect(
-				results,
-				std::bind(
-					&session::on_connect_ssl,
-					shared_from_this(),
-					std::placeholders::_1));
-		}
-		else
-		{
-			// Set a timeout on the operation
-			stream_.expires_after(std::chrono::seconds(5));
-
-			// Make the connection on the IP address we get from a lookup
-			stream_.async_connect(
-				results,
-				std::bind(
-					&session::on_connect,
-					shared_from_this(),
-					std::placeholders::_1));
+			port = https.empty() ? "80" : "443";
 		}
 	}
-
-	void
-		on_connect_ssl(boost::system::error_code ec)
+	else
 	{
-		beast::get_lowest_layer(ssl_stream_).expires_never();
-		if (ec)
-		{
-			callback((ec == boost::system::errc::stream_timeout) ? GetResult::ERR_TIMEOUT : GetResult::ERR_CONNECT, body);
-			return;
-		}
+		return GetResult::ERR_RESOLVE;
+	}
+	int iport = toInt(port);
 
-		// Perform the SSL handshake
-		ssl_stream_.async_handshake(
-			ssl::stream_base::client,
-			beast::bind_front_handler(
-				&session::on_handshake,
-				shared_from_this()));
+	CURLcode code;
+	CURL* conn = curl_easy_init();
+
+	code = curl_easy_setopt(conn, CURLOPT_FOLLOWLOCATION, 1);
+	if (code != CURLE_OK)
+	{
+		LOG_ERROR << "[Table] CURLOPT_FOLLOWLOCATION " << code;
+		curl_easy_cleanup(conn);
+		return GetResult::ERR_SYSTEM;
 	}
 
-	void
-		on_handshake(beast::error_code ec)
+	code = curl_easy_setopt(conn, CURLOPT_TIMEOUT, 10);
+	if (code != CURLE_OK)
 	{
-		if (ec)
-		{
-			callback(GetResult::ERR_HANDSHAKE, body);
-			return;
-		}
-
-		// Set a timeout on the operation
-		beast::get_lowest_layer(ssl_stream_).expires_after(std::chrono::seconds(5));
-
-		// Send the HTTP request to the remote host
-		http::async_write(ssl_stream_, req_,
-			beast::bind_front_handler(
-				&session::on_write_ssl,
-				shared_from_this()));
+		LOG_ERROR << "[Table] CURLOPT_TIMEOUT " << code;
+		curl_easy_cleanup(conn);
+		return GetResult::ERR_SYSTEM;
 	}
 
-	void
-		on_connect(boost::system::error_code ec)
+	code = curl_easy_setopt(conn, CURLOPT_CONNECTTIMEOUT, 10);
+	if (code != CURLE_OK)
 	{
-		stream_.expires_never();
-		if (ec)
-		{
-			callback((ec == boost::system::errc::stream_timeout) ? GetResult::ERR_TIMEOUT : GetResult::ERR_CONNECT, body);
-			return;
-		}
-
-		// Set a timeout on the operation
-		stream_.expires_after(std::chrono::seconds(5));
-
-		// Send the HTTP request to the remote host
-		http::async_write(stream_, req_,
-			std::bind(
-				&session::on_write,
-				shared_from_this(),
-				std::placeholders::_1,
-				std::placeholders::_2));
+		LOG_ERROR << "[Table] CURLOPT_CONNECTTIMEOUT " << code;
+		curl_easy_cleanup(conn);
+		return GetResult::ERR_SYSTEM;
 	}
 
-	void
-		on_write_ssl(
-			boost::system::error_code ec,
-			std::size_t bytes_transferred)
+	code = curl_easy_setopt(conn, CURLOPT_SSL_VERIFYHOST, 0);
+	if (code != CURLE_OK)
 	{
-		beast::get_lowest_layer(ssl_stream_).expires_never();
-		boost::ignore_unused(bytes_transferred);
-
-		if (ec)
-		{
-			callback((ec == boost::system::errc::stream_timeout) ? GetResult::ERR_TIMEOUT : GetResult::ERR_WRITE, body);
-			return;
-		}
-
-		// Set a timeout on the operation
-		beast::get_lowest_layer(ssl_stream_).expires_after(std::chrono::seconds(10));
-
-		// Receive the HTTP response
-		http::async_read(ssl_stream_, buffer_, res_,
-			std::bind(
-				&session::on_read,
-				shared_from_this(),
-				std::placeholders::_1,
-				std::placeholders::_2));
+		LOG_ERROR << "[Table] CURLOPT_SSL_VERIFYHOST " << code;
+		curl_easy_cleanup(conn);
+		return GetResult::ERR_SYSTEM;
 	}
 
-	void
-		on_write(
-			boost::system::error_code ec,
-			std::size_t bytes_transferred)
+	code = curl_easy_setopt(conn, CURLOPT_SSL_VERIFYPEER, 0);
+	if (code != CURLE_OK)
 	{
-		stream_.expires_never();
-		boost::ignore_unused(bytes_transferred);
-
-		if (ec)
-		{
-			callback((ec == boost::system::errc::stream_timeout) ? GetResult::ERR_TIMEOUT : GetResult::ERR_WRITE, body);
-			return;
-		}
-
-		// Set a timeout on the operation
-		stream_.expires_after(std::chrono::seconds(10));
-
-		// Receive the HTTP response
-		http::async_read(stream_, buffer_, res_,
-			std::bind(
-				&session::on_read,
-				shared_from_this(),
-				std::placeholders::_1,
-				std::placeholders::_2));
+		LOG_ERROR << "[Table] CURLOPT_SSL_VERIFYPEER " << code;
+		curl_easy_cleanup(conn);
+		return GetResult::ERR_SYSTEM;
 	}
 
-	void
-		on_read_ssl(
-			boost::system::error_code ec,
-			std::size_t bytes_transferred)
+	code = curl_easy_setopt(conn, CURLOPT_URL, url.c_str());
+	if (code != CURLE_OK)
 	{
-		beast::get_lowest_layer(ssl_stream_).expires_never();
-		boost::ignore_unused(bytes_transferred);
-
-		if (ec)
-		{
-			callback((ec == boost::system::errc::stream_timeout) ? GetResult::ERR_TIMEOUT : GetResult::ERR_READ, body);
-			return;
-		}
-
-		body = res_.body();
-
-		// callback
-		callback(GetResult::OK, body);
-
-		// Set a timeout on the operation
-		beast::get_lowest_layer(ssl_stream_).expires_after(std::chrono::seconds(5));
-
-		// If we get here then the connection is closed gracefully
-		ssl_stream_.async_shutdown(
-			beast::bind_front_handler(
-				&session::on_shutdown_ssl,
-				shared_from_this()));
+		LOG_ERROR << "[Table] CURLOPT_URL " << code;
+		curl_easy_cleanup(conn);
+		return GetResult::ERR_SYSTEM;
 	}
 
-	void
-		on_read(
-			boost::system::error_code ec,
-			std::size_t bytes_transferred)
+	code = curl_easy_setopt(conn, CURLOPT_PORT, iport);
+	if (code != CURLE_OK)
 	{
-		stream_.expires_never();
-		boost::ignore_unused(bytes_transferred);
-
-		if (ec)
-		{
-			callback((ec == boost::system::errc::stream_timeout) ? GetResult::ERR_TIMEOUT : GetResult::ERR_READ, body);
-			return;
-		}
-
-		body = res_.body();
-
-		// callback
-		callback(GetResult::OK, body);
-
-		// Gracefully close the socket
-		stream_.socket().shutdown(tcp::socket::shutdown_both, ec);
-
-		// not_connected happens sometimes so don't bother reporting it.
-		if (ec && ec != boost::system::errc::not_connected)
-		{
-			return;
-		}
-
-		// If we get here then the connection is closed gracefully
+		LOG_ERROR << "[Table] CURLOPT_PORT " << code;
+		curl_easy_cleanup(conn);
+		return GetResult::ERR_SYSTEM;
 	}
 
-	void
-		on_shutdown_ssl(beast::error_code ec)
+	static curl_version_info_data* curlversion = curl_version_info(CURLVERSION_NOW);
+	static std::string ua = (boost::format("curl/%d.%d.%d") % (curlversion->version_num >> 16 & 0xFF) % (curlversion->version_num >> 8 & 0xFF) % (curlversion->version_num & 0xFF)).str();
+	code = curl_easy_setopt(conn, CURLOPT_USERAGENT, ua.c_str());
+	if (code != CURLE_OK)
 	{
-		beast::get_lowest_layer(ssl_stream_).expires_never();
-		if (ec == net::error::eof)
-		{
-			// Rationale:
-			// http://stackoverflow.com/questions/25587403/boost-asio-ssl-async-shutdown-always-finishes-with-an-error
-			ec = {};
-		}
-		if (ec)
-		{
-		}
-
-		// If we get here then the connection is closed gracefully
+		LOG_ERROR << "[Table] CURLOPT_USERAGENT " << code;
+		curl_easy_cleanup(conn);
+		return GetResult::ERR_SYSTEM;
 	}
-};
+
+	std::stringstream bodyStream;
+
+	code = curl_easy_setopt(conn, CURLOPT_WRITEFUNCTION, _GETWriteCallback);
+	if (code != CURLE_OK)
+	{
+		LOG_ERROR << "[Table] CURLOPT_WRITEFUNCTION " << code;
+		curl_easy_cleanup(conn);
+		return GetResult::ERR_SYSTEM;
+	}
+
+	code = curl_easy_setopt(conn, CURLOPT_WRITEDATA, &bodyStream);
+	if (code != CURLE_OK)
+	{
+		LOG_ERROR << "[Table] CURLOPT_WRITEDATA " << code;
+		curl_easy_cleanup(conn);
+		return GetResult::ERR_SYSTEM;
+	}
+
+	code = curl_easy_perform(conn);
+	if (code != CURLE_OK)
+	{
+		LOG_ERROR << "[Table] curl_easy_perform " << code;
+		curl_easy_cleanup(conn);
+		switch (code)
+		{
+		case CURLE_OUT_OF_MEMORY: return GetResult::ERR_SYSTEM;
+		case CURLE_COULDNT_RESOLVE_HOST: return GetResult::ERR_RESOLVE;
+		case CURLE_COULDNT_CONNECT: 
+		case CURLE_REMOTE_ACCESS_DENIED:
+		case CURLE_SSL_CONNECT_ERROR: return GetResult::ERR_CONNECT;
+		case CURLE_WRITE_ERROR: return GetResult::ERR_WRITE;
+		case CURLE_READ_ERROR: return GetResult::ERR_READ;
+		case CURLE_OPERATION_TIMEDOUT: return GetResult::ERR_TIMEOUT;
+		default: return GetResult::ERR_UNKNOWN;
+		}
+	}
+
+	long response_code = 0;
+	code = curl_easy_getinfo(conn, CURLINFO_RESPONSE_CODE, &response_code);
+	if (code != CURLE_OK)
+	{
+		LOG_ERROR << "[Table] CURLINFO_RESPONSE_CODE " << code;
+		curl_easy_cleanup(conn);
+		return GetResult::ERR_SYSTEM;
+	}
+
+	if (response_code / 100 == 2)
+	{
+		result = bodyStream.str();
+		curl_easy_cleanup(conn);
+		return GetResult::OK;
+	}
+	else
+	{
+		LOG_ERROR << "[Table] HTTP " << response_code;
+		curl_easy_cleanup(conn);
+		return GetResult::ERR_HTTP;
+	}
+}
 
 void DifficultyTableBMS::updateFromUrl(std::function<void(DifficultyTable::UpdateResult)> finishedCallback)
 {
@@ -360,82 +192,33 @@ void DifficultyTableBMS::updateFromUrl(std::function<void(DifficultyTable::Updat
 	if (!strEqual(webUrl.substr(webUrl.length() - 5), ".json", true))
 	{
 		std::string headerFileName;
+		std::string body;
 
-		net::io_context ioc;
-		ssl::context ctx{ ssl::context::tlsv12_client };
-		ctx.set_verify_mode(ssl::verify_none);	// Disable verify since table is not so sensitive
-		std::make_shared<session>(ioc, ctx)->GET(webUrl, [this, &headerFileName, &remotePath, finishedCallback](GetResult result, const std::string& body)
+		auto result = GET(webUrl, body);
+		if (result == GetResult::OK)
+		{
+			// <meta name="bmstable" content="./header.json">
+			std::string content;
+			static const LazyRE2 re{ R"(meta +name=['"]bmstable['"] *content=['"](.+)['"])"};
+			if (RE2::PartialMatch(body, *re, &content))
 			{
-				if (result == GetResult::OK)
-				{
-					TidyDoc tdoc = tidyCreate();
-					tidyOptSetBool(tdoc, TidyXmlOut, yes);
-					tidyOptSetBool(tdoc, TidyForceOutput, yes);
-					if (tidyParseString(tdoc, body.c_str()) >= 0 &&
-						tidyCleanAndRepair(tdoc) >= 0)
-					{
-						char* output = new char[16384];
-						uint outputSize = 0;
-
-						if (int rc = tidySaveString(tdoc, output, &outputSize); (rc == ENOMEM || outputSize > sizeof(output)))
-						{
-							delete[] output;
-							output = new char[outputSize];
-						}
-						tidySaveString(tdoc, output, &outputSize);
-
-						namespace pt = boost::property_tree;
-
-						pt::ptree tree;
-						std::stringstream ss(std::string(output, outputSize));
-						pt::read_xml(ss, tree);
-						for (auto& [name, value] : tree.get_child("html.head"))
-						{
-							bool isBmstable = false;
-							if (name == "meta")
-							{
-								for (auto& [metaName, metaValue] : value.get_child("<xmlattr>"))
-								{
-									if (strEqual(metaName, "name") && strEqual(metaValue.data(), "bmstable"))
-									{
-										isBmstable = true;
-										break;
-									}
-								}
-								if (isBmstable)
-								{
-									for (auto& [metaName, metaValue] : value.get_child("<xmlattr>"))
-									{
-										if (strEqual(metaName, "content"))
-										{
-											headerFileName = metaValue.data();
-											break;
-										}
-									}
-								}
-							}
-							if (!headerFileName.empty()) break;
-						}
-
-						delete[] output;
-					}
-					tidyRelease(tdoc);
-				}
-				else
-				{
-					switch (result)
-					{
-					case GetResult::ERR_SNI_HOSTNAME:
-					case GetResult::ERR_RESOLVE:	  finishedCallback(DifficultyTable::UpdateResult::WEB_PATH_ERROR); break;
-					case GetResult::ERR_CONNECT:
-					case GetResult::ERR_HANDSHAKE:
-					case GetResult::ERR_WRITE:
-					case GetResult::ERR_READ:		  finishedCallback(DifficultyTable::UpdateResult::WEB_CONNECT_ERR); break;
-					case GetResult::ERR_TIMEOUT:	  finishedCallback(DifficultyTable::UpdateResult::WEB_TIMEOUT); break;
-					}
-				}
-			});
-		ioc.run();
+				headerFileName = content;
+				LOG_DEBUG << "[Table] bmstable: " << content;
+			}
+		}
+		else
+		{
+			switch (result)
+			{
+			case GetResult::ERR_RESOLVE:	  finishedCallback(DifficultyTable::UpdateResult::WEB_PATH_ERROR); break;
+			case GetResult::ERR_CONNECT:
+			case GetResult::ERR_WRITE:
+			case GetResult::ERR_READ:		 
+			case GetResult::ERR_HTTP:		  finishedCallback(DifficultyTable::UpdateResult::WEB_CONNECT_ERR); break;
+			case GetResult::ERR_TIMEOUT:	  finishedCallback(DifficultyTable::UpdateResult::WEB_TIMEOUT); break;
+			default:						  finishedCallback(DifficultyTable::UpdateResult::INTERNAL_ERROR); break;
+			}
+		}
 
 		if (!headerFileName.empty())
 		{
@@ -443,6 +226,7 @@ void DifficultyTableBMS::updateFromUrl(std::function<void(DifficultyTable::Updat
 				headerUrl = headerFileName;
 			else
 				headerUrl = remotePath + headerFileName;
+			LOG_INFO << "[Table] Header URL: " << headerUrl;
 		}
 		else
 		{
@@ -458,58 +242,43 @@ void DifficultyTableBMS::updateFromUrl(std::function<void(DifficultyTable::Updat
 	// parse Header
 	if (!headerUrl.empty())
 	{
-		std::string dataFileName;
+		std::string body;
 
-		net::io_context ioc;
-		ssl::context ctx{ ssl::context::tlsv12_client };
-		ctx.set_verify_mode(ssl::verify_none);	// Disable verify since table is not so sensitive
-		std::make_shared<session>(ioc, ctx)->GET(headerUrl, [this, &dataFileName, &remotePath, finishedCallback](GetResult result, const std::string& body)
-			{
-				if (result == GetResult::OK)
-				{
-					tao::json::value header = tao::json::from_string(body);
-					try
-					{
-						name = header["name"].get_string();
-						symbol = header["symbol"].get_string();
-						dataFileName = header["data_url"].get_string();
-					}
-					catch (std::bad_variant_access& e)
-					{
-
-					}
-
-					if (!body.empty())
-					{
-						auto tablePath = getFolderPath();
-						if (!fs::exists(tablePath)) fs::create_directories(tablePath);
-						std::ofstream ofs(tablePath / "header.json", std::ios_base::binary);
-						ofs << body;
-						ofs.close();
-					}
-				}
-				else
-				{
-					switch (result)
-					{
-					case GetResult::ERR_SNI_HOSTNAME:
-					case GetResult::ERR_RESOLVE:	  finishedCallback(DifficultyTable::UpdateResult::HEADER_PATH_ERROR); break;
-					case GetResult::ERR_CONNECT:
-					case GetResult::ERR_HANDSHAKE:
-					case GetResult::ERR_WRITE:
-					case GetResult::ERR_READ:		  finishedCallback(DifficultyTable::UpdateResult::HEADER_CONNECT_ERR); break;
-					case GetResult::ERR_TIMEOUT:	  finishedCallback(DifficultyTable::UpdateResult::HEADER_TIMEOUT); break;
-					}
-				}
-			});
-		ioc.run();
-
-		if (!dataFileName.empty() && !name.empty())
+		auto result = GET(headerUrl, body);
+		if (result == GetResult::OK)
 		{
-			if (strEqual(dataFileName.substr(0, 7), "http://", true) || strEqual(dataFileName.substr(0, 8), "https://", true))
-				dataUrl = dataFileName;
+			if (!body.empty())
+			{
+				parseHeader(body);
+
+				auto tablePath = getFolderPath();
+				if (!fs::exists(tablePath)) fs::create_directories(tablePath);
+				std::ofstream ofs(tablePath / "header.json", std::ios_base::binary);
+				ofs << body;
+				ofs.close();
+			}
+		}
+		else
+		{
+			switch (result)
+			{
+			case GetResult::ERR_RESOLVE:	  finishedCallback(DifficultyTable::UpdateResult::WEB_PATH_ERROR); break;
+			case GetResult::ERR_CONNECT:
+			case GetResult::ERR_WRITE:
+			case GetResult::ERR_READ:
+			case GetResult::ERR_HTTP:		  finishedCallback(DifficultyTable::UpdateResult::WEB_CONNECT_ERR); break;
+			case GetResult::ERR_TIMEOUT:	  finishedCallback(DifficultyTable::UpdateResult::WEB_TIMEOUT); break;
+			default:						  finishedCallback(DifficultyTable::UpdateResult::INTERNAL_ERROR); break;
+			}
+		}
+
+		if (!data_url.empty() && !name.empty())
+		{
+			if (strEqual(data_url.substr(0, 7), "http://", true) || strEqual(data_url.substr(0, 8), "https://", true))
+				dataUrl = data_url;
 			else
-				dataUrl = remotePath + dataFileName;
+				dataUrl = remotePath + data_url;
+			LOG_INFO << "[Table] Data URL: " << dataUrl;
 		}
 		else
 		{
@@ -521,68 +290,26 @@ void DifficultyTableBMS::updateFromUrl(std::function<void(DifficultyTable::Updat
 	// parse Data
 	if (!dataUrl.empty())
 	{
-		net::io_context ioc;
-		ssl::context ctx{ ssl::context::tlsv12_client };
-		ctx.set_verify_mode(ssl::verify_none);	// Disable verify since table is not so sensitive
-		std::make_shared<session>(ioc, ctx)->GET(dataUrl, [this, &remotePath, finishedCallback](GetResult result, const std::string& body)
+		std::string body;
+
+		auto result = GET(dataUrl, body);
+		if (result == GetResult::OK)
+		{
+			parseBody(body);
+		}
+		else
+		{
+			switch (result)
 			{
-				if (result == GetResult::OK)
-				{
-					std::vector<tao::json::value> header = tao::json::from_string(body).get_array();
-					for (auto& entry : header)
-					{
-						std::string level, md5, name;
-						try
-						{
-							switch (entry["level"].type())
-							{
-							case tao::json::type::UNSIGNED:    level = std::to_string(entry["level"].get_unsigned()); break;
-							case tao::json::type::SIGNED:      level = std::to_string(entry["level"].get_signed()); break;
-							case tao::json::type::STRING:      level = entry["level"].get_string(); break;
-							case tao::json::type::STRING_VIEW: level = entry["level"].get_string_view(); break;
-							default:						   level = "0"; break;
-							}
-							md5 = entry["md5"].get_string();
-							name = entry["title"].get_string();
-						}
-						catch (std::bad_variant_access& e)
-						{
-
-						}
-
-						if (!level.empty() && !md5.empty())
-						{
-							auto pEntry = std::make_shared<EntryChart>();
-							pEntry->md5 = md5;
-							pEntry->_name = name;
-							entries[level].push_back(pEntry);
-						}
-					}
-
-					if (!body.empty())
-					{
-						auto tablePath = getFolderPath();
-						if (!fs::exists(tablePath)) fs::create_directories(tablePath);
-						std::ofstream ofs(tablePath / "data.json", std::ios_base::binary);
-						ofs << body;
-						ofs.close();
-					}
-				}
-				else
-				{
-					switch (result)
-					{
-					case GetResult::ERR_SNI_HOSTNAME:
-					case GetResult::ERR_RESOLVE:	  finishedCallback(DifficultyTable::UpdateResult::DATA_PATH_ERROR); break;
-					case GetResult::ERR_CONNECT:
-					case GetResult::ERR_HANDSHAKE:
-					case GetResult::ERR_WRITE:
-					case GetResult::ERR_READ:		  finishedCallback(DifficultyTable::UpdateResult::DATA_CONNECT_ERR); break;
-					case GetResult::ERR_TIMEOUT:	  finishedCallback(DifficultyTable::UpdateResult::DATA_TIMEOUT); break;
-					}
-				}
-			});
-		ioc.run();
+			case GetResult::ERR_RESOLVE:	  finishedCallback(DifficultyTable::UpdateResult::WEB_PATH_ERROR); break;
+			case GetResult::ERR_CONNECT:
+			case GetResult::ERR_WRITE:
+			case GetResult::ERR_READ:
+			case GetResult::ERR_HTTP:		  finishedCallback(DifficultyTable::UpdateResult::WEB_CONNECT_ERR); break;
+			case GetResult::ERR_TIMEOUT:	  finishedCallback(DifficultyTable::UpdateResult::WEB_TIMEOUT); break;
+			default:						  finishedCallback(DifficultyTable::UpdateResult::INTERNAL_ERROR); break;
+			}
+		}
 
 		if (!entries.empty())
 		{
@@ -618,52 +345,30 @@ bool DifficultyTableBMS::loadFromFile()
 	}
 
 	// parse Header
+	std::ifstream headerifs(headerPath);
+	if (headerifs.fail())
 	{
-		tao::json::value header = tao::json::from_file(headerPath);
-		try
-		{
-			name = header["name"].get_string();
-			symbol = header["symbol"].get_string();
-		}
-		catch (std::bad_variant_access& e)
-		{
-
-		}
+		LOG_WARNING << "[TableBMS] Open header.json failed!";
+		return false;
 	}
+	std::stringstream headerFile;
+	headerFile << headerifs.rdbuf();
+	headerifs.sync();
+	headerifs.close();
+	parseHeader(headerFile.str());
 
 	// parse Data
+	std::ifstream dataifs(dataPath);
+	if (dataifs.fail())
 	{
-		std::vector<tao::json::value> header = tao::json::from_file(dataPath).get_array();
-		for (auto& entry : header)
-		{
-			std::string level, md5, name;
-			try
-			{
-				switch (entry["level"].type())
-				{
-				case tao::json::type::UNSIGNED:    level = std::to_string(entry["level"].get_unsigned()); break;
-				case tao::json::type::SIGNED:      level = std::to_string(entry["level"].get_signed()); break;
-				case tao::json::type::STRING:      level = entry["level"].get_string(); break;
-				case tao::json::type::STRING_VIEW: level = entry["level"].get_string_view(); break;
-				default:						   level = "0"; break;
-				}
-				md5 = entry["md5"].get_string();
-				name = entry["title"].get_string();
-			}
-			catch (std::bad_variant_access& e)
-			{
-
-			}
-
-			if (!level.empty() && !md5.empty())
-			{
-				auto pEntry = std::make_shared<EntryChart>();
-				pEntry->md5 = md5;
-				pEntry->_name = name;
-				entries[level].push_back(pEntry);
-			}
-		}
+		LOG_WARNING << "[TableBMS] Open data.json failed!";
+		return false;
 	}
+	std::stringstream dataFile;
+	dataFile << dataifs.rdbuf();
+	dataifs.sync();
+	dataifs.close();
+	parseBody(dataFile.str());
 
 	return true;
 }
@@ -679,4 +384,109 @@ Path DifficultyTableBMS::getFolderPath() const
 std::string DifficultyTableBMS::getSymbol() const
 {
 	return symbol;
+}
+
+void DifficultyTableBMS::parseHeader(const std::string& content)
+{
+	try
+	{
+		std::string_view bodyview = content;
+		if (bodyview.substr(0, 3) == "\xef\xbb\xbf")
+		{
+			// Some tables start with a BOM, which needs to be removed
+			bodyview = bodyview.substr(3);
+		}
+
+		tao::json::value header = tao::json::from_string(bodyview);
+		try
+		{
+			name = header["name"].get_string();
+		}
+		catch (std::bad_variant_access& e)
+		{
+		}
+		try
+		{
+			symbol = header["symbol"].get_string();
+		}
+		catch (std::bad_variant_access& e)
+		{
+		}
+		try
+		{
+			data_url = header["data_url"].get_string();
+		}
+		catch (std::bad_variant_access& e)
+		{
+		}
+	}
+	catch (std::exception& e)
+	{
+		LOG_ERROR << "[Table] Header JSON Error: " << to_utf8(e.what(), eFileEncoding::LATIN1);
+	}
+
+}
+
+void DifficultyTableBMS::parseBody(const std::string& content)
+{
+	try
+	{
+		if (!content.empty())
+		{
+			std::string_view bodyview = content;
+			if (bodyview.substr(0, 3) == "\xef\xbb\xbf")
+			{
+				// Some tables start with a BOM, which needs to be removed
+				bodyview = bodyview.substr(3);
+			}
+
+			std::vector<tao::json::value> header = tao::json::from_string(bodyview).get_array();
+			for (auto& entry : header)
+			{
+				std::string level, md5, name;
+				switch (entry["level"].type())
+				{
+				case tao::json::type::UNSIGNED:    level = std::to_string(entry["level"].get_unsigned()); break;
+				case tao::json::type::SIGNED:      level = std::to_string(entry["level"].get_signed()); break;
+				case tao::json::type::STRING:      level = entry["level"].get_string(); break;
+				case tao::json::type::STRING_VIEW: level = entry["level"].get_string_view(); break;
+				default:						   level = "0"; break;
+				}
+
+				try
+				{
+					md5 = entry["md5"].get_string();
+				}
+				catch (std::bad_variant_access& e)
+				{
+				}
+
+				try
+				{
+					name = entry["title"].get_string();
+				}
+				catch (std::bad_variant_access& e)
+				{
+				}
+
+				if (!level.empty() && !md5.empty())
+				{
+					auto pEntry = std::make_shared<EntryChart>();
+					pEntry->md5 = md5;
+					pEntry->_name = name;
+					entries[level].push_back(pEntry);
+				}
+			}
+
+			auto tablePath = getFolderPath();
+			if (!fs::exists(tablePath)) fs::create_directories(tablePath);
+			std::ofstream ofs(tablePath / "data.json", std::ios_base::binary);
+			ofs << content;
+			ofs.close();
+		}
+	}
+	catch (std::exception& e)
+	{
+		LOG_ERROR << "[Table] Data JSON Error: " << to_utf8(e.what(), eFileEncoding::LATIN1);
+	}
 }

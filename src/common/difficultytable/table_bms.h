@@ -9,6 +9,7 @@ public:
 
 protected:
 	std::string symbol;
+	std::string data_url;
 
 public:
 	virtual void updateFromUrl(std::function<void(UpdateResult)> finishedCallback) override;
@@ -18,4 +19,7 @@ public:
 	Path getFolderPath() const;
 
 	std::string getSymbol() const;
+
+	void parseHeader(const std::string& content);
+	void parseBody(const std::string& content);
 };

@@ -51,6 +51,7 @@ For LR2 feature compatibility list, check out [the wiki](https://github.com/yaas
     ```
     vcpkg install openssl:x64-windows
     vcpkg install boost:x64-windows
+    vcpkg install curl:x64-windows
     ```
 
 4. Choose a generator to build
