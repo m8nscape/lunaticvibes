@@ -122,7 +122,7 @@ Move Judge with LIFT
 1P Note Position (x)
 1P Note Position (y)
 1P Note Size (w)
-1P Note Size (y)
+1P Note Size (h)
 2P Note Position (x)
 2P Note Position (y)
 2P Note Size (w)

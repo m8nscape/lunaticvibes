@@ -3452,8 +3452,8 @@ SkinLR2::~SkinLR2()
             yaml["PLAY_SKIN_H"] = adjustPlaySkinH;
             yaml["PLAY_JUDGE_POS_LIFT"] = adjustPlayJudgePositionLift;
             yaml["PLAY_JUDGE_POS_1P_X"] = adjustPlayJudgePosition1PX;
-            yaml["PLAY_JUDGE_POS_1P_Y"] = adjustPlayJudgePosition2PY;
-            yaml["PLAY_JUDGE_POS_2P_X"] = adjustPlayJudgePosition1PX;
+            yaml["PLAY_JUDGE_POS_1P_Y"] = adjustPlayJudgePosition1PY;
+            yaml["PLAY_JUDGE_POS_2P_X"] = adjustPlayJudgePosition2PX;
             yaml["PLAY_JUDGE_POS_2P_Y"] = adjustPlayJudgePosition2PY;
             yaml["PLAY_NOTE_1P_X"] = adjustPlayNote1PX;
             yaml["PLAY_NOTE_1P_Y"] = adjustPlayNote1PY;
@@ -3588,8 +3588,8 @@ bool SkinLR2::loadCSV(Path p)
                         else if (key == "PLAY_SKIN_H") adjustPlaySkinH = node.second.as<int>(0);
                         else if (key == "PLAY_JUDGE_POS_LIFT") adjustPlayJudgePositionLift = node.second.as<bool>(true);
                         else if (key == "PLAY_JUDGE_POS_1P_X") adjustPlayJudgePosition1PX = node.second.as<int>(0);
-                        else if (key == "PLAY_JUDGE_POS_1P_Y") adjustPlayJudgePosition2PY = node.second.as<int>(0);
-                        else if (key == "PLAY_JUDGE_POS_2P_X") adjustPlayJudgePosition1PX = node.second.as<int>(0);
+                        else if (key == "PLAY_JUDGE_POS_1P_Y") adjustPlayJudgePosition1PY = node.second.as<int>(0);
+                        else if (key == "PLAY_JUDGE_POS_2P_X") adjustPlayJudgePosition2PX = node.second.as<int>(0);
                         else if (key == "PLAY_JUDGE_POS_2P_Y") adjustPlayJudgePosition2PY = node.second.as<int>(0);
                         else if (key == "PLAY_NOTE_1P_X") adjustPlayNote1PX = node.second.as<int>(0);
                         else if (key == "PLAY_NOTE_1P_Y") adjustPlayNote1PY = node.second.as<int>(0);
@@ -4319,11 +4319,11 @@ void SkinLR2::update()
                 {
                     if (pS->playerSlot == PLAYER_SLOT_PLAYER)
                     {
-                        pS->adjustAfterUpdate(move1PX, move1PY, adjustPlayNote1PW, adjustPlayNote1PH);
+                        pS->adjustAfterUpdate(move1PX, move1PY, adjustPlayNote1PW, -adjustPlayNote1PH);
                     }
                     else if (pS->playerSlot == PLAYER_SLOT_TARGET)
                     {
-                        pS->adjustAfterUpdate(move2PX, move2PY, adjustPlayNote2PW, adjustPlayNote2PH);
+                        pS->adjustAfterUpdate(move2PX, move2PY, adjustPlayNote2PW, -adjustPlayNote2PH);
                     }
                 }
             }
