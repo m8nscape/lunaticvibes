@@ -308,6 +308,8 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     State::set(IndexNumber::PLAY_BPM, int(std::round(gChartContext.startBPM * gSelectContext.pitchSpeed)));
     State::set(IndexNumber::INFO_BPM_MIN, int(std::round(gChartContext.minBPM * gSelectContext.pitchSpeed)));
     State::set(IndexNumber::INFO_BPM_MAX, int(std::round(gChartContext.maxBPM * gSelectContext.pitchSpeed)));
+    State::set(IndexNumber::INFO_RIVAL_BPM_MIN, int(std::round(gChartContext.minBPM * gSelectContext.pitchSpeed)));
+    State::set(IndexNumber::INFO_RIVAL_BPM_MAX, int(std::round(gChartContext.maxBPM * gSelectContext.pitchSpeed)));
 
     State::set(IndexOption::PLAY_RANK_ESTIMATED_1P, Option::RANK_NONE);
     State::set(IndexOption::PLAY_RANK_ESTIMATED_2P, Option::RANK_NONE);

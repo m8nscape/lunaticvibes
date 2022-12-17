@@ -1091,6 +1091,8 @@ void setEntryInfo()
         State::set(IndexNumber::PLAY_BPM, param["bpm"]);
         State::set(IndexNumber::INFO_BPM_MIN, param["minbpm"]);
         State::set(IndexNumber::INFO_BPM_MAX, param["maxbpm"]);
+        State::set(IndexNumber::INFO_RIVAL_BPM_MIN, param["minbpm"]);
+        State::set(IndexNumber::INFO_RIVAL_BPM_MAX, param["maxbpm"]);
 
         State::set(IndexNumber::PLAY_MIN, param["min"]);
         State::set(IndexNumber::PLAY_SEC, param["sec"]);
