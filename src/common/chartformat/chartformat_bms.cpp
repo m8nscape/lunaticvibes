@@ -236,10 +236,12 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                         {
                             ifValue = std::stack<int>();
                         }
+
+                        continue;
                     }
                 }
 
-                if (randomUsedValues.top().size() == randomValueMax.top())
+                if (!randomUsedValues.empty() && randomUsedValues.top().size() == randomValueMax.top())
                 {
                     randomValueMax.pop();
                     randomValue.pop();
