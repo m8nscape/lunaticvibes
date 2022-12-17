@@ -246,6 +246,7 @@ namespace cfg
     constexpr char P_LANGUAGE[] = "Language";
 
     constexpr char P_ADJUST_HISPEED_WITH_ARROWKEYS[] = "AdjustHispeedWithArrowKeys";
+    constexpr char P_ADJUST_HISPEED_WITH_SELECT[] = "AdjustHispeedWithSelect";
     constexpr char P_ADJUST_LANECOVER_WITH_START_67[] = "AdjustLanecoverWithStart67";
     constexpr char P_ADJUST_LANECOVER_WITH_MOUSEWHEEL[] = "AdjustLanecoverWithMouseWheel";
     constexpr char P_ADJUST_LANECOVER_WITH_ARROWKEYS[] = "AdjustLanecoverWithArrowKeys";

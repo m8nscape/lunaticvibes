@@ -92,4 +92,10 @@ void ConfigProfile::setDefaults() noexcept
     set(P_ENABLE_NEW_RANDOM, false);
     set(P_ENABLE_NEW_GAUGE, false);
     set(P_ENABLE_NEW_LANE_OPTION, false);
+
+    set(P_ADJUST_HISPEED_WITH_ARROWKEYS, true);
+    set(P_ADJUST_HISPEED_WITH_SELECT, false);
+    set(P_ADJUST_LANECOVER_WITH_START_67, false);
+    set(P_ADJUST_LANECOVER_WITH_MOUSEWHEEL, true);
+    set(P_ADJUST_LANECOVER_WITH_ARROWKEYS, true);
 }

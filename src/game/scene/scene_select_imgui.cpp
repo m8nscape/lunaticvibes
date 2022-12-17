@@ -145,6 +145,7 @@ void SceneSelect::_imguiInit()
     imgui_sel_ignore5keysif7keysexist = ConfigMgr::get("P", cfg::P_IGNORE_5KEYS_IF_7KEYS_EXIST, false);
 
     imgui_play_adjustHispeedWithUpDown = ConfigMgr::get('P', cfg::P_ADJUST_HISPEED_WITH_ARROWKEYS, false);
+    imgui_play_adjustHispeedWithSelect = ConfigMgr::get('P', cfg::P_ADJUST_HISPEED_WITH_SELECT, false);
     imgui_play_adjustLanecoverWithStart67 = ConfigMgr::get('P', cfg::P_ADJUST_LANECOVER_WITH_START_67, false);
     imgui_play_adjustLanecoverWithMousewheel = ConfigMgr::get('P', cfg::P_ADJUST_LANECOVER_WITH_MOUSEWHEEL, false);
     imgui_play_adjustLanecoverWithLeftRight = ConfigMgr::get('P', cfg::P_ADJUST_LANECOVER_WITH_ARROWKEYS, false);
@@ -852,6 +853,11 @@ void SceneSelect::_imguiPage_Options_Play()
 		{
 			ConfigMgr::set('P', cfg::P_ADJUST_HISPEED_WITH_ARROWKEYS, imgui_play_adjustHispeedWithUpDown);
 		}
+
+        if (ImGui::Checkbox(i18n::c(PLAY_ADJUST_HISPEED_WITH_SELECT), &imgui_play_adjustHispeedWithSelect))
+        {
+            ConfigMgr::set('P', cfg::P_ADJUST_HISPEED_WITH_SELECT, imgui_play_adjustHispeedWithSelect);
+        }
 
 		if (ImGui::Checkbox(i18n::c(PLAY_ADJUST_LANECOVER_WITH_START_67), &imgui_play_adjustLanecoverWithStart67))
 		{

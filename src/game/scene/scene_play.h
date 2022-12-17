@@ -68,6 +68,7 @@ private:
     std::array<bool, 2>   _lanecoverTopHasChanged{ false, false };
     std::array<bool, 2>   _lanecoverBottomHasChanged{ false, false };
     std::array<bool, 2>   _lanecoverStateHasChanged{ false, false };
+    std::array<bool, 2>   _lockSpeedReset{ false, false };
     unsigned replayCmdMapIndex = 0;
 
     std::array<int, 2>      _missPlayer = { 0 };
@@ -87,6 +88,7 @@ private:
     double hiSpeedMargin = 0.25;
     int lanecoverMargin = 100;
     bool adjustHispeedWithUpDown = false;
+    bool adjustHispeedWithSelect = false;
     bool adjustLanecoverWithStart67 = false;
     bool adjustLanecoverWithMousewheel = false;
     bool adjustLanecoverWithLeftRight = false;

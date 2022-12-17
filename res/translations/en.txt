@@ -159,6 +159,7 @@ Request by %s
 FAILED: Player %s does not have this chart.
 Leaving: Server timeout
 Enable using Up / Down Keys for adjusting Hi-speed
+Enable using Select+Scratch for adjusting Hi-speed
 Enable using Left / Right Keys for adjusting Lanecover
 Enable using Start+6/7 for adjusting Lanecover
 Enable using Mousewheel for adjusting Lanecover
