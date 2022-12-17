@@ -300,6 +300,8 @@ void SpriteSelection::updateSelection(frameIdx frame)
 
 bool SpriteSelection::update(const Time& t)
 {
+    if (_texRect.size() < _segments) return false;
+
 	return vSprite::update(t);
 }
 
@@ -593,6 +595,9 @@ SpriteNumber::SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align
     else
         _numType = NumberType(0);
 
+    _digit.resize(maxDigits);
+    _rects.resize(maxDigits);
+
     switch (_numType)
     {
     case NUM_TYPE_NORMAL:
@@ -603,14 +608,13 @@ SpriteNumber::SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align
         break;
     default: return;
     }
-
-    _digit.resize(maxDigits);
-    _rects.resize(maxDigits);
 }
 
 bool SpriteNumber::update(const Time& t)
 {
     if (_maxDigits == 0) return false;
+    if (_numType == 0) return false;
+
 	if (SpriteAnimated::update(t))
 	{
         updateNumberByInd();
