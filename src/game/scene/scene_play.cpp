@@ -1007,6 +1007,7 @@ bool ScenePlay::createRuleset()
 ScenePlay::~ScenePlay()
 {
     gPlayContext.bgaTexture->stopUpdate();
+    gPlayContext.bgaTexture->reset();
 
     _input.loopEnd();
     loopEnd();
