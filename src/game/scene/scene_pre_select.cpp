@@ -339,8 +339,8 @@ void ScenePreSelect::loadFinished()
     if (!loadingFinished)
     {
         while (!gSelectContext.backtrace.empty())
-            gSelectContext.backtrace.pop();
-        gSelectContext.backtrace.push(rootFolderProp);
+            gSelectContext.backtrace.pop_front();
+        gSelectContext.backtrace.push_front(rootFolderProp);
 
         if (rootFolderProp.dbBrowseEntries.empty())
         {

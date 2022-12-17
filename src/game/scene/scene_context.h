@@ -156,7 +156,7 @@ enum class SongListSort
 struct SelectContextParams
 {
     std::shared_mutex _mutex;
-    std::stack<SongListProperties> backtrace;
+    std::list<SongListProperties> backtrace;
     EntryList entries;
     size_t idx = 0;     // current selected entry index
     size_t cursor = 0;  // highlighted bar index

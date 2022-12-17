@@ -324,47 +324,65 @@ void SceneResult::updateFadeout()
         if (saveScore && !gChartContext.hash.empty())
         {
             assert(gPlayContext.ruleset[PLAYER_SLOT_PLAYER] != nullptr);
-            ScoreBMS score;
             auto& format = gChartContext.chartObj;
-            auto& chart = gPlayContext.chartObj[PLAYER_SLOT_PLAYER];
-            auto& ruleset = gPlayContext.ruleset[PLAYER_SLOT_PLAYER];
-            auto& data = ruleset->getData();
-            score.notes = chart->getNoteTotalCount();
-            score.rate = data.total_acc;
-            score.maxcombo = data.maxCombo;
-            score.playcount = _pScoreOld ? _pScoreOld->playcount + 1 : 1;
-            auto isclear = ruleset->isCleared() ? 1 : 0;
-            score.clearcount = _pScoreOld ? _pScoreOld->clearcount + isclear : isclear;
-            score.replayFileName = replayFileName;
+            std::shared_ptr<vScore> pScore = nullptr;
 
             switch (format->type())
             {
             case eChartFormat::BMS:
             case eChartFormat::BMSON:
             {
+                auto score = std::make_shared<ScoreBMS>();
+
+                auto& chart = gPlayContext.chartObj[PLAYER_SLOT_PLAYER];
+                auto& ruleset = gPlayContext.ruleset[PLAYER_SLOT_PLAYER];
+                auto& data = ruleset->getData();
+                score->notes = chart->getNoteTotalCount();
+                score->rate = data.total_acc;
+                score->maxcombo = data.maxCombo;
+                score->playcount = _pScoreOld ? _pScoreOld->playcount + 1 : 1;
+                auto isclear = ruleset->isCleared() ? 1 : 0;
+                score->clearcount = _pScoreOld ? _pScoreOld->clearcount + isclear : isclear;
+                score->replayFileName = replayFileName;
+
                 auto rBMS = std::dynamic_pointer_cast<RulesetBMS>(ruleset);
-                score.score = int(std::floor(rBMS->getScore()));
-                score.exscore = rBMS->getExScore();
-                score.fast = rBMS->getJudgeCountEx(RulesetBMS::JUDGE_EARLY);
-                score.slow = rBMS->getJudgeCountEx(RulesetBMS::JUDGE_LATE);
-                score.lamp = std::min(lamp[PLAYER_SLOT_PLAYER], saveLampMax);
+                score->score = int(std::floor(rBMS->getScore()));
+                score->exscore = rBMS->getExScore();
+                score->fast = rBMS->getJudgeCountEx(RulesetBMS::JUDGE_EARLY);
+                score->slow = rBMS->getJudgeCountEx(RulesetBMS::JUDGE_LATE);
+                score->lamp = std::min(lamp[PLAYER_SLOT_PLAYER], saveLampMax);
 
                 if (gPlayContext.mods[PLAYER_SLOT_PLAYER].assist_mask == 0)
                 {
-                    score.pgreat = rBMS->getJudgeCount(RulesetBMS::JudgeType::PERFECT);
-                    score.great = rBMS->getJudgeCount(RulesetBMS::JudgeType::GREAT);
-                    score.good = rBMS->getJudgeCount(RulesetBMS::JudgeType::GOOD);
-                    score.bad = rBMS->getJudgeCount(RulesetBMS::JudgeType::BAD);
-                    score.kpoor = rBMS->getJudgeCountEx(RulesetBMS::JUDGE_KPOOR);
-                    score.miss = rBMS->getJudgeCountEx(RulesetBMS::JUDGE_MISS);
-                    score.bp = rBMS->getJudgeCountEx(RulesetBMS::JUDGE_BP);
-                    score.combobreak = rBMS->getJudgeCountEx(RulesetBMS::JUDGE_CB);
+                    score->pgreat = rBMS->getJudgeCount(RulesetBMS::JudgeType::PERFECT);
+                    score->great = rBMS->getJudgeCount(RulesetBMS::JudgeType::GREAT);
+                    score->good = rBMS->getJudgeCount(RulesetBMS::JudgeType::GOOD);
+                    score->bad = rBMS->getJudgeCount(RulesetBMS::JudgeType::BAD);
+                    score->kpoor = rBMS->getJudgeCountEx(RulesetBMS::JUDGE_KPOOR);
+                    score->miss = rBMS->getJudgeCountEx(RulesetBMS::JUDGE_MISS);
+                    score->bp = rBMS->getJudgeCountEx(RulesetBMS::JUDGE_BP);
+                    score->combobreak = rBMS->getJudgeCountEx(RulesetBMS::JUDGE_CB);
                 }
-                g_pScoreDB->updateChartScoreBMS(gChartContext.hash, score);
+
+                g_pScoreDB->updateChartScoreBMS(gChartContext.hash, *score);
+                pScore = score;
+
                 break;
             }
             default:
                 break;
+            }
+
+            // update entry list score
+            for (auto& frame : gSelectContext.backtrace)
+            {
+                for (auto& [entry, scoreOld] : frame.displayEntries)
+                {
+                    if (entry->md5 == gChartContext.hash)
+                    {
+                        scoreOld = pScore;
+                    }
+                }
             }
         }
         

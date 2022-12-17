@@ -152,7 +152,7 @@ void loadSongList()
     }
 
     gSelectContext.entries.clear();
-    for (auto& [e, s] : gSelectContext.backtrace.top().dbBrowseEntries)
+    for (auto& [e, s] : gSelectContext.backtrace.front().dbBrowseEntries)
     {
         // TODO replace name/name2 by tag.db
 
@@ -231,7 +231,7 @@ void loadSongList()
                     if (pBase->gamemode == 5 && have7k) continue;
                     if (pBase->gamemode == 10 && have14k) continue;
                 }
-                if (!gSelectContext.backtrace.top().ignoreFilters)
+                if (!gSelectContext.backtrace.front().ignoreFilters)
                 {
                     if (!checkFilterDifficulty(pBase->difficulty)) continue;
                     if (!checkFilterKeys(pBase->gamemode)) continue;
@@ -262,7 +262,7 @@ void loadSongList()
             {
                 auto p = std::reinterpret_pointer_cast<ChartFormatBMSMeta>(f);
 
-                if (!gSelectContext.backtrace.top().ignoreFilters)
+                if (!gSelectContext.backtrace.front().ignoreFilters)
                 {
                     if (!checkFilterDifficulty(p->difficulty)) continue;
                     if (!checkFilterKeys(p->gamemode)) continue;
@@ -281,7 +281,7 @@ void loadSongList()
         }
     }
 
-    if (gSelectContext.backtrace.top().ignoreFilters)
+    if (gSelectContext.backtrace.front().ignoreFilters)
     {
         // change display only
         State::set(IndexOption::SELECT_FILTER_DIFF, Option::DIFF_ANY);

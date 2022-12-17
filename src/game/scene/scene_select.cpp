@@ -628,7 +628,7 @@ void SceneSelect::_updateAsync()
     {
         std::string folderName = (boost::format(i18n::c(i18nText::ARENA_REQUEST_BY)) % gSelectContext.remoteRequestedPlayer).str();
         SongListProperties prop{
-            gSelectContext.backtrace.top().folder,
+            gSelectContext.backtrace.front().folder,
             {},
             folderName,
             {},
@@ -638,9 +638,9 @@ void SceneSelect::_updateAsync()
         };
         prop.dbBrowseEntries.push_back({ std::make_shared<EntryChart>(*g_pSongDB->findChartByHash(gSelectContext.remoteRequestedChart).begin()), nullptr });
 
-        gSelectContext.backtrace.top().index = gSelectContext.idx;
-        gSelectContext.backtrace.top().displayEntries = gSelectContext.entries;
-        gSelectContext.backtrace.push(prop);
+        gSelectContext.backtrace.front().index = gSelectContext.idx;
+        gSelectContext.backtrace.front().displayEntries = gSelectContext.entries;
+        gSelectContext.backtrace.push_front(prop);
         gSelectContext.entries.clear();
         loadSongList();
         sortSongList();
@@ -1323,14 +1323,14 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
         if (gSelectContext.backtrace.size() >= 2)
         {
             // only update current folder
-            auto& [hasPath, path] = g_pSongDB->getFolderPath(gSelectContext.backtrace.top().folder);
+            auto& [hasPath, path] = g_pSongDB->getFolderPath(gSelectContext.backtrace.front().folder);
             if (hasPath)
             {
                 LOG_INFO << "[List] Refreshing folder " << path.u8string();
                 State::set(IndexText::_OVERLAY_TOPLEFT, (boost::format(i18n::c(i18nText::REFRESH_FOLDER)) % path.u8string()).str());
 
                 g_pSongDB->resetAddSummary();
-                int count = g_pSongDB->addSubFolder(path, gSelectContext.backtrace.top().parent);
+                int count = g_pSongDB->addSubFolder(path, gSelectContext.backtrace.front().parent);
                 g_pSongDB->waitLoadingFinish();
 
                 int added = g_pSongDB->addChartSuccess - g_pSongDB->addChartModified;
@@ -1351,11 +1351,11 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
             // simplified _navigateBack(t)
             {
                 std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
-                auto& top = gSelectContext.backtrace.top();
+                auto& top = gSelectContext.backtrace.front();
 
                 gSelectContext.idx = 0;
-                gSelectContext.backtrace.pop();
-                auto& parent = gSelectContext.backtrace.top();
+                gSelectContext.backtrace.pop_front();
+                auto& parent = gSelectContext.backtrace.front();
                 gSelectContext.entries = parent.displayEntries;
                 gSelectContext.idx = parent.index;
 
@@ -2358,7 +2358,7 @@ void SceneSelect::_navigateEnter(const Time& t)
                 const auto& [e, s] = gSelectContext.entries[gSelectContext.idx];
 
                 SongListProperties prop{
-                    gSelectContext.backtrace.top().folder,
+                    gSelectContext.backtrace.front().folder,
                     e->md5,
                     e->_name,
                     {},
@@ -2370,9 +2370,9 @@ void SceneSelect::_navigateEnter(const Time& t)
                 for (size_t i = 0; i < top.getContentsCount(); ++i)
                     prop.dbBrowseEntries.push_back({ top.getEntry(i), nullptr });
 
-                gSelectContext.backtrace.top().index = gSelectContext.idx;
-                gSelectContext.backtrace.top().displayEntries = gSelectContext.entries;
-                gSelectContext.backtrace.push(prop);
+                gSelectContext.backtrace.front().index = gSelectContext.idx;
+                gSelectContext.backtrace.front().displayEntries = gSelectContext.entries;
+                gSelectContext.backtrace.push_front(prop);
                 gSelectContext.entries.clear();
             }
 
@@ -2407,7 +2407,7 @@ void SceneSelect::_navigateEnter(const Time& t)
                 const auto& [e, s] = gSelectContext.entries[gSelectContext.idx];
 
                 SongListProperties prop{
-                    gSelectContext.backtrace.top().folder,
+                    gSelectContext.backtrace.front().folder,
                     e->md5,
                     e->_name,
                     {},
@@ -2418,9 +2418,9 @@ void SceneSelect::_navigateEnter(const Time& t)
                 for (size_t i = 0; i < top->getContentsCount(); ++i)
                     prop.dbBrowseEntries.push_back({ top->getEntry(i), nullptr });
 
-                gSelectContext.backtrace.top().index = gSelectContext.idx;
-                gSelectContext.backtrace.top().displayEntries = gSelectContext.entries;
-                gSelectContext.backtrace.push(prop);
+                gSelectContext.backtrace.front().index = gSelectContext.idx;
+                gSelectContext.backtrace.front().displayEntries = gSelectContext.entries;
+                gSelectContext.backtrace.push_front(prop);
                 gSelectContext.entries.clear();
             }
 
@@ -2475,11 +2475,11 @@ void SceneSelect::_navigateBack(const Time& t, bool sound)
             gSelectContext.isInArenaRequest = false;
         }
 
-        auto& top = gSelectContext.backtrace.top();
+        auto& top = gSelectContext.backtrace.front();
 
         gSelectContext.idx = 0;
-        gSelectContext.backtrace.pop();
-        auto& parent = gSelectContext.backtrace.top();
+        gSelectContext.backtrace.pop_front();
+        auto& parent = gSelectContext.backtrace.front();
         gSelectContext.entries = parent.displayEntries;
         gSelectContext.idx = parent.index;
 
@@ -2624,10 +2624,10 @@ void SceneSelect::stopTextEdit(bool modify)
 
 void SceneSelect::resetJukeboxText()
 {
-    if (gSelectContext.backtrace.top().name.empty())
+    if (gSelectContext.backtrace.front().name.empty())
         State::set(IndexText::EDIT_JUKEBOX_NAME, i18n::s(i18nText::SEARCH_SONG));
     else
-        State::set(IndexText::EDIT_JUKEBOX_NAME, gSelectContext.backtrace.top().name);
+        State::set(IndexText::EDIT_JUKEBOX_NAME, gSelectContext.backtrace.front().name);
 }
 
 void SceneSelect::searchSong(const std::string& text)
@@ -2655,9 +2655,9 @@ void SceneSelect::searchSong(const std::string& text)
     for (size_t i = 0; i < top.getContentsCount(); ++i)
         prop.dbBrowseEntries.push_back({ top.getEntry(i), nullptr });
 
-    gSelectContext.backtrace.top().index = gSelectContext.idx;
-    gSelectContext.backtrace.top().displayEntries = gSelectContext.entries;
-    gSelectContext.backtrace.push(prop);
+    gSelectContext.backtrace.front().index = gSelectContext.idx;
+    gSelectContext.backtrace.front().displayEntries = gSelectContext.entries;
+    gSelectContext.backtrace.push_front(prop);
     gSelectContext.entries.clear();
     loadSongList();
     sortSongList();
