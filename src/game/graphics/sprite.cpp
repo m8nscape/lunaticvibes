@@ -39,6 +39,23 @@ bool checkPanel(int panelIdx)
     }
 }
 
+RenderParams& RenderParams::operator=(const KeyFrameParams& rhs)
+{
+    rect.x = (float)rhs.rect.x;
+    rect.y = (float)rhs.rect.y;
+    rect.w = (float)rhs.rect.w;
+    rect.h = (float)rhs.rect.h;
+
+    accel = rhs.accel;
+    color = rhs.color;
+    blend = rhs.blend;
+    filter = rhs.filter;
+    angle = rhs.angle;
+    center = rhs.center;
+
+    return *this;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // virtual base class functions
 vSprite::vSprite(pTexture tex, SpriteTypes type) :
@@ -149,10 +166,10 @@ bool vSprite::updateByKeyframes(const Time& rawTime)
             }
 
             // calculate parameters
-            _current.rect.x = (int)grad(keyFrameNext->param.rect.x, keyFrameCurr->param.rect.x, prog);
-            _current.rect.y = (int)grad(keyFrameNext->param.rect.y, keyFrameCurr->param.rect.y, prog);
-            _current.rect.w = (int)grad(keyFrameNext->param.rect.w, keyFrameCurr->param.rect.w, prog);
-            _current.rect.h = (int)grad(keyFrameNext->param.rect.h, keyFrameCurr->param.rect.h, prog);
+            _current.rect.x = (float)grad(keyFrameNext->param.rect.x, keyFrameCurr->param.rect.x, prog);
+            _current.rect.y = (float)grad(keyFrameNext->param.rect.y, keyFrameCurr->param.rect.y, prog);
+            _current.rect.w = (float)grad(keyFrameNext->param.rect.w, keyFrameCurr->param.rect.w, prog);
+            _current.rect.h = (float)grad(keyFrameNext->param.rect.h, keyFrameCurr->param.rect.h, prog);
             //_current.rect  = keyFrameNext->param.rect  * prog + keyFrameCurr->param.rect  * (1.0 - prog);
             _current.color.r = (Uint8)grad(keyFrameNext->param.color.r, keyFrameCurr->param.color.r, prog);
             _current.color.g = (Uint8)grad(keyFrameNext->param.color.g, keyFrameCurr->param.color.g, prog);
@@ -733,7 +750,7 @@ void SpriteNumber::updateNumberRect()
     {
     case NUM_ALIGN_RIGHT:
     {
-        Rect offset{ int(_current.rect.w * (_maxDigits - 1)),0,0,0 };
+        RectF offset{ _current.rect.w * (_maxDigits - 1),0,0,0 };
         for (size_t i = 0; i < _maxDigits; ++i)
         {
             _rects[i] = _current.rect + offset;
@@ -744,7 +761,7 @@ void SpriteNumber::updateNumberRect()
 
     case NUM_ALIGN_LEFT:
     {
-        Rect offset{ int(_current.rect.w * (_numDigits - 1)),0,0,0 };
+        RectF offset{ _current.rect.w * (_numDigits - 1),0,0,0 };
         for (size_t i = 0; i < _numDigits; ++i)
         {
             _rects[i] = _current.rect + offset;
@@ -755,7 +772,7 @@ void SpriteNumber::updateNumberRect()
 
     case NUM_ALIGN_CENTER:
     {
-        Rect offset{ 0,0,0,0 };
+        RectF offset{ 0,0,0,0 };
         if (_inhibitZero)
             offset.x = int(std::floor(_current.rect.w * 0.5 * (_numDigits - 1)));
         else
@@ -1270,7 +1287,7 @@ void SpriteGaugeGrid::draw() const
 
     if (_draw && _pTexture != nullptr && _pTexture->isLoaded())
     {
-		Rect r = _current.rect;
+		RectF r = _current.rect;
         unsigned grid_val = unsigned(_req - 1);
         for (unsigned i = 0; i < grid_val; ++i)
         {

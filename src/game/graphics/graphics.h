@@ -60,7 +60,7 @@ void ImGuiNewFrame();
 
 
 // text input support
-void startTextInput(const Rect& textBox, const std::string& oldText, std::function<void(const std::string&)> funUpdateText);
+void startTextInput(const RectF& textBox, const std::string& oldText, std::function<void(const std::string&)> funUpdateText);
 void stopTextInput();
 
 

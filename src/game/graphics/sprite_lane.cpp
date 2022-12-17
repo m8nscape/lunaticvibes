@@ -158,7 +158,7 @@ void SpriteLaneVertical::updateNoteRect(const Time& t)
 			else
 				y = (c.y + c.h) - static_cast<int>(std::floor(-noteMetreOffset * _noteAreaHeight * _basespd * _hispeed));
 			it++;
-			_outRect.push_front({ c.x, y, c.w, -c.h });
+			_outRect.push_front({ c.x, (float)y, c.w, -c.h });
 		}
 	}
 	else
@@ -180,7 +180,7 @@ void SpriteLaneVertical::updateNoteRect(const Time& t)
 			else
 				y = (c.y + c.h) - static_cast<int>(std::floor(-noteTimeOffset / 1600.0 * _noteAreaHeight * _basespd * _hispeed));
 			it++;
-			_outRect.push_front({ c.x, y, c.w, -c.h });
+			_outRect.push_front({ c.x, (float)y, c.w, -c.h });
 		}
 	}
 }
@@ -207,7 +207,7 @@ void SpriteLaneVertical::draw() const
 	if (_hiddenCompatibleDraw)
 	{
 		_hiddenCompatibleTexture->draw(
-			_hiddenCompatibleArea, _hiddenCompatibleArea,
+			RECT_FULL, _hiddenCompatibleArea,
 			Color(0xffffffff), BlendMode::ALPHA, false, 0
 		);
 	}
@@ -239,8 +239,8 @@ void SpriteLaneVertical::updateHIDDENCompatible()
 				_hiddenCompatibleArea = _current.rect;
 				double p = State::get(IndexNumber::LANECOVER_BOTTOM_1P) / 1000.0;
 				int h = _noteAreaHeight;
-				_hiddenCompatibleArea.h = h * p;
-				_hiddenCompatibleArea.y = h - _hiddenCompatibleArea.h;
+				_hiddenCompatibleArea.y = h;
+				_hiddenCompatibleArea.h = -h * p;
 			}
 		}
 		else
@@ -266,8 +266,8 @@ void SpriteLaneVertical::updateHIDDENCompatible()
 				_hiddenCompatibleArea = _current.rect;
 				double p = lc / 1000.0;
 				int h = _noteAreaHeight;
-				_hiddenCompatibleArea.h = h * p;
-				_hiddenCompatibleArea.y = h - _hiddenCompatibleArea.h;
+				_hiddenCompatibleArea.y = h;
+				_hiddenCompatibleArea.h = -h * p;
 			}
 		}
 	}
@@ -410,9 +410,9 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 				++it;
 			}
 
-			_outRect.push_front({ c.x, head_y, c.w, -c.h });
-			_outRectBody.push_front({ c.x, tail_y, c.w, head_y - tail_y - c.h });
-			_outRectTail.push_front({ c.x, tail_y, c.w, -c.h });
+			_outRect.push_front({ c.x, (float)head_y, c.w, -c.h });
+			_outRectBody.push_front({ c.x, (float)tail_y, c.w, float(head_y - tail_y - c.h) });
+			_outRectTail.push_front({ c.x, (float)tail_y, c.w, -c.h });
 		}
 	}
 	else
@@ -490,9 +490,9 @@ void SpriteLaneVerticalLN::updateNoteRect(const Time& t)
 				++it;
 			}
 
-			_outRect.push_front({ c.x, head_y, c.w, -c.h });
-			_outRectBody.push_front({ c.x, tail_y, c.w, head_y - tail_y - c.h });
-			_outRectTail.push_front({ c.x, tail_y, c.w, -c.h });
+			_outRect.push_front({ c.x, (float)head_y, c.w, -c.h });
+			_outRectBody.push_front({ c.x, (float)tail_y, c.w, float(head_y - tail_y - c.h) });
+			_outRectTail.push_front({ c.x, (float)tail_y, c.w, -c.h });
 		}
 	}
 
@@ -620,7 +620,7 @@ void SpriteLaneVerticalLN::draw() const
 	if (_hiddenCompatibleDraw)
 	{
 		_hiddenCompatibleTexture->draw(
-			_hiddenCompatibleArea, _hiddenCompatibleArea,
+			RECT_FULL, _hiddenCompatibleArea,
 			Color(0xffffffff), BlendMode::ALPHA, false, 0
 		);
 	}

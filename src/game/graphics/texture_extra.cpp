@@ -115,22 +115,22 @@ void TextureVideo::stopUpdate()
 	updated = false;
 }
 
-void TextureVideo::draw(Rect dstRect,
+void TextureVideo::draw(RectF dstRect,
 	const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const
 {
 	Texture::draw(dstRect, updated ? c : Color(0, 0, 0, c.a), blend, filter, angleInDegrees);
 }
-void TextureVideo::draw(Rect dstRect,
+void TextureVideo::draw(RectF dstRect,
 	const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point& center) const
 {
 	Texture::draw(dstRect, updated ? c : Color(0, 0, 0, c.a), blend, filter, angleInDegrees, center);
 }
-void TextureVideo::draw(const Rect& srcRect, Rect dstRect,
+void TextureVideo::draw(const Rect& srcRect, RectF dstRect,
 	const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const
 {
 	Texture::draw(srcRect, dstRect, updated ? c : Color(0, 0, 0, c.a), blend, filter, angleInDegrees);
 }
-void TextureVideo::draw(const Rect& srcRect, Rect dstRect,
+void TextureVideo::draw(const Rect& srcRect, RectF dstRect,
 	const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point& center) const
 {
 	Texture::draw(srcRect, dstRect, updated ? c : Color(0, 0, 0, c.a), blend, filter, angleInDegrees, center);
@@ -321,7 +321,7 @@ void TextureBmsBga::update(const Time& t, bool poor)
 	inPoor = poor;
 }
 
-void TextureBmsBga::draw(const Rect& sr, Rect dr,
+void TextureBmsBga::draw(const Rect& sr, RectF dr,
 	const Color c, const BlendMode b, const bool f, const double a) const
 {
 	std::shared_lock l(idxLock);
@@ -344,7 +344,7 @@ void TextureBmsBga::draw(const Rect& sr, Rect dr,
 	}
 }
 
-void TextureBmsBga::draw(const Rect& sr, Rect dr,
+void TextureBmsBga::draw(const Rect& sr, RectF dr,
 	const Color c, const BlendMode b, const bool f, const double a, const Point& ct) const
 {
 	std::shared_lock l(idxLock);
@@ -500,25 +500,25 @@ void TextureDynamic::setPath(const Path& path)
 	}
 }
 
-void TextureDynamic::draw(Rect dstRect,
+void TextureDynamic::draw(RectF dstRect,
 	const Color c, const BlendMode b, const bool filter, const double angle) const
 {
 	_dynTexture->draw(dstRect, c, b, filter, angle);
 }
 
-void TextureDynamic::draw(Rect dstRect,
+void TextureDynamic::draw(RectF dstRect,
 	const Color c, const BlendMode b, const bool filter, const double angle, const Point& center) const
 {
 	_dynTexture->draw(dstRect, c, b, filter, angle, center);
 }
 
-void TextureDynamic::draw(const Rect& srcRect, Rect dstRect,
+void TextureDynamic::draw(const Rect& srcRect, RectF dstRect,
 	const Color c, const BlendMode b, const bool filter, const double angle) const
 {
 	_dynTexture->draw(srcRect, dstRect, c, b, filter, angle);
 }
 
-void TextureDynamic::draw(const Rect& srcRect, Rect dstRect,
+void TextureDynamic::draw(const Rect& srcRect, RectF dstRect,
 	const Color c, const BlendMode b, const bool filter, const double angle, const Point& center) const
 {
 	_dynTexture->draw(srcRect, dstRect, c, b, filter, angle, center);

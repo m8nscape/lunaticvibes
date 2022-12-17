@@ -28,13 +28,13 @@ public:
 	void update();
 	void reset();
 
-	virtual void draw(Rect dstRect,
+	virtual void draw(RectF dstRect,
 		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const;
-	virtual void draw(Rect dstRect,
+	virtual void draw(RectF dstRect,
 		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point& center) const;
-	virtual void draw(const Rect& srcRect, Rect dstRect,
+	virtual void draw(const Rect& srcRect, RectF dstRect,
 		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const;
-	virtual void draw(const Rect& srcRect, Rect dstRect,
+	virtual void draw(const Rect& srcRect, RectF dstRect,
 		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point& center) const;
 
 	void stopUpdate();
@@ -111,9 +111,9 @@ public:
 	virtual void seek(const Time& t);
 
 	virtual void update(const Time& t, bool poor);
-	virtual void draw(const Rect& srcRect, Rect dstRect,
+	virtual void draw(const Rect& srcRect, RectF dstRect,
 		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const override;
-	virtual void draw(const Rect& srcRect, Rect dstRect,
+	virtual void draw(const Rect& srcRect, RectF dstRect,
 		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees,
 		const Point& center) const override;
 
@@ -141,12 +141,12 @@ public:
 public:
 	void setPath(const Path& path);
 
-	virtual void draw(Rect dstRect,
+	virtual void draw(RectF dstRect,
 		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const;
-	virtual void draw(Rect dstRect,
+	virtual void draw(RectF dstRect,
 		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point& center) const;
-	virtual void draw(const Rect& srcRect, Rect dstRect,
+	virtual void draw(const Rect& srcRect, RectF dstRect,
 		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const;
-	virtual void draw(const Rect& srcRect, Rect dstRect,
+	virtual void draw(const Rect& srcRect, RectF dstRect,
 		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point& center) const;
 };

@@ -487,7 +487,7 @@ bool SpriteBarEntry::update(Time time)
         }
         // TODO folder lamp
 
-        setRectOffsetBarIndex(parentRenderParam.rect);
+        setRectOffsetBarIndex(parentRenderParam.rect.x, parentRenderParam.rect.y);
     }
     else
     {
@@ -521,60 +521,60 @@ void SpriteBarEntry::draw() const
 {
 }
 
-void SpriteBarEntry::setRectOffsetAnim(const Rect& dr)
+void SpriteBarEntry::setRectOffsetAnim(float x, float y)
 {
-    auto adjust_rect = [](Rect& r, const Rect& dr)
+    auto adjust_rect = [](RectF& r, float x, float y)
     {
-        r.x += dr.x;
-        r.y += dr.y;
+        r.x += x;
+        r.y += y;
     };
 
     if (drawBodyOn)
-        adjust_rect(sBodyOn[drawBodyType]->getCurrentRenderParamsRef().rect, dr);
+        adjust_rect(sBodyOn[drawBodyType]->getCurrentRenderParamsRef().rect, x, y);
     else
-        adjust_rect(sBodyOff[drawBodyType]->getCurrentRenderParamsRef().rect, dr);
+        adjust_rect(sBodyOff[drawBodyType]->getCurrentRenderParamsRef().rect, x, y);
 
     if (drawTitle)
     {
-        adjust_rect(sTitle[drawTitleType]->getCurrentRenderParamsRef().rect, dr);
+        adjust_rect(sTitle[drawTitleType]->getCurrentRenderParamsRef().rect, x, y);
         sTitle[drawTitleType]->updateTextRect();
     }
     if (drawLevel)
     {
-        adjust_rect(sLevel[drawLevelType]->getCurrentRenderParamsRef().rect, dr);
+        adjust_rect(sLevel[drawLevelType]->getCurrentRenderParamsRef().rect, x, y);
         sLevel[drawLevelType]->updateNumberRect();
     }
-    if (drawLamp) adjust_rect(sLamp[drawLampType]->getCurrentRenderParamsRef().rect, dr);
-    if (drawRank) adjust_rect(sRank[drawRankType]->getCurrentRenderParamsRef().rect, dr);
-    if (drawRival) adjust_rect(sRivalWinLose[drawRivalType]->getCurrentRenderParamsRef().rect, dr);
-    if (drawRivalLampSelf) adjust_rect(sRivalLampSelf[drawRivalLampSelfType]->getCurrentRenderParamsRef().rect, dr);
-    if (drawRivalLampRival) adjust_rect(sRivalLampRival[drawRivalLampRivalType]->getCurrentRenderParamsRef().rect, dr);
+    if (drawLamp) adjust_rect(sLamp[drawLampType]->getCurrentRenderParamsRef().rect, x, y);
+    if (drawRank) adjust_rect(sRank[drawRankType]->getCurrentRenderParamsRef().rect, x, y);
+    if (drawRival) adjust_rect(sRivalWinLose[drawRivalType]->getCurrentRenderParamsRef().rect, x, y);
+    if (drawRivalLampSelf) adjust_rect(sRivalLampSelf[drawRivalLampSelfType]->getCurrentRenderParamsRef().rect, x, y);
+    if (drawRivalLampRival) adjust_rect(sRivalLampRival[drawRivalLampRivalType]->getCurrentRenderParamsRef().rect, x, y);
 }
 
-void SpriteBarEntry::setRectOffsetBarIndex(const Rect& dr)
+void SpriteBarEntry::setRectOffsetBarIndex(float x, float y)
 {
-    auto adjust_rect = [](Rect& r, const Rect& dr)
+    auto adjust_rect = [](RectF& r, float x, float y)
     {
-        r.x += dr.x;
-        r.y += dr.y;
+        r.x += x;
+        r.y += y;
     };
 
     if (drawTitle)
     {
-        adjust_rect(sTitle[drawTitleType]->getCurrentRenderParamsRef().rect, dr);
+        adjust_rect(sTitle[drawTitleType]->getCurrentRenderParamsRef().rect, x, y);
         sTitle[drawTitleType]->updateTextRect();
     }
     if (drawLevel)
     {
-        adjust_rect(sLevel[drawLevelType]->getCurrentRenderParamsRef().rect, dr);
+        adjust_rect(sLevel[drawLevelType]->getCurrentRenderParamsRef().rect, x, y);
         sLevel[drawLevelType]->updateNumberRect();
     }
-    if (drawFlash) adjust_rect(sFlash->getCurrentRenderParamsRef().rect, dr);
-    if (drawLamp) adjust_rect(sLamp[drawLampType]->getCurrentRenderParamsRef().rect, dr);
-    if (drawRank) adjust_rect(sRank[drawRankType]->getCurrentRenderParamsRef().rect, dr);
-    if (drawRival) adjust_rect(sRivalWinLose[drawRivalType]->getCurrentRenderParamsRef().rect, dr);
-    if (drawRivalLampSelf) adjust_rect(sRivalLampSelf[drawRivalLampSelfType]->getCurrentRenderParamsRef().rect, dr);
-    if (drawRivalLampRival) adjust_rect(sRivalLampRival[drawRivalLampRivalType]->getCurrentRenderParamsRef().rect, dr);
+    if (drawFlash) adjust_rect(sFlash->getCurrentRenderParamsRef().rect, x, y);
+    if (drawLamp) adjust_rect(sLamp[drawLampType]->getCurrentRenderParamsRef().rect, x, y);
+    if (drawRank) adjust_rect(sRank[drawRankType]->getCurrentRenderParamsRef().rect, x, y);
+    if (drawRival) adjust_rect(sRivalWinLose[drawRivalType]->getCurrentRenderParamsRef().rect, x, y);
+    if (drawRivalLampSelf) adjust_rect(sRivalLampSelf[drawRivalLampSelfType]->getCurrentRenderParamsRef().rect, x, y);
+    if (drawRivalLampRival) adjust_rect(sRivalLampRival[drawRivalLampRivalType]->getCurrentRenderParamsRef().rect, x, y);
 }
 
 bool SpriteBarEntry::OnClick(int x, int y)

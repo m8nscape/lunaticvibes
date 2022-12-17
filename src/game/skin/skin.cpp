@@ -100,7 +100,7 @@ void vSkin::update_mouse_click(int x, int y)
     {
         if ((*it)->type() != SpriteTypes::MOUSE_CURSOR && (*it)->isDraw() && !(*it)->isHidden())
         {
-            const Rect& rc = (*it)->_current.rect;
+            const RectF& rc = (*it)->_current.rect;
             if (x >= rc.x && y >= rc.y && x < rc.x + rc.w && y < rc.y + rc.h)
             {
                 createNotification((boost::format("Clicked sprite #%d (%d,%d)[%dx%d] (Line:%d)") %

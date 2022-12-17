@@ -4116,7 +4116,7 @@ void SkinLR2::update()
             {
                 combo->setHideExternal(false);
 
-                Rect base = judge->_current.rect;
+                RectF base = judge->_current.rect;
                 double shiftUnit = 0.5 * combo->_current.rect.w;
 
                 int judgeShiftWidth = noshiftJudge1P[i] ? 0 : int(std::floor(shiftUnit * combo->_numDigits));
@@ -4138,7 +4138,7 @@ void SkinLR2::update()
                         comboShiftUnitCount += (-combo->_maxDigits - 1) + (combo->_maxDigits - combo->_numDigits + 1) * 2;
                         break;
                     }
-                    d.x += base.x + int(std::floor(shiftUnit * comboShiftUnitCount));
+                    d.x += base.x + shiftUnit * comboShiftUnitCount;
                     d.y += base.y;
                 }
             }
@@ -4156,7 +4156,7 @@ void SkinLR2::update()
             {
                 combo->setHideExternal(false);
 
-                Rect base = judge->_current.rect;
+                RectF base = judge->_current.rect;
                 double shiftUnit = 0.5 * combo->_current.rect.w;
 
                 int judgeShiftWidth = noshiftJudge2P[i] ? 0 : int(std::floor(shiftUnit * combo->_numDigits));
@@ -4178,7 +4178,7 @@ void SkinLR2::update()
                         comboShiftUnitCount += (-combo->_maxDigits - 1) + (combo->_maxDigits - combo->_numDigits + 1) * 2;
                         break;
                     }
-                    d.x += base.x + int(std::floor(shiftUnit * comboShiftUnitCount));
+                    d.x += base.x + shiftUnit * comboShiftUnitCount;
                     d.y += base.y;
                 }
             }
@@ -4350,7 +4350,7 @@ void SkinLR2::update()
                         static_cast<int>(std::round((rectStored.y - rectSprite.y) * factor)),
                         0, 0
                     };
-                    _barSprites[i]->setRectOffsetAnim(dr);
+                    _barSprites[i]->setRectOffsetAnim(dr.x, dr.y);
                 }
                 else if (_barSprites[i + 1]->isDraw())
                 {
@@ -4362,7 +4362,7 @@ void SkinLR2::update()
                         static_cast<int>(std::round((rectStored.y - rectSprite.y) * factor)),
                         0, 0
                     };
-                    _barSprites[i]->setRectOffsetAnim(dr);
+                    _barSprites[i]->setRectOffsetAnim(dr.x, dr.y);
                 }
             }
         }
@@ -4379,7 +4379,10 @@ void SkinLR2::start_bar_animation()
 {
     for (size_t i = 0; i < BAR_ENTRY_SPRITE_COUNT; ++i)
     {
-        _barAnimOrigin[i] = _barSprites[i]->_current.rect;
+        _barAnimOrigin[i].x = (int)std::floorf(_barSprites[i]->_current.rect.x);
+        _barAnimOrigin[i].y = (int)std::floorf(_barSprites[i]->_current.rect.y);
+        _barAnimOrigin[i].w = (int)_barSprites[i]->_current.rect.w;
+        _barAnimOrigin[i].h = (int)_barSprites[i]->_current.rect.h;
     }
     hasBarAnimOrigin = true;
 }

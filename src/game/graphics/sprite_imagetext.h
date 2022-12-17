@@ -20,8 +20,8 @@ protected:
     int _margin;
 
 private:
-    std::vector<std::pair<char32_t, Rect>> _drawListOrig;
-    std::vector<std::pair<char32_t, Rect>> _drawList;
+    std::vector<std::pair<char32_t, RectF>> _drawListOrig;
+    std::vector<std::pair<char32_t, RectF>> _drawList;
     Rect _drawRect;
 
 public:

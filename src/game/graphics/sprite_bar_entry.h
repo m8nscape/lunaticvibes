@@ -191,8 +191,8 @@ public:
     auto getSpriteRivalLampSelf(BarLampType type) { return sRivalLampSelf[static_cast<size_t>(type)]; }
     auto getSpriteRivalLampRival(BarLampType type) { return sRivalLampRival[static_cast<size_t>(type)]; }
 
-    void setRectOffsetAnim(const Rect& r);
-    void setRectOffsetBarIndex(const Rect& r);
+    void setRectOffsetAnim(float x, float y);
+    void setRectOffsetBarIndex(float x, float y);
 
 public:
     void setAvailable(bool c) { available = c; }

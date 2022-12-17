@@ -37,9 +37,10 @@ enum class SpriteTypes
     GAUGE,
 };
 
+struct KeyFrameParams;
 struct RenderParams
 {
-    Rect rect;
+    RectF rect;
     enum accTy {
         CONSTANT = 0,
         ACCEL,
@@ -51,12 +52,25 @@ struct RenderParams
 	bool filter;
     double angle;           // rotate angle / degree, 360 for one lap
 	Point center;			// rotate center point, in doubles
+
+    RenderParams& operator=(const KeyFrameParams& rhs);
+};
+
+struct KeyFrameParams
+{
+    Rect rect;
+    RenderParams::accTy accel;
+    Color color;
+    BlendMode blend;
+    bool filter;
+    double angle;           // rotate angle / degree, 360 for one lap
+    Point center;			// rotate center point, in doubles
 };
 
 struct RenderKeyFrame
 {
     long long time;
-    RenderParams param;
+    KeyFrameParams param;
 };
 
 typedef std::shared_ptr<Texture> pTexture;
@@ -341,7 +355,7 @@ protected:
     NumberType _numType = NUM_TYPE_NORMAL;
 	NumberAlign _alignType = NUM_ALIGN_RIGHT;
     //std::vector<Rect> _drawRectDigit, _outRectDigit; // idx from low digit to high, e.g. [1] represents 1 digit, [2] represents 10 digit, etc.
-    std::vector<Rect>           _rects;
+    std::vector<RectF>           _rects;
     std::vector<int>       _digit;
     bool _inhibitZero = false;
 

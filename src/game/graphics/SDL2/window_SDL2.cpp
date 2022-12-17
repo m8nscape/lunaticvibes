@@ -446,7 +446,7 @@ void ImGuiNewFrame()
 }
 
 static std::function<void(const std::string&)> funUpdateText;
-void startTextInput(const Rect& textBox, const std::string& oldText, std::function<void(const std::string&)> funUpdateText)
+void startTextInput(const RectF& textBox, const std::string& oldText, std::function<void(const std::string&)> funUpdateText)
 {
     textBuf = oldText;
     textBuf.reserve(32);
@@ -454,10 +454,10 @@ void startTextInput(const Rect& textBox, const std::string& oldText, std::functi
     ::funUpdateText = funUpdateText;
 
     SDL_Rect r;
-    r.x = textBox.x;
-    r.y = textBox.y;
-    r.w = textBox.w;
-    r.h = textBox.h;
+    r.x = (int)std::floor(textBox.x);
+    r.y = (int)std::floor(textBox.y);
+    r.w = (int)std::ceil(textBox.w);
+    r.h = (int)std::ceil(textBox.h);
     SDL_SetTextInputRect(&r);
     SDL_StartTextInput();
     isEditing = true;

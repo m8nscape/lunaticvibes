@@ -104,6 +104,23 @@ public:
 };
 inline static Rect RECT_FULL = Rect(0, 0, 0xDEADBEEF, 0xDEADBEEF);
 
+// RectF: x, y, w, h
+class RectF : public SDL_FRect
+{
+public:
+    RectF(int zero = 0);
+    RectF(float w, float h);
+    RectF(float x, float y, float w, float h);
+    RectF(const SDL_FRect& rect);
+    ~RectF() = default;
+public:
+    RectF operator+ (const RectF& rhs) const;
+    RectF operator* (const double& rhs) const;
+    bool operator== (const RectF& rhs) const;
+    bool operator!= (const RectF& rhs) const;
+};
+inline static RectF RECTF_FULL = RectF(0, 0, HUGE_VALF, HUGE_VALF);
+
 ////////////////////////////////////////////////////////////////////////////////
 // SDL_Image loads pictures into SDL_Surface instances
 // Run IMG_Init outside.
@@ -153,19 +170,19 @@ protected:
 	Rect _texRect;
 
 protected:
-	void static _draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, Rect dstRect,
-		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point* center = NULL);
+    void static _draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, RectF dstRect,
+        const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point* center = NULL);
 
 public:
 	// Inner draw function.
-	virtual void draw(Rect dstRect,
-		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const;
-	virtual void draw(Rect dstRect,
-		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point& center) const;
-	virtual void draw(const Rect& srcRect, Rect dstRect,
-		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const;
-	virtual void draw(const Rect& srcRect, Rect dstRect,
-		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point& center) const;
+    virtual void draw(RectF dstRect,
+        const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const;
+    virtual void draw(RectF dstRect,
+        const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point& center) const;
+    virtual void draw(const Rect& srcRect, RectF dstRect,
+        const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const;
+    virtual void draw(const Rect& srcRect, RectF dstRect,
+        const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point& center) const;
 
 public:
 	enum class PixelFormat
@@ -206,7 +223,7 @@ public:
 class TextureFull: public Texture
 {
 private:
-    virtual void draw(const Rect& srcRect, Rect dstRect, 
+    virtual void draw(const Rect& srcRect, RectF dstRect, 
         const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const override;
 public:
     TextureFull(const Color& srcColor);

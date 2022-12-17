@@ -15,7 +15,7 @@ protected:
     int _noteAreaHeight = 500;  // used to calculate note speed
     double _basespd;
     double _hispeed;
-    std::list<Rect> _outRect;
+    std::list<RectF> _outRect;
     unsigned _currentMeasure = 0;
     bool _autoNotes = false;
 
@@ -49,7 +49,7 @@ protected:
     bool _hiddenCompatible = false;
     std::shared_ptr<Texture> _hiddenCompatibleTexture = nullptr;
     bool _hiddenCompatibleDraw = false;
-    Rect _hiddenCompatibleArea;
+    RectF _hiddenCompatibleArea;
 public:
     void setHIDDENCompatible() { _hiddenCompatible = true; }
 protected:
@@ -61,7 +61,7 @@ protected:
 class SpriteLaneVerticalLN : public SpriteLaneVertical
 {
 protected:
-    std::list<Rect> _outRectBody, _outRectTail;
+    std::list<RectF> _outRectBody, _outRectTail;
     bool headExpired = false;
     bool tailExpired = false;
     bool headHit = false;
