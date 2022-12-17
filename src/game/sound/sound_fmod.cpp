@@ -721,6 +721,13 @@ void SoundDriverFMOD::loadSampleThread()
     }
 }
 
+static const std::list<std::string> wavExtensionList =
+{
+    ".wav",
+    ".ogg",
+    ".flac",    // lmao
+};
+
 int SoundDriverFMOD::loadNoteSample(const Path& spath, size_t index)
 {
     if (spath.empty()) return -1;
@@ -731,18 +738,30 @@ int SoundDriverFMOD::loadNoteSample(const Path& spath, size_t index)
         noteSamples[index].objptr = nullptr;
     }
     
-    std::string path = spath.u8string();
     int flags = FMOD_LOOP_OFF | FMOD_UNIQUE | FMOD_CREATESAMPLE;
 
+    std::string path;
 	FMOD_RESULT r = FMOD_ERR_FILE_NOTFOUND;
-	if (fs::exists(spath) && fs::is_regular_file(spath))
-		r = fmodSystem->createSound(path.c_str(), flags, 0, &noteSamples[index].objptr);
-
-    // Also find ogg with the same filename
-    if (r == FMOD_ERR_FILE_NOTFOUND && strEqual(spath.extension().string(), ".wav", true))
+    if (fs::exists(spath) && fs::is_regular_file(spath))
     {
-        path = path.replace(path.length() - 4, 4, ".ogg");
+        path = spath.u8string();
         r = fmodSystem->createSound(path.c_str(), flags, 0, &noteSamples[index].objptr);
+    }
+
+    if (r == FMOD_ERR_FILE_NOTFOUND)
+    {
+        // Also find ogg with the same filename
+        Path dir = spath.parent_path();
+        for (auto& ext : wavExtensionList)
+        {
+            Path filePath = dir / (spath.stem().u8string() + ext);
+            if (fs::exists(filePath) && fs::is_regular_file(filePath))
+            {
+                path = filePath.u8string();
+                r = fmodSystem->createSound(path.c_str(), flags, 0, &noteSamples[index].objptr);
+                if (r == FMOD_OK) break;
+            }
+        }
     }
 
     if (r == FMOD_OK)
@@ -809,21 +828,32 @@ int SoundDriverFMOD::loadSysSample(const Path& spath, size_t index, bool isStrea
         sysSamples[index].objptr = nullptr;
     }
 
-    std::string path = spath.u8string();
-
     int flags = FMOD_DEFAULT | FMOD_UNIQUE;
     flags |= isStream ? FMOD_CREATESTREAM : FMOD_CREATESAMPLE;
     flags |= loop ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF;
 
+    std::string path;
     FMOD_RESULT r = FMOD_ERR_FILE_NOTFOUND;
     if (fs::exists(spath) && fs::is_regular_file(spath))
-        r = fmodSystem->createSound(path.c_str(), flags, 0, &sysSamples[index].objptr);
-
-    // Also find ogg with the same filename
-    if (r == FMOD_ERR_FILE_NOTFOUND && strEqual(spath.extension().string(), ".wav", true))
     {
-        path = path.replace(path.length() - 4, 4, ".ogg");
+        path = spath.u8string();
         r = fmodSystem->createSound(path.c_str(), flags, 0, &sysSamples[index].objptr);
+    }
+
+    if (r == FMOD_ERR_FILE_NOTFOUND)
+    {
+        // Also find ogg with the same filename
+        Path dir = spath.parent_path();
+        for (auto& ext : wavExtensionList)
+        {
+            Path filePath = dir / (spath.stem().u8string() + ext);
+            if (fs::exists(filePath) && fs::is_regular_file(filePath))
+            {
+                path = filePath.u8string();
+                r = fmodSystem->createSound(path.c_str(), flags, 0, &sysSamples[index].objptr);
+                if (r == FMOD_OK) break;
+            }
+        }
     }
 
     if (r == FMOD_OK)
