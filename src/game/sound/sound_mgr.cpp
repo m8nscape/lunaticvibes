@@ -20,16 +20,24 @@ int SoundMgr::initFMOD()
     return -255;
 }
 
-std::vector<std::pair<int, std::string>> SoundMgr::getDeviceList(bool asio)
+std::vector<std::pair<int, std::string>> SoundMgr::getDeviceList()
 {
     if (!_inst._initialized) return {};
-    return _inst.driver->getDeviceList(asio);
+    return _inst.driver->getDeviceList();
 }
 
-int SoundMgr::setDevice(size_t index, bool asio)
+int SoundMgr::setDevice(size_t index)
 {
     if (!_inst._initialized) return -255;
-    return _inst.driver->setDevice(index, asio);
+    int ret = _inst.driver->setDevice(index);
+    if (ret != 0) _inst._initialized = false;
+    return ret;
+}
+
+std::pair<int, int> SoundMgr::getDSPBufferSize()
+{
+    if (!_inst._initialized) return {1024, 4};
+    return _inst.driver->getDSPBufferSize();
 }
 
 int SoundMgr::loadNoteSample(const Path& path, size_t sample)

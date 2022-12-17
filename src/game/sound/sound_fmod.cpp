@@ -15,15 +15,9 @@
 SoundDriverFMOD::SoundDriverFMOD(): SoundDriver(std::bind(&SoundDriverFMOD::update, this))
 {
     // load device
-    bool asio = false;
     int driver = -1;
-#ifdef _WIN32
-    if (ConfigMgr::get('A', cfg::A_MODE, cfg::A_MODE_AUTO) == cfg::A_MODE_ASIO)
-    {
-        asio = true;
-    }
-#endif
-    auto devList = getDeviceList(asio);
+    FMOD_OUTPUTTYPE outputType = FMOD_OUTPUTTYPE_AUTODETECT;
+    auto devList = getDeviceList();
     auto devName = ConfigMgr::get('A', cfg::A_DEVNAME, "");
     if (!devName.empty())
     {
@@ -31,9 +25,16 @@ SoundDriverFMOD::SoundDriverFMOD(): SoundDriver(std::bind(&SoundDriverFMOD::upda
         {
             if (devList[i].second == devName)
             {
-                if (devList[i].first == -1)
+                if (devList[i].first < 0)
                 {
-                    driver = findDriver(devList[i].second, asio);
+                    driver = findDriver(devList[i].second, devList[i].first);
+                    if (driver >= 0)
+                    {
+                        switch (devList[i].first)
+                        {
+                        case DriverIDUnknownASIO: outputType = FMOD_OUTPUTTYPE_ASIO; break;
+                        }
+                    }
                 }
                 else
                 {
@@ -45,7 +46,6 @@ SoundDriverFMOD::SoundDriverFMOD(): SoundDriver(std::bind(&SoundDriverFMOD::upda
         if (driver < 0)
         {
             LOG_WARNING << "[FMOD] Driver not found: " << devName;
-            asio = false;
         }
     }
 
@@ -56,14 +56,7 @@ SoundDriverFMOD::SoundDriverFMOD(): SoundDriver(std::bind(&SoundDriverFMOD::upda
         return;
     }
 
-    if (asio)
-    {
-        fmodSystem->setOutput(FMOD_OUTPUTTYPE_ASIO);
-    }
-    else
-    {
-        fmodSystem->setOutput(FMOD_OUTPUTTYPE_AUTODETECT);
-    }
+    fmodSystem->setOutput(outputType);
 
     // This is mandatory for a keysounded rhythm game. 64 is obviously not enough
     fmodSystem->setSoftwareChannels(512);
@@ -93,10 +86,12 @@ SoundDriverFMOD::SoundDriverFMOD(): SoundDriver(std::bind(&SoundDriverFMOD::upda
     }
 
     // set DSP size
-    fmodSystem->setDSPBufferSize(
-        ConfigMgr::get('A', cfg::A_BUFLEN, 128),
-        ConfigMgr::get('A', cfg::A_BUFCOUNT, 2)
-    );
+    int len = ConfigMgr::get('A', cfg::A_BUFLEN, 128);
+    int count = ConfigMgr::get('A', cfg::A_BUFCOUNT, 2);
+    if (FMOD_RESULT res = fmodSystem->setDSPBufferSize(len, count); res != FMOD_OK)
+    {
+        LOG_WARNING << "[FMOD] Set DSP buffer size (" << len << ", " << count << ") failed: " << FMOD_ErrorString((FMOD_RESULT)res);
+    }
 
 #ifdef _WIN32
     [&]()
@@ -173,6 +168,8 @@ SoundDriverFMOD::SoundDriverFMOD(): SoundDriver(std::bind(&SoundDriverFMOD::upda
         int buffers;
         fmodSystem->getDSPBufferSize(&bufferLen, &buffers);
         LOG_INFO << "[FMOD] DSP Buffers: " << bufferLen << ", " << buffers;
+        ConfigMgr::set('A', cfg::A_BUFLEN, int(bufferLen));
+        ConfigMgr::set('A', cfg::A_BUFCOUNT, buffers);
 
         //setAsyncIO();
     }
@@ -409,7 +406,7 @@ std::vector<std::string> getDeviceListASIO()
     return devList;
 }
 
-std::vector<std::pair<int, std::string>> SoundDriverFMOD::getDeviceList(bool asio)
+std::vector<std::pair<int, std::string>> SoundDriverFMOD::getDeviceList()
 {
     FMOD::System* f = nullptr;
     int numDrivers = 0;
@@ -434,28 +431,12 @@ std::vector<std::pair<int, std::string>> SoundDriverFMOD::getDeviceList(bool asi
             }
         }
 
-        if (asio)
-        {
-            /*
 #ifdef _WIN32
-            // ASIO
-            f->setOutput(FMOD_OUTPUTTYPE_ASIO);
-            f->getNumDrivers(&numDrivers); // this call may throw 0xc0000008 when asio device is in use. Also affected by /EHsc flag automatically added by Ninja
-            for (int i = 0; i < numDrivers; ++i)
-            {
-                if (FMOD_OK == f->getDriverInfo(i, name, sizeof(name), &guid, &systemrate, &speakermode, &speakermodechannels))
-                {
-                    res.push_back(std::make_pair(0x40000000 | i, std::string(name)));
-                }
-            }
-#endif
-            */
-            size_t idx = 0;
-            for (auto& devName : getDeviceListASIO())
-            {
-                res.push_back(std::make_pair(-1, std::string(devName)));
-            }
+        for (auto& devName : getDeviceListASIO())
+        {
+            res.push_back(std::make_pair(DriverIDUnknownASIO, devName));
         }
+#endif
 
         f->release();
         return res;
@@ -464,7 +445,7 @@ std::vector<std::pair<int, std::string>> SoundDriverFMOD::getDeviceList(bool asi
     return {};
 }
 
-int SoundDriverFMOD::findDriver(const std::string& driverName, bool asio)
+int SoundDriverFMOD::findDriver(const std::string& driverName, int driverIDUnknown)
 {
     FMOD::System* f = nullptr;
     int numDrivers = 0;
@@ -480,7 +461,7 @@ int SoundDriverFMOD::findDriver(const std::string& driverName, bool asio)
         FMOD_SPEAKERMODE speakermode;
         int speakermodechannels;
 
-        if (asio)
+        if (driverIDUnknown == DriverIDUnknownASIO)
         {
 #ifdef _WIN32
             // ASIO
@@ -530,7 +511,7 @@ int SoundDriverFMOD::findDriver(const std::string& driverName, bool asio)
     return -1;
 }
 
-int SoundDriverFMOD::setDevice(size_t index, bool asio)
+int SoundDriverFMOD::setDevice(size_t index)
 {
     FMOD::System* pOldSystem = fmodSystem;
     fmodSystem = nullptr;
@@ -557,24 +538,26 @@ int SoundDriverFMOD::setDevice(size_t index, bool asio)
         return 1;
     }
 
-    auto devList = getDeviceList(true);
+    auto devList = getDeviceList();
     if (index < devList.size())
     {
         if (devList[index].first < 0)
         {
-            int driver = findDriver(devList[index].second, true);
+            int driver = findDriver(devList[index].second, devList[index].first);
             if (driver >= 0)
             {
-                asio = true;
-                index = driver;
-
-                if (FMOD_RESULT res = pSystem->setOutput(FMOD_OUTPUTTYPE_ASIO); res != FMOD_OK)
+                switch (devList[index].first)
                 {
-                    LOG_WARNING << "[FMOD] Set output type to ASIO failed: " << FMOD_ErrorString((FMOD_RESULT)res);
-                    return 1;
+                case DriverIDUnknownASIO:
+                    if (FMOD_RESULT res = pSystem->setOutput(FMOD_OUTPUTTYPE_ASIO); res != FMOD_OK)
+                    {
+                        LOG_WARNING << "[FMOD] Set output type to ASIO failed: " << FMOD_ErrorString((FMOD_RESULT)res);
+                        return 1;
+                    }
+                    break;
                 }
 
-                if (FMOD_RESULT res = pSystem->setDriver(index); res != FMOD_OK)
+                if (FMOD_RESULT res = pSystem->setDriver(driver); res != FMOD_OK)
                 {
                     LOG_WARNING << "[FMOD] Set driver failed: " << FMOD_ErrorString((FMOD_RESULT)res);
                     return 1;
@@ -589,7 +572,6 @@ int SoundDriverFMOD::setDevice(size_t index, bool asio)
         ); res != FMOD_OK)
     {
         LOG_WARNING << "[FMOD] Set DSP buffer size failed: " << FMOD_ErrorString((FMOD_RESULT)res);
-        return 1;
     }
 
     if (FMOD_RESULT res = pSystem->init(512, FMOD_INIT_NORMAL, 0); res != FMOD_OK)
@@ -615,8 +597,33 @@ int SoundDriverFMOD::setDevice(size_t index, bool asio)
     }
 
     {
-        LOG_DEBUG << "FMOD System Initialize Finished.";
+        LOG_DEBUG << "[FMOD] FMOD System Initialize Finished.";
         fmodSystem = pSystem;
+
+        FMOD_OUTPUTTYPE outputtype;
+        fmodSystem->getOutput(&outputtype);
+        switch (outputtype)
+        {
+        case FMOD_OUTPUTTYPE_AUTODETECT: LOG_INFO << "[FMOD] Output Type: AUTODETECT"; break;
+        case FMOD_OUTPUTTYPE_UNKNOWN: LOG_INFO << "[FMOD] Output Type: UNKNOWN"; break;
+        case FMOD_OUTPUTTYPE_NOSOUND: LOG_INFO << "[FMOD] Output Type: NOSOUND"; break;
+        case FMOD_OUTPUTTYPE_WAVWRITER: LOG_INFO << "[FMOD] Output Type: WAVWRITER"; break;
+        case FMOD_OUTPUTTYPE_NOSOUND_NRT: LOG_INFO << "[FMOD] Output Type: NOSOUND_NRT"; break;
+        case FMOD_OUTPUTTYPE_WAVWRITER_NRT: LOG_INFO << "[FMOD] Output Type: WAVWRITER_NRT"; break;
+        case FMOD_OUTPUTTYPE_WASAPI: LOG_INFO << "[FMOD] Output Type: WASAPI"; break;
+        case FMOD_OUTPUTTYPE_ASIO: LOG_INFO << "[FMOD] Output Type: ASIO"; break;
+        case FMOD_OUTPUTTYPE_PULSEAUDIO: LOG_INFO << "[FMOD] Output Type: PULSEAUDIO"; break;
+        case FMOD_OUTPUTTYPE_ALSA: LOG_INFO << "[FMOD] Output Type: ALSA"; break;
+        case FMOD_OUTPUTTYPE_COREAUDIO: LOG_INFO << "[FMOD] Output Type: COREAUDIO"; break;
+        case FMOD_OUTPUTTYPE_AUDIOTRACK: LOG_INFO << "[FMOD] Output Type: AUDIOTRACK"; break;
+        case FMOD_OUTPUTTYPE_OPENSL: LOG_INFO << "[FMOD] Output Type: OPENSL"; break;
+        case FMOD_OUTPUTTYPE_AUDIOOUT: LOG_INFO << "[FMOD] Output Type: AUDIOOUT"; break;
+        case FMOD_OUTPUTTYPE_AUDIO3D: LOG_INFO << "[FMOD] Output Type: AUDIO3D"; break;
+        case FMOD_OUTPUTTYPE_WEBAUDIO: LOG_INFO << "[FMOD] Output Type: WEBAUDIO"; break;
+        case FMOD_OUTPUTTYPE_NNAUDIO: LOG_INFO << "[FMOD] Output Type: NNAUDIO"; break;
+        case FMOD_OUTPUTTYPE_MAX: LOG_INFO << "[FMOD] Output Type: MAX"; break;
+        default: LOG_INFO << "[FMOD] Output Type: ???";
+        }
 
         int driverId;
         fmodSystem->getDriver(&driverId);
@@ -632,6 +639,8 @@ int SoundDriverFMOD::setDevice(size_t index, bool asio)
         int buffers;
         fmodSystem->getDSPBufferSize(&bufferLen, &buffers);
         LOG_INFO << "[FMOD] DSP Buffers: " << bufferLen << ", " << buffers;
+        ConfigMgr::set('A', cfg::A_BUFLEN, int(bufferLen));
+        ConfigMgr::set('A', cfg::A_BUFCOUNT, buffers);
     }
 
     createChannelGroups();
@@ -642,6 +651,15 @@ int SoundDriverFMOD::setDevice(size_t index, bool asio)
 
     return 0;
 }
+
+std::pair<int, int> SoundDriverFMOD::getDSPBufferSize()
+{
+    unsigned bufferLen;
+    int buffers;
+    fmodSystem->getDSPBufferSize(&bufferLen, &buffers);
+    return { buffers, int(bufferLen) };
+}
+
 
 int SoundDriverFMOD::setAsyncIO(bool async)
 {

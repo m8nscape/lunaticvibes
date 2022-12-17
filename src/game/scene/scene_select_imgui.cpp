@@ -91,8 +91,9 @@ void SceneSelect::_imguiInit()
 
     imgui_video_maxFPS = ConfigMgr::get("V", cfg::V_MAXFPS, 240);
 
-    imgui_audio_bufferCount = ConfigMgr::get("A", cfg::A_BUFCOUNT, 2);
-    imgui_audio_bufferSize = ConfigMgr::get("A", cfg::A_BUFLEN, 256);
+    auto [count, size] = SoundMgr::getDSPBufferSize();
+    imgui_audio_bufferCount = count;
+    imgui_audio_bufferSize = size;
     _imguiRefreshAudioDevices();
     old_audio_device_index = imgui_audio_device_index;
 
@@ -1509,7 +1510,7 @@ bool SceneSelect::_imguiRefreshAudioDevices()
     imgui_audio_devices_display.clear();
     auto adev = ConfigMgr::get('A', cfg::A_DEVNAME, "");
 
-    auto devList = SoundMgr::getDeviceList(true);
+    auto devList = SoundMgr::getDeviceList();
     for (auto& d : devList)
     {
         if (adev == d.second)
@@ -1517,7 +1518,7 @@ bool SceneSelect::_imguiRefreshAudioDevices()
             imgui_audio_device_index = (int)imgui_audio_devices.size();
         }
 
-        if (d.first & 0x40000000)
+        if (d.first == DriverIDUnknownASIO)
         {
             // ASIO device
             imgui_audio_devices_name.push_back(std::string("[ASIO] ") + d.second);
@@ -1540,19 +1541,32 @@ bool SceneSelect::_imguiRefreshAudioDevices()
 
 bool SceneSelect::_imguiApplyAudioSettings()
 {
-    if (SoundMgr::setDevice(imgui_audio_device_index, true) == 0)
+    bool ret;
+    ConfigMgr::set("A", cfg::A_BUFCOUNT, imgui_audio_bufferCount);
+    ConfigMgr::set("A", cfg::A_BUFLEN, imgui_audio_bufferSize);
+    if (SoundMgr::setDevice(imgui_audio_device_index) == 0)
     {
         auto& mode = std::next(imgui_audio_devices.begin(), imgui_audio_device_index);
         ConfigMgr::set('A', cfg::A_DEVNAME, mode->second);
         ConfigMgr::set('A', cfg::A_MODE, mode->first < 0 ? cfg::A_MODE_ASIO : cfg::A_MODE_AUTO);
-        ConfigMgr::set("A", cfg::A_BUFCOUNT, imgui_audio_bufferCount);
-        ConfigMgr::set("A", cfg::A_BUFLEN, imgui_audio_bufferSize);
 
         SoundMgr::stopSysSamples();
         SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::BGM_SELECT);
-        return true;
+        
+        ret = true;
     }
-    return false;
+    else
+    {
+        ret = false;
+    }
+
+    auto [count, size] = SoundMgr::getDSPBufferSize();
+    ConfigMgr::set("A", cfg::A_BUFCOUNT, count);
+    ConfigMgr::set("A", cfg::A_BUFLEN, size);
+    imgui_audio_bufferCount = count;
+    imgui_audio_bufferSize = size;
+
+    return ret;
 }
 
 

@@ -46,6 +46,8 @@ enum class SoundChannelType
     TYPE_COUNT,
 };
 
+constexpr int DriverIDUnknownASIO = -10;
+
 class SoundDriver: public AsyncLooper
 {
     friend class SoundMgr;
@@ -55,8 +57,9 @@ public:
     virtual ~SoundDriver() = default;
 
 public:
-    virtual std::vector<std::pair<int, std::string>> getDeviceList(bool asio = false) = 0;
-    virtual int setDevice(size_t index, bool asio = false) = 0;
+    virtual std::vector<std::pair<int, std::string>> getDeviceList() = 0;
+    virtual int setDevice(size_t index) = 0;
+    virtual std::pair<int, int> getDSPBufferSize() = 0;
 
 public:
     virtual int loadNoteSample(const Path& path, size_t index) = 0;

@@ -58,9 +58,11 @@ public:
 	void createChannelGroups();
 
 public:
-	virtual std::vector<std::pair<int, std::string>> getDeviceList(bool asio = false);
-	virtual int setDevice(size_t index, bool asio = false);
-	int findDriver(const std::string& name, bool asio);
+	virtual std::vector<std::pair<int, std::string>> getDeviceList();
+	virtual int setDevice(size_t index);
+	virtual std::pair<int, int> getDSPBufferSize();
+private:
+	int findDriver(const std::string& name, int driverIDUnknown);
 
 private:
     bool bLoading = false;

@@ -16,8 +16,9 @@ private:
 
 public:
     static int initFMOD();
-    static std::vector<std::pair<int, std::string>> getDeviceList(bool asio = false);
-    static int setDevice(size_t index, bool asio = false);
+    static std::vector<std::pair<int, std::string>> getDeviceList();
+    static int setDevice(size_t index);
+    static std::pair<int, int> getDSPBufferSize();
 
 public:
     static int loadNoteSample(const Path& path, size_t sample);
