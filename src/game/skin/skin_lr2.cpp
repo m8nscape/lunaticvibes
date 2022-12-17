@@ -683,13 +683,13 @@ Point getCenterPoint(const int& wi, const int& hi, int numpadCenter)
     case 2: return { w / 2.0, h };
     case 3: return { w, h };
     case 4: return { 0, h / 2.0 };
-    case 0:
-    case 5: return { w / 2.0, h / 2.0 };
     case 6: return { w, h / 2.0 };
     case 7: return { 0, 0 };
     case 8: return { w / 2.0, 0 };
     case 9: return { w, 0 };
-    default: return {};
+    case 0:
+    case 5: 
+    default: return { w / 2.0, h / 2.0 };
     }
 }
 
