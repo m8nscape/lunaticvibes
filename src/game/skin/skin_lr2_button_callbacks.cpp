@@ -660,7 +660,22 @@ void autoscr(int player, int plus)
 // 46
 void shutter(int plus)
 {
-    // fix to ON
+    bool val = State::get(IndexSwitch::P1_LANECOVER_ENABLED);
+    int type = Option::LANE_OFF;
+    switch (gSelectContext.lastLaneEffectType1P)
+    {
+    case Option::LANE_OFF:      
+    case Option::LANE_SUDDEN:   val = !val; type = val ? Option::LANE_SUDDEN : Option::LANE_OFF; break;
+    case Option::LANE_HIDDEN:   val = !val; type = val ? Option::LANE_HIDDEN : Option::LANE_OFF; break;
+    case Option::LANE_SUDHID:   val = !val; type = val ? Option::LANE_SUDHID : Option::LANE_OFF; break;
+    case Option::LANE_LIFT:     
+    case Option::LANE_LIFTSUD:  val = !val; type = val ? Option::LANE_LIFTSUD : Option::LANE_LIFT; break;
+    }
+    State::set(IndexText::SHUTTER, val ? "ON" : "OFF");
+    State::set(IndexText::EFFECT_1P, Option::s_lane_effect_type[type]);
+    State::set(IndexSwitch::P1_LANECOVER_ENABLED, val);
+    State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_1P, type);
+
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 }
 
@@ -682,6 +697,26 @@ void lane_effect(int player, int plus)
     int val = (State::get(op) + types + plus) % types;
     State::set(op, val);
     State::set(tx, Option::s_lane_effect_type[val]);
+
+    bool enabled = false;
+    switch (val)
+    {
+    case Option::LANE_OFF:
+    case Option::LANE_LIFT:     enabled = false; break;
+    case Option::LANE_HIDDEN:
+    case Option::LANE_SUDDEN:
+    case Option::LANE_SUDHID:
+    case Option::LANE_LIFTSUD:  enabled = true; break;
+    }
+    if (slot == PLAYER_SLOT_PLAYER)
+    {
+        gSelectContext.lastLaneEffectType1P = val;
+        State::set(IndexSwitch::P1_LANECOVER_ENABLED, enabled);
+    }
+    else
+    {
+        State::set(IndexSwitch::P2_LANECOVER_ENABLED, enabled);
+    }
 
     if (plus != 0)
     {

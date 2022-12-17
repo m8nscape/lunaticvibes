@@ -360,7 +360,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
             }
 
             // BGA
-            if (State::get(IndexSwitch::SYSTEM_BGA))
+            if (State::get(IndexSwitch::_LOAD_BGA))
             {
                 {
                     auto ch = objBms.getLane(LaneCode::BGABASE, 0, m);

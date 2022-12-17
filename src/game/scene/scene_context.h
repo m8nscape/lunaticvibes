@@ -108,9 +108,6 @@ struct PlayContextParams
     // BATTLE 2P side settings
     bool isBattle = false;  // Note: DB is NOT Battle
     double battle2PHispeed = 2.0;
-    int battle2PLanecoverTop = 0;
-    int battle2PLanecoverBottom = 0;
-    int battle2PGreenNumber = 1200;
 
     Time HispeedGradientStart;
     double HispeedGradientFrom = 2.0;
@@ -184,6 +181,7 @@ struct SelectContextParams
     int scrollDirection = 0;    // -1: up / 1: down
 
     int panel = 0;
+    int lastLaneEffectType1P = 0;
 
     HashMD5 remoteRequestedChart;       // only valid when remote is requesting a new chart; reset after list change
     std::string remoteRequestedPlayer;  // only valid when remote is requesting a new chart; reset after list change

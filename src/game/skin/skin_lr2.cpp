@@ -1477,6 +1477,7 @@ ParseRet SkinLR2::SRC_BUTTON()
     }
     IndexSwitch sw;
     IndexOption op;
+    unsigned val;
     if (lr2skin::buttonSw(d.type, sw))
     {
         if (sw == IndexSwitch::_TRUE)
@@ -1520,6 +1521,10 @@ ParseRet SkinLR2::SRC_BUTTON()
                     isSupportLift = true;
             }
         }
+    }
+    if (lr2skin::buttonFixed(d.type, val))
+    {
+        s->setInd(SpriteOption::opType::FIXED, val);
     }
     _sprites.push_back(s);
     _sprites.back()->setSrcLine(csvLineNumber);

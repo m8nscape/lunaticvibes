@@ -43,8 +43,6 @@ void config_sys()
     case Option::WIN_WINDOWED: 
     default:                     ConfigMgr::set('C',V_WINMODE, V_WINMODE_WINDOWED); break;
     }
-
-    
 }
 
 void config_player()
@@ -82,8 +80,9 @@ void config_player()
     if (!gPlayContext.isReplay)
     {
         ConfigMgr::set('P', P_HISPEED, gPlayContext.Hispeed);
-        ConfigMgr::set('P', P_LANECOVER_ENABLE, State::get(IndexSwitch::P1_LANECOVER_ENABLED));
         ConfigMgr::set('P', P_LOCK_SPEED, State::get(IndexSwitch::P1_LOCK_SPEED));
+        ConfigMgr::set('P', P_HISPEED_2P, gPlayContext.battle2PHispeed);
+        ConfigMgr::set('P', P_LOCK_SPEED_2P, State::get(IndexSwitch::P2_LOCK_SPEED));
 
         switch (State::get(IndexOption::PLAY_HSFIX_TYPE))
         {
@@ -103,6 +102,16 @@ void config_player()
         case Option::RAN_ALLSCR: ConfigMgr::set('P', P_CHART_OP, P_CHART_OP_ALLSCR); break;
         default:                 ConfigMgr::set('P', P_CHART_OP, P_CHART_OP_NORMAL); break;
         }
+        switch (State::get(IndexOption::PLAY_RANDOM_TYPE_2P))
+        {
+        case Option::RAN_MIRROR: ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_MIRROR); break;
+        case Option::RAN_RANDOM: ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_RANDOM); break;
+        case Option::RAN_SRAN:   ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_SRAN); break;
+        case Option::RAN_HRAN:   ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_HRAN); break;
+        case Option::RAN_ALLSCR: ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_ALLSCR); break;
+        default:                 ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_NORMAL); break;
+        }
+
 
         switch (State::get(IndexOption::PLAY_GAUGE_TYPE_1P))
         {
@@ -112,6 +121,15 @@ void config_player()
         case Option::GAUGE_EXHARD: ConfigMgr::set('P', P_GAUGE_OP, P_GAUGE_OP_EXHARD); break;
         case Option::GAUGE_ASSISTEASY: ConfigMgr::set('P', P_GAUGE_OP, P_GAUGE_OP_ASSISTEASY); break;
         default:                   ConfigMgr::set('P', P_GAUGE_OP, P_GAUGE_OP_NORMAL); break;
+        }
+        switch (State::get(IndexOption::PLAY_GAUGE_TYPE_2P))
+        {
+        case Option::GAUGE_HARD:   ConfigMgr::set('P', P_GAUGE_OP_2P, P_GAUGE_OP_HARD); break;
+        case Option::GAUGE_EASY:   ConfigMgr::set('P', P_GAUGE_OP_2P, P_GAUGE_OP_EASY); break;
+        case Option::GAUGE_DEATH:  ConfigMgr::set('P', P_GAUGE_OP_2P, P_GAUGE_OP_DEATH); break;
+        case Option::GAUGE_EXHARD: ConfigMgr::set('P', P_GAUGE_OP_2P, P_GAUGE_OP_EXHARD); break;
+        case Option::GAUGE_ASSISTEASY: ConfigMgr::set('P', P_GAUGE_OP_2P, P_GAUGE_OP_ASSISTEASY); break;
+        default:                   ConfigMgr::set('P', P_GAUGE_OP_2P, P_GAUGE_OP_NORMAL); break;
         }
 
         switch (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P))
@@ -124,11 +142,26 @@ void config_player()
         case Option::LANE_LIFTSUD: ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_LIFTSUD); break;
         default:                   ConfigMgr::set('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_OFF); break;
         }
+        switch (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_2P))
+        {
+        case Option::LANE_OFF:     ConfigMgr::set('P', P_LANE_EFFECT_OP_2P, P_LANE_EFFECT_OP_OFF); break;
+        case Option::LANE_HIDDEN:  ConfigMgr::set('P', P_LANE_EFFECT_OP_2P, P_LANE_EFFECT_OP_HIDDEN); break;
+        case Option::LANE_SUDDEN:  ConfigMgr::set('P', P_LANE_EFFECT_OP_2P, P_LANE_EFFECT_OP_SUDDEN); break;
+        case Option::LANE_SUDHID:  ConfigMgr::set('P', P_LANE_EFFECT_OP_2P, P_LANE_EFFECT_OP_SUDHID); break;
+        case Option::LANE_LIFT:    ConfigMgr::set('P', P_LANE_EFFECT_OP_2P, P_LANE_EFFECT_OP_LIFT); break;
+        case Option::LANE_LIFTSUD: ConfigMgr::set('P', P_LANE_EFFECT_OP_2P, P_LANE_EFFECT_OP_LIFTSUD); break;
+        default:                   ConfigMgr::set('P', P_LANE_EFFECT_OP_2P, P_LANE_EFFECT_OP_OFF); break;
+        }
 
         switch (State::get(IndexSwitch::PLAY_OPTION_AUTOSCR_1P))
         {
         case false: ConfigMgr::set('P', P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_NONE); break;
         case true:  ConfigMgr::set('P', P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_AUTOSCR); break;
+        }
+        switch (State::get(IndexSwitch::PLAY_OPTION_AUTOSCR_2P))
+        {
+        case false: ConfigMgr::set('P', P_CHART_ASSIST_OP_2P, P_CHART_ASSIST_OP_NONE); break;
+        case true:  ConfigMgr::set('P', P_CHART_ASSIST_OP_2P, P_CHART_ASSIST_OP_AUTOSCR); break;
         }
 
         ConfigMgr::set('P', P_FLIP, State::get(IndexSwitch::PLAY_OPTION_DP_FLIP));
@@ -140,6 +173,13 @@ void config_player()
     case Option::GHOST_SIDE:        ConfigMgr::set('P',P_GHOST_TYPE, P_GHOST_TYPE_B); break;
     case Option::GHOST_SIDE_BOTTOM: ConfigMgr::set('P',P_GHOST_TYPE, P_GHOST_TYPE_C); break;
     default:                        ConfigMgr::set('P',P_GHOST_TYPE, "OFF"); break;
+    }
+    switch (State::get(IndexOption::PLAY_GHOST_TYPE_2P))
+    {
+    case Option::GHOST_TOP:         ConfigMgr::set('P', P_GHOST_TYPE_2P, P_GHOST_TYPE_A); break;
+    case Option::GHOST_SIDE:        ConfigMgr::set('P', P_GHOST_TYPE_2P, P_GHOST_TYPE_B); break;
+    case Option::GHOST_SIDE_BOTTOM: ConfigMgr::set('P', P_GHOST_TYPE_2P, P_GHOST_TYPE_C); break;
+    default:                        ConfigMgr::set('P', P_GHOST_TYPE_2P, "OFF"); break;
     }
 
     ConfigMgr::set('P',P_JUDGE_OFFSET, State::get(IndexNumber::TIMING_ADJUST_VISUAL));
@@ -307,6 +347,8 @@ SceneSelect::SceneSelect() : vScene(eMode::MUSIC_SELECT, 250)
 
     // reset globals
     ConfigMgr::setGlobals();
+
+    gSelectContext.lastLaneEffectType1P = State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P);
 
     if (!gSelectContext.entries.empty())
     {
@@ -819,7 +861,7 @@ void SceneSelect::updateSelect()
                 if (lock1) ss << "G(1P): FIX " << ConfigMgr::get('P', cfg::P_GREENNUMBER, 0);
 
                 bool lock2 = State::get(IndexSwitch::P2_LOCK_SPEED);
-                if (lock2) ss << (lock1 ? " | " : "") << "G(2P): FIX " << gPlayContext.battle2PGreenNumber;
+                if (lock2) ss << (lock1 ? " | " : "") << "G(2P): FIX " << ConfigMgr::get('P', cfg::P_GREENNUMBER_2P, 0);
 
                 std::string s = ss.str();
                 if (!s.empty())
@@ -1760,6 +1802,11 @@ void SceneSelect::_decide()
 
     if (State::get(IndexOption::SELECT_ENTRY_TYPE) == Option::ENTRY_COURSE && State::get(IndexSwitch::COURSE_NOT_PLAYABLE))
         return;
+
+    int bga = State::get(IndexOption::PLAY_BGA_TYPE);
+    State::set(IndexSwitch::_LOAD_BGA,
+        bga == Option::BGA_ON ||
+        bga == Option::BGA_AUTOPLAY && (gPlayContext.isAuto || gPlayContext.isReplay));
 
     auto& [entry, score] = gSelectContext.entries[gSelectContext.idx];
     //auto& chart = entry.charts[entry.chart_idx];

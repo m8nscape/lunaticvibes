@@ -18,7 +18,7 @@ IndexText text(int n)
     return IndexText(n);
 }
 
-static const std::vector<std::variant<std::monostate, IndexSwitch, IndexOption>> buttonAdapter{
+static const std::vector<std::variant<std::monostate, IndexSwitch, IndexOption, unsigned>> buttonAdapter{
     // 0
     std::monostate(),
 
@@ -84,7 +84,7 @@ static const std::vector<std::variant<std::monostate, IndexSwitch, IndexOption>>
     IndexSwitch::PLAY_OPTION_AUTOSCR_2P,
 
     //46~49
-    IndexSwitch::_TRUE,	    // lanecover
+    IndexSwitch::P1_LANECOVER_ENABLED,	    // lanecover
     IndexSwitch::_FALSE,
     IndexSwitch::_FALSE,	// reserved
     IndexSwitch::_FALSE,	// reserved
@@ -110,8 +110,8 @@ static const std::vector<std::variant<std::monostate, IndexSwitch, IndexOption>>
     // 70
     IndexSwitch::SYSTEM_SCOREGRAPH,
     IndexOption::PLAY_GHOST_TYPE_1P,
-    IndexSwitch::_TRUE,	// bga off/on/autoplay only, special
-    IndexSwitch::_TRUE, // bga normal/extend, special
+    IndexOption::PLAY_BGA_TYPE,	// bga off/on/autoplay only, special
+    IndexOption::PLAY_BGA_SIZE, // bga normal/extend, special
     IndexSwitch::_FALSE,// JUDGE TIMING
     IndexSwitch::_FALSE,// AUTO ADJUST, not supported
     IndexSwitch::_FALSE, // default target rate
@@ -121,10 +121,10 @@ static const std::vector<std::variant<std::monostate, IndexSwitch, IndexOption>>
     IndexSwitch::_FALSE,
 
     // 80
-IndexSwitch::_TRUE, // screen mode full/window, special
+IndexOption::SYS_WINDOWED, // screen mode full/window, special
 IndexSwitch::_FALSE, // color mode, 32bit fixed
-IndexSwitch::_TRUE, // vsync, special
-IndexSwitch::_FALSE,//save replay, not supported
+IndexOption::SYS_VSYNC, // vsync, special
+2u, //save replay, not supported
 IndexSwitch::_FALSE,
 IndexSwitch::_FALSE,
 IndexSwitch::_FALSE,
@@ -310,6 +310,18 @@ bool buttonOp(int n, IndexOption& out)
     if (auto op = std::get_if<IndexOption>(&buttonAdapter[n]))
     {
         out = *op;
+        return true;
+    }
+    else
+        return false;
+}
+bool buttonFixed(int n, unsigned& out)
+{
+    if (n < 0 || n >= buttonAdapter.size())
+        return false;
+    if (auto sw = std::get_if<unsigned>(&buttonAdapter[n]))
+    {
+        out = *sw;
         return true;
     }
     else

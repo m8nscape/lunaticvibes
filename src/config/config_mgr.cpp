@@ -12,11 +12,13 @@ void setNumbers()
 {
     using namespace cfg;
 
-    int hs = State::get(IndexNumber::HS_1P);
-    if (hs == 0)
+    if (State::get(IndexNumber::HS_1P) == 0)
     {
         State::set(IndexNumber::HS_1P, ConfigMgr::get('P', cfg::P_HISPEED, 1.0) * 100);
-        State::set(IndexNumber::HS_2P, ConfigMgr::get('P', cfg::P_HISPEED, 1.0) * 100);
+    }
+    if (State::get(IndexNumber::HS_2P) == 0)
+    {
+        State::set(IndexNumber::HS_2P, ConfigMgr::get('P', cfg::P_HISPEED_2P, 1.0) * 100);
     }
 
     State::set(IndexNumber::LANECOVER100_1P, ConfigMgr::get('P', P_LANECOVER_TOP, 0) / 10);
@@ -147,15 +149,22 @@ void setOptions()
             {P_CHART_OP_DB_SYMMETRY, RAN_DB_SYMMETRY_RANDOM},
         };
 
-        auto&& s = ConfigMgr::get<string>('P', P_CHART_OP, P_CHART_OP_NORMAL);
-        if (smap.find(s) != smap.end())
+        auto&& s1 = ConfigMgr::get<string>('P', P_CHART_OP, P_CHART_OP_NORMAL);
+        auto&& s2 = ConfigMgr::get<string>('P', P_CHART_OP_2P, P_CHART_OP_NORMAL);
+        if (smap.find(s1) != smap.end())
         {
-            State::set(IndexOption::PLAY_RANDOM_TYPE_1P, smap.at(s));
-            State::set(IndexOption::PLAY_RANDOM_TYPE_2P, smap.at(s));
+            State::set(IndexOption::PLAY_RANDOM_TYPE_1P, smap.at(s1));
         }
         else
         {
             State::set(IndexOption::PLAY_RANDOM_TYPE_1P, RAN_NORMAL);
+        }
+        if (smap.find(s2) != smap.end())
+        {
+            State::set(IndexOption::PLAY_RANDOM_TYPE_2P, smap.at(s2));
+        }
+        else
+        {
             State::set(IndexOption::PLAY_RANDOM_TYPE_2P, RAN_NORMAL);
         }
     }
@@ -171,15 +180,22 @@ void setOptions()
             {P_GAUGE_OP_ASSISTEASY, GAUGE_ASSISTEASY},
         };
 
-        auto&& s = ConfigMgr::get<string>('P', P_GAUGE_OP, P_GAUGE_OP_NORMAL);
-        if (smap.find(s) != smap.end())
+        auto&& s1 = ConfigMgr::get<string>('P', P_GAUGE_OP, P_GAUGE_OP_NORMAL);
+        auto&& s2 = ConfigMgr::get<string>('P', P_GAUGE_OP_2P, P_GAUGE_OP_NORMAL);
+        if (smap.find(s1) != smap.end())
         {
-            State::set(IndexOption::PLAY_GAUGE_TYPE_1P, smap.at(s));
-            State::set(IndexOption::PLAY_GAUGE_TYPE_2P, smap.at(s));
+            State::set(IndexOption::PLAY_GAUGE_TYPE_1P, smap.at(s1));
         }
         else
         {
             State::set(IndexOption::PLAY_GAUGE_TYPE_1P, GAUGE_NORMAL);
+        }
+        if (smap.find(s2) != smap.end())
+        {
+            State::set(IndexOption::PLAY_GAUGE_TYPE_2P, smap.at(s2));
+        }
+        else
+        {
             State::set(IndexOption::PLAY_GAUGE_TYPE_2P, GAUGE_NORMAL);
         }
     }
@@ -196,15 +212,22 @@ void setOptions()
             {P_LANE_EFFECT_OP_LIFTSUD, LANE_LIFTSUD},
         };
 
-        auto&& s = ConfigMgr::get<string>('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_OFF);
-        if (smap.find(s) != smap.end())
+        auto&& s1 = ConfigMgr::get<string>('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_OFF);
+        auto&& s2 = ConfigMgr::get<string>('P', P_LANE_EFFECT_OP_2P, P_LANE_EFFECT_OP_OFF);
+        if (smap.find(s1) != smap.end())
         {
-            State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_1P, smap.at(s));
-            State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_2P, smap.at(s));
+            State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_1P, smap.at(s1));
         }
         else
         {
             State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_1P, LANE_OFF);
+        }
+        if (smap.find(s2) != smap.end())
+        {
+            State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_2P, smap.at(s2));
+        }
+        else
+        {
             State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_2P, LANE_OFF);
         }
     }
@@ -218,15 +241,22 @@ void setOptions()
             {P_GHOST_TYPE_C, GHOST_SIDE_BOTTOM},
         };
 
-        auto&& s = ConfigMgr::get<string>('P', P_GHOST_TYPE, "OFF");
-        if (smap.find(s) != smap.end())
+        auto&& s1 = ConfigMgr::get<string>('P', P_GHOST_TYPE, "OFF");
+        auto&& s2 = ConfigMgr::get<string>('P', P_GHOST_TYPE_2P, "OFF");
+        if (smap.find(s1) != smap.end())
         {
-            State::set(IndexOption::PLAY_GHOST_TYPE_1P, smap.at(s));
-            State::set(IndexOption::PLAY_GHOST_TYPE_2P, smap.at(s));
+            State::set(IndexOption::PLAY_GHOST_TYPE_1P, smap.at(s1));
         }
         else
         {
             State::set(IndexOption::PLAY_GHOST_TYPE_1P, GHOST_OFF);
+        }
+        if (smap.find(s2) != smap.end())
+        {
+            State::set(IndexOption::PLAY_GHOST_TYPE_2P, smap.at(s2));
+        }
+        else
+        {
             State::set(IndexOption::PLAY_GHOST_TYPE_2P, GHOST_OFF);
         }
     }
@@ -413,22 +443,41 @@ void setSwitches()
     using namespace cfg;
     using std::string;
 
+    // lane effect
     {
-        static const std::map<string, Option::e_bga_type> smap =
+        static const std::map<string, bool> smap =
         {
-            {P_BGA_TYPE_OFF, Option::BGA_OFF},
-            {P_BGA_TYPE_ON, Option::BGA_ON},
-            {P_BGA_TYPE_AUTOPLAY, Option::BGA_AUTOPLAY},
+            {P_LANE_EFFECT_OP_OFF, false},
+            {P_LANE_EFFECT_OP_HIDDEN, true},
+            {P_LANE_EFFECT_OP_SUDDEN, true},
+            {P_LANE_EFFECT_OP_SUDHID, true},
+            {P_LANE_EFFECT_OP_LIFT, false},
+            {P_LANE_EFFECT_OP_LIFTSUD, true},
         };
 
-        auto&& s = ConfigMgr::get<string>('P', P_BGA_TYPE, P_BGA_TYPE_ON);
-        if (smap.find(s) != smap.end())
-            State::set(IndexSwitch::SYSTEM_BGA, smap.at(s));
+        auto&& s1 = ConfigMgr::get<string>('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_OFF);
+        auto&& s2 = ConfigMgr::get<string>('P', P_LANE_EFFECT_OP_2P, P_LANE_EFFECT_OP_OFF);
+        if (smap.find(s1) != smap.end())
+        {
+            State::set(IndexSwitch::P1_LANECOVER_ENABLED, smap.at(s1));
+        }
         else
-            State::set(IndexSwitch::SYSTEM_BGA, Option::BGA_OFF);
+        {
+            State::set(IndexSwitch::P1_LANECOVER_ENABLED, false);
+        }
+        if (smap.find(s2) != smap.end())
+        {
+            State::set(IndexSwitch::P2_LANECOVER_ENABLED, smap.at(s2));
+        }
+        else
+        {
+            State::set(IndexSwitch::P2_LANECOVER_ENABLED, false);
+        }
     }
 
+
     State::set(IndexSwitch::P1_LOCK_SPEED, ConfigMgr::get('P', P_LOCK_SPEED, false));
+    State::set(IndexSwitch::P2_LOCK_SPEED, ConfigMgr::get('P', P_LOCK_SPEED_2P, false));
     State::set(IndexSwitch::PLAY_OPTION_DP_FLIP, ConfigMgr::get('P', P_FLIP, true));
     State::set(IndexSwitch::SYSTEM_SCOREGRAPH, ConfigMgr::get('P', P_SCORE_GRAPH, true));
     State::set(IndexSwitch::SOUND_VOLUME, true);
@@ -438,9 +487,8 @@ void setSwitches()
     State::set(IndexSwitch::SOUND_FX1, ConfigMgr::get('P', P_FX1, true));
     State::set(IndexSwitch::SOUND_FX2, ConfigMgr::get('P', P_FX2, true));
 
-    bool autoscr = ConfigMgr::get<string>('P', P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_NONE) == P_CHART_ASSIST_OP_AUTOSCR;
-    State::set(IndexSwitch::PLAY_OPTION_AUTOSCR_1P, autoscr);
-    State::set(IndexSwitch::PLAY_OPTION_AUTOSCR_2P, autoscr);
+    State::set(IndexSwitch::PLAY_OPTION_AUTOSCR_1P, ConfigMgr::get<string>('P', P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_NONE) == P_CHART_ASSIST_OP_AUTOSCR);
+    State::set(IndexSwitch::PLAY_OPTION_AUTOSCR_2P, ConfigMgr::get<string>('P', P_CHART_ASSIST_OP_2P, P_CHART_ASSIST_OP_NONE) == P_CHART_ASSIST_OP_AUTOSCR);
 }
 
 void setText()
@@ -500,8 +548,28 @@ void setText()
             State::set(IndexText::SCROLL_TYPE, Option::s_speed_type[Option::SPEED_NORMAL]);
     }
 
-    // lanecover
-    State::set(IndexText::SHUTTER, ConfigMgr::get('P', P_LANECOVER_ENABLE, false) ? "ON" : "OFF");
+    // lanecovers
+    {
+        static const std::map<string, bool> smap =
+        {
+            {P_LANE_EFFECT_OP_OFF, false},
+            {P_LANE_EFFECT_OP_HIDDEN, true},
+            {P_LANE_EFFECT_OP_SUDDEN, true},
+            {P_LANE_EFFECT_OP_SUDHID, true},
+            {P_LANE_EFFECT_OP_LIFT, false},
+            {P_LANE_EFFECT_OP_LIFTSUD, true},
+        };
+
+        auto&& s1 = ConfigMgr::get<string>('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_OFF);
+        if (smap.find(s1) != smap.end())
+        {
+            State::set(IndexText::SHUTTER, smap.at(s1) ? "ON" : "OFF");
+        }
+        else
+        {
+            State::set(IndexText::SHUTTER, "OFF");
+        }
+    }
 
     // chart op
     {
@@ -515,15 +583,22 @@ void setText()
             {P_CHART_OP_ALLSCR, Option::s_random_type[Option::RAN_ALLSCR]},
         };
 
-        auto&& s = ConfigMgr::get<string>('P', P_CHART_OP, P_CHART_OP_NORMAL);
-        if (smap.find(s) != smap.end())
+        auto&& s1 = ConfigMgr::get<string>('P', P_CHART_OP, P_CHART_OP_NORMAL);
+        auto&& s2 = ConfigMgr::get<string>('P', P_CHART_OP_2P, P_CHART_OP_NORMAL);
+        if (smap.find(s1) != smap.end())
         {
-            State::set(IndexText::RANDOM_1P, smap.at(s));
-            State::set(IndexText::RANDOM_2P, smap.at(s));
+            State::set(IndexText::RANDOM_1P, smap.at(s1));
         }
         else
         {
             State::set(IndexText::RANDOM_1P, Option::s_random_type[Option::RAN_NORMAL]);
+        }
+        if (smap.find(s2) != smap.end())
+        {
+            State::set(IndexText::RANDOM_2P, smap.at(s2));
+        }
+        else
+        {
             State::set(IndexText::RANDOM_2P, Option::s_random_type[Option::RAN_NORMAL]);
         }
     }
@@ -540,15 +615,22 @@ void setText()
             {P_GAUGE_OP_ASSISTEASY, Option::s_gauge_type[Option::GAUGE_ASSISTEASY]},
         };
 
-        auto&& s = ConfigMgr::get<string>('P', P_GAUGE_OP, P_GAUGE_OP_NORMAL);
-        if (smap.find(s) != smap.end())
+        auto&& s1 = ConfigMgr::get<string>('P', P_GAUGE_OP, P_GAUGE_OP_NORMAL);
+        auto&& s2 = ConfigMgr::get<string>('P', P_GAUGE_OP_2P, P_GAUGE_OP_NORMAL);
+        if (smap.find(s1) != smap.end())
         {
-            State::set(IndexText::GAUGE_1P, smap.at(s));
-            State::set(IndexText::GAUGE_2P, smap.at(s));
+            State::set(IndexText::GAUGE_1P, smap.at(s1));
         }
         else
         {
             State::set(IndexText::GAUGE_1P, Option::s_gauge_type[Option::GAUGE_NORMAL]);
+        }
+        if (smap.find(s2) != smap.end())
+        {
+            State::set(IndexText::GAUGE_2P, smap.at(s2));
+        }
+        else
+        {
             State::set(IndexText::GAUGE_2P, Option::s_gauge_type[Option::GAUGE_NORMAL]);
         }
     }
@@ -561,15 +643,22 @@ void setText()
             {P_CHART_ASSIST_OP_AUTOSCR, Option::s_assist_type[Option::ASSIST_AUTOSCR]},
         };
 
-        auto&& s = ConfigMgr::get<string>('P', P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_NONE);
-        if (smap.find(s) != smap.end())
+        auto&& s1 = ConfigMgr::get<string>('P', P_CHART_ASSIST_OP, P_CHART_ASSIST_OP_NONE);
+        auto&& s2 = ConfigMgr::get<string>('P', P_CHART_ASSIST_OP_2P, P_CHART_ASSIST_OP_NONE);
+        if (smap.find(s1) != smap.end())
         {
-            State::set(IndexText::ASSIST_1P, smap.at(s));
-            State::set(IndexText::ASSIST_2P, smap.at(s));
+            State::set(IndexText::ASSIST_1P, smap.at(s1));
         }
         else
         {
             State::set(IndexText::ASSIST_1P, Option::s_assist_type[Option::ASSIST_NONE]);
+        }
+        if (smap.find(s2) != smap.end())
+        {
+            State::set(IndexText::ASSIST_2P, smap.at(s2));
+        }
+        else
+        {
             State::set(IndexText::ASSIST_2P, Option::s_assist_type[Option::ASSIST_NONE]);
         }
     }
@@ -586,15 +675,22 @@ void setText()
             {P_LANE_EFFECT_OP_LIFTSUD, Option::s_lane_effect_type[Option::LANE_LIFTSUD]},
         };
 
-        auto&& s = ConfigMgr::get<string>('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_OFF);
-        if (smap.find(s) != smap.end())
+        auto&& s1 = ConfigMgr::get<string>('P', P_LANE_EFFECT_OP, P_LANE_EFFECT_OP_OFF);
+        auto&& s2 = ConfigMgr::get<string>('P', P_LANE_EFFECT_OP_2P, P_LANE_EFFECT_OP_OFF);
+        if (smap.find(s1) != smap.end())
         {
-            State::set(IndexText::EFFECT_1P, smap.at(s));
-            State::set(IndexText::EFFECT_2P, smap.at(s));
+            State::set(IndexText::EFFECT_1P, smap.at(s1));
         }
         else
         {
             State::set(IndexText::EFFECT_1P, Option::s_lane_effect_type[Option::LANE_OFF]);
+        }
+        if (smap.find(s2) != smap.end())
+        {
+            State::set(IndexText::EFFECT_2P, smap.at(s2));
+        }
+        else
+        {
             State::set(IndexText::EFFECT_2P, Option::s_lane_effect_type[Option::LANE_OFF]);
         }
     }

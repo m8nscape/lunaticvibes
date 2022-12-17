@@ -16,9 +16,12 @@ namespace cfg
     constexpr char P_BASESPEED[] = "Basespeed";
 
     constexpr char P_HISPEED[] = "Hispeed";
+    constexpr char P_HISPEED_2P[] = "Hispeed2P";
 
     constexpr char P_GREENNUMBER[] = "GreenNumber";
+    constexpr char P_GREENNUMBER_2P[] = "GreenNumber2P";
     constexpr char P_LOCK_SPEED[] = "LockSpeed";
+    constexpr char P_LOCK_SPEED_2P[] = "LockSpeed2P";
 
     constexpr char P_BGA_TYPE[] = "BGAType";
     constexpr char P_BGA_TYPE_OFF[] = "Off";
@@ -81,6 +84,7 @@ namespace cfg
     };
 
     constexpr char P_CHART_OP[] = "ChartOption";
+    constexpr char P_CHART_OP_2P[] = "ChartOption2P";
     constexpr char P_CHART_OP_NORMAL[] = "Normal";
     constexpr char P_CHART_OP_MIRROR[] = "Mirror";
     constexpr char P_CHART_OP_RANDOM[] = "Random";
@@ -104,6 +108,7 @@ namespace cfg
     };
 
     constexpr char P_CHART_ASSIST_OP[] = "ChartAssistOption";
+    constexpr char P_CHART_ASSIST_OP_2P[] = "ChartAssistOption2P";
     constexpr char P_CHART_ASSIST_OP_NONE[] = "None";
     constexpr char P_CHART_ASSIST_OP_AUTOSCR[] = "AutoScratch";
     enum class eChartAssistOp
@@ -113,6 +118,7 @@ namespace cfg
     };
 
     constexpr char P_LANE_EFFECT_OP[] = "LaneEffect";
+    constexpr char P_LANE_EFFECT_OP_2P[] = "LaneEffect2P";
     constexpr char P_LANE_EFFECT_OP_OFF[] = "Off";
     constexpr char P_LANE_EFFECT_OP_HIDDEN[] = "Hidden+";
     constexpr char P_LANE_EFFECT_OP_SUDDEN[] = "Sudden+";
@@ -130,6 +136,7 @@ namespace cfg
     };
 
     constexpr char P_GAUGE_OP[] = "GaugeOption";
+    constexpr char P_GAUGE_OP_2P[] = "GaugeOption2P";
     constexpr char P_GAUGE_OP_NORMAL[] = "Groove";
     constexpr char P_GAUGE_OP_EASY[] = "Easy";
     constexpr char P_GAUGE_OP_ASSISTEASY[] = "AssistEasy";
@@ -139,7 +146,8 @@ namespace cfg
 
     constexpr char P_JUDGE_OFFSET[] = "JudgeOffset";
 
-    constexpr char P_GHOST_TYPE[] = "GhostType";;
+    constexpr char P_GHOST_TYPE[] = "GhostType";
+    constexpr char P_GHOST_TYPE_2P[] = "GhostType2P";
     constexpr char P_GHOST_TYPE_OFF[] = "Off";
     constexpr char P_GHOST_TYPE_A[] = "A";
     constexpr char P_GHOST_TYPE_B[] = "B";
@@ -181,9 +189,10 @@ namespace cfg
 
     constexpr char P_FLIP[] = "Flip";
     constexpr char P_SCORE_GRAPH[] = "ScoreGraph";
-    constexpr char P_LANECOVER_ENABLE[] = "Lanecover";
     constexpr char P_LANECOVER_TOP[] = "LanecoverTop";
     constexpr char P_LANECOVER_BOTTOM[] = "LanecoverBottom";
+    constexpr char P_LANECOVER_TOP_2P[] = "LanecoverTop2P";
+    constexpr char P_LANECOVER_BOTTOM_2P[] = "LanecoverBottom2P";
 
     constexpr char P_LIST_SCROLL_TIME_INITIAL[] = "SongListScrollTimeInit";
     constexpr char P_LIST_SCROLL_TIME_HOLD[] = "SongListScrollTimeHold";

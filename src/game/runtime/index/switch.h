@@ -25,7 +25,6 @@ enum class IndexSwitch: unsigned
 	SOUND_VOLUME,
 	SOUND_PITCH,
 
-    SYSTEM_BGA,
     SYSTEM_AUTOPLAY,
     SYSTEM_SCOREGRAPH,
 
@@ -188,6 +187,9 @@ enum class IndexSwitch: unsigned
         FLIP_RESULT,
 
     _FALSE = 999,        // should be initialized with false
+
+
+    _LOAD_BGA,
 
     _TEST1,
     SWITCH_COUNT

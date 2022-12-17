@@ -474,12 +474,13 @@ class SpriteOption : public SpriteAnimated
 public:
 	enum class opType
 	{
-		UNDEF, SWITCH, OPTION,
+		UNDEF, SWITCH, OPTION, FIXED,
 	};
 protected:
 	union {
 		IndexOption op;
 		IndexSwitch sw;
+        unsigned fix;
 	} _ind;
 	opType _opType = opType::UNDEF;
     unsigned _value = 0;

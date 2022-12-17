@@ -154,8 +154,8 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     double hid1 = lcBottom1 / 1000.0;
 
     Option::e_lane_effect_type lcType2 = (Option::e_lane_effect_type)State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_2P);
-    int lcTop2 = gPlayContext.battle2PLanecoverTop;
-    int lcBottom2 = gPlayContext.battle2PLanecoverBottom;
+    int lcTop2 = ConfigMgr::get('P', cfg::P_LANECOVER_TOP_2P, 0);
+    int lcBottom2 = ConfigMgr::get('P', cfg::P_LANECOVER_BOTTOM_2P, 0);
     int lc100_2 = lcTop2 / 10;
     double sud2 = lcTop2 / 1000.0;
     double hid2 = lcBottom2 / 1000.0;
@@ -426,7 +426,7 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         default:               bpm = gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getCurrentBPM(); break;
         }
 
-        int green = gPlayContext.battle2PGreenNumber;
+        int green = ConfigMgr::get('P', cfg::P_GREENNUMBER_2P, 1200);
         auto& [hs, val] = calcHiSpeed(bpm, PLAYER_SLOT_TARGET, green);
         
         gPlayContext.battle2PHispeed = hs;
@@ -1162,7 +1162,7 @@ void ScenePlay::loadChart()
     }
 
     // load bga
-    if (State::get(IndexSwitch::SYSTEM_BGA) && !sceneEnding)
+    if (State::get(IndexSwitch::_LOAD_BGA) && !sceneEnding)
     {
         if (!gChartContext.isBgaLoaded)
         {
@@ -2174,7 +2174,7 @@ void ScenePlay::updateLoading()
     if (_chartLoaded && 
         _rulesetLoaded &&
         gChartContext.isSampleLoaded && 
-        (!State::get(IndexSwitch::SYSTEM_BGA) || gChartContext.isBgaLoaded) &&
+        (!State::get(IndexSwitch::_LOAD_BGA) || gChartContext.isBgaLoaded) &&
         (t - _readyTime) > 1000 &&
 		rt > _skin->info.timeMinimumLoad)
     {
@@ -2723,6 +2723,17 @@ void ScenePlay::updateFadeout()
             }
             ConfigMgr::set('P', cfg::P_LOCK_SPEED, State::get(IndexSwitch::P1_LOCK_SPEED));
 
+            switch (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P))
+            {
+            case Option::LANE_OFF:     ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP, cfg::P_LANE_EFFECT_OP_OFF); break;
+            case Option::LANE_HIDDEN:  ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP, cfg::P_LANE_EFFECT_OP_HIDDEN); break;
+            case Option::LANE_SUDDEN:  ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP, cfg::P_LANE_EFFECT_OP_SUDDEN); break;
+            case Option::LANE_SUDHID:  ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP, cfg::P_LANE_EFFECT_OP_SUDHID); break;
+            case Option::LANE_LIFT:    ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP, cfg::P_LANE_EFFECT_OP_LIFT); break;
+            case Option::LANE_LIFTSUD: ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP, cfg::P_LANE_EFFECT_OP_LIFTSUD); break;
+            default:                   ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP, cfg::P_LANE_EFFECT_OP_OFF); break;
+            }
+
             if (gPlayContext.isBattle)
             {
                 if (_laneEffectSUDHID[PLAYER_SLOT_TARGET])
@@ -2731,16 +2742,27 @@ void ScenePlay::updateFadeout()
                 }
                 if (State::get(IndexSwitch::P2_LANECOVER_ENABLED))
                 {
-                    gPlayContext.battle2PLanecoverTop = State::get(IndexNumber::LANECOVER_TOP_2P);
-                    gPlayContext.battle2PLanecoverBottom = State::get(IndexNumber::LANECOVER_BOTTOM_2P);
+                    ConfigMgr::set('P', cfg::P_LANECOVER_TOP_2P, State::get(IndexNumber::LANECOVER_TOP_2P));
+                    ConfigMgr::set('P', cfg::P_LANECOVER_BOTTOM_2P, State::get(IndexNumber::LANECOVER_BOTTOM_2P));
                 }
                 else if (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_2P) == Option::LANE_LIFT)
                 {
-                    gPlayContext.battle2PLanecoverBottom = State::get(IndexNumber::LANECOVER_BOTTOM_2P);
+                    ConfigMgr::set('P', cfg::P_LANECOVER_BOTTOM_2P, State::get(IndexNumber::LANECOVER_BOTTOM_2P));
                 }
                 if (State::get(IndexSwitch::P2_LOCK_SPEED))
                 {
-                    gPlayContext.battle2PGreenNumber = _lockspeedGreenNumber[PLAYER_SLOT_TARGET];
+                    ConfigMgr::set('P', cfg::P_GREENNUMBER_2P, _lockspeedGreenNumber[PLAYER_SLOT_TARGET]);
+                }
+
+                switch (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_2P))
+                {
+                case Option::LANE_OFF:     ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP_2P, cfg::P_LANE_EFFECT_OP_OFF); break;
+                case Option::LANE_HIDDEN:  ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP_2P, cfg::P_LANE_EFFECT_OP_HIDDEN); break;
+                case Option::LANE_SUDDEN:  ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP_2P, cfg::P_LANE_EFFECT_OP_SUDDEN); break;
+                case Option::LANE_SUDHID:  ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP_2P, cfg::P_LANE_EFFECT_OP_SUDHID); break;
+                case Option::LANE_LIFT:    ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP_2P, cfg::P_LANE_EFFECT_OP_LIFT); break;
+                case Option::LANE_LIFTSUD: ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP_2P, cfg::P_LANE_EFFECT_OP_LIFTSUD); break;
+                default:                   ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP_2P, cfg::P_LANE_EFFECT_OP_OFF); break;
                 }
             }
         }
@@ -3176,8 +3198,8 @@ void ScenePlay::toggleLanecover(int slot, bool state)
     }
     else
     {
-        lcTop = gPlayContext.battle2PLanecoverTop;
-        lcBottom = gPlayContext.battle2PLanecoverBottom;
+        lcTop = State::get(IndexNumber::LANECOVER_TOP_2P);
+        lcBottom = State::get(IndexNumber::LANECOVER_BOTTOM_2P);
     }
 
     double sud = lcTop / 1000.0;

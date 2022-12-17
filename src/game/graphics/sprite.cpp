@@ -1070,6 +1070,11 @@ bool SpriteOption::setInd(opType type, unsigned ind)
 		_opType = opType::SWITCH;
 		_ind.sw = (IndexSwitch)ind;
 		return true;
+
+    case opType::FIXED:
+        _opType = opType::FIXED;
+        _ind.fix = ind;
+        return true;
 	}
 	return false;
 }
@@ -1094,6 +1099,10 @@ void SpriteOption::updateValByInd()
 	case opType::SWITCH:
 		updateVal(State::get(_ind.sw));
 		break;
+
+    case opType::FIXED:
+        updateVal(_ind.fix);
+        break;
 	}
 }
 

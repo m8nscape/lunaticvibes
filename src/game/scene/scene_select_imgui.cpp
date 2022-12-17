@@ -1467,8 +1467,8 @@ bool SceneSelect::_imguiApplyResolution()
 
         static const std::map<int, std::string> smap =
         {
-            {0, "WINDOWED"},
-            {1, "FULLSCREEN"},
+            {0, "WINDOW"},
+            {1, "FULL"},
             {2, "BORDERLESS"},
         };
 
@@ -1476,7 +1476,7 @@ bool SceneSelect::_imguiApplyResolution()
         if (smap.find(s) != smap.end())
             State::set(IndexText::WINDOWMODE, smap.at(s));
         else
-            State::set(IndexText::WINDOWMODE, "WINDOWED");
+            State::set(IndexText::WINDOWMODE, "WINDOW");
     }
     // vsync
     {

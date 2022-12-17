@@ -525,9 +525,9 @@ namespace Option
         WIN_WINDOWED
     };
     constexpr char* s_windowed[] = {
-        "FULLSCREEN",
+        "FULL",
         "BORDERLESS",
-        "WINDOWED",
+        "WINDOW",
     };
 
     enum e_vsync_mode {

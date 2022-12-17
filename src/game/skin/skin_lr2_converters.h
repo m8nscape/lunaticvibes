@@ -12,4 +12,5 @@ IndexText text(int n);
 
 bool buttonSw(int n, IndexSwitch& sw);
 bool buttonOp(int n, IndexOption& sw);
+bool buttonFixed(int n, unsigned& out);
 }
