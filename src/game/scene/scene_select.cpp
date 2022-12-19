@@ -3092,14 +3092,10 @@ void SceneSelect::arenaLeaveLobby()
     if (gArenaData.isClient())
     {
         g_pArenaClient->leaveLobby();
-        g_pArenaClient->loopEnd();
-        g_pArenaClient.reset();
     }
     if (gArenaData.isServer())
     {
         g_pArenaHost->disbandLobby();
-        g_pArenaHost->loopEnd();
-        g_pArenaHost.reset();
     }
 
     Time t;

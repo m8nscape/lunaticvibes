@@ -50,7 +50,14 @@ void AsyncLooper::run()
     if (_running && !_inLoopBody)
     {
         _inLoopBody = true;
-        _loopFunc();
+        try
+        {
+            _loopFunc();
+        }
+        catch (std::exception& e)
+        {
+            LOG_WARNING << "[AsyncLooper] " << to_utf8(e.what(), eFileEncoding::LATIN1);
+        }
         _inLoopBody = false;
     }
 }
