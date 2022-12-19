@@ -28,6 +28,19 @@ ScenePreSelect::ScenePreSelect(): vScene(eMode::PRE_SELECT, 240)
 
     if (gNextScene == eScene::PRE_SELECT)
     {
+        // score db
+        std::string scoreDBPath = (ConfigMgr::Profile()->getPath() / "score.db").u8string();
+        g_pScoreDB = std::make_shared<ScoreDB>(scoreDBPath.c_str());
+
+        // song db
+        Path dbPath = Path(GAMEDATA_PATH) / "database";
+        if (!fs::exists(dbPath)) fs::create_directories(dbPath);
+        g_pSongDB = std::make_shared<SongDB>(dbPath / "song.db");
+
+        std::unique_lock l(gSelectContext._mutex);
+        gSelectContext.entries.clear();
+        gSelectContext.backtrace.clear();
+
         textHint = i18n::s(i18nText::INITIALIZING);
     }
 }
