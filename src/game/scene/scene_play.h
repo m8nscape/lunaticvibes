@@ -71,6 +71,9 @@ private:
     std::array<bool, 2>   _lockSpeedReset{ false, false };
     unsigned replayCmdMapIndex = 0;
 
+    bool isManuallyRequestedExit = false;
+    bool isReplayRequestedExit = false;
+
     std::array<int, 2>      _missPlayer = { 0 };
     Time _missLastTime;
     int _missBgaLength;

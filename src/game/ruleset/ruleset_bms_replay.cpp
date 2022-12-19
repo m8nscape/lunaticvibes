@@ -190,7 +190,7 @@ void RulesetBMSReplay::update(const Time& t)
 
 void RulesetBMSReplay::fail()
 {
-    _isFailed = true;
+    RulesetBMS::fail();
 }
 
 void RulesetBMSReplay::reset()

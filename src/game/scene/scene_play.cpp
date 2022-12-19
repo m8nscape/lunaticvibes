@@ -1356,6 +1356,7 @@ void ScenePlay::_updateAsync()
     }
     if (retryRequestTick >= getRate() * 1)
     {
+        isManuallyRequestedExit = true;
         requestExit();
     }
 
@@ -2399,6 +2400,7 @@ void ScenePlay::updatePlaying()
                 break;
 
             case ReplayChart::Commands::Type::ESC:
+                isReplayRequestedExit = true;
                 requestExit();
                 break;
             }
@@ -2820,6 +2822,10 @@ void ScenePlay::updateFadeout()
             {
                 gNextScene = gQuitOnFinish ? eScene::EXIT_TRANS : eScene::SELECT;
             }
+        }
+        else if (gPlayContext.isReplay && !_isPlayerFinished[PLAYER_SLOT_PLAYER] && isManuallyRequestedExit && !isReplayRequestedExit)
+        {
+            gNextScene = gQuitOnFinish ? eScene::EXIT_TRANS : eScene::SELECT;
         }
         else if (wantRetry && gPlayContext.canRetry && gChartContext.started)
         {
@@ -3461,9 +3467,14 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
             if (input[Input::ESC])
             {
                 if (imguiShowAdjustMenu)
+                {
                     imguiShowAdjustMenu = false;
+                }
                 else
+                {
+                    isManuallyRequestedExit = true;
                     requestExit();
+                }
             }
         }
     }
