@@ -11,8 +11,6 @@
 #include <boost/asio/post.hpp>
 #include <boost/asio/thread_pool.hpp>
 
-static std::map<SongDB*, boost::asio::thread_pool> DBThreadPool;
-
 const char* CREATE_FOLDER_TABLE_STR =
 "CREATE TABLE IF NOT EXISTS folder( "
 "pathmd5 TEXT PRIMARY KEY UNIQUE NOT NULL, "
@@ -187,7 +185,7 @@ bool convert_bms(std::shared_ptr<ChartFormatBMSMeta> chart, const std::vector<st
 
 SongDB::SongDB(const char* path) : SQLite(path, "SONG")
 {
-    DBThreadPool.emplace(this, std::thread::hardware_concurrency() - 1);
+    poolThreadCount = std::thread::hardware_concurrency() - 1;
 
     if (exec(CREATE_FOLDER_TABLE_STR) != SQLITE_OK)
     {
@@ -229,6 +227,15 @@ SongDB::SongDB(const char* path) : SQLite(path, "SONG")
         LOG_ERROR << "[SongDB] Create gamemode index for song ERROR! " << errmsg();
     }
 
+}
+
+SongDB::~SongDB()
+{
+    if (threadPool)
+    {
+        delete (boost::asio::thread_pool*)threadPool;
+        threadPool = nullptr;
+    }
 }
 
 bool SongDB::addChart(const HashMD5& folder, const Path& path)
@@ -671,13 +678,16 @@ int SongDB::removeFolder(const HashMD5& hash, bool removeSong)
 
 void SongDB::waitLoadingFinish()
 {
-    // wait for all tasks
-    boost::asio::thread_pool& pool = DBThreadPool[this];
-    pool.join();
+    if (threadPool)
+    {
+        // wait for all tasks
+        boost::asio::thread_pool& pool = *(boost::asio::thread_pool*)threadPool;
+        pool.join();
 
-    // The old pool is not valid anymore, recreate
-    DBThreadPool.erase(this);
-    DBThreadPool.emplace(this, std::thread::hardware_concurrency() - 1);
+        // The old pool is not valid anymore, removing
+        delete (boost::asio::thread_pool*)threadPool;
+        threadPool = nullptr;
+    }
 }
 
 int SongDB::addNewFolder(const HashMD5& hash, const Path& path, const HashMD5& parentHash)
@@ -750,7 +760,12 @@ int SongDB::addNewFolder(const HashMD5& hash, const Path& path, const HashMD5& p
         else if (isSongFolder && analyzeChartType(f) != eChartFormat::UNKNOWN)
         {
             addChartTaskCount++;
-            boost::asio::thread_pool& pool = DBThreadPool[this];
+
+            if (!threadPool)
+            {
+                threadPool = (void*)new boost::asio::thread_pool(poolThreadCount);
+            }
+            boost::asio::thread_pool& pool = *(boost::asio::thread_pool*)threadPool;
             boost::asio::post(pool, std::bind(&SongDB::addChart, this, hash, f));
             ++count;
         }
@@ -877,7 +892,12 @@ int SongDB::refreshExistingFolder(const HashMD5& hash, const Path& path, FolderT
                 break;
             }
             addChartTaskCount++;
-            boost::asio::thread_pool& pool = DBThreadPool[this];
+
+            if (!threadPool)
+            {
+                threadPool = (void*)new boost::asio::thread_pool(poolThreadCount);
+            }
+            boost::asio::thread_pool& pool = *(boost::asio::thread_pool*)threadPool;
             boost::asio::post(pool, std::bind(&SongDB::addChart, this, hash, p));
             count++;
         }
@@ -1188,7 +1208,15 @@ void SongDB::resetAddSummary()
 
 void SongDB::stopLoading()
 {
-    boost::asio::thread_pool& pool = DBThreadPool[this];
-    pool.stop();
+    if (threadPool)
+    {
+        // stop all tasks
+        boost::asio::thread_pool& pool = *(boost::asio::thread_pool*)threadPool;
+        pool.stop();
+
+        // The old pool is not valid anymore, removing
+        delete (boost::asio::thread_pool*)threadPool;
+        threadPool = nullptr;
+    }
     stopRequested = true;
 }

@@ -46,7 +46,7 @@ public:
     SongDB() = delete;
     SongDB(const char* path);
     SongDB(Path& path) : SongDB(path.u8string().c_str()) {}
-    ~SongDB() = default;
+    ~SongDB();
     SongDB(SongDB&) = delete;
     SongDB& operator= (SongDB&) = delete;
 
@@ -79,6 +79,10 @@ public:
     EntryFolderRegular browse(HashMD5 root, bool recursive = true);
     EntryFolderSong browseSong(HashMD5 root);
     EntryFolderRegular search(HashMD5 root, std::string key);
+
+private:
+    void* threadPool = nullptr;
+    int poolThreadCount = 4;
 
 public:
     int addChartTaskCount = 0;

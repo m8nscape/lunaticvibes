@@ -165,7 +165,7 @@ void ScenePreSelect::updateLoadSongs()
     
     if (loadSongEnd.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
     {
-        g_pSongDB->transactionStop();
+        g_pSongDB->waitLoadingFinish();
         loadSongEnd.get();
         _updateCallback = std::bind(&ScenePreSelect::updateLoadTables, this);
     }
