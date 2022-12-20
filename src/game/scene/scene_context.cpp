@@ -1377,8 +1377,6 @@ void switchVersion(int difficulty)
 
 void setDynamicTextures()
 {
-    std::shared_lock<std::shared_mutex> u(gSelectContext._mutex);
-
     gChartContext.texStagefile.setPath("");
     gChartContext.texBackbmp.setPath("");
     gChartContext.texBanner.setPath("");

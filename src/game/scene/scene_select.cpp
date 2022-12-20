@@ -510,8 +510,6 @@ void SceneSelect::_updateAsync()
 
     _updateCallback();
 
-    bool idxUpdated = false;
-
     if (gSelectContext.optionChanged)
     {
         gSelectContext.optionChanged = false;
@@ -531,8 +529,11 @@ void SceneSelect::_updateAsync()
 
         navigateTimestamp = t;
         postStopPreview();
+
+        std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
         setBarInfo();
         setEntryInfo();
+        setDynamicTextures();
 
         State::set(IndexTimer::LIST_MOVE, t.norm());
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
@@ -603,16 +604,14 @@ void SceneSelect::_updateAsync()
 
         if (gSelectContext.idx != idx_new)
         {
-            idxUpdated = true;
-
             navigateTimestamp = t;
             postStopPreview();
 
             std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
-
             gSelectContext.idx = idx_new;
             setBarInfo();
             setEntryInfo();
+            setDynamicTextures();
 
             SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
         }
@@ -645,16 +644,14 @@ void SceneSelect::_updateAsync()
         loadSongList();
         sortSongList();
 
-        idxUpdated = true;
-
         navigateTimestamp = t;
         postStopPreview();
 
         std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
-
         gSelectContext.idx = 0;
         setBarInfo();
         setEntryInfo();
+        setDynamicTextures();
 
         if (!gSelectContext.entries.empty())
         {
@@ -698,8 +695,6 @@ void SceneSelect::_updateAsync()
 
     if (!gSelectContext.entries.empty())
     {
-        std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
-
         if (!(isHoldingUp || isHoldingDown) && 
             (scrollAccumulator > 0 && scrollAccumulator - scrollAccumulatorAddUnit < 0 ||
                 scrollAccumulator < 0 && scrollAccumulator - scrollAccumulatorAddUnit > 0 ||
@@ -740,6 +735,8 @@ void SceneSelect::_updateAsync()
 
             if (!scrollModified)
             {
+                std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
+
                 State::set(IndexSlider::SELECT_LIST, (double)gSelectContext.idx / gSelectContext.entries.size());
                 scrollAccumulator = 0.0;
                 scrollAccumulatorAddUnit = 0.0;
@@ -753,6 +750,7 @@ void SceneSelect::_updateAsync()
         {
             if (gSelectContext.scrollDirection == 0)
             {
+                std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
                 _skin->start_bar_animation();
             }
 
@@ -767,8 +765,6 @@ void SceneSelect::_updateAsync()
                     _navigateDownBy1(t);
                 else
                     _navigateUpBy1(t);
-
-                idxUpdated = true;
             }
 
             while (posNew < 0.) posNew += 1.;
@@ -780,9 +776,6 @@ void SceneSelect::_updateAsync()
                 gSelectContext.scrollDirection = scrollAccumulator > 0. ? 1 : -1;
         }
     }
-
-    if (idxUpdated)
-        setDynamicTextures();
 
     if (!gInCustomize && gCustomizeContext.modeUpdate)
     {
@@ -1415,9 +1408,11 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
                 std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
                 loadSongList();
                 sortSongList();
+
                 gSelectContext.idx = 0;
                 setBarInfo();
                 setEntryInfo();
+                setDynamicTextures();
 
                 resetJukeboxText();
             }
@@ -1425,8 +1420,6 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
             State::set(IndexTimer::LIST_MOVE, Time().norm());
             SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::SOUND_F_OPEN);
         }
-
-        setDynamicTextures();
 
         refreshingSongList = false;
         return;
@@ -1594,6 +1587,8 @@ void SceneSelect::inputGameReleaseSelect(InputMask& input, const Time& t)
                 switchVersion(0);
                 setBarInfo();
                 setEntryInfo();
+                setDynamicTextures();
+
                 gSelectContext.optionChanged = true;
                 SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_DIFFICULTY);
             }
@@ -2313,10 +2308,11 @@ void SceneSelect::_navigateUpBy1(const Time& t)
         navigateTimestamp = t;
         postStopPreview();
 
+        std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
         gSelectContext.idx = (gSelectContext.entries.size() + gSelectContext.idx - 1) % gSelectContext.entries.size();
-
         setBarInfo();
         setEntryInfo();
+        setDynamicTextures();
 
         State::set(IndexTimer::LIST_MOVE, t.norm());
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
@@ -2333,10 +2329,11 @@ void SceneSelect::_navigateDownBy1(const Time& t)
         navigateTimestamp = t;
         postStopPreview();
 
+        std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
         gSelectContext.idx = (gSelectContext.idx + 1) % gSelectContext.entries.size();
-
         setBarInfo();
         setEntryInfo();
+        setDynamicTextures();
 
         State::set(IndexTimer::LIST_MOVE, t.norm());
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_SCRATCH);
@@ -2432,6 +2429,7 @@ void SceneSelect::_navigateEnter(const Time& t)
 
         setBarInfo();
         setEntryInfo();
+        setDynamicTextures();
 
         if (!gSelectContext.entries.empty())
         {
@@ -2450,8 +2448,6 @@ void SceneSelect::_navigateEnter(const Time& t)
         State::set(IndexTimer::LIST_MOVE, Time().norm());
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_OPEN);
     }
-
-    setDynamicTextures();
 }
 void SceneSelect::_navigateBack(const Time& t, bool sound)
 {
@@ -2509,6 +2505,7 @@ void SceneSelect::_navigateBack(const Time& t, bool sound)
 
         setBarInfo();
         setEntryInfo();
+        setDynamicTextures();
 
         if (!gSelectContext.entries.empty())
         {
@@ -2527,7 +2524,6 @@ void SceneSelect::_navigateBack(const Time& t, bool sound)
         if (sound)
             SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_F_CLOSE);
     }
-    setDynamicTextures();
 }
 
 void SceneSelect::_navigateVersionEnter(const Time& t)
@@ -2661,10 +2657,14 @@ void SceneSelect::searchSong(const std::string& text)
     gSelectContext.entries.clear();
     loadSongList();
     sortSongList();
-    gSelectContext.idx = 0;
 
+    navigateTimestamp = Time();
+    postStopPreview();
+
+    gSelectContext.idx = 0;
     setBarInfo();
     setEntryInfo();
+    setDynamicTextures();
 
     if (!gSelectContext.entries.empty())
     {
