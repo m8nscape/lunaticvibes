@@ -589,66 +589,116 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                     {
                         constexpr int threshold_scr_ms = 33;    // threshold of moving notes to keyboard lanes
                         constexpr int threshold_ms = 250;       // try not to make keyboard jacks
-                        size_t laneScratch;
-                        int laneStep;
-                        
-                        if (laneArea == 0)
-                        {
-                            laneStep = -1;
-                            laneScratch = Sc1;
-                        }
-                        else
-                        {
-                            // apply MIRROR (put notes from lane 1 to lane 7)
-                            laneStep = 1;
-                            std::swap(laneMin, laneMax);
-                            laneScratch = Sc2;
-                        }
-
+                        size_t laneScratch = Sc1;
                         if (isChartDP)
                         {
-                            // for DP, put notes from scratch-side keys prior
-                            laneStep = -laneStep;
-                            std::swap(laneMin, laneMax);
-                        }
-
-                        if (_noteLists[laneScratch].empty())
-                            gameLaneIdxMod = laneScratch;
-                        else
-                        {
-                            auto lastScratch = --_noteLists[channelToIdx(NoteLaneCategory::Note, laneScratch)].end();
-                            if (notetime - lastScratch->time >= threshold_scr_ms && !laneOccupiedByLN[laneScratch])
-                                gameLaneIdxMod = laneScratch;
+                            int laneStep;
+                            if (laneArea == 0)
+                            {
+                                // 1 -> 7
+                                laneStep = 1;
+                                laneScratch = Sc1;
+                            }
                             else
                             {
-                                bool availableLaneFound = false;
-                                for (size_t i = laneMax; i != laneMin + laneStep; i += laneStep)
+                                // 7 -> 1
+                                laneStep = -1;
+                                std::swap(laneMin, laneMax);
+                                laneScratch = Sc2;
+                            }
+
+                            if (_noteLists[laneScratch].empty())
+                            {
+                                gameLaneIdxMod = laneScratch;
+                            }
+                            else
+                            {
+                                auto lastScratch = --_noteLists[channelToIdx(NoteLaneCategory::Note, laneScratch)].end();
+                                if (notetime - lastScratch->time >= threshold_scr_ms && !laneOccupiedByLN[laneScratch])
+                                    gameLaneIdxMod = laneScratch;
+                                else
                                 {
-                                    if (laneOccupiedByLN[i])
+                                    bool availableLaneFound = false;
+                                    for (size_t i = laneMin; i != laneMax + laneStep; i += laneStep)
                                     {
-                                        continue;
-                                    }
-                                    if (_noteLists[channelToIdx(NoteLaneCategory::Note, i)].empty())
-                                    {
-                                        gameLaneIdxMod = i;
-                                        availableLaneFound = true;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        auto lastNote = --_noteLists[channelToIdx(NoteLaneCategory::Note, i)].end();
-                                        if (notetime - lastNote->time >= threshold_ms && !laneOccupiedByLN[i])
+                                        if (laneOccupiedByLN[i])
+                                        {
+                                            continue;
+                                        }
+                                        if (_noteLists[channelToIdx(NoteLaneCategory::Note, i)].empty())
                                         {
                                             gameLaneIdxMod = i;
                                             availableLaneFound = true;
                                             break;
                                         }
+                                        else
+                                        {
+                                            auto lastNote = --_noteLists[channelToIdx(NoteLaneCategory::Note, i)].end();
+                                            if (notetime - lastNote->time >= threshold_ms && !laneOccupiedByLN[i])
+                                            {
+                                                gameLaneIdxMod = i;
+                                                availableLaneFound = true;
+                                                break;
+                                            }
+                                        }
                                     }
+                                    if (!availableLaneFound)
+                                        gameLaneIdxMod = laneMin + rng() % (std::abs(int(laneMax - laneMin)) + 1);
                                 }
-                                if (!availableLaneFound)
-                                    gameLaneIdxMod = laneMin + rng() % (std::abs(int(laneMax - laneMin)) + 1);
                             }
                         }
+                        else
+                        {
+                            if (_noteLists[laneScratch].empty())
+                            {
+                                gameLaneIdxMod = laneScratch;
+                            }
+                            else
+                            {
+                                std::vector<NoteLaneIndex> placable;
+                                auto lastScratch = --_noteLists[channelToIdx(NoteLaneCategory::Note, laneScratch)].end();
+                                if (notetime - lastScratch->time >= threshold_scr_ms && !laneOccupiedByLN[laneScratch])
+                                    gameLaneIdxMod = laneScratch;
+                                else
+                                {
+                                    for (NoteLaneIndex i = NoteLaneIndex(laneMin); i != NoteLaneIndex(laneMax + 1); ++ * (size_t*)&i)
+                                    {
+                                        if (laneOccupiedByLN[i])
+                                        {
+                                            continue;
+                                        }
+                                        else if (_noteLists[channelToIdx(NoteLaneCategory::Note, i)].empty())
+                                        {
+                                            placable.push_back(i);
+                                            continue;
+                                        }
+                                        else
+                                        {
+                                            auto lastNote = --_noteLists[channelToIdx(NoteLaneCategory::Note, i)].end();
+                                            if (notetime - lastNote->time >= threshold_ms && gameLaneLNIndex[i] == _)
+                                                placable.push_back(i);
+                                        }
+                                    }
+                                    if (!placable.empty())
+                                        gameLaneIdxMod = placable[rng() % placable.size()];
+                                    else
+                                    {
+                                        using noteTimePair = std::pair<long long, NoteLaneIndex>;
+                                        std::vector<noteTimePair> placableMin;
+                                        for (NoteLaneIndex i = NoteLaneIndex(laneMin); i != NoteLaneIndex(laneMax + 1); ++ * (size_t*)&i)
+                                        {
+                                            // no need to check if noteLists[i] is empty
+                                            auto lastNote = --_noteLists[i].end();
+                                            placableMin.push_back({ lastNote->time.hres(), i });
+                                        }
+                                        assert(!placableMin.empty());
+                                        std::sort(placableMin.begin(), placableMin.end());
+                                        gameLaneIdxMod = placableMin.begin()->second;
+                                    }
+                                }
+                            }
+                        }
+
                         break;
                     }
 
