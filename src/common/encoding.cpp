@@ -1,5 +1,16 @@
 #include "encoding.h"
 
+bool is_ascii(const std::string& str)
+{
+    for (auto it = str.begin(); it != str.end(); ++it)
+    {
+        uint8_t c = *it;
+        if (c > 0x7f)
+            return false;
+    }
+    return true;
+}
+
 bool is_shiftjis(const std::string& str)
 {
     for (auto it = str.begin(); it != str.end(); ++it)
@@ -7,8 +18,12 @@ bool is_shiftjis(const std::string& str)
         uint8_t c = *it;
         int bytes = 0;
 
-        // ascii / hankaku gana
-        if ((c <= 0x7f) || (c >= 0xa1 && c <= 0xdf))
+        // ascii
+        if (c <= 0x7f)
+            continue;
+
+        // hankaku gana
+        if ((c >= 0xa1 && c <= 0xdf))
             continue;
 
         // JIS X 0208
@@ -43,7 +58,8 @@ bool is_euckr(const std::string& str)
         int bytes = 0;
 
         // ascii
-        if (c <= 0x7f) continue;
+        if (c <= 0x7f)
+            continue;
 
         // euc-jp
         if (c == 0x8e || c == 0x8f)
@@ -79,7 +95,7 @@ bool is_utf8(const std::string& str)
         if ((c & 0b1100'0000) == 0b1000'0000 || (c & 0b1111'1110) == 0b1111'1110)
             return false;
 
-        // 1 byte
+        // 1 byte (ascii)
         else if ((c & 0b1000'0000) == 0)
             continue;
 
@@ -138,11 +154,24 @@ eFileEncoding getFileEncoding(std::istream& is)
     {
         std::getline(is, buf, '\n');
 
-        // the following order is important
-        if (is_shiftjis(buf)) { enc = eFileEncoding::SHIFT_JIS; break; }
-        if (is_euckr(buf)) { enc = eFileEncoding::EUC_KR; break; }
-        if (is_utf8(buf)) { enc = eFileEncoding::UTF8; break; }
-    }
+        if (is_ascii(buf)) continue;
+
+        if (is_euckr(buf))
+        {
+            enc = eFileEncoding::EUC_KR;
+            break;
+        }
+        else if (is_shiftjis(buf))
+        {
+            enc = eFileEncoding::SHIFT_JIS;
+            break;
+        }
+        else if (is_utf8(buf))
+        {
+            enc = eFileEncoding::UTF8;
+            break;
+        }
+	}
 
     is.clear();
     is.seekg(oldPos);
