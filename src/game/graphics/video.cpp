@@ -177,7 +177,8 @@ void sVideo::decodeLoop()
 	{
 		char buf[256];
 		av_strerror(ret, buf, 256);
-		LOG_WARNING << "[Video] Could not open codec of " << fs::absolute(file).u8string() << " (" << buf << ")";
+		LOG_ERROR << "[Video] Could not open codec of " << fs::absolute(file).u8string() << " (" << buf << ")";
+		unsetVideo();
 		return;
 	}
 
