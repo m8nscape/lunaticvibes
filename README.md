@@ -14,8 +14,9 @@ The project is still in development stage. Please do not expect a bug-free exper
 * Full Unicode support
 * Built-in difficulty table support
 * Mixed skin resolution support (SD, HD, FHD)
+* ARENA Mode over LAN / VLAN
 
-For LR2 feature compatibility list, check out [the wiki](https://github.com/yaasdf/lunaticvibes/wiki/LR2-Function-Compatibility).
+For LR2 feature compatibility list, check out [the wiki](https://github.com/yaasdf/lunaticvibes/wiki/LR2-Features-Compatibility).
 
 
 ## Requirements
