@@ -864,15 +864,15 @@ void SceneSelect::_imguiPage_Options_Play()
 			ConfigMgr::set('P', cfg::P_ADJUST_LANECOVER_WITH_START_67, imgui_play_adjustLanecoverWithStart67);
 		}
 
-		if (ImGui::Checkbox(i18n::c(PLAY_ADJUST_LANECOVER_WITH_MOUSEWHEEL), &imgui_play_adjustLanecoverWithMousewheel))
-		{
-			ConfigMgr::set('P', cfg::P_ADJUST_LANECOVER_WITH_MOUSEWHEEL, imgui_play_adjustLanecoverWithMousewheel);
-		}
-
 		if (ImGui::Checkbox(i18n::c(PLAY_ADJUST_LANECOVER_WITH_ARROWKEYS), &imgui_play_adjustLanecoverWithLeftRight))
 		{
 			ConfigMgr::set('P', cfg::P_ADJUST_LANECOVER_WITH_ARROWKEYS, imgui_play_adjustLanecoverWithLeftRight);
 		}
+
+        if (ImGui::Checkbox(i18n::c(PLAY_ADJUST_LANECOVER_WITH_MOUSEWHEEL), &imgui_play_adjustLanecoverWithMousewheel))
+        {
+            ConfigMgr::set('P', cfg::P_ADJUST_LANECOVER_WITH_MOUSEWHEEL, imgui_play_adjustLanecoverWithMousewheel);
+        }
 
 
         ImGui::EndChild();
