@@ -3029,7 +3029,10 @@ void SceneSelect::postStopPreview()
 {
     std::unique_lock l(previewMutex);
 
-    LOG_DEBUG << "[Select] Preview stop";
+    if (previewState != PREVIEW_NONE)
+    {
+        LOG_DEBUG << "[Select] Preview stop";
+    }
 
     SoundMgr::stopNoteSamples();
     SoundMgr::setSysVolume(1.0, 400);
