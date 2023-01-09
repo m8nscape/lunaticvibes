@@ -368,11 +368,13 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
             if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER])
             {
                 gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->fail();
+                gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->updateGlobals();
                 gPlayContext.courseStageRulesetCopy[PLAYER_SLOT_PLAYER].push_back(gPlayContext.ruleset[PLAYER_SLOT_PLAYER]);
             }
             if (gPlayContext.ruleset[PLAYER_SLOT_TARGET])
             {
                 gPlayContext.ruleset[PLAYER_SLOT_TARGET]->fail();
+                gPlayContext.ruleset[PLAYER_SLOT_TARGET]->updateGlobals();
                 gPlayContext.courseStageRulesetCopy[PLAYER_SLOT_TARGET].push_back(gPlayContext.ruleset[PLAYER_SLOT_TARGET]);
             }
 
@@ -3153,11 +3155,13 @@ void ScenePlay::requestExit()
         if (!_isPlayerFinished[PLAYER_SLOT_PLAYER])
         {
             gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->fail();
+            gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->updateGlobals();
             LOG_INFO << "[Play] 1P finished";
         }
         if (!_isPlayerFinished[PLAYER_SLOT_TARGET] && gPlayContext.isBattle && gPlayContext.ruleset[PLAYER_SLOT_TARGET])
         {
             gPlayContext.ruleset[PLAYER_SLOT_TARGET]->fail();
+            gPlayContext.ruleset[PLAYER_SLOT_TARGET]->updateGlobals();
             LOG_INFO << "[Play] 2P finished";
         }
 

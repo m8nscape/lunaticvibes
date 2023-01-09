@@ -192,10 +192,3 @@ void RulesetBMSReplay::fail()
 {
     RulesetBMS::fail();
 }
-
-void RulesetBMSReplay::reset()
-{
-    vRuleset::reset();
-
-    updateGlobals();
-}

@@ -39,5 +39,4 @@ public:
     virtual void update(const Time& t) override;
 
     virtual void fail();
-    virtual void reset();
 };

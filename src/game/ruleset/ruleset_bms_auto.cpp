@@ -349,12 +349,3 @@ void RulesetBMSAuto::fail()
     _basic.total_acc = notesExpired ? (100.0 * exScore / (notesExpired * 2)) : 0;
     _basic.acc = _basic.total_acc;
 }
-
-void RulesetBMSAuto::reset()
-{
-    vRuleset::reset();
-
-    judgeIndex = 0;
-
-    updateGlobals();
-}

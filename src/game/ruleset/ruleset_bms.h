@@ -265,7 +265,6 @@ public:
     virtual unsigned getMaxCombo() const;
 
     virtual void fail();
-    virtual void reset();
 
     virtual void updateGlobals();
 };

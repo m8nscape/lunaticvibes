@@ -78,7 +78,6 @@ public:
     virtual unsigned getMaxCombo() const = 0;
 
     virtual void fail() { _isFailed = true; }
-    virtual void reset() { _basic = { 0 }; notesReached = 0; notesExpired = 0; };
 
     virtual void updateGlobals() = 0;
 

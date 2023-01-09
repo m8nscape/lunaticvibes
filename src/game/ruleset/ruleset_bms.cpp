@@ -1625,13 +1625,6 @@ void RulesetBMS::fail()
     //_basic.acc = _basic.total_acc;
 }
 
-void RulesetBMS::reset()
-{
-    vRuleset::reset();
-    moneyScore = 0.0;
-    exScore = 0;
-}
-
 void RulesetBMS::updateGlobals()
 {
     if (_side == PlaySide::SINGLE || _side == PlaySide::DOUBLE || _side == PlaySide::BATTLE_1P || _side == PlaySide::AUTO || _side == PlaySide::AUTO_DOUBLE) // includes DP
