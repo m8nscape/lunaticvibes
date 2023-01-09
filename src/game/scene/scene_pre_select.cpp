@@ -116,6 +116,8 @@ void ScenePreSelect::updateLoadSongs()
                 }
             }
 
+            g_pSongDB->optimize();
+
             // NEW SONG
             auto newSongList = g_pSongDB->findChartFromTime(ROOT_FOLDER_HASH,
                 std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count() - State::get(IndexNumber::NEW_ENTRY_SECONDS));
@@ -180,6 +182,8 @@ void ScenePreSelect::updateLoadTables()
         loadTableEnd = std::async(std::launch::async, [&]() {
 
             textHint = i18n::s(i18nText::CHECKING_TABLES);
+
+            g_pSongDB->preload();
 
             // initialize table list
             auto tableList = ConfigMgr::General()->getTablesUrl();

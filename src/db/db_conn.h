@@ -42,6 +42,7 @@ protected:
 public:
     void transactionStart();
     void transactionStop();
+    void optimize();
     const char* errmsg() const;
 };
 

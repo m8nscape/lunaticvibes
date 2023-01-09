@@ -15,8 +15,11 @@
 
 SQLite::SQLite(const char* path, const char* tag) 
 {
-    sqlite3_open(path, &_db); 
+    sqlite3_open(path, &_db);
     strcpy(this->tag, sizeof(this->tag), tag);
+
+    exec("PRAGMA temp_store = memory");
+    exec("PRAGMA mmap_size = 536870912"); // 512MB
 }
 
 SQLite::~SQLite() { sqlite3_close(_db); }
@@ -196,6 +199,11 @@ void SQLite::transactionStop()
         LOG_INFO << "[sqlite3] " << tag << ": " << "Transaction finished";
     }
     sqlite3_finalize(stmt);
+}
+
+void SQLite::optimize()
+{
+    exec("PRAGMA optimize(0xfffe)");
 }
 
 void SQLite::commit()

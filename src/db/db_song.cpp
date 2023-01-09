@@ -185,6 +185,11 @@ bool convert_bms(std::shared_ptr<ChartFormatBMSMeta> chart, const std::vector<st
 
 SongDB::SongDB(const char* path) : SQLite(path, "SONG")
 {
+    if (exec("PRAGMA cache_size = -512000") != SQLITE_OK)
+    {
+        LOG_WARNING << "[SongDB] Set cache_size ERROR! " << errmsg();
+    }
+
     poolThreadCount = std::thread::hardware_concurrency() - 1;
 
     if (exec(CREATE_FOLDER_TABLE_STR) != SQLITE_OK)
@@ -372,6 +377,13 @@ bool SongDB::removeChart(const HashMD5& md5, const HashMD5& parent)
         return false;
     }
     return true;
+}
+
+void SongDB::preload()
+{
+    auto result = query("SELECT * FROM song", 0);
+    LOG_INFO << "[SongDB] Chart count: " << result.size();
+    result.clear();
 }
 
 // search from genre, version, artist, artist2, title, title2
