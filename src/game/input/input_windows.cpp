@@ -20,7 +20,9 @@ void pollInput()
 
 bool isKeyPressed(Input::Keyboard key)
 {
-    // refer to virtual key definition in MSDN
+    // these are mappings toward enum Input::Keyboard
+    // refer to virtual key definitions in MSDN
+    // https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
     static const int vkMap[] =
     {
         0,
@@ -144,6 +146,10 @@ bool isKeyPressed(Input::Keyboard key)
         DIK_NOCONVERT,
         DIK_CONVERT,
         DIK_KANA,
+
+        DIK_NUMPADSLASH,
+        DIK_NUMPADSTAR,
+        DIK_NUMPADENTER,
     };
 
     int vk = vkMap[static_cast<size_t>(key)];

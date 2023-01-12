@@ -182,7 +182,7 @@ std::bitset<KEY_COUNT> InputMgr::_detect()
     res[END] = isKeyPressed(Keyboard::K_END);
     res[PGUP] = isKeyPressed(Keyboard::K_PGUP);
     res[PGDN] = isKeyPressed(Keyboard::K_PGDN);
-    res[RETURN] = isKeyPressed(Keyboard::K_ENTER);
+    res[RETURN] = isKeyPressed(Keyboard::K_ENTER) || isKeyPressed(Keyboard::K_NUM_ENTER);
     res[BACKSPACE] = isKeyPressed(Keyboard::K_BKSP);
 
     res[M1] = isMouseButtonPressed(1);

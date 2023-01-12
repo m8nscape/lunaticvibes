@@ -218,6 +218,11 @@ enum class Keyboard : unsigned
     K_JP_CONVERT,
     K_JP_KANA,
 
+    // scancodes with mask (e0)
+    K_NUM_SLASH,
+    K_NUM_STAR,
+    K_NUM_ENTER,
+
     K_COUNT
 };
 inline constexpr size_t keyboardKeyCount = static_cast<size_t>(Keyboard::K_COUNT);
