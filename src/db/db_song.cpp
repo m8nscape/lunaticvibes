@@ -457,7 +457,7 @@ std::vector<pChartFormat> SongDB::findChartByName(const HashMD5& folder, const s
 // chart may duplicate, return all found
 std::vector<pChartFormat> SongDB::findChartByHash(const HashMD5& target) const
 {
-    LOG_INFO << "[SongDB] Search for song " << target.hexdigest();
+    LOG_DEBUG << "[SongDB] Search for song " << target.hexdigest();
 
     auto result = query("SELECT * FROM song WHERE md5=?", SONG_PARAM_COUNT, { target.hexdigest() });
 
@@ -510,7 +510,7 @@ std::vector<pChartFormat> SongDB::findChartByHash(const HashMD5& target) const
     }
 
 
-    LOG_INFO << "[SongDB] found " << ret.size() << " songs";
+    LOG_DEBUG << "[SongDB] found " << ret.size() << " songs";
     return ret;
 
 }
