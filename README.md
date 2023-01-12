@@ -26,6 +26,7 @@ For LR2 feature compatibility list, check out [the wiki](https://github.com/yaas
 
 ## Quick Start
 
+* Install [Microsoft Visual C++ Redistributable 2015+ x64](https://aka.ms/vs/17/release/vc_redist.x64.exe)
 * Download the latest release from [here](https://github.com/yaasdf/lunaticvibes/releases)
 * Copy LR2files folder from LR2 (must include default theme; a fresh copy right from LR2 release is recommended)
 
