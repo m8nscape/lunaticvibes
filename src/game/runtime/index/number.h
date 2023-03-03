@@ -100,7 +100,7 @@ enum class IndexNumber: unsigned
     PLAY_1P_TOTALNOTES,
     PLAY_1P_GROOVEGAUGE,
     PLAY_1P_EXSCORE_DIFF,
-	PLAY_1P_NEXT_RANK_EX_DIFF = 109,	// undocumented from LR2
+	PLAY_1P_NEXT_RANK_EX_DIFF = 109,	// undocumented in LR2
 
     PLAY_1P_PERFECT = 110,
     PLAY_1P_GREAT,
@@ -119,7 +119,7 @@ enum class IndexNumber: unsigned
     PLAY_2P_TOTALNOTES,
     PLAY_2P_GROOVEGAUGE,
     PLAY_2P_EXSCORE_DIFF,
-	PLAY_2P_NEXT_RANK_EX_DIFF = 129,	// undocumented from LR2
+	PLAY_2P_NEXT_RANK_EX_DIFF = 129,	// undocumented in LR2
 
     PLAY_2P_PERFECT = 130,
     PLAY_2P_GREAT,

@@ -2453,13 +2453,13 @@ void ScenePlay::updatePlaying()
         }
     }
 
+    auto targetType = State::get(IndexOption::PLAY_TARGET_TYPE);
+
     if (gPlayContext.ruleset[PLAYER_SLOT_TARGET] != nullptr)
     {
         gPlayContext.chartObj[PLAYER_SLOT_TARGET]->update(rt);
         gPlayContext.ruleset[PLAYER_SLOT_TARGET]->update(t);
 
-        auto targetType = State::get(IndexOption::PLAY_TARGET_TYPE);
-        
         if (targetType == Option::TARGET_MYBEST && gPlayContext.replayMybest)
         {
             assert(gPlayContext.ruleset[PLAYER_SLOT_MYBEST] != nullptr);
@@ -2489,8 +2489,17 @@ void ScenePlay::updatePlaying()
     }
     State::set(IndexNumber::RESULT_MYBEST_EX, exScoreMybest);
     State::set(IndexNumber::RESULT_MYBEST_DIFF, exScore1P - exScoreMybest);
-    State::set(IndexNumber::PLAY_1P_EXSCORE_DIFF, exScore1P - exScore2P);
+
+    if (!gPlayContext.isBattle && targetType == Option::TARGET_MYBEST && gPlayContext.replayMybest)
+    {
+        State::set(IndexNumber::PLAY_1P_EXSCORE_DIFF, exScore1P - exScoreMybest);
+    }
+    else
+    {
+        State::set(IndexNumber::PLAY_1P_EXSCORE_DIFF, exScore1P - exScore2P);
+    }
     State::set(IndexNumber::PLAY_2P_EXSCORE_DIFF, exScore2P - exScore1P);
+
     State::set(IndexNumber::RESULT_TARGET_EX, exScore2P);
     State::set(IndexNumber::RESULT_TARGET_DIFF, exScore1P - exScore2P);
     if (_missPlayer[PLAYER_SLOT_PLAYER] != miss1)

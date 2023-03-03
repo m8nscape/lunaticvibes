@@ -113,9 +113,6 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
                 param["2pbp"] = pr->getJudgeCountEx(RulesetBMS::JUDGE_BP);
             }
         }
-        param["1ptarget"] = param["1pexscore"] - param["2pexscore"];
-        param["2ptarget"] = -param["1ptarget"];
-        param["winlose"] = (param["1ptarget"] > 0) ? 1 : (param["1ptarget"] < 0) ? 2 : 0;
 
         // TODO set chart info (total notes, etc.)
         auto chartLength = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getTotalLength().norm() / 1000;
@@ -157,6 +154,17 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
             param["updatedmaxcombo"] = true;
             param["updatedbp"] = true;
         }
+
+        if (!gPlayContext.isBattle && State::get(IndexOption::PLAY_TARGET_TYPE) == Option::TARGET_MYBEST && gPlayContext.replayMybest)
+        {
+            param["1ptarget"] = param["1pexscore"] - param["dbexscore"];
+        }
+        else
+        {
+            param["1ptarget"] = param["1pexscore"] - param["2pexscore"];
+        }
+        param["2ptarget"] = param["2pexscore"] - param["1pexscore"];
+        param["winlose"] = (param["1ptarget"] > 0) ? 1 : (param["1ptarget"] < 0) ? 2 : 0;
     }
 
     // save

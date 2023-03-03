@@ -1,4 +1,5 @@
 #include "state.h"
+#include "common/types.h"
 
 State State::_inst;
 
