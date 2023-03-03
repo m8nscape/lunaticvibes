@@ -78,9 +78,12 @@ struct std::hash<Hash<_Len>>
     {
         size_t h = 0;
         int i = 0;
-        for (; i <= _Len - sizeof(size_t); i += sizeof(size_t))
+        if (_Len >= sizeof(size_t))
         {
-            h ^= *(size_t*)&obj.data[i];
+            for (; i <= _Len - sizeof(size_t); i += sizeof(size_t))
+            {
+                h ^= *(size_t*)&obj.data[i];
+            }
         }
         unsigned char* p = (unsigned char*)&h;
         for (; i < _Len; i++)
