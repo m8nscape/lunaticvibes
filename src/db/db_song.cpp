@@ -379,13 +379,6 @@ bool SongDB::removeChart(const HashMD5& md5, const HashMD5& parent)
     return true;
 }
 
-void SongDB::preload()
-{
-    auto result = query("SELECT * FROM song", 0);
-    LOG_INFO << "[SongDB] Chart count: " << result.size();
-    result.clear();
-}
-
 // search from genre, version, artist, artist2, title, title2
 std::vector<pChartFormat> SongDB::findChartByName(const HashMD5& folder, const std::string& tagRaw, unsigned limit) const
 {
@@ -564,6 +557,88 @@ std::vector<pChartFormat> SongDB::findChartFromTime(const HashMD5& folder, unsig
     LOG_INFO << "[SongDB] found " << ret.size() << " songs";
     return ret;
 
+}
+
+
+void SongDB::prepareChartMapCache()
+{
+    LOG_DEBUG << "[SongDB] prepareChartMapCache ";
+
+    // compress db i/o
+    freeChartMapCache();
+
+    for (auto& fp: query("SELECT pathmd5,path FROM folder", 2))
+    {
+        auto md5 = ANY_STR(fp[0]);
+        auto path = PathFromUTF8(ANY_STR(fp[1]));
+        folderPathMapCache[md5] = path;
+    }
+
+    chartMapCache = queryMapHash("SELECT * FROM song", SONG_PARAM_COUNT, 0);
+}
+
+void SongDB::freeChartMapCache()
+{
+    chartMapCache.clear();
+    folderPathMapCache.clear();
+}
+
+std::vector<pChartFormat> SongDB::findChartByHashFromCache(const HashMD5& md5) const
+{
+    if (chartMapCache.find(md5) == chartMapCache.end())
+        return {};
+
+    std::vector<pChartFormat> ret;
+    const auto& r = *chartMapCache.at(md5).begin();
+    {
+        switch (eChartFormat(ANY_INT(r[3])))
+        {
+        case eChartFormat::BMS:
+        {
+            auto p = std::make_shared<ChartFormatBMSMeta>();
+            if (convert_bms(p, r))
+            {
+                if (p->filePath.is_absolute())
+                {
+                    p->absolutePath = p->filePath;
+                    ret.push_back(p);
+                }
+                else
+                {
+                    if (folderPathMapCache.find(p->folderHash) != folderPathMapCache.end())
+                    {
+                        p->absolutePath = folderPathMapCache.at(p->folderHash) / p->filePath;
+                        ret.push_back(p);
+                    }
+                }
+            }
+            break;
+        }
+
+        default: break;
+        }
+    }
+
+    // file updates are hopefully covered at folder refresh phase, skip checksum
+    /*
+    // remove file mismatch
+    std::list<size_t> removing;
+    for (size_t i = 0; i < ret.size(); ++i)
+    {
+        auto hash = md5file(ret[i]->absolutePath);
+        if (hash != md5)
+        {
+            LOG_WARNING << "[SongDB] Chart " << ret[i]->absolutePath.u8string() << " has been modified, ignoring";
+            removing.push_front(i);
+        }
+    }
+    for (size_t i : removing)
+    {
+        ret.erase(ret.begin() + i);
+    }
+    */
+
+    return ret;
 }
 
 int SongDB::addFolders(const std::vector<Path>& paths)

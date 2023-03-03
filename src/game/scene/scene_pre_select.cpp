@@ -183,7 +183,7 @@ void ScenePreSelect::updateLoadTables()
 
             textHint = i18n::s(i18nText::CHECKING_TABLES);
 
-            g_pSongDB->preload();
+            g_pSongDB->prepareChartMapCache();
 
             // initialize table list
             auto tableList = ConfigMgr::General()->getTablesUrl();
@@ -206,7 +206,7 @@ void ScenePreSelect::updateLoadTables()
                         std::shared_ptr<EntryFolderTable> tblLevel = std::make_shared<EntryFolderTable>(folderName, "");
                         for (const auto& r : t.getEntryList(lv))
                         {
-                            auto charts = g_pSongDB->findChartByHash(r->md5);
+                            auto charts = g_pSongDB->findChartByHashFromCache(r->md5);
                             bool added = false;
                             for (auto& c : charts)
                             {
@@ -275,6 +275,9 @@ void ScenePreSelect::updateLoadTables()
                         });
                 }
             }
+
+            g_pSongDB->freeChartMapCache();
+
             });
     }
 

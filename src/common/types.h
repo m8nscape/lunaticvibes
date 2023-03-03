@@ -68,7 +68,29 @@ public:
     template <size_t _Len2>
     bool operator!=(const Hash<_Len2>& rhs) const { return _Len != _Len2 || memcmp(data, rhs.data, _Len) != 0; }
 
+    friend struct std::hash<Hash<_Len>>;
 };
+
+template<size_t _Len> 
+struct std::hash<Hash<_Len>>
+{
+    size_t operator()(const Hash<_Len>& obj) const
+    {
+        size_t h = 0;
+        int i = 0;
+        for (; i <= _Len - sizeof(size_t); i += sizeof(size_t))
+        {
+            h ^= *(size_t*)&obj.data[i];
+        }
+        unsigned char* p = (unsigned char*)&h;
+        for (; i < _Len; i++)
+        {
+            p[i % sizeof(size_t)] ^= obj.data[i];
+        }
+        return h;
+    }
+};
+
 typedef Hash<16> HashMD5;
 typedef Hash<32> HashSHA1;
 

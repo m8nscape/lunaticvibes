@@ -111,6 +111,46 @@ std::vector<std::vector<std::any>> SQLite::query(const char* zsql, size_t retSiz
     return ret;
 }
 
+std::unordered_map<HashMD5, std::vector<std::vector<std::any>>> 
+SQLite::queryMapHash(const char* zsql, size_t retSize, size_t keyIndex, std::initializer_list<std::any> args) const
+{
+    memset(lastSql, 0, sizeof(lastSql));
+    strncpy(lastSql, zsql, sizeof(lastSql) - 1);
+
+    size_t argc = args.size();
+
+    sqlite3_stmt* stmt = nullptr;
+    const char* pzTail;
+    if (int ret = sqlite3_prepare_v3(_db, zsql, (int)strlen(zsql), 0, &stmt, &pzTail))
+    {
+        LOG_ERROR << "[sqlite3] sql \"" << zsql << "\" prepare error: [" << ret << "] " << errmsg();
+        return {};
+    }
+    sql_bind_any(stmt, args);
+
+    std::unordered_map<HashMD5, std::vector<std::vector<std::any>>> ret;
+    while (sqlite3_step(stmt) == SQLITE_ROW)
+    {
+        HashMD5 key = std::string((const char*)sqlite3_column_text(stmt, (int)keyIndex));
+        std::vector<std::any> tmp;
+        tmp.resize(retSize);
+        for (int i = 0; i < retSize; ++i)
+        {
+            auto c = sqlite3_column_type(stmt, i);
+            if (SQLITE_INTEGER == c)
+                tmp[i] = sqlite3_column_int64(stmt, i);
+            else if (SQLITE_FLOAT == c)
+                tmp[i] = sqlite3_column_double(stmt, i);
+            else if (SQLITE_TEXT == c)
+                tmp[i] = std::make_any<std::string>((const char*)sqlite3_column_text(stmt, i));
+        }
+        ret[key].push_back(tmp);
+    }
+
+    sqlite3_finalize(stmt);
+    return ret;
+}
+
 int SQLite::exec(const char* zsql, std::initializer_list<std::any> args)
 {
     memset(lastSql, 0, sizeof(lastSql));

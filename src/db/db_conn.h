@@ -39,6 +39,9 @@ protected:
     int exec(const char* zsql, std::initializer_list<std::any> args = {});
     void commit();
 
+    std::unordered_map<HashMD5, std::vector<std::vector<std::any>>> 
+        queryMapHash(const char* stmt, size_t retSize, size_t keyIndex, std::initializer_list<std::any> args = {}) const;
+
 public:
     void transactionStart();
     void transactionStop();
