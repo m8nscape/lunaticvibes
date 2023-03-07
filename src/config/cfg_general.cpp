@@ -17,6 +17,7 @@ void ConfigGeneral::setDefaults() noexcept
 	set(E_LR2PATH, ".");
 	set(E_FOLDERS, std::vector<std::string>());
 	set(E_TABLES, std::vector<std::string>());
+	set(E_LOG_LEVEL, E_LOG_LEVEL_INFO);
 }
 
 

@@ -51,6 +51,9 @@ void SceneSelect::_imguiInit()
     _imguiRefreshLanguageList();
     old_language_index = imgui_language_index;
 
+    imgui_log_level = ConfigMgr::get("E", cfg::E_LOG_LEVEL, 1);
+    SetLogLevel(imgui_log_level);
+
     _imguiRefreshFolderList();
     _imguiRefreshTableList();
 
@@ -569,6 +572,23 @@ void SceneSelect::_imguiPage_Options_General()
         ImGui::Text(i18n::c(LANGUAGE));
         ImGui::SameLine(infoRowWidth);
         ImGui::Combo("##language", &imgui_language_index, imgui_languages_display.data(), (int)imgui_languages_display.size());
+
+        /////////////////////////////////////////////////////////////////////////////////////////
+
+        ImGui::Text(i18n::c(LOG_LEVEL));
+        ImGui::SameLine(infoRowWidth);
+        static const char* imgui_log_level_display[] =
+        {
+            "Debug",
+            "Info",
+            "Warning",
+            "Error"
+        };
+        if (ImGui::Combo("##loglevel", &imgui_log_level, imgui_log_level_display, sizeof(imgui_log_level_display) / sizeof(char*)))
+        {
+            SetLogLevel(imgui_log_level);
+            ConfigMgr::set('E', cfg::E_LOG_LEVEL, imgui_log_level);
+        }
 
         ImGui::EndChild();
     }

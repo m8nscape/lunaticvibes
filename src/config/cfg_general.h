@@ -74,7 +74,14 @@ namespace cfg {
     constexpr char E_FOLDERS[] = "Folders";
     constexpr char E_TABLES[] = "Tables";
 
+    constexpr char E_LOG_LEVEL[] = "LogLevel";
+    constexpr char E_LOG_LEVEL_DEBUG[] = "Debug";
+    constexpr char E_LOG_LEVEL_INFO[] = "Info";
+    constexpr char E_LOG_LEVEL_WARNING[] = "Warning";
+    constexpr char E_LOG_LEVEL_ERROR[] = "Error";
+
     constexpr char PROFILE_DEFAULT[] = "default";
+
 }
 
 class ConfigGeneral: public vConfig

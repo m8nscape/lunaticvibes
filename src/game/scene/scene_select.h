@@ -210,6 +210,8 @@ private:
     std::vector<const char*> imgui_languages_display;
     int old_language_index, imgui_language_index;
 
+    int imgui_log_level;
+
     std::list<std::string> imgui_folders;
     std::vector<const char*> imgui_folders_display;
     int imgui_folder_index;
