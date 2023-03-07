@@ -5,6 +5,8 @@
 
 void loadLR2Sound()
 {
+    LOG_INFO << "[Sound] Load system samples from LR2 Soundset";
+
     Path path = PathFromUTF8(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."),
         ConfigMgr::get("S", cfg::S_PATH_SOUNDSET, cfg::S_DEFAULT_PATH_SOUNDSET)));
 

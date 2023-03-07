@@ -3029,7 +3029,7 @@ void SceneSelect::postStopPreview()
 {
     std::unique_lock l(previewMutex);
 
-    if (previewState != PREVIEW_NONE)
+    if (previewState != PREVIEW_NONE && previewState != PREVIEW_FINISH)
     {
         LOG_DEBUG << "[Select] Preview stop";
     }

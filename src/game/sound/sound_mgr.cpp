@@ -8,14 +8,21 @@ int SoundMgr::initFMOD()
 {
     if (!_inst._initialized)
     {
+        LOG_INFO << "[Sound] Initializing sound driver...";
         _inst.driver = std::make_unique<SoundDriverFMOD>();
         auto ret = ((SoundDriverFMOD*)_inst.driver.get())->initRet;
         if (ret == FMOD_OK)
         {
             _inst._initialized = true;
+            LOG_INFO << "[Sound] Sound driver init finished.";
+
             loadLR2Sound();
             return 0;
         }
+    }
+    else
+    {
+        LOG_ERROR << "[Sound] Already initialized";
     }
     return -255;
 }

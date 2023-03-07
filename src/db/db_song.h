@@ -69,7 +69,7 @@ public:
     std::vector<pChartFormat> findChartByHashFromCache(const HashMD5&) const;  // chart may duplicate, return a list
 
 public:
-    int addFolders(const std::vector<Path>& paths);
+    int initializeFolders(const std::vector<Path>& paths);
     int addSubFolder(Path path, const HashMD5& parent = ROOT_FOLDER_HASH);
     void waitLoadingFinish();
     int removeFolder(const HashMD5& hash, bool removeSong = false);

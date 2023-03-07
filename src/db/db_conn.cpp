@@ -197,6 +197,7 @@ int SQLite::exec(const char* zsql, std::initializer_list<std::any> args)
 
 void SQLite::transactionStart()
 {
+
     if (!inTransaction)
         inTransaction = true;
     else
@@ -213,7 +214,7 @@ void SQLite::transactionStart()
     }
     else
     {
-        LOG_INFO << "[sqlite3] " << tag << ": " << "Transaction started";
+        LOG_DEBUG << "[sqlite3] " << tag << ": " << "Transaction start";
     }
     sqlite3_finalize(stmt);
 }
@@ -236,18 +237,20 @@ void SQLite::transactionStop()
     }
     else
     {
-        LOG_INFO << "[sqlite3] " << tag << ": " << "Transaction finished";
+        LOG_DEBUG << "[sqlite3] " << tag << ": " << "Transaction finished";
     }
     sqlite3_finalize(stmt);
 }
 
 void SQLite::optimize()
 {
+    LOG_DEBUG << "[sqlite3] " << tag << ": optimize ";
     exec("PRAGMA optimize(0xfffe)");
 }
 
 void SQLite::commit()
 {
+    LOG_DEBUG << "[sqlite3] " << tag << ": commit";
     if (!inTransaction) exec("COMMIT");
     else LOG_WARNING << "[sqlite3] called Commit during transaction. Please call transactionStop";
 }

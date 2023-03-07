@@ -56,7 +56,7 @@ void AsyncLooper::run()
         }
         catch (std::exception& e)
         {
-            LOG_WARNING << "[AsyncLooper] " << to_utf8(e.what(), eFileEncoding::LATIN1);
+            LOG_WARNING << "[AsyncLooper] " << _tag << ": Exception: " << to_utf8(e.what(), eFileEncoding::LATIN1);
         }
         _inLoopBody = false;
     }
@@ -134,7 +134,7 @@ void AsyncLooper::loopStart()
 
         if (_running)
         {
-            LOG_DEBUG << "[Looper] Started with rate " << _rate << "/s " << _tag;
+            LOG_DEBUG << "[Looper] " << _tag << ": Started " << _rate << "/s";
         }
     }
 }
@@ -150,7 +150,7 @@ void AsyncLooper::loopEnd()
             DWORD dwError = GetLastError();
             if (dwError != ERROR_INVALID_HANDLE)
             {
-                LOG_ERROR << "[Looper] Delete timer error: " << dwError;
+                LOG_ERROR << "[Looper] " << _tag << ": Delete timer error: " << dwError;
                 while (dwError == ERROR_IO_PENDING && DeleteTimerQueueTimer(NULL, handler, INVALID_HANDLE_VALUE) != 0)
                 {
                     dwError = GetLastError();
@@ -158,7 +158,7 @@ void AsyncLooper::loopEnd()
                 assert(dwError == 0);
             }
         }
-        LOG_DEBUG << "[Looper] Ended of rate " << _rate << "/s " << _tag;
+        LOG_DEBUG << "[Looper] " << _tag << ": Ended " << _rate << "/s";
     }
 }
 

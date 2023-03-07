@@ -51,7 +51,7 @@ GetResult GET(const std::string& url, std::string& result)
 	code = curl_easy_setopt(conn, CURLOPT_FOLLOWLOCATION, 1);
 	if (code != CURLE_OK)
 	{
-		LOG_ERROR << "[Table] CURLOPT_FOLLOWLOCATION " << code;
+		LOG_ERROR << "[TableBMS] CURLOPT_FOLLOWLOCATION " << code;
 		curl_easy_cleanup(conn);
 		return GetResult::ERR_SYSTEM;
 	}
@@ -59,7 +59,7 @@ GetResult GET(const std::string& url, std::string& result)
 	code = curl_easy_setopt(conn, CURLOPT_TIMEOUT, 10);
 	if (code != CURLE_OK)
 	{
-		LOG_ERROR << "[Table] CURLOPT_TIMEOUT " << code;
+		LOG_ERROR << "[TableBMS] CURLOPT_TIMEOUT " << code;
 		curl_easy_cleanup(conn);
 		return GetResult::ERR_SYSTEM;
 	}
@@ -67,7 +67,7 @@ GetResult GET(const std::string& url, std::string& result)
 	code = curl_easy_setopt(conn, CURLOPT_CONNECTTIMEOUT, 10);
 	if (code != CURLE_OK)
 	{
-		LOG_ERROR << "[Table] CURLOPT_CONNECTTIMEOUT " << code;
+		LOG_ERROR << "[TableBMS] CURLOPT_CONNECTTIMEOUT " << code;
 		curl_easy_cleanup(conn);
 		return GetResult::ERR_SYSTEM;
 	}
@@ -75,7 +75,7 @@ GetResult GET(const std::string& url, std::string& result)
 	code = curl_easy_setopt(conn, CURLOPT_SSL_VERIFYHOST, 0);
 	if (code != CURLE_OK)
 	{
-		LOG_ERROR << "[Table] CURLOPT_SSL_VERIFYHOST " << code;
+		LOG_ERROR << "[TableBMS] CURLOPT_SSL_VERIFYHOST " << code;
 		curl_easy_cleanup(conn);
 		return GetResult::ERR_SYSTEM;
 	}
@@ -83,7 +83,7 @@ GetResult GET(const std::string& url, std::string& result)
 	code = curl_easy_setopt(conn, CURLOPT_SSL_VERIFYPEER, 0);
 	if (code != CURLE_OK)
 	{
-		LOG_ERROR << "[Table] CURLOPT_SSL_VERIFYPEER " << code;
+		LOG_ERROR << "[TableBMS] CURLOPT_SSL_VERIFYPEER " << code;
 		curl_easy_cleanup(conn);
 		return GetResult::ERR_SYSTEM;
 	}
@@ -91,7 +91,7 @@ GetResult GET(const std::string& url, std::string& result)
 	code = curl_easy_setopt(conn, CURLOPT_URL, url.c_str());
 	if (code != CURLE_OK)
 	{
-		LOG_ERROR << "[Table] CURLOPT_URL " << code;
+		LOG_ERROR << "[TableBMS] CURLOPT_URL " << code;
 		curl_easy_cleanup(conn);
 		return GetResult::ERR_SYSTEM;
 	}
@@ -99,7 +99,7 @@ GetResult GET(const std::string& url, std::string& result)
 	code = curl_easy_setopt(conn, CURLOPT_PORT, iport);
 	if (code != CURLE_OK)
 	{
-		LOG_ERROR << "[Table] CURLOPT_PORT " << code;
+		LOG_ERROR << "[TableBMS] CURLOPT_PORT " << code;
 		curl_easy_cleanup(conn);
 		return GetResult::ERR_SYSTEM;
 	}
@@ -109,7 +109,7 @@ GetResult GET(const std::string& url, std::string& result)
 	code = curl_easy_setopt(conn, CURLOPT_USERAGENT, ua.c_str());
 	if (code != CURLE_OK)
 	{
-		LOG_ERROR << "[Table] CURLOPT_USERAGENT " << code;
+		LOG_ERROR << "[TableBMS] CURLOPT_USERAGENT " << code;
 		curl_easy_cleanup(conn);
 		return GetResult::ERR_SYSTEM;
 	}
@@ -119,7 +119,7 @@ GetResult GET(const std::string& url, std::string& result)
 	code = curl_easy_setopt(conn, CURLOPT_WRITEFUNCTION, _GETWriteCallback);
 	if (code != CURLE_OK)
 	{
-		LOG_ERROR << "[Table] CURLOPT_WRITEFUNCTION " << code;
+		LOG_ERROR << "[TableBMS] CURLOPT_WRITEFUNCTION " << code;
 		curl_easy_cleanup(conn);
 		return GetResult::ERR_SYSTEM;
 	}
@@ -127,7 +127,7 @@ GetResult GET(const std::string& url, std::string& result)
 	code = curl_easy_setopt(conn, CURLOPT_WRITEDATA, &bodyStream);
 	if (code != CURLE_OK)
 	{
-		LOG_ERROR << "[Table] CURLOPT_WRITEDATA " << code;
+		LOG_ERROR << "[TableBMS] CURLOPT_WRITEDATA " << code;
 		curl_easy_cleanup(conn);
 		return GetResult::ERR_SYSTEM;
 	}
@@ -135,7 +135,7 @@ GetResult GET(const std::string& url, std::string& result)
 	code = curl_easy_perform(conn);
 	if (code != CURLE_OK)
 	{
-		LOG_ERROR << "[Table] curl_easy_perform " << code;
+		LOG_ERROR << "[TableBMS] curl_easy_perform " << code;
 		curl_easy_cleanup(conn);
 		switch (code)
 		{
@@ -155,7 +155,7 @@ GetResult GET(const std::string& url, std::string& result)
 	code = curl_easy_getinfo(conn, CURLINFO_RESPONSE_CODE, &response_code);
 	if (code != CURLE_OK)
 	{
-		LOG_ERROR << "[Table] CURLINFO_RESPONSE_CODE " << code;
+		LOG_ERROR << "[TableBMS] CURLINFO_RESPONSE_CODE " << code;
 		curl_easy_cleanup(conn);
 		return GetResult::ERR_SYSTEM;
 	}
@@ -168,7 +168,7 @@ GetResult GET(const std::string& url, std::string& result)
 	}
 	else
 	{
-		LOG_ERROR << "[Table] HTTP " << response_code;
+		LOG_ERROR << "[TableBMS] HTTP " << response_code;
 		curl_easy_cleanup(conn);
 		return GetResult::ERR_HTTP;
 	}
@@ -194,6 +194,7 @@ void DifficultyTableBMS::updateFromUrl(std::function<void(DifficultyTable::Updat
 		std::string headerFileName;
 		std::string body;
 
+		LOG_INFO << "[TableBMS] GET: " << webUrl;
 		auto result = GET(webUrl, body);
 		if (result == GetResult::OK)
 		{
@@ -203,7 +204,7 @@ void DifficultyTableBMS::updateFromUrl(std::function<void(DifficultyTable::Updat
 			if (RE2::PartialMatch(body, *re, &content))
 			{
 				headerFileName = content;
-				LOG_DEBUG << "[Table] bmstable: " << content;
+				LOG_DEBUG << "[TableBMS] bmstable: " << content;
 			}
 		}
 		else
@@ -226,7 +227,7 @@ void DifficultyTableBMS::updateFromUrl(std::function<void(DifficultyTable::Updat
 				headerUrl = headerFileName;
 			else
 				headerUrl = remotePath + headerFileName;
-			LOG_INFO << "[Table] Header URL: " << headerUrl;
+			LOG_INFO << "[TableBMS] Header URL: " << headerUrl;
 		}
 		else
 		{
@@ -244,6 +245,7 @@ void DifficultyTableBMS::updateFromUrl(std::function<void(DifficultyTable::Updat
 	{
 		std::string body;
 
+		LOG_INFO << "[TableBMS] GET header: " << headerUrl;
 		auto result = GET(headerUrl, body);
 		if (result == GetResult::OK)
 		{
@@ -278,7 +280,7 @@ void DifficultyTableBMS::updateFromUrl(std::function<void(DifficultyTable::Updat
 				dataUrl = data_url;
 			else
 				dataUrl = remotePath + data_url;
-			LOG_INFO << "[Table] Data URL: " << dataUrl;
+			LOG_INFO << "[TableBMS] Data URL: " << dataUrl;
 		}
 		else
 		{
@@ -292,6 +294,7 @@ void DifficultyTableBMS::updateFromUrl(std::function<void(DifficultyTable::Updat
 	{
 		std::string body;
 
+		LOG_INFO << "[TableBMS] GET body: " << dataUrl;
 		auto result = GET(dataUrl, body);
 		if (result == GetResult::OK)
 		{
@@ -422,7 +425,7 @@ void DifficultyTableBMS::parseHeader(const std::string& content)
 	}
 	catch (std::exception& e)
 	{
-		LOG_ERROR << "[Table] Header JSON Error: " << to_utf8(e.what(), eFileEncoding::LATIN1);
+		LOG_ERROR << "[TableBMS] Header JSON Error: " << to_utf8(e.what(), eFileEncoding::LATIN1);
 	}
 
 }
@@ -487,6 +490,6 @@ void DifficultyTableBMS::parseBody(const std::string& content)
 	}
 	catch (std::exception& e)
 	{
-		LOG_ERROR << "[Table] Data JSON Error: " << to_utf8(e.what(), eFileEncoding::LATIN1);
+		LOG_ERROR << "[TableBMS] Data JSON Error: " << to_utf8(e.what(), eFileEncoding::LATIN1);
 	}
 }

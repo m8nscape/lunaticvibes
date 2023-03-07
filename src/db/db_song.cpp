@@ -641,7 +641,7 @@ std::vector<pChartFormat> SongDB::findChartByHashFromCache(const HashMD5& md5) c
     return ret;
 }
 
-int SongDB::addFolders(const std::vector<Path>& paths)
+int SongDB::initializeFolders(const std::vector<Path>& paths)
 {
     resetAddSummary();
 
@@ -683,6 +683,8 @@ int SongDB::addFolders(const std::vector<Path>& paths)
 
 int SongDB::addSubFolder(Path path, const HashMD5& parentHash)
 {
+    LOG_DEBUG << "[SongDB] Add folder: " << path.u8string();
+
     path = (path / ".").lexically_normal();
 
     if (!fs::is_directory(path))
@@ -728,7 +730,6 @@ int SongDB::addSubFolder(Path path, const HashMD5& parentHash)
             // only update song folder if recently modified
             if (folderModifyTime > folderModifyTimeDB)
             {
-                LOG_DEBUG << "[SongDB] Refresh song folder: " << folderPath;
                 count = refreshExistingFolder(folderMD5, path, folderType);
             }
             else
@@ -739,13 +740,11 @@ int SongDB::addSubFolder(Path path, const HashMD5& parentHash)
         else
         {
             // step in sub folders
-            LOG_DEBUG << "[SongDB] Step in sub folder: " << folderPath;
             count = refreshExistingFolder(folderMD5, path, folderType);
         }
     }
     else
     {
-        LOG_DEBUG << "[SongDB] Add new sub folder (" << path.u8string() << ")";
         count = addNewFolder(folderHash, path, parentHash);
     }
 
@@ -767,9 +766,13 @@ void SongDB::waitLoadingFinish()
 {
     if (threadPool)
     {
+        LOG_DEBUG << "[SongDB] Waiting for all loading threads...";
+
         // wait for all tasks
         boost::asio::thread_pool& pool = *(boost::asio::thread_pool*)threadPool;
         pool.join();
+
+        LOG_DEBUG << "[SongDB] All loading threads finished, continue";
 
         // The old pool is not valid anymore, removing
         delete (boost::asio::thread_pool*)threadPool;
@@ -779,7 +782,7 @@ void SongDB::waitLoadingFinish()
 
 int SongDB::addNewFolder(const HashMD5& hash, const Path& path, const HashMD5& parentHash)
 {
-    LOG_DEBUG << "[SongDB] Adding new folder " << path.u8string();
+    LOG_DEBUG << "[SongDB] Add new folder " << path.u8string();
 
     FolderType type = FolderType::FOLDER;
     for (auto& f : std::filesystem::directory_iterator(path))
@@ -1206,14 +1209,14 @@ EntryFolderRegular SongDB::browse(HashMD5 root, bool recursive)
         }
     }
 
-    LOG_DEBUG << "[SongDB] browsed folder: " << list.getContentsCount() << " entries";
+    LOG_DEBUG << "[SongDB] browse folder: " << list.getContentsCount() << " entries";
 
     return list;
 }
 
 EntryFolderSong SongDB::browseSong(HashMD5 root)
 {
-    LOG_DEBUG << "[SongDB] browse song " << root.hexdigest();
+    LOG_DEBUG << "[SongDB] browse from " << root.hexdigest();
 
     auto& [hasPath, path] = getFolderPath(root);
     if (!hasPath)

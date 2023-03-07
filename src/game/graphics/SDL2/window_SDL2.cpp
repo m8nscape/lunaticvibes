@@ -23,11 +23,13 @@ static double canvasScaleY = 1.0;
 
 int graphics_init()
 {
+    LOG_INFO << "[SDL2] Initializing...";
+
     // SDL2
     {
         if (SDL_Init(SDL_INIT_VIDEO))
         {
-            LOG_ERROR << "[SDL2] Library init ERROR! " << SDL_GetError();
+            LOG_FATAL << "[SDL2] Library init ERROR! " << SDL_GetError();
             return -99;
         }
         LOG_INFO << "[SDL2] Library version " << SDL_MAJOR_VERSION << '.' << SDL_MINOR_VERSION << "." << SDL_PATCHLEVEL;
@@ -75,7 +77,7 @@ int graphics_init()
             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowRect.w, windowRect.h, flags);
         if (!gFrameWindow)
         {
-            LOG_ERROR << "[SDL2] Init window ERROR! " << SDL_GetError();
+            LOG_FATAL << "[SDL2] Init window ERROR! " << SDL_GetError();
             return -1;
         }
 
@@ -106,7 +108,7 @@ int graphics_init()
         }
         if (!gFrameRenderer)
         {
-            LOG_ERROR << "[SDL2] Init renderer ERROR! " << SDL_GetError();
+            LOG_FATAL << "[SDL2] Init renderer ERROR! " << SDL_GetError();
             return -2;
         }
         SDL_SetRenderDrawColor(gFrameRenderer, 0, 0, 0, 255);
@@ -132,7 +134,7 @@ int graphics_init()
             CANVAS_WIDTH_MAX, CANVAS_HEIGHT_MAX);
         if (!gInternalRenderTarget)
         {
-            LOG_ERROR << "[SDL2] Init Target Texture Error! " << SDL_GetError();
+            LOG_FATAL << "[SDL2] Init Target Texture Error! " << SDL_GetError();
             return -3;
         }
         SDL_SetTextureScaleMode(gInternalRenderTarget, SDL_ScaleModeBest);
@@ -143,29 +145,33 @@ int graphics_init()
 
         SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 
-        LOG_DEBUG << "[SDL2] Initializing window and render complete.";
+        LOG_INFO << "[SDL2] SDL2 init finished.";
     }
 
     // SDL_Image
     {
+        LOG_INFO << "[SDL2] Initializing SDL2_Image...";
+
         auto flags = IMG_INIT_JPG | IMG_INIT_PNG;
         if (flags != IMG_Init(flags))
         {
             // error handling
-            LOG_ERROR << "[SDL2] Image module init failed. " << IMG_GetError();
+            LOG_FATAL << "[SDL2] SDL2_Image init failed. " << IMG_GetError();
             return 1;
         }
-        LOG_INFO << "[SDL2] Image module version " << SDL_IMAGE_MAJOR_VERSION << '.' << SDL_IMAGE_MINOR_VERSION << "." << SDL_IMAGE_PATCHLEVEL;
+        LOG_INFO << "[SDL2] SDL2_Image init finished. Version " << SDL_IMAGE_MAJOR_VERSION << '.' << SDL_IMAGE_MINOR_VERSION << "." << SDL_IMAGE_PATCHLEVEL;
     }
     // SDL_ttf
     {
+        LOG_INFO << "[SDL2] Initializing SDL2_TTF...";
+
         if (-1 == TTF_Init())
         {
             // error handling
-            LOG_ERROR << "[SDL2] TTF module init failed. " << TTF_GetError();
+            LOG_FATAL << "[SDL2] SDL2_TTF init failed. " << TTF_GetError();
             return 2;
         }
-        LOG_INFO << "[SDL2] TTF module version " << SDL_TTF_MAJOR_VERSION << '.' << SDL_TTF_MINOR_VERSION << "." << SDL_TTF_PATCHLEVEL;
+        LOG_INFO << "[SDL2] SDL2_TTF init finished. Version " << SDL_TTF_MAJOR_VERSION << '.' << SDL_TTF_MINOR_VERSION << "." << SDL_TTF_PATCHLEVEL;
     }
 
 #ifndef VIDEO_DISABLED
@@ -174,8 +180,14 @@ int graphics_init()
 #endif
 
     // imgui
-    ImGui_ImplSDL2_InitForSDLRenderer(gFrameWindow, gFrameRenderer);
-    ImGui_ImplSDLRenderer_Init(gFrameRenderer);
+    LOG_INFO << "Initializing ImGui for SDL renderer...";
+    if (!ImGui_ImplSDL2_InitForSDLRenderer(gFrameWindow, gFrameRenderer) ||
+        !ImGui_ImplSDLRenderer_Init(gFrameRenderer))
+    {
+        LOG_FATAL << "ImGui init failed.";
+        return 3;
+    }
+    LOG_INFO << "ImGui init finished.";
 
     // Draw a black frame to prevent flashbang
     graphics_clear();
@@ -240,18 +252,26 @@ void graphics_flush()
 
 int graphics_free()
 {
+    LOG_INFO << "Shutting down ImGui module...";
     ImGui_ImplSDLRenderer_Shutdown();
     ImGui_ImplSDL2_Shutdown();
 
+    LOG_INFO << "Releasing SDL resources...";
     SDL_DestroyTexture(gInternalRenderTarget);
     gInternalRenderTarget = nullptr;
     SDL_DestroyRenderer(gFrameRenderer);
     gFrameRenderer = nullptr;
     SDL_DestroyWindow(gFrameWindow);
     gFrameWindow = nullptr;
+
+    LOG_INFO << "[SDL2] De-initializing TTF module...";
     TTF_Quit();
+    LOG_INFO << "[SDL2] De-initializing Image module...";
     IMG_Quit();
-	SDL_Quit();
+    LOG_INFO << "[SDL2] De-initializing SDL2...";
+    SDL_Quit();
+
+    LOG_INFO << "Graphics shutdown complete.";
 
     return 0;
 }
@@ -297,6 +317,7 @@ std::vector<std::tuple<int, int, int>> graphics_get_resolution_list()
 
 void graphics_change_window_mode(int mode)
 {
+    LOG_WARNING << "Setting window mode to " << mode;
     switch (mode)
     {
     case 0:
@@ -319,6 +340,7 @@ void graphics_change_window_mode(int mode)
 
 void graphics_resize_window(int x, int y)
 {
+    LOG_WARNING << "Resizing window mode to " << x << 'x' << y;
     if (x != 0) windowRect.w = x;
     if (y != 0) windowRect.h = y;
     canvasScaleX = (double)x / canvasRect.w;
@@ -329,6 +351,7 @@ void graphics_resize_window(int x, int y)
 
 void graphics_change_vsync(int mode)
 {
+    LOG_WARNING << "Setting vsync mode to " << mode;
 #if _WIN32
     SDL_RenderSetVSync(gFrameRenderer, mode);
 #else
@@ -340,6 +363,7 @@ void graphics_change_vsync(int mode)
 static int superSampleLevel = 1;
 void graphics_set_supersample_level(int level)
 {
+    LOG_WARNING << "Setting supersample level to " << level;
     //assert(canvasRect.w * level <= 3840);
     superSampleLevel = level;
 }
@@ -350,6 +374,7 @@ int graphics_get_supersample_level()
 
 void graphics_resize_canvas(int x, int y)
 {
+    LOG_WARNING << "Resizing canvas to " << x << 'x' << y;
     canvasRect.w = x;
     canvasRect.h = y;
     canvasScaleX = (double)windowRect.w / x;
@@ -361,6 +386,7 @@ double graphics_get_canvas_scale_y() { return canvasScaleY; }
 
 void graphics_set_maxfps(int fps)
 {
+    LOG_WARNING << "Setting max fps to " << fps;
     maxFPS = fps;
     if (maxFPS != 0)
     {
@@ -388,6 +414,7 @@ void event_handle()
         switch (e.type)
         {
         case SDL_QUIT:
+            LOG_WARNING << "[Event] SDL_QUIT";
             gEventQuit = true;
             break;
 
@@ -448,6 +475,8 @@ void ImGuiNewFrame()
 static std::function<void(const std::string&)> funUpdateText;
 void startTextInput(const RectF& textBox, const std::string& oldText, std::function<void(const std::string&)> funUpdateText)
 {
+    LOG_DEBUG << "Start Text Input";
+
     textBuf = oldText;
     textBuf.reserve(32);
 
@@ -467,6 +496,8 @@ void startTextInput(const RectF& textBox, const std::string& oldText, std::funct
 
 void stopTextInput()
 {
+    LOG_DEBUG << "Stop Text Input";
+
     isEditing = false;
     funUpdateText = [](const std::string&) {};
     SDL_StopTextInput();
@@ -541,5 +572,7 @@ void funKeyDown(const SDL_KeyboardEvent& e)
 
 void graphics_screenshot(const Path& png)
 {
+    LOG_INFO << "Screenshot: " << png.u8string();
+
     screenshotPath = png;
 }
