@@ -153,8 +153,10 @@ protected:
     Time   _totalLength;
     Time   _leadInTime = 0;    // when the first sound note locates
 
-    double _averageBPM = 0.;
-    double _mainBPM = 0.;
+    double _averageBPM = 0.;    // already multiplied pitch speed
+    double _mainBPM = 0.;       // already multiplied pitch speed
+    double _playMaxBPM = 0.;    // already multiplied pitch speed
+    double _playMinBPM = 0.;    // already multiplied pitch speed
 
 public:
     ChartObjectBase() = delete;
@@ -212,6 +214,7 @@ protected:
     Time     _currentBeatLength    = Time::singleBeatLengthFromBPM(150.0);
     Time     _lastChangedBPMTime   = 0;
     double   _lastChangedBPMMetre  = 0.;
+    std::unordered_map<double, unsigned> bpmNoteCount;  // used for calculating main bpm
 
 public:
     void reset();
@@ -235,5 +238,7 @@ public:
     inline const Time& getTotalLength() const { return _totalLength; }
     constexpr auto getAverageBPM() -> decltype(_averageBPM) { return _averageBPM; }
     constexpr auto getMainBPM() -> decltype(_mainBPM) { return _mainBPM; }
+    constexpr auto getPlayMaxBPM() -> decltype(_playMaxBPM) { return _playMaxBPM; }
+    constexpr auto getPlayMinBPM() -> decltype(_playMinBPM) { return _playMinBPM; }
 };
 

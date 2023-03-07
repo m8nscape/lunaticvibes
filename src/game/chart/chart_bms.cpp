@@ -713,6 +713,8 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                         gameLaneLNIndex[gameLaneIdx] = (NoteLaneIndex)gameLaneIdxMod;
                         laneOccupiedByLN[gameLaneIdxMod] = true;
                     }
+
+                    bpmNoteCount[bpm]++;
                 }
             }
             else if (lane.type == eLanePriority::BGM)
@@ -818,15 +820,33 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
         if (bpmSum > 0)
         {
             _averageBPM = bpmSum / _totalLength.norm();
-            _mainBPM = std::max_element(bpmLength.begin(), bpmLength.end(), [](const std::pair<double, long long>& lhs, const std::pair<double, long long>& rhs)
-                {
-                    return lhs.second < rhs.second;
-                })->first;
         }
     }
     else
     {
         _averageBPM = _mainBPM = objBms.startBPM;
+    }
+
+    // get main BPM
+    if (!bpmNoteCount.empty())
+    {
+        _playMaxBPM = std::numeric_limits<double>::min();
+        _playMinBPM = std::numeric_limits<double>::max();
+        std::vector<std::pair<unsigned, double>> noteBpmCount;
+        for (auto& [bpm, notes] : bpmNoteCount)
+        {
+            noteBpmCount.push_back({ notes, bpm });
+            _playMaxBPM = std::max(_playMaxBPM, bpm);
+            _playMinBPM = std::min(_playMinBPM, bpm);
+        }
+        std::sort(noteBpmCount.begin(), noteBpmCount.end());
+        _mainBPM = noteBpmCount.back().second;
+    }
+    else
+    {
+        _mainBPM = objBms.startBPM;
+        _playMaxBPM = objBms.startBPM;
+        _playMinBPM = objBms.startBPM;
     }
 
     resetNoteListsIterators();

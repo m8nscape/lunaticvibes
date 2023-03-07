@@ -181,6 +181,7 @@ enum class eModHs : uint8_t
     MINBPM,
     AVERAGE,
     CONSTANT,
+    MAIN,
 };
 
 enum class eModLaneEffect : uint8_t

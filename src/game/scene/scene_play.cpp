@@ -400,10 +400,11 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         double bpm = gChartContext.startBPM * gSelectContext.pitchSpeed;
         switch (gPlayContext.mods[PLAYER_SLOT_PLAYER].hispeedFix)
         {
-        case eModHs::MAXBPM:   bpm = gChartContext.maxBPM * gSelectContext.pitchSpeed; break;
-        case eModHs::MINBPM:   bpm = gChartContext.minBPM * gSelectContext.pitchSpeed; break;
+        case eModHs::MAXBPM:   bpm = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getPlayMaxBPM(); break;
+        case eModHs::MINBPM:   bpm = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getPlayMinBPM(); break;
         case eModHs::AVERAGE:  bpm = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getAverageBPM(); break;
         case eModHs::CONSTANT: bpm = 150.0; break;
+        case eModHs::MAIN:     bpm = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getMainBPM(); break;
         case eModHs::NONE:     
         default:               bpm = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentBPM(); break;
         }
@@ -422,10 +423,11 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         double bpm = gChartContext.startBPM;
         switch (gPlayContext.mods[PLAYER_SLOT_PLAYER].hispeedFix)
         {
-        case eModHs::MAXBPM:   bpm = gChartContext.maxBPM * gSelectContext.pitchSpeed; break;
-        case eModHs::MINBPM:   bpm = gChartContext.minBPM * gSelectContext.pitchSpeed; break;
+        case eModHs::MAXBPM:   bpm = gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getPlayMaxBPM(); break;
+        case eModHs::MINBPM:   bpm = gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getPlayMinBPM(); break;
         case eModHs::AVERAGE:  bpm = gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getAverageBPM(); break;
         case eModHs::CONSTANT: bpm = 150.0; break;
+        case eModHs::MAIN:     bpm = gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getMainBPM(); break;
         case eModHs::NONE:
         default:               bpm = gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getCurrentBPM(); break;
         }
