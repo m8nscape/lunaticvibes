@@ -1185,6 +1185,12 @@ void SceneSelect::_imguiRefreshTableList()
 
 void SceneSelect::_imguiRefreshVideoDisplayResolutionList()
 {
+    auto oldRes = std::make_pair<unsigned, unsigned>(0, 0);
+    if (!imgui_video_display_resolution_size.empty())
+    {
+        oldRes = imgui_video_display_resolution_size[imgui_video_display_resolution_index];
+    }
+
     imgui_video_display_resolution_size.clear();
     imgui_video_display_resolution.clear();
     imgui_video_display_resolution_display.clear();
@@ -1196,7 +1202,12 @@ void SceneSelect::_imguiRefreshVideoDisplayResolutionList()
         std::set<std::pair<int, int>> resolutions;
         for (auto& r : list)
         {
-            resolutions.insert({ std::get<0>(r), std::get<1>(r) });
+            int x = std::get<0>(r);
+            int y = std::get<1>(r);
+            if (x >= 640 && y >= 480)
+            {
+                resolutions.insert({ x, y });
+            }
         }
         for (auto& r : resolutions)
         {
@@ -1241,6 +1252,18 @@ void SceneSelect::_imguiRefreshVideoDisplayResolutionList()
         imgui_video_display_resolution_display.push_back(r.c_str());
     }
 
+    if (oldRes.first != 0)
+    {
+        for (int i = 0; i < (int)imgui_video_display_resolution_size.size(); i++)
+        {
+            auto& res = imgui_video_display_resolution_size[i];
+            if (oldRes == res)
+            {
+                imgui_video_display_resolution_index = i;
+                return;
+            }
+        }
+    }
     imgui_video_display_resolution_index = 0;
 }
 
