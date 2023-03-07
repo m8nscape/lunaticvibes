@@ -155,8 +155,10 @@ ScoreDB::ScoreDB(const char* path): SQLite(path, "SCORE")
 std::shared_ptr<ScoreBMS> ScoreDB::getScoreBMS(const char* tableName, const HashMD5& hash) const
 {
     std::string hashStr = hash.hexdigest();
-    if (cache.find(hashStr) != cache.end()) return cache[hashStr];
+    if (cache[tableName].find(hashStr) != cache[tableName].end())
+        return cache[tableName][hashStr];
 
+    /*
     char sqlbuf[64] = { 0 };
     sprintf(sqlbuf, "SELECT * FROM %s WHERE md5=?", tableName);
     auto result = query(sqlbuf, SCORE_BMS_PARAM_COUNT, { hashStr });
@@ -174,6 +176,9 @@ std::shared_ptr<ScoreBMS> ScoreDB::getScoreBMS(const char* tableName, const Hash
         cache[hashStr] = nullptr;
         return nullptr;
     }
+    */
+    cache[tableName][hashStr] = nullptr;
+    return nullptr;
 }
 
 void ScoreDB::updateScoreBMS(const char* tableName, const HashMD5& hash, const ScoreBMS& score)
@@ -254,6 +259,7 @@ void ScoreDB::updateScoreBMS(const char* tableName, const HashMD5& hash, const S
             record.maxcombo, (long long)std::time(nullptr), record.playcount, record.clearcount, record.exscore, (int)record.lamp,
             record.pgreat, record.great, record.good, record.bad, record.kpoor, record.miss, record.bp, record.combobreak, record.replayFileName,
             hashStr });
+        cache[tableName].erase(hashStr);
     }
     else
     {
@@ -266,7 +272,17 @@ void ScoreDB::updateScoreBMS(const char* tableName, const HashMD5& hash, const S
             score.maxcombo, (long long)std::time(nullptr), score.playcount, score.clearcount, score.exscore, (int)score.lamp,
             score.pgreat, score.great, score.good, score.bad, score.kpoor, score.miss, score.bp, score.combobreak, score.replayFileName });
     }
-    cache.erase(hashStr);
+
+    char sqlbuf[96] = { 0 };
+    sprintf(sqlbuf, "SELECT * FROM %s WHERE md5=?", tableName);
+    auto result = query(sqlbuf, SCORE_BMS_PARAM_COUNT, { hashStr });
+    if (!result.empty())
+    {
+        const auto& r = result[0];
+        auto ret = std::make_shared<ScoreBMS>();
+        convert_score_bms(ret, r);
+        cache[tableName][hashStr] = ret;
+    }
 }
 
 std::shared_ptr<ScoreBMS> ScoreDB::getChartScoreBMS(const HashMD5& hash) const
@@ -287,4 +303,21 @@ std::shared_ptr<ScoreBMS> ScoreDB::getCourseScoreBMS(const HashMD5& hash) const
 void ScoreDB::updateCourseScoreBMS(const HashMD5& hash, const ScoreBMS& score)
 {
     return updateScoreBMS("score_course_bms", hash, score);
+}
+
+void ScoreDB::preloadScore()
+{
+    cache.clear();
+    for (auto& r : query("SELECT * FROM score_course_bms", SCORE_BMS_PARAM_COUNT))
+    {
+        auto ret = std::make_shared<ScoreBMS>();
+        convert_score_bms(ret, r);
+        cache["score_course_bms"][ANY_STR(r[0])] = ret;
+    }
+    for (auto& r : query("SELECT * FROM score_bms", SCORE_BMS_PARAM_COUNT))
+    {
+        auto ret = std::make_shared<ScoreBMS>();
+        convert_score_bms(ret, r);
+        cache["score_bms"][ANY_STR(r[0])] = ret;
+    }
 }

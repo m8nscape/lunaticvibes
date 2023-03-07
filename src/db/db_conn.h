@@ -32,15 +32,12 @@ private:
 public:
     SQLite() = delete;
     SQLite(const char* path, const char* tag = "UNNAMED");
-    ~SQLite();
+    virtual ~SQLite();
 
 protected:
     std::vector<std::vector<std::any>> query(const char* stmt, size_t retSize, std::initializer_list<std::any> args = {}) const;
     int exec(const char* zsql, std::initializer_list<std::any> args = {});
     void commit();
-
-    std::unordered_map<HashMD5, std::vector<std::vector<std::any>>> 
-        queryMapHash(const char* stmt, size_t retSize, size_t keyIndex, std::initializer_list<std::any> args = {}) const;
 
 public:
     void transactionStart();
@@ -48,4 +45,3 @@ public:
     void optimize();
     const char* errmsg() const;
 };
-

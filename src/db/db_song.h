@@ -57,16 +57,19 @@ protected:
     
 public:
     std::vector<pChartFormat> findChartByName(const HashMD5& folder, const std::string&, unsigned limit = 1000) const;  // search from genre, version, artist, artist2, title, title2
-    std::vector<pChartFormat> findChartByHash(const HashMD5&) const;  // chart may duplicate, return a list
+    std::vector<pChartFormat> findChartByHash(const HashMD5&, bool checksum = true) const;  // chart may duplicate, return a list
     std::vector<pChartFormat> findChartFromTime(const HashMD5& folder, unsigned long long addTime) const;
 
 protected:
-    std::unordered_map<HashMD5, std::vector<std::vector<std::any>>> chartMapCache;
-    std::unordered_map<HashMD5, Path> folderPathMapCache;
+    std::vector<std::vector<std::any>> songQueryPool;
+    std::unordered_map<HashMD5, std::vector<size_t>> songQueryHashMap;
+    std::unordered_map<HashMD5, std::vector<size_t>> songQueryParentMap;
+    std::vector<std::vector<std::any>> folderQueryPool;
+    std::unordered_map<HashMD5, std::vector<size_t>> folderQueryHashMap;
+    std::unordered_map<HashMD5, std::vector<size_t>> folderQueryParentMap;
 public:
-    void prepareChartMapCache();
-    void freeChartMapCache();
-    std::vector<pChartFormat> findChartByHashFromCache(const HashMD5&) const;  // chart may duplicate, return a list
+    void prepareCache();
+    void freeCache();
 
 public:
     int initializeFolders(const std::vector<Path>& paths);

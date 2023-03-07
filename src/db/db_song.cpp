@@ -448,15 +448,19 @@ std::vector<pChartFormat> SongDB::findChartByName(const HashMD5& folder, const s
 }
 
 // chart may duplicate, return all found
-std::vector<pChartFormat> SongDB::findChartByHash(const HashMD5& target) const
+std::vector<pChartFormat> SongDB::findChartByHash(const HashMD5& target, bool checksum) const
 {
     LOG_DEBUG << "[SongDB] Search for song " << target.hexdigest();
 
-    auto result = query("SELECT * FROM song WHERE md5=?", SONG_PARAM_COUNT, { target.hexdigest() });
-
     std::vector<pChartFormat> ret;
-    for (const auto& r : result)
+
+    if (songQueryHashMap.find(target) == songQueryHashMap.end())
     {
+        return ret;
+    }
+    for (const auto& index : songQueryHashMap.at(target))
+    {
+        const auto& r = songQueryPool[index];
         switch (eChartFormat(ANY_INT(r[3])))
         {
         case eChartFormat::BMS:
@@ -486,22 +490,24 @@ std::vector<pChartFormat> SongDB::findChartByHash(const HashMD5& target) const
         }
     }
 
-    // remove file mismatch
-    std::list<size_t> removing;
-    for (size_t i = 0; i < ret.size(); ++i)
+    if (checksum)
     {
-        auto hash = md5file(ret[i]->absolutePath);
-        if (hash != target)
+        // remove file mismatch
+        std::list<size_t> removing;
+        for (size_t i = 0; i < ret.size(); ++i)
         {
-            LOG_WARNING << "[SongDB] Chart " << ret[i]->absolutePath.u8string() << " has been modified, ignoring";
-            removing.push_front(i);
+            auto hash = md5file(ret[i]->absolutePath);
+            if (hash != target)
+            {
+                LOG_WARNING << "[SongDB] Chart " << ret[i]->absolutePath.u8string() << " has been modified, ignoring";
+                removing.push_front(i);
+            }
+        }
+        for (size_t i : removing)
+        {
+            ret.erase(ret.begin() + i);
         }
     }
-    for (size_t i : removing)
-    {
-        ret.erase(ret.begin() + i);
-    }
-
 
     LOG_DEBUG << "[SongDB] found " << ret.size() << " songs";
     return ret;
@@ -560,85 +566,43 @@ std::vector<pChartFormat> SongDB::findChartFromTime(const HashMD5& folder, unsig
 }
 
 
-void SongDB::prepareChartMapCache()
+void SongDB::prepareCache()
 {
-    LOG_DEBUG << "[SongDB] prepareChartMapCache ";
+    LOG_DEBUG << "[SongDB] prepareCache ";
 
     // compress db i/o
-    freeChartMapCache();
+    freeCache();
 
-    for (auto& fp: query("SELECT pathmd5,path FROM folder", 2))
+    size_t count = 0;
+    for (auto& row : query("SELECT * FROM song", SONG_PARAM_COUNT))
     {
-        auto md5 = ANY_STR(fp[0]);
-        auto path = PathFromUTF8(ANY_STR(fp[1]));
-        folderPathMapCache[md5] = path;
+        songQueryHashMap[HashMD5(ANY_STR(row[0]))].push_back(count);
+        songQueryParentMap[HashMD5(ANY_STR(row[1]))].push_back(count);
+        songQueryPool.push_back(std::move(row));
+        count++;
     }
 
-    chartMapCache = queryMapHash("SELECT * FROM song", SONG_PARAM_COUNT, 0);
+    count = 0;
+    for (auto& row : query("SELECT * FROM folder", FOLDER_PARAM_COUNT))
+    {
+        folderQueryHashMap[HashMD5(ANY_STR(row[0]))].push_back(count);
+        if (row[1].has_value()) 
+            folderQueryParentMap[HashMD5(ANY_STR(row[1]))].push_back(count);
+        folderQueryPool.push_back(std::move(row));
+        count++;
+    }
 }
 
-void SongDB::freeChartMapCache()
+void SongDB::freeCache()
 {
-    chartMapCache.clear();
-    folderPathMapCache.clear();
-}
-
-std::vector<pChartFormat> SongDB::findChartByHashFromCache(const HashMD5& md5) const
-{
-    if (chartMapCache.find(md5) == chartMapCache.end())
-        return {};
-
-    std::vector<pChartFormat> ret;
-    const auto& r = *chartMapCache.at(md5).begin();
-    {
-        switch (eChartFormat(ANY_INT(r[3])))
-        {
-        case eChartFormat::BMS:
-        {
-            auto p = std::make_shared<ChartFormatBMSMeta>();
-            if (convert_bms(p, r))
-            {
-                if (p->filePath.is_absolute())
-                {
-                    p->absolutePath = p->filePath;
-                    ret.push_back(p);
-                }
-                else
-                {
-                    if (folderPathMapCache.find(p->folderHash) != folderPathMapCache.end())
-                    {
-                        p->absolutePath = folderPathMapCache.at(p->folderHash) / p->filePath;
-                        ret.push_back(p);
-                    }
-                }
-            }
-            break;
-        }
-
-        default: break;
-        }
-    }
-
-    // file updates are hopefully covered at folder refresh phase, skip checksum
-    /*
-    // remove file mismatch
-    std::list<size_t> removing;
-    for (size_t i = 0; i < ret.size(); ++i)
-    {
-        auto hash = md5file(ret[i]->absolutePath);
-        if (hash != md5)
-        {
-            LOG_WARNING << "[SongDB] Chart " << ret[i]->absolutePath.u8string() << " has been modified, ignoring";
-            removing.push_front(i);
-        }
-    }
-    for (size_t i : removing)
-    {
-        ret.erase(ret.begin() + i);
-    }
-    */
-
-    return ret;
+    songQueryPool.clear();
+    songQueryPool.shrink_to_fit();
+    songQueryHashMap.clear();
+    songQueryParentMap.clear();
+    folderQueryPool.clear();
+    folderQueryPool.shrink_to_fit();
+    folderQueryHashMap.clear();
+    folderQueryParentMap.clear();
 }
 
 int SongDB::initializeFolders(const std::vector<Path>& paths)
@@ -1114,17 +1078,28 @@ HashMD5 SongDB::getFolderParent(const HashMD5& folder) const
 
 std::pair<bool, Path> SongDB::getFolderPath(const HashMD5& folder) const
 {
-    auto result = query("SELECT type,path FROM folder WHERE pathmd5=?", 2, { folder.hexdigest()});
-    if (!result.empty())
+    if (!folderQueryHashMap.empty())
     {
-        auto leaf = result[0];
-        //if (ANY_INT(leaf[0]) != FOLDER)
-        //{
-        //    LOG_WARNING << "[SongDB] Get folder path type error: excepted " << FOLDER << ", get " << ANY_INT(leaf[0]) <<
-        //        " (" << folder << ")";
-        //    return Path();
-        //}
-        return { true, PathFromUTF8(ANY_STR(leaf[1])) };
+        if (folderQueryHashMap.find(folder) != folderQueryHashMap.end())
+        {
+            auto cols = folderQueryPool[folderQueryHashMap.at(folder)[0]];
+            return { true, PathFromUTF8(ANY_STR(cols[4])) };
+        }
+    }
+    else
+    {
+        auto result = query("SELECT type,path FROM folder WHERE pathmd5=?", 2, { folder.hexdigest() });
+        if (!result.empty())
+        {
+            auto leaf = result[0];
+            //if (ANY_INT(leaf[0]) != FOLDER)
+            //{
+            //    LOG_WARNING << "[SongDB] Get folder path type error: excepted " << FOLDER << ", get " << ANY_INT(leaf[0]) <<
+            //        " (" << folder << ")";
+            //    return Path();
+            //}
+            return { true, PathFromUTF8(ANY_STR(leaf[1])) };
+        }
     }
     LOG_INFO << "[SongDB] Get folder path fail: target " << folder.hexdigest() << " not found";
     return { false, Path() };
@@ -1165,15 +1140,15 @@ EntryFolderRegular SongDB::browse(HashMD5 root, bool recursive)
 
     EntryFolderRegular list(root, path);
 
-    auto result = query("SELECT pathmd5,parent,name,type,path,modtime FROM folder WHERE parent=?", 6, { root.hexdigest() });
-    if (!result.empty())
+    if (folderQueryParentMap.find(root) != folderQueryParentMap.end())
     {
-        for (auto& c : result)
+        for (const auto& index : folderQueryParentMap.at(root))
         {
+            const auto& c = folderQueryPool[index];
             auto md5 = ANY_STR(c[0]);
             auto parent = ANY_STR(c[1]);
             auto name = ANY_STR(c[2]);
-            auto type = (FolderType) ANY_INT(c[3]);
+            auto type = (FolderType)ANY_INT(c[3]);
             auto path = ANY_STR(c[4]);
             auto modtime = ANY_INT(c[5]);
 
@@ -1225,11 +1200,11 @@ EntryFolderSong SongDB::browseSong(HashMD5 root)
     EntryFolderSong list(root, path);
     bool isNameSet = false;
 
-    auto result = query("SELECT * from song WHERE parent=?", SONG_PARAM_COUNT, { root.hexdigest() });
-    if (!result.empty())
+    if (songQueryParentMap.find(root) != songQueryParentMap.end())
     {
-        for (auto& c : result)
+        for (const auto& index : songQueryParentMap.at(root))
         {
+            const auto& c = songQueryPool[index];
             auto type = (eChartFormat)ANY_INT(c[3]);
             switch (type)
             {

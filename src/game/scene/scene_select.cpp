@@ -1326,6 +1326,10 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
                 int count = g_pSongDB->addSubFolder(path, gSelectContext.backtrace.front().parent);
                 g_pSongDB->waitLoadingFinish();
 
+                LOG_INFO << "[List] Building chart hash cache...";
+                g_pSongDB->prepareCache();
+                LOG_INFO << "[List] Building chart hash cache finished.";
+
                 int added = g_pSongDB->addChartSuccess - g_pSongDB->addChartModified;
                 int updated = g_pSongDB->addChartModified;
                 int deleted = g_pSongDB->addChartDeleted;

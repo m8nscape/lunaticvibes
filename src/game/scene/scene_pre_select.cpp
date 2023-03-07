@@ -34,6 +34,7 @@ ScenePreSelect::ScenePreSelect(): vScene(eMode::PRE_SELECT, 240)
         LOG_INFO << "[List] Initializing score.db...";
         std::string scoreDBPath = (ConfigMgr::Profile()->getPath() / "score.db").u8string();
         g_pScoreDB = std::make_shared<ScoreDB>(scoreDBPath.c_str());
+        g_pScoreDB->preloadScore();
 
         // song db
         LOG_INFO << "[List] Initializing song.db...";
@@ -102,7 +103,11 @@ void ScenePreSelect::updateLoadSongs()
 
             LOG_INFO << "[List] Refreshing folders...";
             g_pSongDB->initializeFolders(pathList);
-            LOG_INFO << "Refreshing folders complete.";
+            LOG_INFO << "[List] Refreshing folders complete.";
+
+            LOG_INFO << "[List] Building song list cache...";
+            g_pSongDB->prepareCache();
+            LOG_INFO << "[List] Building song list cache finished.";
 
             LOG_INFO << "[List] Generating root folders...";
             auto top = g_pSongDB->browse(ROOT_FOLDER_HASH, false);
@@ -204,12 +209,6 @@ void ScenePreSelect::updateLoadTables()
 
             // initialize table list
             auto tableList = ConfigMgr::General()->getTablesUrl();
-            if (!tableList.empty())
-            {
-                LOG_INFO << "[List] Building chart hash cache...";
-                g_pSongDB->prepareChartMapCache();
-                LOG_INFO << "[List] Building chart hash cache finished.";
-            }
             for (auto& tableUrl : tableList)
             {
                 LOG_INFO << "[List] Add table " << tableUrl;
@@ -229,7 +228,7 @@ void ScenePreSelect::updateLoadTables()
                         std::shared_ptr<EntryFolderTable> tblLevel = std::make_shared<EntryFolderTable>(folderName, "");
                         for (const auto& r : t.getEntryList(lv))
                         {
-                            auto charts = g_pSongDB->findChartByHashFromCache(r->md5);
+                            auto charts = g_pSongDB->findChartByHash(r->md5, false);
                             bool added = false;
                             for (auto& c : charts)
                             {
@@ -302,8 +301,6 @@ void ScenePreSelect::updateLoadTables()
                         });
                 }
             }
-
-            g_pSongDB->freeChartMapCache();
 
             });
     }
