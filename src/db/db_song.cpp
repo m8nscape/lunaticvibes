@@ -268,6 +268,8 @@ bool SongDB::addChart(const HashMD5& folder, const Path& path)
             {
                 return false;
             }
+            // remove existing entry
+            removeChart(path, folder);
         }
 
         pChartFormat c = ChartFormatBase::createFromFile(path, 2356);
