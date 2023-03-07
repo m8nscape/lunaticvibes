@@ -127,12 +127,12 @@ static bool flipSide = false;
 
             if (div_x == 0)
             {
-                LOG_WARNING << "[Skin] " << csvLineNumber << ": div_x is 0";
+                LOG_DEBUG << "[Skin] " << csvLineNumber << ": div_x is 0";
                 div_x = 1;
             }
             if (div_y == 0)
             {
-                LOG_WARNING << "[Skin] " << csvLineNumber << ": div_y is 0";
+                LOG_DEBUG << "[Skin] " << csvLineNumber << ": div_y is 0";
                 div_y = 1;
             }
 
@@ -762,14 +762,14 @@ Tokens SkinLR2::csvLineTokenize(const std::string& raw)
     // #ELSE
     if (res.size() == 1 && strEqual(res[0], "#ELSE", true))
     {
-        LOG_WARNING << "[Skin] Ignored #ELSE without trailing comma. Line: " << csvLineNumber;
+        LOG_DEBUG << "[Skin] Ignored #ELSE without trailing comma. Line: " << csvLineNumber;
         res.clear();
     }
 
     // last param
     if (!res.empty() && (strEqual(res[0], "#IF", true) || strEqual(res[0], "#ELSEIF", true)) && res.back().length() == 1)
     {
-        LOG_WARNING << "[Skin] Ignored last parameter with 1 character long. Don't forget the trailing comma! Line: " << csvLineNumber;
+        LOG_DEBUG << "[Skin] Ignored last parameter with 1 character long. Don't forget the trailing comma! Line: " << csvLineNumber;
         res.pop_back();
     }
 
@@ -866,14 +866,14 @@ int SkinLR2::LR2FONT()
         if (!fs::is_regular_file(path))
         {
             LR2FontNameMap[fontNameKey] = nullptr;
-            LOG_WARNING << "[Skin] " << csvLineNumber << ": LR2FONT file not found: " << path.u8string();
+            LOG_DEBUG << "[Skin] " << csvLineNumber << ": LR2FONT file not found: " << path.u8string();
             return 1;
         }
 
         std::ifstream ifsFile(path, std::ios::binary);
         if (ifsFile.fail())
         {
-            LOG_WARNING << "[Skin] " << csvLineNumber << ": LR2FONT file open failed: " << path.u8string();
+            LOG_DEBUG << "[Skin] " << csvLineNumber << ": LR2FONT file open failed: " << path.u8string();
             return 1;
         }
 
@@ -1205,7 +1205,7 @@ int SkinLR2::others()
         }
         else
         {
-            LOG_WARNING << "[Skin] #SETOPTION dst invalid (" << dst << "). Should be 900~999";
+            LOG_DEBUG << "[Skin] #SETOPTION dst invalid (" << dst << "). Should be 900~999";
         }
         return 9;
     }
@@ -1662,7 +1662,7 @@ ParseRet SkinLR2::SRC_JUDGELINE()
     }
     if (spriteIdx == -1)
     {
-        LOG_WARNING << "[Skin] " << csvLineNumber << ": Judgeline index invalid (Line " << csvLineNumber << ")";
+        LOG_DEBUG << "[Skin] " << csvLineNumber << ": Judgeline index invalid (Line " << csvLineNumber << ")";
         return ParseRet::PARAM_INVALID;
     }
 
@@ -1681,7 +1681,7 @@ ParseRet SkinLR2::SRC_NOWJUDGE(size_t idx)
 {
     if (idx >= SPRITE_GLOBAL_MAX)
     {
-        LOG_WARNING << "[Skin] " << csvLineNumber << ": Nowjudge idx out of range (Line " << csvLineNumber << ")";
+        LOG_DEBUG << "[Skin] " << csvLineNumber << ": Nowjudge idx out of range (Line " << csvLineNumber << ")";
         return ParseRet::PARAM_INVALID;
     }
 
@@ -1698,7 +1698,7 @@ ParseRet SkinLR2::SRC_NOWCOMBO(size_t idx)
 {
     if (idx >= SPRITE_GLOBAL_MAX)
     {
-        LOG_WARNING << "[Skin] " << csvLineNumber << ": Nowjudge idx out of range (Line " << csvLineNumber << ")";
+        LOG_DEBUG << "[Skin] " << csvLineNumber << ": Nowjudge idx out of range (Line " << csvLineNumber << ")";
         return ParseRet::PARAM_INVALID;
     }
 
@@ -1729,7 +1729,7 @@ ParseRet SkinLR2::SRC_GROOVEGAUGE()
     {
         if (csvLineNumber >= 0)
         {
-            LOG_WARNING << "[Skin] " << csvLineNumber << ": div not enough (Line " << csvLineNumber << ")";
+            LOG_DEBUG << "[Skin] " << csvLineNumber << ": div not enough (Line " << csvLineNumber << ")";
         }
         return ParseRet::DIV_NOT_ENOUGH;
     }
@@ -2051,7 +2051,7 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
     size_t i = channelToIdx(cat, idx);
     if (i == LANE_INVALID)
     {
-        LOG_WARNING << "[Skin] " << csvLineNumber << ": Note channel illegal: " << unsigned(cat) << ", " << unsigned(idx);
+        LOG_DEBUG << "[Skin] " << csvLineNumber << ": Note channel illegal: " << unsigned(cat) << ", " << unsigned(idx);
         return ParseRet::PARAM_INVALID;
     }
 
@@ -2391,7 +2391,7 @@ bool SkinLR2::DST()
         auto e = _sprites.back();
         if (e == nullptr)
         {
-            LOG_WARNING << "[Skin] " << csvLineNumber << ": Previous src definition invalid (Line: " << csvLineNumber << ")";
+            LOG_DEBUG << "[Skin] " << csvLineNumber << ": Previous src definition invalid (Line: " << csvLineNumber << ")";
             return false;
         }
 
@@ -2410,7 +2410,7 @@ bool SkinLR2::DST()
 
                 if (enext == nullptr)
                 {
-                    LOG_WARNING << "[Skin] " << csvLineNumber << ": Previous src definition invalid (Line: " << csvLineNumber << ")";
+                    LOG_DEBUG << "[Skin] " << csvLineNumber << ": Previous src definition invalid (Line: " << csvLineNumber << ")";
                     return false;
                 }
                 sType = enext->type();
@@ -2443,7 +2443,7 @@ bool SkinLR2::DST()
         }
         if (!typeMatch)
         {
-            LOG_WARNING << "[Skin] " << csvLineNumber << ": Previous src definition type mismatch (Line: " << csvLineNumber << ")";
+            LOG_DEBUG << "[Skin] " << csvLineNumber << ": Previous src definition type mismatch (Line: " << csvLineNumber << ")";
             return false;
         }
 
@@ -2614,20 +2614,20 @@ ParseRet SkinLR2::DST_LINE()
     auto e = _sprites.back();
     if (e == nullptr)
     {
-        LOG_WARNING << "[Skin] " << csvLineNumber << ": Barline SRC definition invalid " <<
+        LOG_DEBUG << "[Skin] " << csvLineNumber << ": Barline SRC definition invalid " <<
             "(Line: " << csvLineNumber << ")";
         return ParseRet::SRC_DEF_INVALID;
     }
 
     if (e->type() != SpriteTypes::NOTE_VERT)
     {
-        LOG_WARNING << "[Skin] " << csvLineNumber << ": Barline SRC definition is not NOTE " <<
+        LOG_DEBUG << "[Skin] " << csvLineNumber << ": Barline SRC definition is not NOTE " <<
             "(Line: " << csvLineNumber << ")";
         return ParseRet::SRC_DEF_WRONG_TYPE;
     }
     if (!e->isKeyFrameEmpty())
     {
-        LOG_WARNING << "[Skin] " << csvLineNumber << ": Barline DST is already defined " <<
+        LOG_DEBUG << "[Skin] " << csvLineNumber << ": Barline DST is already defined " <<
             "(Line: " << csvLineNumber << ")";
         e->clearKeyFrames();
     }
@@ -2638,7 +2638,7 @@ ParseRet SkinLR2::DST_LINE()
     auto& [cat, idx] = p->getLane();
     if (cat != chart::NoteLaneCategory::EXTRA || (idx != chart::EXTRA_BARLINE_1P && idx != chart::EXTRA_BARLINE_2P))
     {
-        LOG_WARNING << "[Skin] " << csvLineNumber << ": Previous SRC definition is not LINE " <<
+        LOG_DEBUG << "[Skin] " << csvLineNumber << ": Previous SRC definition is not LINE " <<
             "(Line: " << csvLineNumber << ")";
         return ParseRet::SRC_DEF_WRONG_TYPE;
     }
@@ -2684,7 +2684,7 @@ ParseRet SkinLR2::DST_BAR_BODY()
         auto e = bodyOn ? _barSprites[idx]->getSpriteBodyOn(type) : _barSprites[idx]->getSpriteBodyOff(type);
         if (e == nullptr)
         {
-            LOG_WARNING << "[Skin] " << csvLineNumber << ": SRC_BAR_BODY undefined";
+            LOG_DEBUG << "[Skin] " << csvLineNumber << ": SRC_BAR_BODY undefined";
             return ParseRet::SRC_DEF_INVALID;
         }
 
@@ -2724,7 +2724,7 @@ ParseRet SkinLR2::DST_BAR_FLASH()
         auto e = bar->getSpriteFlash();
         if (e == nullptr)
         {
-            LOG_WARNING << "[Skin] " << csvLineNumber << ": SRC_BAR_FLASH undefined";
+            LOG_DEBUG << "[Skin] " << csvLineNumber << ": SRC_BAR_FLASH undefined";
             return ParseRet::SRC_DEF_INVALID;
         }
 
@@ -2755,7 +2755,7 @@ ParseRet SkinLR2::DST_BAR_LEVEL()
     BarLevelType type = BarLevelType(d._null);
     if (d._null >= (int)BarLevelType::LEVEL_TYPE_COUNT)
     {
-        LOG_WARNING << "[SkinLR2] BarEntry level type (" << int(type) << ") Invalid!"
+        LOG_DEBUG << "[SkinLR2] BarEntry level type (" << int(type) << ") Invalid!"
             << " (Line " << csvLineNumber << ")";
         return ParseRet::PARAM_INVALID;
     }
@@ -2765,7 +2765,7 @@ ParseRet SkinLR2::DST_BAR_LEVEL()
         auto e = bar->getSpriteLevel(type);
         if (e == nullptr)
         {
-            LOG_WARNING << "[Skin] " << csvLineNumber << ": SRC_BAR_LEVEL " << std::to_string(size_t(type)) << " undefined";
+            LOG_DEBUG << "[Skin] " << csvLineNumber << ": SRC_BAR_LEVEL " << std::to_string(size_t(type)) << " undefined";
             return ParseRet::SRC_DEF_INVALID;
         }
 
@@ -2797,7 +2797,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL_MYLAMP()
     auto type = BarLampType(d._null);
     if (d._null >= (int)BarLampType::LAMP_TYPE_COUNT)
     {
-        LOG_WARNING << "[SkinLR2] BarEntry mylamp type (" << int(type) << ") Invalid!"
+        LOG_DEBUG << "[SkinLR2] BarEntry mylamp type (" << int(type) << ") Invalid!"
             << " (Line " << csvLineNumber << ")";
         return ParseRet::PARAM_INVALID;
     }
@@ -2807,7 +2807,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL_MYLAMP()
         auto e = bar->getSpriteRivalLampSelf(type);
         if (e == nullptr)
         {
-            LOG_WARNING << "[Skin] " << csvLineNumber << ": SRC_BAR_MY_LAMP " << std::to_string(size_t(type)) << " undefined";
+            LOG_DEBUG << "[Skin] " << csvLineNumber << ": SRC_BAR_MY_LAMP " << std::to_string(size_t(type)) << " undefined";
             return ParseRet::SRC_DEF_INVALID;
         }
 
@@ -2837,7 +2837,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL_RIVALLAMP()
     auto type = BarLampType(d._null);
     if (d._null >= (int)BarLampType::LAMP_TYPE_COUNT)
     {
-        LOG_WARNING << "[SkinLR2] BarEntry rivallamp type (" << int(type) << ") Invalid!"
+        LOG_DEBUG << "[SkinLR2] BarEntry rivallamp type (" << int(type) << ") Invalid!"
             << " (Line " << csvLineNumber << ")";
         return ParseRet::PARAM_INVALID;
     }
@@ -2847,7 +2847,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL_RIVALLAMP()
         auto e = bar->getSpriteRivalLampRival(type);
         if (e == nullptr)
         {
-            LOG_WARNING << "[Skin] " << csvLineNumber << ": SRC_BAR_RIVAL_LAMP " << std::to_string(size_t(type)) << " undefined";
+            LOG_DEBUG << "[Skin] " << csvLineNumber << ": SRC_BAR_RIVAL_LAMP " << std::to_string(size_t(type)) << " undefined";
             return ParseRet::SRC_DEF_INVALID;
         }
 
@@ -2878,7 +2878,7 @@ ParseRet SkinLR2::DST_BAR_LAMP()
     auto type = BarLampType(d._null);
     if (d._null >= (int)BarLampType::LAMP_TYPE_COUNT)
     {
-        LOG_WARNING << "[SkinLR2] BarEntry lamp type (" << int(type) << ") Invalid!"
+        LOG_DEBUG << "[SkinLR2] BarEntry lamp type (" << int(type) << ") Invalid!"
             << " (Line " << csvLineNumber << ")";
         return ParseRet::PARAM_INVALID;
     }
@@ -2888,7 +2888,7 @@ ParseRet SkinLR2::DST_BAR_LAMP()
         auto e = bar->getSpriteLamp(type);
         if (e == nullptr)
         {
-            LOG_WARNING << "[Skin] " << csvLineNumber << ": SRC_BAR_LAMP " << std::to_string(size_t(type)) << " undefined";
+            LOG_DEBUG << "[Skin] " << csvLineNumber << ": SRC_BAR_LAMP " << std::to_string(size_t(type)) << " undefined";
             return ParseRet::SRC_DEF_INVALID;
         }
 
@@ -2919,7 +2919,7 @@ ParseRet SkinLR2::DST_BAR_TITLE()
     auto type = BarTitleType(d._null);
     if (d._null >= (int)BarTitleType::TITLE_TYPE_COUNT)
     {
-        LOG_WARNING << "[SkinLR2] BarEntry title type (" << int(type) << ") Invalid!"
+        LOG_DEBUG << "[SkinLR2] BarEntry title type (" << int(type) << ") Invalid!"
             << " (Line " << csvLineNumber << ")";
         return ParseRet::PARAM_INVALID;
     }
@@ -2929,7 +2929,7 @@ ParseRet SkinLR2::DST_BAR_TITLE()
         auto e = bar->getSpriteTitle(type);
         if (e == nullptr)
         {
-            LOG_WARNING << "[Skin] " << csvLineNumber << ": SRC_BAR_TITLE undefined";
+            LOG_DEBUG << "[Skin] " << csvLineNumber << ": SRC_BAR_TITLE undefined";
             return ParseRet::SRC_DEF_INVALID;
         }
 
@@ -2960,7 +2960,7 @@ ParseRet SkinLR2::DST_BAR_RANK()
     auto type = BarRankType(d._null);
     if (d._null >= (int)BarRankType::RANK_TYPE_COUNT)
     {
-        LOG_WARNING << "[SkinLR2] BarEntry rank type (" << int(type) << ") Invalid!"
+        LOG_DEBUG << "[SkinLR2] BarEntry rank type (" << int(type) << ") Invalid!"
             << " (Line " << csvLineNumber << ")";
         return ParseRet::PARAM_INVALID;
     }
@@ -2970,7 +2970,7 @@ ParseRet SkinLR2::DST_BAR_RANK()
         auto e = bar->getSpriteRank(type);
         if (e == nullptr)
         {
-            LOG_WARNING << "[Skin] " << csvLineNumber << ": SRC_BAR_RANK " << std::to_string(size_t(type)) << " undefined";
+            LOG_DEBUG << "[Skin] " << csvLineNumber << ": SRC_BAR_RANK " << std::to_string(size_t(type)) << " undefined";
             return ParseRet::SRC_DEF_INVALID;
         }
 
@@ -3003,7 +3003,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL()
     {
         if (csvLineNumber >= 0)
         {
-            LOG_WARNING << "[SkinLR2] BarEntry rival type (" << int(type) << ") Invalid!"
+            LOG_DEBUG << "[SkinLR2] BarEntry rival type (" << int(type) << ") Invalid!"
                 << " (Line " << csvLineNumber << ")";
         }
         return ParseRet::PARAM_INVALID;
@@ -3014,7 +3014,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL()
         auto e = bar->getSpriteRivalWinLose(type);
         if (e == nullptr)
         {
-            LOG_WARNING << "[Skin] " << csvLineNumber << ": SRC_BAR_RIVAL " << std::to_string(size_t(type)) << " undefined";
+            LOG_DEBUG << "[Skin] " << csvLineNumber << ": SRC_BAR_RIVAL " << std::to_string(size_t(type)) << " undefined";
             return ParseRet::SRC_DEF_INVALID;
         }
 
@@ -3105,7 +3105,7 @@ int SkinLR2::parseHeader(const Tokens& raw)
         int dst_op = toInt(parseParamBuf[1]);
         if (dst_op < 900 || dst_op > 999)
         {
-            LOG_WARNING << "[Skin] " << csvLineNumber << ": Invalid option value: " << dst_op;
+            LOG_DEBUG << "[Skin] " << csvLineNumber << ": Invalid option value: " << dst_op;
             return -2;
         }
         std::vector<StringContent> op_label;
@@ -3220,15 +3220,15 @@ int SkinLR2::parseBody(const Tokens &raw)
         if (DST())
             return 8;
 
-        LOG_WARNING << "[Skin] " << csvLineNumber << ": Invalid def \"" << parseKeyBuf << "\" (Line " << csvLineNumber << ")";
+        LOG_DEBUG << "[Skin] " << csvLineNumber << ": Invalid def \"" << parseKeyBuf << "\" (Line " << csvLineNumber << ")";
     }
     catch (std::invalid_argument e)
     {
-        LOG_WARNING << "[Skin] " << csvLineNumber << ": Invalid Argument: " << "(Line " << csvLineNumber << ")";
+        LOG_DEBUG << "[Skin] " << csvLineNumber << ": Invalid Argument: " << "(Line " << csvLineNumber << ")";
     }
     catch (std::out_of_range e)
     {
-        LOG_WARNING << "[Skin] " << csvLineNumber << ": Out of range: " << "(Line " << csvLineNumber << ")";
+        LOG_DEBUG << "[Skin] " << csvLineNumber << ": Out of range: " << "(Line " << csvLineNumber << ")";
     }
     return 0;
 }
@@ -3237,7 +3237,7 @@ void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc, bool
 {
     if (t.size() <= 1 && !matchToken(*t.begin(), "#ELSEIF") && matchToken(*t.begin(), "#ENDIF"))
     {
-        LOG_WARNING << "[Skin] " << csvLineNumber << ": No IF parameters, ignoring. " << " (Line " << csvLineNumber << ")";
+        LOG_DEBUG << "[Skin] " << csvLineNumber << ": No IF parameters, ignoring. " << " (Line " << csvLineNumber << ")";
         return;
     }
 
@@ -3291,7 +3291,7 @@ void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc, bool
             auto [idx, val] = toPairUIntBool(*it);
             if (idx == -1)
             {
-                LOG_WARNING << "[Skin] " << csvLineNumber << ": Invalid DST_OPTION Index, deal as false (Line " << csvLineNumber << ")";
+                LOG_DEBUG << "[Skin] " << csvLineNumber << ": Invalid DST_OPTION Index, deal as false (Line " << csvLineNumber << ")";
                 ifStmtTrue = false;
                 break;
             }
@@ -3662,15 +3662,15 @@ bool SkinLR2::loadCSV(Path p)
             }
             else if (matchToken(*tokens.begin(), "#ELSE"))
             {
-                LOG_WARNING << "[Skin] Unexcepted #ELSE found without precedent #IF " << "(Line " << csvLineNumber << ")";
+                LOG_DEBUG << "[Skin] Unexcepted #ELSE found without precedent #IF " << "(Line " << csvLineNumber << ")";
             }
             else if (matchToken(*tokens.begin(), "#ELSEIF"))
             {
-                LOG_WARNING << "[Skin] Unexcepted #ELSEIF found without precedent #IF " << "(Line " << csvLineNumber << ")";
+                LOG_DEBUG << "[Skin] Unexcepted #ELSEIF found without precedent #IF " << "(Line " << csvLineNumber << ")";
             }
             else if (matchToken(*tokens.begin(), "#ENDIF"))
             {
-                LOG_WARNING << "[Skin] Unexcepted #ENDIF found without precedent #IF " << "(Line " << csvLineNumber << ")";
+                LOG_DEBUG << "[Skin] Unexcepted #ENDIF found without precedent #IF " << "(Line " << csvLineNumber << ")";
             }
             else
             {

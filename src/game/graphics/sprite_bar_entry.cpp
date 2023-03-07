@@ -8,7 +8,7 @@ int SpriteBarEntry::setBody(BarType type, pTexture texture, const Rect& rect, un
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarType::TYPE_COUNT))
     {
-        LOG_WARNING << "[Sprite] BarBody type (" << int(type) << "Invalid!"
+        LOG_DEBUG << "[Sprite] BarBody type (" << int(type) << "Invalid!"
             << " (Line " << _srcLine << ")";
         return 1;
     }
@@ -37,16 +37,16 @@ int SpriteBarEntry::setLevel(BarLevelType type, pTexture texture, const Rect& re
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarLevelType::LEVEL_TYPE_COUNT))
     {
-        LOG_WARNING << "[Sprite] BarEntry level type (" << int(type) << "Invalid!"
+        LOG_DEBUG << "[Sprite] BarEntry level type (" << int(type) << "Invalid!"
             << " (Line " << _srcLine << ")";
         return 1;
     }
 
     if (digits < 3 && type == BarLevelType::IRRANK)
-        LOG_WARNING << "[Sprite] BarEntry level digit (" << digits << ") not enough for IRRANK "
+        LOG_DEBUG << "[Sprite] BarEntry level digit (" << digits << ") not enough for IRRANK "
             << " (Line " << _srcLine << ")";
     else if (digits < 2)
-        LOG_WARNING << "[Sprite] BarEntry level digit (" << digits << ") not enough for idx " << int(type)
+        LOG_DEBUG << "[Sprite] BarEntry level digit (" << digits << ") not enough for idx " << int(type)
             << " (Line " << _srcLine << ")";
 
     sLevel[static_cast<size_t>(type)] = std::make_shared<SpriteNumber>(
@@ -60,7 +60,7 @@ int SpriteBarEntry::setLamp(BarLampType type, pTexture texture, const Rect& rect
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarLampType::LAMP_TYPE_COUNT))
     {
-        LOG_WARNING << "[Sprite] BarEntry lamp type (" << int(type) << "Invalid!"
+        LOG_DEBUG << "[Sprite] BarEntry lamp type (" << int(type) << "Invalid!"
             << " (Line " << _srcLine << ")";
         return 1;
     }
@@ -92,7 +92,7 @@ int SpriteBarEntry::setRank(BarRankType type, pTexture texture, const Rect& rect
     {
         if (_srcLine >= 0)
         {
-            LOG_WARNING << "[Sprite] BarEntry rank type (" << int(type) << "Invalid!"
+            LOG_DEBUG << "[Sprite] BarEntry rank type (" << int(type) << "Invalid!"
                 << " (Line " << _srcLine << ")";
         }
         return 1;
@@ -110,7 +110,7 @@ int SpriteBarEntry::setRivalWinLose(BarRivalType type, pTexture texture, const R
     {
         if (_srcLine >= 0)
         {
-            LOG_WARNING << "[Sprite] BarEntry rival type (" << int(type) << ") Invalid!"
+            LOG_DEBUG << "[Sprite] BarEntry rival type (" << int(type) << ") Invalid!"
                 << " (Line " << _srcLine << ")";
         }
         return 1;
@@ -128,7 +128,7 @@ int SpriteBarEntry::setRivalLampSelf(BarLampType type, pTexture texture, const R
     {
         if (_srcLine >= 0)
         {
-            LOG_WARNING << "[Sprite] BarEntry rival lamp self type (" << int(type) << "Invalid!"
+            LOG_DEBUG << "[Sprite] BarEntry rival lamp self type (" << int(type) << "Invalid!"
                 << " (Line " << _srcLine << ")";
         }
         return 1;
@@ -146,7 +146,7 @@ int SpriteBarEntry::setRivalLampRival(BarLampType type, pTexture texture, const 
     {
         if (_srcLine >= 0)
         {
-            LOG_WARNING << "[Sprite] BarEntry rival lamp rival type (" << int(type) << "Invalid!"
+            LOG_DEBUG << "[Sprite] BarEntry rival lamp rival type (" << int(type) << "Invalid!"
                 << " (Line " << _srcLine << ")";
         }
         return 1;

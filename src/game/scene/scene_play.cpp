@@ -287,6 +287,13 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
         return;
     }
 
+    LOG_DEBUG << "[Play] " << gChartContext.chartObj->title << " " << gChartContext.chartObj->title2 << " [" << gChartContext.chartObj->version << "]";
+    LOG_DEBUG << "[Play] MD5: " << gChartContext.chartObj->fileHash.hexdigest();
+    LOG_DEBUG << "[Play] Mode: " << gChartContext.chartObj->gamemode;
+    LOG_DEBUG << "[Play] BPM: " << gChartContext.chartObj->startBPM
+        << " (" << gChartContext.chartObj->minBPM
+        << " - " << gChartContext.chartObj->maxBPM << ")";
+
     if (gPlayContext.replayMybest)
     {
         gChartContext.chartObjMybest = ChartFormatBase::createFromFile(gChartContext.path, gPlayContext.replayMybest->randomSeed);
@@ -330,6 +337,14 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
     // chartobj
     _chartLoaded = createChartObj();
     gPlayContext.remainTime = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getTotalLength();
+
+    LOG_DEBUG << "[Play] Real BPM: " << gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentBPM()
+        << " (" << gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getPlayMinBPM()
+        << " - " << gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getPlayMaxBPM()
+        << ") / Avg: " << gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getAverageBPM()
+        << " / Main: " << gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getMainBPM();
+    LOG_DEBUG << "[Play] Notes: " << gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getNoteTotalCount();
+    LOG_DEBUG << "[Play] Length: " << gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getTotalLength().norm() / 1000;
 
     // set gauge type
     if (gChartContext.chartObj)
@@ -390,6 +405,13 @@ ScenePlay::ScenePlay(): vScene(gPlayContext.mode, 1000, true)
             gNextScene = eScene::COURSE_RESULT;
             return;
         }
+    }
+
+    if (gPlayContext.isCourse)
+    {
+        LOG_DEBUG << "[Play] Course stage " << gPlayContext.courseStage;
+        LOG_DEBUG << "[Play] Running combo: " << gPlayContext.courseRunningCombo[PLAYER_SLOT_PLAYER] << " / " << gPlayContext.courseRunningCombo[PLAYER_SLOT_TARGET];
+        LOG_DEBUG << "[Play] Health: " << gPlayContext.initialHealth[PLAYER_SLOT_PLAYER] << " / " << gPlayContext.initialHealth[PLAYER_SLOT_TARGET];
     }
 
     _hispeedOld[PLAYER_SLOT_PLAYER] = gPlayContext.Hispeed;
