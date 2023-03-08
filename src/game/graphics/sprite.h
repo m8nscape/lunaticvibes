@@ -77,10 +77,15 @@ typedef std::shared_ptr<Texture> pTexture;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Render interface
+
+class SpriteGlobal;
+class SpriteBarEntry;
 class vSprite: public std::enable_shared_from_this<vSprite>
 {
     friend class vSkin;
 	friend class SkinLR2;
+    friend class SpriteGlobal;
+    friend class SpriteBarEntry;
 protected:
     SpriteTypes _type;
 public:
@@ -98,12 +103,19 @@ protected:
     RenderParams _current;
     std::vector<RenderKeyFrame> _keyFrames;
 public:
-    vSprite(pTexture pTexture, SpriteTypes type = SpriteTypes::VIRTUAL);
+    struct SpriteBuilder
+    {
+        int srcLine = -1;
+
+        pTexture texture = nullptr;
+    };
+public:
+    vSprite(const SpriteBuilder& builder);
 	virtual ~vSprite() = default;
+protected:
+    vSprite(const SpriteTypes type, int srcLine) : _type(type), _srcLine(srcLine) {}
 public:
     void setSrcLine(int i) { _srcLine = i; }
-    RenderParams getCurrentRenderParams();
-    RenderParams& getCurrentRenderParamsRef();
     bool updateByKeyframes(const Time& time);
 	virtual bool update(const Time& time);
     virtual void setLoopTime(int t);
@@ -136,40 +148,47 @@ class SpriteGlobal: public vSprite
 {
 protected:
     size_t idx;
-    std::shared_ptr<vSprite> pS{ nullptr };
+    std::shared_ptr<vSprite> pSpriteRef{ nullptr };
 
 public:
-    SpriteGlobal(size_t idx) :vSprite(nullptr, SpriteTypes::GLOBAL), idx(idx) {}
+    SpriteGlobal(size_t idx, int srcLine = -1) : vSprite(SpriteTypes::GLOBAL, srcLine), idx(idx) {}
     virtual ~SpriteGlobal() = default;
 
     size_t getIdx() {
         return idx;
     }
 
-    void set(std::shared_ptr<vSprite> p) {
-        pS = p;
+    void setSpriteReference(std::shared_ptr<vSprite> p) {
+        pSpriteRef = p;
+        _srcLine = p->_srcLine;
     }
 
     virtual bool update(const Time& time) {
         vSprite::update(time);
-        if (getIdx()) set(gSprites[getIdx()]);
-        if (pS) return pS->update(time);
+        if (getIdx()) 
+            setSpriteReference(gSprites[getIdx()]);
+        if (pSpriteRef) 
+            return pSpriteRef->update(time);
         return false;
     }
     virtual void setLoopTime(int t) {
         vSprite::setLoopTime(t);
-        if (pS) pS->setLoopTime(t);
+        if (pSpriteRef) 
+            pSpriteRef->setLoopTime(t);
     }
     virtual void setTrigTimer(IndexTimer t) {
         vSprite::setTrigTimer(t);
-        if (pS) pS->setTrigTimer(t);
+        if (pSpriteRef) 
+            pSpriteRef->setTrigTimer(t);
     }
     virtual void appendKeyFrame(const RenderKeyFrame& f) override {
         vSprite::appendKeyFrame(f);
-        if (pS) pS->appendKeyFrame(f);
+        if (pSpriteRef) 
+            pSpriteRef->appendKeyFrame(f);
     }
     virtual void draw() const {
-        if (pS) pS->draw();
+        if (pSpriteRef) 
+            pSpriteRef->draw();
     }
 };
 
@@ -182,10 +201,18 @@ class SpriteStatic : public vSprite
 protected:
     Rect _texRect;
 public:
+    struct SpriteStaticBuilder : SpriteBuilder
+    {
+        Rect textureRect = RECT_FULL;
+
+        std::shared_ptr<SpriteStatic> build() const { return std::make_shared<SpriteStatic>(*this); }
+    };
+public:
     SpriteStatic() = delete;
-    SpriteStatic(pTexture texture);
-    SpriteStatic(pTexture texture, const Rect& rect);
+    SpriteStatic(const SpriteStaticBuilder& builder);
     virtual ~SpriteStatic() = default;
+protected:
+    SpriteStatic(pTexture texture, const Rect& texRect, int srcLine = -1);
 public:
     virtual void draw() const;
 
@@ -202,16 +229,20 @@ class SpriteSelection : public vSprite
 protected:
     std::vector<Rect> _texRect;
     unsigned _srows = 0, _scols = 0, _segments = 0;
-    frameIdx _selectionIdx = 0;        
+    frameIdx _selectionIdx = 0;
+public:
+    struct SpriteSelectionBuilder: SpriteBuilder
+    {
+        Rect textureRect;
+        unsigned textureSheetRows = 0;
+        unsigned textureSheetCols = 0;
+        bool textureSheetVerticalIndexing = false;
+
+        std::shared_ptr<SpriteSelection> build() const { return std::make_shared<SpriteSelection>(*this); }
+    };
 public:
     SpriteSelection() = delete;
-
-    SpriteSelection(pTexture texture,
-        unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);  // Copy texture, full area
-
-    SpriteSelection(pTexture texture, const Rect& rect,
-        unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);  // Copy texture, specified area
-
+    SpriteSelection(const SpriteSelectionBuilder& builder);
     virtual ~SpriteSelection() = default;
 public:
 	virtual bool update(const Time& t);
@@ -240,16 +271,17 @@ protected:
     frameIdx _currAnimFrame = 0;
     //Rect _drawRect;
 public:
+    struct SpriteAnimatedBuilder: SpriteSelectionBuilder
+    {
+        unsigned animationFrameCount = 0;
+        unsigned animationLengthPerLoop = 0;
+        IndexTimer animationTimer = IndexTimer::SCENE_START;
+
+        std::shared_ptr<SpriteAnimated> build() const { return std::make_shared<SpriteAnimated>(*this); }
+    };
+public:
     SpriteAnimated() = delete;
-
-    SpriteAnimated(pTexture texture,
-        unsigned animFrames, unsigned frameTime, IndexTimer timer = IndexTimer::SCENE_START, 
-        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
-
-    SpriteAnimated(pTexture texture, const Rect& rect,
-        unsigned animFrames, unsigned frameTime, IndexTimer timer = IndexTimer::SCENE_START, 
-        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
-
+    SpriteAnimated(const SpriteAnimatedBuilder& builder);
     virtual ~SpriteAnimated() = default;
 public:
     void updateByTimer(const Time& t);
@@ -266,7 +298,7 @@ typedef std::shared_ptr<TTFFont> pFont;
 
 // Text sprite:
 // TTFFont contains Texture object
-class SpriteText: public SpriteStatic, public iSpriteMouse
+class SpriteText: public vSprite, public iSpriteMouse
 {
 private:
 	pFont _pFont;
@@ -285,10 +317,25 @@ protected:
     std::string _textBeforeEdit;
     std::string _textAfterEdit;
 
+private:
+    pTexture _pTexture;
+    Rect _texRect;
+
+public:
+    struct SpriteTextBuilder : SpriteBuilder
+    {
+        pFont font = nullptr;
+        IndexText textInd = IndexText::INVALID;
+        TextAlign align = TEXT_ALIGN_LEFT;
+        unsigned ptsize = 72;
+        Color color = 0xffffffff;
+        bool editable = false;
+
+        std::shared_ptr<SpriteText> build() const { return std::make_shared<SpriteText>(*this); }
+    };
 public:
     SpriteText() = delete;
-    SpriteText(pFont f, IndexText textInd = IndexText::INVALID, TextAlign align = TEXT_ALIGN_LEFT, unsigned ptsize = 72, Color c = 0xffffffff);
-    //SpriteText(pFont f, Rect rect, IndexText textInd = IndexText::INVALID, TextAlign align = TEXT_ALIGN_LEFT, unsigned ptsize = 72, Color c = 0xffffffff);
+    SpriteText(const SpriteTextBuilder& builder);
     virtual ~SpriteText() = default;
 public:
     virtual void updateText();
@@ -296,7 +343,6 @@ public:
 	virtual bool update(const Time& t);
     virtual void draw() const;
     TextAlign getAlignType() const { return _align; }
-    void setEditable(bool e) { _editable = e; }
 private:
     void setInputBindingText(std::string&& text, const Color& c);
 
@@ -314,7 +360,8 @@ public:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-// Number sprite:
+// 
+//  sprite:
 // A number sprite instance contains [digit] SpriteAnimated objects, 
 // in which Digit is decided by SpriteSplit part.
 // texture split count should be 10, 11, 22 or 24. Each represents:
@@ -360,16 +407,18 @@ protected:
     bool _inhibitZero = false;
 
 public:
+    struct SpriteNumberBuilder : SpriteAnimatedBuilder
+    {
+        NumberAlign align = NUM_ALIGN_RIGHT;
+        unsigned maxDigits = 0;
+        IndexNumber numInd = IndexNumber::ZERO;
+        bool hideLeadingZeros = false;
+
+        std::shared_ptr<SpriteNumber> build() const { return std::make_shared<SpriteNumber>(*this); }
+    };
+public:
     SpriteNumber() = delete;
-
-	SpriteNumber(pTexture texture, NumberAlign align, unsigned maxDigits,
-        unsigned numRows, unsigned numCols, unsigned frameTime, IndexNumber num = IndexNumber::ZERO, IndexTimer animtimer = IndexTimer::SCENE_START,
-		unsigned animFrames = 1, bool numVerticalIndexing = false);
-
-	SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align, unsigned maxDigits,
-        unsigned numRows, unsigned numCols, unsigned frameTime, IndexNumber num = IndexNumber::ZERO, IndexTimer animtimer = IndexTimer::SCENE_START,
-		unsigned animFrames = 1, bool numVerticalIndexing = false);
-
+    SpriteNumber(const SpriteNumberBuilder& builder);
     virtual ~SpriteNumber() = default;
 
 public:
@@ -405,16 +454,18 @@ private:
     std::function<void(double)> _callback;
 
 public:
+    struct SpriteSliderBuilder : SpriteAnimatedBuilder
+    {
+        SliderDirection sliderDirection = SliderDirection::UP;
+        IndexSlider sliderInd = IndexSlider::ZERO;
+        int sliderRange = 0;
+        std::function<void(double)> callOnChanged;
+
+        std::shared_ptr<SpriteSlider> build() const { return std::make_shared<SpriteSlider>(*this); }
+    };
+public:
     SpriteSlider() = delete;
-
-    SpriteSlider(pTexture texture, SliderDirection dir, int range, std::function<void(double)> cb,
-        unsigned animFrames, unsigned frameTime, IndexSlider s = IndexSlider::ZERO, IndexTimer timer = IndexTimer::SCENE_START,
-        unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
-
-    SpriteSlider(pTexture texture, const Rect& rect, SliderDirection dir, int range, std::function<void(double)> cb,
-        unsigned animFrames, unsigned frameTime, IndexSlider s = IndexSlider::ZERO, IndexTimer timer = IndexTimer::SCENE_START,
-        unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
-
+    SpriteSlider(const SpriteSliderBuilder& builder);
     virtual ~SpriteSlider() = default;
 
 public:
@@ -447,16 +498,16 @@ private:
     BargraphDirection _dir;
 
 public:
+    struct SpriteBargraphBuilder : SpriteAnimatedBuilder
+    {
+        BargraphDirection barDirection = BargraphDirection::RIGHT;
+        IndexBargraph barInd = IndexBargraph::ZERO;
+
+        std::shared_ptr<SpriteBargraph> build() const { return std::make_shared<SpriteBargraph>(*this); }
+    };
+public:
     SpriteBargraph() = delete;
-
-    SpriteBargraph(pTexture texture, BargraphDirection dir,
-        unsigned animFrames, unsigned frameTime, IndexBargraph s = IndexBargraph::ZERO, IndexTimer timer = IndexTimer::SCENE_START,
-        unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
-
-    SpriteBargraph(pTexture texture, const Rect& rect, BargraphDirection dir,
-        unsigned animFrames, unsigned frameTime, IndexBargraph s = IndexBargraph::ZERO, IndexTimer timer = IndexTimer::SCENE_START,
-        unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false);
-
+    SpriteBargraph(const SpriteBargraphBuilder& builder);
     virtual ~SpriteBargraph() = default;
 
 public:
@@ -486,16 +537,16 @@ protected:
     unsigned _value = 0;
 
 public:
+    struct SpriteOptionBuilder : SpriteAnimatedBuilder
+    {
+        opType optionType;
+        unsigned optionInd;
+
+        std::shared_ptr<SpriteOption> build() const { return std::make_shared<SpriteOption>(*this); }
+    };
+public:
+    SpriteOption(const SpriteOptionBuilder& builder);
     SpriteOption() = delete;
-
-    SpriteOption(pTexture texture,
-        unsigned animFrames, unsigned frameTime, IndexTimer timer = IndexTimer::SCENE_START,
-		 unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
-
-    SpriteOption(pTexture texture, const Rect& rect,
-        unsigned animFrames, unsigned frameTime, IndexTimer timer = IndexTimer::SCENE_START,
-		 unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
-
     virtual ~SpriteOption() = default;
 
 public:
@@ -516,16 +567,17 @@ protected:
     int _plusonly_value;
 
 public:
+    struct SpriteButtonBuilder : SpriteOptionBuilder
+    {
+        int clickableOnPanel = -1;
+        int plusonlyDelta = 0;
+        std::function<void(int)> callOnClick;
+
+        std::shared_ptr<SpriteButton> build() const { return std::make_shared<SpriteButton>(*this); }
+    };
+public:
     SpriteButton() = delete;
-
-    SpriteButton(pTexture texture,
-        unsigned animFrames, unsigned frameTime, std::function<void(int)> cb, int panel, int plusonlyValue, IndexTimer timer = IndexTimer::SCENE_START,
-        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
-
-    SpriteButton(pTexture texture, const Rect& rect,
-        unsigned animFrames, unsigned frameTime, std::function<void(int)> cb, int panel, int plusonlyValue, IndexTimer timer = IndexTimer::SCENE_START,
-        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
-
+    SpriteButton(const SpriteButtonBuilder& builder);
     virtual ~SpriteButton() = default;
 
 public:
@@ -582,20 +634,20 @@ private:
 	GaugeType _gaugeType = GaugeType::GROOVE;
 
 public:
+    struct SpriteGaugeGridBuilder : SpriteAnimatedBuilder
+    {
+        int dx = 0;
+        int dy = 0;
+        int gaugeMin = 0;
+        int gaugeMax = 100;
+        int gridCount = 50;
+        IndexNumber numInd = IndexNumber::PLAY_1P_GROOVEGAUGE;
+
+        std::shared_ptr<SpriteGaugeGrid> build() const { return std::make_shared<SpriteGaugeGrid>(*this); }
+    };
+public:
     SpriteGaugeGrid() = delete;
-
-    SpriteGaugeGrid(pTexture texture,
-        unsigned animFrames, unsigned frameTime, int dx, int dy, 
-        unsigned min = 0, unsigned max = 100, unsigned grids = 50,
-		IndexTimer timer = IndexTimer::SCENE_START, IndexNumber num = IndexNumber::PLAY_1P_GROOVEGAUGE,
-		 unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
-
-    SpriteGaugeGrid(pTexture texture, const Rect& rect,
-        unsigned animFrames, unsigned frameTime, int dx, int dy, 
-        unsigned min = 0, unsigned max = 100, unsigned grids = 50,
-		IndexTimer timer = IndexTimer::SCENE_START, IndexNumber num = IndexNumber::PLAY_1P_GROOVEGAUGE,
-		 unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
-
+    SpriteGaugeGrid(const SpriteGaugeGridBuilder& builder);
     virtual ~SpriteGaugeGrid() = default;
 
 public:
@@ -618,16 +670,16 @@ protected:
     Rect area;
 
 public:
+    struct SpriteOnMouseBuilder : SpriteAnimatedBuilder
+    {
+        int visibleOnPanel = -1;
+        Rect mouseArea;
+
+        std::shared_ptr<SpriteOnMouse> build() const { return std::make_shared<SpriteOnMouse>(*this); }
+    };
+public:
     SpriteOnMouse() = delete;
-
-    SpriteOnMouse(pTexture texture, 
-        unsigned animFrames, unsigned frameTime, int panel, const Rect& mouseArea, IndexTimer timer = IndexTimer::SCENE_START,
-        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
-
-    SpriteOnMouse(pTexture texture, const Rect& rect, 
-        unsigned animFrames, unsigned frameTime, int panel, const Rect& mouseArea, IndexTimer timer = IndexTimer::SCENE_START,
-        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
-
+    SpriteOnMouse(const SpriteOnMouseBuilder& builder);
     virtual ~SpriteOnMouse() = default;
 
 public:
@@ -643,21 +695,14 @@ public:
 // Cursor
 class SpriteCursor : public SpriteAnimated, public iSpriteMouse
 {
-protected:
-    int panelIdx;
-    Rect area;
-
+public:
+    struct SpriteCursorBuilder : SpriteAnimatedBuilder
+    {
+        std::shared_ptr<SpriteCursor> build() const { return std::make_shared<SpriteCursor>(*this); }
+    };
 public:
     SpriteCursor() = delete;
-
-    SpriteCursor(pTexture texture, 
-        unsigned animFrames, unsigned frameTime, IndexTimer timer = IndexTimer::SCENE_START,
-        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
-
-    SpriteCursor(pTexture texture, const Rect& rect,
-        unsigned animFrames, unsigned frameTime, IndexTimer timer = IndexTimer::SCENE_START,
-        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false);
-
+    SpriteCursor(const SpriteCursorBuilder& builder);
     virtual ~SpriteCursor() = default;
 
 public:

@@ -14,9 +14,9 @@ class mock_Texture : public Texture
 {
 public:
     mock_Texture() :Texture(mock_Image()) { _texRect = TEST_RECT; _loaded = true; }
-    MOCK_CONST_METHOD6(draw, void(const Rect& srcRect, Rect dstRect,
+    MOCK_CONST_METHOD6(draw, void(const Rect& srcRect, RectF dstRect,
         const Color c, const BlendMode blend, const bool filter, const double angleInDegrees));
-    MOCK_CONST_METHOD7(draw, void(const Rect& srcRect, Rect dstRect,
+    MOCK_CONST_METHOD7(draw, void(const Rect& srcRect, RectF dstRect,
         const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point& pt));
 };
 
@@ -94,7 +94,7 @@ TEST(Rect, add_normal)
 class mock_vSprite : public vSprite
 {
 public:
-    mock_vSprite(pTexture pTexture, SpriteTypes type = SpriteTypes::VIRTUAL) : vSprite(pTexture, type) {}
+    mock_vSprite(const SpriteBuilder& builder) : vSprite(builder) {}
     MOCK_CONST_METHOD0(draw, void());
     FRIEND_TEST(test_vSprite, rectConstruct);
     FRIEND_TEST(test_vSprite, func_update);
@@ -104,10 +104,10 @@ class test_vSprite : public ::testing::Test
 {
 protected:
     std::shared_ptr<mock_Texture> pt{ std::make_shared<mock_Texture>() };
-    Rect rFull{ 0 };
-    mock_vSprite ss1{ pt };
-    mock_vSprite ss1_1{ pt };
-    mock_vSprite ss1_2{ pt };
+    vSprite::SpriteBuilder builder{ -1, pt };
+    mock_vSprite ss1{ builder };
+    mock_vSprite ss1_1{ builder };
+    mock_vSprite ss1_2{ builder };
 public:
     test_vSprite()
     {
@@ -135,50 +135,50 @@ TEST_F(test_vSprite, func_update)
 
     ss1.update(t);
     ASSERT_TRUE(ss1._draw);
-    ASSERT_EQ(ss1.getCurrentRenderParams().rect, Rect(0, 0, 0, 0));
-    ASSERT_EQ(ss1.getCurrentRenderParams().color, Color(255, 255, 255, 255));
-    ASSERT_EQ(ss1.getCurrentRenderParams().angle, 0);
+    ASSERT_EQ(ss1._current.rect, RectF(0, 0, 0, 0));
+    ASSERT_EQ(ss1._current.color, Color(255, 255, 255, 255));
+    ASSERT_EQ(ss1._current.angle, 0);
 
     ss1.update(t1);
     ASSERT_TRUE(ss1._draw);
-    ASSERT_EQ(ss1.getCurrentRenderParams().rect, Rect(0, 0, 0, 0));
-    ASSERT_EQ(ss1.getCurrentRenderParams().color, Color(255, 255, 255, 255));
-    ASSERT_EQ(ss1.getCurrentRenderParams().angle, 0);
+    ASSERT_EQ(ss1._current.rect, RectF(0, 0, 0, 0));
+    ASSERT_EQ(ss1._current.color, Color(255, 255, 255, 255));
+    ASSERT_EQ(ss1._current.angle, 0);
     ss1_1.update(t1);
     ASSERT_TRUE(ss1_1._draw);
-    ASSERT_EQ(ss1_1.getCurrentRenderParams().rect, Rect(128, 128, 128, 128));
-    ASSERT_EQ(ss1_1.getCurrentRenderParams().color, Color(127, 127, 127, 127));
-    ASSERT_EQ(ss1_1.getCurrentRenderParams().angle, 0);
+    ASSERT_EQ(ss1_1._current.rect, RectF(128, 128, 128, 128));
+    ASSERT_EQ(ss1_1._current.color, Color(127, 127, 127, 127));
+    ASSERT_EQ(ss1_1._current.angle, 0);
 
     ss1.update(t2);
     ASSERT_TRUE(ss1._draw);
-    ASSERT_EQ(ss1.getCurrentRenderParams().rect, Rect(0, 0, 0, 0));
-    ASSERT_EQ(ss1.getCurrentRenderParams().color, Color(255, 255, 255, 255));
-    ASSERT_EQ(ss1.getCurrentRenderParams().angle, 0);
+    ASSERT_EQ(ss1._current.rect, RectF(0, 0, 0, 0));
+    ASSERT_EQ(ss1._current.color, Color(255, 255, 255, 255));
+    ASSERT_EQ(ss1._current.angle, 0);
     ss1_1.update(t2);
     ASSERT_TRUE(ss1_1._draw);
-    ASSERT_EQ(ss1_1.getCurrentRenderParams().rect, Rect(255, 255, 255, 255));
-    ASSERT_EQ(ss1_1.getCurrentRenderParams().color, Color(0, 0, 0, 0));
-    ASSERT_EQ(ss1_1.getCurrentRenderParams().angle, 0);
+    ASSERT_EQ(ss1_1._current.rect, RectF(255, 255, 255, 255));
+    ASSERT_EQ(ss1_1._current.color, Color(0, 0, 0, 0));
+    ASSERT_EQ(ss1_1._current.angle, 0);
 
     ss1.update(t3);
     ASSERT_TRUE(ss1._draw);
-    ASSERT_EQ(ss1.getCurrentRenderParams().rect, Rect(0, 0, 0, 0));
-    ASSERT_EQ(ss1.getCurrentRenderParams().color, Color(255, 255, 255, 255));
-    ASSERT_EQ(ss1.getCurrentRenderParams().angle, 0);
+    ASSERT_EQ(ss1._current.rect, RectF(0, 0, 0, 0));
+    ASSERT_EQ(ss1._current.color, Color(255, 255, 255, 255));
+    ASSERT_EQ(ss1._current.angle, 0);
     ss1_1.update(t3);
     ASSERT_FALSE(ss1_1._draw);
     ss1_2.update(t3);
     ASSERT_TRUE(ss1_2._draw);
-    ASSERT_EQ(ss1_2.getCurrentRenderParams().rect, Rect(1, 1, 1, 1));
-    ASSERT_EQ(ss1_2.getCurrentRenderParams().color, Color(254, 254, 254, 254));
-    ASSERT_EQ(ss1_2.getCurrentRenderParams().angle, 0);
+    ASSERT_EQ(ss1_2._current.rect, RectF(1, 1, 1, 1));
+    ASSERT_EQ(ss1_2._current.color, Color(254, 254, 254, 254));
+    ASSERT_EQ(ss1_2._current.angle, 0);
 
     ss1_2.update(t4);
     ASSERT_TRUE(ss1_2._draw);
-    ASSERT_EQ(ss1_2.getCurrentRenderParams().rect, Rect(2, 2, 2, 2));
-    ASSERT_EQ(ss1_2.getCurrentRenderParams().color, Color(253, 253, 253, 253));
-    ASSERT_EQ(ss1_2.getCurrentRenderParams().angle, 0);
+    ASSERT_EQ(ss1_2._current.rect, RectF(2, 2, 2, 2));
+    ASSERT_EQ(ss1_2._current.color, Color(253, 253, 253, 253));
+    ASSERT_EQ(ss1_2._current.angle, 0);
 }
 #pragma endregion
 
@@ -189,8 +189,7 @@ TEST_F(test_vSprite, func_update)
 class mock_SpriteSelection : public SpriteSelection
 {
 public:
-    mock_SpriteSelection(pTexture texture,
-        unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false) : SpriteSelection(texture, rows, cols, verticalIndexing) {}
+    mock_SpriteSelection(const SpriteSelection::SpriteSelectionBuilder& builder) : SpriteSelection(builder) {}
     FRIEND_TEST(sSelection, rectConstruct);
 };
 
@@ -198,9 +197,9 @@ class sSelection : public ::testing::Test
 {
 protected:
     std::shared_ptr<mock_Texture> pt{ std::make_shared<mock_Texture>() };
-    mock_SpriteSelection s0{ pt, 1, 1, false };
-    mock_SpriteSelection s{ pt, 2, 4, false };
-    mock_SpriteSelection sv{ pt, 2, 4, true };
+    mock_SpriteSelection s0{ SpriteSelection::SpriteSelectionBuilder{ -1, pt, RECT_FULL, 1, 1, false } };
+    mock_SpriteSelection s { SpriteSelection::SpriteSelectionBuilder{ -1, pt, RECT_FULL, 2, 4, false } };
+    mock_SpriteSelection sv{ SpriteSelection::SpriteSelectionBuilder{ -1, pt, RECT_FULL, 2, 4, true } };
 public:
     sSelection()
     {
@@ -253,9 +252,7 @@ TEST_F(sSelection, rectConstruct)
 class mock_SpriteAnimated : public SpriteAnimated
 {
 public:
-    mock_SpriteAnimated(pTexture texture,
-        unsigned animFrames, unsigned frameTime, IndexTimer timer = IndexTimer::SCENE_START, 
-        unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false) : SpriteAnimated(texture, animFrames, frameTime, timer, rows, cols, verticalIndexing) {}
+    mock_SpriteAnimated(const SpriteAnimated::SpriteAnimatedBuilder& builder) : SpriteAnimated(builder) {}
     FRIEND_TEST(sAnimated, animRectConstruct);
     FRIEND_TEST(sAnimated, animUpdate);
 };
@@ -264,8 +261,8 @@ class sAnimated : public ::testing::Test
 {
 protected:
     std::shared_ptr<mock_Texture> pt{ std::make_shared<mock_Texture>() };
-    mock_SpriteAnimated s{ pt, 8, 8, IndexTimer::K11_BOMB, 4, 2 };
-    mock_SpriteAnimated ss{ pt, 8,8, IndexTimer::K11_BOMB, 8, 4, false };
+    mock_SpriteAnimated s{ SpriteAnimated::SpriteAnimatedBuilder{ -1, pt, RECT_FULL, 4, 2, false, 8, 8, IndexTimer::K11_BOMB}};
+    mock_SpriteAnimated ss{ SpriteAnimated::SpriteAnimatedBuilder{ -1, pt, RECT_FULL, 8, 4, false, 8, 8, IndexTimer::K11_BOMB } };
 public:
     sAnimated()
     {
@@ -308,53 +305,53 @@ TEST_F(sAnimated, animUpdate)
     //InSequence dummy;
 
     s.update(t0);
-    EXPECT_CALL(*pt, draw(Rect(0 * w, 0 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(0 * w, 0 * h, w, h), RectF(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
     s.update(t1);
-    EXPECT_CALL(*pt, draw(Rect(1 * w, 0 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(1 * w, 0 * h, w, h), RectF(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
     s.update(t2);
-    EXPECT_CALL(*pt, draw(Rect(0 * w, 1 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(0 * w, 1 * h, w, h), RectF(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
     s.update(t3);
-    EXPECT_CALL(*pt, draw(Rect(1 * w, 1 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(1 * w, 1 * h, w, h), RectF(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
     s.update(t4);
-    EXPECT_CALL(*pt, draw(Rect(0 * w, 2 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(0 * w, 2 * h, w, h), RectF(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
     s.update(t5);
-    EXPECT_CALL(*pt, draw(Rect(1 * w, 2 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(1 * w, 2 * h, w, h), RectF(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
     s.update(t6);
-    EXPECT_CALL(*pt, draw(Rect(0 * w, 3 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(0 * w, 3 * h, w, h), RectF(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
     s.update(t7);
-    EXPECT_CALL(*pt, draw(Rect(1 * w, 3 * h, w, h), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(1 * w, 3 * h, w, h), RectF(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     ss.update(t0);
-    EXPECT_CALL(*pt, draw(Rect(0 * ww, 0 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(0 * ww, 0 * hh, ww, hh), RectF(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     ss.draw();
     ss.update(t1);
-    EXPECT_CALL(*pt, draw(Rect(1 * ww, 0 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(1 * ww, 0 * hh, ww, hh), RectF(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     ss.draw();
     ss.update(t2);
-    EXPECT_CALL(*pt, draw(Rect(2 * ww, 0 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(2 * ww, 0 * hh, ww, hh), RectF(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     ss.draw();
     ss.update(t3);
-    EXPECT_CALL(*pt, draw(Rect(3 * ww, 0 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(3 * ww, 0 * hh, ww, hh), RectF(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     ss.draw();
     ss.update(t4);
-    EXPECT_CALL(*pt, draw(Rect(0 * ww, 1 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(0 * ww, 1 * hh, ww, hh), RectF(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     ss.draw();
     ss.update(t5);
-    EXPECT_CALL(*pt, draw(Rect(1 * ww, 1 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(1 * ww, 1 * hh, ww, hh), RectF(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     ss.draw();
     ss.update(t6);
-    EXPECT_CALL(*pt, draw(Rect(2 * ww, 1 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(2 * ww, 1 * hh, ww, hh), RectF(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     ss.draw();
     ss.update(t7);
-    EXPECT_CALL(*pt, draw(Rect(3 * ww, 1 * hh, ww, hh), Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(3 * ww, 1 * hh, ww, hh), RectF(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     ss.draw();
 
 }
@@ -368,10 +365,7 @@ TEST_F(sAnimated, animUpdate)
 class mock_SpriteNumber : public SpriteNumber
 {
 public:
-    mock_SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align, unsigned maxDigits,
-        unsigned numRows, unsigned numCols, unsigned frameTime, IndexNumber num = IndexNumber::_TEST1, IndexTimer animtimer = IndexTimer::K11_BOMB,
-        unsigned animFrames = 1, bool numVerticalIndexing = false):
-        SpriteNumber(texture, rect, align, maxDigits, numRows, numCols, frameTime, num, animtimer, animFrames, numVerticalIndexing) {}
+    mock_SpriteNumber(const SpriteNumber::SpriteNumberBuilder& builder): SpriteNumber(builder) {}
 
     FRIEND_TEST(sNumber, construct);
     FRIEND_TEST(sNumber, num_1);
@@ -392,15 +386,15 @@ protected:
     std::shared_ptr<mock_Texture> pt{ std::make_shared<mock_Texture>() };
     Rect dstRect{ 0,0,10,10 };
     Color dstColor{ 0xFFFFFFFF };
-    mock_SpriteNumber s1{ pt, Rect(0, 0, 100, 160), NumberAlign::NUM_ALIGN_LEFT, 1, 2, 5, 0 };  // 20,80
-    mock_SpriteNumber s{ pt, Rect(0, 0, 100, 160), NumberAlign::NUM_ALIGN_LEFT, 4, 2, 5, 0 };   // 20,80
-    mock_SpriteNumber sa{ pt, Rect(0, 0, 100, 160), NumberAlign::NUM_ALIGN_LEFT, 4, 4, 5, 2, IndexNumber::_TEST1, IndexTimer::K11_BOMB, 2, false };     // 20,40
-    mock_SpriteNumber s11{ pt, Rect(0, 0, 110, 160), NumberAlign::NUM_ALIGN_LEFT, 4, 1, 11, 0 };    // 10,160
-    mock_SpriteNumber sa11{ pt, Rect(0, 0, 110, 160), NumberAlign::NUM_ALIGN_LEFT, 4, 4, 11, 4, IndexNumber::_TEST1, IndexTimer::K11_BOMB, 4, false };  // 10,40
-    mock_SpriteNumber s24{ pt, Rect(0, 0, 240, 160), NumberAlign::NUM_ALIGN_LEFT, 4, 2, 12, 0 };    // 20,80
-    mock_SpriteNumber sa24{ pt, Rect(0, 0, 240, 160), NumberAlign::NUM_ALIGN_LEFT, 4, 8, 12, 4, IndexNumber::_TEST1, IndexTimer::K11_BOMB, 4, false };  // 20,30
-    mock_SpriteNumber sr{ pt, Rect(0, 0, 110, 160), NumberAlign::NUM_ALIGN_RIGHT, 4, 1, 11, 0 };    // 10,160
-    mock_SpriteNumber sc{ pt, Rect(0, 0, 110, 160), NumberAlign::NUM_ALIGN_CENTER, 4, 1, 11, 0 };   // 10,160
+    mock_SpriteNumber s1  {SpriteNumber::SpriteNumberBuilder{ -1, pt, Rect(0, 0, 100, 160), 2, 5,  false, 1, 0, IndexTimer::SCENE_START, NumberAlign::NUM_ALIGN_LEFT,    1, IndexNumber::_TEST1}};  // 20,80
+    mock_SpriteNumber s   {SpriteNumber::SpriteNumberBuilder{ -1, pt, Rect(0, 0, 100, 160), 2, 5,  false, 1, 0, IndexTimer::SCENE_START, NumberAlign::NUM_ALIGN_LEFT,    4, IndexNumber::_TEST1}};   // 20,80
+    mock_SpriteNumber sa  {SpriteNumber::SpriteNumberBuilder{ -1, pt, Rect(0, 0, 100, 160), 4, 5,  false, 2, 2, IndexTimer::K11_BOMB,    NumberAlign::NUM_ALIGN_LEFT,    4, IndexNumber::_TEST1}};     // 20,40
+    mock_SpriteNumber s11 {SpriteNumber::SpriteNumberBuilder{ -1, pt, Rect(0, 0, 110, 160), 1, 11, false, 1, 0, IndexTimer::SCENE_START, NumberAlign::NUM_ALIGN_LEFT,    4, IndexNumber::_TEST1}};    // 10,160
+    mock_SpriteNumber sa11{SpriteNumber::SpriteNumberBuilder{ -1, pt, Rect(0, 0, 110, 160), 4, 11, false, 4, 4, IndexTimer::K11_BOMB,    NumberAlign::NUM_ALIGN_LEFT,    4, IndexNumber::_TEST1}};  // 10,40
+    mock_SpriteNumber s24 {SpriteNumber::SpriteNumberBuilder{ -1, pt, Rect(0, 0, 240, 160), 2, 12, false, 1, 0, IndexTimer::SCENE_START, NumberAlign::NUM_ALIGN_LEFT,    4, IndexNumber::_TEST1}};    // 20,80
+    mock_SpriteNumber sa24{SpriteNumber::SpriteNumberBuilder{ -1, pt, Rect(0, 0, 240, 160), 8, 12, false, 4, 4, IndexTimer::K11_BOMB,    NumberAlign::NUM_ALIGN_LEFT,    4, IndexNumber::_TEST1}};  // 20,30
+    mock_SpriteNumber sr  {SpriteNumber::SpriteNumberBuilder{ -1, pt, Rect(0, 0, 110, 160), 1, 11, false, 1, 0, IndexTimer::SCENE_START, NumberAlign::NUM_ALIGN_RIGHT,   4, IndexNumber::_TEST1}};    // 10,160
+    mock_SpriteNumber sc  {SpriteNumber::SpriteNumberBuilder{ -1, pt, Rect(0, 0, 110, 160), 1, 11, false, 1, 0, IndexTimer::SCENE_START, NumberAlign::NUM_ALIGN_CENTER,  4, IndexNumber::_TEST1}};   // 10,160
 public:
     sNumber()
     {
@@ -584,7 +578,7 @@ TEST_F(sNumber, rect_normal_1)
     State::set(IndexNumber::_TEST1, 1);
     s1.update(t0);
 
-    EXPECT_CALL(*pt, draw(Rect(20, 0, 20, 80), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+    EXPECT_CALL(*pt, draw(Rect(20, 0, 20, 80), RectF(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
     s1.draw();
 
 }
@@ -600,10 +594,10 @@ TEST_F(sNumber, rect_normal_4)
         State::set(IndexNumber::_TEST1, 456);
         s.update(t0);
 
-        EXPECT_CALL(*pt, draw(Rect(20, 80, 20, 80), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(0, 80, 20, 80), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(80, 0, 20, 80), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        //EXPECT_CALL(*pt, draw(Rect(0, 0, 20, 80), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
+        EXPECT_CALL(*pt, draw(Rect(20, 80, 20, 80), RectF(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(0, 80, 20, 80),  RectF(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(80, 0, 20, 80),  RectF(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        //EXPECT_CALL(*pt, draw(Rect(0, 0, 20, 80), RectF(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
         s.draw();
     }
     {
@@ -611,10 +605,10 @@ TEST_F(sNumber, rect_normal_4)
         State::set(IndexNumber::_TEST1, 1234);
         s.update(t0);
 
-        EXPECT_CALL(*pt, draw(Rect(80, 0, 20, 80), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(60, 0, 20, 80), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(40, 0, 20, 80), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(20, 0, 20, 80), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(80, 0, 20, 80), RectF(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(60, 0, 20, 80), RectF(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(40, 0, 20, 80), RectF(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(20, 0, 20, 80), RectF(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         s.draw();
     }
 
@@ -623,10 +617,10 @@ TEST_F(sNumber, rect_normal_4)
         State::set(IndexNumber::_TEST1, 6789);
         s.update(t0);
 
-        EXPECT_CALL(*pt, draw(Rect(80, 80, 20, 80), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(60, 80, 20, 80), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(40, 80, 20, 80), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(20, 80, 20, 80), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(80, 80, 20, 80), RectF(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(60, 80, 20, 80), RectF(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(40, 80, 20, 80), RectF(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(20, 80, 20, 80), RectF(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         s.draw();
     }
 
@@ -635,10 +629,10 @@ TEST_F(sNumber, rect_normal_4)
         State::set(IndexNumber::_TEST1, 0);
         s.update(t0);
 
-        EXPECT_CALL(*pt, draw(Rect(0, 0, 20, 80), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        //EXPECT_CALL(*pt, draw(Rect(0, 0, 20, 80), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
-        //EXPECT_CALL(*pt, draw(Rect(0, 0, 20, 80), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
-        //EXPECT_CALL(*pt, draw(Rect(0, 0, 20, 80), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
+        EXPECT_CALL(*pt, draw(Rect(0, 0, 20, 80), RectF(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        //EXPECT_CALL(*pt, draw(Rect(0, 0, 20, 80), RectF(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
+        //EXPECT_CALL(*pt, draw(Rect(0, 0, 20, 80), RectF(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
+        //EXPECT_CALL(*pt, draw(Rect(0, 0, 20, 80), RectF(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
         s.draw();
     }
 }
@@ -654,10 +648,10 @@ TEST_F(sNumber, rect_bzero_4)
         State::set(IndexNumber::_TEST1, 123);
         s11.update(t0);
 
-        EXPECT_CALL(*pt, draw(Rect(30, 0, 10, 160), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(20, 0, 10, 160), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 160), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        //EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
+        EXPECT_CALL(*pt, draw(Rect(30, 0, 10, 160), RectF(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(20, 0, 10, 160), RectF(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 160), RectF(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        //EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), RectF(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
         s11.draw();
     }
 
@@ -666,10 +660,10 @@ TEST_F(sNumber, rect_bzero_4)
         State::set(IndexNumber::_TEST1, 6789);
         s11.update(t0);
 
-        EXPECT_CALL(*pt, draw(Rect(90, 0, 10, 160), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(80, 0, 10, 160), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(70, 0, 10, 160), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(60, 0, 10, 160), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(90, 0, 10, 160), RectF(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(80, 0, 10, 160), RectF(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(70, 0, 10, 160), RectF(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(60, 0, 10, 160), RectF(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         s11.draw();
     }
 
@@ -678,11 +672,11 @@ TEST_F(sNumber, rect_bzero_4)
         State::set(IndexNumber::_TEST1, 0);
         s11.update(t0);
 
-        EXPECT_CALL(*pt, draw(Rect(0, 0, 10, 160), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);     //0
+        EXPECT_CALL(*pt, draw(Rect(0, 0, 10, 160), RectF(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);     //0
 
-        //EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
-        //EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
-        //EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
+        //EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), RectF(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
+        //EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), RectF(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
+        //EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), RectF(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
         s11.draw();
     }
 }
@@ -699,10 +693,10 @@ TEST_F(sNumber, rect_full_4)
         State::set(IndexNumber::_TEST1, 123);
         s24.update(t0);
 
-        EXPECT_CALL(*pt, draw(Rect(60, 0, 20, 80), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1); // 3
-        EXPECT_CALL(*pt, draw(Rect(40, 0, 20, 80), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1); // 2
-        EXPECT_CALL(*pt, draw(Rect(20, 0, 20, 80), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1); // 1
-        EXPECT_CALL(*pt, draw(Rect(220, 0, 20, 80), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1); // +
+        EXPECT_CALL(*pt, draw(Rect(60, 0, 20, 80), RectF(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1); // 3
+        EXPECT_CALL(*pt, draw(Rect(40, 0, 20, 80), RectF(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1); // 2
+        EXPECT_CALL(*pt, draw(Rect(20, 0, 20, 80), RectF(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1); // 1
+        EXPECT_CALL(*pt, draw(Rect(220, 0, 20, 80), RectF(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1); // +
         s24.draw();
     }
 
@@ -711,10 +705,10 @@ TEST_F(sNumber, rect_full_4)
         State::set(IndexNumber::_TEST1, 6789);
         s24.update(t0);
 
-        EXPECT_CALL(*pt, draw(Rect(180, 0, 20, 80), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1); // 9
-        EXPECT_CALL(*pt, draw(Rect(160, 0, 20, 80), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1); // 8
-        EXPECT_CALL(*pt, draw(Rect(140, 0, 20, 80), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1); // 7
-        EXPECT_CALL(*pt, draw(Rect(220, 0, 20, 80), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  // +
+        EXPECT_CALL(*pt, draw(Rect(180, 0, 20, 80), RectF(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1); // 9
+        EXPECT_CALL(*pt, draw(Rect(160, 0, 20, 80), RectF(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1); // 8
+        EXPECT_CALL(*pt, draw(Rect(140, 0, 20, 80), RectF(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1); // 7
+        EXPECT_CALL(*pt, draw(Rect(220, 0, 20, 80), RectF(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  // +
         s24.draw();
     }
 
@@ -723,11 +717,11 @@ TEST_F(sNumber, rect_full_4)
         State::set(IndexNumber::_TEST1, -20);
         s24.update(t0);
 
-        EXPECT_CALL(*pt, draw(Rect(0, 80, 20, 80), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);    // 0
-        EXPECT_CALL(*pt, draw(Rect(40, 80, 20, 80), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);   // 2
-        EXPECT_CALL(*pt, draw(Rect(220, 80, 20, 80), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);   // -
+        EXPECT_CALL(*pt, draw(Rect(0, 80, 20, 80), RectF(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);    // 0
+        EXPECT_CALL(*pt, draw(Rect(40, 80, 20, 80), RectF(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);   // 2
+        EXPECT_CALL(*pt, draw(Rect(220, 80, 20, 80), RectF(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);   // -
 
-        //EXPECT_CALL(*pt, draw(Rect(200, 80, 20, 80), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  // b
+        //EXPECT_CALL(*pt, draw(Rect(200, 80, 20, 80), RectF(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  // b
         s24.draw();
     }
 }
@@ -743,10 +737,10 @@ TEST_F(sNumber, rect_bzero_4_right)
         State::set(IndexNumber::_TEST1, 123);
         sr.update(t0);
 
-        EXPECT_CALL(*pt, draw(Rect(30, 0, 10, 160), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(20, 0, 10, 160), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 160), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(30, 0, 10, 160), RectF(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(20, 0, 10, 160), RectF(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 160), RectF(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), RectF(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         sr.draw();
     }
 
@@ -755,10 +749,10 @@ TEST_F(sNumber, rect_bzero_4_right)
         State::set(IndexNumber::_TEST1, 6789);
         sr.update(t0);
 
-        EXPECT_CALL(*pt, draw(Rect(90, 0, 10, 160), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(80, 0, 10, 160), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(70, 0, 10, 160), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(60, 0, 10, 160), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(90, 0, 10, 160), RectF(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(80, 0, 10, 160), RectF(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(70, 0, 10, 160), RectF(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(60, 0, 10, 160), RectF(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         sr.draw();
     }
 
@@ -767,10 +761,10 @@ TEST_F(sNumber, rect_bzero_4_right)
         State::set(IndexNumber::_TEST1, 0);
         sr.update(t0);
 
-        EXPECT_CALL(*pt, draw(Rect(0, 0, 10, 160), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(0, 0, 10, 160), RectF(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), RectF(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), RectF(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(100, 0, 10, 160), RectF(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         sr.draw();
     }
 }
@@ -786,10 +780,10 @@ TEST_F(sNumber, rect_bzero_4_anim_1_123)
         State::set(IndexNumber::_TEST1, 123);
         sa11.update(t1);
 
-        EXPECT_CALL(*pt, draw(Rect(30, 40, 10, 40), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(20, 40, 10, 40), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(10, 40, 10, 40), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        //EXPECT_CALL(*pt, draw(Rect(100, 40, 10, 40), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
+        EXPECT_CALL(*pt, draw(Rect(30, 40, 10, 40), RectF(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(20, 40, 10, 40), RectF(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(10, 40, 10, 40), RectF(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        //EXPECT_CALL(*pt, draw(Rect(100, 40, 10, 40), RectF(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
         sa11.draw();
     }
 
@@ -804,10 +798,10 @@ TEST_F(sNumber, rect_bzero_4_anim_1_6789)
         State::set(IndexNumber::_TEST1, 6789);
         sa11.update(t1);
 
-        EXPECT_CALL(*pt, draw(Rect(90, 40, 10, 40), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(80, 40, 10, 40), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(70, 40, 10, 40), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(60, 40, 10, 40), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(90, 40, 10, 40), RectF(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(80, 40, 10, 40), RectF(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(70, 40, 10, 40), RectF(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(60, 40, 10, 40), RectF(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         sa11.draw();
     }
 
@@ -822,10 +816,10 @@ TEST_F(sNumber, rect_bzero_4_anim_1_0)
         State::set(IndexNumber::_TEST1, 0);
         sa11.update(t1);
 
-        EXPECT_CALL(*pt, draw(Rect(0, 40, 10, 40), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        //EXPECT_CALL(*pt, draw(Rect(100, 40, 10, 40), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
-        //EXPECT_CALL(*pt, draw(Rect(100, 40, 10, 40), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
-        //EXPECT_CALL(*pt, draw(Rect(100, 40, 10, 40), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
+        EXPECT_CALL(*pt, draw(Rect(0, 40, 10, 40), RectF(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        //EXPECT_CALL(*pt, draw(Rect(100, 40, 10, 40), RectF(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
+        //EXPECT_CALL(*pt, draw(Rect(100, 40, 10, 40), RectF(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
+        //EXPECT_CALL(*pt, draw(Rect(100, 40, 10, 40), RectF(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
         sa11.draw();
     }
 
@@ -841,10 +835,10 @@ TEST_F(sNumber, rect_bzero_4_anim_3_123)
         State::set(IndexNumber::_TEST1, 123);
         sa11.update(t3);
 
-        EXPECT_CALL(*pt, draw(Rect(30, 120, 10, 40), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(20, 120, 10, 40), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(10, 120, 10, 40), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        //EXPECT_CALL(*pt, draw(Rect(100, 40, 10, 40), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
+        EXPECT_CALL(*pt, draw(Rect(30, 120, 10, 40), RectF(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(20, 120, 10, 40), RectF(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(10, 120, 10, 40), RectF(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        //EXPECT_CALL(*pt, draw(Rect(100, 40, 10, 40), RectF(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
         sa11.draw();
     }
 
@@ -859,10 +853,10 @@ TEST_F(sNumber, rect_bzero_4_anim_3_6789)
         State::set(IndexNumber::_TEST1, 6789);
         sa11.update(t3);
 
-        EXPECT_CALL(*pt, draw(Rect(90, 120, 10, 40), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(80, 120, 10, 40), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(70, 120, 10, 40), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        EXPECT_CALL(*pt, draw(Rect(60, 120, 10, 40), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(90, 120, 10, 40), RectF(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(80, 120, 10, 40), RectF(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(70, 120, 10, 40), RectF(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        EXPECT_CALL(*pt, draw(Rect(60, 120, 10, 40), RectF(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
         sa11.draw();
     }
 
@@ -877,10 +871,10 @@ TEST_F(sNumber, rect_bzero_4_anim_3_0)
         State::set(IndexNumber::_TEST1, 0);
         sa11.update(t3);
 
-        EXPECT_CALL(*pt, draw(Rect(0, 120, 10, 40), Rect(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
-        //EXPECT_CALL(*pt, draw(Rect(100, 40, 10, 40), Rect(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
-        //EXPECT_CALL(*pt, draw(Rect(100, 40, 10, 40), Rect(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
-        //EXPECT_CALL(*pt, draw(Rect(100, 40, 10, 40), Rect(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
+        EXPECT_CALL(*pt, draw(Rect(0, 120, 10, 40), RectF(0, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);
+        //EXPECT_CALL(*pt, draw(Rect(100, 40, 10, 40), RectF(30, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
+        //EXPECT_CALL(*pt, draw(Rect(100, 40, 10, 40), RectF(20, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
+        //EXPECT_CALL(*pt, draw(Rect(100, 40, 10, 40), RectF(10, 0, 10, 10), dstColor, BlendMode::ALPHA, 0, 0)).Times(1);  //b
         sa11.draw();
     }
 }
@@ -893,20 +887,17 @@ TEST_F(sNumber, rect_bzero_4_anim_3_0)
 class mock_SpriteSlider : public SpriteSlider
 {
 public:
-    mock_SpriteSlider(pTexture texture, const Rect& rect, SliderDirection dir, int range,
-        unsigned animFrames, unsigned frameTime, IndexSlider ind = IndexSlider::_TEST1, IndexTimer animtimer = IndexTimer::K11_BOMB,
-        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false) :
-        SpriteSlider(texture, rect, dir, range, [](double) {}, animFrames, frameTime, ind, animtimer, selRows, selCols, selVerticalIndexing) {}
+    mock_SpriteSlider(const SpriteSlider::SpriteSliderBuilder& builder) : SpriteSlider(builder) {}
 };
 
 class sSlider : public ::testing::Test
 {
 protected:
     std::shared_ptr<mock_Texture> pt{ std::make_shared<mock_Texture>() };
-    mock_SpriteSlider sL{ pt, TEST_RECT, SliderDirection::LEFT, 101, 1, 0 };
-    mock_SpriteSlider sR{ pt, TEST_RECT, SliderDirection::RIGHT, 101, 1, 0};
-    mock_SpriteSlider sU{ pt, TEST_RECT, SliderDirection::UP, 201, 1, 0 };
-    mock_SpriteSlider sD{ pt, TEST_RECT, SliderDirection::DOWN, 201, 1, 0 };
+    mock_SpriteSlider sL{ SpriteSlider::SpriteSliderBuilder { -1, pt, TEST_RECT, 1, 1, false, 1, 0, IndexTimer::K11_BOMB, SliderDirection::LEFT,  IndexSlider::_TEST1, 101, } };
+    mock_SpriteSlider sR{ SpriteSlider::SpriteSliderBuilder { -1, pt, TEST_RECT, 1, 1, false, 1, 0, IndexTimer::K11_BOMB, SliderDirection::RIGHT, IndexSlider::_TEST1, 101, } };
+    mock_SpriteSlider sU{ SpriteSlider::SpriteSliderBuilder { -1, pt, TEST_RECT, 1, 1, false, 1, 0, IndexTimer::K11_BOMB, SliderDirection::UP,    IndexSlider::_TEST1, 201, } };
+    mock_SpriteSlider sD{ SpriteSlider::SpriteSliderBuilder { -1, pt, TEST_RECT, 1, 1, false, 1, 0, IndexTimer::K11_BOMB, SliderDirection::DOWN,  IndexSlider::_TEST1, 201, } };
 public:
     sSlider()
     {
@@ -934,22 +925,22 @@ TEST_F(sSlider, updateLeft)
     //InSequence dummy;
     State::set(IndexSlider::_TEST1, 0);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     State::set(IndexSlider::_TEST1, 0.33);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 - 33, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0 - 33, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     State::set(IndexSlider::_TEST1, 0.50);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 - 50, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0 - 50, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     State::set(IndexSlider::_TEST1, 1.00);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 - 100, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0 - 100, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 }
 
@@ -962,22 +953,22 @@ TEST_F(sSlider, updateRight)
     //InSequence dummy;
     State::set(IndexSlider::_TEST1, 0);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     State::set(IndexSlider::_TEST1, 0.33);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 + 33, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0 + 33, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     State::set(IndexSlider::_TEST1, 0.5);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 + 50, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0 + 50, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     State::set(IndexSlider::_TEST1, 1);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0 + 100, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0 + 100, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 }
 
@@ -990,22 +981,22 @@ TEST_F(sSlider, updateUp)
     //InSequence dummy;
     State::set(IndexSlider::_TEST1, 0);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     State::set(IndexSlider::_TEST1, 0.33);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0 - 66, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0, 0 - 66, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     State::set(IndexSlider::_TEST1, 0.50);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0 - 100, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0, 0 - 100, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     State::set(IndexSlider::_TEST1, 1.00);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0 - 200, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0, 0 - 200, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 }
 
@@ -1018,22 +1009,22 @@ TEST_F(sSlider, updateDown)
     //InSequence dummy;
     State::set(IndexSlider::_TEST1, 0);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0, 0, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     State::set(IndexSlider::_TEST1, 0.33);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0 + 66, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0, 0 + 66, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     State::set(IndexSlider::_TEST1, 0.505);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0 + 101, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0, 0 + 101, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     State::set(IndexSlider::_TEST1, 1.00);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0 + 200, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0, 0 + 200, 0, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 }
 #pragma endregion
@@ -1045,20 +1036,17 @@ TEST_F(sSlider, updateDown)
 class mock_SpritIndexBargraph : public SpriteBargraph
 {
 public:
-    mock_SpritIndexBargraph(pTexture texture, const Rect& rect, BargraphDirection dir,
-        unsigned animFrames, unsigned frameTime, IndexBargraph ind = IndexBargraph::_TEST1, IndexTimer animtimer = IndexTimer::K11_BOMB,
-        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false) :
-        SpriteBargraph(texture, rect, dir, animFrames, frameTime, ind, animtimer, selRows, selCols, selVerticalIndexing) {}
+    mock_SpritIndexBargraph(const SpriteBargraph::SpriteBargraphBuilder& builder) : SpriteBargraph(builder) {}
 };
 
 class sBargraph : public ::testing::Test
 {
 protected:
     std::shared_ptr<mock_Texture> pt{ std::make_shared<mock_Texture>() };
-    mock_SpritIndexBargraph sL{ pt, TEST_RECT, BargraphDirection::LEFT, 1, 0 };
-    mock_SpritIndexBargraph sR{ pt, TEST_RECT, BargraphDirection::RIGHT, 1, 0 };
-    mock_SpritIndexBargraph sU{ pt, TEST_RECT, BargraphDirection::UP, 1, 0 };
-    mock_SpritIndexBargraph sD{ pt, TEST_RECT, BargraphDirection::DOWN, 1, 0 };
+    mock_SpritIndexBargraph sL{ SpriteBargraph::SpriteBargraphBuilder{ -1, pt, TEST_RECT, 1, 1, false, 1, 0, IndexTimer::K11_BOMB, BargraphDirection::LEFT,  IndexBargraph::_TEST1 } };
+    mock_SpritIndexBargraph sR{ SpriteBargraph::SpriteBargraphBuilder{ -1, pt, TEST_RECT, 1, 1, false, 1, 0, IndexTimer::K11_BOMB, BargraphDirection::RIGHT, IndexBargraph::_TEST1 } };
+    mock_SpritIndexBargraph sU{ SpriteBargraph::SpriteBargraphBuilder{ -1, pt, TEST_RECT, 1, 1, false, 1, 0, IndexTimer::K11_BOMB, BargraphDirection::UP,    IndexBargraph::_TEST1 } };
+    mock_SpritIndexBargraph sD{ SpriteBargraph::SpriteBargraphBuilder{ -1, pt, TEST_RECT, 1, 1, false, 1, 0, IndexTimer::K11_BOMB, BargraphDirection::DOWN,  IndexBargraph::_TEST1 } };
 public:
     sBargraph()
     {
@@ -1086,22 +1074,22 @@ TEST_F(sBargraph, updateLeft)
     //InSequence dummy;
     State::set(IndexBargraph::_TEST1, 0);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(200, 0, 0, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(200, 0, 0, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     State::set(IndexBargraph::_TEST1, 0.33);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(200 - 66, 0, 66, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(200 - 66, 0, 66, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     State::set(IndexBargraph::_TEST1, 0.50);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(200 - 100, 0, 100, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(200 - 100, 0, 100, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     State::set(IndexBargraph::_TEST1, 1.00);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(200 - 200, 0, 200, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(200 - 200, 0, 200, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 }
 
@@ -1114,22 +1102,22 @@ TEST_F(sBargraph, updateRight)
     //InSequence dummy;
     State::set(IndexBargraph::_TEST1, 0);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 0, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0, 0, 0, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     State::set(IndexBargraph::_TEST1, 0.33);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 66, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0, 0, 66, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     State::set(IndexBargraph::_TEST1, 0.5);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 100, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0, 0, 100, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     State::set(IndexBargraph::_TEST1, 1);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 200, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0, 0, 200, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 }
 
@@ -1142,22 +1130,22 @@ TEST_F(sBargraph, updateUp)
     //InSequence dummy;
     State::set(IndexBargraph::_TEST1, 0);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 200, 200, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0, 200, 200, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     State::set(IndexBargraph::_TEST1, 0.33);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 134, 200, 66), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0, 134, 200, 66), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     State::set(IndexBargraph::_TEST1, 0.50);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 100, 200, 100), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0, 100, 200, 100), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     State::set(IndexBargraph::_TEST1, 1.00);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 200, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0, 0, 200, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 }
 
@@ -1170,22 +1158,22 @@ TEST_F(sBargraph, updateDown)
     //InSequence dummy;
     State::set(IndexBargraph::_TEST1, 0);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 200, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0, 0, 200, 0), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     State::set(IndexBargraph::_TEST1, 0.33);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 200, 66), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0, 0, 200, 66), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     State::set(IndexBargraph::_TEST1, 0.505);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 200, 101), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0, 0, 200, 101), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 
     State::set(IndexBargraph::_TEST1, 1.00);
     s.update(t0);
-    EXPECT_CALL(*pt, draw(TEST_RECT, Rect(0, 0, 200, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
+    EXPECT_CALL(*pt, draw(TEST_RECT, RectF(0, 0, 200, 200), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0, Point(0, 0))).Times(1);
     s.draw();
 }
 #pragma endregion
@@ -1199,10 +1187,7 @@ TEST_F(sBargraph, updateDown)
 class mock_SpriteOption : public SpriteOption
 {
 public:
-    mock_SpriteOption(pTexture texture,
-        unsigned animFrames, unsigned frameTime, IndexTimer timer = IndexTimer::K11_BOMB,
-        unsigned rows = 1, unsigned cols = 1, bool verticalIndexing = false) : 
-        SpriteOption(texture, animFrames, frameTime, timer, rows, cols, verticalIndexing) {}
+    mock_SpriteOption(const SpriteOption::SpriteOptionBuilder& builder) : SpriteOption(builder) {}
     FRIEND_TEST(sOption, switchTest);
     FRIEND_TEST(sOption, optionTest);
 };
@@ -1211,9 +1196,9 @@ class sOption : public ::testing::Test
 {
 protected:
     std::shared_ptr<mock_Texture> pt{ std::make_shared<mock_Texture>() };
-    mock_SpriteOption ss{ pt, 1, 1, IndexTimer::K11_BOMB, 1, 2 };
-    mock_SpriteOption ss0{ pt, 1, 1, IndexTimer::K11_BOMB, 1, 1 };
-    mock_SpriteOption so{ pt, 1, 1, IndexTimer::K11_BOMB, 2, 3 };
+    mock_SpriteOption ss  { SpriteOption::SpriteOptionBuilder { -1, pt, RECT_FULL, 1, 2, false, 1, 1, IndexTimer::K11_BOMB } };
+    mock_SpriteOption ss0 { SpriteOption::SpriteOptionBuilder { -1, pt, RECT_FULL, 1, 1, false, 1, 1, IndexTimer::K11_BOMB } };
+    mock_SpriteOption so  { SpriteOption::SpriteOptionBuilder { -1, pt, RECT_FULL, 2, 3, false, 1, 1, IndexTimer::K11_BOMB } };
 public:
     sOption()
     {
@@ -1280,20 +1265,15 @@ TEST_F(sOption, optionTest)
 class mock_SpriteGaugeGrid : public SpriteGaugeGrid
 {
 public:
-    mock_SpriteGaugeGrid(pTexture texture, const Rect& rect,
-        unsigned animFrames, unsigned frameTime, int dx, int dy, 
-        unsigned min = 0, unsigned max = 100, unsigned grids = 50,
-        IndexTimer timer = IndexTimer::K11_BOMB, IndexNumber num = IndexNumber::PLAY_1P_GROOVEGAUGE,
-        unsigned selRows = 1, unsigned selCols = 1, bool selVerticalIndexing = false):
-        SpriteGaugeGrid(texture, rect, animFrames, frameTime, dx, dy, min, max, grids, timer, num, selRows, selCols, selVerticalIndexing) {}
+    mock_SpriteGaugeGrid(const SpriteGaugeGrid::SpriteGaugeGridBuilder& builder) : SpriteGaugeGrid(builder) {}
 };
 
 class sGaugeGrid : public ::testing::Test
 {
 protected:
     std::shared_ptr<mock_Texture> pt{ std::make_shared<mock_Texture>() };
-    mock_SpriteGaugeGrid s1{ pt, Rect(0, 0, 40, 40), 1, 0, 10, 0, 0, 100, 50, IndexTimer::K11_BOMB, IndexNumber::PLAY_1P_GROOVEGAUGE, 1, 4 };
-    mock_SpriteGaugeGrid s2{ pt, Rect(0, 0, 60, 40), 1, 0, -10, 0, 0, 100, 50, IndexTimer::K11_BOMB, IndexNumber::PLAY_2P_GROOVEGAUGE, 1, 6 };
+    mock_SpriteGaugeGrid s1{ SpriteGaugeGrid::SpriteGaugeGridBuilder { -1, pt, Rect(0, 0, 40, 40), 1, 4, false, 1, 0, IndexTimer::K11_BOMB,  10, 0, 0, 100, 50, IndexNumber::PLAY_1P_GROOVEGAUGE } };
+    mock_SpriteGaugeGrid s2{ SpriteGaugeGrid::SpriteGaugeGridBuilder { -1, pt, Rect(0, 0, 60, 40), 1, 6, false, 1, 0, IndexTimer::K11_BOMB, -10, 0, 0, 100, 50, IndexNumber::PLAY_2P_GROOVEGAUGE } };
 public:
     sGaugeGrid()
     {
@@ -1323,11 +1303,11 @@ TEST_F(sGaugeGrid, valUpdate)
         EXPECT_CALL(*pt, draw(Rect(20, 0, 10, 40), _, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(11 - 1);    // clear dark
         EXPECT_CALL(*pt, draw(Rect(30, 0, 10, 40), _, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(39 - 37 - 1); // normal dark
 
-        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 40), Rect(0, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 2%
-        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 40), Rect(240, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 50%
-        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 40), Rect(360, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 74%
-        EXPECT_CALL(*pt, draw(Rect(30, 0, 10, 40), Rect(370, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 76%
-        EXPECT_CALL(*pt, draw(Rect(20, 0, 10, 40), Rect(490, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 100%
+        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 40), RectF(0, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 2%
+        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 40), RectF(240, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 50%
+        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 40), RectF(360, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 74%
+        EXPECT_CALL(*pt, draw(Rect(30, 0, 10, 40), RectF(370, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 76%
+        EXPECT_CALL(*pt, draw(Rect(20, 0, 10, 40), RectF(490, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 100%
         s1.draw();
     }
     {
@@ -1338,11 +1318,11 @@ TEST_F(sGaugeGrid, valUpdate)
         EXPECT_CALL(*pt, draw(Rect(20, 0, 10, 40), _, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(11 - 1);    // clear dark
         EXPECT_CALL(*pt, draw(Rect(30, 0, 10, 40), _, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(39 - 16 - 2); // normal dark
 
-        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 40), Rect(0, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 2%
-        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 40), Rect(150, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 32%
-        EXPECT_CALL(*pt, draw(Rect(30, 0, 10, 40), Rect(160, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 34%
-        EXPECT_CALL(*pt, draw(Rect(30, 0, 10, 40), Rect(370, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 76%
-        EXPECT_CALL(*pt, draw(Rect(20, 0, 10, 40), Rect(490, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 100%
+        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 40), RectF(0, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 2%
+        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 40), RectF(150, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 32%
+        EXPECT_CALL(*pt, draw(Rect(30, 0, 10, 40), RectF(160, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 34%
+        EXPECT_CALL(*pt, draw(Rect(30, 0, 10, 40), RectF(370, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 76%
+        EXPECT_CALL(*pt, draw(Rect(20, 0, 10, 40), RectF(490, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 100%
         s1.draw();
     }
     {
@@ -1353,11 +1333,11 @@ TEST_F(sGaugeGrid, valUpdate)
         EXPECT_CALL(*pt, draw(Rect(20, 0, 10, 40), _, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(1 - 1);    // clear dark
         EXPECT_CALL(*pt, draw(Rect(30, 0, 10, 40), _, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(0); // normal dark
 
-        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 40), Rect(0, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 2%
-        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 40), Rect(150, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 32%
-        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 40), Rect(370, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 76%
-        EXPECT_CALL(*pt, draw(Rect(0, 0, 10, 40), Rect(430, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 88%
-        EXPECT_CALL(*pt, draw(Rect(20, 0, 10, 40), Rect(490, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 100%
+        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 40), RectF(0, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 2%
+        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 40), RectF(150, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 32%
+        EXPECT_CALL(*pt, draw(Rect(10, 0, 10, 40), RectF(370, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 76%
+        EXPECT_CALL(*pt, draw(Rect(0, 0, 10, 40), RectF(430, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 88%
+        EXPECT_CALL(*pt, draw(Rect(20, 0, 10, 40), RectF(490, 0, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 100%
         s1.draw();
     }
     {
@@ -1366,11 +1346,11 @@ TEST_F(sGaugeGrid, valUpdate)
         EXPECT_CALL(*pt, draw(Rect(40, 0, 10, 40), _, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(45);
         EXPECT_CALL(*pt, draw(Rect(50, 0, 10, 40), _, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(0);
 
-        EXPECT_CALL(*pt, draw(Rect(40, 0, 10, 40), Rect(490, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 2%
-        EXPECT_CALL(*pt, draw(Rect(40, 0, 10, 40), Rect(250, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 50%
-        EXPECT_CALL(*pt, draw(Rect(40, 0, 10, 40), Rect(130, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 74%
-        EXPECT_CALL(*pt, draw(Rect(40, 0, 10, 40), Rect(120, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 76%
-        EXPECT_CALL(*pt, draw(Rect(40, 0, 10, 40), Rect(0, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 100%
+        EXPECT_CALL(*pt, draw(Rect(40, 0, 10, 40), RectF(490, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 2%
+        EXPECT_CALL(*pt, draw(Rect(40, 0, 10, 40), RectF(250, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 50%
+        EXPECT_CALL(*pt, draw(Rect(40, 0, 10, 40), RectF(130, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 74%
+        EXPECT_CALL(*pt, draw(Rect(40, 0, 10, 40), RectF(120, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 76%
+        EXPECT_CALL(*pt, draw(Rect(40, 0, 10, 40), RectF(0, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 100%
         s2.draw();
     }
     {
@@ -1379,11 +1359,11 @@ TEST_F(sGaugeGrid, valUpdate)
         EXPECT_CALL(*pt, draw(Rect(40, 0, 10, 40), _, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(25 - 2);
         EXPECT_CALL(*pt, draw(Rect(50, 0, 10, 40), _, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0)).Times(45 - (25 - 2));
 
-        EXPECT_CALL(*pt, draw(Rect(40, 0, 10, 40), Rect(490, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 2%
-        EXPECT_CALL(*pt, draw(Rect(40, 0, 10, 40), Rect(250, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 50%
-        EXPECT_CALL(*pt, draw(Rect(50, 0, 10, 40), Rect(130, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 74%
-        EXPECT_CALL(*pt, draw(Rect(50, 0, 10, 40), Rect(120, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 76%
-        EXPECT_CALL(*pt, draw(Rect(50, 0, 10, 40), Rect(0, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 100%
+        EXPECT_CALL(*pt, draw(Rect(40, 0, 10, 40), RectF(490, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 2%
+        EXPECT_CALL(*pt, draw(Rect(40, 0, 10, 40), RectF(250, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 50%
+        EXPECT_CALL(*pt, draw(Rect(50, 0, 10, 40), RectF(130, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 74%
+        EXPECT_CALL(*pt, draw(Rect(50, 0, 10, 40), RectF(120, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 76%
+        EXPECT_CALL(*pt, draw(Rect(50, 0, 10, 40), RectF(0, 100, 10, 40), Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0));    // 100%
         s2.draw();
     }
 }

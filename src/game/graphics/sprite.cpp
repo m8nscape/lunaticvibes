@@ -58,8 +58,8 @@ RenderParams& RenderParams::operator=(const KeyFrameParams& rhs)
 
 ////////////////////////////////////////////////////////////////////////////////
 // virtual base class functions
-vSprite::vSprite(pTexture tex, SpriteTypes type) :
-    _pTexture(tex), _type(type), _current({ 0, RenderParams::CONSTANT, 0x00000000, BlendMode::NONE, false, 0 }) {}
+vSprite::vSprite(const SpriteBuilder& builder) :
+    _srcLine(builder.srcLine), _pTexture(builder.texture), _type(SpriteTypes::VIRTUAL), _current({0, RenderParams::CONSTANT, 0x00000000, BlendMode::NONE, false, 0}) {}
 
 bool vSprite::updateByKeyframes(const Time& rawTime)
 {
@@ -170,7 +170,7 @@ bool vSprite::updateByKeyframes(const Time& rawTime)
             _current.rect.y = (float)grad(keyFrameNext->param.rect.y, keyFrameCurr->param.rect.y, prog);
             _current.rect.w = (float)grad(keyFrameNext->param.rect.w, keyFrameCurr->param.rect.w, prog);
             _current.rect.h = (float)grad(keyFrameNext->param.rect.h, keyFrameCurr->param.rect.h, prog);
-            //_current.rect  = keyFrameNext->param.rect  * prog + keyFrameCurr->param.rect  * (1.0 - prog);
+            //_current.rcGrid  = keyFrameNext->param.rcGrid  * prog + keyFrameCurr->param.rcGrid  * (1.0 - prog);
             _current.color.r = (Uint8)grad(keyFrameNext->param.color.r, keyFrameCurr->param.color.r, prog);
             _current.color.g = (Uint8)grad(keyFrameNext->param.color.g, keyFrameCurr->param.color.g, prog);
             _current.color.b = (Uint8)grad(keyFrameNext->param.color.b, keyFrameCurr->param.color.b, prog);
@@ -179,9 +179,9 @@ bool vSprite::updateByKeyframes(const Time& rawTime)
             _current.angle = grad(static_cast<int>(std::round(keyFrameNext->param.angle)), static_cast<int>(std::round(keyFrameCurr->param.angle)), prog);
             _current.center = keyFrameCurr->param.center;
             //LOG_DEBUG << "[Skin] Time: " << time << 
-            //    " @ " << _current.rect.x << "," << _current.rect.y << " " << _current.rect.w << "x" << _current.rect.h;
-            //LOG_DEBUG<<"[Skin] keyFrameCurr: " << keyFrameCurr->param.rect.x << "," << keyFrameCurr->param.rect.y << " " << keyFrameCurr->param.rect.w << "x" << keyFrameCurr->param.rect.h;
-            //LOG_DEBUG<<"[Skin] keyFrameNext: " << keyFrameNext->param.rect.x << "," << keyFrameNext->param.rect.y << " " << keyFrameNext->param.rect.w << "x" << keyFrameNext->param.rect.h;
+            //    " @ " << _current.rcGrid.x << "," << _current.rcGrid.y << " " << _current.rcGrid.w << "x" << _current.rcGrid.h;
+            //LOG_DEBUG<<"[Skin] keyFrameCurr: " << keyFrameCurr->param.rcGrid.x << "," << keyFrameCurr->param.rcGrid.y << " " << keyFrameCurr->param.rcGrid.w << "x" << keyFrameCurr->param.rcGrid.h;
+            //LOG_DEBUG<<"[Skin] keyFrameNext: " << keyFrameNext->param.rcGrid.x << "," << keyFrameNext->param.rcGrid.y << " " << keyFrameNext->param.rcGrid.w << "x" << keyFrameNext->param.rcGrid.h;
             _current.blend = keyFrameCurr->param.blend;
             _current.filter = keyFrameCurr->param.filter;
         }
@@ -196,16 +196,6 @@ bool vSprite::update(const Time& t)
 
     if (_draw) _drawn = true;
     return _draw;
-}
-
-RenderParams vSprite::getCurrentRenderParams()
-{
-    return _current;
-}
-
-RenderParams& vSprite::getCurrentRenderParamsRef()
-{
-    return _current;
 }
 
 void vSprite::setLoopTime(int t)
@@ -235,10 +225,24 @@ void vSprite::adjustAfterUpdate(int x, int y, int w, int h)
 ////////////////////////////////////////////////////////////////////////////////
 // Static
 
-SpriteStatic::SpriteStatic(pTexture texture) :
-	SpriteStatic(texture, texture ? texture->getRect(): Rect()) {}
-SpriteStatic::SpriteStatic(pTexture texture, const Rect& rect):
-    vSprite(texture, SpriteTypes::STATIC), _texRect(rect) {}
+SpriteStatic::SpriteStatic(const SpriteStaticBuilder& builder): vSprite(builder)
+{
+    _type = SpriteTypes::STATIC;
+
+    if (_pTexture && builder.textureRect == RECT_FULL)
+        _texRect = _pTexture->getRect();
+    else
+        _texRect = builder.textureRect;
+}
+
+SpriteStatic::SpriteStatic(pTexture texture, const Rect& texRect, int srcLine) : vSprite(SpriteTypes::STATIC, srcLine)
+{
+    _pTexture = texture;
+    if (_pTexture && texRect == RECT_FULL)
+        _texRect = _pTexture->getRect();
+    else
+        _texRect = texRect;
+}
 
 void SpriteStatic::draw() const
 {
@@ -251,52 +255,52 @@ void SpriteStatic::draw() const
 ////////////////////////////////////////////////////////////////////////////////
 // Split
 
-SpriteSelection::SpriteSelection(pTexture texture, unsigned rows, unsigned cols, bool v): 
-    SpriteSelection(texture, texture ? texture->getRect() : Rect(), rows, cols, v)
+SpriteSelection::SpriteSelection(const SpriteSelectionBuilder& builder) : vSprite(builder)
 {
-}
+    _type = SpriteTypes::SPLIT;
+    _srows = builder.textureSheetRows;
+    _scols = builder.textureSheetCols;
 
-SpriteSelection::SpriteSelection(pTexture texture, const Rect& r, unsigned rows, unsigned cols, bool v):
-    vSprite(texture, SpriteTypes::SPLIT)
-{
-    if (rows == 0 || cols == 0)
+    if (_srows == 0 || _scols == 0)
     {
-        _srows = _scols = 0;
         _texRect.resize(0);
         return;
     }
+    _segments = _srows * _scols;
 
-    _srows = rows;
-    _scols = cols;
-    _segments = rows * cols;
-    auto rect = r;
-    rect.w /= cols;
-    rect.h /= rows;
-    if (!v)
+    Rect rcGrid;
+    if (_pTexture && builder.textureRect == RECT_FULL)
+        rcGrid = _pTexture->getRect();
+    else
+        rcGrid = builder.textureRect;
+    rcGrid.w /= _scols;
+    rcGrid.h /= _srows;
+
+    if (!builder.textureSheetVerticalIndexing)
     {
         // Horizontal first
-        for (unsigned r = 0; r < rows; ++r)
-            for (unsigned c = 0; c < cols; ++c)
+        for (unsigned r = 0; r < _srows; ++r)
+            for (unsigned c = 0; c < _scols; ++c)
             {
                 _texRect.emplace_back(
-                    rect.x + rect.w * c,
-                    rect.y + rect.h * r,
-                    rect.w,
-                    rect.h
+                    rcGrid.x + rcGrid.w * c,
+                    rcGrid.y + rcGrid.h * r,
+                    rcGrid.w,
+                    rcGrid.h
                 );
             }
     }
     else
     {
         // Vertical first
-        for (unsigned c = 0; c < cols; ++c)
-            for (unsigned r = 0; r < rows; ++r)
+        for (unsigned c = 0; c < _scols; ++c)
+            for (unsigned r = 0; r < _srows; ++r)
             {
                 _texRect.emplace_back(
-                    rect.x + rect.w * c,
-                    rect.y + rect.h * r,
-                    rect.w,
-                    rect.h
+                    rcGrid.x + rcGrid.w * c,
+                    rcGrid.y + rcGrid.h * r,
+                    rcGrid.w,
+                    rcGrid.h
                 );
             }
     }
@@ -325,32 +329,17 @@ bool SpriteSelection::update(const Time& t)
 ////////////////////////////////////////////////////////////////////////////////
 // Animated
 
-SpriteAnimated::SpriteAnimated(pTexture texture, 
-    unsigned animFrames, unsigned frameTime, IndexTimer t, 
-    unsigned selRows, unsigned selCols, bool selVert):
-    SpriteAnimated(texture, texture ? texture->getRect() : Rect(), animFrames, frameTime, t,
-		selRows, selCols, selVert)
-{
-}
-
-SpriteAnimated::SpriteAnimated(pTexture texture, const Rect& r, 
-    unsigned animFrames, unsigned frameTime, IndexTimer t, 
-    unsigned selRows, unsigned selCols, bool selVert):
-    SpriteSelection(texture, r, selRows, selCols, selVert), _animFrames(animFrames), _resetAnimTimer(t)
+SpriteAnimated::SpriteAnimated(const SpriteAnimatedBuilder& builder) : SpriteSelection(builder)
 {
     _type = SpriteTypes::ANIMATED;
+    _animFrames = builder.animationFrameCount;
+    _resetAnimTimer = builder.animationTimer;
 
-    if (animFrames == 0 || selRows == 0 || selCols == 0) return;
+    if (_segments == 0 || _animFrames == 0)
+        return;
 
-	if (_animFrames != 0) _selections = selRows * selCols / _animFrames;
-	//_aframes = animFrames;
-    //_aRect.w = _texRect[0].w / animCols;
-    //_aRect.h = _texRect[0].h / animRows;
-    //_arows = animRows;
-    //_acols = animCols;
-    //_aframes = animRows * animCols;
-    _period = frameTime;
-    //_aVert = animVert;
+    _selections = _srows * _scols / _animFrames;
+    _period = builder.animationLengthPerLoop;
 }
 
 bool SpriteAnimated::update(const Time& t)
@@ -407,7 +396,7 @@ void SpriteAnimated::updateAnimationByTimer(const Time& time)
 }
 
 // Commented for backup purpose. I don't think I can understand this...
-// Animation should not affect Split rect, which is decided by user.
+// Animation should not affect Split rcGrid, which is decided by user.
 /*
 void SpriteAnimated::updateSplitByTimer(rTime time)
 {
@@ -433,21 +422,16 @@ void SpriteAnimated::draw() const
 ////////////////////////////////////////////////////////////////////////////////
 // Text
 
-SpriteText::SpriteText(pFont f, IndexText e, TextAlign a, unsigned ptsize, Color c):
-   SpriteStatic(nullptr), _pFont(f), _textInd(e), _align(a), _height(ptsize * 3 / 2), _color(c)
+SpriteText::SpriteText(const SpriteTextBuilder& builder) : vSprite(builder)
 {
     _type = SpriteTypes::TEXT;
+    _pFont = builder.font;
+    _textInd = builder.textInd;
+    _align = builder.align;
+    _height = builder.ptsize * 3 / 2;
+    _color = builder.color;
+    _editable = builder.editable;
 }
-
-/*
-SpriteText::SpriteText(pFont f, Rect rect, IndexText e, TextAlign a, unsigned ptsize, Color c):
-   SpriteStatic(nullptr), _pFont(f), _frameRect(rect), _textInd(e), _align(a), _color(c)
-{
-    _opType = SpriteTypes::TEXT;
-    _haveRect = true;
-	_texRect = rect;
-}
-*/
 
 bool SpriteText::update(const Time& t)
 {   
@@ -485,16 +469,16 @@ void SpriteText::updateTextRect()
     if (_haveParent && !_parent.expired())
     {
         auto parent = _parent.lock();
-        auto r = parent->getCurrentRenderParams().rect;
+        auto r = parent->getCurrentRenderParams().rcGrid;
         if (r.w == -1 && r.h == -1)
         {
-            _current.rect.x = 0;
-            _current.rect.y = 0;
+            _current.rcGrid.x = 0;
+            _current.rcGrid.y = 0;
         }
         else
         {
-            _current.rect.x += parent->getCurrentRenderParams().rect.x;
-            _current.rect.y += parent->getCurrentRenderParams().rect.y;
+            _current.rcGrid.x += parent->getCurrentRenderParams().rcGrid.x;
+            _current.rcGrid.y += parent->getCurrentRenderParams().rcGrid.y;
         }
     }
     */
@@ -576,9 +560,9 @@ void SpriteText::draw() const
 {
     if (isHidden()) return;
 
-    if (_draw && _pTexture)
+    if (_draw && _pTexture && _pTexture->_loaded)
     {
-        SpriteStatic::draw();
+        _pTexture->draw(_texRect, _current.rect, _current.color, _current.blend, _current.filter, _current.angle, _current.center);
     }
 }
 
@@ -587,41 +571,34 @@ void SpriteText::setOutline(int width, const Color& c)
     pushMainThreadTask([&] { _pFont->setOutline(width, c); });
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Number
 
-SpriteNumber::SpriteNumber(pTexture texture, NumberAlign align, unsigned maxDigits,
-    unsigned numRows, unsigned numCols, unsigned frameTime, IndexNumber n, IndexTimer t,
-    unsigned animFrames, bool numVert):
-    SpriteNumber(texture, texture ? texture->getRect() : Rect(), align, maxDigits,
-		numRows, numCols, frameTime, n, t,
-		animFrames, numVert)
-{
-}
-
-SpriteNumber::SpriteNumber(pTexture texture, const Rect& rect, NumberAlign align, unsigned maxDigits,
-    unsigned numRows, unsigned numCols, unsigned frameTime, IndexNumber n, IndexTimer t,
-    unsigned animFrames, bool numVert):
-    SpriteAnimated(texture, rect, animFrames, frameTime, t, numRows, numCols, numVert),
-    _alignType(align), _numInd(n), _maxDigits(maxDigits)
+SpriteNumber::SpriteNumber(const SpriteNumberBuilder& builder): SpriteAnimated(builder)
 {
     _type = SpriteTypes::NUMBER;
+    _alignType = builder.align;
+    _numInd = builder.numInd;
+    _maxDigits = builder.maxDigits;
+    _inhibitZero = builder.hideLeadingZeros;
 
     // invalid num type guard
     //_numType = NumberType(numRows * numCols);
-    if (animFrames != 0)
-        _numType = NumberType(numRows * numCols / animFrames);
+    if (_animFrames != 0)
+        _numType = NumberType(_srows * _scols / _animFrames);
     else
         _numType = NumberType(0);
 
-    _digit.resize(maxDigits);
-    _rects.resize(maxDigits);
+    _digit.resize(_maxDigits);
+    _rects.resize(_maxDigits);
 
     switch (_numType)
     {
     case NUM_TYPE_NORMAL:
     case NUM_TYPE_BLANKZERO:
         break;
-    //case NUM_SYMBOL:
-    case NUM_TYPE_FULL: 
+        //case NUM_SYMBOL:
+    case NUM_TYPE_FULL:
         break;
     default: return;
     }
@@ -835,20 +812,16 @@ void SpriteNumber::adjustAfterUpdate(int x, int y, int w, int h)
     }
 }
 
-SpriteSlider::SpriteSlider(pTexture texture, SliderDirection d, int range, std::function<void(double)> cb,
-	unsigned animFrames, unsigned frameTime, IndexSlider ind, IndexTimer timer,
-	unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
-	SpriteSlider(texture, texture ? texture->getRect() : Rect(), d, range, cb,
-		animFrames, frameTime, ind, timer,
-		selRows, selCols, selVerticalIndexing) {}
+////////////////////////////////////////////////////////////////////////////////
+// Slider
 
-SpriteSlider::SpriteSlider(pTexture texture, const Rect& rect, SliderDirection d, int range, std::function<void(double)> cb,
-	unsigned animFrames, unsigned frameTime, IndexSlider ind, IndexTimer timer,
-	unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
-	SpriteAnimated(texture, rect, animFrames, frameTime, timer,
-		selRows, selCols, selVerticalIndexing), _callback(cb), _ind(ind), _dir(d), _range(range)
+SpriteSlider::SpriteSlider(const SpriteSliderBuilder& builder) : SpriteAnimated(builder)
 {
-	_type = SpriteTypes::SLIDER;
+    _type = SpriteTypes::SLIDER;
+    _dir = builder.sliderDirection;
+    _ind = builder.sliderInd;
+    _range = builder.sliderRange;
+    _callback = builder.callOnChanged;
 }
 
 void SpriteSlider::updateVal(double v)
@@ -973,20 +946,14 @@ bool SpriteSlider::OnDrag(int x, int y)
     return false;
 }
 
-SpriteBargraph::SpriteBargraph(pTexture texture, BargraphDirection d,
-	unsigned animFrames, unsigned frameTime, IndexBargraph ind, IndexTimer timer,
-	unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
-	SpriteBargraph(texture, texture ? texture->getRect() : Rect(), d,
-		animFrames, frameTime, ind, timer,
-		selRows, selCols, selVerticalIndexing) {}
+////////////////////////////////////////////////////////////////////////////////
+// Bargraph
 
-SpriteBargraph::SpriteBargraph(pTexture texture, const Rect& rect, BargraphDirection d,
-	unsigned animFrames, unsigned frameTime, IndexBargraph ind, IndexTimer timer,
-	unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
-	SpriteAnimated(texture, rect, animFrames, frameTime, timer,
-		selRows, selCols, selVerticalIndexing), _dir(d), _ind(ind)
+SpriteBargraph::SpriteBargraph(const SpriteBargraphBuilder& builder) : SpriteAnimated(builder)
 {
-	_type = SpriteTypes::BARGRAPH;
+    _type = SpriteTypes::BARGRAPH;
+    _dir = builder.barDirection;
+    _ind = builder.barInd;
 }
 
 void SpriteBargraph::updateVal(Ratio v)
@@ -1037,20 +1004,30 @@ bool SpriteBargraph::update(const Time& t)
 	return false;
 }
 
-SpriteOption::SpriteOption(pTexture texture,
-	unsigned animFrames, unsigned frameTime, IndexTimer timer,
-	unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
-	SpriteOption(texture, texture ? texture->getRect() : Rect(),
-		animFrames, frameTime, timer,
-		selRows, selCols, selVerticalIndexing) {}
+////////////////////////////////////////////////////////////////////////////////
+// Option
 
-SpriteOption::SpriteOption(pTexture texture, const Rect& rect,
-	unsigned animFrames, unsigned frameTime, IndexTimer timer,
-	unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
-	SpriteAnimated(texture, rect, animFrames, frameTime, timer,
-		selRows, selCols, selVerticalIndexing)
+SpriteOption::SpriteOption(const SpriteOptionBuilder& builder): SpriteAnimated(builder)
 {
-	_type = SpriteTypes::OPTION;
+    _type = SpriteTypes::OPTION;
+
+    switch (builder.optionType)
+    {
+    case opType::OPTION:
+        _opType = opType::OPTION;
+        _ind.op = (IndexOption)builder.optionInd;
+        break;
+
+    case opType::SWITCH:
+        _opType = opType::SWITCH;
+        _ind.sw = (IndexSwitch)builder.optionInd;
+        break;
+
+    case opType::FIXED:
+        _opType = opType::FIXED;
+        _ind.fix = builder.optionInd;
+        break;
+    }
 }
 
 bool SpriteOption::setInd(opType type, unsigned ind)
@@ -1116,22 +1093,16 @@ bool SpriteOption::update(const Time& t)
 	return false;
 }
 
-SpriteButton::SpriteButton(pTexture texture,
-    unsigned animFrames, unsigned frameTime, std::function<void(int)> cb, int panel, int plusonlyValue, IndexTimer timer,
-    unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
-    SpriteButton(texture, texture ? texture->getRect() : Rect(),
-        animFrames, frameTime, cb, panel, plusonlyValue, timer,
-        selRows, selCols, selVerticalIndexing) {}
+////////////////////////////////////////////////////////////////////////////////
+// Button
 
-SpriteButton::SpriteButton(pTexture texture, const Rect& rect,
-    unsigned animFrames, unsigned frameTime, std::function<void(int)> cb, int panel, int plusonlyValue, IndexTimer timer,
-    unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
-    SpriteOption(texture, rect, animFrames, frameTime, timer,
-        selRows, selCols, selVerticalIndexing), _callback(cb), _panel(panel), _plusonly_value(plusonlyValue)
+SpriteButton::SpriteButton(const SpriteButtonBuilder& builder) : SpriteOption(builder)
 {
     _type = SpriteTypes::BUTTON;
+    _panel = builder.clickableOnPanel;
+    _plusonly_value = builder.plusonlyDelta;
+    _callback = builder.callOnClick;
 }
-
 
 bool SpriteButton::OnClick(int x, int y)
 {
@@ -1174,19 +1145,19 @@ bool SpriteButton::OnClick(int x, int y)
     return false;
 }
 
-SpriteGaugeGrid::SpriteGaugeGrid(pTexture texture,
-	unsigned animFrames, unsigned frameTime, int dx, int dy, unsigned min, unsigned max, unsigned grids,
-	IndexTimer timer, IndexNumber num, unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
-	SpriteGaugeGrid(texture, texture ? texture->getRect() : Rect(), animFrames, frameTime, 
-        dx, dy, grids, min, max, timer, num, selRows, selCols, selVerticalIndexing) {}
+////////////////////////////////////////////////////////////////////////////////
+// Gauge grids
 
-SpriteGaugeGrid::SpriteGaugeGrid(pTexture texture, const Rect& rect,
-	unsigned animFrames, unsigned frameTime,  int dx, int dy, unsigned min, unsigned max, unsigned grids,
-	IndexTimer timer, IndexNumber num, unsigned selRows, unsigned selCols, bool selVerticalIndexing): 
-	SpriteAnimated(texture, rect, animFrames, frameTime, timer, selRows, selCols, selVerticalIndexing),
-	_diff_x(dx), _diff_y(dy), _grids(grids), _min(min), _max(max), _numInd(num)
+SpriteGaugeGrid::SpriteGaugeGrid(const SpriteGaugeGridBuilder& builder) : SpriteAnimated(builder)
 {
     _type = SpriteTypes::GAUGE;
+    _diff_x = builder.dx;
+    _diff_y = builder.dy;
+    _grids = builder.gridCount;
+    _min = builder.gaugeMin;
+    _max = builder.gaugeMax;
+    _numInd = builder.numInd;
+
     _lighting.resize(_grids, false);
     setGaugeType(GaugeType::GROOVE);
 }
@@ -1317,20 +1288,14 @@ void SpriteGaugeGrid::draw() const
     }
 }
 
-SpriteOnMouse::SpriteOnMouse(pTexture texture,
-    unsigned animFrames, unsigned frameTime, int panel, const Rect& mouseArea, IndexTimer timer,
-    unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
-    SpriteOnMouse(texture, texture ? texture->getRect() : Rect(), 
-        animFrames, frameTime, panel, mouseArea, timer,
-        selRows, selCols, selVerticalIndexing) {}
+////////////////////////////////////////////////////////////////////////////////
+// OnMouse
 
-SpriteOnMouse::SpriteOnMouse(pTexture texture, const Rect& rect, 
-    unsigned animFrames, unsigned frameTime, int panel, const Rect& mouseArea, IndexTimer timer,
-    unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
-    SpriteAnimated(texture, rect, animFrames, frameTime, timer,
-        selRows, selCols, selVerticalIndexing), panelIdx(panel), area(mouseArea)
+SpriteOnMouse::SpriteOnMouse(const SpriteOnMouseBuilder& builder) : SpriteAnimated(builder)
 {
     _type = SpriteTypes::ONMOUSE;
+    panelIdx = builder.visibleOnPanel;
+    area = builder.mouseArea;
 }
 
 bool SpriteOnMouse::update(const Time& t)
@@ -1354,18 +1319,10 @@ void SpriteOnMouse::OnMouseMove(int x, int y)
     }
 }
 
-SpriteCursor::SpriteCursor(pTexture texture, 
-    unsigned animFrames, unsigned frameTime, IndexTimer timer,
-    unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
-    SpriteCursor(texture, texture ? texture->getRect() : Rect(),
-        animFrames, frameTime, timer,
-        selRows, selCols, selVerticalIndexing) {}
+////////////////////////////////////////////////////////////////////////////////
+// Cursor
 
-SpriteCursor::SpriteCursor(pTexture texture, const Rect& rect,
-    unsigned animFrames, unsigned frameTime, IndexTimer timer,
-    unsigned selRows, unsigned selCols, bool selVerticalIndexing) :
-    SpriteAnimated(texture, rect, animFrames, frameTime, timer,
-        selRows, selCols, selVerticalIndexing)
+SpriteCursor::SpriteCursor(const SpriteCursorBuilder& builder) : SpriteAnimated(builder)
 {
     _type = SpriteTypes::MOUSE_CURSOR;
 }

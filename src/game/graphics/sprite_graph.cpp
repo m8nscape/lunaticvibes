@@ -3,10 +3,17 @@
 
 const size_t RT_GRAPH_THRESHOLD = 50;
 
-SpriteLine::SpriteLine(int player, LineType ltype, int field_w, int field_h, int start, int end, int width, Color color) :
-    SpriteStatic(nullptr), _player(player), _ltype(ltype), _field_w(field_w), _field_h(field_h), _start(start), _end(end), _line(width), _color(color)
+SpriteLine::SpriteLine(const SpriteLineBuilder& builder) : SpriteStatic(builder)
 {
     _type = SpriteTypes::LINE;
+    _player = builder.player;
+    _ltype = builder.lineType;
+    _field_w = builder.canvasW;
+    _field_h = builder.canvasH;
+    _start = builder.start;
+    _end = builder.end;
+    _line = builder.lineWeight;
+    _color = builder.color;
 }
 
 void SpriteLine::appendPoint(const ColorPoint& c) { _points.push_back(c); }

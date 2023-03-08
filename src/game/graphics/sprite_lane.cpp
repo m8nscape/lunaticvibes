@@ -5,32 +5,16 @@
 
 using namespace chart;
 
-SpriteLaneVertical::SpriteLaneVertical(unsigned player, bool autoNotes, double basespeed, double lanespeed):
-	SpriteStatic(nullptr, Rect(0)), playerSlot(player), _autoNotes(autoNotes)
+SpriteLaneVertical::SpriteLaneVertical(const SpriteLaneVerticalBuilder& builder) : SpriteStatic(builder)
 {
 	_type = SpriteTypes::NOTE_VERT;
-	_basespd = basespeed * lanespeed;
+	playerSlot = builder.player;
+	_autoNotes = builder.autoNotes;
+	_basespd = builder.baseSpeed * builder.laneSpeed;
 	_hispeed = 1.0;
-	_category = NoteLaneCategory::_;
-	_index = NoteLaneIndex::_;
-
+	_category = builder.laneCategory;
+	_index = builder.laneIndex;
 	_hiddenCompatibleTexture = std::make_shared<TextureFull>(Color(128, 128, 128, 255));
-}
-
-SpriteLaneVertical::SpriteLaneVertical(pTexture texture, Rect r,
-    unsigned animFrames, unsigned frameTime, IndexTimer timer,
-	unsigned animRows, unsigned animCols, bool animVerticalIndexing,
-    unsigned player, bool autoNotes, double basespeed, double lanespeed):
-	SpriteLaneVertical(player, autoNotes, basespeed, lanespeed)
-{
-	pNote = std::make_shared<SpriteAnimated>(texture, r, animFrames, frameTime, timer, animRows, animCols, animVerticalIndexing);
-}
-
-
-void SpriteLaneVertical::setLane(NoteLaneCategory cat, NoteLaneIndex idx)
-{
-	_category = cat;
-	_index = idx;
 
 	if (_category != chart::NoteLaneCategory::EXTRA)
 	{
@@ -63,6 +47,12 @@ void SpriteLaneVertical::setLane(NoteLaneCategory cat, NoteLaneIndex idx)
 		}
 	}
 }
+
+void SpriteLaneVertical::buildNote(const SpriteAnimated::SpriteAnimatedBuilder& builder)
+{
+	pNote = builder.build();
+}
+
 
 void SpriteLaneVertical::setLoopTime(int t)
 {
@@ -272,6 +262,27 @@ void SpriteLaneVertical::updateHIDDENCompatible()
 		}
 	}
 }
+
+SpriteLaneVerticalLN::SpriteLaneVerticalLN(const SpriteLaneVerticalLNBuilder& builder): SpriteLaneVertical(builder)
+{
+	
+}
+
+void SpriteLaneVerticalLN::buildNoteHead(const SpriteAnimated::SpriteAnimatedBuilder& builder)
+{
+	return buildNote(builder);
+}
+
+void SpriteLaneVerticalLN::buildNoteBody(const SpriteAnimated::SpriteAnimatedBuilder& builder)
+{
+	pNoteBody = builder.build();
+}
+
+void SpriteLaneVerticalLN::buildNoteTail(const SpriteAnimated::SpriteAnimatedBuilder& builder)
+{
+	pNoteTail = builder.build();
+}
+
 
 void SpriteLaneVerticalLN::setTrigTimer(IndexTimer t)
 {
@@ -572,7 +583,7 @@ void SpriteLaneVerticalLN::draw() const
 			else
 			{
 				pNote->_pTexture->draw(
-					pNote->_texRect[pNoteBody->_selectionIdx],
+					pNote->_texRect[pNote->_selectionIdx],
 					*it,
 					miss ? colorMiss : _current.color,
 					miss ? BlendMode::ALPHA : _current.blend,
@@ -605,7 +616,7 @@ void SpriteLaneVerticalLN::draw() const
 			else
 			{
 				pNoteTail->_pTexture->draw(
-					pNoteTail->_texRect[pNoteBody->_selectionIdx],
+					pNoteTail->_texRect[pNoteTail->_selectionIdx],
 					*it,
 					miss ? colorMiss : _current.color,
 					miss ? BlendMode::ALPHA : _current.blend,

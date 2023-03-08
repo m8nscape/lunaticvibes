@@ -25,17 +25,32 @@ class SpriteLine : public SpriteStatic
 private:
     int _player;
     LineType _ltype;
-    GraphLine _line;
     Color _color;
     int _field_w, _field_h;
     int _start, _end;
+
+    GraphLine _line;
     std::vector<ColorPoint> _points;
     std::vector<std::pair<Point, Point>> _rects;
     double _progress = 1.0;	// 0 ~ 1
 
 public:
+    struct SpriteLineBuilder : SpriteStaticBuilder
+    {
+        int player = 0;
+        LineType lineType = LineType::GAUGE_F;
+        int canvasW = 0;
+        int canvasH = 0;
+        int start = 0;
+        int end = 0;
+        int lineWeight = 0;
+        Color color = 0xffffffff;
+
+        std::shared_ptr<SpriteLine> build() { return std::make_shared<SpriteLine>(*this); }
+    };
+public:
     SpriteLine() = delete;
-    SpriteLine(int player, LineType ltype, int field_w, int field_h, int start, int end, int width = 1, Color color = 0xffffffff);
+    SpriteLine(const SpriteLineBuilder& builder);
     virtual ~SpriteLine() = default;
 
 public:

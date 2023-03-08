@@ -2,10 +2,13 @@
 
 #include "common/encoding.h"
 
-SpriteImageText::SpriteImageText(std::vector<pTexture>& textures, CharMappingList* chrList, IndexText textInd, TextAlign align, unsigned height, int margin):
-    SpriteText(nullptr, textInd, align), _textures(textures), _chrList(chrList), _height(height), _margin(margin)
+SpriteImageText::SpriteImageText(const SpriteImageTextBuilder& builder) : SpriteText(builder)
 {
     _type = SpriteTypes::IMAGE_TEXT;
+    _textures = builder.charTextures;
+    _chrList = builder.charMappingList;
+    _height = builder.height;
+    _margin = builder.margin;
 }
 
 void SpriteImageText::setInputBindingText(std::string&& text)

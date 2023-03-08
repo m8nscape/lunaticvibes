@@ -55,9 +55,17 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
     _texNotificationsBG = std::make_shared<TextureFull>(0x000000ff);
     for (size_t i = 0; i < _sNotifications.size(); ++i)
     {
-        _sNotifications[i] = std::make_shared<SpriteText>(_fNotifications, IndexText(size_t(IndexText::_OVERLAY_NOTIFICATION_0) + i), TextAlign::TEXT_ALIGN_LEFT, textHeight);
+        SpriteText::SpriteTextBuilder textBuilder;
+        textBuilder.font = _fNotifications;
+        textBuilder.textInd = IndexText(size_t(IndexText::_OVERLAY_NOTIFICATION_0) + i);
+        textBuilder.align = TextAlign::TEXT_ALIGN_LEFT;
+        textBuilder.ptsize = textHeight;
+        _sNotifications[i] = textBuilder.build();
         _sNotifications[i]->setLoopTime(0);
-        _sNotificationsBG[i] = std::make_shared<SpriteStatic>(_texNotificationsBG);
+
+        SpriteStatic::SpriteStaticBuilder bgBuilder;
+        bgBuilder.texture = _texNotificationsBG;
+        _sNotificationsBG[i] = bgBuilder.build();
         _sNotificationsBG[i]->setLoopTime(0);
 
         notificationPosY -= notificationHeight;

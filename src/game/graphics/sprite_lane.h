@@ -24,15 +24,24 @@ public:
     std::shared_ptr<SpriteAnimated> pNote;
 
 public:
-    SpriteLaneVertical(unsigned player = 0, bool autoNotes = false, double basespeed = 1.0, double lanespeed = 1.0);
-    SpriteLaneVertical(pTexture texture, Rect laneRect,
-        unsigned animFrames, unsigned frameTime = 0, IndexTimer timer = IndexTimer::PLAY_START,
-        unsigned animRows = 1, unsigned animCols = 1, bool animVerticalIndexing = false,
-        unsigned player = 0, bool autoNotes = false, double basespeed = 1.0, double lanespeed = 1.0
-        );
+    struct SpriteLaneVerticalBuilder : SpriteStaticBuilder
+    {
+        int player = 0;
+        bool autoNotes = false;
+        double baseSpeed = 1.0;
+        double laneSpeed = 1.0;
+        chart::NoteLaneCategory laneCategory = chart::NoteLaneCategory::_;
+        chart::NoteLaneIndex laneIndex = chart::NoteLaneIndex::_;
+
+        std::shared_ptr<SpriteLaneVertical> build() const { return std::make_shared<SpriteLaneVertical>(*this); }
+    };
+public:
+    SpriteLaneVertical() = delete;
+    SpriteLaneVertical(const SpriteLaneVerticalBuilder& builder);
+    virtual ~SpriteLaneVertical() = default;
+    void buildNote(const SpriteAnimated::SpriteAnimatedBuilder& builder);
 
 public:
-    void setLane(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx);
     void setHeight(int h) { _noteAreaHeight = h; }
     virtual void setLoopTime(int t);
     virtual void setTrigTimer(IndexTimer t);
@@ -71,8 +80,17 @@ public:
     std::shared_ptr<SpriteAnimated> pNoteBody, pNoteTail;
 
 public:
-    SpriteLaneVerticalLN(unsigned player = 0, bool autoNotes = false, double basespeed = 1.0, double lanespeed = 1.0) :
-        SpriteLaneVertical(player, autoNotes, basespeed, lanespeed) {}
+    struct SpriteLaneVerticalLNBuilder : SpriteLaneVerticalBuilder
+    {
+        std::shared_ptr<SpriteLaneVerticalLN> build() { return std::make_shared<SpriteLaneVerticalLN>(*this); }
+    };
+public:
+    SpriteLaneVerticalLN() = delete;
+    SpriteLaneVerticalLN(const SpriteLaneVerticalLNBuilder& builder);
+    virtual ~SpriteLaneVerticalLN() = default;
+    void buildNoteHead(const SpriteAnimated::SpriteAnimatedBuilder& builder);
+    void buildNoteBody(const SpriteAnimated::SpriteAnimatedBuilder& builder);
+    void buildNoteTail(const SpriteAnimated::SpriteAnimatedBuilder& builder);
 
 public:
     virtual void setTrigTimer(IndexTimer t);

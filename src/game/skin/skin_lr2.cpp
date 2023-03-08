@@ -1354,17 +1354,23 @@ ParseRet SkinLR2::SRC_IMAGE()
 #ifndef VIDEO_DISABLED
     if (useVideo && videoBuf && videoBuf->haveVideo)
     {
-        auto psv = std::make_shared<SpriteVideo>(d.w, d.h, videoBuf);
+        auto psv = std::make_shared<SpriteVideo>(d.w, d.h, videoBuf, csvLineNumber);
         _sprites.push_back(psv);
     }
     else
 #endif
     {
-        _sprites.push_back(std::make_shared<SpriteAnimated>(
-            textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x));
+        SpriteAnimated::SpriteAnimatedBuilder builder;
+        builder.srcLine = csvLineNumber;
+        builder.texture = textureBuf;
+        builder.textureRect = Rect(d.x, d.y, d.w, d.h);
+        builder.animationFrameCount = d.div_y * d.div_x;
+        builder.animationLengthPerLoop = d.cycle;
+        builder.animationTimer = (IndexTimer)d.timer;
+        builder.textureSheetRows = d.div_y;
+        builder.textureSheetCols = d.div_x;
+        _sprites.push_back(builder.build());
     }
-
-    _sprites.back()->setSrcLine(csvLineNumber);
     
     return ParseRet::OK;
 }
@@ -1386,9 +1392,20 @@ ParseRet SkinLR2::SRC_NUMBER()
     }
     else f = 0;
 
-    _sprites.emplace_back(std::make_shared<SpriteNumber>(
-        textureBuf, Rect(d.x, d.y, d.w, d.h), (NumberAlign)d.align, d.keta, d.div_y, d.div_x, d.cycle, iNum, (IndexTimer)d.timer, f));
-    _sprites.back()->setSrcLine(csvLineNumber);
+    SpriteNumber::SpriteNumberBuilder builder;
+    builder.srcLine = csvLineNumber;
+    builder.texture = textureBuf;
+    builder.textureRect = Rect(d.x, d.y, d.w, d.h);
+    builder.animationFrameCount = f;
+    builder.animationLengthPerLoop = d.cycle;
+    builder.animationTimer = (IndexTimer)d.timer;
+    builder.textureSheetRows = d.div_y;
+    builder.textureSheetCols = d.div_x;
+    builder.align = (NumberAlign)d.align;
+    builder.maxDigits = d.keta;
+    builder.numInd = iNum;
+
+    _sprites.emplace_back(builder.build());
 
     switch (iNum)
     {
@@ -1424,11 +1441,20 @@ ParseRet SkinLR2::SRC_SLIDER()
 {
     lr2skin::s_slider d(parseParamBuf, csvLineNumber);
 
-    _sprites.push_back(std::make_shared<SpriteSlider>(
-        textureBuf, Rect(d.x, d.y, d.w, d.h), (SliderDirection)d.muki, d.range, 
-        d.disable ? lr2skin::slider::getSliderCallback(-1) : lr2skin::slider::getSliderCallback(d.type),
-        d.div_y*d.div_x, d.cycle, (IndexSlider)d.type, (IndexTimer)d.timer, d.div_y, d.div_x));
-    _sprites.back()->setSrcLine(csvLineNumber);
+    SpriteSlider::SpriteSliderBuilder builder;
+    builder.srcLine = csvLineNumber;
+    builder.texture = textureBuf;
+    builder.textureRect = Rect(d.x, d.y, d.w, d.h);
+    builder.animationFrameCount = d.div_y * d.div_x;
+    builder.animationLengthPerLoop = d.cycle;
+    builder.animationTimer = (IndexTimer)d.timer;
+    builder.textureSheetRows = d.div_y;
+    builder.textureSheetCols = d.div_x;
+    builder.sliderDirection = (SliderDirection)d.muki;
+    builder.sliderInd = (IndexSlider)d.type;
+    builder.sliderRange = d.range;
+    builder.callOnChanged = lr2skin::slider::getSliderCallback(d.disable ? -1 : d.type);
+    _sprites.push_back(builder.build());
 
     switch ((IndexSlider)d.type)
     {
@@ -1452,9 +1478,18 @@ ParseRet SkinLR2::SRC_BARGRAPH()
 {
     lr2skin::s_bargraph d(parseParamBuf, csvLineNumber);
 
-    _sprites.push_back(std::make_shared<SpriteBargraph>(
-        textureBuf, Rect(d.x, d.y, d.w, d.h), (BargraphDirection)d.muki, d.div_y*d.div_x, d.cycle, (IndexBargraph)d.type, (IndexTimer)d.timer, d.div_y, d.div_x));
-    _sprites.back()->setSrcLine(csvLineNumber);
+    SpriteBargraph::SpriteBargraphBuilder builder;
+    builder.srcLine = csvLineNumber;
+    builder.texture = textureBuf;
+    builder.textureRect = Rect(d.x, d.y, d.w, d.h);
+    builder.animationFrameCount = d.div_y * d.div_x;
+    builder.animationLengthPerLoop = d.cycle;
+    builder.animationTimer = (IndexTimer)d.timer;
+    builder.textureSheetRows = d.div_y;
+    builder.textureSheetCols = d.div_x;
+    builder.barDirection = (BargraphDirection)d.muki;
+    builder.barInd = (IndexBargraph)d.type;
+    _sprites.push_back(builder.build());
 
     return ParseRet::OK;
 }
@@ -1465,16 +1500,16 @@ ParseRet SkinLR2::SRC_BUTTON()
     
     std::shared_ptr<SpriteOption> s;
 
-    if (d.click)
-    {
-        s = std::make_shared<SpriteButton>(
-            textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, lr2skin::button::getButtonCallback(d.type), d.panel, d.plusonly, IndexTimer::SCENE_START, d.div_y, d.div_x, false);
-    }
-    else
-    {
-        s = std::make_shared<SpriteOption>(
-            textureBuf, Rect(d.x, d.y, d.w, d.h), 1, 0, IndexTimer::SCENE_START, d.div_y, d.div_x, false);
-    }
+    SpriteButton::SpriteButtonBuilder builder;
+    builder.srcLine = csvLineNumber;
+    builder.texture = textureBuf;
+    builder.textureRect = Rect(d.x, d.y, d.w, d.h);
+    builder.animationFrameCount = 1;
+    builder.animationLengthPerLoop = 0;
+    builder.animationTimer = (IndexTimer)d.timer;
+    builder.textureSheetRows = d.div_y;
+    builder.textureSheetCols = d.div_x;
+
     IndexSwitch sw;
     IndexOption op;
     unsigned val;
@@ -1492,16 +1527,18 @@ ParseRet SkinLR2::SRC_BUTTON()
                 break;
             }
         }
-        s->setInd(SpriteOption::opType::SWITCH, (unsigned)sw);
+        builder.optionType = SpriteOption::opType::SWITCH;
+        builder.optionInd = (unsigned)sw;
 
         if (sw == IndexSwitch::S1A_CONFIG || sw == IndexSwitch::S2A_CONFIG)
         {
             isSupportKeyConfigAbsAxis = true;
         }
     }
-    if (lr2skin::buttonOp(d.type, op))
+    else if (lr2skin::buttonOp(d.type, op))
     {
-        s->setInd(SpriteOption::opType::OPTION, (unsigned)op);
+        builder.optionType = SpriteOption::opType::OPTION;
+        builder.optionInd = (unsigned)op;
 
         if (info.mode == eMode::MUSIC_SELECT)
         {
@@ -1522,12 +1559,24 @@ ParseRet SkinLR2::SRC_BUTTON()
             }
         }
     }
-    if (lr2skin::buttonFixed(d.type, val))
+    else if (lr2skin::buttonFixed(d.type, val))
     {
-        s->setInd(SpriteOption::opType::FIXED, val);
+        builder.optionType = SpriteOption::opType::FIXED;
+        builder.optionInd = val;
     }
-    _sprites.push_back(s);
-    _sprites.back()->setSrcLine(csvLineNumber);
+
+    if (d.click)
+    {
+        builder.callOnClick = lr2skin::button::getButtonCallback(d.type);
+        builder.clickableOnPanel = d.panel;
+        builder.plusonlyDelta = d.plusonly;
+        _sprites.push_back(builder.build());
+    }
+    else
+    {
+        SpriteOption::SpriteOptionBuilder* pBuilder = &builder;
+        _sprites.push_back(pBuilder->build());
+    }
 
     return ParseRet::OK;
 }
@@ -1536,9 +1585,18 @@ ParseRet SkinLR2::SRC_ONMOUSE()
 {
     lr2skin::s_onmouse d(parseParamBuf, csvLineNumber);
 
-    _sprites.push_back(std::make_shared<SpriteOnMouse>(
-        textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, d.panel, Rect(d.x2, d.y2, d.w2, d.h2), (IndexTimer)d.timer, d.div_y, d.div_x));
-    _sprites.back()->setSrcLine(csvLineNumber);
+    SpriteOnMouse::SpriteOnMouseBuilder builder;
+    builder.srcLine = csvLineNumber;
+    builder.texture = textureBuf;
+    builder.textureRect = Rect(d.x, d.y, d.w, d.h);
+    builder.animationFrameCount = d.div_y * d.div_x;
+    builder.animationLengthPerLoop = d.cycle;
+    builder.animationTimer = (IndexTimer)d.timer;
+    builder.textureSheetRows = d.div_y;
+    builder.textureSheetCols = d.div_x;
+    builder.visibleOnPanel = d.panel;
+    builder.mouseArea = Rect(d.x2, d.y2, d.w2, d.h2);
+    _sprites.push_back(builder.build());
 
     return ParseRet::OK;
 }
@@ -1547,9 +1605,16 @@ ParseRet SkinLR2::SRC_MOUSECURSOR()
 {
     lr2skin::s_mousecursor d(parseParamBuf, csvLineNumber);
 
-    _sprites.push_back(std::make_shared<SpriteCursor>(
-        textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x));
-    _sprites.back()->setSrcLine(csvLineNumber);
+    SpriteCursor::SpriteCursorBuilder builder;
+    builder.srcLine = csvLineNumber;
+    builder.texture = textureBuf;
+    builder.textureRect = Rect(d.x, d.y, d.w, d.h);
+    builder.animationFrameCount = d.div_y * d.div_x;
+    builder.animationLengthPerLoop = d.cycle;
+    builder.animationTimer = (IndexTimer)d.timer;
+    builder.textureSheetRows = d.div_y;
+    builder.textureSheetCols = d.div_x;
+    _sprites.push_back(builder.build());
 
     return ParseRet::OK;
 }
@@ -1560,22 +1625,28 @@ ParseRet SkinLR2::SRC_TEXT()
 
     lr2skin::s_text d(parseParamBuf);
 
+    SpriteImageText::SpriteImageTextBuilder builder;
+    builder.srcLine = csvLineNumber;
+    builder.textInd = (IndexText)d.st;
+    builder.align = (TextAlign)d.align;
+    builder.editable = d.edit;
+
     auto font = std::to_string(d.font);
     if (LR2FontNameMap.find(font) != LR2FontNameMap.end() && LR2FontNameMap[font] != nullptr)
     {
         auto& pf = LR2FontNameMap[font];
-        auto ps = std::make_shared<SpriteImageText>(pf->T_texture, &pf->R, (IndexText)d.st, (TextAlign)d.align, pf->S, pf->M);
-        if (d.edit) ps->setEditable(true);
-        _sprites.push_back(ps);
+        builder.charTextures = pf->T_texture;
+        builder.charMappingList = &pf->R;
+        builder.height = pf->S;
+        builder.margin = pf->M;
+        _sprites.push_back(builder.build());
     }
     else
     {
-        auto ps = std::make_shared<SpriteText>(_fontNameMap[std::to_string(d.font)], (IndexText)d.st, (TextAlign)d.align);
-        if (d.edit) ps->setEditable(true);
-        _sprites.push_back(ps);
+        SpriteText::SpriteTextBuilder* pBuilder = &builder;
+        pBuilder->font = _fontNameMap[std::to_string(d.font)];
+        _sprites.push_back(pBuilder->build());
     }
-
-    _sprites.back()->setSrcLine(csvLineNumber);
 
     switch (d.st)
     {
@@ -1600,20 +1671,23 @@ ParseRet SkinLR2::SRC_GAUGECHART(int player)
 {
     lr2skin::s_gaugechart d(parseParamBuf, csvLineNumber);
 
-    LineType type = LineType::GAUGE_F;
+    SpriteLine::SpriteLineBuilder builder;
+    builder.srcLine = csvLineNumber;
+    builder.player = player == 0 ? PLAYER_SLOT_PLAYER : PLAYER_SLOT_TARGET;
+    builder.canvasW = d.field_w;
+    builder.canvasH = d.field_h;
+    builder.start = d.start;
+    builder.end = d.end;
+    builder.lineWeight = 1;
+
     switch (d._null)
     {
-    case 0: type = LineType::GAUGE_F; break;
-    case 1: type = LineType::GAUGE_C; break;
+    case 0: builder.lineType = LineType::GAUGE_F; break;
+    case 1: builder.lineType = LineType::GAUGE_C; break;
     default: break;
     }
 
-    _sprites.push_back(std::make_shared<SpriteLine>(
-        player == 0 ? PLAYER_SLOT_PLAYER : PLAYER_SLOT_TARGET,
-        type,
-        d.field_w, d.field_h, d.start, d.end, 1));
-
-    _sprites.back()->setSrcLine(csvLineNumber);
+    _sprites.push_back(builder.build());
 
     return ParseRet::OK;
 }
@@ -1622,22 +1696,24 @@ ParseRet SkinLR2::SRC_SCORECHART()
 {
     lr2skin::s_gaugechart d(parseParamBuf, csvLineNumber);
 
-    LineType type = LineType::SCORE;
-    Color color;
+    SpriteLine::SpriteLineBuilder builder;
+    builder.srcLine = csvLineNumber;
+    builder.player = 0;
+    builder.canvasW = d.field_w;
+    builder.canvasH = d.field_h;
+    builder.start = d.start;
+    builder.end = d.end;
+    builder.lineWeight = d.w;
+
     switch (d._null)
     {
-    case 0:type = LineType::SCORE; color = {20, 20, 255, 255};  break;
-    case 1: type = LineType::SCORE_MYBEST; color = { 20, 255, 20, 255 };   break;
-    case 2: type = LineType::SCORE_TARGET; color = { 255, 20, 20, 255 };   break;
+    case 0: builder.lineType = LineType::SCORE;        builder.color = { 20, 20, 255, 255 }; break;
+    case 1: builder.lineType = LineType::SCORE_MYBEST; builder.color = { 20, 255, 20, 255 }; break;
+    case 2: builder.lineType = LineType::SCORE_TARGET; builder.color = { 255, 20, 20, 255 }; break;
     default: break;
     }
 
-    _sprites.push_back(std::make_shared<SpriteLine>(
-        0, 
-        type,
-        d.field_w, d.field_h, d.start, d.end, d.w, color));
-
-    _sprites.back()->setSrcLine(csvLineNumber);
+    _sprites.push_back(builder.build());
 
     return ParseRet::OK;
 }
@@ -1666,13 +1742,18 @@ ParseRet SkinLR2::SRC_JUDGELINE()
         return ParseRet::PARAM_INVALID;
     }
 
-    gSprites[spriteIdx] = std::make_shared<SpriteAnimated>(
-        textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
-    gSprites[spriteIdx]->setSrcLine(csvLineNumber);
+    SpriteAnimated::SpriteAnimatedBuilder builder;
+    builder.srcLine = csvLineNumber;
+    builder.texture = textureBuf;
+    builder.textureRect = Rect(d.x, d.y, d.w, d.h);
+    builder.animationFrameCount = d.div_y * d.div_x;
+    builder.animationLengthPerLoop = d.cycle;
+    builder.animationTimer = (IndexTimer)d.timer;
+    builder.textureSheetRows = d.div_y;
+    builder.textureSheetCols = d.div_x;
+    gSprites[spriteIdx] = builder.build();
 
-    auto p = std::make_shared<SpriteGlobal>(spriteIdx);
-    _sprites.push_back(p);
-    _sprites.back()->setSrcLine(csvLineNumber);
+    _sprites.push_back(std::make_shared<SpriteGlobal>(spriteIdx, csvLineNumber));
 
     return ParseRet::OK;
 }
@@ -1687,9 +1768,16 @@ ParseRet SkinLR2::SRC_NOWJUDGE(size_t idx)
 
     lr2skin::s_basic d(parseParamBuf, csvLineNumber);
 
-    gSprites[idx] = std::make_shared<SpriteAnimated>(
-        textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
-    gSprites[idx]->setSrcLine(csvLineNumber);
+    SpriteAnimated::SpriteAnimatedBuilder builder;
+    builder.srcLine = csvLineNumber;
+    builder.texture = textureBuf;
+    builder.textureRect = Rect(d.x, d.y, d.w, d.h);
+    builder.animationFrameCount = d.div_y * d.div_x;
+    builder.animationLengthPerLoop = d.cycle;
+    builder.animationTimer = (IndexTimer)d.timer;
+    builder.textureSheetRows = d.div_y;
+    builder.textureSheetCols = d.div_x;
+    gSprites[idx] = builder.build();
 
     return ParseRet::OK;
 }
@@ -1713,10 +1801,20 @@ ParseRet SkinLR2::SRC_NOWCOMBO(size_t idx)
     else if (f % NumberType::NUM_TYPE_FULL == 0) f = f / NumberType::NUM_TYPE_FULL;
     else f = 0;
 
-    gSprites[idx] = std::make_shared<SpriteNumber>(
-        textureBuf, Rect(d.x, d.y, d.w, d.h), (NumberAlign)d.align, d.keta, d.div_y, d.div_x, d.cycle, iNum, (IndexTimer)d.timer, f);
-    gSprites[idx]->setSrcLine(csvLineNumber);
-    std::reinterpret_pointer_cast<SpriteNumber>(gSprites[idx])->setInhibitZero(true);
+    SpriteNumber::SpriteNumberBuilder builder;
+    builder.srcLine = csvLineNumber;
+    builder.texture = textureBuf;
+    builder.textureRect = Rect(d.x, d.y, d.w, d.h);
+    builder.animationFrameCount = f;
+    builder.animationLengthPerLoop = d.cycle;
+    builder.animationTimer = (IndexTimer)d.timer;
+    builder.textureSheetRows = d.div_y;
+    builder.textureSheetCols = d.div_x;
+    builder.align = (NumberAlign)d.align;
+    builder.maxDigits = d.keta;
+    builder.numInd = iNum;
+    builder.hideLeadingZeros = true;
+    gSprites[idx] = builder.build();
 
     return ParseRet::OK;
 }
@@ -1735,16 +1833,25 @@ ParseRet SkinLR2::SRC_GROOVEGAUGE()
     }
 
     size_t idx = d._null == 0 ? GLOBAL_SPRITE_IDX_1PGAUGE : GLOBAL_SPRITE_IDX_2PGAUGE;
-    IndexNumber en = d._null == 0 ? IndexNumber::PLAY_1P_GROOVEGAUGE : IndexNumber::PLAY_2P_GROOVEGAUGE;
 
-    gSprites[idx] = std::make_shared<SpriteGaugeGrid>(
-        textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x / 4, d.cycle, d.add_x, d.add_y, 0, 100, 50,
-        (IndexTimer)d.timer, en, d.div_y, d.div_x);
-    gSprites[idx]->setSrcLine(csvLineNumber);
+    SpriteGaugeGrid::SpriteGaugeGridBuilder builder;
+    builder.srcLine = csvLineNumber;
+    builder.texture = textureBuf;
+    builder.textureRect = Rect(d.x, d.y, d.w, d.h);
+    builder.animationFrameCount = d.div_y * d.div_x / 4;
+    builder.animationLengthPerLoop = d.cycle;
+    builder.animationTimer = (IndexTimer)d.timer;
+    builder.textureSheetRows = d.div_y;
+    builder.textureSheetCols = d.div_x;
+    builder.dx = d.add_x;
+    builder.dy = d.add_y;
+    builder.gaugeMin = 0;
+    builder.gaugeMax = 100;
+    builder.gridCount = 50;
+    builder.numInd = d._null == 0 ? IndexNumber::PLAY_1P_GROOVEGAUGE : IndexNumber::PLAY_2P_GROOVEGAUGE;
+    gSprites[idx] = builder.build();
 
-    auto p = std::make_shared<SpriteGlobal>(idx);
-    _sprites.push_back(p);
-    _sprites.back()->setSrcLine(csvLineNumber);
+    _sprites.push_back(std::make_shared<SpriteGlobal>(idx, csvLineNumber));
 
     return ParseRet::OK;
 }
@@ -1762,9 +1869,7 @@ ParseRet SkinLR2::SRC_NOWJUDGE1()
         if (ret == ParseRet::OK)
         {
             noshiftJudge1P[bufJudge1PSlot] = toInt(parseParamBuf[10]);
-            auto p = std::make_shared<SpriteGlobal>(idx);
-            _sprites.push_back(p);
-            _sprites.back()->setSrcLine(csvLineNumber);
+            _sprites.push_back(std::make_shared<SpriteGlobal>(idx, csvLineNumber));
         }
         else
         {
@@ -1786,9 +1891,7 @@ ParseRet SkinLR2::SRC_NOWJUDGE2()
         if (ret == ParseRet::OK)
         {
             noshiftJudge2P[bufJudge2PSlot] = toInt(parseParamBuf[10]);
-            auto p = std::make_shared<SpriteGlobal>(idx);
-            _sprites.push_back(p);
-            _sprites.back()->setSrcLine(csvLineNumber);
+            _sprites.push_back(std::make_shared<SpriteGlobal>(idx, csvLineNumber));
         }
         else
         {
@@ -1815,9 +1918,7 @@ ParseRet SkinLR2::SRC_NOWCOMBO1()
         auto ret = SRC_NOWCOMBO(idx);
         if (ret == ParseRet::OK)
         {
-            auto p = std::make_shared<SpriteGlobal>(idx);
-            _sprites.push_back(p);
-            _sprites.back()->setSrcLine(csvLineNumber);
+            _sprites.push_back(std::make_shared<SpriteGlobal>(idx, csvLineNumber));
         }
         else
         {
@@ -1844,9 +1945,7 @@ ParseRet SkinLR2::SRC_NOWCOMBO2()
         auto ret = SRC_NOWCOMBO(idx);
         if (ret == ParseRet::OK)
         {
-            auto p = std::make_shared<SpriteGlobal>(idx);
-            _sprites.push_back(p);
-            _sprites.back()->setSrcLine(csvLineNumber);
+            _sprites.push_back(std::make_shared<SpriteGlobal>(idx, csvLineNumber));
         }
         else
         {
@@ -2055,20 +2154,34 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
         return ParseRet::PARAM_INVALID;
     }
 
+    SpriteAnimated::SpriteAnimatedBuilder noteBuilder;
+    noteBuilder.srcLine = csvLineNumber;
+    noteBuilder.texture = _textureNameMap[gr_key];
+    noteBuilder.textureRect = Rect(d.x, d.y, d.w, d.h);
+    noteBuilder.animationFrameCount = d.div_y * d.div_x;
+    noteBuilder.animationLengthPerLoop = d.cycle;
+    noteBuilder.animationTimer = iTimer;
+    noteBuilder.textureSheetRows = d.div_y;
+    noteBuilder.textureSheetCols = d.div_x;
+
+    std::shared_ptr<SpriteAnimated> pSpriteNote = nullptr;
     switch (type)
     {
     case DefType::LINE:
     {
-        _sprites.push_back(std::make_shared<SpriteLaneVertical>(
-            _textureNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, iTimer, d.div_y, d.div_x, false, d._null == 0 ? 0 : 1));
+        SpriteLaneVertical::SpriteLaneVerticalBuilder builder;
+        builder.srcLine = csvLineNumber;
+        builder.player = d._null == 0 ? PLAYER_SLOT_PLAYER : PLAYER_SLOT_TARGET;
+        builder.laneCategory = cat;
+        builder.laneIndex = idx;
 
-        auto& ls = _laneSprites[i].first;
+        auto pSpriteLane = builder.build();
+        _sprites.push_back(pSpriteLane);
 
-        ls = std::static_pointer_cast<SpriteLaneVertical>(_sprites.back());
-        ls->setLane(cat, idx);
-        ls->pNote->appendKeyFrame({ 0, {Rect(),
-            RenderParams::accTy::CONSTANT, Color(0xffffffff), BlendMode::ALPHA, 0, 0.0 } });
-        ls->pNote->setLoopTime(0);
+        pSpriteLane->buildNote(noteBuilder);
+        _laneSprites[i].first = pSpriteLane;
+        pSpriteNote = pSpriteLane->pNote;
+
         break;
     }
 
@@ -2077,24 +2190,27 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
     case DefType::AUTO_NOTE:
     case DefType::AUTO_MINE:
     {
-        _sprites.push_back(std::make_shared<SpriteLaneVertical>(
-            _textureNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, iTimer, d.div_y, d.div_x, false, !!(d._null >= 10), autoNotes));
+        SpriteLaneVertical::SpriteLaneVerticalBuilder builder;
+        builder.srcLine = csvLineNumber;
+        builder.player = !!(d._null >= 10);
+        builder.autoNotes = autoNotes;
+        builder.laneCategory = cat;
+        builder.laneIndex = idx;
 
-        std::shared_ptr<SpriteLaneVertical> ls = nullptr;
+        auto pSpriteLane = builder.build();
+        _sprites.push_back(pSpriteLane);
+
+        pSpriteLane->buildNote(noteBuilder);
         if (!autoNotes)
         {
-            _laneSprites[i].first = std::static_pointer_cast<SpriteLaneVertical>(_sprites.back());
-            ls = _laneSprites[i].first;
+            _laneSprites[i].first = pSpriteLane;
         }
         else
         {
-            _laneSprites[i].second = std::static_pointer_cast<SpriteLaneVertical>(_sprites.back());
-            ls = _laneSprites[i].second;
+            _laneSprites[i].second = pSpriteLane;
         }
-        ls->setLane(cat, idx);
-        ls->pNote->appendKeyFrame({ 0, {Rect(),
-            RenderParams::accTy::CONSTANT, Color(0xffffffff), BlendMode::ALPHA, 0, 0.0 } });
-        ls->pNote->setLoopTime(0);
+        pSpriteNote = pSpriteLane->pNote;
+
         break;
     }
 
@@ -2105,48 +2221,58 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
     case DefType::AUTO_LN_BODY:
     case DefType::AUTO_LN_START:
     {
-        std::shared_ptr<SpriteLaneVerticalLN> p = nullptr;
-        if (!autoNotes)
+        std::shared_ptr<SpriteLaneVerticalLN> pSpriteLane = std::dynamic_pointer_cast<SpriteLaneVerticalLN>(
+            !autoNotes ? _laneSprites[i].first : _laneSprites[i].second);
+        if (!pSpriteLane)
         {
-            if (_laneSprites[i].first == nullptr)
+            SpriteLaneVerticalLN::SpriteLaneVerticalLNBuilder builder;
+            builder.srcLine = csvLineNumber;
+            builder.player = !!(d._null >= 10);
+            builder.autoNotes = autoNotes;
+            builder.laneCategory = cat;
+            builder.laneIndex = idx;
+
+            pSpriteLane = builder.build();
+            _sprites.push_back(pSpriteLane);
+
+            if (!autoNotes)
             {
-                _sprites.push_back(std::make_shared<SpriteLaneVerticalLN>(!!(d._null >= 10), false));
-                _laneSprites[i].first = std::static_pointer_cast<SpriteLaneVerticalLN>(_sprites.back());
-                _laneSprites[i].first->setLane(cat, idx);
+                _laneSprites[i].first = pSpriteLane;
             }
-            p = std::static_pointer_cast<SpriteLaneVerticalLN>(_laneSprites[i].first);
-        }
-        else
-        {
-            if (_laneSprites[i].second == nullptr)
+            else
             {
-                _sprites.push_back(std::make_shared<SpriteLaneVerticalLN>(!!(d._null >= 10), true));
-                _laneSprites[i].second = std::static_pointer_cast<SpriteLaneVerticalLN>(_sprites.back());
-                _laneSprites[i].second->setLane(cat, idx);
+                _laneSprites[i].second = pSpriteLane;
             }
-            p = std::static_pointer_cast<SpriteLaneVerticalLN>(_laneSprites[i].second);
         }
-        std::shared_ptr<SpriteAnimated> *pn = nullptr;
+
         switch (type)
         {
         case DefType::LN_START:
-        case DefType::AUTO_LN_START:  pn = &p->pNote; break;
+        case DefType::AUTO_LN_START:
+            pSpriteLane->buildNoteHead(noteBuilder);
+            pSpriteNote = pSpriteLane->pNote;
+            break;
         case DefType::LN_BODY:
-        case DefType::AUTO_LN_BODY:   pn = &p->pNoteBody; break;
+        case DefType::AUTO_LN_BODY:
+            pSpriteLane->buildNoteBody(noteBuilder);
+            pSpriteNote = pSpriteLane->pNoteBody;
+            break;
         case DefType::LN_END:
-        case DefType::AUTO_LN_END:    pn = &p->pNoteTail; break;
-        }
-        if (pn)
-        {
-            *pn = std::make_shared<SpriteAnimated>(
-                _textureNameMap[gr_key], Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, iTimer, d.div_y, d.div_x);
-            (*pn)->appendKeyFrame({ 0, {Rect(), RenderParams::accTy::CONSTANT, Color(0xffffffff), BlendMode::ALPHA, 0, 0.0 } });
-            (*pn)->setLoopTime(0);
+        case DefType::AUTO_LN_END:
+            pSpriteLane->buildNoteTail(noteBuilder);
+            pSpriteNote = pSpriteLane->pNoteTail;
+            break;
         }
         break;
     }
     default:
         break;
+    }
+    if (pSpriteNote)
+    {
+        pSpriteNote->appendKeyFrame({ 0, {Rect(),
+            RenderParams::accTy::CONSTANT, Color(0xffffffff), BlendMode::ALPHA, 0, 0.0 } });
+        pSpriteNote->setLoopTime(0);
     }
 
     return ParseRet::OK;
@@ -2156,9 +2282,10 @@ ParseRet SkinLR2::SRC_BGA()
 {
     lr2skin::s_bga d(parseParamBuf);
 
-    _sprites.push_back(std::make_shared<SpriteStatic>(gPlayContext.bgaTexture, Rect()));
-
-    _sprites.back()->setSrcLine(csvLineNumber);
+    SpriteStatic::SpriteStaticBuilder builder;
+    builder.srcLine = csvLineNumber;
+    builder.texture = gPlayContext.bgaTexture;
+    _sprites.push_back(builder.build());
 
     return ParseRet::OK;
 }
@@ -2190,14 +2317,22 @@ ParseRet SkinLR2::SRC_BAR_BODY()
     default: return ParseRet::PARAM_INVALID;
     }
 
+    SpriteAnimated::SpriteAnimatedBuilder builder;
+    builder.srcLine = csvLineNumber;
+    builder.texture = textureBuf;
+    builder.textureRect = Rect(d.x, d.y, d.w, d.h);
+    builder.animationFrameCount = d.div_y * d.div_x;
+    builder.animationLengthPerLoop = d.cycle;
+    builder.animationTimer = (IndexTimer)d.timer;
+    builder.textureSheetRows = d.div_y;
+    builder.textureSheetCols = d.div_x;
+
     for (auto& bar : _barSprites)
     {
-        bar->setBody(type,
-            textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
+        bar->setBody(type, builder);
 
         if (type == BarType::SONG)
-            bar->setBody(BarType::NEW_SONG,
-                textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
+            bar->setBody(BarType::NEW_SONG, builder);
     }
 
     return ParseRet::OK;
@@ -2207,9 +2342,19 @@ ParseRet SkinLR2::SRC_BAR_FLASH()
 {
     lr2skin::s_basic d(parseParamBuf, csvLineNumber);
 
+    SpriteAnimated::SpriteAnimatedBuilder builder;
+    builder.srcLine = csvLineNumber;
+    builder.texture = textureBuf;
+    builder.textureRect = Rect(d.x, d.y, d.w, d.h);
+    builder.animationFrameCount = d.div_y * d.div_x;
+    builder.animationLengthPerLoop = d.cycle;
+    builder.animationTimer = (IndexTimer)d.timer;
+    builder.textureSheetRows = d.div_y;
+    builder.textureSheetCols = d.div_x;
+
     for (auto& bar : _barSprites)
     {
-        bar->setFlash(textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
+        bar->setFlash(builder);
     }
 
     return ParseRet::OK;
@@ -2228,10 +2373,21 @@ ParseRet SkinLR2::SRC_BAR_LEVEL()
     else if (f % NumberType::NUM_TYPE_FULL == 0) f = f / NumberType::NUM_TYPE_FULL;
     else f = 0;
 
+    SpriteNumber::SpriteNumberBuilder builder;
+    builder.srcLine = csvLineNumber;
+    builder.texture = textureBuf;
+    builder.textureRect = Rect(d.x, d.y, d.w, d.h);
+    builder.animationFrameCount = f;
+    builder.animationLengthPerLoop = d.cycle;
+    builder.animationTimer = (IndexTimer)d.timer;
+    builder.textureSheetRows = d.div_y;
+    builder.textureSheetCols = d.div_x;
+    builder.align = (NumberAlign)d.align;
+    builder.maxDigits = d.keta;
+
     for (auto& bar : _barSprites)
     {
-        bar->setLevel(type,
-            textureBuf, Rect(d.x, d.y, d.w, d.h), (NumberAlign)d.align, d.keta, d.div_y, d.div_x, d.cycle, (IndexTimer)d.timer, f);
+        bar->setLevel(type, builder);
     }
 
     return ParseRet::OK;
@@ -2243,9 +2399,19 @@ ParseRet SkinLR2::SRC_BAR_LAMP()
 
     BarLampType type = BarLampType(d._null & 0xFFFFFFFF);
 
+    SpriteAnimated::SpriteAnimatedBuilder builder;
+    builder.srcLine = csvLineNumber;
+    builder.texture = textureBuf;
+    builder.textureRect = Rect(d.x, d.y, d.w, d.h);
+    builder.animationFrameCount = d.div_y * d.div_x;
+    builder.animationLengthPerLoop = d.cycle;
+    builder.animationTimer = (IndexTimer)d.timer;
+    builder.textureSheetRows = d.div_y;
+    builder.textureSheetCols = d.div_x;
+
     for (auto& bar : _barSprites)
     {
-        bar->setLamp(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
+        bar->setLamp(type, builder);
     }
 
     return ParseRet::OK;
@@ -2256,17 +2422,28 @@ ParseRet SkinLR2::SRC_BAR_TITLE()
     lr2skin::s_text d(parseParamBuf);
     BarTitleType type = BarTitleType(d._null & 0xFFFFFFFF);
 
+    SpriteImageText::SpriteImageTextBuilder builder;
+    builder.srcLine = csvLineNumber;
+    builder.textInd = (IndexText)d.st;
+    builder.align = (TextAlign)d.align;
+    builder.editable = d.edit;
+
     for (auto& bar : _barSprites)
     {
         auto font = std::to_string(d.font);
         if (LR2FontNameMap.find(font) != LR2FontNameMap.end() && LR2FontNameMap[font] != nullptr)
         {
             auto& pf = LR2FontNameMap[font];
-            bar->setTitle(type, pf->T_texture, &pf->R, (TextAlign)d.align, pf->S, pf->M);
+            builder.charTextures = pf->T_texture;
+            builder.charMappingList = &pf->R;
+            builder.height = pf->S;
+            builder.margin = pf->M;
+            bar->setTitle(type, builder);
         }
         else
         {
-            bar->setTitle(type, _fontNameMap[font], (TextAlign)d.align);
+            builder.font = _fontNameMap[font];
+            bar->setTitle(type, *(SpriteText::SpriteTextBuilder*)&builder);
         }
     }
 
@@ -2281,7 +2458,17 @@ ParseRet SkinLR2::SRC_BAR_RANK()
 
     for (auto& bar : _barSprites)
     {
-        bar->setRank(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
+        SpriteAnimated::SpriteAnimatedBuilder builder;
+        builder.srcLine = csvLineNumber;
+        builder.texture = textureBuf;
+        builder.textureRect = Rect(d.x, d.y, d.w, d.h);
+        builder.animationFrameCount = d.div_y * d.div_x;
+        builder.animationLengthPerLoop = d.cycle;
+        builder.animationTimer = (IndexTimer)d.timer;
+        builder.textureSheetRows = d.div_y;
+        builder.textureSheetCols = d.div_x;
+
+        bar->setRank(type, builder);
     }
 
     return ParseRet::OK;
@@ -2295,7 +2482,17 @@ ParseRet SkinLR2::SRC_BAR_RIVAL()
 
     for (auto& bar : _barSprites)
     {
-        bar->setRivalWinLose(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
+        SpriteAnimated::SpriteAnimatedBuilder builder;
+        builder.srcLine = csvLineNumber;
+        builder.texture = textureBuf;
+        builder.textureRect = Rect(d.x, d.y, d.w, d.h);
+        builder.animationFrameCount = d.div_y * d.div_x;
+        builder.animationLengthPerLoop = d.cycle;
+        builder.animationTimer = (IndexTimer)d.timer;
+        builder.textureSheetRows = d.div_y;
+        builder.textureSheetCols = d.div_x;
+
+        bar->setRivalWinLose(type, builder);
     }
 
     return ParseRet::OK;
@@ -2309,7 +2506,17 @@ ParseRet SkinLR2::SRC_BAR_RIVAL_MYLAMP()
 
     for (auto& bar : _barSprites)
     {
-        bar->setRivalLampSelf(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
+        SpriteAnimated::SpriteAnimatedBuilder builder;
+        builder.srcLine = csvLineNumber;
+        builder.texture = textureBuf;
+        builder.textureRect = Rect(d.x, d.y, d.w, d.h);
+        builder.animationFrameCount = d.div_y * d.div_x;
+        builder.animationLengthPerLoop = d.cycle;
+        builder.animationTimer = (IndexTimer)d.timer;
+        builder.textureSheetRows = d.div_y;
+        builder.textureSheetCols = d.div_x;
+
+        bar->setRivalLampSelf(type, builder);
     }
 
     return ParseRet::OK;
@@ -2323,7 +2530,17 @@ ParseRet SkinLR2::SRC_BAR_RIVAL_RIVALLAMP()
 
     for (auto& bar : _barSprites)
     {
-        bar->setRivalLampRival(type, textureBuf, Rect(d.x, d.y, d.w, d.h), d.div_y * d.div_x, d.cycle, (IndexTimer)d.timer, d.div_y, d.div_x);
+        SpriteAnimated::SpriteAnimatedBuilder builder;
+        builder.srcLine = csvLineNumber;
+        builder.texture = textureBuf;
+        builder.textureRect = Rect(d.x, d.y, d.w, d.h);
+        builder.animationFrameCount = d.div_y * d.div_x;
+        builder.animationLengthPerLoop = d.cycle;
+        builder.animationTimer = (IndexTimer)d.timer;
+        builder.textureSheetRows = d.div_y;
+        builder.textureSheetCols = d.div_x;
+
+        bar->setRivalLampRival(type, builder);
     }
 
     return ParseRet::OK;
@@ -2406,7 +2623,7 @@ bool SkinLR2::DST()
             do
             {
                 enext = gSprites[p->getIdx()];
-                p->set(enext);
+                p->setSpriteReference(enext);
 
                 if (enext == nullptr)
                 {

@@ -146,29 +146,18 @@ protected:
     std::list<std::pair<BarPartsType, unsigned>> drawQueue;
 
 public:
-    SpriteBarEntry(size_t idx) : vSprite(nullptr, SpriteTypes::BAR_ENTRY), index(idx) {}
+    SpriteBarEntry(size_t idx) : vSprite(SpriteTypes::BAR_ENTRY, -1), index(idx) {}
     virtual ~SpriteBarEntry() = default;
-    int setBody(BarType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-        IndexTimer timer = IndexTimer::SCENE_START, int nRows = 1, int nCols = 1, bool texVertSplit = false);
-    int setFlash(pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-        IndexTimer timer = IndexTimer::SCENE_START, int nRows = 1, int nCols = 1, bool texVertSplit = false);
-	int setLevel(BarLevelType type, pTexture texture, const Rect& rect, NumberAlign align, unsigned maxDigits,
-        unsigned numRows, unsigned numCols, unsigned frameTime, IndexTimer animtimer = IndexTimer::SCENE_START,
-		unsigned animFrames = 1, bool texVertSplit = false);
-    int setLamp(BarLampType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-        IndexTimer timer = IndexTimer::SCENE_START, int nRows = 1, int nCols = 1, bool texVertSplit = false);
-    int setTitle(BarTitleType type, pFont f,
-        TextAlign align = TEXT_ALIGN_LEFT, unsigned ptsize = 72, Color c = 0xffffffff);
-    int setTitle(BarTitleType type, std::vector<pTexture>& textures, CharMappingList* chrList,
-        TextAlign align = TEXT_ALIGN_LEFT, unsigned height = 72, int margin = 0);
-    int setRank(BarRankType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-        IndexTimer timer = IndexTimer::SCENE_START, int nRows = 1, int nCols = 1, bool texVertSplit = false);
-    int setRivalWinLose(BarRivalType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-        IndexTimer timer = IndexTimer::SCENE_START, int nRows = 1, int nCols = 1, bool texVertSplit = false);
-    int setRivalLampSelf(BarLampType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-        IndexTimer timer = IndexTimer::SCENE_START, int nRows = 1, int nCols = 1, bool texVertSplit = false);
-    int setRivalLampRival(BarLampType type, pTexture texture, const Rect& rect, unsigned animFrames, unsigned frameTime,
-        IndexTimer timer = IndexTimer::SCENE_START, int nRows = 1, int nCols = 1, bool texVertSplit = false);
+    int setBody(BarType type, const SpriteAnimated::SpriteAnimatedBuilder& builder);
+    int setFlash(const SpriteAnimated::SpriteAnimatedBuilder& builder);
+	int setLevel(BarLevelType type, const SpriteNumber::SpriteNumberBuilder& builder);
+    int setLamp(BarLampType type, const SpriteAnimated::SpriteAnimatedBuilder& builder);
+    int setTitle(BarTitleType type, const SpriteText::SpriteTextBuilder& builder);
+    int setTitle(BarTitleType type, const SpriteImageText::SpriteImageTextBuilder& builder);
+    int setRank(BarRankType type, const SpriteAnimated::SpriteAnimatedBuilder& builder);
+    int setRivalWinLose(BarRivalType type, const SpriteAnimated::SpriteAnimatedBuilder& builder);
+    int setRivalLampSelf(BarLampType type, const SpriteAnimated::SpriteAnimatedBuilder& builder);
+    int setRivalLampRival(BarLampType type, const SpriteAnimated::SpriteAnimatedBuilder& builder);
 
     void pushPartsOrder(BarPartsType type);
 
