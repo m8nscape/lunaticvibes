@@ -3,32 +3,32 @@
 #include "imgui.h"
 #include "game/skin/skin_lr2.h"
 
-void ScenePlay::_updateImgui()
+void ScenePlay::updateImgui()
 {
-    vScene::_updateImgui();
-    if (gNextScene != eScene::PLAY) return;
+    SceneBase::updateImgui();
+    if (gNextScene != SceneType::PLAY) return;
 
     imguiAdjustMenu();
 }
 
 void ScenePlay::imguiInit()
 {
-    switch (_skin->info.resolution)
+    switch (pSkin->info.resolution)
     {
     case 0: imguiAdjustBorderX = 640; imguiAdjustBorderY = 480; imguiAdjustBorderSize = 50; break;
     case 1: imguiAdjustBorderX = 1280; imguiAdjustBorderY = 720; imguiAdjustBorderSize = 75; break;
     case 2: imguiAdjustBorderX = 1920; imguiAdjustBorderY = 1080; imguiAdjustBorderSize = 100; break;
     }
 
-    switch (_skin->info.mode)
+    switch (pSkin->info.mode)
     {
-    case eMode::PLAY10:
-    case eMode::PLAY14:
+    case SkinType::PLAY10:
+    case SkinType::PLAY14:
         imguiAdjustIsDP = true;
         [[ fallthrough ]];
-    case eMode::PLAY5_2:
-    case eMode::PLAY7_2:
-    case eMode::PLAY9_2:
+    case SkinType::PLAY5_2:
+    case SkinType::PLAY7_2:
+    case SkinType::PLAY9_2:
         imguiAdjustHas2P = true;
         break;
     }
@@ -39,7 +39,7 @@ void ScenePlay::imguiAdjustMenu()
 {
     using namespace i18nText;
 
-    std::shared_ptr<SkinLR2> s = std::dynamic_pointer_cast<SkinLR2>(_skin);
+    std::shared_ptr<SkinLR2> s = std::dynamic_pointer_cast<SkinLR2>(pSkin);
     if (imguiShowAdjustMenu && s != nullptr)
     {
         ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);

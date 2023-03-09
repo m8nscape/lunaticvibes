@@ -16,7 +16,7 @@
 #include "db/db_score.h"
 #include "common/difficultytable/table_bms.h"
 
-inline eScene gNextScene = eScene::SELECT;
+inline SceneType gNextScene = SceneType::SELECT;
 inline bool gInCustomize = false;
 inline bool gCustomizeSceneChanged = false;
 inline bool gExitingCustomize = false;
@@ -27,8 +27,8 @@ struct ChartContextParams
 {
     Path path{};
     HashMD5 hash{};
-    std::shared_ptr<ChartFormatBase> chartObj;
-    std::shared_ptr<ChartFormatBase> chartObjMybest;
+    std::shared_ptr<ChartFormatBase> chart;
+    std::shared_ptr<ChartFormatBase> chartMybest;   // mybest obj is loaded with a different random seed
 
     //bool isChartSamplesLoaded;
     bool isSampleLoaded = false;
@@ -64,7 +64,7 @@ constexpr unsigned PLAYER_SLOT_TARGET = 1;
 constexpr unsigned PLAYER_SLOT_MYBEST = 2;
 struct PlayContextParams
 {
-    eMode mode = eMode::PLAY7;
+    SkinType mode = SkinType::PLAY7;
     bool canRetry = false;
 
     unsigned judgeLevel = 0;
@@ -75,11 +75,11 @@ struct PlayContextParams
     std::array<double, MAX_PLAYERS> initialHealth{ 1.0, 1.0, 1.0 };
     std::array<std::vector<int>, MAX_PLAYERS> graphGauge;
     std::array<std::vector<double>, MAX_PLAYERS> graphAcc;
-    std::array<eGaugeOp, MAX_PLAYERS> gaugeType{};        // resolve on ruleset construction
-    std::array<PlayMod, MAX_PLAYERS> mods{};         // eMod: 
+    std::array<GaugeDisplayType, MAX_PLAYERS> gaugeType{};        // resolve on ruleset construction
+    std::array<PlayModifiers, MAX_PLAYERS> mods{};         // eMod: 
 
-    eRuleset rulesetType = eRuleset::BMS;
-    std::array<std::shared_ptr<vRuleset>, MAX_PLAYERS> ruleset;
+    RulesetType rulesetType = RulesetType::BMS;
+    std::array<std::shared_ptr<RulesetBase>, MAX_PLAYERS> ruleset;
 
     std::shared_ptr<ReplayChart> replay;
     std::shared_ptr<ReplayChart> replayMybest;
@@ -89,7 +89,7 @@ struct PlayContextParams
     int courseStage = 0;
     HashMD5 courseHash;
     std::vector<HashMD5> courseCharts;
-    std::vector<std::shared_ptr<vRuleset>> courseStageRulesetCopy[2];
+    std::vector<std::shared_ptr<RulesetBase>> courseStageRulesetCopy[2];
     std::vector<Path> courseStageReplayPath;
     std::vector<Path> courseStageReplayPathNew;
     unsigned courseRunningCombo[2] = { 0, 0 };
@@ -128,7 +128,7 @@ void pushGraphPoints();
 
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef std::pair<std::shared_ptr<EntryBase>, std::shared_ptr<vScore>> Entry;
+typedef std::pair<std::shared_ptr<EntryBase>, std::shared_ptr<ScoreBase>> Entry;
 typedef std::vector<Entry> EntryList;
 
 struct SongListProperties
@@ -142,7 +142,7 @@ struct SongListProperties
     bool ignoreFilters = false;
 };
 
-enum class SongListSort
+enum class SongListSortType
 {
     DEFAULT,    // LEVEL
     TITLE,
@@ -158,20 +158,18 @@ struct SelectContextParams
     std::shared_mutex _mutex;
     std::list<SongListProperties> backtrace;
     EntryList entries;
-    size_t idx = 0;     // current selected entry index
-    size_t cursor = 0;  // highlighted bar index
-    bool entryDragging = 0;    // is dragging slider
+    size_t selectedEntryIndex = 0;     // current selected entry index
+    size_t highlightBarIndex = 0;  // highlighted bar index
+    bool draggingListSlider = 0;    // is dragging slider
 
     size_t cursorClick = 0;  // click bar
     int cursorClickScroll = 0;  // -1: scroll up / 1: scroll down / 2: decide
-    bool cursorEnter = false;
+    bool cursorEnterPending = false;
 
-    size_t sameDifficultyNextIdx = 0; // next entry index of same difficulty
-
-    SongListSort sort = SongListSort::DEFAULT;
+    SongListSortType sortType = SongListSortType::DEFAULT;
     unsigned filterDifficulty = 0; // all / B / N / H / A / I (type 0 is not included)
     unsigned filterKeys = 0; // all / 5, 7, 9, 10, 14, etc
-    bool optionChanged = false;
+    bool optionChangePending = false;
 
     std::vector<DifficultyTableBMS> tables;
 
@@ -221,7 +219,7 @@ struct KeyConfigContextParams
 
 struct CustomizeContextParams
 {
-    eMode mode;
+    SkinType mode;
     bool modeUpdate = false;
 
     int skinDir = 0;
@@ -240,7 +238,7 @@ struct UpdateContextParams
     // shared
     Time updateTime;
 
-    // vSkin / Sprite
+    // SkinBase / Sprite
     double metre;
     unsigned bar;
 };

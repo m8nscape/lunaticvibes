@@ -91,7 +91,7 @@ void clearContextPlay()
     gPlayContext.chartObj[1] = nullptr;
     for (size_t i = 0; i < MAX_PLAYERS; ++i)
     {
-        gPlayContext.gaugeType[i] = eGaugeOp::GROOVE;
+        gPlayContext.gaugeType[i] = GaugeDisplayType::GROOVE;
         gPlayContext.mods[i].clear();
     }
     gPlayContext.remainTime = 0;
@@ -107,7 +107,7 @@ void clearContextPlay()
     gPlayContext.courseMaxCombo[PLAYER_SLOT_TARGET] = 0;
 
     // gPlayContext.replay.reset();     // load at setEntryInfo() @ scene_context.cpp
-    gPlayContext.replayMybest.reset();  // load at _decide() @ scene_select.cpp
+    gPlayContext.replayMybest.reset();  // load at decide() @ scene_select.cpp
 }
 
 void pushGraphPoints()
@@ -137,12 +137,12 @@ void loadSongList()
     int currentEntryDifficulty = 0;
     if (!gSelectContext.entries.empty())
     {
-        currentEntryHash = gSelectContext.entries.at(gSelectContext.idx).first->md5;
+        currentEntryHash = gSelectContext.entries.at(gSelectContext.selectedEntryIndex).first->md5;
 
-        if (gSelectContext.entries[gSelectContext.idx].first->type() == eEntryType::CHART ||
-            gSelectContext.entries[gSelectContext.idx].first->type() == eEntryType::RIVAL_CHART)
+        if (gSelectContext.entries[gSelectContext.selectedEntryIndex].first->type() == eEntryType::CHART ||
+            gSelectContext.entries[gSelectContext.selectedEntryIndex].first->type() == eEntryType::RIVAL_CHART)
         {
-            auto& en = gSelectContext.entries[gSelectContext.idx].first;
+            auto& en = gSelectContext.entries[gSelectContext.selectedEntryIndex].first;
             auto ps = std::reinterpret_pointer_cast<EntryChart>(en);
             auto pf = std::reinterpret_pointer_cast<ChartFormatBase>(ps->_file);
             currentEntrySong = ps->getSongEntry();
@@ -311,7 +311,7 @@ void loadSongList()
         updateEntryScore(idx);
     }
 
-    gSelectContext.idx = 0;
+    gSelectContext.selectedEntryIndex = 0;
 
     // look for the exact same entry
     if (gSelectContext.backtrace.size() > 1)
@@ -331,7 +331,7 @@ void loadSongList()
         size_t i = findChart(currentEntryHash);
         if (i != (size_t)-1)
         {
-            gSelectContext.idx = i;
+            gSelectContext.selectedEntryIndex = i;
         }
         else if (currentEntrySong)
         {
@@ -346,7 +346,7 @@ void loadSongList()
             }
             if (i != (size_t)-1)
             {
-                gSelectContext.idx = i;
+                gSelectContext.selectedEntryIndex = i;
             }
             else
             {
@@ -359,7 +359,7 @@ void loadSongList()
             }
             if (i != (size_t)-1)
             {
-                gSelectContext.idx = i;
+                gSelectContext.selectedEntryIndex = i;
             }
             else
             {
@@ -377,7 +377,7 @@ void loadSongList()
             }
             if (i != (size_t)-1)
             {
-                gSelectContext.idx = i;
+                gSelectContext.selectedEntryIndex = i;
             }
             else
             {
@@ -389,12 +389,12 @@ void loadSongList()
             }
             if (i != (size_t)-1)
             {
-                gSelectContext.idx = i;
+                gSelectContext.selectedEntryIndex = i;
             }
         }
     }
 
-    State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.idx / gSelectContext.entries.size()));
+    State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size()));
 }
 
 void updateEntryScore(size_t idx)
@@ -441,7 +441,7 @@ void sortSongList()
 {
     HashMD5 currentEntryHash;
     if (!gSelectContext.entries.empty())
-        currentEntryHash = gSelectContext.entries.at(gSelectContext.idx).first->md5;
+        currentEntryHash = gSelectContext.entries.at(gSelectContext.selectedEntryIndex).first->md5;
 
     auto& entries = gSelectContext.entries;
     std::sort(entries.begin(), entries.end(), [](const Entry& entry1, const Entry& entry2)
@@ -458,7 +458,7 @@ void sortSongList()
             }
             else
             {
-                pChartFormat l, r;
+                std::shared_ptr<ChartFormatBase> l, r;
                 if (lhs->type() == eEntryType::SONG || lhs->type() == eEntryType::RIVAL_SONG)
                 {
                     l = std::reinterpret_pointer_cast<EntryFolderSong>(lhs)->getChart(0);
@@ -471,27 +471,27 @@ void sortSongList()
                 }
                 if (l && r)
                 {
-                    switch (gSelectContext.sort)
+                    switch (gSelectContext.sortType)
                     {
-                    case SongListSort::DEFAULT:
+                    case SongListSortType::DEFAULT:
                         if (l->folderHash != r->folderHash) return l->folderHash < r->folderHash;
                         if (l->levelEstimated != r->levelEstimated) return l->levelEstimated < r->levelEstimated;
                         if (l->title != r->title) return l->title < r->title;
                         if (l->title2 != r->title2) return l->title2 < r->title2;
                         if (l->version != r->version) return l->version < r->version;
                         break;
-                    case SongListSort::TITLE:
+                    case SongListSortType::TITLE:
                         if (l->title != r->title) return l->title < r->title;
                         if (l->title2 != r->title2) return l->title2 < r->title2;
                         if (l->version != r->version) return l->version < r->version;
                         break;
-                    case SongListSort::LEVEL:
+                    case SongListSortType::LEVEL:
                         if (l->levelEstimated != r->levelEstimated) return l->levelEstimated < r->levelEstimated;
                         if (l->title != r->title) return l->title < r->title;
                         if (l->title2 != r->title2) return l->title2 < r->title2;
                         if (l->version != r->version) return l->version < r->version;
                         break;
-                    case SongListSort::CLEAR:
+                    case SongListSortType::CLEAR:
                     {
                         auto l_lamp = std::dynamic_pointer_cast<ScoreBMS>(entry1.second) ? std::reinterpret_pointer_cast<ScoreBMS>(entry1.second)->lamp : ScoreBMS::Lamp::NOPLAY;
                         auto r_lamp = std::dynamic_pointer_cast<ScoreBMS>(entry2.second) ? std::reinterpret_pointer_cast<ScoreBMS>(entry2.second)->lamp : ScoreBMS::Lamp::NOPLAY;
@@ -501,7 +501,7 @@ void sortSongList()
                         if (l->version != r->version) return l->version < r->version;
                         break;
                     }
-                    case SongListSort::RATE:
+                    case SongListSortType::RATE:
                     {
                         auto l_rate = std::dynamic_pointer_cast<ScoreBMS>(entry1.second) ? std::reinterpret_pointer_cast<ScoreBMS>(entry1.second)->rate : 0.;
                         auto r_rate = std::dynamic_pointer_cast<ScoreBMS>(entry2.second) ? std::reinterpret_pointer_cast<ScoreBMS>(entry2.second)->rate : 0.;
@@ -527,15 +527,15 @@ void sortSongList()
     {
         if (currentEntryHash == gSelectContext.entries.at(idx).first->md5)
         {
-            gSelectContext.idx = idx;
+            gSelectContext.selectedEntryIndex = idx;
             break;
         }
     }
-    if (gSelectContext.idx >= gSelectContext.entries.size())
+    if (gSelectContext.selectedEntryIndex >= gSelectContext.entries.size())
     {
-        gSelectContext.idx = 0;
+        gSelectContext.selectedEntryIndex = 0;
     }
-    State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.idx / gSelectContext.entries.size()));
+    State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size()));
 }
 
 void setBarInfo()
@@ -543,8 +543,8 @@ void setBarInfo()
     const EntryList& e = gSelectContext.entries;
     if (e.empty()) return;
 
-    const size_t idx = gSelectContext.idx;
-    const size_t cursor = gSelectContext.cursor;
+    const size_t idx = gSelectContext.selectedEntryIndex;
+    const size_t cursor = gSelectContext.highlightBarIndex;
     const size_t count = size_t(IndexText::_SELECT_BAR_TITLE_FULL_MAX) - size_t(IndexText::_SELECT_BAR_TITLE_FULL_0) + 1;
     const bool subtitle = !ConfigMgr::get('P', cfg::P_ONLY_DISPLAY_MAIN_TITLE_ON_BARS, false);
 
@@ -620,8 +620,8 @@ void setEntryInfo()
     const EntryList& e = gSelectContext.entries;
     if (e.empty()) return;
 
-    const size_t idx = gSelectContext.idx;
-    const size_t cursor = gSelectContext.cursor;
+    const size_t idx = gSelectContext.selectedEntryIndex;
+    const size_t cursor = gSelectContext.highlightBarIndex;
 
     std::map<std::string, int> param;
     std::map<std::string, double> paramf;
@@ -923,7 +923,7 @@ void setEntryInfo()
         param["entry"] = Option::ENTRY_SONG;
 
         auto ps = std::reinterpret_pointer_cast<EntryChart>(e[idx].first);
-        auto psc = std::reinterpret_pointer_cast<vScore>(e[idx].second);
+        auto psc = std::reinterpret_pointer_cast<ScoreBase>(e[idx].second);
         auto pf = std::reinterpret_pointer_cast<ChartFormatBase>(ps->_file);
         if (psc)
         {
@@ -999,7 +999,7 @@ void setEntryInfo()
         param["entry"] = Option::ENTRY_COURSE;
 
         auto ps = std::reinterpret_pointer_cast<EntryCourse>(e[idx].first);
-        auto psc = std::reinterpret_pointer_cast<vScore>(e[idx].second);
+        auto psc = std::reinterpret_pointer_cast<ScoreBase>(e[idx].second);
         if (psc)
         {
             auto pScore = std::reinterpret_pointer_cast<ScoreBMS>(psc);
@@ -1260,8 +1260,8 @@ void switchVersion(int difficulty)
     const EntryList& e = gSelectContext.entries;
     if (e.empty()) return;
 
-    const size_t idx = gSelectContext.idx;
-    const size_t cursor = gSelectContext.cursor;
+    const size_t idx = gSelectContext.selectedEntryIndex;
+    const size_t cursor = gSelectContext.highlightBarIndex;
 
     // chart parameters
     if (e[idx].first->type() == eEntryType::CHART || e[idx].first->type() == eEntryType::RIVAL_CHART)
@@ -1273,7 +1273,7 @@ void switchVersion(int difficulty)
         {
             // choose next chart from song entry. They are likely be terribly scrambled
             /*
-            pChartFormat pNextChart = nullptr;
+            std::shared_ptr<ChartFormatBase> pNextChart = nullptr;
             auto& chartList = pSong->getDifficultyList(pf->gamemode, difficulty);
             if (chartList.size() > 0)
             {
@@ -1308,17 +1308,17 @@ void switchVersion(int difficulty)
                         auto pns = std::reinterpret_pointer_cast<EntryChart>(e[nextIdx].first);
                         if (pns->_file == pNextChart)
                         {
-                            gSelectContext.idx = nextIdx;
+                            gSelectContext.selectedEntryIndex = nextIdx;
                             break;
                         }
                     }
                 }
-                State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.idx / gSelectContext.entries.size()));
+                State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size()));
             }
             */
 
             // choose directly from entry list
-            pChartFormat pFirstChart = nullptr;
+            std::shared_ptr<ChartFormatBase> pFirstChart = nullptr;
             size_t firstIdx = 0;
             bool currentFound = false;
             for (size_t nextIdx = 0; nextIdx < e.size(); ++nextIdx)
@@ -1340,8 +1340,8 @@ void switchVersion(int difficulty)
                         }
                         else if (currentFound && pns->_file->gamemode == pf->gamemode && (difficulty == 0 || pns->_file->difficulty == difficulty))
                         {
-                            gSelectContext.idx = nextIdx;
-                            State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.idx / gSelectContext.entries.size()));
+                            gSelectContext.selectedEntryIndex = nextIdx;
+                            State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size()));
                             return;
                         }
                     }
@@ -1359,8 +1359,8 @@ void switchVersion(int difficulty)
                         {
                             if (pns->_file != pf && pns->_file->gamemode == pf->gamemode && (difficulty == 0 || pns->_file->difficulty == difficulty))
                             {
-                                gSelectContext.idx = nextIdx;
-                                State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.idx / gSelectContext.entries.size()));
+                                gSelectContext.selectedEntryIndex = nextIdx;
+                                State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size()));
                                 return;
                             }
                         }
@@ -1368,8 +1368,8 @@ void switchVersion(int difficulty)
                 }
 
                 // fallback to first entry
-                gSelectContext.idx = firstIdx;
-                State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.idx / gSelectContext.entries.size()));
+                gSelectContext.selectedEntryIndex = firstIdx;
+                State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size()));
             }
         }
     }
@@ -1384,8 +1384,8 @@ void setDynamicTextures()
     const EntryList& e = gSelectContext.entries;
     if (e.empty()) return;
 
-    const size_t idx = gSelectContext.idx;
-    const size_t cursor = gSelectContext.cursor;
+    const size_t idx = gSelectContext.selectedEntryIndex;
+    const size_t cursor = gSelectContext.highlightBarIndex;
 
     // chart parameters
     auto entry = e[idx].first;

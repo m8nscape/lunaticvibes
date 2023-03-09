@@ -133,7 +133,7 @@ private:
     std::string _path;
     std::shared_ptr<SDL_RWops> _pRWop;
     std::shared_ptr<SDL_Surface> _pSurface;
-    bool _loaded = false;
+    bool loaded = false;
     bool _haveAlphaLayer = false;
 private:
     Image(const char* path, std::shared_ptr<SDL_RWops>&& rw);
@@ -153,7 +153,7 @@ public:
 // Convert SDL_Surface into SDL_Texture with subarea specified.
 class Texture
 {
-	friend class vSprite;
+	friend class SpriteBase;
 	friend class SpriteStatic;
 	friend class SpriteSelection;
 	friend class SpriteAnimated;
@@ -166,8 +166,8 @@ class Texture
 
 protected:
 	std::shared_ptr<SDL_Texture> _pTexture = nullptr;
-	bool _loaded = false;
-	Rect _texRect;
+	bool loaded = false;
+	Rect textureRect;
 
 protected:
     void static _draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, RectF dstRect,
@@ -211,14 +211,14 @@ public:
 	virtual ~Texture();
 public:
     void* raw() { return (void*)_pTexture.get(); }
-	Rect getRect() const { return _texRect; }
-	bool isLoaded() const { return _loaded; }
+	Rect getRect() const { return textureRect; }
+	bool isLoaded() const { return loaded; }
     int updateYUV(uint8_t* Y, int Ypitch, uint8_t* U, int Upitch, uint8_t* V, int Vpitch);
 };
 
 
 // Special texture class that always uses full texture size as output rect.
-// That is, srcRect is ignored and replaced with _texRect.
+// That is, srcRect is ignored and replaced with textureRects.
 // Useful when rendering BGs and Error-texture.
 class TextureFull: public Texture
 {
@@ -244,7 +244,7 @@ protected:
     TTF_Font* _pFont = NULL;
     std::string _filePath;
     int _faceIndex = -1;
-    bool _loaded = false;
+    bool loaded = false;
     int _ptsize = 0;
 
     TTF_Font* _pFontOutline = NULL;

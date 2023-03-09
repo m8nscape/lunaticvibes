@@ -15,7 +15,7 @@ public:
         _type = eEntryType::SONG;
     }
     EntryFolderSong(std::shared_ptr<ChartFormatBase> pChart):
-        EntryFolderBase(pChart->fileHash, pChart->title, pChart->title2), _path(pChart->filePath)
+        EntryFolderBase(pChart->fileHash, pChart->title, pChart->title2), _path(pChart->fileName)
     {
         pushChart(pChart);
         _type = eEntryType::SONG;

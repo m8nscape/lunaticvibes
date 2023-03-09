@@ -15,16 +15,16 @@ extern "C"
 	struct AVFrame;
 	struct AVPacket;
 }
-class vScene;
-class vSkin;
+class SceneBase;
+class SkinBase;
 
 void video_init();
 
 // libav decoder wrap
 class sVideo
 {
-	friend class vScene;
-	friend class vSkin;
+	friend class SceneBase;
+	friend class SkinBase;
 public:
 	Path file;
 	bool haveVideo = false;

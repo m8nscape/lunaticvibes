@@ -10,9 +10,9 @@
 #include "config/config_mgr.h"
 #include <boost/algorithm/string.hpp>
 
-SceneCourseResult::SceneCourseResult() : vScene(eMode::COURSE_RESULT, 1000)
+SceneCourseResult::SceneCourseResult() : SceneBase(SkinType::COURSE_RESULT, 1000)
 {
-    _scene = eScene::COURSE_RESULT;
+    _type = SceneType::COURSE_RESULT;
 
     _inputAvailable = INPUT_MASK_FUNC;
 
@@ -26,7 +26,7 @@ SceneCourseResult::SceneCourseResult() : vScene(eMode::COURSE_RESULT, 1000)
         _inputAvailable |= INPUT_MASK_2P;
     }
 
-    _state = eCourseResultState::DRAW;
+    state = eCourseResultState::DRAW;
 
     std::map<std::string, int> param;
 
@@ -288,14 +288,14 @@ SceneCourseResult::~SceneCourseResult()
 
 void SceneCourseResult::_updateAsync()
 {
-    if (gNextScene != eScene::COURSE_RESULT) return;
+    if (gNextScene != SceneType::COURSE_RESULT) return;
 
     if (gAppIsExiting)
     {
-        gNextScene = eScene::EXIT_TRANS;
+        gNextScene = SceneType::EXIT_TRANS;
     }
 
-    switch (_state)
+    switch (state)
     {
     case eCourseResultState::DRAW:
         updateDraw();
@@ -317,11 +317,11 @@ void SceneCourseResult::updateDraw()
     auto t = Time();
     auto rt = t - State::get(IndexTimer::SCENE_START);
 
-    if (rt.norm() >= _skin->info.timeResultRank)
+    if (rt.norm() >= pSkin->info.timeResultRank)
     {
         State::set(IndexTimer::RESULT_RANK_START, t.norm());
         // TODO play hit sound
-        _state = eCourseResultState::STOP;
+        state = eCourseResultState::STOP;
         LOG_DEBUG << "[Result] State changed to STOP";
     }
 }
@@ -350,7 +350,7 @@ void SceneCourseResult::updateFadeout()
     auto rt = t - State::get(IndexTimer::SCENE_START);
     auto ft = t - State::get(IndexTimer::FADEOUT_BEGIN);
 
-    if (ft >= _skin->info.timeOutro)
+    if (ft >= pSkin->info.timeOutro)
     {
         // save score
         if (!gInCustomize && !gPlayContext.isReplay && !gPlayContext.isBattle && !gChartContext.hash.empty())
@@ -396,11 +396,11 @@ void SceneCourseResult::updateFadeout()
                 {
                     score.lamp = ScoreBMS::Lamp::FULLCOMBO;
                 }
-                else if (gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge == eModGauge::GRADE_HARD)
+                else if (gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge == PlayModifierGaugeType::GRADE_HARD)
                 {
                     score.lamp = ScoreBMS::Lamp::HARD;
                 }
-                else if (gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge == eModGauge::GRADE_NORMAL)
+                else if (gPlayContext.mods[PLAYER_SLOT_PLAYER].gauge == PlayModifierGaugeType::GRADE_NORMAL)
                 {
                     score.lamp = ScoreBMS::Lamp::NORMAL;
                 }
@@ -420,7 +420,7 @@ void SceneCourseResult::updateFadeout()
         gPlayContext.courseStageReplayPathNew.clear();
         gPlayContext.isAuto = false;
         gPlayContext.isReplay = false;
-        gNextScene = gQuitOnFinish ? eScene::EXIT_TRANS : eScene::SELECT;
+        gNextScene = gQuitOnFinish ? SceneType::EXIT_TRANS : SceneType::SELECT;
     }
 }
 
@@ -429,16 +429,16 @@ void SceneCourseResult::updateFadeout()
 // CALLBACK
 void SceneCourseResult::inputGamePress(InputMask& m, const Time& t)
 {
-    if (t - State::get(IndexTimer::SCENE_START) < _skin->info.timeIntro) return;
+    if (t - State::get(IndexTimer::SCENE_START) < pSkin->info.timeIntro) return;
 
     if ((_inputAvailable & m & (INPUT_MASK_DECIDE | INPUT_MASK_CANCEL)).any() || m[Input::ESC])
     {
-        switch (_state)
+        switch (state)
         {
         case eCourseResultState::DRAW:
             State::set(IndexTimer::RESULT_RANK_START, t.norm());
             // TODO play hit sound
-            _state = eCourseResultState::STOP;
+            state = eCourseResultState::STOP;
             LOG_DEBUG << "[Result] State changed to STOP";
             break;
 
@@ -448,13 +448,13 @@ void SceneCourseResult::inputGamePress(InputMask& m, const Time& t)
                 State::set(IndexTimer::RESULT_HIGHSCORE_START, t.norm());
                 // TODO stop result sound
                 // TODO play record sound
-                _state = eCourseResultState::RECORD;
+                state = eCourseResultState::RECORD;
                 LOG_DEBUG << "[Result] State changed to RECORD";
             }
             else
             {
                 State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
-                _state = eCourseResultState::FADEOUT;
+                state = eCourseResultState::FADEOUT;
                 SoundMgr::setSysVolume(0.0, 2000);
                 SoundMgr::setNoteVolume(0.0, 2000);
                 LOG_DEBUG << "[Result] State changed to FADEOUT";
@@ -465,7 +465,7 @@ void SceneCourseResult::inputGamePress(InputMask& m, const Time& t)
             if (_scoreSyncFinished)
             {
                 State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
-                _state = eCourseResultState::FADEOUT;
+                state = eCourseResultState::FADEOUT;
                 SoundMgr::setSysVolume(0.0, 2000);
                 SoundMgr::setNoteVolume(0.0, 2000);
                 LOG_DEBUG << "[Result] State changed to FADEOUT";
@@ -484,9 +484,9 @@ void SceneCourseResult::inputGamePress(InputMask& m, const Time& t)
 // CALLBACK
 void SceneCourseResult::inputGameHold(InputMask& m, const Time& t)
 {
-    if (t - State::get(IndexTimer::SCENE_START) < _skin->info.timeIntro) return;
+    if (t - State::get(IndexTimer::SCENE_START) < pSkin->info.timeIntro) return;
 
-    if (_state == eCourseResultState::FADEOUT)
+    if (state == eCourseResultState::FADEOUT)
     {
         _retryRequested =
             (_inputAvailable & m & INPUT_MASK_DECIDE).any() && 
@@ -497,5 +497,5 @@ void SceneCourseResult::inputGameHold(InputMask& m, const Time& t)
 // CALLBACK
 void SceneCourseResult::inputGameRelease(InputMask& m, const Time& t)
 {
-    if (t - State::get(IndexTimer::SCENE_START) < _skin->info.timeIntro) return;
+    if (t - State::get(IndexTimer::SCENE_START) < pSkin->info.timeIntro) return;
 }

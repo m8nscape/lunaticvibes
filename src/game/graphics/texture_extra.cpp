@@ -24,10 +24,10 @@ TextureVideo::TextureVideo(std::shared_ptr<sVideo> pv) :
 	format(pv->getFormat()), 
 	pVideo(pv)
 {
-	_texRect.x = 0;
-	_texRect.y = 0;
-	_texRect.w = pv->getW();
-	_texRect.h = pv->getH();
+	textureRect.x = 0;
+	textureRect.y = 0;
+	textureRect.w = pv->getW();
+	textureRect.h = pv->getH();
 
 	if (!texMapMutex)
 		texMapMutex = std::make_shared<std::shared_mutex>();
@@ -248,7 +248,7 @@ bool TextureBmsBga::setSlotFromBMS(ChartObjectBMS& bms)
 	for (const auto& l : lLayer) setSlot(l.dvalue, l.time, false, true, false);
 	for (const auto& l : lPoor) setSlot(l.dvalue, l.time, false, false, true);
 	sortSlot();
-	_loaded = true;
+	loaded = true;
 	return true;
 }
 
@@ -404,8 +404,8 @@ void TextureBmsBga::reset()
 
 void TextureBmsBga::clear()
 {
-	_loaded = false;
-	_texRect = Rect();
+	loaded = false;
+	textureRect = Rect();
 	baseSlot.clear();
 	layerSlot.clear();
 	poorSlot.clear();
@@ -417,7 +417,7 @@ void TextureBmsBga::clear()
 
 void TextureBmsBga::setLoaded()
 {
-	_loaded = true;	
+	loaded = true;	
 }
 
 void TextureBmsBga::stopUpdate()
@@ -472,7 +472,7 @@ TextureDynamic::TextureDynamic() : Texture(nullptr, 0, 0)
 
 void TextureDynamic::setPath(const Path& path)
 {
-	_loaded = false;
+	loaded = false;
 
 	if (path.empty())
 	{
@@ -483,10 +483,10 @@ void TextureDynamic::setPath(const Path& path)
 	if (dynTexCache.find(path) == dynTexCache.end())
 	{
 		Image tmp(path);
-		if (!tmp._loaded)
+		if (!tmp.loaded)
 		{
 			dynTexCache.emplace(std::piecewise_construct, std::forward_as_tuple(path), std::forward_as_tuple(nullptr, 0, 0));
-			_loaded = false;
+			loaded = false;
 			return;
 		}
 		dynTexCache.emplace(path, tmp);
@@ -495,8 +495,8 @@ void TextureDynamic::setPath(const Path& path)
 	_dynTexture = &dynTexCache.at(path);
 	if (_dynTexture->isLoaded())
 	{
-		_loaded = true;
-		_texRect = _dynTexture->getRect();
+		loaded = true;
+		textureRect = _dynTexture->getRect();
 	}
 }
 

@@ -3,7 +3,7 @@
 #include "game/ruleset/ruleset.h"
 #include "scene.h"
 
-class vScore;
+class ScoreBase;
 enum class eCourseResultState
 {
     DRAW,
@@ -12,16 +12,16 @@ enum class eCourseResultState
     FADEOUT,
 };
 
-class SceneCourseResult : public vScene
+class SceneCourseResult : public SceneBase
 {
 private:
-    eCourseResultState _state;
+    eCourseResultState state;
     InputMask _inputAvailable;
 
 protected:
     bool _scoreSyncFinished = false;
     bool _retryRequested = false;
-    std::shared_ptr<vScore> _pScoreOld;
+    std::shared_ptr<ScoreBase> _pScoreOld;
 
     enum SummaryArgs
     {

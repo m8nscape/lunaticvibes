@@ -52,8 +52,8 @@ void setJudgeInternalTimer2P(RulesetBMS::JudgeType judge, long long t)
 }
 
 RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<ChartObjectBase> chart,
-    eModGauge gauge, GameModeKeys keys, RulesetBMS::JudgeDifficulty difficulty, double health, RulesetBMS::PlaySide side) :
-    vRuleset(format, chart), _judgeDifficulty(difficulty)
+    PlayModifierGaugeType gauge, GameModeKeys keys, RulesetBMS::JudgeDifficulty difficulty, double health, RulesetBMS::PlaySide side) :
+    RulesetBase(format, chart), _judgeDifficulty(difficulty)
 {
 
     static const NoteLaneTimerMap bombTimer5k[] = {
@@ -394,21 +394,21 @@ RulesetBMS::RulesetBMS(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<
     }
 }
 
-void RulesetBMS::initGaugeParams(eModGauge gauge)
+void RulesetBMS::initGaugeParams(PlayModifierGaugeType gauge)
 {
     switch (gauge)
     {
-    case eModGauge::HARD:               _gauge = GaugeType::HARD;    break;
-    case eModGauge::DEATH:              _gauge = GaugeType::DEATH;   break;
-    case eModGauge::EASY:               _gauge = GaugeType::EASY;    break;
-        //case eModGauge::PATTACK     : _gauge = GaugeType::P_ATK;   break;
-        //case eModGauge::GATTACK     : _gauge = GaugeType::G_ATK;   break;
-    case eModGauge::ASSISTEASY:         _gauge = GaugeType::ASSIST;  break;
-    case eModGauge::GRADE_NORMAL:       _gauge = GaugeType::GRADE;   break;
-    case eModGauge::GRADE_DEATH:        _gauge = GaugeType::EXGRADE; break;
-    case eModGauge::EXHARD:             _gauge = GaugeType::EXHARD;  break;
-    case eModGauge::GRADE_HARD:         _gauge = GaugeType::EXGRADE; break;
-    case eModGauge::NORMAL:
+    case PlayModifierGaugeType::HARD:               _gauge = GaugeType::HARD;    break;
+    case PlayModifierGaugeType::DEATH:              _gauge = GaugeType::DEATH;   break;
+    case PlayModifierGaugeType::EASY:               _gauge = GaugeType::EASY;    break;
+        //case PlayModifierGaugeType::PATTACK     : _gauge = GaugeType::P_ATK;   break;
+        //case PlayModifierGaugeType::GATTACK     : _gauge = GaugeType::G_ATK;   break;
+    case PlayModifierGaugeType::ASSISTEASY:         _gauge = GaugeType::ASSIST;  break;
+    case PlayModifierGaugeType::GRADE_NORMAL:       _gauge = GaugeType::GRADE;   break;
+    case PlayModifierGaugeType::GRADE_DEATH:        _gauge = GaugeType::EXGRADE; break;
+    case PlayModifierGaugeType::EXHARD:             _gauge = GaugeType::EXHARD;  break;
+    case PlayModifierGaugeType::GRADE_HARD:         _gauge = GaugeType::EXGRADE; break;
+    case PlayModifierGaugeType::NORMAL:
     default:                            _gauge = GaugeType::GROOVE;  break;
     }
 
@@ -1199,14 +1199,14 @@ void RulesetBMS::updatePress(InputMask& pg, const Time& t)
     {
         if (_k1P)
         {
-            if (pg[Input::S1L]) _scratchDir[PLAYER_SLOT_PLAYER] = AxisDir::AXIS_UP;
-            if (pg[Input::S1R]) _scratchDir[PLAYER_SLOT_PLAYER] = AxisDir::AXIS_DOWN;
+            if (pg[Input::S1L]) playerScratchDirection[PLAYER_SLOT_PLAYER] = AxisDir::AXIS_UP;
+            if (pg[Input::S1R]) playerScratchDirection[PLAYER_SLOT_PLAYER] = AxisDir::AXIS_DOWN;
             updatePressRange(Input::S1L, Input::S1R, PLAYER_SLOT_PLAYER);
         }
         if (_k2P)
         {
-            if (pg[Input::S2L]) _scratchDir[PLAYER_SLOT_TARGET] = AxisDir::AXIS_UP;
-            if (pg[Input::S2R]) _scratchDir[PLAYER_SLOT_TARGET] = AxisDir::AXIS_DOWN;
+            if (pg[Input::S2L]) playerScratchDirection[PLAYER_SLOT_TARGET] = AxisDir::AXIS_UP;
+            if (pg[Input::S2R]) playerScratchDirection[PLAYER_SLOT_TARGET] = AxisDir::AXIS_DOWN;
             updatePressRange(Input::S2L, Input::S2R, PLAYER_SLOT_TARGET);
         }
     }
@@ -1253,16 +1253,16 @@ void RulesetBMS::updateRelease(InputMask& rg, const Time& t)
     {
         if (_k1P)
         {
-            if (_scratchDir[PLAYER_SLOT_PLAYER] == AxisDir::AXIS_UP && rg[Input::S1L])
+            if (playerScratchDirection[PLAYER_SLOT_PLAYER] == AxisDir::AXIS_UP && rg[Input::S1L])
                 updateReleaseRange(Input::S1L, Input::S1L, PLAYER_SLOT_PLAYER);
-            if (_scratchDir[PLAYER_SLOT_PLAYER] == AxisDir::AXIS_DOWN && rg[Input::S1R])
+            if (playerScratchDirection[PLAYER_SLOT_PLAYER] == AxisDir::AXIS_DOWN && rg[Input::S1R])
                 updateReleaseRange(Input::S1R, Input::S1R, PLAYER_SLOT_PLAYER);
         }
         if (_k2P)
         {
-            if (_scratchDir[PLAYER_SLOT_TARGET] == AxisDir::AXIS_UP && rg[Input::S2L])
+            if (playerScratchDirection[PLAYER_SLOT_TARGET] == AxisDir::AXIS_UP && rg[Input::S2L])
                 updateReleaseRange(Input::S2L, Input::S2L, PLAYER_SLOT_TARGET);
-            if (_scratchDir[PLAYER_SLOT_TARGET] == AxisDir::AXIS_DOWN && rg[Input::S2R])
+            if (playerScratchDirection[PLAYER_SLOT_TARGET] == AxisDir::AXIS_DOWN && rg[Input::S2R])
                 updateReleaseRange(Input::S2R, Input::S2R, PLAYER_SLOT_TARGET);
         }
     }
@@ -1276,8 +1276,8 @@ void RulesetBMS::updateAxis(double s1, double s2, const Time& t)
 
     if (!gPlayContext.isAuto && (!gPlayContext.isReplay || !gChartContext.started))
     {
-        _scratchAccumulator[PLAYER_SLOT_PLAYER] += s1;
-        _scratchAccumulator[PLAYER_SLOT_TARGET] += s2;
+        playerScratchAccumulator[PLAYER_SLOT_PLAYER] += s1;
+        playerScratchAccumulator[PLAYER_SLOT_TARGET] += s2;
     }
 }
 
@@ -1461,7 +1461,7 @@ void RulesetBMS::update(const Time& t)
                 // scratch down
                 val -= scratchThreshold;
 
-                switch (_scratchDir[slot])
+                switch (playerScratchDirection[slot])
                 {
                 case AxisDir::AXIS_DOWN:
                     judgeNoteHold(dn, t, rt, slot);
@@ -1476,15 +1476,15 @@ void RulesetBMS::update(const Time& t)
                     break;
                 }
 
-                _scratchLastUpdate[slot] = t;
-                _scratchDir[slot] = AxisDir::AXIS_DOWN;
+                playerScratchLastUpdate[slot] = t;
+                playerScratchDirection[slot] = AxisDir::AXIS_DOWN;
             }
             else if (val < -scratchThreshold)
             {
                 // scratch up
                 val += scratchThreshold;
 
-                switch (_scratchDir[slot])
+                switch (playerScratchDirection[slot])
                 {
                 case AxisDir::AXIS_UP:
                     judgeNoteHold(up, t, rt, slot);
@@ -1499,8 +1499,8 @@ void RulesetBMS::update(const Time& t)
                     break;
                 }
 
-                _scratchLastUpdate[slot] = t;
-                _scratchDir[slot] = AxisDir::AXIS_UP;
+                playerScratchLastUpdate[slot] = t;
+                playerScratchDirection[slot] = AxisDir::AXIS_UP;
             }
 
             if (val > scratchRewind)
@@ -1510,10 +1510,10 @@ void RulesetBMS::update(const Time& t)
             else
                 val = 0.;
 
-            if ((t - _scratchLastUpdate[slot]).norm() > 133)
+            if ((t - playerScratchLastUpdate[slot]).norm() > 133)
             {
                 // release
-                switch (_scratchDir[slot])
+                switch (playerScratchDirection[slot])
                 {
                 case AxisDir::AXIS_UP:
                     judgeNoteRelease(up, t, rt, slot);
@@ -1523,12 +1523,12 @@ void RulesetBMS::update(const Time& t)
                     break;
                 }
 
-                _scratchDir[slot] = AxisDir::AXIS_NONE;
-                _scratchLastUpdate[slot] = TIMER_NEVER;
+                playerScratchDirection[slot] = AxisDir::AXIS_NONE;
+                playerScratchLastUpdate[slot] = TIMER_NEVER;
             }
         };
-        updateScratch(t, Input::S1L, Input::S1R, _scratchAccumulator[PLAYER_SLOT_PLAYER], PLAYER_SLOT_PLAYER);
-        updateScratch(t, Input::S2L, Input::S2R, _scratchAccumulator[PLAYER_SLOT_TARGET], PLAYER_SLOT_TARGET);
+        updateScratch(t, Input::S1L, Input::S1R, playerScratchAccumulator[PLAYER_SLOT_PLAYER], PLAYER_SLOT_PLAYER);
+        updateScratch(t, Input::S2L, Input::S2R, playerScratchAccumulator[PLAYER_SLOT_TARGET], PLAYER_SLOT_TARGET);
     }
 
 	unsigned max = getNoteCount() * 2;

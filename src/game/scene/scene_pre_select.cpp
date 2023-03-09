@@ -11,7 +11,7 @@
 #include "game/runtime/i18n.h"
 #include "git_version.h"
 
-ScenePreSelect::ScenePreSelect(): vScene(eMode::PRE_SELECT, 240)
+ScenePreSelect::ScenePreSelect(): SceneBase(SkinType::PRE_SELECT, 240)
 {
 	_updateCallback = std::bind(&ScenePreSelect::updateLoadSongs, this);
 
@@ -28,7 +28,7 @@ ScenePreSelect::ScenePreSelect(): vScene(eMode::PRE_SELECT, 240)
 
     LOG_INFO << "[List] ------------------------------------------------------------";
 
-    if (gNextScene == eScene::PRE_SELECT)
+    if (gNextScene == SceneType::PRE_SELECT)
     {
         // score db
         LOG_INFO << "[List] Initializing score.db...";
@@ -61,11 +61,11 @@ ScenePreSelect::~ScenePreSelect()
 
 void ScenePreSelect::_updateAsync()
 {
-    if (gNextScene != eScene::PRE_SELECT && gNextScene != eScene::SELECT) return;
+    if (gNextScene != SceneType::PRE_SELECT && gNextScene != SceneType::SELECT) return;
 
     if (gAppIsExiting)
     {
-        gNextScene = eScene::EXIT_TRANS;
+        gNextScene = SceneType::EXIT_TRANS;
         g_pSongDB->stopLoading();
     }
 
@@ -404,7 +404,7 @@ void ScenePreSelect::loadFinished()
             State::set(IndexText::PLAY_TITLE, i18n::s(i18nText::BMS_NOT_FOUND));
             State::set(IndexText::PLAY_ARTIST, i18n::s(i18nText::BMS_NOT_FOUND_HINT));
         }
-        if (gNextScene == eScene::PRE_SELECT)
+        if (gNextScene == SceneType::PRE_SELECT)
         {
             textHint = (boost::format("%s %s %s (%s %s)")
                 % PROJECT_NAME % PROJECT_VERSION
@@ -429,13 +429,13 @@ void ScenePreSelect::loadFinished()
             maxFPS = 30;
         graphics_set_maxfps(maxFPS);
 
-        gNextScene = eScene::SELECT;
+        gNextScene = SceneType::SELECT;
         loadingFinished = true;
     }
 }
 
 
-void ScenePreSelect::_updateImgui()
+void ScenePreSelect::updateImgui()
 {
     if (gInCustomize) return;
 

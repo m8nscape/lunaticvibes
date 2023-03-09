@@ -6,7 +6,7 @@
 #include "common/types.h"
 #include "db_conn.h"
 
-class vScore;
+class ScoreBase;
 class ScoreBMS;
 
 /* TABLE classic_chart:

@@ -8,7 +8,7 @@
 #include "cereal/archives/portable_binary.hpp"
 
 RulesetBMSNetwork::RulesetBMSNetwork(GameModeKeys keys, unsigned playerIndex) : 
-    vRuleset(nullptr, nullptr), RulesetBMS(nullptr, nullptr, eModGauge::NORMAL, keys, JudgeDifficulty::NORMAL, 1.0, PlaySide::NETWORK), playerIndex(playerIndex)
+    RulesetBase(nullptr, nullptr), RulesetBMS(nullptr, nullptr, PlayModifierGaugeType::NORMAL, keys, JudgeDifficulty::NORMAL, 1.0, PlaySide::NETWORK), playerIndex(playerIndex)
 {
     showJudge = false;
     _judgeScratch = false;
@@ -160,9 +160,9 @@ bool RulesetBMSNetwork::unpackInit(const std::vector<unsigned char>& payload)
         return false;
     }
 
-    randomLeft = (eModRandom)p.randomLeft;
-    randomRight = (eModRandom)p.randomRight;
-    initGaugeParams((eModGauge)p.gauge);
+    randomLeft = (PlayModifierRandomType)p.randomLeft;
+    randomRight = (PlayModifierRandomType)p.randomRight;
+    initGaugeParams((PlayModifierGaugeType)p.gauge);
     assist_mask = p.assist_mask;
     dpflip = p.dpflip;
     _basic.health = p.health;

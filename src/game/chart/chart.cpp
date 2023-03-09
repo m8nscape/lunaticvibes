@@ -169,11 +169,11 @@ std::shared_ptr<ChartObjectBase> ChartObjectBase::createFromChartFormat(int slot
         }
         catch (std::exception& e)
         {
-            LOG_ERROR << "[chart] Load chart exception (" << e.what() << "): " << p->filePath.u8string();
+            LOG_ERROR << "[chart] Load chart exception (" << e.what() << "): " << p->fileName.u8string();
             return nullptr;
         }
     default:
-        LOG_WARNING << "[chart] Chart type unknown (" << int(p->type()) << "): " << p->filePath.u8string();
+        LOG_WARNING << "[chart] Chart type unknown (" << int(p->type()) << "): " << p->fileName.u8string();
         return nullptr;
     }
 }

@@ -2,7 +2,7 @@
 #include <mutex>
 #include "scene.h"
 
-class vScore;
+class ScoreBase;
 enum class eResultState
 {
     DRAW,
@@ -12,16 +12,16 @@ enum class eResultState
     WAIT_ARENA,
 };
 
-class SceneResult : public vScene
+class SceneResult : public SceneBase
 {
 private:
-    eResultState _state;
+    eResultState state;
     InputMask _inputAvailable;
 
 protected:
     bool _scoreSyncFinished = false;
     bool _retryRequested = false;
-    std::shared_ptr<vScore> _pScoreOld;
+    std::shared_ptr<ScoreBase> _pScoreOld;
 
     bool saveScore = false;
     ScoreBMS::Lamp saveLampMax;

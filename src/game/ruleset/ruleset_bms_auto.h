@@ -9,7 +9,7 @@ public:
     RulesetBMSAuto(
         std::shared_ptr<ChartFormatBase> format,
         std::shared_ptr<ChartObjectBase> chart,
-        eModGauge gauge,
+        PlayModifierGaugeType gauge,
         GameModeKeys keys,
         JudgeDifficulty difficulty = JudgeDifficulty::NORMAL,
         double health = 1.0,

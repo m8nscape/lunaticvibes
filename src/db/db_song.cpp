@@ -143,7 +143,7 @@ bool convert_bms(std::shared_ptr<ChartFormatBMSMeta> chart, const std::vector<st
     song_all_params params(in);
     chart->fileHash       = params.md5        ;
     chart->folderHash     = params.parent     ;
-    chart->filePath       = Path(params.file, locale_utf8);
+    chart->fileName       = Path(params.file, locale_utf8);
     //                        params.type       ;
     chart->title          = params.title      ;
     chart->title2         = params.title2     ;
@@ -272,7 +272,7 @@ bool SongDB::addChart(const HashMD5& folder, const Path& path)
             removeChart(path, folder);
         }
 
-        pChartFormat c = ChartFormatBase::createFromFile(path, 2356);
+        std::shared_ptr<ChartFormatBase> c = ChartFormatBase::createFromFile(path, 2356);
         if (c == nullptr)
         {
             LOG_WARNING << "[SongDB] File error: " << path.u8string();
@@ -309,7 +309,7 @@ bool SongDB::addChart(const HashMD5& folder, const Path& path)
                     c->fileHash.hexdigest(),
                     folder.hexdigest(),
                     int(c->type()),
-                    c->filePath.filename().u8string(),
+                    c->fileName.filename().u8string(),
                     c->title,
                     c->title2,
                     c->artist,
@@ -382,7 +382,7 @@ bool SongDB::removeChart(const HashMD5& md5, const HashMD5& parent)
 }
 
 // search from genre, version, artist, artist2, title, title2
-std::vector<pChartFormat> SongDB::findChartByName(const HashMD5& folder, const std::string& tagRaw, unsigned limit) const
+std::vector<std::shared_ptr<ChartFormatBase>> SongDB::findChartByName(const HashMD5& folder, const std::string& tagRaw, unsigned limit) const
 {
     LOG_INFO << "[SongDB] Search for songs matching: " << tagRaw;
 
@@ -413,7 +413,7 @@ std::vector<pChartFormat> SongDB::findChartByName(const HashMD5& folder, const s
     std::string strSql = ss.str();
     auto result = query(strSql.c_str(), SONG_PARAM_COUNT, {tag, tag, tag, tag, tag, tag});
 
-    std::vector<pChartFormat> ret;
+    std::vector<std::shared_ptr<ChartFormatBase>> ret;
     for (const auto& r : result)
     {
         switch (eChartFormat(ANY_INT(r[3])))
@@ -423,9 +423,9 @@ std::vector<pChartFormat> SongDB::findChartByName(const HashMD5& folder, const s
             auto p = std::make_shared<ChartFormatBMSMeta>();
             if (convert_bms(p, r))
             {
-                if (p->filePath.is_absolute())
+                if (p->fileName.is_absolute())
                 {
-                    p->absolutePath = p->filePath;
+                    p->absolutePath = p->fileName;
                     ret.push_back(p);
                 }
                 else
@@ -433,7 +433,7 @@ std::vector<pChartFormat> SongDB::findChartByName(const HashMD5& folder, const s
                     auto& [hasFolderPath, folderPath] = getFolderPath(p->folderHash);
                     if (hasFolderPath)
                     {
-                        p->absolutePath = folderPath / p->filePath;
+                        p->absolutePath = folderPath / p->fileName;
                         ret.push_back(p);
                     }
                 }
@@ -450,11 +450,11 @@ std::vector<pChartFormat> SongDB::findChartByName(const HashMD5& folder, const s
 }
 
 // chart may duplicate, return all found
-std::vector<pChartFormat> SongDB::findChartByHash(const HashMD5& target, bool checksum) const
+std::vector<std::shared_ptr<ChartFormatBase>> SongDB::findChartByHash(const HashMD5& target, bool checksum) const
 {
     LOG_DEBUG << "[SongDB] Search for song " << target.hexdigest();
 
-    std::vector<pChartFormat> ret;
+    std::vector<std::shared_ptr<ChartFormatBase>> ret;
 
     if (songQueryHashMap.find(target) == songQueryHashMap.end())
     {
@@ -470,9 +470,9 @@ std::vector<pChartFormat> SongDB::findChartByHash(const HashMD5& target, bool ch
             auto p = std::make_shared<ChartFormatBMSMeta>();
             if (convert_bms(p, r))
             {
-                if (p->filePath.is_absolute())
+                if (p->fileName.is_absolute())
                 {
-                    p->absolutePath = p->filePath;
+                    p->absolutePath = p->fileName;
                     ret.push_back(p);
                 }
                 else
@@ -480,7 +480,7 @@ std::vector<pChartFormat> SongDB::findChartByHash(const HashMD5& target, bool ch
                     auto& [hasFolderPath, folderPath] = getFolderPath(p->folderHash);
                     if (hasFolderPath)
                     {
-                        p->absolutePath = folderPath / p->filePath;
+                        p->absolutePath = folderPath / p->fileName;
                         ret.push_back(p);
                     }
                 }
@@ -517,7 +517,7 @@ std::vector<pChartFormat> SongDB::findChartByHash(const HashMD5& target, bool ch
 }
 
 // chart may duplicate, return all found
-std::vector<pChartFormat> SongDB::findChartFromTime(const HashMD5& folder, unsigned long long addTime) const
+std::vector<std::shared_ptr<ChartFormatBase>> SongDB::findChartFromTime(const HashMD5& folder, unsigned long long addTime) const
 {
     LOG_INFO << "[SongDB] Search from epoch time " << addTime;
 
@@ -530,7 +530,7 @@ std::vector<pChartFormat> SongDB::findChartFromTime(const HashMD5& folder, unsig
     std::string strSql = ss.str();
     auto result = query(strSql.c_str(), SONG_PARAM_COUNT, { (long long)addTime });
 
-    std::vector<pChartFormat> ret;
+    std::vector<std::shared_ptr<ChartFormatBase>> ret;
     for (const auto& r : result)
     {
         switch (eChartFormat(ANY_INT(r[3])))
@@ -540,9 +540,9 @@ std::vector<pChartFormat> SongDB::findChartFromTime(const HashMD5& folder, unsig
             auto p = std::make_shared<ChartFormatBMSMeta>();
             if (convert_bms(p, r))
             {
-                if (p->filePath.is_absolute())
+                if (p->fileName.is_absolute())
                 {
-                    p->absolutePath = p->filePath;
+                    p->absolutePath = p->fileName;
                     ret.push_back(p);
                 }
                 else
@@ -550,7 +550,7 @@ std::vector<pChartFormat> SongDB::findChartFromTime(const HashMD5& folder, unsig
                     auto& [hasFolderPath, folderPath] = getFolderPath(p->folderHash);
                     if (hasFolderPath)
                     {
-                        p->absolutePath = folderPath / p->filePath;
+                        p->absolutePath = folderPath / p->fileName;
                         ret.push_back(p);
                     }
                 }
@@ -894,7 +894,7 @@ int SongDB::refreshExistingFolder(const HashMD5& hash, const Path& path, FolderT
 
             for (size_t i = 0; i < existedList->getContentsCount(); ++i)
             {
-                pChartFormat chart = existedList->getChart(i);
+                std::shared_ptr<ChartFormatBase> chart = existedList->getChart(i);
                 if (!fs::exists(chart->absolutePath))
                 {
                     deletedFiles.push_back(chart->fileHash);
@@ -1215,10 +1215,10 @@ EntryFolderSong SongDB::browseSong(HashMD5 root)
                 auto p = std::make_shared<ChartFormatBMSMeta>();
                 if (convert_bms(p, c))
                 {
-                    if (p->filePath.is_absolute())
-                        p->absolutePath = p->filePath;
+                    if (p->fileName.is_absolute())
+                        p->absolutePath = p->fileName;
                     else
-                        p->absolutePath = path / p->filePath;
+                        p->absolutePath = path / p->fileName;
 
                     list.pushChart(p);
                 }

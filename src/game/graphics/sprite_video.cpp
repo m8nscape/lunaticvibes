@@ -26,14 +26,14 @@ SpriteVideo::SpriteVideo(int w, int h, std::shared_ptr<sVideo> pVid, int srcLine
 
 void SpriteVideo::startPlaying()
 {
-	auto pVid = std::reinterpret_pointer_cast<TextureVideo>(_pTexture);
+	auto pVid = std::reinterpret_pointer_cast<TextureVideo>(pTexture);
 	if (!pVid) return;
 	pVid->start();
 }
 
 void SpriteVideo::stopPlaying()
 {
-	auto pVid = std::reinterpret_pointer_cast<TextureVideo>(_pTexture);
+	auto pVid = std::reinterpret_pointer_cast<TextureVideo>(pTexture);
 	if (!pVid) return;
 	pVid->stop();
 }

@@ -363,9 +363,9 @@ size_t SoundSetLR2::getCustomizeOptionCount() const
     return customfiles.size();
 }
 
-vSkin::CustomizeOption SoundSetLR2::getCustomizeOptionInfo(size_t idx) const
+SkinBase::CustomizeOption SoundSetLR2::getCustomizeOptionInfo(size_t idx) const
 {
-    vSkin::CustomizeOption ret;
+    SkinBase::CustomizeOption ret;
     const auto& op = customfiles[idx];
 
     ret.internalName = "FILE_";

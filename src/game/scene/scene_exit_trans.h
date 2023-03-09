@@ -1,7 +1,7 @@
 #pragma once
 #include "scene.h"
 
-class SceneExitTrans : public vScene
+class SceneExitTrans : public SceneBase
 {
 public:
     SceneExitTrans();

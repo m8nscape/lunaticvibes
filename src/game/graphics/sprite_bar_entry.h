@@ -102,7 +102,7 @@ class SkinLR2;
 // select screen song bar. Have many sub-parts
 // The parent-child chain is a bit odd, it looks like this:
 //      BODY -> [sprite] -> TITLE/LEVEL/LAMP/RANK/etc.
-class SpriteBarEntry : public vSprite, public iSpriteMouse
+class SpriteBarEntry : public SpriteBase, public iSpriteMouse
 {
     typedef std::shared_ptr<SpriteAnimated> psAnimated;
     typedef std::shared_ptr<SpriteNumber>   psNumber;
@@ -146,7 +146,7 @@ protected:
     std::list<std::pair<BarPartsType, unsigned>> drawQueue;
 
 public:
-    SpriteBarEntry(size_t idx) : vSprite(SpriteTypes::BAR_ENTRY, -1), index(idx) {}
+    SpriteBarEntry(size_t idx) : SpriteBase(SpriteTypes::BAR_ENTRY, -1), index(idx) {}
     virtual ~SpriteBarEntry() = default;
     int setBody(BarType type, const SpriteAnimated::SpriteAnimatedBuilder& builder);
     int setFlash(const SpriteAnimated::SpriteAnimatedBuilder& builder);
@@ -163,9 +163,9 @@ public:
 
 public:
     virtual bool update(Time time);
-    virtual void setLoopTime(int t);
-    virtual void setTrigTimer(IndexTimer t);
-    virtual void appendKeyFrame(const RenderKeyFrame& f) override;
+    virtual void setMotionLoopTo(int t);
+    virtual void setMotionStartTimer(IndexTimer t);
+    virtual void appendMotionKeyFrame(const MotionKeyFrame& f) override;
     virtual void draw() const;
 
 public:

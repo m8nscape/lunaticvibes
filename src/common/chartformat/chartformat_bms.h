@@ -107,14 +107,12 @@ class ChartFormatBMS: public ChartFormatBMSMeta
     friend class SongDB;
 
 public:
-    virtual int getExtendedProperty(const std::string& key, void* ret) override;
+    virtual bool getExtendedProperty(const std::string& key, void* ret) override;
 
 public:
     ChartFormatBMS();
     ChartFormatBMS(const Path& absolutePath, uint64_t randomSeed = 0);
     virtual ~ChartFormatBMS() = default;
-    std::string getError();
-    int initWithPathParam(const SongDB& db, uint64_t randomSeed = 0);
 
 protected:
     int initWithFile(const Path& absolutePath, uint64_t randomSeed = 0);
@@ -122,6 +120,8 @@ protected:
 protected:
     ErrorCode errorCode = ErrorCode::OK;
     int errorLine;
+public:
+    std::string getError();
 
 public:
     struct channel {
@@ -142,15 +142,14 @@ public:
         unsigned relax(unsigned target_resolution);
         void sortNotes();
     };
-    typedef std::array<std::string, MAXSAMPLEIDX + 1> FileIdxArray;
     typedef std::map<unsigned, channel> LaneMap;    // bar -> channel
     
 protected:
     // Lanes.
-    int strToLane36(channel&, const StringContent& str, unsigned flags = 0);
-    int strToLane36(channel&, StringContentView str, unsigned flags = 0);
-    int strToLane16(channel&, const StringContent& str);
-    int strToLane16(channel&, StringContentView str);
+    int seqToLane36(channel&, const StringContent& str, unsigned flags = 0);
+    int seqToLane36(channel&, StringContentView str, unsigned flags = 0);
+    int seqToLane16(channel&, const StringContent& str);
+    int seqToLane16(channel&, StringContentView str);
 
     std::map<unsigned, LaneMap> chBGM{}; // lane -> [bar -> channel]
     LaneMap chStop{};
@@ -165,8 +164,8 @@ protected:
     std::map<unsigned, LaneMap> chNotesLN{};
     std::map<unsigned, LaneMap> chMines{};
 
-    std::pair<int, int> normalizeIndexesBME(int layer, int ch);
-    std::pair<int, int> normalizeIndexesPMS(int layer, int ch);
+    std::pair<int, int> getLaneIndexBME(int x_, int _y);
+    std::pair<int, int> getLaneIndexPMS(int x_, int _y);
 
 public:
     std::set<unsigned> lnobjSet;
@@ -180,6 +179,5 @@ public:
     std::array<unsigned, MAXBARIDX + 1> bgmLayersCount{};
 
 public:
-    int getMode() const;
     auto getLane(LaneCode, unsigned chIdx, unsigned measureIdx) const -> const channel&;
 };

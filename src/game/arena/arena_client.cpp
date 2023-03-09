@@ -582,7 +582,7 @@ void ArenaClient::handleHostStartPlaying(std::shared_ptr<ArenaMessage> msg)
 	socket->async_send_to(boost::asio::buffer(*payload), server, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
 
 	gArenaData.randomSeed = pMsg->randomSeed;
-	gArenaData.initPlaying(eRuleset(pMsg->rulesetType));
+	gArenaData.initPlaying(RulesetType(pMsg->rulesetType));
 	gSelectContext.isArenaReady = true;
 }
 

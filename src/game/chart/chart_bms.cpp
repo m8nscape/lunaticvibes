@@ -87,15 +87,15 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
         // notes are loaded in 2P area, we should check randomRight instead of randomLeft
         switch (gPlayContext.mods[_playerSlot].randomRight)
         {
-        case eModRandom::RANDOM:
+        case PlayModifierRandomType::RANDOM:
             std::shuffle(gameLaneMap.begin() + laneRightStart, gameLaneMap.begin() + laneRightEnd + 1, rng);
             break;
 
-        case eModRandom::MIRROR:
+        case PlayModifierRandomType::MIRROR:
             std::reverse(gameLaneMap.begin() + laneRightStart, gameLaneMap.begin() + laneRightEnd + 1);
             break;
         
-        case eModRandom::RRAN:
+        case PlayModifierRandomType::RRAN:
         {
             size_t count = (laneRightEnd - laneRightStart + 1);
             size_t lane = rng() % count;
@@ -113,15 +113,15 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
     {
         switch (gPlayContext.mods[_playerSlot].randomLeft)
         {
-        case eModRandom::RANDOM:
+        case PlayModifierRandomType::RANDOM:
             std::shuffle(gameLaneMap.begin() + laneLeftStart, gameLaneMap.begin() + laneLeftEnd + 1, rng);
             break;
 
-        case eModRandom::MIRROR:
+        case PlayModifierRandomType::MIRROR:
             std::reverse(gameLaneMap.begin() + laneLeftStart, gameLaneMap.begin() + laneLeftEnd + 1);
             break;
 
-        case eModRandom::RRAN:
+        case PlayModifierRandomType::RRAN:
         {
             size_t count = (laneLeftEnd - laneLeftStart + 1);
             size_t lane = rng() % count;
@@ -138,15 +138,15 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
         {
             switch (gPlayContext.mods[_playerSlot].randomRight)
             {
-            case eModRandom::RANDOM:
+            case PlayModifierRandomType::RANDOM:
                 std::shuffle(gameLaneMap.begin() + laneRightStart, gameLaneMap.begin() + laneRightEnd + 1, rng);
                 break;
 
-            case eModRandom::MIRROR:
+            case PlayModifierRandomType::MIRROR:
                 std::reverse(gameLaneMap.begin() + laneRightStart, gameLaneMap.begin() + laneRightEnd + 1);
                 break;
 
-            case eModRandom::RRAN:
+            case PlayModifierRandomType::RRAN:
             {
                 size_t count = (laneRightEnd - laneRightStart + 1);
                 size_t lane = rng() % count;
@@ -159,7 +159,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                 break;
             }
 
-            case eModRandom::DB_SYNCHRONIZE:
+            case PlayModifierRandomType::DB_SYNCHRONIZE:
             {
                 assert(gChartContext.isDoubleBattle);
 
@@ -176,7 +176,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                 break;
             }
 
-            case eModRandom::DB_SYMMETRY:
+            case PlayModifierRandomType::DB_SYMMETRY:
             {
                 assert(gChartContext.isDoubleBattle);
 
@@ -516,7 +516,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
 
                     switch (laneArea == 0 ? gPlayContext.mods[_playerSlot].randomLeft : gPlayContext.mods[_playerSlot].randomRight)
                     {
-                    case eModRandom::SRAN:
+                    case PlayModifierRandomType::SRAN:
                         if (gameLaneIdx != Sc1 && gameLaneIdx != Sc2)
                         {
                             constexpr int threshold_ms = 50;
@@ -543,7 +543,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                         }
                         break;
 
-                    case eModRandom::HRAN:
+                    case PlayModifierRandomType::HRAN:
                         if (gameLaneIdx != Sc1 && gameLaneIdx != Sc2)
                         {
                             constexpr int threshold_ms = 250;
@@ -595,7 +595,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                         }
                         break;
 
-                    case eModRandom::ALLSCR:
+                    case PlayModifierRandomType::ALLSCR:
                     {
                         constexpr int threshold_scr_ms = 33;    // threshold of moving notes to keyboard lanes
                         constexpr int threshold_ms = 250;       // try not to make keyboard jacks

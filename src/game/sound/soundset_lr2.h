@@ -62,7 +62,7 @@ public:
 
 public:
 	virtual size_t getCustomizeOptionCount() const;
-	virtual vSkin::CustomizeOption getCustomizeOptionInfo(size_t idx) const;
+	virtual SkinBase::CustomizeOption getCustomizeOptionInfo(size_t idx) const;
 	StringPath getFilePath() const;
 
 };

@@ -1,10 +1,10 @@
 #pragma once
 #include "scene.h"
 
-class SceneCustomize : public vScene
+class SceneCustomize : public SceneBase
 {
 private:
-    bool _exiting = false;
+    bool exiting = false;
     std::shared_ptr<Texture> graphics_get_screen_texture;
 
 public:
@@ -23,10 +23,10 @@ protected:
     std::map<StringContent, Option> optionsMap;
     std::vector<StringContent> optionsKeyList;
 
-    std::map<eMode, std::vector<Path>> skinList;
+    std::map<SkinType, std::vector<Path>> skinList;
     std::vector<Path> soundsetList;
 
-    eMode selectedMode;
+    SkinType selectedMode;
 
 protected:
     // Looper callbacks
@@ -41,15 +41,15 @@ public:
 
 protected:
     void setOption(size_t idxOption, size_t idxEntry);
-    void load(eMode mode);
-    void save(eMode mode) const;
+    void load(SkinType mode);
+    void save(SkinType mode) const;
     void updateTexts() const;
 
 protected:
     void inputGamePress(InputMask&, const Time&);
 
 protected:
-    std::shared_ptr<vScene> pSubScene = nullptr;
+    std::shared_ptr<SceneBase> pSubScene = nullptr;
 public:
     virtual void draw() const override;
 };

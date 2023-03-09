@@ -4,10 +4,10 @@
 #include "game/sound/sound_mgr.h"
 #include "game/runtime/i18n.h"
 
-SceneKeyConfig::SceneKeyConfig() : vScene(eMode::KEY_CONFIG, 240)
+SceneKeyConfig::SceneKeyConfig() : SceneBase(SkinType::KEY_CONFIG, 240)
 {
-    _scene = eScene::KEYCONFIG;
-    gKeyconfigContext.skinHasAbsAxis = _skin->isSupportKeyConfigAbsAxis;
+    _type = SceneType::KEYCONFIG;
+    gKeyconfigContext.skinHasAbsAxis = pSkin->isSupportKeyConfigAbsAxis;
 
     InputMgr::updateDevices();
 
@@ -115,11 +115,11 @@ SceneKeyConfig::~SceneKeyConfig()
 
 void SceneKeyConfig::_updateAsync()
 {
-    if (gNextScene != eScene::KEYCONFIG) return;
+    if (gNextScene != SceneType::KEYCONFIG) return;
 
     if (gAppIsExiting)
     {
-        gNextScene = eScene::EXIT_TRANS;
+        gNextScene = SceneType::EXIT_TRANS;
     }
 
     _updateCallback();
@@ -132,10 +132,10 @@ void SceneKeyConfig::_updateAsync()
         updateInfo(KeyMap(), 0);
     }
 
-    State::set(IndexNumber::_ANGLE_TT_1P, int(_ttAngleDiff[0]) % 360);
-    State::set(IndexNumber::_ANGLE_TT_2P, int(_ttAngleDiff[1]) % 360);
-    State::set(IndexNumber::SCRATCH_AXIS_1P_ANGLE, (360 + int(_ttAngleDiff[0]) % 360) % 360 / 360.0 * 256);
-    State::set(IndexNumber::SCRATCH_AXIS_2P_ANGLE, (360 + int(_ttAngleDiff[1]) % 360) % 360 / 360.0 * 256);
+    State::set(IndexNumber::_ANGLE_TT_1P, int(playerTurntableAngleAdd[0]) % 360);
+    State::set(IndexNumber::_ANGLE_TT_2P, int(playerTurntableAngleAdd[1]) % 360);
+    State::set(IndexNumber::SCRATCH_AXIS_1P_ANGLE, (360 + int(playerTurntableAngleAdd[0]) % 360) % 360 / 360.0 * 256);
+    State::set(IndexNumber::SCRATCH_AXIS_2P_ANGLE, (360 + int(playerTurntableAngleAdd[1]) % 360) % 360 / 360.0 * 256);
     State::set(IndexText::KEYCONFIG_1P_SCRATCH_ABS_VALUE, std::to_string(State::get(IndexNumber::SCRATCH_AXIS_1P_ANGLE)));
     State::set(IndexText::KEYCONFIG_2P_SCRATCH_ABS_VALUE, std::to_string(State::get(IndexNumber::SCRATCH_AXIS_2P_ANGLE)));
 }
@@ -144,7 +144,7 @@ void SceneKeyConfig::updateStart()
 {
     Time t;
     Time rt = t - State::get(IndexTimer::SCENE_START);
-    if (rt.norm() > _skin->info.timeIntro)
+    if (rt.norm() > pSkin->info.timeIntro)
     {
         _updateCallback = std::bind(&SceneKeyConfig::updateMain, this);
         using namespace std::placeholders;
@@ -160,7 +160,7 @@ void SceneKeyConfig::updateStart()
 void SceneKeyConfig::updateMain()
 {
     Time t;
-    if (_exiting)
+    if (exiting)
     {
         State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
         _updateCallback = std::bind(&SceneKeyConfig::updateFadeout, this);
@@ -179,10 +179,10 @@ void SceneKeyConfig::updateFadeout()
     Time t;
     Time rt = t - State::get(IndexTimer::FADEOUT_BEGIN);
 
-    if (rt.norm() > _skin->info.timeOutro)
+    if (rt.norm() > pSkin->info.timeOutro)
     {
         ConfigMgr::Input(gKeyconfigContext.keys)->save();   // this is kinda important
-        gNextScene = eScene::SELECT;
+        gNextScene = SceneType::SELECT;
     }
 }
 
@@ -191,8 +191,8 @@ void SceneKeyConfig::updateFadeout()
 // CALLBACK
 void SceneKeyConfig::inputGamePress(InputMask& m, const Time& t)
 {
-    if (m[Input::Pad::ESC]) _exiting = true;
-    if (m[Input::Pad::M2]) _exiting = true;
+    if (m[Input::Pad::ESC]) exiting = true;
+    if (m[Input::Pad::M2]) exiting = true;
 
     // individual keys
     size_t sampleCount = 0;
@@ -212,8 +212,8 @@ void SceneKeyConfig::inputGameAxis(double S1, double S2, const Time& t)
     using namespace Input;
 
     // turntable spin
-    _ttAngleDiff[PLAYER_SLOT_PLAYER] += S1 * 2.0 * 360;
-    _ttAngleDiff[PLAYER_SLOT_TARGET] += S2 * 2.0 * 360;
+    playerTurntableAngleAdd[PLAYER_SLOT_PLAYER] += S1 * 2.0 * 360;
+    playerTurntableAngleAdd[PLAYER_SLOT_TARGET] += S2 * 2.0 * 360;
 }
 
 static const std::map<Input::Pad, IndexBargraph> forceBargraphMap =

@@ -12,8 +12,8 @@ protected:
     bool isInitialized = false;
     unsigned playerIndex = 0;
 
-    eModRandom randomLeft = eModRandom::NONE;
-    eModRandom randomRight = eModRandom::NONE;
+    PlayModifierRandomType randomLeft = PlayModifierRandomType::NONE;
+    PlayModifierRandomType randomRight = PlayModifierRandomType::NONE;
     uint8_t assist_mask = 0;
     bool dpflip = false;
 
@@ -39,9 +39,9 @@ public:
 public:
     struct PayloadInit
     {
-        int8_t randomLeft = 0; // eModRandom
-        int8_t randomRight = 0; // eModRandom
-        int8_t gauge = 0;  // eModGauge
+        int8_t randomLeft = 0; // PlayModifierRandomType
+        int8_t randomRight = 0; // PlayModifierRandomType
+        int8_t gauge = 0;  // PlayModifierGaugeType
         uint8_t assist_mask = 0;
         bool dpflip = false;
         double health = 1.0;

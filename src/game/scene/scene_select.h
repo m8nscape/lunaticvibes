@@ -20,10 +20,10 @@ enum class eSelectState
 
 class ChartFormatBase;
 class SceneCustomize;
-class SceneSelect : public vScene
+class SceneSelect : public SceneBase
 {
 private:
-    eSelectState _state;
+    eSelectState state;
     InputMask _inputAvailable;
     
     // navigate input
@@ -52,7 +52,7 @@ private:
     long long previewStandaloneLength = 0;
     std::shared_ptr<ChartFormatBase> previewChart = nullptr;
     std::shared_ptr<ChartObjectBase> previewChartObj = nullptr;
-    std::shared_ptr<vRuleset> previewRuleset = nullptr;
+    std::shared_ptr<RulesetBase> previewRuleset = nullptr;
     Time previewStartTime;
     Time previewEndTime;
     std::array<size_t, 128> _bgmSampleIdxBuf{};
@@ -99,7 +99,7 @@ protected:
     void updateFadeout();
 
     virtual void update() override;
-    virtual void _updateImgui() override;
+    virtual void updateImgui() override;
 
 protected:
     // Inner-state updates
@@ -121,14 +121,14 @@ private:
     void inputGameReleasePanel(InputMask&, const Time&);
 
 private:
-    void _navigateUpBy1(const Time& t);
-    void _navigateDownBy1(const Time& t);
-    void _navigateEnter(const Time& t);
-    void _navigateBack(const Time& t, bool sound = true);
-    void _decide();
-    void _navigateVersionEnter(const Time& t);
-    void _navigateVersionBack(const Time& t);
-    bool _closeAllPanels(const Time& t);
+    void navigateUpBy1(const Time& t);
+    void navigateDownBy1(const Time& t);
+    void navigateEnter(const Time& t);
+    void navigateBack(const Time& t, bool sound = true);
+    void decide();
+    void navigateVersionEnter(const Time& t);
+    void navigateVersionBack(const Time& t);
+    bool closeAllPanels(const Time& t);
 
 protected:
     virtual bool checkAndStartTextEdit() override;
@@ -152,45 +152,45 @@ protected:
 /// //////////////////////////////////////////////////////
 
 private:
-    void _imguiInit();
+    void imguiInit();
 
     // imgui Dialogs
-    void _imguiSampleDialog();
-    void _imguiSettings();
+    void imguiSampleDialog();
+    void imguiSettings();
 
     // pages
-    void _imguiPage_ArenaDiagnose();
-    void _imguiPage_Options();
-    void _imguiPage_Options_General();
-    void _imguiPage_Options_Jukebox();
-    void _imguiPage_Options_Video();
-    void _imguiPage_Options_Audio();
-    void _imguiPage_Options_Play();
-    void _imguiPage_Options_Select();
-    void _imguiPage_About();
-    void _imguiPage_Exit();
+    void imguiPageArenaDiagnose();
+    void imguiPageOptions();
+    void imguiPageOptionsGeneral();
+    void imguiPageOptionsJukebox();
+    void imguiPageOptionsVideo();
+    void imguiPageOptionsAudio();
+    void imguiPageOptionsPlay();
+    void imguiPageOptionsSelect();
+    void imguiPageAbout();
+    void imguiPageExit();
 
     // misc
-    void _imguiRefreshProfileList();
-    void _imguiRefreshLanguageList();
-    void _imguiRefreshFolderList();
-    void _imguiRefreshTableList();
-    void _imguiRefreshVideoDisplayResolutionList();
-    void _imguiCheckSettings();
+    void imguiRefreshProfileList();
+    void imguiRefreshLanguageList();
+    void imguiRefreshFolderList();
+    void imguiRefreshTableList();
+    void imguiRefreshVideoDisplayResolutionList();
+    void imguiCheckSettings();
 
     // buttons
-    bool _imguiApplyPlayerName();
-    bool _imguiAddFolder(const char* path = NULL);
-    bool _imguiDelFolder();
-    bool _imguiBrowseFolder();
-    bool _imguiAddTable();
-    bool _imguiDelTable();
-    bool _imguiApplyResolution();
-    bool _imguiRefreshAudioDevices();
-    bool _imguiApplyAudioSettings();
+    bool imguiApplyPlayerName();
+    bool imguiAddFolder(const char* path = NULL);
+    bool imguiDelFolder();
+    bool imguiBrowseFolder();
+    bool imguiAddTable();
+    bool imguiDelTable();
+    bool imguiApplyResolution();
+    bool imguiRefreshAudioDevices();
+    bool imguiApplyAudioSettings();
 
     // etc
-    bool _imguiArenaJoinLobbyPrompt();
+    bool imguiArenaJoinLobbyPrompt();
 
     // imgui variables
     int imgui_main_index = 0;

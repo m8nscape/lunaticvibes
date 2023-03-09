@@ -1,7 +1,7 @@
 #pragma once
 #include "scene.h"
 
-class ScenePlayCourseTrans : public vScene
+class ScenePlayCourseTrans : public SceneBase
 {
 public:
     ScenePlayCourseTrans();

@@ -43,9 +43,9 @@ public:
 
 public:
     void setHeight(int h) { _noteAreaHeight = h; }
-    virtual void setLoopTime(int t);
-    virtual void setTrigTimer(IndexTimer t);
-    virtual void appendKeyFrame(const RenderKeyFrame& f);
+    virtual void setMotionLoopTo(int t);
+    virtual void setMotionStartTimer(IndexTimer t);
+    virtual void appendMotionKeyFrame(const MotionKeyFrame& f);
 
     std::pair<chart::NoteLaneCategory, chart::NoteLaneIndex> getLane() const;
     void getRectSize(int& w, int& h);
@@ -93,7 +93,7 @@ public:
     void buildNoteTail(const SpriteAnimated::SpriteAnimatedBuilder& builder);
 
 public:
-    virtual void setTrigTimer(IndexTimer t);
+    virtual void setMotionStartTimer(IndexTimer t);
 
     virtual void updateNoteRect(const Time& t) override;
     virtual void draw() const;

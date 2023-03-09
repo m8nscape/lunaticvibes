@@ -5,13 +5,13 @@
 #include "game/chart/chart.h"
 #include "common/beat.h"
 
-enum class eRuleset
+enum class RulesetType
 {
     SOUND_ONLY,
     BMS,
 };
 
-class vRuleset
+class RulesetBase
 {
 public:
     struct BasicData
@@ -48,10 +48,10 @@ protected:
     unsigned notesExpired = 0;    // total notes expired. +1 when timestamp+POOR reached; +1 for LN when tail timestamp (no +POOR) is reached
 
 public:
-    vRuleset() : _basic{ 0 } {}
-    vRuleset(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<ChartObjectBase> chart) :
+    RulesetBase() : _basic{ 0 } {}
+    RulesetBase(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<ChartObjectBase> chart) :
         _format(format), _chart(chart), _basic{ 0 }{}
-    virtual ~vRuleset() = default;
+    virtual ~RulesetBase() = default;
 public:
     virtual void updatePress(InputMask& pg, const Time& t) = 0;
     virtual void updateHold(InputMask& hg, const Time& t) = 0;

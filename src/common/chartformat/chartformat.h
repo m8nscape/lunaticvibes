@@ -31,14 +31,13 @@ public:
     static std::shared_ptr<ChartFormatBase> createFromFile(const Path& path, uint64_t randomSeed);
 
 protected:
-    Path _path;
-    bool _loaded = false;
+    bool loaded = false;
 public:
-    constexpr bool isLoaded() { return _loaded; }
+    constexpr bool isLoaded() { return loaded; }
 
 // following fields are generic info, which are stored in db
 public:
-    Path filePath;
+    Path fileName;
     Path absolutePath;
     HashMD5 fileHash;
     HashMD5 folderHash;
@@ -83,5 +82,5 @@ public:
 public:
     Path getDirectory() const;
 
-    virtual int getExtendedProperty(const StringContent& key, void* ret) { return -1; }
+    virtual bool getExtendedProperty(const StringContent& key, void* ret) { return false; }
 };

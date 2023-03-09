@@ -15,8 +15,8 @@
 #include "game/sound/sound_sample.h"
 
 // prototype
-vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
-    AsyncLooper("Scene Update", std::bind(&vScene::_updateAsync1, this), rate),
+SceneBase::SceneBase(SkinType skinType, unsigned rate, bool backgroundInput) :
+    AsyncLooper("Scene Update", std::bind(&SceneBase::_updateAsync1, this), rate),
     _input(1000, backgroundInput)
 {
     unsigned inputPollingRate = ConfigMgr::get("P", cfg::P_INPUT_POLLING_RATE, 1000);
@@ -26,18 +26,18 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
     }
 
     // Disable skin caching for now. dst options are changing all the time
-    SkinMgr::unload(mode);
-    SkinMgr::load(mode, gInCustomize && mode != eMode::THEME_SELECT);
-    _skin = SkinMgr::get(mode);
+    SkinMgr::unload(skinType);
+    SkinMgr::load(skinType, gInCustomize && skinType != SkinType::THEME_SELECT);
+    pSkin = SkinMgr::get(skinType);
 
     int notificationPosY = 480;
     int notificationWidth = 640;
     const int notificationHeight = 20;
 
-    if (_skin && !gInCustomize && mode != eMode::THEME_SELECT)
+    if (pSkin && !gInCustomize && skinType != SkinType::THEME_SELECT)
     {
         int x, y;
-        switch (_skin->info.resolution)
+        switch (pSkin->info.resolution)
         {
         case 1: x = 1280; y = 720; break;
         case 2: x = 1920; y = 1080; break;
@@ -61,55 +61,55 @@ vScene::vScene(eMode mode, unsigned rate, bool backgroundInput) :
         textBuilder.align = TextAlign::TEXT_ALIGN_LEFT;
         textBuilder.ptsize = textHeight;
         _sNotifications[i] = textBuilder.build();
-        _sNotifications[i]->setLoopTime(0);
+        _sNotifications[i]->setMotionLoopTo(0);
 
         SpriteStatic::SpriteStaticBuilder bgBuilder;
         bgBuilder.texture = _texNotificationsBG;
         _sNotificationsBG[i] = bgBuilder.build();
-        _sNotificationsBG[i]->setLoopTime(0);
+        _sNotificationsBG[i]->setMotionLoopTo(0);
 
         notificationPosY -= notificationHeight;
-        RenderKeyFrame f;
+        MotionKeyFrame f;
         f.time = 0;
         f.param.rect = Rect(0, notificationPosY, notificationWidth, notificationHeight);
-        f.param.accel = RenderParams::CONSTANT;
+        f.param.accel = MotionKeyFrameParams::CONSTANT;
         f.param.blend = BlendMode::ALPHA;
         f.param.filter = true;
         f.param.angle = 0;
         f.param.center = Point(0, 0);
         f.param.color = 0xffffff80;
-        _sNotificationsBG[i]->appendKeyFrame(f);
+        _sNotificationsBG[i]->appendMotionKeyFrame(f);
 
         f.param.rect.y += (notificationHeight - textHeight) / 2;
         f.param.rect.h = textHeight;
         f.param.color = 0xffffffff;
-        _sNotifications[i]->appendKeyFrame(f);
+        _sNotifications[i]->appendMotionKeyFrame(f);
     }
 
-    _input.register_p("DEBUG_TOGGLE", std::bind(&vScene::DebugToggle, this, std::placeholders::_1, std::placeholders::_2));
+    _input.register_p("DEBUG_TOGGLE", std::bind(&SceneBase::DebugToggle, this, std::placeholders::_1, std::placeholders::_2));
 
-    _input.register_p("GLOBALFUNC", std::bind(&vScene::GlobalFuncKeys, this, std::placeholders::_1, std::placeholders::_2));
+    _input.register_p("GLOBALFUNC", std::bind(&SceneBase::GlobalFuncKeys, this, std::placeholders::_1, std::placeholders::_2));
 
-    _input.register_p("SKIN_MOUSE_CLICK", std::bind(&vScene::MouseClick, this, std::placeholders::_1, std::placeholders::_2));
-    _input.register_h("SKIN_MOUSE_DRAG", std::bind(&vScene::MouseDrag, this, std::placeholders::_1, std::placeholders::_2));
-    _input.register_r("SKIN_MOUSE_RELEASE", std::bind(&vScene::MouseRelease, this, std::placeholders::_1, std::placeholders::_2));
+    _input.register_p("SKIN_MOUSE_CLICK", std::bind(&SceneBase::MouseClick, this, std::placeholders::_1, std::placeholders::_2));
+    _input.register_h("SKIN_MOUSE_DRAG", std::bind(&SceneBase::MouseDrag, this, std::placeholders::_1, std::placeholders::_2));
+    _input.register_r("SKIN_MOUSE_RELEASE", std::bind(&SceneBase::MouseRelease, this, std::placeholders::_1, std::placeholders::_2));
 
-    if (_skin && 
-        !(gNextScene == eScene::SELECT && mode == eMode::THEME_SELECT))
+    if (pSkin && 
+        !(gNextScene == SceneType::SELECT && skinType == SkinType::THEME_SELECT))
     {
         State::resetTimer();
 
         State::set(IndexText::_OVERLAY_TOPLEFT, "");
 
         // Skin may be cached. Reset mouse status
-        _skin->setHandleMouseEvents(true);
+        pSkin->setHandleMouseEvents(true);
     }
 
-    if (!gInCustomize && mode == eMode::THEME_SELECT || gInCustomize && mode != eMode::THEME_SELECT)
+    if (!gInCustomize && skinType == SkinType::THEME_SELECT || gInCustomize && skinType != SkinType::THEME_SELECT)
         _input.disableCountFPS();
 }
 
-vScene::~vScene() 
+SceneBase::~SceneBase() 
 {
     assert(!_input.isRunning());
     assert(!isRunning());
@@ -121,17 +121,17 @@ vScene::~vScene()
     sceneEnding = true; 
 }
 
-void vScene::update()
+void SceneBase::update()
 {
     Time t;
     gUpdateContext.updateTime = t;
 
-    if (_skin)
+    if (pSkin)
     {
         // update skin
-        _skin->update();
+        pSkin->update();
         auto [x, y] = _input.getCursorPos();
-        _skin->update_mouse(x, y);
+        pSkin->update_mouse(x, y);
 
         checkAndStartTextEdit();
 
@@ -174,54 +174,54 @@ void vScene::update()
     }
 
     // ImGui
-    if (!gInCustomize || _scene == eScene::CUSTOMIZE)
+    if (!gInCustomize || _type == SceneType::CUSTOMIZE)
     {
         ImGuiNewFrame();
 
-        _updateImgui();
+        updateImgui();
 
         ImGui::Render();
     }
 }
 
-void vScene::MouseClick(InputMask& m, const Time& t)
+void SceneBase::MouseClick(InputMask& m, const Time& t)
 {
-    if (!_skin) return;
+    if (!pSkin) return;
     if (m[Input::Pad::M1])
     {
         auto [x, y] = _input.getCursorPos();
-        _skin->update_mouse_click(x, y);
+        pSkin->update_mouse_click(x, y);
     }
 }
 
-void vScene::MouseDrag(InputMask& m, const Time& t)
+void SceneBase::MouseDrag(InputMask& m, const Time& t)
 {
-    if (!_skin) return;
+    if (!pSkin) return;
     if (m[Input::Pad::M1])
     {
         auto [x, y] = _input.getCursorPos();
-        _skin->update_mouse_drag(x, y);
+        pSkin->update_mouse_drag(x, y);
     }
 }
 
-void vScene::MouseRelease(InputMask& m, const Time& t)
+void SceneBase::MouseRelease(InputMask& m, const Time& t)
 {
-    if (!_skin) return;
+    if (!pSkin) return;
     if (m[Input::Pad::M1])
     {
-        _skin->update_mouse_release();
+        pSkin->update_mouse_release();
     }
 }
 
-bool vScene::queuedScreenshot = false;
-bool vScene::queuedFPS = false;
-bool vScene::showFPS = false;
+bool SceneBase::queuedScreenshot = false;
+bool SceneBase::queuedFPS = false;
+bool SceneBase::showFPS = false;
 
-void vScene::draw() const
+void SceneBase::draw() const
 {
-    if (_skin)
+    if (pSkin)
     {
-        _skin->draw();
+        pSkin->draw();
     }
 
     {
@@ -268,15 +268,15 @@ void vScene::draw() const
     }
 }
 
-void vScene::_updateAsync1()
+void SceneBase::_updateAsync1()
 {
     _updateAsync();
 
-    if (!gInCustomize && _scene != eScene::CUSTOMIZE || gInCustomize && _scene == eScene::CUSTOMIZE)
+    if (!gInCustomize && _type != SceneType::CUSTOMIZE || gInCustomize && _type == SceneType::CUSTOMIZE)
         gFrameCount[FRAMECOUNT_IDX_SCENE]++;
 }
 
-void vScene::_updateImgui()
+void SceneBase::updateImgui()
 {
     assert(IsMainThread());
 
@@ -367,10 +367,10 @@ void vScene::_updateImgui()
 #endif
 }
 
-void vScene::DebugToggle(InputMask& p, const Time& t)
+void SceneBase::DebugToggle(InputMask& p, const Time& t)
 {
 #ifdef _DEBUG
-    if (!(!gInCustomize || _scene == eScene::CUSTOMIZE)) return;
+    if (!(!gInCustomize || _type == SceneType::CUSTOMIZE)) return;
 
     if (p[Input::F1])
     {
@@ -408,36 +408,36 @@ void vScene::DebugToggle(InputMask& p, const Time& t)
 
 }
 
-bool vScene::isInTextEdit() const
+bool SceneBase::isInTextEdit() const
 {
     return inTextEdit;
 }
 
-IndexText vScene::textEditType() const
+IndexText SceneBase::textEditType() const
 {
-    return inTextEdit ? _skin->textEditType() : IndexText::INVALID;
+    return inTextEdit ? pSkin->textEditType() : IndexText::INVALID;
 }
 
-void vScene::startTextEdit(bool clear)
+void SceneBase::startTextEdit(bool clear)
 {
-    if (_skin)
+    if (pSkin)
     {
-        _skin->startTextEdit(clear);
+        pSkin->startTextEdit(clear);
         inTextEdit = true;
     }
 }
 
-void vScene::stopTextEdit(bool modify)
+void SceneBase::stopTextEdit(bool modify)
 {
-    if (_skin)
+    if (pSkin)
     {
         inTextEdit = false;
-        _skin->stopTextEdit(modify);
+        pSkin->stopTextEdit(modify);
     }
 }
 
 
-void vScene::GlobalFuncKeys(InputMask& m, const Time& t)
+void SceneBase::GlobalFuncKeys(InputMask& m, const Time& t)
 {
     if (m[Input::F6])
     {

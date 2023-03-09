@@ -25,7 +25,7 @@ class SpriteLine : public SpriteStatic
 private:
     int _player;
     LineType _ltype;
-    Color _color;
+    Color textColor;
     int _field_w, _field_h;
     int _start, _end;
 

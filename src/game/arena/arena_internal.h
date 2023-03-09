@@ -289,7 +289,7 @@ class ArenaMessageHostStartPlaying : public ArenaMessage
 public:
 	ArenaMessageHostStartPlaying() { type = Arena::HOST_START_PLAYING; }
 
-	uint32_t rulesetType = 0;	// eRuleset
+	uint32_t rulesetType = 0;	// RulesetType
 	std::string chartHashMD5String;
 	uint64_t randomSeed = 0;
 

@@ -18,65 +18,66 @@ enum class ePlayState
     WAIT_ARENA,
 };
 
-class ScenePlay : public vScene
+class ScenePlay : public SceneBase
 {
 private:
 	std::future<void> _loadChartFuture;
 
 private:
-    ePlayState _state;
+    ePlayState state;
     InputMask _inputAvailable;
-    std::vector<size_t> _currentKeySample;
+    std::vector<size_t> keySampleIndex;
 
 protected:
     bool isPlaymodeDP() const;
 
 private:
     bool _isExitingFromPlay = false;
-    std::array<bool, 2>     _isPlayerFinished{ false, false };
+    std::array<bool, 2>     playerFinished{ false, false };
 
-    std::array<bool, 2>     _isHoldingStart = { false, false };
-    std::array<bool, 2>     _isHoldingSelect = { false, false };
-    std::array<Time, 2>     _startPressedTime = { TIMER_NEVER, TIMER_NEVER };
-    std::array<Time, 2>     _selectPressedTime = { TIMER_NEVER, TIMER_NEVER };
+    std::array<bool, 2>     playerHoldingStart = { false, false };
+    std::array<bool, 2>     playerHoldingSelect = { false, false };
+    std::array<Time, 2>     playerStartPressedTime = { TIMER_NEVER, TIMER_NEVER };
+    std::array<Time, 2>     playerSelectPressedTime = { TIMER_NEVER, TIMER_NEVER };
 
-    std::array<int, 2>      _ttAngleTime{ 0 };
-    std::array<double, 2>   _ttAngleDiff{ 0 };
+    std::array<double, 2>   playerTurntableAngleAdd{ 0 };
 
-    std::array<AxisDir, 2>  _scratchDir{ 0 };
-    std::array<Time, 2>     _scratchLastUpdate{ TIMER_NEVER, TIMER_NEVER };
-    std::array<double, 2>   _scratchAccumulator = { 0, 0 };
+    std::array<AxisDir, 2>  playerScratchDirection{ 0 };
+    std::array<Time, 2>     playerScratchLastUpdate{ TIMER_NEVER, TIMER_NEVER };
+    std::array<double, 2>   playerScratchAccumulator = { 0, 0 };
 
-    std::array<double, 2>   _lockspeedValue{ 0 };           // internal use only, for precise calculation
-    std::array<int, 2>      _lockspeedGreenNumber{ 0 };     // green number integer
+    std::array<double, 2>   playerLockspeedValueInternal{ 0 };  // internal use only, for precise calculation
+    std::array<int, 2>      playerLockspeedGreenNumber{ 0 };    // green number integer
 
-    std::array<int, 2>      _hispeedAdd{ 0 };
-    std::array<int, 2>      _lanecoverAdd{ 0 };
+    std::array<int, 2>      playerHispeedAddPending{ 0 };
+    std::array<int, 2>      playerLanecoverAddPending{ 0 };
 
-    std::array<double, 2>   _hispeedOld{ 1.0, 1.0 };
-    std::array<bool, 2>     _laneEffectHIDDEN { false, false };
-    std::array<bool, 2>     _laneEffectSUDHID { false, false };
+    std::array<double, 2>   playerSavedHispeed{ 1.0, 1.0 };
 
-    std::array<int, 2>      _healthLastTick{ 0 };
+    std::array<bool, 2>     playerUsesHIDDEN { false, false };
+    std::array<bool, 2>     playerUsesSUDHID { false, false };
 
-    Time _readyTime = 0;
+    std::array<int, 2>      playerHealthLastTick{ 0 };
+
+    std::array<bool, 2>     playerHispeedHasChanged{ false, false };
+    std::array<bool, 2>     playerLanecoverTopHasChanged{ false, false };
+    std::array<bool, 2>     playerLanecoverBottomHasChanged{ false, false };
+    std::array<bool, 2>     playerLanecoverStateHasChanged{ false, false };
+    std::array<bool, 2>     playerLockSpeedResetPending{ false, false };
+
+    Time delayedReadyTime = 0;
     int retryRequestTick = 0;
 
     std::vector<ReplayChart::Commands>::iterator itReplayCommand;
     InputMask replayKeyPressing;
-    std::array<bool, 2>   _hispeedHasChanged{ false, false };
-    std::array<bool, 2>   _lanecoverTopHasChanged{ false, false };
-    std::array<bool, 2>   _lanecoverBottomHasChanged{ false, false };
-    std::array<bool, 2>   _lanecoverStateHasChanged{ false, false };
-    std::array<bool, 2>   _lockSpeedReset{ false, false };
     unsigned replayCmdMapIndex = 0;
 
     bool isManuallyRequestedExit = false;
     bool isReplayRequestedExit = false;
 
-    std::array<int, 2>      _missPlayer = { 0 };
-    Time _missLastTime;
-    int _missBgaLength;
+    std::array<int, 2>      playerJudgeBP = { 0 };  // used for displaying poor bga
+    Time poorBgaStartTime;
+    int poorBgaDuration;
 
     bool imguiShowAdjustMenu = false;
     int imguiAdjustBorderX = 640;
@@ -125,8 +126,8 @@ public:
 protected:
     // common
     void loadChart();
-	constexpr double getWavLoadProgress() { return (_wavToLoad == 0) ? (gChartContext.isSampleLoaded ? 1.0 : 0.0) : (double)_wavLoaded / _wavToLoad; }
-	constexpr double getBgaLoadProgress() { return (_bmpToLoad == 0) ? (gChartContext.isBgaLoaded ? 1.0 : 0.0) : (double)_bmpLoaded / _bmpToLoad; }
+	constexpr double getWavLoadProgress() { return (wavTotal == 0) ? (gChartContext.isSampleLoaded ? 1.0 : 0.0) : (double)wavLoaded / wavTotal; }
+	constexpr double getBgaLoadProgress() { return (bmpTotal == 0) ? (gChartContext.isBgaLoaded ? 1.0 : 0.0) : (double)bmpLoaded / bmpTotal; }
 
     void setInputJudgeCallback();
     void removeInputJudgeCallback();
@@ -134,14 +135,14 @@ protected:
 
 protected:
     // loading indicators
-    bool _chartLoaded = false;
-    bool _rulesetLoaded = false;
+    bool chartObjLoaded = false;
+    bool rulesetLoaded = false;
     //bool _sampleLoaded = false;
     //bool _bgaLoaded = false;
-    unsigned _wavLoaded = 0;
-    unsigned _wavToLoad = 0;
-    unsigned _bmpLoaded = 0;
-    unsigned _bmpToLoad = 0;
+    unsigned wavLoaded = 0;
+    unsigned wavTotal = 0;
+    unsigned bmpLoaded = 0;
+    unsigned bmpTotal = 0;
 
 protected:
     // Looper callbacks
@@ -178,7 +179,7 @@ protected:
     void inputGameAxis(double s1, double s2, const Time&);
 
 protected:
-    virtual void _updateImgui() override;
+    virtual void updateImgui() override;
     void imguiInit();
     void imguiAdjustMenu();
 };

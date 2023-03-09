@@ -502,7 +502,7 @@ static bool flipSide = false;
     }
 }
 
-std::map<std::string, pTexture> SkinLR2::LR2SkinImageCache;
+std::map<std::string, std::shared_ptr<Texture>> SkinLR2::LR2SkinImageCache;
 
 std::map<std::string, Path> SkinLR2::LR2SkinFontPathCache;
 std::map<Path, std::shared_ptr<SkinLR2::LR2Font>> SkinLR2::LR2FontCache;
@@ -513,19 +513,19 @@ int SkinLR2::setExtendedProperty(std::string&& key, void* value)
     {
         if (gSprites[GLOBAL_SPRITE_IDX_1PGAUGE] != nullptr)
         {
-            auto type = *(eGaugeOp*)value;
+            auto type = *(GaugeDisplayType*)value;
             auto pS = std::reinterpret_pointer_cast<SpriteGaugeGrid>(gSprites[GLOBAL_SPRITE_IDX_1PGAUGE]);
             switch (type)
             {
-            case eGaugeOp::SURVIVAL:
+            case GaugeDisplayType::SURVIVAL:
                 pS->setGaugeType(SpriteGaugeGrid::GaugeType::SURVIVAL);
                 break;
 
-            case eGaugeOp::EX_SURVIVAL:
+            case GaugeDisplayType::EX_SURVIVAL:
                 pS->setGaugeType(SpriteGaugeGrid::GaugeType::EX_SURVIVAL);
                 break;
 
-            case eGaugeOp::ASSIST_EASY:
+            case GaugeDisplayType::ASSIST_EASY:
                 pS->setGaugeType(SpriteGaugeGrid::GaugeType::ASSIST_EASY);
                 break;
 
@@ -543,19 +543,19 @@ int SkinLR2::setExtendedProperty(std::string&& key, void* value)
     {
         if (gSprites[GLOBAL_SPRITE_IDX_2PGAUGE] != nullptr)
         {
-            auto type = *(eGaugeOp*)value;
+            auto type = *(GaugeDisplayType*)value;
             auto pS = std::reinterpret_pointer_cast<SpriteGaugeGrid>(gSprites[GLOBAL_SPRITE_IDX_2PGAUGE]);
             switch (type)
             {
-            case eGaugeOp::SURVIVAL:
+            case GaugeDisplayType::SURVIVAL:
                 pS->setGaugeType(SpriteGaugeGrid::GaugeType::SURVIVAL);
                 break;
 
-            case eGaugeOp::EX_SURVIVAL:
+            case GaugeDisplayType::EX_SURVIVAL:
                 pS->setGaugeType(SpriteGaugeGrid::GaugeType::EX_SURVIVAL);
                 break;
 
-            case eGaugeOp::ASSIST_EASY:
+            case GaugeDisplayType::ASSIST_EASY:
                 pS->setGaugeType(SpriteGaugeGrid::GaugeType::ASSIST_EASY);
                 break;
 
@@ -573,7 +573,7 @@ int SkinLR2::setExtendedProperty(std::string&& key, void* value)
 }
 
 
-bool matchToken(const Token& str1, std::string_view str2) noexcept 
+bool matchToken(const StringContent& str1, std::string_view str2) noexcept
 {
     if (str1.length() >= str2.length()) 
         return strEqual(std::string_view(str1.c_str(), str2.length()), str2, true); 
@@ -650,7 +650,7 @@ Tokens csvLineTokenizeSimple(const std::string& raw)
     {
         pos = linecsv.find(',', idx);
         auto token = linecsv.substr(idx, pos - idx);
-        res.push_back(Token(token));
+        res.push_back(StringContent(token));
         idx = pos + 1;
     } while (pos != linecsv.npos);
     return res;
@@ -785,9 +785,9 @@ int SkinLR2::IMAGE()
     {
         // already referenced inside constructor; create a blank texture if not exist
         std::string textureMapKey = std::to_string(imageCount);
-        if (_textureNameMap.find(textureMapKey) == _textureNameMap.end())
+        if (textureNameMap.find(textureMapKey) == textureNameMap.end())
         {
-            _textureNameMap[textureMapKey] = std::make_shared<Texture>(nullptr, 0, 0);
+            textureNameMap[textureMapKey] = std::make_shared<Texture>(nullptr, 0, 0);
         }
         ++imageCount;
         return 1;
@@ -800,10 +800,10 @@ int SkinLR2::IMAGE()
         if (video_file_extensions.find(toLower(pathFile.extension().u8string())) != video_file_extensions.end())
         {
 #ifndef VIDEO_DISABLED
-            _vidNameMap[textureMapKey] = std::make_shared<sVideo>(pathFile, 1.0, true);
-            _textureNameMap[textureMapKey] = _textureNameMap["White"];
+            videoNameMap[textureMapKey] = std::make_shared<sVideo>(pathFile, 1.0, true);
+            textureNameMap[textureMapKey] = textureNameMap["White"];
 #else
-            _textureNameMap[textureMapKey] = _textureNameMap["Black"];
+            textureNameMap[textureMapKey] = textureNameMap["Black"];
 #endif
         }
         else
@@ -811,7 +811,7 @@ int SkinLR2::IMAGE()
             Image img = Image(pathFile.u8string().c_str());
             if (!img.hasAlphaLayer() && info.hasTransparentColor)
                 img.setTransparentColorRGB(info.transparentColor);
-            _textureNameMap[textureMapKey] = std::make_shared<Texture>(img);
+            textureNameMap[textureMapKey] = std::make_shared<Texture>(img);
         }
 
         LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added IMAGE[" << imageCount << "]: " << pathFile;
@@ -984,8 +984,8 @@ int SkinLR2::SYSTEMFONT()
     {
         if (loadMode >= 1)
         {
-            size_t idx = _fontNameMap.size();
-            _fontNameMap[std::to_string(idx)] = nullptr;
+            size_t idx = fontNameMap.size();
+            fontNameMap[std::to_string(idx)] = nullptr;
             return 1;
         }
 
@@ -995,8 +995,8 @@ int SkinLR2::SYSTEMFONT()
         //StringContent name = parseParamBuf[3];
         int faceIndex;
         Path fontPath = getSysMonoFontPath(NULL, &faceIndex, i18n::getCurrentLanguage());
-        size_t idx = _fontNameMap.size();
-        _fontNameMap[std::to_string(idx)] = std::make_shared<TTFFont>(fontPath.u8string().c_str(), ptsize, faceIndex);
+        size_t idx = fontNameMap.size();
+        fontNameMap[std::to_string(idx)] = std::make_shared<TTFFont>(fontPath.u8string().c_str(), ptsize, faceIndex);
         LOG_DEBUG << "[Skin] " << csvLineNumber << ": Added FONT[" << idx << "]: " << fontPath;
         return 1;
     }
@@ -1011,7 +1011,7 @@ int SkinLR2::INCLUDE()
 
         LOG_DEBUG << "[Skin] " << csvLineNumber << ": INCLUDE: " << path.u8string();
         //auto subCsv = SkinLR2(path);
-        //if (subCsv._loaded)
+        //if (subCsv.loaded)
         //    _csvIncluded.push_back(std::move(subCsv));
         loadCSV(path);
         LOG_DEBUG << "[Skin] " << csvLineNumber << ": INCLUDE END //" << path.u8string();
@@ -1031,7 +1031,7 @@ int SkinLR2::TIMEOPTION()
     if (matchToken(parseKeyBuf, "#STARTINPUT"))
     {
         info.timeIntro = toInt(parseParamBuf[0]);
-        if (info.mode == eMode::RESULT || info.mode == eMode::COURSE_RESULT)
+        if (info.mode == SkinType::RESULT || info.mode == SkinType::COURSE_RESULT)
         {
             int rank = toInt(parseParamBuf[1]);
             int update = toInt(parseParamBuf[2]);
@@ -1131,13 +1131,13 @@ int SkinLR2::others()
     {
         //switch (info.mode)
         //{
-        //case eMode::PLAY5:
-        //case eMode::PLAY5_2:
-        //case eMode::PLAY7:
-        //case eMode::PLAY7_2:
-        //case eMode::PLAY9:
-        //case eMode::PLAY10:
-        //case eMode::PLAY14:
+        //case SkinType::PLAY5:
+        //case SkinType::PLAY5_2:
+        //case SkinType::PLAY7:
+        //case SkinType::PLAY7_2:
+        //case SkinType::PLAY9:
+        //case SkinType::PLAY10:
+        //case SkinType::PLAY14:
         //    flipSide = true;
         //    lr2skin::flipSideFlag = flipSide;
         //    break;
@@ -1151,8 +1151,8 @@ int SkinLR2::others()
 
         switch (info.mode)
         {
-        case eMode::RESULT:
-        case eMode::COURSE_RESULT:
+        case SkinType::RESULT:
+        case SkinType::COURSE_RESULT:
             lr2skin::flipSide = (lr2skin::flipSideFlag || lr2skin::flipResultFlag) && !disableFlipResult;
             State::set(IndexSwitch::FLIP_RESULT, lr2skin::flipSide);
             break;
@@ -1166,8 +1166,8 @@ int SkinLR2::others()
 
         switch (info.mode)
         {
-        case eMode::RESULT:
-        case eMode::COURSE_RESULT:
+        case SkinType::RESULT:
+        case SkinType::COURSE_RESULT:
             lr2skin::flipSide = (lr2skin::flipSideFlag || lr2skin::flipResultFlag) && !disableFlipResult;
             State::set(IndexSwitch::FLIP_RESULT, lr2skin::flipSide);
             break;
@@ -1277,21 +1277,21 @@ bool SkinLR2::SRC()
             case 111: gr_key = "White"; break;
             default: gr_key = std::to_string(gr); break;
             }
-            if (_vidNameMap.find(gr_key) != _vidNameMap.end())
+            if (videoNameMap.find(gr_key) != videoNameMap.end())
             {
-                textureBuf = _textureNameMap["White"];
-                videoBuf = _vidNameMap[gr_key];
+                textureBuf = textureNameMap["White"];
+                videoBuf = videoNameMap[gr_key];
                 useVideo = true;
             }
-            else if (_textureNameMap.find(gr_key) != _textureNameMap.end())
+            else if (textureNameMap.find(gr_key) != textureNameMap.end())
             {
-                textureBuf = _textureNameMap[gr_key];
+                textureBuf = textureNameMap[gr_key];
                 videoBuf = nullptr;
                 useVideo = false;
             }
             else
             {
-                // textureBuf = _textureNameMap["Error"];
+                // textureBuf = textureNameMap["Error"];
                 textureBuf = std::make_shared<Texture>(nullptr, 0, 0);
                 videoBuf = nullptr;
                 useVideo = false;
@@ -1365,7 +1365,7 @@ ParseRet SkinLR2::SRC_IMAGE()
         builder.texture = textureBuf;
         builder.textureRect = Rect(d.x, d.y, d.w, d.h);
         builder.animationFrameCount = d.div_y * d.div_x;
-        builder.animationLengthPerLoop = d.cycle;
+        builder.animationDurationPerLoop = d.cycle;
         builder.animationTimer = (IndexTimer)d.timer;
         builder.textureSheetRows = d.div_y;
         builder.textureSheetCols = d.div_x;
@@ -1397,7 +1397,7 @@ ParseRet SkinLR2::SRC_NUMBER()
     builder.texture = textureBuf;
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = f;
-    builder.animationLengthPerLoop = d.cycle;
+    builder.animationDurationPerLoop = d.cycle;
     builder.animationTimer = (IndexTimer)d.timer;
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
@@ -1446,7 +1446,7 @@ ParseRet SkinLR2::SRC_SLIDER()
     builder.texture = textureBuf;
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = d.div_y * d.div_x;
-    builder.animationLengthPerLoop = d.cycle;
+    builder.animationDurationPerLoop = d.cycle;
     builder.animationTimer = (IndexTimer)d.timer;
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
@@ -1483,7 +1483,7 @@ ParseRet SkinLR2::SRC_BARGRAPH()
     builder.texture = textureBuf;
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = d.div_y * d.div_x;
-    builder.animationLengthPerLoop = d.cycle;
+    builder.animationDurationPerLoop = d.cycle;
     builder.animationTimer = (IndexTimer)d.timer;
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
@@ -1505,7 +1505,7 @@ ParseRet SkinLR2::SRC_BUTTON()
     builder.texture = textureBuf;
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = 1;
-    builder.animationLengthPerLoop = 0;
+    builder.animationDurationPerLoop = 0;
     builder.animationTimer = (IndexTimer)d.timer;
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
@@ -1540,7 +1540,7 @@ ParseRet SkinLR2::SRC_BUTTON()
         builder.optionType = SpriteOption::opType::OPTION;
         builder.optionInd = (unsigned)op;
 
-        if (info.mode == eMode::MUSIC_SELECT)
+        if (info.mode == SkinType::MUSIC_SELECT)
         {
             if (op == IndexOption::PLAY_RANDOM_TYPE_1P || op == IndexOption::PLAY_RANDOM_TYPE_2P)
             {
@@ -1590,7 +1590,7 @@ ParseRet SkinLR2::SRC_ONMOUSE()
     builder.texture = textureBuf;
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = d.div_y * d.div_x;
-    builder.animationLengthPerLoop = d.cycle;
+    builder.animationDurationPerLoop = d.cycle;
     builder.animationTimer = (IndexTimer)d.timer;
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
@@ -1610,7 +1610,7 @@ ParseRet SkinLR2::SRC_MOUSECURSOR()
     builder.texture = textureBuf;
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = d.div_y * d.div_x;
-    builder.animationLengthPerLoop = d.cycle;
+    builder.animationDurationPerLoop = d.cycle;
     builder.animationTimer = (IndexTimer)d.timer;
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
@@ -1644,7 +1644,7 @@ ParseRet SkinLR2::SRC_TEXT()
     else
     {
         SpriteText::SpriteTextBuilder* pBuilder = &builder;
-        pBuilder->font = _fontNameMap[std::to_string(d.font)];
+        pBuilder->font = fontNameMap[std::to_string(d.font)];
         _sprites.push_back(pBuilder->build());
     }
 
@@ -1747,7 +1747,7 @@ ParseRet SkinLR2::SRC_JUDGELINE()
     builder.texture = textureBuf;
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = d.div_y * d.div_x;
-    builder.animationLengthPerLoop = d.cycle;
+    builder.animationDurationPerLoop = d.cycle;
     builder.animationTimer = (IndexTimer)d.timer;
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
@@ -1773,7 +1773,7 @@ ParseRet SkinLR2::SRC_NOWJUDGE(size_t idx)
     builder.texture = textureBuf;
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = d.div_y * d.div_x;
-    builder.animationLengthPerLoop = d.cycle;
+    builder.animationDurationPerLoop = d.cycle;
     builder.animationTimer = (IndexTimer)d.timer;
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
@@ -1806,7 +1806,7 @@ ParseRet SkinLR2::SRC_NOWCOMBO(size_t idx)
     builder.texture = textureBuf;
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = f;
-    builder.animationLengthPerLoop = d.cycle;
+    builder.animationDurationPerLoop = d.cycle;
     builder.animationTimer = (IndexTimer)d.timer;
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
@@ -1839,7 +1839,7 @@ ParseRet SkinLR2::SRC_GROOVEGAUGE()
     builder.texture = textureBuf;
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = d.div_y * d.div_x / 4;
-    builder.animationLengthPerLoop = d.cycle;
+    builder.animationDurationPerLoop = d.cycle;
     builder.animationTimer = (IndexTimer)d.timer;
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
@@ -1955,14 +1955,14 @@ ParseRet SkinLR2::SRC_NOWCOMBO2()
     return ParseRet::OK;
 }
 
-chart::NoteLaneIndex NoteIdxToLane(eMode gamemode, int idx, unsigned scratchSide1P, unsigned scratchSide2P)
+chart::NoteLaneIndex NoteIdxToLane(SkinType gamemode, int idx, unsigned scratchSide1P, unsigned scratchSide2P)
 {
     assert(idx < 20);
 
     using namespace chart;
     switch (gamemode)
     {
-    case eMode::PLAY5:
+    case SkinType::PLAY5:
     {
         static const NoteLaneIndex lane[] =
         {
@@ -1971,7 +1971,7 @@ chart::NoteLaneIndex NoteIdxToLane(eMode gamemode, int idx, unsigned scratchSide
         };
         return lane[idx];
     }
-    case eMode::PLAY7:
+    case SkinType::PLAY7:
     {
         if (State::get(IndexOption::CHART_PLAY_KEYS) == Option::KEYS_5 || State::get(IndexOption::CHART_PLAY_KEYS) == Option::KEYS_10)
         {
@@ -1998,7 +1998,7 @@ chart::NoteLaneIndex NoteIdxToLane(eMode gamemode, int idx, unsigned scratchSide
             return lane[idx];
         }
     }
-    case eMode::PLAY9:
+    case SkinType::PLAY9:
     {
         static const NoteLaneIndex lane[] =
         {
@@ -2007,8 +2007,8 @@ chart::NoteLaneIndex NoteIdxToLane(eMode gamemode, int idx, unsigned scratchSide
         };
         return lane[idx];
     }
-    case eMode::PLAY5_2:
-    case eMode::PLAY10:
+    case SkinType::PLAY5_2:
+    case SkinType::PLAY10:
     {
         static const NoteLaneIndex lane[] =
         {
@@ -2017,8 +2017,8 @@ chart::NoteLaneIndex NoteIdxToLane(eMode gamemode, int idx, unsigned scratchSide
         };
         return lane[idx];
     }
-    case eMode::PLAY7_2:
-    case eMode::PLAY14:
+    case SkinType::PLAY7_2:
+    case SkinType::PLAY14:
     {
         if (State::get(IndexOption::CHART_PLAY_KEYS) == Option::KEYS_5 || State::get(IndexOption::CHART_PLAY_KEYS) == Option::KEYS_10)
         {
@@ -2081,15 +2081,15 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
     IndexTimer iTimer = lr2skin::timer(d.timer);
 
     // Find texture from map by gr
-    pTexture tex = nullptr;
+    std::shared_ptr<Texture> tex = nullptr;
     std::string gr_key = std::to_string(d.gr);
-    if (_textureNameMap.find(gr_key) != _textureNameMap.end())
+    if (textureNameMap.find(gr_key) != textureNameMap.end())
     {
-        tex = _textureNameMap[gr_key];
+        tex = textureNameMap[gr_key];
     }
     else
     {
-        tex = _textureNameMap["Error"];
+        tex = textureNameMap["Error"];
     }
 
     // SRC
@@ -2156,10 +2156,10 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
 
     SpriteAnimated::SpriteAnimatedBuilder noteBuilder;
     noteBuilder.srcLine = csvLineNumber;
-    noteBuilder.texture = _textureNameMap[gr_key];
+    noteBuilder.texture = textureNameMap[gr_key];
     noteBuilder.textureRect = Rect(d.x, d.y, d.w, d.h);
     noteBuilder.animationFrameCount = d.div_y * d.div_x;
-    noteBuilder.animationLengthPerLoop = d.cycle;
+    noteBuilder.animationDurationPerLoop = d.cycle;
     noteBuilder.animationTimer = iTimer;
     noteBuilder.textureSheetRows = d.div_y;
     noteBuilder.textureSheetCols = d.div_x;
@@ -2179,7 +2179,7 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
         _sprites.push_back(pSpriteLane);
 
         pSpriteLane->buildNote(noteBuilder);
-        _laneSprites[i].first = pSpriteLane;
+        laneSprites[i].first = pSpriteLane;
         pSpriteNote = pSpriteLane->pNote;
 
         break;
@@ -2203,11 +2203,11 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
         pSpriteLane->buildNote(noteBuilder);
         if (!autoNotes)
         {
-            _laneSprites[i].first = pSpriteLane;
+            laneSprites[i].first = pSpriteLane;
         }
         else
         {
-            _laneSprites[i].second = pSpriteLane;
+            laneSprites[i].second = pSpriteLane;
         }
         pSpriteNote = pSpriteLane->pNote;
 
@@ -2222,7 +2222,7 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
     case DefType::AUTO_LN_START:
     {
         std::shared_ptr<SpriteLaneVerticalLN> pSpriteLane = std::dynamic_pointer_cast<SpriteLaneVerticalLN>(
-            !autoNotes ? _laneSprites[i].first : _laneSprites[i].second);
+            !autoNotes ? laneSprites[i].first : laneSprites[i].second);
         if (!pSpriteLane)
         {
             SpriteLaneVerticalLN::SpriteLaneVerticalLNBuilder builder;
@@ -2237,11 +2237,11 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
 
             if (!autoNotes)
             {
-                _laneSprites[i].first = pSpriteLane;
+                laneSprites[i].first = pSpriteLane;
             }
             else
             {
-                _laneSprites[i].second = pSpriteLane;
+                laneSprites[i].second = pSpriteLane;
             }
         }
 
@@ -2270,9 +2270,9 @@ ParseRet SkinLR2::SRC_NOTE(DefType type)
     }
     if (pSpriteNote)
     {
-        pSpriteNote->appendKeyFrame({ 0, {Rect(),
-            RenderParams::accTy::CONSTANT, Color(0xffffffff), BlendMode::ALPHA, 0, 0.0 } });
-        pSpriteNote->setLoopTime(0);
+        pSpriteNote->appendMotionKeyFrame({ 0, {Rect(),
+            RenderParams::accelType::CONSTANT, Color(0xffffffff), BlendMode::ALPHA, 0, 0.0 } });
+        pSpriteNote->setMotionLoopTo(0);
     }
 
     return ParseRet::OK;
@@ -2322,12 +2322,12 @@ ParseRet SkinLR2::SRC_BAR_BODY()
     builder.texture = textureBuf;
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = d.div_y * d.div_x;
-    builder.animationLengthPerLoop = d.cycle;
+    builder.animationDurationPerLoop = d.cycle;
     builder.animationTimer = (IndexTimer)d.timer;
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
 
-    for (auto& bar : _barSprites)
+    for (auto& bar : barSprites)
     {
         bar->setBody(type, builder);
 
@@ -2347,12 +2347,12 @@ ParseRet SkinLR2::SRC_BAR_FLASH()
     builder.texture = textureBuf;
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = d.div_y * d.div_x;
-    builder.animationLengthPerLoop = d.cycle;
+    builder.animationDurationPerLoop = d.cycle;
     builder.animationTimer = (IndexTimer)d.timer;
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
 
-    for (auto& bar : _barSprites)
+    for (auto& bar : barSprites)
     {
         bar->setFlash(builder);
     }
@@ -2378,14 +2378,14 @@ ParseRet SkinLR2::SRC_BAR_LEVEL()
     builder.texture = textureBuf;
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = f;
-    builder.animationLengthPerLoop = d.cycle;
+    builder.animationDurationPerLoop = d.cycle;
     builder.animationTimer = (IndexTimer)d.timer;
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
     builder.align = (NumberAlign)d.align;
     builder.maxDigits = d.keta;
 
-    for (auto& bar : _barSprites)
+    for (auto& bar : barSprites)
     {
         bar->setLevel(type, builder);
     }
@@ -2404,12 +2404,12 @@ ParseRet SkinLR2::SRC_BAR_LAMP()
     builder.texture = textureBuf;
     builder.textureRect = Rect(d.x, d.y, d.w, d.h);
     builder.animationFrameCount = d.div_y * d.div_x;
-    builder.animationLengthPerLoop = d.cycle;
+    builder.animationDurationPerLoop = d.cycle;
     builder.animationTimer = (IndexTimer)d.timer;
     builder.textureSheetRows = d.div_y;
     builder.textureSheetCols = d.div_x;
 
-    for (auto& bar : _barSprites)
+    for (auto& bar : barSprites)
     {
         bar->setLamp(type, builder);
     }
@@ -2428,7 +2428,7 @@ ParseRet SkinLR2::SRC_BAR_TITLE()
     builder.align = (TextAlign)d.align;
     builder.editable = d.edit;
 
-    for (auto& bar : _barSprites)
+    for (auto& bar : barSprites)
     {
         auto font = std::to_string(d.font);
         if (LR2FontNameMap.find(font) != LR2FontNameMap.end() && LR2FontNameMap[font] != nullptr)
@@ -2442,7 +2442,7 @@ ParseRet SkinLR2::SRC_BAR_TITLE()
         }
         else
         {
-            builder.font = _fontNameMap[font];
+            builder.font = fontNameMap[font];
             bar->setTitle(type, *(SpriteText::SpriteTextBuilder*)&builder);
         }
     }
@@ -2456,14 +2456,14 @@ ParseRet SkinLR2::SRC_BAR_RANK()
 
     BarRankType type = BarRankType(d._null & 0xFFFFFFFF);
 
-    for (auto& bar : _barSprites)
+    for (auto& bar : barSprites)
     {
         SpriteAnimated::SpriteAnimatedBuilder builder;
         builder.srcLine = csvLineNumber;
         builder.texture = textureBuf;
         builder.textureRect = Rect(d.x, d.y, d.w, d.h);
         builder.animationFrameCount = d.div_y * d.div_x;
-        builder.animationLengthPerLoop = d.cycle;
+        builder.animationDurationPerLoop = d.cycle;
         builder.animationTimer = (IndexTimer)d.timer;
         builder.textureSheetRows = d.div_y;
         builder.textureSheetCols = d.div_x;
@@ -2480,14 +2480,14 @@ ParseRet SkinLR2::SRC_BAR_RIVAL()
 
     BarRivalType type = BarRivalType(d._null & 0xFFFFFFFF);
 
-    for (auto& bar : _barSprites)
+    for (auto& bar : barSprites)
     {
         SpriteAnimated::SpriteAnimatedBuilder builder;
         builder.srcLine = csvLineNumber;
         builder.texture = textureBuf;
         builder.textureRect = Rect(d.x, d.y, d.w, d.h);
         builder.animationFrameCount = d.div_y * d.div_x;
-        builder.animationLengthPerLoop = d.cycle;
+        builder.animationDurationPerLoop = d.cycle;
         builder.animationTimer = (IndexTimer)d.timer;
         builder.textureSheetRows = d.div_y;
         builder.textureSheetCols = d.div_x;
@@ -2504,14 +2504,14 @@ ParseRet SkinLR2::SRC_BAR_RIVAL_MYLAMP()
 
     BarLampType type = BarLampType(d._null & 0xFFFFFFFF);
 
-    for (auto& bar : _barSprites)
+    for (auto& bar : barSprites)
     {
         SpriteAnimated::SpriteAnimatedBuilder builder;
         builder.srcLine = csvLineNumber;
         builder.texture = textureBuf;
         builder.textureRect = Rect(d.x, d.y, d.w, d.h);
         builder.animationFrameCount = d.div_y * d.div_x;
-        builder.animationLengthPerLoop = d.cycle;
+        builder.animationDurationPerLoop = d.cycle;
         builder.animationTimer = (IndexTimer)d.timer;
         builder.textureSheetRows = d.div_y;
         builder.textureSheetCols = d.div_x;
@@ -2528,14 +2528,14 @@ ParseRet SkinLR2::SRC_BAR_RIVAL_RIVALLAMP()
 
     BarLampType type = BarLampType(d._null & 0xFFFFFFFF);
 
-    for (auto& bar : _barSprites)
+    for (auto& bar : barSprites)
     {
         SpriteAnimated::SpriteAnimatedBuilder builder;
         builder.srcLine = csvLineNumber;
         builder.texture = textureBuf;
         builder.textureRect = Rect(d.x, d.y, d.w, d.h);
         builder.animationFrameCount = d.div_y * d.div_x;
-        builder.animationLengthPerLoop = d.cycle;
+        builder.animationDurationPerLoop = d.cycle;
         builder.animationTimer = (IndexTimer)d.timer;
         builder.textureSheetRows = d.div_y;
         builder.textureSheetCols = d.div_x;
@@ -2622,7 +2622,7 @@ bool SkinLR2::DST()
             decltype(e) enext = nullptr;
             do
             {
-                enext = gSprites[p->getIdx()];
+                enext = gSprites[p->getMyGlobalSpriteIndex()];
                 p->setSpriteReference(enext);
 
                 if (enext == nullptr)
@@ -2664,7 +2664,7 @@ bool SkinLR2::DST()
             return false;
         }
 
-        if (e->isKeyFrameEmpty())
+        if (e->isMotionKeyFramesEmpty())
         {
             if (flipSide)
             {
@@ -2737,7 +2737,7 @@ bool SkinLR2::DST()
             if (type == DefType::NUMBER)
             {
                 auto p = std::reinterpret_pointer_cast<SpriteNumber>(e);
-                switch (p->_numInd)
+                switch (p->numInd)
                 {
                 case IndexNumber::MUSIC_BEGINNER_LEVEL:  opEx.push_back(dst_option::SELECT_HAVE_BEGINNER_IN_SAME_FOLDER); break;
                 case IndexNumber::MUSIC_NORMAL_LEVEL:    opEx.push_back(dst_option::SELECT_HAVE_NORMAL_IN_SAME_FOLDER);   break;
@@ -2748,11 +2748,11 @@ bool SkinLR2::DST()
             }
             drawQueue.push_back({ e, dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]), opEx });
 
-            e->setLoopTime(d.loop);
-            e->setTrigTimer((IndexTimer)d.timer);
+            e->setMotionLoopTo(d.loop);
+            e->setMotionStartTimer((IndexTimer)d.timer);
         }
 
-        e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
+        e->appendMotionKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accelType)d.acc, Color(d.r, d.g, d.b, d.a),
             lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
         //e->pushKeyFrame(time, x, y, w, h, acc, r, g, b, a, blend, filter, angle, center);
         //LOG_DEBUG << "[Skin] " << raw << ": Set sprite Keyframe (time: " << d.time << ")";
@@ -2787,25 +2787,25 @@ ParseRet SkinLR2::DST_NOTE()
 
     auto setDstNoteSprite = [&](NoteLaneCategory i, std::shared_ptr<SpriteLaneVertical> e)
     {
-        if (e->isKeyFrameEmpty())
+        if (e->isMotionKeyFramesEmpty())
         {
             drawQueue.push_back({ e, dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]), {} });
-            e->setLoopTime(d.loop);
-            e->setTrigTimer((IndexTimer)d.timer);
+            e->setMotionLoopTo(d.loop);
+            e->setMotionStartTimer((IndexTimer)d.timer);
         }
-        e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
+        e->appendMotionKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accelType)d.acc, Color(d.r, d.g, d.b, d.a),
             lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
     };
 
-    auto& [e1, e1a] = _laneSprites[channelToIdx(NoteLaneCategory::Note, idx)];
+    auto& [e1, e1a] = laneSprites[channelToIdx(NoteLaneCategory::Note, idx)];
     if (e1) setDstNoteSprite(NoteLaneCategory::Note, e1);
     if (e1a) setDstNoteSprite(NoteLaneCategory::Note, e1a);
 
-    auto& [e2, e2a] = _laneSprites[channelToIdx(NoteLaneCategory::Mine, idx)];
+    auto& [e2, e2a] = laneSprites[channelToIdx(NoteLaneCategory::Mine, idx)];
     if (e2) setDstNoteSprite(NoteLaneCategory::Mine, e2);
     if (e2a) setDstNoteSprite(NoteLaneCategory::Mine, e2a);
 
-    auto& [e3, e3a] = _laneSprites[channelToIdx(NoteLaneCategory::LN, idx)];
+    auto& [e3, e3a] = laneSprites[channelToIdx(NoteLaneCategory::LN, idx)];
     if (e3) setDstNoteSprite(NoteLaneCategory::LN, e3);
     if (e3a) setDstNoteSprite(NoteLaneCategory::LN, e3a);
 
@@ -2842,11 +2842,11 @@ ParseRet SkinLR2::DST_LINE()
             "(Line: " << csvLineNumber << ")";
         return ParseRet::SRC_DEF_WRONG_TYPE;
     }
-    if (!e->isKeyFrameEmpty())
+    if (!e->isMotionKeyFramesEmpty())
     {
         LOG_DEBUG << "[Skin] " << csvLineNumber << ": Barline DST is already defined " <<
             "(Line: " << csvLineNumber << ")";
-        e->clearKeyFrames();
+        e->clearMotionKeyFrames();
     }
 
     // set sprite channel
@@ -2860,14 +2860,14 @@ ParseRet SkinLR2::DST_LINE()
         return ParseRet::SRC_DEF_WRONG_TYPE;
     }
 
-    p->pNote->clearKeyFrames();
-    p->pNote->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
+    p->pNote->clearMotionKeyFrames();
+    p->pNote->appendMotionKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accelType)d.acc, Color(d.r, d.g, d.b, d.a),
         lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
 
     drawQueue.push_back({ e, dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]), {} });
-    e->appendKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
+    e->appendMotionKeyFrame({ 0, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accelType)d.acc, Color(d.r, d.g, d.b, d.a),
         lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
-    e->setLoopTime(0);
+    e->setMotionLoopTo(0);
     //e->pushKeyFrame(time, x, y, w, h, acc, r, g, b, a, blend, filter, angle, center);
     //LOG_DEBUG << "[Skin] " << raw << ": Set Lane sprite (Barline) Keyframe (time: " << d.time << ")";
 
@@ -2898,30 +2898,30 @@ ParseRet SkinLR2::DST_BAR_BODY()
 
     for (BarType type = BarType(0); type != BarType::TYPE_COUNT; ++*(unsigned*)&type)
     {
-        auto e = bodyOn ? _barSprites[idx]->getSpriteBodyOn(type) : _barSprites[idx]->getSpriteBodyOff(type);
+        auto e = bodyOn ? barSprites[idx]->getSpriteBodyOn(type) : barSprites[idx]->getSpriteBodyOff(type);
         if (e == nullptr)
         {
             LOG_DEBUG << "[Skin] " << csvLineNumber << ": SRC_BAR_BODY undefined";
             return ParseRet::SRC_DEF_INVALID;
         }
 
-        if (e->isKeyFrameEmpty())
+        if (e->isMotionKeyFramesEmpty())
         {
             e->setSrcLine(csvLineNumber);
-            e->setLoopTime(d.loop);
-            e->setTrigTimer((IndexTimer)d.timer);
+            e->setMotionLoopTo(d.loop);
+            e->setMotionStartTimer((IndexTimer)d.timer);
 
-            if (!_barSpriteAdded[idx])
+            if (!barSpriteAvailable[idx])
             {
-                _barSprites[idx]->setSrcLine(csvLineNumber);
-                _barSpriteAdded[idx] = true;
-                drawQueue.push_back({ _barSprites[idx], dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]), {} });
+                barSprites[idx]->setSrcLine(csvLineNumber);
+                barSpriteAvailable[idx] = true;
+                drawQueue.push_back({ barSprites[idx], dst_option(d.op[0]), dst_option(d.op[1]), dst_option(d.op[2]), dst_option(d.op[3]), {} });
             }
 
             drawQueue.push_back({ e, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE, {} });
         }
 
-        e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
+        e->appendMotionKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accelType)d.acc, Color(d.r, d.g, d.b, d.a),
             lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
     }
 
@@ -2936,7 +2936,7 @@ ParseRet SkinLR2::DST_BAR_FLASH()
     // timers are ignored for bars
     d.timer = 0;
 
-    for (auto& bar : _barSprites)
+    for (auto& bar : barSprites)
     {
         auto e = bar->getSpriteFlash();
         if (e == nullptr)
@@ -2945,16 +2945,16 @@ ParseRet SkinLR2::DST_BAR_FLASH()
             return ParseRet::SRC_DEF_INVALID;
         }
 
-        if (e->isKeyFrameEmpty())
+        if (e->isMotionKeyFramesEmpty())
         {
             e->setSrcLine(csvLineNumber);
-            e->setLoopTime(d.loop);
-            e->setTrigTimer((IndexTimer)d.timer);
+            e->setMotionLoopTo(d.loop);
+            e->setMotionStartTimer((IndexTimer)d.timer);
 
             drawQueue.push_back({ e, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE, {} });
         }
 
-        e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
+        e->appendMotionKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accelType)d.acc, Color(d.r, d.g, d.b, d.a),
             lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
     }
 
@@ -2977,7 +2977,7 @@ ParseRet SkinLR2::DST_BAR_LEVEL()
         return ParseRet::PARAM_INVALID;
     }
 
-    for (auto& bar : _barSprites)
+    for (auto& bar : barSprites)
     {
         auto e = bar->getSpriteLevel(type);
         if (e == nullptr)
@@ -2986,16 +2986,16 @@ ParseRet SkinLR2::DST_BAR_LEVEL()
             return ParseRet::SRC_DEF_INVALID;
         }
 
-        if (e->isKeyFrameEmpty())
+        if (e->isMotionKeyFramesEmpty())
         {
             e->setSrcLine(csvLineNumber);
-            e->setLoopTime(d.loop);
-            e->setTrigTimer((IndexTimer)d.timer);
+            e->setMotionLoopTo(d.loop);
+            e->setMotionStartTimer((IndexTimer)d.timer);
 
             drawQueue.push_back({ e, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE, {} });
         }
 
-        e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
+        e->appendMotionKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accelType)d.acc, Color(d.r, d.g, d.b, d.a),
             lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
     }
 
@@ -3019,7 +3019,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL_MYLAMP()
         return ParseRet::PARAM_INVALID;
     }
 
-    for (auto& bar : _barSprites)
+    for (auto& bar : barSprites)
     {
         auto e = bar->getSpriteRivalLampSelf(type);
         if (e == nullptr)
@@ -3028,16 +3028,16 @@ ParseRet SkinLR2::DST_BAR_RIVAL_MYLAMP()
             return ParseRet::SRC_DEF_INVALID;
         }
 
-        if (e->isKeyFrameEmpty())
+        if (e->isMotionKeyFramesEmpty())
         {
             e->setSrcLine(csvLineNumber);
-            e->setLoopTime(d.loop);
-            e->setTrigTimer((IndexTimer)d.timer);
+            e->setMotionLoopTo(d.loop);
+            e->setMotionStartTimer((IndexTimer)d.timer);
 
             drawQueue.push_back({ e, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE, {} });
         }
 
-        e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
+        e->appendMotionKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accelType)d.acc, Color(d.r, d.g, d.b, d.a),
             lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
     }
 
@@ -3059,7 +3059,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL_RIVALLAMP()
         return ParseRet::PARAM_INVALID;
     }
 
-    for (auto& bar : _barSprites)
+    for (auto& bar : barSprites)
     {
         auto e = bar->getSpriteRivalLampRival(type);
         if (e == nullptr)
@@ -3068,16 +3068,16 @@ ParseRet SkinLR2::DST_BAR_RIVAL_RIVALLAMP()
             return ParseRet::SRC_DEF_INVALID;
         }
 
-        if (e->isKeyFrameEmpty())
+        if (e->isMotionKeyFramesEmpty())
         {
             e->setSrcLine(csvLineNumber);
-            e->setLoopTime(d.loop);
-            e->setTrigTimer((IndexTimer)d.timer);
+            e->setMotionLoopTo(d.loop);
+            e->setMotionStartTimer((IndexTimer)d.timer);
 
             drawQueue.push_back({ e, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE, {} });
         }
 
-        e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
+        e->appendMotionKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accelType)d.acc, Color(d.r, d.g, d.b, d.a),
             lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
     }
 
@@ -3100,7 +3100,7 @@ ParseRet SkinLR2::DST_BAR_LAMP()
         return ParseRet::PARAM_INVALID;
     }
 
-    for (auto& bar : _barSprites)
+    for (auto& bar : barSprites)
     {
         auto e = bar->getSpriteLamp(type);
         if (e == nullptr)
@@ -3109,16 +3109,16 @@ ParseRet SkinLR2::DST_BAR_LAMP()
             return ParseRet::SRC_DEF_INVALID;
         }
 
-        if (e->isKeyFrameEmpty())
+        if (e->isMotionKeyFramesEmpty())
         {
             e->setSrcLine(csvLineNumber);
-            e->setLoopTime(d.loop);
-            e->setTrigTimer((IndexTimer)d.timer);
+            e->setMotionLoopTo(d.loop);
+            e->setMotionStartTimer((IndexTimer)d.timer);
 
             drawQueue.push_back({ e, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE, {} });
         }
 
-        e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
+        e->appendMotionKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accelType)d.acc, Color(d.r, d.g, d.b, d.a),
             lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
     }
 
@@ -3141,7 +3141,7 @@ ParseRet SkinLR2::DST_BAR_TITLE()
         return ParseRet::PARAM_INVALID;
     }
 
-    for (auto& bar : _barSprites)
+    for (auto& bar : barSprites)
     {
         auto e = bar->getSpriteTitle(type);
         if (e == nullptr)
@@ -3150,16 +3150,16 @@ ParseRet SkinLR2::DST_BAR_TITLE()
             return ParseRet::SRC_DEF_INVALID;
         }
 
-        if (e->isKeyFrameEmpty())
+        if (e->isMotionKeyFramesEmpty())
         {
             e->setSrcLine(csvLineNumber);
-            e->setLoopTime(d.loop);
-            e->setTrigTimer((IndexTimer)d.timer);
+            e->setMotionLoopTo(d.loop);
+            e->setMotionStartTimer((IndexTimer)d.timer);
 
             drawQueue.push_back({ e, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE, {} });
         }
 
-        e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
+        e->appendMotionKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accelType)d.acc, Color(d.r, d.g, d.b, d.a),
             lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
     }
 
@@ -3182,7 +3182,7 @@ ParseRet SkinLR2::DST_BAR_RANK()
         return ParseRet::PARAM_INVALID;
     }
 
-    for (auto& bar : _barSprites)
+    for (auto& bar : barSprites)
     {
         auto e = bar->getSpriteRank(type);
         if (e == nullptr)
@@ -3191,16 +3191,16 @@ ParseRet SkinLR2::DST_BAR_RANK()
             return ParseRet::SRC_DEF_INVALID;
         }
 
-        if (e->isKeyFrameEmpty())
+        if (e->isMotionKeyFramesEmpty())
         {
             e->setSrcLine(csvLineNumber);
-            e->setLoopTime(d.loop);
-            e->setTrigTimer((IndexTimer)d.timer);
+            e->setMotionLoopTo(d.loop);
+            e->setMotionStartTimer((IndexTimer)d.timer);
 
             drawQueue.push_back({ e, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE, {} });
         }
 
-        e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
+        e->appendMotionKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accelType)d.acc, Color(d.r, d.g, d.b, d.a),
             lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
     }
 
@@ -3226,7 +3226,7 @@ ParseRet SkinLR2::DST_BAR_RIVAL()
         return ParseRet::PARAM_INVALID;
     }
 
-    for (auto& bar : _barSprites)
+    for (auto& bar : barSprites)
     {
         auto e = bar->getSpriteRivalWinLose(type);
         if (e == nullptr)
@@ -3235,16 +3235,16 @@ ParseRet SkinLR2::DST_BAR_RIVAL()
             return ParseRet::SRC_DEF_INVALID;
         }
 
-        if (e->isKeyFrameEmpty())
+        if (e->isMotionKeyFramesEmpty())
         {
             e->setSrcLine(csvLineNumber);
-            e->setLoopTime(d.loop);
-            e->setTrigTimer((IndexTimer)d.timer);
+            e->setMotionLoopTo(d.loop);
+            e->setMotionStartTimer((IndexTimer)d.timer);
 
             drawQueue.push_back({ e, DST_TRUE, DST_TRUE, DST_TRUE, DST_TRUE, {} });
         }
 
-        e->appendKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accTy)d.acc, Color(d.r, d.g, d.b, d.a),
+        e->appendMotionKeyFrame({ d.time, {Rect(d.x, d.y, d.w, d.h), (RenderParams::accelType)d.acc, Color(d.r, d.g, d.b, d.a),
             lr2skin::convertBlend(d.blend), !!d.filter, (double)d.angle, getCenterPoint(d.w, d.h, d.center) } });
     }
 
@@ -3288,23 +3288,23 @@ int SkinLR2::parseHeader(const Tokens& raw)
 
         switch (type)
         {
-        case 0:		info.mode = eMode::PLAY7;	break;
-        case 1:		info.mode = eMode::PLAY5;	break;
-        case 2:		info.mode = eMode::PLAY14;	break;
-        case 3:		info.mode = eMode::PLAY10;	break;
-        case 4:		info.mode = eMode::PLAY9;	break;
-        case 5:		info.mode = eMode::MUSIC_SELECT;	break;
-        case 6:		info.mode = eMode::DECIDE;	break;
-        case 7:		info.mode = eMode::RESULT;	break;
-        case 8:		info.mode = eMode::KEY_CONFIG;	break;
-        case 9:		info.mode = eMode::THEME_SELECT;	break;
-        case 10:	info.mode = eMode::SOUNDSET;	break;
-        case 12:	info.mode = eMode::PLAY7_2;	break;
-        case 13:	info.mode = eMode::PLAY5_2;	break;
-        case 14:	info.mode = eMode::PLAY9_2;	break;
-        case 15:	info.mode = eMode::COURSE_RESULT;	break;
+        case 0:		info.mode = SkinType::PLAY7;	break;
+        case 1:		info.mode = SkinType::PLAY5;	break;
+        case 2:		info.mode = SkinType::PLAY14;	break;
+        case 3:		info.mode = SkinType::PLAY10;	break;
+        case 4:		info.mode = SkinType::PLAY9;	break;
+        case 5:		info.mode = SkinType::MUSIC_SELECT;	break;
+        case 6:		info.mode = SkinType::DECIDE;	break;
+        case 7:		info.mode = SkinType::RESULT;	break;
+        case 8:		info.mode = SkinType::KEY_CONFIG;	break;
+        case 9:		info.mode = SkinType::THEME_SELECT;	break;
+        case 10:	info.mode = SkinType::SOUNDSET;	break;
+        case 12:	info.mode = SkinType::PLAY7_2;	break;
+        case 13:	info.mode = SkinType::PLAY5_2;	break;
+        case 14:	info.mode = SkinType::PLAY9_2;	break;
+        case 15:	info.mode = SkinType::COURSE_RESULT;	break;
 
-        case 17:	info.mode = eMode::TITLE;	break;
+        case 17:	info.mode = SkinType::TITLE;	break;
         }
         info.name = title;
         info.maker = maker;
@@ -3614,16 +3614,16 @@ void SkinLR2::IF(const Tokens &t, std::istream& lr2skin, eFileEncoding enc, bool
 
 SkinLR2::SkinLR2(Path p, int loadMode): loadMode(loadMode)
 {
-    _type = eSkinType::LR2;
+    _version = SkinVersion::LR2beta3;
 
     parseParamBuf.resize(24);
 
     for (size_t i = 0; i < BAR_ENTRY_SPRITE_COUNT; ++i)
     {
-        _barSprites[i] = std::make_shared<SpriteBarEntry>(i);
-        _sprites.push_back(_barSprites[i]);
+        barSprites[i] = std::make_shared<SpriteBarEntry>(i);
+        _sprites.push_back(barSprites[i]);
     }
-    _laneSprites.resize(chart::LANE_COUNT);
+    laneSprites.resize(chart::LANE_COUNT);
 
     updateDstOpt();
     if (loadCSV(p))
@@ -3631,14 +3631,14 @@ SkinLR2::SkinLR2(Path p, int loadMode): loadMode(loadMode)
         postLoad();
 
         LOG_DEBUG << "[Skin] File: " << p.u8string() << "(Line " << csvLineNumber << "): Body loading finished";
-        _loaded = true;
+        loaded = true;
 
         startSpriteVideoPlayback();
     }
 
     // clear expired cache
     LR2SkinImageCache.clear();
-    for (auto& [key, texture] : _textureNameMap)
+    for (auto& [key, texture] : textureNameMap)
     {
         LR2SkinImageCache[key] = texture;
     }
@@ -3650,13 +3650,13 @@ SkinLR2::~SkinLR2()
 
     switch (info.mode)
     {
-    case eMode::PLAY5:
-    case eMode::PLAY5_2:
-    case eMode::PLAY7:
-    case eMode::PLAY7_2:
-    case eMode::PLAY9:
-    case eMode::PLAY10:
-    case eMode::PLAY14:
+    case SkinType::PLAY5:
+    case SkinType::PLAY5_2:
+    case SkinType::PLAY7:
+    case SkinType::PLAY7_2:
+    case SkinType::PLAY9:
+    case SkinType::PLAY10:
+    case SkinType::PLAY14:
     {
         Path pCustomize = ConfigMgr::Profile()->getPath() / "customize" / SceneCustomize::getConfigFileName(getFilePath());
         try
@@ -3746,17 +3746,17 @@ bool SkinLR2::loadCSV(Path p)
 
     switch (info.mode)
     {
-    case eMode::PLAY5:
-    case eMode::PLAY5_2:
-    case eMode::PLAY7:
-    case eMode::PLAY7_2:
-    case eMode::PLAY9:
-    case eMode::PLAY10:
-    case eMode::PLAY14:
+    case SkinType::PLAY5:
+    case SkinType::PLAY5_2:
+    case SkinType::PLAY7:
+    case SkinType::PLAY7_2:
+    case SkinType::PLAY9:
+    case SkinType::PLAY10:
+    case SkinType::PLAY14:
         lr2skin::flipSide = false;
         break;
-    case eMode::RESULT:
-    case eMode::COURSE_RESULT:
+    case SkinType::RESULT:
+    case SkinType::COURSE_RESULT:
         lr2skin::flipSide = (lr2skin::flipSideFlag || lr2skin::flipResultFlag) && !disableFlipResult;
         break;
     default:
@@ -3903,13 +3903,13 @@ bool SkinLR2::loadCSV(Path p)
 void SkinLR2::postLoad()
 {
     // set barcenter
-    if (barCenter < _barSprites.size())
+    if (barCenter < barSprites.size())
     {
-        _barSprites[barCenter]->drawFlash = true;
+        barSprites[barCenter]->drawFlash = true;
 
         if (loadMode == 0)
         {
-            gSelectContext.cursor = barCenter;
+            gSelectContext.highlightBarIndex = barCenter;
             gSelectContext.cursorClick = barCenter;
         }
     }
@@ -3949,20 +3949,20 @@ void SkinLR2::postLoad()
             idx = channelToIdx(NoteLaneCategory::Note, lane);
             if (idx != LANE_INVALID)
             {
-                if (_laneSprites[idx].first != nullptr) _laneSprites[idx].first->setHeight(height);
-                if (_laneSprites[idx].second != nullptr) _laneSprites[idx].second->setHeight(height);
+                if (laneSprites[idx].first != nullptr) laneSprites[idx].first->setHeight(height);
+                if (laneSprites[idx].second != nullptr) laneSprites[idx].second->setHeight(height);
             }
             idx = channelToIdx(NoteLaneCategory::Mine, lane);
             if (idx != LANE_INVALID)
             {
-                if (_laneSprites[idx].first != nullptr) _laneSprites[idx].first->setHeight(height);
-                if (_laneSprites[idx].second != nullptr) _laneSprites[idx].second->setHeight(height);
+                if (laneSprites[idx].first != nullptr) laneSprites[idx].first->setHeight(height);
+                if (laneSprites[idx].second != nullptr) laneSprites[idx].second->setHeight(height);
             }
             idx = channelToIdx(NoteLaneCategory::LN, lane);
             if (idx != LANE_INVALID)
             {
-                if (_laneSprites[idx].first != nullptr) _laneSprites[idx].first->setHeight(height);
-                if (_laneSprites[idx].second != nullptr) _laneSprites[idx].second->setHeight(height);
+                if (laneSprites[idx].first != nullptr) laneSprites[idx].first->setHeight(height);
+                if (laneSprites[idx].second != nullptr) laneSprites[idx].second->setHeight(height);
             }
         }
     };
@@ -3980,8 +3980,8 @@ void SkinLR2::postLoad()
         constexpr size_t idx = channelToIdx(NoteLaneCategory::EXTRA, NoteLaneExtra::EXTRA_BARLINE_1P);
         if (idx != LANE_INVALID)
         {
-            if (_laneSprites[idx].first != nullptr) _laneSprites[idx].first->setHeight(info.noteLaneHeight1P);
-            if (_laneSprites[idx].second != nullptr) _laneSprites[idx].second->setHeight(info.noteLaneHeight1P);
+            if (laneSprites[idx].first != nullptr) laneSprites[idx].first->setHeight(info.noteLaneHeight1P);
+            if (laneSprites[idx].second != nullptr) laneSprites[idx].second->setHeight(info.noteLaneHeight1P);
         }
 
         if (info.noteLaneHeight2P == 0)
@@ -4002,8 +4002,8 @@ void SkinLR2::postLoad()
         constexpr size_t idx = channelToIdx(NoteLaneCategory::EXTRA, NoteLaneExtra::EXTRA_BARLINE_2P);
         if (idx != LANE_INVALID)
         {
-            if (_laneSprites[idx].first != nullptr) _laneSprites[idx].first->setHeight(info.noteLaneHeight2P);
-            if (_laneSprites[idx].second != nullptr) _laneSprites[idx].second->setHeight(info.noteLaneHeight2P);
+            if (laneSprites[idx].first != nullptr) laneSprites[idx].first->setHeight(info.noteLaneHeight2P);
+            if (laneSprites[idx].second != nullptr) laneSprites[idx].second->setHeight(info.noteLaneHeight2P);
         }
     }
 
@@ -4019,46 +4019,46 @@ void SkinLR2::postLoad()
             idx = channelToIdx(NoteLaneCategory::Note, lane);
             if (idx != LANE_INVALID)
             {
-                if (_laneSprites[idx].first != nullptr) _laneSprites[idx].first->setHIDDENCompatible();
-                if (_laneSprites[idx].second != nullptr) _laneSprites[idx].second->setHIDDENCompatible();
+                if (laneSprites[idx].first != nullptr) laneSprites[idx].first->setHIDDENCompatible();
+                if (laneSprites[idx].second != nullptr) laneSprites[idx].second->setHIDDENCompatible();
             }
             idx = channelToIdx(NoteLaneCategory::Mine, lane);
             if (idx != LANE_INVALID)
             {
-                if (_laneSprites[idx].first != nullptr) _laneSprites[idx].first->setHIDDENCompatible();
-                if (_laneSprites[idx].second != nullptr) _laneSprites[idx].second->setHIDDENCompatible();
+                if (laneSprites[idx].first != nullptr) laneSprites[idx].first->setHIDDENCompatible();
+                if (laneSprites[idx].second != nullptr) laneSprites[idx].second->setHIDDENCompatible();
             }
             idx = channelToIdx(NoteLaneCategory::LN, lane);
             if (idx != LANE_INVALID)
             {
-                if (_laneSprites[idx].first != nullptr) _laneSprites[idx].first->setHIDDENCompatible();
-                if (_laneSprites[idx].second != nullptr) _laneSprites[idx].second->setHIDDENCompatible();
+                if (laneSprites[idx].first != nullptr) laneSprites[idx].first->setHIDDENCompatible();
+                if (laneSprites[idx].second != nullptr) laneSprites[idx].second->setHIDDENCompatible();
             }
         }
         idx = channelToIdx(NoteLaneCategory::EXTRA, NoteLaneExtra::EXTRA_BARLINE_1P);
         if (idx != LANE_INVALID)
         {
-            if (_laneSprites[idx].first != nullptr) _laneSprites[idx].first->setHIDDENCompatible();
-            if (_laneSprites[idx].second != nullptr) _laneSprites[idx].second->setHIDDENCompatible();
+            if (laneSprites[idx].first != nullptr) laneSprites[idx].first->setHIDDENCompatible();
+            if (laneSprites[idx].second != nullptr) laneSprites[idx].second->setHIDDENCompatible();
         }
         idx = channelToIdx(NoteLaneCategory::EXTRA, NoteLaneExtra::EXTRA_BARLINE_2P);
         if (idx != LANE_INVALID)
         {
-            if (_laneSprites[idx].first != nullptr) _laneSprites[idx].first->setHIDDENCompatible();
-            if (_laneSprites[idx].second != nullptr) _laneSprites[idx].second->setHIDDENCompatible();
+            if (laneSprites[idx].first != nullptr) laneSprites[idx].first->setHIDDENCompatible();
+            if (laneSprites[idx].second != nullptr) laneSprites[idx].second->setHIDDENCompatible();
         }
     }
 
-    if (gSprites[GLOBAL_SPRITE_IDX_1PJUDGELINE] && !gSprites[GLOBAL_SPRITE_IDX_1PJUDGELINE]->_keyFrames.empty())
+    if (gSprites[GLOBAL_SPRITE_IDX_1PJUDGELINE] && !gSprites[GLOBAL_SPRITE_IDX_1PJUDGELINE]->motionKeyFrames.empty())
     {
-        Rect d = gSprites[GLOBAL_SPRITE_IDX_1PJUDGELINE]->_keyFrames.back().param.rect;
+        Rect d = gSprites[GLOBAL_SPRITE_IDX_1PJUDGELINE]->motionKeyFrames.back().param.rect;
         judgeLineRect1P = d;
         if (d.w < 0) { judgeLineRect1P.x += d.w; judgeLineRect1P.w = -d.w; }
         if (d.h < 0) { judgeLineRect1P.y += d.h; judgeLineRect1P.h = -d.h; }
     }
-    if (gSprites[GLOBAL_SPRITE_IDX_2PJUDGELINE] && !gSprites[GLOBAL_SPRITE_IDX_2PJUDGELINE]->_keyFrames.empty())
+    if (gSprites[GLOBAL_SPRITE_IDX_2PJUDGELINE] && !gSprites[GLOBAL_SPRITE_IDX_2PJUDGELINE]->motionKeyFrames.empty())
     {
-        Rect d = gSprites[GLOBAL_SPRITE_IDX_2PJUDGELINE]->_keyFrames.back().param.rect;
+        Rect d = gSprites[GLOBAL_SPRITE_IDX_2PJUDGELINE]->motionKeyFrames.back().param.rect;
         judgeLineRect2P = d;
         if (d.w < 0) { judgeLineRect2P.x += d.w; judgeLineRect2P.w = -d.w; }
         if (d.h < 0) { judgeLineRect2P.y += d.h; judgeLineRect2P.h = -d.h; }
@@ -4087,12 +4087,12 @@ void SkinLR2::postLoad()
     for (auto& e : drawQueue)
     {
         auto& s = e.ps;
-        if (s->isKeyFrameEmpty()) continue;
+        if (s->isMotionKeyFramesEmpty()) continue;
         if (s->type() == SpriteTypes::ANIMATED)
         {
-            const Rect& rcFirst = s->_keyFrames.front().param.rect;
-            const Rect& rcLast = s->_keyFrames.back().param.rect;
-            int timer = (int)s->_triggerTimer;
+            const Rect& rcFirst = s->motionKeyFrames.front().param.rect;
+            const Rect& rcLast = s->motionKeyFrames.back().param.rect;
+            int timer = (int)s->motionStartTimer;
             if (timer >= 100 && timer <= 109 || timer >= 120 && timer <= 129 ||
                 timer == (int)IndexTimer::S1L_DOWN || timer == (int)IndexTimer::S1L_UP || timer == (int)IndexTimer::S1R_DOWN || timer == (int)IndexTimer::S1R_UP)
             {
@@ -4139,10 +4139,10 @@ void SkinLR2::postLoad()
         }
         else if (s->type() == SpriteTypes::NUMBER)
         {
-            const Rect& rcFirst = s->_keyFrames.front().param.rect;
-            const Rect& rcLast = s->_keyFrames.back().param.rect;
-            int num = (int)std::dynamic_pointer_cast<SpriteNumber>(s)->_numInd;
-            int timer = (int)s->_triggerTimer;
+            const Rect& rcFirst = s->motionKeyFrames.front().param.rect;
+            const Rect& rcLast = s->motionKeyFrames.back().param.rect;
+            int num = (int)std::dynamic_pointer_cast<SpriteNumber>(s)->numInd;
+            int timer = (int)s->motionStartTimer;
             if (timer == 40 || timer == 46 || timer == 47)
             {
                 if ((rcFirst.y <= judgeLineRect1P.y + judgeLineRect1P.h || rcLast.y <= judgeLineRect1P.y + judgeLineRect1P.h) && (num == 108 || num == 210))
@@ -4165,22 +4165,22 @@ void SkinLR2::postLoad()
     }
 
     // customize: replace timer 0 with internal
-    if (info.mode == eMode::THEME_SELECT)
+    if (info.mode == SkinType::THEME_SELECT)
     {
         for (auto& s : _sprites)
         {
-            if (s->_triggerTimer == IndexTimer::SCENE_START)
-                s->_triggerTimer = IndexTimer::_SCENE_CUSTOMIZE_START;
-            if (s->_triggerTimer == IndexTimer::FADEOUT_BEGIN)
-                s->_triggerTimer = IndexTimer::_SCENE_CUSTOMIZE_FADEOUT;
+            if (s->motionStartTimer == IndexTimer::SCENE_START)
+                s->motionStartTimer = IndexTimer::_SCENE_CUSTOMIZE_START;
+            if (s->motionStartTimer == IndexTimer::FADEOUT_BEGIN)
+                s->motionStartTimer = IndexTimer::_SCENE_CUSTOMIZE_FADEOUT;
 
             auto p = std::dynamic_pointer_cast<SpriteAnimated>(s);
             if (p)
             {
-                if (p->_resetAnimTimer == IndexTimer::SCENE_START)
-                    p->_resetAnimTimer = IndexTimer::_SCENE_CUSTOMIZE_START;
-                if (p->_triggerTimer == IndexTimer::FADEOUT_BEGIN)
-                    p->_triggerTimer = IndexTimer::_SCENE_CUSTOMIZE_FADEOUT;
+                if (p->animationStartTimer == IndexTimer::SCENE_START)
+                    p->animationStartTimer = IndexTimer::_SCENE_CUSTOMIZE_START;
+                if (p->motionStartTimer == IndexTimer::FADEOUT_BEGIN)
+                    p->motionStartTimer = IndexTimer::_SCENE_CUSTOMIZE_FADEOUT;
             }
         }
     }
@@ -4195,9 +4195,9 @@ void SkinLR2::postLoad()
         size_t countFHD = 0;
         for (auto& s : _sprites)
         {
-            if (s->isKeyFrameEmpty()) continue;
+            if (s->isMotionKeyFramesEmpty()) continue;
 
-            const Rect& rc = s->_keyFrames.rbegin()->param.rect;
+            const Rect& rc = s->motionKeyFrames.rbegin()->param.rect;
             if (rc.x > 1920 || rc.y > 1080 || rc.x + rc.w > 1920 || rc.y + rc.h > 1080)
             {
                 // just skip this lol
@@ -4286,7 +4286,7 @@ void SkinLR2::findAndExtractDXA(const Path& path)
 void SkinLR2::update()
 {
     // update sprites
-    vSkin::update();
+    SkinBase::update();
 
     // update op
     updateDstOpt();
@@ -4341,23 +4341,23 @@ void SkinLR2::update()
                 RectF base = judge->_current.rect;
                 double shiftUnit = 0.5 * combo->_current.rect.w;
 
-                int judgeShiftWidth = noshiftJudge1P[i] ? 0 : int(std::floor(shiftUnit * combo->_numDigits));
+                int judgeShiftWidth = noshiftJudge1P[i] ? 0 : int(std::floor(shiftUnit * combo->digitCount));
                 judge->_current.rect.x -= judgeShiftWidth;
 
-                for (auto& d : combo->_rects)
+                for (auto& d : combo->digitOutRect)
                 {
                     int comboShiftUnitCount = noshiftJudge1P[i] ? 0 : -1;
 
                     switch (alignNowCombo1P[i])
                     {
                     case 0:
-                        comboShiftUnitCount += (combo->_maxDigits - combo->_numDigits) * 2 - combo->_numDigits + 1;
+                        comboShiftUnitCount += (combo->maxDigits - combo->digitCount) * 2 - combo->digitCount + 1;
                         break;
                     case 1:
-                        comboShiftUnitCount -= combo->_numDigits - 1;
+                        comboShiftUnitCount -= combo->digitCount - 1;
                         break;
                     case 2:
-                        comboShiftUnitCount += (-combo->_maxDigits - 1) + (combo->_maxDigits - combo->_numDigits + 1) * 2;
+                        comboShiftUnitCount += (-combo->maxDigits - 1) + (combo->maxDigits - combo->digitCount + 1) * 2;
                         break;
                     }
                     d.x += base.x + shiftUnit * comboShiftUnitCount;
@@ -4381,23 +4381,23 @@ void SkinLR2::update()
                 RectF base = judge->_current.rect;
                 double shiftUnit = 0.5 * combo->_current.rect.w;
 
-                int judgeShiftWidth = noshiftJudge2P[i] ? 0 : int(std::floor(shiftUnit * combo->_numDigits));
+                int judgeShiftWidth = noshiftJudge2P[i] ? 0 : int(std::floor(shiftUnit * combo->digitCount));
                 judge->_current.rect.x -= judgeShiftWidth;
 
-                for (auto& d : combo->_rects)
+                for (auto& d : combo->digitOutRect)
                 {
                     int comboShiftUnitCount = noshiftJudge2P[i] ? 0 : -1;
 
                     switch (alignNowCombo2P[i])
                     {
                     case 0:
-                        comboShiftUnitCount += (combo->_maxDigits - combo->_numDigits) * 2 - combo->_numDigits + 1;
+                        comboShiftUnitCount += (combo->maxDigits - combo->digitCount) * 2 - combo->digitCount + 1;
                         break;
                     case 1:
-                        comboShiftUnitCount -= combo->_numDigits - 1;
+                        comboShiftUnitCount -= combo->digitCount - 1;
                         break;
                     case 2:
-                        comboShiftUnitCount += (-combo->_maxDigits - 1) + (combo->_maxDigits - combo->_numDigits + 1) * 2;
+                        comboShiftUnitCount += (-combo->maxDigits - 1) + (combo->maxDigits - combo->digitCount + 1) * 2;
                         break;
                     }
                     d.x += base.x + shiftUnit * comboShiftUnitCount;
@@ -4419,16 +4419,16 @@ void SkinLR2::update()
     // 26: GLOBAL_SPRITE_IDX_1PJUDGELINE
     // 27: GLOBAL_SPRITE_IDX_2PJUDGELINE
     int lift1P = 0, lift2P = 0;
-    if (gPlayContext.mods[PLAYER_SLOT_PLAYER].laneEffect == eModLaneEffect::LIFT ||
-        gPlayContext.mods[PLAYER_SLOT_PLAYER].laneEffect == eModLaneEffect::LIFTSUD)
+    if (gPlayContext.mods[PLAYER_SLOT_PLAYER].laneEffect == PlayModifierLaneEffectType::LIFT ||
+        gPlayContext.mods[PLAYER_SLOT_PLAYER].laneEffect == PlayModifierLaneEffectType::LIFTSUD)
     {
         lift1P = (State::get(IndexNumber::LANECOVER_BOTTOM_1P) / 1000.0) * info.noteLaneHeight1P;
-        if (gPlayContext.mode == eMode::PLAY10 || gPlayContext.mode == eMode::PLAY14)
+        if (gPlayContext.mode == SkinType::PLAY10 || gPlayContext.mode == SkinType::PLAY14)
             lift2P = (State::get(IndexNumber::LANECOVER_BOTTOM_1P) / 1000.0) * info.noteLaneHeight2P;
     }
     if (gPlayContext.isBattle && 
-        (gPlayContext.mods[PLAYER_SLOT_TARGET].laneEffect == eModLaneEffect::LIFT ||
-         gPlayContext.mods[PLAYER_SLOT_TARGET].laneEffect == eModLaneEffect::LIFTSUD))
+        (gPlayContext.mods[PLAYER_SLOT_TARGET].laneEffect == PlayModifierLaneEffectType::LIFT ||
+         gPlayContext.mods[PLAYER_SLOT_TARGET].laneEffect == PlayModifierLaneEffectType::LIFTSUD))
     {
         lift2P = (State::get(IndexNumber::LANECOVER_BOTTOM_2P) / 1000.0) * info.noteLaneHeight2P;
     }
@@ -4550,41 +4550,41 @@ void SkinLR2::update()
     std::shared_lock<std::shared_mutex> u(gSelectContext._mutex, std::try_to_lock); // read lock
     if (u.owns_lock())
     {
-        for (auto& s : _barSprites) s->update(t);
+        for (auto& s : barSprites) s->update(t);
 
         // update songlist position
-        if (hasBarAnimOrigin && gSelectContext.scrollDirection != 0 && !gSelectContext.entries.empty())
+        if (hasBarMotionInterpOrigin && gSelectContext.scrollDirection != 0 && !gSelectContext.entries.empty())
         {
-            for (size_t i = 1; i + 1 < _barSprites.size(); ++i)
+            for (size_t i = 1; i + 1 < barSprites.size(); ++i)
             {
-                if (!_barSpriteAdded[i]) continue;
+                if (!barSpriteAvailable[i]) continue;
 
                 double posNow = State::get(IndexSlider::SELECT_LIST) * gSelectContext.entries.size();
 
                 double decimal = posNow - (int)posNow;
-                if (decimal <= 0.5 && _barSprites[i - 1]->isDraw())
+                if (decimal <= 0.5 && barSprites[i - 1]->isDraw())
                 {
                     double factor = decimal;
-                    auto& rectStored = _barAnimOrigin[i - 1];
-                    auto& rectSprite = _barSprites[i]->_current.rect;
+                    auto& rectStored = barMotionInterpOrigin[i - 1];
+                    auto& rectSprite = barSprites[i]->_current.rect;
                     Rect dr{
                         static_cast<int>(std::round((rectStored.x - rectSprite.x) * factor)),
                         static_cast<int>(std::round((rectStored.y - rectSprite.y) * factor)),
                         0, 0
                     };
-                    _barSprites[i]->setRectOffsetAnim(dr.x, dr.y);
+                    barSprites[i]->setRectOffsetAnim(dr.x, dr.y);
                 }
-                else if (_barSprites[i + 1]->isDraw())
+                else if (barSprites[i + 1]->isDraw())
                 {
                     double factor = -decimal + 1.0;
-                    auto& rectStored = _barAnimOrigin[i + 1];
-                    auto& rectSprite = _barSprites[i]->_current.rect;
+                    auto& rectStored = barMotionInterpOrigin[i + 1];
+                    auto& rectSprite = barSprites[i]->_current.rect;
                     Rect dr{
                         static_cast<int>(std::round((rectStored.x - rectSprite.x) * factor)),
                         static_cast<int>(std::round((rectStored.y - rectSprite.y) * factor)),
                         0, 0
                     };
-                    _barSprites[i]->setRectOffsetAnim(dr.x, dr.y);
+                    barSprites[i]->setRectOffsetAnim(dr.x, dr.y);
                 }
             }
         }
@@ -4593,20 +4593,20 @@ void SkinLR2::update()
 
 void SkinLR2::reset_bar_animation()
 {
-    hasBarAnimOrigin = false;
-    _barAnimOrigin.fill(Rect(0, 0, 0, 0));
+    hasBarMotionInterpOrigin = false;
+    barMotionInterpOrigin.fill(Rect(0, 0, 0, 0));
 }
 
 void SkinLR2::start_bar_animation()
 {
     for (size_t i = 0; i < BAR_ENTRY_SPRITE_COUNT; ++i)
     {
-        _barAnimOrigin[i].x = (int)std::floorf(_barSprites[i]->_current.rect.x);
-        _barAnimOrigin[i].y = (int)std::floorf(_barSprites[i]->_current.rect.y);
-        _barAnimOrigin[i].w = (int)_barSprites[i]->_current.rect.w;
-        _barAnimOrigin[i].h = (int)_barSprites[i]->_current.rect.h;
+        barMotionInterpOrigin[i].x = (int)std::floorf(barSprites[i]->_current.rect.x);
+        barMotionInterpOrigin[i].y = (int)std::floorf(barSprites[i]->_current.rect.y);
+        barMotionInterpOrigin[i].w = (int)barSprites[i]->_current.rect.w;
+        barMotionInterpOrigin[i].h = (int)barSprites[i]->_current.rect.h;
     }
-    hasBarAnimOrigin = true;
+    hasBarMotionInterpOrigin = true;
 }
 
 void SkinLR2::draw() const
@@ -4626,7 +4626,7 @@ size_t SkinLR2::getCustomizeOptionCount() const
     return customize.size();
 }
 
-vSkin::CustomizeOption SkinLR2::getCustomizeOptionInfo(size_t idx) const
+SkinBase::CustomizeOption SkinLR2::getCustomizeOptionInfo(size_t idx) const
 {
     CustomizeOption ret;
     const auto& op = customize[idx];

@@ -13,7 +13,7 @@ static Time t0{ 1 }, t1{ 2 }, t2{ 3 }, t3{ 4 }, t4{ 5 }, t5{ 6 }, t6{ 7 }, t7{ 8
 class mock_Texture : public Texture
 {
 public:
-    mock_Texture() :Texture(mock_Image()) { _texRect = TEST_RECT; _loaded = true; }
+    mock_Texture() :Texture(mock_Image()) { textureRect = TEST_RECT; loaded = true; }
     MOCK_CONST_METHOD6(draw, void(const Rect& srcRect, RectF dstRect,
         const Color c, const BlendMode blend, const bool filter, const double angleInDegrees));
     MOCK_CONST_METHOD7(draw, void(const Rect& srcRect, RectF dstRect,
@@ -90,45 +90,45 @@ TEST(Rect, add_normal)
 ////////////////////////////////////////////////////////////////////////////////
 // Render interface
 
-#pragma region Render Interface (vSprite)
-class mock_vSprite : public vSprite
+#pragma region Render Interface (SpriteBase)
+class mock_SpriteBase : public SpriteBase
 {
 public:
-    mock_vSprite(const SpriteBuilder& builder) : vSprite(builder) {}
+    mock_SpriteBase(const SpriteBuilder& builder) : SpriteBase(builder) {}
     MOCK_CONST_METHOD0(draw, void());
-    FRIEND_TEST(test_vSprite, rectConstruct);
-    FRIEND_TEST(test_vSprite, func_update);
+    FRIEND_TEST(test_SpriteBase, rectConstruct);
+    FRIEND_TEST(test_SpriteBase, func_update);
 };
 
-class test_vSprite : public ::testing::Test
+class test_SpriteBase : public ::testing::Test
 {
 protected:
     std::shared_ptr<mock_Texture> pt{ std::make_shared<mock_Texture>() };
-    vSprite::SpriteBuilder builder{ -1, pt };
-    mock_vSprite ss1{ builder };
-    mock_vSprite ss1_1{ builder };
-    mock_vSprite ss1_2{ builder };
+    SpriteBase::SpriteBuilder builder{ -1, pt };
+    mock_SpriteBase ss1{ builder };
+    mock_SpriteBase ss1_1{ builder };
+    mock_SpriteBase ss1_2{ builder };
 public:
-    test_vSprite()
+    test_SpriteBase()
     {
-        ss1.setTrigTimer(IndexTimer::K11_BOMB);
-        ss1_1.setTrigTimer(IndexTimer::K11_BOMB);
-        ss1_2.setTrigTimer(IndexTimer::K11_BOMB);
+        ss1.setMotionStartTimer(IndexTimer::K11_BOMB);
+        ss1_1.setMotionStartTimer(IndexTimer::K11_BOMB);
+        ss1_2.setMotionStartTimer(IndexTimer::K11_BOMB);
 
-        ss1.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
-        ss1.setLoopTime(0);
+        ss1.appendMotionKeyFrame({ 0, {Rect(0, 0, 0, 0), MotionKeyFrameParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        ss1.setMotionLoopTo(0);
 
-        ss1_1.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
-        ss1_1.appendKeyFrame({ 255, {Rect(255, 255, 255, 255), RenderParams::CONSTANT, Color(0x00000000), BlendMode::ALPHA, 0, 0} });
-        ss1_1.setLoopTime(-1);
+        ss1_1.appendMotionKeyFrame({ 0, {Rect(0, 0, 0, 0), MotionKeyFrameParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        ss1_1.appendMotionKeyFrame({ 255, {Rect(255, 255, 255, 255), MotionKeyFrameParams::CONSTANT, Color(0x00000000), BlendMode::ALPHA, 0, 0} });
+        ss1_1.setMotionLoopTo(-1);
 
-        ss1_2.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
-        ss1_2.appendKeyFrame({ 255, {Rect(255, 255, 255, 255), RenderParams::CONSTANT, Color(0x00000000), BlendMode::ALPHA, 0, 0} });
-        ss1_2.setLoopTime(0);
+        ss1_2.appendMotionKeyFrame({ 0, {Rect(0, 0, 0, 0), MotionKeyFrameParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        ss1_2.appendMotionKeyFrame({ 255, {Rect(255, 255, 255, 255), MotionKeyFrameParams::CONSTANT, Color(0x00000000), BlendMode::ALPHA, 0, 0} });
+        ss1_2.setMotionLoopTo(0);
     }
 };
 
-TEST_F(test_vSprite, func_update)
+TEST_F(test_SpriteBase, func_update)
 {
     State::set(IndexTimer::K11_BOMB, 0);
     Time t(0), t1(128), t2(255), t3(256), t4(512);
@@ -203,44 +203,44 @@ protected:
 public:
     sSelection()
     {
-        s0.setTrigTimer(IndexTimer::K11_BOMB);
-        s0.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
-        s0.setLoopTime(0);
-        s.setTrigTimer(IndexTimer::K11_BOMB);
-        s.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
-        s.setLoopTime(0);
-        sv.setTrigTimer(IndexTimer::K11_BOMB);
-        sv.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
-        sv.setLoopTime(0);
+        s0.setMotionStartTimer(IndexTimer::K11_BOMB);
+        s0.appendMotionKeyFrame({ 0, {Rect(0, 0, 0, 0), MotionKeyFrameParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        s0.setMotionLoopTo(0);
+        s.setMotionStartTimer(IndexTimer::K11_BOMB);
+        s.appendMotionKeyFrame({ 0, {Rect(0, 0, 0, 0), MotionKeyFrameParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        s.setMotionLoopTo(0);
+        sv.setMotionStartTimer(IndexTimer::K11_BOMB);
+        sv.appendMotionKeyFrame({ 0, {Rect(0, 0, 0, 0), MotionKeyFrameParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        sv.setMotionLoopTo(0);
     }
 };
 
 TEST_F(sSelection, rectConstruct)
 {
-    EXPECT_EQ(s0._segments, 1);
-    EXPECT_EQ(s0._texRect[0], TEST_RECT);
+    EXPECT_EQ(s0.textureRects.size(), 1);
+    EXPECT_EQ(s0.textureRects[0], TEST_RECT);
 
     int w = TEST_RECT.w / 4;
     int h = TEST_RECT.h / 2;
-    EXPECT_EQ(s._segments, 8);
-    EXPECT_EQ(s._texRect[0], Rect(0 * w, 0 * h, w, h));
-    EXPECT_EQ(s._texRect[1], Rect(1 * w, 0 * h, w, h));
-    EXPECT_EQ(s._texRect[2], Rect(2 * w, 0 * h, w, h));
-    EXPECT_EQ(s._texRect[3], Rect(3 * w, 0 * h, w, h));
-    EXPECT_EQ(s._texRect[4], Rect(0 * w, 1 * h, w, h));
-    EXPECT_EQ(s._texRect[5], Rect(1 * w, 1 * h, w, h));
-    EXPECT_EQ(s._texRect[6], Rect(2 * w, 1 * h, w, h));
-    EXPECT_EQ(s._texRect[7], Rect(3 * w, 1 * h, w, h));
+    EXPECT_EQ(s.textureRects.size(), 8);
+    EXPECT_EQ(s.textureRects[0], Rect(0 * w, 0 * h, w, h));
+    EXPECT_EQ(s.textureRects[1], Rect(1 * w, 0 * h, w, h));
+    EXPECT_EQ(s.textureRects[2], Rect(2 * w, 0 * h, w, h));
+    EXPECT_EQ(s.textureRects[3], Rect(3 * w, 0 * h, w, h));
+    EXPECT_EQ(s.textureRects[4], Rect(0 * w, 1 * h, w, h));
+    EXPECT_EQ(s.textureRects[5], Rect(1 * w, 1 * h, w, h));
+    EXPECT_EQ(s.textureRects[6], Rect(2 * w, 1 * h, w, h));
+    EXPECT_EQ(s.textureRects[7], Rect(3 * w, 1 * h, w, h));
 
-    EXPECT_EQ(sv._segments, 8);
-    EXPECT_EQ(sv._texRect[0], Rect(0 * w, 0 * h, w, h));
-    EXPECT_EQ(sv._texRect[1], Rect(0 * w, 1 * h, w, h));
-    EXPECT_EQ(sv._texRect[2], Rect(1 * w, 0 * h, w, h));
-    EXPECT_EQ(sv._texRect[3], Rect(1 * w, 1 * h, w, h));
-    EXPECT_EQ(sv._texRect[4], Rect(2 * w, 0 * h, w, h));
-    EXPECT_EQ(sv._texRect[5], Rect(2 * w, 1 * h, w, h));
-    EXPECT_EQ(sv._texRect[6], Rect(3 * w, 0 * h, w, h));
-    EXPECT_EQ(sv._texRect[7], Rect(3 * w, 1 * h, w, h));
+    EXPECT_EQ(sv.textureRects.size(), 8);
+    EXPECT_EQ(sv.textureRects[0], Rect(0 * w, 0 * h, w, h));
+    EXPECT_EQ(sv.textureRects[1], Rect(0 * w, 1 * h, w, h));
+    EXPECT_EQ(sv.textureRects[2], Rect(1 * w, 0 * h, w, h));
+    EXPECT_EQ(sv.textureRects[3], Rect(1 * w, 1 * h, w, h));
+    EXPECT_EQ(sv.textureRects[4], Rect(2 * w, 0 * h, w, h));
+    EXPECT_EQ(sv.textureRects[5], Rect(2 * w, 1 * h, w, h));
+    EXPECT_EQ(sv.textureRects[6], Rect(3 * w, 0 * h, w, h));
+    EXPECT_EQ(sv.textureRects[7], Rect(3 * w, 1 * h, w, h));
 }
 #pragma endregion
 
@@ -266,12 +266,12 @@ protected:
 public:
     sAnimated()
     {
-        s.setTrigTimer(IndexTimer::K11_BOMB);
-        s.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
-        s.setLoopTime(0);
-        ss.setTrigTimer(IndexTimer::K11_BOMB);
-        ss.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
-        ss.setLoopTime(0);
+        s.setMotionStartTimer(IndexTimer::K11_BOMB);
+        s.appendMotionKeyFrame({ 0, {Rect(0, 0, 0, 0), MotionKeyFrameParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        s.setMotionLoopTo(0);
+        ss.setMotionStartTimer(IndexTimer::K11_BOMB);
+        ss.appendMotionKeyFrame({ 0, {Rect(0, 0, 0, 0), MotionKeyFrameParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        ss.setMotionLoopTo(0);
     }
 };
 
@@ -283,14 +283,14 @@ TEST_F(sAnimated, animRectConstruct)
     int ww = TEST_RECT.w / 4;
     int hh = TEST_RECT.h / 8;
 
-    EXPECT_EQ(s._segments, 1 * 8);
-    EXPECT_EQ(s._animFrames, 8);
+    EXPECT_EQ(s.textureRects.size(), 1 * 8);
+    EXPECT_EQ(s.animationFrames, 8);
     //EXPECT_EQ(s._aRect, Rect(0, 0, w, h));
 
-    EXPECT_EQ(ss._segments, 4 * 8);
-    EXPECT_EQ(ss._animFrames, 8);
+    EXPECT_EQ(ss.textureRects.size(), 4 * 8);
+    EXPECT_EQ(ss.animationFrames, 8);
     //EXPECT_EQ(ss._aRect, Rect(0, 0, w/2 , h/2));
-    EXPECT_EQ(ss._texRect[0], Rect(0, 0, ww, hh));
+    EXPECT_EQ(ss.textureRects[0], Rect(0, 0, ww, hh));
 }
 
 TEST_F(sAnimated, animUpdate)
@@ -398,48 +398,48 @@ protected:
 public:
     sNumber()
     {
-        s1.setTrigTimer(IndexTimer::K11_BOMB);
-        s1.appendKeyFrame({ 0, {dstRect, RenderParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
-        s1.setLoopTime(0);
-        s.setTrigTimer(IndexTimer::K11_BOMB);
-        s.appendKeyFrame({ 0, {dstRect, RenderParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
-        s.setLoopTime(0);
-        sa.setTrigTimer(IndexTimer::K11_BOMB);
-        sa.appendKeyFrame({ 0, {dstRect, RenderParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
-        sa.setLoopTime(0);
+        s1.setMotionStartTimer(IndexTimer::K11_BOMB);
+        s1.appendMotionKeyFrame({ 0, {dstRect, MotionKeyFrameParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
+        s1.setMotionLoopTo(0);
+        s.setMotionStartTimer(IndexTimer::K11_BOMB);
+        s.appendMotionKeyFrame({ 0, {dstRect, MotionKeyFrameParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
+        s.setMotionLoopTo(0);
+        sa.setMotionStartTimer(IndexTimer::K11_BOMB);
+        sa.appendMotionKeyFrame({ 0, {dstRect, MotionKeyFrameParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
+        sa.setMotionLoopTo(0);
 
-        s11.setTrigTimer(IndexTimer::K11_BOMB);
-        s11.appendKeyFrame({ 0, {dstRect, RenderParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
-        s11.setLoopTime(0);
-        sa11.setTrigTimer(IndexTimer::K11_BOMB);
-        sa11.appendKeyFrame({ 0, {dstRect, RenderParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
-        sa11.setLoopTime(0);
-        s24.setTrigTimer(IndexTimer::K11_BOMB);
-        s24.appendKeyFrame({ 0, {dstRect, RenderParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
-        s24.setLoopTime(0);
-        sa24.setTrigTimer(IndexTimer::K11_BOMB);
-        sa24.appendKeyFrame({ 0, {dstRect, RenderParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
-        sa24.setLoopTime(0);
+        s11.setMotionStartTimer(IndexTimer::K11_BOMB);
+        s11.appendMotionKeyFrame({ 0, {dstRect, MotionKeyFrameParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
+        s11.setMotionLoopTo(0);
+        sa11.setMotionStartTimer(IndexTimer::K11_BOMB);
+        sa11.appendMotionKeyFrame({ 0, {dstRect, MotionKeyFrameParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
+        sa11.setMotionLoopTo(0);
+        s24.setMotionStartTimer(IndexTimer::K11_BOMB);
+        s24.appendMotionKeyFrame({ 0, {dstRect, MotionKeyFrameParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
+        s24.setMotionLoopTo(0);
+        sa24.setMotionStartTimer(IndexTimer::K11_BOMB);
+        sa24.appendMotionKeyFrame({ 0, {dstRect, MotionKeyFrameParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
+        sa24.setMotionLoopTo(0);
 
-        sr.setTrigTimer(IndexTimer::K11_BOMB);
-        sr.appendKeyFrame({ 0, {dstRect, RenderParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
-        sr.setLoopTime(0);
-        sc.setTrigTimer(IndexTimer::K11_BOMB);
-        sc.appendKeyFrame({ 0, {dstRect, RenderParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
-        sc.setLoopTime(0);
+        sr.setMotionStartTimer(IndexTimer::K11_BOMB);
+        sr.appendMotionKeyFrame({ 0, {dstRect, MotionKeyFrameParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
+        sr.setMotionLoopTo(0);
+        sc.setMotionStartTimer(IndexTimer::K11_BOMB);
+        sc.appendMotionKeyFrame({ 0, {dstRect, MotionKeyFrameParams::CONSTANT, dstColor, BlendMode::ALPHA, 0, 0} });
+        sc.setMotionLoopTo(0);
     }
 };
 
 TEST_F(sNumber, construct)
 {
-    EXPECT_EQ(s1._maxDigits, 1);
-    EXPECT_EQ(s1._numType, NumberType::NUM_TYPE_NORMAL);
-    EXPECT_EQ(s._maxDigits, 4);
-    EXPECT_EQ(s._numType, NumberType::NUM_TYPE_NORMAL);
-    EXPECT_EQ(sa11._maxDigits, 4);
-    EXPECT_EQ(sa11._numType, NumberType::NUM_TYPE_BLANKZERO);
-    EXPECT_EQ(sa24._maxDigits, 4);
-    EXPECT_EQ(sa24._numType, NumberType::NUM_TYPE_FULL);
+    EXPECT_EQ(s1.maxDigits, 1);
+    EXPECT_EQ(s1.numberType, NumberType::NUM_TYPE_NORMAL);
+    EXPECT_EQ(s.maxDigits, 4);
+    EXPECT_EQ(s.numberType, NumberType::NUM_TYPE_NORMAL);
+    EXPECT_EQ(sa11.maxDigits, 4);
+    EXPECT_EQ(sa11.numberType, NumberType::NUM_TYPE_BLANKZERO);
+    EXPECT_EQ(sa24.maxDigits, 4);
+    EXPECT_EQ(sa24.numberType, NumberType::NUM_TYPE_FULL);
 }
 
 TEST_F(sNumber, num_1)
@@ -449,12 +449,12 @@ TEST_F(sNumber, num_1)
 
     State::set(IndexNumber::_TEST1, 1);
     s.update(t0);
-    EXPECT_THAT(s._digit, ElementsAre(1, -1, -1, -1));
+    EXPECT_THAT(s.digitNumber, ElementsAre(1, -1, -1, -1));
     sa11.update(t0);
-    EXPECT_EQ(sa11._digit[0], 1);
+    EXPECT_EQ(sa11.digitNumber[0], 1);
     sa24.update(t0);
-    EXPECT_EQ(sa24._digit[0], 1);
-    EXPECT_EQ(sa24._digit[1], NUM_FULL_PLUS);
+    EXPECT_EQ(sa24.digitNumber[0], 1);
+    EXPECT_EQ(sa24.digitNumber[1], NUM_FULL_PLUS);
 }
 TEST_F(sNumber, num_23)
 {
@@ -463,14 +463,14 @@ TEST_F(sNumber, num_23)
 
     State::set(IndexNumber::_TEST1, 23);
     s.update(t0);
-    EXPECT_THAT(s._digit, ElementsAre(3, 2, -1, -1));
+    EXPECT_THAT(s.digitNumber, ElementsAre(3, 2, -1, -1));
     sa11.update(t0);
-    EXPECT_EQ(sa11._digit[0], 3);
-    EXPECT_EQ(sa11._digit[1], 2);
+    EXPECT_EQ(sa11.digitNumber[0], 3);
+    EXPECT_EQ(sa11.digitNumber[1], 2);
     sa24.update(t0);
-    EXPECT_EQ(sa24._digit[0], 3);
-    EXPECT_EQ(sa24._digit[1], 2);
-    EXPECT_EQ(sa24._digit[2], NUM_FULL_PLUS);
+    EXPECT_EQ(sa24.digitNumber[0], 3);
+    EXPECT_EQ(sa24.digitNumber[1], 2);
+    EXPECT_EQ(sa24.digitNumber[2], NUM_FULL_PLUS);
 }
 TEST_F(sNumber, num_456)
 {
@@ -480,13 +480,13 @@ TEST_F(sNumber, num_456)
 
     State::set(IndexNumber::_TEST1, 456);
     s.update(t0);
-    EXPECT_THAT(s._digit, ElementsAre(6, 5, 4, -1));
+    EXPECT_THAT(s.digitNumber, ElementsAre(6, 5, 4, -1));
     sa11.update(t0);
-    EXPECT_EQ(sa11._digit[0], 6);
-    EXPECT_EQ(sa11._digit[1], 5);
-    EXPECT_EQ(sa11._digit[2], 4);
+    EXPECT_EQ(sa11.digitNumber[0], 6);
+    EXPECT_EQ(sa11.digitNumber[1], 5);
+    EXPECT_EQ(sa11.digitNumber[2], 4);
     sa24.update(t0);
-    EXPECT_THAT(sa24._digit, ElementsAre(6, 5, 4, NUM_FULL_PLUS));
+    EXPECT_THAT(sa24.digitNumber, ElementsAre(6, 5, 4, NUM_FULL_PLUS));
 }
 TEST_F(sNumber, num_1234)
 {
@@ -496,11 +496,11 @@ TEST_F(sNumber, num_1234)
 
     State::set(IndexNumber::_TEST1, 1234);
     s.update(t0);
-    EXPECT_THAT(s._digit, ElementsAre(4, 3, 2, 1));
+    EXPECT_THAT(s.digitNumber, ElementsAre(4, 3, 2, 1));
     sa11.update(t0);
-    EXPECT_THAT(sa11._digit, ElementsAre(4, 3, 2, 1));
+    EXPECT_THAT(sa11.digitNumber, ElementsAre(4, 3, 2, 1));
     sa24.update(t0);
-    EXPECT_THAT(sa24._digit, ElementsAre(4, 3, 2, NUM_FULL_PLUS));
+    EXPECT_THAT(sa24.digitNumber, ElementsAre(4, 3, 2, NUM_FULL_PLUS));
 }
 TEST_F(sNumber, num_0)
 {
@@ -510,12 +510,12 @@ TEST_F(sNumber, num_0)
 
     State::set(IndexNumber::_TEST1, 0);
     s.update(t0);
-    EXPECT_THAT(s._digit, ElementsAre(0, -1, -1, -1));
+    EXPECT_THAT(s.digitNumber, ElementsAre(0, -1, -1, -1));
     sa11.update(t0);
-    EXPECT_EQ(sa11._digit[0], 0);
+    EXPECT_EQ(sa11.digitNumber[0], 0);
     sa24.update(t0);
-    EXPECT_EQ(sa24._digit[0], 0);
-    EXPECT_EQ(sa24._digit[1], NUM_FULL_PLUS);
+    EXPECT_EQ(sa24.digitNumber[0], 0);
+    EXPECT_EQ(sa24.digitNumber[1], NUM_FULL_PLUS);
 }
 
 TEST_F(sNumber, num_norm_9999)
@@ -526,7 +526,7 @@ TEST_F(sNumber, num_norm_9999)
 
     State::set(IndexNumber::_TEST1, 9999);
     s.update(t0);
-    EXPECT_THAT(s._digit, ElementsAre(9, 9, 9, 9));
+    EXPECT_THAT(s.digitNumber, ElementsAre(9, 9, 9, 9));
 }
 
 TEST_F(sNumber, num_norm_m1)
@@ -537,7 +537,7 @@ TEST_F(sNumber, num_norm_m1)
 
     State::set(IndexNumber::_TEST1, 2147483647);
     s.update(t0);
-    EXPECT_THAT(s._digit, ElementsAre(7, 4, 6, 3));
+    EXPECT_THAT(s.digitNumber, ElementsAre(7, 4, 6, 3));
 }
 
 TEST_F(sNumber, num_full_m65532)
@@ -548,11 +548,11 @@ TEST_F(sNumber, num_full_m65532)
 
     State::set(IndexNumber::_TEST1, -65532);
     s.update(t0);
-    EXPECT_THAT(s._digit, ElementsAre(2, 3, 5, 5));
+    EXPECT_THAT(s.digitNumber, ElementsAre(2, 3, 5, 5));
     sa11.update(t0);
-    EXPECT_THAT(sa11._digit, ElementsAre(2, 3, 5, 5));
+    EXPECT_THAT(sa11.digitNumber, ElementsAre(2, 3, 5, 5));
     sa24.update(t0);
-    EXPECT_THAT(sa24._digit, ElementsAre(12+2, 12+3, 12+5, NUM_FULL_MINUS));
+    EXPECT_THAT(sa24.digitNumber, ElementsAre(12+2, 12+3, 12+5, NUM_FULL_MINUS));
 }
 
 TEST_F(sNumber, num_full_0)
@@ -563,12 +563,12 @@ TEST_F(sNumber, num_full_0)
 
     State::set(IndexNumber::_TEST1, 0);
     s.update(t0);
-    EXPECT_THAT(s._digit, ElementsAre(0, -1, -1, -1));
+    EXPECT_THAT(s.digitNumber, ElementsAre(0, -1, -1, -1));
     sa11.update(t0);
-    EXPECT_EQ(sa11._digit[0], 0);
+    EXPECT_EQ(sa11.digitNumber[0], 0);
     sa24.update(t0);
-    EXPECT_EQ(sa24._digit[0], 0);
-    EXPECT_EQ(sa24._digit[1], NUM_FULL_PLUS);
+    EXPECT_EQ(sa24.digitNumber[0], 0);
+    EXPECT_EQ(sa24.digitNumber[1], NUM_FULL_PLUS);
 }
 
 TEST_F(sNumber, rect_normal_1)
@@ -901,18 +901,18 @@ protected:
 public:
     sSlider()
     {
-        sL.setTrigTimer(IndexTimer::K11_BOMB);
-        sL.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
-        sL.setLoopTime(0);
-        sR.setTrigTimer(IndexTimer::K11_BOMB);
-        sR.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
-        sR.setLoopTime(0);
-        sU.setTrigTimer(IndexTimer::K11_BOMB);
-        sU.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
-        sU.setLoopTime(0);
-        sD.setTrigTimer(IndexTimer::K11_BOMB);
-        sD.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
-        sD.setLoopTime(0);
+        sL.setMotionStartTimer(IndexTimer::K11_BOMB);
+        sL.appendMotionKeyFrame({ 0, {Rect(0, 0, 0, 0), MotionKeyFrameParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        sL.setMotionLoopTo(0);
+        sR.setMotionStartTimer(IndexTimer::K11_BOMB);
+        sR.appendMotionKeyFrame({ 0, {Rect(0, 0, 0, 0), MotionKeyFrameParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        sR.setMotionLoopTo(0);
+        sU.setMotionStartTimer(IndexTimer::K11_BOMB);
+        sU.appendMotionKeyFrame({ 0, {Rect(0, 0, 0, 0), MotionKeyFrameParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        sU.setMotionLoopTo(0);
+        sD.setMotionStartTimer(IndexTimer::K11_BOMB);
+        sD.appendMotionKeyFrame({ 0, {Rect(0, 0, 0, 0), MotionKeyFrameParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        sD.setMotionLoopTo(0);
     }
 };
 
@@ -1050,18 +1050,18 @@ protected:
 public:
     sBargraph()
     {
-        sL.setTrigTimer(IndexTimer::K11_BOMB);
-        sL.appendKeyFrame({ 0, {Rect(0, 0, 200, 200), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
-        sL.setLoopTime(0);
-        sR.setTrigTimer(IndexTimer::K11_BOMB);
-        sR.appendKeyFrame({ 0, {Rect(0, 0, 200, 200), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
-        sR.setLoopTime(0);
-        sU.setTrigTimer(IndexTimer::K11_BOMB);
-        sU.appendKeyFrame({ 0, {Rect(0, 0, 200, 200), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
-        sU.setLoopTime(0);
-        sD.setTrigTimer(IndexTimer::K11_BOMB);
-        sD.appendKeyFrame({ 0, {Rect(0, 0, 200, 200), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
-        sD.setLoopTime(0);
+        sL.setMotionStartTimer(IndexTimer::K11_BOMB);
+        sL.appendMotionKeyFrame({ 0, {Rect(0, 0, 200, 200), MotionKeyFrameParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        sL.setMotionLoopTo(0);
+        sR.setMotionStartTimer(IndexTimer::K11_BOMB);
+        sR.appendMotionKeyFrame({ 0, {Rect(0, 0, 200, 200), MotionKeyFrameParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        sR.setMotionLoopTo(0);
+        sU.setMotionStartTimer(IndexTimer::K11_BOMB);
+        sU.appendMotionKeyFrame({ 0, {Rect(0, 0, 200, 200), MotionKeyFrameParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        sU.setMotionLoopTo(0);
+        sD.setMotionStartTimer(IndexTimer::K11_BOMB);
+        sD.appendMotionKeyFrame({ 0, {Rect(0, 0, 200, 200), MotionKeyFrameParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        sD.setMotionLoopTo(0);
     }
 };
 
@@ -1202,57 +1202,57 @@ protected:
 public:
     sOption()
     {
-        ss.setTrigTimer(IndexTimer::K11_BOMB);
-        ss.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
-        ss.setLoopTime(0);
+        ss.setMotionStartTimer(IndexTimer::K11_BOMB);
+        ss.appendMotionKeyFrame({ 0, {Rect(0, 0, 0, 0), MotionKeyFrameParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        ss.setMotionLoopTo(0);
         ss.setInd(SpriteOption::opType::SWITCH, (unsigned)IndexSwitch::_TEST1);
-        ss0.setTrigTimer(IndexTimer::K11_BOMB);
-        ss0.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
-        ss0.setLoopTime(0);
+        ss0.setMotionStartTimer(IndexTimer::K11_BOMB);
+        ss0.appendMotionKeyFrame({ 0, {Rect(0, 0, 0, 0), MotionKeyFrameParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        ss0.setMotionLoopTo(0);
         ss0.setInd(SpriteOption::opType::SWITCH, (unsigned)IndexSwitch::_TEST1);
-        so.setTrigTimer(IndexTimer::K11_BOMB);
-        so.appendKeyFrame({ 0, {Rect(0, 0, 0, 0), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
-        so.setLoopTime(0);
+        so.setMotionStartTimer(IndexTimer::K11_BOMB);
+        so.appendMotionKeyFrame({ 0, {Rect(0, 0, 0, 0), MotionKeyFrameParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        so.setMotionLoopTo(0);
         so.setInd(SpriteOption::opType::OPTION, (unsigned)IndexOption::_TEST1);
     }
 };
 
 TEST_F(sOption, switchTest)
 {
-    ASSERT_EQ(ss._opType, SpriteOption::opType::SWITCH);
-    ASSERT_EQ(ss0._opType, SpriteOption::opType::SWITCH);
+    ASSERT_EQ(ss.indType, SpriteOption::opType::SWITCH);
+    ASSERT_EQ(ss0.indType, SpriteOption::opType::SWITCH);
 
     State::set(IndexTimer::K11_BOMB, t0.norm());
 
     State::set(IndexSwitch::_TEST1, false);
     ss.update(t0);
-    EXPECT_EQ(ss._selectionIdx, 0);
+    EXPECT_EQ(ss.selectionIndex, 0);
     State::set(IndexSwitch::_TEST1, true);
     ss.update(t0);
-    EXPECT_EQ(ss._selectionIdx, 1);
+    EXPECT_EQ(ss.selectionIndex, 1);
     ss0.update(t0);
-    EXPECT_EQ(ss0._selectionIdx, 0);
+    EXPECT_EQ(ss0.selectionIndex, 0);
 }
 
 
 TEST_F(sOption, optionTest)
 {
-    ASSERT_EQ(so._opType, SpriteOption::opType::OPTION);
+    ASSERT_EQ(so.indType, SpriteOption::opType::OPTION);
 
     State::set(IndexTimer::K11_BOMB, t0.norm());
 
     State::set(IndexOption::_TEST1, 0);
     so.update(t0);
-    EXPECT_EQ(so._selectionIdx, 0);
+    EXPECT_EQ(so.selectionIndex, 0);
     State::set(IndexOption::_TEST1, 1);
     so.update(t0);
-    EXPECT_EQ(so._selectionIdx, 1);
+    EXPECT_EQ(so.selectionIndex, 1);
     State::set(IndexOption::_TEST1, 5);
     so.update(t0);
-    EXPECT_EQ(so._selectionIdx, 5);
+    EXPECT_EQ(so.selectionIndex, 5);
     State::set(IndexOption::_TEST1, 12);
     so.update(t0);
-    EXPECT_EQ(so._selectionIdx, 5);
+    EXPECT_EQ(so.selectionIndex, 5);
 
 }
 
@@ -1277,15 +1277,15 @@ protected:
 public:
     sGaugeGrid()
     {
-        s1.setTrigTimer(IndexTimer::K11_BOMB);
-        s1.appendKeyFrame({ 0, {Rect(0, 0, 10, 40), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
-        s1.setLoopTime(0);
+        s1.setMotionStartTimer(IndexTimer::K11_BOMB);
+        s1.appendMotionKeyFrame({ 0, {Rect(0, 0, 10, 40), MotionKeyFrameParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        s1.setMotionLoopTo(0);
         s1.setFlashType(SpriteGaugeGrid::FlashType::NONE);
         s1.setGaugeType(SpriteGaugeGrid::GaugeType::GROOVE);
 
-        s2.setTrigTimer(IndexTimer::K11_BOMB);
-        s2.appendKeyFrame({ 0, {Rect(490, 100, 10, 40), RenderParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
-        s2.setLoopTime(0);
+        s2.setMotionStartTimer(IndexTimer::K11_BOMB);
+        s2.appendMotionKeyFrame({ 0, {Rect(490, 100, 10, 40), MotionKeyFrameParams::CONSTANT, Color(0xFFFFFFFF), BlendMode::ALPHA, 0, 0} });
+        s2.setMotionLoopTo(0);
         s2.setFlashType(SpriteGaugeGrid::FlashType::NONE);
         s2.setGaugeType(SpriteGaugeGrid::GaugeType::EX_SURVIVAL);
     }

@@ -3,7 +3,7 @@
 #include "scene.h"
 #include "scene_context.h"
 
-typedef std::shared_ptr<vScene> pScene;
+typedef std::shared_ptr<SceneBase> pScene;
 
 class SceneMgr
 {
@@ -16,6 +16,6 @@ private:
     SceneMgr& operator= (SceneMgr&) = delete;
 
 public:
-    static pScene get(eScene);
+    static pScene get(SceneType);
 	static void clean();
 };

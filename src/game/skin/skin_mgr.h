@@ -3,7 +3,7 @@
 #include <memory>
 #include "skin.h"
 
-typedef std::shared_ptr<vSkin> pSkin;
+typedef std::shared_ptr<SkinBase> pSkin;
 
 class SkinMgr
 {
@@ -16,12 +16,12 @@ public:
     SkinMgr& operator= (SkinMgr&) = delete;
 
 protected:
-    std::array<pSkin, static_cast<size_t>(eMode::MODE_COUNT)> c{};
-    std::array<bool, static_cast<size_t>(eMode::MODE_COUNT)> shouldReload{ false };
+    std::array<pSkin, static_cast<size_t>(SkinType::MODE_COUNT)> c{};
+    std::array<bool, static_cast<size_t>(SkinType::MODE_COUNT)> shouldReload{ false };
 
 public:
-    static void load(eMode, bool simple = false);
-    static void unload(eMode);
-    static pSkin get(eMode);
+    static void load(SkinType, bool simple = false);
+    static void unload(SkinType);
+    static pSkin get(SkinType);
 	static void clean();
 };

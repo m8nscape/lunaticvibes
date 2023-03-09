@@ -16,7 +16,7 @@
 
 SceneMgr SceneMgr::_inst;
 
-pScene SceneMgr::get(eScene e)
+pScene SceneMgr::get(SceneType e)
 {
     State::set(IndexTimer::SCENE_START, TIMER_NEVER);
     State::set(IndexTimer::START_INPUT, TIMER_NEVER);
@@ -27,33 +27,33 @@ pScene SceneMgr::get(eScene e)
 	pScene ps = nullptr;
     switch (e)
     {
-    case eScene::EXIT:
-    case eScene::NOT_INIT:
+    case SceneType::EXIT:
+    case SceneType::NOT_INIT:
         break;
 
-    case eScene::PRE_SELECT:
+    case SceneType::PRE_SELECT:
         ps = std::make_shared<ScenePreSelect>();
         break;
 
-    case eScene::SELECT:
+    case SceneType::SELECT:
         ps = std::make_shared<SceneSelect>();
         break;
 
-    case eScene::DECIDE:
+    case SceneType::DECIDE:
         ps = std::make_shared<SceneDecide>();
         break;
 
-    case eScene::PLAY:
+    case SceneType::PLAY:
         switch (gPlayContext.mode)
         {
-        case eMode::PLAY5:
-        case eMode::PLAY7:
-        case eMode::PLAY9:
-        case eMode::PLAY10:
-        case eMode::PLAY14:
-        case eMode::PLAY5_2:
-        case eMode::PLAY7_2:
-        case eMode::PLAY9_2:
+        case SkinType::PLAY5:
+        case SkinType::PLAY7:
+        case SkinType::PLAY9:
+        case SkinType::PLAY10:
+        case SkinType::PLAY14:
+        case SkinType::PLAY5_2:
+        case SkinType::PLAY7_2:
+        case SkinType::PLAY9_2:
             ps = std::make_shared<ScenePlay>();
             break;
 
@@ -63,21 +63,21 @@ pScene SceneMgr::get(eScene e)
         }
         break;
 
-    case eScene::RETRY_TRANS:
+    case SceneType::RETRY_TRANS:
         ps = std::make_shared<ScenePlayRetryTrans>();
         break;
 
-    case eScene::RESULT:
+    case SceneType::RESULT:
         switch (gPlayContext.mode)
         {
-        case eMode::PLAY5:
-        case eMode::PLAY7:
-        case eMode::PLAY9:
-        case eMode::PLAY10:
-        case eMode::PLAY14:
-        case eMode::PLAY5_2:
-        case eMode::PLAY7_2:
-        case eMode::PLAY9_2:
+        case SkinType::PLAY5:
+        case SkinType::PLAY7:
+        case SkinType::PLAY9:
+        case SkinType::PLAY10:
+        case SkinType::PLAY14:
+        case SkinType::PLAY5_2:
+        case SkinType::PLAY7_2:
+        case SkinType::PLAY9_2:
             ps = std::make_shared<SceneResult>();
             break;
 
@@ -87,23 +87,23 @@ pScene SceneMgr::get(eScene e)
         }
         break;
 
-    case eScene::COURSE_TRANS:
+    case SceneType::COURSE_TRANS:
         ps = std::make_shared<ScenePlayCourseTrans>();
         break;
 
-    case eScene::KEYCONFIG:
+    case SceneType::KEYCONFIG:
         ps = std::make_shared<SceneKeyConfig>();
         break;
 
-    case eScene::CUSTOMIZE:
+    case SceneType::CUSTOMIZE:
         ps = std::make_shared<SceneCustomize>();
         break;
 
-    case eScene::COURSE_RESULT:
+    case SceneType::COURSE_RESULT:
         ps = std::make_shared<SceneCourseResult>();
         break;
 
-    case eScene::EXIT_TRANS:
+    case SceneType::EXIT_TRANS:
         ps = std::make_shared<SceneExitTrans>();
         break;
 

@@ -14,9 +14,9 @@ using CharMappingList = std::unordered_map<char32_t, CharMapping>;
 class SpriteImageText : public SpriteText
 {
 protected:
-    std::vector<pTexture> _textures;
+    std::vector<std::shared_ptr<Texture>> _textures;
     CharMappingList* _chrList;
-    unsigned _height;
+    unsigned textHeight;
     int _margin;
 
 private:
@@ -27,7 +27,7 @@ private:
 public:
     struct SpriteImageTextBuilder : SpriteTextBuilder
     {
-        std::vector<pTexture> charTextures;
+        std::vector<std::shared_ptr<Texture>> charTextures;
         CharMappingList* charMappingList = nullptr;
         int height = 0;
         int margin = 0;
@@ -45,5 +45,5 @@ public:
     virtual void draw() const;
 
 private:
-    void setInputBindingText(std::string&& text);
+    void updateTextTexture(std::string&& text);
 };

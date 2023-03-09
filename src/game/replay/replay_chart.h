@@ -159,14 +159,14 @@ public:
     HashMD5     chartHash;
     uint64_t    randomSeed = 0;
 
-    eModGauge   gaugeType = eModGauge::NORMAL;  
-    eModRandom  randomTypeLeft = eModRandom::NONE; 
-    eModRandom  randomTypeRight = eModRandom::NONE; 
+    PlayModifierGaugeType   gaugeType = PlayModifierGaugeType::NORMAL;  
+    PlayModifierRandomType  randomTypeLeft = PlayModifierRandomType::NONE; 
+    PlayModifierRandomType  randomTypeRight = PlayModifierRandomType::NONE; 
     int8_t      laneEffectType = 0;     // OFF/HID/SUD/SUDHID/LIFT/LIFTSUD
     int8_t      pitchType = 0;          // FREQ/PITCH/SPEED
     int8_t      pitchValue = 0;         // -12 ~ +12 (value below 0 may invalid)
     uint8_t     assistMask = 0;
-    eModHs      hispeedFix = eModHs::NONE;
+    PlayModifierHispeedFixType      hispeedFix = PlayModifierHispeedFixType::NONE;
     bool        DPFlip = false;
     bool        DPBattle = false;
     double      hispeed = 0;

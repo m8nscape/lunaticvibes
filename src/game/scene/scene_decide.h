@@ -9,10 +9,10 @@ enum class eDecideState
     CANCEL,
 };
 
-class SceneDecide : public vScene
+class SceneDecide : public SceneBase
 {
 private:
-    eDecideState _state;
+    eDecideState state;
     InputMask _inputAvailable;
 
 public:

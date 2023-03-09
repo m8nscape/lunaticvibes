@@ -213,7 +213,7 @@ void select_difficulty_filter(int plus, int iterateCount)
         }
     }
 
-    gSelectContext.optionChanged = true;
+    gSelectContext.optionChangePending = true;
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_DIFFICULTY);
 }
 
@@ -288,7 +288,7 @@ void select_keys_filter(int plus, int iterateCount)
         State::set(IndexOption::PLAY_RANDOM_TYPE_2P, 0);
     }
 
-    gSelectContext.optionChanged = true;
+    gSelectContext.optionChangePending = true;
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_DIFFICULTY);
 }
 
@@ -299,11 +299,11 @@ void select_sort_type(int plus)
 
     switch (State::get(IndexOption::SELECT_SORT))
     {
-    case Option::SORT_TITLE: gSelectContext.sort = SongListSort::TITLE; break;
-    case Option::SORT_LEVEL: gSelectContext.sort = SongListSort::LEVEL; break;
-    case Option::SORT_CLEAR: gSelectContext.sort = SongListSort::CLEAR; break;
-    case Option::SORT_RATE:  gSelectContext.sort = SongListSort::RATE; break;
-    default:                 gSelectContext.sort = SongListSort::DEFAULT; break;
+    case Option::SORT_TITLE: gSelectContext.sortType = SongListSortType::TITLE; break;
+    case Option::SORT_LEVEL: gSelectContext.sortType = SongListSortType::LEVEL; break;
+    case Option::SORT_CLEAR: gSelectContext.sortType = SongListSortType::CLEAR; break;
+    case Option::SORT_RATE:  gSelectContext.sortType = SongListSortType::RATE; break;
+    default:                 gSelectContext.sortType = SongListSortType::DEFAULT; break;
     }
 
     {
@@ -314,7 +314,7 @@ void select_sort_type(int plus)
         setEntryInfo();
     }
 
-    gSelectContext.optionChanged = true;
+    gSelectContext.optionChangePending = true;
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_DIFFICULTY);
 }
 
@@ -536,7 +536,7 @@ void gauge_type(int player, int plus)
     default: return;
     }
 
-    // eModGauge
+    // PlayModifierGaugeType
     int types = ConfigMgr::get('P', cfg::P_ENABLE_NEW_GAUGE, false) ? 8 : 4;
     int val = (State::get(op) + types + plus) % types;
     if (val == Option::GAUGE_PATTACK || val == Option::GAUGE_GATTACK)
@@ -566,7 +566,7 @@ void random_type(int player, int plus)
     default: return;
     }
 
-    // eModRandom
+    // PlayModifierRandomType
     int types = ConfigMgr::get('P', cfg::P_ENABLE_NEW_RANDOM, false) ? 9 : 6;
     int oldVal = State::get(op);
     int val = (State::get(op) + types + plus) % types;
@@ -627,7 +627,7 @@ void autoscr(int player, int plus)
     default: return;
     }
 
-    // eModRandom
+    // PlayModifierRandomType
     bool val = State::get(sw);
     if (plus % 2) val = !val;
     State::set(sw, val);
@@ -756,7 +756,7 @@ void flip(int plus)
 // 55
 void hs_fix(int plus)
 {
-    // eModHs
+    // PlayModifierHispeedFixType
     //OFF/MAXBPM/MINBPM/AVERAGE/CONSTANT
     int val = (State::get(IndexOption::PLAY_HSFIX_TYPE) + 5 + plus) % 5;
     
@@ -1036,7 +1036,7 @@ void difficulty(int diff, int plus)
         }
     }
 
-    gSelectContext.optionChanged = true;
+    gSelectContext.optionChangePending = true;
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_DIFFICULTY);
 }
 
@@ -1293,22 +1293,22 @@ void skinselect_mode(int mode)
 
     switch (mode)
     {
-    case 0:  gCustomizeContext.mode = eMode::PLAY7;         State::set(IndexSwitch::SKINSELECT_7KEYS, true);         break;
-    case 1:  gCustomizeContext.mode = eMode::PLAY5;         State::set(IndexSwitch::SKINSELECT_5KEYS, true);         break;
-    case 2:  gCustomizeContext.mode = eMode::PLAY14;        State::set(IndexSwitch::SKINSELECT_14KEYS, true);        break;
-    case 3:  gCustomizeContext.mode = eMode::PLAY10;        State::set(IndexSwitch::SKINSELECT_10KEYS, true);        break;
-    case 4:  gCustomizeContext.mode = eMode::PLAY9;         State::set(IndexSwitch::SKINSELECT_9KEYS, true);         break;
-    case 5:  gCustomizeContext.mode = eMode::MUSIC_SELECT;  State::set(IndexSwitch::SKINSELECT_SELECT, true);        break;
-    case 6:  gCustomizeContext.mode = eMode::DECIDE;        State::set(IndexSwitch::SKINSELECT_DECIDE, true);        break;
-    case 7:  gCustomizeContext.mode = eMode::RESULT;        State::set(IndexSwitch::SKINSELECT_RESULT, true);        break;
-    case 8:  gCustomizeContext.mode = eMode::KEY_CONFIG;    State::set(IndexSwitch::SKINSELECT_KEYCONFIG, true);     break;
-    case 9:  gCustomizeContext.mode = eMode::THEME_SELECT;  State::set(IndexSwitch::SKINSELECT_SKINSELECT, true);    break;
-    case 10: gCustomizeContext.mode = eMode::SOUNDSET;      State::set(IndexSwitch::SKINSELECT_SOUNDSET, true);      break;
+    case 0:  gCustomizeContext.mode = SkinType::PLAY7;         State::set(IndexSwitch::SKINSELECT_7KEYS, true);         break;
+    case 1:  gCustomizeContext.mode = SkinType::PLAY5;         State::set(IndexSwitch::SKINSELECT_5KEYS, true);         break;
+    case 2:  gCustomizeContext.mode = SkinType::PLAY14;        State::set(IndexSwitch::SKINSELECT_14KEYS, true);        break;
+    case 3:  gCustomizeContext.mode = SkinType::PLAY10;        State::set(IndexSwitch::SKINSELECT_10KEYS, true);        break;
+    case 4:  gCustomizeContext.mode = SkinType::PLAY9;         State::set(IndexSwitch::SKINSELECT_9KEYS, true);         break;
+    case 5:  gCustomizeContext.mode = SkinType::MUSIC_SELECT;  State::set(IndexSwitch::SKINSELECT_SELECT, true);        break;
+    case 6:  gCustomizeContext.mode = SkinType::DECIDE;        State::set(IndexSwitch::SKINSELECT_DECIDE, true);        break;
+    case 7:  gCustomizeContext.mode = SkinType::RESULT;        State::set(IndexSwitch::SKINSELECT_RESULT, true);        break;
+    case 8:  gCustomizeContext.mode = SkinType::KEY_CONFIG;    State::set(IndexSwitch::SKINSELECT_KEYCONFIG, true);     break;
+    case 9:  gCustomizeContext.mode = SkinType::THEME_SELECT;  State::set(IndexSwitch::SKINSELECT_SKINSELECT, true);    break;
+    case 10: gCustomizeContext.mode = SkinType::SOUNDSET;      State::set(IndexSwitch::SKINSELECT_SOUNDSET, true);      break;
     case 11:                                                State::set(IndexSwitch::SKINSELECT_THEME, true);         break;
-    case 12: gCustomizeContext.mode = eMode::PLAY7_2;       State::set(IndexSwitch::SKINSELECT_7KEYS_BATTLE, true);  break;
-    case 13: gCustomizeContext.mode = eMode::PLAY5_2;       State::set(IndexSwitch::SKINSELECT_5KEYS_BATTLE, true);  break;
-    case 14: gCustomizeContext.mode = eMode::PLAY9_2;       State::set(IndexSwitch::SKINSELECT_9KEYS_BATTLE, true);  break;
-    case 15: gCustomizeContext.mode = eMode::COURSE_RESULT; State::set(IndexSwitch::SKINSELECT_COURSE_RESULT, true); break;
+    case 12: gCustomizeContext.mode = SkinType::PLAY7_2;       State::set(IndexSwitch::SKINSELECT_7KEYS_BATTLE, true);  break;
+    case 13: gCustomizeContext.mode = SkinType::PLAY5_2;       State::set(IndexSwitch::SKINSELECT_5KEYS_BATTLE, true);  break;
+    case 14: gCustomizeContext.mode = SkinType::PLAY9_2;       State::set(IndexSwitch::SKINSELECT_9KEYS_BATTLE, true);  break;
+    case 15: gCustomizeContext.mode = SkinType::COURSE_RESULT; State::set(IndexSwitch::SKINSELECT_COURSE_RESULT, true); break;
     default: break;
     }
 

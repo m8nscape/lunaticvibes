@@ -37,29 +37,15 @@ enum class SpriteTypes
     GAUGE,
 };
 
-struct KeyFrameParams;
-struct RenderParams
+struct MotionKeyFrameParams
 {
-    RectF rect;
-    enum accTy {
+    Rect rect;
+    enum accelType {
         CONSTANT = 0,
         ACCEL,
         DECEL,
         DISCONTINOUS
     } accel;
-    Color color;
-	BlendMode blend;
-	bool filter;
-    double angle;           // rotate angle / degree, 360 for one lap
-	Point center;			// rotate center point, in doubles
-
-    RenderParams& operator=(const KeyFrameParams& rhs);
-};
-
-struct KeyFrameParams
-{
-    Rect rect;
-    RenderParams::accTy accel;
     Color color;
     BlendMode blend;
     bool filter;
@@ -67,22 +53,35 @@ struct KeyFrameParams
     Point center;			// rotate center point, in doubles
 };
 
-struct RenderKeyFrame
+struct RenderParams
 {
-    long long time;
-    KeyFrameParams param;
+    using accelType = MotionKeyFrameParams::accelType;
+
+    RectF rect;             // use float for rendering
+    accelType accel;
+    Color color;
+    BlendMode blend;
+    bool filter;
+    double angle;           // rotate angle / degree, 360 for one lap
+    Point center;			// rotate center point, in doubles
+
+    RenderParams& operator=(const MotionKeyFrameParams& rhs);
 };
 
-typedef std::shared_ptr<Texture> pTexture;
+struct MotionKeyFrame
+{
+    long long time;
+    MotionKeyFrameParams param;
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 // Render interface
 
 class SpriteGlobal;
 class SpriteBarEntry;
-class vSprite: public std::enable_shared_from_this<vSprite>
+class SpriteBase: public std::enable_shared_from_this<SpriteBase>
 {
-    friend class vSkin;
+    friend class SkinBase;
 	friend class SkinLR2;
     friend class SpriteGlobal;
     friend class SpriteBarEntry;
@@ -91,44 +90,53 @@ protected:
 public:
     constexpr SpriteTypes type() { return _type; }
 protected:
+    std::shared_ptr<Texture> pTexture;
+    int srcLine = -1;
     bool _draw = false;     // modified by self
-    bool _drawn = false; // modified by self::update()
-    bool _hideInternal = false;     // modified internally
-    bool _hideExternal = false;     // modified externally
-    pTexture _pTexture;
-    IndexTimer _triggerTimer = IndexTimer::SCENE_START;
-    int _loopTo = -1;
-    int _srcLine = -1;
+    bool drawn = false; // modified by self::update()
+    bool hideInternal = false;     // modified internally
+    bool hideExternal = false;     // modified externally
 protected:
     RenderParams _current;
-    std::vector<RenderKeyFrame> _keyFrames;
+    std::vector<MotionKeyFrame> motionKeyFrames;
+    int motionLoopTo = -1;
+    IndexTimer motionStartTimer = IndexTimer::SCENE_START;
+
 public:
     struct SpriteBuilder
     {
         int srcLine = -1;
 
-        pTexture texture = nullptr;
+        std::shared_ptr<Texture> texture = nullptr;
     };
 public:
-    vSprite(const SpriteBuilder& builder);
-	virtual ~vSprite() = default;
+    SpriteBase(const SpriteBuilder& builder);
+	virtual ~SpriteBase() = default;
 protected:
-    vSprite(const SpriteTypes type, int srcLine) : _type(type), _srcLine(srcLine) {}
+    SpriteBase(const SpriteTypes type, int srcLine) : _type(type), srcLine(srcLine) {}
+
 public:
-    void setSrcLine(int i) { _srcLine = i; }
-    bool updateByKeyframes(const Time& time);
-	virtual bool update(const Time& time);
-    virtual void setLoopTime(int t);
-	virtual void setTrigTimer(IndexTimer t);
-    virtual void appendKeyFrame(const RenderKeyFrame& f);
+    void setSrcLine(int i) { srcLine = i; }
+
+    virtual void appendMotionKeyFrame(const MotionKeyFrame& f);
+    virtual void setMotionLoopTo(int time);
+	virtual void setMotionStartTimer(IndexTimer t);
+    bool isMotionKeyFramesEmpty() const { return motionKeyFrames.empty(); }
+    void clearMotionKeyFrames() { motionKeyFrames.clear(); }
+
+    bool updateMotion(const Time& time);
+    virtual bool update(const Time& time);
+    virtual void adjustAfterUpdate(int x, int y, int w = 0, int h = 0);
+
+protected:
+    void setHideInternal(bool hide) { hideInternal = hide; }
+public:
+    void setHideExternal(bool hide) { hideExternal = hide; }
+
+public:
+    bool isHidden() const { return hideInternal || hideExternal; }
     bool isDraw() const { return _draw; }
     virtual void draw() const = 0;
-    void setHideInternal(bool hide) { _hideInternal = hide; }
-    void setHideExternal(bool hide) { _hideExternal = hide; }
-    bool isHidden() const { return _hideInternal || _hideExternal; }
-    bool isKeyFrameEmpty() { return _keyFrames.empty(); }
-    void clearKeyFrames() { _keyFrames.clear(); }
-    virtual void adjustAfterUpdate(int x, int y, int w = 0, int h = 0);
 };
 
 class iSpriteMouse
@@ -143,48 +151,48 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 // Sprite placeholder
 inline const size_t SPRITE_GLOBAL_MAX = 32;
-inline std::array<std::shared_ptr<vSprite>, SPRITE_GLOBAL_MAX> gSprites{ nullptr };
-class SpriteGlobal: public vSprite
+inline std::array<std::shared_ptr<SpriteBase>, SPRITE_GLOBAL_MAX> gSprites{ nullptr };
+class SpriteGlobal: public SpriteBase
 {
 protected:
-    size_t idx;
-    std::shared_ptr<vSprite> pSpriteRef{ nullptr };
+    size_t globalSpriteIndex;
+    std::shared_ptr<SpriteBase> pSpriteRef{ nullptr };
 
 public:
-    SpriteGlobal(size_t idx, int srcLine = -1) : vSprite(SpriteTypes::GLOBAL, srcLine), idx(idx) {}
+    SpriteGlobal(size_t globalSpriteIndex, int srcLine = -1) : SpriteBase(SpriteTypes::GLOBAL, srcLine), globalSpriteIndex(globalSpriteIndex) {}
     virtual ~SpriteGlobal() = default;
 
-    size_t getIdx() {
-        return idx;
+    size_t getMyGlobalSpriteIndex() {
+        return globalSpriteIndex;
     }
 
-    void setSpriteReference(std::shared_ptr<vSprite> p) {
+    void setSpriteReference(std::shared_ptr<SpriteBase> p) {
         pSpriteRef = p;
-        _srcLine = p->_srcLine;
+        srcLine = p->srcLine;
     }
 
     virtual bool update(const Time& time) {
-        vSprite::update(time);
-        if (getIdx()) 
-            setSpriteReference(gSprites[getIdx()]);
+        SpriteBase::update(time);
+        if (getMyGlobalSpriteIndex()) 
+            setSpriteReference(gSprites[getMyGlobalSpriteIndex()]);
         if (pSpriteRef) 
             return pSpriteRef->update(time);
         return false;
     }
-    virtual void setLoopTime(int t) {
-        vSprite::setLoopTime(t);
+    virtual void setMotionLoopTo(int t) {
+        SpriteBase::setMotionLoopTo(t);
         if (pSpriteRef) 
-            pSpriteRef->setLoopTime(t);
+            pSpriteRef->setMotionLoopTo(t);
     }
-    virtual void setTrigTimer(IndexTimer t) {
-        vSprite::setTrigTimer(t);
+    virtual void setMotionStartTimer(IndexTimer t) {
+        SpriteBase::setMotionStartTimer(t);
         if (pSpriteRef) 
-            pSpriteRef->setTrigTimer(t);
+            pSpriteRef->setMotionStartTimer(t);
     }
-    virtual void appendKeyFrame(const RenderKeyFrame& f) override {
-        vSprite::appendKeyFrame(f);
+    virtual void appendMotionKeyFrame(const MotionKeyFrame& f) override {
+        SpriteBase::appendMotionKeyFrame(f);
         if (pSpriteRef) 
-            pSpriteRef->appendKeyFrame(f);
+            pSpriteRef->appendMotionKeyFrame(f);
     }
     virtual void draw() const {
         if (pSpriteRef) 
@@ -196,10 +204,10 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 // Static sprite:
 // No texture splits. Used for Frames / Backgrounds.
-class SpriteStatic : public vSprite
+class SpriteStatic : public SpriteBase
 {
 protected:
-    Rect _texRect;
+    Rect textureRect;
 public:
     struct SpriteStaticBuilder : SpriteBuilder
     {
@@ -212,7 +220,7 @@ public:
     SpriteStatic(const SpriteStaticBuilder& builder);
     virtual ~SpriteStatic() = default;
 protected:
-    SpriteStatic(pTexture texture, const Rect& texRect, int srcLine = -1);
+    SpriteStatic(std::shared_ptr<Texture> texture, const Rect& texRect, int srcLine = -1);
 public:
     virtual void draw() const;
 
@@ -222,14 +230,13 @@ public:
 // Texture-split sprite:
 // Split the source texture for selectable sprites.
 
-typedef std::size_t frameIdx;
-
-class SpriteSelection : public vSprite
+class SpriteSelection : public SpriteBase
 {
 protected:
-    std::vector<Rect> _texRect;
-    unsigned _srows = 0, _scols = 0, _segments = 0;
-    frameIdx _selectionIdx = 0;
+    std::vector<Rect> textureRects;
+    unsigned textureSheetRows = 0;
+    unsigned textureSheetCols = 0;
+    size_t selectionIndex = 0;
 public:
     struct SpriteSelectionBuilder: SpriteBuilder
     {
@@ -246,7 +253,7 @@ public:
     virtual ~SpriteSelection() = default;
 public:
 	virtual bool update(const Time& t);
-    virtual void updateSelection(frameIdx i);
+    virtual void updateSelection(size_t i);
     virtual void draw() const;
 };
 
@@ -261,20 +268,16 @@ class SpriteAnimated : public SpriteSelection
     friend class SpriteSlider;
     friend class SkinLR2;
 protected:
-    //bool _aVert = false;
-    //Rect _aRect;
-    //unsigned _arows, _acols;
-    unsigned _animFrames = 0;
-	unsigned _selections = 0;
-	IndexTimer _resetAnimTimer;
-    unsigned _period = -1;   // time for each ANIM LOOP lasts
-    frameIdx _currAnimFrame = 0;
-    //Rect _drawRect;
+    unsigned animationFrames = 0;
+	unsigned selections = 0;
+    size_t animationFrameIndex = 0;
+	IndexTimer animationStartTimer;
+    unsigned animationDurationPerLoop = -1;
 public:
     struct SpriteAnimatedBuilder: SpriteSelectionBuilder
     {
         unsigned animationFrameCount = 0;
-        unsigned animationLengthPerLoop = 0;
+        unsigned animationDurationPerLoop = 0;
         IndexTimer animationTimer = IndexTimer::SCENE_START;
 
         std::shared_ptr<SpriteAnimated> build() const { return std::make_shared<SpriteAnimated>(*this); }
@@ -284,47 +287,41 @@ public:
     SpriteAnimated(const SpriteAnimatedBuilder& builder);
     virtual ~SpriteAnimated() = default;
 public:
-    void updateByTimer(const Time& t);
-    virtual void updateAnimation(const Time& t);
-    void updateAnimationByTimer(const Time& t);
-    //void updateSplitByTimer(timestamp t);
 	virtual bool update(const Time& t);
+    virtual void updateAnimation(const Time& t);
     virtual void draw() const;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef std::shared_ptr<TTFFont> pFont;
-
 // Text sprite:
 // TTFFont contains Texture object
-class SpriteText: public vSprite, public iSpriteMouse
+class SpriteText: public SpriteBase, public iSpriteMouse
 {
 private:
-	pFont _pFont;
-    unsigned _height;
-    Color _color;
-    inline static std::mutex _updateMutex;
+    std::shared_ptr<TTFFont> pFont;
+    unsigned textHeight;
+    Color textColor;
 
 protected:
-    IndexText _textInd;
-    std::string _currText;
-	TextAlign _align;
-    //bool _haveRect = false;
-	//Rect _frameRect;
-    bool _editable = false;
-    bool _editing = false;
-    std::string _textBeforeEdit;
-    std::string _textAfterEdit;
+    IndexText textInd;
+	TextAlign align;
+    bool editable = false;
 
+protected:
+    std::string text;
 private:
-    pTexture _pTexture;
-    Rect _texRect;
+    Rect textureRect;
+
+protected:
+    bool editing = false;
+    std::string textBeforeEdit;
+    std::string textAfterEdit;
 
 public:
     struct SpriteTextBuilder : SpriteBuilder
     {
-        pFont font = nullptr;
+        std::shared_ptr<TTFFont> font = nullptr;
         IndexText textInd = IndexText::INVALID;
         TextAlign align = TEXT_ALIGN_LEFT;
         unsigned ptsize = 72;
@@ -337,25 +334,27 @@ public:
     SpriteText() = delete;
     SpriteText(const SpriteTextBuilder& builder);
     virtual ~SpriteText() = default;
+
 public:
     virtual void updateText();
     virtual void updateTextRect();
+private:
+    void updateTextTexture(std::string&& text, const Color& c);
+
+public:
 	virtual bool update(const Time& t);
     virtual void draw() const;
-    TextAlign getAlignType() const { return _align; }
-private:
-    void setInputBindingText(std::string&& text, const Color& c);
 
 public:
     virtual void OnMouseMove(int x, int y) {}
     virtual bool OnClick(int x, int y);
     virtual bool OnDrag(int x, int y) { return false; }
 
-    bool isEditing() const { return _editing; }
+    bool isEditing() const { return editing; }
     void startEditing(bool clear);
     void stopEditing(bool modify);
-    IndexText getInd() const { return _textInd; }
-    virtual void EditUpdateText(const std::string& text);
+    IndexText getInd() const { return textInd; }
+    virtual void updateTextWhileEditing(const std::string& text);
     void setOutline(int width, const Color& c);
 };
 
@@ -396,15 +395,15 @@ class SpriteNumber : public SpriteAnimated
 {
 	friend class SkinLR2;
 protected:
-    IndexNumber _numInd;
-    unsigned _maxDigits = 0;
-	unsigned _numDigits = 0;
-    NumberType _numType = NUM_TYPE_NORMAL;
-	NumberAlign _alignType = NUM_ALIGN_RIGHT;
-    //std::vector<Rect> _drawRectDigit, _outRectDigit; // idx from low digit to high, e.g. [1] represents 1 digit, [2] represents 10 digit, etc.
-    std::vector<RectF>           _rects;
-    std::vector<int>       _digit;
-    bool _inhibitZero = false;
+    IndexNumber numInd;
+    unsigned maxDigits = 0;
+    NumberType numberType = NUM_TYPE_NORMAL;
+	NumberAlign alignType = NUM_ALIGN_RIGHT;
+    bool hideLeadingZeros = false;
+
+	unsigned digitCount = 0;
+    std::vector<int> digitNumber;
+    std::vector<RectF> digitOutRect;
 
 public:
     struct SpriteNumberBuilder : SpriteAnimatedBuilder
@@ -424,10 +423,9 @@ public:
 public:
     void updateNumber(int n);           // invoke updateSplit to change number
     void updateNumberByInd();
-    void setInhibitZero(bool b) { _inhibitZero = b; }
     void updateNumberRect();
 	virtual bool update(const Time& t);
-    virtual void appendKeyFrame(const RenderKeyFrame& f) override;
+    virtual void appendMotionKeyFrame(const MotionKeyFrame& f) override;
     virtual void draw() const;
     virtual void adjustAfterUpdate(int x, int y, int w = 0, int h = 0) override;
 };
@@ -445,11 +443,11 @@ enum class SliderDirection
 class SpriteSlider : public SpriteAnimated, public iSpriteMouse
 {
 private:
-    IndexSlider _ind;
-    double _value = 1.00;
-    SliderDirection _dir;
-	int _range = 0;
-    int _posMin = 0;
+    IndexSlider sliderInd;
+    double value = 1.00;
+    SliderDirection dir;
+	int valueRange = 0;
+    int minValuePos = 0;
 
     std::function<void(double)> _callback;
 
@@ -493,9 +491,9 @@ enum class BargraphDirection
 class SpriteBargraph : public SpriteAnimated
 {
 private:
-    IndexBargraph _ind;
-    Ratio _value = 1.0;
-    BargraphDirection _dir;
+    IndexBargraph barInd;
+    Ratio value = 1.0;
+    BargraphDirection dir;
 
 public:
     struct SpriteBargraphBuilder : SpriteAnimatedBuilder
@@ -532,9 +530,9 @@ protected:
 		IndexOption op;
 		IndexSwitch sw;
         unsigned fix;
-	} _ind;
-	opType _opType = opType::UNDEF;
-    unsigned _value = 0;
+	} ind;
+	opType indType = opType::UNDEF;
+    unsigned value = 0;
 
 public:
     struct SpriteOptionBuilder : SpriteAnimatedBuilder
@@ -562,9 +560,9 @@ public:
 class SpriteButton : public SpriteOption, public iSpriteMouse
 {
 protected:
-    std::function<void(int)> _callback;
-    int _panel;
-    int _plusonly_value;
+    std::function<void(int)> callOnClick;
+    int clickableOnPanel;
+    int plusonlyDelta;
 
 public:
     struct SpriteButtonBuilder : SpriteOptionBuilder
@@ -609,7 +607,7 @@ public:
         ASSIST_EASY,
 	};
 
-	enum TextureSelection
+	enum GridType
 	{
 		CLEAR_LIGHT,
 		NORMAL_LIGHT,
@@ -620,18 +618,18 @@ public:
 	};
 
 private:
-	int _diff_x, _diff_y;
-	unsigned _min, _max;
-	IndexNumber _numInd;
-    unsigned short _grids = 50;
-    unsigned short _req = 40;
-	unsigned short _val = _grids / 2;
-	TextureSelection _texIdxLightFail, _texIdxDarkFail;
-    TextureSelection _texIdxLightClear, _texIdxDarkClear;
-    unsigned _lightRectFailIdxOffset, _lightRectClearIdxOffset, _darkRectFailIdxOffset, _darkRectClearIdxOffset;
-    std::vector<bool> _lighting;
-	FlashType _flashType = FlashType::CLASSIC;
-	GaugeType _gaugeType = GaugeType::GROOVE;
+	int gridSizeW, gridSizeH;
+	unsigned minValue, maxValue;
+	IndexNumber numInd;
+    unsigned short totalGrids = 50;
+    unsigned short failGrids = 40;
+	unsigned short value = totalGrids / 2;
+	GridType lightFailGridType, darkFailGridType;
+    GridType lightClearGridType, darkClearGridType;
+    unsigned lightFailRectIdxOffset, lightClearRectIdxOffset, darkFailRectIdxOffset, darkClearRectIdxOffset;
+    std::vector<bool> flashing;
+	FlashType flashType = FlashType::CLASSIC;
+	GaugeType gaugeType = GaugeType::GROOVE;
 
 public:
     struct SpriteGaugeGridBuilder : SpriteAnimatedBuilder
@@ -666,8 +664,8 @@ public:
 class SpriteOnMouse : public SpriteAnimated, public iSpriteMouse
 {
 protected:
-    int panelIdx;
-    Rect area;
+    int visibleOnPanel;
+    Rect mouseArea;
 
 public:
     struct SpriteOnMouseBuilder : SpriteAnimatedBuilder

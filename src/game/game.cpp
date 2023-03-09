@@ -139,7 +139,7 @@ int main(int argc, char* argv[])
     Path imguiFontPath = getSysFontPath(NULL, &fontIndex, i18n::getCurrentLanguage());
     if (!fs::exists(imguiFontPath))
     {
-        LOG_ERROR << "Font file not found. Please reinstall the game.";
+        LOG_FATAL << "Font file not found. Please reinstall the game.";
         panic("Error", "Font file not found. Please reinstall the game.");
         return -1;
     }
@@ -201,7 +201,7 @@ int main(int argc, char* argv[])
     // arg parsing
     if (argc >= 2)
     {
-        gNextScene = eScene::PLAY;
+        gNextScene = SceneType::PLAY;
         gQuitOnFinish = true;
 
         std::shared_ptr<ChartFormatBMS> bms = std::make_shared<ChartFormatBMS>(argv[1], std::time(NULL));
@@ -232,7 +232,7 @@ int main(int argc, char* argv[])
     }
     else
     {
-        gNextScene = eScene::PRE_SELECT;
+        gNextScene = SceneType::PRE_SELECT;
     }
 
     /*
@@ -240,7 +240,7 @@ int main(int argc, char* argv[])
     // preload all skins
     LOG_INFO << "==============================================";
     LOG_INFO << "Preload all skins";
-    for (eMode e = eMode::TITLE; e < eMode::MODE_COUNT; ++(*(int*)&e))
+    for (SkinType e = SkinType::TITLE; e < SkinType::MODE_COUNT; ++(*(int*)&e))
     {
         SkinMgr::load(e);
     }
@@ -255,7 +255,7 @@ int main(int argc, char* argv[])
     HRESULT oleInitializeResult = OleInitialize(NULL);
     if (oleInitializeResult < 0)
     {
-        LOG_WARNING << "OleInitialize Failed";
+        LOG_ERROR << "OleInitialize Failed";
     }
 #endif
     
@@ -313,10 +313,10 @@ void mainLoop()
 {
     gGenericInfo.loopStart();
 
-    eScene currentScene = eScene::NOT_INIT;
+    SceneType currentScene = SceneType::NOT_INIT;
 
     pScene scene = nullptr;
-    while (!gEventQuit && currentScene != eScene::EXIT && gNextScene != eScene::EXIT)
+    while (!gEventQuit && currentScene != SceneType::EXIT && gNextScene != SceneType::EXIT)
     {
         // Evenet handling
         event_handle();
@@ -331,7 +331,7 @@ void mainLoop()
         {
             if (sceneCustomize == nullptr)
             {
-                sceneCustomize = SceneMgr::get(eScene::CUSTOMIZE);
+                sceneCustomize = SceneMgr::get(SceneType::CUSTOMIZE);
                 sceneCustomize->loopStart();
                 sceneCustomize->inputLoopStart();
             }
@@ -341,7 +341,7 @@ void mainLoop()
                 sceneCustomize->inputLoopEnd();
                 sceneCustomize->loopEnd();
                 sceneCustomize.reset();
-                gNextScene = eScene::SELECT;
+                gNextScene = SceneType::SELECT;
             }
         }
         if (gInCustomize && gCustomizeSceneChanged || !gInCustomize && currentScene != gNextScene || gExitingCustomize)
@@ -358,7 +358,7 @@ void mainLoop()
 
             clearCustomDstOpt();
             currentScene = gNextScene;
-            if (currentScene != eScene::EXIT && currentScene != eScene::NOT_INIT)
+            if (currentScene != SceneType::EXIT && currentScene != SceneType::NOT_INIT)
             {
                 scene = SceneMgr::get(currentScene);
                 assert(scene != nullptr);

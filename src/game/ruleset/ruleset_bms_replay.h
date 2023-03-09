@@ -10,7 +10,7 @@ public:
         std::shared_ptr<ChartFormatBase> format,
         std::shared_ptr<ChartObjectBase> chart,
         std::shared_ptr<ReplayChart> replay,
-        eModGauge gauge,
+        PlayModifierGaugeType gauge,
         GameModeKeys keys,
         JudgeDifficulty difficulty = JudgeDifficulty::NORMAL,
         double health = 1.0,

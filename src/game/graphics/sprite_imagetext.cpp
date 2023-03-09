@@ -7,11 +7,11 @@ SpriteImageText::SpriteImageText(const SpriteImageTextBuilder& builder) : Sprite
     _type = SpriteTypes::IMAGE_TEXT;
     _textures = builder.charTextures;
     _chrList = builder.charMappingList;
-    _height = builder.height;
+    textHeight = builder.height;
     _margin = builder.margin;
 }
 
-void SpriteImageText::setInputBindingText(std::string&& text)
+void SpriteImageText::updateTextTexture(std::string&& text)
 {
     if (text.empty())
     {
@@ -19,11 +19,11 @@ void SpriteImageText::setInputBindingText(std::string&& text)
         return;
     }
 
-    _currText = text;
+    text = text;
 
     /*
     // convert UTF-8 to SHIFT-JIS
-    std::u16string sjisText = utf8_to_sjis(_currText)
+    std::u16string sjisText = utf8_to_sjis(text)
 
     // save characters
     int x_margin = 0;
@@ -37,7 +37,7 @@ void SpriteImageText::setInputBindingText(std::string&& text)
     */
 
     // convert UTF-8 to UTF-32
-    std::u32string u32Text = utf8_to_utf32(_currText);
+    std::u32string u32Text = utf8_to_utf32(text);
 
     // save characters
     float x = 0;
@@ -55,7 +55,7 @@ void SpriteImageText::setInputBindingText(std::string&& text)
         }
     }
     //_drawList = _drawListOrig;
-    _drawRect = { 0, 0, (int)std::ceilf(w), (int)_height};
+    _drawRect = { 0, 0, (int)std::ceilf(w), (int)textHeight};
 }
 
 void SpriteImageText::updateTextRect()
@@ -77,7 +77,7 @@ void SpriteImageText::updateTextRect()
 
     // shrink
     int text_w = static_cast<int>(std::round(_drawRect.w * sizeFactor));
-    int rect_w = _current.rect.w * (double(_current.rect.h) / _height);
+    int rect_w = _current.rect.w * (double(_current.rect.h) / textHeight);
     if (text_w > rect_w)
     {
         double widthFactor = (double)rect_w / text_w;
@@ -90,7 +90,7 @@ void SpriteImageText::updateTextRect()
     }
 
     // align
-    switch (_align)
+    switch (align)
     {
     case TEXT_ALIGN_LEFT:
         break;
@@ -131,9 +131,9 @@ void SpriteImageText::updateTextRect()
 
 bool SpriteImageText::update(const Time& t)
 {
-    if (_draw = updateByKeyframes(t))
+    if (_draw = updateMotion(t))
     {
-        setInputBindingText(State::get(_textInd));
+        updateTextTexture(State::get(textInd));
         if (_draw) updateTextRect();
     }
     return _draw;

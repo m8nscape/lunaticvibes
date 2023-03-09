@@ -1328,7 +1328,7 @@ using namespace LR2SkinDef;
 
 struct setDst { dst_option dst; bool set; };
 
-class SkinLR2: public vSkin
+class SkinLR2: public SkinBase
 {
 public:
     virtual int setExtendedProperty(std::string&& key, void* value);
@@ -1337,7 +1337,7 @@ protected:
     static bool customizeDst[100];  // temporary workaround
 
 private:
-    static std::map<std::string, pTexture> LR2SkinImageCache;
+    static std::map<std::string, std::shared_ptr<Texture>> LR2SkinImageCache;
     static std::map<std::string, Path> LR2SkinFontPathCache;
 
     struct Customize
@@ -1365,7 +1365,7 @@ private:
         int S = 1;
         int M = 0;
         std::map<int, size_t> T_id;
-        std::vector<pTexture> T_texture;
+        std::vector<std::shared_ptr<Texture>> T_texture;
         CharMappingList R;
     };
     static std::map<Path, std::shared_ptr<LR2Font>> LR2FontCache;
@@ -1376,9 +1376,9 @@ private:
 
 protected:
     size_t imageCount = 0;
-    timeMS timeStartInputTimeRank = 0;            // Result / Course Result Only
-    timeMS timeStartInputTimeUpdate = 0;        // Result / Course Result Only
-    timeMS timeFadeoutLength = 0;
+    int timeStartInputTimeRank = 0;            // Result / Course Result Only
+    int timeStartInputTimeUpdate = 0;        // Result / Course Result Only
+    int timeFadeoutLength = 0;
     bool reloadBanner = false;                  // unused
     bool flipSide = false;                      // flip 1P/2P defs: note indices, timers (42-139, 143, 144)
     bool disableFlipResult = false;
@@ -1414,22 +1414,20 @@ protected:
 
 protected:
     static constexpr size_t BAR_ENTRY_SPRITE_COUNT = 32;
-    typedef std::shared_ptr<SpriteBarEntry> pSpriteBarEntry;
-    std::array<pSpriteBarEntry, BAR_ENTRY_SPRITE_COUNT> _barSprites;
-    std::bitset< BAR_ENTRY_SPRITE_COUNT> _barSpriteAdded{ false };
+    std::bitset<BAR_ENTRY_SPRITE_COUNT> barSpriteAvailable{ false };
+    std::array<std::shared_ptr<SpriteBarEntry>, BAR_ENTRY_SPRITE_COUNT> barSprites;
     unsigned barCenter = 0;
     unsigned barClickableFrom = 0;
     unsigned barClickableTo = 0;
-    bool hasBarAnimOrigin = false;
-    std::array<Rect, BAR_ENTRY_SPRITE_COUNT> _barAnimOrigin;
+    bool hasBarMotionInterpOrigin = false;
+    std::array<Rect, BAR_ENTRY_SPRITE_COUNT> barMotionInterpOrigin;
 
 protected:
-    std::vector<std::pair<std::shared_ptr<SpriteLaneVertical>, std::shared_ptr<SpriteLaneVertical>>> _laneSprites;  // { normal, auto }
-    std::map<std::string, pFont>  _fontNameMap;
+    std::vector<std::pair<std::shared_ptr<SpriteLaneVertical>, std::shared_ptr<SpriteLaneVertical>>> laneSprites;  // { normal, auto }
 
 protected:
-    std::list<pSprite> spritesMoveWithLift1P;
-    std::list<pSprite> spritesMoveWithLift2P;
+    std::list<std::shared_ptr<SpriteBase>> spritesMoveWithLift1P;
+    std::list<std::shared_ptr<SpriteBase>> spritesMoveWithLift2P;
     Rect judgeLineRect1P;
     Rect judgeLineRect2P;
 
@@ -1440,7 +1438,7 @@ private:
     unsigned csvLineNumber = 0;          // line parsing index
 
     // #XXX_XXXXX with #
-    Token parseKeyBuf;
+    StringContent parseKeyBuf;
 
     // SRC 0:index? 1:gr 2-5:xywh 6:divx 7:divy 8:cycle 9:timer
     // SRC_IMAGE 10:op1 11:op2 12:op3
@@ -1454,8 +1452,8 @@ private:
     // DST 15:loop 16:timer 17:op1 18:op2 19:op3
     Tokens parseParamBuf;
 
-    pTexture textureBuf;
-    pVideo   videoBuf;
+    std::shared_ptr<Texture> textureBuf;
+    std::shared_ptr<sVideo>   videoBuf;
     bool     useVideo = false;
 
     int parseHeader(const Tokens& raw);
@@ -1509,7 +1507,7 @@ private:
         AUTO_LN_START,
     };
 
-    static inline const std::vector<std::pair<Token, DefType>> defTypeName =
+    static inline const std::vector<std::pair<StringContent, DefType>> defTypeName =
     {
         {"IMAGE",          DefType::IMAGE},
         {"NUMBER",         DefType::NUMBER},
@@ -1627,15 +1625,15 @@ protected:
 
 private:
     // generated sprite references
-    pSprite spriteLanecoverTop1P = nullptr;
-    pSprite spriteLanecoverTop2P = nullptr;
+    std::shared_ptr<SpriteBase> spriteLanecoverTop1P = nullptr;
+    std::shared_ptr<SpriteBase> spriteLanecoverTop2P = nullptr;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 protected:
     struct element
     {
-        std::shared_ptr<vSprite> ps;
+        std::shared_ptr<SpriteBase> ps;
         dst_option op1;
         dst_option op2;
         dst_option op3;

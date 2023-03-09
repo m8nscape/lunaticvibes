@@ -1,7 +1,7 @@
 #pragma once
 #include "ruleset.h"
 
-class RulesetBMS : virtual public vRuleset
+class RulesetBMS : virtual public RulesetBase
 {
 public:
     enum JudgeIndex
@@ -193,9 +193,9 @@ protected:
 
     std::map<chart::NoteLane, ChartObjectBase::NoteIterator> _noteListIterators;
 
-    std::array<AxisDir, 2>  _scratchDir = { 0, 0 };
-    std::array<Time, 2>     _scratchLastUpdate = { TIMER_NEVER, TIMER_NEVER };
-    std::array<double, 2>   _scratchAccumulator = { 0, 0 };
+    std::array<AxisDir, 2>  playerScratchDirection = { 0, 0 };
+    std::array<Time, 2>     playerScratchLastUpdate = { TIMER_NEVER, TIMER_NEVER };
+    std::array<double, 2>   playerScratchAccumulator = { 0, 0 };
 
 protected:
     // members essential for score calculation
@@ -208,13 +208,13 @@ public:
     RulesetBMS(
         std::shared_ptr<ChartFormatBase> format,
         std::shared_ptr<ChartObjectBase> chart,
-        eModGauge gauge,
+        PlayModifierGaugeType gauge,
         GameModeKeys keys,
         JudgeDifficulty difficulty = JudgeDifficulty::NORMAL,
         double health = 1.0,
         PlaySide side = PlaySide::SINGLE);
 
-    void initGaugeParams(eModGauge gauge);
+    void initGaugeParams(PlayModifierGaugeType gauge);
 
 protected:
     JudgeRes _judge(const Note& note, Time time);

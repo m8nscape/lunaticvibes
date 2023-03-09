@@ -8,7 +8,7 @@
 #include "game/input/input_wrapper.h"
 #include "common/types.h"
 
-enum class eScene
+enum class SceneType
 {
     NOT_INIT,
     PRE_SELECT,
@@ -24,35 +24,35 @@ enum class eScene
     EXIT_TRANS,
     EXIT
 };
-inline eScene getSceneFromMode(eMode m)
+inline SceneType getSceneFromSkinType(SkinType m)
 {
-    static const std::map<eMode, eScene> modeSceneMap =
+    static const std::map<SkinType, SceneType> modeSceneMap =
     {
-        { eMode::MUSIC_SELECT,  eScene::SELECT},
-        { eMode::DECIDE,        eScene::DECIDE},
-        { eMode::THEME_SELECT,  eScene::CUSTOMIZE},
-        { eMode::KEY_CONFIG,    eScene::KEYCONFIG},
-        { eMode::PLAY5,         eScene::PLAY},
-        { eMode::PLAY5_2,       eScene::PLAY},
-        { eMode::PLAY7,         eScene::PLAY},
-        { eMode::PLAY7_2,       eScene::PLAY},
-        { eMode::PLAY9,         eScene::PLAY},
-        { eMode::PLAY9_2,       eScene::PLAY},
-        { eMode::PLAY10,        eScene::PLAY},
-        { eMode::PLAY14,        eScene::PLAY},
-        { eMode::RESULT,        eScene::RESULT},
-        { eMode::COURSE_RESULT, eScene::COURSE_RESULT},
+        { SkinType::MUSIC_SELECT,  SceneType::SELECT},
+        { SkinType::DECIDE,        SceneType::DECIDE},
+        { SkinType::THEME_SELECT,  SceneType::CUSTOMIZE},
+        { SkinType::KEY_CONFIG,    SceneType::KEYCONFIG},
+        { SkinType::PLAY5,         SceneType::PLAY},
+        { SkinType::PLAY5_2,       SceneType::PLAY},
+        { SkinType::PLAY7,         SceneType::PLAY},
+        { SkinType::PLAY7_2,       SceneType::PLAY},
+        { SkinType::PLAY9,         SceneType::PLAY},
+        { SkinType::PLAY9_2,       SceneType::PLAY},
+        { SkinType::PLAY10,        SceneType::PLAY},
+        { SkinType::PLAY14,        SceneType::PLAY},
+        { SkinType::RESULT,        SceneType::RESULT},
+        { SkinType::COURSE_RESULT, SceneType::COURSE_RESULT},
     };
-    return modeSceneMap.find(m) != modeSceneMap.end() ? modeSceneMap.at(m) : eScene::NOT_INIT;
+    return modeSceneMap.find(m) != modeSceneMap.end() ? modeSceneMap.at(m) : SceneType::NOT_INIT;
 }
 
 // Parent class of scenes, defines how an object being stored and drawn.
 // Every classes of scenes should inherit this class.
-class vScene: public AsyncLooper
+class SceneBase: public AsyncLooper
 {
 protected:
-    eScene _scene;
-    std::shared_ptr<vSkin> _skin;
+    SceneType _type;
+    std::shared_ptr<SkinBase> pSkin;
     InputWrapper _input;
 
     std::shared_ptr<TTFFont> _fNotifications;
@@ -72,12 +72,12 @@ protected:
     static bool showFPS;
 
 public:
-    vScene() = delete;
-    vScene(eMode mode, unsigned rate = 240, bool backgroundInput = false);
-    virtual ~vScene();
+    SceneBase() = delete;
+    SceneBase(SkinType skinType, unsigned rate = 240, bool backgroundInput = false);
+    virtual ~SceneBase();
     void inputLoopStart() { _input.loopStart(); }
     void inputLoopEnd() { _input.loopEnd(); }
-    void disableMouseInput() { _skin->setHandleMouseEvents(false); }
+    void disableMouseInput() { pSkin->setHandleMouseEvents(false); }
 
 public:
     virtual void update();      // skin update
@@ -86,13 +86,13 @@ public:
     void MouseRelease(InputMask& m, const Time& t);
     virtual void draw() const;
 
-    vSkin::skinInfo getSkinInfo() const { return _skin ? _skin->info : vSkin::skinInfo(); }
+    SkinBase::skinInfo getSkinInfo() const { return pSkin ? pSkin->info : SkinBase::skinInfo(); }
 
 protected:
     virtual void _updateAsync() = 0;
     void _updateAsync1();
 
-    virtual void _updateImgui();
+    virtual void updateImgui();
     void DebugToggle(InputMask& m, const Time& t);
 
     bool isInTextEdit() const;

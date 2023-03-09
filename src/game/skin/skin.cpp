@@ -6,27 +6,27 @@
 #include <algorithm>
 #include "common/utils.h"
 
-vSkin::vSkin()
+SkinBase::SkinBase()
 {
-    _textureNameMap["Black"] = std::make_shared<TextureFull>(0x000000ff);
-    _textureNameMap["White"] = std::make_shared<TextureFull>(0xffffffff);
-    _textureNameMap["Error"] = std::make_shared<TextureFull>(0xff00ffff);
-    _textureNameMap["STAGEFILE"] = std::shared_ptr<Texture>(&gChartContext.texStagefile, [](Texture*) {});
-    _textureNameMap["BACKBMP"] = std::shared_ptr<Texture>(&gChartContext.texBackbmp, [](Texture*) {});
-    _textureNameMap["BANNER"] = std::shared_ptr<Texture>(&gChartContext.texBanner, [](Texture*) {});
-    _textureNameMap["THUMBNAIL"] = std::make_shared<Texture>(1920, 1080, Texture::PixelFormat::RGB24, true);
+    textureNameMap["Black"] = std::make_shared<TextureFull>(0x000000ff);
+    textureNameMap["White"] = std::make_shared<TextureFull>(0xffffffff);
+    textureNameMap["Error"] = std::make_shared<TextureFull>(0xff00ffff);
+    textureNameMap["STAGEFILE"] = std::shared_ptr<Texture>(&gChartContext.texStagefile, [](Texture*) {});
+    textureNameMap["BACKBMP"] = std::shared_ptr<Texture>(&gChartContext.texBackbmp, [](Texture*) {});
+    textureNameMap["BANNER"] = std::shared_ptr<Texture>(&gChartContext.texBanner, [](Texture*) {});
+    textureNameMap["THUMBNAIL"] = std::make_shared<Texture>(1920, 1080, Texture::PixelFormat::RGB24, true);
 }
 
-vSkin::~vSkin()
+SkinBase::~SkinBase()
 {
-    if (_pEditing)
+    if (pSpriteTextEditing)
     {
-        _pEditing->stopEditing(false);
-        _pEditing = nullptr;
+        pSpriteTextEditing->stopEditing(false);
+        pSpriteTextEditing = nullptr;
     }
 }
 
-void vSkin::update()
+void SkinBase::update()
 {
     // current beat, measure
     if (gPlayContext.chartObj[PLAYER_SLOT_PLAYER] != nullptr)
@@ -36,7 +36,7 @@ void vSkin::update()
         State::set(IndexNumber::_TEST3, (int)(gUpdateContext.metre * 1000));
     }
 
-    auto updateSpriteLambda = [](const pSprite& s)
+    auto updateSpriteLambda = [](const std::shared_ptr<SpriteBase>& s)
     {
         // reset
         s->_draw = false;
@@ -60,15 +60,15 @@ void vSkin::update()
 
 }
 
-void vSkin::update_mouse(int x, int y)
+void SkinBase::update_mouse(int x, int y)
 {
-    if (!_handleMouseEvents)
+    if (!handleMouseEvents)
     {
         x = -99999999;
         y = -99999999;  // LUL
     }
 
-    auto clickSpriteLambda = [x, y](const pSprite& s)
+    auto clickSpriteLambda = [x, y](const std::shared_ptr<SpriteBase>& s)
     {
         if (s->isDraw() && !s->isHidden())
         {
@@ -87,14 +87,14 @@ void vSkin::update_mouse(int x, int y)
 #endif
 }
 
-void vSkin::update_mouse_click(int x, int y)
+void SkinBase::update_mouse_click(int x, int y)
 {
-    if (!_handleMouseEvents) return;
+    if (!handleMouseEvents) return;
 
     // sprite inserted last has priority
     bool invoked = false;
     bool invokedText = false;
-    _pLastClick = nullptr;
+    pSpriteLastClicked = nullptr;
 #if _DEBUG
     for (auto it = _sprites.rbegin(); it != _sprites.rend() && !invoked; ++it)
     {
@@ -105,7 +105,7 @@ void vSkin::update_mouse_click(int x, int y)
             {
                 createNotification((boost::format("Clicked sprite #%d (%d,%d)[%dx%d] (Line:%d)") %
                     (int)std::distance(it, _sprites.rend()) %
-                    (*it)->_current.rect.x % (*it)->_current.rect.y % (*it)->_current.rect.w % (*it)->_current.rect.h % (*it)->_srcLine).str());
+                    (*it)->_current.rect.x % (*it)->_current.rect.y % (*it)->_current.rect.w % (*it)->_current.rect.h % (*it)->srcLine).str());
                 break;
             }
         }
@@ -122,43 +122,43 @@ void vSkin::update_mouse_click(int x, int y)
                 {
                     if (std::dynamic_pointer_cast<SpriteText>(*it))
                     {
-                        if (_pEditing)
+                        if (pSpriteTextEditing)
                         {
-                            _pEditing->stopEditing(false);
+                            pSpriteTextEditing->stopEditing(false);
                         }
-                        _pEditing = std::reinterpret_pointer_cast<SpriteText>(*it);
+                        pSpriteTextEditing = std::reinterpret_pointer_cast<SpriteText>(*it);
                     }
                     invoked = true;
-                    _pDragging = pS;
-                    _pLastClick = pS;
+                    pSpriteDragging = pS;
+                    pSpriteLastClicked = pS;
                 }
             }
         }
     }
 }
 
-void vSkin::update_mouse_drag(int x, int y)
+void SkinBase::update_mouse_drag(int x, int y)
 {
-    if (!_handleMouseEvents) return;
+    if (!handleMouseEvents) return;
 
-    if (_pDragging != nullptr)
+    if (pSpriteDragging != nullptr)
     {
-        _pDragging->OnDrag(x, y);
+        pSpriteDragging->OnDrag(x, y);
     }
 }
 
-void vSkin::update_mouse_release()
+void SkinBase::update_mouse_release()
 {
-    _pDragging = nullptr;
+    pSpriteDragging = nullptr;
 }
 
-void vSkin::draw() const
+void SkinBase::draw() const
 {
     for (auto& s : _sprites)
         s->draw();
 }
 
-void vSkin::startSpriteVideoPlayback()
+void SkinBase::startSpriteVideoPlayback()
 {
 #ifndef VIDEO_DISABLED
     for (auto& p : _sprites)
@@ -172,7 +172,7 @@ void vSkin::startSpriteVideoPlayback()
 #endif
 }
 
-void vSkin::stopSpriteVideoPlayback()
+void SkinBase::stopSpriteVideoPlayback()
 {
 #ifndef VIDEO_DISABLED
     for (auto& p : _sprites)
@@ -186,34 +186,34 @@ void vSkin::stopSpriteVideoPlayback()
 #endif
 }
 
-bool vSkin::textEditSpriteClicked() const
+bool SkinBase::textEditSpriteClicked() const
 {
-    return _pEditing != nullptr && _pEditing == _pLastClick;
+    return pSpriteTextEditing != nullptr && pSpriteTextEditing == pSpriteLastClicked;
 }
 
-IndexText vSkin::textEditType() const
+IndexText SkinBase::textEditType() const
 {
-    return _pEditing ? _pEditing->getInd() : IndexText::INVALID;
+    return pSpriteTextEditing ? pSpriteTextEditing->getInd() : IndexText::INVALID;
 }
 
-void vSkin::startTextEdit(bool clear)
+void SkinBase::startTextEdit(bool clear)
 {
-    if (_pEditing)
+    if (pSpriteTextEditing)
     {
-        _pEditing->startEditing(clear);
+        pSpriteTextEditing->startEditing(clear);
     }
 }
 
-void vSkin::stopTextEdit(bool modify)
+void SkinBase::stopTextEdit(bool modify)
 {
-    if (_pEditing)
+    if (pSpriteTextEditing)
     {
-        _pEditing->stopEditing(modify);
-        _pEditing = nullptr;
+        pSpriteTextEditing->stopEditing(modify);
+        pSpriteTextEditing = nullptr;
     }
 }
 
-pTexture vSkin::getTextureCustomizeThumbnail()
+std::shared_ptr<Texture> SkinBase::getTextureCustomizeThumbnail()
 {
-    return _textureNameMap["THUMBNAIL"];
+    return textureNameMap["THUMBNAIL"];
 }

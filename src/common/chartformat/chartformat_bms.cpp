@@ -14,29 +14,25 @@
 
 class noteLineException : public std::exception {};
 
-int ChartFormatBMS::getExtendedProperty(const std::string& key, void* ret)
+bool ChartFormatBMS::getExtendedProperty(const std::string& key, void* ret)
 {
     if (strEqual(key, "PLAYER", true))
     {
         *(int*)ret = player;
     }
-    if (strEqual(key, "RANK", true))
+    else if (strEqual(key, "RANK", true))
     {
         *(int*)ret = rank;
     }
-    if (strEqual(key, "PLAYLEVEL", true))
-    {
-        *(int*)ret = playLevel;
-    }
-    if (strEqual(key, "TOTAL", true))
+    else if (strEqual(key, "TOTAL", true))
     {
         *(int*)ret = total;
     }
-    if (strEqual(key, "DIFFICULTY", true))
+    else
     {
-        *(int*)ret = difficulty;
+        return false;
     }
-    return -1;
+    return true;
 }
 
 ChartFormatBMS::ChartFormatBMS() : ChartFormatBMSMeta() {
@@ -45,38 +41,25 @@ ChartFormatBMS::ChartFormatBMS() : ChartFormatBMSMeta() {
     metres.resize(MAXBARIDX + 1);
 }
 
-ChartFormatBMS::ChartFormatBMS(const Path& file, uint64_t randomSeed): ChartFormatBMSMeta() {
+ChartFormatBMS::ChartFormatBMS(const Path& filePath, uint64_t randomSeed): ChartFormatBMSMeta() {
     wavFiles.resize(MAXSAMPLEIDX + 1);
     bgaFiles.resize(MAXSAMPLEIDX + 1);
     metres.resize(MAXBARIDX + 1);
-    initWithFile(file, randomSeed);
+    initWithFile(filePath, randomSeed);
 }
 
-int ChartFormatBMS::initWithPathParam(const SongDB& db, uint64_t randomSeed)
-{
-    if (filePath.is_absolute())
-        absolutePath = filePath;
-    else
-    {
-        Path fp = db.getFolderPath(folderHash).second;
-        absolutePath = fp / filePath;
-    }
-
-    return initWithFile(absolutePath, randomSeed);
-}
-
-int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
+int ChartFormatBMS::initWithFile(const Path& filePath, uint64_t randomSeed)
 {
     using err = ErrorCode;
-    if (_loaded)
+    if (loaded)
     {
         //errorCode = err::ALREADY_INITIALIZED;
         //errorLine = 0;
         return 1;
     }
 
-    filePath = file.filename();
-    absolutePath = std::filesystem::absolute(file);
+    fileName = filePath.filename();
+    absolutePath = std::filesystem::absolute(filePath);
     LOG_DEBUG << "[BMS] " << absolutePath.u8string();
     std::ifstream ifsFile(absolutePath.c_str());
     if (ifsFile.fail())
@@ -95,7 +78,7 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
 
     auto encoding = getFileEncoding(bmsFile);
 
-    if (toLower(file.extension().u8string()) == ".pms")
+    if (toLower(filePath.extension().u8string()) == ".pms")
     {
         isPMS = true;
     }
@@ -138,7 +121,7 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
         // parsing
         try
         {
-            auto space_idx = std::min(buf.length(), buf.find_first_of(' '));
+            auto spacePos = std::min(buf.length(), buf.find_first_of(' '));
 
             // supporting single level control flow (#RANDOM, #IF, etc.), matching with LR2's capability
             if (!randomUsedValues.empty() && randomUsedValues.top().size() < randomValue.top())
@@ -157,9 +140,9 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                 }
             }
 
-            if (space_idx > 1 && strEqual(buf.substr(0, 7), "#RANDOM", true))
+            if (spacePos > 1 && strEqual(buf.substr(0, 7), "#RANDOM", true))
             {
-                StringContentView value = space_idx < buf.length() ? buf.substr(space_idx + 1) : "";
+                StringContentView value = spacePos < buf.length() ? buf.substr(spacePos + 1) : "";
                 int iValue = toInt(value);
                 if (iValue == 0)
                 {
@@ -183,10 +166,10 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
             if (!randomValue.empty())
             {
                 // read IF headers outside of blocks
-                if (space_idx > 1)
+                if (spacePos > 1)
                 {
-                    StringContentView key = buf.substr(1, space_idx - 1);
-                    StringContentView value = space_idx < buf.length() ? buf.substr(space_idx + 1) : "";
+                    StringContentView key = buf.substr(1, spacePos - 1);
+                    StringContentView value = spacePos < buf.length() ? buf.substr(spacePos + 1) : "";
                     if (strEqual(key, "IF", true))
                     {
                         int ifBlockValue = toInt(value);
@@ -273,17 +256,18 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
             static LazyRE2 regexNote{ R"(#[\d]{3}[0-9A-Za-z]{2}:.*)" };
             if (!RE2::FullMatch(re2::StringPiece(buf.data(), buf.length()), *regexNote))
             {
-                auto space_idx = std::min(buf.length(), buf.find_first_of(' '));
-                if (space_idx <= 1) continue;
+                auto spacePos = std::min(buf.length(), buf.find_first_of(' '));
+                if (spacePos <= 1) continue;
 
-                StringContentView key = buf.substr(1, space_idx - 1);
-                StringContentView value = space_idx < buf.length() ? buf.substr(space_idx + 1) : "";
+                StringContentView key = buf.substr(1, spacePos - 1);
+                StringContentView value = spacePos < buf.length() ? buf.substr(spacePos + 1) : "";
 
                 static LazyRE2 regexWav{ R"((?i)WAV[0-9A-Za-z]{1,2})" };
                 static LazyRE2 regexBga{ R"((?i)BMP[0-9A-Za-z]{1,2})" };
                 static LazyRE2 regexBpm{ R"((?i)BPM[0-9A-Za-z]{1,2})" };
                 static LazyRE2 regexStop{ R"((?i)STOP[0-9A-Za-z]{1,2})" };
 
+                if (key.empty()) continue;
                 if (value.empty()) continue;
 
                 // digits
@@ -331,7 +315,7 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                     lnobjSet.insert(base36(value[0], value[1]));
                 }
 
-                // #xxx00
+                // #???xx
                 else if (RE2::FullMatch(re2::StringPiece(key.data(), key.length()), *regexWav))
                 {
                     int idx = base36(key[3], key[4]);
@@ -364,7 +348,7 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                 else
                     extraCommands[std::string(key)] = StringContent(value.begin(), value.end());
             }
-            else // matched #[\d]{3}[0-9A-Za-z]{2}:.*
+            else // #zzzxy:......
             {
                 auto colon_idx = buf.find_first_of(':');
                 StringContentView key = buf.substr(1, 5);
@@ -386,15 +370,15 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
 
                 try
                 {
-                    int layer = base36(key[3]);
-                    int ch = base36(key[4]);
+                    int x_ = base36(key[3]);
+                    int _y = base36(key[4]);
 
-                    if (layer == 0) // 0x: basic info
+                    if (x_ == 0) // 0x: basic info
                     {
-                        switch (ch)
+                        switch (_y)
                         {
                         case 1:            // 01: BGM
-                            strToLane36(chBGM[bgmLayersCount[bar]][bar], value);
+                            seqToLane36(chBGM[bgmLayersCount[bar]][bar], value);
                             ++bgmLayersCount[bar];
                             break;
 
@@ -404,55 +388,55 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                             break;
 
                         case 3:            // 03: BPM change
-                            strToLane16(chBPMChange[bar], value);
+                            seqToLane16(chBPMChange[bar], value);
                             haveBPMChange = true;
                             break;
 
                         case 4:            // 04: BGA Base
-                            strToLane36(chBGABase[bar], value);
+                            seqToLane36(chBGABase[bar], value);
                             haveBGA = true;
                             break;
 
                         case 6:            // 06: BGA Poor
-                            strToLane36(chBGAPoor[bar], value);
+                            seqToLane36(chBGAPoor[bar], value);
                             haveBGA = true;
                             break;
 
                         case 7:            // 07: BGA Layer
-                            strToLane36(chBGALayer[bar], value);
+                            seqToLane36(chBGALayer[bar], value);
                             haveBGA = true;
                             break;
 
                         case 8:            // 08: ExBPM
-                            strToLane36(chExBPMChange[bar], value);
+                            seqToLane36(chExBPMChange[bar], value);
                             haveBPMChange = true;
                             break;
 
                         case 9:            // 09: Stop
-                            strToLane36(chStop[bar], value);
+                            seqToLane36(chStop[bar], value);
                             haveStop = true;
                             break;
                         }
                     }
-                    else // layer != 0
+                    else // not 0x
                     {
-                        auto [area, idx] = isPMS ? normalizeIndexesPMS(layer, ch) : normalizeIndexesBME(layer, ch);
-                        unsigned chIdx = idx + (area == 1 ? 10 : 0);
-                        if (area >= 0)
+                        auto [side, idx] = isPMS ? getLaneIndexPMS(x_, _y) : getLaneIndexBME(x_, _y);
+                        unsigned chIdx = idx + (side == 1 ? 10 : 0);
+                        if (side >= 0)
                         {
-                            switch (layer)
+                            switch (x_)
                             {
                             case 1:            // 1x: 1P visible
                             case 2:            // 2x: 2P visible
-                                strToLane36(chNotesRegular[chIdx][bar], value);
+                                seqToLane36(chNotesRegular[chIdx][bar], value);
                                 haveNote = true;
-                                if (area == 1) haveAny_2 = true;
+                                if (side == 1) haveAny_2 = true;
                                 break;
                             case 3:            // 3x: 1P invisible
                             case 4:            // 4x: 2P invisible
-                                strToLane36(chNotesInvisible[chIdx][bar], value);
+                                seqToLane36(chNotesInvisible[chIdx][bar], value);
                                 haveInvisible = true;
-                                if (area == 1) haveAny_2 = true;
+                                if (side == 1) haveAny_2 = true;
                                 break;
                             case 5:            // 5x: 1P LN
                             case 6:            // 6x: 2P LN
@@ -461,7 +445,7 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                                 {
                                     // Note: there is so many possibilities of conflicting LN definition. Add all LN channel notes as regular notes
                                     channel noteLane;
-                                    strToLane36(noteLane, value, channel::NoteParseValue::LN);
+                                    seqToLane36(noteLane, value, channel::NoteParseValue::LN);
                                     unsigned scale = chNotesRegular[chIdx][bar].relax(noteLane.resolution) / noteLane.resolution;
                                     for (auto& note : noteLane.notes)
                                     {
@@ -486,15 +470,33 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
                                 else
                                 {
                                     // #LNTYPE 1
-                                    strToLane36(chNotesLN[chIdx][bar], value, channel::NoteParseValue::LN);
+                                    seqToLane36(chNotesLN[chIdx][bar], value, channel::NoteParseValue::LN);
                                     haveLN = true;
-                                    if (area == 1) haveAny_2 = true;
+                                    if (side == 1) haveAny_2 = true;
                                 }
                                 break;
                             case 0xD:        // Dx: 1P mine
                             case 0xE:        // Ex: 2P mine
-                                strToLane36(chMines[chIdx][bar], value);
+                                seqToLane36(chMines[chIdx][bar], value);
                                 haveMine = true;
+                                break;
+                            }
+
+                            switch (idx)
+                            {
+                            case 6:
+                            case 7:
+                                if (side == 1)
+                                    have67_2 = true;
+                                else
+                                    have67 = true;
+                                break;
+                            case 8:
+                            case 9:
+                                if (side == 1)
+                                    have89_2 = true;
+                                else
+                                    have89 = true;
                                 break;
                             }
                         }
@@ -799,12 +801,24 @@ int ChartFormatBMS::initWithFile(const Path& file, uint64_t randomSeed)
     fileHash = md5file(absolutePath);
     LOG_INFO << "[BMS] " << absolutePath.u8string() << " MD5: " << fileHash.hexdigest();
 
-    _loaded = true;
+    loaded = true;
 
     return 0;
 }
 
-int ChartFormatBMS::strToLane36(channel& ch, StringContentView str, unsigned flags)
+std::string ChartFormatBMS::getError()
+{
+    using err = ErrorCode;
+    switch (errorCode)
+    {
+    case err::OK:    return "No errors.";
+        //TODO return translated strings 
+    }
+
+    return "?";
+}
+
+int ChartFormatBMS::seqToLane36(channel& ch, StringContentView str, unsigned flags)
 {
     //if (str.length() % 2 != 0)
     //    throw new noteLineException;
@@ -836,12 +850,12 @@ int ChartFormatBMS::strToLane36(channel& ch, StringContentView str, unsigned fla
 
     return 0;
 }
-int ChartFormatBMS::strToLane36(channel& ch, const StringContent& str, unsigned flags)
+int ChartFormatBMS::seqToLane36(channel& ch, const StringContent& str, unsigned flags)
 {
-    return strToLane36(ch, StringContentView(str), flags);
+    return seqToLane36(ch, StringContentView(str), flags);
 }
 
-int ChartFormatBMS::strToLane16(channel& ch, StringContentView str)
+int ChartFormatBMS::seqToLane16(channel& ch, StringContentView str)
 {
     //if (str.length() % 2 != 0)
     //    throw new noteLineException;
@@ -873,137 +887,89 @@ int ChartFormatBMS::strToLane16(channel& ch, StringContentView str)
 
     return 0;
 }
-int ChartFormatBMS::strToLane16(channel& ch, const StringContent& str)
+int ChartFormatBMS::seqToLane16(channel& ch, const StringContent& str)
 {
-    return strToLane16(ch, StringContentView(str));
+    return seqToLane16(ch, StringContentView(str));
 }
 
-std::pair<int, int> ChartFormatBMS::normalizeIndexesBME(int layer, int ch)
+std::pair<int, int> ChartFormatBMS::getLaneIndexBME(int x_, int _y)
 {
-    int area = 0;
+    int side = 0;
     int idx = 0;
-    switch (layer)
+    switch (x_)
     {
     case 1:            // 1x: 1P visible
     case 3:            // 3x: 1P invisible
     case 5:            // 5x: 1P LN
     case 0xD:          // Dx: 1P mine
-        area = 0;
+        side = 0;
         break;
     case 2:            // 2x: 2P visible
     case 4:            // 4x: 2P invisible
     case 6:            // 6x: 2P LN
     case 0xE:          // Ex: 2P mine
-        area = 1;
+        side = 1;
         break;
     default:
-        area = -1;
+        side = -1;
         break;
     }
-    if (area >= 0)
+    if (side >= 0)
     {
-        switch (ch)
+        switch (_y)
         {
         case 1:
         case 2:
         case 3:
         case 4:
         case 5:
-            idx = ch;
+            idx = _y;
             break;
         case 6:        //SCR
             idx = 0;
             break;
         case 8:        //6
+            idx = 6;
+            break;
         case 9:        //7
-            if (area == 1)
-                have67_2 = true;
-            else
-                have67 = true;
-            idx = 6 + (ch - 8);
+            idx = 7;
             break;
         case 7:        //Free zone
-            if (area == 1)
-                have89_2 = true;
-            else
-                have89 = true;
             idx = 9;
             break;
         }
     }
-    return { area, idx };
+    return { side, idx };
 }
 
-std::pair<int, int> ChartFormatBMS::normalizeIndexesPMS(int layer, int ch)
+std::pair<int, int> ChartFormatBMS::getLaneIndexPMS(int x_, int _y)
 {
-    int area = 0;
+    int side = 0;
     int idx = 0;
-    switch (layer)
+    switch (x_)
     {
     case 1:            // 1x: 1P visible
     case 3:            // 3x: 1P invisible
     case 5:            // 5x: 1P LN
     case 0xD:          // Dx: 1P mine
-        area = 0;
+        side = 0;
         break;
     case 2:            // 2x: 2P visible
     case 4:            // 4x: 2P invisible
     case 6:            // 6x: 2P LN
     case 0xE:          // Ex: 2P mine
-        area = 1;
+        side = 1;
         break;
     default:
-        area = -1;
+        side = -1;
         break;
     }
-    if (area >= 0)
+    if (side >= 0)
     {
         // return as-is and handle after parsing completed. PMS 6-9 lanes definition may vary
-        idx = ch;
-        switch (idx)
-        {
-        case 8:
-        case 9:
-            if (area == 1)
-                have67_2 = true;
-            else
-                have67 = true;
-            break;
-        case 6:
-        case 7:
-            if (area == 1)
-                have89_2 = true;
-            else
-                have89 = true;
-            break;
-        }
+        idx = _y;
     }
-    return { area, idx };
-}
-
-std::string ChartFormatBMS::getError()
-{
-    using err = ErrorCode;
-    switch (errorCode)
-    {
-    case err::OK:    return "No errors.";
-        //TODO return translated strings 
-    }
-
-    return "?";
-}
-
-int ChartFormatBMS::getMode() const
-{
-    switch (gamemode)
-    {
-    case 5: return MODE_5KEYS;
-    case 7: return MODE_7KEYS;
-    case 9: return MODE_9KEYS;
-    case 10: return MODE_10KEYS;
-    case 14: return MODE_14KEYS;
-    default: return MODE_5KEYS;
-    }
+    return { side, idx };
 }
 
 auto ChartFormatBMS::getLane(LaneCode code, unsigned chIdx, unsigned barIdx) const -> const channel&

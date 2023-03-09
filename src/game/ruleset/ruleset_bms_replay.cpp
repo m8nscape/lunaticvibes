@@ -6,11 +6,11 @@ RulesetBMSReplay::RulesetBMSReplay(
     std::shared_ptr<ChartFormatBase> format,
     std::shared_ptr<ChartObjectBase> chart,
     std::shared_ptr<ReplayChart> replay,
-    eModGauge gauge,
+    PlayModifierGaugeType gauge,
     GameModeKeys keys,
     JudgeDifficulty difficulty,
     double health,
-    PlaySide side) : vRuleset(format, chart), RulesetBMS(format, chart, gauge, keys, difficulty, health, side)
+    PlaySide side) : RulesetBase(format, chart), RulesetBMS(format, chart, gauge, keys, difficulty, health, side)
 {
     this->replay = replay;
     itReplayCommand = replay->commands.begin();
@@ -18,7 +18,7 @@ RulesetBMSReplay::RulesetBMSReplay(
 
     doJudge = false;
 
-    if (gPlayContext.mode == eMode::PLAY5 || gPlayContext.mode == eMode::PLAY5_2)
+    if (gPlayContext.mode == SkinType::PLAY5 || gPlayContext.mode == SkinType::PLAY5_2)
     {
         if (gPlayContext.shift1PNotes5KFor7KSkin)
         {
@@ -112,7 +112,7 @@ void RulesetBMSReplay::update(const Time& t)
             }
         }
 
-        if (gPlayContext.mode == eMode::PLAY5 || gPlayContext.mode == eMode::PLAY5_2)
+        if (gPlayContext.mode == SkinType::PLAY5 || gPlayContext.mode == SkinType::PLAY5_2)
         {
             if (replay_cmd_input_down_map_5k[replayCmdMapIndex].find(cmd) != replay_cmd_input_down_map_5k[replayCmdMapIndex].end())
             {
@@ -137,12 +137,12 @@ void RulesetBMSReplay::update(const Time& t)
 
         switch (cmd)
         {
-        case ReplayChart::Commands::Type::S1A_PLUS:  _scratchAccumulator[PLAYER_SLOT_PLAYER] = 0.0015; break;
-        case ReplayChart::Commands::Type::S1A_MINUS: _scratchAccumulator[PLAYER_SLOT_PLAYER] = -0.0015; break;
-        case ReplayChart::Commands::Type::S1A_STOP:  _scratchAccumulator[PLAYER_SLOT_PLAYER] = 0; break;
-        case ReplayChart::Commands::Type::S2A_PLUS:  _scratchAccumulator[PLAYER_SLOT_TARGET] = 0.0015; break;
-        case ReplayChart::Commands::Type::S2A_MINUS: _scratchAccumulator[PLAYER_SLOT_TARGET] = -0.0015; break;
-        case ReplayChart::Commands::Type::S2A_STOP:  _scratchAccumulator[PLAYER_SLOT_TARGET] = 0; break;
+        case ReplayChart::Commands::Type::S1A_PLUS:  playerScratchAccumulator[PLAYER_SLOT_PLAYER] = 0.0015; break;
+        case ReplayChart::Commands::Type::S1A_MINUS: playerScratchAccumulator[PLAYER_SLOT_PLAYER] = -0.0015; break;
+        case ReplayChart::Commands::Type::S1A_STOP:  playerScratchAccumulator[PLAYER_SLOT_PLAYER] = 0; break;
+        case ReplayChart::Commands::Type::S2A_PLUS:  playerScratchAccumulator[PLAYER_SLOT_TARGET] = 0.0015; break;
+        case ReplayChart::Commands::Type::S2A_MINUS: playerScratchAccumulator[PLAYER_SLOT_TARGET] = -0.0015; break;
+        case ReplayChart::Commands::Type::S2A_STOP:  playerScratchAccumulator[PLAYER_SLOT_TARGET] = 0; break;
 
         // extract judge from frames
         case ReplayChart::Commands::Type::JUDGE_LEFT_EXACT_0:   updateJudge(t, NoteLaneIndex::_, JudgeArea::EXACT_PERFECT, PLAYER_SLOT_PLAYER, true); break;

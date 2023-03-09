@@ -46,7 +46,7 @@ public:
 	bool isServer() const { return g_pArenaHost != nullptr; }
 	bool isClient() const { return g_pArenaClient != nullptr; }
 
-	void initPlaying(eRuleset rulesetType);
+	void initPlaying(RulesetType rulesetType);
 	void startPlaying();
 	void stopPlaying();
 

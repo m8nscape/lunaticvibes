@@ -4,6 +4,7 @@
 #include <string>
 #include <string_view>
 #include <cassert>
+#include "hash.h"
 
 typedef std::filesystem::path                   Path;
 typedef Path::string_type                       StringPath;
@@ -19,85 +20,7 @@ const size_t INDEX_INVALID	= ~0;
     return Path(std::string_view(_Str, _Len));
 }
 
-template <size_t _Len>
-class Hash
-{
-private:
-    unsigned char data[_Len] = { 0 };
-    bool set = false;
-public:
-    Hash() = default;
-    Hash(const std::string& hex)
-    {
-        reset();
-        if (!hex.empty())
-        {
-            set = true;
-            std::string bin = hex2bin(hex);
-            unsigned char* ubin = (unsigned char*)bin.data();
-            for (int i = 0; i < bin.size() && i < _Len; ++i) 
-                data[i] = ubin[i];
-        }
-    }
-    Hash(const Hash<_Len>& rhs)
-    {
-        reset();
-        if (!rhs.empty())
-        {
-            set = true;
-            for (int i = 0; i < _Len; ++i) data[i] = rhs.data[i];
-        }
-    }
-
-    constexpr size_t length() const { return _Len; }
-    bool empty() const { return !set; }
-    std::string hexdigest() const { return bin2hex(data, _Len); }
-    const unsigned char* hex() const { return data; }
-    void reset() { set = false; memset(data, 0, _Len); }
-
-    template <size_t _Len2>
-    bool operator<(const Hash<_Len2>& rhs) const { return memcmp(data, rhs.data, _Len) < 0; }
-    template <size_t _Len2>
-    bool operator>(const Hash<_Len2>& rhs) const { return memcmp(data, rhs.data, _Len) > 0; }
-    template <size_t _Len2>
-    bool operator<=(const Hash<_Len2>& rhs) const { return !(*this > rhs); }
-    template <size_t _Len2>
-    bool operator>=(const Hash<_Len2>& rhs) const { return !(*this > rhs); }
-    template <size_t _Len2>
-    bool operator==(const Hash<_Len2>& rhs) const { return _Len == _Len2 && memcmp(data, rhs.data, _Len) == 0; }
-    template <size_t _Len2>
-    bool operator!=(const Hash<_Len2>& rhs) const { return _Len != _Len2 || memcmp(data, rhs.data, _Len) != 0; }
-
-    friend struct std::hash<Hash<_Len>>;
-};
-
-template<size_t _Len> 
-struct std::hash<Hash<_Len>>
-{
-    size_t operator()(const Hash<_Len>& obj) const
-    {
-        size_t h = 0;
-        int i = 0;
-        if (_Len >= sizeof(size_t))
-        {
-            for (; i <= _Len - sizeof(size_t); i += sizeof(size_t))
-            {
-                h ^= *(size_t*)&obj.data[i];
-            }
-        }
-        unsigned char* p = (unsigned char*)&h;
-        for (; i < _Len; i++)
-        {
-            p[i % sizeof(size_t)] ^= obj.data[i];
-        }
-        return h;
-    }
-};
-
-typedef Hash<16> HashMD5;
-typedef Hash<32> HashSHA1;
-
-enum class eMode {
+enum class SkinType {
     EXIT = 0,
     TITLE = 1,
     MUSIC_SELECT,
@@ -139,7 +62,7 @@ enum class ePlayMode
 
 typedef unsigned GameModeKeys; // 5 7 9 10 14
 
-enum class eModRandom: uint8_t
+enum class PlayModifierRandomType: uint8_t
 {
     NONE = 0,
     MIRROR,
@@ -152,7 +75,7 @@ enum class eModRandom: uint8_t
     DB_SYMMETRY,
 };
 
-enum class eModGauge : uint8_t
+enum class PlayModifierGaugeType : uint8_t
 {
     NORMAL = 0,
     HARD,
@@ -174,7 +97,7 @@ inline const uint8_t PLAY_MOD_ASSIST_AUTOSCR    = 1 << 1; //
 inline const uint8_t PLAY_MOD_ASSIST_LEGACY     = 1 << 2; // LN head -> note, not implemented
 inline const uint8_t PLAY_MOD_ASSIST_NOMINES    = 1 << 3; // from beatoraja, not implemented
 
-enum class eModHs : uint8_t
+enum class PlayModifierHispeedFixType : uint8_t
 {
     NONE,
     MAXBPM,
@@ -184,7 +107,7 @@ enum class eModHs : uint8_t
     MAIN,
 };
 
-enum class eModLaneEffect : uint8_t
+enum class PlayModifierLaneEffectType : uint8_t
 {
     OFF,
     HIDDEN,
@@ -194,48 +117,37 @@ enum class eModLaneEffect : uint8_t
     LIFTSUD,
 };
 
-struct PlayMod
+struct PlayModifiers
 {
-    eModRandom randomLeft = eModRandom::NONE;
-    eModRandom randomRight = eModRandom::NONE;
-    eModGauge gauge = eModGauge::NORMAL;
+    PlayModifierRandomType randomLeft = PlayModifierRandomType::NONE;
+    PlayModifierRandomType randomRight = PlayModifierRandomType::NONE;
+    PlayModifierGaugeType gauge = PlayModifierGaugeType::NORMAL;
     uint8_t assist_mask = 0;
-    eModHs hispeedFix = eModHs::NONE;
-    eModLaneEffect laneEffect = eModLaneEffect::OFF;
+    PlayModifierHispeedFixType hispeedFix = PlayModifierHispeedFixType::NONE;
+    PlayModifierLaneEffectType laneEffect = PlayModifierLaneEffectType::OFF;
     bool DPFlip = false;
 
     void clear()
     {
-        randomLeft = eModRandom::NONE;
-        randomRight = eModRandom::NONE;
-        gauge = eModGauge::NORMAL;
+        randomLeft = PlayModifierRandomType::NONE;
+        randomRight = PlayModifierRandomType::NONE;
+        gauge = PlayModifierGaugeType::NORMAL;
         assist_mask = 0;
-        hispeedFix = eModHs::NONE;
-        laneEffect = eModLaneEffect::OFF;
+        hispeedFix = PlayModifierHispeedFixType::NONE;
+        laneEffect = PlayModifierLaneEffectType::OFF;
         DPFlip = false;
     }
 };
 
-enum class eGaugeOp
+enum class GaugeDisplayType
 {
-    GROOVE,
-    SURVIVAL,
-    EX_SURVIVAL,
-    ASSIST_EASY,
+    GROOVE,         // 80+20
+    SURVIVAL,       // red
+    EX_SURVIVAL,    // yellow
+    ASSIST_EASY,    // 60+40
 };
 
-enum class eLevel
-{
-    UNDEF,
-    BEGINNER,
-    NORMAL,
-    HYPER,
-    ANOTHER,
-    INSANE,
-    LEVEL_COUNT
-};
-
-class vScore
+class ScoreBase
 {
 public:
     enum class Type
@@ -259,11 +171,11 @@ public:
     std::string replayFileName;
 
 public:
-    vScore() = default;
+    ScoreBase() = default;
     virtual Type getType() const { return Type::UNKNOWN; }
 };
 
-class ScoreBMS : public vScore
+class ScoreBMS : public ScoreBase
 {
 public:
     ScoreBMS() = default;
@@ -295,7 +207,7 @@ public:
     int combobreak = 0;
 
     // extended info
-    unsigned rival = 3; // win / lose / draw / noplay
+    unsigned rival_win = 3; // win / lose / draw / noplay
     double rival_rate = 0;
     Lamp rival_lamp = Lamp::NOPLAY;
 

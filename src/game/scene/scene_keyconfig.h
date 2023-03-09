@@ -3,10 +3,10 @@
 #include "common/keymap.h"
 #include <shared_mutex>
 
-class SceneKeyConfig : public vScene
+class SceneKeyConfig : public SceneBase
 {
 private:
-    bool _exiting = false;
+    bool exiting = false;
     std::shared_mutex _mutex;
 
 public:
@@ -29,7 +29,7 @@ protected:
     void updateAllText();
 
     std::map<size_t, JoystickMask> joystickPrev;
-    std::array<double, 2>   _ttAngleDiff{ 0 };
+    std::array<double, 2>   playerTurntableAngleAdd{ 0 };
 
 protected:
     // Register to InputWrapper: judge / keysound

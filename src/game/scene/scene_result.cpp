@@ -14,9 +14,9 @@
 #include "config/config_mgr.h"
 #include <boost/algorithm/string.hpp>
 
-SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
+SceneResult::SceneResult() : SceneBase(SkinType::RESULT, 1000)
 {
-    _scene = eScene::RESULT;
+    _type = SceneType::RESULT;
 
     _inputAvailable = INPUT_MASK_FUNC;
 
@@ -30,7 +30,7 @@ SceneResult::SceneResult() : vScene(eMode::RESULT, 1000)
         _inputAvailable |= INPUT_MASK_2P;
     }
 
-    _state = eResultState::DRAW;
+    state = eResultState::DRAW;
 
     saveLampMax = ScoreBMS::Lamp::NOPLAY;
     lamp[PLAYER_SLOT_TARGET] = ScoreBMS::Lamp::NOPLAY;
@@ -238,14 +238,14 @@ SceneResult::~SceneResult()
 
 void SceneResult::_updateAsync()
 {
-    if (gNextScene != eScene::RESULT) return;
+    if (gNextScene != SceneType::RESULT) return;
 
     if (gAppIsExiting)
     {
-        gNextScene = eScene::EXIT_TRANS;
+        gNextScene = SceneType::EXIT_TRANS;
     }
 
-    switch (_state)
+    switch (state)
     {
     case eResultState::DRAW:
         updateDraw();
@@ -275,11 +275,11 @@ void SceneResult::updateDraw()
     auto t = Time();
     auto rt = t - State::get(IndexTimer::SCENE_START);
 
-    if (rt.norm() >= _skin->info.timeResultRank)
+    if (rt.norm() >= pSkin->info.timeResultRank)
     {
         State::set(IndexTimer::RESULT_RANK_START, t.norm());
         // TODO play hit sound
-        _state = eResultState::STOP;
+        state = eResultState::STOP;
         LOG_DEBUG << "[Result] State changed to STOP";
     }
 }
@@ -308,7 +308,7 @@ void SceneResult::updateFadeout()
     auto rt = t - State::get(IndexTimer::SCENE_START);
     auto ft = t - State::get(IndexTimer::FADEOUT_BEGIN);
 
-    if (ft >= _skin->info.timeOutro)
+    if (ft >= pSkin->info.timeOutro)
     {
         SoundMgr::stopNoteSamples();
 
@@ -332,8 +332,8 @@ void SceneResult::updateFadeout()
         if (saveScore && !gChartContext.hash.empty())
         {
             assert(gPlayContext.ruleset[PLAYER_SLOT_PLAYER] != nullptr);
-            auto& format = gChartContext.chartObj;
-            std::shared_ptr<vScore> pScore = nullptr;
+            auto& format = gChartContext.chart;
+            std::shared_ptr<ScoreBase> pScore = nullptr;
 
             switch (format->type())
             {
@@ -399,7 +399,7 @@ void SceneResult::updateFadeout()
         {
             SoundMgr::stopSysSamples();
             clearContextPlayForRetry();
-            gNextScene = eScene::PLAY;
+            gNextScene = SceneType::PLAY;
         }
         else if (gPlayContext.isCourse)
         {
@@ -439,9 +439,9 @@ void SceneResult::updateFadeout()
 
                 // set metadata
                 auto pChart = *g_pSongDB->findChartByHash(gPlayContext.courseCharts[gPlayContext.courseStage]).begin();
-                gChartContext.chartObj = pChart;
+                gChartContext.chart = pChart;
 
-                auto& chart = *gChartContext.chartObj;
+                auto& chart = *gChartContext.chart;
                 //gChartContext.path = chart._filePath;
                 gChartContext.path = chart.absolutePath;
 
@@ -453,7 +453,7 @@ void SceneResult::updateFadeout()
                 }
                 gChartContext.hash = chart.fileHash;
 
-                //gChartContext.chartObj = std::make_shared<ChartFormatBase>(chart);
+                //gChartContext.chart = std::make_shared<ChartFormatBase>(chart);
                 gChartContext.title = chart.title;
                 gChartContext.title2 = chart.title2;
                 gChartContext.artist = chart.artist;
@@ -479,7 +479,7 @@ void SceneResult::updateFadeout()
                             gPlayContext.mods[PLAYER_SLOT_MYBEST].gauge = gPlayContext.replayMybest->gaugeType;
                             gPlayContext.mods[PLAYER_SLOT_MYBEST].assist_mask = gPlayContext.replayMybest->assistMask;
                             gPlayContext.mods[PLAYER_SLOT_MYBEST].hispeedFix = gPlayContext.replayMybest->hispeedFix;
-                            gPlayContext.mods[PLAYER_SLOT_MYBEST].laneEffect = (eModLaneEffect)gPlayContext.replayMybest->laneEffectType;
+                            gPlayContext.mods[PLAYER_SLOT_MYBEST].laneEffect = (PlayModifierLaneEffectType)gPlayContext.replayMybest->laneEffectType;
                             gPlayContext.mods[PLAYER_SLOT_MYBEST].DPFlip = gPlayContext.replayMybest->DPFlip;
                         }
                         else
@@ -489,11 +489,11 @@ void SceneResult::updateFadeout()
                     }
                 }
                 clearContextPlayForRetry();
-                gNextScene = eScene::PLAY;
+                gNextScene = SceneType::PLAY;
             }
             else
             {
-                gNextScene = eScene::COURSE_RESULT;
+                gNextScene = SceneType::COURSE_RESULT;
             }
         }
         else
@@ -501,7 +501,7 @@ void SceneResult::updateFadeout()
             clearContextPlay();
             gPlayContext.isAuto = false;
             gPlayContext.isReplay = false;
-            gNextScene = gQuitOnFinish ? eScene::EXIT_TRANS : eScene::SELECT;
+            gNextScene = gQuitOnFinish ? SceneType::EXIT_TRANS : SceneType::SELECT;
         }
     }
 }
@@ -514,7 +514,7 @@ void SceneResult::updateWaitArena()
     if (!gArenaData.isOnline() || !gSelectContext.isArenaReady)
     {
         State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
-        _state = eResultState::FADEOUT;
+        state = eResultState::FADEOUT;
         SoundMgr::setSysVolume(0.0, 2000);
         SoundMgr::setNoteVolume(0.0, 2000);
         LOG_DEBUG << "[Result] State changed to FADEOUT";
@@ -526,16 +526,16 @@ void SceneResult::updateWaitArena()
 // CALLBACK
 void SceneResult::inputGamePress(InputMask& m, const Time& t)
 {
-    if (t - State::get(IndexTimer::SCENE_START) < _skin->info.timeIntro) return;
+    if (t - State::get(IndexTimer::SCENE_START) < pSkin->info.timeIntro) return;
 
     if ((_inputAvailable & m & (INPUT_MASK_DECIDE | INPUT_MASK_CANCEL)).any() || m[Input::ESC])
     {
-        switch (_state)
+        switch (state)
         {
         case eResultState::DRAW:
             State::set(IndexTimer::RESULT_RANK_START, t.norm());
             // TODO play hit sound
-            _state = eResultState::STOP;
+            state = eResultState::STOP;
             LOG_DEBUG << "[Result] State changed to STOP";
             break;
 
@@ -545,7 +545,7 @@ void SceneResult::inputGamePress(InputMask& m, const Time& t)
                 State::set(IndexTimer::RESULT_HIGHSCORE_START, t.norm());
                 // TODO stop result sound
                 // TODO play record sound
-                _state = eResultState::RECORD;
+                state = eResultState::RECORD;
                 LOG_DEBUG << "[Result] State changed to RECORD";
             }
             else if (gArenaData.isOnline())
@@ -556,13 +556,13 @@ void SceneResult::inputGamePress(InputMask& m, const Time& t)
                     g_pArenaHost->setResultFinished();
 
                 State::set(IndexTimer::ARENA_RESULT_WAIT, t.norm());
-                _state = eResultState::WAIT_ARENA;
+                state = eResultState::WAIT_ARENA;
                 LOG_DEBUG << "[Result] State changed to WAIT_ARENA";
             }
             else
             {
                 State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
-                _state = eResultState::FADEOUT;
+                state = eResultState::FADEOUT;
                 SoundMgr::setSysVolume(0.0, 2000);
                 SoundMgr::setNoteVolume(0.0, 2000);
                 LOG_DEBUG << "[Result] State changed to FADEOUT";
@@ -580,13 +580,13 @@ void SceneResult::inputGamePress(InputMask& m, const Time& t)
                         g_pArenaHost->setResultFinished();
 
                     State::set(IndexTimer::ARENA_RESULT_WAIT, t.norm());
-                    _state = eResultState::WAIT_ARENA;
+                    state = eResultState::WAIT_ARENA;
                     LOG_DEBUG << "[Result] State changed to WAIT_ARENA";
                 }
                 else
                 {
                     State::set(IndexTimer::FADEOUT_BEGIN, t.norm());
-                    _state = eResultState::FADEOUT;
+                    state = eResultState::FADEOUT;
                     SoundMgr::setSysVolume(0.0, 2000);
                     SoundMgr::setNoteVolume(0.0, 2000);
                     LOG_DEBUG << "[Result] State changed to FADEOUT";
@@ -606,9 +606,9 @@ void SceneResult::inputGamePress(InputMask& m, const Time& t)
 // CALLBACK
 void SceneResult::inputGameHold(InputMask& m, const Time& t)
 {
-    if (t - State::get(IndexTimer::SCENE_START) < _skin->info.timeIntro) return;
+    if (t - State::get(IndexTimer::SCENE_START) < pSkin->info.timeIntro) return;
 
-    if (_state == eResultState::FADEOUT)
+    if (state == eResultState::FADEOUT)
     {
         _retryRequested =
             (_inputAvailable & m & INPUT_MASK_DECIDE).any() && 
@@ -619,5 +619,5 @@ void SceneResult::inputGameHold(InputMask& m, const Time& t)
 // CALLBACK
 void SceneResult::inputGameRelease(InputMask& m, const Time& t)
 {
-    if (t - State::get(IndexTimer::SCENE_START) < _skin->info.timeIntro) return;
+    if (t - State::get(IndexTimer::SCENE_START) < pSkin->info.timeIntro) return;
 }

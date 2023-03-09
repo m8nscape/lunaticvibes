@@ -7,66 +7,56 @@
 #include <string>
 #include <memory>
 
-enum class eSkinType
+enum class SkinVersion
 {
     UNDEF,
-    LR2,
+    LR2beta3,
 
 };
 
-typedef unsigned long timeMS;
-
 //typedef StringContent Token;
-//typedef std::vector<StringContent> Tokens;
-typedef StringContent Token;
-typedef std::vector<Token> Tokens;
-typedef std::shared_ptr<vSprite> pSprite;
-typedef std::shared_ptr<Texture> pTexture;
-typedef std::shared_ptr<sVideo>  pVideo;
-typedef std::shared_ptr<Image>   pImage;
-typedef std::shared_ptr<TTFFont> pFont;
+typedef std::vector<StringContent> Tokens;
 
-class vSkin
+class SkinBase
 {
 public:
 
 protected:
-    eSkinType _type;
-    vSkin();
+    SkinVersion _version;
+    SkinBase();
 public:
-	virtual ~vSkin();
-    eSkinType type() const { return _type; }
+	virtual ~SkinBase();
+    SkinVersion version() const { return _version; }
 
 protected:
-    bool _loaded = false;
+    bool loaded = false;
 public:
-    constexpr bool isLoaded() { return _loaded; }
+    constexpr bool isLoaded() { return loaded; }
     virtual int setExtendedProperty(std::string&& key, void* value) = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Images
 protected:
-    std::map<std::string, pFont>  _fontNameMap;
+    std::map<std::string, std::shared_ptr<TTFFont>>  fontNameMap;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Textures
 protected:
-    std::map<std::string, pTexture> _textureNameMap;    // Use this to get texture instance from name
-	std::map<std::string, pVideo>   _vidNameMap;	// Use this to get video instance from name
+    std::map<std::string, std::shared_ptr<Texture>> textureNameMap;    // Use this to get texture instance from name
+	std::map<std::string, std::shared_ptr<sVideo>>  videoNameMap;	// Use this to get video instance from name
 
 ////////////////////////////////////////////////////////////////////////////////
 // Sprite elements
 protected:
-    std::list<pSprite> _sprites;                    // Push instance on parsing
+    std::list<std::shared_ptr<SpriteBase>> _sprites;                    // Push instance on parsing
 
 // functional support
 protected:
-    bool _handleMouseEvents = true;
-    std::list<std::map<Rect, pSprite>> _mouseCursorAreaMap;
+    bool handleMouseEvents = true;
 
-    std::shared_ptr<iSpriteMouse> _pDragging = nullptr;  // currently (mouse) dragging element
-    std::shared_ptr<SpriteText> _pEditing = nullptr;     // currently text edit element
-    std::shared_ptr<iSpriteMouse> _pLastClick = nullptr; 
+    std::shared_ptr<iSpriteMouse> pSpriteDragging = nullptr;  // currently (mouse) dragging element
+    std::shared_ptr<SpriteText> pSpriteTextEditing = nullptr;     // currently text edit element
+    std::shared_ptr<iSpriteMouse> pSpriteLastClicked = nullptr; 
 
 ////////////////////////////////////////////////////////////////////////////////
 public:
@@ -78,7 +68,7 @@ public:
     virtual void reset_bar_animation() = 0;
     virtual void start_bar_animation() = 0;
     virtual void draw() const;
-    void setHandleMouseEvents(bool b) { _handleMouseEvents = b; }
+    void setHandleMouseEvents(bool b) { handleMouseEvents = b; }
     void startSpriteVideoPlayback();
     void stopSpriteVideoPlayback();
 
@@ -87,13 +77,13 @@ public:
     void startTextEdit(bool clear);
     void stopTextEdit(bool modify);
 
-    pTexture getTextureCustomizeThumbnail();
+    std::shared_ptr<Texture> getTextureCustomizeThumbnail();
 
     ///////////////////////////////////////////////////////////
     // Info defined by header
     struct skinInfo
     {
-        eMode mode = eMode::PLAY7;
+        SkinType mode = SkinType::PLAY7;
         std::string name;
         std::string maker;
         int resolution = -1;     // #RESOLUTION | 0:480p / 1:720p / 2:1080p

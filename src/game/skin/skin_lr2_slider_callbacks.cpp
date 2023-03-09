@@ -21,10 +21,10 @@ void select_pos(double p)
     if (gSelectContext.entries.empty()) return;
 
     size_t idx_new = (size_t)std::floor(p * gSelectContext.entries.size());
-    if (idx_new != gSelectContext.idx)
+    if (idx_new != gSelectContext.selectedEntryIndex)
     {
         State::set(IndexSlider::SELECT_LIST, (double)idx_new / gSelectContext.entries.size());
-        gSelectContext.entryDragging = true;
+        gSelectContext.draggingListSlider = true;
     }
 }
 

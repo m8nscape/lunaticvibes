@@ -60,19 +60,19 @@ bool ArenaData::isPlayerReady(size_t index)
 	return index < getPlayerCount() ? data[playerIDs[index]].ready: false;
 }
 
-void ArenaData::initPlaying(eRuleset rulesetType)
+void ArenaData::initPlaying(RulesetType rulesetType)
 {
 	unsigned keys = 7;
 	switch (gPlayContext.mode)
 	{
-	case eMode::PLAY5:
-	case eMode::PLAY5_2: keys = 5; break;
-	case eMode::PLAY7:
-	case eMode::PLAY7_2: keys = 7; break;
-	case eMode::PLAY9:
-	case eMode::PLAY9_2: keys = 9; break;
-	case eMode::PLAY10: keys = 10; break;
-	case eMode::PLAY14: keys = 14; break;
+	case SkinType::PLAY5:
+	case SkinType::PLAY5_2: keys = 5; break;
+	case SkinType::PLAY7:
+	case SkinType::PLAY7_2: keys = 7; break;
+	case SkinType::PLAY9:
+	case SkinType::PLAY9_2: keys = 9; break;
+	case SkinType::PLAY10: keys = 10; break;
+	case SkinType::PLAY14: keys = 14; break;
 	default: break;
 	}
 
@@ -82,7 +82,7 @@ void ArenaData::initPlaying(eRuleset rulesetType)
 	{
 		switch (rulesetType)
 		{
-		case eRuleset::BMS: d.ruleset = std::make_shared<RulesetBMSNetwork>(keys, idx++); break;
+		case RulesetType::BMS: d.ruleset = std::make_shared<RulesetBMSNetwork>(keys, idx++); break;
 		}
 		
 	}

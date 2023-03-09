@@ -2,7 +2,7 @@
 #include "scene.h"
 #include "scene_context.h"
 
-class ScenePreSelect: public vScene
+class ScenePreSelect: public SceneBase
 {
 public:
     ScenePreSelect();
@@ -18,7 +18,7 @@ protected:
     void updateLoadCourses();
     void loadFinished();
 
-    virtual void _updateImgui() override;
+    virtual void updateImgui() override;
 
 
 protected:
