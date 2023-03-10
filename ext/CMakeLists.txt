@@ -75,7 +75,7 @@ add_library(imgui STATIC
 if (${GRAPHICS_BACKEND} STREQUAL SDL2)
     target_link_libraries(imgui PRIVATE SDL2)
     target_sources(imgui PRIVATE
-        imgui/backends/imgui_impl_sdl.cpp
+        imgui/backends/imgui_impl_sdl2.cpp
         imgui/backends/imgui_impl_sdlrenderer.cpp
     )
 endif()
