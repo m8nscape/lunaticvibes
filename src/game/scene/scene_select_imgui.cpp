@@ -1402,6 +1402,15 @@ bool SceneSelect::imguiAddFolder(const char* path)
     }
     else
     {
+        if (strnlen(path, 1) == 0) 
+            return false;
+
+        for (auto& f : imgui_folders)
+        {
+            if (f == path)
+                return false;
+        }
+        
         imgui_folders.push_back(path);
         imgui_folders_display.push_back(imgui_folders.back().c_str());
         imgui_folder_index = -1;
@@ -1445,6 +1454,15 @@ bool SceneSelect::imguiBrowseFolder()
 bool SceneSelect::imguiAddTable()
 {
     bool added = false;
+
+    if (strnlen(imgui_table_url_buf, 1) == 0)
+        return false;
+
+    for (auto& f : imgui_tables)
+    {
+        if (f == imgui_table_url_buf)
+            return false;
+    }
 
     imgui_tables.push_back(imgui_table_url_buf);
     imgui_tables_display.push_back(imgui_tables.back().c_str());
