@@ -155,14 +155,18 @@ SceneResult::SceneResult() : SceneBase(SkinType::RESULT, 1000)
             param["updatedbp"] = true;
         }
 
-        if (!gPlayContext.isBattle && State::get(IndexOption::PLAY_TARGET_TYPE) == Option::TARGET_MYBEST && gPlayContext.replayMybest)
+        if (!gPlayContext.isBattle)
         {
-            param["1ptarget"] = param["1pexscore"] - param["dbexscore"];
+            if (State::get(IndexOption::PLAY_TARGET_TYPE) == Option::TARGET_MYBEST && gPlayContext.replayMybest)
+            {
+                param["2pexscore"] = param["dbexscore"];
+            }
+            else if (State::get(IndexOption::PLAY_TARGET_TYPE) == Option::TARGET_0)
+            {
+                param["2pexscore"] = 0;
+            }
         }
-        else
-        {
-            param["1ptarget"] = param["1pexscore"] - param["2pexscore"];
-        }
+        param["1ptarget"] = param["1pexscore"] - param["2pexscore"];
         param["2ptarget"] = param["2pexscore"] - param["1pexscore"];
         param["winlose"] = (param["1ptarget"] > 0) ? 1 : (param["1ptarget"] < 0) ? 2 : 0;
     }
@@ -171,6 +175,8 @@ SceneResult::SceneResult() : SceneBase(SkinType::RESULT, 1000)
     {
         State::set(IndexOption::RESULT_RANK_1P, param["1prank"]);
         State::set(IndexOption::RESULT_RANK_2P, param["2prank"]);
+        State::set(IndexNumber::PLAY_1P_EXSCORE, param["1pexscore"]);
+        State::set(IndexNumber::PLAY_2P_EXSCORE, param["2pexscore"]);
         State::set(IndexNumber::PLAY_1P_EXSCORE_DIFF, param["1ptarget"]);
         State::set(IndexNumber::PLAY_2P_EXSCORE_DIFF, param["2ptarget"]);
         State::set(IndexOption::RESULT_BATTLE_WIN_LOSE, param["winlose"]);

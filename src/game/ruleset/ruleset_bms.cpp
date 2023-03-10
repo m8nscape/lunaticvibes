@@ -1064,6 +1064,10 @@ void RulesetBMS::updateJudge(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeA
             _basic.maxComboDisplay = _basic.combo + _basic.comboDisplay;
     }
 
+    unsigned max = getNoteCount() * 2;
+    _basic.total_acc = 100.0 * exScore / max;
+    _basic.acc = notesExpired ? (100.0 * exScore / notesExpired / 2) : 0;
+
     JudgeType judgeType = JudgeAreaTypeMap.at(judge);
     if (showJudge)
     {
@@ -1531,10 +1535,6 @@ void RulesetBMS::update(const Time& t)
         updateScratch(t, Input::S2L, Input::S2R, playerScratchAccumulator[PLAYER_SLOT_TARGET], PLAYER_SLOT_TARGET);
     }
 
-	unsigned max = getNoteCount() * 2;
-	_basic.total_acc = 100.0 * exScore / max;
-    _basic.acc = notesExpired ? (100.0 * exScore / notesExpired / 2) : 0;
-
     _isCleared = isCleared();
 
     if (isFinished()) 
@@ -1792,7 +1792,14 @@ void RulesetBMS::updateGlobals()
         State::set(IndexBargraph::PLAY_RIVAL_EXSCORE_BACKUP, _basic.total_acc / 100.0);
         
         State::set(IndexNumber::PLAY_2P_SCORE, int(std::round(moneyScore)));
-        State::set(IndexNumber::PLAY_2P_EXSCORE, exScore);
+        if (_side == PlaySide::RIVAL)
+        {
+            // target exscore is affected by target type. Handle in ScenePlay
+        }
+        else
+        {
+            State::set(IndexNumber::PLAY_2P_EXSCORE, exScore);
+        }
         State::set(IndexNumber::PLAY_2P_NOWCOMBO, _basic.combo + _basic.comboDisplay);
         State::set(IndexNumber::PLAY_2P_MAXCOMBO, _basic.maxComboDisplay);
         State::set(IndexNumber::PLAY_2P_RATE, int(std::floor(_basic.acc)));

@@ -2516,14 +2516,19 @@ void ScenePlay::updatePlaying()
     State::set(IndexNumber::RESULT_MYBEST_EX, exScoreMybest);
     State::set(IndexNumber::RESULT_MYBEST_DIFF, exScore1P - exScoreMybest);
 
-    if (!gPlayContext.isBattle && targetType == Option::TARGET_MYBEST && gPlayContext.replayMybest)
+    if (!gPlayContext.isBattle)
     {
-        State::set(IndexNumber::PLAY_1P_EXSCORE_DIFF, exScore1P - exScoreMybest);
+        if (targetType == Option::TARGET_MYBEST && gPlayContext.replayMybest)
+        {
+            exScore2P = exScoreMybest;
+        }
+        else if (targetType == Option::TARGET_0)
+        {
+            exScore2P = 0;
+        }
+        State::set(IndexNumber::PLAY_2P_EXSCORE, exScore2P);
     }
-    else
-    {
-        State::set(IndexNumber::PLAY_1P_EXSCORE_DIFF, exScore1P - exScore2P);
-    }
+    State::set(IndexNumber::PLAY_1P_EXSCORE_DIFF, exScore1P - exScore2P);
     State::set(IndexNumber::PLAY_2P_EXSCORE_DIFF, exScore2P - exScore1P);
 
     State::set(IndexNumber::RESULT_TARGET_EX, exScore2P);
@@ -2824,19 +2829,22 @@ void ScenePlay::updateFadeout()
 
         // check quick retry (start+select / white+black)
         bool wantRetry = false;
-        auto h = _input.Holding();
-        using namespace Input;
-        if (gPlayContext.chartObj[PLAYER_SLOT_PLAYER] != nullptr)
+        if (gPlayContext.canRetry && gChartContext.started)
         {
-            if ((h.test(K1START) && h.test(K1SELECT)) ||
-                (h.test(K11) || h.test(K13) || h.test(K15) || h.test(K17) || h.test(K19)) && (h.test(K12) || h.test(K14) || h.test(K16) || h.test(K18)))
-                wantRetry = true;
-        }
-        if (gPlayContext.chartObj[PLAYER_SLOT_TARGET] != nullptr)
-        {
-            if ((h.test(K2START) && h.test(K2SELECT)) ||
-                (h.test(K21) || h.test(K23) || h.test(K25) || h.test(K27) || h.test(K29)) && (h.test(K22) || h.test(K24) || h.test(K26) || h.test(K28)))
-                wantRetry = true;
+            auto h = _input.Holding();
+            using namespace Input;
+            if (gPlayContext.chartObj[PLAYER_SLOT_PLAYER] != nullptr)
+            {
+                if ((h.test(K1START) && h.test(K1SELECT)) ||
+                    (h.test(K11) || h.test(K13) || h.test(K15) || h.test(K17) || h.test(K19)) && (h.test(K12) || h.test(K14) || h.test(K16) || h.test(K18)))
+                    wantRetry = true;
+            }
+            if (gPlayContext.chartObj[PLAYER_SLOT_TARGET] != nullptr)
+            {
+                if ((h.test(K2START) && h.test(K2SELECT)) ||
+                    (h.test(K21) || h.test(K23) || h.test(K25) || h.test(K27) || h.test(K29)) && (h.test(K22) || h.test(K24) || h.test(K26) || h.test(K28)))
+                    wantRetry = true;
+            }
         }
 
         gPlayContext.bgaTexture->reset();
@@ -2864,7 +2872,7 @@ void ScenePlay::updateFadeout()
         {
             gNextScene = gQuitOnFinish ? SceneType::EXIT_TRANS : SceneType::SELECT;
         }
-        else if (wantRetry && gPlayContext.canRetry && gChartContext.started)
+        else if (wantRetry)
         {
             if (retryRequestTick)
             {
@@ -2894,6 +2902,26 @@ void ScenePlay::updateFadeout()
         else
         {
             gNextScene = gQuitOnFinish ? SceneType::EXIT_TRANS : SceneType::SELECT;
+        }
+
+        if (_isExitingFromPlay)
+        {
+            if (gPlayContext.ruleset[PLAYER_SLOT_MYBEST] &&
+                !gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->isFailed() &&
+                !gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->isFinished())
+            {
+                gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->fail();
+                gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->updateGlobals();
+            }
+
+            if (!gPlayContext.isBattle &&
+                gPlayContext.ruleset[PLAYER_SLOT_TARGET] && 
+                !gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFailed() && 
+                !gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFinished())
+            {
+                gPlayContext.ruleset[PLAYER_SLOT_TARGET]->fail();
+                gPlayContext.ruleset[PLAYER_SLOT_TARGET]->updateGlobals();
+            }
         }
     }
 }

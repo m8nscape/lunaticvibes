@@ -345,6 +345,7 @@ void RulesetBMSAuto::fail()
     _basic.judge[JUDGE_PERFECT] = totalJudgeCount[JudgeArea::EXACT_PERFECT];
     _basic.judge[JUDGE_GREAT] = totalJudgeCount[JudgeArea::EARLY_GREAT];
     _basic.judge[JUDGE_GOOD] = totalJudgeCount[JudgeArea::EARLY_GOOD];
+    exScore = _basic.judge[JUDGE_PERFECT] * 2 + _basic.judge[JUDGE_GREAT];
 
     _basic.total_acc = notesExpired ? (100.0 * exScore / (notesExpired * 2)) : 0;
     _basic.acc = _basic.total_acc;
