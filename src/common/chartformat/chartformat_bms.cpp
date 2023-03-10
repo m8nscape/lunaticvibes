@@ -132,7 +132,7 @@ int ChartFormatBMS::initWithFile(const Path& filePath, uint64_t randomSeed)
                     !strEqual(v.substr(0, 6), "#ENDIF", true) && 
                     !strEqual(v.substr(0, 10), "#ENDRANDOM", true))
                 {
-                    LOG_WARNING << "[BMS] " << absolutePath.u8string() << " definition found after all IF blocks finished, assuming #ENDRANDOM is missing. Line: " << srcLine;
+                    LOG_WARNING << "[BMS] definition found after all IF blocks finished, assuming #ENDRANDOM is missing. " << absolutePath.u8string() << "@" << srcLine;
                     randomValueMax.pop();
                     randomValue.pop();
                     randomUsedValues.pop();
@@ -146,7 +146,7 @@ int ChartFormatBMS::initWithFile(const Path& filePath, uint64_t randomSeed)
                 int iValue = toInt(value);
                 if (iValue == 0)
                 {
-                    LOG_WARNING << "[BMS] " << absolutePath.u8string() << " Invalid #RANDOM value found at line" << srcLine;
+                    LOG_WARNING << "[BMS] Invalid #RANDOM value found. " << absolutePath.u8string()  << "@" << srcLine;
                     continue;
                 }
 
@@ -175,13 +175,13 @@ int ChartFormatBMS::initWithFile(const Path& filePath, uint64_t randomSeed)
                         int ifBlockValue = toInt(value);
                         if (randomUsedValues.top().find(ifBlockValue) != randomUsedValues.top().end())
                         {
-                            LOG_WARNING << "[BMS] " << absolutePath.u8string() << " duplicate #IF value found at line " << srcLine;
+                            LOG_WARNING << "[BMS] duplicate #IF value found. " << absolutePath.u8string() << "@" << srcLine;
                         }
 
                         // one level control flow
                         if (!ifValue.empty())
                         {
-                            LOG_WARNING << "[BMS] " << absolutePath.u8string() << " unexpected #IF found, assuming #ENDIF is missing. Line: " << srcLine;
+                            LOG_WARNING << "[BMS] unexpected #IF found, assuming #ENDIF is missing. " << absolutePath.u8string() << "@" << srcLine;
                             randomUsedValues.top().emplace(ifValue.top());
                             ifValue.pop();
                         }
@@ -197,14 +197,14 @@ int ChartFormatBMS::initWithFile(const Path& filePath, uint64_t randomSeed)
                         }
                         else
                         {
-                            LOG_WARNING << "[BMS] " << absolutePath.u8string() << " unexpected #ENDIF found at line " << srcLine;
+                            LOG_WARNING << "[BMS] unexpected #ENDIF found. " << absolutePath.u8string() << "@" << srcLine;
                         }
                     }
                     else if (strEqual(key, "ENDRANDOM", true))
                     {
                         if (!ifValue.empty())
                         {
-                            LOG_WARNING << "[BMS] " << absolutePath.u8string() << " #ENDRANDOM found before #ENDIF at line " << srcLine;
+                            LOG_WARNING << "[BMS] #ENDRANDOM found before #ENDIF. " << absolutePath.u8string() << "@" << srcLine;
                         }
                         randomValueMax.pop();
                         randomValue.pop();
@@ -309,7 +309,7 @@ int ChartFormatBMS::initWithFile(const Path& filePath, uint64_t randomSeed)
                 {
                     if (!lnobjSet.empty())
                     {
-                        LOG_WARNING << "[BMS] " << absolutePath.u8string() << " Multiple #LNOBJ found at line" << srcLine;
+                        LOG_WARNING << "[BMS] Multiple #LNOBJ found. " << absolutePath.u8string() << "@" << srcLine;
                         lnobjSet.clear();
                     }
                     lnobjSet.insert(base36(value[0], value[1]));
@@ -356,7 +356,7 @@ int ChartFormatBMS::initWithFile(const Path& filePath, uint64_t randomSeed)
 
                 if (value.empty())
                 {
-                    LOG_WARNING << "[BMS] " << absolutePath.u8string() << " Empty note line detected: line " << srcLine;
+                    LOG_WARNING << "[BMS] Empty note line detected. " << absolutePath.u8string() << "@" << srcLine;
                     errorLine = srcLine;
                     errorCode = err::NOTE_LINE_ERROR;
                     return 1;
@@ -420,6 +420,12 @@ int ChartFormatBMS::initWithFile(const Path& filePath, uint64_t randomSeed)
                     }
                     else // not 0x
                     {
+                        if (!isPMS && _y == 7)
+                        {
+                            LOG_WARNING << "[BMS] #xxxX7 lanes are not supported. " << absolutePath.u8string() << "@" << srcLine;
+                            continue;
+                        }
+
                         auto [side, idx] = isPMS ? getLaneIndexPMS(x_, _y) : getLaneIndexBME(x_, _y);
                         unsigned chIdx = idx + (side == 1 ? 10 : 0);
                         if (side >= 0)
@@ -504,7 +510,7 @@ int ChartFormatBMS::initWithFile(const Path& filePath, uint64_t randomSeed)
                 }
                 catch (noteLineException& e)
                 {
-                    LOG_WARNING << "[BMS] " << absolutePath.u8string() << " Line error. Line: " << srcLine;
+                    LOG_WARNING << "[BMS] Line error. " << absolutePath.u8string() << "@" << srcLine;
                 }
             }
         }
@@ -934,7 +940,7 @@ std::pair<int, int> ChartFormatBMS::getLaneIndexBME(int x_, int _y)
         case 9:        //7
             idx = 7;
             break;
-        case 7:        //Free zone
+        case 7:        //Free zone / pedal
             idx = 9;
             break;
         }
