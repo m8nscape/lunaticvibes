@@ -191,6 +191,14 @@ void RulesetBMSReplay::update(const Time& t)
         case ReplayChart::Commands::Type::JUDGE_LEFT_LANDMINE:  updateJudge(t, NoteLaneIndex::_, JudgeArea::MINE_KPOOR, PLAYER_SLOT_PLAYER, true); break;
         case ReplayChart::Commands::Type::JUDGE_RIGHT_LANDMINE: updateJudge(t, NoteLaneIndex::_, JudgeArea::MINE_KPOOR, PLAYER_SLOT_TARGET, true); break;
         }
+
+        if (cmd >= ReplayChart::Commands::Type::JUDGE_LEFT_EXACT_0 && cmd <= ReplayChart::Commands::Type::JUDGE_RIGHT_LANDMINE)
+        {
+            unsigned max = getNoteCount() * 2;
+            _basic.total_acc = 100.0 * exScore / max;
+            _basic.acc = notesExpired ? (100.0 * exScore / notesExpired / 2) : 0;
+        }
+
         itReplayCommand++;
     }
 
