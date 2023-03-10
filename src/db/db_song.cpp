@@ -1193,7 +1193,7 @@ EntryFolderRegular SongDB::browse(HashMD5 root, bool recursive)
 
 EntryFolderSong SongDB::browseSong(HashMD5 root)
 {
-    LOG_DEBUG << "[SongDB] browse from " << root.hexdigest();
+    LOG_VERBOSE << "[SongDB] browse from " << root.hexdigest();
 
     auto& [hasPath, path] = getFolderPath(root);
     if (!hasPath)
@@ -1236,7 +1236,7 @@ EntryFolderSong SongDB::browseSong(HashMD5 root)
         }
     }
 
-    LOG_DEBUG << "[SongDB] browsed song: " << list.getContentsCount() << " entries";
+    LOG_VERBOSE << "[SongDB] browsed song: " << list.getContentsCount() << " entries";
 
     return list;
 }
