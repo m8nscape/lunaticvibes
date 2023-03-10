@@ -404,6 +404,35 @@ void SceneResult::updateFadeout()
         if (_retryRequested && gPlayContext.canRetry)
         {
             SoundMgr::stopSysSamples();
+
+            // update mybest
+            if (!gPlayContext.isBattle)
+            {
+                auto pScore = g_pScoreDB->getChartScoreBMS(gChartContext.hash);
+                if (pScore && !pScore->replayFileName.empty())
+                {
+                    Path replayFilePath = ReplayChart::getReplayPath(gChartContext.hash) / pScore->replayFileName;
+                    if (!replayFilePath.empty() && fs::is_regular_file(replayFilePath))
+                    {
+                        gPlayContext.replayMybest = std::make_shared<ReplayChart>();
+                        if (gPlayContext.replayMybest->loadFile(replayFilePath))
+                        {
+                            gPlayContext.mods[PLAYER_SLOT_MYBEST].randomLeft = gPlayContext.replayMybest->randomTypeLeft;
+                            gPlayContext.mods[PLAYER_SLOT_MYBEST].randomRight = gPlayContext.replayMybest->randomTypeRight;
+                            gPlayContext.mods[PLAYER_SLOT_MYBEST].gauge = gPlayContext.replayMybest->gaugeType;
+                            gPlayContext.mods[PLAYER_SLOT_MYBEST].assist_mask = gPlayContext.replayMybest->assistMask;
+                            gPlayContext.mods[PLAYER_SLOT_MYBEST].hispeedFix = gPlayContext.replayMybest->hispeedFix;
+                            gPlayContext.mods[PLAYER_SLOT_MYBEST].laneEffect = (PlayModifierLaneEffectType)gPlayContext.replayMybest->laneEffectType;
+                            gPlayContext.mods[PLAYER_SLOT_MYBEST].DPFlip = gPlayContext.replayMybest->DPFlip;
+                        }
+                        else
+                        {
+                            gPlayContext.replayMybest.reset();
+                        }
+                    }
+                }
+            }
+
             clearContextPlayForRetry();
             gNextScene = SceneType::PLAY;
         }
