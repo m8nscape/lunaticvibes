@@ -78,7 +78,7 @@ void imguiMonitorOption()
 	if (ImGui::Begin("Options (F3)", NULL, ImGuiWindowFlags_NoCollapse))
 	{
 		char titleBuf[32] = { 0 };
-		for (int i = 0; i <= 99; i += 20)
+		for (int i = 0; i <= 149; i += 20)
 		{
 			sprintf(titleBuf, "%d - %d", i, i + 20);
 			if (ImGui::CollapsingHeader(titleBuf))

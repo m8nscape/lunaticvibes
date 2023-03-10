@@ -95,6 +95,8 @@ public:
             ar(moneyScore);
             ar(exScore);
             ar(isFinished);
+            ar(isCleared);
+            ar(isFailed);
         }
     };
     static std::vector<unsigned char> packFrame(std::shared_ptr<RulesetBMS> local);

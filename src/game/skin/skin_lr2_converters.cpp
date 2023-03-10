@@ -268,7 +268,7 @@ IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FALSE, IndexSwitch::_FAL
 
 // 300
 IndexSwitch::_FALSE,
-IndexOption::ARENA_PLAYDATA_CLEAR_TYPE, // FAILED / EASY / GROOVE / HARD / FULLCOMBO / ASSIST-EASY / EX-HARD
+IndexOption::ARENA_PLAYDATA_CLEAR_TYPE, // NOPLAY / FAILED / ASSIST-EASY / EASY / GROOVE / HARD / EX-HARD / FULLCOMBO
 IndexOption(int(IndexOption::ARENA_PLAYDATA_CLEAR_TYPE) + (int(IndexOption::ARENA_PLAYDATA_MAX) - int(IndexOption::ARENA_PLAYDATA_BASE) + 1) * 1),
 IndexOption(int(IndexOption::ARENA_PLAYDATA_CLEAR_TYPE) + (int(IndexOption::ARENA_PLAYDATA_MAX) - int(IndexOption::ARENA_PLAYDATA_BASE) + 1) * 2),
 IndexOption(int(IndexOption::ARENA_PLAYDATA_CLEAR_TYPE) + (int(IndexOption::ARENA_PLAYDATA_MAX) - int(IndexOption::ARENA_PLAYDATA_BASE) + 1) * 3),

@@ -61,7 +61,7 @@ void RulesetBMSNetwork::update(const Time& t)
 
     int maxScore = getMaxScore();
     //if      (dp.total_acc >= 94.44) State::set(IndexNumber::RESULT_NEXT_RANK_EX_DIFF, int(maxScore * 1.000 - dp.score2));    // MAX-
-    if      (_basic.total_acc >= 100.0 * 8.0 / 9) State::set(N(IndexNumber::ARENA_PLAYDATA_NEXT_RANK_EX_DIFF), exScore - maxScore);    // MAX-
+    if (_basic.total_acc >= 100.0 * 8.0 / 9) State::set(N(IndexNumber::ARENA_PLAYDATA_NEXT_RANK_EX_DIFF), exScore - maxScore);    // MAX-
     else if (_basic.total_acc >= 100.0 * 7.0 / 9) State::set(N(IndexNumber::ARENA_PLAYDATA_NEXT_RANK_EX_DIFF), int(exScore - maxScore * 8.0 / 9));    // AAA-
     else if (_basic.total_acc >= 100.0 * 6.0 / 9) State::set(N(IndexNumber::ARENA_PLAYDATA_NEXT_RANK_EX_DIFF), int(exScore - maxScore * 7.0 / 9));    // AA-
     else if (_basic.total_acc >= 100.0 * 5.0 / 9) State::set(N(IndexNumber::ARENA_PLAYDATA_NEXT_RANK_EX_DIFF), int(exScore - maxScore * 6.0 / 9));    // A-
@@ -74,40 +74,39 @@ void RulesetBMSNetwork::update(const Time& t)
         State::set(N(IndexNumber::ARENA_PLAYDATA_PLAYER_EX_DIFF), player->getExScore() - exScore);
 
     Option::e_lamp_type lamp = Option::LAMP_NOPLAY;
-    if (isNoScore() && _basic.judge[JUDGE_BP] == 0)
+    if (!isNoScore() && isFinished())
     {
-        lamp = Option::LAMP_NOPLAY;
-    }
-    else if (_basic.judge[JUDGE_CB] == 0)
-    {
-        if (_basic.acc >= 100.0)
-            lamp = Option::LAMP_MAX;
-        else if (_basic.judge[JUDGE_GOOD] == 0)
-            lamp = Option::LAMP_PERFECT;
-        else
-            lamp = Option::LAMP_FULLCOMBO;
-    }
-    else if (!isFailed())
-    {
-        switch (_gauge)
+        if (_basic.judge[JUDGE_CB] == 0)
         {
-        case GaugeType::HARD:       lamp = Option::LAMP_HARD; break;
-        case GaugeType::EXHARD:     lamp = Option::LAMP_EXHARD; break;
-        case GaugeType::DEATH:      lamp = Option::LAMP_FULLCOMBO; break;
-            //case GaugeType::P_ATK:      lamp = Option::LAMP_FULLCOMBO; break;
-            //case GaugeType::G_ATK:      lamp = Option::LAMP_FULLCOMBO; break;
-        case GaugeType::GROOVE:     lamp = Option::LAMP_NORMAL; break;
-        case GaugeType::EASY:       lamp = Option::LAMP_EASY; break;
-        case GaugeType::ASSIST:     lamp = Option::LAMP_ASSIST; break;
-        case GaugeType::GRADE:      lamp = Option::LAMP_NOPLAY; break;
-        case GaugeType::EXGRADE:    lamp = Option::LAMP_NOPLAY; break;
-        default:
-            break;
+            if (_basic.acc >= 100.0)
+                lamp = Option::LAMP_MAX;
+            else if (_basic.judge[JUDGE_GOOD] == 0)
+                lamp = Option::LAMP_PERFECT;
+            else if (isCleared())
+                lamp = Option::LAMP_FULLCOMBO;
         }
-    }
-    else
-    {
-        lamp = Option::LAMP_FAILED;
+        else if (isFailed())
+        {
+            lamp = Option::LAMP_FAILED;
+        }
+        else
+        {
+            switch (_gauge)
+            {
+            case GaugeType::HARD:       lamp = Option::LAMP_HARD; break;
+            case GaugeType::EXHARD:     lamp = Option::LAMP_EXHARD; break;
+            case GaugeType::DEATH:      lamp = Option::LAMP_FULLCOMBO; break;
+                //case GaugeType::P_ATK:      lamp = Option::LAMP_FULLCOMBO; break;
+                //case GaugeType::G_ATK:      lamp = Option::LAMP_FULLCOMBO; break;
+            case GaugeType::GROOVE:     lamp = Option::LAMP_NORMAL; break;
+            case GaugeType::EASY:       lamp = Option::LAMP_EASY; break;
+            case GaugeType::ASSIST:     lamp = Option::LAMP_ASSIST; break;
+            case GaugeType::GRADE:      lamp = Option::LAMP_NOPLAY; break;
+            case GaugeType::EXGRADE:    lamp = Option::LAMP_NOPLAY; break;
+            default:
+                break;
+            }
+        }
     }
     State::set(O(IndexOption::ARENA_PLAYDATA_CLEAR_TYPE), std::min(lamp, saveLampMax));
 }
