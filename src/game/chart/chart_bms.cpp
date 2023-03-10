@@ -728,7 +728,8 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                         laneOccupiedByLN[gameLaneIdxMod] = true;
                     }
 
-                    bpmNoteCount[bpm]++;
+                    if (lane.type == eLanePriority::NOTE || lane.type == eLanePriority::LNHEAD)
+                        bpmNoteCount[bpm]++;
                 }
             }
             else if (lane.type == eLanePriority::BGM)
