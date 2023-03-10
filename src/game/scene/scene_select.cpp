@@ -2368,8 +2368,11 @@ void SceneSelect::navigateEnter(const Time& t)
                     false
                 };
                 auto top = g_pSongDB->browse(e->md5, false);
-                for (size_t i = 0; i < top.getContentsCount(); ++i)
-                    prop.dbBrowseEntries.push_back({ top.getEntry(i), nullptr });
+                if (top && !top->empty())
+                {
+                    for (size_t i = 0; i < top->getContentsCount(); ++i)
+                        prop.dbBrowseEntries.push_back({ top->getEntry(i), nullptr });
+                }
 
                 gSelectContext.backtrace.front().index = gSelectContext.selectedEntryIndex;
                 gSelectContext.backtrace.front().displayEntries = gSelectContext.entries;
@@ -2635,7 +2638,7 @@ void SceneSelect::searchSong(const std::string& text)
     LOG_DEBUG << "Search: " << text;
 
     auto top = g_pSongDB->search(ROOT_FOLDER_HASH, text);
-    if (top.empty())
+    if (!top || top->empty())
     {
         State::set(IndexText::EDIT_JUKEBOX_NAME, i18n::s(i18nText::SEARCH_FAILED));
         return;
@@ -2643,7 +2646,7 @@ void SceneSelect::searchSong(const std::string& text)
 
     std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
 
-    std::string name = (boost::format(i18n::c(i18nText::SEARCH_RESULT)) % text % top.getContentsCount()).str();
+    std::string name = (boost::format(i18n::c(i18nText::SEARCH_RESULT)) % text % top->getContentsCount()).str();
     SongListProperties prop{
         "",
         "",
@@ -2652,8 +2655,8 @@ void SceneSelect::searchSong(const std::string& text)
         {},
         0
     };
-    for (size_t i = 0; i < top.getContentsCount(); ++i)
-        prop.dbBrowseEntries.push_back({ top.getEntry(i), nullptr });
+    for (size_t i = 0; i < top->getContentsCount(); ++i)
+        prop.dbBrowseEntries.push_back({ top->getEntry(i), nullptr });
 
     gSelectContext.backtrace.front().index = gSelectContext.selectedEntryIndex;
     gSelectContext.backtrace.front().displayEntries = gSelectContext.entries;

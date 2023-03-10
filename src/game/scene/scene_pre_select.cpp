@@ -111,23 +111,26 @@ void ScenePreSelect::updateLoadSongs()
 
             LOG_INFO << "[List] Generating root folders...";
             auto top = g_pSongDB->browse(ROOT_FOLDER_HASH, false);
-            for (size_t i = 0; i < top.getContentsCount(); ++i)
+            if (top && !top->empty())
             {
-                auto entry = top.getEntry(i);
+                for (size_t i = 0; i < top->getContentsCount(); ++i)
+                {
+                    auto entry = top->getEntry(i);
 
-                bool deleted = true;
-                for (auto& f : folderList)
-                {
-                    if (fs::exists(f) && fs::exists(entry->getPath()) && fs::equivalent(f, entry->getPath()))
+                    bool deleted = true;
+                    for (auto& f : folderList)
                     {
-                        deleted = false;
-                        break;
+                        if (fs::exists(f) && fs::exists(entry->getPath()) && fs::equivalent(f, entry->getPath()))
+                        {
+                            deleted = false;
+                            break;
+                        }
                     }
-                }
-                if (!deleted)
-                {
-                    g_pSongDB->browse(entry->md5, true);
-                    rootFolderProp.dbBrowseEntries.push_back({ entry, nullptr });
+                    if (!deleted)
+                    {
+                        g_pSongDB->browse(entry->md5, true);
+                        rootFolderProp.dbBrowseEntries.push_back({ entry, nullptr });
+                    }
                 }
             }
             LOG_INFO << "[List] Added " << rootFolderProp.dbBrowseEntries.size() << " root folders";
