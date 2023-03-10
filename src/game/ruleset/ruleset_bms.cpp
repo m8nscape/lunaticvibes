@@ -750,6 +750,10 @@ void RulesetBMS::_judgePress(NoteLaneCategory cat, NoteLaneIndex idx, HitableNot
         _lastNoteJudge[slot] = judge;
     }
 
+    unsigned max = getNoteCount() * 2;
+    _basic.total_acc = 100.0 * exScore / max;
+    _basic.acc = notesExpired ? (100.0 * exScore / notesExpired / 2) : 0;
+
     // push replay command
     if (pushReplayCommand && doJudge && gChartContext.started && gPlayContext.replayNew)
     {
@@ -800,6 +804,10 @@ void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote
 
             _lastNoteJudge = { JudgeArea::MINE_KPOOR, t.norm() };
 
+            unsigned max = getNoteCount() * 2;
+            _basic.total_acc = 100.0 * exScore / max;
+            _basic.acc = notesExpired ? (100.0 * exScore / notesExpired / 2) : 0;
+
             // push replay command
             if (doJudge && gChartContext.started && gPlayContext.replayNew)
             {
@@ -832,6 +840,10 @@ void RulesetBMS::_judgeHold(NoteLaneCategory cat, NoteLaneIndex idx, HitableNote
 
                 _lastNoteJudge[slot].area = _lnJudge[idx];
                 _lastNoteJudge[slot].time = 0;
+
+                unsigned max = getNoteCount() * 2;
+                _basic.total_acc = 100.0 * exScore / max;
+                _basic.acc = notesExpired ? (100.0 * exScore / notesExpired / 2) : 0;
 
                 // push replay command
                 if (doJudge && gChartContext.started && gPlayContext.replayNew)
@@ -921,6 +933,10 @@ void RulesetBMS::_judgeRelease(NoteLaneCategory cat, NoteLaneIndex idx, HitableN
     default:
         break;
     }
+
+    unsigned max = getNoteCount() * 2;
+    _basic.total_acc = 100.0 * exScore / max;
+    _basic.acc = notesExpired ? (100.0 * exScore / notesExpired / 2) : 0;
 
     // push replay command
     if (pushReplayCommand && doJudge && gChartContext.started && gPlayContext.replayNew)
@@ -1063,10 +1079,6 @@ void RulesetBMS::updateJudge(const Time& t, NoteLaneIndex ch, RulesetBMS::JudgeA
         if (_basic.combo + _basic.comboDisplay > _basic.maxComboDisplay)
             _basic.maxComboDisplay = _basic.combo + _basic.comboDisplay;
     }
-
-    unsigned max = getNoteCount() * 2;
-    _basic.total_acc = 100.0 * exScore / max;
-    _basic.acc = notesExpired ? (100.0 * exScore / notesExpired / 2) : 0;
 
     JudgeType judgeType = JudgeAreaTypeMap.at(judge);
     if (showJudge)
