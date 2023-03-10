@@ -2585,14 +2585,15 @@ void ScenePlay::updatePlaying()
     }
 
     // health check (-> to failed)
-    if (!_isExitingFromPlay)
+    if (!exitingFromPlay)
     {
         if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isFailed() && gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->failWhenNoHealth() &&
             (!gPlayContext.isBattle || gPlayContext.ruleset[PLAYER_SLOT_TARGET] == nullptr || gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFailed() && gPlayContext.ruleset[PLAYER_SLOT_TARGET]->failWhenNoHealth()))
         {
             pushGraphPoints();
 
-            _isExitingFromPlay = true;
+            exitingFromPlay = true;
+            playInterrupted = true;
             if (gArenaData.isOnline())
             {
                 State::set(IndexTimer::ARENA_PLAY_WAIT, t.norm());
@@ -2667,6 +2668,7 @@ void ScenePlay::updatePlaying()
                 LOG_INFO << "[Play] 2P finished";
             }
         }
+        playFinished = !playInterrupted && playerFinished[PLAYER_SLOT_PLAYER] && (!gPlayContext.isBattle || playerFinished[PLAYER_SLOT_TARGET]);
     }
 
     spinTurntable(true);
@@ -2674,7 +2676,7 @@ void ScenePlay::updatePlaying()
     //last note check
     if (rt.hres() - gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getTotalLength().hres() >= 0)
     {
-        _isExitingFromPlay = true;
+        exitingFromPlay = true;
         if (gArenaData.isOnline())
         {
             State::set(IndexTimer::ARENA_PLAY_WAIT, t.norm());
@@ -2724,7 +2726,7 @@ void ScenePlay::updateFadeout()
         if (_loadChartFuture.valid())
             _loadChartFuture.wait();
 
-        if (_isExitingFromPlay)
+        if (exitingFromPlay)
         {
             removeInputJudgeCallback();
 
@@ -2829,17 +2831,25 @@ void ScenePlay::updateFadeout()
 
         // check quick retry (start+select / white+black)
         bool wantRetry = false;
-        if (gPlayContext.canRetry && gChartContext.started)
+        if (gPlayContext.canRetry && gChartContext.started && playInterrupted && !playFinished)
         {
             auto h = _input.Holding();
             using namespace Input;
-            if (gPlayContext.chartObj[PLAYER_SLOT_PLAYER] != nullptr)
+            if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER] != nullptr)
             {
                 if ((h.test(K1START) && h.test(K1SELECT)) ||
                     (h.test(K11) || h.test(K13) || h.test(K15) || h.test(K17) || h.test(K19)) && (h.test(K12) || h.test(K14) || h.test(K16) || h.test(K18)))
                     wantRetry = true;
+
+                if (!gPlayContext.isBattle)
+                {
+                    if ((h.test(K2START) && h.test(K2SELECT)) ||
+                        (h.test(K21) || h.test(K23) || h.test(K25) || h.test(K27) || h.test(K29)) && (h.test(K22) || h.test(K24) || h.test(K26) || h.test(K28)))
+                        wantRetry = true;
+                }
             }
-            if (gPlayContext.chartObj[PLAYER_SLOT_TARGET] != nullptr)
+            if (gPlayContext.isBattle && 
+                gPlayContext.ruleset[PLAYER_SLOT_TARGET] != nullptr)
             {
                 if ((h.test(K2START) && h.test(K2SELECT)) ||
                     (h.test(K21) || h.test(K23) || h.test(K25) || h.test(K27) || h.test(K29)) && (h.test(K22) || h.test(K24) || h.test(K26) || h.test(K28)))
@@ -2904,7 +2914,7 @@ void ScenePlay::updateFadeout()
             gNextScene = gQuitOnFinish ? SceneType::EXIT_TRANS : SceneType::SELECT;
         }
 
-        if (_isExitingFromPlay)
+        if (exitingFromPlay)
         {
             if (gPlayContext.ruleset[PLAYER_SLOT_MYBEST] &&
                 !gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->isFailed() &&
@@ -3191,7 +3201,8 @@ void ScenePlay::requestExit()
 
     if (gChartContext.started)
     {
-        _isExitingFromPlay = true;
+        exitingFromPlay = true;
+        playInterrupted = true;
 
         if (!playerFinished[PLAYER_SLOT_PLAYER])
         {

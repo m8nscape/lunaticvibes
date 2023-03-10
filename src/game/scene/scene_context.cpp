@@ -70,6 +70,8 @@ std::pair<bool, Option::e_lamp_type> getSaveScoreType()
 
 void clearContextPlayForRetry()
 {
+    gChartContext.started = false;
+
     if (gPlayContext.chartObj[0] != nullptr) { gPlayContext.chartObj[0]->reset(); gPlayContext.chartObj[0].reset(); }
     if (gPlayContext.chartObj[1] != nullptr) { gPlayContext.chartObj[1]->reset(); gPlayContext.chartObj[1].reset(); }
     for (size_t i = 0; i < MAX_PLAYERS; ++i)

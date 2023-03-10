@@ -32,7 +32,9 @@ protected:
     bool isPlaymodeDP() const;
 
 private:
-    bool _isExitingFromPlay = false;
+    bool exitingFromPlay = false;
+    bool playInterrupted = false;
+    bool playFinished = false;
     std::array<bool, 2>     playerFinished{ false, false };
 
     std::array<bool, 2>     playerHoldingStart = { false, false };
