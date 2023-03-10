@@ -321,25 +321,60 @@ void TextureBmsBga::update(const Time& t, bool poor)
 	inPoor = poor;
 }
 
+// LR2 scales bga with some weird rules:
+// 1. position: horizontally centered, vertically top
+// 2. w < 256 / h < 256: do not scale up
+// 3. w > 256 / h > 256: stretch down to 256, ignore aspect
+void lr2ScaleBgaRect(const Rect& srcRect, RectF& dstRect)
+{
+	if (srcRect.w < 256)
+	{
+		dstRect.x = dstRect.x + dstRect.w * (1.0 - (double)srcRect.w / 256) / 2;
+		dstRect.w = dstRect.w * ((double)srcRect.w / 256);
+	}
+	if (srcRect.h < 256)
+	{
+		dstRect.h = dstRect.h * ((double)srcRect.h / 256);
+	}
+}
+
 void TextureBmsBga::draw(const Rect& sr, RectF dr,
 	const Color c, const BlendMode b, const bool f, const double a) const
 {
 	std::shared_lock l(idxLock);
 	if (inPoor && poorIdx != INDEX_INVALID && objs.at(poorIdx).type != obj::Ty::EMPTY)
 	{
-		objs.at(poorIdx).pt->draw(dr, c, b, f, a);
+		Rect srcRect = objs.at(poorIdx).pt ? objs.at(poorIdx).pt->getRect() : RECT_FULL;
+		RectF dstRect = dr;
+		lr2ScaleBgaRect(srcRect, dstRect);
+		objs.at(poorIdx).pt->draw(srcRect, dstRect, c, b, f, a);
 	}
 	else
 	{
 		if (baseIdx != INDEX_INVALID && objs.at(baseIdx).type != obj::Ty::EMPTY)
-			objs.at(baseIdx).pt->draw(dr, c, b, f, a);
+		{
+			Rect srcRect = objs.at(baseIdx).pt ? objs.at(baseIdx).pt->getRect() : RECT_FULL;
+			RectF dstRect = dr;
+			lr2ScaleBgaRect(srcRect, dstRect);
+			objs.at(baseIdx).pt->draw(srcRect, dstRect, c, b, f, a);
+		}
 
 		if (layerIdx != INDEX_INVALID && objs.at(layerIdx).type != obj::Ty::EMPTY)
 		{
 			if (objs.at(layerIdx).type == obj::Ty::PIC && objs_layer.at(layerIdx).pt != nullptr)
-				objs_layer.at(layerIdx).pt->draw(dr, c, b, f, a);
+			{
+				Rect srcRect = objs_layer.at(layerIdx).pt ? objs_layer.at(layerIdx).pt->getRect() : RECT_FULL;
+				RectF dstRect = dr;
+				lr2ScaleBgaRect(srcRect, dstRect);
+				objs_layer.at(layerIdx).pt->draw(srcRect, dstRect, c, b, f, a);
+			}
 			else
-				objs.at(layerIdx).pt->draw(dr, c, b, f, a);
+			{
+				Rect srcRect = objs.at(layerIdx).pt ? objs.at(layerIdx).pt->getRect() : RECT_FULL;
+				RectF dstRect = dr;
+				lr2ScaleBgaRect(srcRect, dstRect);
+				objs.at(layerIdx).pt->draw(srcRect, dstRect, c, b, f, a);
+			}
 		}
 	}
 }
@@ -350,19 +385,37 @@ void TextureBmsBga::draw(const Rect& sr, RectF dr,
 	std::shared_lock l(idxLock);
 	if (inPoor && poorIdx != INDEX_INVALID && objs.at(poorIdx).type != obj::Ty::EMPTY)
 	{
-		objs.at(poorIdx).pt->draw(dr, c, b, f, a, ct);
+		Rect srcRect = objs.at(poorIdx).pt ? objs.at(poorIdx).pt->getRect() : RECT_FULL;
+		RectF dstRect = dr;
+		lr2ScaleBgaRect(srcRect, dstRect);
+		objs.at(poorIdx).pt->draw(srcRect, dstRect, c, b, f, a, ct);
 	}
 	else
 	{
-		if (baseIdx != INDEX_INVALID && objs.at(baseIdx).type != obj::Ty::EMPTY) 
-			objs.at(baseIdx).pt->draw(dr, c, b, f, a, ct);
+		if (baseIdx != INDEX_INVALID && objs.at(baseIdx).type != obj::Ty::EMPTY)
+		{
+			Rect srcRect = objs.at(baseIdx).pt ? objs.at(baseIdx).pt->getRect() : RECT_FULL;
+			RectF dstRect = dr;
+			lr2ScaleBgaRect(srcRect, dstRect);
+			objs.at(baseIdx).pt->draw(srcRect, dstRect, c, b, f, a, ct);
+		}
 
 		if (layerIdx != INDEX_INVALID && objs.at(layerIdx).type != obj::Ty::EMPTY)
 		{
 			if (objs.at(layerIdx).type == obj::Ty::PIC && objs_layer.at(layerIdx).pt != nullptr)
-				objs_layer.at(layerIdx).pt->draw(dr, c, b, f, a, ct);
+			{
+				Rect srcRect = objs_layer.at(layerIdx).pt ? objs_layer.at(layerIdx).pt->getRect() : RECT_FULL;
+				RectF dstRect = dr;
+				lr2ScaleBgaRect(srcRect, dstRect);
+				objs_layer.at(layerIdx).pt->draw(srcRect, dstRect, c, b, f, a, ct);
+			}
 			else
-				objs.at(layerIdx).pt->draw(dr, c, b, f, a, ct);
+			{
+				Rect srcRect = objs.at(layerIdx).pt ? objs.at(layerIdx).pt->getRect() : RECT_FULL;
+				RectF dstRect = dr;
+				lr2ScaleBgaRect(srcRect, dstRect);
+				objs.at(layerIdx).pt->draw(srcRect, dstRect, c, b, f, a, ct);
+			}
 		}
 	}
 }
