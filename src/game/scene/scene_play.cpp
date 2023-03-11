@@ -146,14 +146,14 @@ ScenePlay::ScenePlay(): SceneBase(gPlayContext.mode, 1000, true)
 
     keySampleIndex.assign(Input::ESC, 0);
 
-    Option::e_lane_effect_type lcType1 = (Option::e_lane_effect_type)State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P);
+    playerOrigLanecoverType[PLAYER_SLOT_PLAYER] = (Option::e_lane_effect_type)State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P);
     int lcTop1 = ConfigMgr::get('P', cfg::P_LANECOVER_TOP, 0);
     int lcBottom1 = ConfigMgr::get('P', cfg::P_LANECOVER_BOTTOM, 0);
     int lc100_1 = lcTop1 / 10;
     double sud1 = lcTop1 / 1000.0;
     double hid1 = lcBottom1 / 1000.0;
 
-    Option::e_lane_effect_type lcType2 = (Option::e_lane_effect_type)State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_2P);
+    playerOrigLanecoverType[PLAYER_SLOT_TARGET] = (Option::e_lane_effect_type)State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_2P);
     int lcTop2 = ConfigMgr::get('P', cfg::P_LANECOVER_TOP_2P, 0);
     int lcBottom2 = ConfigMgr::get('P', cfg::P_LANECOVER_BOTTOM_2P, 0);
     int lc100_2 = lcTop2 / 10;
@@ -176,9 +176,9 @@ ScenePlay::ScenePlay(): SceneBase(gPlayContext.mode, 1000, true)
     if (true)
     {
         State::set(IndexSwitch::P1_LANECOVER_ENABLED, 
-            (lcType1 != Option::LANE_OFF && lcType1 != Option::LANE_LIFT));
+            (playerOrigLanecoverType[PLAYER_SLOT_PLAYER] != Option::LANE_OFF && playerOrigLanecoverType[PLAYER_SLOT_PLAYER] != Option::LANE_LIFT));
 
-        switch (lcType1)
+        switch (playerOrigLanecoverType[PLAYER_SLOT_PLAYER])
         {
         case Option::LANE_OFF:
             sud1 = 0.;
@@ -210,9 +210,9 @@ ScenePlay::ScenePlay(): SceneBase(gPlayContext.mode, 1000, true)
     if (gPlayContext.isBattle)
     {
         State::set(IndexSwitch::P2_LANECOVER_ENABLED,
-            (lcType2 != Option::LANE_OFF && lcType2 != Option::LANE_LIFT));
+            (playerOrigLanecoverType[PLAYER_SLOT_TARGET] != Option::LANE_OFF && playerOrigLanecoverType[PLAYER_SLOT_TARGET] != Option::LANE_LIFT));
 
-        switch (lcType2)
+        switch (playerOrigLanecoverType[PLAYER_SLOT_TARGET])
         {
         case Option::LANE_OFF:
             sud2 = 0.;
@@ -245,38 +245,32 @@ ScenePlay::ScenePlay(): SceneBase(gPlayContext.mode, 1000, true)
     State::set(IndexSlider::SUD_2P, sud2);
     State::set(IndexSlider::HID_2P, hid2);
 
-    bool playerHasBottomLanecover[2]{ false, false };
-    if (lcType1 == Option::LANE_HIDDEN)
+    State::set(IndexSwitch::P1_HAS_LANECOVER_TOP, playerOrigLanecoverType[PLAYER_SLOT_PLAYER] != Option::LANE_HIDDEN);
+    State::set(IndexSwitch::P2_HAS_LANECOVER_TOP, playerOrigLanecoverType[PLAYER_SLOT_TARGET] != Option::LANE_HIDDEN);
+    switch (playerOrigLanecoverType[PLAYER_SLOT_PLAYER])
     {
-        playerUsesHIDDEN[PLAYER_SLOT_PLAYER] = true;
-        playerHasBottomLanecover[PLAYER_SLOT_PLAYER] = true;
+    case Option::LANE_HIDDEN:
+    case Option::LANE_SUDHID:
+    case Option::LANE_LIFT:
+    case Option::LANE_LIFTSUD:
+        State::set(IndexSwitch::P1_HAS_LANECOVER_BOTTOM, true);
+        break;
+    default:
+        State::set(IndexSwitch::P1_HAS_LANECOVER_BOTTOM, false);
+        break;
     }
-    if (gPlayContext.isBattle && lcType2 == Option::LANE_HIDDEN)
+    switch (playerOrigLanecoverType[PLAYER_SLOT_TARGET])
     {
-        playerUsesHIDDEN[PLAYER_SLOT_TARGET] = true;
-        playerHasBottomLanecover[PLAYER_SLOT_TARGET] = true;
+    case Option::LANE_HIDDEN:
+    case Option::LANE_SUDHID:
+    case Option::LANE_LIFT:
+    case Option::LANE_LIFTSUD:
+        State::set(IndexSwitch::P2_HAS_LANECOVER_BOTTOM, true);
+        break;
+    default:
+        State::set(IndexSwitch::P2_HAS_LANECOVER_BOTTOM, false);
+        break;
     }
-
-    if (lcType1 == Option::LANE_SUDHID)
-    {
-        playerUsesSUDHID[PLAYER_SLOT_PLAYER] = true;
-        playerHasBottomLanecover[PLAYER_SLOT_PLAYER] = true;
-    }
-    if (gPlayContext.isBattle && lcType2 == Option::LANE_SUDHID)
-    {
-        playerUsesSUDHID[PLAYER_SLOT_TARGET] = true;
-        playerHasBottomLanecover[PLAYER_SLOT_TARGET] = true;
-    }
-    if (lcType1 == Option::LANE_LIFT || lcType1 == Option::LANE_LIFTSUD)
-    {
-        playerHasBottomLanecover[PLAYER_SLOT_PLAYER] = true;
-    }
-    if (gPlayContext.isBattle && (lcType2 == Option::LANE_SUDHID || lcType2 == Option::LANE_LIFTSUD))
-    {
-        playerHasBottomLanecover[PLAYER_SLOT_TARGET] = true;
-    }
-    State::set(IndexSwitch::P1_HAS_LANECOVER_BOTTOM, playerHasBottomLanecover[PLAYER_SLOT_PLAYER]);
-    State::set(IndexSwitch::P2_HAS_LANECOVER_BOTTOM, playerHasBottomLanecover[PLAYER_SLOT_TARGET]);
 
     _inputAvailable = INPUT_MASK_FUNC;
     _inputAvailable |= INPUT_MASK_1P | INPUT_MASK_2P;
@@ -1878,8 +1872,8 @@ void ScenePlay::updateAsyncGreenNumber(const Time& t)
     {
         State::set(gPlayContext.isBattle ? IndexSwitch::P2_SETTING_HISPEED : IndexSwitch::P1_SETTING_HISPEED, true);
     }
-    State::set(IndexSwitch::P1_SETTING_LANECOVER_TOP, State::get(IndexSwitch::P1_LANECOVER_ENABLED) && State::get(IndexSwitch::P1_SETTING_HISPEED));
-    State::set(IndexSwitch::P2_SETTING_LANECOVER_TOP, State::get(IndexSwitch::P2_LANECOVER_ENABLED) && State::get(IndexSwitch::P2_SETTING_HISPEED));
+    State::set(IndexSwitch::P1_SETTING_LANECOVER, State::get(IndexSwitch::P1_LANECOVER_ENABLED) && State::get(IndexSwitch::P1_SETTING_HISPEED));
+    State::set(IndexSwitch::P2_SETTING_LANECOVER, State::get(IndexSwitch::P2_LANECOVER_ENABLED) && State::get(IndexSwitch::P2_SETTING_HISPEED));
 
     // show greennumber on top-left for unsupported skins
     if (!pSkin->isSupportGreenNumber)
@@ -2783,64 +2777,76 @@ void ScenePlay::updateFadeout()
         if (!gPlayContext.isReplay)
         {
             // save lanecover settings
-            if (playerUsesSUDHID[PLAYER_SLOT_PLAYER])
+            bool saveTop = false;
+            bool saveBottom = false;
+            switch (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P))
             {
-                State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_1P, Option::LANE_SUDHID);
+            case Option::LANE_SUDDEN:
+            case Option::LANE_SUDHID:
+            case Option::LANE_LIFTSUD:
+                saveTop = true;
+                break;
             }
-            if (State::get(IndexSwitch::P1_LANECOVER_ENABLED))
+            switch (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P))
             {
+            case Option::LANE_HIDDEN:
+            case Option::LANE_SUDHID:
+            case Option::LANE_LIFT:
+            case Option::LANE_LIFTSUD:
+                saveBottom = true;
+                break;
+            }
+            if (saveTop)
                 ConfigMgr::set('P', cfg::P_LANECOVER_TOP, State::get(IndexNumber::LANECOVER_TOP_1P));
+            if (saveBottom)
                 ConfigMgr::set('P', cfg::P_LANECOVER_BOTTOM, State::get(IndexNumber::LANECOVER_BOTTOM_1P));
-            }
-            else if (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P) == Option::LANE_LIFT)
-            {
-                ConfigMgr::set('P', cfg::P_LANECOVER_BOTTOM, State::get(IndexNumber::LANECOVER_BOTTOM_1P));
-            }
+
             if (State::get(IndexSwitch::P1_LOCK_SPEED))
             {
                 ConfigMgr::set('P', cfg::P_GREENNUMBER, playerLockspeedGreenNumber[PLAYER_SLOT_PLAYER]);
             }
 
-            switch (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P))
+            // only save OFF -> SUD+
+            if (playerOrigLanecoverType[PLAYER_SLOT_PLAYER] == Option::LANE_OFF && State::get(IndexSwitch::P1_LANECOVER_ENABLED))
             {
-            case Option::LANE_OFF:     ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP, cfg::P_LANE_EFFECT_OP_OFF); break;
-            case Option::LANE_HIDDEN:  ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP, cfg::P_LANE_EFFECT_OP_HIDDEN); break;
-            case Option::LANE_SUDDEN:  ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP, cfg::P_LANE_EFFECT_OP_SUDDEN); break;
-            case Option::LANE_SUDHID:  ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP, cfg::P_LANE_EFFECT_OP_SUDHID); break;
-            case Option::LANE_LIFT:    ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP, cfg::P_LANE_EFFECT_OP_LIFT); break;
-            case Option::LANE_LIFTSUD: ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP, cfg::P_LANE_EFFECT_OP_LIFTSUD); break;
-            default:                   ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP, cfg::P_LANE_EFFECT_OP_OFF); break;
+                ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP, cfg::P_LANE_EFFECT_OP_SUDDEN);
             }
 
             if (gPlayContext.isBattle)
             {
-                if (playerUsesSUDHID[PLAYER_SLOT_TARGET])
+                bool saveTop = false;
+                bool saveBottom = false;
+                switch (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_2P))
                 {
-                    State::set(IndexOption::PLAY_LANE_EFFECT_TYPE_2P, Option::LANE_SUDHID);
+                case Option::LANE_SUDDEN:
+                case Option::LANE_SUDHID:
+                case Option::LANE_LIFTSUD:
+                    saveTop = true;
+                    break;
                 }
-                if (State::get(IndexSwitch::P2_LANECOVER_ENABLED))
+                switch (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_2P))
                 {
+                case Option::LANE_HIDDEN:
+                case Option::LANE_SUDHID:
+                case Option::LANE_LIFT:
+                case Option::LANE_LIFTSUD:
+                    saveBottom = true;
+                    break;
+                }
+                if (saveTop)
                     ConfigMgr::set('P', cfg::P_LANECOVER_TOP_2P, State::get(IndexNumber::LANECOVER_TOP_2P));
+                if (saveBottom)
                     ConfigMgr::set('P', cfg::P_LANECOVER_BOTTOM_2P, State::get(IndexNumber::LANECOVER_BOTTOM_2P));
-                }
-                else if (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_2P) == Option::LANE_LIFT)
-                {
-                    ConfigMgr::set('P', cfg::P_LANECOVER_BOTTOM_2P, State::get(IndexNumber::LANECOVER_BOTTOM_2P));
-                }
+
                 if (State::get(IndexSwitch::P2_LOCK_SPEED))
                 {
                     ConfigMgr::set('P', cfg::P_GREENNUMBER_2P, playerLockspeedGreenNumber[PLAYER_SLOT_TARGET]);
                 }
 
-                switch (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_2P))
+                // only save OFF -> SUD+
+                if (playerOrigLanecoverType[PLAYER_SLOT_TARGET] == Option::LANE_OFF && State::get(IndexSwitch::P2_LANECOVER_ENABLED))
                 {
-                case Option::LANE_OFF:     ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP_2P, cfg::P_LANE_EFFECT_OP_OFF); break;
-                case Option::LANE_HIDDEN:  ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP_2P, cfg::P_LANE_EFFECT_OP_HIDDEN); break;
-                case Option::LANE_SUDDEN:  ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP_2P, cfg::P_LANE_EFFECT_OP_SUDDEN); break;
-                case Option::LANE_SUDHID:  ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP_2P, cfg::P_LANE_EFFECT_OP_SUDHID); break;
-                case Option::LANE_LIFT:    ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP_2P, cfg::P_LANE_EFFECT_OP_LIFT); break;
-                case Option::LANE_LIFTSUD: ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP_2P, cfg::P_LANE_EFFECT_OP_LIFTSUD); break;
-                default:                   ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP_2P, cfg::P_LANE_EFFECT_OP_OFF); break;
+                    ConfigMgr::set('P', cfg::P_LANE_EFFECT_OP_2P, cfg::P_LANE_EFFECT_OP_SUDDEN);
                 }
             }
         }
@@ -3275,7 +3281,7 @@ void ScenePlay::toggleLanecover(int slot, bool state)
     Option::e_lane_effect_type lcType = (Option::e_lane_effect_type)State::get(op);
     switch (lcType)
     {
-    case Option::LANE_OFF:      lcType = playerUsesSUDHID[PLAYER_SLOT_TARGET] ? Option::LANE_SUDHID : (playerUsesHIDDEN[PLAYER_SLOT_TARGET] ? Option::LANE_HIDDEN : Option::LANE_SUDDEN); break;
+    case Option::LANE_OFF:      lcType = playerOrigLanecoverType[slot] == Option::LANE_OFF ? Option::LANE_SUDDEN : playerOrigLanecoverType[slot]; break;
     case Option::LANE_HIDDEN:   lcType = Option::LANE_OFF; break;
     case Option::LANE_SUDDEN:   lcType = Option::LANE_OFF; break;
     case Option::LANE_SUDHID:   lcType = Option::LANE_OFF; break;

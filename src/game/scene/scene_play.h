@@ -56,8 +56,7 @@ private:
 
     std::array<double, 2>   playerSavedHispeed{ 1.0, 1.0 };
 
-    std::array<bool, 2>     playerUsesHIDDEN { false, false };
-    std::array<bool, 2>     playerUsesSUDHID { false, false };
+    std::array<Option::e_lane_effect_type, 2>     playerOrigLanecoverType;
 
     std::array<int, 2>      playerHealthLastTick{ 0 };
 

@@ -138,7 +138,7 @@ void imguiMonitorSwitch()
 						for (int k = 0; k <= 9; ++k)
 						{
 							ImGui::TableSetColumnIndex(k);
-							ImGui::Text("% 4d%c", i + j + k, getDstOpt(i + j + k) ? '+' : ' ');
+							ImGui::Text("% 4d%c", i + j + k, State::get((IndexSwitch)(i + j + k)) ? '+' : ' ');
 						}
 					}
 					ImGui::EndTable();
