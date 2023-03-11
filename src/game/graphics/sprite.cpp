@@ -407,7 +407,7 @@ void SpriteText::updateTextTexture(std::string&& text, const Color& c)
     if (!pFont || !pFont->loaded)
         return;
 
-    if (pTexture != nullptr && text == text && textColor == c)
+    if (pTexture != nullptr && this->text == text && textColor == c)
         return;
 
     if (text.empty() || c.a == 0)
@@ -417,7 +417,7 @@ void SpriteText::updateTextTexture(std::string&& text, const Color& c)
         return;
     }
 
-    text = text;
+    this->text = text;
     textColor = c;
 
     pTexture = pFont->TextUTF8(text.c_str(), c);
