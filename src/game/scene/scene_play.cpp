@@ -2602,31 +2602,34 @@ void ScenePlay::updatePlaying()
     }
 
     // health check (-> to failed)
-    if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isFailed() && gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->failWhenNoHealth() &&
-        (!gPlayContext.isBattle || gPlayContext.ruleset[PLAYER_SLOT_TARGET] == nullptr || gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFailed() && gPlayContext.ruleset[PLAYER_SLOT_TARGET]->failWhenNoHealth()))
+    if (!playInterrupted)
     {
-        pushGraphPoints();
+        if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isFailed() && gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->failWhenNoHealth() &&
+            (!gPlayContext.isBattle || gPlayContext.ruleset[PLAYER_SLOT_TARGET] == nullptr || gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFailed() && gPlayContext.ruleset[PLAYER_SLOT_TARGET]->failWhenNoHealth()))
+        {
+            pushGraphPoints();
 
-        playInterrupted = true;
-        if (gArenaData.isOnline())
-        {
-            State::set(IndexTimer::ARENA_PLAY_WAIT, t.norm());
-            state = ePlayState::WAIT_ARENA;
-            LOG_DEBUG << "[Play] State changed to WAIT_ARENA";
-        }
-        else
-        {
-            State::set(IndexTimer::FAIL_BEGIN, t.norm());
-            State::set(IndexOption::PLAY_SCENE_STAT, Option::SPLAY_FAILED);
-            state = ePlayState::FAILED;
-            SoundMgr::stopSysSamples();
-            SoundMgr::stopNoteSamples();
-            SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::SOUND_PLAYSTOP);
-            LOG_DEBUG << "[Play] State changed to PLAY_FAILED";
-        }
-        for (size_t i = 0; i < gPlayContext.ruleset.size(); ++i)
-        {
-            _input.unregister_p("SCENE_PRESS");
+            playInterrupted = true;
+            if (gArenaData.isOnline())
+            {
+                State::set(IndexTimer::ARENA_PLAY_WAIT, t.norm());
+                state = ePlayState::WAIT_ARENA;
+                LOG_DEBUG << "[Play] State changed to WAIT_ARENA";
+            }
+            else
+            {
+                State::set(IndexTimer::FAIL_BEGIN, t.norm());
+                State::set(IndexOption::PLAY_SCENE_STAT, Option::SPLAY_FAILED);
+                state = ePlayState::FAILED;
+                SoundMgr::stopSysSamples();
+                SoundMgr::stopNoteSamples();
+                SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::SOUND_PLAYSTOP);
+                LOG_DEBUG << "[Play] State changed to PLAY_FAILED";
+            }
+            for (size_t i = 0; i < gPlayContext.ruleset.size(); ++i)
+            {
+                _input.unregister_p("SCENE_PRESS");
+            }
         }
     }
 
