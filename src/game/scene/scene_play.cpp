@@ -2804,6 +2804,11 @@ void ScenePlay::updateFadeout()
             if (State::get(IndexSwitch::P1_LOCK_SPEED))
             {
                 ConfigMgr::set('P', cfg::P_GREENNUMBER, playerLockspeedGreenNumber[PLAYER_SLOT_PLAYER]);
+
+                if (State::get(IndexOption::PLAY_HSFIX_TYPE) == Option::SPEED_NORMAL)
+                {
+                    ConfigMgr::set('P', cfg::P_SPEED_TYPE, cfg::P_SPEED_TYPE_INITIAL);
+                }
             }
 
             // only save OFF -> SUD+
@@ -2841,6 +2846,8 @@ void ScenePlay::updateFadeout()
                 if (State::get(IndexSwitch::P2_LOCK_SPEED))
                 {
                     ConfigMgr::set('P', cfg::P_GREENNUMBER_2P, playerLockspeedGreenNumber[PLAYER_SLOT_TARGET]);
+
+                    // consider saving speed type? after separating the option into individual ones
                 }
 
                 // only save OFF -> SUD+

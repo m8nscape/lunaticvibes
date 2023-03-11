@@ -840,6 +840,7 @@ void SceneSelect::imguiPageOptionsPlay()
         if (ImGui::Checkbox(i18n::c(LOCK_GREENNUMBER), &imgui_play_lockGreenNumber))
         {
             State::set(IndexOption::PLAY_HSFIX_TYPE, imgui_play_lockGreenNumber ? Option::SPEED_FIX_INITIAL : Option::SPEED_NORMAL);
+            State::set(IndexText::SCROLL_TYPE, Option::s_speed_type[State::get(IndexOption::PLAY_HSFIX_TYPE)]);
             State::set(IndexSwitch::P1_LOCK_SPEED, imgui_play_lockGreenNumber);
         }
 
