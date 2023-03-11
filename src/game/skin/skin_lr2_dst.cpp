@@ -674,8 +674,18 @@ void updateDstOpt()
 
 	// 270 1P SUD+変更中
 	// 271 2P SUD+変更中
-	set(270, sw(IndexSwitch::P1_SETTING_LANECOVER));
-	set(271, sw(IndexSwitch::P2_SETTING_LANECOVER));
+	set(270, sw(IndexSwitch::P1_SETTING_LANECOVER_TOP));
+	set(271, sw(IndexSwitch::P2_SETTING_LANECOVER_TOP));
+
+	// 272 1P Hi-Speed変更中
+	// 273 2P Hi-Speed変更中
+	set(272, sw(IndexSwitch::P1_SETTING_HISPEED));
+	set(273, sw(IndexSwitch::P2_SETTING_HISPEED));
+
+	// 274 1P HID+/LIFT
+	// 275 2P HID+/LIFT
+	set(274, sw(IndexSwitch::P1_HAS_LANECOVER_BOTTOM));
+	set(275, sw(IndexSwitch::P2_HAS_LANECOVER_BOTTOM));
 
 	// 280 コースステージ1
 	// 281 コースステージ2

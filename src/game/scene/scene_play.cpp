@@ -245,15 +245,38 @@ ScenePlay::ScenePlay(): SceneBase(gPlayContext.mode, 1000, true)
     State::set(IndexSlider::SUD_2P, sud2);
     State::set(IndexSlider::HID_2P, hid2);
 
+    bool playerHasBottomLanecover[2]{ false, false };
     if (lcType1 == Option::LANE_HIDDEN)
+    {
         playerUsesHIDDEN[PLAYER_SLOT_PLAYER] = true;
+        playerHasBottomLanecover[PLAYER_SLOT_PLAYER] = true;
+    }
     if (gPlayContext.isBattle && lcType2 == Option::LANE_HIDDEN)
+    {
         playerUsesHIDDEN[PLAYER_SLOT_TARGET] = true;
+        playerHasBottomLanecover[PLAYER_SLOT_TARGET] = true;
+    }
 
     if (lcType1 == Option::LANE_SUDHID)
+    {
         playerUsesSUDHID[PLAYER_SLOT_PLAYER] = true;
+        playerHasBottomLanecover[PLAYER_SLOT_PLAYER] = true;
+    }
     if (gPlayContext.isBattle && lcType2 == Option::LANE_SUDHID)
+    {
         playerUsesSUDHID[PLAYER_SLOT_TARGET] = true;
+        playerHasBottomLanecover[PLAYER_SLOT_TARGET] = true;
+    }
+    if (lcType1 == Option::LANE_LIFT || lcType1 == Option::LANE_LIFTSUD)
+    {
+        playerHasBottomLanecover[PLAYER_SLOT_PLAYER] = true;
+    }
+    if (gPlayContext.isBattle && (lcType2 == Option::LANE_SUDHID || lcType2 == Option::LANE_LIFTSUD))
+    {
+        playerHasBottomLanecover[PLAYER_SLOT_TARGET] = true;
+    }
+    State::set(IndexSwitch::P1_HAS_LANECOVER_BOTTOM, playerHasBottomLanecover[PLAYER_SLOT_PLAYER]);
+    State::set(IndexSwitch::P2_HAS_LANECOVER_BOTTOM, playerHasBottomLanecover[PLAYER_SLOT_TARGET]);
 
     _inputAvailable = INPUT_MASK_FUNC;
     _inputAvailable |= INPUT_MASK_1P | INPUT_MASK_2P;
@@ -1845,26 +1868,18 @@ void ScenePlay::updateAsyncGreenNumber(const Time& t)
     }
 
     // setting speed / lanecover (if display white number / green number)
-    State::set(IndexSwitch::P1_SETTING_LANECOVER, false);
-    State::set(IndexSwitch::P2_SETTING_LANECOVER, false);
-    if (State::get(IndexSwitch::P1_LANECOVER_ENABLED))
+    State::set(IndexSwitch::P1_SETTING_HISPEED, false);
+    State::set(IndexSwitch::P2_SETTING_HISPEED, false);
+    if (playerHoldingStart[PLAYER_SLOT_PLAYER] || playerHoldingSelect[PLAYER_SLOT_PLAYER])
     {
-        if (playerHoldingStart[PLAYER_SLOT_PLAYER] || playerHoldingSelect[PLAYER_SLOT_PLAYER])
-        {
-            State::set(IndexSwitch::P1_SETTING_LANECOVER, true);
-        }
-        if (playerHoldingStart[PLAYER_SLOT_TARGET] || playerHoldingSelect[PLAYER_SLOT_TARGET])
-        {
-            State::set(!isPlaymodeDP() ? IndexSwitch::P1_SETTING_LANECOVER : IndexSwitch::P2_SETTING_LANECOVER, true);
-        }
+        State::set(IndexSwitch::P1_SETTING_HISPEED, true);
     }
-    if (State::get(IndexSwitch::P2_LANECOVER_ENABLED))
+    if (playerHoldingStart[PLAYER_SLOT_TARGET] || playerHoldingSelect[PLAYER_SLOT_TARGET])
     {
-        if (playerHoldingStart[PLAYER_SLOT_TARGET] || playerHoldingSelect[PLAYER_SLOT_TARGET])
-        {
-            State::set(IndexSwitch::P2_SETTING_LANECOVER, true);
-        }
+        State::set(gPlayContext.isBattle ? IndexSwitch::P2_SETTING_HISPEED : IndexSwitch::P1_SETTING_HISPEED, true);
     }
+    State::set(IndexSwitch::P1_SETTING_LANECOVER_TOP, State::get(IndexSwitch::P1_LANECOVER_ENABLED) && State::get(IndexSwitch::P1_SETTING_HISPEED));
+    State::set(IndexSwitch::P2_SETTING_LANECOVER_TOP, State::get(IndexSwitch::P2_LANECOVER_ENABLED) && State::get(IndexSwitch::P2_SETTING_HISPEED));
 
     // show greennumber on top-left for unsupported skins
     if (!pSkin->isSupportGreenNumber)
