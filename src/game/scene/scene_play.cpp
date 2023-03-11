@@ -2596,98 +2596,93 @@ void ScenePlay::updatePlaying()
     }
 
     // health check (-> to failed)
-    if (!exitingFromPlay)
+    if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isFailed() && gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->failWhenNoHealth() &&
+        (!gPlayContext.isBattle || gPlayContext.ruleset[PLAYER_SLOT_TARGET] == nullptr || gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFailed() && gPlayContext.ruleset[PLAYER_SLOT_TARGET]->failWhenNoHealth()))
     {
-        if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isFailed() && gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->failWhenNoHealth() &&
-            (!gPlayContext.isBattle || gPlayContext.ruleset[PLAYER_SLOT_TARGET] == nullptr || gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFailed() && gPlayContext.ruleset[PLAYER_SLOT_TARGET]->failWhenNoHealth()))
-        {
-            pushGraphPoints();
+        pushGraphPoints();
 
-            exitingFromPlay = true;
-            playInterrupted = true;
-            if (gArenaData.isOnline())
-            {
-                State::set(IndexTimer::ARENA_PLAY_WAIT, t.norm());
-                state = ePlayState::WAIT_ARENA;
-                LOG_DEBUG << "[Play] State changed to WAIT_ARENA";
-            }
-            else
-            {
-                State::set(IndexTimer::FAIL_BEGIN, t.norm());
-                State::set(IndexOption::PLAY_SCENE_STAT, Option::SPLAY_FAILED);
-                state = ePlayState::FAILED;
-                SoundMgr::stopSysSamples();
-                SoundMgr::stopNoteSamples();
-                SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::SOUND_PLAYSTOP);
-                LOG_DEBUG << "[Play] State changed to PLAY_FAILED";
-            }
-            for (size_t i = 0; i < gPlayContext.ruleset.size(); ++i)
-            {
-                _input.unregister_p("SCENE_PRESS");
-            }
+        playInterrupted = true;
+        if (gArenaData.isOnline())
+        {
+            State::set(IndexTimer::ARENA_PLAY_WAIT, t.norm());
+            state = ePlayState::WAIT_ARENA;
+            LOG_DEBUG << "[Play] State changed to WAIT_ARENA";
         }
-
-        if (!playerFinished[PLAYER_SLOT_PLAYER])
+        else
         {
-            if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isFinished() ||
-                gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().combo == gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getMaxCombo())
-            {
-                if (isPlaymodeDP())
-                {
-                    State::set(IndexTimer::PLAY_P2_FINISHED, t.norm());
-
-                    if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().combo == gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getMaxCombo())
-                    {
-                        State::set(IndexTimer::PLAY_FULLCOMBO_2P, t.norm());
-                    }
-                }
-
-                State::set(IndexTimer::PLAY_P1_FINISHED, t.norm());
-
-                if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().combo == gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getMaxCombo())
-                {
-                    State::set(IndexTimer::PLAY_FULLCOMBO_1P, t.norm());
-                }
-
-                playerFinished[PLAYER_SLOT_PLAYER] = true;
-
-                if (gArenaData.isOnline())
-                {
-                    if (gArenaData.isClient())
-                        g_pArenaClient->setPlayingFinished();
-                    else
-                        g_pArenaHost->setPlayingFinished();
-                }
-
-                LOG_INFO << "[Play] 1P finished";
-            }
+            State::set(IndexTimer::FAIL_BEGIN, t.norm());
+            State::set(IndexOption::PLAY_SCENE_STAT, Option::SPLAY_FAILED);
+            state = ePlayState::FAILED;
+            SoundMgr::stopSysSamples();
+            SoundMgr::stopNoteSamples();
+            SoundMgr::playSysSample(SoundChannelType::BGM_SYS, eSoundSample::SOUND_PLAYSTOP);
+            LOG_DEBUG << "[Play] State changed to PLAY_FAILED";
         }
-        if (gPlayContext.ruleset[PLAYER_SLOT_TARGET] != nullptr && !playerFinished[PLAYER_SLOT_TARGET])
+        for (size_t i = 0; i < gPlayContext.ruleset.size(); ++i)
         {
-            if (gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFinished() ||
-                gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData().combo == gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getMaxCombo())
+            _input.unregister_p("SCENE_PRESS");
+        }
+    }
+
+    if (!playerFinished[PLAYER_SLOT_PLAYER])
+    {
+        if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isFinished() ||
+            gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().combo == gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getMaxCombo())
+        {
+            if (isPlaymodeDP())
             {
                 State::set(IndexTimer::PLAY_P2_FINISHED, t.norm());
 
-                if (gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData().combo == gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getMaxCombo())
+                if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().combo == gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getMaxCombo())
                 {
                     State::set(IndexTimer::PLAY_FULLCOMBO_2P, t.norm());
                 }
-
-                playerFinished[PLAYER_SLOT_TARGET] = true;
-
-                LOG_INFO << "[Play] 2P finished";
             }
+
+            State::set(IndexTimer::PLAY_P1_FINISHED, t.norm());
+
+            if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getData().combo == gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->getMaxCombo())
+            {
+                State::set(IndexTimer::PLAY_FULLCOMBO_1P, t.norm());
+            }
+
+            playerFinished[PLAYER_SLOT_PLAYER] = true;
+
+            if (gArenaData.isOnline())
+            {
+                if (gArenaData.isClient())
+                    g_pArenaClient->setPlayingFinished();
+                else
+                    g_pArenaHost->setPlayingFinished();
+            }
+
+            LOG_INFO << "[Play] 1P finished";
         }
-        playFinished = !playInterrupted && playerFinished[PLAYER_SLOT_PLAYER] && (!gPlayContext.isBattle || playerFinished[PLAYER_SLOT_TARGET]);
     }
+    if (gPlayContext.ruleset[PLAYER_SLOT_TARGET] != nullptr && !playerFinished[PLAYER_SLOT_TARGET])
+    {
+        if (gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFinished() ||
+            gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData().combo == gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getMaxCombo())
+        {
+            State::set(IndexTimer::PLAY_P2_FINISHED, t.norm());
+
+            if (gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getData().combo == gPlayContext.ruleset[PLAYER_SLOT_TARGET]->getMaxCombo())
+            {
+                State::set(IndexTimer::PLAY_FULLCOMBO_2P, t.norm());
+            }
+
+            playerFinished[PLAYER_SLOT_TARGET] = true;
+
+            LOG_INFO << "[Play] 2P finished";
+        }
+    }
+    playFinished = !playInterrupted && playerFinished[PLAYER_SLOT_PLAYER] && (!gPlayContext.isBattle || playerFinished[PLAYER_SLOT_TARGET]);
 
     spinTurntable(true);
 
     //last note check
     if (rt.hres() - gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getTotalLength().hres() >= 0)
     {
-        exitingFromPlay = true;
         if (gArenaData.isOnline())
         {
             State::set(IndexTimer::ARENA_PLAY_WAIT, t.norm());
@@ -2737,25 +2732,21 @@ void ScenePlay::updateFadeout()
         if (_loadChartFuture.valid())
             _loadChartFuture.wait();
 
-        if (exitingFromPlay)
+        removeInputJudgeCallback();
+
+        bool cleared = false;
+        if (gPlayContext.isBattle)
         {
-            removeInputJudgeCallback();
-
-            bool cleared = false;
-            if (gPlayContext.isBattle)
-            {
-                if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isCleared() ||
-                    gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isCleared())
-                    cleared = true;
-            }
-            else
-            {
-                if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isCleared())
-                    cleared = true;
-            }
-
-            State::set(IndexSwitch::RESULT_CLEAR, cleared);
+            if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isCleared() ||
+                gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isCleared())
+                cleared = true;
         }
+        else
+        {
+            if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isCleared())
+                cleared = true;
+        }
+        State::set(IndexSwitch::RESULT_CLEAR, cleared);
 
         // restore hispeed if FHS
         if (State::get(IndexSwitch::P1_LOCK_SPEED))
@@ -2936,24 +2927,21 @@ void ScenePlay::updateFadeout()
             gNextScene = gQuitOnFinish ? SceneType::EXIT_TRANS : SceneType::SELECT;
         }
 
-        if (exitingFromPlay)
+        if (gPlayContext.ruleset[PLAYER_SLOT_MYBEST] &&
+            !gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->isFailed() &&
+            !gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->isFinished())
         {
-            if (gPlayContext.ruleset[PLAYER_SLOT_MYBEST] &&
-                !gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->isFailed() &&
-                !gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->isFinished())
-            {
-                gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->fail();
-                gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->updateGlobals();
-            }
+            gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->fail();
+            gPlayContext.ruleset[PLAYER_SLOT_MYBEST]->updateGlobals();
+        }
 
-            if (!gPlayContext.isBattle &&
-                gPlayContext.ruleset[PLAYER_SLOT_TARGET] && 
-                !gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFailed() && 
-                !gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFinished())
-            {
-                gPlayContext.ruleset[PLAYER_SLOT_TARGET]->fail();
-                gPlayContext.ruleset[PLAYER_SLOT_TARGET]->updateGlobals();
-            }
+        if (!gPlayContext.isBattle &&
+            gPlayContext.ruleset[PLAYER_SLOT_TARGET] && 
+            !gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFailed() && 
+            !gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isFinished())
+        {
+            gPlayContext.ruleset[PLAYER_SLOT_TARGET]->fail();
+            gPlayContext.ruleset[PLAYER_SLOT_TARGET]->updateGlobals();
         }
     }
 }
@@ -3223,7 +3211,6 @@ void ScenePlay::requestExit()
 
     if (gChartContext.started)
     {
-        exitingFromPlay = true;
         playInterrupted = true;
 
         if (!playerFinished[PLAYER_SLOT_PLAYER])

@@ -32,7 +32,6 @@ protected:
     bool isPlaymodeDP() const;
 
 private:
-    bool exitingFromPlay = false;
     bool playInterrupted = false;
     bool playFinished = false;
     std::array<bool, 2>     playerFinished{ false, false };
@@ -79,13 +78,6 @@ private:
     std::array<int, 2>      playerJudgeBP = { 0 };  // used for displaying poor bga
     Time poorBgaStartTime;
     int poorBgaDuration;
-
-    bool imguiShowAdjustMenu = false;
-    int imguiAdjustBorderX = 640;
-    int imguiAdjustBorderY = 480;
-    int imguiAdjustBorderSize = 50;
-    bool imguiAdjustIsDP = false;
-    bool imguiAdjustHas2P = false;
 
     double hiSpeedMinSoft = 0.25;
     double hiSpeedMinHard = 0.01;
@@ -180,6 +172,13 @@ protected:
     void inputGameAxis(double s1, double s2, const Time&);
 
 protected:
+    bool imguiShowAdjustMenu = false;
+    int imguiAdjustBorderX = 640;
+    int imguiAdjustBorderY = 480;
+    int imguiAdjustBorderSize = 50;
+    bool imguiAdjustIsDP = false;
+    bool imguiAdjustHas2P = false;
+
     virtual void updateImgui() override;
     void imguiInit();
     void imguiAdjustMenu();
