@@ -427,7 +427,8 @@ ScenePlay::ScenePlay(): SceneBase(gPlayContext.mode, 1000, true)
         case PlayModifierHispeedFixType::AVERAGE:  bpm = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getAverageBPM(); break;
         case PlayModifierHispeedFixType::CONSTANT: bpm = 150.0; break;
         case PlayModifierHispeedFixType::MAIN:     bpm = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getMainBPM(); break;
-        case PlayModifierHispeedFixType::NONE:     
+        case PlayModifierHispeedFixType::INITIAL:
+        case PlayModifierHispeedFixType::NONE:
         default:               bpm = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentBPM(); break;
         }
 
@@ -450,6 +451,7 @@ ScenePlay::ScenePlay(): SceneBase(gPlayContext.mode, 1000, true)
         case PlayModifierHispeedFixType::AVERAGE:  bpm = gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getAverageBPM(); break;
         case PlayModifierHispeedFixType::CONSTANT: bpm = 150.0; break;
         case PlayModifierHispeedFixType::MAIN:     bpm = gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getMainBPM(); break;
+        case PlayModifierHispeedFixType::INITIAL:
         case PlayModifierHispeedFixType::NONE:
         default:               bpm = gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getCurrentBPM(); break;
         }
@@ -2783,7 +2785,6 @@ void ScenePlay::updateFadeout()
             {
                 ConfigMgr::set('P', cfg::P_GREENNUMBER, playerLockspeedGreenNumber[PLAYER_SLOT_PLAYER]);
             }
-            ConfigMgr::set('P', cfg::P_LOCK_SPEED, State::get(IndexSwitch::P1_LOCK_SPEED));
 
             switch (State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P))
             {

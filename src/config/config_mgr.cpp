@@ -96,6 +96,8 @@ void setOptions()
             {P_SPEED_TYPE_MAX, SPEED_FIX_MAX},
             {P_SPEED_TYPE_AVG, SPEED_FIX_AVG},
             {P_SPEED_TYPE_CONSTANT, SPEED_FIX_CONSTANT},
+            {P_SPEED_TYPE_INITIAL, SPEED_FIX_INITIAL},
+            {P_SPEED_TYPE_MAIN, SPEED_FIX_MAIN},
         };
 
         auto&& s = ConfigMgr::get<string>('P', P_SPEED_TYPE, P_SPEED_TYPE_NORMAL);
@@ -476,8 +478,6 @@ void setSwitches()
     }
 
 
-    State::set(IndexSwitch::P1_LOCK_SPEED, ConfigMgr::get('P', P_LOCK_SPEED, false));
-    State::set(IndexSwitch::P2_LOCK_SPEED, ConfigMgr::get('P', P_LOCK_SPEED_2P, false));
     State::set(IndexSwitch::PLAY_OPTION_DP_FLIP, ConfigMgr::get('P', P_FLIP, true));
     State::set(IndexSwitch::SYSTEM_SCOREGRAPH, ConfigMgr::get('P', P_SCORE_GRAPH, true));
     State::set(IndexSwitch::SOUND_VOLUME, true);
@@ -539,6 +539,8 @@ void setText()
             {P_SPEED_TYPE_MAX,      Option::s_speed_type[Option::SPEED_FIX_MAX]},
             {P_SPEED_TYPE_AVG,      Option::s_speed_type[Option::SPEED_FIX_AVG]},
             {P_SPEED_TYPE_CONSTANT, Option::s_speed_type[Option::SPEED_FIX_CONSTANT]},
+            {P_SPEED_TYPE_INITIAL,  Option::s_speed_type[Option::SPEED_FIX_INITIAL]},
+            {P_SPEED_TYPE_MAIN,     Option::s_speed_type[Option::SPEED_FIX_MAIN]},
         };
 
         auto&& s = ConfigMgr::get<string>('P', P_SPEED_TYPE, P_SPEED_TYPE_NORMAL);

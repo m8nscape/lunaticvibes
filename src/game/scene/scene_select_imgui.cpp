@@ -839,6 +839,7 @@ void SceneSelect::imguiPageOptionsPlay()
         imgui_play_lockGreenNumber = State::get(IndexSwitch::P1_LOCK_SPEED);
         if (ImGui::Checkbox(i18n::c(LOCK_GREENNUMBER), &imgui_play_lockGreenNumber))
         {
+            State::set(IndexOption::PLAY_HSFIX_TYPE, imgui_play_lockGreenNumber ? Option::SPEED_FIX_INITIAL : Option::SPEED_NORMAL);
             State::set(IndexSwitch::P1_LOCK_SPEED, imgui_play_lockGreenNumber);
         }
 
@@ -857,10 +858,10 @@ void SceneSelect::imguiPageOptionsPlay()
         ImGui::BeginDisabled(!imgui_play_lockGreenNumber);
         ImGui::Text(i18n::c(GREENNUMBER));
         ImGui::SameLine(infoRowWidth);
-        imgui_play_greenNumber = ConfigMgr::get('P', cfg::P_GREENNUMBER, 0);
+        imgui_play_greenNumber = State::get(IndexNumber::GREEN_NUMBER_1P);
         if (ImGui::SliderInt("##greennumber", &imgui_play_greenNumber, 1, 1200, "%d", ImGuiSliderFlags_None))
         {
-            ConfigMgr::set('P', cfg::P_GREENNUMBER, imgui_play_greenNumber >= 0 ? imgui_play_greenNumber : 0);
+            State::set(IndexNumber::GREEN_NUMBER_1P, imgui_play_greenNumber >= 0 ? imgui_play_greenNumber : 0);
         }
         ImGui::SameLine();
         HelpMarker(i18n::c(GREENNUMBER_HINT));

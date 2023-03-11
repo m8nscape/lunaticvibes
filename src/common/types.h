@@ -104,6 +104,7 @@ enum class PlayModifierHispeedFixType : uint8_t
     MINBPM,
     AVERAGE,
     CONSTANT,
+    INITIAL,
     MAIN,
 };
 

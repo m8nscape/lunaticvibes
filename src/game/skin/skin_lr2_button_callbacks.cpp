@@ -757,8 +757,19 @@ void flip(int plus)
 void hs_fix(int plus)
 {
     // PlayModifierHispeedFixType
-    //OFF/MAXBPM/MINBPM/AVERAGE/CONSTANT
-    int val = (State::get(IndexOption::PLAY_HSFIX_TYPE) + 5 + plus) % 5;
+    //OFF/MAXBPM/MINBPM/AVERAGE/CONSTANT/INITIAL/MAIN
+    int val = (State::get(IndexOption::PLAY_HSFIX_TYPE) + 7 + plus) % 7;
+
+    if (val == Option::SPEED_NORMAL)
+    {
+        State::set(IndexSwitch::P1_LOCK_SPEED, false);
+        State::set(IndexSwitch::P2_LOCK_SPEED, false);
+    }
+    else
+    {
+        State::set(IndexSwitch::P1_LOCK_SPEED, true);
+        State::set(IndexSwitch::P2_LOCK_SPEED, true);
+    }
     
     State::set(IndexOption::PLAY_HSFIX_TYPE, val);
     State::set(IndexText::SCROLL_TYPE, Option::s_speed_type[val]);
@@ -889,11 +900,9 @@ void lock_speed_value(int player, int plus)
     {
     case 0:
         number_change_clamp(IndexNumber::GREEN_NUMBER_1P, 0, 2000, plus);
-        ConfigMgr::set('P', cfg::P_GREENNUMBER, State::get(IndexNumber::GREEN_NUMBER_1P));
         break;
     case 1:
         number_change_clamp(IndexNumber::GREEN_NUMBER_2P, 0, 2000, plus);
-        ConfigMgr::set('P', cfg::P_GREENNUMBER_2P, State::get(IndexNumber::GREEN_NUMBER_2P));
         break;
     default: break;
     }

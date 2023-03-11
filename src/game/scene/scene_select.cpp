@@ -80,9 +80,9 @@ void config_player()
     if (!gPlayContext.isReplay)
     {
         ConfigMgr::set('P', P_HISPEED, gPlayContext.Hispeed);
-        ConfigMgr::set('P', P_LOCK_SPEED, State::get(IndexSwitch::P1_LOCK_SPEED));
         ConfigMgr::set('P', P_HISPEED_2P, gPlayContext.battle2PHispeed);
-        ConfigMgr::set('P', P_LOCK_SPEED_2P, State::get(IndexSwitch::P2_LOCK_SPEED));
+        ConfigMgr::set('P', cfg::P_GREENNUMBER, State::get(IndexNumber::GREEN_NUMBER_1P));
+        ConfigMgr::set('P', cfg::P_GREENNUMBER_2P, State::get(IndexNumber::GREEN_NUMBER_2P));
 
         switch (State::get(IndexOption::PLAY_HSFIX_TYPE))
         {
@@ -90,6 +90,8 @@ void config_player()
         case Option::SPEED_FIX_MIN:      ConfigMgr::set('P', P_SPEED_TYPE, P_SPEED_TYPE_MIN); break;
         case Option::SPEED_FIX_AVG:      ConfigMgr::set('P', P_SPEED_TYPE, P_SPEED_TYPE_AVG); break;
         case Option::SPEED_FIX_CONSTANT: ConfigMgr::set('P', P_SPEED_TYPE, P_SPEED_TYPE_CONSTANT); break;
+        case Option::SPEED_FIX_INITIAL:  ConfigMgr::set('P', P_SPEED_TYPE, P_SPEED_TYPE_INITIAL); break;
+        case Option::SPEED_FIX_MAIN:     ConfigMgr::set('P', P_SPEED_TYPE, P_SPEED_TYPE_MAIN); break;
         default:                         ConfigMgr::set('P', P_SPEED_TYPE, P_SPEED_TYPE_NORMAL); break;
         }
 
@@ -100,6 +102,7 @@ void config_player()
         case Option::RAN_SRAN:   ConfigMgr::set('P', P_CHART_OP, P_CHART_OP_SRAN); break;
         case Option::RAN_HRAN:   ConfigMgr::set('P', P_CHART_OP, P_CHART_OP_HRAN); break;
         case Option::RAN_ALLSCR: ConfigMgr::set('P', P_CHART_OP, P_CHART_OP_ALLSCR); break;
+        case Option::RAN_RRAN:   ConfigMgr::set('P', P_CHART_OP, P_CHART_OP_RRAN); break;
         default:                 ConfigMgr::set('P', P_CHART_OP, P_CHART_OP_NORMAL); break;
         }
         switch (State::get(IndexOption::PLAY_RANDOM_TYPE_2P))
@@ -109,6 +112,7 @@ void config_player()
         case Option::RAN_SRAN:   ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_SRAN); break;
         case Option::RAN_HRAN:   ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_HRAN); break;
         case Option::RAN_ALLSCR: ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_ALLSCR); break;
+        case Option::RAN_RRAN:   ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_RRAN); break;
         default:                 ConfigMgr::set('P', P_CHART_OP_2P, P_CHART_OP_NORMAL); break;
         }
 
@@ -412,9 +416,20 @@ SceneSelect::SceneSelect() : SceneBase(SkinType::MUSIC_SELECT, 250)
     State::set(IndexSwitch::SOUND_PITCH, ConfigMgr::get('P', cfg::P_FREQ, false));
     lr2skin::slider::pitch((ConfigMgr::get('P', cfg::P_FREQ_VAL, 0) + 12) / 24.0);
 
-    // only load on run
     gPlayContext.Hispeed = State::get(IndexNumber::HS_1P) / 100.0;
     gPlayContext.battle2PHispeed = State::get(IndexNumber::HS_2P) / 100.0;
+    if (State::get(IndexOption::PLAY_HSFIX_TYPE) == Option::SPEED_NORMAL)
+    {
+        State::set(IndexSwitch::P1_LOCK_SPEED, false);
+        State::set(IndexSwitch::P2_LOCK_SPEED, false);
+    }
+    else
+    {
+        State::set(IndexSwitch::P1_LOCK_SPEED, true);
+        State::set(IndexSwitch::P2_LOCK_SPEED, true);
+    }
+    State::set(IndexNumber::GREEN_NUMBER_1P, ConfigMgr::get('P', cfg::P_GREENNUMBER, 300));
+    State::set(IndexNumber::GREEN_NUMBER_2P, ConfigMgr::get('P', cfg::P_GREENNUMBER_2P, 300));
 
     lr2skin::button::target_type(0);
 
@@ -851,10 +866,12 @@ void SceneSelect::updateSelect()
             {
                 std::stringstream ss;
                 bool lock1 = State::get(IndexSwitch::P1_LOCK_SPEED);
-                if (lock1) ss << "G(1P): FIX " << ConfigMgr::get('P', cfg::P_GREENNUMBER, 0);
+                if (lock1) 
+                    ss << "G(1P): FIX " << ConfigMgr::get('P', cfg::P_GREENNUMBER, 0);
 
                 bool lock2 = State::get(IndexSwitch::P2_LOCK_SPEED);
-                if (lock2) ss << (lock1 ? " | " : "") << "G(2P): FIX " << ConfigMgr::get('P', cfg::P_GREENNUMBER_2P, 0);
+                if (lock2) 
+                    ss << (lock1 ? " | " : "") << "G(2P): FIX " << ConfigMgr::get('P', cfg::P_GREENNUMBER_2P, 0);
 
                 std::string s = ss.str();
                 if (!s.empty())
@@ -964,6 +981,27 @@ void SceneSelect::updateSelect()
                     case Option::LANE_LIFT:     ss << " | Lane(2P): LIFT"; break;
                     case Option::LANE_LIFTSUD:  ss << " | Lane(2P): LIFT & SUD+"; break;
                     }
+                }
+
+                std::string s = ss.str();
+                if (!s.empty())
+                {
+                    State::set((IndexText)line++, ss.str());
+                }
+            }
+            if (!pSkin->isSupportHsFixInitialAndMain)
+            {
+                std::stringstream ss;
+                int lane1 = State::get(IndexOption::PLAY_HSFIX_TYPE);
+                switch (lane1)
+                {
+                case Option::SPEED_NORMAL:  break;
+                case Option::SPEED_FIX_MIN: ss << "HiSpeed Fix: Min BPM"; break;
+                case Option::SPEED_FIX_MAX: ss << "HiSpeed Fix: Max BPM"; break;
+                case Option::SPEED_FIX_AVG: ss << "HiSpeed Fix: Average BPM"; break;
+                case Option::SPEED_FIX_CONSTANT: ss << "HiSpeed Fix: *CONSTANT*"; break;
+                case Option::SPEED_FIX_INITIAL: ss << "HiSpeed Fix: Start BPM"; break;
+                case Option::SPEED_FIX_MAIN: ss << "HiSpeed Fix: Main BPM"; break;
                 }
 
                 std::string s = ss.str();
@@ -1657,9 +1695,17 @@ void SceneSelect::inputGamePressPanel(InputMask& input, const Time& t)
             }
             else
             {
-                if (input[Pad::K15]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, -1);
                 if (input[Pad::K16]) lr2skin::button::autoscr(PLAYER_SLOT_PLAYER, 1);
-                if (input[Pad::K17]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, 1);
+                if (State::get(IndexOption::PLAY_HSFIX_TYPE) == Option::SPEED_NORMAL)
+                {
+                    if (input[Pad::K15]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, -1);
+                    if (input[Pad::K17]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, 1);
+                }
+                else
+                {
+                    if (input[Pad::K15]) lr2skin::button::lock_speed_value(PLAYER_SLOT_PLAYER, -1);
+                    if (input[Pad::K17]) lr2skin::button::lock_speed_value(PLAYER_SLOT_PLAYER, 1);
+                }
             }
 
             if (State::get(IndexOption::PLAY_MODE) == Option::PLAY_MODE_BATTLE)
@@ -1684,9 +1730,17 @@ void SceneSelect::inputGamePressPanel(InputMask& input, const Time& t)
                 }
                 else
                 {
-                    if (input[Pad::K25]) lr2skin::button::hs(PLAYER_SLOT_TARGET, -1);
                     if (input[Pad::K26]) lr2skin::button::autoscr(PLAYER_SLOT_TARGET, 1);
-                    if (input[Pad::K27]) lr2skin::button::hs(PLAYER_SLOT_TARGET, 1);
+                    if (State::get(IndexOption::PLAY_HSFIX_TYPE) == Option::SPEED_NORMAL)
+                    {
+                        if (input[Pad::K25]) lr2skin::button::hs(PLAYER_SLOT_TARGET, -1);
+                        if (input[Pad::K27]) lr2skin::button::hs(PLAYER_SLOT_TARGET, 1);
+                    }
+                    else
+                    {
+                        if (input[Pad::K25]) lr2skin::button::lock_speed_value(PLAYER_SLOT_TARGET, -1);
+                        if (input[Pad::K27]) lr2skin::button::lock_speed_value(PLAYER_SLOT_TARGET, 1);
+                    }
                 }
             }
             else if (State::get(IndexOption::PLAY_MODE) == Option::PLAY_MODE_DOUBLE ||
@@ -1713,9 +1767,17 @@ void SceneSelect::inputGamePressPanel(InputMask& input, const Time& t)
                 }
                 else
                 {
-                    if (input[Pad::K25]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, -1);
                     if (input[Pad::K26]) lr2skin::button::autoscr(PLAYER_SLOT_TARGET, 1);
-                    if (input[Pad::K27]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, 1);
+                    if (State::get(IndexOption::PLAY_HSFIX_TYPE) == Option::SPEED_NORMAL)
+                    {
+                        if (input[Pad::K25]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, -1);
+                        if (input[Pad::K27]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, 1);
+                    }
+                    else
+                    {
+                        if (input[Pad::K25]) lr2skin::button::lock_speed_value(PLAYER_SLOT_PLAYER, -1);
+                        if (input[Pad::K27]) lr2skin::button::lock_speed_value(PLAYER_SLOT_PLAYER, 1);
+                    }
                 }
             }
             else
@@ -1744,9 +1806,17 @@ void SceneSelect::inputGamePressPanel(InputMask& input, const Time& t)
                 }
                 else
                 {
-                    if (input[Pad::K25]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, -1);
                     if (input[Pad::K26]) lr2skin::button::autoscr(PLAYER_SLOT_PLAYER, 1);
-                    if (input[Pad::K27]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, 1);
+                    if (State::get(IndexOption::PLAY_HSFIX_TYPE) == Option::SPEED_NORMAL)
+                    {
+                        if (input[Pad::K25]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, -1);
+                        if (input[Pad::K27]) lr2skin::button::hs(PLAYER_SLOT_PLAYER, 1);
+                    }
+                    else
+                    {
+                        if (input[Pad::K25]) lr2skin::button::lock_speed_value(PLAYER_SLOT_PLAYER, -1);
+                        if (input[Pad::K27]) lr2skin::button::lock_speed_value(PLAYER_SLOT_PLAYER, 1);
+                    }
                 }
             }
         }
@@ -2111,6 +2181,8 @@ void SceneSelect::decide()
             case 2: return PlayModifierHispeedFixType::MINBPM;
             case 3: return PlayModifierHispeedFixType::AVERAGE;
             case 4: return PlayModifierHispeedFixType::CONSTANT;
+            case 5: return PlayModifierHispeedFixType::INITIAL;
+            case 6: return PlayModifierHispeedFixType::MAIN;
             case 0:
             default: return PlayModifierHispeedFixType::NONE;
             };
@@ -2247,6 +2319,8 @@ void SceneSelect::decide()
         case PlayModifierHispeedFixType::MINBPM:    State::set(IndexOption::PLAY_HSFIX_TYPE, Option::SPEED_FIX_MIN); break;
         case PlayModifierHispeedFixType::AVERAGE:   State::set(IndexOption::PLAY_HSFIX_TYPE, Option::SPEED_FIX_AVG); break;
         case PlayModifierHispeedFixType::CONSTANT:  State::set(IndexOption::PLAY_HSFIX_TYPE, Option::SPEED_FIX_CONSTANT); break;
+        case PlayModifierHispeedFixType::INITIAL:     State::set(IndexOption::PLAY_HSFIX_TYPE, Option::SPEED_FIX_INITIAL); break;
+        case PlayModifierHispeedFixType::MAIN:      State::set(IndexOption::PLAY_HSFIX_TYPE, Option::SPEED_FIX_MAIN); break;
         default:                State::set(IndexOption::PLAY_HSFIX_TYPE, Option::SPEED_NORMAL); break;
         }
 

@@ -20,8 +20,6 @@ namespace cfg
 
     constexpr char P_GREENNUMBER[] = "GreenNumber";
     constexpr char P_GREENNUMBER_2P[] = "GreenNumber2P";
-    constexpr char P_LOCK_SPEED[] = "LockSpeed";
-    constexpr char P_LOCK_SPEED_2P[] = "LockSpeed2P";
 
     constexpr char P_BGA_TYPE[] = "BGAType";
     constexpr char P_BGA_TYPE_OFF[] = "Off";
@@ -45,19 +43,21 @@ namespace cfg
 
     constexpr char P_SPEED_TYPE[] = "SpeedType";
     constexpr char P_SPEED_TYPE_NORMAL[] = "Normal";
-    constexpr char P_SPEED_TYPE_END[] = "End";
     constexpr char P_SPEED_TYPE_MIN[] = "Min";
     constexpr char P_SPEED_TYPE_MAX[] = "Max";
     constexpr char P_SPEED_TYPE_AVG[] = "Average";
     constexpr char P_SPEED_TYPE_CONSTANT[] = "Constant";
+    constexpr char P_SPEED_TYPE_INITIAL[] = "Initial";
+    constexpr char P_SPEED_TYPE_MAIN[] = "Main";
     enum class eSpeedType
     {
         NORMAL,
-        END,
         MIN,
         MAX,
         AVG,
-        CONSTANT
+        CONSTANT,
+        INITIAL,
+        MAIN
     };
 
     constexpr char P_TARGET_TYPE[] = "TargetType";

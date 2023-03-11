@@ -24,8 +24,6 @@ void ConfigProfile::setDefaults() noexcept
 	set(P_BASESPEED, 1.0);
     set(P_HISPEED, 1.0);
     set(P_HISPEED_2P, 1.0);
-    set(P_LOCK_SPEED, false);
-    set(P_LOCK_SPEED_2P, false);
 	set(P_SPEED_TYPE, P_SPEED_TYPE_NORMAL);
     set(P_TARGET_TYPE, P_TARGET_TYPE_MYBEST);
     set(P_BGA_TYPE, P_BGA_TYPE_ON);

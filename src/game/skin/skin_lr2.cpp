@@ -1557,6 +1557,11 @@ ParseRet SkinLR2::SRC_BUTTON()
                 if (d.div_x * d.div_y >= 6)
                     isSupportLift = true;
             }
+            if (op == IndexOption::PLAY_HSFIX_TYPE)
+            {
+                if (d.div_x * d.div_y >= 7)
+                    isSupportHsFixInitialAndMain = true;
+            }
         }
     }
     else if (lr2skin::buttonFixed(d.type, val))
@@ -1657,6 +1662,9 @@ ParseRet SkinLR2::SRC_TEXT()
     case 65:
     case 66:
         isSupportExHardAndAssistEasy = true;
+        break;
+    case 74:
+        isSupportHsFixInitialAndMain = true;
         break;
     case 84:
     case 85:

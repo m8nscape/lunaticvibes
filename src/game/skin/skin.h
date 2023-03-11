@@ -146,4 +146,5 @@ public:
     bool isSupportLift = false;
     bool isSupportNewRandom = false;
     bool isSupportKeyConfigAbsAxis = false;
+    bool isSupportHsFixInitialAndMain = false;
 };

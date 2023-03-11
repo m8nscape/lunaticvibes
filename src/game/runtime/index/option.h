@@ -51,7 +51,7 @@ enum class IndexOption : unsigned
     PLAY_RANDOM_TYPE_2P,    // OFF/MIRROR/RANDOM/S-RAN/H-RAN(SCATTER)/ALLSCR(CONVERGE)/R-RAN(new)/DB_SYNCHRONIZE(new)/DB_SYMMETRY(new)
     PLAY_LANE_EFFECT_TYPE_1P,	// OFF/HID+/SUD+/SUD+&HID+/LIFT(new)/LIFT&SUD+(new)
     PLAY_LANE_EFFECT_TYPE_2P,	// OFF/HID+/SUD+/SUD+&HID+/LIFT(new)/LIFT&SUD+(new)
-    PLAY_HSFIX_TYPE,	//OFF/MAXBPM/MINBPM/AVERAGE/CONSTANT
+    PLAY_HSFIX_TYPE,	//OFF/MAXBPM/MINBPM/AVERAGE/CONSTANT/START(new)/MAIN(new)
     PLAY_BATTLE_TYPE,	// OFF/BATTLE/DB/SPtoDP,9to7/GhostBattle
     PLAY_TARGET_TYPE,   // 0%/MYBEST/AAA/AA/A/DEFAULT/IRTOP/IRNEXT/IRAVERAGE
 
@@ -267,19 +267,21 @@ namespace Option
 
     enum e_speed_type {
         SPEED_NORMAL,
-        //SPEED_FIX_END,
         SPEED_FIX_MIN,
         SPEED_FIX_MAX,
         SPEED_FIX_AVG,
         SPEED_FIX_CONSTANT,
+        SPEED_FIX_INITIAL,
+        SPEED_FIX_MAIN,
     };
     constexpr char* s_speed_type[] = {
         "OFF",
-        //"END",
         "MIN FIX",
         "MAX FIX",
         "AVERAGE",
         "CONSTANT",
+        "START FIX",
+        "MAIN FIX"
     };
 
     enum e_battle_type {
