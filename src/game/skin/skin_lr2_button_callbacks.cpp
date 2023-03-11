@@ -880,6 +880,24 @@ void hs(int player, int plus)
     default: break;
     }
 }
+// 47, 48
+void lock_speed_value(int player, int plus)
+{
+    // TODO margin, min/max
+    plus = plus > 0 ? 1 : -1;
+    switch (player)
+    {
+    case 0:
+        number_change_clamp(IndexNumber::GREEN_NUMBER_1P, 0, 2000, plus);
+        ConfigMgr::set('P', cfg::P_GREENNUMBER, State::get(IndexNumber::GREEN_NUMBER_1P));
+        break;
+    case 1:
+        number_change_clamp(IndexNumber::GREEN_NUMBER_2P, 0, 2000, plus);
+        ConfigMgr::set('P', cfg::P_GREENNUMBER_2P, State::get(IndexNumber::GREEN_NUMBER_2P));
+        break;
+    default: break;
+    }
+}
 
 // 70
 void score_graph(int plus)
@@ -1417,6 +1435,11 @@ std::function<void(int)> getButtonCallback(int type)
 
     case 46:
         return std::bind(shutter, _1);
+
+    case 47:
+        return std::bind(lock_speed_value, 0, _1);
+    case 48:
+        return std::bind(lock_speed_value, 1, _1);
 
     case 50:
         return std::bind(lane_effect, 0, _1);

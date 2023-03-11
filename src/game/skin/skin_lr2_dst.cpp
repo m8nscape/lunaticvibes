@@ -311,7 +311,7 @@ void updateDstOpt()
 	// //選曲リスト用
 	// 100 NOT PLAYED
 	// 101 FAILED
-	// 102 EASY / ASSISTED EASY CLEARED
+	// 102 EASY / ASSISTED CLEARED
 	// 103 NORMAL CLEARED
 	// 104 HARD / EXHARD CLEARED
 	// 105 FULL COMBO / PERFECT / MAX
@@ -321,7 +321,7 @@ void updateDstOpt()
 	// 106 EXHARD CLEARED
 	// 107 PERFECT
 	// 108 MAX
-	// 109 ASSISTED EASY
+	// 109 ASSISTED
 	{
         using namespace Option;
         switch (State::get(IndexOption::SELECT_ENTRY_LAMP))
@@ -1121,7 +1121,7 @@ void updateDstOpt()
 	// 810: Lanecover Enabled 2P
 	// 811: FHS 2P
 	set(800, State::get(IndexSwitch::P1_LANECOVER_ENABLED));
-	set(810, State::get(IndexSwitch::P1_LOCK_SPEED));
+	set(801, State::get(IndexSwitch::P1_LOCK_SPEED));
 	set(810, State::get(IndexSwitch::P2_LANECOVER_ENABLED));
 	set(811, State::get(IndexSwitch::P2_LOCK_SPEED));
 
