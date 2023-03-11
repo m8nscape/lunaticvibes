@@ -6,15 +6,26 @@
 #include <algorithm>
 #include "common/utils.h"
 
+std::map<std::string, std::shared_ptr<Texture>> SkinBase::preDefinedTextures;
+std::map<std::string, std::shared_ptr<Texture>> SkinBase::textureNameMap;
+
 SkinBase::SkinBase()
 {
-    textureNameMap["Black"] = std::make_shared<TextureFull>(0x000000ff);
-    textureNameMap["White"] = std::make_shared<TextureFull>(0xffffffff);
-    textureNameMap["Error"] = std::make_shared<TextureFull>(0xff00ffff);
-    textureNameMap["STAGEFILE"] = std::shared_ptr<Texture>(&gChartContext.texStagefile, [](Texture*) {});
-    textureNameMap["BACKBMP"] = std::shared_ptr<Texture>(&gChartContext.texBackbmp, [](Texture*) {});
-    textureNameMap["BANNER"] = std::shared_ptr<Texture>(&gChartContext.texBanner, [](Texture*) {});
-    textureNameMap["THUMBNAIL"] = std::make_shared<Texture>(1920, 1080, Texture::PixelFormat::RGB24, true);
+    _version = SkinVersion::UNDEF;
+    if (preDefinedTextures.empty())
+    {
+        preDefinedTextures["Black"] = std::make_shared<TextureFull>(0x000000ff);
+        preDefinedTextures["White"] = std::make_shared<TextureFull>(0xffffffff);
+        preDefinedTextures["Error"] = std::make_shared<TextureFull>(0xff00ffff);
+        preDefinedTextures["STAGEFILE"] = std::shared_ptr<Texture>(&gChartContext.texStagefile, [](Texture*) {});
+        preDefinedTextures["BACKBMP"] = std::shared_ptr<Texture>(&gChartContext.texBackbmp, [](Texture*) {});
+        preDefinedTextures["BANNER"] = std::shared_ptr<Texture>(&gChartContext.texBanner, [](Texture*) {});
+        preDefinedTextures["THUMBNAIL"] = std::make_shared<Texture>(1920, 1080, Texture::PixelFormat::RGB24, true);
+    }
+    for (auto& [key, texture] : preDefinedTextures)
+    {
+        textureNameMap[key] = texture;
+    }
 }
 
 SkinBase::~SkinBase()

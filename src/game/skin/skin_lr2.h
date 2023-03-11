@@ -1337,8 +1337,8 @@ protected:
     static bool customizeDst[100];  // temporary workaround
 
 private:
-    static std::map<std::string, std::shared_ptr<Texture>> LR2SkinImageCache;
     static std::map<std::string, Path> LR2SkinFontPathCache;
+    std::map<std::string, std::shared_ptr<Texture>> prevSkinTextureNameMap;
 
     struct Customize
     {
@@ -1369,7 +1369,8 @@ private:
         CharMappingList R;
     };
     static std::map<Path, std::shared_ptr<LR2Font>> LR2FontCache;
-    std::map<std::string, std::shared_ptr<LR2Font>> LR2FontNameMap;
+    static std::map<std::string, std::shared_ptr<LR2Font>> prevSkinLR2FontNameMap;
+    static std::map<std::string, std::shared_ptr<LR2Font>> LR2FontNameMap;
 
     Path filePath;
     int loadMode = 0;   // 0: FULL / 1: No Text / 2: Header Only

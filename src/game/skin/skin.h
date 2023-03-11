@@ -19,7 +19,8 @@ typedef std::vector<StringContent> Tokens;
 
 class SkinBase
 {
-public:
+protected:
+    static std::map<std::string, std::shared_ptr<Texture>> preDefinedTextures;
 
 protected:
     SkinVersion _version;
@@ -42,7 +43,7 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 // Textures
 protected:
-    std::map<std::string, std::shared_ptr<Texture>> textureNameMap;    // Use this to get texture instance from name
+    static std::map<std::string, std::shared_ptr<Texture>> textureNameMap;    // Use this to get texture instance from name
 	std::map<std::string, std::shared_ptr<sVideo>>  videoNameMap;	// Use this to get video instance from name
 
 ////////////////////////////////////////////////////////////////////////////////

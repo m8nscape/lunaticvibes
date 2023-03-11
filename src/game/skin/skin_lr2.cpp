@@ -502,10 +502,11 @@ static bool flipSide = false;
     }
 }
 
-std::map<std::string, std::shared_ptr<Texture>> SkinLR2::LR2SkinImageCache;
-
 std::map<std::string, Path> SkinLR2::LR2SkinFontPathCache;
 std::map<Path, std::shared_ptr<SkinLR2::LR2Font>> SkinLR2::LR2FontCache;
+
+std::map<std::string, std::shared_ptr<SkinLR2::LR2Font>> SkinLR2::prevSkinLR2FontNameMap;
+std::map<std::string, std::shared_ptr<SkinLR2::LR2Font>> SkinLR2::LR2FontNameMap;
 
 int SkinLR2::setExtendedProperty(std::string&& key, void* value)
 {
@@ -783,9 +784,12 @@ int SkinLR2::IMAGE()
 
     if (strEqual(parseParamBuf[0], "CONTINUE", true))
     {
-        // already referenced inside constructor; create a blank texture if not exist
         std::string textureMapKey = std::to_string(imageCount);
-        if (textureNameMap.find(textureMapKey) == textureNameMap.end())
+        if (prevSkinTextureNameMap.find(textureMapKey) != prevSkinTextureNameMap.end())
+        {
+            textureNameMap[textureMapKey] = prevSkinTextureNameMap[textureMapKey];
+        }
+        else
         {
             textureNameMap[textureMapKey] = std::make_shared<Texture>(nullptr, 0, 0);
         }
@@ -835,12 +839,11 @@ int SkinLR2::LR2FONT()
 
     if (strEqual(parseParamBuf[0], "CONTINUE", true))
     {
-        // already referenced inside constructor; create a blank texture if not exist
+        // create a blank texture if not exist
         std::string fontNameKey = std::to_string(LR2FontNameMap.size());
-        if (LR2SkinFontPathCache.find(fontNameKey) != LR2SkinFontPathCache.end())
+        if (prevSkinLR2FontNameMap.find(fontNameKey) != prevSkinLR2FontNameMap.end())
         {
-            Path path = LR2SkinFontPathCache[fontNameKey];
-            LR2FontNameMap[fontNameKey] = LR2FontCache[path];
+            LR2FontNameMap[fontNameKey] = prevSkinLR2FontNameMap[fontNameKey];
         }
         else
         {
@@ -3624,6 +3627,12 @@ SkinLR2::SkinLR2(Path p, int loadMode): loadMode(loadMode)
 {
     _version = SkinVersion::LR2beta3;
 
+    // load images from last skin
+    prevSkinTextureNameMap = textureNameMap;
+    textureNameMap = preDefinedTextures;
+    prevSkinLR2FontNameMap = LR2FontNameMap;
+    LR2FontNameMap.clear();
+
     parseParamBuf.resize(24);
 
     for (size_t i = 0; i < BAR_ENTRY_SPRITE_COUNT; ++i)
@@ -3644,12 +3653,8 @@ SkinLR2::SkinLR2(Path p, int loadMode): loadMode(loadMode)
         startSpriteVideoPlayback();
     }
 
-    // clear expired cache
-    LR2SkinImageCache.clear();
-    for (auto& [key, texture] : textureNameMap)
-    {
-        LR2SkinImageCache[key] = texture;
-    }
+    prevSkinTextureNameMap.clear();
+    prevSkinLR2FontNameMap.clear();
 }
 
 SkinLR2::~SkinLR2()
