@@ -48,8 +48,8 @@ int getLanecoverTop(int slot)
     }
     switch ((Option::e_lane_effect_type)State::get(lcTypeInd))
     {
-    case Option::LANE_SUDDEN:  
-    case Option::LANE_SUDHID:  
+    case Option::LANE_SUDDEN:
+    case Option::LANE_SUDHID:
     case Option::LANE_LIFTSUD: return State::get(lcTopInd);
     }
     return 0;
@@ -108,7 +108,7 @@ std::pair<int, double> calcGreenNumber(double bpm, int slot, double hs)
 
     double den = hs * bpm;
     int green = den != 0.0 ? int(std::round(visible * 120.0 * 1200 / hs / bpm)) : 0;
-    
+
     return { green, speedValue };
 }
 
@@ -457,6 +457,7 @@ ScenePlay::ScenePlay(): SceneBase(gPlayContext.mode, 1000, true)
         State::set(IndexSlider::HISPEED_1P, gPlayContext.Hispeed / 10.0);
         playerLockspeedValueInternal[PLAYER_SLOT_PLAYER] = val;
         playerLockspeedGreenNumber[PLAYER_SLOT_PLAYER] = green;
+        playerLockspeedHispeedBuffered[PLAYER_SLOT_PLAYER] = hs;
     }
     if (gPlayContext.isBattle && State::get(IndexSwitch::P2_LOCK_SPEED))
     {
@@ -481,6 +482,7 @@ ScenePlay::ScenePlay(): SceneBase(gPlayContext.mode, 1000, true)
         State::set(IndexSlider::HISPEED_2P, gPlayContext.battle2PHispeed / 10.0);
         playerLockspeedValueInternal[PLAYER_SLOT_TARGET] = val;
         playerLockspeedGreenNumber[PLAYER_SLOT_TARGET] = green;
+        playerLockspeedHispeedBuffered[PLAYER_SLOT_TARGET] = hs;
     }
     gPlayContext.HispeedGradientStart = TIMER_NEVER;
     gPlayContext.HispeedGradientFrom = gPlayContext.HispeedGradientNow;
@@ -1573,6 +1575,7 @@ void ScenePlay::updateAsyncLanecover(const Time& t)
                     150.0 : gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentBPM();
                 gPlayContext.Hispeed = std::min(getHiSpeed(bpm, PLAYER_SLOT_PLAYER, playerLockspeedValueInternal[PLAYER_SLOT_PLAYER]), 10.0);
                 playerHispeedHasChanged[PLAYER_SLOT_PLAYER] = true;
+                playerLockspeedHispeedBuffered[PLAYER_SLOT_PLAYER] = gPlayContext.Hispeed;
             }
         }
         else if (playerHispeedAddPending[PLAYER_SLOT_PLAYER] <= -hsThreshold || playerHispeedAddPending[PLAYER_SLOT_PLAYER] >= hsThreshold)
@@ -1611,6 +1614,7 @@ void ScenePlay::updateAsyncLanecover(const Time& t)
                 auto& [green, val] = calcGreenNumber(bpm, PLAYER_SLOT_PLAYER, hs);
                 playerLockspeedValueInternal[PLAYER_SLOT_PLAYER] = val;
                 playerLockspeedGreenNumber[PLAYER_SLOT_PLAYER] = green;
+                playerLockspeedHispeedBuffered[PLAYER_SLOT_PLAYER] = hs;
             }
 
             playerHispeedHasChanged[PLAYER_SLOT_PLAYER] = true;
@@ -1745,6 +1749,7 @@ void ScenePlay::updateAsyncLanecover(const Time& t)
                     150.0 : gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getCurrentBPM();
                 gPlayContext.battle2PHispeed = std::min(getHiSpeed(bpm, PLAYER_SLOT_TARGET, playerLockspeedValueInternal[PLAYER_SLOT_TARGET]), 10.0);
                 playerHispeedHasChanged[PLAYER_SLOT_TARGET] = true;
+                playerLockspeedHispeedBuffered[PLAYER_SLOT_TARGET] = gPlayContext.battle2PHispeed;
             }
         }
         else if (playerHispeedAddPending[PLAYER_SLOT_TARGET] <= -hsThreshold || playerHispeedAddPending[PLAYER_SLOT_TARGET] >= hsThreshold)
@@ -1783,6 +1788,7 @@ void ScenePlay::updateAsyncLanecover(const Time& t)
                 auto& [green, val] = calcGreenNumber(bpm, PLAYER_SLOT_TARGET, hs);
                 playerLockspeedValueInternal[PLAYER_SLOT_TARGET] = val;
                 playerLockspeedGreenNumber[PLAYER_SLOT_TARGET] = green;
+                playerLockspeedHispeedBuffered[PLAYER_SLOT_TARGET] = hs;
             }
 
             playerHispeedHasChanged[PLAYER_SLOT_TARGET] = true;
@@ -3303,6 +3309,32 @@ void ScenePlay::toggleLanecover(int slot, bool state)
     }
     State::set(slot == PLAYER_SLOT_PLAYER ? IndexSlider::SUD_1P : IndexSlider::SUD_2P, sud);
     State::set(slot == PLAYER_SLOT_PLAYER ? IndexSlider::HID_1P : IndexSlider::HID_2P, hid);
+
+    if (state)
+    {
+        if (slot == PLAYER_SLOT_PLAYER && State::get(IndexSwitch::P1_LOCK_SPEED) && 
+            playerLockspeedHispeedBuffered[PLAYER_SLOT_PLAYER] != 0.0)
+        {
+            gPlayContext.Hispeed = playerLockspeedHispeedBuffered[PLAYER_SLOT_PLAYER];
+            double bpm = gPlayContext.mods[PLAYER_SLOT_PLAYER].hispeedFix == PlayModifierHispeedFixType::CONSTANT ?
+                150.0 : gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentBPM();
+            auto& [green, val] = calcGreenNumber(bpm, PLAYER_SLOT_PLAYER, gPlayContext.Hispeed);
+            playerLockspeedValueInternal[PLAYER_SLOT_PLAYER] = val;
+            playerLockspeedGreenNumber[PLAYER_SLOT_PLAYER] = green;
+            playerHispeedHasChanged[PLAYER_SLOT_PLAYER] = true;
+        }
+        else if (slot == PLAYER_SLOT_TARGET && gPlayContext.isBattle && State::get(IndexSwitch::P2_LOCK_SPEED) && 
+            playerLockspeedHispeedBuffered[PLAYER_SLOT_TARGET] != 0.0)
+        {
+            gPlayContext.battle2PHispeed = playerLockspeedHispeedBuffered[PLAYER_SLOT_TARGET];
+            double bpm = gPlayContext.mods[PLAYER_SLOT_TARGET].hispeedFix == PlayModifierHispeedFixType::CONSTANT ?
+                150.0 : gPlayContext.chartObj[PLAYER_SLOT_TARGET]->getCurrentBPM();
+            auto& [green, val] = calcGreenNumber(bpm, PLAYER_SLOT_TARGET, gPlayContext.battle2PHispeed);
+            playerLockspeedValueInternal[PLAYER_SLOT_TARGET] = val;
+            playerLockspeedGreenNumber[PLAYER_SLOT_TARGET] = green;
+            playerHispeedHasChanged[PLAYER_SLOT_TARGET] = true;
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3390,6 +3422,7 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
                 auto& [green, val] = calcGreenNumber(bpm, PLAYER_SLOT_PLAYER, hs);
                 playerLockspeedValueInternal[PLAYER_SLOT_PLAYER] = val;
                 playerLockspeedGreenNumber[PLAYER_SLOT_PLAYER] = green;
+                playerLockspeedHispeedBuffered[PLAYER_SLOT_PLAYER] = hs;
             }
         }
         else
@@ -3412,6 +3445,7 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
                 auto& [green, val] = calcGreenNumber(bpm, PLAYER_SLOT_TARGET, hs);
                 playerLockspeedValueInternal[PLAYER_SLOT_TARGET] = val;
                 playerLockspeedGreenNumber[PLAYER_SLOT_TARGET] = green;
+                playerLockspeedHispeedBuffered[PLAYER_SLOT_TARGET] = hs;
             }
         }
         else

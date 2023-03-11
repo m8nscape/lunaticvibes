@@ -48,6 +48,7 @@ private:
     std::array<double, 2>   playerScratchAccumulator = { 0, 0 };
 
     std::array<double, 2>   playerLockspeedValueInternal{ 0 };  // internal use only, for precise calculation
+    std::array<double, 2>   playerLockspeedHispeedBuffered{ 0 };
     std::array<int, 2>      playerLockspeedGreenNumber{ 0 };    // green number integer
 
     std::array<int, 2>      playerHispeedAddPending{ 0 };
