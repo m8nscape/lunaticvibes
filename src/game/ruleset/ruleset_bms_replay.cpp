@@ -225,6 +225,7 @@ void RulesetBMSReplay::update(const Time& t)
 
 void RulesetBMSReplay::fail()
 {
-    update(Time(LLONG_MAX, true));
+    _startTime = Time(0);
+    _hasStartTime = true;
     RulesetBMS::fail();
 }
