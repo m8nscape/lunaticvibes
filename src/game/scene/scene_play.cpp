@@ -1433,8 +1433,8 @@ void ScenePlay::_updateAsync()
 
 void ScenePlay::updateAsyncLanecover(const Time& t)
 {
-    int lcThreshold = getRate() / 200;  // lanecover, +200 per second
-    int hsThreshold = getRate() / 25;   // hispeed, +25 per second
+    int lcThreshold = getRate() / 200 * _input.getRate() / 1000;  // lanecover, +200 per second
+    int hsThreshold = getRate() / 25 * _input.getRate() / 1000;   // hispeed, +25 per second
 
     auto handleSide = [&](int slot)
     {
@@ -1470,73 +1470,13 @@ void ScenePlay::updateAsyncLanecover(const Time& t)
             inverted = true;
             break;
         }
-        if (!inverted)
+        int units = playerState[slot].lanecoverAddPending > 0 ? (playerState[slot].lanecoverAddPending / lcThreshold) : -(-playerState[slot].lanecoverAddPending / lcThreshold);
+        if (units != 0)
         {
-            while (lc < 1000 && playerState[slot].lanecoverAddPending >= lcThreshold)
-            {
-                playerState[slot].lanecoverAddPending -= lcThreshold;
-                lcHasChanged = true;
-                lc += 1;
-            }
-            while (lc > 0 && playerState[slot].lanecoverAddPending <= -lcThreshold)
-            {
-                playerState[slot].lanecoverAddPending += lcThreshold;
-                lcHasChanged = true;
-                lc -= 1;
-            }
-
-            if (lc <= 0)
-            {
-                lc = 0;
-                if (playerState[slot].lanecoverAddPending < 0)
-                    playerState[slot].lanecoverAddPending = 0;
-            }
-            else if (lanecoverType == Option::LANE_SUDHID && lc >= 500)
-            {
-                lc = 500;
-                if (playerState[slot].lanecoverAddPending > 0)
-                    playerState[slot].lanecoverAddPending = 0;
-            }
-            else if (lc >= 1000)
-            {
-                lc = 1000;
-                if (playerState[slot].lanecoverAddPending > 0)
-                    playerState[slot].lanecoverAddPending = 0;
-            }
-        }
-        else
-        {
-            while (lc < 1000 && playerState[slot].lanecoverAddPending <= -lcThreshold)
-            {
-                playerState[slot].lanecoverAddPending += lcThreshold;
-                lcHasChanged = true;
-                lc += 1;
-            }
-            while (lc > 0 && playerState[slot].lanecoverAddPending >= lcThreshold)
-            {
-                playerState[slot].lanecoverAddPending -= lcThreshold;
-                lcHasChanged = true;
-                lc -= 1;
-            }
-
-            if (lc <= 0)
-            {
-                lc = 0;
-                if (playerState[slot].lanecoverAddPending > 0)
-                    playerState[slot].lanecoverAddPending = 0;
-            }
-            else if (lanecoverType == Option::LANE_SUDHID && lc >= 500)
-            {
-                lc = 500;
-                if (playerState[slot].lanecoverAddPending < 0)
-                    playerState[slot].lanecoverAddPending = 0;
-            }
-            else if (lc >= 1000)
-            {
-                lc = 1000;
-                if (playerState[slot].lanecoverAddPending < 0)
-                    playerState[slot].lanecoverAddPending = 0;
-            }
+            playerState[slot].lanecoverAddPending -= units * lcThreshold;
+            lc = std::clamp(lc + (inverted ? -units : units), 0, 1000);
+            if (lanecoverType == Option::LANE_SUDHID && lc > 500) lc = 500;
+            lcHasChanged = true;
         }
 
         if (lcHasChanged)
@@ -1579,29 +1519,12 @@ void ScenePlay::updateAsyncLanecover(const Time& t)
         {
             double hs = *pHispeed;
             double hsOld = hs;
-            while (hs < hiSpeedMax && playerState[slot].hispeedAddPending >= hsThreshold)
+            int units = playerState[slot].hispeedAddPending > 0 ? (playerState[slot].hispeedAddPending / hsThreshold) : -(-playerState[slot].hispeedAddPending / hsThreshold);
+            if (units != 0)
             {
-                playerState[slot].hispeedAddPending -= hsThreshold;
-                hs += 0.01;
+                playerState[slot].hispeedAddPending -= units * hsThreshold;
+                hs = std::clamp(hs + (inverted ? -units : units) / 100.0, hiSpeedMinSoft, hiSpeedMax);
             }
-            while (hs > hiSpeedMinSoft && playerState[slot].hispeedAddPending <= -hsThreshold)
-            {
-                playerState[slot].hispeedAddPending += hsThreshold;
-                hs -= 0.01;
-            }
-            if (hs <= hiSpeedMinHard)
-            {
-                hs = hiSpeedMinHard;
-                if (playerState[slot].hispeedAddPending < 0)
-                    playerState[slot].hispeedAddPending = 0;
-            }
-            else if (hs >= hiSpeedMax)
-            {
-                hs = hiSpeedMax;
-                if (playerState[slot].hispeedAddPending > 0)
-                    playerState[slot].hispeedAddPending = 0;
-            }
-
             *pHispeed = hs;
 
             if (lockSpeedEnabled)
@@ -3251,7 +3174,7 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
     // lanecover adjusted by key
     if (State::get(IndexSwitch::P1_LANECOVER_ENABLED) || State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P) == Option::LANE_LIFT)
     {
-        int lcThreshold = getRate() / 200;  // updateAsyncLanecover()
+        int lcThreshold = getRate() / 200 * _input.getRate() / 1000;  // updateAsyncLanecover()
         if (adjustLanecoverWithMousewheel)
         {
             if (input[MWHEELUP])
@@ -3410,10 +3333,9 @@ void ScenePlay::inputGameHold(InputMask& m, const Time& t)
         bool fnLanecover = isHoldingStart(slot) || !adjustHispeedWithSelect && isHoldingSelect(slot);
         bool fnHispeed = adjustHispeedWithSelect && isHoldingSelect(slot);
 
-        // FIXME adjust with getRate()
         int val = 0;
-        if (input[ttUp]) val--;  // -1 per ms
-        if (input[ttDn]) val++;  // +1 per ms
+        if (input[ttUp]) val--;  // -1 per tick
+        if (input[ttDn]) val++;  // +1 per tick
 
         // turntable spin
         playerState[slot].turntableAngleAdd += val * 0.25;
@@ -3530,7 +3452,6 @@ void ScenePlay::inputGameAxis(double S1, double S2, const Time& t)
 {
 	using namespace Input;
 
-    // FIXME adjust with getRate()
     // turntable spin
     playerState[PLAYER_SLOT_PLAYER].turntableAngleAdd += S1 * 2.0 * 360;
     playerState[PLAYER_SLOT_TARGET].turntableAngleAdd += S2 * 2.0 * 360;
