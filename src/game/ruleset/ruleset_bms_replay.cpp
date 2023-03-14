@@ -127,24 +127,24 @@ void RulesetBMSReplay::update(const Time& t)
 
             if (gPlayContext.mode == SkinType::PLAY5 || gPlayContext.mode == SkinType::PLAY5_2)
             {
-                if (replay_cmd_input_down_map_5k[replayCmdMapIndex].find(cmd) != replay_cmd_input_down_map_5k[replayCmdMapIndex].end())
+                if (REPLAY_CMD_INPUT_DOWN_MAP_5K[replayCmdMapIndex].find(cmd) != REPLAY_CMD_INPUT_DOWN_MAP_5K[replayCmdMapIndex].end())
                 {
-                    keyPressing[replay_cmd_input_down_map_5k[replayCmdMapIndex].at(cmd)] = true;
+                    keyPressing[REPLAY_CMD_INPUT_DOWN_MAP_5K[replayCmdMapIndex].at(cmd)] = true;
                 }
-                else if (replay_cmd_input_up_map_5k[replayCmdMapIndex].find(cmd) != replay_cmd_input_up_map_5k[replayCmdMapIndex].end())
+                else if (REPLAY_CMD_INPUT_UP_MAP_5K[replayCmdMapIndex].find(cmd) != REPLAY_CMD_INPUT_UP_MAP_5K[replayCmdMapIndex].end())
                 {
-                    keyPressing[replay_cmd_input_up_map_5k[replayCmdMapIndex].at(cmd)] = false;
+                    keyPressing[REPLAY_CMD_INPUT_UP_MAP_5K[replayCmdMapIndex].at(cmd)] = false;
                 }
             }
             else
             {
-                if (replay_cmd_input_down_map.find(cmd) != replay_cmd_input_down_map.end())
+                if (REPLAY_CMD_INPUT_DOWN_MAP.find(cmd) != REPLAY_CMD_INPUT_DOWN_MAP.end())
                 {
-                    keyPressing[replay_cmd_input_down_map.at(cmd)] = true;
+                    keyPressing[REPLAY_CMD_INPUT_DOWN_MAP.at(cmd)] = true;
                 }
-                else if (replay_cmd_input_up_map.find(cmd) != replay_cmd_input_up_map.end())
+                else if (REPLAY_CMD_INPUT_UP_MAP.find(cmd) != REPLAY_CMD_INPUT_UP_MAP.end())
                 {
-                    keyPressing[replay_cmd_input_up_map.at(cmd)] = false;
+                    keyPressing[REPLAY_CMD_INPUT_UP_MAP.at(cmd)] = false;
                 }
             }
 

@@ -79,8 +79,8 @@ void config_player()
 
     if (!gPlayContext.isReplay)
     {
-        ConfigMgr::set('P', P_HISPEED, gPlayContext.Hispeed);
-        ConfigMgr::set('P', P_HISPEED_2P, gPlayContext.battle2PHispeed);
+        ConfigMgr::set('P', P_HISPEED, gPlayContext.playerState[PLAYER_SLOT_PLAYER].hispeed);
+        ConfigMgr::set('P', P_HISPEED_2P, gPlayContext.playerState[PLAYER_SLOT_TARGET].hispeed);
         ConfigMgr::set('P', cfg::P_GREENNUMBER, State::get(IndexNumber::GREEN_NUMBER_1P));
         ConfigMgr::set('P', cfg::P_GREENNUMBER_2P, State::get(IndexNumber::GREEN_NUMBER_2P));
 
@@ -416,8 +416,8 @@ SceneSelect::SceneSelect() : SceneBase(SkinType::MUSIC_SELECT, 250)
     State::set(IndexSwitch::SOUND_PITCH, ConfigMgr::get('P', cfg::P_FREQ, false));
     lr2skin::slider::pitch((ConfigMgr::get('P', cfg::P_FREQ_VAL, 0) + 12) / 24.0);
 
-    gPlayContext.Hispeed = State::get(IndexNumber::HS_1P) / 100.0;
-    gPlayContext.battle2PHispeed = State::get(IndexNumber::HS_2P) / 100.0;
+    gPlayContext.playerState[PLAYER_SLOT_PLAYER].hispeed = State::get(IndexNumber::HS_1P) / 100.0;
+    gPlayContext.playerState[PLAYER_SLOT_TARGET].hispeed = State::get(IndexNumber::HS_2P) / 100.0;
     if (State::get(IndexOption::PLAY_HSFIX_TYPE) == Option::SPEED_NORMAL)
     {
         State::set(IndexSwitch::P1_LOCK_SPEED, false);

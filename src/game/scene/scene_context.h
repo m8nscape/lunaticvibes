@@ -102,19 +102,16 @@ struct PlayContextParams
     bool isAuto = false;
     bool isReplay = false;
     bool haveReplay = false;
-
-    double Hispeed = 2.0;
-
-    // BATTLE 2P side settings
     bool isBattle = false;  // Note: DB is NOT Battle
-    double battle2PHispeed = 2.0;
 
-    Time HispeedGradientStart;
-    double HispeedGradientFrom = 2.0;
-    double HispeedGradientNow = 2.0;
-    Time battle2PHispeedGradientStart;
-    double battle2PHispeedGradientFrom = 2.0;
-    double battle2PHispeedGradientNow = 2.0;
+    struct PlayerState
+    {
+        double hispeed = 2.0;
+        Time   hispeedGradientStart;
+        double hispeedGradientFrom = 2.0;
+        double hispeedGradientNow = 2.0;
+
+    } playerState[2];
 
     bool shift1PNotes5KFor7KSkin = false;
     bool shift2PNotes5KFor7KSkin = false;

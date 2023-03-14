@@ -90,7 +90,7 @@ Path ReplayChart::getReplayPath()
 
 
 
-const std::map<Input::Pad, ReplayChart::Commands::Type> replay_input_down_cmd_map =
+const std::map<Input::Pad, ReplayChart::Commands::Type> REPLAY_INPUT_DOWN_CMD_MAP =
 {
     { Input::Pad::S1L,      ReplayChart::Commands::Type::S1L_DOWN },
     { Input::Pad::S1R,      ReplayChart::Commands::Type::S1R_DOWN },
@@ -120,7 +120,7 @@ const std::map<Input::Pad, ReplayChart::Commands::Type> replay_input_down_cmd_ma
     { Input::Pad::K2SELECT, ReplayChart::Commands::Type::K2SELECT_DOWN },
 };
 
-const std::map<Input::Pad, ReplayChart::Commands::Type> replay_input_up_cmd_map =
+const std::map<Input::Pad, ReplayChart::Commands::Type> REPLAY_INPUT_UP_CMD_MAP =
 {
     { Input::Pad::S1L,      ReplayChart::Commands::Type::S1L_UP },
     { Input::Pad::S1R,      ReplayChart::Commands::Type::S1R_UP },
@@ -150,7 +150,7 @@ const std::map<Input::Pad, ReplayChart::Commands::Type> replay_input_up_cmd_map 
     { Input::Pad::K2SELECT, ReplayChart::Commands::Type::K2SELECT_UP },
 };
 
-const std::map<Input::Pad, ReplayChart::Commands::Type> replay_input_down_cmd_map_5k[4] =
+const std::map<Input::Pad, ReplayChart::Commands::Type> REPLAY_INPUT_DOWN_CMD_MAP_5K[4] =
 {
     {
         { Input::Pad::S1L,      ReplayChart::Commands::Type::S1L_DOWN },
@@ -234,7 +234,7 @@ const std::map<Input::Pad, ReplayChart::Commands::Type> replay_input_down_cmd_ma
     },
 };
 
-const std::map<Input::Pad, ReplayChart::Commands::Type> replay_input_up_cmd_map_5k[4] =
+const std::map<Input::Pad, ReplayChart::Commands::Type> REPLAY_INPUT_UP_CMD_MAP_5K[4] =
 {
     {
         { Input::Pad::S1L,      ReplayChart::Commands::Type::S1L_UP },
@@ -318,7 +318,7 @@ const std::map<Input::Pad, ReplayChart::Commands::Type> replay_input_up_cmd_map_
     },
 };
 
-const std::map<ReplayChart::Commands::Type, Input::Pad> replay_cmd_input_down_map =
+const std::map<ReplayChart::Commands::Type, Input::Pad> REPLAY_CMD_INPUT_DOWN_MAP =
 {
     { ReplayChart::Commands::Type::S1L_DOWN, Input::Pad::S1L },
     { ReplayChart::Commands::Type::S1R_DOWN, Input::Pad::S1R },
@@ -348,7 +348,7 @@ const std::map<ReplayChart::Commands::Type, Input::Pad> replay_cmd_input_down_ma
     { ReplayChart::Commands::Type::K2SELECT_DOWN, Input::Pad::K2SELECT },
 };
 
-const std::map<ReplayChart::Commands::Type, Input::Pad> replay_cmd_input_up_map =
+const std::map<ReplayChart::Commands::Type, Input::Pad> REPLAY_CMD_INPUT_UP_MAP =
 {
     { ReplayChart::Commands::Type::S1L_UP, Input::Pad::S1L },
     { ReplayChart::Commands::Type::S1R_UP, Input::Pad::S1R },
@@ -378,7 +378,7 @@ const std::map<ReplayChart::Commands::Type, Input::Pad> replay_cmd_input_up_map 
     { ReplayChart::Commands::Type::K2SELECT_UP, Input::Pad::K2SELECT },
 };
 
-const std::map<ReplayChart::Commands::Type, Input::Pad> replay_cmd_input_down_map_5k[4] =
+const std::map<ReplayChart::Commands::Type, Input::Pad> REPLAY_CMD_INPUT_DOWN_MAP_5K[4] =
 {
     {
         { ReplayChart::Commands::Type::S1L_DOWN, Input::Pad::S1L },
@@ -462,7 +462,7 @@ const std::map<ReplayChart::Commands::Type, Input::Pad> replay_cmd_input_down_ma
     },
 };
 
-const std::map<ReplayChart::Commands::Type, Input::Pad> replay_cmd_input_up_map_5k[4] =
+const std::map<ReplayChart::Commands::Type, Input::Pad> REPLAY_CMD_INPUT_UP_MAP_5K[4] =
 {
     {
         { ReplayChart::Commands::Type::S1L_UP, Input::Pad::S1L },

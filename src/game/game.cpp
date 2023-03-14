@@ -53,11 +53,22 @@ int main(int argc, char* argv[])
     executablePath = Path(exePath);
     fs::current_path(executablePath);
 
-    // init curl
-    curl_global_init(CURL_GLOBAL_DEFAULT);
-
     // init logger
     InitLogger();
+
+    // init curl
+    LOG_INFO << "Initializing libcurl...";
+    if (CURLcode ret = curl_global_init(CURL_GLOBAL_DEFAULT); ret != CURLE_OK)
+    {
+        std::stringstream ss;
+        ss << "libcurl init error: " << ret;
+        std::string str = ss.str();
+        LOG_FATAL << str;
+        panic("Error", str.c_str());
+        return -1;
+    }
+    LOG_INFO << "libcurl version: " << curl_version();
+    
 
     // load configs
     ConfigMgr::init();
@@ -74,10 +85,12 @@ int main(int argc, char* argv[])
     }
 
     // init imgui
+    LOG_INFO << "Initializing ImGui...";
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     ImGui::StyleColorsDark();
+    LOG_INFO << "ImGui version: " << ImGui::GetVersion();
 
     {
         ImGuiStyle& s = ImGui::GetStyle();

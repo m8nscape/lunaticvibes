@@ -34,37 +34,46 @@ protected:
 private:
     bool playInterrupted = false;
     bool playFinished = false;
-    std::array<bool, 2>     playerFinished{ false, false };
+    bool holdingStart[2]{ false, false };
+    bool holdingSelect[2]{ false, false };
+    bool isHoldingStart(int player) const;
+    bool isHoldingSelect(int player) const;
 
-    std::array<bool, 2>     playerHoldingStart = { false, false };
-    std::array<bool, 2>     playerHoldingSelect = { false, false };
-    std::array<Time, 2>     playerStartPressedTime = { TIMER_NEVER, TIMER_NEVER };
-    std::array<Time, 2>     playerSelectPressedTime = { TIMER_NEVER, TIMER_NEVER };
+    struct PlayerState
+    {
+		bool finished = false;
 
-    std::array<double, 2>   playerTurntableAngleAdd{ 0 };
+		Time startPressedTime = TIMER_NEVER;
+		Time selectPressedTime = TIMER_NEVER;
 
-    std::array<AxisDir, 2>  playerScratchDirection{ 0 };
-    std::array<Time, 2>     playerScratchLastUpdate{ TIMER_NEVER, TIMER_NEVER };
-    std::array<double, 2>   playerScratchAccumulator = { 0, 0 };
+		double turntableAngleAdd = 0;
 
-    std::array<double, 2>   playerLockspeedValueInternal{ 0 };  // internal use only, for precise calculation
-    std::array<double, 2>   playerLockspeedHispeedBuffered{ 0 };
-    std::array<int, 2>      playerLockspeedGreenNumber{ 0 };    // green number integer
+		AxisDir scratchDirection = 0;
+		Time scratchLastUpdate = TIMER_NEVER;
+		double scratchAccumulator = 0;
 
-    std::array<int, 2>      playerHispeedAddPending{ 0 };
-    std::array<int, 2>      playerLanecoverAddPending{ 0 };
+		int hispeedAddPending = 0;
+		int lanecoverAddPending = 0;
 
-    std::array<double, 2>   playerSavedHispeed{ 1.0, 1.0 };
+		double savedHispeed = 1.0;
 
-    std::array<Option::e_lane_effect_type, 2>     playerOrigLanecoverType;
+		Option::e_lane_effect_type origLanecoverType = Option::LANE_OFF;
 
-    std::array<int, 2>      playerHealthLastTick{ 0 };
+		int healthLastTick = 0;
 
-    std::array<bool, 2>     playerHispeedHasChanged{ false, false };
-    std::array<bool, 2>     playerLanecoverTopHasChanged{ false, false };
-    std::array<bool, 2>     playerLanecoverBottomHasChanged{ false, false };
-    std::array<bool, 2>     playerLanecoverStateHasChanged{ false, false };
-    std::array<bool, 2>     playerLockSpeedResetPending{ false, false };
+		double lockspeedValueInternal = 300.0; // internal use only, for precise calculation
+		double lockspeedHispeedBuffered = 2.0;
+		int lockspeedGreenNumber = 300; // green number integer
+
+		bool hispeedHasChanged = false;
+		bool lanecoverTopHasChanged = false;
+		bool lanecoverBottomHasChanged = false;
+		bool lanecoverStateHasChanged = false;
+		bool lockspeedResetPending = false;
+
+		int judgeBP = 0; // used for displaying poor bga
+
+    } playerState[2];
 
     Time delayedReadyTime = 0;
     int retryRequestTick = 0;
@@ -76,7 +85,6 @@ private:
     bool isManuallyRequestedExit = false;
     bool isReplayRequestedExit = false;
 
-    std::array<int, 2>      playerJudgeBP = { 0 };  // used for displaying poor bga
     Time poorBgaStartTime;
     int poorBgaDuration;
 
@@ -157,6 +165,7 @@ protected:
 
 protected:
     // Inner-state updates
+    void updatePlayTime(const Time& rt);
     void procCommonNotes();
     void changeKeySampleMapping(const Time& t);
     void spinTurntable(bool startedPlaying);
@@ -169,6 +178,7 @@ protected:
     void inputGameHold(InputMask&, const Time&);
     void inputGameRelease(InputMask&, const Time&);
     void inputGamePressTimer(InputMask&, const Time&);
+    void inputGamePressPlayKeysounds(InputMask, const Time&);
     void inputGameReleaseTimer(InputMask&, const Time&);
     void inputGameAxis(double s1, double s2, const Time&);
 

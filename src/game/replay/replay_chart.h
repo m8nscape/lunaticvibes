@@ -227,18 +227,18 @@ public:
 CEREAL_CLASS_VERSION(ReplayChart, 2);
 
 
-extern const std::map<Input::Pad, ReplayChart::Commands::Type> replay_input_down_cmd_map;
+extern const std::map<Input::Pad, ReplayChart::Commands::Type> REPLAY_INPUT_DOWN_CMD_MAP;
 
-extern const std::map<Input::Pad, ReplayChart::Commands::Type> replay_input_up_cmd_map;
+extern const std::map<Input::Pad, ReplayChart::Commands::Type> REPLAY_INPUT_UP_CMD_MAP;
 
-extern const std::map<Input::Pad, ReplayChart::Commands::Type> replay_input_down_cmd_map_5k[4];
+extern const std::map<Input::Pad, ReplayChart::Commands::Type> REPLAY_INPUT_DOWN_CMD_MAP_5K[4];
 
-extern const std::map<Input::Pad, ReplayChart::Commands::Type> replay_input_up_cmd_map_5k[4];
+extern const std::map<Input::Pad, ReplayChart::Commands::Type> REPLAY_INPUT_UP_CMD_MAP_5K[4];
 
-extern const std::map<ReplayChart::Commands::Type, Input::Pad> replay_cmd_input_down_map;
+extern const std::map<ReplayChart::Commands::Type, Input::Pad> REPLAY_CMD_INPUT_DOWN_MAP;
 
-extern const std::map<ReplayChart::Commands::Type, Input::Pad> replay_cmd_input_up_map;
+extern const std::map<ReplayChart::Commands::Type, Input::Pad> REPLAY_CMD_INPUT_UP_MAP;
 
-extern const std::map<ReplayChart::Commands::Type, Input::Pad> replay_cmd_input_down_map_5k[4];
+extern const std::map<ReplayChart::Commands::Type, Input::Pad> REPLAY_CMD_INPUT_DOWN_MAP_5K[4];
 
-extern const std::map<ReplayChart::Commands::Type, Input::Pad> replay_cmd_input_up_map_5k[4];
+extern const std::map<ReplayChart::Commands::Type, Input::Pad> REPLAY_CMD_INPUT_UP_MAP_5K[4];

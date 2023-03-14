@@ -847,12 +847,12 @@ void SceneSelect::imguiPageOptionsPlay()
         ImGui::BeginDisabled(imgui_play_lockGreenNumber);
         ImGui::Text(i18n::c(HISPEED));
         ImGui::SameLine(infoRowWidth);
-        imgui_play_hispeed = gPlayContext.Hispeed;
+        imgui_play_hispeed = gPlayContext.playerState[PLAYER_SLOT_PLAYER].hispeed;
         if (ImGui::SliderFloat("##hispeed", &imgui_play_hispeed, 0.01f, 10.0f, "%.02f", ImGuiSliderFlags_None))
         {
             int hsInt = int(std::round(imgui_play_hispeed * 100.0));
             State::set(IndexNumber::HS_1P, hsInt);
-            gPlayContext.Hispeed = imgui_play_hispeed = hsInt / 100.0;
+            gPlayContext.playerState[PLAYER_SLOT_PLAYER].hispeed = imgui_play_hispeed = hsInt / 100.0;
         }
         ImGui::EndDisabled();
 

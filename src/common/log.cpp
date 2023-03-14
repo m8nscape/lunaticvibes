@@ -75,6 +75,8 @@ void SetLogLevel(int level)
     default: severity = plog::fatal; break;
     }
     plog::get()->setMaxSeverity(severity);
+
+    LOG_INFO << "[Log] log level set to " << level;
 }
 
 int FreeLogger()
