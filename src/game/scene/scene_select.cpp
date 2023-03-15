@@ -1942,13 +1942,17 @@ void SceneSelect::decide()
         gChartContext.path = chart.absolutePath;
 
         // only reload resources if selected chart is different
+        gChartContext.hash = chart.fileHash;
         if (gChartContext.hash != gChartContext.sampleLoadedHash)
         {
-            gChartContext.isBgaLoaded = false;
             gChartContext.isSampleLoaded = false;
             gChartContext.sampleLoadedHash.reset();
         }
-        gChartContext.hash = chart.fileHash;
+        if (gChartContext.hash != gChartContext.bgaLoadedHash)
+        {
+            gChartContext.isBgaLoaded = false;
+            gChartContext.bgaLoadedHash.reset();
+        }
 
         //gChartContext.chart = std::make_shared<ChartFormatBase>(chart);
         gChartContext.title = chart.title;
@@ -2075,13 +2079,17 @@ void SceneSelect::decide()
         gChartContext.path = chart.absolutePath;
 
         // only reload resources if selected chart is different
+        gChartContext.hash = chart.fileHash;
         if (gChartContext.hash != gChartContext.sampleLoadedHash)
         {
-            gChartContext.isBgaLoaded = false;
             gChartContext.isSampleLoaded = false;
             gChartContext.sampleLoadedHash.reset();
         }
-        gChartContext.hash = chart.fileHash;
+        if (gChartContext.hash != gChartContext.bgaLoadedHash)
+        {
+            gChartContext.isBgaLoaded = false;
+            gChartContext.bgaLoadedHash.reset();
+        }
 
         //gChartContext.chart = std::make_shared<ChartFormatBase>(chart);
         gChartContext.title = chart.title;

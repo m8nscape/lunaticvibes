@@ -476,29 +476,31 @@ void SceneResult::updateFadeout()
                 auto pChart = *g_pSongDB->findChartByHash(gPlayContext.courseCharts[gPlayContext.courseStage]).begin();
                 gChartContext.chart = pChart;
 
-                auto& chart = *gChartContext.chart;
+                auto& nextChart = *gChartContext.chart;
                 //gChartContext.path = chart._filePath;
-                gChartContext.path = chart.absolutePath;
+                gChartContext.path = nextChart.absolutePath;
 
                 // only reload resources if selected chart is different
-                if (gChartContext.hash != chart.fileHash)
+                if (gChartContext.hash != nextChart.fileHash)
                 {
-                    gChartContext.isBgaLoaded = false;
                     gChartContext.isSampleLoaded = false;
+                    gChartContext.sampleLoadedHash.reset();
+                    gChartContext.isBgaLoaded = false;
+                    gChartContext.bgaLoadedHash.reset();
                 }
-                gChartContext.hash = chart.fileHash;
+                gChartContext.hash = nextChart.fileHash;
 
                 //gChartContext.chart = std::make_shared<ChartFormatBase>(chart);
-                gChartContext.title = chart.title;
-                gChartContext.title2 = chart.title2;
-                gChartContext.artist = chart.artist;
-                gChartContext.artist2 = chart.artist2;
-                gChartContext.genre = chart.genre;
-                gChartContext.version = chart.version;
-                gChartContext.level = chart.levelEstimated;
-                gChartContext.minBPM = chart.minBPM;
-                gChartContext.maxBPM = chart.maxBPM;
-                gChartContext.startBPM = chart.startBPM;
+                gChartContext.title = nextChart.title;
+                gChartContext.title2 = nextChart.title2;
+                gChartContext.artist = nextChart.artist;
+                gChartContext.artist2 = nextChart.artist2;
+                gChartContext.genre = nextChart.genre;
+                gChartContext.version = nextChart.version;
+                gChartContext.level = nextChart.levelEstimated;
+                gChartContext.minBPM = nextChart.minBPM;
+                gChartContext.maxBPM = nextChart.maxBPM;
+                gChartContext.startBPM = nextChart.startBPM;
 
                 auto pScore = g_pScoreDB->getChartScoreBMS(gChartContext.hash);
                 if (pScore && !pScore->replayFileName.empty())

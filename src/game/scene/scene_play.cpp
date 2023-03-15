@@ -1159,6 +1159,7 @@ void ScenePlay::loadChart()
         gChartContext.isSampleLoaded = false;
         gChartContext.sampleLoadedHash.reset();
         gChartContext.isBgaLoaded = false;
+        gChartContext.bgaLoadedHash.reset();
     }
 
     // load samples
@@ -1238,6 +1239,7 @@ void ScenePlay::loadChart()
                 {
                     bmpLoaded = 1;
                     gChartContext.isBgaLoaded = true;
+                    gChartContext.bgaLoadedHash = gChartContext.hash;
                     return;
                 }
 
@@ -1281,6 +1283,7 @@ void ScenePlay::loadChart()
                     }
                     gPlayContext.bgaTexture->setSlotFromBMS(*std::reinterpret_pointer_cast<ChartObjectBMS>(gPlayContext.chartObj[PLAYER_SLOT_PLAYER]));
                     gChartContext.isBgaLoaded = true;
+                    gChartContext.bgaLoadedHash = gChartContext.hash;
                 }
                 });
         }

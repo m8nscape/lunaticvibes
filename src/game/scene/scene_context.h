@@ -34,6 +34,7 @@ struct ChartContextParams
     bool isSampleLoaded = false;
     HashMD5 sampleLoadedHash;
     bool isBgaLoaded = false;
+    HashMD5 bgaLoadedHash;
 	bool started = false;
 
     // DP flags
