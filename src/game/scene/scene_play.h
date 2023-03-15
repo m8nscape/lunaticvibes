@@ -150,10 +150,10 @@ protected:
     // Looper callbacks
     virtual void _updateAsync() override;
     void updateAsyncLanecover(const Time& t);
-    void updateAsyncHSGradient(const Time& t);
     void updateAsyncGreenNumber(const Time& t);
     void updateAsyncGaugeUpTimer(const Time& t);
     void updateAsyncLanecoverDisplay(const Time& t);
+    void updateAsyncHSGradient(const Time& t);
     void updateAsyncAbsoluteAxis(const Time& t);
     void updatePrepare();
     void updateLoading();

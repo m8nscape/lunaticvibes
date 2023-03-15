@@ -556,7 +556,7 @@ ScenePlay::ScenePlay(): SceneBase(gPlayContext.mode, 1000, true)
     gPlayContext.playerState[PLAYER_SLOT_PLAYER].hispeedGradientFrom = gPlayContext.playerState[PLAYER_SLOT_PLAYER].hispeedGradientNow;
     gPlayContext.playerState[PLAYER_SLOT_PLAYER].hispeedGradientNow = gPlayContext.playerState[PLAYER_SLOT_PLAYER].hispeed;
     gPlayContext.playerState[PLAYER_SLOT_TARGET].hispeedGradientStart = TIMER_NEVER;
-    gPlayContext.playerState[PLAYER_SLOT_TARGET].hispeedGradientFrom = gPlayContext.playerState[PLAYER_SLOT_TARGET].hispeed;
+    gPlayContext.playerState[PLAYER_SLOT_TARGET].hispeedGradientFrom = gPlayContext.playerState[PLAYER_SLOT_TARGET].hispeedGradientNow;
     gPlayContext.playerState[PLAYER_SLOT_TARGET].hispeedGradientNow = gPlayContext.playerState[PLAYER_SLOT_TARGET].hispeed;
 
     State::set(IndexSlider::HISPEED_1P, gPlayContext.playerState[PLAYER_SLOT_PLAYER].hispeed / 10.0);
@@ -1359,9 +1359,6 @@ void ScenePlay::_updateAsync()
     // update lanecover / hispeed change
     updateAsyncLanecover(t);
 
-    // HS gradient
-    updateAsyncHSGradient(t);
-
     // health + timer, reset per 2%
     updateAsyncGaugeUpTimer(t);
 
@@ -1392,6 +1389,9 @@ void ScenePlay::_updateAsync()
 
     // adjust lanecover display
     updateAsyncLanecoverDisplay(t);
+
+    // HS gradient
+    updateAsyncHSGradient(t);
 
     // update green number
     updateAsyncGreenNumber(t);
@@ -1560,29 +1560,6 @@ void ScenePlay::updateAsyncLanecover(const Time& t)
     if (gPlayContext.isBattle) handleSide(PLAYER_SLOT_TARGET);
 }
 
-void ScenePlay::updateAsyncHSGradient(const Time& t)
-{
-    const long long HS_GRADIENT_LENGTH_MS = 200;
-    for (int slot = PLAYER_SLOT_PLAYER; slot <= PLAYER_SLOT_TARGET; slot++)
-    {
-        if (gPlayContext.playerState[slot].hispeedGradientStart != TIMER_NEVER)
-        {
-            Time hsGradient = t - gPlayContext.playerState[slot].hispeedGradientStart;
-            if (hsGradient.norm() < HS_GRADIENT_LENGTH_MS)
-            {
-                double prog = std::sin((hsGradient.norm() / (double)HS_GRADIENT_LENGTH_MS) * 1.57079632679);
-                gPlayContext.playerState[slot].hispeedGradientNow = gPlayContext.playerState[slot].hispeedGradientFrom + 
-                    prog * (gPlayContext.playerState[slot].hispeed - gPlayContext.playerState[slot].hispeedGradientFrom);
-            }
-            else
-            {
-                gPlayContext.playerState[slot].hispeedGradientNow = gPlayContext.playerState[slot].hispeed;
-                gPlayContext.playerState[slot].hispeedGradientStart = TIMER_NEVER;
-            }
-        }
-    }
-}
-
 void ScenePlay::updateAsyncGreenNumber(const Time& t)
 {
     // 120BPM with 1.0x HS is 2000ms (500ms/beat, green number 1200)
@@ -1749,6 +1726,29 @@ void ScenePlay::updateAsyncLanecoverDisplay(const Time& t)
     updateSide(PLAYER_SLOT_TARGET);
 }
 
+void ScenePlay::updateAsyncHSGradient(const Time& t)
+{
+    const long long HS_GRADIENT_LENGTH_MS = 200;
+    for (int slot = PLAYER_SLOT_PLAYER; slot <= PLAYER_SLOT_TARGET; slot++)
+    {
+        if (gPlayContext.playerState[slot].hispeedGradientStart != TIMER_NEVER)
+        {
+            Time hsGradient = t - gPlayContext.playerState[slot].hispeedGradientStart;
+            if (hsGradient.norm() < HS_GRADIENT_LENGTH_MS)
+            {
+                double prog = std::sin((hsGradient.norm() / (double)HS_GRADIENT_LENGTH_MS) * 1.57079632679);
+                gPlayContext.playerState[slot].hispeedGradientNow = gPlayContext.playerState[slot].hispeedGradientFrom +
+                    prog * (gPlayContext.playerState[slot].hispeed - gPlayContext.playerState[slot].hispeedGradientFrom);
+            }
+            else
+            {
+                gPlayContext.playerState[slot].hispeedGradientNow = gPlayContext.playerState[slot].hispeed;
+                gPlayContext.playerState[slot].hispeedGradientStart = TIMER_NEVER;
+            }
+        }
+    }
+}
+
 void ScenePlay::updateAsyncAbsoluteAxis(const Time& t)
 {
     auto Scratch = [&](const Time& t, Input::Pad up, Input::Pad dn, double& val, int slot)
@@ -1872,10 +1872,10 @@ void ScenePlay::updateAsyncAbsoluteAxis(const Time& t)
 
                 SoundMgr::playNoteSample((!gPlayContext.isBattle ? SoundChannelType::KEY_LEFT : SoundChannelType::KEY_RIGHT), sampleCount, keySampleIdxBufScratch.data());
             }
-        }
 
-        playerState[slot].scratchLastUpdate = t;
-        playerState[slot].scratchDirection = axisDir;
+            playerState[slot].scratchLastUpdate = t;
+            playerState[slot].scratchDirection = axisDir;
+        }
 
         if (val > scratchRewind)
             val -= scratchRewind;
