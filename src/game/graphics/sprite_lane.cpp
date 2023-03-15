@@ -96,7 +96,7 @@ bool SpriteLaneVertical::update(const Time& t)
 
 	if (updateMotion(t))
 	{
-		gPlayContext.playerState[gPlayContext.isBattle ? playerSlot : PLAYER_SLOT_PLAYER].hispeedGradientNow;
+		_hispeed = gPlayContext.playerState[gPlayContext.isBattle ? playerSlot : PLAYER_SLOT_PLAYER].hispeedGradientNow;
 		updateNoteRect(t);
 		updateHIDDENCompatible();
 		return true;
