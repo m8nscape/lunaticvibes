@@ -1942,10 +1942,11 @@ void SceneSelect::decide()
         gChartContext.path = chart.absolutePath;
 
         // only reload resources if selected chart is different
-        if (gChartContext.hash != chart.fileHash)
+        if (gChartContext.hash != gChartContext.sampleLoadedHash)
         {
             gChartContext.isBgaLoaded = false;
             gChartContext.isSampleLoaded = false;
+            gChartContext.sampleLoadedHash.reset();
         }
         gChartContext.hash = chart.fileHash;
 
@@ -2074,10 +2075,11 @@ void SceneSelect::decide()
         gChartContext.path = chart.absolutePath;
 
         // only reload resources if selected chart is different
-        if (gChartContext.hash != chart.fileHash)
+        if (gChartContext.hash != gChartContext.sampleLoadedHash)
         {
             gChartContext.isBgaLoaded = false;
             gChartContext.isSampleLoaded = false;
+            gChartContext.sampleLoadedHash.reset();
         }
         gChartContext.hash = chart.fileHash;
 
@@ -2917,6 +2919,7 @@ void SceneSelect::updatePreview()
                 }
 
                 gChartContext.isSampleLoaded = false;
+                gChartContext.sampleLoadedHash.reset();
 
                 std::thread([&, bms] {
                     unsigned bars = bms->lastBarIdx;
@@ -2955,6 +2958,7 @@ void SceneSelect::updatePreview()
                         }
 
                         gChartContext.isSampleLoaded = true;
+                        gChartContext.sampleLoadedHash = bms->fileHash;
 
                         {
                             std::unique_lock l(previewMutex);

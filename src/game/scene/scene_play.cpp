@@ -1157,11 +1157,12 @@ void ScenePlay::loadChart()
     if (!gChartContext.chart->resourceStable)
     {
         gChartContext.isSampleLoaded = false;
+        gChartContext.sampleLoadedHash.reset();
         gChartContext.isBgaLoaded = false;
     }
 
     // load samples
-    if (!gChartContext.isSampleLoaded && !sceneEnding)
+    if ((!gChartContext.isSampleLoaded || gChartContext.hash != gChartContext.sampleLoadedHash) && !sceneEnding)
     {
         auto dtor = std::async(std::launch::async, [&]() {
             SetDebugThreadName("Chart sound sample loading thread");
@@ -1180,6 +1181,7 @@ void ScenePlay::loadChart()
             {
                 wavLoaded = 1;
                 gChartContext.isSampleLoaded = true;
+                gChartContext.sampleLoadedHash = gChartContext.hash;
                 return;
             }
             for (size_t i = 0; i < _pChart->wavFiles.size(); ++i)
@@ -1195,7 +1197,10 @@ void ScenePlay::loadChart()
                 ++wavLoaded;
             }
             if (!sceneEnding)
+            {
                 gChartContext.isSampleLoaded = true;
+                gChartContext.sampleLoadedHash = gChartContext.hash;
+            }
         });
     }
     else

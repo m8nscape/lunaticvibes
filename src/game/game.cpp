@@ -225,6 +225,7 @@ int main(int argc, char* argv[])
             nullptr,
 
             false,
+            HashMD5(),
             false,
             false,
 

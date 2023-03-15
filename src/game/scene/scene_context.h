@@ -32,6 +32,7 @@ struct ChartContextParams
 
     //bool isChartSamplesLoaded;
     bool isSampleLoaded = false;
+    HashMD5 sampleLoadedHash;
     bool isBgaLoaded = false;
 	bool started = false;
 
