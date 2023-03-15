@@ -2938,24 +2938,29 @@ void SceneSelect::updatePreview()
                     }
                     if (wavTotal != 0)
                     {
+                        boost::asio::thread_pool pool(std::max(1u, std::thread::hardware_concurrency() - 2));
                         for (size_t i = 0; i < bms->wavFiles.size(); ++i)
                         {
                             const auto& wav = bms->wavFiles[i];
                             if (wav.empty()) continue;
 
-                            Path pWav = fs::u8path(wav);
-                            if (pWav.is_absolute())
-                                SoundMgr::loadNoteSample(pWav, i);
-                            else
-                                SoundMgr::loadNoteSample((chartDir / pWav), i);
+                            boost::asio::post(pool, std::bind([&](size_t i)
+                                {
+                                    Path pWav = fs::u8path(wav);
+                                    if (pWav.is_absolute())
+                                        SoundMgr::loadNoteSample(pWav, i);
+                                    else
+                                        SoundMgr::loadNoteSample((chartDir / pWav), i);
 
-                            std::shared_lock l(previewMutex);
-                            if (sceneEnding || previewState != PREVIEW_LOAD)
-                            {
-                                LOG_DEBUG << "[Select] Preview loading interrupted";
-                                return;
-                            }
+                                    std::shared_lock l(previewMutex);
+                                    if (sceneEnding || previewState != PREVIEW_LOAD)
+                                    {
+                                        LOG_DEBUG << "[Select] Preview loading interrupted";
+                                        return;
+                                    }
+                                }, i));
                         }
+                        pool.wait();
 
                         gChartContext.isSampleLoaded = true;
                         gChartContext.sampleLoadedHash = bms->fileHash;

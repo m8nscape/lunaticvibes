@@ -1184,18 +1184,27 @@ void ScenePlay::loadChart()
                 gChartContext.sampleLoadedHash = gChartContext.hash;
                 return;
             }
+
+            boost::asio::thread_pool pool(std::max(1u, std::thread::hardware_concurrency() - 2));
             for (size_t i = 0; i < _pChart->wavFiles.size(); ++i)
             {
 				if (sceneEnding) break;
+
                 const auto& wav = _pChart->wavFiles[i];
                 if (wav.empty()) continue;
-				Path pWav = fs::u8path(wav);
-				if (pWav.is_absolute())
-					SoundMgr::loadNoteSample(pWav, i);
-				else
-					SoundMgr::loadNoteSample((chartDir / pWav), i);
-                ++wavLoaded;
+
+                boost::asio::post(pool, std::bind([&](size_t i)
+                    {
+                        Path pWav = fs::u8path(wav);
+                        if (pWav.is_absolute())
+                            SoundMgr::loadNoteSample(pWav, i);
+                        else
+                            SoundMgr::loadNoteSample((chartDir / pWav), i);
+                        ++wavLoaded;
+                    }, i));
             }
+            pool.wait();
+
             if (!sceneEnding)
             {
                 gChartContext.isSampleLoaded = true;

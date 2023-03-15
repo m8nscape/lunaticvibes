@@ -738,7 +738,7 @@ int SoundDriverFMOD::loadNoteSample(const Path& spath, size_t index)
         noteSamples[index].objptr = nullptr;
     }
     
-    int flags = FMOD_LOOP_OFF | FMOD_UNIQUE | FMOD_CREATESAMPLE;
+    int flags = FMOD_LOOP_OFF | FMOD_UNIQUE | FMOD_CREATESAMPLE | FMOD_IGNORETAGS | FMOD_LOWMEM;
 
     std::string path;
 	FMOD_RESULT r = FMOD_ERR_FILE_NOTFOUND;
@@ -754,7 +754,7 @@ int SoundDriverFMOD::loadNoteSample(const Path& spath, size_t index)
         Path dir = spath.parent_path();
         for (auto& ext : wavExtensionList)
         {
-            Path filePath = dir / (spath.stem().u8string() + ext);
+            Path filePath = dir / PathFromUTF8(spath.stem().u8string() + ext);
             if (fs::exists(filePath) && fs::is_regular_file(filePath))
             {
                 path = filePath.u8string();
@@ -771,7 +771,7 @@ int SoundDriverFMOD::loadNoteSample(const Path& spath, size_t index)
     }
     else
     {
-        LOG_DEBUG << "[FMOD] Loading Sample (" + path + ") Error: " << r << ", " << FMOD_ErrorString(r);
+        LOG_DEBUG << "[FMOD] Loading Sample (" + spath.u8string() + ") Error: " << r << ", " << FMOD_ErrorString(r);
     }
 
     return (r == FMOD_OK) ? 0 : 1;
@@ -846,7 +846,7 @@ int SoundDriverFMOD::loadSysSample(const Path& spath, size_t index, bool isStrea
         Path dir = spath.parent_path();
         for (auto& ext : wavExtensionList)
         {
-            Path filePath = dir / (spath.stem().u8string() + ext);
+            Path filePath = dir / PathFromUTF8(spath.stem().u8string() + ext);
             if (fs::exists(filePath) && fs::is_regular_file(filePath))
             {
                 path = filePath.u8string();
@@ -863,7 +863,7 @@ int SoundDriverFMOD::loadSysSample(const Path& spath, size_t index, bool isStrea
     }
     else
     {
-        LOG_DEBUG << "[FMOD] Loading Sample (" + path + ") Error: " << r << ", " << FMOD_ErrorString(r);
+        LOG_DEBUG << "[FMOD] Loading Sample (" + spath.u8string() + ") Error: " << r << ", " << FMOD_ErrorString(r);
     }
 
     return (r == FMOD_OK) ? 0 : 1;
