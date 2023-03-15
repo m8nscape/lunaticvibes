@@ -50,14 +50,7 @@ void AsyncLooper::run()
     if (_running && !_inLoopBody)
     {
         _inLoopBody = true;
-        try
-        {
-            _loopFunc();
-        }
-        catch (std::exception& e)
-        {
-            LOG_WARNING << "[AsyncLooper] " << _tag << ": Exception: " << to_utf8(e.what(), eFileEncoding::LATIN1);
-        }
+        _loopFunc();
         _inLoopBody = false;
     }
 }
@@ -90,44 +83,52 @@ void AsyncLooper::loopStart()
 
                     tStart = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count();
 
-                    while (_running)
+                    try
                     {
-                        if (us > 0 && dueTime.QuadPart < 0)
+                        while (_running)
                         {
-                            SetWaitableTimerEx(
-                                handler,
-                                &dueTime,
-                                0,
-                                NULL,
-                                NULL,
-                                NULL,
-                                0
-                            );
-                            //SleepEx(100, TRUE);
-                            WaitForSingleObjectEx(handler, 1000, TRUE);
-                        }
+                            if (us > 0 && dueTime.QuadPart < 0)
+                            {
+                                SetWaitableTimerEx(
+                                    handler,
+                                    &dueTime,
+                                    0,
+                                    NULL,
+                                    NULL,
+                                    NULL,
+                                    0
+                                );
+                                //SleepEx(100, TRUE);
+                                WaitForSingleObjectEx(handler, 1000, TRUE);
+                            }
 
-                        run();
+                            run();
 
-                        auto t2 = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count();
+                            auto t2 = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count();
 
-                        if (us > (t2 - tStart))
-                        {
-                            dueTime.QuadPart = -(long long(us - (t2 - tStart)) * 10);
-                        }
-                        else
-                        {
-                            dueTime.QuadPart = 0;
-                        }
+                            if (us > (t2 - tStart))
+                            {
+                                dueTime.QuadPart = -(long long(us - (t2 - tStart)) * 10);
+                            }
+                            else
+                            {
+                                dueTime.QuadPart = 0;
+                            }
 
-                        if ((t2 - tStart) < reset_threshold)
-                        {
-                            tStart += us;
+                            if ((t2 - tStart) < reset_threshold)
+                            {
+                                tStart += us;
+                            }
+                            else
+                            {
+                                tStart = t2;
+                            }
                         }
-                        else
-                        {
-                            tStart = t2;
-                        }
+                    }
+                    catch (std::exception& e)
+                    {
+                        LOG_ERROR << "[AsyncLooper] " << _tag << ": Exception: " << to_utf8(e.what(), eFileEncoding::LATIN1);
+                        throw(e);
                     }
                 });
         }

@@ -128,6 +128,8 @@ void SceneCustomize::updateMain()
     // Mode has changed
     if (gCustomizeContext.mode != selectedMode)
     {
+        LOG_INFO << "[Customize] Mode has changed => " << (int)gCustomizeContext.mode;
+
         SkinType modeOld = selectedMode;
         selectedMode = gCustomizeContext.mode;
         save(modeOld);
@@ -179,6 +181,8 @@ void SceneCustomize::updateMain()
     // Skin has changed
     if (gCustomizeContext.skinDir != 0)
     {
+        LOG_INFO << "[Customize] Skin has changed " << (gCustomizeContext.skinDir > 0 ? "+" : "-");
+
         if (selectedMode == SkinType::SOUNDSET)
         {
             if (soundsetList.size() > 1)
@@ -202,9 +206,9 @@ void SceneCustomize::updateMain()
                 }
                 if (selectedIdx >= 0 && selectedIdx < (int)soundsetList.size())
                 {
-                    auto& p = fs::relative(soundsetList[selectedIdx], ConfigMgr::get("E", cfg::E_LR2PATH, ".")).string();
+                    auto& p = fs::relative(soundsetList[selectedIdx], ConfigMgr::get("E", cfg::E_LR2PATH, "."));
 
-                    ConfigMgr::set("S", cfg::S_PATH_SOUNDSET, p);
+                    ConfigMgr::set("S", cfg::S_PATH_SOUNDSET, p.u8string());
 
                     pSkin->setHandleMouseEvents(false);
                     SoundMgr::stopSysSamples();
@@ -243,55 +247,55 @@ void SceneCustomize::updateMain()
                 }
                 if (selectedIdx >= 0 && selectedIdx < (int)skinList[selectedMode].size())
                 {
-                    auto& p = fs::relative(skinList[selectedMode][selectedIdx], ConfigMgr::get("E", cfg::E_LR2PATH, ".")).string();
+                    auto& p = fs::relative(skinList[selectedMode][selectedIdx], ConfigMgr::get("E", cfg::E_LR2PATH, "."));
                     switch (selectedMode)
                     {
                     case SkinType::MUSIC_SELECT:
-                        ConfigMgr::set("S", cfg::S_PATH_MUSIC_SELECT, p);
+                        ConfigMgr::set("S", cfg::S_PATH_MUSIC_SELECT, p.u8string());
                         break;
 
                     case SkinType::DECIDE:
-                        ConfigMgr::set("S", cfg::S_PATH_DECIDE, p);
+                        ConfigMgr::set("S", cfg::S_PATH_DECIDE, p.u8string());
                         break;
 
                     case SkinType::RESULT:
-                        ConfigMgr::set("S", cfg::S_PATH_RESULT, p);
+                        ConfigMgr::set("S", cfg::S_PATH_RESULT, p.u8string());
                         break;
 
                     case SkinType::KEY_CONFIG:
-                        ConfigMgr::set("S", cfg::S_PATH_KEYCONFIG, p);
+                        ConfigMgr::set("S", cfg::S_PATH_KEYCONFIG, p.u8string());
                         break;
 
                     case SkinType::THEME_SELECT:
-                        ConfigMgr::set("S", cfg::S_PATH_CUSTOMIZE, p);
+                        ConfigMgr::set("S", cfg::S_PATH_CUSTOMIZE, p.u8string());
                         break;
 
                     case SkinType::PLAY5:
-                        ConfigMgr::set("S", cfg::S_PATH_PLAY_5, p);
+                        ConfigMgr::set("S", cfg::S_PATH_PLAY_5, p.u8string());
                         break;
 
                     case SkinType::PLAY5_2:
-                        ConfigMgr::set("S", cfg::S_PATH_PLAY_5_BATTLE, p);
+                        ConfigMgr::set("S", cfg::S_PATH_PLAY_5_BATTLE, p.u8string());
                         break;
 
                     case SkinType::PLAY7:
-                        ConfigMgr::set("S", cfg::S_PATH_PLAY_7, p);
+                        ConfigMgr::set("S", cfg::S_PATH_PLAY_7, p.u8string());
                         break;
 
                     case SkinType::PLAY7_2:
-                        ConfigMgr::set("S", cfg::S_PATH_PLAY_7_BATTLE, p);
+                        ConfigMgr::set("S", cfg::S_PATH_PLAY_7_BATTLE, p.u8string());
                         break;
 
                     case SkinType::PLAY9:
-                        ConfigMgr::set("S", cfg::S_PATH_PLAY_9, p);
+                        ConfigMgr::set("S", cfg::S_PATH_PLAY_9, p.u8string());
                         break;
 
                     case SkinType::PLAY10:
-                        ConfigMgr::set("S", cfg::S_PATH_PLAY_10, p);
+                        ConfigMgr::set("S", cfg::S_PATH_PLAY_10, p.u8string());
                         break;
 
                     case SkinType::PLAY14:
-                        ConfigMgr::set("S", cfg::S_PATH_PLAY_14, p);
+                        ConfigMgr::set("S", cfg::S_PATH_PLAY_14, p.u8string());
                         break;
                     }
 

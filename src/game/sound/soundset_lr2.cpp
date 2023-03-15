@@ -57,7 +57,7 @@ void SoundSetLR2::loadCSV(Path p)
         std::string rawUTF8 = to_utf8(raw, encoding);
 
         static boost::char_separator<char> sep(",");
-        boost::tokenizer<boost::char_separator<char>> tokens(raw, sep);
+        boost::tokenizer<boost::char_separator<char>> tokens(rawUTF8, sep);
         if (tokens.begin() == tokens.end()) continue;
         tokenBuf.assign(tokens.begin(), tokens.end());
 
@@ -135,7 +135,7 @@ bool SoundSetLR2::parseHeader(const std::vector<StringContent>& tokens)
     {
         if (tokens.size() > 2) name = tokens[2];
         if (tokens.size() > 3) maker = tokens[3];
-        if (tokens.size() > 4) thumbnailPath = tokens[4];
+        if (tokens.size() > 4) thumbnailPath = PathFromUTF8(tokens[4]);
 
         return true;
     }
