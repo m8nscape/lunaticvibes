@@ -5,7 +5,6 @@
 #include <string>
 #include <string_view>
 #include <cassert>
-#include "hash.h"
 
 typedef std::filesystem::path                   Path;
 typedef Path::string_type                       StringPath;

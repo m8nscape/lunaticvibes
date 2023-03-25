@@ -1,10 +1,14 @@
 #pragma once
+
 #include <string>
 #include <string_view>
 #include <filesystem>
 #include <vector>
 #include <utility>
 #include <memory>
+
+#include "hash.h"
+#include "types.h"
 
 namespace fs = std::filesystem;
 
@@ -57,10 +61,6 @@ constexpr unsigned base16(const char* c)
 
 std::string bin2hex(const void* bin, size_t size);
 std::string hex2bin(const std::string& hex);
-
-HashMD5 md5(const std::string& str);
-HashMD5 md5(const char* str, size_t len);
-HashMD5 md5file(const Path& filePath);
 
 std::string toLower(std::string_view s);
 std::string toLower(const std::string& s);
