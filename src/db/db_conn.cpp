@@ -1,22 +1,13 @@
 #include <string>
 #include <filesystem>
+
 #include "sqlite3.h"
 #include "db_conn.h"
 #include "common/log.h"
 
-#ifdef _MSC_VER
-#ifndef strcpy
-#define strcpy strcpy_s
-#endif
-#ifndef strncpy
-#define strncpy strncpy_s
-#endif
-#endif
-
-SQLite::SQLite(const char* path, const char* tag) 
+SQLite::SQLite(const char* path, const char* tag) : tag(tag)
 {
     sqlite3_open(path, &_db);
-    strcpy(this->tag, sizeof(this->tag), tag);
 
     exec("PRAGMA temp_store = memory");
     exec("PRAGMA mmap_size = 536870912"); // 512MB
@@ -62,8 +53,7 @@ void sql_bind_any(sqlite3_stmt* stmt, const std::initializer_list<std::any>& arg
 
 std::vector<std::vector<std::any>> SQLite::query(const char* zsql, size_t retSize, std::initializer_list<std::any> args) const
 {
-    memset(lastSql, 0, sizeof(lastSql));
-    strncpy(lastSql, zsql, sizeof(lastSql) - 1);
+    _lastSql = zsql;
 
     size_t argc = args.size();
 
@@ -113,8 +103,7 @@ std::vector<std::vector<std::any>> SQLite::query(const char* zsql, size_t retSiz
 
 int SQLite::exec(const char* zsql, std::initializer_list<std::any> args)
 {
-    memset(lastSql, 0, sizeof(lastSql));
-    strncpy(lastSql, zsql, sizeof(lastSql) - 1);
+    _lastSql = zsql;
 
     sqlite3_stmt* stmt = nullptr;
     const char* pzTail;
