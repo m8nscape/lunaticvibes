@@ -346,7 +346,7 @@ void Texture::_draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, Rect
     if (b == BlendMode::INVERT)
     {
         // ... pls help
-        Rect rc = { (int)std::floorf(dstRectF.x), (int)std::floorf(dstRectF.y), (int)std::ceilf(dstRectF.w), (int)std::ceilf(dstRectF.h) };
+        Rect rc = { (int)std::floor(dstRectF.x), (int)std::floor(dstRectF.y), (int)std::ceil(dstRectF.w), (int)std::ceil(dstRectF.h) };
         rc.x = rc.y = 0;
 
         static auto pTextureInverted = std::shared_ptr<SDL_Texture>(

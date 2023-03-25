@@ -4614,8 +4614,8 @@ void SkinLR2::start_bar_animation()
 {
     for (size_t i = 0; i < BAR_ENTRY_SPRITE_COUNT; ++i)
     {
-        barMotionInterpOrigin[i].x = (int)std::floorf(barSprites[i]->_current.rect.x);
-        barMotionInterpOrigin[i].y = (int)std::floorf(barSprites[i]->_current.rect.y);
+        barMotionInterpOrigin[i].x = (int)std::floor(barSprites[i]->_current.rect.x);
+        barMotionInterpOrigin[i].y = (int)std::floor(barSprites[i]->_current.rect.y);
         barMotionInterpOrigin[i].w = (int)barSprites[i]->_current.rect.w;
         barMotionInterpOrigin[i].h = (int)barSprites[i]->_current.rect.h;
     }

@@ -55,7 +55,7 @@ void SpriteImageText::updateTextTexture(std::string&& text)
         }
     }
     //_drawList = _drawListOrig;
-    _drawRect = { 0, 0, (int)std::ceilf(w), (int)textHeight};
+    _drawRect = { 0, 0, (int)std::ceil(w), (int)textHeight};
 }
 
 void SpriteImageText::updateTextRect()
