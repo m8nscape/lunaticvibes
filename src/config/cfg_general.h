@@ -92,7 +92,6 @@ public:
 
 	virtual void setDefaults() noexcept override;
 
-    void setFolders(const std::vector<StringPath>& path);
     void setFolders(const std::vector<std::string>& path);
     void setTables(const std::vector<std::string>& urls);
     std::vector<StringPath> getFoldersPath();
