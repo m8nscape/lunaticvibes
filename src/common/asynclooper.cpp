@@ -1,6 +1,12 @@
 #include "asynclooper.h"
 #include <numeric>
 #include <chrono>
+
+#ifndef WIN32
+#include <ratio>
+#endif
+
+#include <common/utils.h>
 #include "encoding.h"
 #include "log.h"
 
@@ -166,10 +172,12 @@ void AsyncLooper::loopEnd()
 #else // FALLBACK
 void AsyncLooper::_loopWithSleep()
 {
+    const auto sleep_duration = std::chrono::nanoseconds(std::nano::den / _rate).count();
+
     while (_running)
     {
         run();
-        std::this_thread::sleep_for(std::chrono::milliseconds(_rateTime));
+        preciseSleep(sleep_duration);
     }
 }
 

@@ -401,9 +401,10 @@ void preciseSleep(long long sleep_ns)
     while (duration_cast<nanoseconds>(high_resolution_clock::now() - start).count() < sleep_ns);
 
 #else
+    const auto duration = std::chrono::nanoseconds(sleep_ns);
 
     // FIXME not optimized and not accurate
-    std::this_thread::sleep_for(sleep_ns);
+    std::this_thread::sleep_for(duration);
 
 #endif
 }

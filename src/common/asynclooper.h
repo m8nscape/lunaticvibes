@@ -39,6 +39,8 @@ protected:
 protected:
     std::future<void> loopFuture;
     long long tStart = 0;
+#else
+    void _loopWithSleep();
 #endif
 
 public:
