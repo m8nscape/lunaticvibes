@@ -101,8 +101,6 @@ chart::NoteLaneIndex KeyToLane(int keys, Input::Pad pad);
 
 }
 
-class ::ChartFormatBase;
-
 // Chart in-game data representation. Contains following:
 //  - Converts plain-beat to real-beat (adds up Stop beat) 
 //  - Converts time to beat (if necessary)
