@@ -133,7 +133,7 @@ namespace Option
 		DIFF_ANOTHER,
 		DIFF_INSANE
 	};
-    constexpr char* s_select_diff[] = {
+    static constexpr const char* s_select_diff[] = {
         "ALL",
         "BEGINNER",
         "NORMAL",
@@ -149,7 +149,7 @@ namespace Option
         SORT_CLEAR,
         SORT_RATE,
     };
-    constexpr char* s_select_sort[] = {
+    static constexpr const char* s_select_sort[] = {
         "FOLDER",
         "LEVEL",
         "TITLE",
@@ -192,7 +192,7 @@ namespace Option
         FILTER_KEYS_10,
         FILTER_KEYS_9,
     };
-    constexpr char *s_filter_keys[] = {
+    static constexpr const char *s_filter_keys[] = {
         "ALL KEYS",
         "SINGLE",
         "7KEYS",
@@ -221,7 +221,7 @@ namespace Option
         GHOST_SIDE, // B
         GHOST_SIDE_BOTTOM // C
     };
-    constexpr char* s_play_ghost_mode[] = {
+    static constexpr const char* s_play_ghost_mode[] = {
         "OFF",
         "TYPE A",
         "TYPE B",
@@ -233,7 +233,7 @@ namespace Option
         BGA_ON,
         BGA_AUTOPLAY,
     };
-    constexpr char* s_bga_type[] = {
+    static constexpr const char* s_bga_type[] = {
         "OFF",
         "ON",
         "AUTOPLAY"
@@ -243,7 +243,7 @@ namespace Option
         BGA_NORMAL,
         BGA_EXTEND,
     };
-    constexpr char* s_bga_size[] = {
+    static constexpr const char* s_bga_size[] = {
         "NORMAL",
         "EXTEND",
     };
@@ -256,7 +256,7 @@ namespace Option
         LANE_LIFT,
         LANE_LIFTSUD,
     };
-    constexpr char* s_lane_effect_type[] = {
+    static constexpr const char* s_lane_effect_type[] = {
         "OFF",
         "HIDDEN+",
         "SUDDEN+",
@@ -274,7 +274,7 @@ namespace Option
         SPEED_FIX_INITIAL,
         SPEED_FIX_MAIN,
     };
-    constexpr char* s_speed_type[] = {
+    static constexpr const char* s_speed_type[] = {
         "OFF",
         "MIN FIX",
         "MAX FIX",
@@ -291,7 +291,7 @@ namespace Option
         BATTLE_SPtoDP_9to7, // not implemented
         BATTLE_GHOST,
     };
-    constexpr char* s_battle_type[] = {
+    static constexpr const char* s_battle_type[] = {
         "OFF",
         "BATTLE",
         "D-BATTLE",
@@ -310,7 +310,7 @@ namespace Option
         TARGET_IR_NEXT,
         TARGET_IR_AVERAGE,
     };
-    constexpr char* s_target_type[] = {
+    static constexpr const char* s_target_type[] = {
         "NO TARGET",
         "MY BEST",
         "RANK AAA",
@@ -332,7 +332,7 @@ namespace Option
         GAUGE_EXHARD,
         GAUGE_ASSISTEASY,
     };
-    constexpr char* s_gauge_type[] = {
+    static constexpr const char* s_gauge_type[] = {
         "NORMAL",
         "HARD",
         "DEATH",
@@ -354,7 +354,7 @@ namespace Option
         RAN_DB_SYNCHRONIZE_RANDOM,
         RAN_DB_SYMMETRY_RANDOM,
     };
-    constexpr char* s_random_type[] = {
+    static constexpr const char* s_random_type[] = {
         "NORMAL",
         "MIRROR",
         "RANDOM",
@@ -365,7 +365,7 @@ namespace Option
         "SYNCHRONIZE",
         "SYMMETRY"
     };
-    constexpr char* s_random_type_short[] = {
+    static constexpr const char* s_random_type_short[] = {
         "",
         "MIR",
         "RAN",
@@ -381,11 +381,11 @@ namespace Option
         ASSIST_NONE,
         ASSIST_AUTOSCR,
     };
-    constexpr char* s_assist_type[] = {
+    static constexpr const char* s_assist_type[] = {
         "NONE",
         "AUTO-SCR",
     };
-    constexpr char* s_assist_type_short[] = {
+    static constexpr const char* s_assist_type_short[] = {
         "NONE",
         "AS",
     };
@@ -526,7 +526,7 @@ namespace Option
         WIN_BORDERLESS,
         WIN_WINDOWED
     };
-    constexpr char* s_windowed[] = {
+    static constexpr const char* s_windowed[] = {
         "FULL",
         "BORDERLESS",
         "WINDOW",
@@ -537,7 +537,7 @@ namespace Option
         VSYNC_ON,
         VSYNC_ADAPTIVE
     };
-    constexpr char* s_vsync_mode[] = {
+    static constexpr const char* s_vsync_mode[] = {
         "OFF",
         "ON",
         "ADAPTIVE",
