@@ -1,4 +1,5 @@
-#include "scene_Customize.h"
+#include "scene_customize.h"
+
 #include "scene_context.h"
 #include "config/config_mgr.h"
 #include "game/sound/sound_mgr.h"

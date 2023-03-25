@@ -3,9 +3,9 @@
 #include "common/meta.h"
 #include "window_SDL2.h"
 #include "graphics_SDL2.h"
-#include "SDL.h"
-#include "SDL_Image.h"
-#include "SDL_ttf.h"
+#include <SDL.h>
+#include <SDL_image.h>
+#include <SDL_ttf.h>
 #include "SDL_syswm.h"
 #include "game/graphics/video.h"
 #include "common/log.h"
