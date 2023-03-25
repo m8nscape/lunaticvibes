@@ -42,7 +42,7 @@ public:
 public:
     SongDB() = delete;
     SongDB(const char* path);
-    SongDB(Path& path) : SongDB(path.u8string().c_str()) {}
+    SongDB(const Path& path) : SongDB(path.u8string().c_str()) {}
     ~SongDB();
     SongDB(SongDB&) = delete;
     SongDB& operator= (SongDB&) = delete;
