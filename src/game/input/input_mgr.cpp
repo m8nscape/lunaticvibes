@@ -144,13 +144,13 @@ std::bitset<KEY_COUNT> InputMgr::_detect()
 
     if (padBindings[S1A].getType() == KeyMap::DeviceType::JOYSTICK)
     {
-        auto& j = padBindings[S1A].getJoystick();
+        const auto j = padBindings[S1A].getJoystick();
         if (j.type == Input::Joystick::Type::AXIS_ABSOLUTE)
             scratch1 = getJoystickAxis(j.device, j.type, j.index);
     }
     if (padBindings[S2A].getType() == KeyMap::DeviceType::JOYSTICK)
     {
-        auto& j = padBindings[S2A].getJoystick();
+        const auto j = padBindings[S2A].getJoystick();
         if (j.type == Input::Joystick::Type::AXIS_ABSOLUTE)
             scratch2 = getJoystickAxis(j.device, j.type, j.index);
     }

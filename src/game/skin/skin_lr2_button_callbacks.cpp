@@ -270,7 +270,7 @@ void select_keys_filter(int plus, int iterateCount)
 
             setPlayModeInfo();
 
-            auto& [score, lamp] = getSaveScoreType();
+            const auto [score, lamp] = getSaveScoreType();
             State::set(IndexSwitch::CHART_CAN_SAVE_SCORE, score);
             State::set(IndexOption::CHART_SAVE_LAMP_TYPE, lamp);
             State::set(IndexText::FILTER_KEYS, Option::s_filter_keys[val]);
@@ -499,7 +499,7 @@ void pitch_switch(int plus)
         update_pitch();
     }
 
-    auto& [score, lamp] = getSaveScoreType();
+    const auto [score, lamp] = getSaveScoreType();
     State::set(IndexSwitch::CHART_CAN_SAVE_SCORE, score);
     State::set(IndexOption::CHART_SAVE_LAMP_TYPE, lamp);
 }
@@ -518,7 +518,7 @@ void pitch_type(int plus)
         update_pitch();
     }
 
-    auto& [score, lamp] = getSaveScoreType();
+    const auto [score, lamp] = getSaveScoreType();
     State::set(IndexSwitch::CHART_CAN_SAVE_SCORE, score);
     State::set(IndexOption::CHART_SAVE_LAMP_TYPE, lamp);
 }
@@ -548,7 +548,7 @@ void gauge_type(int player, int plus)
 
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 
-    auto& [score, lamp] = getSaveScoreType();
+    const auto [score, lamp] = getSaveScoreType();
     State::set(IndexSwitch::CHART_CAN_SAVE_SCORE, score);
     State::set(IndexOption::CHART_SAVE_LAMP_TYPE, lamp);
 }
@@ -609,7 +609,7 @@ void random_type(int player, int plus)
 
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 
-    auto& [score, lamp] = getSaveScoreType();
+    const auto [score, lamp] = getSaveScoreType();
     State::set(IndexSwitch::CHART_CAN_SAVE_SCORE, score);
     State::set(IndexOption::CHART_SAVE_LAMP_TYPE, lamp);
 }
@@ -651,7 +651,7 @@ void autoscr(int player, int plus)
 
         SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 
-        auto& [score, lamp] = getSaveScoreType();
+        const auto [score, lamp] = getSaveScoreType();
         State::set(IndexSwitch::CHART_CAN_SAVE_SCORE, score);
         State::set(IndexOption::CHART_SAVE_LAMP_TYPE, lamp);
     }
@@ -776,7 +776,7 @@ void hs_fix(int plus)
 
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 
-    auto& [score, lamp] = getSaveScoreType();
+    const auto [score, lamp] = getSaveScoreType();
     State::set(IndexSwitch::CHART_CAN_SAVE_SCORE, score);
     State::set(IndexOption::CHART_SAVE_LAMP_TYPE, lamp);
 }
@@ -866,7 +866,7 @@ void battle(int plus)
 
     SoundMgr::playSysSample(SoundChannelType::KEY_SYS, eSoundSample::SOUND_O_CHANGE);
 
-    auto& [score, lamp] = getSaveScoreType();
+    const auto [score, lamp] = getSaveScoreType();
     State::set(IndexSwitch::CHART_CAN_SAVE_SCORE, score);
     State::set(IndexOption::CHART_SAVE_LAMP_TYPE, lamp);
 }

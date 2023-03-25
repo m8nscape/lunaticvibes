@@ -3,9 +3,9 @@
 #include "../../src/common/utils.h"
 #include <fstream>
 
-bool ExpectNotePosition(ChartFormatBMS& bms, LaneCode area, int ch, int bar, int res, std::vector<int>& segments)
+bool ExpectNotePosition(const ChartFormatBMS& bms, LaneCode area, int ch, int bar, int res, const std::vector<int>& segments)
 {
-	auto& lane = bms.getLane(area, ch, bar);
+	const auto& lane = bms.getLane(area, ch, bar);
 	unsigned maxres = lane.resolution * res;
 
 	auto it1 = lane.notes.begin();

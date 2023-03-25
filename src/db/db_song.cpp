@@ -430,7 +430,7 @@ std::vector<std::shared_ptr<ChartFormatBase>> SongDB::findChartByName(const Hash
                 }
                 else
                 {
-                    auto& [hasFolderPath, folderPath] = getFolderPath(p->folderHash);
+                    const auto [hasFolderPath, folderPath] = getFolderPath(p->folderHash);
                     if (hasFolderPath)
                     {
                         p->absolutePath = folderPath / p->fileName;
@@ -477,7 +477,7 @@ std::vector<std::shared_ptr<ChartFormatBase>> SongDB::findChartByHash(const Hash
                 }
                 else
                 {
-                    auto& [hasFolderPath, folderPath] = getFolderPath(p->folderHash);
+                    const auto [hasFolderPath, folderPath] = getFolderPath(p->folderHash);
                     if (hasFolderPath)
                     {
                         p->absolutePath = folderPath / p->fileName;
@@ -546,7 +546,7 @@ std::vector<std::shared_ptr<ChartFormatBase>> SongDB::findChartFromTime(const Ha
                 }
                 else
                 {
-                    auto& [hasFolderPath, folderPath] = getFolderPath(p->folderHash);
+                    const auto [hasFolderPath, folderPath] = getFolderPath(p->folderHash);
                     if (hasFolderPath)
                     {
                         p->absolutePath = folderPath / p->fileName;
@@ -1139,7 +1139,7 @@ HashMD5 SongDB::getFolderHash(Path path) const
 
 std::shared_ptr<EntryFolderRegular> SongDB::browse(HashMD5 root, bool recursive)
 {
-    auto& [hasPath, path] = getFolderPath(root);
+    const auto [hasPath, path] = getFolderPath(root);
     if (!hasPath)
     {
         return nullptr;
@@ -1205,7 +1205,7 @@ std::shared_ptr<EntryFolderSong> SongDB::browseSong(HashMD5 root)
 {
     LOG_VERBOSE << "[SongDB] browse from " << root.hexdigest();
 
-    auto& [hasPath, path] = getFolderPath(root);
+    const auto [hasPath, path] = getFolderPath(root);
     if (!hasPath)
         return nullptr;
 
@@ -1256,7 +1256,7 @@ std::shared_ptr<EntryFolderRegular> SongDB::search(HashMD5 root, std::string key
 {
     LOG_DEBUG << "[SongDB] search " << root.hexdigest() << " " << key;
 
-    auto& [hasPath, path] = getFolderPath(root);
+    const auto [hasPath, path] = getFolderPath(root);
     if (!hasPath)
         return nullptr;
 

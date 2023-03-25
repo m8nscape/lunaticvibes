@@ -202,7 +202,7 @@ void SceneCustomize::updateMain()
                 }
                 if (selectedIdx >= 0 && selectedIdx < (int)soundsetList.size())
                 {
-                    auto& p = fs::relative(soundsetList[selectedIdx], ConfigMgr::get("E", cfg::E_LR2PATH, ".")).string();
+                    const auto p = fs::relative(soundsetList[selectedIdx], ConfigMgr::get("E", cfg::E_LR2PATH, ".")).string();
 
                     ConfigMgr::set("S", cfg::S_PATH_SOUNDSET, p);
 
@@ -224,7 +224,7 @@ void SceneCustomize::updateMain()
             if (skinList[selectedMode].size() > 1)
             {
                 int selectedIdx;
-                auto& currentSkin = SkinMgr::get(selectedMode);
+                const auto currentSkin = SkinMgr::get(selectedMode);
                 for (selectedIdx = 0; selectedIdx < (int)skinList[selectedMode].size(); selectedIdx++)
                 {
                     const Path& p1 = skinList[selectedMode][selectedIdx];
@@ -243,7 +243,7 @@ void SceneCustomize::updateMain()
                 }
                 if (selectedIdx >= 0 && selectedIdx < (int)skinList[selectedMode].size())
                 {
-                    auto& p = fs::relative(skinList[selectedMode][selectedIdx], ConfigMgr::get("E", cfg::E_LR2PATH, ".")).string();
+                    const auto p = fs::relative(skinList[selectedMode][selectedIdx], ConfigMgr::get("E", cfg::E_LR2PATH, ".")).string();
                     switch (selectedMode)
                     {
                     case SkinType::MUSIC_SELECT:

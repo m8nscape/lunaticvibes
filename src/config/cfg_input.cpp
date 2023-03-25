@@ -59,7 +59,7 @@ void ConfigInput::load()
     for (auto p = Input::Pad::S1L; p < Input::Pad::ESC; p = Input::Pad(int(p) + 1))
     {
         const char* mapKey = getBindingKey(p);
-        auto& c = _yaml[mapKey];
+        const auto& c = _yaml[mapKey];
         if (c.Type() == YAML::NodeType::Scalar)
         {
             buffer[p] = KeyMap(c.as<std::string>("INVALID"));
@@ -87,7 +87,7 @@ void ConfigInput::setDefaults() noexcept
         for (auto p = Input::Pad::S1L; p < Input::Pad::ESC; p = Input::Pad(int(p) + 1))
         {
             const char* mapKey = getBindingKey(p);
-            auto& c = _yaml[mapKey];
+            const auto& c = _yaml[mapKey];
             if (c.Type() == YAML::NodeType::Scalar)
             {
                 buffer[p] = KeyMap(c.as<std::string>("INVALID"));

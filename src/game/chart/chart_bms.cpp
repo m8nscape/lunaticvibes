@@ -424,8 +424,8 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
 
         for (const auto& note : notes)
         {
-            auto& [noteSegment, noteinfo] = note;
-            auto& [lane, val] = noteinfo;
+            const auto& [noteSegment, noteinfo] = note;
+            const auto& [lane, val] = noteinfo;
             double metreFromBPMChange = (noteSegment - lastBPMChangedSegment) * barMetre;
             Metre notemetre = basemetre + noteSegment * barMetre;
 			Time notetime = bpmfucked ? LLONG_MAX : basetime + beatLength * (metreFromBPMChange * 4);

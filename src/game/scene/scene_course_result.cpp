@@ -34,7 +34,7 @@ SceneCourseResult::SceneCourseResult() : SceneBase(SkinType::COURSE_RESULT, 1000
     {
         for (const auto& r : gPlayContext.courseStageRulesetCopy[0])
         {
-            auto& d = r->getData();
+            const auto d = r->getData();
             summary[ARG_TOTAL_NOTES] += r->getNoteCount();
             summary[ARG_MAX_SCORE] += r->getMaxScore();
             summary[ARG_MAXCOMBO] = std::max(summary[ARG_MAXCOMBO], d.maxComboDisplay);
@@ -96,7 +96,7 @@ SceneCourseResult::SceneCourseResult() : SceneBase(SkinType::COURSE_RESULT, 1000
             double acc2P = 0.;
             for (const auto& r : gPlayContext.courseStageRulesetCopy[1])
             {
-                auto& d = r->getData();
+                const auto d = r->getData();
                 summary2P[ARG_TOTAL_NOTES] += r->getNoteCount();
                 summary2P[ARG_MAX_SCORE] += r->getMaxScore();
                 summary2P[ARG_MAXCOMBO] = std::max(summary2P[ARG_MAXCOMBO], d.maxComboDisplay);

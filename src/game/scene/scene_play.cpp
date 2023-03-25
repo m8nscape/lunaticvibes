@@ -535,7 +535,7 @@ ScenePlay::ScenePlay(): SceneBase(gPlayContext.mode, 1000, true)
         }
 
         int green = ConfigMgr::get('P', cfg, 1200);
-        auto& [hs, val] = calcHiSpeed(bpm, slot, green);
+        const auto [hs, val] = calcHiSpeed(bpm, slot, green);
 
         *pHispeed = hs;
         State::set(indNum, (int)std::round(*pHispeed * 100));
@@ -1545,7 +1545,7 @@ void ScenePlay::updateAsyncLanecover(const Time& t)
             {
                 double bpm = gPlayContext.mods[slot].hispeedFix == PlayModifierHispeedFixType::CONSTANT ?
                     150.0 : gPlayContext.chartObj[slot]->getCurrentBPM();
-                auto& [green, val] = calcGreenNumber(bpm, slot, hs);
+                const auto [green, val] = calcGreenNumber(bpm, slot, hs);
                 playerState[slot].lockspeedValueInternal = val;
                 playerState[slot].lockspeedGreenNumber = green;
                 playerState[slot].lockspeedHispeedBuffered = hs;
@@ -3029,7 +3029,7 @@ void ScenePlay::toggleLanecover(int slot, bool state)
         gPlayContext.playerState[slot].hispeed = playerState[slot].lockspeedHispeedBuffered;
         double bpm = gPlayContext.mods[slot].hispeedFix == PlayModifierHispeedFixType::CONSTANT ?
             150.0 : gPlayContext.chartObj[slot]->getCurrentBPM();
-        auto& [green, val] = calcGreenNumber(bpm, slot, gPlayContext.playerState[slot].hispeed);
+        const auto [green, val] = calcGreenNumber(bpm, slot, gPlayContext.playerState[slot].hispeed);
         playerState[slot].lockspeedValueInternal = val;
         playerState[slot].lockspeedGreenNumber = green;
         playerState[slot].hispeedHasChanged = true;
@@ -3140,7 +3140,7 @@ void ScenePlay::inputGamePress(InputMask& m, const Time& t)
                 double bpm = gPlayContext.mods[slot].hispeedFix == PlayModifierHispeedFixType::CONSTANT ?
                     150.0 : gPlayContext.chartObj[slot]->getCurrentBPM();
                 double hs = gPlayContext.playerState[slot].hispeed;
-                auto& [green, val] = calcGreenNumber(bpm, slot, hs);
+                const auto [green, val] = calcGreenNumber(bpm, slot, hs);
                 playerState[slot].lockspeedValueInternal = val;
                 playerState[slot].lockspeedGreenNumber = green;
                 playerState[slot].lockspeedHispeedBuffered = hs;

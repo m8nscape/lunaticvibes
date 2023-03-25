@@ -448,7 +448,7 @@ void SceneKeyConfig::inputGameAbsoluteAxis(JoystickAxis& axis, size_t device, co
     {
         if (axis[index] != -1.0)
         {
-            auto& bindings = ConfigMgr::Input(keys)->getBindings(pad);
+            const auto bindings = ConfigMgr::Input(keys)->getBindings(pad);
             if (bindings.getType() != KeyMap::DeviceType::JOYSTICK ||
                 bindings.getJoystick().index != index)
             {
@@ -481,16 +481,16 @@ void SceneKeyConfig::updateForceBargraphs()
     std::shared_lock l(_mutex);
 
     GameModeKeys keys = gKeyconfigContext.keys;
-    auto& input = ConfigMgr::Input(keys);
+    const auto input = ConfigMgr::Input(keys);
     Time t;
 
     // update keyboard force bargraph
     for (Input::Keyboard k = Input::Keyboard::K_1; k != Input::Keyboard::K_COUNT; ++ * (unsigned*)&k)
     {
-        auto& input = ConfigMgr::Input(keys);
+        const auto input = ConfigMgr::Input(keys);
         for (const auto& [p, bar] : forceBargraphMap)
         {
-            auto& binding = input->getBindings(p);
+            const auto binding = input->getBindings(p);
             if (binding.getType() == KeyMap::DeviceType::KEYBOARD && binding.getKeyboard() == k)
             {
                 if (isKeyPressed(k))
@@ -508,7 +508,7 @@ void SceneKeyConfig::updateForceBargraphs()
     {
         for (const auto& [p, bar] : forceBargraphMap)
         {
-            auto& binding = input->getBindings(p);
+            const auto binding = input->getBindings(p);
             if (binding.getType() == KeyMap::DeviceType::JOYSTICK &&
                 binding.getJoystick().type == Input::Joystick::Type::BUTTON &&
                 binding.getJoystick().index == index)
@@ -527,7 +527,7 @@ void SceneKeyConfig::updateForceBargraphs()
     {
         for (const auto& [p, bar] : forceBargraphMap)
         {
-            auto& binding = input->getBindings(p);
+            const auto binding = input->getBindings(p);
             if (binding.getType() == KeyMap::DeviceType::JOYSTICK &&
                 binding.getJoystick().type == Input::Joystick::Type::POV &&
                 (binding.getJoystick().index & 0xFFFF) == index)
@@ -546,7 +546,7 @@ void SceneKeyConfig::updateForceBargraphs()
     {
         for (const auto& [p, bar] : forceBargraphMap)
         {
-            auto& binding = input->getBindings(p);
+            const auto binding = input->getBindings(p);
             if (binding.getType() == KeyMap::DeviceType::JOYSTICK &&
                 binding.getJoystick().type == Input::Joystick::Type::AXIS_RELATIVE_POSITIVE &&
                 binding.getJoystick().index == index)
@@ -566,7 +566,7 @@ void SceneKeyConfig::updateForceBargraphs()
     {
         for (const auto& [p, bar] : forceBargraphMap)
         {
-            auto& binding = input->getBindings(p);
+            const auto binding = input->getBindings(p);
             if (binding.getType() == KeyMap::DeviceType::JOYSTICK &&
                 binding.getJoystick().type == Input::Joystick::Type::AXIS_RELATIVE_NEGATIVE &&
                 binding.getJoystick().index == index)
@@ -662,7 +662,7 @@ void SceneKeyConfig::updateAllText()
     auto [pad, slot] = gKeyconfigContext.selecting;
     GameModeKeys keys = gKeyconfigContext.keys;
 
-    auto& input = ConfigMgr::Input(keys);
+    const auto input = ConfigMgr::Input(keys);
 
     State::set(IndexText::KEYCONFIG_1P_BIND_1, input->getBindings(Input::Pad::K11).toString());
     State::set(IndexText::KEYCONFIG_1P_BIND_2, input->getBindings(Input::Pad::K12).toString());

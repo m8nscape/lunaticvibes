@@ -404,7 +404,7 @@ SceneSelect::SceneSelect() : SceneBase(SkinType::MUSIC_SELECT, 250)
     gSelectContext.isGoingToReboot = false;
     State::set(IndexSwitch::SYSTEM_AUTOPLAY, false);
 
-    auto& [score, lamp] = getSaveScoreType();
+    const auto [score, lamp] = getSaveScoreType();
     State::set(IndexSwitch::CHART_CAN_SAVE_SCORE, score);
     State::set(IndexOption::CHART_SAVE_LAMP_TYPE, lamp);
 
@@ -1354,7 +1354,7 @@ void SceneSelect::inputGamePressSelect(InputMask& input, const Time& t)
         if (gSelectContext.backtrace.size() >= 2)
         {
             // only update current folder
-            auto& [hasPath, path] = g_pSongDB->getFolderPath(gSelectContext.backtrace.front().folder);
+            const auto [hasPath, path] = g_pSongDB->getFolderPath(gSelectContext.backtrace.front().folder);
             if (hasPath)
             {
                 LOG_INFO << "[List] Refreshing folder " << path.u8string();
