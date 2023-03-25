@@ -808,7 +808,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
     }
 
     _totalLength = lastBarIdx + 1 < _barTimestamp.size() ? _barTimestamp[lastBarIdx + 1] : basetime +
-        Time(std::min(2000'000'000ll, std::max(500'000'000ll, Time::singleBeatLengthFromBPM(bpm).hres() * 4)), true);    // last measure + 1
+        Time(std::min(2000'000'000ll, std::max(500'000'000ll, static_cast<long long>(Time::singleBeatLengthFromBPM(bpm).hres()) * 4)), true);    // last measure + 1
 
     // get average BPM
     if (_totalLength.norm() > 0)
