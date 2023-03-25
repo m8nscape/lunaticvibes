@@ -2,6 +2,7 @@
 #include <regex>
 #include <vector>
 #include <numeric>
+#include <cmath>
 #include <memory>
 #include "../types.h"
 #include "../beat.h"

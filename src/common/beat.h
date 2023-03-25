@@ -4,6 +4,7 @@
 #include <string>
 #include <chrono>
 #include <variant>
+#include <climits>
 #include <iostream>
 
 typedef unsigned Bar;

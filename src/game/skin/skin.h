@@ -2,6 +2,7 @@
 #include "game/graphics/sprite.h"
 #include "game/graphics/video.h"
 #include "common/types.h"
+#include <list>
 #include <vector>
 #include <map>
 #include <string>

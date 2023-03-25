@@ -5,6 +5,7 @@
 #include "common/log.h"
 #include "common/sysutil.h"
 
+#include <cmath>
 #include <memory>
 #include <map>
 #include <future>

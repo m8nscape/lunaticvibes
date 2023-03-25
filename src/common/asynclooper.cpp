@@ -1,6 +1,7 @@
 #include "asynclooper.h"
 #include <numeric>
 #include <chrono>
+#include "encoding.h"
 #include "log.h"
 
 AsyncLooper::AsyncLooper(StringContentView tag, std::function<void()> func, unsigned rate_per_sec, bool single_inst) : 
