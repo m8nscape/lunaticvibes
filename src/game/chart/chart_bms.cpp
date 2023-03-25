@@ -801,10 +801,10 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
 
         // add barline for next measure
         _noteLists[channelToIdx(NoteLaneCategory::EXTRA, EXTRA_BARLINE_1P)].push_back(
-            { m + 1, basemetre, basetime, long long(0), false });
+            { m + 1, basemetre, basetime, static_cast<long long>(0), false });
 
         _noteLists[channelToIdx(NoteLaneCategory::EXTRA, EXTRA_BARLINE_2P)].push_back(
-            { m + 1, basemetre, basetime, long long(0), false });
+            { m + 1, basemetre, basetime, static_cast<long long>(0), false });
     }
 
     _totalLength = lastBarIdx + 1 < _barTimestamp.size() ? _barTimestamp[lastBarIdx + 1] : basetime +

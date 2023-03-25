@@ -18,7 +18,7 @@ protected:
 public:
 	Metre() : fraction() {}
 	Metre(long long division_level, long long multiple_level) : fraction(division_level, multiple_level, false) {}
-	Metre(double value) : fraction(long long(value * 1e12), 1e12, true) {}
+	Metre(double value) : fraction(static_cast<long long>(value * 1e12), 1e12, true) {}
 	virtual ~Metre() {}
 
 	double toDouble() const { return operator double(); }

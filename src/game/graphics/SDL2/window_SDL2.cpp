@@ -390,7 +390,7 @@ void graphics_set_maxfps(int fps)
     maxFPS = fps;
     if (maxFPS != 0)
     {
-        desiredFrameTimeBetweenFrames = std::chrono::nanoseconds(long long(std::round(1e9 / maxFPS)));
+        desiredFrameTimeBetweenFrames = std::chrono::nanoseconds(static_cast<long long>(std::round(1e9 / maxFPS)));
     }
 }
 
