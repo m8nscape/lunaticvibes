@@ -14,22 +14,10 @@ bool getMouseCursorPos(int& x, int& y);
 bool IsWindowForeground();
 void SetWindowForeground(bool foreground);
 
-#ifdef _MSC_VER
-#ifdef SetDebugThreadName
-#undef SetDebugThreadName
-#endif
 #ifdef _DEBUG
 #define SetDebugThreadName(x) SetThreadName(x)
 #else
-#define SetDebugThreadName(x) __noop
-#endif
-
-#ifdef panic
-#undef panic
-#endif
-#define panic panic
-
-#define GetExecutablePath GetExecutablePath
+#define SetDebugThreadName(x) do {} while(0)
 #endif
 
 #include <functional>

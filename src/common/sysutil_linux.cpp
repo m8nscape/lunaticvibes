@@ -7,7 +7,7 @@ std::tm local_time(const time_t* time)
     return localtime(time);
 }
 
-void SetDebugThreadName(const char* name) {}
+void SetThreadName(const char* name) {}
 
 void panic(const char* title, const char* msg)
 {
