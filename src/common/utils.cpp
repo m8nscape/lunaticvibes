@@ -252,7 +252,7 @@ HashMD5 md5file(const Path& filePath)
     memset(digest, 0, sizeof(digest));
     if (!fs::exists(filePath) || !fs::is_regular_file(filePath))
     {
-        return "";
+        return {};
     }
 
     MD5_CTX mdContext;
@@ -265,7 +265,7 @@ HashMD5 md5file(const Path& filePath)
 #else
     FILE* pf = fopen(filePath.u8string().c_str(), "rb");
 #endif
-    if (pf == NULL) return "";
+    if (pf == NULL) return {};
 
     MD5_Init(&mdContext);
     while ((bytes = fread(data, sizeof(char), sizeof(data), pf)) != 0)

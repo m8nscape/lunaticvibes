@@ -1047,7 +1047,7 @@ int SongDB::refreshExistingFolder(const HashMD5& hash, const Path& path, FolderT
 
 HashMD5 SongDB::getFolderParent(const Path& path) const
 {
-    if (!fs::is_directory(path)) return "";
+    if (!fs::is_directory(path)) return {};
 
     auto parent = (path / "..").lexically_normal();
     HashMD5 parentHash = md5(parent.u8string());
@@ -1061,7 +1061,7 @@ HashMD5 SongDB::getFolderParent(const Path& path) const
             }
     }
 
-    return "";
+    return {};
 }
 
 HashMD5 SongDB::getFolderParent(const HashMD5& folder) const
@@ -1074,12 +1074,12 @@ HashMD5 SongDB::getFolderParent(const HashMD5& folder) const
         {
             LOG_WARNING << "[SongDB] Get folder parent type error: excepted " << FOLDER << ", get " << ANY_INT(leaf[0]) <<
                 " (" << folder.hexdigest() << ")";
-            return "";
+            return {};
         }
         return ANY_STR(leaf[1]);
     }
     LOG_INFO << "[SongDB] Get folder parent fail: target " << folder.hexdigest() << " not found";
-    return "";
+    return {};
 }
 
 

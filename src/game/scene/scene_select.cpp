@@ -2724,8 +2724,8 @@ void SceneSelect::searchSong(const std::string& text)
 
     std::string name = (boost::format(i18n::c(i18nText::SEARCH_RESULT)) % text % top->getContentsCount()).str();
     SongListProperties prop{
-        "",
-        "",
+        {},
+        {},
         name,
         {},
         {},
