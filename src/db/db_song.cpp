@@ -254,7 +254,7 @@ bool SongDB::addChart(const HashMD5& folder, const Path& path)
         }
         catch (const std::exception& e)
         {
-            LOG_WARNING << "[SongDB] " << e.what() << ": " << path.filename().wstring();
+            LOG_WARNING << "[SongDB] " << e.what() << ": " << path.filename().string();
             return false;
         }
 
