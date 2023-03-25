@@ -427,7 +427,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
             const auto& [noteSegment, noteinfo] = note;
             const auto& [lane, val] = noteinfo;
             double metreFromBPMChange = (noteSegment - lastBPMChangedSegment) * barMetre;
-            Metre notemetre = basemetre + noteSegment * barMetre;
+            auto notemetre = static_cast<Metre>(basemetre + noteSegment * barMetre);
 			Time notetime = bpmfucked ? LLONG_MAX : basetime + beatLength * (metreFromBPMChange * 4);
 
             if (!leadInTimeSet && (lane.type == eLanePriority::NOTE || lane.type == eLanePriority::LNHEAD || lane.type == eLanePriority::BGM))
