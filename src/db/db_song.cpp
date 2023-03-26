@@ -721,7 +721,9 @@ int SongDB::removeFolder(const HashMD5& hash, bool removeSong)
     if (removeSong)
     {
         if (SQLITE_OK != exec("DELETE FROM song WHERE parent=?", { hash.hexdigest() }))
+        {
             LOG_WARNING << "[SongDB] remove song from db error: " << errmsg();
+        }
     }
 
     return exec("DELETE FROM folder WHERE pathmd5=?", { hash.hexdigest() });
