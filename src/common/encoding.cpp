@@ -276,7 +276,8 @@ std::string from_utf32(const std::u32string& input, eFileEncoding toEncoding)
 
 std::u32string utf8_to_utf32(const std::string& str)
 {
-    static auto& facet_u32_u8 = std::use_facet<std::codecvt<char32_t, char, std::mbstate_t>>(std::locale(""));
+    static const auto locale = std::locale("");
+    static const auto& facet_u32_u8 = std::use_facet<std::codecvt<char32_t, char, std::mbstate_t>>(locale);
     std::u32string u32Text(str.size() * facet_u32_u8.max_length(), '\0');
 
     std::mbstate_t s;
@@ -301,7 +302,8 @@ std::u32string utf8_to_utf32(const std::string& str)
 
 std::string utf32_to_utf8(const std::u32string& str)
 {
-    static auto& facet_u32_u8 = std::use_facet<std::codecvt<char32_t, char, std::mbstate_t>>(std::locale(""));
+    static const auto locale = std::locale("");
+    static const auto& facet_u32_u8 = std::use_facet<std::codecvt<char32_t, char, std::mbstate_t>>(locale);
     std::string u8Text(str.size() * 4, '\0');
 
     std::mbstate_t s;
