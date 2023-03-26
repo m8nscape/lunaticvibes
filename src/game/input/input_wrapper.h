@@ -14,16 +14,16 @@ typedef std::function<void(InputMask&, const Time&)> INPUTCALLBACK;
 //typedef void(*ReleasedHandleCallback)(void* owner, InputMask&);
 
 typedef std::bitset<Input::keyboardKeyCount> KeyboardMask;
-typedef std::function<void(KeyboardMask, const Time&)> KEYBOARDCALLBACK;
+typedef std::function<void(KeyboardMask&, const Time&)> KEYBOARDCALLBACK;
 
 typedef std::function<void(double, double, const Time&)> AXISPLUSCALLBACK;
 
 constexpr size_t MAX_JOYSTICK_MASK_BIT_COUNT = InputMgr::MAX_JOYSTICK_BUTTON_COUNT + InputMgr::MAX_JOYSTICK_POV_COUNT * 4 + InputMgr::MAX_JOYSTICK_AXIS_COUNT * 2;
 typedef std::bitset<MAX_JOYSTICK_MASK_BIT_COUNT> JoystickMask;
-typedef std::function<void(JoystickMask, size_t, const Time&)> JOYSTICKCALLBACK;
+typedef std::function<void(JoystickMask&, size_t, const Time&)> JOYSTICKCALLBACK;
 
 typedef std::array<double, InputMgr::MAX_JOYSTICK_AXIS_COUNT> JoystickAxis;
-typedef std::function<void(JoystickAxis, size_t, const Time&)> ABSAXISCALLBACK;
+typedef std::function<void(JoystickAxis&, size_t, const Time&)> ABSAXISCALLBACK;
 
 // FUNC:                                          BRDUEHDI><v^543210987654321_
 inline const InputMask INPUT_MASK_FUNC  { "0000000111111111111111111111111111100000000000000000000000000000000" };
