@@ -21,7 +21,7 @@ set(YAML_CPP_BUILD_TOOLS OFF CACHE INTERNAL "Enable parse tools")
 add_subdirectory(yaml-cpp)
 
 # Add sqlite3 if needed
-find_package(SQLite3 QUIET)
+find_package(SQLite3 QUIET GLOBAL)
 if (SQLite3_FOUND)
     set(sqlite3_LIBRARY SQLite::SQLite3)
 else()
@@ -42,16 +42,16 @@ set (sqlite3_LIBRARY ${sqlite3_LIBRARY} CACHE INTERNAL "sqlite3 target name")
 # Add SDL2
 if (${GRAPHICS_BACKEND} STREQUAL SDL2)
     # Add SDL2
-    find_package(SDL2 REQUIRED)
+    find_package(SDL2 REQUIRED GLOBAL)
 
     # Add SDL2_image
-    find_package(SDL2_Image QUIET)
+    find_package(SDL2_Image QUIET GLOBAL)
     if (NOT SDL2_Image_FOUND)
         add_subdirectory(SDL2_Image)
     endif()
 
     # Add SDL2_ttf
-    find_package(SDL2_ttf QUIET)
+    find_package(SDL2_ttf QUIET GLOBAL)
     if (NOT SDL2_ttf_FOUND)
         add_subdirectory(SDL2_ttf)
     endif()
@@ -92,7 +92,7 @@ add_subdirectory(json)
 
 # Add OpenSSL (from system)
 if (UNIX OR MINGW)
-    find_library(OpenSSL REQUIRED)
+    find_package(OpenSSL REQUIRED GLOBAL)
 endif()
 
 # Add cereal
