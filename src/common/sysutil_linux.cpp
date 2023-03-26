@@ -20,7 +20,7 @@ void GetExecutablePath(char* output, size_t bufsize, size_t& len)
 
     char szTmp[32];
     sprintf(szTmp, "/proc/%d/exe", getpid());
-    int bytes = MIN(readlink(szTmp, fullpath, sizeof(fullpath)), sizeof(fullpath) - 1);
+    int bytes = std::min(readlink(szTmp, fullpath, sizeof(fullpath)), static_cast<ssize_t>(sizeof(fullpath) - 1));
     if (bytes >= 0)
         fullpath[bytes] = '\0';
 
