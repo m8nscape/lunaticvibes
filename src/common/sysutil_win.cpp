@@ -102,22 +102,6 @@ void getWindowHandle(void* handle)
     *(HWND*)handle = hwnd;
 }
 
-bool getMouseCursorPos(int& x, int& y)
-{
-    RECT rect{ 0 };
-    if (GetWindowRect(hwnd, &rect))
-    {
-        POINT point{ 0 };
-        if (GetCursorPos(&point) && ScreenToClient(hwnd, &point))
-        {
-            x = point.x;
-            y = point.y;
-            return true;
-        }
-    }
-    return false;
-}
-
 typedef LRESULT(*WMCALLBACK)(HWND, UINT, WPARAM, LPARAM);
 std::vector<WMCALLBACK> WMEventHandler;
 void addWMEventHandler(void* f)

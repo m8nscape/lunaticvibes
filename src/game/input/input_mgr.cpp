@@ -209,9 +209,7 @@ std::bitset<KEY_COUNT> InputMgr::detect()
 
 bool InputMgr::getMousePos(int& x, int& y)
 {
-#ifdef WIN32
-    bool ret = getMouseCursorPos(x, y);
-#elif defined(RENDER_SDL2)
+#ifdef RENDER_SDL2
     x = sdl::state::g_mouse_x;
     y = sdl::state::g_mouse_y;
     bool ret = true;

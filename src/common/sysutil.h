@@ -9,7 +9,6 @@ void GetExecutablePath(char* output, size_t bufsize, size_t& len);
 
 void setWindowHandle(void* handle);
 void getWindowHandle(void* handle);
-bool getMouseCursorPos(int& x, int& y);
 
 bool IsWindowForeground();
 void SetWindowForeground(bool foreground);
