@@ -4,6 +4,10 @@
 #include "config/config_mgr.h"
 #include "game/graphics/graphics.h"
 
+#ifdef RENDER_SDL2
+#include <game/graphics/SDL2/input.h>
+#endif
+
 InputMgr InputMgr::_inst;
 
 using namespace Input;
@@ -205,7 +209,15 @@ std::bitset<KEY_COUNT> InputMgr::detect()
 
 bool InputMgr::getMousePos(int& x, int& y)
 {
+#ifdef WIN32
     bool ret = getMouseCursorPos(x, y);
+#elif defined(RENDER_SDL2)
+    x = sdl::state::g_mouse_x;
+    y = sdl::state::g_mouse_y;
+    bool ret = true;
+#else
+#error "No mouse pos getting implementation"
+#endif
     if (ret)
     {
         double canvasScaleX = graphics_get_canvas_scale_x();

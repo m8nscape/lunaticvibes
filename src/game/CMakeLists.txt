@@ -2,6 +2,7 @@
 if (${GRAPHICS_BACKEND} STREQUAL SDL2)
     set(GRAPHICS_BACKEND_SRC
         graphics/SDL2/common_SDL2.cpp
+        graphics/SDL2/input.cpp
         graphics/SDL2/rect_SDL2.cpp
         graphics/SDL2/ttf_SDL2.cpp
         graphics/SDL2/window_SDL2.cpp
@@ -31,8 +32,8 @@ add_library(gamelib
     graphics/texture_extra.cpp
     graphics/video.cpp
     graphics/dxa.cpp
-    input/input_linux.cpp
     input/input_mgr.cpp
+    input/input_mgr_sdl.cpp
     input/input_dinput8.cpp
     input/input_windows.cpp
     input/input_wrapper.cpp

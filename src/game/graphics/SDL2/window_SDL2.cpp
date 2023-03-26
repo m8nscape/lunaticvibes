@@ -9,12 +9,15 @@
 #include "SDL_syswm.h"
 #include "game/graphics/video.h"
 #include "common/log.h"
+#include <climits>
+#include <cstdint>
 #include <string>
 #include "config/config_mgr.h"
 #include "common/sysutil.h"
 #include "imgui.h"
 #include "backends/imgui_impl_sdl2.h"
 #include "backends/imgui_impl_sdlrenderer.h"
+#include <game/graphics/SDL2/input.h>
 
 static SDL_Rect canvasRect;
 static SDL_Rect windowRect;
@@ -404,6 +407,16 @@ void funEditing(const SDL_TextEditingEvent& e);
 void funInput(const SDL_TextInputEvent& e);
 void funKeyDown(const SDL_KeyboardEvent& e);
 
+static std::int16_t i16_from_i32(std::int32_t value) {
+    if (value > SHRT_MAX) {
+        return SHRT_MAX;
+    } else if (value < SHRT_MIN) {
+        return SHRT_MIN;
+    } else {
+        return static_cast<std::int16_t>(value);
+    }
+}
+
 void event_handle()
 {
     SDL_Event e;
@@ -453,9 +466,32 @@ void event_handle()
             break;
 
         case SDL_KEYDOWN:
+            sdl::state::g_keyboard_scancodes[e.key.keysym.scancode] = true;
+
             if (isEditing) funKeyDown(e.key);
             break;
 
+        case SDL_KEYUP:
+            sdl::state::g_keyboard_scancodes[e.key.keysym.scancode] = false;
+
+            break;
+
+        case SDL_MOUSEMOTION:
+            sdl::state::g_mouse_x = e.motion.x;
+            sdl::state::g_mouse_y = e.motion.y;
+            break;
+
+        case SDL_MOUSEBUTTONDOWN:
+            sdl::state::g_mouse_buttons[e.button.button] = true;
+            break;
+
+        case SDL_MOUSEBUTTONUP:
+            sdl::state::g_mouse_buttons[e.button.button] = false;
+            break;
+
+        case SDL_MOUSEWHEEL:
+            sdl::state::g_mouse_wheel_delta = i16_from_i32(e.wheel.y);
+            break;
         default:
             break;
         }
