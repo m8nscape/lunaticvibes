@@ -87,3 +87,11 @@ enum class Languages
 };
 Path getSysFontPath(std::string* faceName = NULL, int* faceIndex = NULL, Languages lang = Languages::EN);
 Path getSysMonoFontPath(std::string* faceName = NULL, int* faceIndex = NULL, Languages lang = Languages::EN);
+
+// Thread-safe strerror().
+//
+// This uses whatever safe implementation of strerror() target system
+// has.
+const char* safe_strerror(int errnum, char* buffer, size_t buffer_length);
+// Wrapper over the other safe_strerror() that returns an owned string.
+std::string safe_strerror(int errnum);

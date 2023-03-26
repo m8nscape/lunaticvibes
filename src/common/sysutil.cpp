@@ -121,3 +121,10 @@ Path getSysMonoFontPath(std::string* faceName, int* faceIndex, Languages lang)
     }
     return p;
 }
+
+std::string safe_strerror(int errnum) {
+    static constexpr size_t ERROR_DESCRIPTION_BUFFER_SIZE = 128;
+    char error_description_buffer[ERROR_DESCRIPTION_BUFFER_SIZE] = { 0 };
+    const char* error_description = safe_strerror(errnum, static_cast<char*>(error_description_buffer), ERROR_DESCRIPTION_BUFFER_SIZE);
+    return {error_description};
+}
