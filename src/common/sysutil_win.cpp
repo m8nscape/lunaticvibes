@@ -118,17 +118,6 @@ bool getMouseCursorPos(int& x, int& y)
     return false;
 }
 
-static bool foreground = true;
-bool IsWindowForeground()
-{
-    return foreground;
-}
-
-void SetWindowForeground(bool f)
-{
-    foreground = f;
-}
-
 typedef LRESULT(*WMCALLBACK)(HWND, UINT, WPARAM, LPARAM);
 std::vector<WMCALLBACK> WMEventHandler;
 void addWMEventHandler(void* f)

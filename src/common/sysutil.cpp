@@ -7,6 +7,17 @@ std::shared_mutex mainThreadTaskQueueMutex;
 std::queue<std::function<void()>> mainThreadTaskQueue;
 bool handleMainThreadTask = true;
 
+static bool s_foreground = true;
+bool IsWindowForeground()
+{
+    return s_foreground;
+}
+
+void SetWindowForeground(bool f)
+{
+    s_foreground = f;
+}
+
 void pushMainThreadTask(std::function<void()> f)
 {
     if (IsMainThread())
