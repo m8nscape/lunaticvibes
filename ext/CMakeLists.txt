@@ -21,7 +21,7 @@ set(YAML_CPP_BUILD_TOOLS OFF CACHE INTERNAL "Enable parse tools")
 add_subdirectory(yaml-cpp)
 
 # Add sqlite3 if needed
-find_package(SQLite3 CONFIG QUIET)
+find_package(SQLite3 QUIET)
 if (SQLite3_FOUND)
     set(sqlite3_LIBRARY SQLite::SQLite3)
 else()
