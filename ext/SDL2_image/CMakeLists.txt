@@ -37,7 +37,8 @@ if (WIN32)
         IMPORTED_LOCATION   ${CMAKE_CURRENT_LIST_DIR}/lib/${LIB_DIR}/SDL2_image.dll
         IMPORTED_IMPLIB     ${CMAKE_CURRENT_LIST_DIR}/lib/${LIB_DIR}/SDL2_image.lib  
     )
-elseif (LINUX)
+else()
+  message(FATAL_ERROR "There is no bundled SDL2_image for this platform")
 endif()
 
 target_include_directories(SDL2_image INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)

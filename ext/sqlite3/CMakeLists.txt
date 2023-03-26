@@ -13,8 +13,8 @@ if (WIN32)
             IMPORTED_IMPLIB     ${CMAKE_CURRENT_LIST_DIR}/lib/x86/sqlite3.lib  
         )
     endif()
-elseif (LINUX)
-
+else()
+    message(FATAL_ERROR "There is no bundled SQLite3 for this platform")
 endif()
 
 target_include_directories(SQLite3 INTERFACE ${CMAKE_CURRENT_LIST_DIR})

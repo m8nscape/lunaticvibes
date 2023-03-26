@@ -28,6 +28,8 @@ elseif (LINUX)
             IMPORTED_LOCATION_DEBUG ${CMAKE_CURRENT_LIST_DIR}/lib/x86/libfmodL.so.13.7
         )
     endif()
+else()
+    message(FATAL_ERROR "No bundled FMOD for this platform")
 endif()
 
 target_include_directories(fmod INTERFACE ${CMAKE_CURRENT_LIST_DIR}/inc)

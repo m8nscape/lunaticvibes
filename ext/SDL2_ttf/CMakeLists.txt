@@ -44,7 +44,8 @@ if (WIN32)
             IMPORTED_IMPLIB     ${CMAKE_CURRENT_LIST_DIR}/lib/x86/SDL2_ttf.lib  
         )
     endif()
-elseif (LINUX)
+else()
+  message(FATAL_ERROR "There is no bundled SDL2_ttf for this platform")
 endif()
 
 target_include_directories(SDL2_ttf INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)

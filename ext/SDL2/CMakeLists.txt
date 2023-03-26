@@ -27,7 +27,8 @@ if (WIN32)
             IMPORTED_IMPLIB     ${CMAKE_CURRENT_LIST_DIR}/lib/x86/SDL2.lib
         )
     endif()
-elseif (LINUX)
+else()
+  message(FATAL_ERROR "There is no bundled SDL2 for this platform")
 endif()
 
 target_include_directories(SDL2 INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
@@ -46,7 +47,8 @@ if (WIN32)
             IMPORTED_IMPLIB     ${CMAKE_CURRENT_LIST_DIR}/lib/x86/SDL2main.lib
         )
     endif()
-elseif (LINUX)
+else()
+  message(FATAL_ERROR "There is no bundled SDL2main for this platform")
 endif()
 
 target_include_directories(SDL2_main INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
