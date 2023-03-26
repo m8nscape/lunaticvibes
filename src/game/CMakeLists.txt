@@ -113,8 +113,8 @@ target_link_libraries(gamelib
 
 if (${GRAPHICS_BACKEND} STREQUAL SDL2)
     target_link_libraries(gamelib
-        PUBLIC SDL2
-        PUBLIC SDL2_main
+        PUBLIC SDL2::SDL2
+        PUBLIC SDL2::SDL2main
         PUBLIC SDL2_gfx
         PUBLIC SDL2_ttf
         PUBLIC SDL2_image
