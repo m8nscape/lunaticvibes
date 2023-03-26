@@ -123,13 +123,8 @@ endif()
 
 if (${VIDEO_ENABLED})
     target_link_libraries(gamelib
-        PUBLIC libavcodec    
-        PUBLIC libavdevice   
-        PUBLIC libavfilter   
-        PUBLIC libavformat   
-        PUBLIC libswresample 
-        PUBLIC libavutil     
-        PUBLIC libswscale   
+        PUBLIC
+        ${FFMPEG_LIBS}
     )
 else()
     target_compile_definitions(gamelib PUBLIC -DVIDEO_DISABLED)

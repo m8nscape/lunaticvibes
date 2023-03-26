@@ -6,9 +6,41 @@ add_subdirectory(fmod)
 
 # Add ffmpeg
 if (${VIDEO_ENABLED})
-    find_package(libavcodec QUIET)
-    if (NOT libavcodec_FOUND)
+    find_library(libavcodec NAMES avcodec GLOBAL QUIET)
+    if (libavcodec)
+        find_library(libavdevice NAMES avdevice REQUIRED GLOBAL)
+        find_library(libavfilter NAMES avfilter REQUIRED GLOBAL)
+        find_library(libavformat NAMES avformat REQUIRED GLOBAL)
+        find_library(libswresample NAMES swresample REQUIRED GLOBAL)
+        find_library(libavutil NAMES avutil REQUIRED GLOBAL)
+        find_library(libswscale NAMES swscale REQUIRED GLOBAL)
+
+        set(
+            FFMPEG_LIBS
+            ${libavcodec}
+            ${libavdevice}
+            ${libavfilter}
+            ${libavformat}
+            ${libswresample}
+            ${libavutil}
+            ${libswscale}
+
+            PARENT_SCOPE
+        )
+    else()
         add_subdirectory(FFmpeg)
+        set(
+            FFMPEG_LIBS
+            libavcodec
+            libavdevice
+            libavfilter
+            libavformat
+            libswresample
+            libavutil
+            libswscale
+
+            PARENT_SCOPE
+        )
     endif()
 endif()
 
