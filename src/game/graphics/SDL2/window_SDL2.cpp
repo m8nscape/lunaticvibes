@@ -18,6 +18,7 @@
 #include "backends/imgui_impl_sdl2.h"
 #include "backends/imgui_impl_sdlrenderer.h"
 #include <game/graphics/SDL2/input.h>
+#include <game/graphics/graphics.h>
 
 static SDL_Rect canvasRect;
 static SDL_Rect windowRect;
