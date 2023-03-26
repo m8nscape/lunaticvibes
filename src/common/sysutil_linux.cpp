@@ -2,10 +2,6 @@
 #include "sysutil.h"
 #include <cstdio>
 
-std::tm local_time(const time_t* time)
-{
-    return localtime(time);
-}
 
 void SetThreadName(const char* name) {}
 
