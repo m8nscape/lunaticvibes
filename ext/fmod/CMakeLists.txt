@@ -17,7 +17,17 @@ if (WIN32)
         )
     endif()
 elseif (LINUX)
-
+    if(${BUILD_X64})
+        set_target_properties(fmod PROPERTIES
+            IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/lib/x64/libfmod.so.13.7
+            IMPORTED_LOCATION_DEBUG ${CMAKE_CURRENT_LIST_DIR}/lib/x64/libfmodL.so.13.7
+        )
+    else()
+        set_target_properties(fmod PROPERTIES
+            IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/lib/x86/libfmod.so.13.7
+            IMPORTED_LOCATION_DEBUG ${CMAKE_CURRENT_LIST_DIR}/lib/x86/libfmodL.so.13.7
+        )
+    endif()
 endif()
 
 target_include_directories(fmod INTERFACE ${CMAKE_CURRENT_LIST_DIR}/inc)
