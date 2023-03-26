@@ -367,7 +367,14 @@ Path PathFromUTF8(std::string_view s)
     const static auto locale_utf8 = std::locale(".65001");
     return Path(std::string(s), locale_utf8);
 #else
-    return Path(s);
+    // Windows uses backslashes as path separators, unlike other
+    // systems. We must replace them with normal slashes.
+    // TODO: overload this to take ownership of supplied string, to
+    // prevent allocations.
+
+    auto copy = std::string(s);
+    std::replace(copy.begin(), copy.end(), '\\', '/');
+    return Path(copy);
 #endif
 }
 
