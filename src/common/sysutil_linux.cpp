@@ -1,8 +1,27 @@
 #ifdef __linux__
 
 #include "sysutil.h"
-#include <cstdio>
 
+#include <cstdio>
+#include <thread>
+
+static std::thread::id s_main_thread {};
+
+void SetThreadAsMainThread()
+{
+    s_main_thread = std::this_thread::get_id();
+}
+
+int64_t GetCurrentThreadID()
+{
+    // TODO.
+    return 0;
+}
+
+bool IsMainThread()
+{
+    return s_main_thread == std::this_thread::get_id();
+}
 
 void SetThreadName(const char* name) {}
 
@@ -11,7 +30,6 @@ void panic(const char* title, const char* msg)
     fprintf(stderr, "PANIC! [%s] %s\n", title, msg); 
     abort(); 
 }
-
 
 #include <filesystem>
 void GetExecutablePath(char* output, size_t bufsize, size_t& len)
@@ -39,6 +57,11 @@ void addWMEventHandler(void* f)
 void callWMEventHandler(void* arg1, void* arg2, void* arg3, void* arg4)
 {
 
+}
+
+long long getFileLastWriteTime(const Path& p)
+{
+    return std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(p).time_since_epoch()).count();
 }
 
 #endif // __linux__

@@ -71,7 +71,9 @@ inline T pushAndWaitMainThreadTask(std::function<T(Arg...)> f, Arg... arg)
 void addWMEventHandler(void* f);
 void callWMEventHandler(void* arg1 = 0, void* arg2 = 0, void* arg3 = 0, void* arg4 = 0);
 
+// Unix epoch time.
 long long getFileTimeNow();
+// Unix epoch time.
 long long getFileLastWriteTime(const Path& p);
 
 enum class Languages
