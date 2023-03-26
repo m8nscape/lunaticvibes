@@ -100,7 +100,8 @@ fraction d2fr(double d)
 
     long long dr = 1e15;
     trim(nr, dr);
-    while (abs(nr) & 0xffffffff00000000 || abs(dr) & 0xffffffff00000000)
+    while (std::abs(nr) & 0xffffffff00000000ll ||
+           std::abs(dr) & 0xffffffff00000000ll)
     {
         nr >>= 1;
         dr >>= 1;
