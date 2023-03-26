@@ -1,4 +1,5 @@
-#ifdef LINUX
+#ifdef __linux__
+
 #include "sysutil.h"
 #include <cstdio>
 
@@ -40,4 +41,4 @@ void callWMEventHandler(void* arg1, void* arg2, void* arg3, void* arg4)
 
 }
 
-#endif
+#endif // __linux__
