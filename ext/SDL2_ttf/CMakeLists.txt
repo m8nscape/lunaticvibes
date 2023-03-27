@@ -5,8 +5,6 @@ endif()
 ##### general #####
 cmake_minimum_required(VERSION 3.0)
 
-find_package(SDL2 REQUIRED)
-
 set(SDL_TTF_MAJOR_VERSION 2)
 set(SDL_TTF_MINOR_VERSION 0)
 set(SDL_TTF_MICRO_VERSION 15)
