@@ -6,8 +6,11 @@
 #include <iostream>
 #include <fstream>
 #include <charconv>
-#include <regex>
 #include <chrono>
+#include <filesystem>
+#include <vector>
+
+#include <boost/algorithm/string.hpp>
 #include "re2/re2.h"
 
 #ifdef WIN32
@@ -306,6 +309,81 @@ std::string toUpper(std::string_view s)
 }
 std::string toUpper(const std::string& s) { return toUpper(std::string_view(s)); }
 
+#ifndef WIN32
+
+// Resolve case-insensitive path on case-sensitive file systems.
+// This does IO.
+// Preserves non-existing paths. Does not trim redundant `./`.
+// Length out of the returned string is the same as of the input string.
+//
+// This function assumes paths without drive letter assignments and
+// operates on strings directly.
+//
+// Example:
+// On your system there is a `/tmp/AFileWithUpperCaseInIt`.
+// `resolvePathCaseInsensitively("/tmp/afilewithuppercaseinit")` =
+// `"/tmp/AFileWithUpperCaseInIt"`
+static std::string resolveCaseInsensitivePath(std::string input)
+{
+    if (input == "/" || input == ".") {
+        return input;
+    }
+
+    const std::size_t input_len = input.length();
+
+    std::string out;
+    out.reserve(input_len);
+
+    std::vector<std::string> segments;
+    boost::split(segments, input, boost::is_any_of("/"));
+
+    size_t segments_traversed = 0;
+    for (const auto& segment : segments) {
+        if (segment.empty()) {
+            segments_traversed += 1;
+            continue;
+        }
+
+        if (segment == ".") {
+            if (!out.empty() && out.back() != '/') {
+                out += '/';
+            }
+            out += "./";
+            segments_traversed += 1;
+            continue;
+        }
+
+        if (out.empty() or out.back() != '/') {
+            out += '/';
+        }
+
+        bool found_entry = false;
+
+        for (const auto& dir_entry : std::filesystem::directory_iterator(out)) {
+            const auto dir_entry_name = dir_entry.path().filename().u8string();
+            if (strEqual(dir_entry_name, segment, true)) {
+                found_entry = true;
+                out += dir_entry_name;
+                break;
+            }
+        }
+
+        segments_traversed += 1;
+        if (!found_entry) {
+            out += segment;
+            break;
+        }
+    }
+
+    for (; segments_traversed < segments.size(); ++segments_traversed) {
+        out += '/';
+        out += segments[segments_traversed];
+    }
+
+    return out;
+}
+
+#endif // WIN32
 
 std::string convertLR2Path(const std::string& lr2path, const Path& relative_path)
 {
@@ -349,16 +427,23 @@ std::string convertLR2Path(const std::string& lr2path, std::string_view relative
         }
     }
     prefix = raw.substr(0, 8);
+    std::string out_path;
     if (strEqual(prefix, "LR2files", true))
     {
         Path path = PathFromUTF8(lr2path);
         path /= PathFromUTF8(raw);
-        return path.u8string();
+        out_path = path.u8string();
     }
     else
     {
-        return std::string(relative_path_utf8);
+        out_path = std::string(relative_path_utf8);
     }
+
+#ifndef WIN32
+    out_path = resolveCaseInsensitivePath(out_path);
+#endif // WIN32
+
+    return out_path;
 }
 
 Path PathFromUTF8(std::string_view s)
