@@ -77,9 +77,9 @@ if (${GRAPHICS_BACKEND} STREQUAL SDL2)
     find_package(SDL2 REQUIRED GLOBAL)
 
     # Add SDL2_image
-    find_package(SDL2_Image QUIET GLOBAL)
-    if (NOT SDL2_Image_FOUND)
-        add_subdirectory(SDL2_Image)
+    find_package(SDL2_image QUIET GLOBAL)
+    if (NOT SDL2_image_FOUND)
+        add_subdirectory(SDL2_image)
     endif()
 
     # Add SDL2_ttf
