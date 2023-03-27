@@ -8,6 +8,7 @@
 #include <charconv>
 #include <chrono>
 #include <filesystem>
+#include <string_view>
 #include <vector>
 
 #include <boost/algorithm/string.hpp>
@@ -325,14 +326,20 @@ std::string toUpper(const std::string& s) { return toUpper(std::string_view(s));
 // `"/tmp/AFileWithUpperCaseInIt"`
 static std::string resolveCaseInsensitivePath(std::string input)
 {
-    if (input == "/" || input == ".") {
+    if (input == "/" || input == "." || input.empty()) {
         return input;
     }
 
-    const std::size_t input_len = input.length();
+    static constexpr std::string_view CURRENT_PATH_RELATIVE_PREFIX = "./";
+    const char first_character = input[0];
+    // Used to determine if this is a relative path without a leading
+    // `./`. If so, we prepend it to the string temporarily, so that we
+    // can use `filesystem::directory_iterator`. After we are done, we
+    // will remove this prepended prefix.
+    const bool has_path_prefix = (first_character == '.') || (first_character == '/');
 
     std::string out;
-    out.reserve(input_len);
+    out.reserve(input.length() + CURRENT_PATH_RELATIVE_PREFIX.length());
 
     std::vector<std::string> segments;
     boost::split(segments, input, boost::is_any_of("/"));
@@ -348,12 +355,15 @@ static std::string resolveCaseInsensitivePath(std::string input)
             if (!out.empty() && out.back() != '/') {
                 out += '/';
             }
-            out += "./";
+            out += CURRENT_PATH_RELATIVE_PREFIX;
             segments_traversed += 1;
             continue;
         }
 
-        if (out.empty() or out.back() != '/') {
+        const bool is_empty = out.empty();
+        if (is_empty && !has_path_prefix) {
+            out = CURRENT_PATH_RELATIVE_PREFIX;
+        } else if (is_empty || out.back() != '/') {
             out += '/';
         }
 
@@ -378,6 +388,10 @@ static std::string resolveCaseInsensitivePath(std::string input)
     for (; segments_traversed < segments.size(); ++segments_traversed) {
         out += '/';
         out += segments[segments_traversed];
+    }
+
+    if (!has_path_prefix) {
+        out.erase(0, CURRENT_PATH_RELATIVE_PREFIX.length());
     }
 
     return out;
