@@ -143,19 +143,19 @@ eFileEncoding getFileEncoding(std::istream& is)
 
         if (is_ascii(buf)) continue;
 
+        if (is_utf8(buf))
+        {
+            enc = eFileEncoding::UTF8;
+            break;
+        }
         if (is_euckr(buf))
         {
             enc = eFileEncoding::EUC_KR;
             break;
         }
-        else if (is_shiftjis(buf))
+        if (is_shiftjis(buf))
         {
             enc = eFileEncoding::SHIFT_JIS;
-            break;
-        }
-        else if (is_utf8(buf))
-        {
-            enc = eFileEncoding::UTF8;
             break;
         }
 	}
