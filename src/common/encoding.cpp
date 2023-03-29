@@ -126,19 +126,6 @@ eFileEncoding getFileEncoding(const Path& path)
         return eFileEncoding::LATIN1;
     }
     return getFileEncoding(fs);
-
-    std::string buf;
-    while (!fs.eof())
-    {
-        std::getline(fs, buf, '\n');
-
-        // the following order is important
-        if (is_shiftjis(buf)) return eFileEncoding::SHIFT_JIS;
-        if (is_euckr(buf)) return eFileEncoding::EUC_KR;
-        if (is_utf8(buf)) return eFileEncoding::UTF8;
-    }
-
-    return eFileEncoding::LATIN1;
 }
 
 eFileEncoding getFileEncoding(std::istream& is)
