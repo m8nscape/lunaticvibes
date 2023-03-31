@@ -212,6 +212,7 @@ void ScenePreSelect::updateLoadTables()
 
             // initialize table list
             auto tableList = ConfigMgr::General()->getTablesUrl();
+            size_t tableIndex = 0;
             for (auto& tableUrl : tableList)
             {
                 LOG_INFO << "[List] Add table " << tableUrl;
@@ -223,11 +224,12 @@ void ScenePreSelect::updateLoadTables()
 
                 auto convertTable = [&](DifficultyTableBMS& t)
                 {
-                    std::shared_ptr<EntryFolderTable> tbl = std::make_shared<EntryFolderTable>(t.getName(), "");
+                    std::shared_ptr<EntryFolderTable> tbl = std::make_shared<EntryFolderTable>(t.getName(), tableIndex);
+                    size_t levelIndex = 0;
                     for (const auto& lv : t.getLevelList())
                     {
                         std::string folderName = (boost::format("%s%s") % t.getSymbol() % lv).str();
-                        std::shared_ptr<EntryFolderTable> tblLevel = std::make_shared<EntryFolderTable>(folderName, "");
+                        std::shared_ptr<EntryFolderTable> tblLevel = std::make_shared<EntryFolderTable>(folderName, levelIndex);
                         for (const auto& r : t.getEntryList(lv))
                         {
                             auto charts = g_pSongDB->findChartByHash(r->md5, false);
@@ -243,6 +245,7 @@ void ScenePreSelect::updateLoadTables()
                             }
                         }
                         tbl->pushEntry(tblLevel);
+                        levelIndex += 1;
                     }
                     return tbl;
                 };
@@ -288,6 +291,7 @@ void ScenePreSelect::updateLoadTables()
                                 }
                             }
                         });
+                    tableIndex += 1;
                 }
             }
 
