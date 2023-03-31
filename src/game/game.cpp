@@ -47,10 +47,7 @@ int main(int argc, char* argv[])
     SetDebugThreadName("MainThread");
     SetThreadAsMainThread();
 
-    char exePath[256];
-    size_t exePathLen;
-    GetExecutablePath(exePath, 256, exePathLen);
-    executablePath = Path(exePath);
+    executablePath = GetExecutablePath();
     fs::current_path(executablePath);
 
     // init logger

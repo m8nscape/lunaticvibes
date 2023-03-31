@@ -5,7 +5,7 @@ int64_t GetCurrentThreadID();
 bool IsMainThread();
 void SetThreadName(const char* name);
 void panic(const char* title, const char* msg);
-void GetExecutablePath(char* output, size_t bufsize, size_t& len);
+std::string GetExecutablePath();
 
 void setWindowHandle(void* handle);
 void getWindowHandle(void* handle);

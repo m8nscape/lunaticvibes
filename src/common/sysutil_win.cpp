@@ -2,6 +2,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include "sysutil.h"
 #include <cstdio>
+#include <filesystem>
 #include <windows.h>
 #include <VersionHelpers.h>
 
@@ -73,23 +74,16 @@ void panic(const char* title, const char* msg)
     panicWin32(title, msg);
 }
 
-#include <filesystem>
-void GetExecutablePath(char* output, size_t bufsize, size_t& len)
+std::string GetExecutablePath()
 {
-    char fullpath[256];
-    memset(fullpath, 0, sizeof(fullpath));
+    char fullpath[256] = { 0 };
 
-    if (!GetModuleFileNameA(NULL, fullpath, 256))
+    if (!GetModuleFileNameA(NULL, fullpath, sizeof(fullpath)))
     {
-        output[0] = 0;
-        len = 0;
-        return;
+        return {};
     }
 
-    using namespace std::filesystem;
-    auto parent = path(fullpath).parent_path();
-    strcpy(output, bufsize, (const char*)parent.string().c_str());
-    len = strlen(output);
+    return fs::path(fullpath).parent_path().string();
 }
 
 static HWND hwnd = NULL;

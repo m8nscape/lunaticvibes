@@ -4,6 +4,8 @@
 
 #include <cstdio>
 #include <cstring>
+#include <filesystem>
+#include <string>
 #include <thread>
 
 static std::thread::id s_main_thread {};
@@ -32,22 +34,16 @@ void panic(const char* title, const char* msg)
     abort(); 
 }
 
-#include <filesystem>
-void GetExecutablePath(char* output, size_t bufsize, size_t& len)
+std::string GetExecutablePath()
 {
-    char fullpath[256];
-    memset(fullpath, 0, sizeof(fullpath));
+    char fullpath[256] = { 0 };
 
-    char szTmp[32];
-    sprintf(szTmp, "/proc/%d/exe", getpid());
-    int bytes = std::min(readlink(szTmp, fullpath, sizeof(fullpath)), static_cast<ssize_t>(sizeof(fullpath) - 1));
+    char process_path[] = "/proc/self/exe";
+    const auto bytes = std::min(readlink(process_path, fullpath, sizeof(fullpath)), static_cast<ssize_t>(sizeof(fullpath) - 1));
     if (bytes >= 0)
         fullpath[bytes] = '\0';
 
-    using namespace std::filesystem;
-    auto parent = path(fullpath).parent_path();
-    strcpy(output, bufsize, (const char*)parent.u8string().c_str());
-    len = strlen(output);
+    return fs::path(fullpath).parent_path().u8string();
 }
 
 void addWMEventHandler(void* f)
