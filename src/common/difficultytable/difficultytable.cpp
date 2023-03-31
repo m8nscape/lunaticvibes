@@ -13,11 +13,12 @@ std::vector<std::string> DifficultyTable::getLevelList() const
 		{
 			level = INT_MAX;
 		}
-		sortOrder.push_back(std::make_pair(level, e.first));
+		sortOrder.emplace_back(level, e.first);
 	}
 	std::sort(sortOrder.begin(), sortOrder.end());
 
 	std::vector<std::string> levelList;
+	levelList.reserve(sortOrder.size());
 	for (auto& e : sortOrder)
 	{
 		levelList.push_back(e.second);
