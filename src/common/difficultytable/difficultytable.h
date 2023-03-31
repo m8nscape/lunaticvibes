@@ -1,6 +1,7 @@
 #pragma once
 #include <map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include <functional>
 #include "../entry/entry.h"
@@ -18,6 +19,7 @@ protected:
 	// level -> chart
 	// level may be other than numbers. (e.g. ★???)
 	std::map<std::string, std::vector<std::shared_ptr<EntryBase>>> entries;
+	std::unordered_map<std::string, int> _levelOrder;
 
 public:
 	const std::string& getName() const { return name; }
@@ -47,4 +49,7 @@ public:
 
 	std::vector<std::string> getLevelList() const;
 	std::vector<std::shared_ptr<EntryBase>> getEntryList(const std::string& level);
+
+private:
+	[[nodiscard]] bool compareByLevelOrder(const std::string&, const std::string&) const;
 };
