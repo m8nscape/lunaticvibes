@@ -300,10 +300,10 @@ void SceneBase::updateImgui()
             if (showFPS)
             {
                 ImGui::PushID("##fps");
-                ImGui::Text((boost::format("FPS: Render %d | Input %d | Update %d")
-                    % State::get(IndexNumber::FPS)
-                    % State::get(IndexNumber::INPUT_DETECT_FPS)
-                    % State::get(IndexNumber::SCENE_UPDATE_FPS)).str().c_str());
+                ImGui::Text("FPS: Render %d | Input %d | Update %d",
+                    State::get(IndexNumber::FPS),
+                    State::get(IndexNumber::INPUT_DETECT_FPS),
+                    State::get(IndexNumber::SCENE_UPDATE_FPS));
                 ImGui::PopID();
             }
 
@@ -321,7 +321,7 @@ void SceneBase::updateImgui()
                 if (!State::get(idx).empty())
                 {
                     ImGui::PushID(overlayTextID[count++]);
-                    ImGui::Text(State::get(idx).c_str());
+                    ImGui::TextUnformatted(State::get(idx).c_str());
                     ImGui::PopID();
                 }
             }
