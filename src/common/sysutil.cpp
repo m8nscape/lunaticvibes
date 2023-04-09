@@ -7,6 +7,17 @@ std::shared_mutex mainThreadTaskQueueMutex;
 std::queue<std::function<void()>> mainThreadTaskQueue;
 bool handleMainThreadTask = true;
 
+static bool s_foreground = true;
+bool IsWindowForeground()
+{
+    return s_foreground;
+}
+
+void SetWindowForeground(bool f)
+{
+    s_foreground = f;
+}
+
 void pushMainThreadTask(std::function<void()> f)
 {
     if (IsMainThread())
@@ -109,4 +120,11 @@ Path getSysMonoFontPath(std::string* faceName, int* faceIndex, Languages lang)
         break;
     }
     return p;
+}
+
+std::string safe_strerror(int errnum) {
+    static constexpr size_t ERROR_DESCRIPTION_BUFFER_SIZE = 128;
+    char error_description_buffer[ERROR_DESCRIPTION_BUFFER_SIZE] = { 0 };
+    const char* error_description = safe_strerror(errnum, static_cast<char*>(error_description_buffer), ERROR_DESCRIPTION_BUFFER_SIZE);
+    return {error_description};
 }

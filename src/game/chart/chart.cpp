@@ -234,20 +234,20 @@ auto ChartObjectBase::incomingNoteBpm() -> decltype(_bpmNoteList)::iterator
 {
     return _bpmNoteListIter;
 }
-bool ChartObjectBase::isLastNote(NoteLaneCategory cat, NoteLaneIndex idx, NoteIterator& it)
+bool ChartObjectBase::isLastNote(NoteLaneCategory cat, NoteLaneIndex idx, const NoteIterator& it)
 {
     size_t channel = channelToIdx(cat, idx);
     return _noteLists[channel].empty() || it == _noteLists[channel].end();
 }
-bool ChartObjectBase::isLastNoteBgm(size_t idx, decltype(_bgmNoteLists)::value_type::iterator& it)
+bool ChartObjectBase::isLastNoteBgm(size_t idx, const decltype(_bgmNoteLists)::value_type::iterator& it)
 {
     return _bgmNoteLists[idx].empty() || it == _bgmNoteLists[idx].end();
 }
-bool ChartObjectBase::isLastNoteSpecial(size_t idx, decltype(_specialNoteLists)::value_type::iterator& it)
+bool ChartObjectBase::isLastNoteSpecial(size_t idx, const decltype(_specialNoteLists)::value_type::iterator& it)
 {
     return _specialNoteLists[idx].empty() || it == _specialNoteLists[idx].end(); 
 }
-bool ChartObjectBase::isLastNoteBpm(decltype(_bpmNoteList)::iterator& it)
+bool ChartObjectBase::isLastNoteBpm(const decltype(_bpmNoteList)::iterator& it)
 {
 	return _bpmNoteList.empty() || it == _bpmNoteList.end(); 
 }

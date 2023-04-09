@@ -1,6 +1,13 @@
 #include "asynclooper.h"
 #include <numeric>
 #include <chrono>
+
+#ifndef WIN32
+#include <ratio>
+#endif
+
+#include <common/utils.h>
+#include "encoding.h"
 #include "log.h"
 
 AsyncLooper::AsyncLooper(StringContentView tag, std::function<void()> func, unsigned rate_per_sec, bool single_inst) : 
@@ -166,17 +173,20 @@ void AsyncLooper::loopEnd()
 #else // FALLBACK
 void AsyncLooper::_loopWithSleep()
 {
+    const auto sleep_duration = std::chrono::nanoseconds(std::nano::den / _rate).count();
+
     while (_running)
     {
         run();
-        std::this_thread::sleep_for(std::chrono::milliseconds(_rateTime));
+        preciseSleep(sleep_duration);
     }
 }
 
 void AsyncLooper::loopStart()
 {
-    handler = std::thread(&AsyncLooper::_loopWithSleep, this);
+    if (_running) return;
     _running = true;
+    handler = std::thread(&AsyncLooper::_loopWithSleep, this);
 }
 
 void AsyncLooper::loopEnd()

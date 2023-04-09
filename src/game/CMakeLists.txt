@@ -2,6 +2,7 @@
 if (${GRAPHICS_BACKEND} STREQUAL SDL2)
     set(GRAPHICS_BACKEND_SRC
         graphics/SDL2/common_SDL2.cpp
+        graphics/SDL2/input.cpp
         graphics/SDL2/rect_SDL2.cpp
         graphics/SDL2/ttf_SDL2.cpp
         graphics/SDL2/window_SDL2.cpp
@@ -31,8 +32,8 @@ add_library(gamelib
     graphics/texture_extra.cpp
     graphics/video.cpp
     graphics/dxa.cpp
-    input/input_linux.cpp
     input/input_mgr.cpp
+    input/input_mgr_sdl.cpp
     input/input_dinput8.cpp
     input/input_windows.cpp
     input/input_wrapper.cpp
@@ -112,8 +113,8 @@ target_link_libraries(gamelib
 
 if (${GRAPHICS_BACKEND} STREQUAL SDL2)
     target_link_libraries(gamelib
-        PUBLIC SDL2
-        PUBLIC SDL2_main
+        PUBLIC SDL2::SDL2
+        PUBLIC SDL2::SDL2main
         PUBLIC SDL2_gfx
         PUBLIC SDL2_ttf
         PUBLIC SDL2_image
@@ -122,13 +123,8 @@ endif()
 
 if (${VIDEO_ENABLED})
     target_link_libraries(gamelib
-        PUBLIC libavcodec    
-        PUBLIC libavdevice   
-        PUBLIC libavfilter   
-        PUBLIC libavformat   
-        PUBLIC libswresample 
-        PUBLIC libavutil     
-        PUBLIC libswscale   
+        PUBLIC
+        ${FFMPEG_LIBS}
     )
 else()
     target_compile_definitions(gamelib PUBLIC -DVIDEO_DISABLED)
@@ -181,7 +177,7 @@ if (WIN32)
     )
 endif()
 
-if (${GRAPHICS_BACKEND} STREQUAL SDL2)
+if (${GRAPHICS_BACKEND} STREQUAL SDL2 AND WIN32)
     add_custom_command(TARGET LunaticVibes POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:SDL2>
@@ -197,7 +193,7 @@ if (${GRAPHICS_BACKEND} STREQUAL SDL2)
     )
 endif()
 
-if (${VIDEO_ENABLED})
+if (${VIDEO_ENABLED} AND WIN32)
     add_custom_command(TARGET LunaticVibes POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:libavcodec>

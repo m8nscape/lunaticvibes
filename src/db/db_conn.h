@@ -26,8 +26,8 @@ class SQLite
 {
 private:
     mutable sqlite3* _db = NULL;
-    mutable char lastSql[128]{ 0 };
-    char tag[128]{ 0 };
+    mutable std::string _lastSql;
+    std::string tag;
     bool inTransaction = false;
 public:
     SQLite() = delete;

@@ -5,17 +5,17 @@
 #include "types.h"
 
 #if WIN32
+
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <future>
 typedef HANDLE LooperHandler;
 
-#elif LINUX
-typedef void* LooperHandler;
+#else
 
-#else // FALLBACK
 #include <thread>
 typedef std::thread LooperHandler;
+
 #endif // WIN32
 
 
@@ -39,6 +39,8 @@ protected:
 protected:
     std::future<void> loopFuture;
     long long tStart = 0;
+#else
+    void _loopWithSleep();
 #endif
 
 public:

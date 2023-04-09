@@ -177,7 +177,7 @@ bool RulesetBMSNetwork::unpackInit(const std::vector<unsigned char>& payload)
 std::vector<unsigned char> RulesetBMSNetwork::packFrame(std::shared_ptr<RulesetBMS> local)
 {
     PayloadFrame p;
-    auto& d = local->getData();
+    const auto d = local->getData();
     p.health = d.health;
     p.acc = d.acc;
     p.total_acc = d.total_acc;

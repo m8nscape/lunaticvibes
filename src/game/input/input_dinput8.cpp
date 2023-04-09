@@ -1,3 +1,5 @@
+#ifdef WIN32
+
 #include "input_dinput8.h"
 #include "common/log.h"
 
@@ -257,3 +259,5 @@ InputDirectInput8& InputDirectInput8::inst()
 	static InputDirectInput8 _inst; 
 	return _inst; 
 }
+
+#endif

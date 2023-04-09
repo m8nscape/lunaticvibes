@@ -11,6 +11,7 @@
 #include "meta.h"
 #include "sysutil.h"
 #include "types.h"
+#include "hash.h"
 #include "utils.h"
 #include "chartformat/chartformat.h"
 #include "entry/entry.h"

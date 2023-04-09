@@ -424,10 +424,10 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
 
         for (const auto& note : notes)
         {
-            auto& [noteSegment, noteinfo] = note;
-            auto& [lane, val] = noteinfo;
+            const auto& [noteSegment, noteinfo] = note;
+            const auto& [lane, val] = noteinfo;
             double metreFromBPMChange = (noteSegment - lastBPMChangedSegment) * barMetre;
-            Metre notemetre = basemetre + noteSegment * barMetre;
+            auto notemetre = static_cast<Metre>(basemetre + noteSegment * barMetre);
 			Time notetime = bpmfucked ? LLONG_MAX : basetime + beatLength * (metreFromBPMChange * 4);
 
             if (!leadInTimeSet && (lane.type == eLanePriority::NOTE || lane.type == eLanePriority::LNHEAD || lane.type == eLanePriority::BGM))
@@ -801,14 +801,14 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
 
         // add barline for next measure
         _noteLists[channelToIdx(NoteLaneCategory::EXTRA, EXTRA_BARLINE_1P)].push_back(
-            { m + 1, basemetre, basetime, long long(0), false });
+            { m + 1, basemetre, basetime, static_cast<long long>(0), false });
 
         _noteLists[channelToIdx(NoteLaneCategory::EXTRA, EXTRA_BARLINE_2P)].push_back(
-            { m + 1, basemetre, basetime, long long(0), false });
+            { m + 1, basemetre, basetime, static_cast<long long>(0), false });
     }
 
     _totalLength = lastBarIdx + 1 < _barTimestamp.size() ? _barTimestamp[lastBarIdx + 1] : basetime +
-        Time(std::min(2000'000'000ll, std::max(500'000'000ll, Time::singleBeatLengthFromBPM(bpm).hres() * 4)), true);    // last measure + 1
+        Time(std::min(2000'000'000ll, std::max(500'000'000ll, static_cast<long long>(Time::singleBeatLengthFromBPM(bpm).hres()) * 4)), true);    // last measure + 1
 
     // get average BPM
     if (_totalLength.norm() > 0)

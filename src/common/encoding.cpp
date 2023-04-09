@@ -261,6 +261,85 @@ std::string from_utf8(const std::string& input, eFileEncoding toEncoding)
     return ret;
 }
 
+#else
+
+#include <cerrno>
+#include <cstring>
+#include <memory>
+#include <type_traits>
+#include <vector>
+
+#include <iconv.h>
+
+static const char* get_iconv_encoding_name(eFileEncoding encoding)
+{
+    switch (encoding) {
+    case eFileEncoding::LATIN1:
+        return "ISO-8859-1";
+    case eFileEncoding::SHIFT_JIS:
+        return "CP932";
+    case eFileEncoding::EUC_KR:
+        return "CP949";
+    case eFileEncoding::UTF8:
+        return "UTF-8";
+    }
+    panic("Error", "Incorrect eFileEncoding");
+    return "INVALID-DUMMY";
+}
+
+static std::string convert(const std::string& input, eFileEncoding from, eFileEncoding to)
+{
+    const auto* source_encoding_name = get_iconv_encoding_name(from);
+    const auto* target_encoding_name = get_iconv_encoding_name(to);
+
+    auto icd_deleter = [](iconv_t icd) {
+        int ret = iconv_close(icd);
+        if (ret == -1) {
+            const int error = errno;
+            LOG_ERROR << "iconv_close() error: " << safe_strerror(error) << " (" << error << ")";
+        }
+    };
+
+    auto icd = std::unique_ptr<std::remove_pointer<iconv_t>::type, decltype(icd_deleter)>(iconv_open(target_encoding_name, source_encoding_name), icd_deleter);
+    if (reinterpret_cast<size_t>(icd.get()) == static_cast<size_t>(-1)) {
+        const int error = errno;
+        LOG_ERROR << "iconv_open() error: " << safe_strerror(error) << " (" << error << ")";
+        return "(conversion descriptor opening error)";
+    }
+
+    static constexpr size_t BUF_SIZE = 1024l * 32l;
+    // I wanted to avoid manually allocating here so that we don't have
+    // to clean up manually in all return paths.
+    char out_buf[BUF_SIZE] = { 0 };
+
+    // BRUH-cast.
+    char* buf_ptr = const_cast<char*>(input.c_str());
+    std::size_t buf_len = input.length();
+    char* out_ptr = static_cast<char*>(out_buf);
+    std::size_t out_len = sizeof(out_buf);
+
+    std::size_t iconv_ret = iconv(icd.get(), &buf_ptr, &buf_len, &out_ptr, &out_len);
+    if (iconv_ret == static_cast<size_t>(-1)) {
+        const int error = errno;
+        LOG_ERROR << "iconv() error: " << safe_strerror(error) << " (" << error << ")";
+        return "(conversion error)";
+    }
+
+    return std::string{static_cast<char*>(out_buf)};
+}
+
+std::string to_utf8(const std::string& input, eFileEncoding fromEncoding)
+{
+    return convert(input, fromEncoding, eFileEncoding::UTF8);
+}
+
+std::string from_utf8(const std::string& input, eFileEncoding toEncoding)
+{
+    return convert(input, eFileEncoding::UTF8, toEncoding);
+}
+
+#endif // WIN32
+
 std::u32string to_utf32(const std::string& input, eFileEncoding fromEncoding)
 {
     std::string inputUTF8 = to_utf8(input, fromEncoding);
@@ -276,7 +355,8 @@ std::string from_utf32(const std::u32string& input, eFileEncoding toEncoding)
 
 std::u32string utf8_to_utf32(const std::string& str)
 {
-    static auto& facet_u32_u8 = std::use_facet<std::codecvt<char32_t, char, std::mbstate_t>>(std::locale(""));
+    static const auto locale = std::locale("");
+    static const auto& facet_u32_u8 = std::use_facet<std::codecvt<char32_t, char, std::mbstate_t>>(locale);
     std::u32string u32Text(str.size() * facet_u32_u8.max_length(), '\0');
 
     std::mbstate_t s;
@@ -301,7 +381,8 @@ std::u32string utf8_to_utf32(const std::string& str)
 
 std::string utf32_to_utf8(const std::u32string& str)
 {
-    static auto& facet_u32_u8 = std::use_facet<std::codecvt<char32_t, char, std::mbstate_t>>(std::locale(""));
+    static const auto locale = std::locale("");
+    static const auto& facet_u32_u8 = std::use_facet<std::codecvt<char32_t, char, std::mbstate_t>>(locale);
     std::string u8Text(str.size() * 4, '\0');
 
     std::mbstate_t s;
@@ -323,8 +404,3 @@ std::string utf32_to_utf8(const std::u32string& str)
     u8Text.resize(to_next - &u8Text[0]);
     return u8Text;
 }
-
-#else
-#include <iconv.h>
-#error Encoding conversions are not implemented
-#endif

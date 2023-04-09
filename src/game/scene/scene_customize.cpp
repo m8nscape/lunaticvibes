@@ -1,4 +1,5 @@
-#include "scene_Customize.h"
+#include "scene_customize.h"
+
 #include "scene_context.h"
 #include "config/config_mgr.h"
 #include "game/sound/sound_mgr.h"
@@ -49,7 +50,7 @@ SceneCustomize::SceneCustomize() : SceneBase(SkinType::THEME_SELECT, 240)
     }
     load(selectedMode);
 
-    auto skinFileList = findFiles(utf8_to_utf32(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), "LR2Files/Theme/*.lr2skin")), true);
+    auto skinFileList = findFiles(utf8_to_utf32(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), "LR2files/Theme/*.lr2skin")), true);
     for (auto& p : skinFileList)
     {
         SkinLR2 s(p, 2);
@@ -63,7 +64,7 @@ SceneCustomize::SceneCustomize() : SceneBase(SkinType::THEME_SELECT, 240)
         }
     }
 
-    auto soundsetFileList = findFiles(utf8_to_utf32(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), "LR2Files/Sound/*.lr2ss")), true);
+    auto soundsetFileList = findFiles(utf8_to_utf32(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."), "LR2files/Sound/*.lr2ss")), true);
     for (auto& p : soundsetFileList)
     {
         soundsetList.push_back(fs::absolute(p));
@@ -228,7 +229,7 @@ void SceneCustomize::updateMain()
             if (skinList[selectedMode].size() > 1)
             {
                 int selectedIdx;
-                auto& currentSkin = SkinMgr::get(selectedMode);
+                const auto currentSkin = SkinMgr::get(selectedMode);
                 for (selectedIdx = 0; selectedIdx < (int)skinList[selectedMode].size(); selectedIdx++)
                 {
                     const Path& p1 = skinList[selectedMode][selectedIdx];

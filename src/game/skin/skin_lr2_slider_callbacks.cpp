@@ -204,7 +204,7 @@ void pitch(double p)
         }
     }
 
-    auto& [score, lamp] = getSaveScoreType();
+    const auto [score, lamp] = getSaveScoreType();
     State::set(IndexSwitch::CHART_CAN_SAVE_SCORE, score);
     State::set(IndexOption::CHART_SAVE_LAMP_TYPE, lamp);
 }

@@ -20,7 +20,7 @@ TEST(tLR2Skin, IF1)
 	ASSERT_EQ(ps->isLoaded(), true);
 
 	ASSERT_EQ(ps->getDrawQueue().size(), 1);
-	auto& v = ps->getDrawQueue();
+	const auto v = ps->getDrawQueue();
 	EXPECT_EQ(v[0].op1, 1);
 }
 
@@ -31,7 +31,7 @@ TEST(tLR2Skin, IF2)
 	ASSERT_EQ(ps->isLoaded(), true);
 
 	ASSERT_EQ(ps->getDrawQueue().size(), 3);
-	auto& v = ps->getDrawQueue();
+	const auto v = ps->getDrawQueue();
 	EXPECT_EQ(v[0].op1, 1);
 	EXPECT_EQ(v[1].op1, 3);
 	EXPECT_EQ(v[2].op1, 4);
@@ -44,7 +44,7 @@ TEST(tLR2Skin, IF3)
 	ASSERT_EQ(ps->isLoaded(), true);
 
 	ASSERT_EQ(ps->getDrawQueue().size(), 2);
-	auto& v = ps->getDrawQueue();
+	const auto v = ps->getDrawQueue();
 	EXPECT_EQ(v[0].op1, 3);
 	EXPECT_EQ(v[1].op1, 5);
 }
@@ -56,7 +56,7 @@ TEST(tLR2Skin, IF4)
 	ASSERT_EQ(ps->isLoaded(), true);
 
 	ASSERT_EQ(ps->getDrawQueue().size(), 1);
-	auto& v = ps->getDrawQueue();
+	const auto v = ps->getDrawQueue();
 	EXPECT_EQ(v[0].op1, 1);
 }
 
@@ -67,7 +67,7 @@ TEST(tLR2Skin, IF5)
 	ASSERT_EQ(ps->isLoaded(), true);
 
 	ASSERT_EQ(ps->getDrawQueue().size(), 3);
-	auto& v = ps->getDrawQueue();
+	const auto v = ps->getDrawQueue();
 	EXPECT_EQ(v[1].op3, 0);
 }
 
@@ -78,6 +78,6 @@ TEST(tLR2Skin, IF6)
 	ASSERT_EQ(ps->isLoaded(), true);
 
 	ASSERT_EQ(ps->getDrawQueue().size(), 1);
-	auto& v = ps->getDrawQueue();
+	const auto v = ps->getDrawQueue();
 	EXPECT_EQ(v[0].op1, 2);
 }

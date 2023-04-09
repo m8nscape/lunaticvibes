@@ -231,7 +231,7 @@ void sVideo::decodeLoop()
 				}
 
 				using namespace std::chrono;
-				auto frameTime_ms = long long(std::round(pFrame1->best_effort_timestamp / tsps * 1000 / speed));
+				auto frameTime_ms = static_cast<long long>(std::round(pFrame1->best_effort_timestamp / tsps * 1000 / speed));
 				if (firstFrame)
 				{
 					firstFrame = false;

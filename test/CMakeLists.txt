@@ -55,7 +55,7 @@ if (WIN32)
     )
 endif()
 
-if (${GRAPHICS_BACKEND} STREQUAL SDL2)
+if (${GRAPHICS_BACKEND} STREQUAL SDL2 AND WIN32)
     add_custom_command(TARGET apptest POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:SDL2>
@@ -71,7 +71,7 @@ if (${GRAPHICS_BACKEND} STREQUAL SDL2)
     )
 endif()
 
-if (${VIDEO_ENABLED})
+if (${VIDEO_ENABLED} AND WIN32)
     add_custom_command(TARGET apptest POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:libavcodec>

@@ -21,16 +21,6 @@ void ConfigGeneral::setDefaults() noexcept
 }
 
 
-void ConfigGeneral::setFolders(const std::vector<StringPath>& path)
-{
-	std::vector<std::string> folderList;
-	for (const auto& p : path)
-	{
-		folderList.push_back(Path(p).u8string());
-	}
-	_yaml[cfg::E_FOLDERS] = folderList;
-}
-
 void ConfigGeneral::setFolders(const std::vector<std::string>& path)
 {
 	_yaml[cfg::E_FOLDERS] = path;

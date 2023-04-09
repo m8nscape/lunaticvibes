@@ -1163,7 +1163,7 @@ void updateDstOpt()
 		{
 			if (auto pr = gArenaData.getPlayerRuleset(i); pr)
 			{
-				auto& d = pr->getData();
+				const auto d = pr->getData();
 				int offset = 50 * i;
 
 				using namespace Option;

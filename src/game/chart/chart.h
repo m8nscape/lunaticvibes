@@ -101,8 +101,6 @@ chart::NoteLaneIndex KeyToLane(int keys, Input::Pad pad);
 
 }
 
-class ::ChartFormatBase;
-
 // Chart in-game data representation. Contains following:
 //  - Converts plain-beat to real-beat (adds up Stop beat) 
 //  - Converts time to beat (if necessary)
@@ -184,10 +182,10 @@ public:
     bool isLastNoteSpecial    (size_t idx);
     bool isLastNoteBpm        ();
 
-    bool isLastNote           (chart::NoteLaneCategory cat, chart::NoteLaneIndex idx, NoteIterator& it);
-    bool isLastNoteBgm        (size_t idx, decltype(_bgmNoteLists)::value_type::iterator& it);
-    bool isLastNoteSpecial    (size_t idx, decltype(_specialNoteLists)::value_type::iterator& it);
-    bool isLastNoteBpm        (decltype(_bpmNoteList)::iterator& it);
+    bool isLastNote           (chart::NoteLaneCategory cat, chart::NoteLaneIndex idx, const NoteIterator& it);
+    bool isLastNoteBgm        (size_t idx, const decltype(_bgmNoteLists)::value_type::iterator& it);
+    bool isLastNoteSpecial    (size_t idx, const decltype(_specialNoteLists)::value_type::iterator& it);
+    bool isLastNoteBpm        (const decltype(_bpmNoteList)::iterator& it);
 
 protected:
     auto nextNote             (chart::NoteLaneCategory cat, chart::NoteLaneIndex idx) -> NoteIterator&;

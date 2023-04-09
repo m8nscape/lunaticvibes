@@ -16,7 +16,7 @@ ScenePreSelect::ScenePreSelect(): SceneBase(SkinType::PRE_SELECT, 240)
 	_updateCallback = std::bind(&ScenePreSelect::updateLoadSongs, this);
 
     rootFolderProp = SongListProperties{
-        "",
+        {},
         ROOT_FOLDER_HASH,
         "",
         {},

@@ -36,7 +36,7 @@ SceneResult::SceneResult() : SceneBase(SkinType::RESULT, 1000)
     lamp[PLAYER_SLOT_TARGET] = ScoreBMS::Lamp::NOPLAY;
     if (!gPlayContext.isReplay)
     {
-        auto& [saveScoreType, saveLampMaxType] = getSaveScoreType();
+        const auto [saveScoreType, saveLampMaxType] = getSaveScoreType();
         saveScore = saveScoreType;
         switch (saveLampMaxType)
         {
@@ -350,7 +350,7 @@ void SceneResult::updateFadeout()
 
                 auto& chart = gPlayContext.chartObj[PLAYER_SLOT_PLAYER];
                 auto& ruleset = gPlayContext.ruleset[PLAYER_SLOT_PLAYER];
-                auto& data = ruleset->getData();
+                const auto data = ruleset->getData();
                 score->notes = chart->getNoteTotalCount();
                 score->rate = data.total_acc;
                 score->maxcombo = data.maxCombo;

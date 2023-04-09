@@ -409,7 +409,7 @@ void SceneSelect::imguiPageArenaDiagnose()
     ImGui::Text("Players: %lu", d.getPlayerCount());
     for (size_t i = 0; i < d.getPlayerCount(); ++i)
     {
-        auto& r = d.getPlayerRuleset(i);
+        const auto r = d.getPlayerRuleset(i);
         if (r)
         {
             ImGui::Text("%d: %s [%s%s%s%s ]", d.getPlayerID(i), d.getPlayerName(i).c_str(),
@@ -1615,7 +1615,7 @@ bool SceneSelect::imguiApplyAudioSettings()
     ConfigMgr::set("A", cfg::A_BUFLEN, imgui_audio_bufferSize);
     if (SoundMgr::setDevice(imgui_audio_device_index) == 0)
     {
-        auto& mode = std::next(imgui_audio_devices.begin(), imgui_audio_device_index);
+        const auto mode = std::next(imgui_audio_devices.begin(), imgui_audio_device_index);
         ConfigMgr::set('A', cfg::A_DEVNAME, mode->second);
         ConfigMgr::set('A', cfg::A_MODE, mode->first < 0 ? cfg::A_MODE_ASIO : cfg::A_MODE_AUTO);
 

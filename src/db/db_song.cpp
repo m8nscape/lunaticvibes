@@ -254,7 +254,7 @@ bool SongDB::addChart(const HashMD5& folder, const Path& path)
         }
         catch (const std::exception& e)
         {
-            LOG_WARNING << "[SongDB] " << e.what() << ": " << path.filename().wstring();
+            LOG_WARNING << "[SongDB] " << e.what() << ": " << path.filename().string();
             return false;
         }
 
@@ -430,7 +430,7 @@ std::vector<std::shared_ptr<ChartFormatBase>> SongDB::findChartByName(const Hash
                 }
                 else
                 {
-                    auto& [hasFolderPath, folderPath] = getFolderPath(p->folderHash);
+                    const auto [hasFolderPath, folderPath] = getFolderPath(p->folderHash);
                     if (hasFolderPath)
                     {
                         p->absolutePath = folderPath / p->fileName;
@@ -477,7 +477,7 @@ std::vector<std::shared_ptr<ChartFormatBase>> SongDB::findChartByHash(const Hash
                 }
                 else
                 {
-                    auto& [hasFolderPath, folderPath] = getFolderPath(p->folderHash);
+                    const auto [hasFolderPath, folderPath] = getFolderPath(p->folderHash);
                     if (hasFolderPath)
                     {
                         p->absolutePath = folderPath / p->fileName;
@@ -546,7 +546,7 @@ std::vector<std::shared_ptr<ChartFormatBase>> SongDB::findChartFromTime(const Ha
                 }
                 else
                 {
-                    auto& [hasFolderPath, folderPath] = getFolderPath(p->folderHash);
+                    const auto [hasFolderPath, folderPath] = getFolderPath(p->folderHash);
                     if (hasFolderPath)
                     {
                         p->absolutePath = folderPath / p->fileName;
@@ -721,7 +721,9 @@ int SongDB::removeFolder(const HashMD5& hash, bool removeSong)
     if (removeSong)
     {
         if (SQLITE_OK != exec("DELETE FROM song WHERE parent=?", { hash.hexdigest() }))
+        {
             LOG_WARNING << "[SongDB] remove song from db error: " << errmsg();
+        }
     }
 
     return exec("DELETE FROM folder WHERE pathmd5=?", { hash.hexdigest() });
@@ -1047,7 +1049,7 @@ int SongDB::refreshExistingFolder(const HashMD5& hash, const Path& path, FolderT
 
 HashMD5 SongDB::getFolderParent(const Path& path) const
 {
-    if (!fs::is_directory(path)) return "";
+    if (!fs::is_directory(path)) return {};
 
     auto parent = (path / "..").lexically_normal();
     HashMD5 parentHash = md5(parent.u8string());
@@ -1061,7 +1063,7 @@ HashMD5 SongDB::getFolderParent(const Path& path) const
             }
     }
 
-    return "";
+    return {};
 }
 
 HashMD5 SongDB::getFolderParent(const HashMD5& folder) const
@@ -1074,12 +1076,12 @@ HashMD5 SongDB::getFolderParent(const HashMD5& folder) const
         {
             LOG_WARNING << "[SongDB] Get folder parent type error: excepted " << FOLDER << ", get " << ANY_INT(leaf[0]) <<
                 " (" << folder.hexdigest() << ")";
-            return "";
+            return {};
         }
         return ANY_STR(leaf[1]);
     }
     LOG_INFO << "[SongDB] Get folder parent fail: target " << folder.hexdigest() << " not found";
-    return "";
+    return {};
 }
 
 
@@ -1139,7 +1141,7 @@ HashMD5 SongDB::getFolderHash(Path path) const
 
 std::shared_ptr<EntryFolderRegular> SongDB::browse(HashMD5 root, bool recursive)
 {
-    auto& [hasPath, path] = getFolderPath(root);
+    const auto [hasPath, path] = getFolderPath(root);
     if (!hasPath)
     {
         return nullptr;
@@ -1205,7 +1207,7 @@ std::shared_ptr<EntryFolderSong> SongDB::browseSong(HashMD5 root)
 {
     LOG_VERBOSE << "[SongDB] browse from " << root.hexdigest();
 
-    auto& [hasPath, path] = getFolderPath(root);
+    const auto [hasPath, path] = getFolderPath(root);
     if (!hasPath)
         return nullptr;
 
@@ -1256,7 +1258,7 @@ std::shared_ptr<EntryFolderRegular> SongDB::search(HashMD5 root, std::string key
 {
     LOG_DEBUG << "[SongDB] search " << root.hexdigest() << " " << key;
 
-    auto& [hasPath, path] = getFolderPath(root);
+    const auto [hasPath, path] = getFolderPath(root);
     if (!hasPath)
         return nullptr;
 

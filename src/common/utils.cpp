@@ -6,8 +6,12 @@
 #include <iostream>
 #include <fstream>
 #include <charconv>
-#include <regex>
 #include <chrono>
+#include <filesystem>
+#include <string_view>
+#include <vector>
+
+#include <boost/algorithm/string.hpp>
 #include "re2/re2.h"
 
 #ifdef WIN32
@@ -252,7 +256,7 @@ HashMD5 md5file(const Path& filePath)
     memset(digest, 0, sizeof(digest));
     if (!fs::exists(filePath) || !fs::is_regular_file(filePath))
     {
-        return "";
+        return {};
     }
 
     MD5_CTX mdContext;
@@ -265,7 +269,7 @@ HashMD5 md5file(const Path& filePath)
 #else
     FILE* pf = fopen(filePath.u8string().c_str(), "rb");
 #endif
-    if (pf == NULL) return "";
+    if (pf == NULL) return {};
 
     MD5_Init(&mdContext);
     while ((bytes = fread(data, sizeof(char), sizeof(data), pf)) != 0)
@@ -306,6 +310,94 @@ std::string toUpper(std::string_view s)
 }
 std::string toUpper(const std::string& s) { return toUpper(std::string_view(s)); }
 
+#ifndef WIN32
+
+// Resolve case-insensitive path on case-sensitive file systems.
+// This does IO.
+// Preserves non-existing paths. Does not trim redundant `./`.
+// Length out of the returned string is the same as of the input string.
+//
+// This function assumes paths without drive letter assignments and
+// operates on strings directly.
+//
+// Example:
+// On your system there is a `/tmp/AFileWithUpperCaseInIt`.
+// `resolvePathCaseInsensitively("/tmp/afilewithuppercaseinit")` =
+// `"/tmp/AFileWithUpperCaseInIt"`
+static std::string resolveCaseInsensitivePath(std::string input)
+{
+    if (input == "/" || input == "." || input.empty()) {
+        return input;
+    }
+
+    static constexpr std::string_view CURRENT_PATH_RELATIVE_PREFIX = "./";
+    const char first_character = input[0];
+    // Used to determine if this is a relative path without a leading
+    // `./`. If so, we prepend it to the string temporarily, so that we
+    // can use `filesystem::directory_iterator`. After we are done, we
+    // will remove this prepended prefix.
+    const bool has_path_prefix = (first_character == '.') || (first_character == '/');
+
+    std::string out;
+    out.reserve(input.length() + CURRENT_PATH_RELATIVE_PREFIX.length());
+
+    std::vector<std::string> segments;
+    boost::split(segments, input, boost::is_any_of("/"));
+
+    size_t segments_traversed = 0;
+    for (const auto& segment : segments) {
+        if (segment.empty()) {
+            segments_traversed += 1;
+            continue;
+        }
+
+        if (segment == ".") {
+            if (!out.empty() && out.back() != '/') {
+                out += '/';
+            }
+            out += CURRENT_PATH_RELATIVE_PREFIX;
+            segments_traversed += 1;
+            continue;
+        }
+
+        const bool is_empty = out.empty();
+        if (is_empty && !has_path_prefix) {
+            out = CURRENT_PATH_RELATIVE_PREFIX;
+        } else if (is_empty || out.back() != '/') {
+            out += '/';
+        }
+
+        bool found_entry = false;
+
+        for (const auto& dir_entry : std::filesystem::directory_iterator(out)) {
+            const auto dir_entry_name = dir_entry.path().filename().u8string();
+            if (strEqual(dir_entry_name, segment, true)) {
+                found_entry = true;
+                out += dir_entry_name;
+                break;
+            }
+        }
+
+        segments_traversed += 1;
+        if (!found_entry) {
+            out += segment;
+            break;
+        }
+    }
+
+    for (; segments_traversed < segments.size(); ++segments_traversed) {
+        out += '/';
+        out += segments[segments_traversed];
+    }
+
+    if (!has_path_prefix) {
+        out.erase(0, CURRENT_PATH_RELATIVE_PREFIX.length());
+    }
+
+    return out;
+}
+
+#endif // WIN32
 
 std::string convertLR2Path(const std::string& lr2path, const Path& relative_path)
 {
@@ -349,16 +441,23 @@ std::string convertLR2Path(const std::string& lr2path, std::string_view relative
         }
     }
     prefix = raw.substr(0, 8);
+    std::string out_path;
     if (strEqual(prefix, "LR2files", true))
     {
         Path path = PathFromUTF8(lr2path);
         path /= PathFromUTF8(raw);
-        return path.u8string();
+        out_path = path.u8string();
     }
     else
     {
-        return std::string(relative_path_utf8);
+        out_path = std::string(relative_path_utf8);
     }
+
+#ifndef WIN32
+    out_path = resolveCaseInsensitivePath(out_path);
+#endif // WIN32
+
+    return out_path;
 }
 
 Path PathFromUTF8(std::string_view s)
@@ -367,7 +466,14 @@ Path PathFromUTF8(std::string_view s)
     const static auto locale_utf8 = std::locale(".65001");
     return Path(std::string(s), locale_utf8);
 #else
-    return Path(s);
+    // Windows uses backslashes as path separators, unlike other
+    // systems. We must replace them with normal slashes.
+    // TODO: overload this to take ownership of supplied string, to
+    // prevent allocations.
+
+    auto copy = std::string(s);
+    std::replace(copy.begin(), copy.end(), '\\', '/');
+    return Path(copy);
 #endif
 }
 
@@ -401,9 +507,10 @@ void preciseSleep(long long sleep_ns)
     while (duration_cast<nanoseconds>(high_resolution_clock::now() - start).count() < sleep_ns);
 
 #else
+    const auto duration = std::chrono::nanoseconds(sleep_ns);
 
     // FIXME not optimized and not accurate
-    std::this_thread::sleep_for(sleep_ns);
+    std::this_thread::sleep_for(duration);
 
 #endif
 }

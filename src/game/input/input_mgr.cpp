@@ -4,6 +4,10 @@
 #include "config/config_mgr.h"
 #include "game/graphics/graphics.h"
 
+#ifdef RENDER_SDL2
+#include <game/graphics/SDL2/input.h>
+#endif
+
 InputMgr InputMgr::_inst;
 
 using namespace Input;
@@ -144,13 +148,13 @@ std::bitset<KEY_COUNT> InputMgr::_detect()
 
     if (padBindings[S1A].getType() == KeyMap::DeviceType::JOYSTICK)
     {
-        auto& j = padBindings[S1A].getJoystick();
+        const auto j = padBindings[S1A].getJoystick();
         if (j.type == Input::Joystick::Type::AXIS_ABSOLUTE)
             scratch1 = getJoystickAxis(j.device, j.type, j.index);
     }
     if (padBindings[S2A].getType() == KeyMap::DeviceType::JOYSTICK)
     {
-        auto& j = padBindings[S2A].getJoystick();
+        const auto j = padBindings[S2A].getJoystick();
         if (j.type == Input::Joystick::Type::AXIS_ABSOLUTE)
             scratch2 = getJoystickAxis(j.device, j.type, j.index);
     }
@@ -205,7 +209,13 @@ std::bitset<KEY_COUNT> InputMgr::detect()
 
 bool InputMgr::getMousePos(int& x, int& y)
 {
-    bool ret = getMouseCursorPos(x, y);
+#ifdef RENDER_SDL2
+    x = sdl::state::g_mouse_x;
+    y = sdl::state::g_mouse_y;
+    bool ret = true;
+#else
+#error "No mouse pos getting implementation"
+#endif
     if (ret)
     {
         double canvasScaleX = graphics_get_canvas_scale_x();

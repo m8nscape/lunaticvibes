@@ -5,31 +5,18 @@ int64_t GetCurrentThreadID();
 bool IsMainThread();
 void SetThreadName(const char* name);
 void panic(const char* title, const char* msg);
-void GetExecutablePath(char* output, size_t bufsize, size_t& len);
+std::string GetExecutablePath();
 
 void setWindowHandle(void* handle);
 void getWindowHandle(void* handle);
-bool getMouseCursorPos(int& x, int& y);
 
 bool IsWindowForeground();
 void SetWindowForeground(bool foreground);
 
-#ifdef _MSC_VER
-#ifdef SetDebugThreadName
-#undef SetDebugThreadName
-#endif
 #ifdef _DEBUG
 #define SetDebugThreadName(x) SetThreadName(x)
 #else
-#define SetDebugThreadName(x) __noop
-#endif
-
-#ifdef panic
-#undef panic
-#endif
-#define panic panic
-
-#define GetExecutablePath GetExecutablePath
+#define SetDebugThreadName(x) do {} while(0)
 #endif
 
 #include <functional>
@@ -83,7 +70,9 @@ inline T pushAndWaitMainThreadTask(std::function<T(Arg...)> f, Arg... arg)
 void addWMEventHandler(void* f);
 void callWMEventHandler(void* arg1 = 0, void* arg2 = 0, void* arg3 = 0, void* arg4 = 0);
 
+// Unix epoch time.
 long long getFileTimeNow();
+// Unix epoch time.
 long long getFileLastWriteTime(const Path& p);
 
 enum class Languages
@@ -98,3 +87,11 @@ enum class Languages
 };
 Path getSysFontPath(std::string* faceName = NULL, int* faceIndex = NULL, Languages lang = Languages::EN);
 Path getSysMonoFontPath(std::string* faceName = NULL, int* faceIndex = NULL, Languages lang = Languages::EN);
+
+// Thread-safe strerror().
+//
+// This uses whatever safe implementation of strerror() target system
+// has.
+const char* safe_strerror(int errnum, char* buffer, size_t buffer_length);
+// Wrapper over the other safe_strerror() that returns an owned string.
+std::string safe_strerror(int errnum);
