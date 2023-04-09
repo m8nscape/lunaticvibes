@@ -41,13 +41,13 @@ public:
     void reset() { set = false; memset(data, 0, _Len); }
 
     template <size_t _Len2>
-    bool operator<(const Hash<_Len2>& rhs) const { return memcmp(data, rhs.data, _Len) < 0; }
+    bool operator<(const Hash<_Len2>& rhs) const { static_assert(_Len == _Len2); return memcmp(data, rhs.data, _Len) < 0; }
     template <size_t _Len2>
-    bool operator>(const Hash<_Len2>& rhs) const { return memcmp(data, rhs.data, _Len) > 0; }
+    bool operator>(const Hash<_Len2>& rhs) const { static_assert(_Len == _Len2); return memcmp(data, rhs.data, _Len) > 0; }
     template <size_t _Len2>
-    bool operator<=(const Hash<_Len2>& rhs) const { return !(*this > rhs); }
+    bool operator<=(const Hash<_Len2>& rhs) const { static_assert(_Len == _Len2); return !(*this > rhs); }
     template <size_t _Len2>
-    bool operator>=(const Hash<_Len2>& rhs) const { return !(*this > rhs); }
+    bool operator>=(const Hash<_Len2>& rhs) const { static_assert(_Len == _Len2); return !(*this > rhs); }
     template <size_t _Len2>
     bool operator==(const Hash<_Len2>& rhs) const { return _Len == _Len2 && memcmp(data, rhs.data, _Len) == 0; }
     template <size_t _Len2>
