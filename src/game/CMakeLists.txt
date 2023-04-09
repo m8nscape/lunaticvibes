@@ -147,7 +147,7 @@ set_target_properties(LunaticVibes PROPERTIES
 add_custom_command(TARGET LunaticVibes POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     $<TARGET_FILE:fmod>
-    $<$<BOOL:${USE_BUNDLED_SQLITE3}>:$<TARGET_FILE:SQLite3>>
+    $<$<BOOL:${USE_BUNDLED_SQLITE3}>:$<TARGET_FILE:${sqlite3_LIBRARY}>>
     $<TARGET_FILE_DIR:LunaticVibes>
 )
 

@@ -22,11 +22,17 @@ target_include_directories(common PRIVATE
 
 set_target_properties(common PROPERTIES
     CXX_STANDARD 17)
-
+    
 target_link_libraries(common 
     PUBLIC plog
     PUBLIC re2
     PUBLIC taocpp::json
 )
+
+# Add OpenSSL (from system)
+if (UNIX OR MINGW)
+    find_package(OpenSSL REQUIRED)
+    target_link_libraries(common PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+endif()
 
 target_precompile_headers(common PUBLIC pch.h)

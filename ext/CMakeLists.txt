@@ -53,40 +53,43 @@ set(YAML_CPP_BUILD_TOOLS OFF CACHE INTERNAL "Enable parse tools")
 add_subdirectory(yaml-cpp)
 
 # Add sqlite3 if needed
-find_package(SQLite3 QUIET GLOBAL)
-if (SQLite3_FOUND)
-    set(sqlite3_LIBRARY SQLite::SQLite3)
-else()
-    find_package(unofficial-sqlite3 CONFIG QUIET)
-    if (unofficial-sqlite3_FOUND)
-        set(sqlite3_LIBRARY unofficial::sqlite3::sqlite3)
+set(USE_BUNDLED_SQLITE3 FALSE CACHE BOOL "USE_BUNDLED_SQLITE3" FORCE)
+if (${CMAKE_VERSION} VERSION_GREATER "3.24")
+    find_package(SQLite3 QUIET GLOBAL)
+    if (SQLite3_FOUND)
+        set(sqlite3_LIBRARY SQLite::SQLite3)
     else()
-        add_subdirectory(sqlite3)
-        if (${USE_BUNDLED_SQLITE3})
-            set(sqlite3_LIBRARY SQLite3)
+        find_package(unofficial-sqlite3 CONFIG QUIET)
+        if (unofficial-sqlite3_FOUND)
+            set(sqlite3_LIBRARY unofficial::sqlite3::sqlite3)
         else()
-            set(sqlite3_LIBRARY -lsqlite3)
+            add_subdirectory(sqlite3)
+            set(sqlite3_LIBRARY SQLite3)
         endif()
     endif()
+else()
+    # Lower cmake versions could not export the imported target
+    add_subdirectory(sqlite3)
+    set(sqlite3_LIBRARY SQLite3)
 endif()
 set (sqlite3_LIBRARY ${sqlite3_LIBRARY} CACHE INTERNAL "sqlite3 target name")
 
 # Add SDL2
 if (${GRAPHICS_BACKEND} STREQUAL SDL2)
     # Add SDL2
-    find_package(SDL2 QUIET GLOBAL)
+    find_package(SDL2 QUIET)
     if (NOT SDL2_FOUND)
         add_subdirectory(SDL2)
     endif()
 
     # Add SDL2_image
-    find_package(SDL2_image QUIET GLOBAL)
+    find_package(SDL2_image QUIET)
     if (NOT SDL2_image_FOUND)
         add_subdirectory(SDL2_image)
     endif()
 
     # Add SDL2_ttf
-    find_package(SDL2_ttf QUIET GLOBAL)
+    find_package(SDL2_ttf QUIET)
     if (NOT SDL2_ttf_FOUND)
         add_subdirectory(SDL2_ttf)
     endif()
@@ -124,11 +127,6 @@ add_subdirectory(re2)
 
 # Add taocpp/json
 add_subdirectory(json)
-
-# Add OpenSSL (from system)
-if (UNIX OR MINGW)
-    find_package(OpenSSL REQUIRED GLOBAL)
-endif()
 
 # Add cereal
 option(BUILD_DOC "Build documentation" OFF)
