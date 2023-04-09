@@ -20,8 +20,7 @@ public:
             set = true;
             std::string bin = hex2bin(hex);
             unsigned char* ubin = (unsigned char*)bin.data();
-            for (int i = 0; i < bin.size() && i < _Len; ++i)
-                data[i] = ubin[i];
+            memcpy(data, ubin, _Len);
         }
     }
     Hash(const Hash<_Len>& rhs)
@@ -30,7 +29,7 @@ public:
         if (!rhs.empty())
         {
             set = true;
-            for (int i = 0; i < _Len; ++i) data[i] = rhs.data[i];
+            memcpy(data, rhs.data, _Len);
         }
     }
 
