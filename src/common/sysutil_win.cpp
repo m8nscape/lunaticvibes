@@ -123,4 +123,10 @@ long long getFileLastWriteTime(const Path& p)
     return std::chrono::duration_cast<std::chrono::seconds>(fs::last_write_time(p).time_since_epoch()).count() - 11644473600;
 }
 
+const char* safe_strerror(int errnum, char* buffer, size_t buffer_length)
+{
+    strerror_s(buffer, buffer_length, errnum);
+    return buffer;
+}
+
 #endif
