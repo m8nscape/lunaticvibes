@@ -224,7 +224,6 @@ void ScenePreSelect::updateLoadTables()
                 auto convertTable = [&](DifficultyTableBMS& t)
                 {
                     std::shared_ptr<EntryFolderTable> tbl = std::make_shared<EntryFolderTable>(t.getName(), "");
-                    size_t index = 0;
                     for (const auto& lv : t.getLevelList())
                     {
                         std::string folderName = (boost::format("%s%s") % t.getSymbol() % lv).str();
@@ -237,24 +236,11 @@ void ScenePreSelect::updateLoadTables()
                             {
                                 if (fs::exists(c->absolutePath))
                                 {
-                                    //std::shared_ptr<EntryFolderSong> f = std::make_shared<EntryFolderSong>(HashMD5((boost::format("%032lu") % index++).str()), "", c->title, c->title2);
-                                    //f->pushChart(c);
-                                    //tblLevel->pushEntry(f);
                                     tblLevel->pushEntry(std::make_shared<EntryFolderSong>(c));
                                     added = true;
                                     break;
                                 }
                             }
-                            /*
-                            if (!added)
-                            {
-                                std::shared_ptr<FolderSong> f = std::make_shared<FolderSong>(HashMD5(), "", r->_name, r->_name2);
-                                f->pushChart(c);
-                                tblLevel->pushEntry(f);
-                                added = true;
-                                break;
-                            }
-                            */
                         }
                         tbl->pushEntry(tblLevel);
                     }
