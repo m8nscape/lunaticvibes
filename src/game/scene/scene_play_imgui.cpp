@@ -59,14 +59,14 @@ void ScenePlay::imguiAdjustMenu()
                 ImGui::TableSetupColumn("##slider", ImGuiTableColumnFlags_WidthStretch);
 
                 ImGui::TableNextColumn();
-                ImGui::Text(i18n::c(PLAY_SKIN_ADJUST_JUDGE_POS_1P_X));
+                ImGui::TextUnformatted(i18n::c(PLAY_SKIN_ADJUST_JUDGE_POS_1P_X));
                 ImGui::TableNextColumn();
                 ImGui::SliderInt("##judge1px", &s->adjustPlayJudgePosition1PX, -imguiAdjustBorderX, imguiAdjustBorderX);
                 ImGui::SameLine();
                 if (ImGui::Button(" R ##judge1pxreset")) s->adjustPlayJudgePosition1PX = 0;
 
                 ImGui::TableNextColumn();
-                ImGui::Text(i18n::c(PLAY_SKIN_ADJUST_JUDGE_POS_1P_Y));
+                ImGui::TextUnformatted(i18n::c(PLAY_SKIN_ADJUST_JUDGE_POS_1P_Y));
                 ImGui::TableNextColumn();
                 ImGui::SliderInt("##judge1py", &s->adjustPlayJudgePosition1PY, imguiAdjustBorderY, -imguiAdjustBorderY);
                 ImGui::SameLine();
@@ -75,14 +75,14 @@ void ScenePlay::imguiAdjustMenu()
                 if (imguiAdjustHas2P)
                 {
                     ImGui::TableNextColumn();
-                    ImGui::Text(i18n::c(PLAY_SKIN_ADJUST_JUDGE_POS_2P_X));
+                    ImGui::TextUnformatted(i18n::c(PLAY_SKIN_ADJUST_JUDGE_POS_2P_X));
                     ImGui::TableNextColumn();
                     ImGui::SliderInt("##judge2px", &s->adjustPlayJudgePosition2PX, -imguiAdjustBorderX, imguiAdjustBorderX);
                     ImGui::SameLine();
                     if (ImGui::Button(" R ##judge2pxreset")) s->adjustPlayJudgePosition2PX = 0;
 
                     ImGui::TableNextColumn();
-                    ImGui::Text(i18n::c(PLAY_SKIN_ADJUST_JUDGE_POS_2P_Y));
+                    ImGui::TextUnformatted(i18n::c(PLAY_SKIN_ADJUST_JUDGE_POS_2P_Y));
                     ImGui::TableNextColumn();
                     ImGui::SliderInt("##judge2py", &s->adjustPlayJudgePosition2PY, imguiAdjustBorderY, -imguiAdjustBorderY);
                     ImGui::SameLine();
@@ -93,28 +93,28 @@ void ScenePlay::imguiAdjustMenu()
 
                 ImGui::TableNextRow();
                 ImGui::TableNextColumn();
-                ImGui::Text(i18n::c(PLAY_SKIN_ADJUST_NOTE_1P_X));
+                ImGui::TextUnformatted(i18n::c(PLAY_SKIN_ADJUST_NOTE_1P_X));
                 ImGui::TableNextColumn();
                 ImGui::SliderInt("##note1px", &s->adjustPlayNote1PX, -imguiAdjustBorderX, imguiAdjustBorderX);
                 ImGui::SameLine();
                 if (ImGui::Button(" R ##note1pxreset")) s->adjustPlayNote1PX = 0;
 
                 ImGui::TableNextColumn();
-                ImGui::Text(i18n::c(PLAY_SKIN_ADJUST_NOTE_1P_Y));
+                ImGui::TextUnformatted(i18n::c(PLAY_SKIN_ADJUST_NOTE_1P_Y));
                 ImGui::TableNextColumn();
                 ImGui::SliderInt("##note1py", &s->adjustPlayNote1PY, imguiAdjustBorderY, -imguiAdjustBorderY);
                 ImGui::SameLine();
                 if (ImGui::Button(" R ##note1pyreset")) s->adjustPlayNote1PY = 0;
 
                 ImGui::TableNextColumn();
-                ImGui::Text(i18n::c(PLAY_SKIN_ADJUST_NOTE_1P_W));
+                ImGui::TextUnformatted(i18n::c(PLAY_SKIN_ADJUST_NOTE_1P_W));
                 ImGui::TableNextColumn();
                 ImGui::SliderInt("##note1pw", &s->adjustPlayNote1PW, -imguiAdjustBorderSize, imguiAdjustBorderSize);
                 ImGui::SameLine();
                 if (ImGui::Button(" R ##note1pwreset")) s->adjustPlayNote1PW = 0;
 
                 ImGui::TableNextColumn();
-                ImGui::Text(i18n::c(PLAY_SKIN_ADJUST_NOTE_1P_H));
+                ImGui::TextUnformatted(i18n::c(PLAY_SKIN_ADJUST_NOTE_1P_H));
                 ImGui::TableNextColumn();
                 ImGui::SliderInt("##note1ph", &s->adjustPlayNote1PH, -imguiAdjustBorderSize, imguiAdjustBorderSize);
                 ImGui::SameLine();
@@ -123,28 +123,28 @@ void ScenePlay::imguiAdjustMenu()
                 if (imguiAdjustHas2P)
                 {
                     ImGui::TableNextColumn();
-                    ImGui::Text(i18n::c(PLAY_SKIN_ADJUST_NOTE_2P_X));
+                    ImGui::TextUnformatted(i18n::c(PLAY_SKIN_ADJUST_NOTE_2P_X));
                     ImGui::TableNextColumn();
                     ImGui::SliderInt("##note2px", &s->adjustPlayNote2PX, -imguiAdjustBorderX, imguiAdjustBorderX);
                     ImGui::SameLine();
                     if (ImGui::Button(" R ##note2pxreset")) s->adjustPlayNote2PX = 0;
 
                     ImGui::TableNextColumn();
-                    ImGui::Text(i18n::c(PLAY_SKIN_ADJUST_NOTE_2P_Y));
+                    ImGui::TextUnformatted(i18n::c(PLAY_SKIN_ADJUST_NOTE_2P_Y));
                     ImGui::TableNextColumn();
                     ImGui::SliderInt("##note2py", &s->adjustPlayNote2PY, imguiAdjustBorderY, -imguiAdjustBorderY);
                     ImGui::SameLine();
                     if (ImGui::Button(" R ##note2pyreset")) s->adjustPlayNote2PY = 0;
 
                     ImGui::TableNextColumn();
-                    ImGui::Text(i18n::c(PLAY_SKIN_ADJUST_NOTE_2P_W));
+                    ImGui::TextUnformatted(i18n::c(PLAY_SKIN_ADJUST_NOTE_2P_W));
                     ImGui::TableNextColumn();
                     ImGui::SliderInt("##note2pw", &s->adjustPlayNote2PW, -imguiAdjustBorderSize, imguiAdjustBorderSize);
                     ImGui::SameLine();
                     if (ImGui::Button(" R ##jnote2pwreset")) s->adjustPlayNote2PW = 0;
 
                     ImGui::TableNextColumn();
-                    ImGui::Text(i18n::c(PLAY_SKIN_ADJUST_NOTE_2P_H));
+                    ImGui::TextUnformatted(i18n::c(PLAY_SKIN_ADJUST_NOTE_2P_H));
                     ImGui::TableNextColumn();
                     ImGui::SliderInt("##note2ph", &s->adjustPlayNote2PH, -imguiAdjustBorderSize, imguiAdjustBorderSize);
                     ImGui::SameLine();
