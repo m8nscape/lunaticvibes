@@ -427,6 +427,31 @@ void updateDstOpt()
 		}
 	}
 
+	// 170 BGA無し
+	// 171 BGA有り
+	set(170, !sw(IndexSwitch::CHART_HAVE_BGA));
+	set(171, sw(IndexSwitch::CHART_HAVE_BGA));
+
+	// 172 ロングノート無し
+	// 173 ロングノート有り
+	set(172, !sw(IndexSwitch::CHART_HAVE_LN));
+	set(173, sw(IndexSwitch::CHART_HAVE_LN));
+
+	// 174 付属テキスト無し
+	// 175 付属テキスト有り
+	set(174, !sw(IndexSwitch::CHART_HAVE_README));
+	set(175, sw(IndexSwitch::CHART_HAVE_README));
+
+	// 176 BPM変化無し
+	// 177 BPM変化有り
+	set(176, !sw(IndexSwitch::CHART_HAVE_BPMCHANGE));
+	set(177, sw(IndexSwitch::CHART_HAVE_BPMCHANGE));
+
+	// 178 ランダム命令無し
+	// 179 ランダム命令有り
+	set(178, !sw(IndexSwitch::CHART_HAVE_RANDOM));
+	set(179, sw(IndexSwitch::CHART_HAVE_RANDOM));
+
 	if (get(5))	// is playable
 	{
 
@@ -456,32 +481,6 @@ void updateDstOpt()
 		// //168 10keys
 		// //169 9keys
 
-
-		// 170 BGA無し
-		// 171 BGA有り
-		set(170, !sw(IndexSwitch::CHART_HAVE_BGA));
-		set(171, sw(IndexSwitch::CHART_HAVE_BGA));
-
-		// 172 ロングノート無し
-		// 173 ロングノート有り
-		set(172, !sw(IndexSwitch::CHART_HAVE_LN));
-		set(173, sw(IndexSwitch::CHART_HAVE_LN));
-
-		// 174 付属テキスト無し
-		// 175 付属テキスト有り
-		set(174, !sw(IndexSwitch::CHART_HAVE_README));
-		set(175, sw(IndexSwitch::CHART_HAVE_README));
-
-		// 176 BPM変化無し
-		// 177 BPM変化有り
-		set(176, !sw(IndexSwitch::CHART_HAVE_BPMCHANGE));
-		set(177, sw(IndexSwitch::CHART_HAVE_BPMCHANGE));
-
-		// 178 ランダム命令無し
-		// 179 ランダム命令有り
-		set(178, !sw(IndexSwitch::CHART_HAVE_RANDOM));
-		set(179, sw(IndexSwitch::CHART_HAVE_RANDOM));
-
 		// 180 判定veryhard
 		// 181 判定hard
 		// 182 判定normal
@@ -507,27 +506,27 @@ void updateDstOpt()
 		case DIFF_ANOTHER:  set(185, _op[73]); set(186, _op[78]); break;
 		case DIFF_INSANE:  set(185, _op[74]); set(186, _op[79]); break;
 		}
-
-		// 190 STAGEFILE無し
-		// 191 STAGEFILE有り
-		set(190, !sw(IndexSwitch::CHART_HAVE_STAGEFILE));
-		set(191, sw(IndexSwitch::CHART_HAVE_STAGEFILE));
-
-		// 192 BANNER無し
-		// 193 BANNER有り
-		set(192, !sw(IndexSwitch::CHART_HAVE_BANNER));
-		set(193, sw(IndexSwitch::CHART_HAVE_BANNER));
-
-		// 194 BACKBMP無し
-		// 195 BACKBMP有り
-		set(194, !sw(IndexSwitch::CHART_HAVE_BACKBMP));
-		set(195, sw(IndexSwitch::CHART_HAVE_BACKBMP));
-
-		// 196 リプレイ無し
-		// 197 リプレイ有り
-		set(196, !sw(IndexSwitch::CHART_HAVE_REPLAY));
-		set(197, sw(IndexSwitch::CHART_HAVE_REPLAY));
 	}
+
+	// 190 STAGEFILE無し
+	// 191 STAGEFILE有り
+	set(190, !sw(IndexSwitch::CHART_HAVE_STAGEFILE));
+	set(191, sw(IndexSwitch::CHART_HAVE_STAGEFILE));
+
+	// 192 BANNER無し
+	// 193 BANNER有り
+	set(192, !sw(IndexSwitch::CHART_HAVE_BANNER));
+	set(193, sw(IndexSwitch::CHART_HAVE_BANNER));
+
+	// 194 BACKBMP無し
+	// 195 BACKBMP有り
+	set(194, !sw(IndexSwitch::CHART_HAVE_BACKBMP));
+	set(195, sw(IndexSwitch::CHART_HAVE_BACKBMP));
+
+	// 196 リプレイ無し
+	// 197 リプレイ有り
+	set(196, !sw(IndexSwitch::CHART_HAVE_REPLAY));
+	set(197, sw(IndexSwitch::CHART_HAVE_REPLAY));
 
 	// /////////////////////////////////
 	// //プレイ中
