@@ -12,7 +12,7 @@ enum class SkinVersion
 {
     UNDEF,
     LR2beta3,
-
+    LunaticVibes,
 };
 
 //typedef StringContent Token;
@@ -90,9 +90,6 @@ public:
         std::string maker;
         int resolution = -1;     // #RESOLUTION | 0:480p / 1:720p / 2:1080p
 
-        bool hasTransparentColor = false;
-        Color transparentColor;
-
         // General 
         unsigned timeIntro = 200; // #STARTINPUT | before this time the scene cannot receive input. Implemented by derived class
         unsigned timeOutro = 200; // #FADEOUT
@@ -110,13 +107,17 @@ public:
         unsigned noteLaneHeight2P = 0;
         unsigned noteLaneHeight1PSub = 0;
         unsigned noteLaneHeight2PSub = 0;
+        unsigned scratchSide1P = 0;
+        unsigned scratchSide2P = 0;
         
         // Result
         unsigned timeResultRank = 200; //ignored
         unsigned timeResultRecord = 200; //ignored
 
-        unsigned scratchSide1P = 0;
-        unsigned scratchSide2P = 0;
+        // LR2Skin
+        bool hasTransparentColor = false;
+        Color transparentColor;
+
     } info;
 
     ///////////////////////////////////////////////////////////
