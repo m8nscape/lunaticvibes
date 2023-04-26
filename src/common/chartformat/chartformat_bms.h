@@ -1,14 +1,6 @@
 #pragma once
-#include <array>
-#include <string>
-#include <list>
-#include <map>
-#include <set>
-#include <regex>
 
 #include "chartformat.h"
-#include "common/utils.h"
-#include "common/types.h"
 
 namespace bms
 {

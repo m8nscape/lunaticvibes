@@ -1,4 +1,4 @@
-#include "common/meta.h"
+#include "common/pch.h"
 #include "config/config_mgr.h"
 #include "game/graphics/graphics.h"
 #include "game/sound/sound_mgr.h"
@@ -6,14 +6,10 @@
 #include "game/input/input_mgr.h"
 #include "game/skin/skin_lr2.h"
 #include "game/skin/skin_mgr.h"
-#include "common/utils.h"
-#include "common/sysutil.h"
 #include "game/scene/scene_context.h"
 #include "game/runtime/generic_info.h"
 
 #include "common/chartformat/chartformat_bms.h"
-
-#include "common/log.h"
 
 #include "game/runtime/i18n.h"
 
@@ -24,15 +20,11 @@
 #include "imgui.h"
 
 #ifdef WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
 #pragma comment(lib, "winmm.lib")
 #include <consoleapi2.h>
 #include <ole2.h>
 #include <timeapi.h>
 #endif //WIN32
-
-#include <boost/format.hpp>
 
 #include <curl/curl.h>
 

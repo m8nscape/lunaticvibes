@@ -1,3 +1,4 @@
+#include "common/pch.h"
 #include "scene_keyconfig.h"
 #include "scene_context.h"
 #include "config/config_mgr.h"

@@ -1,9 +1,4 @@
 #pragma once
-#include <memory>
-#include <array>
-#include <list>
-#include <utility>
-#include <map>
 #include "sprite.h"
 #include "sprite_imagetext.h"
 

@@ -1,6 +1,5 @@
-#include "common/log.h"
+#include "common/pch.h"
 #include "input_mgr.h"
-#include "common/sysutil.h"
 #include "config/config_mgr.h"
 #include "game/graphics/graphics.h"
 

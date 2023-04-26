@@ -1,5 +1,5 @@
+#include "common/pch.h"
 #include "ruleset_bms.h"
-#include "common/log.h"
 #include "common/chartformat/chartformat_bms.h"
 #include "game/runtime/state.h"
 #include "game/scene/scene_context.h"

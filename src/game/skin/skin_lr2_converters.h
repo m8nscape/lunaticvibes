@@ -1,7 +1,5 @@
 #pragma once
 #include "game/runtime/state.h"
-#include <vector>
-#include <variant>
 
 namespace lr2skin
 {

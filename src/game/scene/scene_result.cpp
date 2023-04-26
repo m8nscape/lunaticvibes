@@ -1,3 +1,4 @@
+#include "common/pch.h"
 #include "scene_result.h"
 #include "scene_context.h"
 #include "common/types.h"
@@ -12,7 +13,6 @@
 #include "game/arena/arena_host.h"
 
 #include "config/config_mgr.h"
-#include <boost/algorithm/string.hpp>
 
 SceneResult::SceneResult() : SceneBase(SkinType::RESULT, 1000)
 {

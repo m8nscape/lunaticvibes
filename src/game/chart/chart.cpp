@@ -1,3 +1,4 @@
+#include "common/pch.h"
 #include "chart.h"
 #include "chart_types.h"
 #include "common/chartformat/chartformat.h"

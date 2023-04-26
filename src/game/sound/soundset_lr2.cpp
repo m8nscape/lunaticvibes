@@ -1,9 +1,9 @@
+#include "common/pch.h"
 #include "soundset_lr2.h"
 #include "common/encoding.h"
 #include "config/config_mgr.h"
 #include "game/scene/scene_customize.h"
 
-#include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
 
 SoundSetLR2::SoundSetLR2()

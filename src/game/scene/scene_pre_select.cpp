@@ -1,3 +1,4 @@
+#include "common/pch.h"
 #include "scene_pre_select.h"
 #include "config/config_mgr.h"
 #include "scene_context.h"
@@ -6,8 +7,6 @@
 #include "common/entry/entry_course.h"
 #include "common/entry/entry_arena.h"
 #include "imgui.h"
-#include <future>
-#include <boost/format.hpp>
 #include "game/runtime/i18n.h"
 #include "git_version.h"
 

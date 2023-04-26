@@ -1,3 +1,4 @@
+#include "common/pch.h"
 #include "ruleset_bms_auto.h"
 #include "game/scene/scene.h"
 #include "game/scene/scene_context.h"

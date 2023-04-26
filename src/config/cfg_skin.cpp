@@ -1,3 +1,4 @@
+#include "common/pch.h"
 #include "cfg_skin.h"
 
 void ConfigSkin::setDefaults() noexcept

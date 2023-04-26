@@ -1,3 +1,4 @@
+#include "common/pch.h"
 #include "graphics_SDL2.h"
 
 Rect::Rect(int zero) { x = y = w = h = 0; }

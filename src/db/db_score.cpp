@@ -1,6 +1,5 @@
+#include "common/pch.h"
 #include "db_score.h"
-#include "common/types.h"
-#include "common/log.h"
 
 // TODO uncomment clearcount at 0.8 release
 

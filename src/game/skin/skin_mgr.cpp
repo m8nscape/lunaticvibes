@@ -1,7 +1,7 @@
+#include "common/pch.h"
 #include "skin_mgr.h"
 #include "game/skin/skin_lr2.h"
 #include "config/config_mgr.h"
-#include "common/utils.h"
 
 SkinMgr SkinMgr::_inst;
 

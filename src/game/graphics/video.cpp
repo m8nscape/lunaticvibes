@@ -1,8 +1,7 @@
+#include "common/pch.h"
 #include "video.h"
-#ifndef VIDEO_DISABLED
 
-#include <thread>
-#include <chrono>
+#ifndef VIDEO_DISABLED
 
 extern "C"
 {
@@ -12,9 +11,6 @@ extern "C"
 #include "libavutil/avutil.h"
 #include "libavutil/frame.h"
 }
-
-#include "common/utils.h"
-#include "common/log.h"
 
 void video_init()
 {

@@ -1,7 +1,6 @@
 #pragma once
 #include "scene.h"
 #include "common/keymap.h"
-#include <shared_mutex>
 
 class SceneKeyConfig : public SceneBase
 {

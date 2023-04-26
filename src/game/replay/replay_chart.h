@@ -1,9 +1,5 @@
 #pragma once
-#include <vector>
-#include "common/types.h"
 #include "common/keymap.h"
-#include <cereal/access.hpp>
-#include <cereal/types/vector.hpp>
 template <class Archive, size_t bytes>
 void serialize(Archive& ar, Hash<bytes>& hash)
 {

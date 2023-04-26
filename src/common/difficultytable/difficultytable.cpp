@@ -1,3 +1,4 @@
+#include "common/pch.h"
 #include "difficultytable.h"
 
 std::vector<std::string> DifficultyTable::getLevelList() const

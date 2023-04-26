@@ -1,12 +1,4 @@
 #pragma once
-#include <array>
-#include <variant>
-#include <filesystem>
-#include <bitset>
-#include <map>
-#include <functional>
-#include <stack>
-#include "common/types.h"
 #include "skin.h"
 #include "game/graphics/sprite_lane.h"
 #include "game/graphics/sprite_video.h"

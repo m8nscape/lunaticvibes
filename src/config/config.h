@@ -1,9 +1,5 @@
 #pragma once
 
-#include <yaml-cpp/yaml.h>
-#include "common/types.h"
-//#include <unordered_map>
-
 class vConfig
 {
 protected:

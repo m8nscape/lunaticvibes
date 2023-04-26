@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "encoding.h"
 
 bool is_ascii(const std::string& str)

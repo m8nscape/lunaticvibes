@@ -1,7 +1,5 @@
 #pragma once
 
-#include <deque>
-
 #include "game/ruleset/ruleset_network.h"
 
 constexpr size_t MAX_ARENA_PLAYERS = 8;			// not including yourself

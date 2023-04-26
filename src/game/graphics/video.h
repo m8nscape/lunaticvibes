@@ -1,7 +1,5 @@
 #pragma once
 
-#include <set>
-
 inline const std::set<std::string> video_file_extensions =
 {
 	".mpg",
@@ -25,9 +23,6 @@ inline const std::set<std::string> video_file_extensions =
 
 #ifndef VIDEO_DISABLED
 
-#include <shared_mutex>
-#include <future>
-#include "common/types.h"
 #include "graphics.h"
 
 extern "C"

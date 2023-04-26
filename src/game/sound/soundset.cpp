@@ -1,5 +1,5 @@
+#include "common/pch.h"
 #include "soundset.h"
-#include "common/utils.h"
 #include "config/config_mgr.h"
 
 Path vSoundSet::getPathBGMSelect() const

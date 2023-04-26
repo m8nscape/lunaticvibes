@@ -1,5 +1,5 @@
+#include "common/pch.h"
 #include "graphics_SDL2.h"
-#include "common/log.h"
 
 TTFFont::TTFFont(const char* filePath, int ptsize): _filePath(filePath), _ptsize(ptsize)
 {

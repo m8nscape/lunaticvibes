@@ -1,9 +1,6 @@
+#include "common/pch.h"
 #include "replay_chart.h"
-#include "common/utils.h"
 #include "config/config_mgr.h"
-
-#include <cereal/archives/portable_binary.hpp>
-#include <sstream>
 
 bool ReplayChart::loadFile(const Path& path)
 {

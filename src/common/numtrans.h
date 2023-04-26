@@ -1,7 +1,4 @@
 #pragma once
-#include <chrono>
-#include <cmath>
-#include <functional>
 
 class NumberTransformBase
 {

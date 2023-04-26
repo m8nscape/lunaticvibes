@@ -1,12 +1,7 @@
 #pragma once
-#include <bitset>
-#include <string>
-#include <memory>
-#include <array>
 #include "game/skin/skin.h"
 #include "game/runtime/state.h"
 #include "game/input/input_wrapper.h"
-#include "common/types.h"
 
 enum class SceneType
 {

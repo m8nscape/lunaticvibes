@@ -1,13 +1,10 @@
+#include "common/pch.h"
 #include "scene_context.h"
 #include "game/runtime/state.h"
 #include "common/chartformat/chartformat_types.h"
 #include "config/config_mgr.h"
 #include "common/entry/entry_types.h"
-#include <random>
-#include <mutex>
 #include "game/runtime/i18n.h"
-
-#include <boost/algorithm/string.hpp>
 
 bool gQuitOnFinish = false;
 bool gAppIsExiting = false;

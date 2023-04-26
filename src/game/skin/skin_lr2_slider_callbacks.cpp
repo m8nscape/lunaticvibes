@@ -1,4 +1,5 @@
 
+#include "common/pch.h"
 
 #include "skin_lr2_slider_callbacks.h"
 

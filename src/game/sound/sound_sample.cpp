@@ -1,3 +1,4 @@
+#include "common/pch.h"
 #include "sound_sample.h"
 #include "sound_mgr.h"
 #include "config/config_mgr.h"

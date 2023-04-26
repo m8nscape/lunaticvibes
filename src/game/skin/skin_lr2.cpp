@@ -1,12 +1,5 @@
+#include "common/pch.h"
 #include "skin_lr2.h"
-#include "common/log.h"
-#include "common/utils.h"
-#include <fstream>
-#include <sstream>
-#include <regex>
-#include <set>
-#include <variant>
-#include <execution>
 #include "skin_lr2_button_callbacks.h"
 #include "skin_lr2_slider_callbacks.h"  
 #include "game/runtime/state.h"

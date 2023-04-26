@@ -1,3 +1,4 @@
+#include "common/pch.h"
 #include "skin_lr2_converters.h"
 
 namespace lr2skin

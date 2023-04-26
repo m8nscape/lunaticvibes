@@ -1,5 +1,4 @@
 #pragma once
-#include <memory>
 #include "scene.h"
 #include "scene_context.h"
 

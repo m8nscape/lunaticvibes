@@ -1,4 +1,4 @@
-#include "common/log.h"
+#include "common/pch.h"
 #include "cfg_input.h"
 
 ConfigInput::ConfigInput(const std::string& profile, GameModeKeys k) : keys(k),

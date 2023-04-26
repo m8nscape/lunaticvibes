@@ -1,7 +1,6 @@
 #pragma once
 #include "sound_driver.h"
 #include "sound_sample.h"
-#include <memory>
 
 class SoundMgr
 {

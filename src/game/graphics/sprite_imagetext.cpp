@@ -1,6 +1,5 @@
+#include "common/pch.h"
 #include "sprite_imagetext.h"
-
-#include "common/encoding.h"
 
 SpriteImageText::SpriteImageText(const SpriteImageTextBuilder& builder) : SpriteText(builder)
 {

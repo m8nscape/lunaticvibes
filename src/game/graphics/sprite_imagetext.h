@@ -2,8 +2,6 @@
 
 #include "sprite.h"
 
-#include <unordered_map>
-
 struct CharMapping
 {
     size_t textureIdx;

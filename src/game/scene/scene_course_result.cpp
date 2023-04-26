@@ -1,6 +1,6 @@
+#include "common/pch.h"
 #include "scene_course_result.h"
 #include "scene_context.h"
-#include "common/types.h"
 #include "game/ruleset/ruleset.h"
 #include "game/ruleset/ruleset_bms.h"
 
@@ -8,7 +8,6 @@
 #include "game/sound/sound_sample.h"
 
 #include "config/config_mgr.h"
-#include <boost/algorithm/string.hpp>
 
 SceneCourseResult::SceneCourseResult() : SceneBase(SkinType::COURSE_RESULT, 1000)
 {

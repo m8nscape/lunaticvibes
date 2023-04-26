@@ -3,8 +3,6 @@
 
 #include "sprite.h"
 #include "game/graphics/texture_extra.h"
-#include "common/types.h"
-#include <memory>
 
 class sVideo;
 struct AVFrame;

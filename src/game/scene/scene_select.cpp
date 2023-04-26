@@ -1,5 +1,4 @@
-#include <algorithm>
-#include <memory>
+#include "common/pch.h"
 
 #include "scene_select.h"
 #include "scene_mgr.h"

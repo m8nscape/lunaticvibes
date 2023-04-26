@@ -1,14 +1,9 @@
+#include "pch.h"
 #include "asynclooper.h"
-#include <numeric>
-#include <chrono>
 
 #ifndef WIN32
 #include <ratio>
 #endif
-
-#include <common/utils.h>
-#include "encoding.h"
-#include "log.h"
 
 AsyncLooper::AsyncLooper(StringContentView tag, std::function<void()> func, unsigned rate_per_sec, bool single_inst) : 
     _tag(tag), _loopFunc(func)

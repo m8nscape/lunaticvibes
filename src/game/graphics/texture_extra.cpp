@@ -1,13 +1,8 @@
-
-#include <execution>
-#include <algorithm>
+#include "common/pch.h"
 
 #include "game/chart/chart_bms.h"
 #include "texture_extra.h"
 #include "game/scene/scene_context.h"
-#include "common/types.h"
-#include "common/utils.h"
-#include "common/log.h"
 
 #ifndef VIDEO_DISABLED
 

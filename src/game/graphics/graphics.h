@@ -15,9 +15,6 @@
 #include "SDL2/graphics_SDL2.h"
 #endif
 
-#include <vector>
-#include <utility>
-
 int graphics_init();
 void graphics_clear();
 void graphics_flush();

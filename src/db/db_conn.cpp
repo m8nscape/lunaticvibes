@@ -1,9 +1,7 @@
-#include <string>
-#include <filesystem>
+#include "common/pch.h"
 
 #include "sqlite3.h"
 #include "db_conn.h"
-#include "common/log.h"
 
 SQLite::SQLite(const char* path, const char* tag) : tag(tag)
 {

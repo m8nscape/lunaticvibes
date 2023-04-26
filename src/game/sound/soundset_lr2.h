@@ -1,8 +1,6 @@
 #pragma once
 #include "soundset.h"
 #include "game/skin/skin.h"
-#include <vector>
-#include <string>
 
 class SoundSetLR2 : public vSoundSet
 {

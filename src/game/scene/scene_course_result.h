@@ -1,5 +1,4 @@
 #pragma once
-#include <mutex>
 #include "game/ruleset/ruleset.h"
 #include "scene.h"
 

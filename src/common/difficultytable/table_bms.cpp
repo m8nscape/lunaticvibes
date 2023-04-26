@@ -1,7 +1,7 @@
+#include "common/pch.h"
 #include "table_bms.h"
 #include "../entry/entry_song.h"
 #include "tao/json.hpp"
-#include "re2/re2.h"
 
 #include <curl/curl.h>
 

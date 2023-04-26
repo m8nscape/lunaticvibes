@@ -1,11 +1,7 @@
+#include "common/pch.h"
 #include "ruleset_bms_network.h"
 
-#include <iostream>
-#include <sstream>
-
 #include "game/scene/scene_context.h"
-
-#include "cereal/archives/portable_binary.hpp"
 
 RulesetBMSNetwork::RulesetBMSNetwork(GameModeKeys keys, unsigned playerIndex) : 
     RulesetBase(nullptr, nullptr), RulesetBMS(nullptr, nullptr, PlayModifierGaugeType::NORMAL, keys, JudgeDifficulty::NORMAL, 1.0, PlaySide::NETWORK), playerIndex(playerIndex)

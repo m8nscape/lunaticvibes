@@ -1,8 +1,4 @@
 #pragma once
-#include <map>
-#include <string>
-#include <vector>
-#include <functional>
 #include "../entry/entry.h"
 
 class DifficultyTable

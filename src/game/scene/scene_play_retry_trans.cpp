@@ -1,3 +1,4 @@
+#include "common/pch.h"
 #include "scene_play_retry_trans.h"
 #include "scene_context.h"
 

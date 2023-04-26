@@ -1,22 +1,8 @@
-
+#include "pch.h"
 #include "utils.h"
 #include "types.h"
-#include <string>
-#include <cstdio>
-#include <iostream>
-#include <fstream>
-#include <charconv>
-#include <chrono>
-#include <filesystem>
-#include <string_view>
-#include <vector>
-
-#include <boost/algorithm/string.hpp>
-#include "re2/re2.h"
 
 #ifdef WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
 #include <wincrypt.h>
 #else
 #include <openssl/md5.h>

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <functional>
 #include "common/keymap.h"
 
 namespace lr2skin::button

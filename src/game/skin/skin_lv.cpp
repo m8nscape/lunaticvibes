@@ -1,3 +1,4 @@
+#include "common/pch.h"
 #include "skin_lv.h"
 
 SkinLv::SkinLv(SkinType type)

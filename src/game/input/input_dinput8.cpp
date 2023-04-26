@@ -1,7 +1,7 @@
 #ifdef WIN32
-
+#include "common/pch.h"
 #include "input_dinput8.h"
-#include "common/log.h"
+#pragma comment(lib, "dinput8.lib")
 
 InputDirectInput8::InputDirectInput8()
 {
