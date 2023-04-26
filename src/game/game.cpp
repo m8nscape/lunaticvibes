@@ -21,6 +21,8 @@
 #include "game/arena/arena_client.h"
 #include "game/arena/arena_host.h"
 
+#include "data/data_system.h"
+
 #include "imgui.h"
 
 #ifdef WIN32
@@ -211,7 +213,7 @@ int main(int argc, char* argv[])
     // arg parsing
     if (argc >= 2)
     {
-        gNextScene = SceneType::PLAY;
+        SystemData.gNextScene = SceneType::PLAY;
         gQuitOnFinish = true;
 
         std::shared_ptr<ChartFormatBMS> bms = std::make_shared<ChartFormatBMS>(argv[1], std::time(NULL));
@@ -244,7 +246,7 @@ int main(int argc, char* argv[])
     }
     else
     {
-        gNextScene = SceneType::PRE_SELECT;
+        SystemData.gNextScene = SceneType::PRE_SELECT;
     }
 
     /*
@@ -328,7 +330,7 @@ void mainLoop()
     SceneType currentScene = SceneType::NOT_INIT;
 
     pScene scene = nullptr;
-    while (!gEventQuit && currentScene != SceneType::EXIT && gNextScene != SceneType::EXIT)
+    while (!gEventQuit && currentScene != SceneType::EXIT && SystemData.gNextScene != SceneType::EXIT)
     {
         // Evenet handling
         event_handle();
@@ -353,10 +355,10 @@ void mainLoop()
                 sceneCustomize->inputLoopEnd();
                 sceneCustomize->loopEnd();
                 sceneCustomize.reset();
-                gNextScene = SceneType::SELECT;
+                SystemData.gNextScene = SceneType::SELECT;
             }
         }
-        if (gInCustomize && gCustomizeSceneChanged || !gInCustomize && currentScene != gNextScene || gExitingCustomize)
+        if (gInCustomize && gCustomizeSceneChanged || !gInCustomize && currentScene != SystemData.gNextScene || gExitingCustomize)
         {
             if (!gInCustomize) gExitingCustomize = false;
             gCustomizeSceneChanged = false;
@@ -369,7 +371,7 @@ void mainLoop()
             }
 
             clearCustomDstOpt();
-            currentScene = gNextScene;
+            currentScene = SystemData.gNextScene;
             if (currentScene != SceneType::EXIT && currentScene != SceneType::NOT_INIT)
             {
                 scene = SceneMgr::get(currentScene);

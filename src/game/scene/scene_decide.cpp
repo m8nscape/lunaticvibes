@@ -39,11 +39,11 @@ SceneDecide::~SceneDecide()
 
 void SceneDecide::_updateAsync()
 {
-    if (gNextScene != SceneType::DECIDE) return;
+    if (SystemData.gNextScene != SceneType::DECIDE) return;
 
     if (gAppIsExiting)
     {
-        gNextScene = SceneType::EXIT_TRANS;
+        SystemData.gNextScene = SceneType::EXIT_TRANS;
     }
 
     _updateCallback();
@@ -56,7 +56,7 @@ void SceneDecide::updateStart()
 
     if (!gInCustomize && rt.norm() >= pSkin->info.timeDecideExpiry)
     {
-        gNextScene = SceneType::PLAY;
+        SystemData.gNextScene = SceneType::PLAY;
     }
 }
 
@@ -68,7 +68,7 @@ void SceneDecide::updateSkip()
 
     if (ft.norm() >= pSkin->info.timeOutro)
     {
-        gNextScene = SceneType::PLAY;
+        SystemData.gNextScene = SceneType::PLAY;
     }
 }
 
@@ -83,7 +83,7 @@ void SceneDecide::updateCancel()
         clearContextPlay();
         gPlayContext.isAuto = false;
         gPlayContext.isReplay = false;
-        gNextScene = SceneType::SELECT;
+        SystemData.gNextScene = SceneType::SELECT;
     }
 }
 

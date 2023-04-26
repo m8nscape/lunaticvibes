@@ -22,7 +22,7 @@ SceneCustomize::SceneCustomize() : SceneBase(SkinType::THEME_SELECT, 240)
         // topest entry is PLAY7
         selectedMode = SkinType::PLAY7;
         gCustomizeContext.mode = selectedMode;
-        gNextScene = SceneType::PLAY;
+        SystemData.gNextScene = SceneType::PLAY;
         gPlayContext.mode = selectedMode;
         gPlayContext.isAuto = true;
         gCustomizeSceneChanged = true;
@@ -88,7 +88,7 @@ SceneCustomize::~SceneCustomize()
 
 void SceneCustomize::_updateAsync()
 {
-    if (!gInCustomize && gNextScene != SceneType::SELECT) return;
+    if (!gInCustomize && SystemData.gNextScene != SceneType::SELECT) return;
 
     if (gAppIsExiting)
     {
@@ -97,7 +97,7 @@ void SceneCustomize::_updateAsync()
         {
             SkinMgr::unload(selectedMode);
         }
-        gNextScene = SceneType::EXIT_TRANS;
+        SystemData.gNextScene = SceneType::EXIT_TRANS;
         gExitingCustomize = true;
     }
 
@@ -173,7 +173,7 @@ void SceneCustomize::updateMain()
                     gPlayContext.isAuto = true;
                     break;
                 }
-                gNextScene = getSceneFromSkinType(selectedMode);
+                SystemData.gNextScene = getSceneFromSkinType(selectedMode);
                 gCustomizeSceneChanged = true;
             }
         }
@@ -324,7 +324,7 @@ void SceneCustomize::updateMain()
                             gPlayContext.isAuto = true;
                             break;
                         }
-                        gNextScene = getSceneFromSkinType(selectedMode);
+                        SystemData.gNextScene = getSceneFromSkinType(selectedMode);
                         gCustomizeSceneChanged = true;
                     }
                 }
@@ -386,7 +386,7 @@ void SceneCustomize::updateMain()
                     gPlayContext.isAuto = true;
                     break;
                 }
-                gNextScene = getSceneFromSkinType(selectedMode);
+                SystemData.gNextScene = getSceneFromSkinType(selectedMode);
                 gCustomizeSceneChanged = true;
             }
         }
@@ -421,7 +421,7 @@ void SceneCustomize::updateFadeout()
         {
             SkinMgr::unload(selectedMode);
         }
-        gNextScene = SceneType::SELECT;
+        SystemData.gNextScene = SceneType::SELECT;
         gExitingCustomize = true;
     }
 }

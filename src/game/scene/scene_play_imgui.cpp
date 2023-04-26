@@ -6,7 +6,7 @@
 void ScenePlay::updateImgui()
 {
     SceneBase::updateImgui();
-    if (gNextScene != SceneType::PLAY) return;
+    if (SystemData.gNextScene != SceneType::PLAY) return;
 
     imguiAdjustMenu();
 }

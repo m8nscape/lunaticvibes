@@ -19,10 +19,10 @@ class ArenaClient;
 extern std::shared_ptr<ArenaHost> g_pArenaHost;
 extern std::shared_ptr<ArenaClient> g_pArenaClient;
 
-class ArenaData
+class ArenaDataInternal
 {
 public:
-	ArenaData() = default;
+	ArenaDataInternal() = default;
 	friend class ArenaHost;
 	friend class ArenaClient;
 
@@ -66,4 +66,4 @@ public:
 	void updateGlobals();
 };
 
-extern ArenaData gArenaData;
+extern ArenaDataInternal gArenaData;

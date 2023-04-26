@@ -68,6 +68,7 @@ public:
     }
     EntryChart(ChartFormatBase& f) : EntryChart(std::make_shared<ChartFormatBase>(f)) {}
 
+    std::shared_ptr<ChartFormatBase> getChart() const { return _file; }
     std::shared_ptr<EntryFolderSong> getSongEntry() const { return _song; }
 };
 

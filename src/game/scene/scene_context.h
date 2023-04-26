@@ -16,7 +16,6 @@
 #include "db/db_score.h"
 #include "common/difficultytable/table_bms.h"
 
-inline SceneType gNextScene = SceneType::SELECT;
 inline bool gInCustomize = false;
 inline bool gCustomizeSceneChanged = false;
 inline bool gExitingCustomize = false;

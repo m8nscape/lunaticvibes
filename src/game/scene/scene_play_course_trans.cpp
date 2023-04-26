@@ -7,5 +7,5 @@ ScenePlayCourseTrans::ScenePlayCourseTrans() : SceneBase(SkinType::COURSE_TRANS,
 
 	LOG_DEBUG << "[PlayCourseTrans]";
 	clearContextPlayForRetry();
-	gNextScene = SceneType::PLAY;
+	SystemData.gNextScene = SceneType::PLAY;
 }

@@ -28,7 +28,7 @@ ScenePreSelect::ScenePreSelect(): SceneBase(SkinType::PRE_SELECT, 240)
 
     LOG_INFO << "[List] ------------------------------------------------------------";
 
-    if (gNextScene == SceneType::PRE_SELECT)
+    if (SystemData.gNextScene == SceneType::PRE_SELECT)
     {
         // score db
         LOG_INFO << "[List] Initializing score.db...";
@@ -61,11 +61,11 @@ ScenePreSelect::~ScenePreSelect()
 
 void ScenePreSelect::_updateAsync()
 {
-    if (gNextScene != SceneType::PRE_SELECT && gNextScene != SceneType::SELECT) return;
+    if (SystemData.gNextScene != SceneType::PRE_SELECT && SystemData.gNextScene != SceneType::SELECT) return;
 
     if (gAppIsExiting)
     {
-        gNextScene = SceneType::EXIT_TRANS;
+        SystemData.gNextScene = SceneType::EXIT_TRANS;
         g_pSongDB->stopLoading();
     }
 
@@ -407,7 +407,7 @@ void ScenePreSelect::loadFinished()
             State::set(IndexText::PLAY_TITLE, i18n::s(i18nText::BMS_NOT_FOUND));
             State::set(IndexText::PLAY_ARTIST, i18n::s(i18nText::BMS_NOT_FOUND_HINT));
         }
-        if (gNextScene == SceneType::PRE_SELECT)
+        if (SystemData.gNextScene == SceneType::PRE_SELECT)
         {
             textHint = (boost::format("%s %s %s (%s %s)")
                 % PROJECT_NAME % PROJECT_VERSION
@@ -432,7 +432,7 @@ void ScenePreSelect::loadFinished()
             maxFPS = 30;
         graphics_set_maxfps(maxFPS);
 
-        gNextScene = SceneType::SELECT;
+        SystemData.gNextScene = SceneType::SELECT;
         loadingFinished = true;
     }
 }

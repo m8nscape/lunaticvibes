@@ -7,5 +7,5 @@ ScenePlayRetryTrans::ScenePlayRetryTrans() : SceneBase(SkinType::RETRY_TRANS, 24
 
 	LOG_DEBUG << "[PlayRetryTrans]";
 	clearContextPlayForRetry();
-	gNextScene = SceneType::PLAY;
+	SystemData.gNextScene = SceneType::PLAY;
 }

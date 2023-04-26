@@ -189,7 +189,7 @@ ScenePlay::ScenePlay(): SceneBase(gPlayContext.mode, 1000, true)
         if (gChartContext.path.empty())
         {
             LOG_ERROR << "[Play] Chart not specified!";
-            gNextScene = gQuitOnFinish ? SceneType::EXIT_TRANS : SceneType::SELECT;
+            SystemData.gNextScene = gQuitOnFinish ? SceneType::EXIT_TRANS : SceneType::SELECT;
             return;
         }
         if (gArenaData.isOnline())
@@ -206,7 +206,7 @@ ScenePlay::ScenePlay(): SceneBase(gPlayContext.mode, 1000, true)
     if (gChartContext.chart == nullptr || !gChartContext.chart->isLoaded())
     {
         LOG_ERROR << "[Play] Invalid chart: " << gChartContext.path.u8string();
-        gNextScene = gQuitOnFinish ? SceneType::EXIT_TRANS : SceneType::SELECT;
+        SystemData.gNextScene = gQuitOnFinish ? SceneType::EXIT_TRANS : SceneType::SELECT;
         return;
     }
 
@@ -357,12 +357,12 @@ ScenePlay::ScenePlay(): SceneBase(gPlayContext.mode, 1000, true)
             pSkin.reset();
 
             ++gPlayContext.courseStage;
-            gNextScene = SceneType::COURSE_TRANS;
+            SystemData.gNextScene = SceneType::COURSE_TRANS;
             return;
         }
         else
         {
-            gNextScene = SceneType::COURSE_RESULT;
+            SystemData.gNextScene = SceneType::COURSE_RESULT;
             return;
         }
     }
@@ -780,7 +780,7 @@ bool ScenePlay::createChartObj()
     case eChartFormat::BMSON:
     default:
         LOG_WARNING << "[Play] chart format not supported.";
-        gNextScene = gQuitOnFinish ? SceneType::EXIT_TRANS : SceneType::SELECT;
+        SystemData.gNextScene = gQuitOnFinish ? SceneType::EXIT_TRANS : SceneType::SELECT;
         return false;
     }
 
@@ -1350,11 +1350,11 @@ void ScenePlay::removeInputJudgeCallback()
 
 void ScenePlay::_updateAsync()
 {
-    if (gNextScene != SceneType::PLAY) return;
+    if (SystemData.gNextScene != SceneType::PLAY) return;
 
     if (gAppIsExiting)
     {
-        gNextScene = SceneType::EXIT_TRANS;
+        SystemData.gNextScene = SceneType::EXIT_TRANS;
     }
 
     Time t;
@@ -2533,7 +2533,7 @@ void ScenePlay::updateFadeout()
         gPlayContext.bgaTexture->reset();
 
         // check and set next scene
-        gNextScene = SceneType::SELECT;
+        SystemData.gNextScene = SceneType::SELECT;
 
         // check quick retry (start+select / white+black)
         bool wantRetry = false;
@@ -2586,7 +2586,7 @@ void ScenePlay::updateFadeout()
                 gPlayContext.randomSeed = ((uint64_t)rd() << 32) | rd();
             }
             SoundMgr::stopNoteSamples();
-            gNextScene = SceneType::RETRY_TRANS;
+            SystemData.gNextScene = SceneType::RETRY_TRANS;
         }
         else if (gPlayContext.isAuto)
         {
@@ -2598,14 +2598,14 @@ void ScenePlay::updateFadeout()
                 if (playerState[PLAYER_SLOT_PLAYER].finished && gPlayContext.courseStage < gPlayContext.courseCharts.size())
                 {
                     ++gPlayContext.courseStage;
-                    gNextScene = SceneType::COURSE_TRANS;
+                    SystemData.gNextScene = SceneType::COURSE_TRANS;
                 }
             }
         }
         else if (gPlayContext.isCourse && gPlayContext.courseStage > 0)
         {
             // Course Stage 2+ should go to result, regardless of whether any notes are hit
-            gNextScene = SceneType::RESULT;
+            SystemData.gNextScene = SceneType::RESULT;
         }
         else if (gChartContext.started)
         {
@@ -2613,13 +2613,13 @@ void ScenePlay::updateFadeout()
             if (gPlayContext.ruleset[PLAYER_SLOT_PLAYER] && !gPlayContext.ruleset[PLAYER_SLOT_PLAYER]->isNoScore() ||
                 gPlayContext.isBattle && gPlayContext.ruleset[PLAYER_SLOT_TARGET] && !gPlayContext.ruleset[PLAYER_SLOT_TARGET]->isNoScore())
             {
-                gNextScene = SceneType::RESULT;
+                SystemData.gNextScene = SceneType::RESULT;
             }
         }
 
-        if (gNextScene == SceneType::SELECT && gQuitOnFinish)
+        if (SystemData.gNextScene == SceneType::SELECT && gQuitOnFinish)
         {
-            gNextScene = SceneType::EXIT_TRANS;
+            SystemData.gNextScene = SceneType::EXIT_TRANS;
         }
 
         // protect

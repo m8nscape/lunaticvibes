@@ -165,7 +165,7 @@ void SceneSelect::imguiInit()
 void SceneSelect::updateImgui()
 {
     SceneBase::updateImgui();
-    if (gNextScene != SceneType::SELECT) return;
+    if (SystemData.gNextScene != SceneType::SELECT) return;
 
     imguiSettings();
     imguiArenaJoinLobbyPrompt();
@@ -1089,7 +1089,7 @@ Special Thanks:
 
 void SceneSelect::imguiPageExit()
 {
-    gNextScene = SceneType::EXIT_TRANS;
+    SystemData.gNextScene = SceneType::EXIT_TRANS;
 }
 
 

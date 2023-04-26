@@ -95,7 +95,7 @@ SceneBase::SceneBase(SkinType skinType, unsigned rate, bool backgroundInput) :
     _input.register_r("SKIN_MOUSE_RELEASE", std::bind(&SceneBase::MouseRelease, this, std::placeholders::_1, std::placeholders::_2));
 
     if (pSkin && 
-        !(gNextScene == SceneType::SELECT && skinType == SkinType::THEME_SELECT))
+        !(SystemData.gNextScene == SceneType::SELECT && skinType == SkinType::THEME_SELECT))
     {
         State::resetTimer();
 

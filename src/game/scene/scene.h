@@ -8,22 +8,6 @@
 #include "game/input/input_wrapper.h"
 #include "common/types.h"
 
-enum class SceneType
-{
-    NOT_INIT,
-    PRE_SELECT,
-    SELECT,
-    DECIDE,
-    PLAY,
-    RESULT,
-    COURSE_TRANS,
-    RETRY_TRANS,
-    KEYCONFIG,
-    CUSTOMIZE,
-    COURSE_RESULT,
-    EXIT_TRANS,
-    EXIT
-};
 inline SceneType getSceneFromSkinType(SkinType m)
 {
     static const std::map<SkinType, SceneType> modeSceneMap =

@@ -13,4 +13,8 @@ IndexText text(int n);
 bool buttonSw(int n, IndexSwitch& sw);
 bool buttonOp(int n, IndexOption& sw);
 bool buttonFixed(int n, unsigned& out);
+
+std::function<int()> num1(int n);
+std::function<long long()> timer1(int n);
+
 }

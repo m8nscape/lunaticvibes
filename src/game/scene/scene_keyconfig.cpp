@@ -115,11 +115,11 @@ SceneKeyConfig::~SceneKeyConfig()
 
 void SceneKeyConfig::_updateAsync()
 {
-    if (gNextScene != SceneType::KEYCONFIG) return;
+    if (SystemData.gNextScene != SceneType::KEYCONFIG) return;
 
     if (gAppIsExiting)
     {
-        gNextScene = SceneType::EXIT_TRANS;
+        SystemData.gNextScene = SceneType::EXIT_TRANS;
     }
 
     _updateCallback();
@@ -182,7 +182,7 @@ void SceneKeyConfig::updateFadeout()
     if (rt.norm() > pSkin->info.timeOutro)
     {
         ConfigMgr::Input(gKeyconfigContext.keys)->save();   // this is kinda important
-        gNextScene = SceneType::SELECT;
+        SystemData.gNextScene = SceneType::SELECT;
     }
 }
 

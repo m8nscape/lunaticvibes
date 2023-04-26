@@ -20,6 +20,23 @@ const size_t INDEX_INVALID	= ~0;
     return Path(std::string_view(_Str, _Len));
 }
 
+enum class SceneType
+{
+    NOT_INIT,
+    PRE_SELECT,
+    SELECT,
+    DECIDE,
+    PLAY,
+    RESULT,
+    COURSE_TRANS,
+    RETRY_TRANS,
+    KEYCONFIG,
+    CUSTOMIZE,
+    COURSE_RESULT,
+    EXIT_TRANS,
+    EXIT
+};
+
 enum class SkinType {
     EXIT = 0,
     TITLE = 1,

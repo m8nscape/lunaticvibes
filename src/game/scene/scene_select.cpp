@@ -487,7 +487,7 @@ SceneSelect::~SceneSelect()
     if (_virtualSceneCustomize != nullptr)
     {
         _virtualSceneCustomize->loopEnd();
-        if (gNextScene == SceneType::CUSTOMIZE || gNextScene == SceneType::EXIT_TRANS || gNextScene == SceneType::EXIT)
+        if (SystemData.gNextScene == SceneType::CUSTOMIZE || SystemData.gNextScene == SceneType::EXIT_TRANS || SystemData.gNextScene == SceneType::EXIT)
         {
             _virtualSceneCustomize.reset();
         }
@@ -514,13 +514,13 @@ SceneSelect::~SceneSelect()
 
 void SceneSelect::_updateAsync()
 {
-    if (gNextScene != SceneType::SELECT) return;
+    if (SystemData.gNextScene != SceneType::SELECT) return;
 
     Time t;
 
     if (gAppIsExiting)
     {
-        gNextScene = SceneType::EXIT_TRANS;
+        SystemData.gNextScene = SceneType::EXIT_TRANS;
     }
 
     _updateCallback();
@@ -1089,23 +1089,23 @@ void SceneSelect::updateFadeout()
         if (gSelectContext.isGoingToKeyConfig)
         {
             SoundMgr::stopSysSamples();
-            gNextScene = SceneType::KEYCONFIG;
+            SystemData.gNextScene = SceneType::KEYCONFIG;
         }
         else if (gSelectContext.isGoingToSkinSelect)
         {
             SoundMgr::stopSysSamples();
-            gNextScene = SceneType::CUSTOMIZE;
+            SystemData.gNextScene = SceneType::CUSTOMIZE;
             gInCustomize = true;
         }
         else if (gSelectContext.isGoingToReboot)
         {
             SoundMgr::stopSysSamples();
-            gNextScene = SceneType::PRE_SELECT;
+            SystemData.gNextScene = SceneType::PRE_SELECT;
         }
         else
         {
             SoundMgr::stopSysSamples();
-            gNextScene = SceneType::EXIT_TRANS;
+            SystemData.gNextScene = SceneType::EXIT_TRANS;
         }
     }
 }
@@ -1172,7 +1172,7 @@ void SceneSelect::inputGamePress(InputMask& m, const Time& t)
     //    if (!hasPanelOpened)
     //    {
     //        LOG_DEBUG << "[Select] ESC";
-    //        gNextScene = SceneType::EXIT_TRANS;
+    //        SystemData.gNextScene = SceneType::EXIT_TRANS;
     //        return;
     //    }
     //}
@@ -2383,7 +2383,7 @@ void SceneSelect::decide()
         }
     }
 
-    gNextScene = SceneType::DECIDE;
+    SystemData.gNextScene = SceneType::DECIDE;
 }
 
 void SceneSelect::navigateUpBy1(const Time& t)

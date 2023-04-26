@@ -1,6 +1,5 @@
+#include "pch.h"
 #include "asynclooper.h"
-#include <numeric>
-#include <chrono>
 
 #ifndef WIN32
 #include <ratio>

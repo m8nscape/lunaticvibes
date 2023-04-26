@@ -4,9 +4,9 @@
 #include "game/ruleset/ruleset_bms_network.h"
 #include "game/scene/scene_context.h"
 
-ArenaData gArenaData;
+ArenaDataInternal gArenaData;
 
-void ArenaData::reset()
+void ArenaDataInternal::reset()
 {
 	online = false;
 	expired = false;
@@ -29,38 +29,38 @@ void ArenaData::reset()
 	}
 }
 
-size_t ArenaData::getPlayerCount()
+size_t ArenaDataInternal::getPlayerCount()
 { 
 	return playerIDs.size(); 
 }
 
-const std::string& ArenaData::getPlayerName(size_t index)
+const std::string& ArenaDataInternal::getPlayerName(size_t index)
 {
 	static const std::string empty = "";
 	return index < getPlayerCount() ? data[playerIDs[index]].name : empty;
 }
 
-std::shared_ptr<vRulesetNetwork> ArenaData::getPlayerRuleset(size_t index)
+std::shared_ptr<vRulesetNetwork> ArenaDataInternal::getPlayerRuleset(size_t index)
 {
 	return index < getPlayerCount() && playing ? data[playerIDs[index]].ruleset : nullptr;
 }
 
-int ArenaData::getPlayerID(size_t index)
+int ArenaDataInternal::getPlayerID(size_t index)
 {
 	return index < getPlayerCount() ? playerIDs[index] : -1;
 }
 
-bool ArenaData::isSelfReady()
+bool ArenaDataInternal::isSelfReady()
 {
 	return ready;
 }
 
-bool ArenaData::isPlayerReady(size_t index)
+bool ArenaDataInternal::isPlayerReady(size_t index)
 {
 	return index < getPlayerCount() ? data[playerIDs[index]].ready: false;
 }
 
-void ArenaData::initPlaying(RulesetType rulesetType)
+void ArenaDataInternal::initPlaying(RulesetType rulesetType)
 {
 	unsigned keys = 7;
 	switch (gPlayContext.mode)
@@ -88,12 +88,12 @@ void ArenaData::initPlaying(RulesetType rulesetType)
 	}
 }
 
-void ArenaData::startPlaying()
+void ArenaDataInternal::startPlaying()
 {
 	playing = true;
 }
 
-void ArenaData::stopPlaying()
+void ArenaDataInternal::stopPlaying()
 {
 	ready = false;
 	playStartTimeMs = 0;
@@ -107,7 +107,7 @@ void ArenaData::stopPlaying()
 	}
 }
 
-void ArenaData::updateTexts()
+void ArenaDataInternal::updateTexts()
 {
 	State::set(IndexText::ARENA_PLAYER_NAME_1, gArenaData.getPlayerName(0));
 	State::set(IndexText::ARENA_PLAYER_NAME_2, gArenaData.getPlayerName(1));
@@ -128,7 +128,7 @@ void ArenaData::updateTexts()
 	}
 }
 
-void ArenaData::updateGlobals()
+void ArenaDataInternal::updateGlobals()
 {
 	Time t;
 	std::vector<std::pair<unsigned, IndexOption>> ranking;

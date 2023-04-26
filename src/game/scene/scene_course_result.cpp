@@ -288,11 +288,11 @@ SceneCourseResult::~SceneCourseResult()
 
 void SceneCourseResult::_updateAsync()
 {
-    if (gNextScene != SceneType::COURSE_RESULT) return;
+    if (SystemData.gNextScene != SceneType::COURSE_RESULT) return;
 
     if (gAppIsExiting)
     {
-        gNextScene = SceneType::EXIT_TRANS;
+        SystemData.gNextScene = SceneType::EXIT_TRANS;
     }
 
     switch (state)
@@ -420,7 +420,7 @@ void SceneCourseResult::updateFadeout()
         gPlayContext.courseStageReplayPathNew.clear();
         gPlayContext.isAuto = false;
         gPlayContext.isReplay = false;
-        gNextScene = gQuitOnFinish ? SceneType::EXIT_TRANS : SceneType::SELECT;
+        SystemData.gNextScene = gQuitOnFinish ? SceneType::EXIT_TRANS : SceneType::SELECT;
     }
 }
 

@@ -244,11 +244,11 @@ SceneResult::~SceneResult()
 
 void SceneResult::_updateAsync()
 {
-    if (gNextScene != SceneType::RESULT) return;
+    if (SystemData.gNextScene != SceneType::RESULT) return;
 
     if (gAppIsExiting)
     {
-        gNextScene = SceneType::EXIT_TRANS;
+        SystemData.gNextScene = SceneType::EXIT_TRANS;
     }
 
     switch (state)
@@ -434,7 +434,7 @@ void SceneResult::updateFadeout()
             }
 
             clearContextPlayForRetry();
-            gNextScene = SceneType::PLAY;
+            SystemData.gNextScene = SceneType::PLAY;
         }
         else if (gPlayContext.isCourse)
         {
@@ -526,11 +526,11 @@ void SceneResult::updateFadeout()
                     }
                 }
                 clearContextPlayForRetry();
-                gNextScene = SceneType::PLAY;
+                SystemData.gNextScene = SceneType::PLAY;
             }
             else
             {
-                gNextScene = SceneType::COURSE_RESULT;
+                SystemData.gNextScene = SceneType::COURSE_RESULT;
             }
         }
         else
@@ -538,7 +538,7 @@ void SceneResult::updateFadeout()
             clearContextPlay();
             gPlayContext.isAuto = false;
             gPlayContext.isReplay = false;
-            gNextScene = gQuitOnFinish ? SceneType::EXIT_TRANS : SceneType::SELECT;
+            SystemData.gNextScene = gQuitOnFinish ? SceneType::EXIT_TRANS : SceneType::SELECT;
         }
     }
 }

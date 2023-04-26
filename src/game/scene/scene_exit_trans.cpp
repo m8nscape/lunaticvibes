@@ -6,5 +6,5 @@ SceneExitTrans::SceneExitTrans() : SceneBase(SkinType::EXIT_TRANS, 240)
 	_type = SceneType::EXIT_TRANS;
 
 	LOG_DEBUG << "[ExitTrans]";
-	gNextScene = SceneType::EXIT;
+	SystemData.gNextScene = SceneType::EXIT;
 }
