@@ -1,7 +1,4 @@
 #pragma once
-#include <variant>
-#include <mutex>
-#include <future>
 #include "scene.h"
 #include "scene_context.h"
 #include "common/chartformat/chartformat.h"

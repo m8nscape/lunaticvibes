@@ -1,9 +1,4 @@
 #pragma once
-#include <string>
-#include <array>
-#include <vector>
-#include <map>
-#include "common/types.h"
 namespace i18nText
 {
 	enum i18nTextIndex

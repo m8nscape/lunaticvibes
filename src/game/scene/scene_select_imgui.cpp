@@ -1,3 +1,4 @@
+#include "common/pch.h"
 #include "scene_select.h"
 #include "config/config_mgr.h"
 #include "game/sound/sound_mgr.h"

@@ -3,9 +3,6 @@
 #include "ruleset_bms.h"
 #include "ruleset_network.h"
 
-#include "cereal/cereal.hpp"
-#include "cereal/types/string.hpp"
-
 class RulesetBMSNetwork : public RulesetBMS, public vRulesetNetwork
 {
 protected:

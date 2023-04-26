@@ -1,10 +1,4 @@
 #pragma once
-#include <mutex>
-#include <string>
-#include <vector>
-#include <array>
-#include <list>
-#include <memory>
 #include "scene.h"
 #include "scene_context.h"
 #include "scene_pre_select.h"

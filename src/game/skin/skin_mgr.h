@@ -1,6 +1,4 @@
 #pragma once
-#include <array>
-#include <memory>
 #include "skin.h"
 
 typedef std::shared_ptr<SkinBase> pSkin;

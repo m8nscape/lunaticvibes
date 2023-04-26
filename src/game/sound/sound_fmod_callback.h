@@ -1,7 +1,5 @@
 #pragma once
 #include "fmod.hpp"
-#include <queue>
-#include <mutex>
 
 typedef std::lock_guard<std::mutex> guard;
 typedef std::queue<FMOD_ASYNCREADINFO*> SampleQueue;

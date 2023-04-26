@@ -1,7 +1,4 @@
-#include <cassert>
-#include <future>
-#include <set>
-#include <random>
+#include "common/pch.h"
 #include "scene_play.h"
 #include "scene_context.h"
 #include "game/sound/sound_mgr.h"
@@ -12,8 +9,6 @@
 #include "game/chart/chart_bms.h"
 #include "game/graphics/sprite_video.h"
 #include "config/config_mgr.h"
-#include "common/log.h"
-#include "common/sysutil.h"
 #include "game/sound/sound_sample.h"
 #include "game/skin/skin_lr2_button_callbacks.h"
 #include "game/skin/skin_lr2_slider_callbacks.h"

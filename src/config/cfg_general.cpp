@@ -1,3 +1,4 @@
+#include "common/pch.h"
 #include "cfg_general.h"
 #include "config_mgr.h"
 

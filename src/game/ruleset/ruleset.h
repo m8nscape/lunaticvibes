@@ -1,5 +1,4 @@
 #pragma once
-#include <vector>
 #include "game/input/input_wrapper.h"
 #include "common/chartformat/chartformat.h"
 #include "game/chart/chart.h"

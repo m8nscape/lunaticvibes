@@ -1,3 +1,4 @@
+#include "common/pch.h"
 #include "scene_customize.h"
 
 #include "scene_context.h"

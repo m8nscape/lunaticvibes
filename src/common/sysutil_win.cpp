@@ -1,9 +1,6 @@
 #if _WIN32 || _WIN64
-#define WIN32_LEAN_AND_MEAN
+#include "pch.h"
 #include "sysutil.h"
-#include <cstdio>
-#include <filesystem>
-#include <windows.h>
 #include <VersionHelpers.h>
 
 #ifdef _MSC_VER

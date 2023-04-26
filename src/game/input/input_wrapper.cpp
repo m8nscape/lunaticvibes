@@ -1,8 +1,7 @@
+#include "common/pch.h"
 #include "input_wrapper.h"
 #include "game/runtime/state.h"
 #include "game/runtime/generic_info.h"
-#include "common/log.h"
-#include <cassert>
 
 InputWrapper::InputWrapper(unsigned rate, bool background) : 
     AsyncLooper("Input loop", std::bind(&InputWrapper::_loop, this), rate),

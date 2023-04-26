@@ -1,3 +1,4 @@
+#include "common/pch.h"
 #include "skin_lr2.h"
 #include "game/scene/scene_context.h"
 #include "game/arena/arena_data.h"

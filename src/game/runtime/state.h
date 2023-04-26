@@ -8,9 +8,6 @@
 #include "index/text.h"
 #include "index/timer.h"
 
-#include <string>
-#include <string_view>
-
 // Global state value manager
 class State
 {

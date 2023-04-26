@@ -1,5 +1,5 @@
+#include "common/pch.h"
 #include "sprite.h"
-#include <algorithm>
 
 
 constexpr double grad(int dst, int src, double t)

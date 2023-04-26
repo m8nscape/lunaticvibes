@@ -1,10 +1,5 @@
 #pragma once
 
-#include <map>
-#include <string>
-
-#include "common/types.h"
-
 struct DXArchiveSegment
 {
     size_t size;

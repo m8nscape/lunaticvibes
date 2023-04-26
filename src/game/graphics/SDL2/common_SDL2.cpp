@@ -1,14 +1,10 @@
+#include "common/pch.h"
 #include "game/graphics/graphics.h"
 #include "graphics_SDL2.h"
 #include "window_SDL2.h"
 #include "SDL2_gfxPrimitives.h"
 #include "common/log.h"
 #include "common/sysutil.h"
-
-#include <cmath>
-#include <memory>
-#include <map>
-#include <future>
 
 #define SDL_LOAD_NOAUTOFREE 0
 #define SDL_LOAD_AUTOFREE 1

@@ -1,3 +1,4 @@
+#include "common/pch.h"
 #include "input.h"
 
 #include <SDL_scancode.h>

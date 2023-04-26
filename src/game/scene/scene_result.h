@@ -1,5 +1,4 @@
 #pragma once
-#include <mutex>
 #include "scene.h"
 
 class ScoreBase;

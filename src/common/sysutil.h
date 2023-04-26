@@ -19,13 +19,11 @@ void SetWindowForeground(bool foreground);
 #define SetDebugThreadName(x) do {} while(0)
 #endif
 
-#include <functional>
 void pushMainThreadTask(std::function<void()> f);
 void doMainThreadTask();
 void StopHandleMainThreadTask();
 bool CanHandleMainThreadTask();
 
-#include <future>
 template<typename T>
 inline T pushAndWaitMainThreadTask(std::function<T()> f)
 {

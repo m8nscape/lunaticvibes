@@ -3,10 +3,6 @@
 #include "cfg_profile.h"
 #include "cfg_input.h"
 #include "cfg_skin.h"
-#include <string>
-#include <memory>
-#include <filesystem>
-#include <shared_mutex>
 
 class ConfigMgr
 {

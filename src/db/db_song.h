@@ -1,10 +1,5 @@
 #pragma once
-#include <string>
-#include <vector>
-#include <memory>
 #include "db_conn.h"
-#include "common/types.h"
-#include "common/utils.h"
 #include "common/entry/entry_folder.h"
 #include "common/entry/entry_song.h"
 

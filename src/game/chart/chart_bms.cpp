@@ -1,6 +1,6 @@
+#include "common/pch.h"
 #include "chart_bms.h"
 #include "game/scene/scene_context.h"
-#include <random>
 #include "game/runtime/state.h"
 
 static const size_t NOPE = -1;

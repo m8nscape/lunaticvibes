@@ -1,7 +1,5 @@
+#include "pch.h"
 #include "sysutil.h"
-#include <queue>
-#include <shared_mutex>
-#include <future>
 
 std::shared_mutex mainThreadTaskQueueMutex;
 std::queue<std::function<void()>> mainThreadTaskQueue;

@@ -1,11 +1,7 @@
 #pragma once
 
-#include <array>
-#include <string>
-#include <thread>
 #include "sound_driver.h"
 #include "fmod.hpp"
-#include "common/types.h"
 
 // This game uses FMOD Low Level API to play sounds as we don't use FMOD Studio,
 

@@ -1,3 +1,4 @@
+#include "common/pch.h"
 
 
 #include "skin_lr2_button_callbacks.h"
@@ -9,8 +10,6 @@
 #include "game/arena/arena_data.h"
 
 #include "config/config_mgr.h"
-
-#include <boost/algorithm/string.hpp>
 
 namespace lr2skin::button
 {

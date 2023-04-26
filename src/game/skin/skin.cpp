@@ -1,10 +1,8 @@
+#include "common/pch.h"
 #include "skin.h"
 #include "game/graphics/sprite_lane.h"
 #include "game/graphics/sprite_video.h"
 #include "game/scene/scene_context.h"
-#include <execution>
-#include <algorithm>
-#include "common/utils.h"
 
 std::map<std::string, std::shared_ptr<Texture>> SkinBase::preDefinedTextures;
 std::map<std::string, std::shared_ptr<Texture>> SkinBase::textureNameMap;

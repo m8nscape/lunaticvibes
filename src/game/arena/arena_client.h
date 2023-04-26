@@ -1,11 +1,5 @@
 #pragma once
-#include <string>
-#include <vector>
-#include <future>
-#include <boost/array.hpp>
-#include <boost/asio.hpp>
 
-#include "common/types.h"
 #include "common/asynclooper.h"
 
 #ifndef CALLBACK

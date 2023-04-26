@@ -1,15 +1,7 @@
-#include <set>
-#include <regex>
-#include "common/utils.h"
+#include "common/pch.h"
 #include "db_song.h"
-#include "common/log.h"
 #include "common/chartformat/chartformat_types.h"
 #include "game/chart/chart_types.h"
-#include "re2/re2.h"
-
-#define BOOST_ASIO_NO_EXCEPTIONS
-#include <boost/asio/post.hpp>
-#include <boost/asio/thread_pool.hpp>
 
 const char* CREATE_FOLDER_TABLE_STR =
 "CREATE TABLE IF NOT EXISTS folder( "

@@ -1,8 +1,7 @@
 #pragma once
+
 #define PLOG_CAPTURE_FILE 
 #include <plog/Log.h>
-#include <string>
-#include <sstream>
 
 #ifdef _WIN32
 class RecordUTF8 : public plog::Record

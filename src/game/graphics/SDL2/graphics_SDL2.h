@@ -8,11 +8,6 @@
 #include "SDL_image.h"
 #include "SDL_filesystem.h"
 #include "SDL_ttf.h"
-#include <vector>
-#include <memory>
-#include <string>
-#include <filesystem>
-#include <shared_mutex>
 
 // global control pointer, do not modify
 inline SDL_Renderer* gFrameRenderer;

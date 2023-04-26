@@ -1,7 +1,5 @@
+#include "common/pch.h"
 #include "i18n.h"
-#include <fstream>
-#include <sstream>
-#include <re2/re2.h>
 
 std::vector<i18n> i18n::languages;
 size_t i18n::currentLanguage = 0;

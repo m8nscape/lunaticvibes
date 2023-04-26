@@ -1,11 +1,6 @@
 #pragma once
 #include "types.h"
 #include "fraction.h"
-#include <string>
-#include <chrono>
-#include <variant>
-#include <climits>
-#include <iostream>
 
 typedef unsigned Bar;
 typedef double BPM;

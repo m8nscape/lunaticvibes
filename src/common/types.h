@@ -1,10 +1,4 @@
 #pragma once
-#include <algorithm>
-#include <filesystem>
-#include <utility>
-#include <string>
-#include <string_view>
-#include <cassert>
 
 typedef std::filesystem::path                   Path;
 typedef Path::string_type                       StringPath;

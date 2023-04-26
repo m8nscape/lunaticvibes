@@ -1,10 +1,10 @@
+#include "common/pch.h"
 #include "arena_client.h"
 #include "arena_data.h"
 #include "arena_internal.h"
 #include "cereal/archives/portable_binary.hpp"
 #include "game/scene/scene_context.h"
 #include "game/runtime/i18n.h"
-#include "re2/re2.h"
 #include "git_version.h"
 
 std::shared_ptr<ArenaClient> g_pArenaClient = nullptr;

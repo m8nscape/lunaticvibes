@@ -27,6 +27,8 @@ target_link_libraries(common
     PUBLIC plog
     PUBLIC re2
     PUBLIC taocpp::json
+    PUBLIC yaml-cpp
+    PUBLIC cereal
 )
 
 # Add OpenSSL (from system)

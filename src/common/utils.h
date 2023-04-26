@@ -1,15 +1,5 @@
 #pragma once
 
-#include <string>
-#include <string_view>
-#include <filesystem>
-#include <vector>
-#include <utility>
-#include <memory>
-
-#include "hash.h"
-#include "types.h"
-
 namespace fs = std::filesystem;
 
 inline Path executablePath;

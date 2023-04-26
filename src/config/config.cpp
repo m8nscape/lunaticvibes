@@ -1,7 +1,5 @@
+#include "common/pch.h"
 #include "config.h"
-#include "common/log.h"
-#include <fstream>
-#include <filesystem>
 
 vConfig::vConfig()
 {

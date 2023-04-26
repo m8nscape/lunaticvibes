@@ -1,16 +1,9 @@
-#include "common/log.h"
+#include "common/pch.h"
 #include "sound_fmod_callback.h"
 #include "sound_fmod.h"
 #include "fmod_errors.h"
-#include <cstdlib>
 
-#include "common/utils.h"
 #include "config/config_mgr.h"
-
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif
 
 SoundDriverFMOD::SoundDriverFMOD(): SoundDriver(std::bind(&SoundDriverFMOD::update, this))
 {

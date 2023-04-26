@@ -1,9 +1,5 @@
 #pragma once
 
-#include <string>
-
-#include "utils.h"
-
 template <size_t _Len>
 class Hash
 {

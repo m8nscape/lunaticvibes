@@ -1,8 +1,6 @@
 #pragma once
 #include "sprite.h"
 #include "game/chart/chart.h"
-#include <vector>
-#include <memory>
 
 // Draw the whole lane (on screen) with only one sprite per key.
 // Currently only handles normal notes. LN, mines or others are meant to be managed by other Sprite class.

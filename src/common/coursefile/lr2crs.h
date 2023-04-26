@@ -1,7 +1,4 @@
 #pragma once
-#include <string>
-#include <vector>
-#include "common/types.h"
 
 class CourseLr2crs
 {

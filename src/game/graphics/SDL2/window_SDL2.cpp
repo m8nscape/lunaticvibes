@@ -1,6 +1,5 @@
 #ifdef RENDER_SDL2
-
-#include "common/meta.h"
+#include "common/pch.h"
 #include "window_SDL2.h"
 #include "graphics_SDL2.h"
 #include <SDL.h>
@@ -8,10 +7,6 @@
 #include <SDL_ttf.h>
 #include "SDL_syswm.h"
 #include "game/graphics/video.h"
-#include "common/log.h"
-#include <climits>
-#include <cstdint>
-#include <string>
 #include "config/config_mgr.h"
 #include "common/sysutil.h"
 #include "imgui.h"

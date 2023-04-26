@@ -1,3 +1,4 @@
+#include "common/pch.h"
 #include "sprite_graph.h"
 #include "game/scene/scene_context.h"
 

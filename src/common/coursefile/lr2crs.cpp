@@ -1,6 +1,5 @@
+#include "common/pch.h"
 #include "lr2crs.h"
-#include <fstream>
-#include <sstream>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 

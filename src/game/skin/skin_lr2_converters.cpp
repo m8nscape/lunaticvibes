@@ -1,3 +1,4 @@
+#include "common/pch.h"
 #include "skin_lr2_converters.h"
 #include "common/entry/entry_song.h"
 #include "game/chart/chart.h"

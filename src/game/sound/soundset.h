@@ -1,5 +1,4 @@
 #pragma once
-#include "common/types.h"
 
 enum class eSoundSetType
 {

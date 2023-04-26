@@ -1,21 +1,9 @@
 #pragma once
-#include <functional>
-#include <shared_mutex>
-#include <map>
-#include "types.h"
 
 #if WIN32
-
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#include <future>
 typedef HANDLE LooperHandler;
-
 #else
-
-#include <thread>
 typedef std::thread LooperHandler;
-
 #endif // WIN32
 
 

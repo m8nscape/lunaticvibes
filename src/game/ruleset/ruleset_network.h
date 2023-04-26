@@ -1,6 +1,5 @@
 #pragma once
 #include "ruleset.h"
-#include <vector>
 
 class vRulesetNetwork: virtual public RulesetBase
 {

@@ -1,9 +1,7 @@
 #ifndef VIDEO_DISABLED
+#include "common/pch.h"
 
-#include <thread>
-#include <chrono>
 #include "sprite_video.h"
-#include "common/utils.h"
 extern "C"
 {
 #include "libavutil/frame.h"

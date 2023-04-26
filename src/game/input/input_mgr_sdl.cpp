@@ -1,6 +1,7 @@
 #ifndef WIN32
 #ifdef RENDER_SDL2
 
+#include "common/pch.h"
 #include "game/graphics/SDL2/input.h"
 
 void initInput()

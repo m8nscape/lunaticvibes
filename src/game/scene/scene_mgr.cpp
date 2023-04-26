@@ -1,3 +1,4 @@
+#include "common/pch.h"
 #include "scene_mgr.h"
 #include "scene_context.h"
 #include "scene_pre_select.h"

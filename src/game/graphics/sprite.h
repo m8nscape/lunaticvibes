@@ -2,9 +2,6 @@
 #include "common/beat.h"
 #include "graphics.h"
 #include "game/runtime/state.h"
-#include <vector>
-#include <memory>
-#include <functional>
 
 enum class SpriteTypes
 {

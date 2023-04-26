@@ -1,3 +1,4 @@
+#include "common/pch.h"
 #include "scene_play.h"
 #include "game/runtime/i18n.h"
 #include "imgui.h"

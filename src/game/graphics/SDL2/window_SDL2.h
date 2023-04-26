@@ -1,5 +1,5 @@
 #pragma once
-#include "SDL_render.h"
+struct SDL_Window;
 
 // global control pointer, do not modify
 inline SDL_Window* gFrameWindow;

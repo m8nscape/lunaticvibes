@@ -1,7 +1,6 @@
+#include "common/pch.h"
 #include "chartformat.h"
 #include "chartformat_bms.h"
-#include <fstream>
-#include "common/log.h"
 
 eChartFormat analyzeChartType(const Path& p)
 {
