@@ -85,6 +85,9 @@
         "numeric": "cpp",
         "queue": "cpp",
         "regex": "cpp",
-        "stack": "cpp"
+        "stack": "cpp",
+        "*.ipp": "cpp",
+        "csignal": "cpp",
+        "cwctype": "cpp"
     }
 }

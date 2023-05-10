@@ -1,12 +1,13 @@
 #pragma once
 
-#include "index/bargraph.h"
-#include "index/number.h"
-#include "index/option.h"
-#include "index/slider.h"
-#include "index/switch.h"
-#include "index/text.h"
-#include "index/timer.h"
+// these files kills intellisense
+//#include "index/bargraph.h"
+//#include "index/number.h"
+//#include "index/option.h"
+//#include "index/slider.h"
+//#include "index/switch.h"
+//#include "index/text.h"
+//#include "index/timer.h"
 
 // Global state value manager
 class State

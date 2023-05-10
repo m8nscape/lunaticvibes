@@ -562,7 +562,6 @@ void ArenaHost::handleJoinLobby(const std::string& clientKey, std::shared_ptr<Ar
 
 	gArenaData.data[c.id].name = pMsg->playerName;
 	gArenaData.playerIDs.push_back(c.id);
-	gArenaData.updateTexts();
 
 	ArenaMessageResponse resp(*pMsg);
 
@@ -902,7 +901,6 @@ void ArenaHost::update()
 
 					gArenaData.playerIDs.erase(gArenaData.playerIDs.begin() + i);
 					gArenaData.data.erase(c.id);
-					gArenaData.updateTexts();
 				}
 			}
 			createNotification((boost::format(i18n::c(i18nText::ARENA_PLAYER_LEFT)) % c.name).str());

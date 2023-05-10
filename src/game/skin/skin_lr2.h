@@ -39,7 +39,7 @@ namespace LR2SkinDef
     };
 
     // unsigned
-    enum timer
+    enum convertTimerIndex
     {
         SCENE_START = 0,
         INPUT_START,

@@ -6,3 +6,5 @@
 #include "data_result.h"
 #include "data_profile.h"
 #include "data_keyconfig.h"
+#include "data_lr2customize.h"
+#include "data_shared.h"

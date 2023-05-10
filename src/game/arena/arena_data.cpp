@@ -108,27 +108,6 @@ void ArenaDataInternal::stopPlaying()
 	}
 }
 
-void ArenaDataInternal::updateTexts()
-{
-	State::set(IndexText::ARENA_PLAYER_NAME_1, gArenaData.getPlayerName(0));
-	State::set(IndexText::ARENA_PLAYER_NAME_2, gArenaData.getPlayerName(1));
-	State::set(IndexText::ARENA_PLAYER_NAME_3, gArenaData.getPlayerName(2));
-	State::set(IndexText::ARENA_PLAYER_NAME_4, gArenaData.getPlayerName(3));
-	State::set(IndexText::ARENA_PLAYER_NAME_5, gArenaData.getPlayerName(4));
-	State::set(IndexText::ARENA_PLAYER_NAME_6, gArenaData.getPlayerName(5));
-	State::set(IndexText::ARENA_PLAYER_NAME_7, gArenaData.getPlayerName(6));
-	State::set(IndexText::ARENA_PLAYER_NAME_8, gArenaData.getPlayerName(7));
-
-	for (size_t i = 0; i < MAX_ARENA_PLAYERS; ++i)
-	{
-		if (auto prb = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(i)); prb)
-		{
-			State::set(IndexText(size_t(IndexText::ARENA_MODIFIER_1) + i), prb->getModifierText());
-			State::set(IndexText(size_t(IndexText::ARENA_MODIFIER_SHORT_1) + i), prb->getModifierTextShort());
-		}
-	}
-}
-
 void ArenaDataInternal::updateGlobals()
 {
 	Time t;

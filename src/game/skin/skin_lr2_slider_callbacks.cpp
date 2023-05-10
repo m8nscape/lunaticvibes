@@ -24,7 +24,7 @@ void select_pos(double p)
     size_t idx_new = (size_t)std::floor(p * gSelectContext.entries.size());
     if (idx_new != gSelectContext.selectedEntryIndex)
     {
-        State::set(IndexSlider::SELECT_LIST, (double)idx_new / gSelectContext.entries.size());
+        SelectData.selectedEntryIndexRolling = (double)idx_new / gSelectContext.entries.size();
         gSelectContext.draggingListSlider = true;
     }
 }

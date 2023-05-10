@@ -1,6 +1,6 @@
 #pragma once
 
-namespace lv
+namespace lv::data
 {
 
 inline struct Struct_ProfileData

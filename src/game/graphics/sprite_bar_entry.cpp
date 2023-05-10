@@ -3,6 +3,7 @@
 #include "game/scene/scene_context.h"
 #include "common/entry/entry_types.h"
 #include "common/chartformat/chartformat_bms.h"
+#include "game/data/data_select.h"
 
 int SpriteBarEntry::setBody(BarType type, const SpriteAnimated::SpriteAnimatedBuilder& builder)
 {
@@ -45,7 +46,7 @@ int SpriteBarEntry::setLevel(BarLevelType type, const SpriteNumber::SpriteNumber
             << " (Line " << srcLine << ")";
 
     SpriteNumber::SpriteNumberBuilder tmpBuilder = builder;
-    tmpBuilder.numInd = IndexNumber(unsigned(IndexNumber::_SELECT_BAR_LEVEL_0) + index);
+    tmpBuilder.numberCallback = std::bind([](int index) { return lv::data::SelectData.barLevel[index]; }, index);
     sLevel[static_cast<size_t>(type)] = tmpBuilder.build();
     return 0;
 }
@@ -66,7 +67,7 @@ int SpriteBarEntry::setLamp(BarLampType type, const SpriteAnimated::SpriteAnimat
 int SpriteBarEntry::setTitle(BarTitleType type, const SpriteText::SpriteTextBuilder& builder)
 {
     SpriteText::SpriteTextBuilder tmpBuilder = builder;
-    tmpBuilder.textInd = IndexText(int(IndexText::_SELECT_BAR_TITLE_FULL_0) + index);
+    tmpBuilder.textCallback = std::bind([](int index) { return lv::data::SelectData.barTitle[index]; }, index);
     sTitle[static_cast<size_t>(type)] = tmpBuilder.build();
     return 0;
 }
@@ -74,7 +75,7 @@ int SpriteBarEntry::setTitle(BarTitleType type, const SpriteText::SpriteTextBuil
 int SpriteBarEntry::setTitle(BarTitleType type, const SpriteImageText::SpriteImageTextBuilder& builder)
 {
     SpriteImageText::SpriteImageTextBuilder tmpBuilder = builder;
-    tmpBuilder.textInd = IndexText(int(IndexText::_SELECT_BAR_TITLE_FULL_0) + index);
+    tmpBuilder.textCallback = std::bind([](int index) { return lv::data::SelectData.barTitle[index]; }, index);
     sTitle[static_cast<size_t>(type)] = tmpBuilder.build();
     return 0;
 }
@@ -198,7 +199,11 @@ bool SpriteBarEntry::update(Time time)
         if (pEntry->type() == eEntryType::NEW_SONG_FOLDER)
             isNewEntry = true;
         else
-            isNewEntry = (pEntry->_addTime > std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count() - State::get(IndexNumber::NEW_ENTRY_SECONDS));
+        {
+            using namespace std::chrono;
+            isNewEntry = (pEntry->_addTime > duration_cast<seconds>(
+                system_clock::now().time_since_epoch()).count() - lv::data::SelectData.newEntrySeconds);
+        }
 
         static const std::map<eEntryType, size_t> BAR_TYPE_MAP =
         {

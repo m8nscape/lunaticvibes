@@ -12,16 +12,6 @@ public:
     virtual ~SceneCustomize();
 
 protected:
-    struct Option
-    {
-        int id;
-        StringContent displayName;
-        std::vector<StringContent> entries;
-        size_t selectedEntry;
-    };
-    size_t topOptionIndex = 0;
-    std::map<StringContent, Option> optionsMap;
-    std::vector<StringContent> optionsKeyList;
 
     std::map<SkinType, std::vector<Path>> skinList;
     std::vector<Path> soundsetList;

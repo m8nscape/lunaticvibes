@@ -15,8 +15,6 @@ KeyConfigContextParams gKeyconfigContext;
 CustomizeContextParams gCustomizeContext;
 UpdateContextParams gUpdateContext;
 OverlayContextParams gOverlayContext;
-std::shared_ptr<SongDB> g_pSongDB;
-std::shared_ptr<ScoreDB> g_pScoreDB;
 
 std::pair<bool, Option::e_lamp_type> getSaveScoreType()
 {
@@ -393,7 +391,7 @@ void loadSongList()
         }
     }
 
-    State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size()));
+    SelectData.selectedEntryIndexRolling = gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size());
 }
 
 void updateEntryScore(size_t idx)
@@ -534,7 +532,7 @@ void sortSongList()
     {
         gSelectContext.selectedEntryIndex = 0;
     }
-    State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size()));
+    SelectData.selectedEntryIndexRolling = gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size());
 }
 
 void setBarInfo()
@@ -1312,7 +1310,7 @@ void switchVersion(int difficulty)
                         }
                     }
                 }
-                State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size()));
+                SelectData.selectedEntryIndexRolling = gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size());
             }
             */
 
@@ -1340,7 +1338,7 @@ void switchVersion(int difficulty)
                         else if (currentFound && pns->_file->gamemode == pf->gamemode && (difficulty == 0 || pns->_file->difficulty == difficulty))
                         {
                             gSelectContext.selectedEntryIndex = nextIdx;
-                            State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size()));
+                            SelectData.selectedEntryIndexRolling = gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size());
                             return;
                         }
                     }
@@ -1359,7 +1357,7 @@ void switchVersion(int difficulty)
                             if (pns->_file != pf && pns->_file->gamemode == pf->gamemode && (difficulty == 0 || pns->_file->difficulty == difficulty))
                             {
                                 gSelectContext.selectedEntryIndex = nextIdx;
-                                State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size()));
+                                SelectData.selectedEntryIndexRolling = gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size());
                                 return;
                             }
                         }
@@ -1368,7 +1366,7 @@ void switchVersion(int difficulty)
 
                 // fallback to first entry
                 gSelectContext.selectedEntryIndex = firstIdx;
-                State::set(IndexSlider::SELECT_LIST, gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size()));
+                SelectData.selectedEntryIndexRolling = gSelectContext.entries.empty() ? 0.0 : ((double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size());
             }
         }
     }

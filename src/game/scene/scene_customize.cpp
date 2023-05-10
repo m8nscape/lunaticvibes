@@ -7,6 +7,7 @@
 #include "game/skin/skin_mgr.h"
 #include "game/skin/skin_lr2.h"
 #include "game/sound/soundset_lr2.h"
+#include "game/data/data_lr2customize.h"
 
 #include "scene_decide.h"
 
@@ -14,6 +15,10 @@ SceneCustomize::SceneCustomize() : SceneBase(SkinType::THEME_SELECT, 240)
 {
     _type = SceneType::CUSTOMIZE;
     _updateCallback = std::bind(&SceneCustomize::updateStart, this);
+
+    LR2CustomizeData.topOptionIndex = 0;
+    LR2CustomizeData.optionsMap.clear();
+    LR2CustomizeData.optionsKeyList.clear();
 
     gCustomizeContext.skinDir = 0;
     gCustomizeContext.optionUpdate = 0;
@@ -339,10 +344,10 @@ void SceneCustomize::updateMain()
     {
         gCustomizeContext.optionUpdate = false;
 
-        size_t idxOption = topOptionIndex + gCustomizeContext.optionIdx;
-        if (idxOption < optionsKeyList.size())
+        size_t idxOption = LR2CustomizeData.topOptionIndex + gCustomizeContext.optionIdx;
+        if (idxOption < LR2CustomizeData.optionsKeyList.size())
         {
-            Option& op = optionsMap[optionsKeyList[idxOption]];
+            Option& op = LR2CustomizeData.optionsMap[LR2CustomizeData.optionsKeyList[idxOption]];
             size_t idxEntry = op.selectedEntry;
             if (gCustomizeContext.optionDir > 0)
             {
@@ -396,7 +401,7 @@ void SceneCustomize::updateMain()
     {
         gCustomizeContext.optionDragging = false;
 
-        topOptionIndex = State::get(IndexSlider::SKIN_CONFIG_OPTIONS) * optionsMap.size();
+        LR2CustomizeData.topOptionIndex = State::get(IndexSlider::SKIN_CONFIG_OPTIONS) * LR2CustomizeData.optionsMap.size();
         updateTexts();
     }
     if (exiting)
@@ -444,8 +449,8 @@ void SceneCustomize::setOption(size_t idxOption, size_t idxEntry)
     {
     case SkinVersion::LR2beta3:
     {
-        assert(idxOption < optionsKeyList.size());
-        Option& op = optionsMap[optionsKeyList[idxOption]];
+        assert(idxOption < LR2CustomizeData.optionsKeyList.size());
+        Option& op = LR2CustomizeData.optionsMap[LR2CustomizeData.optionsKeyList[idxOption]];
         if (op.id != 0)
         {
             for (size_t i = 0; i < op.entries.size(); ++i)
@@ -493,8 +498,8 @@ void SceneCustomize::load(SkinType mode)
     StringPath configFilePath;
     if (mode == SkinType::SOUNDSET)
     {
-        optionsMap.clear();
-        optionsKeyList.clear();
+        LR2CustomizeData.optionsMap.clear();
+        LR2CustomizeData.optionsKeyList.clear();
 
         Path path = PathFromUTF8(convertLR2Path(ConfigMgr::get('E', cfg::E_LR2PATH, "."),
             ConfigMgr::get("S", cfg::S_PATH_SOUNDSET, cfg::S_DEFAULT_PATH_SOUNDSET)));
@@ -514,8 +519,8 @@ void SceneCustomize::load(SkinType mode)
             op.selectedEntry = opSkin.defaultEntry;
             op.id = opSkin.id;
             op.entries = opSkin.entries;
-            optionsMap[opSkin.internalName] = op;
-            optionsKeyList.push_back(opSkin.internalName);
+            LR2CustomizeData.optionsMap[opSkin.internalName] = op;
+            LR2CustomizeData.optionsKeyList.push_back(opSkin.internalName);
         }
 
         configFilePath = ss.getFilePath();
@@ -525,8 +530,8 @@ void SceneCustomize::load(SkinType mode)
         if (!SkinMgr::get(mode))
             SkinMgr::load(mode, true);
         std::shared_ptr<SkinBase> ps = SkinMgr::get(mode);
-        optionsMap.clear();
-        optionsKeyList.clear();
+        LR2CustomizeData.optionsMap.clear();
+        LR2CustomizeData.optionsKeyList.clear();
 
         if (ps != nullptr)
         {
@@ -543,8 +548,8 @@ void SceneCustomize::load(SkinType mode)
                 op.selectedEntry = opSkin.defaultEntry;
                 op.id = opSkin.id;
                 op.entries = opSkin.entries;
-                optionsMap[opSkin.internalName] = op;
-                optionsKeyList.push_back(opSkin.internalName);
+                LR2CustomizeData.optionsMap[opSkin.internalName] = op;
+                LR2CustomizeData.optionsKeyList.push_back(opSkin.internalName);
             }
 
             configFilePath = ps->getFilePath();
@@ -564,7 +569,7 @@ void SceneCustomize::load(SkinType mode)
         {
             for (const auto& node : YAML::LoadFile(pCustomize.u8string()))
             {
-                if (auto itOp = optionsMap.find(node.first.as<std::string>()); itOp != optionsMap.end())
+                if (auto itOp = LR2CustomizeData.optionsMap.find(node.first.as<std::string>()); itOp != LR2CustomizeData.optionsMap.end())
                 {
                     Option& op = itOp->second;
                     auto selectedEntryName = node.second.as<std::string>();
@@ -581,10 +586,10 @@ void SceneCustomize::load(SkinType mode)
         }
     }
 
-    topOptionIndex = 0;
-    if (!optionsMap.empty())
+    LR2CustomizeData.topOptionIndex = 0;
+    if (!LR2CustomizeData.optionsMap.empty())
     {
-        State::set(IndexSlider::SKIN_CONFIG_OPTIONS, double(topOptionIndex) / (optionsMap.size() - 1));
+        State::set(IndexSlider::SKIN_CONFIG_OPTIONS, double(LR2CustomizeData.topOptionIndex) / (LR2CustomizeData.optionsMap.size() - 1));
     }
     updateTexts();
 }
@@ -617,7 +622,7 @@ void SceneCustomize::save(SkinType mode) const
     if (!pCustomize.empty())
     {
         YAML::Node yaml;
-        for (const auto& itOp : optionsMap)
+        for (const auto& itOp : LR2CustomizeData.optionsMap)
         {
             auto& [tag, op] = itOp;
             if (!op.entries.empty())
@@ -636,10 +641,10 @@ void SceneCustomize::updateTexts() const
     {
         IndexText optionNameId = IndexText(size_t(IndexText::スキンカスタマイズカテゴリ名1個目) + i);
         IndexText entryNameId = IndexText(size_t(IndexText::スキンカスタマイズ項目名1個目) + i);
-        size_t idx = topOptionIndex + i;
-        if (idx < optionsKeyList.size())
+        size_t idx = LR2CustomizeData.topOptionIndex + i;
+        if (idx < LR2CustomizeData.optionsKeyList.size())
         {
-            const Option& op = optionsMap.at(optionsKeyList[idx]);
+            const Option& op = LR2CustomizeData.optionsMap.at(LR2CustomizeData.optionsKeyList[idx]);
             State::set(optionNameId, op.displayName);
             State::set(entryNameId, !op.entries.empty() ? op.entries[op.selectedEntry] : "");
         }
@@ -659,22 +664,22 @@ void SceneCustomize::inputGamePress(InputMask& m, const Time& t)
     if (m[Input::Pad::ESC]) exiting = true;
     if (m[Input::Pad::M2]) exiting = true;
 
-    if (m[Input::Pad::MWHEELUP] && topOptionIndex > 0)
+    if (m[Input::Pad::MWHEELUP] && LR2CustomizeData.topOptionIndex > 0)
     {
-        topOptionIndex--;
-        if (!optionsMap.empty())
+        LR2CustomizeData.topOptionIndex--;
+        if (!LR2CustomizeData.optionsMap.empty())
         {
-            State::set(IndexSlider::SKIN_CONFIG_OPTIONS, double(topOptionIndex) / (optionsMap.size() - 1));
+            State::set(IndexSlider::SKIN_CONFIG_OPTIONS, double(LR2CustomizeData.topOptionIndex) / (LR2CustomizeData.optionsMap.size() - 1));
         }
         updateTexts();
     }
 
-    if (m[Input::Pad::MWHEELDOWN] && topOptionIndex + 1 < optionsMap.size())
+    if (m[Input::Pad::MWHEELDOWN] && LR2CustomizeData.topOptionIndex + 1 < LR2CustomizeData.optionsMap.size())
     {
-        topOptionIndex++;
-        if (!optionsMap.empty())
+        LR2CustomizeData.topOptionIndex++;
+        if (!LR2CustomizeData.optionsMap.empty())
         {
-            State::set(IndexSlider::SKIN_CONFIG_OPTIONS, double(topOptionIndex) / (optionsMap.size() - 1));
+            State::set(IndexSlider::SKIN_CONFIG_OPTIONS, double(LR2CustomizeData.topOptionIndex) / (LR2CustomizeData.optionsMap.size() - 1));
         }
         updateTexts();
     }

@@ -42,7 +42,6 @@ private:
     int _selectProfile(const std::string& name);
     int _createProfile(const std::string& newProfile, const std::string& oldProfile);
     std::string _getProfileName() { return P->getName(); }
-    void _setGlobals();
 
     template<class Ty_v>
     Ty_v _get(char type, const std::string& key, const Ty_v& fallback)
@@ -128,7 +127,6 @@ public:
     static void save() { getInst()._save(); }
     static int selectProfile(const std::string& name) { return getInst()._selectProfile(name); }
     static int createProfile(const std::string& newProfile, const std::string& oldProfile) { return getInst()._createProfile(newProfile, oldProfile); }
-    static void setGlobals() { getInst()._setGlobals(); }
     static std::shared_ptr<ConfigGeneral> General() { return getInst()._General(); }
     static std::shared_ptr<ConfigProfile> Profile() { return getInst()._Profile(); }
     static std::shared_ptr<ConfigInput>   Input(GameModeKeys mode)  { return getInst()._Input(mode) ; }

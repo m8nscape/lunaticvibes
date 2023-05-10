@@ -42,6 +42,11 @@ protected:
     void loadBMS(const ChartFormatBMS& bms);
 
 protected:
+    int total = 300;
+public:
+    int getTotal() const { return total; }
+    
+protected:
     decltype(_specialNoteLists.front().begin()) _currentStopNote;
     bool _inStopNote = false;
     double _stopMetre = 0.0;

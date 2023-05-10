@@ -97,7 +97,8 @@ protected:
     RenderParams _current;
     std::vector<MotionKeyFrame> motionKeyFrames;
     int motionLoopTo = -1;
-    IndexTimer motionStartTimer = IndexTimer::SCENE_START;
+    std::string motionStartTimer = "system.scene_start";
+    std::function<void()> updateCallback = [] {};
 
 public:
     struct SpriteBuilder
@@ -117,7 +118,7 @@ public:
 
     virtual void appendMotionKeyFrame(const MotionKeyFrame& f);
     virtual void setMotionLoopTo(int time);
-	virtual void setMotionStartTimer(IndexTimer t);
+	virtual void setMotionStartTimer(const std::string& t);
     bool isMotionKeyFramesEmpty() const { return motionKeyFrames.empty(); }
     void clearMotionKeyFrames() { motionKeyFrames.clear(); }
 
@@ -181,7 +182,7 @@ public:
         if (pSpriteRef) 
             pSpriteRef->setMotionLoopTo(t);
     }
-    virtual void setMotionStartTimer(IndexTimer t) {
+    virtual void setMotionStartTimer(const std::string& t) {
         SpriteBase::setMotionStartTimer(t);
         if (pSpriteRef) 
             pSpriteRef->setMotionStartTimer(t);
@@ -268,14 +269,14 @@ protected:
     unsigned animationFrames = 0;
 	unsigned selections = 0;
     size_t animationFrameIndex = 0;
-	IndexTimer animationStartTimer;
+	std::string animationStartTimer;
     unsigned animationDurationPerLoop = -1;
 public:
     struct SpriteAnimatedBuilder: SpriteSelectionBuilder
     {
         unsigned animationFrameCount = 0;
         unsigned animationDurationPerLoop = 0;
-        IndexTimer animationTimer = IndexTimer::SCENE_START;
+        std::string animationTimer = "scene_start";
 
         std::shared_ptr<SpriteAnimated> build() const { return std::make_shared<SpriteAnimated>(*this); }
     };
@@ -295,35 +296,45 @@ public:
 // TTFFont contains Texture object
 class SpriteText: public SpriteBase, public iSpriteMouse
 {
+public:
+    enum class TextAlignType
+    {
+        Left,
+        Center,
+        Right,
+    };
 private:
     std::shared_ptr<TTFFont> pFont;
     unsigned textHeight;
     Color textColor;
 
 protected:
-    IndexText textInd;
-	TextAlign align;
+    TextAlignType align;
     bool editable = false;
 
 protected:
     std::string text;
 private:
+    std::string textDisplaying;
     Rect textureRect;
 
 protected:
     bool editing = false;
     std::string textBeforeEdit;
     std::string textAfterEdit;
+    std::function<void(const std::string& text)> afterEditCallback = [] {};
 
 public:
     struct SpriteTextBuilder : SpriteBuilder
     {
         std::shared_ptr<TTFFont> font = nullptr;
-        IndexText textInd = IndexText::INVALID;
-        TextAlign align = TEXT_ALIGN_LEFT;
+        TextAlignType align = TextAlignType::Left;
         unsigned ptsize = 72;
         Color color = 0xffffffff;
+        std::function<std::string_view()> textCallback = []() { return std::string_view(""); };
+
         bool editable = false;
+        std::function<void(const std::string& text)> afterEditCallback = [](const std::string& text) {};
 
         std::shared_ptr<SpriteText> build() const { return std::make_shared<SpriteText>(*this); }
     };
@@ -336,10 +347,9 @@ public:
     virtual void updateText();
     virtual void updateTextRect();
 private:
-    void updateTextTexture(std::string&& text, const Color& c);
+    void updateTextTexture(const Color& c);
 
 public:
-	virtual bool update(const Time& t);
     virtual void draw() const;
 
 public:
@@ -350,7 +360,6 @@ public:
     bool isEditing() const { return editing; }
     void startEditing(bool clear);
     void stopEditing(bool modify);
-    IndexText getInd() const { return textInd; }
     virtual void updateTextWhileEditing(const std::string& text);
     void setOutline(int width, const Color& c);
 };
@@ -392,7 +401,6 @@ class SpriteNumber : public SpriteAnimated
 {
 	friend class SkinLR2;
 protected:
-    IndexNumber numInd;
     unsigned maxDigits = 0;
     NumberType numberType = NUM_TYPE_NORMAL;
 	NumberAlign alignType = NUM_ALIGN_RIGHT;
@@ -407,8 +415,9 @@ public:
     {
         NumberAlign align = NUM_ALIGN_RIGHT;
         unsigned maxDigits = 0;
-        IndexNumber numInd = IndexNumber::ZERO;
         bool hideLeadingZeros = false;
+
+        std::function<int()> numberCallback = [] { return 0; };
 
         std::shared_ptr<SpriteNumber> build() const { return std::make_shared<SpriteNumber>(*this); }
     };
@@ -418,8 +427,7 @@ public:
     virtual ~SpriteNumber() = default;
 
 public:
-    void updateNumber(int n);           // invoke updateSplit to change number
-    void updateNumberByInd();
+    void updateNumber(int n);
     void updateNumberRect();
 	virtual bool update(const Time& t);
     virtual void appendMotionKeyFrame(const MotionKeyFrame& f) override;
@@ -440,21 +448,21 @@ enum class SliderDirection
 class SpriteSlider : public SpriteAnimated, public iSpriteMouse
 {
 private:
-    IndexSlider sliderInd;
     double value = 1.00;
     SliderDirection dir;
 	int valueRange = 0;
     int minValuePos = 0;
 
-    std::function<void(double)> _callback;
+    std::function<void(double)> dragCallback;
 
 public:
     struct SpriteSliderBuilder : SpriteAnimatedBuilder
     {
         SliderDirection sliderDirection = SliderDirection::UP;
-        IndexSlider sliderInd = IndexSlider::ZERO;
         int sliderRange = 0;
-        std::function<void(double)> callOnChanged;
+
+        std::function<Ratio()> sliderCallback = [] { return Ratio(0.0); };
+        std::function<void(double)> dragCallback = [](double) {};
 
         std::shared_ptr<SpriteSlider> build() const { return std::make_shared<SpriteSlider>(*this); }
     };
@@ -465,7 +473,6 @@ public:
 
 public:
     void updateVal(double v);
-    void updateValByInd();
     void updatePos();
 	virtual bool update(const Time& t);
 
@@ -488,7 +495,6 @@ enum class BargraphDirection
 class SpriteBargraph : public SpriteAnimated
 {
 private:
-    IndexBargraph barInd;
     Ratio value = 1.0;
     BargraphDirection dir;
 
@@ -496,7 +502,8 @@ public:
     struct SpriteBargraphBuilder : SpriteAnimatedBuilder
     {
         BargraphDirection barDirection = BargraphDirection::RIGHT;
-        IndexBargraph barInd = IndexBargraph::ZERO;
+
+        std::function<Ratio()> bargraphCallback = [] { return Ratio(0.0); };
 
         std::shared_ptr<SpriteBargraph> build() const { return std::make_shared<SpriteBargraph>(*this); }
     };
@@ -507,7 +514,6 @@ public:
 
 public:
     void updateVal(Ratio v);
-    void updateValByInd();
     void updateSize();
 	virtual bool update(const Time& t);
 };
@@ -517,18 +523,7 @@ public:
 
 class SpriteOption : public SpriteAnimated
 {
-public:
-	enum class opType
-	{
-		UNDEF, SWITCH, OPTION, FIXED,
-	};
 protected:
-	union {
-		IndexOption op;
-		IndexSwitch sw;
-        unsigned fix;
-	} ind;
-	opType indType = opType::UNDEF;
     unsigned value = 0;
 
 public:
@@ -536,6 +531,8 @@ public:
     {
         opType optionType;
         unsigned optionInd;
+
+        std::function<unsigned()> optionCallback = [] { return 0u; };
 
         std::shared_ptr<SpriteOption> build() const { return std::make_shared<SpriteOption>(*this); }
     };
@@ -545,9 +542,7 @@ public:
     virtual ~SpriteOption() = default;
 
 public:
-	bool setInd(opType type, unsigned ind);
     void updateVal(unsigned v);     // invoke SpriteSplit::updateSplit(v)
-    void updateValByInd();
 	virtual bool update(const Time& t);
 };
 
@@ -566,7 +561,7 @@ public:
     {
         int clickableOnPanel = -1;
         int plusonlyDelta = 0;
-        std::function<void(int)> callOnClick;
+        std::function<void(int)> callOnClick = [](int) {};
 
         std::shared_ptr<SpriteButton> build() const { return std::make_shared<SpriteButton>(*this); }
     };
@@ -617,7 +612,6 @@ public:
 private:
 	int gridSizeW, gridSizeH;
 	unsigned minValue, maxValue;
-	IndexNumber numInd;
     unsigned short totalGrids = 50;
     unsigned short failGrids = 40;
 	unsigned short value = totalGrids / 2;
@@ -636,7 +630,8 @@ public:
         int gaugeMin = 0;
         int gaugeMax = 100;
         int gridCount = 50;
-        IndexNumber numInd = IndexNumber::PLAY_1P_GROOVEGAUGE;
+
+        std::function<int()> numberCallback = [] { return 0; };
 
         std::shared_ptr<SpriteGaugeGrid> build() const { return std::make_shared<SpriteGaugeGrid>(*this); }
     };
@@ -651,7 +646,6 @@ public:
 
 public:
     void updateVal(unsigned v);
-    void updateValByInd();
 	virtual bool update(const Time& t);
 	virtual void draw() const;
 };

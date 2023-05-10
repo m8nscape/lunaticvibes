@@ -16,6 +16,7 @@ class ArenaHost;
 class ArenaClient;
 extern std::shared_ptr<ArenaHost> g_pArenaHost;
 extern std::shared_ptr<ArenaClient> g_pArenaClient;
+struct Struct_ArenaData;
 
 class ArenaDataInternal
 {
@@ -23,6 +24,7 @@ public:
 	ArenaDataInternal() = default;
 	friend class ArenaHost;
 	friend class ArenaClient;
+	friend struct Struct_ArenaData;
 
 private:
 	bool online = false;
@@ -60,7 +62,6 @@ public:
 	bool isSelfReady();
 	bool isPlayerReady(size_t index);
 
-	void updateTexts();
 	void updateGlobals();
 };
 

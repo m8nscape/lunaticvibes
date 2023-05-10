@@ -54,10 +54,6 @@ struct ChartContextParams
 
 ////////////////////////////////////////////////////////////////////////////////
 
-constexpr unsigned MAX_PLAYERS = 3;
-constexpr unsigned PLAYER_SLOT_PLAYER = 0;
-constexpr unsigned PLAYER_SLOT_TARGET = 1;
-constexpr unsigned PLAYER_SLOT_MYBEST = 2;
 struct PlayContextParams
 {
     SkinType mode = SkinType::PLAY7;
@@ -152,6 +148,7 @@ struct SelectContextParams
     std::list<SongListProperties> backtrace;
     EntryList entries;
     size_t selectedEntryIndex = 0;     // current selected entry index
+    double selectedEntryIndexRolling = 0.0;
     size_t highlightBarIndex = 0;  // highlighted bar index
     bool draggingListSlider = 0;    // is dragging slider
 
@@ -261,7 +258,5 @@ extern KeyConfigContextParams gKeyconfigContext;
 extern CustomizeContextParams gCustomizeContext;
 extern UpdateContextParams gUpdateContext;
 extern OverlayContextParams gOverlayContext;
-extern std::shared_ptr<SongDB> g_pSongDB;
-extern std::shared_ptr<ScoreDB> g_pScoreDB;
 
 ////////////////////////////////////////////////////////////////////////////////

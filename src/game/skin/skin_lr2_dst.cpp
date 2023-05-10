@@ -3,36 +3,17 @@
 #include "game/scene/scene_context.h"
 #include "game/arena/arena_data.h"
 
+#include "game/chart/chart_types.h"
+
 #include "game/ruleset/ruleset_network.h"
 #include "game/ruleset/ruleset_bms.h"
+
+#include "game/data/data_types.h"
 
 static std::shared_mutex _mutex;
 static std::bitset<900> _op;
 static std::bitset<100> _customOp;
 std::map<size_t, bool> _extendedOp;
-
-inline bool dst(IndexOption option_entry, std::initializer_list<unsigned> entries)
-{
-	auto op = State::get(option_entry);
-	for (auto e : entries)
-		if (op == e) return true;
-	return false;
-}
-inline bool dst(IndexOption option_entry, unsigned entry)
-{
-	return State::get(option_entry) == entry;
-}
-
-inline bool sw(std::initializer_list<IndexSwitch> entries)
-{
-	for (auto e : entries)
-		if (State::get(e)) return true;
-	return false;
-}
-inline bool sw(IndexSwitch entry)
-{
-	return State::get(entry);
-}
 
 inline void set(int idx, bool val = true)
 {
@@ -99,6 +80,148 @@ void updateDstOpt()
 	for (auto& [i, o] : _extendedOp)
 		o = false;
 
+	using namespace lv;
+
+	auto getCurrentSelectedEntry = []() -> std::shared_ptr<EntryBase>
+	{
+		if (SelectData.entries.empty())
+			return nullptr;
+		if (SelectData.entries[SelectData.selectedEntryIndex].first->type() != eEntryType::CHART)
+			return nullptr;
+		return SelectData.entries[SelectData.selectedEntryIndex].first;
+	};
+	auto currentEntry = getCurrentSelectedEntry();
+
+	auto getCurrentSelectedScore = [&]() -> std::shared_ptr<ScoreBase>
+	{
+		if (!currentEntry)
+			return nullptr;
+		return SelectData.entries[SelectData.selectedEntryIndex].second;
+	};
+	auto currentScore = getCurrentSelectedScore();
+
+	auto getCurrentSelectedChart = [&]()->std::shared_ptr<ChartFormatBase>
+	{
+		if (!currentEntry)
+			return nullptr;
+		switch (currentEntry->type())
+		{
+
+		case eEntryType::SONG:
+		case eEntryType::RIVAL_SONG:
+		{
+			auto c = std::dynamic_pointer_cast<EntryFolderSong>(currentEntry);
+			return c->getCurrentChart();
+		}
+		case eEntryType::CHART:
+		case eEntryType::RIVAL_CHART:
+		{
+			auto c = std::dynamic_pointer_cast<EntryChart>(currentEntry);
+			return c->getChart();
+		}
+		}
+		return nullptr;
+	};
+	auto currentChart = getCurrentSelectedChart();
+
+	auto getScoreRankType = [](std::shared_ptr<ScoreBase> score)
+	{
+		auto s = std::dynamic_pointer_cast<ScoreBMS>(score);
+		if (s)
+		{
+			unsigned max = s->notes * 2;
+			unsigned score = s->exscore;
+			if (score == max) return RankType::MAX;
+			else if (score >= max * 8 / 9) return RankType::AAA;
+			else if (score >= max * 7 / 9) return RankType::AA;
+			else if (score >= max * 6 / 9) return RankType::A;
+			else if (score >= max * 5 / 9) return RankType::B;
+			else if (score >= max * 4 / 9) return RankType::C;
+			else if (score >= max * 3 / 9) return RankType::D;
+			else if (score >= max * 2 / 9) return RankType::E;
+			else if (score >= max * 1 / 9) return RankType::F;
+		}
+		else if (score)
+		{
+			double rate = score->rate;
+			if (rate == 100.0) return RankType::MAX;
+			else if (rate >= 100.0 * 8 / 9) return RankType::AAA;
+			else if (rate >= 100.0 * 7 / 9) return RankType::AA;
+			else if (rate >= 100.0 * 6 / 9) return RankType::A;
+			else if (rate >= 100.0 * 5 / 9) return RankType::B;
+			else if (rate >= 100.0 * 4 / 9) return RankType::C;
+			else if (rate >= 100.0 * 3 / 9) return RankType::D;
+			else if (rate >= 100.0 * 2 / 9) return RankType::E;
+			else if (rate >= 100.0 * 1 / 9) return RankType::F;
+		}
+		return RankType::_;
+	};
+
+	auto getRankType = [](std::shared_ptr<RulesetBase> ruleset)
+	{
+		auto r = std::dynamic_pointer_cast<RulesetBMS>(ruleset);
+		if (r)
+		{
+			unsigned max = r->getMaxScore();
+			unsigned score = r->getExScore();
+			if (score == max) return RankType::MAX;
+			else if (score >= max * 8 / 9) return RankType::AAA;
+			else if (score >= max * 7 / 9) return RankType::AA;
+			else if (score >= max * 6 / 9) return RankType::A;
+			else if (score >= max * 5 / 9) return RankType::B;
+			else if (score >= max * 4 / 9) return RankType::C;
+			else if (score >= max * 3 / 9) return RankType::D;
+			else if (score >= max * 2 / 9) return RankType::E;
+			else if (score >= max * 1 / 9) return RankType::F;
+		}
+		else if (ruleset)
+		{
+			double rate = ruleset->getData().total_acc;
+			if (rate == 100.0) return RankType::MAX;
+			else if (rate >= 100.0 * 8 / 9) return RankType::AAA;
+			else if (rate >= 100.0 * 7 / 9) return RankType::AA;
+			else if (rate >= 100.0 * 6 / 9) return RankType::A;
+			else if (rate >= 100.0 * 5 / 9) return RankType::B;
+			else if (rate >= 100.0 * 4 / 9) return RankType::C;
+			else if (rate >= 100.0 * 3 / 9) return RankType::D;
+			else if (rate >= 100.0 * 2 / 9) return RankType::E;
+			else if (rate >= 100.0 * 1 / 9) return RankType::F;
+		}
+		return RankType::_;
+	};
+
+	auto getCurrentRankType = [](std::shared_ptr<RulesetBase> ruleset)
+	{
+		auto r = std::dynamic_pointer_cast<RulesetBMS>(ruleset);
+		if (r)
+		{
+			unsigned max = r->getCurrentMaxScore();
+			unsigned score = r->getExScore();
+			if (score == max) return RankType::MAX;
+			else if (score >= max * 8 / 9) return RankType::AAA;
+			else if (score >= max * 7 / 9) return RankType::AA;
+			else if (score >= max * 6 / 9) return RankType::A;
+			else if (score >= max * 5 / 9) return RankType::B;
+			else if (score >= max * 4 / 9) return RankType::C;
+			else if (score >= max * 3 / 9) return RankType::D;
+			else if (score >= max * 2 / 9) return RankType::E;
+			else if (score >= max * 1 / 9) return RankType::F;
+		}
+		else if (ruleset)
+		{
+			double rate = ruleset->getData().acc;
+			if (rate == 100.0) return RankType::MAX;
+			else if (rate >= 100.0 * 8 / 9) return RankType::AAA;
+			else if (rate >= 100.0 * 7 / 9) return RankType::AA;
+			else if (rate >= 100.0 * 6 / 9) return RankType::A;
+			else if (rate >= 100.0 * 5 / 9) return RankType::B;
+			else if (rate >= 100.0 * 4 / 9) return RankType::C;
+			else if (rate >= 100.0 * 3 / 9) return RankType::D;
+			else if (rate >= 100.0 * 2 / 9) return RankType::E;
+			else if (rate >= 100.0 * 1 / 9) return RankType::F;
+		}
+	};
+
 	// 0 常にtrue
 	set(0);
 	// 1 選択中バーがフォルダ
@@ -107,13 +230,29 @@ void updateDstOpt()
 	// 4 選択中バーが新規コース作成
 	// 5 選択中バーがプレイ可能(曲、コース等ならtrue
 	{
-		switch (State::get(IndexOption::SELECT_ENTRY_TYPE))
+		switch (currentEntry->type())
 		{
-		using namespace Option;
-		case ENTRY_FOLDER: set({ 1 }); break;
-		case ENTRY_SONG: set({ 2, 5 }); break;
-		case ENTRY_COURSE: set({ 3, 5 }); break;
-		case ENTRY_NEW_COURSE: set(4); break;
+		case eEntryType::NEW_SONG_FOLDER:
+		case eEntryType::FOLDER:
+		case eEntryType::CUSTOM_FOLDER:
+		case eEntryType::COURSE_FOLDER:
+		case eEntryType::RIVAL:
+		case eEntryType::ARENA_FOLDER:
+			set({ 1 });
+			break;
+		case eEntryType::SONG:
+		case eEntryType::CHART:
+		case eEntryType::RIVAL_SONG:
+		case eEntryType::RIVAL_CHART:
+		case eEntryType::REPLAY:
+			set({ 2, 5 });
+			break;
+		case eEntryType::COURSE:
+			set({ 3, 5 });
+			break;
+		case eEntryType::NEW_COURSE:
+			set({ 4 });
+			break;
 		}
 	}
 
@@ -122,76 +261,85 @@ void updateDstOpt()
 	// 12 ダブル or バトル or ダブルバトル ならtrue (RANDOM, ASSIST, HID+SUD 2P)
 	// 13 ゴーストバトル or バトル ならtrue
 	{
-		switch (State::get(IndexOption::PLAY_MODE))
+		switch (PlayData.mode)
 		{
-		case Option::PLAY_MODE_SINGLE: break;
-		case Option::PLAY_MODE_DOUBLE: set({ 10, 12 }); break;
-		case Option::PLAY_MODE_BATTLE: set({ 11, 12, 13 }); break;
-		case Option::PLAY_MODE_DOUBLE_BATTLE: set({ 10, 12 }); break;
-		case Option::PLAY_MODE_SP_GHOST_BATTLE: set({ 13 }); break;
-		case Option::PLAY_MODE_DP_GHOST_BATTLE: set({ 10, 12, 13 }); break;
+		case SkinType::PLAY5:
+		case SkinType::PLAY7:
+		case SkinType::PLAY9:
+			break;
+		case SkinType::PLAY5_2:
+		case SkinType::PLAY7_2:
+		case SkinType::PLAY9_2:
+			if (PlayData.battleType == PlayModifierBattleType::GhostBattle)
+				set(13);
+			else
+				set({ 11, 12, 13 });
+			break;
+		case SkinType::PLAY10:
+		case SkinType::PLAY14:
+			set({ 10, 12 });
+			if (PlayData.isBattle)
+				set(13);
+			break;
 		}
 	}
 
 	// 20 パネル起動していない
 	// 21 パネル1起動時
 	{
-		set(20, !sw({
-			IndexSwitch::SELECT_PANEL1,
-			IndexSwitch::SELECT_PANEL2,
-			IndexSwitch::SELECT_PANEL3,
-			IndexSwitch::SELECT_PANEL4,
-			IndexSwitch::SELECT_PANEL5,
-			IndexSwitch::SELECT_PANEL6,
-			IndexSwitch::SELECT_PANEL7,
-			IndexSwitch::SELECT_PANEL8,
-			IndexSwitch::SELECT_PANEL9,
-			}));
+		bool hasPanelOn = false;
 		for (unsigned i = 21; i <= 29; ++i)
-			set(i, sw((IndexSwitch)(i - 21 + (unsigned)IndexSwitch::SELECT_PANEL1)));
+		{
+			set(i, SelectData.panel[i - 21]);
+			if (SelectData.panel[i - 21])
+				hasPanelOn = true;
+		}
+		set(20, !hasPanelOn);
 	}
 
 	// 30 BGA normal
 	// 31 BGA extend
-	switch (State::get(IndexOption::PLAY_BGA_SIZE))
+	switch (PlayData.panelStyle & PANEL_STYLE_BGA_MASK)
 	{
-		using namespace Option;
-	case BGA_NORMAL: set(30); break;
-	case BGA_EXTEND: set(31); break;
+	case PANEL_STYLE_BGA_SIDE_EXPAND:
+	case PANEL_STYLE_BGA_FULLSCREEN:
+		set(31);
+		break;
+	default:
+		set(30);
+		break;
 	}
 
 	// 32 autoplay off
 	// 33 autoplay on
-	set(32, !State::get(IndexSwitch::SYSTEM_AUTOPLAY));
-	set(33, State::get(IndexSwitch::SYSTEM_AUTOPLAY));
+	set(32, PlayData.isAuto);
+	set(33, !PlayData.isAuto);
 
 	// 34 ghost off
 	// 35 ghost typeA
 	// 36 ghost typeB
 	// 37 ghost typeC
-	switch (State::get(IndexOption::PLAY_GHOST_TYPE_1P))
+	switch (PlayData.ghostType)
 	{
-	using namespace Option;
-	case GHOST_OFF: set(34); break;
-	case GHOST_TOP: set(35); break;
-	case GHOST_SIDE: set(36); break;
-	case GHOST_SIDE_BOTTOM: set(37); break;
+	case GhostScorePosition::Off: set(34); break;
+	case GhostScorePosition::AboveJudge: set(35); break;
+	case GhostScorePosition::NearJudge: set(36); break;
+	case GhostScorePosition::NearJudgeLower: set(37); break;
 	}
 
 	// 38 scoregraph off
 	// 39 scoregraph on
-	set(38, !sw(IndexSwitch::SYSTEM_SCOREGRAPH));
-	set(39, sw(IndexSwitch::SYSTEM_SCOREGRAPH));
+	if ((PlayData.panelStyle & PANEL_STYLE_GRAPH_MASK) == PANEL_STYLE_GRAPH_OFF)
+		set(38);
+	else
+		set(39);
 
 	// 40 BGA off
 	// 41 BGA on
-	switch (State::get(IndexOption::PLAY_BGA_TYPE))
-	{
-		using namespace Option;
-	case BGA_OFF:      set(40); break;
-	case BGA_ON:       set(41); break;
-	case BGA_AUTOPLAY: set(State::get(IndexSwitch::SYSTEM_AUTOPLAY) ? 41 : 40); break;
-	}
+	if ((PlayData.panelStyle & PANEL_STYLE_BGA_MASK) == PANEL_STYLE_BGA_OFF)
+		set(40);
+	else
+		set(41);
 
 	// 42 1P側がノーマルゲージ
 	// 43 1P側が赤ゲージ
@@ -200,112 +348,166 @@ void updateDstOpt()
 	// 48 New: 1P gauge is exhard / death
 	// 49 New: 2P gauge is exhard / death
 	{
-		using namespace Option;
-		set(42, dst(IndexOption::PLAY_GAUGE_TYPE_1P, { GAUGE_ASSISTEASY, GAUGE_EASY, GAUGE_NORMAL }));
-		set(43, dst(IndexOption::PLAY_GAUGE_TYPE_1P, { GAUGE_HARD, GAUGE_EXHARD, GAUGE_DEATH }));
-		set(44, dst(IndexOption::PLAY_GAUGE_TYPE_2P, { GAUGE_ASSISTEASY, GAUGE_EASY, GAUGE_NORMAL }));
-		set(45, dst(IndexOption::PLAY_GAUGE_TYPE_2P, { GAUGE_HARD, GAUGE_EXHARD, GAUGE_DEATH }));
-		set(48, dst(IndexOption::PLAY_GAUGE_TYPE_1P, { GAUGE_EXHARD, GAUGE_DEATH }));
-		set(49, dst(IndexOption::PLAY_GAUGE_TYPE_2P, { GAUGE_EXHARD, GAUGE_DEATH }));
+		switch (PlayData.player[PLAYER_SLOT_PLAYER].mods.gauge)
+		{
+		case PlayModifierGaugeType::NORMAL:
+		case PlayModifierGaugeType::ASSISTEASY:
+		case PlayModifierGaugeType::EASY:
+			set(42);
+			break;
+		case PlayModifierGaugeType::EXHARD:
+		case PlayModifierGaugeType::GRADE_DEATH:
+		case PlayModifierGaugeType::DEATH:
+			set(48);
+			[[ fallthrough ]];
+		case PlayModifierGaugeType::HARD:
+		case PlayModifierGaugeType::GRADE_NORMAL:
+		case PlayModifierGaugeType::GRADE_HARD:
+		case PlayModifierGaugeType::PATTACK:
+		case PlayModifierGaugeType::GATTACK:
+			set(43);
+			break;
+		}
+		switch (PlayData.player[PLAYER_SLOT_TARGET].mods.gauge)
+		{
+		case PlayModifierGaugeType::NORMAL:
+		case PlayModifierGaugeType::ASSISTEASY:
+		case PlayModifierGaugeType::EASY:
+			set(44);
+			break;
+		case PlayModifierGaugeType::EXHARD:
+		case PlayModifierGaugeType::GRADE_DEATH:
+		case PlayModifierGaugeType::DEATH:
+			set(49);
+			[[ fallthrough ]];
+		case PlayModifierGaugeType::HARD:
+		case PlayModifierGaugeType::GRADE_NORMAL:
+		case PlayModifierGaugeType::GRADE_HARD:
+		case PlayModifierGaugeType::PATTACK:
+		case PlayModifierGaugeType::GATTACK:
+			set(45);
+			break;
+		}
 	}
 
 	// 46 難易度フィルタが有効
 	// 47 難易度フィルタが無効
 	// Note: It's an option of LR2 setup, not a runtime stat. Fix to ON
 	{
-		using namespace Option;
 		set(46);
 	}
 
-	// 50 オフライン
-	// 51 オンライン
-	set(50, !sw(IndexSwitch::NETWORK));
-	set(51, sw(IndexSwitch::NETWORK));
+	// 50 LR2IR オフライン
+	// 51 LR2IR オンライン
+	{
+		set(50);
+	}
 
 	// 52 EXTRA MODE OFF
 	// 53 EXTRA MODE ON
-	set(52, !sw(IndexSwitch::PLAY_OPTION_EXTRA));
-	set(53, sw(IndexSwitch::PLAY_OPTION_EXTRA));
+	{
+		set(52);
+	}
 
 	// 54 AUTOSCRATCH 1P OFF
 	// 55 AUTOSCRATCH 1P ON
 	// 56 AUTOSCRATCH 2P OFF
 	// 57 AUTOSCRATCH 2P ON
-	set(54, !sw(IndexSwitch::PLAY_OPTION_AUTOSCR_1P));
-	set(55, sw(IndexSwitch::PLAY_OPTION_AUTOSCR_1P));
-	set(56, !sw(IndexSwitch::PLAY_OPTION_AUTOSCR_2P));
-	set(57, sw(IndexSwitch::PLAY_OPTION_AUTOSCR_2P));
+	{
+		if (PlayData.player[PLAYER_SLOT_PLAYER].mods.assist_mask & PLAY_MOD_ASSIST_AUTOSCR)
+			set(55);
+		else
+			set(54);
+		if (PlayData.player[PLAYER_SLOT_TARGET].mods.assist_mask & PLAY_MOD_ASSIST_AUTOSCR)
+			set(57);
+		else
+			set(56);
+	}
 
 	// 60 スコアセーブ不可能
 	// 61 スコアセーブ可能
-	set(60, !sw(IndexSwitch::CHART_CAN_SAVE_SCORE));
-	set(61, sw(IndexSwitch::CHART_CAN_SAVE_SCORE));
+	set(60, !PlayData.canSaveScore);
+	set(61, PlayData.canSaveScore);
 
 	// 62 クリアセーブ不可能
 	// 63 EASYゲージ （仕様書では「イージーでセーブ」）
 	// 64 NORMALゲージ （仕様書では「ノーマルでセーブ」）
 	// 65 HARD/G-ATTACKゲージ （仕様書では「ハードでセーブ」）
 	// 66 DEATH/P-ATTACKゲージ （仕様書では「フルコンのみ」）
+	switch (PlayData.saveLampType)
 	{
-		using namespace Option;
-		set(62, dst(IndexOption::CHART_SAVE_LAMP_TYPE, { LAMP_NOPLAY, LAMP_FAILED }));
-		set(63, dst(IndexOption::CHART_SAVE_LAMP_TYPE, { LAMP_ASSIST, LAMP_EASY }));
-		set(64, dst(IndexOption::CHART_SAVE_LAMP_TYPE, LAMP_NORMAL));
-		set(65, dst(IndexOption::CHART_SAVE_LAMP_TYPE, { LAMP_HARD, LAMP_EXHARD }));
-		set(66, dst(IndexOption::CHART_SAVE_LAMP_TYPE, { LAMP_FULLCOMBO, LAMP_PERFECT, LAMP_MAX }));
+	case LampType::NOPLAY:
+	case LampType::FAILED:
+		set(62);
+		break;
+	case LampType::ASSIST:
+	case LampType::EASY:
+		set(63);
+		break;
+	case LampType::NORMAL:
+		set(64);
+		break;
+	case LampType::HARD:
+	case LampType::EXHARD:
+		set(65);
+		break;
+	case LampType::FULLCOMBO:
+	case LampType::PERFECT:
+	case LampType::MAX:
+		set(66);
+		break;
 	}
 
 	// 70 同フォルダbeginnerのレベルが規定値を越えていない(5/10keysはLV9、7/14keysはLV12、9keysはLV42以内)
 	// 75 同フォルダbeginnerのレベルが規定値を越えている
 	{
 		int ceiling = 12;
-		switch (State::get(IndexOption::CHART_PLAY_KEYS))
+		if (currentChart)
 		{
-			using namespace Option;
-		case KEYS_7:
-		case KEYS_14:
-			ceiling = 12; break;
-		case KEYS_5:
-		case KEYS_10:
-			ceiling = 9; break;
-		case KEYS_9:
-			ceiling = 42; break;
-		case KEYS_24:
-		case KEYS_48:
-			ceiling = 90; break;
+			switch (currentChart->gamemode)
+			{
+			case 7:
+			case 14:
+				ceiling = 12; break;
+			case 5:
+			case 10:
+				ceiling = 9; break;
+			case 9:
+				ceiling = 42; break;
+			case 24:
+			case 48:
+				ceiling = 90; break;	// ?
+			}
+			set(70, SelectData.levelOfChartDifficulty[0] <= ceiling);
+			set(71, SelectData.levelOfChartDifficulty[1] <= ceiling);
+			set(72, SelectData.levelOfChartDifficulty[2] <= ceiling);
+			set(73, SelectData.levelOfChartDifficulty[3] <= ceiling);
+			set(74, SelectData.levelOfChartDifficulty[4] <= ceiling);
+			set(75, SelectData.levelOfChartDifficulty[0] > ceiling);
+			set(76, SelectData.levelOfChartDifficulty[1] > ceiling);
+			set(77, SelectData.levelOfChartDifficulty[2] > ceiling);
+			set(78, SelectData.levelOfChartDifficulty[3] > ceiling);
+			set(79, SelectData.levelOfChartDifficulty[4] > ceiling);
 		}
-		set(70, State::get(IndexNumber::MUSIC_BEGINNER_LEVEL) <= ceiling);
-		set(71, State::get(IndexNumber::MUSIC_NORMAL_LEVEL) <= ceiling);
-		set(72, State::get(IndexNumber::MUSIC_HYPER_LEVEL) <= ceiling);
-		set(73, State::get(IndexNumber::MUSIC_ANOTHER_LEVEL) <= ceiling);
-		set(74, State::get(IndexNumber::MUSIC_INSANE_LEVEL) <= ceiling);
-		set(75, State::get(IndexNumber::MUSIC_BEGINNER_LEVEL) > ceiling);
-		set(76, State::get(IndexNumber::MUSIC_NORMAL_LEVEL) > ceiling);
-		set(77, State::get(IndexNumber::MUSIC_HYPER_LEVEL) > ceiling);
-		set(78, State::get(IndexNumber::MUSIC_ANOTHER_LEVEL) > ceiling);
-		set(79, State::get(IndexNumber::MUSIC_INSANE_LEVEL) > ceiling);
 	}
 
 
 	// 80 ロード未完了
 	// 81 ロード完了
-	{
-		using namespace Option;
-		set(80, dst(IndexOption::PLAY_SCENE_STAT, { SPLAY_PREPARE, SPLAY_LOADING }));
-		set(81, !_op[80]);
-	}
+	set(80, !PlayData.loadHasFinished);
+	set(81, PlayData.loadHasFinished);
 
 	// 82 リプレイオフ
 	// 83 リプレイ録画中
 	// 84 リプレイ再生中
 	set(82, false);
-	set(83, !sw(IndexSwitch::SYSTEM_AUTOPLAY) && !gPlayContext.isReplay);
-	set(84, !sw(IndexSwitch::SYSTEM_AUTOPLAY) && gPlayContext.isReplay);
+	set(83, !PlayData.isAuto && !PlayData.isReplay);
+	set(84, !PlayData.isAuto && PlayData.isReplay);
 
 	// 90 リザ クリア
 	// 91 リザ ミス
-	set(90, sw(IndexSwitch::RESULT_CLEAR));
-	set(91, !sw(IndexSwitch::RESULT_CLEAR));
+	set(90, ResultData.cleared);
+	set(91, !ResultData.cleared);
 
 
 	// /////////////////////////////////
@@ -324,37 +526,38 @@ void updateDstOpt()
 	// 108 MAX
 	// 109 ASSISTED
 	{
-        using namespace Option;
-        switch (State::get(IndexOption::SELECT_ENTRY_LAMP))
-        {
-        case LAMP_NOPLAY:    set(100, get(5));   break;
-        case LAMP_FAILED:    set(101);           break;
-        case LAMP_ASSIST:    set(102); set(109); break;
-		case LAMP_EASY:      set(102); set(146); break;
-        case LAMP_NORMAL:    set(103);           break;
-		case LAMP_HARD:      set(104); set(147); break;
-        case LAMP_EXHARD:    set(104); set(106); break;
-		case LAMP_FULLCOMBO: set(105); set(148); break;
-		case LAMP_PERFECT:   set(105); set(107); break;
-		case LAMP_MAX:       set(105); set(108); break;
-        }
-    }
+		auto s = std::dynamic_pointer_cast<ScoreBMS>(currentScore);
+		if (s)
+		{
+			switch (s->lamp)
+			{
+			case ScoreBMS::Lamp::NOPLAY:    set(100, get(5));   break;
+			case ScoreBMS::Lamp::FAILED:    set(101);           break;
+			case ScoreBMS::Lamp::ASSIST:    set(102); set(109); break;
+			case ScoreBMS::Lamp::EASY:      set(102); set(146); break;
+			case ScoreBMS::Lamp::NORMAL:    set(103);           break;
+			case ScoreBMS::Lamp::HARD:      set(104); set(147); break;
+			case ScoreBMS::Lamp::EXHARD:    set(104); set(106); break;
+			case ScoreBMS::Lamp::FULLCOMBO: set(105); set(148); break;
+			case ScoreBMS::Lamp::PERFECT:   set(105); set(107); break;
+			case ScoreBMS::Lamp::MAX:       set(105); set(108); break;
+			}
+		}
+	}
 
 	// 110 AAA 8/9
+	switch (getScoreRankType(currentScore))
 	{
-		using namespace Option;
-		switch (State::get(IndexOption::SELECT_ENTRY_RANK))
-		{
-		case RANK_0:
-		case RANK_1: set(110); break;
-		case RANK_2: set(111); break;
-		case RANK_3: set(112); break;
-		case RANK_4: set(113); break;
-		case RANK_5: set(114); break;
-		case RANK_6: set(115); break;
-		case RANK_7: set(116); break;
-		case RANK_8: set(117); break;
-		}
+	case RankType::MAX:
+	case RankType::AAA: set(110); break;
+	case RankType::AA: set(111); break;
+	case RankType::A: set(112); break;
+	case RankType::B: set(113); break;
+	case RankType::C: set(114); break;
+	case RankType::D: set(115); break;
+	case RankType::E: set(116); break;
+	case RankType::F: set(117); break;
+	case RankType::_: set(118); break;
 	}
 
 	// 624 自分と相手のスコアを比較する状況ではない (現状では、ランキング表示中とライバルフォルダ)
@@ -416,238 +619,281 @@ void updateDstOpt()
 	// 150 difficulty0 (未設定)
 	if (get(5))
 	{
-		switch (State::get(IndexOption::CHART_DIFFICULTY))
+		switch (SelectData.filterDifficulty)
 		{
-			using namespace Option;
-		case DIFF_ANY: set(150); break;
-		case DIFF_BEGINNER: set(151); break;
-		case DIFF_NORMAL: set(152); break;
-		case DIFF_HYPER: set(153); break;
-		case DIFF_ANOTHER: set(154); break;
-		case DIFF_INSANE: set(155); break;
+		case FilterDifficultyType::All: set(150); break;
+		case FilterDifficultyType::B: set(151); break;
+		case FilterDifficultyType::N: set(152); break;
+		case FilterDifficultyType::H: set(153); break;
+		case FilterDifficultyType::A: set(154); break;
+		case FilterDifficultyType::I: set(155); break;
 		}
 	}
 
 	if (get(5))	// is playable
 	{
-
 		// //元データ
 		// 160 7keys
 		// 161 5keys
 		// 162 14keys
 		// 163 10keys
 		// 164 9keys
+		if (currentChart)
 		{
-			using namespace Option;
-			switch (State::get(IndexOption::CHART_PLAY_KEYS))
+			switch (currentChart->gamemode)
 			{
-			case KEYS_NOT_PLAYABLE: break;
-			case KEYS_7: set(160); break;
-			case KEYS_5: set(161); break;
-			case KEYS_14: set(162); break;
-			case KEYS_10: set(163); break;
-			case KEYS_9: set(164); break;
+			case 7: set(160); break;
+			case 5: set(161); break;
+			case 14: set(162); break;
+			case 10: set(163); break;
+			case 9: set(164); break;
+			}
+
+			// //オプション全適用後の最終的な鍵盤数
+			// //165 7keys
+			// //166 5keys
+			// //167 14keys
+			// //168 10keys
+			// //169 9keys
+
+			if (currentChart->type() == eChartFormat::BMS)
+			{
+				auto bms = std::reinterpret_pointer_cast<ChartFormatBMSMeta>(currentChart);
+
+				// 170 BGA無し
+				// 171 BGA有り
+				set(170, !bms->haveBGA);
+				set(171, bms->haveBGA);
+
+				// 172 ロングノート無し
+				// 173 ロングノート有り
+				set(172, !bms->haveLN);
+				set(173, bms->haveLN);
+
+				// 174 付属テキスト無し
+				// 175 付属テキスト有り
+				bool haveText = !(bms->text1.empty() && bms->text2.empty() && bms->text3.empty());
+				set(174, !haveText);
+				set(175, haveText);
+
+				// 176 BPM変化無し
+				// 177 BPM変化有り
+				set(176, !bms->haveBPMChange);
+				set(177, bms->haveBPMChange);
+
+				// 178 ランダム命令無し
+				// 179 ランダム命令有り
+				set(178, !bms->haveRandom);
+				set(179, bms->haveRandom);
+
+				// 180 判定veryhard
+				// 181 判定hard
+				// 182 判定normal
+				// 183 判定easy
+				switch (bms->rank)
+				{
+				case 0: set(180); break;
+				case 1: set(181); break;
+				case 2: set(182); break;
+				case 3: set(183); break;
+				default: set(180); break;
+				}
+
+				// 185 レベルが規定値内にある(5/10keysはLV9、7/14keysはLV12、9keysはLV42以内)
+				// 186 レベルが規定値を越えている
+				switch (bms->difficulty)
+				{
+				case 1: set(185, get(70)); set(186, get(75)); break;
+				case 2: set(185, get(71)); set(186, get(76)); break;
+				case 3: set(185, get(72)); set(186, get(77)); break;
+				case 4: set(185, get(73)); set(186, get(78)); break;
+				case 5: set(185, get(74)); set(186, get(79)); break;
+				}
+
+				// 190 STAGEFILE無し
+				// 191 STAGEFILE有り
+				set(190, bms->stagefile.empty());
+				set(191, !bms->stagefile.empty());
+
+				// 192 BANNER無し
+				// 193 BANNER有り
+				set(192, bms->banner.empty());
+				set(193, !bms->banner.empty());
+
+				// 194 BACKBMP無し
+				// 195 BACKBMP有り
+				set(194, bms->backbmp.empty());
+				set(195, !bms->backbmp.empty());
 			}
 		}
 
-		// //オプション全適用後の最終的な鍵盤数
-		// //165 7keys
-		// //166 5keys
-		// //167 14keys
-		// //168 10keys
-		// //169 9keys
-
-
-		// 170 BGA無し
-		// 171 BGA有り
-		set(170, !sw(IndexSwitch::CHART_HAVE_BGA));
-		set(171, sw(IndexSwitch::CHART_HAVE_BGA));
-
-		// 172 ロングノート無し
-		// 173 ロングノート有り
-		set(172, !sw(IndexSwitch::CHART_HAVE_LN));
-		set(173, sw(IndexSwitch::CHART_HAVE_LN));
-
-		// 174 付属テキスト無し
-		// 175 付属テキスト有り
-		set(174, !sw(IndexSwitch::CHART_HAVE_README));
-		set(175, sw(IndexSwitch::CHART_HAVE_README));
-
-		// 176 BPM変化無し
-		// 177 BPM変化有り
-		set(176, !sw(IndexSwitch::CHART_HAVE_BPMCHANGE));
-		set(177, sw(IndexSwitch::CHART_HAVE_BPMCHANGE));
-
-		// 178 ランダム命令無し
-		// 179 ランダム命令有り
-		set(178, !sw(IndexSwitch::CHART_HAVE_RANDOM));
-		set(179, sw(IndexSwitch::CHART_HAVE_RANDOM));
-
-		// 180 判定veryhard
-		// 181 判定hard
-		// 182 判定normal
-		// 183 判定easy
-		switch (State::get(IndexOption::CHART_JUDGE_TYPE))
-		{
-			using namespace Option;
-		case JUDGE_VHARD: set(180); break;
-		case JUDGE_HARD: set(181); break;
-		case JUDGE_NORMAL: set(182); break;
-		case JUDGE_EASY: set(183); break;
-		}
-
-		// 185 レベルが規定値内にある(5/10keysはLV9、7/14keysはLV12、9keysはLV42以内)
-		// 186 レベルが規定値を越えている
-		switch (State::get(IndexOption::CHART_DIFFICULTY))
-		{
-			using namespace Option;
-			//case DIFF_ANY: set(185); break;
-		case DIFF_BEGINNER: set(185, _op[70]); set(186, _op[75]);  break;
-		case DIFF_NORMAL:  set(185, _op[71]); set(186, _op[76]); break;
-		case DIFF_HYPER:  set(185, _op[72]); set(186, _op[77]); break;
-		case DIFF_ANOTHER:  set(185, _op[73]); set(186, _op[78]); break;
-		case DIFF_INSANE:  set(185, _op[74]); set(186, _op[79]); break;
-		}
-
-		// 190 STAGEFILE無し
-		// 191 STAGEFILE有り
-		set(190, !sw(IndexSwitch::CHART_HAVE_STAGEFILE));
-		set(191, sw(IndexSwitch::CHART_HAVE_STAGEFILE));
-
-		// 192 BANNER無し
-		// 193 BANNER有り
-		set(192, !sw(IndexSwitch::CHART_HAVE_BANNER));
-		set(193, sw(IndexSwitch::CHART_HAVE_BANNER));
-
-		// 194 BACKBMP無し
-		// 195 BACKBMP有り
-		set(194, !sw(IndexSwitch::CHART_HAVE_BACKBMP));
-		set(195, sw(IndexSwitch::CHART_HAVE_BACKBMP));
-
 		// 196 リプレイ無し
 		// 197 リプレイ有り
-		set(196, !sw(IndexSwitch::CHART_HAVE_REPLAY));
-		set(197, sw(IndexSwitch::CHART_HAVE_REPLAY));
+		set(196, PlayData.replay == nullptr);
+		set(197, PlayData.replay != nullptr);
 	}
 
 	// /////////////////////////////////
 	// //プレイ中
-	// 200 1P AAA
+
+	if (PlayData.player[PLAYER_SLOT_PLAYER].ruleset)
 	{
-		using namespace Option;
-		switch (State::get(IndexOption::PLAY_RANK_ESTIMATED_1P))
+		auto ruleset = PlayData.player[PLAYER_SLOT_PLAYER].ruleset;
+
+		// 200 1P AAA
+		switch (getCurrentRankType(ruleset))
 		{
-		case RANK_0:
-		case RANK_1: set(200); break;
-		case RANK_2: set(201); break;
-		case RANK_3: set(202); break;
-		case RANK_4: set(203); break;
-		case RANK_5: set(204); break;
-		case RANK_6: set(205); break;
-		case RANK_7: set(206); break;
-		case RANK_8: set(207); break;
-		case RANK_NONE: break;
+		case RankType::MAX:
+		case RankType::AAA: set(200); break;
+		case RankType::AA: set(201); break;
+		case RankType::A: set(202); break;
+		case RankType::B: set(203); break;
+		case RankType::C: set(204); break;
+		case RankType::D: set(205); break;
+		case RankType::E: set(206); break;
+		case RankType::F: set(207); break;
+		case RankType::_: set(208); break;
 		}
+
+		// 220 AAA確定
+		switch (getRankType(ruleset))
+		{
+		case RankType::MAX:
+		case RankType::AAA: set(220); break;
+		case RankType::AA: set(221); break;
+		case RankType::A: set(222); break;
+		case RankType::B: set(223); break;
+		case RankType::C: set(224); break;
+		case RankType::D: set(225); break;
+		case RankType::E: set(226); break;
+		case RankType::F: set(227); break;
+		case RankType::_: set(228); break;
+		}
+
+		// 300 1P AAA
+		set(300, get(220));
+		set(301, get(221));
+		set(302, get(222));
+		set(303, get(223));
+		set(304, get(224));
+		set(305, get(225));
+		set(306, get(226));
+		set(307, get(227));
+		set(308, get(228));
+
+		// 230 1P 0-10%
+		double health = ruleset->getData().health;
+		if (health < 0.1) set(230);
+		else if (health < 0.2) set(231);
+		else if (health < 0.3) set(232);
+		else if (health < 0.4) set(233);
+		else if (health < 0.5) set(234);
+		else if (health < 0.6) set(235);
+		else if (health < 0.7) set(236);
+		else if (health < 0.8) set(237);
+		else if (health < 0.9) set(238);
+		else if (health < 1.0) set(239);
+		else set(240);
+
+		// 241 1P PERFECT
+		// 242 1P GREAT
+		// 243 1P GOOD
+		// 244 1P BAD
+		// 245 1P POOR
+		// 246 1P 空POOR
+		auto rbms = std::dynamic_pointer_cast<RulesetBMS>(ruleset);
+		if (rbms)
+		{
+			auto lastJudge = rbms->getLastJudge(0);
+			switch (lastJudge.area)
+			{
+			case RulesetBMS::JudgeArea::EARLY_KPOOR:
+			case RulesetBMS::JudgeArea::LATE_KPOOR:
+			case RulesetBMS::JudgeArea::MINE_KPOOR:
+				set(246);
+				break;
+			case RulesetBMS::JudgeArea::MISS:
+				set(245);
+				break;
+			case RulesetBMS::JudgeArea::EARLY_BAD:
+			case RulesetBMS::JudgeArea::LATE_BAD:
+				set(244);
+				break;
+			case RulesetBMS::JudgeArea::EARLY_GOOD:
+			case RulesetBMS::JudgeArea::LATE_GOOD:
+				set(243);
+				break;
+			case RulesetBMS::JudgeArea::EARLY_GREAT:
+			case RulesetBMS::JudgeArea::LATE_GREAT:
+				set(242);
+				break;
+			case RulesetBMS::JudgeArea::EARLY_PERFECT:
+			case RulesetBMS::JudgeArea::EXACT_PERFECT:
+			case RulesetBMS::JudgeArea::LATE_PERFECT:
+				set(241);
+				break;
+			}
+		}
+
+		// //公式ハーフスキンの左右のネオン用です 2P側も
+		// 247 1P POORBGA表示時間外
+		// 248 1P POORBGA表示時間中
+		set(247, !PlayData.player[PLAYER_SLOT_PLAYER].showingPoorBga);
+		set(248, PlayData.player[PLAYER_SLOT_PLAYER].showingPoorBga);
 	}
 
-	// 210 2P AAA
+	if (PlayData.player[PLAYER_SLOT_TARGET].ruleset)
 	{
-		using namespace Option;
-		switch (State::get(IndexOption::PLAY_RANK_ESTIMATED_2P))
+		auto ruleset = PlayData.player[PLAYER_SLOT_TARGET].ruleset;
+
+		// 210 2P AAA
+		switch (getCurrentRankType(ruleset))
 		{
-		case RANK_0:
-		case RANK_1: set(210); break;
-		case RANK_2: set(211); break;
-		case RANK_3: set(212); break;
-		case RANK_4: set(213); break;
-		case RANK_5: set(214); break;
-		case RANK_6: set(215); break;
-		case RANK_7: set(216); break;
-		case RANK_8: set(217); break;
-		case RANK_NONE: break;
+		case RankType::MAX:
+		case RankType::AAA: set(210); break;
+		case RankType::AA: set(211); break;
+		case RankType::A: set(212); break;
+		case RankType::B: set(213); break;
+		case RankType::C: set(214); break;
+		case RankType::D: set(215); break;
+		case RankType::E: set(216); break;
+		case RankType::F: set(217); break;
+		case RankType::_: set(218); break;
 		}
-	}
 
-
-	// 220 AAA確定
-	{
-		using namespace Option;
-		switch (State::get(IndexOption::PLAY_RANK_BORDER_1P))
+		// 310 2P AAA
+		switch (getRankType(ruleset))
 		{
-		case RANK_0:
-		case RANK_1: set(220); [[ fallthrough ]];
-		case RANK_2: set(221); [[ fallthrough ]];
-		case RANK_3: set(222); [[ fallthrough ]];
-		case RANK_4: set(223); [[ fallthrough ]];
-		case RANK_5: set(224); [[ fallthrough ]];
-		case RANK_6: set(225); [[ fallthrough ]];
-		case RANK_7: set(226); [[ fallthrough ]];
-		case RANK_8: set(227); [[ fallthrough ]];
-		case RANK_NONE: break;
+		case RankType::MAX:
+		case RankType::AAA: set(310); break;
+		case RankType::AA: set(311); break;
+		case RankType::A: set(312); break;
+		case RankType::B: set(313); break;
+		case RankType::C: set(314); break;
+		case RankType::D: set(315); break;
+		case RankType::E: set(316); break;
+		case RankType::F: set(317); break;
+		case RankType::_: set(318); break;
 		}
-	}
 
-	// 230 1P 0-10%
-	{
-		using namespace Option;
-		switch (State::get(IndexOption::PLAY_HEALTH_1P))
-		{
-		case HEALTH_0:  set(230); break;
-		case HEALTH_10: set(231); break;
-		case HEALTH_20: set(232); break;
-		case HEALTH_30: set(233); break;
-		case HEALTH_40: set(234); break;
-		case HEALTH_50: set(235); break;
-		case HEALTH_60: set(236); break;
-		case HEALTH_70: set(237); break;
-		case HEALTH_80: set(238); break;
-		case HEALTH_90: set(239); break;
-		case HEALTH_100: set(240); break;
-		}
-	}
+		// 250 2P 0-10%
+		double health = ruleset->getData().health;
+		if (health < 0.1) set(250);
+		else if (health < 0.2) set(251);
+		else if (health < 0.3) set(252);
+		else if (health < 0.4) set(253);
+		else if (health < 0.5) set(254);
+		else if (health < 0.6) set(255);
+		else if (health < 0.7) set(256);
+		else if (health < 0.8) set(257);
+		else if (health < 0.9) set(258);
+		else if (health < 1.0) set(259);
+		else set(260);
 
-	// 241 1P PERFECT
-	// 242 1P GREAT
-	// 243 1P GOOD
-	// 244 1P BAD
-	// 245 1P POOR
-	// 246 1P 空POOR
-	{
-		using namespace Option;
-		switch (State::get(IndexOption::PLAY_LAST_JUDGE_1P))
-		{
-		case JUDGE_NONE: break;
-		case JUDGE_0: set(241); break;
-		case JUDGE_1: set(242); break;
-		case JUDGE_2: set(243); break;
-		case JUDGE_3: set(244); break;
-		case JUDGE_4: set(245); break;
-		case JUDGE_5: set(246); break;
-		}
-	}
-
-	// //公式ハーフスキンの左右のネオン用です 2P側も
-	// 247 1P POORBGA表示時間外
-	// 248 1P POORBGA表示時間中
-	set(247);
-
-	// 250 2P 0-10%
-	{
-		using namespace Option;
-		switch (State::get(IndexOption::PLAY_HEALTH_2P))
-		{
-		case HEALTH_0:  set(250); break;
-		case HEALTH_10: set(251); break;
-		case HEALTH_20: set(252); break;
-		case HEALTH_30: set(253); break;
-		case HEALTH_40: set(254); break;
-		case HEALTH_50: set(255); break;
-		case HEALTH_60: set(256); break;
-		case HEALTH_70: set(257); break;
-		case HEALTH_80: set(258); break;
-		case HEALTH_90: set(259); break;
-		case HEALTH_100: set(260); break;
-		}
+		// 267 2P POORBGA表示時間外
+		// 268 2P POORBGA表示時間中
+		set(267, !PlayData.player[PLAYER_SLOT_TARGET].showingPoorBga);
+		set(268, PlayData.player[PLAYER_SLOT_TARGET].showingPoorBga);
 	}
 
 	// 261 2P PERFECT
@@ -656,42 +902,90 @@ void updateDstOpt()
 	// 264 2P BAD
 	// 265 2P POOR
 	// 266 2P 空POOR
+	auto rbms = std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[
+		PlayData.isBattle ? PLAYER_SLOT_TARGET : PLAYER_SLOT_PLAYER].ruleset);
+	if (rbms)
 	{
-		using namespace Option;
-		switch (State::get(IndexOption::PLAY_LAST_JUDGE_2P))
+		auto lastJudge = rbms->getLastJudge(PlayData.isBattle ? 0 : 1);
+		switch (lastJudge.area)
 		{
-		case JUDGE_0: set(261); break;
-		case JUDGE_1: set(262); break;
-		case JUDGE_2: set(263); break;
-		case JUDGE_3: set(264); break;
-		case JUDGE_4: set(265); break;
-		case JUDGE_5: set(266); break;
+		case RulesetBMS::JudgeArea::EARLY_KPOOR:
+		case RulesetBMS::JudgeArea::LATE_KPOOR:
+		case RulesetBMS::JudgeArea::MINE_KPOOR:
+			set(266);
+			break;
+		case RulesetBMS::JudgeArea::MISS:
+			set(265);
+			break;
+		case RulesetBMS::JudgeArea::EARLY_BAD:
+		case RulesetBMS::JudgeArea::LATE_BAD:
+			set(264);
+			break;
+		case RulesetBMS::JudgeArea::EARLY_GOOD:
+		case RulesetBMS::JudgeArea::LATE_GOOD:
+			set(263);
+			break;
+		case RulesetBMS::JudgeArea::EARLY_GREAT:
+		case RulesetBMS::JudgeArea::LATE_GREAT:
+			set(262);
+			break;
+		case RulesetBMS::JudgeArea::EARLY_PERFECT:
+		case RulesetBMS::JudgeArea::EXACT_PERFECT:
+		case RulesetBMS::JudgeArea::LATE_PERFECT:
+			set(261);
+			break;
 		}
 	}
 
-	// 267 2P POORBGA表示時間外
-	// 268 2P POORBGA表示時間中
-	set(267);
-
 	// 270 1P SUD+変更中
 	// 271 2P SUD+変更中
-	set(270, sw(IndexSwitch::P1_SETTING_LANECOVER));
-	set(271, sw(IndexSwitch::P2_SETTING_LANECOVER));
+	set(270, PlayData.player[PLAYER_SLOT_PLAYER].adjustingLanecover);
+	set(271, PlayData.player[PLAYER_SLOT_TARGET].adjustingLanecover);
 
 	// 272 1P Hi-Speed変更中
 	// 273 2P Hi-Speed変更中
-	set(272, sw(IndexSwitch::P1_SETTING_HISPEED));
-	set(273, sw(IndexSwitch::P2_SETTING_HISPEED));
+	set(272, PlayData.player[PLAYER_SLOT_PLAYER].adjustingHispeed);
+	set(273, PlayData.player[PLAYER_SLOT_TARGET].adjustingHispeed);
 
 	// 274 1P SUD+
 	// 275 2P SUD+
-	set(274, sw(IndexSwitch::P1_HAS_LANECOVER_TOP));
-	set(275, sw(IndexSwitch::P2_HAS_LANECOVER_TOP));
+	switch (PlayData.player[PLAYER_SLOT_PLAYER].mods.laneEffect)
+	{
+	case PlayModifierLaneEffectType::SUDDEN:
+	case PlayModifierLaneEffectType::SUDHID:
+	case PlayModifierLaneEffectType::LIFTSUD:
+		set(274);
+		break;
+	}
+	switch (PlayData.player[PLAYER_SLOT_TARGET].mods.laneEffect)
+	{
+	case PlayModifierLaneEffectType::SUDDEN:
+	case PlayModifierLaneEffectType::SUDHID:
+	case PlayModifierLaneEffectType::LIFTSUD:
+		set(275);
+		break;
+	}
 
 	// 276 1P HID+/LIFT
 	// 277 2P HID+/LIFT
-	set(276, sw(IndexSwitch::P1_HAS_LANECOVER_BOTTOM));
-	set(277, sw(IndexSwitch::P2_HAS_LANECOVER_BOTTOM));
+	switch (PlayData.player[PLAYER_SLOT_PLAYER].mods.laneEffect)
+	{
+	case PlayModifierLaneEffectType::HIDDEN:
+	case PlayModifierLaneEffectType::SUDHID:
+	case PlayModifierLaneEffectType::LIFT:
+	case PlayModifierLaneEffectType::LIFTSUD:
+		set(276);
+		break;
+	}
+	switch (PlayData.player[PLAYER_SLOT_TARGET].mods.laneEffect)
+	{
+	case PlayModifierLaneEffectType::HIDDEN:
+	case PlayModifierLaneEffectType::SUDHID:
+	case PlayModifierLaneEffectType::LIFT:
+	case PlayModifierLaneEffectType::LIFTSUD:
+		set(277);
+		break;
+	}
 
 	// 280 コースステージ1
 	// 281 コースステージ2
@@ -701,136 +995,134 @@ void updateDstOpt()
 	// (注意 例えばSTAGE3が最終ステージの場合、ステージFINALが優先され、283オン、282オフとなります。)
 	// (現在は実装していませんが、今後の拡張に備えて284-288にあたるSTAGE5-9の画像もあらかじめ作っておいた方がいいかもしれません。
 	// Note: LR2 handle single song as FINAL
+	if (PlayData.isCourse)
 	{
-		switch (State::get(IndexOption::PLAY_COURSE_STAGE))
+		if (PlayData.courseStage >= 0 && PlayData.courseStage < 9)
 		{
-			using namespace Option;
-		case STAGE_NOT_COURSE: set(289); break;
-		case STAGE_1: set(280); break;
-		case STAGE_2: set(281); break;
-		case STAGE_3: set(282); break;
-		case STAGE_4: set(283); break;
-		case STAGE_FINAL: set(289); break;
+			if (PlayData.courseStage + 1 == PlayData.courseStageData.size())
+				set(289);
+			else
+				set(PlayData.courseStage - 280);
 		}
+	}
+	else
+	{
+		set(289);
 	}
 
 	// 290 コース
 	// 291 ノンストップ
 	// 292 エキスパート
 	// 293 段位認定
-	if (dst(IndexOption::SELECT_ENTRY_TYPE, Option::ENTRY_COURSE))
+	if (currentEntry->type() == eEntryType::COURSE)
 	{
 		set(290);
-		set(291, dst(IndexOption::COURSE_TYPE, Option::COURSE_NONSTOP));
-		set(292, dst(IndexOption::COURSE_TYPE, Option::COURSE_EXPERT));
-		set(293, dst(IndexOption::COURSE_TYPE, Option::COURSE_GRADE));
+		auto c = std::dynamic_pointer_cast<EntryCourse>(currentEntry);
+		if (c)
+		{
+			set(293, c->courseType == EntryCourse::CourseType::GRADE);
+		}
 	}
 
 	// //////////////////////////////////
 	// //リザ
 
-	// 300 1P AAA
+	if (currentScore)
 	{
-		using namespace Option;
-		switch (State::get(IndexOption::RESULT_RANK_1P))
-		{
-		case RANK_0:
-		case RANK_1: set(300); break;
-		case RANK_2: set(301); break;
-		case RANK_3: set(302); break;
-		case RANK_4: set(303); break;
-		case RANK_5: set(304); break;
-		case RANK_6: set(305); break;
-		case RANK_7: set(306); break;
-		case RANK_8: set(307); break;
-		case RANK_NONE: set(308); break;
-		}
+		// 320 更新前 AAA
+		set(320, get(110));
+		set(321, get(111));
+		set(322, get(112));
+		set(323, get(113));
+		set(324, get(114));
+		set(325, get(115));
+		set(326, get(116));
+		set(327, get(117));
 	}
 
-	// 310 2P AAA
 	{
-		using namespace Option;
-		switch (State::get(IndexOption::RESULT_RANK_2P))
+		bool updatedScore = false;
+		bool updatedMaxCombo = false;
+		bool updatedBP = false;
+		bool updatedRank = false;
+
+		auto ruleset = PlayData.player[PLAYER_SLOT_PLAYER].ruleset;
+		auto rbms = std::dynamic_pointer_cast<RulesetBMS>(ruleset);
+		if (rbms)
 		{
-		case RANK_0:
-		case RANK_1: set(310); break;
-		case RANK_2: set(311); break;
-		case RANK_3: set(312); break;
-		case RANK_4: set(313); break;
-		case RANK_5: set(314); break;
-		case RANK_6: set(315); break;
-		case RANK_7: set(316); break;
-		case RANK_8: set(317); break;
-		case RANK_NONE: set(318); break;
+			if (currentScore)
+			{
+				auto sbms = std::dynamic_pointer_cast<ScoreBMS>(currentScore);
+				updatedScore = rbms->getExScore() > (sbms ? sbms->exscore : 0);
+				updatedBP = rbms->getJudgeCountEx(RulesetBMS::JudgeIndex::JUDGE_BP) < (sbms ? sbms->bp : UINT_MAX);
+			}
+		}
+		if (currentScore)
+		{
+			updatedRank = getRankType(ruleset) > getScoreRankType(currentScore);
+			updatedMaxCombo = ruleset->getData().maxCombo > currentScore->maxcombo;
+		}
+
+		// 330 スコアが更新された
+		set(330, updatedScore);
+		// 331 MAXCOMBOが更新された
+		set(331, updatedMaxCombo);
+		// 332 最小B+Pが更新された
+		set(332, updatedBP);
+		// 333 トライアルが更新された
+		//set(333, sw(IndexSwitch::RESULT_UPDATED_TRIAL));
+		set(333, false);
+		// 334 IRの順位が更新された
+		//set(334, sw(IndexSwitch::RESULT_UPDATED_IRRANK));
+		set(334, false);
+		// 335 スコアランクが更新された
+		set(335, updatedRank);
+
+		// 340 更新後 AAA
+		if (updatedRank)
+		{
+			set(340, get(300));
+			set(341, get(301));
+			set(342, get(302));
+			set(343, get(303));
+			set(344, get(304));
+			set(345, get(305));
+			set(346, get(306));
+			set(347, get(307));
+		}
+		else
+		{
+			set(340, get(110));
+			set(341, get(111));
+			set(342, get(112));
+			set(343, get(113));
+			set(344, get(114));
+			set(345, get(115));
+			set(346, get(116));
+			set(347, get(117));
 		}
 	}
-
-	// 320 更新前 AAA
-	{
-		using namespace Option;
-		switch (State::get(IndexOption::RESULT_MYBEST_RANK))
-		{
-		case RANK_0:
-		case RANK_1: set(320); break;
-		case RANK_2: set(321); break;
-		case RANK_3: set(322); break;
-		case RANK_4: set(323); break;
-		case RANK_5: set(324); break;
-		case RANK_6: set(325); break;
-		case RANK_7: set(326); break;
-		case RANK_8: set(327); break;
-		case RANK_NONE: break;
-		}
-	}
-
-	// 330 スコアが更新された
-	set(330, sw(IndexSwitch::RESULT_UPDATED_SCORE));
-	// 331 MAXCOMBOが更新された
-	set(331, sw(IndexSwitch::RESULT_UPDATED_MAXCOMBO));
-	// 332 最小B+Pが更新された
-	set(332, sw(IndexSwitch::RESULT_UPDATED_BP));
-	// 333 トライアルが更新された
-	//set(333, sw(IndexSwitch::RESULT_UPDATED_TRIAL));
-	set(333, false);
-	// 334 IRの順位が更新された
-	//set(334, sw(IndexSwitch::RESULT_UPDATED_IRRANK));
-	set(334, false);
-	// 335 スコアランクが更新された
-	set(335, sw(IndexSwitch::RESULT_UPDATED_RANK));
-
-	// 340 更新後 AAA
-	{
-		using namespace Option;
-		switch (State::get(IndexOption::RESULT_UPDATED_RANK))
-		{
-		case RANK_0:
-		case RANK_1: set(340); break;
-		case RANK_2: set(341); break;
-		case RANK_3: set(342); break;
-		case RANK_4: set(343); break;
-		case RANK_5: set(344); break;
-		case RANK_6: set(345); break;
-		case RANK_7: set(346); break;
-		case RANK_8: set(347); break;
-		}
-	}
-
 
 	// 350 リザルトフリップ無効(プレイスキンで#FLIPRESULT命令無し、もしくは#DISABLEFLIP命令以降
 	// 351 リザルトフリップ有効(プレイスキンで#FLIPRESULT命令有り
-	set(350, sw(IndexSwitch::FLIP_RESULT));
-	set(351, !sw(IndexSwitch::FLIP_RESULT));
+	set(350, !ResultData.flipResult);
+	set(351, ResultData.flipResult);
 
 	// 352 1PWIN 2PLOSE
 	// 353 1PLOSE 2PWIN
 	// 354 DRAW
+	if (PlayData.isBattle)
 	{
-		switch (State::get(IndexOption::RESULT_BATTLE_WIN_LOSE))
-		{
-		case 0: set(354); break;
-		case 1: set(352); break;
-		case 2: set(353); break;
-		}
+		auto r1 = PlayData.player[PLAYER_SLOT_PLAYER].ruleset;
+		auto r2 = PlayData.player[PLAYER_SLOT_TARGET].ruleset;
+		double rate1 = r1 ? r1->getData().total_acc : 0.0;
+		double rate2 = r2 ? r2->getData().total_acc : 0.0;
+		if (rate1 > rate2) 
+			set(352);
+		else if (rate1 < rate2)
+			set(353);
+		else 
+			set(354);
 	}
 
 
@@ -840,15 +1132,11 @@ void updateDstOpt()
 	// 400 7/14KEYS
 	// 401 9KEYS
 	// 402 5/10KEYS
+	switch (KeyConfigData.currentMode)
 	{
-		using namespace Option;
-		switch (State::get(IndexOption::KEY_CONFIG_MODE))
-		{
-		case KEYCFG_7: set(400); break;
-		case KEYCFG_9: set(401); break;
-		case KEYCFG_5: set(402); break;
-		default: break;
-		}
+	case 5: set(402); break;
+	case 7: set(400); break;
+	case 9: set(401); break;
 	}
 
 
@@ -859,67 +1147,66 @@ void updateDstOpt()
 	// 502 同じフォルダにhyper譜面が存在しない
 	// 503 同じフォルダにanother譜面が存在しない
 	// 504 同じフォルダにinsane譜面が存在しない
-	set(500, !State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_1));
-	set(501, !State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_2));
-	set(502, !State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_3));
-	set(503, !State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_4));
-	set(504, !State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_5));
+	set(500, SelectData.countOfChartDifficulty[0] == 0);
+	set(501, SelectData.countOfChartDifficulty[1] == 0);
+	set(502, SelectData.countOfChartDifficulty[2] == 0);
+	set(503, SelectData.countOfChartDifficulty[3] == 0);
+	set(504, SelectData.countOfChartDifficulty[4] == 0);
 
 	// 505 同じフォルダにbeginner譜面が存在する
 	// 506 同じフォルダにnormal譜面が存在する
 	// 507 同じフォルダにhyper譜面が存在する
 	// 508 同じフォルダにanother譜面が存在する
 	// 509 同じフォルダにinsane譜面が存在する
-	set(505, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_1));
-	set(506, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_2));
-	set(507, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_3));
-	set(508, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_4));
-	set(509, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_5));
+	set(505, SelectData.countOfChartDifficulty[0] != 0);
+	set(506, SelectData.countOfChartDifficulty[1] != 0);
+	set(507, SelectData.countOfChartDifficulty[2] != 0);
+	set(508, SelectData.countOfChartDifficulty[3] != 0);
+	set(509, SelectData.countOfChartDifficulty[4] != 0);
 
 	// 510 同じフォルダに一個のbeginner譜面が存在する
 	// 511 同じフォルダに一個のnormal譜面が存在する
 	// 512 同じフォルダに一個のhyper譜面が存在する
 	// 513 同じフォルダに一個のanother譜面が存在する
 	// 514 同じフォルダに一個のnsane譜面が存在する
-	set(510, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_1) && !State::get(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_1));
-	set(511, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_2) && !State::get(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_2));
-	set(512, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_3) && !State::get(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_3));
-	set(513, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_4) && !State::get(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_4));
-	set(514, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_5) && !State::get(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_5));
+    set(510, SelectData.countOfChartDifficulty[0] >= 1);
+    set(511, SelectData.countOfChartDifficulty[1] >= 1);
+    set(512, SelectData.countOfChartDifficulty[2] >= 1);
+    set(513, SelectData.countOfChartDifficulty[3] >= 1);
+    set(514, SelectData.countOfChartDifficulty[4] >= 1);
 
 	// 515 同じフォルダに複数のbeginner譜面が存在する
 	// 516 同じフォルダに複数のnormal譜面が存在する
 	// 517 同じフォルダに複数のhyper譜面が存在する
 	// 518 同じフォルダに複数のanother譜面が存在する
 	// 519 同じフォルダに複数のnsane譜面が存在する
-	set(515, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_1) && State::get(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_1));
-	set(516, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_2) && State::get(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_2));
-	set(517, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_3) && State::get(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_3));
-	set(518, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_4) && State::get(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_4));
-	set(519, State::get(IndexSwitch::CHART_HAVE_DIFFICULTY_5) && State::get(IndexSwitch::CHART_HAVE_MULTIPLE_DIFFICULTY_5));
+    set(515, SelectData.countOfChartDifficulty[0] > 1);
+    set(516, SelectData.countOfChartDifficulty[1] > 1);
+    set(517, SelectData.countOfChartDifficulty[2] > 1);
+    set(518, SelectData.countOfChartDifficulty[3] > 1);
+    set(519, SelectData.countOfChartDifficulty[4] > 1);
 
-	if (get(5))
+	if (get(5) && currentChart)
 	{
-		switch (State::get(IndexOption::CHART_DIFFICULTY))
+		switch (currentChart->difficulty)
 		{
-			using namespace Option;
-		case DIFF_BEGINNER:
+		case 0:
 			set(500, false); 
 			set({ 505, 510 }); 
 			break;
-		case DIFF_NORMAL: 
+		case 1: 
 			set(501, false); 
 			set({ 506, 511 });  
 			break;
-		case DIFF_HYPER: 
+		case 2: 
 			set(502, false);
 			set({ 507, 512 });  
 			break;
-		case DIFF_ANOTHER: 
+		case 3: 
 			set(503, false); 
 			set({ 508, 513 }); 
 			break;
-		case DIFF_INSANE: 
+		case 4: 
 			set(504, false);
 			set({ 509, 514 });
 			break;
@@ -977,134 +1264,142 @@ void updateDstOpt()
 	// 587 コースstage数8以上
 	// 588 コースstage数9以上
 	// 589 コースstage数10以上
-	switch (State::get(IndexOption::COURSE_STAGE_COUNT))
+	if (PlayData.isCourse)
 	{
-	case 10: set(589); [[ fallthrough ]];
-	case 9: set(588); [[ fallthrough ]];
-	case 8: set(587); [[ fallthrough ]];
-	case 7: set(586); [[ fallthrough ]];
-	case 6: set(585); [[ fallthrough ]];
-	case 5: set(584); [[ fallthrough ]];
-	case 4: set(583); [[ fallthrough ]];
-	case 3: set(582); [[ fallthrough ]];
-	case 2: set(581); [[ fallthrough ]];
-	case 1: set(580); [[ fallthrough ]];
-	default: break;
-	}
+		switch (PlayData.courseStageData.size())
+		{
+		case 10: set(589); [[ fallthrough ]];
+		case 9: set(588); [[ fallthrough ]];
+		case 8: set(587); [[ fallthrough ]];
+		case 7: set(586); [[ fallthrough ]];
+		case 6: set(585); [[ fallthrough ]];
+		case 5: set(584); [[ fallthrough ]];
+		case 4: set(583); [[ fallthrough ]];
+		case 3: set(582); [[ fallthrough ]];
+		case 2: set(581); [[ fallthrough ]];
+		case 1: set(580); [[ fallthrough ]];
+		default: break;
+		}
 
-	// 590 コースセレクト stage1選択中
-	// 591 コースセレクト stage2選択中
-	// 592 コースセレクト stage3選択中
-	// 593 コースセレクト stage4選択中
-	// 594 コースセレクト stage5選択中
-	// 595 コースセレクト stage6選択中
-	// 596 コースセレクト stage7選択中
-	// 597 コースセレクト stage8選択中
-	// 598 コースセレクト stage9選択中
-	// 599 コースセレクト stage10選択中
+		// 590 コースセレクト stage1選択中
+		// 591 コースセレクト stage2選択中
+		// 592 コースセレクト stage3選択中
+		// 593 コースセレクト stage4選択中
+		// 594 コースセレクト stage5選択中
+		// 595 コースセレクト stage6選択中
+		// 596 コースセレクト stage7選択中
+		// 597 コースセレクト stage8選択中
+		// 598 コースセレクト stage9選択中
+		// 599 コースセレクト stage10選択中
 
-	// 571 コースセレクト中である
-	// 572 コースセレクト中では無い
-	set(572);
+		// 571 コースセレクト中である
+		// 572 コースセレクト中では無い
+		set(572);
 
-	// //コースstage1
-	// 700 コースstage1 difficulty未定義
-	// 701 コースstage1 difficulty1
-	// 702 コースstage1 difficulty2
-	// 703 コースstage1 difficulty3
-	// 704 コースstage1 difficulty4
-	// 705 コースstage1 difficulty5
-	if (sw(IndexSwitch::COURSE_STAGE1_CHART_EXIST))
-	{
-		set(700, dst(IndexOption::COURSE_STAGE1_DIFFICULTY, 0));
-		set(701, dst(IndexOption::COURSE_STAGE1_DIFFICULTY, 1));
-		set(702, dst(IndexOption::COURSE_STAGE1_DIFFICULTY, 2));
-		set(703, dst(IndexOption::COURSE_STAGE1_DIFFICULTY, 3));
-		set(704, dst(IndexOption::COURSE_STAGE1_DIFFICULTY, 4));
-		set(705, dst(IndexOption::COURSE_STAGE1_DIFFICULTY, 5));
-	}
+		// //コースstage1
+		// 700 コースstage1 difficulty未定義
+		// 701 コースstage1 difficulty1
+		// 702 コースstage1 difficulty2
+		// 703 コースstage1 difficulty3
+		// 704 コースstage1 difficulty4
+		// 705 コースstage1 difficulty5
+		if (PlayData.courseStageData.size() >= 1)
+		{
+			auto& d = PlayData.courseStageData[0];
+            set(700, d.difficulty == 0);
+            set(701, d.difficulty == 1);
+            set(702, d.difficulty == 2);
+            set(703, d.difficulty == 3);
+            set(704, d.difficulty == 4);
+            set(705, d.difficulty == 5);
+		}
 
-	// //コースstage2
-	// 710 コースstage2 difficulty未定義
-	// 711 コースstage2 difficulty1
-	// 712 コースstage2 difficulty2
-	// 713 コースstage2 difficulty3
-	// 714 コースstage2 difficulty4
-	// 715 コースstage2 difficulty5
-	if (sw(IndexSwitch::COURSE_STAGE2_CHART_EXIST))
-	{
-		set(710, dst(IndexOption::COURSE_STAGE2_DIFFICULTY, 0));
-		set(711, dst(IndexOption::COURSE_STAGE2_DIFFICULTY, 1));
-		set(712, dst(IndexOption::COURSE_STAGE2_DIFFICULTY, 2));
-		set(713, dst(IndexOption::COURSE_STAGE2_DIFFICULTY, 3));
-		set(714, dst(IndexOption::COURSE_STAGE2_DIFFICULTY, 4));
-		set(715, dst(IndexOption::COURSE_STAGE2_DIFFICULTY, 5));
-	}
+		// //コースstage2
+		// 710 コースstage2 difficulty未定義
+		// 711 コースstage2 difficulty1
+		// 712 コースstage2 difficulty2
+		// 713 コースstage2 difficulty3
+		// 714 コースstage2 difficulty4
+        // 715 コースstage2 difficulty5
+        if (PlayData.courseStageData.size() >= 2)
+        {
+            auto& d = PlayData.courseStageData[1];
+            set(710, d.difficulty == 0);
+            set(711, d.difficulty == 1);
+            set(712, d.difficulty == 2);
+            set(713, d.difficulty == 3);
+            set(714, d.difficulty == 4);
+            set(715, d.difficulty == 5);
+        }
 
-	// //コースstage3
-	// 720 コースstage3 difficulty未定義
-	// 721 コースstage3 difficulty1
-	// 722 コースstage3 difficulty2
-	// 723 コースstage3 difficulty3
-	// 724 コースstage3 difficulty4
-	// 725 コースstage3 difficulty5
-	if (sw(IndexSwitch::COURSE_STAGE3_CHART_EXIST))
-	{
-		set(720, dst(IndexOption::COURSE_STAGE3_DIFFICULTY, 0));
-		set(721, dst(IndexOption::COURSE_STAGE3_DIFFICULTY, 1));
-		set(722, dst(IndexOption::COURSE_STAGE3_DIFFICULTY, 2));
-		set(723, dst(IndexOption::COURSE_STAGE3_DIFFICULTY, 3));
-		set(724, dst(IndexOption::COURSE_STAGE3_DIFFICULTY, 4));
-		set(725, dst(IndexOption::COURSE_STAGE3_DIFFICULTY, 5));
-	}
+		// //コースstage3
+		// 720 コースstage3 difficulty未定義
+		// 721 コースstage3 difficulty1
+		// 722 コースstage3 difficulty2
+		// 723 コースstage3 difficulty3
+		// 724 コースstage3 difficulty4
+        // 725 コースstage3 difficulty5
+        if (PlayData.courseStageData.size() >= 3)
+        {
+            auto& d = PlayData.courseStageData[2];
+            set(720, d.difficulty == 0);
+            set(721, d.difficulty == 1);
+            set(722, d.difficulty == 2);
+            set(723, d.difficulty == 3);
+            set(724, d.difficulty == 4);
+            set(725, d.difficulty == 5);
+        }
 	
-	// LR2HelperG DST_OPTION HS-FIX 720-724
-	// Is there anybody using these? Let me know if needed
-	/*
-	switch (State::get(IndexOption::PLAY_HSFIX_TYPE_1P))
-	{
-	case Option::SPEED_NORMAL: set(720); break;
-	case Option::SPEED_FIX_MIN: set(721); break;
-	case Option::SPEED_FIX_MAX: set(722); break;
-	case Option::SPEED_FIX_AVG: set(723); break;
-	case Option::SPEED_FIX_CONSTANT: set(724); break;
-	}
-	*/
+		// LR2HelperG DST_OPTION HS-FIX 720-724
+		// Is there anybody using these? Let me know if needed
+		/*
+		switch (State::get(IndexOption::PLAY_HSFIX_TYPE_1P))
+		{
+		case Option::SPEED_NORMAL: set(720); break;
+		case Option::SPEED_FIX_MIN: set(721); break;
+		case Option::SPEED_FIX_MAX: set(722); break;
+		case Option::SPEED_FIX_AVG: set(723); break;
+		case Option::SPEED_FIX_CONSTANT: set(724); break;
+		}
+		*/
 
-	// //コースstage4
-	// 730 コースstage4 difficulty未定義
-	// 731 コースstage4 difficulty1
-	// 732 コースstage4 difficulty2
-	// 733 コースstage4 difficulty3
-	// 734 コースstage4 difficulty4
-	// 735 コースstage4 difficulty5
-	if (sw(IndexSwitch::COURSE_STAGE4_CHART_EXIST))
-	{
-		set(730, dst(IndexOption::COURSE_STAGE4_DIFFICULTY, 0));
-		set(731, dst(IndexOption::COURSE_STAGE4_DIFFICULTY, 1));
-		set(732, dst(IndexOption::COURSE_STAGE4_DIFFICULTY, 2));
-		set(733, dst(IndexOption::COURSE_STAGE4_DIFFICULTY, 3));
-		set(734, dst(IndexOption::COURSE_STAGE4_DIFFICULTY, 4));
-		set(735, dst(IndexOption::COURSE_STAGE4_DIFFICULTY, 5));
-	}
+		// //コースstage4
+		// 730 コースstage4 difficulty未定義
+		// 731 コースstage4 difficulty1
+		// 732 コースstage4 difficulty2
+		// 733 コースstage4 difficulty3
+		// 734 コースstage4 difficulty4
+        // 735 コースstage4 difficulty5
+        if (PlayData.courseStageData.size() >= 4)
+        {
+            auto& d = PlayData.courseStageData[3];
+            set(730, d.difficulty == 0);
+            set(731, d.difficulty == 1);
+            set(732, d.difficulty == 2);
+            set(733, d.difficulty == 3);
+            set(734, d.difficulty == 4);
+            set(735, d.difficulty == 5);
+        }
 
-	// //コースstage5
-	// 740 コースstage5 difficulty未定義
-	// 741 コースstage5 difficulty1
-	// 742 コースstage5 difficulty2
-	// 743 コースstage5 difficulty3
-	// 744 コースstage5 difficulty4
-	// 745 コースstage5 difficulty5
-	if (sw(IndexSwitch::COURSE_STAGE5_CHART_EXIST))
-	{
-		set(740, dst(IndexOption::COURSE_STAGE5_DIFFICULTY, 0));
-		set(741, dst(IndexOption::COURSE_STAGE5_DIFFICULTY, 1));
-		set(742, dst(IndexOption::COURSE_STAGE5_DIFFICULTY, 2));
-		set(743, dst(IndexOption::COURSE_STAGE5_DIFFICULTY, 3));
-		set(744, dst(IndexOption::COURSE_STAGE5_DIFFICULTY, 4));
-		set(745, dst(IndexOption::COURSE_STAGE5_DIFFICULTY, 5));
-	}
+		// //コースstage5
+		// 740 コースstage5 difficulty未定義
+		// 741 コースstage5 difficulty1
+		// 742 コースstage5 difficulty2
+		// 743 コースstage5 difficulty3
+		// 744 コースstage5 difficulty4
+        // 745 コースstage5 difficulty5
+        if (PlayData.courseStageData.size() >= 5)
+        {
+            auto& d = PlayData.courseStageData[4];
+            set(740, d.difficulty == 0);
+            set(741, d.difficulty == 1);
+            set(742, d.difficulty == 2);
+            set(743, d.difficulty == 3);
+            set(744, d.difficulty == 4);
+            set(745, d.difficulty == 5);
+        }
 
+    }
 
 	// ///////////////////////////////////
 	// //LR2IR関連
@@ -1135,11 +1430,28 @@ void updateDstOpt()
 	// 800: Lanecover Enabled 1P
 	// 801: FHS 1P
 	// 810: Lanecover Enabled 2P
-	// 811: FHS 2P
-	set(800, State::get(IndexSwitch::P1_LANECOVER_ENABLED));
-	set(801, State::get(IndexSwitch::P1_LOCK_SPEED));
-	set(810, State::get(IndexSwitch::P2_LANECOVER_ENABLED));
-	set(811, State::get(IndexSwitch::P2_LOCK_SPEED));
+    // 811: FHS 2P
+    switch (PlayData.player[PLAYER_SLOT_PLAYER].mods.laneEffect)
+    {
+    case PlayModifierLaneEffectType::SUDDEN:
+    case PlayModifierLaneEffectType::HIDDEN:
+    case PlayModifierLaneEffectType::SUDHID:
+    case PlayModifierLaneEffectType::LIFTSUD:
+        set(800);
+        break;
+    }
+    set(801, PlayData.player[PLAYER_SLOT_PLAYER].mods.hispeedFix != PlayModifierHispeedFixType::NONE);
+
+    switch (PlayData.player[PLAYER_SLOT_TARGET].mods.laneEffect)
+    {
+    case PlayModifierLaneEffectType::SUDDEN:
+    case PlayModifierLaneEffectType::HIDDEN:
+    case PlayModifierLaneEffectType::SUDHID:
+    case PlayModifierLaneEffectType::LIFTSUD:
+        set(810);
+        break;
+    }
+    set(811, PlayData.player[PLAYER_SLOT_TARGET].mods.hispeedFix != PlayModifierHispeedFixType::NONE);
 
 	// 1000: arena Online
 	if (gArenaData.isOnline())
@@ -1161,74 +1473,71 @@ void updateDstOpt()
 		set(1400, gArenaData.isSelfReady());
 
 		for (size_t i = 0; i < MAX_ARENA_PLAYERS; ++i)
-		{
-			if (auto pr = gArenaData.getPlayerRuleset(i); pr)
+        {
+            int offset = 50 * i;
+			auto ruleset = gArenaData.getPlayerRuleset(i);
+			if (ruleset)
 			{
-				const auto d = pr->getData();
-				int offset = 50 * i;
+				switch (getCurrentRankType(ruleset))
+				{
+				case RankType::MAX:
+				case RankType::AAA: set(1011 + offset); break;
+				case RankType::AA: set(1012 + offset); break;
+				case RankType::A: set(1013 + offset); break;
+				case RankType::B: set(1014 + offset); break;
+				case RankType::C: set(1015 + offset); break;
+				case RankType::D: set(1016 + offset); break;
+				case RankType::E: set(1017 + offset); break;
+				case RankType::F: set(1018 + offset); break;
+				}
+				switch (getRankType(ruleset))
+				{
+				case RankType::MAX:
+				case RankType::AAA: set(1021 + offset); break;
+				case RankType::AA: set(1022 + offset); break;
+				case RankType::A: set(1023 + offset); break;
+				case RankType::B: set(1024 + offset); break;
+				case RankType::C: set(1025 + offset); break;
+				case RankType::D: set(1026 + offset); break;
+				case RankType::E: set(1027 + offset); break;
+				case RankType::F: set(1028 + offset); break;
+                }
+                const auto d = ruleset->getData();
+				double health = ruleset->getData().health;
+				if (health < 0.1) set(1030 + offset);
+				else if (health < 0.2) set(1031 + offset);
+				else if (health < 0.3) set(1032 + offset);
+				else if (health < 0.4) set(1033 + offset);
+				else if (health < 0.5) set(1034 + offset);
+				else if (health < 0.6) set(1035 + offset);
+				else if (health < 0.7) set(1036 + offset);
+				else if (health < 0.8) set(1037 + offset);
+				else if (health < 0.9) set(1038 + offset);
+				else if (health < 1.0) set(1039 + offset);
+				else set(1040 + offset);
 
-				using namespace Option;
-				switch (Option::getRankType(d.acc))
-				{
-				case RANK_0:
-				case RANK_1: set(1011 + offset); break;
-				case RANK_2: set(1012 + offset); break;
-				case RANK_3: set(1013 + offset); break;
-				case RANK_4: set(1014 + offset); break;
-				case RANK_5: set(1015 + offset); break;
-				case RANK_6: set(1016 + offset); break;
-				case RANK_7: set(1017 + offset); break;
-				case RANK_8: set(1018 + offset); break;
-				}
-				switch (Option::getRankType(d.total_acc))
-				{
-				case RANK_0:
-				case RANK_1: set(1021 + offset); break;
-				case RANK_2: set(1022 + offset); break;
-				case RANK_3: set(1023 + offset); break;
-				case RANK_4: set(1024 + offset); break;
-				case RANK_5: set(1025 + offset); break;
-				case RANK_6: set(1026 + offset); break;
-				case RANK_7: set(1027 + offset); break;
-				case RANK_8: set(1028 + offset); break;
-				}
-				switch (Option::getHealthType(d.health))
-				{
-				case HEALTH_0:   set(1030 + offset); break;
-				case HEALTH_10:  set(1031 + offset); break;
-				case HEALTH_20:  set(1032 + offset); break;
-				case HEALTH_30:  set(1033 + offset); break;
-				case HEALTH_40:  set(1034 + offset); break;
-				case HEALTH_50:  set(1035 + offset); break;
-				case HEALTH_60:  set(1036 + offset); break;
-				case HEALTH_70:  set(1037 + offset); break;
-				case HEALTH_80:  set(1038 + offset); break;
-				case HEALTH_90:  set(1039 + offset); break;
-				case HEALTH_100: set(1040 + offset); break;
-				}
-
-				if (d.judge[RulesetBMS::JUDGE_CB] == 0)
-				{
-					set(1045 + offset);
-				}
-				else if (d.health >= pr->getClearHealth())
-				{
-					if (auto prb = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(i)); prb)
-					{
-						switch (prb->getGaugeType())
-						{
-						case RulesetBMS::GaugeType::GROOVE:  set(1043 + offset); break;
-						case RulesetBMS::GaugeType::EASY:    set(1042 + offset); break;
-						case RulesetBMS::GaugeType::ASSIST:  set(1047 + offset); break;
-						case RulesetBMS::GaugeType::HARD:    set(1044 + offset); break;
-						case RulesetBMS::GaugeType::EXHARD:  set(1046 + offset); break;
-						}
-					}
-				}
-				else
-				{
-					set(1041 + offset);
-				}
+                if (d.judge[RulesetBMS::JUDGE_CB] == 0)
+                {
+                    set(1045 + offset);
+                }
+                else if (d.health >= ruleset->getClearHealth())
+                {
+                    if (auto prb = std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(i)); prb)
+                    {
+                        switch (prb->getGaugeType())
+                        {
+                        case RulesetBMS::GaugeType::GROOVE:  set(1043 + offset); break;
+                        case RulesetBMS::GaugeType::EASY:    set(1042 + offset); break;
+                        case RulesetBMS::GaugeType::ASSIST:  set(1047 + offset); break;
+                        case RulesetBMS::GaugeType::HARD:    set(1044 + offset); break;
+                        case RulesetBMS::GaugeType::EXHARD:  set(1046 + offset); break;
+                        }
+                    }
+                }
+                else
+                {
+                    set(1041 + offset);
+                }
 			}
 
 			set(1401 + i, gArenaData.isPlayerReady(i));

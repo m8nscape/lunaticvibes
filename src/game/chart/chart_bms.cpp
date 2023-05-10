@@ -23,6 +23,9 @@ ChartObjectBMS::ChartObjectBMS(int slot, const ChartFormatBMS& b) : ChartObjectB
 
 void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
 {
+    _fileHash = objBms.fileHash;
+    total = objBms.total;
+
 	_noteCount_total = objBms.notes_total;
 	_noteCount_regular = objBms.notes_scratch + objBms.notes_key;
 	_noteCount_ln = objBms.notes_scratch_ln + objBms.notes_key_ln;

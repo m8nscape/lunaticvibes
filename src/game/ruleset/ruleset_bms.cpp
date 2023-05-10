@@ -1598,6 +1598,12 @@ std::string RulesetBMS::getModifierTextShort() const
     return modifierTextShort;
 }
 
+RulesetBMS::JudgeRes RulesetBMS::getLastJudge(int side) const
+{
+    return _lastNoteJudge[side];
+}
+
+
 unsigned RulesetBMS::getNoteCount() const
 {
     return noteCount;

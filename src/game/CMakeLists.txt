@@ -79,7 +79,7 @@ add_library(gamelib
     arena/arena_internal.cpp
     arena/arena_host.cpp
     arena/arena_client.cpp
-)
+ "skin/skin_lr2_converters_num.cpp" "skin/skin_lr2_converters_slider.cpp" "skin/skin_lr2_converters_button.cpp" "skin/skin_lr2_converters_bargraph.cpp" "skin/skin_lr2_converters_text.cpp"   "data/data_shared.cpp")
 
 if (UNIX OR MINGW)
     target_link_libraries(gamelib PRIVATE -lpthread)

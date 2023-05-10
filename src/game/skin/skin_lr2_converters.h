@@ -1,18 +1,12 @@
 #pragma once
-#include "game/runtime/state.h"
-
 namespace lr2skin
 {
+std::function<long long()> convertTimerIndex(int n);
 
-IndexNumber num(int n);
-IndexTimer timer(int n);
-IndexText text(int n);
-
-bool buttonSw(int n, IndexSwitch& sw);
-bool buttonOp(int n, IndexOption& sw);
-bool buttonFixed(int n, unsigned& out);
-
-std::function<int()> num1(int n);
-std::function<long long()> timer1(int n);
+std::function<Ratio()> convertBargraphIndex(int n);
+std::function<int()> convertButtonIndex(int n);
+std::function<int()> convertNumberIndex(int n);
+std::function<Ratio()> convertSliderIndex(int n);
+std::function<std::string_view()> convertTextIndex(int n);
 
 }

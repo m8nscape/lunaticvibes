@@ -359,7 +359,6 @@ void ArenaClient::handleJoinLobbyResp(std::shared_ptr<ArenaMessage> msg)
 			gArenaData.data[id].name = name;
 			gArenaData.playerIDs.push_back(id);
 		}
-		gArenaData.updateTexts();
 	}
 }
 
@@ -456,7 +455,6 @@ void ArenaClient::handlePlayerJoined(std::shared_ptr<ArenaMessage> msg)
 	
 	gArenaData.data[pMsg->playerID].name = pMsg->playerName;
 	gArenaData.playerIDs.push_back(pMsg->playerID);
-	gArenaData.updateTexts();
 
 	createNotification((boost::format(i18n::c(i18nText::ARENA_PLAYER_JOINED)) % pMsg->playerName).str());
 }

@@ -254,6 +254,8 @@ public:
     std::string getModifierText() const;
     std::string getModifierTextShort() const;
 
+    JudgeRes getLastJudge(int side) const;
+
     virtual bool isNoScore() const { return moneyScore == 0.0; }
     virtual bool isCleared() const { return !isFailed() && isFinished() && _basic.health >= getClearHealth(); }
     virtual bool isFailed() const { return _isFailed; }

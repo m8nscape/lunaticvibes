@@ -1,11 +1,11 @@
 #pragma once
 
-namespace lv
+namespace lv::data
 {
 
 inline struct Struct_ArenaData
 {
-    std::unordered_map<std::string, long long> timer;
+    std::unordered_map<std::string, long long> timers;
 
     HashMD5 remoteRequestedChart;       // only valid when remote is requesting a new chart; reset after list change
     std::string remoteRequestedPlayer;  // only valid when remote is requesting a new chart; reset after list change

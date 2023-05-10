@@ -4,7 +4,7 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "D:\\vcpkg\\installed\\x64-windows\\include"
+                "D:\\source\\vcpkg\\installed\\x64-windows\\include"
             ],
             "defines": [
                 "_DEBUG",
@@ -19,7 +19,7 @@
             "configurationProvider": "ms-vscode.cpptools",
             "browse": {
                 "path": [
-                    "D:\\vcpkg\\installed\\x64-windows\\include"
+                    "D:\\source\\vcpkg\\installed\\x64-windows\\include"
                 ]
             }
         }

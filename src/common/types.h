@@ -64,13 +64,6 @@ enum class SkinType {
     MODE_COUNT
 };
 
-enum class ePlayMode
-{
-    SINGLE_PLAYER,  // means "Single Player Mode", so DP is also included
-    LOCAL_BATTLE,   // separate chart objects are required
-    GHOST_BATTLE,   // 
-};
-
 typedef unsigned GameModeKeys; // 5 7 9 10 14
 
 enum class PlayModifierRandomType: uint8_t
@@ -127,6 +120,14 @@ enum class PlayModifierLaneEffectType : uint8_t
     SUDHID,
     LIFT,
     LIFTSUD,
+};
+
+enum class PlayModifierBattleType
+{
+    Off,
+    LocalBattle, // separate chart objects are required
+    DoubleBattle,
+    GhostBattle,
 };
 
 struct PlayModifiers

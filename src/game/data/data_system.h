@@ -1,7 +1,24 @@
 #pragma once
 
-namespace lv
+class SongDB;
+class ScoreDB;
+extern std::shared_ptr<SongDB> g_pSongDB;
+extern std::shared_ptr<ScoreDB> g_pScoreDB;
+
+namespace lv::data
 {
+
+enum class GameWindowMode
+{
+    FULLSCREEN,
+    BORDERLESS,
+    WINDOWED
+};
+enum class GameVsyncMode {
+    OFF,
+    ON,
+    ADAPTIVE
+};
 
 enum class FXType
 {
@@ -25,10 +42,12 @@ enum class FreqModifierType
 
 inline struct Struct_SystemData
 {
-    std::unordered_map<std::string, long long> timer;
+    std::unordered_map<std::string, long long> timers;
 
     SceneType gNextScene = SceneType::SELECT;
 
+    GameWindowMode windowMode = GameWindowMode::WINDOWED;
+    GameVsyncMode vsyncMode = GameVsyncMode::OFF;
     unsigned currentRenderFPS = 0;
     unsigned currentInputFPS = 0;
     unsigned currentUpdateFPS = 0;
@@ -44,6 +63,7 @@ inline struct Struct_SystemData
     double volumeKey = 0.8;
     double volumeBgm = 0.8;
 
+    bool equalizerEnabled = false;
     int equalizerVal62_5hz = 0;
     int equalizerVal160hz = 0;
     int equalizerVal400hz = 0;
@@ -60,6 +80,7 @@ inline struct Struct_SystemData
 
     bool IROnline = false;
 
+    std::string playerName;
 
 } SystemData;
 

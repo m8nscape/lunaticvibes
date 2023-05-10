@@ -472,7 +472,7 @@ void preciseSleep(long long sleep_ns)
 
 #if WIN32
 
-    static HANDLE timer = CreateWaitableTimer(NULL, FALSE, NULL);
+    static HANDLE convertTimerIndex = CreateWaitableTimer(NULL, FALSE, NULL);
 
     while (sleep_ns > 1'000'000)
     {
@@ -480,8 +480,8 @@ void preciseSleep(long long sleep_ns)
         due.QuadPart = -int64_t((sleep_ns - sleep_ns % 1'000'000) / 100);  // wrap to 1ms
 
         auto start = high_resolution_clock::now();
-        SetWaitableTimerEx(timer, &due, 0, NULL, NULL, NULL, 0);
-        WaitForSingleObjectEx(timer, INFINITE, TRUE);
+        SetWaitableTimerEx(convertTimerIndex, &due, 0, NULL, NULL, NULL, 0);
+        WaitForSingleObjectEx(convertTimerIndex, INFINITE, TRUE);
         auto end = high_resolution_clock::now();
 
         double observed = duration_cast<nanoseconds>(end - start).count();

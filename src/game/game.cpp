@@ -33,6 +33,9 @@
 bool gEventQuit;
 GenericInfoUpdater gGenericInfo{ 1 };
 
+std::shared_ptr<SongDB> g_pSongDB;
+std::shared_ptr<ScoreDB> g_pScoreDB;
+
 void mainLoop();
 
 // SDL_main
@@ -132,7 +135,7 @@ int main(int argc, char* argv[])
 	InputMgr::updateDevices();
 
     // reset globals
-    ConfigMgr::setGlobals();
+    lv::data::loadConfigs();
 
     // language
     i18n::init();

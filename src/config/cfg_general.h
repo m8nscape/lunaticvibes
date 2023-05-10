@@ -19,25 +19,6 @@ namespace cfg {
     constexpr char A_MODE_PULSE[] = "PulseAudio";
     constexpr char A_MODE_ALSA[] = "ALSA";
     constexpr char A_MODE_COREAUDIO[] = "CoreAudio";
-    enum class eAudioMode
-    {
-        NOSOUND,
-        AUTO,
-
-        // Windows
-        WINMM,
-        DSOUND,
-        WASAPI,
-        ASIO,
-        ATMOS,
-
-        // Linux
-        PULSEAUDIO,
-        ALSA,
-
-        // Mac
-        COREAUDIO
-    };
 
     constexpr char A_DEVNAME[] = "AudioDeviceName";
 
@@ -56,12 +37,6 @@ namespace cfg {
     constexpr char V_WINMODE_FULL[] = "FullScreen";
     constexpr char V_WINMODE_BORDERLESS[] = "Borderless";
     constexpr char V_WINMODE_WINDOWED[] = "Windowed";
-    enum class eWinMode
-    {
-        FULLSCREEN,
-        BORDERLESS,
-        WINDOWED
-    };
 
 	constexpr char V_MAXFPS[] = "MaxFPS";
 

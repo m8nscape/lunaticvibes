@@ -3,7 +3,9 @@
 #include "common/entry/entry_types.h"
 #include "common/difficultytable/difficultytable.h"
 
-namespace lv
+class DifficultyTableBMS;
+
+namespace lv::data
 {
 
 typedef std::pair<std::shared_ptr<EntryBase>, std::shared_ptr<ScoreBase>> Entry;
@@ -48,12 +50,14 @@ enum class FilterKeysType
     _7,
     _9,
     _10,
-    _14
+    _14,
+    Single,
+    Double,
 };
 
 inline struct Struct_SelectData
 {
-    std::unordered_map<std::string, long long> timer;
+    std::unordered_map<std::string, long long> timers;
 
     std::list<SongListProperties> backtrace;
     EntryList entries;
@@ -70,9 +74,18 @@ inline struct Struct_SelectData
     FilterKeysType filterKeys = FilterKeysType::All;
     bool optionChangePending = false;
 
+    bool panel[9] = { 0 };
+
     std::vector<DifficultyTableBMS> tables;
 
     double pitchSpeed = 1.0;
+
+    int levelOfChartDifficulty[5] = { 0 };
+    int countOfChartDifficulty[5] = { 0 };
+
+    int barLevel[32] = { 0 };
+    std::string barTitle[32];
+    int newEntrySeconds = 600;
 
 } SelectData;
 

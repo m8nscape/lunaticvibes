@@ -26,6 +26,7 @@ protected:
 
 public:
     void setTargetRate(double rate);
+    double getTargetRate() const { return targetRate; }
 
     // Register to InputWrapper
     virtual void updatePress(InputMask& pg, const Time& t) override {}

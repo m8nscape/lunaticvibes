@@ -21,25 +21,7 @@ namespace cfg
     constexpr char P_GREENNUMBER[] = "GreenNumber";
     constexpr char P_GREENNUMBER_2P[] = "GreenNumber2P";
 
-    constexpr char P_BGA_TYPE[] = "BGAType";
-    constexpr char P_BGA_TYPE_OFF[] = "Off";
-    constexpr char P_BGA_TYPE_ON[] = "On";
-    constexpr char P_BGA_TYPE_AUTOPLAY[] = "Autoplay";
-    enum class eBgaType
-    {
-        OFF,
-        ON,
-        AUTOPLAY,
-    };
-
-    constexpr char P_BGA_SIZE[] = "BGASize";
-    constexpr char P_BGA_SIZE_NORMAL[] = "Normal";
-    constexpr char P_BGA_SIZE_EXTEND[] = "Extend";
-    enum class eBgaSize
-    {
-        NORMAL,
-        EXTEND,
-    };
+    constexpr char P_PANEL_STYLE[] = "PanelStyle";
 
     constexpr char P_SPEED_TYPE[] = "SpeedType";
     constexpr char P_SPEED_TYPE_NORMAL[] = "Normal";
@@ -49,16 +31,6 @@ namespace cfg
     constexpr char P_SPEED_TYPE_CONSTANT[] = "Constant";
     constexpr char P_SPEED_TYPE_INITIAL[] = "Initial";
     constexpr char P_SPEED_TYPE_MAIN[] = "Main";
-    enum class eSpeedType
-    {
-        NORMAL,
-        MIN,
-        MAX,
-        AVG,
-        CONSTANT,
-        INITIAL,
-        MAIN
-    };
 
     constexpr char P_TARGET_TYPE[] = "TargetType";
     constexpr char P_TARGET_TYPE_0[] = "NotSet";
@@ -70,18 +42,6 @@ namespace cfg
     constexpr char P_TARGET_TYPE_IR_TOP[] = "IRTop";
     constexpr char P_TARGET_TYPE_IR_NEXT[] = "IRNext";
     constexpr char P_TARGET_TYPE_IR_AVERAGE[] = "IRAverage";
-    enum class eTargetType
-    {
-        NOTSET,
-        MYBEST,
-        RANK_AAA,
-        RANK_AA,
-        RANK_A,
-        DEFAULT,
-        IR_TOP,
-        IR_NEXT,
-        IR_AVERAGE,
-    };
 
     constexpr char P_CHART_OP[] = "ChartOption";
     constexpr char P_CHART_OP_2P[] = "ChartOption2P";
@@ -94,28 +54,9 @@ namespace cfg
     constexpr char P_CHART_OP_RRAN[] = "RRandom";
     constexpr char P_CHART_OP_DB_SYNCHRONIZE[] = "Synchronize";
     constexpr char P_CHART_OP_DB_SYMMETRY[] = "Symmetry";
-    enum class eChartOp
-    {
-        NORMAL,
-        MIRROR,
-        RANDOM,
-        SRAN,
-        HRAN,
-        ASCR,
-        RRAN,
-        DB_SYNCHRONIZE,
-        DB_SYMMETRY
-    };
 
     constexpr char P_CHART_ASSIST_OP[] = "ChartAssistOption";
     constexpr char P_CHART_ASSIST_OP_2P[] = "ChartAssistOption2P";
-    constexpr char P_CHART_ASSIST_OP_NONE[] = "None";
-    constexpr char P_CHART_ASSIST_OP_AUTOSCR[] = "AutoScratch";
-    enum class eChartAssistOp
-    {
-        NORMAL,
-        AUTOSCR,
-    };
 
     constexpr char P_LANE_EFFECT_OP[] = "LaneEffect";
     constexpr char P_LANE_EFFECT_OP_2P[] = "LaneEffect2P";
@@ -125,15 +66,6 @@ namespace cfg
     constexpr char P_LANE_EFFECT_OP_SUDHID[] = "SUD+&HID+";
     constexpr char P_LANE_EFFECT_OP_LIFT[] = "Lift";
     constexpr char P_LANE_EFFECT_OP_LIFTSUD[] = "LIFT&SUD+";
-    enum class eLaneEffectOp
-    {
-        OFF,
-        HIDDEN,
-        SUDDEN,
-        SUDHID,
-        LIFT,
-        LIFTSUD,
-    };
 
     constexpr char P_GAUGE_OP[] = "GaugeOption";
     constexpr char P_GAUGE_OP_2P[] = "GaugeOption2P";
@@ -152,13 +84,6 @@ namespace cfg
     constexpr char P_GHOST_TYPE_A[] = "A";
     constexpr char P_GHOST_TYPE_B[] = "B";
     constexpr char P_GHOST_TYPE_C[] = "C";
-    enum class eGhostType
-    {
-        OFF,
-        ABOVE_JUDGE,
-        NEAR_JUDGE,
-        NEAR_JUDGE_DOWN,
-    };
 
     constexpr char P_GHOST_TARGET[] = "GhostTarget";         // Ghost Target Rate% (Target: Default)
 
@@ -242,6 +167,7 @@ namespace cfg
     constexpr char P_FX_TYPE_FLANGER[] = "Flanger";
     constexpr char P_FX_TYPE_CHORUS[] = "Chorus";
     constexpr char P_FX_TYPE_DIST[] = "Distortion";
+    constexpr char P_FX_TYPE_COMPRESSOR[] = "Distortion";
 
     constexpr char P_LANGUAGE[] = "Language";
 

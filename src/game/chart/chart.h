@@ -115,6 +115,7 @@ public:
 protected:
     int _playerSlot = -1;
     int _keys = 7;
+    HashMD5 _fileHash;
 
 protected:
 	unsigned _noteCount_total;
@@ -155,6 +156,8 @@ public:
     ChartObjectBase() = delete;
     ChartObjectBase(int slot, size_t plain_n, size_t ext_n);
     static std::shared_ptr<ChartObjectBase> createFromChartFormat(int slot, std::shared_ptr<ChartFormatBase> p);
+
+    const HashMD5 getFileHash() const { return _fileHash; }
 
 public:
     using NoteIterator = decltype(_noteLists)::value_type::iterator;

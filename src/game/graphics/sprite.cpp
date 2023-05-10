@@ -1,42 +1,10 @@
 #include "common/pch.h"
 #include "sprite.h"
-
+#include "game/data/data_types.h"
 
 constexpr double grad(int dst, int src, double t)
 {
     return (src == dst) ? src : (dst * t + src * (1.0 - t));
-}
-
-bool checkPanel(int panelIdx)
-{
-    switch (panelIdx)
-    {
-    case -1:
-    {
-        bool panel =
-            State::get(IndexSwitch::SELECT_PANEL1) ||
-            State::get(IndexSwitch::SELECT_PANEL2) ||
-            State::get(IndexSwitch::SELECT_PANEL3) ||
-            State::get(IndexSwitch::SELECT_PANEL4) ||
-            State::get(IndexSwitch::SELECT_PANEL5) ||
-            State::get(IndexSwitch::SELECT_PANEL6) ||
-            State::get(IndexSwitch::SELECT_PANEL7) ||
-            State::get(IndexSwitch::SELECT_PANEL8) ||
-            State::get(IndexSwitch::SELECT_PANEL9);
-        return !panel;
-    }
-    case 0: return true;
-    case 1: return State::get(IndexSwitch::SELECT_PANEL1);
-    case 2: return State::get(IndexSwitch::SELECT_PANEL2);
-    case 3: return State::get(IndexSwitch::SELECT_PANEL3);
-    case 4: return State::get(IndexSwitch::SELECT_PANEL4);
-    case 5: return State::get(IndexSwitch::SELECT_PANEL5);
-    case 6: return State::get(IndexSwitch::SELECT_PANEL6);
-    case 7: return State::get(IndexSwitch::SELECT_PANEL7);
-    case 8: return State::get(IndexSwitch::SELECT_PANEL8);
-    case 9: return State::get(IndexSwitch::SELECT_PANEL9);
-    default: return false;
-    }
 }
 
 RenderParams& RenderParams::operator=(const MotionKeyFrameParams& rhs)
@@ -59,10 +27,15 @@ RenderParams& RenderParams::operator=(const MotionKeyFrameParams& rhs)
 ////////////////////////////////////////////////////////////////////////////////
 // virtual base class functions
 SpriteBase::SpriteBase(const SpriteBuilder& builder) :
-    srcLine(builder.srcLine), pTexture(builder.texture), _type(SpriteTypes::VIRTUAL), _current({0, MotionKeyFrameParams::CONSTANT, 0x00000000, BlendMode::NONE, false, 0}) {}
+    srcLine(builder.srcLine), 
+    pTexture(builder.texture),
+    _type(SpriteTypes::VIRTUAL), 
+    _current({0, MotionKeyFrameParams::CONSTANT, 0x00000000, BlendMode::NONE, false, 0}) {}
 
 bool SpriteBase::updateMotion(const Time& rawTime)
 {
+    using namespace lv;
+
     // Check if object is valid
 	// Note that nullptr texture shall pass
     if (pTexture != nullptr && !pTexture->loaded)
@@ -75,18 +48,20 @@ bool SpriteBase::updateMotion(const Time& rawTime)
 
 	Time time;
 
-    // Check if timer is valid
-    if (State::get(motionStartTimer) < 0 || State::get(motionStartTimer) == TIMER_NEVER)
-        return false;
-
 	// Check if timer is 140
-    if (motionStartTimer == IndexTimer::MUSIC_BEAT)
+    if (motionStartTimer == "play.beat")
     {
-        time = State::get(IndexTimer::MUSIC_BEAT);
+        time = data::getTimerValue(motionStartTimer);
     }
-    else
+    else 
     {
-        time = rawTime - Time(State::get(motionStartTimer), false);
+        // Check if timer is valid
+        long long t = data::getTimerValue(motionStartTimer);
+        if (t > 0 && t != data::TIMER_NEVER)
+        {
+            return false;
+        }
+        time = rawTime - Time(t, false);
     }
 
     // Check if the sprite is not visible yet
@@ -192,13 +167,15 @@ bool SpriteBase::updateMotion(const Time& rawTime)
 
 bool SpriteBase::update(const Time& t)
 {
+    updateCallback();
+
     _draw = updateMotion(t);
 
     if (_draw) drawn = true;
     return _draw;
 }
 
-void SpriteBase::setMotionStartTimer(IndexTimer t)
+void SpriteBase::setMotionStartTimer(const std::string& t)
 {
 	motionStartTimer = t;
 }
@@ -343,9 +320,23 @@ bool SpriteAnimated::update(const Time& t)
 {
 	if (SpriteSelection::update(t))
 	{
-        long long timerAnim = State::get(animationStartTimer);
-        if (timerAnim > 0 && timerAnim != TIMER_NEVER)
-            updateAnimation(t - Time(timerAnim));
+        using namespace lv;
+        Time time;
+        if (animationStartTimer == "play.beat")
+        {
+            time = data::getTimerValue(animationStartTimer);
+            updateAnimation(time);
+        }
+        else
+        {
+            // Check if timer is valid
+            long long t1 = data::getTimerValue(animationStartTimer);
+            if (t1 > 0 && t1 != data::TIMER_NEVER)
+            {
+                time = t - Time(t1, false);
+                updateAnimation(time);
+            }
+        }
 
 		return true;
 	}
@@ -381,33 +372,30 @@ SpriteText::SpriteText(const SpriteTextBuilder& builder) : SpriteBase(builder)
 {
     _type = SpriteTypes::TEXT;
     pFont = builder.font;
-    textInd = builder.textInd;
     align = builder.align;
     textHeight = builder.ptsize * 3 / 2;
     textColor = builder.color;
     editable = builder.editable;
-}
+    afterEditCallback = builder.afterEditCallback;
 
-bool SpriteText::update(const Time& t)
-{   
-    return _draw = updateMotion(t);
+    updateCallback = [=]() { text = builder.textCallback(); };
 }
 
 void SpriteText::updateText()
 {
     if (!_draw) return;
 
-    updateTextTexture(State::get(textInd), _current.color);
+    updateTextTexture(_current.color);
     updateTextRect();
 
 }
 
-void SpriteText::updateTextTexture(std::string&& text, const Color& c)
+void SpriteText::updateTextTexture(const Color& c)
 {
     if (!pFont || !pFont->loaded)
         return;
 
-    if (pTexture != nullptr && this->text == text && textColor == c)
+    if (pTexture != nullptr && textDisplaying == text && textColor == c)
         return;
 
     if (text.empty() || c.a == 0)
@@ -417,7 +405,7 @@ void SpriteText::updateTextTexture(std::string&& text, const Color& c)
         return;
     }
 
-    this->text = text;
+    textDisplaying = text;
     textColor = c;
 
     pTexture = pFont->TextUTF8(text.c_str(), c);
@@ -440,12 +428,12 @@ void SpriteText::updateTextRect()
 	int text_w = static_cast<int>(std::round(textRect.w * sizeFactor));
 	switch (align)
 	{
-	case TEXT_ALIGN_LEFT:
+    case TextAlignType::Left:
 		break;
-	case TEXT_ALIGN_CENTER:
+    case TextAlignType::Center:
 		_current.rect.x -= text_w / 2;
 		break;
-	case TEXT_ALIGN_RIGHT:
+    case TextAlignType::Right:
 		_current.rect.x -= text_w;
 		break;
 	}
@@ -469,7 +457,7 @@ void SpriteText::startEditing(bool clear)
     if (!isEditing())
     {
         editing = true;
-        textBeforeEdit = State::get(textInd);
+        textBeforeEdit = text;
         textAfterEdit = (clear ? "" : text);
         startTextInput(_current.rect, textAfterEdit, std::bind(&SpriteText::updateTextWhileEditing, this, _1));
     }
@@ -481,7 +469,9 @@ void SpriteText::stopEditing(bool modify)
     {
         stopTextInput();
         editing = false;
-        State::set(textInd, (modify ? textAfterEdit : textBeforeEdit));
+        text = textAfterEdit;
+        afterEditCallback(text);
+        textDisplaying = text;
         updateText();
     }
 }
@@ -489,7 +479,7 @@ void SpriteText::stopEditing(bool modify)
 void SpriteText::updateTextWhileEditing(const std::string& text)
 {
     textAfterEdit = text;
-    State::set(textInd, text + "|");
+    textDisplaying = text + "|";
     updateText();
 }
 
@@ -515,7 +505,6 @@ SpriteNumber::SpriteNumber(const SpriteNumberBuilder& builder): SpriteAnimated(b
 {
     _type = SpriteTypes::NUMBER;
     alignType = builder.align;
-    numInd = builder.numInd;
     maxDigits = builder.maxDigits;
     hideLeadingZeros = builder.hideLeadingZeros;
 
@@ -539,6 +528,8 @@ SpriteNumber::SpriteNumber(const SpriteNumberBuilder& builder): SpriteAnimated(b
         break;
     default: return;
     }
+
+    updateCallback = [=]() { updateNumber(builder.numberCallback()); };
 }
 
 bool SpriteNumber::update(const Time& t)
@@ -548,7 +539,6 @@ bool SpriteNumber::update(const Time& t)
 
 	if (SpriteAnimated::update(t))
 	{
-        updateNumberByInd();
         updateNumberRect();
 		return true;
 	}
@@ -631,31 +621,6 @@ void SpriteNumber::updateNumber(int n)
         break;
     }
     }
-}
-
-void SpriteNumber::updateNumberByInd()
-{
-    int n;
-    switch (numInd)
-    {
-    case IndexNumber::RANDOM:
-        n = std::rand();
-        break;
-    case IndexNumber::ZERO:
-        n = 0;
-        break;
-	case (IndexNumber)10220:
-		n = int(Time().norm() & 0xFFFFFFFF);
-		break;
-    default:
-#ifdef _DEBUG
-		n = (int)numInd >= 10000 ? (int)State::get((IndexTimer)((int)numInd - 10000)) : State::get(numInd);
-#else
-        n = State::get(numInd);
-#endif
-        break;
-    }
-    updateNumber(n);
 }
 
 void SpriteNumber::updateNumberRect()
@@ -756,19 +721,15 @@ SpriteSlider::SpriteSlider(const SpriteSliderBuilder& builder) : SpriteAnimated(
 {
     _type = SpriteTypes::SLIDER;
     dir = builder.sliderDirection;
-    sliderInd = builder.sliderInd;
     valueRange = builder.sliderRange;
-    _callback = builder.callOnChanged;
+    dragCallback = builder.dragCallback;
+
+    updateCallback = [=]() { updateVal(builder.sliderCallback()); };
 }
 
 void SpriteSlider::updateVal(double v)
 {
 	value = v;
-}
-
-void SpriteSlider::updateValByInd()
-{
-	updateVal(State::get(sliderInd));
 }
 
 void SpriteSlider::updatePos()
@@ -799,7 +760,6 @@ bool SpriteSlider::update(const Time& t)
 {
 	if (SpriteAnimated::update(t))
 	{
-		updateValByInd();
 		updatePos();
 		return true;
 	}
@@ -877,7 +837,7 @@ bool SpriteSlider::OnDrag(int x, int y)
     if (std::abs(value - val) > 0.000001)  // this should be enough
     {
         value = val;
-        _callback(value);
+        dragCallback(value);
         return true;
     }
     return false;
@@ -890,17 +850,13 @@ SpriteBargraph::SpriteBargraph(const SpriteBargraphBuilder& builder) : SpriteAni
 {
     _type = SpriteTypes::BARGRAPH;
     dir = builder.barDirection;
-    barInd = builder.barInd;
+
+    updateCallback = [=] { updateVal(builder.bargraphCallback()); };
 }
 
 void SpriteBargraph::updateVal(Ratio v)
 {
 	value = v;
-}
-
-void SpriteBargraph::updateValByInd()
-{
-	updateVal(State::get(barInd));
 }
 
 #pragma warning(push)
@@ -934,7 +890,6 @@ bool SpriteBargraph::update(const Time& t)
 {
 	if (SpriteAnimated::update(t))
 	{
-		updateValByInd();
 		updateSize();
 		return true;
 	}
@@ -948,49 +903,8 @@ SpriteOption::SpriteOption(const SpriteOptionBuilder& builder): SpriteAnimated(b
 {
     _type = SpriteTypes::OPTION;
 
-    switch (builder.optionType)
-    {
-    case opType::OPTION:
-        indType = opType::OPTION;
-        ind.op = (IndexOption)builder.optionInd;
-        break;
 
-    case opType::SWITCH:
-        indType = opType::SWITCH;
-        ind.sw = (IndexSwitch)builder.optionInd;
-        break;
-
-    case opType::FIXED:
-        indType = opType::FIXED;
-        ind.fix = builder.optionInd;
-        break;
-    }
-}
-
-bool SpriteOption::setInd(opType type, unsigned ind)
-{
-	if (indType != opType::UNDEF) return false;
-	switch (type)
-	{
-	case opType::UNDEF:
-		return false;
-
-	case opType::OPTION:
-		indType = opType::OPTION;
-		this->ind.op = (IndexOption)ind;
-		return true;
-
-	case opType::SWITCH:
-		indType = opType::SWITCH;
-        this->ind.sw = (IndexSwitch)ind;
-		return true;
-
-    case opType::FIXED:
-        indType = opType::FIXED;
-        this->ind.fix = ind;
-        return true;
-	}
-	return false;
+    updateCallback = [=]() { updateVal(builder.optionCallback()); };
 }
 
 void SpriteOption::updateVal(unsigned v)
@@ -999,32 +913,10 @@ void SpriteOption::updateVal(unsigned v)
 	updateSelection(v);
 }
 
-void SpriteOption::updateValByInd()
-{
-	switch (indType)
-	{
-	case opType::UNDEF:
-		break;
-
-	case opType::OPTION:
-		updateVal(State::get(ind.op));
-		break;
-
-	case opType::SWITCH:
-		updateVal(State::get(ind.sw));
-		break;
-
-    case opType::FIXED:
-        updateVal(ind.fix);
-        break;
-	}
-}
-
 bool SpriteOption::update(const Time& t)
 {
 	if (SpriteSelection::update(t))
 	{
-		updateValByInd();
 		return true;
 	}
 	return false;
@@ -1046,7 +938,19 @@ bool SpriteButton::OnClick(int x, int y)
     if (!_draw) return false;
 
     if (clickableOnPanel < -1 || clickableOnPanel > 9) return false;
-    if (!checkPanel(clickableOnPanel)) return false;
+
+    switch (clickableOnPanel)
+    {
+    case 1: if (!lv::data::SelectData.panel[0]) return false;
+    case 2: if (!lv::data::SelectData.panel[1]) return false;
+    case 3: if (!lv::data::SelectData.panel[2]) return false;
+    case 4: if (!lv::data::SelectData.panel[3]) return false;
+    case 5: if (!lv::data::SelectData.panel[4]) return false;
+    case 6: if (!lv::data::SelectData.panel[5]) return false;
+    case 7: if (!lv::data::SelectData.panel[6]) return false;
+    case 8: if (!lv::data::SelectData.panel[7]) return false;
+    case 9: if (!lv::data::SelectData.panel[8]) return false;
+    }
 
     if (plusonlyDelta == 0)
     {
@@ -1093,10 +997,11 @@ SpriteGaugeGrid::SpriteGaugeGrid(const SpriteGaugeGridBuilder& builder) : Sprite
     totalGrids = builder.gridCount;
     minValue = builder.gaugeMin;
     maxValue = builder.gaugeMax;
-    numInd = builder.numInd;
 
     flashing.resize(totalGrids, false);
     setGaugeType(GaugeType::GROOVE);
+
+    updateCallback = [=]() { updateVal((unsigned)builder.numberCallback()); };
 }
 
 void SpriteGaugeGrid::setFlashType(SpriteGaugeGrid::FlashType t)
@@ -1163,16 +1068,10 @@ void SpriteGaugeGrid::updateVal(unsigned v)
 	value = totalGrids * (v - minValue) / (maxValue - minValue);
 }
 
-void SpriteGaugeGrid::updateValByInd()
-{
-	updateVal(State::get(numInd));
-}
-
 bool SpriteGaugeGrid::update(const Time& t)
 {
 	if (SpriteAnimated::update(t))
 	{
-        updateValByInd();
 		switch (flashType)
 		{
 		case FlashType::NONE:
@@ -1237,7 +1136,19 @@ SpriteOnMouse::SpriteOnMouse(const SpriteOnMouseBuilder& builder) : SpriteAnimat
 
 bool SpriteOnMouse::update(const Time& t)
 {
-    if (!checkPanel(visibleOnPanel)) return false;
+    switch (visibleOnPanel)
+    {
+    case 1: if (!lv::data::SelectData.panel[0]) return false;
+    case 2: if (!lv::data::SelectData.panel[1]) return false;
+    case 3: if (!lv::data::SelectData.panel[2]) return false;
+    case 4: if (!lv::data::SelectData.panel[3]) return false;
+    case 5: if (!lv::data::SelectData.panel[4]) return false;
+    case 6: if (!lv::data::SelectData.panel[5]) return false;
+    case 7: if (!lv::data::SelectData.panel[6]) return false;
+    case 8: if (!lv::data::SelectData.panel[7]) return false;
+    case 9: if (!lv::data::SelectData.panel[8]) return false;
+    }
+
     if (SpriteSelection::update(t))
     {
         return true;

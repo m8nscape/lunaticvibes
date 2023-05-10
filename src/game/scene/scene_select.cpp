@@ -349,7 +349,7 @@ SceneSelect::SceneSelect() : SceneBase(SkinType::MUSIC_SELECT, 250)
     _inputAvailable |= INPUT_MASK_2P;
 
     // reset globals
-    ConfigMgr::setGlobals();
+    lv::data::loadConfigs();
 
     gSelectContext.lastLaneEffectType1P = State::get(IndexOption::PLAY_LANE_EFFECT_TYPE_1P);
 
@@ -612,7 +612,7 @@ void SceneSelect::_updateAsync()
     {
         gSelectContext.draggingListSlider = false;
 
-        size_t idx_new = (size_t)std::floor(State::get(IndexSlider::SELECT_LIST) * gSelectContext.entries.size());
+        size_t idx_new = (size_t)std::floor(SelectData.selectedEntryIndexRolling * gSelectContext.entries.size());
         if (idx_new == gSelectContext.entries.size())
             idx_new = 0;
 
@@ -669,11 +669,11 @@ void SceneSelect::_updateAsync()
 
         if (!gSelectContext.entries.empty())
         {
-            State::set(IndexSlider::SELECT_LIST, (double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size());
+            SelectData.selectedEntryIndexRolling = (double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size();
         }
         else
         {
-            State::set(IndexSlider::SELECT_LIST, 0.0);
+            SelectData.selectedEntryIndexRolling = 0.0;
         }
 
         resetJukeboxText();
@@ -719,7 +719,7 @@ void SceneSelect::_updateAsync()
 
             if (gSelectContext.scrollDirection != 0)
             {
-                double posOld = State::get(IndexSlider::SELECT_LIST);
+                double posOld = SelectData.selectedEntryIndexRolling;
                 double idxOld = posOld * gSelectContext.entries.size();
 
                 int idxNew = (int)idxOld;
@@ -751,7 +751,7 @@ void SceneSelect::_updateAsync()
             {
                 std::unique_lock<std::shared_mutex> u(gSelectContext._mutex);
 
-                State::set(IndexSlider::SELECT_LIST, (double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size());
+                SelectData.selectedEntryIndexRolling = (double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size());
                 scrollAccumulator = 0.0;
                 scrollAccumulatorAddUnit = 0.0;
                 gSelectContext.scrollDirection = 0;
@@ -768,7 +768,7 @@ void SceneSelect::_updateAsync()
                 pSkin->start_bar_animation();
             }
 
-            double posOld = State::get(IndexSlider::SELECT_LIST);
+            double posOld = SelectData.selectedEntryIndexRolling;
             double posNew = posOld + scrollAccumulatorAddUnit / gSelectContext.entries.size();
 
             int idxOld = (int)std::round(posOld * gSelectContext.entries.size());
@@ -783,7 +783,7 @@ void SceneSelect::_updateAsync()
 
             while (posNew < 0.) posNew += 1.;
             while (posNew >= 1.) posNew -= 1.;
-            State::set(IndexSlider::SELECT_LIST, posNew);
+            SelectData.selectedEntryIndexRolling = posNew;
 
             scrollAccumulator -= scrollAccumulatorAddUnit;
             if (scrollAccumulator < -0.000001 || scrollAccumulator > 0.000001)
@@ -2523,11 +2523,11 @@ void SceneSelect::navigateEnter(const Time& t)
 
         if (!gSelectContext.entries.empty())
         {
-            State::set(IndexSlider::SELECT_LIST, (double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size());
+            SelectData.selectedEntryIndexRolling = (double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size();
         }
         else
         {
-            State::set(IndexSlider::SELECT_LIST, 0.0);
+            SelectData.selectedEntryIndexRolling = 0.0;
         }
 
         resetJukeboxText();
@@ -2599,11 +2599,11 @@ void SceneSelect::navigateBack(const Time& t, bool sound)
 
         if (!gSelectContext.entries.empty())
         {
-            State::set(IndexSlider::SELECT_LIST, (double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size());
+            SelectData.selectedEntryIndexRolling = (double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size();
         }
         else
         {
-            State::set(IndexSlider::SELECT_LIST, 0.0);
+            SelectData.selectedEntryIndexRolling = 0.0;
         }
 
         resetJukeboxText();
@@ -2758,11 +2758,11 @@ void SceneSelect::searchSong(const std::string& text)
 
     if (!gSelectContext.entries.empty())
     {
-        State::set(IndexSlider::SELECT_LIST, (double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size());
+        SelectData.selectedEntryIndexRolling = (double)gSelectContext.selectedEntryIndex / gSelectContext.entries.size();
     }
     else
     {
-        State::set(IndexSlider::SELECT_LIST, 0.0);
+        SelectData.selectedEntryIndexRolling = 0.0;
     }
 
     resetJukeboxText();
