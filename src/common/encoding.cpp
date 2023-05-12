@@ -1,6 +1,9 @@
 #include "pch.h"
 #include "encoding.h"
 
+namespace lunaticvibes
+{
+
 bool is_ascii(const std::string& str)
 {
     for (auto it = str.begin(); it != str.end(); ++it)
@@ -172,7 +175,7 @@ eFileEncoding getFileEncoding(std::istream& is)
             enc = eFileEncoding::UTF8;
             break;
         }
-	}
+    }
 
     is.clear();
     is.seekg(oldPos);
@@ -184,13 +187,13 @@ const char* getFileEncodingName(eFileEncoding enc)
 {
     switch (enc)
     {
-    case eFileEncoding::EUC_KR: 
+    case eFileEncoding::EUC_KR:
         return "EUC-KR";
-    case eFileEncoding::LATIN1: 
+    case eFileEncoding::LATIN1:
         return "Latin 1";
-    case eFileEncoding::SHIFT_JIS: 
+    case eFileEncoding::SHIFT_JIS:
         return "Shift JIS";
-    case eFileEncoding::UTF8: 
+    case eFileEncoding::UTF8:
         return "UTF-8";
     default:
         return "Unknown";
@@ -326,7 +329,7 @@ static std::string convert(const std::string& input, eFileEncoding from, eFileEn
         return "(conversion error)";
     }
 
-    return std::string{static_cast<char*>(out_buf)};
+    return std::string{ static_cast<char*>(out_buf) };
 }
 
 std::string to_utf8(const std::string& input, eFileEncoding fromEncoding)
@@ -404,4 +407,6 @@ std::string utf32_to_utf8(const std::u32string& str)
 
     u8Text.resize(to_next - &u8Text[0]);
     return u8Text;
+}
+
 }

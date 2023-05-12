@@ -1,6 +1,9 @@
 #pragma once
 #include "common/keymap.h"
 
+namespace lunaticvibes
+{
+
 ////////////////////////////////////////////////////////////////////////////////
 // Input manager
 // fetch real-time system keyscan status
@@ -40,7 +43,7 @@ public:
 
     std::bitset<Input::KEY_COUNT> _detect();
     static std::bitset<Input::KEY_COUNT> detect();
-	static bool getMousePos(int& x, int& y);
+    static bool getMousePos(int& x, int& y);
     static bool getScratchPos(double& s1, double& s2);
 
     static void setDebounceTime(int ms);
@@ -70,3 +73,4 @@ short getLastMouseWheelState();
 
 // absolute axis
 
+}

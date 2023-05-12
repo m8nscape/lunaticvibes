@@ -2,6 +2,9 @@
 #include "scene.h"
 #include "common/keymap.h"
 
+namespace lunaticvibes
+{
+
 class SceneKeyConfig : public SceneBase
 {
 private:
@@ -41,3 +44,5 @@ protected:
 public:
     static void setInputBindingText(GameModeKeys keys, Input::Pad pad);
 };
+
+}

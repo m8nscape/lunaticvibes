@@ -2,6 +2,9 @@
 #include "soundset.h"
 #include "game/skin/skin.h"
 
+namespace lunaticvibes
+{
+
 class SoundSetLR2 : public vSoundSet
 {
 public:
@@ -64,3 +67,5 @@ public:
 	StringPath getFilePath() const;
 
 };
+
+}

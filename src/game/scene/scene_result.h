@@ -1,6 +1,9 @@
 #pragma once
 #include "scene.h"
 
+namespace lunaticvibes
+{
+
 class ScoreBase;
 enum class eResultState
 {
@@ -45,3 +48,5 @@ protected:
     void inputGameHold(InputMask&, const Time&);
     void inputGameRelease(InputMask&, const Time&);
 };
+
+}

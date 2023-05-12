@@ -6,6 +6,9 @@
 #include "game/runtime/state.h"
 #include "game/scene/scene_context.h"
 
+namespace lunaticvibes
+{
+
 
 using namespace chart;
 
@@ -181,12 +184,12 @@ std::shared_ptr<ChartObjectBase> ChartObjectBase::createFromChartFormat(int slot
 
 void ChartObjectBase::reset()
 {
-    _currentBarTemp         = 0;
-    _currentMetreTemp        = 0;
-    _currentBPM         = _bpmNoteList.empty()? 150 : BPM(_bpmNoteList.front().fvalue);
-    _currentBeatLength    = Time::singleBeatLengthFromBPM(_currentBPM);
+    _currentBarTemp = 0;
+    _currentMetreTemp = 0;
+    _currentBPM = _bpmNoteList.empty() ? 150 : BPM(_bpmNoteList.front().fvalue);
+    _currentBeatLength = Time::singleBeatLengthFromBPM(_currentBPM);
     _lastChangedBPMTime = 0;
-    _lastChangedBPMMetre    = 0;
+    _lastChangedBPMMetre = 0;
 
     // reset notes
     for (auto& ch : _noteLists)
@@ -202,11 +205,11 @@ void ChartObjectBase::reset()
 
 void ChartObjectBase::resetNoteListsIterators()
 {
-    for (size_t i = 0; i < _noteLists.size(); ++i)         
-        _noteListIterators[i]  = _noteLists[i].begin();
-    for (size_t i = 0; i < _bgmNoteLists.size(); ++i)      
+    for (size_t i = 0; i < _noteLists.size(); ++i)
+        _noteListIterators[i] = _noteLists[i].begin();
+    for (size_t i = 0; i < _bgmNoteLists.size(); ++i)
         _bgmNoteListIters[i] = _bgmNoteLists[i].begin();
-    for (size_t i = 0; i < _specialNoteLists.size(); ++i)   
+    for (size_t i = 0; i < _specialNoteLists.size(); ++i)
         _specialNoteListIters[i] = _specialNoteLists[i].begin();
     _bpmNoteListIter = _bpmNoteList.begin();
 }
@@ -246,28 +249,28 @@ bool ChartObjectBase::isLastNoteBgm(size_t idx, const decltype(_bgmNoteLists)::v
 }
 bool ChartObjectBase::isLastNoteSpecial(size_t idx, const decltype(_specialNoteLists)::value_type::iterator& it)
 {
-    return _specialNoteLists[idx].empty() || it == _specialNoteLists[idx].end(); 
+    return _specialNoteLists[idx].empty() || it == _specialNoteLists[idx].end();
 }
 bool ChartObjectBase::isLastNoteBpm(const decltype(_bpmNoteList)::iterator& it)
 {
-	return _bpmNoteList.empty() || it == _bpmNoteList.end(); 
+    return _bpmNoteList.empty() || it == _bpmNoteList.end();
 }
 
 bool ChartObjectBase::isLastNote(NoteLaneCategory cat, NoteLaneIndex idx)
 {
-	return isLastNote(cat, idx, incomingNote(cat, idx));
+    return isLastNote(cat, idx, incomingNote(cat, idx));
 }
 bool ChartObjectBase::isLastNoteBgm(size_t channel)
 {
-	return isLastNoteBgm(channel, incomingNoteBgm(channel));
+    return isLastNoteBgm(channel, incomingNoteBgm(channel));
 }
 bool ChartObjectBase::isLastNoteSpecial(size_t channel)
 {
-	return isLastNoteSpecial(channel, incomingNoteSpecial(channel));
+    return isLastNoteSpecial(channel, incomingNoteSpecial(channel));
 }
 bool ChartObjectBase::isLastNoteBpm()
 {
-	return isLastNoteBpm(incomingNoteBpm());
+    return isLastNoteBpm(incomingNoteBpm());
 }
 
 auto ChartObjectBase::nextNote(NoteLaneCategory cat, NoteLaneIndex idx) -> NoteIterator&
@@ -297,7 +300,7 @@ Time ChartObjectBase::getBarLength(size_t bar)
     }
 
     auto l = _barTimestamp[bar + 1] - _barTimestamp[bar];
-	return l.hres() > 0 ? l : -1;
+    return l.hres() > 0 ? l : -1;
 }
 
 Time ChartObjectBase::getCurrentBarLength()
@@ -309,25 +312,25 @@ Metre ChartObjectBase::getBarMetre(size_t bar)
 {
     if (bar >= barMetreLength.size())
     {
-		return { 1, 1 };
+        return { 1, 1 };
     }
 
-	return barMetreLength[bar];
+    return barMetreLength[bar];
 }
 
 Metre ChartObjectBase::getCurrentBarMetre()
 {
-	return getBarMetre(_currentBarTemp);
+    return getBarMetre(_currentBarTemp);
 }
 
 Metre ChartObjectBase::getBarMetrePosition(size_t bar)
 {
     if (bar >= _barMetrePos.size())
     {
-		return Metre(LLONG_MAX, 1);
+        return Metre(LLONG_MAX, 1);
     }
 
-	return _barMetrePos[bar];
+    return _barMetrePos[bar];
 }
 
 void ChartObjectBase::update(const Time& rt)
@@ -363,8 +366,8 @@ void ChartObjectBase::update(const Time& rt)
     }
 
     // Skip expired notes
-    for (NoteLaneCategory cat = NoteLaneCategory::Note; (size_t)cat < (size_t)NoteLaneCategory::NOTECATEGORY_COUNT; ++*((size_t*)&cat))
-        for (NoteLaneIndex idx = Sc1; idx < NOTELANEINDEX_COUNT; ++*((size_t*)&idx))
+    for (NoteLaneCategory cat = NoteLaneCategory::Note; (size_t)cat < (size_t)NoteLaneCategory::NOTECATEGORY_COUNT; ++ * ((size_t*)&cat))
+        for (NoteLaneIndex idx = Sc1; idx < NOTELANEINDEX_COUNT; ++ * ((size_t*)&idx))
         {
             auto it = incomingNote(cat, idx);
             while (!isLastNote(cat, idx, it) && vt >= it->time && it->expired)
@@ -372,7 +375,7 @@ void ChartObjectBase::update(const Time& rt)
                 noteExpired.push_back(*it);
                 it = nextNote(cat, idx);
             }
-        } 
+        }
 
     // Skip expired barline
     {
@@ -402,7 +405,7 @@ void ChartObjectBase::update(const Time& rt)
             noteBgmExpired.push_back(*it);
             it = nextNoteBgm(idx);
         }
-    } 
+    }
     // Skip expired extended note
     for (size_t idx = 0; idx < _specialNoteLists.size(); ++idx)
     {
@@ -422,9 +425,11 @@ void ChartObjectBase::update(const Time& rt)
 
     postUpdate(vt);
 
-	State::set(IndexNumber::_TEST1, _currentBarTemp);
-	State::set(IndexNumber::_TEST2, (int)std::floor(_currentMetreTemp * 1000));
-	
+    State::set(IndexNumber::_TEST1, _currentBarTemp);
+    State::set(IndexNumber::_TEST2, (int)std::floor(_currentMetreTemp * 1000));
+
     _currentBar = _currentBarTemp;
     _currentMetre = _currentMetreTemp;
+}
+
 }

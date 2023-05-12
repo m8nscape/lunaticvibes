@@ -11,6 +11,9 @@
 #include "db/db_score.h"
 #include "common/difficultytable/table_bms.h"
 
+namespace lunaticvibes
+{
+
 inline bool gInCustomize = false;
 inline bool gCustomizeSceneChanged = false;
 inline bool gExitingCustomize = false;
@@ -29,7 +32,7 @@ struct ChartContextParams
     HashMD5 sampleLoadedHash;
     bool isBgaLoaded = false;
     HashMD5 bgaLoadedHash;
-	bool started = false;
+    bool started = false;
 
     // DP flags
     bool isDoubleBattle = false;
@@ -61,7 +64,7 @@ struct PlayContextParams
 
     unsigned judgeLevel = 0;
 
-	std::shared_ptr<TextureBmsBga> bgaTexture = std::make_shared<TextureBmsBga>();
+    std::shared_ptr<TextureBmsBga> bgaTexture = std::make_shared<TextureBmsBga>();
 
     std::array<std::shared_ptr<ChartObjectBase>, MAX_PLAYERS> chartObj{ nullptr, nullptr, nullptr };
     std::array<double, MAX_PLAYERS> initialHealth{ 1.0, 1.0, 1.0 };
@@ -260,3 +263,5 @@ extern UpdateContextParams gUpdateContext;
 extern OverlayContextParams gOverlayContext;
 
 ////////////////////////////////////////////////////////////////////////////////
+
+}

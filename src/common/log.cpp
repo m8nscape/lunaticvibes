@@ -40,6 +40,9 @@ namespace plog
     };
 }
 
+namespace lunaticvibes
+{
+
 std::shared_ptr<plog::ColorConsoleAppender<plog::TxtFormatterFileLine>> pConsoleAppender;
 std::shared_ptr<plog::RollingFileAppender<plog::TxtFormatterFileLine>> pTxtAppender;
 int InitLogger()
@@ -84,4 +87,6 @@ int FreeLogger()
     pTxtAppender.reset();
     pConsoleAppender.reset();
     return 0;
+}
+
 }

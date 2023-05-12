@@ -3,7 +3,10 @@
 #include <memory>
 #include "entry.h"
 
-class EntryFolderBase: public EntryBase
+namespace lunaticvibes
+{
+
+class EntryFolderBase : public EntryBase
 {
 public:
     EntryFolderBase() = delete;
@@ -17,5 +20,7 @@ public:
     virtual void pushEntry(std::shared_ptr<EntryBase> f);
     virtual size_t getContentsCount() { return entries.size(); }
     virtual bool empty() { return entries.empty(); }
-    
+
 };
+
+}

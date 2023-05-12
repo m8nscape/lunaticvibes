@@ -3,6 +3,9 @@
 #include "common/asynclooper.h"
 #include "common/beat.h"
 
+namespace lunaticvibes
+{
+
 typedef std::bitset<Input::Pad::KEY_COUNT> InputMask;
 typedef std::function<void(InputMask&, const Time&)> INPUTCALLBACK;
 //typedef void(*PressedHandleCallback)(void* owner, InputMask&);
@@ -22,14 +25,14 @@ typedef std::array<double, InputMgr::MAX_JOYSTICK_AXIS_COUNT> JoystickAxis;
 typedef std::function<void(JoystickAxis&, size_t, const Time&)> ABSAXISCALLBACK;
 
 // FUNC:                                          BRDUEHDI><v^543210987654321_
-inline const InputMask INPUT_MASK_FUNC  { "0000000111111111111111111111111111100000000000000000000000000000000" };
+inline const InputMask INPUT_MASK_FUNC{ "0000000111111111111111111111111111100000000000000000000000000000000" };
 // 1P:                                                                                        sDUEA987654321SS
-inline const InputMask INPUT_MASK_1P    { "0000000000000000000000000000000000000000000000000001111111111111111" };
+inline const InputMask INPUT_MASK_1P{ "0000000000000000000000000000000000000000000000000001111111111111111" };
 // 2P:                                                                        sDUEA987654321SS
-inline const InputMask INPUT_MASK_2P    { "0000000000000000000000000000000000011111111111111110000000000000000" };
+inline const InputMask INPUT_MASK_2P{ "0000000000000000000000000000000000011111111111111110000000000000000" };
 // Mouse:                                  DU54321
-inline const InputMask INPUT_MASK_MOUSE { "1111111000000000000000000000000000000000000000000000000000000000000" };
-                                                  
+inline const InputMask INPUT_MASK_MOUSE{ "1111111000000000000000000000000000000000000000000000000000000000000" };
+
 //                                                 Return >                     2P: 9 7 5 3 1  1P: 9 7 5 3 1  
 inline const InputMask INPUT_MASK_DECIDE{ "0000000010000001000000000000000000000000010101010100000010101010100" };
 //                                                Bksp     <                    2P:  8 6 4 2   1P:  8 6 4 2
@@ -53,12 +56,12 @@ inline const InputMask INPUT_MASK_NAV_DN_9K{ "0000000000000000010000000000000000
 // Interface: 
 //  Pressed / Holding / Released FULL bitset
 //  Pressed / Holding / Released per key
-class InputWrapper: public AsyncLooper
+class InputWrapper : public AsyncLooper
 {
 public:
     unsigned release_delay_ms = 5;
 private:
-	std::shared_mutex _inputMutex;
+    std::shared_mutex _inputMutex;
 
 protected:
     std::array<std::pair<long long, bool>, Input::KEY_COUNT> _inputBuffer{ {{0, false}} };
@@ -87,17 +90,17 @@ private:
     virtual void _loop();
 
 public:
-    bool isPressed(Input::Pad k) 
+    bool isPressed(Input::Pad k)
     {
         return (!_prev[k]) && (_curr[k]);
     }
 
-    bool isReleased(Input::Pad k) 
+    bool isReleased(Input::Pad k)
     {
         return (_prev[k]) && (!_curr[k]);
     }
 
-    bool isHolding(Input::Pad k) 
+    bool isHolding(Input::Pad k)
     {
         return (_prev[k]) && (_curr[k]);
     }
@@ -166,3 +169,4 @@ public:
     bool unregister_aa(const std::string& key);
 };
 
+}

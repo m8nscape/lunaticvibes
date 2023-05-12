@@ -15,6 +15,9 @@
 #include "SDL2/graphics_SDL2.h"
 #endif
 
+namespace lunaticvibes
+{
+
 int graphics_init();
 void graphics_clear();
 void graphics_flush();
@@ -62,3 +65,5 @@ void stopTextInput();
 
 
 void graphics_screenshot(const Path& png);
+
+}

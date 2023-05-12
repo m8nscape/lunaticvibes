@@ -4,7 +4,7 @@
 #include "game/chart/chart.h"
 #include "config/config_mgr.h"
 
-namespace lv::data
+namespace lunaticvibes::data
 {
 
 void loadConfigs()

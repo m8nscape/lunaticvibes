@@ -5,6 +5,9 @@
 // Original author: 山田 巧 (Takumi Yamada)
 // Homepage: https://dxlib.xsrv.jp/dxtec.html
 
+namespace lunaticvibes
+{
+
 namespace dxa
 {
 
@@ -18,10 +21,10 @@ using u64 = uint64_t;
 
 const u32   MIN_COMPRESS_VER5 = 4;
 
-const u16	DXA_HEAD_VER5			= *(u16*)("DX");// ヘッダ
-const u16	DXA_VER_VER5			= (0x0005);		// バージョン
-const u32	DXA_BUFFERSIZE_VER5		= (0x1000000);	// アーカイブ作成時に使用するバッファのサイズ
-const u32	DXA_KEYSTR_LENGTH_VER5	= (12);			// 鍵文字列の長さ
+const u16	DXA_HEAD_VER5 = *(u16*)("DX");// ヘッダ
+const u16	DXA_VER_VER5 = (0x0005);		// バージョン
+const u32	DXA_BUFFERSIZE_VER5 = (0x1000000);	// アーカイブ作成時に使用するバッファのサイズ
+const u32	DXA_KEYSTR_LENGTH_VER5 = (12);			// 鍵文字列の長さ
 
 #pragma pack(push)
 #pragma pack(1)
@@ -36,7 +39,7 @@ typedef struct tagDARC_HEAD_VER5
 	u32 FileNameTableStartAddress;			// ファイル名テーブルの先頭アドレス(ファイルの先頭アドレスをアドレス０とする)
 	u32 FileTableStartAddress;				// ファイルテーブルの先頭アドレス(メンバ変数 FileNameTableStartAddress のアドレスを０とする)
 	u32 DirectoryTableStartAddress;		// ディレクトリテーブルの先頭アドレス(メンバ変数 FileNameTableStartAddress のアドレスを０とする)
-											// アドレス０から配置されている DARC_DIRECTORY_VER5 構造体がルートディレクトリ
+	// アドレス０から配置されている DARC_DIRECTORY_VER5 構造体がルートディレクトリ
 	u32 CodePage;							// ファイル名に使用しているコードページ番号
 } DARC_HEAD_VER5;
 
@@ -50,7 +53,7 @@ typedef struct tagDARC_HEAD_VER3
 	u32 FileNameTableStartAddress;			// ファイル名テーブルの先頭アドレス(ファイルの先頭アドレスをアドレス０とする)
 	u32 FileTableStartAddress;				// ファイルテーブルの先頭アドレス(メンバ変数 FileNameTableStartAddress のアドレスを０とする)
 	u32 DirectoryTableStartAddress;		// ディレクトリテーブルの先頭アドレス(メンバ変数 FileNameTableStartAddress のアドレスを０とする)
-											// アドレス０から配置されている DARC_DIRECTORY_VER5 構造体がルートディレクトリ
+	// アドレス０から配置されている DARC_DIRECTORY_VER5 構造体がルートディレクトリ
 } DARC_HEAD_VER3;
 
 // ファイルの時間情報
@@ -69,8 +72,8 @@ typedef struct tagDARC_FILEHEAD_VER1
 	u32 Attributes;			// ファイル属性
 	DARC_FILETIME_VER5 Time;	// 時間情報
 	u32 DataAddress;			// ファイルが格納されているアドレス
-								//			ファイルの場合：DARC_HEAD_VER5構造体 のメンバ変数 DataStartAddress が示すアドレスをアドレス０とする
-								//			ディレクトリの場合：DARC_HEAD_VER5構造体 のメンバ変数 DirectoryTableStartAddress のが示すアドレスをアドレス０とする
+	//			ファイルの場合：DARC_HEAD_VER5構造体 のメンバ変数 DataStartAddress が示すアドレスをアドレス０とする
+	//			ディレクトリの場合：DARC_HEAD_VER5構造体 のメンバ変数 DirectoryTableStartAddress のが示すアドレスをアドレス０とする
 	u32 DataSize;				// ファイルのデータサイズ
 } DARC_FILEHEAD_VER1;
 
@@ -82,8 +85,8 @@ typedef struct tagDARC_FILEHEAD_VER5
 	u32 Attributes;			// ファイル属性
 	DARC_FILETIME_VER5 Time;	// 時間情報
 	u32 DataAddress;			// ファイルが格納されているアドレス
-								//			ファイルの場合：DARC_HEAD_VER5構造体 のメンバ変数 DataStartAddress が示すアドレスをアドレス０とする
-								//			ディレクトリの場合：DARC_HEAD_VER5構造体 のメンバ変数 DirectoryTableStartAddress のが示すアドレスをアドレス０とする
+	//			ファイルの場合：DARC_HEAD_VER5構造体 のメンバ変数 DataStartAddress が示すアドレスをアドレス０とする
+	//			ディレクトリの場合：DARC_HEAD_VER5構造体 のメンバ変数 DirectoryTableStartAddress のが示すアドレスをアドレス０とする
 	u32 DataSize;				// ファイルのデータサイズ
 	u32 CompressedDataSize;			// 圧縮後のデータのサイズ( 0xffffffff:圧縮されていない ) ( Ver0x0002 で追加された )
 } DARC_FILEHEAD_VER5;
@@ -628,4 +631,6 @@ int extractDxaToFile(const StringPath& path)
 	dxa::DecodeArchive(p);
 
 	return 0;
+}
+
 }

@@ -9,6 +9,9 @@
 #endif
 #endif
 
+namespace lunaticvibes
+{
+
 const DWORD MS_VC_EXCEPTION = 0x406D1388;
 
 #pragma pack(push,8)  
@@ -32,7 +35,7 @@ void SetThreadNameWin32(DWORD dwThreadID, const char* threadName) {
 #pragma warning(push)  
 #pragma warning(disable: 6320 6322)  
     __try {
-        RaiseException(MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(ULONG_PTR), (ULONG_PTR*)& info);
+        RaiseException(MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(ULONG_PTR), (ULONG_PTR*)&info);
     }
     __except (EXCEPTION_EXECUTE_HANDLER) {
     }
@@ -64,9 +67,9 @@ bool IsMainThread()
 
 void SetThreadName(const char* name)
 {
-    SetThreadNameWin32(GetCurrentThreadId(), name); 
+    SetThreadNameWin32(GetCurrentThreadId(), name);
 }
-void panic(const char* title, const char* msg) 
+void panic(const char* title, const char* msg)
 {
     panicWin32(title, msg);
 }
@@ -124,6 +127,8 @@ const char* safe_strerror(int errnum, char* buffer, size_t buffer_length)
 {
     strerror_s(buffer, buffer_length, errnum);
     return buffer;
+}
+
 }
 
 #endif

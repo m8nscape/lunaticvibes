@@ -2,6 +2,9 @@
 #include "chartformat.h"
 #include "chartformat_bms.h"
 
+namespace lunaticvibes
+{
+
 eChartFormat analyzeChartType(const Path& p)
 {
     if (!p.has_extension())
@@ -60,4 +63,6 @@ std::shared_ptr<ChartFormatBase> ChartFormatBase::createFromFile(const Path& pat
 Path ChartFormatBase::getDirectory() const
 {
     return (absolutePath / "..").lexically_normal();
+}
+
 }

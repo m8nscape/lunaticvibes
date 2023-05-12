@@ -2,6 +2,9 @@
 #include "types.h"
 #include "fraction.h"
 
+namespace lunaticvibes
+{
+
 typedef unsigned Bar;
 typedef double BPM;
 
@@ -85,9 +88,9 @@ public:
 
 struct Note
 {
-    Bar measure;        // Which measure the note is placed
-    Metre pos;        // Which metre the note is placed in visual (ignoring SV & STOP), can be above 1
-    Time time;             // Timestamp
+	Bar measure;        // Which measure the note is placed
+	Metre pos;        // Which metre the note is placed in visual (ignoring SV & STOP), can be above 1
+	Time time;             // Timestamp
 
 	enum Flags
 	{
@@ -108,3 +111,5 @@ struct Note
 	long long dvalue;		// regular integer values
 	double fvalue;			// used by #BPM, bar length, etc 
 };
+
+}

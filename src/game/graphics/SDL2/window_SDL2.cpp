@@ -15,6 +15,9 @@
 #include <game/graphics/SDL2/input.h>
 #include <game/graphics/graphics.h>
 
+namespace lunaticvibes
+{
+
 static SDL_Rect canvasRect;
 static SDL_Rect windowRect;
 static double canvasScaleX = 1.0;
@@ -66,7 +69,7 @@ int graphics_init()
         {
             flags |= SDL_WINDOW_FULLSCREEN;
         }
-        else 
+        else
         {
             // fallback to windowed
         }
@@ -174,8 +177,8 @@ int graphics_init()
     }
 
 #ifndef VIDEO_DISABLED
-	// libav
-	video_init();
+    // libav
+    video_init();
 #endif
 
     // imgui
@@ -406,9 +409,11 @@ void funKeyDown(const SDL_KeyboardEvent& e);
 static std::int16_t i16_from_i32(std::int32_t value) {
     if (value > SHRT_MAX) {
         return SHRT_MAX;
-    } else if (value < SHRT_MIN) {
+    }
+    else if (value < SHRT_MIN) {
         return SHRT_MIN;
-    } else {
+    }
+    else {
         return static_cast<std::int16_t>(value);
     }
 }
@@ -607,4 +612,6 @@ void graphics_screenshot(const Path& png)
     LOG_INFO << "Screenshot: " << png.u8string();
 
     screenshotPath = png;
+}
+
 }

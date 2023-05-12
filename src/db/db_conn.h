@@ -1,13 +1,16 @@
 #pragma once
 
+namespace lunaticvibes
+{
+
 struct sqlite3;
 
 #if defined(_MSC_VER)
-  typedef __int64 sqlite_int64;
-  typedef unsigned __int64 sqlite_uint64;
+typedef __int64 sqlite_int64;
+typedef unsigned __int64 sqlite_uint64;
 #else
-  typedef long long int sqlite_int64;
-  typedef unsigned long long int sqlite_uint64;
+typedef long long int sqlite_int64;
+typedef unsigned long long int sqlite_uint64;
 #endif
 typedef sqlite_int64 sqlite3_int64;
 typedef sqlite_uint64 sqlite3_uint64;
@@ -42,3 +45,5 @@ public:
     void optimize();
     const char* errmsg() const;
 };
+
+}

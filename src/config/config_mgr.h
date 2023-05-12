@@ -4,6 +4,9 @@
 #include "cfg_input.h"
 #include "cfg_skin.h"
 
+namespace lunaticvibes
+{
+
 class ConfigMgr
 {
 private:
@@ -129,8 +132,8 @@ public:
     static int createProfile(const std::string& newProfile, const std::string& oldProfile) { return getInst()._createProfile(newProfile, oldProfile); }
     static std::shared_ptr<ConfigGeneral> General() { return getInst()._General(); }
     static std::shared_ptr<ConfigProfile> Profile() { return getInst()._Profile(); }
-    static std::shared_ptr<ConfigInput>   Input(GameModeKeys mode)  { return getInst()._Input(mode) ; }
-    static std::shared_ptr<ConfigSkin>    Skin()    { return getInst()._Skin()   ; }
+    static std::shared_ptr<ConfigInput>   Input(GameModeKeys mode) { return getInst()._Input(mode); }
+    static std::shared_ptr<ConfigSkin>    Skin() { return getInst()._Skin(); }
 
     template<class Ty_v>
     static Ty_v get(char type, const std::string& key, const Ty_v& fallback) { return getInst()._get(type, key, fallback); }
@@ -153,3 +156,5 @@ public:
 
 public:
 };
+
+}

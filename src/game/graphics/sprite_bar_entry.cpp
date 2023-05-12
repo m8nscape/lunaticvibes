@@ -5,6 +5,9 @@
 #include "common/chartformat/chartformat_bms.h"
 #include "game/data/data_select.h"
 
+namespace lunaticvibes
+{
+
 int SpriteBarEntry::setBody(BarType type, const SpriteAnimated::SpriteAnimatedBuilder& builder)
 {
     if (static_cast<size_t>(type) >= static_cast<size_t>(BarType::TYPE_COUNT))
@@ -40,10 +43,10 @@ int SpriteBarEntry::setLevel(BarLevelType type, const SpriteNumber::SpriteNumber
 
     if (builder.maxDigits < 3 && type == BarLevelType::IRRANK)
         LOG_DEBUG << "[Sprite] BarEntry level digit (" << builder.maxDigits << ") not enough for IRRANK "
-            << " (Line " << srcLine << ")";
+        << " (Line " << srcLine << ")";
     else if (builder.maxDigits < 2)
         LOG_DEBUG << "[Sprite] BarEntry level digit (" << builder.maxDigits << ") not enough for idx " << int(type)
-            << " (Line " << srcLine << ")";
+        << " (Line " << srcLine << ")";
 
     SpriteNumber::SpriteNumberBuilder tmpBuilder = builder;
     tmpBuilder.numberCallback = std::bind([](int index) { return lv::data::SelectData.barLevel[index]; }, index);
@@ -154,15 +157,15 @@ void SpriteBarEntry::pushPartsOrder(BarPartsType type)
 
 bool SpriteBarEntry::update(Time time)
 {
-    for (auto& s: sBodyOff) if (s) s->setHideInternal(true);
-    for (auto& s: sBodyOn) if (s) s->setHideInternal(true);
-    for (auto& s: sTitle) if (s) s->setHideInternal(true);
-    for (auto& s: sLevel) if (s) s->setHideInternal(true);
-    for (auto& s: sLamp) if (s) s->setHideInternal(true);
-    for (auto& s: sRank) if (s) s->setHideInternal(true);
-    for (auto& s: sRivalWinLose) if (s) s->setHideInternal(true);
-    for (auto& s: sRivalLampSelf) if (s) s->setHideInternal(true);
-    for (auto& s: sRivalLampRival) if (s) s->setHideInternal(true);
+    for (auto& s : sBodyOff) if (s) s->setHideInternal(true);
+    for (auto& s : sBodyOn) if (s) s->setHideInternal(true);
+    for (auto& s : sTitle) if (s) s->setHideInternal(true);
+    for (auto& s : sLevel) if (s) s->setHideInternal(true);
+    for (auto& s : sLamp) if (s) s->setHideInternal(true);
+    for (auto& s : sRank) if (s) s->setHideInternal(true);
+    for (auto& s : sRivalWinLose) if (s) s->setHideInternal(true);
+    for (auto& s : sRivalLampSelf) if (s) s->setHideInternal(true);
+    for (auto& s : sRivalLampRival) if (s) s->setHideInternal(true);
     if (sFlash) sFlash->setHideInternal(true);
 
     auto& list = gSelectContext.entries;
@@ -281,8 +284,8 @@ bool SpriteBarEntry::update(Time time)
             sFlash->setHideInternal(false);
         }
 
-        if ((BarType)barTypeIdx == BarType::SONG || 
-            (BarType)barTypeIdx == BarType::NEW_SONG || 
+        if ((BarType)barTypeIdx == BarType::SONG ||
+            (BarType)barTypeIdx == BarType::NEW_SONG ||
             (BarType)barTypeIdx == BarType::SONG_RIVAL)
         {
             std::shared_ptr<ChartFormatBase> pf;
@@ -439,7 +442,7 @@ bool SpriteBarEntry::update(Time time)
                     {ScoreBMS::Lamp::EXHARD,        BarLampType::HARD        },
                     {ScoreBMS::Lamp::FULLCOMBO,     BarLampType::FULLCOMBO   },
                     {ScoreBMS::Lamp::PERFECT,       BarLampType::FULLCOMBO   },
-                    {ScoreBMS::Lamp::MAX,           BarLampType::FULLCOMBO   } 
+                    {ScoreBMS::Lamp::MAX,           BarLampType::FULLCOMBO   }
                 };
                 static const std::map<ScoreBMS::Lamp, BarLampType> BMS_LAMP_TYPE_MAP =
                 {
@@ -596,4 +599,6 @@ bool SpriteBarEntry::OnClick(int x, int y)
         return true;
     }
     return false;
+}
+
 }

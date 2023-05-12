@@ -3,7 +3,10 @@
 #include "game/runtime/state.h"
 #include "game/input/input_mgr.h"
 
-struct HitableNote: Note
+namespace lunaticvibes
+{
+
+struct HitableNote : Note
 {
     bool expired = false;
     bool hit = false;
@@ -118,22 +121,22 @@ protected:
     HashMD5 _fileHash;
 
 protected:
-	unsigned _noteCount_total;
-	unsigned _noteCount_regular;
-	unsigned _noteCount_ln;
+    unsigned _noteCount_total;
+    unsigned _noteCount_regular;
+    unsigned _noteCount_ln;
 
 public:
     // Includes normal notes and LNs; One LN counts as one note
-	unsigned constexpr getNoteTotalCount() const { return _noteCount_total; }
+    unsigned constexpr getNoteTotalCount() const { return _noteCount_total; }
 
     // Normal notes
-	unsigned constexpr getNoteRegularCount() const { return _noteCount_regular; }
+    unsigned constexpr getNoteRegularCount() const { return _noteCount_regular; }
 
     // LNs; One LN counts as one note
-	unsigned constexpr getNoteLnCount() const { return _noteCount_ln; }
+    unsigned constexpr getNoteLnCount() const { return _noteCount_ln; }
 
 protected:
-     // full list of corresponding channel through all measures; only this list is handled by input looper
+    // full list of corresponding channel through all measures; only this list is handled by input looper
     std::array<std::list<HitableNote>, chart::LANE_COUNT> _noteLists;
     std::vector<std::list<Note>> _bgmNoteLists;      // BGM notes; handled with timer
     std::vector<std::list<Note>> _specialNoteLists;     // Special definitions for each format. e.g. BGA, Stop
@@ -168,48 +171,48 @@ protected:
     decltype(_bpmNoteList)::iterator                                _bpmNoteListIter;
 
 public:
-    auto firstNote            (chart::NoteLaneCategory cat, chart::NoteLaneIndex idx) -> NoteIterator;
+    auto firstNote(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx) -> NoteIterator;
 
-    auto incomingNote         (chart::NoteLaneCategory cat, chart::NoteLaneIndex idx) -> NoteIterator;
-    auto incomingNoteBgm      (size_t idx) -> decltype(_bgmNoteLists)::value_type::iterator;
-    auto incomingNoteSpecial  (size_t idx) -> decltype(_specialNoteLists)::value_type::iterator;
-    auto incomingNoteBpm      () -> decltype(_bpmNoteList)::iterator;
+    auto incomingNote(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx) -> NoteIterator;
+    auto incomingNoteBgm(size_t idx) -> decltype(_bgmNoteLists)::value_type::iterator;
+    auto incomingNoteSpecial(size_t idx) -> decltype(_specialNoteLists)::value_type::iterator;
+    auto incomingNoteBpm() -> decltype(_bpmNoteList)::iterator;
 
-    bool isLastNote           (chart::NoteLaneCategory cat, chart::NoteLaneIndex idx);
-    bool isLastNoteBgm        (size_t idx);
-    bool isLastNoteSpecial    (size_t idx);
-    bool isLastNoteBpm        ();
+    bool isLastNote(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx);
+    bool isLastNoteBgm(size_t idx);
+    bool isLastNoteSpecial(size_t idx);
+    bool isLastNoteBpm();
 
-    bool isLastNote           (chart::NoteLaneCategory cat, chart::NoteLaneIndex idx, const NoteIterator& it);
-    bool isLastNoteBgm        (size_t idx, const decltype(_bgmNoteLists)::value_type::iterator& it);
-    bool isLastNoteSpecial    (size_t idx, const decltype(_specialNoteLists)::value_type::iterator& it);
-    bool isLastNoteBpm        (const decltype(_bpmNoteList)::iterator& it);
+    bool isLastNote(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx, const NoteIterator& it);
+    bool isLastNoteBgm(size_t idx, const decltype(_bgmNoteLists)::value_type::iterator& it);
+    bool isLastNoteSpecial(size_t idx, const decltype(_specialNoteLists)::value_type::iterator& it);
+    bool isLastNoteBpm(const decltype(_bpmNoteList)::iterator& it);
 
 protected:
-    auto nextNote             (chart::NoteLaneCategory cat, chart::NoteLaneIndex idx) -> NoteIterator&;
-    auto nextNoteBgm          (size_t idx) -> decltype(_bgmNoteLists)::value_type::iterator&;
-    auto nextNoteSpecial      (size_t idx) -> decltype(_specialNoteLists)::value_type::iterator&;
-    auto nextNoteBpm          () -> decltype(_bpmNoteList)::iterator&;
+    auto nextNote(chart::NoteLaneCategory cat, chart::NoteLaneIndex idx) -> NoteIterator&;
+    auto nextNoteBgm(size_t idx) -> decltype(_bgmNoteLists)::value_type::iterator&;
+    auto nextNoteSpecial(size_t idx) -> decltype(_specialNoteLists)::value_type::iterator&;
+    auto nextNoteBpm() -> decltype(_bpmNoteList)::iterator&;
 
 public:
     Time getBarLength(size_t bar);
     Time getCurrentBarLength();
     Metre getBarMetre(size_t bar);
-	Metre getCurrentBarMetre();
+    Metre getCurrentBarMetre();
     Metre getBarMetrePosition(size_t bar);
-	Time getBarTimestamp(size_t m) { return m < MAX_MEASURES ? _barTimestamp[m] : LLONG_MAX; }
-	Time getCurrentBarTimestamp() { return getBarTimestamp(_currentBar); }
+    Time getBarTimestamp(size_t m) { return m < MAX_MEASURES ? _barTimestamp[m] : LLONG_MAX; }
+    Time getCurrentBarTimestamp() { return getBarTimestamp(_currentBar); }
     Time getLeadInTime() const { return _leadInTime.norm() > 200 ? Time(_leadInTime.hres() - 200 * 1000000, true) : Time(0); }
 
 protected:
-    unsigned _currentBarTemp       = 0;
-    unsigned _currentBar           = 0;
-    double   _currentMetreTemp     = 0.;
-    double   _currentMetre         = 0.;
-    BPM      _currentBPM           = 150.0;
-    Time     _currentBeatLength    = Time::singleBeatLengthFromBPM(150.0);
-    Time     _lastChangedBPMTime   = 0;
-    double   _lastChangedBPMMetre  = 0.;
+    unsigned _currentBarTemp = 0;
+    unsigned _currentBar = 0;
+    double   _currentMetreTemp = 0.;
+    double   _currentMetre = 0.;
+    BPM      _currentBPM = 150.0;
+    Time     _currentBeatLength = Time::singleBeatLengthFromBPM(150.0);
+    Time     _lastChangedBPMTime = 0;
+    double   _lastChangedBPMMetre = 0.;
     std::unordered_map<double, unsigned> bpmNoteCount;  // used for calculating main bpm
 
 public:
@@ -238,3 +241,4 @@ public:
     constexpr auto getPlayMinBPM() -> decltype(_playMinBPM) { return _playMinBPM; }
 };
 
+}

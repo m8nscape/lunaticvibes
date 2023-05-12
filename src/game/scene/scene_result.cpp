@@ -14,6 +14,9 @@
 
 #include "config/config_mgr.h"
 
+namespace lunaticvibes
+{
+
 SceneResult::SceneResult() : SceneBase(SkinType::RESULT, 1000)
 {
     _type = SceneType::RESULT;
@@ -24,7 +27,7 @@ SceneResult::SceneResult() : SceneBase(SkinType::RESULT, 1000)
     {
         _inputAvailable |= INPUT_MASK_1P;
     }
-        
+
     if (gPlayContext.chartObj[PLAYER_SLOT_TARGET] != nullptr)
     {
         _inputAvailable |= INPUT_MASK_2P;
@@ -399,7 +402,7 @@ void SceneResult::updateFadeout()
                 }
             }
         }
-        
+
         // check retry
         if (_retryRequested && gPlayContext.canRetry)
         {
@@ -648,7 +651,7 @@ void SceneResult::inputGameHold(InputMask& m, const Time& t)
     if (state == eResultState::FADEOUT)
     {
         _retryRequested =
-            (_inputAvailable & m & INPUT_MASK_DECIDE).any() && 
+            (_inputAvailable & m & INPUT_MASK_DECIDE).any() &&
             (_inputAvailable & m & INPUT_MASK_CANCEL).any();
     }
 }
@@ -657,4 +660,6 @@ void SceneResult::inputGameHold(InputMask& m, const Time& t)
 void SceneResult::inputGameRelease(InputMask& m, const Time& t)
 {
     if (t - State::get(IndexTimer::SCENE_START) < pSkin->info.timeIntro) return;
+}
+
 }

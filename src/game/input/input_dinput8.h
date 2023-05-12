@@ -7,6 +7,9 @@
 #include <dinput.h>
 
 
+namespace lunaticvibes
+{
+
 class InputDirectInput8
 {
 public:
@@ -40,7 +43,7 @@ protected:
 	std::vector<DeviceJoystick> deviceJoysticks;
 
 	bool acquired = false;
-	
+
 public:
 	BOOL DIEnumDevicesCallbackJoystick(LPCDIDEVICEINSTANCE lpddi);
 	BOOL DIEnumDeviceObjectsCallback(LPCDIDEVICEOBJECTINSTANCE lpddoi);
@@ -67,5 +70,7 @@ public:
 public:
 	static InputDirectInput8& inst();
 };
+
+}
 
 #endif

@@ -5,6 +5,9 @@
 
 #include "config/config_mgr.h"
 
+namespace lunaticvibes
+{
+
 SoundDriverFMOD::SoundDriverFMOD(): SoundDriver(std::bind(&SoundDriverFMOD::update, this))
 {
     // load device
@@ -1161,4 +1164,6 @@ void SoundDriverFMOD::setEQ(EQFreq freq, int gain)
     {
         EQFilter[i][e]->setParameterFloat(ch, (float)gain);
     }
+}
+
 }

@@ -7,6 +7,9 @@
 #include <game/graphics/SDL2/input.h>
 #endif
 
+namespace lunaticvibes
+{
+
 InputMgr InputMgr::_inst;
 
 using namespace Input;
@@ -116,26 +119,26 @@ std::bitset<KEY_COUNT> InputMgr::_detect()
     {
         KeyMap& b = padBindings[k];
         {
-			switch (b.getType())
-			{
+            switch (b.getType())
+            {
             case KeyMap::DeviceType::KEYBOARD:
                 if (isKeyPressed(b.getKeyboard()))
                 {
                     res[k] = true;
                     pressedTime[k] = t;
                 }
-				break;
-			case KeyMap::DeviceType::JOYSTICK:
+                break;
+            case KeyMap::DeviceType::JOYSTICK:
                 if (isButtonPressed(b.getJoystick(), padDeadzones[k]))
                 {
                     res[k] = true;
                     pressedTime[k] = t;
                 }
-				break;
-			case KeyMap::DeviceType::MOUSE:
-				break;
-			}
-			//if (res[k]) break;
+                break;
+            case KeyMap::DeviceType::MOUSE:
+                break;
+            }
+            //if (res[k]) break;
         }
     }
 
@@ -235,4 +238,6 @@ bool InputMgr::getScratchPos(double& x, double& y)
 void InputMgr::setDebounceTime(int ms)
 {
     _inst.debounceTime = ms;
+}
+
 }

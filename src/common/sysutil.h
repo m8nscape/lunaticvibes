@@ -1,5 +1,8 @@
 #pragma once
 
+namespace lunaticvibes
+{
+
 void SetThreadAsMainThread();
 int64_t GetCurrentThreadID();
 bool IsMainThread();
@@ -93,3 +96,5 @@ Path getSysMonoFontPath(std::string* faceName = NULL, int* faceIndex = NULL, Lan
 const char* safe_strerror(int errnum, char* buffer, size_t buffer_length);
 // Wrapper over the other safe_strerror() that returns an owned string.
 std::string safe_strerror(int errnum);
+
+}

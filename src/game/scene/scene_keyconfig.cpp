@@ -5,6 +5,9 @@
 #include "game/sound/sound_mgr.h"
 #include "game/runtime/i18n.h"
 
+namespace lunaticvibes
+{
+
 SceneKeyConfig::SceneKeyConfig() : SceneBase(SkinType::KEY_CONFIG, 240)
 {
     _type = SceneType::KEYCONFIG;
@@ -693,4 +696,6 @@ void SceneKeyConfig::updateAllText()
     State::set(IndexText::KEYCONFIG_2P_BIND_START, input->getBindings(Input::Pad::K2START).toString());
     State::set(IndexText::KEYCONFIG_2P_BIND_SELECT, input->getBindings(Input::Pad::K2SELECT).toString());
     State::set(IndexText::KEYCONFIG_2P_BIND_SCRATCH_ABS, input->getBindings(Input::Pad::S2A).toString());
+}
+
 }

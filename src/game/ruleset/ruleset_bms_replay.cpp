@@ -3,6 +3,9 @@
 #include "game/scene/scene.h"
 #include "game/scene/scene_context.h"
 
+namespace lunaticvibes
+{
+
 RulesetBMSReplay::RulesetBMSReplay(
     std::shared_ptr<ChartFormatBase> format,
     std::shared_ptr<ChartObjectBase> chart,
@@ -162,7 +165,7 @@ void RulesetBMSReplay::update(const Time& t)
 
         switch (cmd)
         {
-        // extract judge from frames
+            // extract judge from frames
         case ReplayChart::Commands::Type::JUDGE_LEFT_EXACT_0:   updateJudge(t, NoteLaneIndex::_, JudgeArea::EXACT_PERFECT, PLAYER_SLOT_PLAYER, true); break;
         case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_0:   updateJudge(t, NoteLaneIndex::_, JudgeArea::EARLY_PERFECT, PLAYER_SLOT_PLAYER, true); break;
         case ReplayChart::Commands::Type::JUDGE_LEFT_EARLY_1:   updateJudge(t, NoteLaneIndex::_, JudgeArea::EARLY_GREAT, PLAYER_SLOT_PLAYER, true); break;
@@ -229,4 +232,6 @@ void RulesetBMSReplay::fail()
     _startTime = Time(0);
     _hasStartTime = true;
     RulesetBMS::fail();
+}
+
 }

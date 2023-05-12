@@ -1,6 +1,9 @@
 #pragma once
 #include "../entry/entry.h"
 
+namespace lunaticvibes
+{
+
 class DifficultyTable
 {
 public:
@@ -44,3 +47,5 @@ public:
 	std::vector<std::string> getLevelList() const;
 	std::vector<std::shared_ptr<EntryBase>> getEntryList(const std::string& level);
 };
+
+}

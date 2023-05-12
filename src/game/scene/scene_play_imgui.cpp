@@ -4,6 +4,9 @@
 #include "imgui.h"
 #include "game/skin/skin_lr2.h"
 
+namespace lunaticvibes
+{
+
 void ScenePlay::updateImgui()
 {
     SceneBase::updateImgui();
@@ -183,4 +186,6 @@ void ScenePlay::imguiAdjustMenu()
     {
         imguiShowAdjustMenu = false;
     }
+}
+
 }

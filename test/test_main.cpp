@@ -4,6 +4,7 @@
 #include <plog/Appenders/ColorConsoleAppender.h>
 #include <plog/Formatters/TxtFormatter.h>
 #include "config/config_mgr.h"
+using namespace lv;
 
 bool gEventQuit;
 

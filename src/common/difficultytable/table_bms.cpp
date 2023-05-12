@@ -5,6 +5,9 @@
 
 #include <curl/curl.h>
 
+namespace lunaticvibes
+{
+
 enum class GetResult
 {
 	OK,
@@ -141,7 +144,7 @@ GetResult GET(const std::string& url, std::string& result)
 		{
 		case CURLE_OUT_OF_MEMORY: return GetResult::ERR_SYSTEM;
 		case CURLE_COULDNT_RESOLVE_HOST: return GetResult::ERR_RESOLVE;
-		case CURLE_COULDNT_CONNECT: 
+		case CURLE_COULDNT_CONNECT:
 		case CURLE_REMOTE_ACCESS_DENIED:
 		case CURLE_SSL_CONNECT_ERROR: return GetResult::ERR_CONNECT;
 		case CURLE_WRITE_ERROR: return GetResult::ERR_WRITE;
@@ -184,7 +187,7 @@ void DifficultyTableBMS::updateFromUrl(std::function<void(DifficultyTable::Updat
 		return;
 	}
 	std::string remotePath = url.substr(0, url.find_last_of('/') + 1);
-	
+
 	std::string webUrl, headerUrl, dataUrl;
 
 	// parse HTML
@@ -200,7 +203,7 @@ void DifficultyTableBMS::updateFromUrl(std::function<void(DifficultyTable::Updat
 		{
 			// <meta name="bmstable" content="./header.json">
 			std::string content;
-			static const LazyRE2 re{ R"(meta +name=['"]bmstable['"] *content=['"](.+)['"])"};
+			static const LazyRE2 re{ R"(meta +name=['"]bmstable['"] *content=['"](.+)['"])" };
 			if (RE2::PartialMatch(body, *re, &content))
 			{
 				headerFileName = content;
@@ -214,7 +217,7 @@ void DifficultyTableBMS::updateFromUrl(std::function<void(DifficultyTable::Updat
 			case GetResult::ERR_RESOLVE:	  finishedCallback(DifficultyTable::UpdateResult::WEB_PATH_ERROR); break;
 			case GetResult::ERR_CONNECT:
 			case GetResult::ERR_WRITE:
-			case GetResult::ERR_READ:		 
+			case GetResult::ERR_READ:
 			case GetResult::ERR_HTTP:		  finishedCallback(DifficultyTable::UpdateResult::WEB_CONNECT_ERR); break;
 			case GetResult::ERR_TIMEOUT:	  finishedCallback(DifficultyTable::UpdateResult::WEB_TIMEOUT); break;
 			default:						  finishedCallback(DifficultyTable::UpdateResult::INTERNAL_ERROR); break;
@@ -492,4 +495,6 @@ void DifficultyTableBMS::parseBody(const std::string& content)
 	{
 		LOG_ERROR << "[TableBMS] Data JSON Error: " << to_utf8(e.what(), eFileEncoding::LATIN1);
 	}
+}
+
 }

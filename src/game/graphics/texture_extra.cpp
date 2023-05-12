@@ -14,9 +14,12 @@ extern "C"
 #include "libavutil/avutil.h"
 }
 
+namespace lunaticvibes
+{
+
 TextureVideo::TextureVideo(std::shared_ptr<sVideo> pv) :
 	Texture(pv->getW(), pv->getH(), pv->getFormat(), false),
-	format(pv->getFormat()), 
+	format(pv->getFormat()),
 	pVideo(pv)
 {
 	textureRect.x = 0;
@@ -82,7 +85,7 @@ void TextureVideo::update()
 	decoded_frames = vrfc;
 
 	using namespace std::chrono_literals;
-		
+
 	std::shared_lock l(pVideo->video_frame_mutex, std::try_to_lock);
 	if (l.owns_lock())
 	{
@@ -153,7 +156,12 @@ void TextureVideo::updateAll()
 	}
 }
 
+}
+
 #endif
+
+namespace lunaticvibes
+{
 
 bool TextureBmsBga::addBmp(size_t idx, Path pBmp)
 {
@@ -255,7 +263,7 @@ void TextureBmsBga::seek(const Time& t)
 	{
 		for (auto it = slot.begin(); it != slot.end(); ++it)	// search from beginning
 		{
-			auto[time, idx] = *it;
+			auto [time, idx] = *it;
 			if (time <= t)
 			{
 				slotIdx = idx;
@@ -432,7 +440,7 @@ void TextureBmsBga::reset()
 	{
 		for (auto it = slot.begin(); it != slot.end(); ++it)	// search from beginning
 		{
-			auto[time, idx] = *it;
+			auto [time, idx] = *it;
 			if (objs[idx].type == obj::Ty::VIDEO)
 			{
 #ifndef VIDEO_DISABLED
@@ -465,7 +473,7 @@ void TextureBmsBga::clear()
 
 void TextureBmsBga::setLoaded()
 {
-	loaded = true;	
+	loaded = true;
 }
 
 void TextureBmsBga::stopUpdate()
@@ -570,4 +578,6 @@ void TextureDynamic::draw(const Rect& srcRect, RectF dstRect,
 	const Color c, const BlendMode b, const bool filter, const double angle, const Point& center) const
 {
 	_dynTexture->draw(srcRect, dstRect, c, b, filter, angle, center);
+}
+
 }

@@ -2,6 +2,9 @@
 #include "common/types.h"
 #include "db_conn.h"
 
+namespace lunaticvibes
+{
+
 class ScoreBase;
 class ScoreBMS;
 
@@ -36,3 +39,5 @@ public:
 
     void preloadScore();
 };
+
+}

@@ -3,12 +3,15 @@
 #include "game/scene/scene_context.h"
 #include "game/runtime/state.h"
 
+namespace lunaticvibes
+{
+
 static const size_t NOPE = -1;
 
 using namespace chart;
 
 ChartObjectBMS::ChartObjectBMS(int slot) : ChartObjectBase(slot, BGM_LANE_COUNT, (size_t)eNoteExt::EXT_COUNT),
-    _currentStopNote(_specialNoteLists.front().begin())
+_currentStopNote(_specialNoteLists.front().begin())
 {
 }
 
@@ -26,9 +29,9 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
     _fileHash = objBms.fileHash;
     total = objBms.total;
 
-	_noteCount_total = objBms.notes_total;
-	_noteCount_regular = objBms.notes_scratch + objBms.notes_key;
-	_noteCount_ln = objBms.notes_scratch_ln + objBms.notes_key_ln;
+    _noteCount_total = objBms.notes_total;
+    _noteCount_regular = objBms.notes_scratch + objBms.notes_key;
+    _noteCount_ln = objBms.notes_scratch_ln + objBms.notes_key_ln;
     _noteCount_scratch = objBms.notes_scratch;
     _noteCount_scratch_ln = objBms.notes_scratch_ln;
 
@@ -65,8 +68,8 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
         _noteCount_ln *= 2;
     }
 
-	Time basetime{ 0 };
-	Metre basemetre{ 0, 1 };
+    Time basetime{ 0 };
+    Metre basemetre{ 0, 1 };
 
     BPM bpm = objBms.startBPM * gSelectContext.pitchSpeed;
     _currentBPM = bpm;
@@ -75,7 +78,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
     std::bitset<NOTELANEINDEX_COUNT> isLnTail{ 0 };
 
     std::array<NoteLaneIndex, NOTELANEINDEX_COUNT> gameLaneMap;
-    for (size_t i = Sc1; i < NOTELANEINDEX_COUNT; ++i) 
+    for (size_t i = Sc1; i < NOTELANEINDEX_COUNT; ++i)
         gameLaneMap[i] = (NoteLaneIndex)i;
 
     uint64_t seed = gPlayContext.randomSeed;
@@ -97,7 +100,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
         case PlayModifierRandomType::MIRROR:
             std::reverse(gameLaneMap.begin() + laneRightStart, gameLaneMap.begin() + laneRightEnd + 1);
             break;
-        
+
         case PlayModifierRandomType::RRAN:
         {
             size_t count = (laneRightEnd - laneRightStart + 1);
@@ -211,13 +214,13 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
 
     for (unsigned m = 0; m <= objBms.lastBarIdx; m++)
     {
-		barMetreLength.push_back(objBms.metres[m]);
-		_barMetrePos.push_back(basemetre);
+        barMetreLength.push_back(objBms.metres[m]);
+        _barMetrePos.push_back(basemetre);
         _barTimestamp.push_back(basetime);
 
         // In case the channels from the file are shuffled, store the data into buffer and sort it out first
         // The following patterns must be arranged to keep process order by [Notes > BPM > Stop]
-        enum class eLanePriority: unsigned
+        enum class eLanePriority : unsigned
         {
             // Notes
             NOTE,
@@ -293,7 +296,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
             if (gPlayContext.isBattle && _playerSlot == PLAYER_SLOT_TARGET)
             {
                 // load notes into 2P area
-                
+
                 // Regular Notes
                 push_notes(notes, eLanePriority::NOTE, LaneCode::NOTE1, 1);
 
@@ -423,7 +426,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
         Segment lastBPMChangedSegment(0, 1);
         double stopMetre = 0;
         Metre barMetre = objBms.metres[m];      // visual metre
-		Time beatLength = Time::singleBeatLengthFromBPM(bpm);
+        Time beatLength = Time::singleBeatLengthFromBPM(bpm);
 
         for (const auto& note : notes)
         {
@@ -431,7 +434,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
             const auto& [lane, val] = noteinfo;
             double metreFromBPMChange = (noteSegment - lastBPMChangedSegment) * barMetre;
             auto notemetre = static_cast<Metre>(basemetre + noteSegment * barMetre);
-			Time notetime = bpmfucked ? LLONG_MAX : basetime + beatLength * (metreFromBPMChange * 4);
+            Time notetime = bpmfucked ? LLONG_MAX : basetime + beatLength * (metreFromBPMChange * 4);
 
             if (!leadInTimeSet && (lane.type == eLanePriority::NOTE || lane.type == eLanePriority::LNHEAD || lane.type == eLanePriority::BGM))
             {
@@ -524,7 +527,7 @@ void ChartObjectBMS::loadBMS(const ChartFormatBMS& objBms)
                         {
                             constexpr int threshold_ms = 50;
                             std::vector<NoteLaneIndex> placable;
-                            for (NoteLaneIndex i = NoteLaneIndex(laneMin); i != NoteLaneIndex(laneMax + 1); ++*(size_t*)&i)
+                            for (NoteLaneIndex i = NoteLaneIndex(laneMin); i != NoteLaneIndex(laneMax + 1); ++ * (size_t*)&i)
                             {
                                 if (laneOccupiedByLN[i])
                                 {
@@ -936,4 +939,6 @@ void ChartObjectBMS::postUpdate(const Time& vt)
     {
         _stopMetre = 0.0;
     }
+}
+
 }

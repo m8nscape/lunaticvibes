@@ -3,6 +3,9 @@
 #include "game/skin/skin_lr2.h"
 #include "config/config_mgr.h"
 
+namespace lunaticvibes
+{
+
 SkinMgr SkinMgr::_inst;
 
 void SkinMgr::load(SkinType e, bool simple)
@@ -123,12 +126,14 @@ void SkinMgr::unload(SkinType e)
 
 void SkinMgr::clean()
 {
-	for (auto& s : gSprites)
-	{
-		s.reset();
-	}
-	for (SkinType e = SkinType::TITLE; e < SkinType::MODE_COUNT; ++*((int*)&e))
-	{
-		unload(e);
-	}
+    for (auto& s : gSprites)
+    {
+        s.reset();
+    }
+    for (SkinType e = SkinType::TITLE; e < SkinType::MODE_COUNT; ++ * ((int*)&e))
+    {
+        unload(e);
+    }
+}
+
 }

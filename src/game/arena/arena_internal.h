@@ -1,5 +1,8 @@
 #pragma once
 
+namespace lunaticvibes
+{
+
 namespace Arena
 {
 enum ArenaMessageType : uint8_t
@@ -93,7 +96,7 @@ public:
 	}
 };
 
-class ArenaMessageHeartbeat: public ArenaMessage
+class ArenaMessageHeartbeat : public ArenaMessage
 {
 public:
 	ArenaMessageHeartbeat() { type = Arena::HEARTBEAT; }
@@ -468,3 +471,5 @@ struct ArenaCheckChartExistResp
 		ar(exist);
 	}
 };
+
+}

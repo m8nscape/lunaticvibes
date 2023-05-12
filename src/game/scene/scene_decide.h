@@ -1,6 +1,9 @@
 #pragma once
 #include "scene.h"
 
+namespace lunaticvibes
+{
+
 enum class eDecideState
 {
     START,
@@ -32,3 +35,5 @@ protected:
     void inputGameHold(InputMask&, Time);
     void inputGameRelease(InputMask&, Time);
 };
+
+}

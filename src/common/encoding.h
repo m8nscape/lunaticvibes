@@ -1,5 +1,8 @@
 #pragma once
 
+namespace lunaticvibes
+{
+
 enum class eFileEncoding
 {
 	LATIN1,
@@ -19,3 +22,4 @@ std::string from_utf32(const std::u32string& input, eFileEncoding toEncoding);
 std::u32string utf8_to_utf32(const std::string& input);
 std::string utf32_to_utf8(const std::u32string& str);
 
+}

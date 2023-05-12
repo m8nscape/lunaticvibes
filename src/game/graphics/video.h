@@ -25,6 +25,9 @@ inline const std::set<std::string> video_file_extensions =
 
 #include "graphics.h"
 
+namespace lunaticvibes
+{
+
 extern "C"
 {
 	struct AVFormatContext;
@@ -50,11 +53,11 @@ public:
 private:
 
 	// decoder params
-	AVFormatContext *pFormatCtx = nullptr;
-	const AVCodec *pCodec = nullptr;
-	AVCodecContext *pCodecCtx = nullptr;
-	AVFrame *pFrame = nullptr;
-	AVPacket *pPacket = nullptr;
+	AVFormatContext* pFormatCtx = nullptr;
+	const AVCodec* pCodec = nullptr;
+	AVCodecContext* pCodecCtx = nullptr;
+	AVFrame* pFrame = nullptr;
+	AVPacket* pPacket = nullptr;
 	int videoIndex = -1;
 	unsigned decoded_frames = 0;
 	std::chrono::time_point<std::chrono::system_clock> startTime;
@@ -100,10 +103,15 @@ public:
 public:
 	void setSpeed(double speed) { this->speed = speed; }
 	void seek(int64_t second, bool backwards = false);
-	
+
 };
 
+}
+
 #else
+
+namespace lunaticvibes
+{
 
 class sVideo
 {
@@ -111,5 +119,7 @@ public:
 	sVideo() = default;
 	virtual ~sVideo() = default;
 };
+
+}
 
 #endif

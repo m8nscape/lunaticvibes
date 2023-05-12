@@ -1,6 +1,9 @@
 #pragma once
 #include "scene.h"
 
+namespace lunaticvibes
+{
+
 class SceneExitTrans : public SceneBase
 {
 public:
@@ -11,3 +14,5 @@ protected:
     // Looper callbacks
     virtual void _updateAsync() override {}
 };
+
+}

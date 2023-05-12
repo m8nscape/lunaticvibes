@@ -12,6 +12,9 @@ extern "C"
 #include "libavutil/frame.h"
 }
 
+namespace lunaticvibes
+{
+
 void video_init()
 {
 }
@@ -119,7 +122,7 @@ Texture::PixelFormat sVideo::getFormat()
 	using fmt = Texture::PixelFormat;
 	if (!haveVideo) return fmt::UNKNOWN;
 	switch (pCodecCtx->pix_fmt)
-	{ 
+	{
 	case AV_PIX_FMT_RGB24: return fmt::RGB24;
 	case AV_PIX_FMT_BGR24: return fmt::BGR24;
 	case AV_PIX_FMT_YUV420P: return fmt::IYUV;
@@ -183,7 +186,7 @@ void sVideo::decodeLoop()
 	// timestamps per second
 	double tsps = pFormatCtx->streams[videoIndex]->time_base.num == 0 ?
 		AV_TIME_BASE : av_q2d(av_inv_q(pFormatCtx->streams[videoIndex]->time_base));
-	AVFrame *pFrame1 = av_frame_alloc();
+	AVFrame* pFrame1 = av_frame_alloc();
 
 	do
 	{
@@ -287,11 +290,11 @@ void sVideo::decodeLoop()
 void sVideo::seek(int64_t second, bool backwards)
 {
 	if (!haveVideo) return;
-	if (second == 0) 
+	if (second == 0)
 		firstFrame = true;
 
 	// timestamps per second
-	double tsps = pFormatCtx->streams[videoIndex]->time_base.num == 0 ? 
+	double tsps = pFormatCtx->streams[videoIndex]->time_base.num == 0 ?
 		AV_TIME_BASE : av_q2d(av_inv_q(pFormatCtx->streams[videoIndex]->time_base));
 
 	if (int ret = av_seek_frame(pFormatCtx, videoIndex, int64_t(std::round(second / tsps)), backwards ? AVSEEK_FLAG_BACKWARD : 0); ret >= 0)
@@ -303,6 +306,8 @@ void sVideo::seek(int64_t second, bool backwards)
 	{
 		LOG_ERROR << "[Video] seek " << second << "s error (" << file.u8string() << ")";
 	}
+}
+
 }
 
 #endif

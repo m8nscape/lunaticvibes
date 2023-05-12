@@ -1,11 +1,14 @@
 #include "common/pch.h"
 #include "cfg_profile.h"
 
+namespace lunaticvibes
+{
+
 namespace fs = std::filesystem;
 
 std::string ConfigProfile::getName() const
 {
-    return _yaml[std::string(cfg::P_PLAYERNAME)].as<std::string>("Unnamed"); 
+    return _yaml[std::string(cfg::P_PLAYERNAME)].as<std::string>("Unnamed");
 }
 void ConfigProfile::setName(const std::string& name)
 {
@@ -13,16 +16,16 @@ void ConfigProfile::setName(const std::string& name)
 }
 void ConfigProfile::setDefaults() noexcept
 {
-	using namespace cfg;
-	set(P_PLAYERNAME, "Unnamed");
+    using namespace cfg;
+    set(P_PLAYERNAME, "Unnamed");
     set(P_MISSBGA_LENGTH, 500);
     set(P_MIN_INPUT_INTERVAL, 5);
     set(P_INPUT_POLLING_RATE, 1000);
     set(P_NEW_SONG_DURATION, 6);
-	set(P_BASESPEED, 1.0);
+    set(P_BASESPEED, 1.0);
     set(P_HISPEED, 1.0);
     set(P_HISPEED_2P, 1.0);
-	set(P_SPEED_TYPE, P_SPEED_TYPE_NORMAL);
+    set(P_SPEED_TYPE, P_SPEED_TYPE_NORMAL);
     set(P_TARGET_TYPE, P_TARGET_TYPE_MYBEST);
     set(P_BGA_TYPE, P_BGA_TYPE_ON);
     set(P_BGA_SIZE, P_BGA_SIZE_NORMAL);
@@ -94,4 +97,6 @@ void ConfigProfile::setDefaults() noexcept
     set(P_ADJUST_LANECOVER_WITH_START_67, false);
     set(P_ADJUST_LANECOVER_WITH_MOUSEWHEEL, true);
     set(P_ADJUST_LANECOVER_WITH_ARROWKEYS, true);
+}
+
 }

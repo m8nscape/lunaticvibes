@@ -1,7 +1,10 @@
 #include "common/pch.h"
 #include "graphics_SDL2.h"
 
-TTFFont::TTFFont(const char* filePath, int ptsize): _filePath(filePath), _ptsize(ptsize)
+namespace lunaticvibes
+{
+
+TTFFont::TTFFont(const char* filePath, int ptsize) : _filePath(filePath), _ptsize(ptsize)
 {
     pushAndWaitMainThreadTask<void>([&]() { _pFont = TTF_OpenFont(_filePath.c_str(), ptsize); });
     if (!_pFont)
@@ -23,7 +26,7 @@ TTFFont::~TTFFont()
 
     if (_pFontOutline)
         pushAndWaitMainThreadTask<void>(std::bind(TTF_CloseFont, _pFontOutline));
-    if (_pFont) 
+    if (_pFont)
         pushAndWaitMainThreadTask<void>(std::bind(TTF_CloseFont, _pFont));
 }
 
@@ -58,8 +61,8 @@ void TTFFont::setOutline(int width, const Color& c)
     {
         if (_pFontOutline == NULL)
         {
-            pushAndWaitMainThreadTask<void>([&]() 
-                { 
+            pushAndWaitMainThreadTask<void>([&]()
+                {
                     if (_faceIndex >= 0)
                         _pFontOutline = TTF_OpenFontIndex(_filePath.c_str(), _ptsize, _faceIndex);
                     else
@@ -130,4 +133,6 @@ Rect TTFFont::getRectUTF8(const char* text)
     if (!loaded) return r;
     TTF_SizeUTF8(_pFontOutline ? _pFontOutline : _pFont, text, &r.w, &r.h);
     return r;
+}
+
 }

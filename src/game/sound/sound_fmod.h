@@ -3,14 +3,17 @@
 #include "sound_driver.h"
 #include "fmod.hpp"
 
+namespace lunaticvibes
+{
+
 // This game uses FMOD Low Level API to play sounds as we don't use FMOD Studio,
 
-class SoundDriverFMOD: public SoundDriver
+class SoundDriverFMOD : public SoundDriver
 {
-    friend class SoundMgr;
+	friend class SoundMgr;
 
 private:
-	FMOD::System *fmodSystem = nullptr;
+	FMOD::System* fmodSystem = nullptr;
 	int initRet;
 
 protected:
@@ -61,12 +64,12 @@ private:
 	int findDriver(const std::string& name, int driverIDUnknown);
 
 private:
-    bool bLoading = false;
-    std::thread tLoadSampleThread;
-    void loadSampleThread();
+	bool bLoading = false;
+	std::thread tLoadSampleThread;
+	void loadSampleThread();
 
 public:
-    int setAsyncIO(bool async = true);
+	int setAsyncIO(bool async = true);
 
 public:
 	virtual int loadNoteSample(const Path& path, size_t index);
@@ -94,3 +97,5 @@ public:
 	virtual void setEQ(EQFreq freq, int gain);
 
 };
+
+}

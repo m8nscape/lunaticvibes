@@ -5,6 +5,9 @@
 // Subset of chart formats.
 // Currently including BMS
 
+namespace lunaticvibes
+{
+
 enum class eChartFormat
 {
     UNKNOWN,
@@ -14,7 +17,7 @@ enum class eChartFormat
 };
 eChartFormat analyzeChartType(const Path& p);
 
-class ChartFormatBase: public std::enable_shared_from_this<ChartFormatBase>
+class ChartFormatBase : public std::enable_shared_from_this<ChartFormatBase>
 {
 protected:
     eChartFormat _type = eChartFormat::UNKNOWN;
@@ -31,7 +34,7 @@ protected:
 public:
     constexpr bool isLoaded() { return loaded; }
 
-// following fields are generic info, which are stored in db
+    // following fields are generic info, which are stored in db
 public:
     Path fileName;
     Path absolutePath;
@@ -65,7 +68,7 @@ public:
     BPM maxBPM = 0.0;
     BPM startBPM = 130.0;
 
-// following fields are filled during loading
+    // following fields are filled during loading
 public:
     std::vector<StringContent> wavFiles;
     std::vector<StringContent> bgaFiles;
@@ -80,3 +83,5 @@ public:
 
     virtual bool getExtendedProperty(const StringContent& key, void* ret) { return false; }
 };
+
+}

@@ -1,4 +1,8 @@
 #ifndef VIDEO_DISABLED
+
+namespace lunaticvibes
+{
+
 #include "common/pch.h"
 
 #include "sprite_video.h"
@@ -34,6 +38,8 @@ void SpriteVideo::stopPlaying()
 	auto pVid = std::reinterpret_pointer_cast<TextureVideo>(pTexture);
 	if (!pVid) return;
 	pVid->stop();
+}
+
 }
 
 #endif

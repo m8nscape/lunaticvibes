@@ -2,6 +2,9 @@
 #include "game/ruleset/ruleset.h"
 #include "scene.h"
 
+namespace lunaticvibes
+{
+
 class ScoreBase;
 enum class eCourseResultState
 {
@@ -62,3 +65,5 @@ protected:
     void inputGameHold(InputMask&, const Time&);
     void inputGameRelease(InputMask&, const Time&);
 };
+
+}

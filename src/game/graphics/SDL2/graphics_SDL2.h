@@ -9,6 +9,9 @@
 #include "SDL_filesystem.h"
 #include "SDL_ttf.h"
 
+namespace lunaticvibes
+{
+
 // global control pointer, do not modify
 inline SDL_Renderer* gFrameRenderer;
 inline SDL_Texture* gInternalRenderTarget;
@@ -69,21 +72,21 @@ enum class BlendMode
 class Point
 {
 public:
-	double x = 0;
-	double y = 0;
+    double x = 0;
+    double y = 0;
 public:
-	constexpr Point(int zero = 0) {}
-	constexpr Point(double x, double y) : x(x), y(y) {}
-	constexpr Point operator+ (const Point& rhs) const { return Point(x + rhs.x, y + rhs.y); }
-	constexpr Point operator- (const Point& rhs) const { return Point(x - rhs.x, y - rhs.y); }
-	constexpr Point operator* (const double& rhs) const { return Point(x * rhs, y * rhs); }
-	constexpr bool  operator== (const Point& rhs) const { return x == rhs.x && y == rhs.y; }
+    constexpr Point(int zero = 0) {}
+    constexpr Point(double x, double y) : x(x), y(y) {}
+    constexpr Point operator+ (const Point& rhs) const { return Point(x + rhs.x, y + rhs.y); }
+    constexpr Point operator- (const Point& rhs) const { return Point(x - rhs.x, y - rhs.y); }
+    constexpr Point operator* (const double& rhs) const { return Point(x * rhs, y * rhs); }
+    constexpr bool  operator== (const Point& rhs) const { return x == rhs.x && y == rhs.y; }
 };
 
 class Image;
 
 // Rect: x, y, w, h
-class Rect: public SDL_Rect
+class Rect : public SDL_Rect
 {
 public:
     Rect(int zero = 0);
@@ -133,7 +136,7 @@ private:
 private:
     Image(const char* path, std::shared_ptr<SDL_RWops>&& rw);
 public:
-	Image(const std::filesystem::path& path);
+    Image(const std::filesystem::path& path);
     Image(const char* filePath);
     Image(const char* format, void* bmp, size_t size);
     ~Image();
@@ -148,28 +151,28 @@ public:
 // Convert SDL_Surface into SDL_Texture with subarea specified.
 class Texture
 {
-	friend class SpriteBase;
-	friend class SpriteStatic;
-	friend class SpriteSelection;
-	friend class SpriteAnimated;
-	friend class SpriteText;
-	friend class SpriteNumber;
+    friend class SpriteBase;
+    friend class SpriteStatic;
+    friend class SpriteSelection;
+    friend class SpriteAnimated;
+    friend class SpriteText;
+    friend class SpriteNumber;
 
     friend class SpriteLaneVertical;
     friend class SpriteLaneVerticalLN;
-	friend class SpriteVideo;
+    friend class SpriteVideo;
 
 protected:
-	std::shared_ptr<SDL_Texture> _pTexture = nullptr;
-	bool loaded = false;
-	Rect textureRect;
+    std::shared_ptr<SDL_Texture> _pTexture = nullptr;
+    bool loaded = false;
+    Rect textureRect;
 
 protected:
     void static _draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, RectF dstRect,
         const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point* center = NULL);
 
 public:
-	// Inner draw function.
+    // Inner draw function.
     virtual void draw(RectF dstRect,
         const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const;
     virtual void draw(RectF dstRect,
@@ -180,34 +183,34 @@ public:
         const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point& center) const;
 
 public:
-	enum class PixelFormat
-	{
-		UNKNOWN, 
-		UNSUPPORTED,
+    enum class PixelFormat
+    {
+        UNKNOWN,
+        UNSUPPORTED,
 
-		RGB24,
-		BGR24,
+        RGB24,
+        BGR24,
 
-		YV12,		// 4:2:0 Y + V + U
-		IYUV,		// 4:2:0 Y + U + V
-		I420 = IYUV,// 4:2:0 Y + U + V
-		YUY2,		// Y0 + U0 + Y1 + V0
-		YUYV = YUY2,// Y0 + U0 + Y1 + V0
-		UYVY,		// U0 + Y0 + V0 + Y1
-		YVYU,		// Y0 + V0 + Y1 + U0
+        YV12,		// 4:2:0 Y + V + U
+        IYUV,		// 4:2:0 Y + U + V
+        I420 = IYUV,// 4:2:0 Y + U + V
+        YUY2,		// Y0 + U0 + Y1 + V0
+        YUYV = YUY2,// Y0 + U0 + Y1 + V0
+        UYVY,		// U0 + Y0 + V0 + Y1
+        YVYU,		// Y0 + V0 + Y1 + U0
 
-	};
+    };
 
 public:
-	Texture(const Image& srcImage);
-	Texture(const SDL_Surface* pSurface);
-	Texture(const SDL_Texture* pTexture, int w, int h);
-	Texture(int w, int h, PixelFormat fmt, bool target);
-	virtual ~Texture();
+    Texture(const Image& srcImage);
+    Texture(const SDL_Surface* pSurface);
+    Texture(const SDL_Texture* pTexture, int w, int h);
+    Texture(int w, int h, PixelFormat fmt, bool target);
+    virtual ~Texture();
 public:
     void* raw() { return (void*)_pTexture.get(); }
-	Rect getRect() const { return textureRect; }
-	bool isLoaded() const { return loaded; }
+    Rect getRect() const { return textureRect; }
+    bool isLoaded() const { return loaded; }
     int updateYUV(uint8_t* Y, int Ypitch, uint8_t* U, int Upitch, uint8_t* V, int Vpitch);
 };
 
@@ -215,10 +218,10 @@ public:
 // Special texture class that always uses full texture size as output rect.
 // That is, srcRect is ignored and replaced with textureRects.
 // Useful when rendering BGs and Error-texture.
-class TextureFull: public Texture
+class TextureFull : public Texture
 {
 private:
-    virtual void draw(const Rect& srcRect, RectF dstRect, 
+    virtual void draw(const Rect& srcRect, RectF dstRect,
         const Color c, const BlendMode blend, const bool filter, const double angleInDegrees) const override;
 public:
     TextureFull(const Color& srcColor);
@@ -252,12 +255,14 @@ public:
     ~TTFFont();
 
 public:
+    bool isLoaded() const { return loaded; }
+
     // Attributes Settings
     void setStyle(TTFStyle style);
     void setOutline(int width, const Color& c);
     void setHinting(TTFHinting mode);
     void setKerning(bool enabled);
-    
+
     // Rendering Interfaces
     std::shared_ptr<Texture> TextUTF8(const char* text, const Color& c);
     Rect getRectUTF8(const char* text);
@@ -272,5 +277,7 @@ public:
     int _width = 1;
     GraphLine(int width = 1) : _width(width) {}
 public:
-	void draw(Point p1, Point p2, Color c = 0xffffffff) const;
+    void draw(Point p1, Point p2, Color c = 0xffffffff) const;
 };
+
+}

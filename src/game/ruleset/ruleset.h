@@ -4,6 +4,9 @@
 #include "game/chart/chart.h"
 #include "common/beat.h"
 
+namespace lunaticvibes
+{
+
 enum class RulesetType
 {
     SOUND_ONLY,
@@ -49,7 +52,7 @@ protected:
 public:
     RulesetBase() : _basic{ 0 } {}
     RulesetBase(std::shared_ptr<ChartFormatBase> format, std::shared_ptr<ChartObjectBase> chart) :
-        _format(format), _chart(chart), _basic{ 0 }{}
+        _format(format), _chart(chart), _basic{ 0 } {}
     virtual ~RulesetBase() = default;
 public:
     virtual void updatePress(InputMask& pg, const Time& t) = 0;
@@ -87,3 +90,5 @@ public:
     unsigned getNotesReached() const { return notesReached; }
     unsigned getNotesExpired() const { return notesExpired; }
 };
+
+}

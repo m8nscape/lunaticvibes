@@ -1,6 +1,9 @@
 #include "common/pch.h"
 #include "i18n.h"
 
+namespace lunaticvibes
+{
+
 std::vector<i18n> i18n::languages;
 size_t i18n::currentLanguage = 0;
 
@@ -81,7 +84,7 @@ void i18n::setLanguage(const std::string& name)
 const std::string& i18n::s(size_t index)
 {
     static std::string emptyString;
-    if (index >= i18n_TEXT_COUNT) 
+    if (index >= i18n_TEXT_COUNT)
         return emptyString;
 
     return languages[currentLanguage].text[index];
@@ -96,4 +99,6 @@ const char* i18n::c(size_t index)
 Languages i18n::getCurrentLanguage()
 {
     return languages[currentLanguage].type;
+}
+
 }

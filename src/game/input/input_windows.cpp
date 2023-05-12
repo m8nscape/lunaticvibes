@@ -3,6 +3,9 @@
 #include "input_mgr.h"
 #include "input_dinput8.h"
 
+namespace lunaticvibes
+{
+
 void initInput()
 {
     InputDirectInput8::inst();
@@ -158,7 +161,7 @@ bool isKeyPressed(Input::Keyboard key)
 
 bool isButtonPressed(Input::Joystick c, double deadzone)
 {
-    if (deadzone < 0.01) 
+    if (deadzone < 0.01)
         deadzone = 0.01;
 
     if (c.device < InputDirectInput8::inst().getJoystickCount())
@@ -174,7 +177,7 @@ bool isButtonPressed(Input::Joystick c, double deadzone)
                 float x = std::sinf(stat.rgdwPOV[c.index & 0xFFFFFFF] / 100.0f * 0.0174532925f);
                 float y = std::cosf(stat.rgdwPOV[c.index & 0xFFFFFFF] / 100.0f * 0.0174532925f);
 
-                if      (x < -0.01f && (c.index & (1ul << 31))) return true;
+                if (x < -0.01f && (c.index & (1ul << 31))) return true;
                 else if (y < -0.01f && (c.index & (1ul << 30))) return true;
                 else if (y > 0.01f && (c.index & (1ul << 29))) return true;
                 else if (x > 0.01f && (c.index & (1ul << 28))) return true;
@@ -263,9 +266,9 @@ bool isMouseButtonPressed(int idx)
 {
     switch (idx)
     {
-    case 1: 
-    case 2: 
-    case 3: 
+    case 1:
+    case 2:
+    case 3:
     case 4: return InputDirectInput8::inst().getMouseState().rgbButtons[idx - 1] & 0x80;
     default: return false;
     }
@@ -275,6 +278,8 @@ short getLastMouseWheelState()
 {
     int z = InputDirectInput8::inst().getMouseState().lZ;
     return z == 0 ? 0 : z / WHEEL_DELTA;
+}
+
 }
 
 #endif

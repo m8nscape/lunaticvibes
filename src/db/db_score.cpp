@@ -1,7 +1,8 @@
 #include "common/pch.h"
 #include "db_score.h"
 
-// TODO uncomment clearcount at 0.8 release
+namespace lunaticvibes
+{
 
 const char* CREATE_SCORE_BMS_TABLE_STR =
 "CREATE TABLE IF NOT EXISTS score_bms( "
@@ -137,7 +138,7 @@ const char* CREATE_SCORE_COURSE_BMS_TABLE_STR =
 "replay TEXT "                           // 20
 ")";
 
-ScoreDB::ScoreDB(const char* path): SQLite(path, "SCORE")
+ScoreDB::ScoreDB(const char* path) : SQLite(path, "SCORE")
 {
     if (exec(CREATE_SCORE_BMS_TABLE_STR) != SQLITE_OK)
     {
@@ -319,4 +320,6 @@ void ScoreDB::preloadScore()
         convert_score_bms(ret, r);
         cache["score_bms"][ANY_STR(r[0])] = ret;
     }
+}
+
 }

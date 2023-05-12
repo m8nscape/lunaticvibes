@@ -2,6 +2,9 @@
 
 #include <SDL.h>
 
+namespace lunaticvibes
+{
+
 static constexpr size_t SDL_MOUSE_BUTTON_COUNT = 256;
 
 namespace sdl::state {
@@ -18,3 +21,5 @@ inline short g_mouse_wheel_delta = 0;
 } // namespace sdl::state
 
 unsigned char sdl_key_from_common_scancode(Input::Keyboard key);
+
+}

@@ -2,7 +2,10 @@
 #include "fraction.h"
 #pragma warning(disable: 4244)
 
-bool trim(long long &_numerator, long long &_denominator)
+namespace lunaticvibes
+{
+
+bool trim(long long& _numerator, long long& _denominator)
 {
     if (_numerator == 0)
     {
@@ -25,7 +28,7 @@ bool trim(long long &_numerator, long long &_denominator)
     return true;
 }
 
-fraction::fraction(): _numerator(0), _denominator(1) {}
+fraction::fraction() : _numerator(0), _denominator(1) {}
 fraction::fraction(long long numerator, long long denominator, bool t) : _numerator(numerator), _denominator(denominator)
 {
     if (denominator == 0)
@@ -100,10 +103,12 @@ fraction d2fr(double d)
     long long dr = 1e15;
     trim(nr, dr);
     while (std::abs(nr) & 0xffffffff00000000ll ||
-           std::abs(dr) & 0xffffffff00000000ll)
+        std::abs(dr) & 0xffffffff00000000ll)
     {
         nr >>= 1;
         dr >>= 1;
     }
     return fraction(nr, dr);
+}
+
 }

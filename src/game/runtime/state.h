@@ -1,5 +1,8 @@
 #pragma once
 
+namespace lunaticvibes
+{
+
 // these files kills intellisense
 //#include "index/bargraph.h"
 //#include "index/number.h"
@@ -106,3 +109,5 @@ public:
 	static long long get(IndexTimer ind);
 	static void resetTimer();
 };
+
+}

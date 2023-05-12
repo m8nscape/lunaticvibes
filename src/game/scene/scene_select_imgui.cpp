@@ -17,6 +17,9 @@
 #include <VersionHelpers.h>
 #endif
 
+namespace lunaticvibes
+{
+
 void SceneSelect::imguiSampleDialog()
 {
     if (imguiShow)
@@ -1697,4 +1700,6 @@ bool SceneSelect::imguiArenaJoinLobbyPrompt()
         return true;
     }
     return false;
+}
+
 }

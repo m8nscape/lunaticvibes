@@ -1,16 +1,19 @@
 #include "common/pch.h"
 #include "sound_fmod_callback.h"
 
+namespace lunaticvibes
+{
+
 ////////////////////////////////////////////////////////////////////////////////
 // Open file
 
 #pragma warning(push)
 #pragma warning(disable: 4996)
-FMOD_RESULT F_CALLBACK FmodCallbackFileOpen(const char* file, unsigned int* pSize, void **pHandle, void *pUserData)
+FMOD_RESULT F_CALLBACK FmodCallbackFileOpen(const char* file, unsigned int* pSize, void** pHandle, void* pUserData)
 {
     if (file)
     {
-        FILE *pFile;
+        FILE* pFile;
 
         pFile = fopen(file, "rb");
         if (!pFile)
@@ -29,7 +32,7 @@ FMOD_RESULT F_CALLBACK FmodCallbackFileOpen(const char* file, unsigned int* pSiz
 ////////////////////////////////////////////////////////////////////////////////
 // Close file
 
-FMOD_RESULT F_CALLBACK FmodCallbackFileClose(void *handle, void *userData)
+FMOD_RESULT F_CALLBACK FmodCallbackFileClose(void* handle, void* userData)
 {
     if (!handle)
         return FMOD_ERR_INVALID_HANDLE;
@@ -43,7 +46,7 @@ FMOD_RESULT F_CALLBACK FmodCallbackFileClose(void *handle, void *userData)
 std::mutex queueMutex;
 SampleQueue asyncSampleLoadQueue;
 
-FMOD_RESULT F_CALLBACK FmodCallbackAsyncRead(FMOD_ASYNCREADINFO *info, void *userData)
+FMOD_RESULT F_CALLBACK FmodCallbackAsyncRead(FMOD_ASYNCREADINFO* info, void* userData)
 {
     try
     {
@@ -61,14 +64,14 @@ FMOD_RESULT F_CALLBACK FmodCallbackAsyncRead(FMOD_ASYNCREADINFO *info, void *use
 ////////////////////////////////////////////////////////////////////////////////
 // Cancel Async Read: cancel reading(TODO) and pop file from queue
 
-FMOD_RESULT F_CALLBACK FmodCallbackAsyncReadCancel(FMOD_ASYNCREADINFO *handle, void *userData)
+FMOD_RESULT F_CALLBACK FmodCallbackAsyncReadCancel(FMOD_ASYNCREADINFO* handle, void* userData)
 {
     try
     {
         LOCK_QUEUE;
         if (!asyncSampleLoadQueue.empty())
         {
-            auto &s = asyncSampleLoadQueue.front();
+            auto& s = asyncSampleLoadQueue.front();
             if (s->handle == handle->handle)
                 asyncSampleLoadQueue.pop();
         }
@@ -78,4 +81,6 @@ FMOD_RESULT F_CALLBACK FmodCallbackAsyncReadCancel(FMOD_ASYNCREADINFO *handle, v
         return FMOD_ERR_MEMORY;
     }
     return FMOD_OK;
+}
+
 }

@@ -4,6 +4,11 @@
 #include "game/arena/arena_host.h"
 #include "game/ruleset/ruleset_bms_network.h"
 #include "game/scene/scene_context.h"
+#include "game/data/data_play.h"
+#include "game/data/data_arena.h"
+
+namespace lunaticvibes
+{
 
 ArenaDataInternal gArenaData;
 
@@ -31,8 +36,8 @@ void ArenaDataInternal::reset()
 }
 
 size_t ArenaDataInternal::getPlayerCount()
-{ 
-	return playerIDs.size(); 
+{
+	return playerIDs.size();
 }
 
 const std::string& ArenaDataInternal::getPlayerName(size_t index)
@@ -58,7 +63,7 @@ bool ArenaDataInternal::isSelfReady()
 
 bool ArenaDataInternal::isPlayerReady(size_t index)
 {
-	return index < getPlayerCount() ? data[playerIDs[index]].ready: false;
+	return index < getPlayerCount() ? data[playerIDs[index]].ready : false;
 }
 
 void ArenaDataInternal::initPlaying(RulesetType rulesetType)
@@ -85,7 +90,7 @@ void ArenaDataInternal::initPlaying(RulesetType rulesetType)
 		{
 		case RulesetType::BMS: d.ruleset = std::make_shared<RulesetBMSNetwork>(keys, idx++); break;
 		}
-		
+
 	}
 }
 
@@ -111,7 +116,7 @@ void ArenaDataInternal::stopPlaying()
 void ArenaDataInternal::updateGlobals()
 {
 	Time t;
-	std::vector<std::pair<unsigned, IndexOption>> ranking;
+	std::vector<std::pair<unsigned, int*>> ranking;
 	for (size_t i = 0; i < getPlayerCount(); ++i)
 	{
 		auto& d = data[playerIDs[i]];
@@ -120,20 +125,25 @@ void ArenaDataInternal::updateGlobals()
 			d.ruleset->update(t);
 			if (auto p = std::dynamic_pointer_cast<RulesetBMS>(d.ruleset); p)
 			{
-				size_t offset = (int(IndexOption::ARENA_PLAYDATA_MAX) - int(IndexOption::ARENA_PLAYDATA_BASE) + 1) * i;
-				ranking.push_back({ p->getExScore(), IndexOption(int(IndexOption::ARENA_PLAYDATA_RANKING) + offset) });
+				ranking.push_back({ p->getExScore(), &lv::data::ArenaData.playerRanking[i] });
 			}
 		}
 	}
-	ranking.push_back({ State::get(IndexNumber::PLAY_1P_EXSCORE), IndexOption::RESULT_ARENA_PLAYER_RANKING });
+
+	auto r = std::dynamic_pointer_cast<RulesetBMS>(lv::data::PlayData.player[lv::data::PLAYER_SLOT_PLAYER].ruleset);
+	if (r)
+	{
+		ranking.push_back({ r->getExScore(), &lv::data::ArenaData.myRanking });
+	}
 
 	std::sort(ranking.begin(), ranking.end());
+
 	int rank = 1;
 	int step = 0;
 	unsigned exscorePrev = 0;
 	for (auto it = ranking.rbegin(); it != ranking.rend(); ++it)
 	{
-		auto& [exscore, op] = *it;
+		auto& [exscore, ranking] = *it;
 		if (exscore == exscorePrev)
 		{
 			step++;
@@ -144,6 +154,8 @@ void ArenaDataInternal::updateGlobals()
 			exscorePrev = exscore;
 			step = 1;
 		}
-		State::set(op, rank);
+		*ranking = rank;
 	}
+}
+
 }

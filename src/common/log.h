@@ -3,6 +3,9 @@
 #define PLOG_CAPTURE_FILE 
 #include <plog/Log.h>
 
+namespace lunaticvibes
+{
+
 #ifdef _WIN32
 class RecordUTF8 : public plog::Record
 {
@@ -126,3 +129,5 @@ int InitLogger();
 void SetLogLevel(int level);
 
 int FreeLogger();
+
+}

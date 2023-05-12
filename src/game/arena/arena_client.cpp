@@ -7,6 +7,9 @@
 #include "game/runtime/i18n.h"
 #include "git_version.h"
 
+namespace lunaticvibes
+{
+
 std::shared_ptr<ArenaClient> g_pArenaClient = nullptr;
 
 
@@ -178,7 +181,7 @@ void ArenaClient::requestChart(const HashMD5& reqChart)
 	auto n = std::make_shared<ArenaMessageRequestChart>();
 	n->messageIndex = ++sendMessageIndex;
 	n->chartHashMD5String = !reqChart.empty() ? reqChart.hexdigest() : "";
-	
+
 	auto payload = n->pack();
 	socket->async_send_to(boost::asio::buffer(*payload), server, std::bind(emptyHandleSend, payload, std::placeholders::_1, std::placeholders::_2));
 
@@ -249,7 +252,7 @@ void ArenaClient::setResultFinished()
 
 void ArenaClient::asyncRecv()
 {
-	socket->async_receive_from(boost::asio::buffer(recv_buf), remote_endpoint, 
+	socket->async_receive_from(boost::asio::buffer(recv_buf), remote_endpoint,
 		std::bind(&ArenaClient::handleRecv, this, std::placeholders::_1, std::placeholders::_2));
 }
 
@@ -266,7 +269,7 @@ void ArenaClient::handleRecv(const boost::system::error_code& error, size_t byte
 		gArenaData.expired = true;
 		return;
 	}
-	
+
 	if (bytes_transferred > recv_buf.size())
 	{
 		LOG_DEBUG << "[Arena] Ignored huge packet (" << bytes_transferred << ")";
@@ -299,7 +302,7 @@ void ArenaClient::handleRequest(const unsigned char* recv_buf, size_t recv_buf_l
 		case Arena::HOST_FINISHED_LOADING:	   handleHostFinishedLoading(pMsg); break;
 		case Arena::HOST_PLAYDATA:			   handleHostPlayData(pMsg); break;
 		case Arena::HOST_FINISHED_PLAYING:	   handleHostFinishedPlaying(pMsg); break;
-		case Arena::HOST_FINISHED_RESULT:	   handleHostFinishedResult (pMsg); break;
+		case Arena::HOST_FINISHED_RESULT:	   handleHostFinishedResult(pMsg); break;
 		}
 	}
 	if (pMsg->type != Arena::RESPONSE)
@@ -452,7 +455,7 @@ void ArenaClient::handlePlayerJoined(std::shared_ptr<ArenaMessage> msg)
 			}
 		}
 	}
-	
+
 	gArenaData.data[pMsg->playerID].name = pMsg->playerName;
 	gArenaData.playerIDs.push_back(pMsg->playerID);
 
@@ -733,5 +736,7 @@ void ArenaClient::update()
 		leaveLobby();
 		createNotification(i18n::s(i18nText::ARENA_LEAVE_TIMEOUT));
 	}
+
+}
 
 }

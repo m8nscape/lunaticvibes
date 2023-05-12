@@ -3,6 +3,7 @@
 #include <string>
 #include <filesystem>
 namespace fs = std::filesystem;
+using namespace lv;
 
 class tConfig : public vConfig
 {

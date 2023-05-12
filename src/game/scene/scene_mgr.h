@@ -2,6 +2,9 @@
 #include "scene.h"
 #include "scene_context.h"
 
+namespace lunaticvibes
+{
+
 typedef std::shared_ptr<SceneBase> pScene;
 
 class SceneMgr
@@ -16,5 +19,7 @@ private:
 
 public:
     static pScene get(SceneType);
-	static void clean();
+    static void clean();
 };
+
+}

@@ -1,5 +1,8 @@
 #pragma once
 
+namespace lunaticvibes
+{
+
 typedef std::filesystem::path                   Path;
 typedef Path::string_type                       StringPath;
 typedef std::basic_string_view<Path::value_type> StringPathView;
@@ -7,7 +10,7 @@ typedef std::string                             StringContent; // std::ifstream,
 typedef std::string_view                        StringContentView; // std::ifstream, std::getline
 using namespace std::string_literals;
 
-const size_t INDEX_INVALID	= ~0;
+const size_t INDEX_INVALID = ~0;
 
 [[nodiscard]] inline StringPath operator ""_p(const char* _Str, size_t _Len)
 {
@@ -66,7 +69,7 @@ enum class SkinType {
 
 typedef unsigned GameModeKeys; // 5 7 9 10 14
 
-enum class PlayModifierRandomType: uint8_t
+enum class PlayModifierRandomType : uint8_t
 {
     NONE = 0,
     MIRROR,
@@ -96,10 +99,10 @@ enum class PlayModifierGaugeType : uint8_t
 
 };
 
-inline const uint8_t PLAY_MOD_ASSIST_AUTO67     = 1 << 0; // 5keys, not implemented
-inline const uint8_t PLAY_MOD_ASSIST_AUTOSCR    = 1 << 1; // 
-inline const uint8_t PLAY_MOD_ASSIST_LEGACY     = 1 << 2; // LN head -> note, not implemented
-inline const uint8_t PLAY_MOD_ASSIST_NOMINES    = 1 << 3; // from beatoraja, not implemented
+inline const uint8_t PLAY_MOD_ASSIST_AUTO67 = 1 << 0; // 5keys, not implemented
+inline const uint8_t PLAY_MOD_ASSIST_AUTOSCR = 1 << 1; // 
+inline const uint8_t PLAY_MOD_ASSIST_LEGACY = 1 << 2; // LN head -> note, not implemented
+inline const uint8_t PLAY_MOD_ASSIST_NOMINES = 1 << 3; // from beatoraja, not implemented
 
 enum class PlayModifierHispeedFixType : uint8_t
 {
@@ -260,3 +263,5 @@ public:
     Ratio(double d) { _data = std::clamp(d, 0.0, 1.0); }
     operator double() const { return _data; }
 };
+
+}

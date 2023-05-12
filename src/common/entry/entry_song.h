@@ -4,6 +4,9 @@
 #include "entry_folder.h"
 #include "common/chartformat/chartformat.h"
 
+namespace lunaticvibes
+{
+
 // entry for individual song, e.g. jukebox/bms/L9
 class EntryFolderSong : public EntryFolderBase
 {
@@ -14,7 +17,7 @@ public:
     {
         _type = eEntryType::SONG;
     }
-    EntryFolderSong(std::shared_ptr<ChartFormatBase> pChart):
+    EntryFolderSong(std::shared_ptr<ChartFormatBase> pChart) :
         EntryFolderBase(pChart->fileHash, pChart->title, pChart->title2), _path(pChart->fileName)
     {
         pushChart(pChart);
@@ -101,3 +104,5 @@ public:
         _type = eEntryType::NEW_SONG_FOLDER;
     }
 };
+
+}

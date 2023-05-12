@@ -1,6 +1,9 @@
 #include "pch.h"
 #include "sysutil.h"
 
+namespace lunaticvibes
+{
+
 std::shared_mutex mainThreadTaskQueueMutex;
 std::queue<std::function<void()>> mainThreadTaskQueue;
 bool handleMainThreadTask = true;
@@ -124,5 +127,7 @@ std::string safe_strerror(int errnum) {
     static constexpr size_t ERROR_DESCRIPTION_BUFFER_SIZE = 128;
     char error_description_buffer[ERROR_DESCRIPTION_BUFFER_SIZE] = { 0 };
     const char* error_description = safe_strerror(errnum, static_cast<char*>(error_description_buffer), ERROR_DESCRIPTION_BUFFER_SIZE);
-    return {error_description};
+    return { error_description };
+}
+
 }

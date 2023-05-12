@@ -2,6 +2,9 @@
 #include "sprite.h"
 #include "game/data/data_types.h"
 
+namespace lunaticvibes
+{
+
 constexpr double grad(int dst, int src, double t)
 {
     return (src == dst) ? src : (dst * t + src * (1.0 - t));
@@ -34,8 +37,6 @@ SpriteBase::SpriteBase(const SpriteBuilder& builder) :
 
 bool SpriteBase::updateMotion(const Time& rawTime)
 {
-    using namespace lv;
-
     // Check if object is valid
 	// Note that nullptr texture shall pass
     if (pTexture != nullptr && !pTexture->loaded)
@@ -320,7 +321,6 @@ bool SpriteAnimated::update(const Time& t)
 {
 	if (SpriteSelection::update(t))
 	{
-        using namespace lv;
         Time time;
         if (animationStartTimer == "play.beat")
         {
@@ -1191,4 +1191,6 @@ void SpriteCursor::OnMouseMove(int x, int y)
         _current.rect.x += x;
         _current.rect.y += y;
     }
+}
+
 }

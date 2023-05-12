@@ -4,6 +4,9 @@
 #include "config/config_mgr.h"
 #include "soundset_lr2.h"
 
+namespace lunaticvibes
+{
+
 void loadLR2Sound()
 {
     LOG_INFO << "[Sound] Load system samples from LR2 Soundset";
@@ -37,4 +40,6 @@ void loadLR2Sound()
 
     SoundMgr::loadSysSample(ss.getPathBGMCourseClear(), eSoundSample::SOUND_COURSE_CLEAR, false);
     SoundMgr::loadSysSample(ss.getPathBGMCourseFailed(), eSoundSample::SOUND_COURSE_FAIL, false);
+}
+
 }

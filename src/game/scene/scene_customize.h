@@ -1,6 +1,9 @@
 #pragma once
 #include "scene.h"
 
+namespace lunaticvibes
+{
+
 class SceneCustomize : public SceneBase
 {
 private:
@@ -43,3 +46,5 @@ protected:
 public:
     virtual void draw() const override;
 };
+
+}

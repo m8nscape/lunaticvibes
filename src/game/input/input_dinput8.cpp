@@ -3,6 +3,9 @@
 #include "input_dinput8.h"
 #pragma comment(lib, "dinput8.lib")
 
+namespace lunaticvibes
+{
+
 InputDirectInput8::InputDirectInput8()
 {
 	HRESULT res = DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, IID_IDirectInput8W, (LPVOID*)&lpdi, NULL);
@@ -254,10 +257,12 @@ const InputDirectInput8::DeviceJoystick::Capabilities& InputDirectInput8::getJoy
 	return deviceJoysticks[idx].caps;
 }
 
-InputDirectInput8& InputDirectInput8::inst() 
+InputDirectInput8& InputDirectInput8::inst()
 {
-	static InputDirectInput8 _inst; 
-	return _inst; 
+	static InputDirectInput8 _inst;
+	return _inst;
+}
+
 }
 
 #endif

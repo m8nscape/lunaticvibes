@@ -10,7 +10,7 @@
 #include "game/arena/arena_data.h"
 #include "db/db_score.h"
 
-namespace lv
+namespace lunaticvibes
 {
 
 using namespace data;
@@ -755,15 +755,11 @@ define_has_member(99);
 
 #pragma endregion
 
-}
-
 namespace lr2skin
 {
 
 std::function<Ratio()> convertBargraphIndex(int n)
 {
-    using namespace lv;
-
     if (n >= 100 && n <= 179)
     {
         int player = (n - 100) / 10;
@@ -887,4 +883,5 @@ std::function<Ratio()> convertBargraphIndex(int n)
     return [] { return 0.0; };
 }
 
+}
 }

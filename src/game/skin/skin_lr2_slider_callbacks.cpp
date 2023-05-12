@@ -12,6 +12,9 @@
 
 #include "config/config_mgr.h"
 
+namespace lunaticvibes
+{
+
 namespace lr2skin::slider
 {
 
@@ -218,7 +221,7 @@ void deadzone(int type, double p)
     {
     case Option::KEYCFG_5: keys = 5; break;
     case Option::KEYCFG_7: keys = 7; break;
-    case Option::KEYCFG_9: keys = 9; break; 
+    case Option::KEYCFG_9: keys = 9; break;
     default: return;
     }
     switch (type)
@@ -338,5 +341,7 @@ std::function<void(double)> getSliderCallback(int type)
     }
 }
 
+
+}
 
 }

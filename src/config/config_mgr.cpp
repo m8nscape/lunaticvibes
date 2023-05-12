@@ -1,6 +1,9 @@
 #include "common/pch.h"
 #include "config_mgr.h"
 
+namespace lunaticvibes
+{
+
 namespace fs = std::filesystem;
 
 int ConfigMgr::_selectProfile(const std::string& name)
@@ -97,4 +100,6 @@ int ConfigMgr::_createProfile(const std::string& newProfile, const std::string& 
     p.save();
 
     return 0;
+}
+
 }

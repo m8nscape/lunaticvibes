@@ -2,6 +2,9 @@
 
 #include "skin_lr2.h"
 
+namespace lunaticvibes
+{
+
 inline bool imguiShowMonitorLR2DST = false;
 inline bool imguiShowMonitorNumber = false;
 inline bool imguiShowMonitorOption = false;
@@ -18,3 +21,5 @@ void imguiMonitorSwitch();
 void imguiMonitorText();
 void imguiMonitorBargraph();
 void imguiMonitorTimer();
+
+}

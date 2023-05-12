@@ -3,7 +3,10 @@
 #include "game/runtime/state.h"
 #include "game/runtime/generic_info.h"
 
-InputWrapper::InputWrapper(unsigned rate, bool background) : 
+namespace lunaticvibes
+{
+
+InputWrapper::InputWrapper(unsigned rate, bool background) :
     AsyncLooper("Input loop", std::bind(&InputWrapper::_loop, this), rate),
     _background(background)
 {
@@ -184,7 +187,7 @@ void InputWrapper::_loop()
                 }
             }
         }
-    
+
         if (!_absaxisCallbackMap.empty())
         {
             _joyaxisprev = _joyaxiscurr;
@@ -232,7 +235,7 @@ void InputWrapper::_loop()
             if (r != 0)
                 for (auto& [cbname, callback] : _rCallbackMap)
                     callback(r, now);
-            
+
             if (aDelta[0] != 0.0 || aDelta[1] != 0.0)
                 for (auto& [cbname, callback] : _aCallbackMap)
                 {
@@ -261,7 +264,7 @@ bool InputWrapper::_register(unsigned type, const std::string& key, INPUTCALLBAC
     if (_pCallbackMap.find(key) != _pCallbackMap.end())
         return false;
 
-	std::unique_lock _lock(_inputMutex);
+    std::unique_lock _lock(_inputMutex);
 
     switch (type)
     {
@@ -277,7 +280,7 @@ bool InputWrapper::_unregister(unsigned type, const std::string& key)
     if (_pCallbackMap.find(key) == _pCallbackMap.end())
         return false;
 
-	std::unique_lock _lock(_inputMutex);
+    std::unique_lock _lock(_inputMutex);
 
     switch (type)
     {
@@ -365,4 +368,6 @@ bool InputWrapper::unregister_aa(const std::string& key)
     std::unique_lock _lock(_inputMutex);
     _absaxisCallbackMap.erase(key);
     return true;
+}
+
 }

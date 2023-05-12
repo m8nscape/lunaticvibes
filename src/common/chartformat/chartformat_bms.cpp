@@ -12,6 +12,9 @@
 #include "re2/re2.h"
 #include <boost/algorithm/string.hpp>
 
+namespace lunaticvibes
+{
+
 class noteLineException : public std::exception {};
 
 bool ChartFormatBMS::getExtendedProperty(const std::string& key, void* ret)
@@ -1055,4 +1058,6 @@ void ChartFormatBMS::channel::sortNotes()
             return lhs.segment < rhs.segment;
         });
     notes.assign(vec.begin(), vec.end());
+}
+
 }

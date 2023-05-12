@@ -15,6 +15,9 @@
 #include "game/skin/skin_mgr.h"
 #include "game/ruleset/ruleset.h"
 
+namespace lunaticvibes
+{
+
 SceneMgr SceneMgr::_inst;
 
 pScene SceneMgr::get(SceneType e)
@@ -25,7 +28,7 @@ pScene SceneMgr::get(SceneType e)
     State::set(IndexTimer::PLAY_READY, TIMER_NEVER);
     State::set(IndexTimer::PLAY_START, TIMER_NEVER);
 
-	pScene ps = nullptr;
+    pScene ps = nullptr;
     switch (e)
     {
     case SceneType::EXIT:
@@ -108,18 +111,20 @@ pScene SceneMgr::get(SceneType e)
         ps = std::make_shared<SceneExitTrans>();
         break;
 
-	default:
-		return nullptr;
+    default:
+        return nullptr;
     }
 
     Time t;
     State::set(IndexTimer::SCENE_START, t.norm());
     State::set(IndexTimer::START_INPUT, t.norm() + (ps ? ps->getSkinInfo().timeIntro : 0));
 
-	return ps;
+    return ps;
 }
 
 void SceneMgr::clean()
 {
-	SkinMgr::clean();
+    SkinMgr::clean();
+}
+
 }

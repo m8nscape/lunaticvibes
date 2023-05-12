@@ -11,6 +11,9 @@
 
 #include "scene_decide.h"
 
+namespace lunaticvibes
+{
+
 SceneCustomize::SceneCustomize() : SceneBase(SkinType::THEME_SELECT, 240)
 {
     _type = SceneType::CUSTOMIZE;
@@ -434,7 +437,7 @@ void SceneCustomize::updateFadeout()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-StringPath SceneCustomize::getConfigFileName(StringPathView skinPath) 
+StringPath SceneCustomize::getConfigFileName(StringPathView skinPath)
 {
     Path p(skinPath);
     std::string md5 = HashMD5(p.u8string()).hexdigest();
@@ -695,4 +698,6 @@ void SceneCustomize::draw() const
 
     // draw own things
     SceneBase::draw();
+}
+
 }

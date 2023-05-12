@@ -2,6 +2,9 @@
 #include "chart.h"
 #include "common/chartformat/chartformat_bms.h"
 
+namespace lunaticvibes
+{
+
 class ChartObjectBMS : public ChartObjectBase
 {
 public:
@@ -45,7 +48,7 @@ protected:
     int total = 300;
 public:
     int getTotal() const { return total; }
-    
+
 protected:
     decltype(_specialNoteLists.front().begin()) _currentStopNote;
     bool _inStopNote = false;
@@ -57,3 +60,5 @@ public:
     virtual void preUpdate(const Time& t) override;
     virtual void postUpdate(const Time& t) override;
 };
+
+}

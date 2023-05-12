@@ -2,6 +2,9 @@
 
 #include "sprite.h"
 
+namespace lunaticvibes
+{
+
 struct CharMapping
 {
     size_t textureIdx;
@@ -45,3 +48,5 @@ public:
 private:
     void updateTextTexture(std::string&& text);
 };
+
+}

@@ -1,5 +1,8 @@
 #pragma once
 
+namespace lunaticvibes
+{
+
 class fraction
 {
 public:
@@ -22,3 +25,5 @@ public:
 };
 
 fraction d2fr(double d);
+
+}

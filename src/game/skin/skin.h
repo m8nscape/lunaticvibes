@@ -2,6 +2,9 @@
 #include "game/graphics/sprite.h"
 #include "game/graphics/video.h"
 
+namespace lunaticvibes
+{
+
 enum class SkinVersion
 {
     UNDEF,
@@ -21,7 +24,7 @@ protected:
     SkinVersion _version;
     SkinBase();
 public:
-	virtual ~SkinBase();
+    virtual ~SkinBase();
     SkinVersion version() const { return _version; }
 
 protected:
@@ -30,31 +33,31 @@ public:
     constexpr bool isLoaded() { return loaded; }
     virtual int setExtendedProperty(std::string&& key, void* value) = 0;
 
-////////////////////////////////////////////////////////////////////////////////
-// Images
+    ////////////////////////////////////////////////////////////////////////////////
+    // Images
 protected:
     std::map<std::string, std::shared_ptr<TTFFont>>  fontNameMap;
 
-////////////////////////////////////////////////////////////////////////////////
-// Textures
+    ////////////////////////////////////////////////////////////////////////////////
+    // Textures
 protected:
     static std::map<std::string, std::shared_ptr<Texture>> textureNameMap;    // Use this to get texture instance from name
-	std::map<std::string, std::shared_ptr<sVideo>>  videoNameMap;	// Use this to get video instance from name
+    std::map<std::string, std::shared_ptr<sVideo>>  videoNameMap;	// Use this to get video instance from name
 
-////////////////////////////////////////////////////////////////////////////////
-// Sprite elements
+    ////////////////////////////////////////////////////////////////////////////////
+    // Sprite elements
 protected:
     std::list<std::shared_ptr<SpriteBase>> _sprites;                    // Push instance on parsing
 
-// functional support
+    // functional support
 protected:
     bool handleMouseEvents = true;
 
     std::shared_ptr<iSpriteMouse> pSpriteDragging = nullptr;  // currently (mouse) dragging element
     std::shared_ptr<SpriteText> pSpriteTextEditing = nullptr;     // currently text edit element
-    std::shared_ptr<iSpriteMouse> pSpriteLastClicked = nullptr; 
+    std::shared_ptr<iSpriteMouse> pSpriteLastClicked = nullptr;
 
-////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
 public:
     virtual void update();
     virtual void update_mouse(int x, int y);
@@ -103,7 +106,7 @@ public:
         unsigned noteLaneHeight2PSub = 0;
         unsigned scratchSide1P = 0;
         unsigned scratchSide2P = 0;
-        
+
         // Result
         unsigned timeResultRank = 200; //ignored
         unsigned timeResultRecord = 200; //ignored
@@ -134,8 +137,8 @@ public:
     virtual StringContent getMaker() const = 0;
     virtual StringPath getFilePath() const = 0;
 
-////////////////////////////////////////////////////////////////////////////////
-// extended capability support
+    ////////////////////////////////////////////////////////////////////////////////
+    // extended capability support
 public:
     bool isSupportExHardAndAssistEasy = false;
     bool isSupportFastSlow = false;
@@ -145,3 +148,5 @@ public:
     bool isSupportKeyConfigAbsAxis = false;
     bool isSupportHsFixInitialAndMain = false;
 };
+
+}

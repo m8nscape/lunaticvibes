@@ -3,6 +3,9 @@
 #include "game/runtime/state.h"
 #include "imgui.h"
 
+namespace lunaticvibes
+{
+
 void imguiMonitorLR2DST()
 {
 	assert(IsMainThread());
@@ -89,4 +92,6 @@ void imguiMonitorTimer()
 	{
 		ImGui::End();
 	}
+}
+
 }

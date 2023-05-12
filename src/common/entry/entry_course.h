@@ -5,6 +5,9 @@
 #include "entry_folder.h"
 #include "common/coursefile/lr2crs.h"
 
+namespace lunaticvibes
+{
+
 class EntryCourse;
 class EntryFolderCourse : public EntryFolderBase
 {
@@ -24,7 +27,7 @@ public:
 	std::vector<HashMD5> charts;
 	enum CourseType
 	{
-		UNDEFINED, 
+		UNDEFINED,
 		GRADE,
 	} courseType = UNDEFINED;
 
@@ -45,3 +48,5 @@ public:
 		charts = lr2crs.chartHash;
 	}
 };
+
+}

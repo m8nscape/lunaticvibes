@@ -14,6 +14,9 @@
 #include "game/sound/sound_mgr.h"
 #include "game/sound/sound_sample.h"
 
+namespace lunaticvibes
+{
+
 // prototype
 SceneBase::SceneBase(SkinType skinType, unsigned rate, bool backgroundInput) :
     AsyncLooper("Scene Update", std::bind(&SceneBase::_updateAsync1, this), rate),
@@ -94,7 +97,7 @@ SceneBase::SceneBase(SkinType skinType, unsigned rate, bool backgroundInput) :
     _input.register_h("SKIN_MOUSE_DRAG", std::bind(&SceneBase::MouseDrag, this, std::placeholders::_1, std::placeholders::_2));
     _input.register_r("SKIN_MOUSE_RELEASE", std::bind(&SceneBase::MouseRelease, this, std::placeholders::_1, std::placeholders::_2));
 
-    if (pSkin && 
+    if (pSkin &&
         !(SystemData.gNextScene == SceneType::SELECT && skinType == SkinType::THEME_SELECT))
     {
         State::resetTimer();
@@ -109,7 +112,7 @@ SceneBase::SceneBase(SkinType skinType, unsigned rate, bool backgroundInput) :
         _input.disableCountFPS();
 }
 
-SceneBase::~SceneBase() 
+SceneBase::~SceneBase()
 {
     assert(!_input.isRunning());
     assert(!isRunning());
@@ -118,7 +121,7 @@ SceneBase::~SceneBase()
     _input.unregister_p("SKIN_MOUSE_CLICK");
     _input.unregister_p("GLOBALFUNC");
     _input.unregister_p("DEBUG_TOGGLE");
-    sceneEnding = true; 
+    sceneEnding = true;
 }
 
 void SceneBase::update()
@@ -450,4 +453,6 @@ void SceneBase::GlobalFuncKeys(InputMask& m, const Time& t)
     {
         queuedFPS = true;
     }
+}
+
 }

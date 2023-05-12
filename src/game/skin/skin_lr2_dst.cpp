@@ -10,6 +10,9 @@
 
 #include "game/data/data_types.h"
 
+namespace lunaticvibes
+{
+
 static std::shared_mutex _mutex;
 static std::bitset<900> _op;
 static std::bitset<100> _customOp;
@@ -80,7 +83,7 @@ void updateDstOpt()
 	for (auto& [i, o] : _extendedOp)
 		o = false;
 
-	using namespace lv;
+	using namespace data;
 
 	auto getCurrentSelectedEntry = []() -> std::shared_ptr<EntryBase>
 	{
@@ -1543,4 +1546,6 @@ void updateDstOpt()
 			set(1401 + i, gArenaData.isPlayerReady(i));
 		}
 	}
+}
+
 }

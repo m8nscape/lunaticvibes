@@ -1,5 +1,8 @@
 #pragma once
 
+namespace lunaticvibes
+{
+
 class CourseLr2crs
 {
 public:
@@ -24,3 +27,5 @@ public:
 	CourseLr2crs(const Path& filePath);
 	~CourseLr2crs() = default;
 };
+
+}

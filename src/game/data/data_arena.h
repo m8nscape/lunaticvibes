@@ -1,6 +1,6 @@
 #pragma once
 
-namespace lv::data
+namespace lunaticvibes::data
 {
 
 inline struct Struct_ArenaData
@@ -13,6 +13,9 @@ inline struct Struct_ArenaData
     bool isArenaReady = false;
     bool isInArenaRequest = false;
     bool isArenaCancellingRequest = false;
+
+    int myRanking = 0;
+    int playerRanking[MAX_ARENA_PLAYERS] = { 0 };
 
 } ArenaData;
 

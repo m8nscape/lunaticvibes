@@ -3,6 +3,9 @@
 #include "scene_context.h"
 #include "scene_pre_select.h"
 
+namespace lunaticvibes
+{
+
 enum class eSelectState
 {
     PREPARE,
@@ -19,7 +22,7 @@ class SceneSelect : public SceneBase
 private:
     eSelectState state;
     InputMask _inputAvailable;
-    
+
     // navigate input
     bool isHoldingUp = false;
     bool isHoldingDown = false;
@@ -135,7 +138,7 @@ protected:
     void updatePreview();
     void postStopPreview();
 
-/// //////////////////////////////////////////////////////
+    /// //////////////////////////////////////////////////////
 protected:
     void arenaCommand();
     void arenaHostLobby();
@@ -143,7 +146,7 @@ protected:
     void arenaJoinLobbyPrompt();
     void arenaJoinLobby();
 
-/// //////////////////////////////////////////////////////
+    /// //////////////////////////////////////////////////////
 
 private:
     void imguiInit();
@@ -273,3 +276,5 @@ private:
     bool imgui_play_adjustLanecoverWithMousewheel = false;
     bool imgui_play_adjustLanecoverWithLeftRight = false;
 };
+
+}

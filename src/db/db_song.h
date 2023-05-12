@@ -3,6 +3,9 @@
 #include "common/entry/entry_folder.h"
 #include "common/entry/entry_song.h"
 
+namespace lunaticvibes
+{
+
 inline const HashMD5 ROOT_FOLDER_HASH = md5("", 0);
 
 /* TABLE folder:
@@ -21,7 +24,7 @@ inline const HashMD5 ROOT_FOLDER_HASH = md5("", 0);
     type: see enum eChartFormat in chartformat.h
     file: file name (not including path)
 */
-class SongDB: public SQLite
+class SongDB : public SQLite
 {
 public:
     enum FolderType
@@ -46,7 +49,7 @@ protected:
     bool addChart(const HashMD5& folder, const Path& path);
     bool removeChart(const Path& path, const HashMD5& parent);
     bool removeChart(const HashMD5& md5, const HashMD5& parent);
-    
+
 public:
     std::vector<std::shared_ptr<ChartFormatBase>> findChartByName(const HashMD5& folder, const std::string&, unsigned limit = 1000) const;  // search from genre, version, artist, artist2, title, title2
     std::vector<std::shared_ptr<ChartFormatBase>> findChartByHash(const HashMD5&, bool checksum = true) const;  // chart may duplicate, return a list
@@ -101,3 +104,5 @@ public:
     bool stopRequested = false;
     void stopLoading();
 };
+
+}

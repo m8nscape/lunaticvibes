@@ -5,7 +5,7 @@
 
 class DifficultyTableBMS;
 
-namespace lv::data
+namespace lunaticvibes::data
 {
 
 typedef std::pair<std::shared_ptr<EntryBase>, std::shared_ptr<ScoreBase>> Entry;

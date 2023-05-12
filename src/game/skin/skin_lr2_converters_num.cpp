@@ -10,7 +10,7 @@
 #include "game/arena/arena_data.h"
 #include "db/db_score.h"
 
-namespace lv
+namespace lunaticvibes
 {
 
 using namespace data;
@@ -1459,16 +1459,22 @@ define_has_member(399);
 
 #pragma endregion
 
-}
-
 namespace lr2skin
 {
 
 std::function<int()> convertNumberIndex(int n)
 {
-    using namespace lv;
-
-    if (n >= 450 && n <= 499)
+    if (n < 0)
+    {
+        switch (n)
+        {
+        case -1: return [] { return PlayData.displayCombo[0]; };
+        case -2: return [] { return PlayData.displayCombo[1]; };
+        case -3: return [] { return SystemData.scratchAxisValue[0]; };
+        case -4: return [] { return SystemData.scratchAxisValue[1]; };
+        }
+    }
+    else if (n >= 450 && n <= 499)
     {
         // ARENA: Exscore difference to Top
     }
@@ -1913,4 +1919,5 @@ std::function<int()> convertNumberIndex(int n)
     return [] { return 0; };
 }
 
+}
 }

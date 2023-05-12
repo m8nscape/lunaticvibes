@@ -1,6 +1,9 @@
 #pragma once
 #ifndef VIDEO_DISABLED
 
+namespace lunaticvibes
+{
+
 #include "sprite.h"
 #include "game/graphics/texture_extra.h"
 
@@ -16,7 +19,7 @@ protected:
 public:
 	SpriteVideo(int w, int h, std::shared_ptr<sVideo> pVid, int srcLine = -1);
 	virtual ~SpriteVideo() = default;
-	
+
 public:
 	void startPlaying();
 	void stopPlaying();
@@ -39,5 +42,7 @@ public:
 	//virtual void draw() const override;
 };
 */
+
+}
 
 #endif

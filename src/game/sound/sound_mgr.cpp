@@ -3,6 +3,9 @@
 #include "sound_fmod.h"
 #include "sound_sample.h"
 
+namespace lunaticvibes
+{
+
 SoundMgr SoundMgr::_inst;
 
 int SoundMgr::initFMOD()
@@ -44,7 +47,7 @@ int SoundMgr::setDevice(size_t index)
 
 std::pair<int, int> SoundMgr::getDSPBufferSize()
 {
-    if (!_inst._initialized) return {1024, 4};
+    if (!_inst._initialized) return { 1024, 4 };
     return _inst.driver->getDSPBufferSize();
 }
 
@@ -157,4 +160,6 @@ void SoundMgr::setEQ(EQFreq freq, int gain)
 {
     if (!_inst._initialized) return;
     return _inst.driver->setEQ(freq, gain);
+}
+
 }

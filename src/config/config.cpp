@@ -1,6 +1,9 @@
 #include "common/pch.h"
 #include "config.h"
 
+namespace lunaticvibes
+{
+
 vConfig::vConfig()
 {
     // placeholder, do nothing
@@ -13,7 +16,7 @@ vConfig::vConfig(const StringPath& file)
 
 vConfig::vConfig(const char* file)
 {
-	_path = file;
+    _path = file;
 }
 
 vConfig::vConfig(const std::string& profile, const char* file)
@@ -34,7 +37,7 @@ vConfig::vConfig(const std::string& profile, const StringPath& file)
 
 void vConfig::load()
 {
-	setDefaults();
+    setDefaults();
     try
     {
         for (const auto& node : YAML::LoadFile(_path.u8string()))
@@ -50,8 +53,9 @@ void vConfig::load()
 
 void vConfig::save()
 {
-	std::ofstream fout(_path, std::ios_base::trunc);
-	fout << _yaml;
+    std::ofstream fout(_path, std::ios_base::trunc);
+    fout << _yaml;
     fout.close();
 }
 
+}

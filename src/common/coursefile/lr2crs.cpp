@@ -3,6 +3,9 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 
+namespace lunaticvibes
+{
+
 CourseLr2crs::CourseLr2crs(const Path& filePath)
 {
 	// .lr2crs is a standard xml file. A file may contain muiltiple courses.
@@ -87,4 +90,6 @@ HashMD5 CourseLr2crs::Course::getCourseHash() const
 	ss << chartHash.size();
 	for (auto& c : chartHash) ss << c.hexdigest();
 	return md5(ss.str());
+}
+
 }

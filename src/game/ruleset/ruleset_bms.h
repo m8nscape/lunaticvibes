@@ -1,6 +1,9 @@
 #pragma once
 #include "ruleset.h"
 
+namespace lunaticvibes
+{
+
 class RulesetBMS : virtual public RulesetBase
 {
 public:
@@ -67,11 +70,15 @@ public:
         HARD,
         EXHARD,
         DEATH,
+
         P_ATK,
         G_ATK,
+
         GRADE,
         EXGRADE,
     };
+
+    using LampType = ScoreBMS::Lamp;
 
     // Judge Time definitions.
     // Values are one-way judge times in ms, representing
@@ -245,6 +252,7 @@ public:
 
 public:
     GaugeType getGaugeType() const { return _gauge; }
+    LampType getClearType() const;
 
     double getScore() const;
     double getMaxMoneyScore() const;
@@ -270,3 +278,5 @@ public:
 
     virtual void updateGlobals();
 };
+
+}

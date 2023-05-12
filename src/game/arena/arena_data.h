@@ -2,6 +2,9 @@
 
 #include "game/ruleset/ruleset_network.h"
 
+namespace lunaticvibes
+{
+
 constexpr size_t MAX_ARENA_PLAYERS = 8;			// not including yourself
 constexpr uint16_t ARENA_HOST_PORT = 50201;		// 100201 - 50000
 
@@ -59,6 +62,7 @@ public:
 	const std::string& getPlayerName(size_t index);
 	std::shared_ptr<vRulesetNetwork> getPlayerRuleset(size_t index);
 	int getPlayerID(size_t index);
+
 	bool isSelfReady();
 	bool isPlayerReady(size_t index);
 
@@ -66,3 +70,5 @@ public:
 };
 
 extern ArenaDataInternal gArenaData;
+
+}

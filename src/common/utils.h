@@ -1,5 +1,8 @@
 #pragma once
 
+namespace lunaticvibes
+{
+
 namespace fs = std::filesystem;
 
 inline Path executablePath;
@@ -67,3 +70,5 @@ Path PathFromUTF8(std::string_view s);
 void preciseSleep(long long nanoseconds);
 
 double normalizeLinearGrowth(double prev, double curr);
+
+}

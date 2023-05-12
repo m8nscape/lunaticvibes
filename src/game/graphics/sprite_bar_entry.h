@@ -2,6 +2,9 @@
 #include "sprite.h"
 #include "sprite_imagetext.h"
 
+namespace lunaticvibes
+{
+
 enum class BarType
 {
     SONG,
@@ -145,7 +148,7 @@ public:
     virtual ~SpriteBarEntry() = default;
     int setBody(BarType type, const SpriteAnimated::SpriteAnimatedBuilder& builder);
     int setFlash(const SpriteAnimated::SpriteAnimatedBuilder& builder);
-	int setLevel(BarLevelType type, const SpriteNumber::SpriteNumberBuilder& builder);
+    int setLevel(BarLevelType type, const SpriteNumber::SpriteNumberBuilder& builder);
     int setLamp(BarLampType type, const SpriteAnimated::SpriteAnimatedBuilder& builder);
     int setTitle(BarTitleType type, const SpriteText::SpriteTextBuilder& builder);
     int setTitle(BarTitleType type, const SpriteImageText::SpriteImageTextBuilder& builder);
@@ -184,3 +187,5 @@ public:
     virtual bool OnClick(int x, int y);
     virtual bool OnDrag(int x, int y) { return false; }
 };
+
+}

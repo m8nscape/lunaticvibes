@@ -10,9 +10,12 @@
 #include "game/runtime/i18n.h"
 #include "git_version.h"
 
-ScenePreSelect::ScenePreSelect(): SceneBase(SkinType::PRE_SELECT, 240)
+namespace lunaticvibes
 {
-	_updateCallback = std::bind(&ScenePreSelect::updateLoadSongs, this);
+
+ScenePreSelect::ScenePreSelect() : SceneBase(SkinType::PRE_SELECT, 240)
+{
+    _updateCallback = std::bind(&ScenePreSelect::updateLoadSongs, this);
 
     rootFolderProp = SongListProperties{
         {},
@@ -68,7 +71,7 @@ void ScenePreSelect::_updateAsync()
         g_pSongDB->stopLoading();
     }
 
-	_updateCallback();
+    _updateCallback();
 }
 
 void ScenePreSelect::updateLoadSongs()
@@ -151,7 +154,7 @@ void ScenePreSelect::updateLoadSongs()
                     //entry->pushEntry(f);
                     entry->pushEntry(std::make_shared<EntryFolderSong>(c));
                 }
-                rootFolderProp.dbBrowseEntries.insert(rootFolderProp.dbBrowseEntries.begin(), {entry, nullptr});
+                rootFolderProp.dbBrowseEntries.insert(rootFolderProp.dbBrowseEntries.begin(), { entry, nullptr });
             }
             LOG_INFO << "[List] NEW SONG folder has " << newSongList.size() << " entries";
 
@@ -181,12 +184,12 @@ void ScenePreSelect::updateLoadSongs()
         prevChartLoaded = g_pSongDB->addChartTaskFinishCount;
         textHint = (
             boost::format(i18n::c(i18nText::LOADING_CHARTS))
-                % g_pSongDB->addChartTaskFinishCount
-                % g_pSongDB->addChartTaskCount
+            % g_pSongDB->addChartTaskFinishCount
+            % g_pSongDB->addChartTaskCount
             ).str();
         textHint2 = g_pSongDB->addCurrentPath;
     }
-    
+
     if (loadSongEnd.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
     {
         g_pSongDB->waitLoadingFinish();
@@ -456,4 +459,6 @@ void ScenePreSelect::updateImgui()
 bool ScenePreSelect::isLoadingFinished() const
 {
     return loadingFinished;
+}
+
 }

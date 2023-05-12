@@ -1,5 +1,8 @@
 #pragma once
 
+namespace lunaticvibes
+{
+
 #if WIN32
 typedef HANDLE LooperHandler;
 #else
@@ -45,3 +48,5 @@ private:
     std::function<void()> _loopFunc;
     void run();
 };
+
+}

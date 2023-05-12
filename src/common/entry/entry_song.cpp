@@ -1,5 +1,8 @@
 #include "entry_song.h"
 
+namespace lunaticvibes
+{
+
 std::shared_ptr<ChartFormatBase> EntryFolderSong::getChart(size_t idx)
 {
     idx %= getContentsCount();
@@ -36,4 +39,6 @@ const std::vector<std::shared_ptr<ChartFormatBase>>& EntryFolderSong::getDifficu
 
     static const std::vector<std::shared_ptr<ChartFormatBase>> emptyList;
     return emptyList;
+}
+
 }

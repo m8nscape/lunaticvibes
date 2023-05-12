@@ -16,6 +16,9 @@
 #include "game/arena/arena_client.h"
 #include "game/arena/arena_host.h"
 
+namespace lunaticvibes
+{
+
 bool ScenePlay::isPlaymodeDP() const
 {
     switch (gPlayContext.mode)
@@ -3499,4 +3502,6 @@ void ScenePlay::inputGameAxis(double S1, double S2, const Time& t)
 		else
 			ttUpdateSide(PLAYER_SLOT_PLAYER, S1 + S2);
 	}
+}
+
 }

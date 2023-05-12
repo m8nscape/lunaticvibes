@@ -9,7 +9,7 @@
 #include "game/arena/arena_data.h"
 #include "game/runtime/i18n.h"
 
-namespace lv
+namespace lunaticvibes
 {
 
 using namespace data;
@@ -1298,16 +1298,11 @@ define_has_member(399);
 
 #pragma endregion
 
-
-}
-
 namespace lr2skin
 {
 
 std::function<std::string_view()> convertTextIndex(int n)
 {
-    using namespace lv;
-
     if (n >= 0 && n <= 399)
     {
         static constexpr std::string_view(*kv[400])() =
@@ -1720,4 +1715,5 @@ std::function<std::string_view()> convertTextIndex(int n)
     return []() -> std::string_view { return ""; };
 }
 
+}
 }

@@ -1,5 +1,8 @@
 #pragma once
 
+namespace lunaticvibes
+{
+
 enum class eSoundSetType
 {
 	UNDEF,
@@ -44,3 +47,5 @@ public:
 	virtual Path getPathBGMCourseClear() const { return Path(); }
 	virtual Path getPathBGMCourseFailed() const { return Path(); }
 };
+
+}

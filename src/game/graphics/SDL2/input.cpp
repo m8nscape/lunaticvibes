@@ -3,6 +3,9 @@
 
 #include <SDL_scancode.h>
 
+namespace lunaticvibes
+{
+
 unsigned char sdl_key_from_common_scancode(Input::Keyboard key)
 {
     // Enum members in order, hopefully the compiler will make a nice jump table out of this.
@@ -119,4 +122,6 @@ unsigned char sdl_key_from_common_scancode(Input::Keyboard key)
     case Input::Keyboard::K_NUM_ENTER: return SDL_SCANCODE_KP_EQUALS;
     default: return SDL_SCANCODE_UNKNOWN;
     }
+}
+
 }

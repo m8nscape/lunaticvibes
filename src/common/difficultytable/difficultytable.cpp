@@ -1,6 +1,9 @@
 #include "common/pch.h"
 #include "difficultytable.h"
 
+namespace lunaticvibes
+{
+
 std::vector<std::string> DifficultyTable::getLevelList() const
 {
 	std::vector<std::pair<int, std::string>> sortOrder;
@@ -33,4 +36,6 @@ std::vector<std::shared_ptr<EntryBase>> DifficultyTable::getEntryList(const std:
 		return {};
 	}
 	return entries.at(level);
+}
+
 }

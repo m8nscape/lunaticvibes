@@ -1,5 +1,8 @@
 #pragma once
 
+namespace lunaticvibes
+{
+
 struct DXArchiveSegment
 {
     size_t size;
@@ -10,3 +13,5 @@ using DXArchive = std::map<std::string, DXArchiveSegment>;
 
 DXArchive extractDxaToMem(const StringPath& path);
 int extractDxaToFile(const StringPath& path);
+
+}

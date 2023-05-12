@@ -3,6 +3,9 @@
 #include "ruleset_bms.h"
 #include "game/scene/scene_context.h"
 
+namespace lunaticvibes
+{
+
 class RulesetBMSReplay : public RulesetBMS
 {
 public:
@@ -40,3 +43,5 @@ public:
 
     virtual void fail();
 };
+
+}

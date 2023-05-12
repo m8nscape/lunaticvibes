@@ -1,6 +1,9 @@
 #include "common/pch.h"
 #include "sprite_imagetext.h"
 
+namespace lunaticvibes
+{
+
 SpriteImageText::SpriteImageText(const SpriteImageTextBuilder& builder) : SpriteText(builder)
 {
     _type = SpriteTypes::IMAGE_TEXT;
@@ -54,7 +57,7 @@ void SpriteImageText::updateTextTexture(std::string&& text)
         }
     }
     //_drawList = _drawListOrig;
-    _drawRect = { 0, 0, (int)std::ceil(w), (int)textHeight};
+    _drawRect = { 0, 0, (int)std::ceil(w), (int)textHeight };
 }
 
 void SpriteImageText::updateTextRect()
@@ -151,4 +154,6 @@ void SpriteImageText::draw() const
                 _textures[idx]->draw(rect, r, _current.color, _current.blend, _current.filter, _current.angle);
         }
     }
+}
+
 }

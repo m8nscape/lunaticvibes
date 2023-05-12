@@ -3,6 +3,9 @@
 #include "ruleset_bms.h"
 #include "ruleset_network.h"
 
+namespace lunaticvibes
+{
+
 class RulesetBMSNetwork : public RulesetBMS, public vRulesetNetwork
 {
 protected:
@@ -100,3 +103,4 @@ public:
     virtual bool unpackFrame(std::vector<unsigned char>& payload);
 };
 
+}

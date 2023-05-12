@@ -1,8 +1,11 @@
 #include "common/pch.h"
 #include "cfg_input.h"
 
+namespace lunaticvibes
+{
+
 ConfigInput::ConfigInput(const std::string& profile, GameModeKeys k) : keys(k),
-    vConfig(profile, (k == 5 ? CONFIG_FILE_INPUT_5 : (k == 7 ? CONFIG_FILE_INPUT_7 : (k == 9 ? CONFIG_FILE_INPUT_9 : "")))) 
+vConfig(profile, (k == 5 ? CONFIG_FILE_INPUT_5 : (k == 7 ? CONFIG_FILE_INPUT_7 : (k == 9 ? CONFIG_FILE_INPUT_9 : ""))))
 {
 }
 
@@ -79,8 +82,8 @@ void ConfigInput::setDefaults() noexcept
 
     Path path = GAMEDATA_PATH;
     path /= keys == 5 ? CONFIG_FILE_INPUT_DEFAULT_5 :
-            keys == 7 ? CONFIG_FILE_INPUT_DEFAULT_7 :
-            keys == 9 ? CONFIG_FILE_INPUT_DEFAULT_9 : "";
+        keys == 7 ? CONFIG_FILE_INPUT_DEFAULT_7 :
+        keys == 9 ? CONFIG_FILE_INPUT_DEFAULT_9 : "";
     try
     {
         _yaml = YAML::LoadFile(path.string());
@@ -107,7 +110,7 @@ void ConfigInput::setDefaults() noexcept
 void ConfigInput::clearAll()
 {
     using namespace cfg;
-    
+
     set(I_BINDINGS_K1ScL, "");
     set(I_BINDINGS_K1ScR, "");
     set(I_BINDINGS_K11, "");
@@ -198,4 +201,6 @@ KeyMap ConfigInput::getBindings(Input::Pad ingame)
         return KeyMap("INVALID");
     else
         return buffer[ingame];
+}
+
 }

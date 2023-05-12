@@ -3,7 +3,7 @@
 class ChartObjectBase;
 class RulesetBase;
 class ReplayChart;
-namespace lv::data
+namespace lunaticvibes::data
 {
 
 constexpr unsigned MAX_PLAYERS = 3;
@@ -155,6 +155,7 @@ inline struct Struct_PlayData
     bool playStarted = false;
 
     std::unordered_map<Input::Pad, bool> keyDown;
+    int displayCombo[2] = { 0 };
 
     double scratchAxis[2] = {0.0, 0.0};
 

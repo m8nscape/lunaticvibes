@@ -2,6 +2,9 @@
 #include "state.h"
 #include "common/asynclooper.h"
 
+namespace lunaticvibes
+{
+
 #ifdef _MSC_VER
 inline tm gLocaltimeResult;
 inline char gCtimeResult[26];
@@ -38,17 +41,17 @@ private:
 
 		std::time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 		auto d = localtime_(&t);
-        if (d)
-        {
-            State::set(IndexNumber::DATE_YEAR, d->tm_year + 1900);
-            State::set(IndexNumber::DATE_MON, d->tm_mon + 1);
-            State::set(IndexNumber::DATE_DAY, d->tm_mday);
-            State::set(IndexNumber::DATE_HOUR, d->tm_hour);
-            State::set(IndexNumber::DATE_MIN, d->tm_min);
-            State::set(IndexNumber::DATE_SEC, d->tm_sec);
+		if (d)
+		{
+			State::set(IndexNumber::DATE_YEAR, d->tm_year + 1900);
+			State::set(IndexNumber::DATE_MON, d->tm_mon + 1);
+			State::set(IndexNumber::DATE_DAY, d->tm_mday);
+			State::set(IndexNumber::DATE_HOUR, d->tm_hour);
+			State::set(IndexNumber::DATE_MIN, d->tm_min);
+			State::set(IndexNumber::DATE_SEC, d->tm_sec);
 
-            State::set(IndexText::_TEST1, ctime_(&t));
-        }
+			State::set(IndexText::_TEST1, ctime_(&t));
+		}
 
 		//createNotification(std::to_string(t));
 	}
@@ -59,3 +62,5 @@ private:
 #undef localtime
 #undef ctime
 #endif
+
+}

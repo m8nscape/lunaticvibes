@@ -4,6 +4,9 @@
 #include "common/pch.h"
 #include "game/graphics/SDL2/input.h"
 
+namespace lunaticvibes
+{
+
 void initInput()
 {
 	// No-op.
@@ -54,6 +57,8 @@ short getLastMouseWheelState()
 	auto state = sdl::state::g_mouse_wheel_delta;
 	sdl::state::g_mouse_wheel_delta = 0;
 	return state;
+}
+
 }
 
 #endif // RENDER_SDL2

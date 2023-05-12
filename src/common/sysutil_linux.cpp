@@ -9,6 +9,9 @@
 #include <string>
 #include <thread>
 
+namespace lunaticvibes
+{
+
 static std::thread::id s_main_thread {};
 
 void SetThreadAsMainThread()
@@ -92,6 +95,8 @@ static const char* portable_strerror_r(const int errnum, char* buffer, const siz
 const char* safe_strerror(const int errnum, char* buffer, const size_t buffer_length)
 {
     return portable_strerror_r(errnum, buffer, buffer_length);
+}
+
 }
 
 #endif // __linux__

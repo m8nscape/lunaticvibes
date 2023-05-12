@@ -2,7 +2,10 @@
 #include "scene.h"
 #include "scene_context.h"
 
-class ScenePreSelect: public SceneBase
+namespace lunaticvibes
+{
+
+class ScenePreSelect : public SceneBase
 {
 public:
     ScenePreSelect();
@@ -38,3 +41,5 @@ protected:
 public:
     bool isLoadingFinished() const;
 };
+
+}

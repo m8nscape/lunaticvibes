@@ -8,6 +8,9 @@
 #include <openssl/md5.h>
 #endif
 
+namespace lunaticvibes
+{
+
 static const std::pair<RE2, re2::StringPiece> path_replace_pattern[]
 {
     {R"(\\)", R"(\\\\)"},
@@ -29,16 +32,16 @@ static const std::pair<RE2, re2::StringPiece> path_replace_pattern[]
 
 std::vector<Path> findFiles(Path p, bool recursive)
 {
-	auto pstr = p.make_preferred().native();
-	size_t offset = pstr.find('*');
+    auto pstr = p.make_preferred().native();
+    size_t offset = pstr.find('*');
 
-	std::vector<Path> res;
-	if (offset == pstr.npos)
-	{
-		if (!pstr.empty())
-			res.push_back(p);
-		return res;
-	}
+    std::vector<Path> res;
+    if (offset == pstr.npos)
+    {
+        if (!pstr.empty())
+            res.push_back(p);
+        return res;
+    }
 
     StringPath folder = pstr.substr(0, offset).substr(0, pstr.find_last_of(Path::preferred_separator));
     if (fs::is_directory(folder))
@@ -73,7 +76,7 @@ std::vector<Path> findFiles(Path p, bool recursive)
         }
     }
 
-	return res;
+    return res;
 }
 
 bool isParentPath(Path parent, Path dir)
@@ -144,7 +147,7 @@ std::string hex2bin(const std::string& hex)
     res.resize(hex.length() / 2 + 1);
     for (size_t i = 0, j = 0; i < hex.length(); i += 2, j++)
     {
-        unsigned char &c = ((unsigned char&)res[j]);
+        unsigned char& c = ((unsigned char&)res[j]);
         char c1 = tolower(hex[i]);
         char c2 = tolower(hex[i + 1]);
         c += (c1 + ((c1 >= 'a') ? (10 - 'a') : (-'0'))) << 4;
@@ -229,9 +232,9 @@ HashMD5 md5(const char* str, size_t len)
     for (size_t i = 0; i < MD5_DIGEST_LENGTH; ++i)
     {
         unsigned char high = digest[i] >> 4 & 0xF;
-        unsigned char low  = digest[i] & 0xF;
+        unsigned char low = digest[i] & 0xF;
         ret += (high <= 9 ? ('0' + high) : ('A' - 10 + high));
-        ret += (low  <= 9 ? ('0' + low)  : ('A' - 10 + low));
+        ret += (low <= 9 ? ('0' + low) : ('A' - 10 + low));
     }
     return ret;
 }
@@ -267,9 +270,9 @@ HashMD5 md5file(const Path& filePath)
     for (size_t i = 0; i < MD5_DIGEST_LENGTH; ++i)
     {
         unsigned char high = digest[i] >> 4 & 0xF;
-        unsigned char low  = digest[i] & 0xF;
+        unsigned char low = digest[i] & 0xF;
         ret += (high <= 9 ? ('0' + high) : ('A' - 10 + high));
-        ret += (low  <= 9 ? ('0' + low)  : ('A' - 10 + low));
+        ret += (low <= 9 ? ('0' + low) : ('A' - 10 + low));
     }
     return ret;
 }
@@ -278,21 +281,21 @@ HashMD5 md5file(const Path& filePath)
 
 std::string toLower(std::string_view s)
 {
-	std::string ret(s);
-	for (auto& c : ret)
-		if (c >= 'A' && c <= 'Z')
-			c = c - 'A' + 'a';
-	return ret;
+    std::string ret(s);
+    for (auto& c : ret)
+        if (c >= 'A' && c <= 'Z')
+            c = c - 'A' + 'a';
+    return ret;
 }
 std::string toLower(const std::string& s) { return toLower(std::string_view(s)); }
 
 std::string toUpper(std::string_view s)
 {
-	std::string ret(s);
-	for (auto& c : ret)
-		if (c >= 'a' && c <= 'z')
-			c = c - 'a' + 'A';
-	return ret;
+    std::string ret(s);
+    for (auto& c : ret)
+        if (c >= 'a' && c <= 'z')
+            c = c - 'a' + 'A';
+    return ret;
 }
 std::string toUpper(const std::string& s) { return toUpper(std::string_view(s)); }
 
@@ -349,7 +352,8 @@ static std::string resolveCaseInsensitivePath(std::string input)
         const bool is_empty = out.empty();
         if (is_empty && !has_path_prefix) {
             out = CURRENT_PATH_RELATIVE_PREFIX;
-        } else if (is_empty || out.back() != '/') {
+        }
+        else if (is_empty || out.back() != '/') {
             out += '/';
         }
 
@@ -472,7 +476,7 @@ void preciseSleep(long long sleep_ns)
 
 #if WIN32
 
-    static HANDLE convertTimerIndex = CreateWaitableTimer(NULL, FALSE, NULL);
+    static HANDLE timer = CreateWaitableTimer(NULL, FALSE, NULL);
 
     while (sleep_ns > 1'000'000)
     {
@@ -480,8 +484,8 @@ void preciseSleep(long long sleep_ns)
         due.QuadPart = -int64_t((sleep_ns - sleep_ns % 1'000'000) / 100);  // wrap to 1ms
 
         auto start = high_resolution_clock::now();
-        SetWaitableTimerEx(convertTimerIndex, &due, 0, NULL, NULL, NULL, 0);
-        WaitForSingleObjectEx(convertTimerIndex, INFINITE, TRUE);
+        SetWaitableTimerEx(timer, &due, 0, NULL, NULL, NULL, 0);
+        WaitForSingleObjectEx(timer, INFINITE, TRUE);
         auto end = high_resolution_clock::now();
 
         double observed = duration_cast<nanoseconds>(end - start).count();
@@ -517,4 +521,6 @@ double normalizeLinearGrowth(double prev, double curr)
 
     assert(delta >= -1.0 && delta <= 1.0);
     return delta;
+}
+
 }

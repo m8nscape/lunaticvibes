@@ -1,6 +1,9 @@
 #include "common/pch.h"
 #include "cfg_skin.h"
 
+namespace lunaticvibes
+{
+
 void ConfigSkin::setDefaults() noexcept
 {
     using namespace cfg;
@@ -17,4 +20,6 @@ void ConfigSkin::setDefaults() noexcept
     set(S_PATH_KEYCONFIG, S_DEFAULT_PATH_KEYCONFIG);
     set(S_PATH_CUSTOMIZE, S_DEFAULT_PATH_CUSTOMIZE);
     set(S_PATH_SOUNDSET, S_DEFAULT_PATH_SOUNDSET);
+}
+
 }

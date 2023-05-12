@@ -2,6 +2,9 @@
 
 #include "sprite.h"
 
+namespace lunaticvibes
+{
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Line sprite
@@ -63,3 +66,4 @@ public:
     virtual void draw() const;
 };
 
+}

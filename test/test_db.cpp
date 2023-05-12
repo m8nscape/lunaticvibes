@@ -1,5 +1,6 @@
 #include "gmock/gmock.h"
 #include "db/db_song.h"
+using namespace lv;
 
 const StringPath pathSongDB = "song.db"_p;
 

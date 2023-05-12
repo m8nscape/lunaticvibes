@@ -2,6 +2,9 @@
 #include "sprite_graph.h"
 #include "game/scene/scene_context.h"
 
+namespace lunaticvibes
+{
+
 const size_t RT_GRAPH_THRESHOLD = 50;
 
 SpriteLine::SpriteLine(const SpriteLineBuilder& builder) : SpriteStatic(builder)
@@ -300,4 +303,6 @@ bool SpriteLine::update(const Time& t)
         return true;
     }
     return false;
+}
+
 }

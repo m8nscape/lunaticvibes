@@ -7,6 +7,9 @@
 
 #include "game/arena/arena_data.h"
 
+namespace lunaticvibes
+{
+
 SceneDecide::SceneDecide() : SceneBase(SkinType::DECIDE, 1000)
 {
     _type = SceneType::DECIDE;
@@ -168,4 +171,6 @@ void SceneDecide::inputGameRelease(InputMask& m, Time t)
 {
     unsigned rt = (t - State::get(IndexTimer::SCENE_START)).norm();
     if (rt < pSkin->info.timeIntro) return;
+}
+
 }

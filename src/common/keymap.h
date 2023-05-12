@@ -1,5 +1,8 @@
 #pragma once
 
+namespace lunaticvibes
+{
+
 namespace Input
 {
 
@@ -39,7 +42,7 @@ enum Pad
     K2SPDUP,
     K2SPDDN,
 
-    LANE_COUNT, 
+    LANE_COUNT,
 
     S1A = LANE_COUNT,
     S2A,
@@ -407,7 +410,7 @@ class KeyMap
 {
 public:
     KeyMap() = default;
-    KeyMap(const std::string_view & name) { loadFromString(name); }
+    KeyMap(const std::string_view& name) { loadFromString(name); }
     KeyMap(const Input::Keyboard& kb) { setKeyboard(kb); }
     KeyMap(size_t device, Input::Joystick::Type type, size_t index) { setJoystick(device, type, index); }
     ~KeyMap() = default;
@@ -450,3 +453,5 @@ private:
     std::string toStringJ() const;
     std::string toStringM() const;
 };
+
+}

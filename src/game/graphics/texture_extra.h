@@ -7,6 +7,9 @@
 
 #ifndef VIDEO_DISABLED
 
+namespace lunaticvibes
+{
+
 class TextureVideo : public Texture
 {
 protected:
@@ -45,12 +48,17 @@ public:
 	static void updateAll();
 };
 
+}
+
 #endif
+
+namespace lunaticvibes
+{
 
 ///////////////////////////////////////////////////////////////////////////////
 
 class ChartObjectBMS;
-class TextureBmsBga: public Texture
+class TextureBmsBga : public Texture
 {
 protected:
 	mutable std::shared_mutex idxLock;
@@ -61,7 +69,7 @@ protected:
 	class obj
 	{
 	public:
-		enum class Ty{
+		enum class Ty {
 			EMPTY,
 			PIC,
 			VIDEO
@@ -87,7 +95,7 @@ protected:
 	decltype(layerSlot.begin()) layerIt;
 	decltype(poorSlot.begin()) poorIt;
 	bool inPoor = false;
-	
+
 public:
 	TextureBmsBga(int x = 256, int y = 256) : Texture(nullptr, x, y)
 	{
@@ -147,3 +155,5 @@ public:
 	virtual void draw(const Rect& srcRect, RectF dstRect,
 		const Color c, const BlendMode blend, const bool filter, const double angleInDegrees, const Point& center) const;
 };
+
+}

@@ -1,7 +1,10 @@
 #pragma once
 #include "difficultytable.h"
 
-class DifficultyTableBMS: public DifficultyTable
+namespace lunaticvibes
+{
+
+class DifficultyTableBMS : public DifficultyTable
 {
 public:
 	DifficultyTableBMS() = default;
@@ -23,3 +26,5 @@ public:
 	void parseHeader(const std::string& content);
 	void parseBody(const std::string& content);
 };
+
+}

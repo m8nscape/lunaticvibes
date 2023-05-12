@@ -9,6 +9,9 @@
 
 #include "config/config_mgr.h"
 
+namespace lunaticvibes
+{
+
 SceneCourseResult::SceneCourseResult() : SceneBase(SkinType::COURSE_RESULT, 1000)
 {
     _type = SceneType::COURSE_RESULT;
@@ -19,7 +22,7 @@ SceneCourseResult::SceneCourseResult() : SceneBase(SkinType::COURSE_RESULT, 1000
     {
         _inputAvailable |= INPUT_MASK_1P;
     }
-        
+
     if (gPlayContext.chartObj[PLAYER_SLOT_TARGET] != nullptr)
     {
         _inputAvailable |= INPUT_MASK_2P;
@@ -198,7 +201,7 @@ SceneCourseResult::SceneCourseResult() : SceneBase(SkinType::COURSE_RESULT, 1000
         State::set(IndexNumber::PLAY_1P_EXSCORE_DIFF, param["1ptarget"]);
         State::set(IndexNumber::PLAY_2P_EXSCORE_DIFF, param["2ptarget"]);
         State::set(IndexOption::RESULT_BATTLE_WIN_LOSE, param["winlose"]);
-        
+
         State::set(IndexNumber::PLAY_1P_EXSCORE, param["1pexscore"]);
         State::set(IndexNumber::PLAY_1P_PERFECT, param["1ppg"]);
         State::set(IndexNumber::PLAY_1P_GREAT, param["1pgr"]);
@@ -412,7 +415,7 @@ void SceneCourseResult::updateFadeout()
             // 
             g_pScoreDB->updateCourseScoreBMS(gPlayContext.courseHash, score);
         }
-        
+
         clearContextPlay();
         gPlayContext.courseStageRulesetCopy[0].clear();
         gPlayContext.courseStageRulesetCopy[1].clear();
@@ -488,7 +491,7 @@ void SceneCourseResult::inputGameHold(InputMask& m, const Time& t)
     if (state == eCourseResultState::FADEOUT)
     {
         _retryRequested =
-            (_inputAvailable & m & INPUT_MASK_DECIDE).any() && 
+            (_inputAvailable & m & INPUT_MASK_DECIDE).any() &&
             (_inputAvailable & m & INPUT_MASK_CANCEL).any();
     }
 }
@@ -497,4 +500,6 @@ void SceneCourseResult::inputGameHold(InputMask& m, const Time& t)
 void SceneCourseResult::inputGameRelease(InputMask& m, const Time& t)
 {
     if (t - State::get(IndexTimer::SCENE_START) < pSkin->info.timeIntro) return;
+}
+
 }

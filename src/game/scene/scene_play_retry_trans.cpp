@@ -2,6 +2,9 @@
 #include "scene_play_retry_trans.h"
 #include "scene_context.h"
 
+namespace lunaticvibes
+{
+
 ScenePlayRetryTrans::ScenePlayRetryTrans() : SceneBase(SkinType::RETRY_TRANS, 240)
 {
 	_type = SceneType::RETRY_TRANS;
@@ -9,4 +12,6 @@ ScenePlayRetryTrans::ScenePlayRetryTrans() : SceneBase(SkinType::RETRY_TRANS, 24
 	LOG_DEBUG << "[PlayRetryTrans]";
 	clearContextPlayForRetry();
 	SystemData.gNextScene = SceneType::PLAY;
+}
+
 }

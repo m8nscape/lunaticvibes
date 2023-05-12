@@ -2,9 +2,12 @@
 #include "cfg_general.h"
 #include "config_mgr.h"
 
+namespace lunaticvibes
+{
+
 void ConfigGeneral::setDefaults() noexcept
 {
-    using namespace cfg;
+	using namespace cfg;
 	set(A_MODE, A_MODE_AUTO);
 	set(A_BUFCOUNT, 4);
 	set(A_BUFLEN, 256);
@@ -51,4 +54,6 @@ std::vector<std::string> ConfigGeneral::getFoldersStr()
 std::vector<std::string> ConfigGeneral::getTablesUrl()
 {
 	return _yaml[cfg::E_TABLES].as<std::vector<std::string>>(std::vector<std::string>());
+}
+
 }

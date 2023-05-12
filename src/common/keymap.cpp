@@ -1,6 +1,9 @@
 #include "pch.h"
 #include "keymap.h"
 
+namespace lunaticvibes
+{
+
 std::string KeyMap::toString() const
 {
     switch (type)
@@ -141,7 +144,7 @@ void KeyMap::loadFromStringJ(const std::string_view& name)
             joystick.type = Input::Joystick::Type::UNDEF;
         }
     }
-    
+
 }
 
 void KeyMap::loadFromStringM(const std::string_view& name)
@@ -162,22 +165,22 @@ std::string KeyMap::toStringJ() const
     ss << "J" << joystick.device + 1 << "_";
     switch (joystick.type)
     {
-    case Input::Joystick::Type::BUTTON:        
+    case Input::Joystick::Type::BUTTON:
         ss << "BTN_" << joystick.index + 1;
         break;
     case Input::Joystick::Type::POV:
-        if      (joystick.index & (1ul << 31)) ss << "POV_" << (joystick.index & 0xFFFFFFF) + 1 << "_LEFT";
+        if (joystick.index & (1ul << 31)) ss << "POV_" << (joystick.index & 0xFFFFFFF) + 1 << "_LEFT";
         else if (joystick.index & (1ul << 30)) ss << "POV_" << (joystick.index & 0xFFFFFFF) + 1 << "_DOWN";
         else if (joystick.index & (1ul << 29)) ss << "POV_" << (joystick.index & 0xFFFFFFF) + 1 << "_UP";
         else if (joystick.index & (1ul << 28)) ss << "POV_" << (joystick.index & 0xFFFFFFF) + 1 << "_RIGHT";
         break;
-    case Input::Joystick::Type::AXIS_RELATIVE_POSITIVE: 
+    case Input::Joystick::Type::AXIS_RELATIVE_POSITIVE:
         ss << "REL_" << Input::joystickAxisName[joystick.index] << "+";
         break;
     case Input::Joystick::Type::AXIS_RELATIVE_NEGATIVE:
         ss << "REL_" << Input::joystickAxisName[joystick.index] << "-";
         break;
-    case Input::Joystick::Type::AXIS_ABSOLUTE: 
+    case Input::Joystick::Type::AXIS_ABSOLUTE:
         ss << "ABS_" << Input::joystickAxisName[joystick.index];
         break;
     }
@@ -188,4 +191,6 @@ std::string KeyMap::toStringM() const
 {
     assert(false);
     return "M_"s + "NULL";
+}
+
 }

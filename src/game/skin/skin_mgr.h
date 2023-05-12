@@ -1,6 +1,9 @@
 #pragma once
 #include "skin.h"
 
+namespace lunaticvibes
+{
+
 typedef std::shared_ptr<SkinBase> pSkin;
 
 class SkinMgr
@@ -21,5 +24,7 @@ public:
     static void load(SkinType, bool simple = false);
     static void unload(SkinType);
     static pSkin get(SkinType);
-	static void clean();
+    static void clean();
 };
+
+}

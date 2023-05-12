@@ -11,6 +11,9 @@
 
 #include "config/config_mgr.h"
 
+namespace lunaticvibes
+{
+
 namespace lr2skin::button
 {
 
@@ -1630,5 +1633,7 @@ std::function<void(int)> getButtonCallback(int type)
     return [](bool) {};
 }
 
+
+}
 
 }

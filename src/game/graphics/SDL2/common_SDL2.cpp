@@ -13,6 +13,9 @@
 #define strcpy strcpy_s
 #endif
 
+namespace lunaticvibes
+{
+
 using namespace std::placeholders;
 
 Color::Color(uint32_t rgba)
@@ -128,17 +131,17 @@ bool isGIF(const char* filePath)
 
 Image::Image(const std::filesystem::path& path) : Image(path.u8string().c_str()) {}
 
-Image::Image(const char* filePath) : 
+Image::Image(const char* filePath) :
     Image(filePath, std::shared_ptr<SDL_RWops>(SDL_RWFromFile(filePath, "rb"), [](SDL_RWops* s) { if (s) s->close(s); }))
 {
 }
 
-Image::Image(const char* format, void* data, size_t size): 
+Image::Image(const char* format, void* data, size_t size) :
     Image(format, std::shared_ptr<SDL_RWops>(SDL_RWFromMem(data, size), [](SDL_RWops* s) { if (s) s->close(s); }))
 {
 }
 
-Image::Image(const char* path, std::shared_ptr<SDL_RWops>&& rw): _path(path), _pRWop(rw)
+Image::Image(const char* path, std::shared_ptr<SDL_RWops>&& rw) : _path(path), _pRWop(rw)
 {
     if (!_pRWop && !_path.empty())
     {
@@ -190,7 +193,7 @@ Image::Image(const char* path, std::shared_ptr<SDL_RWops>&& rw): _path(path), _p
     //LOG_DEBUG << "[Image] Load image file finished. " << _path.c_str();
 }
 
-Image::~Image() 
+Image::~Image()
 {
 }
 
@@ -259,38 +262,38 @@ Texture::Texture(const SDL_Surface* pSurface)
 Texture::Texture(const SDL_Texture* pTexture, int w, int h)
 {
     _pTexture = std::shared_ptr<SDL_Texture>(
-        const_cast<SDL_Texture*>(pTexture), 
+        const_cast<SDL_Texture*>(pTexture),
         std::bind(pushAndWaitMainThreadTask<void, SDL_Texture*>, SDL_DestroyTexture, _1));
     if (!pTexture) return;
-    textureRect = {0, 0, w, h};
+    textureRect = { 0, 0, w, h };
     loaded = true;
 }
 
 Texture::Texture(int w, int h, PixelFormat fmt, bool target)
 {
-	SDL_PixelFormatEnum sdlfmt = SDL_PIXELFORMAT_UNKNOWN;
-	switch (fmt)
-	{
+    SDL_PixelFormatEnum sdlfmt = SDL_PIXELFORMAT_UNKNOWN;
+    switch (fmt)
+    {
     case PixelFormat::RGB24:
         sdlfmt = SDL_PIXELFORMAT_RGB24; break;
     case PixelFormat::BGR24:
         sdlfmt = SDL_PIXELFORMAT_BGR24; break;
-	case PixelFormat::YV12:
-		sdlfmt = SDL_PIXELFORMAT_YV12; break;
-	case PixelFormat::IYUV:
-		sdlfmt = SDL_PIXELFORMAT_IYUV; break;
-	case PixelFormat::YUY2:
-		sdlfmt = SDL_PIXELFORMAT_YUY2; break;
-	case PixelFormat::UYVY:
-		sdlfmt = SDL_PIXELFORMAT_UYVY; break;
-	case PixelFormat::YVYU:
-		sdlfmt = SDL_PIXELFORMAT_YVYU; break;
-	default:
-		sdlfmt = SDL_PIXELFORMAT_UNKNOWN; break;
-	}
+    case PixelFormat::YV12:
+        sdlfmt = SDL_PIXELFORMAT_YV12; break;
+    case PixelFormat::IYUV:
+        sdlfmt = SDL_PIXELFORMAT_IYUV; break;
+    case PixelFormat::YUY2:
+        sdlfmt = SDL_PIXELFORMAT_YUY2; break;
+    case PixelFormat::UYVY:
+        sdlfmt = SDL_PIXELFORMAT_UYVY; break;
+    case PixelFormat::YVYU:
+        sdlfmt = SDL_PIXELFORMAT_YVYU; break;
+    default:
+        sdlfmt = SDL_PIXELFORMAT_UNKNOWN; break;
+    }
 
-	if (sdlfmt != SDL_PIXELFORMAT_UNKNOWN)
-	{
+    if (sdlfmt != SDL_PIXELFORMAT_UNKNOWN)
+    {
         _pTexture = std::shared_ptr<SDL_Texture>(
             pushAndWaitMainThreadTask<SDL_Texture*>(std::bind(SDL_CreateTexture, gFrameRenderer, sdlfmt, target ? SDL_TEXTUREACCESS_TARGET : SDL_TEXTUREACCESS_STREAMING, w, h)),
             std::bind(pushAndWaitMainThreadTask<void, SDL_Texture*>, SDL_DestroyTexture, _1));
@@ -299,7 +302,7 @@ Texture::Texture(int w, int h, PixelFormat fmt, bool target)
             textureRect = { 0, 0, w, h };
             loaded = true;
         }
-	}
+    }
 }
 
 Texture::~Texture()
@@ -320,13 +323,13 @@ int Texture::updateYUV(uint8_t* Y, int Ypitch, uint8_t* U, int Upitch, uint8_t* 
 }
 
 void Texture::_draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, RectF dstRectF,
-	const Color c, const BlendMode b, const bool filter, const double angle, const Point* center)
+    const Color c, const BlendMode b, const bool filter, const double angle, const Point* center)
 {
     int flipFlags = 0;
     if (dstRectF.w < 0) { dstRectF.w = -dstRectF.w; dstRectF.x -= dstRectF.w; /*flipFlags |= SDL_FLIP_HORIZONTAL;*/ }
     if (dstRectF.h < 0) { dstRectF.h = -dstRectF.h; dstRectF.y -= dstRectF.h; /*flipFlags |= SDL_FLIP_VERTICAL;*/ }
 
-	SDL_SetTextureColorMod(&*pTex, c.r, c.g, c.b);
+    SDL_SetTextureColorMod(&*pTex, c.r, c.g, c.b);
 
     int ssLevel = graphics_get_supersample_level();
     dstRectF.x *= ssLevel;
@@ -367,7 +370,7 @@ void Texture::_draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, Rect
             gFrameRenderer,
             &*pTex,
             srcRect, &rc,
-            0, 
+            0,
             NULL, SDL_FLIP_NONE
         );
 
@@ -431,13 +434,13 @@ void Texture::_draw(std::shared_ptr<SDL_Texture> pTex, const Rect* srcRect, Rect
         center ? &scenter : NULL, SDL_RendererFlip(flipFlags)
     );
 
-//#if _DEBUG
-//    SDL_FRect& d = dstRectF;
-//    SDL_FPoint lines[5] = { {d.x, d.y}, {d.x + d.w, d.y}, {d.x + d.w, d.y + d.h}, {d.x, d.y + d.h}, {d.x, d.y} };
-//    SDL_SetRenderDrawColor(gFrameRenderer, 255, 255, 255, 255);
-//    SDL_RenderDrawLinesF(gFrameRenderer, lines, 5);
-//    SDL_SetRenderDrawColor(gFrameRenderer, 0, 0, 0, 255);
-//#endif
+    //#if _DEBUG
+    //    SDL_FRect& d = dstRectF;
+    //    SDL_FPoint lines[5] = { {d.x, d.y}, {d.x + d.w, d.y}, {d.x + d.w, d.y + d.h}, {d.x, d.y + d.h}, {d.x, d.y} };
+    //    SDL_SetRenderDrawColor(gFrameRenderer, 255, 255, 255, 255);
+    //    SDL_RenderDrawLinesF(gFrameRenderer, lines, 5);
+    //    SDL_SetRenderDrawColor(gFrameRenderer, 0, 0, 0, 255);
+    //#endif
 }
 
 void Texture::draw(RectF dstRect,
@@ -473,7 +476,7 @@ void Texture::draw(const Rect& srcRect, RectF dstRect,
 ////////////////////////////////////////////////////////////////////////////////
 // TextureFull
 
-TextureFull::TextureFull(const Color& c): Texture(nullptr)
+TextureFull::TextureFull(const Color& c) : Texture(nullptr)
 {
     pushAndWaitMainThreadTask<void>([this, &c]()
         {
@@ -490,16 +493,16 @@ TextureFull::TextureFull(const Color& c): Texture(nullptr)
 
 TextureFull::TextureFull(const Image& srcImage) : Texture(srcImage) {}
 
-TextureFull::TextureFull(const SDL_Surface* pSurface): Texture(pSurface) {}
+TextureFull::TextureFull(const SDL_Surface* pSurface) : Texture(pSurface) {}
 
-TextureFull::TextureFull(const SDL_Texture* pTexture, int w, int h): Texture(pTexture, w, h) {}
+TextureFull::TextureFull(const SDL_Texture* pTexture, int w, int h) : Texture(pTexture, w, h) {}
 
 TextureFull::~TextureFull() {}
 
 void TextureFull::draw(const Rect& ignored, RectF dstRect,
     const Color c, const BlendMode b, const bool filter, const double angle) const
 {
-	SDL_SetTextureColorMod(&*_pTexture, c.r, c.g, c.b);
+    SDL_SetTextureColorMod(&*_pTexture, c.r, c.g, c.b);
 
     int ssLevel = graphics_get_supersample_level();
     dstRect.x *= ssLevel;
@@ -561,12 +564,14 @@ void TextureFull::draw(const Rect& ignored, RectF dstRect,
 void GraphLine::draw(Point p1, Point p2, Color c) const
 {
     int ss = graphics_get_supersample_level();
-	thickLineRGBA(
-		gFrameRenderer,
-		(Sint16)p1.x * ss, (Sint16)p1.y * ss,
+    thickLineRGBA(
+        gFrameRenderer,
+        (Sint16)p1.x * ss, (Sint16)p1.y * ss,
         (Sint16)p2.x * ss, (Sint16)p2.y * ss,
-		_width * ss,
-		c.r, c.g, c.b, c.a
-	);
+        _width * ss,
+        c.r, c.g, c.b, c.a
+    );
     SDL_SetRenderDrawColor(gFrameRenderer, 0, 0, 0, 255);
+}
+
 }

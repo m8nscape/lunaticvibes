@@ -7,9 +7,12 @@
 
 #include "common/asynclooper.h"
 
+namespace lunaticvibes
+{
+
 class SceneSelect;
 class ArenaMessage;
-class ArenaHost: public AsyncLooper
+class ArenaHost : public AsyncLooper
 {
 #if _DEBUG
 	friend class SceneSelect;
@@ -85,7 +88,7 @@ private:
 		void addTaskWaitingForResponse(int messageIndex, std::shared_ptr<std::vector<unsigned char>> msg)
 		{
 			std::unique_lock l(tasksWaitingForResponseMutex);
-			tasksWaitingForResponse[messageIndex] = {Time(), msg, 0, false};
+			tasksWaitingForResponse[messageIndex] = { Time(), msg, 0, false };
 		}
 	};
 	int clientID = 0;
@@ -140,3 +143,5 @@ protected:
 	void update();
 
 };
+
+}

@@ -2,6 +2,9 @@
 #include "common/types.h"
 #include "entry_folder.h"
 
+namespace lunaticvibes
+{
+
 class EntryFolderTable : public EntryFolderRegular
 {
 public:
@@ -12,3 +15,5 @@ public:
         _type = eEntryType::CUSTOM_FOLDER;
     }
 };
+
+}

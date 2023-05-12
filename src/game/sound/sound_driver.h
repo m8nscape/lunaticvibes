@@ -2,6 +2,9 @@
 #include "common/asynclooper.h"
 #include "fmod.hpp"
 
+namespace lunaticvibes
+{
+
 typedef std::size_t size_t;
 
 enum class DSPType
@@ -46,7 +49,7 @@ enum class SoundChannelType
 
 constexpr int DriverIDUnknownASIO = -10;
 
-class SoundDriver: public AsyncLooper
+class SoundDriver : public AsyncLooper
 {
     friend class SoundMgr;
 
@@ -80,3 +83,5 @@ public:
     virtual void setPitch(double pitch) = 0;
     virtual void setEQ(EQFreq freq, int gain) = 0;
 };
+
+}

@@ -8,7 +8,7 @@
 #include "game/data/data_types.h"
 #include "game/arena/arena_data.h"
 
-namespace lv
+namespace lunaticvibes
 {
 
 using namespace data;
@@ -24,6 +24,26 @@ private:
     static int keySlot(int n)
     {
         return KeyConfigData.selecting.second == n ? 1 : 0;
+    }
+
+    static int getClearType(std::shared_ptr<RulesetBMS> r)
+    {
+        RulesetBMS::LampType t = r ? r->getClearType() : RulesetBMS::LampType::NOPLAY;
+        switch (t)
+        {
+
+            case RulesetBMS::LampType::NOPLAY: return 0;
+            case RulesetBMS::LampType::FAILED: return 1;
+            case RulesetBMS::LampType::ASSIST: return 2;
+            case RulesetBMS::LampType::EASY: return 3;
+            case RulesetBMS::LampType::NORMAL: return 4;
+            case RulesetBMS::LampType::HARD: return 5;
+            case RulesetBMS::LampType::EXHARD: return 6;
+            case RulesetBMS::LampType::FULLCOMBO: return 7;
+            case RulesetBMS::LampType::PERFECT: return 8;
+            case RulesetBMS::LampType::MAX: return 9;
+        }
+        return 0;
     }
 
 public:
@@ -526,6 +546,28 @@ public:
     static int button_157() { return keySlot(7); }
     static int button_158() { return keySlot(8); }
     static int button_159() { return keySlot(9); }
+
+    static int button_270() { return getClearType(std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_PLAYER].ruleset)); }
+    static int button_271() { return getClearType(std::dynamic_pointer_cast<RulesetBMS>(PlayData.player[PLAYER_SLOT_TARGET].ruleset)); }
+
+    static int button_301() { return getClearType(std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(0))); }
+    static int button_302() { return getClearType(std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(1))); }
+    static int button_303() { return getClearType(std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(2))); }
+    static int button_304() { return getClearType(std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(3))); }
+    static int button_305() { return getClearType(std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(4))); }
+    static int button_306() { return getClearType(std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(5))); }
+    static int button_307() { return getClearType(std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(6))); }
+    static int button_308() { return getClearType(std::dynamic_pointer_cast<RulesetBMS>(gArenaData.getPlayerRuleset(7))); }
+
+    static int button_310() { return ArenaData.myRanking; }
+    static int button_311() { return ArenaData.playerRanking[0]; }
+    static int button_312() { return ArenaData.playerRanking[1]; }
+    static int button_313() { return ArenaData.playerRanking[2]; }
+    static int button_314() { return ArenaData.playerRanking[3]; }
+    static int button_315() { return ArenaData.playerRanking[4]; }
+    static int button_316() { return ArenaData.playerRanking[5]; }
+    static int button_317() { return ArenaData.playerRanking[6]; }
+    static int button_318() { return ArenaData.playerRanking[7]; }
 };
 
 #define define_has_member(index)                                                            \
@@ -852,26 +894,38 @@ define_has_member(296);
 define_has_member(297);
 define_has_member(298);
 define_has_member(299);
+define_has_member(300);
+define_has_member(301);
+define_has_member(302);
+define_has_member(303);
+define_has_member(304);
+define_has_member(305);
+define_has_member(306);
+define_has_member(307);
+define_has_member(308);
+define_has_member(309);
+define_has_member(310);
+define_has_member(311);
+define_has_member(312);
+define_has_member(313);
+define_has_member(314);
+define_has_member(315);
+define_has_member(316);
+define_has_member(317);
+define_has_member(318);
+define_has_member(319);
 
 #pragma endregion
 
-
-}
 
 namespace lr2skin
 {
 
 std::function<int()> convertButtonIndex(int n)
 {
-    using namespace lv;
-
-    if (n >= 300)
+    if (n >= 0 && n <= 319)
     {
-        // TODO 
-    }
-    else if (n >= 0 && n <= 299)
-    {
-        static constexpr int(*kv[300])() =
+        static constexpr int(*kv[320])() =
         {
             button(0),
             button(1),
@@ -1173,6 +1227,26 @@ std::function<int()> convertButtonIndex(int n)
             button(297),
             button(298),
             button(299),
+            button(300),
+            button(301),
+            button(302),
+            button(303),
+            button(304),
+            button(305),
+            button(306),
+            button(307),
+            button(308),
+            button(309),
+            button(310),
+            button(311),
+            button(312),
+            button(313),
+            button(314),
+            button(315),
+            button(316),
+            button(317),
+            button(318),
+            button(319),
         };
 
         return kv[n];
@@ -1181,4 +1255,5 @@ std::function<int()> convertButtonIndex(int n)
     return [] { return 0; };
 }
 
+}
 }

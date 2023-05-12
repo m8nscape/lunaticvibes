@@ -5,7 +5,7 @@ class ScoreDB;
 extern std::shared_ptr<SongDB> g_pSongDB;
 extern std::shared_ptr<ScoreDB> g_pScoreDB;
 
-namespace lv::data
+namespace lunaticvibes::data
 {
 
 enum class GameWindowMode
@@ -81,6 +81,8 @@ inline struct Struct_SystemData
     bool IROnline = false;
 
     std::string playerName;
+
+    int scratchAxisValue[2] = { 0, 0 };
 
 } SystemData;
 

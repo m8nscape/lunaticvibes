@@ -9,6 +9,9 @@
 #include "config/config_mgr.h"
 #include "game/arena/arena_data.h"
 
+namespace lunaticvibes
+{
+
 using namespace chart;
 
 void setJudgeInternalTimer1P(RulesetBMS::JudgeType judge, long long t)
@@ -1555,6 +1558,43 @@ void RulesetBMS::update(const Time& t)
     updateGlobals();
 }
 
+RulesetBMS::LampType RulesetBMS::getClearType() const
+{
+    LampType lamp = LampType::FAILED;
+    if (!isNoScore() && isFinished())
+    {
+        if (_basic.judge[JUDGE_CB] == 0)
+        {
+            if (_basic.acc >= 100.0)
+                lamp = LampType::MAX;
+            else if (_basic.judge[JUDGE_GOOD] == 0)
+                lamp = LampType::PERFECT;
+            else if (isCleared())
+                lamp = LampType::FULLCOMBO;
+        }
+        else if (isFailed())
+        {
+            lamp = LampType::FAILED;
+        }
+        else
+        {
+            switch (_gauge)
+            {
+            case GaugeType::HARD:       lamp = LampType::HARD; break;
+            case GaugeType::EXHARD:     lamp = LampType::EXHARD; break;
+            case GaugeType::DEATH:      lamp = LampType::FULLCOMBO; break;
+            case GaugeType::GROOVE:     lamp = LampType::NORMAL; break;
+            case GaugeType::EASY:       lamp = LampType::EASY; break;
+            case GaugeType::ASSIST:     lamp = LampType::ASSIST; break;
+            case GaugeType::GRADE:      lamp = LampType::NOPLAY; break;
+            case GaugeType::EXGRADE:    lamp = LampType::NOPLAY; break;
+            default:
+                break;
+            }
+        }
+    }
+}
+
 double RulesetBMS::getScore() const
 {
     return moneyScore;
@@ -1934,4 +1974,6 @@ void RulesetBMS::updateGlobals()
     {
         State::set(IndexBargraph::PLAY_MYBEST_NOW, _basic.total_acc / 100.0);
     }
+}
+
 }

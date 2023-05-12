@@ -3,6 +3,9 @@
 #include "common/chartformat/chartformat_types.h"
 #include "game/chart/chart_types.h"
 
+namespace lunaticvibes
+{
+
 const char* CREATE_FOLDER_TABLE_STR =
 "CREATE TABLE IF NOT EXISTS folder( "
 "pathmd5 TEXT PRIMARY KEY UNIQUE NOT NULL, "
@@ -1290,4 +1293,6 @@ void SongDB::stopLoading()
         threadPool = nullptr;
     }
     stopRequested = true;
+}
+
 }

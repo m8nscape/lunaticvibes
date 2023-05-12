@@ -1,5 +1,8 @@
 #pragma once
 
+namespace lunaticvibes
+{
+
 template <size_t _Len>
 class Hash
 {
@@ -80,3 +83,5 @@ typedef Hash<32> HashSHA1;
 HashMD5 md5(const std::string& str);
 HashMD5 md5(const char* str, size_t len);
 HashMD5 md5file(const Path& filePath);
+
+}

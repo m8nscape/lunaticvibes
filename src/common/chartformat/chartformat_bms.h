@@ -2,45 +2,48 @@
 
 #include "chartformat.h"
 
+namespace lunaticvibes
+{
+
 namespace bms
 {
-    const unsigned BGMCHANNELS = 32;
-    const unsigned MAXSAMPLEIDX = 36 * 36;
-    const unsigned MAXBARIDX = 999;
-    enum GameMode {
-        MODE_5KEYS,
-        MODE_7KEYS,
-        MODE_9KEYS,
-        MODE_10KEYS,
-        MODE_14KEYS
-    };
-    enum class ErrorCode
-    {
-        OK = 0,
-        FILE_ERROR = 1,
-        ALREADY_INITIALIZED,
-        VALUE_ERROR,
-        TYPE_MISMATCH,
-        NOTE_LINE_ERROR,
-    };
-    enum class LaneCode
-    {
-        BGM = 0,
-        BPM,
-        EXBPM,
-        STOP,
-        BGABASE,
-        BGALAYER,
-        BGAPOOR,
-        NOTE1,
-        NOTE2,
-        NOTEINV1,
-        NOTEINV2,
-        NOTELN1,
-        NOTELN2,
-        NOTEMINE1,
-        NOTEMINE2,
-    };
+const unsigned BGMCHANNELS = 32;
+const unsigned MAXSAMPLEIDX = 36 * 36;
+const unsigned MAXBARIDX = 999;
+enum GameMode {
+    MODE_5KEYS,
+    MODE_7KEYS,
+    MODE_9KEYS,
+    MODE_10KEYS,
+    MODE_14KEYS
+};
+enum class ErrorCode
+{
+    OK = 0,
+    FILE_ERROR = 1,
+    ALREADY_INITIALIZED,
+    VALUE_ERROR,
+    TYPE_MISMATCH,
+    NOTE_LINE_ERROR,
+};
+enum class LaneCode
+{
+    BGM = 0,
+    BPM,
+    EXBPM,
+    STOP,
+    BGABASE,
+    BGALAYER,
+    BGAPOOR,
+    NOTE1,
+    NOTE2,
+    NOTEINV1,
+    NOTEINV2,
+    NOTELN1,
+    NOTELN2,
+    NOTEMINE1,
+    NOTEMINE2,
+};
 }
 
 using namespace bms;
@@ -93,7 +96,7 @@ public:
 };
 
 // the size of parsing result is kinda large..
-class ChartFormatBMS: public ChartFormatBMSMeta
+class ChartFormatBMS : public ChartFormatBMSMeta
 {
     friend class SceneSelect;
     friend class SongDB;
@@ -135,7 +138,7 @@ public:
         void sortNotes();
     };
     typedef std::map<unsigned, channel> LaneMap;    // bar -> channel
-    
+
 protected:
     // Lanes.
     int seqToLane36(channel&, const StringContent& str, unsigned flags = 0);
@@ -150,7 +153,7 @@ protected:
     LaneMap chBGABase{};
     LaneMap chBGALayer{};
     LaneMap chBGAPoor{};
-    
+
     std::map<unsigned, LaneMap> chNotesRegular{};   // lane -> [bar -> channel]
     std::map<unsigned, LaneMap> chNotesInvisible{};
     std::map<unsigned, LaneMap> chNotesLN{};
@@ -173,3 +176,5 @@ public:
 public:
     auto getLane(LaneCode, unsigned chIdx, unsigned measureIdx) const -> const channel&;
 };
+
+}

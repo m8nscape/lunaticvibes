@@ -5,7 +5,10 @@
 #include <ratio>
 #endif
 
-AsyncLooper::AsyncLooper(StringContentView tag, std::function<void()> func, unsigned rate_per_sec, bool single_inst) : 
+namespace lunaticvibes
+{
+
+AsyncLooper::AsyncLooper(StringContentView tag, std::function<void()> func, unsigned rate_per_sec, bool single_inst) :
     _tag(tag), _loopFunc(func)
 {
     _rate = rate_per_sec;
@@ -191,3 +194,5 @@ void AsyncLooper::loopEnd()
     handler.join();
 }
 #endif
+
+}

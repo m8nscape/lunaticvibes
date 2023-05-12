@@ -1,5 +1,8 @@
 #pragma once
 
+namespace lunaticvibes
+{
+
 enum class eSoundSample : size_t
 {
     BGM_TITLE,  // unused
@@ -30,3 +33,5 @@ enum class eSoundSample : size_t
 };
 
 void loadLR2Sound();
+
+}

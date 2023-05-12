@@ -2,13 +2,16 @@
 #include "sprite.h"
 #include "game/chart/chart.h"
 
+namespace lunaticvibes
+{
+
 // Draw the whole lane (on screen) with only one sprite per key.
 // Currently only handles normal notes. LN, mines or others are meant to be managed by other Sprite class.
 // Note that an instance of this class handles ONE note lane. That is, a 7+1 chart needs 8 instances of this class.
-class SpriteLaneVertical: public SpriteStatic
+class SpriteLaneVertical : public SpriteStatic
 {
 protected:
-	chart::NoteLaneCategory _category;
+    chart::NoteLaneCategory _category;
     chart::NoteLaneIndex _index;
     int _noteAreaHeight = 500;  // used to calculate note speed
     double _basespd;
@@ -47,7 +50,7 @@ public:
 
     std::pair<chart::NoteLaneCategory, chart::NoteLaneIndex> getLane() const;
     void getRectSize(int& w, int& h);
-	virtual bool update(const Time& t);
+    virtual bool update(const Time& t);
     virtual void updateNoteRect(const Time& t);
     virtual void draw() const;
     virtual void adjustAfterUpdate(int x, int y, int w = 0, int h = 0) override;
@@ -97,3 +100,5 @@ public:
     virtual void draw() const;
     virtual void adjustAfterUpdate(int x, int y, int w = 0, int h = 0) override;
 };
+
+}

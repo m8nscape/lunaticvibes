@@ -1,5 +1,7 @@
 #include "gmock/gmock.h"
 #include "common/fraction.h"
+using namespace lv;
+
 TEST(Fraction, trim)
 {
     EXPECT_EQ(fraction(1, 2), fraction(2, 4));

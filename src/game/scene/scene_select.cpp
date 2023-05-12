@@ -29,6 +29,9 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+namespace lunaticvibes
+{
+
 #pragma region save config
 
 void config_sys()
@@ -3245,4 +3248,6 @@ void SceneSelect::arenaJoinLobby()
         createNotification(i18n::s(i18nText::ARENA_JOIN_FAILED));
     }
     pSkin->setHandleMouseEvents(true);
+}
+
 }

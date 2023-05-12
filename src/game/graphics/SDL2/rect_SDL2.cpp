@@ -1,6 +1,9 @@
 #include "common/pch.h"
 #include "graphics_SDL2.h"
 
+namespace lunaticvibes
+{
+
 Rect::Rect(int zero) { x = y = w = h = 0; }
 Rect::Rect(int w1, int h1) { x = y = 0; w = w1; h = h1; }
 Rect::Rect(int x1, int y1, int w1, int h1) { x = x1; y = y1; w = w1; h = h1; }
@@ -91,4 +94,6 @@ bool RectF::operator== (const RectF& rhs) const
 bool RectF::operator!=(const RectF& rhs) const
 {
     return !(*this == rhs);
+}
+
 }

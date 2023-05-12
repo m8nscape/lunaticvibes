@@ -2,6 +2,9 @@
 #include "sound_driver.h"
 #include "sound_sample.h"
 
+namespace lunaticvibes
+{
+
 class SoundMgr
 {
 private:
@@ -45,3 +48,5 @@ public:
 
     static void setEQ(EQFreq freq, int gain);
 };
+
+}

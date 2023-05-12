@@ -8,7 +8,7 @@
 #include "game/data/data_types.h"
 #include "game/arena/arena_data.h"
 
-namespace lv
+namespace lunaticvibes
 {
 
 using namespace data;
@@ -437,9 +437,7 @@ define_has_member(99);
 
 #pragma endregion
 
-}
-
-namespace lv
+namespace lr2skin
 {
 
 std::function<Ratio()> convertSliderIndex(int n)
@@ -556,4 +554,5 @@ std::function<Ratio()> convertSliderIndex(int n)
     return [] { return 0.0; };
 }
 
+}
 }

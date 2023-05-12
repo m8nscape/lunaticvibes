@@ -2,6 +2,9 @@
 #include "common/types.h"
 #include "entry_folder.h"
 
+namespace lunaticvibes
+{
+
 class EntryFolderArena : public EntryFolderBase
 {
 public:
@@ -52,3 +55,5 @@ public:
 
     const std::string& getAddress() const { return address; }
 };
+
+}

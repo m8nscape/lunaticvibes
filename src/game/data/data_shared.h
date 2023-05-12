@@ -1,6 +1,6 @@
 #pragma once
 
-namespace lv::data
+namespace lunaticvibes::data
 {
 
 constexpr const long long TIMER_NEVER = LLONG_MIN;

@@ -10,6 +10,9 @@
 
 #include <random>
 
+namespace lunaticvibes
+{
+
 std::shared_ptr<ArenaHost> g_pArenaHost = nullptr;
 
 ArenaHost::~ArenaHost()
@@ -1137,4 +1140,6 @@ void ArenaHost::update()
 			_isResultFinished = false;
 		}
 	}
+}
+
 }

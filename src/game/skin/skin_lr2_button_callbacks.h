@@ -2,6 +2,9 @@
 
 #include "common/keymap.h"
 
+namespace lunaticvibes
+{
+
 namespace lr2skin::button
 {
 
@@ -29,4 +32,6 @@ void key_config_mode_rotate();
 void skinselect_mode(int mode);
 void skinselect_skin(int plus);
 void skinselect_option(int index, int plus);
+}
+
 }

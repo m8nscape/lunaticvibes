@@ -8,6 +8,9 @@
 #include "game/input/input_mgr.h"
 #include "game/runtime/state.h"
 
+namespace lunaticvibes
+{
+
 namespace LR2SkinDef
 {
     enum gr_
@@ -39,7 +42,7 @@ namespace LR2SkinDef
     };
 
     // unsigned
-    enum convertTimerIndex
+    enum timer
     {
         SCENE_START = 0,
         INPUT_START,
@@ -1654,3 +1657,5 @@ void updateDstOpt();
 void setCustomDstOpt(unsigned base, size_t offset, bool val);
 void clearCustomDstOpt();
 bool getDstOpt(int d);
+
+}

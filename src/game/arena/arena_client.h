@@ -2,6 +2,9 @@
 
 #include "common/asynclooper.h"
 
+namespace lunaticvibes
+{
+
 #ifndef CALLBACK
 #define CALLBACK
 #endif
@@ -16,7 +19,7 @@ struct ArenaLobbyInfo
 
 class SceneSelect;
 class ArenaMessage;
-class ArenaClient: public AsyncLooper
+class ArenaClient : public AsyncLooper
 {
 #if _DEBUG
 	friend class SceneSelect;
@@ -38,10 +41,10 @@ private:
 	int joinLobbyErrorCode = -1;
 
 	HashMD5 requestChartHash;
-	bool _isLoadingFinished = false; 
-	bool _isCreatedRuleset = false;	
-	bool _isPlayingFinished = false; 
-	bool _isResultFinished = false;  
+	bool _isLoadingFinished = false;
+	bool _isCreatedRuleset = false;
+	bool _isPlayingFinished = false;
+	bool _isResultFinished = false;
 
 	int sendMessageIndex = 0;
 	int recvMessageIndex = 0;
@@ -113,3 +116,5 @@ protected:
 protected:
 	void update();
 };
+
+}

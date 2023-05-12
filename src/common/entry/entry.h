@@ -3,6 +3,9 @@
 #pragma once
 #include "common/types.h"
 
+namespace lunaticvibes
+{
+
 enum eEntryType
 {
     UNKNOWN,
@@ -46,3 +49,5 @@ public:
     virtual Path getPath() { return Path(); }
     constexpr eEntryType type() const { return _type; }
 };
+
+}

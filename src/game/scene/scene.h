@@ -3,6 +3,9 @@
 #include "game/runtime/state.h"
 #include "game/input/input_wrapper.h"
 
+namespace lunaticvibes
+{
+
 inline SceneType getSceneFromSkinType(SkinType m)
 {
     static const std::map<SkinType, SceneType> modeSceneMap =
@@ -27,7 +30,7 @@ inline SceneType getSceneFromSkinType(SkinType m)
 
 // Parent class of scenes, defines how an object being stored and drawn.
 // Every classes of scenes should inherit this class.
-class SceneBase: public AsyncLooper
+class SceneBase : public AsyncLooper
 {
 protected:
     SceneType _type;
@@ -40,7 +43,7 @@ protected:
     std::array<std::shared_ptr<SpriteStatic>, size_t(IndexText::_OVERLAY_NOTIFICATION_MAX) - size_t(IndexText::_OVERLAY_NOTIFICATION_0) + 1> _sNotificationsBG;
 
 public:
-	bool sceneEnding = false;
+    bool sceneEnding = false;
     bool inTextEdit = false;
     std::string textBeforeEdit;
 
@@ -160,3 +163,5 @@ inline const InputTimerSwitchMap InputGameReleaseMap[] =
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+
+}

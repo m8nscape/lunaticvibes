@@ -6,20 +6,23 @@
 
 #include <boost/tokenizer.hpp>
 
+namespace lunaticvibes
+{
+
 SoundSetLR2::SoundSetLR2()
 {
-	_type = eSoundSetType::LR2;
+    _type = eSoundSetType::LR2;
 }
 
 SoundSetLR2::SoundSetLR2(Path p) : SoundSetLR2()
 {
-	loadCSV(p);
+    loadCSV(p);
 }
 
 void SoundSetLR2::loadCSV(Path p)
 {
-	if (filePath.empty())
-		filePath = p;
+    if (filePath.empty())
+        filePath = p;
 
     auto srcLineNumberParent = csvLineNumber;
     csvLineNumber = 0;
@@ -381,4 +384,6 @@ SkinBase::CustomizeOption SoundSetLR2::getCustomizeOptionInfo(size_t idx) const
 StringPath SoundSetLR2::getFilePath() const
 {
     return filePath.is_absolute() ? filePath : filePath.relative_path();
+}
+
 }

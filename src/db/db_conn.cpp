@@ -3,6 +3,9 @@
 #include "sqlite3.h"
 #include "db_conn.h"
 
+namespace lunaticvibes
+{
+
 SQLite::SQLite(const char* path, const char* tag) : tag(tag)
 {
     sqlite3_open(path, &_db);
@@ -200,4 +203,6 @@ void SQLite::commit()
     LOG_DEBUG << "[sqlite3] " << tag << ": commit";
     if (!inTransaction) exec("COMMIT");
     else LOG_WARNING << "[sqlite3] called Commit during transaction. Please call transactionStop";
+}
+
 }

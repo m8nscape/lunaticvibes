@@ -3,6 +3,10 @@
 #include "game/graphics/sprite_lane.h"
 #include "game/graphics/sprite_video.h"
 #include "game/scene/scene_context.h"
+#include "game/data/data_types.h"
+
+namespace lunaticvibes
+{
 
 std::map<std::string, std::shared_ptr<Texture>> SkinBase::preDefinedTextures;
 std::map<std::string, std::shared_ptr<Texture>> SkinBase::textureNameMap;
@@ -38,11 +42,11 @@ SkinBase::~SkinBase()
 void SkinBase::update()
 {
     // current beat, measure
-    if (gPlayContext.chartObj[PLAYER_SLOT_PLAYER] != nullptr)
+    if (data::PlayData.player[data::PLAYER_SLOT_PLAYER].chartObj != nullptr)
     {
-        gUpdateContext.metre = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentMetre();
-        gUpdateContext.bar = gPlayContext.chartObj[PLAYER_SLOT_PLAYER]->getCurrentBar();
-        State::set(IndexNumber::_TEST3, (int)(gUpdateContext.metre * 1000));
+        auto c = data::PlayData.player[data::PLAYER_SLOT_PLAYER].chartObj;
+        gUpdateContext.metre = c->getCurrentMetre();
+        gUpdateContext.bar = c->getCurrentBar();
     }
 
     auto updateSpriteLambda = [](const std::shared_ptr<SpriteBase>& s)
@@ -50,11 +54,11 @@ void SkinBase::update()
         // reset
         s->_draw = false;
 
-		s->update(gUpdateContext.updateTime);
+        s->update(gUpdateContext.updateTime);
     };
 
 #ifdef _DEBUG
-	std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), updateSpriteLambda);
+    std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), updateSpriteLambda);
 #else
     std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), updateSpriteLambda);
 #endif
@@ -90,9 +94,9 @@ void SkinBase::update_mouse(int x, int y)
     };
 
 #ifdef _DEBUG
-        std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), clickSpriteLambda);
+    std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), clickSpriteLambda);
 #else
-        std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), clickSpriteLambda);
+    std::for_each(std::execution::par_unseq, _sprites.begin(), _sprites.end(), clickSpriteLambda);
 #endif
 }
 
@@ -112,7 +116,7 @@ void SkinBase::update_mouse_click(int x, int y)
             const RectF& rc = (*it)->_current.rect;
             if (x >= rc.x && y >= rc.y && x < rc.x + rc.w && y < rc.y + rc.h)
             {
-                createNotification((boost::format("Clicked sprite #%d (%d,%d)[%dx%d] (Line:%d)") %
+                // createNotification((boost::format("Clicked sprite #%d (%d,%d)[%dx%d] (Line:%d)") %
                     (int)std::distance(it, _sprites.rend()) %
                     (*it)->_current.rect.x % (*it)->_current.rect.y % (*it)->_current.rect.w % (*it)->_current.rect.h % (*it)->srcLine).str());
                 break;
@@ -225,4 +229,6 @@ void SkinBase::stopTextEdit(bool modify)
 std::shared_ptr<Texture> SkinBase::getTextureCustomizeThumbnail()
 {
     return textureNameMap["THUMBNAIL"];
+}
+
 }

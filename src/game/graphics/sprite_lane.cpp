@@ -3,6 +3,9 @@
 #include "game/runtime/state.h"
 #include "game/scene/scene_context.h"
 
+namespace lunaticvibes
+{
+
 using namespace chart;
 
 SpriteLaneVertical::SpriteLaneVertical(const SpriteLaneVerticalBuilder& builder) : SpriteStatic(builder)
@@ -74,7 +77,7 @@ void SpriteLaneVertical::appendMotionKeyFrame(const MotionKeyFrame& f)
 
 std::pair<NoteLaneCategory, NoteLaneIndex> SpriteLaneVertical::getLane() const
 {
-	return std::make_pair(_category, _index); 
+	return std::make_pair(_category, _index);
 }
 
 void SpriteLaneVertical::getRectSize(int& w, int& h)
@@ -115,7 +118,7 @@ void SpriteLaneVertical::updateNoteRect(const Time& t)
 	auto metre = gUpdateContext.metre;
 	auto bar = gUpdateContext.bar;
 
-    // refresh note sprites
+	// refresh note sprites
 	if (!pNote) return;
 	pNote->update(t);
 
@@ -165,11 +168,11 @@ void SpriteLaneVertical::updateNoteRect(const Time& t)
 	}
 }
 
-void SpriteLaneVertical::draw() const 
+void SpriteLaneVertical::draw() const
 {
 	if (isHidden()) return;
 
-    if (pNote && pNote->pTexture && pNote->pTexture->loaded)
+	if (pNote && pNote->pTexture && pNote->pTexture->loaded)
 	{
 		for (const auto& r : _outRect)
 		{
@@ -177,7 +180,7 @@ void SpriteLaneVertical::draw() const
 				pNote->textureRects[pNote->selectionIndex * pNote->animationFrames + pNote->animationFrameIndex],
 				r,
 				_current.color,
-				_current.blend, 
+				_current.blend,
 				_current.filter,
 				_current.angle,
 				_current.center);
@@ -253,9 +256,9 @@ void SpriteLaneVertical::updateHIDDENCompatible()
 	}
 }
 
-SpriteLaneVerticalLN::SpriteLaneVerticalLN(const SpriteLaneVerticalLNBuilder& builder): SpriteLaneVertical(builder)
+SpriteLaneVerticalLN::SpriteLaneVerticalLN(const SpriteLaneVerticalLNBuilder& builder) : SpriteLaneVertical(builder)
 {
-	
+
 }
 
 void SpriteLaneVerticalLN::buildNoteHead(const SpriteAnimated::SpriteAnimatedBuilder& builder)
@@ -649,4 +652,6 @@ void SpriteLaneVerticalLN::adjustAfterUpdate(int x, int y, int w, int h)
 		r.w += w * 2;
 		r.h += h * 2;
 	}
+}
+
 }

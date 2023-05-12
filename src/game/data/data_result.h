@@ -1,7 +1,7 @@
 #pragma once
 
 
-namespace lv::data
+namespace lunaticvibes::data
 {
 
 inline struct Struct_ResultData

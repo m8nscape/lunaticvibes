@@ -1,5 +1,9 @@
 #pragma once
 #include "common/keymap.h"
+
+namespace lunaticvibes
+{
+
 template <class Archive, size_t bytes>
 void serialize(Archive& ar, Hash<bytes>& hash)
 {
@@ -14,7 +18,7 @@ public:
     struct Commands
     {
         int64_t ms = -1;
-        enum class Type: uint32_t
+        enum class Type : uint32_t
         {
             UNDEF,
             RESERVED_1,
@@ -155,9 +159,9 @@ public:
     HashMD5     chartHash;
     uint64_t    randomSeed = 0;
 
-    PlayModifierGaugeType   gaugeType = PlayModifierGaugeType::NORMAL;  
-    PlayModifierRandomType  randomTypeLeft = PlayModifierRandomType::NONE; 
-    PlayModifierRandomType  randomTypeRight = PlayModifierRandomType::NONE; 
+    PlayModifierGaugeType   gaugeType = PlayModifierGaugeType::NORMAL;
+    PlayModifierRandomType  randomTypeLeft = PlayModifierRandomType::NONE;
+    PlayModifierRandomType  randomTypeRight = PlayModifierRandomType::NONE;
     int8_t      laneEffectType = 0;     // OFF/HID/SUD/SUDHID/LIFT/LIFTSUD
     int8_t      pitchType = 0;          // FREQ/PITCH/SPEED
     int8_t      pitchValue = 0;         // -12 ~ +12 (value below 0 may invalid)
@@ -238,3 +242,5 @@ extern const std::map<ReplayChart::Commands::Type, Input::Pad> REPLAY_CMD_INPUT_
 extern const std::map<ReplayChart::Commands::Type, Input::Pad> REPLAY_CMD_INPUT_DOWN_MAP_5K[4];
 
 extern const std::map<ReplayChart::Commands::Type, Input::Pad> REPLAY_CMD_INPUT_UP_MAP_5K[4];
+
+}

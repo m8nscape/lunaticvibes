@@ -1,6 +1,9 @@
 #include "common/pch.h"
 #include "state.h"
 
+namespace lunaticvibes
+{
+
 State State::_inst;
 
 State::State()
@@ -99,4 +102,6 @@ void State::resetTimer()
 	long long customizeTimer = get(IndexTimer::_SCENE_CUSTOMIZE_START);
 	_inst.gTimers.reset();
 	set(IndexTimer::_SCENE_CUSTOMIZE_START, customizeTimer);
+}
+
 }

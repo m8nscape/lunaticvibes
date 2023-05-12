@@ -30,6 +30,9 @@
 
 #include <curl/curl.h>
 
+namespace lunaticvibes
+{
+
 bool gEventQuit;
 GenericInfoUpdater gGenericInfo{ 1 };
 
@@ -38,9 +41,13 @@ std::shared_ptr<ScoreDB> g_pScoreDB;
 
 void mainLoop();
 
+}
+
 // SDL_main
 int main(int argc, char* argv[])
 {
+    using namespace lunaticvibes;
+
     SetDebugThreadName("MainThread");
     SetThreadAsMainThread();
 
@@ -318,7 +325,7 @@ int main(int argc, char* argv[])
 }
 
 
-void mainLoop()
+void lv::mainLoop()
 {
     gGenericInfo.loopStart();
 

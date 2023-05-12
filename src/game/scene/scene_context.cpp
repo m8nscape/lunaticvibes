@@ -6,6 +6,9 @@
 #include "common/entry/entry_types.h"
 #include "game/runtime/i18n.h"
 
+namespace lunaticvibes
+{
+
 bool gQuitOnFinish = false;
 bool gAppIsExiting = false;
 ChartContextParams gChartContext;
@@ -1426,4 +1429,6 @@ void createNotification(StringContentView text)
 {
     std::unique_lock lock(gOverlayContext._mutex);
     gOverlayContext.notifications.push_back(std::make_pair(Time(), StringContent(text)));
+}
+
 }

@@ -3,6 +3,9 @@
 #include "graphics.h"
 #include "game/runtime/state.h"
 
+namespace lunaticvibes
+{
+
 enum class SpriteTypes
 {
     VIRTUAL,
@@ -15,17 +18,17 @@ enum class SpriteTypes
     IMAGE_TEXT,
 
     NUMBER,
-	SLIDER,
-	BARGRAPH,
-	OPTION,
+    SLIDER,
+    BARGRAPH,
+    OPTION,
     BUTTON,
     ONMOUSE,
 
-	LINE,
+    LINE,
     NOTE_VERT,
 
-	VIDEO,
-	BMS_BGA,
+    VIDEO,
+    BMS_BGA,
 
     BAR_ENTRY,
 
@@ -76,10 +79,10 @@ struct MotionKeyFrame
 
 class SpriteGlobal;
 class SpriteBarEntry;
-class SpriteBase: public std::enable_shared_from_this<SpriteBase>
+class SpriteBase : public std::enable_shared_from_this<SpriteBase>
 {
     friend class SkinBase;
-	friend class SkinLR2;
+    friend class SkinLR2;
     friend class SpriteGlobal;
     friend class SpriteBarEntry;
 protected:
@@ -109,7 +112,7 @@ public:
     };
 public:
     SpriteBase(const SpriteBuilder& builder);
-	virtual ~SpriteBase() = default;
+    virtual ~SpriteBase() = default;
 protected:
     SpriteBase(const SpriteTypes type, int srcLine) : _type(type), srcLine(srcLine) {}
 
@@ -118,7 +121,7 @@ public:
 
     virtual void appendMotionKeyFrame(const MotionKeyFrame& f);
     virtual void setMotionLoopTo(int time);
-	virtual void setMotionStartTimer(const std::string& t);
+    virtual void setMotionStartTimer(const std::string& t);
     bool isMotionKeyFramesEmpty() const { return motionKeyFrames.empty(); }
     void clearMotionKeyFrames() { motionKeyFrames.clear(); }
 
@@ -150,7 +153,7 @@ public:
 // Sprite placeholder
 inline const size_t SPRITE_GLOBAL_MAX = 32;
 inline std::array<std::shared_ptr<SpriteBase>, SPRITE_GLOBAL_MAX> gSprites{ nullptr };
-class SpriteGlobal: public SpriteBase
+class SpriteGlobal : public SpriteBase
 {
 protected:
     size_t globalSpriteIndex;
@@ -171,29 +174,29 @@ public:
 
     virtual bool update(const Time& time) {
         SpriteBase::update(time);
-        if (getMyGlobalSpriteIndex()) 
+        if (getMyGlobalSpriteIndex())
             setSpriteReference(gSprites[getMyGlobalSpriteIndex()]);
-        if (pSpriteRef) 
+        if (pSpriteRef)
             return pSpriteRef->update(time);
         return false;
     }
     virtual void setMotionLoopTo(int t) {
         SpriteBase::setMotionLoopTo(t);
-        if (pSpriteRef) 
+        if (pSpriteRef)
             pSpriteRef->setMotionLoopTo(t);
     }
     virtual void setMotionStartTimer(const std::string& t) {
         SpriteBase::setMotionStartTimer(t);
-        if (pSpriteRef) 
+        if (pSpriteRef)
             pSpriteRef->setMotionStartTimer(t);
     }
     virtual void appendMotionKeyFrame(const MotionKeyFrame& f) override {
         SpriteBase::appendMotionKeyFrame(f);
-        if (pSpriteRef) 
+        if (pSpriteRef)
             pSpriteRef->appendMotionKeyFrame(f);
     }
     virtual void draw() const {
-        if (pSpriteRef) 
+        if (pSpriteRef)
             pSpriteRef->draw();
     }
 };
@@ -236,7 +239,7 @@ protected:
     unsigned textureSheetCols = 0;
     size_t selectionIndex = 0;
 public:
-    struct SpriteSelectionBuilder: SpriteBuilder
+    struct SpriteSelectionBuilder : SpriteBuilder
     {
         Rect textureRect;
         unsigned textureSheetRows = 0;
@@ -250,7 +253,7 @@ public:
     SpriteSelection(const SpriteSelectionBuilder& builder);
     virtual ~SpriteSelection() = default;
 public:
-	virtual bool update(const Time& t);
+    virtual bool update(const Time& t);
     virtual void updateSelection(size_t i);
     virtual void draw() const;
 };
@@ -267,12 +270,12 @@ class SpriteAnimated : public SpriteSelection
     friend class SkinLR2;
 protected:
     unsigned animationFrames = 0;
-	unsigned selections = 0;
+    unsigned selections = 0;
     size_t animationFrameIndex = 0;
-	std::string animationStartTimer;
+    std::string animationStartTimer;
     unsigned animationDurationPerLoop = -1;
 public:
-    struct SpriteAnimatedBuilder: SpriteSelectionBuilder
+    struct SpriteAnimatedBuilder : SpriteSelectionBuilder
     {
         unsigned animationFrameCount = 0;
         unsigned animationDurationPerLoop = 0;
@@ -285,7 +288,7 @@ public:
     SpriteAnimated(const SpriteAnimatedBuilder& builder);
     virtual ~SpriteAnimated() = default;
 public:
-	virtual bool update(const Time& t);
+    virtual bool update(const Time& t);
     virtual void updateAnimation(const Time& t);
     virtual void draw() const;
 };
@@ -294,7 +297,7 @@ public:
 
 // Text sprite:
 // TTFFont contains Texture object
-class SpriteText: public SpriteBase, public iSpriteMouse
+class SpriteText : public SpriteBase, public iSpriteMouse
 {
 public:
     enum class TextAlignType
@@ -384,29 +387,29 @@ enum NumberType
 };
 enum NumberAlign
 {
-	NUM_ALIGN_RIGHT,
-	NUM_ALIGN_LEFT,
-	NUM_ALIGN_CENTER
+    NUM_ALIGN_RIGHT,
+    NUM_ALIGN_LEFT,
+    NUM_ALIGN_CENTER
 };
 
-const unsigned NUM_BZERO          = 10;
-const unsigned NUM_SYMBOL_PLUS    = 20;
-const unsigned NUM_SYMBOL_MINUS   = 21;
+const unsigned NUM_BZERO = 10;
+const unsigned NUM_SYMBOL_PLUS = 20;
+const unsigned NUM_SYMBOL_MINUS = 21;
 const unsigned NUM_FULL_BZERO_POS = 10;
 const unsigned NUM_FULL_BZERO_NEG = 22;
-const unsigned NUM_FULL_PLUS      = 11;
-const unsigned NUM_FULL_MINUS     = 23;
+const unsigned NUM_FULL_PLUS = 11;
+const unsigned NUM_FULL_MINUS = 23;
 
 class SpriteNumber : public SpriteAnimated
 {
-	friend class SkinLR2;
+    friend class SkinLR2;
 protected:
     unsigned maxDigits = 0;
     NumberType numberType = NUM_TYPE_NORMAL;
-	NumberAlign alignType = NUM_ALIGN_RIGHT;
+    NumberAlign alignType = NUM_ALIGN_RIGHT;
     bool hideLeadingZeros = false;
 
-	unsigned digitCount = 0;
+    unsigned digitCount = 0;
     std::vector<int> digitNumber;
     std::vector<RectF> digitOutRect;
 
@@ -429,7 +432,7 @@ public:
 public:
     void updateNumber(int n);
     void updateNumberRect();
-	virtual bool update(const Time& t);
+    virtual bool update(const Time& t);
     virtual void appendMotionKeyFrame(const MotionKeyFrame& f) override;
     virtual void draw() const;
     virtual void adjustAfterUpdate(int x, int y, int w = 0, int h = 0) override;
@@ -450,7 +453,7 @@ class SpriteSlider : public SpriteAnimated, public iSpriteMouse
 private:
     double value = 1.00;
     SliderDirection dir;
-	int valueRange = 0;
+    int valueRange = 0;
     int minValuePos = 0;
 
     std::function<void(double)> dragCallback;
@@ -474,7 +477,7 @@ public:
 public:
     void updateVal(double v);
     void updatePos();
-	virtual bool update(const Time& t);
+    virtual bool update(const Time& t);
 
     virtual void OnMouseMove(int x, int y) {}
     virtual bool OnClick(int x, int y);
@@ -515,7 +518,7 @@ public:
 public:
     void updateVal(Ratio v);
     void updateSize();
-	virtual bool update(const Time& t);
+    virtual bool update(const Time& t);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -543,7 +546,7 @@ public:
 
 public:
     void updateVal(unsigned v);     // invoke SpriteSplit::updateSplit(v)
-	virtual bool update(const Time& t);
+    virtual bool update(const Time& t);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -584,43 +587,43 @@ public:
 class SpriteGaugeGrid : public SpriteAnimated
 {
 public:
-	enum class FlashType
-	{
-		NONE,
-		CLASSIC,	// LR2
-		// TBD
-	};
+    enum class FlashType
+    {
+        NONE,
+        CLASSIC,	// LR2
+        // TBD
+    };
 
-	enum class GaugeType
-	{
-		GROOVE,
-		SURVIVAL,
-		EX_SURVIVAL,
+    enum class GaugeType
+    {
+        GROOVE,
+        SURVIVAL,
+        EX_SURVIVAL,
         ASSIST_EASY,
-	};
+    };
 
-	enum GridType
-	{
-		CLEAR_LIGHT,
-		NORMAL_LIGHT,
-		CLEAR_DARK,
-		NORMAL_DARK,
-		EXHARD_LIGHT,
-		EXHARD_DARK,
-	};
+    enum GridType
+    {
+        CLEAR_LIGHT,
+        NORMAL_LIGHT,
+        CLEAR_DARK,
+        NORMAL_DARK,
+        EXHARD_LIGHT,
+        EXHARD_DARK,
+    };
 
 private:
-	int gridSizeW, gridSizeH;
-	unsigned minValue, maxValue;
+    int gridSizeW, gridSizeH;
+    unsigned minValue, maxValue;
     unsigned short totalGrids = 50;
     unsigned short failGrids = 40;
-	unsigned short value = totalGrids / 2;
-	GridType lightFailGridType, darkFailGridType;
+    unsigned short value = totalGrids / 2;
+    GridType lightFailGridType, darkFailGridType;
     GridType lightClearGridType, darkClearGridType;
     unsigned lightFailRectIdxOffset, lightClearRectIdxOffset, darkFailRectIdxOffset, darkClearRectIdxOffset;
     std::vector<bool> flashing;
-	FlashType flashType = FlashType::CLASSIC;
-	GaugeType gaugeType = GaugeType::GROOVE;
+    FlashType flashType = FlashType::CLASSIC;
+    GaugeType gaugeType = GaugeType::GROOVE;
 
 public:
     struct SpriteGaugeGridBuilder : SpriteAnimatedBuilder
@@ -641,13 +644,13 @@ public:
     virtual ~SpriteGaugeGrid() = default;
 
 public:
-	void setFlashType(FlashType t);
-	void setGaugeType(GaugeType t);
+    void setFlashType(FlashType t);
+    void setGaugeType(GaugeType t);
 
 public:
     void updateVal(unsigned v);
-	virtual bool update(const Time& t);
-	virtual void draw() const;
+    virtual bool update(const Time& t);
+    virtual void draw() const;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -701,3 +704,5 @@ public:
     virtual bool OnClick(int x, int y) { return false; }
     virtual bool OnDrag(int x, int y) { return false; }
 };
+
+}
